@@ -4,6 +4,8 @@ ympd
 
 Standalone MPD Web GUI written in C, utilizing Websockets and Bootstrap/JS
 
+This fork supports display of coverimages.
+Put cover images in: ```/path/to/src/htdocs/covers/albumartis-album.jpg```
 
 http://www.ympd.org
 
@@ -20,7 +22,7 @@ Unix Build Instructions
 
 1. install dependencies. cmake, libmpdclient (dev), and OpenSSL (dev) are available from all major distributions.
 2. create build directory ```cd /path/to/src; mkdir build; cd build```
-3. create makefile ```cmake ..  -DCMAKE_INSTALL_PREFIX:PATH=/usr```
+3. create makefile ```cmake ..  -DCMAKE_INSTALL_PREFIX:PATH=/usr -DWITH_DYNAMIC_ASSETS=ON```
 4. build ```make```
 5. install ```sudo make install``` or just run with ```./ympd```
 
