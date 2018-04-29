@@ -32,7 +32,7 @@
 
 
 #define MAX_SIZE 1024 * 100
-#define MAX_ELEMENTS_PER_PAGE 512
+#define MAX_ELEMENTS_PER_PAGE 100
 
 #define GEN_ENUM(X) X,
 #define GEN_STR(X) #X,

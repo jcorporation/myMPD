@@ -607,26 +607,8 @@ int mpd_put_current_song(char *buffer)
     cur += json_emit_int(cur, end - cur, mpd_song_get_pos(song));
     cur += json_emit_raw_str(cur, end - cur, ",\"title\":");
     cur += json_emit_quoted_str(cur, end - cur, mpd_get_title(song));
-
-
-    if(mpd_song_get_tag(song, MPD_TAG_ARTIST, 0) != NULL)
-    {
-        cur += json_emit_raw_str(cur, end - cur, ",\"artist\":");
-        cur += json_emit_quoted_str(cur, end - cur, mpd_song_get_tag(song, MPD_TAG_ARTIST, 0));
-    }
-
-    if(mpd_song_get_tag(song, MPD_TAG_ALBUM_ARTIST, 0) != NULL)
-    {
-        cur += json_emit_raw_str(cur, end - cur, ",\"album_artist\":");
-        cur += json_emit_quoted_str(cur, end - cur, mpd_song_get_tag(song, MPD_TAG_ALBUM_ARTIST, 0));
-    }
-
-    if(mpd_song_get_tag(song, MPD_TAG_ALBUM, 0) != NULL)
-    {
-        cur += json_emit_raw_str(cur, end - cur, ",\"album\":");
-        cur += json_emit_quoted_str(cur, end - cur, mpd_song_get_tag(song, MPD_TAG_ALBUM, 0));
-    }
-
+    cur += json_emit_raw_str(cur, end - cur, ",\"album_artist\":");
+    cur += json_emit_quoted_str(cur, end - cur, mpd_get_album_artist(song));
     cur += json_emit_raw_str(cur, end - cur, ",\"artist\":");
     cur += json_emit_quoted_str(cur, end - cur, mpd_get_artist(song));
     cur += json_emit_raw_str(cur, end - cur, ",\"album\":");

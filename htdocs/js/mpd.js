@@ -26,7 +26,7 @@ var pagination = 0;
 var browsepath;
 var lastSongTitle = "";
 var current_song = new Object();
-var MAX_ELEMENTS_PER_PAGE = 512;
+var MAX_ELEMENTS_PER_PAGE = 100;
 var dirble_selected_cat = "";
 var dirble_catid = "";
 var dirble_page = 1;
@@ -289,7 +289,6 @@ function webSocketConnect() {
         socket.onmessage = function got_packet(msg) {
             if(msg.data === last_state || msg.data.length == 0)
                 return;
-
             var obj = JSON.parse(msg.data);
             
 
