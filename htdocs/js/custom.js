@@ -10,7 +10,7 @@ document.getElementById('player').parentNode.style.display='none';
 
 function changeCover(obj) {
  if (obj.data.artist && obj.data.album) {
-  var coverImg=obj.data.album_artist.replace(/ /g,'_')+'-'+obj.data.album.replace(/ /g,'_')+'.jpg';
+  var coverImg=obj.data.album_artist.replace(/\s+/g,'_')+'-'+obj.data.album.replace(/\s+/g,'_')+'.jpg';
   document.getElementById('album-cover').style.backgroundImage='url("/covers/'+coverImg+'")';
  }
  else {
