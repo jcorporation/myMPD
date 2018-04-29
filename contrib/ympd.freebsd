@@ -12,18 +12,17 @@
 
 name="ympd"
 rcvar="${name}_enable"
-command="/usr/local/bin/ympd"
+command="/usr/local/bin/${name}"
 pidfile="/var/run/${name}.pid"
 start_cmd="ympd_start"
 
-load_rc_config "$name"
+load_rc_config "${name}"
 : ${ympd_enable:="NO"}
-: ${ympd_user:="nobody"}
 
 ympd_start()
 {
 	check_startmsgs && echo "Starting ${name}."
-	/usr/sbin/daemon -f -p "${pidfile}" -t "${name}" -u "${ympd_user}" "${command}"
+	/usr/sbin/daemon -f -p "${pidfile}" "${command}" "${rc_flags}"
 }
 
 run_rc_command "$1"

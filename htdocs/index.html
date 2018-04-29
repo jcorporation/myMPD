@@ -93,18 +93,19 @@
 
       <div class="col-md-10 col-xs-12">
         <div class="notifications top-right"></div>
-        
+
         <div class="panel panel-primary">
           <!-- Default panel contents -->
-          <div class="panel-heading"><b id="panel-heading">Queue</b></div>
+          <div class="panel-heading"><b id="panel-heading">Queue</b>
+                                     <b id="panel-heading-info" class="text pull-right"></b></div>
           <div class="panel-body">
             <h1>
               <span id="track-icon" onclick="clickPlay();" class="glyphicon glyphicon-play"></span>
               <span id="currenttrack"></span>
             </h1>
             <h4>
-              <span id="album" class="text"></span>
-              <span id="artist" class="text pull-right"></span>
+              <span id="artist" class="text"></span>
+              <span id="album" class="text pull-right"></span>
             </h4>
             <p id="counter" class="text pull-right">&nbsp;&nbsp;</p>
 
@@ -126,10 +127,10 @@
             <thead>
               <tr>
                 <th>#</th>
-                <th>Title</th>
-                <th>Album</th>
                 <th>Artist</th>
-                <th>Duration</th>
+                <th>Album</th>
+                <th>Title</th>
+                <th>Length</th>
                 <th></th>
               </tr>
             </thead>
@@ -166,7 +167,7 @@
         </ul>
       </div><!-- /.col-md-10 -->
 
-      <div class="col-md-2 col-xs-12" >
+      <div class="col-md-2 col-xs-12">
         <div class="btn-toolbar">
           <div class="btn-group-vertical btn-block btn-group-lg" data-toggle="buttons">
             <button id="btnrandom" type="button" class="btn btn-default">
@@ -191,32 +192,27 @@
           <div id="trashmode" class="btn-group-vertical btn-block btn-group-lg" data-toggle="radio">
             <button id="btntrashmodeup" type="button" class="btn btn-default">
               <span class="glyphicon glyphicon-chevron-up"></span>
-              <span class="glyphicon glyphicon-trash"></span> up &nbsp;&nbsp;&nbsp;
+              <span class="glyphicon glyphicon-trash"></span> <span>Up</span>
             </button>
             <button id="btntrashmodesingle" type="button" class="btn btn-default active">
               <span class="glyphicon glyphicon-star-empty"></span>
-              <span class="glyphicon glyphicon-trash"></span> single
+              <span class="glyphicon glyphicon-trash"></span> <span>Single</span>
             </button>
             <button id="btntrashmodedown" type="button" class="btn btn-default">
               <span class="glyphicon glyphicon-chevron-down"></span>
-              <span class="glyphicon glyphicon-trash"></span> down&nbsp;
+              <span class="glyphicon glyphicon-trash"></span> <span>Down</span>
             </button>
           </div>
 
           <div id="btn-responsive-block" class="btn-group-vertical btn-block btn-group-lg">
             <button type="button" class="btn btn-default" onclick="socket.send('MPD_API_RM_ALL');">
-              <span class="glyphicon glyphicon-trash"></span> Clear queue
+              <span class="glyphicon glyphicon-trash"></span> Clear Queue
             </button>
             <a href="#" data-toggle="modal" data-target="#savequeue" class="btn btn-default">
-              <span class="glyphicon glyphicon-save"></span> Save queue
+              <span class="glyphicon glyphicon-save"></span> Save Queue
             </a>
           </div>
 
-            <div id="btn-responsive-block" class="btn-group-vertical btn-block btn-group-lg" data-toggle="buttons">
-              <button type="button" class="btn btn-default" id="btnnotify">
-               <span class="glyphicon glyphicon-comment"></span> Notifications
-              </button>
-            </div>
         </div>
       </div><!-- /.col-md-2 -->
     </div><!-- /.row -->
@@ -238,6 +234,19 @@
           <h6><a href="http://cesanta.com/docs.html">Mongoose</a> <small>GPLv2</small></h6>
           <h6><a href="http://www.musicpd.org/libs/libmpdclient/">libMPDClient</a> <small>BSD License</small></h6>
           <hr />
+          <div class="row">
+            <div class="form-group col-md-6">
+              <button type="button" class="btn btn-default btn-block" onclick="updateDB();">
+                <span class="glyphicon glyphicon-refresh"></span> Update Database
+              </button>
+            </div>
+            <div class="form-group col-md-6" data-toggle="buttons">
+              <button type="button" class="btn btn-default btn-block" id="btnnotify">
+                <span class="glyphicon glyphicon-comment"></span> Enable Notifications
+              </button>
+            </div>
+          </div>
+          <hr />
           <form role="form">
             <div class="row">
               <div class="form-group col-md-9">
@@ -256,7 +265,7 @@
               </div>
               <div class="form-group col-md-6">
                 <label class="control-label" for="mpd_pw_con">MPD Password (Confirmation)</label>
-                <input type="password" class="form-control" id="mpd_pw_con"  placeholder="Password confirmation"
+                <input type="password" class="form-control" id="mpd_pw_con"  placeholder="Confirmation"
                 data-placement="right" data-toggle="popover" data-content="Password does not match!"
                 data-trigger="manual" />
               </div>
@@ -301,7 +310,7 @@
         <div class="modal-body">
           <form role="form">
             <div class="row">
-              <div class="form-group col-md-9">
+              <div class="form-group col-md-12">
                 <label class="control-label" for="streamurl">Stream URL</label>
                 <input type="text" class="form-control" id="streamurl" />
               </div>
@@ -315,7 +324,7 @@
       </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
   </div><!-- /.modal -->
-  
+
   <div class="modal fade" id="savequeue" tabindex="-1" role="dialog" aria-labelledby="savequeueLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">

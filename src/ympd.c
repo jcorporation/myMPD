@@ -95,8 +95,6 @@ int main(int argc, char **argv)
 	mpd.gpass = NULL;
     strcpy(mpd.host, "127.0.0.1");
 
-    strcpy(dirble_api_token, "2e223c9909593b94fc6577361a");
-
     static struct option long_options[] = {
         {"digest",       required_argument, 0, 'D'},
         {"host",         required_argument, 0, 'h'},

@@ -27,11 +27,18 @@ button {
   margin-top: 2px;
 }
 
+#breadcrump {
+  display: block;
+
+  overflow: auto;
+  white-space: nowrap;
+}
+
 #counter {
-	font-size: 24px;
-	margin-top: -6px;
-	margin-left: 10px;
-	min-width: 50px;
+  font-size: 24px;
+  margin-top: -6px;
+  margin-left: 10px;
+  min-width: 50px;
 }
 
 #search {
@@ -39,7 +46,7 @@ button {
 }
 
 .btn-group-hover {
-    opacity: 20%;
+  opacity: 20%;
 }
 
 .btn:active,
@@ -61,8 +68,51 @@ button {
   }
 }
 
-#salamisandwich td:nth-child(3), th:nth-child(3) {
+h1 {
+  display: block;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+td:nth-child(4), th:nth-child(4) {
+  /* This *has* to be placed before
+     any t[dh]:nth-last-child(2) for
+     the override to work. */
+  min-width: 50%;
+}
+
+td:nth-last-child(2), th:nth-last-child(2) {
   text-align: right;
+  width: 4em;
+}
+
+#salamisandwich td:nth-child(4) span {
+  font-style: italic;
+  font-size: 90%;
+
+  display: block;
+}
+
+td:nth-child(2), td:nth-child(3) {
+  min-width: 25%;
+  max-width: 10em;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media only screen and (max-width: 600px) {
+	td:nth-child(2), td:nth-child(3) {
+	  min-width: 0;
+	  max-width: 0;
+	}
+	td:nth-child(4), th:nth-child(4) {
+	  min-width: 10%;
+	  white-space: normal;
+	}
 }
 
 tbody {
@@ -78,7 +128,7 @@ td:last-child, td:first-child {
   z-index: 9999;
 }
 
-/* Positioning */ 
+/* Positioning */
 .notifications.top-right {
   right: 10px;
   top: 60px;
@@ -93,4 +143,10 @@ td:last-child, td:first-child {
 
 button {
   overflow: hidden;
+}
+
+#trashmode span:last-child {
+  display:inline-block;
+  text-align:left;
+  width:2.8em;
 }
