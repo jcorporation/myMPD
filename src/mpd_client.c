@@ -628,6 +628,7 @@ int mpd_put_queue(char *buffer, unsigned int offset)
     const char *end = buffer + MAX_SIZE;
     struct mpd_entity *entity;
     unsigned long totalTime = 0;
+    unsigned long totalSongs = 0;
 
     if (!mpd_send_list_queue_range_meta(mpd.conn, offset, offset+MAX_ELEMENTS_PER_PAGE))
         RETURN_ERROR_AND_RECOVER("mpd_send_list_queue_meta");
@@ -663,6 +664,7 @@ int mpd_put_queue(char *buffer, unsigned int offset)
             cur += json_emit_raw_str(cur, end - cur, "},");
 
             totalTime += drtn;
+            totalSongs ++;
         }
         mpd_entity_free(entity);
     }
@@ -672,6 +674,8 @@ int mpd_put_queue(char *buffer, unsigned int offset)
 
     cur += json_emit_raw_str(cur, end - cur, "],\"totalTime\":");
     cur += json_emit_int(cur, end - cur, totalTime);
+    cur += json_emit_raw_str(cur, end - cur, ",\"totalSongs\":");
+    cur += json_emit_int(cur, end - cur, totalSongs);
     cur += json_emit_raw_str(cur, end - cur, "}");
     return cur - buffer;
 }

@@ -302,7 +302,7 @@ function webSocketConnect() {
                         var minutes = Math.floor(obj.totalTime / 60) - hours * 60;
                         var seconds = obj.totalTime - hours * 3600 - minutes * 60;
 
-                        $('#panel-heading-info').text('Total: ' +
+                        $('#panel-heading-info').text(obj.totalSongs+' Songs – ' +
                             (hours > 0 ? hours + '\u2009h ' + (minutes < 10 ? '0' : '') : '') +
                             minutes + '\u2009m ' + (seconds < 10 ? '0' : '') + seconds + '\u2009s');
                     } else {
