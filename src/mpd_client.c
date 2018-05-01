@@ -630,9 +630,10 @@ int mpd_put_queue(char *buffer, unsigned int offset)
     unsigned long totalTime = 0;
     unsigned long totalSongs = 0;
 
-    if (!mpd_send_list_queue_range_meta(mpd.conn, offset, offset+MAX_ELEMENTS_PER_PAGE))
+    /*get complete queue for total songs*/
+    if (!mpd_send_list_queue_range_meta(mpd.conn, 0, -1))
         RETURN_ERROR_AND_RECOVER("mpd_send_list_queue_meta");
-
+        
     cur += json_emit_raw_str(cur, end  - cur, "{\"type\":\"queue\",\"data\":[ ");
 
     while((entity = mpd_recv_entity(mpd.conn)) != NULL) {
@@ -642,29 +643,31 @@ int mpd_put_queue(char *buffer, unsigned int offset)
         if(mpd_entity_get_type(entity) == MPD_ENTITY_TYPE_SONG) {
             song = mpd_entity_get_song(entity);
             drtn = mpd_song_get_duration(song);
-
-            cur += json_emit_raw_str(cur, end - cur, "{\"id\":");
-            cur += json_emit_int(cur, end - cur, mpd_song_get_id(song));
-            cur += json_emit_raw_str(cur, end - cur, ",\"pos\":");
-            cur += json_emit_int(cur, end - cur, mpd_song_get_pos(song));
-            cur += json_emit_raw_str(cur, end - cur, ",\"duration\":");
-            cur += json_emit_int(cur, end - cur, drtn);
-            cur += json_emit_raw_str(cur, end - cur, ",\"artist\":");
-            cur += json_emit_quoted_str(cur, end - cur, mpd_get_artist(song));
-            cur += json_emit_raw_str(cur, end - cur, ",\"album_artist\":");
-            cur += json_emit_quoted_str(cur, end - cur, mpd_get_album_artist(song));            
-            cur += json_emit_raw_str(cur, end - cur, ",\"album\":");
-            cur += json_emit_quoted_str(cur, end - cur, mpd_get_album(song));
-            cur += json_emit_raw_str(cur, end - cur, ",\"title\":");
-            cur += json_emit_quoted_str(cur, end - cur, mpd_get_title(song));
-            cur += json_emit_raw_str(cur, end - cur, ",\"artist\":");
-            cur += json_emit_quoted_str(cur, end - cur, mpd_get_artist(song));
-            cur += json_emit_raw_str(cur, end - cur, ",\"album\":");
-            cur += json_emit_quoted_str(cur, end - cur, mpd_get_album(song));
-            cur += json_emit_raw_str(cur, end - cur, "},");
-
             totalTime += drtn;
             totalSongs ++;
+            if(totalSongs > offset && totalSongs <= offset+MAX_ELEMENTS_PER_PAGE) {
+                /*Pagination*/
+                cur += json_emit_raw_str(cur, end - cur, "{\"id\":");
+                cur += json_emit_int(cur, end - cur, mpd_song_get_id(song));
+                cur += json_emit_raw_str(cur, end - cur, ",\"pos\":");
+                cur += json_emit_int(cur, end - cur, mpd_song_get_pos(song));
+                cur += json_emit_raw_str(cur, end - cur, ",\"duration\":");
+                cur += json_emit_int(cur, end - cur, mpd_song_get_duration(song));
+                cur += json_emit_raw_str(cur, end - cur, ",\"artist\":");
+                cur += json_emit_quoted_str(cur, end - cur, mpd_get_artist(song));
+                cur += json_emit_raw_str(cur, end - cur, ",\"album_artist\":");
+                cur += json_emit_quoted_str(cur, end - cur, mpd_get_album_artist(song));            
+                cur += json_emit_raw_str(cur, end - cur, ",\"album\":");
+                cur += json_emit_quoted_str(cur, end - cur, mpd_get_album(song));
+                cur += json_emit_raw_str(cur, end - cur, ",\"title\":");
+                cur += json_emit_quoted_str(cur, end - cur, mpd_get_title(song));
+                cur += json_emit_raw_str(cur, end - cur, ",\"artist\":");
+                cur += json_emit_quoted_str(cur, end - cur, mpd_get_artist(song));
+                cur += json_emit_raw_str(cur, end - cur, ",\"album\":");
+                cur += json_emit_quoted_str(cur, end - cur, mpd_get_album(song));
+                cur += json_emit_raw_str(cur, end - cur, "},");
+            }
+
         }
         mpd_entity_free(entity);
     }
