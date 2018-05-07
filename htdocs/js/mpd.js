@@ -48,6 +48,7 @@ var app = $.sammy(function() {
 
         $('#panel-heading').text("Queue");
         $('#panel-heading-info').empty();
+        $('#queue-buttons').css('display','block');
 
         $('#queue').addClass('active');
     }
@@ -88,6 +89,7 @@ var app = $.sammy(function() {
 
         $('#panel-heading').text("Browse database: "+browsepath);
         $('#panel-heading-info').empty();
+        $('#queue-buttons').css('display','none');
         var path_array = browsepath.split('/');
         var full_path = "";
         $.each(path_array, function(index, chunk) {
@@ -634,15 +636,19 @@ function webSocketConnect() {
 
                     $('#currenttrack').text(" " + obj.data.title);
                     var notification = "<strong><h4>" + obj.data.title + "</h4></strong>";
+                    var htmlTitle='ympd: ';
 
                     if(obj.data.artist) {
                         $('#artist').text(obj.data.artist);
                         notification += obj.data.artist + "<br />";
+                        htmlTitle += obj.data.artist + ' - ' + obj.data.title;
                     }
                     if(obj.data.album) {
                         $('#album').text(obj.data.album);
                         notification += obj.data.album + "<br />";
                     }
+                    
+                    document.title=htmlTitle;
 
                     if ($.cookie("notification") === "true")
                         songNotify(obj.data.title, obj.data.artist, obj.data.album );
