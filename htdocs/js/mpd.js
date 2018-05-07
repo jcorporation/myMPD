@@ -625,7 +625,7 @@ function webSocketConnect() {
 
               case "song_change":
                     var coverImg='/library/'+obj.data.uri.replace(/\/[^\/]+$/,'\/folder.jpg');
-                    document.getElementById('album-cover').style.backgroundImage='url("'+coverImg+'")';
+                    $('#album-cover').css('backgroundImage','url("'+coverImg+'")');
                     
                     $('#album').text("");
                     $('#artist').text("");
@@ -634,12 +634,6 @@ function webSocketConnect() {
 
                     $('#currenttrack').text(" " + obj.data.title);
                     var notification = "<strong><h4>" + obj.data.title + "</h4></strong>";
-
-
-                    if(obj.data.album) {
-                        $('#album').text(obj.data.album);
-                        notification += obj.data.album + "<br />";
-                    }
 
                     if(obj.data.artist) {
                         $('#artist').text(obj.data.artist);
