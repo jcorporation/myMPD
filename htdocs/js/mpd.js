@@ -87,6 +87,7 @@ var app = $.sammy(function() {
         }
 
         $('#panel-heading').text("Browse database: "+browsepath);
+        $('#panel-heading-info').empty();
         var path_array = browsepath.split('/');
         var full_path = "";
         $.each(path_array, function(index, chunk) {
@@ -623,16 +624,16 @@ function webSocketConnect() {
                     break;
 
               case "song_change":
-              
-                    changeCover(obj);
+                    var coverImg='/library/'+obj.data.uri.replace(/\/[^\/]+$/,'\/folder.jpg');
+                    document.getElementById('album-cover').style.backgroundImage='url("'+coverImg+'")';
+                    
                     $('#album').text("");
                     $('#artist').text("");
 
-					$('#btnlove').removeClass("active");
+                    $('#btnlove').removeClass("active");
 
                     $('#currenttrack').text(" " + obj.data.title);
                     var notification = "<strong><h4>" + obj.data.title + "</h4></strong>";
-
 
 
                     if(obj.data.album) {

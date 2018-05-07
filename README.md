@@ -5,7 +5,7 @@ ympd
 Standalone MPD Web GUI written in C, utilizing Websockets and Bootstrap/JS
 
 This fork supports display of coverimages.
-Put cover images in: ```/path/to/src/htdocs/covers/albumartis-album.jpg```
+Link your mpd music directory to ```/path/to/src/htdocs/library``` and put ```folder.jpg``` files in your album directories
 
 http://www.ympd.org
 
