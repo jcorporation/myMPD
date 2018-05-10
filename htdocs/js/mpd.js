@@ -87,7 +87,7 @@ var app = $.sammy(function() {
             add_all_songs.show();
         }
 
-        $('#panel-heading').text("Browse database: "+browsepath);
+        $('#panel-heading').text("Browse database: /"+browsepath);
         $('#panel-heading-info').empty();
         $('#queue-buttons').css('display','none');
         var path_array = browsepath.split('/');
@@ -409,11 +409,11 @@ function webSocketConnect() {
                                 if (filter !== undefined) {
                                     var first = obj.data[item].dir[0];
                                     if (filter === "#" && isNaN(first)) {
-                                        clazz += ' hide';
+                                        clazz += 'hide';
                                     } else if (filter >= "A" && filter <= "Z" && first.toUpperCase() !== filter) {
-                                        clazz += ' hide';
+                                        clazz += 'hide';
                                     } else if (filter === "||") {
-                                        clazz += ' hide';
+                                        clazz += 'hide';
                                     }
                                 }
                                 $('#salamisandwich > tbody').append(
@@ -426,7 +426,7 @@ function webSocketConnect() {
                             case 'playlist':
                                 var clazz = 'plist';
                                 if (filter !== "||") {
-                                    clazz += ' hide';
+                                    clazz += 'hide';
                                 }
                                 $('#salamisandwich > tbody').append(
                                     "<tr uri=\"" + encodeURI(obj.data[item].plist) + "\" class=\"" + clazz + "\">" +
