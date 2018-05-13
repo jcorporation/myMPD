@@ -408,12 +408,12 @@ function webSocketConnect() {
                                 var clazz = 'dir';
                                 if (filter !== "") {
                                     var first = obj.data[item].dir[0];
-                                    if (filter === "#" && isNaN(first)) {
-                                        clazz += 'hide';
+                                    if (filter === "num" && isNaN(first)) {
+                                        clazz += ' hide';
                                     } else if (filter >= "A" && filter <= "Z" && first.toUpperCase() !== filter) {
-                                        clazz += 'hide';
-                                    } else if (filter === "||") {
-                                        clazz += 'hide';
+                                        clazz += ' hide';
+                                    } else if (filter === "plist") {
+                                        clazz += ' hide';
                                     }
                                 }
                                 $('#salamisandwich > tbody').append(
@@ -425,8 +425,8 @@ function webSocketConnect() {
                                 break;
                             case 'playlist':
                                 var clazz = 'plist';
-                                if (filter !== "||") {
-                                    clazz += 'hide';
+                                if ( (filter !== "") && (filter !== "plist") ) {
+                                    clazz += ' hide';
                                 }
                                 $('#salamisandwich > tbody').append(
                                     "<tr uri=\"" + encodeURI(obj.data[item].plist) + "\" class=\"" + clazz + "\">" +

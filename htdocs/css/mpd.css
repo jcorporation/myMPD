@@ -166,6 +166,7 @@ button {
   height:120px;
   background-color:#eee;
 }
+
 #filter > a.active {
   font-weight: bold;
   pointer-events: none;
