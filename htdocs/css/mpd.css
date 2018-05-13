@@ -34,6 +34,10 @@ button {
   white-space: nowrap;
 }
 
+#breadcrump > li > a{
+  cursor: pointer;
+}
+
 #counter {
   font-size: 24px;
   margin-top: -6px;
@@ -161,4 +165,11 @@ button {
   width:120px;
   height:120px;
   background-color:#eee;
+}
+#filter > a.active {
+  font-weight: bold;
+  pointer-events: none;
+  cursor: default;
+  text-decoration: none;
+  color: black;
 }

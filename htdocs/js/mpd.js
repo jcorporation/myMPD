@@ -23,7 +23,7 @@ var last_state;
 var last_outputs;
 var current_app;
 var pagination = 0;
-var browsepath;
+var browsepath = "";
 var lastSongTitle = "";
 var current_song = new Object();
 var MAX_ELEMENTS_PER_PAGE = 100;
@@ -31,7 +31,7 @@ var dirble_selected_cat = "";
 var dirble_catid = "";
 var dirble_page = 1;
 var isTouch = Modernizr.touch ? 1 : 0;
-var filter = undefined;
+var filter = "";
 var dirble_api_token = "";
 var dirble_stations = false;
 
@@ -72,7 +72,7 @@ var app = $.sammy(function() {
         browsepath = this.params['splat'][1];
         pagination = parseInt(this.params['splat'][0]);
         current_app = 'browse';
-        $('#breadcrump').removeClass('hide').empty().append("<li><a href=\"#/browse/0/\" onclick=\"set_filter()\">root</a></li>");
+        $('#breadcrump').removeClass('hide').empty().append("<li><a uri=\"\" onclick=\"set_filter('')\">root</a></li>");
         $('#filter').removeClass('hide');
         $('#salamisandwich').removeClass('hide').find("tr:gt(0)").remove();
         $('#dirble_panel').addClass('hide');
@@ -99,7 +99,7 @@ var app = $.sammy(function() {
             }
 
             full_path = full_path + chunk;
-            $('#breadcrump').append("<li><a href=\"#/browse/0/" + full_path + "\">"+chunk+"</a></li>");
+            $('#breadcrump').append("<li><a uri=\"" + full_path + "\">"+chunk+"</a></li>");
             full_path += "/";
         });
         $('#browse').addClass('active');
@@ -406,7 +406,7 @@ function webSocketConnect() {
                         switch(obj.data[item].type) {
                             case 'directory':
                                 var clazz = 'dir';
-                                if (filter !== undefined) {
+                                if (filter !== "") {
                                     var first = obj.data[item].dir[0];
                                     if (filter === "#" && isNaN(first)) {
                                         clazz += 'hide';
@@ -511,7 +511,9 @@ function webSocketConnect() {
                                     pagination = 0;
                                     browsepath = $(this).attr("uri");
                                     $("#browse > a").attr("href", '#/browse/'+pagination+'/'+browsepath);
+									$('#filter > a').attr("href", '#/browse/'+pagination+'/'+browsepath);
                                     app.setLocation('#/browse/'+pagination+'/'+browsepath);
+									set_filter('');
                                     break;
                                 case 'song':
                                     socket.send("MPD_API_ADD_TRACK," + decodeURI($(this).attr("uri")));
@@ -532,6 +534,17 @@ function webSocketConnect() {
                             }
                         }
                     });
+
+					$('#breadcrump > li > a').on({
+						click: function() {
+							pagination = 0;
+							browsepath = $(this).attr("uri");
+							$("#browse > a").attr("href", '#/browse/'+pagination+'/'+browsepath);
+							$('#filter > a').attr("href", '#/browse/'+pagination+'/'+browsepath);
+							app.setLocation('#/browse/'+pagination+'/'+browsepath);
+							set_filter('');
+						}
+					});
 
                     break;
                 case 'state':
@@ -624,11 +637,10 @@ function webSocketConnect() {
                     if(current_app === 'queue')
                         socket.send('MPD_API_GET_QUEUE,'+pagination);
                     break;
-
               case "song_change":
                     var coverImg='/library/'+obj.data.uri.replace(/\/[^\/]+$/,'\/folder.jpg');
                     $('#album-cover').css('backgroundImage','url("'+coverImg+'")');
-                    
+                    updatePageTitle(obj.data);
                     $('#album').text("");
                     $('#artist').text("");
 
@@ -636,19 +648,15 @@ function webSocketConnect() {
 
                     $('#currenttrack').text(" " + obj.data.title);
                     var notification = "<strong><h4>" + obj.data.title + "</h4></strong>";
-                    var htmlTitle='ympd: ';
 
                     if(obj.data.artist) {
                         $('#artist').text(obj.data.artist);
                         notification += obj.data.artist + "<br />";
-                        htmlTitle += obj.data.artist + ' - ' + obj.data.title;
                     }
                     if(obj.data.album) {
                         $('#album').text(obj.data.album);
                         notification += obj.data.album + "<br />";
                     }
-                    
-                    document.title=htmlTitle;
 
                     if ($.cookie("notification") === "true")
                         songNotify(obj.data.title, obj.data.artist, obj.data.album );
@@ -656,8 +664,7 @@ function webSocketConnect() {
                         $('.top-right').notify({
                             message:{html: notification},
                             type: "info",
-                        }).show();
-                        
+                        }).show();        
                     break;
                 case 'mpdhost':
                     $('#mpdhost').val(obj.data.host);
@@ -771,6 +778,20 @@ var updatePlayIcon = function(state)
         $("#play-icon").addClass("glyphicon-play");
         $('#track-icon').addClass("glyphicon-pause");
 		document.getElementById('player').pause();
+    }
+}
+
+var updatePageTitle = function(songInfo) {
+    if(!songInfo || (!songInfo.artist && !songInfo.title)) {
+        document.title = 'ympd';
+        return;
+    }
+    if(songInfo.artist) {
+        if(songInfo.title) {
+            document.title = 'ympd: '+songInfo.artist + ' - ' + songInfo.title;
+        }
+    } else {
+        document.title = 'ympd: '+songInfo.title;
     }
 }
 
@@ -1215,53 +1236,47 @@ function dirble_load_stations() {
 
 function set_filter (c) {
     filter = c;
+	$('#filter > a').removeClass('active');
+	$('#f' + c).addClass('active');
 
-    $.each($('#salamisandwich > tbody > tr.dir'), function(i, line) {
-        var first = $(line).attr('uri')[0];
+    if (filter === "") {
+    	$('#salamisandwich > tbody > tr').removeClass('hide');
+	} else if (filter === "plist") {
+    	$('#salamisandwich > tbody > tr.dir').addClass('hide');
+    	$('#salamisandwich > tbody > tr.song').addClass('hide');
+    	$('#salamisandwich > tbody > tr.plist').removeClass('hide');
+    } else {
+		$.each($('#salamisandwich > tbody > tr'), function(i, line) {
+			var first = basename($(line).attr('uri'))[0];
+			if ( $(line).hasClass('song') ) {
+				first = $(line).children().eq(3).text()[0];
+			}
 
-        if (filter === undefined) {
-            $(line).removeClass('hide');
-        }
-
-        else if (filter === "#") {
-            if (!isNaN(first)) {
-                $(line).removeClass('hide');
-            } else {
-                $(line).addClass('hide');
-            }
-        }
-
-        else if (filter >= "A" && filter <= "Z") {
-            if (first.toUpperCase() === filter) {
-                $(line).removeClass('hide');
-            } else {
-                $(line).addClass('hide');
-            }
-        }
-
-        else if (filter === "||") {
-            $(line).addClass('hide');
-        }
-    });
-
-    $.each($('#salamisandwich > tbody > tr.plist'), function(i, line) {
-        if (filter === undefined) {
-            $(line).removeClass('hide');
-        } else if (filter === "||") {
-            $(line).removeClass('hide');
-        } else {
-            $(line).addClass('hide');
-        }
-    });
+			if (filter === "num") {
+				if (!isNaN(first)) {
+					$(line).removeClass('hide');
+				} else {
+					$(line).addClass('hide');
+				}
+			} else if (filter >= "A" && filter <= "Z") {
+				if (first.toUpperCase() === filter) {
+					$(line).removeClass('hide');
+				} else {
+					$(line).addClass('hide');
+				}
+			}
+		});
+	}
 }
 
 function add_filter () {
-    $('#filter').append('&nbsp;<a onclick="set_filter(\'#\')" href="#/browse/0/">#</a>');
+    $('#filter').append('&nbsp;<a onclick="set_filter(\'\')" href="#/browse/'+pagination+'/'+browsepath+'">All</a>');
+    $('#filter').append('&nbsp;<a id="fnum" onclick="set_filter(\'num\')" href="#/browse/'+pagination+'/'+browsepath+'">#</a>');
 
     for (i = 65; i <= 90; i++) {
         var c = String.fromCharCode(i);
-        $('#filter').append('&nbsp;<a onclick="set_filter(\'' + c + '\')" href="#/browse/0/">' + c + '</a>');
+        $('#filter').append('&nbsp;<a id="f' + c + '" onclick="set_filter(\'' + c + '\');" href="#/browse/' + pagination + '/' + browsepath + '">' + c + '</a>');
     }
 
-    $('#filter').append('&nbsp;<a onclick="set_filter(\'||\')" href="#/browse/0/" class="glyphicon glyphicon-list"></a>');
+    $('#filter').append('&nbsp;<a id="fplist" onclick="set_filter(\'plist\')" href="#/browse/'+pagination+'/'+browsepath+'" class="glyphicon glyphicon-list"></a>');
 }
