@@ -77,7 +77,6 @@ h1 {
 
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 td:nth-child(4), th:nth-child(4) {
@@ -160,10 +159,9 @@ button {
   border:1px solid black;
   border-radius:5px;
   overflow:hidden;
-  float:left;
   margin-right:20px;
-  width:120px;
-  height:120px;
+  width:240px;
+  height:240px;
   background-color:#eee;
 }
 
@@ -173,4 +171,8 @@ button {
   cursor: default;
   text-decoration: none;
   color: black;
+}
+
+#track-icon {
+ cursor: pointer;
 }

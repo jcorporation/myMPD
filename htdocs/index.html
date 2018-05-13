@@ -17,6 +17,12 @@
   <link href="css/mpd.css" rel="stylesheet">
   <link href="assets/favicon.ico" rel="shortcut icon" type="image/vnd.microsoft.icon">
   <script src="js/modernizr-custom.js"></script>
+
+  <!-- Webapp  -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
+  <link rel="apple-touch-icon" href="assets/appicon.png"/>
+
 </head>
 <body>
 
@@ -28,12 +34,12 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="/"><span class="glyphicon glyphicon-play-circle"></span> ympd</a>
+        <a class="navbar-brand" href="/#/playing/"><span class="glyphicon glyphicon-play-circle"></span> ympd</a>
       </div>
       <div class="collapse navbar-collapse">
 
         <ul id="nav_links" class="nav navbar-nav">
-          <li id="queue"><a href="#/">Queue</a></li>
+          <li id="queue"><a href="#/queue/0">Queue</a></li>
           <li id="browse"><a href="#/browse/0/">Browse</a></li>
           <li id="dirble"><a href="#/dirble/">Dirble</a></li>
           <li><a href="#" data-toggle="modal" data-target="#addstream">Add Stream</a></li>
@@ -105,10 +111,10 @@
 
         <div class="panel panel-primary">
           <!-- Default panel contents -->
-          <div class="panel-heading"><b id="panel-heading">Queue</b>
+          <div class="panel-heading"><b id="panel-heading">Now playing</b>
                                      <b id="panel-heading-info" class="text pull-right"></b></div>
-          <div class="panel" id="queue-buttons">
-            <div class="btn-group" data-toggle="buttons">
+          <div class="panel hide" id="queue-buttons">
+<!--            <div class="btn-group" data-toggle="buttons">
               <button id="btnrandom" type="button" class="btn btn-default" title="Random">
                 <span class="glyphicon glyphicon-random"></span>
               </button>
@@ -125,8 +131,8 @@
                 <span class="glyphicon glyphicon-repeat"></span>
               </button>
             </div>
+-->
 
-<!--
             <div id="trashmode" class="btn-group" data-toggle="radio">
               <button id="btntrashmodeup" type="button" class="btn btn-default">
                 <span class="glyphicon glyphicon-chevron-up"></span><span class="glyphicon glyphicon-trash"></span>
@@ -140,8 +146,8 @@
                 <span class="glyphicon glyphicon-trash"></span>
               </button>
             </div>
--->
-            <div id="btn-responsive-block" class="btn-group">
+
+            <div id="queue-actions" class="btn-group pull-right">
               <button type="button" class="btn btn-default" onclick="socket.send('MPD_API_RM_ALL');" title="Clear queue">
                 <span class="glyphicon glyphicon-trash"></span>
               </button>
@@ -153,33 +159,28 @@
 
 
           </div>
-          <div class="panel-body">
+          <div class="panel-body" id="nowplaying">
             <div id="album-cover"></div>
             <h1>
-              <span id="track-icon" onclick="clickPlay();" class="glyphicon glyphicon-play"></span>
+              <span id="track-icon" onclick="clickPlay();" class="glyphicon glyphicon-play" title="Toggle play/pause"></span>
               <span id="currenttrack"></span>
             </h1>
-            <h4>
-              <span id="artist" class="text"></span>
-              <span id="album" class="text pull-right"></span>
-            </h4>
+            <h3 id="artist"></h3>
+            <h4 id="album"></h4>
             <p id="counter" class="text pull-right">&nbsp;&nbsp;</p>
-
             <div id="progressbar"></div>
-
-
           </div><!-- /.panel-body -->
 
-          <ol id="breadcrump" class="breadcrumb">
+          <ol id="breadcrump" class="breadcrumb hide">
           </ol>
 
           <div class="col-md-12" id="filter">
-          <button id="add-all-songs" class="btn btn-primary pull-right">Add all</button>
+          <button id="add-all-songs" class="btn btn-primary pull-right hide">Add all</button>
           </div>
 
 
           <!-- Table -->
-          <table id="salamisandwich" class="table table-hover">
+          <table id="salamisandwich" class="table table-hover hide">
             <thead>
               <tr>
                 <th>#</th>
@@ -194,7 +195,7 @@
             </tbody>
           </table>
 
-          <div id="dirble_panel">
+          <div id="dirble_panel" class="hide">
             <p id="dirble_loading" style="font-size:16px;font-weight:bold;margin-left:4em;">Loading...</p>
             <table style="float:right; width:44%; margin-right:4%;" id="dirble_right" class="table table-hover">
                 <thead>
@@ -219,7 +220,7 @@
         </div><!-- /.panel -->
         <ul class="pager">
           <li id="prev" class="page-btn hide"><a href="">Previous</a></li>
-          <li id="next" class="page-btn"><a href="">Next</a></li>
+          <li id="next" class="page-btn hide"><a href="">Next</a></li>
         </ul>
     </div><!-- /.row -->
   </div><!-- /.container -->
@@ -242,15 +243,48 @@
           <hr />
           <div class="row">
             <div class="form-group col-md-6">
-              <button type="button" class="btn btn-default btn-block" onclick="updateDB();">
-                <span class="glyphicon glyphicon-refresh"></span> Update Database
+              <button id="btnrandom" type="button" class="btn btn-default btn-block" title="Random">
+                <span class="glyphicon glyphicon-random"></span> Repeat
               </button>
             </div>
+            <div class="form-group col-md-6" data-toggle="buttons">          
+              <button id="btnconsume" type="button" class="btn btn-default btn-block" title="Consume">
+                <span class="glyphicon glyphicon-fire"></span> Consume
+              </button>
+            </div>
+          </div>
+          <div class="row">
+            <div class="form-group col-md-6" data-toggle="buttons">
+              <button id="btnsingle" type="button" class="btn btn-default btn-block" title="Single">
+                <span class="glyphicon glyphicon-star"></span> Single
+              </button>
+            </div>
+            <div class="form-group col-md-6" data-toggle="buttons">
+              <button id="btncrossfade" type="button" class="btn btn-default btn-block" title="Crossfade">
+                <span class="glyphicon glyphicon-link"></span> Crossfade
+              </button>
+            </div>
+          </div>
+          <div class="row">
+            <div class="form-group col-md-6" data-toggle="buttons">
+              <button id="btnrepeat" type="button" class="btn btn-default btn-block" title="Repeat">
+                <span class="glyphicon glyphicon-repeat"></span> Repeat
+              </button>
+            </div>          
             <div class="form-group col-md-6" data-toggle="buttons">
               <button type="button" class="btn btn-default btn-block" id="btnnotify">
                 <span class="glyphicon glyphicon-comment"></span> Enable Notifications
               </button>
+            </div>            
+          </div>
+          <hr />
+          <div class="row">
+            <div class="form-group col-md-6">
+              <button type="button" class="btn btn-default btn-block" onclick="updateDB();">
+                <span class="glyphicon glyphicon-refresh"></span> Update Database
+              </button>
             </div>
+
           </div>
           <hr />
           <form role="form">

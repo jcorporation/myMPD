@@ -39,16 +39,17 @@ var app = $.sammy(function() {
 
     function runBrowse() {
         current_app = 'queue';
-
+        $('#nowplaying').addClass('hide');
         $('#breadcrump').addClass('hide');
         $('#filter').addClass('hide');
+        $('#salamisandwich').removeClass('hide');
         $('#salamisandwich').removeClass('hide').find("tr:gt(0)").remove();
         $('#dirble_panel').addClass('hide');
         socket.send('MPD_API_GET_QUEUE,'+pagination);
 
         $('#panel-heading').text("Queue");
         $('#panel-heading-info').empty();
-        $('#queue-buttons').css('display','block');
+        $('#queue-buttons').removeClass('hide');
 
         $('#queue').addClass('active');
     }
@@ -61,7 +62,20 @@ var app = $.sammy(function() {
         browsepath = '';
     }
 
-    this.get(/\#\/(\d+)/, function() {
+    this.get (/\#\/playing\//, function() {
+        prepare();
+        current_app = 'nowplaying';
+        $('#breadcrump').addClass('hide');
+        $('#salamisandwich').addClass('hide');
+        $('#filter').addClass('hide');
+        $('#dirble_panel').addClass('hide');
+        $('#queue-buttons').addClass('hide');
+        $('#panel-heading').text("Now playing");
+        $('#panel-heading-info').empty();
+        $('#nowplaying').removeClass('hide');
+    });    
+
+    this.get(/\#\/queue\/(\d+)/, function() {
         prepare();
         pagination = parseInt(this.params['splat'][0]);
         runBrowse();
@@ -76,6 +90,8 @@ var app = $.sammy(function() {
         $('#filter').removeClass('hide');
         $('#salamisandwich').removeClass('hide').find("tr:gt(0)").remove();
         $('#dirble_panel').addClass('hide');
+        $('#queue-buttons').addClass('hide');
+        $('#nowplaying').addClass('hide');
         socket.send('MPD_API_GET_BROWSE,'+pagination+','+(browsepath ? browsepath : "/"));
         // Don't add all songs from root
         if (browsepath) {
@@ -86,10 +102,9 @@ var app = $.sammy(function() {
             });
             add_all_songs.show();
         }
-
         $('#panel-heading').text("Browse database: /"+browsepath);
         $('#panel-heading-info').empty();
-        $('#queue-buttons').css('display','none');
+
         var path_array = browsepath.split('/');
         var full_path = "";
         $.each(path_array, function(index, chunk) {
@@ -172,8 +187,9 @@ var app = $.sammy(function() {
     });
 
     this.get("/", function(context) {
-        context.redirect("#/0");
+        context.redirect("#\/playing/");
     });
+    
 });
 
 $(document).ready(function(){
@@ -661,10 +677,12 @@ function webSocketConnect() {
                     if ($.cookie("notification") === "true")
                         songNotify(obj.data.title, obj.data.artist, obj.data.album );
                     else
-                        $('.top-right').notify({
-                            message:{html: notification},
-                            type: "info",
-                        }).show();        
+                        if (current_app != 'nowplaying') {
+                            $('.top-right').notify({
+                                message:{html: notification},
+                                type: "info",
+                            }).show();        
+                        }
                     break;
                 case 'mpdhost':
                     $('#mpdhost').val(obj.data.host);
@@ -978,7 +996,7 @@ $('.page-btn').on('click', function (e) {
 
     switch(current_app) {
         case "queue":
-            app.setLocation('#/'+pagination);
+            app.setLocation('#/queue/'+pagination);
             break;
         case "browse":
             app.setLocation('#/browse/'+pagination+'/'+browsepath);
