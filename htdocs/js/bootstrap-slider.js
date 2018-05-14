@@ -85,7 +85,7 @@
 
     var defaults={
         val:50,
-        barColor:"#428bca"
+        barColor:"#28a745"
     },
     _setWidthFromEvent = function(pageX,reqVals,supress) {
         if(!reqVals){

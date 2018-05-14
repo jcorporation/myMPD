@@ -1,14 +1,12 @@
 body {
   padding-top: 50px;
   padding-bottom: 50px;
-}
-
-.starter-template {
-  padding: 40px 15px;
+  background-color:#888;
 }
 
 #volumeslider {
   width: 150px;
+  margin-top:5px;
 }
 
 #volumeslider .progress {
@@ -27,14 +25,12 @@ button {
   margin-top: 2px;
 }
 
-#breadcrump {
-  display: block;
-
+#breadcrumb {
   overflow: auto;
   white-space: nowrap;
 }
 
-#breadcrump > li > a{
+#breadcrumb > li > a{
   cursor: pointer;
 }
 
@@ -91,12 +87,14 @@ td:nth-last-child(2), th:nth-last-child(2) {
   width: 4em;
 }
 
+/*
 #salamisandwich td:nth-child(4) span {
   font-style: italic;
   font-size: 90%;
 
   display: block;
 }
+*/
 
 td:nth-child(2), td:nth-child(3) {
   min-width: 25%;
@@ -148,18 +146,12 @@ button {
   overflow: hidden;
 }
 
-#trashmode span:last-child {
-  display:inline-block;
-  text-align:left;
-  width:2.8em;
-}
-
 #album-cover {
   background-size:cover;
   border:1px solid black;
   border-radius:5px;
   overflow:hidden;
-  margin-right:20px;
+  margin-bottom:20px;
   width:240px;
   height:240px;
   background-color:#eee;
@@ -175,4 +167,69 @@ button {
 
 #track-icon {
  cursor: pointer;
+ font-size:34px;
+ float:left;
+ display:block;
 }
+
+.hide {
+ display: none !important;
+}
+
+.pull-right {
+ float: right !important;
+}
+
+#queue-buttons {
+ margin-bottom:20px;
+}
+
+@font-face {
+  font-family: 'Material Icons';
+  font-style: normal;
+  font-weight: 400;
+  src: url(/assets/MaterialIcons-Regular.eot); /* For IE6-8 */
+  src: local('Material Icons'),
+       local('MaterialIcons-Regular'),
+       url(/assets/MaterialIcons-Regular.woff2) format('woff2'),
+       url(/assets/MaterialIcons-Regular.woff) format('woff'),
+       url(/assets/MaterialIcons-Regular.ttf) format('truetype');
+}
+
+.material-icons {
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 18px;  /* Preferred icon size */
+  display:inline-block;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+
+  /* Support for all WebKit browsers. */
+  -webkit-font-smoothing: antialiased;
+  /* Support for Safari and Chrome. */
+  text-rendering: optimizeLegibility;
+
+  /* Support for Firefox. */
+  -moz-osx-font-smoothing: grayscale;
+
+  /* Support for IE. */
+  font-feature-settings: 'liga';
+}
+
+main {
+ padding-top:20px;
+}
+
+.color-darkgrey {
+ color:#6c757d;
+}
+
+#filter-toolbar {
+ margin-bottom:10px;
+}
+
