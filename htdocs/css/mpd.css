@@ -70,7 +70,6 @@ button {
 
 h1 {
   display: block;
-
   overflow: hidden;
   text-overflow: ellipsis;
 }

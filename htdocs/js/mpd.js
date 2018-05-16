@@ -40,6 +40,7 @@ var isTouch = Modernizr.touch ? 1 : 0;
 var filter = "";
 var dirble_api_token = "";
 var dirble_stations = false;
+var playstate = "";
 
 var app = $.sammy(function() {
 
@@ -56,16 +57,16 @@ var app = $.sammy(function() {
         $('#panel-heading-info').empty();
         $('#queue-buttons').removeClass('hide');
 
-        $('#queue').addClass('active');
+        $('#nav-queue').addClass('active');
     }
 
     function prepare() {
-        $('#nav_links > li').removeClass('active');
+        $('#navbar-top > li').removeClass('active');
+        $('#navbar-bottom > li').removeClass('active');
         $('.page-item').addClass('hide');
         $('#add-all-songs').addClass('hide');
         pagination = 0;
         browsepath = '';
-        $(navbarCollapse).removeClass('show');
     }
 
     this.get (/\#\/playing\//, function() {
@@ -79,6 +80,7 @@ var app = $.sammy(function() {
         $('#panel-heading').text("Now playing");
         $('#panel-heading-info').empty();
         $('#nowplaying').removeClass('hide');
+        $('#nav-playing').addClass('active');
     });    
 
     this.get(/\#\/queue\/(\d+)/, function() {
@@ -98,6 +100,7 @@ var app = $.sammy(function() {
         $('#dirble_panel').addClass('hide');
         $('#queue-buttons').addClass('hide');
         $('#nowplaying').addClass('hide');
+        $('#nav-browse').addClass('active');
         socket.send('MPD_API_GET_BROWSE,'+pagination+','+(browsepath ? browsepath : "/"));
         // Don't add all songs from root
         if (browsepath) {
@@ -123,7 +126,6 @@ var app = $.sammy(function() {
             $('#breadcrumb').append("<li class=\"breadcrumb-item\"><a uri=\"" + full_path + "\">"+chunk+"</a></li>");
             full_path += "/";
         });
-        $('#browse').addClass('active');
     });
 
     this.get(/\#\/search\/(.*)/, function() {
@@ -156,7 +158,7 @@ var app = $.sammy(function() {
         $('#panel-heading').text("Dirble");
         $('#panel-heading-info').empty();
 
-        $('#dirble').addClass('active');
+        $('#dirble-nav').addClass('active');
 
         $('#next').addClass('hide');
 
@@ -288,7 +290,7 @@ $(document).ready(function(){
 		}
 	}, true);
             
-    if (TOKEN === "") $('#dirble').addClass('hide');
+    if (TOKEN === "") $('#nav-dirble').addClass('hide');
 });
 
 function webSocketConnect() {
@@ -668,8 +670,6 @@ function webSocketConnect() {
                     $('#album').text("");
                     $('#artist').text("");
 
-                    $('#btnlove').removeClass("active");
-
                     $('#currenttrack').text(" " + obj.data.title);
                     var notification = "<strong><h4>" + obj.data.title + "</h4></strong>";
 
@@ -703,13 +703,13 @@ function webSocketConnect() {
                     dirble_api_token = obj.data;
                     
 		    if (dirble_api_token) {
-		        $('#dirble').removeClass('hide');
+		        $('#dirble-nav').removeClass('hide');
 
                         if (dirble_stations) { dirble_load_stations();   }
                         else {                 dirble_load_categories(); }
 
                     } else {
-                        $('#dirble').addClass('hide');
+                        $('#dirble-nav').addClass('hide');
 		    }
                     break;
                 case 'error':
@@ -791,15 +791,15 @@ var updatePlayIcon = function(state)
 
     if(state == 1) { // stop
         $("#play-icon").text('play_arrow');
-        $('#track-icon').text('stop');
         document.getElementById('player').pause();
+        playstate = 'stop';
     } else if(state == 2) { // play
         $("#play-icon").text('pause');
-        $('#track-icon').text('play_arrow');
+        playstate = 'play';
     } else { // pause
         $("#play-icon").text('play_arrow');
-        $('#track-icon').text('stop');
 	document.getElementById('player').pause();
+	playstate = 'pause';
     }
 }
 
@@ -825,7 +825,7 @@ function updateDB() {
 }
 
 function clickPlay() {
-    if($('#track-icon').hasClass('glyphicon-stop'))
+    if( playstate != 'play')
         socket.send('MPD_API_SET_PLAY');
     else
         socket.send('MPD_API_SET_PAUSE');
@@ -902,14 +902,6 @@ function renumber_table(tableID,item) {
 
 function basename(path) {
     return path.split('/').reverse()[0];
-}
-
-function clickLove() {
-    socket.send("MPD_API_SEND_MESSAGE,mpdas," + ($('#btnlove').hasClass('active') ? "unlove" : "love"));
-	if ( $('#btnlove').hasClass('active') )
-		$('#btnlove').removeClass("active");
-	else
-		$('#btnlove').addClass("active");
 }
 
 $('#btnrandom').on('click', function (e) {

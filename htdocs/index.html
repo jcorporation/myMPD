@@ -6,47 +6,48 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="myMPD - fast and lightweight MPD webclient">
   <meta name="author" content="mail@jcgames.de">
-
   <title>myMPD</title>
 
-  <!-- Bootstrap core CSS -->
   <link href="css/bootstrap.css" rel="stylesheet">
 
-  <!-- Custom styles for this template -->
   <link href="css/mpd.css" rel="stylesheet">
   <link href="assets/favicon.ico" rel="shortcut icon" type="image/vnd.microsoft.icon">
   <script src="js/modernizr-custom.js"></script>
   
-  <!-- Webapp  -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
   <link rel="apple-touch-icon" href="assets/appicon.png"/>
-
 </head>
 <body>
   <header>
-    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-      <a class="navbar-brand" href="/#/playing/"><span style="font-size:24px;float:left;margin-right:5px;" class="material-icons">play_circle_outline</span>myMPD</a>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarCollapse">
-        <ul class="navbar-nav mr-auto" id="nav_links">
-          <li class="nav-item" id="queue"><a class="nav-link" href="#/queue/0">Queue</a></li>
-          <li class="nav-item" id="browse"><a class="nav-link" href="#/browse/0/">Browse</a></li>
-          <li class="nav-item" id="dirble"><a class="nav-link" href="#/dirble/">Dirble</a></li>
-          <li class="nav-item"><a class="nav-link" href="#" data-toggle="modal" data-target="#addstream">Add Stream</a></li>
-          <li class="nav-item"><a class="nav-link" href="#" data-toggle="modal" data-target="#settings" onclick="getHost();">Settings</a></li>
-        </ul>
-
+    <nav class="navbar navbar-expand navbar-dark fixed-top bg-dark">
+      <div class="container justify-content-start">
+        <div class="dropdown">
+          <a class="navbar-brand dropdown-toggle" data-toggle="dropdown" href="/#/playing/"><span style="font-size:24px;float:left;margin-right:5px;" class="material-icons">play_circle_outline</span>myMPD</a>
+          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+            <form id="search" class="form-inline mt-2 mt-md-0" role="search">
+              <input type="text" class="form-control mr-sm-2" placeholder="Search">
+            </form>
+            <div class="dropdown-divider"></div>
+            <a id="nav-dirble" class="dropdown-item" href="#/dirble/">Dirble</a>
+            <a id="nav-addstream" class="dropdown-item" href="#" data-toggle="modal" data-target="#addstream">Add Stream</a>
+            <a id="nav-settings" class="dropdown-item" href="#" data-toggle="modal" data-target="#settings" onclick="getHost();">Settings</a>
+            <div class="dropdown-divider"></div>
+            <div id="btn-outputs-block"></div>
+          </div>
+        </div>
+      </div>
+      <div class="container justify-content-between">
         <div class="btn-toolbar" role="toolbar">
           <div class="btn-group mr-2" role="group">
             <button type="button" class="btn btn-secondary" onclick="socket.send('MPD_API_SET_PREV');">
               <span class="material-icons">skip_previous</span>
             </button>
+            <!--
             <button type="button" class="btn btn-secondary" onclick="socket.send('MPD_API_SET_STOP');">
               <span id="stop-icon" class="material-icons">stop</span>
             </button>
+            -->
             <button type="button" class="btn btn-secondary" onclick="clickPlay();">
               <span id="play-icon" class="material-icons">pause</span>
             </button>
@@ -54,22 +55,7 @@
               <span class="material-icons">skip_next</span>
             </button>
           </div>
-          <div class="btn-group mr-2" role="group">
-            <button id="btnlove" type="button" class="btn btn-secondary" onclick="clickLove();">
-              <span class="material-icons">favorit</span>
-            </button>
-          </div>
 
-          <div class="btn-group mr-2" role="group">
-            <div class="dropdown">
-              <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
-                <span class="material-icons">settings_remote</span>    
-                <span class="caret"></span>
-              </button>
-              <div id="btn-outputs-block" class="dropdown-menu" role="menu" style="padding-left:1em;"></div>  
-            </div>
-          </div>
-          
           <div class="btn-group mr-2">
             <div class="btn btn-secondary">
               <span id="volume-icon" class="material-icons">volume_up</span>
@@ -86,118 +72,120 @@
               <span id="localplay-icon" class="glyphicon glyphicon-new-window"></span>
             </button>
           </div>
-       </div>
-          
-        <form id="search" class="form-inline mt-2 mt-md-0" role="search">
-          <input type="text" class="form-control mr-sm-2" placeholder="Search">
-        </form>
-      </div><!--/.nav-collapse -->
-    </div>
-  </nav>
- </header>
- <main role="main" class="container">
-        <div class="notifications top-right"></div>
 
-        <div class="card">
-          <!-- Default panel contents -->
-          <div class="card-header">
-            <span id="panel-heading">Now playing</span>
-            <span id="panel-heading-info" class="text pull-right"></span>
+        </div>
+      </div>
+      <div class="container justify-content-end"></div>
+    </nav>
+  </header>
+  <main role="main" class="container">
+    <div class="notifications top-right"></div>
+
+    <div class="card">
+      <div class="card-header">
+        <span id="panel-heading">Now playing</span>
+        <span id="panel-heading-info" class="text pull-right"></span>
+      </div>
+      <div class="card-body">
+        <div class="btn-toolbar hide" id="queue-buttons" role="toolbar">
+          <div id="trashmode" class="btn-group mr-2" data-toggle="radio">
+            <button id="btntrashmodeup" type="button" class="btn btn-secondary" title="Delete upward">
+              <span class="material-icons">vertical_align_top</span>
+              <span class="material-icons">delete</span>
+            </button>
+            <button id="btntrashmodesingle" type="button" class="btn btn-success" title="Delete single">
+              <span class="material-icons">delete</span>
+            </button>
+            <button id="btntrashmodedown" type="button" class="btn btn-secondary" title="Delete downward">
+              <span class="material-icons">delete</span>
+              <span class="material-icons">vertical_align_bottom</span>
+            </button>
           </div>
-          <div class="card-body">
-          
-          <div class="btn-toolbar hide" id="queue-buttons" role="toolbar">
-            <div id="trashmode" class="btn-group mr-2" data-toggle="radio">
-              <button id="btntrashmodeup" type="button" class="btn btn-secondary" title="Delete upward">
-                <span class="material-icons">vertical_align_top</span>
-                <span class="material-icons">delete</span>
-              </button>
-              <button id="btntrashmodesingle" type="button" class="btn btn-success" title="Delete single">
-                <span class="material-icons">delete</span>
-              </button>
-              <button id="btntrashmodedown" type="button" class="btn btn-secondary" title="Delete downward">
-                <span class="material-icons">delete</span>
-                <span class="material-icons">vertical_align_bottom</span>
-              </button>
-            </div>
-            <div id="queue-actions" class="btn-group mr-2">
-              <button type="button" class="btn btn-secondary" onclick="socket.send('MPD_API_RM_ALL');" title="Clear queue">
-                <span class="material-icons">clear_all</span>
-              </button>
-              <a href="#" data-toggle="modal" data-target="#savequeue" class="btn btn-secondary" title="Save queue">
-                <span class="material-icons">save</span>
-              </a>
-            </div>
+          <div id="queue-actions" class="btn-group mr-2">
+            <button type="button" class="btn btn-secondary" onclick="socket.send('MPD_API_RM_ALL');" title="Clear queue">
+              <span class="material-icons">clear_all</span>
+            </button>
+            <a href="#" data-toggle="modal" data-target="#savequeue" class="btn btn-secondary" title="Save queue">
+              <span class="material-icons">save</span>
+            </a>
           </div>
+        </div>
           
-          <div id="nowplaying">
-            <div id="album-cover"></div>
-            <h1>
-              <span id="track-icon" onclick="clickPlay();" class="material-icons" title="Toggle play/pause">play_arrow</span>
-              <span id="currenttrack"></span>
-            </h1>
-            <h3 id="artist"></h3>
-            <h4 id="album"></h4>
-            <p id="counter" class="text pull-right">&nbsp;&nbsp;</p>
-            <div id="progressbar"></div>
-            
-          </div><!-- /.panel-body -->
+        <div id="nowplaying">
+          <div id="album-cover"></div>
+          <h1>
+            <span id="currenttrack"></span>
+          </h1>
+          <h3 id="artist"></h3>
+          <h4 id="album"></h4>
+          <p id="counter" class="text pull-right">&nbsp;&nbsp;</p>
+          <div id="progressbar"></div>
+        </div>
 
-          <ol id="breadcrumb" class="breadcrumb hide">
-          </ol>
+        <ol id="breadcrumb" class="breadcrumb hide">
+        </ol>
 
-          <div class="btn-toolbar hide" id="filter-toolbar">
-            <div class="btn-group mr-2" data-toggle="radio" id="filter"></div>
-            <div class="btn-group mr-2 pull-right">
-              <button id="add-all-songs" class="btn btn-secondary">Add all</button>
-            </div>
+        <div class="btn-toolbar hide" id="filter-toolbar">
+          <div class="btn-group mr-2" data-toggle="radio" id="filter"></div>
+          <div class="btn-group mr-2 pull-right">
+            <button id="add-all-songs" class="btn btn-secondary">Add all</button>
           </div>
+        </div>
 
+        <table id="salamisandwich" class="table table-hover hide">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Artist</th>
+              <th>Album</th>
+              <th>Title</th>
+              <th>Length</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
 
-          <!-- Table -->
-          <table id="salamisandwich" class="table table-hover hide">
+        <div id="dirble_panel" class="hide">
+          <p id="dirble_loading" style="font-size:16px;font-weight:bold;margin-left:4em;">Loading...</p>
+          <table style="float:right; width:44%; margin-right:4%;" id="dirble_right" class="table table-hover">
             <thead>
               <tr>
-                <th>#</th>
-                <th>Artist</th>
-                <th>Album</th>
-                <th>Title</th>
-                <th>Length</th>
                 <th></th>
               </tr>
             </thead>
             <tbody>
             </tbody>
           </table>
-
-          <div id="dirble_panel" class="hide">
-            <p id="dirble_loading" style="font-size:16px;font-weight:bold;margin-left:4em;">Loading...</p>
-            <table style="float:right; width:44%; margin-right:4%;" id="dirble_right" class="table table-hover">
-                <thead>
-                <tr>
-                    <th></th>
-                </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
-            <table style="width:44%; margin-left:4%;" id="dirble_left" class="table table-hover">
-                <thead>
-                <tr>
-                    <th></th>
-                </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
+          <table style="width:44%; margin-left:4%;" id="dirble_left" class="table table-hover">
+            <thead>
+              <tr>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
         </div>
 
         <ul class="pagination justify-content-center">
           <li id="prev" class="page-item hide"><a class="page-link" href="">Previous</a></li>
           <li id="next" class="page-item hide"><a class="page-link" href="">Next</a></li>
         </ul>
-        </div>
-  </main><!-- /.container -->
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <nav class="navbar navbar-expand navbar-dark fixed-bottom bg-dark">
+      <div class="d-flex flex-fill navbar-nav" id="navbar-bottom">
+        <div class="nav-item flex-fill text-center" id="nav-playing"><a class="nav-link" href="#/playing/">Playing</a></div>
+        <div class="nav-item flex-fill text-center" id="nav-queue"><a class="nav-link" href="#/queue/0">Queue</a></div>
+        <div class="nav-item flex-fill text-center" id="nav-browse"><a class="nav-link" href="#/browse/0/">Browse</a></div>
+      </div>
+    </nav>
+  </footer>
 
   <!-- Modal -->
   <div class="modal fade" id="settings" tabindex="-1" role="dialog" aria-labelledby="settingsLabel" aria-hidden="true">
@@ -259,7 +247,6 @@
                 <span class="glyphicon glyphicon-refresh"></span> Update Database
               </button>
             </div>
-
           </div>
           <hr />
           <form role="form">
@@ -369,22 +356,20 @@
           <h5>Searching...</h5>
         </div>
         <div class="modal-body">
-          <div class="progress progress-striped active">
-            <div class="progress-bar"  role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
-              <span class="sr-only">Please Wait</span>
-            </div>
+          <div class="progress">
+            <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width:100%;"></div>
           </div>
         </div>
-      </div>
-    </div>
-  </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
 
   <!-- Bootstrap core JavaScript
   ================================================== -->
   <!-- Placed at the end of the document so the pages load faster -->
   <script src="js/jquery-3.3.1.min.js"></script>
   <script src="js/jquery.cookie.js"></script>
-  <script src="js/bootstrap.min.js"></script>
+  <script src="js/bootstrap.js"></script>
   <script src="js/bootstrap-slider.js"></script>
   <script src="js/bootstrap-notify.js"></script>
   <script src="js/sammy.js"></script>
