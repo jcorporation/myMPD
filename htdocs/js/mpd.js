@@ -61,8 +61,7 @@ var app = $.sammy(function() {
     }
 
     function prepare() {
-        $('#navbar-top > li').removeClass('active');
-        $('#navbar-bottom > li').removeClass('active');
+        $('#navbar-bottom > div').removeClass('active');
         $('.page-item').addClass('hide');
         $('#add-all-songs').addClass('hide');
         pagination = 0;
@@ -303,11 +302,9 @@ function webSocketConnect() {
     try {
         socket.onopen = function() {
             console.log("connected");
-            $('.top-right').notify({
-                message:{text:"Connected to myMPD"},
-                fadeOut: { enabled: true, delay: 500 }
-            }).show();
-
+            
+            $.notify({message:"Connected to myMPD" },{ type: "success", offset: { y: 60, x:20 }});
+                
             app.run();
             /* emit initial request for output names */
             socket.send('MPD_API_GET_OUTPUTS');
@@ -318,8 +315,11 @@ function webSocketConnect() {
         socket.onmessage = function got_packet(msg) {
             if(msg.data === last_state || msg.data.length == 0)
                 return;
-            var obj = JSON.parse(msg.data);
-            
+            try {
+              var obj = JSON.parse(msg.data);
+            } catch(e) {
+              $.notify({ title: "Invalid JSON Data received", message: msg.data},{ type: "success", offset: { y: 60, x:20 }});
+            }
 
             switch (obj.type) {
                 case 'queue':
@@ -367,9 +367,9 @@ function webSocketConnect() {
                         $('#salamisandwich > tbody > tr').on({
                             mouseover: function(){
                                 var doomed = $(this);
-                                if ( $('#btntrashmodeup').hasClass('active') )
+                                if ( $('#btntrashmodeup').hasClass('btn-success') )
                                     doomed = $("#salamisandwich > tbody > tr:lt(" + ($(this).index() + 1) + ")");
-                                if ( $('#btntrashmodedown').hasClass('active') )
+                                if ( $('#btntrashmodedown').hasClass('btn-success') )
                                     doomed = $("#salamisandwich > tbody > tr:gt(" + ($(this).index() - 1) + ")");
                                 $.each(doomed, function(){
                                 if($(this).children().last().has("a").length == 0)
@@ -382,9 +382,9 @@ function webSocketConnect() {
                             },
                             mouseleave: function(){
                                 var doomed = $(this);
-                                if ( $('#btntrashmodeup').hasClass('active') )
+                                if ( $('#btntrashmodeup').hasClass('btn-success') )
                                     doomed = $("#salamisandwich > tbody > tr:lt(" + ($(this).index() + 1) + ")");
-                                if ( $('#btntrashmodedown').hasClass('active') )
+                                if ( $('#btntrashmodedown').hasClass('btn-success') )
                                     doomed = $("#salamisandwich > tbody > tr:gt(" + ($(this).index() - 1) + ")");
                                 $.each(doomed, function(){$(this).children().last().find("a").stop().remove();});
                             }
@@ -507,11 +507,8 @@ function webSocketConnect() {
                             .find('a').click(function(e) {
                                 e.stopPropagation();
                                 socket.send(onClickAction + "," + decodeURI($(this).parents("tr").attr("uri")));
-                            $('.top-right').notify({
-                                message:{
-                                    text: "\"" + $('td:nth-last-child(3)', $(this).parents("tr")).text() + "\" added"
-                                } }).show();
-                            }).fadeTo('fast',1);
+                            $.notify({message: "\"" + $('td:nth-last-child(3)', $(this).parents("tr")).text() + "\" added"},{ type: "success", offset: { y: 60, x:20 }});
+                            });
                     }
 
                     if ( isTouch ) {
@@ -523,7 +520,7 @@ function webSocketConnect() {
                                 if($(this).is(".dir")) 
                                     appendClickableIcon($(this).children().last(), 'MPD_API_ADD_TRACK', 'playlist_add');
                                 else if($(this).is(".song"))
-                                    appendClickableIcon($(this).children().last(), 'MPD_API_ADD_PLAY_TRACK', 'playlist_add');
+                                    appendClickableIcon($(this).children().last(), 'MPD_API_ADD_TRACK', 'playlist_add');
                             },
                             mouseleave: function(){
                                 $(this).children().last().find("a").stop().remove();
@@ -543,19 +540,12 @@ function webSocketConnect() {
                                     break;
                                 case 'song':
                                     socket.send("MPD_API_ADD_TRACK," + decodeURI($(this).attr("uri")));
-                                    $('.top-right').notify({
-                                        message:{
-                                            text: "\"" + $('td:nth-last-child(3)', this).text() + "\" added"
-                                        }
-                                    }).show();
+                                    
+                                    $.notify({message: "\"" + $('td:nth-last-child(3)', this).text() + "\" added"},{ type: "success", offset: { y: 60, x:20 }});
                                     break;
                                 case 'plist':
                                     socket.send("MPD_API_ADD_PLAYLIST," + decodeURI($(this).attr("uri")));
-                                    $('.top-right').notify({
-                                        message:{
-                                            text: "\"" + $('td:nth-last-child(3)', this).text() + "\" added"
-                                        }
-                                    }).show();
+                                    $.notify({message: "\"" + $('td:nth-last-child(3)', this).text() + "\" added"},{ type: "success", offset: { y: 60, x:20 }});
                                     break;
                             }
                         }
@@ -631,7 +621,8 @@ function webSocketConnect() {
                     $('#btn-outputs-block button').remove();
                     if ( Object.keys(obj.data).length ) {
 		        $.each(obj.data, function(id, name){
-                            var btn = $('<button id="btnoutput'+id+'" class="btn btn-secondary" onclick="toggleoutput(this, '+id+')"><span class="material-icons">volume_up</span> '+name+'</button>');
+                            var btn = $('<button id="btnoutput'+id+'" class="btn btn-secondary btn-block" onclick="toggleoutput(this, '+id+')">'+
+                              '<span class="material-icons" style="float:left;">volume_up</span> '+name+'</button>');
                             btn.appendTo($('#btn-outputs-block'));
                         });
 		    } else {
@@ -652,12 +643,7 @@ function webSocketConnect() {
                     last_outputs = obj;
                     break;
                 case 'disconnected':
-                    if($('.top-right').has('div').length == 0)
-                        $('.top-right').notify({
-                            message:{text:"myMPD lost connection to MPD "},
-                            type: "danger",
-                            fadeOut: { enabled: true, delay: 1000 },
-                        }).show();
+                    $.notify({message: "myMPD lost connection to MPD "},{ type: "danger", offset: { y: 60, x:20 }});
                     break;
                 case 'update_queue':
                     if(current_app === 'queue')
@@ -686,10 +672,7 @@ function webSocketConnect() {
                         songNotify(obj.data.title, obj.data.artist, obj.data.album );
                     else
                         if (current_app != 'nowplaying') {
-                            $('.top-right').notify({
-                                message:{html: notification},
-                                type: "info",
-                            }).show();        
+                            $.notify({message: notification },{ type: "success", offset: { y: 60, x:20 }});
                         }
                     break;
                 case 'mpdhost':
@@ -713,10 +696,7 @@ function webSocketConnect() {
 		    }
                     break;
                 case 'error':
-                    $('.top-right').notify({
-                        message:{text: obj.data},
-                        type: "danger",
-                    }).show();
+                    $.notify({message: obj.data },{ type: "danger", offset: { y: 60, x:20 }});
                 default:
                     break;
             }
@@ -724,13 +704,7 @@ function webSocketConnect() {
 
         socket.onclose = function(){
             console.log("disconnected");
-            $('.top-right').notify({
-                message:{text:"Connection to myMPD lost, retrying in 3 seconds "},
-                type: "danger", 
-                onClose: function () {
-                    webSocketConnect();
-                }
-            }).show();
+            $.notify({message:"Connection to myMPD lost, retrying in 3 seconds " },{ type: "danger", offset: { y: 60, x:20 }});
         }
 
     } catch(exception) {
@@ -819,9 +793,7 @@ var updatePageTitle = function(songInfo) {
 
 function updateDB() {
     socket.send('MPD_API_UPDATE_DB');
-    $('.top-right').notify({
-        message:{text:"Updating MPD Database... "}
-    }).show();
+    $.notify({message:"Updating MPD Database..." },{ type: "success", offset: { y: 60, x:20 }});
 }
 
 function clickPlay() {
@@ -878,13 +850,13 @@ function setLocalStream(mpdhost) {
 }
 
 function trash(tr) {
-    if ( $('#btntrashmodeup').hasClass('active') ) {
+    if ( $('#btntrashmodeup').hasClass('btn-success') ) {
         socket.send('MPD_API_RM_RANGE,0,' + (tr.index() + 1));
         tr.remove();
-    } else if ( $('#btntrashmodesingle').hasClass('active') ) {
+    } else if ( $('#btntrashmodesingle').hasClass('btn-success') ) {
         socket.send('MPD_API_RM_TRACK,' + tr.attr('trackid'));
         tr.remove();
-    } else if ( $('#btntrashmodedown').hasClass('active') ) {
+    } else if ( $('#btntrashmodedown').hasClass('btn-success') ) {
         socket.send('MPD_API_RM_RANGE,' + tr.index() + ',-1');
         tr.remove();
     };
@@ -934,6 +906,7 @@ $('#trashmode').children("button").on('click', function(e) {
 $('#btnnotify').on('click', function (e) {
     if($.cookie("notification") === "true") {
         $.cookie("notification", false);
+        $('#btnnotify').removeClass("btn-success").addClass("btn-secondary");
     } else {
         Notification.requestPermission(function (permission) {
             if(!('permission' in Notification)) {
@@ -942,7 +915,7 @@ $('#btnnotify').on('click', function (e) {
 
             if (permission === "granted") {
                 $.cookie("notification", true, { expires: 424242 });
-                $('btnnotify').removeClass("btn-secondary").addClass("btn-success");
+                $('#btnnotify').removeClass("btn-secondary").addClass("btn-success");
             }
         });
     }
@@ -973,7 +946,7 @@ $('#search').submit(function () {
     return false;
 });
 
-$('.page-btn').on('click', function (e) {
+$('.page-link').on('click', function (e) {
 
     switch ($(this).text()) {
         case "Next":
@@ -1048,19 +1021,6 @@ function notificationsSupported() {
 }
 
 function songNotify(title, artist, album) {
-    /*var opt = {
-        type: "list",
-        title: title,
-        message: title,
-        items: []
-    }
-    if(artist.length > 0)
-        opt.items.push({title: "Artist", message: artist});
-    if(album.length > 0)
-        opt.items.push({title: "Album", message: album});
-*/
-    //chrome.notifications.create(id, options, creationCallback);
-
     var textNotification = "";
     if(typeof artist != 'undefined' && artist.length > 0)
         textNotification += " " + artist;
@@ -1175,11 +1135,7 @@ function dirble_load_stations() {
                 $.getJSON( "https://api.dirble.com/v2/station/"+$(this).attr("radioid")+"?token=" + dirble_api_token, function( data ) {
 
                     socket.send("MPD_API_ADD_TRACK," + data.streams[0].stream);
-                    $('.top-right').notify({
-                        message:{
-                            text: _this.text() + " added"
-                        }
-                    }).show();
+                    $.notify({message: _this.text() + " added"},{ type: "success", offset: { y: 60, x:20 }});
                 });
             },
             mouseenter: function() {
@@ -1193,11 +1149,7 @@ function dirble_load_stations() {
                     $.getJSON( "https://api.dirble.com/v2/station/"+_this.attr("radioid")+"?token=" + dirble_api_token, function( data ) {
 
                         socket.send("MPD_API_ADD_PLAY_TRACK," + data.streams[0].stream);
-                        $('.top-right').notify({
-                            message:{
-                                text: _this.text() + " added"
-                            }
-                        }).show();
+                        $.notify({message: _this.text() + " added" },{ type: "success", offset: { y: 60, x:20 }});
                     });
                 }).fadeTo('fast',1);
             },
@@ -1214,11 +1166,7 @@ function dirble_load_stations() {
                 $.getJSON( "https://api.dirble.com/v2/station/"+$(this).attr("radioid")+"?token=" + dirble_api_token, function( data ) {
 
                     socket.send("MPD_API_ADD_TRACK," + data.streams[0].stream);
-                    $('.top-right').notify({
-                        message:{
-                            text: _this.text() + " added"
-                        }
-                    }).show();
+                    $.notify({message: _this.text() + " added"},{ type: "success", offset: { y: 60, x:20 }});
                 });
             },
             mouseenter: function() {
@@ -1232,11 +1180,7 @@ function dirble_load_stations() {
                     $.getJSON( "https://api.dirble.com/v2/station/"+_this.attr("radioid")+"?token=" + dirble_api_token, function( data ) {
 
                         socket.send("MPD_API_ADD_PLAY_TRACK," + data.streams[0].stream);
-                        $('.top-right').notify({
-                            message:{
-                                text: _this.text() + " added"
-                            }
-                        }).show();
+                        $.notify({message: _this.text() + " added"},{ type: "success", offset: { y: 60, x:20 }});
                     });
                 }).fadeTo('fast',1);
             },

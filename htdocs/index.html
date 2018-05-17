@@ -21,24 +21,23 @@
 <body>
   <header>
     <nav class="navbar navbar-expand navbar-dark fixed-top bg-dark">
-      <div class="container justify-content-start">
-        <div class="dropdown">
-          <a class="navbar-brand dropdown-toggle" data-toggle="dropdown" href="/#/playing/"><span style="font-size:24px;float:left;margin-right:5px;" class="material-icons">play_circle_outline</span>myMPD</a>
-          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-            <form id="search" class="form-inline mt-2 mt-md-0" role="search">
-              <input type="text" class="form-control mr-sm-2" placeholder="Search">
+        <div class="dropdown justify-content-start">
+          <a class="navbar-brand dropdown-toggle" data-toggle="dropdown" href="/#/playing/"><span style="font-size:24px;float:left;margin-right:5px;" class="material-icons">play_circle_outline</span></a>
+          <div class="dropdown-menu bg-dark" aria-labelledby="dropdownMenuButton">
+            <h1 class="dropdown-header text-light">myMPD</h1>
+            <div class="dropdown-divider"></div>
+            <form id="search" class="px-4 py-3" role="search">
+              <input type="text" class="form-control" placeholder="Search">
             </form>
             <div class="dropdown-divider"></div>
             <a id="nav-dirble" class="dropdown-item" href="#/dirble/">Dirble</a>
-            <a id="nav-addstream" class="dropdown-item" href="#" data-toggle="modal" data-target="#addstream">Add Stream</a>
-            <a id="nav-settings" class="dropdown-item" href="#" data-toggle="modal" data-target="#settings" onclick="getHost();">Settings</a>
+            <a id="nav-addstream" class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#addstream">Add Stream</a>
+            <a id="nav-settings" class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#settings" onclick="getHost();">Settings</a>
             <div class="dropdown-divider"></div>
-            <div id="btn-outputs-block"></div>
+            <form id="btn-outputs-block" class="px-4 py-3"></form>
           </div>
         </div>
-      </div>
-      <div class="container justify-content-between">
-        <div class="btn-toolbar" role="toolbar">
+        <div class="btn-toolbar navbar-nav flex-row ml-md-auto d-md-flex" role="toolbar">
           <div class="btn-group mr-2" role="group">
             <button type="button" class="btn btn-secondary" onclick="socket.send('MPD_API_SET_PREV');">
               <span class="material-icons">skip_previous</span>
@@ -73,14 +72,10 @@
             </button>
           </div>
 
-        </div>
       </div>
-      <div class="container justify-content-end"></div>
     </nav>
   </header>
   <main role="main" class="container">
-    <div class="notifications top-right"></div>
-
     <div class="card">
       <div class="card-header">
         <span id="panel-heading">Now playing</span>
@@ -126,13 +121,19 @@
         </ol>
 
         <div class="btn-toolbar hide" id="filter-toolbar">
-          <div class="btn-group mr-2" data-toggle="radio" id="filter"></div>
+          <div class="btn-group mr-2 flex-wrap" data-toggle="radio" id="filter"></div>
           <div class="btn-group mr-2 pull-right">
             <button id="add-all-songs" class="btn btn-secondary">Add all</button>
           </div>
         </div>
 
         <table id="salamisandwich" class="table table-hover hide">
+          <col class="tblnum"/>
+          <col class="tblartist"/>
+          <col class="tblalbum"/>
+          <col class="tbltitle"/>
+          <col class="tbllength"/>
+          <col class="tblaction"/>
           <thead>
             <tr>
               <th>#</th>
@@ -369,9 +370,9 @@
   <!-- Placed at the end of the document so the pages load faster -->
   <script src="js/jquery-3.3.1.min.js"></script>
   <script src="js/jquery.cookie.js"></script>
-  <script src="js/bootstrap.js"></script>
+  <script src="js/bootstrap.min.js"></script>
   <script src="js/bootstrap-slider.js"></script>
-  <script src="js/bootstrap-notify.js"></script>
+  <script src="js/bootstrap-notify.min.js"></script>
   <script src="js/sammy.js"></script>
   <script src="js/jquery-ui-sortable.min.js"></script>
   <script src="js/mpd.js"></script>

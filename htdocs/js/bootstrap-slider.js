@@ -38,7 +38,7 @@
             }
 
             self.addClass("slider-wrapper-jq")
-            .append($("<div class='progress' style='position:relative;left:0'/>")
+            .append($("<div class='progress' style='position:relative;left:0;height:20px;'/>")
             .append("<div class='progress-bar' style='position:width: 30%;background-color: "+
             options.barColor+"; -webkit-transition:none; transition:none;' />")
             .append("<div class='btn btn-default ' style='position:absolute;height:100%;padding:6px 10px;margin-left:-10px;vertical-align: top'>"));
