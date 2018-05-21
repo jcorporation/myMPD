@@ -41,6 +41,8 @@ var filter = "";
 var dirble_api_token = "";
 var dirble_stations = false;
 var playstate = "";
+var progressBar;
+var volumeBar;
 
 var app = $.sammy(function() {
 
@@ -203,14 +205,19 @@ var app = $.sammy(function() {
 
 $(document).ready(function(){
     webSocketConnect();
-    $("#volumeslider").slider(0);
-    $("#volumeslider").on('slider.newValue', function(evt,data){
-        socket.send("MPD_API_SET_VOLUME,"+data.val);
+
+    volumeBar=$('#volumebar').slider();
+    volumeBar.slider('setValue',0);
+    volumeBar.slider('on','slideStop', function(value){
+      socket.send("MPD_API_SET_VOLUME,"+value);
     });
-    $('#progressbar').slider(0);
-    $("#progressbar").on('slider.newValue', function(evt,data){
+
+    progressBar=$('#progressbar').slider();
+    progressBar.slider('setValue',0);
+    
+    progressBar.slider('on','slideStop', function(value){
         if(current_song && current_song.currentSongId >= 0) {
-            var seekVal = Math.ceil(current_song.totalTime*(data.val/100));
+            var seekVal = Math.ceil(current_song.totalTime*(value/100));
             socket.send("MPD_API_SET_SEEK,"+current_song.currentSongId+","+seekVal);
         }
     });
@@ -578,9 +585,9 @@ function webSocketConnect() {
                     var elapsed_minutes = Math.floor(obj.data.elapsedTime / 60);
                     var elapsed_seconds = obj.data.elapsedTime - elapsed_minutes * 60;
 
-                    $('#volumeslider').slider(obj.data.volume);
+                    volumeBar.slider('setValue',obj.data.volume);
                     var progress = Math.floor(100*obj.data.elapsedTime/obj.data.totalTime);
-                    $('#progressbar').slider(progress);
+                    progressBar.slider('setValue',progress);
 
                     $('#counter')
                     .text(elapsed_minutes + ":" + 
@@ -746,16 +753,13 @@ function get_appropriate_ws_url()
 
 var updateVolumeIcon = function(volume)
 {
-    $("#volume-icon").removeClass("glyphicon-volume-off");
-    $("#volume-icon").removeClass("glyphicon-volume-up");
-    $("#volume-icon").removeClass("glyphicon-volume-down");
-
+    $('#volumePrct').text(volume+' %');
     if(volume == 0) {
-        $("#volume-icon").addClass("glyphicon-volume-off");
+        $("#volume-icon").text("volume_off");
     } else if (volume < 50) {
-        $("#volume-icon").addClass("glyphicon-volume-down");
+        $("#volume-icon").text("volume_down");
     } else {
-        $("#volume-icon").addClass("glyphicon-volume-up");
+        $("#volume-icon").text("volume_up");
     }
 }
 
@@ -1237,4 +1241,13 @@ function add_filter () {
     }
 
     $('#filter').append('<a class="btn btn-secondary material-icons" id="fplist" onclick="set_filter(\'plist\')" href="#/browse/'+pagination+'/'+browsepath+'">list</a>');
+}
+
+function chVolume (increment) {
+ var aktValue=volumeBar.slider('getValue');
+ var newValue=aktValue+increment;
+ if (newValue<0) { newValue=0; }
+ else if (newValue > 100) { newValue=100; }
+ volumeBar.slider('setValue',newValue);
+ socket.send("MPD_API_SET_VOLUME,"+newValue);
 }

@@ -1,15 +1,18 @@
-[![Build Status](https://travis-ci.org/notandy/ympd.svg)](https://travis-ci.org/notandy/ympd)
-ympd
+myMPD
 ====
 
-Standalone MPD Web GUI written in C, utilizing Websockets and Bootstrap/JS
+myMPD is a lightweight MPD web client that runs without a dedicated webserver or interpreter. 
+It's tuned for minimal resource usage and requires only very litte dependencies.
+myMPD is a fork of ympd.
 
-This fork supports display of coverimages.
-Link your mpd music directory to ```/path/to/src/htdocs/library``` and put ```folder.jpg``` files in your album directories
+This fork provides a reworked ui based on Bootstrap 4.
 
-http://www.ympd.org
-
-![ScreenShot](http://www.ympd.org/assets/ympd_github.png)
+UI Components
+-------------
+ - Bootstrap 4: https://getbootstrap.com/
+ - Bootstrap Notify: http://bootstrap-notify.remabledesigns.com/
+ - Material Design Icons: https://material.io/tools/icons/?style=baseline
+ - Sammy.js: http://sammyjs.org/
 
 Dependencies
 ------------
@@ -25,6 +28,7 @@ Unix Build Instructions
 3. create makefile ```cmake ..  -DCMAKE_INSTALL_PREFIX:PATH=/usr -DWITH_DYNAMIC_ASSETS=ON -DCMAKE_BUILD_TYPE=RELEASE```
 4. build ```make```
 5. install ```sudo make install``` or just run with ```./ympd```
+6. Link your mpd music directory to ```/path/to/src/htdocs/library``` and put ```folder.jpg``` files in your album directories
 
 Run flags
 ---------
@@ -64,5 +68,5 @@ Dirble support
 
 Copyright
 ---------
-
-2013-2014 <andy@ndyk.de>
+ympd: 2013-2014 <andy@ndyk.de>
+myMPD: 2018 <mail@jcgames.de>

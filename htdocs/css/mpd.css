@@ -221,3 +221,30 @@ main {
 .card-body {
  overflow-x:hidden;
 }
+
+.slider-handle.custom {
+  background: transparent none;
+}
+.slider-handle.custom::before {
+  content: '';
+}
+
+.slider-selection {
+ background:#28a745 !important;
+}
+
+#progressbar .slider-track, #volumebar .slider-track {
+ height: 20px !important;
+}
+
+#progressbar {
+ width:100%;
+}
+
+#volumebar {
+ width:160px;
+}
+
+.slider-handle {
+ visibility:hidden !important;
+}

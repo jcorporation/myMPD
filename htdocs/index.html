@@ -9,7 +9,7 @@
   <title>myMPD</title>
 
   <link href="css/bootstrap.css" rel="stylesheet">
-
+  <link href="css/bootstrap-slider.css" rel="stylesheet">
   <link href="css/mpd.css" rel="stylesheet">
   <link href="assets/favicon.ico" rel="shortcut icon" type="image/vnd.microsoft.icon">
   <script src="js/modernizr-custom.js"></script>
@@ -21,9 +21,9 @@
 <body>
   <header>
     <nav class="navbar navbar-expand navbar-dark fixed-top bg-dark">
-        <div class="dropdown justify-content-start">
-          <a class="navbar-brand dropdown-toggle" data-toggle="dropdown" href="/#/playing/"><span style="font-size:24px;float:left;margin-right:5px;" class="material-icons">play_circle_outline</span></a>
-          <div class="dropdown-menu bg-dark" aria-labelledby="dropdownMenuButton">
+        <div class="dropdown col-auto mr-auto">
+          <a class="navbar-brand dropdown-toggle" data-toggle="dropdown" href="/#/playing/"><span style="font-size:24px;float:left;margin-right:5px;" class="material-icons">play_circle_outline</span>myMPD</a>
+          <div class="dropdown-menu bg-dark">
             <h1 class="dropdown-header text-light">myMPD</h1>
             <div class="dropdown-divider"></div>
             <form id="search" class="px-4 py-3" role="search">
@@ -33,11 +33,10 @@
             <a id="nav-dirble" class="dropdown-item" href="#/dirble/">Dirble</a>
             <a id="nav-addstream" class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#addstream">Add Stream</a>
             <a id="nav-settings" class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#settings" onclick="getHost();">Settings</a>
-            <div class="dropdown-divider"></div>
-            <form id="btn-outputs-block" class="px-4 py-3"></form>
+            <a id="nav-updatedb" class="dropdown-item text-light bg-dark" href="#" onclick="updateDB();">Update Database</a>
           </div>
         </div>
-        <div class="btn-toolbar navbar-nav flex-row ml-md-auto d-md-flex" role="toolbar">
+        <div class="btn-toolbar col-auto" role="toolbar">
           <div class="btn-group mr-2" role="group">
             <button type="button" class="btn btn-secondary" onclick="socket.send('MPD_API_SET_PREV');">
               <span class="material-icons">skip_previous</span>
@@ -54,11 +53,21 @@
               <span class="material-icons">skip_next</span>
             </button>
           </div>
-
-          <div class="btn-group mr-2">
-            <div class="btn btn-secondary">
+          <div class="btn-group" role="group">
+            <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
               <span id="volume-icon" class="material-icons">volume_up</span>
-              <div id="volumeslider"></div>
+            </button>
+            <div class="dropdown-menu dropdown-menu-right bg-dark">
+              <h1 class="dropdown-header text-light">Volume: <span id="volumePrct"></span></h1>
+              <form class="px-4 py-3" style="padding-top:0px !important;">
+              <div class="btn-group btn-secondary" role="group" style="border-radius:0.25rem">
+                <input type="button" class="btn btn-secondary" value="&minus;" onclick="chVolume(-5)"/>
+                <input id="volumebar" data-slider-id="volumebar" data-slider-handle="custom" type="text" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="0"/>
+                <input type="button" class="btn btn-secondary" value="+" onclick="chVolume(5)"/>
+                </div>
+              </form>
+              <div class="dropdown-divider"></div>
+              <form id="btn-outputs-block" class="px-4 py-3"></form>              
             </div>
           </div>
 
@@ -108,13 +117,17 @@
           
         <div id="nowplaying">
           <div id="album-cover"></div>
-          <h1>
-            <span id="currenttrack"></span>
-          </h1>
+          <h1 id="currenttrack"></h1>
           <h3 id="artist"></h3>
           <h4 id="album"></h4>
-          <p id="counter" class="text pull-right">&nbsp;&nbsp;</p>
-          <div id="progressbar"></div>
+          <div class="row">
+            <div class="col-8">
+              <input id="progressbar" data-slider-id='progressbar' data-slider-handle='custom' type="text" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="0"/>
+            </div>
+            <div class="col-4">
+              <p id="counter" class="text">&nbsp;&nbsp;</p>
+            </div>
+          </div>          
         </div>
 
         <ol id="breadcrumb" class="breadcrumb hide">
@@ -181,7 +194,7 @@
   <footer class="footer">
     <nav class="navbar navbar-expand navbar-dark fixed-bottom bg-dark">
       <div class="d-flex flex-fill navbar-nav" id="navbar-bottom">
-        <div class="nav-item flex-fill text-center" id="nav-playing"><a class="nav-link" href="#/playing/">Playing</a></div>
+        <div class="nav-item flex-fill text-center" id="nav-playing"><a class="nav-link" href="#/playing/">Playback</a></div>
         <div class="nav-item flex-fill text-center" id="nav-queue"><a class="nav-link" href="#/queue/0">Queue</a></div>
         <div class="nav-item flex-fill text-center" id="nav-browse"><a class="nav-link" href="#/browse/0/">Browse</a></div>
       </div>
@@ -201,9 +214,6 @@
         <div class="modal-body">
           <h4><a style="color:#28a745" href="https://github.com/jcorporation/ympd"><span class="material-icons">play_circle_outline</span> myMPD</a>&nbsp;&ndash;&nbsp;<small>MPD Web GUI - written in C, utilizing Websockets and Bootstrap/JS</small></h4>
           <p>myMPD is a lightweight MPD web client that runs without a dedicated webserver or interpreter. It's tuned for minimal resource usage and requires only very litte dependencies. myMPD is a fork of <a style="color:#28a745" href="http://www.ympd.org">ympd</a>.</p>
-          <h5>myMPD uses following excellent software:</h5>
-          <h6><a style="color:#28a745" href="http://cesanta.com/docs.html">Mongoose</a> <small>GPLv2</small></h6>
-          <h6><a style="color:#28a745" href="http://www.musicpd.org/libs/libmpdclient/">libMPDClient</a> <small>BSD License</small></h6>
           <hr />
           <div class="row">
             <div class="form-group col-md-6">
@@ -241,15 +251,7 @@
               </button>
             </div>            
           </div>
-          <hr />
-          <div class="row">
-            <div class="form-group col-md-6">
-              <button type="button" class="btn btn-secondary btn-block" onclick="updateDB();">
-                <span class="glyphicon glyphicon-refresh"></span> Update Database
-              </button>
-            </div>
-          </div>
-          <hr />
+          <hr/>
           <form role="form">
             <div class="row">
               <div class="form-group col-md-9">
@@ -371,7 +373,7 @@
   <script src="js/jquery-3.3.1.min.js"></script>
   <script src="js/jquery.cookie.js"></script>
   <script src="js/bootstrap.min.js"></script>
-  <script src="js/bootstrap-slider.js"></script>
+  <script src="js/bootstrap-slider.min.js"></script>
   <script src="js/bootstrap-notify.min.js"></script>
   <script src="js/sammy.js"></script>
   <script src="js/jquery-ui-sortable.min.js"></script>
