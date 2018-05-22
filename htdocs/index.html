@@ -22,15 +22,13 @@
   <header>
     <nav class="navbar navbar-expand navbar-dark fixed-top bg-dark">
         <div class="dropdown col-auto mr-auto">
-          <a class="navbar-brand dropdown-toggle" data-toggle="dropdown" href="/#/playing/"><span style="font-size:24px;float:left;margin-right:5px;" class="material-icons">play_circle_outline</span>myMPD</a>
+          <a class="dropdown-toggle navbar-brand" data-toggle="dropdown" href="#">
+            <span class="material-icons header-logo">play_circle_outline</span>myMPD</a>
           <div class="dropdown-menu bg-dark">
-            <h1 class="dropdown-header text-light">myMPD</h1>
-            <div class="dropdown-divider"></div>
             <form id="search" class="px-4 py-3" role="search">
               <input type="text" class="form-control" placeholder="Search">
             </form>
             <div class="dropdown-divider"></div>
-            <a id="nav-dirble" class="dropdown-item" href="#/dirble/">Dirble</a>
             <a id="nav-addstream" class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#addstream">Add Stream</a>
             <a id="nav-settings" class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#settings" onclick="getHost();">Settings</a>
             <a id="nav-updatedb" class="dropdown-item text-light bg-dark" href="#" onclick="updateDB();">Update Database</a>
@@ -41,11 +39,6 @@
             <button type="button" class="btn btn-secondary" onclick="socket.send('MPD_API_SET_PREV');">
               <span class="material-icons">skip_previous</span>
             </button>
-            <!--
-            <button type="button" class="btn btn-secondary" onclick="socket.send('MPD_API_SET_STOP');">
-              <span id="stop-icon" class="material-icons">stop</span>
-            </button>
-            -->
             <button type="button" class="btn btn-secondary" onclick="clickPlay();">
               <span id="play-icon" class="material-icons">pause</span>
             </button>
@@ -60,9 +53,11 @@
             <div class="dropdown-menu dropdown-menu-right bg-dark">
               <h1 class="dropdown-header text-light">Volume: <span id="volumePrct"></span></h1>
               <form class="px-4 py-3" style="padding-top:0px !important;">
-              <div class="btn-group btn-secondary" role="group" style="border-radius:0.25rem">
+              <div class="btn-group" role="group">
                 <input type="button" class="btn btn-secondary" value="&minus;" onclick="chVolume(-5)"/>
-                <input id="volumebar" data-slider-id="volumebar" data-slider-handle="custom" type="text" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="0"/>
+                <div class="btn btn-secondary">
+                 <input id="volumebar" data-slider-id="volumebar" data-slider-handle="custom" type="text" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="0"/>
+                </div>
                 <input type="button" class="btn btn-secondary" value="+" onclick="chVolume(5)"/>
                 </div>
               </form>
@@ -85,13 +80,33 @@
     </nav>
   </header>
   <main role="main" class="container">
-    <div class="card">
+
+    <div class="card" id="cardPlayback">
+      <div class="card-header">Now playing</div>
+      <div class="card-body">
+        <div id="album-cover"></div>
+        <h1 id="currenttrack"></h1>
+        <h3 id="artist"></h3>
+        <h4 id="album"></h4>
+        <div class="row">
+          <div class="col-8">
+            <input id="progressbar" data-slider-id='progressbar' data-slider-handle='custom' type="text" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="0"/>
+          </div>
+          <div class="col-4">
+            <p id="counter" class="text">&nbsp;&nbsp;</p>
+          </div>
+        </div>          
+      </div>
+    </div>
+    
+    
+    <div class="card hide" id="cardQueue">
       <div class="card-header">
-        <span id="panel-heading">Now playing</span>
-        <span id="panel-heading-info" class="text pull-right"></span>
+        <span>Queue</span>
+        <span id="panel-heading-queue" class="text pull-right"></span>
       </div>
       <div class="card-body">
-        <div class="btn-toolbar hide" id="queue-buttons" role="toolbar">
+        <div class="btn-toolbar" id="queue-buttons" role="toolbar">
           <div id="trashmode" class="btn-group mr-2" data-toggle="radio">
             <button id="btntrashmodeup" type="button" class="btn btn-secondary" title="Delete upward">
               <span class="material-icons">vertical_align_top</span>
@@ -115,32 +130,7 @@
           </div>
         </div>
           
-        <div id="nowplaying">
-          <div id="album-cover"></div>
-          <h1 id="currenttrack"></h1>
-          <h3 id="artist"></h3>
-          <h4 id="album"></h4>
-          <div class="row">
-            <div class="col-8">
-              <input id="progressbar" data-slider-id='progressbar' data-slider-handle='custom' type="text" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="0"/>
-            </div>
-            <div class="col-4">
-              <p id="counter" class="text">&nbsp;&nbsp;</p>
-            </div>
-          </div>          
-        </div>
-
-        <ol id="breadcrumb" class="breadcrumb hide">
-        </ol>
-
-        <div class="btn-toolbar hide" id="filter-toolbar">
-          <div class="btn-group mr-2 flex-wrap" data-toggle="radio" id="filter"></div>
-          <div class="btn-group mr-2 pull-right">
-            <button id="add-all-songs" class="btn btn-secondary">Add all</button>
-          </div>
-        </div>
-
-        <table id="salamisandwich" class="table table-hover hide">
+        <table id="queueList" class="table table-hover">
           <col class="tblnum"/>
           <col class="tblartist"/>
           <col class="tblalbum"/>
@@ -161,42 +151,86 @@
           </tbody>
         </table>
 
-        <div id="dirble_panel" class="hide">
-          <p id="dirble_loading" style="font-size:16px;font-weight:bold;margin-left:4em;">Loading...</p>
-          <table style="float:right; width:44%; margin-right:4%;" id="dirble_right" class="table table-hover">
-            <thead>
-              <tr>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-            </tbody>
-          </table>
-          <table style="width:44%; margin-left:4%;" id="dirble_left" class="table table-hover">
-            <thead>
-              <tr>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-            </tbody>
-          </table>
-        </div>
-
         <ul class="pagination justify-content-center">
-          <li id="prev" class="page-item hide"><a class="page-link" href="">Previous</a></li>
-          <li id="next" class="page-item hide"><a class="page-link" href="">Next</a></li>
+          <li id="queuePrev" class="page-item hide"><a class="page-link text-secondary" href="">Previous</a></li>
+          <li id="queueNext" class="page-item hide"><a class="page-link text-secondary" href="">Next</a></li>
         </ul>
       </div>
     </div>
-  </main>
+    
+    <div class="card hide" id="cardBrowse">
+      <div class="card-header" id="panel-heading-browse">Browse</div>
+      <div class="card-body">
+        <ol id="browseBreadcrumb" class="breadcrumb">
+        </ol>
 
+        <div class="btn-toolbar" id="filter-toolbar">
+          <div class="btn-group mr-2 flex-wrap" data-toggle="radio" id="filter"></div>
+          <div class="btn-group mr-2 pull-right">
+            <button id="add-all-songs" class="btn btn-secondary">Add all</button>
+          </div>
+        </div>
+
+        <table id="browseList" class="table table-hover">
+          <col class="tblnum"/>
+          <col class="tblartist"/>
+          <col class="tblalbum"/>
+          <col class="tbltitle"/>
+          <col class="tbllength"/>
+          <col class="tblaction"/>
+          <thead>
+            <tr>
+              <th></th>
+              <th>Artist</th>
+              <th>Album</th>
+              <th>Title</th>
+              <th>Length</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+
+        <ul class="pagination justify-content-center">
+          <li id="browsePrev" class="page-item hide"><a class="page-link text-secondary" href="">Previous</a></li>
+          <li id="browseNext" class="page-item hide"><a class="page-link text-secondary" href="">Next</a></li>
+        </ul>
+      </div>
+    </div>        
+
+    <div class="card hide" id="cardSearch">
+      <div class="card-header" id="pnael-heading-search">Search</div>
+      <div class="card-body">
+        <table id="searchList" class="table table-hover">
+          <col class="tblnum"/>
+          <col class="tblartist"/>
+          <col class="tblalbum"/>
+          <col class="tbltitle"/>
+          <col class="tbllength"/>
+          <col class="tblaction"/>
+          <thead>
+            <tr>
+              <th></th>
+              <th>Artist</th>
+              <th>Album</th>
+              <th>Title</th>
+              <th>Length</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+      </div>
+    </div>    
+    
   <footer class="footer">
     <nav class="navbar navbar-expand navbar-dark fixed-bottom bg-dark">
       <div class="d-flex flex-fill navbar-nav" id="navbar-bottom">
-        <div class="nav-item flex-fill text-center" id="nav-playing"><a class="nav-link" href="#/playing/">Playback</a></div>
-        <div class="nav-item flex-fill text-center" id="nav-queue"><a class="nav-link" href="#/queue/0">Queue</a></div>
-        <div class="nav-item flex-fill text-center" id="nav-browse"><a class="nav-link" href="#/browse/0/">Browse</a></div>
+        <div class="nav-item flex-fill text-center" id="navPlayback"><a class="nav-link" href="#/playing/">Playback</a></div>
+        <div class="nav-item flex-fill text-center" id="navQueue"><a class="nav-link" href="#/queue/0">Queue</a></div>
+        <div class="nav-item flex-fill text-center" id="navBrowse"><a class="nav-link" href="#/browse/0/">Browse</a></div>
       </div>
     </nav>
   </footer>
@@ -244,12 +278,20 @@
               <button id="btnrepeat" type="button" class="btn btn-secondary btn-block" title="Repeat">
                 <span class="glyphicon glyphicon-repeat"></span> Repeat
               </button>
-            </div>          
+            </div>
+          </div>
+          <hr/>
+          <div class="row">
             <div class="form-group col-md-6" data-toggle="buttons">
-              <button type="button" class="btn btn-secondary btn-block" id="btnnotify">
-                <span class="glyphicon glyphicon-comment"></span> Enable Notifications
+              <button type="button" class="btn btn-secondary btn-block" id="btnnotifyPage">
+                <span class="glyphicon glyphicon-comment"></span> Page Notifications
               </button>
-            </div>            
+            </div>
+            <div class="form-group col-md-6" data-toggle="buttons">
+              <button type="button" class="btn btn-secondary btn-block" id="btnnotifyWeb">
+                <span class="glyphicon glyphicon-comment"></span> Web Notifications
+              </button>
+            </div>
           </div>
           <hr/>
           <form role="form">
@@ -352,21 +394,6 @@
     </div><!-- /.modal-dialog -->
   </div><!-- /.modal -->
 
-  <div class="modal fade bs-example-modal-sm" id="wait" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5>Searching...</h5>
-        </div>
-        <div class="modal-body">
-          <div class="progress">
-            <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width:100%;"></div>
-          </div>
-        </div>
-      </div><!-- /.modal-content -->
-    </div><!-- /.modal-dialog -->
-  </div><!-- /.modal -->
-
   <!-- Bootstrap core JavaScript
   ================================================== -->
   <!-- Placed at the end of the document so the pages load faster -->
@@ -376,7 +403,6 @@
   <script src="js/bootstrap-slider.min.js"></script>
   <script src="js/bootstrap-notify.min.js"></script>
   <script src="js/sammy.js"></script>
-  <script src="js/jquery-ui-sortable.min.js"></script>
   <script src="js/mpd.js"></script>
   <script src="js/custom.js"></script></body>
 </html>

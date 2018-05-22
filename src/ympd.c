@@ -101,7 +101,6 @@ int main(int argc, char **argv)
         {"port",         required_argument, 0, 'p'},
         {"localport",    required_argument, 0, 'l'},
         {"webport",      required_argument, 0, 'w'},
-        {"dirbletoken",  required_argument, 0, 'd'},
         {"user",         required_argument, 0, 'u'},
         {"version",      no_argument,       0, 'v'},
         {"help",         no_argument,       0,  0 },
@@ -127,9 +126,6 @@ int main(int argc, char **argv)
             case 'w':
                 webport = strdup(optarg);
                 break;
-            case 'd':
-                strncpy(dirble_api_token, optarg, sizeof(dirble_api_token));
-                break;
             case 'u':
                 run_as_user = strdup(optarg);
                 break;
@@ -153,7 +149,6 @@ int main(int argc, char **argv)
                         " -l, --localport <port>\t\tskip authorization for local port\n"
                         " -w, --webport [ip:]<port>\tlisten interface/port for webserver [8080]\n"
                         " -u, --user <username>\t\tdrop priviliges to user after socket bind\n"
-                        " -d, --dirbletoken <apitoken>\tDirble API token\n"
                         " -v, --version\t\t\tget version\n"
                         " -m, --mpdpass <password>\tspecifies the password to use when connecting to mpd\n"
                         " --help\t\t\t\tthis help\n"

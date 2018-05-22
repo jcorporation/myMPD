@@ -64,8 +64,7 @@ int callback_mpd(struct mg_connection *c)
         return MG_TRUE;
 
     if(mpd.conn_state != MPD_CONNECTED && cmd_id != MPD_API_SET_MPDHOST &&
-        cmd_id != MPD_API_GET_MPDHOST && cmd_id != MPD_API_SET_MPDPASS &&
-        cmd_id != MPD_API_GET_DIRBLEAPITOKEN)
+        cmd_id != MPD_API_GET_MPDHOST && cmd_id != MPD_API_SET_MPDPASS)
         return MG_TRUE;
 
     switch(cmd_id)
@@ -290,10 +289,6 @@ out_host_change:
             n = snprintf(mpd.buf, MAX_SIZE, "{\"type\":\"mpdhost\", \"data\": "
                 "{\"host\" : \"%s\", \"port\": \"%d\", \"passwort_set\": %s}"
                 "}", mpd.host, mpd.port, mpd.password ? "true" : "false");
-            break;
-        case MPD_API_GET_DIRBLEAPITOKEN:
-            n = snprintf(mpd.buf, MAX_SIZE, "{\"type\":\"dirbleapitoken\", \""
-                "data\": \"%s\"}", dirble_api_token);
             break;
         case MPD_API_SET_MPDPASS:
             p_charbuf = strdup(c->content);

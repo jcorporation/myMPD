@@ -40,7 +40,6 @@
     X(MPD_API_GET_QUEUE) \
     X(MPD_API_GET_BROWSE) \
     X(MPD_API_GET_MPDHOST) \
-    X(MPD_API_GET_DIRBLEAPITOKEN) \
     X(MPD_API_ADD_TRACK) \
     X(MPD_API_ADD_PLAY_TRACK) \
     X(MPD_API_ADD_PLAYLIST) \
@@ -99,8 +98,6 @@ struct t_mpd {
     int song_id;
     unsigned queue_version;
 } mpd;
-
-char dirble_api_token[28];
 
 struct t_mpd_client_session {
     int song_id;
