@@ -364,7 +364,7 @@ static int mpd_notify_callback(struct mg_connection *c, enum mg_event ev) {
     {
         mg_websocket_write(c, 1, mpd.buf, mpd.buf_size);
 
-        if(s->song_id != mpd.song_id)
+        if(s->song_id != mpd.song_id || s->queue_version != mpd.queue_version)
         {
             n = mpd_put_current_song(mpd.buf);
             mg_websocket_write(c, 1, mpd.buf, n);
@@ -653,7 +653,9 @@ int mpd_put_queue(char *buffer, unsigned int offset)
                 cur += json_emit_raw_str(cur, end - cur, ",\"artist\":");
                 cur += json_emit_quoted_str(cur, end - cur, mpd_get_artist(song));
 //                cur += json_emit_raw_str(cur, end - cur, ",\"album_artist\":");
-//                cur += json_emit_quoted_str(cur, end - cur, mpd_get_album_artist(song));            
+//                cur += json_emit_quoted_str(cur, end - cur, mpd_get_album_artist(song));
+//                cur += json_emit_raw_str(cur, end - cur, ",\"uri\":");
+//                cur += json_emit_quoted_str(cur, end - cur, mpd_song_get_uri(song));
                 cur += json_emit_raw_str(cur, end - cur, ",\"album\":");
                 cur += json_emit_quoted_str(cur, end - cur, mpd_get_album(song));
                 cur += json_emit_raw_str(cur, end - cur, ",\"title\":");

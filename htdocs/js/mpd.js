@@ -518,21 +518,9 @@ function webSocketConnect() {
                     }
                     break;
               case "song_change":
-                    if (obj.data.uri) {
-                      var coverImg='/library/'+obj.data.uri.replace(/\/[^\/]+$/,'\/folder.jpg');
-                      $('#album-cover').css('backgroundImage','url("'+coverImg+'")');
-                    }
 
-                    if (obj.data.title) { $('#currenttrack').text(obj.data.title); }
-                    else { $('#currenttrack').text(''); }
-
-                    if(obj.data.artist) { $('#artist').text(obj.data.artist); }
-                    else { $('#artist').text(''); }
-
-                    if(obj.data.album) { $('#album').text(obj.data.album); }
-                    else { $('#album').text(''); }
                     
-                    songNotify(obj.data.title, obj.data.artist, obj.data.album);
+                    songChange(obj.data.title, obj.data.artist, obj.data.album, obj.data.uri);
                     break;
                 case 'mpdhost':
                     $('#mpdhost').val(obj.data.host);
@@ -590,8 +578,7 @@ function get_appropriate_ws_url()
     return pcol + u[0] + separator + "ws";
 }
 
-var updateVolumeIcon = function(volume)
-{
+function updateVolumeIcon(volume) {
     $('#volumePrct').text(volume+' %');
     if(volume == 0) {
         $("#volume-icon").text("volume_off");
@@ -602,25 +589,20 @@ var updateVolumeIcon = function(volume)
     }
 }
 
-var updatePlayIcon = function(state)
-{
+function updatePlayIcon(state) {
     $("#play-icon").text('play_arrow');
 
     if(state == 1) { // stop
         $("#play-icon").text('play_arrow');
-        document.getElementById('player').pause();
         playstate = 'stop';
     } else if(state == 2) { // play
         $("#play-icon").text('pause');
         playstate = 'play';
     } else { // pause
         $("#play-icon").text('play_arrow');
-	document.getElementById('player').pause();
 	playstate = 'pause';
     }
 }
-
-
 
 function updateDB() {
     socket.send('MPD_API_UPDATE_DB');
@@ -841,21 +823,36 @@ function notificationsSupported() {
     return "Notification" in window;
 }
 
-function songNotify(title, artist, album) {
+function songChange(title, artist, album, uri) {
     var textNotification = '';
     var htmlNotification = '';
     var pageTitle = 'myMPD: ';
-    if(typeof artist != 'undefined' && artist.length > 0) {
+
+    if (typeof uri != 'undefined' && uri.length > 0) {
+        var coverImg='/library/'+uri.replace(/\/[^\/]+$/,'\/folder.jpg');
+        $('#album-cover').css('backgroundImage','url("'+coverImg+'")');
+    }
+    if(typeof artist != 'undefined' && artist.length > 0 && artist != '-') {
         textNotification += artist;
         htmlNotification += '<br/>' + artist;
         pageTitle += artist + ' - ';
+        $('#artist').text(artist);
+    } else {
+        $('#artist').text('');
     }
-    if(typeof album != 'undefined' && album.length > 0) {
+    if(typeof album != 'undefined' && album.length > 0 && album != '-') {
         textNotification += ' - ' + album;
         htmlNotification += '<br/>' + album;
+        $('#album').text(album);
+    }
+    else {
+        $('#album').text('');
     }
     if(typeof title != 'undefined' && title.length > 0) {
         pageTitle += title;
+        $('#currenttrack').text(title);
+    } else {
+        $('#currenttrack').text('');
     }
     document.title = pageTitle;
     showNotification(title,textNotification,htmlNotification,'success');
