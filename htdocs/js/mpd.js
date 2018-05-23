@@ -153,6 +153,11 @@ $(document).ready(function(){
     $('#addstream form').on('submit', function (e) {
         addStream();
     });
+    
+    $('#mainMenu').on('shown.bs.dropdown', function () {
+        $('#search > input').val('');
+        $('#search > input').focus();
+     })
 
     if(!notificationsSupported())
         $('#btnnotifyWeb').addClass("disabled");
@@ -164,66 +169,6 @@ $(document).ready(function(){
         $('#btnnotifyPage').removeClass('btn-secondary').addClass("btn-success")
 
     add_filter();
-	
-    document.getElementById('player').addEventListener('stalled', function() {
-						if ( !document.getElementById('player').paused ) {
-							this.pause();
-							clickLocalPlay();
-							$('.top-right').notify({
-								message:{text:"music stream stalled - trying to recover..."},
-								type: "danger",
-								fadeOut: { enabled: true, delay: 1000 },
-							}).show();
-						}
-    });
-
-    document.getElementById('player').addEventListener('pause', function() {
-        this.src='';
-        this.removeAttribute("src");
-    	$("#localplay-icon").removeClass("glyphicon-pause").addClass("glyphicon-play");
-    });
-
-	document.getElementById('player').addEventListener('error', function failed(e) {
-		this.pause();
-		switch (e.target.error.code) {
-			case e.target.error.MEDIA_ERR_ABORTED:
-				$('.top-right').notify({
-					message:{text:"Audio playback aborted by user."},
-					type: "info",
-					fadeOut: { enabled: true, delay: 1000 },
-				}).show();
-				break;
-			case e.target.error.MEDIA_ERR_NETWORK:
-				$('.top-right').notify({
-					message:{text:"Network error while playing audio."},
-					type: "danger",
-					fadeOut: { enabled: true, delay: 1000 },
-				}).show();
-				break;
-			case e.target.error.MEDIA_ERR_DECODE:
-				$('.top-right').notify({
-					message:{text:"Audio playback aborted. Did you unplug your headphones?"},
-					type: "danger",
-					fadeOut: { enabled: true, delay: 1000 },
-				}).show();
-				break;
-			case e.target.error.MEDIA_ERR_SRC_NOT_SUPPORTED:
-				$('.top-right').notify({
-					message:{text:"Error while loading audio (server, network or format error)."},
-					type: "danger",
-					fadeOut: { enabled: true, delay: 1000 },
-				}).show();
-				break;
-			default:
-				$('.top-right').notify({
-					message:{text:"Unknown error while playing audio."},
-					type: "danger",
-					fadeOut: { enabled: true, delay: 1000 },
-				}).show();
-				break;
-		}
-	}, true);
-            
 });
 
 function webSocketConnect() {
@@ -509,8 +454,8 @@ function webSocketConnect() {
                         (elapsed_seconds < 10 ? '0' : '') + elapsed_seconds + " / " +
                         total_minutes + ":" + (total_seconds < 10 ? '0' : '') + total_seconds);
 
-                    $('#salamisandwich > tbody > tr').removeClass('active').css("font-weight", "");
-                    $('#salamisandwich > tbody > tr[trackid='+obj.data.currentsongid+']').addClass('active').css("font-weight", "bold");
+                    $('#queueList > tbody > tr').removeClass('active').css("font-weight", "");
+                    $('#queueList > tbody > tr[trackid='+obj.data.currentsongid+']').addClass('active').css("font-weight", "bold");
 
                     if(obj.data.random)
                         $('#btnrandom').removeClass('btn-secondary').addClass("btn-success")
@@ -568,8 +513,9 @@ function webSocketConnect() {
                     showNotification('myMPD lost connection to MPD','','','danger');
                     break;
                 case 'update_queue':
-                    if(current_app === 'queue')
+                    if(current_app === 'queue') {
                         socket.send('MPD_API_GET_QUEUE,'+pagination);
+                    }
                     break;
               case "song_change":
                     if (obj.data.uri) {
@@ -688,40 +634,12 @@ function clickPlay() {
         socket.send('MPD_API_SET_PAUSE');
 }
 
-function clickLocalPlay() {
-    var player = document.getElementById('player');
-    $("#localplay-icon").removeClass("glyphicon-play").removeClass("glyphicon-pause");
-	
-
-    if ( !$('#track-icon').hasClass('glyphicon-play') ) {
-		clickPlay();
-	}
-
-    if ( player.paused ) {
-        var mpdstream = $.cookie("mpdstream");
-
-        if ( mpdstream ) {
-            player.src = mpdstream;
-            console.log("playing mpd stream: " + player.src);
-            player.load();
-            player.play();
-            $("#localplay-icon").addClass("glyphicon-pause");
-        } else {
-            $("#mpdstream").change(function(){ clickLocalPlay(); $(this).unbind("change"); });
-            $("#localplay-icon").addClass("glyphicon-play");
-            getHost();
-        }
-    } else {
-        player.pause();
-    }
-}
-
 function setLocalStream(mpdhost) {
     var mpdstream = $.cookie("mpdstream");
 
     if ( !mpdstream ) {
         mpdstream = "http://";
-        if ( mpdhost == "127.0.0.1" )
+        if ( mpdhost == "127.0.0.1" || mpdhost == "localhost")
             mpdstream += window.location.hostname;
         else
             mpdstream += mpdhost;
@@ -822,8 +740,13 @@ function getHost() {
     $('#mpd_pw_con').keypress(onEnter);
 }
 
+$('#search > input').keypress(function (event) {
+   if ( event.which == 13 ) {
+     $('#mainMenu > a').dropdown('toggle');
+   }
+});
+
 $('#search').submit(function () {
-    
     app.setLocation("#/search/"+$('#search > input').val());
     return false;
 });

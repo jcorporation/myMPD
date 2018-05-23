@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="myMPD - fast and lightweight MPD webclient">
   <meta name="author" content="mail@jcgames.de">
@@ -21,9 +20,10 @@
 <body>
   <header>
     <nav class="navbar navbar-expand navbar-dark fixed-top bg-dark">
-        <div class="dropdown col-auto mr-auto">
+        <div class="dropdown col-auto mr-auto" id="mainMenu">
           <a class="dropdown-toggle navbar-brand" data-toggle="dropdown" href="#">
-            <span class="material-icons header-logo">play_circle_outline</span>myMPD</a>
+            <span class="material-icons header-logo">play_circle_outline</span>myMPD
+          </a>
           <div class="dropdown-menu bg-dark">
             <form id="search" class="px-4 py-3" role="search">
               <input type="text" class="form-control" placeholder="Search">
@@ -32,6 +32,7 @@
             <a id="nav-addstream" class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#addstream">Add Stream</a>
             <a id="nav-settings" class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#settings" onclick="getHost();">Settings</a>
             <a id="nav-updatedb" class="dropdown-item text-light bg-dark" href="#" onclick="updateDB();">Update Database</a>
+            <a id="nav-localplayer" class="dropdown-item text-light bg-dark" href="#" data-toggle="dropdown" onclick="window.open('/player.html','LocalPlayer');">Local Player</a>
           </div>
         </div>
         <div class="btn-toolbar col-auto" role="toolbar">
@@ -65,17 +66,6 @@
               <form id="btn-outputs-block" class="px-4 py-3"></form>              
             </div>
           </div>
-
-          <div class="btn-group" role="group">
-            <audio id="player" preload="none"></audio>
-            <button type="button" class="btn btn-default" onclick="clickLocalPlay()">
-              <span id="localplay-icon" class="glyphicon glyphicon-play"></span>
-            </button>
-            <button type="button" class="btn btn-default" onclick="window.open('/player.html');">
-              <span id="localplay-icon" class="glyphicon glyphicon-new-window"></span>
-            </button>
-          </div>
-
       </div>
     </nav>
   </header>
@@ -394,9 +384,6 @@
     </div><!-- /.modal-dialog -->
   </div><!-- /.modal -->
 
-  <!-- Bootstrap core JavaScript
-  ================================================== -->
-  <!-- Placed at the end of the document so the pages load faster -->
   <script src="js/jquery-3.3.1.min.js"></script>
   <script src="js/jquery.cookie.js"></script>
   <script src="js/bootstrap.min.js"></script>
@@ -404,5 +391,4 @@
   <script src="js/bootstrap-notify.min.js"></script>
   <script src="js/sammy.js"></script>
   <script src="js/mpd.js"></script>
-  <script src="js/custom.js"></script></body>
 </html>

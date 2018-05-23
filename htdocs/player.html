@@ -2,125 +2,42 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<!--  <meta name="viewport" content="width=device-width, initial-scale=1.0">-->
-  <meta name="viewport" content="width=320">
-  <meta name="description" content="ympd - fast and lightweight MPD webclient">
-  <meta name="author" content="andy@ndyk.de">
-
-  <title>ympd player</title>
-
-  <!-- Bootstrap core CSS -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="myMPD - fast and lightweight MPD webclient">
+  <meta name="author" content="mail@jcgames.de">
+  <title>myMPD: Local Player</title>
   <link href="css/bootstrap.css" rel="stylesheet">
-  <link href="css/bootstrap-theme.css" rel="stylesheet">
-
-  <!-- Custom styles for this template -->
   <link href="css/mpd.css" rel="stylesheet">
   <link href="assets/favicon.ico" rel="shortcut icon" type="image/vnd.microsoft.icon">
-  <script src="js/jquery-1.10.2.min.js"></script>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
+  <link rel="apple-touch-icon" href="assets/appicon.png"/>
+</head>
+<body>
+  <header>
+    <nav class="navbar navbar-expand navbar-dark fixed-top bg-dark">
+      <a class="navbar-brand" data-toggle="dropdown" href="#">
+        <span class="material-icons header-logo">play_circle_outline</span>myMPD
+      </a>
+    </nav>
+  </header>
+  <main role="main" class="container">
+    <div class="card">
+      <div class="card-header">Local Player</div>
+      <div class="card-body">
+        <audio id="player" preload="none" controls=""></audio>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/jquery-3.3.1.min.js"></script>
   <script src="js/jquery.cookie.js"></script>
-  <script src="js/bootstrap.min.js"></script>
-  <script src="js/bootstrap-notify.js"></script>
 <script type="text/javascript">
-function clickLocalPlay() {
-    var player = document.getElementById('player');
-    $("#localplay-icon").removeClass("glyphicon-play").removeClass("glyphicon-pause");
-
-
-    if ( player.paused ) {
         var mpdstream = $.cookie("mpdstream");
         player.src = mpdstream;
         console.log("playing mpd stream: " + player.src);
         player.load();
         player.play();
-        $("#localplay-icon").addClass("glyphicon-pause");
-    } else {
-        player.pause();
-        player.src='';
-        player.removeAttribute("src");
-        $("#localplay-icon").addClass("glyphicon-play");
-    }
-}
-
-$(document).ready(function(){
-	document.getElementById('player').addEventListener('stalled', function() {
-						if ( !document.getElementById('player').paused ) {
-							this.pause();
-							clickLocalPlay();
-							$('.top-right').notify({
-								message:{text:"music stream stalled - trying to recover..."},
-								type: "danger",
-								fadeOut: { enabled: true, delay: 1000 },
-							}).show();
-						}
-	});
-
-	document.getElementById('player').addEventListener('pause', function() {
-		this.src='';
-		this.removeAttribute("src");
-		$("#localplay-icon").removeClass("glyphicon-pause").addClass("glyphicon-play");
-	});
-
-	document.getElementById('player').addEventListener('error', function failed(e) {
-		this.pause();
-		switch (e.target.error.code) {
-			case e.target.error.MEDIA_ERR_ABORTED:
-				$('.top-right').notify({
-					message:{text:"Audio playback aborted by user."},
-					type: "info",
-					fadeOut: { enabled: true, delay: 1000 },
-				}).show();
-				break;
-			case e.target.error.MEDIA_ERR_NETWORK:
-				$('.top-right').notify({
-					message:{text:"Network error while playing audio."},
-					type: "danger",
-					fadeOut: { enabled: true, delay: 1000 },
-				}).show();
-				break;
-			case e.target.error.MEDIA_ERR_DECODE:
-				$('.top-right').notify({
-					message:{text:"Audio playback aborted. Did you unplug your headphones?"},
-					type: "danger",
-					fadeOut: { enabled: true, delay: 1000 },
-				}).show();
-				break;
-			case e.target.error.MEDIA_ERR_SRC_NOT_SUPPORTED:
-				$('.top-right').notify({
-					message:{text:"Error while loading audio (server, network or format error)."},
-					type: "danger",
-					fadeOut: { enabled: true, delay: 1000 },
-				}).show();
-				break;
-			default:
-				$('.top-right').notify({
-					message:{text:"Unknown error while playing audio."},
-					type: "danger",
-					fadeOut: { enabled: true, delay: 1000 },
-				}).show();
-				break;
-		}
-	}, true);
-});
-</script>
-</head>
-<body>
-  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-    <div class="container">
-        <a class="navbar-brand" href="/" target="_blank"><span class="glyphicon glyphicon-play-circle"></span> ympd</a>
-    </div>
-  </div>
-
-  <div class="container starter-template">
-    <div class="row">
-      <div class="col-md-10 col-xs-12">
-            <audio id="player" preload="none"></audio>
-            <button type="button" class="btn btn-default btn-lg center-block" onclick="clickLocalPlay()">
-              <span id="localplay-icon" class="glyphicon glyphicon-play"></span>
-            </button>
-        <div class="notifications top-right"></div>
-      </div>
-    </div>
-  </div>
+</script>  
 </body>
 </html>
