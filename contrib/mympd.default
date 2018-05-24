@@ -1,7 +1,7 @@
 MPD_HOST=localhost
 MPD_PORT=6600
 MPD_PASSWORD=
-WEB_PORT=8080
-YMPD_USER=nobody
+WEB_PORT=80
+MYMPD_USER=nobody
 #DIGEST=--digest /path/to/htdigest
 #LOCALPORT=--localport 8080

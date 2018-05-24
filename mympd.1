@@ -1,14 +1,15 @@
-.\" Manpage for ympd.
-.\" Contact andy@ympd.org to correct errors or typos.
-.TH man 1 "19 Oct 2014" "1.2.3" "ympd man page"
+.\" Manpage for myMPD.
+.\" Contact mail@jcgames.de to correct errors or typos.
+.TH man 1 "24 May 2018" "1.0.0" "myMPD man page"
 .SH NAME
-ympd \- Standalone MPD Web GUI written in C, utilizing Websockets and Bootstrap/JS
+myMPD \- Standalone MPD Web GUI written in C, utilizing Websockets and Bootstrap/JS
 .SH SYNOPSIS
-ympd [OPTION]...
+mympd [OPTION]...
 .SH DESCRIPTION
-ympd is a lightweight MPD (Music Player Daemon) web client that runs without a dedicated webserver or interpreters like PHP, NodeJS or Ruby. It's tuned for minimal resource usage and requires only very litte dependencies.
+myMPD is a lightweight MPD web client that runs without a dedicated webserver or interpreter. 
+It's tuned for minimal resource usage and requires only very litte dependencies. 
+myMPD is a fork of ympd.
 
-ympd is based in part on the work of the mongoose http server (https://github.com/cesanta/mongoose)
 .SH OPTIONS
 .TP
 \fB\-h\fR, \fB\-\-host HOST\fR
@@ -16,6 +17,9 @@ connect to mpd at host, defaults to localhost
 .TP
 \fB\-p\fR, \fB\-\-port PORT\fR
 connect to mpd at port, defaults to 6600
+.TP
+\fB\-l\fR, \fB\-\-localport PORT\fR
+skip authorization for local port
 .TP
 \fB\-w\fR, \fB\-\-webport PORT\fR
 specifies the port for the webserver to listen to, defaults to 8080
@@ -34,6 +38,6 @@ print all valid options and exits
 .SH BUGS
 No known bugs.
 .SH AUTHOR
-Andrew Karpow (andy@ndyk.de)
+Juergen Mang (mail@jcgames.de)
 
-http://www.ympd.org
+https://github.com/jcorporation/ympd

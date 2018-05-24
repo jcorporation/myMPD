@@ -1,0 +1,18 @@
+[Unit]
+Description=myMPD server daemon
+Requires=network.target local-fs.target
+
+[Service]
+Environment=MPD_HOST=localhost
+Environment=MPD_PORT=6600
+Environment=MPD_PASSWORD=
+Environment=WEB_PORT=80
+Environment=MYMPD_USER=nobody
+Environment=DIGEST=
+Environment=LOCALPORT=
+EnvironmentFile=/etc/default/mympd
+ExecStart=/usr/bin/ympd --user $MYMPD_USER --webport $WEB_PORT --host $MPD_HOST --port $MPD_PORT $DIGEST $LOCALPORT
+Type=simple
+
+[Install]
+WantedBy=multi-user.target
