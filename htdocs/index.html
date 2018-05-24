@@ -30,9 +30,10 @@
             </form>
             <div class="dropdown-divider"></div>
             <a id="nav-addstream" class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#addstream">Add Stream</a>
-            <a id="nav-settings" class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#settings">Settings</a>
             <a id="nav-updatedb" class="dropdown-item text-light bg-dark" href="#" onclick="updateDB();">Update Database</a>
             <a id="nav-localplayer" class="dropdown-item text-light bg-dark" href="#" data-toggle="dropdown" onclick="window.open('/player.html','LocalPlayer');">Local Player</a>
+            <a id="nav-settings" class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#settings">Settings</a>
+            <a id="nav-about" class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#about">About</a>
           </div>
         </div>
         <div class="btn-toolbar col-auto" role="toolbar">
@@ -236,9 +237,6 @@
           </button>
         </div>
         <div class="modal-body">
-          <h4><a style="color:#28a745" href="https://github.com/jcorporation/ympd"><span class="material-icons">play_circle_outline</span> myMPD</a>&nbsp;&ndash;&nbsp;<small>MPD Web GUI - written in C, utilizing Websockets and Bootstrap/JS</small></h4>
-          <p>myMPD is a lightweight MPD web client that runs without a dedicated webserver or interpreter. It's tuned for minimal resource usage and requires only very litte dependencies. myMPD is a fork of <a style="color:#28a745" href="http://www.ympd.org">ympd</a>.</p>
-          <hr />
           <div class="row">
             <div class="form-group col-md-6">
               <button id="btnrandom" type="button" class="btn btn-secondary btn-block" title="Random">
@@ -283,6 +281,29 @@
               </button>
             </div>
           </div>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+  
+    <!-- Modal -->
+  <div class="modal fade" id="about" tabindex="-1" role="dialog" aria-labelledby="settingsLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="settingsLabel"><span class="material-icons">play_circle_outline</span> About</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <h4><a style="color:#28a745" href="https://github.com/jcorporation/ympd"><span class="material-icons">play_circle_outline</span> myMPD</a>&nbsp;&ndash;&nbsp;<small>MPD Web GUI - written in C, utilizing Websockets and Bootstrap/JS</small></h4>
+          <p>myMPD is a lightweight MPD web client that runs without a dedicated webserver or interpreter. It's tuned for minimal resource usage and requires only very litte dependencies. myMPD is a fork of <a style="color:#28a745" href="http://www.ympd.org">ympd</a>.</p>
+          <ul>
+            <li>Version: 1.0.0</li>
+            <li>Homepage: <a style="color:#28a745" target="_blank" href="https://github.com/jcorporation/ympd">https://github.com/jcorporation/ympd</a></li>
+            <li>Autor: Juergen Mang &lt;<a style="color:#28a745" href="mailto:mail@jcgames.de">mail@jcgames.de</a>&gt;</li>
+          </ul>
         </div>
       </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
