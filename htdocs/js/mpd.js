@@ -46,6 +46,7 @@ var app = $.sammy(function() {
         $('#cardBrowse').addClass('hide');
         $('#cardSearch').addClass('hide');
         $('.pagination').addClass('hide');
+        $('#searchqueue > input').val('');
         pagination = 0;
         browsepath = '';
     }
@@ -223,7 +224,7 @@ function webSocketConnect() {
                     $('#queueList > tbody').empty();
                     for (var song in obj.data) {
                         if (obj.data[song].type == 'wrap') {
-                            $('#'+current_app+'List > tbody').append(
+                            $('#queueList > tbody').append(
                                  "<tr><td><span class=\"material-icons\">error_outline</span></td>" +
                                  "<td colspan=\"3\">Too many results, please refine your search!</td>" +
                                  "<td></td><td></td></tr>"
@@ -251,7 +252,9 @@ function webSocketConnect() {
                             $('#queuePrev').removeClass('disabled');
                             $('#queuePagination').removeClass('hide');
                         }
-                    } 
+                    } else {
+                        $('#queuePagination').addClass('hide');
+                    }
 
                     if ( isTouch ) {
                         $('#queueList > tbody > tr > td:last-child').append(
@@ -726,15 +729,15 @@ $('#search').submit(function () {
 });
 
 $('#searchqueue > input').keyup(function (event) {
-//   if ( event.which == 13 ) {
-     var searchstr=$('#searchqueue > input').val();
-     if (searchstr.length > 3) {
-      socket.send('MPD_API_SEARCH_QUEUE,' + searchstr);
+   var searchstr=$('#searchqueue > input').val();
+   if ( event.which == 13 ) {
+     if (searchstr.length >= 3) {
+       socket.send('MPD_API_SEARCH_QUEUE,' + searchstr);
      }
-     else if (searchstr.length == 0) {
-      socket.send('MPD_API_GET_QUEUE,0');
-     }
-//   }
+   }
+   if (searchstr.length == 0) {
+     socket.send('MPD_API_GET_QUEUE,0');
+   }
 });
 
 $('#searchqueue').submit(function () {
