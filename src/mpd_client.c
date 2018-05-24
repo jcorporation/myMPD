@@ -248,6 +248,9 @@ out_save_queue:
 out_search:
             free(p_charbuf);
             break;
+        case MPD_API_SEND_SHUFFLE:
+            mpd_run_shuffle(mpd.conn);
+            break;
         case MPD_API_SEND_MESSAGE:
             p_charbuf = strdup(c->content);
             if(strcmp(strtok(p_charbuf, ","), "MPD_API_SEND_MESSAGE"))
