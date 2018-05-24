@@ -17,6 +17,11 @@ UI Components
  - jQuery: https://jquery.com/
  - js-cookie: https://github.com/js-cookie/js-cookie
 
+Backend
+-------
+ - Mongoose: https://github.com/cesanta/mongoose
+ - Frozen: https://github.com/cesanta/frozen
+
 Dependencies
 ------------
  - libmpdclient 2: http://www.musicpd.org/libs/libmpdclient/
@@ -30,8 +35,10 @@ Unix Build Instructions
 2. create build directory ```cd /path/to/src; mkdir build; cd build```
 3. create makefile ```cmake ..  -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=RELEASE```
 4. build ```make```
-5. install ```sudo make install``` or just run with ```./ympd```
-6. Link your mpd music directory to ```/path/to/src/htdocs/library``` and put ```folder.jpg``` files in your album directories
+5. install ```sudo make install``` or just run with ```./mympd```
+Optional:
+6. Link your mpd music directory to ```/usr/share/mympd/htdocs/library``` and put ```folder.jpg``` files in your album directories
+7. Configure your mpd with http stream output to use the local player
 
 Run flags
 ---------
