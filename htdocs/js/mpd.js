@@ -518,8 +518,6 @@ function webSocketConnect() {
                     }
                     break;
               case "song_change":
-
-                    
                     songChange(obj.data.title, obj.data.artist, obj.data.album, obj.data.uri);
                     break;
                 case 'mpdhost':
@@ -829,7 +827,12 @@ function songChange(title, artist, album, uri) {
     var pageTitle = 'myMPD: ';
 
     if (typeof uri != 'undefined' && uri.length > 0) {
-        var coverImg='/library/'+uri.replace(/\/[^\/]+$/,'\/folder.jpg');
+        var coverImg='';
+        if (uri.indexOf('http://') == 0) {
+            coverImg='/assets/httpstream.png';
+        } else {
+            coverImg='/library/'+uri.replace(/\/[^\/]+$/,'\/folder.jpg');
+        }
         $('#album-cover').css('backgroundImage','url("'+coverImg+'")');
     }
     if(typeof artist != 'undefined' && artist.length > 0 && artist != '-') {
