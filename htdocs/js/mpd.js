@@ -45,7 +45,7 @@ var app = $.sammy(function() {
         $('#cardQueue').addClass('hide');
         $('#cardBrowse').addClass('hide');
         $('#cardSearch').addClass('hide');
-        $('.page-item').addClass('hide');
+        $('.pagination').addClass('hide');
         pagination = 0;
         browsepath = '';
     }
@@ -200,6 +200,8 @@ function webSocketConnect() {
             }
 
             switch (obj.type) {
+                case 'queuesearch':
+                //Do the same as queue
                 case 'queue':
                     if(current_app !== 'queue')
                         break;
@@ -220,6 +222,15 @@ function webSocketConnect() {
 
                     $('#queueList > tbody').empty();
                     for (var song in obj.data) {
+                        if (obj.data[song].type == 'wrap') {
+                            $('#'+current_app+'List > tbody').append(
+                                 "<tr><td><span class=\"material-icons\">error_outline</span></td>" +
+                                 "<td colspan=\"3\">Too many results, please refine your search!</td>" +
+                                 "<td></td><td></td></tr>"
+                            );
+                            continue;
+                        }
+                    
                         var minutes = Math.floor(obj.data[song].duration / 60);
                         var seconds = obj.data[song].duration - minutes * 60;
 
@@ -231,11 +242,17 @@ function webSocketConnect() {
                                 "<td>"+ minutes + ":" + (seconds < 10 ? '0' : '') + seconds +
                         "</td><td></td></tr>");
                     }
+                    if (obj.type == 'queue') {
+                        if(obj.data.length && obj.data[obj.data.length-1].pos + 1 >= pagination + MAX_ELEMENTS_PER_PAGE) {
+                            $('#queueNext').removeClass('disabled');
+                            $('#queuePagination').removeClass('hide');
+                        }
+                        if(pagination > 0) {
+                            $('#queuePrev').removeClass('disabled');
+                            $('#queuePagination').removeClass('hide');
+                        }
+                    } 
 
-                    if(obj.data.length && obj.data[obj.data.length-1].pos + 1 >= pagination + MAX_ELEMENTS_PER_PAGE)
-                        $('#queueNext').removeClass('hide');
-                    if(pagination > 0)
-                        $('#queuePrev').removeClass('hide');
                     if ( isTouch ) {
                         $('#queueList > tbody > tr > td:last-child').append(
                                     "<a class=\"pull-right btn-group-hover color-darkgrey\" href=\"#/\" " +
@@ -345,7 +362,8 @@ function webSocketConnect() {
                                 break;
                             case 'wrap':
                                 if(current_app == 'browse') {
-                                    $('#browseNext').removeClass('hide');
+                                    $('#browseNext').removeClass('disabled');
+                                    $('#browsePagination').removeClass('hide');
                                 } else {
                                     $('#'+current_app+'List > tbody').append(
                                         "<tr><td><span class=\"material-icons\">error_outline</span></td>" +
@@ -356,8 +374,10 @@ function webSocketConnect() {
                                 break;
                         }
 
-                        if(pagination > 0)
-                            $('#browsePrev').removeClass('hide');
+                        if(pagination > 0) {
+                            $('#browsePrev').removeClass('disabled');
+                            $('#browsePagination').removeClass('hide');
+                        }
 
                     }
                     
@@ -702,6 +722,22 @@ $('#search > input').keypress(function (event) {
 
 $('#search').submit(function () {
     app.setLocation("#/search/"+$('#search > input').val());
+    return false;
+});
+
+$('#searchqueue > input').keyup(function (event) {
+//   if ( event.which == 13 ) {
+     var searchstr=$('#searchqueue > input').val();
+     if (searchstr.length > 3) {
+      socket.send('MPD_API_SEARCH_QUEUE,' + searchstr);
+     }
+     else if (searchstr.length == 0) {
+      socket.send('MPD_API_GET_QUEUE,0');
+     }
+//   }
+});
+
+$('#searchqueue').submit(function () {
     return false;
 });
 

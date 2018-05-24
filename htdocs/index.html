@@ -122,8 +122,11 @@
               <span class="material-icons">save</span>
             </button>
           </div>
+          <form id="searchqueue" role="search" class="btn btn-secondary">
+            <input type="text" class="form-control" placeholder="Search"/>
+          </form>
         </div>
-          
+
         <table id="queueList" class="table table-hover">
           <col class="tblnum"/>
           <col class="tblartist"/>
@@ -145,9 +148,9 @@
           </tbody>
         </table>
 
-        <ul class="pagination justify-content-center">
-          <li id="queuePrev" class="page-item hide"><a class="page-link text-secondary" href="">Previous</a></li>
-          <li id="queueNext" class="page-item hide"><a class="page-link text-secondary" href="">Next</a></li>
+        <ul id="queuePagination" class="pagination justify-content-center hide">
+          <li id="queuePrev" class="page-item disabled"><a class="page-link text-secondary" href="">Previous</a></li>
+          <li id="queueNext" class="page-item disabled"><a class="page-link text-secondary" href="">Next</a></li>
         </ul>
       </div>
     </div>
@@ -186,9 +189,9 @@
           </tbody>
         </table>
 
-        <ul class="pagination justify-content-center">
-          <li id="browsePrev" class="page-item hide"><a class="page-link text-secondary" href="">Previous</a></li>
-          <li id="browseNext" class="page-item hide"><a class="page-link text-secondary" href="">Next</a></li>
+        <ul id="browsePagination" class="pagination justify-content-center hide">
+          <li id="browsePrev" class="page-item disabled"><a class="page-link text-secondary" href="">Previous</a></li>
+          <li id="browseNext" class="page-item disabled"><a class="page-link text-secondary" href="">Next</a></li>
         </ul>
       </div>
     </div>        
