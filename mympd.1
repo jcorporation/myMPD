@@ -18,11 +18,17 @@ connect to mpd at host, defaults to localhost
 \fB\-p\fR, \fB\-\-port PORT\fR
 connect to mpd at port, defaults to 6600
 .TP
+\fB\-D\fR, \fB\-\-digest HTDIGEST\fR	
+path to htdigest file for authorization
+.TP
 \fB\-l\fR, \fB\-\-localport PORT\fR
 skip authorization for local port
 .TP
 \fB\-w\fR, \fB\-\-webport PORT\fR
 specifies the port for the webserver to listen to, defaults to 8080
+.TP
+\fB-s\fR, \fB\-\-streamport PORT
+connect to mpd http stream at port [8000]
 .TP
 \fB\-u\fR, \fB\-\-user username\fR
 drop privileges to the provided username after socket binding

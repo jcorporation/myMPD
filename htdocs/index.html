@@ -30,7 +30,7 @@
             </form>
             <div class="dropdown-divider"></div>
             <a id="nav-addstream" class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#addstream">Add Stream</a>
-            <a id="nav-settings" class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#settings" onclick="getHost();">Settings</a>
+            <a id="nav-settings" class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#settings">Settings</a>
             <a id="nav-updatedb" class="dropdown-item text-light bg-dark" href="#" onclick="updateDB();">Update Database</a>
             <a id="nav-localplayer" class="dropdown-item text-light bg-dark" href="#" data-toggle="dropdown" onclick="window.open('/player.html','LocalPlayer');">Local Player</a>
           </div>
@@ -283,47 +283,6 @@
               </button>
             </div>
           </div>
-          <hr/>
-          <form role="form">
-            <div class="row">
-              <div class="form-group col-md-9">
-                <label class="control-label" for="mpdhost">MPD Host/IP</label>
-                <input type="text" class="form-control" id="mpdhost" />
-              </div>
-              <div class="form-group col-md-3">
-                <label class="control-label" for="mpdport">MPD Port</label>
-                <input type="text" class="form-control" id="mpdport" />
-              </div>
-            </div>
-            <div class="row">
-              <div class="form-group col-md-6">
-                <label class="control-label" for="mpd_pw">MPD Password</label>
-                <input type="password" class="form-control" id="mpd_pw" placeholder="Password"/>
-              </div>
-              <div class="form-group col-md-6">
-                <label class="control-label" for="mpd_pw_con">MPD Password (Confirmation)</label>
-                <input type="password" class="form-control" id="mpd_pw_con"  placeholder="Confirmation"
-                data-placement="right" data-toggle="popover" data-content="Password does not match!"
-                data-trigger="manual" />
-              </div>
-              <div class="form-group col-md-12">
-                <div id="mpd_password_set" class="hide alert alert-info">
-                  <button type="button" class="close" aria-hidden="true">&times;</button>
-                  MPD Password is set
-                </div>
-              </div>
-            </div>
-            <div class="row">
-              <div class="form-group col-md-12">
-                <label class="control-label" for="mpdstream">MPD Stream URL</label>
-                <input type="text" class="form-control" id="mpdstream" />
-              </div>
-            </div>
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-          <button type="button" class="btn btn-success" onclick="confirmSettings();">Save</button>
         </div>
       </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
@@ -385,7 +344,7 @@
   </div><!-- /.modal -->
 
   <script src="js/jquery-3.3.1.min.js"></script>
-  <script src="js/jquery.cookie.js"></script>
+  <script src="js/js.cookie.js"></script>
   <script src="js/bootstrap.min.js"></script>
   <script src="js/bootstrap-slider.min.js"></script>
   <script src="js/bootstrap-notify.min.js"></script>

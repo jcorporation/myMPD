@@ -31,11 +31,11 @@
   </main>
 
   <script src="js/jquery-3.3.1.min.js"></script>
-  <script src="js/jquery.cookie.js"></script>
+  <script src="js/js.cookie.js"></script>
 <script type="text/javascript">
-        var mpdstream = $.cookie("mpdstream");
+        var mpdstream = Cookies.get('mpdstream');
         player.src = mpdstream;
-        console.log("playing mpd stream: " + player.src);
+        console.log('playing mpd stream: ' + player.src);
         player.load();
         player.play();
 </script>  

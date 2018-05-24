@@ -11,7 +11,6 @@ else()
     set(ASSETS_PATH "${PROJECT_SOURCE_DIR}/htdocs")
 endif()
 
-option(WITH_MPD_HOST_CHANGE "Let users of the web frontend change the MPD Host" ON)
 option(WITH_IPV6 "enable IPv6 support" ON)
 option(WITH_SSL "enable SSL support" ON)
 
@@ -46,7 +45,7 @@ file(GLOB RESOURCES
 )
 
 set(SOURCES
-    src/ympd.c
+    src/mympd.c
     src/mpd_client.c
     src/mongoose.c
     src/json_encode.c

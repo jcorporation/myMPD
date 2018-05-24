@@ -1,4 +1,10 @@
-/* ympd
+/* myMPD
+   (c) 2018 Juergen Mang <mail@jcgames.de>
+   This project's homepage is: https://github.com/jcorporation/ympd
+   
+   myMPD ist fork of:
+   
+   ympd
    (c) 2013-2014 Andrew Karpow <andy@ndyk.de>
    This project's homepage is: http://www.ympd.org
    
@@ -39,7 +45,6 @@
 #define MPD_CMDS(X) \
     X(MPD_API_GET_QUEUE) \
     X(MPD_API_GET_BROWSE) \
-    X(MPD_API_GET_MPDHOST) \
     X(MPD_API_ADD_TRACK) \
     X(MPD_API_ADD_PLAY_TRACK) \
     X(MPD_API_ADD_PLAYLIST) \
@@ -58,8 +63,6 @@
     X(MPD_API_SET_SEEK) \
     X(MPD_API_SET_NEXT) \
     X(MPD_API_SET_PREV) \
-    X(MPD_API_SET_MPDHOST) \
-    X(MPD_API_SET_MPDPASS) \
     X(MPD_API_UPDATE_DB) \
     X(MPD_API_GET_OUTPUTS) \
     X(MPD_API_TOGGLE_OUTPUT) \
@@ -67,7 +70,8 @@
     X(MPD_API_TOGGLE_CONSUME) \
     X(MPD_API_TOGGLE_SINGLE) \
     X(MPD_API_TOGGLE_CROSSFADE) \
-    X(MPD_API_TOGGLE_REPEAT)
+    X(MPD_API_TOGGLE_REPEAT) \
+    X(MPD_API_GET_OPTIONS)
 
 enum mpd_cmd_ids {
     MPD_CMDS(GEN_ENUM)
@@ -98,6 +102,8 @@ struct t_mpd {
     int song_id;
     unsigned queue_version;
 } mpd;
+
+int streamport;
 
 struct t_mpd_client_session {
     int song_id;

@@ -162,10 +162,10 @@ $(document).ready(function(){
     if(!notificationsSupported())
         $('#btnnotifyWeb').addClass("disabled");
     else
-        if ($.cookie("notificationWeb") === "true")
+        if (Cookies.get('notificationWeb') === 'true')
             $('#btnnotifyWeb').removeClass('btn-secondary').addClass("btn-success")
     
-    if ($.cookie("notificationPage") === "true")
+    if (Cookies.get('notificationPage') === 'true')
         $('#btnnotifyPage').removeClass('btn-secondary').addClass("btn-success")
 
     add_filter();
@@ -186,6 +186,8 @@ function webSocketConnect() {
             app.run();
             /* emit initial request for output names */
             socket.send('MPD_API_GET_OUTPUTS');
+            /* emit request for mympd options */
+            socket.send('MPD_API_GET_OPTIONS');
         }
 
         socket.onmessage = function got_packet(msg) {
@@ -517,15 +519,11 @@ function webSocketConnect() {
                         socket.send('MPD_API_GET_QUEUE,'+pagination);
                     }
                     break;
-              case "song_change":
+                case "song_change":
                     songChange(obj.data.title, obj.data.artist, obj.data.album, obj.data.uri);
                     break;
-                case 'mpdhost':
-                    $('#mpdhost').val(obj.data.host);
-                    setLocalStream(obj.data.host);
-                    $('#mpdport').val(obj.data.port);
-                    if(obj.data.passwort_set)
-                        $('#mpd_password_set').removeClass('hide');
+                case 'mpdoptions':
+                    setLocalStream(obj.data.mpdhost,obj.data.streamport);
                     break;
                 case 'error':
                     showNotification(obj.data,'','','danger');
@@ -614,22 +612,14 @@ function clickPlay() {
         socket.send('MPD_API_SET_PAUSE');
 }
 
-function setLocalStream(mpdhost) {
-    var mpdstream = $.cookie("mpdstream");
-
-    if ( !mpdstream ) {
-        mpdstream = "http://";
-        if ( mpdhost == "127.0.0.1" || mpdhost == "localhost")
-            mpdstream += window.location.hostname;
-        else
-            mpdstream += mpdhost;
-        mpdstream += ":8000/";
-
-        $.cookie("mpdstream", mpdstream, { expires: 424242 });
-    }
-
-    $("#mpdstream").val(mpdstream);
-    $("#mpdstream").change();
+function setLocalStream(mpdhost,streamport) {
+    var mpdstream = 'http://';
+    if ( mpdhost == '127.0.0.1' || mpdhost == 'localhost')
+        mpdstream += window.location.hostname;
+    else
+        mpdstream += mpdhost;
+    mpdstream += ':'+streamport+'/';
+    Cookies.set('mpdstream', mpdstream, { expires: 424242 });
 }
 
 function trash(tr) {
@@ -677,8 +667,8 @@ $('#trashmode').children("button").on('click', function(e) {
 });
 
 $('#btnnotifyWeb').on('click', function (e) {
-    if($.cookie('notificationWeb') === 'true') {
-        $.cookie('notificationWeb', false);
+    if(Cookies.get('notificationWeb') === 'true') {
+        Cookies.set('notificationWeb', false, { expires: 424242 });
         $('#btnnotify').removeClass('btn-success').addClass('btn-secondary');
     } else {
         Notification.requestPermission(function (permission) {
@@ -687,7 +677,7 @@ $('#btnnotifyWeb').on('click', function (e) {
             }
 
             if (permission === 'granted') {
-                $.cookie('notificationWeb', true, { expires: 424242 });
+                Cookies.set('notificationWeb', true, { expires: 424242 });
                 $('#btnnotifyWeb').removeClass('btn-secondary').addClass('btn-success');
             }
         });
@@ -695,30 +685,14 @@ $('#btnnotifyWeb').on('click', function (e) {
 });
 
 $('#btnnotifyPage').on('click', function (e) {
-    if($.cookie("notificationPage") === 'true') {
-        $.cookie("notificationPage", false);
+    if(Cookies.get("notificationPage") === 'true') {
+        Cookies.set("notificationPage", false, { expires: 424242 });
         $('#btnnotifyPage').removeClass('btn-success').addClass('btn-secondary');
     } else {
-        $.cookie('notificationPage', true, { expires: 424242 });
+        Cookies.set('notificationPage', true, { expires: 424242 });
         $('#btnnotifyPage').removeClass('btn-secondary').addClass('btn-success');
     }
 });
-
-function getHost() {
-    socket.send('MPD_API_GET_MPDHOST');
-
-    function onEnter(event) {
-      if ( event.which == 13 ) {
-        confirmSettings();
-      }
-    }
-
-    $('#mpdhost').keypress(onEnter);
-    $('#mpdport').keypress(onEnter);
-    $('#mpdstream').keypress(onEnter);
-    $('#mpd_pw').keypress(onEnter);
-    $('#mpd_pw_con').keypress(onEnter);
-}
 
 $('#search > input').keypress(function (event) {
    if ( event.which == 13 ) {
@@ -770,38 +744,14 @@ function saveQueue() {
     $('#savequeue').modal('hide');
 }
 
-function confirmSettings() {
-    if($('#mpd_pw').val().length + $('#mpd_pw_con').val().length > 0) {
-        if ($('#mpd_pw').val() !== $('#mpd_pw_con').val())
-        {
-            $('#mpd_pw_con').popover('show');
-            setTimeout(function() {
-                $('#mpd_pw_con').popover('hide');
-            }, 2000);
-            return;
-        } else
-            socket.send('MPD_API_SET_MPDPASS,'+$('#mpd_pw').val());
-    }
-    socket.send('MPD_API_SET_MPDHOST,'+$('#mpdport').val()+','+$('#mpdhost').val());
-    $.cookie("mpdstream", $("#mpdstream").val(), { expires: 424242 });
-    $('#settings').modal('hide');
-}
-
-$('#mpd_password_set > button').on('click', function (e) {
-    socket.send('MPD_API_SET_MPDPASS,');
-    $('#mpd_pw').val("");
-    $('#mpd_pw_con').val("");
-    $('#mpd_password_set').addClass('hide');
-})
-
 function showNotification(notificationTitle,notificationText,notificationHtml,notificationType) {
-    if ($.cookie('notificationWeb') === 'true') {
+    if (Cookies.get('notificationWeb') === 'true') {
       var notification = new Notification(notificationTitle, {icon: 'assets/favicon.ico', body: notificationText});
       setTimeout(function(notification) {
         notification.close();
       }, 3000, notification);    
     } 
-    if ($.cookie('notificationPage') === 'true') {
+    if (Cookies.get('notificationPage') === 'true') {
       $.notify({ title: notificationTitle, message: notificationHtml},{ type: notificationType, offset: { y: 60, x:20 },
         template: '<div data-notify="container" class="col-xs-11 col-sm-3 alert alert-{0}" role="alert">' +
 		'<button type="button" aria-hidden="true" class="close" data-notify="dismiss">×</button>' +

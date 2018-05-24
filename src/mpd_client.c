@@ -1,4 +1,10 @@
-/* ympd
+/* myMPD
+   (c) 2018 Juergen Mang <mail@jcgames.de>
+   This project's homepage is: https://github.com/jcorporation/ympd
+   
+   myMPD ist fork of:
+   
+   ympd
    (c) 2013-2014 Andrew Karpow <andy@ndyk.de>
    This project's homepage is: http://www.ympd.org
    
@@ -63,9 +69,9 @@ int callback_mpd(struct mg_connection *c)
     if(cmd_id == -1)
         return MG_TRUE;
 
-    if(mpd.conn_state != MPD_CONNECTED && cmd_id != MPD_API_SET_MPDHOST &&
-        cmd_id != MPD_API_GET_MPDHOST && cmd_id != MPD_API_SET_MPDPASS)
-        return MG_TRUE;
+//    if(mpd.conn_state != MPD_CONNECTED && cmd_id != MPD_API_SET_MPDHOST &&
+//        cmd_id != MPD_API_GET_MPDHOST && cmd_id != MPD_API_SET_MPDPASS)
+//        return MG_TRUE;
 
     switch(cmd_id)
     {
@@ -263,52 +269,11 @@ out_search:
 out_send_message:
             free(p_charbuf);
             break;
-#ifdef WITH_MPD_HOST_CHANGE
-        /* Commands allowed when disconnected from MPD server */
-        case MPD_API_SET_MPDHOST:
-            int_buf = 0;
-            p_charbuf = strdup(c->content);
-            if(strcmp(strtok(p_charbuf, ","), "MPD_API_SET_MPDHOST"))
-                goto out_host_change;
-
-            if((int_buf = strtol(strtok(NULL, ","), NULL, 10)) <= 0)
-                goto out_host_change;
-
-            if((token = strtok(NULL, ",")) == NULL)
-                goto out_host_change;
-
-            strncpy(mpd.host, token, sizeof(mpd.host));
-            mpd.port = int_buf;
-            mpd.conn_state = MPD_RECONNECT;
-            free(p_charbuf);
-            return MG_TRUE;
-out_host_change:
-            free(p_charbuf);
+        case MPD_API_GET_OPTIONS:
+            n = snprintf(mpd.buf, MAX_SIZE, "{\"type\":\"mpdoptions\", \"data\": "
+                "{\"mpdhost\" : \"%s\", \"mpdport\": \"%d\", \"passwort_set\": %s, \"streamport\": \"%d\"}"
+                "}", mpd.host, mpd.port, mpd.password ? "true" : "false", streamport);
             break;
-        case MPD_API_GET_MPDHOST:
-            n = snprintf(mpd.buf, MAX_SIZE, "{\"type\":\"mpdhost\", \"data\": "
-                "{\"host\" : \"%s\", \"port\": \"%d\", \"passwort_set\": %s}"
-                "}", mpd.host, mpd.port, mpd.password ? "true" : "false");
-            break;
-        case MPD_API_SET_MPDPASS:
-            p_charbuf = strdup(c->content);
-            if(strcmp(strtok(p_charbuf, ","), "MPD_API_SET_MPDPASS"))
-                goto out_set_pass;
-
-            if((token = strtok(NULL, ",")) == NULL)
-                goto out_set_pass;
-
-            if(mpd.password)
-                free(mpd.password);
-
-            mpd.password = strdup(token);
-            mpd.conn_state = MPD_RECONNECT;
-            free(p_charbuf);
-            return MG_TRUE;
-out_set_pass:
-            free(p_charbuf);
-            break;
-#endif
     }
 
     if(mpd.conn_state == MPD_CONNECTED && mpd_connection_get_error(mpd.conn) != MPD_ERROR_SUCCESS)

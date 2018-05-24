@@ -1,4 +1,10 @@
-/* ympd
+/* myMPD
+   (c) 2018 Juergen Mang <mail@jcgames.de>
+   This project's homepage is: https://github.com/jcorporation/ympd
+   
+   myMPD ist fork of:
+   
+   ympd
    (c) 2013-2014 Andrew Karpow <andy@ndyk.de>
    This project's homepage is: http://www.ympd.org
    

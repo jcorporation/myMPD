@@ -1,4 +1,10 @@
-/* ympd
+/* myMPD
+   (c) 2018 Juergen Mang <mail@jcgames.de>
+   This project's homepage is: https://github.com/jcorporation/ympd
+   
+   myMPD ist fork of:
+
+   ympd
    (c) 2013-2014 Andrew Karpow <andy@ndyk.de>
    This project's homepage is: http://www.ympd.org
    
@@ -23,6 +29,4 @@
 #define YMPD_VERSION_MINOR ${CPACK_PACKAGE_VERSION_MINOR}
 #define YMPD_VERSION_PATCH ${CPACK_PACKAGE_VERSION_PATCH}
 #define SRC_PATH "${ASSETS_PATH}"
-#cmakedefine WITH_MPD_HOST_CHANGE
 #endif
-
