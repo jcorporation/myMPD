@@ -12,7 +12,6 @@ else()
 endif()
 
 option(WITH_MPD_HOST_CHANGE "Let users of the web frontend change the MPD Host" ON)
-option(WITH_DYNAMIC_ASSETS "Serve assets dynamically (e.g for development/packaging)" ON)
 option(WITH_IPV6 "enable IPv6 support" ON)
 option(WITH_SSL "enable SSL support" ON)
 
@@ -53,28 +52,9 @@ set(SOURCES
     src/json_encode.c
 )
 
-if(NOT WITH_DYNAMIC_ASSETS)
-    if(CMAKE_CROSSCOMPILING)
-        set(MKDATA_EXE ${PROJECT_SOURCE_DIR}/tools/mkdata.pl)
-    else()
-        set(MKDATA_EXE $<TARGET_FILE:mkdata>)
-        set(MKDATA_TARGET mkdata)
-        add_executable(mkdata tools/mkdata.c)
-    endif()
-
-    add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/assets.c
-        COMMAND ${MKDATA_EXE} ${RESOURCES} > ${PROJECT_BINARY_DIR}/assets.c
-        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-        DEPENDS ${RESOURCES} ${MKDATA_TARGET}
-    )
-    list(APPEND SOURCES src/http_server.c assets.c)
-endif()
-
 add_executable(mympd ${SOURCES})
 target_link_libraries(mympd ${LIBMPDCLIENT_LIBRARY} ${CMAKE_THREAD_LIBS_INIT} ${OPENSSL_LIBRARIES})
 
 install(TARGETS mympd DESTINATION bin)
 install(FILES mympd.1 DESTINATION ${CMAKE_INSTALL_PREFIX}/share/man/man1)
-if(WITH_DYNAMIC_ASSETS)
-    install(DIRECTORY htdocs DESTINATION share/${PROJECT_NAME})
-endif()
+install(DIRECTORY htdocs DESTINATION share/${PROJECT_NAME})

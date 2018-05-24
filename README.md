@@ -26,7 +26,7 @@ Unix Build Instructions
 
 1. install dependencies. cmake, libmpdclient (dev), and OpenSSL (dev) are available from all major distributions.
 2. create build directory ```cd /path/to/src; mkdir build; cd build```
-3. create makefile ```cmake ..  -DCMAKE_INSTALL_PREFIX:PATH=/usr -DWITH_DYNAMIC_ASSETS=ON -DCMAKE_BUILD_TYPE=RELEASE```
+3. create makefile ```cmake ..  -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=RELEASE```
 4. build ```make```
 5. install ```sudo make install``` or just run with ```./ympd```
 6. Link your mpd music directory to ```/path/to/src/htdocs/library``` and put ```folder.jpg``` files in your album directories
@@ -63,4 +63,5 @@ To run ympd with SSL support:
 Copyright
 ---------
 ympd: 2013-2014 <andy@ndyk.de>
+
 myMPD: 2018 <mail@jcgames.de>

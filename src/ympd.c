@@ -54,11 +54,7 @@ static int server_callback(struct mg_connection *c, enum mg_event ev) {
                 else
                     return MG_TRUE;
             } else
-#ifdef WITH_DYNAMIC_ASSETS
-                return MG_FALSE;
-#else
-                return callback_http(c);
-#endif
+            return MG_FALSE;
         case MG_AUTH:
             // no auth for websockets since mobile safari does not support it
             if ( (mpd.gpass == NULL) || (c->is_websocket) || ((mpd.local_port > 0) && (c->local_port == mpd.local_port)) )
@@ -85,11 +81,9 @@ int main(int argc, char **argv)
     char *webport = "8080";
 
     atexit(bye);
-#ifdef WITH_DYNAMIC_ASSETS
     mg_set_option(server, "document_root", SRC_PATH);
-#endif
 
-    mg_set_option(server, "auth_domain", "ympd");
+    mg_set_option(server, "auth_domain", "mympd");
     mpd.port = 6600;
     mpd.local_port = 0;
 	mpd.gpass = NULL;

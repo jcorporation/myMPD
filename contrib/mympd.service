@@ -11,7 +11,7 @@ Environment=MYMPD_USER=nobody
 Environment=DIGEST=
 Environment=LOCALPORT=
 EnvironmentFile=/etc/default/mympd
-ExecStart=/usr/bin/ympd --user $MYMPD_USER --webport $WEB_PORT --host $MPD_HOST --port $MPD_PORT $DIGEST $LOCALPORT
+ExecStart=/usr/bin/mympd --user $MYMPD_USER --webport $WEB_PORT --host $MPD_HOST --port $MPD_PORT $DIGEST $LOCALPORT
 Type=simple
 
 [Install]
