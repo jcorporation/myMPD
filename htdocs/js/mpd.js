@@ -222,7 +222,9 @@ function webSocketConnect() {
                     }
 
                     $('#queueList > tbody').empty();
+                    var nrItems=0;
                     for (var song in obj.data) {
+                        nrItems++;
                         if (obj.data[song].type == 'wrap') {
                             $('#queueList > tbody').append(
                                  "<tr><td><span class=\"material-icons\">error_outline</span></td>" +
@@ -242,6 +244,13 @@ function webSocketConnect() {
                                 "<td>"+ obj.data[song].title +"</td>" +
                                 "<td>"+ minutes + ":" + (seconds < 10 ? '0' : '') + seconds +
                         "</td><td></td></tr>");
+                    }
+                    if (obj.type == 'queuesearch' && nrItems == 0) {
+                        $('#queueList > tbody').append(
+                               "<tr><td><span class=\"material-icons\">error_outline</span></td>" +
+                               "<td colspan=\"3\">No results, please refine your search!</td>" +
+                               "<td></td><td></td></tr>"
+                        );
                     }
                     if (obj.type == 'queue') {
                         if(obj.data.length && obj.data[obj.data.length-1].pos + 1 >= pagination + MAX_ELEMENTS_PER_PAGE) {
