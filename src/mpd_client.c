@@ -66,7 +66,7 @@ int callback_mpd(struct mg_connection *c)
     int int_buf;
     char *p_charbuf = NULL, *token;
 
-//    fprintf(stdout,"%s\n",c->content);
+    fprintf(stdout,"%s\n",c->content);
     
     if(cmd_id == -1)
         return MG_TRUE;
@@ -809,6 +809,7 @@ int mpd_search_queue(char *buffer, char *searchstr)
         cur += json_emit_raw_str(cur, end - cur, "{\"type\":\"queuesearch\",\"data\":[ ");
 
         while((song = mpd_recv_song(mpd.conn)) != NULL) {
+          if(i++ <= 100) {
             cur += json_emit_raw_str(cur, end - cur, "{\"type\":\"song\"");
 //            cur += json_emit_raw_str(cur, end - cur, ",\"uri\":");
 //            cur += json_emit_quoted_str(cur, end - cur, mpd_song_get_uri(song));
@@ -828,16 +829,12 @@ int mpd_search_queue(char *buffer, char *searchstr)
             cur += json_emit_quoted_str(cur, end - cur, mpd_get_title(song));
             cur += json_emit_raw_str(cur, end - cur, "},");
             mpd_song_free(song);
-
-            /* Maximum results */
-            if(i++ >= 100)
-            {
-                cur += json_emit_raw_str(cur, end - cur, "{\"type\":\"wrap\"},");
-                break;
-            }
+          }
         }
-
-        /* remove last ',' */
+        
+        if (i > 100) {
+          cur += json_emit_raw_str(cur, end - cur, "{\"type\":\"wrap\"},");
+        }
         cur--;
 
         cur += json_emit_raw_str(cur, end - cur, "]}");

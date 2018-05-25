@@ -299,6 +299,7 @@ function webSocketConnect() {
                     break;
                 case 'search':
                     $('#searchList').find("tr:gt(0)").remove();
+                    break;
                 case 'browse':
                     if(current_app !== 'browse' && current_app !== 'search')
                         break;
@@ -692,7 +693,7 @@ $('#trashmode').children("button").on('click', function(e) {
 $('#btnnotifyWeb').on('click', function (e) {
     if(Cookies.get('notificationWeb') === 'true') {
         Cookies.set('notificationWeb', false, { expires: 424242 });
-        $('#btnnotify').removeClass('btn-success').addClass('btn-secondary');
+        $('#btnnotifyWeb').removeClass('btn-success').addClass('btn-secondary');
     } else {
         Notification.requestPermission(function (permission) {
             if(!('permission' in Notification)) {
@@ -730,10 +731,8 @@ $('#search').submit(function () {
 
 $('#searchqueue > input').keyup(function (event) {
    var searchstr=$('#searchqueue > input').val();
-   if ( event.which == 13 ) {
-     if (searchstr.length >= 3) {
-       socket.send('MPD_API_SEARCH_QUEUE,' + searchstr);
-     }
+   if (searchstr.length >= 3) {
+      socket.send('MPD_API_SEARCH_QUEUE,' + searchstr);
    }
    if (searchstr.length == 0) {
      socket.send('MPD_API_GET_QUEUE,0');

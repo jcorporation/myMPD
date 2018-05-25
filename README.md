@@ -35,8 +35,7 @@ Unix Build Instructions
 2. create build directory ```cd /path/to/src; mkdir build; cd build```
 3. create makefile ```cmake ..  -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=RELEASE```
 4. build ```make```
-5. install ```sudo make install``` or just run with ```./mympd```
-Optional:
+5. install ```sudo make install```
 6. Link your mpd music directory to ```/usr/share/mympd/htdocs/library``` and put ```folder.jpg``` files in your album directories
 7. Configure your mpd with http stream output to use the local player
 
