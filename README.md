@@ -60,7 +60,7 @@ Usage: ./mympd [OPTION]...
 
 SSL Support
 -----------
-To run ympd with SSL support:
+To run myMPD with SSL support:
 
 - create a certificate (key and cert in the same file), example:
 ```
