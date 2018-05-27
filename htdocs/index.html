@@ -71,7 +71,9 @@
     </nav>
   </header>
   <main role="main" class="container">
-
+    <noscript>
+      <div class="alert alert-danger" role="alert">JavaScript is disabled!</div>
+    </noscript>
     <div class="card" id="cardPlayback">
       <div class="card-header">Now playing</div>
       <div class="card-body">
@@ -93,11 +95,11 @@
     
     <div class="card hide" id="cardQueue">
       <div class="card-header">
-        <span>Queue</span>
+        <a href="#" data-toggle="collapse" data-target="#queue-buttons" style="color:black;">Queue</a>
         <span id="panel-heading-queue" class="text pull-right"></span>
       </div>
       <div class="card-body">
-        <div class="btn-toolbar" id="queue-buttons" role="toolbar">
+        <div class="btn-toolbar collapse show" id="queue-buttons" role="toolbar">
           <div id="trashmode" class="btn-group mr-2">
             <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="material-icons">delete</span></button>
             <div class="dropdown-menu bg-dark px-2" id="trashmodebtns">
@@ -131,7 +133,7 @@
             <div class="input-group mr-2">
               <input type="text" class="form-control" placeholder="Search Queue" id="searchqueuestr"/>
               <div class="input-group-append">
-                <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="material-icons">search</span></button>
+                <button title="Select tags to search" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="material-icons">search</span></button>
                 <div class="dropdown-menu bg-dark dropdown-menu-right px-2" id="searchqueuetag">
                   <h6 class="dropdown-header text-light">Search in Tag</h6>
                   <button type="button" class="btn btn-success btn-block">Any Tag</button>
@@ -142,6 +144,15 @@
               </div>
             </div>
           </form>
+          <div id="queuePaginationTop" class="btn-group mr-2">
+            <button onclick="gotoPage('prev',this,event)" id="queuePaginationTopPrev" title="Previous Page" type="button" class="btn btn-secondary">&laquo;</button>
+              <div class="input-group-append">
+                <button id="queuePaginationTopPage" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">Page 1 / 1</button>
+                <div class="dropdown-menu bg-dark px-2" id="queuePaginationTopPages">
+                </div>
+              </div>            
+            <button onclick="gotoPage('next',this,event)" id="queuePaginationTopNext" title="Next Page" type="button" class="btn btn-secondary input-group-append">&raquo;</button>
+          </div>
         </div>
 
         <div class="table-responsive-md">
@@ -166,10 +177,23 @@
             </tbody>
           </table>
         </div>
-        <ul id="queuePagination" class="pagination justify-content-center hide">
-          <li id="queuePrev" class="page-item disabled"><a class="page-link text-secondary" href="">Previous</a></li>
-          <li id="queueNext" class="page-item disabled"><a class="page-link text-secondary" href="">Next</a></li>
-        </ul>
+        <div class="btn-toolbar" id="queueButtonsBottom" role="toolbar">
+          <div class="btn-group mr-2">
+            <button type="button" class="btn btn-secondary" onclick="scrollToTop()" title="To top">
+              <span class="material-icons">keyboard_arrow_up</span>
+            </button>
+          </div>        
+          <div id="queuePaginationBottom" class="btn-group mr-2 dropup">
+            <button onclick="gotoPage('prev',this,event)" id="queuePaginationBottomPrev" title="Previous Page" type="button" class="btn btn-secondary">&laquo;</button>
+              <div class="input-group-append">
+                <button id="queuePaginationBottomPage" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">Page 1 / 1</button>
+                <div class="dropdown-menu bg-dark px-2" id="queuePaginationBottomPages">
+                </div>
+              </div>            
+            <button onclick="gotoPage('next',this,event)" id="queuePaginationBottomNext" title="Next Page" type="button" class="btn btn-secondary input-group-append">&raquo;</button>
+          </div>
+        </div>
+        
       </div>
     </div>
     

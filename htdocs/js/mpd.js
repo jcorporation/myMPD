@@ -30,7 +30,7 @@ var pagination = 0;
 var browsepath = "";
 var lastSongTitle = "";
 var current_song = new Object();
-var MAX_ELEMENTS_PER_PAGE = 100;
+var MAX_ELEMENTS_PER_PAGE = 5;
 var isTouch = Modernizr.touch ? 1 : 0;
 var filter = "";
 var playstate = "";
@@ -229,15 +229,6 @@ function webSocketConnect() {
                     var nrItems=0;
                     for (var song in obj.data) {
                         nrItems++;
-                        if (obj.data[song].type == 'wrap') {
-                            $('#queueList > tbody').append(
-                                 "<tr><td><span class=\"material-icons\">error_outline</span></td>" +
-                                 "<td colspan=\"3\">Too many results, please refine your search!</td>" +
-                                 "<td></td><td></td></tr>"
-                            );
-                            continue;
-                        }
-                    
                         var minutes = Math.floor(obj.data[song].duration / 60);
                         var seconds = obj.data[song].duration - minutes * 60;
 
@@ -256,17 +247,36 @@ function webSocketConnect() {
                                "<td></td><td></td></tr>"
                         );
                     }
-                    if (obj.type == 'queue') {
-                        if(obj.data.length && obj.data[obj.data.length-1].pos + 1 >= pagination + MAX_ELEMENTS_PER_PAGE) {
-                            $('#queueNext').removeClass('disabled');
-                            $('#queuePagination').removeClass('hide');
-                        }
-                        if(pagination > 0) {
-                            $('#queuePrev').removeClass('disabled');
-                            $('#queuePagination').removeClass('hide');
+                    totalPages=Math.ceil(obj.totalSongs / MAX_ELEMENTS_PER_PAGE);
+                    if (totalPages==0) { totalPages=1; }
+                    $('#queuePaginationTopPage').text('Page '+(pagination / MAX_ELEMENTS_PER_PAGE + 1)+' / '+totalPages);
+                    $('#queuePaginationBottomPage').text('Page '+(pagination / MAX_ELEMENTS_PER_PAGE + 1)+' / '+totalPages);
+                    if (totalPages > 1) {
+                        $('#queuePaginationTopPage').removeClass('disabled');
+                        $('#queuePaginationBottomPage').removeClass('disabled');
+                        $('#queuePaginationTopPages').empty();
+                        $('#queuePaginationBottomPages').empty();
+                        for (var i=0;i<totalPages;i++) {
+                            $('#queuePaginationTopPages').append('<button onclick="gotoPage('+(i * MAX_ELEMENTS_PER_PAGE)+',this,event)" type="button" class="mr-1 mb-1 btn btn-secondary">'+(i+1)+'</button>');
+                            $('#queuePaginationBottomPages').append('<button onclick="gotoPage('+(i * MAX_ELEMENTS_PER_PAGE)+',this,event)" type="button" class="mr-1 mb-1 btn btn-secondary">'+(i+1)+'</button>');
                         }
                     } else {
-                        $('#queuePagination').addClass('hide');
+                        $('#queuePaginationTopPage').addClass('disabled');
+                        $('#queuePaginationBottomPage').addClass('disabled');
+                    }
+                    if(obj.totalSongs > pagination + MAX_ELEMENTS_PER_PAGE) {
+                        $('#queuePaginationTopNext').removeClass('disabled');
+                        $('#queuePaginationBottomNext').removeClass('disabled');
+                    } else {
+                        $('#queuePaginationTopNext').addClass('disabled');
+                        $('#queuePaginationBottomNext').addClass('disabled');                            
+                    }
+                    if(pagination > 0) {
+                        $('#queuePaginationTopPrev').removeClass('disabled');
+                        $('#queuePaginationBottomPrev').removeClass('disabled');
+                    } else {
+                        $('#queuePaginationTopPrev').addClass('disabled');
+                        $('#queuePaginationBottomPrev').addClass('disabled');
                     }
 
                     if ( isTouch ) {
@@ -756,6 +766,7 @@ $('#search').submit(function () {
 });
 
 $('#searchqueuestr').keyup(function (event) {
+  pagination=0;
   doQueueSearch();
 });
 
@@ -773,7 +784,7 @@ function doQueueSearch() {
    });
    
    if (searchstr.length >= 3) {
-      socket.send('MPD_API_SEARCH_QUEUE,' + mpdtag + ',' + searchstr);
+      socket.send('MPD_API_SEARCH_QUEUE,' + mpdtag + ','+pagination+',' + searchstr);
    }
    if (searchstr.length == 0) {
      socket.send('MPD_API_GET_QUEUE,0');
@@ -807,6 +818,44 @@ $('.page-link').on('click', function (e) {
     }
     e.preventDefault();
 });
+
+function scrollToTop() {
+    document.body.scrollTop = 0; // For Safari
+    document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+}
+
+function gotoPage(x,element,event) {
+    if ($(element).hasClass('disabled')) {
+        event.preventDefault();
+        return;
+    }
+    switch (x) {
+        case "next":
+            pagination += MAX_ELEMENTS_PER_PAGE;
+            break;
+        case "prev":
+            pagination -= MAX_ELEMENTS_PER_PAGE;
+            if(pagination <= 0)
+               pagination = 0;
+            break;
+        default:
+            pagination = x;
+    }
+
+    switch(current_app) {
+        case "queue":
+            if ($('#searchqueuestr').val().length >=3) {
+              doQueueSearch();
+            } else {
+              app.setLocation('#/queue/'+pagination);
+            }
+            break;
+        case "browse":
+            app.setLocation('#/browse/'+pagination+'/'+browsepath);
+            break;
+    }
+    event.preventDefault();
+}
 
 function addStream() {
     if($('#streamurl').val().length > 0) {

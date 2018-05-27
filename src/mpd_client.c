@@ -245,6 +245,8 @@ out_save_queue:
                 mpdtagtype = strdup(token);
             }
             
+            uint_buf = strtoul(strtok(NULL, ","), NULL, 10);
+            
             if((token = strtok(NULL, ",")) == NULL) {
                 free(mpdtagtype);
                 goto out_search;
@@ -254,7 +256,7 @@ out_save_queue:
 
 	    //free(p_charbuf);
             //p_charbuf = strdup(c->content);
-            n = mpd_search_queue(mpd.buf, mpdtagtype, searchstr);
+            n = mpd_search_queue(mpd.buf, mpdtagtype, uint_buf, searchstr);
             free(searchstr);
 out_search_queue:
             free(p_charbuf);
@@ -811,7 +813,7 @@ int mpd_search(char *buffer, char *searchstr)
     return cur - buffer;
 }
 
-int mpd_search_queue(char *buffer, char *mpdtagtype, char *searchstr)
+int mpd_search_queue(char *buffer, char *mpdtagtype, unsigned int offset, char *searchstr)
 {
     char *cur = buffer;
     const char *end = buffer + MAX_SIZE;
@@ -838,7 +840,7 @@ int mpd_search_queue(char *buffer, char *mpdtagtype, char *searchstr)
 
         while((song = mpd_recv_song(mpd.conn)) != NULL) {
           totalSongs ++;
-          if(totalSongs <= 100) {
+          if(totalSongs > offset && totalSongs <= offset+MAX_ELEMENTS_PER_PAGE) {
             cur += json_emit_raw_str(cur, end - cur, "{\"type\":\"song\"");
 //            cur += json_emit_raw_str(cur, end - cur, ",\"uri\":");
 //            cur += json_emit_quoted_str(cur, end - cur, mpd_song_get_uri(song));
@@ -861,9 +863,10 @@ int mpd_search_queue(char *buffer, char *mpdtagtype, char *searchstr)
           }
         }
         
-        if (totalSongs > 100) {
+/*        if (totalSongs > 100) {
           cur += json_emit_raw_str(cur, end - cur, "{\"type\":\"wrap\"},");
         }
+*/        
         cur--;
 
         cur += json_emit_raw_str(cur, end - cur, "]");
