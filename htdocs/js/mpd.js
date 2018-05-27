@@ -492,7 +492,16 @@ function webSocketConnect() {
                         (elapsed_seconds < 10 ? '0' : '') + elapsed_seconds + " / " +
                         total_minutes + ":" + (total_seconds < 10 ? '0' : '') + total_seconds);
 
+                    if (last_state) {
+                      $('#queueList > tbody > tr[trackid='+last_state.data.currentsongid+'] > td').eq(4).text(last_state.data.totalTime);
+                      $('#queueList > tbody > tr[trackid='+last_state.data.currentsongid+'] > td').eq(0).removeClass('material-icons').text(last_state.data.songpos);
+                    }
                     $('#queueList > tbody > tr').removeClass('active').css("font-weight", "");
+                        
+                    $('#queueList > tbody > tr[trackid='+obj.data.currentsongid+'] > td').eq(4).text(elapsed_minutes + ":" + 
+                        (elapsed_seconds < 10 ? '0' : '') + elapsed_seconds + " / " +
+                        total_minutes + ":" + (total_seconds < 10 ? '0' : '') + total_seconds);
+                    $('#queueList > tbody > tr[trackid='+obj.data.currentsongid+'] > td').eq(0).addClass('material-icons').text('play_arrow');
                     $('#queueList > tbody > tr[trackid='+obj.data.currentsongid+']').addClass('active').css("font-weight", "bold");
 
                     if(obj.data.random)
