@@ -89,10 +89,10 @@ enum mpd_conn_states {
 
 struct t_mpd {
     int port;
-	int local_port;
+    int local_port;
     char host[128];
     char *password;
-	char *gpass;
+    char *gpass;
 
     struct mpd_connection *conn;
     enum mpd_conn_states conn_state;
@@ -106,6 +106,7 @@ struct t_mpd {
 } mpd;
 
 int streamport;
+char coverimage[40];
 
 struct t_mpd_client_session {
     int song_id;
@@ -121,7 +122,7 @@ int mpd_put_current_song(char *buffer);
 int mpd_put_queue(char *buffer, unsigned int offset);
 int mpd_put_browse(char *buffer, char *path, unsigned int offset);
 int mpd_search(char *buffer, char *searchstr);
-int mpd_search_queue(char *buffer, char *mp3tag, char *searchstr);
+int mpd_search_queue(char *buffer, char *mpdtagtype, char *searchstr);
 void mpd_disconnect();
 #endif
 

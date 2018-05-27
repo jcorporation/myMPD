@@ -299,8 +299,9 @@ out_send_message:
             break;
         case MPD_API_GET_OPTIONS:
             n = snprintf(mpd.buf, MAX_SIZE, "{\"type\":\"mpdoptions\", \"data\": "
-                "{\"mpdhost\" : \"%s\", \"mpdport\": \"%d\", \"passwort_set\": %s, \"streamport\": \"%d\"}"
-                "}", mpd.host, mpd.port, mpd.password ? "true" : "false", streamport);
+                "{\"mpdhost\" : \"%s\", \"mpdport\": \"%d\", \"passwort_set\": %s, "
+                "\"streamport\": \"%d\",\"coverimage\": \"%s\"}"
+                "}", mpd.host, mpd.port, mpd.password ? "true" : "false", streamport, coverimage);
             break;
     }
 

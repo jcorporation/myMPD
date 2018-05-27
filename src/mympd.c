@@ -95,6 +95,7 @@ int main(int argc, char **argv)
     mpd.gpass = NULL;
     strcpy(mpd.host, "127.0.0.1");
     streamport = 8000;
+    strcpy(coverimage, "folder.jpg");
 
     static struct option long_options[] = {
         {"digest",       required_argument, 0, 'D'},
@@ -107,10 +108,11 @@ int main(int argc, char **argv)
         {"help",         no_argument,       0,  0 },
         {"mpdpass",      required_argument, 0, 'm'},
         {"streamport",	 required_argument, 0, 's'},
+        {"coverimage",	 required_argument, 0, 'i'},
         {0,              0,                 0,  0 }
     };
 
-    while((n = getopt_long(argc, argv, "D:h:p:l:w:u:d:v:m:s",
+    while((n = getopt_long(argc, argv, "D:h:p:l:w:u:d:v:m:s:i:",
                 long_options, &option_index)) != -1) {
         switch (n) {
             case 'D':
@@ -138,6 +140,9 @@ int main(int argc, char **argv)
             case 's':
                 streamport = atoi(optarg);
                 break;
+            case 'i':
+                strncpy(coverimage, optarg, sizeof(coverimage));
+                break;
             case 'v':
                 fprintf(stdout, "myMPD  %d.%d.%d\n"
                         "Copyright (C) 2018 Juergen Mang <mail@jcgames.de>\n"
@@ -157,6 +162,7 @@ int main(int argc, char **argv)
                         " -v, --version\t\t\tget version\n"
                         " -m, --mpdpass <password>\tspecifies the password to use when connecting to mpd\n"
                         " -s, --streamport <port>\tconnect to mpd http stream at port [8000]\n"
+                        " -i, --coverimage <filename>\tfilename for coverimage [folder.jpg]\n"
                         " --help\t\t\t\tthis help\n"
                         , argv[0]);
                 return EXIT_FAILURE;

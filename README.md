@@ -53,6 +53,7 @@ Usage: ./mympd [OPTION]...
  -s, --streamport <port>       connect to mpd http stream at port [8000]
  -u, --user <username>         drop priviliges to user after socket bind
  -m, --mpdpass <password>      specifies the password to use when connecting to mpd
+ -i, --coverimage <filename>   filename for coverimage [folder.jpg]
  -V, --version                 get version
  --help                        this help
 ```
