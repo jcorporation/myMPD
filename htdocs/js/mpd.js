@@ -158,8 +158,8 @@ $(document).ready(function(){
     $('#mainMenu').on('shown.bs.dropdown', function () {
         $('#search > input').val('');
         $('#search > input').focus();
-     })
-
+    });
+     
     if(!notificationsSupported())
         $('#btnnotifyWeb').addClass("disabled");
     else
@@ -183,7 +183,7 @@ function webSocketConnect() {
         socket.onopen = function() {
             console.log("connected");
             showNotification('Connected to myMPD','','','success');
-                
+            $('#modalConnectionError').modal('hide');    
             app.run();
             /* emit initial request for output names */
             socket.send('MPD_API_GET_OUTPUTS');
@@ -548,6 +548,7 @@ function webSocketConnect() {
                     break;
                 case 'disconnected':
                     showNotification('myMPD lost connection to MPD','','','danger');
+
                     break;
                 case 'update_queue':
                     if(current_app === 'queue') {
@@ -568,8 +569,12 @@ function webSocketConnect() {
         }
 
         socket.onclose = function(){
-            console.log("disconnected");
-            showNotification('Connection to myMPD lost, retrying in 3 seconds','','','danger');
+            console.log('disconnected');
+            $('#modalConnectionError').modal('show');
+            setTimeout(function() {
+               console.log('reconnect');
+               webSocketConnect();
+            },3000);
         }
 
     } catch(exception) {
