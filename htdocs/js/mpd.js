@@ -218,15 +218,7 @@ function webSocketConnect() {
                         $('#panel-heading-queue').text(obj.totalSongs+' Songs');
                     }
                     if (typeof(obj.totalTime) != undefined && obj.totalTime > 0 ) {
-                        var days = Math.floor(obj.totalTime / 86400);
-                        var hours = Math.floor(obj.totalTime / 3600) - days * 24;
-                        var minutes = Math.floor(obj.totalTime / 60) - hours * 60 - days * 1440;
-                        var seconds = obj.totalTime - days * 86400 - hours * 3600 - minutes * 60;
-                        
-                        $('#panel-heading-queue').append(' – ' +
-                            (days > 0 ? days + '\u2009d ' : '') +
-                            (hours > 0 ? hours + '\u2009h ' + (minutes < 10 ? '0' : '') : '') +
-                            minutes + '\u2009m ' + (seconds < 10 ? '0' : '') + seconds + '\u2009s');
+                        $('#panel-heading-queue').append(' – ' + beautifyDuration(obj.totalTime));
                     }
 
                     $('#queueList > tbody').empty();
