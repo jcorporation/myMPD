@@ -487,10 +487,11 @@ function webSocketConnect() {
                     var progress = Math.floor(100*obj.data.elapsedTime/obj.data.totalTime);
                     progressBar.slider('setValue',progress);
 
-                    $('#counter')
-                    .text(elapsed_minutes + ":" + 
+                    var counterText=elapsed_minutes + ":" + 
                         (elapsed_seconds < 10 ? '0' : '') + elapsed_seconds + " / " +
-                        total_minutes + ":" + (total_seconds < 10 ? '0' : '') + total_seconds);
+                        total_minutes + ":" + (total_seconds < 10 ? '0' : '') + total_seconds;
+                        
+                    $('#counter').text(counterText);
 
                     if (last_state) {
                       $('#queueList > tbody > tr[trackid='+last_state.data.currentsongid+'] > td').eq(4).text(last_state.data.totalTime);
@@ -498,9 +499,7 @@ function webSocketConnect() {
                     }
                     $('#queueList > tbody > tr').removeClass('active').css("font-weight", "");
                         
-                    $('#queueList > tbody > tr[trackid='+obj.data.currentsongid+'] > td').eq(4).text(elapsed_minutes + ":" + 
-                        (elapsed_seconds < 10 ? '0' : '') + elapsed_seconds + " / " +
-                        total_minutes + ":" + (total_seconds < 10 ? '0' : '') + total_seconds);
+                    $('#queueList > tbody > tr[trackid='+obj.data.currentsongid+'] > td').eq(4).text(counterText);
                     $('#queueList > tbody > tr[trackid='+obj.data.currentsongid+'] > td').eq(0).addClass('material-icons').text('play_arrow');
                     $('#queueList > tbody > tr[trackid='+obj.data.currentsongid+']').addClass('active').css("font-weight", "bold");
 
