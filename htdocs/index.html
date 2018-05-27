@@ -144,27 +144,28 @@
           </form>
         </div>
 
-        <table id="queueList" class="table table-hover">
-          <col class="tblnum"/>
-          <col class="tblartist"/>
-          <col class="tblalbum"/>
-          <col class="tbltitle"/>
-          <col class="tbllength"/>
-          <col class="tblaction"/>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Artist</th>
-              <th>Album</th>
-              <th>Title</th>
-              <th>Length</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-          </tbody>
-        </table>
-
+        <div class="table-responsive-md">
+          <table id="queueList" class="table table-hover table-sm">
+            <col class="tblnum"/>
+            <col class="tbltitle"/>
+            <col class="tblartist"/>
+            <col class="tblalbum"/>
+            <col class="tbllength"/>
+            <col class="tblaction"/>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Title</th>              
+                <th>Artist</th>
+                <th>Album</th>
+                <th>Duration</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
+        </div>
         <ul id="queuePagination" class="pagination justify-content-center hide">
           <li id="queuePrev" class="page-item disabled"><a class="page-link text-secondary" href="">Previous</a></li>
           <li id="queueNext" class="page-item disabled"><a class="page-link text-secondary" href="">Next</a></li>
@@ -185,27 +186,28 @@
           </div>
         </div>
 
-        <table id="browseList" class="table table-hover">
-          <col class="tblnum"/>
-          <col class="tblartist"/>
-          <col class="tblalbum"/>
-          <col class="tbltitle"/>
-          <col class="tbllength"/>
-          <col class="tblaction"/>
-          <thead>
-            <tr>
-              <th></th>
-              <th>Artist</th>
-              <th>Album</th>
-              <th>Title</th>
-              <th>Length</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-          </tbody>
-        </table>
-
+        <div class="table-responsive-md">
+          <table id="browseList" class="table table-hover table-sm">
+            <col class="tblnum"/>
+            <col class="tbltitle"/>            
+            <col class="tblartist"/>
+            <col class="tblalbum"/>
+            <col class="tbllength"/>
+            <col class="tblaction"/>
+            <thead>
+              <tr>
+                <th></th>
+                <th>Title</th>
+                <th>Artist</th>
+                <th>Album</th>
+                <th>Duration</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
+        </div>
         <ul id="browsePagination" class="pagination justify-content-center hide">
           <li id="browsePrev" class="page-item disabled"><a class="page-link text-secondary" href="">Previous</a></li>
           <li id="browseNext" class="page-item disabled"><a class="page-link text-secondary" href="">Next</a></li>
@@ -216,26 +218,28 @@
     <div class="card hide" id="cardSearch">
       <div class="card-header" id="pnael-heading-search">Search</div>
       <div class="card-body">
-        <table id="searchList" class="table table-hover">
-          <col class="tblnum"/>
-          <col class="tblartist"/>
-          <col class="tblalbum"/>
-          <col class="tbltitle"/>
-          <col class="tbllength"/>
-          <col class="tblaction"/>
-          <thead>
-            <tr>
-              <th></th>
-              <th>Artist</th>
-              <th>Album</th>
-              <th>Title</th>
-              <th>Length</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-          </tbody>
-        </table>
+        <div class="table-responsive-md">
+          <table id="searchList" class="table table-hover table-sm">
+            <col class="tblnum"/>
+            <col class="tbltitle"/>
+            <col class="tblartist"/>
+            <col class="tblalbum"/>
+            <col class="tbllength"/>
+            <col class="tblaction"/>
+            <thead>
+              <tr>
+                <th></th>
+                <th>Title</th>                
+                <th>Artist</th>
+                <th>Album</th>
+                <th>Duration</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>    
     
@@ -249,6 +253,7 @@
     </nav>
   </footer>
 
+  <!-- Modal -->
   <div class="modal" id="modalConnectionError" role="dialog">
     <div class="modal-dialog" role="document">
       <div class="modal-content">

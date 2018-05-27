@@ -199,7 +199,7 @@ function webSocketConnect() {
             try {
               var obj = JSON.parse(msg.data);
             } catch(e) {
-              showNotification('Invalid JSON data received', msg.data, msg.data,'success');
+              console.log('Invalid JSON data received: '+ msg.data);
             }
 
             switch (obj.type) {
@@ -243,9 +243,9 @@ function webSocketConnect() {
 
                         $('#queueList > tbody').append(
                             "<tr trackid=\"" + obj.data[song].id + "\"><td>" + (obj.data[song].pos + 1) + "</td>" +
+                                "<td>"+ obj.data[song].title +"</td>" +
                                 "<td>"+ obj.data[song].artist +"</td>" + 
                                 "<td>"+ obj.data[song].album +"</td>" +
-                                "<td>"+ obj.data[song].title +"</td>" +
                                 "<td>"+ minutes + ":" + (seconds < 10 ? '0' : '') + seconds +
                         "</td><td></td></tr>");
                     }
@@ -312,7 +312,6 @@ function webSocketConnect() {
                     break;
                 case 'search':
                     $('#searchList').find("tr:gt(0)").remove();
-                    break;
                 case 'browse':
                     if(current_app !== 'browse' && current_app !== 'search')
                         break;
@@ -370,9 +369,9 @@ function webSocketConnect() {
                                 $('#'+current_app+'List > tbody').append(
                                     "<tr uri=\"" + encodeURI(obj.data[item].uri) + "\" class=\"song\">" +
                                     "<td><span class=\"material-icons\">music_note</span></td>" + 
+                                    "<td>" + obj.data[item].title  + "</td>" +
                                     "<td>" + obj.data[item].artist + "</td>" + 
                                     "<td>" + obj.data[item].album  + "</td>" +
-                                    "<td>" + obj.data[item].title  + "</td>" +
                                     "<td>" + minutes + ":" + (seconds < 10 ? '0' : '') + seconds +
                                     "</td><td></td></tr>"
                                 );

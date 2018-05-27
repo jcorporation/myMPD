@@ -53,38 +53,14 @@ h1 {
   text-overflow: ellipsis;
 }
 
-td:nth-child(4), th:nth-child(4) {
-  /* This *has* to be placed before
-     any t[dh]:nth-last-child(2) for
-     the override to work. */
-  min-width: 50%;
-}
-
-td:nth-last-child(2), th:nth-last-child(2) {
-  text-align: right;
-  width: 4em;
-}
-
-td:nth-child(2), td:nth-child(3) {
-  min-width: 25%;
-  max-width: 10em;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-@media only screen and (max-width: 600px) {
-	td:nth-child(2), td:nth-child(3) {
-	  min-width: 0;
-	  max-width: 0;
-	}
-	td:nth-child(4), th:nth-child(4) {
-	  min-width: 10%;
-	  white-space: normal;
-	}
-  .tbllength, .tblnum {
+@media only screen and (max-width: 576px) {
+/*  .tbllength, .tblnum, .tblalbum {
     visibility:collapse;
   }
+  .tbltitle, .tblartist {
+   min-width:calc(50% - 15px);
+  }
+*/
   .header-logo {
     display:none !important;
   }
@@ -94,7 +70,7 @@ tbody {
   cursor: pointer;
 }
 
-td:last-child, td:first-child {
+.tblnum, .tblaction {
   width: 30px;
 }
 
