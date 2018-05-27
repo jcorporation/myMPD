@@ -295,7 +295,7 @@ out_search:
             if ( (token = strtok(NULL, ",")) == NULL )
                 goto out_send_message;
 
-			mpd_run_send_message(mpd.conn, p_charbuf, token);
+            mpd_run_send_message(mpd.conn, p_charbuf, token);
 out_send_message:
             free(p_charbuf);
             break;
@@ -305,6 +305,9 @@ out_send_message:
                 "\"streamport\": \"%d\",\"coverimage\": \"%s\"}"
                 "}", mpd.host, mpd.port, mpd.password ? "true" : "false", streamport, coverimage);
             break;
+        case MPD_API_GET_STATS:
+            n = mympd_get_stats(mpd.buf);
+        break;
     }
 
     if(mpd.conn_state == MPD_CONNECTED && mpd_connection_get_error(mpd.conn) != MPD_ERROR_SUCCESS)
@@ -877,6 +880,33 @@ int mpd_search_queue(char *buffer, char *mpdtagtype, unsigned int offset, char *
     return cur - buffer;
 }
 
+int mympd_get_stats(char *buffer)
+{
+    char *cur = buffer;
+    const char *end = buffer + MAX_SIZE;
+    struct mpd_stats *stats = mpd_run_stats(mpd.conn);
+    if (stats == NULL)
+        RETURN_ERROR_AND_RECOVER("mympd_get_stats");
+    cur += json_emit_raw_str(cur, end - cur, "{\"type\":\"mpdstats\",\"data\": {");
+    cur += json_emit_raw_str(cur, end - cur, "\"artists\":");
+    cur += json_emit_int(cur, end - cur, mpd_stats_get_number_of_artists(stats));
+    cur += json_emit_raw_str(cur, end - cur, ",\"albums\":");
+    cur += json_emit_int(cur, end - cur, mpd_stats_get_number_of_albums(stats));
+    cur += json_emit_raw_str(cur, end - cur, ",\"songs\":");
+    cur += json_emit_int(cur, end - cur, mpd_stats_get_number_of_songs(stats));
+    cur += json_emit_raw_str(cur, end - cur, ",\"playtime\":");
+    cur += json_emit_int(cur, end - cur, mpd_stats_get_play_time(stats));
+    cur += json_emit_raw_str(cur, end - cur, ",\"uptime\":");
+    cur += json_emit_int(cur, end - cur, mpd_stats_get_uptime(stats));
+    cur += json_emit_raw_str(cur, end - cur, ",\"dbupdated\":");
+    cur += json_emit_int(cur, end - cur, mpd_stats_get_db_update_time(stats));
+    cur += json_emit_raw_str(cur, end - cur, ",\"dbplaytime\":");
+    cur += json_emit_int(cur, end - cur, mpd_stats_get_db_play_time(stats));    
+    cur += json_emit_raw_str(cur, end - cur, "}}");
+    
+    mpd_stats_free(stats);
+    return cur - buffer;
+}
 
 void mpd_disconnect()
 {

@@ -30,7 +30,7 @@ var pagination = 0;
 var browsepath = "";
 var lastSongTitle = "";
 var current_song = new Object();
-var MAX_ELEMENTS_PER_PAGE = 5;
+var MAX_ELEMENTS_PER_PAGE = 100;
 var isTouch = Modernizr.touch ? 1 : 0;
 var filter = "";
 var playstate = "";
@@ -148,6 +148,10 @@ $(document).ready(function(){
             socket.send("MPD_API_SET_SEEK,"+current_song.currentSongId+","+seekVal);
         }
     });
+
+    $('#about').on('shown.bs.modal', function () {
+        socket.send("MPD_API_GET_STATS");
+     })
 
     $('#addstream').on('shown.bs.modal', function () {
         $('#streamurl').focus();
@@ -580,6 +584,16 @@ function webSocketConnect() {
                 case 'mpdoptions':
                     setLocalStream(obj.data.mpdhost,obj.data.streamport);
                     coverImageFile=obj.data.coverimage;
+                    break;
+                case 'mpdstats':
+                    $('#mpdstats_artists').text(obj.data.artists);
+                    $('#mpdstats_albums').text(obj.data.albums);
+                    $('#mpdstats_songs').text(obj.data.songs);
+                    $('#mpdstats_dbplaytime').text(beautifyDuration(obj.data.dbplaytime));
+                    $('#mpdstats_playtime').text(beautifyDuration(obj.data.playtime));
+                    $('#mpdstats_uptime').text(beautifyDuration(obj.data.uptime));
+                    var d = new Date(obj.data.dbupdated * 1000);
+                    $('#mpdstats_dbupdated').text(d.toUTCString());
                     break;
                 case 'error':
                     showNotification(obj.data,'','','danger');
@@ -1014,4 +1028,15 @@ function chVolume (increment) {
  else if (newValue > 100) { newValue=100; }
  volumeBar.slider('setValue',newValue);
  socket.send("MPD_API_SET_VOLUME,"+newValue);
+}
+
+function beautifyDuration(x) {
+  var days = Math.floor(x / 86400);
+  var hours = Math.floor(x / 3600) - days * 24;
+  var minutes = Math.floor(x / 60) - hours * 60 - days * 1440;
+  var seconds = x - days * 86400 - hours * 3600 - minutes * 60;
+
+  return (days > 0 ? days + '\u2009d ' : '') +
+         (hours > 0 ? hours + '\u2009h ' + (minutes < 10 ? '0' : '') : '') +
+         minutes + '\u2009m ' + (seconds < 10 ? '0' : '') + seconds + '\u2009s';
 }

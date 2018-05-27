@@ -37,8 +37,8 @@
 } while(0)
 
 
-#define MAX_SIZE 1024 * 5
-#define MAX_ELEMENTS_PER_PAGE 5
+#define MAX_SIZE 1024 * 100
+#define MAX_ELEMENTS_PER_PAGE 100
 
 #define GEN_ENUM(X) X,
 #define GEN_STR(X) #X,
@@ -73,7 +73,8 @@
     X(MPD_API_TOGGLE_CROSSFADE) \
     X(MPD_API_TOGGLE_REPEAT) \
     X(MPD_API_GET_OPTIONS) \
-    X(MPD_API_SEND_SHUFFLE)
+    X(MPD_API_SEND_SHUFFLE) \
+    X(MPD_API_GET_STATS)
 
 enum mpd_cmd_ids {
     MPD_CMDS(GEN_ENUM)
@@ -123,6 +124,7 @@ int mpd_put_queue(char *buffer, unsigned int offset);
 int mpd_put_browse(char *buffer, char *path, unsigned int offset);
 int mpd_search(char *buffer, char *searchstr);
 int mpd_search_queue(char *buffer, char *mpdtagtype, unsigned int offset,  char *searchstr);
+int mympd_get_stats();
 void mpd_disconnect();
 #endif
 
