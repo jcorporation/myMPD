@@ -36,6 +36,7 @@ var filter = "";
 var playstate = "";
 var progressBar;
 var volumeBar;
+var coverImageFile = "";
 
 var app = $.sammy(function() {
 
@@ -185,10 +186,11 @@ function webSocketConnect() {
             showNotification('Connected to myMPD','','','success');
             $('#modalConnectionError').modal('hide');    
             app.run();
+            /* emit request for mympd options */
+            socket.send('MPD_API_GET_OPTIONS');            
             /* emit initial request for output names */
             socket.send('MPD_API_GET_OUTPUTS');
-            /* emit request for mympd options */
-            socket.send('MPD_API_GET_OPTIONS');
+
         }
 
         socket.onmessage = function got_packet(msg) {
@@ -560,6 +562,7 @@ function webSocketConnect() {
                     break;
                 case 'mpdoptions':
                     setLocalStream(obj.data.mpdhost,obj.data.streamport);
+                    coverImageFile=obj.data.coverimage;
                     break;
                 case 'error':
                     showNotification(obj.data,'','','danger');
@@ -850,7 +853,7 @@ function songChange(title, artist, album, uri) {
         if (uri.indexOf('http://') == 0) {
             coverImg='/assets/httpstream.png';
         } else {
-            coverImg='/library/'+uri.replace(/\/[^\/]+$/,'\/folder.jpg');
+            coverImg='/library/'+uri.replace(/\/[^\/]+$/,'\/'+coverImageFile);
         }
         $('#album-cover').css('backgroundImage','url("'+coverImg+'")');
     }
