@@ -1,7 +1,9 @@
+#Copy this file to /etc/default/mympd
 MPD_HOST=localhost
 MPD_PORT=6600
 MPD_PASSWORD=
 WEB_PORT=80
 MYMPD_USER=nobody
+COVERIMAGE=--coverimage folder.jpg
 #DIGEST=--digest /path/to/htdigest
-#LOCALPORT=--localport 8080
+#LOCALPORT=--localport 80
