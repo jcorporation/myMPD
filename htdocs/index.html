@@ -98,18 +98,23 @@
       </div>
       <div class="card-body">
         <div class="btn-toolbar" id="queue-buttons" role="toolbar">
-          <div id="trashmode" class="btn-group mr-2" data-toggle="radio">
-            <button id="btntrashmodeup" type="button" class="btn btn-secondary" title="Delete upward">
-              <span class="material-icons">vertical_align_top</span>
-              <span class="material-icons">delete</span>
-            </button>
-            <button id="btntrashmodesingle" type="button" class="btn btn-success" title="Delete single">
-              <span class="material-icons">delete</span>
-            </button>
-            <button id="btntrashmodedown" type="button" class="btn btn-secondary" title="Delete downward">
-              <span class="material-icons">delete</span>
-              <span class="material-icons">vertical_align_bottom</span>
-            </button>
+          <div id="trashmode" class="btn-group mr-2">
+            <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="material-icons">delete</span></button>
+            <div class="dropdown-menu bg-dark px-2" id="trashmodebtns">
+              <h6 class="dropdown-header text-light">Trashmode</h6>
+              <button id="btntrashmodeup" type="button" class="btn btn-secondary btn-block">
+                <span class="material-icons" style="float:left;">vertical_align_top</span>
+                <span style="margin-left:1rem;">Delete upward</span>
+              </button>
+              <button id="btntrashmodesingle" type="button" class="btn btn-success btn-block">
+                <span class="material-icons" style="float:left;">delete</span>
+                <span style="margin-left:1rem;">Delete single</span>
+              </button>
+              <button id="btntrashmodedown" type="button" class="btn btn-secondary btn-block">
+                <span class="material-icons" style="float:left;">vertical_align_bottom</span>
+                <span style="margin-left:1rem;">Delete downward</span>
+              </button>
+            </div>
           </div>
           <div id="queue-actions" class="btn-group mr-2">
             <button type="button" class="btn btn-secondary" onclick="socket.send('MPD_API_SEND_SHUFFLE');" title="Shuffle queue">
@@ -122,8 +127,20 @@
               <span class="material-icons">save</span>
             </button>
           </div>
-          <form id="searchqueue" role="search" class="btn btn-secondary">
-            <input type="text" class="form-control" placeholder="Search"/>
+          <form id="searchqueue" role="search">
+            <div class="input-group mr-2">
+              <input type="text" class="form-control" placeholder="Search Queue" id="searchqueuestr"/>
+              <div class="input-group-append">
+                <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="material-icons">search</span></button>
+                <div class="dropdown-menu bg-dark dropdown-menu-right px-2" id="searchqueuetag">
+                  <h6 class="dropdown-header text-light">Search in Tag</h6>
+                  <button type="button" class="btn btn-success btn-block">Any Tag</button>
+                  <button type="button" class="btn btn-secondary btn-block">Title</button>
+                  <button type="button" class="btn btn-secondary btn-block">Artist</button>
+                  <button type="button" class="btn btn-secondary btn-block">Album</button>
+                </div>
+              </div>
+            </div>
           </form>
         </div>
 
@@ -372,7 +389,7 @@
 
   <script src="js/jquery-3.3.1.min.js"></script>
   <script src="js/js.cookie.js"></script>
-  <script src="js/bootstrap.min.js"></script>
+  <script src="js/bootstrap.bundle.min.js"></script>
   <script src="js/bootstrap-slider.min.js"></script>
   <script src="js/bootstrap-notify.min.js"></script>
   <script src="js/sammy.js"></script>

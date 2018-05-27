@@ -121,7 +121,7 @@ int mpd_put_current_song(char *buffer);
 int mpd_put_queue(char *buffer, unsigned int offset);
 int mpd_put_browse(char *buffer, char *path, unsigned int offset);
 int mpd_search(char *buffer, char *searchstr);
-int mpd_search_queue(char *buffer, char *searchstr);
+int mpd_search_queue(char *buffer, char *mp3tag, char *searchstr);
 void mpd_disconnect();
 #endif
 

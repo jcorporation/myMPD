@@ -206,19 +206,21 @@ function webSocketConnect() {
                 case 'queue':
                     if(current_app !== 'queue')
                         break;
-
-                    if (obj.totalTime > 0) {
+                    $('#panel-heading-queue').empty();
+                    
+                    if (obj.totalSongs > 0) {
+                        $('#panel-heading-queue').text(obj.totalSongs+' Songs');
+                    }
+                    if (typeof(obj.totalTime) != undefined && obj.totalTime > 0 ) {
                         var days = Math.floor(obj.totalTime / 86400);
                         var hours = Math.floor(obj.totalTime / 3600) - days * 24;
                         var minutes = Math.floor(obj.totalTime / 60) - hours * 60 - days * 1440;
                         var seconds = obj.totalTime - days * 86400 - hours * 3600 - minutes * 60;
-
-                        $('#panel-heading-queue').text(obj.totalSongs+' Songs – ' +
+                        
+                        $('#panel-heading-queue').append(' – ' +
                             (days > 0 ? days + '\u2009d ' : '') +
                             (hours > 0 ? hours + '\u2009h ' + (minutes < 10 ? '0' : '') : '') +
                             minutes + '\u2009m ' + (seconds < 10 ? '0' : '') + seconds + '\u2009s');
-                    } else {
-                        $('#panel-heading-queue').empty();
                     }
 
                     $('#queueList > tbody').empty();
@@ -694,8 +696,8 @@ function toggleoutput(button, id) {
     socket.send("MPD_API_TOGGLE_OUTPUT,"+id+"," + ($(button).hasClass('btn-success') ? 0 : 1));
 }
 
-$('#trashmode').children("button").on('click', function(e) {
-    $('#trashmode').children("button").removeClass("btn-success").addClass('btn-secondary');
+$('#trashmodebtns > button').on('click', function(e) {
+    $('#trashmodebtns').children("button").removeClass("btn-success").addClass('btn-secondary');
     $(this).removeClass("btn-secondary").addClass("btn-success");
 });
 
@@ -738,15 +740,30 @@ $('#search').submit(function () {
     return false;
 });
 
-$('#searchqueue > input').keyup(function (event) {
-   var searchstr=$('#searchqueue > input').val();
+$('#searchqueuestr').keyup(function (event) {
+  doQueueSearch();
+});
+
+$('#searchqueuetag > button').on('click',function (e) {
+  $('#searchqueuetag > button').removeClass('btn-success').addClass('btn-secondary');
+  $(this).removeClass('btn-secondary').addClass('btn-success');
+  doQueueSearch();  
+});
+
+function doQueueSearch() {
+   var searchstr=$('#searchqueuestr').val();
+   var mpdtag='Any Tag';
+   $('#searchqueuetag > button').each(function() {
+     if ($(this).hasClass('btn-success')) { mpdtag=$(this).text(); }
+   });
+   
    if (searchstr.length >= 3) {
-      socket.send('MPD_API_SEARCH_QUEUE,' + searchstr);
+      socket.send('MPD_API_SEARCH_QUEUE,' + mpdtag + ',' + searchstr);
    }
    if (searchstr.length == 0) {
      socket.send('MPD_API_GET_QUEUE,0');
    }
-});
+}
 
 $('#searchqueue').submit(function () {
     return false;
