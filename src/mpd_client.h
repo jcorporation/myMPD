@@ -54,6 +54,7 @@
     X(MPD_API_RM_RANGE) \
     X(MPD_API_RM_ALL) \
     X(MPD_API_MOVE_TRACK) \
+    X(MPD_API_SEARCH_QUEUE) \
     X(MPD_API_SEARCH) \
     X(MPD_API_SEND_MESSAGE) \
     X(MPD_API_SET_VOLUME) \
@@ -71,7 +72,8 @@
     X(MPD_API_TOGGLE_SINGLE) \
     X(MPD_API_TOGGLE_CROSSFADE) \
     X(MPD_API_TOGGLE_REPEAT) \
-    X(MPD_API_GET_OPTIONS)
+    X(MPD_API_GET_OPTIONS) \
+    X(MPD_API_SEND_SHUFFLE)
 
 enum mpd_cmd_ids {
     MPD_CMDS(GEN_ENUM)
@@ -119,6 +121,7 @@ int mpd_put_current_song(char *buffer);
 int mpd_put_queue(char *buffer, unsigned int offset);
 int mpd_put_browse(char *buffer, char *path, unsigned int offset);
 int mpd_search(char *buffer, char *searchstr);
+int mpd_search_queue(char *buffer, char *mp3tag, char *searchstr);
 void mpd_disconnect();
 #endif
 

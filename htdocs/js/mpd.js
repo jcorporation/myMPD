@@ -45,7 +45,8 @@ var app = $.sammy(function() {
         $('#cardQueue').addClass('hide');
         $('#cardBrowse').addClass('hide');
         $('#cardSearch').addClass('hide');
-        $('.page-item').addClass('hide');
+        $('.pagination').addClass('hide');
+        $('#searchqueue > input').val('');
         pagination = 0;
         browsepath = '';
     }
@@ -157,8 +158,8 @@ $(document).ready(function(){
     $('#mainMenu').on('shown.bs.dropdown', function () {
         $('#search > input').val('');
         $('#search > input').focus();
-     })
-
+    });
+     
     if(!notificationsSupported())
         $('#btnnotifyWeb').addClass("disabled");
     else
@@ -182,7 +183,7 @@ function webSocketConnect() {
         socket.onopen = function() {
             console.log("connected");
             showNotification('Connected to myMPD','','','success');
-                
+            $('#modalConnectionError').modal('hide');    
             app.run();
             /* emit initial request for output names */
             socket.send('MPD_API_GET_OUTPUTS');
@@ -200,26 +201,41 @@ function webSocketConnect() {
             }
 
             switch (obj.type) {
+                case 'queuesearch':
+                //Do the same as queue
                 case 'queue':
                     if(current_app !== 'queue')
                         break;
-
-                    if (obj.totalTime > 0) {
+                    $('#panel-heading-queue').empty();
+                    
+                    if (obj.totalSongs > 0) {
+                        $('#panel-heading-queue').text(obj.totalSongs+' Songs');
+                    }
+                    if (typeof(obj.totalTime) != undefined && obj.totalTime > 0 ) {
                         var days = Math.floor(obj.totalTime / 86400);
                         var hours = Math.floor(obj.totalTime / 3600) - days * 24;
                         var minutes = Math.floor(obj.totalTime / 60) - hours * 60 - days * 1440;
                         var seconds = obj.totalTime - days * 86400 - hours * 3600 - minutes * 60;
-
-                        $('#panel-heading-queue').text(obj.totalSongs+' Songs – ' +
+                        
+                        $('#panel-heading-queue').append(' – ' +
                             (days > 0 ? days + '\u2009d ' : '') +
                             (hours > 0 ? hours + '\u2009h ' + (minutes < 10 ? '0' : '') : '') +
                             minutes + '\u2009m ' + (seconds < 10 ? '0' : '') + seconds + '\u2009s');
-                    } else {
-                        $('#panel-heading-queue').empty();
                     }
 
                     $('#queueList > tbody').empty();
+                    var nrItems=0;
                     for (var song in obj.data) {
+                        nrItems++;
+                        if (obj.data[song].type == 'wrap') {
+                            $('#queueList > tbody').append(
+                                 "<tr><td><span class=\"material-icons\">error_outline</span></td>" +
+                                 "<td colspan=\"3\">Too many results, please refine your search!</td>" +
+                                 "<td></td><td></td></tr>"
+                            );
+                            continue;
+                        }
+                    
                         var minutes = Math.floor(obj.data[song].duration / 60);
                         var seconds = obj.data[song].duration - minutes * 60;
 
@@ -231,11 +247,26 @@ function webSocketConnect() {
                                 "<td>"+ minutes + ":" + (seconds < 10 ? '0' : '') + seconds +
                         "</td><td></td></tr>");
                     }
+                    if (obj.type == 'queuesearch' && nrItems == 0) {
+                        $('#queueList > tbody').append(
+                               "<tr><td><span class=\"material-icons\">error_outline</span></td>" +
+                               "<td colspan=\"3\">No results, please refine your search!</td>" +
+                               "<td></td><td></td></tr>"
+                        );
+                    }
+                    if (obj.type == 'queue') {
+                        if(obj.data.length && obj.data[obj.data.length-1].pos + 1 >= pagination + MAX_ELEMENTS_PER_PAGE) {
+                            $('#queueNext').removeClass('disabled');
+                            $('#queuePagination').removeClass('hide');
+                        }
+                        if(pagination > 0) {
+                            $('#queuePrev').removeClass('disabled');
+                            $('#queuePagination').removeClass('hide');
+                        }
+                    } else {
+                        $('#queuePagination').addClass('hide');
+                    }
 
-                    if(obj.data.length && obj.data[obj.data.length-1].pos + 1 >= pagination + MAX_ELEMENTS_PER_PAGE)
-                        $('#queueNext').removeClass('hide');
-                    if(pagination > 0)
-                        $('#queuePrev').removeClass('hide');
                     if ( isTouch ) {
                         $('#queueList > tbody > tr > td:last-child').append(
                                     "<a class=\"pull-right btn-group-hover color-darkgrey\" href=\"#/\" " +
@@ -279,6 +310,7 @@ function webSocketConnect() {
                     break;
                 case 'search':
                     $('#searchList').find("tr:gt(0)").remove();
+                    break;
                 case 'browse':
                     if(current_app !== 'browse' && current_app !== 'search')
                         break;
@@ -345,7 +377,8 @@ function webSocketConnect() {
                                 break;
                             case 'wrap':
                                 if(current_app == 'browse') {
-                                    $('#browseNext').removeClass('hide');
+                                    $('#browseNext').removeClass('disabled');
+                                    $('#browsePagination').removeClass('hide');
                                 } else {
                                     $('#'+current_app+'List > tbody').append(
                                         "<tr><td><span class=\"material-icons\">error_outline</span></td>" +
@@ -356,8 +389,10 @@ function webSocketConnect() {
                                 break;
                         }
 
-                        if(pagination > 0)
-                            $('#browsePrev').removeClass('hide');
+                        if(pagination > 0) {
+                            $('#browsePrev').removeClass('disabled');
+                            $('#browsePagination').removeClass('hide');
+                        }
 
                     }
                     
@@ -513,6 +548,7 @@ function webSocketConnect() {
                     break;
                 case 'disconnected':
                     showNotification('myMPD lost connection to MPD','','','danger');
+
                     break;
                 case 'update_queue':
                     if(current_app === 'queue') {
@@ -533,8 +569,12 @@ function webSocketConnect() {
         }
 
         socket.onclose = function(){
-            console.log("disconnected");
-            showNotification('Connection to myMPD lost, retrying in 3 seconds','','','danger');
+            console.log('disconnected');
+            $('#modalConnectionError').modal('show');
+            setTimeout(function() {
+               console.log('reconnect');
+               webSocketConnect();
+            },3000);
         }
 
     } catch(exception) {
@@ -661,15 +701,15 @@ function toggleoutput(button, id) {
     socket.send("MPD_API_TOGGLE_OUTPUT,"+id+"," + ($(button).hasClass('btn-success') ? 0 : 1));
 }
 
-$('#trashmode').children("button").on('click', function(e) {
-    $('#trashmode').children("button").removeClass("btn-success").addClass('btn-secondary');
+$('#trashmodebtns > button').on('click', function(e) {
+    $('#trashmodebtns').children("button").removeClass("btn-success").addClass('btn-secondary');
     $(this).removeClass("btn-secondary").addClass("btn-success");
 });
 
 $('#btnnotifyWeb').on('click', function (e) {
     if(Cookies.get('notificationWeb') === 'true') {
         Cookies.set('notificationWeb', false, { expires: 424242 });
-        $('#btnnotify').removeClass('btn-success').addClass('btn-secondary');
+        $('#btnnotifyWeb').removeClass('btn-success').addClass('btn-secondary');
     } else {
         Notification.requestPermission(function (permission) {
             if(!('permission' in Notification)) {
@@ -702,6 +742,35 @@ $('#search > input').keypress(function (event) {
 
 $('#search').submit(function () {
     app.setLocation("#/search/"+$('#search > input').val());
+    return false;
+});
+
+$('#searchqueuestr').keyup(function (event) {
+  doQueueSearch();
+});
+
+$('#searchqueuetag > button').on('click',function (e) {
+  $('#searchqueuetag > button').removeClass('btn-success').addClass('btn-secondary');
+  $(this).removeClass('btn-secondary').addClass('btn-success');
+  doQueueSearch();  
+});
+
+function doQueueSearch() {
+   var searchstr=$('#searchqueuestr').val();
+   var mpdtag='Any Tag';
+   $('#searchqueuetag > button').each(function() {
+     if ($(this).hasClass('btn-success')) { mpdtag=$(this).text(); }
+   });
+   
+   if (searchstr.length >= 3) {
+      socket.send('MPD_API_SEARCH_QUEUE,' + mpdtag + ',' + searchstr);
+   }
+   if (searchstr.length == 0) {
+     socket.send('MPD_API_GET_QUEUE,0');
+   }
+}
+
+$('#searchqueue').submit(function () {
     return false;
 });
 
