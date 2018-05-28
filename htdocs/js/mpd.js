@@ -48,6 +48,12 @@ var app = $.sammy(function() {
         $('#cardSearch').addClass('hide');
         $('.pagination').addClass('hide');
         $('#searchqueue > input').val('');
+        $('#cardBrowsePlaylists').addClass('hide');
+        $('#cardBrowseDatabase').addClass('hide');
+        $('#cardBrowseFilesystem').addClass('hide');
+        $('#cardBrowseNavPlaylists').removeClass('active');
+        $('#cardBrowseNavDatabase').removeClass('active');
+        $('#cardBrowseNavFilesystem').removeClass('active');
         pagination = 0;
         browsepath = '';
     }
@@ -70,14 +76,39 @@ var app = $.sammy(function() {
         socket.send('MPD_API_GET_QUEUE,'+pagination);        
     });
 
-    this.get(/\#\/browse\/(\d+)\/(.*)/, function() {
+    this.get(/\#\/browse\/playlists\/(\d+)/, function() {
         prepare();
         browsepath = this.params['splat'][1];
         pagination = parseInt(this.params['splat'][0]);
-        current_app = 'browse';
+        current_app = 'browsePlaylists';
         $('#navBrowse').addClass('active');
         $('#cardBrowse').removeClass('hide');
-        $('#browseList').find("tr:gt(0)").remove();
+        $('#cardBrowsePlaylists').removeClass('hide');
+        $('#cardBrowseNavPlaylists').addClass('active');
+        socket.send('MPD_API_GET_PLAYLISTS,'+pagination);
+    });
+    
+    this.get(/\#\/browse\/database\/(\d+)/, function() {
+        prepare();
+        browsepath = this.params['splat'][1];
+        pagination = parseInt(this.params['splat'][0]);
+        current_app = 'browseDatabase';
+        $('#navBrowse').addClass('active');
+        $('#cardBrowse').removeClass('hide');
+        $('#cardBrowseDatabase').removeClass('hide');
+        $('#cardBrowseNavDatabase').addClass('active');
+    });
+
+    this.get(/\#\/browse\/filesystem\/(\d+)\/(.*)/, function() {
+        prepare();
+        browsepath = this.params['splat'][1];
+        pagination = parseInt(this.params['splat'][0]);
+        current_app = 'browseFilesystem';
+        $('#navBrowse').addClass('active');
+        $('#cardBrowse').removeClass('hide');
+        $('#cardBrowseFilesystem').removeClass('hide');
+        $('#cardBrowseNavFilesystem').addClass('active');
+        $('#browseFilesystemList').find("tr:gt(0)").remove();
         $('#browseBreadcrumb').empty().append("<li class=\"breadcrumb-item\"><a uri=\"\" onclick=\"set_filter('')\">root</a></li>");
         socket.send('MPD_API_GET_BROWSE,'+pagination+','+(browsepath ? browsepath : "/"));
         // Don't add all songs from root
@@ -91,7 +122,7 @@ var app = $.sammy(function() {
         } else {
             add_all_songs.addClass('hide');
         }
-        $('#panel-heading-browse').text("Browse database: /"+browsepath);
+        //$('#panel-heading-browse').text("Browse database: /"+browsepath);
 
         var path_array = browsepath.split('/');
         var full_path = "";
@@ -243,37 +274,7 @@ function webSocketConnect() {
                                "<td></td><td></td></tr>"
                         );
                     }
-                    totalPages=Math.ceil(obj.totalSongs / MAX_ELEMENTS_PER_PAGE);
-                    if (totalPages==0) { totalPages=1; }
-                    $('#queuePaginationTopPage').text('Page '+(pagination / MAX_ELEMENTS_PER_PAGE + 1)+' / '+totalPages);
-                    $('#queuePaginationBottomPage').text('Page '+(pagination / MAX_ELEMENTS_PER_PAGE + 1)+' / '+totalPages);
-                    if (totalPages > 1) {
-                        $('#queuePaginationTopPage').removeClass('disabled');
-                        $('#queuePaginationBottomPage').removeClass('disabled');
-                        $('#queuePaginationTopPages').empty();
-                        $('#queuePaginationBottomPages').empty();
-                        for (var i=0;i<totalPages;i++) {
-                            $('#queuePaginationTopPages').append('<button onclick="gotoPage('+(i * MAX_ELEMENTS_PER_PAGE)+',this,event)" type="button" class="mr-1 mb-1 btn btn-secondary">'+(i+1)+'</button>');
-                            $('#queuePaginationBottomPages').append('<button onclick="gotoPage('+(i * MAX_ELEMENTS_PER_PAGE)+',this,event)" type="button" class="mr-1 mb-1 btn btn-secondary">'+(i+1)+'</button>');
-                        }
-                    } else {
-                        $('#queuePaginationTopPage').addClass('disabled');
-                        $('#queuePaginationBottomPage').addClass('disabled');
-                    }
-                    if(obj.totalSongs > pagination + MAX_ELEMENTS_PER_PAGE) {
-                        $('#queuePaginationTopNext').removeClass('disabled');
-                        $('#queuePaginationBottomNext').removeClass('disabled');
-                    } else {
-                        $('#queuePaginationTopNext').addClass('disabled');
-                        $('#queuePaginationBottomNext').addClass('disabled');                            
-                    }
-                    if(pagination > 0) {
-                        $('#queuePaginationTopPrev').removeClass('disabled');
-                        $('#queuePaginationBottomPrev').removeClass('disabled');
-                    } else {
-                        $('#queuePaginationTopPrev').addClass('disabled');
-                        $('#queuePaginationBottomPrev').addClass('disabled');
-                    }
+                    setPagination(obj.totalSongs);
 
                     if ( isTouch ) {
                         $('#queueList > tbody > tr > td:last-child').append(
@@ -316,10 +317,52 @@ function webSocketConnect() {
                         },
                     });
                     break;
+                case 'playlists':
+                    if(current_app !== 'browsePlaylists')
+                        break;
+                    var nrItems=0;
+                    for (var item in obj.data) {
+                        nrItems++;
+                        var d = new Date(obj.data[item].last_modified * 1000);
+                        $('#'+current_app+'List > tbody').append(
+                                    '<tr uri="' + encodeURI(obj.data[item].plist) + '">' +
+                                    '<td><span class="material-icons">list</span></td>' +
+                                    '<td><a>' + basename(obj.data[item].plist) + '</a></td>' +
+                                    '<td>'+d.toUTCString()+'</td><td></td></tr>'
+                        );
+                    }
+                    setPagination(obj.totalEntities);
+                    if ( isTouch ) {
+                        $('#'+current_app+'List > tbody > tr > td:last-child').append(
+                                    "<a class=\"pull-right btn-group-hover color-darkgrey\" href=\"#/\" " +
+                                        "onclick=\"trash($(this).parents('tr'));\">" +
+                                "<span class=\"material-icons\">delete</span></a>");
+                    } else {
+                        $('#'+current_app+'List > tbody > tr').on({
+                            mouseover: function(){
+                                if($(this).children().last().has("a").length == 0)
+                                    $(this).children().last().append(
+                                        "<a class=\"pull-right btn-group-hover color-darkgrey\" href=\"#/\" " +
+                                            "onclick=\"trash($(this).parents('tr'));\">" +
+                                    "<span class=\"material-icons\">delete</span></a>");
+                            },
+                            mouseleave: function(){
+                                var doomed = $(this);
+                                $(this).children().last().find("a").stop().remove();
+                            }
+                        });
+                    };
+                    $('#'+current_app+'List > tbody > tr').on({
+                        click: function() {
+                                    socket.send("MPD_API_ADD_PLAYLIST," + decodeURI($(this).attr("uri")));
+                                    showNotification('"' + $('td:nth-last-child(3)', this).text() + '" added','','','success');
+                        }
+                    });
+                    break;
                 case 'search':
                     $('#searchList').find("tr:gt(0)").remove();
                 case 'browse':
-                    if(current_app !== 'browse' && current_app !== 'search')
+                    if(current_app !== 'browseFilesystem' && current_app !== 'search')
                         break;
                     
                     /* The use of encodeURI() below might seem useless, but it's not. It prevents
@@ -383,7 +426,7 @@ function webSocketConnect() {
                                 );
                                 break;
                             case 'wrap':
-                                if(current_app == 'browse') {
+                                if(current_app == 'browseFilesystem') {
                                     $('#browseNext').removeClass('disabled');
                                     $('#browsePagination').removeClass('hide');
                                 } else {
@@ -445,10 +488,10 @@ function webSocketConnect() {
                                 case 'dir':
                                     pagination = 0;
                                     browsepath = $(this).attr("uri");
-                                    $("#browse > a").attr("href", '#/browse/'+pagination+'/'+browsepath);
-									$('#filter > a').attr("href", '#/browse/'+pagination+'/'+browsepath);
-                                    app.setLocation('#/browse/'+pagination+'/'+browsepath);
-									set_filter('');
+                                    $("#browseFilesystemList > a").attr("href", '#/browse/filesystem/'+pagination+'/'+browsepath);
+                                    $('#filter > a').attr("href", '#/browse/filesystem/'+pagination+'/'+browsepath);
+                                    app.setLocation('#/browse/filesystem/'+pagination+'/'+browsepath);
+				    set_filter('');
                                     break;
                                 case 'song':
                                     socket.send("MPD_API_ADD_TRACK," + decodeURI($(this).attr("uri")));
@@ -466,9 +509,9 @@ function webSocketConnect() {
 			click: function() {
 		        	pagination = 0;
 				browsepath = $(this).attr("uri");
-				$("#browse > a").attr("href", '#/browse/'+pagination+'/'+browsepath);
-				$('#filter > a').attr("href", '#/browse/'+pagination+'/'+browsepath);
-				app.setLocation('#/browse/'+pagination+'/'+browsepath);
+				$("#browseFilesystemList > a").attr("href", '#/browse/filesystem/'+pagination+'/'+browsepath);
+				$('#filter > a').attr("href", '#/browse/filesystem/'+pagination+'/'+browsepath);
+				app.setLocation('#/browse/filesystem/'+pagination+'/'+browsepath);
 				set_filter('');
 			}
                     });
@@ -669,6 +712,44 @@ function get_appropriate_ws_url()
     }
 
     return pcol + u[0] + separator + "ws";
+}
+
+function setPagination(number) {
+    var totalPages=Math.ceil(number / MAX_ELEMENTS_PER_PAGE);
+    if (totalPages==0) { totalPages=1; }
+        $('#'+current_app+'PaginationTopPage').text('Page '+(pagination / MAX_ELEMENTS_PER_PAGE + 1)+' / '+totalPages);
+        $('#'+current_app+'PaginationBottomPage').text('Page '+(pagination / MAX_ELEMENTS_PER_PAGE + 1)+' / '+totalPages);
+    if (totalPages > 1) {
+        $('#'+current_app+'PaginationTopPage').removeClass('disabled');
+        $('#'+current_app+'PaginationBottomPage').removeClass('disabled');
+        $('#'+current_app+'PaginationTopPages').empty();
+        $('#'+current_app+'PaginationBottomPages').empty();
+        for (var i=0;i<totalPages;i++) {
+            $('#'+current_app+'PaginationTopPages').append('<button onclick="gotoPage('+(i * MAX_ELEMENTS_PER_PAGE)+',this,event)" type="button" class="mr-1 mb-1 btn btn-secondary">'+(i+1)+'</button>');
+            $('#'+current_app+'PaginationBottomPages').append('<button onclick="gotoPage('+(i * MAX_ELEMENTS_PER_PAGE)+',this,event)" type="button" class="mr-1 mb-1 btn btn-secondary">'+(i+1)+'</button>');
+        }
+    } else {
+        $('#'+current_app+'PaginationTopPage').addClass('disabled');
+        $('#'+current_app+'PaginationBottomPage').addClass('disabled');
+    }
+    
+    if(number > pagination + MAX_ELEMENTS_PER_PAGE) {
+        $('#'+current_app+'PaginationTopNext').removeClass('disabled');
+        $('#'+current_app+'PaginationBottomNext').removeClass('disabled');
+        $('#'+current_app+'ButtonsBottom').removeClass('hide');
+    } else {
+        $('#'+current_app+'PaginationTopNext').addClass('disabled');
+        $('#'+current_app+'PaginationBottomNext').addClass('disabled');
+        $('#'+current_app+'ButtonsBottom').addClass('hide');
+    }
+    
+    if(pagination > 0) {
+        $('#'+current_app+'PaginationTopPrev').removeClass('disabled');
+        $('#'+current_app+'PaginationBottomPrev').removeClass('disabled');
+    } else {
+        $('#'+current_app+'PaginationTopPrev').addClass('disabled');
+        $('#'+current_app+'PaginationBottomPrev').addClass('disabled');
+    }
 }
 
 function updateVolumeIcon(volume) {
@@ -884,11 +965,8 @@ $('.page-link').on('click', function (e) {
     }
 
     switch(current_app) {
-        case "queue":
-            app.setLocation('#/queue/'+pagination);
-            break;
-        case "browse":
-            app.setLocation('#/browse/'+pagination+'/'+browsepath);
+        case "browseFilesystem":
+            app.setLocation('#/browse/filesystem/'+pagination+'/'+browsepath);
             break;
     }
     e.preventDefault();
@@ -925,9 +1003,15 @@ function gotoPage(x,element,event) {
               app.setLocation('#/queue/'+pagination);
             }
             break;
-        case "browse":
-            app.setLocation('#/browse/'+pagination+'/'+browsepath);
+        case "browseFilesystem":
+            app.setLocation('#/browse/filesystem/'+pagination+'/'+browsepath);
             break;
+        case "browsePlaylists":
+            app.setLocation('#/browse/playlists/'+pagination);
+            break;
+        case "browseDatabase":
+            app.setLocation('#/browse/database/'+pagination);
+            break;            
     }
     event.preventDefault();
 }
@@ -1071,15 +1155,15 @@ function set_filter (c) {
 }
 
 function add_filter () {
-    $('#filter').append('<a class="btn btn-secondary" onclick="set_filter(\'\')" href="#/browse/'+pagination+'/'+browsepath+'">All</a>');
-    $('#filter').append('<a class="btn btn-secondary" id="fnum" onclick="set_filter(\'num\')" href="#/browse/'+pagination+'/'+browsepath+'">#</a>');
+    $('#filter').append('<a class="btn btn-secondary" onclick="set_filter(\'\')" href="#/browse/filesystem/'+pagination+'/'+browsepath+'">All</a>');
+    $('#filter').append('<a class="btn btn-secondary" id="fnum" onclick="set_filter(\'num\')" href="#/browse/filesystem/'+pagination+'/'+browsepath+'">#</a>');
 
     for (i = 65; i <= 90; i++) {
         var c = String.fromCharCode(i);
-        $('#filter').append('<a class="btn btn-secondary" id="f' + c + '" onclick="set_filter(\'' + c + '\');" href="#/browse/' + pagination + '/' + browsepath + '">' + c + '</a>');
+        $('#filter').append('<a class="btn btn-secondary" id="f' + c + '" onclick="set_filter(\'' + c + '\');" href="#/browse/filesystem/' + pagination + '/' + browsepath + '">' + c + '</a>');
     }
 
-    $('#filter').append('<a class="btn btn-secondary material-icons" id="fplist" onclick="set_filter(\'plist\')" href="#/browse/'+pagination+'/'+browsepath+'">list</a>');
+    $('#filter').append('<a class="btn btn-secondary material-icons" id="fplist" onclick="set_filter(\'plist\')" href="#/browse/filesystem/'+pagination+'/'+browsepath+'">list</a>');
 }
 
 function chVolume (increment) {

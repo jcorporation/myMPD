@@ -170,6 +170,10 @@ int callback_mpd(struct mg_connection *c)
             if(sscanf(c->content, "MPD_API_GET_QUEUE,%u", &uint_buf))
                 n = mpd_put_queue(mpd.buf, uint_buf);
             break;
+        case MPD_API_GET_PLAYLISTS:
+            if(sscanf(c->content, "MPD_API_GET_PLAYLISTS,%u", &uint_buf))
+                n = mpd_put_playlists(mpd.buf, uint_buf);
+            break;
         case MPD_API_GET_BROWSE:
             p_charbuf = strdup(c->content);
             if(strcmp(strtok(p_charbuf, ","), "MPD_API_GET_BROWSE"))
@@ -776,6 +780,45 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset)
     cur--;
 
     cur += json_emit_raw_str(cur, end - cur, "]}");
+    return cur - buffer;
+}
+
+int mpd_put_playlists(char *buffer, unsigned int offset)
+{
+    char *cur = buffer;
+    const char *end = buffer + MAX_SIZE;
+    struct mpd_playlist *pl;
+    unsigned int entity_count = 0;
+
+    if (!mpd_send_list_playlists(mpd.conn))
+        RETURN_ERROR_AND_RECOVER("mpd_send_lists_playlists");
+
+    cur += json_emit_raw_str(cur, end  - cur, "{\"type\":\"playlists\",\"data\":[ ");
+
+    while((pl = mpd_recv_playlist(mpd.conn)) != NULL) {
+        entity_count++;
+        if(entity_count > offset && entity_count <= offset+MAX_ELEMENTS_PER_PAGE) {
+            cur += json_emit_raw_str(cur, end - cur, "{\"type\":\"playlist\",\"plist\":");
+            cur += json_emit_quoted_str(cur, end - cur, mpd_playlist_get_path(pl));
+            cur += json_emit_raw_str(cur, end - cur, ",\"last_modified\":");
+            cur += json_emit_int(cur, end - cur, mpd_playlist_get_last_modified(pl));
+            cur += json_emit_raw_str(cur, end - cur, "},");
+        }
+        mpd_playlist_free(pl);
+    }
+
+    if (mpd_connection_get_error(mpd.conn) != MPD_ERROR_SUCCESS || !mpd_response_finish(mpd.conn)) {
+        fprintf(stderr, "MPD mpd_send_list_playlists: %s\n", mpd_connection_get_error_message(mpd.conn));
+        mpd.conn_state = MPD_FAILURE;
+        return 0;
+    }
+
+    /* remove last ',' */
+    cur--;
+
+    cur += json_emit_raw_str(cur, end - cur, "],\"totalEntities\":");
+    cur += json_emit_int(cur, end - cur, entity_count);    
+    cur += json_emit_raw_str(cur, end - cur, "}");
     return cur - buffer;
 }
 

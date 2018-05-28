@@ -101,7 +101,7 @@ tbody {
  float: right !important;
 }
 
-#queue-buttons {
+#queue-buttons, #browsePlaylistsButtons {
  margin-bottom:20px;
 }
 

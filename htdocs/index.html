@@ -193,13 +193,74 @@
             <button onclick="gotoPage('next',this,event)" id="queuePaginationBottomNext" title="Next Page" type="button" class="btn btn-secondary input-group-append">&raquo;</button>
           </div>
         </div>
-        
       </div>
     </div>
     
     <div class="card hide" id="cardBrowse">
-      <div class="card-header" id="panel-heading-browse">Browse</div>
-      <div class="card-body">
+      <div class="card-header" id="panel-heading-browse">
+        <ul class="nav nav-tabs card-header-tabs">
+          <li class="nav-item">
+            <a class="nav-link text-dark" href="#/browse/filesystem/0/" id="cardBrowseNavFilesystem">Filesystem</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-dark" href="#/browse/playlists/0" id="cardBrowseNavPlaylists">Playlists</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-dark" href="#/browse/database/0" id="cardBrowseNavDatabase">Database</a>
+          </li>
+        </ul>
+      </div>
+      <div class="card-body hide" id="cardBrowsePlaylists">
+        <div class="btn-toolbar collapse show" id="browsePlaylistsButtons" role="toolbar">
+          <div id="browsePlaylistsPaginationTop" class="btn-group mr-2">
+            <button onclick="gotoPage('prev',this,event)" id="browsePlaylistsPaginationTopPrev" title="Previous Page" type="button" class="btn btn-secondary">&laquo;</button>
+              <div class="input-group-append">
+                <button id="browsePlaylistsPaginationTopPage" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">Page 1 / 1</button>
+                <div class="dropdown-menu bg-dark px-2" id="browsePlaylistsPaginationTopPages">
+                </div>
+              </div>            
+            <button onclick="gotoPage('next',this,event)" id="browsePlaylistsPaginationTopNext" title="Next Page" type="button" class="btn btn-secondary input-group-append">&raquo;</button>
+          </div>
+        </div>
+
+        <div class="table-responsive-md">
+          <table id="browsePlaylistsList" class="table table-hover table-sm">
+            <col class="tblnum"/>
+            <col class="tbltitle"/>  
+            <col class="tbllastmodified"/>          
+            <col class="tblaction"/>
+            <thead>
+              <tr>
+                <th></th>
+                <th>Playlist</th>
+                <th>Last modified</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
+        </div>
+        <div class="btn-toolbar" id="browsePlaylistsButtonsBottom" role="toolbar">
+          <div class="btn-group mr-2">
+            <button type="button" class="btn btn-secondary" onclick="scrollToTop()" title="To top">
+              <span class="material-icons">keyboard_arrow_up</span>
+            </button>
+          </div>        
+          <div id="browsePlaylistsPaginationBottom" class="btn-group mr-2 dropup">
+            <button onclick="gotoPage('prev',this,event)" id="browsePlaylistsPaginationBottomPrev" title="Previous Page" type="button" class="btn btn-secondary">&laquo;</button>
+              <div class="input-group-append">
+                <button id="browsePlaylistsPaginationBottomPage" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">Page 1 / 1</button>
+                <div class="dropdown-menu bg-dark px-2" id="browsePlaylistsPaginationBottomPages">
+                </div>
+              </div>            
+            <button onclick="gotoPage('next',this,event)" id="browsePlaylistsPaginationBottomNext" title="Next Page" type="button" class="btn btn-secondary input-group-append">&raquo;</button>
+          </div>
+        </div>
+      </div>
+      <div class="card-body hide" id="cardBrowseDatabase">
+      </div>
+      <div class="card-body hide" id="cardBrowseFilesystem">
         <ol id="browseBreadcrumb" class="breadcrumb">
         </ol>
 
@@ -211,7 +272,7 @@
         </div>
 
         <div class="table-responsive-md">
-          <table id="browseList" class="table table-hover table-sm">
+          <table id="browseFilesystemList" class="table table-hover table-sm">
             <col class="tblnum"/>
             <col class="tbltitle"/>            
             <col class="tblartist"/>
@@ -240,7 +301,7 @@
     </div>        
 
     <div class="card hide" id="cardSearch">
-      <div class="card-header" id="pnael-heading-search">Search</div>
+      <div class="card-header" id="panel-heading-search">Search</div>
       <div class="card-body">
         <div class="table-responsive-md">
           <table id="searchList" class="table table-hover table-sm">
@@ -272,7 +333,7 @@
       <div class="d-flex flex-fill navbar-nav" id="navbar-bottom">
         <div class="nav-item flex-fill text-center" id="navPlayback"><a class="nav-link" href="#/playing/">Playback</a></div>
         <div class="nav-item flex-fill text-center" id="navQueue"><a class="nav-link" href="#/queue/0">Queue</a></div>
-        <div class="nav-item flex-fill text-center" id="navBrowse"><a class="nav-link" href="#/browse/0/">Browse</a></div>
+        <div class="nav-item flex-fill text-center" id="navBrowse"><a class="nav-link" href="#/browse/filesystem/0/">Browse</a></div>
       </div>
     </nav>
   </footer>
@@ -381,12 +442,12 @@
           </button>
         </div>
         <div class="modal-body">
-          <h4><a style="color:#28a745" href="https://github.com/jcorporation/ympd"><span class="material-icons">play_circle_outline</span> myMPD</a>&nbsp;&ndash;&nbsp;<small>MPD Web GUI - written in C, utilizing Websockets and Bootstrap/JS</small></h4>
+          <h4><a class="text-success" href="https://github.com/jcorporation/ympd"><span class="material-icons">play_circle_outline</span> myMPD</a>&nbsp;&ndash;&nbsp;<small>MPD Web GUI - written in C, utilizing Websockets and Bootstrap/JS</small></h4>
           <p>myMPD is a lightweight MPD web client that runs without a dedicated webserver or interpreter. It's tuned for minimal resource usage and requires only very litte dependencies. myMPD is a fork of <a style="color:#28a745" href="http://www.ympd.org">ympd</a>.</p>
           <ul>
             <li>Version: 2.1.1</li>
-            <li>Homepage: <a style="color:#28a745" target="_blank" href="https://github.com/jcorporation/mympd">https://github.com/jcorporation/mympd</a></li>
-            <li>Autor: Juergen Mang &lt;<a style="color:#28a745" href="mailto:mail@jcgames.de">mail@jcgames.de</a>&gt;</li>
+            <li>Homepage: <a class="text-success" target="_blank" href="https://github.com/jcorporation/mympd">https://github.com/jcorporation/mympd</a></li>
+            <li>Autor: Juergen Mang &lt;<a class="text-success" href="mailto:mail@jcgames.de">mail@jcgames.de</a>&gt;</li>
           </ul>
           <hr/>
           <h5>Database Statistics</h5>
