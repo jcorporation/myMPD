@@ -63,6 +63,7 @@ int callback_mpd(struct mg_connection *c)
     enum mpd_cmd_ids cmd_id = get_cmd_id(c->content);
     size_t n = 0;
     unsigned int uint_buf, uint_buf_2;
+    double double_buf;
     int int_buf;
     char *p_charbuf = NULL, *token;
     char *mpdtagtype = NULL;
@@ -132,10 +133,18 @@ int callback_mpd(struct mg_connection *c)
             if(sscanf(c->content, "MPD_API_TOGGLE_SINGLE,%u", &uint_buf))
                 mpd_run_single(mpd.conn, uint_buf);
             break;
-        case MPD_API_TOGGLE_CROSSFADE:
-            if(sscanf(c->content, "MPD_API_TOGGLE_CROSSFADE,%u", &uint_buf))
+        case MPD_API_SET_CROSSFADE:
+            if(sscanf(c->content, "MPD_API_SET_CROSSFADE,%u", &uint_buf))
                 mpd_run_crossfade(mpd.conn, uint_buf);
             break;
+        case MPD_API_SET_MIXRAMPDB:
+            if(sscanf(c->content, "MPD_API_SET_MIXRAMPDB,%lf", &double_buf))
+                mpd_run_mixrampdb(mpd.conn, uint_buf);
+            break;
+        case MPD_API_SET_MIXRAMPDELAY:
+            if(sscanf(c->content, "MPD_API_SET_MIXRAMPDELAY,%lf", &double_buf))
+                mpd_run_mixrampdelay(mpd.conn, uint_buf);
+            break;            
         case MPD_API_GET_OUTPUTS:
             mpd.buf_size = mpd_put_outputs(mpd.buf, 1);
             c->callback_param = NULL;
@@ -441,7 +450,7 @@ void mpd_poll(struct mg_server *s)
             break;
 
         case MPD_CONNECTED:
-            mpd.buf_size = mpd_put_state(mpd.buf, &mpd.song_id, &mpd.queue_version);
+            mpd.buf_size = mpd_put_state(mpd.buf, &mpd.song_id, &mpd.next_song_id, &mpd.queue_version);
             for (struct mg_connection *c = mg_next(s, NULL); c != NULL; c = mg_next(s, c))
             {
                 c->callback_param = NULL;
@@ -517,7 +526,7 @@ char* mpd_get_year(struct mpd_song const *song)
     return str;
 }
 
-int mpd_put_state(char *buffer, int *current_song_id, unsigned *queue_version)
+int mpd_put_state(char *buffer, int *current_song_id, int *next_song_id,  unsigned *queue_version)
 {
     struct mpd_status *status;
     int len;
@@ -534,7 +543,8 @@ int mpd_put_state(char *buffer, int *current_song_id, unsigned *queue_version)
         " \"state\":%d, \"volume\":%d, \"repeat\":%d,"
         " \"single\":%d, \"crossfade\":%d, \"consume\":%d, \"random\":%d, "
         " \"songpos\": %d, \"elapsedTime\": %d, \"totalTime\":%d, "
-        " \"currentsongid\": %d"
+        " \"currentsongid\": %d, \"kbitrate\": %d, \"mixrampdb\": %lf, "
+        " \"mixrampdelay\": %lf, \"queue_length\": %d, \"nextsongpos\": %d"
         "}}", 
         mpd_status_get_state(status),
         mpd_status_get_volume(status), 
@@ -546,9 +556,16 @@ int mpd_put_state(char *buffer, int *current_song_id, unsigned *queue_version)
         mpd_status_get_song_pos(status),
         mpd_status_get_elapsed_time(status),
         mpd_status_get_total_time(status),
-        mpd_status_get_song_id(status));
+        mpd_status_get_song_id(status),
+        mpd_status_get_kbit_rate(status),
+        mpd_status_get_mixrampdb(status),
+        mpd_status_get_mixrampdelay(status),
+        mpd_status_get_queue_length(status),
+        mpd_status_get_next_song_pos(status)
+    );
 
     *current_song_id = mpd_status_get_song_id(status);
+    *next_song_id = mpd_status_get_next_song_id(status);
     *queue_version = mpd_status_get_queue_version(status);
     mpd_status_free(status);
     return len;

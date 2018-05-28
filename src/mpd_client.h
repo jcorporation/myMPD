@@ -70,11 +70,13 @@
     X(MPD_API_TOGGLE_RANDOM) \
     X(MPD_API_TOGGLE_CONSUME) \
     X(MPD_API_TOGGLE_SINGLE) \
-    X(MPD_API_TOGGLE_CROSSFADE) \
+    X(MPD_API_SET_CROSSFADE) \
     X(MPD_API_TOGGLE_REPEAT) \
     X(MPD_API_GET_OPTIONS) \
     X(MPD_API_SEND_SHUFFLE) \
-    X(MPD_API_GET_STATS)
+    X(MPD_API_GET_STATS) \
+    X(MPD_API_SET_MIXRAMPDB) \
+    X(MPD_API_SET_MIXRAMPDELAY)
 
 enum mpd_cmd_ids {
     MPD_CMDS(GEN_ENUM)
@@ -103,6 +105,7 @@ struct t_mpd {
     size_t buf_size;
 
     int song_id;
+    int next_song_id;
     unsigned queue_version;
 } mpd;
 
@@ -111,19 +114,20 @@ char coverimage[40];
 
 struct t_mpd_client_session {
     int song_id;
+    int next_song_id;
     unsigned queue_version;
 };
 
 void mpd_poll(struct mg_server *s);
 int callback_mpd(struct mg_connection *c);
 int mpd_close_handler(struct mg_connection *c);
-int mpd_put_state(char *buffer, int *current_song_id, unsigned *queue_version);
+int mpd_put_state(char *buffer, int *current_song_id, int *next_song_id, unsigned *queue_version);
 int mpd_put_outputs(char *buffer, int putnames);
 int mpd_put_current_song(char *buffer);
 int mpd_put_queue(char *buffer, unsigned int offset);
 int mpd_put_browse(char *buffer, char *path, unsigned int offset);
 int mpd_search(char *buffer, char *searchstr);
-int mpd_search_queue(char *buffer, char *mpdtagtype, unsigned int offset,  char *searchstr);
+int mpd_search_queue(char *buffer, char *mpdtagtype, unsigned int offset, char *searchstr);
 int mympd_get_stats();
 void mpd_disconnect();
 #endif

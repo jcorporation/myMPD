@@ -54,13 +54,13 @@
             </button>
             <div class="dropdown-menu dropdown-menu-right bg-dark">
               <h1 class="dropdown-header text-light">Volume: <span id="volumePrct"></span></h1>
-              <form class="px-4 py-3" style="padding-top:0px !important;">
-              <div class="btn-group" role="group">
-                <input type="button" class="btn btn-secondary" value="&minus;" onclick="chVolume(-5)"/>
-                <div class="btn btn-secondary">
-                 <input id="volumebar" data-slider-id="volumebar" data-slider-handle="custom" type="text" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="0"/>
-                </div>
-                <input type="button" class="btn btn-secondary" value="+" onclick="chVolume(5)"/>
+              <form class="px-4 py-3" style="padding-top:0px !important;" id="volumeControl">
+                <div class="btn-group" role="group">
+                  <input type="button" class="btn btn-secondary" value="&minus;" onclick="chVolume(-5)"/>
+                  <div class="btn btn-secondary">
+                    <input id="volumebar" data-slider-id="volumebar" data-slider-handle="custom" type="text" data-slider-min="0" data-slider-max="100" data-slider-step="1" data-slider-value="0"/>
+                  </div>
+                  <input type="button" class="btn btn-secondary" value="+" onclick="chVolume(5)"/>
                 </div>
               </form>
               <div class="dropdown-divider"></div>
@@ -305,47 +305,66 @@
           <div class="row">
             <div class="form-group col-md-6">
               <button id="btnrandom" type="button" class="btn btn-secondary btn-block" title="Random">
-                <span class="glyphicon glyphicon-random"></span> Random
+                Random
               </button>
             </div>
             <div class="form-group col-md-6" data-toggle="buttons">          
               <button id="btnconsume" type="button" class="btn btn-secondary btn-block" title="Consume">
-                <span class="glyphicon glyphicon-fire"></span> Consume
+                Consume
               </button>
             </div>
           </div>
           <div class="row">
             <div class="form-group col-md-6" data-toggle="buttons">
               <button id="btnsingle" type="button" class="btn btn-secondary btn-block" title="Single">
-                <span class="glyphicon glyphicon-star"></span> Single
+                Single
               </button>
             </div>
             <div class="form-group col-md-6" data-toggle="buttons">
-              <button id="btncrossfade" type="button" class="btn btn-secondary btn-block" title="Crossfade">
-                <span class="glyphicon glyphicon-link"></span> Crossfade
+              <button id="btnrepeat" type="button" class="btn btn-secondary btn-block" title="Repeat">
+                Repeat
               </button>
             </div>
           </div>
           <div class="row">
-            <div class="form-group col-md-6" data-toggle="buttons">
-              <button id="btnrepeat" type="button" class="btn btn-secondary btn-block" title="Repeat">
-                <span class="glyphicon glyphicon-repeat"></span> Repeat
-              </button>
+            <div class="form-group input-group col-md-6 border-secondary">
+              <div class="input-group-prepend">
+                <div class="input-group-text bg-secondary text-light border-secondary">Crossfade</div>
+              </div>
+              <input id="inputCrossfade" type="text" class="form-control border-secondary" value="">
             </div>
+          </div>
+          <div class="row">
+            <div class="form-group input-group col-md-6 border-secondary">
+              <div class="input-group-prepend">
+                <div class="input-group-text bg-secondary text-light border-secondary">Mixramp DB</div>
+              </div>
+              <input id="inputMixrampdb" type="text" class="form-control border-secondary" value="">
+            </div>
+            <div class="form-group input-group col-md-6 border-secondary">
+              <div class="input-group-prepend">
+                <div class="input-group-text bg-secondary text-light border-secondary">Mixramp Delay</div>
+              </div>
+              <input id="inputMixrampdelay" type="text" class="form-control border-secondary" value="">
+            </div>            
           </div>
           <hr/>
           <div class="row">
             <div class="form-group col-md-6" data-toggle="buttons">
               <button type="button" class="btn btn-secondary btn-block" id="btnnotifyPage">
-                <span class="glyphicon glyphicon-comment"></span> Page Notifications
+                Page Notifications
               </button>
             </div>
             <div class="form-group col-md-6" data-toggle="buttons">
               <button type="button" class="btn btn-secondary btn-block" id="btnnotifyWeb">
-                <span class="glyphicon glyphicon-comment"></span> Web Notifications
+                Web Notifications
               </button>
             </div>
           </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-success" onclick="confirmSettings();">Save</button>
         </div>
       </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->

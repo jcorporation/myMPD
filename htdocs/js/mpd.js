@@ -524,11 +524,42 @@ function webSocketConnect() {
                     else
                         $('#btnsingle').removeClass("btn-success").addClass("btn-secondary");
 
-                    if(obj.data.crossfade)
-                        $('#btncrossfade').removeClass('btn-secondary').addClass("btn-success")
-                    else
-                        $('#btncrossfade').removeClass("btn-success").addClass("btn-secondary");
-
+                    if(obj.data.crossfade != undefined) {
+                        if (!last_state) {
+                            $('#inputCrossfade').removeAttr('disabled');
+                            $('#inputCrossfade').val(obj.data.crossfade);
+                        } else if(obj.data.crossfade != last_state.data.crossfade) {
+                            $('#inputCrossfade').removeAttr('disabled');
+                            $('#inputCrossfade').val(obj.data.crossfade);
+                        }
+                    } else {
+                        $('#inputCrossfade').attr('disabled', 'disabled');
+                    }
+                    
+                    if(obj.data.mixrampdb != undefined) {
+                        if (!last_state) {
+                            $('#inputMixrampdb').removeAttr('disabled');
+                            $('#inputMixrampdb').val(obj.data.mixrampdb);
+                        } else if(obj.data.mixrampdb != last_state.data.mixrampdb) {
+                            $('#inputMixrampdb').removeAttr('disabled');
+                            $('#inputMixrampdb').val(obj.data.mixrampdb);
+                        }
+                    } else {
+                        $('#inputMixrampdb').attr('disabled', 'disabled');
+                    }
+                    
+                    if(obj.data.mixrampdelay != undefined) {
+                        if (!last_state) {
+                            $('#inputMixrampdelay').removeAttr('disabled');
+                            $('#inputMixrampdelay').val(obj.data.mixrampdelay);
+                        } else if(obj.data.mixrampdelay != last_state.data.mixrampdelay) {
+                            $('#inputMixrampdelay').removeAttr('disabled');
+                            $('#inputMixrampdelay').val(obj.data.mixrampdelay);
+                        }
+                    } else {
+                        $('#inputMixrampdb').attr('disabled', 'disabled');
+                    }
+                    
                     if(obj.data.repeat)
                         $('#btnrepeat').removeClass('btn-secondary').addClass("btn-success")
                     else
@@ -641,13 +672,19 @@ function get_appropriate_ws_url()
 }
 
 function updateVolumeIcon(volume) {
-    $('#volumePrct').text(volume+' %');
-    if(volume == 0) {
-        $("#volume-icon").text("volume_off");
-    } else if (volume < 50) {
-        $("#volume-icon").text("volume_down");
+    if (volume == -1) {
+      $('#volumePrct').text('Volumecontrol disabled');
+      $('#volumeControl').addClass('hide');      
     } else {
-        $("#volume-icon").text("volume_up");
+        $('#volumeControl').removeClass('hidden');
+        $('#volumePrct').text(volume+' %');
+        if(volume == 0) {
+            $("#volume-icon").text("volume_off");
+        } else if (volume < 50) {
+            $("#volume-icon").text("volume_down");
+        } else {
+            $("#volume-icon").text("volume_up");
+        }
     }
 }
 
@@ -716,12 +753,44 @@ $('#btnconsume').on('click', function (e) {
 $('#btnsingle').on('click', function (e) {
     socket.send("MPD_API_TOGGLE_SINGLE," + ($(this).hasClass('btn-success') ? 0 : 1));
 });
-$('#btncrossfade').on('click', function(e) {
-    socket.send("MPD_API_TOGGLE_CROSSFADE," + ($(this).hasClass('btn-success') ? 0 : 1));
-});
+
 $('#btnrepeat').on('click', function (e) {
     socket.send("MPD_API_TOGGLE_REPEAT," + ($(this).hasClass('btn-success') ? 0 : 1));
 });
+
+function confirmSettings() {
+    var value=parseInt($('#inputCrossfade').val());
+    if (!isNaN(value)) {
+        $('#inputCrossfade').val(value);
+        socket.send("MPD_API_SET_CROSSFADE," + value);
+    } else {
+        $('#inputCrossfade').popover({"content":"Must be a number","trigger":"manual"});
+        $('#inputCrossfade').popover('show');
+        $('#inputCrossfade').focus();
+        return;
+    }
+    value=parseFloat($('#inputMixrampdb').val());
+    if (!isNaN(value)) {
+        $('#inputMixrampdb').val(value);
+        socket.send("MPD_API_SET_MIXRAMPDB," + value);
+    } else {
+        $('#inputMixrampdb').popover({"content":"Must be a number","trigger":"manual"});
+        $('#inputMixrampdb').popover('show');
+        $('#inputMixrampdb').focus();
+        return;
+    } 
+    value=parseFloat($('#inputMixrampdelay').val());
+    if (!isNaN(value)) {
+        $('#inputMixrampdelay').val(value);
+        socket.send("MPD_API_SET_MIXRAMPDELAY," + value);
+    } else {
+        $('#inputMixrampdelay').popover({"content":"Must be a number","trigger":"manual"});
+        $('#inputMixrampdelay').popover('show');
+        $('#inputMixrampdelay').focus();
+        return;
+    }
+    $('#settings').modal('hide');
+}
 
 function toggleoutput(button, id) {
     socket.send("MPD_API_TOGGLE_OUTPUT,"+id+"," + ($(button).hasClass('btn-success') ? 0 : 1));
