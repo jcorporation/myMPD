@@ -85,6 +85,7 @@ var app = $.sammy(function() {
         $('#cardBrowse').removeClass('hide');
         $('#cardBrowsePlaylists').removeClass('hide');
         $('#cardBrowseNavPlaylists').addClass('active');
+        $('#browsePlaylistsList').find("tr:gt(0)").remove();
         socket.send('MPD_API_GET_PLAYLISTS,'+pagination);
     });
     
@@ -335,7 +336,7 @@ function webSocketConnect() {
                     if ( isTouch ) {
                         $('#'+current_app+'List > tbody > tr > td:last-child').append(
                                     "<a class=\"pull-right btn-group-hover color-darkgrey\" href=\"#/\" " +
-                                        "onclick=\"trash($(this).parents('tr'));\">" +
+                                        "onclick=\"delPlaylist($(this).parents('tr'));\">" +
                                 "<span class=\"material-icons\">delete</span></a>");
                     } else {
                         $('#'+current_app+'List > tbody > tr').on({
@@ -343,7 +344,7 @@ function webSocketConnect() {
                                 if($(this).children().last().has("a").length == 0)
                                     $(this).children().last().append(
                                         "<a class=\"pull-right btn-group-hover color-darkgrey\" href=\"#/\" " +
-                                            "onclick=\"trash($(this).parents('tr'));\">" +
+                                            "onclick=\"delPlaylist($(this).parents('tr'));\">" +
                                     "<span class=\"material-icons\">delete</span></a>");
                             },
                             mouseleave: function(){
@@ -358,6 +359,13 @@ function webSocketConnect() {
                                     showNotification('"' + $('td:nth-last-child(3)', this).text() + '" added','','','success');
                         }
                     });
+                    if (nrItems == 0) {
+                        $('#'+current_app+'List > tbody').append(
+                               "<tr><td><span class=\"material-icons\">error_outline</span></td>" +
+                               "<td colspan=\"3\">No results</td>" +
+                               "<td></td><td></td></tr>"
+                        );
+                    }
                     break;
                 case 'search':
                     $('#searchList').find("tr:gt(0)").remove();
