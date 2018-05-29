@@ -331,11 +331,8 @@ out_send_message:
 out_rm_playlist:
             free(p_charbuf);
             break;
-        case MPD_API_GET_OPTIONS:
-            n = snprintf(mpd.buf, MAX_SIZE, "{\"type\":\"mpdoptions\", \"data\": "
-                "{\"mpdhost\" : \"%s\", \"mpdport\": \"%d\", \"passwort_set\": %s, "
-                "\"streamport\": \"%d\",\"coverimage\": \"%s\"}"
-                "}", mpd.host, mpd.port, mpd.password ? "true" : "false", streamport, coverimage);
+        case MPD_API_GET_SETTINGS:
+            n = mympd_put_settings(mpd.buf);
             break;
         case MPD_API_GET_STATS:
             n = mympd_get_stats(mpd.buf);
@@ -563,26 +560,17 @@ int mpd_put_state(char *buffer, int *current_song_id, int *next_song_id,  unsign
 
     len = snprintf(buffer, MAX_SIZE,
         "{\"type\":\"state\", \"data\":{"
-        " \"state\":%d, \"volume\":%d, \"repeat\":%d,"
-        " \"single\":%d, \"crossfade\":%d, \"consume\":%d, \"random\":%d, "
-        " \"songpos\": %d, \"elapsedTime\": %d, \"totalTime\":%d, "
-        " \"currentsongid\": %d, \"kbitrate\": %d, \"mixrampdb\": %lf, "
-        " \"mixrampdelay\": %lf, \"queue_length\": %d, \"nextsongpos\": %d"
+        "\"state\":%d, \"volume\":%d, \"songpos\": %d, \"elapsedTime\": %d, "
+        "\"totalTime\":%d, \"currentsongid\": %d, \"kbitrate\": %d, "
+        "\"queue_length\": %d, \"nextsongpos\": %d"
         "}}", 
         mpd_status_get_state(status),
         mpd_status_get_volume(status), 
-        mpd_status_get_repeat(status),
-        mpd_status_get_single(status),
-        mpd_status_get_crossfade(status),
-        mpd_status_get_consume(status),
-        mpd_status_get_random(status),
         mpd_status_get_song_pos(status),
         mpd_status_get_elapsed_time(status),
         mpd_status_get_total_time(status),
         mpd_status_get_song_id(status),
         mpd_status_get_kbit_rate(status),
-        mpd_status_get_mixrampdb(status),
-        mpd_status_get_mixrampdelay(status),
         mpd_status_get_queue_length(status),
         mpd_status_get_next_song_pos(status)
     );
@@ -593,6 +581,38 @@ int mpd_put_state(char *buffer, int *current_song_id, int *next_song_id,  unsign
     mpd_status_free(status);
     return len;
 }
+
+int mympd_put_settings(char *buffer)
+{
+    struct mpd_status *status;
+    int len;
+
+    status = mpd_run_status(mpd.conn);
+    if (!status) {
+        fprintf(stderr, "MPD mpd_run_status: %s\n", mpd_connection_get_error_message(mpd.conn));
+        mpd.conn_state = MPD_FAILURE;
+        return 0;
+    }
+
+    len = snprintf(buffer, MAX_SIZE,
+        "{\"type\":\"settings\", \"data\":{"
+        "\"repeat\":%d, \"single\":%d, \"crossfade\":%d, \"consume\":%d, \"random\":%d, "
+        "\"mixrampdb\": %lf, \"mixrampdelay\": %lf, \"mpdhost\" : \"%s\", \"mpdport\": \"%d\", \"passwort_set\": %s, "
+        "\"streamport\": \"%d\",\"coverimage\": \"%s\""
+        "}}", 
+        mpd_status_get_repeat(status),
+        mpd_status_get_single(status),
+        mpd_status_get_crossfade(status),
+        mpd_status_get_consume(status),
+        mpd_status_get_random(status),
+        mpd_status_get_mixrampdb(status),
+        mpd_status_get_mixrampdelay(status),
+        mpd.host, mpd.port, mpd.password ? "true" : "false", streamport, coverimage
+    );
+    mpd_status_free(status);
+    return len;
+}
+
 
 int mpd_put_outputs(char *buffer, int names)
 {
@@ -964,7 +984,9 @@ int mympd_get_stats(char *buffer)
     cur += json_emit_raw_str(cur, end - cur, ",\"dbupdated\":");
     cur += json_emit_int(cur, end - cur, mpd_stats_get_db_update_time(stats));
     cur += json_emit_raw_str(cur, end - cur, ",\"dbplaytime\":");
-    cur += json_emit_int(cur, end - cur, mpd_stats_get_db_play_time(stats));    
+    cur += json_emit_int(cur, end - cur, mpd_stats_get_db_play_time(stats));
+    cur += json_emit_raw_str(cur, end - cur, ",\"mympd_version\":");
+    cur += json_emit_quoted_str(cur, end - cur, MYMPD_VERSION);    
     cur += json_emit_raw_str(cur, end - cur, "}}");
     
     mpd_stats_free(stats);

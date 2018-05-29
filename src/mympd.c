@@ -146,8 +146,8 @@ int main(int argc, char **argv)
             case 'v':
                 fprintf(stdout, "myMPD  %d.%d.%d\n"
                         "Copyright (C) 2018 Juergen Mang <mail@jcgames.de>\n"
-                        "built " __DATE__ " "__TIME__ " ("__VERSION__")\n",
-                        YMPD_VERSION_MAJOR, YMPD_VERSION_MINOR, YMPD_VERSION_PATCH);
+                        "built " __DATE__ " "__TIME__ "\n",
+                        MYMPD_VERSION_MAJOR, MYMPD_VERSION_MINOR, MYMPD_VERSION_PATCH);
                 return EXIT_SUCCESS;
                 break;
             default:

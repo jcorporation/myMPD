@@ -210,11 +210,16 @@ $(document).ready(function(){
 
     $('#about').on('shown.bs.modal', function () {
         socket.send("MPD_API_GET_STATS");
-     })
+    })
+    
+    $('#settings').on('shown.bs.modal', function () {
+        socket.send("MPD_API_GET_SETTINGS");
+    })
 
     $('#addstream').on('shown.bs.modal', function () {
         $('#streamurl').focus();
-     })
+    })
+    
     $('#addstream form').on('submit', function (e) {
         addStream();
     });
@@ -249,8 +254,8 @@ function webSocketConnect() {
             showNotification('Connected to myMPD','','','success');
             $('#modalConnectionError').modal('hide');    
             app.run();
-            /* emit request for mympd options */
-            socket.send('MPD_API_GET_OPTIONS');            
+            /* emit request for mympd settings */
+            socket.send('MPD_API_GET_SETTINGS');            
             /* emit initial request for output names */
             socket.send('MPD_API_GET_OUTPUTS');
 
@@ -534,62 +539,7 @@ function webSocketConnect() {
                     $('#queueList > tbody > tr[trackid='+obj.data.currentsongid+'] > td').eq(0).addClass('material-icons').text('play_arrow');
                     $('#queueList > tbody > tr[trackid='+obj.data.currentsongid+']').addClass('active').css("font-weight", "bold");
 
-                    if(obj.data.random)
-                        $('#btnrandom').removeClass('btn-secondary').addClass("btn-success")
-                    else
-                        $('#btnrandom').removeClass("btn-success").addClass("btn-secondary");
-
-                    if(obj.data.consume)
-                        $('#btnconsume').removeClass('btn-secondary').addClass("btn-success")
-                    else
-                        $('#btnconsume').removeClass("btn-success").addClass("btn-secondary");
-
-                    if(obj.data.single)
-                        $('#btnsingle').removeClass('btn-secondary').addClass("btn-success")
-                    else
-                        $('#btnsingle').removeClass("btn-success").addClass("btn-secondary");
-
-                    if(obj.data.crossfade != undefined) {
-                        if (!last_state) {
-                            $('#inputCrossfade').removeAttr('disabled');
-                            $('#inputCrossfade').val(obj.data.crossfade);
-                        } else if(obj.data.crossfade != last_state.data.crossfade) {
-                            $('#inputCrossfade').removeAttr('disabled');
-                            $('#inputCrossfade').val(obj.data.crossfade);
-                        }
-                    } else {
-                        $('#inputCrossfade').attr('disabled', 'disabled');
-                    }
                     
-                    if(obj.data.mixrampdb != undefined) {
-                        if (!last_state) {
-                            $('#inputMixrampdb').removeAttr('disabled');
-                            $('#inputMixrampdb').val(obj.data.mixrampdb);
-                        } else if(obj.data.mixrampdb != last_state.data.mixrampdb) {
-                            $('#inputMixrampdb').removeAttr('disabled');
-                            $('#inputMixrampdb').val(obj.data.mixrampdb);
-                        }
-                    } else {
-                        $('#inputMixrampdb').attr('disabled', 'disabled');
-                    }
-                    
-                    if(obj.data.mixrampdelay != undefined) {
-                        if (!last_state) {
-                            $('#inputMixrampdelay').removeAttr('disabled');
-                            $('#inputMixrampdelay').val(obj.data.mixrampdelay);
-                        } else if(obj.data.mixrampdelay != last_state.data.mixrampdelay) {
-                            $('#inputMixrampdelay').removeAttr('disabled');
-                            $('#inputMixrampdelay').val(obj.data.mixrampdelay);
-                        }
-                    } else {
-                        $('#inputMixrampdb').attr('disabled', 'disabled');
-                    }
-                    
-                    if(obj.data.repeat)
-                        $('#btnrepeat').removeClass('btn-secondary').addClass("btn-success")
-                    else
-                        $('#btnrepeat').removeClass("btn-success").addClass("btn-secondary");
-
                     last_state = obj;
                     break;
                 case 'outputnames':
@@ -629,7 +579,48 @@ function webSocketConnect() {
                 case "song_change":
                     songChange(obj.data.title, obj.data.artist, obj.data.album, obj.data.uri);
                     break;
-                case 'mpdoptions':
+                case 'settings':
+                    if(obj.data.random)
+                        $('#btnrandom').removeClass('btn-secondary').addClass("btn-success")
+                    else
+                        $('#btnrandom').removeClass("btn-success").addClass("btn-secondary");
+
+                    if(obj.data.consume)
+                        $('#btnconsume').removeClass('btn-secondary').addClass("btn-success")
+                    else
+                        $('#btnconsume').removeClass("btn-success").addClass("btn-secondary");
+
+                    if(obj.data.single)
+                        $('#btnsingle').removeClass('btn-secondary').addClass("btn-success")
+                    else
+                        $('#btnsingle').removeClass("btn-success").addClass("btn-secondary");
+
+                    if(obj.data.crossfade != undefined) {
+                        $('#inputCrossfade').removeAttr('disabled');
+                        $('#inputCrossfade').val(obj.data.crossfade);
+                    } else {
+                        $('#inputCrossfade').attr('disabled', 'disabled');
+                    }
+                    
+                    if(obj.data.mixrampdb != undefined) {
+                        $('#inputMixrampdb').removeAttr('disabled');
+                        $('#inputMixrampdb').val(obj.data.mixrampdb);
+                    } else {
+                        $('#inputMixrampdb').attr('disabled', 'disabled');
+                    }
+                    
+                    if(obj.data.mixrampdelay != undefined) {
+                        $('#inputMixrampdelay').removeAttr('disabled');
+                        $('#inputMixrampdelay').val(obj.data.mixrampdelay);
+                    } else {
+                        $('#inputMixrampdb').attr('disabled', 'disabled');
+                    }
+                    
+                    if(obj.data.repeat)
+                        $('#btnrepeat').removeClass('btn-secondary').addClass("btn-success")
+                    else
+                        $('#btnrepeat').removeClass("btn-success").addClass("btn-secondary");
+
                     setLocalStream(obj.data.mpdhost,obj.data.streamport);
                     coverImageFile=obj.data.coverimage;
                     break;
@@ -642,6 +633,7 @@ function webSocketConnect() {
                     $('#mpdstats_uptime').text(beautifyDuration(obj.data.uptime));
                     var d = new Date(obj.data.dbupdated * 1000);
                     $('#mpdstats_dbupdated').text(d.toUTCString());
+                    $('#mympdVersion').text(obj.data.mympd_version);
                     break;
                 case 'error':
                     showNotification(obj.data,'','','danger');
@@ -810,20 +802,31 @@ function basename(path) {
     return path.split('/').reverse()[0];
 }
 
-$('#btnrandom').on('click', function (e) {
-    socket.send("MPD_API_TOGGLE_RANDOM," + ($(this).hasClass('btn-success') ? 0 : 1));
+function toggleBtn(btn) {
+    if ($(btn).hasClass('btn-success')) {
+      $(btn).removeClass('btn-success').addClass('btn-secondary');
+    }
+    else {
+      $(btn).removeClass('btn-secondary').addClass('btn-success');
+    }
+}
 
+$('#btnrandom').on('click', function (e) { 
+    socket.send("MPD_API_TOGGLE_RANDOM," + ($(this).hasClass('btn-success') ? 0 : 1));
+    toggleBtn(this);
 });
 $('#btnconsume').on('click', function (e) {
     socket.send("MPD_API_TOGGLE_CONSUME," + ($(this).hasClass('btn-success') ? 0 : 1));
-
+    toggleBtn(this);
 });
 $('#btnsingle').on('click', function (e) {
     socket.send("MPD_API_TOGGLE_SINGLE," + ($(this).hasClass('btn-success') ? 0 : 1));
+        toggleBtn(this);
 });
 
 $('#btnrepeat').on('click', function (e) {
     socket.send("MPD_API_TOGGLE_REPEAT," + ($(this).hasClass('btn-success') ? 0 : 1));
+    toggleBtn(this);
 });
 
 function confirmSettings() {
