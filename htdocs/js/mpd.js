@@ -278,8 +278,8 @@ function webSocketConnect() {
                         break;
                     $('#panel-heading-queue').empty();
                     
-                    if (obj.totalSongs > 0) {
-                        $('#panel-heading-queue').text(obj.totalSongs+' Songs');
+                    if (obj.totalEntities > 0) {
+                        $('#panel-heading-queue').text(obj.totalEntities+' Songs');
                     }
                     if (typeof(obj.totalTime) != undefined && obj.totalTime > 0 ) {
                         $('#panel-heading-queue').append(' – ' + beautifyDuration(obj.totalTime));
@@ -307,7 +307,7 @@ function webSocketConnect() {
                                "<td></td><td></td></tr>"
                         );
                     }
-                    setPagination(obj.totalSongs);
+                    setPagination(obj.totalEntities);
 
                     if ( isTouch ) {
                         $('#queueList > tbody > tr > td:last-child').append(
@@ -580,6 +580,9 @@ function webSocketConnect() {
                     songChange(obj.data.title, obj.data.artist, obj.data.album, obj.data.uri);
                     break;
                 case 'settings':
+                    if (!isNaN(obj.data.max_elements_per_page)) {
+                        MAX_ELEMENTS_PER_PAGE=obj.data.max_elements_per_page;
+                    }
                     if(obj.data.random)
                         $('#btnrandom').removeClass('btn-secondary').addClass("btn-success")
                     else
