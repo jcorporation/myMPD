@@ -285,15 +285,15 @@ function webSocketConnect() {
                             mouseover: function(){
                                 var doomed = $(this);
                                 if ( $('#btntrashmodeup').hasClass('btn-success') )
-                                    doomed = $("#queueList > tbody > tr:lt(" + ($(this).index() + 1) + ")");
+                                    doomed = $('#queueList > tbody > tr:lt(' + ($(this).index() + 1) + ')');
                                 if ( $('#btntrashmodedown').hasClass('btn-success') )
-                                    doomed = $("#queueList > tbody > tr:gt(" + ($(this).index() - 1) + ")");
+                                    doomed = $('#queueList > tbody > tr:gt(' + ($(this).index() - 1) + ')');
                                 $.each(doomed, function(){
-                                if($(this).children().last().has("a").length == 0)
+                                if($(this).children().last().has('a').length == 0)
                                     $(this).children().last().append(
-                                        "<a class=\"pull-right btn-group-hover color-darkgrey\" href=\"#/\" " +
-                                            "onclick=\"trash($(this).parents('tr'));\">" +
-                                    "<span class=\"material-icons\">delete</span></a>")
+                                        '<a class="pull-right btn-group-hover color-darkgrey" href="#/queue/' + pagination + '" ' +
+                                            'onclick="trash($(this).parents(\'tr\'));">' +
+                                        '<span class="material-icons">delete</span></a>')
                                 .find('a').fadeTo('fast',1);
                                 });
                             },
