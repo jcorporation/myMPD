@@ -85,14 +85,6 @@ tbody {
   background-color:#eee;
 }
 
-#filter > a.active {
-  font-weight: bold;
-  pointer-events: none;
-  cursor: default;
-  text-decoration: none;
-  color: black;
-}
-
 .hide {
  display: none !important;
 }
@@ -101,7 +93,7 @@ tbody {
  float: right !important;
 }
 
-#queue-buttons, #browsePlaylistsButtons {
+#queue-buttons, #browsePlaylistsButtons, #searchButtons, #browseFilesystemButtons, #browseDatabaseButtons {
  margin-bottom:20px;
 }
 

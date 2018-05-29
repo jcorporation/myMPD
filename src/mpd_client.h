@@ -77,7 +77,8 @@
     X(MPD_API_GET_STATS) \
     X(MPD_API_SET_MIXRAMPDB) \
     X(MPD_API_SET_MIXRAMPDELAY) \
-    X(MPD_API_GET_PLAYLISTS)
+    X(MPD_API_GET_PLAYLISTS) \
+    X(MPD_API_RM_PLAYLIST)
 
 enum mpd_cmd_ids {
     MPD_CMDS(GEN_ENUM)
@@ -128,7 +129,7 @@ int mpd_put_current_song(char *buffer);
 int mpd_put_queue(char *buffer, unsigned int offset);
 int mpd_put_playlists(char *buffer, unsigned int offset);
 int mpd_put_browse(char *buffer, char *path, unsigned int offset);
-int mpd_search(char *buffer, char *searchstr);
+int mpd_search(char *buffer, char *mpdtagtype, unsigned int offset, char *searchstr);
 int mpd_search_queue(char *buffer, char *mpdtagtype, unsigned int offset, char *searchstr);
 int mympd_get_stats();
 void mpd_disconnect();

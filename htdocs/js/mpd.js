@@ -32,7 +32,6 @@ var lastSongTitle = "";
 var current_song = new Object();
 var MAX_ELEMENTS_PER_PAGE = 100;
 var isTouch = Modernizr.touch ? 1 : 0;
-var filter = "";
 var playstate = "";
 var progressBar;
 var volumeBar;
@@ -65,15 +64,30 @@ var app = $.sammy(function() {
         $('#navPlayback').addClass('active');
     });    
 
-    this.get(/\#\/queue\/(\d+)/, function() {
-        prepare();
+    this.get(/\#\/queue\/(\d+)\/([^\/]+)\/(.*)/, function() {
         current_app = 'queue';
-        $('#navQueue').addClass('active');
-        $('#cardQueue').removeClass('hide');
-        $('#panel-heading-queue').empty();
         pagination = parseInt(this.params['splat'][0]);
-        $('#queueList').find("tr:gt(0)").remove();
-        socket.send('MPD_API_GET_QUEUE,'+pagination);        
+        var mpdtag = this.params['splat'][1];
+        var searchstr = this.params['splat'][2];
+        
+        if ($('#cardQueue').hasClass('hide')) {
+          prepare();
+          if (searchstr == '') {
+            setPagination(pagination);        
+          }
+          $('#searchtags2 > button').each(function() {
+            if ($(this).text == mpdtag) { $(this).removeClass('btn-secondary').addClass('btn-success'); }
+          }); 
+          $('#cardQueue').removeClass('hide');
+          $('#navQueue').addClass('active');
+        }
+        $('#queueList > tbody').empty();
+        if (searchstr.length >= 3) {
+          socket.send('MPD_API_SEARCH_QUEUE,' + mpdtag + ','+pagination+',' + searchstr);        
+        }
+        else {
+          socket.send('MPD_API_GET_QUEUE,'+pagination);
+        }
     });
 
     this.get(/\#\/browse\/playlists\/(\d+)/, function() {
@@ -109,8 +123,8 @@ var app = $.sammy(function() {
         $('#cardBrowse').removeClass('hide');
         $('#cardBrowseFilesystem').removeClass('hide');
         $('#cardBrowseNavFilesystem').addClass('active');
-        $('#browseFilesystemList').find("tr:gt(0)").remove();
-        $('#browseBreadcrumb').empty().append("<li class=\"breadcrumb-item\"><a uri=\"\" onclick=\"set_filter('')\">root</a></li>");
+        $('#browseFilesystemList > tbody').empty();
+        $('#browseBreadcrumb').empty().append("<li class=\"breadcrumb-item\"><a uri=\"\">root</a></li>");
         socket.send('MPD_API_GET_BROWSE,'+pagination+','+(browsepath ? browsepath : "/"));
         // Don't add all songs from root
         var add_all_songs = $('#add-all-songs');
@@ -123,7 +137,6 @@ var app = $.sammy(function() {
         } else {
             add_all_songs.addClass('hide');
         }
-        //$('#panel-heading-browse').text("Browse database: /"+browsepath);
 
         var path_array = browsepath.split('/');
         var full_path = "";
@@ -139,21 +152,35 @@ var app = $.sammy(function() {
         });
     });
 
-    this.get(/\#\/search\/(.*)/, function() {
-
-        prepare();
+    this.get(/\#\/search\/(\d+)\/([^\/]+)\/(.*)/, function() {
         current_app = 'search';
-        $('#cardSearch').removeClass('hide');
-        var searchstr = this.params['splat'][0];
-
-        $('#search > input').val(searchstr);
-        socket.send('MPD_API_SEARCH,' + searchstr);
-        $('#searchList').find("tr:gt(0)").remove();
-        $('#searchList > tbody').append(
-            "<tr><td><span class=\"material-icons\">search</span></td>" +
-            "<td colspan=\"3\">Searching</td>" +
-            "<td></td><td></td></tr>");
-        $('#panel-heading-search').text("Search: "+searchstr);
+        pagination = parseInt(this.params['splat'][0]);
+        var mpdtag = this.params['splat'][1];
+        var searchstr = this.params['splat'][2];
+        
+        if ($('#cardSearch').hasClass('hide')) {
+          prepare();
+          if (searchstr != '') {
+            $('#searchList > tbody').append(
+                "<tr><td><span class=\"material-icons\">search</span></td>" +
+                "<td colspan=\"3\">Searching</td>" +
+                "<td></td><td></td></tr>");
+          }
+          else {
+            setPagination(pagination);        
+          }
+          $('#search > input').val(searchstr);
+          $('#searchstr2').val(searchstr);
+          $('#searchtags2 > button').each(function() {
+            if ($(this).text == mpdtag) { $(this).removeClass('btn-secondary').addClass('btn-success'); }
+          }); 
+          $('#cardSearch').removeClass('hide');
+          $('#navSearch').addClass('active');
+        }
+        $('#searchList > tbody').empty();
+        if (searchstr.length >= 3) {
+          socket.send('MPD_API_SEARCH,' + mpdtag + ','+pagination+',' + searchstr);
+        }
     });
 
     this.get("/", function(context) {
@@ -259,7 +286,7 @@ function webSocketConnect() {
                         nrItems++;
                         var minutes = Math.floor(obj.data[song].duration / 60);
                         var seconds = obj.data[song].duration - minutes * 60;
-
+                        
                         $('#queueList > tbody').append(
                             "<tr trackid=\"" + obj.data[song].id + "\"><td>" + (obj.data[song].pos + 1) + "</td>" +
                                 "<td>"+ obj.data[song].title +"</td>" +
@@ -280,7 +307,7 @@ function webSocketConnect() {
                     if ( isTouch ) {
                         $('#queueList > tbody > tr > td:last-child').append(
                                     '<a class="pull-right btn-group-hover color-darkgrey" href="#/queue/' + pagination + '" '+
-                                        'onclick="trash($(this).parents(\'tr\'));">' +
+                                        'onclick="delQueueSong($(this).parents(\'tr\'));">' +
                                 '<span class="material-icons">delete</span></a>');
                     } else {
                         $('#queueList > tbody > tr').on({
@@ -294,7 +321,7 @@ function webSocketConnect() {
                                 if($(this).children().last().has("a").length == 0)
                                     $(this).children().last().append(
                                         '<a class="pull-right btn-group-hover color-darkgrey" href="#/queue/' + pagination + '" ' +
-                                            'onclick="trash($(this).parents(\'tr\'));">' +
+                                            'onclick="delQueueSong($(this).parents(\'tr\'));">' +
                                         '<span class="material-icons">delete</span></a>')
                                 .find('a').fadeTo('fast',1);
                                 });
@@ -335,17 +362,17 @@ function webSocketConnect() {
                     setPagination(obj.totalEntities);
                     if ( isTouch ) {
                         $('#'+current_app+'List > tbody > tr > td:last-child').append(
-                                    "<a class=\"pull-right btn-group-hover color-darkgrey\" href=\"#/\" " +
-                                        "onclick=\"delPlaylist($(this).parents('tr'));\">" +
-                                "<span class=\"material-icons\">delete</span></a>");
+                                '<a class="pull-right btn-group-hover color-darkgrey" href="#/browse/playlists/' + pagination + '" '+
+                                'onclick="delPlaylist($(this).parents(\'tr\'));">' +
+                                '<span class="material-icons">delete</span></a>');
                     } else {
                         $('#'+current_app+'List > tbody > tr').on({
                             mouseover: function(){
-                                if($(this).children().last().has("a").length == 0)
+                                if($(this).children().last().has('a').length == 0)
                                     $(this).children().last().append(
-                                        "<a class=\"pull-right btn-group-hover color-darkgrey\" href=\"#/\" " +
-                                            "onclick=\"delPlaylist($(this).parents('tr'));\">" +
-                                    "<span class=\"material-icons\">delete</span></a>");
+                                        '<a class="pull-right btn-group-hover color-darkgrey" href="#/browse/playlists/' + pagination + '" '+
+                                        'onclick="delPlaylist($(this).parents(\'tr\'));">' +
+                                        '<span class="material-icons">delete</span></a>');
                             },
                             mouseleave: function(){
                                 var doomed = $(this);
@@ -368,7 +395,8 @@ function webSocketConnect() {
                     }
                     break;
                 case 'search':
-                    $('#searchList').find("tr:gt(0)").remove();
+                    $('#searchList > tbody').empty();
+                    $('#panel-heading-search').text(obj.totalEntities + ' Songs found');
                 case 'browse':
                     if(current_app !== 'browseFilesystem' && current_app !== 'search')
                         break;
@@ -382,77 +410,31 @@ function webSocketConnect() {
                         nrItems++;
                         switch(obj.data[item].type) {
                             case 'directory':
-                                var clazz = 'dir';
-                                if (filter !== "") {
-                                    var first = obj.data[item].dir[0];
-                                    if (filter === "num" && isNaN(first)) {
-                                        clazz += ' hide';
-                                    } else if (filter >= "A" && filter <= "Z" && first.toUpperCase() !== filter) {
-                                        clazz += ' hide';
-                                    } else if (filter === "plist") {
-                                        clazz += ' hide';
-                                    }
-                                }
                                 $('#'+current_app+'List > tbody').append(
-                                    "<tr uri=\"" + encodeURI(obj.data[item].dir) + "\" class=\"" + clazz + "\">" +
-                                    "<td><span class=\"material-icons\">folder_open</span></td>" +
-                                    "<td colspan=\"3\"><a>" + basename(obj.data[item].dir) + "</a></td>" +
-                                    "<td></td><td></td></tr>"
-                                );
-                                break;
-                            case 'playlist':
-                                var clazz = 'plist';
-                                if ( (filter !== "") && (filter !== "plist") ) {
-                                    clazz += ' hide';
-                                }
-                                $('#'+current_app+'List > tbody').append(
-                                    "<tr uri=\"" + encodeURI(obj.data[item].plist) + "\" class=\"" + clazz + "\">" +
-                                    "<td><span class=\"material-icons\">list</span></td>" +
-                                    "<td colspan=\"3\"><a>" + basename(obj.data[item].plist) + "</a></td>" +
-                                    "<td></td><td></td></tr>"
+                                    '<tr uri="' + encodeURI(obj.data[item].dir) + '" class="dir">' +
+                                    '<td><span class="material-icons">folder_open</span></td>' +
+                                    '<td colspan="3"><a>' + basename(obj.data[item].dir) + '</a></td>' +
+                                    '<td></td><td></td></tr>'
                                 );
                                 break;
                             case 'song':
                                 var minutes = Math.floor(obj.data[item].duration / 60);
                                 var seconds = obj.data[item].duration - minutes * 60;
 
-                                if (obj.data[item].artist == null) {
-                                    var artist = "<td colspan=\"2\">";
-                                } else {
-                                    var artist = "<td>" + obj.data[item].artist +
-                                                     "<span>" + obj.data[item].album + "</span></td><td>";
-                                }
-
                                 $('#'+current_app+'List > tbody').append(
-                                    "<tr uri=\"" + encodeURI(obj.data[item].uri) + "\" class=\"song\">" +
-                                    "<td><span class=\"material-icons\">music_note</span></td>" + 
-                                    "<td>" + obj.data[item].title  + "</td>" +
-                                    "<td>" + obj.data[item].artist + "</td>" + 
-                                    "<td>" + obj.data[item].album  + "</td>" +
-                                    "<td>" + minutes + ":" + (seconds < 10 ? '0' : '') + seconds +
-                                    "</td><td></td></tr>"
+                                    '<tr uri="' + encodeURI(obj.data[item].uri) + '" class="song">' +
+                                    '<td><span class="material-icons">music_note</span></td>' + 
+                                    '<td>' + obj.data[item].title  + '</td>' +
+                                    '<td>' + obj.data[item].artist + '</td>' + 
+                                    '<td>' + obj.data[item].album  + '</td>' +
+                                    '<td>' + minutes + ':' + (seconds < 10 ? '0' : '') + seconds +
+                                    '</td><td></td></tr>'
                                 );
                                 break;
-                            case 'wrap':
-                                if(current_app == 'browseFilesystem') {
-                                    $('#browseNext').removeClass('disabled');
-                                    $('#browsePagination').removeClass('hide');
-                                } else {
-                                    $('#'+current_app+'List > tbody').append(
-                                        "<tr><td><span class=\"material-icons\">error_outline</span></td>" +
-                                        "<td colspan=\"3\">Too many results, please refine your search!</td>" +
-                                        "<td></td><td></td></tr>"
-                                    );
-                                }
-                                break;
                         }
-
-                        if(pagination > 0) {
-                            $('#browsePrev').removeClass('disabled');
-                            $('#browsePagination').removeClass('hide');
-                        }
-
                     }
+                    
+                    setPagination(obj.totalEntities);
                     
                     if (current_app == 'search')
                        if (nrItems == 0) {
@@ -497,16 +479,10 @@ function webSocketConnect() {
                                     pagination = 0;
                                     browsepath = $(this).attr("uri");
                                     $("#browseFilesystemList > a").attr("href", '#/browse/filesystem/'+pagination+'/'+browsepath);
-                                    $('#filter > a').attr("href", '#/browse/filesystem/'+pagination+'/'+browsepath);
                                     app.setLocation('#/browse/filesystem/'+pagination+'/'+browsepath);
-				    set_filter('');
                                     break;
                                 case 'song':
                                     socket.send("MPD_API_ADD_TRACK," + decodeURI($(this).attr("uri")));
-                                    showNotification('"' + $('td:nth-last-child(3)', this).text() + '" added','','','success');
-                                    break;
-                                case 'plist':
-                                    socket.send("MPD_API_ADD_PLAYLIST," + decodeURI($(this).attr("uri")));
                                     showNotification('"' + $('td:nth-last-child(3)', this).text() + '" added','','','success');
                                     break;
                             }
@@ -518,9 +494,7 @@ function webSocketConnect() {
 		        	pagination = 0;
 				browsepath = $(this).attr("uri");
 				$("#browseFilesystemList > a").attr("href", '#/browse/filesystem/'+pagination+'/'+browsepath);
-				$('#filter > a').attr("href", '#/browse/filesystem/'+pagination+'/'+browsepath);
 				app.setLocation('#/browse/filesystem/'+pagination+'/'+browsepath);
-				set_filter('');
 			}
                     });
 
@@ -814,7 +788,7 @@ function setLocalStream(mpdhost,streamport) {
     Cookies.set('mpdstream', mpdstream, { expires: 424242 });
 }
 
-function trash(tr) {
+function delQueueSong(tr) {
     if ( $('#btntrashmodeup').hasClass('btn-success') ) {
         socket.send('MPD_API_RM_RANGE,0,' + (tr.index() + 1));
         tr.remove();
@@ -825,6 +799,11 @@ function trash(tr) {
         socket.send('MPD_API_RM_RANGE,' + tr.index() + ',-1');
         tr.remove();
     };
+}
+
+function delPlaylist(tr) {
+    socket.send("MPD_API_RM_PLAYLIST," + decodeURI(tr.attr("uri")));
+    tr.remove();
 }
 
 function basename(path) {
@@ -925,8 +904,27 @@ $('#search > input').keypress(function (event) {
 });
 
 $('#search').submit(function () {
-    app.setLocation("#/search/"+$('#search > input').val());
+    doSearch($('#search > input').val());
     return false;
+});
+
+function doSearch(searchstr) {
+   var mpdtag='Any Tag';
+   $('#searchtags2 > button').each(function() {
+     if ($(this).hasClass('btn-success')) { mpdtag=$(this).text(); }
+   });
+   app.setLocation('#/search/' + pagination + '/' + mpdtag + '/' + searchstr);
+}
+
+$('#searchstr2').keyup(function (event) {
+  pagination=0;
+  doSearch($(this).val());
+});
+
+$('#searchtags2 > button').on('click',function (e) {
+  $('#searchtags2 > button').removeClass('btn-success').addClass('btn-secondary');
+  $(this).removeClass('btn-secondary').addClass('btn-success');
+  doSearch($('#searchstr2').val());  
 });
 
 $('#searchqueuestr').keyup(function (event) {
@@ -946,38 +944,11 @@ function doQueueSearch() {
    $('#searchqueuetag > button').each(function() {
      if ($(this).hasClass('btn-success')) { mpdtag=$(this).text(); }
    });
-   
-   if (searchstr.length >= 3) {
-      socket.send('MPD_API_SEARCH_QUEUE,' + mpdtag + ','+pagination+',' + searchstr);
-   }
-   if (searchstr.length == 0) {
-     socket.send('MPD_API_GET_QUEUE,0');
-   }
+   app.setLocation('#/queue/' + pagination + '/' + mpdtag + '/' + searchstr);
 }
 
 $('#searchqueue').submit(function () {
     return false;
-});
-
-$('.page-link').on('click', function (e) {
-
-    switch ($(this).text()) {
-        case "Next":
-            pagination += MAX_ELEMENTS_PER_PAGE;
-            break;
-        case "Previous":
-            pagination -= MAX_ELEMENTS_PER_PAGE;
-            if(pagination <= 0)
-               pagination = 0;
-            break;
-    }
-
-    switch(current_app) {
-        case "browseFilesystem":
-            app.setLocation('#/browse/filesystem/'+pagination+'/'+browsepath);
-            break;
-    }
-    e.preventDefault();
 });
 
 function scrollToTop() {
@@ -1010,6 +981,9 @@ function gotoPage(x,element,event) {
             } else {
               app.setLocation('#/queue/'+pagination);
             }
+            break;
+        case "search":
+            doSearch($('#searchstr2').val());
             break;
         case "browseFilesystem":
             app.setLocation('#/browse/filesystem/'+pagination+'/'+browsepath);
@@ -1127,51 +1101,11 @@ $(document).keydown(function(e){
     e.preventDefault();
 });
 
-function set_filter (c) {
-    filter = c;
-	$('#filter > a').removeClass('btn-success');
-	$('#f' + c).addClass('btn-success');
-
-    if (filter === "") {
-    	$('#'+current_app+'List > tbody > tr').removeClass('hide');
-	} else if (filter === "plist") {
-    	$('#'+current_app+'List > tbody > tr.dir').addClass('hide');
-    	$('#'+current_app+'List > tbody > tr.song').addClass('hide');
-    	$('#'+current_app+'List > tbody > tr.plist').removeClass('hide');
-    } else {
-		$.each($('#'+current_app+'List > tbody > tr'), function(i, line) {
-			var first = basename($(line).attr('uri'))[0];
-			if ( $(line).hasClass('song') ) {
-				first = $(line).children().eq(3).text()[0];
-			}
-
-			if (filter === "num") {
-				if (!isNaN(first)) {
-					$(line).removeClass('hide');
-				} else {
-					$(line).addClass('hide');
-				}
-			} else if (filter >= "A" && filter <= "Z") {
-				if (first.toUpperCase() === filter) {
-					$(line).removeClass('hide');
-				} else {
-					$(line).addClass('hide');
-				}
-			}
-		});
-	}
-}
-
 function add_filter () {
-    $('#filter').append('<a class="btn btn-secondary" onclick="set_filter(\'\')" href="#/browse/filesystem/'+pagination+'/'+browsepath+'">All</a>');
-    $('#filter').append('<a class="btn btn-secondary" id="fnum" onclick="set_filter(\'num\')" href="#/browse/filesystem/'+pagination+'/'+browsepath+'">#</a>');
-
     for (i = 65; i <= 90; i++) {
         var c = String.fromCharCode(i);
-        $('#filter').append('<a class="btn btn-secondary" id="f' + c + '" onclick="set_filter(\'' + c + '\');" href="#/browse/filesystem/' + pagination + '/' + browsepath + '">' + c + '</a>');
+        $('#browseFilesystemGotoLetters').append('<a class="btn btn-secondary" onclick="gotoLetter(\'' + c + '\');" href="#/browse/filesystem/' + pagination + '/' + browsepath + '">' + c + '</a>');
     }
-
-    $('#filter').append('<a class="btn btn-secondary material-icons" id="fplist" onclick="set_filter(\'plist\')" href="#/browse/filesystem/'+pagination+'/'+browsepath+'">list</a>');
 }
 
 function chVolume (increment) {
