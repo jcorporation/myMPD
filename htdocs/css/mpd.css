@@ -47,6 +47,10 @@ button {
   width: 200px;
 }
 
+.card {
+  min-height:300px;
+}
+
 h1 {
   display: block;
   overflow: hidden;

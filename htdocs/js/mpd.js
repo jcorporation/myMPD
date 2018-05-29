@@ -81,7 +81,7 @@ var app = $.sammy(function() {
           $('#cardQueue').removeClass('hide');
           $('#navQueue').addClass('active');
         }
-        $('#queueList > tbody').empty();
+        //$('#queueList > tbody').empty();
         if (searchstr.length >= 3) {
           socket.send('MPD_API_SEARCH_QUEUE,' + mpdtag + ','+pagination+',' + searchstr);        
         }
@@ -123,7 +123,7 @@ var app = $.sammy(function() {
         $('#cardBrowse').removeClass('hide');
         $('#cardBrowseFilesystem').removeClass('hide');
         $('#cardBrowseNavFilesystem').addClass('active');
-        $('#browseFilesystemList > tbody').empty();
+        //$('#browseFilesystemList > tbody').empty();
         $('#browseBreadcrumb').empty().append("<li class=\"breadcrumb-item\"><a uri=\"\">root</a></li>");
         socket.send('MPD_API_GET_BROWSE,'+pagination+','+(browsepath ? browsepath : "/"));
         // Don't add all songs from root
@@ -177,9 +177,10 @@ var app = $.sammy(function() {
           $('#cardSearch').removeClass('hide');
           $('#navSearch').addClass('active');
         }
-        $('#searchList > tbody').empty();
         if (searchstr.length >= 3) {
           socket.send('MPD_API_SEARCH,' + mpdtag + ','+pagination+',' + searchstr);
+        } else {
+          $('#searchList > tbody').empty();
         }
     });
 
@@ -285,21 +286,27 @@ function webSocketConnect() {
                         $('#panel-heading-queue').append(' – ' + beautifyDuration(obj.totalTime));
                     }
 
-                    $('#queueList > tbody').empty();
+                    //$('#queueList > tbody').empty();
                     var nrItems=0;
+                    var tr=document.getElementById(current_app+'List').getElementsByTagName('tbody')[0].getElementsByTagName('tr');
                     for (var song in obj.data) {
                         nrItems++;
                         var minutes = Math.floor(obj.data[song].duration / 60);
                         var seconds = obj.data[song].duration - minutes * 60;
                         
-                        $('#queueList > tbody').append(
-                            "<tr trackid=\"" + obj.data[song].id + "\"><td>" + (obj.data[song].pos + 1) + "</td>" +
+                        var row="<tr trackid=\"" + obj.data[song].id + "\"><td>" + (obj.data[song].pos + 1) + "</td>" +
                                 "<td>"+ obj.data[song].title +"</td>" +
                                 "<td>"+ obj.data[song].artist +"</td>" + 
                                 "<td>"+ obj.data[song].album +"</td>" +
                                 "<td>"+ minutes + ":" + (seconds < 10 ? '0' : '') + seconds +
-                        "</td><td></td></tr>");
+                        "</td><td></td></tr>";
+                        if (nrItems < tr.length) { $(tr[nrItems-1]).replaceWith(row); } 
+                        else { $('#'+current_app+'List > tbody').append(row); }
                     }
+                    for (var i=tr.length;i>nrItems;i--) {
+                     $(tr[tr.length-1]).remove();
+                    }
+                    
                     if (obj.type == 'queuesearch' && nrItems == 0) {
                         $('#queueList > tbody').append(
                                "<tr><td><span class=\"material-icons\">error_outline</span></td>" +
@@ -400,7 +407,7 @@ function webSocketConnect() {
                     }
                     break;
                 case 'search':
-                    $('#searchList > tbody').empty();
+                    //$('#searchList > tbody').empty();
                     $('#panel-heading-search').text(obj.totalEntities + ' Songs found');
                 case 'browse':
                     if(current_app !== 'browseFilesystem' && current_app !== 'search')
@@ -411,34 +418,35 @@ function webSocketConnect() {
                      * URI from NFD to NFC, breaking our link with MPD.
                      */
                     var nrItems=0;
+                    var tr=document.getElementById(current_app+'List').getElementsByTagName('tbody')[0].getElementsByTagName('tr');
                     for (var item in obj.data) {
                         nrItems++;
+                        var row='';
                         switch(obj.data[item].type) {
                             case 'directory':
-                                $('#'+current_app+'List > tbody').append(
-                                    '<tr uri="' + encodeURI(obj.data[item].dir) + '" class="dir">' +
+                                row='<tr uri="' + encodeURI(obj.data[item].dir) + '" class="dir">' +
                                     '<td><span class="material-icons">folder_open</span></td>' +
                                     '<td colspan="3"><a>' + basename(obj.data[item].dir) + '</a></td>' +
-                                    '<td></td><td></td></tr>'
-                                );
+                                    '<td></td><td></td></tr>';
                                 break;
                             case 'song':
                                 var minutes = Math.floor(obj.data[item].duration / 60);
                                 var seconds = obj.data[item].duration - minutes * 60;
-
-                                $('#'+current_app+'List > tbody').append(
-                                    '<tr uri="' + encodeURI(obj.data[item].uri) + '" class="song">' +
+                                row='<tr uri="' + encodeURI(obj.data[item].uri) + '" class="song">' +
                                     '<td><span class="material-icons">music_note</span></td>' + 
                                     '<td>' + obj.data[item].title  + '</td>' +
                                     '<td>' + obj.data[item].artist + '</td>' + 
                                     '<td>' + obj.data[item].album  + '</td>' +
                                     '<td>' + minutes + ':' + (seconds < 10 ? '0' : '') + seconds +
-                                    '</td><td></td></tr>'
-                                );
+                                    '</td><td></td></tr>';
                                 break;
                         }
+                        if (nrItems < tr.length) { $(tr[nrItems-1]).replaceWith(row); } 
+                        else { $('#'+current_app+'List > tbody').append(row); }
                     }
-                    
+                    for (var i=tr.length;i>nrItems;i--) {
+                     $(tr[tr.length-1]).remove();
+                    }
                     setPagination(obj.totalEntities);
                     
                     if (current_app == 'search')
