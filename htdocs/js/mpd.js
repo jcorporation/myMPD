@@ -277,9 +277,9 @@ function webSocketConnect() {
 
                     if ( isTouch ) {
                         $('#queueList > tbody > tr > td:last-child').append(
-                                    "<a class=\"pull-right btn-group-hover color-darkgrey\" href=\"#/\" " +
-                                        "onclick=\"trash($(this).parents('tr'));\">" +
-                                "<span class=\"material-icons\">delete</span></a>");
+                                '<a class="pull-right btn-group-hover color-darkgrey" href="#/queue/' + pagination + '" ' +
+                                'onclick="trash($(this).parents(\'tr\'));">' +
+                                '<span class="material-icons">delete</span></a>');
                     } else {
                         $('#queueList > tbody > tr').on({
                             mouseover: function(){
@@ -292,7 +292,7 @@ function webSocketConnect() {
                                 if($(this).children().last().has('a').length == 0)
                                     $(this).children().last().append(
                                         '<a class="pull-right btn-group-hover color-darkgrey" href="#/queue/' + pagination + '" ' +
-                                            'onclick="trash($(this).parents(\'tr\'));">' +
+                                        'onclick="trash($(this).parents(\'tr\'));">' +
                                         '<span class="material-icons">delete</span></a>')
                                 .find('a').fadeTo('fast',1);
                                 });
