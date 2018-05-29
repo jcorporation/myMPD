@@ -300,11 +300,11 @@ function webSocketConnect() {
                                 "<td>"+ obj.data[song].album +"</td>" +
                                 "<td>"+ minutes + ":" + (seconds < 10 ? '0' : '') + seconds +
                         "</td><td></td></tr>";
-                        if (nrItems < tr.length) { $(tr[nrItems-1]).replaceWith(row); } 
+                        if (nrItems <= tr.length) { $(tr[nrItems-1]).replaceWith(row); } 
                         else { $('#'+current_app+'List > tbody').append(row); }
                     }
                     for (var i=tr.length;i>nrItems;i--) {
-                     $(tr[tr.length-1]).remove();
+                         $(tr[tr.length-1]).remove();
                     }
                     
                     if (obj.type == 'queuesearch' && nrItems == 0) {
@@ -401,7 +401,7 @@ function webSocketConnect() {
                     if (nrItems == 0) {
                         $('#'+current_app+'List > tbody').append(
                                "<tr><td><span class=\"material-icons\">error_outline</span></td>" +
-                               "<td colspan=\"3\">No results</td>" +
+                               "<td colspan=\"3\">No playlists found.</td>" +
                                "<td></td><td></td></tr>"
                         );
                     }
@@ -441,11 +441,11 @@ function webSocketConnect() {
                                     '</td><td></td></tr>';
                                 break;
                         }
-                        if (nrItems < tr.length) { $(tr[nrItems-1]).replaceWith(row); } 
+                        if (nrItems <= tr.length) { $(tr[nrItems-1]).replaceWith(row); } 
                         else { $('#'+current_app+'List > tbody').append(row); }
                     }
                     for (var i=tr.length;i>nrItems;i--) {
-                     $(tr[tr.length-1]).remove();
+                        $(tr[tr.length-1]).remove();
                     }
                     setPagination(obj.totalEntities);
                     
