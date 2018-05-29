@@ -112,7 +112,7 @@ int main(int argc, char **argv)
         {0,              0,                 0,  0 }
     };
 
-    while((n = getopt_long(argc, argv, "D:h:p:l:w:u:d:v:m:s:i:",
+    while((n = getopt_long(argc, argv, "D:h:p:l:w:u:d:vm:s:i:",
                 long_options, &option_index)) != -1) {
         switch (n) {
             case 'D':
@@ -146,7 +146,7 @@ int main(int argc, char **argv)
             case 'v':
                 fprintf(stdout, "myMPD  %d.%d.%d\n"
                         "Copyright (C) 2018 Juergen Mang <mail@jcgames.de>\n"
-                        "built " __DATE__ " "__TIME__ "\n",
+                        "Built " __DATE__ " "__TIME__ "\n",
                         MYMPD_VERSION_MAJOR, MYMPD_VERSION_MINOR, MYMPD_VERSION_PATCH);
                 return EXIT_SUCCESS;
                 break;

@@ -54,7 +54,7 @@ Usage: ./mympd [OPTION]...
  -u, --user <username>         drop priviliges to user after socket bind
  -m, --mpdpass <password>      specifies the password to use when connecting to mpd
  -i, --coverimage <filename>   filename for coverimage [folder.jpg]
- -V, --version                 get version
+ -v, --version                 get version
  --help                        this help
 ```
 
