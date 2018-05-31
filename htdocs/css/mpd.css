@@ -192,3 +192,7 @@ main {
  float:left;
  margin-right:5px;
 }
+
+#browseFilesystemGotoLetters > a {
+ min-width:23px;
+}
