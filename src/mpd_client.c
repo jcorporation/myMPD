@@ -1071,6 +1071,11 @@ int mympd_get_stats(char *buffer)
     char *cur = buffer;
     const char *end = buffer + MAX_SIZE;
     struct mpd_stats *stats = mpd_run_stats(mpd.conn);
+    const unsigned *version = mpd_connection_get_server_version(mpd.conn);
+    char mpd_version[20];
+    
+    snprintf(mpd_version,20,"%i.%i.%i", version[0], version[1], version[2]);
+    
     if (stats == NULL)
         RETURN_ERROR_AND_RECOVER("mympd_get_stats");
     cur += json_emit_raw_str(cur, end - cur, "{\"type\":\"mpdstats\",\"data\": {");
@@ -1089,7 +1094,9 @@ int mympd_get_stats(char *buffer)
     cur += json_emit_raw_str(cur, end - cur, ",\"dbplaytime\":");
     cur += json_emit_int(cur, end - cur, mpd_stats_get_db_play_time(stats));
     cur += json_emit_raw_str(cur, end - cur, ",\"mympd_version\":");
-    cur += json_emit_quoted_str(cur, end - cur, MYMPD_VERSION);    
+    cur += json_emit_quoted_str(cur, end - cur, MYMPD_VERSION);
+    cur += json_emit_raw_str(cur, end - cur, ",\"mpd_version\":");
+    cur += json_emit_quoted_str(cur, end - cur, mpd_version);
     cur += json_emit_raw_str(cur, end - cur, "}}");
     
     mpd_stats_free(stats);

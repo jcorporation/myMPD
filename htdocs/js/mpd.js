@@ -658,6 +658,7 @@ function webSocketConnect() {
                     var d = new Date(obj.data.dbupdated * 1000);
                     $('#mpdstats_dbupdated').text(d.toUTCString());
                     $('#mympdVersion').text(obj.data.mympd_version);
+                    $('#mpdVersion').text(obj.data.mpd_version);
                     break;
                 case 'error':
                     showNotification(obj.data,'','','danger');
