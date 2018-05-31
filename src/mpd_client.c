@@ -197,7 +197,7 @@ out_browse:
             if((token = strtok(NULL, ",")) == NULL)
                 goto out_add_track;
 
-			free(p_charbuf);
+            free(p_charbuf);
             p_charbuf = strdup(c->content);
             mpd_run_add(mpd.conn, get_arg1(p_charbuf));
 out_add_track:
@@ -336,6 +336,24 @@ out_rm_playlist:
             break;
         case MPD_API_GET_STATS:
             n = mympd_get_stats(mpd.buf);
+        break;
+        case MPD_API_SET_REPLAYGAIN:
+            p_charbuf = strdup(c->content);
+            if(strcmp(strtok(p_charbuf, ","), "MPD_API_SET_REPLAYGAIN"))
+                goto out_set_replaygain;
+
+            if((token = strtok(NULL, ",")) == NULL)
+                goto out_set_replaygain;
+
+            free(p_charbuf);
+            p_charbuf = strdup(c->content);
+            mpd_send_command(mpd.conn, "replay_gain_mode", get_arg1(p_charbuf), NULL);
+            struct mpd_pair *pair;
+            while ((pair = mpd_recv_pair(mpd.conn)) != NULL) {
+        	mpd_return_pair(mpd.conn, pair);
+            }            
+out_set_replaygain:
+            free(p_charbuf);        
         break;
     }
 
@@ -549,6 +567,7 @@ char* mpd_get_year(struct mpd_song const *song)
 int mpd_put_state(char *buffer, int *current_song_id, int *next_song_id,  unsigned *queue_version)
 {
     struct mpd_status *status;
+    const struct mpd_audio_format *audioformat;
     int len;
 
     status = mpd_run_status(mpd.conn);
@@ -557,11 +576,13 @@ int mpd_put_state(char *buffer, int *current_song_id, int *next_song_id,  unsign
         mpd.conn_state = MPD_FAILURE;
         return 0;
     }
+    audioformat = mpd_status_get_audio_format(status);
 
     len = snprintf(buffer, MAX_SIZE,
         "{\"type\":\"state\", \"data\":{"
         "\"state\":%d, \"volume\":%d, \"songpos\": %d, \"elapsedTime\": %d, "
         "\"totalTime\":%d, \"currentsongid\": %d, \"kbitrate\": %d, "
+        "\"audioformat\": { \"sample_rate\": %d, \"bits\": %d, \"channels\": %d}, "
         "\"queue_length\": %d, \"nextsongpos\": %d"
         "}}", 
         mpd_status_get_state(status),
@@ -571,6 +592,7 @@ int mpd_put_state(char *buffer, int *current_song_id, int *next_song_id,  unsign
         mpd_status_get_total_time(status),
         mpd_status_get_song_id(status),
         mpd_status_get_kbit_rate(status),
+        audioformat->sample_rate, audioformat->bits, audioformat->channels,
         mpd_status_get_queue_length(status),
         mpd_status_get_next_song_pos(status)
     );
@@ -586,6 +608,7 @@ int mympd_put_settings(char *buffer)
 {
     struct mpd_status *status;
     int len;
+    char *replaygain;
 
     status = mpd_run_status(mpd.conn);
     if (!status) {
@@ -594,11 +617,18 @@ int mympd_put_settings(char *buffer)
         return 0;
     }
 
+    mpd_send_command(mpd.conn, "replay_gain_status", NULL);
+    struct mpd_pair *pair;
+    while ((pair = mpd_recv_pair(mpd.conn)) != NULL) {
+        replaygain=strdup(pair->value);
+	mpd_return_pair(mpd.conn, pair);
+    }
+			
     len = snprintf(buffer, MAX_SIZE,
         "{\"type\":\"settings\", \"data\":{"
         "\"repeat\":%d, \"single\":%d, \"crossfade\":%d, \"consume\":%d, \"random\":%d, "
         "\"mixrampdb\": %lf, \"mixrampdelay\": %lf, \"mpdhost\" : \"%s\", \"mpdport\": \"%d\", \"passwort_set\": %s, "
-        "\"streamport\": \"%d\",\"coverimage\": \"%s\", \"max_elements_per_page\": %d"
+        "\"streamport\": \"%d\",\"coverimage\": \"%s\", \"max_elements_per_page\": %d, \"replaygain\": \"%s\""
         "}}", 
         mpd_status_get_repeat(status),
         mpd_status_get_single(status),
@@ -610,7 +640,8 @@ int mympd_put_settings(char *buffer)
         mpd.host, mpd.port, 
         mpd.password ? "true" : "false", 
         streamport, coverimage,
-        MAX_ELEMENTS_PER_PAGE
+        MAX_ELEMENTS_PER_PAGE,
+        replaygain
     );
     mpd_status_free(status);
     return len;

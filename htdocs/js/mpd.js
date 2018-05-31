@@ -45,7 +45,6 @@ var app = $.sammy(function() {
         $('#cardQueue').addClass('hide');
         $('#cardBrowse').addClass('hide');
         $('#cardSearch').addClass('hide');
-        $('.pagination').addClass('hide');
         $('#searchqueue > input').val('');
         $('#cardBrowsePlaylists').addClass('hide');
         $('#cardBrowseDatabase').addClass('hide');
@@ -81,7 +80,6 @@ var app = $.sammy(function() {
           $('#cardQueue').removeClass('hide');
           $('#navQueue').addClass('active');
         }
-        //$('#queueList > tbody').empty();
         if (searchstr.length >= 3) {
           socket.send('MPD_API_SEARCH_QUEUE,' + mpdtag + ','+pagination+',' + searchstr);        
         }
@@ -123,7 +121,6 @@ var app = $.sammy(function() {
         $('#cardBrowse').removeClass('hide');
         $('#cardBrowseFilesystem').removeClass('hide');
         $('#cardBrowseNavFilesystem').addClass('active');
-        //$('#browseFilesystemList > tbody').empty();
         $('#browseBreadcrumb').empty().append("<li class=\"breadcrumb-item\"><a uri=\"\">root</a></li>");
         socket.send('MPD_API_GET_BROWSE,'+pagination+','+(browsepath ? browsepath : "/"));
         // Don't add all songs from root
@@ -252,14 +249,13 @@ function webSocketConnect() {
     try {
         socket.onopen = function() {
             console.log("connected");
-            showNotification('Connected to myMPD','','','success');
-            $('#modalConnectionError').modal('hide');    
-            app.run();
             /* emit request for mympd settings */
             socket.send('MPD_API_GET_SETTINGS');            
             /* emit initial request for output names */
             socket.send('MPD_API_GET_OUTPUTS');
-
+            showNotification('Connected to myMPD','','','success');
+            $('#modalConnectionError').modal('hide');    
+            app.run();
         }
 
         socket.onmessage = function got_packet(msg) {
@@ -278,7 +274,6 @@ function webSocketConnect() {
                     if(current_app !== 'queue')
                         break;
                     $('#panel-heading-queue').empty();
-                    
                     if (obj.totalEntities > 0) {
                         $('#panel-heading-queue').text(obj.totalEntities+' Songs');
                     }
@@ -286,7 +281,6 @@ function webSocketConnect() {
                         $('#panel-heading-queue').append(' – ' + beautifyDuration(obj.totalTime));
                     }
 
-                    //$('#queueList > tbody').empty();
                     var nrItems=0;
                     var tr=document.getElementById(current_app+'List').getElementsByTagName('tbody')[0].getElementsByTagName('tr');
                     for (var song in obj.data) {
@@ -407,7 +401,6 @@ function webSocketConnect() {
                     }
                     break;
                 case 'search':
-                    //$('#searchList > tbody').empty();
                     $('#panel-heading-search').text(obj.totalEntities + ' Songs found');
                 case 'browse':
                     if(current_app !== 'browseFilesystem' && current_app !== 'search')
@@ -577,7 +570,6 @@ function webSocketConnect() {
                     break;
                 case 'disconnected':
                     showNotification('myMPD lost connection to MPD','','','danger');
-
                     break;
                 case 'update_queue':
                     if(current_app === 'queue') {
@@ -631,6 +623,8 @@ function webSocketConnect() {
                         $('#btnrepeat').removeClass('btn-secondary').addClass("btn-success")
                     else
                         $('#btnrepeat').removeClass("btn-success").addClass("btn-secondary");
+                    
+                    $("#selectReplaygain").val(obj.data.replaygain);
 
                     setLocalStream(obj.data.mpdhost,obj.data.streamport);
                     coverImageFile=obj.data.coverimage;
@@ -823,55 +817,68 @@ function toggleBtn(btn) {
 }
 
 $('#btnrandom').on('click', function (e) { 
-    socket.send("MPD_API_TOGGLE_RANDOM," + ($(this).hasClass('btn-success') ? 0 : 1));
     toggleBtn(this);
 });
 $('#btnconsume').on('click', function (e) {
-    socket.send("MPD_API_TOGGLE_CONSUME," + ($(this).hasClass('btn-success') ? 0 : 1));
     toggleBtn(this);
 });
 $('#btnsingle').on('click', function (e) {
-    socket.send("MPD_API_TOGGLE_SINGLE," + ($(this).hasClass('btn-success') ? 0 : 1));
-        toggleBtn(this);
+    toggleBtn(this);
 });
 
 $('#btnrepeat').on('click', function (e) {
-    socket.send("MPD_API_TOGGLE_REPEAT," + ($(this).hasClass('btn-success') ? 0 : 1));
     toggleBtn(this);
 });
 
 function confirmSettings() {
-    var value=parseInt($('#inputCrossfade').val());
-    if (!isNaN(value)) {
+    var formOK=true;
+    if (!$('#inputCrossfade').is(':disabled')) {
+      var value=parseInt($('#inputCrossfade').val());
+      if (!isNaN(value)) {
         $('#inputCrossfade').val(value);
-        socket.send("MPD_API_SET_CROSSFADE," + value);
-    } else {
+      } else {
         $('#inputCrossfade').popover({"content":"Must be a number","trigger":"manual"});
         $('#inputCrossfade').popover('show');
         $('#inputCrossfade').focus();
-        return;
+        formOK=false;
+      }
     }
-    value=parseFloat($('#inputMixrampdb').val());
-    if (!isNaN(value)) {
+    if (!$('#inputMixrampdb').is(':disabled')) {
+      value=parseFloat($('#inputMixrampdb').val());
+      if (!isNaN(value)) {
         $('#inputMixrampdb').val(value);
-        socket.send("MPD_API_SET_MIXRAMPDB," + value);
-    } else {
+      } else {
         $('#inputMixrampdb').popover({"content":"Must be a number","trigger":"manual"});
         $('#inputMixrampdb').popover('show');
         $('#inputMixrampdb').focus();
-        return;
-    } 
-    value=parseFloat($('#inputMixrampdelay').val());
-    if (!isNaN(value)) {
+        formOK=false;
+      } 
+    }
+    if (!$('#inputMixrampdelay').is(':disabled')) {
+      value=parseFloat($('#inputMixrampdelay').val());
+      if (!isNaN(value)) {
         $('#inputMixrampdelay').val(value);
-        socket.send("MPD_API_SET_MIXRAMPDELAY," + value);
-    } else {
+      } else {
         $('#inputMixrampdelay').popover({"content":"Must be a number","trigger":"manual"});
         $('#inputMixrampdelay').popover('show');
         $('#inputMixrampdelay').focus();
-        return;
+        formOK=false;
+      }
     }
-    $('#settings').modal('hide');
+    if (formOK == true) {
+      socket.send("MPD_API_TOGGLE_CONSUME," + ($('#btnconsume').hasClass('btn-success') ? 1 : 0));
+      socket.send("MPD_API_TOGGLE_RANDOM," + ($('#btnrandom').hasClass('btn-success') ? 1 : 0));    
+      socket.send("MPD_API_TOGGLE_SINGLE," + ($('#btnsingle').hasClass('btn-success') ? 1 : 0));
+      socket.send("MPD_API_TOGGLE_REPEAT," + ($('#btnrepeat').hasClass('btn-success') ? 1 : 0));
+      socket.send("MPD_API_SET_REPLAYGAIN," + $('#selectReplaygain').val());
+      if (!$('#inputCrossfade').is(':disabled'))
+          socket.send("MPD_API_SET_CROSSFADE," + $('#inputCrossfade').val());
+      if (!$('#inputMixrampdb').is(':disabled'))
+          socket.send("MPD_API_SET_MIXRAMPDB," + $('#inputMixrampdb').val());
+      if (!$('#inputMixrampdelay').is(':disabled'))
+          socket.send("MPD_API_SET_MIXRAMPDELAY," + $('#inputMixrampdelay').val());      
+      $('#settings').modal('hide');
+    }
 }
 
 function toggleoutput(button, id) {
@@ -1061,12 +1068,14 @@ function songChange(title, artist, album, uri) {
 
     if (typeof uri != 'undefined' && uri.length > 0) {
         var coverImg='';
-        if (uri.indexOf('http://') == 0) {
-            coverImg='/assets/httpstream.png';
-        } else {
+        if (uri.indexOf('http://') == 0 || uri.indexOf('https://') == 0 ) {
+            coverImg='/assets/coverimage-httpstream.png';
+        } else if (coverImageFile != '') {
             coverImg='/library/'+uri.replace(/\/[^\/]+$/,'\/'+coverImageFile);
+        } else {
+            coverImg='/assets/coverimage-notavailable.png';
         }
-        $('#album-cover').css('backgroundImage','url("'+coverImg+'")');
+        $('#album-cover').css('backgroundImage','url("'+coverImg+'"),url("/assets/coverimage-notavailable.png")');
     }
     if(typeof artist != 'undefined' && artist.length > 0 && artist != '-') {
         textNotification += artist;
