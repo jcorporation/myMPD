@@ -1000,7 +1000,11 @@ function gotoPage(x,element,event) {
             if ($('#searchqueuestr').val().length >=3) {
               doQueueSearch();
             } else {
-              app.setLocation('#/queue/'+pagination);
+              var mpdtag='Any Tag';
+              $('#searchqueuetag > button').each(function() {
+                  if ($(this).hasClass('btn-success')) { mpdtag=$(this).text(); }
+              });
+              app.setLocation('#/queue/'+pagination+'/'+mpdtag+'/');
             }
             break;
         case "search":

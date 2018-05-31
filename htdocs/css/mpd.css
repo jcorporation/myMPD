@@ -21,11 +21,9 @@ body {
   width: 104px;
 }
 
-
 button {
   overflow: hidden;
 }
-
 
 #browseBreadcrumb {
   overflow: auto;
