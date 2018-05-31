@@ -123,7 +123,7 @@ tbody {
   word-wrap: normal;
   white-space: nowrap;
   direction: ltr;
-
+  vertical-align: top;
   /* Support for all WebKit browsers. */
   -webkit-font-smoothing: antialiased;
   /* Support for Safari and Chrome. */

@@ -270,12 +270,33 @@ out_save_queue:
 out_search_queue:
             free(p_charbuf);
             break;            
+        case MPD_API_SEARCH_ADD:
+            p_charbuf = strdup(c->content);
+            if(strcmp(strtok(p_charbuf, ","), "MPD_API_SEARCH_ADD"))
+		goto out_search_add;
+            if((token = strtok(NULL, ",")) == NULL) {
+                goto out_search_add;
+            } else {
+                mpdtagtype = strdup(token);
+            }
+            
+            if((token = strtok(NULL, ",")) == NULL) {
+                free(mpdtagtype);
+                goto out_search_add;
+            } else {
+                searchstr = strdup(token);
+            }
+            n = mpd_search_add(mpd.buf, mpdtagtype, searchstr);
+            free(searchstr);
+out_search_add:
+            free(p_charbuf);
+            break;
         case MPD_API_SEARCH:
             p_charbuf = strdup(c->content);
             if(strcmp(strtok(p_charbuf, ","), "MPD_API_SEARCH"))
 		goto out_search;
             if((token = strtok(NULL, ",")) == NULL) {
-                goto out_search_queue;
+                goto out_search;
             } else {
                 mpdtagtype = strdup(token);
             }
@@ -576,7 +597,9 @@ int mpd_put_state(char *buffer, int *current_song_id, int *next_song_id,  unsign
         mpd.conn_state = MPD_FAILURE;
         return 0;
     }
-    audioformat = mpd_status_get_audio_format(status);
+    if (status) {
+     audioformat = mpd_status_get_audio_format(status);
+    }
 
     len = snprintf(buffer, MAX_SIZE,
         "{\"type\":\"state\", \"data\":{"
@@ -592,7 +615,9 @@ int mpd_put_state(char *buffer, int *current_song_id, int *next_song_id,  unsign
         mpd_status_get_total_time(status),
         mpd_status_get_song_id(status),
         mpd_status_get_kbit_rate(status),
-        audioformat->sample_rate, audioformat->bits, audioformat->channels,
+        audioformat ? audioformat->sample_rate : 0, 
+        audioformat ? audioformat->bits : 0, 
+        audioformat ? audioformat->channels : 0,
         mpd_status_get_queue_length(status),
         mpd_status_get_next_song_pos(status)
     );
@@ -894,7 +919,7 @@ int mpd_search(char *buffer, char *mpdtagtype, unsigned int offset, char *search
     unsigned long entities_returned = 0;
 
     if(mpd_search_db_songs(mpd.conn, false) == false) {
-        RETURN_ERROR_AND_RECOVER("mpd_search_queue_songs");
+        RETURN_ERROR_AND_RECOVER("mpd_search_db_songs");
     }
     
     if (mpd_tag_name_parse(mpdtagtype) != MPD_TAG_UNKNOWN) {
@@ -945,6 +970,35 @@ int mpd_search(char *buffer, char *mpdtagtype, unsigned int offset, char *search
         cur += json_emit_quoted_str(cur, end - cur, mpdtagtype);        
         cur += json_emit_raw_str(cur, end - cur, "}");
     }
+    return cur - buffer;
+}
+
+int mpd_search_add(char *buffer,char *mpdtagtype, char *searchstr)
+{
+    char *cur = buffer;
+    const char *end = buffer + MAX_SIZE;
+    struct mpd_song *song;
+
+    if(mpd_search_add_db_songs(mpd.conn, false) == false) {
+        RETURN_ERROR_AND_RECOVER("mpd_search_add_db_songs");
+    }
+    
+    if (mpd_tag_name_parse(mpdtagtype) != MPD_TAG_UNKNOWN) {
+       if (mpd_search_add_tag_constraint(mpd.conn, MPD_OPERATOR_DEFAULT, mpd_tag_name_parse(mpdtagtype), searchstr) == false)
+            RETURN_ERROR_AND_RECOVER("mpd_search_add_tag_constraint");
+    }
+    else {
+        if (mpd_search_add_any_tag_constraint(mpd.conn, MPD_OPERATOR_DEFAULT, searchstr) == false)
+            RETURN_ERROR_AND_RECOVER("mpd_search_add_any_tag_constraint");        
+    }    
+        
+    if(mpd_search_commit(mpd.conn) == false)
+        RETURN_ERROR_AND_RECOVER("mpd_search_commit");
+    
+    while((song = mpd_recv_song(mpd.conn)) != NULL) {
+        mpd_song_free(song);
+    }
+        
     return cur - buffer;
 }
 
