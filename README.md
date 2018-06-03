@@ -7,9 +7,7 @@ myMPD is a fork of ympd.
 
 This fork provides a reworked ui based on Bootstrap 4.
 
-![image](https://jcgames.de/stuff/myMPD/myMPD-Playback.png)
-![image](https://jcgames.de/stuff/myMPD/myMPD-Queue.png)
-![image](https://jcgames.de/stuff/myMPD/myMPD-Browse.png)
+![image](https://jcgames.de/stuff/myMPD/screenshots.gif)
 
 UI Components
 -------------
