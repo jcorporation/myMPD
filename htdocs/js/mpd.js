@@ -487,13 +487,11 @@ function webSocketConnect() {
                     }
                     setPagination(obj.totalEntities);
                     
-                    if (current_app == 'search')
-                       if (nrItems == 0) {
-                           $('#'+current_app+'List > tbody').append(
-                               "<tr><td><span class=\"material-icons\">error_outline</span></td>" +
-                               "<td colspan=\"3\">No results, please refine your search!</td>" +
-                               "<td></td><td></td></tr>"
-                           );
+                    if (nrItems == 0) {
+                       $('#'+current_app+'List > tbody').append(
+                           '<tr><td><span class="material-icons">error_outline</span></td>' +
+                           '<td colspan="3">No results</td>' +
+                           '<td></td><td></td></tr>');
                     }
 
                     function appendClickableIcon(appendTo, onClickAction, glyphicon) {
@@ -555,7 +553,7 @@ function webSocketConnect() {
 
                     break;
                 case 'state':
-                    updatePlayIcon(obj.data.state);
+                    updatePlayIcon(obj);
                     updateVolumeIcon(obj.data.volume);
 
                     if(JSON.stringify(obj) === JSON.stringify(last_state))
@@ -798,19 +796,36 @@ function updateVolumeIcon(volume) {
     }
 }
 
-function updatePlayIcon(state) {
-    $("#play-icon").text('play_arrow');
+function updatePlayIcon(obj) {
 
-    if(state == 1) { // stop
-        $("#play-icon").text('play_arrow');
+    if(obj.data.state == 1) { // stop
+        $('#btnPlay > span').text('play_arrow');
         playstate = 'stop';
-    } else if(state == 2) { // play
-        $("#play-icon").text('pause');
+    } else if(obj.data.state == 2) { // play
+        $('#btnPlay > span').text('pause');
         playstate = 'play';
     } else { // pause
-        $("#play-icon").text('play_arrow');
+        $('#btnPlay > span').text('play_arrow');
 	playstate = 'pause';
     }
+
+    if (obj.data.nextsongpos == -1) {
+        $('#btnNext').addClass('disabled').attr('disabled','disabled');
+    } else {
+        $('#btnNext').removeClass('disabled').removeAttr('disabled');
+    }
+    
+    if (obj.data.songpos <= 0) {
+        $('#btnPrev').addClass('disabled').attr('disabled','disabled');
+    } else {
+        $('#btnPrev').removeClass('disabled').removeAttr('disabled');
+    }
+    
+    if (obj.data.queue_length == 0) {
+        $('#btnPlay').addClass('disabled').attr('disabled','disabled');
+    } else {
+        $('#btnPlay').removeClass('disabled').removeAttr('disabled');
+    }    
 }
 
 function updateDB() {
@@ -1191,6 +1206,7 @@ $(document).keydown(function(e){
 });
 
 function setFilterLetter(filter) {
+    pagination = 0;
     app.setLocation('#/browse/filesystem/'+pagination+'/'+filter+'/'+browsepath);
 }
 

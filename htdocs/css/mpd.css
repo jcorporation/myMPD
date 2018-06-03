@@ -35,7 +35,7 @@ button {
 }
 
 #counter {
-  font-size: 24px;
+  font-size: 22px;
   margin-top: -2px;
   margin-left: 10px;
   min-width: 50px;
@@ -46,23 +46,10 @@ button {
 }
 
 .card {
-  min-height:300px;
-}
-
-h1 {
-  display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  min-height:350px;
 }
 
 @media only screen and (max-width: 576px) {
-/*  .tbllength, .tblnum, .tblalbum {
-    visibility:collapse;
-  }
-  .tbltitle, .tblartist {
-   min-width:calc(50% - 15px);
-  }
-*/
   .header-logo {
     display:none !important;
   }
