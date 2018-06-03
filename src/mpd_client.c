@@ -878,7 +878,9 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset, char *filter)
                     } else {
                      dirName = strdup(entityName);
                     }
-                    if (strncmp(filter,"!",1) == 0 || strncasecmp(filter,dirName,1) == 0) {                
+                    if (strncmp(filter,"!",1) == 0 || strncasecmp(filter,dirName,1) == 0 ||
+                        ( strncmp(filter,"0",1) == 0 && isalpha(*dirName) == 0 )
+                    ) {                
                         entities_returned ++;
                         cur += json_emit_raw_str(cur, end - cur, "{\"type\":\"directory\",\"dir\":");
                         cur += json_emit_quoted_str(cur, end - cur, entityName);
@@ -891,7 +893,9 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset, char *filter)
                 case MPD_ENTITY_TYPE_PLAYLIST:
                     pl = mpd_entity_get_playlist(entity);
                     entityName = mpd_playlist_get_path(pl);
-                    if (strncmp(filter,"!",1) == 0 || strncasecmp(filter,entityName,1) == 0) {
+                    if (strncmp(filter,"!",1) == 0 || strncasecmp(filter,entityName,1) == 0 ||
+                        ( strncmp(filter,"0",1) == 0 && isalpha(*entityName) == 0 )
+                    ) {
                         entities_returned ++;
                         cur += json_emit_raw_str(cur, end - cur, "{\"type\":\"playlist\",\"plist\":");
                         cur += json_emit_quoted_str(cur, end - cur, entityName );
