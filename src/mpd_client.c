@@ -798,6 +798,7 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset)
     char *cur = buffer;
     const char *end = buffer + MAX_SIZE;
     struct mpd_entity *entity;
+    const struct mpd_playlist *pl;
     unsigned int entity_count = 0;
     unsigned int entities_returned = 0;
 
@@ -838,8 +839,12 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset)
                     cur += json_emit_quoted_str(cur, end - cur, mpd_directory_get_path(dir));
                     cur += json_emit_raw_str(cur, end - cur, "},");
                     break;
-
+                    
                 case MPD_ENTITY_TYPE_PLAYLIST:
+                    pl = mpd_entity_get_playlist(entity);
+                    cur += json_emit_raw_str(cur, end - cur, "{\"type\":\"playlist\",\"plist\":");
+                    cur += json_emit_quoted_str(cur, end - cur, mpd_playlist_get_path(pl));
+                    cur += json_emit_raw_str(cur, end - cur, "},");
                     break;
             }
         }

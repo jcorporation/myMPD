@@ -436,7 +436,7 @@ function webSocketConnect() {
                         var row='';
                         switch(obj.data[item].type) {
                             case 'directory':
-                                row='<tr uri="' + encodeURI(obj.data[item].dir) + '" class="dir">' +
+                                row ='<tr uri="' + encodeURI(obj.data[item].dir) + '" class="dir">' +
                                     '<td><span class="material-icons">folder_open</span></td>' +
                                     '<td colspan="3"><a>' + basename(obj.data[item].dir) + '</a></td>' +
                                     '<td></td><td></td></tr>';
@@ -444,13 +444,19 @@ function webSocketConnect() {
                             case 'song':
                                 var minutes = Math.floor(obj.data[item].duration / 60);
                                 var seconds = obj.data[item].duration - minutes * 60;
-                                row='<tr uri="' + encodeURI(obj.data[item].uri) + '" class="song">' +
+                                row ='<tr uri="' + encodeURI(obj.data[item].uri) + '" class="song">' +
                                     '<td><span class="material-icons">music_note</span></td>' + 
                                     '<td>' + obj.data[item].title  + '</td>' +
                                     '<td>' + obj.data[item].artist + '</td>' + 
                                     '<td>' + obj.data[item].album  + '</td>' +
                                     '<td>' + minutes + ':' + (seconds < 10 ? '0' : '') + seconds +
                                     '</td><td></td></tr>';
+                                break;
+                            case 'playlist':
+                                row ='<tr uri="' + encodeURI(obj.data[item].plist) + '" class="plist">' +
+                                    '<td><span class="material-icons">list</span></td>' +
+                                    '<td colspan="3"><a>' + basename(obj.data[item].plist) + '</a></td>' +
+                                    '<td></td><td></td></tr>';
                                 break;
                         }
                         if (nrItems <= tr.length) { $(tr[nrItems-1]).replaceWith(row); } 
@@ -508,6 +514,10 @@ function webSocketConnect() {
                                     break;
                                 case 'song':
                                     socket.send("MPD_API_ADD_TRACK," + decodeURI($(this).attr("uri")));
+                                    showNotification('"' + $('td:nth-last-child(3)', this).text() + '" added','','','success');
+                                    break;
+                                case 'plist':
+                                    socket.send("MPD_API_ADD_PLAYLIST," + decodeURI($(this).attr("uri")));
                                     showNotification('"' + $('td:nth-last-child(3)', this).text() + '" added','','','success');
                                     break;
                             }
