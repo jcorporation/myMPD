@@ -21,11 +21,9 @@ body {
   width: 104px;
 }
 
-
 button {
   overflow: hidden;
 }
-
 
 #browseBreadcrumb {
   overflow: auto;
@@ -37,7 +35,7 @@ button {
 }
 
 #counter {
-  font-size: 24px;
+  font-size: 22px;
   margin-top: -2px;
   margin-left: 10px;
   min-width: 50px;
@@ -47,20 +45,11 @@ button {
   width: 200px;
 }
 
-h1 {
-  display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.card {
+  min-height:350px;
 }
 
 @media only screen and (max-width: 576px) {
-/*  .tbllength, .tblnum, .tblalbum {
-    visibility:collapse;
-  }
-  .tbltitle, .tblartist {
-   min-width:calc(50% - 15px);
-  }
-*/
   .header-logo {
     display:none !important;
   }
@@ -85,14 +74,6 @@ tbody {
   background-color:#eee;
 }
 
-#filter > a.active {
-  font-weight: bold;
-  pointer-events: none;
-  cursor: default;
-  text-decoration: none;
-  color: black;
-}
-
 .hide {
  display: none !important;
 }
@@ -101,7 +82,7 @@ tbody {
  float: right !important;
 }
 
-#queue-buttons {
+#queue-buttons, #browsePlaylistsButtons, #searchButtons, #browseFilesystemButtons, #browseDatabaseButtons {
  margin-bottom:20px;
 }
 
@@ -129,7 +110,7 @@ tbody {
   word-wrap: normal;
   white-space: nowrap;
   direction: ltr;
-
+  vertical-align: top;
   /* Support for all WebKit browsers. */
   -webkit-font-smoothing: antialiased;
   /* Support for Safari and Chrome. */
@@ -197,4 +178,21 @@ main {
  font-size:2rem;
  float:left;
  margin-right:5px;
+}
+
+#browseFilesystemFilterLetters > button {
+ min-width:28px;
+}
+
+.col-md {
+ min-width:250px;
+ max-width:350px;
+}
+
+.card-img-top {
+ min-height:250px;
+ background-image:url('/assets/coverimage-notavailable.png');
+ background-repeat:no-repeat;
+ background-color:#d45500;
+ cursor:pointer;
 }

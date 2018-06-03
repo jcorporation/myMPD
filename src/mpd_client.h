@@ -55,6 +55,7 @@
     X(MPD_API_RM_ALL) \
     X(MPD_API_MOVE_TRACK) \
     X(MPD_API_SEARCH_QUEUE) \
+    X(MPD_API_SEARCH_ADD) \
     X(MPD_API_SEARCH) \
     X(MPD_API_SEND_MESSAGE) \
     X(MPD_API_SET_VOLUME) \
@@ -72,11 +73,17 @@
     X(MPD_API_TOGGLE_SINGLE) \
     X(MPD_API_SET_CROSSFADE) \
     X(MPD_API_TOGGLE_REPEAT) \
-    X(MPD_API_GET_OPTIONS) \
+    X(MPD_API_GET_SETTINGS) \
     X(MPD_API_SEND_SHUFFLE) \
     X(MPD_API_GET_STATS) \
     X(MPD_API_SET_MIXRAMPDB) \
-    X(MPD_API_SET_MIXRAMPDELAY)
+    X(MPD_API_SET_MIXRAMPDELAY) \
+    X(MPD_API_GET_PLAYLISTS) \
+    X(MPD_API_RM_PLAYLIST) \
+    X(MPD_API_SET_REPLAYGAIN) \
+    X(MPD_API_GET_ARTISTALBUMS) \
+    X(MPD_API_GET_ARTISTALBUMTITLES) \
+    X(MPD_API_GET_ARTISTS)
 
 enum mpd_cmd_ids {
     MPD_CMDS(GEN_ENUM)
@@ -125,10 +132,15 @@ int mpd_put_state(char *buffer, int *current_song_id, int *next_song_id, unsigne
 int mpd_put_outputs(char *buffer, int putnames);
 int mpd_put_current_song(char *buffer);
 int mpd_put_queue(char *buffer, unsigned int offset);
-int mpd_put_browse(char *buffer, char *path, unsigned int offset);
-int mpd_search(char *buffer, char *searchstr);
+int mpd_put_playlists(char *buffer, unsigned int offset);
+int mpd_put_browse(char *buffer, char *path, unsigned int offset, char *filter);
+int mpd_search(char *buffer, char *mpdtagtype, unsigned int offset, char *searchstr);
+int mpd_search_add(char *buffer, char *mpdtagtype, char *searchstr);
 int mpd_search_queue(char *buffer, char *mpdtagtype, unsigned int offset, char *searchstr);
-int mympd_get_stats();
+int mympd_get_stats(char *buffer);
+int mympd_put_settings(char *buffer);
+int mympd_put_db_tag(char *buffer, unsigned int offset, char *mpdtagtype, char *mpdsearchtagtype, char *searchstr);
+int mympd_put_songs_in_album(char *buffer, char *albumartist, char *album);
 void mpd_disconnect();
 #endif
 
