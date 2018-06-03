@@ -201,12 +201,13 @@ out_artistalbum:
             } else {
                 searchstr = strdup(token);
             }
-            if((token = strtok(NULL, ",")) == NULL) {
+/*            if((token = strtok(NULL, ",")) == NULL) {
                 goto out_artistalbumtitle;
             } else {
                 p_charbuf2 = strdup(token);
-            }            
-            n = mympd_put_songs_in_album(mpd.buf, searchstr, p_charbuf2);
+            }
+*/            
+            n = mympd_put_songs_in_album(mpd.buf, searchstr, token+strlen(token)+1);
             free(searchstr);
 out_artistalbumtitle:
             free(p_charbuf);        
