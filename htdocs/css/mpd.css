@@ -193,6 +193,6 @@ main {
  margin-right:5px;
 }
 
-#browseFilesystemGotoLetters > a {
- min-width:23px;
+#browseFilesystemFilterLetters > button {
+ min-width:28px;
 }

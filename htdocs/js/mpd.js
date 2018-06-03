@@ -27,15 +27,16 @@ var last_state;
 var last_outputs;
 var current_app;
 var pagination = 0;
-var browsepath = "";
-var lastSongTitle = "";
+var filterLetter = '!'
+var browsepath = '';
+var lastSongTitle = '';
 var current_song = new Object();
 var MAX_ELEMENTS_PER_PAGE = 100;
 var isTouch = Modernizr.touch ? 1 : 0;
-var playstate = "";
+var playstate = '';
 var progressBar;
 var volumeBar;
-var coverImageFile = "";
+var coverImageFile = '';
 
 var app = $.sammy(function() {
 
@@ -115,17 +116,36 @@ var app = $.sammy(function() {
         $('#cardBrowseNavDatabase').addClass('active');
     });
 
-    this.get(/\#\/browse\/filesystem\/(\d+)\/(.*)/, function() {
+    this.get(/\#\/browse\/filesystem\/(\d+)\/(\w|\!)\/(.*)/, function() {
         prepare();
-        browsepath = this.params['splat'][1];
         pagination = parseInt(this.params['splat'][0]);
+        filterLetter = this.params['splat'][1];
+        browsepath = this.params['splat'][2];
         current_app = 'browseFilesystem';
         $('#navBrowse').addClass('active');
         $('#cardBrowse').removeClass('hide');
         $('#cardBrowseFilesystem').removeClass('hide');
         $('#cardBrowseNavFilesystem').addClass('active');
         $('#browseBreadcrumb').empty().append("<li class=\"breadcrumb-item\"><a uri=\"\">root</a></li>");
-        socket.send('MPD_API_GET_BROWSE,'+pagination+','+(browsepath ? browsepath : "/"));
+        socket.send('MPD_API_GET_BROWSE,'+pagination+','+(browsepath ? browsepath : "/")+','+filterLetter);
+        $('#browseFilesystemFilterLetters > button').removeClass('btn-success').addClass('btn-secondary');
+        if (filterLetter == '0') {
+            $('#browseFilesystemFilter').text('Filter: #');
+            $('#browseFilesystemFilterLetters > button').each(function() {
+                if ($(this).text() == '#') {
+                    $(this).addClass('btn-success');
+                }
+            });
+        } else if (filterLetter != '!') {
+            $('#browseFilesystemFilter').text('Filter: '+filterLetter);
+            $('#browseFilesystemFilterLetters > button').each(function() {
+                if ($(this).text() == filterLetter) {
+                    $(this).addClass('btn-success');
+                }
+            });
+        } else {
+            $('#browseFilesystemFilter').text('Filter');
+        }
         // Don't add all songs from root
         var add_all_songs = $('#browseFilesystemAddAllSongs');
         if (browsepath) {
@@ -509,8 +529,8 @@ function webSocketConnect() {
                                 case 'dir':
                                     pagination = 0;
                                     browsepath = $(this).attr("uri");
-                                    $("#browseFilesystemList > a").attr("href", '#/browse/filesystem/'+pagination+'/'+browsepath);
-                                    app.setLocation('#/browse/filesystem/'+pagination+'/'+browsepath);
+                                    $("#browseFilesystemList > a").attr("href", '#/browse/filesystem/'+pagination+'/'+filterLetter+'/'+browsepath);
+                                    app.setLocation('#/browse/filesystem/'+pagination+'/'+filterLetter+'/'+browsepath);
                                     break;
                                 case 'song':
                                     socket.send("MPD_API_ADD_TRACK," + decodeURI($(this).attr("uri")));
@@ -528,8 +548,8 @@ function webSocketConnect() {
 			click: function() {
 		        	pagination = 0;
 				browsepath = $(this).attr("uri");
-				$("#browseFilesystemList > a").attr("href", '#/browse/filesystem/'+pagination+'/'+browsepath);
-				app.setLocation('#/browse/filesystem/'+pagination+'/'+browsepath);
+				$("#browseFilesystemList > a").attr("href", '#/browse/filesystem/'+pagination+'/'+filterLetter+'/'+browsepath);
+				app.setLocation('#/browse/filesystem/'+pagination+'/'+filterLetter+'/'+browsepath);
 			}
                     });
 
@@ -1056,7 +1076,7 @@ function gotoPage(x,element,event) {
             doSearch($('#searchstr2').val());
             break;
         case "browseFilesystem":
-            app.setLocation('#/browse/filesystem/'+pagination+'/'+browsepath);
+            app.setLocation('#/browse/filesystem/'+pagination+'/'+filterLetter+'/'+browsepath);
             break;
         case "browsePlaylists":
             app.setLocation('#/browse/playlists/'+pagination);
@@ -1170,11 +1190,17 @@ $(document).keydown(function(e){
     e.preventDefault();
 });
 
+function setFilterLetter(filter) {
+    app.setLocation('#/browse/filesystem/'+pagination+'/'+filter+'/'+browsepath);
+}
+
 function add_filter () {
-    $('#browseFilesystemGotoLetters').append('<a class="mr-1 mb-1 btn btn-sm btn-secondary" onclick="gotoLetter(\'#\');" href="#/browse/filesystem/' + pagination + '/' + browsepath + '">#</a>');
+    $('#browseFilesystemFilterLetters').append('<button class="mr-1 mb-1 btn btn-sm btn-secondary" onclick="setFilterLetter(\'!\');">'+
+        '<span class="material-icons" style="font-size:14px;">delete</span></button>');
+    $('#browseFilesystemFilterLetters').append('<button class="mr-1 mb-1 btn btn-sm btn-secondary" onclick="setFilterLetter(\'0\');">#</button>');
     for (i = 65; i <= 90; i++) {
         var c = String.fromCharCode(i);
-        $('#browseFilesystemGotoLetters').append('<a class="mr-1 mb-1 btn-sm btn btn-secondary" onclick="gotoLetter(\'' + c + '\');" href="#/browse/filesystem/' + pagination + '/' + browsepath + '">' + c + '</a>');
+        $('#browseFilesystemFilterLetters').append('<button class="mr-1 mb-1 btn-sm btn btn-secondary" onclick="setFilterLetter(\'' + c + '\');">' + c + '</button>');
     }
 }
 

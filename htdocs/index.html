@@ -203,7 +203,7 @@
       <div class="card-header" id="panel-heading-browse">
         <ul class="nav nav-tabs card-header-tabs">
           <li class="nav-item">
-            <a class="nav-link text-dark" href="#/browse/filesystem/0/" id="cardBrowseNavFilesystem">Filesystem</a>
+            <a class="nav-link text-dark" href="#/browse/filesystem/0/!/" id="cardBrowseNavFilesystem">Filesystem</a>
           </li>
           <li class="nav-item">
             <a class="nav-link text-dark" href="#/browse/playlists/0" id="cardBrowseNavPlaylists">Playlists</a>
@@ -213,6 +213,7 @@
           </li>
         </ul>
       </div>
+      
       <div class="card-body hide" id="cardBrowsePlaylists">
         <div class="btn-toolbar collapse show" id="browsePlaylistsButtons" role="toolbar">
           <div id="browsePlaylistsPaginationTop" class="btn-group mr-2">
@@ -277,8 +278,8 @@
             <button id="browseFilesystemAddAllSongs" class="btn btn-secondary">Add all</button>
           </div>
           <div class="btn-group mr-2">
-            <button id="browseFilesystemGoto" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">Goto</button>
-            <div class="dropdown-menu bg-dark px-2" id="browseFilesystemGotoLetters">
+            <button id="browseFilesystemFilter" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">Filter</button>
+            <div class="dropdown-menu bg-dark px-2" id="browseFilesystemFilterLetters">
             </div>
           </div>
           <div id="browseFilesystemPaginationTop" class="btn-group mr-2">
@@ -416,7 +417,7 @@
       <div class="d-flex flex-fill navbar-nav" id="navbar-bottom">
         <div class="nav-item flex-fill text-center" id="navPlayback"><a class="nav-link" href="#/playing/">Playback</a></div>
         <div class="nav-item flex-fill text-center" id="navQueue"><a class="nav-link" href="#/queue/0/Any Tag/">Queue</a></div>
-        <div class="nav-item flex-fill text-center" id="navBrowse"><a class="nav-link" href="#/browse/filesystem/0/">Browse</a></div>
+        <div class="nav-item flex-fill text-center" id="navBrowse"><a class="nav-link" href="#/browse/filesystem/0/!/">Browse</a></div>
         <div class="nav-item flex-fill text-center" id="navSearch"><a class="nav-link" href="#/search/0/Any Tag/">Search</a></div>        
       </div>
     </nav>

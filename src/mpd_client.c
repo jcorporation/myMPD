@@ -27,6 +27,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <libgen.h>
+#include <ctype.h>
 #include <mpd/client.h>
 #include <mpd/message.h>
 
@@ -66,7 +67,7 @@ int callback_mpd(struct mg_connection *c)
     double double_buf;
     int int_buf;
     char *p_charbuf = NULL, *token;
-    char *mpdtagtype = NULL;
+    char *p_charbuf2 = NULL;
     char *searchstr = NULL;
 
     fprintf(stdout,"%s\n",c->content);
@@ -175,7 +176,7 @@ int callback_mpd(struct mg_connection *c)
                 n = mpd_put_playlists(mpd.buf, uint_buf);
             break;
         case MPD_API_GET_BROWSE:
-            p_charbuf = strdup(c->content);
+/*            p_charbuf = strdup(c->content);
             if(strcmp(strtok(p_charbuf, ","), "MPD_API_GET_BROWSE"))
                 goto out_browse;
 
@@ -187,7 +188,32 @@ int callback_mpd(struct mg_connection *c)
             p_charbuf = strdup(c->content);
             n = mpd_put_browse(mpd.buf, get_arg2(p_charbuf), uint_buf);
 out_browse:
+            free(p_charbuf);*/
+            p_charbuf = strdup(c->content);
+            if(strcmp(strtok(p_charbuf, ","), "MPD_API_GET_BROWSE"))
+                goto out_browse;
+
+            uint_buf = strtoul(strtok(NULL, ","), NULL, 10);
+
+            if((token = strtok(NULL, ",")) == NULL) {
+                goto out_browse;
+            } else {
+                p_charbuf2 = strdup(token);
+            }
+
+            if((token = strtok(NULL, ",")) == NULL) {
+                free(p_charbuf2);
+		goto out_browse;
+            } else {
+                searchstr = strdup(token);
+            }
+            n = mpd_put_browse(mpd.buf, p_charbuf2, uint_buf, searchstr);
+            free(searchstr);
+            free(p_charbuf2);
+out_browse:
             free(p_charbuf);
+            break;            
+            
             break;
         case MPD_API_ADD_TRACK:
             p_charbuf = strdup(c->content);
@@ -254,19 +280,20 @@ out_save_queue:
             if((token = strtok(NULL, ",")) == NULL) {
                 goto out_search_queue;
             } else {
-                mpdtagtype = strdup(token);
+                p_charbuf2 = strdup(token);
             }
             
             uint_buf = strtoul(strtok(NULL, ","), NULL, 10);
             
             if((token = strtok(NULL, ",")) == NULL) {
-                free(mpdtagtype);
+                free(p_charbuf2);
                 goto out_search_queue;
             } else {
                 searchstr = strdup(token);
             }
-            n = mpd_search_queue(mpd.buf, mpdtagtype, uint_buf, searchstr);
+            n = mpd_search_queue(mpd.buf, p_charbuf2, uint_buf, searchstr);
             free(searchstr);
+            free(p_charbuf2);
 out_search_queue:
             free(p_charbuf);
             break;            
@@ -277,17 +304,18 @@ out_search_queue:
             if((token = strtok(NULL, ",")) == NULL) {
                 goto out_search_add;
             } else {
-                mpdtagtype = strdup(token);
+                p_charbuf2 = strdup(token);
             }
             
             if((token = strtok(NULL, ",")) == NULL) {
-                free(mpdtagtype);
+                free(p_charbuf2);
                 goto out_search_add;
             } else {
                 searchstr = strdup(token);
             }
-            n = mpd_search_add(mpd.buf, mpdtagtype, searchstr);
+            n = mpd_search_add(mpd.buf, p_charbuf2, searchstr);
             free(searchstr);
+            free(p_charbuf2);
 out_search_add:
             free(p_charbuf);
             break;
@@ -298,19 +326,20 @@ out_search_add:
             if((token = strtok(NULL, ",")) == NULL) {
                 goto out_search;
             } else {
-                mpdtagtype = strdup(token);
+                p_charbuf2 = strdup(token);
             }
             
             uint_buf = strtoul(strtok(NULL, ","), NULL, 10);
             
             if((token = strtok(NULL, ",")) == NULL) {
-                free(mpdtagtype);
+                free(p_charbuf2);
                 goto out_search;
             } else {
                 searchstr = strdup(token);
             }
-            n = mpd_search(mpd.buf, mpdtagtype, uint_buf, searchstr);
+            n = mpd_search(mpd.buf, p_charbuf2, uint_buf, searchstr);
             free(searchstr);
+            free(p_charbuf2);
 out_search:
             free(p_charbuf);
             break;
@@ -793,7 +822,7 @@ int mpd_put_queue(char *buffer, unsigned int offset)
     return cur - buffer;
 }
 
-int mpd_put_browse(char *buffer, char *path, unsigned int offset)
+int mpd_put_browse(char *buffer, char *path, unsigned int offset, char *filter)
 {
     char *cur = buffer;
     const char *end = buffer + MAX_SIZE;
@@ -801,6 +830,7 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset)
     const struct mpd_playlist *pl;
     unsigned int entity_count = 0;
     unsigned int entities_returned = 0;
+    const char *entityName;
 
     if (!mpd_send_list_meta(mpd.conn, path))
         RETURN_ERROR_AND_RECOVER("mpd_send_list_meta");
@@ -811,45 +841,68 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset)
         const struct mpd_song *song;
         const struct mpd_directory *dir;
         entity_count ++;
-
         if(entity_count > offset && entity_count <= offset+MAX_ELEMENTS_PER_PAGE) {
             switch (mpd_entity_get_type(entity)) {
                 case MPD_ENTITY_TYPE_UNKNOWN:
+                        entity_count --;
                     break;
                 case MPD_ENTITY_TYPE_SONG:
-                    entities_returned ++;
                     song = mpd_entity_get_song(entity);
-                    cur += json_emit_raw_str(cur, end - cur, "{\"type\":\"song\",\"uri\":");
-                    cur += json_emit_quoted_str(cur, end - cur, mpd_song_get_uri(song));
-                    cur += json_emit_raw_str(cur, end - cur, ",\"album\":");
-                    cur += json_emit_quoted_str(cur, end - cur, mpd_get_album(song));
-                    cur += json_emit_raw_str(cur, end - cur, ",\"artist\":");
-                    cur += json_emit_quoted_str(cur, end - cur, mpd_get_artist(song));
-                    cur += json_emit_raw_str(cur, end - cur, ",\"duration\":");
-                    cur += json_emit_int(cur, end - cur, mpd_song_get_duration(song));
-                    cur += json_emit_raw_str(cur, end - cur, ",\"title\":");
-                    cur += json_emit_quoted_str(cur, end - cur, mpd_get_title(song));
-                    cur += json_emit_raw_str(cur, end - cur, "},");
+                    entityName = mpd_get_title(song);
+                    if (strncmp(filter,"!",1) == 0 || strncasecmp(filter,entityName,1) == 0 ||
+                        ( strncmp(filter,"0",1) == 0 && isalpha(*entityName) == 0 )
+                    ) {
+                        entities_returned ++;
+                        cur += json_emit_raw_str(cur, end - cur, "{\"type\":\"song\",\"uri\":");
+                        cur += json_emit_quoted_str(cur, end - cur, mpd_song_get_uri(song));
+                        cur += json_emit_raw_str(cur, end - cur, ",\"album\":");
+                        cur += json_emit_quoted_str(cur, end - cur, mpd_get_album(song));
+                        cur += json_emit_raw_str(cur, end - cur, ",\"artist\":");
+                        cur += json_emit_quoted_str(cur, end - cur, mpd_get_artist(song));
+                        cur += json_emit_raw_str(cur, end - cur, ",\"duration\":");
+                        cur += json_emit_int(cur, end - cur, mpd_song_get_duration(song));
+                        cur += json_emit_raw_str(cur, end - cur, ",\"title\":");
+                        cur += json_emit_quoted_str(cur, end - cur, entityName);
+                        cur += json_emit_raw_str(cur, end - cur, "},");
+                    } else {
+                        entity_count --;
+                    }
                     break;
 
                 case MPD_ENTITY_TYPE_DIRECTORY:
-                    entities_returned ++;
-                    dir = mpd_entity_get_directory(entity);
-                    cur += json_emit_raw_str(cur, end - cur, "{\"type\":\"directory\",\"dir\":");
-                    cur += json_emit_quoted_str(cur, end - cur, mpd_directory_get_path(dir));
-                    cur += json_emit_raw_str(cur, end - cur, "},");
+                    dir = mpd_entity_get_directory(entity);                
+                    entityName = mpd_directory_get_path(dir);
+                    char *dirName = strrchr(entityName, '/');
+                    if (dirName != NULL) {
+                        dirName ++;
+                    } else {
+                     dirName = strdup(entityName);
+                    }
+                    if (strncmp(filter,"!",1) == 0 || strncasecmp(filter,dirName,1) == 0) {                
+                        entities_returned ++;
+                        cur += json_emit_raw_str(cur, end - cur, "{\"type\":\"directory\",\"dir\":");
+                        cur += json_emit_quoted_str(cur, end - cur, entityName);
+                        cur += json_emit_raw_str(cur, end - cur, "},");
+                    } else {
+                        entity_count --;
+                    }
                     break;
                     
                 case MPD_ENTITY_TYPE_PLAYLIST:
                     pl = mpd_entity_get_playlist(entity);
-                    cur += json_emit_raw_str(cur, end - cur, "{\"type\":\"playlist\",\"plist\":");
-                    cur += json_emit_quoted_str(cur, end - cur, mpd_playlist_get_path(pl));
-                    cur += json_emit_raw_str(cur, end - cur, "},");
+                    entityName = mpd_playlist_get_path(pl);
+                    if (strncmp(filter,"!",1) == 0 || strncasecmp(filter,entityName,1) == 0) {
+                        entities_returned ++;
+                        cur += json_emit_raw_str(cur, end - cur, "{\"type\":\"playlist\",\"plist\":");
+                        cur += json_emit_quoted_str(cur, end - cur, entityName );
+                        cur += json_emit_raw_str(cur, end - cur, "},");
+                    } else {
+                        entity_count --;
+                    }
                     break;
             }
         }
         mpd_entity_free(entity);
-        entity_count++;
     }
 
     if (mpd_connection_get_error(mpd.conn) != MPD_ERROR_SUCCESS || !mpd_response_finish(mpd.conn)) {
