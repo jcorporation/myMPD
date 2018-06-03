@@ -7,6 +7,10 @@ myMPD is a fork of ympd.
 
 This fork provides a reworked ui based on Bootstrap 4.
 
+![image](https://jcgames.de/stuff/myMPD/myMPD-Playback.png)
+![image](https://jcgames.de/stuff/myMPD/myMPD-Queue.png)
+![image](https://jcgames.de/stuff/myMPD/myMPD-Browse.png)
+
 UI Components
 -------------
  - Bootstrap 4: https://getbootstrap.com/
@@ -64,10 +68,10 @@ To run myMPD with SSL support:
 
 - create a certificate (key and cert in the same file), example:
 ```
-# openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days 1000 -nodes
+# openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days 1000 -nodes -sha256
 # cat key.pem cert.pem > ssl.pem
 ```
-- tell ympd to use a webport using SSL and where to find the certificate: 
+- tell myMPD to use a webport using SSL and where to find the certificate: 
 ```
 # ./mympd -w "ssl://8081:/path/to/ssl.pem"
 ```
