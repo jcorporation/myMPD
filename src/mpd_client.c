@@ -893,8 +893,14 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset, char *filter)
                 case MPD_ENTITY_TYPE_PLAYLIST:
                     pl = mpd_entity_get_playlist(entity);
                     entityName = mpd_playlist_get_path(pl);
-                    if (strncmp(filter,"!",1) == 0 || strncasecmp(filter,entityName,1) == 0 ||
-                        ( strncmp(filter,"0",1) == 0 && isalpha(*entityName) == 0 )
+                    char *plName = strrchr(entityName, '/');
+                    if (plName != NULL) {
+                        plName ++;
+                    } else {
+                     plName = strdup(entityName);
+                    }
+                    if (strncmp(filter,"!",1) == 0 || strncasecmp(filter,plName,1) == 0 ||
+                        ( strncmp(filter,"0",1) == 0 && isalpha(*plName) == 0 )
                     ) {
                         entities_returned ++;
                         cur += json_emit_raw_str(cur, end - cur, "{\"type\":\"playlist\",\"plist\":");

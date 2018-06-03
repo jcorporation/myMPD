@@ -153,11 +153,9 @@ var app = $.sammy(function() {
             add_all_songs.on('click', function() {
                 socket.send('MPD_API_ADD_TRACK,'+browsepath);
             });
-            add_all_songs.removeAttr('disabled');
-            add_all_songs.removeClass('disabled');
+            add_all_songs.removeAttr('disabled').removeClass('disabled');
         } else {
-            add_all_songs.attr('disabled','disabled');
-            add_all_songs.addClass('disabled');
+            add_all_songs.attr('disabled','disabled').addClass('disabled');
         }
 
         var path_array = browsepath.split('/');
@@ -206,9 +204,7 @@ var app = $.sammy(function() {
           socket.send('MPD_API_SEARCH,' + mpdtag + ','+pagination+',' + searchstr);
         } else {
           $('#searchList > tbody').empty();
-          var add_all_songs=$('#searchAddAllSongs');
-          add_all_songs.attr('disabled','disabled');
-          add_all_songs.addClass('disabled');  
+          $('#searchAddAllSongs').attr('disabled','disabled').addClass('disabled');  
         }
     });
 
@@ -419,27 +415,24 @@ function webSocketConnect() {
                     };
                     $('#'+current_app+'List > tbody > tr').on({
                         click: function() {
-                                    socket.send("MPD_API_ADD_PLAYLIST," + decodeURI($(this).attr("uri")));
+                                    socket.send('MPD_API_ADD_PLAYLIST,' + decodeURI($(this).attr('uri')));
                                     showNotification('"' + $('td:nth-last-child(3)', this).text() + '" added','','','success');
                         }
                     });
                     if (nrItems == 0) {
                         $('#'+current_app+'List > tbody').append(
-                               "<tr><td><span class=\"material-icons\">error_outline</span></td>" +
-                               "<td colspan=\"3\">No playlists found.</td>" +
-                               "<td></td><td></td></tr>"
+                               '<tr><td><span class="material-icons">error_outline</span></td>' +
+                               '<td colspan="3">No playlists found.</td>' +
+                               '<td></td><td></td></tr>'
                         );
                     }
                     break;
                 case 'search':
                     $('#panel-heading-search').text(obj.totalEntities + ' Songs found');
-                    var add_all_songs=$('#searchAddAllSongs');
                     if (obj.totalEntities > 0) {
-                        add_all_songs.removeAttr('disabled');
-                        add_all_songs.removeClass('disabled');
+                        $('#searchAddAllSongs').removeAttr('disabled').removeClass('disabled');
                     } else {
-                        add_all_songs.attr('disabled','disabled');
-                        add_all_songs.addClass('disabled');                    
+                        $('#searchAddAllSongs').attr('disabled','disabled').addClass('disabled');                    
                     }
                 case 'browse':
                     if(current_app !== 'browseFilesystem' && current_app !== 'search')
@@ -619,17 +612,16 @@ function webSocketConnect() {
                     showNotification('myMPD lost connection to MPD','','','danger');
                     break;
                 case 'update_queue':
-                    if(current_app === 'queue') {
+                    if(current_app === 'queue')
                         socket.send('MPD_API_GET_QUEUE,'+pagination);
-                    }
                     break;
                 case "song_change":
                     songChange(obj.data.title, obj.data.artist, obj.data.album, obj.data.uri);
                     break;
                 case 'settings':
-                    if (!isNaN(obj.data.max_elements_per_page)) {
+                    if (!isNaN(obj.data.max_elements_per_page))
                         MAX_ELEMENTS_PER_PAGE=obj.data.max_elements_per_page;
-                    }
+         
                     if(obj.data.random)
                         $('#btnrandom').removeClass('btn-secondary').addClass("btn-success")
                     else
@@ -645,26 +637,20 @@ function webSocketConnect() {
                     else
                         $('#btnsingle').removeClass("btn-success").addClass("btn-secondary");
 
-                    if(obj.data.crossfade != undefined) {
-                        $('#inputCrossfade').removeAttr('disabled');
-                        $('#inputCrossfade').val(obj.data.crossfade);
-                    } else {
+                    if(obj.data.crossfade != undefined)
+                        $('#inputCrossfade').removeAttr('disabled').val(obj.data.crossfade);
+                    else
                         $('#inputCrossfade').attr('disabled', 'disabled');
-                    }
                     
-                    if(obj.data.mixrampdb != undefined) {
-                        $('#inputMixrampdb').removeAttr('disabled');
-                        $('#inputMixrampdb').val(obj.data.mixrampdb);
-                    } else {
+                    if(obj.data.mixrampdb != undefined)
+                        $('#inputMixrampdb').removeAttr('disabled').val(obj.data.mixrampdb);
+                    else
                         $('#inputMixrampdb').attr('disabled', 'disabled');
-                    }
                     
-                    if(obj.data.mixrampdelay != undefined) {
-                        $('#inputMixrampdelay').removeAttr('disabled');
-                        $('#inputMixrampdelay').val(obj.data.mixrampdelay);
-                    } else {
+                    if(obj.data.mixrampdelay != undefined)
+                        $('#inputMixrampdelay').removeAttr('disabled').val(obj.data.mixrampdelay);
+                    else
                         $('#inputMixrampdb').attr('disabled', 'disabled');
-                    }
                     
                     if(obj.data.repeat)
                         $('#btnrepeat').removeClass('btn-secondary').addClass("btn-success")
@@ -747,8 +733,8 @@ function setPagination(number) {
         $('#'+current_app+'PaginationTopPage').text('Page '+(pagination / MAX_ELEMENTS_PER_PAGE + 1)+' / '+totalPages);
         $('#'+current_app+'PaginationBottomPage').text('Page '+(pagination / MAX_ELEMENTS_PER_PAGE + 1)+' / '+totalPages);
     if (totalPages > 1) {
-        $('#'+current_app+'PaginationTopPage').removeClass('disabled');
-        $('#'+current_app+'PaginationBottomPage').removeClass('disabled');
+        $('#'+current_app+'PaginationTopPage').removeClass('disabled').removeAttr('disabled');
+        $('#'+current_app+'PaginationBottomPage').removeClass('disabled').removeAttr('disabled');
         $('#'+current_app+'PaginationTopPages').empty();
         $('#'+current_app+'PaginationBottomPages').empty();
         for (var i=0;i<totalPages;i++) {
@@ -756,26 +742,26 @@ function setPagination(number) {
             $('#'+current_app+'PaginationBottomPages').append('<button onclick="gotoPage('+(i * MAX_ELEMENTS_PER_PAGE)+',this,event)" type="button" class="mr-1 mb-1 btn-sm btn btn-secondary">'+(i+1)+'</button>');
         }
     } else {
-        $('#'+current_app+'PaginationTopPage').addClass('disabled');
-        $('#'+current_app+'PaginationBottomPage').addClass('disabled');
+        $('#'+current_app+'PaginationTopPage').addClass('disabled').attr('disabled','disabled');
+        $('#'+current_app+'PaginationBottomPage').addClass('disabled').attr('disabled','disabled');
     }
     
     if(number > pagination + MAX_ELEMENTS_PER_PAGE) {
-        $('#'+current_app+'PaginationTopNext').removeClass('disabled');
-        $('#'+current_app+'PaginationBottomNext').removeClass('disabled');
+        $('#'+current_app+'PaginationTopNext').removeClass('disabled').removeAttr('disabled');
+        $('#'+current_app+'PaginationBottomNext').removeClass('disabled').removeAttr('disabled');
         $('#'+current_app+'ButtonsBottom').removeClass('hide');
     } else {
-        $('#'+current_app+'PaginationTopNext').addClass('disabled');
-        $('#'+current_app+'PaginationBottomNext').addClass('disabled');
+        $('#'+current_app+'PaginationTopNext').addClass('disabled').attr('disabled','disabled');
+        $('#'+current_app+'PaginationBottomNext').addClass('disabled').attr('disabled','disabled');
         $('#'+current_app+'ButtonsBottom').addClass('hide');
     }
     
     if(pagination > 0) {
-        $('#'+current_app+'PaginationTopPrev').removeClass('disabled');
-        $('#'+current_app+'PaginationBottomPrev').removeClass('disabled');
+        $('#'+current_app+'PaginationTopPrev').removeClass('disabled').removeAttr('disabled');
+        $('#'+current_app+'PaginationBottomPrev').removeClass('disabled').removeAttr('disabled');
     } else {
-        $('#'+current_app+'PaginationTopPrev').addClass('disabled');
-        $('#'+current_app+'PaginationBottomPrev').addClass('disabled');
+        $('#'+current_app+'PaginationTopPrev').addClass('disabled').attr('disabled','disabled');
+        $('#'+current_app+'PaginationBottomPrev').addClass('disabled').attr('disabled','disabled');
     }
 }
 
@@ -1058,10 +1044,6 @@ function scrollToTop() {
 }
 
 function gotoPage(x,element,event) {
-    if ($(element).hasClass('disabled')) {
-        event.preventDefault();
-        return;
-    }
     switch (x) {
         case "next":
             pagination += MAX_ELEMENTS_PER_PAGE;
