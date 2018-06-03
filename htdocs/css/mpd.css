@@ -184,3 +184,15 @@ main {
  min-width:28px;
 }
 
+.col-md {
+ min-width:250px;
+ max-width:350px;
+}
+
+.card-img-top {
+ min-height:250px;
+ background-image:url('/assets/coverimage-notavailable.png');
+ background-repeat:no-repeat;
+ background-color:#d45500;
+ cursor:pointer;
+}

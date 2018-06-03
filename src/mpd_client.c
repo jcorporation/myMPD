@@ -445,7 +445,7 @@ out_set_replaygain:
     }
 
     if(n > 0) {
-        fprintf(stdout,"Send response:\n %s\n",mpd.buf);
+        //fprintf(stdout,"Send response:\n %s\n",mpd.buf);
         mg_websocket_write(c, 1, mpd.buf, n);
     }
 
@@ -594,6 +594,19 @@ char* mpd_get_title(struct mpd_song const *song)
 
     return str;
 }
+
+char* mpd_get_track(struct mpd_song const *song)
+{
+    char *str;
+
+    str = (char *)mpd_song_get_tag(song, MPD_TAG_TRACK, 0);
+    if(str == NULL){
+        str = "-";
+    }
+
+    return str;
+}
+
 
 char* mpd_get_album(struct mpd_song const *song)
 {
@@ -1024,7 +1037,7 @@ int mympd_put_songs_in_album(char *buffer, char *albumartist, char *album)
     unsigned long entity_count = 0;
     unsigned long entities_returned = 0;
 
-    if(mpd_search_db_songs(mpd.conn, false) == false) {
+    if(mpd_search_db_songs(mpd.conn, true) == false) {
         RETURN_ERROR_AND_RECOVER("mpd_search_db_songs");
     }
     
@@ -1050,6 +1063,8 @@ int mympd_put_songs_in_album(char *buffer, char *albumartist, char *album)
                 cur += json_emit_int(cur, end - cur, mpd_song_get_duration(song));
                 cur += json_emit_raw_str(cur, end - cur, ",\"title\":");
                 cur += json_emit_quoted_str(cur, end - cur, mpd_get_title(song));
+                cur += json_emit_raw_str(cur, end - cur, ",\"track\":");
+                cur += json_emit_quoted_str(cur, end - cur, mpd_get_track(song));
                 cur += json_emit_raw_str(cur, end - cur, "},");
             }
             mpd_song_free(song);
