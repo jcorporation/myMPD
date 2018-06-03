@@ -80,7 +80,10 @@
     X(MPD_API_SET_MIXRAMPDELAY) \
     X(MPD_API_GET_PLAYLISTS) \
     X(MPD_API_RM_PLAYLIST) \
-    X(MPD_API_SET_REPLAYGAIN)
+    X(MPD_API_SET_REPLAYGAIN) \
+    X(MPD_API_GET_ARTISTALBUMS) \
+    X(MPD_API_GET_ARTISTALBUMTITLES) \
+    X(MPD_API_GET_ARTISTS)
 
 enum mpd_cmd_ids {
     MPD_CMDS(GEN_ENUM)
@@ -136,6 +139,8 @@ int mpd_search_add(char *buffer, char *mpdtagtype, char *searchstr);
 int mpd_search_queue(char *buffer, char *mpdtagtype, unsigned int offset, char *searchstr);
 int mympd_get_stats(char *buffer);
 int mympd_put_settings(char *buffer);
+int mympd_put_db_tag(char *buffer, unsigned int offset, char *mpdtagtype, char *mpdsearchtagtype, char *searchstr);
+int mympd_put_songs_in_album(char *buffer, char *albumartist, char *album);
 void mpd_disconnect();
 #endif
 
