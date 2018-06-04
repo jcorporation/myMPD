@@ -29,6 +29,7 @@ var current_app;
 var pagination = 0;
 var filterLetter = '!'
 var browsepath = '';
+var artist = '';
 var lastSongTitle = '';
 var current_song = new Object();
 var MAX_ELEMENTS_PER_PAGE = 100;
@@ -107,7 +108,7 @@ var app = $.sammy(function() {
     this.get(/\#\/browse\/database\/(\d+)\/(.*)/, function() {
         prepare();
         pagination = parseInt(this.params['splat'][0]);
-        var artist = this.params['splat'][1];
+        artist = this.params['splat'][1];
         current_app = 'browseDatabase';
         $('#navBrowse').addClass('active');
         $('#cardBrowse').removeClass('hide');
@@ -1171,7 +1172,7 @@ function gotoPage(x,element,event) {
             app.setLocation('#/browse/playlists/'+pagination);
             break;
         case "browseDatabase":
-            app.setLocation('#/browse/database/'+pagination);
+            app.setLocation('#/browse/database/'+pagination+'/'+artist);
             break;            
     }
     event.preventDefault();
