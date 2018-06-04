@@ -140,11 +140,11 @@ int callback_mpd(struct mg_connection *c)
             break;
         case MPD_API_SET_MIXRAMPDB:
             if(sscanf(c->content, "MPD_API_SET_MIXRAMPDB,%lf", &double_buf))
-                mpd_run_mixrampdb(mpd.conn, uint_buf);
+                mpd_run_mixrampdb(mpd.conn, double_buf);
             break;
         case MPD_API_SET_MIXRAMPDELAY:
             if(sscanf(c->content, "MPD_API_SET_MIXRAMPDELAY,%lf", &double_buf))
-                mpd_run_mixrampdelay(mpd.conn, uint_buf);
+                mpd_run_mixrampdelay(mpd.conn, double_buf);
             break;            
         case MPD_API_GET_OUTPUTS:
             mpd.buf_size = mpd_put_outputs(mpd.buf, 1);
