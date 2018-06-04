@@ -93,32 +93,35 @@ var app = $.sammy(function() {
         }
     });
 
-    this.get(/\#\/browse\/playlists\/(\d+)/, function() {
+    this.get(/\#\/browse\/playlists\/(\d+)\/(\w|\!)/, function() {
         prepare();
-        browsepath = this.params['splat'][1];
         pagination = parseInt(this.params['splat'][0]);
+        filterLetter = this.params['splat'][1];
         current_app = 'browsePlaylists';
         $('#navBrowse').addClass('active');
         $('#cardBrowse').removeClass('hide');
         $('#cardBrowsePlaylists').removeClass('hide');
         $('#cardBrowseNavPlaylists').addClass('active');
-        socket.send('MPD_API_GET_PLAYLISTS,'+pagination);
+        socket.send('MPD_API_GET_PLAYLISTS,'+pagination+','+filterLetter);
+        doSetFilterLetter('#browsePlaylistsFilter');
     });
     
-    this.get(/\#\/browse\/database\/(\d+)\/(.*)/, function() {
+    this.get(/\#\/browse\/database\/(\d+)\/(\w|\!)\/(.*)/, function() {
         prepare();
         pagination = parseInt(this.params['splat'][0]);
-        artist = this.params['splat'][1];
+        filterLetter = this.params['splat'][1];
+        artist = this.params['splat'][2];
         current_app = 'browseDatabase';
         $('#navBrowse').addClass('active');
         $('#cardBrowse').removeClass('hide');
         $('#cardBrowseDatabase').removeClass('hide');
         $('#cardBrowseNavDatabase').addClass('active');
         if (artist == "") {
-            socket.send('MPD_API_GET_ARTISTS,'+pagination);
+            socket.send('MPD_API_GET_ARTISTS,' + pagination + ',' + filterLetter);
         } else {
-            socket.send('MPD_API_GET_ARTISTALBUMS,'+pagination+',' + decodeURI(artist));        
+            socket.send('MPD_API_GET_ARTISTALBUMS,' + pagination+',' + filterLetter + ',' + decodeURI(artist));        
         }
+        doSetFilterLetter('#browseDatabaseFilter');        
     });
 
     this.get(/\#\/browse\/filesystem\/(\d+)\/(\w|\!)\/(.*)/, function() {
@@ -133,24 +136,7 @@ var app = $.sammy(function() {
         $('#cardBrowseNavFilesystem').addClass('active');
         $('#browseBreadcrumb').empty().append("<li class=\"breadcrumb-item\"><a uri=\"\">root</a></li>");
         socket.send('MPD_API_GET_BROWSE,'+pagination+','+(browsepath ? browsepath : "/")+','+filterLetter);
-        $('#browseFilesystemFilterLetters > button').removeClass('btn-success').addClass('btn-secondary');
-        if (filterLetter == '0') {
-            $('#browseFilesystemFilter').text('Filter: #');
-            $('#browseFilesystemFilterLetters > button').each(function() {
-                if ($(this).text() == '#') {
-                    $(this).addClass('btn-success');
-                }
-            });
-        } else if (filterLetter != '!') {
-            $('#browseFilesystemFilter').text('Filter: '+filterLetter);
-            $('#browseFilesystemFilterLetters > button').each(function() {
-                if ($(this).text() == filterLetter) {
-                    $(this).addClass('btn-success');
-                }
-            });
-        } else {
-            $('#browseFilesystemFilter').text('Filter');
-        }
+        doSetFilterLetter('#browseFilesystemFilter');
         // Don't add all songs from root
         var add_all_songs = $('#browseFilesystemAddAllSongs');
         if (browsepath) {
@@ -268,7 +254,9 @@ $(document).ready(function(){
     if (Cookies.get('notificationPage') === 'true')
         $('#btnnotifyPage').removeClass('btn-secondary').addClass("btn-success")
 
-    add_filter();
+    add_filter('#browseFilesystemFilterLetters');
+    add_filter('#browseDatabaseFilterLetters');
+    add_filter('#browsePlaylistsFilterLetters');
 });
 
 function webSocketConnect() {
@@ -462,7 +450,7 @@ function webSocketConnect() {
                         $('#'+current_app+'List > tbody > tr').on({
                             click: function() {
                                 pagination = 0;
-                                app.setLocation('#/browse/database/'+pagination+'/'+$(this).attr('uri'));
+                                app.setLocation('#/browse/database/'+pagination+'/!/'+$(this).attr('uri'));
                             }
                         });
                         if (nrItems == 0) {
@@ -1169,10 +1157,10 @@ function gotoPage(x,element,event) {
             app.setLocation('#/browse/filesystem/'+pagination+'/'+filterLetter+'/'+browsepath);
             break;
         case "browsePlaylists":
-            app.setLocation('#/browse/playlists/'+pagination);
+            app.setLocation('#/browse/playlists/'+pagination+'/'+filterLetter);
             break;
         case "browseDatabase":
-            app.setLocation('#/browse/database/'+pagination+'/'+artist);
+            app.setLocation('#/browse/database/'+pagination+'/'+filterLetter+'/'+artist);
             break;            
     }
     event.preventDefault();
@@ -1282,16 +1270,47 @@ $(document).keydown(function(e){
 
 function setFilterLetter(filter) {
     pagination = 0;
-    app.setLocation('#/browse/filesystem/'+pagination+'/'+filter+'/'+browsepath);
+    switch(current_app) {
+        case 'browseFilesystem':
+            app.setLocation('#/browse/filesystem/'+pagination+'/'+filter+'/'+browsepath);
+            break;
+        case 'browseDatabase':
+            app.setLocation('#/browse/database/'+pagination+'/'+filter+'/'+artist);
+            break;
+        case 'browsePlaylists':
+            app.setLocation('#/browse/playlists/'+pagination+'/'+filter+'/'+artist);
+            break;
+    }
 }
 
-function add_filter () {
-    $('#browseFilesystemFilterLetters').append('<button class="mr-1 mb-1 btn btn-sm btn-secondary" onclick="setFilterLetter(\'!\');">'+
+function doSetFilterLetter(x) {
+    $(x+'Letters > button').removeClass('btn-success').addClass('btn-secondary');
+    if (filterLetter == '0') {
+        $(x).text('Filter: #');
+        $(x+'Letters > button').each(function() {
+            if ($(this).text() == '#') {
+                $(this).addClass('btn-success');
+            }
+        });
+    } else if (filterLetter != '!') {
+        $(x).text('Filter: '+filterLetter);
+        $(x+'Letters > button').each(function() {
+            if ($(this).text() == filterLetter) {
+                $(this).addClass('btn-success');
+            }
+        });
+    } else {
+        $(x).text('Filter');
+    }
+}
+
+function add_filter (x) {
+    $(x).append('<button class="mr-1 mb-1 btn btn-sm btn-secondary" onclick="setFilterLetter(\'!\');">'+
         '<span class="material-icons" style="font-size:14px;">delete</span></button>');
-    $('#browseFilesystemFilterLetters').append('<button class="mr-1 mb-1 btn btn-sm btn-secondary" onclick="setFilterLetter(\'0\');">#</button>');
+    $(x).append('<button class="mr-1 mb-1 btn btn-sm btn-secondary" onclick="setFilterLetter(\'0\');">#</button>');
     for (i = 65; i <= 90; i++) {
         var c = String.fromCharCode(i);
-        $('#browseFilesystemFilterLetters').append('<button class="mr-1 mb-1 btn-sm btn btn-secondary" onclick="setFilterLetter(\'' + c + '\');">' + c + '</button>');
+        $(x).append('<button class="mr-1 mb-1 btn-sm btn btn-secondary" onclick="setFilterLetter(\'' + c + '\');">' + c + '</button>');
     }
 }
 

@@ -180,7 +180,10 @@ main {
  margin-right:5px;
 }
 
-#browseFilesystemFilterLetters > button {
+#browseFilesystemFilterLetters > button, 
+#browseDatabaseFilterLetters > button,
+#browsePlaylistsFilterLetters > button
+{
  min-width:28px;
 }
 
