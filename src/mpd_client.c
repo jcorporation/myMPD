@@ -64,8 +64,8 @@ int callback_mpd(struct mg_connection *c)
     enum mpd_cmd_ids cmd_id = get_cmd_id(c->content);
     size_t n = 0;
     unsigned int uint_buf, uint_buf_2;
-    double double_buf;
     int int_buf;
+    float float_buf;
     char *p_charbuf = NULL, *token;
     char *p_charbuf2 = NULL;
     char *searchstr = NULL;
@@ -139,12 +139,12 @@ int callback_mpd(struct mg_connection *c)
                 mpd_run_crossfade(mpd.conn, uint_buf);
             break;
         case MPD_API_SET_MIXRAMPDB:
-            if(sscanf(c->content, "MPD_API_SET_MIXRAMPDB,%lf", &double_buf))
-                mpd_run_mixrampdb(mpd.conn, double_buf);
+            if(sscanf(c->content, "MPD_API_SET_MIXRAMPDB,%f", &float_buf))
+                mpd_run_mixrampdb(mpd.conn, float_buf);
             break;
         case MPD_API_SET_MIXRAMPDELAY:
-            if(sscanf(c->content, "MPD_API_SET_MIXRAMPDELAY,%lf", &double_buf))
-                mpd_run_mixrampdelay(mpd.conn, double_buf);
+            if(sscanf(c->content, "MPD_API_SET_MIXRAMPDELAY,%f", &float_buf))
+                mpd_run_mixrampdelay(mpd.conn, float_buf);
             break;            
         case MPD_API_GET_OUTPUTS:
             mpd.buf_size = mpd_put_outputs(mpd.buf, 1);
@@ -750,7 +750,7 @@ int mympd_put_settings(char *buffer)
     len = snprintf(buffer, MAX_SIZE,
         "{\"type\":\"settings\", \"data\":{"
         "\"repeat\":%d, \"single\":%d, \"crossfade\":%d, \"consume\":%d, \"random\":%d, "
-        "\"mixrampdb\": %lf, \"mixrampdelay\": %lf, \"mpdhost\" : \"%s\", \"mpdport\": \"%d\", \"passwort_set\": %s, "
+        "\"mixrampdb\": %f, \"mixrampdelay\": %f, \"mpdhost\" : \"%s\", \"mpdport\": \"%d\", \"passwort_set\": %s, "
         "\"streamport\": \"%d\",\"coverimage\": \"%s\", \"max_elements_per_page\": %d, \"replaygain\": \"%s\""
         "}}", 
         mpd_status_get_repeat(status),

@@ -976,7 +976,7 @@ function confirmSettings() {
       }
     }
     if (!$('#inputMixrampdb').is(':disabled')) {
-      value=parseFloat($('#inputMixrampdb').val());
+      var value=parseFloat($('#inputMixrampdb').val());
       if (!isNaN(value)) {
         $('#inputMixrampdb').val(value);
       } else {
@@ -987,11 +987,12 @@ function confirmSettings() {
       } 
     }
     if (!$('#inputMixrampdelay').is(':disabled')) {
-      value=parseFloat($('#inputMixrampdelay').val());
+      if ($('#inputMixrampdelay').val() == 'nan') $('#inputMixrampdelay').val('-1');
+      var value=parseFloat($('#inputMixrampdelay').val());
       if (!isNaN(value)) {
         $('#inputMixrampdelay').val(value);
       } else {
-        $('#inputMixrampdelay').popover({"content":"Must be a number","trigger":"manual"});
+        $('#inputMixrampdelay').popover({"content":"Must be a number, -1 to disable","trigger":"manual"});
         $('#inputMixrampdelay').popover('show');
         $('#inputMixrampdelay').focus();
         formOK=false;
