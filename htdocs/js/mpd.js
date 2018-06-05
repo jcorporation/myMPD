@@ -85,7 +85,7 @@ var app = $.sammy(function() {
           $('#cardQueue').removeClass('hide');
           $('#navQueue').addClass('active');
         }
-        if (searchstr.length >= 3) {
+        if (searchstr.length >= 2) {
           socket.send('MPD_API_SEARCH_QUEUE,' + mpdtag + ','+pagination+',' + searchstr);        
         }
         else {
@@ -191,7 +191,7 @@ var app = $.sammy(function() {
           $('#cardSearch').removeClass('hide');
           $('#navSearch').addClass('active');
         }
-        if (searchstr.length >= 3) {
+        if (searchstr.length >= 2) {
           socket.send('MPD_API_SEARCH,' + mpdtag + ','+pagination+',' + searchstr);
         } else {
           $('#searchList > tbody').empty();
@@ -1069,13 +1069,17 @@ function doSearch(searchstr) {
    app.setLocation('#/search/' + pagination + '/' + mpdtag + '/' + searchstr);
 }
 
+$('#search2').submit(function () {
+    return false;
+});
+
 function addAllFromSearch() {
     var mpdtag='Any Tag';
     $('#searchtags2 > button').each(function() {
       if ($(this).hasClass('btn-success')) { mpdtag=$(this).text(); }
     });
     var searchstr=$('#searchstr2').val();
-    if (searchstr.length >= 3) {
+    if (searchstr.length >= 2) {
       socket.send('MPD_API_SEARCH_ADD,' + mpdtag + ',' + searchstr);
       var rowCount = $('#searchList >tbody >tr').length;
       showNotification('Added '+rowCount+' songs from search','','','success');
@@ -1114,6 +1118,10 @@ function doQueueSearch() {
    });
    app.setLocation('#/queue/' + pagination + '/' + mpdtag + '/' + searchstr);
 }
+
+$('#searchqueue').submit(function () {
+    return false;
+});
 
 $('#searchqueue').submit(function () {
     return false;
