@@ -25,7 +25,6 @@
 var socket;
 var last_state;
 var last_outputs;
-var current_app;
 var pagination = 0;
 var filterLetter = '!'
 var browsepath = '';
@@ -39,40 +38,60 @@ var progressBar;
 var volumeBar;
 var coverImageFile = '';
 
-var app = $.sammy(function() {
+var app = {};
 
-    function prepare() {
-        $('#navbar-bottom > div').removeClass('active');
-        $('#cardPlayback').addClass('hide');
-        $('#cardQueue').addClass('hide');
-        $('#cardBrowse').addClass('hide');
-        $('#cardSearch').addClass('hide');
-        $('#searchqueue > input').val('');
-        $('#cardBrowsePlaylists').addClass('hide');
-        $('#cardBrowseDatabase').addClass('hide');
-        $('#cardBrowseFilesystem').addClass('hide');
-        $('#cardBrowseNavPlaylists').removeClass('active');
-        $('#cardBrowseNavDatabase').removeClass('active');
-        $('#cardBrowseNavFilesystem').removeClass('active');
-        pagination = 0;
-        browsepath = '';
+app.apps = {"playback": { "state": "" },
+            "queue": { "state": "0/Any Tag/" },
+            "browsePlaylists": { "state": "0/!/" },
+            "browseDatabase": { "state": "0/!/" },
+            "browseDatabaseArtist": { "state": "0/!/" },            
+            "browseFilesystem": { "state": "0/!/" },
+            "search": { "state": "0/Any Tag/" }
+           };
+           
+app.currentApp='';           
+
+app.prepare=function() {
+    $('#navbar-bottom > div').removeClass('active');
+    $('#cardPlayback').addClass('hide');
+    $('#cardQueue').addClass('hide');
+    $('#cardBrowse').addClass('hide');
+    $('#cardSearch').addClass('hide');
+    $('#searchqueue > input').val('');
+    $('#cardBrowsePlaylists').addClass('hide');
+    $('#cardBrowseDatabase').addClass('hide');
+    $('#cardBrowseFilesystem').addClass('hide');
+    $('#cardBrowseNavPlaylists').removeClass('active');
+    $('#cardBrowseNavDatabase').removeClass('active');
+    $('#cardBrowseNavFilesystem').removeClass('active');
+}
+
+app.goto=function(a,p) {
+   //use saved state if p is undefined
+   location.hash = '/'+a+'/'+ encodeURI(p == undefined ? app.apps[a].state : p);
+}
+
+app.route=function() {
+    var hash=decodeURI(location.hash);
+    if (params=hash.match(/^\#\/(\w+)\/(.*)$/)) {
+      app.currentApp=params[1];
+      app.apps[app.currentApp].state=params[2];
+    } else {
+      app.currentApp='';
     }
 
-    this.get (/\#\/playing\//, function() {
-        prepare();
-        current_app = 'nowplaying';
+    if (params=hash.match(/^\#\/(playback)\//)) {
+        app.prepare();
         $('#cardPlayback').removeClass('hide');
         $('#navPlayback').addClass('active');
-    });    
-
-    this.get(/\#\/queue\/(\d+)\/([^\/]+)\/(.*)/, function() {
-        current_app = 'queue';
-        pagination = parseInt(this.params['splat'][0]);
-        var mpdtag = this.params['splat'][1];
-        var searchstr = this.params['splat'][2];
+    }    
+    else if (params=hash.match(/^\#\/(queue)\/(\d+)\/([^\/]+)\/(.*)$/)) {
+        pagination = parseInt(params[2]);
+        var mpdtag = params[3];
+        var searchstr = params[4];
         
         if ($('#cardQueue').hasClass('hide')) {
-          prepare();
+          app.prepare();
           if (searchstr == '') {
             setPagination(pagination);        
           }
@@ -91,45 +110,46 @@ var app = $.sammy(function() {
         else {
           socket.send('MPD_API_GET_QUEUE,'+pagination);
         }
-    });
-
-    this.get(/\#\/browse\/playlists\/(\d+)\/(\w|\!)/, function() {
-        prepare();
-        pagination = parseInt(this.params['splat'][0]);
-        filterLetter = this.params['splat'][1];
-        current_app = 'browsePlaylists';
+    }
+    else if (params=hash.match(/^\#\/(browsePlaylists)\/(\d+)\/(\w|\!)\/$/)) {
+        pagination = parseInt(params[2]);
+        filterLetter = params[3];
+        app.prepare();
         $('#navBrowse').addClass('active');
         $('#cardBrowse').removeClass('hide');
         $('#cardBrowsePlaylists').removeClass('hide');
         $('#cardBrowseNavPlaylists').addClass('active');
         socket.send('MPD_API_GET_PLAYLISTS,'+pagination+','+filterLetter);
         doSetFilterLetter('#browsePlaylistsFilter');
-    });
-    
-    this.get(/\#\/browse\/database\/(\d+)\/(\w|\!)\/(.*)/, function() {
-        prepare();
-        pagination = parseInt(this.params['splat'][0]);
-        filterLetter = this.params['splat'][1];
-        artist = this.params['splat'][2];
-        current_app = 'browseDatabase';
+    }
+    else if (params=hash.match(/^\#\/(browseDatabase)\/(\d+)\/(\w|\!)\/$/)) {
+        app.prepare();
+        pagination = parseInt(params[2]);
+        filterLetter = params[3];
         $('#navBrowse').addClass('active');
         $('#cardBrowse').removeClass('hide');
         $('#cardBrowseDatabase').removeClass('hide');
         $('#cardBrowseNavDatabase').addClass('active');
-        if (artist == "") {
-            socket.send('MPD_API_GET_ARTISTS,' + pagination + ',' + filterLetter);
-        } else {
-            socket.send('MPD_API_GET_ARTISTALBUMS,' + pagination+',' + filterLetter + ',' + decodeURI(artist));        
-        }
+        socket.send('MPD_API_GET_ARTISTS,' + pagination + ',' + filterLetter);
         doSetFilterLetter('#browseDatabaseFilter');        
-    });
-
-    this.get(/\#\/browse\/filesystem\/(\d+)\/(\w|\!)\/(.*)/, function() {
-        prepare();
-        pagination = parseInt(this.params['splat'][0]);
-        filterLetter = this.params['splat'][1];
-        browsepath = this.params['splat'][2];
-        current_app = 'browseFilesystem';
+    }
+    else if (params=hash.match(/^\#\/(browseDatabaseArtist)\/(\d+)\/(\w|\!)\/(.*)$/)) {
+        app.prepare();
+        pagination = parseInt(params[2]);
+        filterLetter = params[3];
+        artist = params[4];
+        $('#navBrowse').addClass('active');
+        $('#cardBrowse').removeClass('hide');
+        $('#cardBrowseDatabase').removeClass('hide');
+        $('#cardBrowseNavDatabase').addClass('active');
+        socket.send('MPD_API_GET_ARTISTALBUMS,' + pagination+',' + filterLetter + ',' + decodeURI(artist));        
+        doSetFilterLetter('#browseDatabaseFilter');        
+    }    
+    else if (params=hash.match(/^\#\/(browseFilesystem)\/(\d+)\/(\w|\!)\/(.*)$/)) {
+        app.prepare();
+        pagination = parseInt(params[2]);
+        filterLetter = params[3];
+        browsepath = params[4];
         $('#navBrowse').addClass('active');
         $('#cardBrowse').removeClass('hide');
         $('#cardBrowseFilesystem').removeClass('hide');
@@ -161,16 +181,14 @@ var app = $.sammy(function() {
             $('#browseBreadcrumb').append("<li class=\"breadcrumb-item\"><a uri=\"" + full_path + "\">"+chunk+"</a></li>");
             full_path += "/";
         });
-    });
-
-    this.get(/\#\/search\/(\d+)\/([^\/]+)\/(.*)/, function() {
-        current_app = 'search';
-        pagination = parseInt(this.params['splat'][0]);
-        var mpdtag = this.params['splat'][1];
-        var searchstr = this.params['splat'][2];
+    }
+    else if (params=hash.match(/^\#\/(search)\/(\d+)\/([^\/]+)\/(.*)$/)) {
+        pagination = parseInt(params[2]);
+        var mpdtag = params[3];
+        var searchstr = params[4];
         
         if ($('#cardSearch').hasClass('hide')) {
-          prepare();
+          app.prepare();
           if (searchstr != '') {
             $('#searchList > tbody').append(
                 "<tr><td><span class=\"material-icons\">search</span></td>" +
@@ -197,13 +215,11 @@ var app = $.sammy(function() {
           $('#searchList > tbody').empty();
           $('#searchAddAllSongs').attr('disabled','disabled').addClass('disabled');  
         }
-    });
-
-    this.get("/", function(context) {
-        context.redirect("#/playing/");
-    });
-    
-});
+    }
+    else {
+        app.goto("playback");
+    }
+};
 
 $(document).ready(function(){
     webSocketConnect();
@@ -257,6 +273,8 @@ $(document).ready(function(){
     add_filter('#browseFilesystemFilterLetters');
     add_filter('#browseDatabaseFilterLetters');
     add_filter('#browsePlaylistsFilterLetters');
+    
+    window.addEventListener("hashchange", app.route, false);
 });
 
 function webSocketConnect() {
@@ -275,7 +293,7 @@ function webSocketConnect() {
             socket.send('MPD_API_GET_OUTPUTS');
             showNotification('Connected to myMPD','','','success');
             $('#modalConnectionError').modal('hide');    
-            app.run();
+            app.route();
         }
 
         socket.onmessage = function got_packet(msg) {
@@ -291,7 +309,7 @@ function webSocketConnect() {
                 case 'queuesearch':
                 //Do the same as queue
                 case 'queue':
-                    if(current_app !== 'queue')
+                    if(app.currentApp !== 'queue')
                         break;
                     $('#panel-heading-queue').empty();
                     if (obj.totalEntities > 0) {
@@ -302,7 +320,7 @@ function webSocketConnect() {
                     }
 
                     var nrItems=0;
-                    var tr=document.getElementById(current_app+'List').getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+                    var tr=document.getElementById(app.currentApp+'List').getElementsByTagName('tbody')[0].getElementsByTagName('tr');
                     for (var song in obj.data) {
                         nrItems++;
                         var minutes = Math.floor(obj.data[song].duration / 60);
@@ -315,7 +333,7 @@ function webSocketConnect() {
                                 "<td>"+ minutes + ":" + (seconds < 10 ? '0' : '') + seconds +
                         "</td><td></td></tr>";
                         if (nrItems <= tr.length) { $(tr[nrItems-1]).replaceWith(row); } 
-                        else { $('#'+current_app+'List > tbody').append(row); }
+                        else { $('#'+app.currentApp+'List > tbody').append(row); }
                     }
                     for (var i=tr.length;i>nrItems;i--) {
                          $(tr[tr.length-1]).remove();
@@ -372,10 +390,10 @@ function webSocketConnect() {
                     });
                     break;
                 case 'playlists':
-                    if(current_app !== 'browsePlaylists')
+                    if(app.currentApp !== 'browsePlaylists')
                         break;
                     var nrItems=0;
-                    var tr=document.getElementById(current_app+'List').getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+                    var tr=document.getElementById(app.currentApp+'List').getElementsByTagName('tbody')[0].getElementsByTagName('tr');
                     for (var item in obj.data) {
                         nrItems++;
                         var d = new Date(obj.data[item].last_modified * 1000);
@@ -384,19 +402,19 @@ function webSocketConnect() {
                                 '<td><a>' + basename(obj.data[item].plist) + '</a></td>' +
                                 '<td>'+d.toUTCString()+'</td><td></td></tr>';
                         if (nrItems <= tr.length) { $(tr[nrItems-1]).replaceWith(row); } 
-                        else { $('#'+current_app+'List > tbody').append(row); }
+                        else { $('#'+app.currentApp+'List > tbody').append(row); }
                     }
                     for (var i=tr.length;i>nrItems;i--) {
                          $(tr[tr.length-1]).remove();
                     }
                     setPagination(obj.totalEntities);
                     if ( isTouch ) {
-                        $('#'+current_app+'List > tbody > tr > td:last-child').append(
+                        $('#'+app.currentApp+'List > tbody > tr > td:last-child').append(
                                 '<a class="pull-right btn-group-hover color-darkgrey" href="#/browse/playlists/' + pagination + '" '+
                                 'onclick="delPlaylist($(this).parents(\'tr\'));">' +
                                 '<span class="material-icons">delete</span></a>');
                     } else {
-                        $('#'+current_app+'List > tbody > tr').on({
+                        $('#'+app.currentApp+'List > tbody > tr').on({
                             mouseover: function(){
                                 if($(this).children().last().has('a').length == 0)
                                     $(this).children().last().append(
@@ -410,14 +428,14 @@ function webSocketConnect() {
                             }
                         });
                     };
-                    $('#'+current_app+'List > tbody > tr').on({
+                    $('#'+app.currentApp+'List > tbody > tr').on({
                         click: function() {
                                     socket.send('MPD_API_ADD_PLAYLIST,' + decodeURI($(this).attr('uri')));
                                     showNotification('"' + $('td:nth-last-child(3)', this).text() + '" added','','','success');
                         }
                     });
                     if (nrItems == 0) {
-                        $('#'+current_app+'List > tbody').append(
+                        $('#'+app.currentApp+'List > tbody').append(
                                '<tr><td><span class="material-icons">error_outline</span></td>' +
                                '<td colspan="3">No playlists found.</td>' +
                                '<td></td><td></td></tr>'
@@ -426,35 +444,34 @@ function webSocketConnect() {
                     break;
                     
                 case 'listDBtags':
-                    if(current_app !== 'browseDatabase')
+                    if(app.currentApp !== 'browseDatabase' && app.currentApp !== 'browseDatabaseArtist')
                         break;
                     if (obj.tagtype == 'AlbumArtist') {
                         $('#browseDatabaseCards').addClass('hide');
                         $('#browseDatabaseList').removeClass('hide');
                         $('#btnBrowseDatabaseArtist').addClass('hide');
                         var nrItems=0;
-                        var tr=document.getElementById(current_app+'List').getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+                        var tr=document.getElementById(app.currentApp+'List').getElementsByTagName('tbody')[0].getElementsByTagName('tr');
                         for (var item in obj.data) {
                             nrItems++;
                             var row='<tr uri="' + encodeURI(obj.data[item].value) + '">' +
                                 '<td><span class="material-icons">album</span></td>' +
                                 '<td><a>' + obj.data[item].value + '</a></td></tr>';
                             if (nrItems <= tr.length) { $(tr[nrItems-1]).replaceWith(row); } 
-                            else { $('#'+current_app+'List > tbody').append(row); }
+                            else { $('#'+app.currentApp+'List > tbody').append(row); }
                         
                         }
                         for (var i=tr.length;i>nrItems;i--) {
                             $(tr[tr.length-1]).remove();
                         }
                         setPagination(obj.totalEntities);
-                        $('#'+current_app+'List > tbody > tr').on({
+                        $('#'+app.currentApp+'List > tbody > tr').on({
                             click: function() {
-                                pagination = 0;
-                                app.setLocation('#/browse/database/'+pagination+'/!/'+$(this).attr('uri'));
+                                app.goto('browseDatabaseArtist','0/!/'+$(this).attr('uri'));
                             }
                         });
                         if (nrItems == 0) {
-                            $('#'+current_app+'List > tbody').append(
+                            $('#'+app.currentApp+'List > tbody').append(
                                '<tr><td><span class="material-icons">error_outline</span></td>' +
                                '<td colspan="3">No entries found.</td>' +
                                '<td></td><td></td></tr>'
@@ -515,7 +532,7 @@ function webSocketConnect() {
                         $('#searchAddAllSongs').attr('disabled','disabled').addClass('disabled');                    
                     }
                 case 'browse':
-                    if(current_app !== 'browseFilesystem' && current_app !== 'search')
+                    if(app.currentApp !== 'browseFilesystem' && app.currentApp !== 'search')
                         break;
                     
                     /* The use of encodeURI() below might seem useless, but it's not. It prevents
@@ -523,7 +540,7 @@ function webSocketConnect() {
                      * URI from NFD to NFC, breaking our link with MPD.
                      */
                     var nrItems=0;
-                    var tr=document.getElementById(current_app+'List').getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+                    var tr=document.getElementById(app.currentApp+'List').getElementsByTagName('tbody')[0].getElementsByTagName('tr');
                     for (var item in obj.data) {
                         nrItems++;
                         var row='';
@@ -553,7 +570,7 @@ function webSocketConnect() {
                                 break;
                         }
                         if (nrItems <= tr.length) { $(tr[nrItems-1]).replaceWith(row); } 
-                        else { $('#'+current_app+'List > tbody').append(row); }
+                        else { $('#'+app.currentApp+'List > tbody').append(row); }
                     }
                     for (var i=tr.length;i>nrItems;i--) {
                         $(tr[tr.length-1]).remove();
@@ -561,7 +578,7 @@ function webSocketConnect() {
                     setPagination(obj.totalEntities);
                     
                     if (nrItems == 0) {
-                       $('#'+current_app+'List > tbody').append(
+                       $('#'+app.currentApp+'List > tbody').append(
                            '<tr><td><span class="material-icons">error_outline</span></td>' +
                            '<td colspan="3">No results</td>' +
                            '<td></td><td></td></tr>');
@@ -579,10 +596,10 @@ function webSocketConnect() {
                     }
 
                     if ( isTouch ) {
-                        appendClickableIcon($('#'+current_app+'List > tbody > tr.dir > td:last-child'), 'MPD_API_ADD_TRACK', 'playlist_add');
-                        appendClickableIcon($('#'+current_app+'List > tbody > tr.song > td:last-child'), 'MPD_API_ADD_TRACK', 'playlist_add');
+                        appendClickableIcon($('#'+app.currentApp+'List > tbody > tr.dir > td:last-child'), 'MPD_API_ADD_TRACK', 'playlist_add');
+                        appendClickableIcon($('#'+app.currentApp+'List > tbody > tr.song > td:last-child'), 'MPD_API_ADD_TRACK', 'playlist_add');
                     } else {
-                        $('#'+current_app+'List > tbody > tr').on({
+                        $('#'+app.currentApp+'List > tbody > tr').on({
                             mouseenter: function() {
                                 if($(this).is(".dir")) 
                                     appendClickableIcon($(this).children().last(), 'MPD_API_ADD_TRACK', 'playlist_add');
@@ -594,14 +611,14 @@ function webSocketConnect() {
                             }
                         });
                     };
-                    $('#'+current_app+'List > tbody > tr').on({
+                    $('#'+app.currentApp+'List > tbody > tr').on({
                         click: function() {
                             switch($(this).attr('class')) {
                                 case 'dir':
                                     pagination = 0;
                                     browsepath = $(this).attr("uri");
-                                    $("#browseFilesystemList > a").attr("href", '#/browse/filesystem/'+pagination+'/'+filterLetter+'/'+browsepath);
-                                    app.setLocation('#/browse/filesystem/'+pagination+'/'+filterLetter+'/'+browsepath);
+                                    //$("#browseFilesystemList > a").attr("href", '#/browse/filesystem/'+pagination+'/'+filterLetter+'/'+browsepath);
+                                    app.goto('browseFilesystem',pagination+'/'+filterLetter+'/'+browsepath);
                                     break;
                                 case 'song':
                                     socket.send("MPD_API_ADD_TRACK," + decodeURI($(this).attr("uri")));
@@ -619,8 +636,8 @@ function webSocketConnect() {
 			click: function() {
 		        	pagination = 0;
 				browsepath = $(this).attr("uri");
-				$("#browseFilesystemList > a").attr("href", '#/browse/filesystem/'+pagination+'/'+filterLetter+'/'+browsepath);
-				app.setLocation('#/browse/filesystem/'+pagination+'/'+filterLetter+'/'+browsepath);
+				//$("#browseFilesystemList > a").attr("href", '#/browse/filesystem/'+pagination+'/'+filterLetter+'/'+browsepath);
+				app.goto('browseFilesystem',pagination+'/'+filterLetter+'/'+browsepath);
 			}
                     });
 
@@ -692,7 +709,7 @@ function webSocketConnect() {
                     showNotification('myMPD lost connection to MPD','','','danger');
                     break;
                 case 'update_queue':
-                    if(current_app === 'queue')
+                    if(app.currentApp === 'queue')
                         socket.send('MPD_API_GET_QUEUE,'+pagination);
                     break;
                 case "song_change":
@@ -810,38 +827,38 @@ function get_appropriate_ws_url()
 function setPagination(number) {
     var totalPages=Math.ceil(number / MAX_ELEMENTS_PER_PAGE);
     if (totalPages==0) { totalPages=1; }
-        $('#'+current_app+'PaginationTopPage').text('Page '+(pagination / MAX_ELEMENTS_PER_PAGE + 1)+' / '+totalPages);
-        $('#'+current_app+'PaginationBottomPage').text('Page '+(pagination / MAX_ELEMENTS_PER_PAGE + 1)+' / '+totalPages);
+        $('#'+app.currentApp+'PaginationTopPage').text('Page '+(pagination / MAX_ELEMENTS_PER_PAGE + 1)+' / '+totalPages);
+        $('#'+app.currentApp+'PaginationBottomPage').text('Page '+(pagination / MAX_ELEMENTS_PER_PAGE + 1)+' / '+totalPages);
     if (totalPages > 1) {
-        $('#'+current_app+'PaginationTopPage').removeClass('disabled').removeAttr('disabled');
-        $('#'+current_app+'PaginationBottomPage').removeClass('disabled').removeAttr('disabled');
-        $('#'+current_app+'PaginationTopPages').empty();
-        $('#'+current_app+'PaginationBottomPages').empty();
+        $('#'+app.currentApp+'PaginationTopPage').removeClass('disabled').removeAttr('disabled');
+        $('#'+app.currentApp+'PaginationBottomPage').removeClass('disabled').removeAttr('disabled');
+        $('#'+app.currentApp+'PaginationTopPages').empty();
+        $('#'+app.currentApp+'PaginationBottomPages').empty();
         for (var i=0;i<totalPages;i++) {
-            $('#'+current_app+'PaginationTopPages').append('<button onclick="gotoPage('+(i * MAX_ELEMENTS_PER_PAGE)+',this,event)" type="button" class="mr-1 mb-1 btn-sm btn btn-secondary">'+(i+1)+'</button>');
-            $('#'+current_app+'PaginationBottomPages').append('<button onclick="gotoPage('+(i * MAX_ELEMENTS_PER_PAGE)+',this,event)" type="button" class="mr-1 mb-1 btn-sm btn btn-secondary">'+(i+1)+'</button>');
+            $('#'+app.currentApp+'PaginationTopPages').append('<button onclick="gotoPage('+(i * MAX_ELEMENTS_PER_PAGE)+',this,event)" type="button" class="mr-1 mb-1 btn-sm btn btn-secondary">'+(i+1)+'</button>');
+            $('#'+app.currentApp+'PaginationBottomPages').append('<button onclick="gotoPage('+(i * MAX_ELEMENTS_PER_PAGE)+',this,event)" type="button" class="mr-1 mb-1 btn-sm btn btn-secondary">'+(i+1)+'</button>');
         }
     } else {
-        $('#'+current_app+'PaginationTopPage').addClass('disabled').attr('disabled','disabled');
-        $('#'+current_app+'PaginationBottomPage').addClass('disabled').attr('disabled','disabled');
+        $('#'+app.currentApp+'PaginationTopPage').addClass('disabled').attr('disabled','disabled');
+        $('#'+app.currentApp+'PaginationBottomPage').addClass('disabled').attr('disabled','disabled');
     }
     
     if(number > pagination + MAX_ELEMENTS_PER_PAGE) {
-        $('#'+current_app+'PaginationTopNext').removeClass('disabled').removeAttr('disabled');
-        $('#'+current_app+'PaginationBottomNext').removeClass('disabled').removeAttr('disabled');
-        $('#'+current_app+'ButtonsBottom').removeClass('hide');
+        $('#'+app.currentApp+'PaginationTopNext').removeClass('disabled').removeAttr('disabled');
+        $('#'+app.currentApp+'PaginationBottomNext').removeClass('disabled').removeAttr('disabled');
+        $('#'+app.currentApp+'ButtonsBottom').removeClass('hide');
     } else {
-        $('#'+current_app+'PaginationTopNext').addClass('disabled').attr('disabled','disabled');
-        $('#'+current_app+'PaginationBottomNext').addClass('disabled').attr('disabled','disabled');
-        $('#'+current_app+'ButtonsBottom').addClass('hide');
+        $('#'+app.currentApp+'PaginationTopNext').addClass('disabled').attr('disabled','disabled');
+        $('#'+app.currentApp+'PaginationBottomNext').addClass('disabled').attr('disabled','disabled');
+        $('#'+app.currentApp+'ButtonsBottom').addClass('hide');
     }
     
     if(pagination > 0) {
-        $('#'+current_app+'PaginationTopPrev').removeClass('disabled').removeAttr('disabled');
-        $('#'+current_app+'PaginationBottomPrev').removeClass('disabled').removeAttr('disabled');
+        $('#'+app.currentApp+'PaginationTopPrev').removeClass('disabled').removeAttr('disabled');
+        $('#'+app.currentApp+'PaginationBottomPrev').removeClass('disabled').removeAttr('disabled');
     } else {
-        $('#'+current_app+'PaginationTopPrev').addClass('disabled').attr('disabled','disabled');
-        $('#'+current_app+'PaginationBottomPrev').addClass('disabled').attr('disabled','disabled');
+        $('#'+app.currentApp+'PaginationTopPrev').addClass('disabled').attr('disabled','disabled');
+        $('#'+app.currentApp+'PaginationBottomPrev').addClass('disabled').attr('disabled','disabled');
     }
 }
 
@@ -962,6 +979,51 @@ $('#btnrepeat').on('click', function (e) {
     toggleBtn(this);
 });
 
+$('#cardBrowseNavFilesystem').on('click', function (e) {
+    app.goto('browseFilesystem');
+    e.preventDefault();
+});
+
+$('#cardBrowseNavDatabase').on('click', function (e) {
+    app.goto('browseDatabase');
+    e.preventDefault();
+});
+
+$('#btnBrowseDatabaseArtist').on('click', function (e) {
+    app.goto('browseDatabase');
+    e.preventDefault();
+});
+
+$('#cardBrowseNavPlaylists').on('click', function (e) {
+    app.goto('browsePlaylists');
+    e.preventDefault();
+});
+
+$('#cardBrowseNavFilesystem').on('click', function (e) {
+    app.goto('browseFilesystem');
+    e.preventDefault();
+});
+
+$('#navPlayback').on('click', function (e) {
+    app.goto('playback');
+    e.preventDefault();
+});
+
+$('#navQueue').on('click', function (e) {
+    app.goto('queue');
+    e.preventDefault();
+});
+
+$('#navBrowse').on('click', function (e) {
+    app.goto('browseFilesystem');
+    e.preventDefault();
+});
+
+$('#navSearch').on('click', function (e) {
+    app.goto('search');
+    e.preventDefault();
+});
+
 function confirmSettings() {
     var formOK=true;
     if (!$('#inputCrossfade').is(':disabled')) {
@@ -1058,7 +1120,7 @@ $('#search > input').keypress(function (event) {
 });
 
 $('#search').submit(function () {
-    app.setLocation('#/search/' + pagination + '/Any Tag/' + $('#search > input').val());
+    app.goto('search',pagination + '/Any Tag/' + $('#search > input').val());
     return false;
 });
 
@@ -1067,7 +1129,7 @@ function doSearch(searchstr) {
    $('#searchtags2 > button').each(function() {
      if ($(this).hasClass('btn-success')) { mpdtag=$(this).text(); }
    });
-   app.setLocation('#/search/' + pagination + '/' + mpdtag + '/' + searchstr);
+   app.goto('search',pagination + '/' + mpdtag + '/' + searchstr);
 }
 
 $('#search2').submit(function () {
@@ -1117,7 +1179,7 @@ function doQueueSearch() {
    $('#searchqueuetag > button').each(function() {
      if ($(this).hasClass('btn-success')) { mpdtag=$(this).text(); }
    });
-   app.setLocation('#/queue/' + pagination + '/' + mpdtag + '/' + searchstr);
+   app.goto('queue', pagination + '/' + mpdtag + '/' + searchstr);
 }
 
 $('#searchqueue').submit(function () {
@@ -1147,7 +1209,7 @@ function gotoPage(x,element,event) {
             pagination = x;
     }
 
-    switch(current_app) {
+    switch(app.currentApp) {
         case "queue":
             if ($('#searchqueuestr').val().length >=3) {
               doQueueSearch();
@@ -1156,20 +1218,20 @@ function gotoPage(x,element,event) {
               $('#searchqueuetag > button').each(function() {
                   if ($(this).hasClass('btn-success')) { mpdtag=$(this).text(); }
               });
-              app.setLocation('#/queue/'+pagination+'/'+mpdtag+'/');
+              app.goto('queue', pagination+'/'+mpdtag+'/');
             }
             break;
         case "search":
             doSearch($('#searchstr2').val());
             break;
         case "browseFilesystem":
-            app.setLocation('#/browse/filesystem/'+pagination+'/'+filterLetter+'/'+browsepath);
+            app.goto('browseFilesystem', pagination+'/'+filterLetter+'/'+browsepath);
             break;
         case "browsePlaylists":
-            app.setLocation('#/browse/playlists/'+pagination+'/'+filterLetter);
+            app.goto('browsePlaylists', pagination+'/'+filterLetter);
             break;
         case "browseDatabase":
-            app.setLocation('#/browse/database/'+pagination+'/'+filterLetter+'/'+artist);
+            app.goto('browseDatabase', pagination+'/'+filterLetter+'/'+artist);
             break;            
     }
     event.preventDefault();
@@ -1279,15 +1341,15 @@ $(document).keydown(function(e){
 
 function setFilterLetter(filter) {
     pagination = 0;
-    switch(current_app) {
+    switch(app.currentApp) {
         case 'browseFilesystem':
-            app.setLocation('#/browse/filesystem/'+pagination+'/'+filter+'/'+browsepath);
+            app.goto('browseFilesystem', pagination+'/'+filter+'/'+browsepath);
             break;
         case 'browseDatabase':
-            app.setLocation('#/browse/database/'+pagination+'/'+filter+'/'+artist);
+            app.goto('browseDatabase', pagination+'/'+filter+'/'+artist);
             break;
         case 'browsePlaylists':
-            app.setLocation('#/browse/playlists/'+pagination+'/'+filter+'/'+artist);
+            app.goto('browsePlaylists', pagination+'/'+filter+'/'+artist);
             break;
     }
 }

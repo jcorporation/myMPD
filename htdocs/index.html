@@ -203,13 +203,13 @@
       <div class="card-header" id="panel-heading-browse">
         <ul class="nav nav-tabs card-header-tabs">
           <li class="nav-item">
-            <a class="nav-link text-dark" href="#/browse/filesystem/0/!/" id="cardBrowseNavFilesystem">Filesystem</a>
+            <a class="nav-link text-dark" href="#" id="cardBrowseNavFilesystem">Filesystem</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link text-dark" href="#/browse/playlists/0/!/" id="cardBrowseNavPlaylists">Playlists</a>
+            <a class="nav-link text-dark" href="#" id="cardBrowseNavPlaylists">Playlists</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link text-dark" href="#/browse/database/0/!/" id="cardBrowseNavDatabase">Database</a>
+            <a class="nav-link text-dark" href="#" id="cardBrowseNavDatabase">Database</a>
           </li>
         </ul>
       </div>
@@ -272,7 +272,7 @@
 
         <div class="btn-toolbar collapse show" id="browseDatabaseButtons" role="toolbar">
           <div class="btn-group mr-2">
-            <button id="btnBrowseDatabaseArtist" onclick="app.setLocation('#/browse/database/0/!/');" type="button" class="btn btn-secondary hide">&laquo; Artists</button>
+            <button id="btnBrowseDatabaseArtist" type="button" class="btn btn-secondary hide">&laquo; Artists</button>
           </div>
           <div class="btn-group mr-2">
             <button id="browseDatabaseFilter" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">Filter</button>
@@ -475,10 +475,10 @@
   <footer class="footer">
     <nav class="navbar navbar-expand navbar-dark fixed-bottom bg-dark">
       <div class="d-flex flex-fill navbar-nav" id="navbar-bottom">
-        <div class="nav-item flex-fill text-center" id="navPlayback"><a class="nav-link" href="#/playing/">Playback</a></div>
-        <div class="nav-item flex-fill text-center" id="navQueue"><a class="nav-link" href="#/queue/0/Any%20Tag/">Queue</a></div>
-        <div class="nav-item flex-fill text-center" id="navBrowse"><a class="nav-link" href="#/browse/filesystem/0/!/">Browse</a></div>
-        <div class="nav-item flex-fill text-center" id="navSearch"><a class="nav-link" href="#/search/0/Any%20Tag/">Search</a></div>        
+        <div class="nav-item flex-fill text-center" id="navPlayback"><a class="nav-link" href="#">Playback</a></div>
+        <div class="nav-item flex-fill text-center" id="navQueue"><a class="nav-link" href="#">Queue</a></div>
+        <div class="nav-item flex-fill text-center" id="navBrowse"><a class="nav-link" href="#">Browse</a></div>
+        <div class="nav-item flex-fill text-center" id="navSearch"><a class="nav-link" href="#">Search</a></div>        
       </div>
     </nav>
   </footer>
@@ -688,7 +688,6 @@
   <script src="js/bootstrap.bundle.min.js"></script>
   <script src="js/bootstrap-slider.min.js"></script>
   <script src="js/bootstrap-notify.min.js"></script>
-  <script src="js/sammy.js"></script>
   <script src="js/mpd.js"></script>
  </body>
 </html>
