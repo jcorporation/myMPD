@@ -53,7 +53,7 @@
               <span id="volume-icon" class="material-icons">volume_up</span>
             </button>
             <div class="dropdown-menu dropdown-menu-right bg-dark">
-              <h1 class="dropdown-header text-light">Volume: <span id="volumePrct"></span></h1>
+              <h2 class="dropdown-header text-light">Volume: <span id="volumePrct"></span></h2>
               <form class="px-4 py-0 pb-3" id="volumeControl">
                 <div class="btn-group" role="group">
                   <input type="button" class="btn btn-secondary" value="&minus;" onclick="chVolume(-5)"/>
@@ -70,7 +70,7 @@
       </div>
     </nav>
   </header>
-  <main role="main" class="container">
+  <main class="container">
     <noscript>
       <div class="alert alert-danger" role="alert">JavaScript is disabled!</div>
     </noscript>
@@ -470,18 +470,18 @@
         </div>
       </div>
     </div>    
-    
+  </main>    
+  
   <footer class="footer">
     <nav class="navbar navbar-expand navbar-dark fixed-bottom bg-dark">
       <div class="d-flex flex-fill navbar-nav" id="navbar-bottom">
         <div class="nav-item flex-fill text-center" id="navPlayback"><a class="nav-link" href="#/playing/">Playback</a></div>
-        <div class="nav-item flex-fill text-center" id="navQueue"><a class="nav-link" href="#/queue/0/Any Tag/">Queue</a></div>
+        <div class="nav-item flex-fill text-center" id="navQueue"><a class="nav-link" href="#/queue/0/Any%20Tag/">Queue</a></div>
         <div class="nav-item flex-fill text-center" id="navBrowse"><a class="nav-link" href="#/browse/filesystem/0/!/">Browse</a></div>
-        <div class="nav-item flex-fill text-center" id="navSearch"><a class="nav-link" href="#/search/0/Any Tag/">Search</a></div>        
+        <div class="nav-item flex-fill text-center" id="navSearch"><a class="nav-link" href="#/search/0/Any%20Tag/">Search</a></div>        
       </div>
     </nav>
   </footer>
-
   <!-- Modal -->
   <div class="modal" id="modalConnectionError" role="dialog">
     <div class="modal-dialog" role="document">
@@ -590,7 +590,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="settingsLabel"><span class="material-icons">play_circle_outline</span> About</h5>
+          <h5 class="modal-title" id="aboutLabel"><span class="material-icons">play_circle_outline</span> About</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -639,7 +639,7 @@
           </button>
         </div>
         <div class="modal-body">
-          <form role="form">
+          <form>
             <div class="row">
               <div class="form-group col-md-12">
                 <label class="control-label" for="streamurl">Stream URL</label>
@@ -666,7 +666,7 @@
           </button>          
         </div>
         <div class="modal-body">
-          <form role="form">
+          <form>
             <div class="row">
               <div class="form-group col-md-9">
                 <label class="control-label" for="playlistname">Playlist Name</label>
@@ -690,4 +690,5 @@
   <script src="js/bootstrap-notify.min.js"></script>
   <script src="js/sammy.js"></script>
   <script src="js/mpd.js"></script>
+ </body>
 </html>
