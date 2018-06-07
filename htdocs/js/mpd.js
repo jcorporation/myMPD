@@ -42,7 +42,7 @@ var app = {};
 
 app.apps = {"playback": { "state": "" },
             "queue": { "state": "0/Any Tag/" },
-            "browse": { "active": "browseFilesystem", 
+            "browse": { "active": "browseDatabase", 
                 "tabs": { "Filesystem": {"state": "0/!/"},
                           "Playlists": {"state": "0/!/" },
                           "Database": { "active":"Artist",
@@ -643,7 +643,7 @@ function webSocketConnect() {
                         appendClickableIcon($('#'+app.currentApp+app.currentTab+'List > tbody > tr.dir > td:last-child'), 'MPD_API_ADD_TRACK', 'playlist_add');
                         appendClickableIcon($('#'+app.currentApp+app.currentTab+'List > tbody > tr.song > td:last-child'), 'MPD_API_ADD_TRACK', 'playlist_add');
                     } else {
-                        $('#'+app.currentApp+'List > tbody > tr').on({
+                        $('#'+app.currentApp+app.currentTab+'List > tbody > tr').on({
                             mouseenter: function() {
                                 if($(this).is(".dir")) 
                                     appendClickableIcon($(this).children().last(), 'MPD_API_ADD_TRACK', 'playlist_add');
