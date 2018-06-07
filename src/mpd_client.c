@@ -516,6 +516,13 @@ static int mpd_notify_callback(struct mg_connection *c, enum mg_event ev) {
     {
         mg_websocket_write(c, 1, mpd.buf, mpd.buf_size);
 
+        if(s->queue_version != mpd.queue_version)
+        {
+            n = snprintf(mpd.buf, MAX_SIZE, "{\"type\":\"update_queue\"}");
+            mg_websocket_write(c, 1, mpd.buf, n);
+            s->queue_version = mpd.queue_version;
+        }
+
         if(s->song_id != mpd.song_id || s->queue_version != mpd.queue_version)
         {
             n = mpd_put_current_song(mpd.buf);
@@ -523,12 +530,7 @@ static int mpd_notify_callback(struct mg_connection *c, enum mg_event ev) {
             s->song_id = mpd.song_id;
         }
 
-        if(s->queue_version != mpd.queue_version)
-        {
-            n = snprintf(mpd.buf, MAX_SIZE, "{\"type\":\"update_queue\"}");
-            mg_websocket_write(c, 1, mpd.buf, n);
-            s->queue_version = mpd.queue_version;
-        }
+        
     }
 
     return MG_TRUE;
@@ -704,7 +706,7 @@ int mpd_put_state(char *buffer, int *current_song_id, int *next_song_id,  unsign
         "\"state\":%d, \"volume\":%d, \"songpos\": %d, \"elapsedTime\": %d, "
         "\"totalTime\":%d, \"currentsongid\": %d, \"kbitrate\": %d, "
         "\"audioformat\": { \"sample_rate\": %d, \"bits\": %d, \"channels\": %d}, "
-        "\"queue_length\": %d, \"nextsongpos\": %d"
+        "\"queue_length\": %d, \"nextsongpos\": %d, \"nextsongid\": %d"
         "}}", 
         mpd_status_get_state(status),
         mpd_status_get_volume(status), 
@@ -717,7 +719,8 @@ int mpd_put_state(char *buffer, int *current_song_id, int *next_song_id,  unsign
         audioformat ? audioformat->bits : 0, 
         audioformat ? audioformat->channels : 0,
         mpd_status_get_queue_length(status),
-        mpd_status_get_next_song_pos(status)
+        mpd_status_get_next_song_pos(status),
+        mpd_status_get_next_song_id(status)
     );
 
     *current_song_id = mpd_status_get_song_id(status);
@@ -825,7 +828,7 @@ int mpd_put_current_song(char *buffer)
     cur += json_emit_raw_str(cur, end - cur, ",\"uri\":");
     cur += json_emit_quoted_str(cur, end - cur, mpd_song_get_uri(song));
     cur += json_emit_raw_str(cur, end - cur, "}}");
-
+    
     mpd_song_free(song);
     mpd_response_finish(mpd.conn);
 
