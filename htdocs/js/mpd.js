@@ -968,6 +968,10 @@ function clickPlay() {
         socket.send('MPD_API_SET_PAUSE');
 }
 
+function clickStop() {
+    socket.send('MPD_API_SET_STOP');
+}
+
 function setLocalStream(mpdhost,streamport) {
     var mpdstream = 'http://';
     if ( mpdhost == '127.0.0.1' || mpdhost == 'localhost')
