@@ -35,19 +35,21 @@ var coverImageFile = '';
 
 var app = {};
 
-app.apps = {"Playback": { "state": "0/-/" },
-            "Queue": { "state": "0/Any Tag/" },
-            "Browse": { "active": "Database", 
-                "tabs": { "Filesystem": {"state": "0/-/"},
-                          "Playlists": {"state": "0/-/" },
-                          "Database": { "active":"Artist",
-                              "views": {"Artist": {"state": "0/-/" },
-                                        "Album": {"state": "0/-/" }
-                                       }
-                          }
-                        }
-                      },
-            "Search": { "state": "0/Any Tag/" }
+app.apps = { "Playback": { "state": "0/-/" },
+             "Queue": 	 { "state": "0/Any Tag/" },
+             "Browse":   { 
+                  "active": "Database", 
+                  "tabs":  { "Filesystem": { "state": "0/-/" },
+                             "Playlists":  { "state": "0/-/" },
+                             "Database":   { 
+                                    "active": "Artist",
+                                    "views":   { "Artist": { "state": "0/-/" },
+                                                 "Album":  { "state": "0/-/" }
+                                               }
+                                           }
+                           }
+                         },
+             "Search": 	 { "state": "0/Any Tag/" }
            };
            
 app.current = { "app": "Playback", "tab": undefined, "view": undefined, "page": 0, "filter": "", "search": "" };
