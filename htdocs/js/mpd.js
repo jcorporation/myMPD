@@ -57,22 +57,19 @@ app.last = { "app": undefined, "tab": undefined, "view": undefined };
 
 app.prepare=function() {
   if (app.current.app != app.last.app || app.current.tab != app.last.tab || app.current.view != app.last.view) {
+    //Hide all cards + nav
     $('#navbar-bottom > div').removeClass('active');
     $('#cardPlayback').addClass('hide');
     $('#cardQueue').addClass('hide');
     $('#cardBrowse').addClass('hide');
     $('#cardSearch').addClass('hide');
-    $('#searchqueue > input').val('');
+    $('#panel-heading-browse > ul > li > a').removeClass('active');
     $('#cardBrowsePlaylists').addClass('hide');
-    $('#cardBrowseNavPlaylists').removeClass('active');
     $('#cardBrowseDatabase').addClass('hide');
-    $('#cardBrowseNavDatabase').removeClass('active');    
     $('#cardBrowseFilesystem').addClass('hide');
-    $('#cardBrowseNavFilesystem').removeClass('active');
-
+    //show active card + nav
     $('#card'+app.current.app).removeClass('hide');
     $('#nav'+app.current.app).addClass('active');
-    
     if (app.current.tab != undefined) {
       $('#card'+app.current.app+app.current.tab).removeClass('hide');
       $('#card'+app.current.app+'Nav'+app.current.tab).addClass('active');    
@@ -141,7 +138,7 @@ app.route=function() {
         doSetFilterLetter('#browseDatabaseFilter');        
     }
     else if (app.current.app == 'Browse' && app.current.tab == 'Database' && app.current.view == 'Album') {
-        socket.send('MPD_API_GET_ARTISTALBUMS,' + app.current.page+',' + app.current.filter + ',' + decodeURI(artist));        
+        socket.send('MPD_API_GET_ARTISTALBUMS,' + app.current.page+',' + app.current.filter + ',' + app.current.search);        
         doSetFilterLetter('#browseDatabaseFilter');        
     }    
     else if (app.current.app == 'Browse' && app.current.tab == 'Filesystem') {
@@ -327,7 +324,7 @@ function webSocketConnect() {
                     }
                     
                     if (obj.type == 'queuesearch' && nrItems == 0) {
-                        $('#queueList > tbody').append(
+                        $('#QueueList > tbody').append(
                                "<tr><td><span class=\"material-icons\">error_outline</span></td>" +
                                "<td colspan=\"3\">No results, please refine your search!</td>" +
                                "<td></td><td></td></tr>"
@@ -336,12 +333,12 @@ function webSocketConnect() {
                     setPagination(obj.totalEntities);
 
                     if ( isTouch ) {
-                        $('#queueList > tbody > tr > td:last-child').append(
-                                '<a class="pull-right btn-group-hover color-darkgrey" href="#/queue/' + app.current.page + '" '+
+                        $('#QueueList > tbody > tr > td:last-child').append(
+                                '<a class="pull-right btn-group-hover color-darkgrey" href="#/Queue!' + app.current.page + '/'+app.current.filter+'/'+app.current.search + '" '+
                                     'onclick="delQueueSong($(this).parents(\'tr\'));">' +
                                 '<span class="material-icons">delete</span></a>');
                     } else {
-                        $('#queueList > tbody > tr').on({
+                        $('#QueueList > tbody > tr').on({
                             mouseover: function(){
                                 var doomed = $(this);
                                 if ( $('#btntrashmodeup').hasClass('btn-success') )
@@ -351,7 +348,7 @@ function webSocketConnect() {
                                 $.each(doomed, function(){
                                 if($(this).children().last().has('a').length == 0)
                                     $(this).children().last().append(
-                                        '<a class="pull-right btn-group-hover color-darkgrey" href="#/queue/' + app.current.page + '" ' +
+                                        '<a class="pull-right btn-group-hover color-darkgrey" href="#/Queue!'+ app.current.page + '/' + '/'+app.current.filter+'/'+app.current.search + '" ' +
                                             'onclick="delQueueSong($(this).parents(\'tr\'));">' +
                                         '<span class="material-icons">delete</span></a>')
                                 .find('a').fadeTo('fast',1);
@@ -397,7 +394,7 @@ function webSocketConnect() {
                     setPagination(obj.totalEntities);
                     if ( isTouch ) {
                         $('#'+app.current.app+app.current.tab+'List > tbody > tr > td:last-child').append(
-                                '<a class="pull-right btn-group-hover color-darkgrey" href="#/browse/playlists/' + app.current.page + '" '+
+                                '<a class="pull-right btn-group-hover color-darkgrey" href="#/Browse/Playlists!' + app.current.page + '/'+app.current.filter+'/'+app.current.search+'" '+
                                 'onclick="delPlaylist($(this).parents(\'tr\'));">' +
                                 '<span class="material-icons">delete</span></a>');
                     } else {
@@ -405,7 +402,7 @@ function webSocketConnect() {
                             mouseover: function(){
                                 if($(this).children().last().has('a').length == 0)
                                     $(this).children().last().append(
-                                        '<a class="pull-right btn-group-hover color-darkgrey" href="#/browse/playlists/' + app.current.page + '" '+
+                                        '<a class="pull-right btn-group-hover color-darkgrey" href="#/Browse/Playlists!' + app.current.page + '/'+app.current.filter+'/'+app.current.search+'" '+
                                         'onclick="delPlaylist($(this).parents(\'tr\'));">' +
                                         '<span class="material-icons">delete</span></a>');
                             },
@@ -434,8 +431,8 @@ function webSocketConnect() {
                     if(app.current.app !== 'Browse' && app.current.tab !== 'Database')
                         break;
                     if (obj.tagtype == 'AlbumArtist') {
-                        $('#browseDatabaseAlbumCards').addClass('hide');
-                        $('#browseDatabaseArtistList').removeClass('hide');
+                        $('#BrowseDatabaseAlbumCards').addClass('hide');
+                        $('#BrowseDatabaseArtistList').removeClass('hide');
                         $('#btnBrowseDatabaseArtist').addClass('hide');
                         var nrItems=0;
                         var tr=document.getElementById(app.current.app+app.current.tab+app.current.view+'List').getElementsByTagName('tbody')[0].getElementsByTagName('tr');
@@ -465,9 +462,9 @@ function webSocketConnect() {
                             );
                         }
                     } else if (obj.tagtype == 'Album') {
-                        $('#browseDatabaseArtistList').addClass('hide');
-                        $('#browseDatabaseAlbumCards').empty();
-                        $('#browseDatabaseAlbumCards').removeClass('hide');
+                        $('#BrowseDatabaseArtistList').addClass('hide');
+                        $('#BrowseDatabaseAlbumCards').empty();
+                        $('#BrowseDatabaseAlbumCards').removeClass('hide');
                         $('#btnBrowseDatabaseArtist').removeClass('hide');
                         var nrItems=0;
                         for (var item in obj.data) {
@@ -479,7 +476,7 @@ function webSocketConnect() {
                                    '  <table class="table table-sm table-hover" id="tbl'+genId(obj.data[item].value)+'"><tbody></tbody></table'+
                                    ' </div>'+
                                    '</div></div>';
-                          $('#browseDatabaseAlbumCards').append(card);
+                          $('#BrowseDatabaseAlbumCards').append(card);
                           socket.send('MPD_API_GET_ARTISTALBUMTITLES,' + obj.searchstr + ','+obj.data[item].value);
                         }
                         setPagination(obj.totalEntities);
@@ -655,14 +652,14 @@ function webSocketConnect() {
                     $('#counter').text(counterText);
 
                     if (last_state) {
-                      $('#queueList > tbody > tr[trackid='+last_state.data.currentsongid+'] > td').eq(4).text(last_state.data.totalTime);
-                      $('#queueList > tbody > tr[trackid='+last_state.data.currentsongid+'] > td').eq(0).removeClass('material-icons').text(last_state.data.songpos);
+                      $('#QueueList > tbody > tr[trackid='+last_state.data.currentsongid+'] > td').eq(4).text(last_state.data.totalTime);
+                      $('#QueueList > tbody > tr[trackid='+last_state.data.currentsongid+'] > td').eq(0).removeClass('material-icons').text(last_state.data.songpos);
                     }
-                    $('#queueList > tbody > tr').removeClass('active').removeClass("font-weight-bold");
+                    $('#QueueList > tbody > tr').removeClass('active').removeClass("font-weight-bold");
                         
-                    $('#queueList > tbody > tr[trackid='+obj.data.currentsongid+'] > td').eq(4).text(counterText);
-                    $('#queueList > tbody > tr[trackid='+obj.data.currentsongid+'] > td').eq(0).addClass('material-icons').text('play_arrow');
-                    $('#queueList > tbody > tr[trackid='+obj.data.currentsongid+']').addClass('active').addClass("font-weight-bold");
+                    $('#QueueList > tbody > tr[trackid='+obj.data.currentsongid+'] > td').eq(4).text(counterText);
+                    $('#QueueList > tbody > tr[trackid='+obj.data.currentsongid+'] > td').eq(0).addClass('material-icons').text('play_arrow');
+                    $('#QueueList > tbody > tr[trackid='+obj.data.currentsongid+']').addClass('active').addClass("font-weight-bold");
 
                     
                     last_state = obj;
