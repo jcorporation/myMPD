@@ -114,11 +114,11 @@ app.route=function() {
       app.current.filter = params[6];
       app.current.search = params[7];
     } else {
-      app.goto("Playback");    
+      app.goto("Playback");
+      return;
     }
 
     app.prepare();
-
     if (app.current.app == 'Playback') {
       socket.send('MPD_API_GET_CURRENT_SONG');
     }    
@@ -672,8 +672,9 @@ function webSocketConnect() {
                     $('#QueueList > tbody > tr[trackid='+obj.data.currentsongid+'] > td').eq(4).text(counterText);
                     $('#QueueList > tbody > tr[trackid='+obj.data.currentsongid+'] > td').eq(0).addClass('material-icons').text('play_arrow');
                     $('#QueueList > tbody > tr[trackid='+obj.data.currentsongid+']').addClass('active').addClass("font-weight-bold");
-                    if ($('#currenttrack').text() != $('#QueueList > tbody > tr[trackid='+obj.data.currentsongid+'] > td').eq(1).text()) {
-                      //Get current song on queue change for http streams
+                    
+                    //Get current song on queue change for http streams
+                    if (last_state == undefined || obj.data.queue_version != last_state.data.queue_version) {
                       socket.send('MPD_API_GET_CURRENT_SONG');
                     }
                     

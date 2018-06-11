@@ -709,7 +709,8 @@ int mpd_put_state(char *buffer, int *current_song_id, int *next_song_id,  unsign
         "\"state\":%d, \"volume\":%d, \"songpos\": %d, \"elapsedTime\": %d, "
         "\"totalTime\":%d, \"currentsongid\": %d, \"kbitrate\": %d, "
         "\"audioformat\": { \"sample_rate\": %d, \"bits\": %d, \"channels\": %d}, "
-        "\"queue_length\": %d, \"nextsongpos\": %d, \"nextsongid\": %d"
+        "\"queue_length\": %d, \"nextsongpos\": %d, \"nextsongid\": %d, "
+        "\"queue_version\": %d"
         "}}", 
         mpd_status_get_state(status),
         mpd_status_get_volume(status), 
@@ -723,7 +724,8 @@ int mpd_put_state(char *buffer, int *current_song_id, int *next_song_id,  unsign
         audioformat ? audioformat->channels : 0,
         mpd_status_get_queue_length(status),
         mpd_status_get_next_song_pos(status),
-        mpd_status_get_next_song_id(status)
+        mpd_status_get_next_song_id(status),
+        mpd_status_get_queue_version(status)
     );
 
     *current_song_id = mpd_status_get_song_id(status);
