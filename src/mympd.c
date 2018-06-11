@@ -30,8 +30,8 @@
 #include <sys/time.h>
 #include <pthread.h>
 
-#include "mongoose.h"
-#include "http_server.h"
+#include "mongoose/mongoose.h"
+//#include "http_server.h"
 #include "mpd_client.h"
 #include "config.h"
 
@@ -44,36 +44,39 @@ void bye()
     force_exit = 1;
 }
 
-static int server_callback(struct mg_connection *c, enum mg_event ev) {
-    int result = MG_FALSE;
+
+static int is_websocket(const struct mg_connection *nc) {
+  return nc->flags & MG_F_IS_WEBSOCKET;
+}
+
+static void server_callback(struct mg_connection *c, int ev, void *p) {
+//    int result = MG_EV_FALSE;
     FILE *fp = NULL;
 
     switch(ev) {
-        case MG_CLOSE:
+        case MG_EV_CLOSE:
             mpd_close_handler(c);
-            return MG_TRUE;
-        case MG_REQUEST:
-            if (c->is_websocket) {
+            break;          
+//            return MG_TRUE;
+        case MG_EV_HTTP_REQUEST:
+            if (is_websocket(c)) {
                 c->content[c->content_len] = '\0';
                 if(c->content_len)
-                    return callback_mpd(c);
-                else
-                    return MG_TRUE;
+                    callback_mpd(c);
+                break;
             } else
-            return MG_FALSE;
-        case MG_AUTH:
+            break;
+        case MG_EV_AUTH:
             // no auth for websockets since mobile safari does not support it
             if ( (mpd.gpass == NULL) || (c->is_websocket) || ((mpd.local_port > 0) && (c->local_port == mpd.local_port)) )
-                return MG_TRUE;
+                break;
             else {
                 if ( (fp = fopen(mpd.gpass, "r")) != NULL ) {
-                    result = mg_authorize_digest(c, fp);
+                    mg_authorize_digest(c, fp);
                     fclose(fp);
                 }
             }
-            return result;
-        default:
-            return MG_FALSE;
+            break;
     }
 }
 
