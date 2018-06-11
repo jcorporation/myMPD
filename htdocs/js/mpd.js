@@ -23,6 +23,7 @@
 */
 
 var socket;
+var last_song = '';
 var last_state;
 var last_outputs;
 var current_song = new Object();
@@ -119,7 +120,7 @@ app.route=function() {
     app.prepare();
 
     if (app.current.app == 'Playback') {
-      //Do nothing
+      socket.send('MPD_API_GET_CURRENT_SONG');
     }    
     else if (app.current.app == 'Queue' ) {
         if (app.last.app != app.current.app) {
@@ -346,21 +347,21 @@ function webSocketConnect() {
                     if ( isTouch ) {
                         $('#QueueList > tbody > tr > td:last-child').append(
                                 '<a class="pull-right btn-group-hover color-darkgrey" href="#/Queue!' + app.current.page + '/'+app.current.filter+'/'+app.current.search + '" '+
-                                    'onclick="delQueueSong($(this).parents(\'tr\'));">' +
+                                    'onclick="delQueueSong($(this).parents(\'tr\'),event);">' +
                                 '<span class="material-icons">delete</span></a>');
                     } else {
                         $('#QueueList > tbody > tr').on({
                             mouseover: function(){
                                 var doomed = $(this);
                                 if ( $('#btntrashmodeup').hasClass('btn-success') )
-                                    doomed = $('#queueList > tbody > tr:lt(' + ($(this).index() + 1) + ')');
+                                    doomed = $('#QueueList > tbody > tr:lt(' + ($(this).index() + 1) + ')');
                                 if ( $('#btntrashmodedown').hasClass('btn-success') )
-                                    doomed = $('#queueList > tbody > tr:gt(' + ($(this).index() - 1) + ')');
+                                    doomed = $('#QueueList > tbody > tr:gt(' + ($(this).index() - 1) + ')');
                                 $.each(doomed, function(){
                                 if($(this).children().last().has('a').length == 0)
                                     $(this).children().last().append(
-                                        '<a class="pull-right btn-group-hover color-darkgrey" href="#/Queue!'+ app.current.page + '/' + '/'+app.current.filter+'/'+app.current.search + '" ' +
-                                            'onclick="delQueueSong($(this).parents(\'tr\'));">' +
+                                        '<a class="pull-right btn-group-hover color-darkgrey" href="#/Queue!'+ app.current.page + '/' +app.current.filter+'/'+app.current.search + '" ' +
+                                            'onclick="delQueueSong($(this).parents(\'tr\'),event);">' +
                                         '<span class="material-icons">delete</span></a>')
                                 .find('a').fadeTo('fast',1);
                                 });
@@ -368,15 +369,15 @@ function webSocketConnect() {
                             mouseleave: function(){
                                 var doomed = $(this);
                                 if ( $('#btntrashmodeup').hasClass('btn-success') )
-                                    doomed = $("#queueList > tbody > tr:lt(" + ($(this).index() + 1) + ")");
+                                    doomed = $("#QueueList > tbody > tr:lt(" + ($(this).index() + 1) + ")");
                                 if ( $('#btntrashmodedown').hasClass('btn-success') )
-                                    doomed = $("#queueList > tbody > tr:gt(" + ($(this).index() - 1) + ")");
+                                    doomed = $("#QueueList > tbody > tr:gt(" + ($(this).index() - 1) + ")");
                                 $.each(doomed, function(){$(this).children().last().find("a").stop().remove();});
                             }
                         });
                     };
 
-                    $('#queueList > tbody > tr').on({
+                    $('#QueueList > tbody > tr').on({
                         click: function() {
                             $('#queueList > tbody > tr').removeClass('active');
                             socket.send('MPD_API_PLAY_TRACK,'+$(this).attr('trackid'));
@@ -591,10 +592,10 @@ function webSocketConnect() {
                     }
 
                     if ( isTouch ) {
-                        appendClickableIcon($('#'+app.current.app+app.current.tab+'List > tbody > tr.dir > td:last-child'), 'MPD_API_ADD_TRACK', 'playlist_add');
-                        appendClickableIcon($('#'+app.current.app+app.current.tab+'List > tbody > tr.song > td:last-child'), 'MPD_API_ADD_TRACK', 'playlist_add');
+                        appendClickableIcon($('#'+app.current.app+(app.current.tab == undefined ? '' : app.current.tab )+'List > tbody > tr.dir > td:last-child'), 'MPD_API_ADD_TRACK', 'playlist_add');
+                        appendClickableIcon($('#'+app.current.app+(app.current.tab == undefined ? '' : app.current.tab )+'List > tbody > tr.song > td:last-child'), 'MPD_API_ADD_TRACK', 'playlist_add');
                     } else {
-                        $('#'+app.current.app+app.current.tab+'List > tbody > tr').on({
+                        $('#'+app.current.app+(app.current.tab == undefined ? '' : app.current.tab )+'List > tbody > tr').on({
                             mouseenter: function() {
                                 if($(this).is(".dir")) 
                                     appendClickableIcon($(this).children().last(), 'MPD_API_ADD_TRACK', 'playlist_add');
@@ -606,7 +607,7 @@ function webSocketConnect() {
                             }
                         });
                     };
-                    $('#'+app.current.app+app.current.tab+'List > tbody > tr').on({
+                    $('#'+app.current.app+(app.current.tab == undefined ? '' : app.current.tab )+'List > tbody > tr').on({
                         click: function() {
                             switch($(this).attr('class')) {
                                 case 'dir':
@@ -671,7 +672,10 @@ function webSocketConnect() {
                     $('#QueueList > tbody > tr[trackid='+obj.data.currentsongid+'] > td').eq(4).text(counterText);
                     $('#QueueList > tbody > tr[trackid='+obj.data.currentsongid+'] > td').eq(0).addClass('material-icons').text('play_arrow');
                     $('#QueueList > tbody > tr[trackid='+obj.data.currentsongid+']').addClass('active').addClass("font-weight-bold");
-
+                    if ($('#currenttrack').text() != $('#QueueList > tbody > tr[trackid='+obj.data.currentsongid+'] > td').eq(1).text()) {
+                      //Get current song on queue change for http streams
+                      socket.send('MPD_API_GET_CURRENT_SONG');
+                    }
                     
                     last_state = obj;
                     break;
@@ -704,11 +708,11 @@ function webSocketConnect() {
                     showNotification('myMPD lost connection to MPD','','','danger');
                     break;
                 case 'update_queue':
-                    if(app.current.app === 'queue')
+                    if(app.current.app === 'Queue')
                         socket.send('MPD_API_GET_QUEUE,'+app.current.page);
                     break;
                 case "song_change":
-                    songChange(obj.data.title, obj.data.artist, obj.data.album, obj.data.uri);
+                    songChange(obj.data.title, obj.data.artist, obj.data.album, obj.data.uri, obj.data.currentsongid);
                     break;
                 case 'settings':
                     if (!isNaN(obj.data.max_elements_per_page))
@@ -876,7 +880,6 @@ function updateVolumeIcon(volume) {
 }
 
 function updatePlayIcon(obj) {
-
     if(obj.data.state == 1) { // stop
         $('#btnPlay > span').text('play_arrow');
         playstate = 'stop';
@@ -934,16 +937,14 @@ function setLocalStream(mpdhost,streamport) {
     Cookies.set('mpdstream', mpdstream, { expires: 424242 });
 }
 
-function delQueueSong(tr) {
+function delQueueSong(tr,event) {
+    event.stopPropagation();
     if ( $('#btntrashmodeup').hasClass('btn-success') ) {
         socket.send('MPD_API_RM_RANGE,0,' + (tr.index() + 1));
-        tr.remove();
     } else if ( $('#btntrashmodesingle').hasClass('btn-success') ) {
         socket.send('MPD_API_RM_TRACK,' + tr.attr('trackid'));
-        tr.remove();
     } else if ( $('#btntrashmodedown').hasClass('btn-success') ) {
         socket.send('MPD_API_RM_RANGE,' + tr.index() + ',-1');
-        tr.remove();
     };
 }
 
@@ -1232,7 +1233,10 @@ function notificationsSupported() {
     return "Notification" in window;
 }
 
-function songChange(title, artist, album, uri) {
+function songChange(title, artist, album, uri, songId) {
+    if (last_song == title+artist+album+uri+songId) 
+        return;
+    
     var textNotification = '';
     var htmlNotification = '';
     var pageTitle = 'myMPD: ';
@@ -1272,6 +1276,7 @@ function songChange(title, artist, album, uri) {
     }
     document.title = pageTitle;
     showNotification(title,textNotification,htmlNotification,'success');
+    last_song = title+artist+album+uri+songId;
 }
 
         
