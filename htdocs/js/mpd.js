@@ -97,7 +97,18 @@ app.route=function() {
       app.current.app = params[1];
       app.current.tab = params[2];
       app.current.view = params[3];
-      app.apps[app.current.app].state = params[4];
+      if (app.apps[app.current.app].state) {
+          app.apps[app.current.app].state = params[4];
+      }
+      else if (app.apps[app.current.app].tabs[app.current.tab].state) {
+          app.apps[app.current.app].tabs[app.current.tab].state = params[4];
+           app.apps[app.current.app].active=app.current.tab;
+      }
+      else if (app.apps[app.current.app].tabs[app.current.tab].views[app.current.view].state) {
+          app.apps[app.current.app].tabs[app.current.tab].views[app.current.view].state = params[4];
+          app.apps[app.current.app].active=app.current.tab;
+          app.apps[app.current.app].tabs[app.current.tab].active=app.current.view;
+      }
       app.current.page = parseInt(params[5]);
       app.current.filter = params[6];
       app.current.search = params[7];
@@ -135,16 +146,16 @@ app.route=function() {
     }
     else if (app.current.app == 'Browse' && app.current.tab == 'Database' && app.current.view == 'Artist') {
         socket.send('MPD_API_GET_ARTISTS,' + app.current.page + ',' + app.current.filter);
-        doSetFilterLetter('#browseDatabaseFilter');        
+        doSetFilterLetter('#BrowseDatabaseFilter');        
     }
     else if (app.current.app == 'Browse' && app.current.tab == 'Database' && app.current.view == 'Album') {
         socket.send('MPD_API_GET_ARTISTALBUMS,' + app.current.page+',' + app.current.filter + ',' + app.current.search);        
-        doSetFilterLetter('#browseDatabaseFilter');        
+        doSetFilterLetter('#BrowseDatabaseFilter');        
     }    
     else if (app.current.app == 'Browse' && app.current.tab == 'Filesystem') {
         $('#BrowseBreadcrumb').empty().append('<li class="breadcrumb-item"><a uri="">root</a></li>');
         socket.send('MPD_API_GET_BROWSE,'+app.current.page+','+(app.current.search ? app.current.search : '/')+','+app.current.filter);
-        doSetFilterLetter('#browseFilesystemFilter');
+        doSetFilterLetter('#BrowseFilesystemFilter');
         // Don't add all songs from root
         var add_all_songs = $('#browseFilesystemAddAllSongs');
         if (app.current.search) {
@@ -254,9 +265,9 @@ $(document).ready(function(){
     if (Cookies.get('notificationPage') === 'true')
         $('#btnnotifyPage').removeClass('btn-secondary').addClass("btn-success")
 
-    add_filter('#browseFilesystemFilterLetters');
-    add_filter('#browseDatabaseFilterLetters');
-    add_filter('#browsePlaylistsFilterLetters');
+    add_filter('#BrowseFilesystemFilterLetters');
+    add_filter('#BrowseDatabaseFilterLetters');
+    add_filter('#BrowsePlaylistsFilterLetters');
     
     window.addEventListener("hashchange", app.route, false);
 });
