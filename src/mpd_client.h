@@ -122,7 +122,7 @@ char coverimage[40];
 
 static int is_websocket(const struct mg_connection *nc) {
   return nc->flags & MG_F_IS_WEBSOCKET;
-};
+}
 
 struct t_mpd_client_session {
     int song_id;
@@ -131,7 +131,7 @@ struct t_mpd_client_session {
 };
 
 void mpd_poll(struct mg_mgr *s);
-void callback_mpd(struct mg_connection *c, const struct mg_str msg);
+void callback_mpd(struct mg_connection *nc, const struct mg_str msg);
 int mpd_close_handler(struct mg_connection *c);
 int mpd_put_state(char *buffer, int *current_song_id, int *next_song_id, unsigned *queue_version);
 int mpd_put_outputs(char *buffer, int putnames);

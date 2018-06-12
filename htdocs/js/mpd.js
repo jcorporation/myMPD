@@ -283,10 +283,8 @@ function webSocketConnect() {
     try {
         socket.onopen = function() {
             console.log("connected");
-            /* emit request for mympd settings */
-            socket.send('MPD_API_GET_SETTINGS');            
-            /* emit initial request for output names */
-            socket.send('MPD_API_GET_OUTPUTS');
+            //socket.send('MPD_API_GET_OUTPUTS');
+            //socket.send('MPD_API_GET_SETTINGS');
             showNotification('Connected to myMPD','','','success');
             $('#modalConnectionError').modal('hide');    
             app.route();

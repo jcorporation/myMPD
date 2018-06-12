@@ -59,7 +59,7 @@ static inline enum mpd_cmd_ids get_cmd_id(const char *cmd)
     return -1;
 }
 
-void callback_mpd(struct mg_connection *c,const struct mg_str msg)
+void callback_mpd(struct mg_connection *nc, const struct mg_str msg)
 {
     enum mpd_cmd_ids cmd_id = get_cmd_id(msg.p);
     size_t n = 0;
@@ -69,12 +69,11 @@ void callback_mpd(struct mg_connection *c,const struct mg_str msg)
     char *p_charbuf = NULL, *token;
     char *p_charbuf2 = NULL;
     char *searchstr = NULL;
-    char request[500];
 
     fprintf(stdout,"Got request: %s\n",msg.p);
     
     if(cmd_id == -1)
-        return 0;
+        return;
 
     switch(cmd_id)
     {
@@ -149,7 +148,7 @@ void callback_mpd(struct mg_connection *c,const struct mg_str msg)
             break;            
         case MPD_API_GET_OUTPUTS:
             mpd.buf_size = mpd_put_outputs(mpd.buf, 1);
-            mpd_notify_callback(c, NULL);
+            mpd_notify_callback(nc, NULL);
             break;
         case MPD_API_TOGGLE_OUTPUT:
             if (sscanf(msg.p, "MPD_API_TOGGLE_OUTPUT,%u,%u", &uint_buf, &uint_buf_2)) {
@@ -467,6 +466,7 @@ out_set_replaygain:
 
     if(mpd.conn_state == MPD_CONNECTED && mpd_connection_get_error(mpd.conn) != MPD_ERROR_SUCCESS)
     {
+        fprintf(stdout,"Error: %s\n",mpd_connection_get_error_message(mpd.conn));
         n = snprintf(mpd.buf, MAX_SIZE, "{\"type\":\"error\", \"data\": \"%s\"}", 
             mpd_connection_get_error_message(mpd.conn));
 
@@ -476,11 +476,9 @@ out_set_replaygain:
     }
 
     if(n > 0) {
-        //fprintf(stdout,"Send response:\n %s\n",mpd.buf);
-        mg_send_websocket_frame(c, WEBSOCKET_OP_TEXT, mpd.buf, strlen(mpd.buf));
+        fprintf(stdout,"Send response:\n %s\n",mpd.buf);
+        mg_send_websocket_frame(nc, WEBSOCKET_OP_TEXT, mpd.buf, n);
     }
-
-    return 0;
 }
 
 int mpd_close_handler(struct mg_connection *c)
@@ -493,16 +491,15 @@ int mpd_close_handler(struct mg_connection *c)
 
 static int mpd_notify_callback(struct mg_connection *c, const char *param) {
     size_t n;
-
-    if(is_websocket(c))
+    if(!is_websocket(c))
         return 0;
 
     if(param)
     {
         /* error message? */
-        n = snprintf(mpd.buf, MAX_SIZE, "{\"type\":\"error\",\"data\":\"%s\"}",param);
-
-        mg_send_websocket_frame(c, WEBSOCKET_OP_TEXT, mpd.buf, strlen(mpd.buf));
+        n=snprintf(mpd.buf, MAX_SIZE, "{\"type\":\"error\",\"data\":\"%s\"}",param);
+        fprintf(stdout,"Error in mpd_notify_callback: %s\n",param);
+        mg_send_websocket_frame(c, WEBSOCKET_OP_TEXT, mpd.buf, n);
         return 0;
     }
 
@@ -512,24 +509,28 @@ static int mpd_notify_callback(struct mg_connection *c, const char *param) {
     struct t_mpd_client_session *s = (struct t_mpd_client_session *)c->user_data;
 
     if(mpd.conn_state != MPD_CONNECTED) {
-        n = snprintf(mpd.buf, MAX_SIZE, "{\"type\":\"disconnected\"}");
-        mg_send_websocket_frame(c, WEBSOCKET_OP_TEXT, mpd.buf, strlen(mpd.buf));
+        n=snprintf(mpd.buf, MAX_SIZE, "{\"type\":\"disconnected\"}");
+        fprintf(stdout,"Notify: disconnected\n");
+        mg_send_websocket_frame(c, WEBSOCKET_OP_TEXT, mpd.buf, n);
     }
     else
     {
-        mg_send_websocket_frame(c, WEBSOCKET_OP_TEXT, mpd.buf, strlen(mpd.buf));
+        fprintf(stdout,"Notify: %s\n",mpd.buf);
+        mg_send_websocket_frame(c, WEBSOCKET_OP_TEXT, mpd.buf, mpd.buf_size);
         
         if(s->song_id != mpd.song_id)
         {
-            n = mpd_put_current_song(mpd.buf);
-            mg_send_websocket_frame(c, WEBSOCKET_OP_TEXT, mpd.buf, strlen(mpd.buf));
+            n=mpd_put_current_song(mpd.buf);
+            fprintf(stdout,"Notify: %s\n",mpd.buf);
+            mg_send_websocket_frame(c, WEBSOCKET_OP_TEXT, mpd.buf, n);
             s->song_id = mpd.song_id;
         }
         
         if(s->queue_version != mpd.queue_version)
         {
-            n = snprintf(mpd.buf, MAX_SIZE, "{\"type\":\"update_queue\"}");
-            mg_send_websocket_frame(c, WEBSOCKET_OP_TEXT, mpd.buf, strlen(mpd.buf));
+            n=snprintf(mpd.buf, MAX_SIZE, "{\"type\":\"update_queue\"}");
+            fprintf(stdout,"Notify: update_queue\n");
+            mg_send_websocket_frame(c, WEBSOCKET_OP_TEXT, mpd.buf, n);
             s->queue_version = mpd.queue_version;
         }
         

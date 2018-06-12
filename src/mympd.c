@@ -45,23 +45,39 @@ static void signal_handler(int sig_num) {
 
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
     switch(ev) {
-        case MG_EV_CLOSE: {
-            if (is_websocket(nc)) {
-              mpd_close_handler(nc);
-            }
-            break;
+        case MG_EV_WEBSOCKET_HANDSHAKE_DONE: {
+             fprintf(stdout,"New Websocket connection\n");
+             struct mg_str d = {(char *) "MPD_API_GET_SETTINGS", 20 };
+             callback_mpd(nc, d);
+             d.p="MPD_API_GET_OUTPUTS";
+             d.len=19;
+             callback_mpd(nc, d);
+             break;
         }
         case MG_EV_WEBSOCKET_FRAME: {
             struct websocket_message *wm = (struct websocket_message *) ev_data;
             wm->data[wm->size]='\0';
             struct mg_str d = {(char *) wm->data, wm->size};
+            fprintf(stdout,"Websocket request: %s\n",wm->data);
             callback_mpd(nc, d);
             break;
         }
         case MG_EV_HTTP_REQUEST: {
-            mg_serve_http(nc, (struct http_message *) ev_data, s_http_server_opts);
+            struct http_message *hm = (struct http_message *) ev_data;
+            printf("HTTP request: %.*s\n",hm->uri.len,hm->uri.p);
+            mg_serve_http(nc, hm, s_http_server_opts);
             break;
         }
+        case MG_EV_CLOSE: {
+            if (is_websocket(nc)) {
+              fprintf(stdout,"Websocket connection closed\n");
+              mpd_close_handler(nc);
+            }
+            else {
+              fprintf(stdout,"HTTP Close\n");
+            }
+            break;
+        }        
     }
 }
 
