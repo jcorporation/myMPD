@@ -31,68 +31,57 @@
 #include <pthread.h>
 
 #include "mongoose/mongoose.h"
-//#include "http_server.h"
 #include "mpd_client.h"
 #include "config.h"
 
 extern char *optarg;
+static sig_atomic_t s_signal_received = 0;
+static struct mg_serve_http_opts s_http_server_opts;
 
-int force_exit = 0;
-
-void bye()
-{
-    force_exit = 1;
+static void signal_handler(int sig_num) {
+  signal(sig_num, signal_handler);  // Reinstantiate signal handler
+  s_signal_received = sig_num;
 }
 
-
-static int is_websocket(const struct mg_connection *nc) {
-  return nc->flags & MG_F_IS_WEBSOCKET;
-}
-
-static void server_callback(struct mg_connection *c, int ev, void *p) {
-//    int result = MG_EV_FALSE;
-    FILE *fp = NULL;
-
+static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
     switch(ev) {
-        case MG_EV_CLOSE:
-            mpd_close_handler(c);
-            break;          
-//            return MG_TRUE;
-        case MG_EV_HTTP_REQUEST:
-            if (is_websocket(c)) {
-                c->content[c->content_len] = '\0';
-                if(c->content_len)
-                    callback_mpd(c);
-                break;
-            } else
+        case MG_EV_CLOSE: {
+            mpd_close_handler(nc);
             break;
-        case MG_EV_AUTH:
-            // no auth for websockets since mobile safari does not support it
-            if ( (mpd.gpass == NULL) || (c->is_websocket) || ((mpd.local_port > 0) && (c->local_port == mpd.local_port)) )
-                break;
-            else {
-                if ( (fp = fopen(mpd.gpass, "r")) != NULL ) {
-                    mg_authorize_digest(c, fp);
-                    fclose(fp);
-                }
-            }
+        }
+        case MG_EV_WEBSOCKET_FRAME: {
+            struct websocket_message *wm = (struct websocket_message *) ev_data;
+            struct mg_str d = {(char *) wm->data, wm->size};
+            callback_mpd(nc, d);
             break;
+        }
+        case MG_EV_HTTP_REQUEST: {
+            mg_serve_http(nc, (struct http_message *) ev_data, s_http_server_opts);
+            break;
+        }
     }
 }
 
 int main(int argc, char **argv)
 {
     int n, option_index = 0;
-    struct mg_server *server = mg_create_server(NULL, server_callback);
+
+    struct mg_mgr mgr;
+    struct mg_connection *nc;
+
     unsigned int current_timer = 0, last_timer = 0;
+
+    signal(SIGTERM, signal_handler);
+    signal(SIGINT, signal_handler);
+    setvbuf(stdout, NULL, _IOLBF, 0);
+    setvbuf(stderr, NULL, _IOLBF, 0);
+    
+    mg_mgr_init(&mgr, NULL);
+    
     char *run_as_user = NULL;
     char const *error_msg = NULL;
     char *webport = "8080";
 
-    atexit(bye);
-    mg_set_option(server, "document_root", SRC_PATH);
-
-    mg_set_option(server, "auth_domain", "mympd");
     mpd.port = 6600;
     mpd.local_port = 0;
     mpd.gpass = NULL;
@@ -171,42 +160,23 @@ int main(int argc, char **argv)
                 return EXIT_FAILURE;
         }
 
-        if(error_msg)
-        {
-            fprintf(stderr, "Mongoose error: %s\n", error_msg);
-            return EXIT_FAILURE;
-        }
     }
 
-    error_msg = mg_set_option(server, "listening_port", webport);
-    if(error_msg) {
-        fprintf(stderr, "Mongoose error: %s\n", error_msg);
-        return EXIT_FAILURE;
-    }
+    nc = mg_bind(&mgr, webport, ev_handler);
+    mg_set_protocol_http_websocket(nc);
+    s_http_server_opts.document_root = SRC_PATH;
 
-    /* drop privilges at last to ensure proper port binding */
-    if(run_as_user != NULL) {
-        error_msg = mg_set_option(server, "run_as_user", run_as_user);
-        free(run_as_user);
-        if(error_msg)
-        {
-            fprintf(stderr, "Mongoose error: %s\n", error_msg);
-            return EXIT_FAILURE;
-        }
-    }
-
-    while (!force_exit) {
-        mg_poll_server(server, 200);
+    printf("Started on port %s\n", webport);
+    while (s_signal_received == 0) {
+        mg_mgr_poll(&mgr, 200);
         current_timer = time(NULL);
         if(current_timer - last_timer)
         {
             last_timer = current_timer;
-            mpd_poll(server);
+            mpd_poll(&mgr);
         }
     }
-
+    mg_mgr_free(&mgr);
     mpd_disconnect();
-    mg_destroy_server(&server);
-
     return EXIT_SUCCESS;
 }
