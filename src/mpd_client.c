@@ -59,7 +59,7 @@ static inline enum mpd_cmd_ids get_cmd_id(const char *cmd)
     return -1;
 }
 
-int callback_mpd(struct mg_connection *c,const struct mg_str msg)
+void callback_mpd(struct mg_connection *c,const struct mg_str msg)
 {
     enum mpd_cmd_ids cmd_id = get_cmd_id(msg.p);
     size_t n = 0;
@@ -69,8 +69,9 @@ int callback_mpd(struct mg_connection *c,const struct mg_str msg)
     char *p_charbuf = NULL, *token;
     char *p_charbuf2 = NULL;
     char *searchstr = NULL;
+    char request[500];
 
-    fprintf(stdout,"Got request: %s:%d\n",msg.p,cmd_id);
+    fprintf(stdout,"Got request: %s\n",msg.p);
     
     if(cmd_id == -1)
         return 0;
@@ -485,8 +486,8 @@ out_set_replaygain:
 int mpd_close_handler(struct mg_connection *c)
 {
     /* Cleanup session data */
-//    if(c->connection_param)
-//        free(c->connection_param);
+    if(c->user_data)
+        free(c->user_data);
     return 0;
 }
 
@@ -505,10 +506,10 @@ static int mpd_notify_callback(struct mg_connection *c, const char *param) {
         return 0;
     }
 
-    if(!c->connection_param)
-        c->connection_param = calloc(1, sizeof(struct t_mpd_client_session));
+    if(!c->user_data)
+        c->user_data = calloc(1, sizeof(struct t_mpd_client_session));
 
-    struct t_mpd_client_session *s = (struct t_mpd_client_session *)c->connection_param;
+    struct t_mpd_client_session *s = (struct t_mpd_client_session *)c->user_data;
 
     if(mpd.conn_state != MPD_CONNECTED) {
         n = snprintf(mpd.buf, MAX_SIZE, "{\"type\":\"disconnected\"}");

@@ -46,11 +46,14 @@ static void signal_handler(int sig_num) {
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
     switch(ev) {
         case MG_EV_CLOSE: {
-            mpd_close_handler(nc);
+            if (is_websocket(nc)) {
+              mpd_close_handler(nc);
+            }
             break;
         }
         case MG_EV_WEBSOCKET_FRAME: {
             struct websocket_message *wm = (struct websocket_message *) ev_data;
+            wm->data[wm->size]='\0';
             struct mg_str d = {(char *) wm->data, wm->size};
             callback_mpd(nc, d);
             break;
