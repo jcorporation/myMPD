@@ -30,9 +30,8 @@ if(WITH_IPV6)
     set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS NS_ENABLE_IPV6)
 endif()
 if(WITH_SSL)
-	find_package(OpenSSL REQUIRED)
-	include_directories(${OPENSSL_INCLUDE_DIR})
-#    list(APPEND LIB_LIST ${OPENSSL_LIBRARIES})
+    find_package(OpenSSL REQUIRED)
+    include_directories(${OPENSSL_INCLUDE_DIR})
     set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS NS_ENABLE_SSL)
 endif()
 
@@ -50,7 +49,7 @@ set(SOURCES
     src/mympd.c
     src/mpd_client.c
     src/mongoose/mongoose.c
-    src/json_encode.c
+    src/frozen/frozen.c
 )
 
 add_executable(mympd ${SOURCES})

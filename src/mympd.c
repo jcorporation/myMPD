@@ -48,7 +48,7 @@ static void handle_api(struct mg_connection *nc, struct http_message *hm) {
   char buf[1000] = {0};
   memcpy(buf, hm->body.p,sizeof(buf) - 1 < hm->body.len ? sizeof(buf) - 1 : hm->body.len);
   struct mg_str d = {buf, strlen(buf)};
-  callback_mpd(nc, d);
+  callback_mympd(nc, d);
   mg_send_http_chunk(nc, "", 0); /* Send empty chunk, the end of response */
 }
 
@@ -58,8 +58,8 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
              #ifdef DEBUG
              fprintf(stdout,"New Websocket connection\n");
              #endif
-             struct mg_str d = {(char *) "MPD_API_WELCOME" };
-             callback_mpd(nc, d);
+             struct mg_str d = {(char *) "MPD_API_WELCOME", 15 };
+             callback_mympd(nc, d);
              break;
         }
         case MG_EV_WEBSOCKET_FRAME: {
@@ -69,7 +69,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             #ifdef DEBUG
             fprintf(stdout,"Websocket request: %s\n",wm->data);
             #endif
-            callback_mpd(nc, d);
+            callback_mympd(nc, d);
             break;
         }
         case MG_EV_HTTP_REQUEST: {
@@ -90,7 +90,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
               #ifdef DEBUG
               fprintf(stdout,"Websocket connection closed\n");
               #endif
-              mpd_close_handler(nc);
+              mympd_close_handler(nc);
             }
             else {
               #ifdef DEBUG
@@ -221,10 +221,10 @@ int main(int argc, char **argv)
         if(current_timer - last_timer)
         {
             last_timer = current_timer;
-            mpd_poll(&mgr);
+            mympd_poll(&mgr);
         }
     }
     mg_mgr_free(&mgr);
-    mpd_disconnect();
+    mympd_disconnect();
     return EXIT_SUCCESS;
 }
