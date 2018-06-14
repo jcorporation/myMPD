@@ -5,7 +5,7 @@ myMPD is a lightweight MPD web client that runs without a dedicated webserver or
 It's tuned for minimal resource usage and requires only very litte dependencies.
 myMPD is a fork of ympd.
 
-This fork provides a reworked ui based on Bootstrap 4.
+This fork provides a reworked ui based on Bootstrap 4 and a modernized backend.
 
 ![image](https://jcgames.de/stuff/myMPD/screenshots.gif)
 
