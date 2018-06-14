@@ -28,7 +28,6 @@
 #include <unistd.h>
 #include <getopt.h>
 #include <sys/time.h>
-//#include <pthread.h>
 #include <pwd.h>
 
 #include "mongoose/mongoose.h"
@@ -59,10 +58,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
              #ifdef DEBUG
              fprintf(stdout,"New Websocket connection\n");
              #endif
-             struct mg_str d = {(char *) "MPD_API_GET_SETTINGS", 20 };
-             callback_mpd(nc, d);
-             d.p="MPD_API_GET_OUTPUTS";
-             d.len=19;
+             struct mg_str d = {(char *) "MPD_API_WELCOME" };
              callback_mpd(nc, d);
              break;
         }

@@ -77,6 +77,8 @@ void callback_mpd(struct mg_connection *nc, const struct mg_str msg)
 
     switch(cmd_id)
     {
+        case MPD_API_WELCOME:
+            n = mympd_put_welcome(mpd.buf);            
         case MPD_API_UPDATE_DB:
             mpd_run_update(mpd.conn, NULL);
             break;
@@ -765,6 +767,18 @@ int mpd_put_state(char *buffer, int *current_song_id, int *next_song_id,  unsign
     *queue_version = mpd_status_get_queue_version(status);
     mpd_status_free(status);
     return cur - buffer;
+}
+
+int mympd_put_welcome(char *buffer)
+{
+    int len;
+    len = snprintf(buffer, MAX_SIZE,
+        "{\"type\":\"welcome\", \"data\":{"
+        "\"version\":\"%s\"}}", 
+        MYMPD_VERSION
+    );
+    
+    return len;
 }
 
 int mympd_put_settings(char *buffer)
