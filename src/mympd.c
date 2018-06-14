@@ -79,7 +79,6 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             #endif
             if (mg_vcmp(&hm->uri, "/api") == 0) {
               handle_api(nc, hm);
-
             }
             else {
               mg_serve_http(nc, hm, s_http_server_opts);
@@ -131,7 +130,7 @@ int main(int argc, char **argv)
         {0,              0,                 0,  0 }
     };
 
-    while((n = getopt_long(argc, argv, "D:h:p:l:w:u:d:vm:s:i:",
+    while((n = getopt_long(argc, argv, "D:h:p:w:u:vm:s:i:",
                 long_options, &option_index)) != -1) {
         switch (n) {
             case 'D':
