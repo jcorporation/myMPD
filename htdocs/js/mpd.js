@@ -195,9 +195,9 @@ app.route=function() {
           }
           $('#searchstr2').val(app.current.search);
           $('#searchtags2 > button').each(function() {
-            if ($(this).text == app.current.filter) { 
+            if ($(this).text() == app.current.filter) { 
               $(this).removeClass('btn-secondary').addClass('btn-success'); 
-              $('#searchtags2desc').text($(this).text);
+              $('#searchtags2desc').text($(this).text());
             }
           }); 
         }
