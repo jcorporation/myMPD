@@ -9479,6 +9479,7 @@ static struct mg_ws_proto_data *mg_ws_get_proto_data(struct mg_connection *nc) {
  */
 static void mg_ws_close(struct mg_connection *nc, const void *data,
                         size_t len) {
+  printf("SEND: %.*s\n",len,data);
   if ((int) len == ~0) {
     len = strlen((const char *) data);
   }

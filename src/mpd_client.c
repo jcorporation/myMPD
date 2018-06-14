@@ -69,9 +69,9 @@ void callback_mpd(struct mg_connection *nc, const struct mg_str msg)
     char *p_charbuf = NULL, *token;
     char *p_charbuf2 = NULL;
     char *searchstr = NULL;
-
+    #ifdef DEBUG
     fprintf(stdout,"Got request: %s\n",msg.p);
-    
+    #endif
     if(cmd_id == -1)
         return;
 
@@ -466,7 +466,9 @@ out_set_replaygain:
 
     if(mpd.conn_state == MPD_CONNECTED && mpd_connection_get_error(mpd.conn) != MPD_ERROR_SUCCESS)
     {
+        #ifdef DEBUG
         fprintf(stdout,"Error: %s\n",mpd_connection_get_error_message(mpd.conn));
+        #endif
         n = snprintf(mpd.buf, MAX_SIZE, "{\"type\":\"error\", \"data\": \"%s\"}", 
             mpd_connection_get_error_message(mpd.conn));
 
@@ -476,7 +478,9 @@ out_set_replaygain:
     }
 
     if(n > 0) {
+        #ifdef DEBUG
         fprintf(stdout,"Send response:\n %s\n",mpd.buf);
+        #endif
         mg_send_websocket_frame(nc, WEBSOCKET_OP_TEXT, mpd.buf, n);
     }
 }
@@ -498,7 +502,9 @@ static int mpd_notify_callback(struct mg_connection *c, const char *param) {
     {
         /* error message? */
         n=snprintf(mpd.buf, MAX_SIZE, "{\"type\":\"error\",\"data\":\"%s\"}",param);
+        #ifdef DEBUG
         fprintf(stdout,"Error in mpd_notify_callback: %s\n",param);
+        #endif
         mg_send_websocket_frame(c, WEBSOCKET_OP_TEXT, mpd.buf, n);
         return 0;
     }
@@ -510,18 +516,24 @@ static int mpd_notify_callback(struct mg_connection *c, const char *param) {
 
     if(mpd.conn_state != MPD_CONNECTED) {
         n=snprintf(mpd.buf, MAX_SIZE, "{\"type\":\"disconnected\"}");
+        #ifdef DEBUG
         fprintf(stdout,"Notify: disconnected\n");
+        #endif
         mg_send_websocket_frame(c, WEBSOCKET_OP_TEXT, mpd.buf, n);
     }
     else
     {
+        #ifdef DEBUG
         fprintf(stdout,"Notify: %s\n",mpd.buf);
+        #endif
         mg_send_websocket_frame(c, WEBSOCKET_OP_TEXT, mpd.buf, mpd.buf_size);
         
         if(s->song_id != mpd.song_id)
         {
             n=mpd_put_current_song(mpd.buf);
+            #ifdef DEBUG
             fprintf(stdout,"Notify: %s\n",mpd.buf);
+            #endif
             mg_send_websocket_frame(c, WEBSOCKET_OP_TEXT, mpd.buf, n);
             s->song_id = mpd.song_id;
         }
@@ -529,7 +541,9 @@ static int mpd_notify_callback(struct mg_connection *c, const char *param) {
         if(s->queue_version != mpd.queue_version)
         {
             n=snprintf(mpd.buf, MAX_SIZE, "{\"type\":\"update_queue\"}");
+            #ifdef DEBUG
             fprintf(stdout,"Notify: update_queue\n");
+            #endif
             mg_send_websocket_frame(c, WEBSOCKET_OP_TEXT, mpd.buf, n);
             s->queue_version = mpd.queue_version;
         }

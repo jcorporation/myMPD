@@ -46,7 +46,9 @@ static void signal_handler(int sig_num) {
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
     switch(ev) {
         case MG_EV_WEBSOCKET_HANDSHAKE_DONE: {
+             #ifdef DEBUG
              fprintf(stdout,"New Websocket connection\n");
+             #endif
              struct mg_str d = {(char *) "MPD_API_GET_SETTINGS", 20 };
              callback_mpd(nc, d);
              d.p="MPD_API_GET_OUTPUTS";
@@ -58,23 +60,31 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             struct websocket_message *wm = (struct websocket_message *) ev_data;
             wm->data[wm->size]='\0';
             struct mg_str d = {(char *) wm->data, wm->size};
+            #ifdef DEBUG
             fprintf(stdout,"Websocket request: %s\n",wm->data);
+            #endif
             callback_mpd(nc, d);
             break;
         }
         case MG_EV_HTTP_REQUEST: {
             struct http_message *hm = (struct http_message *) ev_data;
+            #ifdef DEBUG
             printf("HTTP request: %.*s\n",hm->uri.len,hm->uri.p);
+            #endif
             mg_serve_http(nc, hm, s_http_server_opts);
             break;
         }
         case MG_EV_CLOSE: {
             if (is_websocket(nc)) {
+              #ifdef DEBUG
               fprintf(stdout,"Websocket connection closed\n");
+              #endif
               mpd_close_handler(nc);
             }
             else {
+              #ifdef DEBUG
               fprintf(stdout,"HTTP Close\n");
+              #endif
             }
             break;
         }        
@@ -185,7 +195,7 @@ int main(int argc, char **argv)
     mg_set_protocol_http_websocket(nc);
     s_http_server_opts.document_root = SRC_PATH;
 
-    printf("Started on port %s\n", webport);
+    printf("myMPD started on port %s\n", webport);
     while (s_signal_received == 0) {
         mg_mgr_poll(&mgr, 200);
         current_timer = time(NULL);
