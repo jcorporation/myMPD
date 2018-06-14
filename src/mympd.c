@@ -52,6 +52,15 @@ static void handle_api(struct mg_connection *nc, struct http_message *hm) {
   mg_send_http_chunk(nc, "", 0); /* Send empty chunk, the end of response */
 }
 
+static void handle_jsonrpc(struct mg_connection *nc, struct http_message *hm) {
+  mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n");
+  char buf[1000] = {0};
+  memcpy(buf, hm->body.p,sizeof(buf) - 1 < hm->body.len ? sizeof(buf) - 1 : hm->body.len);
+  struct mg_str d = {buf, strlen(buf)};
+  callback_mympd_jsonrpc(nc, d);
+  mg_send_http_chunk(nc, "", 0); /* Send empty chunk, the end of response */
+}
+
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
     switch(ev) {
         case MG_EV_WEBSOCKET_HANDSHAKE_DONE: {
@@ -79,6 +88,9 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             #endif
             if (mg_vcmp(&hm->uri, "/api") == 0) {
               handle_api(nc, hm);
+            }
+            else if (mg_vcmp(&hm->uri, "/jsonrpc") == 0) {
+              handle_jsonrpc(nc, hm);
             }
             else {
               mg_serve_http(nc, hm, s_http_server_opts);

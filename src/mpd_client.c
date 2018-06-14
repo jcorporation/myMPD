@@ -60,6 +60,59 @@ static inline enum mpd_cmd_ids get_cmd_id(const char *cmd)
     return -1;
 }
 
+void callback_mympd_jsonrpc(struct mg_connection *nc, const struct mg_str msg)
+{
+    size_t n = 0;
+    char *cmd;
+    int int_buf;
+    int je; 
+    float float_buf;
+    char *p_charbuf1;
+    char *p_charbuf2;
+    char *p_charbuf3;
+
+    #ifdef DEBUG
+    fprintf(stdout,"Got request: %s\n",msg.p);
+    #endif
+    
+    json_scanf(msg.p, msg.len, "{cmd:%Q}", &cmd);
+    enum mpd_cmd_ids cmd_id = get_cmd_id(cmd);
+
+    if(cmd_id == -1)
+        return;
+    
+    switch(cmd_id) {
+        case MPD_API_GET_ARTISTALBUMTITLES:
+            je = json_scanf(msg.p, msg.len, "{ data: { albumartist:%Q, album:%Q } }", &p_charbuf1, &p_charbuf2);
+            if (je == 2)
+                n = mympd_put_songs_in_album(mpd.buf, p_charbuf1, p_charbuf2);        
+            free(p_charbuf1);
+            free(p_charbuf2);
+        break;
+    }
+    free(cmd);
+    
+    if(mpd.conn_state == MPD_CONNECTED && mpd_connection_get_error(mpd.conn) != MPD_ERROR_SUCCESS)
+    {
+        #ifdef DEBUG
+        fprintf(stdout,"Error: %s\n",mpd_connection_get_error_message(mpd.conn));
+        #endif
+        n = snprintf(mpd.buf, MAX_SIZE, "{\"type\":\"error\", \"data\": \"%s\"}", 
+            mpd_connection_get_error_message(mpd.conn));
+
+        /* Try to recover error */
+        if (!mpd_connection_clear_error(mpd.conn))
+            mpd.conn_state = MPD_FAILURE;
+    }
+
+    if(n > 0) {
+        #ifdef DEBUG
+        fprintf(stdout,"Send http response:\n %s\n",mpd.buf);
+        #endif
+        mg_send_http_chunk(nc, mpd.buf, n);        
+    }            
+}
+
 void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
 {
     enum mpd_cmd_ids cmd_id = get_cmd_id(msg.p);

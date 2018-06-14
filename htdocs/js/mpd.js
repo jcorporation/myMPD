@@ -856,7 +856,8 @@ function parseListDBtags(obj) {
                                    ' </div>'+
                                    '</div></div>';
                           $('#BrowseDatabaseAlbumCards').append(card);
-                          $.ajax({url: "/api", mimeType: "text/plain", contentType:"text/plain", method: "POST", data: "MPD_API_GET_ARTISTALBUMTITLES," + obj.searchstr + ","+obj.data[item].value}).done(function( data ) {
+                          $.ajax({url: "/jsonrpc", contentType:"application/json", method: "POST", 
+                            data: JSON.stringify({"cmd":"MPD_API_GET_ARTISTALBUMTITLES", "data": { "albumartist": obj.searchstr, "album": obj.data[item].value}})}).done(function( data ) {
                             var obj = JSON.parse(data);
                             parseListTitles(obj);
                           });

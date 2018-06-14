@@ -50,6 +50,7 @@ set(SOURCES
     src/mpd_client.c
     src/mongoose/mongoose.c
     src/frozen/frozen.c
+    src/json_encode.c
 )
 
 add_executable(mympd ${SOURCES})
