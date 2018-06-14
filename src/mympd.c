@@ -28,7 +28,8 @@
 #include <unistd.h>
 #include <getopt.h>
 #include <sys/time.h>
-#include <pthread.h>
+//#include <pthread.h>
+#include <pwd.h>
 
 #include "mongoose/mongoose.h"
 #include "mpd_client.h"
@@ -41,6 +42,15 @@ static struct mg_serve_http_opts s_http_server_opts;
 static void signal_handler(int sig_num) {
   signal(sig_num, signal_handler);  // Reinstantiate signal handler
   s_signal_received = sig_num;
+}
+
+static void handle_api(struct mg_connection *nc, struct http_message *hm) {
+  mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n");
+  char buf[1000] = {0};
+  memcpy(buf, hm->body.p,sizeof(buf) - 1 < hm->body.len ? sizeof(buf) - 1 : hm->body.len);
+  struct mg_str d = {buf, strlen(buf)};
+  callback_mpd(nc, d);
+  mg_send_http_chunk(nc, "", 0); /* Send empty chunk, the end of response */
 }
 
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
@@ -71,7 +81,13 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             #ifdef DEBUG
             printf("HTTP request: %.*s\n",hm->uri.len,hm->uri.p);
             #endif
-            mg_serve_http(nc, hm, s_http_server_opts);
+            if (mg_vcmp(&hm->uri, "/api") == 0) {
+              handle_api(nc, hm);
+
+            }
+            else {
+              mg_serve_http(nc, hm, s_http_server_opts);
+            }
             break;
         }
         case MG_EV_CLOSE: {
@@ -94,23 +110,11 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
 int main(int argc, char **argv)
 {
     int n, option_index = 0;
-
     struct mg_mgr mgr;
     struct mg_connection *nc;
-
     unsigned int current_timer = 0, last_timer = 0;
-
-    signal(SIGTERM, signal_handler);
-    signal(SIGINT, signal_handler);
-    setvbuf(stdout, NULL, _IOLBF, 0);
-    setvbuf(stderr, NULL, _IOLBF, 0);
-    
-    mg_mgr_init(&mgr, NULL);
-    
     char *run_as_user = NULL;
-    char const *error_msg = NULL;
     char *webport = "8080";
-
     mpd.port = 6600;
     mpd.local_port = 0;
     mpd.gpass = NULL;
@@ -119,10 +123,8 @@ int main(int argc, char **argv)
     strcpy(coverimage, "folder.jpg");
 
     static struct option long_options[] = {
-        {"digest",       required_argument, 0, 'D'},
         {"host",         required_argument, 0, 'h'},
         {"port",         required_argument, 0, 'p'},
-        {"localport",    required_argument, 0, 'l'},
         {"webport",      required_argument, 0, 'w'},
         {"user",         required_argument, 0, 'u'},
         {"version",      no_argument,       0, 'v'},
@@ -144,9 +146,6 @@ int main(int argc, char **argv)
                 break;
             case 'p':
                 mpd.port = atoi(optarg);
-                break;
-            case 'l':
-                mpd.local_port = atoi(optarg);
                 break;
             case 'w':
                 webport = strdup(optarg);
@@ -173,11 +172,8 @@ int main(int argc, char **argv)
                 break;
             default:
                 fprintf(stderr, "Usage: %s [OPTION]...\n\n"
-                        " -D, --digest <htdigest>\tpath to htdigest file for authorization\n"
-                        "                        \t(realm ympd) [no authorization]\n"
                         " -h, --host <host>\t\tconnect to mpd at host [localhost]\n"
                         " -p, --port <port>\t\tconnect to mpd at port [6600]\n"
-                        " -l, --localport <port>\t\tskip authorization for local port\n"
                         " -w, --webport [ip:]<port>\tlisten interface/port for webserver [8080]\n"
                         " -u, --user <username>\t\tdrop priviliges to user after socket bind\n"
                         " -v, --version\t\t\tget version\n"
@@ -191,7 +187,35 @@ int main(int argc, char **argv)
 
     }
 
+    signal(SIGTERM, signal_handler);
+    signal(SIGINT, signal_handler);
+    setvbuf(stdout, NULL, _IOLBF, 0);
+    setvbuf(stderr, NULL, _IOLBF, 0);
+    
+    mg_mgr_init(&mgr, NULL);
+
     nc = mg_bind(&mgr, webport, ev_handler);
+    if (nc == NULL) {
+       printf("myMPD can't bind to port %s\n", webport);
+       return EXIT_FAILURE;
+    }
+
+    if(run_as_user != NULL) {
+        printf("Droping privileges\n");
+        struct passwd *pw;
+        if ((pw = getpwnam(run_as_user)) == NULL) {
+            printf("Unknown user\n");
+            return EXIT_FAILURE;
+        } else if (setgid(pw->pw_gid) != 0) {
+            printf("setgid() failed");
+            return EXIT_FAILURE;
+        } else if (setuid(pw->pw_uid) != 0) {
+            printf("setuid() failed\n");
+            return EXIT_FAILURE;
+        }
+        free(run_as_user);
+    }
+
     mg_set_protocol_http_websocket(nc);
     s_http_server_opts.document_root = SRC_PATH;
 

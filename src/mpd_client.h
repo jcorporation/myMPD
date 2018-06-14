@@ -44,7 +44,7 @@
 #define GEN_STR(X) #X,
 #define MPD_CMDS(X) \
     X(MPD_API_GET_QUEUE) \
-    X(MPD_API_GET_BROWSE) \
+    X(MPD_API_GET_FILESYSTEM) \
     X(MPD_API_ADD_TRACK) \
     X(MPD_API_ADD_PLAY_TRACK) \
     X(MPD_API_ADD_PLAYLIST) \
@@ -66,7 +66,7 @@
     X(MPD_API_SET_NEXT) \
     X(MPD_API_SET_PREV) \
     X(MPD_API_UPDATE_DB) \
-    X(MPD_API_GET_OUTPUTS) \
+    X(MPD_API_GET_OUTPUTNAMES) \
     X(MPD_API_TOGGLE_OUTPUT) \
     X(MPD_API_TOGGLE_RANDOM) \
     X(MPD_API_TOGGLE_CONSUME) \
@@ -134,7 +134,7 @@ void mpd_poll(struct mg_mgr *s);
 void callback_mpd(struct mg_connection *nc, const struct mg_str msg);
 int mpd_close_handler(struct mg_connection *c);
 int mpd_put_state(char *buffer, int *current_song_id, int *next_song_id, unsigned *queue_version);
-int mpd_put_outputs(char *buffer, int putnames);
+int mpd_put_outputnames(char *buffer);
 int mpd_put_current_song(char *buffer);
 int mpd_put_queue(char *buffer, unsigned int offset);
 int mpd_put_browse(char *buffer, char *path, unsigned int offset, char *filter);

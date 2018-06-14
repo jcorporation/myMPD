@@ -45,11 +45,8 @@ Run flags
 ```
 Usage: ./mympd [OPTION]...
 
- -D, --digest <htdigest>       path to htdigest file for authorization
-                               (realm mympd) [no authorization]
  -h, --host <host>             connect to mpd at host [localhost]
  -p, --port <port>             connect to mpd at port [6600]
- -l, --localport <port>	       skip authorization for local port
  -w, --webport [ip:]<port>     listen interface/port for webserver [8080]
  -s, --streamport <port>       connect to mpd http stream at port [8000]
  -u, --user <username>         drop priviliges to user after socket bind
