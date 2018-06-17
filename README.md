@@ -15,7 +15,6 @@ UI Components
  - Bootstrap Notify: http://bootstrap-notify.remabledesigns.com/
  - Bootstrap Slider: https://github.com/seiyria/bootstrap-slider
  - Material Design Icons: https://material.io/tools/icons/?style=baseline
- - Sammy.js: http://sammyjs.org/
  - jQuery: https://jquery.com/
  - js-cookie: https://github.com/js-cookie/js-cookie
 

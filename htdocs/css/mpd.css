@@ -25,12 +25,12 @@ button {
   overflow: hidden;
 }
 
-#browseBreadcrumb {
+#BrowseBreadrumb {
   overflow: auto;
   white-space: nowrap;
 }
 
-#browseBreadcrumb > li > a {
+#BrowseBreadcrumb > li > a {
   cursor: pointer;
 }
 
@@ -82,7 +82,7 @@ tbody {
  float: right !important;
 }
 
-#queue-buttons, #browsePlaylistsButtons, #searchButtons, #browseFilesystemButtons, #browseDatabaseButtons {
+#queue-buttons, #BrowsePlaylistsButtons, #SearchButtons, #BrowseFilesystemButtons, #BrowseDatabaseButtons {
  margin-bottom:20px;
 }
 
@@ -180,16 +180,16 @@ main {
  margin-right:5px;
 }
 
-#browseFilesystemFilterLetters > button, 
-#browseDatabaseFilterLetters > button,
-#browsePlaylistsFilterLetters > button
+#BrowseFilesystemFilterLetters > button, 
+#BrowseDatabaseFilterLetters > button,
+#BrowsePlaylistsFilterLetters > button
 {
  min-width:28px;
 }
 
 .col-md {
- min-width:250px;
- max-width:350px;
+ min-width:260px;
+ max-width:260px;
 }
 
 .card-img-top {

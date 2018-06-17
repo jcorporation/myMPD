@@ -670,16 +670,18 @@ static int ns_parse_address(const char *str, union socket_address *sa,
   *use_ssl = 0;
   cert[0] = ca[0] = '\0';
 
-  if (memcmp(str, "ssl://", 6) == 0) {
-    str += 6;
-    *use_ssl = 1;
-  } else if (memcmp(str, "udp://", 6) == 0) {
-    str += 6;
-    *proto = SOCK_DGRAM;
-  } else if (memcmp(str, "tcp://", 6) == 0) {
-    str += 6;
+  if (strlen(str)>=6) {
+    if (memcmp(str, "ssl://", 6) == 0) {
+      str += 6;
+      *use_ssl = 1;
+    } else if (memcmp(str, "udp://", 6) == 0) {
+      str += 6;
+      *proto = SOCK_DGRAM;
+    } else if (memcmp(str, "tcp://", 6) == 0) {
+      str += 6;
+    }
   }
-
+  
   if (sscanf(str, "%u.%u.%u.%u:%u%n", &a, &b, &c, &d, &port, &len) == 5) {
     // Bind to a specific IPv4 address, e.g. 192.168.1.5:8080
     sa->sin.sin_addr.s_addr = htonl((a << 24) | (b << 16) | (c << 8) | d);

@@ -171,6 +171,10 @@ int callback_mpd(struct mg_connection *c)
             if(sscanf(c->content, "MPD_API_GET_QUEUE,%u", &uint_buf))
                 n = mpd_put_queue(mpd.buf, uint_buf);
             break;
+        case MPD_API_GET_CURRENT_SONG:
+                n = mpd_put_current_song(mpd.buf);
+            break;            
+
         case MPD_API_GET_ARTISTS:
             p_charbuf = strdup(c->content);
             if(strcmp(strtok(p_charbuf, ","), "MPD_API_GET_ARTISTS"))
@@ -516,19 +520,20 @@ static int mpd_notify_callback(struct mg_connection *c, enum mg_event ev) {
     {
         mg_websocket_write(c, 1, mpd.buf, mpd.buf_size);
 
-        if(s->song_id != mpd.song_id || s->queue_version != mpd.queue_version)
+        if(s->song_id != mpd.song_id)// || s->queue_version != mpd.queue_version)
         {
             n = mpd_put_current_song(mpd.buf);
             mg_websocket_write(c, 1, mpd.buf, n);
             s->song_id = mpd.song_id;
         }
-
+        
         if(s->queue_version != mpd.queue_version)
         {
             n = snprintf(mpd.buf, MAX_SIZE, "{\"type\":\"update_queue\"}");
             mg_websocket_write(c, 1, mpd.buf, n);
             s->queue_version = mpd.queue_version;
         }
+        
     }
 
     return MG_TRUE;
@@ -704,7 +709,8 @@ int mpd_put_state(char *buffer, int *current_song_id, int *next_song_id,  unsign
         "\"state\":%d, \"volume\":%d, \"songpos\": %d, \"elapsedTime\": %d, "
         "\"totalTime\":%d, \"currentsongid\": %d, \"kbitrate\": %d, "
         "\"audioformat\": { \"sample_rate\": %d, \"bits\": %d, \"channels\": %d}, "
-        "\"queue_length\": %d, \"nextsongpos\": %d"
+        "\"queue_length\": %d, \"nextsongpos\": %d, \"nextsongid\": %d, "
+        "\"queue_version\": %d"
         "}}", 
         mpd_status_get_state(status),
         mpd_status_get_volume(status), 
@@ -717,7 +723,9 @@ int mpd_put_state(char *buffer, int *current_song_id, int *next_song_id,  unsign
         audioformat ? audioformat->bits : 0, 
         audioformat ? audioformat->channels : 0,
         mpd_status_get_queue_length(status),
-        mpd_status_get_next_song_pos(status)
+        mpd_status_get_next_song_pos(status),
+        mpd_status_get_next_song_id(status),
+        mpd_status_get_queue_version(status)
     );
 
     *current_song_id = mpd_status_get_song_id(status);
@@ -824,8 +832,10 @@ int mpd_put_current_song(char *buffer)
     cur += json_emit_quoted_str(cur, end - cur, mpd_get_album(song));
     cur += json_emit_raw_str(cur, end - cur, ",\"uri\":");
     cur += json_emit_quoted_str(cur, end - cur, mpd_song_get_uri(song));
+    cur += json_emit_raw_str(cur, end - cur, ",\"currentsongid\":");
+    cur += json_emit_int(cur, end - cur, mpd.song_id);
     cur += json_emit_raw_str(cur, end - cur, "}}");
-
+    
     mpd_song_free(song);
     mpd_response_finish(mpd.conn);
 
@@ -918,7 +928,7 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset, char *filter)
                 case MPD_ENTITY_TYPE_SONG:
                     song = mpd_entity_get_song(entity);
                     entityName = mpd_get_title(song);
-                    if (strncmp(filter,"!",1) == 0 || strncasecmp(filter,entityName,1) == 0 ||
+                    if (strncmp(filter,"-",1) == 0 || strncasecmp(filter,entityName,1) == 0 ||
                         ( strncmp(filter,"0",1) == 0 && isalpha(*entityName) == 0 )
                     ) {
                         entities_returned ++;
@@ -947,7 +957,7 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset, char *filter)
                     } else {
                      dirName = strdup(entityName);
                     }
-                    if (strncmp(filter,"!",1) == 0 || strncasecmp(filter,dirName,1) == 0 ||
+                    if (strncmp(filter,"-",1) == 0 || strncasecmp(filter,dirName,1) == 0 ||
                         ( strncmp(filter,"0",1) == 0 && isalpha(*dirName) == 0 )
                     ) {                
                         entities_returned ++;
@@ -968,7 +978,7 @@ int mpd_put_browse(char *buffer, char *path, unsigned int offset, char *filter)
                     } else {
                      plName = strdup(entityName);
                     }
-                    if (strncmp(filter,"!",1) == 0 || strncasecmp(filter,plName,1) == 0 ||
+                    if (strncmp(filter,"-",1) == 0 || strncasecmp(filter,plName,1) == 0 ||
                         ( strncmp(filter,"0",1) == 0 && isalpha(*plName) == 0 )
                     ) {
                         entities_returned ++;
@@ -1027,7 +1037,7 @@ int mympd_put_db_tag(char *buffer, unsigned int offset, char *mpdtagtype, char *
     while((pair = mpd_recv_pair_tag(mpd.conn, mpd_tag_name_parse(mpdtagtype))) != NULL) {
         entity_count ++;
         if(entity_count > offset && entity_count <= offset+MAX_ELEMENTS_PER_PAGE) {
-            if (strncmp(filter,"!",1) == 0 || strncasecmp(filter,pair->value,1) == 0 ||
+            if (strncmp(filter,"-",1) == 0 || strncasecmp(filter,pair->value,1) == 0 ||
                     ( strncmp(filter,"0",1) == 0 && isalpha(*pair->value) == 0 )
             ) {
                 entities_returned ++;
@@ -1142,7 +1152,7 @@ int mympd_put_playlists(char *buffer, unsigned int offset, char *filter)
         entity_count ++;
         if(entity_count > offset && entity_count <= offset+MAX_ELEMENTS_PER_PAGE) {
             plpath = mpd_playlist_get_path(pl);
-            if (strncmp(filter,"!",1) == 0 || strncasecmp(filter,plpath,1) == 0 ||
+            if (strncmp(filter,"-",1) == 0 || strncasecmp(filter,plpath,1) == 0 ||
                     ( strncmp(filter,"0",1) == 0 && isalpha(*plpath) == 0 )
             ) {
                 entities_returned ++;
