@@ -27,12 +27,11 @@ Dependencies
 ------------
  - libmpdclient 2: http://www.musicpd.org/libs/libmpdclient/
  - cmake 2.6: http://cmake.org/
- - OpenSSL: https://www.openssl.org/
 
 Unix Build Instructions
 -----------------------
 
-1. install dependencies. cmake, libmpdclient (dev), and OpenSSL (dev) are available from all major distributions.
+1. install dependencies. cmake and libmpdclient (dev) are available from all major distributions.
 2. create build directory ```cd /path/to/src; mkdir build; cd build```
 3. create makefile ```cmake ..  -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=RELEASE```
 4. build ```make```
@@ -54,20 +53,6 @@ Usage: ./mympd [OPTION]...
  -i, --coverimage <filename>   filename for coverimage [folder.jpg]
  -v, --version                 get version
  --help                        this help
-```
-
-SSL Support
------------
-To run myMPD with SSL support:
-
-- create a certificate (key and cert in the same file), example:
-```
-# openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days 1000 -nodes -sha256
-# cat key.pem cert.pem > ssl.pem
-```
-- tell myMPD to use a webport using SSL and where to find the certificate: 
-```
-# ./mympd -w "ssl://8081:/path/to/ssl.pem"
 ```
 
 Copyright

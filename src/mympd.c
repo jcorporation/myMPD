@@ -142,7 +142,7 @@ int main(int argc, char **argv)
         {0,              0,                 0,  0 }
     };
 
-    while((n = getopt_long(argc, argv, "D:h:p:w:u:vm:s:i:",
+    while((n = getopt_long(argc, argv, "D:h:p:w:u:vm:s:i:c:",
                 long_options, &option_index)) != -1) {
         switch (n) {
             case 'D':
@@ -203,7 +203,7 @@ int main(int argc, char **argv)
 
     nc = mg_bind(&mgr, webport, ev_handler);
     if (nc == NULL) {
-       printf("myMPD can't bind to port %s\n", webport);
+       fprintf(stderr, "Error starting server on port %s\n", webport);
        return EXIT_FAILURE;
     }
 

@@ -132,6 +132,7 @@ struct t_mpd_client_session {
 };
 
 void mympd_poll(struct mg_mgr *s);
+void callback_mympd_jsonrpc(struct mg_connection *nc, const struct mg_str msg);
 void callback_mympd(struct mg_connection *nc, const struct mg_str msg);
 int mympd_close_handler(struct mg_connection *c);
 int mympd_put_state(char *buffer, int *current_song_id, int *next_song_id, unsigned *queue_version);

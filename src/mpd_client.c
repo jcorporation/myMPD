@@ -754,9 +754,10 @@ int mympd_put_state(char *buffer, int *current_song_id, int *next_song_id,  unsi
 {
     struct mpd_status *status;
     const struct mpd_audio_format *audioformat;
-    struct mpd_output *out;
-    char *cur = buffer;
-    const char *end = buffer + MAX_SIZE;
+    struct mpd_output *output;
+    int len;
+    int nr;
+    struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
 
     status = mpd_run_status(mpd.conn);
     if (!status) {
@@ -767,79 +768,74 @@ int mympd_put_state(char *buffer, int *current_song_id, int *next_song_id,  unsi
     if (status) {
      audioformat = mpd_status_get_audio_format(status);
     }
-
-    cur += json_emit_raw_str(cur, end - cur, "{\"type\": \"state\", \"data\":{\"state\":");
-    cur += json_emit_int(cur, end - cur, mpd_status_get_state(status));
-    cur += json_emit_raw_str(cur, end - cur, ",\"volume\":");
-    cur += json_emit_int(cur, end - cur, mpd_status_get_volume(status));    
-    cur += json_emit_raw_str(cur, end - cur, ",\"songpos\":");
-    cur += json_emit_int(cur, end - cur, mpd_status_get_song_pos(status));
-    cur += json_emit_raw_str(cur, end - cur, ",\"elapsedTime\":");
-    cur += json_emit_int(cur, end - cur, mpd_status_get_elapsed_time(status));
-    cur += json_emit_raw_str(cur, end - cur, ",\"totalTime\":");
-    cur += json_emit_int(cur, end - cur, mpd_status_get_total_time(status));
-    cur += json_emit_raw_str(cur, end - cur, ",\"currentsongid\":");
-    cur += json_emit_int(cur, end - cur, mpd_status_get_song_id(status));
-    cur += json_emit_raw_str(cur, end - cur, ",\"kbitrate\":");
-    cur += json_emit_int(cur, end - cur, mpd_status_get_kbit_rate(status));
-    cur += json_emit_raw_str(cur, end - cur, ",\"audioformat\": {");
-    cur += json_emit_raw_str(cur, end - cur, "\"sample_rate\":");
-    cur += json_emit_int(cur, end - cur, audioformat ? audioformat->sample_rate : 0);
-    cur += json_emit_raw_str(cur, end - cur, ",\"bits\":");
-    cur += json_emit_int(cur, end - cur, audioformat ? audioformat->bits : 0);
-    cur += json_emit_raw_str(cur, end - cur, ",\"channels\":");
-    cur += json_emit_int(cur, end - cur, audioformat ? audioformat->channels : 0);
-    cur += json_emit_raw_str(cur, end - cur, "},\"queue_length\":");
-    cur += json_emit_int(cur, end - cur, mpd_status_get_queue_length(status));
-    cur += json_emit_raw_str(cur, end - cur, ",\"nextsongpos\":");
-    cur += json_emit_int(cur, end - cur, mpd_status_get_next_song_pos(status));
-    cur += json_emit_raw_str(cur, end - cur, ",\"nextsongid\":");
-    cur += json_emit_int(cur, end - cur, mpd_status_get_next_song_id(status));
-    cur += json_emit_raw_str(cur, end - cur, ",\"queue_version\":");
-    cur += json_emit_int(cur, end - cur, mpd_status_get_queue_version(status));
-    cur += json_emit_raw_str(cur, end - cur, ",\"outputs\": {");
+    
+    len = json_printf(&out,"{type:state, data:{"
+        "state:%d, volume:%d, songpos: %d, elapsedTime: %d, "
+        "totalTime:%d, currentsongid: %d, kbitrate: %d, "
+        "audioformat: { sample_rate: %d, bits: %d, channels: %d}, "
+        "queue_length: %d, nextsongpos: %d, nextsongid: %d, "
+        "queue_version: %d", 
+        mpd_status_get_state(status),
+        mpd_status_get_volume(status), 
+        mpd_status_get_song_pos(status),
+        mpd_status_get_elapsed_time(status),
+        mpd_status_get_total_time(status),
+        mpd_status_get_song_id(status),
+        mpd_status_get_kbit_rate(status),
+        audioformat ? audioformat->sample_rate : 0, 
+        audioformat ? audioformat->bits : 0, 
+        audioformat ? audioformat->channels : 0,
+        mpd_status_get_queue_length(status),
+        mpd_status_get_next_song_pos(status),
+        mpd_status_get_next_song_id(status),
+        mpd_status_get_queue_version(status)
+    );
+    
+    len += json_printf(&out, ",outputs: {");
 
     mpd_send_outputs(mpd.conn);
-    while ((out = mpd_recv_output(mpd.conn)) != NULL) {
-        cur += json_emit_raw_str(cur, end - cur, "\"");
-        cur += json_emit_int(cur, end - cur, mpd_output_get_id(out));
-        cur += json_emit_raw_str(cur, end - cur, "\":");
-        cur += json_emit_int(cur, end - cur, mpd_output_get_enabled(out));
-        cur += json_emit_raw_str(cur, end - cur, ",");
-        mpd_output_free(out);
+    nr=0;
+    while ((output = mpd_recv_output(mpd.conn)) != NULL) {
+        if (nr++) len += json_printf(&out, ",");
+        len += json_printf(&out, "\"%d\":%d",
+            mpd_output_get_id(output), 
+            mpd_output_get_enabled(output)
+        );
+        mpd_output_free(output);
     }
     if (!mpd_response_finish(mpd.conn)) {
         fprintf(stderr, "MPD outputs: %s\n", mpd_connection_get_error_message(mpd.conn));
         mpd_connection_clear_error(mpd.conn);
     }
 
-    cur --;
-    cur += json_emit_raw_str(cur, end - cur, "}}}");
+    len += json_printf(&out, "}}}");
 
     *current_song_id = mpd_status_get_song_id(status);
     *next_song_id = mpd_status_get_next_song_id(status);
     *queue_version = mpd_status_get_queue_version(status);
     mpd_status_free(status);
-    return cur - buffer;
+
+    if (len > MAX_SIZE) fprintf(stderr,"Buffer truncated\n");
+    return len;
 }
 
 int mympd_put_welcome(char *buffer)
 {
     int len;
-    len = snprintf(buffer, MAX_SIZE,
-        "{\"type\":\"welcome\", \"data\":{"
-        "\"version\":\"%s\"}}", 
-        MYMPD_VERSION
-    );
+    struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
     
+    len = json_printf(&out, "{type: %Q, data: { version: %Q}}", "welcome", MYMPD_VERSION);
+    
+    if (len > MAX_SIZE) fprintf(stderr,"Buffer truncated\n");
     return len;
 }
 
 int mympd_put_settings(char *buffer)
 {
     struct mpd_status *status;
-    int len;
     char *replaygain;
+    int len;
+    struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
 
     status = mpd_run_status(mpd.conn);
     if (!status) {
@@ -855,11 +851,11 @@ int mympd_put_settings(char *buffer)
 	mpd_return_pair(mpd.conn, pair);
     }
 			
-    len = snprintf(buffer, MAX_SIZE,
-        "{\"type\":\"settings\", \"data\":{"
-        "\"repeat\":%d, \"single\":%d, \"crossfade\":%d, \"consume\":%d, \"random\":%d, "
-        "\"mixrampdb\": %f, \"mixrampdelay\": %f, \"mpdhost\" : \"%s\", \"mpdport\": \"%d\", \"passwort_set\": %s, "
-        "\"streamport\": \"%d\",\"coverimage\": \"%s\", \"max_elements_per_page\": %d, \"replaygain\": \"%s\""
+    len = json_printf(&out,
+        "{type:settings, data:{"
+        "repeat:%d, single:%d, crossfade:%d, consume:%d, random:%d, "
+        "mixrampdb: %f, mixrampdelay: %f, mpdhost : %Q, mpdport: %d, passwort_set: %B, "
+        "streamport: %d, coverimage: %Q, max_elements_per_page: %d, replaygain: %Q"
         "}}", 
         mpd_status_get_repeat(status),
         mpd_status_get_single(status),
@@ -875,37 +871,40 @@ int mympd_put_settings(char *buffer)
         replaygain
     );
     mpd_status_free(status);
+
+    if (len > MAX_SIZE) fprintf(stderr,"Buffer truncated\n");
     return len;
 }
 
 
 int mympd_put_outputnames(char *buffer)
 {
-    char *cur = buffer;
-    const char *end = buffer + MAX_SIZE;
-    struct mpd_output *out;
+    struct mpd_output *output;
+    int len;
+    int nr;
+    struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
     
-    cur += json_emit_raw_str(cur, end - cur, "{\"type\": \"outputnames\", \"data\":{");
-
+    len = json_printf(&out,"{type: outputnames, data:{");
+    
     mpd_send_outputs(mpd.conn);
-    
-    while ((out = mpd_recv_output(mpd.conn)) != NULL) {
-        cur += json_emit_raw_str(cur, end - cur, "\"");
-        cur += json_emit_int(cur, end - cur, mpd_output_get_id(out));
-        cur += json_emit_raw_str(cur, end - cur, "\":");
-        cur += json_emit_quoted_str(cur, end - cur, mpd_output_get_name(out));
-        cur += json_emit_raw_str(cur, end - cur, ",");
-        mpd_output_free(out);
+    nr=0;    
+    while ((output = mpd_recv_output(mpd.conn)) != NULL) {
+        if (nr++) len += json_printf(&out, ",");
+        len += json_printf(&out,"\"%d\":%Q",
+            mpd_output_get_id(output),
+            mpd_output_get_name(output)
+        );
+        mpd_output_free(output);
     }
     if (!mpd_response_finish(mpd.conn)) {
         fprintf(stderr, "MPD outputs: %s\n", mpd_connection_get_error_message(mpd.conn));
         mpd_connection_clear_error(mpd.conn);
     }
 
-    cur --;
-    cur += json_emit_raw_str(cur, end - cur, "}}");
+    len += json_printf(&out,"}}");
     
-    return cur - buffer;
+    if (len > MAX_SIZE) fprintf(stderr,"Buffer truncated\n");
+    return len;
 }
 
 int mympd_put_current_song(char *buffer)
