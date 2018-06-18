@@ -988,6 +988,14 @@ function clickStop() {
     sendAPI(JSON.stringify({"cmd":"MPD_API_SET_STOP"}));
 }
 
+function clickPrev() {
+    sendAPI(JSON.stringify({"cmd":"MPD_API_SET_PREV"}));
+}
+
+function clickNext() {
+    sendAPI(JSON.stringify({"cmd":"MPD_API_SET_NEXT"}));
+}
+
 function setLocalStream(mpdhost,streamport) {
     var mpdstream = 'http://';
     if ( mpdhost == '127.0.0.1' || mpdhost == 'localhost')

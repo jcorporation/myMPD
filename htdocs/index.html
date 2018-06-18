@@ -38,7 +38,7 @@
         </div>
         <div class="btn-toolbar col-auto" role="toolbar">
           <div class="btn-group mr-2" role="group">
-            <button id="btnPrev" type="button" class="btn btn-secondary" onclick="socket.send('MPD_API_SET_PREV');">
+            <button id="btnPrev" type="button" class="btn btn-secondary" onclick="clickPrev();;">
               <span class="material-icons">skip_previous</span>
             </button>
             <button id="btnStop" type="button" class="btn btn-secondary" onclick="clickStop();">
@@ -47,7 +47,7 @@
             <button id="btnPlay" type="button" class="btn btn-secondary" onclick="clickPlay();">
               <span class="material-icons">pause</span>
             </button>
-            <button id="btnNext" type="button" class="btn btn-secondary" onclick="socket.send('MPD_API_SET_NEXT');">
+            <button id="btnNext" type="button" class="btn btn-secondary" onclick="clickNext();">
               <span class="material-icons">skip_next</span>
             </button>
           </div>
