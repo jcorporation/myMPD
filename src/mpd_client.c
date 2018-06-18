@@ -372,7 +372,7 @@ static int mympd_notify_callback(struct mg_connection *c, const char *param) {
         #ifdef DEBUG
         fprintf(stdout,"Notify: %s\n",mpd.buf);
         #endif
-        mg_send_websocket_frame(c, WEBSOCKET_OP_TEXT, mpd.buf, mpd.buf_size);
+        mg_send_websocket_frame(c, WEBSOCKET_OP_TEXT, mpd.buf, strlen(mpd.buf));
         
         if(s->song_id != mpd.song_id)
         {
