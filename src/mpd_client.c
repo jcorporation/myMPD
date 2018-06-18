@@ -34,7 +34,6 @@
 #include "mpd_client.h"
 #include "config.h"
 #include "frozen/frozen.h"
-#include "json_encode.h"
 
 /* forward declaration */
 static int mympd_notify_callback(struct mg_connection *c, const char *param);
@@ -909,107 +908,96 @@ int mympd_put_outputnames(char *buffer)
 
 int mympd_put_current_song(char *buffer)
 {
-    char *cur = buffer;
-    const char *end = buffer + MAX_SIZE;
     struct mpd_song *song;
+    int len;
+    struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
 
     song = mpd_run_current_song(mpd.conn);
     if(song == NULL)
         return 0;
 
-    cur += json_emit_raw_str(cur, end - cur, "{\"type\": \"song_change\", \"data\":{\"pos\":");
-    cur += json_emit_int(cur, end - cur, mpd_song_get_pos(song));
-    cur += json_emit_raw_str(cur, end - cur, ",\"title\":");
-    cur += json_emit_quoted_str(cur, end - cur, mympd_get_title(song));
-    cur += json_emit_raw_str(cur, end - cur, ",\"artist\":");
-    cur += json_emit_quoted_str(cur, end - cur, mympd_get_artist(song));
-    cur += json_emit_raw_str(cur, end - cur, ",\"album\":");
-    cur += json_emit_quoted_str(cur, end - cur, mympd_get_album(song));
-    cur += json_emit_raw_str(cur, end - cur, ",\"uri\":");
-    cur += json_emit_quoted_str(cur, end - cur, mpd_song_get_uri(song));
-    cur += json_emit_raw_str(cur, end - cur, ",\"currentsongid\":");
-    cur += json_emit_int(cur, end - cur, mpd.song_id);
-    cur += json_emit_raw_str(cur, end - cur, "}}");
+    len = json_printf(&out,"{type: song_change, data: { pos: %d, title: %Q, "
+        "artist: %Q, album: %Q, uri: %Q, currentsongid: %d, albumartist: %Q, "
+        "duration: %d }}",
+        mpd_song_get_pos(song),
+        mympd_get_title(song),
+        mympd_get_artist(song),
+        mympd_get_album(song),
+        mpd_song_get_uri(song),
+        mpd.song_id,
+        mympd_get_album_artist(song),
+        mpd_song_get_duration(song)
+    );
     
     mpd_song_free(song);
     mpd_response_finish(mpd.conn);
 
-    return cur - buffer;
+    if (len > MAX_SIZE) fprintf(stderr,"Buffer truncated\n");
+    return len;
 }
 
 int mympd_put_queue(char *buffer, unsigned int offset)
 {
-    char *cur = buffer;
-    const char *end = buffer + MAX_SIZE;
     struct mpd_entity *entity;
     unsigned long totalTime = 0;
     unsigned long entity_count = 0;
     unsigned long entities_returned = 0;
+    int len;
+    struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
 
     if (!mpd_send_list_queue_range_meta(mpd.conn, 0, -1))
         RETURN_ERROR_AND_RECOVER("mpd_send_list_queue_meta");
         
-    cur += json_emit_raw_str(cur, end  - cur, "{\"type\":\"queue\",\"data\":[ ");
+    len = json_printf(&out, "{type:queue, data :[ ");
 
-    while((entity = mpd_recv_entity(mpd.conn)) != NULL) {
+    while ((entity = mpd_recv_entity(mpd.conn)) != NULL) {
         const struct mpd_song *song;
         unsigned int drtn;
-
-        if(mpd_entity_get_type(entity) == MPD_ENTITY_TYPE_SONG) {
+        if (mpd_entity_get_type(entity) == MPD_ENTITY_TYPE_SONG) {
             song = mpd_entity_get_song(entity);
             drtn = mpd_song_get_duration(song);
             totalTime += drtn;
             entity_count ++;
-            if(entity_count > offset && entity_count <= offset+MAX_ELEMENTS_PER_PAGE) {
-                entities_returned ++;
-                cur += json_emit_raw_str(cur, end - cur, "{\"id\":");
-                cur += json_emit_int(cur, end - cur, mpd_song_get_id(song));
-                cur += json_emit_raw_str(cur, end - cur, ",\"pos\":");
-                cur += json_emit_int(cur, end - cur, mpd_song_get_pos(song));
-                cur += json_emit_raw_str(cur, end - cur, ",\"duration\":");
-                cur += json_emit_int(cur, end - cur, mpd_song_get_duration(song));
-                cur += json_emit_raw_str(cur, end - cur, ",\"artist\":");
-                cur += json_emit_quoted_str(cur, end - cur, mympd_get_artist(song));
-                cur += json_emit_raw_str(cur, end - cur, ",\"album\":");
-                cur += json_emit_quoted_str(cur, end - cur, mympd_get_album(song));
-                cur += json_emit_raw_str(cur, end - cur, ",\"title\":");
-                cur += json_emit_quoted_str(cur, end - cur, mympd_get_title(song));
-                cur += json_emit_raw_str(cur, end - cur, "},");
+            if (entity_count > offset && entity_count <= offset+MAX_ELEMENTS_PER_PAGE) {
+                if (entities_returned ++) len += json_printf(&out,",");
+                len += json_printf(&out, "{ id: %d, pos: %d, duration: %d, artist: %Q, album: %Q, title: %Q }",
+                    mpd_song_get_id(song),
+                    mpd_song_get_pos(song),
+                    mpd_song_get_duration(song),
+                    mympd_get_artist(song),
+                    mympd_get_album(song),
+                    mympd_get_title(song)
+                );
             }
-
         }
         mpd_entity_free(entity);
     }
 
-    /* remove last ',' */
-    cur--;
-
-    cur += json_emit_raw_str(cur, end - cur, "],\"totalTime\":");
-    cur += json_emit_int(cur, end - cur, totalTime);
-    cur += json_emit_raw_str(cur, end - cur, ",\"totalEntities\":");
-    cur += json_emit_int(cur, end - cur, entity_count);
-    cur += json_emit_raw_str(cur, end - cur, ",\"offset\":");
-    cur += json_emit_int(cur, end - cur, offset);
-    cur += json_emit_raw_str(cur, end - cur, ",\"returnedEntities\":");
-    cur += json_emit_int(cur, end - cur, entities_returned);
-    cur += json_emit_raw_str(cur, end - cur, "}");
-    return cur - buffer;
+    len += json_printf(&out, "],totalTime: %d, totalEntities: %d, offset: %d, returnedEntities: %d }",
+        totalTime,
+        entity_count,
+        offset,
+        entities_returned
+    );
+    
+    if (len > MAX_SIZE) fprintf(stderr,"Buffer truncated\n");
+    return len;
 }
 
 int mympd_put_browse(char *buffer, char *path, unsigned int offset, char *filter)
 {
-    char *cur = buffer;
-    const char *end = buffer + MAX_SIZE;
     struct mpd_entity *entity;
     const struct mpd_playlist *pl;
     unsigned int entity_count = 0;
     unsigned int entities_returned = 0;
     const char *entityName;
+    int len;
+    struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
 
     if (!mpd_send_list_meta(mpd.conn, path))
         RETURN_ERROR_AND_RECOVER("mpd_send_list_meta");
 
-    cur += json_emit_raw_str(cur, end  - cur, "{\"type\":\"browse\",\"data\":[ ");
+    len = json_printf(&out, "{ type: browse, data: [ ");
 
     while((entity = mpd_recv_entity(mpd.conn)) != NULL) {
         const struct mpd_song *song;
@@ -1026,18 +1014,14 @@ int mympd_put_browse(char *buffer, char *path, unsigned int offset, char *filter
                     if (strncmp(filter,"-",1) == 0 || strncasecmp(filter,entityName,1) == 0 ||
                         ( strncmp(filter,"0",1) == 0 && isalpha(*entityName) == 0 )
                     ) {
-                        entities_returned ++;
-                        cur += json_emit_raw_str(cur, end - cur, "{\"type\":\"song\",\"uri\":");
-                        cur += json_emit_quoted_str(cur, end - cur, mpd_song_get_uri(song));
-                        cur += json_emit_raw_str(cur, end - cur, ",\"album\":");
-                        cur += json_emit_quoted_str(cur, end - cur, mympd_get_album(song));
-                        cur += json_emit_raw_str(cur, end - cur, ",\"artist\":");
-                        cur += json_emit_quoted_str(cur, end - cur, mympd_get_artist(song));
-                        cur += json_emit_raw_str(cur, end - cur, ",\"duration\":");
-                        cur += json_emit_int(cur, end - cur, mpd_song_get_duration(song));
-                        cur += json_emit_raw_str(cur, end - cur, ",\"title\":");
-                        cur += json_emit_quoted_str(cur, end - cur, entityName);
-                        cur += json_emit_raw_str(cur, end - cur, "},");
+                        if (entities_returned ++) len += json_printf(&out,",");
+                        len += json_printf(&out, "{type:song, uri: %Q, album: %Q, artist: %Q, duration: %d, title: %Q }",
+                            mpd_song_get_uri(song),
+                            mympd_get_album(song),
+                            mympd_get_artist(song),
+                            mpd_song_get_duration(song),
+                            entityName
+                        );
                     } else {
                         entity_count --;
                     }
@@ -1050,15 +1034,15 @@ int mympd_put_browse(char *buffer, char *path, unsigned int offset, char *filter
                     if (dirName != NULL) {
                         dirName ++;
                     } else {
-                     dirName = strdup(entityName);
+                        dirName = strdup(entityName);
                     }
                     if (strncmp(filter,"-",1) == 0 || strncasecmp(filter,dirName,1) == 0 ||
                         ( strncmp(filter,"0",1) == 0 && isalpha(*dirName) == 0 )
                     ) {                
-                        entities_returned ++;
-                        cur += json_emit_raw_str(cur, end - cur, "{\"type\":\"directory\",\"dir\":");
-                        cur += json_emit_quoted_str(cur, end - cur, entityName);
-                        cur += json_emit_raw_str(cur, end - cur, "},");
+                        if (entities_returned ++) len += json_printf(&out,",");
+                        len += json_printf(&out, "{type: directory, dir: %Q }",
+                            entityName
+                        );
                     } else {
                         entity_count --;
                     }
@@ -1076,10 +1060,10 @@ int mympd_put_browse(char *buffer, char *path, unsigned int offset, char *filter
                     if (strncmp(filter,"-",1) == 0 || strncasecmp(filter,plName,1) == 0 ||
                         ( strncmp(filter,"0",1) == 0 && isalpha(*plName) == 0 )
                     ) {
-                        entities_returned ++;
-                        cur += json_emit_raw_str(cur, end - cur, "{\"type\":\"playlist\",\"plist\":");
-                        cur += json_emit_quoted_str(cur, end - cur, entityName );
-                        cur += json_emit_raw_str(cur, end - cur, "},");
+                        if (entities_returned ++) len += json_printf(&out,",");
+                        len += json_printf(&out, "{ type: playlist, plist: %Q }",
+                            entityName
+                        );
                     } else {
                         entity_count --;
                     }
@@ -1095,27 +1079,24 @@ int mympd_put_browse(char *buffer, char *path, unsigned int offset, char *filter
         return 0;
     }
 
-    /* remove last ',' */
-    cur--;
-    cur += json_emit_raw_str(cur, end - cur, "],\"totalEntities\":");
-    cur += json_emit_int(cur, end - cur, entity_count);
-    cur += json_emit_raw_str(cur, end - cur, ",\"offset\":");
-    cur += json_emit_int(cur, end - cur, offset);
-    cur += json_emit_raw_str(cur, end - cur, ",\"returnedEntities\":");
-    cur += json_emit_int(cur, end - cur, entities_returned);
-    cur += json_emit_raw_str(cur, end - cur, ",\"filter\":");
-    cur += json_emit_quoted_str(cur, end - cur, filter);    
-    cur += json_emit_raw_str(cur, end - cur, "}");
-    return cur - buffer;
+    len += json_printf(&out, "], totalEntities: %d, offset: %d, returnedEntities: %d, filter: %Q }",
+        entity_count,
+        offset,
+        entities_returned,
+        filter
+    );
+
+    if (len > MAX_SIZE) fprintf(stderr,"Buffer truncated\n");
+    return len;
 }
 
 int mympd_put_db_tag(char *buffer, unsigned int offset, char *mpdtagtype, char *mpdsearchtagtype, char *searchstr, char *filter)
 {
-    char *cur = buffer;
-    const char *end = buffer + MAX_SIZE;
     struct mpd_pair *pair;
     unsigned long entity_count = 0;
     unsigned long entities_returned = 0;
+    int len;
+    struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
 
     if(mpd_search_db_tags(mpd.conn, mpd_tag_name_parse(mpdtagtype)) == false)
         RETURN_ERROR_AND_RECOVER("mpd_search_db_tags");
@@ -1128,19 +1109,18 @@ int mympd_put_db_tag(char *buffer, unsigned int offset, char *mpdtagtype, char *
     if(mpd_search_commit(mpd.conn) == false)
         RETURN_ERROR_AND_RECOVER("mpd_search_commit");
 
-    cur += json_emit_raw_str(cur, end - cur, "{\"type\":\"listDBtags\",\"data\":[ ");
+    len = json_printf(&out, "{type: listDBtags, data: [ ");
     while((pair = mpd_recv_pair_tag(mpd.conn, mpd_tag_name_parse(mpdtagtype))) != NULL) {
         entity_count ++;
         if(entity_count > offset && entity_count <= offset+MAX_ELEMENTS_PER_PAGE) {
             if (strncmp(filter,"-",1) == 0 || strncasecmp(filter,pair->value,1) == 0 ||
                     ( strncmp(filter,"0",1) == 0 && isalpha(*pair->value) == 0 )
             ) {
-                entities_returned ++;
-                cur += json_emit_raw_str(cur, end - cur, "{\"type\":");
-                cur += json_emit_quoted_str(cur, end - cur, mpdtagtype);
-                cur += json_emit_raw_str(cur, end - cur, ",\"value\":");
-                cur += json_emit_quoted_str(cur, end - cur, pair->value);
-                cur += json_emit_raw_str(cur, end - cur, "},");
+                if (entities_returned ++) len += json_printf(&out,", ");
+                len += json_printf(&out, "{type: %Q, value: %Q }",
+                    mpdtagtype,
+                    pair->value    
+                );
             } else {
                 entity_count --;
             }
@@ -1148,36 +1128,28 @@ int mympd_put_db_tag(char *buffer, unsigned int offset, char *mpdtagtype, char *
         mpd_return_pair(mpd.conn, pair);
     }
         
-    /* remove last ',' */
-    cur--;
+    len += json_printf(&out, "], totalEntities: %d, offset: %d, returnedEntities: %d, "
+        "tagtype: %Q, searchtagtype: %Q, searchstr: %Q, filter: %Q }",
+        entity_count,
+        offset,
+        entities_returned,
+        mpdtagtype,
+        mpdsearchtagtype,
+        searchstr,
+        filter
+    );
 
-    cur += json_emit_raw_str(cur, end - cur, "]");
-    cur += json_emit_raw_str(cur, end - cur, ",\"totalEntities\":");
-    cur += json_emit_int(cur, end - cur, entity_count);
-    cur += json_emit_raw_str(cur, end - cur, ",\"offset\":");
-    cur += json_emit_int(cur, end - cur, offset);
-    cur += json_emit_raw_str(cur, end - cur, ",\"returnedEntities\":");
-    cur += json_emit_int(cur, end - cur, entities_returned);
-    cur += json_emit_raw_str(cur, end - cur, ",\"tagtype\":");
-    cur += json_emit_quoted_str(cur, end - cur, mpdtagtype);
-    cur += json_emit_raw_str(cur, end - cur, ",\"searchtagtype\":");
-    cur += json_emit_quoted_str(cur, end - cur, mpdsearchtagtype);
-    cur += json_emit_raw_str(cur, end - cur, ",\"searchstr\":");
-    cur += json_emit_quoted_str(cur, end - cur, searchstr);
-    cur += json_emit_raw_str(cur, end - cur, ",\"filter\":");
-    cur += json_emit_quoted_str(cur, end - cur, filter);
-    cur += json_emit_raw_str(cur, end - cur, "}");
-
-    return cur - buffer;
+    if (len > MAX_SIZE) fprintf(stderr,"Buffer truncated\n");
+    return len;
 }
 
 int mympd_put_songs_in_album(char *buffer, char *albumartist, char *album)
 {
-    char *cur = buffer;
-    const char *end = buffer + MAX_SIZE;
     struct mpd_song *song;
     unsigned long entity_count = 0;
     unsigned long entities_returned = 0;
+    int len;
+    struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
 
     if(mpd_search_db_songs(mpd.conn, true) == false) {
         RETURN_ERROR_AND_RECOVER("mpd_search_db_songs");
@@ -1192,56 +1164,47 @@ int mympd_put_songs_in_album(char *buffer, char *albumartist, char *album)
     if(mpd_search_commit(mpd.conn) == false)
         RETURN_ERROR_AND_RECOVER("mpd_search_commit");
     else {
-        cur += json_emit_raw_str(cur, end - cur, "{\"type\":\"listTitles\",\"data\":[ ");
+        len = json_printf(&out, "{ type: listTitles, data: [ ");
 
         while((song = mpd_recv_song(mpd.conn)) != NULL) {
             entity_count ++;
             if(entity_count <= MAX_ELEMENTS_PER_PAGE) {
-                entities_returned ++;
-                cur += json_emit_raw_str(cur, end - cur, "{\"type\":\"song\"");
-                cur += json_emit_raw_str(cur, end - cur, ",\"uri\":");
-                cur += json_emit_quoted_str(cur, end - cur, mpd_song_get_uri(song));
-                cur += json_emit_raw_str(cur, end - cur, ",\"duration\":");
-                cur += json_emit_int(cur, end - cur, mpd_song_get_duration(song));
-                cur += json_emit_raw_str(cur, end - cur, ",\"title\":");
-                cur += json_emit_quoted_str(cur, end - cur, mympd_get_title(song));
-                cur += json_emit_raw_str(cur, end - cur, ",\"track\":");
-                cur += json_emit_quoted_str(cur, end - cur, mympd_get_track(song));
-                cur += json_emit_raw_str(cur, end - cur, "},");
+                if (entities_returned ++) len += json_printf(&out, ", ");
+                len += json_printf(&out, "{ type: song, uri: %Q, duration: %d, title: %Q, track: %Q }",
+                    mpd_song_get_uri(song),
+                    mpd_song_get_duration(song),
+                    mympd_get_title(song),
+                    mympd_get_track(song)
+                );
             }
             mpd_song_free(song);
         }
         
-        /* remove last ',' */
-        cur--;
-
-        cur += json_emit_raw_str(cur, end - cur, "]");
-        cur += json_emit_raw_str(cur, end - cur, ",\"totalEntities\":");
-        cur += json_emit_int(cur, end - cur, entity_count);
-        cur += json_emit_raw_str(cur, end - cur, ",\"returnedEntities\":");
-        cur += json_emit_int(cur, end - cur, entities_returned);
-        cur += json_emit_raw_str(cur, end - cur, ",\"albumartist\":");
-        cur += json_emit_quoted_str(cur, end - cur, albumartist);
-        cur += json_emit_raw_str(cur, end - cur, ",\"album\":");
-        cur += json_emit_quoted_str(cur, end - cur, album);
-        cur += json_emit_raw_str(cur, end - cur, "}");
+        len += json_printf(&out, "], totalEntities: %d, returnedEntities: %d, albumartist: %Q, album: %Q }",
+            entity_count,
+            entities_returned,
+            albumartist,
+            album
+        );
     }
-    return cur - buffer;
+
+    if (len > MAX_SIZE) fprintf(stderr,"Buffer truncated\n");
+    return len;
 }
 
 int mympd_put_playlists(char *buffer, unsigned int offset, char *filter)
 {
-    char *cur = buffer;
-    const char *end = buffer + MAX_SIZE;
     struct mpd_playlist *pl;
     unsigned int entity_count = 0;
     unsigned int entities_returned = 0;
     const char *plpath;
+    int len;
+    struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
 
     if (!mpd_send_list_playlists(mpd.conn))
         RETURN_ERROR_AND_RECOVER("mpd_send_lists_playlists");
 
-    cur += json_emit_raw_str(cur, end  - cur, "{\"type\":\"playlists\",\"data\":[ ");
+    len = json_printf(&out, "{ type: playlists, data: [ ");
 
     while((pl = mpd_recv_playlist(mpd.conn)) != NULL) {
         entity_count ++;
@@ -1250,12 +1213,11 @@ int mympd_put_playlists(char *buffer, unsigned int offset, char *filter)
             if (strncmp(filter,"-",1) == 0 || strncasecmp(filter,plpath,1) == 0 ||
                     ( strncmp(filter,"0",1) == 0 && isalpha(*plpath) == 0 )
             ) {
-                entities_returned ++;
-                cur += json_emit_raw_str(cur, end - cur, "{\"type\":\"playlist\",\"plist\":");
-                cur += json_emit_quoted_str(cur, end - cur, plpath);
-                cur += json_emit_raw_str(cur, end - cur, ",\"last_modified\":");
-                cur += json_emit_int(cur, end - cur, mpd_playlist_get_last_modified(pl));
-                cur += json_emit_raw_str(cur, end - cur, "},");
+                if (entities_returned ++) len += json_printf(&out, ", ");
+                len += json_printf(&out, "{ type: playlist, plist: %Q, last_modified: %d }",
+                    plpath,
+                    mpd_playlist_get_last_modified(pl)
+                );
             } else {
                 entity_count --;
             }
@@ -1266,26 +1228,23 @@ int mympd_put_playlists(char *buffer, unsigned int offset, char *filter)
     if (mpd_connection_get_error(mpd.conn) != MPD_ERROR_SUCCESS || !mpd_response_finish(mpd.conn))
         RETURN_ERROR_AND_RECOVER("mpd_send_list_playlists");
         
-    /* remove last ',' */
-    cur--;
+    len += json_printf(&out, "], totalEntities: %d, offset: %d, returnedEntities: %d }",
+        entity_count,
+        offset,
+        entities_returned
+    );
 
-    cur += json_emit_raw_str(cur, end - cur, "],\"totalEntities\":");
-    cur += json_emit_int(cur, end - cur, entity_count);
-        cur += json_emit_raw_str(cur, end - cur, ",\"offset\":");
-        cur += json_emit_int(cur, end - cur, offset);
-        cur += json_emit_raw_str(cur, end - cur, ",\"returnedEntities\":");
-        cur += json_emit_int(cur, end - cur, entities_returned);    
-    cur += json_emit_raw_str(cur, end - cur, "}");
-    return cur - buffer;
+    if (len > MAX_SIZE) fprintf(stderr,"Buffer truncated\n");
+    return len;
 }
 
 int mympd_search(char *buffer, char *mpdtagtype, unsigned int offset, char *searchstr)
 {
-    char *cur = buffer;
-    const char *end = buffer + MAX_SIZE;
     struct mpd_song *song;
     unsigned long entity_count = 0;
     unsigned long entities_returned = 0;
+    int len;
+    struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
 
     if(mpd_search_db_songs(mpd.conn, false) == false) {
         RETURN_ERROR_AND_RECOVER("mpd_search_db_songs");
@@ -1303,50 +1262,41 @@ int mympd_search(char *buffer, char *mpdtagtype, unsigned int offset, char *sear
     if(mpd_search_commit(mpd.conn) == false)
         RETURN_ERROR_AND_RECOVER("mpd_search_commit");
     else {
-        cur += json_emit_raw_str(cur, end - cur, "{\"type\":\"search\",\"data\":[ ");
+        len = json_printf(&out, "{ type: search, data: [ ");
 
         while((song = mpd_recv_song(mpd.conn)) != NULL) {
             entity_count ++;
             if(entity_count > offset && entity_count <= offset+MAX_ELEMENTS_PER_PAGE) {
-                entities_returned ++;
-                cur += json_emit_raw_str(cur, end - cur, "{\"type\":\"song\"");
-                cur += json_emit_raw_str(cur, end - cur, ",\"uri\":");
-                cur += json_emit_quoted_str(cur, end - cur, mpd_song_get_uri(song));
-                cur += json_emit_raw_str(cur, end - cur, ",\"album\":");
-                cur += json_emit_quoted_str(cur, end - cur, mympd_get_album(song));
-                cur += json_emit_raw_str(cur, end - cur, ",\"artist\":");
-                cur += json_emit_quoted_str(cur, end - cur, mympd_get_artist(song));
-                cur += json_emit_raw_str(cur, end - cur, ",\"duration\":");
-                cur += json_emit_int(cur, end - cur, mpd_song_get_duration(song));
-                cur += json_emit_raw_str(cur, end - cur, ",\"title\":");
-                cur += json_emit_quoted_str(cur, end - cur, mympd_get_title(song));
-                cur += json_emit_raw_str(cur, end - cur, "},");
+                if (entities_returned ++) len += json_printf(&out, ", ");
+                len += json_printf(&out, "{ type: song, uri: %Q, album: %Q, artist: %Q, duration: %d, title: %Q }",
+                    mpd_song_get_uri(song),
+                    mympd_get_album(song),
+                    mympd_get_artist(song),
+                    mpd_song_get_duration(song),
+                    mympd_get_title(song)
+                );
             }
             mpd_song_free(song);
         }
-        
-        /* remove last ',' */
-        cur--;
 
-        cur += json_emit_raw_str(cur, end - cur, "]");
-        cur += json_emit_raw_str(cur, end - cur, ",\"totalEntities\":");
-        cur += json_emit_int(cur, end - cur, entity_count);
-        cur += json_emit_raw_str(cur, end - cur, ",\"offset\":");
-        cur += json_emit_int(cur, end - cur, offset);
-        cur += json_emit_raw_str(cur, end - cur, ",\"returnedEntities\":");
-        cur += json_emit_int(cur, end - cur, entities_returned);
-        cur += json_emit_raw_str(cur, end - cur, ",\"mpdtagtype\":");
-        cur += json_emit_quoted_str(cur, end - cur, mpdtagtype);        
-        cur += json_emit_raw_str(cur, end - cur, "}");
+        len += json_printf(&out, "], totalEntities: %d, offset: %d, returnedEntities: %d, mpdtagtype: %Q }",
+            entity_count,
+            offset,
+            entities_returned,
+            mpdtagtype
+        );
     }
-    return cur - buffer;
+
+    if (len > MAX_SIZE) fprintf(stderr,"Buffer truncated\n");
+    return len;
 }
 
 int mympd_search_add(char *buffer,char *mpdtagtype, char *searchstr)
 {
-    char *cur = buffer;
-    const char *end = buffer + MAX_SIZE;
     struct mpd_song *song;
+    int len;
+    struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
+    len = 0;
 
     if(mpd_search_add_db_songs(mpd.conn, false) == false) {
         RETURN_ERROR_AND_RECOVER("mpd_search_add_db_songs");
@@ -1368,16 +1318,17 @@ int mympd_search_add(char *buffer,char *mpdtagtype, char *searchstr)
         mpd_song_free(song);
     }
         
-    return cur - buffer;
+    if (len > MAX_SIZE) fprintf(stderr,"Buffer truncated\n");
+    return len;
 }
 
 int mympd_search_queue(char *buffer, char *mpdtagtype, unsigned int offset, char *searchstr)
 {
-    char *cur = buffer;
-    const char *end = buffer + MAX_SIZE;
     struct mpd_song *song;
     unsigned long entity_count = 0;
     unsigned long entities_returned = 0;
+    int len;
+    struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);    
 
     if(mpd_search_queue_songs(mpd.conn, false) == false) {
         RETURN_ERROR_AND_RECOVER("mpd_search_queue_songs");
@@ -1395,81 +1346,64 @@ int mympd_search_queue(char *buffer, char *mpdtagtype, unsigned int offset, char
     if(mpd_search_commit(mpd.conn) == false)
         RETURN_ERROR_AND_RECOVER("mpd_search_commit");
     else {
-        cur += json_emit_raw_str(cur, end - cur, "{\"type\":\"queuesearch\",\"data\":[ ");
+        len = json_printf(&out, "{ type: queuesearch, data: [ ");
 
         while((song = mpd_recv_song(mpd.conn)) != NULL) {
           entity_count ++;
           if(entity_count > offset && entity_count <= offset+MAX_ELEMENTS_PER_PAGE) {
-            entities_returned ++;
-            cur += json_emit_raw_str(cur, end - cur, "{\"type\":\"song\"");
-            cur += json_emit_raw_str(cur, end - cur, ",\"id\":");
-            cur += json_emit_int(cur, end - cur, mpd_song_get_id(song));            
-            cur += json_emit_raw_str(cur, end - cur, ",\"pos\":");
-            cur += json_emit_int(cur, end - cur, mpd_song_get_pos(song));
-            cur += json_emit_raw_str(cur, end - cur, ",\"album\":");
-            cur += json_emit_quoted_str(cur, end - cur, mympd_get_album(song));
-            cur += json_emit_raw_str(cur, end - cur, ",\"artist\":");
-            cur += json_emit_quoted_str(cur, end - cur, mympd_get_artist(song));
-            cur += json_emit_raw_str(cur, end - cur, ",\"duration\":");
-            cur += json_emit_int(cur, end - cur, mpd_song_get_duration(song));
-            cur += json_emit_raw_str(cur, end - cur, ",\"title\":");
-            cur += json_emit_quoted_str(cur, end - cur, mympd_get_title(song));
-            cur += json_emit_raw_str(cur, end - cur, "},");
+            if (entities_returned ++) len += json_printf(&out, ", ");
+            len += json_printf(&out, "{ type: song, id: %d, pos: %d, album: %Q, artist: %Q, duration: %d, title: %Q }",
+                mpd_song_get_id(song),
+                mpd_song_get_pos(song),
+                mympd_get_album(song),
+                mympd_get_artist(song),
+                mpd_song_get_duration(song),
+                mympd_get_title(song)
+            );
             mpd_song_free(song);
           }
         }
         
-        cur--;
-
-        cur += json_emit_raw_str(cur, end - cur, "]");
-        cur += json_emit_raw_str(cur, end - cur, ",\"totalEntities\":");
-        cur += json_emit_int(cur, end - cur, entity_count);
-        cur += json_emit_raw_str(cur, end - cur, ",\"offset\":");
-        cur += json_emit_int(cur, end - cur, offset);
-        cur += json_emit_raw_str(cur, end - cur, ",\"returnedEntities\":");
-        cur += json_emit_int(cur, end - cur, entities_returned);        
-        cur += json_emit_raw_str(cur, end - cur, ",\"mpdtagtype\":");
-        cur += json_emit_quoted_str(cur, end - cur, mpdtagtype);
-        cur += json_emit_raw_str(cur, end - cur, "}");
+        len += json_printf(&out, "], totalEntities: %d, offset: %d, returnedEntities: %d, mpdtagtype: %Q }",
+            entity_count,
+            offset,
+            entities_returned,
+            mpdtagtype
+        );
     }
-    return cur - buffer;
+
+    if (len > MAX_SIZE) fprintf(stderr,"Buffer truncated\n");
+    return len;
 }
 
 int mympd_get_stats(char *buffer)
 {
-    char *cur = buffer;
-    const char *end = buffer + MAX_SIZE;
     struct mpd_stats *stats = mpd_run_stats(mpd.conn);
     const unsigned *version = mpd_connection_get_server_version(mpd.conn);
     char mpd_version[20];
+    int len;
+    struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
     
     snprintf(mpd_version,20,"%i.%i.%i", version[0], version[1], version[2]);
     
     if (stats == NULL)
         RETURN_ERROR_AND_RECOVER("mympd_get_stats");
-    cur += json_emit_raw_str(cur, end - cur, "{\"type\":\"mpdstats\",\"data\": {");
-    cur += json_emit_raw_str(cur, end - cur, "\"artists\":");
-    cur += json_emit_int(cur, end - cur, mpd_stats_get_number_of_artists(stats));
-    cur += json_emit_raw_str(cur, end - cur, ",\"albums\":");
-    cur += json_emit_int(cur, end - cur, mpd_stats_get_number_of_albums(stats));
-    cur += json_emit_raw_str(cur, end - cur, ",\"songs\":");
-    cur += json_emit_int(cur, end - cur, mpd_stats_get_number_of_songs(stats));
-    cur += json_emit_raw_str(cur, end - cur, ",\"playtime\":");
-    cur += json_emit_int(cur, end - cur, mpd_stats_get_play_time(stats));
-    cur += json_emit_raw_str(cur, end - cur, ",\"uptime\":");
-    cur += json_emit_int(cur, end - cur, mpd_stats_get_uptime(stats));
-    cur += json_emit_raw_str(cur, end - cur, ",\"dbupdated\":");
-    cur += json_emit_int(cur, end - cur, mpd_stats_get_db_update_time(stats));
-    cur += json_emit_raw_str(cur, end - cur, ",\"dbplaytime\":");
-    cur += json_emit_int(cur, end - cur, mpd_stats_get_db_play_time(stats));
-    cur += json_emit_raw_str(cur, end - cur, ",\"mympd_version\":");
-    cur += json_emit_quoted_str(cur, end - cur, MYMPD_VERSION);
-    cur += json_emit_raw_str(cur, end - cur, ",\"mpd_version\":");
-    cur += json_emit_quoted_str(cur, end - cur, mpd_version);
-    cur += json_emit_raw_str(cur, end - cur, "}}");
-    
+    len = json_printf(&out, "{ type: mpdstats, data: { artists: %d, albums: %d, songs: %d, "
+        "playtime: %d, dbupdated: %d, dbplaytime: %d, mympd_version: %Q, mpd_version: %Q }}",
+        mpd_stats_get_number_of_artists(stats),
+        mpd_stats_get_number_of_albums(stats),
+        mpd_stats_get_number_of_songs(stats),
+        mpd_stats_get_play_time(stats),
+        mpd_stats_get_uptime(stats),
+        mpd_stats_get_db_update_time(stats),
+        mpd_stats_get_db_play_time(stats),
+        MYMPD_VERSION,
+        mpd_version
+    );
     mpd_stats_free(stats);
-    return cur - buffer;
+
+    if (len > MAX_SIZE) fprintf(stderr,"Buffer truncated\n");
+    return len;
 }
 
 void mympd_disconnect()
