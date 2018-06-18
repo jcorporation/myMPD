@@ -44,21 +44,16 @@ static void signal_handler(int sig_num) {
 }
 
 static void handle_api(struct mg_connection *nc, struct http_message *hm) {
-  mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n");
-  char buf[1000] = {0};
-  memcpy(buf, hm->body.p,sizeof(buf) - 1 < hm->body.len ? sizeof(buf) - 1 : hm->body.len);
-  struct mg_str d = {buf, strlen(buf)};
-  callback_mympd(nc, d);
-  mg_send_http_chunk(nc, "", 0); /* Send empty chunk, the end of response */
-}
-
-static void handle_jsonrpc(struct mg_connection *nc, struct http_message *hm) {
-  mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n");
-  char buf[1000] = {0};
-  memcpy(buf, hm->body.p,sizeof(buf) - 1 < hm->body.len ? sizeof(buf) - 1 : hm->body.len);
-  struct mg_str d = {buf, strlen(buf)};
-  callback_mympd_jsonrpc(nc, d);
-  mg_send_http_chunk(nc, "", 0); /* Send empty chunk, the end of response */
+    if(!is_websocket(nc)) {
+        mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\nContent-Type: application/json\r\n\r\n");
+    }
+    char buf[1000] = {0};
+    memcpy(buf, hm->body.p,sizeof(buf) - 1 < hm->body.len ? sizeof(buf) - 1 : hm->body.len);
+    struct mg_str d = {buf, strlen(buf)};
+    callback_mympd(nc, d);
+    if(!is_websocket(nc)) {
+        mg_send_http_chunk(nc, "", 0); /* Send empty chunk, the end of response */
+    }
 }
 
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
@@ -67,19 +62,9 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
              #ifdef DEBUG
              fprintf(stdout,"New Websocket connection\n");
              #endif
-             struct mg_str d = {(char *) "MPD_API_WELCOME", 15 };
+             struct mg_str d = {(char *) "{\"cmd\":\"MPD_API_WELCOME\"}", 25 };
              callback_mympd(nc, d);
              break;
-        }
-        case MG_EV_WEBSOCKET_FRAME: {
-            struct websocket_message *wm = (struct websocket_message *) ev_data;
-            wm->data[wm->size]='\0';
-            struct mg_str d = {(char *) wm->data, wm->size};
-            #ifdef DEBUG
-            fprintf(stdout,"Websocket request: %s\n",wm->data);
-            #endif
-            callback_mympd(nc, d);
-            break;
         }
         case MG_EV_HTTP_REQUEST: {
             struct http_message *hm = (struct http_message *) ev_data;
@@ -88,9 +73,6 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             #endif
             if (mg_vcmp(&hm->uri, "/api") == 0) {
               handle_api(nc, hm);
-            }
-            else if (mg_vcmp(&hm->uri, "/jsonrpc") == 0) {
-              handle_jsonrpc(nc, hm);
             }
             else {
               mg_serve_http(nc, hm, s_http_server_opts);

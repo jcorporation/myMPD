@@ -42,14 +42,6 @@ const char * mpd_cmd_strs[] = {
     MPD_CMDS(GEN_STR)
 };
 
-char * get_arg1 (const char *p) {
-	return strchr(p, ',') + 1;
-}
-
-char * get_arg2 (const char *p) {
-	return get_arg1(get_arg1(p));
-}
-
 static inline enum mpd_cmd_ids get_cmd_id(const char *cmd)
 {
     for(int i = 0; i < sizeof(mpd_cmd_strs)/sizeof(mpd_cmd_strs[0]); i++)
@@ -59,16 +51,14 @@ static inline enum mpd_cmd_ids get_cmd_id(const char *cmd)
     return -1;
 }
 
-void callback_mympd_jsonrpc(struct mg_connection *nc, const struct mg_str msg)
+void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
 {
     size_t n = 0;
     char *cmd;
-    int int_buf;
-    int je; 
+    unsigned int uint_buf1, uint_buf2;
+    int je, int_buf; 
     float float_buf;
-    char *p_charbuf1;
-    char *p_charbuf2;
-    char *p_charbuf3;
+    char *p_charbuf1, *p_charbuf2;
 
     #ifdef DEBUG
     fprintf(stdout,"Got request: %s\n",msg.p);
@@ -88,48 +78,6 @@ void callback_mympd_jsonrpc(struct mg_connection *nc, const struct mg_str msg)
             free(p_charbuf1);
             free(p_charbuf2);
         break;
-    }
-    free(cmd);
-    
-    if(mpd.conn_state == MPD_CONNECTED && mpd_connection_get_error(mpd.conn) != MPD_ERROR_SUCCESS)
-    {
-        #ifdef DEBUG
-        fprintf(stdout,"Error: %s\n",mpd_connection_get_error_message(mpd.conn));
-        #endif
-        n = snprintf(mpd.buf, MAX_SIZE, "{\"type\":\"error\", \"data\": \"%s\"}", 
-            mpd_connection_get_error_message(mpd.conn));
-
-        /* Try to recover error */
-        if (!mpd_connection_clear_error(mpd.conn))
-            mpd.conn_state = MPD_FAILURE;
-    }
-
-    if(n > 0) {
-        #ifdef DEBUG
-        fprintf(stdout,"Send http response:\n %s\n",mpd.buf);
-        #endif
-        mg_send_http_chunk(nc, mpd.buf, n);        
-    }            
-}
-
-void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
-{
-    enum mpd_cmd_ids cmd_id = get_cmd_id(msg.p);
-    size_t n = 0;
-    unsigned int uint_buf, uint_buf_2;
-    int int_buf;
-    float float_buf;
-    char *p_charbuf = NULL, *token;
-    char *p_charbuf2 = NULL;
-    char *searchstr = NULL;
-    #ifdef DEBUG
-    fprintf(stdout,"Got request: %s\n",msg.p);
-    #endif
-    if(cmd_id == -1)
-        return;
-
-    switch(cmd_id)
-    {
         case MPD_API_WELCOME:
             n = mympd_put_welcome(mpd.buf);            
         case MPD_API_UPDATE_DB:
@@ -154,343 +102,184 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
             mpd_run_clear(mpd.conn);
             break;
         case MPD_API_RM_TRACK:
-            if(sscanf(msg.p, "MPD_API_RM_TRACK,%u", &uint_buf))
-                mpd_run_delete_id(mpd.conn, uint_buf);
+            je = json_scanf(msg.p, msg.len, "{ data: { track:%u } }", &uint_buf1);
+            if (je == 1)
+                mpd_run_delete_id(mpd.conn, uint_buf1);
             break;
         case MPD_API_RM_RANGE:
-            if(sscanf(msg.p, "MPD_API_RM_RANGE,%u,%u", &uint_buf, &uint_buf_2))
-                mpd_run_delete_range(mpd.conn, uint_buf, uint_buf_2);
+            je = json_scanf(msg.p, msg.len, "{ data: { start:%u, end:%u } }", &uint_buf1, &uint_buf2);
+            if (je == 2)
+                mpd_run_delete_range(mpd.conn, uint_buf1, uint_buf2);
             break;
         case MPD_API_MOVE_TRACK:
-            if (sscanf(msg.p, "MPD_API_MOVE_TRACK,%u,%u", &uint_buf, &uint_buf_2) == 2)
+            je = json_scanf(msg.p, msg.len, "{ data: { track:%u, pos:%u } }", &uint_buf1, &uint_buf2);
+            if (je == 2)        
             {
-                uint_buf -= 1;
-                uint_buf_2 -= 1;
-                mpd_run_move(mpd.conn, uint_buf, uint_buf_2);
+                uint_buf1 -= 1;
+                uint_buf2 -= 1;
+                mpd_run_move(mpd.conn, uint_buf1, uint_buf2);
             }
             break;
         case MPD_API_PLAY_TRACK:
-            if(sscanf(msg.p, "MPD_API_PLAY_TRACK,%u", &uint_buf))
-                mpd_run_play_id(mpd.conn, uint_buf);
+            je = json_scanf(msg.p, msg.len, "{ data: { track:%u } }", &uint_buf1);
+            if (je == 1)        
+                mpd_run_play_id(mpd.conn, uint_buf1);
             break;
         case MPD_API_TOGGLE_RANDOM:
-            if(sscanf(msg.p, "MPD_API_TOGGLE_RANDOM,%u", &uint_buf))
-                mpd_run_random(mpd.conn, uint_buf);
+            je = json_scanf(msg.p, msg.len, "{ data: { state:%u } }", &uint_buf1);
+            if (je == 1)        
+                mpd_run_random(mpd.conn, uint_buf1);
             break;
         case MPD_API_TOGGLE_REPEAT:
-            if(sscanf(msg.p, "MPD_API_TOGGLE_REPEAT,%u", &uint_buf))
-                mpd_run_repeat(mpd.conn, uint_buf);
+            je = json_scanf(msg.p, msg.len, "{ data: { state:%u } }", &uint_buf1);
+            if (je == 1)        
+                mpd_run_repeat(mpd.conn, uint_buf1);
             break;
         case MPD_API_TOGGLE_CONSUME:
-            if(sscanf(msg.p, "MPD_API_TOGGLE_CONSUME,%u", &uint_buf))
-                mpd_run_consume(mpd.conn, uint_buf);
+            je = json_scanf(msg.p, msg.len, "{ data: { state:%u } }", &uint_buf1);
+            if (je == 1)        
+                mpd_run_consume(mpd.conn, uint_buf1);
             break;
         case MPD_API_TOGGLE_SINGLE:
-            if(sscanf(msg.p, "MPD_API_TOGGLE_SINGLE,%u", &uint_buf))
-                mpd_run_single(mpd.conn, uint_buf);
+            je = json_scanf(msg.p, msg.len, "{ data: { state:%u } }", &uint_buf1);
+            if (je == 1)
+                mpd_run_single(mpd.conn, uint_buf1);
             break;
         case MPD_API_SET_CROSSFADE:
-            if(sscanf(msg.p, "MPD_API_SET_CROSSFADE,%u", &uint_buf))
-                mpd_run_crossfade(mpd.conn, uint_buf);
+            je = json_scanf(msg.p, msg.len, "{ data: { state:%u } }", &uint_buf1);
+            if (je == 1)
+                mpd_run_crossfade(mpd.conn, uint_buf1);
             break;
         case MPD_API_SET_MIXRAMPDB:
-            if(sscanf(msg.p, "MPD_API_SET_MIXRAMPDB,%f", &float_buf))
+            je = json_scanf(msg.p, msg.len, "{ data: { state:%f } }", &float_buf);
+            if (je == 1)        
                 mpd_run_mixrampdb(mpd.conn, float_buf);
             break;
         case MPD_API_SET_MIXRAMPDELAY:
-            if(sscanf(msg.p, "MPD_API_SET_MIXRAMPDELAY,%f", &float_buf))
+            je = json_scanf(msg.p, msg.len, "{ data: { state:%f } }", &float_buf);
+            if (je == 1)        
                 mpd_run_mixrampdelay(mpd.conn, float_buf);
             break;            
         case MPD_API_GET_OUTPUTNAMES:
             n = mympd_put_outputnames(mpd.buf);
             break;
         case MPD_API_TOGGLE_OUTPUT:
-            if (sscanf(msg.p, "MPD_API_TOGGLE_OUTPUT,%u,%u", &uint_buf, &uint_buf_2)) {
-                if (uint_buf_2)
-                    mpd_run_enable_output(mpd.conn, uint_buf);
+            je = json_scanf(msg.p, msg.len, "{ data: { output:%u, state:%u } }", &uint_buf1, &uint_buf2);
+            if (je == 2)
+            {
+                if (uint_buf2)
+                    mpd_run_enable_output(mpd.conn, uint_buf1);
                 else
-                    mpd_run_disable_output(mpd.conn, uint_buf);
+                    mpd_run_disable_output(mpd.conn, uint_buf1);
             }
             break;
         case MPD_API_SET_VOLUME:
-            if(sscanf(msg.p, "MPD_API_SET_VOLUME,%ud", &uint_buf) && uint_buf <= 100)
-                mpd_run_set_volume(mpd.conn, uint_buf);
+            je = json_scanf(msg.p, msg.len, "{ data: { volume:%u } }", &uint_buf1);
+            if (je == 1)
+                mpd_run_set_volume(mpd.conn, uint_buf1);
             break;
         case MPD_API_SET_SEEK:
-            if(sscanf(msg.p, "MPD_API_SET_SEEK,%u,%u", &uint_buf, &uint_buf_2))
-                mpd_run_seek_id(mpd.conn, uint_buf, uint_buf_2);
+            je = json_scanf(msg.p, msg.len, "{ data: { songid:%u, seek:%u } }", &uint_buf1, &uint_buf2);
+            if (je == 2)
+                mpd_run_seek_id(mpd.conn, uint_buf1, uint_buf2);
             break;
         case MPD_API_GET_QUEUE:
-            if(sscanf(msg.p, "MPD_API_GET_QUEUE,%u", &uint_buf))
-                n = mympd_put_queue(mpd.buf, uint_buf);
+            je = json_scanf(msg.p, msg.len, "{ data: { offset:%u } }", &uint_buf1);
+            if (je == 1)
+                n = mympd_put_queue(mpd.buf, uint_buf1);
             break;
         case MPD_API_GET_CURRENT_SONG:
                 n = mympd_put_current_song(mpd.buf);
             break;            
-
         case MPD_API_GET_ARTISTS:
-            p_charbuf = strdup(msg.p);
-            if(strcmp(strtok(p_charbuf, ","), "MPD_API_GET_ARTISTS"))
-		goto out_artist;
-            uint_buf = strtoul(strtok(NULL, ","), NULL, 10);
-            
-            if((token = strtok(NULL, ",")) == NULL) {
-                goto out_artist;
-            } else {
-                p_charbuf2 = strdup(token);
-            }
-            n = mympd_put_db_tag(mpd.buf, uint_buf, "AlbumArtist","","",p_charbuf2);
-            free(p_charbuf2);
-out_artist:
-            free(p_charbuf);
+            je = json_scanf(msg.p, msg.len, "{ data: { offset:%u, filter:%Q } }", &uint_buf1, &p_charbuf1);
+            if (je == 2)  
+                n = mympd_put_db_tag(mpd.buf, uint_buf1, "AlbumArtist","","",p_charbuf1);
+            free(p_charbuf1);
             break;
         case MPD_API_GET_ARTISTALBUMS:
-            p_charbuf = strdup(msg.p);
-            if(strcmp(strtok(p_charbuf, ","), "MPD_API_GET_ARTISTALBUMS"))
-		goto out_artistalbum;
-            uint_buf = strtoul(strtok(NULL, ","), NULL, 10);
-            
-            if((token = strtok(NULL, ",")) == NULL) {
-                goto out_artistalbum;
-            } else {
-                p_charbuf2 = strdup(token);
-            }
-            
-            if((token = strtok(NULL, ",")) == NULL) {
-                free(p_charbuf2);
-                goto out_artistalbum;
-            } else {
-                searchstr = strdup(token);
-            }
-            n = mympd_put_db_tag(mpd.buf, uint_buf, "Album", "AlbumArtist", searchstr, p_charbuf2);
-            free(searchstr);
+            je = json_scanf(msg.p, msg.len, "{ data: { offset:%u, filter:%Q, albumartist:%Q } }", &uint_buf1, &p_charbuf1, &p_charbuf2);
+            if (je == 3)        
+                n = mympd_put_db_tag(mpd.buf, uint_buf1, "Album", "AlbumArtist", p_charbuf2, p_charbuf1);
+            free(p_charbuf1);
             free(p_charbuf2);
-out_artistalbum:
-            free(p_charbuf);
-            break;
-        case MPD_API_GET_ARTISTALBUMTITLES:
-            p_charbuf = strdup(msg.p);
-            if(strcmp(strtok(p_charbuf, ","), "MPD_API_GET_ARTISTALBUMTITLES"))
-		goto out_artistalbumtitle;
-            
-            if((token = strtok(NULL, ",")) == NULL) {
-                goto out_artistalbumtitle;
-            } else {
-                searchstr = strdup(token);
-            }
-            n = mympd_put_songs_in_album(mpd.buf, searchstr, token+strlen(token)+1);
-            free(searchstr);
-out_artistalbumtitle:
-            free(p_charbuf);        
             break;
         case MPD_API_GET_PLAYLISTS:
-            p_charbuf = strdup(msg.p);
-            if(strcmp(strtok(p_charbuf, ","), "MPD_API_GET_PLAYLISTS"))
-		goto out_artist;
-            uint_buf = strtoul(strtok(NULL, ","), NULL, 10);
-            
-            if((token = strtok(NULL, ",")) == NULL) {
-                goto out_playlists;
-            } else {
-                p_charbuf2 = strdup(token);
-            }
-            n = mympd_put_playlists(mpd.buf, uint_buf, p_charbuf2);
-            free(p_charbuf2);
-out_playlists:
-            free(p_charbuf);        
+            je = json_scanf(msg.p, msg.len, "{ data: { offset:%u, filter:%Q } }", &uint_buf1, &p_charbuf1);
+            if (je == 2)        
+                n = mympd_put_playlists(mpd.buf, uint_buf1, p_charbuf1);
+            free(p_charbuf1);
             break;
         case MPD_API_GET_FILESYSTEM:
-            p_charbuf = strdup(msg.p);
-            if(strcmp(strtok(p_charbuf, ","), "MPD_API_GET_FILESYSTEM"))
-                goto out_browse;
-
-            uint_buf = strtoul(strtok(NULL, ","), NULL, 10);
-
-            if((token = strtok(NULL, ",")) == NULL) {
-                goto out_browse;
-            } else {
-                p_charbuf2 = strdup(token);
-            }
-
-            if((token = strtok(NULL, ",")) == NULL) {
-                free(p_charbuf2);
-		goto out_browse;
-            } else {
-                searchstr = strdup(token);
-            }
-            n = mympd_put_browse(mpd.buf, p_charbuf2, uint_buf, searchstr);
-            free(searchstr);
+            je = json_scanf(msg.p, msg.len, "{ data: { offset:%u, filter:%Q, path:%Q } }", &uint_buf1, &p_charbuf1, &p_charbuf2);
+            if (je == 3)        
+                n = mympd_put_browse(mpd.buf, p_charbuf2, uint_buf1, p_charbuf1);
+            free(p_charbuf1);
             free(p_charbuf2);
-out_browse:
-            free(p_charbuf);
-            break;            
-            
             break;
         case MPD_API_ADD_TRACK:
-            p_charbuf = strdup(msg.p);
-            if(strcmp(strtok(p_charbuf, ","), "MPD_API_ADD_TRACK"))
-                goto out_add_track;
-
-            if((token = strtok(NULL, ",")) == NULL)
-                goto out_add_track;
-
-            free(p_charbuf);
-            p_charbuf = strdup(msg.p);
-            mpd_run_add(mpd.conn, get_arg1(p_charbuf));
-out_add_track:
-            free(p_charbuf);
+            je = json_scanf(msg.p, msg.len, "{ data: { uri:%Q } }", &p_charbuf1);
+            if (je == 1)
+                mpd_run_add(mpd.conn, p_charbuf1);
+            free(p_charbuf1);
             break;
         case MPD_API_ADD_PLAY_TRACK:
-            p_charbuf = strdup(msg.p);
-            if(strcmp(strtok(p_charbuf, ","), "MPD_API_ADD_PLAY_TRACK"))
-                goto out_play_track;
-
-            if((token = strtok(NULL, ",")) == NULL)
-                goto out_play_track;
-
-			free(p_charbuf);
-            p_charbuf = strdup(msg.p);
-            int_buf = mpd_run_add_id(mpd.conn, get_arg1(p_charbuf));
-            if(int_buf != -1)
-                mpd_run_play_id(mpd.conn, int_buf);
-out_play_track:
-            free(p_charbuf);
+            je = json_scanf(msg.p, msg.len, "{ data: { uri:%Q } }", &p_charbuf1);
+            if (je == 1) {
+                int_buf = mpd_run_add_id(mpd.conn, p_charbuf1);
+                if(int_buf != -1)
+                    mpd_run_play_id(mpd.conn, int_buf);
+            }
+            free(p_charbuf1);
             break;
         case MPD_API_ADD_PLAYLIST:
-            p_charbuf = strdup(msg.p);
-            if(strcmp(strtok(p_charbuf, ","), "MPD_API_ADD_PLAYLIST"))
-                goto out_playlist;
-
-            if((token = strtok(NULL, ",")) == NULL)
-                goto out_playlist;
-
-			free(p_charbuf);
-            p_charbuf = strdup(msg.p);
-            mpd_run_load(mpd.conn, get_arg1(p_charbuf));
-out_playlist:
-            free(p_charbuf);
+            je = json_scanf(msg.p, msg.len, "{ data: { plist:%Q } }", &p_charbuf1);
+            if (je == 1)        
+                mpd_run_load(mpd.conn, p_charbuf1);
+            free(p_charbuf1);
             break;
         case MPD_API_SAVE_QUEUE:
-            p_charbuf = strdup(msg.p);
-            if(strcmp(strtok(p_charbuf, ","), "MPD_API_SAVE_QUEUE"))
-                goto out_save_queue;
-
-            if((token = strtok(NULL, ",")) == NULL)
-                goto out_save_queue;
-
-			free(p_charbuf);
-            p_charbuf = strdup(msg.p);
-            mpd_run_save(mpd.conn, get_arg1(p_charbuf));
-out_save_queue:
-            free(p_charbuf);
+            je = json_scanf(msg.p, msg.len, "{ data: { plist:%Q } }", &p_charbuf1);
+            if (je == 1)
+                mpd_run_save(mpd.conn, p_charbuf1);
+            free(p_charbuf1);
             break;
         case MPD_API_SEARCH_QUEUE:
-            p_charbuf = strdup(msg.p);
-            if(strcmp(strtok(p_charbuf, ","), "MPD_API_SEARCH_QUEUE"))
-		goto out_search_queue;
-            if((token = strtok(NULL, ",")) == NULL) {
-                goto out_search_queue;
-            } else {
-                p_charbuf2 = strdup(token);
-            }
-            
-            uint_buf = strtoul(strtok(NULL, ","), NULL, 10);
-            
-            if((token = strtok(NULL, ",")) == NULL) {
-                free(p_charbuf2);
-                goto out_search_queue;
-            } else {
-                searchstr = strdup(token);
-            }
-            n = mympd_search_queue(mpd.buf, p_charbuf2, uint_buf, searchstr);
-            free(searchstr);
+            je = json_scanf(msg.p, msg.len, "{ data: { offset:%u, mpdtag:%Q, searchstr:%Q } }", &uint_buf1, &p_charbuf1, &p_charbuf2);
+            if (je == 3)        
+                n = mympd_search_queue(mpd.buf, p_charbuf1, uint_buf1, p_charbuf2);
+            free(p_charbuf1);
             free(p_charbuf2);
-out_search_queue:
-            free(p_charbuf);
             break;            
         case MPD_API_SEARCH_ADD:
-            p_charbuf = strdup(msg.p);
-            if(strcmp(strtok(p_charbuf, ","), "MPD_API_SEARCH_ADD"))
-		goto out_search_add;
-            if((token = strtok(NULL, ",")) == NULL) {
-                goto out_search_add;
-            } else {
-                p_charbuf2 = strdup(token);
-            }
-            
-            if((token = strtok(NULL, ",")) == NULL) {
-                free(p_charbuf2);
-                goto out_search_add;
-            } else {
-                searchstr = strdup(token);
-            }
-            n = mympd_search_add(mpd.buf, p_charbuf2, searchstr);
-            free(searchstr);
+            je = json_scanf(msg.p, msg.len, "{ data: { mpdtag:%Q, searchstr:%Q } }", &p_charbuf1, &p_charbuf2);
+            if (je == 2)        
+                n = mympd_search_add(mpd.buf, p_charbuf1, p_charbuf2);
+            free(p_charbuf1);
             free(p_charbuf2);
-out_search_add:
-            free(p_charbuf);
             break;
         case MPD_API_SEARCH:
-            p_charbuf = strdup(msg.p);
-            if(strcmp(strtok(p_charbuf, ","), "MPD_API_SEARCH"))
-		goto out_search;
-            if((token = strtok(NULL, ",")) == NULL) {
-                goto out_search;
-            } else {
-                p_charbuf2 = strdup(token);
-            }
-            
-            uint_buf = strtoul(strtok(NULL, ","), NULL, 10);
-            
-            if((token = strtok(NULL, ",")) == NULL) {
-                free(p_charbuf2);
-                goto out_search;
-            } else {
-                searchstr = strdup(token);
-            }
-            n = mympd_search(mpd.buf, p_charbuf2, uint_buf, searchstr);
-            free(searchstr);
+            je = json_scanf(msg.p, msg.len, "{ data: { offset:%u, mpdtag:%Q, searchstr:%Q } }", &uint_buf1, &p_charbuf1, &p_charbuf2);
+            if (je == 3)
+                n = mympd_search(mpd.buf, p_charbuf1, uint_buf1, p_charbuf2);
+            free(p_charbuf1);
             free(p_charbuf2);
-out_search:
-            free(p_charbuf);
             break;
         case MPD_API_SEND_SHUFFLE:
             mpd_run_shuffle(mpd.conn);
             break;
         case MPD_API_SEND_MESSAGE:
-            p_charbuf = strdup(msg.p);
-            if(strcmp(strtok(p_charbuf, ","), "MPD_API_SEND_MESSAGE"))
-				goto out_send_message;
-
-            if((token = strtok(NULL, ",")) == NULL)
-                goto out_send_message;
-
-			free(p_charbuf);
-            p_charbuf = strdup(get_arg1(msg.p));
-
-            if ( strtok(p_charbuf, ",") == NULL )
-                goto out_send_message;
-
-            if ( (token = strtok(NULL, ",")) == NULL )
-                goto out_send_message;
-
-            mpd_run_send_message(mpd.conn, p_charbuf, token);
-out_send_message:
-            free(p_charbuf);
+            je = json_scanf(msg.p, msg.len, "{ data: { channel:%Q, text:%Q } }", &p_charbuf1, &p_charbuf2);
+            if (je == 2)
+                mpd_run_send_message(mpd.conn, p_charbuf1, p_charbuf2);
+            free(p_charbuf1);
+            free(p_charbuf2);
             break;
         case MPD_API_RM_PLAYLIST:
-            p_charbuf = strdup(msg.p);
-            if(strcmp(strtok(p_charbuf, ","), "MPD_API_RM_PLAYLIST"))
-                goto out_rm_playlist;
-
-            if((token = strtok(NULL, ",")) == NULL)
-                goto out_rm_playlist;
-
-            free(p_charbuf);
-            p_charbuf = strdup(msg.p);
-            mpd_run_rm(mpd.conn, get_arg1(p_charbuf));
-out_rm_playlist:
-            free(p_charbuf);
+            je = json_scanf(msg.p, msg.len, "{ data: { plist:%Q } }", &p_charbuf1);
+            if (je == 1)
+                mpd_run_rm(mpd.conn, p_charbuf1);
+            free(p_charbuf1);
             break;
         case MPD_API_GET_SETTINGS:
             n = mympd_put_settings(mpd.buf);
@@ -499,25 +288,20 @@ out_rm_playlist:
             n = mympd_get_stats(mpd.buf);
         break;
         case MPD_API_SET_REPLAYGAIN:
-            p_charbuf = strdup(msg.p);
-            if(strcmp(strtok(p_charbuf, ","), "MPD_API_SET_REPLAYGAIN"))
-                goto out_set_replaygain;
-
-            if((token = strtok(NULL, ",")) == NULL)
-                goto out_set_replaygain;
-
-            free(p_charbuf);
-            p_charbuf = strdup(msg.p);
-            mpd_send_command(mpd.conn, "replay_gain_mode", get_arg1(p_charbuf), NULL);
-            struct mpd_pair *pair;
-            while ((pair = mpd_recv_pair(mpd.conn)) != NULL) {
-        	mpd_return_pair(mpd.conn, pair);
-            }            
-out_set_replaygain:
-            free(p_charbuf);        
-        break;
+            je = json_scanf(msg.p, msg.len, "{ data: { mode:%Q } }", &p_charbuf1);
+            if (je == 1)
+            {
+                mpd_send_command(mpd.conn, "replay_gain_mode", p_charbuf1, NULL);
+                struct mpd_pair *pair;
+                while ((pair = mpd_recv_pair(mpd.conn)) != NULL) {
+        	    mpd_return_pair(mpd.conn, pair);
+                }            
+            }
+            free(p_charbuf1);        
+        break;        
     }
-
+    free(cmd);
+    
     if(mpd.conn_state == MPD_CONNECTED && mpd_connection_get_error(mpd.conn) != MPD_ERROR_SUCCESS)
     {
         #ifdef DEBUG
@@ -532,10 +316,9 @@ out_set_replaygain:
     }
 
     if(n > 0) {
-        
         if(is_websocket(nc)) {
             #ifdef DEBUG
-            fprintf(stdout,"Send response over websocket:\n %s\n",mpd.buf);
+            fprintf(stdout,"Send websocket response:\n %s\n",mpd.buf);
             #endif
             mg_send_websocket_frame(nc, WEBSOCKET_OP_TEXT, mpd.buf, n);
         }
@@ -543,9 +326,9 @@ out_set_replaygain:
             #ifdef DEBUG
             fprintf(stdout,"Send http response:\n %s\n",mpd.buf);
             #endif
-            mg_send_http_chunk(nc, mpd.buf, n);        
+            mg_send_http_chunk(nc, mpd.buf, n);
         }
-    }
+    }            
 }
 
 int mympd_close_handler(struct mg_connection *c)
