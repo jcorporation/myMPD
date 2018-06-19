@@ -59,6 +59,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
     int je, int_buf; 
     float float_buf;
     char *p_charbuf1, *p_charbuf2;
+    FILE *fp;
 
     #ifdef DEBUG
     fprintf(stdout,"Got request: %s\n",msg.p);
@@ -71,15 +72,73 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
         return;
     
     switch(cmd_id) {
+        case MPD_API_SET_MYMPD_SETTINGS:
+            fp = fopen(mpd.statefile,"w");
+            if(fp != NULL) {
+                fprintf(fp,"%.*s",msg.len,msg.p);
+                fclose(fp);
+            } else {
+               fprintf(stderr,"Cant write state file\n");
+            }
+        break;
+        case MPD_API_GET_MYMPD_SETTINGS:
+            fp = fopen(mpd.statefile,"r");
+            if(fp != NULL) {
+                fgets(mpd.buf, MAX_SIZE, fp);
+                fclose(fp);
+                n=strlen(mpd.buf);
+            }
+        break;
+        case MPD_API_SET_MPD_SETTINGS:
+            je = json_scanf(msg.p, msg.len, "{ data: { random:%u } }", &uint_buf1);
+            if (je == 1)        
+                mpd_run_random(mpd.conn, uint_buf1);
+            
+            je = json_scanf(msg.p, msg.len, "{ data: { repeat:%u } }", &uint_buf1);
+            if (je == 1)        
+                mpd_run_repeat(mpd.conn, uint_buf1);
+            
+            je = json_scanf(msg.p, msg.len, "{ data: { consume:%u } }", &uint_buf1);
+            if (je == 1)        
+                mpd_run_consume(mpd.conn, uint_buf1);
+            
+            je = json_scanf(msg.p, msg.len, "{ data: { single:%u } }", &uint_buf1);
+            if (je == 1)
+                mpd_run_single(mpd.conn, uint_buf1);
+            
+            je = json_scanf(msg.p, msg.len, "{ data: { crossfade:%u } }", &uint_buf1);
+            if (je == 1)
+                mpd_run_crossfade(mpd.conn, uint_buf1);
+            
+            je = json_scanf(msg.p, msg.len, "{ data: { mixrampdb:%f } }", &float_buf);
+            if (je == 1)        
+                mpd_run_mixrampdb(mpd.conn, float_buf);
+            
+            je = json_scanf(msg.p, msg.len, "{ data: { mixrampdelay:%f } }", &float_buf);
+            if (je == 1)        
+                mpd_run_mixrampdelay(mpd.conn, float_buf);
+            
+            je = json_scanf(msg.p, msg.len, "{ data: { replaygain:%Q } }", &p_charbuf1);
+            if (je == 1)
+            {
+                mpd_send_command(mpd.conn, "replay_gain_mode", p_charbuf1, NULL);
+                struct mpd_pair *pair;
+                while ((pair = mpd_recv_pair(mpd.conn)) != NULL) {
+        	    mpd_return_pair(mpd.conn, pair);
+                }            
+            }
+            free(p_charbuf1);        
+            break;
         case MPD_API_GET_ARTISTALBUMTITLES:
             je = json_scanf(msg.p, msg.len, "{ data: { albumartist:%Q, album:%Q } }", &p_charbuf1, &p_charbuf2);
             if (je == 2)
                 n = mympd_put_songs_in_album(mpd.buf, p_charbuf1, p_charbuf2);        
             free(p_charbuf1);
             free(p_charbuf2);
-        break;
+            break;
         case MPD_API_WELCOME:
-            n = mympd_put_welcome(mpd.buf);            
+            n = mympd_put_welcome(mpd.buf);
+            break;
         case MPD_API_UPDATE_DB:
             mpd_run_update(mpd.conn, NULL);
             break;
@@ -125,41 +184,6 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
             if (je == 1)        
                 mpd_run_play_id(mpd.conn, uint_buf1);
             break;
-        case MPD_API_TOGGLE_RANDOM:
-            je = json_scanf(msg.p, msg.len, "{ data: { state:%u } }", &uint_buf1);
-            if (je == 1)        
-                mpd_run_random(mpd.conn, uint_buf1);
-            break;
-        case MPD_API_TOGGLE_REPEAT:
-            je = json_scanf(msg.p, msg.len, "{ data: { state:%u } }", &uint_buf1);
-            if (je == 1)        
-                mpd_run_repeat(mpd.conn, uint_buf1);
-            break;
-        case MPD_API_TOGGLE_CONSUME:
-            je = json_scanf(msg.p, msg.len, "{ data: { state:%u } }", &uint_buf1);
-            if (je == 1)        
-                mpd_run_consume(mpd.conn, uint_buf1);
-            break;
-        case MPD_API_TOGGLE_SINGLE:
-            je = json_scanf(msg.p, msg.len, "{ data: { state:%u } }", &uint_buf1);
-            if (je == 1)
-                mpd_run_single(mpd.conn, uint_buf1);
-            break;
-        case MPD_API_SET_CROSSFADE:
-            je = json_scanf(msg.p, msg.len, "{ data: { state:%u } }", &uint_buf1);
-            if (je == 1)
-                mpd_run_crossfade(mpd.conn, uint_buf1);
-            break;
-        case MPD_API_SET_MIXRAMPDB:
-            je = json_scanf(msg.p, msg.len, "{ data: { state:%f } }", &float_buf);
-            if (je == 1)        
-                mpd_run_mixrampdb(mpd.conn, float_buf);
-            break;
-        case MPD_API_SET_MIXRAMPDELAY:
-            je = json_scanf(msg.p, msg.len, "{ data: { state:%f } }", &float_buf);
-            if (je == 1)        
-                mpd_run_mixrampdelay(mpd.conn, float_buf);
-            break;            
         case MPD_API_GET_OUTPUTNAMES:
             n = mympd_put_outputnames(mpd.buf);
             break;
@@ -281,24 +305,12 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
                 mpd_run_rm(mpd.conn, p_charbuf1);
             free(p_charbuf1);
             break;
-        case MPD_API_GET_SETTINGS:
+        case MPD_API_GET_MPD_SETTINGS:
             n = mympd_put_settings(mpd.buf);
             break;
         case MPD_API_GET_STATS:
             n = mympd_get_stats(mpd.buf);
         break;
-        case MPD_API_SET_REPLAYGAIN:
-            je = json_scanf(msg.p, msg.len, "{ data: { mode:%Q } }", &p_charbuf1);
-            if (je == 1)
-            {
-                mpd_send_command(mpd.conn, "replay_gain_mode", p_charbuf1, NULL);
-                struct mpd_pair *pair;
-                while ((pair = mpd_recv_pair(mpd.conn)) != NULL) {
-        	    mpd_return_pair(mpd.conn, pair);
-                }            
-            }
-            free(p_charbuf1);        
-        break;        
     }
     free(cmd);
     

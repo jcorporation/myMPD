@@ -69,24 +69,19 @@
     X(MPD_API_UPDATE_DB) \
     X(MPD_API_GET_OUTPUTNAMES) \
     X(MPD_API_TOGGLE_OUTPUT) \
-    X(MPD_API_TOGGLE_RANDOM) \
-    X(MPD_API_TOGGLE_CONSUME) \
-    X(MPD_API_TOGGLE_SINGLE) \
-    X(MPD_API_SET_CROSSFADE) \
-    X(MPD_API_TOGGLE_REPEAT) \
-    X(MPD_API_GET_SETTINGS) \
     X(MPD_API_SEND_SHUFFLE) \
     X(MPD_API_GET_STATS) \
-    X(MPD_API_SET_MIXRAMPDB) \
-    X(MPD_API_SET_MIXRAMPDELAY) \
     X(MPD_API_GET_PLAYLISTS) \
     X(MPD_API_RM_PLAYLIST) \
-    X(MPD_API_SET_REPLAYGAIN) \
     X(MPD_API_GET_ARTISTALBUMS) \
     X(MPD_API_GET_ARTISTALBUMTITLES) \
     X(MPD_API_GET_ARTISTS) \
     X(MPD_API_GET_CURRENT_SONG) \
-    X(MPD_API_WELCOME)
+    X(MPD_API_WELCOME) \
+    X(MPD_API_GET_MPD_SETTINGS) \
+    X(MPD_API_SET_MPD_SETTINGS) \
+    X(MPD_API_SET_MYMPD_SETTINGS) \
+    X(MPD_API_GET_MYMPD_SETTINGS)
 
 enum mpd_cmd_ids {
     MPD_CMDS(GEN_ENUM)
@@ -102,10 +97,9 @@ enum mpd_conn_states {
 
 struct t_mpd {
     int port;
-    int local_port;
     char host[128];
     char *password;
-    char *gpass;
+    char *statefile;
 
     struct mpd_connection *conn;
     enum mpd_conn_states conn_state;

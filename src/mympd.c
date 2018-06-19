@@ -105,11 +105,10 @@ int main(int argc, char **argv)
     char *run_as_user = NULL;
     char *webport = "8080";
     mpd.port = 6600;
-    mpd.local_port = 0;
-    mpd.gpass = NULL;
     strcpy(mpd.host, "127.0.0.1");
     streamport = 8000;
     strcpy(coverimage, "folder.jpg");
+    mpd.statefile="/var/lib/mympd/mympd.state";
 
     static struct option long_options[] = {
         {"host",         required_argument, 0, 'h'},
@@ -121,14 +120,15 @@ int main(int argc, char **argv)
         {"mpdpass",      required_argument, 0, 'm'},
         {"streamport",	 required_argument, 0, 's'},
         {"coverimage",	 required_argument, 0, 'i'},
+        {"statefile",	 required_argument, 0, 't'},
         {0,              0,                 0,  0 }
     };
 
-    while((n = getopt_long(argc, argv, "D:h:p:w:u:vm:s:i:c:",
+    while((n = getopt_long(argc, argv, "D:h:p:w:u:vm:s:i:c:t:",
                 long_options, &option_index)) != -1) {
         switch (n) {
-            case 'D':
-                mpd.gpass = strdup(optarg);
+            case 't':
+                mpd.statefile = strdup(optarg);
                 break;
             case 'h':
                 strncpy(mpd.host, optarg, sizeof(mpd.host));
@@ -169,6 +169,7 @@ int main(int argc, char **argv)
                         " -m, --mpdpass <password>\tspecifies the password to use when connecting to mpd\n"
                         " -s, --streamport <port>\tconnect to mpd http stream at port [8000]\n"
                         " -i, --coverimage <filename>\tfilename for coverimage [folder.jpg]\n"
+                        " -t, --statefile <filename>\tstatefile [/var/lib/mympd/mympd.state]\n"
                         " --help\t\t\t\tthis help\n"
                         , argv[0]);
                 return EXIT_FAILURE;
