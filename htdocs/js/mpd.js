@@ -928,11 +928,7 @@ function updatePlayIcon(obj) {
 }
 
 function sendAPI(request, callback) {
-    $.ajax({url: "/api", contentType:"application/json", method: "POST", data: JSON.stringify(request)}).done(function(obj,callback) {
-      if (callback != undefined && typeof callback == 'function') {
-        callback(obj);
-      }                            
-    });
+    $.ajax({url: "/api", contentType:"application/json", method: "POST", data: JSON.stringify(request), success: callback });
 }
 
 function updateDB(event) {
@@ -1269,10 +1265,9 @@ function notificationsSupported() {
     return "Notification" in window;
 }
 
-function songChange(title, artist, album, uri, songId) {
+function songChange(obj) {
     if (last_song == obj.data.title+obj.data.artist+obj.data.album+obj.data.uri+obj.data.currentsongid) 
         return;
-    
     var textNotification = '';
     var htmlNotification = '';
     var pageTitle = 'myMPD: ';
