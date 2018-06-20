@@ -203,7 +203,6 @@ int main(int argc, char **argv)
             printf("setuid() failed\n");
             return EXIT_FAILURE;
         }
-        free(run_as_user);
     }
 
     mg_set_protocol_http_websocket(nc);
