@@ -33,7 +33,7 @@ var playstate = '';
 var progressBar;
 var volumeBar;
 var coverImageFile = '';
-var settings = { "notifyPage":1, "notifyWeb": 0 };
+var settings = { "notifyPage":1, "notifyWeb": 0, "mpdstream":"" };
 
 var app = {};
 
@@ -80,22 +80,25 @@ app.prepare=function() {
 }
 
 app.goto=function(a,t,v,s) {
+   var hash='';
    if (app.apps[a].tabs) {
      if (t == undefined) t = app.apps[a].active;
      if (app.apps[a].tabs[t].views) {
        if (v == undefined) v = app.apps[a].tabs[t].active;
-       location.hash = '/'+a+'/'+t+'/'+v+'!'+ (s == undefined ? app.apps[a].tabs[t].views[v].state : s);
+       hash = '/'+a+'/'+t+'/'+v+'!'+ (s == undefined ? app.apps[a].tabs[t].views[v].state : s);
      } else {
-       location.hash = '/'+a+'/'+t+'!'+ (s == undefined ? app.apps[a].tabs[t].state : s);
+       hash = '/'+a+'/'+t+'!'+ (s == undefined ? app.apps[a].tabs[t].state : s);
      }
    } else {
-     location.hash = '/'+a+'!'+ (s == undefined ? app.apps[a].state : s);
+     hash = '/'+a+'!'+ (s == undefined ? app.apps[a].state : s);
    }
+   location.hash=hash;
 }
 
 app.route=function() {
     var hash=decodeURI(location.hash);
-    if (params=hash.match(/^\#\/(\w+)\/?(\w+)?\/?(\w+)?\!((\d+)\/([^\/]+)\/(.*))$/)) {
+    if (params=hash.match(/^\#\/(\w+)\/?(\w+)?\/?(\w+)?\!((\d+)\/([^\/]+)\/(.*))$/))
+    {
       app.current.app = params[1];
       app.current.tab = params[2];
       app.current.view = params[3];
@@ -963,7 +966,8 @@ function setLocalStream(mpdhost,streamport) {
     else
         mpdstream += mpdhost;
     mpdstream += ':'+streamport+'/';
-    Cookies.set('mpdstream', mpdstream, { expires: 424242 });
+    settings.mpdstream=mpdstream;
+//    Cookies.set('mpdstream', mpdstream, { expires: 424242 });
 }
 
 function delQueueSong(tr,event) {
