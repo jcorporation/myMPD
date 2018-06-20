@@ -521,7 +521,7 @@ function parseQueue(obj) {
                                 "<td>"+ obj.data[song].album +"</td>" +
                                 "<td>"+ minutes + ":" + (seconds < 10 ? '0' : '') + seconds +
                         "</td><td></td></tr>";
-                        if (nrItems <= tr.length) { $(tr[nrItems-1]).replaceWith(row); } 
+                        if (nrItems <= tr.length) { if ($(tr[nrItems-1]).attr('trackid')!=obj.data[song].id) $(tr[nrItems-1]).replaceWith(row); } 
                         else { $('#'+app.current.app+'List > tbody').append(row); }
                     }
                     for (var i=tr.length;i>nrItems;i--) {
@@ -604,9 +604,11 @@ function parseFilesystem(obj) {
                     for (var item in obj.data) {
                         nrItems++;
                         var row='';
+                        var uri='';
                         switch(obj.data[item].type) {
                             case 'directory':
-                                row ='<tr uri="' + encodeURI(obj.data[item].dir) + '" class="dir">' +
+                                uri=encodeURI(obj.data[item].dir);
+                                row ='<tr uri="' + uri + '" class="dir">' +
                                     '<td><span class="material-icons">folder_open</span></td>' +
                                     '<td colspan="3"><a>' + basename(obj.data[item].dir) + '</a></td>' +
                                     '<td></td><td></td></tr>';
@@ -614,7 +616,8 @@ function parseFilesystem(obj) {
                             case 'song':
                                 var minutes = Math.floor(obj.data[item].duration / 60);
                                 var seconds = obj.data[item].duration - minutes * 60;
-                                row ='<tr uri="' + encodeURI(obj.data[item].uri) + '" class="song">' +
+                                uri=encodeURI(obj.data[item].uri);
+                                row ='<tr uri="' + uri  + '" class="song">' +
                                     '<td><span class="material-icons">music_note</span></td>' + 
                                     '<td>' + obj.data[item].title  + '</td>' +
                                     '<td>' + obj.data[item].artist + '</td>' + 
@@ -623,13 +626,14 @@ function parseFilesystem(obj) {
                                     '</td><td></td></tr>';
                                 break;
                             case 'playlist':
-                                row ='<tr uri="' + encodeURI(obj.data[item].plist) + '" class="plist">' +
+                                uri=encodeURI(obj.data[item].plist);
+                                row ='<tr uri="' + uri + '" class="plist">' +
                                     '<td><span class="material-icons">list</span></td>' +
                                     '<td colspan="3"><a>' + basename(obj.data[item].plist) + '</a></td>' +
                                     '<td></td><td></td></tr>';
                                 break;
                         }
-                        if (nrItems <= tr.length) { $(tr[nrItems-1]).replaceWith(row); } 
+                        if (nrItems <= tr.length) { if ($(tr[nrItems-1]).attr('uri') != uri) $(tr[nrItems-1]).replaceWith(row); } 
                         else { $('#'+app.current.app+(app.current.tab==undefined ? '' : app.current.tab)+'List > tbody').append(row); }
                     }
                     for (var i=tr.length;i>nrItems;i--) {
@@ -711,11 +715,12 @@ function parsePlaylists(obj) {
                     for (var item in obj.data) {
                         nrItems++;
                         var d = new Date(obj.data[item].last_modified * 1000);
-                        var row='<tr uri="' + encodeURI(obj.data[item].plist) + '">' +
+                        var uri=encodeURI(obj.data[item].plist);
+                        var row='<tr uri="' + uri + '">' +
                                 '<td><span class="material-icons">list</span></td>' +
                                 '<td><a>' + basename(obj.data[item].plist) + '</a></td>' +
                                 '<td>'+d.toUTCString()+'</td><td></td></tr>';
-                        if (nrItems <= tr.length) { $(tr[nrItems-1]).replaceWith(row); } 
+                        if (nrItems <= tr.length) { if ($(tr[nrItems-1]).attr('uri') != uri) $(tr[nrItems-1]).replaceWith(row); } 
                         else { $('#'+app.current.app+app.current.tab+'List > tbody').append(row); }
                     }
                     for (var i=tr.length;i>nrItems;i--) {
@@ -769,10 +774,11 @@ function parseListDBtags(obj) {
                         var tr=document.getElementById(app.current.app+app.current.tab+app.current.view+'List').getElementsByTagName('tbody')[0].getElementsByTagName('tr');
                         for (var item in obj.data) {
                             nrItems++;
-                            var row='<tr uri="' + encodeURI(obj.data[item].value) + '">' +
+                            var uri=encodeURI(obj.data[item].value);
+                            var row='<tr uri="' + uri  + '">' +
                                 '<td><span class="material-icons">album</span></td>' +
                                 '<td><a>' + obj.data[item].value + '</a></td></tr>';
-                            if (nrItems <= tr.length) { $(tr[nrItems-1]).replaceWith(row); } 
+                            if (nrItems <= tr.length) { if ($(tr[nrItems-1]).attr('uri')!=uri) $(tr[nrItems-1]).replaceWith(row); } 
                             else { $('#'+app.current.app+app.current.tab+app.current.view+'List > tbody').append(row); }
                         
                         }
@@ -967,7 +973,6 @@ function setLocalStream(mpdhost,streamport) {
         mpdstream += mpdhost;
     mpdstream += ':'+streamport+'/';
     settings.mpdstream=mpdstream;
-//    Cookies.set('mpdstream', mpdstream, { expires: 424242 });
 }
 
 function delQueueSong(tr,event) {
