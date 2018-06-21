@@ -207,6 +207,7 @@ int main(int argc, char **argv)
     
     if (getuid() == 0) {
       printf("myMPD should not be run with root privileges\n");
+      mg_mgr_free(&mgr);
       return EXIT_FAILURE;
     }
 
