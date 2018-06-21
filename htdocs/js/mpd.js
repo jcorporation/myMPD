@@ -27,13 +27,12 @@ var last_song = '';
 var last_state;
 var last_outputs;
 var current_song = new Object();
-var MAX_ELEMENTS_PER_PAGE = 100;
 var isTouch = Modernizr.touch ? 1 : 0;
 var playstate = '';
 var progressBar;
 var volumeBar;
 var coverImageFile = '';
-var settings = { "notifyPage":1, "notifyWeb": 0, "mpdstream":"" };
+var settings = {};
 
 var app = {};
 
@@ -214,8 +213,7 @@ app.route=function() {
 };
 
 $(document).ready(function(){
-    sendAPI({"cmd":"MPD_API_GET_MPD_SETTINGS"},parseSettings);
-    sendAPI({"cmd":"MPD_API_GET_MYMPD_SETTINGS"},parseMympdSettings);
+    sendAPI({"cmd":"MPD_API_GET_SETTINGS"},parseSettings);
     sendAPI({"cmd":"MPD_API_GET_OUTPUTNAMES"},parseOutputnames);
 
     webSocketConnect();
@@ -257,14 +255,9 @@ $(document).ready(function(){
         $('#search > input').focus();
     });
      
-    if(!notificationsSupported())
-        $('#btnnotifyWeb').addClass("disabled");
-    else
-        if (Cookies.get('notificationWeb') === 'true')
-            $('#btnnotifyWeb').removeClass('btn-secondary').addClass("btn-success")
-    
-    if (Cookies.get('notificationPage') === 'true')
-        $('#btnnotifyPage').removeClass('btn-secondary').addClass("btn-success")
+
+
+
 
     add_filter('#BrowseFilesystemFilterLetters');
     add_filter('#BrowseDatabaseFilterLetters');
@@ -310,9 +303,6 @@ function webSocketConnect() {
                     break;
                 case "song_change":
                     songChange(obj);
-                    break;
-                case 'settings':
-                    parseSettings(obj);
                     break;
                 case 'error':
                     showNotification(obj.data,'','','danger');
@@ -373,55 +363,73 @@ function parseStats(obj) {
   $('#mpdVersion').text(obj.data.mpd_version);
 }
 
-function parseMympdSettings(obj) {
-  settings.notifyPage=obj.data.notifyPage;
-  settings.notifyWeb=obj.data.notifyWeb;
-  //try to set web notification
-}
-
 function parseSettings(obj) {
-                    if (!isNaN(obj.data.max_elements_per_page))
-                        MAX_ELEMENTS_PER_PAGE=obj.data.max_elements_per_page;
-         
-                    if(obj.data.random)
-                        $('#btnrandom').removeClass('btn-secondary').addClass("btn-success")
-                    else
-                        $('#btnrandom').removeClass("btn-success").addClass("btn-secondary");
+  if (obj.data.random)
+     $('#btnrandom').removeClass('btn-secondary').addClass("btn-success")
+  else
+     $('#btnrandom').removeClass("btn-success").addClass("btn-secondary");
 
-                    if(obj.data.consume)
-                        $('#btnconsume').removeClass('btn-secondary').addClass("btn-success")
-                    else
-                        $('#btnconsume').removeClass("btn-success").addClass("btn-secondary");
+  if (obj.data.consume)
+     $('#btnconsume').removeClass('btn-secondary').addClass("btn-success")
+  else
+     $('#btnconsume').removeClass("btn-success").addClass("btn-secondary");
 
-                    if(obj.data.single)
-                        $('#btnsingle').removeClass('btn-secondary').addClass("btn-success")
-                    else
-                        $('#btnsingle').removeClass("btn-success").addClass("btn-secondary");
+  if (obj.data.single)
+     $('#btnsingle').removeClass('btn-secondary').addClass("btn-success")
+  else
+     $('#btnsingle').removeClass("btn-success").addClass("btn-secondary");
 
-                    if(obj.data.crossfade != undefined)
-                        $('#inputCrossfade').removeAttr('disabled').val(obj.data.crossfade);
-                    else
-                        $('#inputCrossfade').attr('disabled', 'disabled');
+  if (obj.data.crossfade != undefined)
+     $('#inputCrossfade').removeAttr('disabled').val(obj.data.crossfade);
+  else
+     $('#inputCrossfade').attr('disabled', 'disabled');
                     
-                    if(obj.data.mixrampdb != undefined)
-                        $('#inputMixrampdb').removeAttr('disabled').val(obj.data.mixrampdb);
-                    else
-                        $('#inputMixrampdb').attr('disabled', 'disabled');
+  if (obj.data.mixrampdb != undefined)
+     $('#inputMixrampdb').removeAttr('disabled').val(obj.data.mixrampdb);
+  else
+     $('#inputMixrampdb').attr('disabled', 'disabled');
                     
-                    if(obj.data.mixrampdelay != undefined)
-                        $('#inputMixrampdelay').removeAttr('disabled').val(obj.data.mixrampdelay);
-                    else
-                        $('#inputMixrampdb').attr('disabled', 'disabled');
+  if (obj.data.mixrampdelay != undefined)
+     $('#inputMixrampdelay').removeAttr('disabled').val(obj.data.mixrampdelay);
+  else
+     $('#inputMixrampdb').attr('disabled', 'disabled');
                     
-                    if(obj.data.repeat)
-                        $('#btnrepeat').removeClass('btn-secondary').addClass("btn-success")
-                    else
-                        $('#btnrepeat').removeClass("btn-success").addClass("btn-secondary");
+  if (obj.data.repeat)
+     $('#btnrepeat').removeClass('btn-secondary').addClass("btn-success")
+  else
+     $('#btnrepeat').removeClass("btn-success").addClass("btn-secondary");
                     
-                    $("#selectReplaygain").val(obj.data.replaygain);
+  $("#selectReplaygain").val(obj.data.replaygain);
 
+  if (notificationsSupported()) {
+      if (obj.data.notificationWeb) {
+         $('#btnnotifyWeb').removeClass('btn-secondary').addClass("btn-success")
+
+         Notification.requestPermission(function (permission) {
+            if(!('permission' in Notification))
+                Notification.permission = permission;
+            if (permission === 'granted') {
+                $('#btnnotifyWeb').removeClass('btn-secondary').addClass('btn-success');
+            } else {
+                $('#btnnotifyWeb').addClass('btn-secondary').removeClass('btn-success');
+                obj.data.notificationWeb=0;
+            }
+         });         
+      }
+      else
+         $('#btnnotifyWeb').addClass('btn-secondary').removeClass("btn-success");
+  } else {
+      $('#btnnotifyWeb').addClass("disabled");
+      $('#btnnotifyWeb').addClass('btn-secondary').removeClass("btn-success");
+  }
+    
+  if (obj.data.notificationPage)
+      $('#btnnotifyPage').removeClass('btn-secondary').addClass("btn-success")
+  else
+      $('#btnnotifyPage').addClass('btn-secondary').removeClass("btn-success");
+  
+  settings=obj.data;
   setLocalStream(obj.data.mpdhost,obj.data.streamport);
-  coverImageFile=obj.data.coverimage;
 }
 
 function parseOutputnames(obj) {
@@ -824,7 +832,7 @@ function parseListDBtags(obj) {
 function parseListTitles(obj) {
   if(app.current.app !== 'Browse' && app.current.tab !== 'Database' && app.current.view !== 'Album') return;
                     var album=$('#'+genId(obj.album)+' > div > table > tbody');
-                    $('#'+genId(obj.album)+' > img').attr('src','/library/'+obj.data[0].uri.replace(/\/[^\/]+$/,'\/')+coverImageFile);
+                    $('#'+genId(obj.album)+' > img').attr('src','/library/'+obj.data[0].uri.replace(/\/[^\/]+$/,'\/')+settings.coverimage);
                     $('#'+genId(obj.album)+' > img').attr('uri',obj.data[0].uri.replace(/\/[^\/]+$/,''));
                     $('#'+genId(obj.album)+' > img').attr('data-album',encodeURI(obj.album));
                     var titleList='';
@@ -850,26 +858,26 @@ function parseListTitles(obj) {
 }
 
 function setPagination(number) {
-    var totalPages=Math.ceil(number / MAX_ELEMENTS_PER_PAGE);
+    var totalPages=Math.ceil(number / settings.max_elements_per_page);
     var cat=app.current.app+(app.current.tab==undefined ? '': app.current.tab);
     if (totalPages==0) { totalPages=1; }
-        $('#'+cat+'PaginationTopPage').text('Page '+(app.current.page / MAX_ELEMENTS_PER_PAGE + 1)+' / '+totalPages);
-        $('#'+cat+'PaginationBottomPage').text('Page '+(app.current.page / MAX_ELEMENTS_PER_PAGE + 1)+' / '+totalPages);
+        $('#'+cat+'PaginationTopPage').text('Page '+(app.current.page / settings.max_elements_per_page + 1)+' / '+totalPages);
+        $('#'+cat+'PaginationBottomPage').text('Page '+(app.current.page / settings.max_elements_per_page + 1)+' / '+totalPages);
     if (totalPages > 1) {
         $('#'+cat+'PaginationTopPage').removeClass('disabled').removeAttr('disabled');
         $('#'+cat+'PaginationBottomPage').removeClass('disabled').removeAttr('disabled');
         $('#'+cat+'PaginationTopPages').empty();
         $('#'+cat+'PaginationBottomPages').empty();
         for (var i=0;i<totalPages;i++) {
-            $('#'+cat+'PaginationTopPages').append('<button onclick="gotoPage('+(i * MAX_ELEMENTS_PER_PAGE)+',this,event)" type="button" class="mr-1 mb-1 btn-sm btn btn-secondary">'+(i+1)+'</button>');
-            $('#'+cat+'PaginationBottomPages').append('<button onclick="gotoPage('+(i * MAX_ELEMENTS_PER_PAGE)+',this,event)" type="button" class="mr-1 mb-1 btn-sm btn btn-secondary">'+(i+1)+'</button>');
+            $('#'+cat+'PaginationTopPages').append('<button onclick="gotoPage('+(i * settings.max_elements_per_page)+',this,event)" type="button" class="mr-1 mb-1 btn-sm btn btn-secondary">'+(i+1)+'</button>');
+            $('#'+cat+'PaginationBottomPages').append('<button onclick="gotoPage('+(i * settings.max_elements_per_page)+',this,event)" type="button" class="mr-1 mb-1 btn-sm btn btn-secondary">'+(i+1)+'</button>');
         }
     } else {
         $('#'+cat+'PaginationTopPage').addClass('disabled').attr('disabled','disabled');
         $('#'+cat+'PaginationBottomPage').addClass('disabled').attr('disabled','disabled');
     }
     
-    if(number > app.current.page + MAX_ELEMENTS_PER_PAGE) {
+    if(number > app.current.page + settings.max_elements_per_page) {
         $('#'+cat+'PaginationTopNext').removeClass('disabled').removeAttr('disabled');
         $('#'+cat+'PaginationBottomNext').removeClass('disabled').removeAttr('disabled');
         $('#'+cat+'ButtonsBottom').removeClass('hide');
@@ -1013,10 +1021,16 @@ $('#btnconsume').on('click', function (e) {
 $('#btnsingle').on('click', function (e) {
     toggleBtn(this);
 });
-
 $('#btnrepeat').on('click', function (e) {
     toggleBtn(this);
 });
+$('#btnnotifyPage').on('click', function (e) {
+    toggleBtn(this);
+});
+$('#btnnotifyWeb').on('click', function (e) {
+    toggleBtn(this);
+});
+
 
 $('#cardBrowseNavFilesystem').on('click', function (e) {
     app.goto('Browse','Filesystem');
@@ -1100,7 +1114,7 @@ function confirmSettings() {
       }
     }
     if (formOK == true) {
-      sendAPI({"cmd":"MPD_API_SET_MPD_SETTINGS", "data": {
+      sendAPI({"cmd":"MPD_API_SET_SETTINGS", "data": {
         "consume": ($('#btnconsume').hasClass('btn-success') ? 1 : 0),
         "random":  ($('#btnrandom').hasClass('btn-success') ? 1 : 0),
         "single":  ($('#btnsingle').hasClass('btn-success') ? 1 : 0),
@@ -1108,11 +1122,9 @@ function confirmSettings() {
         "replaygain": $('#selectReplaygain').val(),
         "crossfade": $('#inputCrossfade').val(),
         "mixrampdb": $('#inputMixrampdb').val(),
-        "mixrampdelay": $('#inputMixrampdelay').val()
-      }});
-      sendAPI({"cmd":"MPD_API_SET_MYMPD_SETTINGS","data": {
-        "notificationsWeb": ($('#btnnotifyWeb').hasClass('btn-success') ? 1 : 0),
-        "notificationsPage": ($('#btnnotifyPage').hasClass('btn-success') ? 1 : 0)
+        "mixrampdelay": $('#inputMixrampdelay').val(),
+        "notificationWeb": ($('#btnnotifyWeb').hasClass('btn-success') ? 1 : 0),
+        "notificationPage": ($('#btnnotifyPage').hasClass('btn-success') ? 1 : 0)
       }});
       $('#settings').modal('hide');
     }
@@ -1127,33 +1139,7 @@ $('#trashmodebtns > button').on('click', function(e) {
     $(this).removeClass("btn-secondary").addClass("btn-success");
 });
 
-$('#btnnotifyWeb').on('click', function (e) {
-    if(Cookies.get('notificationWeb') === 'true') {
-        Cookies.set('notificationWeb', false, { expires: 424242 });
-        $('#btnnotifyWeb').removeClass('btn-success').addClass('btn-secondary');
-    } else {
-        Notification.requestPermission(function (permission) {
-            if(!('permission' in Notification)) {
-                Notification.permission = permission;
-            }
-
-            if (permission === 'granted') {
-                Cookies.set('notificationWeb', true, { expires: 424242 });
-                $('#btnnotifyWeb').removeClass('btn-secondary').addClass('btn-success');
-            }
-        });
-    }
-});
-
-$('#btnnotifyPage').on('click', function (e) {
-    if(Cookies.get("notificationPage") === 'true') {
-        Cookies.set("notificationPage", false, { expires: 424242 });
-        $('#btnnotifyPage').removeClass('btn-success').addClass('btn-secondary');
-    } else {
-        Cookies.set('notificationPage', true, { expires: 424242 });
-        $('#btnnotifyPage').removeClass('btn-secondary').addClass('btn-success');
-    }
-});
+        
 
 $('#search > input').keypress(function (event) {
    if ( event.which == 13 ) {
@@ -1221,10 +1207,10 @@ function scrollToTop() {
 function gotoPage(x,element,event) {
     switch (x) {
         case "next":
-            app.current.page += MAX_ELEMENTS_PER_PAGE;
+            app.current.page += settings.max_elements_per_page;
             break;
         case "prev":
-            app.current.page -= MAX_ELEMENTS_PER_PAGE;
+            app.current.page -= settings.max_elements_per_page;
             if(app.current.page <= 0)
                app.current.page = 0;
             break;
@@ -1251,13 +1237,13 @@ function saveQueue() {
 }
 
 function showNotification(notificationTitle,notificationText,notificationHtml,notificationType) {
-    if (Cookies.get('notificationWeb') === 'true') {
+    if (settings.notificationWeb == 1) {
       var notification = new Notification(notificationTitle, {icon: 'assets/favicon.ico', body: notificationText});
       setTimeout(function(notification) {
         notification.close();
       }, 3000, notification);    
     } 
-    if (Cookies.get('notificationPage') === 'true') {
+    if (settings.notificationPage == 1) {
       $.notify({ title: notificationTitle, message: notificationHtml},{ type: notificationType, offset: { y: 60, x:20 },
         template: '<div data-notify="container" class="col-xs-11 col-sm-3 alert alert-{0}" role="alert">' +
 		'<button type="button" aria-hidden="true" class="close" data-notify="dismiss">×</button>' +
@@ -1285,8 +1271,8 @@ function songChange(obj) {
         var coverImg='';
         if (obj.data.uri.indexOf('http://') == 0 || obj.data.uri.indexOf('https://') == 0 ) {
             coverImg='/assets/coverimage-httpstream.png';
-        } else if (coverImageFile != '') {
-            coverImg='/library/'+obj.data.uri.replace(/\/[^\/]+$/,'\/'+coverImageFile);
+        } else if (settings.coverimage != '') {
+            coverImg='/library/'+obj.data.uri.replace(/\/[^\/]+$/,'\/'+settings.coverimage);
         } else {
             coverImg='/assets/coverimage-notavailable.png';
         }

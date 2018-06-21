@@ -59,8 +59,8 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
     int je, int_buf; 
     float float_buf;
     char *p_charbuf1, *p_charbuf2;
-    FILE *fp;
-
+    struct mympd_state { int a; int b; } state = { .a = 0, .b = 0 };
+    
     #ifdef DEBUG
     fprintf(stdout,"Got request: %s\n",msg.p);
     #endif
@@ -72,24 +72,10 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
         return;
     
     switch(cmd_id) {
-        case MPD_API_SET_MYMPD_SETTINGS:
-            fp = fopen(mpd.statefile,"w");
-            if(fp != NULL) {
-                fprintf(fp,"%.*s",msg.len,msg.p);
-                fclose(fp);
-            } else {
-               fprintf(stderr,"Cant write state file\n");
-            }
-        break;
-        case MPD_API_GET_MYMPD_SETTINGS:
-            fp = fopen(mpd.statefile,"r");
-            if(fp != NULL) {
-                fgets(mpd.buf, MAX_SIZE, fp);
-                fclose(fp);
-                n=strlen(mpd.buf);
-            }
-        break;
-        case MPD_API_SET_MPD_SETTINGS:
+        case MPD_API_SET_SETTINGS:
+            json_scanf(msg.p, msg.len, "{ data: { notificationWeb: %d, notificationPage: %d} }", &state.a, &state.b);
+            json_fprintf(mpd.statefile, "{ notificationWeb: %d, notificationPage: %d}", state.a, state.b);
+            
             je = json_scanf(msg.p, msg.len, "{ data: { random:%u } }", &uint_buf1);
             if (je == 1)        
                 mpd_run_random(mpd.conn, uint_buf1);
@@ -305,7 +291,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
                 mpd_run_rm(mpd.conn, p_charbuf1);
             free(p_charbuf1);
             break;
-        case MPD_API_GET_MPD_SETTINGS:
+        case MPD_API_GET_SETTINGS:
             n = mympd_put_settings(mpd.buf);
             break;
         case MPD_API_GET_STATS:
@@ -630,6 +616,14 @@ int mympd_put_settings(char *buffer)
     char *replaygain;
     int len;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
+    struct mympd_state { int a; int b; } state = { .a = 0, .b = 0 };
+    if( access( mpd.statefile, F_OK ) != -1 ) {
+        char *content = json_fread(mpd.statefile);
+        json_scanf(content, strlen(content), "{notificationWeb: %d, notificationPage: %d}", &state.a, &state.b);
+    } else {
+        state.a=0;
+        state.b=0;
+    }
 
     status = mpd_run_status(mpd.conn);
     if (!status) {
@@ -644,12 +638,13 @@ int mympd_put_settings(char *buffer)
         replaygain=strdup(pair->value);
 	mpd_return_pair(mpd.conn, pair);
     }
-			
+    
     len = json_printf(&out,
         "{type:settings, data:{"
         "repeat:%d, single:%d, crossfade:%d, consume:%d, random:%d, "
         "mixrampdb: %f, mixrampdelay: %f, mpdhost : %Q, mpdport: %d, passwort_set: %B, "
-        "streamport: %d, coverimage: %Q, max_elements_per_page: %d, replaygain: %Q"
+        "streamport: %d, coverimage: %Q, max_elements_per_page: %d, replaygain: %Q,"
+        "notificationWeb: %d, notificationPage: %d"
         "}}", 
         mpd_status_get_repeat(status),
         mpd_status_get_single(status),
@@ -662,7 +657,9 @@ int mympd_put_settings(char *buffer)
         mpd.password ? "true" : "false", 
         streamport, coverimage,
         MAX_ELEMENTS_PER_PAGE,
-        replaygain
+        replaygain,
+        state.a,
+        state.b
     );
     mpd_status_free(status);
 

@@ -1,20 +1,19 @@
 /*
  * Copyright (c) 2004-2013 Sergey Lyubka <valenok@gmail.com>
- * Copyright (c) 2013 Cesanta Software Limited
+ * Copyright (c) 2018 Cesanta Software Limited
  * All rights reserved
  *
- * This library is dual-licensed: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation. For the terms of this
- * license, see <http: *www.gnu.org/licenses/>.
+ * Licensed under the Apache License, Version 2.0 (the ""License"");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * You are free to use this library under the terms of the GNU General
- * Public License, but WITHOUT ANY WARRANTY; without even the implied
- * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Alternatively, you can license this library under a commercial
- * license, as set out in <http://cesanta.com/products.html>.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an ""AS IS"" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 #define _CRT_SECURE_NO_WARNINGS /* Disable deprecation warning in VS2005+ */
@@ -35,6 +34,8 @@
 #endif
 
 #ifdef _WIN32
+#undef snprintf
+#undef vsnprintf
 #define snprintf cs_win_snprintf
 #define vsnprintf cs_win_vsnprintf
 int cs_win_snprintf(char *str, size_t size, const char *format, ...);
@@ -47,33 +48,27 @@ typedef unsigned _int64 uint64_t;
 #endif
 #define PRId64 "I64d"
 #define PRIu64 "I64u"
-#if !defined(SIZE_T_FMT)
-#if _MSC_VER >= 1310
-#define SIZE_T_FMT "Iu"
-#else
-#define SIZE_T_FMT "u"
-#endif
-#endif
 #else /* _WIN32 */
 /* <inttypes.h> wants this for C++ */
 #ifndef __STDC_FORMAT_MACROS
 #define __STDC_FORMAT_MACROS
 #endif
 #include <inttypes.h>
-#if !defined(SIZE_T_FMT)
-#define SIZE_T_FMT "zu"
-#endif
 #endif /* _WIN32 */
 
+#ifndef INT64_FMT
 #define INT64_FMT PRId64
+#endif
+#ifndef UINT64_FMT
 #define UINT64_FMT PRIu64
+#endif
 
 #ifndef va_copy
 #define va_copy(x, y) x = y
 #endif
 
 #ifndef JSON_MAX_PATH_LEN
-#define JSON_MAX_PATH_LEN 60
+#define JSON_MAX_PATH_LEN 256
 #endif
 
 struct frozen {
@@ -85,14 +80,14 @@ struct frozen {
 
   /* For callback API */
   char path[JSON_MAX_PATH_LEN];
-  int path_len;
+  size_t path_len;
   void *callback_data;
   json_walk_callback_t callback;
 };
 
 struct fstate {
   const char *ptr;
-  int path_len;
+  size_t path_len;
 };
 
 #define SET_STATE(fr, ptr, str, len)              \
@@ -117,14 +112,15 @@ struct fstate {
 
 static int append_to_path(struct frozen *f, const char *str, int size) {
   int n = f->path_len;
-  f->path_len +=
-      snprintf(f->path + f->path_len, sizeof(f->path) - (f->path_len + 1),
-               "%.*s", size, str);
-
+  int left = sizeof(f->path) - n - 1;
+  if (size > left) size = left;
+  memcpy(f->path + n, str, size);
+  f->path[n + size] = '\0';
+  f->path_len += size;
   return n;
 }
 
-static void truncate_path(struct frozen *f, int len) {
+static void truncate_path(struct frozen *f, size_t len) {
   f->path_len = len;
   f->path[len] = '\0';
 }
@@ -242,7 +238,7 @@ static int parse_string(struct frozen *f) {
       ch = *(unsigned char *) f->cur;
       len = get_utf8_char_len((unsigned char) ch);
       EXPECT(ch >= 32 && len > 0, JSON_STRING_INVALID); /* No control chars */
-      EXPECT(len < left(f), JSON_STRING_INCOMPLETE);
+      EXPECT(len <= left(f), JSON_STRING_INCOMPLETE);
       if (ch == '\\') {
         EXPECT((n = get_escape_len(f->cur + 1, left(f))) > 0, n);
         len += n;
@@ -288,9 +284,9 @@ static int parse_number(struct frozen *f) {
 static int parse_array(struct frozen *f) {
   int i = 0, current_path_len;
   char buf[20];
+  CALL_BACK(f, JSON_TYPE_ARRAY_START, NULL, 0);
   TRY(test_and_skip(f, '['));
   {
-    CALL_BACK(f, JSON_TYPE_ARRAY_START, NULL, 0);
     {
       SET_STATE(f, f->cur - 1, "", 0);
       while (cur(f) != ']') {
@@ -374,9 +370,6 @@ static int parse_value(struct frozen *f) {
 /* key = identifier | string */
 static int parse_key(struct frozen *f) {
   int ch = cur(f);
-#if 0
-  printf("%s [%.*s]\n", __func__, (int) (f->end - f->cur), f->cur);
-#endif
   if (is_alpha(ch)) {
     TRY(parse_identifier(f));
   } else if (ch == '"') {
@@ -407,19 +400,17 @@ static int parse_pair(struct frozen *f) {
 
 /* object = '{' pair { ',' pair } '}' */
 static int parse_object(struct frozen *f) {
+  CALL_BACK(f, JSON_TYPE_OBJECT_START, NULL, 0);
   TRY(test_and_skip(f, '{'));
   {
-    CALL_BACK(f, JSON_TYPE_OBJECT_START, NULL, 0);
-    {
-      SET_STATE(f, f->cur - 1, ".", 1);
-      while (cur(f) != '}') {
-        TRY(parse_pair(f));
-        if (cur(f) == ',') f->cur++;
-      }
-      TRY(test_and_skip(f, '}'));
-      truncate_path(f, fstate.path_len);
-      CALL_BACK(f, JSON_TYPE_OBJECT_END, fstate.ptr, f->cur - fstate.ptr);
+    SET_STATE(f, f->cur - 1, ".", 1);
+    while (cur(f) != '}') {
+      TRY(parse_pair(f));
+      if (cur(f) == ',') f->cur++;
     }
+    TRY(test_and_skip(f, '}'));
+    truncate_path(f, fstate.path_len);
+    CALL_BACK(f, JSON_TYPE_OBJECT_END, fstate.ptr, f->cur - fstate.ptr);
   }
   return 0;
 }
@@ -430,7 +421,8 @@ static int doit(struct frozen *f) {
   return parse_value(f);
 }
 
-static int json_encode_string(struct json_out *out, const char *p, size_t len) {
+int json_escape(struct json_out *out, const char *p, size_t len) WEAK;
+int json_escape(struct json_out *out, const char *p, size_t len) {
   size_t i, cl, n = 0;
   const char *hex_digits = "0123456789abcdef";
   const char *specials = "btnvfr";
@@ -505,7 +497,7 @@ static int b64rev(int c) {
   }
 }
 
-static uint8_t hexdec(const char *s) {
+static unsigned char hexdec(const char *s) {
 #define HEXTOI(x) (x >= '0' && x <= '9' ? x - '0' : x - 'W')
   int a = tolower(*(const unsigned char *) s);
   int b = tolower(*(const unsigned char *) (s + 1));
@@ -569,7 +561,7 @@ int json_vprintf(struct json_out *out, const char *fmt, va_list xap) {
         skip += 2;
       } else if (fmt[1] == 'z' && fmt[2] == 'u') {
         size_t val = va_arg(ap, size_t);
-        snprintf(buf, sizeof(buf), "%" SIZE_T_FMT, val);
+        snprintf(buf, sizeof(buf), "%lu", (unsigned long) val);
         len += out->printer(out, buf, strlen(buf));
         skip += 1;
       } else if (fmt[1] == 'M') {
@@ -613,7 +605,7 @@ int json_vprintf(struct json_out *out, const char *fmt, va_list xap) {
             l = strlen(p);
           }
           len += out->printer(out, quote, 1);
-          len += json_encode_string(out, p, l);
+          len += json_escape(out, p, l);
           len += out->printer(out, quote, 1);
         }
       } else {
@@ -628,30 +620,48 @@ int json_vprintf(struct json_out *out, const char *fmt, va_list xap) {
          * TODO(dfrank): reimplement %s and %.*s in order to avoid that.
          */
 
-        const char *end_of_format_specifier = "sdfFgGlhuI.*-0123456789";
-        size_t n = strspn(fmt + 1, end_of_format_specifier);
+        const char *end_of_format_specifier = "sdfFgGlhuIcx.*-0123456789";
+        int n = strspn(fmt + 1, end_of_format_specifier);
         char *pbuf = buf;
-        size_t need_len;
+        int need_len, size = sizeof(buf);
         char fmt2[20];
-        va_list sub_ap;
-        strncpy(fmt2, fmt, n + 1 > sizeof(fmt2) ? sizeof(fmt2) : n + 1);
+        va_list ap_copy;
+        strncpy(fmt2, fmt,
+                n + 1 > (int) sizeof(fmt2) ? sizeof(fmt2) : (size_t) n + 1);
         fmt2[n + 1] = '\0';
 
-        va_copy(sub_ap, ap);
-        need_len =
-            vsnprintf(buf, sizeof(buf), fmt2, sub_ap) + 1 /* null-term */;
-        /*
-         * TODO(lsm): Fix windows & eCos code path here. Their vsnprintf
-         * implementation returns -1 on overflow rather needed size.
-         */
-        if (need_len > sizeof(buf)) {
+        va_copy(ap_copy, ap);
+        need_len = vsnprintf(pbuf, size, fmt2, ap_copy);
+        va_end(ap_copy);
+
+        if (need_len < 0) {
+          /*
+           * Windows & eCos vsnprintf implementation return -1 on overflow
+           * instead of needed size.
+           */
+          pbuf = NULL;
+          while (need_len < 0) {
+            free(pbuf);
+            size *= 2;
+            if ((pbuf = (char *) malloc(size)) == NULL) break;
+            va_copy(ap_copy, ap);
+            need_len = vsnprintf(pbuf, size, fmt2, ap_copy);
+            va_end(ap_copy);
+          }
+        } else if (need_len >= (int) sizeof(buf)) {
           /*
            * resulting string doesn't fit into a stack-allocated buffer `buf`,
            * so we need to allocate a new buffer from heap and use it
            */
-          pbuf = (char *) malloc(need_len);
-          va_copy(sub_ap, ap);
-          vsnprintf(pbuf, need_len, fmt2, sub_ap);
+          if ((pbuf = (char *) malloc(need_len + 1)) != NULL) {
+            va_copy(ap_copy, ap);
+            vsnprintf(pbuf, need_len + 1, fmt2, ap_copy);
+            va_end(ap_copy);
+          }
+        }
+        if (pbuf == NULL) {
+          buf[0] = '\0';
+          pbuf = buf;
         }
 
         /*
@@ -663,7 +673,6 @@ int json_vprintf(struct json_out *out, const char *fmt, va_list xap) {
         if ((n + 1 == strlen("%" PRId64) && strcmp(fmt2, "%" PRId64) == 0) ||
             (n + 1 == strlen("%" PRIu64) && strcmp(fmt2, "%" PRIu64) == 0)) {
           (void) va_arg(ap, int64_t);
-          skip += strlen(PRIu64) - 1;
         } else if (strcmp(fmt2, "%.*s") == 0) {
           (void) va_arg(ap, int);
           (void) va_arg(ap, char *);
@@ -704,6 +713,7 @@ int json_vprintf(struct json_out *out, const char *fmt, va_list xap) {
       }
       len += out->printer(out, quote, 1);
     } else {
+      len += out->printer(out, fmt, 1);
       fmt++;
     }
   }
@@ -749,7 +759,8 @@ int json_printf_array(struct json_out *out, va_list *ap) {
 }
 
 #ifdef _WIN32
-int cs_win_vsnprintf(char *str, size_t size, const char *format, va_list ap) WEAK;
+int cs_win_vsnprintf(char *str, size_t size, const char *format,
+                     va_list ap) WEAK;
 int cs_win_vsnprintf(char *str, size_t size, const char *format, va_list ap) {
   int res = _vsnprintf(str, size, format, ap);
   va_end(ap);
@@ -788,6 +799,7 @@ int json_walk(const char *json_string, int json_string_length,
 }
 
 struct scan_array_info {
+  int found;
   char path[JSON_MAX_PATH_LEN];
   struct json_token *token;
 };
@@ -802,6 +814,7 @@ static void json_scanf_array_elem_cb(void *callback_data, const char *name,
 
   if (strcmp(path, info->path) == 0) {
     *info->token = *token;
+    info->found = 1;
   }
 }
 
@@ -811,10 +824,11 @@ int json_scanf_array_elem(const char *s, int len, const char *path, int idx,
                           struct json_token *token) {
   struct scan_array_info info;
   info.token = token;
+  info.found = 0;
   memset(token, 0, sizeof(*token));
   snprintf(info.path, sizeof(info.path), "%s[%d]", path, idx);
   json_walk(s, len, json_scanf_array_elem_cb, &info);
-  return token->len;
+  return info.found ? token->len : -1;
 }
 
 struct json_scanf_info {
@@ -856,6 +870,7 @@ static void json_scanf_cb(void *callback_data, const char *name,
                           size_t name_len, const char *path,
                           const struct json_token *token) {
   struct json_scanf_info *info = (struct json_scanf_info *) callback_data;
+  char buf[32]; /* Must be enough to hold numbers */
 
   (void) name;
   (void) name_len;
@@ -876,7 +891,17 @@ static void json_scanf_cb(void *callback_data, const char *name,
   switch (info->type) {
     case 'B':
       info->num_conversions++;
-      *(int *) info->target = (token->type == JSON_TYPE_TRUE ? 1 : 0);
+      switch (sizeof(bool)) {
+        case sizeof(char):
+          *(char *) info->target = (token->type == JSON_TYPE_TRUE ? 1 : 0);
+          break;
+        case sizeof(int):
+          *(int *) info->target = (token->type == JSON_TYPE_TRUE ? 1 : 0);
+          break;
+        default:
+          /* should never be here */
+          abort();
+      }
       break;
     case 'M': {
       union {
@@ -889,12 +914,21 @@ static void json_scanf_cb(void *callback_data, const char *name,
     }
     case 'Q': {
       char **dst = (char **) info->target;
-      int unescaped_len = json_unescape(token->ptr, token->len, NULL, 0);
-      if (unescaped_len >= 0 &&
-          (*dst = (char *) malloc(unescaped_len + 1)) != NULL) {
-        info->num_conversions++;
-        json_unescape(token->ptr, token->len, *dst, unescaped_len);
-        (*dst)[unescaped_len] = '\0';
+      if (token->type == JSON_TYPE_NULL) {
+        *dst = NULL;
+      } else {
+        int unescaped_len = json_unescape(token->ptr, token->len, NULL, 0);
+        if (unescaped_len >= 0 &&
+            (*dst = (char *) malloc(unescaped_len + 1)) != NULL) {
+          info->num_conversions++;
+          if (json_unescape(token->ptr, token->len, *dst, unescaped_len) ==
+              unescaped_len) {
+            (*dst)[unescaped_len] = '\0';
+          } else {
+            free(*dst);
+            *dst = NULL;
+          }
+        }
       }
       break;
     }
@@ -927,7 +961,12 @@ static void json_scanf_cb(void *callback_data, const char *name,
       *(struct json_token *) info->target = *token;
       break;
     default:
-      info->num_conversions += sscanf(token->ptr, info->fmt, info->target);
+      /* Before scanf, copy into tmp buffer in order to 0-terminate it */
+      if (token->len < (int) sizeof(buf)) {
+        memcpy(buf, token->ptr, token->len);
+        buf[token->len] = '\0';
+        info->num_conversions += sscanf(buf, info->fmt, info->target);
+      }
       break;
   }
 }
@@ -989,6 +1028,383 @@ int json_scanf(const char *str, int len, const char *fmt, ...) {
   va_list ap;
   va_start(ap, fmt);
   result = json_vscanf(str, len, fmt, ap);
+  va_end(ap);
+  return result;
+}
+
+int json_vfprintf(const char *file_name, const char *fmt, va_list ap) WEAK;
+int json_vfprintf(const char *file_name, const char *fmt, va_list ap) {
+  int res = -1;
+  FILE *fp = fopen(file_name, "wb");
+  if (fp != NULL) {
+    struct json_out out = JSON_OUT_FILE(fp);
+    res = json_vprintf(&out, fmt, ap);
+    fputc('\n', fp);
+    fclose(fp);
+  }
+  return res;
+}
+
+int json_fprintf(const char *file_name, const char *fmt, ...) WEAK;
+int json_fprintf(const char *file_name, const char *fmt, ...) {
+  int result;
+  va_list ap;
+  va_start(ap, fmt);
+  result = json_vfprintf(file_name, fmt, ap);
+  va_end(ap);
+  return result;
+}
+
+char *json_fread(const char *path) WEAK;
+char *json_fread(const char *path) {
+  FILE *fp;
+  char *data = NULL;
+  if ((fp = fopen(path, "rb")) == NULL) {
+  } else if (fseek(fp, 0, SEEK_END) != 0) {
+    fclose(fp);
+  } else {
+    long size = ftell(fp);
+    if (size > 0 && (data = (char *) malloc(size + 1)) != NULL) {
+      fseek(fp, 0, SEEK_SET); /* Some platforms might not have rewind(), Oo */
+      if (fread(data, 1, size, fp) != (size_t) size) {
+        free(data);
+        data = NULL;
+      } else {
+        data[size] = '\0';
+      }
+    }
+    fclose(fp);
+  }
+  return data;
+}
+
+struct json_setf_data {
+  const char *json_path;
+  const char *base; /* Pointer to the source JSON string */
+  int matched;      /* Matched part of json_path */
+  int pos;          /* Offset of the mutated value begin */
+  int end;          /* Offset of the mutated value end */
+  int prev;         /* Offset of the previous token end */
+};
+
+static int get_matched_prefix_len(const char *s1, const char *s2) {
+  int i = 0;
+  while (s1[i] && s2[i] && s1[i] == s2[i]) i++;
+  return i;
+}
+
+static void json_vsetf_cb(void *userdata, const char *name, size_t name_len,
+                          const char *path, const struct json_token *t) {
+  struct json_setf_data *data = (struct json_setf_data *) userdata;
+  int off, len = get_matched_prefix_len(path, data->json_path);
+  if (t->ptr == NULL) return;
+  off = t->ptr - data->base;
+  // printf("--%d %s %d\n", t->type, path, off);
+  if (len > data->matched) data->matched = len;
+
+  /*
+   * If there is no exact path match, set the mutation position to tbe end
+   * of the object or array
+   */
+  if (len < data->matched && data->pos == 0 &&
+      (t->type == JSON_TYPE_OBJECT_END || t->type == JSON_TYPE_ARRAY_END)) {
+    data->pos = data->end = data->prev;
+  }
+
+  /* Exact path match. Set mutation position to the value of this token */
+  if (strcmp(path, data->json_path) == 0 && t->type != JSON_TYPE_OBJECT_START &&
+      t->type != JSON_TYPE_ARRAY_START) {
+    data->pos = off;
+    data->end = off + t->len;
+  }
+
+  /*
+   * For deletion, we need to know where the previous value ends, because
+   * we don't know where matched value key starts.
+   * When the mutation position is not yet set, remember each value end.
+   * When the mutation position is already set, but it is at the beginning
+   * of the object/array, we catch the end of the object/array and see
+   * whether the object/array start is closer then previously stored prev.
+   */
+  if (data->pos == 0) {
+    data->prev = off + t->len; /* pos is not yet set */
+  } else if ((t->ptr[0] == '[' || t->ptr[0] == '{') && off + 1 < data->pos &&
+             off + 1 > data->prev) {
+    data->prev = off + 1;
+  }
+  (void) name;
+  (void) name_len;
+}
+
+int json_vsetf(const char *s, int len, struct json_out *out,
+               const char *json_path, const char *json_fmt, va_list ap) WEAK;
+int json_vsetf(const char *s, int len, struct json_out *out,
+               const char *json_path, const char *json_fmt, va_list ap) {
+  struct json_setf_data data;
+  memset(&data, 0, sizeof(data));
+  data.json_path = json_path;
+  data.base = s;
+  data.end = len;
+  // printf("S:[%.*s] %s %p\n", len, s, json_path, json_fmt);
+  json_walk(s, len, json_vsetf_cb, &data);
+  // printf("-> %d %d %d\n", data.prev, data.pos, data.end);
+  if (json_fmt == NULL) {
+    /* Deletion codepath */
+    json_printf(out, "%.*s", data.prev, s);
+    /* Trim comma after the value that begins at object/array start */
+    if (s[data.prev - 1] == '{' || s[data.prev - 1] == '[') {
+      int i = data.end;
+      while (i < len && is_space(s[i])) i++;
+      if (s[i] == ',') data.end = i + 1; /* Point after comma */
+    }
+    json_printf(out, "%.*s", len - data.end, s + data.end);
+  } else {
+    /* Modification codepath */
+    int n, off = data.matched, depth = 0;
+
+    /* Print the unchanged beginning */
+    json_printf(out, "%.*s", data.pos, s);
+
+    /* Add missing keys */
+    while ((n = strcspn(&json_path[off], ".[")) > 0) {
+      if (s[data.prev - 1] != '{' && s[data.prev - 1] != '[' && depth == 0) {
+        json_printf(out, ",");
+      }
+      if (off > 0 && json_path[off - 1] != '.') break;
+      json_printf(out, "%.*Q:", 1, json_path + off);
+      off += n;
+      if (json_path[off] != '\0') {
+        json_printf(out, "%c", json_path[off] == '.' ? '{' : '[');
+        depth++;
+        off++;
+      }
+    }
+    /* Print the new value */
+    json_vprintf(out, json_fmt, ap);
+
+    /* Close brackets/braces of the added missing keys */
+    for (; off > data.matched; off--) {
+      int ch = json_path[off];
+      const char *p = ch == '.' ? "}" : ch == '[' ? "]" : "";
+      json_printf(out, "%s", p);
+    }
+
+    /* Print the rest of the unchanged string */
+    json_printf(out, "%.*s", len - data.end, s + data.end);
+  }
+  return data.end > data.pos ? 1 : 0;
+}
+
+int json_setf(const char *s, int len, struct json_out *out,
+              const char *json_path, const char *json_fmt, ...) WEAK;
+int json_setf(const char *s, int len, struct json_out *out,
+              const char *json_path, const char *json_fmt, ...) {
+  int result;
+  va_list ap;
+  va_start(ap, json_fmt);
+  result = json_vsetf(s, len, out, json_path, json_fmt, ap);
+  va_end(ap);
+  return result;
+}
+
+struct prettify_data {
+  struct json_out *out;
+  int level;
+  int last_token;
+};
+
+static void indent(struct json_out *out, int level) {
+  while (level-- > 0) out->printer(out, "  ", 2);
+}
+
+static void print_key(struct prettify_data *pd, const char *path,
+                      const char *name, int name_len) {
+  if (pd->last_token != JSON_TYPE_INVALID &&
+      pd->last_token != JSON_TYPE_ARRAY_START &&
+      pd->last_token != JSON_TYPE_OBJECT_START) {
+    pd->out->printer(pd->out, ",", 1);
+  }
+  if (path[0] != '\0') pd->out->printer(pd->out, "\n", 1);
+  indent(pd->out, pd->level);
+  if (path[0] != '\0' && path[strlen(path) - 1] != ']') {
+    pd->out->printer(pd->out, "\"", 1);
+    pd->out->printer(pd->out, name, (int) name_len);
+    pd->out->printer(pd->out, "\"", 1);
+    pd->out->printer(pd->out, ": ", 2);
+  }
+}
+
+static void prettify_cb(void *userdata, const char *name, size_t name_len,
+                        const char *path, const struct json_token *t) {
+  struct prettify_data *pd = (struct prettify_data *) userdata;
+  switch (t->type) {
+    case JSON_TYPE_OBJECT_START:
+    case JSON_TYPE_ARRAY_START:
+      print_key(pd, path, name, name_len);
+      pd->out->printer(pd->out, t->type == JSON_TYPE_ARRAY_START ? "[" : "{",
+                       1);
+      pd->level++;
+      break;
+    case JSON_TYPE_OBJECT_END:
+    case JSON_TYPE_ARRAY_END:
+      pd->level--;
+      if (pd->last_token != JSON_TYPE_INVALID &&
+          pd->last_token != JSON_TYPE_ARRAY_START &&
+          pd->last_token != JSON_TYPE_OBJECT_START) {
+        pd->out->printer(pd->out, "\n", 1);
+        indent(pd->out, pd->level);
+      }
+      pd->out->printer(pd->out, t->type == JSON_TYPE_ARRAY_END ? "]" : "}", 1);
+      break;
+    case JSON_TYPE_NUMBER:
+    case JSON_TYPE_NULL:
+    case JSON_TYPE_TRUE:
+    case JSON_TYPE_FALSE:
+    case JSON_TYPE_STRING:
+      print_key(pd, path, name, name_len);
+      if (t->type == JSON_TYPE_STRING) pd->out->printer(pd->out, "\"", 1);
+      pd->out->printer(pd->out, t->ptr, t->len);
+      if (t->type == JSON_TYPE_STRING) pd->out->printer(pd->out, "\"", 1);
+      break;
+    default:
+      break;
+  }
+  pd->last_token = t->type;
+}
+
+int json_prettify(const char *s, int len, struct json_out *out) WEAK;
+int json_prettify(const char *s, int len, struct json_out *out) {
+  struct prettify_data pd = {out, 0, JSON_TYPE_INVALID};
+  return json_walk(s, len, prettify_cb, &pd);
+}
+
+int json_prettify_file(const char *file_name) WEAK;
+int json_prettify_file(const char *file_name) {
+  int res = -1;
+  char *s = json_fread(file_name);
+  FILE *fp;
+  if (s != NULL && (fp = fopen(file_name, "wb")) != NULL) {
+    struct json_out out = JSON_OUT_FILE(fp);
+    res = json_prettify(s, strlen(s), &out);
+    if (res < 0) {
+      /* On error, restore the old content */
+      fclose(fp);
+      fp = fopen(file_name, "wb");
+      fseek(fp, 0, SEEK_SET);
+      fwrite(s, 1, strlen(s), fp);
+    } else {
+      fputc('\n', fp);
+    }
+    fclose(fp);
+  }
+  free(s);
+  return res;
+}
+
+struct next_data {
+  void *handle;            // Passed handle. Changed if a next entry is found
+  const char *path;        // Path to the iterated object/array
+  int path_len;            // Path length - optimisation
+  int found;               // Non-0 if found the next entry
+  struct json_token *key;  // Object's key
+  struct json_token *val;  // Object's value
+  int *idx;                // Array index
+};
+
+static void next_set_key(struct next_data *d, const char *name, int name_len,
+                         int is_array) {
+  if (is_array) {
+    /* Array. Set index and reset key  */
+    if (d->key != NULL) {
+      d->key->len = 0;
+      d->key->ptr = NULL;
+    }
+    if (d->idx != NULL) *d->idx = atoi(name);
+  } else {
+    /* Object. Set key and make index -1 */
+    if (d->key != NULL) {
+      d->key->ptr = name;
+      d->key->len = name_len;
+    }
+    if (d->idx != NULL) *d->idx = -1;
+  }
+}
+
+static void next_cb(void *userdata, const char *name, size_t name_len,
+                    const char *path, const struct json_token *t) {
+  struct next_data *d = (struct next_data *) userdata;
+  const char *p = path + d->path_len;
+  if (d->found) return;
+  if (d->path_len >= (int) strlen(path)) return;
+  if (strncmp(d->path, path, d->path_len) != 0) return;
+  if (strchr(p + 1, '.') != NULL) return; /* More nested objects - skip */
+  if (strchr(p + 1, '[') != NULL) return; /* Ditto for arrays */
+  // {OBJECT,ARRAY}_END types do not pass name, _START does. Save key.
+  if (t->type == JSON_TYPE_OBJECT_START || t->type == JSON_TYPE_ARRAY_START) {
+    // printf("SAV %s %d %p\n", path, t->type, t->ptr);
+    next_set_key(d, name, name_len, p[0] == '[');
+  } else if (d->handle == NULL || d->handle < (void *) t->ptr) {
+    // printf("END %s %d %p\n", path, t->type, t->ptr);
+    if (t->type != JSON_TYPE_OBJECT_END && t->type != JSON_TYPE_ARRAY_END) {
+      next_set_key(d, name, name_len, p[0] == '[');
+    }
+    if (d->val != NULL) *d->val = *t;
+    d->handle = (void *) t->ptr;
+    d->found = 1;
+  }
+}
+
+static void *json_next(const char *s, int len, void *handle, const char *path,
+                       struct json_token *key, struct json_token *val, int *i) {
+  struct json_token tmpval, *v = val == NULL ? &tmpval : val;
+  struct json_token tmpkey, *k = key == NULL ? &tmpkey : key;
+  int tmpidx, *pidx = i == NULL ? &tmpidx : i;
+  struct next_data data = {handle, path, strlen(path), 0, k, v, pidx};
+  json_walk(s, len, next_cb, &data);
+  return data.found ? data.handle : NULL;
+}
+
+void *json_next_key(const char *s, int len, void *handle, const char *path,
+                    struct json_token *key, struct json_token *val) WEAK;
+void *json_next_key(const char *s, int len, void *handle, const char *path,
+                    struct json_token *key, struct json_token *val) {
+  return json_next(s, len, handle, path, key, val, NULL);
+}
+
+void *json_next_elem(const char *s, int len, void *handle, const char *path,
+                     int *idx, struct json_token *val) WEAK;
+void *json_next_elem(const char *s, int len, void *handle, const char *path,
+                     int *idx, struct json_token *val) {
+  return json_next(s, len, handle, path, NULL, val, idx);
+}
+
+static int json_sprinter(struct json_out *out, const char *str, size_t len) {
+  size_t old_len = out->u.buf.buf == NULL ? 0 : strlen(out->u.buf.buf);
+  size_t new_len = len + old_len;
+  char *p = (char *) realloc(out->u.buf.buf, new_len + 1);
+  if (p != NULL) {
+    memcpy(p + old_len, str, len);
+    p[new_len] = '\0';
+    out->u.buf.buf = p;
+  }
+  return len;
+}
+
+char *json_vasprintf(const char *fmt, va_list ap) WEAK;
+char *json_vasprintf(const char *fmt, va_list ap) {
+  struct json_out out;
+  memset(&out, 0, sizeof(out));
+  out.printer = json_sprinter;
+  json_vprintf(&out, fmt, ap);
+  return out.u.buf.buf;
+}
+
+char *json_asprintf(const char *fmt, ...) WEAK;
+char *json_asprintf(const char *fmt, ...) {
+  char *result = NULL;
+  va_list ap;
+  va_start(ap, fmt);
+  result = json_vasprintf(fmt, ap);
   va_end(ap);
   return result;
 }
