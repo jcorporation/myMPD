@@ -103,7 +103,7 @@ int main(int argc, char **argv)
     struct mg_connection *nc;
     unsigned int current_timer = 0, last_timer = 0;
     char *run_as_user = NULL;
-    char *webport = "8080";
+    char *webport = "80";
     mpd.port = 6600;
     strcpy(mpd.host, "127.0.0.1");
     streamport = 8000;
@@ -203,6 +203,11 @@ int main(int argc, char **argv)
             printf("setuid() failed\n");
             return EXIT_FAILURE;
         }
+    }
+    
+    if (getuid() == 0) {
+      printf("myMPD should not be run with root privileges\n");
+      return EXIT_FAILURE;
     }
 
     mg_set_protocol_http_websocket(nc);

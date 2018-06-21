@@ -31,13 +31,9 @@ Unix Build Instructions
 -----------------------
 
 1. install dependencies. cmake and libmpdclient (dev) are available from all major distributions.
-2. create build directory ```cd /path/to/src; mkdir build; cd build```
-3. create makefile ```cmake ..  -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=RELEASE```
-4. build ```make```
-5. install ```sudo make install```
-6. change owner of /var/lib/mympd to user you will run mympd, default nobody (chown nobody /var/lib/mympd)
-7. Link your mpd music directory to ```/usr/share/mympd/htdocs/library``` and put ```folder.jpg``` files in your album directories
-8. Configure your mpd with http stream output to use the local player
+2. build and install it ```cd /path/to/src; ./mkrelease.sh```
+3. Link your mpd music directory to ```/usr/share/mympd/htdocs/library``` and put ```folder.jpg``` files in your album directories
+4. Configure your mpd with http stream output to use the local player
 
 Run flags
 ---------
@@ -46,7 +42,7 @@ Usage: ./mympd [OPTION]...
 
  -h, --host <host>             connect to mpd at host [localhost]
  -p, --port <port>             connect to mpd at port [6600]
- -w, --webport [ip:]<port>     listen interface/port for webserver [8080]
+ -w, --webport <port>          listen port for webserver [80]
  -s, --streamport <port>       connect to mpd http stream at port [8000]
  -u, --user <username>         drop priviliges to user after socket bind
  -m, --mpdpass <password>      specifies the password to use when connecting to mpd

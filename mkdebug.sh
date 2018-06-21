@@ -1,4 +1,4 @@
-#/bin/bash
+#/bin/sh
 
 [ -d debug ] || mkdir debug
 cd debug
