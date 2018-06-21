@@ -113,7 +113,8 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
         	    mpd_return_pair(mpd.conn, pair);
                 }            
             }
-            free(p_charbuf1);        
+            free(p_charbuf1);
+            n = snprintf(mpd.buf, MAX_SIZE, "{\"type\":\"result\", \"data\": \"ok\"}");
             break;
         case MPD_API_GET_ARTISTALBUMTITLES:
             je = json_scanf(msg.p, msg.len, "{ data: { albumartist:%Q, album:%Q } }", &p_charbuf1, &p_charbuf2);

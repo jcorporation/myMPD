@@ -16,7 +16,6 @@ UI Components
  - Bootstrap Slider: https://github.com/seiyria/bootstrap-slider
  - Material Design Icons: https://material.io/tools/icons/?style=baseline
  - jQuery: https://jquery.com/
- - js-cookie: https://github.com/js-cookie/js-cookie
 
 Backend
 -------
@@ -36,8 +35,9 @@ Unix Build Instructions
 3. create makefile ```cmake ..  -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=RELEASE```
 4. build ```make```
 5. install ```sudo make install```
-6. Link your mpd music directory to ```/usr/share/mympd/htdocs/library``` and put ```folder.jpg``` files in your album directories
-7. Configure your mpd with http stream output to use the local player
+6. change owner of /var/lib/mympd to user you will run mympd, default nobody (chown nobody /var/lib/mympd)
+7. Link your mpd music directory to ```/usr/share/mympd/htdocs/library``` and put ```folder.jpg``` files in your album directories
+8. Configure your mpd with http stream output to use the local player
 
 Run flags
 ---------
@@ -51,6 +51,7 @@ Usage: ./mympd [OPTION]...
  -u, --user <username>         drop priviliges to user after socket bind
  -m, --mpdpass <password>      specifies the password to use when connecting to mpd
  -i, --coverimage <filename>   filename for coverimage [folder.jpg]
+ -t, --statefile <filename>    filename for mympd state [/var/lib/mympd/mympd.state]
  -v, --version                 get version
  --help                        this help
 ```

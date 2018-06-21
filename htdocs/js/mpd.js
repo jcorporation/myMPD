@@ -31,7 +31,6 @@ var isTouch = Modernizr.touch ? 1 : 0;
 var playstate = '';
 var progressBar;
 var volumeBar;
-var coverImageFile = '';
 var settings = {};
 
 var app = {};
@@ -213,7 +212,7 @@ app.route=function() {
 };
 
 $(document).ready(function(){
-    sendAPI({"cmd":"MPD_API_GET_SETTINGS"},parseSettings);
+    getSettings();
     sendAPI({"cmd":"MPD_API_GET_OUTPUTNAMES"},parseOutputnames);
 
     webSocketConnect();
@@ -430,6 +429,10 @@ function parseSettings(obj) {
   
   settings=obj.data;
   setLocalStream(obj.data.mpdhost,obj.data.streamport);
+}
+
+function getSettings() {
+  sendAPI({"cmd":"MPD_API_GET_SETTINGS"},parseSettings);
 }
 
 function parseOutputnames(obj) {
@@ -1125,7 +1128,7 @@ function confirmSettings() {
         "mixrampdelay": $('#inputMixrampdelay').val(),
         "notificationWeb": ($('#btnnotifyWeb').hasClass('btn-success') ? 1 : 0),
         "notificationPage": ($('#btnnotifyPage').hasClass('btn-success') ? 1 : 0)
-      }});
+      }},getSettings);
       $('#settings').modal('hide');
     }
 }

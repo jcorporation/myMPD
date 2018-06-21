@@ -5,3 +5,4 @@ MPD_PASSWORD=
 WEB_PORT=80
 MYMPD_USER=nobody
 COVERIMAGE=--coverimage folder.jpg
+STATEFILE=--statefile /var/lib/mympd/mympd.state
