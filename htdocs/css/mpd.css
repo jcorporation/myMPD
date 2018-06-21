@@ -82,8 +82,12 @@ tbody {
  float: right !important;
 }
 
-#queue-buttons, #BrowsePlaylistsButtons, #SearchButtons, #BrowseFilesystemButtons, #BrowseDatabaseButtons {
- margin-bottom:20px;
+.card-toolbar {
+ margin-bottom:10px;
+}
+
+.card-toolbar > div, .card-toolbar > form {
+ margin-bottom:5px;
 }
 
 @font-face {
@@ -133,10 +137,6 @@ main {
 
 .color-darkgrey:hover {
  color:#6c757d !important;
-}
-
-#filter-toolbar {
- margin-bottom:10px;
 }
 
 #btn-outputs-block > button {

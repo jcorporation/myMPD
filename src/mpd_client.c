@@ -1,6 +1,6 @@
 /* myMPD
    (c) 2018 Juergen Mang <mail@jcgames.de>
-   This project's homepage is: https://github.com/jcorporation/ympd
+   This project's homepage is: https://github.com/jcorporation/mympd
    
    myMPD ist fork of:
    
@@ -616,11 +616,16 @@ int mympd_put_settings(char *buffer)
     struct mpd_status *status;
     char *replaygain;
     int len;
+    int je;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
     struct mympd_state { int a; int b; } state = { .a = 0, .b = 0 };
     if( access( mpd.statefile, F_OK ) != -1 ) {
         char *content = json_fread(mpd.statefile);
-        json_scanf(content, strlen(content), "{notificationWeb: %d, notificationPage: %d}", &state.a, &state.b);
+        je = json_scanf(content, strlen(content), "{notificationWeb: %d, notificationPage: %d}", &state.a, &state.b);
+        if (je != 2) {
+          state.a=0;
+          state.b=0;
+        }
     } else {
         state.a=0;
         state.b=0;

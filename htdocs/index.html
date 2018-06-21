@@ -7,11 +7,11 @@
   <meta name="author" content="mail@jcgames.de">
   <title>myMPD</title>
 
-  <link href="css/bootstrap.css" rel="stylesheet">
-  <link href="css/bootstrap-slider.css" rel="stylesheet">
-  <link href="css/mpd.css" rel="stylesheet">
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/bootstrap-slider.min.css" rel="stylesheet">
+  <link href="css/mpd.min.css" rel="stylesheet">
   <link href="assets/favicon.ico" rel="shortcut icon" type="image/vnd.microsoft.icon">
-  <script src="js/modernizr-custom.js"></script>
+  <script src="js/modernizr-custom.min.js"></script>
   
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
@@ -20,7 +20,7 @@
 <body>
   <header>
     <nav class="navbar navbar-expand navbar-dark fixed-top bg-dark">
-        <div class="dropdown col-auto mr-auto" id="mainMenu">
+        <div class="dropdown col-auto mr-auto pl-0" id="mainMenu">
           <a class="dropdown-toggle navbar-brand" data-toggle="dropdown" href="#">
             <span class="material-icons header-logo">play_circle_outline</span>myMPD
           </a>
@@ -36,23 +36,23 @@
             <a id="nav-about" class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#about">About</a>
           </div>
         </div>
-        <div class="btn-toolbar col-auto" role="toolbar">
+        <div class="btn-toolbar col-auto pl-0 pr-0" role="toolbar">
           <div class="btn-group mr-2" role="group">
-            <button id="btnPrev" type="button" class="btn btn-secondary" onclick="clickPrev();;">
+            <button id="btnPrev" type="button" class="btn btn-secondary pl-2 pr-2" onclick="clickPrev();;">
               <span class="material-icons">skip_previous</span>
             </button>
-            <button id="btnStop" type="button" class="btn btn-secondary" onclick="clickStop();">
+            <button id="btnStop" type="button" class="btn btn-secondary pl-2 pr-2" onclick="clickStop();">
               <span class="material-icons">stop</span>
             </button>
-            <button id="btnPlay" type="button" class="btn btn-secondary" onclick="clickPlay();">
+            <button id="btnPlay" type="button" class="btn btn-secondary pl-2 pr-2" onclick="clickPlay();">
               <span class="material-icons">pause</span>
             </button>
-            <button id="btnNext" type="button" class="btn btn-secondary" onclick="clickNext();">
+            <button id="btnNext" type="button" class="btn btn-secondary pl-2 pr-2" onclick="clickNext();">
               <span class="material-icons">skip_next</span>
             </button>
           </div>
           <div class="btn-group" role="group">
-            <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+            <button class="btn btn-secondary dropdown-toggle pl-2 pr-2" type="button" data-toggle="dropdown">
               <span id="volume-icon" class="material-icons">volume_up</span>
             </button>
             <div class="dropdown-menu dropdown-menu-right bg-dark">
@@ -102,7 +102,7 @@
         <span id="panel-heading-queue" class="text pull-right"></span>
       </div>
       <div class="card-body">
-        <div class="btn-toolbar collapse show" id="queue-buttons" role="toolbar">
+        <div class="btn-toolbar collapse show card-toolbar" id="queue-buttons" role="toolbar">
           <div id="trashmode" class="btn-group mr-2">
             <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="material-icons">delete</span></button>
             <div class="dropdown-menu bg-dark px-2" id="trashmodebtns">
@@ -218,7 +218,7 @@
       </div>
       
       <div class="card-body hide" id="cardBrowsePlaylists">
-        <div class="btn-toolbar collapse show" id="BrowsePlaylistsButtons" role="toolbar">
+        <div class="btn-toolbar collapse show card-toolbar" id="BrowsePlaylistsButtons" role="toolbar">
           <div class="btn-group mr-2">
             <button id="BrowsePlaylistsFilter" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">Filter</button>
             <div class="dropdown-menu bg-dark px-2" id="BrowsePlaylistsFilterLetters">
@@ -273,7 +273,7 @@
 
       <div class="card-body hide" id="cardBrowseDatabase">
 
-        <div class="btn-toolbar collapse show" id="BrowseDatabaseButtons" role="toolbar">
+        <div class="btn-toolbar collapse show card-toolbar" id="BrowseDatabaseButtons" role="toolbar">
           <div class="btn-group mr-2">
             <button id="btnBrowseDatabaseArtist" type="button" class="btn btn-secondary hide">&laquo; Artists</button>
           </div>
@@ -332,7 +332,7 @@
       </div>
 
       <div class="card-body hide" id="cardBrowseFilesystem">
-        <div class="btn-toolbar collapse show" id="BrowseFilesystemButtons" role="toolbar">
+        <div class="btn-toolbar collapse show card-toolbar" id="BrowseFilesystemButtons" role="toolbar">
           <div class="btn-group mr-2 pull-right">
             <button id="BrowseFilesystemAddAllSongs" class="btn btn-secondary">Add all</button>
           </div>
@@ -401,7 +401,7 @@
         <span id="panel-heading-search" class="text pull-right"></span>
       </div>
       <div class="card-body">
-        <div class="btn-toolbar collapse show" id="SearchButtons" role="toolbar">
+        <div class="btn-toolbar collapse show card-toolbar" id="SearchButtons" role="toolbar">
           <form id="search2" role="search">
             <div class="input-group mr-2">
               <input type="text" class="form-control" placeholder="Search" id="searchstr2"/>
@@ -685,11 +685,10 @@
       </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
   </div><!-- /.modal -->
-
   <script src="js/jquery-3.3.1.min.js"></script>
   <script src="js/bootstrap.bundle.min.js"></script>
   <script src="js/bootstrap-slider.min.js"></script>
   <script src="js/bootstrap-notify.min.js"></script>
-  <script src="js/mpd.js"></script>
+  <script src="js/mpd.min.js"></script>
  </body>
 </html>

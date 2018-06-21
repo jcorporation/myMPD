@@ -1,6 +1,6 @@
 /* myMPD
    (c) 2018 Juergen Mang <mail@jcgames.de>
-   This project's homepage is: https://github.com/jcorporation/ympd
+   This project's homepage is: https://github.com/jcorporation/mympd
    
    myMPD ist fork of:
 
@@ -254,10 +254,6 @@ $(document).ready(function(){
         $('#search > input').focus();
     });
      
-
-
-
-
     add_filter('#BrowseFilesystemFilterLetters');
     add_filter('#BrowseDatabaseFilterLetters');
     add_filter('#BrowsePlaylistsFilterLetters');
@@ -811,21 +807,28 @@ function parseListDBtags(obj) {
                         }
                     } else if (obj.tagtype == 'Album') {
                         $('#BrowseDatabaseArtistList').addClass('hide');
-                        $('#BrowseDatabaseAlbumCards').empty();
                         $('#BrowseDatabaseAlbumCards').removeClass('hide');
                         $('#btnBrowseDatabaseArtist').removeClass('hide');
                         var nrItems=0;
+                        var cards=document.getElementById('BrowseDatabaseAlbumCards').querySelectorAll('.col-md');
                         for (var item in obj.data) {
-                          var card='<div class="col-md"><div class="card mb-4" id="'+genId(obj.data[item].value)+'">'+
+                          nrItems++;
+                          var id=genId(obj.data[item].value);
+                          var card='<div class="col-md mr-0" id="'+id+'"><div class="card mb-4" id="card'+id+'">'+
                                    ' <img class="card-img-top" src="" alt="">'+
                                    ' <div class="card-body">'+
                                    '  <h5 class="card-title">'+obj.searchstr+'</h5>'+
                                    '  <h4 class="card-title">'+obj.data[item].value+'</h4>'+
-                                   '  <table class="table table-sm table-hover" id="tbl'+genId(obj.data[item].value)+'"><tbody></tbody></table'+
+                                   '  <table class="table table-sm table-hover" id="tbl'+id+'"><tbody></tbody></table'+
                                    ' </div>'+
                                    '</div></div>';
-                          $('#BrowseDatabaseAlbumCards').append(card);
-                          sendAPI({"cmd":"MPD_API_GET_ARTISTALBUMTITLES", "data": { "albumartist": obj.searchstr, "album": obj.data[item].value}},parseListTitles);
+                          if (nrItems <= cards.length) { if (cards[nrItems-1].id != id) $(cards[nrItems-1]).replaceWith(card); } 
+                          else { $('#BrowseDatabaseAlbumCards').append(card); }
+                          if (nrItems > cards.length || cards[nrItems-1].id != id)
+                            sendAPI({"cmd":"MPD_API_GET_ARTISTALBUMTITLES", "data": { "albumartist": obj.searchstr, "album": obj.data[item].value}},parseListTitles);
+                        }
+                        for (var i=cards.length;i>nrItems;i--) {
+                            $(cards[i-1]).remove();
                         }
                         setPagination(obj.totalEntities);
                     }
@@ -834,25 +837,25 @@ function parseListDBtags(obj) {
 
 function parseListTitles(obj) {
   if(app.current.app !== 'Browse' && app.current.tab !== 'Database' && app.current.view !== 'Album') return;
-                    var album=$('#'+genId(obj.album)+' > div > table > tbody');
-                    $('#'+genId(obj.album)+' > img').attr('src','/library/'+obj.data[0].uri.replace(/\/[^\/]+$/,'\/')+settings.coverimage);
-                    $('#'+genId(obj.album)+' > img').attr('uri',obj.data[0].uri.replace(/\/[^\/]+$/,''));
-                    $('#'+genId(obj.album)+' > img').attr('data-album',encodeURI(obj.album));
+                    var id=genId(obj.album);
+                    var album=$('#card'+id+' > div > table > tbody');
+                    $('#card'+id+' > img').attr('src','/library/'+obj.data[0].uri.replace(/\/[^\/]+$/,'\/')+settings.coverimage)
+                        .attr('uri',obj.data[0].uri.replace(/\/[^\/]+$/,''))
+                        .attr('data-album',encodeURI(obj.album));
                     var titleList='';
                     for (var item in obj.data) {
                         titleList+='<tr uri="' + encodeURI(obj.data[item].uri) + '" class="song">'+
                             '<td>'+obj.data[item].track+'</td><td>'+obj.data[item].title+'</td></tr>';
                     }
                     album.append(titleList);
-
-                    $('#'+genId(obj.album)+' > img').on({
+                    $('#card'+id+' > img').on({
                         click: function() {
                                     sendAPI({"cmd":"MPD_API_ADD_TRACK", "data": { "track": decodeURI($(this).attr('uri'))}});
                                     showNotification('"'+decodeURI($(this).attr('data-album'))+'" added','','','success');
                         }
                     });
                     
-                    $('#tbl'+genId(obj.album)+' > tbody > tr').on({
+                    $('#tbl'+id+' > tbody > tr').on({
                         click: function() {
                                     sendAPI({"cmd":"MPD_API_ADD_TRACK", "data": { "track": decodeURI($(this).attr('uri'))}});
                                     showNotification('"' + $('td:nth-last-child(1)', this).text() + '" added','','','success');
@@ -1248,12 +1251,9 @@ function showNotification(notificationTitle,notificationText,notificationHtml,no
     } 
     if (settings.notificationPage == 1) {
       $.notify({ title: notificationTitle, message: notificationHtml},{ type: notificationType, offset: { y: 60, x:20 },
-        template: '<div data-notify="container" class="col-xs-11 col-sm-3 alert alert-{0}" role="alert">' +
-		'<button type="button" aria-hidden="true" class="close" data-notify="dismiss">×</button>' +
-		'<span data-notify="icon"></span> ' +
+        template: '<div data-notify="container" class="alert alert-{0}" role="alert">' +
 		'<span data-notify="title">{1}</span> ' +
 		'<span data-notify="message">{2}</span>' +
-		'<a href="{3}" target="{4}" data-notify="url"></a>' +
 		'</div>' 
       });
     }

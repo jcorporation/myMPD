@@ -1,6 +1,6 @@
 /* myMPD
    (c) 2018 Juergen Mang <mail@jcgames.de>
-   This project's homepage is: https://github.com/jcorporation/ympd
+   This project's homepage is: https://github.com/jcorporation/mympd
    
    myMPD ist fork of:
    

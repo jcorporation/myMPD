@@ -1,6 +1,6 @@
 /* myMPD
    (c) 2018 Juergen Mang <mail@jcgames.de>
-   This project's homepage is: https://github.com/jcorporation/ympd
+   This project's homepage is: https://github.com/jcorporation/mympd
    
    myMPD ist fork of:
    
@@ -169,7 +169,7 @@ int main(int argc, char **argv)
                         " -m, --mpdpass <password>\tspecifies the password to use when connecting to mpd\n"
                         " -s, --streamport <port>\tconnect to mpd http stream at port [8000]\n"
                         " -i, --coverimage <filename>\tfilename for coverimage [folder.jpg]\n"
-                        " -t, --statefile <filename>\tstatefile [/var/lib/mympd/mympd.state]\n"
+                        " -t, --statefile <filename>\tfilename for mympd state [/var/lib/mympd/mympd.state]\n"
                         " --help\t\t\t\tthis help\n"
                         , argv[0]);
                 return EXIT_FAILURE;
