@@ -194,8 +194,7 @@ main {
 
 .card-img-top {
  min-height:250px;
- background-image:url('/assets/coverimage-notavailable.png');
  background-repeat:no-repeat;
- background-color:#d45500;
+ background-color:#eee;
  cursor:pointer;
 }

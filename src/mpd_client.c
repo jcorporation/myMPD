@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include <libgen.h>
 #include <ctype.h>
+#include <libgen.h>
 #include <mpd/client.h>
 #include <mpd/message.h>
 
@@ -461,24 +462,20 @@ void mympd_poll(struct mg_mgr *s)
 char* mympd_get_title(struct mpd_song const *song)
 {
     char *str;
-
     str = (char *)mpd_song_get_tag(song, MPD_TAG_TITLE, 0);
     if(str == NULL){
         str = basename((char *)mpd_song_get_uri(song));
     }
-
     return str;
 }
 
 char* mympd_get_track(struct mpd_song const *song)
 {
     char *str;
-
     str = (char *)mpd_song_get_tag(song, MPD_TAG_TRACK, 0);
     if(str == NULL){
         str = "-";
     }
-
     return str;
 }
 
@@ -486,48 +483,40 @@ char* mympd_get_track(struct mpd_song const *song)
 char* mympd_get_album(struct mpd_song const *song)
 {
     char *str;
-
     str = (char *)mpd_song_get_tag(song, MPD_TAG_ALBUM, 0);
     if(str == NULL){
         str = "-";
     }
-
     return str;
 }
 
 char* mympd_get_artist(struct mpd_song const *song)
 {
     char *str;
-
     str = (char *)mpd_song_get_tag(song, MPD_TAG_ARTIST, 0);
     if(str == NULL){
         str = "-";
     }
-
     return str;
 }
 
 char* mympd_get_album_artist(struct mpd_song const *song)
 {
     char *str;
-
     str = (char *)mpd_song_get_tag(song, MPD_TAG_ALBUM_ARTIST, 0);
     if(str == NULL){
         str = "-";
     }
-
     return str;
 }
 
 char* mympd_get_year(struct mpd_song const *song)
 {
     char *str;
-
     str = (char *)mpd_song_get_tag(song, MPD_TAG_DATE, 0);
     if(str == NULL){
         str = "-";
     }
-
     return str;
 }
 
@@ -704,19 +693,41 @@ int mympd_put_outputnames(char *buffer)
     return len;
 }
 
+int mympd_get_cover(const char *uri, char *cover, int cover_len)
+{
+    char *path=strdup(uri);
+    int len;
+    if (strncasecmp("http:",path,5) == 0 ) {
+      len=snprintf(cover,cover_len,"/assets/coverimage-httpstream.png");
+    }
+    else {
+      dirname(path);
+      snprintf(cover,cover_len,"%s/library/%s/%s",SRC_PATH,path,coverimage);
+      if ( access(cover, F_OK ) == -1 ) {
+        len = snprintf(cover,cover_len,"/assets/coverimage-notavailable.png");
+      } else {
+        len = snprintf(cover,cover_len,"/library/%s/%s",path,coverimage);
+      }
+    }
+    return len;
+}
+
 int mympd_put_current_song(char *buffer)
 {
     struct mpd_song *song;
     int len;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
-
+    char cover[500];
+    
     song = mpd_run_current_song(mpd.conn);
     if(song == NULL)
         return 0;
+    
+    mympd_get_cover(mpd_song_get_uri(song),cover,500);
 
     len = json_printf(&out,"{type: song_change, data: { pos: %d, title: %Q, "
         "artist: %Q, album: %Q, uri: %Q, currentsongid: %d, albumartist: %Q, "
-        "duration: %d }}",
+        "duration: %d, cover: %Q }}",
         mpd_song_get_pos(song),
         mympd_get_title(song),
         mympd_get_artist(song),
@@ -724,7 +735,8 @@ int mympd_put_current_song(char *buffer)
         mpd_song_get_uri(song),
         mpd.song_id,
         mympd_get_album_artist(song),
-        mpd_song_get_duration(song)
+        mpd_song_get_duration(song),
+        cover
     );
     
     mpd_song_free(song);
@@ -947,6 +959,7 @@ int mympd_put_songs_in_album(char *buffer, char *albumartist, char *album)
     unsigned long entity_count = 0;
     unsigned long entities_returned = 0;
     int len;
+    char cover[500];
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
 
     if(mpd_search_db_songs(mpd.conn, true) == false) {
@@ -968,6 +981,7 @@ int mympd_put_songs_in_album(char *buffer, char *albumartist, char *album)
             entity_count ++;
             if(entity_count <= MAX_ELEMENTS_PER_PAGE) {
                 if (entities_returned ++) len += json_printf(&out, ", ");
+                else mympd_get_cover(mpd_song_get_uri(song),cover,500);
                 len += json_printf(&out, "{ type: song, uri: %Q, duration: %d, title: %Q, track: %Q }",
                     mpd_song_get_uri(song),
                     mpd_song_get_duration(song),
@@ -978,11 +992,12 @@ int mympd_put_songs_in_album(char *buffer, char *albumartist, char *album)
             mpd_song_free(song);
         }
         
-        len += json_printf(&out, "], totalEntities: %d, returnedEntities: %d, albumartist: %Q, album: %Q }",
+        len += json_printf(&out, "], totalEntities: %d, returnedEntities: %d, albumartist: %Q, album: %Q, cover: %Q }",
             entity_count,
             entities_returned,
             albumartist,
-            album
+            album,
+            cover
         );
     }
 

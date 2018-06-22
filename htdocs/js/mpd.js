@@ -839,7 +839,7 @@ function parseListTitles(obj) {
   if(app.current.app !== 'Browse' && app.current.tab !== 'Database' && app.current.view !== 'Album') return;
                     var id=genId(obj.album);
                     var album=$('#card'+id+' > div > table > tbody');
-                    $('#card'+id+' > img').attr('src','/library/'+obj.data[0].uri.replace(/\/[^\/]+$/,'\/')+settings.coverimage)
+                    $('#card'+id+' > img').attr('src',obj.cover)
                         .attr('uri',obj.data[0].uri.replace(/\/[^\/]+$/,''))
                         .attr('data-album',encodeURI(obj.album));
                     var titleList='';
@@ -1270,17 +1270,8 @@ function songChange(obj) {
     var htmlNotification = '';
     var pageTitle = 'myMPD: ';
 
-    if (typeof obj.data.uri != 'undefined' && obj.data.uri.length > 0) {
-        var coverImg='';
-        if (obj.data.uri.indexOf('http://') == 0 || obj.data.uri.indexOf('https://') == 0 ) {
-            coverImg='/assets/coverimage-httpstream.png';
-        } else if (settings.coverimage != '') {
-            coverImg='/library/'+obj.data.uri.replace(/\/[^\/]+$/,'\/'+settings.coverimage);
-        } else {
-            coverImg='/assets/coverimage-notavailable.png';
-        }
-        $('#album-cover').css('backgroundImage','url("'+coverImg+'"),url("/assets/coverimage-notavailable.png")');
-    }
+    $('#album-cover').css('backgroundImage','url("'+obj.data.cover+'")');
+
     if(typeof obj.data.artist != 'undefined' && obj.data.artist.length > 0 && obj.data.artist != '-') {
         textNotification += obj.data.artist;
         htmlNotification += '<br/>' + obj.data.artist;
