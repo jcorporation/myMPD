@@ -9,7 +9,7 @@ Environment=MPD_PASSWORD=
 Environment=WEB_PORT=80
 Environment=MYMPD_USER=nobody
 Environment=COVERIMAGE=--coverimage folder.jpg
-Envirinment=STATEFILE=--statefile /var/lib/mympd/mympd.state
+Environment=STATEFILE=--statefile /var/lib/mympd/mympd.state
 EnvironmentFile=/etc/default/mympd
 ExecStart=/usr/bin/mympd --user $MYMPD_USER --webport $WEB_PORT --host $MPD_HOST --port $MPD_PORT $COVERIMAGE $STATEFILE
 Type=simple
