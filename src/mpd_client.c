@@ -75,7 +75,10 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
     switch(cmd_id) {
         case MPD_API_SET_SETTINGS:
             json_scanf(msg.p, msg.len, "{ data: { notificationWeb: %d, notificationPage: %d} }", &state.a, &state.b);
-            json_fprintf(mpd.statefile, "{ notificationWeb: %d, notificationPage: %d}", state.a, state.b);
+            char tmpfile[200];
+            snprintf(tmpfile,200,"%s.tmp",mpd.statefile);
+            json_fprintf(tmpfile, "{ notificationWeb: %d, notificationPage: %d}", state.a, state.b);
+            rename(tmpfile,mpd.statefile);
             
             je = json_scanf(msg.p, msg.len, "{ data: { random:%u } }", &uint_buf1);
             if (je == 1)        
