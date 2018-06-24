@@ -1,6 +1,6 @@
 /* myMPD
    (c) 2018 Juergen Mang <mail@jcgames.de>
-   This project's homepage is: https://github.com/jcorporation/ympd
+   This project's homepage is: https://github.com/jcorporation/mympd
    
    myMPD ist fork of:
    
@@ -28,80 +28,91 @@
 #include <unistd.h>
 #include <getopt.h>
 #include <sys/time.h>
-#include <pthread.h>
+#include <pwd.h>
 
-#include "mongoose.h"
-#include "http_server.h"
+#include "mongoose/mongoose.h"
 #include "mpd_client.h"
 #include "config.h"
 
 extern char *optarg;
+static sig_atomic_t s_signal_received = 0;
+static struct mg_serve_http_opts s_http_server_opts;
 
-int force_exit = 0;
-
-void bye()
-{
-    force_exit = 1;
+static void signal_handler(int sig_num) {
+  signal(sig_num, signal_handler);  // Reinstantiate signal handler
+  s_signal_received = sig_num;
 }
 
-static int server_callback(struct mg_connection *c, enum mg_event ev) {
-    int result = MG_FALSE;
-    FILE *fp = NULL;
+static void handle_api(struct mg_connection *nc, struct http_message *hm) {
+    if(!is_websocket(nc)) {
+        mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\nContent-Type: application/json\r\n\r\n");
+    }
+    char buf[1000] = {0};
+    memcpy(buf, hm->body.p,sizeof(buf) - 1 < hm->body.len ? sizeof(buf) - 1 : hm->body.len);
+    struct mg_str d = {buf, strlen(buf)};
+    callback_mympd(nc, d);
+    if(!is_websocket(nc)) {
+        mg_send_http_chunk(nc, "", 0); /* Send empty chunk, the end of response */
+    }
+}
 
+static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
     switch(ev) {
-        case MG_CLOSE:
-            mpd_close_handler(c);
-            return MG_TRUE;
-        case MG_REQUEST:
-            if (c->is_websocket) {
-                c->content[c->content_len] = '\0';
-                if(c->content_len)
-                    return callback_mpd(c);
-                else
-                    return MG_TRUE;
-            } else
-            return MG_FALSE;
-        case MG_AUTH:
-            // no auth for websockets since mobile safari does not support it
-            if ( (mpd.gpass == NULL) || (c->is_websocket) || ((mpd.local_port > 0) && (c->local_port == mpd.local_port)) )
-                return MG_TRUE;
-            else {
-                if ( (fp = fopen(mpd.gpass, "r")) != NULL ) {
-                    result = mg_authorize_digest(c, fp);
-                    fclose(fp);
-                }
+        case MG_EV_WEBSOCKET_HANDSHAKE_DONE: {
+             #ifdef DEBUG
+             fprintf(stdout,"New Websocket connection\n");
+             #endif
+             struct mg_str d = {(char *) "{\"cmd\":\"MPD_API_WELCOME\"}", 25 };
+             callback_mympd(nc, d);
+             break;
+        }
+        case MG_EV_HTTP_REQUEST: {
+            struct http_message *hm = (struct http_message *) ev_data;
+            #ifdef DEBUG
+            printf("HTTP request: %.*s\n",hm->uri.len,hm->uri.p);
+            #endif
+            if (mg_vcmp(&hm->uri, "/api") == 0) {
+              handle_api(nc, hm);
             }
-            return result;
-        default:
-            return MG_FALSE;
+            else {
+              mg_serve_http(nc, hm, s_http_server_opts);
+            }
+            break;
+        }
+        case MG_EV_CLOSE: {
+            if (is_websocket(nc)) {
+              #ifdef DEBUG
+              fprintf(stdout,"Websocket connection closed\n");
+              #endif
+              mympd_close_handler(nc);
+            }
+            else {
+              #ifdef DEBUG
+              fprintf(stdout,"HTTP Close\n");
+              #endif
+            }
+            break;
+        }        
     }
 }
 
 int main(int argc, char **argv)
 {
     int n, option_index = 0;
-    struct mg_server *server = mg_create_server(NULL, server_callback);
+    struct mg_mgr mgr;
+    struct mg_connection *nc;
     unsigned int current_timer = 0, last_timer = 0;
     char *run_as_user = NULL;
-    char const *error_msg = NULL;
-    char *webport = "8080";
-
-    atexit(bye);
-    mg_set_option(server, "document_root", SRC_PATH);
-
-    mg_set_option(server, "auth_domain", "mympd");
+    char *webport = "80";
     mpd.port = 6600;
-    mpd.local_port = 0;
-    mpd.gpass = NULL;
     strcpy(mpd.host, "127.0.0.1");
     streamport = 8000;
     strcpy(coverimage, "folder.jpg");
+    mpd.statefile="/var/lib/mympd/mympd.state";
 
     static struct option long_options[] = {
-        {"digest",       required_argument, 0, 'D'},
         {"host",         required_argument, 0, 'h'},
         {"port",         required_argument, 0, 'p'},
-        {"localport",    required_argument, 0, 'l'},
         {"webport",      required_argument, 0, 'w'},
         {"user",         required_argument, 0, 'u'},
         {"version",      no_argument,       0, 'v'},
@@ -109,23 +120,21 @@ int main(int argc, char **argv)
         {"mpdpass",      required_argument, 0, 'm'},
         {"streamport",	 required_argument, 0, 's'},
         {"coverimage",	 required_argument, 0, 'i'},
+        {"statefile",	 required_argument, 0, 't'},
         {0,              0,                 0,  0 }
     };
 
-    while((n = getopt_long(argc, argv, "D:h:p:l:w:u:d:vm:s:i:",
+    while((n = getopt_long(argc, argv, "D:h:p:w:u:vm:s:i:c:t:",
                 long_options, &option_index)) != -1) {
         switch (n) {
-            case 'D':
-                mpd.gpass = strdup(optarg);
+            case 't':
+                mpd.statefile = strdup(optarg);
                 break;
             case 'h':
                 strncpy(mpd.host, optarg, sizeof(mpd.host));
                 break;
             case 'p':
                 mpd.port = atoi(optarg);
-                break;
-            case 'l':
-                mpd.local_port = atoi(optarg);
                 break;
             case 'w':
                 webport = strdup(optarg);
@@ -152,58 +161,70 @@ int main(int argc, char **argv)
                 break;
             default:
                 fprintf(stderr, "Usage: %s [OPTION]...\n\n"
-                        " -D, --digest <htdigest>\tpath to htdigest file for authorization\n"
-                        "                        \t(realm ympd) [no authorization]\n"
                         " -h, --host <host>\t\tconnect to mpd at host [localhost]\n"
                         " -p, --port <port>\t\tconnect to mpd at port [6600]\n"
-                        " -l, --localport <port>\t\tskip authorization for local port\n"
                         " -w, --webport [ip:]<port>\tlisten interface/port for webserver [8080]\n"
                         " -u, --user <username>\t\tdrop priviliges to user after socket bind\n"
                         " -v, --version\t\t\tget version\n"
                         " -m, --mpdpass <password>\tspecifies the password to use when connecting to mpd\n"
                         " -s, --streamport <port>\tconnect to mpd http stream at port [8000]\n"
                         " -i, --coverimage <filename>\tfilename for coverimage [folder.jpg]\n"
+                        " -t, --statefile <filename>\tfilename for mympd state [/var/lib/mympd/mympd.state]\n"
                         " --help\t\t\t\tthis help\n"
                         , argv[0]);
                 return EXIT_FAILURE;
         }
 
-        if(error_msg)
-        {
-            fprintf(stderr, "Mongoose error: %s\n", error_msg);
-            return EXIT_FAILURE;
-        }
     }
 
-    error_msg = mg_set_option(server, "listening_port", webport);
-    if(error_msg) {
-        fprintf(stderr, "Mongoose error: %s\n", error_msg);
-        return EXIT_FAILURE;
+    signal(SIGTERM, signal_handler);
+    signal(SIGINT, signal_handler);
+    setvbuf(stdout, NULL, _IOLBF, 0);
+    setvbuf(stderr, NULL, _IOLBF, 0);
+    
+    mg_mgr_init(&mgr, NULL);
+
+    nc = mg_bind(&mgr, webport, ev_handler);
+    if (nc == NULL) {
+       fprintf(stderr, "Error starting server on port %s\n", webport);
+       return EXIT_FAILURE;
     }
 
-    /* drop privilges at last to ensure proper port binding */
     if(run_as_user != NULL) {
-        error_msg = mg_set_option(server, "run_as_user", run_as_user);
-        free(run_as_user);
-        if(error_msg)
-        {
-            fprintf(stderr, "Mongoose error: %s\n", error_msg);
+        printf("Droping privileges\n");
+        struct passwd *pw;
+        if ((pw = getpwnam(run_as_user)) == NULL) {
+            printf("Unknown user\n");
+            return EXIT_FAILURE;
+        } else if (setgid(pw->pw_gid) != 0) {
+            printf("setgid() failed");
+            return EXIT_FAILURE;
+        } else if (setuid(pw->pw_uid) != 0) {
+            printf("setuid() failed\n");
             return EXIT_FAILURE;
         }
     }
+    
+    if (getuid() == 0) {
+      printf("myMPD should not be run with root privileges\n");
+      mg_mgr_free(&mgr);
+      return EXIT_FAILURE;
+    }
 
-    while (!force_exit) {
-        mg_poll_server(server, 200);
+    mg_set_protocol_http_websocket(nc);
+    s_http_server_opts.document_root = SRC_PATH;
+
+    printf("myMPD started on port %s\n", webport);
+    while (s_signal_received == 0) {
+        mg_mgr_poll(&mgr, 200);
         current_timer = time(NULL);
         if(current_timer - last_timer)
         {
             last_timer = current_timer;
-            mpd_poll(server);
+            mympd_poll(&mgr);
         }
     }
-
-    mpd_disconnect();
-    mg_destroy_server(&server);
-
+    mg_mgr_free(&mgr);
+    mympd_disconnect();
     return EXIT_SUCCESS;
 }

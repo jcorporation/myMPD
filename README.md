@@ -5,7 +5,7 @@ myMPD is a lightweight MPD web client that runs without a dedicated webserver or
 It's tuned for minimal resource usage and requires only very litte dependencies.
 myMPD is a fork of ympd.
 
-This fork provides a reworked ui based on Bootstrap 4.
+This fork provides a reworked ui based on Bootstrap 4 and a modernized backend.
 
 ![image](https://jcgames.de/stuff/myMPD/screenshots.gif)
 
@@ -16,7 +16,6 @@ UI Components
  - Bootstrap Slider: https://github.com/seiyria/bootstrap-slider
  - Material Design Icons: https://material.io/tools/icons/?style=baseline
  - jQuery: https://jquery.com/
- - js-cookie: https://github.com/js-cookie/js-cookie
 
 Backend
 -------
@@ -27,50 +26,30 @@ Dependencies
 ------------
  - libmpdclient 2: http://www.musicpd.org/libs/libmpdclient/
  - cmake 2.6: http://cmake.org/
- - OpenSSL: https://www.openssl.org/
 
 Unix Build Instructions
 -----------------------
 
-1. install dependencies. cmake, libmpdclient (dev), and OpenSSL (dev) are available from all major distributions.
-2. create build directory ```cd /path/to/src; mkdir build; cd build```
-3. create makefile ```cmake ..  -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=RELEASE```
-4. build ```make```
-5. install ```sudo make install```
-6. Link your mpd music directory to ```/usr/share/mympd/htdocs/library``` and put ```folder.jpg``` files in your album directories
-7. Configure your mpd with http stream output to use the local player
+1. install dependencies. cmake and libmpdclient (dev) are available from all major distributions.
+2. build and install it ```cd /path/to/src; ./mkrelease.sh```
+3. Link your mpd music directory to ```/usr/share/mympd/htdocs/library``` and put ```folder.jpg``` files in your album directories
+4. Configure your mpd with http stream output to use the local player
 
 Run flags
 ---------
 ```
 Usage: ./mympd [OPTION]...
 
- -D, --digest <htdigest>       path to htdigest file for authorization
-                               (realm mympd) [no authorization]
  -h, --host <host>             connect to mpd at host [localhost]
  -p, --port <port>             connect to mpd at port [6600]
- -l, --localport <port>	       skip authorization for local port
- -w, --webport [ip:]<port>     listen interface/port for webserver [8080]
+ -w, --webport <port>          listen port for webserver [80]
  -s, --streamport <port>       connect to mpd http stream at port [8000]
  -u, --user <username>         drop priviliges to user after socket bind
  -m, --mpdpass <password>      specifies the password to use when connecting to mpd
  -i, --coverimage <filename>   filename for coverimage [folder.jpg]
+ -t, --statefile <filename>    filename for mympd state [/var/lib/mympd/mympd.state]
  -v, --version                 get version
  --help                        this help
-```
-
-SSL Support
------------
-To run myMPD with SSL support:
-
-- create a certificate (key and cert in the same file), example:
-```
-# openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days 1000 -nodes -sha256
-# cat key.pem cert.pem > ssl.pem
-```
-- tell myMPD to use a webport using SSL and where to find the certificate: 
-```
-# ./mympd -w "ssl://8081:/path/to/ssl.pem"
 ```
 
 Copyright

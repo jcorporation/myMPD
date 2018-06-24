@@ -5,5 +5,4 @@ MPD_PASSWORD=
 WEB_PORT=80
 MYMPD_USER=nobody
 COVERIMAGE=--coverimage folder.jpg
-#DIGEST=--digest /path/to/htdigest
-#LOCALPORT=--localport 80
+STATEFILE=--statefile /var/lib/mympd/mympd.state
