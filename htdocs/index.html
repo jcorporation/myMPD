@@ -111,7 +111,7 @@
                 <span class="material-icons float-left">vertical_align_top</span>
                 <span class="ml-3">Delete upward</span>
               </button>
-              <button id="btntrashmodesingle" type="button" class="btn btn-success btn-block">
+              <button id="btntrashmodesingle" type="button" class="btn btn-secondary active btn-block">
                 <span class="material-icons float-left">delete</span>
                 <span class="ml-3">Delete single</span>
               </button>
@@ -142,7 +142,7 @@
                 </button>
                 <div class="dropdown-menu bg-dark dropdown-menu-right px-2" id="searchqueuetag">
                   <h6 class="dropdown-header text-light">Search in Tag</h6>
-                  <button type="button" class="btn btn-success btn-block">Any Tag</button>
+                  <button type="button" class="btn btn-secondary btn-block active">Any Tag</button>
                   <button type="button" class="btn btn-secondary btn-block">Title</button>
                   <button type="button" class="btn btn-secondary btn-block">Artist</button>
                   <button type="button" class="btn btn-secondary btn-block">Album</button>
@@ -412,7 +412,7 @@
                 </button>
                 <div class="dropdown-menu bg-dark dropdown-menu-right px-2" id="searchtags2">
                   <h6 class="dropdown-header text-light">Search in Tag</h6>
-                  <button type="button" class="btn btn-success btn-block">Any Tag</button>
+                  <button type="button" class="btn btn-secondary active btn-block">Any Tag</button>
                   <button type="button" class="btn btn-secondary btn-block">Title</button>
                   <button type="button" class="btn btn-secondary btn-block">Artist</button>
                   <button type="button" class="btn btn-secondary btn-block">Album</button>
@@ -510,8 +510,9 @@
           </button>
         </div>
         <div class="modal-body">
+         <form class="needs-validation" id="settingsFrm" novalidate>
           <div class="row">
-            <div class="form-group col-md-6">
+            <div class="form-group col-md-6" data-toggle="buttons">
               <button id="btnrandom" type="button" class="btn btn-secondary btn-block" title="Random">
                 Random
               </button>
@@ -540,12 +541,13 @@
                 <div class="input-group-text bg-secondary text-light border-secondary">Crossfade</div>
               </div>
               <input id="inputCrossfade" type="text" class="form-control border-secondary" value="">
+              <div class="invalid-feedback">Must be a number.</div>
             </div>
             <div class="form-group input-group col-md-6 border-secondary">
               <div class="input-group-prepend">
                 <div class="input-group-text bg-secondary text-light border-secondary">Replaygain</div>
               </div>
-              <select id="selectReplaygain" class="form-control border-secondary">
+              <select id="selectReplaygain" class="form-control custom-select border-secondary">
                 <option value="off">Off</option>
                 <option value="track">Track</option>
                 <option value="album">Album</option>
@@ -558,12 +560,14 @@
                 <div class="input-group-text bg-secondary text-light border-secondary">Mixramp DB</div>
               </div>
               <input id="inputMixrampdb" type="text" class="form-control border-secondary" value="">
+              <div class="invalid-feedback">Must be a number.</div>
             </div>
             <div class="form-group input-group col-md-6 border-secondary">
               <div class="input-group-prepend">
                 <div class="input-group-text bg-secondary text-light border-secondary">Mixramp Delay</div>
               </div>
               <input id="inputMixrampdelay" type="text" class="form-control border-secondary" value="">
+              <div class="invalid-feedback">Must be a number.</div>
             </div>            
           </div>
           <hr/>
@@ -579,6 +583,7 @@
               </button>
             </div>
           </div>
+         </form>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>

@@ -130,9 +130,9 @@ app.route=function() {
             setPagination(app.current.page);        
           }
           $('#searchqueuetag > button').each(function() {
-            $(this).addClass('btn-secondary').removeClass('btn-success');
+            $(this).removeClass('active');
             if ($(this).text() == app.current.filter) { 
-                $(this).removeClass('btn-secondary').addClass('btn-success');
+                $(this).addClass('active');
                 $('#searchqueuetagdesc').text($(this).text());
             }
           }); 
@@ -189,9 +189,9 @@ app.route=function() {
           $('#searchstr2').val(app.current.search);
         }
         $('#searchtags2 > button').each(function() {
-              $(this).addClass('btn-secondary').removeClass('btn-success');
+              $(this).removeClass('active');
           if ($(this).text() == app.current.filter) { 
-              $(this).removeClass('btn-secondary').addClass('btn-success'); 
+              $(this).addClass('active'); 
               $('#searchtags2desc').text($(this).text());
           }
         });
@@ -239,6 +239,10 @@ $(document).ready(function(){
     
     $('#settings').on('shown.bs.modal', function () {
       sendAPI({"cmd":"MPD_API_GET_SETTINGS"},parseSettings);
+      document.getElementById('settingsFrm').classList.remove('was-validated');
+      document.getElementById('inputCrossfade').classList.remove('is-invalid');
+      document.getElementById('inputMixrampdb').classList.remove('is-invalid');
+      document.getElementById('inputMixrampdelay').classList.remove('is-invalid');
     })
 
     $('#addstream').on('shown.bs.modal', function () {
@@ -360,19 +364,24 @@ function parseStats(obj) {
 
 function parseSettings(obj) {
   if (obj.data.random)
-     $('#btnrandom').removeClass('btn-secondary').addClass("btn-success")
+     $('#btnrandom').addClass("active").attr("aria-pressed","true");
   else
-     $('#btnrandom').removeClass("btn-success").addClass("btn-secondary");
+     $('#btnrandom').removeClass("active").attr("aria-pressed","false");
 
   if (obj.data.consume)
-     $('#btnconsume').removeClass('btn-secondary').addClass("btn-success")
+     $('#btnconsume').addClass("active").attr("aria-pressed","true");
   else
-     $('#btnconsume').removeClass("btn-success").addClass("btn-secondary");
+     $('#btnconsume').removeClass("active").attr("aria-pressed","false");
 
   if (obj.data.single)
-     $('#btnsingle').removeClass('btn-secondary').addClass("btn-success")
+     $('#btnsingle').addClass("active").attr("aria-pressed","true");
   else
-     $('#btnsingle').removeClass("btn-success").addClass("btn-secondary");
+     $('#btnsingle').removeClass("active").attr("aria-pressed","false");
+
+  if (obj.data.repeat)
+     $('#btnrepeat').addClass("active").attr("aria-pressed","true");
+  else
+     $('#btnrepeat').removeClass("active").attr("aria-pressed","false");
 
   if (obj.data.crossfade != undefined)
      $('#inputCrossfade').removeAttr('disabled').val(obj.data.crossfade);
@@ -389,39 +398,34 @@ function parseSettings(obj) {
   else
      $('#inputMixrampdb').attr('disabled', 'disabled');
                     
-  if (obj.data.repeat)
-     $('#btnrepeat').removeClass('btn-secondary').addClass("btn-success")
-  else
-     $('#btnrepeat').removeClass("btn-success").addClass("btn-secondary");
-                    
   $("#selectReplaygain").val(obj.data.replaygain);
 
   if (notificationsSupported()) {
       if (obj.data.notificationWeb) {
-         $('#btnnotifyWeb').removeClass('btn-secondary').addClass("btn-success")
+         $('#btnnotifyWeb').addClass("active").attr("aria-pressed","true");
 
          Notification.requestPermission(function (permission) {
             if(!('permission' in Notification))
                 Notification.permission = permission;
             if (permission === 'granted') {
-                $('#btnnotifyWeb').removeClass('btn-secondary').addClass('btn-success');
+                $('#btnnotifyWeb').addClass("active").attr("aria-pressed","true");
             } else {
-                $('#btnnotifyWeb').addClass('btn-secondary').removeClass('btn-success');
+                $('#btnnotifyWeb').removeClass("active").attr("aria-pressed","false");
                 obj.data.notificationWeb=0;
             }
          });         
       }
       else
-         $('#btnnotifyWeb').addClass('btn-secondary').removeClass("btn-success");
+         $('#btnnotifyWeb').removeClass("active").attr("aria-pressed","false");
   } else {
       $('#btnnotifyWeb').addClass("disabled");
-      $('#btnnotifyWeb').addClass('btn-secondary').removeClass("btn-success");
+      $('#btnnotifyWeb').removeClass("active").attr("aria-pressed","false");
   }
     
   if (obj.data.notificationPage)
-      $('#btnnotifyPage').removeClass('btn-secondary').addClass("btn-success")
+      $('#btnnotifyPage').addClass("active").attr("aria-pressed","true");
   else
-      $('#btnnotifyPage').addClass('btn-secondary').removeClass("btn-success");
+      $('#btnnotifyPage').removeClass("active").attr("aria-pressed","false");
   
   settings=obj.data;
   setLocalStream(obj.data.mpdhost,obj.data.streamport);
@@ -432,18 +436,18 @@ function getSettings() {
 }
 
 function parseOutputnames(obj) {
-                    $('#btn-outputs-block button').remove();
-                    if ( Object.keys(obj.data).length ) {
-		        $.each(obj.data, function(id, name){
-                            var btn = $('<button id="btnoutput'+id+'" class="btn btn-secondary btn-block" onclick="toggleoutput(this, '+id+')">'+
-                              '<span class="material-icons float-left">volume_up</span> '+name+'</button>');
-                            btn.appendTo($('#btn-outputs-block'));
-                        });
-		    } else {
-                        $('#btn-outputs-block').addClass('hide');
-		    }
-                    /* remove cache, since the buttons have been recreated */
-                    last_outputs = '';
+  $('#btn-outputs-block button').remove();
+  if ( Object.keys(obj.data).length ) {
+     $.each(obj.data, function(id, name){
+        var btn = $('<button id="btnoutput'+id+'" class="btn btn-secondary btn-block" onclick="toggleoutput(this, '+id+')">'+
+                    '<span class="material-icons float-left">volume_up</span> '+name+'</button>');
+        btn.appendTo($('#btn-outputs-block'));
+      });
+  } else {
+     $('#btn-outputs-block').addClass('hide');
+  }
+  /* remove cache, since the buttons have been recreated */
+  last_outputs = '';
 }
 
 function parseState(obj) {
@@ -490,9 +494,9 @@ function parseState(obj) {
                     
                     $.each(obj.data.outputs, function(id, enabled){
                         if (enabled)
-                            $('#btnoutput'+id).removeClass('btn-secondary').addClass("btn-success")
+                            $('#btnoutput'+id).addClass("active")
                         else
-                            $('#btnoutput'+id).removeClass("btn-success").addClass("btn-secondary");
+                            $('#btnoutput'+id).removeClass("active");
                     });
                     last_outputs = obj.data.outputs;                    
 }
@@ -553,9 +557,9 @@ function parseQueue(obj) {
                         $('#QueueList > tbody > tr').on({
                             mouseover: function(){
                                 var doomed = $(this);
-                                if ( $('#btntrashmodeup').hasClass('btn-success') )
+                                if ( $('#btntrashmodeup').hasClass('active') )
                                     doomed = $('#QueueList > tbody > tr:lt(' + ($(this).index() + 1) + ')');
-                                if ( $('#btntrashmodedown').hasClass('btn-success') )
+                                if ( $('#btntrashmodedown').hasClass('active') )
                                     doomed = $('#QueueList > tbody > tr:gt(' + ($(this).index() - 1) + ')');
                                 $.each(doomed, function(){
                                 if($(this).children().last().has('a').length == 0)
@@ -568,9 +572,9 @@ function parseQueue(obj) {
                             },
                             mouseleave: function(){
                                 var doomed = $(this);
-                                if ( $('#btntrashmodeup').hasClass('btn-success') )
+                                if ( $('#btntrashmodeup').hasClass('active') )
                                     doomed = $("#QueueList > tbody > tr:lt(" + ($(this).index() + 1) + ")");
-                                if ( $('#btntrashmodedown').hasClass('btn-success') )
+                                if ( $('#btntrashmodedown').hasClass('active') )
                                     doomed = $("#QueueList > tbody > tr:gt(" + ($(this).index() - 1) + ")");
                                 $.each(doomed, function(){$(this).children().last().find("a").stop().remove();});
                             }
@@ -991,11 +995,11 @@ function setLocalStream(mpdhost,streamport) {
 
 function delQueueSong(tr,event) {
     event.stopPropagation();
-    if ( $('#btntrashmodeup').hasClass('btn-success') ) {
+    if ( $('#btntrashmodeup').hasClass('active') ) {
         sendAPI({"cmd":"MPD_API_RM_RANGE", "data": {"start":0, "end": (tr.index() + 1)}});
-    } else if ( $('#btntrashmodesingle').hasClass('btn-success') ) {
+    } else if ( $('#btntrashmodesingle').hasClass('active') ) {
         sendAPI({"cmd":"MPD_API_RM_TRACK", "data": { "track": tr.attr('trackid')}});
-    } else if ( $('#btntrashmodedown').hasClass('btn-success') ) {
+    } else if ( $('#btntrashmodedown').hasClass('active') ) {
         sendAPI({"cmd":"MPD_API_RM_RANGE", "data": {"start": tr.index(), "end":-1}});
     };
 }
@@ -1008,35 +1012,6 @@ function delPlaylist(tr) {
 function basename(path) {
     return path.split('/').reverse()[0];
 }
-
-function toggleBtn(btn) {
-    if ($(btn).hasClass('btn-success')) {
-      $(btn).removeClass('btn-success').addClass('btn-secondary');
-    }
-    else {
-      $(btn).removeClass('btn-secondary').addClass('btn-success');
-    }
-}
-
-$('#btnrandom').on('click', function (e) { 
-    toggleBtn(this);
-});
-$('#btnconsume').on('click', function (e) {
-    toggleBtn(this);
-});
-$('#btnsingle').on('click', function (e) {
-    toggleBtn(this);
-});
-$('#btnrepeat').on('click', function (e) {
-    toggleBtn(this);
-});
-$('#btnnotifyPage').on('click', function (e) {
-    toggleBtn(this);
-});
-$('#btnnotifyWeb').on('click', function (e) {
-    toggleBtn(this);
-});
-
 
 $('#cardBrowseNavFilesystem').on('click', function (e) {
     app.goto('Browse','Filesystem');
@@ -1090,9 +1065,7 @@ function confirmSettings() {
       if (!isNaN(value)) {
         $('#inputCrossfade').val(value);
       } else {
-        $('#inputCrossfade').popover({"content":"Must be a number","trigger":"manual"});
-        $('#inputCrossfade').popover('show');
-        $('#inputCrossfade').focus();
+        document.getElementById('inputCrossfade').classList.add('is-invalid');
         formOK=false;
       }
     }
@@ -1101,9 +1074,7 @@ function confirmSettings() {
       if (!isNaN(value)) {
         $('#inputMixrampdb').val(value);
       } else {
-        $('#inputMixrampdb').popover({"content":"Must be a number","trigger":"manual"});
-        $('#inputMixrampdb').popover('show');
-        $('#inputMixrampdb').focus();
+        document.getElementById('inputMixrampdb').classList.add('is-invalid');
         formOK=false;
       } 
     }
@@ -1113,36 +1084,36 @@ function confirmSettings() {
       if (!isNaN(value)) {
         $('#inputMixrampdelay').val(value);
       } else {
-        $('#inputMixrampdelay').popover({"content":"Must be a number, -1 to disable","trigger":"manual"});
-        $('#inputMixrampdelay').popover('show');
-        $('#inputMixrampdelay').focus();
+        document.getElementById('inputMixrampdelay').classList.add('is-invalid');
         formOK=false;
       }
     }
     if (formOK == true) {
       sendAPI({"cmd":"MPD_API_SET_SETTINGS", "data": {
-        "consume": ($('#btnconsume').hasClass('btn-success') ? 1 : 0),
-        "random":  ($('#btnrandom').hasClass('btn-success') ? 1 : 0),
-        "single":  ($('#btnsingle').hasClass('btn-success') ? 1 : 0),
-        "repeat":  ($('#btnrepeat').hasClass('btn-success') ? 1 : 0),
+        "consume": ($('#btnconsume').hasClass('active') ? 1 : 0),
+        "random":  ($('#btnrandom').hasClass('active') ? 1 : 0),
+        "single":  ($('#btnsingle').hasClass('active') ? 1 : 0),
+        "repeat":  ($('#btnrepeat').hasClass('active') ? 1 : 0),
         "replaygain": $('#selectReplaygain').val(),
         "crossfade": $('#inputCrossfade').val(),
         "mixrampdb": $('#inputMixrampdb').val(),
         "mixrampdelay": $('#inputMixrampdelay').val(),
-        "notificationWeb": ($('#btnnotifyWeb').hasClass('btn-success') ? 1 : 0),
-        "notificationPage": ($('#btnnotifyPage').hasClass('btn-success') ? 1 : 0)
+        "notificationWeb": ($('#btnnotifyWeb').hasClass('active') ? 1 : 0),
+        "notificationPage": ($('#btnnotifyPage').hasClass('active') ? 1 : 0)
       }},getSettings);
       $('#settings').modal('hide');
+    } else {
+      document.getElementById('settingsFrm').classList.add('was-validated');
     }
 }
 
 function toggleoutput(button, id) {
-    sendAPI({"cmd":"MPD_API_TOGGLE_OUTPUT", "data": {"output": id, "state": ($(button).hasClass('btn-success') ? 0 : 1)}});
+    sendAPI({"cmd":"MPD_API_TOGGLE_OUTPUT", "data": {"output": id, "state": ($(button).hasClass('active') ? 0 : 1)}});
 }
 
 $('#trashmodebtns > button').on('click', function(e) {
-    $('#trashmodebtns').children("button").removeClass("btn-success").addClass('btn-secondary');
-    $(this).removeClass("btn-secondary").addClass("btn-success");
+    $('#trashmodebtns').children('button').removeClass('active');
+    $(this).addClass('active');
 });
 
         
@@ -1177,8 +1148,8 @@ $('#searchstr2').keyup(function (event) {
 });
 
 $('#searchtags2 > button').on('click',function (e) {
-  $('#searchtags2 > button').removeClass('btn-success').addClass('btn-secondary');
-  $(this).removeClass('btn-secondary').addClass('btn-success');
+  $('#searchtags2 > button').removeClass('active');
+  $(this).removeClass('btn-secondary').addClass('active');
   app.current.filter=$(this).text();
   app.goto(app.current.app,app.current.tab,app.current.view,app.current.page + '/' + app.current.filter + '/' + app.current.search);
 });
@@ -1190,8 +1161,8 @@ $('#searchqueuestr').keyup(function (event) {
 });
 
 $('#searchqueuetag > button').on('click',function (e) {
-  $('#searchqueuetag > button').removeClass('btn-success').addClass('btn-secondary');
-  $(this).removeClass('btn-secondary').addClass('btn-success');
+  $('#searchqueuetag > button').removeClass('active');
+  $(this).removeClass('btn-secondary').addClass('active');
   app.current.filter=$(this).text();
   $('#searchqueuetagdesc').text(app.current.filter);
   app.goto(app.current.app,app.current.tab,app.current.view,app.current.page + '/' + app.current.filter + '/' + app.current.search);
@@ -1325,19 +1296,19 @@ function setFilterLetter(filter) {
 }
 
 function doSetFilterLetter(x) {
-    $(x+'Letters > button').removeClass('btn-success').addClass('btn-secondary');
+    $(x+'Letters > button').removeClass('active');
     if (app.current.filter == '0') {
         $(x).text('Filter: #');
         $(x+'Letters > button').each(function() {
             if ($(this).text() == '#') {
-                $(this).addClass('btn-success');
+                $(this).addClass('active');
             }
         });
     } else if (app.current.filter != '-') {
         $(x).text('Filter: '+app.current.filter);
         $(x+'Letters > button').each(function() {
             if ($(this).text() == app.current.filter) {
-                $(this).addClass('btn-success');
+                $(this).addClass('active');
             }
         });
     } else {
