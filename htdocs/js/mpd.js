@@ -591,14 +591,14 @@ function parseQueue(obj) {
 }
 
 function parseSearch(obj) {
-    if(app.current.app !== 'Search')
-                        return;
-                    $('#panel-heading-search').text(obj.totalEntities + ' Songs found');
-                    if (obj.totalEntities > 0) {
-                        $('#searchAddAllSongs').removeAttr('disabled').removeClass('disabled');
-                    } else {
-                        $('#searchAddAllSongs').attr('disabled','disabled').addClass('disabled');                    
-                    }
+    if (app.current.app !== 'Search')
+        return;
+    $('#panel-heading-search').text(obj.totalEntities + ' Songs found');
+    if (obj.totalEntities > 0) {
+        $('#searchAddAllSongs').removeAttr('disabled').removeClass('disabled');
+    } else {
+        $('#searchAddAllSongs').attr('disabled','disabled').addClass('disabled');                    
+    }
     parseFilesystem(obj);
 }
 
@@ -621,8 +621,8 @@ function parseFilesystem(obj) {
                                 uri=encodeURI(obj.data[item].dir);
                                 row ='<tr uri="' + uri + '" class="dir">' +
                                     '<td><span class="material-icons">folder_open</span></td>' +
-                                    '<td colspan="3"><a>' + basename(obj.data[item].dir) + '</a></td>' +
-                                    '<td></td><td></td></tr>';
+                                    '<td colspan="4"><a>' + basename(obj.data[item].dir) + '</a></td>' +
+                                    '<td><a class="material-icons">playlist_add</a></td></tr>';
                                 break;
                             case 'song':
                                 var minutes = Math.floor(obj.data[item].duration / 60);
@@ -634,14 +634,14 @@ function parseFilesystem(obj) {
                                     '<td>' + obj.data[item].artist + '</td>' + 
                                     '<td>' + obj.data[item].album  + '</td>' +
                                     '<td>' + minutes + ':' + (seconds < 10 ? '0' : '') + seconds +
-                                    '</td><td></td></tr>';
+                                    '</td><td><a tabindex="0" onclick="showMenu(this,event);" data-trigger="focus" class="material-icons">playlist_add</a></td></tr>';
                                 break;
                             case 'playlist':
                                 uri=encodeURI(obj.data[item].plist);
                                 row ='<tr uri="' + uri + '" class="plist">' +
                                     '<td><span class="material-icons">list</span></td>' +
-                                    '<td colspan="3"><a>' + basename(obj.data[item].plist) + '</a></td>' +
-                                    '<td></td><td></td></tr>';
+                                    '<td colspan="4"><a>' + basename(obj.data[item].plist) + '</a></td>' +
+                                    '<td><a class="material-icons">playlist_add</a></td></tr>';
                                 break;
                         }
                         if (nrItems <= tr.length) { if ($(tr[nrItems-1]).attr('uri') != uri) $(tr[nrItems-1]).replaceWith(row); } 
@@ -658,7 +658,8 @@ function parseFilesystem(obj) {
                            '<td colspan="3">No results</td>' +
                            '<td></td><td></td></tr>');
                     }
-
+                    $('[data-toggle="popover"]').popover(); 
+/*
                     function appendClickableIcon(appendTo, onClickAction, glyphicon) {
                         $(appendTo).append(
                             '<a role="button" class="pull-right btn-group-hover">' +
@@ -685,7 +686,8 @@ function parseFilesystem(obj) {
                                 $(this).children().last().find("a").stop().remove();
                             }
                         });
-                    };
+                    }
+*/
                     $('#'+app.current.app+(app.current.tab == undefined ? '' : app.current.tab )+'List > tbody > tr').on({
                         click: function() {
                             switch($(this).attr('class')) {
@@ -904,6 +906,20 @@ function setPagination(number) {
         $('#'+cat+'PaginationTopPrev').addClass('disabled').attr('disabled','disabled');
         $('#'+cat+'PaginationBottomPrev').addClass('disabled').attr('disabled','disabled');
     }
+}
+
+function showMenu(el,event) {
+  event.stopPropagation();
+  $(el).popover({html:true, content:'<a class="dropdown-item" href="#">Append to queue</a>'+
+    '<a class="dropdown-item" href="#">Add after current playing song</a>'+
+    '<a class="dropdown-item" href="#">Replace queue</a>'+
+    '<div class="dropdown-divider"></div>'+
+    '<a class="dropdown-item" href="#">Add to playlist</a>'+
+    '<div class="dropdown-divider"></div>'+
+    '<a class="dropdown-item" href="#">Details</a>'
+    });
+  $(el).popover('show');
+
 }
 
 function updateVolumeIcon(volume) {
