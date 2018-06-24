@@ -1205,7 +1205,7 @@ int mympd_get_stats(char *buffer)
     if (stats == NULL)
         RETURN_ERROR_AND_RECOVER("mympd_get_stats");
     len = json_printf(&out, "{ type: mpdstats, data: { artists: %d, albums: %d, songs: %d, "
-        "playtime: %d, dbupdated: %d, dbplaytime: %d, mympd_version: %Q, mpd_version: %Q }}",
+        "playtime: %d, uptime: %d, dbupdated: %d, dbplaytime: %d, mympd_version: %Q, mpd_version: %Q }}",
         mpd_stats_get_number_of_artists(stats),
         mpd_stats_get_number_of_albums(stats),
         mpd_stats_get_number_of_songs(stats),
