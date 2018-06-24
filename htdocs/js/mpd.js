@@ -660,7 +660,7 @@ function parseFilesystem(obj) {
                     }
 
                     function appendClickableIcon(appendTo, onClickAction, glyphicon) {
-                        $(appendTo).append(
+                        $(appendTo).html(
                             '<a role="button" class="pull-right btn-group-hover">' +
                             '<span class="material-icons">' + glyphicon + '</span></a>')
                             .find('a').click(function(e) {
