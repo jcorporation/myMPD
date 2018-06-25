@@ -828,11 +828,12 @@ int mympd_put_browse(char *buffer, char *path, unsigned int offset, char *filter
                         ( strncmp(filter,"0",1) == 0 && isalpha(*entityName) == 0 )
                     ) {
                         if (entities_returned ++) len += json_printf(&out,",");
-                        len += json_printf(&out, "{type:song, uri: %Q, album: %Q, artist: %Q, duration: %d, title: %Q }",
+                        len += json_printf(&out, "{type: song, uri: %Q, album: %Q, artist: %Q, duration: %d, title: %Q, name: %Q }",
                             mpd_song_get_uri(song),
                             mympd_get_album(song),
                             mympd_get_artist(song),
                             mpd_song_get_duration(song),
+                            entityName,
                             entityName
                         );
                     } else {
@@ -853,8 +854,9 @@ int mympd_put_browse(char *buffer, char *path, unsigned int offset, char *filter
                         ( strncmp(filter,"0",1) == 0 && isalpha(*dirName) == 0 )
                     ) {                
                         if (entities_returned ++) len += json_printf(&out,",");
-                        len += json_printf(&out, "{type: directory, dir: %Q }",
-                            entityName
+                        len += json_printf(&out, "{type: dir, uri: %Q, name: %Q }",
+                            entityName,
+                            dirName
                         );
                     } else {
                         entity_count --;
@@ -874,8 +876,9 @@ int mympd_put_browse(char *buffer, char *path, unsigned int offset, char *filter
                         ( strncmp(filter,"0",1) == 0 && isalpha(*plName) == 0 )
                     ) {
                         if (entities_returned ++) len += json_printf(&out,",");
-                        len += json_printf(&out, "{ type: playlist, plist: %Q }",
-                            entityName
+                        len += json_printf(&out, "{ type: plist, uri: %Q, name: %Q }",
+                            entityName,
+                            plName
                         );
                     } else {
                         entity_count --;
@@ -1030,7 +1033,8 @@ int mympd_put_playlists(char *buffer, unsigned int offset, char *filter)
                     ( strncmp(filter,"0",1) == 0 && isalpha(*plpath) == 0 )
             ) {
                 if (entities_returned ++) len += json_printf(&out, ", ");
-                len += json_printf(&out, "{ type: playlist, plist: %Q, last_modified: %d }",
+                len += json_printf(&out, "{ type: plist, uri: %Q, name: %Q, last_modified: %d }",
+                    plpath,
                     plpath,
                     mpd_playlist_get_last_modified(pl)
                 );
@@ -1084,11 +1088,12 @@ int mympd_search(char *buffer, char *mpdtagtype, unsigned int offset, char *sear
             entity_count ++;
             if(entity_count > offset && entity_count <= offset+MAX_ELEMENTS_PER_PAGE) {
                 if (entities_returned ++) len += json_printf(&out, ", ");
-                len += json_printf(&out, "{ type: song, uri: %Q, album: %Q, artist: %Q, duration: %d, title: %Q }",
+                len += json_printf(&out, "{ type: song, uri: %Q, album: %Q, artist: %Q, duration: %d, title: %Q, name: %Q }",
                     mpd_song_get_uri(song),
                     mympd_get_album(song),
                     mympd_get_artist(song),
                     mpd_song_get_duration(song),
+                    mympd_get_title(song),
                     mympd_get_title(song)
                 );
             }
