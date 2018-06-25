@@ -895,8 +895,7 @@ function parseListTitles(obj) {
   tbody.innerHTML=titleList.join('');
   
   img.addEventListener('click', function() {
-      //sendAPI({"cmd":"MPD_API_ADD_TRACK", "data": { "uri": decodeURI(this.getAttribute('data-uri'))}});
-      //showNotification('"'+ decodeURI(this.getAttribute('data-name')) + '" added', '', '', 'success');
+//      appendQueue('song', decodeURI(this.getAttribute('data-uri')), this.getAttribute('data-name'));
       showMenu(this);
   }, false);
 
@@ -904,8 +903,7 @@ function parseListTitles(obj) {
   var tr_length = tr.length;
   for (var i = 0; i < tr_length; i ++) {
       tr[i].addEventListener('click', function() {
-          sendAPI({"cmd":"MPD_API_ADD_TRACK", "data": { "uri": decodeURI(this.getAttribute('data-uri'))}});
-          showNotification('"' + this.getAttribute('data-name') + '" added','','','success');
+          appendQueue('song', decodeURI(this.getAttribute('data-uri')), this.getAttribute('data-name'));
       }, false);
       tr[i].getElementsByTagName('a')[0].addEventListener('click', function(event) {
           event.stopPropagation();
