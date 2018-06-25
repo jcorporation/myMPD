@@ -854,14 +854,14 @@ function parseListTitles(obj) {
                     album.append(titleList);
                     $('#card'+id+' > img').on({
                         click: function() {
-                                    sendAPI({"cmd":"MPD_API_ADD_TRACK", "data": { "track": decodeURI($(this).attr('uri'))}});
+                                    sendAPI({"cmd":"MPD_API_ADD_TRACK", "data": { "uri": decodeURI($(this).attr('uri'))}});
                                     showNotification('"'+decodeURI($(this).attr('data-album'))+'" added','','','success');
                         }
                     });
                     
                     $('#tbl'+id+' > tbody > tr').on({
                         click: function() {
-                                    sendAPI({"cmd":"MPD_API_ADD_TRACK", "data": { "track": decodeURI($(this).attr('uri'))}});
+                                    sendAPI({"cmd":"MPD_API_ADD_TRACK", "data": { "uri": decodeURI($(this).attr('uri'))}});
                                     showNotification('"' + $('td:nth-last-child(1)', this).text() + '" added','','','success');
                         }
                     });
