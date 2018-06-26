@@ -320,7 +320,7 @@ $(document).ready(function(){
         e.preventDefault();
     });
     
-    window.addEventListener("hashchange", app.route, false);
+    window.addEventListener('hashchange', app.route, false);
 });
 
 function webSocketConnect() {
@@ -542,7 +542,7 @@ function parseState(obj) {
                     
     //Get current song on queue change for http streams
     if (last_state == undefined || obj.data.queue_version != last_state.data.queue_version)
-        sendAPI({"cmd":"MPD_API_GET_CURRENT_SONG"},songChange);
+        sendAPI({"cmd":"MPD_API_GET_CURRENT_SONG"}, songChange);
                     
     last_state = obj;
                     
@@ -848,12 +848,12 @@ function parseListDBtags(obj) {
             card.classList.add('col-md');
             card.classList.add('mr-0');
             card.setAttribute('id', id);
-            card.innerHTML='<div class="card mb-4" id="card'+id+'">'+
-                           ' <img class="card-img-top" src="" tabindex="0" data-trigger="focus">'+
-                           ' <div class="card-body">'+
-                           '  <h5 class="card-title">'+obj.searchstr+'</h5>'+
-                           '  <h4 class="card-title">'+obj.data[item].value+'</h4>'+
-                           '  <table class="table table-sm table-hover" id="tbl'+id+'"><tbody></tbody></table'+
+            card.innerHTML='<div class="card mb-4" id="card' + id + '">' +
+                           ' <img class="card-img-top" src="" tabindex="0" data-trigger="focus">' +
+                           ' <div class="card-body">' +
+                           '  <h5 class="card-title">' + obj.searchstr + '</h5>' +
+                           '  <h4 class="card-title">' + obj.data[item].value + '</h4>' +
+                           '  <table class="table table-sm table-hover" id="tbl' + id + '"><tbody></tbody></table'+
                            ' </div>'+
                            '</div>';
          
@@ -862,7 +862,7 @@ function parseListDBtags(obj) {
             else 
                 cardContainer.append(card);
                 
-            sendAPI({"cmd":"MPD_API_GET_ARTISTALBUMTITLES", "data": { "albumartist": obj.searchstr, "album": obj.data[item].value}},parseListTitles);
+            sendAPI({"cmd":"MPD_API_GET_ARTISTALBUMTITLES", "data": { "albumartist": obj.searchstr, "album": obj.data[item].value}}, parseListTitles);
         }
         var cards_length=cards.length - 1;
         for (var i = cards_length; i >= nrItems; i --) {
@@ -1152,8 +1152,6 @@ $('#trashmodebtns > button').on('click', function(e) {
     $(this).addClass('active');
 });
 
-        
-
 $('#search > input').keypress(function (event) {
    if ( event.which == 13 ) {
      $('#mainMenu > a').dropdown('toggle');
@@ -1224,13 +1222,13 @@ function gotoPage(x,element,event) {
             break;
         case "prev":
             app.current.page -= settings.max_elements_per_page;
-            if(app.current.page <= 0)
+            if (app.current.page <= 0)
                app.current.page = 0;
             break;
         default:
             app.current.page = x;
     }
-    app.goto(app.current.app,app.current.tab,app.current.view,app.current.page+'/'+app.current.filter+'/'+app.current.search);
+    app.goto(app.current.app, app.current.tab, app.current.view, app.current.page+'/'+app.current.filter+'/'+app.current.search);
     event.preventDefault();
 }
 
