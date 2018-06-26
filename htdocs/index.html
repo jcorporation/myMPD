@@ -11,7 +11,6 @@
   <link href="css/bootstrap-slider.min.css" rel="stylesheet">
   <link href="css/mpd.css" rel="stylesheet">
   <link href="assets/favicon.ico" rel="shortcut icon" type="image/vnd.microsoft.icon">
-  <script src="js/modernizr-custom.min.js"></script>
   
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
@@ -103,24 +102,6 @@
       </div>
       <div class="card-body">
         <div class="btn-toolbar collapse show card-toolbar" id="queue-buttons" role="toolbar">
-          <div id="trashmode" class="btn-group mr-2">
-            <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="material-icons">delete</span></button>
-            <div class="dropdown-menu bg-dark px-2" id="trashmodebtns">
-              <h6 class="dropdown-header text-light">Trashmode</h6>
-              <button id="btntrashmodeup" type="button" class="btn btn-secondary btn-block">
-                <span class="material-icons float-left">vertical_align_top</span>
-                <span class="ml-3">Delete upward</span>
-              </button>
-              <button id="btntrashmodesingle" type="button" class="btn btn-secondary active btn-block">
-                <span class="material-icons float-left">delete</span>
-                <span class="ml-3">Delete single</span>
-              </button>
-              <button id="btntrashmodedown" type="button" class="btn btn-secondary btn-block">
-                <span class="material-icons float-left">vertical_align_bottom</span>
-                <span class="ml-3">Delete downward</span>
-              </button>
-            </div>
-          </div>
           <div id="queue-actions" class="btn-group mr-2">
             <button type="button" class="btn btn-secondary" onclick="socket.send('MPD_API_SEND_SHUFFLE');" title="Shuffle queue">
               <span class="material-icons">shuffle</span>
