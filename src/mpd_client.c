@@ -115,17 +115,18 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
                 struct mpd_pair *pair;
                 while ((pair = mpd_recv_pair(mpd.conn)) != NULL) {
         	    mpd_return_pair(mpd.conn, pair);
-                }            
+                }
+                free(p_charbuf1);            
             }
-            free(p_charbuf1);
             n = snprintf(mpd.buf, MAX_SIZE, "{\"type\":\"result\", \"data\": \"ok\"}");
             break;
         case MPD_API_GET_ARTISTALBUMTITLES:
             je = json_scanf(msg.p, msg.len, "{ data: { albumartist:%Q, album:%Q } }", &p_charbuf1, &p_charbuf2);
-            if (je == 2)
-                n = mympd_put_songs_in_album(mpd.buf, p_charbuf1, p_charbuf2);        
-            free(p_charbuf1);
-            free(p_charbuf2);
+            if (je == 2) {
+                n = mympd_put_songs_in_album(mpd.buf, p_charbuf1, p_charbuf2);
+                free(p_charbuf1);
+                free(p_charbuf2);
+            }
             break;
         case MPD_API_WELCOME:
             n = mympd_put_welcome(mpd.buf);
@@ -208,35 +209,40 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
             break;            
         case MPD_API_GET_ARTISTS:
             je = json_scanf(msg.p, msg.len, "{ data: { offset:%u, filter:%Q } }", &uint_buf1, &p_charbuf1);
-            if (je == 2)  
+            if (je == 2) {
                 n = mympd_put_db_tag(mpd.buf, uint_buf1, "AlbumArtist","","",p_charbuf1);
-            free(p_charbuf1);
+                free(p_charbuf1);
+            }
             break;
         case MPD_API_GET_ARTISTALBUMS:
             je = json_scanf(msg.p, msg.len, "{ data: { offset:%u, filter:%Q, albumartist:%Q } }", &uint_buf1, &p_charbuf1, &p_charbuf2);
-            if (je == 3)        
+            if (je == 3) {
                 n = mympd_put_db_tag(mpd.buf, uint_buf1, "Album", "AlbumArtist", p_charbuf2, p_charbuf1);
-            free(p_charbuf1);
-            free(p_charbuf2);
+                free(p_charbuf1);
+                free(p_charbuf2);
+            }
             break;
         case MPD_API_GET_PLAYLISTS:
             je = json_scanf(msg.p, msg.len, "{ data: { offset:%u, filter:%Q } }", &uint_buf1, &p_charbuf1);
-            if (je == 2)        
+            if (je == 2) {
                 n = mympd_put_playlists(mpd.buf, uint_buf1, p_charbuf1);
-            free(p_charbuf1);
+                free(p_charbuf1);
+            }
             break;
         case MPD_API_GET_FILESYSTEM:
             je = json_scanf(msg.p, msg.len, "{ data: { offset:%u, filter:%Q, path:%Q } }", &uint_buf1, &p_charbuf1, &p_charbuf2);
-            if (je == 3)        
+            if (je == 3) {
                 n = mympd_put_browse(mpd.buf, p_charbuf2, uint_buf1, p_charbuf1);
-            free(p_charbuf1);
-            free(p_charbuf2);
+                free(p_charbuf1);
+                free(p_charbuf2);
+            }
             break;
         case MPD_API_ADD_TRACK:
             je = json_scanf(msg.p, msg.len, "{ data: { uri:%Q } }", &p_charbuf1);
-            if (je == 1)
+            if (je == 1) {
                 mpd_run_add(mpd.conn, p_charbuf1);
-            free(p_charbuf1);
+                free(p_charbuf1);
+            }
             break;
         case MPD_API_ADD_PLAY_TRACK:
             je = json_scanf(msg.p, msg.len, "{ data: { uri:%Q } }", &p_charbuf1);
@@ -244,57 +250,64 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
                 int_buf = mpd_run_add_id(mpd.conn, p_charbuf1);
                 if(int_buf != -1)
                     mpd_run_play_id(mpd.conn, int_buf);
+                free(p_charbuf1);
             }
-            free(p_charbuf1);
             break;
         case MPD_API_ADD_PLAYLIST:
             je = json_scanf(msg.p, msg.len, "{ data: { plist:%Q } }", &p_charbuf1);
-            if (je == 1)        
+            if (je == 1) {
                 mpd_run_load(mpd.conn, p_charbuf1);
-            free(p_charbuf1);
+                free(p_charbuf1);
+            }
             break;
         case MPD_API_SAVE_QUEUE:
             je = json_scanf(msg.p, msg.len, "{ data: { plist:%Q } }", &p_charbuf1);
-            if (je == 1)
+            if (je == 1) {
                 mpd_run_save(mpd.conn, p_charbuf1);
-            free(p_charbuf1);
+                free(p_charbuf1);
+            }
             break;
         case MPD_API_SEARCH_QUEUE:
             je = json_scanf(msg.p, msg.len, "{ data: { offset:%u, mpdtag:%Q, searchstr:%Q } }", &uint_buf1, &p_charbuf1, &p_charbuf2);
-            if (je == 3)        
+            if (je == 3) {
                 n = mympd_search_queue(mpd.buf, p_charbuf1, uint_buf1, p_charbuf2);
-            free(p_charbuf1);
-            free(p_charbuf2);
+                free(p_charbuf1);
+                free(p_charbuf2);
+            }
             break;            
         case MPD_API_SEARCH_ADD:
             je = json_scanf(msg.p, msg.len, "{ data: { mpdtag:%Q, searchstr:%Q } }", &p_charbuf1, &p_charbuf2);
-            if (je == 2)        
+            if (je == 2) {
                 n = mympd_search_add(mpd.buf, p_charbuf1, p_charbuf2);
-            free(p_charbuf1);
-            free(p_charbuf2);
+                free(p_charbuf1);
+                free(p_charbuf2);
+            }
             break;
         case MPD_API_SEARCH:
             je = json_scanf(msg.p, msg.len, "{ data: { offset:%u, mpdtag:%Q, searchstr:%Q } }", &uint_buf1, &p_charbuf1, &p_charbuf2);
-            if (je == 3)
+            if (je == 3) {
                 n = mympd_search(mpd.buf, p_charbuf1, uint_buf1, p_charbuf2);
-            free(p_charbuf1);
-            free(p_charbuf2);
+                free(p_charbuf1);
+                free(p_charbuf2);
+            }
             break;
         case MPD_API_SEND_SHUFFLE:
             mpd_run_shuffle(mpd.conn);
             break;
         case MPD_API_SEND_MESSAGE:
             je = json_scanf(msg.p, msg.len, "{ data: { channel:%Q, text:%Q } }", &p_charbuf1, &p_charbuf2);
-            if (je == 2)
+            if (je == 2) {
                 mpd_run_send_message(mpd.conn, p_charbuf1, p_charbuf2);
-            free(p_charbuf1);
-            free(p_charbuf2);
+                free(p_charbuf1);
+                free(p_charbuf2);
+            }
             break;
         case MPD_API_RM_PLAYLIST:
             je = json_scanf(msg.p, msg.len, "{ data: { plist:%Q } }", &p_charbuf1);
-            if (je == 1)
+            if (je == 1) {
                 mpd_run_rm(mpd.conn, p_charbuf1);
-            free(p_charbuf1);
+                free(p_charbuf1);
+            }
             break;
         case MPD_API_GET_SETTINGS:
             n = mympd_put_settings(mpd.buf);
