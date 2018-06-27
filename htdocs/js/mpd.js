@@ -53,24 +53,35 @@ app.apps = { "Playback": { "state": "0/-/" },
 app.current = { "app": "Playback", "tab": undefined, "view": undefined, "page": 0, "filter": "", "search": "" };
 app.last = { "app": undefined, "tab": undefined, "view": undefined };
 
+var domCache = {};
+domCache.navbarBottomBtns = document.getElementById('navbar-bottom').getElementsByTagName('div');
+domCache.navbarBottomBtnsLen = domCache.navbarBottomBtns.length;
+domCache.panelHeadingBrowse = document.getElementById('panel-heading-browse').getElementsByTagName('a');
+domCache.panelHeadingBrowseLen = domCache.panelHeadingBrowse.length;
+domCache.counter = document.getElementById('counter');
+
 app.prepare=function() {
     if (app.current.app != app.last.app || app.current.tab != app.last.tab || app.current.view != app.last.view) {
         //Hide all cards + nav
-        $('#navbar-bottom > div').removeClass('active');
-        $('#cardPlayback').addClass('hide');
-        $('#cardQueue').addClass('hide');
-        $('#cardBrowse').addClass('hide');
-        $('#cardSearch').addClass('hide');
-        $('#panel-heading-browse > ul > li > a').removeClass('active');
-        $('#cardBrowsePlaylists').addClass('hide');
-        $('#cardBrowseDatabase').addClass('hide');
-        $('#cardBrowseFilesystem').addClass('hide');
+        for ( var i = 0; i < domCache.navbarBottomBtnsLen; i ++) {
+            domCache.navbarBottomBtns[i].classList.remove('active');
+        }
+        document.getElementById('cardPlayback').classList.add('hide');
+        document.getElementById('cardQueue').classList.add('hide');
+        document.getElementById('cardBrowse').classList.add('hide');
+        document.getElementById('cardSearch').classList.add('hide');
+        for ( var i = 0; i < domCache.panelHeadingBrowseLen; i ++) {
+            domCache.panelHeadingBrowse[i].classList.remove('active');
+        }
+        document.getElementById('cardBrowsePlaylists').classList.add('hide');
+        document.getElementById('cardBrowseDatabase').classList.add('hide');        
+        document.getElementById('cardBrowseFilesystem').classList.add('hide');        
         //show active card + nav
-        $('#card'+app.current.app).removeClass('hide');
-        $('#nav'+app.current.app).addClass('active');
+        document.getElementById('card' + app.current.app).classList.remove('hide');
+        document.getElementById('nav' + app.current.app).classList.add('active');
         if (app.current.tab != undefined) {
-            $('#card'+app.current.app+app.current.tab).removeClass('hide');
-            $('#card'+app.current.app+'Nav'+app.current.tab).addClass('active');    
+            document.getElementById('card' + app.current.app + app.current.tab).classList.remove('hide');
+            document.getElementById('card' + app.current.app + 'Nav' + app.current.tab).classList.add('active');    
         }
     }
 }
@@ -159,24 +170,26 @@ app.route=function() {
         else
             document.getElementById('BrowseFilesystemAddAllSongs').setAttribute('disabled', 'disabled')
         // Create breadcrumb
-        var breadcrumbs=['<li class="breadcrumb-item"><a uri="">root</a></li>'];
-        var path_array = app.current.search.split('/');
-        var full_path = '';
-        for (var index in path_array) {
-            if (path_array.length - 1 == index) {
-                breadcrumbs.push('<li class="breadcrumb-item active">' + path_array[index] + '</li>');
+        var breadcrumbs=['<li class="breadcrumb-item"><a data-uri="">root</a></li>'];
+        var pathArray = app.current.search.split('/');
+        var pathArrayLen = pathArray.length;
+        var fullPath = '';
+        for (var i = 0; i < pathArrayLen; i ++) {
+            if (pathArrayLen -1 == i) {
+                breadcrumbs.push('<li class="breadcrumb-item active">' + pathArray[i] + '</li>');
                 break;
             }
-            full_path = full_path + path_array[index];
-            breadcrumbs.push('<li class="breadcrumb-item"><a uri="' + full_path + '">' + path_array[index] + '</a></li>');
-            full_path += '/';
+            fullPath += pathArray[i];
+            breadcrumbs.push('<li class="breadcrumb-item"><a data-uri="' + fullPath + '">' + pathArray[i] + '</a></li>');
+            fullPath += '/';
         }
         var elBrowseBreadcrumb=document.getElementById('BrowseBreadcrumb');
         elBrowseBreadcrumb.innerHTML = breadcrumbs.join('');
         var breadcrumbItems = elBrowseBreadcrumb.getElementsByTagName('a');
-        for (var i = 0; i < breadcrumbItems.length; i ++) {
-            breadcrumbItems[index].addEventListener('click',function() {
-	        app.goto('Browse', 'Filesystem', undefined, '0/'+app.current.filter+'/'+$(this).attr('uri'));
+        var breadcrumbItemsLen = breadcrumbItems.length;
+        for (var i = 0; i < breadcrumbItemsLen; i ++) {
+            breadcrumbItems[i].addEventListener('click', function() {
+	        app.goto('Browse', 'Filesystem', undefined, '0/' + app.current.filter + '/' + this.getAttribute('data-uri'));
             }, false);
         }
         doSetFilterLetter('#BrowseFilesystemFilter');
@@ -201,7 +214,8 @@ app.route=function() {
         }
         
         var btns = document.getElementById('searchtags2').getElementsByTagName('button');
-        for (var i = 0; i < btns.length; i ++) {
+        var btnsLen = btns.length;
+        for (var i = 0; i < btnsLen; i ++) {
             btns[i].classList.remove('active');
             if (btns[i].innerText == app.current.filter) { 
                 btns[i].classList.add('active'); 
@@ -213,9 +227,9 @@ app.route=function() {
         app.goto("Playback");
     }
 
-    app.last.app=app.current.app;
-    app.last.tab=app.current.tab;
-    app.last.view=app.current.view;
+    app.last.app = app.current.app;
+    app.last.tab = app.current.tab;
+    app.last.view = app.current.view;
 };
 
 $(document).ready(function(){
@@ -245,7 +259,7 @@ $(document).ready(function(){
     })
     
     $('#settings').on('shown.bs.modal', function () {
-      sendAPI({"cmd":"MPD_API_GET_SETTINGS"},parseSettings);
+      sendAPI({"cmd":"MPD_API_GET_SETTINGS"},parseSettings);      
       document.getElementById('settingsFrm').classList.remove('was-validated');
       document.getElementById('inputCrossfade').classList.remove('is-invalid');
       document.getElementById('inputMixrampdb').classList.remove('is-invalid');
@@ -488,7 +502,7 @@ function parseSettings(obj) {
 }
 
 function getSettings() {
-    sendAPI({"cmd":"MPD_API_GET_SETTINGS"},parseSettings);
+    sendAPI({"cmd":"MPD_API_GET_SETTINGS"}, parseSettings);
 }
 
 function parseOutputnames(obj) {
@@ -527,17 +541,29 @@ function parseState(obj) {
     var counterText = elapsed_minutes + ":" + 
         (elapsed_seconds < 10 ? '0' : '') + elapsed_seconds + " / " +
         total_minutes + ":" + (total_seconds < 10 ? '0' : '') + total_seconds;
-    document.getElementById('counter').innerText = counterText;
+    domCache.counter.innerText = counterText;
 
+
+    //Set playing track in queue view
     if (last_state) {
-        $('#QueueList > tbody > tr[data-trackid=' + last_state.data.currentsongid + '] > td').eq(4).text(last_state.data.totalTime);
-        $('#QueueList > tbody > tr[data-trackid=' + last_state.data.currentsongid + '] > td').eq(0).removeClass('material-icons').text(last_state.data.songpos);
+        var tr = document.getElementById('queueTrackId' + last_state.data.currentsongid);
+        if (tr) {
+            var trtds = tr.getElementsByTagName('td');
+            trtds[4].innerText = tr.getAttribute('data-duration');
+            trtds[0].classList.remove('material-icons');
+            trtds[0].innerText = tr.getAttribute('data-songpos');
+            tr.classList.remove('font-weight-bold');
+        }
     }
-    $('#QueueList > tbody > tr').removeClass('active').removeClass("font-weight-bold");
-    $('#QueueList > tbody > tr[data-trackid='+obj.data.currentsongid+'] > td').eq(4).text(counterText);
-    $('#QueueList > tbody > tr[data-trackid='+obj.data.currentsongid+'] > td').eq(0).addClass('material-icons').text('play_arrow');
-    $('#QueueList > tbody > tr[data-trackid='+obj.data.currentsongid+']').addClass('active').addClass("font-weight-bold");
-                    
+    var tr = document.getElementById('queueTrackId' + obj.data.currentsongid);
+    if (tr) {
+        var trtds = tr.getElementsByTagName('td');
+        trtds[4].innerText = counterText;
+        trtds[0].classList.add('material-icons');
+        trtds[0].innerText = 'play_arrow';
+        tr.classList.add('font-weight-bold');
+    }
+    
     //Get current song on queue change for http streams
     if (last_state == undefined || obj.data.queue_version != last_state.data.queue_version)
         sendAPI({"cmd":"MPD_API_GET_CURRENT_SONG"}, songChange);
@@ -556,9 +582,9 @@ function parseState(obj) {
 
 function getQueue() {
     if (app.current.search.length >= 2) 
-        sendAPI({"cmd":"MPD_API_SEARCH_QUEUE", "data": {"mpdtag":app.current.filter, "offset":app.current.page,"searchstr": app.current.search}},parseQueue);
+        sendAPI({"cmd":"MPD_API_SEARCH_QUEUE", "data": {"mpdtag":app.current.filter, "offset":app.current.page,"searchstr": app.current.search}}, parseQueue);
     else
-        sendAPI({"cmd":"MPD_API_GET_QUEUE", "data": {"offset": app.current.page}},parseQueue);
+        sendAPI({"cmd":"MPD_API_GET_QUEUE", "data": {"offset": app.current.page}}, parseQueue);
 }
 
 function parseQueue(obj) {
@@ -572,38 +598,41 @@ function parseQueue(obj) {
     else
         document.getElementById('panel-heading-queue').innerText = '';
 
-    var nrItems=0;
+    var nrItems = obj.data.length;
     var tbody = document.getElementById(app.current.app + 'List').getElementsByTagName('tbody')[0];
     var tr = tbody.getElementsByTagName('tr');
-    for (var item in obj.data) {
-        nrItems++;
-        if (tr[nrItems-1])
-            if (tr[nrItems-1].getAttribute('data-trackid') == obj.data[item].id)
+    for (var i = 0; i < nrItems; i ++) {
+        if (tr[i])
+            if (tr[i].getAttribute('data-trackid') == obj.data[i].id)
                 continue;
+                
+        var minutes = Math.floor(obj.data[i].duration / 60);
+        var seconds = obj.data[i].duration - minutes * 60;
+        var duration = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
         var row = document.createElement('tr');
-        row.setAttribute('data-trackid', obj.data[item].id);
         
-        var minutes = Math.floor(obj.data[item].duration / 60);
-        var seconds = obj.data[item].duration - minutes * 60;
-                        
-        row.innerHTML = '<td>' + (obj.data[item].pos + 1) + '</td>' +
-                        '<td>' + obj.data[item].title + '</td>' +
-                        '<td>' + obj.data[item].artist + '</td>' + 
-                        '<td>' + obj.data[item].album + '</td>' +
-                        '<td>' + minutes + ':' + (seconds < 10 ? '0' : '') + seconds +
-                        '</td><td><a href="#" tabindex="0" data-trigger="focus" class="material-icons">playlist_add</a></td></tr>';
-        if (nrItems <= tr.length)
-            tr[nrItems-1].replaceWith(row); 
+        row.setAttribute('data-trackid', obj.data[i].id);
+        row.setAttribute('id','queueTrackId' + obj.data[i].id);
+        row.setAttribute('data-songpos', (obj.data[i].pos + 1));
+        row.setAttribute('data-duration', duration);
+        row.innerHTML = '<td>' + (obj.data[i].pos + 1) + '</td>' +
+                        '<td>' + obj.data[i].title + '</td>' +
+                        '<td>' + obj.data[i].artist + '</td>' + 
+                        '<td>' + obj.data[i].album + '</td>' +
+                        '<td>' + duration + '</td>' +
+                        '<td><a href="#" tabindex="0" data-trigger="focus" class="material-icons">playlist_add</a></td></tr>';
+        if (i < tr.length)
+            tr[i].replaceWith(row); 
         else 
             tbody.append(row);  
         
-        tr[nrItems-1].getElementsByTagName('a')[0].addEventListener('click', function(event) {
+        tr[i].getElementsByTagName('a')[0].addEventListener('click', function(event) {
           event.stopPropagation();
           event.preventDefault();
           showMenu(this);
         },false);
             
-        tr[nrItems-1].addEventListener('click', function() {
+        tr[i].addEventListener('click', function() {
             sendAPI({"cmd":"MPD_API_PLAY_TRACK","data": {"track":this.getAttribute('data-trackid')}});
         },false);
     }
@@ -638,54 +667,53 @@ function parseSearch(obj) {
 function parseFilesystem(obj) {
     if (app.current.app !== 'Browse' && app.current.tab !== 'Filesystem' && app.current.app !== 'Search')
         return;
-    var nrItems = 0;
+    var nrItems = obj.data.length;;
     var tbody = document.getElementById(app.current.app + (app.current.tab==undefined ? '' : app.current.tab) + 'List').getElementsByTagName('tbody')[0];
     var tr = tbody.getElementsByTagName('tr');
-    for (var item in obj.data) {
-        nrItems ++;
-        var uri = encodeURI(obj.data[item].uri);
-        if (tr[nrItems-1])
-            if (tr[nrItems-1].getAttribute('data-uri') == uri)
+    for (var i = 0; i < nrItems; i ++) {
+        var uri = encodeURI(obj.data[i].uri);
+        if (tr[i])
+            if (tr[i].getAttribute('data-uri') == uri)
                 continue;
         var row = document.createElement('tr');
-        row.setAttribute('data-type', obj.data[item].type);
+        row.setAttribute('data-type', obj.data[i].type);
         row.setAttribute('data-uri', uri);
-        row.setAttribute('data-name', obj.data[item].name);
+        row.setAttribute('data-name', obj.data[i].name);
         
-        switch(obj.data[item].type) {
+        switch(obj.data[i].type) {
             case 'dir':
                 row.innerHTML = '<td><span class="material-icons">folder_open</span></td>' +
-                      '<td colspan="4">' + obj.data[item].name + '</td>' +
+                      '<td colspan="4">' + obj.data[i].name + '</td>' +
                       '<td><a href="#" tabindex="0" data-trigger="focus" class="material-icons">playlist_add</a></td>';
                 break;
             case 'song':
-                var minutes = Math.floor(obj.data[item].duration / 60);
-                var seconds = obj.data[item].duration - minutes * 60;
+                var minutes = Math.floor(obj.data[i].duration / 60);
+                var seconds = obj.data[i].duration - minutes * 60;
                 row.innerHTML = '<td><span class="material-icons">music_note</span></td>' + 
-                      '<td>' + obj.data[item].title + '</td>' +
-                      '<td>' + obj.data[item].artist + '</td>' + 
-                      '<td>' + obj.data[item].album  + '</td>' +
+                      '<td>' + obj.data[i].title + '</td>' +
+                      '<td>' + obj.data[i].artist + '</td>' + 
+                      '<td>' + obj.data[i].album  + '</td>' +
                       '<td>' + minutes + ':' + (seconds < 10 ? '0' : '') + seconds +
                       '</td><td><a href="#" tabindex="0" data-trigger="focus" class="material-icons">playlist_add</a></td>';
                 break;
             case 'plist':
                 row.innerHTML = '<td><span class="material-icons">list</span></td>' +
-                      '<td colspan="4">' + obj.data[item].name + '</td>' +
+                      '<td colspan="4">' + obj.data[i].name + '</td>' +
                       '<td><a href="#" tabindex="0" data-trigger="focus" class="material-icons">playlist_add</a></td>';
                 break;
         }
-        if (nrItems <= tr.length)
-            tr[nrItems-1].replaceWith(row); 
+        if (i < tr.length)
+            tr[i].replaceWith(row); 
         else 
             tbody.append(row);
             
-        tr[nrItems-1].getElementsByTagName('a')[0].addEventListener('click', function(event) {
+        tr[i].getElementsByTagName('a')[0].addEventListener('click', function(event) {
           event.stopPropagation();
           event.preventDefault();
           showMenu(this);
         },false);
             
-        tr[nrItems-1].addEventListener('click', function() {
+        tr[i].addEventListener('click', function() {
             switch(this.getAttribute('data-type')) {
                 case 'dir':
                     app.goto('Browse', 'Filesystem', undefined, '0/' + app.current.filter +'/' + decodeURI(this.getAttribute("data-uri")));
@@ -715,36 +743,36 @@ function parseFilesystem(obj) {
 function parsePlaylists(obj) {
     if (app.current.app !== 'Browse' && app.current.tab !== 'Playlists')
         return;
-    var nrItems = 0;
+        
+    var nrItems = obj.data.length;
     var tbody = document.getElementById(app.current.app+app.current.tab+'List').getElementsByTagName('tbody')[0];
     var tr = tbody.getElementsByTagName('tr');
-    for (var item in obj.data) {
-        nrItems++;
-        var uri = encodeURI(obj.data[item].uri);
-        if (tr[nrItems-1])
-            if (tr[nrItems-1].getAttribute('data-uri') == uri)
+    for (var i = 0; i < nrItems; i ++) {
+        var uri = encodeURI(obj.data[i].uri);
+        if (tr[i])
+            if (tr[i].getAttribute('data-uri') == uri)
                 continue;
-        var d = new Date(obj.data[item].last_modified * 1000);
+        var d = new Date(obj.data[i].last_modified * 1000);
         var row = document.createElement('tr');
         row.setAttribute('data-uri', uri);
         row.setAttribute('data-type', 'plist');
-        row.setAttribute('data-name', obj.data[item].name);
+        row.setAttribute('data-name', obj.data[i].name);
         row.innerHTML = '<td><span class="material-icons">list</span></td>' +
-                        '<td>' + obj.data[item].name + '</td>' +
+                        '<td>' + obj.data[i].name + '</td>' +
                         '<td>'+ d.toUTCString() + '</td>' +
                         '<td><a href="#" tabindex="0" data-trigger="focus" class="material-icons">playlist_add</a></td>';
-        if (nrItems <= tr.length)
-            tr[nrItems-1].replaceWith(row); 
+        if (i < tr.length)
+            tr[i].replaceWith(row); 
         else 
             tbody.append(row);
             
-        tr[nrItems-1].getElementsByTagName('a')[0].addEventListener('click', function(event) {
+        tr[i].getElementsByTagName('a')[0].addEventListener('click', function(event) {
           event.stopPropagation();
           event.preventDefault();
           showMenu(this);
         },false);
             
-        tr[nrItems-1].addEventListener('click', function() {
+        tr[i].addEventListener('click', function() {
             appendQueue('plist', decodeURI(this.getAttribute("data-uri")), this.getAttribute("data-name"));
         },false);
     }
@@ -768,34 +796,33 @@ function parseListDBtags(obj) {
         $('#BrowseDatabaseAlbumCards').addClass('hide');
         $('#BrowseDatabaseArtistList').removeClass('hide');
         $('#btnBrowseDatabaseArtist').addClass('hide');
-        var nrItems = 0;
+        var nrItems = obj.data.length;
         var tbody = document.getElementById(app.current.app+app.current.tab+app.current.view+'List').getElementsByTagName('tbody')[0];
         var tr = tbody.getElementsByTagName('tr');
-        for (var item in obj.data) {
-            nrItems++;
-            var uri = encodeURI(obj.data[item].value);
-            if (tr[nrItems-1])
-                if (tr[nrItems-1].getAttribute('data-uri') == uri)
+        for (var i = 0; i < nrItems; i ++) {
+            var uri = encodeURI(obj.data[i].value);
+            if (tr[i])
+                if (tr[i].getAttribute('data-uri') == uri)
                     continue;
             var row = document.createElement('tr');
             row.setAttribute('data-uri', uri);
             row.innerHTML='<td><span class="material-icons">album</span></td>' +
-                          '<td>' + obj.data[item].value + '</td>' +
-                          '<!--<td><a href="#" tabindex="0" data-trigger="focus" class="material-icons">playlist_add</a></td>-->' +
+                          '<td>' + obj.data[i].value + '</td>' +
+//                          '<td><a href="#" tabindex="0" data-trigger="focus" class="material-icons">playlist_add</a></td>' +
                           '</tr>';
 
-            if (nrItems <= tr.length)
-                tr[nrItems-1].replaceWith(row); 
+            if (i < tr.length)
+                tr[i].replaceWith(row); 
             else 
                 tbody.append(row);
 /*            
-            tr[nrItems-1].getElementsByTagName('a')[0].addEventListener('click', function(event) {
+            tr[i].getElementsByTagName('a')[0].addEventListener('click', function(event) {
                 event.stopPropagation();
                 event.preventDefault();
                 showMenu(this);
             },false);
 */            
-            tr[nrItems-1].addEventListener('click', function() {
+            tr[i].addEventListener('click', function() {
                 app.goto('Browse','Database','Album','0/-/'+this.getAttribute('data-uri'));
             },false);
         }
@@ -814,14 +841,13 @@ function parseListDBtags(obj) {
         $('#BrowseDatabaseArtistList').addClass('hide');
         $('#BrowseDatabaseAlbumCards').removeClass('hide');
         $('#btnBrowseDatabaseArtist').removeClass('hide');
-        var nrItems=0;
-        var cardContainer=document.getElementById('BrowseDatabaseAlbumCards')
-        var cards=cardContainer.querySelectorAll('.col-md');
-        for (var item in obj.data) {
-            nrItems++;
-            var id=genId(obj.data[item].value);
-            if (cards[nrItems-1])
-                if (cards[nrItems-1].getAttribute('id') == id)
+        var nrItems = obj.data.length;
+        var cardContainer = document.getElementById('BrowseDatabaseAlbumCards')
+        var cards = cardContainer.querySelectorAll('.col-md');
+        for (var i = 0; i < nrItems; i++) {
+            var id=genId(obj.data[i].value);
+            if (cards[i])
+                if (cards[i].getAttribute('id') == id)
                     continue;              
             var card=document.createElement('div');
             card.classList.add('col-md');
@@ -831,17 +857,17 @@ function parseListDBtags(obj) {
                            ' <img class="card-img-top" src="" tabindex="0" data-trigger="focus">' +
                            ' <div class="card-body">' +
                            '  <h5 class="card-title">' + obj.searchstr + '</h5>' +
-                           '  <h4 class="card-title">' + obj.data[item].value + '</h4>' +
+                           '  <h4 class="card-title">' + obj.data[i].value + '</h4>' +
                            '  <table class="table table-sm table-hover" id="tbl' + id + '"><tbody></tbody></table'+
                            ' </div>'+
                            '</div>';
          
-            if (nrItems <= cards.length)
-                cards[nrItems-1].replaceWith(card); 
+            if (i < cards.length)
+                cards[i].replaceWith(card); 
             else 
                 cardContainer.append(card);
                 
-            sendAPI({"cmd":"MPD_API_GET_ARTISTALBUMTITLES", "data": { "albumartist": obj.searchstr, "album": obj.data[item].value}}, parseListTitles);
+            sendAPI({"cmd":"MPD_API_GET_ARTISTALBUMTITLES", "data": { "albumartist": obj.searchstr, "album": obj.data[i].value}}, parseListTitles);
         }
         var cards_length=cards.length - 1;
         for (var i = cards_length; i >= nrItems; i --) {
@@ -865,9 +891,10 @@ function parseListTitles(obj) {
   img.setAttribute('data-type', 'album');
   
   var titleList=new Array();
-  for (var item in obj.data) {
-      titleList.push('<tr data-type="song" data-name="' + obj.data[item].title + '" data-uri="' + encodeURI(obj.data[item].uri) + '">' +
-                 '<td>' + obj.data[item].track + '</td><td>' + obj.data[item].title + '</td>' +
+  var nrItems = obj.data.length;
+  for (var i = 0; i < nrItems; i ++) {
+      titleList.push('<tr data-type="song" data-name="' + obj.data[i].title + '" data-uri="' + encodeURI(obj.data[i].uri) + '">' +
+                 '<td>' + obj.data[i].track + '</td><td>' + obj.data[i].title + '</td>' +
                  '<td><a href="#" tabindex="0" data-trigger="focus" class="material-icons">playlist_add</a></td>' + 
                  '</tr>');
   }
