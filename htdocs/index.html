@@ -26,24 +26,24 @@
             </form>
             <div class="dropdown-divider"></div>
             <a id="nav-addstream" class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#addstream">Add Stream</a>
-            <a id="nav-updatedb" class="dropdown-item text-light bg-dark" href="#" onclick="updateDB(event);">Update Database</a>
-            <a id="nav-localplayer" class="dropdown-item text-light bg-dark" href="#" data-toggle="dropdown" onclick="window.open('/player.html#'+settings.mpdstream,'LocalPlayer');">Local Player</a>
+            <a id="nav-updatedb" class="dropdown-item text-light bg-dark" href="#">Update Database</a>
+            <a id="nav-localplayer" class="dropdown-item text-light bg-dark" href="#" data-toggle="dropdown">Local Player</a>
             <a id="nav-settings" class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#settings">Settings</a>
             <a id="nav-about" class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#about">About</a>
           </div>
         </div>
         <div class="btn-toolbar col-auto pl-0 pr-0" role="toolbar">
-          <div class="btn-group mr-2" role="group">
-            <button id="btnPrev" type="button" class="btn btn-secondary pl-2 pr-2 material-icons" onclick="clickPrev();;">
+          <div class="btn-group mr-2" role="group" id="playControlBtns">
+            <button id="btnPrev" type="button" class="btn btn-secondary pl-2 pr-2 material-icons">
               skip_previous
             </button>
-            <button id="btnStop" type="button" class="btn btn-secondary pl-2 pr-2 material-icons" onclick="clickStop();">
+            <button id="btnStop" type="button" class="btn btn-secondary pl-2 pr-2 material-icons">
               stop
             </button>
-            <button id="btnPlay" type="button" class="btn btn-secondary pl-2 pr-2 material-icons" onclick="clickPlay();">
+            <button id="btnPlay" type="button" class="btn btn-secondary pl-2 pr-2 material-icons">
               pause
             </button>
-            <button id="btnNext" type="button" class="btn btn-secondary pl-2 pr-2 material-icons" onclick="clickNext();">
+            <button id="btnNext" type="button" class="btn btn-secondary pl-2 pr-2 material-icons">
               skip_next
             </button>
           </div>
@@ -55,11 +55,11 @@
               <h2 class="dropdown-header text-light">Volume: <span id="volumePrct"></span></h2>
               <form class="px-4 py-0 pb-3" id="volumeControl">
                 <div class="btn-group" role="group">
-                  <input type="button" class="btn btn-secondary" value="&minus;" onclick="chVolume(-5)"/>
+                  <input id="chVolumeMinus" type="button" class="btn btn-secondary" value="&minus;"/>
                   <div class="btn btn-secondary">
                     <input type="range" min="0" max="100" step="1" class="form-control-range" id="volumeBar">
                   </div>
-                  <input type="button" class="btn btn-secondary" value="+" onclick="chVolume(5)"/>
+                  <input id="chVolumePlus" type="button" class="btn btn-secondary" value="+"/>
                 </div>
               </form>
               <div class="dropdown-divider"></div>
@@ -90,7 +90,6 @@
         </div>          
       </div>
     </div>
-    
     
     <div class="card hide" id="cardQueue">
       <div class="card-header">
