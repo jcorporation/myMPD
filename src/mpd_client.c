@@ -577,13 +577,13 @@ int mympd_put_state(char *buffer, int *current_song_id, int *next_song_id,  unsi
         mpd_status_get_queue_version(status)
     );
     
-    len += json_printf(&out, ",outputs: {");
+    len += json_printf(&out, ",outputs: [");
 
     mpd_send_outputs(mpd.conn);
     nr=0;
     while ((output = mpd_recv_output(mpd.conn)) != NULL) {
         if (nr++) len += json_printf(&out, ",");
-        len += json_printf(&out, "\"%d\":%d",
+        len += json_printf(&out, "{id: %d, state: %d}",
             mpd_output_get_id(output), 
             mpd_output_get_enabled(output)
         );
@@ -594,7 +594,7 @@ int mympd_put_state(char *buffer, int *current_song_id, int *next_song_id,  unsi
         mpd_connection_clear_error(mpd.conn);
     }
 
-    len += json_printf(&out, "}}}");
+    len += json_printf(&out, "]}}");
 
     *current_song_id = mpd_status_get_song_id(status);
     *next_song_id = mpd_status_get_next_song_id(status);
@@ -686,13 +686,13 @@ int mympd_put_outputnames(char *buffer)
     int nr;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
     
-    len = json_printf(&out,"{type: outputnames, data:{");
+    len = json_printf(&out,"{type: outputnames, data: { outputs: [");
     
     mpd_send_outputs(mpd.conn);
     nr=0;    
     while ((output = mpd_recv_output(mpd.conn)) != NULL) {
         if (nr++) len += json_printf(&out, ",");
-        len += json_printf(&out,"\"%d\":%Q",
+        len += json_printf(&out,"{id: %d, name: %Q}",
             mpd_output_get_id(output),
             mpd_output_get_name(output)
         );
@@ -703,7 +703,7 @@ int mympd_put_outputnames(char *buffer)
         mpd_connection_clear_error(mpd.conn);
     }
 
-    len += json_printf(&out,"}}");
+    len += json_printf(&out,"]}}");
     
     if (len > MAX_SIZE) fprintf(stderr,"Buffer truncated\n");
     return len;

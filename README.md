@@ -13,7 +13,6 @@ UI Components
 -------------
  - Bootstrap 4: https://getbootstrap.com/
  - Bootstrap Notify: http://bootstrap-notify.remabledesigns.com/
- - Bootstrap Slider: https://github.com/seiyria/bootstrap-slider
  - Material Design Icons: https://material.io/tools/icons/?style=baseline
  - jQuery: https://jquery.com/
 
