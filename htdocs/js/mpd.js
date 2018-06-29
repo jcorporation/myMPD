@@ -64,6 +64,7 @@ domCache.btnPrev = document.getElementById('btnPrev');
 domCache.btnNext = document.getElementById('btnNext');
 domCache.progressBar = document.getElementById('progressBar');
 domCache.volumeBar = document.getElementById('volumeBar');
+domCache.outputs = document.getElementById('outputs');
 
 app.prepare=function() {
     if (app.current.app != app.last.app || app.current.tab != app.last.tab || app.current.view != app.last.view) {
@@ -494,7 +495,7 @@ $(document).ready(function(){
             default:
                 return;
         }
-        e.preventDefault();
+        event.preventDefault();
     }, false);
 });
 
@@ -667,15 +668,13 @@ function getSettings() {
 }
 
 function parseOutputnames(obj) {
-    var outputs = document.getElementById('outputs');
-    outputs.innerHTML = '';
     var btns = '';
     var outputsLen = obj.data.outputs.length;
     for (var i = 0; i < outputsLen; i ++) {
         btns += '<button id="btnoutput' + obj.data.outputs[i].id +'" data-output-id="' + obj.data.outputs[i].id + '" class="btn btn-secondary btn-block">'+
                 '<span class="material-icons float-left">volume_up</span> ' + obj.data.outputs[i].name + '</button>';
     }
-    outputs.innerHTML = btns;
+    domCache.outputs.innerHTML = btns;
 }
 
 function parseState(obj) {
@@ -683,10 +682,10 @@ function parseState(obj) {
         return;
 
     //Set playstate
-    if(obj.data.state == 1) {
+    if (obj.data.state == 1) {
         domCache.btnPlay.innerText = 'play_arrow';
         playstate = 'stop';
-    } else if(obj.data.state == 2) {
+    } else if (obj.data.state == 2) {
         domCache.btnPlay.innerText = 'pause';
         playstate = 'play';
     } else {
