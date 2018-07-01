@@ -159,10 +159,6 @@ main {
  width:160px;
 }
 
-[data-notify="title"] {
- font-size:120%; 
-}
-
 .header-logo {
  font-size:2rem;
  float:left;
@@ -194,4 +190,20 @@ button.active {
  border-color: #28a745 !important;
 }
 
+div#alertBox {
+ position:fixed;
+ top: 50px; 
+ right:10px;
+ width:80%; 
+ max-width:400px;
+ z-index:1000;
+ opacity:0;
+ visibility:visible;
+ transition:opacity 0.5s ease-in; 
+}
 
+div.alertBoxActive {
+ opacity:1 !important;
+ visibility:visible !important;
+ transition:opacity 0.5s ease-in;
+}

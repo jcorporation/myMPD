@@ -28,6 +28,7 @@ var last_state;
 var current_song = new Object();
 var playstate = '';
 var settings = {};
+var timeOut;
 
 var app = {};
 app.apps = { "Playback": { "state": "0/-/" },
@@ -65,6 +66,7 @@ domCache.btnNext = document.getElementById('btnNext');
 domCache.progressBar = document.getElementById('progressBar');
 domCache.volumeBar = document.getElementById('volumeBar');
 domCache.outputs = document.getElementById('outputs');
+domCache.alertBox = document.getElementById('alertBox');
 
 app.prepare=function() {
     if (app.current.app != app.last.app || app.current.tab != app.last.tab || app.current.view != app.last.view) {
@@ -177,21 +179,21 @@ app.route=function() {
         else
             document.getElementById('BrowseFilesystemAddAllSongs').setAttribute('disabled', 'disabled')
         // Create breadcrumb
-        var breadcrumbs=['<li class="breadcrumb-item"><a data-uri="">root</a></li>'];
+        var breadcrumbs='<li class="breadcrumb-item"><a data-uri="">root</a></li>';
         var pathArray = app.current.search.split('/');
         var pathArrayLen = pathArray.length;
         var fullPath = '';
         for (var i = 0; i < pathArrayLen; i ++) {
             if (pathArrayLen -1 == i) {
-                breadcrumbs.push('<li class="breadcrumb-item active">' + pathArray[i] + '</li>');
+                breadcrumbs += '<li class="breadcrumb-item active">' + pathArray[i] + '</li>';
                 break;
             }
             fullPath += pathArray[i];
-            breadcrumbs.push('<li class="breadcrumb-item"><a data-uri="' + fullPath + '">' + pathArray[i] + '</a></li>');
+            breadcrumbs += '<li class="breadcrumb-item"><a data-uri="' + fullPath + '">' + pathArray[i] + '</a></li>';
             fullPath += '/';
         }
         var elBrowseBreadcrumb=document.getElementById('BrowseBreadcrumb');
-        elBrowseBreadcrumb.innerHTML = breadcrumbs.join('');
+        elBrowseBreadcrumb.innerHTML = breadcrumbs;
         var breadcrumbItems = elBrowseBreadcrumb.getElementsByTagName('a');
         var breadcrumbItemsLen = breadcrumbItems.length;
         for (var i = 0; i < breadcrumbItemsLen; i ++) {
@@ -1027,15 +1029,15 @@ function parseListTitles(obj) {
     img.setAttribute('data-name', encodeURI(obj.album));
     img.setAttribute('data-type', 'album');
   
-    var titleList = new Array();
+    var titleList = '';
     var nrItems = obj.data.length;
     for (var i = 0; i < nrItems; i ++) {
-        titleList.push('<tr data-type="song" data-name="' + obj.data[i].title + '" data-uri="' + encodeURI(obj.data[i].uri) + '">' +
-                 '<td>' + obj.data[i].track + '</td><td>' + obj.data[i].title + '</td>' +
-                 '<td><a href="#" tabindex="0" data-trigger="focus" class="material-icons">playlist_add</a></td>' + 
-                 '</tr>');
+        titleList += '<tr data-type="song" data-name="' + obj.data[i].title + '" data-uri="' + encodeURI(obj.data[i].uri) + '">' +
+                     '<td>' + obj.data[i].track + '</td><td>' + obj.data[i].title + '</td>' +
+                     '<td><a href="#" tabindex="0" data-trigger="focus" class="material-icons">playlist_add</a></td>' + 
+                     '</tr>';
     }
-    tbody.innerHTML=titleList.join('');
+    tbody.innerHTML = titleList;
   
     img.addEventListener('click', function() {
         //appendQueue('song', decodeURI(this.getAttribute('data-uri')), this.getAttribute('data-name'));
@@ -1296,12 +1298,13 @@ function showNotification(notificationTitle,notificationText,notificationHtml,no
       }, 3000, notification);    
     } 
     if (settings.notificationPage == 1) {
-      $.notify({ title: notificationTitle, message: notificationHtml},{ type: notificationType, offset: { y:60, x:20 },
-        template: '<div data-notify="container" class="alert alert-{0}" role="alert">' +
-		'<span data-notify="title">{1}</span> ' +
-		'<span data-notify="message">{2}</span>' +
-		'</div>' 
-      });
+        domCache.alertBox.innerHTML = '<strong>' + notificationTitle + '</strong>' + notificationHtml;
+        domCache.alertBox.classList.add('alertBoxActive');
+        if (timeOut)
+            clearTimeout(timeOut);
+        timeOut = setTimeout(function(notificationTitle) {
+            domCache.alertBox.classList.remove('alertBoxActive');
+        }, 3000);
     }
 }
 
