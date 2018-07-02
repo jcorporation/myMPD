@@ -61,13 +61,17 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
     float float_buf;
     char *p_charbuf1, *p_charbuf2;
     struct mympd_state { int a; int b; } state = { .a = 0, .b = 0 };
+    enum mpd_cmd_ids cmd_id;
     
     #ifdef DEBUG
     fprintf(stdout,"Got request: %s\n",msg.p);
     #endif
     
-    json_scanf(msg.p, msg.len, "{cmd:%Q}", &cmd);
-    enum mpd_cmd_ids cmd_id = get_cmd_id(cmd);
+    je = json_scanf(msg.p, msg.len, "{cmd:%Q}", &cmd);
+    if (je == 1) 
+         cmd_id = get_cmd_id(cmd);
+    else
+        return;
 
     if(cmd_id == -1)
         return;
