@@ -25,11 +25,11 @@
               <input id="inputSearch" type="text" class="form-control" placeholder="Search">
             </form>
             <div class="dropdown-divider"></div>
-            <a id="nav-addstream" class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#addstream">Add Stream</a>
+            <a id="nav-addstream" class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#modalAddstream">Add Stream</a>
             <a id="nav-updatedb" class="dropdown-item text-light bg-dark" href="#" data-href="{'cmd':'updateDB','options':[]}">Update Database</a>
-            <a id="nav-localplayer" class="dropdown-item text-light bg-dark" href="#" data-href="{'cmd':'openLocalPlayer','options':[]}" data-toggle="dropdown">Local Player</a>
-            <a id="nav-settings" class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#settings">Settings</a>
-            <a id="nav-about" class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#about">About</a>
+            <a id="nav-localplayer" class="dropdown-item text-light bg-dark" href="#" data-href="{'cmd':'openLocalPlayer','options':[]}">Local Player</a>
+            <a id="nav-settings" class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#modalSettings">Settings</a>
+            <a id="nav-about" class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#modalAbout">About</a>
           </div>
         </div>
         <div class="btn-toolbar col-auto pl-0 pr-0" role="toolbar">
@@ -93,11 +93,11 @@
     
     <div class="card hide" id="cardQueue">
       <div class="card-header">
-        <a href="#" data-toggle="collapse" data-target="#queue-buttons" class="text-dark">Queue</a>
+        <a href="#" data-target="#queue-buttons" class="text-dark">Queue</a>
         <span id="panel-heading-queue" class="text pull-right"></span>
       </div>
       <div class="card-body">
-        <div class="btn-toolbar collapse show card-toolbar" id="queue-buttons" role="toolbar">
+        <div class="btn-toolbar card-toolbar" id="queue-buttons" role="toolbar">
           <div id="queue-actions" class="btn-group mr-2">
             <button type="button" class="btn btn-secondary" data-href="{'cmd': 'sendAPI', 'options': [{'cmd':'MPD_API_SEND_SHUFFLE'}]}" title="Shuffle queue">
               <span class="material-icons">shuffle</span>
@@ -105,7 +105,7 @@
             <button type="button" class="btn btn-secondary" data-href="{'cmd': 'sendAPI', 'options': [{'cmd':'MPD_API_RM_ALL'}]}" title="Clear queue">
               <span class="material-icons">clear_all</span>
             </button>
-            <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#savequeue" title="Save queue">
+            <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#modalSavequeue" title="Save queue">
               <span class="material-icons">save</span>
             </button>
           </div>
@@ -195,7 +195,7 @@
       </div>
       
       <div class="card-body hide" id="cardBrowsePlaylists">
-        <div class="btn-toolbar collapse show card-toolbar" id="BrowsePlaylistsButtons" role="toolbar">
+        <div class="btn-toolbar card-toolbar" id="BrowsePlaylistsButtons" role="toolbar">
           <div class="btn-group mr-2">
             <button id="BrowsePlaylistsFilter" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">Filter</button>
             <div class="dropdown-menu bg-dark px-2" id="BrowsePlaylistsFilterLetters">
@@ -250,7 +250,7 @@
 
       <div class="card-body hide" id="cardBrowseDatabase">
 
-        <div class="btn-toolbar collapse show card-toolbar" id="BrowseDatabaseButtons" role="toolbar">
+        <div class="btn-toolbar card-toolbar" id="BrowseDatabaseButtons" role="toolbar">
           <div class="btn-group mr-2">
             <button data-href="{'cmd': 'appGoto', 'options': ['Browse','Database','Artist']}" id="btnBrowseDatabaseArtist" type="button" class="btn btn-secondary hide">&laquo; Artists</button>
           </div>
@@ -309,7 +309,7 @@
       </div>
 
       <div class="card-body hide" id="cardBrowseFilesystem">
-        <div class="btn-toolbar collapse show card-toolbar" id="BrowseFilesystemButtons" role="toolbar">
+        <div class="btn-toolbar card-toolbar" id="BrowseFilesystemButtons" role="toolbar">
           <div class="btn-group mr-2 pull-right">
             <button data-href="{'cmd': 'addAllFromBrowse', 'options': []}" id="BrowseFilesystemAddAllSongs" class="btn btn-secondary">Add all</button>
           </div>
@@ -378,7 +378,7 @@
         <span id="panel-heading-search" class="text pull-right"></span>
       </div>
       <div class="card-body">
-        <div class="btn-toolbar collapse show card-toolbar" id="SearchButtons" role="toolbar">
+        <div class="btn-toolbar card-toolbar" id="SearchButtons" role="toolbar">
           <form id="search2" role="search">
             <div class="input-group mr-2">
               <input type="text" class="form-control" placeholder="Search" id="searchstr2"/>
@@ -478,7 +478,7 @@
   </div>
 
   <!-- Modal -->
-  <div class="modal fade" id="settings" tabindex="-1" role="dialog" aria-labelledby="settingsLabel" aria-hidden="true">
+  <div class="modal fade" id="modalSettings" tabindex="-1" role="dialog" aria-labelledby="settingsLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -572,7 +572,7 @@
   </div><!-- /.modal -->
   
     <!-- Modal -->
-  <div class="modal fade" id="about" tabindex="-1" role="dialog" aria-labelledby="settingsLabel" aria-hidden="true">
+  <div class="modal fade" id="modalAbout" tabindex="-1" role="dialog" aria-labelledby="settingsLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -615,7 +615,7 @@
   </div><!-- /.modal -->
 
   <!-- Modal -->
-  <div class="modal fade" id="addstream" tabindex="-1" role="dialog" aria-labelledby="addstreamLabel" aria-hidden="true">
+  <div class="modal fade" id="modalAddstream" tabindex="-1" role="dialog" aria-labelledby="addstreamLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -625,7 +625,7 @@
           </button>
         </div>
         <div class="modal-body">
-          <form>
+          <form id="addstreamFrm">
             <div class="row">
               <div class="form-group col-md-12">
                 <label class="control-label" for="streamurl">Stream URL</label>
@@ -642,7 +642,7 @@
     </div><!-- /.modal-dialog -->
   </div><!-- /.modal -->
 
-  <div class="modal fade" id="savequeue" tabindex="-1" role="dialog" aria-labelledby="savequeueLabel" aria-hidden="true">
+  <div class="modal fade" id="modalSavequeue" tabindex="-1" role="dialog" aria-labelledby="savequeueLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -668,8 +668,7 @@
       </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
   </div><!-- /.modal -->
-  <script src="js/jquery-3.3.1.min.js"></script>
-  <script src="js/bootstrap.bundle.min.js"></script>
+  <script src="js/bootstrap-native-v4.min.js"></script>
   <script src="js/mpd.js"></script>
  </body>
 </html>

@@ -67,6 +67,12 @@ domCache.progressBar = document.getElementById('progressBar');
 domCache.volumeBar = document.getElementById('volumeBar');
 domCache.outputs = document.getElementById('outputs');
 
+var modalConnectionError = new Modal(document.getElementById('modalConnectionError'));
+var modalSettings = new Modal(document.getElementById('modalSettings'));
+var modalAddstream = new Modal(document.getElementById('modalAddstream'));
+var modalSavequeue = new Modal(document.getElementById('modalSavequeue'));
+var mainMenu = new Dropdown(document.getElementById('mainMenu'));
+
 function appPrepare() {
     if (app.current.app != app.last.app || app.current.tab != app.last.tab || app.current.view != app.last.view) {
         //Hide all cards + nav
@@ -261,11 +267,11 @@ function appInit() {
         }
     }, false);
     
-    $('#about').on('shown.bs.modal', function () {
+    document.getElementById('modalAbout').addEventListener('shown.bs.modal', function () {
         sendAPI({"cmd": "MPD_API_GET_STATS"}, parseStats);
     })
     
-    $('#settings').on('shown.bs.modal', function () {
+    document.getElementById('modalSettings').addEventListener('shown.bs.modal', function () {
         getSettings();
         document.getElementById('settingsFrm').classList.remove('was-validated');
         document.getElementById('inputCrossfade').classList.remove('is-invalid');
@@ -273,20 +279,24 @@ function appInit() {
         document.getElementById('inputMixrampdelay').classList.remove('is-invalid');
     })
 
-    $('#addstream').on('shown.bs.modal', function () {
+    document.getElementById('modalAddstream').addEventListener('shown.bs.modal', function () {
         document.getElementById('streamurl').focus();
     })
     
-    $('#addstream form').on('submit', function (e) {
+    document.getElementById('addstreamFrm').addEventListener('submit', function () {
         addStream();
     });
     
-    $('#mainMenu').on('shown.bs.dropdown', function () {
+    document.getElementById('mainMenu').addEventListener('shown.bs.dropdown', function () {
         var si = document.getElementById('inputSearch');
         si.value = '';
         si.focus();
     });
-     
+    
+    document.getElementById('inputSearch').addEventListener('click', function(event) {
+        event.stopPropagation();
+    });
+    
     addFilterLetter('BrowseFilesystemFilterLetters');
     addFilterLetter('BrowseDatabaseFilterLetters');
     addFilterLetter('BrowsePlaylistsFilterLetters');
@@ -397,11 +407,13 @@ function appInit() {
 
     document.getElementById('inputSearch').addEventListener('keypress', function (event) {
         if ( event.which == 13 )
-            $('#mainMenu > a').dropdown('toggle');
+            mainMenu.toggle();
     }, false);
 
     document.getElementById('search').addEventListener('submit', function () {
-        appGoto('Search', undefined, undefined, app.current.page + '/Any Tag/' + document.getElementById('inputSearch').value);
+        var searchStr = document.getElementById('inputSearch').value;
+        appGoto('Search', undefined, undefined, app.current.page + '/Any Tag/' + searchStr);
+        document.getElementById('searchstr2').value = searchStr;
         return false;
     }, false);
 
@@ -446,7 +458,7 @@ function webSocketConnect() {
         socket.onopen = function() {
             console.log("connected");
             showNotification('Connected to myMPD','','','success');
-            $('#modalConnectionError').modal('hide');    
+            modalConnectionError.hide();
             appRoute();
         }
 
@@ -482,7 +494,7 @@ function webSocketConnect() {
 
         socket.onclose = function(){
             console.log('disconnected');
-            $('#modalConnectionError').modal('show');
+            modalConnectionError.show();
             setTimeout(function() {
                console.log('reconnect');
                webSocketConnect();
@@ -1045,7 +1057,7 @@ function appendQueue(type, uri, name) {
 }
 
 function showMenu(el) {
-    var type = el.parentNode.parentNode.getAttribute('data-type');
+/*    var type = el.parentNode.parentNode.getAttribute('data-type');
     var uri = el.parentNode.parentNode.getAttribute('data-uri');
     if ((app.current.app == 'Browse' && app.current.tab == 'Filesystem') || app.current.app == 'Search' ||
         (app.current.app == 'Browse' && app.current.tab == 'Database' && app.current.view == 'Album')) {
@@ -1077,6 +1089,7 @@ function showMenu(el) {
         });
     }    
     $(el).popover('show');
+    */
 }
 
 function sendAPI(request, callback) {
@@ -1122,12 +1135,13 @@ function clickNext() {
 
 function delQueueSong(tr,event) {
     event.stopPropagation();
-    if ( $('#btntrashmodeup').hasClass('active') )
+/*    if ( $('#btntrashmodeup').hasClass('active') )
         sendAPI({"cmd": "MPD_API_RM_RANGE", "data": {"start":0, "end": (tr.index() + 1)}});
     else if ( $('#btntrashmodesingle').hasClass('active') )
         sendAPI({"cmd": "MPD_API_RM_TRACK", "data": { "track": tr.attr('trackid')}});
     else if ( $('#btntrashmodedown').hasClass('active') ) 
         sendAPI({"cmd": "MPD_API_RM_RANGE", "data": {"start": tr.index(), "end":-1}});
+        */
 }
 
 function delPlaylist(tr) {
@@ -1182,7 +1196,7 @@ function confirmSettings() {
             "notificationWeb": (document.getElementById('btnnotifyWeb').classList.contains('active') ? 1 : 0),
             "notificationPage": (document.getElementById('btnnotifyPage').classList.contains('active') ? 1 : 0)
         }}, getSettings);
-        $('#settings').modal('hide');
+        modalSettings.hide();
     } else {
         document.getElementById('settingsFrm').classList.add('was-validated');
     }
@@ -1226,7 +1240,7 @@ function addStream() {
     if (streamUrl.value != '')
         sendAPI({"cmd": "MPD_API_ADD_TRACK","data": {"uri": streamUrl.value}});
     streamUrl.value = '';
-    $('#addstream').modal('hide');
+    modalAddstream.hide();
 }
 
 function saveQueue() {
@@ -1234,7 +1248,7 @@ function saveQueue() {
     if (plName.value != '')
         sendAPI({"cmd":"MPD_API_SAVE_QUEUE","data":{"plist": plName.value}});
     plName.value = '';
-    $('#savequeue').modal('hide');
+    modalSavequeue.hide();
 }
 
 function showNotification(notificationTitle,notificationText,notificationHtml,notificationType) {

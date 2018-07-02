@@ -13,7 +13,7 @@ UI Components
 -------------
  - Bootstrap 4: https://getbootstrap.com/
  - Material Design Icons: https://material.io/tools/icons/?style=baseline
- - jQuery: https://jquery.com/
+ - Bootstrap Native: http://thednp.github.io/bootstrap.native/
 
 Backend
 -------
