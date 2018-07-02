@@ -66,7 +66,6 @@ domCache.btnNext = document.getElementById('btnNext');
 domCache.progressBar = document.getElementById('progressBar');
 domCache.volumeBar = document.getElementById('volumeBar');
 domCache.outputs = document.getElementById('outputs');
-domCache.alertBox = document.getElementById('alertBox');
 
 function appPrepare() {
     if (app.current.app != app.last.app || app.current.tab != app.last.tab || app.current.view != app.last.view) {
@@ -243,7 +242,7 @@ function appRoute() {
     app.last.view = app.current.view;
 };
 
-$(document).ready(function(){
+function appInit() {
     getSettings();
     sendAPI({"cmd":"MPD_API_GET_OUTPUTNAMES"}, parseOutputnames);
 
@@ -438,7 +437,7 @@ $(document).ready(function(){
         }
         event.preventDefault();
     }, false);
-});
+}
 
 function webSocketConnect() {
     socket = new WebSocket(get_appropriate_ws_url());
@@ -1246,12 +1245,25 @@ function showNotification(notificationTitle,notificationText,notificationHtml,no
       }, 3000, notification);    
     } 
     if (settings.notificationPage == 1) {
-        domCache.alertBox.innerHTML = '<strong>' + notificationTitle + '</strong>' + notificationHtml;
-        domCache.alertBox.classList.add('alertBoxActive');
+        var alertBox;
+        if (!document.getElementById('alertBox')) {
+            alertBox = document.createElement('div');
+            alertBox.setAttribute('id','alertBox');
+        }
+        else {
+            alertBox = document.getElementById('alertBox');
+        }
+        alertBox.classList.add('alert','alert-' + notificationType);
+        alertBox.innerHTML = '<div><strong>' + notificationTitle + '</strong>' + notificationHtml + '</div>';
+        document.getElementsByTagName('main')[0].append(alertBox);
+        document.getElementById('alertBox').classList.add('alertBoxActive');
         if (timeOut)
             clearTimeout(timeOut);
-        timeOut = setTimeout(function(notificationTitle) {
-            domCache.alertBox.classList.remove('alertBoxActive');
+        timeOut = setTimeout(function() {
+            document.getElementById('alertBox').classList.remove('alertBoxActive');
+            setTimeout(function() {
+                document.getElementById('alertBox').remove();
+            }, 600);
         }, 3000);
     }
 }
@@ -1367,3 +1379,6 @@ function beautifyDuration(x) {
 function genId(x) {
     return 'id'+x.replace(/[^\w]/g,'');
 }
+
+//Init app
+appInit();
