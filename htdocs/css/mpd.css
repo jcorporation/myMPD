@@ -200,10 +200,12 @@ div#alertBox {
  opacity:0;
  visibility:visible;
  transition:opacity 0.5s ease-in; 
+ display:none;
 }
 
 div.alertBoxActive {
  opacity:1 !important;
  visibility:visible !important;
  transition:opacity 0.5s ease-in;
+ display:block !important;
 }
