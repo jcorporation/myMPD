@@ -545,6 +545,8 @@ function parseStats(obj) {
 
 function toggleBtn(btn, state) {
     var b = document.getElementById(btn);
+    if (state == undefined)
+        state = b.classList.contains('active') ? 0 : 1;
     if (state == 1) {
         b.classList.add('active');
         b.setAttribute('aria-pressed','true');
@@ -764,7 +766,7 @@ function parseQueue(obj) {
                         '<td>' + obj.data[i].artist + '</td>' + 
                         '<td>' + obj.data[i].album + '</td>' +
                         '<td>' + duration + '</td>' +
-                        '<td><a href="#" tabindex="0" data-trigger="focus" class="material-icons">playlist_add</a></td>';
+                        '<td><a href="#" tabindex="0" class="material-icons">playlist_add</a></td>';
         if (i < tr.length)
             tr[i].replaceWith(row); 
         else 
@@ -816,7 +818,7 @@ function parseFilesystem(obj) {
             case 'dir':
                 row.innerHTML = '<td><span class="material-icons">folder_open</span></td>' +
                       '<td colspan="4">' + obj.data[i].name + '</td>' +
-                      '<td><a href="#" tabindex="0" data-trigger="focus" class="material-icons">playlist_add</a></td>';
+                      '<td><a href="#" class="material-icons">playlist_add</a></td>';
                 break;
             case 'song':
                 var minutes = Math.floor(obj.data[i].duration / 60);
@@ -826,12 +828,12 @@ function parseFilesystem(obj) {
                       '<td>' + obj.data[i].artist + '</td>' + 
                       '<td>' + obj.data[i].album  + '</td>' +
                       '<td>' + minutes + ':' + (seconds < 10 ? '0' : '') + seconds +
-                      '</td><td><a href="#" tabindex="0" data-trigger="focus" class="material-icons">playlist_add</a></td>';
+                      '</td><td><a href="#"  class="material-icons">playlist_add</a></td>';
                 break;
             case 'plist':
                 row.innerHTML = '<td><span class="material-icons">list</span></td>' +
                       '<td colspan="4">' + obj.data[i].name + '</td>' +
-                      '<td><a href="#" tabindex="0" data-trigger="focus" class="material-icons">playlist_add</a></td>';
+                      '<td><a href="#"  class="material-icons">playlist_add</a></td>';
                 break;
         }
         if (i < tr.length)
@@ -871,7 +873,7 @@ function parsePlaylists(obj) {
         row.innerHTML = '<td><span class="material-icons">list</span></td>' +
                         '<td>' + obj.data[i].name + '</td>' +
                         '<td>'+ d.toUTCString() + '</td>' +
-                        '<td><a href="#" tabindex="0" data-trigger="focus" class="material-icons">playlist_add</a></td>';
+                        '<td><a href="#"  class="material-icons">playlist_add</a></td>';
         if (i < tr.length)
             tr[i].replaceWith(row); 
         else 
@@ -943,7 +945,7 @@ function parseListDBtags(obj) {
             card.classList.add('mr-0');
             card.setAttribute('id', id);
             card.innerHTML = '<div class="card mb-4" id="card' + id + '">' +
-                             ' <img class="card-img-top" src="" tabindex="0" data-trigger="focus">' +
+                             ' <img class="card-img-top" src="" >' +
                              ' <div class="card-body">' +
                              '  <h5 class="card-title">' + obj.searchstr + '</h5>' +
                              '  <h4 class="card-title">' + obj.data[i].value + '</h4>' +
@@ -984,7 +986,7 @@ function parseListTitles(obj) {
     for (var i = 0; i < nrItems; i ++) {
         titleList += '<tr data-type="song" data-name="' + obj.data[i].title + '" data-uri="' + encodeURI(obj.data[i].uri) + '">' +
                      '<td>' + obj.data[i].track + '</td><td>' + obj.data[i].title + '</td>' +
-                     '<td><a href="#" tabindex="0" data-trigger="focus" class="material-icons">playlist_add</a></td>' + 
+                     '<td><a href="#" class="material-icons">playlist_add</a></td>' + 
                      '</tr>';
     }
     tbody.innerHTML = titleList;
@@ -1057,11 +1059,11 @@ function appendQueue(type, uri, name) {
 }
 
 function showMenu(el) {
-/*    var type = el.parentNode.parentNode.getAttribute('data-type');
+    var type = el.parentNode.parentNode.getAttribute('data-type');
     var uri = el.parentNode.parentNode.getAttribute('data-uri');
     if ((app.current.app == 'Browse' && app.current.tab == 'Filesystem') || app.current.app == 'Search' ||
         (app.current.app == 'Browse' && app.current.tab == 'Database' && app.current.view == 'Album')) {
-        $(el).popover({html:true, content:'<a class="dropdown-item" href="#">Append to queue</a>' +
+        new Popover(el, { content: '<a class="dropdown-item" href="#">Append to queue</a>' +
             '<a class="dropdown-item" href="#">Add after current playing song</a>' +
             '<a class="dropdown-item" href="#">Replace queue</a>' +
             ( type != 'plist' ? '<div class="dropdown-divider"></div><a class="dropdown-item" href="#">Add to playlist</a>' : '') +
@@ -1070,7 +1072,7 @@ function showMenu(el) {
             ( type == 'plist' ? '<a class="dropdown-item" href="#">Show playlist</a>' : '')
         });
     }
-    else if (app.current.app == 'Browse' && app.current.tab == 'Playlists') {
+/*    else if (app.current.app == 'Browse' && app.current.tab == 'Playlists') {
         $(el).popover({html:true, content:'<a class="dropdown-item" href="#">Append to queue</a>' +
             '<a class="dropdown-item" href="#">Add after current playing song</a>' +
             '<a class="dropdown-item" href="#">Replace queue</a>' +
@@ -1090,6 +1092,7 @@ function showMenu(el) {
     }    
     $(el).popover('show');
     */
+    el.Popover.show();
 }
 
 function sendAPI(request, callback) {
