@@ -122,10 +122,10 @@
             </div>
           </div>
           <div id="queue-actions" class="btn-group mr-2">
-            <button type="button" class="btn btn-secondary" onclick="socket.send('MPD_API_SEND_SHUFFLE');" title="Shuffle queue">
+            <button type="button" class="btn btn-secondary" onclick="shuffleQueue();" title="Shuffle queue">
               <span class="material-icons">shuffle</span>
             </button>
-            <button type="button" class="btn btn-secondary" onclick="socket.send('MPD_API_RM_ALL');" title="Clear queue">
+            <button type="button" class="btn btn-secondary" onclick="clearQueue();" title="Clear queue">
               <span class="material-icons">clear_all</span>
             </button>
             <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#savequeue" title="Save queue">
