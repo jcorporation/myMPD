@@ -181,7 +181,6 @@ main {
  min-height:250px;
  background-repeat:no-repeat;
  background-color:#eee;
- cursor:pointer;
 }
 
 button.active {
@@ -206,4 +205,9 @@ div.alertBoxActive {
  opacity:1 !important;
  visibility:visible !important;
  transition:opacity 0.5s ease-in;
+}
+
+.popover-content {
+ padding-top:4px;
+ padding-bottom:4px;
 }

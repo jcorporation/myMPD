@@ -945,7 +945,7 @@ function parseListDBtags(obj) {
             card.classList.add('mr-0');
             card.setAttribute('id', id);
             card.innerHTML = '<div class="card mb-4" id="card' + id + '">' +
-                             ' <img class="card-img-top" src="" >' +
+                             ' <a href="#"><img class="card-img-top" src="" ></a>' +
                              ' <div class="card-body">' +
                              '  <h5 class="card-title">' + obj.searchstr + '</h5>' +
                              '  <h4 class="card-title">' + obj.data[i].value + '</h4>' +
@@ -976,10 +976,11 @@ function parseListTitles(obj) {
     var card = document.getElementById('card' + id)
     var tbody = card.getElementsByTagName('tbody')[0];
     var img = card.getElementsByTagName('img')[0];
+    var imga = img.parentNode;
     img.setAttribute('src', obj.cover);
-    img.setAttribute('data-uri', obj.data[0].uri.replace(/\/[^\/]+$/,''));
-    img.setAttribute('data-name', encodeURI(obj.album));
-    img.setAttribute('data-type', 'album');
+    imga.setAttribute('data-uri', obj.data[0].uri.replace(/\/[^\/]+$/,''));
+    imga.setAttribute('data-name', encodeURI(obj.album));
+    imga.setAttribute('data-type', 'dir');
   
     var titleList = '';
     var nrItems = obj.data.length;
@@ -991,8 +992,9 @@ function parseListTitles(obj) {
     }
     tbody.innerHTML = titleList;
   
-    img.addEventListener('click', function() {
+    imga.addEventListener('click', function(event) {
         //appendQueue('song', decodeURI(this.getAttribute('data-uri')), this.getAttribute('data-name'));
+        event.preventDefault();
         showMenu(this);
     }, false);
 
@@ -1059,40 +1061,48 @@ function appendQueue(type, uri, name) {
 }
 
 function showMenu(el) {
-    var type = el.parentNode.parentNode.getAttribute('data-type');
-    var uri = el.parentNode.parentNode.getAttribute('data-uri');
+    var type = el.getAttribute('data-type');
+    var uri = el.getAttribute('data-uri');
+    if (type == null || uri == null) {
+        type = el.parentNode.parentNode.getAttribute('data-type');
+        uri = el.parentNode.parentNode.getAttribute('data-uri');
+    }
+
+    var menu = '';
     if ((app.current.app == 'Browse' && app.current.tab == 'Filesystem') || app.current.app == 'Search' ||
         (app.current.app == 'Browse' && app.current.tab == 'Database' && app.current.view == 'Album')) {
-        new Popover(el, { content: '<a class="dropdown-item" href="#">Append to queue</a>' +
+        menu += '<a class="dropdown-item" href="#">Append to queue</a>' +
             '<a class="dropdown-item" href="#">Add after current playing song</a>' +
             '<a class="dropdown-item" href="#">Replace queue</a>' +
             ( type != 'plist' ? '<div class="dropdown-divider"></div><a class="dropdown-item" href="#">Add to playlist</a>' : '') +
             ( type != 'dir' ? '<div class="dropdown-divider"></div>' : '') +
             ( type == 'song' ? '<a class="dropdown-item" href="#">Songdetails</a>' : '') +
-            ( type == 'plist' ? '<a class="dropdown-item" href="#">Show playlist</a>' : '')
-        });
+            ( type == 'plist' ? '<a class="dropdown-item" href="#">Show playlist</a>' : '');
     }
-/*    else if (app.current.app == 'Browse' && app.current.tab == 'Playlists') {
-        $(el).popover({html:true, content:'<a class="dropdown-item" href="#">Append to queue</a>' +
+    else if (app.current.app == 'Browse' && app.current.tab == 'Playlists') {
+        menu += '<a class="dropdown-item" href="#">Append to queue</a>' +
             '<a class="dropdown-item" href="#">Add after current playing song</a>' +
             '<a class="dropdown-item" href="#">Replace queue</a>' +
             '<div class="dropdown-divider"></div>' +
             '<a class="dropdown-item" href="#">Show playlist</a>' +
             '<a class="dropdown-item" href="#">Rename playlist</a>' +
-            '<a class="dropdown-item" href="#">Delete playlist</a>'
-        });
+            '<a class="dropdown-item" href="#">Delete playlist</a>';
     }
     else if (app.current.app == 'Queue') {
-        $(el).popover({html:true, content:'<a class="dropdown-item" href="#">Remove</a>' +
+        menu += '<a class="dropdown-item" href="#">Remove</a>' +
             '<a class="dropdown-item" href="#">Remove all upwards</a>' +
             '<a class="dropdown-item" href="#">Remove all downwards</a>' +
             '<div class="dropdown-divider"></div>' +
-            '<a class="dropdown-item" href="#">Songdetails</a>'
-        });
+            '<a class="dropdown-item" href="#">Songdetails</a>';
     }    
-    $(el).popover('show');
-    */
-    el.Popover.show();
+    if (el.Popover == undefined) {
+        new Popover(el, { trigger: 'click', template: '<div class="popover" role="tooltip">' +
+            '<div class="arrow"></div>' +
+            '<div class="popover-content">' + menu + '</div>' +
+            '</div>'});
+        var popoverInit = el.Popover;
+        popoverInit.show();
+    }
 }
 
 function sendAPI(request, callback) {
