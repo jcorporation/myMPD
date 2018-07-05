@@ -1344,7 +1344,8 @@ function showNotification(notificationTitle,notificationText,notificationHtml,no
         if (alertTimeout)
             clearTimeout(alertTimeout);
         alertTimeout = setTimeout(function() {
-            document.getElementById('alertBox').classList.remove('alertBoxActive');
+            if (document.getElementById('alertBox'))
+                document.getElementById('alertBox').classList.remove('alertBoxActive');
             setTimeout(function() {
                 document.getElementById('alertBox').remove();
             }, 600);
