@@ -1165,6 +1165,14 @@ function showMenu(el) {
     }
 }
 
+function shuffleQueue() {
+    sendAPI({"cmd":"MPD_API_SEND_SHUFFLE"});
+}
+
+function clearQueue() {
+    sendAPI({"cmd":"MPD_API_RM_ALL"});
+}
+
 function sendAPI(request, callback) {
     var ajaxRequest=new XMLHttpRequest();
     ajaxRequest.open('POST', '/api', true);
