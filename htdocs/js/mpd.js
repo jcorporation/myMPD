@@ -28,7 +28,7 @@ var last_state;
 var current_song = new Object();
 var playstate = '';
 var settings = {};
-var timeOut;
+var alertTimeout;
 
 var app = {};
 app.apps = { "Playback": { "state": "0/-/" },
@@ -96,6 +96,7 @@ function appPrepare() {
             document.getElementById('card' + app.current.app + app.current.tab).classList.remove('hide');
             document.getElementById('card' + app.current.app + 'Nav' + app.current.tab).classList.add('active');    
         }
+        scrollToTop();
     }
 }
 
@@ -107,19 +108,19 @@ function appGoto(a,t,v,s) {
         if (app.apps[a].tabs[t].views) {
             if (v == undefined) 
                 v = app.apps[a].tabs[t].active;
-            hash = '/'+a+'/'+t+'/'+v+'!'+ (s == undefined ? app.apps[a].tabs[t].views[v].state : s);
+            hash = '/' + a + '/' + t +'/'+v + '!' + (s == undefined ? app.apps[a].tabs[t].views[v].state : s);
         } else {
             hash = '/'+a+'/'+t+'!'+ (s == undefined ? app.apps[a].tabs[t].state : s);
         }
     } else {
-        hash = '/'+a+'!'+ (s == undefined ? app.apps[a].state : s);
+        hash = '/' + a + '!'+ (s == undefined ? app.apps[a].state : s);
     }
-    location.hash=hash;
+    location.hash = hash;
 }
 
 function appRoute() {
     var hash = decodeURI(location.hash);
-    if (params=hash.match(/^\#\/(\w+)\/?(\w+)?\/?(\w+)?\!((\d+)\/([^\/]+)\/(.*))$/)) {
+    if (params = hash.match(/^\#\/(\w+)\/?(\w+)?\/?(\w+)?\!((\d+)\/([^\/]+)\/(.*))$/)) {
         app.current.app = params[1];
         app.current.tab = params[2];
         app.current.view = params[3];
@@ -352,10 +353,10 @@ function appInit() {
                     appGoto('Browse', 'Filesystem', undefined, '0/' + app.current.filter +'/' + decodeURI(event.target.parentNode.getAttribute("data-uri")));
                     break;
                 case 'song':
-                    appendQueue('song', decodeURI(this.getAttribute("data-uri")), event.target.parentNode.getAttribute("data-name"));
+                    appendQueue('song', decodeURI(event.target.parentNode.getAttribute("data-uri")), event.target.parentNode.getAttribute("data-name"));
                     break;
                 case 'plist':
-                    appendQueue('plist', decodeURI(this.getAttribute("data-uri")), event.target.parentNode.getAttribute("data-name"));
+                    appendQueue('plist', decodeURI(event.target.parentNode.getAttribute("data-uri")), event.target.parentNode.getAttribute("data-name"));
                     break;
             }
         }
@@ -452,12 +453,12 @@ function appInit() {
 }
 
 function webSocketConnect() {
-    socket = new WebSocket(get_appropriate_ws_url());
+    socket = new WebSocket(getWsUrl());
 
     try {
         socket.onopen = function() {
-            console.log("connected");
-            showNotification('Connected to myMPD','','','success');
+            console.log('connected');
+            showNotification('Connected to myMPD', '', '', 'success');
             modalConnectionError.hide();
             appRoute();
         }
@@ -468,7 +469,7 @@ function webSocketConnect() {
             try {
                 var obj = JSON.parse(msg.data);
             } catch(e) {
-                console.log('Invalid JSON data received: '+ msg.data);
+                console.log('Invalid JSON data received: ' + msg.data);
             }
 
             switch (obj.type) {
@@ -476,7 +477,7 @@ function webSocketConnect() {
                     parseState(obj);
                     break;
                 case 'disconnected':
-                    showNotification('myMPD lost connection to MPD','','','danger');
+                    showNotification('myMPD lost connection to MPD', '', '', 'danger');
                     break;
                 case 'update_queue':
                     if(app.current.app === 'Queue')
@@ -486,7 +487,7 @@ function webSocketConnect() {
                     songChange(obj);
                     break;
                 case 'error':
-                    showNotification(obj.data,'','','danger');
+                    showNotification(obj.data, '', '', 'danger');
                 default:
                     break;
             }
@@ -506,28 +507,27 @@ function webSocketConnect() {
     }
 }
 
-function get_appropriate_ws_url()
-{
+function getWsUrl() {
     var pcol;
     var u = document.URL;
     var separator;
 
-    if (u.substring(0, 5) == "https") {
-        pcol = "wss://";
+    if (u.substring(0, 5) == 'https') {
+        pcol = 'wss://';
         u = u.substr(8);
     } else {
-        pcol = "ws://";
-        if (u.substring(0, 4) == "http")
+        pcol = 'ws://';
+        if (u.substring(0, 4) == 'http')
             u = u.substr(7);
     }
 
     u = u.split('#');
     if (/\/$/.test(u[0])) {
-        separator = "";
+        separator = '';
     } else {
-        separator = "/";
+        separator = '/';
     }
-    return pcol + u[0] + separator + "ws";
+    return pcol + u[0] + separator + 'ws';
 }
 
 function parseStats(obj) {
@@ -766,7 +766,7 @@ function parseQueue(obj) {
                         '<td>' + obj.data[i].artist + '</td>' + 
                         '<td>' + obj.data[i].album + '</td>' +
                         '<td>' + duration + '</td>' +
-                        '<td><a href="#" tabindex="0" class="material-icons">playlist_add</a></td>';
+                        '<td><a href="#" class="material-icons">playlist_add</a></td>';
         if (i < tr.length)
             tr[i].replaceWith(row); 
         else 
@@ -978,8 +978,8 @@ function parseListTitles(obj) {
     var img = card.getElementsByTagName('img')[0];
     var imga = img.parentNode;
     img.setAttribute('src', obj.cover);
-    imga.setAttribute('data-uri', obj.data[0].uri.replace(/\/[^\/]+$/,''));
-    imga.setAttribute('data-name', encodeURI(obj.album));
+    imga.setAttribute('data-uri', encodeURI(obj.data[0].uri.replace(/\/[^\/]+$/,'')));
+    imga.setAttribute('data-name', obj.album);
     imga.setAttribute('data-type', 'dir');
   
     var titleList = '';
@@ -1060,40 +1060,72 @@ function appendQueue(type, uri, name) {
     }
 }
 
+function appendAfterQueue(type, uri, to, name) {
+    switch(type) {
+        case 'song':
+            sendAPI({"cmd": "MPD_API_ADD_TRACK_AFTER", "data": {"uri": uri, "to": to}});
+            showNotification('"' + name + '" added to pos ' + to, '', '', 'success');
+            break;
+    }
+}
+
+function replaceQueue(type, uri, name) {
+    switch(type) {
+        case 'song':
+            sendAPI({"cmd": "MPD_API_REPLACE_TRACK", "data": {"uri": uri}});
+            showNotification('"' + name + '" replaced','','','success');
+            break;
+        case 'plist':
+            sendAPI({"cmd": "MPD_API_REPLACE_PLAYLIST", "data": {"plist": uri}});
+            showNotification('"' + name + '" replaced','','','success');
+            break;
+    }
+}
+
 function showMenu(el) {
     var type = el.getAttribute('data-type');
-    var uri = el.getAttribute('data-uri');
+    var uri = decodeURI(el.getAttribute('data-uri'));
+    var name = el.getAttribute('data-name');
     if (type == null || uri == null) {
         type = el.parentNode.parentNode.getAttribute('data-type');
-        uri = el.parentNode.parentNode.getAttribute('data-uri');
+        uri = decodeURI(el.parentNode.parentNode.getAttribute('data-uri'));
+        name = el.parentNode.parentNode.getAttribute('data-name');
     }
 
     var menu = '';
     if ((app.current.app == 'Browse' && app.current.tab == 'Filesystem') || app.current.app == 'Search' ||
         (app.current.app == 'Browse' && app.current.tab == 'Database' && app.current.view == 'Album')) {
-        menu += '<a class="dropdown-item" href="#">Append to queue</a>' +
-            '<a class="dropdown-item" href="#">Add after current playing song</a>' +
-            '<a class="dropdown-item" href="#">Replace queue</a>' +
-            ( type != 'plist' ? '<div class="dropdown-divider"></div><a class="dropdown-item" href="#">Add to playlist</a>' : '') +
+        menu += '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'appendQueue\', \'options\': [\'' + type + '\',\'' + 
+            uri + '\',\'' + name + '\']}">Append to queue</a>' +
+            ( type != 'plist' ? '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'appendAfterQueue\', \'options\': [\'' + type + '\',\'' +
+            uri + '\',' + last_state.data.nextsongpos + ',\'' + name + '\']}">Add after current playing song</a>' : '') +
+            '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'replaceQueue\', \'options\': [\'' + type + '\',\'' + 
+            uri + '\',\'' + name + '\']}">Replace queue</a>';
+/*            ( type != 'plist' ? '<div class="dropdown-divider"></div><a class="dropdown-item" href="#">Add to playlist</a>' : '') +
             ( type != 'dir' ? '<div class="dropdown-divider"></div>' : '') +
             ( type == 'song' ? '<a class="dropdown-item" href="#">Songdetails</a>' : '') +
-            ( type == 'plist' ? '<a class="dropdown-item" href="#">Show playlist</a>' : '');
+            ( type == 'plist' ? '<a class="dropdown-item" href="#">Show playlist</a>' : '');*/
     }
     else if (app.current.app == 'Browse' && app.current.tab == 'Playlists') {
-        menu += '<a class="dropdown-item" href="#">Append to queue</a>' +
-            '<a class="dropdown-item" href="#">Add after current playing song</a>' +
-            '<a class="dropdown-item" href="#">Replace queue</a>' +
+        menu += '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'appendQueue\', \'options\': [\'' + type + '\',\'' + 
+            uri + '\',\'' + name + '\']}">Append to queue</a>' +
+            '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'replaceQueue\', \'options\': [\'' + type + '\',\'' + 
+            uri + '\',\'' + name + '\']}">Replace queue</a>' +
             '<div class="dropdown-divider"></div>' +
-            '<a class="dropdown-item" href="#">Show playlist</a>' +
-            '<a class="dropdown-item" href="#">Rename playlist</a>' +
-            '<a class="dropdown-item" href="#">Delete playlist</a>';
+/*            '<a class="dropdown-item" href="#">Show playlist</a>' +
+            '<a class="dropdown-item" href="#">Rename playlist</a>' + */
+            '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'delPlaylist\', \'options\': [\'' + 
+            uri + '\',\'' + name + '\']}">Delete playlist</a>';
     }
     else if (app.current.app == 'Queue') {
-        menu += '<a class="dropdown-item" href="#">Remove</a>' +
-            '<a class="dropdown-item" href="#">Remove all upwards</a>' +
-            '<a class="dropdown-item" href="#">Remove all downwards</a>' +
-            '<div class="dropdown-divider"></div>' +
-            '<a class="dropdown-item" href="#">Songdetails</a>';
+        menu += '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'delQueueSong\', \'options\': [\'single\',' + 
+            el.parentNode.parentNode.getAttribute('data-trackid') + ']}">Remove</a>' +
+            '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'delQueueSong\', \'options\': [\'range\',0,'+ 
+            el.parentNode.parentNode.getAttribute('data-songpos') + ']}">Remove all upwards</a>' +
+            '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'delQueueSong\', \'options\': [\'range\',' + 
+            (parseInt(el.parentNode.parentNode.getAttribute('data-songpos'))-1) + ',-1]}">Remove all downwards</a>';
+//            '<div class="dropdown-divider"></div>' +
+//            '<a class="dropdown-item" href="#">Songdetails</a>';
     }    
     if (el.Popover == undefined) {
         new Popover(el, { trigger: 'click', template: '<div class="popover" role="tooltip">' +
@@ -1101,6 +1133,22 @@ function showMenu(el) {
             '<div class="popover-content">' + menu + '</div>' +
             '</div>'});
         var popoverInit = el.Popover;
+        el.addEventListener('shown.bs.popover', function(event) {
+            document.querySelector('.popover-content').addEventListener('click', function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+                var cmd = JSON.parse(event.target.getAttribute('data-href').replace(/\'/g,'"'));
+                if (typeof window[cmd.cmd] === 'function') {
+                    switch(cmd.cmd) {
+                        case 'sendAPI':
+                            sendAPI(... cmd.options); 
+                        break;
+                        default:
+                            window[cmd.cmd](... cmd.options);                    
+                    }
+                }
+            }, false);        
+        }, false);
         popoverInit.show();
     }
 }
@@ -1112,7 +1160,8 @@ function sendAPI(request, callback) {
     ajaxRequest.onreadystatechange = function() {
         if (ajaxRequest.readyState == 4)
             if (callback != undefined && typeof(callback) == 'function')
-                callback(JSON.parse(ajaxRequest.responseText));
+                if (ajaxRequest.responseText != '')
+                    callback(JSON.parse(ajaxRequest.responseText));
     };
     ajaxRequest.send(JSON.stringify(request));
 }
@@ -1146,20 +1195,16 @@ function clickNext() {
 }
 
 
-function delQueueSong(tr,event) {
-    event.stopPropagation();
-/*    if ( $('#btntrashmodeup').hasClass('active') )
-        sendAPI({"cmd": "MPD_API_RM_RANGE", "data": {"start":0, "end": (tr.index() + 1)}});
-    else if ( $('#btntrashmodesingle').hasClass('active') )
-        sendAPI({"cmd": "MPD_API_RM_TRACK", "data": { "track": tr.attr('trackid')}});
-    else if ( $('#btntrashmodedown').hasClass('active') ) 
-        sendAPI({"cmd": "MPD_API_RM_RANGE", "data": {"start": tr.index(), "end":-1}});
-        */
+function delQueueSong(mode, start, end) {
+    if (mode == 'range')
+        sendAPI({"cmd": "MPD_API_RM_RANGE", "data": {"start": start, "end": end}});
+    else if (mode == 'single')
+        sendAPI({"cmd": "MPD_API_RM_TRACK", "data": { "track": start}});
 }
 
-function delPlaylist(tr) {
-    sendAPI({"cmd": "MPD_API_RM_PLAYLIST", "data": {"plist": decodeURI(tr.attr("data-uri"))}});
-    tr.remove();
+function delPlaylist(plist, name) {
+    sendAPI({"cmd": "MPD_API_RM_PLAYLIST", "data": {"plist": plist}});
+    document.getElementById('BrowsePlaylistsList').querySelector('tr[data-uri=' + encodeURI(plist) + ']').remove();
 }
 
 function confirmSettings() {
@@ -1217,7 +1262,7 @@ function confirmSettings() {
 
 function addAllFromBrowse() {
     sendAPI({"cmd": "MPD_API_ADD_TRACK", "data": { "uri": app.current.search}});
-    showNotification('Added all songs','','','success');
+    showNotification('Added all songs', '', '', 'success');
 }
 
 function addAllFromSearch() {
@@ -1284,9 +1329,9 @@ function showNotification(notificationTitle,notificationText,notificationHtml,no
         alertBox.innerHTML = '<div><strong>' + notificationTitle + '</strong>' + notificationHtml + '</div>';
         document.getElementsByTagName('main')[0].append(alertBox);
         document.getElementById('alertBox').classList.add('alertBoxActive');
-        if (timeOut)
-            clearTimeout(timeOut);
-        timeOut = setTimeout(function() {
+        if (alertTimeout)
+            clearTimeout(alertTimeout);
+        alertTimeout = setTimeout(function() {
             document.getElementById('alertBox').classList.remove('alertBoxActive');
             setTimeout(function() {
                 document.getElementById('alertBox').remove();
@@ -1307,7 +1352,7 @@ function songChange(obj) {
     var htmlNotification = '';
     var pageTitle = 'myMPD: ';
 
-    document.getElementById('album-cover').style.backgroundImage = 'url("'+obj.data.cover+'")';
+    document.getElementById('album-cover').style.backgroundImage = 'url("' + obj.data.cover + '")';
 
     if(typeof obj.data.artist != 'undefined' && obj.data.artist.length > 0 && obj.data.artist != '-') {
         textNotification += obj.data.artist;
@@ -1332,6 +1377,11 @@ function songChange(obj) {
         document.getElementById('currenttrack').innerText = '';
     }
     document.title = pageTitle;
+    //Update Artist in queue view for http streams
+    var playingTr = document.getElementById('queueTrackId' + obj.data.currentsongid);
+    if (playingTr)
+        playingTr.getElementsByTagName('td')[1].innerText = obj.data.title;
+
     showNotification(obj.data.title,textNotification,htmlNotification,'success');
     last_song = cur_song;
 }

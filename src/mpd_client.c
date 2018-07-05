@@ -241,6 +241,22 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
                 free(p_charbuf2);
             }
             break;
+        case MPD_API_ADD_TRACK_AFTER:
+            je = json_scanf(msg.p, msg.len, "{ data: { uri:%Q, to:%u } }", &p_charbuf1, &uint_buf1);
+            if (je == 2) {
+                mpd_run_add_id_to(mpd.conn, p_charbuf1, uint_buf1);
+                free(p_charbuf1);
+            }
+            break;
+        case MPD_API_REPLACE_TRACK:
+            je = json_scanf(msg.p, msg.len, "{ data: { uri:%Q } }", &p_charbuf1);
+            if (je == 1) {
+                mpd_run_clear(mpd.conn);
+                mpd_run_add(mpd.conn, p_charbuf1);
+                free(p_charbuf1);
+                mpd_run_play(mpd.conn);
+            }
+            break;
         case MPD_API_ADD_TRACK:
             je = json_scanf(msg.p, msg.len, "{ data: { uri:%Q } }", &p_charbuf1);
             if (je == 1) {
@@ -255,6 +271,15 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
                 if(int_buf != -1)
                     mpd_run_play_id(mpd.conn, int_buf);
                 free(p_charbuf1);
+            }
+            break;
+        case MPD_API_REPLACE_PLAYLIST:
+            je = json_scanf(msg.p, msg.len, "{ data: { plist:%Q } }", &p_charbuf1);
+            if (je == 1) {
+                mpd_run_clear(mpd.conn);
+                mpd_run_load(mpd.conn, p_charbuf1);
+                free(p_charbuf1);
+                mpd_run_play(mpd.conn);
             }
             break;
         case MPD_API_ADD_PLAYLIST:
