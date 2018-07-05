@@ -76,14 +76,14 @@ var mainMenu = new Dropdown(document.getElementById('mainMenu'));
 function appPrepare() {
     if (app.current.app != app.last.app || app.current.tab != app.last.tab || app.current.view != app.last.view) {
         //Hide all cards + nav
-        for ( var i = 0; i < domCache.navbarBottomBtnsLen; i ++) {
+        for (var i = 0; i < domCache.navbarBottomBtnsLen; i ++) {
             domCache.navbarBottomBtns[i].classList.remove('active');
         }
         document.getElementById('cardPlayback').classList.add('hide');
         document.getElementById('cardQueue').classList.add('hide');
         document.getElementById('cardBrowse').classList.add('hide');
         document.getElementById('cardSearch').classList.add('hide');
-        for ( var i = 0; i < domCache.panelHeadingBrowseLen; i ++) {
+        for (var i = 0; i < domCache.panelHeadingBrowseLen; i ++) {
             domCache.panelHeadingBrowse[i].classList.remove('active');
         }
         document.getElementById('cardBrowsePlaylists').classList.add('hide');
@@ -150,6 +150,7 @@ function appRoute() {
         sendAPI({"cmd":"MPD_API_GET_CURRENT_SONG"}, songChange);
     }    
     else if (app.current.app == 'Queue' ) {
+        document.getElementById('QueueList').classList.add('opacity05');
         if (app.last.app != app.current.app) {
             if (app.current.search.length < 2) {
                 setPagination(app.current.page);        
@@ -166,18 +167,22 @@ function appRoute() {
         getQueue();
     }
     else if (app.current.app == 'Browse' && app.current.tab == 'Playlists') {
+        document.getElementById('BrowsePlaylistsList').classList.add('opacity05');
         sendAPI({"cmd":"MPD_API_GET_PLAYLISTS","data": {"offset": app.current.page, "filter": app.current.filter}},parsePlaylists);
         doSetFilterLetter('BrowsePlaylistsFilter');
     }
     else if (app.current.app == 'Browse' && app.current.tab == 'Database' && app.current.view == 'Artist') {
+        document.getElementById('BrowseDatabaseArtistList').classList.add('opacity05');
         sendAPI({"cmd":"MPD_API_GET_ARTISTS","data": {"offset": app.current.page, "filter": app.current.filter}}, parseListDBtags);
         doSetFilterLetter('BrowseDatabaseFilter');
     }
     else if (app.current.app == 'Browse' && app.current.tab == 'Database' && app.current.view == 'Album') {
+        document.getElementById('BrowseDatabaseAlbumCards').classList.add('opacity05');
         sendAPI({"cmd":"MPD_API_GET_ARTISTALBUMS","data": {"offset": app.current.page, "filter": app.current.filter, "albumartist": app.current.search}}, parseListDBtags);
         doSetFilterLetter('BrowseDatabaseFilter');
     }    
     else if (app.current.app == 'Browse' && app.current.tab == 'Filesystem') {
+        document.getElementById('BrowseFilesystemList').classList.add('opacity05');
         sendAPI({"cmd":"MPD_API_GET_FILESYSTEM","data": {"offset": app.current.page, "path": (app.current.search ? app.current.search : "/"), "filter": app.current.filter}}, parseFilesystem);
         // Don't add all songs from root
         if (app.current.search)
@@ -210,6 +215,8 @@ function appRoute() {
         doSetFilterLetter('BrowseFilesystemFilter');
     }
     else if (app.current.app == 'Search') {
+        document.getElementById('searchstr2').focus();
+        document.getElementById('SearchList').classList.add('opacity05');
         if (app.last.app != app.current.app) {
             if (app.current.search != '')
                 document.getElementById('SearchList').getElementsByTagName('tbody')[0].innerHTML=
@@ -228,6 +235,7 @@ function appRoute() {
             document.getElementById('searchAddAllSongs').setAttribute('disabled', 'disabled');
             document.getElementById('panel-heading-search').innerText = '';
             setPagination(app.current.page);
+            document.getElementById('SearchList').classList.remove('opacity05');
         }
         
         var btns = document.getElementById('searchtags2').getElementsByTagName('button');
@@ -257,7 +265,7 @@ function appInit() {
 
     domCache.volumeBar.value = 0;
     domCache.volumeBar.addEventListener('change', function(event) {
-      sendAPI({"cmd": "MPD_API_SET_VOLUME","data": {"volume": domCache.volumeBar.value}});
+        sendAPI({"cmd": "MPD_API_SET_VOLUME","data": {"volume": domCache.volumeBar.value}});
     }, false);
 
     domCache.progressBar.value = 0;
@@ -335,6 +343,7 @@ function appInit() {
         if (event.target.nodeName == 'BUTTON') 
             event.stopPropagation();
             sendAPI({"cmd": "MPD_API_TOGGLE_OUTPUT", "data": {"output": event.target.getAttribute('data-output-id'), "state": (event.target.classList.contains('active') ? 0 : 1)}});
+            toggleBtn(event.target.id);
     }, false);
     
     document.getElementById('QueueList').addEventListener('click', function(event) {
@@ -466,6 +475,7 @@ function webSocketConnect() {
         socket.onmessage = function got_packet(msg) {
             if(msg.data === last_state || msg.data.length == 0)
                 return;
+                
             try {
                 var obj = JSON.parse(msg.data);
             } catch(e) {
@@ -522,11 +532,11 @@ function getWsUrl() {
     }
 
     u = u.split('#');
-    if (/\/$/.test(u[0])) {
+    if (/\/$/.test(u[0]))
         separator = '';
-    } else {
+    else
         separator = '/';
-    }
+
     return pcol + u[0] + separator + 'ws';
 }
 
@@ -766,7 +776,7 @@ function parseQueue(obj) {
                         '<td>' + obj.data[i].artist + '</td>' + 
                         '<td>' + obj.data[i].album + '</td>' +
                         '<td>' + duration + '</td>' +
-                        '<td><a href="#" class="material-icons">playlist_add</a></td>';
+                        '<td><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>';
         if (i < tr.length)
             tr[i].replaceWith(row); 
         else 
@@ -785,6 +795,7 @@ function parseQueue(obj) {
                           '<td colspan="5">Empty queue</td></tr>';
 
     setPagination(obj.totalEntities);
+    document.getElementById('QueueList').classList.remove('opacity05');
 }
 
 function parseSearch(obj) {
@@ -818,7 +829,7 @@ function parseFilesystem(obj) {
             case 'dir':
                 row.innerHTML = '<td><span class="material-icons">folder_open</span></td>' +
                       '<td colspan="4">' + obj.data[i].name + '</td>' +
-                      '<td><a href="#" class="material-icons">playlist_add</a></td>';
+                      '<td><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>';
                 break;
             case 'song':
                 var minutes = Math.floor(obj.data[i].duration / 60);
@@ -828,12 +839,12 @@ function parseFilesystem(obj) {
                       '<td>' + obj.data[i].artist + '</td>' + 
                       '<td>' + obj.data[i].album  + '</td>' +
                       '<td>' + minutes + ':' + (seconds < 10 ? '0' : '') + seconds +
-                      '</td><td><a href="#"  class="material-icons">playlist_add</a></td>';
+                      '</td><td><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>';
                 break;
             case 'plist':
                 row.innerHTML = '<td><span class="material-icons">list</span></td>' +
                       '<td colspan="4">' + obj.data[i].name + '</td>' +
-                      '<td><a href="#"  class="material-icons">playlist_add</a></td>';
+                      '<td><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>';
                 break;
         }
         if (i < tr.length)
@@ -851,6 +862,7 @@ function parseFilesystem(obj) {
     if (nrItems == 0)
         tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
                           '<td colspan="5">No results</td></tr>';
+    document.getElementById(app.current.app + (app.current.tab==undefined ? '' : app.current.tab) + 'List').classList.remove('opacity05');
 }
 
 function parsePlaylists(obj) {
@@ -873,7 +885,7 @@ function parsePlaylists(obj) {
         row.innerHTML = '<td><span class="material-icons">list</span></td>' +
                         '<td>' + obj.data[i].name + '</td>' +
                         '<td>'+ d.toUTCString() + '</td>' +
-                        '<td><a href="#"  class="material-icons">playlist_add</a></td>';
+                        '<td><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>';
         if (i < tr.length)
             tr[i].replaceWith(row); 
         else 
@@ -889,6 +901,7 @@ function parsePlaylists(obj) {
     if (nrItems == 0) 
         tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
                           '<td colspan="5">No playlists found.</td></tr>'
+    document.getElementById(app.current.app + (app.current.tab==undefined ? '' : app.current.tab) + 'List').classList.remove('opacity05');
 }
 
 function parseListDBtags(obj) {
@@ -927,6 +940,7 @@ function parseListDBtags(obj) {
         if (nrItems == 0) 
             tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
                               '<td colspan="5">No entries found.</td></tr>'
+        document.getElementById('BrowseDatabaseArtistList').classList.remove('opacity05');                              
                                
     } else if (obj.tagtype == 'Album') {
         document.getElementById('BrowseDatabaseAlbumCards').classList.remove('hide');
@@ -965,6 +979,7 @@ function parseListDBtags(obj) {
             cards[i].remove();
         }
         setPagination(obj.totalEntities);
+        document.getElementById('BrowseDatabaseAlbumCards').classList.remove('opacity05');        
     }
 }
 
@@ -987,13 +1002,12 @@ function parseListTitles(obj) {
     for (var i = 0; i < nrItems; i ++) {
         titleList += '<tr data-type="song" data-name="' + obj.data[i].title + '" data-uri="' + encodeURI(obj.data[i].uri) + '">' +
                      '<td>' + obj.data[i].track + '</td><td>' + obj.data[i].title + '</td>' +
-                     '<td><a href="#" class="material-icons">playlist_add</a></td>' + 
+                     '<td><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>' + 
                      '</tr>';
     }
     tbody.innerHTML = titleList;
   
     imga.addEventListener('click', function(event) {
-        //appendQueue('song', decodeURI(this.getAttribute('data-uri')), this.getAttribute('data-name'));
         event.preventDefault();
         showMenu(this);
     }, false);
@@ -1044,7 +1058,6 @@ function setPagination(number) {
             document.getElementById(cat + p[i] + 'Prev').setAttribute('disabled', 'disabled');
         }
     }
-
 }
 
 function appendQueue(type, uri, name) {
@@ -1165,14 +1178,6 @@ function showMenu(el) {
     }
 }
 
-function shuffleQueue() {
-    sendAPI({"cmd":"MPD_API_SEND_SHUFFLE"});
-}
-
-function clearQueue() {
-    sendAPI({"cmd":"MPD_API_RM_ALL"});
-}
-
 function sendAPI(request, callback) {
     var ajaxRequest=new XMLHttpRequest();
     ajaxRequest.open('POST', '/api', true);
@@ -1214,7 +1219,6 @@ function clickNext() {
     sendAPI({"cmd": "MPD_API_SET_NEXT"});
 }
 
-
 function delQueueSong(mode, start, end) {
     if (mode == 'range')
         sendAPI({"cmd": "MPD_API_RM_RANGE", "data": {"start": start, "end": end}});
@@ -1231,34 +1235,34 @@ function confirmSettings() {
     var formOK = true;
     var inputCrossfade = document.getElementById('inputCrossfade');
     if (!inputCrossfade.getAttribute('disabled')) {
-      var value = parseInt(inputCrossfade.value);
-      if (!isNaN(value)) {
-        inputCrossfade.value = value;
-      } else {
-        inputCrossfade.classList.add('is-invalid');
-        formOK = false;
-      }
+        var value = parseInt(inputCrossfade.value);
+        if (!isNaN(value)) {
+            inputCrossfade.value = value;
+        } else {
+            inputCrossfade.classList.add('is-invalid');
+            formOK = false;
+        }
     }
     var inputMixrampdb = document.getElementById('inputMixrampdb');
     if (!inputMixrampdb.getAttribute('disabled')) {
-      var value = parseFloat(inputMixrampdb.value);
-      if (!isNaN(value)) {
-        inputMixrampdb.value = value;
-      } else {
-        inputMixrampdb.classList.add('is-invalid');
-        formOK = false;
-      } 
+        var value = parseFloat(inputMixrampdb.value);
+        if (!isNaN(value)) {
+            inputMixrampdb.value = value;
+        } else {
+            inputMixrampdb.classList.add('is-invalid');
+            formOK = false;
+        } 
     }
     var inputMixrampdelay = document.getElementById('inputMixrampdelay');
     if (!inputMixrampdelay.getAttribute('disabled')) {
-      if (inputMixrampdelay.value == 'nan') inputMixrampdelay.value = '-1';
-      var value = parseFloat(inputMixrampdelay.value);
-      if (!isNaN(value)) {
-        inputMixrampdelay.value = value;
-      } else {
-        inputMixrampdelay.classList.add('is-invalid');
-        formOK = false;
-      }
+        if (inputMixrampdelay.value == 'nan') inputMixrampdelay.value = '-1';
+        var value = parseFloat(inputMixrampdelay.value);
+        if (!isNaN(value)) {
+            inputMixrampdelay.value = value;
+        } else {
+            inputMixrampdelay.classList.add('is-invalid');
+            formOK = false;
+        }
     }
     if (formOK == true) {
         var selectReplaygain = document.getElementById('selectReplaygain');
@@ -1288,7 +1292,7 @@ function addAllFromBrowse() {
 function addAllFromSearch() {
     if (app.current.search.length >= 2) {
         sendAPI({"cmd":"MPD_API_SEARCH_ADD", "data":{"filter": app.current.filter, "searchstr": app.current.search}});
-        showNotification('Added '+ parseInt(document.getElementById('panel-heading-search').innerText) +' songs from search','','','success');
+        showNotification('Added '+ parseInt(document.getElementById('panel-heading-search').innerText) +' songs from search', '', '', 'success');
     }
 }
 
@@ -1316,7 +1320,7 @@ function gotoPage(x) {
 function addStream() {
     var streamUrl = document.getElementById('streamurl');
     if (streamUrl.value != '')
-        sendAPI({"cmd": "MPD_API_ADD_TRACK","data": {"uri": streamUrl.value}});
+        sendAPI({"cmd": "MPD_API_ADD_TRACK", "data": {"uri": streamUrl.value}});
     streamUrl.value = '';
     modalAddstream.hide();
 }
@@ -1324,7 +1328,7 @@ function addStream() {
 function saveQueue() {
     var plName = document.getElementById('playlistname');
     if (plName.value != '')
-        sendAPI({"cmd":"MPD_API_SAVE_QUEUE","data":{"plist": plName.value}});
+        sendAPI({"cmd":"MPD_API_SAVE_QUEUE", "data": {"plist": plName.value}});
     plName.value = '';
     modalSavequeue.hide();
 }
