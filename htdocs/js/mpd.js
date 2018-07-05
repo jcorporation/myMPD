@@ -1053,6 +1053,10 @@ function appendQueue(type, uri, name) {
             sendAPI({"cmd": "MPD_API_ADD_TRACK", "data": {"uri": uri}});
             showNotification('"' + name + '" added','','','success');
             break;
+        case 'dir':
+            sendAPI({"cmd": "MPD_API_ADD_TRACK", "data": {"uri": uri}});
+            showNotification('"' + name + '" added','','','success');
+            break;
         case 'plist':
             sendAPI({"cmd": "MPD_API_ADD_PLAYLIST", "data": {"plist": uri}});
             showNotification('"' + name + '" added','','','success');
@@ -1066,12 +1070,20 @@ function appendAfterQueue(type, uri, to, name) {
             sendAPI({"cmd": "MPD_API_ADD_TRACK_AFTER", "data": {"uri": uri, "to": to}});
             showNotification('"' + name + '" added to pos ' + to, '', '', 'success');
             break;
+        case 'dir':
+            sendAPI({"cmd": "MPD_API_ADD_TRACK_AFTER", "data": {"uri": uri, "to": to}});
+            showNotification('"' + name + '" added to pos ' + to, '', '', 'success');
+            break;
     }
 }
 
 function replaceQueue(type, uri, name) {
     switch(type) {
         case 'song':
+            sendAPI({"cmd": "MPD_API_REPLACE_TRACK", "data": {"uri": uri}});
+            showNotification('"' + name + '" replaced','','','success');
+            break;
+        case 'dir':
             sendAPI({"cmd": "MPD_API_REPLACE_TRACK", "data": {"uri": uri}});
             showNotification('"' + name + '" replaced','','','success');
             break;
@@ -1267,7 +1279,7 @@ function addAllFromBrowse() {
 
 function addAllFromSearch() {
     if (app.current.search.length >= 2) {
-        sendAPI({"cmd":"MPD_API_SEARCH_ADD","data":{"filter": app.current.filter, "searchstr": + app.current.search}});
+        sendAPI({"cmd":"MPD_API_SEARCH_ADD", "data":{"filter": app.current.filter, "searchstr": app.current.search}});
         showNotification('Added '+ parseInt(document.getElementById('panel-heading-search').innerText) +' songs from search','','','success');
     }
 }

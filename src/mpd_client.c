@@ -305,7 +305,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
             }
             break;            
         case MPD_API_SEARCH_ADD:
-            je = json_scanf(msg.p, msg.len, "{ data: { mpdtag:%Q, searchstr:%Q } }", &p_charbuf1, &p_charbuf2);
+            je = json_scanf(msg.p, msg.len, "{ data: { filter:%Q, searchstr:%Q } }", &p_charbuf1, &p_charbuf2);
             if (je == 2) {
                 n = mympd_search_add(mpd.buf, p_charbuf1, p_charbuf2);
                 free(p_charbuf1);
