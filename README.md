@@ -12,10 +12,8 @@ This fork provides a reworked ui based on Bootstrap 4 and a modernized backend.
 UI Components
 -------------
  - Bootstrap 4: https://getbootstrap.com/
- - Bootstrap Notify: http://bootstrap-notify.remabledesigns.com/
- - Bootstrap Slider: https://github.com/seiyria/bootstrap-slider
  - Material Design Icons: https://material.io/tools/icons/?style=baseline
- - jQuery: https://jquery.com/
+ - Bootstrap Native: http://thednp.github.io/bootstrap.native/
 
 Backend
 -------

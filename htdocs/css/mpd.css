@@ -17,10 +17,6 @@ body {
   background-color:#888;
 }
 
-#volumeslider {
-  width: 104px;
-}
-
 button {
   overflow: hidden;
 }
@@ -36,7 +32,6 @@ button {
 
 #counter {
   font-size: 22px;
-  margin-top: -2px;
   margin-left: 10px;
   min-width: 50px;
 }
@@ -127,6 +122,10 @@ tbody {
   font-feature-settings: 'liga';
 }
 
+.material-icons-small {
+ font-size: 16px;
+}
+
 main {
  padding-top:20px;
 }
@@ -150,28 +149,14 @@ main {
  overflow-x:hidden;
 }
 
-.slider-selection {
- background:#28a745 !important;
-}
-
-#progressbar .slider-track {
- height: 20px !important;
-}
-
-#progressbar {
+#progressBar {
  width:100%;
+ margin-top:8px;
 }
 
-#volumebar {
+#volumeBar {
+ margin-top:2px;
  width:160px;
-}
-
-.slider-handle {
- visibility:hidden !important;
-}
-
-[data-notify="title"] {
- font-size:120%; 
 }
 
 .header-logo {
@@ -184,7 +169,7 @@ main {
 #BrowseDatabaseFilterLetters > button,
 #BrowsePlaylistsFilterLetters > button
 {
- min-width:28px;
+ width:28px;
 }
 
 .col-md {
@@ -196,11 +181,33 @@ main {
  min-height:250px;
  background-repeat:no-repeat;
  background-color:#eee;
- cursor:pointer;
 }
 
 button.active {
  color: #fff;
  background-color: #28a745 !important;
  border-color: #28a745 !important;
+}
+
+div#alertBox {
+ position:fixed;
+ top: 50px; 
+ right:10px;
+ width:80%; 
+ max-width:400px;
+ z-index:1000;
+ opacity:0;
+ visibility:visible;
+ transition:opacity 0.5s ease-in; 
+}
+
+div.alertBoxActive {
+ opacity:1 !important;
+ visibility:visible !important;
+ transition:opacity 0.5s ease-in;
+}
+
+.popover-content {
+ padding-top:4px;
+ padding-bottom:4px;
 }
