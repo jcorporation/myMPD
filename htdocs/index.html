@@ -198,7 +198,7 @@
         <div class="btn-toolbar card-toolbar" id="BrowsePlaylistsButtons" role="toolbar">
           <div class="btn-group mr-2">
             <button id="BrowsePlaylistsFilter" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">Filter</button>
-            <div class="dropdown-menu bg-dark px-2" id="BrowsePlaylistsFilterLetters">
+            <div class="dropdown-menu bg-dark px-2 letters" id="BrowsePlaylistsFilterLetters">
             </div>
           </div>        
           <div id="BrowsePlaylistsPaginationTop" class="btn-group mr-2">
@@ -256,7 +256,7 @@
           </div>
           <div class="btn-group mr-2">
             <button id="BrowseDatabaseFilter" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">Filter</button>
-            <div class="dropdown-menu bg-dark px-2" id="BrowseDatabaseFilterLetters">
+            <div class="dropdown-menu bg-dark px-2 letters" id="BrowseDatabaseFilterLetters">
             </div>
           </div>
           <div id="BrowseDatabasePaginationTop" class="btn-group mr-2">
@@ -315,7 +315,7 @@
           </div>
           <div class="btn-group mr-2">
             <button id="BrowseFilesystemFilter" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">Filter</button>
-            <div class="dropdown-menu bg-dark px-2" id="BrowseFilesystemFilterLetters">
+            <div class="dropdown-menu bg-dark px-2 letters" id="BrowseFilesystemFilterLetters">
             </div>
           </div>
           <div id="BrowseFilesystemPaginationTop" class="btn-group mr-2">
@@ -468,7 +468,7 @@
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title"><span class="material-icons">error</span> Connection Error</h5>
+          <h5 class="modal-title"><span class="material-icons title-icon">error</span> Connection Error</h5>
         </div>
         <div class="modal-body">
           <p>Connection to myMPD failed. Trying to reconnect.</p>
@@ -482,7 +482,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="settingsLabel"><span class="material-icons">settings</span> Settings</h5>
+          <h5 class="modal-title" id="settingsLabel"><span class="material-icons title-icon">settings</span> Settings</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -576,13 +576,13 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="aboutLabel"><span class="material-icons">play_circle_outline</span> About</h5>
+          <h5 class="modal-title" id="aboutLabel"><span class="material-icons title-icon">play_circle_outline</span> About</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
         <div class="modal-body">
-          <h4><a class="text-success" href="https://github.com/jcorporation/ympd"><span class="material-icons">play_circle_outline</span> myMPD</a>&nbsp;&ndash;&nbsp;<small>MPD Web GUI - written in C, utilizing Websockets and Bootstrap/JS</small></h4>
+          <h4><a class="text-success" href="https://github.com/jcorporation/ympd">myMPD</a>&nbsp;&ndash;&nbsp;<small>MPD Web GUI - written in C, utilizing Websockets and Bootstrap/JS</small></h4>
           <p>myMPD is a lightweight MPD web client that runs without a dedicated webserver or interpreter. It's tuned for minimal resource usage and requires only very litte dependencies. myMPD is a fork of <a class="text-success" href="http://www.ympd.org">ympd</a>.</p>
           <ul>
             <li>Version: <span id="mympdVersion"></span></li>
@@ -619,7 +619,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="addstreamLabel"><span class="material-icons">view_stream</span> Add Stream</h5>
+          <h5 class="modal-title" id="addstreamLabel"><span class="material-icons title-icon">view_stream</span> Add Stream</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -646,7 +646,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="savequeueLabel"><span class="material-icons">save</span> Save Queue</h5>
+          <h5 class="modal-title" id="savequeueLabel"><span class="material-icons title-icon">save</span> Save Queue</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>          
@@ -673,7 +673,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="savequeueLabel"><span class="material-icons">music_note</span> Song Details</h5>
+          <h5 class="modal-title" id="savequeueLabel"><span class="material-icons title-icon">music_note</span> Song Details</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>          

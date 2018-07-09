@@ -977,7 +977,7 @@ function parseListDBtags(obj) {
             card.classList.add('mr-0');
             card.setAttribute('id', id);
             card.innerHTML = '<div class="card mb-4" id="card' + id + '">' +
-                             ' <a href="#"><img class="card-img-top" src="" ></a>' +
+                             ' <a href="#" class="card-img-top"><img class="card-img-top" src="" ></a>' +
                              ' <div class="card-body">' +
                              '  <h5 class="card-title">' + obj.searchstr + '</h5>' +
                              '  <h4 class="card-title">' + obj.data[i].value + '</h4>' +

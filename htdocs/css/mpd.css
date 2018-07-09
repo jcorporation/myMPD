@@ -114,10 +114,8 @@ button {
   -webkit-font-smoothing: antialiased;
   /* Support for Safari and Chrome. */
   text-rendering: optimizeLegibility;
-
   /* Support for Firefox. */
   -moz-osx-font-smoothing: grayscale;
-
   /* Support for IE. */
   font-feature-settings: 'liga';
 }
@@ -159,28 +157,32 @@ main {
  width:160px;
 }
 
+.title-icon {
+ float:left;
+ margin-right:5px;
+ font-size:1.8rem;
+}
+
 .header-logo {
  font-size:2rem;
  float:left;
  margin-right:5px;
 }
 
-#BrowseFilesystemFilterLetters > button, 
-#BrowseDatabaseFilterLetters > button,
-#BrowsePlaylistsFilterLetters > button
-{
+.letters > button {
  width:28px;
+ height:28px;
 }
 
 .col-md {
- min-width:260px;
- max-width:260px;
+ max-width:250px;
+ min-width:250px;
 }
 
-.card-img-top {
- min-height:250px;
- background-repeat:no-repeat;
- background-color:#eee;
+a.card-img-top {
+ height:250px;
+ overflow:hidden;
+ display:block;
 }
 
 button.active {
