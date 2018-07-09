@@ -1132,7 +1132,7 @@ function songDetails(uri) {
 
 function parseSongDetails(obj) {
     var modal = document.getElementById('modalSongDetails');
-    modal.querySelector('.album-cover').style.backgroundImage = 'url(' + obj.data.cover + ')';
+    modal.querySelector('.album-cover').style.backgroundImage = 'url("' + obj.data.cover + '")';
     modal.getElementsByTagName('h1')[0].innerText = obj.data.title;
     var tr = modal.getElementsByTagName('tr');
     var trLen = tr.length;
