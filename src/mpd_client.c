@@ -210,11 +210,18 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
             break;
         case MPD_API_GET_CURRENT_SONG:
                 n = mympd_put_current_song(mpd.buf);
+            break;
+        case MPD_API_GET_SONGDETAILS:
+            je = json_scanf(msg.p, msg.len, "{ data: { uri:%Q } }", &p_charbuf1);
+            if (je == 1) {
+                n = mympd_put_songdetails(mpd.buf, p_charbuf1);
+                free(p_charbuf1);
+            }
             break;            
         case MPD_API_GET_ARTISTS:
             je = json_scanf(msg.p, msg.len, "{ data: { offset:%u, filter:%Q } }", &uint_buf1, &p_charbuf1);
             if (je == 2) {
-                n = mympd_put_db_tag(mpd.buf, uint_buf1, "AlbumArtist","","",p_charbuf1);
+                n = mympd_put_db_tag(mpd.buf, uint_buf1, "AlbumArtist", "", "", p_charbuf1);
                 free(p_charbuf1);
             }
             break;
@@ -514,6 +521,16 @@ char* mympd_get_title(struct mpd_song const *song)
     return str;
 }
 
+char* mympd_get_genre(struct mpd_song const *song)
+{
+    char *str;
+    str = (char *)mpd_song_get_tag(song, MPD_TAG_GENRE, 0);
+    if(str == NULL){
+        str = "-";
+    }
+    return str;
+}
+
 char* mympd_get_track(struct mpd_song const *song)
 {
     char *str;
@@ -791,6 +808,37 @@ int mympd_put_current_song(char *buffer)
     return len;
 }
 
+int mympd_put_songdetails(char *buffer, char *uri)
+{
+    struct mpd_entity *entity;
+    const struct mpd_song *song;
+    int len;
+    struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
+    char cover[500];
+    
+    len = json_printf(&out, "{type: song_details, data: {");
+    mpd_send_list_all_meta(mpd.conn, uri);
+    while ((entity = mpd_recv_entity(mpd.conn)) != NULL) {
+        song = mpd_entity_get_song(entity);
+        mympd_get_cover(mpd_song_get_uri(song),cover,500);
+        len += json_printf(&out, "duration: %d, artist: %Q, album: %Q, title: %Q, albumartist: %Q, cover: %Q, uri: %Q, genre: %Q",
+                    mpd_song_get_duration(song),
+                    mympd_get_artist(song),
+                    mympd_get_album(song),
+                    mympd_get_title(song),
+                    mympd_get_album_artist(song),
+                    cover,
+                    uri,
+                    mympd_get_genre(song)
+               );
+        mpd_entity_free(entity);
+    }
+    len += json_printf(&out, "}}");
+    
+    if (len > MAX_SIZE) fprintf(stderr,"Buffer truncated\n");
+    return len;
+}
+
 int mympd_put_queue(char *buffer, unsigned int offset)
 {
     struct mpd_entity *entity;
@@ -815,13 +863,14 @@ int mympd_put_queue(char *buffer, unsigned int offset)
             entity_count ++;
             if (entity_count > offset && entity_count <= offset+MAX_ELEMENTS_PER_PAGE) {
                 if (entities_returned ++) len += json_printf(&out,",");
-                len += json_printf(&out, "{ id: %d, pos: %d, duration: %d, artist: %Q, album: %Q, title: %Q }",
+                len += json_printf(&out, "{ id: %d, pos: %d, duration: %d, artist: %Q, album: %Q, title: %Q, uri: %Q }",
                     mpd_song_get_id(song),
                     mpd_song_get_pos(song),
                     mpd_song_get_duration(song),
                     mympd_get_artist(song),
                     mympd_get_album(song),
-                    mympd_get_title(song)
+                    mympd_get_title(song),
+                    mpd_song_get_uri(song)
                 );
             }
         }

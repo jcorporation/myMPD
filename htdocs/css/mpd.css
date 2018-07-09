@@ -50,7 +50,7 @@ button {
   }
 }
 
-tbody {
+.clickable {
   cursor: pointer;
 }
 
@@ -58,7 +58,7 @@ tbody {
   width: 30px;
 }
 
-#album-cover {
+.album-cover {
   background-size:cover;
   border:1px solid black;
   border-radius:5px;
