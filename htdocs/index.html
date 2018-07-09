@@ -1,17 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <title>myMPD</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="myMPD - fast and lightweight MPD webclient">
   <meta name="author" content="mail@jcgames.de">
-  <title>myMPD</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="theme-color" content="#343a40">
   <link href="css/bootstrap.min.css" rel="stylesheet">
   <link href="css/mpd.css" rel="stylesheet">
-  <link href="assets/favicon.ico" rel="shortcut icon" type="image/vnd.microsoft.icon">
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
-  <link rel="apple-touch-icon" href="assets/appicon.png"/>
+  <link href="assets/favicon.ico" rel="shortcut icon" type="image/vnd.microsoft.icon">  
+  <link rel="manifest" href="mympd.webmanifest">
+  <link rel="apple-touch-icon" href="assets/appicon-167.png">
 </head>
 <body>
   <header>
@@ -582,7 +584,7 @@
           </button>
         </div>
         <div class="modal-body">
-          <h4><a class="text-success" href="https://github.com/jcorporation/ympd">myMPD</a>&nbsp;&ndash;&nbsp;<small>MPD Web GUI - written in C, utilizing Websockets and Bootstrap/JS</small></h4>
+          <h4><a class="text-success" rel="noreferrer" href="https://github.com/jcorporation/ympd">myMPD</a>&nbsp;&ndash;&nbsp;<small>MPD Web GUI - written in C, utilizing Websockets and Bootstrap/JS</small></h4>
           <p>myMPD is a lightweight MPD web client that runs without a dedicated webserver or interpreter. It's tuned for minimal resource usage and requires only very litte dependencies. myMPD is a fork of <a class="text-success" href="http://www.ympd.org">ympd</a>.</p>
           <ul>
             <li>Version: <span id="mympdVersion"></span></li>
