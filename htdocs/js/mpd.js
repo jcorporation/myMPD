@@ -1181,8 +1181,8 @@ function showMenu(el) {
             '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'replaceQueue\', \'options\': [\'' + type + '\',\'' + 
             uri + '\',\'' + name + '\']}">Replace queue</a>' +
             '<div class="dropdown-divider"></div>' +
-/*            '<a class="dropdown-item" href="#">Show playlist</a>' +
-            '<a class="dropdown-item" href="#">Rename playlist</a>' + */
+//            '<a class="dropdown-item" href="#">Show playlist</a>' +
+//            '<a class="dropdown-item" href="#">Rename playlist</a>' + 
             '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'delPlaylist\', \'options\': [\'' + 
             uri + '\',\'' + name + '\']}">Delete playlist</a>';
     }
