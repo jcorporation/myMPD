@@ -19,7 +19,19 @@ connect to mpd at host, defaults to localhost
 connect to mpd at port, defaults to 6600
 .TP
 \fB\-w\fR, \fB\-\-webport PORT\fR
-specifies the port for the webserver to listen to, defaults to 8080
+listen interface/port for webserver [80]
+.TP
+\fB\-S\fR, \fB\-\-ssl\fR
+enable ssl
+.TP
+\fB\-W\fR, \fB\-\-sslport PORT\fR
+listen interface/port for ssl webserver [443]
+.TP
+\fB\-C\fR, \fB\-\-sslcert FILENAME\fR
+filename for ssl certificate [/etc/mympd/server.pem]
+.TP
+\fB\-K\fR, \fB\-\-sslkey FILENAME\fR
+filename for ssl key [/etc/mympd/server.key]
 .TP
 \fB-s\fR, \fB\-\-streamport PORT
 connect to mpd http stream at port [8000]

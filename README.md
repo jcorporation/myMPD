@@ -41,6 +41,10 @@ Usage: ./mympd [OPTION]...
  -h, --host <host>             connect to mpd at host [localhost]
  -p, --port <port>             connect to mpd at port [6600]
  -w, --webport <port>          listen port for webserver [80]
+ -S, --ssl		       enable ssl
+ -W, --sslport		       listen port for ssl webserver [443]
+ -C, --sslcert		       filename for ssl certificate [/etc/mympd/server.pem]
+ -K, --sslkey		       filename for ssl key [/etc/mympd/server.key]
  -s, --streamport <port>       connect to mpd http stream at port [8000]
  -u, --user <username>         drop priviliges to user after socket bind
  -m, --mpdpass <password>      specifies the password to use when connecting to mpd
