@@ -31,25 +31,25 @@ var settings = {};
 var alertTimeout;
 
 var app = {};
-app.apps = { "Playback": { "state": "0/-/" },
-             "Queue": 	 { "state": "0/Any Tag/" },
+app.apps = { "Playback": { "state": "0/-/", "scrollPos": 0 },
+             "Queue": 	 { "state": "0/Any Tag/", "scrollPos": 0 },
              "Browse":   { 
                   "active": "Database", 
-                  "tabs":  { "Filesystem": { "state": "0/-/" },
-                             "Playlists":  { "state": "0/-/" },
+                  "tabs":  { "Filesystem": { "state": "0/-/", "scrollPos": 0 },
+                             "Playlists":  { "state": "0/-/", "scrollPos": 0 },
                              "Database":   { 
                                     "active": "Artist",
-                                    "views": { "Artist": { "state": "0/-/" },
-                                               "Album":  { "state": "0/-/" }
+                                    "views": { "Artist": { "state": "0/-/", "scrollPos": 0 },
+                                               "Album":  { "state": "0/-/", "scrollPos": 0 }
                                      }
                              }
                   }
              },
-             "Search": { "state": "0/Any Tag/" }
+             "Search": { "state": "0/Any Tag/", "scrollPos": 0 }
            };
            
-app.current = { "app": "Playback", "tab": undefined, "view": undefined, "page": 0, "filter": "", "search": "" };
-app.last = { "app": undefined, "tab": undefined, "view": undefined };
+app.current = { "app": "Playback", "tab": undefined, "view": undefined, "page": 0, "filter": "", "search": "", "scrollPos": 0 };
+app.last = { "app": undefined, "tab": undefined, "view": undefined, "filter": "", "search": "",  "scrollPos": 0 };
 
 var domCache = {};
 domCache.navbarBottomBtns = document.getElementById('navbar-bottom').getElementsByTagName('div');
@@ -66,6 +66,7 @@ domCache.btnNext = document.getElementById('btnNext');
 domCache.progressBar = document.getElementById('progressBar');
 domCache.volumeBar = document.getElementById('volumeBar');
 domCache.outputs = document.getElementById('outputs');
+domCache.kbitrate = document.getElementById('kbitrate');
 
 var modalConnectionError = new Modal(document.getElementById('modalConnectionError'));
 var modalSettings = new Modal(document.getElementById('modalSettings'));
@@ -73,7 +74,7 @@ var modalAddstream = new Modal(document.getElementById('modalAddstream'));
 var modalSavequeue = new Modal(document.getElementById('modalSavequeue'));
 var mainMenu = new Dropdown(document.getElementById('mainMenu'));
 
-function appPrepare() {
+function appPrepare(scrollPos) {
     if (app.current.app != app.last.app || app.current.tab != app.last.tab || app.current.view != app.last.view) {
         //Hide all cards + nav
         for (var i = 0; i < domCache.navbarBottomBtnsLen; i ++) {
@@ -96,12 +97,25 @@ function appPrepare() {
             document.getElementById('card' + app.current.app + app.current.tab).classList.remove('hide');
             document.getElementById('card' + app.current.app + 'Nav' + app.current.tab).classList.add('active');    
         }
-        scrollToTop();
+        scrollTo(scrollPos);
     }
 }
 
 function appGoto(a,t,v,s) {
-    var hash='';
+    var scrollPos = 0;
+    if (document.body.scrollTop)
+        scrollPos = document.body.scrollTop
+    else 
+        scrollPos = document.documentElement.scrollTop;
+        
+    if (app.apps[app.current.app].scrollPos != undefined)
+        app.apps[app.current.app].scrollPos = scrollPos
+    else if (app.apps[app.current.app].tabs[app.current.tab].scrollPos != undefined)
+        app.apps[app.current.app].tabs[app.current.tab].scrollPos = scrollPos
+    else if (app.apps[app.current.app].tabs[app.current.tab].views[app.current.view].scrollPos != undefined)
+        app.apps[app.current.app].tabs[app.current.tab].views[app.current.view].scrollPos = scrollPos;
+
+    var hash = '';
     if (app.apps[a].tabs) {
         if (t == undefined) 
             t = app.apps[a].active;
@@ -126,15 +140,18 @@ function appRoute() {
         app.current.view = params[3];
         if (app.apps[app.current.app].state) {
             app.apps[app.current.app].state = params[4];
+            app.current.scrollPos = app.apps[app.current.app].scrollPos;
         }
         else if (app.apps[app.current.app].tabs[app.current.tab].state) {
             app.apps[app.current.app].tabs[app.current.tab].state = params[4];
             app.apps[app.current.app].active = app.current.tab;
+            app.current.scrollPos = app.apps[app.current.app].tabs[app.current.tab].scrollPos;
         }
         else if (app.apps[app.current.app].tabs[app.current.tab].views[app.current.view].state) {
             app.apps[app.current.app].tabs[app.current.tab].views[app.current.view].state = params[4];
             app.apps[app.current.app].active = app.current.tab;
             app.apps[app.current.app].tabs[app.current.tab].active = app.current.view;
+            app.current.scrollPos = app.apps[app.current.app].tabs[app.current.tab].views[app.current.view].scrollPos;
         }
         app.current.page = parseInt(params[5]);
         app.current.filter = params[6];
@@ -144,7 +161,7 @@ function appRoute() {
         return;
     }
 
-    appPrepare();
+    appPrepare(app.current.scrollPos);
 
     if (app.current.app == 'Playback') {
         sendAPI({"cmd":"MPD_API_GET_CURRENT_SONG"}, songChange);
@@ -702,6 +719,8 @@ function parseState(obj) {
         (elapsed_seconds < 10 ? '0' : '') + elapsed_seconds + " / " +
         total_minutes + ":" + (total_seconds < 10 ? '0' : '') + total_seconds;
     domCache.counter.innerText = counterText;
+    
+    domCache.kbitrate.innerText = 'Bitrate: ' + obj.data.kbitrate + ' kbit';
 
     //Set playing track in queue view
     if (last_state) {
@@ -1296,9 +1315,9 @@ function addAllFromSearch() {
     }
 }
 
-function scrollToTop() {
-    document.body.scrollTop = 0; // For Safari
-    document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+function scrollTo(pos) {
+    document.body.scrollTop = pos; // For Safari
+    document.documentElement.scrollTop = pos; // For Chrome, Firefox, IE and Opera
 }
 
 function gotoPage(x) {
