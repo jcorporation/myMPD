@@ -76,7 +76,7 @@
     <div class="card" id="cardPlayback">
       <div class="card-header">Now playing</div>
       <div class="card-body">
-        <div id="album-cover"></div>
+        <div class="album-cover" id="album-cover"></div>
         <h1 id="currenttrack"></h1>
         <h3 id="artist"></h3>
         <h4 id="album"></h4>
@@ -87,7 +87,7 @@
           <div class="col-4">
             <p id="counter" class="text">&nbsp;&nbsp;</p>
           </div>
-        </div>          
+        </div> 
       </div>
     </div>
     
@@ -156,13 +156,13 @@
                 <th></th>
               </tr>
             </thead>
-            <tbody>
+            <tbody class="clickable">
             </tbody>
           </table>
         </div>
         <div class="btn-toolbar" id="QueueButtonsBottom" role="toolbar">
           <div class="btn-group mr-2">
-            <button type="button" class="btn btn-secondary" data-href="{'cmd':'scrollToTop','options':[]}" title="To top">
+            <button type="button" class="btn btn-secondary" data-href="{'cmd':'scrollTo','options':[0]}" title="To top">
               <span class="material-icons">keyboard_arrow_up</span>
             </button>
           </div>        
@@ -198,7 +198,7 @@
         <div class="btn-toolbar card-toolbar" id="BrowsePlaylistsButtons" role="toolbar">
           <div class="btn-group mr-2">
             <button id="BrowsePlaylistsFilter" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">Filter</button>
-            <div class="dropdown-menu bg-dark px-2" id="BrowsePlaylistsFilterLetters">
+            <div class="dropdown-menu bg-dark px-2 letters" id="BrowsePlaylistsFilterLetters">
             </div>
           </div>        
           <div id="BrowsePlaylistsPaginationTop" class="btn-group mr-2">
@@ -226,13 +226,13 @@
                 <th></th>
               </tr>
             </thead>
-            <tbody>
+            <tbody class="clickable">
             </tbody>
           </table>
         </div>
         <div class="btn-toolbar" id="BrowsePlaylistsButtonsBottom" role="toolbar">
           <div class="btn-group mr-2">
-            <button type="button" class="btn btn-secondary" data-href="{'cmd': 'scrollToTop', 'options': []}" title="To top">
+            <button type="button" class="btn btn-secondary" data-href="{'cmd': 'scrollTo', 'options': [0]}" title="To top">
               <span class="material-icons">keyboard_arrow_up</span>
             </button>
           </div>        
@@ -256,7 +256,7 @@
           </div>
           <div class="btn-group mr-2">
             <button id="BrowseDatabaseFilter" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">Filter</button>
-            <div class="dropdown-menu bg-dark px-2" id="BrowseDatabaseFilterLetters">
+            <div class="dropdown-menu bg-dark px-2 letters" id="BrowseDatabaseFilterLetters">
             </div>
           </div>
           <div id="BrowseDatabasePaginationTop" class="btn-group mr-2">
@@ -282,7 +282,7 @@
                 <th></th>
               </tr>
             </thead>
-            <tbody>
+            <tbody class="clickable">
             </tbody>
           </table>
         </div>
@@ -291,7 +291,7 @@
         
         <div class="btn-toolbar" id="BrowseDatabaseButtonsBottom" role="toolbar">
           <div class="btn-group mr-2">
-            <button type="button" class="btn btn-secondary" data-href="{'cmd': 'scrollToTop', 'options': []}" title="To top">
+            <button type="button" class="btn btn-secondary" data-href="{'cmd': 'scrollTo', 'options': [0]}" title="To top">
               <span class="material-icons">keyboard_arrow_up</span>
             </button>
           </div>        
@@ -315,7 +315,7 @@
           </div>
           <div class="btn-group mr-2">
             <button id="BrowseFilesystemFilter" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">Filter</button>
-            <div class="dropdown-menu bg-dark px-2" id="BrowseFilesystemFilterLetters">
+            <div class="dropdown-menu bg-dark px-2 letters" id="BrowseFilesystemFilterLetters">
             </div>
           </div>
           <div id="BrowseFilesystemPaginationTop" class="btn-group mr-2">
@@ -350,13 +350,13 @@
                 <th></th>
               </tr>
             </thead>
-            <tbody>
+            <tbody class="clickable">
             </tbody>
           </table>
         </div>
         <div class="btn-toolbar" id="BrowseFilesystemButtonsBottom" role="toolbar">
           <div class="btn-group mr-2">
-            <button type="button" class="btn btn-secondary" data-href="{'cmd': 'scrollToTop', 'options': []}" title="To top">
+            <button type="button" class="btn btn-secondary" data-href="{'cmd': 'scrollTo', 'options': [0]}" title="To top">
               <span class="material-icons">keyboard_arrow_up</span>
             </button>
           </div>        
@@ -428,13 +428,13 @@
                 <th></th>
               </tr>
             </thead>
-            <tbody>
+            <tbody class="clickable">
             </tbody>
           </table>
         </div>
         <div class="btn-toolbar" id="SearchButtonsBottom" role="toolbar">
           <div class="btn-group mr-2">
-            <button type="button" class="btn btn-secondary" data-href="{'cmd': 'scrollToTop', 'options': []}" title="To top">
+            <button type="button" class="btn btn-secondary" data-href="{'cmd': 'scrollTo', 'options': [0]}" title="To top">
               <span class="material-icons">keyboard_arrow_up</span>
             </button>
           </div>        
@@ -467,8 +467,8 @@
   <div class="modal" id="modalConnectionError" role="dialog">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title"><span class="material-icons">error</span> Connection Error</h5>
+        <div class="modal-header bg-danger text-light">
+          <h5 class="modal-title"><span class="material-icons title-icon">error</span> Connection Error</h5>
         </div>
         <div class="modal-body">
           <p>Connection to myMPD failed. Trying to reconnect.</p>
@@ -482,7 +482,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="settingsLabel"><span class="material-icons">settings</span> Settings</h5>
+          <h5 class="modal-title" id="settingsLabel"><span class="material-icons title-icon">settings</span> Settings</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -576,13 +576,13 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="aboutLabel"><span class="material-icons">play_circle_outline</span> About</h5>
+          <h5 class="modal-title" id="aboutLabel"><span class="material-icons title-icon">play_circle_outline</span> About</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
         <div class="modal-body">
-          <h4><a class="text-success" href="https://github.com/jcorporation/ympd"><span class="material-icons">play_circle_outline</span> myMPD</a>&nbsp;&ndash;&nbsp;<small>MPD Web GUI - written in C, utilizing Websockets and Bootstrap/JS</small></h4>
+          <h4><a class="text-success" href="https://github.com/jcorporation/ympd">myMPD</a>&nbsp;&ndash;&nbsp;<small>MPD Web GUI - written in C, utilizing Websockets and Bootstrap/JS</small></h4>
           <p>myMPD is a lightweight MPD web client that runs without a dedicated webserver or interpreter. It's tuned for minimal resource usage and requires only very litte dependencies. myMPD is a fork of <a class="text-success" href="http://www.ympd.org">ympd</a>.</p>
           <ul>
             <li>Version: <span id="mympdVersion"></span></li>
@@ -619,7 +619,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="addstreamLabel"><span class="material-icons">view_stream</span> Add Stream</h5>
+          <h5 class="modal-title" id="addstreamLabel"><span class="material-icons title-icon">view_stream</span> Add Stream</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -646,7 +646,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="savequeueLabel"><span class="material-icons">save</span> Save Queue</h5>
+          <h5 class="modal-title" id="savequeueLabel"><span class="material-icons title-icon">save</span> Save Queue</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>          
@@ -656,7 +656,7 @@
             <div class="row">
               <div class="form-group col-md-9">
                 <label class="control-label" for="playlistname">Playlist Name</label>
-                <input type="text" class="form-control" id="playlistname" />
+                <input type="text" class="form-control" id="playlistname"/>
               </div>
             </div>
           </form>
@@ -668,7 +668,39 @@
       </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
   </div><!-- /.modal -->
-  <script src="js/bootstrap-native-v4.min.js"></script>
-  <script src="js/mpd.js"></script>
+
+  <div class="modal fade" id="modalSongDetails" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="savequeueLabel"><span class="material-icons title-icon">music_note</span> Song Details</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>          
+        </div>
+        <div class="modal-body">
+          <div class="album-cover"></div>
+          <h1></h1>
+          <table class="table">
+            <tbody>
+              <tr data-name="artist"><td>Artist</td><td></td></tr>
+              <tr data-name="album"><td>Album</td><td></td></tr>
+              <tr data-name="track"><td>Track</td><td></td></tr>
+              <tr data-name="albumartist"><td>Albumartist</td><td></td></tr>
+              <tr data-name="genre"><td>Genre</td><td></td></tr>
+              <tr data-name="date"><td>Date</td><td></td></tr>
+              <tr data-name="uri"><td>Uri</td><td></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+
+  <script src="js/bootstrap-native-v4.min.js" type="text/javascript"></script>
+  <script src="js/mpd.js" type="text/javascript"></script>
  </body>
 </html>

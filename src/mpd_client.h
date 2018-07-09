@@ -80,6 +80,7 @@
     X(MPD_API_GET_ARTISTALBUMTITLES) \
     X(MPD_API_GET_ARTISTS) \
     X(MPD_API_GET_CURRENT_SONG) \
+    X(MPD_API_GET_SONGDETAILS) \
     X(MPD_API_WELCOME) \
     X(MPD_API_GET_SETTINGS) \
     X(MPD_API_SET_SETTINGS)
@@ -144,6 +145,7 @@ int mympd_put_settings(char *buffer);
 int mympd_put_db_tag(char *buffer, unsigned int offset, char *mpdtagtype, char *mpdsearchtagtype, char *searchstr, char *filter);
 int mympd_put_songs_in_album(char *buffer, char *albumartist, char *album);
 int mympd_put_playlists(char *buffer, unsigned int offset, char *filter);
+int mympd_put_songdetails(char *buffer, char *uri);
 void mympd_disconnect();
 #endif
 
