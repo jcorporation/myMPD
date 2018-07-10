@@ -108,8 +108,7 @@ static void ev_handler_http(struct mg_connection *nc_http, int ev, void *ev_data
     }
 }
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
     int n, option_index = 0;
     struct mg_mgr mgr;
     struct mg_connection *nc;
