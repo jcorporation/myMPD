@@ -1,6 +1,11 @@
 #!/bin/sh
 
-[ -d /etc/mympd/ssl ] && rm -r /etc/mympd/ssl
+if [ -d /etc/mympd/ssl ]
+then
+  echo "SSL directory exists, to recreate certificates: \"rm -r /etc/mympd/ssl\""
+  exit 1
+fi
+
 mkdir -p /etc/mympd/ssl/ca/certs
 cd /etc/mympd/ssl/ca
 

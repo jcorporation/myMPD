@@ -39,5 +39,7 @@ sudo chown nobody /var/lib/mympd
 
 [ -d /etc/default ] && \
   sudo cp -v contrib/mympd.default /etc/default/mympd
+
+[ -d /etc/mympd/ssl ] || contrib/crcert.sh
   
 echo "myMPD installed"
