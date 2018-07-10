@@ -1389,6 +1389,9 @@ function showNotification(notificationTitle,notificationText,notificationHtml,no
         if (!document.getElementById('alertBox')) {
             alertBox = document.createElement('div');
             alertBox.setAttribute('id', 'alertBox');
+            alertBox.addEventListener('click', function() {
+                hideNotification();
+            }, false);
         }
         else {
             alertBox = document.getElementById('alertBox');
@@ -1400,12 +1403,17 @@ function showNotification(notificationTitle,notificationText,notificationHtml,no
         if (alertTimeout)
             clearTimeout(alertTimeout);
         alertTimeout = setTimeout(function() {
-            if (document.getElementById('alertBox'))
-                document.getElementById('alertBox').classList.remove('alertBoxActive');
-            setTimeout(function() {
-                document.getElementById('alertBox').remove();
-            }, 600);
+            hideNotification();    
         }, 3000);
+    }
+}
+
+function hideNotification() {
+    if (document.getElementById('alertBox')) {
+        document.getElementById('alertBox').classList.remove('alertBoxActive');
+        setTimeout(function() {
+            document.getElementById('alertBox').remove();
+        }, 600);
     }
 }
 
