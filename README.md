@@ -54,6 +54,13 @@ Usage: ./mympd [OPTION]...
  --help                        this help
 ```
 
+SSL
+---
+
+1. Create ca and certificate ```/path/to/src/contrib/crcert.sh```
+2. Start mympd with -S
+3. Import ```/etc/mympd/ssl/ca/ca.pem``` in your browser to trust the certificate
+
 Copyright
 ---------
 ympd: 2013-2014 <andy@ndyk.de>
