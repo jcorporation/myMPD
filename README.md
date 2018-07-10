@@ -12,7 +12,7 @@ This fork provides a reworked ui based on Bootstrap 4 and a modernized backend.
 UI Components
 -------------
  - Bootstrap 4: https://getbootstrap.com/
- - Material Design Icons: https://material.io/tools/icons/?style=baseline
+ - Material Design Icons: https://material.io/tools/icons/
  - Bootstrap Native: http://thednp.github.io/bootstrap.native/
 
 Backend
@@ -24,11 +24,12 @@ Dependencies
 ------------
  - libmpdclient 2: http://www.musicpd.org/libs/libmpdclient/
  - cmake 2.6: http://cmake.org/
+ - OpenSSL: https://www.openssl.org/
 
 Unix Build Instructions
 -----------------------
 
-1. install dependencies. cmake and libmpdclient (dev) are available from all major distributions.
+1. install dependencies. cmake, libmpdclient (dev) and OpenSSL (dev) are available from all major distributions.
 2. build and install it ```cd /path/to/src; ./mkrelease.sh```
 3. Link your mpd music directory to ```/usr/share/mympd/htdocs/library``` and put ```folder.jpg``` files in your album directories
 4. Configure your mpd with http stream output to use the local player
