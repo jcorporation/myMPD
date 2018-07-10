@@ -126,8 +126,8 @@ int main(int argc, char **argv)
     struct mg_bind_opts bind_opts;
     const char *err;
     bool ssl = false;
-    char *s_ssl_cert = "/etc/mympd/server.pem";
-    char *s_ssl_key = "/etc/mympd/server.key";
+    char *s_ssl_cert = "/etc/mympd/ssl/server.pem";
+    char *s_ssl_key = "/etc/mympd/ssl/server.key";
     char hostname[1024];
     hostname[1023] = '\0';
     gethostname(hostname, 1023);
@@ -204,8 +204,8 @@ int main(int argc, char **argv)
                         " -w, --webport [ip:]<port>\tlisten interface/port for webserver [80]\n"
                         " -S, --ssl\tenable ssl\n"
                         " -W, --sslport [ip:]<port>\tlisten interface/port for ssl webserver [443]\n"
-                        " -C, --sslcert <filename>\tfilename for ssl certificate [/etc/mympd/server.pem]\n"
-                        " -K, --sslkey <filename>\tfilename for ssl key [/etc/mympd/server.key]\n"
+                        " -C, --sslcert <filename>\tfilename for ssl certificate [/etc/mympd/ssl/server.pem]\n"
+                        " -K, --sslkey <filename>\tfilename for ssl key [/etc/mympd/ssl/server.key]\n"
                         " -u, --user <username>\t\tdrop priviliges to user after socket bind\n"
                         " -v, --version\t\t\tget version\n"
                         " -m, --mpdpass <password>\tspecifies the password to use when connecting to mpd\n"

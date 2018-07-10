@@ -17,5 +17,5 @@
   ],
   "name": "myMPD",
   "short_name": "myMPD",
-  "start_url": "/index.html/#/Playback!0/-/"
+  "start_url": "/index.html"
 }
