@@ -50,7 +50,7 @@ basicConstraints = CA:false
 
 EOL
 
-openssl req -new -x509 -newkey rsa:2048 -sha256 -days 1000 -nodes -config ca.cnf \
+openssl req -new -x509 -newkey rsa:2048 -sha256 -days 3650 -nodes -config ca.cnf \
 	-keyout ca.key -out ca.pem
 
 HOSTNAME=$(hostname)
@@ -87,13 +87,13 @@ IP.1 = $IP
 IP.2 = 127.0.0.1
 EOL
 
-openssl req -new -sha256 -newkey rsa:2048 -days 1000 -nodes -config req.cnf \
+openssl req -new -sha256 -newkey rsa:2048 -days 3650 -nodes -config req.cnf \
 	-keyout server.key -out server.csr \
 	-extensions v3_req
 
 echo "Sign cert with ca"
 openssl ca -in server.csr -cert ca/ca.pem -keyfile ca/ca.key -config ca/ca.cnf \
-	-out server.pem -days 1000 -batch
+	-out server.pem -days 3650 -batch
 
 rm server.csr
 rm ca/ca.cnf
