@@ -77,14 +77,14 @@ var mainMenu = new Dropdown(document.getElementById('mainMenu'));
 function appPrepare(scrollPos) {
     if (app.current.app != app.last.app || app.current.tab != app.last.tab || app.current.view != app.last.view) {
         //Hide all cards + nav
-        for (var i = 0; i < domCache.navbarBottomBtnsLen; i ++) {
+        for (var i = 0; i < domCache.navbarBottomBtnsLen; i++) {
             domCache.navbarBottomBtns[i].classList.remove('active');
         }
         document.getElementById('cardPlayback').classList.add('hide');
         document.getElementById('cardQueue').classList.add('hide');
         document.getElementById('cardBrowse').classList.add('hide');
         document.getElementById('cardSearch').classList.add('hide');
-        for (var i = 0; i < domCache.panelHeadingBrowseLen; i ++) {
+        for (var i = 0; i < domCache.panelHeadingBrowseLen; i++) {
             domCache.panelHeadingBrowse[i].classList.remove('active');
         }
         document.getElementById('cardBrowsePlaylists').classList.add('hide');
@@ -168,13 +168,15 @@ function appRoute() {
     }    
     else if (app.current.app == 'Queue' ) {
         document.getElementById('QueueList').classList.add('opacity05');
+/*
         if (app.last.app != app.current.app) {
             if (app.current.search.length < 2) {
                 setPagination(app.current.page);        
             }
         }
+*/
         var btns = document.getElementById('searchqueuetag').getElementsByTagName('button');
-        for (var i = 0; i < btns.length; i ++) {
+        for (var i = 0; i < btns.length; i++) {
             btns[i].classList.remove('active');
             if (btns[i].innerText == app.current.filter) { 
                 btns[i].classList.add('active'); 
@@ -211,7 +213,7 @@ function appRoute() {
         var pathArray = app.current.search.split('/');
         var pathArrayLen = pathArray.length;
         var fullPath = '';
-        for (var i = 0; i < pathArrayLen; i ++) {
+        for (var i = 0; i < pathArrayLen; i++) {
             if (pathArrayLen -1 == i) {
                 breadcrumbs += '<li class="breadcrumb-item active">' + pathArray[i] + '</li>';
                 break;
@@ -224,7 +226,7 @@ function appRoute() {
         elBrowseBreadcrumb.innerHTML = breadcrumbs;
         var breadcrumbItems = elBrowseBreadcrumb.getElementsByTagName('a');
         var breadcrumbItemsLen = breadcrumbItems.length;
-        for (var i = 0; i < breadcrumbItemsLen; i ++) {
+        for (var i = 0; i < breadcrumbItemsLen; i++) {
             breadcrumbItems[i].addEventListener('click', function() {
 	        appGoto('Browse', 'Filesystem', undefined, '0/' + app.current.filter + '/' + this.getAttribute('data-uri'));
             }, false);
@@ -232,17 +234,17 @@ function appRoute() {
         doSetFilterLetter('BrowseFilesystemFilter');
     }
     else if (app.current.app == 'Search') {
-        document.getElementById('searchstr2').focus();
+        document.getElementById('searchstr').focus();
         document.getElementById('SearchList').classList.add('opacity05');
         if (app.last.app != app.current.app) {
             if (app.current.search != '')
                 document.getElementById('SearchList').getElementsByTagName('tbody')[0].innerHTML=
                     '<tr><td><span class="material-icons">search</span></td>' +
                     '<td colspan="5">Searching...</td></tr>';
-            else
-                setPagination(app.current.page);        
+//            else
+//                setPagination(app.current.page);        
                 
-            document.getElementById('searchstr2').value = app.current.search;
+//            document.getElementById('searchstr').value = app.current.search;
         }
 
         if (app.current.search.length >= 2) {
@@ -251,17 +253,17 @@ function appRoute() {
             document.getElementById('SearchList').getElementsByTagName('tbody')[0].innerHTML = '';
             document.getElementById('searchAddAllSongs').setAttribute('disabled', 'disabled');
             document.getElementById('panel-heading-search').innerText = '';
-            setPagination(app.current.page);
+//            setPagination(app.current.page);
             document.getElementById('SearchList').classList.remove('opacity05');
         }
         
-        var btns = document.getElementById('searchtags2').getElementsByTagName('button');
+        var btns = document.getElementById('searchtags').getElementsByTagName('button');
         var btnsLen = btns.length;
-        for (var i = 0; i < btnsLen; i ++) {
+        for (var i = 0; i < btnsLen; i++) {
             btns[i].classList.remove('active');
             if (btns[i].innerText == app.current.filter) { 
                 btns[i].classList.add('active'); 
-                document.getElementById('searchtags2desc').innerText = btns[i].innerText;
+                document.getElementById('searchtagsdesc').innerText = btns[i].innerText;
             }
         }
     }
@@ -313,23 +315,13 @@ function appInit() {
         addStream();
     });
     
-    document.getElementById('mainMenu').addEventListener('shown.bs.dropdown', function () {
-        var si = document.getElementById('inputSearch');
-        si.value = '';
-        si.focus();
-    });
-    
-    document.getElementById('inputSearch').addEventListener('click', function(event) {
-        event.stopPropagation();
-    });
-    
     addFilterLetter('BrowseFilesystemFilterLetters');
     addFilterLetter('BrowseDatabaseFilterLetters');
     addFilterLetter('BrowsePlaylistsFilterLetters');
 
     var hrefs = document.querySelectorAll('button[data-href], a[data-href]');
     var hrefsLen = hrefs.length;
-    for (var i = 0; i < hrefsLen; i ++) {
+    for (var i = 0; i < hrefsLen; i++) {
         hrefs[i].addEventListener('click', function(event) {
             event.preventDefault();
             event.stopPropagation();
@@ -348,7 +340,7 @@ function appInit() {
 
     var pd = document.querySelectorAll('.pages');
     var pdLen = pd.length;
-    for (var i = 0; i < pdLen; i ++) {
+    for (var i = 0; i < pdLen; i++) {
         pd[i].addEventListener('click', function(event) {
             if (event.target.nodeName == 'BUTTON') {
                 gotoPage(event.target.getAttribute('data-page'));
@@ -418,7 +410,7 @@ function appInit() {
         }
     }, false);
 
-    document.getElementById('searchtags2').addEventListener('click', function(event) {
+    document.getElementById('searchtags').addEventListener('click', function(event) {
         if (event.target.nodeName == 'BUTTON')
             appGoto(app.current.app, app.current.tab, app.current.view, '0/' + event.target.innerText + '/' + app.current.search);            
     }, false);
@@ -432,19 +424,7 @@ function appInit() {
             appGoto(app.current.app, app.current.tab, app.current.view, app.current.page + '/' + event.target.innerText + '/' + app.current.search);
     }, false);
 
-    document.getElementById('inputSearch').addEventListener('keypress', function (event) {
-        if ( event.which == 13 )
-            mainMenu.toggle();
-    }, false);
-
     document.getElementById('search').addEventListener('submit', function () {
-        var searchStr = document.getElementById('inputSearch').value;
-        appGoto('Search', undefined, undefined, app.current.page + '/Any Tag/' + searchStr);
-        document.getElementById('searchstr2').value = searchStr;
-        return false;
-    }, false);
-
-    document.getElementById('search2').addEventListener('submit', function () {
         return false;
     }, false);
 
@@ -452,7 +432,7 @@ function appInit() {
         return false;
     }, false);
 
-    document.getElementById('searchstr2').addEventListener('keyup', function (event) {
+    document.getElementById('searchstr').addEventListener('keyup', function (event) {
         appGoto('Search', undefined, undefined, '0/' + app.current.filter + '/' + this.value);
     }, false);
 
@@ -651,7 +631,7 @@ function getSettings() {
 function parseOutputnames(obj) {
     var btns = '';
     var outputsLen = obj.data.outputs.length;
-    for (var i = 0; i < outputsLen; i ++) {
+    for (var i = 0; i < outputsLen; i++) {
         btns += '<button id="btnoutput' + obj.data.outputs[i].id +'" data-output-id="' + obj.data.outputs[i].id + '" class="btn btn-secondary btn-block">'+
                 '<span class="material-icons float-left">volume_up</span> ' + obj.data.outputs[i].name + '</button>';
     }
@@ -746,7 +726,7 @@ function parseState(obj) {
         
     //  Set outputs state                  
     var outputsLen = obj.data.outputs.length;
-    for (var i = 0; i < outputsLen; i ++) {
+    for (var i = 0; i < outputsLen; i++) {
         toggleBtn('btnoutput' + obj.data.outputs[i].id, obj.data.outputs[i].state);
     }
 
@@ -781,7 +761,7 @@ function parseQueue(obj) {
     table.setAttribute('data-version', obj.queue_version);
     var tbody = table.getElementsByTagName('tbody')[0];
     var tr = tbody.getElementsByTagName('tr');
-    for (var i = 0; i < nrItems; i ++) {
+    for (var i = 0; i < nrItems; i++) {
         if (tr[i])
             if (tr[i].getAttribute('data-trackid') == obj.data[i].id)
                 continue;
@@ -840,7 +820,7 @@ function parseFilesystem(obj) {
     var nrItems = obj.data.length;
     var tbody = document.getElementById(app.current.app + (app.current.tab==undefined ? '' : app.current.tab) + 'List').getElementsByTagName('tbody')[0];
     var tr = tbody.getElementsByTagName('tr');
-    for (var i = 0; i < nrItems; i ++) {
+    for (var i = 0; i < nrItems; i++) {
         var uri = encodeURI(obj.data[i].uri);
         if (tr[i])
             if (tr[i].getAttribute('data-uri') == uri)
@@ -897,7 +877,7 @@ function parsePlaylists(obj) {
     var nrItems = obj.data.length;
     var tbody = document.getElementById(app.current.app + app.current.tab + 'List').getElementsByTagName('tbody')[0];
     var tr = tbody.getElementsByTagName('tr');
-    for (var i = 0; i < nrItems; i ++) {
+    for (var i = 0; i < nrItems; i++) {
         var uri = encodeURI(obj.data[i].uri);
         if (tr[i])
             if (tr[i].getAttribute('data-uri') == uri)
@@ -939,7 +919,7 @@ function parseListDBtags(obj) {
         var nrItems = obj.data.length;
         var tbody = document.getElementById(app.current.app + app.current.tab + app.current.view + 'List').getElementsByTagName('tbody')[0];
         var tr = tbody.getElementsByTagName('tr');
-        for (var i = 0; i < nrItems; i ++) {
+        for (var i = 0; i < nrItems; i++) {
             var uri = encodeURI(obj.data[i].value);
             if (tr[i])
                 if (tr[i].getAttribute('data-uri') == uri)
@@ -1024,7 +1004,7 @@ function parseListTitles(obj) {
   
     var titleList = '';
     var nrItems = obj.data.length;
-    for (var i = 0; i < nrItems; i ++) {
+    for (var i = 0; i < nrItems; i++) {
         titleList += '<tr data-type="song" data-name="' + obj.data[i].title + '" data-uri="' + encodeURI(obj.data[i].uri) + '">' +
                      '<td>' + obj.data[i].track + '</td><td>' + obj.data[i].title + '</td>' +
                      '<td><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>' + 
@@ -1054,12 +1034,12 @@ function setPagination(number) {
     if (totalPages == 0) 
         totalPages = 1;
     var p = ['PaginationTop', 'PaginationBottom'];
-    for (var i = 0; i < 2; i ++) {
+    for (var i = 0; i < 2; i++) {
         document.getElementById(cat + p[i] + 'Page').innerText = (app.current.page / settings.max_elements_per_page + 1) + ' / ' + totalPages;
         if (totalPages > 1) {
             document.getElementById(cat + p[i] + 'Page').removeAttribute('disabled');
             var pl = '';
-            for (var j = 0; j < totalPages; j ++) {
+            for (var j = 0; j < totalPages; j++) {
                 pl += '<button data-page="' + (j * settings.max_elements_per_page) + '" type="button" class="mr-1 mb-1 btn-sm btn btn-secondary">' +
                     ( j + 1) + '</button>';
             }
@@ -1143,7 +1123,7 @@ function parseSongDetails(obj) {
     modal.getElementsByTagName('h1')[0].innerText = obj.data.title;
     var tr = modal.getElementsByTagName('tr');
     var trLen = tr.length;
-    for (var i = 0; i < trLen; i ++) {
+    for (var i = 0; i < trLen; i++) {
         var key = tr[i].getAttribute('data-name');
         var value = obj.data[key];
         if (key == 'duration') {
@@ -1483,7 +1463,7 @@ function doSetFilterLetter(x) {
     if (filter != '-') {
         var btns = document.getElementById(x + 'Letters').getElementsByTagName('button');
         var btnsLen = btns.length;
-        for (var i = 0; i < btnsLen; i ++) {
+        for (var i = 0; i < btnsLen; i++) {
             if (btns[i].innerText == filter) {
                 btns[i].classList.add('active');
                 break;
@@ -1495,7 +1475,7 @@ function doSetFilterLetter(x) {
 function addFilterLetter(x) {
     var filter = '<button class="mr-1 mb-1 btn btn-sm btn-secondary material-icons material-icons-small">delete</button>' +
         '<button class="mr-1 mb-1 btn btn-sm btn-secondary">#</button>';
-    for (i = 65; i <= 90; i ++) {
+    for (i = 65; i <= 90; i++) {
         filter += '<button class="mr-1 mb-1 btn-sm btn btn-secondary">' + String.fromCharCode(i) + '</button>';
     }
     var letters = document.getElementById(x);

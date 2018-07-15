@@ -23,10 +23,6 @@
             <span class="material-icons header-logo">play_circle_outline</span>myMPD
           </a>
           <div class="dropdown-menu bg-dark">
-            <form id="search" class="px-4 py-3" role="search">
-              <input id="inputSearch" type="text" class="form-control" placeholder="Search">
-            </form>
-            <div class="dropdown-divider"></div>
             <a id="nav-addstream" class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#modalAddstream">Add Stream</a>
             <a id="nav-updatedb" class="dropdown-item text-light bg-dark" href="#" data-href="{'cmd':'updateDB','options':[]}">Update Database</a>
             <a id="nav-localplayer" class="dropdown-item text-light bg-dark" href="#" data-href="{'cmd':'openLocalPlayer','options':[]}">Local Player</a>
@@ -381,15 +377,15 @@
       </div>
       <div class="card-body">
         <div class="btn-toolbar card-toolbar" id="SearchButtons" role="toolbar">
-          <form id="search2" role="search">
+          <form id="search" role="search">
             <div class="input-group mr-2">
-              <input type="text" class="form-control" placeholder="Search" id="searchstr2"/>
+              <input type="text" class="form-control" placeholder="Search" id="searchstr"/>
               <div class="input-group-append">
                 <button title="Select tags to search" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
                   <span class="material-icons">search</span>
-                  <span id="searchtags2desc">Any Tag</span>
+                  <span id="searchtagsdesc">Any Tag</span>
                 </button>
-                <div class="dropdown-menu bg-dark dropdown-menu-right px-2" id="searchtags2">
+                <div class="dropdown-menu bg-dark dropdown-menu-right px-2" id="searchtags">
                   <h6 class="dropdown-header text-light">Search in Tag</h6>
                   <button type="button" class="btn btn-secondary active btn-block">Any Tag</button>
                   <button type="button" class="btn btn-secondary btn-block">Title</button>
