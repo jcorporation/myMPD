@@ -76,7 +76,7 @@ SSL
 ---
 
 1. Create ca and certificate ```/path/to/src/contrib/crcert.sh``` (mkrelease.sh do this for you).
-2. Start mympd with ```-S``` (use default certificate under ```/etc/mympd/ssl/```).
+2. Start myMPD with ```-S``` (use default certificate under ```/etc/mympd/ssl/```).
 3. Import ```/etc/mympd/ssl/ca/ca.pem``` in your browser to trust the certificate.
 4. myMPD redirects http requests to https, ensure that myMPD hostname is resolvable.
 
