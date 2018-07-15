@@ -1,4 +1,4 @@
-#Copy this file to /etc/default/mympd
+#myMPD startup options
 MPD_HOST=localhost
 MPD_PORT=6600
 #MPD_PASSWORD=--mpdpass PASSWORD
@@ -7,4 +7,3 @@ WEB_PORT=80
 MYMPD_USER=nobody
 COVERIMAGE=--coverimage folder.jpg
 STATEFILE=--statefile /var/lib/mympd/mympd.state
-
