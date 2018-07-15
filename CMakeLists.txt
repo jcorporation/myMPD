@@ -40,7 +40,7 @@ add_executable(mympd ${SOURCES})
 target_link_libraries(mympd ${LIBMPDCLIENT_LIBRARY} ${CMAKE_THREAD_LIBS_INIT} ${OPENSSL_LIBRARIES})
 
 install(TARGETS mympd DESTINATION bin)
-install(FILES mympd.1 DESTINATION ${CMAKE_INSTALL_PREFIX}/share/man/man1)
+install(FILES contrib/mympd.1 DESTINATION ${CMAKE_INSTALL_PREFIX}/share/man/man1)
 install(FILES htdocs/index.html DESTINATION share/${PROJECT_NAME}/htdocs/)
 install(FILES htdocs/player.html DESTINATION share/${PROJECT_NAME}/htdocs/)
 install(FILES htdocs/js/player.min.js DESTINATION share/${PROJECT_NAME}/htdocs/js/)
