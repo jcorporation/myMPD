@@ -798,11 +798,12 @@ int mympd_put_queue(char *buffer, unsigned int offset) {
         mpd_entity_free(entity);
     }
 
-    len += json_printf(&out, "],totalTime: %d, totalEntities: %d, offset: %d, returnedEntities: %d }",
+    len += json_printf(&out, "],totalTime: %d, totalEntities: %d, offset: %d, returnedEntities: %d, queue_version: %d }",
         totalTime,
         entity_count,
         offset,
-        entities_returned
+        entities_returned,
+        mpd.queue_version
     );
     
     if (len > MAX_SIZE) fprintf(stderr,"Buffer truncated\n");

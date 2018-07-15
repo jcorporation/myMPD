@@ -756,8 +756,13 @@ function parseState(obj) {
 function getQueue() {
     if (app.current.search.length >= 2) 
         sendAPI({"cmd": "MPD_API_SEARCH_QUEUE", "data": {"mpdtag":app.current.filter, "offset":app.current.page, "searchstr": app.current.search}}, parseQueue);
-    else
-        sendAPI({"cmd": "MPD_API_GET_QUEUE", "data": {"offset": app.current.page}}, parseQueue);
+    else {
+        var queue_version = document.getElementById('QueueList').getAttribute('data-version');
+        if (last_state && queue_version != last_state.data.queue_version)
+            sendAPI({"cmd": "MPD_API_GET_QUEUE", "data": {"offset": app.current.page}}, parseQueue);
+        else
+            document.getElementById('QueueList').classList.remove('opacity05');
+    }
 }
 
 function parseQueue(obj) {
@@ -772,7 +777,9 @@ function parseQueue(obj) {
         document.getElementById('panel-heading-queue').innerText = '';
 
     var nrItems = obj.data.length;
-    var tbody = document.getElementById(app.current.app + 'List').getElementsByTagName('tbody')[0];
+    var table = document.getElementById(app.current.app + 'List');
+    table.setAttribute('data-version', obj.queue_version);
+    var tbody = table.getElementsByTagName('tbody')[0];
     var tr = tbody.getElementsByTagName('tr');
     for (var i = 0; i < nrItems; i ++) {
         if (tr[i])
