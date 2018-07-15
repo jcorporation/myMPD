@@ -45,7 +45,7 @@ echo "Trying to link musicdir to library"
 if [ -f /etc/mpd.conf ]
 then
   LIBRARY=$(grep music /etc/mpd.conf | awk {'print $2'})
-  [ "$LIBRARY" != "" ] && ln -s $LIBRARY /usr/share/mympd/htdocs/library
+  [ "$LIBRARY" != "" ] && [ ! -e /usr/share/mympd/htdocs/library ] && ln -s $LIBRARY /usr/share/mympd/htdocs/library
 else
   echo "/etc/mpd.conf not found, you must link your musicdir manually to /usr/share/mympd/htdocs/library"
 fi
@@ -61,9 +61,6 @@ then
   systemctl enable mympd  
 fi
 
-[ -d /etc/default ] && \
-  sudo cp -v contrib/mympd.default /etc/default/mympd
-
 if [ -d /etc/mympd/ssl ]
 then
   echo "Certificates already created"
@@ -73,4 +70,4 @@ else
 fi
   
 echo "myMPD installed"
-echo "Edit /etc/systemd/system/mympd.service and/or /etc/default/mympd before starting mympd"
+echo "Edit /etc/mympd/options before starting mympd"

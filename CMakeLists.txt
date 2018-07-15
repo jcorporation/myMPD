@@ -50,4 +50,4 @@ install(FILES htdocs/css/bootstrap.min.css DESTINATION share/${PROJECT_NAME}/htd
 install(FILES htdocs/css/mpd.min.css DESTINATION share/${PROJECT_NAME}/htdocs/css/)
 install(DIRECTORY htdocs/assets DESTINATION share/${PROJECT_NAME}/htdocs)
 install(DIRECTORY DESTINATION /var/lib/${PROJECT_NAME}/)
-install(DIRECTORY DESTINATION /etc/${PROJECT_NAME}/)
+install(FILES contrib/options DESTINATION /etc/${PROJECT_NAME}/)

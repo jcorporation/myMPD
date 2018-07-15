@@ -132,20 +132,20 @@ int main(int argc, char **argv) {
     gethostname(hostname, 1023);
 
     static struct option long_options[] = {
-        {"host",         required_argument, 0, 'h'},
-        {"port",         required_argument, 0, 'p'},
+        {"mpdhost",      required_argument, 0, 'h'},
+        {"mpdport",      required_argument, 0, 'p'},
+        {"mpdpass",      required_argument, 0, 'm'},        
         {"webport",      required_argument, 0, 'w'},
         {"ssl",		 no_argument,	    0, 'S'},
         {"sslport",	 required_argument, 0, 'W'},
         {"sslcert",	 required_argument, 0, 'C'},
         {"sslkey",	 required_argument, 0, 'K'},
         {"user",         required_argument, 0, 'u'},
-        {"version",      no_argument,       0, 'v'},
-        {"help",         no_argument,       0,  0 },
-        {"mpdpass",      required_argument, 0, 'm'},
         {"streamport",	 required_argument, 0, 's'},
         {"coverimage",	 required_argument, 0, 'i'},
         {"statefile",	 required_argument, 0, 't'},
+        {"version",      no_argument,       0, 'v'},
+        {"help",         no_argument,       0,  0 },
         {0,              0,                 0,  0 }
     };
 
