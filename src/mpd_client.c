@@ -80,7 +80,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
         case MPD_API_SET_SETTINGS:
             json_scanf(msg.p, msg.len, "{ data: { notificationWeb: %d, notificationPage: %d} }", &state.a, &state.b);
             char tmpfile[200];
-            snprintf(tmpfile,200,"%s.tmp",mpd.statefile);
+            snprintf(tmpfile,200,"%s.tmp", mpd.statefile);
             json_fprintf(tmpfile, "{ notificationWeb: %d, notificationPage: %d}", state.a, state.b);
             rename(tmpfile,mpd.statefile);
             

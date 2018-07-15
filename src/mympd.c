@@ -121,7 +121,7 @@ int main(int argc, char **argv) {
     strcpy(mpd.host, "127.0.0.1");
     streamport = 8000;
     strcpy(coverimage, "folder.jpg");
-    mpd.statefile="/var/lib/mympd/mympd.state";
+    mpd.statefile = "/var/lib/mympd/mympd.state";
     struct mg_bind_opts bind_opts;
     const char *err;
     bool ssl = false;
@@ -192,7 +192,7 @@ int main(int argc, char **argv) {
             case 'v':
                 fprintf(stdout, "myMPD  %d.%d.%d\n"
                         "Copyright (C) 2018 Juergen Mang <mail@jcgames.de>\n"
-                        "Built " __DATE__ " "__TIME__ "\n",
+                        "Built " __DATE__ " "__TIME__"\n",
                         MYMPD_VERSION_MAJOR, MYMPD_VERSION_MINOR, MYMPD_VERSION_PATCH);
                 return EXIT_SUCCESS;
                 break;
@@ -229,7 +229,7 @@ int main(int argc, char **argv) {
         snprintf(s_redirect, 200, "https://%s:%s/", hostname, sslport);
         nc_http = mg_bind(&mgr, webport, ev_handler_http);
         if (nc_http == NULL) {
-           fprintf(stderr, "Error starting server on port %s", webport );
+           fprintf(stderr, "Error starting server on port %s\n", webport );
            return EXIT_FAILURE;
         }
         memset(&bind_opts, 0, sizeof(bind_opts));
@@ -245,7 +245,7 @@ int main(int argc, char **argv) {
     else {
         nc = mg_bind(&mgr, webport, ev_handler);
         if (nc == NULL) {
-           fprintf(stderr, "Error starting server on port %s", webport );
+           fprintf(stderr, "Error starting server on port %s\n", webport );
            return EXIT_FAILURE;
         }
     }
@@ -257,7 +257,7 @@ int main(int argc, char **argv) {
             printf("Unknown user\n");
             return EXIT_FAILURE;
         } else if (setgid(pw->pw_gid) != 0) {
-            printf("setgid() failed");
+            printf("setgid() failed\n");
             return EXIT_FAILURE;
         } else if (setuid(pw->pw_uid) != 0) {
             printf("setuid() failed\n");
@@ -285,8 +285,7 @@ int main(int argc, char **argv) {
     while (s_signal_received == 0) {
         mg_mgr_poll(&mgr, 200);
         current_timer = time(NULL);
-        if(current_timer - last_timer)
-        {
+        if (current_timer - last_timer) {
             last_timer = current_timer;
             mympd_poll(&mgr);
         }
