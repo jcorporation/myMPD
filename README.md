@@ -1,5 +1,5 @@
 myMPD
-====
+=====
 
 myMPD is a lightweight MPD web client that runs without a dedicated webserver or interpreter. 
 It's tuned for minimal resource usage and requires only very litte dependencies.
@@ -46,10 +46,10 @@ Dependencies
 Unix Build Instructions
 -----------------------
 
-1. install dependencies. cmake, libmpdclient (dev) and OpenSSL (dev) are available from all major distributions.
-2. build and install it ```cd /path/to/src; ./mkrelease.sh```
-3. Link your mpd music directory to ```/usr/share/mympd/htdocs/library``` and put ```folder.jpg``` files in your album directories (mkrelease.sh tries to do this for you)
-4. Configure your mpd with http stream output to use the local player
+1. Install dependencies: cmake, libmpdclient (dev) and OpenSSL (dev) are available from all major distributions.
+2. Build and install: ```cd /path/to/src; ./mkrelease.sh```.
+3. Link your mpd music directory to ```/usr/share/mympd/htdocs/library``` and put ```folder.jpg``` files in your album directories (mkrelease.sh tries to do this for you).
+4. Configure your mpd with http stream output to use the local player.
 
 Run flags
 ---------
@@ -75,9 +75,10 @@ Usage: ./mympd [OPTION]...
 SSL
 ---
 
-1. Create ca and certificate ```/path/to/src/contrib/crcert.sh``` (mkrelease.sh do this for you)
-2. Start mympd with ```-S``` (use default certificate under ```/etc/mympd/ssl/```)
-3. Import ```/etc/mympd/ssl/ca/ca.pem``` in your browser to trust the certificate
+1. Create ca and certificate ```/path/to/src/contrib/crcert.sh``` (mkrelease.sh do this for you).
+2. Start mympd with ```-S``` (use default certificate under ```/etc/mympd/ssl/```).
+3. Import ```/etc/mympd/ssl/ca/ca.pem``` in your browser to trust the certificate.
+4. myMPD redirects http requests to https, ensure that myMPD hostname is resolvable.
 
 Copyright
 ---------
