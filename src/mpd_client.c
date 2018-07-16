@@ -394,9 +394,8 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
             mpd.conn_state = MPD_FAILURE;
     }
 
-    if (n == 0) {
+    if (n == 0)
         n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"No response for cmd %s\"}", cmd);
-    }
     
     if (is_websocket(nc)) {
         #ifdef DEBUG
