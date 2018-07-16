@@ -41,6 +41,7 @@ target_link_libraries(mympd ${LIBMPDCLIENT_LIBRARY} ${CMAKE_THREAD_LIBS_INIT} ${
 
 install(TARGETS mympd DESTINATION bin)
 install(FILES contrib/mympd.1 DESTINATION ${CMAKE_INSTALL_PREFIX}/share/man/man1)
+install(FILES htdocs/mympd.webmanifest DESTINATION share/${PROJECT_NAME}/htdocs/)
 install(FILES htdocs/index.html DESTINATION share/${PROJECT_NAME}/htdocs/)
 install(FILES htdocs/player.html DESTINATION share/${PROJECT_NAME}/htdocs/)
 install(FILES htdocs/sw.min.js DESTINATION share/${PROJECT_NAME}/htdocs/)
