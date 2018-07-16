@@ -7,12 +7,16 @@ then
     java -jar buildtools/closure-compiler.jar htdocs/js/player.js > htdocs/js/player.min.js
   [ htdocs/js/mpd.js -nt  htdocs/js/mpd.min.js ] && \
     java -jar buildtools/closure-compiler.jar htdocs/js/mpd.js > htdocs/js/mpd.min.js
+  [ htdocs/sw.js -nt htdocs/sw.min.js ] && \
+    java -jar buildtools/closure-compiler.jar htdocs/sw.js > htdocs/sw.min.js
 else
   echo "buildtools/closure-compiler.jar not found, using non-minified files"
   [ htdocs/js/player.js -nt htdocs/js/player.min.js ] && \
     cp htdocs/js/player.js htdocs/js/player.min.js
   [ htdocs/js/mpd.js -nt  htdocs/js/mpd.min.js ] && \
     cp htdocs/js/mpd.js  htdocs/js/mpd.min.js
+  [ htdocs/sw.js -nt htdocs/sw.min.js ] && \
+    cp htdocs/sw.js htdocs/sw.min.js    
 fi
 
 if [ -f buildtools/closure-stylesheets.jar ]
@@ -37,6 +41,7 @@ cd ..
 echo "Replacing javascript and stylesheets with minified files"
 sudo sed -i -e 's/mpd\.css/mpd\.min\.css/' -e 's/mpd\.js/mpd\.min\.js/' /usr/share/mympd/htdocs/index.html
 sudo sed -i -e 's/mpd\.css/mpd\.min\.css/' -e 's/player\.js/player\.min\.js/' /usr/share/mympd/htdocs/player.html
+sudo sed -i -e 's/mpd\.css/mpd\.min\.css/' -e 's/mpd\.js/mpd\.min\.js/' -e 's/player\.js/player\.min\.js/' /usr/share/mympd/htdocs/sw.min.js
 
 echo "Fixing ownership of /var/lib/mympd"
 sudo chown nobody /var/lib/mympd
