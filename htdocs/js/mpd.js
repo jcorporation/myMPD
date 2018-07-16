@@ -170,8 +170,7 @@ function appRoute() {
     }    
     else if (app.current.app == 'Queue' ) {
         document.getElementById('QueueList').classList.add('opacity05');
-/*
-        if (app.last.app != app.current.app) {
+/*        if (app.last.app != app.current.app) {
             if (app.current.search.length < 2) {
                 setPagination(app.current.page);        
             }
@@ -245,7 +244,6 @@ function appRoute() {
                     '<td colspan="5">Searching...</td></tr>';
 //            else
 //                setPagination(app.current.page);        
-                
 //            document.getElementById('searchstr').value = app.current.search;
         }
 
@@ -599,6 +597,7 @@ function parseStats(obj) {
 
 function toggleBtn(btn, state) {
     var b = document.getElementById(btn);
+    if (!b) return;
     if (state == undefined)
         state = b.classList.contains('active') ? 0 : 1;
     if (state == 1) {
@@ -784,11 +783,7 @@ function getQueue() {
     if (app.current.search.length >= 2) 
         sendAPI({"cmd": "MPD_API_SEARCH_QUEUE", "data": {"mpdtag":app.current.filter, "offset":app.current.page, "searchstr": app.current.search}}, parseQueue);
     else {
-        var queue_version = document.getElementById('QueueList').getAttribute('data-version');
-        if (last_state && queue_version != last_state.data.queue_version)
-            sendAPI({"cmd": "MPD_API_GET_QUEUE", "data": {"offset": app.current.page}}, parseQueue);
-        else
-            document.getElementById('QueueList').classList.remove('opacity05');
+        sendAPI({"cmd": "MPD_API_GET_QUEUE", "data": {"offset": app.current.page}}, parseQueue);
     }
 }
 

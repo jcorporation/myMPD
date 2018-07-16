@@ -121,7 +121,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
                 }
                 free(p_charbuf1);            
             }
-            n = snprintf(mpd.buf, MAX_SIZE, "{\"type\":\"result\", \"data\": \"ok\"}");
+            n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             break;
         case MPD_API_GET_ARTISTALBUMTITLES:
             je = json_scanf(msg.p, msg.len, "{ data: { albumartist:%Q, album:%Q } }", &p_charbuf1, &p_charbuf2);
@@ -129,41 +129,52 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
                 n = mympd_put_songs_in_album(mpd.buf, p_charbuf1, p_charbuf2);
                 free(p_charbuf1);
                 free(p_charbuf2);
-            }
+            } 
             break;
         case MPD_API_WELCOME:
             n = mympd_put_welcome(mpd.buf);
             break;
         case MPD_API_UPDATE_DB:
             mpd_run_update(mpd.conn, NULL);
+            n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             break;
         case MPD_API_SET_PAUSE:
             mpd_run_toggle_pause(mpd.conn);
+            n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             break;
         case MPD_API_SET_PREV:
             mpd_run_previous(mpd.conn);
+            n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             break;
         case MPD_API_SET_NEXT:
             mpd_run_next(mpd.conn);
+            n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             break;
         case MPD_API_SET_PLAY:
             mpd_run_play(mpd.conn);
+            n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             break;
         case MPD_API_SET_STOP:
             mpd_run_stop(mpd.conn);
+            n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             break;
         case MPD_API_RM_ALL:
             mpd_run_clear(mpd.conn);
+            n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             break;
         case MPD_API_RM_TRACK:
             je = json_scanf(msg.p, msg.len, "{ data: { track:%u } }", &uint_buf1);
-            if (je == 1)
+            if (je == 1) {
                 mpd_run_delete_id(mpd.conn, uint_buf1);
+                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+            }
             break;
         case MPD_API_RM_RANGE:
             je = json_scanf(msg.p, msg.len, "{ data: { start:%u, end:%u } }", &uint_buf1, &uint_buf2);
-            if (je == 2)
+            if (je == 2) {
                 mpd_run_delete_range(mpd.conn, uint_buf1, uint_buf2);
+                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+            }
             break;
         case MPD_API_MOVE_TRACK:
             je = json_scanf(msg.p, msg.len, "{ data: { track:%u, pos:%u } }", &uint_buf1, &uint_buf2);
@@ -171,40 +182,48 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
                 uint_buf1 -= 1;
                 uint_buf2 -= 1;
                 mpd_run_move(mpd.conn, uint_buf1, uint_buf2);
+                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
             break;
         case MPD_API_PLAY_TRACK:
             je = json_scanf(msg.p, msg.len, "{ data: { track:%u } }", &uint_buf1);
-            if (je == 1)        
+            if (je == 1) {
                 mpd_run_play_id(mpd.conn, uint_buf1);
+                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+            }
             break;
         case MPD_API_GET_OUTPUTNAMES:
             n = mympd_put_outputnames(mpd.buf);
             break;
         case MPD_API_TOGGLE_OUTPUT:
             je = json_scanf(msg.p, msg.len, "{ data: { output:%u, state:%u } }", &uint_buf1, &uint_buf2);
-            if (je == 2)
-            {
+            if (je == 2) {
                 if (uint_buf2)
                     mpd_run_enable_output(mpd.conn, uint_buf1);
                 else
                     mpd_run_disable_output(mpd.conn, uint_buf1);
+                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
             break;
         case MPD_API_SET_VOLUME:
             je = json_scanf(msg.p, msg.len, "{ data: { volume:%u } }", &uint_buf1);
-            if (je == 1)
+            if (je == 1) {
                 mpd_run_set_volume(mpd.conn, uint_buf1);
+                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+            }
             break;
         case MPD_API_SET_SEEK:
             je = json_scanf(msg.p, msg.len, "{ data: { songid:%u, seek:%u } }", &uint_buf1, &uint_buf2);
-            if (je == 2)
+            if (je == 2) {
                 mpd_run_seek_id(mpd.conn, uint_buf1, uint_buf2);
+                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+            }
             break;
         case MPD_API_GET_QUEUE:
             je = json_scanf(msg.p, msg.len, "{ data: { offset:%u } }", &uint_buf1);
-            if (je == 1)
+            if (je == 1) {
                 n = mympd_put_queue(mpd.buf, uint_buf1);
+            }
             break;
         case MPD_API_GET_CURRENT_SONG:
                 n = mympd_put_current_song(mpd.buf);
@@ -251,6 +270,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
             if (je == 2) {
                 mpd_run_add_id_to(mpd.conn, p_charbuf1, uint_buf1);
                 free(p_charbuf1);
+                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
             break;
         case MPD_API_REPLACE_TRACK:
@@ -260,6 +280,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
                 mpd_run_add(mpd.conn, p_charbuf1);
                 free(p_charbuf1);
                 mpd_run_play(mpd.conn);
+                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
             break;
         case MPD_API_ADD_TRACK:
@@ -267,6 +288,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
             if (je == 1) {
                 mpd_run_add(mpd.conn, p_charbuf1);
                 free(p_charbuf1);
+                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
             break;
         case MPD_API_ADD_PLAY_TRACK:
@@ -276,6 +298,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
                 if(int_buf != -1)
                     mpd_run_play_id(mpd.conn, int_buf);
                 free(p_charbuf1);
+                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
             break;
         case MPD_API_REPLACE_PLAYLIST:
@@ -285,6 +308,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
                 mpd_run_load(mpd.conn, p_charbuf1);
                 free(p_charbuf1);
                 mpd_run_play(mpd.conn);
+                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
             break;
         case MPD_API_ADD_PLAYLIST:
@@ -292,6 +316,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
             if (je == 1) {
                 mpd_run_load(mpd.conn, p_charbuf1);
                 free(p_charbuf1);
+                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
             break;
         case MPD_API_SAVE_QUEUE:
@@ -299,6 +324,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
             if (je == 1) {
                 mpd_run_save(mpd.conn, p_charbuf1);
                 free(p_charbuf1);
+                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
             break;
         case MPD_API_SEARCH_QUEUE:
@@ -327,6 +353,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
             break;
         case MPD_API_SEND_SHUFFLE:
             mpd_run_shuffle(mpd.conn);
+            n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             break;
         case MPD_API_SEND_MESSAGE:
             je = json_scanf(msg.p, msg.len, "{ data: { channel:%Q, text:%Q } }", &p_charbuf1, &p_charbuf2);
@@ -334,6 +361,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
                 mpd_run_send_message(mpd.conn, p_charbuf1, p_charbuf2);
                 free(p_charbuf1);
                 free(p_charbuf2);
+                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
             break;
         case MPD_API_RM_PLAYLIST:
@@ -341,6 +369,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
             if (je == 1) {
                 mpd_run_rm(mpd.conn, p_charbuf1);
                 free(p_charbuf1);
+                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
             break;
         case MPD_API_GET_SETTINGS:
@@ -355,7 +384,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
     if (mpd.conn_state == MPD_CONNECTED && mpd_connection_get_error(mpd.conn) != MPD_ERROR_SUCCESS)
     {
         #ifdef DEBUG
-        fprintf(stdout,"Error: %s\n",mpd_connection_get_error_message(mpd.conn));
+        fprintf(stderr,"Error: %s\n", mpd_connection_get_error_message(mpd.conn));
         #endif
         n = snprintf(mpd.buf, MAX_SIZE, "{\"type\":\"error\", \"data\": \"%s\"}", 
             mpd_connection_get_error_message(mpd.conn));
@@ -365,20 +394,21 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
             mpd.conn_state = MPD_FAILURE;
     }
 
-    if (n > 0) {
-        if (is_websocket(nc)) {
-            #ifdef DEBUG
-            fprintf(stdout,"Send websocket response:\n %s\n",mpd.buf);
-            #endif
-            mg_send_websocket_frame(nc, WEBSOCKET_OP_TEXT, mpd.buf, n);
-        }
-        else {
-            #ifdef DEBUG
-            fprintf(stdout,"Send http response:\n %s\n",mpd.buf);
-            #endif
-            mg_send_http_chunk(nc, mpd.buf, n);
-        }
-    }            
+    if (n == 0)
+        n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"No response for cmd %s\"}", cmd);
+    
+    if (is_websocket(nc)) {
+        #ifdef DEBUG
+        fprintf(stdout,"Send websocket response:\n %s\n",mpd.buf);
+        #endif
+        mg_send_websocket_frame(nc, WEBSOCKET_OP_TEXT, mpd.buf, n);
+    }
+    else {
+        #ifdef DEBUG
+        fprintf(stdout,"Send http response:\n %s\n",mpd.buf);
+        #endif
+        mg_send_http_chunk(nc, mpd.buf, n);
+    }
 }
 
 int mympd_close_handler(struct mg_connection *c) {
