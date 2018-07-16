@@ -170,14 +170,12 @@ function appRoute() {
     }    
     else if (app.current.app == 'Queue' ) {
         document.getElementById('QueueList').classList.add('opacity05');
-
 /*        if (app.last.app != app.current.app) {
             if (app.current.search.length < 2) {
                 setPagination(app.current.page);        
             }
         }
 */
-
         var btns = document.getElementById('searchqueuetag').getElementsByTagName('button');
         for (var i = 0; i < btns.length; i++) {
             btns[i].classList.remove('active');
@@ -246,7 +244,6 @@ function appRoute() {
                     '<td colspan="5">Searching...</td></tr>';
 //            else
 //                setPagination(app.current.page);        
-                
 //            document.getElementById('searchstr').value = app.current.search;
         }
 
