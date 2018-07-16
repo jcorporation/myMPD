@@ -1,17 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <title>myMPD</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="myMPD - fast and lightweight MPD webclient">
   <meta name="author" content="mail@jcgames.de">
-  <title>myMPD</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="theme-color" content="#343a40">
   <link href="css/bootstrap.min.css" rel="stylesheet">
   <link href="css/mpd.css" rel="stylesheet">
-  <link href="assets/favicon.ico" rel="shortcut icon" type="image/vnd.microsoft.icon">
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
-  <link rel="apple-touch-icon" href="assets/appicon.png"/>
+  <link href="assets/favicon.ico" rel="shortcut icon" type="image/vnd.microsoft.icon">  
+  <link rel="manifest" href="mympd.webmanifest">
+  <link rel="apple-touch-icon" href="assets/appicon-167.png">
 </head>
 <body>
   <header>
@@ -21,15 +23,12 @@
             <span class="material-icons header-logo">play_circle_outline</span>myMPD
           </a>
           <div class="dropdown-menu bg-dark">
-            <form id="search" class="px-4 py-3" role="search">
-              <input id="inputSearch" type="text" class="form-control" placeholder="Search">
-            </form>
-            <div class="dropdown-divider"></div>
             <a id="nav-addstream" class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#modalAddstream">Add Stream</a>
             <a id="nav-updatedb" class="dropdown-item text-light bg-dark" href="#" data-href="{'cmd':'updateDB','options':[]}">Update Database</a>
             <a id="nav-localplayer" class="dropdown-item text-light bg-dark" href="#" data-href="{'cmd':'openLocalPlayer','options':[]}">Local Player</a>
             <a id="nav-settings" class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#modalSettings">Settings</a>
             <a id="nav-about" class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#modalAbout">About</a>
+            <a id="btnAdd" class="dropdown-item text-light bg-dark hide" href="#">Add2HomeScreen</a>
           </div>
         </div>
         <div class="btn-toolbar col-auto pl-0 pr-0" role="toolbar">
@@ -139,7 +138,7 @@
         </div>
 
         <div class="table-responsive-md">
-          <table id="QueueList" class="table table-hover table-sm">
+          <table id="QueueList" class="table table-hover table-sm" data-version="">
             <col class="tblnum"/>
             <col class="tbltitle"/>
             <col class="tblartist"/>
@@ -379,15 +378,15 @@
       </div>
       <div class="card-body">
         <div class="btn-toolbar card-toolbar" id="SearchButtons" role="toolbar">
-          <form id="search2" role="search">
+          <form id="search" role="search">
             <div class="input-group mr-2">
-              <input type="text" class="form-control" placeholder="Search" id="searchstr2"/>
+              <input type="text" class="form-control" placeholder="Search" id="searchstr"/>
               <div class="input-group-append">
                 <button title="Select tags to search" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
                   <span class="material-icons">search</span>
-                  <span id="searchtags2desc">Any Tag</span>
+                  <span id="searchtagsdesc">Any Tag</span>
                 </button>
-                <div class="dropdown-menu bg-dark dropdown-menu-right px-2" id="searchtags2">
+                <div class="dropdown-menu bg-dark dropdown-menu-right px-2" id="searchtags">
                   <h6 class="dropdown-header text-light">Search in Tag</h6>
                   <button type="button" class="btn btn-secondary active btn-block">Any Tag</button>
                   <button type="button" class="btn btn-secondary btn-block">Title</button>
@@ -582,31 +581,26 @@
           </button>
         </div>
         <div class="modal-body">
-          <h4><a class="text-success" href="https://github.com/jcorporation/ympd">myMPD</a>&nbsp;&ndash;&nbsp;<small>MPD Web GUI - written in C, utilizing Websockets and Bootstrap/JS</small></h4>
+          <h4><a class="text-success" rel="noreferrer" href="https://github.com/jcorporation/ympd">myMPD</a>&nbsp;&ndash;&nbsp;<small>MPD Web GUI - written in C, utilizing Websockets and Bootstrap/JS</small></h4>
           <p>myMPD is a lightweight MPD web client that runs without a dedicated webserver or interpreter. It's tuned for minimal resource usage and requires only very litte dependencies. myMPD is a fork of <a class="text-success" href="http://www.ympd.org">ympd</a>.</p>
           <ul>
             <li>Version: <span id="mympdVersion"></span></li>
-            <li>Homepage: <a class="text-success" target="_blank" href="https://github.com/jcorporation/mympd">https://github.com/jcorporation/mympd</a></li>
+            <li>Homepage: <a class="text-success" target="_blank" rel="noreferrer" href="https://github.com/jcorporation/mympd">https://github.com/jcorporation/mympd</a></li>
             <li>Autor: Jürgen Mang &lt;<a class="text-success" href="mailto:mail@jcgames.de">mail@jcgames.de</a>&gt;</li>
           </ul>
-          <hr/>
-          <h5>Database Statistics</h5>
           <table class="table table-sm">
             <tbody>
+              <tr><td colspan="2" class="pt-3"><h5>Database Statistics</h5></td></tr>
               <tr><th>Artists</th><td id="mpdstats_artists"></td></tr>
               <tr><th>Albums</th><td id="mpdstats_albums"></td></tr>
               <tr><th>Songs</th><td id="mpdstats_songs"></td></tr>
               <tr><th>DB Play Time</th><td id="mpdstats_dbplaytime"></td></tr>
               <tr><th>DB Updated</th><td id="mpdstats_dbupdated"></td></tr>
-            </tbody>
-          </table>
-          <hr/>
-          <h5>Play Statistics</h5>
-          <table class="table table-sm">
-            <tbody>
-              <tr><th>MPD Version</th><td id="mpdVersion"></td></tr>
+              <tr><td colspan="2" class="pt-3"><h5>Play Statistics</h5></td></tr>
               <tr><th>Uptime</th><td id="mpdstats_uptime"></td></tr>
               <tr><th>Play Time</th><td id="mpdstats_playtime"></td></tr>
+              <tr><td colspan="2" class="pt-3"><h5>MPD</h5></td></tr>
+              <tr><th>Protocol Version</th><td id="mpdVersion"></td></tr>
             </tbody>
           </table>          
         </div>
@@ -673,7 +667,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="savequeueLabel"><span class="material-icons title-icon">music_note</span> Song Details</h5>
+          <h5 class="modal-title"><span class="material-icons title-icon">music_note</span> Song Details</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>          
