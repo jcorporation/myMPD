@@ -379,10 +379,8 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
             n = mympd_get_stats(mpd.buf);
         break;
     }
-    free(cmd);
-    
-    if (mpd.conn_state == MPD_CONNECTED && mpd_connection_get_error(mpd.conn) != MPD_ERROR_SUCCESS)
-    {
+
+    if (mpd.conn_state == MPD_CONNECTED && mpd_connection_get_error(mpd.conn) != MPD_ERROR_SUCCESS) {
         #ifdef DEBUG
         fprintf(stderr,"Error: %s\n", mpd_connection_get_error_message(mpd.conn));
         #endif
@@ -409,6 +407,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
         #endif
         mg_send_http_chunk(nc, mpd.buf, n);
     }
+    free(cmd);    
 }
 
 int mympd_close_handler(struct mg_connection *c) {
