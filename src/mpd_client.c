@@ -57,7 +57,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
     size_t n = 0;
     char *cmd;
     unsigned int uint_buf1, uint_buf2;
-    int je, int_buf; 
+    int je, int_buf, int_rc; 
     float float_buf;
     char *p_charbuf1, *p_charbuf2;
     struct mympd_state { int a; int b; } state = { .a = 0, .b = 0 };
@@ -266,11 +266,16 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
             }
             break;
         case MPD_API_ADD_TRACK_AFTER:
-            je = json_scanf(msg.p, msg.len, "{ data: { uri:%Q, to:%u } }", &p_charbuf1, &uint_buf1);
+            je = json_scanf(msg.p, msg.len, "{ data: { uri:%Q, to:%d } }", &p_charbuf1, &int_buf);
+//            if (int_buf == -1)
+//                int_buf = 1;
             if (je == 2) {
-                mpd_run_add_id_to(mpd.conn, p_charbuf1, uint_buf1);
+                int_rc = mpd_run_add_id_to(mpd.conn, p_charbuf1, int_buf);
+                if (int_rc == -1 ) 
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Cant add %s after track %d\"}", p_charbuf1, int_buf);
+                else
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"Added track %s after track %d\"}", p_charbuf1, int_buf);
                 free(p_charbuf1);
-                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
             break;
         case MPD_API_REPLACE_TRACK:

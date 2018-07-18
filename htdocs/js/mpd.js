@@ -1128,11 +1128,7 @@ function appendAfterQueue(type, uri, to, name) {
     switch(type) {
         case 'song':
             sendAPI({"cmd": "MPD_API_ADD_TRACK_AFTER", "data": {"uri": uri, "to": to}});
-            showNotification('"' + name + '" added to pos ' + to, '', '', 'success');
-            break;
-        case 'dir':
-            sendAPI({"cmd": "MPD_API_ADD_TRACK_AFTER", "data": {"uri": uri, "to": to}});
-            showNotification('"' + name + '" added to pos ' + to, '', '', 'success');
+//            showNotification('"' + name + '" added to pos ' + to, '', '', 'success');
             break;
     }
 }
@@ -1256,10 +1252,22 @@ function sendAPI(request, callback) {
     ajaxRequest.open('POST', '/api', true);
     ajaxRequest.setRequestHeader('Content-type', 'application/json');
     ajaxRequest.onreadystatechange = function() {
-        if (ajaxRequest.readyState == 4)
-            if (callback != undefined && typeof(callback) == 'function')
-                if (ajaxRequest.responseText != '')
-                    callback(JSON.parse(ajaxRequest.responseText));
+        if (ajaxRequest.readyState == 4) {
+            if (ajaxRequest.responseText != '') {
+                var obj = JSON.parse(ajaxRequest.responseText);
+                if (obj.type == 'error') {
+                    showNotification('Error', obj.data, obj.data, 'error');
+                    console.log('Error: ' + obj.data);
+                }
+                else if (obj.type == 'result' && obj.data != 'ok')
+                    showNotification(obj.data, '', '', 'success');
+                else if (callback != undefined && typeof(callback) == 'function')
+                    callback(obj);
+            }
+            else {
+                console.log('Empty response for request: ' + JSON.stringify(request));
+            }
+        }
     };
     ajaxRequest.send(JSON.stringify(request));
 }
@@ -1270,7 +1278,7 @@ function openLocalPlayer() {
 
 function updateDB() {
     sendAPI({"cmd": "MPD_API_UPDATE_DB"});
-    showNotification('Updating MPD Database...', '', '', 'success');
+//    showNotification('Updating MPD Database...', '', '', 'success');
 }
 
 function clickPlay() {
@@ -1426,7 +1434,7 @@ function showNotification(notificationTitle,notificationText,notificationHtml,no
             alertBox = document.getElementById('alertBox');
         }
         alertBox.classList.add('alert','alert-' + notificationType);
-        alertBox.innerHTML = '<div><strong>' + notificationTitle + '</strong>' + notificationHtml + '</div>';
+        alertBox.innerHTML = '<div><strong>' + notificationTitle + '</strong><br/>' + notificationHtml + '</div>';
         document.getElementsByTagName('main')[0].append(alertBox);
         document.getElementById('alertBox').classList.add('alertBoxActive');
         if (alertTimeout)
