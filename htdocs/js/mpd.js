@@ -1433,6 +1433,7 @@ function showNotification(notificationTitle,notificationText,notificationHtml,no
         else {
             alertBox = document.getElementById('alertBox');
         }
+        alertBox.classList.remove('alert-success', 'alert-error');
         alertBox.classList.add('alert','alert-' + notificationType);
         alertBox.innerHTML = '<div><strong>' + notificationTitle + '</strong><br/>' + notificationHtml + '</div>';
         document.getElementsByTagName('main')[0].append(alertBox);
