@@ -56,7 +56,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
 {
     size_t n = 0;
     char *cmd;
-    unsigned int uint_buf1, uint_buf2;
+    unsigned int uint_buf1, uint_buf2, uint_rc;
     int je, int_buf, int_rc; 
     float float_buf;
     char *p_charbuf1, *p_charbuf2;
@@ -135,8 +135,9 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
             n = mympd_put_welcome(mpd.buf);
             break;
         case MPD_API_UPDATE_DB:
-            mpd_run_update(mpd.conn, NULL);
-            n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+            uint_rc = mpd_run_update(mpd.conn, NULL);
+            if (uint_rc > 0)
+                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"Updating MPD Database...\"}");
             break;
         case MPD_API_SET_PAUSE:
             mpd_run_toggle_pause(mpd.conn);
@@ -267,14 +268,10 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
             break;
         case MPD_API_ADD_TRACK_AFTER:
             je = json_scanf(msg.p, msg.len, "{ data: { uri:%Q, to:%d } }", &p_charbuf1, &int_buf);
-//            if (int_buf == -1)
-//                int_buf = 1;
             if (je == 2) {
                 int_rc = mpd_run_add_id_to(mpd.conn, p_charbuf1, int_buf);
-                if (int_rc == -1 ) 
-                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Cant add %s after track %d\"}", p_charbuf1, int_buf);
-                else
-                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"Added track %s after track %d\"}", p_charbuf1, int_buf);
+                if (int_rc > -1 ) 
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"Added song %s after pos %d\"}", p_charbuf1, int_buf);
                 free(p_charbuf1);
             }
             break;
@@ -615,7 +612,7 @@ int mympd_put_welcome(char *buffer) {
     int len;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
     
-    len = json_printf(&out, "{type: %Q, data: { version: %Q}}", "welcome", MYMPD_VERSION);
+    len = json_printf(&out, "{type: welcome, data: { version: %Q}}", MYMPD_VERSION);
     
     if (len > MAX_SIZE) fprintf(stderr,"Buffer truncated\n");
     return len;
