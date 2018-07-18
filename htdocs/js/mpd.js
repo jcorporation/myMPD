@@ -1195,7 +1195,7 @@ function showMenu(el) {
         (app.current.app == 'Browse' && app.current.tab == 'Database' && app.current.view == 'Album')) {
         menu += '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'appendQueue\', \'options\': [\'' + type + '\',\'' + 
             uri + '\',\'' + name + '\']}">Append to queue</a>' +
-            ( type != 'plist' ? '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'appendAfterQueue\', \'options\': [\'' + type + '\',\'' +
+            ( type == 'song' ? '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'appendAfterQueue\', \'options\': [\'' + type + '\',\'' +
             uri + '\',' + last_state.data.nextsongpos + ',\'' + name + '\']}">Add after current playing song</a>' : '') +
             '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'replaceQueue\', \'options\': [\'' + type + '\',\'' + 
             uri + '\',\'' + name + '\']}">Replace queue</a>' +
@@ -1451,6 +1451,8 @@ function notificationsSupported() {
 }
 
 function songChange(obj) {
+    if (obj.type == 'error') 
+        return;
     var cur_song = obj.data.title + obj.data.artist + obj.data.album + obj.data.uri + obj.data.currentsongid;
     if (last_song == cur_song) 
         return;
