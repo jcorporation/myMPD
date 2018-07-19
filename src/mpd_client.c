@@ -271,7 +271,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
             if (je == 2) {
                 int_rc = mpd_run_add_id_to(mpd.conn, p_charbuf1, int_buf);
                 if (int_rc > -1 ) 
-                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"Added song %s after pos %d\"}", p_charbuf1, int_buf);
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
                 free(p_charbuf1);
             }
             break;

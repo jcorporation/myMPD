@@ -457,7 +457,7 @@ function appInit() {
         event.preventDefault();
     }, false);
     
-    if ('serviceWorker' in navigator) {
+    if ('serviceWorker' in navigator && document.URL.substring(0, 5) == 'https') {
         window.addEventListener('load', function() {
             navigator.serviceWorker.register('/sw.js', {scope: '/'}).then(function(registration) {
                 // Registration was successful
@@ -717,7 +717,7 @@ function parseState(obj) {
 
     //Set volume
     if (obj.data.volume == -1) {
-      domCache.volumePrct.innerText('Volumecontrol disabled');
+      domCache.volumePrct.innerText = 'Volumecontrol disabled';
       domCache.volumeControl.classList.add('hide');
     } else {
         domCache.volumeControl.classList.remove('hide');
@@ -1128,7 +1128,7 @@ function appendAfterQueue(type, uri, to, name) {
     switch(type) {
         case 'song':
             sendAPI({"cmd": "MPD_API_ADD_TRACK_AFTER", "data": {"uri": uri, "to": to}});
-//            showNotification('"' + name + '" added to pos ' + to, '', '', 'success');
+            showNotification('"' + name + '" added to pos ' + to, '', '', 'success');
             break;
     }
 }
@@ -1180,11 +1180,15 @@ function showMenu(el) {
     var type = el.getAttribute('data-type');
     var uri = decodeURI(el.getAttribute('data-uri'));
     var name = el.getAttribute('data-name');
+    var nextsongpos = 0;
     if (type == null || uri == null) {
         type = el.parentNode.parentNode.getAttribute('data-type');
         uri = decodeURI(el.parentNode.parentNode.getAttribute('data-uri'));
         name = el.parentNode.parentNode.getAttribute('data-name');
     }
+    
+    if (last_state)
+        nextsongpos = last_state.data.nextsongpos;
 
     var menu = '';
     if ((app.current.app == 'Browse' && app.current.tab == 'Filesystem') || app.current.app == 'Search' ||
@@ -1192,7 +1196,7 @@ function showMenu(el) {
         menu += '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'appendQueue\', \'options\': [\'' + type + '\',\'' + 
             uri + '\',\'' + name + '\']}">Append to queue</a>' +
             ( type == 'song' ? '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'appendAfterQueue\', \'options\': [\'' + type + '\',\'' +
-            uri + '\',' + last_state.data.nextsongpos + ',\'' + name + '\']}">Add after current playing song</a>' : '') +
+            uri + '\',' + nextsongpos + ',\'' + name + '\']}">Add after current playing song</a>' : '') +
             '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'replaceQueue\', \'options\': [\'' + type + '\',\'' + 
             uri + '\',\'' + name + '\']}">Replace queue</a>' +
 //            ( type != 'plist' ? '<div class="dropdown-divider"></div><a class="dropdown-item" href="#">Add to playlist</a>' : '') +
@@ -1219,7 +1223,7 @@ function showMenu(el) {
             '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'delQueueSong\', \'options\': [\'range\',' + 
             (parseInt(el.parentNode.parentNode.getAttribute('data-songpos'))-1) + ',-1]}">Remove all downwards</a>' +
             '<div class="dropdown-divider"></div>' +
-            '<a class="dropdown-item" data-href="{\'cmd\': \'songDetails\', \'options\': [\'' + uri + '\']}" href="#">Songdetails</a>';
+            ( uri.indexOf('http') == -1 ? '<a class="dropdown-item" data-href="{\'cmd\': \'songDetails\', \'options\': [\'' + uri + '\']}" href="#">Songdetails</a>' : '');
     }    
     if (el.Popover == undefined) {
         new Popover(el, { trigger: 'click', template: '<div class="popover" role="tooltip">' +
