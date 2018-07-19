@@ -1,3 +1,4 @@
+"use strict";
 /* myMPD
    (c) 2018 Juergen Mang <mail@jcgames.de>
    This project's homepage is: https://github.com/jcorporation/mympd
@@ -136,6 +137,7 @@ function appGoto(a,t,v,s) {
 
 function appRoute() {
     var hash = decodeURI(location.hash);
+    var params;
     if (params = hash.match(/^\#\/(\w+)\/?(\w+)?\/?(\w+)?\!((\d+)\/([^\/]+)\/(.*))$/)) {
         app.current.app = params[1];
         app.current.tab = params[2];
@@ -1532,7 +1534,7 @@ function doSetFilterLetter(x) {
 function addFilterLetter(x) {
     var filter = '<button class="mr-1 mb-1 btn btn-sm btn-secondary material-icons material-icons-small">delete</button>' +
         '<button class="mr-1 mb-1 btn btn-sm btn-secondary">#</button>';
-    for (i = 65; i <= 90; i++) {
+    for (var i = 65; i <= 90; i++) {
         filter += '<button class="mr-1 mb-1 btn-sm btn btn-secondary">' + String.fromCharCode(i) + '</button>';
     }
     var letters = document.getElementById(x);
