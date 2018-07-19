@@ -69,14 +69,17 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
     
     je = json_scanf(msg.p, msg.len, "{cmd:%Q}", &cmd);
     if (je == 1) 
-         cmd_id = get_cmd_id(cmd);
+        cmd_id = get_cmd_id(cmd);
     else
-        return;
+        cmd_id = get_cmd_id("MPD_API_UNKNOWN");
 
     if(cmd_id == -1)
-        return;
+        cmd_id = get_cmd_id("MPD_API_UNKNOWN");
     
     switch(cmd_id) {
+        case MPD_API_UNKNOWN:
+            n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Unknown request: %.*s\"}", msg.len, msg.p );
+            break;
         case MPD_API_SET_SETTINGS:
             json_scanf(msg.p, msg.len, "{ data: { notificationWeb: %d, notificationPage: %d} }", &state.a, &state.b);
             char tmpfile[200];
