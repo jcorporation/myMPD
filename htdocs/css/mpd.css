@@ -213,3 +213,10 @@ div.alertBoxActive {
 .opacity05 {
  opacity:0.5;
 }
+
+caption {
+ caption-side: top;
+ font-size: 120%;
+ font-weight: bold;
+ color: black;
+}
