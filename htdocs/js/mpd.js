@@ -1354,7 +1354,7 @@ function showMenu(el) {
             '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'playlistDetails\', \'options\': [\'' + uri + '\']}">Edit playlist</a>' +
             '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'showRenamePlaylist\', \'options\': [\'' + uri + '\']}">Rename playlist</a>' + 
             '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'delPlaylist\', \'options\': [\'' + 
-            uri + '\',\'' + name + '\']}">Delete playlist</a>';
+            uri + '\']}">Delete playlist</a>';
     }
     else if (app.current.app == 'Browse' && app.current.tab == 'Playlists' && app.current.view == 'Detail') {
         menu += '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'appendQueue\', \'options\': [\'' + type + '\',\'' + 
@@ -1462,9 +1462,9 @@ function delQueueSong(mode, start, end) {
         sendAPI({"cmd": "MPD_API_RM_TRACK", "data": { "track": start}});
 }
 
-function delPlaylist(plist, name) {
-    sendAPI({"cmd": "MPD_API_RM_PLAYLIST", "data": {"plist": plist}});
-    document.getElementById('BrowsePlaylistsList').querySelector('tr[data-uri=' + encodeURI(plist) + ']').remove();
+function delPlaylist(uri) {
+    sendAPI({"cmd": "MPD_API_RM_PLAYLIST", "data": {"uri": uri}});
+    document.getElementById('BrowsePlaylistsAllList').querySelector('tr[data-uri=' + encodeURI(uri) + ']').remove();
 }
 
 function confirmSettings() {

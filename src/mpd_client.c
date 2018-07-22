@@ -412,7 +412,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
             }
             break;
         case MPD_API_RM_PLAYLIST:
-            je = json_scanf(msg.p, msg.len, "{ data: { plist:%Q } }", &p_charbuf1);
+            je = json_scanf(msg.p, msg.len, "{ data: { uri:%Q } }", &p_charbuf1);
             if (je == 1) {
                 mpd_run_rm(mpd.conn, p_charbuf1);
                 free(p_charbuf1);
