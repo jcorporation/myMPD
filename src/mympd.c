@@ -100,7 +100,6 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
 static void ev_handler_http(struct mg_connection *nc_http, int ev, void *ev_data) {
     switch(ev) {
         case MG_EV_HTTP_REQUEST: {
-
             printf("Redirecting to %s\n", s_redirect);
             mg_http_send_redirect(nc_http, 301, mg_mk_str(s_redirect), mg_mk_str(NULL));
             break;
