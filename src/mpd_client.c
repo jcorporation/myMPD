@@ -181,7 +181,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
             }
             break;
         case MPD_API_MOVE_TRACK:
-            je = json_scanf(msg.p, msg.len, "{ data: { track:%u, pos:%u } }", &uint_buf1, &uint_buf2);
+            je = json_scanf(msg.p, msg.len, "{ data: { from:%u, to:%u } }", &uint_buf1, &uint_buf2);
             if (je == 2) {
                 uint_buf1 -= 1;
                 uint_buf2 -= 1;

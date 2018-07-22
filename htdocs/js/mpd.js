@@ -31,6 +31,7 @@ var playstate = '';
 var settings = {};
 var alertTimeout;
 let deferredPrompt;
+var dragEl;
 
 var app = {};
 app.apps = { "Playback": { "state": "0/-/", "scrollPos": 0 },
@@ -363,6 +364,57 @@ function appInit() {
             event.stopPropagation();
             sendAPI({"cmd": "MPD_API_TOGGLE_OUTPUT", "data": {"output": event.target.getAttribute('data-output-id'), "state": (event.target.classList.contains('active') ? 0 : 1)}});
             toggleBtn(event.target.id);
+    }, false);
+    
+    var queueBody=document.getElementById('QueueList').getElementsByTagName('tbody')[0];
+    queueBody.addEventListener('dragstart', function(event) {
+        if (event.target.nodeName == 'TR') {
+            //event.target.style.opacity = '0.4';
+            event.target.style.display = 'none';
+            event.dataTransfer.effectAllowed = 'move';
+            event.dataTransfer.setData('Text', event.target.getAttribute('id'));
+            dragEl = event.target.cloneNode(true);
+        }
+    }, false);
+    queueBody.addEventListener('dragleave', function(event) {
+        if (event.target.nodeName == 'TD') {
+            event.preventDefault();
+            event.target.parentNode.classList.remove('dragover');
+        }
+    }, false);
+    queueBody.addEventListener('dragover', function(event) {
+        event.preventDefault();
+        var tr = queueBody.querySelectorAll('.dragover');
+        var trLen = tr.length;
+        for (var i = 0; i < trLen; i++) {
+            tr[i].classList.remove('dragover');
+        }
+        event.target.parentNode.classList.add('dragover');
+        event.dataTransfer.dropEffect = 'move';
+    }, false);
+    queueBody.addEventListener('dragend', function(event) {
+        var tr = queueBody.querySelectorAll('.dragover');
+        var trLen = tr.length;
+        for (var i = 0; i < trLen; i++) {
+            tr[i].classList.remove('dragover');
+        }
+        document.getElementById(event.dataTransfer.getData('Text')).style.display = '';
+    }, false);
+    queueBody.addEventListener('drop', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        var oldSongpos = document.getElementById(event.dataTransfer.getData('Text')).getAttribute('data-songpos');
+        var newSongpos = event.target.parentNode.getAttribute('data-songpos');
+        document.getElementById(event.dataTransfer.getData('Text')).remove();
+        dragEl.style.display = '';
+        queueBody.insertBefore(dragEl, event.target.parentNode);
+        var tr = queueBody.getElementsByTagName('tr');
+        var trLen = tr.length;
+        for (var i = 0; i < trLen; i++) {
+            tr[i].classList.remove('dragover');
+        }
+        document.getElementById('QueueList').classList.add('opacity05');
+        sendAPI({"cmd": "MPD_API_MOVE_TRACK","data": {"from": oldSongpos, "to": newSongpos}});
     }, false);
     
     document.getElementById('QueueList').addEventListener('click', function(event) {
@@ -825,14 +877,14 @@ function parseQueue(obj) {
     var tr = tbody.getElementsByTagName('tr');
     for (var i = 0; i < nrItems; i++) {
         if (tr[i])
-            if (tr[i].getAttribute('data-trackid') == obj.data[i].id)
+            if (tr[i].getAttribute('data-trackid') == obj.data[i].id && tr[i].getAttribute('data-songpos') == (obj.data[i].pos + 1))
                 continue;
                 
         var minutes = Math.floor(obj.data[i].duration / 60);
         var seconds = obj.data[i].duration - minutes * 60;
         var duration = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
         var row = document.createElement('tr');
-        
+        row.setAttribute('draggable','true');
         row.setAttribute('data-trackid', obj.data[i].id);
         row.setAttribute('id','queueTrackId' + obj.data[i].id);
         row.setAttribute('data-songpos', (obj.data[i].pos + 1));
@@ -853,7 +905,7 @@ function parseQueue(obj) {
     for (var i = tr_length; i >= nrItems; i --) {
         tr[i].remove();
     }                    
-                        
+
     if (obj.type == 'queuesearch' && nrItems == 0)
         tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
                           '<td colspan="5">No results, please refine your search!</td></tr>';
