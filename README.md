@@ -14,9 +14,12 @@ Design principles:
  - Keep security in mind
 
 Featurelist:
- - Browse mpd database by artist
+ - Control mpd functions (play, pause, etc.)
+ - Set mpd settings (repeat, random, etc.)
+ - Browse mpd database by albumartist
  - Browse filesystem and playlists
  - Queue management
+ - Playlist management
  - Advanced search
  - Progressiv Web App enabled
  - Local coverart support
