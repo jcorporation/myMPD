@@ -78,7 +78,7 @@ domCache.btnAdd = document.getElementById('btnAdd');
 var modalConnectionError = new Modal(document.getElementById('modalConnectionError'));
 var modalSettings = new Modal(document.getElementById('modalSettings'));
 var modalAddstream = new Modal(document.getElementById('modalAddstream'));
-var modalSavequeue = new Modal(document.getElementById('modalSavequeue'));
+var modalSavequeue = new Modal(document.getElementById('modalSaveQueue'));
 var modalSongDetails = new Modal(document.getElementById('modalSongDetails'));
 var modalAddToPlaylist = new Modal(document.getElementById('modalAddToPlaylist'));
 var modalRenamePlaylist = new Modal(document.getElementById('modalRenamePlaylist'));
@@ -300,6 +300,14 @@ function appInit() {
     document.getElementById('modalAbout').addEventListener('shown.bs.modal', function () {
         sendAPI({"cmd": "MPD_API_GET_STATS"}, parseStats);
     });
+    
+    document.getElementById('modalSaveQueue').addEventListener('shown.bs.modal', function () {
+        var plName = document.getElementById('saveQueueName');
+        plName.focus();
+        plName.value = '';
+        plName.classList.remove('is-invalid');
+        document.getElementById('saveQueueFrm').classList.remove('was-validated');
+    });
         
     document.getElementById('modalSettings').addEventListener('shown.bs.modal', function () {
         getSettings();
@@ -310,7 +318,11 @@ function appInit() {
     });
 
     document.getElementById('modalAddstream').addEventListener('shown.bs.modal', function () {
-        document.getElementById('streamurl').focus();
+        var streamUrl = document.getElementById('streamUrl')
+        streamUrl.focus();
+        streamUrl.value = '';
+        streamUrl.classList.remove('is-invalid');
+        document.getElementById('addStreamFrm').classList.remove('was-validated');
     });
     
     addFilterLetter('BrowseFilesystemFilterLetters');
@@ -1542,22 +1554,24 @@ function gotoPage(x) {
 }
 
 function addStream() {
-    var streamUrl = document.getElementById('streamurl');
-    if (streamUrl.value != '')
-        sendAPI({"cmd": "MPD_API_ADD_TRACK", "data": {"uri": streamUrl.value}});
-    streamUrl.value = '';
-    modalAddstream.hide();
+    var streamUrl = document.getElementById('streamUrl').value;
+    if (streamUrl != '' && streamUrl.indexOf('http') == 0) {
+        sendAPI({"cmd": "MPD_API_ADD_TRACK", "data": {"uri": streamUrl}});
+        modalAddstream.hide();
+    }
+    else {
+        document.getElementById('streamUrl').classList.add('is-invalid');
+        document.getElementById('addStreamFrm').classList.add('was-validated');
+    }
 }
 
 function saveQueue() {
-    var plName = document.getElementById('saveQueueName');
-    var valid = plName.value.replace(/\w/g,'');
-    if (plName.value != '' && valid == '') {
-        sendAPI({"cmd":"MPD_API_SAVE_QUEUE", "data": {"plist": plName.value}});
+    var plName = document.getElementById('saveQueueName').value;
+    var valid = plName.replace(/\w/g,'');
+    if (plName != '' && valid == '') {
+        sendAPI({"cmd":"MPD_API_SAVE_QUEUE", "data": {"plist": plName}});
         modalSavequeue.hide();
-        plName.value = '';
-        document.getElementById('saveQueueFrm').classList.remove('was-validated');
-        document.getElementById('saveQueueName').classList.remove('is-invalid');
+
     }
     else {
         document.getElementById('saveQueueName').classList.add('is-invalid');

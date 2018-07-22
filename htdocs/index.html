@@ -104,7 +104,7 @@
             <button type="button" class="btn btn-secondary" data-href="{'cmd': 'sendAPI', 'options': [{'cmd':'MPD_API_RM_ALL'}]}" title="Clear queue">
               <span class="material-icons">clear_all</span>
             </button>
-            <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#modalSavequeue" title="Save queue">
+            <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#modalSaveQueue" title="Save queue">
               <span class="material-icons">save</span>
             </button>
           </div>
@@ -696,11 +696,12 @@
           </button>
         </div>
         <div class="modal-body">
-          <form id="addstreamFrm">
+          <form id="addStreamFrm" class="needs-validation" novalidate>
             <div class="row">
               <div class="form-group col-md-12">
-                <label class="control-label" for="streamurl">Stream URL</label>
-                <input type="text" class="form-control" id="streamurl" />
+                <label class="control-label" for="streamUrl">Stream URL</label>
+                <input type="text" class="form-control" id="streamUrl" placeholder="http://uri.to/stream.mp3"/>
+                <div class="invalid-feedback">Invalid uri</div>
               </div>
             </div>
           </form>
@@ -713,7 +714,7 @@
     </div><!-- /.modal-dialog -->
   </div><!-- /.modal -->
 
-  <div class="modal fade" id="modalSavequeue" tabindex="-1" role="dialog" aria-labelledby="savequeueLabel" aria-hidden="true">
+  <div class="modal fade" id="modalSaveQueue" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
