@@ -717,17 +717,18 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="savequeueLabel"><span class="material-icons title-icon">save</span> Save Queue</h5>
+          <h5 class="modal-title"><span class="material-icons title-icon">save</span> Save Queue</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>          
         </div>
         <div class="modal-body">
-          <form>
+          <form class="needs-validation" id="saveQueueFrm" novalidate>
             <div class="row">
               <div class="form-group col-md-9">
-                <label class="control-label" for="playlistname">Playlist Name</label>
-                <input type="text" class="form-control" id="playlistname"/>
+                <label class="control-label" for="saveQueueName">Playlist Name</label>
+                <input type="text" class="form-control" id="saveQueueName"/>
+                <div class="invalid-feedback">Invalid filename</div>
               </div>
             </div>
           </form>

@@ -1550,11 +1550,19 @@ function addStream() {
 }
 
 function saveQueue() {
-    var plName = document.getElementById('playlistname');
-    if (plName.value != '')
+    var plName = document.getElementById('saveQueueName');
+    var valid = plName.value.replace(/\w/g,'');
+    if (plName.value != '' && valid == '') {
         sendAPI({"cmd":"MPD_API_SAVE_QUEUE", "data": {"plist": plName.value}});
-    plName.value = '';
-    modalSavequeue.hide();
+        modalSavequeue.hide();
+        plName.value = '';
+        document.getElementById('saveQueueFrm').classList.remove('was-validated');
+        document.getElementById('saveQueueName').classList.remove('is-invalid');
+    }
+    else {
+        document.getElementById('saveQueueName').classList.add('is-invalid');
+        document.getElementById('saveQueueFrm').classList.add('was-validated');
+    }
 }
 
 function showNotification(notificationTitle,notificationText,notificationHtml,notificationType) {
