@@ -1,10 +1,10 @@
 [Unit]
 Description=myMPD server daemon
-Requires=network.target local-fs.target
+Requires=network.target local-fs.target mpd.service
 
 [Service]
 EnvironmentFile=/etc/mympd/options
-ExecStart=/usr/bin/mympd --user $MYMPD_USER --webport $WEB_PORT --mpdhost $MPD_HOST --mpdport $MPD_PORT $MPD_PASSWORD $COVERIMAGE $STATEFILE $SSL
+ExecStart=/usr/bin/mympd --user $MYMPD_USER --webport $WEB_PORT --mpdhost $MPD_HOST --mpdport $MPD_PORT --mpdpass $MPD_PASSWORD --coverimage $COVERIMAGE --statefile $STATEFILE $SSL
 Type=simple
 
 [Install]
