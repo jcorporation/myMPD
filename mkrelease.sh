@@ -65,9 +65,9 @@ then
   if [ contrib/mympd.service -nt /etc/systemd/system/mympd.service ]
   then
     sudo cp -v contrib/mympd.service /etc/systemd/system/
-    systemctl daemon-reload
+    sudo systemctl daemon-reload
   fi
-  systemctl enable mympd  
+  sudo systemctl enable mympd  
 fi
 
 if [ -d /etc/mympd/ssl ]
@@ -75,7 +75,7 @@ then
   echo "Certificates already created"
 else
   echo "Creating certificates"
-  contrib/crcert.sh
+  sudo contrib/crcert.sh
 fi
   
 echo "myMPD installed"
