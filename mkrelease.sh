@@ -44,8 +44,8 @@ sudo sed -i -e 's/mpd\.css/mpd\.min\.css/' -e 's/player\.js/player\.min\.js/' /u
 sudo sed -i -e 's/mpd\.css/mpd\.min\.css/' -e 's/mpd\.js/mpd\.min\.js/' -e 's/player\.js/player\.min\.js/' /usr/share/mympd/htdocs/sw.min.js
 sudo sed -i -e 's/\/sw\.js/\/sw\.min\.js/' /usr/share/mympd/htdocs/js/mpd.min.js
 echo "Minifying html"
-perl -i -pe 's/^\s*//gm; s/\s*$//gm' /usr/share/mympd/htdocs/index.html
-perl -i -pe 's/^\s*//gm; s/\s*$//gm' /usr/share/mympd/htdocs/player.html
+sudo perl -i -pe 's/^\s*//gm; s/\s*$//gm' /usr/share/mympd/htdocs/index.html
+sudo perl -i -pe 's/^\s*//gm; s/\s*$//gm' /usr/share/mympd/htdocs/player.html
 
 echo "Fixing ownership of /var/lib/mympd"
 sudo chown nobody /var/lib/mympd
