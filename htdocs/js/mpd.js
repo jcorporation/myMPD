@@ -293,7 +293,7 @@ function appInit() {
 
     domCache.progressBar.value = 0;
     domCache.progressBar.addEventListener('change', function(event) {
-        if(current_song && current_song.currentSongId >= 0) {
+        if (current_song && current_song.currentSongId >= 0) {
             var seekVal = Math.ceil(current_song.totalTime * (domCache.progressBar.value / 100));
             sendAPI({"cmd": "MPD_API_SET_SEEK", "data": {"songid":current_song.currentSongId,"seek": seekVal}});
         }
@@ -409,7 +409,7 @@ function appInit() {
         document.getElementById(event.dataTransfer.getData('Text')).remove();
         dragEl.style.display = '';
         queueBody.insertBefore(dragEl, event.target.parentNode);
-        var tr = queueBody.getElementsByTagName('tr');
+        var tr = queueBody.querySelectorAll('.dragover');
         var trLen = tr.length;
         for (var i = 0; i < trLen; i++) {
             tr[i].classList.remove('dragover');
