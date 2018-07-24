@@ -258,6 +258,7 @@ function appRoute() {
             document.getElementById('searchAddAllSongs').setAttribute('disabled', 'disabled');
             document.getElementById('panel-heading-search').innerText = '';
             document.getElementById('SearchList').classList.remove('opacity05');
+            setPagination(0);
         }
         
         var btns = document.getElementById('searchtags').getElementsByTagName('button');
