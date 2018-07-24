@@ -1,7 +1,7 @@
 #myMPD startup options
 MPD_HOST=localhost
 MPD_PORT=6600
-#MPD_PASSWORD=PASSWORD
+#MPD_PASSWORD=--mpdpass PASSWORD
 WEB_PORT=80
 SSL=-S -W 443 -C /etc/mympd/ssl/server.pem -K /etc/mympd/ssl/server.key
 MYMPD_USER=nobody
