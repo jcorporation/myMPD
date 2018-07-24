@@ -589,7 +589,7 @@ function webSocketConnect() {
         }
 
         socket.onmessage = function got_packet(msg) {
-            if(msg.data === last_state || msg.data.length == 0)
+            if (msg.data === last_state || msg.data.length == 0)
                 return;
                 
             try {
@@ -606,7 +606,7 @@ function webSocketConnect() {
                     showNotification('myMPD lost connection to MPD', '', '', 'danger');
                     break;
                 case 'update_queue':
-                    if(app.current.app === 'Queue')
+                    if (app.current.app === 'Queue')
                         getQueue();
                     break;
                 case 'song_change':
@@ -796,7 +796,7 @@ function parseState(obj) {
     } else {
         domCache.volumeControl.classList.remove('hide');
         domCache.volumePrct.innerText = obj.data.volume + ' %';
-        if(obj.data.volume == 0)
+        if (obj.data.volume == 0)
             domCache.volumeIcon.innerText = 'volume_off';
         else if (obj.data.volume < 50)
             domCache.volumeIcon.innerText = 'volume_down';
@@ -903,7 +903,7 @@ function parseQueue(obj) {
         else 
             tbody.append(row);  
     }
-    var tr_length=tr.length - 1;
+    var tr_length = tr.length - 1;
     for (var i = tr_length; i >= nrItems; i --) {
         tr[i].remove();
     }                    
@@ -973,7 +973,7 @@ function parseFilesystem(obj) {
         else 
             tbody.append(row);
     }
-    var tr_length=tr.length - 1;
+    var tr_length = tr.length - 1;
     for (var i = tr_length; i >= nrItems; i --) {
         tr[i].remove();
     }
@@ -1060,7 +1060,7 @@ function parsePlaylists(obj) {
                 tbody.append(row);
         }
     }
-    var tr_length=tr.length - 1;
+    var tr_length = tr.length - 1;
     for (var i = tr_length; i >= nrItems; i --) {
         tr[i].remove();
     }
@@ -1079,7 +1079,7 @@ function parsePlaylists(obj) {
 }
 
 function parseListDBtags(obj) {
-    if(app.current.app !== 'Browse' && app.current.tab !== 'Database' && app.current.view !== 'Artist') return;
+    if (app.current.app !== 'Browse' && app.current.tab !== 'Database' && app.current.view !== 'Artist') return;
   
     if (obj.tagtype == 'AlbumArtist') {
         document.getElementById('BrowseDatabaseAlbumCards').classList.add('hide');
@@ -1148,7 +1148,7 @@ function parseListDBtags(obj) {
                 
             sendAPI({"cmd":"MPD_API_GET_ARTISTALBUMTITLES", "data": { "albumartist": obj.searchstr, "album": obj.data[i].value}}, parseListTitles);
         }
-        var cards_length=cards.length - 1;
+        var cards_length = cards.length - 1;
         for (var i = cards_length; i >= nrItems; i --) {
             cards[i].remove();
         }
@@ -1491,7 +1491,7 @@ function updateDB() {
 }
 
 function clickPlay() {
-    if( playstate != 'play')
+    if (playstate != 'play')
         sendAPI({"cmd": "MPD_API_SET_PLAY"});
     else
         sendAPI({"cmd": "MPD_API_SET_PAUSE"});
@@ -1690,7 +1690,7 @@ function songChange(obj) {
 
     document.getElementById('album-cover').style.backgroundImage = 'url("' + obj.data.cover + '")';
 
-    if(typeof obj.data.artist != 'undefined' && obj.data.artist.length > 0 && obj.data.artist != '-') {
+    if (typeof obj.data.artist != 'undefined' && obj.data.artist.length > 0 && obj.data.artist != '-') {
         textNotification += obj.data.artist;
         htmlNotification += obj.data.artist;
         pageTitle += obj.data.artist + ' - ';
@@ -1698,7 +1698,7 @@ function songChange(obj) {
     } else {
         document.getElementById('artist').innerText = '';
     }
-    if(typeof obj.data.album != 'undefined' && obj.data.album.length > 0 && obj.data.album != '-') {
+    if (typeof obj.data.album != 'undefined' && obj.data.album.length > 0 && obj.data.album != '-') {
         textNotification += ' - ' + obj.data.album;
         htmlNotification += '<br/>' + obj.data.album;
         document.getElementById('album').innerText = obj.data.album;
@@ -1706,7 +1706,7 @@ function songChange(obj) {
     else {
         document.getElementById('album').innerText = '';
     }
-    if(typeof obj.data.title != 'undefined' && obj.data.title.length > 0) {
+    if (typeof obj.data.title != 'undefined' && obj.data.title.length > 0) {
         pageTitle += obj.data.title;
         document.getElementById('currenttrack').innerText = obj.data.title;
     } else {
