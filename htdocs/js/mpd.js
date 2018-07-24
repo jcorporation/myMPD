@@ -535,6 +535,7 @@ function appInit() {
             navigator.serviceWorker.register('/sw.js', {scope: '/'}).then(function(registration) {
                 // Registration was successful
                 console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                registration.update();
             }, function(err) {
                 // registration failed :(
                 console.log('ServiceWorker registration failed: ', err);
@@ -542,21 +543,21 @@ function appInit() {
         });
     }
     
-    window.addEventListener('beforeinstallprompt', (e) => {
+    window.addEventListener('beforeinstallprompt', function(event) {
         // Prevent Chrome 67 and earlier from automatically showing the prompt
-        e.preventDefault();
+        event.preventDefault();
         // Stash the event so it can be triggered later.
-        deferredPrompt = e;
+        deferredPrompt = event;
     });
     
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
+    window.addEventListener('beforeinstallprompt', function(event) {
+        event.preventDefault();
+        deferredPrompt = event;
         // Update UI notify the user they can add to home screen
         domCache.btnAdd.classList.remove('hide');
     });
     
-    domCache.btnAdd.addEventListener('click', (e) => {
+    domCache.btnAdd.addEventListener('click', function(event) {
         // hide our user interface that shows our A2HS button
         domCache.btnAdd.classList.add('hide');
         // Show the prompt
@@ -571,8 +572,8 @@ function appInit() {
         });
     });
     
-    window.addEventListener('appinstalled', (evt) => {
-        console.log('appinstalled');
+    window.addEventListener('appinstalled', function(event) {
+        console.log('myMPD installed as app');
     });
 }
 

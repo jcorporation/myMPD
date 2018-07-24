@@ -1,4 +1,4 @@
-var CACHE_NAME = 'myMPD-cache-v1';
+var CACHE = 'myMPD-cache-v3.3.0';
 var urlsToCache = [
     '/',
     '/player.html',
@@ -20,29 +20,48 @@ var urlsToCache = [
 ];
 
 self.addEventListener('install', function(event) {
-    // Perform install steps
-    event.waitUntil(
-        caches.open(CACHE_NAME).then(function(cache) {
-            console.log('Opened cache');
-            return cache.addAll(urlsToCache);
-        })
-    );
+    console.log('The service worker is being installed.');
+    event.waitUntil(preCache());
 });
 
 self.addEventListener('fetch', function(event) {
-    event.respondWith(
-        caches.match(event.request).then(function(response) {
-            // Cache hit - return response
-            if (response)
-                return response
-            else
-                return fetch(event.request);
-        })
-    );
+    if (!navigator.onLine) {
+        event.respondWith(fromCache(event.request));
+    } 
+    else {
+        var url = event.request.url.replace(/^https?:\/\/[^\/]+/,'');
+        if (urlsToCache.includes(url)) {
+            event.respondWith(fromCache(event.request));
+            event.waitUntil(update(event.request));
+            console.log('Serve request from cache: ' + url);
+        }
+    }
 });
 
+function preCache() {
+    return caches.open(CACHE).then(function(cache) {
+        return cache.addAll(urlsToCache);
+    });
+}
+
+function fromCache(request) {
+    return caches.open(CACHE).then(function(cache) {
+        return cache.match(request).then(function(matching) {
+            return matching || Promise.reject('no-match');
+        });
+    });
+}
+
+function update(request) {
+    return caches.open(CACHE).then(function(cache) {
+        return fetch(request).then(function(response) {
+            return cache.put(request, response);
+        });
+    });
+}
+
 self.addEventListener('activate', function(event) {
-    var cacheWhitelist = ['myMPD-cache-v1'];
+    var cacheWhitelist = ['myMPD-cache-v3.3.0'];
     event.waitUntil(
         caches.keys().then(function(cacheNames) {
             return Promise.all(
