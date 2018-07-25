@@ -29,11 +29,10 @@ self.addEventListener('fetch', function(event) {
         event.respondWith(fromCache(event.request));
     } 
     else {
-        var url = event.request.url.replace(/^https?:\/\/[^\/]+/,'');
+        var url = event.request.url.replace(/^https?:\/\/[^\/]+/, '');
         if (urlsToCache.includes(url)) {
             event.respondWith(fromCache(event.request));
             event.waitUntil(update(event.request));
-            console.log('Serve request from cache: ' + url);
         }
     }
 });
