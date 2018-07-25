@@ -222,7 +222,7 @@ caption {
 }
 
 .dragover > td {
- border-top:2px solid red;
+ border-top:25px solid transparent;
 }
 
 [draggable] {

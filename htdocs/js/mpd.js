@@ -370,18 +370,20 @@ function appInit() {
     var queueBody=document.getElementById('QueueList').getElementsByTagName('tbody')[0];
     queueBody.addEventListener('dragstart', function(event) {
         if (event.target.nodeName == 'TR') {
-            //event.target.style.opacity = '0.4';
-            event.target.style.display = 'none';
+            event.target.classList.add('opacity05');
+            event.dataTransfer.setDragImage(event.target, 0, 0);
             event.dataTransfer.effectAllowed = 'move';
             event.dataTransfer.setData('Text', event.target.getAttribute('id'));
             dragEl = event.target.cloneNode(true);
         }
     }, false);
     queueBody.addEventListener('dragleave', function(event) {
-        if (event.target.nodeName == 'TD') {
-            event.preventDefault();
-            event.target.parentNode.classList.remove('dragover');
-        }
+        event.preventDefault();        
+        var target = event.target;
+        if (event.target.nodeName == 'TD')
+            target = event.target.parentNode;
+        if (target.nodeName == 'TR')
+            target.classList.remove('dragover');
     }, false);
     queueBody.addEventListener('dragover', function(event) {
         event.preventDefault();
@@ -390,7 +392,11 @@ function appInit() {
         for (var i = 0; i < trLen; i++) {
             tr[i].classList.remove('dragover');
         }
-        event.target.parentNode.classList.add('dragover');
+        var target = event.target;
+        if (event.target.nodeName == 'TD')
+            target = event.target.parentNode;
+        if (target.nodeName == 'TR')
+            target.classList.add('dragover');
         event.dataTransfer.dropEffect = 'move';
     }, false);
     queueBody.addEventListener('dragend', function(event) {
@@ -399,16 +405,20 @@ function appInit() {
         for (var i = 0; i < trLen; i++) {
             tr[i].classList.remove('dragover');
         }
-        document.getElementById(event.dataTransfer.getData('Text')).style.display = '';
+        if (document.getElementById(event.dataTransfer.getData('Text')))
+            document.getElementById(event.dataTransfer.getData('Text')).classList.remove('opacity05');
     }, false);
     queueBody.addEventListener('drop', function(event) {
         event.stopPropagation();
         event.preventDefault();
+        var target = event.target;
+        if (event.target.nodeName == 'TD')
+            target = event.target.parentNode;
         var oldSongpos = document.getElementById(event.dataTransfer.getData('Text')).getAttribute('data-songpos');
-        var newSongpos = event.target.parentNode.getAttribute('data-songpos');
+        var newSongpos = target.getAttribute('data-songpos');
         document.getElementById(event.dataTransfer.getData('Text')).remove();
-        dragEl.style.display = '';
-        queueBody.insertBefore(dragEl, event.target.parentNode);
+        dragEl.classList.remove('opacity05');
+        queueBody.insertBefore(dragEl, target);
         var tr = queueBody.querySelectorAll('.dragover');
         var trLen = tr.length;
         for (var i = 0; i < trLen; i++) {
