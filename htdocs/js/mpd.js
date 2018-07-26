@@ -367,67 +367,6 @@ function appInit() {
             toggleBtn(event.target.id);
     }, false);
     
-    var queueBody=document.getElementById('QueueList').getElementsByTagName('tbody')[0];
-    queueBody.addEventListener('dragstart', function(event) {
-        if (event.target.nodeName == 'TR') {
-            event.target.classList.add('opacity05');
-            event.dataTransfer.setDragImage(event.target, 0, 0);
-            event.dataTransfer.effectAllowed = 'move';
-            event.dataTransfer.setData('Text', event.target.getAttribute('id'));
-            dragEl = event.target.cloneNode(true);
-        }
-    }, false);
-    queueBody.addEventListener('dragleave', function(event) {
-        event.preventDefault();        
-        var target = event.target;
-        if (event.target.nodeName == 'TD')
-            target = event.target.parentNode;
-        if (target.nodeName == 'TR')
-            target.classList.remove('dragover');
-    }, false);
-    queueBody.addEventListener('dragover', function(event) {
-        event.preventDefault();
-        var tr = queueBody.querySelectorAll('.dragover');
-        var trLen = tr.length;
-        for (var i = 0; i < trLen; i++) {
-            tr[i].classList.remove('dragover');
-        }
-        var target = event.target;
-        if (event.target.nodeName == 'TD')
-            target = event.target.parentNode;
-        if (target.nodeName == 'TR')
-            target.classList.add('dragover');
-        event.dataTransfer.dropEffect = 'move';
-    }, false);
-    queueBody.addEventListener('dragend', function(event) {
-        var tr = queueBody.querySelectorAll('.dragover');
-        var trLen = tr.length;
-        for (var i = 0; i < trLen; i++) {
-            tr[i].classList.remove('dragover');
-        }
-        if (document.getElementById(event.dataTransfer.getData('Text')))
-            document.getElementById(event.dataTransfer.getData('Text')).classList.remove('opacity05');
-    }, false);
-    queueBody.addEventListener('drop', function(event) {
-        event.stopPropagation();
-        event.preventDefault();
-        var target = event.target;
-        if (event.target.nodeName == 'TD')
-            target = event.target.parentNode;
-        var oldSongpos = document.getElementById(event.dataTransfer.getData('Text')).getAttribute('data-songpos');
-        var newSongpos = target.getAttribute('data-songpos');
-        document.getElementById(event.dataTransfer.getData('Text')).remove();
-        dragEl.classList.remove('opacity05');
-        queueBody.insertBefore(dragEl, target);
-        var tr = queueBody.querySelectorAll('.dragover');
-        var trLen = tr.length;
-        for (var i = 0; i < trLen; i++) {
-            tr[i].classList.remove('dragover');
-        }
-        document.getElementById('QueueList').classList.add('opacity05');
-        sendAPI({"cmd": "MPD_API_MOVE_TRACK","data": {"from": oldSongpos, "to": newSongpos}});
-    }, false);
-    
     document.getElementById('QueueList').addEventListener('click', function(event) {
         if (event.target.nodeName == 'TD') 
             sendAPI({"cmd": "MPD_API_PLAY_TRACK","data": {"track": event.target.parentNode.getAttribute('data-trackid')}});
@@ -519,6 +458,9 @@ function appInit() {
         appGoto('Search', undefined, undefined, '0/' + app.current.filter + '/' + this.value);
     }, false);
 
+    dragAndDropTable('QueueList');
+    dragAndDropTable('BrowsePlaylistsDetailList');
+
     window.addEventListener('hashchange', appRoute, false);
     
     document.addEventListener('keydown', function(event) {
@@ -585,6 +527,77 @@ function appInit() {
     window.addEventListener('appinstalled', function(event) {
         console.log('myMPD installed as app');
     });
+}
+
+function dragAndDropTable(table) {
+    var tableBody=document.getElementById(table).getElementsByTagName('tbody')[0];
+    tableBody.addEventListener('dragstart', function(event) {
+        if (event.target.nodeName == 'TR') {
+            event.target.classList.add('opacity05');
+            event.dataTransfer.setDragImage(event.target, 0, 0);
+            event.dataTransfer.effectAllowed = 'move';
+            event.dataTransfer.setData('Text', event.target.getAttribute('id'));
+            dragEl = event.target.cloneNode(true);
+        }
+    }, false);
+    tableBody.addEventListener('dragleave', function(event) {
+        event.preventDefault();        
+        var target = event.target;
+        if (event.target.nodeName == 'TD')
+            target = event.target.parentNode;
+        if (target.nodeName == 'TR')
+            target.classList.remove('dragover');
+    }, false);
+    tableBody.addEventListener('dragover', function(event) {
+        event.preventDefault();
+        var tr = tableBody.querySelectorAll('.dragover');
+        var trLen = tr.length;
+        for (var i = 0; i < trLen; i++) {
+            tr[i].classList.remove('dragover');
+        }
+        var target = event.target;
+        if (event.target.nodeName == 'TD')
+            target = event.target.parentNode;
+        if (target.nodeName == 'TR')
+            target.classList.add('dragover');
+        event.dataTransfer.dropEffect = 'move';
+    }, false);
+    tableBody.addEventListener('dragend', function(event) {
+        var tr = tableBody.querySelectorAll('.dragover');
+        var trLen = tr.length;
+        for (var i = 0; i < trLen; i++) {
+            tr[i].classList.remove('dragover');
+        }
+        if (document.getElementById(event.dataTransfer.getData('Text')))
+            document.getElementById(event.dataTransfer.getData('Text')).classList.remove('opacity05');
+    }, false);
+    tableBody.addEventListener('drop', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        var target = event.target;
+        if (event.target.nodeName == 'TD')
+            target = event.target.parentNode;
+        var oldSongpos = document.getElementById(event.dataTransfer.getData('Text')).getAttribute('data-songpos');
+        var newSongpos = target.getAttribute('data-songpos');
+        document.getElementById(event.dataTransfer.getData('Text')).remove();
+        dragEl.classList.remove('opacity05');
+        tableBody.insertBefore(dragEl, target);
+        var tr = tableBody.querySelectorAll('.dragover');
+        var trLen = tr.length;
+        for (var i = 0; i < trLen; i++) {
+            tr[i].classList.remove('dragover');
+        }
+        document.getElementById(table).classList.add('opacity05');
+        if (app.current.app == 'Queue')
+            sendAPI({"cmd": "MPD_API_MOVE_TRACK","data": {"from": oldSongpos, "to": newSongpos}});
+        else if (app.current.app == 'Browse' && app.current.tab == 'Playlists' && app.current.view == 'Detail')
+            playlistMoveTrack(oldSongpos, newSongpos);        
+    }, false);
+}
+
+function playlistMoveTrack(from, to) {
+    sendAPI({"cmd": "MPD_API_PLAYLIST_MOVE_TRACK","data": { "plist": app.current.search, "from": from, "to": to}});
+    sendAPI({"cmd": "MPD_API_GET_PLAYLIST_LIST","data": {"offset": app.current.page, "filter": app.current.filter, "uri": app.current.search}}, parsePlaylists);
 }
 
 function webSocketConnect() {
@@ -1047,18 +1060,20 @@ function parsePlaylists(obj) {
     else if (app.current.view == 'Detail') {
         for (var i = 0; i < nrItems; i++) {
             var uri = encodeURI(obj.data[i].uri);
+            var songpos = obj.offset + i + 1;
             if (tr[i])
-                if (tr[i].getAttribute('data-uri') == uri)
+                if (tr[i].getAttribute('data-uri') == uri && tr[i].getAttribute('id') == 'playlistTrackId' + songpos)
                     continue;
-            var songpos = obj.offset + i;
             var row = document.createElement('tr');
+            row.setAttribute('draggable','true');
+            row.setAttribute('id','playlistTrackId' + songpos);
             row.setAttribute('data-type', obj.data[i].type);
             row.setAttribute('data-uri', uri);
             row.setAttribute('data-name', obj.data[i].name);
             row.setAttribute('data-songpos', songpos);
             var minutes = Math.floor(obj.data[i].duration / 60);
             var seconds = obj.data[i].duration - minutes * 60;
-            row.innerHTML = '<td>' + (songpos + 1) + '</td>' + 
+            row.innerHTML = '<td>' + songpos + '</td>' + 
                             '<td>' + obj.data[i].title + '</td>' +
                             '<td>' + obj.data[i].artist + '</td>' + 
                             '<td>' + obj.data[i].album  + '</td>' +

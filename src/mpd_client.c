@@ -183,9 +183,24 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
         case MPD_API_MOVE_TRACK:
             je = json_scanf(msg.p, msg.len, "{ data: { from:%u, to:%u } }", &uint_buf1, &uint_buf2);
             if (je == 2) {
-                uint_buf1 -= 1;
-                uint_buf2 -= 1;
+                uint_buf1 --;
+                uint_buf2 --;
+                if (uint_buf1 < uint_buf2)
+                    uint_buf2 --;
                 mpd_run_move(mpd.conn, uint_buf1, uint_buf2);
+                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+            }
+            break;
+        case MPD_API_PLAYLIST_MOVE_TRACK:
+            je = json_scanf(msg.p, msg.len, "{ data: { plist: %Q, from:%u, to:%u } }", &p_charbuf1, &uint_buf1, &uint_buf2);
+            if (je == 3) {
+                uint_buf1 --;
+                uint_buf2 --;
+                if (uint_buf1 < uint_buf2)
+                    uint_buf2 --;
+                mpd_send_playlist_move(mpd.conn, p_charbuf1, uint_buf1, uint_buf2);
+                mpd_response_finish(mpd.conn);
+                free(p_charbuf1);
                 n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
             break;
@@ -1170,11 +1185,11 @@ int mympd_put_playlist_list(char *buffer, char *uri, unsigned int offset, char *
                 if (entities_returned ++) len += json_printf(&out,",");
                 len += json_printf(&out, "{type: song, uri: %Q, album: %Q, artist: %Q, duration: %d, title: %Q, name: %Q }",
                     mpd_song_get_uri(song),
-                     mympd_get_tag(song, MPD_TAG_ALBUM),
-                     mympd_get_tag(song, MPD_TAG_ARTIST),
-                     mpd_song_get_duration(song),
-                     entityName,
-                     entityName
+                    mympd_get_tag(song, MPD_TAG_ALBUM),
+                    mympd_get_tag(song, MPD_TAG_ARTIST),
+                    mpd_song_get_duration(song),
+                    entityName,
+                    entityName
                 );
             } else {
                 entity_count --;
