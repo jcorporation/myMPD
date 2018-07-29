@@ -23,6 +23,8 @@ Featurelist:
  - Advanced search
  - Progressiv Web App enabled
  - Local coverart support
+ - HTTP stream support
+ - Local playback of mpd http stream (html5 audio api)
 
 myMPD is work in progress. Bugreportes and feature requests are very welcome. Please use the issues function from github (https://github.com/jcorporation/myMPD/issues).
 Planed functions are managed in a github project (https://github.com/jcorporation/myMPD/projects/1).
