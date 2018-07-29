@@ -20,52 +20,31 @@ var urlsToCache = [
 ];
 
 self.addEventListener('install', function(event) {
-    console.log('The service worker is being installed.');
-    event.waitUntil(preCache());
+    event.waitUntil(
+        caches.open(CACHE_NAME).then(function(cache) {
+            return cache.addAll(urlsToCache);
+        })
+    );
 });
 
 self.addEventListener('fetch', function(event) {
-    if (!navigator.onLine) {
-        event.respondWith(fromCache(event.request));
-    } 
-    else {
-        var url = event.request.url.replace(/^https?:\/\/[^\/]+/, '');
-        if (urlsToCache.includes(url)) {
-            event.respondWith(fromCache(event.request));
-            event.waitUntil(update(event.request));
-        }
-    }
+  event.respondWith(
+    caches.match(event.request).then(function(response) {
+        if (response)
+            return response
+        else
+            return fetch(event.request);
+      }
+    )
+  );    
 });
 
-function preCache() {
-    return caches.open(CACHE).then(function(cache) {
-        return cache.addAll(urlsToCache);
-    });
-}
-
-function fromCache(request) {
-    return caches.open(CACHE).then(function(cache) {
-        return cache.match(request).then(function(matching) {
-            return matching || Promise.reject('no-match');
-        });
-    });
-}
-
-function update(request) {
-    return caches.open(CACHE).then(function(cache) {
-        return fetch(request).then(function(response) {
-            return cache.put(request, response);
-        });
-    });
-}
-
 self.addEventListener('activate', function(event) {
-    var cacheWhitelist = ['myMPD-cache-v3.3.0'];
     event.waitUntil(
         caches.keys().then(function(cacheNames) {
             return Promise.all(
                 cacheNames.map(function(cacheName) {
-                    if (cacheWhitelist.indexOf(cacheName) === -1)
+                    if (cacheName != CACHE)
                         return caches.delete(cacheName);
                 })
             );
