@@ -609,6 +609,7 @@ function webSocketConnect() {
             showNotification('Connected to myMPD', '', '', 'success');
             modalConnectionError.hide();
             appRoute();
+            sendAPI({"cmd":"MPD_API_GET_OUTPUTNAMES"}, parseOutputnames);
         }
 
         socket.onmessage = function got_packet(msg) {
@@ -646,8 +647,8 @@ function webSocketConnect() {
             console.log('disconnected');
             modalConnectionError.show();
             setTimeout(function() {
-               console.log('reconnect');
-               webSocketConnect();
+                console.log('reconnect');
+                webSocketConnect();
             }, 3000);
         }
 
