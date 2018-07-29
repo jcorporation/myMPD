@@ -46,7 +46,7 @@ const char * mpd_cmd_strs[] = {
 static inline enum mpd_cmd_ids get_cmd_id(const char *cmd)
 {
     for(int i = 0; i < sizeof(mpd_cmd_strs)/sizeof(mpd_cmd_strs[0]); i++)
-        if(!strncmp(cmd, mpd_cmd_strs[i], strlen(mpd_cmd_strs[i])))
+        if (!strncmp(cmd, mpd_cmd_strs[i], strlen(mpd_cmd_strs[i])))
             return i;
 
     return -1;
@@ -73,12 +73,12 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
     else
         cmd_id = get_cmd_id("MPD_API_UNKNOWN");
 
-    if(cmd_id == -1)
+    if (cmd_id == -1)
         cmd_id = get_cmd_id("MPD_API_UNKNOWN");
     
     switch(cmd_id) {
         case MPD_API_UNKNOWN:
-            n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Unknown request: %.*s\"}", msg.len, msg.p );
+            n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Unknown request\"}");
             break;
         case MPD_API_SET_SETTINGS:
             json_scanf(msg.p, msg.len, "{ data: { notificationWeb: %d, notificationPage: %d} }", &state.a, &state.b);
@@ -140,7 +140,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
         case MPD_API_UPDATE_DB:
             uint_rc = mpd_run_update(mpd.conn, NULL);
             if (uint_rc > 0)
-                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"Updating MPD Database...\"}");
+                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             break;
         case MPD_API_SET_PAUSE:
             mpd_run_toggle_pause(mpd.conn);
@@ -181,11 +181,26 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
             }
             break;
         case MPD_API_MOVE_TRACK:
-            je = json_scanf(msg.p, msg.len, "{ data: { track:%u, pos:%u } }", &uint_buf1, &uint_buf2);
+            je = json_scanf(msg.p, msg.len, "{ data: { from:%u, to:%u } }", &uint_buf1, &uint_buf2);
             if (je == 2) {
-                uint_buf1 -= 1;
-                uint_buf2 -= 1;
+                uint_buf1 --;
+                uint_buf2 --;
+                if (uint_buf1 < uint_buf2)
+                    uint_buf2 --;
                 mpd_run_move(mpd.conn, uint_buf1, uint_buf2);
+                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+            }
+            break;
+        case MPD_API_PLAYLIST_MOVE_TRACK:
+            je = json_scanf(msg.p, msg.len, "{ data: { plist: %Q, from:%u, to:%u } }", &p_charbuf1, &uint_buf1, &uint_buf2);
+            if (je == 3) {
+                uint_buf1 --;
+                uint_buf2 --;
+                if (uint_buf1 < uint_buf2)
+                    uint_buf2 --;
+                mpd_send_playlist_move(mpd.conn, p_charbuf1, uint_buf1, uint_buf2);
+                mpd_response_finish(mpd.conn);
+                free(p_charbuf1);
                 n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
             break;
@@ -254,11 +269,53 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
                 free(p_charbuf2);
             }
             break;
+        case MPD_API_PLAYLIST_RENAME:
+            je = json_scanf(msg.p, msg.len, "{ data: { from:%Q, to:%Q } }", &p_charbuf1, &p_charbuf2);
+            if (je == 2) {
+                mpd_run_rename(mpd.conn, p_charbuf1, p_charbuf2);
+                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"Renamed playlist %s to %s\"}", p_charbuf1, p_charbuf2);
+                free(p_charbuf1);
+                free(p_charbuf2);                
+            }
+            break;            
         case MPD_API_GET_PLAYLISTS:
             je = json_scanf(msg.p, msg.len, "{ data: { offset:%u, filter:%Q } }", &uint_buf1, &p_charbuf1);
             if (je == 2) {
                 n = mympd_put_playlists(mpd.buf, uint_buf1, p_charbuf1);
                 free(p_charbuf1);
+            }
+            break;
+        case MPD_API_GET_PLAYLIST_LIST:
+            je = json_scanf(msg.p, msg.len, "{ data: { uri: %Q, offset:%u, filter:%Q } }", &p_charbuf1, &uint_buf1, &p_charbuf2);
+            if (je == 3) {
+                n = mympd_put_playlist_list(mpd.buf, p_charbuf1, uint_buf1, p_charbuf2);
+                free(p_charbuf1);
+                free(p_charbuf2);
+            }
+            break;
+        case MPD_API_ADD_TO_PLAYLIST:
+            je = json_scanf(msg.p, msg.len, "{ data: { plist:%Q, uri:%Q } }", &p_charbuf1, &p_charbuf2);
+            if (je == 2) {
+                mpd_run_playlist_add(mpd.conn, p_charbuf1, p_charbuf2);
+                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"Added %s to playlist %s\"}", p_charbuf2, p_charbuf1);
+                free(p_charbuf1);
+                free(p_charbuf2);                
+            }
+            break;
+        case MPD_API_PLAYLIST_CLEAR:
+            je = json_scanf(msg.p, msg.len, "{ data: { uri:%Q } }", &p_charbuf1);
+            if (je == 1) {
+                mpd_run_playlist_clear(mpd.conn, p_charbuf1);
+                free(p_charbuf1);
+                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+            }
+            break;
+        case MPD_API_RM_PLAYLIST_TRACK:
+            je = json_scanf(msg.p, msg.len, "{ data: { uri:%Q, track:%u } }", &p_charbuf1, &uint_buf1);
+            if (je == 2) {
+                mpd_run_playlist_delete(mpd.conn, p_charbuf1, uint_buf1);
+                free(p_charbuf1);
+                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
             break;
         case MPD_API_GET_FILESYSTEM:
@@ -300,7 +357,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
             je = json_scanf(msg.p, msg.len, "{ data: { uri:%Q } }", &p_charbuf1);
             if (je == 1) {
                 int_buf = mpd_run_add_id(mpd.conn, p_charbuf1);
-                if(int_buf != -1)
+                if (int_buf != -1)
                     mpd_run_play_id(mpd.conn, int_buf);
                 free(p_charbuf1);
                 n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
@@ -370,7 +427,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
             }
             break;
         case MPD_API_RM_PLAYLIST:
-            je = json_scanf(msg.p, msg.len, "{ data: { plist:%Q } }", &p_charbuf1);
+            je = json_scanf(msg.p, msg.len, "{ data: { uri:%Q } }", &p_charbuf1);
             if (je == 1) {
                 mpd_run_rm(mpd.conn, p_charbuf1);
                 free(p_charbuf1);
@@ -437,12 +494,12 @@ static int mympd_notify_callback(struct mg_connection *c, const char *param) {
         return 0;
     }
 
-    if(!c->user_data)
+    if (!c->user_data)
         c->user_data = calloc(1, sizeof(struct t_mpd_client_session));
 
     struct t_mpd_client_session *s = (struct t_mpd_client_session *)c->user_data;
 
-    if(mpd.conn_state != MPD_CONNECTED) {
+    if (mpd.conn_state != MPD_CONNECTED) {
         n=snprintf(mpd.buf, MAX_SIZE, "{\"type\":\"disconnected\"}");
         #ifdef DEBUG
         fprintf(stdout,"Notify: disconnected\n");
@@ -455,7 +512,7 @@ static int mympd_notify_callback(struct mg_connection *c, const char *param) {
         #endif
         mg_send_websocket_frame(c, WEBSOCKET_OP_TEXT, mpd.buf, strlen(mpd.buf));
         
-        if(s->song_id != mpd.song_id) {
+        if (s->song_id != mpd.song_id) {
             n=mympd_put_current_song(mpd.buf);
             #ifdef DEBUG
             fprintf(stdout,"Notify: %s\n",mpd.buf);
@@ -464,7 +521,7 @@ static int mympd_notify_callback(struct mg_connection *c, const char *param) {
             s->song_id = mpd.song_id;
         }
         
-        if(s->queue_version != mpd.queue_version) {
+        if (s->queue_version != mpd.queue_version) {
             n=snprintf(mpd.buf, MAX_SIZE, "{\"type\":\"update_queue\"}");
             #ifdef DEBUG
             fprintf(stdout,"Notify: update_queue\n");
@@ -497,7 +554,7 @@ void mympd_poll(struct mg_mgr *s) {
                 return;
             }
 
-            if(mpd.password && !mpd_run_password(mpd.conn, mpd.password)) {
+            if (mpd.password && !mpd_run_password(mpd.conn, mpd.password)) {
                 fprintf(stderr, "MPD connection: %s\n", mpd_connection_get_error_message(mpd.conn));
                 for (struct mg_connection *c = mg_next(s, NULL); c != NULL; c = mg_next(s, c)) {
                     mympd_notify_callback(c, mpd_connection_get_error_message(mpd.conn));
@@ -516,7 +573,7 @@ void mympd_poll(struct mg_mgr *s) {
 
         case MPD_DISCONNECT:
         case MPD_RECONNECT:
-            if(mpd.conn != NULL)
+            if (mpd.conn != NULL)
                 mpd_connection_free(mpd.conn);
             mpd.conn = NULL;
             mpd.conn_state = MPD_DISCONNECTED;
@@ -628,7 +685,7 @@ int mympd_put_settings(char *buffer) {
     int je;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
     struct mympd_state { int a; int b; } state = { .a = 0, .b = 0 };
-    if( access( mpd.statefile, F_OK ) != -1 ) {
+    if (access( mpd.statefile, F_OK ) != -1 ) {
         char *content = json_fread(mpd.statefile);
         je = json_scanf(content, strlen(content), "{notificationWeb: %d, notificationPage: %d}", &state.a, &state.b);
         if (je != 2) {
@@ -737,9 +794,11 @@ int mympd_put_current_song(char *buffer) {
     char cover[500];
     
     song = mpd_run_current_song(mpd.conn);
-    if(song == NULL)
-        return 0;
-    
+    if (song == NULL) {
+        len = json_printf(&out,"{type: result, data: ok}");
+        return len;
+    }
+        
     mympd_get_cover(mpd_song_get_uri(song),cover,500);
 
     len = json_printf(&out,"{type: song_change, data: { pos: %d, title: %Q, "
@@ -862,7 +921,7 @@ int mympd_put_browse(char *buffer, char *path, unsigned int offset, char *filter
         const struct mpd_song *song;
         const struct mpd_directory *dir;
         entity_count ++;
-        if(entity_count > offset && entity_count <= offset+MAX_ELEMENTS_PER_PAGE) {
+        if (entity_count > offset && entity_count <= offset+MAX_ELEMENTS_PER_PAGE) {
             switch (mpd_entity_get_type(entity)) {
                 case MPD_ENTITY_TYPE_UNKNOWN:
                         entity_count --;
@@ -959,7 +1018,7 @@ int mympd_put_db_tag(char *buffer, unsigned int offset, char *mpdtagtype, char *
     int len;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
 
-    if(mpd_search_db_tags(mpd.conn, mpd_tag_name_parse(mpdtagtype)) == false)
+    if (mpd_search_db_tags(mpd.conn, mpd_tag_name_parse(mpdtagtype)) == false)
         RETURN_ERROR_AND_RECOVER("mpd_search_db_tags");
 
     if (mpd_tag_name_parse(mpdsearchtagtype) != MPD_TAG_UNKNOWN) {
@@ -967,13 +1026,13 @@ int mympd_put_db_tag(char *buffer, unsigned int offset, char *mpdtagtype, char *
             RETURN_ERROR_AND_RECOVER("mpd_search_add_tag_constraint");
     }
 
-    if(mpd_search_commit(mpd.conn) == false)
+    if (mpd_search_commit(mpd.conn) == false)
         RETURN_ERROR_AND_RECOVER("mpd_search_commit");
 
     len = json_printf(&out, "{type: listDBtags, data: [ ");
     while((pair = mpd_recv_pair_tag(mpd.conn, mpd_tag_name_parse(mpdtagtype))) != NULL) {
         entity_count ++;
-        if(entity_count > offset && entity_count <= offset+MAX_ELEMENTS_PER_PAGE) {
+        if (entity_count > offset && entity_count <= offset+MAX_ELEMENTS_PER_PAGE) {
             if (strncmp(filter,"-",1) == 0 || strncasecmp(filter,pair->value,1) == 0 ||
                     ( strncmp(filter,"0",1) == 0 && isalpha(*pair->value) == 0 )
             ) {
@@ -1012,7 +1071,7 @@ int mympd_put_songs_in_album(char *buffer, char *albumartist, char *album) {
     char cover[500];
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
 
-    if(mpd_search_db_songs(mpd.conn, true) == false) {
+    if (mpd_search_db_songs(mpd.conn, true) == false) {
         RETURN_ERROR_AND_RECOVER("mpd_search_db_songs");
     }
     
@@ -1022,14 +1081,14 @@ int mympd_put_songs_in_album(char *buffer, char *albumartist, char *album) {
     if (mpd_search_add_tag_constraint(mpd.conn, MPD_OPERATOR_DEFAULT, MPD_TAG_ALBUM, album) == false)
         RETURN_ERROR_AND_RECOVER("mpd_search_add_tag_constraint");
         
-    if(mpd_search_commit(mpd.conn) == false)
+    if (mpd_search_commit(mpd.conn) == false)
         RETURN_ERROR_AND_RECOVER("mpd_search_commit");
     else {
         len = json_printf(&out, "{ type: listTitles, data: [ ");
 
         while((song = mpd_recv_song(mpd.conn)) != NULL) {
             entity_count ++;
-            if(entity_count <= MAX_ELEMENTS_PER_PAGE) {
+            if (entity_count <= MAX_ELEMENTS_PER_PAGE) {
                 if (entities_returned ++) len += json_printf(&out, ", ");
                 else mympd_get_cover(mpd_song_get_uri(song),cover,500);
                 len += json_printf(&out, "{ type: song, uri: %Q, duration: %d, title: %Q, track: %Q }",
@@ -1070,7 +1129,7 @@ int mympd_put_playlists(char *buffer, unsigned int offset, char *filter) {
 
     while((pl = mpd_recv_playlist(mpd.conn)) != NULL) {
         entity_count ++;
-        if(entity_count > offset && entity_count <= offset+MAX_ELEMENTS_PER_PAGE) {
+        if (entity_count > offset && entity_count <= offset+MAX_ELEMENTS_PER_PAGE) {
             plpath = mpd_playlist_get_path(pl);
             if (strncmp(filter,"-",1) == 0 || strncasecmp(filter,plpath,1) == 0 ||
                     ( strncmp(filter,"0",1) == 0 && isalpha(*plpath) == 0 )
@@ -1101,6 +1160,57 @@ int mympd_put_playlists(char *buffer, unsigned int offset, char *filter) {
     return len;
 }
 
+int mympd_put_playlist_list(char *buffer, char *uri, unsigned int offset, char *filter) {
+    struct mpd_entity *entity;
+    unsigned int entity_count = 0;
+    unsigned int entities_returned = 0;
+    const char *entityName;
+    int len;
+    struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
+
+    if (!mpd_send_list_playlist_meta(mpd.conn, uri))
+        RETURN_ERROR_AND_RECOVER("mpd_send_list_meta");
+
+    len = json_printf(&out, "{ type: playlist_detail, data: [ ");
+
+    while((entity = mpd_recv_entity(mpd.conn)) != NULL) {
+        const struct mpd_song *song;
+        entity_count ++;
+        if (entity_count > offset && entity_count <= offset+MAX_ELEMENTS_PER_PAGE) {
+            song = mpd_entity_get_song(entity);
+            entityName = mympd_get_tag(song, MPD_TAG_TITLE);
+            if (strncmp(filter,"-",1) == 0 || strncasecmp(filter,entityName,1) == 0 ||
+               ( strncmp(filter,"0",1) == 0 && isalpha(*entityName) == 0 )
+            ) {
+                if (entities_returned ++) len += json_printf(&out,",");
+                len += json_printf(&out, "{type: song, uri: %Q, album: %Q, artist: %Q, duration: %d, title: %Q, name: %Q }",
+                    mpd_song_get_uri(song),
+                    mympd_get_tag(song, MPD_TAG_ALBUM),
+                    mympd_get_tag(song, MPD_TAG_ARTIST),
+                    mpd_song_get_duration(song),
+                    entityName,
+                    entityName
+                );
+            } else {
+                entity_count --;
+            }
+        }
+        mpd_entity_free(entity);
+    }
+
+    len += json_printf(&out, "], totalEntities: %d, offset: %d, returnedEntities: %d, filter: %Q, uri: %Q }",
+        entity_count,
+        offset,
+        entities_returned,
+        filter,
+        uri
+    );
+
+    if (len > MAX_SIZE) 
+        fprintf(stderr,"Buffer truncated\n");
+    return len;
+}
+
 int mympd_search(char *buffer, char *mpdtagtype, unsigned int offset, char *searchstr) {
     struct mpd_song *song;
     unsigned long entity_count = 0;
@@ -1108,9 +1218,8 @@ int mympd_search(char *buffer, char *mpdtagtype, unsigned int offset, char *sear
     int len;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
 
-    if(mpd_search_db_songs(mpd.conn, false) == false) {
+    if (mpd_search_db_songs(mpd.conn, false) == false)
         RETURN_ERROR_AND_RECOVER("mpd_search_db_songs");
-    }
     
     if (mpd_tag_name_parse(mpdtagtype) != MPD_TAG_UNKNOWN) {
        if (mpd_search_add_tag_constraint(mpd.conn, MPD_OPERATOR_DEFAULT, mpd_tag_name_parse(mpdtagtype), searchstr) == false)
@@ -1121,14 +1230,14 @@ int mympd_search(char *buffer, char *mpdtagtype, unsigned int offset, char *sear
             RETURN_ERROR_AND_RECOVER("mpd_search_add_any_tag_constraint");        
     }    
         
-    if(mpd_search_commit(mpd.conn) == false)
+    if (mpd_search_commit(mpd.conn) == false)
         RETURN_ERROR_AND_RECOVER("mpd_search_commit");
     else {
         len = json_printf(&out, "{ type: search, data: [ ");
 
         while((song = mpd_recv_song(mpd.conn)) != NULL) {
             entity_count ++;
-            if(entity_count > offset && entity_count <= offset+MAX_ELEMENTS_PER_PAGE) {
+            if (entity_count > offset && entity_count <= offset+MAX_ELEMENTS_PER_PAGE) {
                 if (entities_returned ++) len += json_printf(&out, ", ");
                 len += json_printf(&out, "{ type: song, uri: %Q, album: %Q, artist: %Q, duration: %d, title: %Q, name: %Q }",
                     mpd_song_get_uri(song),
@@ -1150,7 +1259,8 @@ int mympd_search(char *buffer, char *mpdtagtype, unsigned int offset, char *sear
         );
     }
 
-    if (len > MAX_SIZE) fprintf(stderr,"Buffer truncated\n");
+    if (len > MAX_SIZE)
+        fprintf(stderr,"Buffer truncated\n");
     return len;
 }
 
@@ -1160,7 +1270,7 @@ int mympd_search_add(char *buffer,char *mpdtagtype, char *searchstr) {
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
     len = 0;
 
-    if(mpd_search_add_db_songs(mpd.conn, false) == false) {
+    if (mpd_search_add_db_songs(mpd.conn, false) == false) {
         RETURN_ERROR_AND_RECOVER("mpd_search_add_db_songs");
     }
     
@@ -1173,14 +1283,15 @@ int mympd_search_add(char *buffer,char *mpdtagtype, char *searchstr) {
             RETURN_ERROR_AND_RECOVER("mpd_search_add_any_tag_constraint");        
     }    
         
-    if(mpd_search_commit(mpd.conn) == false)
+    if (mpd_search_commit(mpd.conn) == false)
         RETURN_ERROR_AND_RECOVER("mpd_search_commit");
     
     while((song = mpd_recv_song(mpd.conn)) != NULL) {
         mpd_song_free(song);
     }
         
-    if (len > MAX_SIZE) fprintf(stderr,"Buffer truncated\n");
+    if (len > MAX_SIZE)
+        fprintf(stderr,"Buffer truncated\n");
     return len;
 }
 
@@ -1191,7 +1302,7 @@ int mympd_search_queue(char *buffer, char *mpdtagtype, unsigned int offset, char
     int len;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);    
 
-    if(mpd_search_queue_songs(mpd.conn, false) == false) {
+    if (mpd_search_queue_songs(mpd.conn, false) == false) {
         RETURN_ERROR_AND_RECOVER("mpd_search_queue_songs");
     }
     
@@ -1204,14 +1315,14 @@ int mympd_search_queue(char *buffer, char *mpdtagtype, unsigned int offset, char
             RETURN_ERROR_AND_RECOVER("mpd_search_add_any_tag_constraint");        
     }
 
-    if(mpd_search_commit(mpd.conn) == false)
+    if (mpd_search_commit(mpd.conn) == false)
         RETURN_ERROR_AND_RECOVER("mpd_search_commit");
     else {
         len = json_printf(&out, "{ type: queuesearch, data: [ ");
 
         while((song = mpd_recv_song(mpd.conn)) != NULL) {
           entity_count ++;
-          if(entity_count > offset && entity_count <= offset+MAX_ELEMENTS_PER_PAGE) {
+          if (entity_count > offset && entity_count <= offset+MAX_ELEMENTS_PER_PAGE) {
             if (entities_returned ++) len += json_printf(&out, ", ");
             len += json_printf(&out, "{ type: song, id: %d, pos: %d, album: %Q, artist: %Q, duration: %d, title: %Q }",
                 mpd_song_get_id(song),

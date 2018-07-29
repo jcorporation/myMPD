@@ -213,3 +213,24 @@ div.alertBoxActive {
 .opacity05 {
  opacity:0.5;
 }
+
+caption {
+ caption-side: top;
+ font-size: 120%;
+ font-weight: bold;
+ color: black;
+}
+
+.dragover > td {
+ border-top:25px solid transparent;
+}
+
+[draggable] {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  /* Required to make elements draggable in old WebKit */
+  -khtml-user-drag: element;
+  -webkit-user-drag: element;
+}

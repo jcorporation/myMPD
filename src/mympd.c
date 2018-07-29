@@ -249,7 +249,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    if(run_as_user != NULL) {
+    if (run_as_user != NULL) {
         printf("Droping privileges\n");
         struct passwd *pw;
         if ((pw = getpwnam(run_as_user)) == NULL) {

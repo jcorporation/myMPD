@@ -1,4 +1,4 @@
-var CACHE_NAME = 'myMPD-cache-v1';
+var CACHE = 'myMPD-cache-v3.3.0';
 var urlsToCache = [
     '/',
     '/player.html',
@@ -20,34 +20,31 @@ var urlsToCache = [
 ];
 
 self.addEventListener('install', function(event) {
-    // Perform install steps
     event.waitUntil(
-        caches.open(CACHE_NAME).then(function(cache) {
-            console.log('Opened cache');
+        caches.open(CACHE).then(function(cache) {
             return cache.addAll(urlsToCache);
         })
     );
 });
 
 self.addEventListener('fetch', function(event) {
-    event.respondWith(
-        caches.match(event.request).then(function(response) {
-            // Cache hit - return response
-            if (response)
-                return response
-            else
-                return fetch(event.request);
-        })
-    );
+  event.respondWith(
+    caches.match(event.request).then(function(response) {
+        if (response)
+            return response
+        else
+            return fetch(event.request);
+      }
+    )
+  );    
 });
 
 self.addEventListener('activate', function(event) {
-    var cacheWhitelist = ['myMPD-cache-v1'];
     event.waitUntil(
         caches.keys().then(function(cacheNames) {
             return Promise.all(
                 cacheNames.map(function(cacheName) {
-                    if (cacheWhitelist.indexOf(cacheName) === -1)
+                    if (cacheName != CACHE)
                         return caches.delete(cacheName);
                 })
             );
