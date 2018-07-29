@@ -23,7 +23,7 @@ if [ -f buildtools/closure-stylesheets.jar ]
 then
   echo "Minifying stylesheets"
   [ htdocs/css/mpd.css -nt htdocs/css/mpd.min.css ] && \
-    java -jar buildtools/closure-stylesheets.jar --allow-unrecognized-properties htdocs/css/mpd.css > htdocs/css/mpd.min.css
+    java -jar buildtools/closure-stylesheets.jar htdocs/css/mpd.css > htdocs/css/mpd.min.css
 else
   echo "buildtools/closure-stylesheets.jar not found, using non-minified files"
   [ htdocs/css/mpd.css -nt htdocs/css/mpd.min.css ] && \
@@ -44,8 +44,8 @@ sudo sed -i -e 's/mpd\.css/mpd\.min\.css/' -e 's/player\.js/player\.min\.js/' /u
 sudo sed -i -e 's/mpd\.css/mpd\.min\.css/' -e 's/mpd\.js/mpd\.min\.js/' -e 's/player\.js/player\.min\.js/' /usr/share/mympd/htdocs/sw.min.js
 sudo sed -i -e 's/\/sw\.js/\/sw\.min\.js/' /usr/share/mympd/htdocs/js/mpd.min.js
 echo "Minifying html"
-sudo perl -i -pe 's/^\s*//gm; s/\s*$//gm' /usr/share/mympd/htdocs/index.html
-sudo perl -i -pe 's/^\s*//gm; s/\s*$//gm' /usr/share/mympd/htdocs/player.html
+perl -i -pe 's/^\s*//gm; s/\s*$//gm' /usr/share/mympd/htdocs/index.html
+perl -i -pe 's/^\s*//gm; s/\s*$//gm' /usr/share/mympd/htdocs/player.html
 
 echo "Fixing ownership of /var/lib/mympd"
 sudo chown nobody /var/lib/mympd
@@ -53,8 +53,8 @@ sudo chown nobody /var/lib/mympd
 echo "Trying to link musicdir to library"
 if [ -f /etc/mpd.conf ]
 then
-  LIBRARY=$(grep music /etc/mpd.conf | awk {'print $2'})
-  [ "$LIBRARY" != "" ] && [ ! -e /usr/share/mympd/htdocs/library ] && ln -s $LIBRARY /usr/share/mympd/htdocs/library
+  LIBRARY=$(grep music /etc/mpd.conf | awk {'print $2'} | sed -e 's/"//g')
+  [ "$LIBRARY" != "" ] && [ ! -e /usr/share/mympd/htdocs/library ] && ln -s "$LIBRARY" /usr/share/mympd/htdocs/library
 else
   echo "/etc/mpd.conf not found, you must link your musicdir manually to /usr/share/mympd/htdocs/library"
 fi
@@ -65,9 +65,9 @@ then
   if [ contrib/mympd.service -nt /etc/systemd/system/mympd.service ]
   then
     sudo cp -v contrib/mympd.service /etc/systemd/system/
-    sudo systemctl daemon-reload
+    systemctl daemon-reload
   fi
-  sudo systemctl enable mympd  
+  systemctl enable mympd  
 fi
 
 if [ -d /etc/mympd/ssl ]
@@ -75,7 +75,7 @@ then
   echo "Certificates already created"
 else
   echo "Creating certificates"
-  sudo contrib/crcert.sh
+  contrib/crcert.sh
 fi
   
 echo "myMPD installed"
