@@ -53,7 +53,7 @@ sudo chown nobody /var/lib/mympd
 echo "Trying to link musicdir to library"
 if [ -f /etc/mpd.conf ]
 then
-  LIBRARY=$(grep music /etc/mpd.conf | awk {'print $2'})
+  LIBRARY=$(grep music /etc/mpd.conf | awk {'print $2'} | sed -e 's/"//g')
   [ "$LIBRARY" != "" ] && [ ! -e /usr/share/mympd/htdocs/library ] && ln -s $LIBRARY /usr/share/mympd/htdocs/library
 else
   echo "/etc/mpd.conf not found, you must link your musicdir manually to /usr/share/mympd/htdocs/library"
