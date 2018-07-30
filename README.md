@@ -7,13 +7,13 @@ myMPD is a fork of ympd (https://github.com/notandy/ympd).
 
 This fork provides a reworked ui based on Bootstrap 4, a modernized backend and many new features while having the same small footprint as ympd.
 
-Design principles:
+**Design principles:**
  - Keep it small and simple
  - Uses only mpd as source of truth
  - Mobile first UI
  - Keep security in mind
 
-Featurelist:
+**Featurelist:**
  - Control mpd functions (play, pause, etc.)
  - Set mpd settings (repeat, random, etc.)
  - Browse mpd database by albumartist
@@ -27,8 +27,11 @@ Featurelist:
  - Local playback of mpd http stream (html5 audio api)
 
 myMPD is work in progress. Bugreportes and feature requests are very welcome.
-- Issues and feature request: https://github.com/jcorporation/myMPD/issues
+- Issues and feature requests: https://github.com/jcorporation/myMPD/issues
 - Planed functions: https://github.com/jcorporation/myMPD/projects/1
+
+Screenshots
+-----------
 
 ![image](https://jcgames.de/stuff/myMPD/screenshots.gif)
 
@@ -48,7 +51,7 @@ Dependencies
  - libmpdclient 2: http://www.musicpd.org/libs/libmpdclient/
  - OpenSSL: https://www.openssl.org/
 
-Build dependencies
+Build Dependencies
 ------------------
  - cmake 2.6
  - libasan3: for debug builds only
@@ -62,7 +65,7 @@ Unix Build Instructions
 3. Link your mpd music directory to ```/usr/share/mympd/htdocs/library``` and put ```folder.jpg``` files in your album directories (mkrelease.sh tries to do this for you).
 4. Configure your mpd with http stream output to use the local player.
 
-Run flags
+Run Flags
 ---------
 ```
 Usage: ./mympd [OPTION]...
