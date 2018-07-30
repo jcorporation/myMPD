@@ -4,7 +4,7 @@ project (mympd C)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/")
 set(CPACK_PACKAGE_VERSION_MAJOR "3")
 set(CPACK_PACKAGE_VERSION_MINOR "3")
-set(CPACK_PACKAGE_VERSION_PATCH "0")
+set(CPACK_PACKAGE_VERSION_PATCH "1")
 
 if(CMAKE_BUILD_TYPE MATCHES RELEASE)
     set(ASSETS_PATH "${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}/htdocs")
@@ -32,8 +32,8 @@ set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS NS_ENABLE_SSL)
 set(SOURCES
     src/mympd.c
     src/mpd_client.c
-    src/mongoose/mongoose.c
-    src/frozen/frozen.c
+    dist/src/mongoose/mongoose.c
+    dist/src/frozen/frozen.c
 )
 
 add_executable(mympd ${SOURCES})
@@ -42,14 +42,14 @@ target_link_libraries(mympd ${LIBMPDCLIENT_LIBRARY} ${CMAKE_THREAD_LIBS_INIT} ${
 install(TARGETS mympd DESTINATION bin)
 install(FILES contrib/mympd.1 DESTINATION ${CMAKE_INSTALL_PREFIX}/share/man/man1)
 install(FILES htdocs/mympd.webmanifest DESTINATION share/${PROJECT_NAME}/htdocs/)
-install(FILES htdocs/index.html DESTINATION share/${PROJECT_NAME}/htdocs/)
-install(FILES htdocs/player.html DESTINATION share/${PROJECT_NAME}/htdocs/)
-install(FILES htdocs/sw.min.js DESTINATION share/${PROJECT_NAME}/htdocs/)
-install(FILES htdocs/js/player.min.js DESTINATION share/${PROJECT_NAME}/htdocs/js/)
-install(FILES htdocs/js/bootstrap-native-v4.min.js DESTINATION share/${PROJECT_NAME}/htdocs/js/)
-install(FILES htdocs/js/mpd.min.js DESTINATION share/${PROJECT_NAME}/htdocs/js/)
-install(FILES htdocs/css/bootstrap.min.css DESTINATION share/${PROJECT_NAME}/htdocs/css/)
-install(FILES htdocs/css/mpd.min.css DESTINATION share/${PROJECT_NAME}/htdocs/css/)
+install(FILES dist/htdocs/index.html DESTINATION share/${PROJECT_NAME}/htdocs/)
+install(FILES dist/htdocs/player.html DESTINATION share/${PROJECT_NAME}/htdocs/)
+install(FILES dist/htdocs/sw.min.js DESTINATION share/${PROJECT_NAME}/htdocs/)
+install(FILES dist/htdocs/js/player.min.js DESTINATION share/${PROJECT_NAME}/htdocs/js/)
+install(FILES dist/htdocs/js/bootstrap-native-v4.min.js DESTINATION share/${PROJECT_NAME}/htdocs/js/)
+install(FILES dist/htdocs/js/mpd.min.js DESTINATION share/${PROJECT_NAME}/htdocs/js/)
+install(FILES dist/htdocs/css/bootstrap.min.css DESTINATION share/${PROJECT_NAME}/htdocs/css/)
+install(FILES dist/htdocs/css/mpd.min.css DESTINATION share/${PROJECT_NAME}/htdocs/css/)
 install(DIRECTORY htdocs/assets DESTINATION share/${PROJECT_NAME}/htdocs)
 install(DIRECTORY DESTINATION /var/lib/${PROJECT_NAME}/)
 install(FILES contrib/options DESTINATION /etc/${PROJECT_NAME}/)

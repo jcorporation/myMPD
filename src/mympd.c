@@ -30,7 +30,7 @@
 #include <sys/time.h>
 #include <pwd.h>
 
-#include "mongoose/mongoose.h"
+#include "../dist/src/mongoose/mongoose.h"
 #include "mpd_client.h"
 #include "config.h"
 

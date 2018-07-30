@@ -34,7 +34,7 @@
 
 #include "mpd_client.h"
 #include "config.h"
-#include "frozen/frozen.h"
+#include "../dist/src/frozen/frozen.h"
 
 /* forward declaration */
 static int mympd_notify_callback(struct mg_connection *c, const char *param);

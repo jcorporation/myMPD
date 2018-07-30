@@ -1,34 +1,45 @@
 #/bin/sh
 
-if [ -f buildtools/closure-compiler.jar ]
+java=$(which java 2> /dev/null)
+
+if [ -f dist/buildtools/closure-compiler.jar ] && [ "$java" != "" ]
 then
   echo "Minifying javascript"
-  [ htdocs/js/player.js -nt htdocs/js/player.min.js ] && \
-    java -jar buildtools/closure-compiler.jar htdocs/js/player.js > htdocs/js/player.min.js
-  [ htdocs/js/mpd.js -nt  htdocs/js/mpd.min.js ] && \
-    java -jar buildtools/closure-compiler.jar htdocs/js/mpd.js > htdocs/js/mpd.min.js
-  [ htdocs/sw.js -nt htdocs/sw.min.js ] && \
-    java -jar buildtools/closure-compiler.jar htdocs/sw.js > htdocs/sw.min.js
+  [ htdocs/js/player.js -nt dist/htdocs/js/player.min.js ] && \
+    java -jar dist/buildtools/closure-compiler.jar htdocs/js/player.js > dist/htdocs/js/player.min.js
+  [ htdocs/js/mpd.js -nt  dist/htdocs/js/mpd.min.js ] && \
+    java -jar dist/buildtools/closure-compiler.jar htdocs/js/mpd.js > dist/htdocs/js/mpd.min.js
+  [ htdocs/sw.js -nt dist/htdocs/sw.min.js ] && \
+    java -jar dist/buildtools/closure-compiler.jar htdocs/sw.js > dist/htdocs/sw.min.js
 else
   echo "buildtools/closure-compiler.jar not found, using non-minified files"
-  [ htdocs/js/player.js -nt htdocs/js/player.min.js ] && \
-    cp htdocs/js/player.js htdocs/js/player.min.js
-  [ htdocs/js/mpd.js -nt  htdocs/js/mpd.min.js ] && \
-    cp htdocs/js/mpd.js  htdocs/js/mpd.min.js
-  [ htdocs/sw.js -nt htdocs/sw.min.js ] && \
-    cp htdocs/sw.js htdocs/sw.min.js    
+  [ htdocs/js/player.js -nt dist/htdocs/js/player.min.js ] && \
+    cp htdocs/js/player.js dist/htdocs/js/player.min.js
+  [ htdocs/js/mpd.js -nt  dist/htdocs/js/mpd.min.js ] && \
+    cp htdocs/js/mpd.js  dist/htdocs/js/mpd.min.js
+  [ htdocs/sw.js -nt dist/htdocs/sw.min.js ] && \
+    cp htdocs/sw.js dist/htdocs/sw.min.js    
 fi
 
-if [ -f buildtools/closure-stylesheets.jar ]
+if [ -f buildtools/closure-stylesheets.jar ] && [ "$java" != "" ]
 then
   echo "Minifying stylesheets"
-  [ htdocs/css/mpd.css -nt htdocs/css/mpd.min.css ] && \
-    java -jar buildtools/closure-stylesheets.jar htdocs/css/mpd.css > htdocs/css/mpd.min.css
+  [ htdocs/css/mpd.css -nt dist/htdocs/css/mpd.min.css ] && \
+    java -jar dist/buildtools/closure-stylesheets.jar htdocs/css/mpd.css > dist/htdocs/css/mpd.min.css
 else
   echo "buildtools/closure-stylesheets.jar not found, using non-minified files"
-  [ htdocs/css/mpd.css -nt htdocs/css/mpd.min.css ] && \
-    cp htdocs/css/mpd.css htdocs/css/mpd.min.css    
+  [ htdocs/css/mpd.css -nt dist/htdocs/css/mpd.min.css ] && \
+    cp htdocs/css/mpd.css dist/htdocs/css/mpd.min.css    
 fi
+
+echo "Replacing javascript and stylesheets with minified files"
+sed -e 's/mpd\.css/mpd\.min\.css/' -e 's/mpd\.js/mpd\.min\.js/' htdocs/index.html > dist/htdocs/index.html
+sed -e 's/mpd\.css/mpd\.min\.css/' -e 's/player\.js/player\.min\.js/' htdocs/player.html > dist/htdocs/player.html
+sed -i -e 's/mpd\.css/mpd\.min\.css/' -e 's/mpd\.js/mpd\.min\.js/' -e 's/player\.js/player\.min\.js/' dist/htdocs/sw.min.js
+sed -i -e 's/\/sw\.js/\/sw\.min\.js/' dist/htdocs/js/mpd.min.js
+echo "Minifying html"
+perl -i -pe 's/^\s*//gm; s/\s*$//gm' dist/htdocs/index.html
+perl -i -pe 's/^\s*//gm; s/\s*$//gm' dist/htdocs/player.html
 
 echo "Compiling and installing mympd"
 [ -d release ] || mkdir release
@@ -37,15 +48,6 @@ cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=RELEASE ..
 make
 sudo make install
 cd ..
-
-echo "Replacing javascript and stylesheets with minified files"
-sudo sed -i -e 's/mpd\.css/mpd\.min\.css/' -e 's/mpd\.js/mpd\.min\.js/' /usr/share/mympd/htdocs/index.html
-sudo sed -i -e 's/mpd\.css/mpd\.min\.css/' -e 's/player\.js/player\.min\.js/' /usr/share/mympd/htdocs/player.html
-sudo sed -i -e 's/mpd\.css/mpd\.min\.css/' -e 's/mpd\.js/mpd\.min\.js/' -e 's/player\.js/player\.min\.js/' /usr/share/mympd/htdocs/sw.min.js
-sudo sed -i -e 's/\/sw\.js/\/sw\.min\.js/' /usr/share/mympd/htdocs/js/mpd.min.js
-echo "Minifying html"
-perl -i -pe 's/^\s*//gm; s/\s*$//gm' /usr/share/mympd/htdocs/index.html
-perl -i -pe 's/^\s*//gm; s/\s*$//gm' /usr/share/mympd/htdocs/player.html
 
 echo "Fixing ownership of /var/lib/mympd"
 sudo chown nobody /var/lib/mympd
