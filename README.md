@@ -46,6 +46,7 @@ Dependencies
 ------------
  - libmpdclient 2: http://www.musicpd.org/libs/libmpdclient/
  - OpenSSL: https://www.openssl.org/
+
 Build dependencies
 ------------------
  - cmake 2.6
