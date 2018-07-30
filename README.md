@@ -45,14 +45,17 @@ Backend
 Dependencies
 ------------
  - libmpdclient 2: http://www.musicpd.org/libs/libmpdclient/
- - cmake 2.6: http://cmake.org/
  - OpenSSL: https://www.openssl.org/
- - libasan3 (for debug builds only)
+Build dependencies
+------------------
+ - cmake 2.6
+ - libasan3: for debug builds only
+ - Java (openjdk-9-jre-headless): optional for minifying .css and .js files
 
 Unix Build Instructions
 -----------------------
 
-1. Install dependencies: cmake, libmpdclient (dev) and OpenSSL (dev) are available from all major distributions.
+1. Install dependencies: cmake, libmpdclient (dev) and OpenSSL (dev), java are available from all major distributions.
 2. Build and install: ```cd /path/to/src; ./mkrelease.sh```.
 3. Link your mpd music directory to ```/usr/share/mympd/htdocs/library``` and put ```folder.jpg``` files in your album directories (mkrelease.sh tries to do this for you).
 4. Configure your mpd with http stream output to use the local player.
