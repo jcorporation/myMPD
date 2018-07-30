@@ -5,7 +5,7 @@ myMPD is a lightweight MPD web client that runs without a dedicated webserver or
 It's tuned for minimal resource usage and requires only very litte dependencies.
 myMPD is a fork of ympd (https://github.com/notandy/ympd).
 
-This fork provides a reworked ui based on Bootstrap 4 and a modernized backend.
+This fork provides a reworked ui based on Bootstrap 4, a modernized backend and many new features while having the same small footprint as ympd.
 
 Design principles:
  - Keep it small and simple
@@ -26,8 +26,9 @@ Featurelist:
  - HTTP stream support
  - Local playback of mpd http stream (html5 audio api)
 
-myMPD is work in progress. Bugreportes and feature requests are very welcome. Please use the issues function from github (https://github.com/jcorporation/myMPD/issues).
-Planed functions are managed in a github project (https://github.com/jcorporation/myMPD/projects/1).
+myMPD is work in progress. Bugreportes and feature requests are very welcome.
+- Issues and feature request: https://github.com/jcorporation/myMPD/issues
+- Planed functions: https://github.com/jcorporation/myMPD/projects/1
 
 ![image](https://jcgames.de/stuff/myMPD/screenshots.gif)
 
