@@ -64,6 +64,7 @@
     X(MPD_API_RM_ALL) \
     X(MPD_API_MOVE_TRACK) \
     X(MPD_API_SEARCH_QUEUE) \
+    X(MPD_API_SEARCH_ADD_PLIST) \
     X(MPD_API_SEARCH_ADD) \
     X(MPD_API_SEARCH) \
     X(MPD_API_SEND_MESSAGE) \
@@ -145,6 +146,7 @@ int mympd_put_queue(char *buffer, unsigned int offset);
 int mympd_put_browse(char *buffer, char *path, unsigned int offset, char *filter);
 int mympd_search(char *buffer, char *mpdtagtype, unsigned int offset, char *searchstr);
 int mympd_search_add(char *buffer, char *mpdtagtype, char *searchstr);
+int mympd_search_add_plist(char *buffer, char *plist, char *mpdtagtype, char *searchstr);
 int mympd_search_queue(char *buffer, char *mpdtagtype, unsigned int offset, char *searchstr);
 int mympd_put_welcome(char *buffer);
 int mympd_get_stats(char *buffer);

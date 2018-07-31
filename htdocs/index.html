@@ -126,7 +126,7 @@
               </div>
             </div>
           </form>
-          <div id="QueuePaginationTop" class="btn-group mr-2">
+          <div id="QueuePaginationTop" class="btn-group mr-2 hide">
             <button data-href="{'cmd': 'gotoPage', 'options': ['prev']}" id="QueuePaginationTopPrev" title="Previous Page" type="button" class="btn btn-secondary">&laquo;</button>
               <div class="input-group-append">
                 <button id="QueuePaginationTopPage" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">1 / 1</button>
@@ -159,7 +159,7 @@
             </tbody>
           </table>
         </div>
-        <div class="btn-toolbar" id="QueueButtonsBottom" role="toolbar">
+        <div class="btn-toolbar hide" id="QueueButtonsBottom" role="toolbar">
           <div class="btn-group mr-2">
             <button type="button" class="btn btn-secondary" data-href="{'cmd':'scrollTo','options':[0]}" title="To top">
               <span class="material-icons">keyboard_arrow_up</span>
@@ -208,7 +208,7 @@
             <div class="dropdown-menu bg-dark px-2 letters" id="BrowsePlaylistsFilterLetters">
             </div>
           </div>        
-          <div id="BrowsePlaylistsPaginationTop" class="btn-group mr-2">
+          <div id="BrowsePlaylistsPaginationTop" class="btn-group mr-2 hide">
             <button data-href="{'cmd': 'gotoPage', 'options': ['prev']}" id="BrowsePlaylistsPaginationTopPrev" title="Previous Page" type="button" class="btn btn-secondary">&laquo;</button>
               <div class="input-group-append">
                 <button id="BrowsePlaylistsPaginationTopPage" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">1 / 1</button>
@@ -257,7 +257,7 @@
             </tbody>
           </table>          
         </div>
-        <div class="btn-toolbar" id="BrowsePlaylistsButtonsBottom" role="toolbar">
+        <div class="btn-toolbar hide" id="BrowsePlaylistsButtonsBottom" role="toolbar">
           <div class="btn-group mr-2">
             <button type="button" class="btn btn-secondary" data-href="{'cmd': 'scrollTo', 'options': [0]}" title="To top">
               <span class="material-icons">keyboard_arrow_up</span>
@@ -285,7 +285,7 @@
             <div class="dropdown-menu bg-dark px-2 letters" id="BrowseDatabaseFilterLetters">
             </div>
           </div>
-          <div id="BrowseDatabasePaginationTop" class="btn-group mr-2">
+          <div id="BrowseDatabasePaginationTop" class="btn-group mr-2 hide">
             <button data-href="{'cmd': 'gotoPage', 'options': ['prev']}" id="BrowseDatabasePaginationTopPrev" title="Previous Page" type="button" class="btn btn-secondary">&laquo;</button>
               <div class="input-group-append">
                 <button id="BrowseDatabasePaginationTopPage" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">1 / 1</button>
@@ -315,7 +315,7 @@
         
         <div id="BrowseDatabaseAlbumCards" class="row hide"></div>
         
-        <div class="btn-toolbar" id="BrowseDatabaseButtonsBottom" role="toolbar">
+        <div class="btn-toolbar hide" id="BrowseDatabaseButtonsBottom" role="toolbar">
           <div class="btn-group mr-2">
             <button type="button" class="btn btn-secondary" data-href="{'cmd': 'scrollTo', 'options': [0]}" title="To top">
               <span class="material-icons">keyboard_arrow_up</span>
@@ -336,15 +336,22 @@
 
       <div class="card-body hide" id="cardBrowseFilesystem">
         <div class="btn-toolbar card-toolbar" id="BrowseFilesystemButtons" role="toolbar">
-          <div class="btn-group mr-2 pull-right">
-            <button data-href="{'cmd': 'addAllFromBrowse', 'options': []}" id="BrowseFilesystemAddAllSongs" class="btn btn-secondary">Add all</button>
-          </div>
           <div class="btn-group mr-2">
             <button id="BrowseFilesystemFilter" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">Filter</button>
             <div class="dropdown-menu bg-dark px-2 letters" id="BrowseFilesystemFilterLetters">
             </div>
+          </div>          
+          <div class="input-group mr-2">
+            <div class="input-group-prepend">
+              <button data-href="{'cmd': 'addAllFromBrowse', 'options': []}" id="BrowseFilesystemAddAllSongs" class="btn btn-secondary">Add all</button>
+              <button id="BrowseFilesystemAddAllSongsBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-right" type="button" data-toggle="dropdown"></button>
+              <div class="dropdown-menu bg-dark dropdown-menu-right px-2" id="BrowseFilesystemAddAllSongsDropdown">
+                <button type="button" class="btn btn-secondary btn-block">Add all to queue</button>
+                <button type="button" class="btn btn-secondary btn-block">Add all to playlist</button>
+              </div>
+            </div>
           </div>
-          <div id="BrowseFilesystemPaginationTop" class="btn-group mr-2">
+          <div id="BrowseFilesystemPaginationTop" class="btn-group mr-2 hide">
             <button data-href="{'cmd': 'gotoPage', 'options': ['prev']}" id="BrowseFilesystemPaginationTopPrev" title="Previous Page" type="button" class="btn btn-secondary">&laquo;</button>
               <div class="input-group-append">
                 <button id="BrowseFilesystemPaginationTopPage" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">1 / 1</button>
@@ -380,7 +387,7 @@
             </tbody>
           </table>
         </div>
-        <div class="btn-toolbar" id="BrowseFilesystemButtonsBottom" role="toolbar">
+        <div class="btn-toolbar hide" id="BrowseFilesystemButtonsBottom" role="toolbar">
           <div class="btn-group mr-2">
             <button type="button" class="btn btn-secondary" data-href="{'cmd': 'scrollTo', 'options': [0]}" title="To top">
               <span class="material-icons">keyboard_arrow_up</span>
@@ -423,10 +430,17 @@
               </div>
             </div>
           </form>
-          <div class="btn-group mr-2 pull-right">
-            <button id="searchAddAllSongs" class="btn btn-secondary" data-href="{'cmd': 'addAllFromSearch', 'options': []}">Add all</button>
-          </div>          
-          <div id="AearchPaginationTop" class="btn-group mr-2">
+          <div class="input-group mr-2">
+            <div class="input-group-prepend">
+              <button id="searchAddAllSongs" class="btn btn-secondary rounded-right" data-href="{'cmd': 'addAllFromSearch', 'options': []}">Add all</button>
+              <button id="searchAddAllSongsBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-right hide" type="button" data-toggle="dropdown"></button>
+              <div class="dropdown-menu bg-dark dropdown-menu-right px-2" id="searchAddAllSongsDropdown">
+                  <button type="button" class="btn btn-secondary btn-block">Add all to queue</button>
+                  <button type="button" class="btn btn-secondary btn-block">Add all to playlist</button>
+              </div>
+            </div>
+          </div>
+          <div id="SearchPaginationTop" class="btn-group mr-2 hide">
             <button data-href="{'cmd': 'gotoPage', 'options': ['prev']}" id="SearchPaginationTopPrev" title="Previous Page" type="button" class="btn btn-secondary">&laquo;</button>
               <div class="input-group-append">
                 <button id="SearchPaginationTopPage" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">1 / 1</button>
@@ -458,7 +472,7 @@
             </tbody>
           </table>
         </div>
-        <div class="btn-toolbar" id="SearchButtonsBottom" role="toolbar">
+        <div class="btn-toolbar hide" id="SearchButtonsBottom" role="toolbar">
           <div class="btn-group mr-2">
             <button type="button" class="btn btn-secondary" data-href="{'cmd': 'scrollTo', 'options': [0]}" title="To top">
               <span class="material-icons">keyboard_arrow_up</span>
@@ -510,14 +524,17 @@
           <h5 class="modal-title"><span class="material-icons title-icon">playlist_add</span> Add to playlist</h5>
         </div>
         <div class="modal-body">
-          <form id="addToPlaylistFrm">
+          <form class="needs-validation" id="addToPlaylistFrm" novalidate>
             <input type="hidden" id="addToPlaylistUri"/>
-            <div class="form-group input-group col-md-6 border-secondary">
-              <div class="input-group-prepend">
-                <div class="input-group-text bg-secondary text-light border-secondary">Playlist</div>
-              </div>
-              <select id="addToPlaylistPlaylist" class="form-control custom-select border-secondary">
-              </select>
+            <div class="form-group">
+              <label for="addToPlaylistPlaylist">Playlist</label>
+              <select id="addToPlaylistPlaylist" class="form-control custom-select"></select>
+              <div class="invalid-feedback">Please choose playlist.</div>
+            </div>
+            <div class="form-group hide" id="addToPlaylistNewPlaylistDiv">
+              <label for="addToPlaylistNewPlaylist">Create Playlist</label>
+              <input id="addToPlaylistNewPlaylist" class="form-control"/>
+              <div class="invalid-feedback">Invalid filename.</div>
             </div>
           </form>
         </div>
@@ -543,7 +560,7 @@
             </div>
             <div class="form-group">
               <label for="renamePlaylistTo">To</label>
-              <input type="text" class="form-control" id="renamePlaylistTo">
+              <input type="text" class="form-control" id="renamePlaylistTo"/>
               <div class="invalid-feedback">Invalid filename.</div>
             </div>
           </form>

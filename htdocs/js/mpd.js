@@ -213,10 +213,14 @@ function appRoute() {
     else if (app.current.app == 'Browse' && app.current.tab == 'Filesystem') {
         sendAPI({"cmd":"MPD_API_GET_FILESYSTEM","data": {"offset": app.current.page, "path": (app.current.search ? app.current.search : "/"), "filter": app.current.filter}}, parseFilesystem);
         // Don't add all songs from root
-        if (app.current.search)
+        if (app.current.search) {
             document.getElementById('BrowseFilesystemAddAllSongs').removeAttribute('disabled');
-        else
-            document.getElementById('BrowseFilesystemAddAllSongs').setAttribute('disabled', 'disabled')
+            document.getElementById('BrowseFilesystemAddAllSongsBtn').removeAttribute('disabled');
+        }
+        else {
+            document.getElementById('BrowseFilesystemAddAllSongs').setAttribute('disabled', 'disabled');
+            document.getElementById('BrowseFilesystemAddAllSongsBtn').setAttribute('disabled', 'disabled');
+        }
         // Create breadcrumb
         var breadcrumbs='<li class="breadcrumb-item"><a data-uri="">root</a></li>';
         var pathArray = app.current.search.split('/');
@@ -256,6 +260,7 @@ function appRoute() {
         } else {
             document.getElementById('SearchList').getElementsByTagName('tbody')[0].innerHTML = '';
             document.getElementById('searchAddAllSongs').setAttribute('disabled', 'disabled');
+            document.getElementById('searchAddAllSongsBtn').setAttribute('disabled', 'disabled');
             document.getElementById('panel-heading-search').innerText = '';
             document.getElementById('SearchList').classList.remove('opacity05');
             setPagination(0);
@@ -288,14 +293,14 @@ function appInit() {
 
     domCache.volumeBar.value = 0;
     domCache.volumeBar.addEventListener('change', function(event) {
-        sendAPI({"cmd": "MPD_API_SET_VOLUME","data": {"volume": domCache.volumeBar.value}});
+        sendAPI({"cmd": "MPD_API_SET_VOLUME", "data": {"volume": domCache.volumeBar.value}});
     }, false);
 
     domCache.progressBar.value = 0;
     domCache.progressBar.addEventListener('change', function(event) {
         if (current_song && current_song.currentSongId >= 0) {
             var seekVal = Math.ceil(current_song.totalTime * (domCache.progressBar.value / 100));
-            sendAPI({"cmd": "MPD_API_SET_SEEK", "data": {"songid":current_song.currentSongId,"seek": seekVal}});
+            sendAPI({"cmd": "MPD_API_SET_SEEK", "data": {"songid": current_song.currentSongId, "seek": seekVal}});
         }
     }, false);
     
@@ -326,6 +331,17 @@ function appInit() {
         streamUrl.classList.remove('is-invalid');
         document.getElementById('addStreamFrm').classList.remove('was-validated');
     });
+
+
+    document.getElementById('addToPlaylistPlaylist').addEventListener('change',function(event) {
+        if (this.options[this.selectedIndex].text == 'New Playlist') {
+            document.getElementById('addToPlaylistNewPlaylistDiv').classList.remove('hide');
+            document.getElementById('addToPlaylistNewPlaylist').focus();
+        }
+        else {
+            document.getElementById('addToPlaylistNewPlaylistDiv').classList.add('hide');
+        }
+    }, false);
     
     addFilterLetter('BrowseFilesystemFilterLetters');
     addFilterLetter('BrowseDatabaseFilterLetters');
@@ -429,6 +445,28 @@ function appInit() {
         else if (event.target.nodeName == 'A') {
             event.preventDefault();
             showMenu(event.target);
+        }
+    }, false);
+
+    document.getElementById('BrowseFilesystemAddAllSongsDropdown').addEventListener('click', function(event) {
+        if (event.target.nodeName == 'BUTTON') {
+            if (event.target.innerText == 'Add all to queue') {
+                addAllFromBrowse();
+            }
+            else if (event.target.innerText == 'Add all to playlist') {
+                showAddToPlaylist(app.current.search);                
+            }
+        }
+    }, false);
+
+    document.getElementById('searchAddAllSongsDropdown').addEventListener('click', function(event) {
+        if (event.target.nodeName == 'BUTTON') {
+            if (event.target.innerText == 'Add all to queue') {
+                addAllFromSearch();
+            }
+            else if (event.target.innerText == 'Add all to playlist') {
+                showAddToPlaylist('SEARCH');                
+            }
         }
     }, false);
 
@@ -947,10 +985,14 @@ function parseSearch(obj) {
     if (app.current.app !== 'Search')
         return;
     document.getElementById('panel-heading-search').innerHTML = obj.totalEntities + ' Songs found';
-    if (obj.totalEntities > 0)
+    if (obj.totalEntities > 0) {
         document.getElementById('searchAddAllSongs').removeAttribute('disabled');
-    else
-        document.getElementById('searchAddAllSongs').setAttribute('disabled','disabled');                    
+        document.getElementById('searchAddAllSongsBtn').removeAttribute('disabled');
+    } 
+    else {
+        document.getElementById('searchAddAllSongs').setAttribute('disabled','disabled');
+        document.getElementById('searchAddAllSongsBtn').setAttribute('disabled','disabled');
+    }
     parseFilesystem(obj);
 }
 
@@ -1245,14 +1287,17 @@ function setPagination(number) {
     
         if (number > app.current.page + settings.max_elements_per_page) {
             document.getElementById(cat + p[i] + 'Next').removeAttribute('disabled');
+            document.getElementById(cat + p[i]).classList.remove('hide');
             document.getElementById(cat + 'ButtonsBottom').classList.remove('hide');
         } else {
             document.getElementById(cat + p[i] + 'Next').setAttribute('disabled', 'disabled');
+            document.getElementById(cat + p[i]).classList.add('hide');
             document.getElementById(cat + 'ButtonsBottom').classList.add('hide');
         }
     
         if (app.current.page > 0) {
             document.getElementById(cat + p[i] + 'Prev').removeAttribute('disabled');
+            document.getElementById(cat + p[i]).classList.remove('hide');
             document.getElementById(cat + 'ButtonsBottom').classList.remove('hide');
         } else {
             document.getElementById(cat + p[i] + 'Prev').setAttribute('disabled', 'disabled');
@@ -1348,7 +1393,7 @@ function playlistClear() {
 
 function getAllPlaylists(obj) {
     var nrItems = obj.data.length;
-    var playlists = '';
+    var playlists = '<option></option><option>New Playlist</option>';
     for (var i = 0; i < nrItems; i++) {
         playlists += '<option>' + obj.data[i].uri + '</option>';
     }
@@ -1359,10 +1404,14 @@ function getAllPlaylists(obj) {
     }
 }
 
+
 function showAddToPlaylist(uri) {
     modalAddToPlaylist.show();
     document.getElementById('addToPlaylistUri').value = uri;
     document.getElementById('addToPlaylistPlaylist').innerHTML = '';
+    document.getElementById('addToPlaylistNewPlaylistDiv').classList.add('hide');
+    document.getElementById('addToPlaylistFrm').classList.remove('was-validated');
+    document.getElementById('addToPlaylistNewPlaylist').classList.remove('is-invalid');
     sendAPI({"cmd":"MPD_API_GET_PLAYLISTS","data": {"offset": 0, "filter": "-"}}, getAllPlaylists);
 }
 
@@ -1370,8 +1419,28 @@ function addToPlaylist() {
     var uri = document.getElementById('addToPlaylistUri').value;
     var plistEl = document.getElementById('addToPlaylistPlaylist');
     var plist = plistEl.options[plistEl.selectedIndex].text;
-    sendAPI({"cmd": "MPD_API_ADD_TO_PLAYLIST", "data": {"uri": uri, "plist": plist}});
-    modalAddToPlaylist.hide();
+    if (plist == 'New Playlist') {
+        var newPl = document.getElementById('addToPlaylistNewPlaylist').value;
+        var valid = newPl.replace(/\w/g,'');
+        if (newPl != '' && valid == '') {
+            plist = newPl;
+        } else {
+            document.getElementById('addToPlaylistNewPlaylist').classList.add('is-invalid');
+            document.getElementById('addToPlaylistFrm').classList.add('was-validated');
+            return;
+        }
+    }
+    if (plist != '') {
+        if (uri != 'SEARCH') 
+            sendAPI({"cmd": "MPD_API_ADD_TO_PLAYLIST", "data": {"uri": uri, "plist": plist}});
+        else
+            addAllFromSearchPlist(plist);            
+        modalAddToPlaylist.hide();
+    }
+    else {
+        document.getElementById('addToPlaylistPlaylist').classList.add('is-invalid');
+        document.getElementById('addToPlaylistFrm').classList.add('was-validated');
+    }
 }
 
 function showRenamePlaylist(from) {
@@ -1444,7 +1513,8 @@ function showMenu(el) {
             ( document.getElementById('BrowsePlaylistsDetailList').getAttribute('data-ro') == 'false' ?
             '<div class="dropdown-divider"></div>' +
             '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'removeFromPlaylist\', \'options\': [\'' + document.getElementById('BrowsePlaylistsDetailList').getAttribute('data-uri') + '\', \'' + 
-            el.parentNode.parentNode.getAttribute('data-songpos') + '\']}">Remove</a>' : '');
+            el.parentNode.parentNode.getAttribute('data-songpos') + '\']}">Remove</a>' : '') +
+            ( type != 'plist' ? '<div class="dropdown-divider"></div><a class="dropdown-item" href="#" data-href="{\'cmd\': \'showAddToPlaylist\', \'options\': [\'' + uri + '\']}">Add to playlist</a>' : '');
     }
     else if (app.current.app == 'Queue') {
         menu += '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'delQueueSong\', \'options\': [\'single\',' + 
@@ -1544,7 +1614,7 @@ function delQueueSong(mode, start, end) {
 
 function delPlaylist(uri) {
     sendAPI({"cmd": "MPD_API_RM_PLAYLIST", "data": {"uri": uri}});
-    document.getElementById('BrowsePlaylistsAllList').querySelector('tr[data-uri=' + encodeURI(uri) + ']').remove();
+    sendAPI({"cmd":"MPD_API_GET_PLAYLISTS","data": {"offset": app.current.page, "filter": app.current.filter}}, parsePlaylists);    
 }
 
 function confirmSettings() {
@@ -1609,6 +1679,13 @@ function addAllFromSearch() {
     if (app.current.search.length >= 2) {
         sendAPI({"cmd":"MPD_API_SEARCH_ADD", "data":{"filter": app.current.filter, "searchstr": app.current.search}});
         showNotification('Added '+ parseInt(document.getElementById('panel-heading-search').innerText) +' songs from search', '', '', 'success');
+    }
+}
+
+function addAllFromSearchPlist(plist) {
+    if (app.current.search.length >= 2) {
+        sendAPI({"cmd":"MPD_API_SEARCH_ADD_PLIST", "data":{ "plist": plist, "filter": app.current.filter, "searchstr": app.current.search}});
+        showNotification('Added '+ parseInt(document.getElementById('panel-heading-search').innerText) +' songs from search to ' + plist, '', '', 'success');
     }
 }
 
