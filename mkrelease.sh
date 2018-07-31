@@ -21,7 +21,7 @@ else
     cp htdocs/sw.js dist/htdocs/sw.min.js    
 fi
 
-if [ -f buildtools/closure-stylesheets.jar ] && [ "$java" != "" ]
+if [ -f dist/buildtools/closure-stylesheets.jar ] && [ "$java" != "" ]
 then
   echo "Minifying stylesheets"
   [ htdocs/css/mpd.css -nt dist/htdocs/css/mpd.min.css ] && \
