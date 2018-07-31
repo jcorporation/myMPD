@@ -1309,30 +1309,15 @@ int mympd_search_add(char *buffer, char *mpdtagtype, char *searchstr) {
 
 int mympd_search_add_plist(char *buffer, char *plist, char *mpdtagtype, char *searchstr) {
     int len = 0;
-    struct mpd_song *song;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
-    
-    if (mpd_search_db_songs(mpd.conn, false) == false) {
-        RETURN_ERROR_AND_RECOVER("mpd_search_add_db_songs");
-    }
-    
-    if (mpd_tag_name_parse(mpdtagtype) != MPD_TAG_UNKNOWN) {
-       if (mpd_search_add_tag_constraint(mpd.conn, MPD_OPERATOR_DEFAULT, mpd_tag_name_parse(mpdtagtype), searchstr) == false)
-            RETURN_ERROR_AND_RECOVER("mpd_search_add_tag_constraint");
-    }
-    else {
-        if (mpd_search_add_any_tag_constraint(mpd.conn, MPD_OPERATOR_DEFAULT, searchstr) == false)
-            RETURN_ERROR_AND_RECOVER("mpd_search_add_any_tag_constraint");        
+    struct mpd_pair *pair;    
+
+    mpd_send_command(mpd.conn, "searchaddpl", plist, mpdtagtype, searchstr, NULL);
+
+    while ((pair = mpd_recv_pair(mpd.conn)) != NULL) {
+        mpd_return_pair(mpd.conn, pair);
     }    
-        
-    if (mpd_search_commit(mpd.conn) == false)
-        RETURN_ERROR_AND_RECOVER("mpd_search_commit");
-    
-    while((song = mpd_recv_song(mpd.conn)) != NULL) {
-//        mpd_send_playlist_add(mpd.conn, plist, mpd_song_get_uri(song));        
-        mpd_song_free(song);
-    }
-    
+
     if (len > MAX_SIZE)
         fprintf(stderr,"Buffer truncated\n");
     return len;

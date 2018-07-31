@@ -1684,7 +1684,11 @@ function addAllFromSearch() {
 
 function addAllFromSearchPlist(plist) {
     if (app.current.search.length >= 2) {
-        sendAPI({"cmd":"MPD_API_SEARCH_ADD_PLIST", "data":{ "plist": plist, "filter": app.current.filter, "searchstr": app.current.search}});
+        var filter = app.current.filter;
+        if (filter == 'Any Tag')
+            filter = 'any';
+            
+        sendAPI({"cmd":"MPD_API_SEARCH_ADD_PLIST", "data":{ "plist": plist, "filter": filter, "searchstr": app.current.search}});
         showNotification('Added '+ parseInt(document.getElementById('panel-heading-search').innerText) +' songs from search to ' + plist, '', '', 'success');
     }
 }
