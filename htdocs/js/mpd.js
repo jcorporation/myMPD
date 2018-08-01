@@ -74,11 +74,10 @@ domCache.btnNext = document.getElementById('btnNext');
 domCache.progressBar = document.getElementById('progressBar');
 domCache.volumeBar = document.getElementById('volumeBar');
 domCache.outputs = document.getElementById('outputs');
-domCache.btnAdd = document.getElementById('btnAdd');
+domCache.btnAdd = document.getElementById('nav-add2homescreen');
 
 var modalConnectionError = new Modal(document.getElementById('modalConnectionError'));
 var modalSettings = new Modal(document.getElementById('modalSettings'));
-var modalAddstream = new Modal(document.getElementById('modalAddstream'));
 var modalSavequeue = new Modal(document.getElementById('modalSaveQueue'));
 var modalSongDetails = new Modal(document.getElementById('modalSongDetails'));
 var modalAddToPlaylist = new Modal(document.getElementById('modalAddToPlaylist'));
@@ -322,14 +321,6 @@ function appInit() {
         document.getElementById('inputCrossfade').classList.remove('is-invalid');
         document.getElementById('inputMixrampdb').classList.remove('is-invalid');
         document.getElementById('inputMixrampdelay').classList.remove('is-invalid');
-    });
-
-    document.getElementById('modalAddstream').addEventListener('shown.bs.modal', function () {
-        var streamUrl = document.getElementById('streamUrl')
-        streamUrl.focus();
-        streamUrl.value = '';
-        streamUrl.classList.remove('is-invalid');
-        document.getElementById('addStreamFrm').classList.remove('was-validated');
     });
 
 
@@ -1379,6 +1370,7 @@ function playlistDetails(uri) {
 }
 
 function removeFromPlaylist(uri, pos) {
+    pos--;
     sendAPI({"cmd": "MPD_API_RM_PLAYLIST_TRACK", "data": {"uri": uri, "track": pos}});
     document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
     sendAPI({"cmd": "MPD_API_GET_PLAYLIST_LIST", "data": {"offset": app.current.page, "filter": app.current.filter, "uri": app.current.search}}, parsePlaylists);
@@ -1404,19 +1396,60 @@ function getAllPlaylists(obj) {
     }
 }
 
+function toggleAddToPlaylistFrm() {
+    var btn = document.getElementById('toggleAddToPlaylistBtn');
+    toggleBtn('toggleAddToPlaylistBtn');
+    if (btn.classList.contains('active')) {
+        document.getElementById('addToPlaylistFrm').classList.remove('hide');
+        document.getElementById('addStreamFooter').classList.add('hide');
+        document.getElementById('addToPlaylistFooter').classList.remove('hide');
+    }    
+    else {
+        document.getElementById('addToPlaylistFrm').classList.add('hide');
+        document.getElementById('addStreamFooter').classList.remove('hide');
+        document.getElementById('addToPlaylistFooter').classList.add('hide');
+    }
+}
 
 function showAddToPlaylist(uri) {
-    modalAddToPlaylist.show();
     document.getElementById('addToPlaylistUri').value = uri;
     document.getElementById('addToPlaylistPlaylist').innerHTML = '';
     document.getElementById('addToPlaylistNewPlaylistDiv').classList.add('hide');
     document.getElementById('addToPlaylistFrm').classList.remove('was-validated');
     document.getElementById('addToPlaylistNewPlaylist').classList.remove('is-invalid');
+    toggleBtn('toggleAddToPlaylistBtn',0);
+    var streamUrl = document.getElementById('streamUrl')
+    streamUrl.focus();
+    streamUrl.value = '';
+    streamUrl.classList.remove('is-invalid');
+    document.getElementById('addStreamFrm').classList.remove('was-validated');
+    if (uri != 'stream') {
+        document.getElementById('addStreamFooter').classList.add('hide');
+        document.getElementById('addStreamFrm').classList.add('hide');
+        document.getElementById('addToPlaylistFooter').classList.remove('hide');
+        document.getElementById('addToPlaylistFrm').classList.remove('hide');
+        document.getElementById('addToPlaylistLabel').innerText = 'Add to playlist';
+    } else {
+        document.getElementById('addStreamFooter').classList.remove('hide');
+        document.getElementById('addStreamFrm').classList.remove('hide');
+        document.getElementById('addToPlaylistFooter').classList.add('hide');
+        document.getElementById('addToPlaylistFrm').classList.add('hide');
+        document.getElementById('addToPlaylistLabel').innerText = 'Add Stream';
+    }
+    modalAddToPlaylist.show();    
     sendAPI({"cmd":"MPD_API_GET_PLAYLISTS","data": {"offset": 0, "filter": "-"}}, getAllPlaylists);
 }
 
 function addToPlaylist() {
     var uri = document.getElementById('addToPlaylistUri').value;
+    if (uri == 'stream') {
+        uri = document.getElementById('streamUrl').value;
+        if (uri == '' || uri.indexOf('http') == -1) {
+            document.getElementById('streamUrl').classList.add('is-invalid');
+            document.getElementById('addStreamFrm').classList.add('was-validated');
+            return;
+        }
+    }
     var plistEl = document.getElementById('addToPlaylistPlaylist');
     var plist = plistEl.options[plistEl.selectedIndex].text;
     if (plist == 'New Playlist') {
@@ -1440,6 +1473,19 @@ function addToPlaylist() {
     else {
         document.getElementById('addToPlaylistPlaylist').classList.add('is-invalid');
         document.getElementById('addToPlaylistFrm').classList.add('was-validated');
+    }
+}
+
+function addStream() {
+    var streamUrl = document.getElementById('streamUrl').value;
+    if (streamUrl != '' && streamUrl.indexOf('http') == 0) {
+        sendAPI({"cmd": "MPD_API_ADD_TRACK", "data": {"uri": streamUrl}});
+        modalAddToPlaylist.hide();
+        showNotification('Added stream ' + streamUrl + 'to queue', '', '', 'success');
+    }
+    else {
+        document.getElementById('streamUrl').classList.add('is-invalid');
+        document.getElementById('addStreamFrm').classList.add('was-validated');
     }
 }
 
@@ -1714,17 +1760,7 @@ function gotoPage(x) {
     appGoto(app.current.app, app.current.tab, app.current.view, app.current.page + '/' + app.current.filter + '/' + app.current.search);
 }
 
-function addStream() {
-    var streamUrl = document.getElementById('streamUrl').value;
-    if (streamUrl != '' && streamUrl.indexOf('http') == 0) {
-        sendAPI({"cmd": "MPD_API_ADD_TRACK", "data": {"uri": streamUrl}});
-        modalAddstream.hide();
-    }
-    else {
-        document.getElementById('streamUrl').classList.add('is-invalid');
-        document.getElementById('addStreamFrm').classList.add('was-validated');
-    }
-}
+
 
 function saveQueue() {
     var plName = document.getElementById('saveQueueName').value;

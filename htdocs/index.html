@@ -23,12 +23,12 @@
             <span class="material-icons header-logo">play_circle_outline</span>myMPD
           </a>
           <div class="dropdown-menu bg-dark">
-            <a id="nav-addstream" class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#modalAddstream">Add Stream</a>
+            <a id="nav-addstream" class="dropdown-item text-light bg-dark" href="#" data-href="{'cmd':'showAddToPlaylist','options':['stream']}">Add Stream</a>
             <a id="nav-updatedb" class="dropdown-item text-light bg-dark" href="#" data-href="{'cmd':'updateDB','options':[]}">Update Database</a>
             <a id="nav-localplayer" class="dropdown-item text-light bg-dark" href="#" data-href="{'cmd':'openLocalPlayer','options':[]}">Local Player</a>
             <a id="nav-settings" class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#modalSettings">Settings</a>
             <a id="nav-about" class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#modalAbout">About</a>
-            <a id="btnAdd" class="dropdown-item text-light bg-dark hide" href="#">Add2HomeScreen</a>
+            <a id="nav-add2homescreen" class="dropdown-item text-light bg-dark hide" href="#">Add2HomeScreen</a>
           </div>
         </div>
         <div class="btn-toolbar col-auto pl-0 pr-0" role="toolbar">
@@ -521,10 +521,29 @@
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title"><span class="material-icons title-icon">playlist_add</span> Add to playlist</h5>
+          <h5 class="modal-title"><span class="material-icons title-icon">playlist_add</span> <span id="addToPlaylistLabel">Add to playlist</span></h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
         </div>
         <div class="modal-body">
-          <form class="needs-validation" id="addToPlaylistFrm" novalidate>
+
+          <form id="addStreamFrm" class="needs-validation hide" novalidate>
+            <div class="row">
+              <div class="form-group col-md-12">
+                <label class="control-label" for="streamUrl">Stream URL</label>
+                <input type="text" class="form-control" id="streamUrl" placeholder="http://uri.to/stream.mp3"/>
+                <div class="invalid-feedback">Invalid uri</div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="form-group col-md-12">
+                <button id="toggleAddToPlaylistBtn" class="btn btn-secondary" data-href="{'cmd': 'toggleAddToPlaylistFrm', 'options':[]}">Add to playlist</button>
+              </div>
+            </div>
+          </form>        
+
+          <form class="needs-validation hide" id="addToPlaylistFrm" novalidate>
             <input type="hidden" id="addToPlaylistUri"/>
             <div class="form-group">
               <label for="addToPlaylistPlaylist">Playlist</label>
@@ -538,10 +557,14 @@
             </div>
           </form>
         </div>
-        <div class="modal-footer">
+        <div class="modal-footer" id="addToPlaylistFooter">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-          <button type="button" class="btn btn-success" data-href="{'cmd': 'addToPlaylist', 'options': []}">Save</button>
-        </div>        
+          <button type="button" class="btn btn-success" data-href="{'cmd': 'addToPlaylist', 'options': []}">Add</button>
+        </div>
+        <div class="modal-footer hide" id="addStreamFooter">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-success" data-href="{'cmd': 'addStream', 'options': []}">Add</button>
+        </div>                
       </div>
       </div>
   </div>
@@ -551,6 +574,9 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title"><span class="material-icons title-icon">playlist_add</span>Rename playlist</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
         </div>
         <div class="modal-body">
           <form class="needs-validation" id="renamePlaylistFrm" novalidate>
@@ -698,34 +724,6 @@
               <tr><th>Protocol Version</th><td id="mpdVersion"></td></tr>
             </tbody>
           </table>          
-        </div>
-      </div><!-- /.modal-content -->
-    </div><!-- /.modal-dialog -->
-  </div><!-- /.modal -->
-
-  <div class="modal fade" id="modalAddstream" tabindex="-1" role="dialog" aria-labelledby="addstreamLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="addstreamLabel"><span class="material-icons title-icon">view_stream</span> Add Stream</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          <form id="addStreamFrm" class="needs-validation" novalidate>
-            <div class="row">
-              <div class="form-group col-md-12">
-                <label class="control-label" for="streamUrl">Stream URL</label>
-                <input type="text" class="form-control" id="streamUrl" placeholder="http://uri.to/stream.mp3"/>
-                <div class="invalid-feedback">Invalid uri</div>
-              </div>
-            </div>
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-          <button type="button" class="btn btn-success" data-href="{'cmd': 'addStream', 'options': []}">Add Stream</button>
         </div>
       </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
