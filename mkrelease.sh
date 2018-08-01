@@ -12,7 +12,7 @@ then
   [ htdocs/sw.js -nt dist/htdocs/sw.min.js ] && \
     java -jar dist/buildtools/closure-compiler.jar htdocs/sw.js > dist/htdocs/sw.min.js
 else
-  echo "buildtools/closure-compiler.jar not found, using non-minified files"
+  echo "dist/buildtools/closure-compiler.jar not found, using non-minified files"
   [ htdocs/js/player.js -nt dist/htdocs/js/player.min.js ] && \
     cp htdocs/js/player.js dist/htdocs/js/player.min.js
   [ htdocs/js/mpd.js -nt  dist/htdocs/js/mpd.min.js ] && \
@@ -27,7 +27,7 @@ then
   [ htdocs/css/mpd.css -nt dist/htdocs/css/mpd.min.css ] && \
     java -jar dist/buildtools/closure-stylesheets.jar htdocs/css/mpd.css > dist/htdocs/css/mpd.min.css
 else
-  echo "buildtools/closure-stylesheets.jar not found, using non-minified files"
+  echo "dist/buildtools/closure-stylesheets.jar not found, using non-minified files"
   [ htdocs/css/mpd.css -nt dist/htdocs/css/mpd.min.css ] && \
     cp htdocs/css/mpd.css dist/htdocs/css/mpd.min.css    
 fi
