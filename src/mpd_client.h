@@ -61,7 +61,8 @@
     X(MPD_API_SAVE_QUEUE) \
     X(MPD_API_RM_TRACK) \
     X(MPD_API_RM_RANGE) \
-    X(MPD_API_RM_ALL) \
+    X(MPD_API_QUEUE_CLEAR) \
+    X(MPD_API_QUEUE_CROP) \
     X(MPD_API_MOVE_TRACK) \
     X(MPD_API_SEARCH_QUEUE) \
     X(MPD_API_SEARCH_ADD_PLIST) \
@@ -146,7 +147,7 @@ int mympd_put_queue(char *buffer, unsigned int offset);
 int mympd_put_browse(char *buffer, char *path, unsigned int offset, char *filter);
 int mympd_search(char *buffer, char *mpdtagtype, unsigned int offset, char *searchstr);
 int mympd_search_add(char *buffer, char *mpdtagtype, char *searchstr);
-int mympd_search_add_plist(char *buffer, char *plist, char *mpdtagtype, char *searchstr);
+int mympd_search_add_plist(char *plist, char *mpdtagtype, char *searchstr);
 int mympd_search_queue(char *buffer, char *mpdtagtype, unsigned int offset, char *searchstr);
 int mympd_put_welcome(char *buffer);
 int mympd_get_stats(char *buffer);
@@ -156,6 +157,7 @@ int mympd_put_songs_in_album(char *buffer, char *albumartist, char *album);
 int mympd_put_playlists(char *buffer, unsigned int offset, char *filter);
 int mympd_put_playlist_list(char *buffer, char *uri, unsigned int offset, char *filter);
 int mympd_put_songdetails(char *buffer, char *uri);
+int mympd_queue_crop(char *buffer);
 void mympd_disconnect();
 #endif
 
