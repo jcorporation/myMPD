@@ -25,7 +25,7 @@ if [ -f dist/buildtools/closure-stylesheets.jar ] && [ "$java" != "" ]
 then
   echo "Minifying stylesheets"
   [ htdocs/css/mpd.css -nt dist/htdocs/css/mpd.min.css ] && \
-    java -jar dist/buildtools/closure-stylesheets.jar htdocs/css/mpd.css > dist/htdocs/css/mpd.min.css
+    java -jar dist/buildtools/closure-stylesheets.jar --allow-unrecognized-properties htdocs/css/mpd.css > dist/htdocs/css/mpd.min.css
 else
   echo "dist/buildtools/closure-stylesheets.jar not found, using non-minified files"
   [ htdocs/css/mpd.css -nt dist/htdocs/css/mpd.min.css ] && \
