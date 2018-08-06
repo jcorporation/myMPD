@@ -76,9 +76,9 @@
       <div class="card-header">Playback</div>
       <div class="card-body">
         <div class="album-cover" id="album-cover"></div>
-        <h1 id="currenttrack"></h1>
-        <h3 id="artist"></h3>
-        <h4 id="album"></h4>
+        <h1 id="currentTrack" data-href="{'cmd': 'songClick', 'options': []}"></h1>
+        <h3 id="currentArtist" data-href="{'cmd': 'artistClick', 'options': []}"></h3>
+        <h4 id="currentAlbum"></h4>
         <div class="row">
           <div class="col-8">
             <input type="range" min="0" max="100" step="1" class="form-control-range" id="progressBar">
@@ -322,7 +322,7 @@
           </table>
         </div>
         
-        <div id="BrowseDatabaseAlbumCards" class="row hide"></div>
+        <div id="BrowseDatabaseAlbumList" class="row hide"></div>
         
         <div class="btn-toolbar hide" id="BrowseDatabaseButtonsBottom" role="toolbar">
           <div class="btn-group mr-2">

@@ -75,6 +75,7 @@ domCache.progressBar = document.getElementById('progressBar');
 domCache.volumeBar = document.getElementById('volumeBar');
 domCache.outputs = document.getElementById('outputs');
 domCache.btnAdd = document.getElementById('nav-add2homescreen');
+domCache.currentTrack = document.getElementById('currentTrack');
 
 var modalConnectionError = new Modal(document.getElementById('modalConnectionError'));
 var modalSettings = new Modal(document.getElementById('modalSettings'));
@@ -338,9 +339,10 @@ function appInit() {
     addFilterLetter('BrowseDatabaseFilterLetters');
     addFilterLetter('BrowsePlaylistsFilterLetters');
 
-    var hrefs = document.querySelectorAll('button[data-href], a[data-href]');
+    var hrefs = document.querySelectorAll('[data-href]');
     var hrefsLen = hrefs.length;
     for (var i = 0; i < hrefsLen; i++) {
+        hrefs[i].classList.add('clickable');
         hrefs[i].addEventListener('click', function(event) {
             event.preventDefault();
             event.stopPropagation();
@@ -1141,7 +1143,7 @@ function parseListDBtags(obj) {
     if (app.current.app !== 'Browse' && app.current.tab !== 'Database' && app.current.view !== 'Artist') return;
   
     if (obj.tagtype == 'AlbumArtist') {
-        document.getElementById('BrowseDatabaseAlbumCards').classList.add('hide');
+        document.getElementById('BrowseDatabaseAlbumList').classList.add('hide');
         document.getElementById('BrowseDatabaseArtistList').classList.remove('hide');
         document.getElementById('btnBrowseDatabaseArtist').parentNode.classList.add('hide');
         var nrItems = obj.data.length;
@@ -1176,11 +1178,11 @@ function parseListDBtags(obj) {
         document.getElementById('BrowseDatabaseArtistList').classList.remove('opacity05');                              
                                
     } else if (obj.tagtype == 'Album') {
-        document.getElementById('BrowseDatabaseAlbumCards').classList.remove('hide');
+        document.getElementById('BrowseDatabaseAlbumList').classList.remove('hide');
         document.getElementById('BrowseDatabaseArtistList').classList.add('hide');
         document.getElementById('btnBrowseDatabaseArtist').parentNode.classList.remove('hide');    
         var nrItems = obj.data.length;
-        var cardContainer = document.getElementById('BrowseDatabaseAlbumCards');
+        var cardContainer = document.getElementById('BrowseDatabaseAlbumList');
         var cards = cardContainer.querySelectorAll('.col-md');
         for (var i = 0; i < nrItems; i++) {
             var id=genId(obj.data[i].value);
@@ -1212,7 +1214,7 @@ function parseListDBtags(obj) {
             cards[i].remove();
         }
         setPagination(obj.totalEntities);
-        document.getElementById('BrowseDatabaseAlbumCards').classList.remove('opacity05');        
+        document.getElementById('BrowseDatabaseAlbumList').classList.remove('opacity05');        
     }
 }
 
@@ -1337,6 +1339,14 @@ function replaceQueue(type, uri, name) {
             showNotification('"' + name + '" replaced', '', '', 'success');
             break;
     }
+}
+
+function songClick() {
+    songDetails(domCache.currentTrack.getAttribute('data-uri'));
+}
+
+function artistClick() {
+    appGoto('Browse', 'Database', 'Album', '0/-/' + document.getElementById('currentArtist').innerText);
 }
 
 function songDetails(uri) {
@@ -1837,23 +1847,25 @@ function songChange(obj) {
         textNotification += obj.data.artist;
         htmlNotification += obj.data.artist;
         pageTitle += obj.data.artist + ' - ';
-        document.getElementById('artist').innerText = obj.data.artist;
+        document.getElementById('currentArtist').innerText = obj.data.artist;
     } else {
-        document.getElementById('artist').innerText = '';
+        document.getElementById('currentArtist').innerText = '';
     }
     if (typeof obj.data.album != 'undefined' && obj.data.album.length > 0 && obj.data.album != '-') {
         textNotification += ' - ' + obj.data.album;
         htmlNotification += '<br/>' + obj.data.album;
-        document.getElementById('album').innerText = obj.data.album;
+        document.getElementById('currentAlbum').innerText = obj.data.album;
     }
     else {
-        document.getElementById('album').innerText = '';
+        document.getElementById('currentAlbum').innerText = '';
     }
     if (typeof obj.data.title != 'undefined' && obj.data.title.length > 0) {
         pageTitle += obj.data.title;
-        document.getElementById('currenttrack').innerText = obj.data.title;
+        domCache.currentTrack.innerText = obj.data.title;
+        domCache.currentTrack.setAttribute('data-uri', obj.data.uri);
     } else {
-        document.getElementById('currenttrack').innerText = '';
+        domCache.currentTrack.innerText = '';
+        domCache.currentTrack.setAttribute('data-uri', '');
     }
     document.title = pageTitle;
     //Update Artist in queue view for http streams
