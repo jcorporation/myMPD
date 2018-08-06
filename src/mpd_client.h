@@ -35,7 +35,7 @@
     if (!mpd_connection_clear_error(mpd.conn)) \
         mpd.conn_state = MPD_FAILURE; \
     return len; \
-} while(0)
+} while (0)
 
 
 #define MAX_SIZE 1024 * 100
@@ -159,7 +159,7 @@ int mympd_search_add(char *buffer, char *mpdtagtype, char *searchstr);
 int mympd_search_add_plist(char *plist, char *mpdtagtype, char *searchstr);
 int mympd_search_queue(char *buffer, char *mpdtagtype, unsigned int offset, char *searchstr);
 int mympd_put_welcome(char *buffer);
-int mympd_get_stats(char *buffer);
+int mympd_put_stats(char *buffer);
 int mympd_put_settings(char *buffer);
 int mympd_put_db_tag(char *buffer, unsigned int offset, char *mpdtagtype, char *mpdsearchtagtype, char *searchstr, char *filter);
 int mympd_put_songs_in_album(char *buffer, char *albumartist, char *album);

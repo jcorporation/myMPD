@@ -39,21 +39,21 @@ static struct mg_serve_http_opts s_http_server_opts;
 char s_redirect[250];
 
 static void signal_handler(int sig_num) {
-  signal(sig_num, signal_handler);  // Reinstantiate signal handler
-  s_signal_received = sig_num;
+    signal(sig_num, signal_handler);  // Reinstantiate signal handler
+    s_signal_received = sig_num;
 }
 
 static void handle_api(struct mg_connection *nc, struct http_message *hm) {
-    if (!is_websocket(nc)) {
+    if (!is_websocket(nc))
         mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\nContent-Type: application/json\r\n\r\n");
-    }
+
     char buf[1000] = {0};
     memcpy(buf, hm->body.p,sizeof(buf) - 1 < hm->body.len ? sizeof(buf) - 1 : hm->body.len);
     struct mg_str d = {buf, strlen(buf)};
     callback_mympd(nc, d);
-    if (!is_websocket(nc)) {
+
+    if (!is_websocket(nc))
         mg_send_http_chunk(nc, "", 0); /* Send empty chunk, the end of response */
-    }
 }
 
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
@@ -62,14 +62,14 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
              #ifdef DEBUG
              fprintf(stdout,"New Websocket connection\n");
              #endif
-             struct mg_str d = {(char *) "{\"cmd\":\"MPD_API_WELCOME\"}", 25 };
+             struct mg_str d = {(char *) "{\"cmd\": \"MPD_API_WELCOME\"}", 25 };
              callback_mympd(nc, d);
              break;
         }
         case MG_EV_HTTP_REQUEST: {
             struct http_message *hm = (struct http_message *) ev_data;
             #ifdef DEBUG
-            printf("HTTP request: %.*s\n",hm->uri.len,hm->uri.p);
+            printf("HTTP request: %.*s\n", hm->uri.len, hm->uri.p);
             #endif
             if (mg_vcmp(&hm->uri, "/api") == 0) {
               handle_api(nc, hm);
@@ -166,7 +166,7 @@ int main(int argc, char **argv) {
     config.sslport = "443";
     config.sslcert = "/etc/mympd/ssl/server.pem";
     config.sslkey = "/etc/mympd/ssl/server.key";
-    config.user = NULL;
+    config.user = "nobody";
     config.streamport = 8000;
     config.coverimage = "folder.jpg";
     config.statefile = "/var/lib/mympd/mympd.state";
@@ -178,10 +178,11 @@ int main(int argc, char **argv) {
         }
     } 
     else {
-        fprintf(stdout, "myMPD  %d.%d.%d\n"
+        fprintf(stdout, "myMPD  %s\n"
                         "Copyright (C) 2018 Juergen Mang <mail@jcgames.de>\n"
+                        "https://github.com/jcorporation/myMPD\n"
                         "Built " __DATE__ " "__TIME__"\n\n",
-                        MYMPD_VERSION_MAJOR, MYMPD_VERSION_MINOR, MYMPD_VERSION_PATCH);
+                        MYMPD_VERSION);
         printf("Usage: %s /path/to/mympd.conf\n", argv[0]);
         return EXIT_FAILURE;    
     }
@@ -223,12 +224,15 @@ int main(int argc, char **argv) {
         struct passwd *pw;
         if ((pw = getpwnam(config.user)) == NULL) {
             printf("Unknown user\n");
+            mg_mgr_free(&mgr);
             return EXIT_FAILURE;
         } else if (setgid(pw->pw_gid) != 0) {
             printf("setgid() failed\n");
+            mg_mgr_free(&mgr);
             return EXIT_FAILURE;
         } else if (setuid(pw->pw_uid) != 0) {
             printf("setuid() failed\n");
+            mg_mgr_free(&mgr);
             return EXIT_FAILURE;
         }
     }
