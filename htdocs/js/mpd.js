@@ -904,6 +904,14 @@ function parseState(obj) {
     for (var i = 0; i < outputsLen; i++) {
         toggleBtn('btnoutput' + obj.data.outputs[i].id, obj.data.outputs[i].state);
     }
+    
+    //clear playback card if not playing
+    if (obj.data.songpos == '-1') {
+        domCache.currentTrack.innerText = 'Not playing';
+        document.getElementById('currentAlbum').innerText = '';
+        document.getElementById('currentArtist').innerText = '';
+        document.getElementById('currentCover').style.backgroundImage = '';
+    }
 
     last_state = obj;                    
 }
@@ -1841,7 +1849,7 @@ function songChange(obj) {
     var htmlNotification = '';
     var pageTitle = 'myMPD: ';
 
-    document.getElementById('album-cover').style.backgroundImage = 'url("' + obj.data.cover + '")';
+    document.getElementById('currentCover').style.backgroundImage = 'url("' + obj.data.cover + '")';
 
     if (typeof obj.data.artist != 'undefined' && obj.data.artist.length > 0 && obj.data.artist != '-') {
         textNotification += obj.data.artist;
