@@ -74,11 +74,11 @@ domCache.btnNext = document.getElementById('btnNext');
 domCache.progressBar = document.getElementById('progressBar');
 domCache.volumeBar = document.getElementById('volumeBar');
 domCache.outputs = document.getElementById('outputs');
-domCache.btnAdd = document.getElementById('btnAdd');
+domCache.btnAdd = document.getElementById('nav-add2homescreen');
+domCache.currentTrack = document.getElementById('currentTrack');
 
 var modalConnectionError = new Modal(document.getElementById('modalConnectionError'));
 var modalSettings = new Modal(document.getElementById('modalSettings'));
-var modalAddstream = new Modal(document.getElementById('modalAddstream'));
 var modalSavequeue = new Modal(document.getElementById('modalSaveQueue'));
 var modalSongDetails = new Modal(document.getElementById('modalSongDetails'));
 var modalAddToPlaylist = new Modal(document.getElementById('modalAddToPlaylist'));
@@ -213,10 +213,14 @@ function appRoute() {
     else if (app.current.app == 'Browse' && app.current.tab == 'Filesystem') {
         sendAPI({"cmd":"MPD_API_GET_FILESYSTEM","data": {"offset": app.current.page, "path": (app.current.search ? app.current.search : "/"), "filter": app.current.filter}}, parseFilesystem);
         // Don't add all songs from root
-        if (app.current.search)
+        if (app.current.search) {
             document.getElementById('BrowseFilesystemAddAllSongs').removeAttribute('disabled');
-        else
-            document.getElementById('BrowseFilesystemAddAllSongs').setAttribute('disabled', 'disabled')
+            document.getElementById('BrowseFilesystemAddAllSongsBtn').removeAttribute('disabled');
+        }
+        else {
+            document.getElementById('BrowseFilesystemAddAllSongs').setAttribute('disabled', 'disabled');
+            document.getElementById('BrowseFilesystemAddAllSongsBtn').setAttribute('disabled', 'disabled');
+        }
         // Create breadcrumb
         var breadcrumbs='<li class="breadcrumb-item"><a data-uri="">root</a></li>';
         var pathArray = app.current.search.split('/');
@@ -256,6 +260,7 @@ function appRoute() {
         } else {
             document.getElementById('SearchList').getElementsByTagName('tbody')[0].innerHTML = '';
             document.getElementById('searchAddAllSongs').setAttribute('disabled', 'disabled');
+            document.getElementById('searchAddAllSongsBtn').setAttribute('disabled', 'disabled');
             document.getElementById('panel-heading-search').innerText = '';
             document.getElementById('SearchList').classList.remove('opacity05');
             setPagination(0);
@@ -288,14 +293,14 @@ function appInit() {
 
     domCache.volumeBar.value = 0;
     domCache.volumeBar.addEventListener('change', function(event) {
-        sendAPI({"cmd": "MPD_API_SET_VOLUME","data": {"volume": domCache.volumeBar.value}});
+        sendAPI({"cmd": "MPD_API_SET_VOLUME", "data": {"volume": domCache.volumeBar.value}});
     }, false);
 
     domCache.progressBar.value = 0;
     domCache.progressBar.addEventListener('change', function(event) {
         if (current_song && current_song.currentSongId >= 0) {
             var seekVal = Math.ceil(current_song.totalTime * (domCache.progressBar.value / 100));
-            sendAPI({"cmd": "MPD_API_SET_SEEK", "data": {"songid":current_song.currentSongId,"seek": seekVal}});
+            sendAPI({"cmd": "MPD_API_SET_SEEK", "data": {"songid": current_song.currentSongId, "seek": seekVal}});
         }
     }, false);
     
@@ -319,21 +324,25 @@ function appInit() {
         document.getElementById('inputMixrampdelay').classList.remove('is-invalid');
     });
 
-    document.getElementById('modalAddstream').addEventListener('shown.bs.modal', function () {
-        var streamUrl = document.getElementById('streamUrl')
-        streamUrl.focus();
-        streamUrl.value = '';
-        streamUrl.classList.remove('is-invalid');
-        document.getElementById('addStreamFrm').classList.remove('was-validated');
-    });
+
+    document.getElementById('addToPlaylistPlaylist').addEventListener('change',function(event) {
+        if (this.options[this.selectedIndex].text == 'New Playlist') {
+            document.getElementById('addToPlaylistNewPlaylistDiv').classList.remove('hide');
+            document.getElementById('addToPlaylistNewPlaylist').focus();
+        }
+        else {
+            document.getElementById('addToPlaylistNewPlaylistDiv').classList.add('hide');
+        }
+    }, false);
     
     addFilterLetter('BrowseFilesystemFilterLetters');
     addFilterLetter('BrowseDatabaseFilterLetters');
     addFilterLetter('BrowsePlaylistsFilterLetters');
 
-    var hrefs = document.querySelectorAll('button[data-href], a[data-href]');
+    var hrefs = document.querySelectorAll('[data-href]');
     var hrefsLen = hrefs.length;
     for (var i = 0; i < hrefsLen; i++) {
+        hrefs[i].classList.add('clickable');
         hrefs[i].addEventListener('click', function(event) {
             event.preventDefault();
             event.stopPropagation();
@@ -429,6 +438,28 @@ function appInit() {
         else if (event.target.nodeName == 'A') {
             event.preventDefault();
             showMenu(event.target);
+        }
+    }, false);
+
+    document.getElementById('BrowseFilesystemAddAllSongsDropdown').addEventListener('click', function(event) {
+        if (event.target.nodeName == 'BUTTON') {
+            if (event.target.innerText == 'Add all to queue') {
+                addAllFromBrowse();
+            }
+            else if (event.target.innerText == 'Add all to playlist') {
+                showAddToPlaylist(app.current.search);                
+            }
+        }
+    }, false);
+
+    document.getElementById('searchAddAllSongsDropdown').addEventListener('click', function(event) {
+        if (event.target.nodeName == 'BUTTON') {
+            if (event.target.innerText == 'Add all to queue') {
+                addAllFromSearch();
+            }
+            else if (event.target.innerText == 'Add all to playlist') {
+                showAddToPlaylist('SEARCH');                
+            }
         }
     }, false);
 
@@ -947,10 +978,14 @@ function parseSearch(obj) {
     if (app.current.app !== 'Search')
         return;
     document.getElementById('panel-heading-search').innerHTML = obj.totalEntities + ' Songs found';
-    if (obj.totalEntities > 0)
+    if (obj.totalEntities > 0) {
         document.getElementById('searchAddAllSongs').removeAttribute('disabled');
-    else
-        document.getElementById('searchAddAllSongs').setAttribute('disabled','disabled');                    
+        document.getElementById('searchAddAllSongsBtn').removeAttribute('disabled');
+    } 
+    else {
+        document.getElementById('searchAddAllSongs').setAttribute('disabled','disabled');
+        document.getElementById('searchAddAllSongsBtn').setAttribute('disabled','disabled');
+    }
     parseFilesystem(obj);
 }
 
@@ -1108,7 +1143,7 @@ function parseListDBtags(obj) {
     if (app.current.app !== 'Browse' && app.current.tab !== 'Database' && app.current.view !== 'Artist') return;
   
     if (obj.tagtype == 'AlbumArtist') {
-        document.getElementById('BrowseDatabaseAlbumCards').classList.add('hide');
+        document.getElementById('BrowseDatabaseAlbumList').classList.add('hide');
         document.getElementById('BrowseDatabaseArtistList').classList.remove('hide');
         document.getElementById('btnBrowseDatabaseArtist').parentNode.classList.add('hide');
         var nrItems = obj.data.length;
@@ -1143,11 +1178,11 @@ function parseListDBtags(obj) {
         document.getElementById('BrowseDatabaseArtistList').classList.remove('opacity05');                              
                                
     } else if (obj.tagtype == 'Album') {
-        document.getElementById('BrowseDatabaseAlbumCards').classList.remove('hide');
+        document.getElementById('BrowseDatabaseAlbumList').classList.remove('hide');
         document.getElementById('BrowseDatabaseArtistList').classList.add('hide');
         document.getElementById('btnBrowseDatabaseArtist').parentNode.classList.remove('hide');    
         var nrItems = obj.data.length;
-        var cardContainer = document.getElementById('BrowseDatabaseAlbumCards');
+        var cardContainer = document.getElementById('BrowseDatabaseAlbumList');
         var cards = cardContainer.querySelectorAll('.col-md');
         for (var i = 0; i < nrItems; i++) {
             var id=genId(obj.data[i].value);
@@ -1179,7 +1214,7 @@ function parseListDBtags(obj) {
             cards[i].remove();
         }
         setPagination(obj.totalEntities);
-        document.getElementById('BrowseDatabaseAlbumCards').classList.remove('opacity05');        
+        document.getElementById('BrowseDatabaseAlbumList').classList.remove('opacity05');        
     }
 }
 
@@ -1245,14 +1280,17 @@ function setPagination(number) {
     
         if (number > app.current.page + settings.max_elements_per_page) {
             document.getElementById(cat + p[i] + 'Next').removeAttribute('disabled');
+            document.getElementById(cat + p[i]).classList.remove('hide');
             document.getElementById(cat + 'ButtonsBottom').classList.remove('hide');
         } else {
             document.getElementById(cat + p[i] + 'Next').setAttribute('disabled', 'disabled');
+            document.getElementById(cat + p[i]).classList.add('hide');
             document.getElementById(cat + 'ButtonsBottom').classList.add('hide');
         }
     
         if (app.current.page > 0) {
             document.getElementById(cat + p[i] + 'Prev').removeAttribute('disabled');
+            document.getElementById(cat + p[i]).classList.remove('hide');
             document.getElementById(cat + 'ButtonsBottom').classList.remove('hide');
         } else {
             document.getElementById(cat + p[i] + 'Prev').setAttribute('disabled', 'disabled');
@@ -1303,6 +1341,14 @@ function replaceQueue(type, uri, name) {
     }
 }
 
+function songClick() {
+    songDetails(domCache.currentTrack.getAttribute('data-uri'));
+}
+
+function artistClick() {
+    appGoto('Browse', 'Database', 'Album', '0/-/' + document.getElementById('currentArtist').innerText);
+}
+
 function songDetails(uri) {
     sendAPI({"cmd": "MPD_API_GET_SONGDETAILS", "data": {"uri": uri}}, parseSongDetails);
     modalSongDetails.show();
@@ -1334,6 +1380,7 @@ function playlistDetails(uri) {
 }
 
 function removeFromPlaylist(uri, pos) {
+    pos--;
     sendAPI({"cmd": "MPD_API_RM_PLAYLIST_TRACK", "data": {"uri": uri, "track": pos}});
     document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
     sendAPI({"cmd": "MPD_API_GET_PLAYLIST_LIST", "data": {"offset": app.current.page, "filter": app.current.filter, "uri": app.current.search}}, parsePlaylists);
@@ -1348,7 +1395,7 @@ function playlistClear() {
 
 function getAllPlaylists(obj) {
     var nrItems = obj.data.length;
-    var playlists = '';
+    var playlists = '<option></option><option>New Playlist</option>';
     for (var i = 0; i < nrItems; i++) {
         playlists += '<option>' + obj.data[i].uri + '</option>';
     }
@@ -1359,19 +1406,97 @@ function getAllPlaylists(obj) {
     }
 }
 
+function toggleAddToPlaylistFrm() {
+    var btn = document.getElementById('toggleAddToPlaylistBtn');
+    toggleBtn('toggleAddToPlaylistBtn');
+    if (btn.classList.contains('active')) {
+        document.getElementById('addToPlaylistFrm').classList.remove('hide');
+        document.getElementById('addStreamFooter').classList.add('hide');
+        document.getElementById('addToPlaylistFooter').classList.remove('hide');
+    }    
+    else {
+        document.getElementById('addToPlaylistFrm').classList.add('hide');
+        document.getElementById('addStreamFooter').classList.remove('hide');
+        document.getElementById('addToPlaylistFooter').classList.add('hide');
+    }
+}
+
 function showAddToPlaylist(uri) {
-    modalAddToPlaylist.show();
     document.getElementById('addToPlaylistUri').value = uri;
     document.getElementById('addToPlaylistPlaylist').innerHTML = '';
+    document.getElementById('addToPlaylistNewPlaylistDiv').classList.add('hide');
+    document.getElementById('addToPlaylistFrm').classList.remove('was-validated');
+    document.getElementById('addToPlaylistNewPlaylist').classList.remove('is-invalid');
+    toggleBtn('toggleAddToPlaylistBtn',0);
+    var streamUrl = document.getElementById('streamUrl')
+    streamUrl.focus();
+    streamUrl.value = '';
+    streamUrl.classList.remove('is-invalid');
+    document.getElementById('addStreamFrm').classList.remove('was-validated');
+    if (uri != 'stream') {
+        document.getElementById('addStreamFooter').classList.add('hide');
+        document.getElementById('addStreamFrm').classList.add('hide');
+        document.getElementById('addToPlaylistFooter').classList.remove('hide');
+        document.getElementById('addToPlaylistFrm').classList.remove('hide');
+        document.getElementById('addToPlaylistLabel').innerText = 'Add to playlist';
+    } else {
+        document.getElementById('addStreamFooter').classList.remove('hide');
+        document.getElementById('addStreamFrm').classList.remove('hide');
+        document.getElementById('addToPlaylistFooter').classList.add('hide');
+        document.getElementById('addToPlaylistFrm').classList.add('hide');
+        document.getElementById('addToPlaylistLabel').innerText = 'Add Stream';
+    }
+    modalAddToPlaylist.show();    
     sendAPI({"cmd":"MPD_API_GET_PLAYLISTS","data": {"offset": 0, "filter": "-"}}, getAllPlaylists);
 }
 
 function addToPlaylist() {
     var uri = document.getElementById('addToPlaylistUri').value;
+    if (uri == 'stream') {
+        uri = document.getElementById('streamUrl').value;
+        if (uri == '' || uri.indexOf('http') == -1) {
+            document.getElementById('streamUrl').classList.add('is-invalid');
+            document.getElementById('addStreamFrm').classList.add('was-validated');
+            return;
+        }
+    }
     var plistEl = document.getElementById('addToPlaylistPlaylist');
     var plist = plistEl.options[plistEl.selectedIndex].text;
-    sendAPI({"cmd": "MPD_API_ADD_TO_PLAYLIST", "data": {"uri": uri, "plist": plist}});
-    modalAddToPlaylist.hide();
+    if (plist == 'New Playlist') {
+        var newPl = document.getElementById('addToPlaylistNewPlaylist').value;
+        var valid = newPl.replace(/\w/g,'');
+        if (newPl != '' && valid == '') {
+            plist = newPl;
+        } else {
+            document.getElementById('addToPlaylistNewPlaylist').classList.add('is-invalid');
+            document.getElementById('addToPlaylistFrm').classList.add('was-validated');
+            return;
+        }
+    }
+    if (plist != '') {
+        if (uri != 'SEARCH') 
+            sendAPI({"cmd": "MPD_API_ADD_TO_PLAYLIST", "data": {"uri": uri, "plist": plist}});
+        else
+            addAllFromSearchPlist(plist);            
+        modalAddToPlaylist.hide();
+    }
+    else {
+        document.getElementById('addToPlaylistPlaylist').classList.add('is-invalid');
+        document.getElementById('addToPlaylistFrm').classList.add('was-validated');
+    }
+}
+
+function addStream() {
+    var streamUrl = document.getElementById('streamUrl').value;
+    if (streamUrl != '' && streamUrl.indexOf('http') == 0) {
+        sendAPI({"cmd": "MPD_API_ADD_TRACK", "data": {"uri": streamUrl}});
+        modalAddToPlaylist.hide();
+        showNotification('Added stream ' + streamUrl + 'to queue', '', '', 'success');
+    }
+    else {
+        document.getElementById('streamUrl').classList.add('is-invalid');
+        document.getElementById('addStreamFrm').classList.add('was-validated');
+    }
 }
 
 function showRenamePlaylist(from) {
@@ -1444,7 +1569,8 @@ function showMenu(el) {
             ( document.getElementById('BrowsePlaylistsDetailList').getAttribute('data-ro') == 'false' ?
             '<div class="dropdown-divider"></div>' +
             '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'removeFromPlaylist\', \'options\': [\'' + document.getElementById('BrowsePlaylistsDetailList').getAttribute('data-uri') + '\', \'' + 
-            el.parentNode.parentNode.getAttribute('data-songpos') + '\']}">Remove</a>' : '');
+            el.parentNode.parentNode.getAttribute('data-songpos') + '\']}">Remove</a>' : '') +
+            ( type != 'plist' ? '<div class="dropdown-divider"></div><a class="dropdown-item" href="#" data-href="{\'cmd\': \'showAddToPlaylist\', \'options\': [\'' + uri + '\']}">Add to playlist</a>' : '');
     }
     else if (app.current.app == 'Queue') {
         menu += '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'delQueueSong\', \'options\': [\'single\',' + 
@@ -1544,7 +1670,7 @@ function delQueueSong(mode, start, end) {
 
 function delPlaylist(uri) {
     sendAPI({"cmd": "MPD_API_RM_PLAYLIST", "data": {"uri": uri}});
-    document.getElementById('BrowsePlaylistsAllList').querySelector('tr[data-uri=' + encodeURI(uri) + ']').remove();
+    sendAPI({"cmd":"MPD_API_GET_PLAYLISTS","data": {"offset": app.current.page, "filter": app.current.filter}}, parsePlaylists);    
 }
 
 function confirmSettings() {
@@ -1612,6 +1738,17 @@ function addAllFromSearch() {
     }
 }
 
+function addAllFromSearchPlist(plist) {
+    if (app.current.search.length >= 2) {
+        var filter = app.current.filter;
+        if (filter == 'Any Tag')
+            filter = 'any';
+            
+        sendAPI({"cmd":"MPD_API_SEARCH_ADD_PLIST", "data":{ "plist": plist, "filter": filter, "searchstr": app.current.search}});
+        showNotification('Added '+ parseInt(document.getElementById('panel-heading-search').innerText) +' songs from search to ' + plist, '', '', 'success');
+    }
+}
+
 function scrollTo(pos) {
     document.body.scrollTop = pos; // For Safari
     document.documentElement.scrollTop = pos; // For Chrome, Firefox, IE and Opera
@@ -1633,17 +1770,7 @@ function gotoPage(x) {
     appGoto(app.current.app, app.current.tab, app.current.view, app.current.page + '/' + app.current.filter + '/' + app.current.search);
 }
 
-function addStream() {
-    var streamUrl = document.getElementById('streamUrl').value;
-    if (streamUrl != '' && streamUrl.indexOf('http') == 0) {
-        sendAPI({"cmd": "MPD_API_ADD_TRACK", "data": {"uri": streamUrl}});
-        modalAddstream.hide();
-    }
-    else {
-        document.getElementById('streamUrl').classList.add('is-invalid');
-        document.getElementById('addStreamFrm').classList.add('was-validated');
-    }
-}
+
 
 function saveQueue() {
     var plName = document.getElementById('saveQueueName').value;
@@ -1720,23 +1847,25 @@ function songChange(obj) {
         textNotification += obj.data.artist;
         htmlNotification += obj.data.artist;
         pageTitle += obj.data.artist + ' - ';
-        document.getElementById('artist').innerText = obj.data.artist;
+        document.getElementById('currentArtist').innerText = obj.data.artist;
     } else {
-        document.getElementById('artist').innerText = '';
+        document.getElementById('currentArtist').innerText = '';
     }
     if (typeof obj.data.album != 'undefined' && obj.data.album.length > 0 && obj.data.album != '-') {
         textNotification += ' - ' + obj.data.album;
         htmlNotification += '<br/>' + obj.data.album;
-        document.getElementById('album').innerText = obj.data.album;
+        document.getElementById('currentAlbum').innerText = obj.data.album;
     }
     else {
-        document.getElementById('album').innerText = '';
+        document.getElementById('currentAlbum').innerText = '';
     }
     if (typeof obj.data.title != 'undefined' && obj.data.title.length > 0) {
         pageTitle += obj.data.title;
-        document.getElementById('currenttrack').innerText = obj.data.title;
+        domCache.currentTrack.innerText = obj.data.title;
+        domCache.currentTrack.setAttribute('data-uri', obj.data.uri);
     } else {
-        document.getElementById('currenttrack').innerText = '';
+        domCache.currentTrack.innerText = '';
+        domCache.currentTrack.setAttribute('data-uri', '');
     }
     document.title = pageTitle;
     //Update Artist in queue view for http streams
