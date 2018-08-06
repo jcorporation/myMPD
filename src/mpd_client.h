@@ -77,7 +77,7 @@
     X(MPD_API_SET_NEXT) \
     X(MPD_API_SET_PREV) \
     X(MPD_API_UPDATE_DB) \
-    X(MPD_API_GET_OUTPUTNAMES) \
+    X(MPD_API_GET_OUTPUTS) \
     X(MPD_API_TOGGLE_OUTPUT) \
     X(MPD_API_SEND_SHUFFLE) \
     X(MPD_API_GET_STATS) \
@@ -141,7 +141,7 @@ void mympd_poll(struct mg_mgr *s);
 void callback_mympd(struct mg_connection *nc, const struct mg_str msg);
 int mympd_close_handler(struct mg_connection *c);
 int mympd_put_state(char *buffer, int *current_song_id, int *next_song_id, unsigned *queue_version);
-int mympd_put_outputnames(char *buffer);
+int mympd_put_outputs(char *buffer);
 int mympd_put_current_song(char *buffer);
 int mympd_put_queue(char *buffer, unsigned int offset);
 int mympd_put_browse(char *buffer, char *path, unsigned int offset, char *filter);

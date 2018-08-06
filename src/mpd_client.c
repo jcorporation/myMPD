@@ -214,8 +214,8 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
                 n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
             break;
-        case MPD_API_GET_OUTPUTNAMES:
-            n = mympd_put_outputnames(mpd.buf);
+        case MPD_API_GET_OUTPUTS:
+            n = mympd_put_outputs(mpd.buf);
             break;
         case MPD_API_TOGGLE_OUTPUT:
             je = json_scanf(msg.p, msg.len, "{ data: { output:%u, state:%u } }", &uint_buf1, &uint_buf2);
@@ -619,9 +619,7 @@ char* mympd_get_tag(struct mpd_song const *song, enum mpd_tag_type tag) {
 int mympd_put_state(char *buffer, int *current_song_id, int *next_song_id,  unsigned *queue_version) {
     struct mpd_status *status;
     const struct mpd_audio_format *audioformat;
-    struct mpd_output *output;
     int len;
-    int nr;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
 
     status = mpd_run_status(mpd.conn);
@@ -656,24 +654,7 @@ int mympd_put_state(char *buffer, int *current_song_id, int *next_song_id,  unsi
         mpd_status_get_queue_version(status)
     );
     
-    len += json_printf(&out, ",outputs: [");
-
-    mpd_send_outputs(mpd.conn);
-    nr=0;
-    while ((output = mpd_recv_output(mpd.conn)) != NULL) {
-        if (nr++) len += json_printf(&out, ",");
-        len += json_printf(&out, "{id: %d, state: %d}",
-            mpd_output_get_id(output), 
-            mpd_output_get_enabled(output)
-        );
-        mpd_output_free(output);
-    }
-    if (!mpd_response_finish(mpd.conn)) {
-        fprintf(stderr, "MPD outputs: %s\n", mpd_connection_get_error_message(mpd.conn));
-        mpd_connection_clear_error(mpd.conn);
-    }
-
-    len += json_printf(&out, "]}}");
+    len += json_printf(&out, "}}");
 
     *current_song_id = mpd_status_get_song_id(status);
     *next_song_id = mpd_status_get_next_song_id(status);
@@ -756,21 +737,22 @@ int mympd_put_settings(char *buffer) {
 }
 
 
-int mympd_put_outputnames(char *buffer) {
+int mympd_put_outputs(char *buffer) {
     struct mpd_output *output;
     int len;
     int nr;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
     
-    len = json_printf(&out,"{type: outputnames, data: { outputs: [");
+    len = json_printf(&out,"{type: outputs, data: { outputs: [");
     
     mpd_send_outputs(mpd.conn);
     nr=0;    
     while ((output = mpd_recv_output(mpd.conn)) != NULL) {
         if (nr++) len += json_printf(&out, ",");
-        len += json_printf(&out,"{id: %d, name: %Q}",
+        len += json_printf(&out,"{id: %d, name: %Q, state: %d}",
             mpd_output_get_id(output),
-            mpd_output_get_name(output)
+            mpd_output_get_name(output),
+            mpd_output_get_enabled(output)
         );
         mpd_output_free(output);
     }
