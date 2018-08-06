@@ -107,11 +107,6 @@ enum mpd_conn_states {
 };
 
 struct t_mpd {
-    int port;
-    char host[128];
-    char *password;
-    char *statefile;
-
     struct mpd_connection *conn;
     enum mpd_conn_states conn_state;
 
@@ -124,8 +119,22 @@ struct t_mpd {
     unsigned queue_version;
 } mpd;
 
-int streamport;
-char coverimage[40];
+typedef struct {
+   int mpdport;
+   const char* mpdhost;
+   const char* mpdpass;
+   const char* webport;
+   bool ssl;
+   const char* sslport;
+   const char* sslcert;
+   const char* sslkey;
+   const char* user;
+   int streamport;
+   const char* coverimage;
+   const char* statefile;
+} configuration;
+
+configuration config;
 
 static int is_websocket(const struct mg_connection *nc) {
   return nc->flags & MG_F_IS_WEBSOCKET;

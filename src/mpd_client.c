@@ -83,9 +83,9 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg)
         case MPD_API_SET_SETTINGS:
             json_scanf(msg.p, msg.len, "{ data: { notificationWeb: %d, notificationPage: %d} }", &state.a, &state.b);
             char tmpfile[200];
-            snprintf(tmpfile,200,"%s.tmp", mpd.statefile);
+            snprintf(tmpfile,200,"%s.tmp", config.statefile);
             json_fprintf(tmpfile, "{ notificationWeb: %d, notificationPage: %d}", state.a, state.b);
-            rename(tmpfile,mpd.statefile);
+            rename(tmpfile,config.statefile);
             
             je = json_scanf(msg.p, msg.len, "{ data: { random:%u } }", &uint_buf1);
             if (je == 1)        
@@ -553,8 +553,8 @@ void mympd_poll(struct mg_mgr *s) {
     switch (mpd.conn_state) {
         case MPD_DISCONNECTED:
             /* Try to connect */
-            fprintf(stdout, "MPD Connecting to %s:%d\n", mpd.host, mpd.port);
-            mpd.conn = mpd_connection_new(mpd.host, mpd.port, 3000);
+            fprintf(stdout, "MPD Connecting to %s:%d\n", config.mpdhost, config.mpdport);
+            mpd.conn = mpd_connection_new(config.mpdhost, config.mpdport, 3000);
             if (mpd.conn == NULL) {
                 fprintf(stderr, "Out of memory.");
                 mpd.conn_state = MPD_FAILURE;
@@ -570,7 +570,7 @@ void mympd_poll(struct mg_mgr *s) {
                 return;
             }
 
-            if (mpd.password && !mpd_run_password(mpd.conn, mpd.password)) {
+            if (config.mpdpass && !mpd_run_password(mpd.conn, config.mpdpass)) {
                 fprintf(stderr, "MPD connection: %s\n", mpd_connection_get_error_message(mpd.conn));
                 for (struct mg_connection *c = mg_next(s, NULL); c != NULL; c = mg_next(s, c)) {
                     mympd_notify_callback(c, mpd_connection_get_error_message(mpd.conn));
@@ -682,8 +682,8 @@ int mympd_put_settings(char *buffer) {
     int je;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
     struct mympd_state { int a; int b; } state = { .a = 0, .b = 0 };
-    if (access( mpd.statefile, F_OK ) != -1 ) {
-        char *content = json_fread(mpd.statefile);
+    if (access( config.statefile, F_OK ) != -1 ) {
+        char *content = json_fread(config.statefile);
         je = json_scanf(content, strlen(content), "{notificationWeb: %d, notificationPage: %d}", &state.a, &state.b);
         if (je != 2) {
           state.a=0;
@@ -722,9 +722,11 @@ int mympd_put_settings(char *buffer) {
         mpd_status_get_random(status),
         mpd_status_get_mixrampdb(status),
         mpd_status_get_mixrampdelay(status),
-        mpd.host, mpd.port, 
-        mpd.password ? "true" : "false", 
-        streamport, coverimage,
+        config.mpdhost, 
+        config.mpdport, 
+        config.mpdpass ? "true" : "false", 
+        config.streamport, 
+        config.coverimage,
         MAX_ELEMENTS_PER_PAGE,
         replaygain,
         state.a,
@@ -768,18 +770,18 @@ int mympd_put_outputs(char *buffer) {
 }
 
 int mympd_get_cover(const char *uri, char *cover, int cover_len) {
-    char *path=strdup(uri);
+    char *path = strdup(uri);
     int len;
-    if (strncasecmp("http:",path,5) == 0 ) {
-      len=snprintf(cover,cover_len,"/assets/coverimage-httpstream.png");
+    if (strncasecmp("http:", path, 5) == 0 ) {
+      len=snprintf(cover,cover_len, "/assets/coverimage-httpstream.png");
     }
     else {
       dirname(path);
-      snprintf(cover,cover_len,"%s/library/%s/%s",SRC_PATH,path,coverimage);
+      snprintf(cover,cover_len,"%s/library/%s/%s", SRC_PATH, path, config.coverimage);
       if ( access(cover, F_OK ) == -1 ) {
-        len = snprintf(cover,cover_len,"/assets/coverimage-notavailable.png");
+        len = snprintf(cover, cover_len, "/assets/coverimage-notavailable.png");
       } else {
-        len = snprintf(cover,cover_len,"/library/%s/%s",path,coverimage);
+        len = snprintf(cover, cover_len, "/library/%s/%s", path, config.coverimage);
       }
     }
     return len;

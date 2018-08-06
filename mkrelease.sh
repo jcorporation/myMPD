@@ -81,4 +81,4 @@ else
 fi
   
 echo "myMPD installed"
-echo "Edit /etc/mympd/options before starting mympd"
+echo "Edit /etc/mympd/mympd.conf before starting mympd"

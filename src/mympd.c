@@ -26,15 +26,14 @@
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <getopt.h>
 #include <sys/time.h>
 #include <pwd.h>
 
 #include "../dist/src/mongoose/mongoose.h"
+#include "../dist/src/inih/ini.h"
 #include "mpd_client.h"
 #include "config.h"
 
-extern char *optarg;
 static sig_atomic_t s_signal_received = 0;
 static struct mg_serve_http_opts s_http_server_opts;
 char s_redirect[250];
@@ -107,114 +106,84 @@ static void ev_handler_http(struct mg_connection *nc_http, int ev, void *ev_data
     }
 }
 
+static int inihandler(void* user, const char* section, const char* name, const char* value) {
+    configuration* p_config = (configuration*)user;
+
+    #define MATCH(n) strcmp(name, n) == 0
+    if (MATCH("mpdhost"))
+        p_config->mpdhost = strdup(value);
+    else if (MATCH("mpdhost"))
+        p_config->mpdhost = strdup(value);
+    else if (MATCH("mpdport"))
+        p_config->mpdport = atoi(value);
+    else if (MATCH("mpdhost"))
+        p_config->mpdhost = strdup(value);
+    else if (MATCH("mpdpass"))
+        p_config->mpdpass = strdup(value);
+    else if (MATCH("webport"))
+        p_config->webport = strdup(value);
+    else if (MATCH("ssl"))
+        if (strcmp(value, "true") == 0)
+            p_config->ssl = true;
+        else
+            p_config->ssl = false;
+    else if (MATCH("sslcert"))
+        p_config->sslcert = strdup(value);
+    else if (MATCH("sslkey"))
+        p_config->sslkey = strdup(value);
+    else if (MATCH("user"))
+        p_config->user = strdup(value);
+    else if (MATCH("streamport"))
+        p_config->streamport = atoi(value);
+    else if (MATCH("coverimage"))
+        p_config->coverimage = strdup(value);
+    else if (MATCH("statefile"))
+        p_config->statefile = strdup(value);
+    else
+        return 0;  /* unknown section/name, error */
+
+    return 1;
+}
+
 int main(int argc, char **argv) {
-    int n, option_index = 0;
     struct mg_mgr mgr;
     struct mg_connection *nc;
     struct mg_connection *nc_http;
     unsigned int current_timer = 0, last_timer = 0;
-    char *run_as_user = NULL;
-    char *webport = "80";
-    char *sslport = "443";
-    mpd.port = 6600;
-    strcpy(mpd.host, "127.0.0.1");
-    streamport = 8000;
-    strcpy(coverimage, "folder.jpg");
-    mpd.statefile = "/var/lib/mympd/mympd.state";
     struct mg_bind_opts bind_opts;
     const char *err;
-    bool ssl = false;
-    char *s_ssl_cert = "/etc/mympd/ssl/server.pem";
-    char *s_ssl_key = "/etc/mympd/ssl/server.key";
+    
     char hostname[1024];
     hostname[1023] = '\0';
-    gethostname(hostname, 1023);
+    gethostname(hostname, 1023);    
 
-    static struct option long_options[] = {
-        {"mpdhost",      required_argument, 0, 'h'},
-        {"mpdport",      required_argument, 0, 'p'},
-        {"mpdpass",      required_argument, 0, 'm'},        
-        {"webport",      required_argument, 0, 'w'},
-        {"ssl",		 no_argument,	    0, 'S'},
-        {"sslport",	 required_argument, 0, 'W'},
-        {"sslcert",	 required_argument, 0, 'C'},
-        {"sslkey",	 required_argument, 0, 'K'},
-        {"user",         required_argument, 0, 'u'},
-        {"streamport",	 required_argument, 0, 's'},
-        {"coverimage",	 required_argument, 0, 'i'},
-        {"statefile",	 required_argument, 0, 't'},
-        {"version",      no_argument,       0, 'v'},
-        {"help",         no_argument,       0,  0 },
-        {0,              0,                 0,  0 }
-    };
-
-    while((n = getopt_long(argc, argv, "h:p:w:SW:C:K:u:vm:s:i:t:",
-                long_options, &option_index)) != -1) {
-        switch (n) {
-            case 't':
-                mpd.statefile = strdup(optarg);
-                break;
-            case 'h':
-                strncpy(mpd.host, optarg, sizeof(mpd.host));
-                break;
-            case 'p':
-                mpd.port = atoi(optarg);
-                break;
-            case 'w':
-                webport = strdup(optarg);
-                break;
-            case 'S':
-                ssl = true;
-                break;
-            case 'W':
-                sslport = strdup(optarg);
-                break;
-            case 'C':
-                s_ssl_cert = strdup(optarg);
-                break;                
-            case 'K':
-                s_ssl_key = strdup(optarg);
-                break;
-            case 'u':
-                run_as_user = strdup(optarg);
-                break;
-            case 'm':
-                if (strlen(optarg) > 0)
-                    mpd.password = strdup(optarg);
-                break;
-            case 's':
-                streamport = atoi(optarg);
-                break;
-            case 'i':
-                strncpy(coverimage, optarg, sizeof(coverimage));
-                break;
-            case 'v':
-                fprintf(stdout, "myMPD  %d.%d.%d\n"
-                        "Copyright (C) 2018 Juergen Mang <mail@jcgames.de>\n"
-                        "Built " __DATE__ " "__TIME__"\n",
-                        MYMPD_VERSION_MAJOR, MYMPD_VERSION_MINOR, MYMPD_VERSION_PATCH);
-                return EXIT_SUCCESS;
-                break;
-            default:
-                fprintf(stderr, "Usage: %s [OPTION]...\n\n"
-                        " -h, --host <host>\t\tconnect to mpd at host [localhost]\n"
-                        " -p, --port <port>\t\tconnect to mpd at port [6600]\n"
-                        " -w, --webport [ip:]<port>\tlisten interface/port for webserver [80]\n"
-                        " -S, --ssl\tenable ssl\n"
-                        " -W, --sslport [ip:]<port>\tlisten interface/port for ssl webserver [443]\n"
-                        " -C, --sslcert <filename>\tfilename for ssl certificate [/etc/mympd/ssl/server.pem]\n"
-                        " -K, --sslkey <filename>\tfilename for ssl key [/etc/mympd/ssl/server.key]\n"
-                        " -u, --user <username>\t\tdrop priviliges to user after socket bind\n"
-                        " -v, --version\t\t\tget version\n"
-                        " -m, --mpdpass <password>\tspecifies the password to use when connecting to mpd\n"
-                        " -s, --streamport <port>\tconnect to mpd http stream at port [8000]\n"
-                        " -i, --coverimage <filename>\tfilename for coverimage [folder.jpg]\n"
-                        " -t, --statefile <filename>\tfilename for mympd state [/var/lib/mympd/mympd.state]\n"
-                        " --help\t\t\t\tthis help\n"
-                        , argv[0]);
-                return EXIT_FAILURE;
+    //defaults
+    config.mpdhost = "127.0.0.1";
+    config.mpdport = 6600;
+    config.mpdpass = NULL;
+    config.webport = "80";
+    config.ssl = true;
+    config.sslport = "443";
+    config.sslcert = "/etc/mympd/ssl/server.pem";
+    config.sslkey = "/etc/mympd/ssl/server.key";
+    config.user = NULL;
+    config.streamport = 8000;
+    config.coverimage = "folder.jpg";
+    config.statefile = "/var/lib/mympd/mympd.state";
+    
+    if (argc == 2) {
+        if (ini_parse(argv[1], inihandler, &config) < 0) {
+            printf("Can't load '%s'\n", argv[1]);
+            return EXIT_FAILURE;
         }
-
+    } 
+    else {
+        fprintf(stdout, "myMPD  %d.%d.%d\n"
+                        "Copyright (C) 2018 Juergen Mang <mail@jcgames.de>\n"
+                        "Built " __DATE__ " "__TIME__"\n\n",
+                        MYMPD_VERSION_MAJOR, MYMPD_VERSION_MINOR, MYMPD_VERSION_PATCH);
+        printf("Usage: %s /path/to/mympd.conf\n", argv[0]);
+        return EXIT_FAILURE;    
     }
 
     signal(SIGTERM, signal_handler);
@@ -224,35 +193,35 @@ int main(int argc, char **argv) {
     
     mg_mgr_init(&mgr, NULL);
 
-    if (ssl == true) {
-        snprintf(s_redirect, 200, "https://%s:%s/", hostname, sslport);
-        nc_http = mg_bind(&mgr, webport, ev_handler_http);
+    if (config.ssl == true) {
+        snprintf(s_redirect, 200, "https://%s:%s/", hostname, config.sslport);
+        nc_http = mg_bind(&mgr, config.webport, ev_handler_http);
         if (nc_http == NULL) {
-           fprintf(stderr, "Error starting server on port %s\n", webport );
+           fprintf(stderr, "Error starting server on port %s\n", config.webport );
            return EXIT_FAILURE;
         }
         memset(&bind_opts, 0, sizeof(bind_opts));
-        bind_opts.ssl_cert = s_ssl_cert;
-        bind_opts.ssl_key = s_ssl_key;
+        bind_opts.ssl_cert = config.sslcert;
+        bind_opts.ssl_key = config.sslkey;
         bind_opts.error_string = &err;
-        nc = mg_bind_opt(&mgr, sslport, ev_handler, bind_opts);
+        nc = mg_bind_opt(&mgr, config.sslport, ev_handler, bind_opts);
         if (nc == NULL) {
-            fprintf(stderr, "Error starting server on port %s: %s\n", sslport, err);
+            fprintf(stderr, "Error starting server on port %s: %s\n", config.sslport, err);
             return EXIT_FAILURE;
         }
     }
     else {
-        nc = mg_bind(&mgr, webport, ev_handler);
+        nc = mg_bind(&mgr, config.webport, ev_handler);
         if (nc == NULL) {
-           fprintf(stderr, "Error starting server on port %s\n", webport );
+           fprintf(stderr, "Error starting server on port %s\n", config.webport );
            return EXIT_FAILURE;
         }
     }
 
-    if (run_as_user != NULL) {
+    if (config.user != NULL) {
         printf("Droping privileges\n");
         struct passwd *pw;
-        if ((pw = getpwnam(run_as_user)) == NULL) {
+        if ((pw = getpwnam(config.user)) == NULL) {
             printf("Unknown user\n");
             return EXIT_FAILURE;
         } else if (setgid(pw->pw_gid) != 0) {
@@ -270,16 +239,16 @@ int main(int argc, char **argv) {
       return EXIT_FAILURE;
     }
     
-    if (ssl == true)
+    if (config.ssl == true)
         mg_set_protocol_http_websocket(nc_http);
         
     mg_set_protocol_http_websocket(nc);
     s_http_server_opts.document_root = SRC_PATH;
     s_http_server_opts.enable_directory_listing = "no";
 
-    printf("myMPD started on http port %s\n", webport);
-    if (ssl == true)
-        printf("myMPD started on ssl port %s\n", sslport);
+    printf("myMPD started on http port %s\n", config.webport);
+    if (config.ssl == true)
+        printf("myMPD started on ssl port %s\n", config.sslport);
         
     while (s_signal_received == 0) {
         mg_mgr_poll(&mgr, 200);
