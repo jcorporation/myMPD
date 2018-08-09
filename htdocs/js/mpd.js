@@ -83,7 +83,8 @@ var modalSavequeue = new Modal(document.getElementById('modalSaveQueue'));
 var modalSongDetails = new Modal(document.getElementById('modalSongDetails'));
 var modalAddToPlaylist = new Modal(document.getElementById('modalAddToPlaylist'));
 var modalRenamePlaylist = new Modal(document.getElementById('modalRenamePlaylist'));
-var mainMenu = new Dropdown(document.getElementById('mainMenu'));
+//var mainMenu = new Dropdown(document.getElementById('mainMenu'));
+//var volumeMenu = new Dropdown(document.getElementById('volumeIcon'));
 
 function appPrepare(scrollPos) {
     if (app.current.app != app.last.app || app.current.tab != app.last.tab || app.current.view != app.last.view) {
@@ -287,7 +288,7 @@ function appRoute() {
 
 function appInit() {
     getSettings();
-    sendAPI({"cmd":"MPD_API_GET_OUTPUTNAMES"}, parseOutputnames);
+//    sendAPI({"cmd":"MPD_API_GET_OUTPUTS"}, parseOutputnames);
 
     webSocketConnect();
 
@@ -303,6 +304,10 @@ function appInit() {
             sendAPI({"cmd": "MPD_API_SET_SEEK", "data": {"songid": current_song.currentSongId, "seek": seekVal}});
         }
     }, false);
+  
+    document.getElementById('volumeIcon').parentNode.addEventListener('show.bs.dropdown', function () {
+        sendAPI({"cmd":"MPD_API_GET_OUTPUTS"}, parseOutputnames);
+    });    
     
     document.getElementById('modalAbout').addEventListener('shown.bs.modal', function () {
         sendAPI({"cmd": "MPD_API_GET_STATS"}, parseStats);
@@ -640,7 +645,6 @@ function webSocketConnect() {
             showNotification('Connected to myMPD', '', '', 'success');
             modalConnectionError.hide();
             appRoute();
-            sendAPI({"cmd":"MPD_API_GET_OUTPUTNAMES"}, parseOutputnames);
         }
 
         socket.onmessage = function got_packet(msg) {
@@ -807,8 +811,10 @@ function parseOutputnames(obj) {
     var btns = '';
     var outputsLen = obj.data.outputs.length;
     for (var i = 0; i < outputsLen; i++) {
-        btns += '<button id="btnoutput' + obj.data.outputs[i].id +'" data-output-id="' + obj.data.outputs[i].id + '" class="btn btn-secondary btn-block">'+
-                '<span class="material-icons float-left">volume_up</span> ' + obj.data.outputs[i].name + '</button>';
+        btns += '<button data-output-id="' + obj.data.outputs[i].id + '" class="btn btn-secondary btn-block';
+        if (obj.data.outputs[i].state == 1)
+            btns += ' active';
+        btns += '"><span class="material-icons float-left">volume_up</span> ' + obj.data.outputs[i].name + '</button>';
     }
     domCache.outputs.innerHTML = btns;
 }
@@ -899,10 +905,14 @@ function parseState(obj) {
     if (last_state == undefined || obj.data.queue_version != last_state.data.queue_version)
         sendAPI({"cmd": "MPD_API_GET_CURRENT_SONG"}, songChange);
         
-    //  Set outputs state                  
-    var outputsLen = obj.data.outputs.length;
-    for (var i = 0; i < outputsLen; i++) {
-        toggleBtn('btnoutput' + obj.data.outputs[i].id, obj.data.outputs[i].state);
+
+    
+    //clear playback card if not playing
+    if (obj.data.songpos == '-1') {
+        domCache.currentTrack.innerText = 'Not playing';
+        document.getElementById('currentAlbum').innerText = '';
+        document.getElementById('currentArtist').innerText = '';
+        document.getElementById('currentCover').style.backgroundImage = '';
     }
 
     last_state = obj;                    
@@ -1841,7 +1851,7 @@ function songChange(obj) {
     var htmlNotification = '';
     var pageTitle = 'myMPD: ';
 
-    document.getElementById('album-cover').style.backgroundImage = 'url("' + obj.data.cover + '")';
+    document.getElementById('currentCover').style.backgroundImage = 'url("' + obj.data.cover + '")';
 
     if (typeof obj.data.artist != 'undefined' && obj.data.artist.length > 0 && obj.data.artist != '-') {
         textNotification += obj.data.artist;

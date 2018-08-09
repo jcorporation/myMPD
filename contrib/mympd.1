@@ -1,61 +1,18 @@
 .\" Manpage for myMPD.
 .\" Contact mail@jcgames.de to correct errors or typos.
-.TH man 1 "24 May 2018" "1.0.0" "myMPD man page"
+.TH man 1 "06 Aug 2018" "3.5.0" "myMPD man page"
 .SH NAME
 myMPD \- Standalone MPD Web GUI written in C, utilizing Websockets and Bootstrap/JS
 .SH SYNOPSIS
-mympd [OPTION]...
+mympd /path/to/mympd.conf
 .SH DESCRIPTION
 myMPD is a lightweight MPD web client that runs without a dedicated webserver or interpreter. 
 It's tuned for minimal resource usage and requires only very litte dependencies. 
 myMPD is a fork of ympd.
 
-.SH OPTIONS
-.TP
-\fB\-h\fR, \fB\-\-mpdhost HOST\fR
-connect to mpd at host, defaults to localhost
-.TP
-\fB\-p\fR, \fB\-\-mpdport PORT\fR
-connect to mpd at port, defaults to 6600
-.TP
-\fB\-m\fR, \fB\-\-mpdpass PASSWORD\fR
-specifies the password to use when connecting to mpd
-.TP
-\fB\-w\fR, \fB\-\-webport PORT\fR
-listen interface/port for webserver [80]
-.TP
-\fB\-S\fR, \fB\-\-ssl\fR
-enable ssl
-.TP
-\fB\-W\fR, \fB\-\-sslport PORT\fR
-listen interface/port for ssl webserver [443]
-.TP
-\fB\-C\fR, \fB\-\-sslcert FILENAME\fR
-filename for ssl certificate [/etc/mympd/ssl/server.pem]
-.TP
-\fB\-K\fR, \fB\-\-sslkey FILENAME\fR
-filename for ssl key [/etc/mympd/ssl/server.key]
-.TP
-\fB-s\fR, \fB\-\-streamport PORT
-connect to mpd http stream at port [8000]
-.TP
-\fB\-u\fR, \fB\-\-user USERNAME\fR
-drop privileges to the provided username after socket binding
-.TP
-\fB-i\fR, \fB\-\-coverimage FILENAME\fR
-filename for coverimage [folder.jpg]
-.TP
-\fB-t\fR, \fB\-\-statefile FILENAME\fR
-filename for mympd state [/var/lib/mympd/mympd.state]
-.TP
-\fB\-v\fR, \fB\-\-version\fR
-print version and exit
-.TP
-\fB\-\-help\fR
-print all valid options and exits
 .SH BUGS
 No known bugs.
 .SH AUTHOR
 Juergen Mang (mail@jcgames.de)
 
-https://github.com/jcorporation/ympd
+https://github.com/jcorporation/mympd

@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.6)
 project (mympd C)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/")
 set(CPACK_PACKAGE_VERSION_MAJOR "3")
-set(CPACK_PACKAGE_VERSION_MINOR "4")
+set(CPACK_PACKAGE_VERSION_MINOR "5")
 set(CPACK_PACKAGE_VERSION_PATCH "0")
 
 if(CMAKE_BUILD_TYPE MATCHES RELEASE)
@@ -34,6 +34,7 @@ set(SOURCES
     src/mpd_client.c
     dist/src/mongoose/mongoose.c
     dist/src/frozen/frozen.c
+    dist/src/inih/ini.c
 )
 
 add_executable(mympd ${SOURCES})
@@ -52,4 +53,4 @@ install(FILES dist/htdocs/css/bootstrap.min.css DESTINATION share/${PROJECT_NAME
 install(FILES dist/htdocs/css/mpd.min.css DESTINATION share/${PROJECT_NAME}/htdocs/css/)
 install(DIRECTORY htdocs/assets DESTINATION share/${PROJECT_NAME}/htdocs)
 install(DIRECTORY DESTINATION /var/lib/${PROJECT_NAME}/)
-install(FILES contrib/options DESTINATION /etc/${PROJECT_NAME}/)
+install(FILES contrib/mympd.conf DESTINATION /etc/${PROJECT_NAME}/)

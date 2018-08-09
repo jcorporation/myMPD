@@ -45,6 +45,7 @@ Backend
 -------
  - Mongoose: https://github.com/cesanta/mongoose
  - Frozen: https://github.com/cesanta/frozen
+ - inih: https://github.com/benhoyt/inih
 
 Dependencies
 ------------
@@ -68,29 +69,14 @@ Unix Build Instructions
 Run Flags
 ---------
 ```
-Usage: ./mympd [OPTION]...
-
- -h, --mpdhost <host>          connect to mpd at host [localhost]
- -p, --mpdport <port>          connect to mpd at port [6600]
- -m, --mpdpass <password>      specifies the password to use when connecting to mpd
- -w, --webport <port>          listen port for webserver [80]
- -S, --ssl		       enable ssl
- -W, --sslport <port>	       listen port for ssl webserver [443]
- -C, --sslcert <filename>      filename for ssl certificate [/etc/mympd/ssl/server.pem]
- -K, --sslkey <filename>       filename for ssl key [/etc/mympd/ssl/server.key]
- -s, --streamport <port>       connect to mpd http stream at port [8000]
- -u, --user <username>         drop priviliges to user after socket bind
- -i, --coverimage <filename>   filename for coverimage [folder.jpg]
- -t, --statefile <filename>    filename for mympd state [/var/lib/mympd/mympd.state]
- -v, --version                 get version
- --help                        this help
+Usage: ./mympd /etc/mypd/mympd.conf
 ```
 
 SSL
 ---
 
-1. Create ca and certificate ```/path/to/src/contrib/crcert.sh``` (mkrelease.sh do this for you).
-2. Start myMPD with ```-S``` (use default certificate under ```/etc/mympd/ssl/```).
+1. Create ca and certificate ```/path/to/src/contrib/crcert.sh``` (mkrelease.sh does this for you).
+2. Set ```ssl=true``` in /etc/mympd/mympd.conf (use default certificate under ```/etc/mympd/ssl/```).
 3. Import ```/etc/mympd/ssl/ca/ca.pem``` in your browser to trust the certificate.
 4. myMPD redirects http requests to https, ensure that myMPD hostname is resolvable.
 
