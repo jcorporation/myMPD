@@ -117,6 +117,7 @@ struct t_mpd {
     int song_id;
     int next_song_id;
     unsigned queue_version;
+    int timeout;
 } mpd;
 
 typedef struct {
@@ -146,7 +147,8 @@ struct t_mpd_client_session {
     unsigned queue_version;
 };
 
-void mympd_poll(struct mg_mgr *s);
+void mympd_poll(struct mg_mgr *sm, int timeout);
+void mympd_parse_idle(struct mg_mgr *s);
 void callback_mympd(struct mg_connection *nc, const struct mg_str msg);
 int mympd_close_handler(struct mg_connection *c);
 int mympd_put_state(char *buffer, int *current_song_id, int *next_song_id, unsigned *queue_version);

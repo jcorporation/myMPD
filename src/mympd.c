@@ -149,7 +149,6 @@ int main(int argc, char **argv) {
     struct mg_mgr mgr;
     struct mg_connection *nc;
     struct mg_connection *nc_http;
-    unsigned int current_timer = 0, last_timer = 0;
     struct mg_bind_opts bind_opts;
     const char *err;
     
@@ -170,6 +169,8 @@ int main(int argc, char **argv) {
     config.streamport = 8000;
     config.coverimage = "folder.jpg";
     config.statefile = "/var/lib/mympd/mympd.state";
+    
+    mpd.timeout = 3000;
     
     if (argc == 2) {
         if (ini_parse(argv[1], inihandler, &config) < 0) {
@@ -255,12 +256,8 @@ int main(int argc, char **argv) {
         printf("myMPD started on ssl port %s\n", config.sslport);
         
     while (s_signal_received == 0) {
-        mg_mgr_poll(&mgr, 200);
-        current_timer = time(NULL);
-        if (current_timer - last_timer) {
-            last_timer = current_timer;
-            mympd_poll(&mgr);
-        }
+        mympd_poll(&mgr, 100);    
+        mg_mgr_poll(&mgr, 100);
     }
     mg_mgr_free(&mgr);
     mympd_disconnect();

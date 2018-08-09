@@ -29,6 +29,7 @@
 #include <libgen.h>
 #include <ctype.h>
 #include <libgen.h>
+#include <poll.h>
 #include <mpd/client.h>
 #include <mpd/message.h>
 
@@ -73,7 +74,16 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
 
     if (cmd_id == -1)
         cmd_id = get_cmd_id("MPD_API_UNKNOWN");
-    
+
+    mpd_send_noidle(mpd.conn);
+    mpd_response_finish(mpd.conn);
+/*
+    enum mpd_idle idle_event;
+    mpd_connection_set_timeout(mpd.conn, 1);
+    idle_event = mpd_recv_idle(mpd.conn, false);
+*/
+    mpd_connection_set_timeout(mpd.conn, mpd.timeout);
+        
     switch(cmd_id) {
         case MPD_API_UNKNOWN:
             n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Unknown request\"}");
@@ -468,6 +478,8 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
             mpd.conn_state = MPD_FAILURE;
     }
 
+    mpd_send_idle(mpd.conn);
+    
     if (n == 0)
         n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"No response for cmd %s\"}", cmd);
     
@@ -547,12 +559,15 @@ static int mympd_notify_callback(struct mg_connection *c, const char *param) {
     return 0;
 }
 
-void mympd_poll(struct mg_mgr *s) {
+void mympd_poll(struct mg_mgr *s, int timeout) {
+    struct pollfd fds[1];
+    int pollrc;
+    
     switch (mpd.conn_state) {
         case MPD_DISCONNECTED:
             /* Try to connect */
             fprintf(stdout, "MPD Connecting to %s: %d\n", config.mpdhost, config.mpdport);
-            mpd.conn = mpd_connection_new(config.mpdhost, config.mpdport, 3000);
+            mpd.conn = mpd_connection_new(config.mpdhost, config.mpdport, mpd.timeout);
             if (mpd.conn == NULL) {
                 fprintf(stderr, "Out of memory.");
                 mpd.conn_state = MPD_FAILURE;
@@ -578,8 +593,9 @@ void mympd_poll(struct mg_mgr *s) {
             }
 
             fprintf(stderr, "MPD connected.\n");
-            mpd_connection_set_timeout(mpd.conn, 10000);
+            mpd_connection_set_timeout(mpd.conn, mpd.timeout);
             mpd.conn_state = MPD_CONNECTED;
+            mpd_send_idle(mpd.conn);
             break;
 
         case MPD_FAILURE:
@@ -594,11 +610,65 @@ void mympd_poll(struct mg_mgr *s) {
             break;
 
         case MPD_CONNECTED:
-            mpd.buf_size = mympd_put_state(mpd.buf, &mpd.song_id, &mpd.next_song_id, &mpd.queue_version);
-            for (struct mg_connection *c = mg_next(s, NULL); c != NULL; c = mg_next(s, c)) {
-                mympd_notify_callback(c, NULL);
+            fds[0].fd = mpd_connection_get_fd(mpd.conn);
+            fds[0].events = POLLIN;
+            pollrc = poll(fds, 1, timeout);
+            if (pollrc > 0) {
+                mpd_send_noidle(mpd.conn);
+                mympd_parse_idle(s);
+                mpd_send_idle(mpd.conn);
             }
             break;
+    }
+}
+
+void mympd_parse_idle(struct mg_mgr *s) {
+    mpd_connection_set_timeout(mpd.conn, 100);
+    enum mpd_idle idle_bitmask = mpd_recv_idle(mpd.conn, false);
+    
+    for (unsigned j = 0;; ++j) {
+        enum mpd_idle idle_event = 1 << j;
+        const char *idle_name = mpd_idle_name(idle_event);
+        if (idle_name == NULL)
+            break;
+        if (idle_bitmask & idle_event) {
+            #ifdef DEBUG
+            fprintf(stderr,"IDLE: %s\n",idle_name);
+            #endif
+            switch(idle_event) {
+                case MPD_IDLE_DATABASE:
+                    break;
+                case MPD_IDLE_STORED_PLAYLIST:
+                    break;
+                case MPD_IDLE_QUEUE:
+                    break;
+                case MPD_IDLE_PLAYER:
+                    break;
+                case MPD_IDLE_MIXER:
+                    break;
+                case MPD_IDLE_OUTPUT:
+                    break;
+                case MPD_IDLE_OPTIONS:
+                    break;
+                case MPD_IDLE_UPDATE:
+                    break;
+                case MPD_IDLE_STICKER:
+                    break;
+                case MPD_IDLE_SUBSCRIPTION:
+                    break;
+                case MPD_IDLE_MESSAGE:
+                    break;
+            }
+        }
+
+    }
+
+//old behaviour    
+    if (idle_bitmask > 0) {
+        mpd_connection_set_timeout(mpd.conn, mpd.timeout);
+        mpd.buf_size = mympd_put_state(mpd.buf, &mpd.song_id, &mpd.next_song_id, &mpd.queue_version);
+        for (struct mg_connection *c = mg_next(s, NULL); c != NULL; c = mg_next(s, c))
+            mympd_notify_callback(c, NULL);
     }
 }
 
@@ -1432,5 +1502,5 @@ int mympd_put_stats(char *buffer) {
 
 void mympd_disconnect() {
     mpd.conn_state = MPD_DISCONNECT;
-    mympd_poll(NULL);
+    mympd_poll(NULL, 100);
 }
