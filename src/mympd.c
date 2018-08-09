@@ -256,8 +256,8 @@ int main(int argc, char **argv) {
         printf("myMPD started on ssl port %s\n", config.sslport);
         
     while (s_signal_received == 0) {
-        mympd_poll(&mgr, 100);    
-        mg_mgr_poll(&mgr, 100);
+        mympd_poll(&mgr, 60);    
+        mg_mgr_poll(&mgr, 60);
     }
     mg_mgr_free(&mgr);
     mympd_disconnect();

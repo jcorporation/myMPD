@@ -38,7 +38,7 @@
 #include "../dist/src/frozen/frozen.h"
 
 /* forward declaration */
-static int mympd_notify_callback(struct mg_connection *c, const char *param);
+void mympd_notify(struct mg_mgr *s);
 
 const char * mpd_cmd_strs[] = {
     MPD_CMDS(GEN_STR)
@@ -87,6 +87,9 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
     switch(cmd_id) {
         case MPD_API_UNKNOWN:
             n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Unknown request\"}");
+            break;
+        case MPD_API_GET_STATE:
+            n = mympd_put_state(mpd.buf, &mpd.song_id, &mpd.next_song_id, &mpd.queue_version);
             break;
         case MPD_API_SET_SETTINGS:
             json_scanf(msg.p, msg.len, "{data: { notificationWeb: %d, notificationPage: %d}}", &state.a, &state.b);
@@ -505,60 +508,6 @@ int mympd_close_handler(struct mg_connection *c) {
     return 0;
 }
 
-static int mympd_notify_callback(struct mg_connection *c, const char *param) {
-    size_t n;
-    if (!is_websocket(c))
-        return 0;
-
-    if (param) {
-        /* error message? */
-        n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"%s\"}",param);
-        #ifdef DEBUG
-        fprintf(stderr, "Error in mpd_notify_callback: %s\n",param);
-        #endif
-        mg_send_websocket_frame(c, WEBSOCKET_OP_TEXT, mpd.buf, n);
-        return 0;
-    }
-
-    if (!c->user_data)
-        c->user_data = calloc(1, sizeof(struct t_mpd_client_session));
-
-    struct t_mpd_client_session *s = (struct t_mpd_client_session *)c->user_data;
-
-    if (mpd.conn_state != MPD_CONNECTED) {
-        n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"disconnected\"}");
-        #ifdef DEBUG
-        fprintf(stdout, "Notify: disconnected\n");
-        #endif
-        mg_send_websocket_frame(c, WEBSOCKET_OP_TEXT, mpd.buf, n);
-    }
-    else {
-        #ifdef DEBUG
-        fprintf(stdout, "Notify: %s\n",mpd.buf);
-        #endif
-        mg_send_websocket_frame(c, WEBSOCKET_OP_TEXT, mpd.buf, strlen(mpd.buf));
-        
-        if (s->song_id != mpd.song_id) {
-            n = mympd_put_current_song(mpd.buf);
-            #ifdef DEBUG
-            fprintf(stdout, "Notify: %s\n",mpd.buf);
-            #endif
-            mg_send_websocket_frame(c, WEBSOCKET_OP_TEXT, mpd.buf, n);
-            s->song_id = mpd.song_id;
-        }
-        
-        if (s->queue_version != mpd.queue_version) {
-            n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"update_queue\"}");
-            #ifdef DEBUG
-            fprintf(stdout, "Notify: update_queue\n");
-            #endif
-            mg_send_websocket_frame(c, WEBSOCKET_OP_TEXT, mpd.buf, n);
-            s->queue_version = mpd.queue_version;
-        }
-    }
-    return 0;
-}
-
 void mympd_poll(struct mg_mgr *s, int timeout) {
     struct pollfd fds[1];
     int pollrc;
@@ -570,24 +519,24 @@ void mympd_poll(struct mg_mgr *s, int timeout) {
             mpd.conn = mpd_connection_new(config.mpdhost, config.mpdport, mpd.timeout);
             if (mpd.conn == NULL) {
                 fprintf(stderr, "Out of memory.");
+                snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"disconnected\"}");
+                mympd_notify(s);
                 mpd.conn_state = MPD_FAILURE;
                 return;
             }
 
             if (mpd_connection_get_error(mpd.conn) != MPD_ERROR_SUCCESS) {
                 fprintf(stderr, "MPD connection: %s\n", mpd_connection_get_error_message(mpd.conn));
-                for (struct mg_connection *c = mg_next(s, NULL); c != NULL; c = mg_next(s, c)) {
-                    mympd_notify_callback(c, mpd_connection_get_error_message(mpd.conn));
-                }
+                snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"%s\"}", mpd_connection_get_error_message(mpd.conn));
+                mympd_notify(s);
                 mpd.conn_state = MPD_FAILURE;
                 return;
             }
 
             if (config.mpdpass && !mpd_run_password(mpd.conn, config.mpdpass)) {
                 fprintf(stderr, "MPD connection: %s\n", mpd_connection_get_error_message(mpd.conn));
-                for (struct mg_connection *c = mg_next(s, NULL); c != NULL; c = mg_next(s, c)) {
-                    mympd_notify_callback(c, mpd_connection_get_error_message(mpd.conn));
-                }
+                snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"%s\"}", mpd_connection_get_error_message(mpd.conn));
+                mympd_notify(s);
                 mpd.conn_state = MPD_FAILURE;
                 return;
             }
@@ -600,6 +549,8 @@ void mympd_poll(struct mg_mgr *s, int timeout) {
 
         case MPD_FAILURE:
             fprintf(stderr, "MPD connection failed.\n");
+            snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"disconnected\"}");
+            mympd_notify(s);
 
         case MPD_DISCONNECT:
         case MPD_RECONNECT:
@@ -622,9 +573,22 @@ void mympd_poll(struct mg_mgr *s, int timeout) {
     }
 }
 
+void mympd_notify(struct mg_mgr *s) {
+    for (struct mg_connection *c = mg_next(s, NULL); c != NULL; c = mg_next(s, c)) {
+        if (!is_websocket(c))
+            continue;
+        mg_send_websocket_frame(c, WEBSOCKET_OP_TEXT, mpd.buf, strlen(mpd.buf));
+    }
+    #ifdef DEBUG
+    fprintf(stderr,"NOTIFY: %s\n", mpd.buf);
+    #endif
+}
+
 void mympd_parse_idle(struct mg_mgr *s) {
-    mpd_connection_set_timeout(mpd.conn, 100);
+    mpd_connection_set_timeout(mpd.conn, 60);
     enum mpd_idle idle_bitmask = mpd_recv_idle(mpd.conn, false);
+    mpd_connection_set_timeout(mpd.conn, mpd.timeout);
+    int len;
     
     for (unsigned j = 0;; ++j) {
         enum mpd_idle idle_event = 1 << j;
@@ -637,38 +601,41 @@ void mympd_parse_idle(struct mg_mgr *s) {
             #endif
             switch(idle_event) {
                 case MPD_IDLE_DATABASE:
+                    len = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"update_database\"}");
                     break;
                 case MPD_IDLE_STORED_PLAYLIST:
+                    len = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"update_stored_playlist\"}");
                     break;
                 case MPD_IDLE_QUEUE:
+                    len = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"update_queue\"}");
                     break;
                 case MPD_IDLE_PLAYER:
-                    break;
                 case MPD_IDLE_MIXER:
+                    len = mympd_put_state(mpd.buf, &mpd.song_id, &mpd.next_song_id, &mpd.queue_version);
                     break;
                 case MPD_IDLE_OUTPUT:
+                    len = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"update_outputs\"}");
                     break;
                 case MPD_IDLE_OPTIONS:
+                    len = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"update_options\"}");
                     break;
                 case MPD_IDLE_UPDATE:
+                    len = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"update_update\"}");
                     break;
                 case MPD_IDLE_STICKER:
+                    len = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"update_sticker\"}");
                     break;
                 case MPD_IDLE_SUBSCRIPTION:
+                    len = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"update_subscription\"}");
                     break;
                 case MPD_IDLE_MESSAGE:
+                    len = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"update_message\"}");
                     break;
             }
+            if (len > 0)
+                mympd_notify(s);
         }
 
-    }
-
-//old behaviour    
-    if (idle_bitmask > 0) {
-        mpd_connection_set_timeout(mpd.conn, mpd.timeout);
-        mpd.buf_size = mympd_put_state(mpd.buf, &mpd.song_id, &mpd.next_song_id, &mpd.queue_version);
-        for (struct mg_connection *c = mg_next(s, NULL); c != NULL; c = mg_next(s, c))
-            mympd_notify_callback(c, NULL);
     }
 }
 
@@ -684,7 +651,7 @@ char* mympd_get_tag(struct mpd_song const *song, enum mpd_tag_type tag) {
     return str;
 }
 
-int mympd_put_state(char *buffer, int *current_song_id, int *next_song_id,  unsigned *queue_version) {
+int mympd_put_state(char *buffer, int *current_song_id, int *next_song_id, unsigned *queue_version) {
     struct mpd_status *status;
     const struct mpd_audio_format *audioformat;
     int len;
@@ -697,7 +664,7 @@ int mympd_put_state(char *buffer, int *current_song_id, int *next_song_id,  unsi
         return 0;
     }
     if (status) {
-     audioformat = mpd_status_get_audio_format(status);
+        audioformat = mpd_status_get_audio_format(status);
     }
     
     len = json_printf(&out,"{type:state, data:{"

@@ -288,7 +288,7 @@ function appRoute() {
 
 function appInit() {
     getSettings();
-//    sendAPI({"cmd":"MPD_API_GET_OUTPUTS"}, parseOutputnames);
+    sendAPI({"cmd":"MPD_API_GET_STATE"}, parseState);
 
     webSocketConnect();
 
@@ -306,7 +306,7 @@ function appInit() {
     }, false);
   
     document.getElementById('volumeIcon').parentNode.addEventListener('show.bs.dropdown', function () {
-        sendAPI({"cmd":"MPD_API_GET_OUTPUTS"}, parseOutputnames);
+        sendAPI({"cmd":"MPD_API_GET_OUTPUTS"}, parseOutputs);
     });    
     
     document.getElementById('modalAbout').addEventListener('shown.bs.modal', function () {
@@ -668,6 +668,12 @@ function webSocketConnect() {
                     if (app.current.app === 'Queue')
                         getQueue();
                     break;
+                case 'update_options':
+                    getSettings();
+                    break;
+                case 'update_outputs':
+                    sendAPI({"cmd":"MPD_API_GET_OUTPUTS"}, parseOutputs);
+                    break;
                 case 'song_change':
                     songChange(obj);
                     break;
@@ -807,7 +813,7 @@ function getSettings() {
     sendAPI({"cmd": "MPD_API_GET_SETTINGS"}, parseSettings);
 }
 
-function parseOutputnames(obj) {
+function parseOutputs(obj) {
     var btns = '';
     var outputsLen = obj.data.outputs.length;
     for (var i = 0; i < outputsLen; i++) {

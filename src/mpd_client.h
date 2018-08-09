@@ -92,6 +92,7 @@
     X(MPD_API_WELCOME) \
     X(MPD_API_GET_SETTINGS) \
     X(MPD_API_SET_SETTINGS) \
+    X(MPD_API_GET_STATE) \
     X(MPD_API_UNKNOWN)
 
 enum mpd_cmd_ids {
@@ -140,12 +141,6 @@ configuration config;
 static int is_websocket(const struct mg_connection *nc) {
   return nc->flags & MG_F_IS_WEBSOCKET;
 }
-
-struct t_mpd_client_session {
-    int song_id;
-    int next_song_id;
-    unsigned queue_version;
-};
 
 void mympd_poll(struct mg_mgr *sm, int timeout);
 void mympd_parse_idle(struct mg_mgr *s);
