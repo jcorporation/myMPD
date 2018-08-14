@@ -28,7 +28,6 @@
 #include <unistd.h>
 #include <sys/time.h>
 #include <pwd.h>
-#include <pthread.h>
 
 #include "../dist/src/mongoose/mongoose.h"
 #include "../dist/src/inih/ini.h"
@@ -38,7 +37,6 @@
 static sig_atomic_t s_signal_received = 0;
 static struct mg_serve_http_opts s_http_server_opts;
 char s_redirect[250];
-struct mg_mgr mgr;
 
 static void signal_handler(int sig_num) {
     signal(sig_num, signal_handler);  // Reinstantiate signal handler
@@ -147,14 +145,8 @@ static int inihandler(void* user, const char* section, const char* name, const c
     return 1;
 }
 
-void mympd_poll_loop() {
-    while (s_signal_received == 0) {
-        mympd_poll(&mgr, 200);
-    }
-}
-
 int main(int argc, char **argv) {
-
+    struct mg_mgr mgr;
     struct mg_connection *nc;
     struct mg_connection *nc_http;
     struct mg_bind_opts bind_opts;
@@ -263,10 +255,6 @@ int main(int argc, char **argv) {
     if (config.ssl == true)
         printf("myMPD started on ssl port %s\n", config.sslport);
 
-    //Create thread for mpd idle connection
-    //pthread_t tid;
-    //pthread_create(&tid, NULL, &mympd_poll_loop, NULL);
-        
     //Main loop for http handling
     while (s_signal_received == 0) {
         mg_mgr_poll(&mgr, 100);

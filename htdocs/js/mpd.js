@@ -659,7 +659,7 @@ function webSocketConnect() {
             }
 
             switch (obj.type) {
-                case 'state':
+                case 'update_state':
                     parseState(obj);
                     break;
                 case 'disconnected':

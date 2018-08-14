@@ -663,7 +663,7 @@ int mympd_put_state(char *buffer, int *current_song_id, int *next_song_id, unsig
         audioformat = mpd_status_get_audio_format(status);
     }
     
-    len = json_printf(&out,"{type:state, data:{"
+    len = json_printf(&out,"{type: update_state, data:{"
         "state:%d, volume:%d, songPos: %d, elapsedTime: %d, "
         "totalTime:%d, currentSongId: %d, kbitrate: %d, "
         "audioFormat: { sampleRate: %d, bits: %d, channels: %d}, "
