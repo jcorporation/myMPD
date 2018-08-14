@@ -24,12 +24,13 @@
 */
 
 var socket;
-var last_song = '';
-var last_state;
-var current_song = new Object();
+var lastSong = '';
+var lastState;
+var currentSong = new Object();
 var playstate = '';
 var settings = {};
 var alertTimeout;
+var progressTimer;
 let deferredPrompt;
 var dragEl;
 
@@ -299,9 +300,9 @@ function appInit() {
 
     domCache.progressBar.value = 0;
     domCache.progressBar.addEventListener('change', function(event) {
-        if (current_song && current_song.currentSongId >= 0) {
-            var seekVal = Math.ceil(current_song.totalTime * (domCache.progressBar.value / 100));
-            sendAPI({"cmd": "MPD_API_SET_SEEK", "data": {"songid": current_song.currentSongId, "seek": seekVal}});
+        if (currentSong && currentSong.currentSongId >= 0) {
+            var seekVal = Math.ceil(currentSong.totalTime * (domCache.progressBar.value / 100));
+            sendAPI({"cmd": "MPD_API_SET_SEEK", "data": {"songid": currentSong.currentSongId, "seek": seekVal}});
         }
     }, false);
   
@@ -648,7 +649,7 @@ function webSocketConnect() {
         }
 
         socket.onmessage = function got_packet(msg) {
-            if (msg.data === last_state || msg.data.length == 0)
+            if (msg.data === lastState || msg.data.length == 0)
                 return;
                 
             try {
@@ -673,9 +674,6 @@ function webSocketConnect() {
                     break;
                 case 'update_outputs':
                     sendAPI({"cmd":"MPD_API_GET_OUTPUTS"}, parseOutputs);
-                    break;
-                case 'song_change':
-                    songChange(obj);
                     break;
                 case 'error':
                     showNotification(obj.data, '', '', 'danger');
@@ -825,8 +823,54 @@ function parseOutputs(obj) {
     domCache.outputs.innerHTML = btns;
 }
 
+function setCounter(currentSongId, totalTime, elapsedTime) {
+    currentSong.totalTime = totalTime;
+    currentSong.elapsedTime = elapsedTime;
+    currentSong.currentSongId = currentSongId;
+    var total_minutes = Math.floor(totalTime / 60);
+    var total_seconds = totalTime - total_minutes * 60;
+    var elapsed_minutes = Math.floor(elapsedTime / 60);
+    var elapsed_seconds = elapsedTime - elapsed_minutes * 60;
+
+    domCache.progressBar.value = Math.floor(100 * elapsedTime / totalTime);
+
+    var counterText = elapsed_minutes + ":" + 
+        (elapsed_seconds < 10 ? '0' : '') + elapsed_seconds + " / " +
+        total_minutes + ":" + (total_seconds < 10 ? '0' : '') + total_seconds;
+    domCache.counter.innerText = counterText;
+    
+    //Set playing track in queue view
+    if (lastState) {
+        var tr = document.getElementById('queueTrackId' + lastState.data.currentSongId);
+        if (tr) {
+            var trtds = tr.getElementsByTagName('td');
+            trtds[4].innerText = tr.getAttribute('data-duration');
+            trtds[0].classList.remove('material-icons');
+            trtds[0].innerText = tr.getAttribute('data-songpos');
+            tr.classList.remove('font-weight-bold');
+        }
+    }
+    var tr = document.getElementById('queueTrackId' + currentSongId);
+    if (tr) {
+        var trtds = tr.getElementsByTagName('td');
+        trtds[4].innerText = counterText;
+        trtds[0].classList.add('material-icons');
+        trtds[0].innerText = 'play_arrow';
+        tr.classList.add('font-weight-bold');
+    }
+    
+    if (progressTimer)
+            clearTimeout(progressTimer);
+    if (playstate == 'play') {
+        progressTimer = setTimeout(function() {
+            currentSong.elapsedTime ++;
+            setCounter(currentSong.currentSongId, currentSong.totalTime, currentSong.elapsedTime);    
+        }, 1000);
+    }
+}
+
 function parseState(obj) {
-    if (JSON.stringify(obj) === JSON.stringify(last_state))
+    if (JSON.stringify(obj) === JSON.stringify(lastState))
         return;
 
     //Set playstate
@@ -841,17 +885,17 @@ function parseState(obj) {
 	playstate = 'pause';
     }
 
-    if (obj.data.nextsongpos == -1)
+    if (obj.data.nextSongPos == -1)
         domCache.btnNext.setAttribute('disabled','disabled');
     else
         domCache.btnNext.removeAttribute('disabled');
     
-    if (obj.data.songpos <= 0)
+    if (obj.data.songPos <= 0)
         domCache.btnPrev.setAttribute('disabled','disabled');
     else
         domCache.btnPrev.removeAttribute('disabled');
     
-    if (obj.data.queue_length == 0)
+    if (obj.data.queueLength == 0)
         domCache.btnPlay.setAttribute('disabled','disabled');
     else
         domCache.btnPlay.removeAttribute('disabled');
@@ -873,55 +917,19 @@ function parseState(obj) {
     domCache.volumeBar.value = obj.data.volume;
 
     //Set play counters
-    current_song.totalTime  = obj.data.totalTime;
-    current_song.currentSongId = obj.data.currentsongid;
-    var total_minutes = Math.floor(obj.data.totalTime / 60);
-    var total_seconds = obj.data.totalTime - total_minutes * 60;
-    var elapsed_minutes = Math.floor(obj.data.elapsedTime / 60);
-    var elapsed_seconds = obj.data.elapsedTime - elapsed_minutes * 60;
-
-    domCache.progressBar.value = Math.floor(100 * obj.data.elapsedTime / obj.data.totalTime);
-
-    var counterText = elapsed_minutes + ":" + 
-        (elapsed_seconds < 10 ? '0' : '') + elapsed_seconds + " / " +
-        total_minutes + ":" + (total_seconds < 10 ? '0' : '') + total_seconds;
-    domCache.counter.innerText = counterText;
+    setCounter(obj.data.currentSongId, obj.data.totalTime, obj.data.elapsedTime);
     
-    //Set playing track in queue view
-    if (last_state) {
-        var tr = document.getElementById('queueTrackId' + last_state.data.currentsongid);
-        if (tr) {
-            var trtds = tr.getElementsByTagName('td');
-            trtds[4].innerText = tr.getAttribute('data-duration');
-            trtds[0].classList.remove('material-icons');
-            trtds[0].innerText = tr.getAttribute('data-songpos');
-            tr.classList.remove('font-weight-bold');
-        }
-    }
-    var tr = document.getElementById('queueTrackId' + obj.data.currentsongid);
-    if (tr) {
-        var trtds = tr.getElementsByTagName('td');
-        trtds[4].innerText = counterText;
-        trtds[0].classList.add('material-icons');
-        trtds[0].innerText = 'play_arrow';
-        tr.classList.add('font-weight-bold');
-    }
-    
-    //Get current song on queue change for http streams
-    if (last_state == undefined || obj.data.queue_version != last_state.data.queue_version)
-        sendAPI({"cmd": "MPD_API_GET_CURRENT_SONG"}, songChange);
-        
-
-    
+    //Get current song
+    sendAPI({"cmd": "MPD_API_GET_CURRENT_SONG"}, songChange);
     //clear playback card if not playing
-    if (obj.data.songpos == '-1') {
+    if (obj.data.songPos == '-1') {
         domCache.currentTrack.innerText = 'Not playing';
         document.getElementById('currentAlbum').innerText = '';
         document.getElementById('currentArtist').innerText = '';
         document.getElementById('currentCover').style.backgroundImage = '';
     }
 
-    last_state = obj;                    
+    lastState = obj;                    
 }
 
 function getQueue() {
@@ -945,7 +953,7 @@ function parseQueue(obj) {
 
     var nrItems = obj.data.length;
     var table = document.getElementById(app.current.app + 'List');
-    table.setAttribute('data-version', obj.queue_version);
+    table.setAttribute('data-version', obj.queueVersion);
     var tbody = table.getElementsByTagName('tbody')[0];
     var tr = tbody.getElementsByTagName('tr');
     for (var i = 0; i < nrItems; i++) {
@@ -1549,8 +1557,8 @@ function showMenu(el) {
         name = el.parentNode.parentNode.getAttribute('data-name');
     }
     
-    if (last_state)
-        nextsongpos = last_state.data.nextsongpos;
+    if (lastState)
+        nextsongpos = lastState.data.nextsongpos;
 
     var menu = '';
     if ((app.current.app == 'Browse' && app.current.tab == 'Filesystem') || app.current.app == 'Search' ||
@@ -1850,8 +1858,8 @@ function notificationsSupported() {
 function songChange(obj) {
     if (obj.type == 'error' || obj.type == 'result') 
         return;
-    var cur_song = obj.data.title + obj.data.artist + obj.data.album + obj.data.uri + obj.data.currentsongid;
-    if (last_song == cur_song) 
+    var curSong = obj.data.title + obj.data.artist + obj.data.album + obj.data.uri + obj.data.currentSongId;
+    if (lastSong == curSong) 
         return;
     var textNotification = '';
     var htmlNotification = '';
@@ -1885,12 +1893,12 @@ function songChange(obj) {
     }
     document.title = pageTitle;
     //Update Artist in queue view for http streams
-    var playingTr = document.getElementById('queueTrackId' + obj.data.currentsongid);
+    var playingTr = document.getElementById('queueTrackId' + obj.data.currentSongId);
     if (playingTr)
         playingTr.getElementsByTagName('td')[1].innerText = obj.data.title;
 
     showNotification(obj.data.title, textNotification, htmlNotification, 'success');
-    last_song = cur_song;
+    lastSong = curSong;
 }
 
 function doSetFilterLetter(x) {

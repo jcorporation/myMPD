@@ -75,14 +75,10 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
     if (cmd_id == -1)
         cmd_id = get_cmd_id("MPD_API_UNKNOWN");
 
-    mpd_send_noidle(mpd.conn);
+   mpd_send_noidle(mpd.conn);
+//   mympd_parse_idle(mg_mgr);
     mpd_response_finish(mpd.conn);
-/*
-    enum mpd_idle idle_event;
-    mpd_connection_set_timeout(mpd.conn, 1);
-    idle_event = mpd_recv_idle(mpd.conn, false);
-*/
-    mpd_connection_set_timeout(mpd.conn, mpd.timeout);
+//    mpd_connection_set_timeout(mpd.conn, mpd.timeout);
         
     switch(cmd_id) {
         case MPD_API_UNKNOWN:
@@ -515,7 +511,7 @@ void mympd_poll(struct mg_mgr *s, int timeout) {
     switch (mpd.conn_state) {
         case MPD_DISCONNECTED:
             /* Try to connect */
-            fprintf(stdout, "MPD Connecting to %s: %d\n", config.mpdhost, config.mpdport);
+            fprintf(stdout, "MPD Connecting to %s:%d\n", config.mpdhost, config.mpdport);
             mpd.conn = mpd_connection_new(config.mpdhost, config.mpdport, mpd.timeout);
             if (mpd.conn == NULL) {
                 fprintf(stderr, "Out of memory.");
@@ -585,9 +581,9 @@ void mympd_notify(struct mg_mgr *s) {
 }
 
 void mympd_parse_idle(struct mg_mgr *s) {
-    mpd_connection_set_timeout(mpd.conn, 60);
+//    mpd_connection_set_timeout(mpd.conn, 60);
     enum mpd_idle idle_bitmask = mpd_recv_idle(mpd.conn, false);
-    mpd_connection_set_timeout(mpd.conn, mpd.timeout);
+//    mpd_connection_set_timeout(mpd.conn, mpd.timeout);
     int len;
     
     for (unsigned j = 0;; ++j) {
@@ -668,11 +664,11 @@ int mympd_put_state(char *buffer, int *current_song_id, int *next_song_id, unsig
     }
     
     len = json_printf(&out,"{type:state, data:{"
-        "state:%d, volume:%d, songpos: %d, elapsedTime: %d, "
-        "totalTime:%d, currentsongid: %d, kbitrate: %d, "
-        "audioformat: { sample_rate: %d, bits: %d, channels: %d}, "
-        "queue_length: %d, nextsongpos: %d, nextsongid: %d, "
-        "queue_version: %d", 
+        "state:%d, volume:%d, songPos: %d, elapsedTime: %d, "
+        "totalTime:%d, currentSongId: %d, kbitrate: %d, "
+        "audioFormat: { sampleRate: %d, bits: %d, channels: %d}, "
+        "queueLength: %d, nextSongPos: %d, nextSongId: %d, "
+        "queueVersion: %d", 
         mpd_status_get_state(status),
         mpd_status_get_volume(status), 
         mpd_status_get_song_pos(status),
@@ -841,7 +837,7 @@ int mympd_put_current_song(char *buffer) {
     mympd_get_cover(mpd_song_get_uri(song),cover,500);
 
     len = json_printf(&out,"{type: song_change, data: { pos: %d, title: %Q, "
-        "artist: %Q, album: %Q, uri: %Q, currentsongid: %d, albumartist: %Q, "
+        "artist: %Q, album: %Q, uri: %Q, currentSongId: %d, albumartist: %Q, "
         "duration: %d, cover: %Q}}",
         mpd_song_get_pos(song),
         mympd_get_tag(song, MPD_TAG_TITLE),
