@@ -93,7 +93,8 @@
     X(MPD_API_GET_SETTINGS) \
     X(MPD_API_SET_SETTINGS) \
     X(MPD_API_GET_STATE) \
-    X(MPD_API_UNKNOWN)
+    X(MPD_API_UNKNOWN) \
+    X(MPD_API_LIKE)
 
 enum mpd_cmd_ids {
     MPD_CMDS(GEN_ENUM)
@@ -146,6 +147,9 @@ void mympd_poll(struct mg_mgr *sm, int timeout);
 void mympd_parse_idle(struct mg_mgr *s);
 void callback_mympd(struct mg_connection *nc, const struct mg_str msg);
 void mympd_notify(struct mg_mgr *s);
+void mympd_count_song_id(int song_id, char *name, int value);
+void mympd_count_song_uri(const char *uri, char *name, int value);
+void mympd_like_song_uri(const char *uri, int value);
 int mympd_put_state(char *buffer, int *current_song_id, int *next_song_id, unsigned *queue_version);
 int mympd_put_outputs(char *buffer);
 int mympd_put_current_song(char *buffer);

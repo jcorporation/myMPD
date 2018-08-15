@@ -72,24 +72,32 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
     if (cmd_id == -1)
         cmd_id = get_cmd_id("MPD_API_UNKNOWN");
 
-   mpd_send_noidle(mpd.conn);
-//   mympd_parse_idle(mg_mgr);
+    mpd_send_noidle(mpd.conn);
     mpd_response_finish(mpd.conn);
-//    mpd_connection_set_timeout(mpd.conn, mpd.timeout);
         
     switch(cmd_id) {
         case MPD_API_UNKNOWN:
             n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Unknown request\"}");
             break;
+        case MPD_API_LIKE:
+            je = json_scanf(msg.p, msg.len, "{data: {uri:%Q, like:%d}}", &p_charbuf1, &uint_buf1);
+            if (je == 2) {        
+                mympd_like_song_uri(p_charbuf1, uint_buf1);
+                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+                free(p_charbuf1);
+            }
+            break;
         case MPD_API_GET_STATE:
             n = mympd_put_state(mpd.buf, &mpd.song_id, &mpd.next_song_id, &mpd.queue_version);
             break;
         case MPD_API_SET_SETTINGS:
-            json_scanf(msg.p, msg.len, "{data: { notificationWeb: %d, notificationPage: %d}}", &state.a, &state.b);
-            char tmpfile[200];
-            snprintf(tmpfile,200,"%s.tmp", config.statefile);
-            json_fprintf(tmpfile, "{notificationWeb: %d, notificationPage: %d}", state.a, state.b);
-            rename(tmpfile,config.statefile);
+            je = json_scanf(msg.p, msg.len, "{data: { notificationWeb: %d, notificationPage: %d}}", &state.a, &state.b);
+            if (je == 2) {
+                char tmpfile[200];
+                snprintf(tmpfile,200,"%s.tmp", config.statefile);
+                json_fprintf(tmpfile, "{notificationWeb: %d, notificationPage: %d}", state.a, state.b);
+                rename(tmpfile,config.statefile);
+            }
             
             je = json_scanf(msg.p, msg.len, "{data: {random:%u}}", &uint_buf1);
             if (je == 1)        
@@ -155,6 +163,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
             n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             break;
         case MPD_API_SET_NEXT:
+            mympd_count_song_id(mpd.song_id, "skipCount", 1);
             mpd_run_next(mpd.conn);
             n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             break;
@@ -569,6 +578,58 @@ void mympd_poll(struct mg_mgr *s, int timeout) {
     }
 }
 
+char* mympd_get_song_uri_from_song_id(int song_id) {
+    char *str;
+    struct mpd_song *song;
+    if (song_id > -1) {
+        song = mpd_run_get_queue_song_id(mpd.conn, song_id);
+        if (song) {
+            str = (char *)mpd_song_get_uri(song);
+            mpd_song_free(song);
+        }
+    }
+    return str;
+}
+
+void mympd_count_song_id(int song_id, char *name, int value) {
+    char *uri = mympd_get_song_uri_from_song_id(song_id);
+    mympd_count_song_uri(uri, name, value);
+}
+
+void mympd_count_song_uri(const char *uri, char *name, int value) {
+    struct mpd_pair *pair;
+    int old_value = 0;
+    char v[3];
+    if (mpd_send_sticker_list(mpd.conn, "song", uri)) {
+        while ((pair = mpd_recv_sticker(mpd.conn)) != NULL) {
+            if (strcmp(pair->name, name) == 0)
+                old_value = atoi(pair->value);
+            mpd_return_sticker(mpd.conn, pair);
+        }
+    } 
+    old_value += value;
+    if (old_value > 99)
+        old_value = 99;
+    else if (old_value < 0)
+        old_value = 0;
+    snprintf(v, 2, "%d", old_value);
+    mpd_run_sticker_set(mpd.conn, "song", uri, name, v);
+}
+
+void mympd_like_song_uri(const char *uri, int value) {
+    char v[3];
+    if (value > 0)
+        value = 1;
+    snprintf(v, 2, "%d", value);
+    mpd_run_sticker_set(mpd.conn, "song", uri, "like", v);
+}
+
+void mympd_last_played_song_uri(const char *uri) {
+    char v[20];
+    snprintf(v, 19, "%lu", time(NULL));
+    mpd_run_sticker_set(mpd.conn, "song", uri, "lastPlayed", v);
+}
+
 void mympd_parse_idle(struct mg_mgr *s) {
     enum mpd_idle idle_bitmask = mpd_recv_idle(mpd.conn, false);
     int len;
@@ -593,6 +654,9 @@ void mympd_parse_idle(struct mg_mgr *s) {
                     len = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"update_queue\"}");
                     break;
                 case MPD_IDLE_PLAYER:
+                    len = mympd_put_state(mpd.buf, &mpd.song_id, &mpd.next_song_id, &mpd.queue_version);
+                    mympd_count_song_id(mpd.song_id, "playCount", 1);
+                    break;
                 case MPD_IDLE_MIXER:
                     len = mympd_put_state(mpd.buf, &mpd.song_id, &mpd.next_song_id, &mpd.queue_version);
                     break;
@@ -724,7 +788,7 @@ int mympd_put_settings(char *buffer) {
     mpd_send_command(mpd.conn, "replay_gain_status", NULL);
     struct mpd_pair *pair;
     while ((pair = mpd_recv_pair(mpd.conn)) != NULL) {
-        replaygain=strdup(pair->value);
+        replaygain = strdup(pair->value);
 	mpd_return_pair(mpd.conn, pair);
     }
     
@@ -1452,5 +1516,5 @@ int mympd_put_stats(char *buffer) {
 
 void mympd_disconnect() {
     mpd.conn_state = MPD_DISCONNECT;
-    mympd_poll(NULL, 100);
+    mympd_poll(NULL, 0);
 }
