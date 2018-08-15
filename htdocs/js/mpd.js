@@ -646,6 +646,7 @@ function webSocketConnect() {
             showNotification('Connected to myMPD', '', '', 'success');
             modalConnectionError.hide();
             appRoute();
+            sendAPI({"cmd":"MPD_API_GET_STATE"}, parseState);
         }
 
         socket.onmessage = function got_packet(msg) {

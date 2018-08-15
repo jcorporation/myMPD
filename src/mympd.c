@@ -84,7 +84,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
               #ifdef DEBUG
               printf("Websocket connection closed\n");
               #endif
-              mympd_close_handler(nc);
+//              mympd_close_handler(nc);
             }
             else {
               #ifdef DEBUG
@@ -255,10 +255,9 @@ int main(int argc, char **argv) {
     if (config.ssl == true)
         printf("myMPD started on ssl port %s\n", config.sslport);
 
-    //Main loop for http handling
     while (s_signal_received == 0) {
         mg_mgr_poll(&mgr, 100);
-        mympd_poll(&mgr, 1);
+        mympd_poll(&mgr, 0);
     }
     mg_mgr_free(&mgr);
     mympd_disconnect();

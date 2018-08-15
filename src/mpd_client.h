@@ -122,30 +122,30 @@ struct t_mpd {
 } mpd;
 
 typedef struct {
-   int mpdport;
-   const char* mpdhost;
-   const char* mpdpass;
-   const char* webport;
-   bool ssl;
-   const char* sslport;
-   const char* sslcert;
-   const char* sslkey;
-   const char* user;
-   int streamport;
-   const char* coverimage;
-   const char* statefile;
+    int mpdport;
+    const char* mpdhost;
+    const char* mpdpass;
+    const char* webport;
+    bool ssl;
+    const char* sslport;
+    const char* sslcert;
+    const char* sslkey;
+    const char* user;
+    int streamport;
+    const char* coverimage;
+    const char* statefile;
 } configuration;
 
 configuration config;
 
 static int is_websocket(const struct mg_connection *nc) {
-  return nc->flags & MG_F_IS_WEBSOCKET;
+    return nc->flags & MG_F_IS_WEBSOCKET;
 }
 
 void mympd_poll(struct mg_mgr *sm, int timeout);
 void mympd_parse_idle(struct mg_mgr *s);
 void callback_mympd(struct mg_connection *nc, const struct mg_str msg);
-int mympd_close_handler(struct mg_connection *c);
+void mympd_notify(struct mg_mgr *s);
 int mympd_put_state(char *buffer, int *current_song_id, int *next_song_id, unsigned *queue_version);
 int mympd_put_outputs(char *buffer);
 int mympd_put_current_song(char *buffer);
@@ -166,4 +166,3 @@ int mympd_put_songdetails(char *buffer, char *uri);
 int mympd_queue_crop(char *buffer);
 void mympd_disconnect();
 #endif
-
