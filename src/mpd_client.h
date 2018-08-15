@@ -150,6 +150,8 @@ void mympd_notify(struct mg_mgr *s);
 void mympd_count_song_id(int song_id, char *name, int value);
 void mympd_count_song_uri(const char *uri, char *name, int value);
 void mympd_like_song_uri(const char *uri, int value);
+void mympd_last_played_song_uri(const char *uri);
+void mympd_last_played_song_id(int song_id);
 int mympd_put_state(char *buffer, int *current_song_id, int *next_song_id, unsigned *queue_version);
 int mympd_put_outputs(char *buffer);
 int mympd_put_current_song(char *buffer);

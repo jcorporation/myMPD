@@ -557,6 +557,7 @@ void mympd_poll(struct mg_mgr *s, int timeout) {
             fprintf(stderr, "MPD connection failed.\n");
             snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"disconnected\"}");
             mympd_notify(s);
+
         case MPD_DISCONNECT:
         case MPD_RECONNECT:
             if (mpd.conn != NULL)
@@ -584,7 +585,7 @@ char* mympd_get_song_uri_from_song_id(int song_id) {
     if (song_id > -1) {
         song = mpd_run_get_queue_song_id(mpd.conn, song_id);
         if (song) {
-            str = (char *)mpd_song_get_uri(song);
+            str = strdup(mpd_song_get_uri(song));
             mpd_song_free(song);
         }
     }
@@ -592,8 +593,7 @@ char* mympd_get_song_uri_from_song_id(int song_id) {
 }
 
 void mympd_count_song_id(int song_id, char *name, int value) {
-    char *uri = mympd_get_song_uri_from_song_id(song_id);
-    mympd_count_song_uri(uri, name, value);
+    mympd_count_song_uri(mympd_get_song_uri_from_song_id(song_id), name, value);
 }
 
 void mympd_count_song_uri(const char *uri, char *name, int value) {
@@ -622,6 +622,10 @@ void mympd_like_song_uri(const char *uri, int value) {
         value = 1;
     snprintf(v, 2, "%d", value);
     mpd_run_sticker_set(mpd.conn, "song", uri, "like", v);
+}
+
+void mympd_last_played_song_id(int song_id) {
+    mympd_last_played_song_uri(mympd_get_song_uri_from_song_id(song_id));
 }
 
 void mympd_last_played_song_uri(const char *uri) {
@@ -656,6 +660,7 @@ void mympd_parse_idle(struct mg_mgr *s) {
                 case MPD_IDLE_PLAYER:
                     len = mympd_put_state(mpd.buf, &mpd.song_id, &mpd.next_song_id, &mpd.queue_version);
                     mympd_count_song_id(mpd.song_id, "playCount", 1);
+                    mympd_last_played_song_id(mpd.song_id);
                     break;
                 case MPD_IDLE_MIXER:
                     len = mympd_put_state(mpd.buf, &mpd.song_id, &mpd.next_song_id, &mpd.queue_version);
