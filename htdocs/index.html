@@ -75,18 +75,27 @@
     <div class="card" id="cardPlayback">
       <div class="card-header">Playback</div>
       <div class="card-body">
-        <div class="album-cover" id="currentCover"></div>
-        <h1 id="currentTrack" data-href="{'cmd': 'songClick', 'options': []}"></h1>
+      
+        <div class="card">
+          <div class="card-header"><h2 id="currentTrack" data-href="{'cmd': 'songClick', 'options': []}"></h2></div>
+          <div class="card-img-top album-cover" id="currentCover"></div>
+          <div class="card-body">
+
+          </div>
+          <div class="card-footer">
+            <div class="row">
+              <div class="col-8">
+                <input type="range" min="0" max="100" step="1" class="form-control-range" id="progressBar">
+              </div>
+              <div class="col-4" id="counter">&nbsp;&nbsp;</div>
+            </div>           
+          </div>
+        </div>
+
+        
         <h3 id="currentArtist" data-href="{'cmd': 'artistClick', 'options': []}"></h3>
         <h4 id="currentAlbum"></h4>
-        <div class="row">
-          <div class="col-8">
-            <input type="range" min="0" max="100" step="1" class="form-control-range" id="progressBar">
-          </div>
-          <div class="col-4">
-            <p id="counter" class="text">&nbsp;&nbsp;</p>
-          </div>
-        </div> 
+        
       </div>
     </div>
     
@@ -777,15 +786,20 @@
         <div class="modal-body">
           <div class="album-cover"></div>
           <h1></h1>
-          <table class="table">
+          <table class="table table-sm">
             <tbody>
-              <tr data-name="artist"><td>Artist</td><td></td></tr>
-              <tr data-name="album"><td>Album</td><td></td></tr>
-              <tr data-name="track"><td>Track</td><td></td></tr>
-              <tr data-name="albumartist"><td>Albumartist</td><td></td></tr>
-              <tr data-name="genre"><td>Genre</td><td></td></tr>
-              <tr data-name="date"><td>Date</td><td></td></tr>
-              <tr data-name="uri"><td>Uri</td><td></td></tr>
+              <tr data-name="artist"><th>Artist</th><td></td></tr>
+              <tr data-name="album"><th>Album</th><td></td></tr>
+              <tr data-name="track"><th>Track</th><td></td></tr>
+              <tr data-name="albumartist"><th>Albumartist</th><td></td></tr>
+              <tr data-name="genre"><th>Genre</th><td></td></tr>
+              <tr data-name="date"><th>Date</th><td></td></tr>
+              <tr data-name="uri"><th>Uri</th><td></td></tr>
+              <tr><th colspan="2">Statistics</th></tr>
+              <tr data-name="playCount"><th>Play count</th><td></td></tr>
+              <tr data-name="skipCount"><th>Skip count</th><td></td></tr>
+              <tr data-name="lastPlayed"><th>Last played</th><td></td></tr>
+              <tr data-name="like"><th>Like</th><td></td></tr>
             </tbody>
           </table>
         </div>

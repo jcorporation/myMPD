@@ -32,10 +32,12 @@ button {
   cursor: pointer;
 }
 
+
 #counter {
   font-size: 22px;
-  margin-left: 10px;
+/*  margin-left: 10px;
   min-width: 50px;
+*/
 }
 
 .card {
@@ -58,10 +60,10 @@ button {
 
 .album-cover {
   background-size: cover;
-  border: 1px solid black;
+/*  border: 1px solid black;
   border-radius: 5px;
   overflow: hidden;
-  margin-bottom: 20px;
+  margin-bottom: 20px;*/
   width: 240px;
   height: 240px;
   background-color: #eee;

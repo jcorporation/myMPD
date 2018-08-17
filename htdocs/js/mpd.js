@@ -1387,16 +1387,31 @@ function parseSongDetails(obj) {
     var trLen = tr.length;
     for (var i = 0; i < trLen; i++) {
         var key = tr[i].getAttribute('data-name');
+        if (!key)
+            continue;
         var value = obj.data[key];
         if (key == 'duration') {
             var minutes = Math.floor(value / 60);
             var seconds = value - minutes * 60;
             value = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;        
         }
+        else if (key == 'lastPlayed') {
+            if (value == 0) 
+                value = 'never';    
+            else {
+                var d = new Date(value * 1000);
+                value = d.toUTCString();
+            }
+        }
+        else if (key == 'like') {
+            if (value == 0) value = '<span class="material-icons">thumb_down_alt</span>';
+            else if (value == 2) value = '<span class="material-icons">thumb_up_alt</span>';
+            else value = 'not voted';
+        }
         else if (key == 'uri') {
             value = '<a class="text-success" href="/library/' + value + '">' + value + '</a>';
         }
-        tr[i].getElementsByTagName('td')[1].innerHTML = value;
+        tr[i].getElementsByTagName('td')[0].innerHTML = value;
     }
 }
 
