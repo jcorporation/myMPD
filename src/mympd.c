@@ -107,7 +107,7 @@ static void ev_handler_http(struct mg_connection *nc_http, int ev, void *ev_data
 }
 
 static int inihandler(void* user, const char* section, const char* name, const char* value) {
-    configuration* p_config = (configuration*)user;
+    t_config* p_config = (t_config*)user;
 
     #define MATCH(n) strcmp(name, n) == 0
     if (MATCH("mpdhost"))

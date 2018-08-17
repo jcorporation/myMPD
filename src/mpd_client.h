@@ -135,9 +135,16 @@ typedef struct {
     int streamport;
     const char* coverimage;
     const char* statefile;
-} configuration;
+} t_config;
 
-configuration config;
+t_config config;
+
+typedef struct {
+    int playCount;
+    int skipCount;
+    int lastPlayed;
+    int like;
+} t_sticker;
 
 static int is_websocket(const struct mg_connection *nc) {
     return nc->flags & MG_F_IS_WEBSOCKET;
@@ -152,6 +159,7 @@ void mympd_count_song_uri(const char *uri, char *name, int value);
 void mympd_like_song_uri(const char *uri, int value);
 void mympd_last_played_song_uri(const char *uri);
 void mympd_last_played_song_id(int song_id);
+void mympd_get_sticker(const char *uri, t_sticker *sticker);
 int mympd_put_state(char *buffer, int *current_song_id, int *next_song_id, unsigned *queue_version);
 int mympd_put_outputs(char *buffer);
 int mympd_put_current_song(char *buffer);
