@@ -1451,6 +1451,34 @@ function getAllPlaylists(obj) {
     }
 }
 
+function voteSong(vote) {
+    var uri = domCache.currentTrack.getAttribute('data-uri');
+    if (uri == '')
+        return;
+        
+    var btnVoteUp = document.getElementById('btnVoteUp');
+    var btnVoteDown = document.getElementById('btnVoteDown');
+    if (vote == 2 && btnVoteUp.classList.contains('active-fg-green'))
+        vote = 1;
+    else if (vote == 0 && btnVoteDown.classList.contains('active-fg-red'))
+        vote = 1;
+    sendAPI({"cmd":"MPD_API_LIKE","data": {"uri": uri, "like": vote}});
+    setVoteSongBtns(vote);
+}
+
+function setVoteSongBtns(vote) {
+    if (vote == 0) {
+        btnVoteUp.classList.remove('active-fg-green');
+        btnVoteDown.classList.add('active-fg-red');
+    } else if (vote == 1) {
+        btnVoteUp.classList.remove('active-fg-green');
+        btnVoteDown.classList.remove('active-fg-red');
+    } else if (vote == 2) {
+        btnVoteUp.classList.add('active-fg-green');
+        btnVoteDown.classList.remove('active-fg-red');
+    }
+}
+
 function toggleAddToPlaylistFrm() {
     var btn = document.getElementById('toggleAddToPlaylistBtn');
     toggleBtn('toggleAddToPlaylistBtn');
@@ -1815,8 +1843,6 @@ function gotoPage(x) {
     appGoto(app.current.app, app.current.tab, app.current.view, app.current.page + '/' + app.current.filter + '/' + app.current.search);
 }
 
-
-
 function saveQueue() {
     var plName = document.getElementById('saveQueueName').value;
     var valid = plName.replace(/\w/g,'');
@@ -1913,6 +1939,8 @@ function songChange(obj) {
         domCache.currentTrack.setAttribute('data-uri', '');
     }
     document.title = pageTitle;
+    setVoteSongBtns(obj.data.like);
+
     //Update Artist in queue view for http streams
     var playingTr = document.getElementById('queueTrackId' + obj.data.currentSongId);
     if (playingTr)

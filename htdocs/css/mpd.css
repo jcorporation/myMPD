@@ -56,8 +56,7 @@ small {
 }
 
 .card-footer-playback {
-  padding-top: 0px;
-  padding-bottom: 0px;
+  padding: 0px;
 }
 
 .album-cover {
@@ -193,6 +192,14 @@ button.active {
   color: #fff;
   background-color: #28a745 !important;
   border-color: #28a745 !important;
+}
+
+button.active-fg-green {
+  color: #28a745 !important;
+}
+
+button.active-fg-red {
+  color: #bd2130 !important;
 }
 
 div#alertBox {

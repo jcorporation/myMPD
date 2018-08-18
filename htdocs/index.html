@@ -80,15 +80,22 @@
             <div class="album-cover" id="currentCover"></div>
             <div class="album-desc">
               <h2 id="currentTrack" data-href="{'cmd': 'songClick', 'options': []}"></h2>
-              <small>Artist</small><h4 id="currentArtist" data-href="{'cmd': 'artistClick', 'options': []}"></h4>
-              <small>Album</small><h4 id="currentAlbum"></h4>
+              <small>Artist</small>
+              <h4 id="currentArtist" data-href="{'cmd': 'artistClick', 'options': []}"></h4>
+              <small>Album</small>
+              <h4 id="currentAlbum"></h4>
+              <small>Vote</small><br/>
+              <div class="btn-group">
+                <button id="btnVoteDown" data-href="{'cmd': 'voteSong', 'options': ['0']}" class="btn btn-sm btn-light material-icons">thumb_down</button>
+                <button id="btnVoteUp" data-href="{'cmd': 'voteSong', 'options': ['2']}" class="btn btn-sm btn-light material-icons">thumb_up</button>
+              </div>
             </div>
           </div>
           <div class="card-footer card-footer-playback">
             <div class="d-flex">
-              <button data-href="{'cmd':'clickPlay','options':[]}" class="btn btn-light material-icons btnPlay progressBarPlay">pause</button>
-              <input type="range" min="0" max="100" step="1" class="form-control-range flex-grow-1" id="progressBar">
-              <div class="btn" id="counter">&nbsp;&nbsp;</div>
+              <button data-href="{'cmd':'clickPlay','options':[]}" class="mr-1 ml-1 btn btn-light material-icons btnPlay progressBarPlay">pause</button>
+              <input type="range" min="0" max="100" step="1" class="mr-1 ml-1 form-control-range flex-grow-1" id="progressBar">
+              <div class="btn ml-1 mr-1" id="counter">&nbsp;&nbsp;</div>
             </div>
           </div>
         </div>
