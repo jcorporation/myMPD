@@ -69,7 +69,7 @@ domCache.counter = document.getElementById('counter');
 domCache.volumePrct = document.getElementById('volumePrct');
 domCache.volumeControl = document.getElementById('volumeControl');
 domCache.volumeIcon = document.getElementById('volumeIcon');
-domCache.btnPlay = document.getElementById('btnPlay');
+domCache.btnsPlay = document.querySelectorAll('.btnPlay');
 domCache.btnPrev = document.getElementById('btnPrev');
 domCache.btnNext = document.getElementById('btnNext');
 domCache.progressBar = document.getElementById('progressBar');
@@ -876,13 +876,16 @@ function parseState(obj) {
 
     //Set playstate
     if (obj.data.state == 1) {
-        domCache.btnPlay.innerText = 'play_arrow';
+        for (var i = 0; i < domCache.btnsPlay.length; i++)
+            domCache.btnsPlay[i].innerText = 'play_arrow';
         playstate = 'stop';
     } else if (obj.data.state == 2) {
-        domCache.btnPlay.innerText = 'pause';
+        for (var i = 0; i < domCache.btnsPlay.length; i++)
+            domCache.btnsPlay[i].innerText = 'pause';
         playstate = 'play';
     } else {
-        domCache.btnPlay.innerText = 'play_arrow';
+        for (var i = 0; i < domCache.btnsPlay.length; i++)
+            domCache.btnsPlay[i].innerText = 'play_arrow';
 	playstate = 'pause';
     }
 
@@ -897,9 +900,11 @@ function parseState(obj) {
         domCache.btnPrev.removeAttribute('disabled');
     
     if (obj.data.queueLength == 0)
-        domCache.btnPlay.setAttribute('disabled','disabled');
+        for (var i = 0; i < domCache.btnsPlay.length; i++)
+            domCache.btnsPlay[i].setAttribute('disabled','disabled');
     else
-        domCache.btnPlay.removeAttribute('disabled');
+        for (var i = 0; i < domCache.btnsPlay.length; i++)
+            domCache.btnsPlay[i].removeAttribute('disabled');
 
     //Set volume
     if (obj.data.volume == -1) {

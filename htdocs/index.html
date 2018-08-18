@@ -39,7 +39,7 @@
             <button data-href="{'cmd':'clickStop','options':[]}" id="btnStop" type="button" class="btn btn-secondary pl-2 pr-2 material-icons">
               stop
             </button>
-            <button data-href="{'cmd':'clickPlay','options':[]}" id="btnPlay" type="button" class="btn btn-secondary pl-2 pr-2 material-icons">
+            <button data-href="{'cmd':'clickPlay','options':[]}" id="btnPlay" type="button" class="btnPlay btn btn-secondary pl-2 pr-2 material-icons">
               pause
             </button>
             <button data-href="{'cmd':'clickNext','options':[]}" id="btnNext" type="button" class="btn btn-secondary pl-2 pr-2 material-icons">
@@ -75,27 +75,23 @@
     <div class="card" id="cardPlayback">
       <div class="card-header">Playback</div>
       <div class="card-body">
-      
         <div class="card">
-          <div class="card-header"><h2 id="currentTrack" data-href="{'cmd': 'songClick', 'options': []}"></h2></div>
-          <div class="card-img-top album-cover" id="currentCover"></div>
           <div class="card-body">
-
+            <div class="album-cover" id="currentCover"></div>
+            <div class="album-desc">
+              <h2 id="currentTrack" data-href="{'cmd': 'songClick', 'options': []}"></h2>
+              <small>Artist</small><h4 id="currentArtist" data-href="{'cmd': 'artistClick', 'options': []}"></h4>
+              <small>Album</small><h4 id="currentAlbum"></h4>
+            </div>
           </div>
-          <div class="card-footer">
-            <div class="row">
-              <div class="col-8">
-                <input type="range" min="0" max="100" step="1" class="form-control-range" id="progressBar">
-              </div>
-              <div class="col-4" id="counter">&nbsp;&nbsp;</div>
-            </div>           
+          <div class="card-footer card-footer-playback">
+            <div class="d-flex">
+              <button data-href="{'cmd':'clickPlay','options':[]}" class="btn btn-light material-icons btnPlay progressBarPlay">pause</button>
+              <input type="range" min="0" max="100" step="1" class="form-control-range flex-grow-1" id="progressBar">
+              <div class="btn" id="counter">&nbsp;&nbsp;</div>
+            </div>
           </div>
         </div>
-
-        
-        <h3 id="currentArtist" data-href="{'cmd': 'artistClick', 'options': []}"></h3>
-        <h4 id="currentAlbum"></h4>
-        
       </div>
     </div>
     
