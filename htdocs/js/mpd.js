@@ -735,13 +735,13 @@ function parseStats(obj) {
     document.getElementById('mpdstats_artists').innerText =  obj.data.artists;
     document.getElementById('mpdstats_albums').innerText = obj.data.albums;
     document.getElementById('mpdstats_songs').innerText = obj.data.songs;
-    document.getElementById('mpdstats_dbplaytime').innerText = beautifyDuration(obj.data.dbplaytime);
+    document.getElementById('mpdstats_dbPlaytime').innerText = beautifyDuration(obj.data.dbPlaytime);
     document.getElementById('mpdstats_playtime').innerText = beautifyDuration(obj.data.playtime);
     document.getElementById('mpdstats_uptime').innerText = beautifyDuration(obj.data.uptime);
-    var d = new Date(obj.data.dbupdated * 1000);
-    document.getElementById('mpdstats_dbupdated').innerText = d.toUTCString();
-    document.getElementById('mympdVersion').innerText = obj.data.mympd_version;
-    document.getElementById('mpdVersion').innerText = obj.data.mpd_version;
+    var d = new Date(obj.data.dbUpdated * 1000);
+    document.getElementById('mpdstats_dbUpdated').innerText = d.toUTCString();
+    document.getElementById('mympdVersion').innerText = obj.data.mympdVersion;
+    document.getElementById('mpdVersion').innerText = obj.data.mpdVersion;
 }
 
 function toggleBtn(btn, state) {
@@ -974,7 +974,7 @@ function parseQueue(obj) {
     if (app.current.app !== 'Queue')
         return;
     
-    if (typeof(obj.totalTime) != undefined && obj.totalTime > 0 )
+    if (typeof(obj.totalTime) != undefined && obj.totalTime > 0 && obj.totalEntities <= settings.maxElementsPerPage )
         document.getElementById('panel-heading-queue').innerText = obj.totalEntities + ' Songs – ' + beautifyDuration(obj.totalTime);
     else if (obj.totalEntities > 0)
         document.getElementById('panel-heading-queue').innerText = obj.totalEntities + ' Songs';
@@ -1313,18 +1313,18 @@ function parseListTitles(obj) {
 }
 
 function setPagination(number) {
-    var totalPages = Math.ceil(number / settings.max_elements_per_page);
+    var totalPages = Math.ceil(number / settings.maxElementsPerPage);
     var cat = app.current.app + (app.current.tab == undefined ? '': app.current.tab);
     if (totalPages == 0) 
         totalPages = 1;
     var p = ['PaginationTop', 'PaginationBottom'];
     for (var i = 0; i < 2; i++) {
-        document.getElementById(cat + p[i] + 'Page').innerText = (app.current.page / settings.max_elements_per_page + 1) + ' / ' + totalPages;
+        document.getElementById(cat + p[i] + 'Page').innerText = (app.current.page / settings.maxElementsPerPage + 1) + ' / ' + totalPages;
         if (totalPages > 1) {
             document.getElementById(cat + p[i] + 'Page').removeAttribute('disabled');
             var pl = '';
             for (var j = 0; j < totalPages; j++) {
-                pl += '<button data-page="' + (j * settings.max_elements_per_page) + '" type="button" class="mr-1 mb-1 btn-sm btn btn-secondary">' +
+                pl += '<button data-page="' + (j * settings.maxElementsPerPage) + '" type="button" class="mr-1 mb-1 btn-sm btn btn-secondary">' +
                     ( j + 1) + '</button>';
             }
             document.getElementById(cat + p[i] + 'Pages').innerHTML = pl;
@@ -1332,7 +1332,7 @@ function setPagination(number) {
             document.getElementById(cat + p[i] + 'Page').setAttribute('disabled', 'disabled');
         }
     
-        if (number > app.current.page + settings.max_elements_per_page) {
+        if (number > app.current.page + settings.maxElementsPerPage) {
             document.getElementById(cat + p[i] + 'Next').removeAttribute('disabled');
             document.getElementById(cat + p[i]).classList.remove('hide');
             document.getElementById(cat + 'ButtonsBottom').classList.remove('hide');
@@ -1474,7 +1474,7 @@ function getAllPlaylists(obj) {
     }
     document.getElementById('addToPlaylistPlaylist').innerHTML += playlists;
     if (obj.totalEntities > obj.returnedEntities) {
-        obj.offset += settings.max_elements_per_page;
+        obj.offset += settings.maxElementsPerPage;
         sendAPI({"cmd": "MPD_API_GET_PLAYLISTS","data": {"offset": obj.offset, "filter": "-"}}, getAllPlaylists);
     }
 }
@@ -1867,10 +1867,10 @@ function scrollTo(pos) {
 function gotoPage(x) {
     switch (x) {
         case 'next':
-            app.current.page += settings.max_elements_per_page;
+            app.current.page += settings.maxElementsPerPage;
             break;
         case 'prev':
-            app.current.page -= settings.max_elements_per_page;
+            app.current.page -= settings.maxElementsPerPage;
             if (app.current.page < 0)
                 app.current.page = 0;
             break;

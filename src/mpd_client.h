@@ -119,6 +119,7 @@ struct t_mpd {
     int song_id;
     int next_song_id;
     unsigned queue_version;
+    unsigned queue_length;
     int timeout;
 } mpd;
 
@@ -162,7 +163,7 @@ void mympd_like_song_uri(const char *uri, int value);
 void mympd_last_played_song_uri(const char *uri);
 void mympd_last_played_song_id(int song_id);
 void mympd_get_sticker(const char *uri, t_sticker *sticker);
-int mympd_put_state(char *buffer, int *current_song_id, int *next_song_id, unsigned *queue_version);
+int mympd_put_state(char *buffer, int *current_song_id, int *next_song_id, unsigned *queue_version, unsigned *queue_length);
 int mympd_put_outputs(char *buffer);
 int mympd_put_current_song(char *buffer);
 int mympd_put_queue(char *buffer, unsigned int offset);
