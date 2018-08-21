@@ -58,7 +58,7 @@ then
   LIBRARY=$(grep ^music_directory /etc/mpd.conf | awk {'print $2'} | sed -e 's/"//g')
   [ "$LIBRARY" != "" ] && [ ! -e /usr/share/mympd/htdocs/library ] && sudo ln -s "$LIBRARY" /usr/share/mympd/htdocs/library
 else
-  echo "/etc/mpd.conf not found, you must link your musicdir manually to /usr/share/mympd/htdocs/library"
+  echo "/etc/mpd.conf not found, you must link your music_directory manually to /usr/share/mympd/htdocs/library"
 fi
 
 echo "Installing systemd service"
@@ -81,4 +81,4 @@ else
 fi
   
 echo "myMPD installed"
-echo "Edit /etc/mympd/mympd.conf before starting mympd"
+echo "Edit /etc/mympd/mympd.conf before starting myMPD"

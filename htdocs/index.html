@@ -9,11 +9,11 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="theme-color" content="#343a40">
-  <link href="css/bootstrap.min.css" rel="stylesheet">
-  <link href="css/mpd.css" rel="stylesheet">
-  <link href="assets/favicon.ico" rel="shortcut icon" type="image/vnd.microsoft.icon">  
-  <link rel="manifest" href="mympd.webmanifest">
-  <link rel="apple-touch-icon" href="assets/appicon-167.png">
+  <link href="/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/css/mpd.css" rel="stylesheet">
+  <link href="/assets/favicon.ico" rel="shortcut icon" type="image/vnd.microsoft.icon">  
+  <link rel="manifest" href="/mympd.webmanifest">
+  <link rel="apple-touch-icon" href="/assets/appicon-167.png">
 </head>
 <body>
   <header>
@@ -23,11 +23,11 @@
             <span class="material-icons header-logo">play_circle_outline</span>myMPD
           </a>
           <div class="dropdown-menu bg-dark">
-            <a id="nav-addstream" class="dropdown-item text-light bg-dark" href="#" data-href="{'cmd':'showAddToPlaylist','options':['stream']}">Add Stream</a>
-            <a id="nav-updatedb" class="dropdown-item text-light bg-dark" href="#" data-href="{'cmd':'updateDB','options':[]}">Update Database</a>
-            <a id="nav-localplayer" class="dropdown-item text-light bg-dark" href="#" data-href="{'cmd':'openLocalPlayer','options':[]}">Local Player</a>
-            <a id="nav-settings" class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#modalSettings">Settings</a>
-            <a id="nav-about" class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#modalAbout">About</a>
+            <a class="dropdown-item text-light bg-dark" href="#" data-href="{'cmd':'showAddToPlaylist','options':['stream']}">Add Stream</a>
+            <a class="dropdown-item text-light bg-dark" href="#" data-href="{'cmd':'updateDB','options':[]}">Update Database</a>
+            <a class="dropdown-item text-light bg-dark" href="#" data-href="{'cmd':'openLocalPlayer','options':[]}">Local Player</a>
+            <a class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#modalSettings">Settings</a>
+            <a class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#modalAbout">About</a>
             <a id="nav-add2homescreen" class="dropdown-item text-light bg-dark hide" href="#">Add2HomeScreen</a>
           </div>
         </div>
@@ -72,53 +72,49 @@
     <noscript>
       <div class="alert alert-danger" role="alert">JavaScript is disabled!</div>
     </noscript>
+    
     <div class="card" id="cardPlayback">
       <div class="card-header">Playback</div>
       <div class="card-body">
-        <div class="card">
-          <div class="card-body">
-            <div class="album-cover" id="currentCover"></div>
-            <div class="album-desc">
-              <h2 id="currentTrack" data-href="{'cmd': 'songClick', 'options': []}"></h2>
-              <small>Artist</small>
-              <h4 id="currentArtist" data-href="{'cmd': 'artistClick', 'options': []}"></h4>
-              <small>Album</small>
-              <h4 id="currentAlbum"></h4>
-              <div class="stickers">
-                <small>Vote</small><br/>
-                <div class="btn-group">
-                  <button id="btnVoteDown" data-href="{'cmd': 'voteSong', 'options': ['0']}" class="btn btn-sm btn-light material-icons">thumb_down</button>
-                  <button id="btnVoteUp" data-href="{'cmd': 'voteSong', 'options': ['2']}" class="btn btn-sm btn-light material-icons">thumb_up</button>
-                </div>
-              </div>
+        <div class="album-cover" id="currentCover"></div>
+        <div class="album-desc">
+          <h2 id="currentTrack" data-href="{'cmd': 'songClick', 'options': []}"></h2>
+          <small>Artist</small>
+          <h4 id="currentArtist" data-href="{'cmd': 'artistClick', 'options': []}"></h4>
+          <small>Album</small>
+          <h4 id="currentAlbum"></h4>
+          <div class="stickers">
+            <small>Vote</small><br/>
+            <div class="btn-group">
+              <button id="btnVoteDown" data-href="{'cmd': 'voteSong', 'options': ['0']}" class="btn btn-sm btn-light material-icons">thumb_down</button>
+              <button id="btnVoteUp" data-href="{'cmd': 'voteSong', 'options': ['2']}" class="btn btn-sm btn-light material-icons">thumb_up</button>
             </div>
           </div>
-          <div class="card-footer card-footer-playback">
-            <div class="d-flex align-items-center">
-              <button data-href="{'cmd':'clickPlay','options':[]}" class="mr-1 ml-1 btn btn-light material-icons btnPlay progressBarPlay">pause</button>
-              <input type="range" min="0" max="100" step="1" class="mr-1 ml-1 form-control-range flex-grow-1" id="progressBar">
-              <div class="btn ml-1 mr-1" id="counter">&nbsp;&nbsp;</div>
-            </div>
-          </div>
+        </div>
+      </div>
+      <div class="card-footer card-footer-playback">
+        <div class="d-flex align-items-center">
+          <button data-href="{'cmd':'clickPlay','options':[]}" class="mr-1 ml-1 btn btn-light material-icons btnPlay progressBarPlay">pause</button>
+          <input type="range" min="0" max="100" step="1" class="mr-1 ml-1 form-control-range flex-grow-1" id="progressBar">
+          <div class="btn ml-1 mr-1" id="counter">&nbsp;&nbsp;</div>
         </div>
       </div>
     </div>
     
     <div class="card hide" id="cardQueue">
       <div class="card-header">
-        <a href="#" data-target="#queue-buttons" class="text-dark">Queue</a>
-        <span id="panel-heading-queue" class="text pull-right"></span>
+        Queue<span id="panel-heading-queue" class="text pull-right"></span>
       </div>
       <div class="card-body">
         <div class="btn-toolbar card-toolbar" id="queue-buttons" role="toolbar">
           <div class="btn-group mr-2">
-            <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#modalSaveQueue" title="Save queue">
-              <span class="material-icons">save</span>
+            <button type="button" class="btn btn-secondary material-icons" data-toggle="modal" data-target="#modalSaveQueue" title="Save queue">
+              save
             </button>
           </div>
           <div class="btn-group mr-2">
-            <button type="button" class="btn btn-secondary" data-href="{'cmd': 'sendAPI', 'options': [{'cmd':'MPD_API_SEND_SHUFFLE'}]}" title="Shuffle queue">
-              <span class="material-icons">shuffle</span>
+            <button type="button" class="btn btn-secondary material-icons" data-href="{'cmd': 'sendAPI', 'options': [{'cmd':'MPD_API_SEND_SHUFFLE'}]}" title="Shuffle queue">
+              shuffle
             </button>
           </div>
           <div class="input-group mr-2">
@@ -184,8 +180,8 @@
         </div>
         <div class="btn-toolbar hide" id="QueueButtonsBottom" role="toolbar">
           <div class="btn-group mr-2">
-            <button type="button" class="btn btn-secondary" data-href="{'cmd':'scrollTo','options':[0]}" title="To top">
-              <span class="material-icons">keyboard_arrow_up</span>
+            <button type="button" class="btn btn-secondary material-icons" data-href="{'cmd':'scrollTo','options':[0]}" title="To top">
+              keyboard_arrow_up
             </button>
           </div>        
           <div id="QueuePaginationBottom" class="btn-group mr-2 dropup">
@@ -222,8 +218,8 @@
             <button data-href="{'cmd': 'appGoto', 'options': ['Browse','Playlists','All']}" id="btnBrowsePlaylistsAll" type="button" class="btn btn-secondary">&laquo; Playlists</button>
           </div>
           <div class="btn-group mr-2 hide">          
-            <button id="btnPlaylistClear" type="button" class="btn btn-secondary" data-href="{'cmd': 'playlistClear', 'options': []}" title="Clear playlist">
-              <span class="material-icons">clear_all</span>
+            <button id="btnPlaylistClear" type="button" class="btn btn-secondary material-icons" data-href="{'cmd': 'playlistClear', 'options': []}" title="Clear playlist">
+              clear_all
             </button>          
           </div>
           <div class="btn-group mr-2">
@@ -282,8 +278,8 @@
         </div>
         <div class="btn-toolbar hide" id="BrowsePlaylistsButtonsBottom" role="toolbar">
           <div class="btn-group mr-2">
-            <button type="button" class="btn btn-secondary" data-href="{'cmd': 'scrollTo', 'options': [0]}" title="To top">
-              <span class="material-icons">keyboard_arrow_up</span>
+            <button type="button" class="btn btn-secondary material-icons" data-href="{'cmd': 'scrollTo', 'options': [0]}" title="To top">
+              keyboard_arrow_up
             </button>
           </div>        
           <div id="BrowsePlaylistsPaginationBottom" class="btn-group mr-2 dropup">
@@ -340,8 +336,8 @@
         
         <div class="btn-toolbar hide" id="BrowseDatabaseButtonsBottom" role="toolbar">
           <div class="btn-group mr-2">
-            <button type="button" class="btn btn-secondary" data-href="{'cmd': 'scrollTo', 'options': [0]}" title="To top">
-              <span class="material-icons">keyboard_arrow_up</span>
+            <button type="button" class="btn btn-secondary material-icons" data-href="{'cmd': 'scrollTo', 'options': [0]}" title="To top">
+              keyboard_arrow_up
             </button>
           </div>        
           <div id="BrowseDatabasePaginationBottom" class="btn-group mr-2 dropup">
@@ -412,8 +408,8 @@
         </div>
         <div class="btn-toolbar hide" id="BrowseFilesystemButtonsBottom" role="toolbar">
           <div class="btn-group mr-2">
-            <button type="button" class="btn btn-secondary" data-href="{'cmd': 'scrollTo', 'options': [0]}" title="To top">
-              <span class="material-icons">keyboard_arrow_up</span>
+            <button type="button" class="btn btn-secondary material-icons" data-href="{'cmd': 'scrollTo', 'options': [0]}" title="To top">
+              keyboard_arrow_up
             </button>
           </div>        
           <div id="BrowseFilesystemPaginationBottom" class="btn-group mr-2 dropup">
@@ -430,7 +426,8 @@
     </div>        
 
     <div class="card hide" id="cardSearch">
-      <div class="card-header">Search
+      <div class="card-header">
+        Search
         <span id="panel-heading-search" class="text pull-right"></span>
       </div>
       <div class="card-body">
@@ -497,8 +494,8 @@
         </div>
         <div class="btn-toolbar hide" id="SearchButtonsBottom" role="toolbar">
           <div class="btn-group mr-2">
-            <button type="button" class="btn btn-secondary" data-href="{'cmd': 'scrollTo', 'options': [0]}" title="To top">
-              <span class="material-icons">keyboard_arrow_up</span>
+            <button type="button" class="btn btn-secondary material-icons" data-href="{'cmd': 'scrollTo', 'options': [0]}" title="To top">
+              keyboard_arrow_up
             </button>
           </div>        
           <div id="SearchPaginationBottom" class="btn-group mr-2 dropup">
@@ -546,7 +543,7 @@
         <div class="modal-header">
           <h5 class="modal-title"><span class="material-icons title-icon">playlist_add</span> <span id="addToPlaylistLabel">Add to playlist</span></h5>
           <button type="button" class="close" data-dismiss="modal">
-            <span>&times;</span>
+            &times;
           </button>
         </div>
         <div class="modal-body">
@@ -597,7 +594,7 @@
         <div class="modal-header">
           <h5 class="modal-title"><span class="material-icons title-icon">playlist_add</span>Rename playlist</h5>
           <button type="button" class="close" data-dismiss="modal">
-            <span>&times;</span>
+            &times;
           </button>
         </div>
         <div class="modal-body">
@@ -627,7 +624,7 @@
         <div class="modal-header">
           <h5 class="modal-title" id="settingsLabel"><span class="material-icons title-icon">settings</span> Settings</h5>
           <button type="button" class="close" data-dismiss="modal">
-            <span>&times;</span>
+            &times;
           </button>
         </div>
         <div class="modal-body">
@@ -720,7 +717,7 @@
         <div class="modal-header">
           <h5 class="modal-title" id="aboutLabel"><span class="material-icons title-icon">play_circle_outline</span> About</h5>
           <button type="button" class="close" data-dismiss="modal">
-            <span>&times;</span>
+            &times;
           </button>
         </div>
         <div class="modal-body">
@@ -757,7 +754,7 @@
         <div class="modal-header">
           <h5 class="modal-title"><span class="material-icons title-icon">save</span> Save Queue</h5>
           <button type="button" class="close" data-dismiss="modal">
-            <span>&times;</span>
+            &times;
           </button>          
         </div>
         <div class="modal-body">
@@ -785,7 +782,7 @@
         <div class="modal-header">
           <h5 class="modal-title"><span class="material-icons title-icon">music_note</span> Song Details</h5>
           <button type="button" class="close" data-dismiss="modal">
-            <span>&times;</span>
+            &times;
           </button>          
         </div>
         <div class="modal-body">
@@ -815,7 +812,7 @@
     </div>
   </div>
 
-  <script src="js/bootstrap-native-v4.min.js"></script>
-  <script src="js/mpd.js"></script>
+  <script src="/js/bootstrap-native-v4.min.js"></script>
+  <script src="/js/mpd.js"></script>
  </body>
 </html>
