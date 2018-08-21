@@ -500,6 +500,10 @@ function appInit() {
 
     window.addEventListener('hashchange', appRoute, false);
     
+    window.addEventListener('focus', function() {
+        sendAPI({"cmd":"MPD_API_GET_STATE"}, parseState);
+    }, false);
+    
     document.addEventListener('keydown', function(event) {
         if (event.target.tagName == 'INPUT')
             return;
@@ -798,6 +802,19 @@ function parseSettings(obj) {
     }
     
     toggleBtn('btnnotifyPage', obj.data.notificationPage);
+
+    var stickerEls = document.getElementsByClassName('stickers');
+    var stickerEls_len = stickerEls.length;
+    var displayStickers = obj.data.stickers == true ? '' : 'none';
+    for (var i = 0; i < stickerEls_len; i++) {
+        stickerEls[i].style.display = displayStickers;
+    }
+    
+    if (obj.data.mixramp == true) {
+        document.getElementsByClassName('mixramp')[0].style.display = '';
+    } else {
+        document.getElementsByClassName('mixramp')[0].style.display = 'none';
+    }
 
     settings=obj.data;
     settings.mpdstream = 'http://';
@@ -1372,11 +1389,15 @@ function replaceQueue(type, uri, name) {
 }
 
 function songClick() {
-    songDetails(domCache.currentTrack.getAttribute('data-uri'));
+    var uri = domCache.currentTrack.getAttribute('data-uri')
+    if (uri != '')
+        songDetails(uri);
 }
 
 function artistClick() {
-    appGoto('Browse', 'Database', 'Album', '0/-/' + document.getElementById('currentArtist').innerText);
+    var albumartist = document.getElementById('currentArtist').getAttribute('data-albumartist');
+    if (albumartist != '') 
+        appGoto('Browse', 'Database', 'Album', '0/-/' + albumartist);
 }
 
 function songDetails(uri) {
@@ -1919,6 +1940,7 @@ function songChange(obj) {
         htmlNotification += obj.data.artist;
         pageTitle += obj.data.artist + ' - ';
         document.getElementById('currentArtist').innerText = obj.data.artist;
+        document.getElementById('currentArtist').setAttribute('data-albumartist', obj.data.albumartist);
     } else {
         document.getElementById('currentArtist').innerText = '';
     }

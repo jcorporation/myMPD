@@ -135,6 +135,8 @@ typedef struct {
     int streamport;
     const char* coverimage;
     const char* statefile;
+    bool stickers;
+    bool mixramp;
 } t_config;
 
 t_config config;

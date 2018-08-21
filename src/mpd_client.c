@@ -80,11 +80,16 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
             n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Unknown request\"}");
             break;
         case MPD_API_LIKE:
-            je = json_scanf(msg.p, msg.len, "{data: {uri: %Q, like: %d}}", &p_charbuf1, &uint_buf1);
-            if (je == 2) {        
-                mympd_like_song_uri(p_charbuf1, uint_buf1);
-                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
-                free(p_charbuf1);
+            if (config.stickers) {
+                je = json_scanf(msg.p, msg.len, "{data: {uri: %Q, like: %d}}", &p_charbuf1, &uint_buf1);
+                if (je == 2) {        
+                    mympd_like_song_uri(p_charbuf1, uint_buf1);
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+                    free(p_charbuf1);
+                }
+            } 
+            else {
+                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"MPD stickers are disabled\"}");
             }
             break;
         case MPD_API_GET_STATE:
@@ -119,13 +124,15 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
             if (je == 1)
                 mpd_run_crossfade(mpd.conn, uint_buf1);
             
-            je = json_scanf(msg.p, msg.len, "{data: {mixrampdb: %f}}", &float_buf);
-            if (je == 1)        
-                mpd_run_mixrampdb(mpd.conn, float_buf);
+            if (config.mixramp) {
+                je = json_scanf(msg.p, msg.len, "{data: {mixrampdb: %f}}", &float_buf);
+                if (je == 1)        
+                    mpd_run_mixrampdb(mpd.conn, float_buf);
             
-            je = json_scanf(msg.p, msg.len, "{data: {mixrampdelay: %f}}", &float_buf);
-            if (je == 1)        
-                mpd_run_mixrampdelay(mpd.conn, float_buf);
+                je = json_scanf(msg.p, msg.len, "{data: {mixrampdelay: %f}}", &float_buf);
+                if (je == 1)        
+                    mpd_run_mixrampdelay(mpd.conn, float_buf);
+            }
             
             je = json_scanf(msg.p, msg.len, "{data: {replaygain:%Q}}", &p_charbuf1);
             if (je == 1) {
@@ -163,7 +170,8 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
             n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             break;
         case MPD_API_SET_NEXT:
-            mympd_count_song_id(mpd.song_id, "skipCount", 1);
+            if (config.stickers)
+                mympd_count_song_id(mpd.song_id, "skipCount", 1);
             mpd_run_next(mpd.conn);
             n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             break;
@@ -682,8 +690,10 @@ void mympd_parse_idle(struct mg_mgr *s) {
                     break;
                 case MPD_IDLE_PLAYER:
                     len = mympd_put_state(mpd.buf, &mpd.song_id, &mpd.next_song_id, &mpd.queue_version);
-                    mympd_count_song_id(mpd.song_id, "playCount", 1);
-                    mympd_last_played_song_id(mpd.song_id);
+                    if (config.stickers) {
+                        mympd_count_song_id(mpd.song_id, "playCount", 1);
+                        mympd_last_played_song_id(mpd.song_id);
+                    }
                     break;
                 case MPD_IDLE_MIXER:
                     len = mympd_put_state(mpd.buf, &mpd.song_id, &mpd.next_song_id, &mpd.queue_version);
@@ -741,7 +751,7 @@ int mympd_put_state(char *buffer, int *current_song_id, int *next_song_id, unsig
     audioformat = mpd_status_get_audio_format(status);
     
     len = json_printf(&out,"{type: update_state, data: {"
-        "state:%d, volume:%d, songPos: %d, elapsedTime: %d, "
+        "state: %d, volume: %d, songPos: %d, elapsedTime: %d, "
         "totalTime: %d, currentSongId: %d, kbitrate: %d, "
         "audioFormat: { sampleRate: %d, bits: %d, channels: %d}, "
         "queueLength: %d, nextSongPos: %d, nextSongId: %d, "
@@ -796,12 +806,12 @@ int mympd_put_settings(char *buffer) {
         char *content = json_fread(config.statefile);
         je = json_scanf(content, strlen(content), "{notificationWeb: %d, notificationPage: %d}", &state.a, &state.b);
         if (je != 2) {
-          state.a=0;
-          state.b=0;
+          state.a = 0;
+          state.b = 0;
         }
     } else {
-        state.a=0;
-        state.b=0;
+        state.a = 0;
+        state.b = 0;
     }
 
     status = mpd_run_status(mpd.conn);
@@ -821,8 +831,9 @@ int mympd_put_settings(char *buffer) {
     len = json_printf(&out,
         "{type: settings, data: {"
         "repeat: %d, single: %d, crossfade: %d, consume: %d, random: %d, "
-        "mixrampdb: %f, mixrampdelay: %f, mpdhost : %Q, mpdport: %d, passwort_set: %B, "
-        "streamport: %d, coverimage: %Q, max_elements_per_page: %d, replaygain: %Q,"
+        "mixrampdb: %f, mixrampdelay: %f, mpdhost: %Q, mpdport: %d, passwort_set: %B, "
+        "streamport: %d, coverimage: %Q, stickers: %B, mixramp: %B, "
+        "max_elements_per_page: %d, replaygain: %Q,"
         "notificationWeb: %d, notificationPage: %d"
         "}}", 
         mpd_status_get_repeat(status),
@@ -834,9 +845,11 @@ int mympd_put_settings(char *buffer) {
         mpd_status_get_mixrampdelay(status),
         config.mpdhost, 
         config.mpdport, 
-        config.mpdpass ? "true" : "false", 
+        config.mpdpass ? "true" : "false",
         config.streamport, 
         config.coverimage,
+        config.stickers,
+        config.mixramp,
         MAX_ELEMENTS_PER_PAGE,
         replaygain,
         state.a,
@@ -885,23 +898,22 @@ int mympd_get_cover(const char *uri, char *cover, int cover_len) {
     char *path = strdup(uri);
     int len;
     if (strncasecmp("http:", path, 5) == 0 ) {
-      len=snprintf(cover,cover_len, "/assets/coverimage-httpstream.png");
+        len = snprintf(cover, cover_len, "/assets/coverimage-httpstream.png");
     }
     else {
-      dirname(path);
-      snprintf(cover,cover_len,"%s/library/%s/%s", SRC_PATH, path, config.coverimage);
-      if ( access(cover, F_OK ) == -1 ) {
-        len = snprintf(cover, cover_len, "/assets/coverimage-notavailable.png");
-      } else {
-        len = snprintf(cover, cover_len, "/library/%s/%s", path, config.coverimage);
-      }
+        dirname(path);
+        snprintf(cover, cover_len, "%s/library/%s/%s", SRC_PATH, path, config.coverimage);
+        if ( access(cover, F_OK ) == -1 ) {
+            len = snprintf(cover, cover_len, "/assets/coverimage-notavailable.png");
+        } else {
+            len = snprintf(cover, cover_len, "/library/%s/%s", path, config.coverimage);
+        }
     }
     return len;
 }
 
 int mympd_put_current_song(char *buffer) {
     struct mpd_song *song;
-    t_sticker *sticker = (t_sticker *) malloc(sizeof(t_sticker));
     int len;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
     char cover[500];
@@ -913,11 +925,10 @@ int mympd_put_current_song(char *buffer) {
     }
         
     mympd_get_cover(mpd_song_get_uri(song), cover, 500);
-    mympd_get_sticker(mpd_song_get_uri(song), sticker);
     
-    len = json_printf(&out,"{type: song_change, data: { pos: %d, title: %Q, "
+    len = json_printf(&out,"{type: song_change, data: {pos: %d, title: %Q, "
         "artist: %Q, album: %Q, uri: %Q, currentSongId: %d, albumartist: %Q, "
-        "duration: %d, cover: %Q, playCount: %d, skipCount: %d, like: %d, lastPlayed: %d}}",
+        "duration: %d, cover: %Q",
         mpd_song_get_pos(song),
         mympd_get_tag(song, MPD_TAG_TITLE),
         mympd_get_tag(song, MPD_TAG_ARTIST),
@@ -926,16 +937,24 @@ int mympd_put_current_song(char *buffer) {
         mpd.song_id,
         mympd_get_tag(song, MPD_TAG_ALBUM_ARTIST),
         mpd_song_get_duration(song),
-        cover,
-        sticker->playCount,
-        sticker->skipCount,
-        sticker->like,
-        sticker->lastPlayed
+        cover
     );
-    
-    mpd_song_free(song);
+
     mpd_response_finish(mpd.conn);
-    free(sticker);
+    
+    if (config.stickers) {
+        t_sticker *sticker = (t_sticker *) malloc(sizeof(t_sticker));
+        mympd_get_sticker(mpd_song_get_uri(song), sticker);
+        len += json_printf(&out, ", playCount: %d, skipCount: %d, like: %d, lastPlayed: %d",
+            sticker->playCount,
+            sticker->skipCount,
+            sticker->like,
+            sticker->lastPlayed
+        );
+        free(sticker);
+    }
+    len += json_printf(&out, "}}");
+    mpd_song_free(song);
 
     if (len > MAX_SIZE)
         fprintf(stderr, "Buffer truncated\n");
@@ -948,7 +967,6 @@ int mympd_put_songdetails(char *buffer, char *uri) {
     int len;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
     char cover[500];
-    t_sticker *sticker = (t_sticker *) malloc(sizeof(t_sticker));
     
     len = json_printf(&out, "{type: song_details, data: {");
     mpd_send_list_all_meta(mpd.conn, uri);
@@ -973,14 +991,17 @@ int mympd_put_songdetails(char *buffer, char *uri) {
     }
     mpd_response_finish(mpd.conn);
 
-    mympd_get_sticker(uri, sticker);
-    len += json_printf(&out, ", playCount: %d, skipCount: %d, like: %d, lastPlayed: %d",
-        sticker->playCount,
-        sticker->skipCount,
-        sticker->like,
-        sticker->lastPlayed
-    );
-    free(sticker);
+    if (config.stickers) {
+        t_sticker *sticker = (t_sticker *) malloc(sizeof(t_sticker));
+        mympd_get_sticker(uri, sticker);
+        len += json_printf(&out, ", playCount: %d, skipCount: %d, like: %d, lastPlayed: %d",
+            sticker->playCount,
+            sticker->skipCount,
+            sticker->like,
+            sticker->lastPlayed
+        );
+        free(sticker);
+    }
     len += json_printf(&out, "}}");
     
     if (len > MAX_SIZE)

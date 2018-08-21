@@ -84,7 +84,6 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
               #ifdef DEBUG
               printf("Websocket connection closed\n");
               #endif
-//              mympd_close_handler(nc);
             }
             else {
               #ifdef DEBUG
@@ -110,6 +109,7 @@ static int inihandler(void* user, const char* section, const char* name, const c
     t_config* p_config = (t_config*)user;
 
     #define MATCH(n) strcmp(name, n) == 0
+
     if (MATCH("mpdhost"))
         p_config->mpdhost = strdup(value);
     else if (MATCH("mpdhost"))
@@ -139,6 +139,16 @@ static int inihandler(void* user, const char* section, const char* name, const c
         p_config->coverimage = strdup(value);
     else if (MATCH("statefile"))
         p_config->statefile = strdup(value);
+    else if (MATCH("stickers"))
+        if (strcmp(value, "true") == 0)
+            p_config->stickers = true;
+        else
+            p_config->stickers = false;
+    else if (MATCH("mixramp"))
+        if (strcmp(value, "true") == 0)
+            p_config->mixramp = true;
+        else
+            p_config->mixramp = false;            
     else
         return 0;  /* unknown section/name, error */
 
@@ -169,6 +179,8 @@ int main(int argc, char **argv) {
     config.streamport = 8000;
     config.coverimage = "folder.jpg";
     config.statefile = "/var/lib/mympd/mympd.state";
+    config.stickers = true;
+    config.mixramp = true;
     
     mpd.timeout = 3000;
     
@@ -179,12 +191,14 @@ int main(int argc, char **argv) {
         }
     } 
     else {
-        fprintf(stdout, "myMPD  %s\n"
-                        "Copyright (C) 2018 Juergen Mang <mail@jcgames.de>\n"
-                        "https://github.com/jcorporation/myMPD\n"
-                        "Built " __DATE__ " "__TIME__"\n\n",
-                        MYMPD_VERSION);
-        printf("Usage: %s /path/to/mympd.conf\n", argv[0]);
+        printf("myMPD  %s\n"
+               "Copyright (C) 2018 Juergen Mang <mail@jcgames.de>\n"
+               "https://github.com/jcorporation/myMPD\n"
+               "Built " __DATE__ " "__TIME__"\n\n"
+               "Usage: %s /path/to/mympd.conf\n",
+                MYMPD_VERSION,
+                argv[0]
+        );
         return EXIT_FAILURE;    
     }
 
