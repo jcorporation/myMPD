@@ -25,6 +25,8 @@ This fork provides a reworked ui based on Bootstrap 4, a modernized backend and 
  - Local coverart support
  - HTTP stream support
  - Local playback of mpd http stream (html5 audio api)
+ - Play statistics and song voting (uses mpd stickers)
+ - Embedded Webserver (mongoose)
 
 myMPD is work in progress. Bugreportes and feature requests are very welcome.
 - Issues and feature requests: https://github.com/jcorporation/myMPD/issues
