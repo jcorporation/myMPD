@@ -37,6 +37,11 @@
     return len; \
 } while (0)
 
+#define LOG_ERROR_AND_RECOVER(X) do { \
+    fprintf(stderr, "MPD X: %s\n", mpd_connection_get_error_message(mpd.conn)); \
+    if (!mpd_connection_clear_error(mpd.conn)) \
+        mpd.conn_state = MPD_FAILURE; \
+} while (0)
 
 #define MAX_SIZE 1024 * 100
 #define MAX_ELEMENTS_PER_PAGE 100
@@ -153,7 +158,7 @@ static int is_websocket(const struct mg_connection *nc) {
     return nc->flags & MG_F_IS_WEBSOCKET;
 }
 
-void mympd_poll(struct mg_mgr *sm, int timeout);
+void mympd_idle(struct mg_mgr *sm, int timeout);
 void mympd_parse_idle(struct mg_mgr *s);
 void callback_mympd(struct mg_connection *nc, const struct mg_str msg);
 void mympd_notify(struct mg_mgr *s);

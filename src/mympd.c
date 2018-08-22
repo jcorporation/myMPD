@@ -186,7 +186,7 @@ int main(int argc, char **argv) {
     
     if (argc == 2) {
         if (ini_parse(argv[1], inihandler, &config) < 0) {
-            printf("Can't load '%s'\n", argv[1]);
+            printf("Can't load config file \"%s\"\n", argv[1]);
             return EXIT_FAILURE;
         }
     } 
@@ -210,10 +210,10 @@ int main(int argc, char **argv) {
     mg_mgr_init(&mgr, NULL);
 
     if (config.ssl == true) {
-        snprintf(s_redirect, 200, "https://%s:%s/", hostname, config.sslport);
+        snprintf(s_redirect, 249, "https://%s:%s/", hostname, config.sslport);
         nc_http = mg_bind(&mgr, config.webport, ev_handler_http);
         if (nc_http == NULL) {
-           fprintf(stderr, "Error starting server on port %s\n", config.webport );
+           fprintf(stderr, "Error starting server on port %s\n", config.webport);
            return EXIT_FAILURE;
         }
         memset(&bind_opts, 0, sizeof(bind_opts));
@@ -229,7 +229,7 @@ int main(int argc, char **argv) {
     else {
         nc = mg_bind(&mgr, config.webport, ev_handler);
         if (nc == NULL) {
-           fprintf(stderr, "Error starting server on port %s\n", config.webport );
+           fprintf(stderr, "Error starting server on port %s\n", config.webport);
            return EXIT_FAILURE;
         }
     }
@@ -238,22 +238,22 @@ int main(int argc, char **argv) {
         printf("Droping privileges\n");
         struct passwd *pw;
         if ((pw = getpwnam(config.user)) == NULL) {
-            printf("Unknown user\n");
+            fprintf(stderr, "Unknown user\n");
             mg_mgr_free(&mgr);
             return EXIT_FAILURE;
         } else if (setgid(pw->pw_gid) != 0) {
-            printf("setgid() failed\n");
+            fprintf(stderr, "setgid() failed\n");
             mg_mgr_free(&mgr);
             return EXIT_FAILURE;
         } else if (setuid(pw->pw_uid) != 0) {
-            printf("setuid() failed\n");
+            fprintf(stderr, "setuid() failed\n");
             mg_mgr_free(&mgr);
             return EXIT_FAILURE;
         }
     }
     
     if (getuid() == 0) {
-      printf("myMPD should not be run with root privileges\n");
+      fprintf(stderr, "myMPD should not be run with root privileges\n");
       mg_mgr_free(&mgr);
       return EXIT_FAILURE;
     }
@@ -271,7 +271,7 @@ int main(int argc, char **argv) {
 
     while (s_signal_received == 0) {
         mg_mgr_poll(&mgr, 100);
-        mympd_poll(&mgr, 0);
+        mympd_idle(&mgr, 0);
     }
     mg_mgr_free(&mgr);
     mympd_disconnect();
