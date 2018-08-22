@@ -680,6 +680,7 @@ function webSocketConnect() {
                 case 'update_queue':
                     if (app.current.app === 'Queue')
                         getQueue();
+                    sendAPI({"cmd": "MPD_API_GET_STATE"}, parseState);
                     break;
                 case 'update_options':
                     getSettings();

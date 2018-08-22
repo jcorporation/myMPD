@@ -61,6 +61,9 @@ else
   echo "/etc/mpd.conf not found, you must link your music_directory manually to /usr/share/mympd/htdocs/library"
 fi
 
+echo "Creating dir for cover pictures"
+[ -d /usr/share/mympd/htdocs/pics ] || mkdir /usr/share/mympd/htdocs/pics
+
 echo "Installing systemd service"
 if [ -d /etc/systemd/system ]
 then

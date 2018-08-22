@@ -685,6 +685,9 @@ void mympd_get_sticker(const char *uri, t_sticker *sticker) {
     sticker->skipCount = 0;
     sticker->lastPlayed = 0;
     sticker->like = 1;
+    if (uri == NULL || strncasecmp("http:", uri, 5) == 0 || strncasecmp("https:", uri, 6) == 0)
+        return;
+
     if (mpd_send_sticker_list(mpd.conn, "song", uri)) {
         while ((pair = mpd_recv_sticker(mpd.conn)) != NULL) {
             if (strcmp(pair->name, "playCount") == 0)
@@ -724,7 +727,7 @@ void mympd_count_song_id(int song_id, char *name, int value) {
 }
 
 void mympd_count_song_uri(const char *uri, char *name, int value) {
-    if (uri == NULL)
+    if (uri == NULL || strncasecmp("http:", uri, 5) == 0 || strncasecmp("https:", uri, 6) == 0)
         return;
     struct mpd_pair *pair;
     char *crap;
@@ -751,6 +754,8 @@ void mympd_count_song_uri(const char *uri, char *name, int value) {
 }
 
 void mympd_like_song_uri(const char *uri, int value) {
+    if (uri == NULL || strncasecmp("http:", uri, 5) == 0 || strncasecmp("https:", uri, 6) == 0)
+        return;
     char v[3];
     if (value > 2)
         value = 2;
@@ -766,7 +771,7 @@ void mympd_last_played_song_id(int song_id) {
 }
 
 void mympd_last_played_song_uri(const char *uri) {
-    if (uri == NULL)
+    if (uri == NULL || strncasecmp("http:", uri, 5) == 0 || strncasecmp("https:", uri, 6) == 0)
         return;
     char v[20];
     snprintf(v, 19, "%lu", time(NULL));
@@ -801,7 +806,7 @@ int mympd_put_state(char *buffer, int *current_song_id, int *next_song_id, unsig
     }
     audioformat = mpd_status_get_audio_format(status);
     
-    len = json_printf(&out,"{type: update_state, data: {"
+    len = json_printf(&out, "{type: update_state, data: {"
         "state: %d, volume: %d, songPos: %d, elapsedTime: %d, "
         "totalTime: %d, currentSongId: %d, kbitrate: %d, "
         "audioFormat: { sampleRate: %d, bits: %d, channels: %d}, "
@@ -881,8 +886,7 @@ int mympd_put_settings(char *buffer) {
 	mpd_return_pair(mpd.conn, pair);
     }
     
-    len = json_printf(&out,
-        "{type: settings, data: {"
+    len = json_printf(&out, "{type: settings, data: {"
         "repeat: %d, single: %d, crossfade: %d, consume: %d, random: %d, "
         "mixrampdb: %f, mixrampdelay: %f, mpdhost: %Q, mpdport: %d, passwort_set: %B, "
         "streamport: %d, coverimage: %Q, stickers: %B, mixramp: %B, "
@@ -926,7 +930,7 @@ int mympd_put_outputs(char *buffer) {
     if (!mpd_send_outputs(mpd.conn))
         RETURN_ERROR_AND_RECOVER("outputs");
 
-    len = json_printf(&out,"{type: outputs, data: {outputs: [");
+    len = json_printf(&out, "{type: outputs, data: {outputs: [");
     nr = 0;    
     while ((output = mpd_recv_output(mpd.conn)) != NULL) {
         if (nr ++) 
@@ -948,11 +952,36 @@ int mympd_put_outputs(char *buffer) {
     return len;
 }
 
+int replacechar(char *str, char orig, char rep) {
+    char *ix = str;
+    int n = 0;
+    while((ix = strchr(ix, orig)) != NULL) {
+        *ix++ = rep;
+        n++;
+    }
+    return n;
+}
+
 int mympd_get_cover(const char *uri, char *cover, int cover_len) {
     char *path = strdup(uri);
     int len;
     if (strncasecmp("http:", path, 5) == 0 || strncasecmp("https:", path, 6) == 0) {
-        len = snprintf(cover, cover_len, "/assets/coverimage-httpstream.png");
+        if(strlen(path) > 8) {
+            if (strncasecmp("http:", path, 5) == 0)
+                path += 7;
+            else if (strncasecmp("https:", path, 6) == 0)
+                path += 8;
+            replacechar(path, '/', '_');
+            replacechar(path, '.', '_');
+            snprintf(cover, cover_len, "%s/pics/%s.png", SRC_PATH, path);
+            if ( access(cover, F_OK ) == -1 ) {
+                len = snprintf(cover, cover_len, "/assets/coverimage-httpstream.png");
+            } else {
+                len = snprintf(cover, cover_len, "/pics/%s.png", path);
+            }
+        } else {
+            len = snprintf(cover, cover_len, "/assets/coverimage-httpstream.png");
+        }
     }
     else {
         dirname(path);
@@ -974,13 +1003,13 @@ int mympd_put_current_song(char *buffer) {
     
     song = mpd_run_current_song(mpd.conn);
     if (song == NULL) {
-        len = json_printf(&out,"{type: result, data: ok}");
+        len = json_printf(&out, "{type: result, data: ok}");
         return len;
     }
         
     mympd_get_cover(mpd_song_get_uri(song), cover, 500);
     
-    len = json_printf(&out,"{type: song_change, data: {pos: %d, title: %Q, "
+    len = json_printf(&out, "{type: song_change, data: {pos: %d, title: %Q, "
         "artist: %Q, album: %Q, uri: %Q, currentSongId: %d, albumartist: %Q, "
         "duration: %d, cover: %Q",
         mpd_song_get_pos(song),
