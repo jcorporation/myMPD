@@ -515,13 +515,13 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
     
     if (is_websocket(nc)) {
         #ifdef DEBUG
-        fprintf(stdout, "Send websocket response:\n %s\n", mpd.buf);
+        fprintf(stderr, "Send websocket response:\n %s\n", mpd.buf);
         #endif
         mg_send_websocket_frame(nc, WEBSOCKET_OP_TEXT, mpd.buf, n);
     }
     else {
         #ifdef DEBUG
-        //fprintf(stdout, "Send http response:\n %s\n", mpd.buf);
+        fprintf(stderr, "Send http response (first 800 chars):\n%*.*s\n", 0, 800, mpd.buf);
         #endif
         mg_send_http_chunk(nc, mpd.buf, n);
     }
