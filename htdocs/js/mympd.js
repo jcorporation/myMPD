@@ -1229,7 +1229,7 @@ function parseListDBtags(obj) {
 
         if (nrItems == 0) 
             tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
-                              '<td colspan="5">No entries found.</td></tr>';
+                              '<td>No entries found.</td></tr>';
         document.getElementById('BrowseDatabaseArtistList').classList.remove('opacity05');                              
                                
     } else if (obj.tagtype == 'Album') {
