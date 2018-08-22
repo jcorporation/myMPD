@@ -129,7 +129,7 @@ struct t_mpd {
 } mpd;
 
 typedef struct {
-    int mpdport;
+    long mpdport;
     const char* mpdhost;
     const char* mpdpass;
     const char* webport;
@@ -138,7 +138,7 @@ typedef struct {
     const char* sslcert;
     const char* sslkey;
     const char* user;
-    int streamport;
+    long streamport;
     const char* coverimage;
     const char* statefile;
     bool stickers;
@@ -148,10 +148,10 @@ typedef struct {
 t_config config;
 
 typedef struct {
-    int playCount;
-    int skipCount;
-    int lastPlayed;
-    int like;
+    long playCount;
+    long skipCount;
+    long lastPlayed;
+    long like;
 } t_sticker;
 
 static int is_websocket(const struct mg_connection *nc) {

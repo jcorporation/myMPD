@@ -528,7 +528,7 @@ void mympd_idle(struct mg_mgr *s, int timeout) {
     switch (mpd.conn_state) {
         case MPD_DISCONNECTED:
             /* Try to connect */
-            fprintf(stdout, "MPD Connecting to %s:%d\n", config.mpdhost, config.mpdport);
+            fprintf(stdout, "MPD Connecting to %s: %ld\n", config.mpdhost, config.mpdport);
             mpd.conn = mpd_connection_new(config.mpdhost, config.mpdport, mpd.timeout);
             if (mpd.conn == NULL) {
                 fprintf(stderr, "Out of memory.");
