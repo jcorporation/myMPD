@@ -159,7 +159,7 @@ static int is_websocket(const struct mg_connection *nc) {
 }
 
 void mympd_idle(struct mg_mgr *sm, int timeout);
-void mympd_parse_idle(struct mg_mgr *s);
+void mympd_parse_idle(struct mg_mgr *s, enum mpd_idle idle_bitmask);
 void callback_mympd(struct mg_connection *nc, const struct mg_str msg);
 void mympd_notify(struct mg_mgr *s);
 void mympd_count_song_id(int song_id, char *name, int value);

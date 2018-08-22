@@ -48,6 +48,8 @@ static inline enum mpd_cmd_ids get_cmd_id(const char *cmd) {
     return -1;
 }
 
+enum mpd_idle idle_bitmask_save = 0;
+
 void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
     size_t n = 0;
     char *cmd;
@@ -57,9 +59,11 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
     char *p_charbuf1, *p_charbuf2, *p_charbuf3;
     struct mympd_state { int a; int b; } state = { .a = 0, .b = 0 };
     enum mpd_cmd_ids cmd_id;
+    struct pollfd fds[1];
+    int pollrc;
     
     #ifdef DEBUG
-    fprintf(stdout,"Got request: %s\n",msg.p);
+    fprintf(stdout,"Got request: %s\n", msg.p);
     #endif
     
     je = json_scanf(msg.p, msg.len, "{cmd: %Q}", &cmd);
@@ -72,8 +76,22 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
         cmd_id = get_cmd_id("MPD_API_UNKNOWN");
 
     mpd_send_noidle(mpd.conn);
+    //save idle events (processing later)
+    fds[0].fd = mpd_connection_get_fd(mpd.conn);
+    fds[0].events = POLLIN;
+    pollrc = poll(fds, 1, 100);
+    if (pollrc > 0) {
+        idle_bitmask_save = mpd_recv_idle(mpd.conn, false);
+        #ifdef DEBUG
+        if (idle_bitmask_save > 0)
+            fprintf(stderr, "IDLE EVENT BEFORE REQUEST: %d\n", idle_bitmask_save);
+        #endif
+    }
     mpd_response_finish(mpd.conn);
-        
+    //handle request
+    #ifdef DEBUG
+    fprintf(stderr, "HANDLE REQUEST: %s\n", cmd);
+    #endif
     switch(cmd_id) {
         case MPD_API_UNKNOWN:
             n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Unknown request\"}");
@@ -503,7 +521,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
     }
     else {
         #ifdef DEBUG
-        fprintf(stdout, "Send http response:\n %s\n", mpd.buf);
+        //fprintf(stdout, "Send http response:\n %s\n", mpd.buf);
         #endif
         mg_send_http_chunk(nc, mpd.buf, n);
     }
@@ -520,6 +538,65 @@ void mympd_notify(struct mg_mgr *s) {
     fprintf(stderr,"NOTIFY: %s\n", mpd.buf);
     #endif
 }
+
+void mympd_parse_idle(struct mg_mgr *s, enum mpd_idle idle_bitmask) {
+    int len = 0;
+    for (unsigned j = 0;; j ++) {
+        enum mpd_idle idle_event = 1 << j;
+        const char *idle_name = mpd_idle_name(idle_event);
+        if (idle_name == NULL)
+            break;
+        if (idle_bitmask & idle_event) {
+            #ifdef DEBUG
+            fprintf(stderr, "IDLE: %s\n", idle_name);
+            #endif
+            switch(idle_event) {
+                case MPD_IDLE_DATABASE:
+                    len = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"update_database\"}");
+                    break;
+                case MPD_IDLE_STORED_PLAYLIST:
+                    len = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"update_stored_playlist\"}");
+                    break;
+                case MPD_IDLE_QUEUE:
+                    len = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"update_queue\"}");
+                    break;
+                case MPD_IDLE_PLAYER:
+                    len = mympd_put_state(mpd.buf, &mpd.song_id, &mpd.next_song_id, &mpd.queue_version, &mpd.queue_length);
+                    if (config.stickers) {
+                        mympd_count_song_id(mpd.song_id, "playCount", 1);
+                        mympd_last_played_song_id(mpd.song_id);
+                    }
+                    break;
+                case MPD_IDLE_MIXER:
+                    len = mympd_put_state(mpd.buf, &mpd.song_id, &mpd.next_song_id, &mpd.queue_version, &mpd.queue_length);
+                    break;
+                case MPD_IDLE_OUTPUT:
+                    len = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"update_outputs\"}");
+                    break;
+                case MPD_IDLE_OPTIONS:
+                    len = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"update_options\"}");
+                    break;
+                case MPD_IDLE_UPDATE:
+                    len = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"update_update\"}");
+                    break;
+                case MPD_IDLE_STICKER:
+                    len = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"update_sticker\"}");
+                    break;
+                case MPD_IDLE_SUBSCRIPTION:
+                    len = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"update_subscription\"}");
+                    break;
+                case MPD_IDLE_MESSAGE:
+                    len = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"update_message\"}");
+                    break;
+                default:
+                    len = 0;
+            }
+            if (len > 0)
+                mympd_notify(s);
+        }
+    }
+}
+
 
 void mympd_idle(struct mg_mgr *s, int timeout) {
     struct pollfd fds[1];
@@ -577,9 +654,24 @@ void mympd_idle(struct mg_mgr *s, int timeout) {
             fds[0].fd = mpd_connection_get_fd(mpd.conn);
             fds[0].events = POLLIN;
             pollrc = poll(fds, 1, timeout);
-            if (pollrc > 0) {
+            if (pollrc > 0 || idle_bitmask_save > 0) {
+                //Handle idle event
                 mpd_send_noidle(mpd.conn);
-                mympd_parse_idle(s);
+                if (pollrc > 0) {
+                    enum mpd_idle idle_bitmask = mpd_recv_idle(mpd.conn, false);
+                    mympd_parse_idle(s, idle_bitmask);
+                } 
+                else {
+                    mpd_response_finish(mpd.conn);
+                }
+                if (idle_bitmask_save > 0) {
+                    //Handle idle event saved in mympd_callback
+                    #ifdef DEBUG
+                    fprintf(stderr, "HANDLE SAVED IDLE EVENT\n");
+                    #endif
+                    mympd_parse_idle(s, idle_bitmask_save);
+                    idle_bitmask_save = 0;
+                }
                 mpd_send_idle(mpd.conn);
             }
             break;
@@ -682,66 +774,6 @@ void mympd_last_played_song_uri(const char *uri) {
         LOG_ERROR_AND_RECOVER("mpd_send_sticker_set");
 }
 
-void mympd_parse_idle(struct mg_mgr *s) {
-    enum mpd_idle idle_bitmask = mpd_recv_idle(mpd.conn, false);
-    int len;
-    
-    for (unsigned j = 0;; j ++) {
-        enum mpd_idle idle_event = 1 << j;
-        const char *idle_name = mpd_idle_name(idle_event);
-        if (idle_name == NULL)
-            break;
-        if (idle_bitmask & idle_event) {
-            #ifdef DEBUG
-            fprintf(stderr, "IDLE: %s\n", idle_name);
-            #endif
-            switch(idle_event) {
-                case MPD_IDLE_DATABASE:
-                    len = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"update_database\"}");
-                    break;
-                case MPD_IDLE_STORED_PLAYLIST:
-                    len = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"update_stored_playlist\"}");
-                    break;
-                case MPD_IDLE_QUEUE:
-                    len = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"update_queue\"}");
-                    break;
-                case MPD_IDLE_PLAYER:
-                    len = mympd_put_state(mpd.buf, &mpd.song_id, &mpd.next_song_id, &mpd.queue_version, &mpd.queue_length);
-                    if (config.stickers) {
-                        mympd_count_song_id(mpd.song_id, "playCount", 1);
-                        mympd_last_played_song_id(mpd.song_id);
-                    }
-                    break;
-                case MPD_IDLE_MIXER:
-                    len = mympd_put_state(mpd.buf, &mpd.song_id, &mpd.next_song_id, &mpd.queue_version, &mpd.queue_length);
-                    break;
-                case MPD_IDLE_OUTPUT:
-                    len = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"update_outputs\"}");
-                    break;
-                case MPD_IDLE_OPTIONS:
-                    len = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"update_options\"}");
-                    break;
-                case MPD_IDLE_UPDATE:
-                    len = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"update_update\"}");
-                    break;
-                case MPD_IDLE_STICKER:
-                    len = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"update_sticker\"}");
-                    break;
-                case MPD_IDLE_SUBSCRIPTION:
-                    len = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"update_subscription\"}");
-                    break;
-                case MPD_IDLE_MESSAGE:
-                    len = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"update_message\"}");
-                    break;
-                default:
-                    len = 0;
-            }
-            if (len > 0)
-                mympd_notify(s);
-        }
-
-    }
-}
 
 char* mympd_get_tag(struct mpd_song const *song, enum mpd_tag_type tag) {
     char *str;

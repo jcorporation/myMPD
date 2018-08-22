@@ -689,6 +689,7 @@ function webSocketConnect() {
                     break;
                 case 'error':
                     showNotification(obj.data, '', '', 'danger');
+                    break;
                 default:
                     break;
             }
