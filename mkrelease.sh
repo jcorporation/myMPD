@@ -7,16 +7,16 @@ then
   echo "Minifying javascript"
   [ htdocs/js/player.js -nt dist/htdocs/js/player.min.js ] && \
     java -jar dist/buildtools/closure-compiler.jar htdocs/js/player.js > dist/htdocs/js/player.min.js
-  [ htdocs/js/mpd.js -nt  dist/htdocs/js/mpd.min.js ] && \
-    java -jar dist/buildtools/closure-compiler.jar htdocs/js/mpd.js > dist/htdocs/js/mpd.min.js
+  [ htdocs/js/mympd.js -nt  dist/htdocs/js/mympd.min.js ] && \
+    java -jar dist/buildtools/closure-compiler.jar htdocs/js/mympd.js > dist/htdocs/js/mympd.min.js
   [ htdocs/sw.js -nt dist/htdocs/sw.min.js ] && \
     java -jar dist/buildtools/closure-compiler.jar htdocs/sw.js > dist/htdocs/sw.min.js
 else
   echo "dist/buildtools/closure-compiler.jar not found, using non-minified files"
   [ htdocs/js/player.js -nt dist/htdocs/js/player.min.js ] && \
     cp htdocs/js/player.js dist/htdocs/js/player.min.js
-  [ htdocs/js/mpd.js -nt  dist/htdocs/js/mpd.min.js ] && \
-    cp htdocs/js/mpd.js  dist/htdocs/js/mpd.min.js
+  [ htdocs/js/mympd.js -nt  dist/htdocs/js/mympd.min.js ] && \
+    cp htdocs/js/mympd.js  dist/htdocs/js/mympd.min.js
   [ htdocs/sw.js -nt dist/htdocs/sw.min.js ] && \
     cp htdocs/sw.js dist/htdocs/sw.min.js    
 fi
@@ -24,19 +24,19 @@ fi
 if [ -f dist/buildtools/closure-stylesheets.jar ] && [ "$java" != "" ]
 then
   echo "Minifying stylesheets"
-  [ htdocs/css/mpd.css -nt dist/htdocs/css/mpd.min.css ] && \
-    java -jar dist/buildtools/closure-stylesheets.jar --allow-unrecognized-properties htdocs/css/mpd.css > dist/htdocs/css/mpd.min.css
+  [ htdocs/css/mympd.css -nt dist/htdocs/css/mympd.min.css ] && \
+    java -jar dist/buildtools/closure-stylesheets.jar --allow-unrecognized-properties htdocs/css/mympd.css > dist/htdocs/css/mympd.min.css
 else
   echo "dist/buildtools/closure-stylesheets.jar not found, using non-minified files"
-  [ htdocs/css/mpd.css -nt dist/htdocs/css/mpd.min.css ] && \
-    cp htdocs/css/mpd.css dist/htdocs/css/mpd.min.css    
+  [ htdocs/css/mympd.css -nt dist/htdocs/css/mympd.min.css ] && \
+    cp htdocs/css/mympd.css dist/htdocs/css/mympd.min.css    
 fi
 
 echo "Replacing javascript and stylesheets with minified files"
-sed -e 's/mpd\.css/mpd\.min\.css/' -e 's/mpd\.js/mpd\.min\.js/' htdocs/index.html > dist/htdocs/index.html
-sed -e 's/mpd\.css/mpd\.min\.css/' -e 's/player\.js/player\.min\.js/' htdocs/player.html > dist/htdocs/player.html
-sed -i -e 's/mpd\.css/mpd\.min\.css/' -e 's/mpd\.js/mpd\.min\.js/' -e 's/player\.js/player\.min\.js/' dist/htdocs/sw.min.js
-sed -i -e 's/\/sw\.js/\/sw\.min\.js/' dist/htdocs/js/mpd.min.js
+sed -e 's/mympd\.css/mympd\.min\.css/' -e 's/mympd\.js/mympd\.min\.js/' htdocs/index.html > dist/htdocs/index.html
+sed -e 's/mympd\.css/mympd\.min\.css/' -e 's/player\.js/player\.min\.js/' htdocs/player.html > dist/htdocs/player.html
+sed -i -e 's/mympd\.css/mympd\.min\.css/' -e 's/mympd\.js/mympd\.min\.js/' -e 's/player\.js/player\.min\.js/' dist/htdocs/sw.min.js
+sed -i -e 's/\/sw\.js/\/sw\.min\.js/' dist/htdocs/js/mympd.min.js
 echo "Minifying html"
 perl -i -pe 's/^\s*//gm; s/\s*$//gm' dist/htdocs/index.html
 perl -i -pe 's/^\s*//gm; s/\s*$//gm' dist/htdocs/player.html

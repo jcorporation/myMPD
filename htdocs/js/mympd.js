@@ -537,7 +537,7 @@ function appInit() {
                 console.log('ServiceWorker registration successful with scope: ', registration.scope);
                 registration.update();
             }, function(err) {
-                // registration failed :(
+                // Registration failed
                 console.log('ServiceWorker registration failed: ', err);
             });
         });
@@ -558,7 +558,7 @@ function appInit() {
     });
     
     domCache.btnAdd.addEventListener('click', function(event) {
-        // hide our user interface that shows our A2HS button
+        // Hide our user interface that shows our A2HS button
         domCache.btnAdd.classList.add('hide');
         // Show the prompt
         deferredPrompt.prompt();
@@ -746,16 +746,15 @@ function parseStats(obj) {
 
 function toggleBtn(btn, state) {
     var b = document.getElementById(btn);
-    if (!b) return;
+    if (!b)
+        return;
     if (state == undefined)
         state = b.classList.contains('active') ? 0 : 1;
-    if (state == 1) {
+
+    if (state == 1)
         b.classList.add('active');
-        b.setAttribute('aria-pressed','true');
-    } else {
+    else
         b.classList.remove('active');
-        b.setAttribute('aria-pressed','false');
-    }
 }
 
 function parseSettings(obj) {
@@ -1785,9 +1784,9 @@ function confirmSettings() {
     var inputCrossfade = document.getElementById('inputCrossfade');
     if (!inputCrossfade.getAttribute('disabled')) {
         var value = parseInt(inputCrossfade.value);
-        if (!isNaN(value)) {
+        if (!isNaN(value))
             inputCrossfade.value = value;
-        } else {
+        else {
             inputCrossfade.classList.add('is-invalid');
             formOK = false;
         }
@@ -1796,20 +1795,21 @@ function confirmSettings() {
         var inputMixrampdb = document.getElementById('inputMixrampdb');
         if (!inputMixrampdb.getAttribute('disabled')) {
             var value = parseFloat(inputMixrampdb.value);
-            if (!isNaN(value)) {
+            if (!isNaN(value))
                 inputMixrampdb.value = value;
-            } else {
+            else {
                 inputMixrampdb.classList.add('is-invalid');
                 formOK = false;
             } 
         }
         var inputMixrampdelay = document.getElementById('inputMixrampdelay');
         if (!inputMixrampdelay.getAttribute('disabled')) {
-            if (inputMixrampdelay.value == 'nan') inputMixrampdelay.value = '-1';
+            if (inputMixrampdelay.value == 'nan') 
+                inputMixrampdelay.value = '-1';
             var value = parseFloat(inputMixrampdelay.value);
-            if (!isNaN(value)) {
+            if (!isNaN(value))
                 inputMixrampdelay.value = value;
-            } else {
+            else {
                 inputMixrampdelay.classList.add('is-invalid');
                 formOK = false;
             }
@@ -1831,9 +1831,8 @@ function confirmSettings() {
             "notificationPage": (document.getElementById('btnnotifyPage').classList.contains('active') ? 1 : 0)
         }}, getSettings);
         modalSettings.hide();
-    } else {
+    } else
         document.getElementById('settingsFrm').classList.add('was-validated');
-    }
 }
 
 function addAllFromBrowse() {
@@ -1895,10 +1894,10 @@ function saveQueue() {
 
 function showNotification(notificationTitle,notificationText,notificationHtml,notificationType) {
     if (settings.notificationWeb == 1) {
-      var notification = new Notification(notificationTitle, {icon: 'assets/favicon.ico', body: notificationText});
-      setTimeout(function(notification) {
-        notification.close();
-      }, 3000, notification);    
+        var notification = new Notification(notificationTitle, {icon: 'assets/favicon.ico', body: notificationText});
+        setTimeout(function(notification) {
+            notification.close();
+        }, 3000, notification);    
     } 
     if (settings.notificationPage == 1) {
         var alertBox;
@@ -1929,7 +1928,9 @@ function hideNotification() {
     if (document.getElementById('alertBox')) {
         document.getElementById('alertBox').classList.remove('alertBoxActive');
         setTimeout(function() {
-            document.getElementById('alertBox').remove();
+            var alertBox = document.getElementById('alertBox');
+            if (alertBox)
+                alertBox.remove();
         }, 600);
     }
 }
@@ -1956,17 +1957,17 @@ function songChange(obj) {
         pageTitle += obj.data.artist + ' - ';
         domCache.currentArtist.innerText = obj.data.artist;
         domCache.currentArtist.setAttribute('data-albumartist', obj.data.albumartist);
-    } else {
+    } else
         domCache.currentArtist.innerText = '';
-    }
+
     if (typeof obj.data.album != 'undefined' && obj.data.album.length > 0 && obj.data.album != '-') {
         textNotification += ' - ' + obj.data.album;
         htmlNotification += '<br/>' + obj.data.album;
         domCache.currentAlbum.innerText = obj.data.album;
     }
-    else {
+    else
         domCache.currentAlbum.innerText = '';
-    }
+
     if (typeof obj.data.title != 'undefined' && obj.data.title.length > 0) {
         pageTitle += obj.data.title;
         domCache.currentTrack.innerText = obj.data.title;
@@ -1975,7 +1976,9 @@ function songChange(obj) {
         domCache.currentTrack.innerText = '';
         domCache.currentTrack.setAttribute('data-uri', '');
     }
+
     document.title = pageTitle;
+
     if (settings.stickers == true) {
         setVoteSongBtns(obj.data.like, obj.data.uri);
     }
@@ -2014,9 +2017,9 @@ function doSetFilterLetter(x) {
 function addFilterLetter(x) {
     var filter = '<button class="mr-1 mb-1 btn btn-sm btn-secondary material-icons material-icons-small">delete</button>' +
         '<button class="mr-1 mb-1 btn btn-sm btn-secondary">#</button>';
-    for (var i = 65; i <= 90; i++) {
+    for (var i = 65; i <= 90; i++)
         filter += '<button class="mr-1 mb-1 btn-sm btn btn-secondary">' + String.fromCharCode(i) + '</button>';
-    }
+
     var letters = document.getElementById(x);
     letters.innerHTML = filter;
     

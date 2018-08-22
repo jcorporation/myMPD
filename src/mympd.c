@@ -48,8 +48,9 @@ static void handle_api(struct mg_connection *nc, struct http_message *hm) {
         mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\nContent-Type: application/json\r\n\r\n");
 
     char buf[1000] = {0};
-    memcpy(buf, hm->body.p,sizeof(buf) - 1 < hm->body.len ? sizeof(buf) - 1 : hm->body.len);
-    struct mg_str d = {buf, strlen(buf)};
+    int len = sizeof(buf) - 1 < hm->body.len ? sizeof(buf) - 1 : hm->body.len;
+    memcpy(buf, hm->body.p, len);
+    struct mg_str d = {buf, len};
     callback_mympd(nc, d);
 
     if (!is_websocket(nc))
@@ -107,6 +108,7 @@ static void ev_handler_http(struct mg_connection *nc_http, int ev, void *ev_data
 
 static int inihandler(void* user, const char* section, const char* name, const char* value) {
     t_config* p_config = (t_config*)user;
+    char *crap;
 
     #define MATCH(n) strcmp(name, n) == 0
 
@@ -115,7 +117,7 @@ static int inihandler(void* user, const char* section, const char* name, const c
     else if (MATCH("mpdhost"))
         p_config->mpdhost = strdup(value);
     else if (MATCH("mpdport"))
-        p_config->mpdport = atoi(value);
+        p_config->mpdport = strtol(value, &crap, 10);
     else if (MATCH("mpdhost"))
         p_config->mpdhost = strdup(value);
     else if (MATCH("mpdpass"))
@@ -134,7 +136,7 @@ static int inihandler(void* user, const char* section, const char* name, const c
     else if (MATCH("user"))
         p_config->user = strdup(value);
     else if (MATCH("streamport"))
-        p_config->streamport = atoi(value);
+        p_config->streamport = strtol(value, &crap, 10);
     else if (MATCH("coverimage"))
         p_config->coverimage = strdup(value);
     else if (MATCH("statefile"))

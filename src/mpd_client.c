@@ -31,7 +31,6 @@
 #include <libgen.h>
 #include <poll.h>
 #include <mpd/client.h>
-#include <mpd/message.h>
 
 #include "mpd_client.h"
 #include "config.h"
@@ -42,7 +41,7 @@ const char * mpd_cmd_strs[] = {
 };
 
 static inline enum mpd_cmd_ids get_cmd_id(const char *cmd) {
-    for (int i = 0; i < sizeof(mpd_cmd_strs) / sizeof(mpd_cmd_strs[0]); i ++)
+    for (unsigned i = 0; i < sizeof(mpd_cmd_strs) / sizeof(mpd_cmd_strs[0]); i ++)
         if (!strncmp(cmd, mpd_cmd_strs[i], strlen(mpd_cmd_strs[i])))
             return i;
 
@@ -98,10 +97,10 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
         case MPD_API_SET_SETTINGS:
             je = json_scanf(msg.p, msg.len, "{data: {notificationWeb: %d, notificationPage: %d}}", &state.a, &state.b);
             if (je == 2) {
-                char tmpfile[200];
-                snprintf(tmpfile,200,"%s.tmp", config.statefile);
-                json_fprintf(tmpfile, "{notificationWeb: %d, notificationPage: %d}", state.a, state.b);
-                rename(tmpfile,config.statefile);
+                char tmp_file[200];
+                snprintf(tmp_file, 199, "%s.tmp", config.statefile);
+                json_fprintf(tmp_file, "{notificationWeb: %d, notificationPage: %d}", state.a, state.b);
+                rename(tmp_file, config.statefile);
             }
             
             je = json_scanf(msg.p, msg.len, "{data: {random: %u}}", &uint_buf1);
@@ -589,6 +588,7 @@ void mympd_idle(struct mg_mgr *s, int timeout) {
 
 void mympd_get_sticker(const char *uri, t_sticker *sticker) {
     struct mpd_pair *pair;
+    char *crap;
     sticker->playCount = 0;
     sticker->skipCount = 0;
     sticker->lastPlayed = 0;
@@ -596,13 +596,13 @@ void mympd_get_sticker(const char *uri, t_sticker *sticker) {
     if (mpd_send_sticker_list(mpd.conn, "song", uri)) {
         while ((pair = mpd_recv_sticker(mpd.conn)) != NULL) {
             if (strcmp(pair->name, "playCount") == 0)
-                sticker->playCount = atoi(pair->value);
+                sticker->playCount = strtol(pair->value, &crap, 10);
             else if (strcmp(pair->name, "skipCount") == 0)
-                sticker->skipCount = atoi(pair->value);
+                sticker->skipCount = strtol(pair->value, &crap, 10);
             else if (strcmp(pair->name, "lastPlayed") == 0)
-                sticker->lastPlayed = atoi(pair->value);
+                sticker->lastPlayed = strtol(pair->value, &crap, 10);
             else if (strcmp(pair->name, "like") == 0)
-                sticker->like = atoi(pair->value);
+                sticker->like = strtol(pair->value, &crap, 10);
             mpd_return_sticker(mpd.conn, pair);
         }
     }
@@ -619,7 +619,11 @@ char* mympd_get_song_uri_from_song_id(int song_id) {
             str = strdup(mpd_song_get_uri(song));
             mpd_song_free(song);
         }
+        else
+            return NULL;
     }
+    else
+        return NULL;
     return str;
 }
 
@@ -628,13 +632,16 @@ void mympd_count_song_id(int song_id, char *name, int value) {
 }
 
 void mympd_count_song_uri(const char *uri, char *name, int value) {
+    if (uri == NULL)
+        return;
     struct mpd_pair *pair;
+    char *crap;
     int old_value = 0;
     char v[4];
     if (mpd_send_sticker_list(mpd.conn, "song", uri)) {
         while ((pair = mpd_recv_sticker(mpd.conn)) != NULL) {
             if (strcmp(pair->name, name) == 0)
-                old_value = atoi(pair->value);
+                old_value = strtol(pair->value, &crap, 10);
             mpd_return_sticker(mpd.conn, pair);
         }
     } 
@@ -644,6 +651,9 @@ void mympd_count_song_uri(const char *uri, char *name, int value) {
     else if (old_value < 0)
         old_value = 0;
     snprintf(v, 3, "%d", old_value);
+    #ifdef DEBUG
+    fprintf(stderr, "STICKER_COUNT_SONG: \"%s\" -> %s: %s\n", uri, name, v);
+    #endif    
     if (!mpd_run_sticker_set(mpd.conn, "song", uri, name, v))
         LOG_ERROR_AND_RECOVER("mpd_send_sticker_set");
 }
@@ -664,6 +674,8 @@ void mympd_last_played_song_id(int song_id) {
 }
 
 void mympd_last_played_song_uri(const char *uri) {
+    if (uri == NULL)
+        return;
     char v[20];
     snprintf(v, 19, "%lu", time(NULL));
     if (!mpd_run_sticker_set(mpd.conn, "song", uri, "lastPlayed", v))
@@ -721,6 +733,8 @@ void mympd_parse_idle(struct mg_mgr *s) {
                 case MPD_IDLE_MESSAGE:
                     len = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"update_message\"}");
                     break;
+                default:
+                    len = 0;
             }
             if (len > 0)
                 mympd_notify(s);
@@ -803,7 +817,7 @@ int mympd_put_welcome(char *buffer) {
 
 int mympd_put_settings(char *buffer) {
     struct mpd_status *status;
-    char *replaygain;
+    char *replaygain = strdup("");
     int len;
     int je;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
@@ -827,7 +841,8 @@ int mympd_put_settings(char *buffer) {
         return 0;
     }
 
-    mpd_send_command(mpd.conn, "replay_gain_status", NULL);
+    if (!mpd_send_command(mpd.conn, "replay_gain_status", NULL))
+        RETURN_ERROR_AND_RECOVER("replay_gain_status");
     struct mpd_pair *pair;
     while ((pair = mpd_recv_pair(mpd.conn)) != NULL) {
         replaygain = strdup(pair->value);
@@ -862,6 +877,7 @@ int mympd_put_settings(char *buffer) {
         state.b
     );
     mpd_status_free(status);
+    free(replaygain);
 
     if (len > MAX_SIZE)
         fprintf(stderr, "Buffer truncated\n");
