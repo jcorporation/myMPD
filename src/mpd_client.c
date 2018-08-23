@@ -63,7 +63,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
     int pollrc;
     
     #ifdef DEBUG
-    fprintf(stdout,"Got request: %s\n", msg.p);
+    fprintf(stderr, "Got request: %s\n", msg.p);
     #endif
     
     je = json_scanf(msg.p, msg.len, "{cmd: %Q}", &cmd);
@@ -535,7 +535,7 @@ void mympd_notify(struct mg_mgr *s) {
         mg_send_websocket_frame(c, WEBSOCKET_OP_TEXT, mpd.buf, strlen(mpd.buf));
     }
     #ifdef DEBUG
-    fprintf(stderr,"NOTIFY: %s\n", mpd.buf);
+    fprintf(stderr, "NOTIFY: %s\n", mpd.buf);
     #endif
 }
 
@@ -605,10 +605,10 @@ void mympd_idle(struct mg_mgr *s, int timeout) {
     switch (mpd.conn_state) {
         case MPD_DISCONNECTED:
             /* Try to connect */
-            fprintf(stdout, "MPD Connecting to %s: %ld\n", config.mpdhost, config.mpdport);
+            printf("MPD Connecting to %s: %ld\n", config.mpdhost, config.mpdport);
             mpd.conn = mpd_connection_new(config.mpdhost, config.mpdport, mpd.timeout);
             if (mpd.conn == NULL) {
-                fprintf(stderr, "Out of memory.");
+                printf("MPD connection failed.");
                 snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"disconnected\"}");
                 mympd_notify(s);
                 mpd.conn_state = MPD_FAILURE;
@@ -616,7 +616,7 @@ void mympd_idle(struct mg_mgr *s, int timeout) {
             }
 
             if (mpd_connection_get_error(mpd.conn) != MPD_ERROR_SUCCESS) {
-                fprintf(stderr, "MPD connection: %s\n", mpd_connection_get_error_message(mpd.conn));
+                printf("MPD connection: %s\n", mpd_connection_get_error_message(mpd.conn));
                 snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"%s\"}", mpd_connection_get_error_message(mpd.conn));
                 mympd_notify(s);
                 mpd.conn_state = MPD_FAILURE;
@@ -624,21 +624,21 @@ void mympd_idle(struct mg_mgr *s, int timeout) {
             }
 
             if (config.mpdpass && !mpd_run_password(mpd.conn, config.mpdpass)) {
-                fprintf(stderr, "MPD connection: %s\n", mpd_connection_get_error_message(mpd.conn));
+                printf("MPD connection: %s\n", mpd_connection_get_error_message(mpd.conn));
                 snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"%s\"}", mpd_connection_get_error_message(mpd.conn));
                 mympd_notify(s);
                 mpd.conn_state = MPD_FAILURE;
                 return;
             }
 
-            fprintf(stderr, "MPD connected.\n");
+            printf("MPD connected.\n");
             mpd_connection_set_timeout(mpd.conn, mpd.timeout);
             mpd.conn_state = MPD_CONNECTED;
             mpd_send_idle(mpd.conn);
             break;
 
         case MPD_FAILURE:
-            fprintf(stderr, "MPD connection failed.\n");
+            printf("MPD connection failed.\n");
             snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"disconnected\"}");
             mympd_notify(s);
 
@@ -800,7 +800,7 @@ int mympd_put_state(char *buffer, int *current_song_id, int *next_song_id, unsig
 
     status = mpd_run_status(mpd.conn);
     if (!status) {
-        fprintf(stderr, "MPD mpd_run_status: %s\n", mpd_connection_get_error_message(mpd.conn));
+        printf("MPD mpd_run_status: %s\n", mpd_connection_get_error_message(mpd.conn));
         mpd.conn_state = MPD_FAILURE;
         return 0;
     }
@@ -837,7 +837,7 @@ int mympd_put_state(char *buffer, int *current_song_id, int *next_song_id, unsig
     mpd_status_free(status);
 
     if (len > MAX_SIZE)
-        fprintf(stderr,"Buffer truncated\n");
+        printf("Buffer truncated\n");
     return len;
 }
 
@@ -848,7 +848,7 @@ int mympd_put_welcome(char *buffer) {
     len = json_printf(&out, "{type: welcome, data: {version: %Q}}", MYMPD_VERSION);
     
     if (len > MAX_SIZE)
-        fprintf(stderr,"Buffer truncated\n");
+        printf("Buffer truncated\n");
     return len;
 }
 
@@ -873,7 +873,7 @@ int mympd_put_settings(char *buffer) {
 
     status = mpd_run_status(mpd.conn);
     if (!status) {
-        fprintf(stderr, "MPD mpd_run_status: %s\n", mpd_connection_get_error_message(mpd.conn));
+        printf("MPD mpd_run_status: %s\n", mpd_connection_get_error_message(mpd.conn));
         mpd.conn_state = MPD_FAILURE;
         return 0;
     }
@@ -916,7 +916,7 @@ int mympd_put_settings(char *buffer) {
     free(replaygain);
 
     if (len > MAX_SIZE)
-        fprintf(stderr, "Buffer truncated\n");
+        printf("Buffer truncated\n");
     return len;
 }
 
@@ -948,7 +948,7 @@ int mympd_put_outputs(char *buffer) {
     len += json_printf(&out,"]}}");
     
     if (len > MAX_SIZE)
-        fprintf(stderr, "Buffer truncated\n");
+        printf("Buffer truncated\n");
     return len;
 }
 
@@ -1040,7 +1040,7 @@ int mympd_put_current_song(char *buffer) {
     mpd_song_free(song);
 
     if (len > MAX_SIZE)
-        fprintf(stderr, "Buffer truncated\n");
+        printf("Buffer truncated\n");
     return len;
 }
 
@@ -1088,7 +1088,7 @@ int mympd_put_songdetails(char *buffer, char *uri) {
     len += json_printf(&out, "}}");
     
     if (len > MAX_SIZE)
-        fprintf(stderr, "Buffer truncated\n");
+        printf("Buffer truncated\n");
     return len;
 }
 
@@ -1137,7 +1137,7 @@ int mympd_put_queue(char *buffer, unsigned int offset) {
     );
     
     if (len > MAX_SIZE) 
-        fprintf(stderr, "Buffer truncated\n");
+        printf("Buffer truncated\n");
     return len;
 }
 
@@ -1237,7 +1237,7 @@ int mympd_put_browse(char *buffer, char *path, unsigned int offset, char *filter
     }
 
     if (mpd_connection_get_error(mpd.conn) != MPD_ERROR_SUCCESS || !mpd_response_finish(mpd.conn)) {
-        fprintf(stderr, "MPD mpd_send_list_meta: %s\n", mpd_connection_get_error_message(mpd.conn));
+        printf("MPD mpd_send_list_meta: %s\n", mpd_connection_get_error_message(mpd.conn));
         mpd.conn_state = MPD_FAILURE;
         return 0;
     }
@@ -1250,7 +1250,7 @@ int mympd_put_browse(char *buffer, char *path, unsigned int offset, char *filter
     );
 
     if (len > MAX_SIZE)
-        fprintf(stderr, "Buffer truncated\n");
+        printf("Buffer truncated\n");
     return len;
 }
 
@@ -1304,7 +1304,7 @@ int mympd_put_db_tag(char *buffer, unsigned int offset, char *mpdtagtype, char *
     );
 
     if (len > MAX_SIZE)
-        fprintf(stderr, "Buffer truncated\n");
+        printf("Buffer truncated\n");
     return len;
 }
 
@@ -1358,7 +1358,7 @@ int mympd_put_songs_in_album(char *buffer, char *albumartist, char *album) {
     }
 
     if (len > MAX_SIZE)
-        fprintf(stderr, "Buffer truncated\n");
+        printf("Buffer truncated\n");
     return len;
 }
 
@@ -1406,7 +1406,7 @@ int mympd_put_playlists(char *buffer, unsigned int offset, char *filter) {
     );
 
     if (len > MAX_SIZE)
-        fprintf(stderr, "Buffer truncated\n");
+        printf("Buffer truncated\n");
     return len;
 }
 
@@ -1458,7 +1458,7 @@ int mympd_put_playlist_list(char *buffer, char *uri, unsigned int offset, char *
     );
 
     if (len > MAX_SIZE) 
-        fprintf(stderr, "Buffer truncated\n");
+        printf("Buffer truncated\n");
     return len;
 }
 
@@ -1512,7 +1512,7 @@ int mympd_search(char *buffer, char *mpdtagtype, unsigned int offset, char *sear
     }
 
     if (len > MAX_SIZE)
-        fprintf(stderr, "Buffer truncated\n");
+        printf("Buffer truncated\n");
     return len;
 }
 
@@ -1542,7 +1542,7 @@ int mympd_search_add(char *buffer, char *mpdtagtype, char *searchstr) {
     }
         
     if (len > MAX_SIZE)
-        fprintf(stderr, "Buffer truncated\n");
+        printf("Buffer truncated\n");
     return len;
 }
 
@@ -1557,7 +1557,7 @@ int mympd_search_add_plist(char *plist, char *mpdtagtype, char *searchstr) {
     }    
 
     if (len > MAX_SIZE)
-        fprintf(stderr, "Buffer truncated\n");
+        printf("Buffer truncated\n");
     return len;
 }
 
@@ -1586,7 +1586,7 @@ int mympd_queue_crop(char *buffer) {
     mpd_status_free(status);
     
     if (len > MAX_SIZE)
-        fprintf(stderr, "Buffer truncated\n");
+        printf("Buffer truncated\n");
     return len;    
 }
 
@@ -1641,7 +1641,7 @@ int mympd_search_queue(char *buffer, char *mpdtagtype, unsigned int offset, char
     }
 
     if (len > MAX_SIZE) 
-        fprintf(stderr, "Buffer truncated\n");
+        printf("Buffer truncated\n");
     return len;
 }
 
@@ -1670,7 +1670,7 @@ int mympd_put_stats(char *buffer) {
     mpd_stats_free(stats);
 
     if (len > MAX_SIZE)
-        fprintf(stderr,"Buffer truncated\n");
+        printf("Buffer truncated\n");
     return len;
 }
 
