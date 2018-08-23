@@ -110,7 +110,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
             }
             break;
         case MPD_API_GET_STATE:
-            n = mympd_put_state(mpd.buf, &mpd.song_id, &mpd.next_song_id, &mpd.queue_version, &mpd.queue_length);
+            n = mympd_put_state(mpd.buf, &mpd.song_id, &mpd.next_song_id, &mpd.last_song_id, &mpd.queue_version, &mpd.queue_length);
             break;
         case MPD_API_SET_SETTINGS:
             je = json_scanf(msg.p, msg.len, "{data: {notificationWeb: %d, notificationPage: %d}}", &state.a, &state.b);
@@ -539,7 +539,7 @@ void mympd_notify(struct mg_mgr *s) {
     #endif
 }
 
-void mympd_parse_idle(struct mg_mgr *s, enum mpd_idle idle_bitmask) {
+void mympd_parse_idle(struct mg_mgr *s, int idle_bitmask) {
     int len = 0;
     for (unsigned j = 0;; j ++) {
         enum mpd_idle idle_event = 1 << j;
@@ -561,14 +561,14 @@ void mympd_parse_idle(struct mg_mgr *s, enum mpd_idle idle_bitmask) {
                     len = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"update_queue\"}");
                     break;
                 case MPD_IDLE_PLAYER:
-                    len = mympd_put_state(mpd.buf, &mpd.song_id, &mpd.next_song_id, &mpd.queue_version, &mpd.queue_length);
-                    if (config.stickers) {
+                    len = mympd_put_state(mpd.buf, &mpd.song_id, &mpd.next_song_id, &mpd.last_song_id, &mpd.queue_version, &mpd.queue_length);
+                    if (config.stickers && mpd.song_id != mpd.last_song_id) {
                         mympd_count_song_id(mpd.song_id, "playCount", 1);
                         mympd_last_played_song_id(mpd.song_id);
                     }
                     break;
                 case MPD_IDLE_MIXER:
-                    len = mympd_put_state(mpd.buf, &mpd.song_id, &mpd.next_song_id, &mpd.queue_version, &mpd.queue_length);
+                    len = mympd_put_state(mpd.buf, &mpd.song_id, &mpd.next_song_id, &mpd.last_song_id, &mpd.queue_version, &mpd.queue_length);
                     break;
                 case MPD_IDLE_OUTPUT:
                     len = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"update_outputs\"}");
@@ -792,7 +792,7 @@ char* mympd_get_tag(struct mpd_song const *song, enum mpd_tag_type tag) {
     return str;
 }
 
-int mympd_put_state(char *buffer, int *current_song_id, int *next_song_id, unsigned *queue_version, unsigned *queue_length) {
+int mympd_put_state(char *buffer, int *current_song_id, int *next_song_id, int *last_song_id, unsigned *queue_version, unsigned *queue_length) {
     struct mpd_status *status;
     const struct mpd_audio_format *audioformat;
     int len;
@@ -805,19 +805,22 @@ int mympd_put_state(char *buffer, int *current_song_id, int *next_song_id, unsig
         return 0;
     }
     audioformat = mpd_status_get_audio_format(status);
+    int song_id = mpd_status_get_song_id(status);
+    if (*current_song_id != song_id)
+        *last_song_id = *current_song_id;
     
     len = json_printf(&out, "{type: update_state, data: {"
         "state: %d, volume: %d, songPos: %d, elapsedTime: %d, "
         "totalTime: %d, currentSongId: %d, kbitrate: %d, "
         "audioFormat: { sampleRate: %d, bits: %d, channels: %d}, "
-        "queueLength: %d, nextSongPos: %d, nextSongId: %d, "
+        "queueLength: %d, nextSongPos: %d, nextSongId: %d, lastSongId: %d, "
         "queueVersion: %d", 
         mpd_status_get_state(status),
         mpd_status_get_volume(status), 
         mpd_status_get_song_pos(status),
         mpd_status_get_elapsed_time(status),
         mpd_status_get_total_time(status),
-        mpd_status_get_song_id(status),
+        song_id,
         mpd_status_get_kbit_rate(status),
         audioformat ? audioformat->sample_rate : 0, 
         audioformat ? audioformat->bits : 0, 
@@ -825,12 +828,13 @@ int mympd_put_state(char *buffer, int *current_song_id, int *next_song_id, unsig
         mpd_status_get_queue_length(status),
         mpd_status_get_next_song_pos(status),
         mpd_status_get_next_song_id(status),
+        *last_song_id ? *last_song_id : -1,
         mpd_status_get_queue_version(status)
     );
     
     len += json_printf(&out, "}}");
-
-    *current_song_id = mpd_status_get_song_id(status);
+    
+    *current_song_id = song_id;
     *next_song_id = mpd_status_get_next_song_id(status);
     *queue_version = mpd_status_get_queue_version(status);
     *queue_length = mpd_status_get_queue_length(status);

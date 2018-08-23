@@ -123,6 +123,7 @@ struct t_mpd {
 
     int song_id;
     int next_song_id;
+    int last_song_id;
     unsigned queue_version;
     unsigned queue_length;
     int timeout;
@@ -159,7 +160,7 @@ static int is_websocket(const struct mg_connection *nc) {
 }
 
 void mympd_idle(struct mg_mgr *sm, int timeout);
-void mympd_parse_idle(struct mg_mgr *s, enum mpd_idle idle_bitmask);
+void mympd_parse_idle(struct mg_mgr *s, int idle_bitmask);
 void callback_mympd(struct mg_connection *nc, const struct mg_str msg);
 void mympd_notify(struct mg_mgr *s);
 void mympd_count_song_id(int song_id, char *name, int value);
@@ -168,7 +169,7 @@ void mympd_like_song_uri(const char *uri, int value);
 void mympd_last_played_song_uri(const char *uri);
 void mympd_last_played_song_id(int song_id);
 void mympd_get_sticker(const char *uri, t_sticker *sticker);
-int mympd_put_state(char *buffer, int *current_song_id, int *next_song_id, unsigned *queue_version, unsigned *queue_length);
+int mympd_put_state(char *buffer, int *current_song_id, int *next_song_id, int *last_song_id, unsigned *queue_version, unsigned *queue_length);
 int mympd_put_outputs(char *buffer);
 int mympd_put_current_song(char *buffer);
 int mympd_put_queue(char *buffer, unsigned int offset);
