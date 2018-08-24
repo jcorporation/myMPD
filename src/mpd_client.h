@@ -127,6 +127,8 @@ struct t_mpd {
     unsigned queue_version;
     unsigned queue_length;
     int timeout;
+    
+    int last_update_sticker_song_id;
 } mpd;
 
 typedef struct {

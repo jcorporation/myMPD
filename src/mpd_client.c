@@ -562,9 +562,10 @@ void mympd_parse_idle(struct mg_mgr *s, int idle_bitmask) {
                     break;
                 case MPD_IDLE_PLAYER:
                     len = mympd_put_state(mpd.buf, &mpd.song_id, &mpd.next_song_id, &mpd.last_song_id, &mpd.queue_version, &mpd.queue_length);
-                    if (config.stickers && mpd.song_id != mpd.last_song_id) {
+                    if (config.stickers && mpd.song_id != mpd.last_song_id && mpd.last_update_sticker_song_id != mpd.song_id) {
                         mympd_count_song_id(mpd.song_id, "playCount", 1);
                         mympd_last_played_song_id(mpd.song_id);
+                        mpd.last_update_sticker_song_id = mpd.song_id;
                     }
                     break;
                 case MPD_IDLE_MIXER:

@@ -183,6 +183,8 @@ int main(int argc, char **argv) {
     config.mixramp = true;
     
     mpd.timeout = 3000;
+    mpd.last_update_sticker_song_id = -1;
+    mpd.last_song_id = -1;
     
     if (argc == 2) {
         printf("Parsing config file: %s\n", argv[1]);
