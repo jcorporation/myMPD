@@ -249,3 +249,14 @@ caption {
   -khtml-user-drag: element;
   -webkit-user-drag: element;
 }
+
+@keyframes changewidth {
+  from { width: 0%; }
+  to { width: 100%; }
+}
+
+.updateDBprogressAnimate {
+  animation-duration: 2s;
+  animation-name: changewidth;
+  animation-iteration-count: infinite;
+}

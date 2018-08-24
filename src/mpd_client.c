@@ -57,7 +57,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
     int je, int_buf, int_rc; 
     float float_buf;
     char *p_charbuf1, *p_charbuf2, *p_charbuf3;
-    struct mympd_state { int a; int b; } state = { .a = 0, .b = 0 };
+    struct mympd_state { int a; int b; } state = { .a = 0, .b = 1 };
     enum mpd_cmd_ids cmd_id;
     struct pollfd fds[1];
     int pollrc;
@@ -116,7 +116,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
             je = json_scanf(msg.p, msg.len, "{data: {notificationWeb: %d, notificationPage: %d}}", &state.a, &state.b);
             if (je == 2) {
                 char tmp_file[200];
-                snprintf(tmp_file, 199, "%s.tmp", config.statefile);
+                snprintf(tmp_file, 200, "%s.tmp", config.statefile);
                 json_fprintf(tmp_file, "{notificationWeb: %d, notificationPage: %d}", state.a, state.b);
                 rename(tmp_file, config.statefile);
             }
@@ -577,7 +577,7 @@ void mympd_parse_idle(struct mg_mgr *s, int idle_bitmask) {
                     len = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"update_options\"}");
                     break;
                 case MPD_IDLE_UPDATE:
-                    len = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"update_update\"}");
+                    len = mympd_get_updatedb_state(mpd.buf);
                     break;
                 case MPD_IDLE_STICKER:
                     len = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"update_sticker\"}");
@@ -678,6 +678,30 @@ void mympd_idle(struct mg_mgr *s, int timeout) {
     }
 }
 
+int mympd_get_updatedb_state(char *buffer) {
+    struct mpd_status *status;
+    int len;
+    struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
+
+    status = mpd_run_status(mpd.conn);
+    if (!status) {
+        printf("MPD mpd_run_status: %s\n", mpd_connection_get_error_message(mpd.conn));
+        mpd.conn_state = MPD_FAILURE;
+        return 0;
+    }
+    if (mpd_status_get_update_id(status) == 1)
+        len = json_printf(&out, "{type: update_started, data: {}}");
+    else
+        len = json_printf(&out, "{type: update_finished, data: {}}");
+
+    mpd_status_free(status);    
+    
+    if (len > MAX_SIZE)
+        printf("Buffer truncated\n");
+    return len;
+}
+
+
 void mympd_get_sticker(const char *uri, t_sticker *sticker) {
     struct mpd_pair *pair;
     char *crap;
@@ -745,7 +769,7 @@ void mympd_count_song_uri(const char *uri, char *name, int value) {
         old_value = 999;
     else if (old_value < 0)
         old_value = 0;
-    snprintf(v, 3, "%d", old_value);
+    snprintf(v, 4, "%d", old_value);
     #ifdef DEBUG
     fprintf(stderr, "STICKER_COUNT_SONG: \"%s\" -> %s: %s\n", uri, name, v);
     #endif    
@@ -756,7 +780,7 @@ void mympd_count_song_uri(const char *uri, char *name, int value) {
 void mympd_like_song_uri(const char *uri, int value) {
     if (uri == NULL || strncasecmp("http:", uri, 5) == 0 || strncasecmp("https:", uri, 6) == 0)
         return;
-    char v[3];
+    char v[2];
     if (value > 2)
         value = 2;
     else if (value < 0)
@@ -774,7 +798,7 @@ void mympd_last_played_song_uri(const char *uri) {
     if (uri == NULL || strncasecmp("http:", uri, 5) == 0 || strncasecmp("https:", uri, 6) == 0)
         return;
     char v[20];
-    snprintf(v, 19, "%lu", time(NULL));
+    snprintf(v, 20, "%lu", time(NULL));
     if (!mpd_run_sticker_set(mpd.conn, "song", uri, "lastPlayed", v))
         LOG_ERROR_AND_RECOVER("mpd_send_sticker_set");
 }
@@ -868,11 +892,11 @@ int mympd_put_settings(char *buffer) {
         je = json_scanf(content, strlen(content), "{notificationWeb: %d, notificationPage: %d}", &state.a, &state.b);
         if (je != 2) {
           state.a = 0;
-          state.b = 0;
+          state.b = 1;
         }
     } else {
         state.a = 0;
-        state.b = 0;
+        state.b = 1;
     }
 
     status = mpd_run_status(mpd.conn);

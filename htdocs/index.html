@@ -533,14 +533,34 @@
       </div>
   </div>
 
+  <div class="modal fade" id="modalUpdateDB" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><span class="material-icons title-icon">update</span> Updating MPD database</h5>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p>Dependent on the size of your music collection this can take a while.</p>
+          <div class="progress">
+            <div id="updateDBprogress" class="progress-bar bg-success" role="progressbar" style="width:50%"></div>
+          </div>
+          <br/>
+          <p id="updateDBfinished"></p>
+        </div>
+        <div class="modal-footer hide" id="updateDBfooter">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>        
+      </div>
+    </div>
+  </div>  
+
   <div class="modal fade" id="modalAddToPlaylist" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title"><span class="material-icons title-icon">playlist_add</span> <span id="addToPlaylistLabel">Add to playlist</span></h5>
-          <button type="button" class="close" data-dismiss="modal">
-            &times;
-          </button>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
         <div class="modal-body">
           <form id="addStreamFrm" class="needs-validation hide" novalidate>
@@ -579,7 +599,7 @@
         <div class="modal-footer hide" id="addStreamFooter">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
           <button type="button" class="btn btn-success" data-href="{'cmd': 'addStream', 'options': []}">Add</button>
-        </div>                
+        </div>
       </div>
     </div>
   </div>
@@ -589,9 +609,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title"><span class="material-icons title-icon">playlist_add</span>Rename playlist</h5>
-          <button type="button" class="close" data-dismiss="modal">
-            &times;
-          </button>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
         <div class="modal-body">
           <form class="needs-validation" id="renamePlaylistFrm" novalidate>
@@ -619,9 +637,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="settingsLabel"><span class="material-icons title-icon">settings</span> Settings</h5>
-          <button type="button" class="close" data-dismiss="modal">
-            &times;
-          </button>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
         <div class="modal-body">
          <form class="needs-validation" id="settingsFrm" novalidate>
@@ -712,9 +728,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="aboutLabel"><span class="material-icons title-icon">play_circle_outline</span> About</h5>
-          <button type="button" class="close" data-dismiss="modal">
-            &times;
-          </button>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
         <div class="modal-body">
           <h4><a class="text-success" rel="noreferrer" href="https://github.com/jcorporation/ympd">myMPD</a>&nbsp;&ndash;&nbsp;<small>MPD Web GUI - written in C, utilizing Websockets and Bootstrap/JS</small></h4>
@@ -749,9 +763,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title"><span class="material-icons title-icon">save</span> Save Queue</h5>
-          <button type="button" class="close" data-dismiss="modal">
-            &times;
-          </button>          
+          <button type="button" class="close" data-dismiss="modal">&times;</button>          
         </div>
         <div class="modal-body">
           <form class="needs-validation" id="saveQueueFrm" novalidate>
@@ -777,9 +789,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title"><span class="material-icons title-icon">music_note</span> Song Details</h5>
-          <button type="button" class="close" data-dismiss="modal">
-            &times;
-          </button>          
+          <button type="button" class="close" data-dismiss="modal">&times;</button>          
         </div>
         <div class="modal-body">
           <div class="album-cover"></div>

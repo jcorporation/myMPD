@@ -90,6 +90,7 @@ var modalSavequeue = new Modal(document.getElementById('modalSaveQueue'));
 var modalSongDetails = new Modal(document.getElementById('modalSongDetails'));
 var modalAddToPlaylist = new Modal(document.getElementById('modalAddToPlaylist'));
 var modalRenamePlaylist = new Modal(document.getElementById('modalRenamePlaylist'));
+var modalUpdateDB = new Modal(document.getElementById('modalUpdateDB'));
 //var mainMenu = new Dropdown(document.getElementById('mainMenu'));
 //var volumeMenu = new Dropdown(document.getElementById('volumeIcon'));
 
@@ -319,6 +320,10 @@ function appInit() {
     
     document.getElementById('modalAbout').addEventListener('shown.bs.modal', function () {
         sendAPI({"cmd": "MPD_API_GET_STATS"}, parseStats);
+    });
+
+    document.getElementById('modalUpdateDB').addEventListener('hidden.bs.modal', function () {
+        document.getElementById('updateDBprogress').classList.remove('updateDBprogressAnimate');
     });
     
     document.getElementById('modalSaveQueue').addEventListener('shown.bs.modal', function () {
@@ -687,6 +692,13 @@ function webSocketConnect() {
                     break;
                 case 'update_outputs':
                     sendAPI({"cmd": "MPD_API_GET_OUTPUTS"}, parseOutputs);
+                    break;
+                case 'update_started':
+                    updateDBstarted();
+                    break;
+                case 'update_database':
+                case 'update_finished':
+                    updateDBfinished(obj.type);
                     break;
                 case 'error':
                     showNotification(obj.data, '', '', 'danger');
@@ -1554,7 +1566,7 @@ function showAddToPlaylist(uri) {
         document.getElementById('addToPlaylistFrm').classList.add('hide');
         document.getElementById('addToPlaylistLabel').innerText = 'Add Stream';
     }
-    modalAddToPlaylist.show();    
+    modalAddToPlaylist.show();
     sendAPI({"cmd": "MPD_API_GET_PLAYLISTS","data": {"offset": 0, "filter": "-"}}, getAllPlaylists);
 }
 
@@ -1747,7 +1759,25 @@ function openLocalPlayer() {
 
 function updateDB() {
     sendAPI({"cmd": "MPD_API_UPDATE_DB"});
-    showNotification('Updating MPD Database...', '', '', 'success');
+    updateDBstarted();
+}
+
+function updateDBstarted() {
+    document.getElementById('updateDBfinished').innerText = '';
+    document.getElementById('updateDBfooter').classList.add('hide');
+    modalUpdateDB.show();
+    document.getElementById('updateDBprogress').classList.add('updateDBprogressAnimate');
+}
+
+function updateDBfinished(idleEvent) {
+    if (idleEvent == 'update_database')
+        document.getElementById('updateDBfinished').innerText = 'Database successfully updated';
+    else if (idleEvent == 'update_finished')
+        document.getElementById('updateDBfinished').innerText = 'Database update finished.';
+    var updateDBprogress = document.getElementById('updateDBprogress');
+    updateDBprogress.classList.remove('updateDBprogressAnimate');
+    updateDBprogress.style.width = '100%';
+    document.getElementById('updateDBfooter').classList.remove('hide');
 }
 
 function clickPlay() {

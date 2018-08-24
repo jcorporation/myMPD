@@ -213,7 +213,7 @@ int main(int argc, char **argv) {
     mg_mgr_init(&mgr, NULL);
 
     if (config.ssl == true) {
-        snprintf(s_redirect, 249, "https://%s:%s/", hostname, config.sslport);
+        snprintf(s_redirect, 250, "https://%s:%s/", hostname, config.sslport);
         nc_http = mg_bind(&mgr, config.webport, ev_handler_http);
         if (nc_http == NULL) {
             printf("Error listening on port %s\n", config.webport);
