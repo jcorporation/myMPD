@@ -190,7 +190,7 @@ function appRoute() {
     appPrepare(app.current.scrollPos);
 
     if (app.current.app == 'Playback') {
-        sendAPI({"cmd": "MPD_API_GET_CURRENT_SONG"}, songChange);
+        sendAPI({"cmd": "MPD_API_PLAYER_CURRENT_SONG"}, songChange);
     }    
     else if (app.current.app == 'Queue' ) {
         var btns = document.getElementById('searchqueuetag').getElementsByTagName('button');
@@ -205,23 +205,23 @@ function appRoute() {
         getQueue();
     }
     else if (app.current.app == 'Browse' && app.current.tab == 'Playlists' && app.current.view == 'All') {
-        sendAPI({"cmd": "MPD_API_GET_PLAYLISTS", "data": {"offset": app.current.page, "filter": app.current.filter}}, parsePlaylists);
+        sendAPI({"cmd": "MPD_API_PLAYLIST_LIST", "data": {"offset": app.current.page, "filter": app.current.filter}}, parsePlaylists);
         doSetFilterLetter('BrowsePlaylistsFilter');
     }
     else if (app.current.app == 'Browse' && app.current.tab == 'Playlists' && app.current.view == 'Detail') {
-        sendAPI({"cmd": "MPD_API_GET_PLAYLIST_LIST", "data": {"offset": app.current.page, "filter": app.current.filter, "uri": app.current.search}}, parsePlaylists);
+        sendAPI({"cmd": "MPD_API_PLAYLIST_CONTENT_LIST", "data": {"offset": app.current.page, "filter": app.current.filter, "uri": app.current.search}}, parsePlaylists);
         doSetFilterLetter('BrowsePlaylistsFilter');
     }    
     else if (app.current.app == 'Browse' && app.current.tab == 'Database' && app.current.view == 'Artist') {
-        sendAPI({"cmd": "MPD_API_GET_ARTISTS","data": {"offset": app.current.page, "filter": app.current.filter}}, parseListDBtags);
+        sendAPI({"cmd": "MPD_API_DATABASE_ARTIST_LIST","data": {"offset": app.current.page, "filter": app.current.filter}}, parseListDBtags);
         doSetFilterLetter('BrowseDatabaseFilter');
     }
     else if (app.current.app == 'Browse' && app.current.tab == 'Database' && app.current.view == 'Album') {
-        sendAPI({"cmd": "MPD_API_GET_ARTISTALBUMS", "data": {"offset": app.current.page, "filter": app.current.filter, "albumartist": app.current.search}}, parseListDBtags);
+        sendAPI({"cmd": "MPD_API_DATABASE_ARTISTALBUM_LIST", "data": {"offset": app.current.page, "filter": app.current.filter, "albumartist": app.current.search}}, parseListDBtags);
         doSetFilterLetter('BrowseDatabaseFilter');
     }    
     else if (app.current.app == 'Browse' && app.current.tab == 'Filesystem') {
-        sendAPI({"cmd": "MPD_API_GET_FILESYSTEM", "data": {"offset": app.current.page, "path": (app.current.search ? app.current.search : "/"), "filter": app.current.filter}}, parseFilesystem);
+        sendAPI({"cmd": "MPD_API_DATABASE_FILESYSTEM_LIST", "data": {"offset": app.current.page, "path": (app.current.search ? app.current.search : "/"), "filter": app.current.filter}}, parseFilesystem);
         // Don't add all songs from root
         if (app.current.search) {
             document.getElementById('BrowseFilesystemAddAllSongs').removeAttribute('disabled');
@@ -297,29 +297,29 @@ function appRoute() {
 
 function appInit() {
     getSettings();
-    sendAPI({"cmd": "MPD_API_GET_STATE"}, parseState);
+    sendAPI({"cmd": "MPD_API_PLAYER_STATE"}, parseState);
 
     webSocketConnect();
 
     domCache.volumeBar.value = 0;
     domCache.volumeBar.addEventListener('change', function(event) {
-        sendAPI({"cmd": "MPD_API_SET_VOLUME", "data": {"volume": domCache.volumeBar.value}});
+        sendAPI({"cmd": "MPD_API_PLAYER_VOLUME", "data": {"volume": domCache.volumeBar.value}});
     }, false);
 
     domCache.progressBar.value = 0;
     domCache.progressBar.addEventListener('change', function(event) {
         if (currentSong && currentSong.currentSongId >= 0) {
             var seekVal = Math.ceil(currentSong.totalTime * (domCache.progressBar.value / 100));
-            sendAPI({"cmd": "MPD_API_SET_SEEK", "data": {"songid": currentSong.currentSongId, "seek": seekVal}});
+            sendAPI({"cmd": "MPD_API_PLAYER_SEEK", "data": {"songid": currentSong.currentSongId, "seek": seekVal}});
         }
     }, false);
   
     document.getElementById('volumeIcon').parentNode.addEventListener('show.bs.dropdown', function () {
-        sendAPI({"cmd": "MPD_API_GET_OUTPUTS"}, parseOutputs);
+        sendAPI({"cmd": "MPD_API_PLAYER_OUTPUT_LIST"}, parseOutputs);
     });    
     
     document.getElementById('modalAbout').addEventListener('shown.bs.modal', function () {
-        sendAPI({"cmd": "MPD_API_GET_STATS"}, parseStats);
+        sendAPI({"cmd": "MPD_API_DATABASE_STATS"}, parseStats);
     });
 
     document.getElementById('modalUpdateDB').addEventListener('hidden.bs.modal', function () {
@@ -396,7 +396,7 @@ function appInit() {
     
     document.getElementById('QueueList').addEventListener('click', function(event) {
         if (event.target.nodeName == 'TD') 
-            sendAPI({"cmd": "MPD_API_PLAY_TRACK","data": {"track": event.target.parentNode.getAttribute('data-trackid')}});
+            sendAPI({"cmd": "MPD_API_PLAYER_PLAY_TRACK","data": {"track": event.target.parentNode.getAttribute('data-trackid')}});
         else if (event.target.nodeName == 'A') {
             event.preventDefault();
             showMenu(event.target);
@@ -513,7 +513,7 @@ function appInit() {
     window.addEventListener('hashchange', appRoute, false);
     
     window.addEventListener('focus', function() {
-        sendAPI({"cmd": "MPD_API_GET_STATE"}, parseState);
+        sendAPI({"cmd": "MPD_API_PLAYER_STATE"}, parseState);
     }, false);
     
     document.addEventListener('keydown', function(event) {
@@ -642,7 +642,7 @@ function dragAndDropTable(table) {
         }
         document.getElementById(table).classList.add('opacity05');
         if (app.current.app == 'Queue')
-            sendAPI({"cmd": "MPD_API_MOVE_TRACK","data": {"from": oldSongpos, "to": newSongpos}});
+            sendAPI({"cmd": "MPD_API_QUEUE_MOVE_TRACK","data": {"from": oldSongpos, "to": newSongpos}});
         else if (app.current.app == 'Browse' && app.current.tab == 'Playlists' && app.current.view == 'Detail')
             playlistMoveTrack(oldSongpos, newSongpos);        
     }, false);
@@ -650,7 +650,7 @@ function dragAndDropTable(table) {
 
 function playlistMoveTrack(from, to) {
     sendAPI({"cmd": "MPD_API_PLAYLIST_MOVE_TRACK","data": { "plist": app.current.search, "from": from, "to": to}});
-    sendAPI({"cmd": "MPD_API_GET_PLAYLIST_LIST","data": {"offset": app.current.page, "filter": app.current.filter, "uri": app.current.search}}, parsePlaylists);
+    sendAPI({"cmd": "MPD_API_PLAYLIST_CONTENT","data": {"offset": app.current.page, "filter": app.current.filter, "uri": app.current.search}}, parsePlaylists);
 }
 
 function webSocketConnect() {
@@ -662,7 +662,7 @@ function webSocketConnect() {
             showNotification('Connected to myMPD', '', '', 'success');
             modalConnectionError.hide();
             appRoute();
-            sendAPI({"cmd": "MPD_API_GET_STATE"}, parseState);
+            sendAPI({"cmd": "MPD_API_PLAYER_STATE"}, parseState);
         }
 
         socket.onmessage = function got_packet(msg) {
@@ -685,13 +685,13 @@ function webSocketConnect() {
                 case 'update_queue':
                     if (app.current.app === 'Queue')
                         getQueue();
-                    sendAPI({"cmd": "MPD_API_GET_STATE"}, parseState);
+                    sendAPI({"cmd": "MPD_API_PLAYER_STATE"}, parseState);
                     break;
                 case 'update_options':
                     getSettings();
                     break;
                 case 'update_outputs':
-                    sendAPI({"cmd": "MPD_API_GET_OUTPUTS"}, parseOutputs);
+                    sendAPI({"cmd": "MPD_API_PLAYER_OUTPUT_LIST"}, parseOutputs);
                     break;
                 case 'update_started':
                     updateDBstarted(false);
@@ -846,7 +846,7 @@ function parseSettings(obj) {
 }
 
 function getSettings() {
-    sendAPI({"cmd": "MPD_API_GET_SETTINGS"}, parseSettings);
+    sendAPI({"cmd": "MPD_API_SETTINGS_GET"}, parseSettings);
 }
 
 function parseOutputs(obj) {
@@ -963,7 +963,7 @@ function parseState(obj) {
     setCounter(obj.data.currentSongId, obj.data.totalTime, obj.data.elapsedTime);
     
     //Get current song
-    sendAPI({"cmd": "MPD_API_GET_CURRENT_SONG"}, songChange);
+    sendAPI({"cmd": "MPD_API_PLAYER_CURRENT_SONG"}, songChange);
     //clear playback card if not playing
     if (obj.data.songPos == '-1') {
         domCache.currentTrack.innerText = 'Not playing';
@@ -977,9 +977,9 @@ function parseState(obj) {
 
 function getQueue() {
     if (app.current.search.length >= 2) 
-        sendAPI({"cmd": "MPD_API_SEARCH_QUEUE", "data": {"mpdtag":app.current.filter, "offset":app.current.page, "searchstr": app.current.search}}, parseQueue);
+        sendAPI({"cmd": "MPD_API_QUEUE_SEARCH", "data": {"mpdtag": app.current.filter, "offset": app.current.page, "searchstr": app.current.search}}, parseQueue);
     else {
-        sendAPI({"cmd": "MPD_API_GET_QUEUE", "data": {"offset": app.current.page}}, parseQueue);
+        sendAPI({"cmd": "MPD_API_QUEUE_LIST", "data": {"offset": app.current.page}}, parseQueue);
     }
 }
 
@@ -1274,7 +1274,7 @@ function parseListDBtags(obj) {
             else 
                 cardContainer.append(card);
                 
-            sendAPI({"cmd": "MPD_API_GET_ARTISTALBUMTITLES", "data": { "albumartist": obj.searchstr, "album": obj.data[i].value}}, parseListTitles);
+            sendAPI({"cmd": "MPD_API_DATABASE_ARTISTALBUMTITLE_LIST", "data": { "albumartist": obj.searchstr, "album": obj.data[i].value}}, parseListTitles);
         }
         var cardsLen = cards.length - 1;
         for (var i = cardsLen; i >= nrItems; i --) {
@@ -1368,15 +1368,12 @@ function setPagination(number) {
 function appendQueue(type, uri, name) {
     switch(type) {
         case 'song':
-            sendAPI({"cmd": "MPD_API_ADD_TRACK", "data": {"uri": uri}});
-            showNotification('"' + name + '" added', '', '', 'success');
-            break;
         case 'dir':
-            sendAPI({"cmd": "MPD_API_ADD_TRACK", "data": {"uri": uri}});
+            sendAPI({"cmd": "MPD_API_QUEUE_ADD_TRACK", "data": {"uri": uri}});
             showNotification('"' + name + '" added', '', '', 'success');
             break;
         case 'plist':
-            sendAPI({"cmd": "MPD_API_ADD_PLAYLIST", "data": {"plist": uri}});
+            sendAPI({"cmd": "MPD_API_QUEUE_ADD_PLAYLIST", "data": {"plist": uri}});
             showNotification('"' + name + '" added', '', '', 'success');
             break;
     }
@@ -1385,7 +1382,7 @@ function appendQueue(type, uri, name) {
 function appendAfterQueue(type, uri, to, name) {
     switch(type) {
         case 'song':
-            sendAPI({"cmd": "MPD_API_ADD_TRACK_AFTER", "data": {"uri": uri, "to": to}});
+            sendAPI({"cmd": "MPD_API_QUEUE_ADD_TRACK_AFTER", "data": {"uri": uri, "to": to}});
             showNotification('"' + name + '" added to pos ' + to, '', '', 'success');
             break;
     }
@@ -1394,15 +1391,12 @@ function appendAfterQueue(type, uri, to, name) {
 function replaceQueue(type, uri, name) {
     switch(type) {
         case 'song':
-            sendAPI({"cmd": "MPD_API_REPLACE_TRACK", "data": {"uri": uri}});
-            showNotification('"' + name + '" replaced', '', '', 'success');
-            break;
         case 'dir':
-            sendAPI({"cmd": "MPD_API_REPLACE_TRACK", "data": {"uri": uri}});
+            sendAPI({"cmd": "MPD_API_QUEUE_REPLACE_TRACK", "data": {"uri": uri}});
             showNotification('"' + name + '" replaced', '', '', 'success');
             break;
         case 'plist':
-            sendAPI({"cmd": "MPD_API_REPLACE_PLAYLIST", "data": {"plist": uri}});
+            sendAPI({"cmd": "MPD_API_QUEUE_REPLACE_PLAYLIST", "data": {"plist": uri}});
             showNotification('"' + name + '" replaced', '', '', 'success');
             break;
     }
@@ -1421,7 +1415,7 @@ function artistClick() {
 }
 
 function songDetails(uri) {
-    sendAPI({"cmd": "MPD_API_GET_SONGDETAILS", "data": {"uri": uri}}, parseSongDetails);
+    sendAPI({"cmd": "MPD_API_DATABASE_SONGDETAILS", "data": {"uri": uri}}, parseSongDetails);
     modalSongDetails.show();
 }
 
@@ -1467,16 +1461,16 @@ function playlistDetails(uri) {
 
 function removeFromPlaylist(uri, pos) {
     pos--;
-    sendAPI({"cmd": "MPD_API_RM_PLAYLIST_TRACK", "data": {"uri": uri, "track": pos}});
+    sendAPI({"cmd": "MPD_API_PLAYLIST_RM_TRACK", "data": {"uri": uri, "track": pos}});
     document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
-    sendAPI({"cmd": "MPD_API_GET_PLAYLIST_LIST", "data": {"offset": app.current.page, "filter": app.current.filter, "uri": app.current.search}}, parsePlaylists);
+    sendAPI({"cmd": "MPD_API_PLAYLIST_CONTENT", "data": {"offset": app.current.page, "filter": app.current.filter, "uri": app.current.search}}, parsePlaylists);
 }
 
 function playlistClear() {
     var uri = document.getElementById('BrowsePlaylistsDetailList').getAttribute('data-uri');
     sendAPI({"cmd": "MPD_API_PLAYLIST_CLEAR", "data": {"uri": uri}});
     document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
-    sendAPI({"cmd": "MPD_API_GET_PLAYLIST_LIST", "data": {"offset": app.current.page, "filter": app.current.filter, "uri": app.current.search}}, parsePlaylists);
+    sendAPI({"cmd": "MPD_API_PLAYLIST_CONTENT", "data": {"offset": app.current.page, "filter": app.current.filter, "uri": app.current.search}}, parsePlaylists);
 }
 
 function getAllPlaylists(obj) {
@@ -1488,7 +1482,7 @@ function getAllPlaylists(obj) {
     document.getElementById('addToPlaylistPlaylist').innerHTML += playlists;
     if (obj.totalEntities > obj.returnedEntities) {
         obj.offset += settings.maxElementsPerPage;
-        sendAPI({"cmd": "MPD_API_GET_PLAYLISTS","data": {"offset": obj.offset, "filter": "-"}}, getAllPlaylists);
+        sendAPI({"cmd": "MPD_API_PLAYLIST_LIST","data": {"offset": obj.offset, "filter": "-"}}, getAllPlaylists);
     }
 }
 
@@ -1567,7 +1561,7 @@ function showAddToPlaylist(uri) {
         document.getElementById('addToPlaylistLabel').innerText = 'Add Stream';
     }
     modalAddToPlaylist.show();
-    sendAPI({"cmd": "MPD_API_GET_PLAYLISTS","data": {"offset": 0, "filter": "-"}}, getAllPlaylists);
+    sendAPI({"cmd": "MPD_API_PLAYLIST_LIST","data": {"offset": 0, "filter": "-"}}, getAllPlaylists);
 }
 
 function addToPlaylist() {
@@ -1595,7 +1589,7 @@ function addToPlaylist() {
     }
     if (plist != '') {
         if (uri != 'SEARCH') 
-            sendAPI({"cmd": "MPD_API_ADD_TO_PLAYLIST", "data": {"uri": uri, "plist": plist}});
+            sendAPI({"cmd": "MPD_API_PLAYLIST_ADD_TRACK", "data": {"uri": uri, "plist": plist}});
         else
             addAllFromSearchPlist(plist);            
         modalAddToPlaylist.hide();
@@ -1609,7 +1603,7 @@ function addToPlaylist() {
 function addStream() {
     var streamUrl = document.getElementById('streamUrl').value;
     if (streamUrl != '' && streamUrl.indexOf('http') == 0) {
-        sendAPI({"cmd": "MPD_API_ADD_TRACK", "data": {"uri": streamUrl}});
+        sendAPI({"cmd": "MPD_API_QUEUE_ADD_TRACK", "data": {"uri": streamUrl}});
         modalAddToPlaylist.hide();
         showNotification('Added stream ' + streamUrl + 'to queue', '', '', 'success');
     }
@@ -1634,7 +1628,7 @@ function renamePlaylist() {
     if (to != '' && to != from && valid == '') {
         sendAPI({"cmd": "MPD_API_PLAYLIST_RENAME", "data": {"from": from, "to": to}});
         modalRenamePlaylist.hide();
-        sendAPI({"cmd": "MPD_API_GET_PLAYLISTS","data": {"offset": app.current.page, "filter": app.current.filter}}, parsePlaylists);
+        sendAPI({"cmd": "MPD_API_PLAYLIST_LIST","data": {"offset": app.current.page, "filter": app.current.filter}}, parsePlaylists);
     }
     else {
         document.getElementById('renamePlaylistTo').classList.add('is-invalid');
@@ -1758,7 +1752,7 @@ function openLocalPlayer() {
 }
 
 function updateDB() {
-    sendAPI({"cmd": "MPD_API_UPDATE_DB"});
+    sendAPI({"cmd": "MPD_API_DATABASE_UPDATE"});
     updateDBstarted(true);
 }
 
@@ -1798,33 +1792,33 @@ function updateDBfinished(idleEvent) {
 
 function clickPlay() {
     if (playstate != 'play')
-        sendAPI({"cmd": "MPD_API_SET_PLAY"});
+        sendAPI({"cmd": "MPD_API_PLAYER_PLAY"});
     else
-        sendAPI({"cmd": "MPD_API_SET_PAUSE"});
+        sendAPI({"cmd": "MPD_API_PLAYER_PAUSE"});
 }
 
 function clickStop() {
-    sendAPI({"cmd": "MPD_API_SET_STOP"});
+    sendAPI({"cmd": "MPD_API_PLAYER_STOP"});
 }
 
 function clickPrev() {
-    sendAPI({"cmd": "MPD_API_SET_PREV"});
+    sendAPI({"cmd": "MPD_API_PLAYER_PREV"});
 }
 
 function clickNext() {
-    sendAPI({"cmd": "MPD_API_SET_NEXT"});
+    sendAPI({"cmd": "MPD_API_PLAYER_NEXT"});
 }
 
 function delQueueSong(mode, start, end) {
     if (mode == 'range')
-        sendAPI({"cmd": "MPD_API_RM_RANGE", "data": {"start": start, "end": end}});
+        sendAPI({"cmd": "MPD_API_QUEUE_RM_RANGE", "data": {"start": start, "end": end}});
     else if (mode == 'single')
-        sendAPI({"cmd": "MPD_API_RM_TRACK", "data": { "track": start}});
+        sendAPI({"cmd": "MPD_API_QUEUE_RM_TRACK", "data": { "track": start}});
 }
 
 function delPlaylist(uri) {
-    sendAPI({"cmd": "MPD_API_RM_PLAYLIST", "data": {"uri": uri}});
-    sendAPI({"cmd": "MPD_API_GET_PLAYLISTS","data": {"offset": app.current.page, "filter": app.current.filter}}, parsePlaylists);    
+    sendAPI({"cmd": "MPD_API_PLAYLIST_RM", "data": {"uri": uri}});
+    sendAPI({"cmd": "MPD_API_PLAYLIST_LIST","data": {"offset": app.current.page, "filter": app.current.filter}}, parsePlaylists);    
 }
 
 function confirmSettings() {
@@ -1866,7 +1860,7 @@ function confirmSettings() {
     
     if (formOK == true) {
         var selectReplaygain = document.getElementById('selectReplaygain');
-        sendAPI({"cmd": "MPD_API_SET_SETTINGS", "data": {
+        sendAPI({"cmd": "MPD_API_SETTINGS_SET", "data": {
             "consume": (document.getElementById('btnConsume').classList.contains('active') ? 1 : 0),
             "random":  (document.getElementById('btnRandom').classList.contains('active') ? 1 : 0),
             "single":  (document.getElementById('btnSingle').classList.contains('active') ? 1 : 0),
@@ -1884,13 +1878,13 @@ function confirmSettings() {
 }
 
 function addAllFromBrowse() {
-    sendAPI({"cmd": "MPD_API_ADD_TRACK", "data": {"uri": app.current.search}});
+    sendAPI({"cmd": "MPD_API_QUEUE_ADD_TRACK", "data": {"uri": app.current.search}});
     showNotification('Added all songs', '', '', 'success');
 }
 
 function addAllFromSearch() {
     if (app.current.search.length >= 2) {
-        sendAPI({"cmd": "MPD_API_SEARCH_ADD", "data":{"filter": app.current.filter, "searchstr": app.current.search}});
+        sendAPI({"cmd": "MPD_API_SEARCH_ADD_QUEUE", "data":{"filter": app.current.filter, "searchstr": app.current.search}});
         showNotification('Added '+ parseInt(document.getElementById('panel-heading-search').innerText) +' songs from search', '', '', 'success');
     }
 }
@@ -1901,7 +1895,7 @@ function addAllFromSearchPlist(plist) {
         if (filter == 'Any Tag')
             filter = 'any';
             
-        sendAPI({"cmd": "MPD_API_SEARCH_ADD_PLIST", "data":{"plist": plist, "filter": filter, "searchstr": app.current.search}});
+        sendAPI({"cmd": "MPD_API_SEARCH_ADD_PLAYLIST", "data":{"plist": plist, "filter": filter, "searchstr": app.current.search}});
         showNotification('Added '+ parseInt(document.getElementById('panel-heading-search').innerText) +' songs from search to ' + plist, '', '', 'success');
     }
 }
@@ -1931,7 +1925,7 @@ function saveQueue() {
     var plName = document.getElementById('saveQueueName').value;
     var valid = plName.replace(/\w/g, '');
     if (plName != '' && valid == '') {
-        sendAPI({"cmd": "MPD_API_SAVE_QUEUE", "data": {"plist": plName}});
+        sendAPI({"cmd": "MPD_API_QUEUE_SAVE", "data": {"plist": plName}});
         modalSavequeue.hide();
     }
     else {
@@ -2093,7 +2087,7 @@ function chVolume(increment) {
     else if (newValue > 100)
         newValue = 100;
     domCache.volumeBar.value = newValue;
-    sendAPI({"cmd": "MPD_API_SET_VOLUME", "data": {"volume": newValue}});
+    sendAPI({"cmd": "MPD_API_PLAYER_VOLUME", "data": {"volume": newValue}});
 }
 
 function beautifyDuration(x) {

@@ -109,10 +109,10 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                 n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"MPD stickers are disabled\"}");
             }
             break;
-        case MPD_API_GET_STATE:
+        case MPD_API_PLAYER_STATE:
             n = mympd_put_state(mpd.buf, &mpd.song_id, &mpd.next_song_id, &mpd.last_song_id, &mpd.queue_version, &mpd.queue_length);
             break;
-        case MPD_API_SET_SETTINGS:
+        case MPD_API_SETTINGS_SET:
             je = json_scanf(msg.p, msg.len, "{data: {notificationWeb: %d, notificationPage: %d}}", &state.a, &state.b);
             if (je == 2) {
                 char tmp_file[200];
@@ -162,7 +162,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
             }
             n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             break;
-        case MPD_API_GET_ARTISTALBUMTITLES:
+        case MPD_API_DATABASE_ARTISTALBUMTITLE_LIST:
             je = json_scanf(msg.p, msg.len, "{data: {albumartist: %Q, album: %Q}}", &p_charbuf1, &p_charbuf2);
             if (je == 2) {
                 n = mympd_put_songs_in_album(mpd.buf, p_charbuf1, p_charbuf2);
@@ -173,30 +173,30 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
         case MPD_API_WELCOME:
             n = mympd_put_welcome(mpd.buf);
             break;
-        case MPD_API_UPDATE_DB:
+        case MPD_API_DATABASE_UPDATE:
             uint_rc = mpd_run_update(mpd.conn, NULL);
             if (uint_rc > 0)
                 n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             break;
-        case MPD_API_SET_PAUSE:
+        case MPD_API_PLAYER_PAUSE:
             mpd_run_toggle_pause(mpd.conn);
             n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             break;
-        case MPD_API_SET_PREV:
+        case MPD_API_PLAYER_PREV:
             mpd_run_previous(mpd.conn);
             n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             break;
-        case MPD_API_SET_NEXT:
+        case MPD_API_PLAYER_NEXT:
             if (config.stickers)
                 mympd_count_song_id(mpd.song_id, "skipCount", 1);
             mpd_run_next(mpd.conn);
             n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             break;
-        case MPD_API_SET_PLAY:
+        case MPD_API_PLAYER_PLAY:
             mpd_run_play(mpd.conn);
             n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             break;
-        case MPD_API_SET_STOP:
+        case MPD_API_PLAYER_STOP:
             mpd_run_stop(mpd.conn);
             n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             break;
@@ -207,21 +207,21 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
         case MPD_API_QUEUE_CROP:
             n = mympd_queue_crop(mpd.buf);
             break;
-        case MPD_API_RM_TRACK:
+        case MPD_API_QUEUE_RM_TRACK:
             je = json_scanf(msg.p, msg.len, "{data: {track:%u}}", &uint_buf1);
             if (je == 1) {
                 mpd_run_delete_id(mpd.conn, uint_buf1);
                 n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
             break;
-        case MPD_API_RM_RANGE:
+        case MPD_API_QUEUE_RM_RANGE:
             je = json_scanf(msg.p, msg.len, "{data: {start: %u, end: %u}}", &uint_buf1, &uint_buf2);
             if (je == 2) {
                 mpd_run_delete_range(mpd.conn, uint_buf1, uint_buf2);
                 n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
             break;
-        case MPD_API_MOVE_TRACK:
+        case MPD_API_QUEUE_MOVE_TRACK:
             je = json_scanf(msg.p, msg.len, "{data: {from: %u, to: %u}}", &uint_buf1, &uint_buf2);
             if (je == 2) {
                 uint_buf1 --;
@@ -245,17 +245,17 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                 n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
             break;
-        case MPD_API_PLAY_TRACK:
+        case MPD_API_PLAYER_PLAY_TRACK:
             je = json_scanf(msg.p, msg.len, "{data: { track:%u}}", &uint_buf1);
             if (je == 1) {
                 mpd_run_play_id(mpd.conn, uint_buf1);
                 n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
             break;
-        case MPD_API_GET_OUTPUTS:
+        case MPD_API_PLAYER_OUTPUT_LIST:
             n = mympd_put_outputs(mpd.buf);
             break;
-        case MPD_API_TOGGLE_OUTPUT:
+        case MPD_API_PLAYER_TOGGLE_OUTPUT:
             je = json_scanf(msg.p, msg.len, "{data: {output: %u, state: %u}}", &uint_buf1, &uint_buf2);
             if (je == 2) {
                 if (uint_buf2)
@@ -265,44 +265,44 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                 n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
             break;
-        case MPD_API_SET_VOLUME:
+        case MPD_API_PLAYER_VOLUME:
             je = json_scanf(msg.p, msg.len, "{data: {volume:%u}}", &uint_buf1);
             if (je == 1) {
                 mpd_run_set_volume(mpd.conn, uint_buf1);
                 n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
             break;
-        case MPD_API_SET_SEEK:
+        case MPD_API_PLAYER_SEEK:
             je = json_scanf(msg.p, msg.len, "{data: {songid: %u, seek: %u}}", &uint_buf1, &uint_buf2);
             if (je == 2) {
                 mpd_run_seek_id(mpd.conn, uint_buf1, uint_buf2);
                 n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
             break;
-        case MPD_API_GET_QUEUE:
+        case MPD_API_QUEUE_LIST:
             je = json_scanf(msg.p, msg.len, "{data: {offset: %u }}", &uint_buf1);
             if (je == 1) {
                 n = mympd_put_queue(mpd.buf, uint_buf1);
             }
             break;
-        case MPD_API_GET_CURRENT_SONG:
+        case MPD_API_PLAYER_CURRENT_SONG:
                 n = mympd_put_current_song(mpd.buf);
             break;
-        case MPD_API_GET_SONGDETAILS:
+        case MPD_API_DATABASE_SONGDETAILS:
             je = json_scanf(msg.p, msg.len, "{data: { uri: %Q }}", &p_charbuf1);
             if (je == 1) {
                 n = mympd_put_songdetails(mpd.buf, p_charbuf1);
                 free(p_charbuf1);
             }
             break;            
-        case MPD_API_GET_ARTISTS:
+        case MPD_API_DATABASE_ARTIST_LIST:
             je = json_scanf(msg.p, msg.len, "{data: {offset: %u, filter: %Q}}", &uint_buf1, &p_charbuf1);
             if (je == 2) {
                 n = mympd_put_db_tag(mpd.buf, uint_buf1, "AlbumArtist", "", "", p_charbuf1);
                 free(p_charbuf1);
             }
             break;
-        case MPD_API_GET_ARTISTALBUMS:
+        case MPD_API_DATABASE_ARTISTALBUM_LIST:
             je = json_scanf(msg.p, msg.len, "{data: {offset: %u, filter: %Q, albumartist: %Q}}", &uint_buf1, &p_charbuf1, &p_charbuf2);
             if (je == 3) {
                 n = mympd_put_db_tag(mpd.buf, uint_buf1, "Album", "AlbumArtist", p_charbuf2, p_charbuf1);
@@ -319,14 +319,14 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                 free(p_charbuf2);                
             }
             break;            
-        case MPD_API_GET_PLAYLISTS:
+        case MPD_API_PLAYLIST_LIST:
             je = json_scanf(msg.p, msg.len, "{data: {offset:%u, filter:%Q}}", &uint_buf1, &p_charbuf1);
             if (je == 2) {
                 n = mympd_put_playlists(mpd.buf, uint_buf1, p_charbuf1);
                 free(p_charbuf1);
             }
             break;
-        case MPD_API_GET_PLAYLIST_LIST:
+        case MPD_API_PLAYLIST_CONTENT_LIST:
             je = json_scanf(msg.p, msg.len, "{data: {uri: %Q, offset:%u, filter:%Q}}", &p_charbuf1, &uint_buf1, &p_charbuf2);
             if (je == 3) {
                 n = mympd_put_playlist_list(mpd.buf, p_charbuf1, uint_buf1, p_charbuf2);
@@ -334,7 +334,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                 free(p_charbuf2);
             }
             break;
-        case MPD_API_ADD_TO_PLAYLIST:
+        case MPD_API_PLAYLIST_ADD_TRACK:
             je = json_scanf(msg.p, msg.len, "{data: {plist:%Q, uri:%Q}}", &p_charbuf1, &p_charbuf2);
             if (je == 2) {
                 mpd_run_playlist_add(mpd.conn, p_charbuf1, p_charbuf2);
@@ -351,7 +351,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                 n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
             break;
-        case MPD_API_RM_PLAYLIST_TRACK:
+        case MPD_API_PLAYLIST_RM_TRACK:
             je = json_scanf(msg.p, msg.len, "{data: {uri:%Q, track:%u}}", &p_charbuf1, &uint_buf1);
             if (je == 2) {
                 mpd_run_playlist_delete(mpd.conn, p_charbuf1, uint_buf1);
@@ -359,7 +359,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                 n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
             break;
-        case MPD_API_GET_FILESYSTEM:
+        case MPD_API_DATABASE_FILESYSTEM_LIST:
             je = json_scanf(msg.p, msg.len, "{data: {offset:%u, filter:%Q, path:%Q}}", &uint_buf1, &p_charbuf1, &p_charbuf2);
             if (je == 3) {
                 n = mympd_put_browse(mpd.buf, p_charbuf2, uint_buf1, p_charbuf1);
@@ -367,7 +367,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                 free(p_charbuf2);
             }
             break;
-        case MPD_API_ADD_TRACK_AFTER:
+        case MPD_API_QUEUE_ADD_TRACK_AFTER:
             je = json_scanf(msg.p, msg.len, "{data: {uri:%Q, to:%d}}", &p_charbuf1, &int_buf);
             if (je == 2) {
                 int_rc = mpd_run_add_id_to(mpd.conn, p_charbuf1, int_buf);
@@ -376,7 +376,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                 free(p_charbuf1);
             }
             break;
-        case MPD_API_REPLACE_TRACK:
+        case MPD_API_QUEUE_REPLACE_TRACK:
             je = json_scanf(msg.p, msg.len, "{data: {uri:%Q }}", &p_charbuf1);
             if (je == 1) {
                 mpd_run_clear(mpd.conn);
@@ -386,7 +386,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                 n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
             break;
-        case MPD_API_ADD_TRACK:
+        case MPD_API_QUEUE_ADD_TRACK:
             je = json_scanf(msg.p, msg.len, "{data: {uri:%Q}}", &p_charbuf1);
             if (je == 1) {
                 mpd_run_add(mpd.conn, p_charbuf1);
@@ -394,7 +394,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                 n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
             break;
-        case MPD_API_ADD_PLAY_TRACK:
+        case MPD_API_QUEUE_ADD_PLAY_TRACK:
             je = json_scanf(msg.p, msg.len, "{data: {uri:%Q}}", &p_charbuf1);
             if (je == 1) {
                 int_buf = mpd_run_add_id(mpd.conn, p_charbuf1);
@@ -404,7 +404,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                 n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
             break;
-        case MPD_API_REPLACE_PLAYLIST:
+        case MPD_API_QUEUE_REPLACE_PLAYLIST:
             je = json_scanf(msg.p, msg.len, "{data: {plist:%Q}}", &p_charbuf1);
             if (je == 1) {
                 mpd_run_clear(mpd.conn);
@@ -414,7 +414,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                 n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
             break;
-        case MPD_API_ADD_PLAYLIST:
+        case MPD_API_QUEUE_ADD_PLAYLIST:
             je = json_scanf(msg.p, msg.len, "{data: {plist:%Q}}", &p_charbuf1);
             if (je == 1) {
                 mpd_run_load(mpd.conn, p_charbuf1);
@@ -422,7 +422,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                 n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
             break;
-        case MPD_API_SAVE_QUEUE:
+        case MPD_API_QUEUE_SAVE:
             je = json_scanf(msg.p, msg.len, "{ data: {plist:%Q}}", &p_charbuf1);
             if (je == 1) {
                 mpd_run_save(mpd.conn, p_charbuf1);
@@ -430,7 +430,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                 n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
             break;
-        case MPD_API_SEARCH_QUEUE:
+        case MPD_API_QUEUE_SEARCH:
             je = json_scanf(msg.p, msg.len, "{data: {offset:%u, mpdtag:%Q, searchstr:%Q}}", &uint_buf1, &p_charbuf1, &p_charbuf2);
             if (je == 3) {
                 n = mympd_search_queue(mpd.buf, p_charbuf1, uint_buf1, p_charbuf2);
@@ -438,7 +438,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                 free(p_charbuf2);
             }
             break;            
-        case MPD_API_SEARCH_ADD:
+        case MPD_API_DATABASE_SEARCH_ADD_QUEUE:
             je = json_scanf(msg.p, msg.len, "{data: {filter:%Q, searchstr:%Q}}", &p_charbuf1, &p_charbuf2);
             if (je == 2) {
                 n = mympd_search_add(mpd.buf, p_charbuf1, p_charbuf2);
@@ -448,7 +448,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                     n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
             break;
-        case MPD_API_SEARCH_ADD_PLIST:
+        case MPD_API_DATABASE_SEARCH_ADD_PLAYLIST:
             je = json_scanf(msg.p, msg.len, "{data: {plist:%Q, filter:%Q, searchstr:%Q}}", &p_charbuf1, &p_charbuf2, &p_charbuf3);
             if (je == 3) {
                 n = mympd_search_add_plist(p_charbuf1, p_charbuf2, p_charbuf3);
@@ -459,7 +459,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                     n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
             break;            
-        case MPD_API_SEARCH:
+        case MPD_API_DATABASE_SEARCH:
             je = json_scanf(msg.p, msg.len, "{data: {offset:%u, mpdtag:%Q, searchstr:%Q}}", &uint_buf1, &p_charbuf1, &p_charbuf2);
             if (je == 3) {
                 n = mympd_search(mpd.buf, p_charbuf1, uint_buf1, p_charbuf2);
@@ -467,11 +467,11 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                 free(p_charbuf2);
             }
             break;
-        case MPD_API_SEND_SHUFFLE:
+        case MPD_API_QUEUE_SHUFFLE:
             mpd_run_shuffle(mpd.conn);
             n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             break;
-        case MPD_API_SEND_MESSAGE:
+        case MPD_API_MESSAGE_SEND:
             je = json_scanf(msg.p, msg.len, "{data: { channel:%Q, text:%Q}}", &p_charbuf1, &p_charbuf2);
             if (je == 2) {
                 mpd_run_send_message(mpd.conn, p_charbuf1, p_charbuf2);
@@ -480,7 +480,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                 n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
             break;
-        case MPD_API_RM_PLAYLIST:
+        case MPD_API_PLAYLIST_RM:
             je = json_scanf(msg.p, msg.len, "{data: {uri:%Q}}", &p_charbuf1);
             if (je == 1) {
                 mpd_run_rm(mpd.conn, p_charbuf1);
@@ -488,10 +488,10 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                 n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
             break;
-        case MPD_API_GET_SETTINGS:
+        case MPD_API_SETTINGS_GET:
             n = mympd_put_settings(mpd.buf);
             break;
-        case MPD_API_GET_STATS:
+        case MPD_API_DATABASE_STATS:
             n = mympd_put_stats(mpd.buf);
             break;
     }
