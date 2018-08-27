@@ -681,7 +681,7 @@ void mympd_idle(struct mg_mgr *s, int timeout) {
 
 int mympd_get_updatedb_state(char *buffer) {
     struct mpd_status *status;
-    int len;
+    int len, update_id;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
 
     status = mpd_run_status(mpd.conn);
@@ -690,10 +690,14 @@ int mympd_get_updatedb_state(char *buffer) {
         mpd.conn_state = MPD_FAILURE;
         return 0;
     }
-    if (mpd_status_get_update_id(status) == 1)
-        len = json_printf(&out, "{type: update_started, data: {}}");
+    update_id = mpd_status_get_update_id(status);
+    #ifdef DEBUG
+    fprintf(stderr, "Update database ID: %d\n", update_id);
+    #endif
+    if ( update_id > 0)
+        len = json_printf(&out, "{type: update_started, data: {jobid: %d}}", update_id);
     else
-        len = json_printf(&out, "{type: update_finished, data: {}}");
+        len = json_printf(&out, "{type: update_finished}");
 
     mpd_status_free(status);    
     

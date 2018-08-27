@@ -36,7 +36,7 @@
 
 static sig_atomic_t s_signal_received = 0;
 static struct mg_serve_http_opts s_http_server_opts;
-char s_redirect[250];
+
 
 static void signal_handler(int sig_num) {
     signal(sig_num, signal_handler);  // Reinstantiate signal handler
@@ -97,6 +97,10 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
 static void ev_handler_http(struct mg_connection *nc_http, int ev, void *ev_data) {
     switch(ev) {
         case MG_EV_HTTP_REQUEST: {
+            struct http_message *hm = (struct http_message *) ev_data;
+            struct mg_str *host_hdr = mg_get_http_header(hm, "Host");
+            char s_redirect[250];
+            snprintf(s_redirect, 250, "https://%.*s:%s/", host_hdr->len, host_hdr->p, config.sslport);
             printf("Redirecting to %s\n", s_redirect);
             mg_http_send_redirect(nc_http, 301, mg_mk_str(s_redirect), mg_mk_str(NULL));
             break;
@@ -162,10 +166,6 @@ int main(int argc, char **argv) {
     struct mg_bind_opts bind_opts;
     const char *err;
     
-    char hostname[1024];
-    hostname[1023] = '\0';
-    gethostname(hostname, 1023);    
-
     //defaults
     config.mpdhost = "127.0.0.1";
     config.mpdport = 6600;
@@ -215,7 +215,6 @@ int main(int argc, char **argv) {
     mg_mgr_init(&mgr, NULL);
 
     if (config.ssl == true) {
-        snprintf(s_redirect, 250, "https://%s:%s/", hostname, config.sslport);
         nc_http = mg_bind(&mgr, config.webport, ev_handler_http);
         if (nc_http == NULL) {
             printf("Error listening on port %s\n", config.webport);
