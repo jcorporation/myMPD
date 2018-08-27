@@ -37,6 +37,11 @@
     return len; \
 } while (0)
 
+#define LOG_ERROR_AND_RECOVER(X) do { \
+    fprintf(stderr, "MPD X: %s\n", mpd_connection_get_error_message(mpd.conn)); \
+    if (!mpd_connection_clear_error(mpd.conn)) \
+        mpd.conn_state = MPD_FAILURE; \
+} while (0)
 
 #define MAX_SIZE 1024 * 100
 #define MAX_ELEMENTS_PER_PAGE 100
@@ -44,54 +49,56 @@
 #define GEN_ENUM(X) X,
 #define GEN_STR(X) #X,
 #define MPD_CMDS(X) \
-    X(MPD_API_GET_QUEUE) \
-    X(MPD_API_GET_FILESYSTEM) \
-    X(MPD_API_ADD_TRACK_AFTER) \
-    X(MPD_API_ADD_TRACK) \
-    X(MPD_API_ADD_PLAY_TRACK) \
-    X(MPD_API_REPLACE_TRACK) \
-    X(MPD_API_ADD_PLAYLIST) \
-    X(MPD_API_REPLACE_PLAYLIST) \
-    X(MPD_API_RM_PLAYLIST_TRACK) \
+    X(MPD_API_QUEUE_CLEAR) \
+    X(MPD_API_QUEUE_CROP) \
+    X(MPD_API_QUEUE_SAVE) \
+    X(MPD_API_QUEUE_LIST) \
+    X(MPD_API_QUEUE_SEARCH) \
+    X(MPD_API_QUEUE_RM_TRACK) \
+    X(MPD_API_QUEUE_RM_RANGE) \
+    X(MPD_API_QUEUE_MOVE_TRACK) \
+    X(MPD_API_QUEUE_ADD_TRACK_AFTER) \
+    X(MPD_API_QUEUE_ADD_TRACK) \
+    X(MPD_API_QUEUE_ADD_PLAY_TRACK) \
+    X(MPD_API_QUEUE_REPLACE_TRACK) \
+    X(MPD_API_QUEUE_ADD_PLAYLIST) \
+    X(MPD_API_QUEUE_REPLACE_PLAYLIST) \
+    X(MPD_API_QUEUE_SHUFFLE) \
+    X(MPD_API_PLAYLIST_RM) \
     X(MPD_API_PLAYLIST_CLEAR) \
     X(MPD_API_PLAYLIST_RENAME) \
     X(MPD_API_PLAYLIST_MOVE_TRACK) \
-    X(MPD_API_ADD_TO_PLAYLIST) \
-    X(MPD_API_PLAY_TRACK) \
-    X(MPD_API_SAVE_QUEUE) \
-    X(MPD_API_RM_TRACK) \
-    X(MPD_API_RM_RANGE) \
-    X(MPD_API_QUEUE_CLEAR) \
-    X(MPD_API_QUEUE_CROP) \
-    X(MPD_API_MOVE_TRACK) \
-    X(MPD_API_SEARCH_QUEUE) \
-    X(MPD_API_SEARCH_ADD_PLIST) \
-    X(MPD_API_SEARCH_ADD) \
-    X(MPD_API_SEARCH) \
-    X(MPD_API_SEND_MESSAGE) \
-    X(MPD_API_SET_VOLUME) \
-    X(MPD_API_SET_PAUSE) \
-    X(MPD_API_SET_PLAY) \
-    X(MPD_API_SET_STOP) \
-    X(MPD_API_SET_SEEK) \
-    X(MPD_API_SET_NEXT) \
-    X(MPD_API_SET_PREV) \
-    X(MPD_API_UPDATE_DB) \
-    X(MPD_API_GET_OUTPUTS) \
-    X(MPD_API_TOGGLE_OUTPUT) \
-    X(MPD_API_SEND_SHUFFLE) \
-    X(MPD_API_GET_STATS) \
-    X(MPD_API_GET_PLAYLISTS) \
-    X(MPD_API_GET_PLAYLIST_LIST) \
-    X(MPD_API_RM_PLAYLIST) \
-    X(MPD_API_GET_ARTISTALBUMS) \
-    X(MPD_API_GET_ARTISTALBUMTITLES) \
-    X(MPD_API_GET_ARTISTS) \
-    X(MPD_API_GET_CURRENT_SONG) \
-    X(MPD_API_GET_SONGDETAILS) \
+    X(MPD_API_PLAYLIST_ADD_TRACK) \
+    X(MPD_API_PLAYLIST_RM_TRACK) \
+    X(MPD_API_PLAYLIST_LIST) \
+    X(MPD_API_PLAYLIST_CONTENT_LIST) \
+    X(MPD_API_DATABASE_SEARCH_ADD_PLAYLIST) \
+    X(MPD_API_DATABASE_SEARCH_ADD_QUEUE) \
+    X(MPD_API_DATABASE_SEARCH) \
+    X(MPD_API_DATABASE_UPDATE) \
+    X(MPD_API_DATABASE_FILESYSTEM_LIST) \
+    X(MPD_API_DATABASE_ARTISTALBUM_LIST) \
+    X(MPD_API_DATABASE_ARTISTALBUMTITLE_LIST) \
+    X(MPD_API_DATABASE_ARTIST_LIST) \
+    X(MPD_API_DATABASE_STATS) \
+    X(MPD_API_DATABASE_SONGDETAILS) \
+    X(MPD_API_PLAYER_PLAY_TRACK) \
+    X(MPD_API_PLAYER_VOLUME) \
+    X(MPD_API_PLAYER_PAUSE) \
+    X(MPD_API_PLAYER_PLAY) \
+    X(MPD_API_PLAYER_STOP) \
+    X(MPD_API_PLAYER_SEEK) \
+    X(MPD_API_PLAYER_NEXT) \
+    X(MPD_API_PLAYER_PREV) \
+    X(MPD_API_PLAYER_OUTPUT_LIST) \
+    X(MPD_API_PLAYER_TOGGLE_OUTPUT) \
+    X(MPD_API_PLAYER_CURRENT_SONG) \
+    X(MPD_API_PLAYER_STATE) \
+    X(MPD_API_SETTINGS_GET) \
+    X(MPD_API_SETTINGS_SET) \
+    X(MPD_API_MESSAGE_SEND) \
     X(MPD_API_WELCOME) \
-    X(MPD_API_GET_SETTINGS) \
-    X(MPD_API_SET_SETTINGS) \
+    X(MPD_API_LIKE) \
     X(MPD_API_UNKNOWN)
 
 enum mpd_cmd_ids {
@@ -116,43 +123,59 @@ struct t_mpd {
 
     int song_id;
     int next_song_id;
+    int last_song_id;
     unsigned queue_version;
+    unsigned queue_length;
+    int timeout;
+    
+    int last_update_sticker_song_id;
 } mpd;
 
 typedef struct {
-   int mpdport;
-   const char* mpdhost;
-   const char* mpdpass;
-   const char* webport;
-   bool ssl;
-   const char* sslport;
-   const char* sslcert;
-   const char* sslkey;
-   const char* user;
-   int streamport;
-   const char* coverimage;
-   const char* statefile;
-} configuration;
+    long mpdport;
+    const char* mpdhost;
+    const char* mpdpass;
+    const char* webport;
+    bool ssl;
+    const char* sslport;
+    const char* sslcert;
+    const char* sslkey;
+    const char* user;
+    long streamport;
+    const char* coverimage;
+    const char* statefile;
+    bool stickers;
+    bool mixramp;
+} t_config;
 
-configuration config;
+t_config config;
+
+typedef struct {
+    long playCount;
+    long skipCount;
+    long lastPlayed;
+    long like;
+} t_sticker;
 
 static int is_websocket(const struct mg_connection *nc) {
-  return nc->flags & MG_F_IS_WEBSOCKET;
+    return nc->flags & MG_F_IS_WEBSOCKET;
 }
 
-struct t_mpd_client_session {
-    int song_id;
-    int next_song_id;
-    unsigned queue_version;
-};
-
-void mympd_poll(struct mg_mgr *s);
+void mympd_idle(struct mg_mgr *sm, int timeout);
+void mympd_parse_idle(struct mg_mgr *s, int idle_bitmask);
 void callback_mympd(struct mg_connection *nc, const struct mg_str msg);
-int mympd_close_handler(struct mg_connection *c);
-int mympd_put_state(char *buffer, int *current_song_id, int *next_song_id, unsigned *queue_version);
+void mympd_notify(struct mg_mgr *s);
+void mympd_count_song_id(int song_id, char *name, int value);
+void mympd_count_song_uri(const char *uri, char *name, int value);
+void mympd_like_song_uri(const char *uri, int value);
+void mympd_last_played_song_uri(const char *uri);
+void mympd_last_played_song_id(int song_id);
+void mympd_get_sticker(const char *uri, t_sticker *sticker);
+int mympd_get_updatedb_state(char *buffer);
+int mympd_put_state(char *buffer, int *current_song_id, int *next_song_id, int *last_song_id, unsigned *queue_version, unsigned *queue_length);
 int mympd_put_outputs(char *buffer);
 int mympd_put_current_song(char *buffer);
-int mympd_put_queue(char *buffer, unsigned int offset);
+int mympd_put_queue(char *buffer, unsigned int offset, unsigned *queue_version, unsigned *queue_length);
 int mympd_put_browse(char *buffer, char *path, unsigned int offset, char *filter);
 int mympd_search(char *buffer, char *mpdtagtype, unsigned int offset, char *searchstr);
 int mympd_search_add(char *buffer, char *mpdtagtype, char *searchstr);
@@ -169,4 +192,3 @@ int mympd_put_songdetails(char *buffer, char *uri);
 int mympd_queue_crop(char *buffer);
 void mympd_disconnect();
 #endif
-

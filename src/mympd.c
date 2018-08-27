@@ -36,7 +36,7 @@
 
 static sig_atomic_t s_signal_received = 0;
 static struct mg_serve_http_opts s_http_server_opts;
-char s_redirect[250];
+
 
 static void signal_handler(int sig_num) {
     signal(sig_num, signal_handler);  // Reinstantiate signal handler
@@ -48,8 +48,9 @@ static void handle_api(struct mg_connection *nc, struct http_message *hm) {
         mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\nContent-Type: application/json\r\n\r\n");
 
     char buf[1000] = {0};
-    memcpy(buf, hm->body.p,sizeof(buf) - 1 < hm->body.len ? sizeof(buf) - 1 : hm->body.len);
-    struct mg_str d = {buf, strlen(buf)};
+    int len = sizeof(buf) - 1 < hm->body.len ? sizeof(buf) - 1 : hm->body.len;
+    memcpy(buf, hm->body.p, len);
+    struct mg_str d = {buf, len};
     callback_mympd(nc, d);
 
     if (!is_websocket(nc))
@@ -60,35 +61,32 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
     switch(ev) {
         case MG_EV_WEBSOCKET_HANDSHAKE_DONE: {
              #ifdef DEBUG
-             fprintf(stdout,"New Websocket connection\n");
+             fprintf(stderr, "New Websocket connection\n");
              #endif
-             struct mg_str d = {(char *) "{\"cmd\": \"MPD_API_WELCOME\"}", 25 };
+             struct mg_str d = mg_mk_str("{\"cmd\": \"MPD_API_WELCOME\"}");
              callback_mympd(nc, d);
              break;
         }
         case MG_EV_HTTP_REQUEST: {
             struct http_message *hm = (struct http_message *) ev_data;
             #ifdef DEBUG
-            printf("HTTP request: %.*s\n", hm->uri.len, hm->uri.p);
+            fprintf(stderr, "HTTP request: %.*s\n", hm->uri.len, hm->uri.p);
             #endif
-            if (mg_vcmp(&hm->uri, "/api") == 0) {
-              handle_api(nc, hm);
-            }
-            else {
-              mg_serve_http(nc, hm, s_http_server_opts);
-            }
+            if (mg_vcmp(&hm->uri, "/api") == 0)
+                handle_api(nc, hm);
+            else
+                mg_serve_http(nc, hm, s_http_server_opts);
             break;
         }
         case MG_EV_CLOSE: {
             if (is_websocket(nc)) {
               #ifdef DEBUG
-              printf("Websocket connection closed\n");
+              fprintf(stderr, "Websocket connection closed\n");
               #endif
-              mympd_close_handler(nc);
             }
             else {
               #ifdef DEBUG
-              fprintf(stdout,"HTTP Close\n");
+              fprintf(stderr,"HTTP connection closed\n");
               #endif
             }
             break;
@@ -99,6 +97,10 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
 static void ev_handler_http(struct mg_connection *nc_http, int ev, void *ev_data) {
     switch(ev) {
         case MG_EV_HTTP_REQUEST: {
+            struct http_message *hm = (struct http_message *) ev_data;
+            struct mg_str *host_hdr = mg_get_http_header(hm, "Host");
+            char s_redirect[250];
+            snprintf(s_redirect, 250, "https://%.*s:%s/", host_hdr->len, host_hdr->p, config.sslport);
             printf("Redirecting to %s\n", s_redirect);
             mg_http_send_redirect(nc_http, 301, mg_mk_str(s_redirect), mg_mk_str(NULL));
             break;
@@ -107,15 +109,17 @@ static void ev_handler_http(struct mg_connection *nc_http, int ev, void *ev_data
 }
 
 static int inihandler(void* user, const char* section, const char* name, const char* value) {
-    configuration* p_config = (configuration*)user;
+    t_config* p_config = (t_config*)user;
+    char *crap;
 
     #define MATCH(n) strcmp(name, n) == 0
+
     if (MATCH("mpdhost"))
         p_config->mpdhost = strdup(value);
     else if (MATCH("mpdhost"))
         p_config->mpdhost = strdup(value);
     else if (MATCH("mpdport"))
-        p_config->mpdport = atoi(value);
+        p_config->mpdport = strtol(value, &crap, 10);
     else if (MATCH("mpdhost"))
         p_config->mpdhost = strdup(value);
     else if (MATCH("mpdpass"))
@@ -134,11 +138,21 @@ static int inihandler(void* user, const char* section, const char* name, const c
     else if (MATCH("user"))
         p_config->user = strdup(value);
     else if (MATCH("streamport"))
-        p_config->streamport = atoi(value);
+        p_config->streamport = strtol(value, &crap, 10);
     else if (MATCH("coverimage"))
         p_config->coverimage = strdup(value);
     else if (MATCH("statefile"))
         p_config->statefile = strdup(value);
+    else if (MATCH("stickers"))
+        if (strcmp(value, "true") == 0)
+            p_config->stickers = true;
+        else
+            p_config->stickers = false;
+    else if (MATCH("mixramp"))
+        if (strcmp(value, "true") == 0)
+            p_config->mixramp = true;
+        else
+            p_config->mixramp = false;            
     else
         return 0;  /* unknown section/name, error */
 
@@ -149,14 +163,9 @@ int main(int argc, char **argv) {
     struct mg_mgr mgr;
     struct mg_connection *nc;
     struct mg_connection *nc_http;
-    unsigned int current_timer = 0, last_timer = 0;
     struct mg_bind_opts bind_opts;
     const char *err;
     
-    char hostname[1024];
-    hostname[1023] = '\0';
-    gethostname(hostname, 1023);    
-
     //defaults
     config.mpdhost = "127.0.0.1";
     config.mpdport = 6600;
@@ -170,22 +179,33 @@ int main(int argc, char **argv) {
     config.streamport = 8000;
     config.coverimage = "folder.jpg";
     config.statefile = "/var/lib/mympd/mympd.state";
+    config.stickers = true;
+    config.mixramp = true;
+    
+    mpd.timeout = 3000;
+    mpd.last_update_sticker_song_id = -1;
+    mpd.last_song_id = -1;
     
     if (argc == 2) {
+        printf("Parsing config file: %s\n", argv[1]);
         if (ini_parse(argv[1], inihandler, &config) < 0) {
-            printf("Can't load '%s'\n", argv[1]);
+            printf("Can't load config file \"%s\"\n", argv[1]);
             return EXIT_FAILURE;
         }
     } 
     else {
-        fprintf(stdout, "myMPD  %s\n"
-                        "Copyright (C) 2018 Juergen Mang <mail@jcgames.de>\n"
-                        "https://github.com/jcorporation/myMPD\n"
-                        "Built " __DATE__ " "__TIME__"\n\n",
-                        MYMPD_VERSION);
-        printf("Usage: %s /path/to/mympd.conf\n", argv[0]);
+        printf("myMPD  %s\n"
+            "Copyright (C) 2018 Juergen Mang <mail@jcgames.de>\n"
+            "https://github.com/jcorporation/myMPD\n"
+            "Built " __DATE__ " "__TIME__"\n\n"
+            "Usage: %s /path/to/mympd.conf\n",
+            MYMPD_VERSION,
+            argv[0]
+        );
         return EXIT_FAILURE;    
     }
+
+    printf("Starting myMPD %s\n", MYMPD_VERSION);
 
     signal(SIGTERM, signal_handler);
     signal(SIGINT, signal_handler);
@@ -195,32 +215,32 @@ int main(int argc, char **argv) {
     mg_mgr_init(&mgr, NULL);
 
     if (config.ssl == true) {
-        snprintf(s_redirect, 200, "https://%s:%s/", hostname, config.sslport);
         nc_http = mg_bind(&mgr, config.webport, ev_handler_http);
         if (nc_http == NULL) {
-           fprintf(stderr, "Error starting server on port %s\n", config.webport );
-           return EXIT_FAILURE;
+            printf("Error listening on port %s\n", config.webport);
+            return EXIT_FAILURE;
         }
         memset(&bind_opts, 0, sizeof(bind_opts));
         bind_opts.ssl_cert = config.sslcert;
         bind_opts.ssl_key = config.sslkey;
         bind_opts.error_string = &err;
+        
         nc = mg_bind_opt(&mgr, config.sslport, ev_handler, bind_opts);
         if (nc == NULL) {
-            fprintf(stderr, "Error starting server on port %s: %s\n", config.sslport, err);
+            printf("Error listening on port %s: %s\n", config.sslport, err);
             return EXIT_FAILURE;
         }
     }
     else {
         nc = mg_bind(&mgr, config.webport, ev_handler);
         if (nc == NULL) {
-           fprintf(stderr, "Error starting server on port %s\n", config.webport );
-           return EXIT_FAILURE;
+            printf("Error listening on port %s\n", config.webport);
+            return EXIT_FAILURE;
         }
     }
 
     if (config.user != NULL) {
-        printf("Droping privileges\n");
+        printf("Droping privileges to %s\n", config.user);
         struct passwd *pw;
         if ((pw = getpwnam(config.user)) == NULL) {
             printf("Unknown user\n");
@@ -238,29 +258,25 @@ int main(int argc, char **argv) {
     }
     
     if (getuid() == 0) {
-      printf("myMPD should not be run with root privileges\n");
-      mg_mgr_free(&mgr);
-      return EXIT_FAILURE;
+        printf("myMPD should not be run with root privileges\n");
+        mg_mgr_free(&mgr);
+        return EXIT_FAILURE;
     }
     
     if (config.ssl == true)
         mg_set_protocol_http_websocket(nc_http);
-        
+    
     mg_set_protocol_http_websocket(nc);
     s_http_server_opts.document_root = SRC_PATH;
     s_http_server_opts.enable_directory_listing = "no";
 
-    printf("myMPD started on http port %s\n", config.webport);
+    printf("Listening on http port %s\n", config.webport);
     if (config.ssl == true)
-        printf("myMPD started on ssl port %s\n", config.sslport);
-        
+        printf("Listening on ssl port %s\n", config.sslport);
+
     while (s_signal_received == 0) {
-        mg_mgr_poll(&mgr, 200);
-        current_timer = time(NULL);
-        if (current_timer - last_timer) {
-            last_timer = current_timer;
-            mympd_poll(&mgr);
-        }
+        mg_mgr_poll(&mgr, 100);
+        mympd_idle(&mgr, 0);
     }
     mg_mgr_free(&mgr);
     mympd_disconnect();

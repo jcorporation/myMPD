@@ -2,19 +2,21 @@ html {
   position: relative;
   min-height: 100%;
 }
+
 body {
   margin-bottom: 60px;
+  padding-top: 50px;
+  padding-bottom: 50px;
+  background-color: #888;
+}
+
+main {
+  padding-top: 20px;
 }
 
 footer {
   position: absolute;
   bottom: 0;
-}
-
-body {
-  padding-top: 50px;
-  padding-bottom: 50px;
-  background-color:#888;
 }
 
 button {
@@ -30,14 +32,9 @@ button {
   cursor: pointer;
 }
 
-#counter {
-  font-size: 22px;
-  margin-left: 10px;
-  min-width: 50px;
-}
 
 .card {
-  min-height:350px;
+  min-height: 350px;
 }
 
 @media only screen and (max-width: 576px) {
@@ -54,15 +51,30 @@ button {
   width: 30px;
 }
 
+small {
+  color: #aaa;
+}
+
+.card-footer-playback {
+  padding: 0px;
+}
+
 .album-cover {
-  background-size:cover;
-  border:1px solid black;
-  border-radius:5px;
-  overflow:hidden;
-  margin-bottom:20px;
-  width:240px;
-  height:240px;
-  background-color:#eee;
+  background-size: cover;
+  border: 1px solid black;
+  border-radius: 5px;
+  overflow: hidden;
+  width: 240px;
+  height: 240px;
+  background-color: #eee;
+  float: left;
+  margin-right: 20px;
+  margin-bottom: 20px;
+}
+
+.album-desc {
+  min-width: 240px;
+  float: left;
 }
 
 .hide {
@@ -74,11 +86,11 @@ button {
 }
 
 .card-toolbar {
- margin-bottom:10px;
+ margin-bottom: 10px;
 }
 
 .card-toolbar > div, .card-toolbar > form {
- margin-bottom:5px;
+ margin-bottom: 5px;
 }
 
 @font-face {
@@ -117,111 +129,115 @@ button {
 }
 
 .material-icons-small {
- font-size: 16px;
+  font-size: 16px;
 }
 
-main {
- padding-top:20px;
-}
-
-.color-darkgrey {
- color:#6c757d;
-}
-
-.color-darkgrey:hover {
- color:#6c757d !important;
+.color-darkgrey, .color-darkgrey:hover {
+  color:#6c757d !important;
 }
 
 #btn-outputs-block > button {
- margin-bottom:10px;
+  margin-bottom:10px;
 }
+
 #btn-outputs-block > button:last-child {
- margin-bottom:0px;
+  margin-bottom:0px;
 }
 
 .card-body {
- overflow-x:hidden;
+  overflow-x:hidden;
 }
 
-#progressBar {
- width:100%;
- margin-top:8px;
+.progressBarPlay {
+  font-size: 22px;
+}
+
+#counter {
+  cursor: text;
 }
 
 #volumeBar {
- margin-top:2px;
- width:160px;
+  margin-top:2px;
+  width:160px;
 }
 
 .title-icon {
- float:left;
- margin-right:5px;
- font-size:1.8rem;
+  float:left;
+  margin-right:5px;
+  font-size:1.8rem;
 }
 
 .header-logo {
- font-size:2rem;
- float:left;
- margin-right:5px;
+  font-size:2rem;
+  float:left;
+  margin-right:5px;
 }
 
 .letters > button {
- width:28px;
- height:28px;
+  width:28px;
+  height:28px;
 }
 
 .col-md {
- max-width:250px;
- min-width:250px;
+  max-width:250px;
+  min-width:250px;
 }
 
 a.card-img-top {
- overflow:hidden;
- display:block;
+  overflow:hidden;
+  display:block;
 }
 
 button.active {
- color: #fff;
- background-color: #28a745 !important;
- border-color: #28a745 !important;
+  color: #fff;
+  background-color: #28a745 !important;
+  border-color: #28a745 !important;
+}
+
+button.active-fg-green {
+  color: #28a745 !important;
+}
+
+button.active-fg-red {
+  color: #bd2130 !important;
 }
 
 div#alertBox {
- position:fixed;
- top: 50px; 
- right:10px;
- width:80%; 
- max-width:400px;
- z-index:1000;
- opacity:0;
- visibility:visible;
- transition:opacity 0.5s ease-in; 
+  position:fixed;
+  top: 50px; 
+  right:10px;
+  width:80%; 
+  max-width:400px;
+  z-index:1000;
+  opacity:0;
+  visibility:visible;
+  transition:opacity 0.5s ease-in; 
 }
 
 div.alertBoxActive {
- opacity:1 !important;
- visibility:visible !important;
- transition:opacity 0.5s ease-in;
+  opacity:1 !important;
+  visibility:visible !important;
+  transition:opacity 0.5s ease-in;
 }
 
 .popover-content {
- padding-top:4px;
- padding-bottom:4px;
+  padding-top:4px;
+  padding-bottom:4px;
 }
 
 .opacity05 {
- opacity:0.5;
+  opacity:0.5;
 }
 
 caption {
- caption-side: top;
- font-size: 120%;
- font-weight: bold;
- color: black;
+  caption-side: top;
+  font-size: 120%;
+  font-weight: bold;
+  color: black;
 }
 
 .dragover > td {
- border-top:25px solid transparent;
+  border-top:25px solid transparent;
 }
 
 [draggable] {
@@ -232,4 +248,18 @@ caption {
   /* Required to make elements draggable in old WebKit */
   -khtml-user-drag: element;
   -webkit-user-drag: element;
+}
+
+@keyframes changewidth {
+  from { margin-left: -20px; }
+  to { margin-left: 100%; }
+}
+
+#updateDBprogress {
+  width:20px;
+}
+.updateDBprogressAnimate {
+  animation-duration: 2s;
+  animation-name: changewidth;
+  animation-iteration-count: infinite;
 }

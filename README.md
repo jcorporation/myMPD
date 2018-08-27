@@ -25,6 +25,8 @@ This fork provides a reworked ui based on Bootstrap 4, a modernized backend and 
  - Local coverart support
  - HTTP stream support
  - Local playback of mpd http stream (html5 audio api)
+ - Play statistics and song voting (uses mpd stickers)
+ - Embedded Webserver (mongoose)
 
 myMPD is work in progress. Bugreportes and feature requests are very welcome.
 - Issues and feature requests: https://github.com/jcorporation/myMPD/issues
@@ -61,7 +63,7 @@ Build Dependencies
 Unix Build Instructions
 -----------------------
 
-1. Install dependencies: cmake, libmpdclient (dev) and OpenSSL (dev), java are available from all major distributions.
+1. Install dependencies: cmake, libmpdclient (dev), OpenSSL (dev) and java are available from all major distributions.
 2. Build and install: ```cd /path/to/src; ./mkrelease.sh```.
 3. Link your mpd music directory to ```/usr/share/mympd/htdocs/library``` and put ```folder.jpg``` files in your album directories (mkrelease.sh tries to do this for you).
 4. Configure your mpd with http stream output to use the local player.
