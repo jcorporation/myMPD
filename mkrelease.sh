@@ -61,9 +61,6 @@ else
   echo "/etc/mpd.conf not found, you must link your music_directory manually to /usr/share/mympd/htdocs/library"
 fi
 
-echo "Creating dir for cover pictures"
-[ -d /usr/share/mympd/htdocs/pics ] || mkdir /usr/share/mympd/htdocs/pics
-
 echo "Installing systemd service"
 if [ -d /etc/systemd/system ]
 then
@@ -75,21 +72,12 @@ then
   sudo systemctl enable mympd  
 fi
 
-if [ -f /etc/mympd/mympd.conf ]
-then
-  echo "/etc/mympd/mympd.conf already exists"
-  cp contrib/mympd.conf /etc/mympd/mympd.conf.dist
-else
-  [ -d /etc/mympd ] || mkdir /etc/mympd
-  cp contrib/mympd.conf /etc/mympd/mympd.conf
-fi
-
 if [ -d /etc/mympd/ssl ]
 then
   echo "Certificates already created"
 else
   echo "Creating certificates"
-  contrib/crcert.sh
+  sudo contrib/crcert.sh
 fi
 
 echo "myMPD installed"

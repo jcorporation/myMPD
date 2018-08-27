@@ -42,6 +42,9 @@ target_link_libraries(mympd ${LIBMPDCLIENT_LIBRARY} ${CMAKE_THREAD_LIBS_INIT} ${
 
 install(TARGETS mympd DESTINATION bin)
 install(FILES contrib/mympd.1 DESTINATION ${CMAKE_INSTALL_PREFIX}/share/man/man1)
+install(FILES contrib/crcert.sh DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}/)
+install(FILES contrib/mympd.service DESTINATION ${CMAKE_INSTALL_PREFIX}/share/${PROJECT_NAME}/)
+install(FILES contrib/mympd.conf DESTINATION /etc/${PROJECT_NAME}/)
 install(FILES htdocs/mympd.webmanifest DESTINATION share/${PROJECT_NAME}/htdocs/)
 install(FILES dist/htdocs/index.html DESTINATION share/${PROJECT_NAME}/htdocs/)
 install(FILES dist/htdocs/player.html DESTINATION share/${PROJECT_NAME}/htdocs/)
@@ -52,4 +55,5 @@ install(FILES dist/htdocs/js/mympd.min.js DESTINATION share/${PROJECT_NAME}/htdo
 install(FILES dist/htdocs/css/bootstrap.min.css DESTINATION share/${PROJECT_NAME}/htdocs/css/)
 install(FILES dist/htdocs/css/mympd.min.css DESTINATION share/${PROJECT_NAME}/htdocs/css/)
 install(DIRECTORY htdocs/assets DESTINATION share/${PROJECT_NAME}/htdocs)
+install(DIRECTORY DESTINATION share/${PROJECT_NAME}/htdocs/pics)
 install(DIRECTORY DESTINATION /var/lib/${PROJECT_NAME}/)
