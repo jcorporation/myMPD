@@ -29,8 +29,7 @@ This fork provides a reworked ui based on Bootstrap 4, a modernized backend and 
  - Embedded Webserver (mongoose)
 
 myMPD is work in progress. Bugreportes and feature requests are very welcome.
-- Issues and feature requests: https://github.com/jcorporation/myMPD/issues
-- Planed functions: https://github.com/jcorporation/myMPD/projects/1
+ - https://github.com/jcorporation/myMPD/issues
 
 Screenshots
 -----------
