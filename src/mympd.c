@@ -28,6 +28,7 @@
 #include <unistd.h>
 #include <sys/time.h>
 #include <pwd.h>
+#include <grp.h>
 
 #include "../dist/src/mongoose/mongoose.h"
 #include "../dist/src/inih/ini.h"
@@ -246,6 +247,10 @@ int main(int argc, char **argv) {
             printf("Unknown user\n");
             mg_mgr_free(&mgr);
             return EXIT_FAILURE;
+        } else if (setgroups(0, NULL) != 0) { 
+            printf("setgroups() failed\n");
+            mg_mgr_free(&mgr);
+            return EXIT_FAILURE;        
         } else if (setgid(pw->pw_gid) != 0) {
             printf("setgid() failed\n");
             mg_mgr_free(&mgr);
