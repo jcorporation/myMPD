@@ -694,7 +694,7 @@ function webSocketConnect() {
                     sendAPI({"cmd": "MPD_API_GET_OUTPUTS"}, parseOutputs);
                     break;
                 case 'update_started':
-                    updateDBstarted();
+                    updateDBstarted(false);
                     break;
                 case 'update_database':
                 case 'update_finished':
@@ -1759,25 +1759,41 @@ function openLocalPlayer() {
 
 function updateDB() {
     sendAPI({"cmd": "MPD_API_UPDATE_DB"});
-    updateDBstarted();
+    updateDBstarted(true);
 }
 
-function updateDBstarted() {
-    document.getElementById('updateDBfinished').innerText = '';
-    document.getElementById('updateDBfooter').classList.add('hide');
-    modalUpdateDB.show();
-    document.getElementById('updateDBprogress').classList.add('updateDBprogressAnimate');
+function updateDBstarted(showModal) {
+    if (showModal == true) {
+        document.getElementById('updateDBfinished').innerText = '';
+        document.getElementById('updateDBfooter').classList.add('hide');
+        updateDBprogress.style.width = '20px';
+        updateDBprogress.style.marginLeft = '-20px';
+        modalUpdateDB.show();
+        document.getElementById('updateDBprogress').classList.add('updateDBprogressAnimate');
+    }
+    else {
+        showNotification('Database update started', '', '', 'success');
+    }
 }
 
 function updateDBfinished(idleEvent) {
-    if (idleEvent == 'update_database')
-        document.getElementById('updateDBfinished').innerText = 'Database successfully updated';
-    else if (idleEvent == 'update_finished')
-        document.getElementById('updateDBfinished').innerText = 'Database update finished.';
-    var updateDBprogress = document.getElementById('updateDBprogress');
-    updateDBprogress.classList.remove('updateDBprogressAnimate');
-    updateDBprogress.style.width = '100%';
-    document.getElementById('updateDBfooter').classList.remove('hide');
+    if (document.getElementById('modalUpdateDB').classList.contains('show')) {
+        if (idleEvent == 'update_database')
+            document.getElementById('updateDBfinished').innerText = 'Database successfully updated.';
+        else if (idleEvent == 'update_finished')
+            document.getElementById('updateDBfinished').innerText = 'Database update finished.';
+        var updateDBprogress = document.getElementById('updateDBprogress');
+        updateDBprogress.classList.remove('updateDBprogressAnimate');
+        updateDBprogress.style.width = '100%';
+        updateDBprogress.style.marginLeft = '0px';
+        document.getElementById('updateDBfooter').classList.remove('hide');
+    }
+    else {
+        if (idleEvent == 'update_database')
+            showNotification('Database successfully updated.', '', '', 'success');
+        else if (idleEvent == 'update_finished')
+            showNotification('Database update finished.', '', '', 'success');
+    }
 }
 
 function clickPlay() {

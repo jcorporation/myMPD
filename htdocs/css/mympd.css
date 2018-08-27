@@ -251,10 +251,13 @@ caption {
 }
 
 @keyframes changewidth {
-  from { width: 0%; }
-  to { width: 100%; }
+  from { margin-left: -20px; }
+  to { margin-left: 100%; }
 }
 
+#updateDBprogress {
+  width:20px;
+}
 .updateDBprogressAnimate {
   animation-duration: 2s;
   animation-name: changewidth;
