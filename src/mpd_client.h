@@ -175,7 +175,7 @@ int mympd_get_updatedb_state(char *buffer);
 int mympd_put_state(char *buffer, int *current_song_id, int *next_song_id, int *last_song_id, unsigned *queue_version, unsigned *queue_length);
 int mympd_put_outputs(char *buffer);
 int mympd_put_current_song(char *buffer);
-int mympd_put_queue(char *buffer, unsigned int offset);
+int mympd_put_queue(char *buffer, unsigned int offset, unsigned *queue_version, unsigned *queue_length);
 int mympd_put_browse(char *buffer, char *path, unsigned int offset, char *filter);
 int mympd_search(char *buffer, char *mpdtagtype, unsigned int offset, char *searchstr);
 int mympd_search_add(char *buffer, char *mpdtagtype, char *searchstr);

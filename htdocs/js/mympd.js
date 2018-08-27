@@ -266,7 +266,7 @@ function appRoute() {
         }
 
         if (app.current.search.length >= 2) {
-            sendAPI({"cmd": "MPD_API_SEARCH", "data": { "mpdtag": app.current.filter, "offset": app.current.page, "searchstr": app.current.search}}, parseSearch);
+            sendAPI({"cmd": "MPD_API_DATABASE_SEARCH", "data": { "mpdtag": app.current.filter, "offset": app.current.page, "searchstr": app.current.search}}, parseSearch);
         } else {
             document.getElementById('SearchList').getElementsByTagName('tbody')[0].innerHTML = '';
             document.getElementById('searchAddAllSongs').setAttribute('disabled', 'disabled');
@@ -302,6 +302,9 @@ function appInit() {
     webSocketConnect();
 
     domCache.volumeBar.value = 0;
+    domCache.volumeBar.addEventListener('click', function(event) {
+        event.stopPropagation();
+    }, false);
     domCache.volumeBar.addEventListener('change', function(event) {
         sendAPI({"cmd": "MPD_API_PLAYER_VOLUME", "data": {"volume": domCache.volumeBar.value}});
     }, false);
@@ -390,7 +393,7 @@ function appInit() {
     document.getElementById('outputs').addEventListener('click', function(event) {
         if (event.target.nodeName == 'BUTTON') 
             event.stopPropagation();
-            sendAPI({"cmd": "MPD_API_TOGGLE_OUTPUT", "data": {"output": event.target.getAttribute('data-output-id'), "state": (event.target.classList.contains('active') ? 0 : 1)}});
+            sendAPI({"cmd": "MPD_API_PLAYER_TOGGLE_OUTPUT", "data": {"output": event.target.getAttribute('data-output-id'), "state": (event.target.classList.contains('active') ? 0 : 1)}});
             toggleBtn(event.target.id);
     }, false);
     
@@ -650,7 +653,7 @@ function dragAndDropTable(table) {
 
 function playlistMoveTrack(from, to) {
     sendAPI({"cmd": "MPD_API_PLAYLIST_MOVE_TRACK","data": { "plist": app.current.search, "from": from, "to": to}});
-    sendAPI({"cmd": "MPD_API_PLAYLIST_CONTENT","data": {"offset": app.current.page, "filter": app.current.filter, "uri": app.current.search}}, parsePlaylists);
+    sendAPI({"cmd": "MPD_API_PLAYLIST_CONTENT_LIST","data": {"offset": app.current.page, "filter": app.current.filter, "uri": app.current.search}}, parsePlaylists);
 }
 
 function webSocketConnect() {
@@ -853,7 +856,7 @@ function parseOutputs(obj) {
     var btns = '';
     var outputsLen = obj.data.outputs.length;
     for (var i = 0; i < outputsLen; i++) {
-        btns += '<button data-output-id="' + obj.data.outputs[i].id + '" class="btn btn-secondary btn-block';
+        btns += '<button id="btnOutput' + obj.data.outputs[i].id +'" data-output-id="' + obj.data.outputs[i].id + '" class="btn btn-secondary btn-block';
         if (obj.data.outputs[i].state == 1)
             btns += ' active';
         btns += '"><span class="material-icons float-left">volume_up</span> ' + obj.data.outputs[i].name + '</button>';
@@ -1463,14 +1466,14 @@ function removeFromPlaylist(uri, pos) {
     pos--;
     sendAPI({"cmd": "MPD_API_PLAYLIST_RM_TRACK", "data": {"uri": uri, "track": pos}});
     document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
-    sendAPI({"cmd": "MPD_API_PLAYLIST_CONTENT", "data": {"offset": app.current.page, "filter": app.current.filter, "uri": app.current.search}}, parsePlaylists);
+    sendAPI({"cmd": "MPD_API_PLAYLIST_CONTENT_LIST", "data": {"offset": app.current.page, "filter": app.current.filter, "uri": app.current.search}}, parsePlaylists);
 }
 
 function playlistClear() {
     var uri = document.getElementById('BrowsePlaylistsDetailList').getAttribute('data-uri');
     sendAPI({"cmd": "MPD_API_PLAYLIST_CLEAR", "data": {"uri": uri}});
     document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
-    sendAPI({"cmd": "MPD_API_PLAYLIST_CONTENT", "data": {"offset": app.current.page, "filter": app.current.filter, "uri": app.current.search}}, parsePlaylists);
+    sendAPI({"cmd": "MPD_API_PLAYLIST_CONTENT_LIST", "data": {"offset": app.current.page, "filter": app.current.filter, "uri": app.current.search}}, parsePlaylists);
 }
 
 function getAllPlaylists(obj) {
@@ -1538,6 +1541,7 @@ function toggleAddToPlaylistFrm() {
 function showAddToPlaylist(uri) {
     document.getElementById('addToPlaylistUri').value = uri;
     document.getElementById('addToPlaylistPlaylist').innerHTML = '';
+    document.getElementById('addToPlaylistNewPlaylist').value = '';
     document.getElementById('addToPlaylistNewPlaylistDiv').classList.add('hide');
     document.getElementById('addToPlaylistFrm').classList.remove('was-validated');
     document.getElementById('addToPlaylistNewPlaylist').classList.remove('is-invalid');
@@ -1706,14 +1710,16 @@ function showMenu(el) {
             document.getElementsByClassName('popover-content')[0].addEventListener('click', function(event) {
                 event.preventDefault();
                 event.stopPropagation();
-                var cmd = JSON.parse(event.target.getAttribute('data-href').replace(/\'/g, '"'));
-                if (typeof window[cmd.cmd] === 'function') {
-                    switch(cmd.cmd) {
-                        case 'sendAPI':
-                            sendAPI(... cmd.options); 
-                        break;
-                        default:
-                            window[cmd.cmd](... cmd.options);                    
+                if (event.target.nodeName == 'A') {
+                    var cmd = JSON.parse(event.target.getAttribute('data-href').replace(/\'/g, '"'));
+                    if (typeof window[cmd.cmd] === 'function') {
+                        switch(cmd.cmd) {
+                            case 'sendAPI':
+                                sendAPI(... cmd.options); 
+                                break;
+                            default:
+                                window[cmd.cmd](... cmd.options);                    
+                        }
                     }
                 }
             }, false);        
@@ -1884,7 +1890,7 @@ function addAllFromBrowse() {
 
 function addAllFromSearch() {
     if (app.current.search.length >= 2) {
-        sendAPI({"cmd": "MPD_API_SEARCH_ADD_QUEUE", "data":{"filter": app.current.filter, "searchstr": app.current.search}});
+        sendAPI({"cmd": "MPD_API_DATABASE_SEARCH_ADD_QUEUE", "data":{"filter": app.current.filter, "searchstr": app.current.search}});
         showNotification('Added '+ parseInt(document.getElementById('panel-heading-search').innerText) +' songs from search', '', '', 'success');
     }
 }
@@ -1895,7 +1901,7 @@ function addAllFromSearchPlist(plist) {
         if (filter == 'Any Tag')
             filter = 'any';
             
-        sendAPI({"cmd": "MPD_API_SEARCH_ADD_PLAYLIST", "data":{"plist": plist, "filter": filter, "searchstr": app.current.search}});
+        sendAPI({"cmd": "MPD_API_DATABASE_SEARCH_ADD_PLAYLIST", "data":{"plist": plist, "filter": filter, "searchstr": app.current.search}});
         showNotification('Added '+ parseInt(document.getElementById('panel-heading-search').innerText) +' songs from search to ' + plist, '', '', 'success');
     }
 }

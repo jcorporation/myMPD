@@ -282,7 +282,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
         case MPD_API_QUEUE_LIST:
             je = json_scanf(msg.p, msg.len, "{data: {offset: %u }}", &uint_buf1);
             if (je == 1) {
-                n = mympd_put_queue(mpd.buf, uint_buf1);
+                n = mympd_put_queue(mpd.buf, uint_buf1, &mpd.queue_version, &mpd.queue_length);
             }
             break;
         case MPD_API_PLAYER_CURRENT_SONG:
@@ -1125,14 +1125,18 @@ int mympd_put_songdetails(char *buffer, char *uri) {
     return len;
 }
 
-int mympd_put_queue(char *buffer, unsigned int offset) {
+int mympd_put_queue(char *buffer, unsigned int offset, unsigned *queue_version, unsigned *queue_length) {
     struct mpd_entity *entity;
     unsigned long totalTime = 0;
     unsigned long entity_count = 0;
     unsigned long entities_returned = 0;
     int len;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
-
+    struct mpd_status *status = mpd_run_status(mpd.conn);
+    
+    if (!status)
+        RETURN_ERROR_AND_RECOVER("mpd_run_status");
+        
     if (!mpd_send_list_queue_range_meta(mpd.conn, offset, offset + MAX_ELEMENTS_PER_PAGE))
         RETURN_ERROR_AND_RECOVER("mpd_send_list_queue_meta");
         
@@ -1163,11 +1167,15 @@ int mympd_put_queue(char *buffer, unsigned int offset) {
 
     len += json_printf(&out, "], totalTime: %d, totalEntities: %d, offset: %d, returnedEntities: %d, queue_version: %d}",
         totalTime,
-        mpd.queue_length,
+        mpd_status_get_queue_length(status),
         offset,
         entities_returned,
-        mpd.queue_version
+        mpd_status_get_queue_version(status)
     );
+
+    *queue_version = mpd_status_get_queue_version(status);
+    *queue_length = mpd_status_get_queue_length(status);
+    mpd_status_free(status);
     
     if (len > MAX_SIZE) 
         printf("Buffer truncated\n");
