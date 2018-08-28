@@ -22,7 +22,7 @@ BuildRequires:	openssl-devel
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
 %description 
-myMPD is a standalone webclient for mpd.
+myMPD is a standalone and mobile friendly web mpdclient.
 
 %prep 
 %setup -q -n %{name}-%{version}
@@ -45,6 +45,7 @@ chmod 755 %{buildroot}/usr/share/mympd/crcert.sh
 /usr/share/mympd
 %config /etc/mympd
 /usr/share/man/man1/mympd.1.gz
+/var/lib/mympd
 
 %changelog
 * Tue Aug 28 2018 Juergen Mang <mail@jcgames.de> - master
