@@ -57,12 +57,12 @@ Build Dependencies
 ------------------
  - cmake 2.6
  - libasan3: for debug builds only
- - Java (openjdk-9-jre-headless): optional for minifying .css and .js files
+ - Java: optional for minifying .css and .js files
 
 Unix Build Instructions
 -----------------------
 
-1. Install dependencies: cmake, libmpdclient (dev), OpenSSL (dev) and java are available from all major distributions.
+1. Install dependencies: cmake, libmpdclient (dev), OpenSSL (dev) and Java are available from all major distributions.
 2. Build and install: ```cd /path/to/src; ./mkrelease.sh```.
 3. Link your mpd music directory to ```/usr/share/mympd/htdocs/library``` and put ```folder.jpg``` files in your album directories (mkrelease.sh tries to do this for you).
 4. Configure your mpd with http stream output to use the local player.
@@ -76,7 +76,7 @@ Usage: ./mympd /etc/mypd/mympd.conf
 SSL
 ---
 
-1. Create ca and certificate ```/path/to/src/contrib/crcert.sh``` (mkrelease.sh does this for you).
+1. Create ca and certificate ```/usr/share/mympd/crcert.sh``` (mkrelease.sh does this for you).
 2. Set ```ssl=true``` in /etc/mympd/mympd.conf (use default certificate under ```/etc/mympd/ssl/```).
 3. Import ```/etc/mympd/ssl/ca/ca.pem``` in your browser to trust the certificate.
 4. myMPD redirects http requests to https, ensure that myMPD hostname is resolvable.
