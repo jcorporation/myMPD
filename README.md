@@ -22,7 +22,7 @@ This fork provides a reworked ui based on Bootstrap 4, a modernized backend and 
  - Playlist management
  - Advanced search
  - Progressiv Web App enabled
- - Local coverart support
+ - Local coverart support (Albums and Streams)
  - HTTP stream support
  - Local playback of mpd http stream (html5 audio api)
  - Play statistics and song voting (uses mpd stickers)
