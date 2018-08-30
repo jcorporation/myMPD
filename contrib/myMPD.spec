@@ -46,7 +46,7 @@ make
 cd release
 make install DESTDIR=%{buildroot}
 chmod 755 %{buildroot}/usr/share/mympd/crcert.sh
-install -D -m 644 debian/mympd.service %{buildroot}%{_unitdir}/mympd.service
+install -D -m 644 %{buildroot}/debian/mympd.service %{buildroot}%{_unitdir}/mympd.service
 
 %post
 %if 0%{?rhel_version} || 0%{?centos_version}
