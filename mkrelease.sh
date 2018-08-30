@@ -64,9 +64,9 @@ fi
 echo "Installing systemd service"
 if [ -d /etc/systemd/system ]
 then
-  if [ debian/mympd.service -nt /etc/systemd/system/mympd.service ]
+  if [ contrib/mympd.service -nt /etc/systemd/system/mympd.service ]
   then
-    sudo cp debian/mympd.service /etc/systemd/system/
+    sudo cp contrib/mympd.service /etc/systemd/system/
     sudo systemctl daemon-reload
   fi
   sudo systemctl enable mympd  
