@@ -263,3 +263,11 @@ caption {
   animation-name: changewidth;
   animation-iteration-count: infinite;
 }
+
+.modal-body {
+  overflow-x: hidden;
+}
+
+.modal-body .album-cover {
+  float:none;
+}

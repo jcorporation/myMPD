@@ -33,6 +33,7 @@ var alertTimeout;
 var progressTimer;
 let deferredPrompt;
 var dragEl;
+var popoverInit;
 
 var app = {};
 app.apps = { "Playback": { "state": "0/-/", "scrollPos": 0 },
@@ -401,8 +402,7 @@ function appInit() {
         if (event.target.nodeName == 'TD') 
             sendAPI({"cmd": "MPD_API_PLAYER_PLAY_TRACK","data": {"track": event.target.parentNode.getAttribute('data-trackid')}});
         else if (event.target.nodeName == 'A') {
-            event.preventDefault();
-            showMenu(event.target);
+            showMenu(event.target, event);
         }
     }, false);
 
@@ -421,8 +421,7 @@ function appInit() {
             }
         }
         else if (event.target.nodeName == 'A') {
-            event.preventDefault();
-            showMenu(event.target);
+            showMenu(event.target, event);
         }
     }, false);
     
@@ -431,8 +430,7 @@ function appInit() {
             appendQueue('plist', decodeURI(event.target.parentNode.getAttribute("data-uri")), event.target.parentNode.getAttribute("data-name"));
         }
         else if (event.target.nodeName == 'A') {
-            event.preventDefault();
-            showMenu(event.target);
+            showMenu(event.target, event);
         }
     }, false);
 
@@ -441,8 +439,7 @@ function appInit() {
             appendQueue('plist', decodeURI(event.target.parentNode.getAttribute("data-uri")), event.target.parentNode.getAttribute("data-name"));
         }
         else if (event.target.nodeName == 'A') {
-            event.preventDefault();
-            showMenu(event.target);
+            showMenu(event.target, event);
         }
     }, false);    
     
@@ -457,8 +454,7 @@ function appInit() {
             appendQueue('song', decodeURI(event.target.parentNode.getAttribute("data-uri")), event.target.parentNode.getAttribute("data-name"));
         }
         else if (event.target.nodeName == 'A') {
-            event.preventDefault();
-            showMenu(event.target);
+            showMenu(event.target, event);
         }
     }, false);
 
@@ -493,28 +489,34 @@ function appInit() {
         appGoto(app.current.app, app.current.tab, app.current.view, '0/' + app.current.filter + '/' + this.value);
     }, false);
 
-    document.getElementById('searchqueuetag').addEventListener('click', function (event) {
+    document.getElementById('searchqueuetag').addEventListener('click', function(event) {
         if (event.target.nodeName == 'BUTTON')
             appGoto(app.current.app, app.current.tab, app.current.view, app.current.page + '/' + event.target.getAttribute('data-tag') + '/' + app.current.search);
     }, false);
 
-    document.getElementById('search').addEventListener('submit', function () {
+    document.getElementById('search').addEventListener('submit', function() {
         return false;
     }, false);
 
-    document.getElementById('searchqueue').addEventListener('submit', function () {
+    document.getElementById('searchqueue').addEventListener('submit', function() {
         return false;
     }, false);
 
-    document.getElementById('searchstr').addEventListener('keyup', function (event) {
+    document.getElementById('searchstr').addEventListener('keyup', function(event) {
         appGoto('Search', undefined, undefined, '0/' + app.current.filter + '/' + this.value);
+    }, false);
+
+
+    document.getElementsByTagName('body')[0].addEventListener('click', function(event) {
+        if (popoverInit) 
+            popoverInit.hide();
     }, false);
 
     dragAndDropTable('QueueList');
     dragAndDropTable('BrowsePlaylistsDetailList');
 
     window.addEventListener('hashchange', appRoute, false);
-    
+
     window.addEventListener('focus', function() {
         sendAPI({"cmd": "MPD_API_PLAYER_STATE"}, parseState);
     }, false);
@@ -1313,8 +1315,7 @@ function parseListTitles(obj) {
     tbody.innerHTML = titleList;
   
     imga.addEventListener('click', function(event) {
-        event.preventDefault();
-        showMenu(this);
+        showMenu(this, event);
     }, false);
 
     tbody.parentNode.addEventListener('click', function(event) {
@@ -1322,8 +1323,7 @@ function parseListTitles(obj) {
             appendQueue('song', decodeURI(event.target.parentNode.getAttribute('data-uri')), event.target.parentNode.getAttribute('data-name'));
         }
         else if (event.target.nodeName == 'A') {
-            event.preventDefault();
-            showMenu(event.target);
+            showMenu(event.target, event);
         }
     }, false);
 }
@@ -1640,7 +1640,16 @@ function renamePlaylist() {
     }
 }
 
-function showMenu(el) {
+function dirname(uri) {
+    return uri.replace(/\/[^\/]*$/, '');
+}
+
+function showMenu(el, event) {
+    event.preventDefault();
+    event.stopPropagation();
+    var oldPopover = document.getElementsByClassName('popover')[0];
+    if (oldPopover)
+        oldPopover.remove();
     var type = el.getAttribute('data-type');
     var uri = decodeURI(el.getAttribute('data-uri'));
     var name = el.getAttribute('data-name');
@@ -1663,10 +1672,23 @@ function showMenu(el) {
             uri + '\',' + nextsongpos + ',\'' + name + '\']}">Add after current playing song</a>' : '') +
             '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'replaceQueue\', \'options\': [\'' + type + '\',\'' + 
             uri + '\',\'' + name + '\']}">Replace queue</a>' +
-            ( type != 'plist' ? '<div class="dropdown-divider"></div><a class="dropdown-item" href="#" data-href="{\'cmd\': \'showAddToPlaylist\', \'options\': [\'' + uri + '\']}">Add to playlist</a>' : '') +
-            ( type != 'dir' ? '<div class="dropdown-divider"></div>' : '') +
+            ( type != 'plist' ? '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'showAddToPlaylist\', \'options\': [\'' + uri + '\']}">Add to playlist</a>' : '') +
             ( type == 'song' ? '<a class="dropdown-item" data-href="{\'cmd\': \'songDetails\', \'options\': [\'' + uri + '\']}" href="#">Songdetails</a>' : '') +
             ( type == 'plist' ? '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'playlistDetails\', \'options\': [\'' + uri + '\']}">Show playlist</a>' : '');
+        if (app.current.app == 'Search') {
+            var baseuri = dirname(uri);
+            menu += '<div class="dropdown-divider"></div>' +
+                '<a class="dropdown-item" id="advancedMenuLink" data-toggle="collapse" href="#advancedMenu">Album actions</a>' +
+                '<div class="collapse" id="advancedMenu">' +
+                    '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'appendQueue\', \'options\': [\'' + type + '\',\'' + 
+                    baseuri + '\',\'' + name + '\']}">Append to queue</a>' +
+                    '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'appendAfterQueue\', \'options\': [\'' + type + '\',\'' +
+                    baseuri + '\',' + nextsongpos + ',\'' + name + '\']}">Add after current playing song</a>' +
+                    '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'replaceQueue\', \'options\': [\'' + type + '\',\'' + 
+                    baseuri + '\',\'' + name + '\']}">Replace queue</a>' +
+                    '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'showAddToPlaylist\', \'options\': [\'' + baseuri + '\']}">Add to playlist</a>' +
+                '</div>';
+        }
     }
     else if (app.current.app == 'Browse' && app.current.tab == 'Playlists' && app.current.view == 'All') {
         menu += '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'appendQueue\', \'options\': [\'' + type + '\',\'' + 
@@ -1700,18 +1722,19 @@ function showMenu(el) {
             '<div class="dropdown-divider"></div>' +
             ( uri.indexOf('http') == -1 ? '<a class="dropdown-item" data-href="{\'cmd\': \'songDetails\', \'options\': [\'' + uri + '\']}" href="#">Songdetails</a>' : '');
     }    
-    if (el.Popover == undefined) {
-        new Popover(el, { trigger: 'click', template: '<div class="popover" role="tooltip">' +
-            '<div class="arrow"></div>' +
-            '<div class="popover-content">' + menu + '</div>' +
-            '</div>'});
-        var popoverInit = el.Popover;
-        el.addEventListener('shown.bs.popover', function(event) {
-            document.getElementsByClassName('popover-content')[0].addEventListener('click', function(event) {
-                event.preventDefault();
-                event.stopPropagation();
-                if (event.target.nodeName == 'A') {
-                    var cmd = JSON.parse(event.target.getAttribute('data-href').replace(/\'/g, '"'));
+    new Popover(el, { trigger: 'click', delay: 0, dismissible: true, template: '<div class="popover" role="tooltip">' +
+        '<div class="arrow"></div>' +
+        '<div class="popover-content">' + menu + '</div>' +
+        '</div>'});
+    popoverInit = el.Popover;
+    el.addEventListener('shown.bs.popover', function(event) {
+        document.getElementsByClassName('popover-content')[0].addEventListener('click', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            if (event.target.nodeName == 'A') {
+                var dh = event.target.getAttribute('data-href');
+                if (dh) {
+                    var cmd = JSON.parse(dh.replace(/\'/g, '"'));
                     if (typeof window[cmd.cmd] === 'function') {
                         switch(cmd.cmd) {
                             case 'sendAPI':
@@ -1721,11 +1744,16 @@ function showMenu(el) {
                                 window[cmd.cmd](... cmd.options);                    
                         }
                     }
+                    popoverInit.hide();
                 }
-            }, false);        
-        }, false);
-        popoverInit.show();
-    }
+            }
+        }, false);        
+        var collapseLink = document.getElementById('advancedMenuLink');
+        if (collapseLink) {
+            var myCollapseInit = new Collapse(collapseLink);
+        }
+    }, false);
+    popoverInit.show();
 }
 
 function sendAPI(request, callback) {

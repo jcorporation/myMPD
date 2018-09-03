@@ -1486,7 +1486,7 @@ int mympd_search(char *buffer, char *searchstr, char *filter, char *plist, unsig
     struct mpd_song *song;
     unsigned long entity_count = 0;
     unsigned long entities_returned = 0;
-    int len;
+    int len = 0;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
     
     if (strcmp(plist, "") == 0) {
