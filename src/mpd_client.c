@@ -580,8 +580,18 @@ void mympd_parse_idle(struct mg_mgr *s, int idle_bitmask) {
 void mympd_mpd_features() {
     struct mpd_pair *pair;
     
-    mpd.feat_protocol = mpd_connection_get_server_version(mpd.conn);
+    mpd.protocol = mpd_connection_get_server_version(mpd.conn);
+
+    // Defaults
     mpd.feat_sticker = false;
+    mpd.tag_artist = false;
+    mpd.tag_album_artist = false;
+    mpd.tag_title = false;
+    mpd.tag_track = false;
+    mpd.tag_genre = false;
+    mpd.tag_date = false;
+    mpd.tag_composer = false;
+    mpd.tag_performer = false;
 
     mpd_send_allowed_commands(mpd.conn);
     while ((pair = mpd_recv_command_pair(mpd.conn)) != NULL) {
@@ -590,11 +600,52 @@ void mympd_mpd_features() {
         mpd_return_pair(mpd.conn, pair);
     }
     mpd_response_finish(mpd.conn);
-    printf("MPD protocoll version: %i.%i.%i\n", mpd.feat_protocol[0], mpd.feat_protocol[1], mpd.feat_protocol[2]);
+    printf("MPD protocoll version: %i.%i.%i\n", mpd.protocol[0], mpd.protocol[1], mpd.protocol[2]);
     if (mpd.feat_sticker == false && config.stickers == true) {
         printf("MPD don't support stickers, disabling myMPD feature\n");
         config.stickers = false;
     }
+ 
+    printf("MPD supported tags: ");
+    mpd_send_list_tag_types(mpd.conn);
+    while ((pair = mpd_recv_tag_type_pair(mpd.conn)) != NULL) {
+        printf("%s ", pair->value);
+        if (strcmp(pair->value, "Artist") == 0)
+            mpd.tag_artist = true;
+        else if (strcmp(pair->value, "AlbumArtist") == 0)
+            mpd.tag_album_artist = true;
+        else if (strcmp(pair->value, "Title") == 0)
+            mpd.tag_title = true;
+        else if (strcmp(pair->value, "Track") == 0)
+            mpd.tag_track = true;
+        else if (strcmp(pair->value, "Genre") == 0)
+            mpd.tag_genre = true;
+        else if (strcmp(pair->value, "Date") == 0)
+            mpd.tag_date = true;
+        else if (strcmp(pair->value, "Composer") == 0)
+            mpd.tag_composer = true;
+        else if (strcmp(pair->value, "Performer") == 0)
+            mpd.tag_performer = true;
+        mpd_return_pair(mpd.conn, pair);
+    }
+    mpd_response_finish(mpd.conn);
+    printf("\n");
+    if (mpd.tag_artist == false)
+        printf("WARNING: Artist tag not enabled in mpd\n");
+    if (mpd.tag_album_artist == false)
+        printf("WARNING: Albumartist tag not enabled in mpd\n");
+    if (mpd.tag_title == false)
+        printf("WARNING: Title tag not enabled in mpd\n");
+    if (mpd.tag_track == false)
+        printf("WARNING: Track tag not enabled in mpd\n");
+    if (mpd.tag_genre == false)
+        printf("WARNING: Genre tag not enabled in mpd\n");
+    if (mpd.tag_date == false)
+        printf("WARNING: Date tag not enabled in mpd\n");
+    if (mpd.tag_composer == false)
+        printf("WARNING: Composer tag not enabled in mpd\n");
+    if (mpd.tag_performer == false)
+        printf("WARNING: Performer tag not enabled in mpd\n");
 }
 
 void mympd_idle(struct mg_mgr *s, int timeout) {
@@ -922,8 +973,9 @@ int mympd_put_settings(char *buffer) {
         "repeat: %d, single: %d, crossfade: %d, consume: %d, random: %d, "
         "mixrampdb: %f, mixrampdelay: %f, mpdhost: %Q, mpdport: %d, passwort_set: %B, "
         "streamport: %d, coverimage: %Q, stickers: %B, mixramp: %B, "
-        "maxElementsPerPage: %d, replaygain: %Q,"
-        "notificationWeb: %d, notificationPage: %d"
+        "maxElementsPerPage: %d, replaygain: %Q, notificationWeb: %d, notificationPage: %d, "
+        "tags: { Artist: %B, AlbumArtist: %B, Title: %B, Track: %B, Genre: %B, Date: %B,"
+        "Composer: %B, Performer: %B }"
         "}}", 
         mpd_status_get_repeat(status),
         mpd_status_get_single(status),
@@ -942,7 +994,15 @@ int mympd_put_settings(char *buffer) {
         MAX_ELEMENTS_PER_PAGE,
         replaygain,
         state.a,
-        state.b
+        state.b,
+        mpd.tag_artist,
+        mpd.tag_album_artist,
+        mpd.tag_title,
+        mpd.tag_track,
+        mpd.tag_genre,
+        mpd.tag_date,
+        mpd.tag_composer,
+        mpd.tag_performer
     );
     mpd_status_free(status);
     free(replaygain);

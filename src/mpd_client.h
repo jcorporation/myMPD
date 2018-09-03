@@ -130,8 +130,16 @@ struct t_mpd {
     int last_update_sticker_song_id;
     
     // Features
-    const unsigned* feat_protocol;
+    const unsigned* protocol;
     bool feat_sticker;
+    bool tag_artist;
+    bool tag_album_artist;
+    bool tag_title;
+    bool tag_track;
+    bool tag_genre;
+    bool tag_date;
+    bool tag_composer;
+    bool tag_performer;
 } mpd;
 
 typedef struct {
