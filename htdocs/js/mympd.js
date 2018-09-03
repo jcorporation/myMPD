@@ -36,7 +36,7 @@ var dragEl;
 
 var app = {};
 app.apps = { "Playback": { "state": "0/-/", "scrollPos": 0 },
-             "Queue": 	 { "state": "0/Any Tag/", "scrollPos": 0 },
+             "Queue": 	 { "state": "0/any/", "scrollPos": 0 },
              "Browse":   { 
                   "active": "Database", 
                   "tabs":  { "Filesystem": { "state": "0/-/", "scrollPos": 0 },
@@ -54,7 +54,7 @@ app.apps = { "Playback": { "state": "0/-/", "scrollPos": 0 },
                              }
                   }
              },
-             "Search": { "state": "0/Any Tag/", "scrollPos": 0 }
+             "Search": { "state": "0/any/", "scrollPos": 0 }
            };
            
 app.current = { "app": "Playback", "tab": undefined, "view": undefined, "page": 0, "filter": "", "search": "", "scrollPos": 0 };
@@ -197,7 +197,7 @@ function appRoute() {
         var btnsLen = btns.length;
         for (var i = 0; i < btnsLen; i++) {
             btns[i].classList.remove('active');
-            if (btns[i].innerText == app.current.filter) { 
+            if (btns[i].getAttribute('data-tag') == app.current.filter) { 
                 btns[i].classList.add('active'); 
                 document.getElementById('searchqueuetagdesc').innerText = btns[i].innerText;
             }
@@ -266,7 +266,7 @@ function appRoute() {
         }
 
         if (app.current.search.length >= 2) {
-            sendAPI({"cmd": "MPD_API_DATABASE_SEARCH", "data": { "mpdtag": app.current.filter, "offset": app.current.page, "searchstr": app.current.search}}, parseSearch);
+            sendAPI({"cmd": "MPD_API_DATABASE_SEARCH", "data": { "plist": "", "offset": app.current.page, "filter": app.current.filter, "searchstr": app.current.search}}, parseSearch);
         } else {
             document.getElementById('SearchList').getElementsByTagName('tbody')[0].innerHTML = '';
             document.getElementById('searchAddAllSongs').setAttribute('disabled', 'disabled');
@@ -280,7 +280,7 @@ function appRoute() {
         var btnsLen = btns.length;
         for (var i = 0; i < btnsLen; i++) {
             btns[i].classList.remove('active');
-            if (btns[i].innerText == app.current.filter) { 
+            if (btns[i].getAttribute('data-tag') == app.current.filter) { 
                 btns[i].classList.add('active'); 
                 document.getElementById('searchtagsdesc').innerText = btns[i].innerText;
             }
@@ -486,7 +486,7 @@ function appInit() {
 
     document.getElementById('searchtags').addEventListener('click', function(event) {
         if (event.target.nodeName == 'BUTTON')
-            appGoto(app.current.app, app.current.tab, app.current.view, '0/' + event.target.innerText + '/' + app.current.search);            
+            appGoto(app.current.app, app.current.tab, app.current.view, '0/' + event.target.getAttribute('data-tag') + '/' + app.current.search);            
     }, false);
 
     document.getElementById('searchqueuestr').addEventListener('keyup', function(event) {
@@ -495,7 +495,7 @@ function appInit() {
 
     document.getElementById('searchqueuetag').addEventListener('click', function (event) {
         if (event.target.nodeName == 'BUTTON')
-            appGoto(app.current.app, app.current.tab, app.current.view, app.current.page + '/' + event.target.innerText + '/' + app.current.search);
+            appGoto(app.current.app, app.current.tab, app.current.view, app.current.page + '/' + event.target.getAttribute('data-tag') + '/' + app.current.search);
     }, false);
 
     document.getElementById('search').addEventListener('submit', function () {
@@ -980,7 +980,7 @@ function parseState(obj) {
 
 function getQueue() {
     if (app.current.search.length >= 2) 
-        sendAPI({"cmd": "MPD_API_QUEUE_SEARCH", "data": {"mpdtag": app.current.filter, "offset": app.current.page, "searchstr": app.current.search}}, parseQueue);
+        sendAPI({"cmd": "MPD_API_QUEUE_SEARCH", "data": {"filter": app.current.filter, "offset": app.current.page, "searchstr": app.current.search}}, parseQueue);
     else {
         sendAPI({"cmd": "MPD_API_QUEUE_LIST", "data": {"offset": app.current.page}}, parseQueue);
     }
@@ -1890,18 +1890,14 @@ function addAllFromBrowse() {
 
 function addAllFromSearch() {
     if (app.current.search.length >= 2) {
-        sendAPI({"cmd": "MPD_API_DATABASE_SEARCH_ADD_QUEUE", "data":{"filter": app.current.filter, "searchstr": app.current.search}});
+        sendAPI({"cmd": "MPD_API_DATABASE_SEARCH", "data": {"plist": "queue", "filter": app.current.filter, "searchstr": app.current.search, "offset": 0}});
         showNotification('Added '+ parseInt(document.getElementById('panel-heading-search').innerText) +' songs from search', '', '', 'success');
     }
 }
 
 function addAllFromSearchPlist(plist) {
     if (app.current.search.length >= 2) {
-        var filter = app.current.filter;
-        if (filter == 'Any Tag')
-            filter = 'any';
-            
-        sendAPI({"cmd": "MPD_API_DATABASE_SEARCH_ADD_PLAYLIST", "data":{"plist": plist, "filter": filter, "searchstr": app.current.search}});
+        sendAPI({"cmd": "MPD_API_DATABASE_SEARCH", "data": {"plist": plist, "filter": app.current.filter, "searchstr": app.current.search, "offset": 0}});
         showNotification('Added '+ parseInt(document.getElementById('panel-heading-search').innerText) +' songs from search to ' + plist, '', '', 'success');
     }
 }
