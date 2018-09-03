@@ -112,21 +112,26 @@ enum mpd_conn_states {
 };
 
 struct t_mpd {
+    // Connection
     struct mpd_connection *conn;
     enum mpd_conn_states conn_state;
+    int timeout;
 
-    /* Reponse Buffer */
+    // Reponse Buffer
     char buf[MAX_SIZE];
     size_t buf_size;
 
+    // States
     int song_id;
     int next_song_id;
     int last_song_id;
     unsigned queue_version;
     unsigned queue_length;
-    int timeout;
-    
     int last_update_sticker_song_id;
+    
+    // Features
+    const unsigned* feat_protocol;
+    bool feat_sticker;
 } mpd;
 
 typedef struct {

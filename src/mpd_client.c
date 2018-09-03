@@ -577,6 +577,25 @@ void mympd_parse_idle(struct mg_mgr *s, int idle_bitmask) {
     }
 }
 
+void mympd_mpd_features() {
+    struct mpd_pair *pair;
+    
+    mpd.feat_protocol = mpd_connection_get_server_version(mpd.conn);
+    mpd.feat_sticker = false;
+
+    mpd_send_allowed_commands(mpd.conn);
+    while ((pair = mpd_recv_command_pair(mpd.conn)) != NULL) {
+        if (strcmp(pair->value, "sticker") == 0)
+            mpd.feat_sticker = true;
+        mpd_return_pair(mpd.conn, pair);
+    }
+    mpd_response_finish(mpd.conn);
+    printf("MPD protocoll version: %i.%i.%i\n", mpd.feat_protocol[0], mpd.feat_protocol[1], mpd.feat_protocol[2]);
+    if (mpd.feat_sticker == false && config.stickers == true) {
+        printf("MPD don't support stickers, disabling myMPD feature\n");
+        config.stickers = false;
+    }
+}
 
 void mympd_idle(struct mg_mgr *s, int timeout) {
     struct pollfd fds[1];
@@ -614,6 +633,7 @@ void mympd_idle(struct mg_mgr *s, int timeout) {
             printf("MPD connected.\n");
             mpd_connection_set_timeout(mpd.conn, mpd.timeout);
             mpd.conn_state = MPD_CONNECTED;
+            mympd_mpd_features();
             mpd_send_idle(mpd.conn);
             break;
 
@@ -1070,7 +1090,7 @@ int mympd_put_songdetails(char *buffer, char *uri) {
         
         mympd_get_cover(uri, cover, 500);
         len += json_printf(&out, "duration: %d, artist: %Q, album: %Q, title: %Q, albumartist: %Q, cover: %Q, uri: %Q, "
-            "genre: %Q, track: %Q, date: %Q",
+            "genre: %Q, track: %Q, date: %Q, composer: %Q, performer: %Q",
             mpd_song_get_duration(song),
             mympd_get_tag(song, MPD_TAG_ARTIST),
             mympd_get_tag(song, MPD_TAG_ALBUM),
@@ -1080,7 +1100,9 @@ int mympd_put_songdetails(char *buffer, char *uri) {
             uri,
             mympd_get_tag(song, MPD_TAG_GENRE),
             mympd_get_tag(song, MPD_TAG_TRACK),
-            mympd_get_tag(song, MPD_TAG_DATE)
+            mympd_get_tag(song, MPD_TAG_DATE),
+            mympd_get_tag(song, MPD_TAG_COMPOSER),
+            mympd_get_tag(song, MPD_TAG_PERFORMER)
         );
         mpd_entity_free(entity);
     }
