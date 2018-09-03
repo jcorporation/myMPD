@@ -33,7 +33,6 @@ var alertTimeout;
 var progressTimer;
 let deferredPrompt;
 var dragEl;
-var popoverInit;
 
 var app = {};
 app.apps = { "Playback": { "state": "0/-/", "scrollPos": 0 },
@@ -367,7 +366,7 @@ function appInit() {
         hrefs[i].classList.add('clickable');
         hrefs[i].addEventListener('click', function(event) {
             event.preventDefault();
-            event.stopPropagation();
+            //event.stopPropagation();
             var cmd = JSON.parse(this.getAttribute('data-href').replace(/\'/g, '"'));
             if (typeof window[cmd.cmd] === 'function') {
                 switch(cmd.cmd) {
@@ -508,8 +507,9 @@ function appInit() {
 
 
     document.getElementsByTagName('body')[0].addEventListener('click', function(event) {
-        if (popoverInit) 
-            popoverInit.hide();
+        var oldPopover = document.getElementsByClassName('popover')[0];
+        if (oldPopover)
+            oldPopover.remove();
     }, false);
 
     dragAndDropTable('QueueList');
@@ -1678,7 +1678,7 @@ function showMenu(el, event) {
         if (app.current.app == 'Search') {
             var baseuri = dirname(uri);
             menu += '<div class="dropdown-divider"></div>' +
-                '<a class="dropdown-item" id="advancedMenuLink" data-toggle="collapse" href="#advancedMenu">Album actions</a>' +
+                '<a class="dropdown-item" id="advancedMenuLink" data-toggle="collapse" href="#advancedMenu"><span class="material-icons material-icons-small-left">keyboard_arrow_right</span>Album actions</a>' +
                 '<div class="collapse" id="advancedMenu">' +
                     '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'appendQueue\', \'options\': [\'' + type + '\',\'' + 
                     baseuri + '\',\'' + name + '\']}">Append to queue</a>' +
@@ -1695,7 +1695,6 @@ function showMenu(el, event) {
             uri + '\',\'' + name + '\']}">Append to queue</a>' +
             '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'replaceQueue\', \'options\': [\'' + type + '\',\'' + 
             uri + '\',\'' + name + '\']}">Replace queue</a>' +
-            '<div class="dropdown-divider"></div>' +
             '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'playlistDetails\', \'options\': [\'' + uri + '\']}">Edit playlist</a>' +
             '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'showRenamePlaylist\', \'options\': [\'' + uri + '\']}">Rename playlist</a>' + 
             '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'delPlaylist\', \'options\': [\'' + 
@@ -1707,10 +1706,9 @@ function showMenu(el, event) {
             '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'replaceQueue\', \'options\': [\'' + type + '\',\'' + 
             uri + '\',\'' + name + '\']}">Replace queue</a>' +
             ( document.getElementById('BrowsePlaylistsDetailList').getAttribute('data-ro') == 'false' ?
-            '<div class="dropdown-divider"></div>' +
             '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'removeFromPlaylist\', \'options\': [\'' + document.getElementById('BrowsePlaylistsDetailList').getAttribute('data-uri') + '\', \'' + 
             el.parentNode.parentNode.getAttribute('data-songpos') + '\']}">Remove</a>' : '') +
-            ( type != 'plist' ? '<div class="dropdown-divider"></div><a class="dropdown-item" href="#" data-href="{\'cmd\': \'showAddToPlaylist\', \'options\': [\'' + uri + '\']}">Add to playlist</a>' : '');
+            ( type != 'plist' ? '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'showAddToPlaylist\', \'options\': [\'' + uri + '\']}">Add to playlist</a>' : '');
     }
     else if (app.current.app == 'Queue') {
         menu += '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'delQueueSong\', \'options\': [\'single\',' + 
@@ -1719,14 +1717,13 @@ function showMenu(el, event) {
             el.parentNode.parentNode.getAttribute('data-songpos') + ']}">Remove all upwards</a>' +
             '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'delQueueSong\', \'options\': [\'range\',' + 
             (parseInt(el.parentNode.parentNode.getAttribute('data-songpos'))-1) + ',-1]}">Remove all downwards</a>' +
-            '<div class="dropdown-divider"></div>' +
             ( uri.indexOf('http') == -1 ? '<a class="dropdown-item" data-href="{\'cmd\': \'songDetails\', \'options\': [\'' + uri + '\']}" href="#">Songdetails</a>' : '');
     }    
     new Popover(el, { trigger: 'click', delay: 0, dismissible: true, template: '<div class="popover" role="tooltip">' +
         '<div class="arrow"></div>' +
         '<div class="popover-content">' + menu + '</div>' +
         '</div>'});
-    popoverInit = el.Popover;
+    var popoverInit = el.Popover;
     el.addEventListener('shown.bs.popover', function(event) {
         document.getElementsByClassName('popover-content')[0].addEventListener('click', function(event) {
             event.preventDefault();
@@ -1750,6 +1747,13 @@ function showMenu(el, event) {
         }, false);        
         var collapseLink = document.getElementById('advancedMenuLink');
         if (collapseLink) {
+            collapseLink.addEventListener('click', function(event) {
+            var icon = this.getElementsByTagName('span')[0];
+            if (icon.innerText == 'keyboard_arrow_right')
+                icon.innerText = 'keyboard_arrow_down';
+            else
+                icon.innerText = 'keyboard_arrow_right';
+        }, false);
             var myCollapseInit = new Collapse(collapseLink);
         }
     }, false);

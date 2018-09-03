@@ -132,6 +132,11 @@ small {
   font-size: 16px;
 }
 
+.material-icons-small-left {
+  font-size: 1rem;
+  margin-left: -1em;
+}
+
 .color-darkgrey, .color-darkgrey:hover {
   color:#6c757d !important;
 }
