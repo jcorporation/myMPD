@@ -7,6 +7,7 @@ then
 fi
 
 mkdir -p /etc/mympd/ssl/ca/certs
+chmod 700 /etc/mympd/ssl
 cd /etc/mympd/ssl/ca
 
 echo '01' > serial
@@ -98,3 +99,5 @@ openssl ca -in server.csr -cert ca/ca.pem -keyfile ca/ca.key -config ca/ca.cnf \
 rm server.csr
 rm ca/ca.cnf
 rm req.cnf
+
+chown -R mympd.mympd /etc/mympd/

@@ -50,7 +50,11 @@ sudo make install
 cd ..
 
 echo "Fixing ownership of /var/lib/mympd"
-sudo chown nobody /var/lib/mympd
+getent group mympd > /dev/null
+[ "$?" == "2" ] && sudo groupadd mympd
+getent passwd mympd > /dev/null
+[ "$?" == "2" ] && sudo useradd mympd -g mympd
+sudo chown -R mympd.mympd /var/lib/mympd
 
 echo "Trying to link musicdir to library"
 if [ -f /etc/mpd.conf ]

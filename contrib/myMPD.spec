@@ -4,13 +4,13 @@
 # (c) 2018 Juergen Mang <mail@jcgames.de
 
 Name:           myMPD
-Version:        master
+Version:        devel
 Release:        0 
 License:        GPL-2.0 
 Group:          Productivity/Multimedia/Sound/Players
 Summary:        Standalone webclient for mpd
 Url:            https://github.com/jcorporation/myMPD
-Source:         https://github.com/jcorporation/myMPD/archive/master.zip
+Source:         https://github.com/jcorporation/myMPD/archive/devel.zip
 BuildRequires:  gcc
 BuildRequires:  cmake
 BuildRequires:  unzip
@@ -39,7 +39,12 @@ make install DESTDIR=%{buildroot}
 
 %post
 /usr/share/mympd/crcert.sh
-chown nobody /var/lib/mympd
+getent group mympd > /dev/null
+[ "$?" == "2" ] && groupadd mympd
+getent passwd mympd > /dev/null
+[ "$?" == "2" ] && useradd mympd -g mympd
+chown -R mympd /var/lib/mympd
+
 
 %files 
 %defattr(-,root,root,-)
