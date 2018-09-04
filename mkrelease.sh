@@ -55,18 +55,19 @@ sudo chown nobody /var/lib/mympd
 echo "Trying to link musicdir to library"
 if [ -f /etc/mpd.conf ]
 then
-  LIBRARY=$(grep ^music_directory /etc/mpd.conf | awk {'print $2'} | sed -e 's/"//g')
+  LIBRARY=$(sudo grep ^music_directory /etc/mpd.conf | awk {'print $2'} | sed -e 's/"//g')
   [ "$LIBRARY" != "" ] && [ ! -e /usr/share/mympd/htdocs/library ] && sudo ln -s "$LIBRARY" /usr/share/mympd/htdocs/library
 else
   echo "/etc/mpd.conf not found, you must link your music_directory manually to /usr/share/mympd/htdocs/library"
 fi
 
 echo "Installing systemd service"
-if [ -d /etc/systemd/system ]
+if [ -d /usr/lib/systemd/ ]
 then
-  if [ contrib/mympd.service -nt /etc/systemd/system/mympd.service ]
+  [ -d /usr/lib/systemd/system ] || sudo mkdir /usr/lib/systemd/system 
+  if [ contrib/mympd.service -nt /usr/lib/systemd/system/mympd.service ]
   then
-    sudo cp contrib/mympd.service /etc/systemd/system/
+    sudo cp contrib/mympd.service /usr/lib/systemd/system/
     sudo systemctl daemon-reload
   fi
   sudo systemctl enable mympd  

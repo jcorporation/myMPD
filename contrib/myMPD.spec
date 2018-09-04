@@ -36,7 +36,10 @@ make
 %install
 cd release
 make install DESTDIR=%{buildroot}
-chmod 755 %{buildroot}/usr/share/mympd/crcert.sh
+
+%post
+/usr/share/mympd/crcert.sh
+chown nobody /var/lib/mympd
 
 %files 
 %defattr(-,root,root,-)
@@ -48,5 +51,5 @@ chmod 755 %{buildroot}/usr/share/mympd/crcert.sh
 /var/lib/mympd
 
 %changelog
-* Tue Aug 28 2018 Juergen Mang <mail@jcgames.de> - master
+* Tue Sep 04 2018 Juergen Mang <mail@jcgames.de> - master
 - Version from master
