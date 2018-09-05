@@ -15,11 +15,11 @@ BuildRequires:  gcc
 BuildRequires:  cmake
 BuildRequires:  unzip
 BuildRequires:	libmpdclient-devel
-BuildRequires:	libmpdclient2
 BuildRequires:	pkgconfig
 BuildRequires:	openssl-devel
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
+%global debug_package %{nil}
 
 %description 
 myMPD is a standalone and mobile friendly web mpdclient.
