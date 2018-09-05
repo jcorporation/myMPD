@@ -38,13 +38,17 @@ cd release
 make install DESTDIR=%{buildroot}
 
 %post
-/usr/share/mympd/crcert.sh
 getent group mympd > /dev/null
 [ "$?" == "2" ] && groupadd mympd
 getent passwd mympd > /dev/null
 [ "$?" == "2" ] && useradd mympd -g mympd
+if [ -d /usr/lib/systemd/ ]
+then
+  [ -d /usr/lib/systemd/system ] || sudo mkdir /usr/lib/systemd/system 
+  cp /usr/share/mympd/mympd.service /usr/lib/systemd/system/
+fi
 chown -R mympd /var/lib/mympd
-
+/usr/share/mympd/crcert.sh
 
 %files 
 %defattr(-,root,root,-)
@@ -56,5 +60,5 @@ chown -R mympd /var/lib/mympd
 /var/lib/mympd
 
 %changelog
-* Tue Sep 04 2018 Juergen Mang <mail@jcgames.de> - master
+* Wed Sep 05 2018 Juergen Mang <mail@jcgames.de> - master
 - Version from master

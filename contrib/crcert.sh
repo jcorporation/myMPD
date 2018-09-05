@@ -3,7 +3,7 @@
 if [ -d /etc/mympd/ssl ]
 then
   echo "SSL directory exists, to recreate certificates: \"rm -r /etc/mympd/ssl\""
-  exit 1
+  exit 0
 fi
 
 mkdir -p /etc/mympd/ssl/ca/certs
