@@ -47,6 +47,11 @@ then
   [ -d /usr/lib/systemd/system ] || sudo mkdir /usr/lib/systemd/system 
   cp /usr/share/mympd/mympd.service /usr/lib/systemd/system/
 fi
+if [ -f /etc/mpd.conf ]
+then
+  LIBRARY=$(grep ^music_directory /etc/mpd.conf | awk {'print $2'} | sed -e 's/"//g')
+  [ "$LIBRARY" != "" ] && [ ! -e /usr/share/mympd/htdocs/library ] && ln -s "$LIBRARY" /usr/share/mympd/htdocs/library
+fi
 chown -R mympd /var/lib/mympd
 /usr/share/mympd/crcert.sh
 
