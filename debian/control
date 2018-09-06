@@ -1,0 +1,12 @@
+Source: mympd
+Section: unknown
+Priority: optional
+Maintainer: Juergen Mang <mail@jcgames.de>
+Build-Depends: debhelper (>= 10)
+Standards-Version: 4.1.2
+Homepage: https://github.com/jcorporation/myMPD
+
+Package: mympd
+Architecture: any
+Depends: libmpdclient2, openssl
+Description: myMPD is a standalone and modern web mpdclient.

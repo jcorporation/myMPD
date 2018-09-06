@@ -39,9 +39,9 @@ make install DESTDIR=%{buildroot}
 
 %post
 getent group mympd > /dev/null
-[ "$?" == "2" ] && groupadd mympd
+[ "$?" = "2" ] && groupadd mympd
 getent passwd mympd > /dev/null
-[ "$?" == "2" ] && useradd mympd -g mympd
+[ "$?" = "2" ] && useradd mympd -g mympd
 if [ -d /usr/lib/systemd/ ]
 then
   [ -d /usr/lib/systemd/system ] || sudo mkdir /usr/lib/systemd/system 
