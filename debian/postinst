@@ -4,7 +4,7 @@ echo "Fixing ownership of /var/lib/mympd"
 getent group mympd > /dev/null
 [ "$?" = "2" ] && groupadd mympd
 getent passwd mympd > /dev/null
-[ "$?" = "2" ] && useradd mympd -g mympd
+[ "$?" = "2" ] && useradd mympd -g mympd-d /var/lib/mympd -s /usr/sbin/nologin
 
 chown -R mympd.mympd /var/lib/mympd
 

@@ -41,7 +41,7 @@ make install DESTDIR=%{buildroot}
 getent group mympd > /dev/null
 [ "$?" = "2" ] && groupadd mympd
 getent passwd mympd > /dev/null
-[ "$?" = "2" ] && useradd mympd -g mympd
+[ "$?" = "2" ] && useradd mympd -g mympd -d /var/lib/mympd -s /usr/sbin/nologin
 if [ -d /usr/lib/systemd/ ]
 then
   [ -d /usr/lib/systemd/system ] || sudo mkdir /usr/lib/systemd/system 
