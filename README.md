@@ -6,6 +6,7 @@ Fork to myMPD version for Raspberry Pi.
 Features:
 
 Shutdown/Reboot - Power options
+
 Archphile configuration - Basic settings for now(UPNP, DOP, DB Update, etc.. :)
 
 Network Configuration - NAS(Samba/NFS) configuration and WiFi implementation.
