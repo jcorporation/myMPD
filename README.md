@@ -2,7 +2,7 @@ myMPD
 =====
 
 Fork to myMPD version for Raspberry Pi. 
-Feautures:
+Features:
 
 Shutdown/Reboot - Power options
 Archphile configuration - Basic settings for now(UPNP, DOP, DB Update, etc.. :)
