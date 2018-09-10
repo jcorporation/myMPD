@@ -1240,6 +1240,7 @@ function parseListDBtags(obj) {
         document.getElementById('BrowseDatabaseTagList').classList.add('hide');
         document.getElementById('btnBrowseDatabaseByTag').parentNode.classList.add('hide');
         document.getElementById('btnBrowseDatabaseTag').parentNode.classList.remove('hide');
+        document.getElementById('BrowseDatabaseAddAllSongs').parentNode.parentNode.classList.remove('hide');
         document.getElementById('btnBrowseDatabaseTag').innerHTML = '&laquo; ' + app.current.view;
         var nrItems = obj.data.length;
         if (nrItems == 1 && obj.data[0].value == '')
@@ -1282,6 +1283,7 @@ function parseListDBtags(obj) {
         document.getElementById('BrowseDatabaseAlbumList').classList.add('hide');
         document.getElementById('BrowseDatabaseTagList').classList.remove('hide');
         document.getElementById('btnBrowseDatabaseByTag').parentNode.classList.remove('hide');
+        document.getElementById('BrowseDatabaseAddAllSongs').parentNode.parentNode.classList.add('hide');
         document.getElementById('btnBrowseDatabaseTag').parentNode.classList.add('hide');
         var nrItems = obj.data.length;
         if (nrItems == 1 && obj.data[0].value == '')
@@ -1943,7 +1945,7 @@ function confirmSettings() {
         document.getElementById('settingsFrm').classList.add('was-validated');
 }
 
-function addAllFromBrowse() {
+function addAllFromBrowseFilesystem() {
     sendAPI({"cmd": "MPD_API_QUEUE_ADD_TRACK", "data": {"uri": app.current.search}});
     showNotification('Added all songs', '', '', 'success');
 }
