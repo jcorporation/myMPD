@@ -1,11 +1,18 @@
 myMPD
 =====
 
+Fork to myMPD version for Raspberry Pi. 
+Feautures:
+
+Shutdown/Reboot - Power options
+Archphile configuration - Basic settings for now(UPNP, DOP, DB Update, etc.. :)
+Network Configuration - NAS(Samba/NFS) configuration and WiFi implementation.
+
 myMPD is a lightweight MPD web client that runs without a dedicated webserver or interpreter. 
 It's tuned for minimal resource usage and requires only very litte dependencies.
 myMPD is a fork of ympd (https://github.com/notandy/ympd).
 
-This fork provides a reworked ui based on Bootstrap 4, a modernized backend and many new features while having the same small footprint as ympd.
+Provides a reworked ui based on Bootstrap 4, a modernized backend and many new features while having the same small footprint as ympd.
 
 **Design principles:**
  - Keep it small and simple
