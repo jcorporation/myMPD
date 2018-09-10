@@ -162,14 +162,6 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
             }
             n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             break;
-        case MPD_API_DATABASE_ARTISTALBUMTITLE_LIST:
-            je = json_scanf(msg.p, msg.len, "{data: {albumartist: %Q, album: %Q}}", &p_charbuf1, &p_charbuf2);
-            if (je == 2) {
-                n = mympd_put_songs_in_album(mpd.buf, p_charbuf1, p_charbuf2);
-                free(p_charbuf1);
-                free(p_charbuf2);
-            } 
-            break;
         case MPD_API_WELCOME:
             n = mympd_put_welcome(mpd.buf);
             break;
@@ -295,20 +287,31 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                 free(p_charbuf1);
             }
             break;            
-        case MPD_API_DATABASE_ARTIST_LIST:
-            je = json_scanf(msg.p, msg.len, "{data: {offset: %u, filter: %Q}}", &uint_buf1, &p_charbuf1);
-            if (je == 2) {
-                n = mympd_put_db_tag(mpd.buf, uint_buf1, "AlbumArtist", "", "", p_charbuf1);
-                free(p_charbuf1);
-            }
-            break;
-        case MPD_API_DATABASE_ARTISTALBUM_LIST:
-            je = json_scanf(msg.p, msg.len, "{data: {offset: %u, filter: %Q, albumartist: %Q}}", &uint_buf1, &p_charbuf1, &p_charbuf2);
+        case MPD_API_DATABASE_TAG_LIST:
+            je = json_scanf(msg.p, msg.len, "{data: {offset: %u, filter: %Q, tag: %Q}}", &uint_buf1, &p_charbuf1, &p_charbuf2);
             if (je == 3) {
-                n = mympd_put_db_tag(mpd.buf, uint_buf1, "Album", "AlbumArtist", p_charbuf2, p_charbuf1);
+                n = mympd_put_db_tag(mpd.buf, uint_buf1, p_charbuf2, "", "", p_charbuf1);
                 free(p_charbuf1);
                 free(p_charbuf2);
             }
+            break;
+        case MPD_API_DATABASE_TAG_ALBUM_LIST:
+            je = json_scanf(msg.p, msg.len, "{data: {offset: %u, filter: %Q, search: %Q, tag: %Q}}", &uint_buf1, &p_charbuf1, &p_charbuf2, &p_charbuf3);
+            if (je == 4) {
+                n = mympd_put_db_tag(mpd.buf, uint_buf1, "Album", p_charbuf3, p_charbuf2, p_charbuf1);
+                free(p_charbuf1);
+                free(p_charbuf2);
+                free(p_charbuf3);
+            }
+            break;
+        case MPD_API_DATABASE_TAG_ALBUM_TITLE_LIST:
+            je = json_scanf(msg.p, msg.len, "{data: {album: %Q, search: %Q, tag: %Q}}", &p_charbuf1, &p_charbuf2, &p_charbuf3);
+            if (je == 3) {
+                n = mympd_put_songs_in_album(mpd.buf, p_charbuf1, p_charbuf2, p_charbuf3);
+                free(p_charbuf1);
+                free(p_charbuf2);
+                free(p_charbuf3);
+            } 
             break;
         case MPD_API_PLAYLIST_RENAME:
             je = json_scanf(msg.p, msg.len, "{data: {from: %Q, to: %Q}}", &p_charbuf1, &p_charbuf2);
@@ -1410,7 +1413,7 @@ int mympd_put_db_tag(char *buffer, unsigned int offset, char *mpdtagtype, char *
     return len;
 }
 
-int mympd_put_songs_in_album(char *buffer, char *albumartist, char *album) {
+int mympd_put_songs_in_album(char *buffer, char *album, char *search, char *tag) {
     struct mpd_song *song;
     unsigned long entity_count = 0;
     unsigned long entities_returned = 0;
@@ -1421,7 +1424,7 @@ int mympd_put_songs_in_album(char *buffer, char *albumartist, char *album) {
     if (mpd_search_db_songs(mpd.conn, true) == false)
         RETURN_ERROR_AND_RECOVER("mpd_search_db_songs");
     
-    if (mpd_search_add_tag_constraint(mpd.conn, MPD_OPERATOR_DEFAULT, MPD_TAG_ALBUM_ARTIST, albumartist) == false)
+    if (mpd_search_add_tag_constraint(mpd.conn, MPD_OPERATOR_DEFAULT, mpd_tag_name_parse(tag), search) == false)
         RETURN_ERROR_AND_RECOVER("mpd_search_add_tag_constraint");
 
     if (mpd_search_add_tag_constraint(mpd.conn, MPD_OPERATOR_DEFAULT, MPD_TAG_ALBUM, album) == false)
@@ -1450,11 +1453,12 @@ int mympd_put_songs_in_album(char *buffer, char *albumartist, char *album) {
             mpd_song_free(song);
         }
         
-        len += json_printf(&out, "], totalEntities: %d, returnedEntities: %d, albumartist: %Q, album: %Q, cover: %Q}",
+        len += json_printf(&out, "], totalEntities: %d, returnedEntities: %d, album: %Q, search: %Q, tag: %Q, cover: %Q}",
             entity_count,
             entities_returned,
-            albumartist,
             album,
+            search,
+            tag,
             cover
         );
     }

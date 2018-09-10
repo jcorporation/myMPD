@@ -120,8 +120,8 @@
               <button type="button" class="btn btn-secondary material-icons" data-href="{'cmd': 'sendAPI', 'options': [{'cmd':'MPD_API_QUEUE_CLEAR'}]}" title="Clear queue">clear_all</button>
               <button id="clearQueueBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-right" type="button" data-toggle="dropdown"></button>
               <div class="dropdown-menu bg-dark dropdown-menu-right px-2" id="clearQueueDropdown">
-                  <button type="button" class="btn btn-secondary btn-block" data-href="{'cmd': 'sendAPI', 'options': [{'cmd':'MPD_API_QUEUE_CLEAR'}]}" >Clear queue</button>
-                  <button type="button" class="btn btn-secondary btn-block" data-href="{'cmd': 'sendAPI', 'options': [{'cmd':'MPD_API_QUEUE_CROP'}]}" >Crop queue</button>
+                  <button type="button" class="btn btn-secondary btn-sm btn-block" data-href="{'cmd': 'sendAPI', 'options': [{'cmd':'MPD_API_QUEUE_CLEAR'}]}" >Clear queue</button>
+                  <button type="button" class="btn btn-secondary btn-sm btn-block" data-href="{'cmd': 'sendAPI', 'options': [{'cmd':'MPD_API_QUEUE_CROP'}]}" >Crop queue</button>
               </div>
             </div>
           </div>
@@ -135,12 +135,15 @@
                 </button>
                 <div class="dropdown-menu bg-dark dropdown-menu-right px-2" id="searchqueuetag">
                   <h6 class="dropdown-header text-light">Search in Tag</h6>
-                  <button type="button" class="btn btn-secondary btn-block active" data-tag="any">Any Tag</button>
-                  <button type="button" class="btn btn-secondary btn-block" data-tag="Title">Title</button>
-                  <button type="button" class="btn btn-secondary btn-block" data-tag="Artist">Artist</button>
-                  <button type="button" class="btn btn-secondary btn-block" data-tag="Album">Album</button>
-                  <button type="button" class="btn btn-secondary btn-block" data-tag="Composer">Composer</button>
-                  <button type="button" class="btn btn-secondary btn-block" data-tag="Performer">Performer</button>
+                  <button type="button" class="btn btn-secondary btn-sm btn-block active" data-tag="any">Any Tag</button>
+                  <button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="Title">Title</button>
+                  <button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="Artist">Artist</button>
+                  <button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="Album">Album</button>
+                  <button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="AlbumArtist">AlbumArtist</button>
+                  <button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="Composer">Composer</button>
+                  <button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="Performer">Performer</button>
+                  <button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="Date">Date</button>
+                  <button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="Genre">Genre</button>                  
                 </div>
               </div>
             </div>
@@ -296,8 +299,20 @@
 
       <div class="card-body hide" id="cardBrowseDatabase">
         <div class="btn-toolbar card-toolbar" id="BrowseDatabaseButtons">
+          <div class="btn-group mr-2">
+            <button id="btnBrowseDatabaseByTag" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">AlbumArtist</button>
+            <div class="dropdown-menu bg-dark px-2" id="BrowseDatabaseByTagDropdown">
+              <button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="AlbumArtist">AlbumArtist</button>
+              <button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="Artist">Artist</button>              
+              <button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="Genre">Genre</button>
+              <button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="Album">Album</button>
+              <button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="Composer">Composer</button>
+              <button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="Performer">Performer</button>
+              <button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="Date">Date</button>            
+            </div>
+          </div>        
           <div class="btn-group mr-2 hide">
-            <button data-href="{'cmd': 'appGoto', 'options': ['Browse','Database','Artist']}" id="btnBrowseDatabaseArtist" type="button" class="btn btn-secondary">&laquo; Artists</button>
+            <button data-href="{'cmd': 'gotoTagList', 'options': []}" id="btnBrowseDatabaseTag" type="button" class="btn btn-secondary">&laquo; Artists</button>
           </div>
           <div class="btn-group mr-2">
             <button id="BrowseDatabaseFilter" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">Filter</button>
@@ -316,7 +331,7 @@
         </div>
 
         <div class="table-responsive-md">
-          <table id="BrowseDatabaseArtistList" class="table table-hover table-sm">
+          <table id="BrowseDatabaseTagList" class="table table-hover table-sm">
             <col class="tblnum"/>
             <col class="tbltitle"/>            
             <thead>
@@ -363,8 +378,8 @@
               <button data-href="{'cmd': 'addAllFromBrowse', 'options': []}" id="BrowseFilesystemAddAllSongs" class="btn btn-secondary">Add all</button>
               <button id="BrowseFilesystemAddAllSongsBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-right" type="button" data-toggle="dropdown"></button>
               <div class="dropdown-menu bg-dark dropdown-menu-right px-2" id="BrowseFilesystemAddAllSongsDropdown">
-                <button type="button" class="btn btn-secondary btn-block">Add all to queue</button>
-                <button type="button" class="btn btn-secondary btn-block">Add all to playlist</button>
+                <button type="button" class="btn btn-secondary btn-sm btn-block">Add all to queue</button>
+                <button type="button" class="btn btn-secondary btn-sm btn-block">Add all to playlist</button>
               </div>
             </div>
           </div>
@@ -440,12 +455,15 @@
                 </button>
                 <div class="dropdown-menu bg-dark dropdown-menu-right px-2" id="searchtags">
                   <h6 class="dropdown-header text-light">Search in Tag</h6>
-                  <button type="button" class="btn btn-secondary active btn-block" data-tag="any">Any Tag</button>
-                  <button type="button" class="btn btn-secondary btn-block" data-tag="Title">Title</button>
-                  <button type="button" class="btn btn-secondary btn-block" data-tag="Artist">Artist</button>
-                  <button type="button" class="btn btn-secondary btn-block" data-tag="Album">Album</button>
-                  <button type="button" class="btn btn-secondary btn-block" data-tag="Composer">Composer</button>
-                  <button type="button" class="btn btn-secondary btn-block" data-tag="Performer">Performer</button>
+                  <button type="button" class="btn btn-secondary btn-sm active btn-block" data-tag="any">Any Tag</button>
+                  <button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="Title">Title</button>
+                  <button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="Artist">Artist</button>
+                  <button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="Album">Album</button>
+                  <button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="AlbumArtist">AlbumArtist</button>
+                  <button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="Composer">Composer</button>
+                  <button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="Performer">Performer</button>
+                  <button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="Date">Date</button>
+                  <button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="Genre">Genre</button>
                 </div>
               </div>
             </div>

@@ -75,9 +75,9 @@
     X(MPD_API_DATABASE_SEARCH) \
     X(MPD_API_DATABASE_UPDATE) \
     X(MPD_API_DATABASE_FILESYSTEM_LIST) \
-    X(MPD_API_DATABASE_ARTISTALBUM_LIST) \
-    X(MPD_API_DATABASE_ARTISTALBUMTITLE_LIST) \
-    X(MPD_API_DATABASE_ARTIST_LIST) \
+    X(MPD_API_DATABASE_TAG_LIST) \
+    X(MPD_API_DATABASE_TAG_ALBUM_LIST) \
+    X(MPD_API_DATABASE_TAG_ALBUM_TITLE_LIST) \
     X(MPD_API_DATABASE_STATS) \
     X(MPD_API_DATABASE_SONGDETAILS) \
     X(MPD_API_PLAYER_PLAY_TRACK) \
@@ -194,7 +194,7 @@ int mympd_put_welcome(char *buffer);
 int mympd_put_stats(char *buffer);
 int mympd_put_settings(char *buffer);
 int mympd_put_db_tag(char *buffer, unsigned int offset, char *mpdtagtype, char *mpdsearchtagtype, char *searchstr, char *filter);
-int mympd_put_songs_in_album(char *buffer, char *albumartist, char *album);
+int mympd_put_songs_in_album(char *buffer, char *album, char *search, char *tag);
 int mympd_put_playlists(char *buffer, unsigned int offset, char *filter);
 int mympd_put_playlist_list(char *buffer, char *uri, unsigned int offset, char *filter);
 int mympd_put_songdetails(char *buffer, char *uri);

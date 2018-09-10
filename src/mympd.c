@@ -229,6 +229,7 @@ int main(int argc, char **argv) {
         nc = mg_bind_opt(&mgr, config.sslport, ev_handler, bind_opts);
         if (nc == NULL) {
             printf("Error listening on port %s: %s\n", config.sslport, err);
+            mg_mgr_free(&mgr);
             return EXIT_FAILURE;
         }
     }
@@ -236,6 +237,7 @@ int main(int argc, char **argv) {
         nc = mg_bind(&mgr, config.webport, ev_handler);
         if (nc == NULL) {
             printf("Error listening on port %s\n", config.webport);
+            mg_mgr_free(&mgr);
             return EXIT_FAILURE;
         }
     }
