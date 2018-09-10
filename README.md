@@ -7,7 +7,10 @@ Features:
 
 Shutdown/Reboot - Power options
 Archphile configuration - Basic settings for now(UPNP, DOP, DB Update, etc.. :)
+
 Network Configuration - NAS(Samba/NFS) configuration and WiFi implementation.
+
+---------------------------------------------------------------------------------------
 
 myMPD is a lightweight MPD web client that runs without a dedicated webserver or interpreter. 
 It's tuned for minimal resource usage and requires only very litte dependencies.
