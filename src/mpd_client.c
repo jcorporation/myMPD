@@ -588,6 +588,7 @@ void mympd_mpd_features() {
     // Defaults
     mpd.feat_sticker = false;
     mpd.tag_artist = false;
+    mpd.tag_album = false;
     mpd.tag_album_artist = false;
     mpd.tag_title = false;
     mpd.tag_track = false;
@@ -615,6 +616,8 @@ void mympd_mpd_features() {
         printf("%s ", pair->value);
         if (strcmp(pair->value, "Artist") == 0)
             mpd.tag_artist = true;
+        else if (strcmp(pair->value, "Album") == 0)
+            mpd.tag_album = true;
         else if (strcmp(pair->value, "AlbumArtist") == 0)
             mpd.tag_album_artist = true;
         else if (strcmp(pair->value, "Title") == 0)
@@ -635,6 +638,8 @@ void mympd_mpd_features() {
     printf("\n");
     if (mpd.tag_artist == false)
         printf("WARNING: Artist tag not enabled in mpd\n");
+    if (mpd.tag_album == false)
+        printf("WARNING: Album tag not enabled in mpd\n");
     if (mpd.tag_album_artist == false)
         printf("WARNING: AlbumArtist tag not enabled in mpd\n");
     if (mpd.tag_title == false)
@@ -979,7 +984,7 @@ int mympd_put_settings(char *buffer) {
         "mixrampdb: %f, mixrampdelay: %f, mpdhost: %Q, mpdport: %d, passwort_set: %B, "
         "streamport: %d, coverimage: %Q, stickers: %B, mixramp: %B, "
         "maxElementsPerPage: %d, replaygain: %Q, notificationWeb: %d, notificationPage: %d, "
-        "tags: { Artist: %B, AlbumArtist: %B, Title: %B, Track: %B, Genre: %B, Date: %B,"
+        "tags: { Artist: %B, Album: %B, AlbumArtist: %B, Title: %B, Track: %B, Genre: %B, Date: %B,"
         "Composer: %B, Performer: %B }"
         "}}", 
         mpd_status_get_repeat(status),
@@ -1001,6 +1006,7 @@ int mympd_put_settings(char *buffer) {
         state.a,
         state.b,
         mpd.tag_artist,
+        mpd.tag_album,
         mpd.tag_album_artist,
         mpd.tag_title,
         mpd.tag_track,

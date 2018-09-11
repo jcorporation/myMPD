@@ -1438,7 +1438,13 @@ function songClick() {
 function artistClick() {
     var albumartist = domCache.currentArtist.getAttribute('data-albumartist');
     if (albumartist != '') 
-        appGoto('Browse', 'Database', 'Album', '0/-/' + albumartist);
+        appGoto('Browse', 'Database', 'AlbumArtist', '0/-/' + albumartist);
+}
+
+function albumClick() {
+    var album = domCache.currentAlbum.getAttribute('data-album');
+    if (album != '') 
+        appGoto('Browse', 'Database', 'Album', '0/-/' + album);
 }
 
 function songDetails(uri) {
@@ -1450,36 +1456,36 @@ function parseSongDetails(obj) {
     var modal = document.getElementById('modalSongDetails');
     modal.getElementsByClassName('album-cover')[0].style.backgroundImage = 'url("' + obj.data.cover + '")';
     modal.getElementsByTagName('h1')[0].innerText = obj.data.title;
-    var tr = modal.getElementsByTagName('tr');
-    var trLen = tr.length;
-    for (var i = 0; i < trLen; i++) {
-        var key = tr[i].getAttribute('data-name');
-        if (!key)
-            continue;
-        var value = obj.data[key];
-        if (key == 'duration') {
-            var minutes = Math.floor(value / 60);
-            var seconds = value - minutes * 60;
-            value = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;        
-        }
-        else if (key == 'lastPlayed') {
-            if (value == 0) 
-                value = 'never';    
-            else {
-                var d = new Date(value * 1000);
-                value = d.toUTCString();
+    
+    var songDetails = '';
+    for (var key in settings.tags) {
+        if (settings.tags[key] == true) {
+            var value = obj.data[key.toLowerCase()];
+            if (key == 'duration') {
+                var minutes = Math.floor(value / 60);
+                var seconds = value - minutes * 60;
+                value = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;        
             }
+            songDetails += '<tr><th>' + key + '</th><td>' + value + '</td></tr>';
         }
-        else if (key == 'like') {
-            if (value == 0) value = '<span class="material-icons">thumb_down_alt</span>';
-            else if (value == 2) value = '<span class="material-icons">thumb_up_alt</span>';
-            else value = 'not voted';
-        }
-        else if (key == 'uri') {
-            value = '<a class="text-success" href="/library/' + value + '">' + value + '</a>';
-        }
-        tr[i].getElementsByTagName('td')[0].innerHTML = value;
     }
+    
+    songDetails += '<tr><th>Uri</th><td><a class="text-success" href="/library/' + obj.data.uri + '">' + obj.data.uri + '</a></td></tr>';
+    
+    if (settings.stickers == true) {
+        var like = 'not voted';
+        if (obj.data.like == 0)
+            like = '<span class="material-icons">thumb_down_alt</span>';
+        else if (obj.data.like == 2)
+            '<span class="material-icons">thumb_up_alt</span>';
+        songDetails += '<tr class="stickers"><th colspan="2">Statistics</th></tr>' +
+            '<tr><th>Play count</th><td>' + obj.data.playCount + '</td></tr>' +
+            '<tr><th>Skip count</th><td>' + obj.data.skipCount + '</td></tr>' +
+            '<tr><th>Last played</th><td>' + (obj.data.lastPlayed == 0 ? 'never' : new Date(value * 1000).toUTCString()) + '</td></tr>' +
+            '<tr><th>Like</th><td>' + like + '</td></tr>';
+    }
+    
+    modal.getElementsByTagName('tbody')[0].innerHTML = songDetails;
 }
 
 function playlistDetails(uri) {
@@ -2066,6 +2072,7 @@ function songChange(obj) {
         textNotification += ' - ' + obj.data.album;
         htmlNotification += '<br/>' + obj.data.album;
         domCache.currentAlbum.innerText = obj.data.album;
+        domCache.currentAlbum.setAttribute('data-album', obj.data.album);
     }
     else
         domCache.currentAlbum.innerText = '';

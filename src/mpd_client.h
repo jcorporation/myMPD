@@ -131,8 +131,10 @@ struct t_mpd {
     
     // Features
     const unsigned* protocol;
+    // Supported tags
     bool feat_sticker;
     bool tag_artist;
+    bool tag_album;
     bool tag_album_artist;
     bool tag_title;
     bool tag_track;
