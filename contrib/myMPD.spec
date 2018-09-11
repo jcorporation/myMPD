@@ -4,22 +4,22 @@
 # (c) 2018 Juergen Mang <mail@jcgames.de
 
 Name:           myMPD
-Version:        master
+Version:        devel
 Release:        0 
 License:        GPL-2.0 
 Group:          Productivity/Multimedia/Sound/Players
 Summary:        Standalone webclient for mpd
 Url:            https://github.com/jcorporation/myMPD
-Source:         https://github.com/jcorporation/myMPD/archive/master.zip
+Source:         https://github.com/jcorporation/myMPD/archive/devel.zip
 BuildRequires:  gcc
 BuildRequires:  cmake
 BuildRequires:  unzip
 BuildRequires:	libmpdclient-devel
-BuildRequires:	libmpdclient2
 BuildRequires:	pkgconfig
 BuildRequires:	openssl-devel
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
+%global debug_package %{nil}
 
 %description 
 myMPD is a standalone and mobile friendly web mpdclient.
@@ -36,7 +36,24 @@ make
 %install
 cd release
 make install DESTDIR=%{buildroot}
-chmod 755 %{buildroot}/usr/share/mympd/crcert.sh
+
+%post
+getent group mympd > /dev/null
+[ "$?" = "2" ] && groupadd mympd
+getent passwd mympd > /dev/null
+[ "$?" = "2" ] && useradd mympd -g mympd -d /var/lib/mympd -s /usr/sbin/nologin
+if [ -d /usr/lib/systemd/ ]
+then
+  [ -d /usr/lib/systemd/system ] || sudo mkdir /usr/lib/systemd/system 
+  cp /usr/share/mympd/mympd.service /usr/lib/systemd/system/
+fi
+if [ -f /etc/mpd.conf ]
+then
+  LIBRARY=$(grep ^music_directory /etc/mpd.conf | awk {'print $2'} | sed -e 's/"//g')
+  [ "$LIBRARY" != "" ] && [ ! -e /usr/share/mympd/htdocs/library ] && ln -s "$LIBRARY" /usr/share/mympd/htdocs/library
+fi
+chown -R mympd /var/lib/mympd
+/usr/share/mympd/crcert.sh
 
 %files 
 %defattr(-,root,root,-)
@@ -48,5 +65,5 @@ chmod 755 %{buildroot}/usr/share/mympd/crcert.sh
 /var/lib/mympd
 
 %changelog
-* Tue Aug 28 2018 Juergen Mang <mail@jcgames.de> - master
+* Wed Sep 05 2018 Juergen Mang <mail@jcgames.de> - master
 - Version from master

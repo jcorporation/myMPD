@@ -72,14 +72,12 @@
     X(MPD_API_PLAYLIST_RM_TRACK) \
     X(MPD_API_PLAYLIST_LIST) \
     X(MPD_API_PLAYLIST_CONTENT_LIST) \
-    X(MPD_API_DATABASE_SEARCH_ADD_PLAYLIST) \
-    X(MPD_API_DATABASE_SEARCH_ADD_QUEUE) \
     X(MPD_API_DATABASE_SEARCH) \
     X(MPD_API_DATABASE_UPDATE) \
     X(MPD_API_DATABASE_FILESYSTEM_LIST) \
-    X(MPD_API_DATABASE_ARTISTALBUM_LIST) \
-    X(MPD_API_DATABASE_ARTISTALBUMTITLE_LIST) \
-    X(MPD_API_DATABASE_ARTIST_LIST) \
+    X(MPD_API_DATABASE_TAG_LIST) \
+    X(MPD_API_DATABASE_TAG_ALBUM_LIST) \
+    X(MPD_API_DATABASE_TAG_ALBUM_TITLE_LIST) \
     X(MPD_API_DATABASE_STATS) \
     X(MPD_API_DATABASE_SONGDETAILS) \
     X(MPD_API_PLAYER_PLAY_TRACK) \
@@ -114,21 +112,36 @@ enum mpd_conn_states {
 };
 
 struct t_mpd {
+    // Connection
     struct mpd_connection *conn;
     enum mpd_conn_states conn_state;
+    int timeout;
 
-    /* Reponse Buffer */
+    // Reponse Buffer
     char buf[MAX_SIZE];
     size_t buf_size;
 
+    // States
     int song_id;
     int next_song_id;
     int last_song_id;
     unsigned queue_version;
     unsigned queue_length;
-    int timeout;
-    
     int last_update_sticker_song_id;
+    
+    // Features
+    const unsigned* protocol;
+    // Supported tags
+    bool feat_sticker;
+    bool tag_artist;
+    bool tag_album;
+    bool tag_album_artist;
+    bool tag_title;
+    bool tag_track;
+    bool tag_genre;
+    bool tag_date;
+    bool tag_composer;
+    bool tag_performer;
 } mpd;
 
 typedef struct {
@@ -177,15 +190,13 @@ int mympd_put_outputs(char *buffer);
 int mympd_put_current_song(char *buffer);
 int mympd_put_queue(char *buffer, unsigned int offset, unsigned *queue_version, unsigned *queue_length);
 int mympd_put_browse(char *buffer, char *path, unsigned int offset, char *filter);
-int mympd_search(char *buffer, char *mpdtagtype, unsigned int offset, char *searchstr);
-int mympd_search_add(char *buffer, char *mpdtagtype, char *searchstr);
-int mympd_search_add_plist(char *plist, char *mpdtagtype, char *searchstr);
+int mympd_search(char *buffer, char *searchstr, char *filter, char *plist, unsigned int offset);
 int mympd_search_queue(char *buffer, char *mpdtagtype, unsigned int offset, char *searchstr);
 int mympd_put_welcome(char *buffer);
 int mympd_put_stats(char *buffer);
 int mympd_put_settings(char *buffer);
 int mympd_put_db_tag(char *buffer, unsigned int offset, char *mpdtagtype, char *mpdsearchtagtype, char *searchstr, char *filter);
-int mympd_put_songs_in_album(char *buffer, char *albumartist, char *album);
+int mympd_put_songs_in_album(char *buffer, char *album, char *search, char *tag);
 int mympd_put_playlists(char *buffer, unsigned int offset, char *filter);
 int mympd_put_playlist_list(char *buffer, char *uri, unsigned int offset, char *filter);
 int mympd_put_songdetails(char *buffer, char *uri);

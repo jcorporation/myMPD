@@ -87,7 +87,7 @@
           <small>Artist</small>
           <h4 id="currentArtist" data-href="{'cmd': 'artistClick', 'options': []}"></h4>
           <small>Album</small>
-          <h4 id="currentAlbum"></h4>
+          <h4 id="currentAlbum" data-href="{'cmd': 'albumClick', 'options': []}"></h4>
         </div>
       </div>
       <div class="card-footer card-footer-playback">
@@ -120,8 +120,8 @@
               <button type="button" class="btn btn-secondary material-icons" data-href="{'cmd': 'sendAPI', 'options': [{'cmd':'MPD_API_QUEUE_CLEAR'}]}" title="Clear queue">clear_all</button>
               <button id="clearQueueBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-right" type="button" data-toggle="dropdown"></button>
               <div class="dropdown-menu bg-dark dropdown-menu-right px-2" id="clearQueueDropdown">
-                  <button type="button" class="btn btn-secondary btn-block" data-href="{'cmd': 'sendAPI', 'options': [{'cmd':'MPD_API_QUEUE_CLEAR'}]}" >Clear queue</button>
-                  <button type="button" class="btn btn-secondary btn-block" data-href="{'cmd': 'sendAPI', 'options': [{'cmd':'MPD_API_QUEUE_CROP'}]}" >Crop queue</button>
+                  <button type="button" class="btn btn-secondary btn-sm btn-block" data-href="{'cmd': 'sendAPI', 'options': [{'cmd':'MPD_API_QUEUE_CLEAR'}]}" >Clear queue</button>
+                  <button type="button" class="btn btn-secondary btn-sm btn-block" data-href="{'cmd': 'sendAPI', 'options': [{'cmd':'MPD_API_QUEUE_CROP'}]}" >Crop queue</button>
               </div>
             </div>
           </div>
@@ -134,11 +134,6 @@
                   <span id="searchqueuetagdesc">Any Tag</span>
                 </button>
                 <div class="dropdown-menu bg-dark dropdown-menu-right px-2" id="searchqueuetag">
-                  <h6 class="dropdown-header text-light">Search in Tag</h6>
-                  <button type="button" class="btn btn-secondary btn-block active">Any Tag</button>
-                  <button type="button" class="btn btn-secondary btn-block">Title</button>
-                  <button type="button" class="btn btn-secondary btn-block">Artist</button>
-                  <button type="button" class="btn btn-secondary btn-block">Album</button>
                 </div>
               </div>
             </div>
@@ -294,14 +289,30 @@
 
       <div class="card-body hide" id="cardBrowseDatabase">
         <div class="btn-toolbar card-toolbar" id="BrowseDatabaseButtons">
+          <div class="btn-group mr-2">
+            <button id="btnBrowseDatabaseByTag" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">AlbumArtist</button>
+            <div class="dropdown-menu bg-dark px-2" id="BrowseDatabaseByTagDropdown">
+            </div>
+          </div>        
           <div class="btn-group mr-2 hide">
-            <button data-href="{'cmd': 'appGoto', 'options': ['Browse','Database','Artist']}" id="btnBrowseDatabaseArtist" type="button" class="btn btn-secondary">&laquo; Artists</button>
+            <button data-href="{'cmd': 'gotoTagList', 'options': []}" id="btnBrowseDatabaseTag" type="button" class="btn btn-secondary">&laquo; Artists</button>
           </div>
           <div class="btn-group mr-2">
             <button id="BrowseDatabaseFilter" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">Filter</button>
             <div class="dropdown-menu bg-dark px-2 letters" id="BrowseDatabaseFilterLetters">
             </div>
           </div>
+          <div class="input-group mr-2 hide">
+            <div class="input-group-prepend">
+              <button data-href="{'cmd': 'addAllFromBrowseDatabase', 'options': []}" id="BrowseDatabaseAddAllSongs" class="btn btn-secondary">Add all</button>
+              <button id="BrowseDatabaseAddAllSongsBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-right" type="button" data-toggle="dropdown"></button>
+              <div class="dropdown-menu bg-dark dropdown-menu-right px-2" id="BrowseDatabaseAddAllSongsDropdown">
+                <button type="button" class="btn btn-secondary btn-sm btn-block">Add all to queue</button>
+                <button type="button" class="btn btn-secondary btn-sm btn-block">Add all to playlist</button>
+              </div>
+            </div>
+          </div>
+
           <div id="BrowseDatabasePaginationTop" class="btn-group mr-2 hide">
             <button data-href="{'cmd': 'gotoPage', 'options': ['prev']}" id="BrowseDatabasePaginationTopPrev" title="Previous Page" type="button" class="btn btn-secondary">&laquo;</button>
               <div class="input-group-append">
@@ -314,7 +325,7 @@
         </div>
 
         <div class="table-responsive-md">
-          <table id="BrowseDatabaseArtistList" class="table table-hover table-sm">
+          <table id="BrowseDatabaseTagList" class="table table-hover table-sm">
             <col class="tblnum"/>
             <col class="tbltitle"/>            
             <thead>
@@ -328,7 +339,9 @@
           </table>
         </div>
         
-        <div id="BrowseDatabaseAlbumList" class="row hide"></div>
+        <div id="BrowseDatabaseAlbumList" class="row hide">
+          <h2 id="BrowseDatabaseAlbumListCaption"></h2>
+        </div>
         
         <div class="btn-toolbar hide" id="BrowseDatabaseButtonsBottom">
           <div class="btn-group mr-2">
@@ -358,11 +371,11 @@
           </div>          
           <div class="input-group mr-2">
             <div class="input-group-prepend">
-              <button data-href="{'cmd': 'addAllFromBrowse', 'options': []}" id="BrowseFilesystemAddAllSongs" class="btn btn-secondary">Add all</button>
+              <button data-href="{'cmd': 'addAllFromBrowseFilesystem', 'options': []}" id="BrowseFilesystemAddAllSongs" class="btn btn-secondary">Add all</button>
               <button id="BrowseFilesystemAddAllSongsBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-right" type="button" data-toggle="dropdown"></button>
               <div class="dropdown-menu bg-dark dropdown-menu-right px-2" id="BrowseFilesystemAddAllSongsDropdown">
-                <button type="button" class="btn btn-secondary btn-block">Add all to queue</button>
-                <button type="button" class="btn btn-secondary btn-block">Add all to playlist</button>
+                <button type="button" class="btn btn-secondary btn-sm btn-block">Add all to queue</button>
+                <button type="button" class="btn btn-secondary btn-sm btn-block">Add all to playlist</button>
               </div>
             </div>
           </div>
@@ -437,11 +450,6 @@
                   <span id="searchtagsdesc">Any Tag</span>
                 </button>
                 <div class="dropdown-menu bg-dark dropdown-menu-right px-2" id="searchtags">
-                  <h6 class="dropdown-header text-light">Search in Tag</h6>
-                  <button type="button" class="btn btn-secondary active btn-block">Any Tag</button>
-                  <button type="button" class="btn btn-secondary btn-block">Title</button>
-                  <button type="button" class="btn btn-secondary btn-block">Artist</button>
-                  <button type="button" class="btn btn-secondary btn-block">Album</button>
                 </div>
               </div>
             </div>
@@ -451,8 +459,8 @@
               <button id="searchAddAllSongs" class="btn btn-secondary" data-href="{'cmd': 'addAllFromSearch', 'options': []}">Add all</button>
               <button id="searchAddAllSongsBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-right" type="button" data-toggle="dropdown"></button>
               <div class="dropdown-menu bg-dark dropdown-menu-right px-2" id="searchAddAllSongsDropdown">
-                  <button type="button" class="btn btn-secondary btn-block">Add all to queue</button>
-                  <button type="button" class="btn btn-secondary btn-block">Add all to playlist</button>
+                  <button type="button" class="btn btn-secondary btn-sm btn-block">Add all to queue</button>
+                  <button type="button" class="btn btn-secondary btn-sm btn-block">Add all to playlist</button>
               </div>
             </div>
           </div>
@@ -794,22 +802,12 @@
         <div class="modal-body">
           <div class="album-cover"></div>
           <h1></h1>
-          <table class="table table-sm">
-            <tbody>
-              <tr data-name="artist"><th>Artist</th><td></td></tr>
-              <tr data-name="album"><th>Album</th><td></td></tr>
-              <tr data-name="track"><th>Track</th><td></td></tr>
-              <tr data-name="albumartist"><th>Albumartist</th><td></td></tr>
-              <tr data-name="genre"><th>Genre</th><td></td></tr>
-              <tr data-name="date"><th>Date</th><td></td></tr>
-              <tr data-name="uri"><th>Uri</th><td></td></tr>
-              <tr class="stickers"><th colspan="2">Statistics</th></tr>
-              <tr class="stickers" data-name="playCount"><th>Play count</th><td></td></tr>
-              <tr class="stickers" data-name="skipCount"><th>Skip count</th><td></td></tr>
-              <tr class="stickers" data-name="lastPlayed"><th>Last played</th><td></td></tr>
-              <tr class="stickers" data-name="like"><th>Like</th><td></td></tr>
-            </tbody>
-          </table>
+          <div class="table-responsive-md">
+            <table class="table table-sm">
+              <tbody>
+              </tbody>
+            </table>
+          </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
