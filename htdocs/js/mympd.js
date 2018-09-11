@@ -198,15 +198,7 @@ function appRoute() {
         sendAPI({"cmd": "MPD_API_PLAYER_CURRENT_SONG"}, songChange);
     }    
     else if (app.current.app == 'Queue' ) {
-        var btns = document.getElementById('searchqueuetag').getElementsByTagName('button');
-        var btnsLen = btns.length;
-        for (var i = 0; i < btnsLen; i++) {
-            btns[i].classList.remove('active');
-            if (btns[i].getAttribute('data-tag') == app.current.filter) { 
-                btns[i].classList.add('active'); 
-                document.getElementById('searchqueuetagdesc').innerText = btns[i].innerText;
-            }
-        }
+        selectTag('searchqueuetag', 'searchqueuetagdesc', app.current.filter);
         getQueue();
     }
     else if (app.current.app == 'Browse' && app.current.tab == 'Playlists' && app.current.view == 'All') {
@@ -226,15 +218,7 @@ function appRoute() {
         else {
             sendAPI({"cmd": "MPD_API_DATABASE_TAG_LIST","data": {"offset": app.current.page, "filter": app.current.filter, "tag": app.current.view}}, parseListDBtags);
             doSetFilterLetter('BrowseDatabaseFilter');
-            var btns = document.getElementById('BrowseDatabaseByTagDropdown').getElementsByTagName('button');
-            var btnsLen = btns.length;
-            for (var i = 0; i < btnsLen; i++) {
-                btns[i].classList.remove('active');
-                if (btns[i].getAttribute('data-tag') == app.current.view) { 
-                    btns[i].classList.add('active'); 
-                    document.getElementById('btnBrowseDatabaseByTag').innerText = btns[i].innerText;
-                }
-            }
+            selectTag('BrowseDatabaseByTagDropdown', 'btnBrowseDatabaseByTag', app.current.view);
         }
     }    
     else if (app.current.app == 'Browse' && app.current.tab == 'Filesystem') {
@@ -292,16 +276,7 @@ function appRoute() {
             document.getElementById('SearchList').classList.remove('opacity05');
             setPagination(0);
         }
-        
-        var btns = document.getElementById('searchtags').getElementsByTagName('button');
-        var btnsLen = btns.length;
-        for (var i = 0; i < btnsLen; i++) {
-            btns[i].classList.remove('active');
-            if (btns[i].getAttribute('data-tag') == app.current.filter) { 
-                btns[i].classList.add('active'); 
-                document.getElementById('searchtagsdesc').innerText = btns[i].innerText;
-            }
-        }
+        selectTag('searchtags', 'searchtagsdesc', app.current.filter);
     }
     else {
         appGoto("Playback");
@@ -488,10 +463,21 @@ function appInit() {
     document.getElementById('searchAddAllSongsDropdown').addEventListener('click', function(event) {
         if (event.target.nodeName == 'BUTTON') {
             if (event.target.innerText == 'Add all to queue') {
-                addAllFromSearch();
+                addAllFromSearchPlist('queue');
             }
             else if (event.target.innerText == 'Add all to playlist') {
                 showAddToPlaylist('SEARCH');                
+            }
+        }
+    }, false);
+    
+    document.getElementById('BrowseDatabaseAddAllSongsDropdown').addEventListener('click', function(event) {
+        if (event.target.nodeName == 'BUTTON') {
+            if (event.target.innerText == 'Add all to queue') {
+                addAllFromBrowseDatabasePlist('queue');
+            }
+            else if (event.target.innerText == 'Add all to playlist') {
+                showAddToPlaylist('DATABASE');
             }
         }
     }, false);
@@ -862,13 +848,17 @@ function parseSettings(obj) {
         document.getElementsByClassName('mixramp')[0].style.display = 'none';
     }
 
-    settings=obj.data;
+    settings = obj.data;
     settings.mpdstream = 'http://';
     if (settings.mpdhost == '127.0.0.1' || settings.mpdhost == 'localhost')
         settings.mpdstream += window.location.hostname;
     else
         settings.mpdstream += settings.mpdhost;
     settings.mpdstream += ':' + settings.streamport + '/';
+    
+    addTagList('BrowseDatabaseByTagDropdown', false);
+    addTagList('searchqueuetag', true);
+    addTagList('searchtags', true);
 }
 
 function getSettings() {
@@ -1242,6 +1232,7 @@ function parseListDBtags(obj) {
         document.getElementById('btnBrowseDatabaseTag').parentNode.classList.remove('hide');
         document.getElementById('BrowseDatabaseAddAllSongs').parentNode.parentNode.classList.remove('hide');
         document.getElementById('btnBrowseDatabaseTag').innerHTML = '&laquo; ' + app.current.view;
+        document.getElementById('BrowseDatabaseAlbumListCaption').innerText = obj.searchtagtype + ': ' + obj.searchstr;
         var nrItems = obj.data.length;
         if (nrItems == 1 && obj.data[0].value == '')
             nrItems = 0;
@@ -1259,7 +1250,7 @@ function parseListDBtags(obj) {
             card.innerHTML = '<div class="card mb-4" id="card' + id + '">' +
                              ' <a href="#" class="card-img-top"><img class="card-img-top" src="" ></a>' +
                              ' <div class="card-body">' +
-                             '  <h5 class="card-title">' + obj.searchstr + '</h5>' +
+                             '  <h5 class="card-title" id="albumartist' + id + '"></h5>' +
                              '  <h4 class="card-title">' + obj.data[i].value + '</h4>' +
                              '  <table class="table table-sm table-hover" id="tbl' + id + '"><tbody></tbody></table'+
                              ' </div>'+
@@ -1285,11 +1276,13 @@ function parseListDBtags(obj) {
         document.getElementById('btnBrowseDatabaseByTag').parentNode.classList.remove('hide');
         document.getElementById('BrowseDatabaseAddAllSongs').parentNode.parentNode.classList.add('hide');
         document.getElementById('btnBrowseDatabaseTag').parentNode.classList.add('hide');
+        
+        if (obj.data[0] && obj.data[0].value == '')
+            obj.data.shift();
         var nrItems = obj.data.length;
-        if (nrItems == 1 && obj.data[0].value == '')
-            nrItems = 0;
         var tbody = document.getElementById(app.current.app + app.current.tab + 'TagList').getElementsByTagName('tbody')[0];
         var tr = tbody.getElementsByTagName('tr');
+        var skipped = 0;
         for (var i = 0; i < nrItems; i++) {
             var uri = encodeURI(obj.data[i].value);
             if (tr[i])
@@ -1333,6 +1326,7 @@ function parseListTitles(obj) {
     imga.setAttribute('data-uri', encodeURI(obj.data[0].uri.replace(/\/[^\/]+$/, '')));
     imga.setAttribute('data-name', obj.album);
     imga.setAttribute('data-type', 'dir');
+    document.getElementById('albumartist' + id).innerText = obj.albumartist;
   
     var titleList = '';
     var nrItems = obj.data.length;
@@ -1622,10 +1616,12 @@ function addToPlaylist() {
         }
     }
     if (plist != '') {
-        if (uri != 'SEARCH') 
-            sendAPI({"cmd": "MPD_API_PLAYLIST_ADD_TRACK", "data": {"uri": uri, "plist": plist}});
+        if (uri == 'SEARCH')
+            addAllFromSearchPlist(plist);
+        else if (uri == 'DATABASE')
+            addAllFromBrowseDatabasePlist(plist);
         else
-            addAllFromSearchPlist(plist);            
+            sendAPI({"cmd": "MPD_API_PLAYLIST_ADD_TRACK", "data": {"uri": uri, "plist": plist}});
         modalAddToPlaylist.hide();
     }
     else {
@@ -1950,17 +1946,17 @@ function addAllFromBrowseFilesystem() {
     showNotification('Added all songs', '', '', 'success');
 }
 
-function addAllFromSearch() {
-    if (app.current.search.length >= 2) {
-        sendAPI({"cmd": "MPD_API_DATABASE_SEARCH", "data": {"plist": "queue", "filter": app.current.filter, "searchstr": app.current.search, "offset": 0}});
-        showNotification('Added '+ parseInt(document.getElementById('panel-heading-search').innerText) +' songs from search', '', '', 'success');
-    }
-}
-
 function addAllFromSearchPlist(plist) {
     if (app.current.search.length >= 2) {
         sendAPI({"cmd": "MPD_API_DATABASE_SEARCH", "data": {"plist": plist, "filter": app.current.filter, "searchstr": app.current.search, "offset": 0}});
         showNotification('Added '+ parseInt(document.getElementById('panel-heading-search').innerText) +' songs from search to ' + plist, '', '', 'success');
+    }
+}
+
+function addAllFromBrowseDatabasePlist(plist) {
+    if (app.current.search.length >= 2) {
+        sendAPI({"cmd": "MPD_API_DATABASE_SEARCH", "data": {"plist": plist, "filter": app.current.view, "searchstr": app.current.search, "offset": 0}});
+        showNotification('Added songs from database selection to ' + plist, '', '', 'success');
     }
 }
 
@@ -2144,6 +2140,31 @@ function addFilterLetter(x) {
     }, false);
 }
 
+function selectTag(btnsEl, desc, setTo) {
+    var btns = document.getElementById(btnsEl);
+    var aBtn = btns.querySelector('.active')
+    if (aBtn)
+        aBtn.classList.remove('active');
+    aBtn = btns.querySelector('[data-tag=' + setTo + ']');
+    if (aBtn) {
+        aBtn.classList.add('active');
+        document.getElementById(desc).innerText = aBtn.innerText;
+    }
+}
+
+function addTagList(x, any) {
+    var tagList = '';
+    if (any == true)
+        tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="any">Any Tag</button>';
+    for (var key in settings.tags) {
+        if (settings.tags[key] == true && key != 'Track') {
+            tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="' + key + '">' + key + '</button>';
+        }
+    }
+    var tagListEl = document.getElementById(x);
+    tagListEl.innerHTML = tagList;
+}
+
 function gotoTagList() {
     appGoto(app.current.app, app.current.tab, app.current.view, '0/-/');
 }
@@ -2170,7 +2191,7 @@ function beautifyDuration(x) {
 }
 
 function genId(x) {
-    return 'id' + x.replace(/[^\w]/g, '');
+    return 'id' + x.replace(/[^\w\-\_]/g, '');
 }
 
 //Init app

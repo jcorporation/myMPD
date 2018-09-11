@@ -636,7 +636,7 @@ void mympd_mpd_features() {
     if (mpd.tag_artist == false)
         printf("WARNING: Artist tag not enabled in mpd\n");
     if (mpd.tag_album_artist == false)
-        printf("WARNING: Albumartist tag not enabled in mpd\n");
+        printf("WARNING: AlbumArtist tag not enabled in mpd\n");
     if (mpd.tag_title == false)
         printf("WARNING: Title tag not enabled in mpd\n");
     if (mpd.tag_track == false)
@@ -868,6 +868,8 @@ char* mympd_get_tag(struct mpd_song const *song, enum mpd_tag_type tag) {
     if (str == NULL) {
         if (tag == MPD_TAG_TITLE)
             str = basename((char *)mpd_song_get_uri(song));
+        else if (tag == MPD_TAG_ALBUM_ARTIST)
+            str = (char *)mpd_song_get_tag(song, MPD_TAG_ARTIST, 0);
         else
             str = "-";
     }
@@ -1419,6 +1421,7 @@ int mympd_put_songs_in_album(char *buffer, char *album, char *search, char *tag)
     unsigned long entities_returned = 0;
     int len;
     char cover[500];
+    char *albumartist;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
 
     if (mpd_search_db_songs(mpd.conn, true) == false)
@@ -1440,9 +1443,10 @@ int mympd_put_songs_in_album(char *buffer, char *album, char *search, char *tag)
             if (entity_count <= MAX_ELEMENTS_PER_PAGE) {
                 if (entities_returned ++) 
                     len += json_printf(&out, ", ");
-                else 
+                else {
                     mympd_get_cover(mpd_song_get_uri(song), cover, 500);
-                
+                    albumartist = strdup(mympd_get_tag(song, MPD_TAG_ALBUM_ARTIST));
+                }
                 len += json_printf(&out, "{type: song, uri: %Q, duration: %d, title: %Q, track: %Q}",
                     mpd_song_get_uri(song),
                     mpd_song_get_duration(song),
@@ -1453,15 +1457,17 @@ int mympd_put_songs_in_album(char *buffer, char *album, char *search, char *tag)
             mpd_song_free(song);
         }
         
-        len += json_printf(&out, "], totalEntities: %d, returnedEntities: %d, album: %Q, search: %Q, tag: %Q, cover: %Q}",
+        len += json_printf(&out, "], totalEntities: %d, returnedEntities: %d, album: %Q, search: %Q, tag: %Q, cover: %Q, albumartist: %Q}",
             entity_count,
             entities_returned,
             album,
             search,
             tag,
-            cover
+            cover,
+            albumartist
         );
     }
+    free(albumartist);
 
     if (len > MAX_SIZE)
         printf("Buffer truncated\n");
