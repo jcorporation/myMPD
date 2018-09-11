@@ -1477,8 +1477,8 @@ function parseSongDetails(obj) {
         if (obj.data.like == 0)
             like = '<span class="material-icons">thumb_down_alt</span>';
         else if (obj.data.like == 2)
-            '<span class="material-icons">thumb_up_alt</span>';
-        songDetails += '<tr class="stickers"><th colspan="2">Statistics</th></tr>' +
+            like = '<span class="material-icons">thumb_up_alt</span>';
+        songDetails += '<tr><th colspan="2">Statistics</th></tr>' +
             '<tr><th>Play count</th><td>' + obj.data.playCount + '</td></tr>' +
             '<tr><th>Skip count</th><td>' + obj.data.skipCount + '</td></tr>' +
             '<tr><th>Last played</th><td>' + (obj.data.lastPlayed == 0 ? 'never' : new Date(value * 1000).toUTCString()) + '</td></tr>' +
