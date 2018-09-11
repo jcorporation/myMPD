@@ -16,7 +16,7 @@ This fork provides a reworked ui based on Bootstrap 4, a modernized backend and 
 **Featurelist:**
  - Control mpd functions (play, pause, etc.)
  - Set mpd settings (repeat, random, etc.)
- - Browse mpd database by albumartist
+ - Browse mpd database by tags
  - Browse filesystem and playlists
  - Queue management
  - Playlist management
