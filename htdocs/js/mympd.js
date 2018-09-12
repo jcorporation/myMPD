@@ -359,7 +359,7 @@ function appInit() {
         hrefs[i].addEventListener('click', function(event) {
             event.preventDefault();
             //event.stopPropagation();
-            var cmd = JSON.parse(this.getAttribute('data-href').replace(/\'/g, '"'));
+            var cmd = JSON.parse(this.getAttribute('data-href'));
             if (typeof window[cmd.cmd] === 'function') {
                 switch(cmd.cmd) {
                     case 'sendAPI':
@@ -1676,6 +1676,10 @@ function dirname(uri) {
     return uri.replace(/\/[^\/]*$/, '');
 }
 
+function addMenuItem(href, text) {
+    return '<a class="dropdown-item" href="#" data-href=\'' + JSON.stringify(href) + '\'>' + text +'</a>';
+}
+
 function showMenu(el, event) {
     event.preventDefault();
     event.stopPropagation();
@@ -1697,59 +1701,45 @@ function showMenu(el, event) {
 
     var menu = '';
     if ((app.current.app == 'Browse' && app.current.tab == 'Filesystem') || app.current.app == 'Search' ||
-        (app.current.app == 'Browse' && app.current.tab == 'Database' && app.current.view == 'Album')) {
-        menu += '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'appendQueue\', \'options\': [\'' + type + '\',\'' + 
-            uri + '\',\'' + name + '\']}">Append to queue</a>' +
-            ( type == 'song' ? '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'appendAfterQueue\', \'options\': [\'' + type + '\',\'' +
-            uri + '\',' + nextsongpos + ',\'' + name + '\']}">Add after current playing song</a>' : '') +
-            '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'replaceQueue\', \'options\': [\'' + type + '\',\'' + 
-            uri + '\',\'' + name + '\']}">Replace queue</a>' +
-            ( type != 'plist' ? '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'showAddToPlaylist\', \'options\': [\'' + uri + '\']}">Add to playlist</a>' : '') +
-            ( type == 'song' ? '<a class="dropdown-item" data-href="{\'cmd\': \'songDetails\', \'options\': [\'' + uri + '\']}" href="#">Songdetails</a>' : '') +
-            ( type == 'plist' ? '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'playlistDetails\', \'options\': [\'' + uri + '\']}">Show playlist</a>' : '');
+        (app.current.app == 'Browse' && app.current.tab == 'Database')) {
+        menu += addMenuItem({"cmd": "appendQueue", "options": [type, uri, name]}, 'Append to queue') +
+            (type == 'song' ? addMenuItem({"cmd": "appendAfterQueue", "options": [type, uri, nextsongpos, name]}, 'Add after current playing song') : '') +
+            addMenuItem({"cmd": "replaceQueue", "options": [type, uri, name]}, 'Replace queue') +
+            (type != 'plist' ? addMenuItem({"cmd": "showAddToPlaylist", "options": [uri]}, 'Add to playlist') : '') +
+            (type == 'song' ? addMenuItem({"cmd": "songDetails", "options": [uri]}, 'Songdetails') : '') +
+            (type == 'plist' ? addMenuItem({"cmd": "playlistDetails", "options": [uri]}, 'Show playlist') : '');
         if (app.current.app == 'Search') {
             var baseuri = dirname(uri);
             menu += '<div class="dropdown-divider"></div>' +
                 '<a class="dropdown-item" id="advancedMenuLink" data-toggle="collapse" href="#advancedMenu"><span class="material-icons material-icons-small-left">keyboard_arrow_right</span>Album actions</a>' +
                 '<div class="collapse" id="advancedMenu">' +
-                    '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'appendQueue\', \'options\': [\'' + type + '\',\'' + 
-                    baseuri + '\',\'' + name + '\']}">Append to queue</a>' +
-                    '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'appendAfterQueue\', \'options\': [\'' + type + '\',\'' +
-                    baseuri + '\',' + nextsongpos + ',\'' + name + '\']}">Add after current playing song</a>' +
-                    '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'replaceQueue\', \'options\': [\'' + type + '\',\'' + 
-                    baseuri + '\',\'' + name + '\']}">Replace queue</a>' +
-                    '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'showAddToPlaylist\', \'options\': [\'' + baseuri + '\']}">Add to playlist</a>' +
+                    addMenuItem({"cmd": "appendQueue", "options": [type, baseuri, name]}, 'Append to queue') +
+                    addMenuItem({"cmd": "appendAfterQueue", "options": [type, baseuri, nextsongpos, name]}, 'Add after current playing song') +
+                    addMenuItem({"cmd": "replaceQueue", "options": [type, baseuri, name]}, 'Replace queue') +
+                    addMenuItem({"cmd": "showAddToPlaylist", "options": [baseuri]}, 'Add to playlist') +
                 '</div>';
         }
     }
     else if (app.current.app == 'Browse' && app.current.tab == 'Playlists' && app.current.view == 'All') {
-        menu += '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'appendQueue\', \'options\': [\'' + type + '\',\'' + 
-            uri + '\',\'' + name + '\']}">Append to queue</a>' +
-            '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'replaceQueue\', \'options\': [\'' + type + '\',\'' + 
-            uri + '\',\'' + name + '\']}">Replace queue</a>' +
-            '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'playlistDetails\', \'options\': [\'' + uri + '\']}">Edit playlist</a>' +
-            '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'showRenamePlaylist\', \'options\': [\'' + uri + '\']}">Rename playlist</a>' + 
-            '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'delPlaylist\', \'options\': [\'' + 
-            uri + '\']}">Delete playlist</a>';
+        menu += addMenuItem({"cmd": "appendQueue", "options": [type, uri, name]}, 'Append to queue') +
+            addMenuItem({"cmd": "replaceQueue", "options": [type, uri, name]},'Replace queue') +
+            addMenuItem({"cmd": "playlistDetails", "options": [uri]}, 'Edit playlist') +
+            addMenuItem({"cmd": "showRenamePlaylist", "options": [uri]}, 'Rename playlist') + 
+            addMenuItem({"cmd": "delPlaylist", "options": [uri]}, 'Delete playlist');
     }
     else if (app.current.app == 'Browse' && app.current.tab == 'Playlists' && app.current.view == 'Detail') {
-        menu += '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'appendQueue\', \'options\': [\'' + type + '\',\'' + 
-            uri + '\',\'' + name + '\']}">Append to queue</a>' +
-            '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'replaceQueue\', \'options\': [\'' + type + '\',\'' + 
-            uri + '\',\'' + name + '\']}">Replace queue</a>' +
-            ( document.getElementById('BrowsePlaylistsDetailList').getAttribute('data-ro') == 'false' ?
-            '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'removeFromPlaylist\', \'options\': [\'' + document.getElementById('BrowsePlaylistsDetailList').getAttribute('data-uri') + '\', \'' + 
-            el.parentNode.parentNode.getAttribute('data-songpos') + '\']}">Remove</a>' : '') +
-            ( type != 'plist' ? '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'showAddToPlaylist\', \'options\': [\'' + uri + '\']}">Add to playlist</a>' : '');
+        var x = document.getElementById('BrowsePlaylistsDetailList');
+        menu += addMenuItem({"cmd": "appendQueue", "options": [type, uri, name]}, 'Append to queue') +
+            addMenuItem({"cmd": "replaceQueue", "options": [type, uri, name]}, 'Replace queue') +
+            (x.getAttribute('data-ro') == 'false' ? addMenuItem({"cmd": "removeFromPlaylist", "options": [x.getAttribute('data-uri'), 
+                    el.parentNode.parentNode.getAttribute('data-songpos')]}, 'Remove') : '') +
+            (type != 'plist' ? addMenuItem({"cmd": "showAddToPlaylist", "options": [uri]}, 'Add to playlist') : '');
     }
     else if (app.current.app == 'Queue') {
-        menu += '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'delQueueSong\', \'options\': [\'single\',' + 
-            el.parentNode.parentNode.getAttribute('data-trackid') + ']}">Remove</a>' +
-            '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'delQueueSong\', \'options\': [\'range\',0,'+ 
-            el.parentNode.parentNode.getAttribute('data-songpos') + ']}">Remove all upwards</a>' +
-            '<a class="dropdown-item" href="#" data-href="{\'cmd\': \'delQueueSong\', \'options\': [\'range\',' + 
-            (parseInt(el.parentNode.parentNode.getAttribute('data-songpos'))-1) + ',-1]}">Remove all downwards</a>' +
-            ( uri.indexOf('http') == -1 ? '<a class="dropdown-item" data-href="{\'cmd\': \'songDetails\', \'options\': [\'' + uri + '\']}" href="#">Songdetails</a>' : '');
+        menu += addMenuItem({"cmd": "delQueueSong", "options": ["single", el.parentNode.parentNode.getAttribute('data-trackid')]}, 'Remove') +
+            addMenuItem({"cmd": "delQueueSong", "options": ["range", 0, el.parentNode.parentNode.getAttribute('data-songpos')]}, 'Remove all upwards') +
+            addMenuItem({"cmd": "delQueueSong", "options": ["range", (parseInt(el.parentNode.parentNode.getAttribute('data-songpos'))-1), -1]}, 'Remove all downwards') +
+            (uri.indexOf('http') == -1 ? addMenuItem({"cmd": "songDetails", "options": [uri]}, 'Songdetails') : '');
     }    
     new Popover(el, { trigger: 'click', delay: 0, dismissible: true, template: '<div class="popover" role="tooltip">' +
         '<div class="arrow"></div>' +
