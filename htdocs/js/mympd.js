@@ -1612,7 +1612,7 @@ function addToPlaylist() {
     var plist = plistEl.options[plistEl.selectedIndex].text;
     if (plist == 'New Playlist') {
         var newPl = document.getElementById('addToPlaylistNewPlaylist').value;
-        var valid = newPl.replace(/\w/g, '');
+        var valid = newPl.replace(/\w\-/g, '');
         if (newPl != '' && valid == '') {
             plist = newPl;
         } else {
@@ -1660,7 +1660,7 @@ function showRenamePlaylist(from) {
 function renamePlaylist() {
     var from = document.getElementById('renamePlaylistFrom').value;
     var to = document.getElementById('renamePlaylistTo').value;
-    var valid = to.replace(/\w/g, '');
+    var valid = to.replace(/\w\-/g, '');
     if (to != '' && to != from && valid == '') {
         sendAPI({"cmd": "MPD_API_PLAYLIST_RENAME", "data": {"from": from, "to": to}});
         modalRenamePlaylist.hide();
@@ -1677,7 +1677,7 @@ function dirname(uri) {
 }
 
 function addMenuItem(href, text) {
-    return '<a class="dropdown-item" href="#" data-href=\'' + JSON.stringify(href) + '\'>' + text +'</a>';
+    return '<a class="dropdown-item" href="#" data-href=\'' + btoa(JSON.stringify(href)) + '\'>' + text +'</a>';
 }
 
 function showMenu(el, event) {
@@ -1753,7 +1753,7 @@ function showMenu(el, event) {
             if (event.target.nodeName == 'A') {
                 var dh = event.target.getAttribute('data-href');
                 if (dh) {
-                    var cmd = JSON.parse(dh.replace(/\'/g, '"'));
+                    var cmd = JSON.parse(atob(dh));
                     if (typeof window[cmd.cmd] === 'function') {
                         switch(cmd.cmd) {
                             case 'sendAPI':
@@ -1979,7 +1979,7 @@ function gotoPage(x) {
 
 function saveQueue() {
     var plName = document.getElementById('saveQueueName').value;
-    var valid = plName.replace(/\w/g, '');
+    var valid = plName.replace(/\w\-/g, '');
     if (plName != '' && valid == '') {
         sendAPI({"cmd": "MPD_API_QUEUE_SAVE", "data": {"plist": plName}});
         modalSavequeue.hide();
@@ -2188,7 +2188,7 @@ function beautifyDuration(x) {
 }
 
 function genId(x) {
-    return 'id' + x.replace(/[^\w\-\_]/g, '');
+    return 'id' + x.replace(/[^\w\-]/g, '');
 }
 
 //Init app
