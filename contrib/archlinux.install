@@ -1,0 +1,105 @@
+post_install() {
+  post_upgrade;
+}
+
+post_upgrade() {
+  # create mympd user, group if not already existing
+  echo "INFO: Checking status of mympd system user and group"
+  getent group mympd > /dev/null
+  [ "$?" = "2" ] && groupadd --system mympd
+  getent passwd mympd > /dev/null
+  [ "$?" = "2" ] && useradd --system -d /var/lib/mympd -s /usr/sbin/nologin -g mympd mympd
+
+  # fix ownership of /var/lib/mympd
+  if ! [ $(stat -c '%U:%G' /var/lib/mympd/) == 'mympd:mympd' ]
+  then
+    echo "INFO: Fixing ownership of /var/lib/mympd"
+    chown -R mympd.mympd /var/lib/mympd
+  fi
+
+  # link music directory to mympd if not already exising 
+  echo "INFO: Trying to link musicdir to library"
+  if [ -f /etc/mpd.conf ]
+  then
+    LIBRARY=$(grep ^music_directory /etc/mpd.conf | awk {'print $2'} | sed -e 's/"//g')
+    [ "$LIBRARY" != "" ] && [ ! -e /usr/share/mympd/htdocs/library ] && ln -s "$LIBRARY" /usr/share/mympd/htdocs/library
+  else
+    echo "/etc/mpd.conf not found, you must link your musicdir manually to /usr/share/mympd/htdocs/library"
+  fi
+
+  # install systemd service
+  echo "INFO: Installing systemd service"
+  if [ -d /etc/systemd/system ]
+  then
+    echo "INFO: reloading systemd"
+    systemctl daemon-reload
+    if [ ! -f /etc/systemd/system/multi-user.target.wants/mympd.service ]
+    then
+      echo "INFO: enabling mympd.service"
+      systemctl enable mympd
+    fi
+  fi
+
+  # create ssl certificates unless already existing
+  if [ -d /etc/mympd/ssl ]
+  then
+    echo "INFO: Certificates already created"
+  else
+    echo "INFO: Creating certificates"
+    /usr/share/mympd/crcert.sh
+  fi
+
+  # disable ssl by default on mympd.conf.dist (chrome hates localhost.localdomain)
+  echo "INFO: Disabling SSL by default in dist config"
+  sed '/^ssl = true/c ssl = false' -i "/etc/mympd/mympd.conf.dist"
+
+  # move config into place unless already existing
+  if [ ! -f /etc/mympd/mympd.conf ]
+  then 
+    mv /etc/mympd/mympd.conf.dist /etc/mympd/mympd.conf
+    echo -e "\e[93mWARNING\e[0m: \e[1mSSL Disabled by default! You must enable SSL in /etc/mympd/mympd.conf if you wish to use SSL\e[0m"
+  else
+    echo -e "\e[93mWARNING\e[0m: \e[1mmympd.conf \e[0minstalled as \e[1mmympd.conf.dist\e[0m"
+  fi
+
+  # installation complete
+  echo -e "\e[93mWARNING\e[0m: Edit \e[1m/etc/mympd/mympd.conf \e[0mbefore starting myMPD"
+}
+
+post_remove() {
+  # stop and remove systemd service
+  systemctl daemon-reload
+  if `systemctl is-active --quiet mympd`
+    then
+    echo "stopping mympd.service" && systemctl stop mympd 
+  fi
+  echo "disabling mympd.service" && systemctl disable mympd 
+ 
+  # backup config 
+  if [ -f /etc/mympd/mympd.conf ]
+  then 
+    mv /etc/mympd/mympd.conf /etc/mympd/mympd.conf.pacsave
+    echo -e "\e[93mINFO\e[0m: /etc/mympd/mympd.conf backed up to /etc/mympd/mympd.conf.pacsave"
+  fi
+
+  # unlink music dir
+  echo "unlinking musicdir to library"
+  if [ -f /etc/mpd.conf ]
+  then
+    LIBRARY=$(grep ^music_directory /etc/mpd.conf | awk {'print $2'} | sed -e 's/"//g')
+    [ "$LIBRARY" != "" ] && [ -e /usr/share/mympd/htdocs/library ] && rm /usr/share/mympd/htdocs/library
+  else
+    echo -e "\e[93mWARNING\e[0m: /etc/mpd.conf not found, you must unlink your musicdir manually from \e[1m/usr/share/mympd/htdocs/library\e[0m"
+  fi  
+
+  # remove mympd user and group
+  getent passwd mympd > /dev/null
+  echo -e "\e[93mWARNING\e[0m: Removing \e[1mmympd \e[0muser and group!"
+  [ "$?" != "2" ] && userdel -r mympd
+  getent group mympd > /dev/null
+  [ "$?" != "2" ] && groupdel mympd 
+
+  # remove leftover directories
+  rmdir -v /usr/share/{mympd/htdocs/,mympd/}
+}
+
