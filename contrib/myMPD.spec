@@ -10,7 +10,7 @@ License:        GPL-2.0
 Group:          Productivity/Multimedia/Sound/Players
 Summary:        Standalone webclient for mpd
 Url:            https://github.com/jcorporation/myMPD
-Source:         https://github.com/jcorporation/myMPD/archive/v4.1.0.zip
+Source:         https://github.com/jcorporation/myMPD/archive/v4.1.1.zip
 BuildRequires:  gcc
 BuildRequires:  cmake
 BuildRequires:  unzip
