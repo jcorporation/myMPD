@@ -51,9 +51,9 @@ cd ..
 
 echo "Fixing ownership of /var/lib/mympd"
 getent group mympd > /dev/null
-[ "$?" = "2" ] && sudo groupadd mympd
+[ "$?" = "2" ] && sudo groupadd -r mympd
 getent passwd mympd > /dev/null
-[ "$?" = "2" ] && sudo useradd mympd -g mympd -d /var/lib/mympd -s /usr/sbin/nologin
+[ "$?" = "2" ] && sudo useradd -r mympd -g mympd -d /var/lib/mympd -s /usr/sbin/nologin
 sudo chown -R mympd.mympd /var/lib/mympd
 
 echo "Trying to link musicdir to library"

@@ -4,7 +4,7 @@
 # (c) 2018 Juergen Mang <mail@jcgames.de
 
 Name:           myMPD
-Version:        4.1.0
+Version:        4.1.1
 Release:        0 
 License:        GPL-2.0 
 Group:          Productivity/Multimedia/Sound/Players
@@ -39,9 +39,9 @@ make install DESTDIR=%{buildroot}
 
 %post
 getent group mympd > /dev/null
-[ "$?" = "2" ] && groupadd mympd
+[ "$?" = "2" ] && groupadd -r mympd
 getent passwd mympd > /dev/null
-[ "$?" = "2" ] && useradd mympd -g mympd -d /var/lib/mympd -s /usr/sbin/nologin
+[ "$?" = "2" ] && useradd -r mympd -g mympd -d /var/lib/mympd -s /usr/sbin/nologin
 if [ -d /usr/lib/systemd/ ]
 then
   [ -d /usr/lib/systemd/system ] || sudo mkdir /usr/lib/systemd/system 
