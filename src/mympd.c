@@ -276,6 +276,8 @@ int main(int argc, char **argv) {
     mg_set_protocol_http_websocket(nc);
     s_http_server_opts.document_root = SRC_PATH;
     s_http_server_opts.enable_directory_listing = "no";
+    
+    printf("Document root: %s\n", SRC_PATH);
 
     printf("Listening on http port %s\n", config.webport);
     if (config.ssl == true)

@@ -5,7 +5,7 @@
 
 pkgname=mympd
 _pkgname=myMPD
-pkgver=4.1.1
+pkgver=4.1.2
 pkgrel=1
 pkgdesc="A standalone MPD Web GUI based on YMPD - Default port set to 80"
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -18,10 +18,8 @@ provides=()
 conflicts=()
 replaces=()
 install=contrib/archlinux.install
-source=("https://github.com/jcorporation/${_pkgname}/archive/v${pkgver}.tar.gz"
-        'mympd.install')
-sha256sums=('ec776fa76b2623f27e147abbb0e182d54fb8b80917a35533e58d95ca9f0571d1'
-            'b01671a1153764d96655069f0a9ddf8ab2f7370f60a3789f6f1b4f370474df67')
+source=("https://github.com/jcorporation/${_pkgname}/archive/v${pkgver}.tar.gz")
+sha256sums=('SKIP')
 
 prepare() {
   export java=$(which java 2> /dev/null)
@@ -83,5 +81,6 @@ package() {
   mv "${pkgdir}/etc/mympd/mympd.conf" "${pkgdir}/etc/mympd/mympd.conf.dist"
 
   install -Dm644  "${srcdir}/${_pkgname}-${pkgver}/contrib/mympd.service" "$pkgdir/usr/lib/systemd/system/mympd.service"
+  /usr/share/mympd/crcert.sh
 }
 
