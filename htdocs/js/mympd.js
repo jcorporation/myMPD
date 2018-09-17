@@ -1234,8 +1234,6 @@ function parseListDBtags(obj) {
         document.getElementById('btnBrowseDatabaseTag').innerHTML = '&laquo; ' + app.current.view;
         document.getElementById('BrowseDatabaseAlbumListCaption').innerText = obj.searchtagtype + ': ' + obj.searchstr;
         var nrItems = obj.data.length;
-        if (nrItems == 1 && obj.data[0].value == '')
-            nrItems = 0;
         var cardContainer = document.getElementById('BrowseDatabaseAlbumList');
         var cards = cardContainer.getElementsByClassName('col-md');
         for (var i = 0; i < nrItems; i++) {
@@ -1277,12 +1275,9 @@ function parseListDBtags(obj) {
         document.getElementById('BrowseDatabaseAddAllSongs').parentNode.parentNode.classList.add('hide');
         document.getElementById('btnBrowseDatabaseTag').parentNode.classList.add('hide');
         
-        if (obj.data[0] && obj.data[0].value == '')
-            obj.data.shift();
         var nrItems = obj.data.length;
         var tbody = document.getElementById(app.current.app + app.current.tab + 'TagList').getElementsByTagName('tbody')[0];
         var tr = tbody.getElementsByTagName('tr');
-        var skipped = 0;
         for (var i = 0; i < nrItems; i++) {
             var uri = encodeURI(obj.data[i].value);
             if (tr[i])

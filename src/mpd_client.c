@@ -1389,7 +1389,10 @@ int mympd_put_db_tag(char *buffer, unsigned int offset, char *mpdtagtype, char *
     while((pair = mpd_recv_pair_tag(mpd.conn, mpd_tag_name_parse(mpdtagtype))) != NULL) {
         entity_count ++;
         if (entity_count > offset && entity_count <= offset + MAX_ELEMENTS_PER_PAGE) {
-            if (strncmp(filter, "-", 1) == 0 || strncasecmp(filter, pair->value, 1) == 0 ||
+            if (strcmp(pair->value, "") == 0) {
+                entity_count --;
+            }
+            else if (strncmp(filter, "-", 1) == 0 || strncasecmp(filter, pair->value, 1) == 0 ||
                     (strncmp(filter, "0", 1) == 0 && isalpha(*pair->value) == 0 )
             ) {
                 if (entities_returned ++) 
