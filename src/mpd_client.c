@@ -582,7 +582,10 @@ void mympd_parse_idle(struct mg_mgr *s, int idle_bitmask) {
 
 void mympd_mpd_features() {
     struct mpd_pair *pair;
-    
+    char s[2] = ",";
+    char *str = strdup(config.taglist);
+    char *token;    
+
     mpd.protocol = mpd_connection_get_server_version(mpd.conn);
 
     // Defaults
@@ -635,25 +638,49 @@ void mympd_mpd_features() {
         mpd_return_pair(mpd.conn, pair);
     }
     mpd_response_finish(mpd.conn);
-    printf("\n");
-    if (mpd.tag_artist == false)
-        printf("WARNING: Artist tag not enabled in mpd\n");
-    if (mpd.tag_album == false)
-        printf("WARNING: Album tag not enabled in mpd\n");
-    if (mpd.tag_album_artist == false)
-        printf("WARNING: AlbumArtist tag not enabled in mpd\n");
-    if (mpd.tag_title == false)
-        printf("WARNING: Title tag not enabled in mpd\n");
-    if (mpd.tag_track == false)
-        printf("WARNING: Track tag not enabled in mpd\n");
-    if (mpd.tag_genre == false)
-        printf("WARNING: Genre tag not enabled in mpd\n");
-    if (mpd.tag_date == false)
-        printf("WARNING: Date tag not enabled in mpd\n");
-    if (mpd.tag_composer == false)
-        printf("WARNING: Composer tag not enabled in mpd\n");
-    if (mpd.tag_performer == false)
-        printf("WARNING: Performer tag not enabled in mpd\n");
+    printf("\nmyMPD enabled tags: ");
+
+    token = strtok(str, s);
+    while (token != NULL) {
+        if (strcmp(token, "Artist") == 0) {
+            if (mpd.tag_artist == true) printf("%s ", token);
+            else mpd.tag_artist = false;
+        }
+        else if (strcmp(token, "Album") == 0) {
+            if (mpd.tag_album == true) printf("%s ", token);
+            else mpd.tag_album = false;
+        }
+        else if (strcmp(token, "AlbumArtist") == 0) {
+            if (mpd.tag_album_artist == true) printf("%s ", token);
+            else mpd.tag_album_artist = false;
+        }
+        else if (strcmp(token, "Title") == 0) {
+            if (mpd.tag_title == true) printf("%s ", token);
+            else mpd.tag_title = false;
+        }
+        else if (strcmp(token, "Track") == 0) {
+            if (mpd.tag_track == true) printf("%s ", token);
+            else mpd.tag_track = false;
+        }
+        else if (strcmp(token, "Genre") == 0) {
+            if (mpd.tag_genre == true) printf("%s ", token);
+            else mpd.tag_genre = false;
+        }
+        else if (strcmp(token, "Date") == 0) {
+            if (mpd.tag_date == true) printf("%s ", token);
+            else mpd.tag_date = false;
+        }
+        else if (strcmp(token, "Composer") == 0) {
+            if (mpd.tag_composer == true) printf("%s ", token);
+            else mpd.tag_composer = false;
+        }
+        else if (strcmp(token, "Performer") == 0) {
+            if (mpd.tag_performer == true) printf("%s ", token);
+            else mpd.tag_performer = false;
+        }
+        token = strtok(NULL, s);
+   }
+   printf("\n");
 }
 
 void mympd_idle(struct mg_mgr *s, int timeout) {

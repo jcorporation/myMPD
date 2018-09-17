@@ -159,6 +159,7 @@ typedef struct {
     const char* statefile;
     bool stickers;
     bool mixramp;
+    const char* taglist;
 } t_config;
 
 t_config config;

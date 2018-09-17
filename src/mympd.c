@@ -153,7 +153,9 @@ static int inihandler(void* user, const char* section, const char* name, const c
         if (strcmp(value, "true") == 0)
             p_config->mixramp = true;
         else
-            p_config->mixramp = false;            
+            p_config->mixramp = false;
+    else if (MATCH("taglist"))
+        p_config->taglist = strdup(value);            
     else
         return 0;  /* unknown section/name, error */
 
@@ -182,6 +184,7 @@ int main(int argc, char **argv) {
     config.statefile = "/var/lib/mympd/mympd.state";
     config.stickers = true;
     config.mixramp = true;
+    config.taglist = "Artist,Album,AlbumArtist,Title,Track,Genre,Date,Composer,Performer";
     
     mpd.timeout = 3000;
     mpd.last_update_sticker_song_id = -1;
