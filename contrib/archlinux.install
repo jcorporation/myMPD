@@ -79,13 +79,7 @@ post_remove() {
 
   # unlink music dir
   echo "unlinking musicdir to library"
-  if [ -f /etc/mpd.conf ]
-  then
-    LIBRARY=$(grep ^music_directory /etc/mpd.conf | awk {'print $2'} | sed -e 's/"//g')
-    [ "$LIBRARY" != "" ] && [ -e /usr/share/mympd/htdocs/library ] && rm /usr/share/mympd/htdocs/library
-  else
-    echo -e "\e[93mWARNING\e[0m: /etc/mpd.conf not found, you must unlink your musicdir manually from \e[1m/usr/share/mympd/htdocs/library\e[0m"
-  fi  
+  [ -e /usr/share/mympd/htdocs/library ] && rm -v /usr/share/mympd/htdocs/library
 
   # remove mympd user and group
   getent passwd mympd > /dev/null

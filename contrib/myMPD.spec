@@ -54,7 +54,10 @@ if [ -d /usr/lib/systemd/ ]
 then
   [ -d /usr/lib/systemd/system ] || sudo mkdir /usr/lib/systemd/system 
   cp /usr/share/mympd/mympd.service /usr/lib/systemd/system/
+  systemctl daemon-reload
+  systemctl enable mympd
 fi
+
 if [ -f /etc/mpd.conf ]
 then
   LIBRARY=$(grep ^music_directory /etc/mpd.conf | awk {'print $2'} | sed -e 's/"//g')
@@ -71,8 +74,19 @@ fi
 /usr/share/mympd/crcert.sh
 
 %postun
+if [ -f /usr/lib/systemd/system/mympd.service ]
+then
+  if `systemctl is-active --quiet mympd`
+  then
+    echo "stopping mympd.service" && systemctl stop mympd 
+  fi
+  echo "disabling mympd.service" && systemctl disable mympd
+  rm -v -f /usr/lib/systemd/system/mympd.service
+  systemctl daemon-reload
+fi
+
 rm -v -fr /var/lib/mympd
-rm -v -f /usr/lib/systemd/system/mympd.service
+[ -e /usr/share/mympd/htdocs/library ] && rm -v /usr/share/mympd/htdocs/library
 rmdir -v /usr/share/{mympd/htdocs/,mympd/}
 
 getent passwd mympd > /dev/null

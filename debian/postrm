@@ -1,5 +1,17 @@
+if [ -f /usr/lib/systemd/system/mympd.service ]
+then
+  if `systemctl is-active --quiet mympd`
+  then
+    echo "stopping mympd.service" && systemctl stop mympd 
+  fi
+  echo "disabling mympd.service" && systemctl disable mympd
+  rm -v -f /usr/lib/systemd/system/mympd.service
+  systemctl daemon-reload
+fi
+
 rm -v -fr /var/lib/mympd
-rm -v -f /usr/lib/systemd/system/mympd.service
+
+[ -e /usr/share/mympd/htdocs/library ] && rm -v /usr/share/mympd/htdocs/library
 rmdir -v /usr/share/{mympd/htdocs/,mympd/}
 
 getent passwd mympd > /dev/null

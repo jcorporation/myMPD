@@ -28,7 +28,9 @@ then
   if [ contrib/mympd.service -nt /usr/lib/systemd/system/mympd.service ]
   then
     cp contrib/mympd.service /usr/lib/systemd/system/
+    systemctl daemon-reload
   fi
+  systemctl enable mympd
 fi
 
 # move config into place unless already existing
