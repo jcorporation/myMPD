@@ -77,9 +77,6 @@ package() {
   cd "${srcdir}/${_pkgname}-${pkgver}/release"
   make DESTDIR="$pkgdir/" install
 
-  ### DON'T OVERWRITE CURRENT CONFIG ###
-  mv "${pkgdir}/etc/mympd/mympd.conf" "${pkgdir}/etc/mympd/mympd.conf.dist"
-
   install -Dm644  "${srcdir}/${_pkgname}-${pkgver}/contrib/mympd.service" "$pkgdir/usr/lib/systemd/system/mympd.service"
   /usr/share/mympd/crcert.sh
 }

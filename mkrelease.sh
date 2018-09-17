@@ -49,41 +49,4 @@ make
 sudo make install
 cd ..
 
-echo "Fixing ownership of /var/lib/mympd"
-getent group mympd > /dev/null
-[ "$?" = "2" ] && sudo groupadd -r mympd
-getent passwd mympd > /dev/null
-[ "$?" = "2" ] && sudo useradd -r mympd -g mympd -d /var/lib/mympd -s /usr/sbin/nologin
-sudo chown -R mympd.mympd /var/lib/mympd
-
-echo "Trying to link musicdir to library"
-if [ -f /etc/mpd.conf ]
-then
-  LIBRARY=$(sudo grep ^music_directory /etc/mpd.conf | awk {'print $2'} | sed -e 's/"//g')
-  [ "$LIBRARY" != "" ] && [ ! -e /usr/share/mympd/htdocs/library ] && sudo ln -s "$LIBRARY" /usr/share/mympd/htdocs/library
-else
-  echo "/etc/mpd.conf not found, you must link your music_directory manually to /usr/share/mympd/htdocs/library"
-fi
-
-echo "Installing systemd service"
-if [ -d /usr/lib/systemd/ ]
-then
-  [ -d /usr/lib/systemd/system ] || sudo mkdir /usr/lib/systemd/system 
-  if [ contrib/mympd.service -nt /usr/lib/systemd/system/mympd.service ]
-  then
-    sudo cp contrib/mympd.service /usr/lib/systemd/system/
-    sudo systemctl daemon-reload
-  fi
-  sudo systemctl enable mympd  
-fi
-
-if [ -d /etc/mympd/ssl ]
-then
-  echo "Certificates already created"
-else
-  echo "Creating certificates"
-  sudo /usr/share/mympd/crcert.sh
-fi
-
-echo "myMPD installed"
-echo "Edit /etc/mympd/mympd.conf before starting myMPD"
+debian/postinst

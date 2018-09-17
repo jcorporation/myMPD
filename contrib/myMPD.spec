@@ -38,10 +38,18 @@ cd release
 make install DESTDIR=%{buildroot}
 
 %post
+echo "Checking status of mympd system user and group"
 getent group mympd > /dev/null
 [ "$?" = "2" ] && groupadd -r mympd
 getent passwd mympd > /dev/null
 [ "$?" = "2" ] && useradd -r mympd -g mympd -d /var/lib/mympd -s /usr/sbin/nologin
+
+if ! [ $(stat -c '%U:%G' /var/lib/mympd/) == 'mympd:mympd' ]
+then
+  echo "Fixing ownership of /var/lib/mympd"
+  chown -R mympd.mympd /var/lib/mympd
+fi
+
 if [ -d /usr/lib/systemd/ ]
 then
   [ -d /usr/lib/systemd/system ] || sudo mkdir /usr/lib/systemd/system 
@@ -52,8 +60,27 @@ then
   LIBRARY=$(grep ^music_directory /etc/mpd.conf | awk {'print $2'} | sed -e 's/"//g')
   [ "$LIBRARY" != "" ] && [ ! -e /usr/share/mympd/htdocs/library ] && ln -s "$LIBRARY" /usr/share/mympd/htdocs/library
 fi
-chown -R mympd /var/lib/mympd
+
+if [ ! -f /etc/mympd/mympd.conf ]
+then 
+  mv /etc/mympd/mympd.conf.dist /etc/mympd/mympd.conf
+else
+  echo "mympd.conf installed as mympd.conf.dist"
+fi
+  
 /usr/share/mympd/crcert.sh
+
+%postun
+rm -v -fr /var/lib/mympd
+rm -v -f /usr/lib/systemd/system/mympd.service
+rmdir -v /usr/share/{mympd/htdocs/,mympd/}
+
+getent passwd mympd > /dev/null
+echo "Removing mympd user and group"
+[ "$?" != "2" ] && userdel -r mympd
+getent group mympd > /dev/null
+[ "$?" != "2" ] && groupdel mympd
+
 
 %files 
 %defattr(-,root,root,-)

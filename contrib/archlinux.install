@@ -49,15 +49,10 @@ post_upgrade() {
     /usr/share/mympd/crcert.sh
   fi
 
-  # disable ssl by default on mympd.conf.dist (chrome hates localhost.localdomain)
-  echo "INFO: Disabling SSL by default in dist config"
-  sed '/^ssl = true/c ssl = false' -i "/etc/mympd/mympd.conf.dist"
-
   # move config into place unless already existing
   if [ ! -f /etc/mympd/mympd.conf ]
   then 
     mv /etc/mympd/mympd.conf.dist /etc/mympd/mympd.conf
-    echo -e "\e[93mWARNING\e[0m: \e[1mSSL Disabled by default! You must enable SSL in /etc/mympd/mympd.conf if you wish to use SSL\e[0m"
   else
     echo -e "\e[93mWARNING\e[0m: \e[1mmympd.conf \e[0minstalled as \e[1mmympd.conf.dist\e[0m"
   fi
