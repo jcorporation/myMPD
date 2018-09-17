@@ -31,6 +31,7 @@
 #include <grp.h>
 
 #include "../dist/src/mongoose/mongoose.h"
+#include "../dist/src/frozen/frozen.h"
 #include "../dist/src/inih/ini.h"
 #include "mpd_client.h"
 #include "config.h"
@@ -233,6 +234,23 @@ int main(int argc, char **argv) {
         return EXIT_FAILURE;
     }
 
+    if (access( config.statefile, F_OK ) != -1 ) {
+        char *content = json_fread(config.statefile);
+        int je = json_scanf(content, strlen(content), "{notificationWeb: %B, notificationPage: %B, jukeboxMode: %B}", 
+            &mympd_state.notificationWeb, 
+            &mympd_state.notificationPage,
+            &mympd_state.jukeboxMode);
+        if (je != 3) {
+            mympd_state.notificationWeb = false;
+            mympd_state.notificationPage = true;
+            mympd_state.jukeboxMode = false;
+        }
+    } else {
+        mympd_state.notificationWeb = false;
+        mympd_state.notificationPage = true;
+        mympd_state.jukeboxMode = false;
+    }
+
     signal(SIGTERM, signal_handler);
     signal(SIGINT, signal_handler);
     setvbuf(stdout, NULL, _IOLBF, 0);
@@ -301,7 +319,6 @@ int main(int argc, char **argv) {
     mg_set_protocol_http_websocket(nc);
     s_http_server_opts.document_root = SRC_PATH;
     s_http_server_opts.enable_directory_listing = "no";
-
 
     printf("Listening on http port %s\n", config.webport);
     if (config.ssl == true)
