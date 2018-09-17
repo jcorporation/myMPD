@@ -777,7 +777,7 @@ function toggleBtn(btn, state) {
     if (state == undefined)
         state = b.classList.contains('active') ? 0 : 1;
 
-    if (state == 1)
+    if (state == 1 || state == true)
         b.classList.add('active');
     else
         b.classList.remove('active');
@@ -788,6 +788,7 @@ function parseSettings(obj) {
     toggleBtn('btnConsume', obj.data.consume);
     toggleBtn('btnSingle', obj.data.single);
     toggleBtn('btnRepeat', obj.data.repeat);
+    toggleBtn('btnJukebox', obj.data.jukeboxMode);
 
     if (obj.data.crossfade != undefined) {
         document.getElementById('inputCrossfade').removeAttribute('disabled');
@@ -821,7 +822,7 @@ function parseSettings(obj) {
                     toggleBtn('btnnotifyWeb', 1);
                 } else {
                     toggleBtn('btnnotifyWeb', 0);
-                    obj.data.notificationWeb = 0;
+                    obj.data.notificationWeb = true;
                 }
             });         
         }
@@ -942,7 +943,7 @@ function parseState(obj) {
 	playstate = 'pause';
     }
 
-    if (obj.data.nextSongPos == -1)
+    if (obj.data.nextSongPos == -1 && settings.jukeboxMode == false)
         domCache.btnNext.setAttribute('disabled','disabled');
     else
         domCache.btnNext.removeAttribute('disabled');
@@ -1692,7 +1693,7 @@ function showMenu(el, event) {
     }
     
     if (lastState)
-        nextsongpos = lastState.data.nextsongpos;
+        nextsongpos = lastState.data.nextSongPos;
 
     var menu = '';
     if ((app.current.app == 'Browse' && app.current.tab == 'Filesystem') || app.current.app == 'Search' ||
@@ -1924,8 +1925,9 @@ function confirmSettings() {
             "crossfade": document.getElementById('inputCrossfade').value,
             "mixrampdb": (settings.mixramp == true ? document.getElementById('inputMixrampdb').value : settings.mixrampdb),
             "mixrampdelay": (settings.mixramp == true ? document.getElementById('inputMixrampdelay').value : settings.mixrampdelay),
-            "notificationWeb": (document.getElementById('btnnotifyWeb').classList.contains('active') ? 1 : 0),
-            "notificationPage": (document.getElementById('btnnotifyPage').classList.contains('active') ? 1 : 0)
+            "notificationWeb": (document.getElementById('btnnotifyWeb').classList.contains('active') ? true : false),
+            "notificationPage": (document.getElementById('btnnotifyPage').classList.contains('active') ? true : false),
+            "jukeboxMode": (document.getElementById('btnJukebox').classList.contains('active') ? true : false)
         }}, getSettings);
         modalSettings.hide();
     } else
@@ -1986,13 +1988,13 @@ function saveQueue() {
 }
 
 function showNotification(notificationTitle,notificationText,notificationHtml,notificationType) {
-    if (settings.notificationWeb == 1) {
+    if (settings.notificationWeb == true) {
         var notification = new Notification(notificationTitle, {icon: 'assets/favicon.ico', body: notificationText});
         setTimeout(function(notification) {
             notification.close();
         }, 3000, notification);    
     } 
-    if (settings.notificationPage == 1) {
+    if (settings.notificationPage == true) {
         var alertBox;
         if (!document.getElementById('alertBox')) {
             alertBox = document.createElement('div');
