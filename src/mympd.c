@@ -60,9 +60,21 @@ static void handle_api(struct mg_connection *nc, struct http_message *hm) {
 
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
     switch(ev) {
+        case MG_EV_WEBSOCKET_HANDSHAKE_REQUEST: {
+            struct http_message *hm = (struct http_message *) ev_data;
+            #ifdef DEBUG
+            fprintf(stderr, "New websocket request: %.*s\n", hm->uri.len, hm->uri.p);
+            #endif
+            if (mg_vcmp(&hm->uri, "/ws") != 0) {
+                printf("Websocket request not to /ws, closing connection\n");
+                mg_printf(nc, "%s", "HTTP/1.1 403 FORBIDDEN\r\n\r\n");
+                nc->flags |= MG_F_SEND_AND_CLOSE;
+            }
+            break;
+        }
         case MG_EV_WEBSOCKET_HANDSHAKE_DONE: {
              #ifdef DEBUG
-             fprintf(stderr, "New Websocket connection\n");
+             fprintf(stderr, "New Websocket connection established\n");
              #endif
              struct mg_str d = mg_mk_str("{\"cmd\": \"MPD_API_WELCOME\"}");
              callback_mympd(nc, d);
@@ -211,6 +223,16 @@ int main(int argc, char **argv) {
 
     printf("Starting myMPD %s\n", MYMPD_VERSION);
 
+    DIR* dir = opendir(SRC_PATH);
+    if (dir) {
+        printf("Document root: %s\n", SRC_PATH);
+        closedir(dir);
+    }
+    else {
+        printf("Document root \"%s\" don't exists\n", SRC_PATH);
+        return EXIT_FAILURE;
+    }
+
     signal(SIGTERM, signal_handler);
     signal(SIGINT, signal_handler);
     setvbuf(stdout, NULL, _IOLBF, 0);
@@ -279,8 +301,7 @@ int main(int argc, char **argv) {
     mg_set_protocol_http_websocket(nc);
     s_http_server_opts.document_root = SRC_PATH;
     s_http_server_opts.enable_directory_listing = "no";
-    
-    printf("Document root: %s\n", SRC_PATH);
+
 
     printf("Listening on http port %s\n", config.webport);
     if (config.ssl == true)
