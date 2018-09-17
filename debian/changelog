@@ -1,5 +1,5 @@
-mympd (4.1.2-1) unstable; urgency=medium
+mympd (4.2.0-1) stable; urgency=medium
 
-  * Initial release 
+  * Release from master
 
- -- Juergen Mang <mail@jcgames.de>  Thu, 06 Sep 2018 22:57:18 +0200
+ -- Juergen Mang <mail@jcgames.de>  Mon, 17 Sep 2018 17:59:00 +0200
