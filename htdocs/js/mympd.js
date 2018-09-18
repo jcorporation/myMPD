@@ -89,7 +89,7 @@ domCache.currentCover = document.getElementById('currentCover');
 domCache.btnVoteUp = document.getElementById('btnVoteUp');
 domCache.btnVoteDown = document.getElementById('btnVoteDown');
 
-var modalConnectionError = new Modal(document.getElementById('modalConnectionError'));
+var modalConnectionError = new Modal(document.getElementById('modalConnectionError'), { backdrop: 'static', keyboard: false});
 var modalSettings = new Modal(document.getElementById('modalSettings'));
 var modalSavequeue = new Modal(document.getElementById('modalSaveQueue'));
 var modalSongDetails = new Modal(document.getElementById('modalSongDetails'));
