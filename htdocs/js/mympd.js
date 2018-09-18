@@ -514,9 +514,9 @@ function appInit() {
     }, false);
 
     document.getElementsByTagName('body')[0].addEventListener('click', function(event) {
-        var oldPopover = document.getElementsByClassName('popover')[0];
-        if (oldPopover)
-            oldPopover.remove();
+        var oldPopover = document.getElementsByClassName('popover');
+        for (var i = 0; i < oldPopover.length; i++)
+            oldPopover[i].remove();
     }, false);
 
     dragAndDropTable('QueueList');
@@ -1679,9 +1679,11 @@ function addMenuItem(href, text) {
 function showMenu(el, event) {
     event.preventDefault();
     event.stopPropagation();
-    var oldPopover = document.getElementsByClassName('popover')[0];
-    if (oldPopover)
-        oldPopover.remove();
+
+    var oldPopover = document.getElementsByClassName('popover');
+    for (var i = 0; i < oldPopover.length; i++)
+        oldPopover[i].remove();
+
     var type = el.getAttribute('data-type');
     var uri = decodeURI(el.getAttribute('data-uri'));
     var name = el.getAttribute('data-name');
@@ -1736,12 +1738,20 @@ function showMenu(el, event) {
             addMenuItem({"cmd": "delQueueSong", "options": ["range", 0, el.parentNode.parentNode.getAttribute('data-songpos')]}, 'Remove all upwards') +
             addMenuItem({"cmd": "delQueueSong", "options": ["range", (parseInt(el.parentNode.parentNode.getAttribute('data-songpos'))-1), -1]}, 'Remove all downwards') +
             (uri.indexOf('http') == -1 ? addMenuItem({"cmd": "songDetails", "options": [uri]}, 'Songdetails') : '');
-    }    
+    }
+    
     new Popover(el, { trigger: 'click', delay: 0, dismissible: true, template: '<div class="popover" role="tooltip">' +
         '<div class="arrow"></div>' +
         '<div class="popover-content">' + menu + '</div>' +
         '</div>'});
     var popoverInit = el.Popover;
+
+    if (el.getAttribute('data-init')) {
+        popoverInit.show();
+        return;
+    }
+
+    el.setAttribute('data-init', 'true');
     el.addEventListener('shown.bs.popover', function(event) {
         document.getElementsByClassName('popover-content')[0].addEventListener('click', function(event) {
             event.preventDefault();
