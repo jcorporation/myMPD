@@ -11,7 +11,7 @@ post_upgrade() {
   [ "$?" = "2" ] && useradd --system -d /var/lib/mympd -s /usr/sbin/nologin -g mympd mympd
 
   # fix ownership of /var/lib/mympd
-  if ! [ $(stat -c '%U:%G' /var/lib/mympd/) == 'mympd:mympd' ]
+  if ! [ $(stat -c '%U:%G' /var/lib/mympd/) = 'mympd:mympd' ]
   then
     echo "INFO: Fixing ownership of /var/lib/mympd"
     chown -R mympd.mympd /var/lib/mympd

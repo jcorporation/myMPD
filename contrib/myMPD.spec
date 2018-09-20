@@ -44,7 +44,7 @@ getent group mympd > /dev/null
 getent passwd mympd > /dev/null
 [ "$?" = "2" ] && useradd -r mympd -g mympd -d /var/lib/mympd -s /usr/sbin/nologin
 
-if ! [ $(stat -c '%U:%G' /var/lib/mympd/) == 'mympd:mympd' ]
+if ! [ $(stat -c '%U:%G' /var/lib/mympd/) = 'mympd:mympd' ]
 then
   echo "Fixing ownership of /var/lib/mympd"
   chown -R mympd.mympd /var/lib/mympd
