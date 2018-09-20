@@ -32,14 +32,11 @@ else
     cp htdocs/css/mympd.css dist/htdocs/css/mympd.min.css    
 fi
 
-echo "Replacing javascript and stylesheets with minified files"
-sed -e 's/mympd\.css/mympd\.min\.css/' -e 's/mympd\.js/mympd\.min\.js/' htdocs/index.html > dist/htdocs/index.html
-sed -e 's/mympd\.css/mympd\.min\.css/' -e 's/player\.js/player\.min\.js/' htdocs/player.html > dist/htdocs/player.html
-sed -i -e 's/mympd\.css/mympd\.min\.css/' -e 's/mympd\.js/mympd\.min\.js/' -e 's/player\.js/player\.min\.js/' dist/htdocs/sw.min.js
-sed -i -e 's/\/sw\.js/\/sw\.min\.js/' dist/htdocs/js/mympd.min.js
 echo "Minifying html"
-perl -i -pe 's/^\s*//gm; s/\s*$//gm' dist/htdocs/index.html
-perl -i -pe 's/^\s*//gm; s/\s*$//gm' dist/htdocs/player.html
+[ htdocs/index.html -nt dist/htdocs/index.html ] && \
+  perl -pe 's/^\s*//gm; s/\s*$//gm' htdocs/index.html > dist/htdocs/index.html
+[ htdocs/player.html -nt dist/htdocs/player.html ] && \
+  perl -pe 's/^\s*//gm; s/\s*$//gm' htdocs/player.html > dist/htdocs/player.html
 
 echo "Compiling and installing mympd"
 [ -d release ] || mkdir release

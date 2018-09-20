@@ -550,7 +550,7 @@ function appInit() {
     
     if ('serviceWorker' in navigator && document.URL.substring(0, 5) == 'https') {
         window.addEventListener('load', function() {
-            navigator.serviceWorker.register('/sw.js', {scope: '/'}).then(function(registration) {
+            navigator.serviceWorker.register('/sw.min.js', {scope: '/'}).then(function(registration) {
                 // Registration was successful
                 console.log('ServiceWorker registration successful with scope: ', registration.scope);
                 registration.update();

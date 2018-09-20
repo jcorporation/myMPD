@@ -1,7 +1,7 @@
 #
 # spec file for package myMPD
 #
-# (c) 2018 Juergen Mang <mail@jcgames.de
+# (c) 2018 Juergen Mang <mail@jcgames.de>
 
 Name:           myMPD
 Version:        4.2.1
@@ -102,5 +102,5 @@ fi
 /var/lib/mympd
 
 %changelog
-* Wed Sep 17 2018 Juergen Mang <mail@jcgames.de> - master
+* Fri Sep 21 2018 Juergen Mang <mail@jcgames.de> - master
 - Version from master
