@@ -47,3 +47,6 @@ sudo make install
 cd ..
 
 debian/postinst
+
+echo "Running cppcheck"
+[ -x /usr/bin/cppcheck ] && cppcheck --enable=warning --inconclusive --force --inline-suppr src/*.c src/*.h
