@@ -28,15 +28,16 @@ self.addEventListener('install', function(event) {
 });
 
 self.addEventListener('fetch', function(event) {
-  event.respondWith(
-    caches.match(event.request).then(function(response) {
-        if (response)
-            return response
-        else
-            return fetch(event.request);
-      }
-    )
-  );    
+    if (event.request.url.match('^http://'))
+        return false;
+    event.respondWith(
+        caches.match(event.request).then(function(response) {
+            if (response)
+                return response
+            else
+                return fetch(event.request);
+        })
+    );    
 });
 
 self.addEventListener('activate', function(event) {
