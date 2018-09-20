@@ -31,8 +31,9 @@ var playstate = '';
 var settings = {};
 var alertTimeout;
 var progressTimer;
-let deferredPrompt;
+var deferredPrompt;
 var dragEl;
+var playlistEl;
 
 var app = {};
 app.apps = { "Playback": { "state": "0/-/", "scrollPos": 0 },
@@ -789,7 +790,7 @@ function parseSettings(obj) {
     toggleBtn('btnSingle', obj.data.single);
     toggleBtn('btnRepeat', obj.data.repeat);
     toggleBtn('btnJukebox', obj.data.jukeboxMode);
-
+    
     if (obj.data.crossfade != undefined) {
         document.getElementById('inputCrossfade').removeAttribute('disabled');
         document.getElementById('inputCrossfade').value = obj.data.crossfade;
@@ -850,6 +851,10 @@ function parseSettings(obj) {
     }
 
     settings = obj.data;
+
+    playlistEl = 'jukeboxPlaylist';
+    sendAPI({"cmd": "MPD_API_PLAYLIST_LIST", "data": {"offset": 0, "filter": "-"}}, getAllPlaylists);
+
     settings.mpdstream = 'http://';
     if (settings.mpdhost == '127.0.0.1' || settings.mpdhost == 'localhost')
         settings.mpdstream += window.location.hostname;
@@ -1504,14 +1509,26 @@ function playlistClear() {
 
 function getAllPlaylists(obj) {
     var nrItems = obj.data.length;
-    var playlists = '<option></option><option>New Playlist</option>';
-    for (var i = 0; i < nrItems; i++) {
-        playlists += '<option>' + obj.data[i].uri + '</option>';
+    var playlists = '';
+    if (obj.offset == 0) {
+        if (playlistEl == 'addToPlaylistPlaylist')
+            playlists = '<option></option><option>New Playlist</option>';
+        else if (playlistEl == 'jukeboxPlaylist')
+            playlists = '<option>Database</option>';
     }
-    document.getElementById('addToPlaylistPlaylist').innerHTML += playlists;
+    for (var i = 0; i < nrItems; i++) {
+        playlists += '<option';
+        if (playlistEl == 'jukeboxPlaylist' && obj.data[i].uri == settings.jukeboxPlaylist)
+            playlists += ' selected';
+        playlists += '>' + obj.data[i].uri + '</option>';
+    }
+    if (obj.offset == 0)
+        document.getElementById(playlistEl).innerHTML = playlists;
+    else
+        document.getElementById(playlistEl).innerHTML += playlists;
     if (obj.totalEntities > obj.returnedEntities) {
         obj.offset += settings.maxElementsPerPage;
-        sendAPI({"cmd": "MPD_API_PLAYLIST_LIST","data": {"offset": obj.offset, "filter": "-"}}, getAllPlaylists);
+        sendAPI({"cmd": "MPD_API_PLAYLIST_LIST", "data": {"offset": obj.offset, "filter": "-"}}, getAllPlaylists);
     }
 }
 
@@ -1524,7 +1541,7 @@ function voteSong(vote) {
         vote = 1;
     else if (vote == 0 && domCache.btnVoteDown.classList.contains('active-fg-red'))
         vote = 1;
-    sendAPI({"cmd": "MPD_API_LIKE","data": {"uri": uri, "like": vote}});
+    sendAPI({"cmd": "MPD_API_LIKE", "data": {"uri": uri, "like": vote}});
     setVoteSongBtns(vote, uri);
 }
 
@@ -1591,6 +1608,7 @@ function showAddToPlaylist(uri) {
         document.getElementById('addToPlaylistLabel').innerText = 'Add Stream';
     }
     modalAddToPlaylist.show();
+    playlistEl = 'addToPlaylistPlaylist';
     sendAPI({"cmd": "MPD_API_PLAYLIST_LIST","data": {"offset": 0, "filter": "-"}}, getAllPlaylists);
 }
 
@@ -1926,6 +1944,7 @@ function confirmSettings() {
     
     if (formOK == true) {
         var selectReplaygain = document.getElementById('selectReplaygain');
+        var selectJukeboxPlaylist = document.getElementById('jukeboxPlaylist');
         sendAPI({"cmd": "MPD_API_SETTINGS_SET", "data": {
             "consume": (document.getElementById('btnConsume').classList.contains('active') ? 1 : 0),
             "random":  (document.getElementById('btnRandom').classList.contains('active') ? 1 : 0),
@@ -1937,7 +1956,8 @@ function confirmSettings() {
             "mixrampdelay": (settings.mixramp == true ? document.getElementById('inputMixrampdelay').value : settings.mixrampdelay),
             "notificationWeb": (document.getElementById('btnnotifyWeb').classList.contains('active') ? true : false),
             "notificationPage": (document.getElementById('btnnotifyPage').classList.contains('active') ? true : false),
-            "jukeboxMode": (document.getElementById('btnJukebox').classList.contains('active') ? true : false)
+            "jukeboxMode": (document.getElementById('btnJukebox').classList.contains('active') ? true : false),
+            "jukeboxPlaylist": selectJukeboxPlaylist.options[selectJukeboxPlaylist.selectedIndex].value
         }}, getSettings);
         modalSettings.hide();
     } else

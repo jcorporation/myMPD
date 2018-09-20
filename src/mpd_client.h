@@ -175,6 +175,7 @@ typedef struct {
     bool notificationWeb;
     bool notificationPage;
     bool jukeboxMode;
+    const char* jukeboxPlaylist;
 } t_mympd_state;
 
 t_mympd_state mympd_state;

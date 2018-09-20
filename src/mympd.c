@@ -236,19 +236,22 @@ int main(int argc, char **argv) {
 
     if (access( config.statefile, F_OK ) != -1 ) {
         char *content = json_fread(config.statefile);
-        int je = json_scanf(content, strlen(content), "{notificationWeb: %B, notificationPage: %B, jukeboxMode: %B}", 
+        int je = json_scanf(content, strlen(content), "{notificationWeb: %B, notificationPage: %B, jukeboxMode: %B, jukeboxPlaylist: %Q}", 
             &mympd_state.notificationWeb, 
             &mympd_state.notificationPage,
-            &mympd_state.jukeboxMode);
-        if (je != 3) {
+            &mympd_state.jukeboxMode,
+            &mympd_state.jukeboxPlaylist);
+        if (je != 4) {
             mympd_state.notificationWeb = false;
             mympd_state.notificationPage = true;
             mympd_state.jukeboxMode = false;
+            mympd_state.jukeboxPlaylist = "Database";
         }
     } else {
         mympd_state.notificationWeb = false;
         mympd_state.notificationPage = true;
         mympd_state.jukeboxMode = false;
+        mympd_state.jukeboxPlaylist = "Database";
     }
 
     signal(SIGTERM, signal_handler);

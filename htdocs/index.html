@@ -650,6 +650,7 @@
         </div>
         <div class="modal-body">
          <form class="needs-validation" id="settingsFrm" novalidate>
+          <h4>MPD</h4>
           <div class="row">
             <div class="form-group col-md-6">
               <button data-href='{"cmd":"toggleBtn", "options":["btnRandom"]}' id="btnRandom" type="button" class="btn btn-secondary btn-block" title="Random">
@@ -709,14 +710,21 @@
               <div class="invalid-feedback">Must be a number.</div>
             </div>            
           </div>
+          <hr/>
+          <h4>Jukebox</h4>
           <div class="row">
             <div class="form-group col-md-6" data-toggle="buttons">
               <button data-href='{"cmd": "toggleBtn", "options": ["btnJukebox"]}' id="btnJukebox" type="button" class="btn btn-secondary btn-block" title="Jukebox">
                 Jukebox
               </button>
             </div>
+            <div class="form-group input-group col-md-6 border-secondary">
+              <select id="jukeboxPlaylist" class="form-control custom-select border-secondary">
+              </select>
+            </div>
           </div>
           <hr/>
+          <h4>Notifications</h4>
           <div class="row">
             <div class="form-group col-md-6" data-toggle="buttons">
               <button data-href='{"cmd": "toggleBtn", "options": ["btnnotifyPage"]}' type="button" class="btn btn-secondary btn-block" id="btnnotifyPage">
