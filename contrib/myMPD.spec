@@ -4,13 +4,13 @@
 # (c) 2018 Juergen Mang <mail@jcgames.de
 
 Name:           myMPD
-Version:        4.2.0
+Version:        4.2.1
 Release:        0 
 License:        GPL-2.0 
 Group:          Productivity/Multimedia/Sound/Players
 Summary:        Standalone webclient for mpd
 Url:            https://github.com/jcorporation/myMPD
-Source:         https://github.com/jcorporation/myMPD/archive/v4.2.0.zip
+Source:         https://github.com/jcorporation/myMPD/archive/v4.2.1.zip
 BuildRequires:  gcc
 BuildRequires:  cmake
 BuildRequires:  unzip
@@ -50,9 +50,10 @@ then
   chown -R mympd.mympd /var/lib/mympd
 fi
 
-if [ -d /usr/lib/systemd/ ]
+SYSTEMCTL=$(which systemctl > /dev/null 2>&1)
+if [ "$?" == "0" ]
 then
-  [ -d /usr/lib/systemd/system ] || sudo mkdir /usr/lib/systemd/system 
+  [ -d /usr/lib/systemd/system ] || sudo mkdir -p /usr/lib/systemd/system 
   cp /usr/share/mympd/mympd.service /usr/lib/systemd/system/
   systemctl daemon-reload
   systemctl enable mympd
