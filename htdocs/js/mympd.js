@@ -31,8 +31,9 @@ var playstate = '';
 var settings = {};
 var alertTimeout;
 var progressTimer;
-let deferredPrompt;
+var deferredPrompt;
 var dragEl;
+var playlistEl;
 
 var app = {};
 app.apps = { "Playback": { "state": "0/-/", "scrollPos": 0 },
@@ -89,7 +90,7 @@ domCache.currentCover = document.getElementById('currentCover');
 domCache.btnVoteUp = document.getElementById('btnVoteUp');
 domCache.btnVoteDown = document.getElementById('btnVoteDown');
 
-var modalConnectionError = new Modal(document.getElementById('modalConnectionError'));
+var modalConnectionError = new Modal(document.getElementById('modalConnectionError'), { backdrop: 'static', keyboard: false});
 var modalSettings = new Modal(document.getElementById('modalSettings'));
 var modalSavequeue = new Modal(document.getElementById('modalSaveQueue'));
 var modalSongDetails = new Modal(document.getElementById('modalSongDetails'));
@@ -514,9 +515,9 @@ function appInit() {
     }, false);
 
     document.getElementsByTagName('body')[0].addEventListener('click', function(event) {
-        var oldPopover = document.getElementsByClassName('popover')[0];
-        if (oldPopover)
-            oldPopover.remove();
+        var oldPopover = document.getElementsByClassName('popover');
+        for (var i = 0; i < oldPopover.length; i++)
+            oldPopover[i].remove();
     }, false);
 
     dragAndDropTable('QueueList');
@@ -777,7 +778,7 @@ function toggleBtn(btn, state) {
     if (state == undefined)
         state = b.classList.contains('active') ? 0 : 1;
 
-    if (state == 1)
+    if (state == 1 || state == true)
         b.classList.add('active');
     else
         b.classList.remove('active');
@@ -788,7 +789,8 @@ function parseSettings(obj) {
     toggleBtn('btnConsume', obj.data.consume);
     toggleBtn('btnSingle', obj.data.single);
     toggleBtn('btnRepeat', obj.data.repeat);
-
+    toggleBtn('btnJukebox', obj.data.jukeboxMode);
+    
     if (obj.data.crossfade != undefined) {
         document.getElementById('inputCrossfade').removeAttribute('disabled');
         document.getElementById('inputCrossfade').value = obj.data.crossfade;
@@ -821,7 +823,7 @@ function parseSettings(obj) {
                     toggleBtn('btnnotifyWeb', 1);
                 } else {
                     toggleBtn('btnnotifyWeb', 0);
-                    obj.data.notificationWeb = 0;
+                    obj.data.notificationWeb = true;
                 }
             });         
         }
@@ -849,6 +851,10 @@ function parseSettings(obj) {
     }
 
     settings = obj.data;
+
+    playlistEl = 'jukeboxPlaylist';
+    sendAPI({"cmd": "MPD_API_PLAYLIST_LIST", "data": {"offset": 0, "filter": "-"}}, getAllPlaylists);
+
     settings.mpdstream = 'http://';
     if (settings.mpdhost == '127.0.0.1' || settings.mpdhost == 'localhost')
         settings.mpdstream += window.location.hostname;
@@ -942,7 +948,7 @@ function parseState(obj) {
 	playstate = 'pause';
     }
 
-    if (obj.data.nextSongPos == -1)
+    if (obj.data.nextSongPos == -1 && settings.jukeboxMode == false)
         domCache.btnNext.setAttribute('disabled','disabled');
     else
         domCache.btnNext.removeAttribute('disabled');
@@ -1234,8 +1240,6 @@ function parseListDBtags(obj) {
         document.getElementById('btnBrowseDatabaseTag').innerHTML = '&laquo; ' + app.current.view;
         document.getElementById('BrowseDatabaseAlbumListCaption').innerText = obj.searchtagtype + ': ' + obj.searchstr;
         var nrItems = obj.data.length;
-        if (nrItems == 1 && obj.data[0].value == '')
-            nrItems = 0;
         var cardContainer = document.getElementById('BrowseDatabaseAlbumList');
         var cards = cardContainer.getElementsByClassName('col-md');
         for (var i = 0; i < nrItems; i++) {
@@ -1277,12 +1281,9 @@ function parseListDBtags(obj) {
         document.getElementById('BrowseDatabaseAddAllSongs').parentNode.parentNode.classList.add('hide');
         document.getElementById('btnBrowseDatabaseTag').parentNode.classList.add('hide');
         
-        if (obj.data[0] && obj.data[0].value == '')
-            obj.data.shift();
         var nrItems = obj.data.length;
         var tbody = document.getElementById(app.current.app + app.current.tab + 'TagList').getElementsByTagName('tbody')[0];
         var tr = tbody.getElementsByTagName('tr');
-        var skipped = 0;
         for (var i = 0; i < nrItems; i++) {
             var uri = encodeURI(obj.data[i].value);
             if (tr[i])
@@ -1508,14 +1509,26 @@ function playlistClear() {
 
 function getAllPlaylists(obj) {
     var nrItems = obj.data.length;
-    var playlists = '<option></option><option>New Playlist</option>';
-    for (var i = 0; i < nrItems; i++) {
-        playlists += '<option>' + obj.data[i].uri + '</option>';
+    var playlists = '';
+    if (obj.offset == 0) {
+        if (playlistEl == 'addToPlaylistPlaylist')
+            playlists = '<option></option><option>New Playlist</option>';
+        else if (playlistEl == 'jukeboxPlaylist')
+            playlists = '<option>Database</option>';
     }
-    document.getElementById('addToPlaylistPlaylist').innerHTML += playlists;
+    for (var i = 0; i < nrItems; i++) {
+        playlists += '<option';
+        if (playlistEl == 'jukeboxPlaylist' && obj.data[i].uri == settings.jukeboxPlaylist)
+            playlists += ' selected';
+        playlists += '>' + obj.data[i].uri + '</option>';
+    }
+    if (obj.offset == 0)
+        document.getElementById(playlistEl).innerHTML = playlists;
+    else
+        document.getElementById(playlistEl).innerHTML += playlists;
     if (obj.totalEntities > obj.returnedEntities) {
         obj.offset += settings.maxElementsPerPage;
-        sendAPI({"cmd": "MPD_API_PLAYLIST_LIST","data": {"offset": obj.offset, "filter": "-"}}, getAllPlaylists);
+        sendAPI({"cmd": "MPD_API_PLAYLIST_LIST", "data": {"offset": obj.offset, "filter": "-"}}, getAllPlaylists);
     }
 }
 
@@ -1528,7 +1541,7 @@ function voteSong(vote) {
         vote = 1;
     else if (vote == 0 && domCache.btnVoteDown.classList.contains('active-fg-red'))
         vote = 1;
-    sendAPI({"cmd": "MPD_API_LIKE","data": {"uri": uri, "like": vote}});
+    sendAPI({"cmd": "MPD_API_LIKE", "data": {"uri": uri, "like": vote}});
     setVoteSongBtns(vote, uri);
 }
 
@@ -1595,6 +1608,7 @@ function showAddToPlaylist(uri) {
         document.getElementById('addToPlaylistLabel').innerText = 'Add Stream';
     }
     modalAddToPlaylist.show();
+    playlistEl = 'addToPlaylistPlaylist';
     sendAPI({"cmd": "MPD_API_PLAYLIST_LIST","data": {"offset": 0, "filter": "-"}}, getAllPlaylists);
 }
 
@@ -1683,9 +1697,11 @@ function addMenuItem(href, text) {
 function showMenu(el, event) {
     event.preventDefault();
     event.stopPropagation();
-    var oldPopover = document.getElementsByClassName('popover')[0];
-    if (oldPopover)
-        oldPopover.remove();
+
+    var oldPopover = document.getElementsByClassName('popover');
+    for (var i = 0; i < oldPopover.length; i++)
+        oldPopover[i].remove();
+
     var type = el.getAttribute('data-type');
     var uri = decodeURI(el.getAttribute('data-uri'));
     var name = el.getAttribute('data-name');
@@ -1697,7 +1713,7 @@ function showMenu(el, event) {
     }
     
     if (lastState)
-        nextsongpos = lastState.data.nextsongpos;
+        nextsongpos = lastState.data.nextSongPos;
 
     var menu = '';
     if ((app.current.app == 'Browse' && app.current.tab == 'Filesystem') || app.current.app == 'Search' ||
@@ -1740,12 +1756,20 @@ function showMenu(el, event) {
             addMenuItem({"cmd": "delQueueSong", "options": ["range", 0, el.parentNode.parentNode.getAttribute('data-songpos')]}, 'Remove all upwards') +
             addMenuItem({"cmd": "delQueueSong", "options": ["range", (parseInt(el.parentNode.parentNode.getAttribute('data-songpos'))-1), -1]}, 'Remove all downwards') +
             (uri.indexOf('http') == -1 ? addMenuItem({"cmd": "songDetails", "options": [uri]}, 'Songdetails') : '');
-    }    
+    }
+    
     new Popover(el, { trigger: 'click', delay: 0, dismissible: true, template: '<div class="popover" role="tooltip">' +
         '<div class="arrow"></div>' +
         '<div class="popover-content">' + menu + '</div>' +
         '</div>'});
     var popoverInit = el.Popover;
+
+    if (el.getAttribute('data-init')) {
+        popoverInit.show();
+        return;
+    }
+
+    el.setAttribute('data-init', 'true');
     el.addEventListener('shown.bs.popover', function(event) {
         document.getElementsByClassName('popover-content')[0].addEventListener('click', function(event) {
             event.preventDefault();
@@ -1920,6 +1944,7 @@ function confirmSettings() {
     
     if (formOK == true) {
         var selectReplaygain = document.getElementById('selectReplaygain');
+        var selectJukeboxPlaylist = document.getElementById('jukeboxPlaylist');
         sendAPI({"cmd": "MPD_API_SETTINGS_SET", "data": {
             "consume": (document.getElementById('btnConsume').classList.contains('active') ? 1 : 0),
             "random":  (document.getElementById('btnRandom').classList.contains('active') ? 1 : 0),
@@ -1929,8 +1954,10 @@ function confirmSettings() {
             "crossfade": document.getElementById('inputCrossfade').value,
             "mixrampdb": (settings.mixramp == true ? document.getElementById('inputMixrampdb').value : settings.mixrampdb),
             "mixrampdelay": (settings.mixramp == true ? document.getElementById('inputMixrampdelay').value : settings.mixrampdelay),
-            "notificationWeb": (document.getElementById('btnnotifyWeb').classList.contains('active') ? 1 : 0),
-            "notificationPage": (document.getElementById('btnnotifyPage').classList.contains('active') ? 1 : 0)
+            "notificationWeb": (document.getElementById('btnnotifyWeb').classList.contains('active') ? true : false),
+            "notificationPage": (document.getElementById('btnnotifyPage').classList.contains('active') ? true : false),
+            "jukeboxMode": (document.getElementById('btnJukebox').classList.contains('active') ? true : false),
+            "jukeboxPlaylist": selectJukeboxPlaylist.options[selectJukeboxPlaylist.selectedIndex].value
         }}, getSettings);
         modalSettings.hide();
     } else
@@ -1991,13 +2018,13 @@ function saveQueue() {
 }
 
 function showNotification(notificationTitle,notificationText,notificationHtml,notificationType) {
-    if (settings.notificationWeb == 1) {
+    if (settings.notificationWeb == true) {
         var notification = new Notification(notificationTitle, {icon: 'assets/favicon.ico', body: notificationText});
         setTimeout(function(notification) {
             notification.close();
         }, 3000, notification);    
     } 
-    if (settings.notificationPage == 1) {
+    if (settings.notificationPage == true) {
         var alertBox;
         if (!document.getElementById('alertBox')) {
             alertBox = document.createElement('div');

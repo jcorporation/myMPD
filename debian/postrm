@@ -1,0 +1,21 @@
+if [ -f /usr/lib/systemd/system/mympd.service ]
+then
+  if `systemctl is-active --quiet mympd`
+  then
+    echo "stopping mympd.service" && systemctl stop mympd 
+  fi
+  echo "disabling mympd.service" && systemctl disable mympd
+  rm -v -f /usr/lib/systemd/system/mympd.service
+  systemctl daemon-reload
+fi
+
+rm -v -fr /var/lib/mympd
+
+[ -e /usr/share/mympd/htdocs/library ] && rm -v /usr/share/mympd/htdocs/library
+rmdir -v /usr/share/{mympd/htdocs/,mympd/}
+
+getent passwd mympd > /dev/null
+echo "Removing mympd user and group"
+[ "$?" != "2" ] && userdel -r mympd
+getent group mympd > /dev/null
+[ "$?" != "2" ] && groupdel mympd 

@@ -31,6 +31,7 @@
 #include <grp.h>
 
 #include "../dist/src/mongoose/mongoose.h"
+#include "../dist/src/frozen/frozen.h"
 #include "../dist/src/inih/ini.h"
 #include "mpd_client.h"
 #include "config.h"
@@ -60,9 +61,21 @@ static void handle_api(struct mg_connection *nc, struct http_message *hm) {
 
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
     switch(ev) {
+        case MG_EV_WEBSOCKET_HANDSHAKE_REQUEST: {
+            struct http_message *hm = (struct http_message *) ev_data;
+            #ifdef DEBUG
+            fprintf(stderr, "New websocket request: %.*s\n", hm->uri.len, hm->uri.p);
+            #endif
+            if (mg_vcmp(&hm->uri, "/ws") != 0) {
+                printf("Websocket request not to /ws, closing connection\n");
+                mg_printf(nc, "%s", "HTTP/1.1 403 FORBIDDEN\r\n\r\n");
+                nc->flags |= MG_F_SEND_AND_CLOSE;
+            }
+            break;
+        }
         case MG_EV_WEBSOCKET_HANDSHAKE_DONE: {
              #ifdef DEBUG
-             fprintf(stderr, "New Websocket connection\n");
+             fprintf(stderr, "New Websocket connection established\n");
              #endif
              struct mg_str d = mg_mk_str("{\"cmd\": \"MPD_API_WELCOME\"}");
              callback_mympd(nc, d);
@@ -153,7 +166,9 @@ static int inihandler(void* user, const char* section, const char* name, const c
         if (strcmp(value, "true") == 0)
             p_config->mixramp = true;
         else
-            p_config->mixramp = false;            
+            p_config->mixramp = false;
+    else if (MATCH("taglist"))
+        p_config->taglist = strdup(value);            
     else
         return 0;  /* unknown section/name, error */
 
@@ -182,6 +197,7 @@ int main(int argc, char **argv) {
     config.statefile = "/var/lib/mympd/mympd.state";
     config.stickers = true;
     config.mixramp = true;
+    config.taglist = "Artist,Album,AlbumArtist,Title,Track,Genre,Date,Composer,Performer";
     
     mpd.timeout = 3000;
     mpd.last_update_sticker_song_id = -1;
@@ -207,6 +223,36 @@ int main(int argc, char **argv) {
     }
 
     printf("Starting myMPD %s\n", MYMPD_VERSION);
+
+    DIR* dir = opendir(SRC_PATH);
+    if (dir) {
+        printf("Document root: %s\n", SRC_PATH);
+        closedir(dir);
+    }
+    else {
+        printf("Document root \"%s\" don't exists\n", SRC_PATH);
+        return EXIT_FAILURE;
+    }
+
+    if (access( config.statefile, F_OK ) != -1 ) {
+        char *content = json_fread(config.statefile);
+        int je = json_scanf(content, strlen(content), "{notificationWeb: %B, notificationPage: %B, jukeboxMode: %B, jukeboxPlaylist: %Q}", 
+            &mympd_state.notificationWeb, 
+            &mympd_state.notificationPage,
+            &mympd_state.jukeboxMode,
+            &mympd_state.jukeboxPlaylist);
+        if (je != 4) {
+            mympd_state.notificationWeb = false;
+            mympd_state.notificationPage = true;
+            mympd_state.jukeboxMode = false;
+            mympd_state.jukeboxPlaylist = "Database";
+        }
+    } else {
+        mympd_state.notificationWeb = false;
+        mympd_state.notificationPage = true;
+        mympd_state.jukeboxMode = false;
+        mympd_state.jukeboxPlaylist = "Database";
+    }
 
     signal(SIGTERM, signal_handler);
     signal(SIGINT, signal_handler);
@@ -276,8 +322,6 @@ int main(int argc, char **argv) {
     mg_set_protocol_http_websocket(nc);
     s_http_server_opts.document_root = SRC_PATH;
     s_http_server_opts.enable_directory_listing = "no";
-    
-    printf("Document root: %s\n", SRC_PATH);
 
     printf("Listening on http port %s\n", config.webport);
     if (config.ssl == true)

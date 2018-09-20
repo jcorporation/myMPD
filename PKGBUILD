@@ -5,7 +5,7 @@
 
 pkgname=mympd
 _pkgname=myMPD
-pkgver=4.1.2
+pkgver=4.2.0
 pkgrel=1
 pkgdesc="A standalone MPD Web GUI based on YMPD - Default port set to 80"
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -76,9 +76,6 @@ build() {
 package() {
   cd "${srcdir}/${_pkgname}-${pkgver}/release"
   make DESTDIR="$pkgdir/" install
-
-  ### DON'T OVERWRITE CURRENT CONFIG ###
-  mv "${pkgdir}/etc/mympd/mympd.conf" "${pkgdir}/etc/mympd/mympd.conf.dist"
 
   install -Dm644  "${srcdir}/${_pkgname}-${pkgver}/contrib/mympd.service" "$pkgdir/usr/lib/systemd/system/mympd.service"
   /usr/share/mympd/crcert.sh

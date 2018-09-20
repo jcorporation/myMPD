@@ -4,13 +4,13 @@
 # (c) 2018 Juergen Mang <mail@jcgames.de
 
 Name:           myMPD
-Version:        4.1.2
+Version:        4.2.0
 Release:        0 
 License:        GPL-2.0 
 Group:          Productivity/Multimedia/Sound/Players
 Summary:        Standalone webclient for mpd
 Url:            https://github.com/jcorporation/myMPD
-Source:         https://github.com/jcorporation/myMPD/archive/v4.1.2.zip
+Source:         https://github.com/jcorporation/myMPD/archive/v4.2.0.zip
 BuildRequires:  gcc
 BuildRequires:  cmake
 BuildRequires:  unzip
@@ -38,22 +38,63 @@ cd release
 make install DESTDIR=%{buildroot}
 
 %post
+echo "Checking status of mympd system user and group"
 getent group mympd > /dev/null
 [ "$?" = "2" ] && groupadd -r mympd
 getent passwd mympd > /dev/null
 [ "$?" = "2" ] && useradd -r mympd -g mympd -d /var/lib/mympd -s /usr/sbin/nologin
+
+if ! [ $(stat -c '%U:%G' /var/lib/mympd/) == 'mympd:mympd' ]
+then
+  echo "Fixing ownership of /var/lib/mympd"
+  chown -R mympd.mympd /var/lib/mympd
+fi
+
 if [ -d /usr/lib/systemd/ ]
 then
   [ -d /usr/lib/systemd/system ] || sudo mkdir /usr/lib/systemd/system 
   cp /usr/share/mympd/mympd.service /usr/lib/systemd/system/
+  systemctl daemon-reload
+  systemctl enable mympd
 fi
+
 if [ -f /etc/mpd.conf ]
 then
   LIBRARY=$(grep ^music_directory /etc/mpd.conf | awk {'print $2'} | sed -e 's/"//g')
   [ "$LIBRARY" != "" ] && [ ! -e /usr/share/mympd/htdocs/library ] && ln -s "$LIBRARY" /usr/share/mympd/htdocs/library
 fi
-chown -R mympd /var/lib/mympd
+
+if [ ! -f /etc/mympd/mympd.conf ]
+then 
+  mv /etc/mympd/mympd.conf.dist /etc/mympd/mympd.conf
+else
+  echo "mympd.conf installed as mympd.conf.dist"
+fi
+  
 /usr/share/mympd/crcert.sh
+
+%postun
+if [ -f /usr/lib/systemd/system/mympd.service ]
+then
+  if `systemctl is-active --quiet mympd`
+  then
+    echo "stopping mympd.service" && systemctl stop mympd 
+  fi
+  echo "disabling mympd.service" && systemctl disable mympd
+  rm -v -f /usr/lib/systemd/system/mympd.service
+  systemctl daemon-reload
+fi
+
+rm -v -fr /var/lib/mympd
+[ -e /usr/share/mympd/htdocs/library ] && rm -v /usr/share/mympd/htdocs/library
+rmdir -v /usr/share/{mympd/htdocs/,mympd/}
+
+getent passwd mympd > /dev/null
+echo "Removing mympd user and group"
+[ "$?" != "2" ] && userdel -r mympd
+getent group mympd > /dev/null
+[ "$?" != "2" ] && groupdel mympd
+
 
 %files 
 %defattr(-,root,root,-)
@@ -65,5 +106,5 @@ chown -R mympd /var/lib/mympd
 /var/lib/mympd
 
 %changelog
-* Wed Sep 05 2018 Juergen Mang <mail@jcgames.de> - master
+* Wed Sep 17 2018 Juergen Mang <mail@jcgames.de> - master
 - Version from master

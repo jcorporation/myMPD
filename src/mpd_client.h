@@ -159,6 +159,7 @@ typedef struct {
     const char* statefile;
     bool stickers;
     bool mixramp;
+    const char* taglist;
 } t_config;
 
 t_config config;
@@ -169,6 +170,15 @@ typedef struct {
     long lastPlayed;
     long like;
 } t_sticker;
+
+typedef struct {
+    bool notificationWeb;
+    bool notificationPage;
+    bool jukeboxMode;
+    const char* jukeboxPlaylist;
+} t_mympd_state;
+
+t_mympd_state mympd_state;
 
 static int is_websocket(const struct mg_connection *nc) {
     return nc->flags & MG_F_IS_WEBSOCKET;
@@ -184,6 +194,7 @@ void mympd_like_song_uri(const char *uri, int value);
 void mympd_last_played_song_uri(const char *uri);
 void mympd_last_played_song_id(int song_id);
 void mympd_get_sticker(const char *uri, t_sticker *sticker);
+void mympd_jukebox();
 int mympd_get_updatedb_state(char *buffer);
 int mympd_put_state(char *buffer, int *current_song_id, int *next_song_id, int *last_song_id, unsigned *queue_version, unsigned *queue_length);
 int mympd_put_outputs(char *buffer);

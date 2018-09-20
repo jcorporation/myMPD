@@ -1,12 +1,16 @@
 #/bin/bash
 
-echo "Fixing ownership of /var/lib/mympd"
+echo "Checking status of mympd system user and group"
 getent group mympd > /dev/null
 [ "$?" = "2" ] && groupadd -r mympd
 getent passwd mympd > /dev/null
 [ "$?" = "2" ] && useradd -r mympd -g mympd -d /var/lib/mympd -s /usr/sbin/nologin
 
-chown -R mympd.mympd /var/lib/mympd
+if ! [ $(stat -c '%U:%G' /var/lib/mympd/) == 'mympd:mympd' ]
+then
+  echo "Fixing ownership of /var/lib/mympd"
+  chown -R mympd.mympd /var/lib/mympd
+fi
 
 echo "Trying to link musicdir to library"
 if [ -f /etc/mpd.conf ]
@@ -24,7 +28,17 @@ then
   if [ contrib/mympd.service -nt /usr/lib/systemd/system/mympd.service ]
   then
     cp contrib/mympd.service /usr/lib/systemd/system/
+    systemctl daemon-reload
   fi
+  systemctl enable mympd
+fi
+
+# move config into place unless already existing
+if [ ! -f /etc/mympd/mympd.conf ]
+then 
+  mv /etc/mympd/mympd.conf.dist /etc/mympd/mympd.conf
+else
+  echo "mympd.conf installed as mympd.conf.dist"
 fi
 
 if [ -d /etc/mympd/ssl ]
