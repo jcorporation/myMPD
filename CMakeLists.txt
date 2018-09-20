@@ -54,5 +54,4 @@ install(FILES dist/htdocs/js/mympd.min.js DESTINATION share/${PROJECT_NAME}/htdo
 install(FILES dist/htdocs/css/bootstrap.min.css DESTINATION share/${PROJECT_NAME}/htdocs/css/)
 install(FILES dist/htdocs/css/mympd.min.css DESTINATION share/${PROJECT_NAME}/htdocs/css/)
 install(DIRECTORY htdocs/assets DESTINATION share/${PROJECT_NAME}/htdocs)
-install(DIRECTORY DESTINATION share/${PROJECT_NAME}/htdocs/pics)
-install(DIRECTORY DESTINATION ../var/lib/${PROJECT_NAME}/)
+install(DIRECTORY DESTINATION ../var/lib/${PROJECT_NAME}/pics)

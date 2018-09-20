@@ -27,6 +27,9 @@ post_upgrade() {
     echo "/etc/mpd.conf not found, you must link your musicdir manually to /usr/share/mympd/htdocs/library"
   fi
 
+  echo "Linking pics directory"
+  [ -e /usr/share/mympd/htdocs/pics ] || ln -s /var/lib/mympd/pics /usr/share/mympd/htdocs/
+
   # install systemd service
   echo "INFO: Installing systemd service"
   if [ -d /etc/systemd/system ]
@@ -77,18 +80,9 @@ post_remove() {
     echo -e "\e[93mINFO\e[0m: /etc/mympd/mympd.conf backed up to /etc/mympd/mympd.conf.pacsave"
   fi
 
-  # unlink music dir
-  echo "unlinking musicdir to library"
-  [ -e /usr/share/mympd/htdocs/library ] && rm -v /usr/share/mympd/htdocs/library
-
-  # remove mympd user and group
-  getent passwd mympd > /dev/null
-  echo -e "\e[93mWARNING\e[0m: Removing \e[1mmympd \e[0muser and group!"
-  [ "$?" != "2" ] && userdel -r mympd
-  getent group mympd > /dev/null
-  [ "$?" != "2" ] && groupdel mympd 
-
   # remove leftover directories
-  rmdir -v /usr/share/{mympd/htdocs/,mympd/}
+  rm -v -f /usr/share/mympd/htdocs/pics
+  rm -v -f /usr/share/mympd/htdocs/library
+  rmdir -v /usr/share/mympd/htdocs/
+  rmdir -v /usr/share/mympd/
 }
-

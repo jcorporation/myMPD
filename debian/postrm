@@ -9,13 +9,5 @@ then
   systemctl daemon-reload
 fi
 
-rm -v -fr /var/lib/mympd
-
-[ -e /usr/share/mympd/htdocs/library ] && rm -v /usr/share/mympd/htdocs/library
-rmdir -v /usr/share/{mympd/htdocs/,mympd/}
-
-getent passwd mympd > /dev/null
-echo "Removing mympd user and group"
-[ "$?" != "2" ] && userdel -r mympd
-getent group mympd > /dev/null
-[ "$?" != "2" ] && groupdel mympd 
+rm -v -f /usr/share/mympd/htdocs/pics
+rm -v -f /usr/share/mympd/htdocs/library
