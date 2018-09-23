@@ -16,6 +16,7 @@ binary-arch:
 	cd $(BUILDDIR); cmake -P cmake_install.cmake
 	mkdir debian/tmp/DEBIAN
 	cp debian/postinst debian/tmp/DEBIAN
+	cp debian/postrm debian/tmp/DEBIAN
 	dpkg-gencontrol -pmympd
 	dpkg --build debian/tmp ..
 

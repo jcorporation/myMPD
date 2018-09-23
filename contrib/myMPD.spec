@@ -1,16 +1,16 @@
 #
 # spec file for package myMPD
 #
-# (c) 2018 Juergen Mang <mail@jcgames.de
+# (c) 2018 Juergen Mang <mail@jcgames.de>
 
 Name:           myMPD
-Version:        4.2.0
+Version:        4.2.1
 Release:        0 
 License:        GPL-2.0 
 Group:          Productivity/Multimedia/Sound/Players
 Summary:        Standalone webclient for mpd
 Url:            https://github.com/jcorporation/myMPD
-Source:         https://github.com/jcorporation/myMPD/archive/v4.2.0.zip
+Source:         https://github.com/jcorporation/myMPD/archive/v4.2.1.zip
 BuildRequires:  gcc
 BuildRequires:  cmake
 BuildRequires:  unzip
@@ -44,15 +44,15 @@ getent group mympd > /dev/null
 getent passwd mympd > /dev/null
 [ "$?" = "2" ] && useradd -r mympd -g mympd -d /var/lib/mympd -s /usr/sbin/nologin
 
-if ! [ $(stat -c '%U:%G' /var/lib/mympd/) == 'mympd:mympd' ]
+if ! [ $(stat -c '%U:%G' /var/lib/mympd/) = 'mympd:mympd' ]
 then
   echo "Fixing ownership of /var/lib/mympd"
   chown -R mympd.mympd /var/lib/mympd
 fi
 
-if [ -d /usr/lib/systemd/ ]
+if [ -d /etc/systemd ]
 then
-  [ -d /usr/lib/systemd/system ] || sudo mkdir /usr/lib/systemd/system 
+  [ -d /usr/lib/systemd/system ] || sudo mkdir -p /usr/lib/systemd/system 
   cp /usr/share/mympd/mympd.service /usr/lib/systemd/system/
   systemctl daemon-reload
   systemctl enable mympd
@@ -64,6 +64,8 @@ then
   [ "$LIBRARY" != "" ] && [ ! -e /usr/share/mympd/htdocs/library ] && ln -s "$LIBRARY" /usr/share/mympd/htdocs/library
 fi
 
+[ -e /usr/share/mympd/htdocs/pics ] || ln -s /var/lib/mympd/pics /usr/share/mympd/htdocs/
+
 if [ ! -f /etc/mympd/mympd.conf ]
 then 
   mv /etc/mympd/mympd.conf.dist /etc/mympd/mympd.conf
@@ -74,27 +76,21 @@ fi
 /usr/share/mympd/crcert.sh
 
 %postun
-if [ -f /usr/lib/systemd/system/mympd.service ]
+if [ "$1" = "0" ]
 then
-  if `systemctl is-active --quiet mympd`
+  if [ -f /usr/lib/systemd/system/mympd.service ]
   then
-    echo "stopping mympd.service" && systemctl stop mympd 
+    if `systemctl is-active --quiet mympd`
+    then
+      echo "stopping mympd.service" && systemctl stop mympd 
+    fi
+    echo "disabling mympd.service" && systemctl disable mympd
+    rm -v -f /usr/lib/systemd/system/mympd.service
+    systemctl daemon-reload
   fi
-  echo "disabling mympd.service" && systemctl disable mympd
-  rm -v -f /usr/lib/systemd/system/mympd.service
-  systemctl daemon-reload
+  rm -v -f /usr/share/mympd/htdocs/pics
+  rm -v -f /usr/share/mympd/htdocs/library
 fi
-
-rm -v -fr /var/lib/mympd
-[ -e /usr/share/mympd/htdocs/library ] && rm -v /usr/share/mympd/htdocs/library
-rmdir -v /usr/share/{mympd/htdocs/,mympd/}
-
-getent passwd mympd > /dev/null
-echo "Removing mympd user and group"
-[ "$?" != "2" ] && userdel -r mympd
-getent group mympd > /dev/null
-[ "$?" != "2" ] && groupdel mympd
-
 
 %files 
 %defattr(-,root,root,-)
@@ -106,5 +102,5 @@ getent group mympd > /dev/null
 /var/lib/mympd
 
 %changelog
-* Wed Sep 17 2018 Juergen Mang <mail@jcgames.de> - master
+* Fri Sep 21 2018 Juergen Mang <mail@jcgames.de> - master
 - Version from master

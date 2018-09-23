@@ -309,6 +309,16 @@ function appInit() {
             sendAPI({"cmd": "MPD_API_PLAYER_SEEK", "data": {"songid": currentSong.currentSongId, "seek": seekVal}});
         }
     }, false);
+
+    document.getElementById('navDBupdate').addEventListener('click', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        var icon = this.getElementsByTagName('span')[0];
+        if (icon.innerText == 'keyboard_arrow_right')
+            icon.innerText = 'keyboard_arrow_down';
+        else
+            icon.innerText = 'keyboard_arrow_right';        
+    }, false);
   
     document.getElementById('volumeIcon').parentNode.addEventListener('show.bs.dropdown', function () {
         sendAPI({"cmd": "MPD_API_PLAYER_OUTPUT_LIST"}, parseOutputs);
@@ -550,7 +560,7 @@ function appInit() {
     
     if ('serviceWorker' in navigator && document.URL.substring(0, 5) == 'https') {
         window.addEventListener('load', function() {
-            navigator.serviceWorker.register('/sw.js', {scope: '/'}).then(function(registration) {
+            navigator.serviceWorker.register('/sw.min.js', {scope: '/'}).then(function(registration) {
                 // Registration was successful
                 console.log('ServiceWorker registration successful with scope: ', registration.scope);
                 registration.update();
@@ -1482,7 +1492,7 @@ function parseSongDetails(obj) {
         songDetails += '<tr><th colspan="2">Statistics</th></tr>' +
             '<tr><th>Play count</th><td>' + obj.data.playCount + '</td></tr>' +
             '<tr><th>Skip count</th><td>' + obj.data.skipCount + '</td></tr>' +
-            '<tr><th>Last played</th><td>' + (obj.data.lastPlayed == 0 ? 'never' : new Date(value * 1000).toUTCString()) + '</td></tr>' +
+            '<tr><th>Last played</th><td>' + (obj.data.lastPlayed == 0 ? 'never' : new Date(obj.data.lastPlayed * 1000).toUTCString()) + '</td></tr>' +
             '<tr><th>Like</th><td>' + like + '</td></tr>';
     }
     
@@ -1837,6 +1847,11 @@ function openLocalPlayer() {
 
 function updateDB() {
     sendAPI({"cmd": "MPD_API_DATABASE_UPDATE"});
+    updateDBstarted(true);
+}
+
+function rescanDB() {
+    sendAPI({"cmd": "MPD_API_DATABASE_RESCAN"});
     updateDBstarted(true);
 }
 

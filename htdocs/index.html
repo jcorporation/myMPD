@@ -10,7 +10,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="theme-color" content="#343a40">
   <link href="/css/bootstrap.min.css" rel="stylesheet">
-  <link href="/css/mympd.css" rel="stylesheet">
+  <link href="/css/mympd.min.css" rel="stylesheet">
   <link href="/assets/favicon.ico" rel="shortcut icon" type="image/vnd.microsoft.icon">  
   <link rel="manifest" href="/mympd.webmanifest">
   <link rel="apple-touch-icon" href="/assets/appicon-167.png">
@@ -24,7 +24,11 @@
           </a>
           <div class="dropdown-menu bg-dark">
             <a class="dropdown-item text-light bg-dark" href="#" data-href='{"cmd": "showAddToPlaylist", "options": ["stream"]}'>Add Stream</a>
-            <a class="dropdown-item text-light bg-dark" href="#" data-href='{"cmd": "updateDB", "options": []}'>Update Database</a>
+            <a id="navDBupdate" class="dropdown-item text-light bg-dark" data-toggle="collapse" href="#menu-dbupdate"><span class="material-icons material-icons-left">keyboard_arrow_right</span>Database</a>
+              <div class="collapse" id="menu-dbupdate">
+                <a class="dropdown-item text-light bg-dark" href="#" data-href='{"cmd": "updateDB", "options": []}'>Update</a>
+                <a class="dropdown-item text-light bg-dark" href="#" data-href='{"cmd": "rescanDB", "options": []}'>Rescan</a>
+              </div>
             <a class="dropdown-item text-light bg-dark" href="#" data-href='{"cmd": "openLocalPlayer", "options": []}'>Local Player</a>
             <a class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#modalSettings">Settings</a>
             <a class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#modalAbout">About</a>
@@ -833,6 +837,6 @@
   </div>
 
   <script src="/js/bootstrap-native-v4.min.js"></script>
-  <script src="/js/mympd.js"></script>
+  <script src="/js/mympd.min.js"></script>
  </body>
 </html>

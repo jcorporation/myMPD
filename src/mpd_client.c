@@ -179,6 +179,11 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
             if (uint_rc > 0)
                 n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             break;
+        case MPD_API_DATABASE_RESCAN:
+            uint_rc = mpd_run_rescan(mpd.conn, NULL);
+            if (uint_rc > 0)
+                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+            break;            
         case MPD_API_PLAYER_PAUSE:
             mpd_run_toggle_pause(mpd.conn);
             n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");

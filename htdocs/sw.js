@@ -1,12 +1,12 @@
-var CACHE = 'myMPD-cache-v4.2.0';
+var CACHE = 'myMPD-cache-v4.2.1';
 var urlsToCache = [
     '/',
     '/player.html',
     '/css/bootstrap.min.css',
-    '/css/mympd.css',
+    '/css/mympd.min.css',
     '/js/bootstrap-native-v4.min.js',
-    '/js/mympd.js',
-    '/js/player.js',
+    '/js/mympd.min.js',
+    '/js/player.min.js',
     '/assets/appicon-167.png',
     '/assets/appicon-192.png',
     '/assets/appicon-512.png',
@@ -28,15 +28,16 @@ self.addEventListener('install', function(event) {
 });
 
 self.addEventListener('fetch', function(event) {
-  event.respondWith(
-    caches.match(event.request).then(function(response) {
-        if (response)
-            return response
-        else
-            return fetch(event.request);
-      }
-    )
-  );    
+    if (event.request.url.match('^http://'))
+        return false;
+    event.respondWith(
+        caches.match(event.request).then(function(response) {
+            if (response)
+                return response
+            else
+                return fetch(event.request);
+        })
+    );    
 });
 
 self.addEventListener('activate', function(event) {
