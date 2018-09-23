@@ -128,6 +128,12 @@ small {
   font-feature-settings: 'liga';
 }
 
+.material-icons-left {
+  font-size: 1rem;
+  margin-left: -1em;
+  vertical-align:middle;
+}
+
 .material-icons-small {
   font-size: 16px;
 }
@@ -280,4 +286,8 @@ caption {
 #BrowseDatabaseAlbumListCaption {
   width:100%;
   margin-left: 15px;
+}
+
+#menu-dbupdate {
+  padding-left:1rem;
 }

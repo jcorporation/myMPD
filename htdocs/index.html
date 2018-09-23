@@ -24,7 +24,11 @@
           </a>
           <div class="dropdown-menu bg-dark">
             <a class="dropdown-item text-light bg-dark" href="#" data-href='{"cmd": "showAddToPlaylist", "options": ["stream"]}'>Add Stream</a>
-            <a class="dropdown-item text-light bg-dark" href="#" data-href='{"cmd": "updateDB", "options": []}'>Update Database</a>
+            <a id="navDBupdate" class="dropdown-item text-light bg-dark" data-toggle="collapse" href="#menu-dbupdate"><span class="material-icons material-icons-left">keyboard_arrow_right</span>Database</a>
+              <div class="collapse" id="menu-dbupdate">
+                <a class="dropdown-item text-light bg-dark" href="#" data-href='{"cmd": "updateDB", "options": []}'>Update</a>
+                <a class="dropdown-item text-light bg-dark" href="#" data-href='{"cmd": "rescanDB", "options": []}'>Rescan</a>
+              </div>
             <a class="dropdown-item text-light bg-dark" href="#" data-href='{"cmd": "openLocalPlayer", "options": []}'>Local Player</a>
             <a class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#modalSettings">Settings</a>
             <a class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#modalAbout">About</a>

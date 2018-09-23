@@ -309,6 +309,16 @@ function appInit() {
             sendAPI({"cmd": "MPD_API_PLAYER_SEEK", "data": {"songid": currentSong.currentSongId, "seek": seekVal}});
         }
     }, false);
+
+    document.getElementById('navDBupdate').addEventListener('click', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        var icon = this.getElementsByTagName('span')[0];
+        if (icon.innerText == 'keyboard_arrow_right')
+            icon.innerText = 'keyboard_arrow_down';
+        else
+            icon.innerText = 'keyboard_arrow_right';        
+    }, false);
   
     document.getElementById('volumeIcon').parentNode.addEventListener('show.bs.dropdown', function () {
         sendAPI({"cmd": "MPD_API_PLAYER_OUTPUT_LIST"}, parseOutputs);
@@ -1837,6 +1847,11 @@ function openLocalPlayer() {
 
 function updateDB() {
     sendAPI({"cmd": "MPD_API_DATABASE_UPDATE"});
+    updateDBstarted(true);
+}
+
+function rescanDB() {
+    sendAPI({"cmd": "MPD_API_DATABASE_RESCAN"});
     updateDBstarted(true);
 }
 
