@@ -37,4 +37,16 @@ stickers = true
 taglist = Artist,Album,AlbumArtist,Title,Track,Genre,Date,Composer,Performer
 
 #Enable smart playlists
-smartplaylists = true
+smartpls = true
+
+#Newest songs = newest song minus one week
+smartpls_newest = 604800
+
+#Add max songs to myMPDsmart-newestSongs
+smartpls_maxnewest = 200
+
+#Add max songs to myMPDsmart-bestRated
+smartpls_maxlike = 200
+
+#Add max songs to myMPDsmart-mostPlayed
+smartpls_maxplaycount = 200
