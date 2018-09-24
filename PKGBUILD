@@ -4,7 +4,7 @@
 
 pkgname=mympd
 _pkgname=myMPD
-pkgver=4.2.1
+pkgver=4.3.0
 pkgrel=1
 pkgdesc="A standalone MPD Web GUI based on YMPD - Default port set to 80"
 arch=('x86_64' 'armv7h' 'aarch64')

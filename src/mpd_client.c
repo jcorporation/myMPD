@@ -1930,15 +1930,15 @@ int mympd_smartpls_update(char *sticker, char *playlist) {
     ssize_t read;
     long i = 0;
 
+    if (!mpd_send_sticker_find(mpd.conn, "song", "", sticker)) {
+        LOG_ERROR_AND_RECOVER("mpd_send_sticker_find");
+        return 1;    
+    }
     FILE *fp = fopen("/var/lib/mympd/tmp/playlist.tmp", "w");
     if (fp == NULL) {
         printf("Error opening /var/lib/mympd/tmp/playlist.tmp");
         return 1;
     }    
-    if (!mpd_send_sticker_find(mpd.conn, "song", "", sticker)) {
-        LOG_ERROR_AND_RECOVER("mpd_send_sticker_find");
-        return 1;    
-    }
     while ((pair = mpd_recv_pair(mpd.conn)) != NULL) {
         if (strcmp(pair->name, "file") == 0) {
             uri = strdup(pair->value);
@@ -2009,15 +2009,15 @@ int mympd_smartpls_update_newest(char *playlist) {
     ssize_t read;
     long i = 0;
     
+    if (!mpd_send_list_all_meta(mpd.conn, "/")) {
+        LOG_ERROR_AND_RECOVER("mpd_send_list_all_meta");
+        return 1;    
+    }
     FILE *fp = fopen("/var/lib/mympd/tmp/playlist.tmp", "w");
     if (fp == NULL) {
         printf("Error opening /var/lib/mympd/tmp/playlist.tmp");
         return 1;
     }    
-    if (!mpd_send_list_all_meta(mpd.conn, "/")) {
-        LOG_ERROR_AND_RECOVER("mpd_send_list_all_meta");
-        return 1;    
-    }
     while ((song = mpd_recv_song(mpd.conn)) != NULL) {
         value = mpd_song_get_last_modified(song);
         if (value > value_max)

@@ -28,7 +28,7 @@ This fork provides a reworked ui based on Bootstrap 4, a modernized backend and 
  - Play statistics and song voting (uses mpd stickers)
  - Embedded Webserver (mongoose)
  - Jukebox mode (add's random songs from database or playlists to queue)
- - Smart playlists (most played and best rated songs)
+ - Smart playlists (most played, best rated and newest songs)
 
 myMPD is work in progress. Bugreportes and feature requests are very welcome.
  - https://github.com/jcorporation/myMPD/issues
