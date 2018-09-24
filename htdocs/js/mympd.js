@@ -1153,7 +1153,7 @@ function parsePlaylists(obj) {
         document.getElementById('btnBrowsePlaylistsAll').parentNode.classList.add('hide');
         document.getElementById('btnPlaylistClear').parentNode.classList.add('hide');
     } else {
-        if (obj.uri.indexOf('.') > -1) {
+        if (obj.uri.indexOf('.') > -1 || obj.uri.indexOf('myMPDsmart-') == 0) {
             document.getElementById('BrowsePlaylistsDetailList').setAttribute('data-ro', 'true')
             document.getElementById('btnPlaylistClear').parentNode.classList.add('hide');
         }
@@ -1753,7 +1753,7 @@ function showMenu(el, event) {
     else if (app.current.app == 'Browse' && app.current.tab == 'Playlists' && app.current.view == 'All') {
         menu += addMenuItem({"cmd": "appendQueue", "options": [type, uri, name]}, 'Append to queue') +
             addMenuItem({"cmd": "replaceQueue", "options": [type, uri, name]},'Replace queue') +
-            addMenuItem({"cmd": "playlistDetails", "options": [uri]}, 'Edit playlist') +
+            (uri.indexOf('myMPDsmart-') == 0 ? addMenuItem({"cmd": "playlistDetails", "options": [uri]}, 'View playlist') : addMenuItem({"cmd": "playlistDetails", "options": [uri]}, 'Edit playlist'))+
             addMenuItem({"cmd": "showRenamePlaylist", "options": [uri]}, 'Rename playlist') + 
             addMenuItem({"cmd": "delPlaylist", "options": [uri]}, 'Delete playlist');
     }
