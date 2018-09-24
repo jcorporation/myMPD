@@ -295,6 +295,14 @@ function appInit() {
     webSocketConnect();
 
     domCache.volumeBar.value = 0;
+
+    document.getElementById('btnChVolumeDown').addEventListener('click', function(event) {
+        event.stopPropagation();
+    }, false);
+    document.getElementById('btnChVolumeUp').addEventListener('click', function(event) {
+        event.stopPropagation();
+    }, false);
+
     domCache.volumeBar.addEventListener('click', function(event) {
         event.stopPropagation();
     }, false);
