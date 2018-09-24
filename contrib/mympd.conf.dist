@@ -35,3 +35,6 @@ stickers = true
 #List of tags in myMPD gui
 #Supported tags: Artist,Album,AlbumArtist,Title,Track,Genre,Date,Composer,Performer
 taglist = Artist,Album,AlbumArtist,Title,Track,Genre,Date,Composer,Performer
+
+#Enable smart playlists
+smartplaylists = true

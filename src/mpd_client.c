@@ -183,7 +183,14 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
             uint_rc = mpd_run_rescan(mpd.conn, NULL);
             if (uint_rc > 0)
                 n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
-            break;            
+            break;
+        case MPD_API_SMARTPLS_UPDATE:
+            uint_rc = mympd_smartpls_update_all();
+            if (uint_rc == 0)
+                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"Smart Playlists updated\"}");
+            else
+                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Smart Playlists update failed\"}");
+            break;
         case MPD_API_PLAYER_PAUSE:
             mpd_run_toggle_pause(mpd.conn);
             n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
@@ -549,6 +556,7 @@ void mympd_parse_idle(struct mg_mgr *s, int idle_bitmask) {
             switch(idle_event) {
                 case MPD_IDLE_DATABASE:
                     len = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"update_database\"}");
+                    mympd_smartpls_update_all();
                     break;
                 case MPD_IDLE_STORED_PLAYLIST:
                     len = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"update_stored_playlist\"}");
@@ -627,6 +635,10 @@ void mympd_mpd_features() {
     if (mpd.feat_sticker == false && config.stickers == true) {
         printf("MPD don't support stickers, disabling myMPD feature\n");
         config.stickers = false;
+    }
+    if (config.stickers == false && config.smartplaylists == true) {
+        printf("Stickers are disabled, disabling smartplaylists\n");
+        config.smartplaylists = false;
     }
  
     printf("MPD supported tags: ");
@@ -736,6 +748,7 @@ void mympd_idle(struct mg_mgr *s, int timeout) {
             mpd_connection_set_timeout(mpd.conn, mpd.timeout);
             mpd.conn_state = MPD_CONNECTED;
             mympd_mpd_features();
+            mympd_smartpls_update_all();
             if (mympd_state.jukeboxMode == true)
                         mympd_jukebox();
             mpd_send_idle(mpd.conn);
@@ -1805,7 +1818,7 @@ int mympd_search_queue(char *buffer, char *mpdtagtype, unsigned int offset, char
     else {
         len = json_printf(&out, "{type: queuesearch, data: [");
 
-        while((song = mpd_recv_song(mpd.conn)) != NULL) {
+        while ((song = mpd_recv_song(mpd.conn)) != NULL) {
             entity_count ++;
             if (entity_count > offset && entity_count <= offset + MAX_ELEMENTS_PER_PAGE) {
                 if (entities_returned ++)
@@ -1867,4 +1880,103 @@ int mympd_put_stats(char *buffer) {
 void mympd_disconnect() {
     mpd.conn_state = MPD_DISCONNECT;
     mympd_idle(NULL, 0);
+}
+
+int mympd_smartpls_update_all() {
+    if (!config.smartplaylists)
+        return 0;
+    if (mympd_smartpls_update("like", "myMPDsmart-bestRated") != 0)
+        return 1;
+    if (mympd_smartpls_update("playCount", "myMPDsmart-mostPlayed") != 0)
+        return 1;
+    return 0;
+}
+
+int mympd_smartpls_update(char *sticker, char *playlist) {
+    struct mpd_pair *pair;
+    char *uri = NULL;
+    char *name;
+    char *p_value;
+    char *crap;
+    long value;
+    long value_max = 0;
+    size_t len = 0;
+    ssize_t read;
+    unsigned i = 0;
+    struct mpd_playlist *pl;
+    const char *plpath;
+    bool exists = false;
+    
+    FILE *fp = fopen("/var/lib/mympd/tmp/playlist.tmp", "w");
+    if (fp == NULL) {
+        printf("Error opening /var/lib/mympd/tmp/playlist.tmp");
+        return 1;
+    }    
+    if (!mpd_send_sticker_find(mpd.conn, "song", "", sticker)) {
+        LOG_ERROR_AND_RECOVER("mpd_run_rm");
+        return 1;    
+    }
+    while ((pair = mpd_recv_pair(mpd.conn)) != NULL) {
+        if (strcmp(pair->name, "file") == 0) {
+            uri = strdup(pair->value);
+        } 
+        else if (strcmp(pair->name, "sticker") == 0) {
+            name = strtok(strdup(pair->value), "=");
+            p_value = strtok(NULL, "=");
+            value = strtol(p_value, &crap, 10);
+            if (value > 1)            
+                fprintf(fp, "%s::%ld\n", uri, value);
+            if (value > value_max)
+                value_max = value;
+        }
+        mpd_return_pair(mpd.conn, pair);
+    }
+    mpd_response_finish(mpd.conn);
+    fclose(fp);
+
+    if (!mpd_send_list_playlists(mpd.conn)) {
+        LOG_ERROR_AND_RECOVER("mpd_run_rm");
+        return 1;
+    }
+    while((pl = mpd_recv_playlist(mpd.conn)) != NULL) {
+        plpath = mpd_playlist_get_path(pl);
+        if (strcmp(playlist, plpath) == 0)
+            exists = true;
+        mpd_playlist_free(pl);
+    }
+    
+    if (exists)
+        if (!mpd_run_rm(mpd.conn, playlist)) {
+            LOG_ERROR_AND_RECOVER("mpd_run_rm");
+            return 1;
+        }
+    
+    if (value_max > 2)
+        value_max = value_max / 2;
+    fp = fopen("/var/lib/mympd/tmp/playlist.tmp", "r");
+    if (fp == NULL) {
+        printf("Error opening /var/lib/mympd/tmp/playlist.tmp");
+        return 1;
+    }
+    while ((read = getline(&uri, &len, fp)) != -1) {
+        name = strtok(uri, "::");
+        p_value = strtok(NULL, "::");
+        value = strtol(p_value, &crap, 10);
+        if (strcmp(sticker, "playCount") == 0) {
+            if (value <= value_max)
+                continue;
+        }
+        if (!mpd_run_playlist_add(mpd.conn, playlist, name)) {
+            LOG_ERROR_AND_RECOVER("mpd_run_rm");
+            fclose(fp);
+            free(uri);
+            return 1;        
+        }
+        i++;
+    }
+    fclose(fp);
+    free(uri);
+    unlink("/var/lib/mympd/tmp/playlist.tmp");
+    printf("Updated %s with %u songs, minValue: %ld\n", playlist, i, value_max);
+    return 0;
 }

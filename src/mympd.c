@@ -162,6 +162,11 @@ static int inihandler(void* user, const char* section, const char* name, const c
             p_config->stickers = true;
         else
             p_config->stickers = false;
+    else if (MATCH("smartplaylists"))
+        if (strcmp(value, "true") == 0)
+            p_config->smartplaylists = true;
+        else
+            p_config->smartplaylists = false;            
     else if (MATCH("mixramp"))
         if (strcmp(value, "true") == 0)
             p_config->mixramp = true;
@@ -198,6 +203,7 @@ int main(int argc, char **argv) {
     config.stickers = true;
     config.mixramp = true;
     config.taglist = "Artist,Album,AlbumArtist,Title,Track,Genre,Date,Composer,Performer";
+    config.smartplaylists = true;
     
     mpd.timeout = 3000;
     mpd.last_update_sticker_song_id = -1;

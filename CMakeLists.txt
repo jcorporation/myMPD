@@ -55,3 +55,4 @@ install(FILES dist/htdocs/css/bootstrap.min.css DESTINATION share/${PROJECT_NAME
 install(FILES dist/htdocs/css/mympd.min.css DESTINATION share/${PROJECT_NAME}/htdocs/css/)
 install(DIRECTORY htdocs/assets DESTINATION share/${PROJECT_NAME}/htdocs)
 install(DIRECTORY DESTINATION ../var/lib/${PROJECT_NAME}/pics)
+install(DIRECTORY DESTINATION ../var/lib/${PROJECT_NAME}/tmp)

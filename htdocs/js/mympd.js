@@ -1542,6 +1542,10 @@ function getAllPlaylists(obj) {
     }
 }
 
+function updateSmartPlaylists() {
+    sendAPI({"cmd": "MPD_API_SMARTPLS_UPDATE"});
+}
+
 function voteSong(vote) {
     var uri = domCache.currentTrack.getAttribute('data-uri');
     if (uri == '')
