@@ -163,10 +163,6 @@ typedef struct {
     bool mixramp;
     const char* taglist;
     bool smartpls;
-    long smartpls_newest;
-    long smartpls_maxnewest;
-    long smartpls_maxlike;
-    long smartpls_maxplaycount;    
 } t_config;
 
 t_config config;
@@ -204,8 +200,8 @@ void mympd_get_sticker(const char *uri, t_sticker *sticker);
 void mympd_jukebox();
 int mympd_smartpls_update_all();
 int mympd_smartpls_clear(char *playlist);
-int mympd_smartpls_update(char *sticker, char *playlist);
-int mympd_smartpls_update_newest(char *playlist);
+int mympd_smartpls_update(char *sticker, char *playlist, int maxentries);
+int mympd_smartpls_update_newest(char *playlist, int timerange, int maxentries);
 int mympd_get_updatedb_state(char *buffer);
 int mympd_put_state(char *buffer, int *current_song_id, int *next_song_id, int *last_song_id, unsigned *queue_version, unsigned *queue_length);
 int mympd_put_outputs(char *buffer);

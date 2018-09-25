@@ -167,14 +167,6 @@ static int inihandler(void* user, const char* section, const char* name, const c
             p_config->smartpls = true;
         else
             p_config->smartpls = false;
-    else if (MATCH("smartpls_newest"))
-        p_config->smartpls_newest = strtol(value, &crap, 10);
-    else if (MATCH("smartpls_maxnewest"))
-        p_config->smartpls_maxnewest = strtol(value, &crap, 10);
-    else if (MATCH("smartpls_maxlike"))
-        p_config->smartpls_maxlike = strtol(value, &crap, 10);
-    else if (MATCH("smartpls_maxplaycount"))
-        p_config->smartpls_maxplaycount = strtol(value, &crap, 10);
     else if (MATCH("mixramp"))
         if (strcmp(value, "true") == 0)
             p_config->mixramp = true;
@@ -212,8 +204,6 @@ int main(int argc, char **argv) {
     config.mixramp = true;
     config.taglist = "Artist,Album,AlbumArtist,Title,Track,Genre,Date,Composer,Performer";
     config.smartpls = true;
-    config.smartpls_newest = 604800;
-    config.smartpls_maxnewest = 200;
     
     mpd.timeout = 3000;
     mpd.last_update_sticker_song_id = -1;

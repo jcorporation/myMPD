@@ -1883,14 +1883,53 @@ void mympd_disconnect() {
 }
 
 int mympd_smartpls_update_all() {
+    DIR *dir;
+    struct dirent *ent;
+    char *smartpltype;
+    char filename[400];
+    int je;
+    char *p_charbuf1;
+    int int_buf1, int_buf2;
+    
     if (!config.smartpls)
         return 0;
-    if (mympd_smartpls_update("like", "myMPDsmart-bestRated") != 0)
+    
+    if ((dir = opendir ("/var/lib/mympd/smartpls")) != NULL) {
+        while ((ent = readdir(dir)) != NULL) {
+            if (strncmp (ent->d_name, ".", 1) == 0)
+                continue;
+            snprintf(filename, 400, "/var/lib/mympd/smartpls/%s", ent->d_name);
+            char *content = json_fread(filename);
+            je = json_scanf(content, strlen(content), "{type: %Q }", &smartpltype);
+            if (je != 1)
+                continue;
+            if (strcmp(smartpltype, "sticker") == 0) {
+                je = json_scanf(content, strlen(content), "{sticker: %Q, maxentries: %d}", &p_charbuf1, &int_buf1);
+                if (je == 2) {
+                    mympd_smartpls_update(p_charbuf1, ent->d_name, int_buf1);
+                    free(p_charbuf1);
+                }
+                else
+                    printf("Can't parse file %s\n", filename);
+            }
+            else if (strcmp(smartpltype, "newest") == 0) {
+                je = json_scanf(content, strlen(content), "{timerange: %d, maxentries: %d}", &int_buf1, &int_buf2);
+                if (je == 2) {
+                    mympd_smartpls_update_newest(ent->d_name, int_buf1, int_buf2);
+                }
+                else
+                    printf("Can't parse file %s\n", filename);                
+            }
+            else if (strcmp(smartpltype, "search") == 0) {
+                //to be implemented
+            }
+            free(smartpltype);
+        }
+        closedir (dir);
+    } else {
+        printf("Can't open dir /var/lib/mympd/smartpls\n");
         return 1;
-    if (mympd_smartpls_update("playCount", "myMPDsmart-mostPlayed") != 0)
-        return 1;
-    if (mympd_smartpls_update_newest("myMPDsmart-newestSongs") != 0)
-        return 1;
+    }
     return 0;
 }
 
@@ -1907,7 +1946,10 @@ int mympd_smartpls_clear(char *playlist) {
         if (strcmp(playlist, plpath) == 0)
             exists = true;
         mpd_playlist_free(pl);
+        if (exists)
+            break;
     }
+    mpd_response_finish(mpd.conn);
     
     if (exists) {
         if (!mpd_run_rm(mpd.conn, playlist)) {
@@ -1918,7 +1960,7 @@ int mympd_smartpls_clear(char *playlist) {
     return 0;
 }
 
-int mympd_smartpls_update(char *sticker, char *playlist) {
+int mympd_smartpls_update(char *sticker, char *playlist, int maxentries) {
     struct mpd_pair *pair;
     char *uri = NULL;
     char *name;
@@ -1970,10 +2012,8 @@ int mympd_smartpls_update(char *sticker, char *playlist) {
         name = strtok(uri, "::");
         p_value = strtok(NULL, "::");
         value = strtol(p_value, &crap, 10);
-        if (strcmp(sticker, "playCount") == 0) {
-            if (value <= value_max)
-                continue;
-        }
+        if (value < value_max)
+            continue;
         if (!mpd_run_playlist_add(mpd.conn, playlist, name)) {
             LOG_ERROR_AND_RECOVER("mpd_run_playlist_add");
             fclose(fp);
@@ -1981,14 +2021,8 @@ int mympd_smartpls_update(char *sticker, char *playlist) {
             return 1;        
         }
         i++;
-        if (strcmp(sticker, "playCount") == 0) {
-            if (i >= config.smartpls_maxplaycount)
-                break;
-        }
-        else if (strcmp(sticker, "like") == 0) {
-            if (i >= config.smartpls_maxlike)
-                break;
-        }
+        if (i >= maxentries)
+            break;
     }
     fclose(fp);
     free(uri);
@@ -1997,7 +2031,7 @@ int mympd_smartpls_update(char *sticker, char *playlist) {
     return 0;
 }
 
-int mympd_smartpls_update_newest(char *playlist) {
+int mympd_smartpls_update_newest(char *playlist, int timerange, int maxentries) {
     struct mpd_song *song;
     char *uri;
     char *p_value;
@@ -2030,7 +2064,7 @@ int mympd_smartpls_update_newest(char *playlist) {
 
     mympd_smartpls_clear(playlist);
     
-    value_max -= config.smartpls_newest; //one week
+    value_max -= timerange;
     
     fp = fopen("/var/lib/mympd/tmp/playlist.tmp", "r");
     if (fp == NULL) {
@@ -2050,7 +2084,7 @@ int mympd_smartpls_update_newest(char *playlist) {
             return 1;        
         }
         i++;
-        if (i >= config.smartpls_maxnewest)
+        if (i >= maxentries)
             break;
     }
     fclose(fp);
