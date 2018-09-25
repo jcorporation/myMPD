@@ -46,7 +46,7 @@ make
 sudo make install
 cd ..
 
-debian/postinst
+sudo debian/postinst
 
 if [ -x /usr/bin/cppcheck ]
 then
