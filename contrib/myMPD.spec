@@ -49,7 +49,7 @@ chown -R mympd.mympd /var/lib/mympd
 
 if [ -d /etc/systemd ]
 then
-  [ -d /usr/lib/systemd/system ] || sudo mkdir -p /usr/lib/systemd/system 
+  [ -d /usr/lib/systemd/system ] || mkdir -p /usr/lib/systemd/system 
   cp /usr/share/mympd/mympd.service /usr/lib/systemd/system/
   systemctl daemon-reload
   systemctl enable mympd

@@ -46,7 +46,7 @@ then
   echo "Certificates already created"
 else
   echo "Creating certificates"
-  sudo /usr/share/mympd/crcert.sh
+  /usr/share/mympd/crcert.sh
 fi
 
 echo "myMPD installed"
