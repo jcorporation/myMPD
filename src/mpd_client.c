@@ -191,6 +191,24 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
             else
                 n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Smart Playlists update failed\"}");
             break;
+        case MPD_API_SMARTPLS_SAVE:
+            je = json_scanf(msg.p, msg.len, "{data: {playlist: %Q, tag: %Q, searchstr: %Q}}", &p_charbuf1, &p_charbuf2, &p_charbuf3);
+            if (je == 3) {
+                mympd_smartpls_save(p_charbuf1, p_charbuf2, p_charbuf3);
+                free(p_charbuf1);
+                free(p_charbuf2);
+                free(p_charbuf3);
+                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+            }
+            break;
+        case MPD_API_SMARTPLS_RM:
+            je = json_scanf(msg.p, msg.len, "{data: {playlist: %Q}}", &p_charbuf1);
+            if (je == 3) {
+                mympd_smartpls_rm(p_charbuf1);
+                free(p_charbuf1);
+                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+            }
+            break;            
         case MPD_API_PLAYER_PAUSE:
             mpd_run_toggle_pause(mpd.conn);
             n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
@@ -1882,13 +1900,32 @@ void mympd_disconnect() {
     mympd_idle(NULL, 0);
 }
 
+int mympd_smartpls_save(char *playlist, char *tag, char *searchstr) {
+    char tmp_file[400];
+    char pl_file[400];
+    snprintf(tmp_file, 400, "/var/lib/mympd/tmp/%s", playlist);
+    snprintf(pl_file, 400, "/var/lib/mympd/smartpls/%s", playlist);
+    json_fprintf(tmp_file, "{type: search, tag: %Q, searchstr: %Q}", tag, searchstr);
+    rename(tmp_file, pl_file);
+    mympd_smartpls_update_search(playlist, tag, searchstr);
+    return 0;
+}
+
+int mympd_smartpls_rm(char *playlist) {
+    char pl_file[400];
+    snprintf(pl_file, 400, "/var/lib/mympd/smartpls/%s", playlist);
+    unlink(pl_file);
+    mpd_run_rm(mpd.conn, playlist);
+    return 0;
+}
+
 int mympd_smartpls_update_all() {
     DIR *dir;
     struct dirent *ent;
     char *smartpltype;
     char filename[400];
     int je;
-    char *p_charbuf1;
+    char *p_charbuf1, *p_charbuf2;
     int int_buf1, int_buf2;
     
     if (!config.smartpls)
@@ -1896,7 +1933,7 @@ int mympd_smartpls_update_all() {
     
     if ((dir = opendir ("/var/lib/mympd/smartpls")) != NULL) {
         while ((ent = readdir(dir)) != NULL) {
-            if (strncmp (ent->d_name, ".", 1) == 0)
+            if (strncmp(ent->d_name, ".", 1) == 0)
                 continue;
             snprintf(filename, 400, "/var/lib/mympd/smartpls/%s", ent->d_name);
             char *content = json_fread(filename);
@@ -1921,7 +1958,14 @@ int mympd_smartpls_update_all() {
                     printf("Can't parse file %s\n", filename);                
             }
             else if (strcmp(smartpltype, "search") == 0) {
-                //to be implemented
+                je = json_scanf(content, strlen(content), "{tag: %Q, searchstr: %Q}", &p_charbuf1, &p_charbuf2);
+                if (je == 2) {
+                    mympd_smartpls_update_search(ent->d_name, p_charbuf1, p_charbuf2);
+                    free(p_charbuf1);
+                    free(p_charbuf2);
+                }
+                else
+                    printf("Can't parse file %s\n", filename);
             }
             free(smartpltype);
         }
@@ -1957,6 +2001,13 @@ int mympd_smartpls_clear(char *playlist) {
             return 1;
         }
     }
+    return 0;
+}
+
+int mympd_smartpls_update_search(char *playlist, char *tag, char *searchstr) {
+    mympd_smartpls_clear(playlist);
+    mympd_search(mpd.buf, searchstr, tag, playlist, 0);
+    printf("Updated %s\n", playlist);
     return 0;
 }
 

@@ -73,6 +73,8 @@
     X(MPD_API_PLAYLIST_LIST) \
     X(MPD_API_PLAYLIST_CONTENT_LIST) \
     X(MPD_API_SMARTPLS_UPDATE) \
+    X(MPD_API_SMARTPLS_SAVE) \
+    X(MPD_API_SMARTPLS_RM) \
     X(MPD_API_DATABASE_SEARCH) \
     X(MPD_API_DATABASE_UPDATE) \
     X(MPD_API_DATABASE_RESCAN) \
@@ -198,10 +200,13 @@ void mympd_last_played_song_uri(const char *uri);
 void mympd_last_played_song_id(int song_id);
 void mympd_get_sticker(const char *uri, t_sticker *sticker);
 void mympd_jukebox();
+int mympd_smartpls_save(char *playlist, char *tag, char *searchstr);
+int mympd_smartpls_rm(char *playlist);
 int mympd_smartpls_update_all();
 int mympd_smartpls_clear(char *playlist);
 int mympd_smartpls_update(char *sticker, char *playlist, int maxentries);
 int mympd_smartpls_update_newest(char *playlist, int timerange, int maxentries);
+int mympd_smartpls_update_search(char *playlist, char *tag, char *searchstr);
 int mympd_get_updatedb_state(char *buffer);
 int mympd_put_state(char *buffer, int *current_song_id, int *next_song_id, int *last_song_id, unsigned *queue_version, unsigned *queue_length);
 int mympd_put_outputs(char *buffer);
