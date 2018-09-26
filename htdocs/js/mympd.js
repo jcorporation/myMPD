@@ -1712,8 +1712,21 @@ function dirname(uri) {
     return uri.replace(/\/[^\/]*$/, '');
 }
 
+function b64EncodeUnicode(str) {
+    return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,
+        function toSolidBytes(match, p1) {
+            return String.fromCharCode('0x' + p1);
+    }));
+}
+
+function b64DecodeUnicode(str) {
+    return decodeURIComponent(atob(str).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+}
+
 function addMenuItem(href, text) {
-    return '<a class="dropdown-item" href="#" data-href=\'' + btoa(JSON.stringify(href)) + '\'>' + text +'</a>';
+    return '<a class="dropdown-item" href="#" data-href=\'' + b64EncodeUnicode(JSON.stringify(href)) + '\'>' + text +'</a>';
 }
 
 function showMenu(el, event) {
@@ -1799,7 +1812,7 @@ function showMenu(el, event) {
             if (event.target.nodeName == 'A') {
                 var dh = event.target.getAttribute('data-href');
                 if (dh) {
-                    var cmd = JSON.parse(atob(dh));
+                    var cmd = JSON.parse(b64DecodeUnicode(dh));
                     if (typeof window[cmd.cmd] === 'function') {
                         switch(cmd.cmd) {
                             case 'sendAPI':
