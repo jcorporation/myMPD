@@ -260,7 +260,10 @@ function appRoute() {
         doSetFilterLetter('BrowseFilesystemFilter');
     }
     else if (app.current.app == 'Search') {
-        document.getElementById('searchstr').focus();
+        var searchstrEl = document.getElementById('searchstr');
+        searchstrEl.focus();
+        if (searchstrEl.value == '' && app.current.search != '')
+            searchstrEl.value = app.current.search;
         if (app.last.app != app.current.app) {
             if (app.current.search != '')
                 document.getElementById('SearchList').getElementsByTagName('tbody')[0].innerHTML=
