@@ -97,6 +97,7 @@ var modalSongDetails = new Modal(document.getElementById('modalSongDetails'));
 var modalAddToPlaylist = new Modal(document.getElementById('modalAddToPlaylist'));
 var modalRenamePlaylist = new Modal(document.getElementById('modalRenamePlaylist'));
 var modalUpdateDB = new Modal(document.getElementById('modalUpdateDB'));
+var modalSaveSmartPlaylist = new Modal(document.getElementById('modalSaveSmartPlaylist'));
 //var mainMenu = new Dropdown(document.getElementById('mainMenu'));
 //var volumeMenu = new Dropdown(document.getElementById('volumeIcon'));
 
@@ -486,6 +487,9 @@ function appInit() {
             }
             else if (event.target.innerText == 'Add all to playlist') {
                 showAddToPlaylist('SEARCH');                
+            }
+            else if (event.target.innerText == 'Save as smart playlist') {
+                showSaveSmartPlaylist();
             }
         }
     }, false);
@@ -1593,6 +1597,29 @@ function toggleAddToPlaylistFrm() {
         document.getElementById('addToPlaylistFrm').classList.add('hide');
         document.getElementById('addStreamFooter').classList.remove('hide');
         document.getElementById('addToPlaylistFooter').classList.add('hide');
+    }
+}
+
+function showSaveSmartPlaylist() {
+    var nameEl = document.getElementById('saveSmartPlaylistName');
+    nameEl.value = 'myMPDsmart-';
+    nameEl.classList.remove('is-invalid');
+    document.getElementById('saveSmartPlaylistFrm').classList.remove('was-validated');
+    modalSaveSmartPlaylist.show();
+    nameEl.focus();
+}
+
+function saveSmartPlaylist() {
+    var value = document.getElementById('saveSmartPlaylistName').value;
+    var valid = value.replace(/[\w\-]/g, '');
+    if (value != '' && valid == '') {
+        sendAPI({"cmd": "MPD_API_SMARTPLS_SAVE", "data": {"playlist": value, "tag": app.current.filter, "searchstr": app.current.search}});
+        modalSaveSmartPlaylist.hide();
+        showNotification('Saved smart playlist ' + value, '', '', 'success');
+    }
+    else {
+        document.getElementById('saveSmartPlaylistName').classList.add('is-invalid');
+        document.getElementById('saveSmartPlaylistFrm').classList.add('was-validated');
     }
 }
 
