@@ -685,12 +685,13 @@ function playlistMoveTrack(from, to) {
 }
 
 function webSocketConnect() {
-    socket = new WebSocket(getWsUrl());
+    var wsUrl = getWsUrl();
+    socket = new WebSocket(wsUrl);
 
     try {
         socket.onopen = function() {
             console.log('connected');
-            showNotification('Connected to myMPD', '', '', 'success');
+            showNotification('Connected to myMPD: ' + wsUrl, '', '', 'success');
             modalConnectionError.hide();
             appRoute();
             sendAPI({"cmd": "MPD_API_PLAYER_STATE"}, parseState);
@@ -711,7 +712,7 @@ function webSocketConnect() {
                     parseState(obj);
                     break;
                 case 'disconnected':
-                    showNotification('myMPD lost connection to MPD', '', '', 'danger');
+                    showNotification('Lost connection to myMPD: ' + wsUrl, '', '', 'danger');
                     break;
                 case 'update_queue':
                     if (app.current.app === 'Queue')
@@ -754,26 +755,18 @@ function webSocketConnect() {
 }
 
 function getWsUrl() {
-    var pcol;
-    var u = document.URL;
-    var separator;
-
-    if (u.substring(0, 5) == 'https') {
-        pcol = 'wss://';
-        u = u.substr(8);
-    } else {
-        pcol = 'ws://';
-        if (u.substring(0, 4) == 'http')
-            u = u.substr(7);
-    }
-
-    u = u.split('#');
-    if (/\/$/.test(u[0]))
-        separator = '';
+    var hostname = window.location.hostname;
+    var protocol = window.location.protocol;
+    var port = window.location.port;
+    
+    if (protocol == 'https:')
+        protocol = 'wss://';
     else
-        separator = '/';
+        protocol = 'ws://';
 
-    return pcol + u[0] + separator + 'ws';
+    var wsUrl = protocol + hostname + (port != '' ? ':' + port : '') + '/ws';
+    document.getElementById('wsUrl').innerText = wsUrl;        
+    return wsUrl;
 }
 
 function parseStats(obj) {
