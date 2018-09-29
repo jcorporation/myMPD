@@ -1768,7 +1768,7 @@ function addMenuItem(href, text) {
 function hideMenu() {
     var menuEl = document.querySelector('[data-popover]');
     if (menuEl) {
-        new Popover(menuEl, { });
+        new Popover(menuEl, {});
         menuEl.Popover.hide();
         menuEl.removeAttribute('data-popover');
     }
@@ -1802,9 +1802,9 @@ function showMenu(el, event) {
         menu += addMenuItem({"cmd": "appendQueue", "options": [type, uri, name]}, 'Append to queue') +
             (type == 'song' ? addMenuItem({"cmd": "appendAfterQueue", "options": [type, uri, nextsongpos, name]}, 'Add after current playing song') : '') +
             addMenuItem({"cmd": "replaceQueue", "options": [type, uri, name]}, 'Replace queue') +
-            (type != 'plist' ? addMenuItem({"cmd": "showAddToPlaylist", "options": [uri]}, 'Add to playlist') : '') +
+            (type != 'plist' && type != 'smartpls' ? addMenuItem({"cmd": "showAddToPlaylist", "options": [uri]}, 'Add to playlist') : '') +
             (type == 'song' ? addMenuItem({"cmd": "songDetails", "options": [uri]}, 'Songdetails') : '') +
-            (type == 'plist' ? addMenuItem({"cmd": "playlistDetails", "options": [uri]}, 'Show playlist') : '');
+            (type == 'plist' || type == 'smartpls' ? addMenuItem({"cmd": "playlistDetails", "options": [uri]}, 'View playlist') : '');
         if (app.current.app == 'Search') {
             var baseuri = dirname(uri);
             menu += '<div class="dropdown-divider"></div>' +
