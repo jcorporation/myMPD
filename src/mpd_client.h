@@ -72,9 +72,8 @@
     X(MPD_API_PLAYLIST_RM_TRACK) \
     X(MPD_API_PLAYLIST_LIST) \
     X(MPD_API_PLAYLIST_CONTENT_LIST) \
-    X(MPD_API_SMARTPLS_UPDATE) \
+    X(MPD_API_SMARTPLS_UPDATE_ALL) \
     X(MPD_API_SMARTPLS_SAVE) \
-    X(MPD_API_SMARTPLS_RM) \
     X(MPD_API_DATABASE_SEARCH) \
     X(MPD_API_DATABASE_UPDATE) \
     X(MPD_API_DATABASE_RESCAN) \
@@ -160,11 +159,11 @@ typedef struct {
     const char* user;
     long streamport;
     const char* coverimage;
-    const char* statefile;
     bool stickers;
     bool mixramp;
     const char* taglist;
     bool smartpls;
+    const char* varlibdir;
 } t_config;
 
 t_config config;

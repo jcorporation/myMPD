@@ -155,8 +155,8 @@ static int inihandler(void* user, const char* section, const char* name, const c
         p_config->streamport = strtol(value, &crap, 10);
     else if (MATCH("coverimage"))
         p_config->coverimage = strdup(value);
-    else if (MATCH("statefile"))
-        p_config->statefile = strdup(value);
+    else if (MATCH("varlibdir"))
+        p_config->varlibdir = strdup(value);
     else if (MATCH("stickers"))
         if (strcmp(value, "true") == 0)
             p_config->stickers = true;
@@ -186,6 +186,7 @@ int main(int argc, char **argv) {
     struct mg_connection *nc_http;
     struct mg_bind_opts bind_opts;
     const char *err;
+    char statefile[400];
     
     //defaults
     config.mpdhost = "127.0.0.1";
@@ -199,7 +200,7 @@ int main(int argc, char **argv) {
     config.user = "nobody";
     config.streamport = 8000;
     config.coverimage = "folder.jpg";
-    config.statefile = "/var/lib/mympd/mympd.state";
+    config.varlibdir = "/var/lib/mympd";
     config.stickers = true;
     config.mixramp = true;
     config.taglist = "Artist,Album,AlbumArtist,Title,Track,Genre,Date,Composer,Performer";
@@ -240,8 +241,9 @@ int main(int argc, char **argv) {
         return EXIT_FAILURE;
     }
 
-    if (access( config.statefile, F_OK ) != -1 ) {
-        char *content = json_fread(config.statefile);
+    snprintf(statefile, 400, "%s/mympd.state", config.varlibdir);
+    if (access(statefile, F_OK ) != -1 ) {
+        char *content = json_fread(statefile);
         int je = json_scanf(content, strlen(content), "{notificationWeb: %B, notificationPage: %B, jukeboxMode: %B, jukeboxPlaylist: %Q}", 
             &mympd_state.notificationWeb, 
             &mympd_state.notificationPage,

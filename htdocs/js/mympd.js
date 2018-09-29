@@ -540,9 +540,10 @@ function appInit() {
     }, false);
 
     document.getElementsByTagName('body')[0].addEventListener('click', function(event) {
-        var oldPopover = document.getElementsByClassName('popover');
-        for (var i = 0; i < oldPopover.length; i++)
-            oldPopover[i].remove();
+//        var oldPopover = document.getElementsByClassName('popover');
+//        for (var i = 0; i < oldPopover.length; i++)
+//            oldPopover[i].remove();
+        hideMenu();
     }, false);
 
     dragAndDropTable('QueueList');
@@ -861,6 +862,13 @@ function parseSettings(obj) {
     for (var i = 0; i < stickerElsLen; i++) {
         stickerEls[i].style.display = displayStickers;
     }
+
+    var smartplsEls = document.getElementsByClassName('smartpls');
+    var smartplsElsLen = smartplsEls.length;
+    var displaySmartpls = obj.data.smartpls == true ? '' : 'none';
+    for (var i = 0; i < smartplsElsLen; i++) {
+        smartplsEls[i].style.display = displaySmartpls;
+    }    
     
     if (obj.data.mixramp == true) {
         document.getElementsByClassName('mixramp')[0].style.display = '';
@@ -1028,9 +1036,9 @@ function parseQueue(obj) {
         return;
     
     if (typeof(obj.totalTime) != undefined && obj.totalTime > 0 && obj.totalEntities <= settings.maxElementsPerPage )
-        document.getElementById('panel-heading-queue').innerText = obj.totalEntities + ' Songs – ' + beautifyDuration(obj.totalTime);
+        document.getElementById('panel-heading-queue').innerText = obj.totalEntities + ' ' + (obj.totalEntities > 1 ? 'Songs' : 'Song') + ' – ' + beautifyDuration(obj.totalTime);
     else if (obj.totalEntities > 0)
-        document.getElementById('panel-heading-queue').innerText = obj.totalEntities + ' Songs';
+        document.getElementById('panel-heading-queue').innerText = obj.totalEntities + ' ' + (obj.totalEntities > 1 ? 'Songs' : 'Song');
     else
         document.getElementById('panel-heading-queue').innerText = '';
 
@@ -1128,6 +1136,7 @@ function parseFilesystem(obj) {
                                 '<td>' + minutes + ':' + (seconds < 10 ? '0' : '') + seconds +
                                 '</td><td><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>';
                 break;
+            case 'smartpls':
             case 'plist':
                 row.innerHTML = '<td><span class="material-icons">list</span></td>' +
                                 '<td colspan="4">' + obj.data[i].name + '</td>' +
@@ -1161,7 +1170,7 @@ function parsePlaylists(obj) {
         document.getElementById('btnBrowsePlaylistsAll').parentNode.classList.add('hide');
         document.getElementById('btnPlaylistClear').parentNode.classList.add('hide');
     } else {
-        if (obj.uri.indexOf('.') > -1 || obj.uri.indexOf('myMPDsmart-') == 0) {
+        if (obj.uri.indexOf('.') > -1 || obj.smartpls == true) {
             document.getElementById('BrowsePlaylistsDetailList').setAttribute('data-ro', 'true')
             document.getElementById('btnPlaylistClear').parentNode.classList.add('hide');
         }
@@ -1170,7 +1179,10 @@ function parsePlaylists(obj) {
             document.getElementById('btnPlaylistClear').parentNode.classList.remove('hide');
         }
         document.getElementById('BrowsePlaylistsDetailList').setAttribute('data-uri', obj.uri);
-        document.getElementById('BrowsePlaylistsDetailList').getElementsByTagName('caption')[0].innerText = 'Playlist: ' + obj.uri;
+        if (obj.smartpls == true)
+            document.getElementById('BrowsePlaylistsDetailList').getElementsByTagName('caption')[0].innerText = 'Smart playlist: ' + obj.uri;
+        else
+            document.getElementById('BrowsePlaylistsDetailList').getElementsByTagName('caption')[0].innerText = 'Playlist: ' + obj.uri;
         document.getElementById('BrowsePlaylistsDetailList').classList.remove('hide');
         document.getElementById('BrowsePlaylistsAllList').classList.add('hide');
         document.getElementById('btnBrowsePlaylistsAll').parentNode.classList.remove('hide');
@@ -1188,7 +1200,7 @@ function parsePlaylists(obj) {
             var d = new Date(obj.data[i].last_modified * 1000);
             var row = document.createElement('tr');
             row.setAttribute('data-uri', uri);
-            row.setAttribute('data-type', 'plist');
+            row.setAttribute('data-type', obj.data[i].type);
             row.setAttribute('data-name', obj.data[i].name);
             row.innerHTML = '<td><span class="material-icons">list</span></td>' +
                             '<td>' + obj.data[i].name + '</td>' +
@@ -1208,7 +1220,8 @@ function parsePlaylists(obj) {
                 if (tr[i].getAttribute('data-uri') == uri && tr[i].getAttribute('id') == 'playlistTrackId' + songpos)
                     continue;
             var row = document.createElement('tr');
-            row.setAttribute('draggable','true');
+            if (obj.smartpls == false)
+                row.setAttribute('draggable','true');
             row.setAttribute('id','playlistTrackId' + songpos);
             row.setAttribute('data-type', obj.data[i].type);
             row.setAttribute('data-uri', uri);
@@ -1551,7 +1564,7 @@ function getAllPlaylists(obj) {
 }
 
 function updateSmartPlaylists() {
-    sendAPI({"cmd": "MPD_API_SMARTPLS_UPDATE"});
+    sendAPI({"cmd": "MPD_API_SMARTPLS_UPDATE_ALL"});
 }
 
 function voteSong(vote) {
@@ -1605,7 +1618,7 @@ function toggleAddToPlaylistFrm() {
 
 function showSaveSmartPlaylist() {
     var nameEl = document.getElementById('saveSmartPlaylistName');
-    nameEl.value = 'myMPDsmart-';
+    nameEl.value = '';
     nameEl.classList.remove('is-invalid');
     document.getElementById('saveSmartPlaylistFrm').classList.remove('was-validated');
     modalSaveSmartPlaylist.show();
@@ -1752,13 +1765,23 @@ function addMenuItem(href, text) {
     return '<a class="dropdown-item" href="#" data-href=\'' + b64EncodeUnicode(JSON.stringify(href)) + '\'>' + text +'</a>';
 }
 
+function hideMenu() {
+    var menuEl = document.querySelector('[data-popover]');
+    if (menuEl) {
+        new Popover(menuEl, { });
+        menuEl.Popover.hide();
+        menuEl.removeAttribute('data-popover');
+    }
+}
+
 function showMenu(el, event) {
     event.preventDefault();
     event.stopPropagation();
 
-    var oldPopover = document.getElementsByClassName('popover');
-    for (var i = 0; i < oldPopover.length; i++)
-        oldPopover[i].remove();
+    if (el.getAttribute('data-init'))
+        return;
+
+    hideMenu();
 
     var type = el.getAttribute('data-type');
     var uri = decodeURI(el.getAttribute('data-uri'));
@@ -1797,9 +1820,10 @@ function showMenu(el, event) {
     else if (app.current.app == 'Browse' && app.current.tab == 'Playlists' && app.current.view == 'All') {
         menu += addMenuItem({"cmd": "appendQueue", "options": [type, uri, name]}, 'Append to queue') +
             addMenuItem({"cmd": "replaceQueue", "options": [type, uri, name]},'Replace queue') +
-            (uri.indexOf('myMPDsmart-') == 0 ? addMenuItem({"cmd": "playlistDetails", "options": [uri]}, 'View playlist') : addMenuItem({"cmd": "playlistDetails", "options": [uri]}, 'Edit playlist'))+
-            addMenuItem({"cmd": "showRenamePlaylist", "options": [uri]}, 'Rename playlist') + 
-            addMenuItem({"cmd": "delPlaylist", "options": [uri]}, 'Delete playlist');
+            (type == 'smartpls' ? addMenuItem({"cmd": "playlistDetails", "options": [uri]}, 'View playlist') : addMenuItem({"cmd": "playlistDetails", "options": [uri]}, 'Edit playlist'))+
+            (uri.indexOf('myMPDsmart') != 0 ?
+                addMenuItem({"cmd": "showRenamePlaylist", "options": [uri]}, 'Rename playlist') + 
+                addMenuItem({"cmd": "delPlaylist", "options": [uri]}, 'Delete playlist') : '');
     }
     else if (app.current.app == 'Browse' && app.current.tab == 'Playlists' && app.current.view == 'Detail') {
         var x = document.getElementById('BrowsePlaylistsDetailList');
@@ -1807,7 +1831,7 @@ function showMenu(el, event) {
             addMenuItem({"cmd": "replaceQueue", "options": [type, uri, name]}, 'Replace queue') +
             (x.getAttribute('data-ro') == 'false' ? addMenuItem({"cmd": "removeFromPlaylist", "options": [x.getAttribute('data-uri'), 
                     el.parentNode.parentNode.getAttribute('data-songpos')]}, 'Remove') : '') +
-            (type != 'plist' ? addMenuItem({"cmd": "showAddToPlaylist", "options": [uri]}, 'Add to playlist') : '');
+            addMenuItem({"cmd": "showAddToPlaylist", "options": [uri]}, 'Add to playlist');
     }
     else if (app.current.app == 'Queue') {
         menu += addMenuItem({"cmd": "delQueueSong", "options": ["single", el.parentNode.parentNode.getAttribute('data-trackid')]}, 'Remove') +
@@ -1815,20 +1839,15 @@ function showMenu(el, event) {
             addMenuItem({"cmd": "delQueueSong", "options": ["range", (parseInt(el.parentNode.parentNode.getAttribute('data-songpos'))-1), -1]}, 'Remove all downwards') +
             (uri.indexOf('http') == -1 ? addMenuItem({"cmd": "songDetails", "options": [uri]}, 'Songdetails') : '');
     }
-    
+
     new Popover(el, { trigger: 'click', delay: 0, dismissible: true, template: '<div class="popover" role="tooltip">' +
         '<div class="arrow"></div>' +
         '<div class="popover-content">' + menu + '</div>' +
         '</div>'});
     var popoverInit = el.Popover;
-
-    if (el.getAttribute('data-init')) {
-        popoverInit.show();
-        return;
-    }
-
     el.setAttribute('data-init', 'true');
     el.addEventListener('shown.bs.popover', function(event) {
+        event.target.setAttribute('data-popover', 'true');
         document.getElementsByClassName('popover-content')[0].addEventListener('click', function(event) {
             event.preventDefault();
             event.stopPropagation();
@@ -1845,7 +1864,7 @@ function showMenu(el, event) {
                                 window[cmd.cmd](... cmd.options);                    
                         }
                     }
-                    popoverInit.hide();
+                    hideMenu();
                 }
             }
         }, false);        

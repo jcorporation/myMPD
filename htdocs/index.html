@@ -467,7 +467,7 @@
               <div class="dropdown-menu bg-dark dropdown-menu-right px-2" id="searchAddAllSongsDropdown">
                   <button type="button" class="btn btn-secondary btn-sm btn-block">Add all to queue</button>
                   <button type="button" class="btn btn-secondary btn-sm btn-block">Add all to playlist</button>
-                  <button type="button" class="btn btn-secondary btn-sm btn-block">Save as smart playlist</button>
+                  <button type="button" class="btn btn-secondary btn-sm btn-block smartpls">Save as smart playlist</button>
               </div>
             </div>
           </div>
@@ -542,8 +542,7 @@
           <h5 class="modal-title"><span class="material-icons title-icon">error</span> Connection Error</h5>
         </div>
         <div class="modal-body">
-          <p>Connection to myMPD failed. Trying to reconnect.</p>
-          <p id="wsUrl"></p>
+          <p>Connection to myMPD failed. Trying to reconnect to <span id="wsUrl"></span></p>
         </div>
       </div>
       </div>
@@ -659,7 +658,7 @@
           <form class="needs-validation" id="saveSmartPlaylistFrm" novalidate>
             <div class="form-group">
               <label for="saveSmartPlaylistName">Name</label>
-              <input type="text" class="form-control" id="saveSmartPlaylistName" value="myMPDsmart-"/>
+              <input type="text" class="form-control" id="saveSmartPlaylistName"/>
               <div class="invalid-feedback">Invalid filename.</div>
             </div>
           </form>

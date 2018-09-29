@@ -23,8 +23,8 @@ streamport = 8000
 #Name for coverimages
 coverimage = folder.jpg
 
-#myMPD statefile
-statefile = /var/lib/mympd/mympd.state
+#myMPD state directory
+varlibdir = /var/lib/mympd
 
 #Enable mixramp settings
 mixramp = false

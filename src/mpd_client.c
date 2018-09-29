@@ -118,14 +118,16 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                 &mympd_state.jukeboxMode,
                 &mympd_state.jukeboxPlaylist);
             if (je == 4) {
-                char tmp_file[200];
-                snprintf(tmp_file, 200, "%s.tmp", config.statefile);
-                json_fprintf(tmp_file, "{notificationWeb: %B, notificationPage: %B, jukeboxMode: %B, jukeboxPlaylist: %Q}", 
+                char tmpfile[400];
+                char statefile[400];
+                snprintf(tmpfile, 400, "%s/tmp/mympd.state", config.varlibdir );
+                snprintf(statefile, 400, "%s/mympd.state", config.varlibdir );
+                json_fprintf(tmpfile, "{notificationWeb: %B, notificationPage: %B, jukeboxMode: %B, jukeboxPlaylist: %Q}", 
                     mympd_state.notificationWeb,
                     mympd_state.notificationPage,
                     mympd_state.jukeboxMode,
                     mympd_state.jukeboxPlaylist);
-                rename(tmp_file, config.statefile);
+                rename(tmpfile, statefile);
                 if (mympd_state.jukeboxMode == true)
                     mympd_jukebox();
             }
@@ -184,7 +186,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
             if (uint_rc > 0)
                 n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             break;
-        case MPD_API_SMARTPLS_UPDATE:
+        case MPD_API_SMARTPLS_UPDATE_ALL:
             uint_rc = mympd_smartpls_update_all();
             if (uint_rc == 0)
                 n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"Smart Playlists updated\"}");
@@ -201,14 +203,6 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                 n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
             break;
-        case MPD_API_SMARTPLS_RM:
-            je = json_scanf(msg.p, msg.len, "{data: {playlist: %Q}}", &p_charbuf1);
-            if (je == 3) {
-                mympd_smartpls_rm(p_charbuf1);
-                free(p_charbuf1);
-                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
-            }
-            break;            
         case MPD_API_PLAYER_PAUSE:
             mpd_run_toggle_pause(mpd.conn);
             n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
@@ -355,8 +349,24 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
         case MPD_API_PLAYLIST_RENAME:
             je = json_scanf(msg.p, msg.len, "{data: {from: %Q, to: %Q}}", &p_charbuf1, &p_charbuf2);
             if (je == 2) {
-                mpd_run_rename(mpd.conn, p_charbuf1, p_charbuf2);
-                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"Renamed playlist %s to %s\"}", p_charbuf1, p_charbuf2);
+                //rename smart playlist
+                char old_pl_file[400];
+                char new_pl_file[400];
+                snprintf(old_pl_file, 400, "%s/smartpls/%s", config.varlibdir, p_charbuf1);
+                snprintf(new_pl_file, 400, "%s/smartpls/%s", config.varlibdir, p_charbuf2);
+                if (access(old_pl_file, F_OK ) != -1) {
+                    if (access(new_pl_file, F_OK ) == -1) {
+                        rename(old_pl_file, new_pl_file);
+                        //rename mpd playlist
+                        mpd_run_rename(mpd.conn, p_charbuf1, p_charbuf2);
+                        n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"Renamed playlist %s to %s\"}", p_charbuf1, p_charbuf2);
+                    } else 
+                        n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Renamed playlist %s already exists\"}", p_charbuf2);
+                }
+                else {
+                    mpd_run_rename(mpd.conn, p_charbuf1, p_charbuf2);
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"Renamed playlist %s to %s\"}", p_charbuf1, p_charbuf2);
+                }
                 free(p_charbuf1);
                 free(p_charbuf2);                
             }
@@ -504,6 +514,12 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
         case MPD_API_PLAYLIST_RM:
             je = json_scanf(msg.p, msg.len, "{data: {uri:%Q}}", &p_charbuf1);
             if (je == 1) {
+                //remove smart playlist
+                char pl_file[400];
+                snprintf(pl_file, 400, "%s/smartpls/%s", config.varlibdir, p_charbuf1);
+                if (access(pl_file, F_OK ) != -1 )
+                    unlink(pl_file);
+                //remove mpd playlist
                 mpd_run_rm(mpd.conn, p_charbuf1);
                 free(p_charbuf1);
                 n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
@@ -1121,7 +1137,7 @@ int mympd_put_settings(char *buffer) {
     len = json_printf(&out, "{type: settings, data: {"
         "repeat: %d, single: %d, crossfade: %d, consume: %d, random: %d, "
         "mixrampdb: %f, mixrampdelay: %f, mpdhost: %Q, mpdport: %d, passwort_set: %B, "
-        "streamport: %d, coverimage: %Q, stickers: %B, mixramp: %B, maxElementsPerPage: %d, "
+        "streamport: %d, coverimage: %Q, stickers: %B, mixramp: %B, smartpls: %B, maxElementsPerPage: %d, "
         "replaygain: %Q, notificationWeb: %B, notificationPage: %B, jukeboxMode: %B, jukeboxPlaylist: %Q, "
         "tags: { Artist: %B, Album: %B, AlbumArtist: %B, Title: %B, Track: %B, Genre: %B, Date: %B,"
         "Composer: %B, Performer: %B }"
@@ -1140,6 +1156,7 @@ int mympd_put_settings(char *buffer) {
         config.coverimage,
         config.stickers,
         config.mixramp,
+        config.smartpls,
         MAX_ELEMENTS_PER_PAGE,
         replaygain,
         mympd_state.notificationWeb,
@@ -1218,7 +1235,7 @@ int mympd_get_cover(const char *uri, char *cover, int cover_len) {
             replacechar(path, '/', '_');
             replacechar(path, '.', '_');
             snprintf(cover, cover_len, "%s/pics/%s.png", SRC_PATH, path);
-            if ( access(cover, F_OK ) == -1 ) {
+            if (access(cover, F_OK ) == -1 ) {
                 len = snprintf(cover, cover_len, "/assets/coverimage-httpstream.png");
             } else {
                 len = snprintf(cover, cover_len, "/pics/%s.png", path);
@@ -1230,7 +1247,7 @@ int mympd_get_cover(const char *uri, char *cover, int cover_len) {
     else {
         dirname(path);
         snprintf(cover, cover_len, "%s/library/%s/%s", SRC_PATH, path, config.coverimage);
-        if ( access(cover, F_OK ) == -1 ) {
+        if (access(cover, F_OK ) == -1 ) {
             len = snprintf(cover, cover_len, "/assets/coverimage-notavailable.png");
         } else {
             len = snprintf(cover, cover_len, "/library/%s/%s", path, config.coverimage);
@@ -1401,6 +1418,8 @@ int mympd_put_browse(char *buffer, char *path, unsigned int offset, char *filter
     unsigned int entity_count = 0;
     unsigned int entities_returned = 0;
     const char *entityName;
+    char smartpls_file[400];
+    bool smartpls;
     int len;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
 
@@ -1477,7 +1496,13 @@ int mympd_put_browse(char *buffer, char *path, unsigned int offset, char *filter
                     ) {
                         if (entities_returned ++) 
                             len += json_printf(&out, ",");
-                        len += json_printf(&out, "{type: plist, uri: %Q, name: %Q}",
+                        snprintf(smartpls_file, 400, "%s/smartpls/%s", config.varlibdir, plName);
+                        if (access(smartpls_file, F_OK ) != -1)
+                            smartpls = true;
+                        else
+                            smartpls = false;                    
+                        len += json_printf(&out, "{type: %Q, uri: %Q, name: %Q}",
+                            (smartpls == true ? "smartpls" : "plist"),
                             entityName,
                             plName
                         );
@@ -1630,6 +1655,8 @@ int mympd_put_playlists(char *buffer, unsigned int offset, char *filter) {
     unsigned int entities_returned = 0;
     const char *plpath;
     int len;
+    bool smartpls;
+    char smartpls_file[400];
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
 
     if (!mpd_send_list_playlists(mpd.conn))
@@ -1646,7 +1673,13 @@ int mympd_put_playlists(char *buffer, unsigned int offset, char *filter) {
             ) {
                 if (entities_returned ++)
                     len += json_printf(&out, ", ");
-                len += json_printf(&out, "{type: plist, uri: %Q, name: %Q, last_modified: %d}",
+                snprintf(smartpls_file, 400, "%s/smartpls/%s", config.varlibdir, plpath);
+                if (access(smartpls_file, F_OK ) != -1)
+                    smartpls = true;
+                else
+                    smartpls = false;
+                len += json_printf(&out, "{type: %Q, uri: %Q, name: %Q, last_modified: %d}",
+                    (smartpls == true ? "smartpls" : "plist"), 
                     plpath,
                     plpath,
                     mpd_playlist_get_last_modified(pl)
@@ -1677,6 +1710,8 @@ int mympd_put_playlist_list(char *buffer, char *uri, unsigned int offset, char *
     unsigned int entity_count = 0;
     unsigned int entities_returned = 0;
     const char *entityName;
+    char smartpls_file[400];
+    bool smartpls;
     int len;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
 
@@ -1710,13 +1745,18 @@ int mympd_put_playlist_list(char *buffer, char *uri, unsigned int offset, char *
         }
         mpd_entity_free(entity);
     }
-
-    len += json_printf(&out, "], totalEntities: %d, offset: %d, returnedEntities: %d, filter: %Q, uri: %Q}",
+    snprintf(smartpls_file, 400, "%s/smartpls/%s", config.varlibdir, uri);
+    if (access(smartpls_file, F_OK ) != -1)
+        smartpls = true;
+    else
+        smartpls = false;
+    len += json_printf(&out, "], totalEntities: %d, offset: %d, returnedEntities: %d, filter: %Q, uri: %Q, smartpls: %B}",
         entity_count,
         offset,
         entities_returned,
         filter,
-        uri
+        uri,
+        smartpls
     );
 
     if (len > MAX_SIZE) 
@@ -1903,19 +1943,11 @@ void mympd_disconnect() {
 int mympd_smartpls_save(char *playlist, char *tag, char *searchstr) {
     char tmp_file[400];
     char pl_file[400];
-    snprintf(tmp_file, 400, "/var/lib/mympd/tmp/%s", playlist);
-    snprintf(pl_file, 400, "/var/lib/mympd/smartpls/%s", playlist);
+    snprintf(tmp_file, 400, "%s/tmp/%s", config.varlibdir, playlist);
+    snprintf(pl_file, 400, "%s/smartpls/%s", config.varlibdir, playlist);
     json_fprintf(tmp_file, "{type: search, tag: %Q, searchstr: %Q}", tag, searchstr);
     rename(tmp_file, pl_file);
     mympd_smartpls_update_search(playlist, tag, searchstr);
-    return 0;
-}
-
-int mympd_smartpls_rm(char *playlist) {
-    char pl_file[400];
-    snprintf(pl_file, 400, "/var/lib/mympd/smartpls/%s", playlist);
-    unlink(pl_file);
-    mpd_run_rm(mpd.conn, playlist);
     return 0;
 }
 
@@ -1924,6 +1956,7 @@ int mympd_smartpls_update_all() {
     struct dirent *ent;
     char *smartpltype;
     char filename[400];
+    char dirname[400];
     int je;
     char *p_charbuf1, *p_charbuf2;
     int int_buf1, int_buf2;
@@ -1931,11 +1964,12 @@ int mympd_smartpls_update_all() {
     if (!config.smartpls)
         return 0;
     
-    if ((dir = opendir ("/var/lib/mympd/smartpls")) != NULL) {
+    snprintf(dirname, 400, "%s/smartpls", config.varlibdir);
+    if ((dir = opendir (dirname)) != NULL) {
         while ((ent = readdir(dir)) != NULL) {
             if (strncmp(ent->d_name, ".", 1) == 0)
                 continue;
-            snprintf(filename, 400, "/var/lib/mympd/smartpls/%s", ent->d_name);
+            snprintf(filename, 400, "%s/smartpls/%s", config.varlibdir, ent->d_name);
             char *content = json_fread(filename);
             je = json_scanf(content, strlen(content), "{type: %Q }", &smartpltype);
             if (je != 1)
@@ -1971,7 +2005,7 @@ int mympd_smartpls_update_all() {
         }
         closedir (dir);
     } else {
-        printf("Can't open dir /var/lib/mympd/smartpls\n");
+        printf("Can't open dir %s\n", dirname);
         return 1;
     }
     return 0;
@@ -2017,6 +2051,7 @@ int mympd_smartpls_update(char *sticker, char *playlist, int maxentries) {
     char *name;
     char *p_value;
     char *crap;
+    char tmpfile[400];
     long value;
     long value_max = 0;
     size_t len = 0;
@@ -2027,9 +2062,10 @@ int mympd_smartpls_update(char *sticker, char *playlist, int maxentries) {
         LOG_ERROR_AND_RECOVER("mpd_send_sticker_find");
         return 1;    
     }
-    FILE *fp = fopen("/var/lib/mympd/tmp/playlist.tmp", "w");
+    snprintf(tmpfile, 400, "%s/tmp/playlist.tmp", config.varlibdir);
+    FILE *fp = fopen(tmpfile, "w");
     if (fp == NULL) {
-        printf("Error opening /var/lib/mympd/tmp/playlist.tmp");
+        printf("Error opening %s", tmpfile);
         return 1;
     }    
     while ((pair = mpd_recv_pair(mpd.conn)) != NULL) {
@@ -2054,9 +2090,9 @@ int mympd_smartpls_update(char *sticker, char *playlist, int maxentries) {
      
     if (value_max > 2)
         value_max = value_max / 2;
-    fp = fopen("/var/lib/mympd/tmp/playlist.tmp", "r");
+    fp = fopen(tmpfile, "r");
     if (fp == NULL) {
-        printf("Error opening /var/lib/mympd/tmp/playlist.tmp");
+        printf("Error opening %s", tmpfile);
         return 1;
     }
     while ((read = getline(&uri, &len, fp)) != -1) {
@@ -2077,7 +2113,7 @@ int mympd_smartpls_update(char *sticker, char *playlist, int maxentries) {
     }
     fclose(fp);
     free(uri);
-    unlink("/var/lib/mympd/tmp/playlist.tmp");
+    unlink(tmpfile);
     printf("Updated %s with %ld songs, minValue: %ld\n", playlist, i, value_max);
     return 0;
 }
@@ -2088,6 +2124,7 @@ int mympd_smartpls_update_newest(char *playlist, int timerange, int maxentries) 
     char *p_value;
     char *name;
     char *crap;
+    char tmpfile[400];
     time_t value;
     time_t value_max = 0;
     size_t len = 0;
@@ -2098,9 +2135,10 @@ int mympd_smartpls_update_newest(char *playlist, int timerange, int maxentries) 
         LOG_ERROR_AND_RECOVER("mpd_send_list_all_meta");
         return 1;    
     }
-    FILE *fp = fopen("/var/lib/mympd/tmp/playlist.tmp", "w");
+    snprintf(tmpfile, 400, "%s/tmp/playlist.tmp", config.varlibdir);
+    FILE *fp = fopen(tmpfile, "w");
     if (fp == NULL) {
-        printf("Error opening /var/lib/mympd/tmp/playlist.tmp");
+        printf("Error opening %s", tmpfile);
         return 1;
     }    
     while ((song = mpd_recv_song(mpd.conn)) != NULL) {
@@ -2117,9 +2155,9 @@ int mympd_smartpls_update_newest(char *playlist, int timerange, int maxentries) 
     
     value_max -= timerange;
     
-    fp = fopen("/var/lib/mympd/tmp/playlist.tmp", "r");
+    fp = fopen(tmpfile, "r");
     if (fp == NULL) {
-        printf("Error opening /var/lib/mympd/tmp/playlist.tmp");
+        printf("Error opening %s", tmpfile);
         return 1;
     }
     while ((read = getline(&uri, &len, fp)) != -1) {
@@ -2140,7 +2178,7 @@ int mympd_smartpls_update_newest(char *playlist, int timerange, int maxentries) 
     }
     fclose(fp);
     free(uri);
-    unlink("/var/lib/mympd/tmp/playlist.tmp");
+    unlink(tmpfile);
     printf("Updated %s with %ld songs, minValue: %ld\n", playlist, i, value_max);
     return 0;
 }
