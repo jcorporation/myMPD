@@ -1648,7 +1648,7 @@ function addToPlaylist() {
     var plist = plistEl.options[plistEl.selectedIndex].text;
     if (plist == 'New Playlist') {
         var newPl = document.getElementById('addToPlaylistNewPlaylist').value;
-        var valid = newPl.replace(/\w\-/g, '');
+        var valid = newPl.replace(/[\w\-]/g, '');
         if (newPl != '' && valid == '') {
             plist = newPl;
         } else {
@@ -1696,7 +1696,7 @@ function showRenamePlaylist(from) {
 function renamePlaylist() {
     var from = document.getElementById('renamePlaylistFrom').value;
     var to = document.getElementById('renamePlaylistTo').value;
-    var valid = to.replace(/\w\-/g, '');
+    var valid = to.replace(/[\w\-]/g, '');
     if (to != '' && to != from && valid == '') {
         sendAPI({"cmd": "MPD_API_PLAYLIST_RENAME", "data": {"from": from, "to": to}});
         modalRenamePlaylist.hide();
@@ -2046,12 +2046,13 @@ function gotoPage(x) {
 
 function saveQueue() {
     var plName = document.getElementById('saveQueueName').value;
-    var valid = plName.replace(/\w\-/g, '');
+    var valid = plName.replace(/[\w\-]/g, '');
     if (plName != '' && valid == '') {
         sendAPI({"cmd": "MPD_API_QUEUE_SAVE", "data": {"plist": plName}});
         modalSavequeue.hide();
     }
     else {
+        alert(valid);
         document.getElementById('saveQueueName').classList.add('is-invalid');
         document.getElementById('saveQueueFrm').classList.add('was-validated');
     }
