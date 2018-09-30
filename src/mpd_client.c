@@ -54,9 +54,9 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
     size_t n = 0;
     char *cmd;
     unsigned int uint_buf1, uint_buf2, uint_rc;
-    int je, int_buf, int_rc; 
+    int je, int_buf1, int_buf2, int_rc; 
     float float_buf;
-    char *p_charbuf1, *p_charbuf2, *p_charbuf3;
+    char *p_charbuf1, *p_charbuf2, *p_charbuf3, *p_charbuf4;
     enum mpd_cmd_ids cmd_id;
     struct pollfd fds[1];
     int pollrc;
@@ -164,7 +164,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                     mpd_run_mixrampdelay(mpd.conn, float_buf);
             }
             
-            je = json_scanf(msg.p, msg.len, "{data: {replaygain:%Q}}", &p_charbuf1);
+            je = json_scanf(msg.p, msg.len, "{data: {replaygain: %Q}}", &p_charbuf1);
             if (je == 1) {
                 mpd_send_command(mpd.conn, "replay_gain_mode", p_charbuf1, NULL);
                 struct mpd_pair *pair;
@@ -196,13 +196,38 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                 n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Smart Playlists update failed\"}");
             break;
         case MPD_API_SMARTPLS_SAVE:
-            je = json_scanf(msg.p, msg.len, "{data: {playlist: %Q, tag: %Q, searchstr: %Q}}", &p_charbuf1, &p_charbuf2, &p_charbuf3);
-            if (je == 3) {
-                mympd_smartpls_save(p_charbuf1, p_charbuf2, p_charbuf3);
+            je = json_scanf(msg.p, msg.len, "{data: {type: %Q}}", p_charbuf1);
+            if (je == 1) {
+                if (strcmp(p_charbuf1, "sticker") == 0) {
+                    je = json_scanf(msg.p, msg.len, "{data: {playlist: %Q, sticker: %Q, maxentries: %d}}", &p_charbuf2, &p_charbuf3, &int_buf1);
+                    n = mympd_smartpls_save(p_charbuf1, p_charbuf2, p_charbuf3, NULL, int_buf1, 0);
+                    free(p_charbuf2);
+                    free(p_charbuf3);
+                }
+                else if (strcmp(p_charbuf1, "newest") == 0) {
+                    je = json_scanf(msg.p, msg.len, "{data: {playlist: %Q, timerange: %d, maxentries: %d}}", &p_charbuf2, &int_buf1, &int_buf2);
+                    n = mympd_smartpls_save(p_charbuf1, p_charbuf2, NULL, NULL, int_buf2, int_buf1);
+                    free(p_charbuf2);
+                }            
+                else if (strcmp(p_charbuf1, "search") == 0) {
+                    je = json_scanf(msg.p, msg.len, "{data: {playlist: %Q, tag: %Q, searchstr: %Q}}", &p_charbuf2, &p_charbuf3, &p_charbuf4);
+                    n = mympd_smartpls_save(p_charbuf1, p_charbuf2, p_charbuf3, p_charbuf4, 0, 0);
+                    free(p_charbuf2);
+                    free(p_charbuf3);                    
+                    free(p_charbuf4);
+                }
                 free(p_charbuf1);
-                free(p_charbuf2);
-                free(p_charbuf3);
+            }
+            if (n == 0)
                 n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+            else
+                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Error saving playlist\"}");
+            break;
+        case MPD_API_SMARTPLS_GET:
+            je = json_scanf(msg.p, msg.len, "{data: {playlist: %Q}}", &p_charbuf1);
+            if (je == 1) {
+                n = mympd_smartpls_put(mpd.buf, p_charbuf1);
+                free(p_charbuf1);
             }
             break;
         case MPD_API_PLAYER_PAUSE:
@@ -422,9 +447,9 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
             }
             break;
         case MPD_API_QUEUE_ADD_TRACK_AFTER:
-            je = json_scanf(msg.p, msg.len, "{data: {uri:%Q, to:%d}}", &p_charbuf1, &int_buf);
+            je = json_scanf(msg.p, msg.len, "{data: {uri:%Q, to:%d}}", &p_charbuf1, &int_buf1);
             if (je == 2) {
-                int_rc = mpd_run_add_id_to(mpd.conn, p_charbuf1, int_buf);
+                int_rc = mpd_run_add_id_to(mpd.conn, p_charbuf1, int_buf1);
                 if (int_rc > -1 ) 
                     n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
                 free(p_charbuf1);
@@ -451,9 +476,9 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
         case MPD_API_QUEUE_ADD_PLAY_TRACK:
             je = json_scanf(msg.p, msg.len, "{data: {uri:%Q}}", &p_charbuf1);
             if (je == 1) {
-                int_buf = mpd_run_add_id(mpd.conn, p_charbuf1);
-                if (int_buf != -1)
-                    mpd_run_play_id(mpd.conn, int_buf);
+                int_buf1 = mpd_run_add_id(mpd.conn, p_charbuf1);
+                if (int_buf1 != -1)
+                    mpd_run_play_id(mpd.conn, int_buf1);
                 free(p_charbuf1);
                 n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
@@ -996,8 +1021,20 @@ void mympd_jukebox() {
         
     srand((unsigned int)time(NULL));
 
-    if (mympd_state.jukeboxMode == 2) {
-        //Add whole album
+    if (mympd_state.jukeboxMode == 1 && strcmp(mympd_state.jukeboxPlaylist, "Database") == 0) {
+        struct mpd_stats *stats = mpd_run_stats(mpd.conn);
+        num_songs = mpd_stats_get_number_of_songs(stats);
+        mpd_stats_free(stats);
+    }
+    else if (mympd_state.jukeboxMode == 1) {
+        mpd_send_list_playlist(mpd.conn, mympd_state.jukeboxPlaylist);
+        num_songs = 0;
+        while ((entity = mpd_recv_entity(mpd.conn)) != NULL) {
+            num_songs++;
+            mpd_entity_free(entity);
+        }    
+    }
+    else if (mympd_state.jukeboxMode == 2) {
         mpd_search_db_tags(mpd.conn, MPD_TAG_ALBUM);
         mpd_search_commit(mpd.conn);
         num_songs = 0;
@@ -1005,48 +1042,18 @@ void mympd_jukebox() {
             num_songs++;
             mpd_return_pair(mpd.conn, pair);
         }
-        mpd_response_finish(mpd.conn);
-        num_songs--;
-        if (num_songs > 0) {
-            rand_song = rand() % num_songs;
-            mpd_search_db_tags(mpd.conn, MPD_TAG_ALBUM);
-            mpd_search_commit(mpd.conn);
-            i = 0;
-            while ((pair = mpd_recv_pair_tag(mpd.conn, MPD_TAG_ALBUM )) != NULL)  {
-                if (i == rand_song) {
-                    album = strdup(pair->value);
-                    break;
-                }
-                i++;
-                mpd_return_pair(mpd.conn, pair);
-            }
-            mpd_return_pair(mpd.conn, pair);            
-            mpd_response_finish(mpd.conn);
-            printf("Jukebox enabled, adding random album %s: %d/%d\n", album, rand_song, num_songs);
-            mpd_send_command(mpd.conn, "searchadd", "Album", album, NULL);
-            mpd_response_finish(mpd.conn);
-        }
+        mpd_response_finish(mpd.conn);        
     }
-    else if (mympd_state.jukeboxMode == 1) {
-        //Add tracks
-        if (strcmp(mympd_state.jukeboxPlaylist, "Database") == 0) {
-            struct mpd_stats *stats = mpd_run_stats(mpd.conn);
-            num_songs = mpd_stats_get_number_of_songs(stats);
-            mpd_stats_free(stats);
-        }
-        else {
-            mpd_send_list_playlist(mpd.conn, mympd_state.jukeboxPlaylist);
-            num_songs = 0;
-            while ((entity = mpd_recv_entity(mpd.conn)) != NULL) {
-                num_songs++;
-                mpd_entity_free(entity);
-            }    
-        }
-        num_songs--;
+    num_songs--;
+    if (mympd_state.jukeboxMode == 1) 
         addSongs = mympd_state.jukeboxQueueLength - queue_length;
-        if (num_songs > 0) {
-            for (j = 0; j < addSongs; j++) {
-                rand_song = rand() % num_songs;
+    else
+        addSongs = 1;
+    if (num_songs > 0) {
+        for (j = 0; j < addSongs; j++) {
+            rand_song = rand() % num_songs;
+            if (mympd_state.jukeboxMode == 1) {
+                //add songs
                 if (strcmp(mympd_state.jukeboxPlaylist, "Database") == 0)
                     mpd_send_list_all(mpd.conn, "/");
                 else
@@ -1068,9 +1075,28 @@ void mympd_jukebox() {
                 }
                 mpd_entity_free(entity);
             }
+            else if (mympd_state.jukeboxMode == 2) {
+                //add album
+                mpd_search_db_tags(mpd.conn, MPD_TAG_ALBUM);
+                mpd_search_commit(mpd.conn);
+                i = 0;
+                while ((pair = mpd_recv_pair_tag(mpd.conn, MPD_TAG_ALBUM )) != NULL)  {
+                    if (i == rand_song) {
+                        album = strdup(pair->value);
+                        break;
+                    }
+                    i++;
+                    mpd_return_pair(mpd.conn, pair);
+                }
+                mpd_return_pair(mpd.conn, pair);            
+                mpd_response_finish(mpd.conn);
+                printf("Jukebox enabled, adding random album %s: %d/%d\n", album, rand_song, num_songs);
+                mpd_send_command(mpd.conn, "searchadd", "Album", album, NULL);
+                mpd_response_finish(mpd.conn);                
+            }
         }
+        mpd_run_play(mpd.conn);
     }
-    mpd_run_play(mpd.conn);
 }
 
 int mympd_put_state(char *buffer, int *current_song_id, int *next_song_id, int *last_song_id, unsigned *queue_version, unsigned *queue_length) {
@@ -1965,14 +1991,73 @@ void mympd_disconnect() {
     mympd_idle(NULL, 0);
 }
 
-int mympd_smartpls_save(char *playlist, char *tag, char *searchstr) {
+int mympd_smartpls_put(char *buffer, char *playlist) {
+    char pl_file[400];
+    char *smartpltype;
+    char *p_charbuf1, *p_charbuf2;
+    int je, int_buf1, int_buf2;
+    int len = 0;
+    struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
+    
+    snprintf(pl_file, 400, "%s/smartpls/%s", config.varlibdir, playlist);
+    char *content = json_fread(pl_file);
+    je = json_scanf(content, strlen(content), "{type: %Q }", &smartpltype);
+    if (je == 1) {
+        if (strcmp(smartpltype, "sticker") == 0) {
+            je = json_scanf(content, strlen(content), "{sticker: %Q, maxentries: %d}", &p_charbuf1, &int_buf1);
+            if (je == 2) {
+                len = json_printf(&out, "{type: smartpls, data: {type: %Q, sticker: %Q, maxentries: %d}",
+                    smartpltype,
+                    p_charbuf1,
+                    int_buf1);
+                free(p_charbuf1);
+            }
+        }
+        else if (strcmp(smartpltype, "newest") == 0) {
+            je = json_scanf(content, strlen(content), "{timerange: %d, maxentries: %d}", &int_buf1, &int_buf2);
+            if (je == 2) {
+                len = json_printf(&out, "{type: smartpls, data: {type: %Q, timerange: %d, maxentries: %d}",
+                    smartpltype,
+                    int_buf1,
+                    int_buf2);
+            }
+        }
+        else if (strcmp(smartpltype, "search") == 0) {
+            je = json_scanf(content, strlen(content), "{tag: %Q, searchstr: %Q}", &p_charbuf1, &p_charbuf2);
+            if (je == 2) {
+                len = json_printf(&out, "{type: smartpls, data: {type: %Q, tag: %d, searchstr: %d}",
+                    smartpltype,
+                    p_charbuf1,
+                    p_charbuf2);
+                free(p_charbuf1);
+                free(p_charbuf2);
+            }
+        }
+        free(smartpltype);        
+    }
+    return len;
+}
+
+int mympd_smartpls_save(char *smartpltype, char *playlist, char *tag, char *searchstr, int maxentries, int timerange) {
     char tmp_file[400];
     char pl_file[400];
     snprintf(tmp_file, 400, "%s/tmp/%s", config.varlibdir, playlist);
     snprintf(pl_file, 400, "%s/smartpls/%s", config.varlibdir, playlist);
-    json_fprintf(tmp_file, "{type: search, tag: %Q, searchstr: %Q}", tag, searchstr);
-    rename(tmp_file, pl_file);
-    mympd_smartpls_update_search(playlist, tag, searchstr);
+    if (strcmp(smartpltype, "sticker") == 0) {
+        json_fprintf(tmp_file, "{type: %Q, sticker: %Q, maxentries: %d}", smartpltype, tag, maxentries);
+        rename(tmp_file, pl_file);
+        mympd_smartpls_update(playlist, tag, maxentries);
+    }
+    else if (strcmp(smartpltype, "newest") == 0) {
+        json_fprintf(tmp_file, "{type: %Q, timerange: %d, maxentries: %d}", smartpltype, timerange, maxentries);
+        rename(tmp_file, pl_file);
+        mympd_smartpls_update_newest(playlist, timerange, maxentries);
+    }
+    else if (strcmp(smartpltype, "search") == 0) {
+        json_fprintf(tmp_file, "{type: %Q, tag: %Q, searchstr: %Q}", smartpltype, tag, searchstr);
+        rename(tmp_file, pl_file);
+        mympd_smartpls_update_search(playlist, tag, searchstr);
+    }
     return 0;
 }
 
@@ -2002,7 +2087,7 @@ int mympd_smartpls_update_all() {
             if (strcmp(smartpltype, "sticker") == 0) {
                 je = json_scanf(content, strlen(content), "{sticker: %Q, maxentries: %d}", &p_charbuf1, &int_buf1);
                 if (je == 2) {
-                    mympd_smartpls_update(p_charbuf1, ent->d_name, int_buf1);
+                    mympd_smartpls_update(ent->d_name, p_charbuf1, int_buf1);
                     free(p_charbuf1);
                 }
                 else
@@ -2070,7 +2155,7 @@ int mympd_smartpls_update_search(char *playlist, char *tag, char *searchstr) {
     return 0;
 }
 
-int mympd_smartpls_update(char *sticker, char *playlist, int maxentries) {
+int mympd_smartpls_update(char *playlist, char *sticker, int maxentries) {
     struct mpd_pair *pair;
     char *uri = NULL;
     char *name;

@@ -360,8 +360,19 @@ function appInit() {
         document.getElementById('inputMixrampdelay').classList.remove('is-invalid');
     });
 
+    document.getElementById('selectJukeboxMode').addEventListener('change', function () {
+        var value = this.options[this.selectedIndex].value;
+        if (value == 0 || value == 2) {
+            document.getElementById('inputJukeboxQueueLength').setAttribute('disabled', 'disabled');
+            document.getElementById('selectJukeboxPlaylist').setAttribute('disabled', 'disabled');
+        }
+        else if (value == 1) {
+            document.getElementById('inputJukeboxQueueLength').removeAttribute('disabled');
+            document.getElementById('selectJukeboxPlaylist').removeAttribute('disabled');
+        }
+    });
 
-    document.getElementById('addToPlaylistPlaylist').addEventListener('change',function(event) {
+    document.getElementById('addToPlaylistPlaylist').addEventListener('change', function (event) {
         if (this.options[this.selectedIndex].text == 'New Playlist') {
             document.getElementById('addToPlaylistNewPlaylistDiv').classList.remove('hide');
             document.getElementById('addToPlaylistNewPlaylist').focus();
@@ -874,6 +885,14 @@ function parseSettings(obj) {
     
     document.getElementById('selectJukeboxMode').value = obj.data.jukeboxMode;
     document.getElementById('inputJukeboxQueueLength').value = obj.data.jukeboxQueueLength;
+    if (obj.data.jukeboxMode == 0 || obj.data.jukeboxMode == 2) {
+        document.getElementById('inputJukeboxQueueLength').setAttribute('disabled', 'disabled');
+        document.getElementById('selectJukeboxPlaylist').setAttribute('disabled', 'disabled');
+    }
+    else if (obj.data.jukeboxMode == 1) {
+        document.getElementById('inputJukeboxQueueLength').removeAttribute('disabled');
+        document.getElementById('selectJukeboxPlaylist').removeAttribute('disabled');
+    }
 
     settings = obj.data;
 
@@ -1629,7 +1648,7 @@ function saveSmartPlaylist() {
     var value = document.getElementById('saveSmartPlaylistName').value;
     var valid = value.replace(/[\w\-]/g, '');
     if (value != '' && valid == '') {
-        sendAPI({"cmd": "MPD_API_SMARTPLS_SAVE", "data": {"playlist": value, "tag": app.current.filter, "searchstr": app.current.search}});
+        sendAPI({"cmd": "MPD_API_SMARTPLS_SAVE", "data": {"type": "search", "playlist": value, "tag": app.current.filter, "searchstr": app.current.search}});
         modalSaveSmartPlaylist.hide();
         showNotification('Saved smart playlist ' + value, '', '', 'success');
     }
