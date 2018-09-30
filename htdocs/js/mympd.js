@@ -1520,6 +1520,7 @@ function parseSongDetails(obj) {
 }
 
 function playlistDetails(uri) {
+    document.getElementById('BrowsePlaylistsAllList').classList.add('opacity05');
     appGoto('Browse', 'Playlists', 'Detail', '0/-/' + uri);
 }
 
