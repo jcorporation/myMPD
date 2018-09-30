@@ -112,23 +112,25 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
             n = mympd_put_state(mpd.buf, &mpd.song_id, &mpd.next_song_id, &mpd.last_song_id, &mpd.queue_version, &mpd.queue_length);
             break;
         case MPD_API_SETTINGS_SET:
-            je = json_scanf(msg.p, msg.len, "{data: {notificationWeb: %B, notificationPage: %B, jukeboxMode: %B, jukeboxPlaylist: %Q}}", 
+            je = json_scanf(msg.p, msg.len, "{data: {notificationWeb: %B, notificationPage: %B, jukeboxMode: %d, jukeboxPlaylist: %Q, jukeboxQueueLength: %d}}", 
                 &mympd_state.notificationWeb, 
                 &mympd_state.notificationPage,
                 &mympd_state.jukeboxMode,
-                &mympd_state.jukeboxPlaylist);
-            if (je == 4) {
+                &mympd_state.jukeboxPlaylist,
+                &mympd_state.jukeboxQueueLength);
+            if (je == 5) {
                 char tmpfile[400];
                 char statefile[400];
                 snprintf(tmpfile, 400, "%s/tmp/mympd.state", config.varlibdir );
                 snprintf(statefile, 400, "%s/mympd.state", config.varlibdir );
-                json_fprintf(tmpfile, "{notificationWeb: %B, notificationPage: %B, jukeboxMode: %B, jukeboxPlaylist: %Q}", 
+                json_fprintf(tmpfile, "{notificationWeb: %B, notificationPage: %B, jukeboxMode: %d, jukeboxPlaylist: %Q, jukeboxQueueLength: %d}", 
                     mympd_state.notificationWeb,
                     mympd_state.notificationPage,
                     mympd_state.jukeboxMode,
-                    mympd_state.jukeboxPlaylist);
+                    mympd_state.jukeboxPlaylist,
+                    mympd_state.jukeboxQueueLength);
                 rename(tmpfile, statefile);
-                if (mympd_state.jukeboxMode == true)
+                if (mympd_state.jukeboxMode > 0)
                     mympd_jukebox();
             }
             
@@ -597,7 +599,7 @@ void mympd_parse_idle(struct mg_mgr *s, int idle_bitmask) {
                     break;
                 case MPD_IDLE_QUEUE:
                     len = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"update_queue\"}");
-                    if (mympd_state.jukeboxMode == true)
+                    if (mympd_state.jukeboxMode > 0)
                         mympd_jukebox();
                     break;
                 case MPD_IDLE_PLAYER:
@@ -783,8 +785,8 @@ void mympd_idle(struct mg_mgr *s, int timeout) {
             mpd.conn_state = MPD_CONNECTED;
             mympd_mpd_features();
             mympd_smartpls_update_all();
-            if (mympd_state.jukeboxMode == true)
-                        mympd_jukebox();
+            if (mympd_state.jukeboxMode > 0)
+                mympd_jukebox();
             mpd_send_idle(mpd.conn);
             break;
 
@@ -976,9 +978,11 @@ char* mympd_get_tag(struct mpd_song const *song, enum mpd_tag_type tag) {
 void mympd_jukebox() {
     struct mpd_status *status;
     status = mpd_run_status(mpd.conn);
-    int queue_length, num_songs, rand_song, i;
+    int queue_length, num_songs, rand_song, i, j, addSongs;
     struct mpd_entity *entity;
     const struct mpd_song *song;
+    struct mpd_pair *pair;
+    char *album;
     
     if (!status) {
         printf("MPD mpd_run_status: %s\n", mpd_connection_get_error_message(mpd.conn));
@@ -987,66 +991,86 @@ void mympd_jukebox() {
     }
     queue_length = mpd_status_get_queue_length(status);
     mpd_status_free(status);
-    if (queue_length > 0)
+    if (queue_length > mympd_state.jukeboxQueueLength)
         return;
         
     srand((unsigned int)time(NULL));
-    
-    if (strcmp(mympd_state.jukeboxPlaylist, "Database") == 0) {
-        struct mpd_stats *stats = mpd_run_stats(mpd.conn);
-        num_songs = mpd_stats_get_number_of_songs(stats);
-        mpd_stats_free(stats);
+
+    if (mympd_state.jukeboxMode == 2) {
+        //Add whole album
+        mpd_search_db_tags(mpd.conn, MPD_TAG_ALBUM);
+        mpd_search_commit(mpd.conn);
+        num_songs = 0;
+        while ((pair = mpd_recv_pair_tag(mpd.conn, MPD_TAG_ALBUM)) != NULL) {
+            num_songs++;
+            mpd_return_pair(mpd.conn, pair);
+        }
+        mpd_response_finish(mpd.conn);
         num_songs--;
         if (num_songs > 0) {
             rand_song = rand() % num_songs;
-            mpd_send_list_all(mpd.conn, "/");
+            mpd_search_db_tags(mpd.conn, MPD_TAG_ALBUM);
+            mpd_search_commit(mpd.conn);
             i = 0;
+            while ((pair = mpd_recv_pair_tag(mpd.conn, MPD_TAG_ALBUM )) != NULL)  {
+                if (i == rand_song) {
+                    album = strdup(pair->value);
+                    break;
+                }
+                i++;
+                mpd_return_pair(mpd.conn, pair);
+            }
+            mpd_return_pair(mpd.conn, pair);            
+            mpd_response_finish(mpd.conn);
+            printf("Jukebox enabled, adding random album %s: %d/%d\n", album, rand_song, num_songs);
+            mpd_send_command(mpd.conn, "searchadd", "Album", album, NULL);
+            mpd_response_finish(mpd.conn);
+        }
+    }
+    else if (mympd_state.jukeboxMode == 1) {
+        //Add tracks
+        if (strcmp(mympd_state.jukeboxPlaylist, "Database") == 0) {
+            struct mpd_stats *stats = mpd_run_stats(mpd.conn);
+            num_songs = mpd_stats_get_number_of_songs(stats);
+            mpd_stats_free(stats);
+        }
+        else {
+            mpd_send_list_playlist(mpd.conn, mympd_state.jukeboxPlaylist);
+            num_songs = 0;
             while ((entity = mpd_recv_entity(mpd.conn)) != NULL) {
-                if (mpd_entity_get_type(entity) == MPD_ENTITY_TYPE_SONG) {
-                    if (i == rand_song)
-                        break;
-                    i++;
+                num_songs++;
+                mpd_entity_free(entity);
+            }    
+        }
+        num_songs--;
+        addSongs = mympd_state.jukeboxQueueLength - queue_length;
+        if (num_songs > 0) {
+            for (j = 0; j < addSongs; j++) {
+                rand_song = rand() % num_songs;
+                if (strcmp(mympd_state.jukeboxPlaylist, "Database") == 0)
+                    mpd_send_list_all(mpd.conn, "/");
+                else
+                    mpd_send_list_playlist(mpd.conn, mympd_state.jukeboxPlaylist);            
+                i = 0;
+                while ((entity = mpd_recv_entity(mpd.conn)) != NULL) {
+                    if (mpd_entity_get_type(entity) == MPD_ENTITY_TYPE_SONG) {
+                        if (i == rand_song)
+                            break;
+                        i++;
+                    }
+                    mpd_entity_free(entity);
+                }
+                mpd_response_finish(mpd.conn);
+                song = mpd_entity_get_song(entity);        
+                if (song != NULL) {
+                    printf("Jukebox enabled, adding random song: %d/%d\n", rand_song, num_songs);
+                    mpd_run_add(mpd.conn, mpd_song_get_uri(song));
                 }
                 mpd_entity_free(entity);
             }
-            mpd_response_finish(mpd.conn);
-            song = mpd_entity_get_song(entity);        
-            if (song != NULL) {
-                printf("Jukebox enabled, playing random song from database: %d/%d\n", rand_song, num_songs);
-                mpd_run_add(mpd.conn, mpd_song_get_uri(song));
-                mpd_run_play(mpd.conn);
-            }
-            mpd_entity_free(entity);
         }
     }
-    else {
-        mpd_send_list_playlist(mpd.conn, mympd_state.jukeboxPlaylist);
-        num_songs = 0;
-        while ((entity = mpd_recv_entity(mpd.conn)) != NULL) {
-            num_songs++;
-            mpd_entity_free(entity);
-        }
-        num_songs--;
-        if (num_songs > 0) {
-            rand_song = rand() % num_songs;
-            mpd_send_list_playlist(mpd.conn, mympd_state.jukeboxPlaylist);
-            i = 0;
-            while ((entity = mpd_recv_entity(mpd.conn)) != NULL) {
-                if (i == rand_song)
-                    break;
-                i++;
-                mpd_entity_free(entity);
-            }
-            mpd_response_finish(mpd.conn);
-            song = mpd_entity_get_song(entity);
-            if (song != NULL) {
-                printf("Jukebox enabled, playing random song from %s: %d/%d\n", mympd_state.jukeboxPlaylist, rand_song, num_songs);
-                mpd_run_add(mpd.conn, mpd_song_get_uri(song));
-                mpd_run_play(mpd.conn);
-            }
-            mpd_entity_free(entity);
-        }
-    }
+    mpd_run_play(mpd.conn);
 }
 
 int mympd_put_state(char *buffer, int *current_song_id, int *next_song_id, int *last_song_id, unsigned *queue_version, unsigned *queue_length) {
@@ -1138,7 +1162,7 @@ int mympd_put_settings(char *buffer) {
         "repeat: %d, single: %d, crossfade: %d, consume: %d, random: %d, "
         "mixrampdb: %f, mixrampdelay: %f, mpdhost: %Q, mpdport: %d, passwort_set: %B, "
         "streamport: %d, coverimage: %Q, stickers: %B, mixramp: %B, smartpls: %B, maxElementsPerPage: %d, "
-        "replaygain: %Q, notificationWeb: %B, notificationPage: %B, jukeboxMode: %B, jukeboxPlaylist: %Q, "
+        "replaygain: %Q, notificationWeb: %B, notificationPage: %B, jukeboxMode: %d, jukeboxPlaylist: %Q, jukeboxQueueLength: %d, "
         "tags: { Artist: %B, Album: %B, AlbumArtist: %B, Title: %B, Track: %B, Genre: %B, Date: %B,"
         "Composer: %B, Performer: %B }"
         "}}", 
@@ -1163,6 +1187,7 @@ int mympd_put_settings(char *buffer) {
         mympd_state.notificationPage,
         mympd_state.jukeboxMode,
         mympd_state.jukeboxPlaylist,
+        mympd_state.jukeboxQueueLength,
         mpd.tag_artist,
         mpd.tag_album,
         mpd.tag_album_artist,

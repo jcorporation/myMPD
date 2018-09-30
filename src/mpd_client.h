@@ -178,8 +178,9 @@ typedef struct {
 typedef struct {
     bool notificationWeb;
     bool notificationPage;
-    bool jukeboxMode;
+    int jukeboxMode;
     const char* jukeboxPlaylist;
+    int jukeboxQueueLength;
 } t_mympd_state;
 
 t_mympd_state mympd_state;

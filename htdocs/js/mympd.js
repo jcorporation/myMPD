@@ -808,7 +808,6 @@ function parseSettings(obj) {
     toggleBtn('btnConsume', obj.data.consume);
     toggleBtn('btnSingle', obj.data.single);
     toggleBtn('btnRepeat', obj.data.repeat);
-    toggleBtn('btnJukebox', obj.data.jukeboxMode);
     
     if (obj.data.crossfade != undefined) {
         document.getElementById('inputCrossfade').removeAttribute('disabled');
@@ -859,26 +858,26 @@ function parseSettings(obj) {
     var stickerEls = document.getElementsByClassName('stickers');
     var stickerElsLen = stickerEls.length;
     var displayStickers = obj.data.stickers == true ? '' : 'none';
-    for (var i = 0; i < stickerElsLen; i++) {
+    for (var i = 0; i < stickerElsLen; i++) 
         stickerEls[i].style.display = displayStickers;
-    }
 
     var smartplsEls = document.getElementsByClassName('smartpls');
     var smartplsElsLen = smartplsEls.length;
     var displaySmartpls = obj.data.smartpls == true ? '' : 'none';
-    for (var i = 0; i < smartplsElsLen; i++) {
+    for (var i = 0; i < smartplsElsLen; i++)
         smartplsEls[i].style.display = displaySmartpls;
-    }    
     
-    if (obj.data.mixramp == true) {
+    if (obj.data.mixramp == true)
         document.getElementsByClassName('mixramp')[0].style.display = '';
-    } else {
+    else 
         document.getElementsByClassName('mixramp')[0].style.display = 'none';
-    }
+    
+    document.getElementById('selectJukeboxMode').value = obj.data.jukeboxMode;
+    document.getElementById('inputJukeboxQueueLength').value = obj.data.jukeboxQueueLength;
 
     settings = obj.data;
 
-    playlistEl = 'jukeboxPlaylist';
+    playlistEl = 'selectJukeboxPlaylist';
     sendAPI({"cmd": "MPD_API_PLAYLIST_LIST", "data": {"offset": 0, "filter": "-"}}, getAllPlaylists);
 
     settings.mpdstream = 'http://';
@@ -1544,12 +1543,12 @@ function getAllPlaylists(obj) {
     if (obj.offset == 0) {
         if (playlistEl == 'addToPlaylistPlaylist')
             playlists = '<option></option><option>New Playlist</option>';
-        else if (playlistEl == 'jukeboxPlaylist')
+        else if (playlistEl == 'selectJukeboxPlaylist')
             playlists = '<option>Database</option>';
     }
     for (var i = 0; i < nrItems; i++) {
         playlists += '<option';
-        if (playlistEl == 'jukeboxPlaylist' && obj.data[i].uri == settings.jukeboxPlaylist)
+        if (playlistEl == 'selectJukeboxPlaylist' && obj.data[i].uri == settings.jukeboxPlaylist)
             playlists += ' selected';
         playlists += '>' + obj.data[i].uri + '</option>';
     }
@@ -1831,7 +1830,8 @@ function showMenu(el, event) {
             addMenuItem({"cmd": "replaceQueue", "options": [type, uri, name]}, 'Replace queue') +
             (x.getAttribute('data-ro') == 'false' ? addMenuItem({"cmd": "removeFromPlaylist", "options": [x.getAttribute('data-uri'), 
                     el.parentNode.parentNode.getAttribute('data-songpos')]}, 'Remove') : '') +
-            addMenuItem({"cmd": "showAddToPlaylist", "options": [uri]}, 'Add to playlist');
+            addMenuItem({"cmd": "showAddToPlaylist", "options": [uri]}, 'Add to playlist') +
+            (uri.indexOf('http') == -1 ? addMenuItem({"cmd": "songDetails", "options": [uri]}, 'Songdetails') : '');
     }
     else if (app.current.app == 'Queue') {
         menu += addMenuItem({"cmd": "delQueueSong", "options": ["single", el.parentNode.parentNode.getAttribute('data-trackid')]}, 'Remove') +
@@ -1999,6 +1999,20 @@ function confirmSettings() {
             formOK = false;
         }
     }
+    var inputJukeboxQueueLength = document.getElementById('inputJukeboxQueueLength');
+    var value = parseInt(inputJukeboxQueueLength.value);
+    if (!isNaN(value)) {
+        if (value > 0) {
+            inputJukeboxQueueLength.value = value;
+        } else {
+            inputJukeboxQueueLength.classList.add('is-invalid');
+            formOK = false;
+        }
+    }
+    else {
+        inputJukeboxQueueLength.classList.add('is-invalid');
+        formOK = false;
+    }    
     if (settings.mixramp) {
         var inputMixrampdb = document.getElementById('inputMixrampdb');
         if (!inputMixrampdb.getAttribute('disabled')) {
@@ -2026,7 +2040,8 @@ function confirmSettings() {
     
     if (formOK == true) {
         var selectReplaygain = document.getElementById('selectReplaygain');
-        var selectJukeboxPlaylist = document.getElementById('jukeboxPlaylist');
+        var selectJukeboxPlaylist = document.getElementById('selectJukeboxPlaylist');
+        var selectJukeboxMode = document.getElementById('selectJukeboxMode');
         sendAPI({"cmd": "MPD_API_SETTINGS_SET", "data": {
             "consume": (document.getElementById('btnConsume').classList.contains('active') ? 1 : 0),
             "random":  (document.getElementById('btnRandom').classList.contains('active') ? 1 : 0),
@@ -2038,8 +2053,9 @@ function confirmSettings() {
             "mixrampdelay": (settings.mixramp == true ? document.getElementById('inputMixrampdelay').value : settings.mixrampdelay),
             "notificationWeb": (document.getElementById('btnnotifyWeb').classList.contains('active') ? true : false),
             "notificationPage": (document.getElementById('btnnotifyPage').classList.contains('active') ? true : false),
-            "jukeboxMode": (document.getElementById('btnJukebox').classList.contains('active') ? true : false),
-            "jukeboxPlaylist": selectJukeboxPlaylist.options[selectJukeboxPlaylist.selectedIndex].value
+            "jukeboxMode": selectJukeboxMode.options[selectJukeboxMode.selectedIndex].value,
+            "jukeboxPlaylist": selectJukeboxPlaylist.options[selectJukeboxPlaylist.selectedIndex].value,
+            "jukeboxQueueLength": document.getElementById('inputJukeboxQueueLength').value
         }}, getSettings);
         modalSettings.hide();
     } else

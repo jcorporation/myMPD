@@ -244,22 +244,25 @@ int main(int argc, char **argv) {
     snprintf(statefile, 400, "%s/mympd.state", config.varlibdir);
     if (access(statefile, F_OK ) != -1 ) {
         char *content = json_fread(statefile);
-        int je = json_scanf(content, strlen(content), "{notificationWeb: %B, notificationPage: %B, jukeboxMode: %B, jukeboxPlaylist: %Q}", 
+        int je = json_scanf(content, strlen(content), "{notificationWeb: %B, notificationPage: %B, jukeboxMode: %d, jukeboxPlaylist: %Q, jukeboxQueueLength: %d}",
             &mympd_state.notificationWeb, 
             &mympd_state.notificationPage,
             &mympd_state.jukeboxMode,
-            &mympd_state.jukeboxPlaylist);
-        if (je != 4) {
+            &mympd_state.jukeboxPlaylist,
+            &mympd_state.jukeboxQueueLength);
+        if (je != 5) {
             mympd_state.notificationWeb = false;
             mympd_state.notificationPage = true;
-            mympd_state.jukeboxMode = false;
+            mympd_state.jukeboxMode = 0;
             mympd_state.jukeboxPlaylist = "Database";
+            mympd_state.jukeboxQueueLength = 1;
         }
     } else {
         mympd_state.notificationWeb = false;
         mympd_state.notificationPage = true;
-        mympd_state.jukeboxMode = false;
+        mympd_state.jukeboxMode = 0;
         mympd_state.jukeboxPlaylist = "Database";
+        mympd_state.jukeboxQueueLength = 1;
     }
 
     signal(SIGTERM, signal_handler);
