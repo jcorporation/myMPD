@@ -56,4 +56,5 @@ install(FILES dist/htdocs/css/mympd.min.css DESTINATION share/${PROJECT_NAME}/ht
 install(DIRECTORY htdocs/assets DESTINATION share/${PROJECT_NAME}/htdocs)
 install(DIRECTORY DESTINATION ../var/lib/${PROJECT_NAME}/pics)
 install(DIRECTORY DESTINATION ../var/lib/${PROJECT_NAME}/tmp)
+install(DIRECTORY DESTINATION ../var/lib/${PROJECT_NAME}/state)
 install(DIRECTORY dist/smartpls DESTINATION ../var/lib/${PROJECT_NAME})

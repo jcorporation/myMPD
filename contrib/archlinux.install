@@ -49,6 +49,18 @@ post_upgrade() {
     /usr/share/mympd/crcert.sh
   fi
 
+  # move smartpls into place unless already existing
+  for PLDIST in /var/lib/mympd/smartpls/*.dist
+  do
+    PLS=$(basename $PLDIST .dist)
+    if [ -f /var/lib/mympd/smartpls/$PLS ]
+    then
+      rm $PLDIST
+    else
+      mv $PLDIST /var/lib/mympd/smartpls/$PLS
+    fi
+  done
+
   # move config into place unless already existing
   if [ ! -f /etc/mympd/mympd.conf ]
   then 

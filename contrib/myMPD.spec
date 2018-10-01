@@ -63,6 +63,19 @@ fi
 
 [ -e /usr/share/mympd/htdocs/pics ] || ln -s /var/lib/mympd/pics /usr/share/mympd/htdocs/
 
+# move smartpls into place unless already existing
+for PLDIST in /var/lib/mympd/smartpls/*.dist
+do
+  PLS=$(basename $PLDIST .dist)
+  if [ -f /var/lib/mympd/smartpls/$PLS ]
+  then
+    rm $PLDIST
+  else
+    mv $PLDIST /var/lib/mympd/smartpls/$PLS
+  fi
+done
+
+# move config into place unless already existing
 if [ ! -f /etc/mympd/mympd.conf ]
 then 
   mv /etc/mympd/mympd.conf.dist /etc/mympd/mympd.conf
