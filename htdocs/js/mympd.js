@@ -567,7 +567,7 @@ function appInit() {
     }, false);
     
     document.addEventListener('keydown', function(event) {
-        if (event.target.tagName == 'INPUT')
+        if (event.target.tagName == 'INPUT' || event.target.tagName == 'SELECT')
             return;
         switch (event.which) {
             case 37: //left
@@ -578,6 +578,21 @@ function appInit() {
                 break;
             case 32: //space
                 clickPlay();
+                break;
+            case 83: //s
+                clickStop();
+                break;
+            case 173: //-
+                chVolume(-5);
+                break;
+            case 171: //+
+                chVolume(5);
+                break;
+            case 67: //C c
+                if (event.shiftKey)
+                    sendAPI({"cmd": "MPD_API_QUEUE_CROP"});
+                else
+                    sendAPI({"cmd": "MPD_API_QUEUE_CLEAR"});
                 break;
             default:
                 return;
