@@ -4,9 +4,9 @@
 
 pkgname=mympd
 _pkgname=myMPD
-pkgver=4.3.0
+pkgver=4.3.1
 pkgrel=1
-pkgdesc="A standalone MPD Web GUI based on YMPD - Default port set to 80"
+pkgdesc="myMPD is a standalone and mobile friendly web mpdclient."
 arch=('x86_64' 'armv7h' 'aarch64')
 url="http://github.org/jcorporation/myMPD"
 license=('GPL')

@@ -4,13 +4,13 @@
 # (c) 2018 Juergen Mang <mail@jcgames.de>
 
 Name:           myMPD
-Version:        4.3.0
+Version:        4.3.1
 Release:        0 
 License:        GPL-2.0 
 Group:          Productivity/Multimedia/Sound/Players
 Summary:        Standalone webclient for mpd
 Url:            https://github.com/jcorporation/myMPD
-Source:         https://github.com/jcorporation/myMPD/archive/v4.3.0.zip
+Source:         https://github.com/jcorporation/myMPD/archive/v%{version}.zip
 BuildRequires:  gcc
 BuildRequires:  cmake
 BuildRequires:  unzip
