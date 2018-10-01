@@ -180,13 +180,50 @@ static int inihandler(void* user, const char* section, const char* name, const c
     return 1;
 }
 
+void read_statefiles() {
+    char *crap;
+    char value[400];
+    if (mympd_state_get("notificationWeb", value)) {
+        if (strcmp(value, "true") == 0)
+            mympd_state.notificationWeb = true;
+        else
+            mympd_state.notificationWeb = false;
+    }
+    else
+        mympd_state.notificationWeb = false;
+
+    if (mympd_state_get("notificationPage", value)) {
+        if (strcmp(value, "true") == 0)
+            mympd_state.notificationPage = true;
+        else
+            mympd_state.notificationPage = false;
+    }
+    else
+        mympd_state.notificationPage = true;
+            
+    
+    if (mympd_state_get("jukeboxMode", value))
+        mympd_state.jukeboxMode = strtol(value, &crap, 10);
+    else
+        mympd_state.jukeboxMode = 0;
+
+    if (mympd_state_get("jukeboxPlaylist", value))
+        mympd_state.jukeboxPlaylist = value;
+    else
+        mympd_state.jukeboxPlaylist = "Database";
+
+    if (mympd_state_get("jukeboxQueueLength", value))
+        mympd_state.jukeboxQueueLength = strtol(value, &crap, 10);
+    else
+        mympd_state.jukeboxQueueLength = 1;    
+}
+
 int main(int argc, char **argv) {
     struct mg_mgr mgr;
     struct mg_connection *nc;
     struct mg_connection *nc_http;
     struct mg_bind_opts bind_opts;
     const char *err;
-    char statefile[400];
     
     //defaults
     config.mpdhost = "127.0.0.1";
@@ -241,29 +278,7 @@ int main(int argc, char **argv) {
         return EXIT_FAILURE;
     }
 
-    snprintf(statefile, 400, "%s/mympd.state", config.varlibdir);
-    if (access(statefile, F_OK ) != -1 ) {
-        char *content = json_fread(statefile);
-        int je = json_scanf(content, strlen(content), "{notificationWeb: %B, notificationPage: %B, jukeboxMode: %d, jukeboxPlaylist: %Q, jukeboxQueueLength: %d}",
-            &mympd_state.notificationWeb, 
-            &mympd_state.notificationPage,
-            &mympd_state.jukeboxMode,
-            &mympd_state.jukeboxPlaylist,
-            &mympd_state.jukeboxQueueLength);
-        if (je != 5) {
-            mympd_state.notificationWeb = false;
-            mympd_state.notificationPage = true;
-            mympd_state.jukeboxMode = 0;
-            mympd_state.jukeboxPlaylist = "Database";
-            mympd_state.jukeboxQueueLength = 1;
-        }
-    } else {
-        mympd_state.notificationWeb = false;
-        mympd_state.notificationPage = true;
-        mympd_state.jukeboxMode = 0;
-        mympd_state.jukeboxPlaylist = "Database";
-        mympd_state.jukeboxQueueLength = 1;
-    }
+    read_statefiles();
 
     signal(SIGTERM, signal_handler);
     signal(SIGINT, signal_handler);

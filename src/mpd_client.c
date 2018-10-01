@@ -57,6 +57,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
     int je, int_buf1, int_buf2, int_rc; 
     float float_buf;
     char *p_charbuf1, *p_charbuf2, *p_charbuf3, *p_charbuf4;
+    char p_char[4];
     enum mpd_cmd_ids cmd_id;
     struct pollfd fds[1];
     int pollrc;
@@ -112,28 +113,30 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
             n = mympd_put_state(mpd.buf, &mpd.song_id, &mpd.next_song_id, &mpd.last_song_id, &mpd.queue_version, &mpd.queue_length);
             break;
         case MPD_API_SETTINGS_SET:
-            je = json_scanf(msg.p, msg.len, "{data: {notificationWeb: %B, notificationPage: %B, jukeboxMode: %d, jukeboxPlaylist: %Q, jukeboxQueueLength: %d}}", 
-                &mympd_state.notificationWeb, 
-                &mympd_state.notificationPage,
-                &mympd_state.jukeboxMode,
-                &mympd_state.jukeboxPlaylist,
-                &mympd_state.jukeboxQueueLength);
-            if (je == 5) {
-                char tmpfile[400];
-                char statefile[400];
-                snprintf(tmpfile, 400, "%s/tmp/mympd.state", config.varlibdir );
-                snprintf(statefile, 400, "%s/mympd.state", config.varlibdir );
-                json_fprintf(tmpfile, "{notificationWeb: %B, notificationPage: %B, jukeboxMode: %d, jukeboxPlaylist: %Q, jukeboxQueueLength: %d}", 
-                    mympd_state.notificationWeb,
-                    mympd_state.notificationPage,
-                    mympd_state.jukeboxMode,
-                    mympd_state.jukeboxPlaylist,
-                    mympd_state.jukeboxQueueLength);
-                rename(tmpfile, statefile);
-                if (mympd_state.jukeboxMode > 0)
-                    mympd_jukebox();
-            }
+            je = json_scanf(msg.p, msg.len, "{data: {notificationWeb: %B}}", &mympd_state.notificationWeb);
+            if (je == 1)
+                mympd_state_set("notificationWeb", (mympd_state.notificationWeb == true ? "true" : "false"));
             
+            je = json_scanf(msg.p, msg.len, "{data: {notificationPage: %B}}", &mympd_state.notificationPage);
+            if (je == 1)
+                mympd_state_set("notificationPage", (mympd_state.notificationPage == true ? "true" : "false"));
+            
+            je = json_scanf(msg.p, msg.len, "{data: {jukeboxMode: %d}}", &mympd_state.jukeboxMode);
+            if (je == 1) {
+                snprintf(p_char, 4, "%d", mympd_state.jukeboxMode);
+                mympd_state_set("jukeboxMode", p_char);
+            }
+
+            je = json_scanf(msg.p, msg.len, "{data: {jukeboxPlaylist: %Q}}", &mympd_state.jukeboxPlaylist);
+            if (je == 1)
+                mympd_state_set("jukeboxPlaylist", mympd_state.jukeboxPlaylist);
+
+            je = json_scanf(msg.p, msg.len, "{data: {jukeboxQueueLength: %d}}", &mympd_state.jukeboxQueueLength);
+            if (je == 1) {
+                snprintf(p_char, 4, "%d", mympd_state.jukeboxQueueLength);
+                mympd_state_set("jukeboxQueueLength", p_char);
+            }
+        
             je = json_scanf(msg.p, msg.len, "{data: {random: %u}}", &uint_buf1);
             if (je == 1)        
                 mpd_run_random(mpd.conn, uint_buf1);
@@ -173,6 +176,8 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                 }
                 free(p_charbuf1);            
             }
+            if (mympd_state.jukeboxMode > 0)
+                mympd_jukebox();
             n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             break;
         case MPD_API_WELCOME:
@@ -1161,6 +1166,47 @@ int mympd_put_welcome(char *buffer) {
     if (len > MAX_SIZE)
         printf("Buffer truncated\n");
     return len;
+}
+
+bool mympd_state_get(char *name, char *value) {
+    char cfgfile[400];
+    char *line;
+    size_t n = 0;
+    ssize_t read;
+    
+    snprintf(cfgfile, 400, "%s/state/%s", config.varlibdir, name);
+    FILE *fp = fopen(cfgfile, "r");
+    if (fp == NULL) {
+        printf("Error opening %s", cfgfile);
+        return false;
+    }
+    read = getline(&line, &n, fp);
+    snprintf(value, 400, "%s", line);
+    #ifdef DEBUG
+    printf("State %s: %s\n", name, value);
+    #endif
+    fclose(fp);
+    if (read > 0)
+        return true;
+    else
+        return false;
+}
+
+bool mympd_state_set(char *name, char *value) {
+    char tmpfile[400];
+    char cfgfile[400];
+    snprintf(cfgfile, 400, "%s/state/%s", config.varlibdir, name);
+    snprintf(tmpfile, 400, "%s/tmp/%s", config.varlibdir, name);
+        
+    FILE *fp = fopen(tmpfile, "w");
+    if (fp == NULL) {
+        printf("Error opening %s", tmpfile);
+        return false;
+    }
+    fprintf(fp, value);
+    fclose(fp);
+    rename(tmpfile, cfgfile);
+    return true;
 }
 
 int mympd_put_settings(char *buffer) {
