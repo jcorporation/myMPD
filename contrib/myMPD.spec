@@ -4,13 +4,13 @@
 # (c) 2018 Juergen Mang <mail@jcgames.de>
 
 Name:           myMPD
-Version:        4.2.1
+Version:        4.3.0
 Release:        0 
 License:        GPL-2.0 
 Group:          Productivity/Multimedia/Sound/Players
 Summary:        Standalone webclient for mpd
 Url:            https://github.com/jcorporation/myMPD
-Source:         https://github.com/jcorporation/myMPD/archive/v4.2.1.zip
+Source:         https://github.com/jcorporation/myMPD/archive/v4.3.0.zip
 BuildRequires:  gcc
 BuildRequires:  cmake
 BuildRequires:  unzip
@@ -44,15 +44,12 @@ getent group mympd > /dev/null
 getent passwd mympd > /dev/null
 [ "$?" = "2" ] && useradd -r mympd -g mympd -d /var/lib/mympd -s /usr/sbin/nologin
 
-if ! [ $(stat -c '%U:%G' /var/lib/mympd/) = 'mympd:mympd' ]
-then
-  echo "Fixing ownership of /var/lib/mympd"
-  chown -R mympd.mympd /var/lib/mympd
-fi
+echo "Fixing ownership of /var/lib/mympd"
+chown -R mympd.mympd /var/lib/mympd
 
 if [ -d /etc/systemd ]
 then
-  [ -d /usr/lib/systemd/system ] || sudo mkdir -p /usr/lib/systemd/system 
+  [ -d /usr/lib/systemd/system ] || mkdir -p /usr/lib/systemd/system 
   cp /usr/share/mympd/mympd.service /usr/lib/systemd/system/
   systemctl daemon-reload
   systemctl enable mympd
@@ -66,6 +63,19 @@ fi
 
 [ -e /usr/share/mympd/htdocs/pics ] || ln -s /var/lib/mympd/pics /usr/share/mympd/htdocs/
 
+# move smartpls into place unless already existing
+for PLDIST in /var/lib/mympd/smartpls/*.dist
+do
+  PLS=$(basename $PLDIST .dist)
+  if [ -f /var/lib/mympd/smartpls/$PLS ]
+  then
+    rm $PLDIST
+  else
+    mv $PLDIST /var/lib/mympd/smartpls/$PLS
+  fi
+done
+
+# move config into place unless already existing
 if [ ! -f /etc/mympd/mympd.conf ]
 then 
   mv /etc/mympd/mympd.conf.dist /etc/mympd/mympd.conf

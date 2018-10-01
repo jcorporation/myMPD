@@ -21,13 +21,14 @@ This fork provides a reworked ui based on Bootstrap 4, a modernized backend and 
  - Queue management
  - Playlist management
  - Advanced search
- - Progressiv Web App enabled
+ - Jukebox mode (add's random songs / albums from database or playlists to queue)
+ - Smart playlists and saved searches
+ - Play statistics and song voting (uses mpd stickers)
  - Local coverart support (Albums and Streams)
  - HTTP stream support
  - Local playback of mpd http stream (html5 audio api)
- - Play statistics and song voting (uses mpd stickers)
+ - Progressiv Web App enabled
  - Embedded Webserver (mongoose)
- - Jukebox mode (add's random songs from database or playlists to queue)
 
 myMPD is work in progress. Bugreportes and feature requests are very welcome.
  - https://github.com/jcorporation/myMPD/issues

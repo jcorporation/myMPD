@@ -6,11 +6,8 @@ getent group mympd > /dev/null
 getent passwd mympd > /dev/null
 [ "$?" = "2" ] && useradd -r mympd -g mympd -d /var/lib/mympd -s /usr/sbin/nologin
 
-if ! [ $(stat -c '%U:%G' /var/lib/mympd/) = 'mympd:mympd' ]
-then
-  echo "Fixing ownership of /var/lib/mympd"
-  chown -R mympd.mympd /var/lib/mympd
-fi
+echo "Fixing ownership of /var/lib/mympd"
+chown -R mympd.mympd /var/lib/mympd
 
 echo "Trying to link musicdir to library"
 if [ -f /etc/mpd.conf ]
@@ -36,6 +33,18 @@ then
   systemctl enable mympd
 fi
 
+# move smartpls into place unless already existing
+for PLDIST in /var/lib/mympd/smartpls/*.dist
+do
+  PLS=$(basename $PLDIST .dist)
+  if [ -f /var/lib/mympd/smartpls/$PLS ]
+  then
+    rm $PLDIST
+  else
+    mv $PLDIST /var/lib/mympd/smartpls/$PLS
+  fi
+done
+
 # move config into place unless already existing
 if [ ! -f /etc/mympd/mympd.conf ]
 then 
@@ -49,7 +58,7 @@ then
   echo "Certificates already created"
 else
   echo "Creating certificates"
-  sudo /usr/share/mympd/crcert.sh
+  /usr/share/mympd/crcert.sh
 fi
 
 echo "myMPD installed"

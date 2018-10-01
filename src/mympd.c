@@ -155,13 +155,18 @@ static int inihandler(void* user, const char* section, const char* name, const c
         p_config->streamport = strtol(value, &crap, 10);
     else if (MATCH("coverimage"))
         p_config->coverimage = strdup(value);
-    else if (MATCH("statefile"))
-        p_config->statefile = strdup(value);
+    else if (MATCH("varlibdir"))
+        p_config->varlibdir = strdup(value);
     else if (MATCH("stickers"))
         if (strcmp(value, "true") == 0)
             p_config->stickers = true;
         else
             p_config->stickers = false;
+    else if (MATCH("smartpls"))
+        if (strcmp(value, "true") == 0)
+            p_config->smartpls = true;
+        else
+            p_config->smartpls = false;
     else if (MATCH("mixramp"))
         if (strcmp(value, "true") == 0)
             p_config->mixramp = true;
@@ -173,6 +178,44 @@ static int inihandler(void* user, const char* section, const char* name, const c
         return 0;  /* unknown section/name, error */
 
     return 1;
+}
+
+void read_statefiles() {
+    char *crap;
+    char value[400];
+    if (mympd_state_get("notificationWeb", value)) {
+        if (strcmp(value, "true") == 0)
+            mympd_state.notificationWeb = true;
+        else
+            mympd_state.notificationWeb = false;
+    }
+    else
+        mympd_state.notificationWeb = false;
+
+    if (mympd_state_get("notificationPage", value)) {
+        if (strcmp(value, "true") == 0)
+            mympd_state.notificationPage = true;
+        else
+            mympd_state.notificationPage = false;
+    }
+    else
+        mympd_state.notificationPage = true;
+            
+    
+    if (mympd_state_get("jukeboxMode", value))
+        mympd_state.jukeboxMode = strtol(value, &crap, 10);
+    else
+        mympd_state.jukeboxMode = 0;
+
+    if (mympd_state_get("jukeboxPlaylist", value))
+        mympd_state.jukeboxPlaylist = strdup(value);
+    else
+        mympd_state.jukeboxPlaylist = "Database";
+
+    if (mympd_state_get("jukeboxQueueLength", value))
+        mympd_state.jukeboxQueueLength = strtol(value, &crap, 10);
+    else
+        mympd_state.jukeboxQueueLength = 1;
 }
 
 int main(int argc, char **argv) {
@@ -194,10 +237,11 @@ int main(int argc, char **argv) {
     config.user = "nobody";
     config.streamport = 8000;
     config.coverimage = "folder.jpg";
-    config.statefile = "/var/lib/mympd/mympd.state";
+    config.varlibdir = "/var/lib/mympd";
     config.stickers = true;
     config.mixramp = true;
     config.taglist = "Artist,Album,AlbumArtist,Title,Track,Genre,Date,Composer,Performer";
+    config.smartpls = true;
     
     mpd.timeout = 3000;
     mpd.last_update_sticker_song_id = -1;
@@ -234,25 +278,7 @@ int main(int argc, char **argv) {
         return EXIT_FAILURE;
     }
 
-    if (access( config.statefile, F_OK ) != -1 ) {
-        char *content = json_fread(config.statefile);
-        int je = json_scanf(content, strlen(content), "{notificationWeb: %B, notificationPage: %B, jukeboxMode: %B, jukeboxPlaylist: %Q}", 
-            &mympd_state.notificationWeb, 
-            &mympd_state.notificationPage,
-            &mympd_state.jukeboxMode,
-            &mympd_state.jukeboxPlaylist);
-        if (je != 4) {
-            mympd_state.notificationWeb = false;
-            mympd_state.notificationPage = true;
-            mympd_state.jukeboxMode = false;
-            mympd_state.jukeboxPlaylist = "Database";
-        }
-    } else {
-        mympd_state.notificationWeb = false;
-        mympd_state.notificationPage = true;
-        mympd_state.jukeboxMode = false;
-        mympd_state.jukeboxPlaylist = "Database";
-    }
+    read_statefiles();
 
     signal(SIGTERM, signal_handler);
     signal(SIGINT, signal_handler);

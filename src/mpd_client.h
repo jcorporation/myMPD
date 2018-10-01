@@ -28,7 +28,7 @@
 #include "../dist/src/mongoose/mongoose.h"
 
 #define RETURN_ERROR_AND_RECOVER(X) do { \
-    fprintf(stderr, "MPD X: %s\n", mpd_connection_get_error_message(mpd.conn)); \
+    printf("MPD X: %s\n", mpd_connection_get_error_message(mpd.conn)); \
     len = json_printf(&out, "{ type:error, data : %Q }", \
         mpd_connection_get_error_message(mpd.conn) \
     ); \
@@ -38,7 +38,7 @@
 } while (0)
 
 #define LOG_ERROR_AND_RECOVER(X) do { \
-    fprintf(stderr, "MPD X: %s\n", mpd_connection_get_error_message(mpd.conn)); \
+    printf("MPD X: %s\n", mpd_connection_get_error_message(mpd.conn)); \
     if (!mpd_connection_clear_error(mpd.conn)) \
         mpd.conn_state = MPD_FAILURE; \
 } while (0)
@@ -72,6 +72,9 @@
     X(MPD_API_PLAYLIST_RM_TRACK) \
     X(MPD_API_PLAYLIST_LIST) \
     X(MPD_API_PLAYLIST_CONTENT_LIST) \
+    X(MPD_API_SMARTPLS_UPDATE_ALL) \
+    X(MPD_API_SMARTPLS_SAVE) \
+    X(MPD_API_SMARTPLS_GET) \
     X(MPD_API_DATABASE_SEARCH) \
     X(MPD_API_DATABASE_UPDATE) \
     X(MPD_API_DATABASE_RESCAN) \
@@ -157,10 +160,11 @@ typedef struct {
     const char* user;
     long streamport;
     const char* coverimage;
-    const char* statefile;
     bool stickers;
     bool mixramp;
     const char* taglist;
+    bool smartpls;
+    const char* varlibdir;
 } t_config;
 
 t_config config;
@@ -175,8 +179,9 @@ typedef struct {
 typedef struct {
     bool notificationWeb;
     bool notificationPage;
-    bool jukeboxMode;
+    int jukeboxMode;
     const char* jukeboxPlaylist;
+    int jukeboxQueueLength;
 } t_mympd_state;
 
 t_mympd_state mympd_state;
@@ -196,6 +201,15 @@ void mympd_last_played_song_uri(const char *uri);
 void mympd_last_played_song_id(int song_id);
 void mympd_get_sticker(const char *uri, t_sticker *sticker);
 void mympd_jukebox();
+bool mympd_state_get(char *name, char *value);
+bool mympd_state_set(char *name, char *value);
+int mympd_smartpls_save(char *smartpltype, char *playlist, char *tag, char *searchstr, int maxentries, int timerange);
+int mympd_smartpls_put(char *buffer, char *playlist);
+int mympd_smartpls_update_all();
+int mympd_smartpls_clear(char *playlist);
+int mympd_smartpls_update(char *sticker, char *playlist, int maxentries);
+int mympd_smartpls_update_newest(char *playlist, int timerange, int maxentries);
+int mympd_smartpls_update_search(char *playlist, char *tag, char *searchstr);
 int mympd_get_updatedb_state(char *buffer);
 int mympd_put_state(char *buffer, int *current_song_id, int *next_song_id, int *last_song_id, unsigned *queue_version, unsigned *queue_length);
 int mympd_put_outputs(char *buffer);

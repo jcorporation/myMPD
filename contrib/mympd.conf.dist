@@ -23,8 +23,8 @@ streamport = 8000
 #Name for coverimages
 coverimage = folder.jpg
 
-#myMPD statefile
-statefile = /var/lib/mympd/mympd.state
+#myMPD state directory
+varlibdir = /var/lib/mympd
 
 #Enable mixramp settings
 mixramp = false
@@ -35,3 +35,6 @@ stickers = true
 #List of tags in myMPD gui
 #Supported tags: Artist,Album,AlbumArtist,Title,Track,Genre,Date,Composer,Performer
 taglist = Artist,Album,AlbumArtist,Title,Track,Genre,Date,Composer,Performer
+
+#Enable smart playlists
+smartpls = true
