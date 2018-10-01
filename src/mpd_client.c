@@ -196,7 +196,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                 n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Smart Playlists update failed\"}");
             break;
         case MPD_API_SMARTPLS_SAVE:
-            je = json_scanf(msg.p, msg.len, "{data: {type: %Q}}", p_charbuf1);
+            je = json_scanf(msg.p, msg.len, "{data: {type: %Q}}", &p_charbuf1);
             if (je == 1) {
                 if (strcmp(p_charbuf1, "sticker") == 0) {
                     je = json_scanf(msg.p, msg.len, "{data: {playlist: %Q, sticker: %Q, maxentries: %d}}", &p_charbuf2, &p_charbuf3, &int_buf1);
@@ -2006,7 +2006,8 @@ int mympd_smartpls_put(char *buffer, char *playlist) {
         if (strcmp(smartpltype, "sticker") == 0) {
             je = json_scanf(content, strlen(content), "{sticker: %Q, maxentries: %d}", &p_charbuf1, &int_buf1);
             if (je == 2) {
-                len = json_printf(&out, "{type: smartpls, data: {type: %Q, sticker: %Q, maxentries: %d}",
+                len = json_printf(&out, "{type: smartpls, data: {playlist: %Q, type: %Q, sticker: %Q, maxentries: %d}}",
+                    playlist,
                     smartpltype,
                     p_charbuf1,
                     int_buf1);
@@ -2016,7 +2017,8 @@ int mympd_smartpls_put(char *buffer, char *playlist) {
         else if (strcmp(smartpltype, "newest") == 0) {
             je = json_scanf(content, strlen(content), "{timerange: %d, maxentries: %d}", &int_buf1, &int_buf2);
             if (je == 2) {
-                len = json_printf(&out, "{type: smartpls, data: {type: %Q, timerange: %d, maxentries: %d}",
+                len = json_printf(&out, "{type: smartpls, data: {playlist: %Q, type: %Q, timerange: %d, maxentries: %d}}",
+                    playlist,
                     smartpltype,
                     int_buf1,
                     int_buf2);
@@ -2025,7 +2027,8 @@ int mympd_smartpls_put(char *buffer, char *playlist) {
         else if (strcmp(smartpltype, "search") == 0) {
             je = json_scanf(content, strlen(content), "{tag: %Q, searchstr: %Q}", &p_charbuf1, &p_charbuf2);
             if (je == 2) {
-                len = json_printf(&out, "{type: smartpls, data: {type: %Q, tag: %d, searchstr: %d}",
+                len = json_printf(&out, "{type: smartpls, data: {playlist: %Q, type: %Q, tag: %Q, searchstr: %Q}}",
+                    playlist,
                     smartpltype,
                     p_charbuf1,
                     p_charbuf2);

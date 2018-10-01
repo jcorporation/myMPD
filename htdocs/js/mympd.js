@@ -503,7 +503,7 @@ function appInit() {
                 showAddToPlaylist('SEARCH');                
             }
             else if (event.target.innerText == 'Save as smart playlist') {
-                showSaveSmartPlaylist();
+                saveSearchAsSmartPlaylist();
             }
         }
     }, false);
@@ -1635,26 +1635,98 @@ function toggleAddToPlaylistFrm() {
     }
 }
 
-function showSaveSmartPlaylist() {
+function saveSearchAsSmartPlaylist() {
+    parseSmartPlaylist({"type": "smartpls", "data": {"playlist": "", "type": "search", "tag": app.current.filter, "searchstr": app.current.search}});
+}
+
+function parseSmartPlaylist(obj) {
     var nameEl = document.getElementById('saveSmartPlaylistName');
-    nameEl.value = '';
+    nameEl.value = obj.data.playlist;
     nameEl.classList.remove('is-invalid');
+    document.getElementById('saveSmartPlaylistType').value = obj.data.type;
     document.getElementById('saveSmartPlaylistFrm').classList.remove('was-validated');
+    document.getElementById('saveSmartPlaylistSearch').classList.add('hide');
+    document.getElementById('saveSmartPlaylistSticker').classList.add('hide');
+    document.getElementById('saveSmartPlaylistNewest').classList.add('hide');
+    var tagList = '<option value="any">Any Tag</option>';
+    for (var key in settings.tags) {
+        if (settings.tags[key] == true && key != 'Track') {
+            tagList += '<option value="' + key + '">' + key + '</option>';
+        }
+    }    
+    document.getElementById('selectSaveSmartPlaylistTag').innerHTML = tagList;
+    if (obj.data.type == 'search') {
+        document.getElementById('saveSmartPlaylistSearch').classList.remove('hide');
+        document.getElementById('selectSaveSmartPlaylistTag').value = obj.data.tag;
+        document.getElementById('inputSaveSmartPlaylistSearchstr').value = obj.data.searchstr;
+    }
+    else if (obj.data.type == 'sticker') {
+        document.getElementById('saveSmartPlaylistSticker').classList.remove('hide');
+        document.getElementById('selectSaveSmartPlaylistSticker').value = obj.data.sticker;
+        document.getElementById('inputSaveSmartPlaylistStickerMaxentries').value = obj.data.maxentries;
+    }
+    else if (obj.data.type == 'newest') {
+        document.getElementById('saveSmartPlaylistNewest').classList.remove('hide');
+        var timerange = obj.data.timerange / 24 / 60 / 60;
+        document.getElementById('inputSaveSmartPlaylistNewestTimerange').value = timerange;
+        document.getElementById('inputSaveSmartPlaylistNewestMaxentries').value = obj.data.maxentries;
+    }
     modalSaveSmartPlaylist.show();
     nameEl.focus();
 }
 
+function chkInt(el, frm) {
+    var value = el.value.replace(/\d/g,'');
+    if (value != '') {
+        el.classList.add('is-invalid');
+        frm.classList.add('was-validated');
+        return false;
+    } else {
+        el.classList.remove('is-invalid');
+        return true;
+    }
+}
+
 function saveSmartPlaylist() {
-    var value = document.getElementById('saveSmartPlaylistName').value;
-    var valid = value.replace(/[\w\-]/g, '');
-    if (value != '' && valid == '') {
-        sendAPI({"cmd": "MPD_API_SMARTPLS_SAVE", "data": {"type": "search", "playlist": value, "tag": app.current.filter, "searchstr": app.current.search}});
+    var name = document.getElementById('saveSmartPlaylistName').value;
+    var type = document.getElementById('saveSmartPlaylistType').value;
+    var valid = name.replace(/[\w\-]/g, '');
+    var frm = document.getElementById('saveSmartPlaylistFrm');
+    if (name != '' && valid == '') {
+        if (type == 'search') {
+            var tagEl = document.getElementById('selectSaveSmartPlaylistTag');
+            var tag = tagEl.options[tagEl.selectedIndex].value;
+            var searchstr = document.getElementById('inputSaveSmartPlaylistSearchstr').value;
+            sendAPI({"cmd": "MPD_API_SMARTPLS_SAVE", "data": {"type": type, "playlist": name, "tag": tag, "searchstr": searchstr}});
+        } else if (type == 'sticker') {
+            var stickerEl = document.getElementById('selectSaveSmartPlaylistSticker');
+            var sticker = stickerEl.options[stickerEl.selectedIndex].value;
+            var maxentriesEl = document.getElementById('inputSaveSmartPlaylistStickerMaxentries');
+            if (!chkInt(maxentriesEl, frm))
+                return;
+            var maxentries = maxentriesEl.value;
+            sendAPI({"cmd": "MPD_API_SMARTPLS_SAVE", "data": {"type": type, "playlist": name, "sticker": sticker, "maxentries": maxentries}});
+        } else if (type == 'newest') {
+            var timerangeEl = document.getElementById('inputSaveSmartPlaylistNewestTimerange');
+            if (!chkInt(timerangeEl, frm))
+                return;
+            var timerange = parseInt(timerangeEl.value) * 60 * 60 * 24;
+            var maxentriesEl = document.getElementById('inputSaveSmartPlaylistNewestMaxentries');
+            if (!chkInt(maxentriesEl, frm))
+                return;
+            var maxentries = maxentriesEl.value;
+            sendAPI({"cmd": "MPD_API_SMARTPLS_SAVE", "data": {"type": type, "playlist": name, "timerange": timerange, "maxentries": maxentries}});
+        }
+        else {
+            document.getElementById('saveSmartPlaylistType').classList.add('is-invalid');
+            return;
+        }
         modalSaveSmartPlaylist.hide();
-        showNotification('Saved smart playlist ' + value, '', '', 'success');
+        showNotification('Saved smart playlist ' + name, '', '', 'success');
     }
     else {
         document.getElementById('saveSmartPlaylistName').classList.add('is-invalid');
-        document.getElementById('saveSmartPlaylistFrm').classList.add('was-validated');
+        frm.classList.add('was-validated');
     }
 }
 
@@ -1763,6 +1835,10 @@ function renamePlaylist() {
     }
 }
 
+function showSmartPlaylist(playlist) {
+    sendAPI({"cmd": "MPD_API_SMARTPLS_GET", "data": {"playlist": playlist}}, parseSmartPlaylist);
+}
+
 function dirname(uri) {
     return uri.replace(/\/[^\/]*$/, '');
 }
@@ -1840,6 +1916,7 @@ function showMenu(el, event) {
         menu += addMenuItem({"cmd": "appendQueue", "options": [type, uri, name]}, 'Append to queue') +
             addMenuItem({"cmd": "replaceQueue", "options": [type, uri, name]},'Replace queue') +
             (type == 'smartpls' ? addMenuItem({"cmd": "playlistDetails", "options": [uri]}, 'View playlist') : addMenuItem({"cmd": "playlistDetails", "options": [uri]}, 'Edit playlist'))+
+            (type == 'smartpls' ? addMenuItem({"cmd": "showSmartPlaylist", "options": [uri]}, 'Edit smart playlist') : '') +
             (uri.indexOf('myMPDsmart') != 0 ?
                 addMenuItem({"cmd": "showRenamePlaylist", "options": [uri]}, 'Rename playlist') + 
                 addMenuItem({"cmd": "delPlaylist", "options": [uri]}, 'Delete playlist') : '');
