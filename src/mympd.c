@@ -208,14 +208,14 @@ void read_statefiles() {
         mympd_state.jukeboxMode = 0;
 
     if (mympd_state_get("jukeboxPlaylist", value))
-        mympd_state.jukeboxPlaylist = value;
+        mympd_state.jukeboxPlaylist = strdup(value);
     else
         mympd_state.jukeboxPlaylist = "Database";
 
     if (mympd_state_get("jukeboxQueueLength", value))
         mympd_state.jukeboxQueueLength = strtol(value, &crap, 10);
     else
-        mympd_state.jukeboxQueueLength = 1;    
+        mympd_state.jukeboxQueueLength = 1;
 }
 
 int main(int argc, char **argv) {

@@ -28,7 +28,7 @@
 #include "../dist/src/mongoose/mongoose.h"
 
 #define RETURN_ERROR_AND_RECOVER(X) do { \
-    fprintf(stderr, "MPD X: %s\n", mpd_connection_get_error_message(mpd.conn)); \
+    printf("MPD X: %s\n", mpd_connection_get_error_message(mpd.conn)); \
     len = json_printf(&out, "{ type:error, data : %Q }", \
         mpd_connection_get_error_message(mpd.conn) \
     ); \
@@ -38,7 +38,7 @@
 } while (0)
 
 #define LOG_ERROR_AND_RECOVER(X) do { \
-    fprintf(stderr, "MPD X: %s\n", mpd_connection_get_error_message(mpd.conn)); \
+    printf("MPD X: %s\n", mpd_connection_get_error_message(mpd.conn)); \
     if (!mpd_connection_clear_error(mpd.conn)) \
         mpd.conn_state = MPD_FAILURE; \
 } while (0)
