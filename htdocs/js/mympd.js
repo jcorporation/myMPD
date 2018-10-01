@@ -569,33 +569,44 @@ function appInit() {
     document.addEventListener('keydown', function(event) {
         if (event.target.tagName == 'INPUT' || event.target.tagName == 'SELECT')
             return;
-        switch (event.which) {
-            case 37: //left
-                clickPrev();
-                break;
-            case 39: //right
-                clickNext();
-                break;
-            case 32: //space
-                clickPlay();
-                break;
-            case 83: //s
-                clickStop();
-                break;
-            case 173: //-
-                chVolume(-5);
-                break;
-            case 171: //+
-                chVolume(5);
-                break;
-            case 67: //C c
-                if (event.shiftKey)
+        if (event.shiftKey) {
+            switch (event.which) {
+                case 83: //S
+                    sendAPI({"cmd": "MPD_API_QUEUE_SHUFFLE"});
+                    break;
+                case 67: //C
                     sendAPI({"cmd": "MPD_API_QUEUE_CROP"});
-                else
+                    break;
+                default:
+                    return;
+            }
+        }
+        else {
+            switch (event.which) {
+                case 37: //left
+                    clickPrev();
+                    break;
+                case 39: //right
+                    clickNext();
+                    break;
+                case 32: //space
+                    clickPlay();
+                    break;
+                case 83: //s
+                    clickStop();
+                    break;
+                case 173: //-
+                    chVolume(-5);
+                    break;
+                case 171: //+
+                    chVolume(5);
+                    break;
+                case 67: //c
                     sendAPI({"cmd": "MPD_API_QUEUE_CLEAR"});
-                break;
-            default:
-                return;
+                    break;
+                default:
+                    return;
+            }
         }
         event.preventDefault();
     }, false);
