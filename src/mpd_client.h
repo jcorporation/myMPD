@@ -186,10 +186,17 @@ typedef struct {
 
 t_mympd_state mympd_state;
 
+struct aline {
+    char *ptr;
+    int nalloc;
+};
+
 static int is_websocket(const struct mg_connection *nc) {
     return nc->flags & MG_F_IS_WEBSOCKET;
 }
 
+int randrange(int n);
+void save_entry(struct aline *alp, const char *entry);
 void mympd_idle(struct mg_mgr *sm, int timeout);
 void mympd_parse_idle(struct mg_mgr *s, int idle_bitmask);
 void callback_mympd(struct mg_connection *nc, const struct mg_str msg);
