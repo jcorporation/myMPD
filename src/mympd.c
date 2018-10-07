@@ -189,8 +189,10 @@ void read_statefiles() {
         else
             mympd_state.notificationWeb = false;
     }
-    else
+    else {
         mympd_state.notificationWeb = false;
+        mympd_state_set("notificationWeb", "false");
+    }
 
     if (mympd_state_get("notificationPage", value)) {
         if (strcmp(value, "true") == 0)
@@ -198,24 +200,31 @@ void read_statefiles() {
         else
             mympd_state.notificationPage = false;
     }
-    else
+    else {
         mympd_state.notificationPage = true;
-            
+        mympd_state_set("notificationPage", "true");
+    }
     
     if (mympd_state_get("jukeboxMode", value))
         mympd_state.jukeboxMode = strtol(value, &crap, 10);
-    else
+    else {
         mympd_state.jukeboxMode = 0;
+        mympd_state_set("jukeboxMode", "0");
+    }
 
     if (mympd_state_get("jukeboxPlaylist", value))
         mympd_state.jukeboxPlaylist = strdup(value);
-    else
+    else {
         mympd_state.jukeboxPlaylist = "Database";
+        mympd_state_set("jukeboxPlaylist", "Database");
+    }
 
     if (mympd_state_get("jukeboxQueueLength", value))
         mympd_state.jukeboxQueueLength = strtol(value, &crap, 10);
-    else
+    else {
         mympd_state.jukeboxQueueLength = 1;
+        mympd_state_set("jukeboxQueueLength", "1");
+    }
 }
 
 int main(int argc, char **argv) {
@@ -278,8 +287,6 @@ int main(int argc, char **argv) {
         return EXIT_FAILURE;
     }
 
-    read_statefiles();
-
     signal(SIGTERM, signal_handler);
     signal(SIGINT, signal_handler);
     setvbuf(stdout, NULL, _IOLBF, 0);
@@ -341,6 +348,8 @@ int main(int argc, char **argv) {
         mg_mgr_free(&mgr);
         return EXIT_FAILURE;
     }
+
+    read_statefiles();
     
     if (config.ssl == true)
         mg_set_protocol_http_websocket(nc_http);

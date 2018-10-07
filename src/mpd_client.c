@@ -33,6 +33,7 @@
 #include <mpd/client.h>
 
 #include "mpd_client.h"
+#include "list.h"
 #include "config.h"
 #include "../dist/src/frozen/frozen.h"
 
@@ -1033,58 +1034,51 @@ void mympd_jukebox() {
         return;
     
     srand((unsigned int)time(NULL));
-    struct aline *keepentries;
-    keepentries = malloc(addSongs * sizeof(*keepentries));
-    if (keepentries == NULL) {
-	printf("Can't allocate space for %d lines\n", addSongs);
-	exit(1);
-    }
-    for (i = 0; i < addSongs; i++) {
-        keepentries[i].nalloc = 0;
-        keepentries[i].ptr = NULL;
-    }
+
+    struct list add_list;
+    list_init(&add_list);
     
     if (mympd_state.jukeboxMode == 1) {
         //add songs
         if (strcmp(mympd_state.jukeboxPlaylist, "Database") == 0) {
             if (!mpd_send_list_all(mpd.conn, "/")) {
                 LOG_ERROR_AND_RECOVER("mpd_send_list_playlist");
+                list_free(&add_list);
                 return;
             }
         }
         else {
             if (!mpd_send_list_playlist(mpd.conn, mympd_state.jukeboxPlaylist)) {
                 LOG_ERROR_AND_RECOVER("mpd_send_list_playlist");
+                list_free(&add_list);
                 return;
             }
         }
         while ((entity = mpd_recv_entity(mpd.conn)) != NULL) {
-            if (randrange(lineno) < addSongs) {
-		if (nkeep < addSongs) {
-		    song = mpd_entity_get_song(entity);
-                    save_entry(&keepentries[nkeep++], mpd_song_get_uri(song));
-                }
-		else {
-		    i = 0;
-		    if (addSongs > 1)
-		        i = randrange(addSongs);
-                    if (addSongs == 1) {
-                        song = mpd_entity_get_song(entity);
-                        save_entry(&keepentries[i], mpd_song_get_uri(song));
+            if (mpd_entity_get_type(entity) == MPD_ENTITY_TYPE_SONG) {
+                if (randrange(lineno) < addSongs) {
+		    if (nkeep < addSongs) {
+		        song = mpd_entity_get_song(entity);
+		        list_push(&add_list, mpd_song_get_uri(song), lineno);
+		        nkeep++;
                     }
                     else {
-			int nm = addSongs - i - 1;
-			if (nm > 0) {
-    			    struct aline tmp = keepentries[i];
-    			    memmove(&keepentries[i], &keepentries[i+1], nm * sizeof(*keepentries));
-                            keepentries[addSongs - 1] = tmp;
-			}
-                        song = mpd_entity_get_song(entity);
-                        save_entry(&keepentries[nkeep - 1], mpd_song_get_uri(song));
+		        i = 0;
+		        if (addSongs > 1)
+		            i = randrange(addSongs);
+                        if (addSongs == 1) {
+                            song = mpd_entity_get_song(entity);
+                            list_free(&add_list);
+                            list_push(&add_list, mpd_song_get_uri(song), lineno);
+                        }
+                        else {
+                            song = mpd_entity_get_song(entity);
+                            list_push(&add_list, mpd_song_get_uri(song), lineno);
+                        }
                     }
                 }
+                lineno++;
             }
-            lineno++;
             mpd_entity_free(entity);
         }
     }
@@ -1092,32 +1086,30 @@ void mympd_jukebox() {
         //add album
         if (!mpd_search_db_tags(mpd.conn, MPD_TAG_ALBUM)) {
             LOG_ERROR_AND_RECOVER("mpd_send_list_playlist");
+            list_free(&add_list);
             return;
         }
         if (!mpd_search_commit(mpd.conn)) {
             LOG_ERROR_AND_RECOVER("mpd_send_list_playlist");
+            list_free(&add_list);
             return;
         }
         while ((pair = mpd_recv_pair_tag(mpd.conn, MPD_TAG_ALBUM )) != NULL)  {
             if (randrange(lineno) < addSongs) {
 		if (nkeep < addSongs) {
-                    save_entry(&keepentries[nkeep++], strdup(pair->value));
+                    list_push(&add_list, strdup(pair->value), lineno);
+                    nkeep++;
                 }
 		else {
 		    i = 0;
 		    if (addSongs > 1)
 		        i = randrange(addSongs);
                     if (addSongs == 1) {
-                        save_entry(&keepentries[i],  strdup(pair->value));
+                        list_free(&add_list);
+                        list_push(&add_list, strdup(pair->value), lineno);
                     }
                     else {
-			int nm = addSongs - i - 1;
-			if (nm > 0) {
-    			    struct aline tmp = keepentries[i];
-    			    memmove(&keepentries[i], &keepentries[i+1], nm * sizeof(*keepentries));
-                            keepentries[addSongs - 1] = tmp;
-			}
-                        save_entry(&keepentries[nkeep - 1],  strdup(pair->value));
+                        list_push(&add_list, strdup(pair->value), lineno);
                     }
                 }
             }
@@ -1126,49 +1118,35 @@ void mympd_jukebox() {
         }
     }
     if (nkeep < addSongs) {
-        fprintf(stderr, "Warning: input didn't contain %d lines\n", addSongs);
-        return;
+        fprintf(stderr, "Warning: input didn't contain %d entries\n", addSongs);
     }
-    for (i = 0; i < nkeep; i++) {
+
+    struct node *current = add_list.list;
+    while (1) {
         if (mympd_state.jukeboxMode == 1) {
-	    printf("Jukebox adding song: %s\n", keepentries[i].ptr);
-	    if (!mpd_run_add(mpd.conn, keepentries[i].ptr)) {
+	    printf("Jukebox adding song: %s\n", current->data);
+	    if (!mpd_run_add(mpd.conn, current->data)) {
                 LOG_ERROR_AND_RECOVER("mpd_run_add");
             }
         }
         else {
-            printf("Jukebox adding album: %s\n", keepentries[i].ptr);
-            if (!mpd_send_command(mpd.conn, "searchadd", "Album", keepentries[i].ptr, NULL)) {
+            printf("Jukebox adding album: %s\n", current->data);
+            if (!mpd_send_command(mpd.conn, "searchadd", "Album", current->data, NULL)) {
                 LOG_ERROR_AND_RECOVER("mpd_send_command");
                 return;
             }
             mpd_response_finish(mpd.conn);
         }
-    }    
-    free(keepentries);
+        if (current->next == NULL)
+            break;
+        current = current->next;
+    }
+    list_free(&add_list);
     mpd_run_play(mpd.conn);
 }
 
 int randrange(int n) {
     return rand() / (RAND_MAX / (n + 1));
-}
-
-void save_entry(struct aline *alp, const char *entry) {
-    int need = strlen(entry) + 1;
-    if (need > alp->nalloc) {
-	alp->nalloc = need;
-	if (alp->nalloc < 80)	/* arbitrary threshold */
-	    alp->nalloc = 80;
-	if (alp->ptr == NULL)
-	    alp->ptr = malloc(alp->nalloc);
-	else
-	    alp->ptr = realloc(alp->ptr, alp->nalloc);	    
-	if (alp->ptr == NULL) {
-            fprintf(stderr, "Can't (re)allocate space for saved entry\n");
-            exit(1);
-	}
-    }
-    strcpy(alp->ptr, entry);
 }
 
 int mympd_put_state(char *buffer, int *current_song_id, int *next_song_id, int *last_song_id, unsigned *queue_version, unsigned *queue_length) {
@@ -1244,7 +1222,7 @@ bool mympd_state_get(char *name, char *value) {
     snprintf(cfgfile, 400, "%s/state/%s", config.varlibdir, name);
     FILE *fp = fopen(cfgfile, "r");
     if (fp == NULL) {
-        printf("Error opening %s", cfgfile);
+        printf("Error opening %s\n", cfgfile);
         return false;
     }
     read = getline(&line, &n, fp);
@@ -1267,7 +1245,7 @@ bool mympd_state_set(char *name, char *value) {
         
     FILE *fp = fopen(tmpfile, "w");
     if (fp == NULL) {
-        printf("Error opening %s", tmpfile);
+        printf("Error opening %s\n", tmpfile);
         return false;
     }
     fprintf(fp, value);
@@ -2291,7 +2269,7 @@ int mympd_smartpls_update(char *playlist, char *sticker, int maxentries) {
     snprintf(tmpfile, 400, "%s/tmp/playlist.tmp", config.varlibdir);
     FILE *fp = fopen(tmpfile, "w");
     if (fp == NULL) {
-        printf("Error opening %s", tmpfile);
+        printf("Error opening %s\n", tmpfile);
         return 1;
     }    
     while ((pair = mpd_recv_pair(mpd.conn)) != NULL) {
@@ -2318,7 +2296,7 @@ int mympd_smartpls_update(char *playlist, char *sticker, int maxentries) {
         value_max = value_max / 2;
     fp = fopen(tmpfile, "r");
     if (fp == NULL) {
-        printf("Error opening %s", tmpfile);
+        printf("Error opening %s\n", tmpfile);
         return 1;
     }
     while ((read = getline(&uri, &len, fp)) != -1) {
@@ -2365,7 +2343,7 @@ int mympd_smartpls_update_newest(char *playlist, int timerange, int maxentries) 
     snprintf(tmpfile, 400, "%s/tmp/playlist.tmp", config.varlibdir);
     FILE *fp = fopen(tmpfile, "w");
     if (fp == NULL) {
-        printf("Error opening %s", tmpfile);
+        printf("Error opening %s\n", tmpfile);
         return 1;
     }    
     while ((song = mpd_recv_song(mpd.conn)) != NULL) {
@@ -2384,7 +2362,7 @@ int mympd_smartpls_update_newest(char *playlist, int timerange, int maxentries) 
     
     fp = fopen(tmpfile, "r");
     if (fp == NULL) {
-        printf("Error opening %s", tmpfile);
+        printf("Error opening %s\n", tmpfile);
         return 1;
     }
     while ((read = getline(&uri, &len, fp)) != -1) {
