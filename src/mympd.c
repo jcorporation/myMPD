@@ -183,6 +183,8 @@ static int inihandler(void* user, const char* section, const char* name, const c
 void read_statefiles() {
     char *crap;
     char value[400];
+
+    printf("Reading states\n");
     if (mympd_state_get("notificationWeb", value)) {
         if (strcmp(value, "true") == 0)
             mympd_state.notificationWeb = true;
@@ -227,12 +229,26 @@ void read_statefiles() {
     }
 }
 
+bool testdir(char *name, char *dirname) {
+    DIR* dir = opendir(dirname);
+    if (dir) {
+        closedir(dir);
+        printf("%s: \"%s\"\n", name, dirname);
+        return true;
+    }
+    else {
+        printf("%s: \"%s\" don't exists\n", name, dirname);
+        return false;
+    }
+}
+
 int main(int argc, char **argv) {
     struct mg_mgr mgr;
     struct mg_connection *nc;
     struct mg_connection *nc_http;
     struct mg_bind_opts bind_opts;
     const char *err;
+    char testdirname[400];
     
     //defaults
     config.mpdhost = "127.0.0.1";
@@ -276,16 +292,6 @@ int main(int argc, char **argv) {
     }
 
     printf("Starting myMPD %s\n", MYMPD_VERSION);
-
-    DIR* dir = opendir(SRC_PATH);
-    if (dir) {
-        printf("Document root: %s\n", SRC_PATH);
-        closedir(dir);
-    }
-    else {
-        printf("Document root \"%s\" don't exists\n", SRC_PATH);
-        return EXIT_FAILURE;
-    }
 
     signal(SIGTERM, signal_handler);
     signal(SIGINT, signal_handler);
@@ -348,6 +354,21 @@ int main(int argc, char **argv) {
         mg_mgr_free(&mgr);
         return EXIT_FAILURE;
     }
+
+    if (!testdir("Document root", SRC_PATH)) 
+        return EXIT_FAILURE;
+
+    snprintf(testdirname, 400, "%s/tmp", config.varlibdir);
+    if (!testdir("Temp dir", testdirname)) 
+        return EXIT_FAILURE;
+
+    snprintf(testdirname, 400, "%s/smartpls", config.varlibdir);
+    if (!testdir("Smartpls dir", testdirname)) 
+        return EXIT_FAILURE;
+
+    snprintf(testdirname, 400, "%s/state", config.varlibdir);
+    if (!testdir("State dir", testdirname)) 
+        return EXIT_FAILURE;
 
     read_statefiles();
     
