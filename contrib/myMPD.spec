@@ -44,9 +44,6 @@ getent group mympd > /dev/null
 getent passwd mympd > /dev/null
 [ "$?" = "2" ] && useradd -r mympd -g mympd -d /var/lib/mympd -s /usr/sbin/nologin
 
-echo "Fixing ownership of /var/lib/mympd"
-chown -R mympd.mympd /var/lib/mympd
-
 if [ -d /etc/systemd ]
 then
   [ -d /usr/lib/systemd/system ] || mkdir -p /usr/lib/systemd/system 
@@ -77,6 +74,16 @@ do
     fi
   fi
 done
+
+#default state files
+[ -f /var/lib/mympd/state/jukeboxMode ] || echo -n "0" > /var/lib/mympd/state/jukeboxMode
+[ -f /var/lib/mympd/state/jukeboxPlaylist ] || echo -n "Database" > /var/lib/mympd/state/jukeboxPlaylist
+[ -f /var/lib/mympd/state/jukeboxQueueLength ] || echo -n "1" > /var/lib/mympd/state/jukeboxQueueLength
+[ -f /var/lib/mympd/state/notificationPage ] || echo -n "true" > /var/lib/mympd/state/notificationPage
+[ -f /var/lib/mympd/state/notificationWeb ] || echo -n "false" > /var/lib/mympd/state/notificationWeb
+
+echo "Fixing ownership of /var/lib/mympd"
+chown -R mympd.mympd /var/lib/mympd
 
 # move config into place unless already existing
 if [ ! -f /etc/mympd/mympd.conf ]

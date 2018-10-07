@@ -10,10 +10,6 @@ post_upgrade() {
   getent passwd mympd > /dev/null
   [ "$?" = "2" ] && useradd --system -d /var/lib/mympd -s /usr/sbin/nologin -g mympd mympd
 
-  # fix ownership of /var/lib/mympd
-  echo "INFO: Fixing ownership of /var/lib/mympd"
-  chown -R mympd.mympd /var/lib/mympd
-
   # link music directory to mympd if not already exising 
   echo "INFO: Trying to link musicdir to library"
   if [ -f /etc/mpd.conf ]
@@ -63,6 +59,17 @@ post_upgrade() {
       fi
     fi
   done
+
+  #default state files
+  [ -f /var/lib/mympd/state/jukeboxMode ] || echo -n "0" > /var/lib/mympd/state/jukeboxMode
+  [ -f /var/lib/mympd/state/jukeboxPlaylist ] || echo -n "Database" > /var/lib/mympd/state/jukeboxPlaylist
+  [ -f /var/lib/mympd/state/jukeboxQueueLength ] || echo -n "1" > /var/lib/mympd/state/jukeboxQueueLength
+  [ -f /var/lib/mympd/state/notificationPage ] || echo -n "true" > /var/lib/mympd/state/notificationPage
+  [ -f /var/lib/mympd/state/notificationWeb ] || echo -n "false" > /var/lib/mympd/state/notificationWeb
+
+  # fix ownership of /var/lib/mympd
+  echo "INFO: Fixing ownership of /var/lib/mympd"
+  chown -R mympd.mympd /var/lib/mympd
 
   # move config into place unless already existing
   if [ ! -f /etc/mympd/mympd.conf ]
