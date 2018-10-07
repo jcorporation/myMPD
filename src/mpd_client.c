@@ -2325,6 +2325,7 @@ int mympd_smartpls_update(char *playlist, char *sticker, int maxentries) {
 
 int mympd_smartpls_update_newest(char *playlist, int timerange, int maxentries) {
     struct mpd_song *song;
+    struct mpd_entity *entity;
     char *uri;
     char *p_value;
     char *name;
@@ -2346,12 +2347,16 @@ int mympd_smartpls_update_newest(char *playlist, int timerange, int maxentries) 
         printf("Error opening %s\n", tmpfile);
         return 1;
     }    
-    while ((song = mpd_recv_song(mpd.conn)) != NULL) {
-        value = mpd_song_get_last_modified(song);
-        if (value > value_max)
-            value_max = value;
-        fprintf(fp, "%s::%ld\n", mpd_song_get_uri(song), value);
-        mpd_song_free(song);
+    while ((entity = mpd_recv_entity(mpd.conn)) != NULL) {
+        if (mpd_entity_get_type(entity) == MPD_ENTITY_TYPE_SONG) {
+            song = mpd_entity_get_song(entity);
+            value = mpd_song_get_last_modified(song);
+            if (value >= value_max) {
+                value_max = value;
+                fprintf(fp, "%s::%ld\n", mpd_song_get_uri(song), value);
+            }
+            mpd_entity_free(entity);
+        }
     }
     mpd_response_finish(mpd.conn);
     fclose(fp);
@@ -2360,31 +2365,36 @@ int mympd_smartpls_update_newest(char *playlist, int timerange, int maxentries) 
     
     value_max -= timerange;
     
-    fp = fopen(tmpfile, "r");
-    if (fp == NULL) {
-        printf("Error opening %s\n", tmpfile);
-        return 1;
-    }
-    while ((read = getline(&uri, &len, fp)) != -1) {
-        name = strtok(uri, "::");
-        p_value = strtok(NULL, "::");
-        value = strtol(p_value, &crap, 10);
-        if (value >= value_max)
-            continue;
-        if (!mpd_run_playlist_add(mpd.conn, playlist, name)) {
-            LOG_ERROR_AND_RECOVER("mpd_run_playlist_add");
-            fclose(fp);
-            unlink(tmpfile);
-            free(uri);
-            return 1;        
+    if (value_max > 0) {
+        fp = fopen(tmpfile, "r");
+        if (fp == NULL) {
+            printf("Error opening %s\n", tmpfile);
+            return 1;
         }
-        i++;
-        if (i >= maxentries)
-            break;
+        while ((read = getline(&uri, &len, fp)) != -1) {
+            name = strtok(uri, "::");
+            p_value = strtok(NULL, "::");
+            value = strtol(p_value, &crap, 10);
+            if (value >= value_max)
+                continue;
+            if (!mpd_run_playlist_add(mpd.conn, playlist, name)) {
+                LOG_ERROR_AND_RECOVER("mpd_run_playlist_add");
+                fclose(fp);
+                unlink(tmpfile);
+                free(uri);
+                return 1;        
+            }
+            i++;
+            if (i >= maxentries)
+                break;
+        }
+        fclose(fp);
+        free(uri);
+        printf("Updated %s with %ld songs, minValue: %ld\n", playlist, i, value_max);
     }
-    fclose(fp);
-    free(uri);
+    else {
+        printf("Error updating %s\n", playlist);
+    }
     unlink(tmpfile);
-    printf("Updated %s with %ld songs, minValue: %ld\n", playlist, i, value_max);
     return 0;
 }
