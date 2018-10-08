@@ -211,8 +211,8 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                     free(p_charbuf3);
                 }
                 else if (strcmp(p_charbuf1, "newest") == 0) {
-                    je = json_scanf(msg.p, msg.len, "{data: {playlist: %Q, timerange: %d, maxentries: %d}}", &p_charbuf2, &int_buf1, &int_buf2);
-                    n = mympd_smartpls_save(p_charbuf1, p_charbuf2, NULL, NULL, int_buf2, int_buf1);
+                    je = json_scanf(msg.p, msg.len, "{data: {playlist: %Q, timerange: %d}}", &p_charbuf2, &int_buf1);
+                    n = mympd_smartpls_save(p_charbuf1, p_charbuf2, NULL, NULL, 0, int_buf1);
                     free(p_charbuf2);
                 }            
                 else if (strcmp(p_charbuf1, "search") == 0) {
@@ -1068,21 +1068,11 @@ void mympd_jukebox() {
 		            i = randrange(addSongs);
                         if (addSongs == 1) {
                             song = mpd_entity_get_song(entity);
-                            list_free(&add_list);
-                            list_push(&add_list, mpd_song_get_uri(song), lineno);
+                            list_replace(&add_list, 0, mpd_song_get_uri(song), lineno);
                         }
                         else {
                             song = mpd_entity_get_song(entity);
-/*
-                            int nm = nr - i - 1;
-                            if (nm > 0) {
-                                struct aline tmp = keeplines[i];
-                                memmove(&keeplines[i], &keeplines[i+1], nm * sizeof(*keeplines));
-                                keeplines[nkeep-1] = tmp;
-                            }
-                            savestr(&keeplines[nkeep-1], line);
-*/
-//                            list_push(&add_list, mpd_song_get_uri(song), lineno);
+                            list_replace(&add_list, i, mpd_song_get_uri(song), lineno);
                         }
                     }
                 }
@@ -1114,11 +1104,10 @@ void mympd_jukebox() {
 		    if (addSongs > 1)
 		        i = randrange(addSongs);
                     if (addSongs == 1) {
-                        list_free(&add_list);
-                        list_push(&add_list, strdup(pair->value), lineno);
+                        list_replace(&add_list, 0, strdup(pair->value), lineno);
                     }
                     else {
-                        list_push(&add_list, strdup(pair->value), lineno);
+                        list_replace(&add_list, i, strdup(pair->value), lineno);
                     }
                 }
             }
@@ -1126,11 +1115,12 @@ void mympd_jukebox() {
             mpd_return_pair(mpd.conn, pair);
         }
     }
+
     if (nkeep < addSongs) {
         fprintf(stderr, "Warning: input didn't contain %d entries\n", addSongs);
     }
 
-//    list_shuffle(&add_list);
+    list_shuffle(&add_list);
 
     struct node *current = add_list.list;
     while (current != NULL) {
@@ -2095,7 +2085,7 @@ int mympd_smartpls_put(char *buffer, char *playlist) {
     char pl_file[400];
     char *smartpltype;
     char *p_charbuf1, *p_charbuf2;
-    int je, int_buf1, int_buf2;
+    int je, int_buf1;
     int len = 0;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
     
@@ -2115,13 +2105,12 @@ int mympd_smartpls_put(char *buffer, char *playlist) {
             }
         }
         else if (strcmp(smartpltype, "newest") == 0) {
-            je = json_scanf(content, strlen(content), "{timerange: %d, maxentries: %d}", &int_buf1, &int_buf2);
-            if (je == 2) {
-                len = json_printf(&out, "{type: smartpls, data: {playlist: %Q, type: %Q, timerange: %d, maxentries: %d}}",
+            je = json_scanf(content, strlen(content), "{timerange: %d}", &int_buf1);
+            if (je == 1) {
+                len = json_printf(&out, "{type: smartpls, data: {playlist: %Q, type: %Q, timerange: %d}}",
                     playlist,
                     smartpltype,
-                    int_buf1,
-                    int_buf2);
+                    int_buf1);
             }
         }
         else if (strcmp(smartpltype, "search") == 0) {
@@ -2152,9 +2141,9 @@ int mympd_smartpls_save(char *smartpltype, char *playlist, char *tag, char *sear
         mympd_smartpls_update(playlist, tag, maxentries);
     }
     else if (strcmp(smartpltype, "newest") == 0) {
-        json_fprintf(tmp_file, "{type: %Q, timerange: %d, maxentries: %d}", smartpltype, timerange, maxentries);
+        json_fprintf(tmp_file, "{type: %Q, timerange: %d}", smartpltype, timerange);
         rename(tmp_file, pl_file);
-        mympd_smartpls_update_newest(playlist, timerange, maxentries);
+        mympd_smartpls_update_newest(playlist, timerange);
     }
     else if (strcmp(smartpltype, "search") == 0) {
         json_fprintf(tmp_file, "{type: %Q, tag: %Q, searchstr: %Q}", smartpltype, tag, searchstr);
@@ -2172,7 +2161,7 @@ int mympd_smartpls_update_all() {
     char dirname[400];
     int je;
     char *p_charbuf1, *p_charbuf2;
-    int int_buf1, int_buf2;
+    int int_buf1;
     
     if (!config.smartpls)
         return 0;
@@ -2197,9 +2186,9 @@ int mympd_smartpls_update_all() {
                     printf("Can't parse file %s\n", filename);
             }
             else if (strcmp(smartpltype, "newest") == 0) {
-                je = json_scanf(content, strlen(content), "{timerange: %d, maxentries: %d}", &int_buf1, &int_buf2);
-                if (je == 2) {
-                    mympd_smartpls_update_newest(ent->d_name, int_buf1, int_buf2);
+                je = json_scanf(content, strlen(content), "{timerange: %d}", &int_buf1);
+                if (je == 1) {
+                    mympd_smartpls_update_newest(ent->d_name, int_buf1);
                 }
                 else
                     printf("Can't parse file %s\n", filename);                
@@ -2264,23 +2253,18 @@ int mympd_smartpls_update(char *playlist, char *sticker, int maxentries) {
     char *name;
     char *p_value;
     char *crap;
-    char tmpfile[400];
     long value;
     long value_max = 0;
-    size_t len = 0;
-    ssize_t read;
     long i = 0;
 
     if (!mpd_send_sticker_find(mpd.conn, "song", "", sticker)) {
         LOG_ERROR_AND_RECOVER("mpd_send_sticker_find");
         return 1;    
     }
-    snprintf(tmpfile, 400, "%s/tmp/playlist.tmp", config.varlibdir);
-    FILE *fp = fopen(tmpfile, "w");
-    if (fp == NULL) {
-        printf("Error opening %s\n", tmpfile);
-        return 1;
-    }    
+
+    struct list add_list;
+    list_init(&add_list);
+
     while ((pair = mpd_recv_pair(mpd.conn)) != NULL) {
         if (strcmp(pair->name, "file") == 0) {
             uri = strdup(pair->value);
@@ -2289,60 +2273,43 @@ int mympd_smartpls_update(char *playlist, char *sticker, int maxentries) {
             name = strtok(strdup(pair->value), "=");
             p_value = strtok(NULL, "=");
             value = strtol(p_value, &crap, 10);
-            if (value > 1)            
-                fprintf(fp, "%s::%ld\n", uri, value);
+            if (value > 1)
+                list_push(&add_list, uri, value);
             if (value > value_max)
                 value_max = value;
         }
         mpd_return_pair(mpd.conn, pair);
     }
     mpd_response_finish(mpd.conn);
-    fclose(fp);
+    free(uri);
 
     mympd_smartpls_clear(playlist);
      
     if (value_max > 2)
         value_max = value_max / 2;
-    fp = fopen(tmpfile, "r");
-    if (fp == NULL) {
-        printf("Error opening %s\n", tmpfile);
-        return 1;
-    }
-    while ((read = getline(&uri, &len, fp)) != -1) {
-        name = strtok(uri, "::");
-        p_value = strtok(NULL, "::");
-        value = strtol(p_value, &crap, 10);
-        if (value < value_max)
-            continue;
-        if (!mpd_run_playlist_add(mpd.conn, playlist, name)) {
-            LOG_ERROR_AND_RECOVER("mpd_run_playlist_add");
-            fclose(fp);
-            free(uri);
-            unlink(tmpfile);
-            return 1;        
+
+    struct node *current = add_list.list;
+    while (current != NULL) {
+        if (current->value >= value_max) {
+            if (!mpd_run_playlist_add(mpd.conn, playlist, current->data)) {
+                LOG_ERROR_AND_RECOVER("mpd_run_playlist_add");
+                list_free(&add_list);
+                return 1;        
+            }
+            i++;
+            if (i >= maxentries)
+                break;
         }
-        i++;
-        if (i >= maxentries)
-            break;
+        current = current->next;
     }
-    fclose(fp);
-    free(uri);
-    unlink(tmpfile);
+    list_free(&add_list);
     printf("Updated %s with %ld songs, minValue: %ld\n", playlist, i, value_max);
     return 0;
 }
 
-int mympd_smartpls_update_newest(char *playlist, int timerange, int maxentries) {
-    struct mpd_song *song;
-    char *uri;
-    char *name;
-    char tmpfile[400];
-    unsigned long value;
-    size_t len = 0;
-    ssize_t read;
-    long i = 0;
+int mympd_smartpls_update_newest(char *playlist, int timerange) {
     unsigned long value_max = 0;
-    char search[20];
+    char searchstr[20];
     
     struct mpd_stats *stats = mpd_run_stats(mpd.conn);
     if (stats != NULL) {
@@ -2356,51 +2323,10 @@ int mympd_smartpls_update_newest(char *playlist, int timerange, int maxentries) 
 
     mympd_smartpls_clear(playlist);
     value_max -= timerange;
-    snprintf(search, 20, "%lu", value_max);
-
     if (value_max > 0) {
-        if (mpd_send_command(mpd.conn, "find", "modified-since", search, NULL) == false) {
-            LOG_ERROR_AND_RECOVER("mpd_find");
-            return 1;
-        }
-        snprintf(tmpfile, 400, "%s/tmp/playlist.tmp", config.varlibdir);
-        FILE *fp = fopen(tmpfile, "w");
-        if (fp == NULL) {
-            printf("Error opening %s\n", tmpfile);
-            return 1;
-        }
-        while ((song = mpd_recv_song(mpd.conn)) != NULL) {
-            value = mpd_song_get_last_modified(song);
-            fprintf(fp, "%s::%lu\n", mpd_song_get_uri(song), value);
-            mpd_song_free(song);
-        }
-        fclose(fp);
-
-        fp = fopen(tmpfile, "r");
-        if (fp == NULL) {
-            printf("Error opening %s\n", tmpfile);
-            return 1;
-        }
-        while ((read = getline(&uri, &len, fp)) != -1) {
-            name = strtok(uri, "::");
-            if (!mpd_run_playlist_add(mpd.conn, playlist, name)) {
-                LOG_ERROR_AND_RECOVER("mpd_run_playlist_add");
-                fclose(fp);
-                unlink(tmpfile);
-                free(uri);
-                return 1;        
-            }
-            i++;
-            if (i >= maxentries)
-                break;
-        }
-        fclose(fp);
-        free(uri);
-        printf("Updated %s with %ld songs, minValue: %ld\n", playlist, i, value_max);
+        snprintf(searchstr, 20, "%lu", value_max);
+        mympd_search(mpd.buf, searchstr, "modified-since", playlist, 0);
+        printf("Updated %s\n", playlist);
     }
-    else {
-        printf("Error updating %s\n", playlist);
-    }
-    unlink(tmpfile);
     return 0;
 }
