@@ -55,7 +55,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
     size_t n = 0;
     char *cmd;
     unsigned int uint_buf1, uint_buf2, uint_rc;
-    int je, int_buf1, int_buf2, int_rc; 
+    int je, int_buf1, int_rc; 
     float float_buf;
     char *p_charbuf1, *p_charbuf2, *p_charbuf3, *p_charbuf4;
     char p_char[4];

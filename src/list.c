@@ -31,17 +31,17 @@ int list_swap_item(struct node *n1, struct node *n2) {
         return 1;
         
     int value = n2->value;
-    char *data;
-    data = malloc(strlen(n2->data));
-    data = strdup(n2->data);
+    char *data = strdup(n2->data);
     
     n2->value = n1->value;
-    n2->data = realloc(n2->data, strlen(n1->data));
-    n2->data = strdup(n1->data);
+    n2->data = realloc(n2->data, strlen(n1->data) + 1);
+    if (n2->data)
+        strcpy(n2->data, n1->data);
     
     n1->value = value;
-    n1->data = realloc(n1->data, strlen(data));
-    n1->data = strdup(data);
+    n1->data = realloc(n1->data, strlen(data) + 1);
+    if (n1->data)
+        strcpy(n1->data, data);
     
     free(data);
     return 0;
@@ -78,15 +78,15 @@ int list_replace(struct list *l, int pos, char *data, int value) {
     }
     
     current->value = value;
-    current->data = realloc(current->data, strlen(data));
-    current->data = strdup(data);
+    current->data = realloc(current->data, strlen(data) + 1);
+    if (current->data)
+        strcpy(current->data, data);
     return 0;
 }
 
 int list_push(struct list *l, char *data, int value) {
     struct node *n = malloc(sizeof(struct node));
     n->value = value;
-    n->data = malloc(strlen(data));
     n->data = strdup(data);
     n->next = NULL;
 
