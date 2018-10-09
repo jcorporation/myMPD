@@ -2394,12 +2394,15 @@ function selectTag(btnsEl, desc, setTo) {
 
 function addTagList(x, any) {
     var tagList = '';
+    var tagBlacklist = ["Title", "MUSICBRAINZ_TRACKID", "Count", "Disc", "Comment", "Name"];
     if (any == true)
         tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="any">Any Tag</button>';
     for (var i = 0; i < settings.tags.length; i++) {
-        if (settings.tags[i] != 'Track') {
-            tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="' + settings.tags[i] + '">' + settings.tags[i] + '</button>';
-        }
+        if (settings.tags[i] == 'Track')
+            continue;
+        if (any == false && tagBlacklist.indexOf(settings.tags[i]) > -1)
+            continue;
+        tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="' + settings.tags[i] + '">' + settings.tags[i] + '</button>';
     }
     var tagListEl = document.getElementById(x);
     tagListEl.innerHTML = tagList;
