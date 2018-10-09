@@ -371,6 +371,9 @@ int main(int argc, char **argv) {
         return EXIT_FAILURE;
 
     read_statefiles();
+
+    list_init(&mpd_tags);
+    list_init(&mympd_tags);
     
     if (config.ssl == true)
         mg_set_protocol_http_websocket(nc_http);
@@ -388,6 +391,8 @@ int main(int argc, char **argv) {
         mympd_idle(&mgr, 0);
     }
     mg_mgr_free(&mgr);
+    list_free(&mpd_tags);
+    list_free(&mympd_tags);
     mympd_disconnect();
     return EXIT_SUCCESS;
 }

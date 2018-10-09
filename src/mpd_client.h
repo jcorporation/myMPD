@@ -26,6 +26,7 @@
 #define __MPD_CLIENT_H__
 
 #include "../dist/src/mongoose/mongoose.h"
+#include "list.h"
 
 #define RETURN_ERROR_AND_RECOVER(X) do { \
     printf("MPD X: %s\n", mpd_connection_get_error_message(mpd.conn)); \
@@ -137,16 +138,10 @@ struct t_mpd {
     const unsigned* protocol;
     // Supported tags
     bool feat_sticker;
-    bool tag_artist;
-    bool tag_album;
-    bool tag_album_artist;
-    bool tag_title;
-    bool tag_track;
-    bool tag_genre;
-    bool tag_date;
-    bool tag_composer;
-    bool tag_performer;
 } mpd;
+
+struct list mpd_tags;
+struct list mympd_tags;
 
 typedef struct {
     long mpdport;

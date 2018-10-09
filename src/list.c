@@ -10,8 +10,20 @@ int list_init(struct list *l) {
     return 0;
 }
 
+int list_get_value(const struct list *l, char *data) {
+    int value = 0;
+    struct node *current = l->list;
+    while (current != NULL) {
+        if (strcmp(current->data, data) == 0) {
+            value = current->value;
+            break;
+        }
+        current = current->next;
+    }
+    return value;
+}
 
-struct node *list_node_at(const struct list * l, unsigned index) {
+struct node *list_node_at(const struct list *l, unsigned index) {
     /* if there's no data in the list, fail */
     if (l->list == NULL) { return NULL; }
     struct node * current = l->list;

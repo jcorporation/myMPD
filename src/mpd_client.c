@@ -33,7 +33,6 @@
 #include <mpd/client.h>
 
 #include "mpd_client.h"
-#include "list.h"
 #include "config.h"
 #include "../dist/src/frozen/frozen.h"
 
@@ -681,15 +680,6 @@ void mympd_mpd_features() {
 
     // Defaults
     mpd.feat_sticker = false;
-    mpd.tag_artist = false;
-    mpd.tag_album = false;
-    mpd.tag_album_artist = false;
-    mpd.tag_title = false;
-    mpd.tag_track = false;
-    mpd.tag_genre = false;
-    mpd.tag_date = false;
-    mpd.tag_composer = false;
-    mpd.tag_performer = false;
 
     mpd_send_allowed_commands(mpd.conn);
     while ((pair = mpd_recv_command_pair(mpd.conn)) != NULL) {
@@ -709,69 +699,22 @@ void mympd_mpd_features() {
     }
  
     printf("MPD supported tags: ");
+    list_free(&mpd_tags);
     mpd_send_list_tag_types(mpd.conn);
     while ((pair = mpd_recv_tag_type_pair(mpd.conn)) != NULL) {
         printf("%s ", pair->value);
-        if (strcmp(pair->value, "Artist") == 0)
-            mpd.tag_artist = true;
-        else if (strcmp(pair->value, "Album") == 0)
-            mpd.tag_album = true;
-        else if (strcmp(pair->value, "AlbumArtist") == 0)
-            mpd.tag_album_artist = true;
-        else if (strcmp(pair->value, "Title") == 0)
-            mpd.tag_title = true;
-        else if (strcmp(pair->value, "Track") == 0)
-            mpd.tag_track = true;
-        else if (strcmp(pair->value, "Genre") == 0)
-            mpd.tag_genre = true;
-        else if (strcmp(pair->value, "Date") == 0)
-            mpd.tag_date = true;
-        else if (strcmp(pair->value, "Composer") == 0)
-            mpd.tag_composer = true;
-        else if (strcmp(pair->value, "Performer") == 0)
-            mpd.tag_performer = true;
+        list_push(&mpd_tags, pair->value, 1);
         mpd_return_pair(mpd.conn, pair);
     }
     mpd_response_finish(mpd.conn);
     printf("\nmyMPD enabled tags: ");
 
+    list_free(&mympd_tags);
     token = strtok(str, s);
     while (token != NULL) {
-        if (strcmp(token, "Artist") == 0) {
-            if (mpd.tag_artist == true) printf("%s ", token);
-            else mpd.tag_artist = false;
-        }
-        else if (strcmp(token, "Album") == 0) {
-            if (mpd.tag_album == true) printf("%s ", token);
-            else mpd.tag_album = false;
-        }
-        else if (strcmp(token, "AlbumArtist") == 0) {
-            if (mpd.tag_album_artist == true) printf("%s ", token);
-            else mpd.tag_album_artist = false;
-        }
-        else if (strcmp(token, "Title") == 0) {
-            if (mpd.tag_title == true) printf("%s ", token);
-            else mpd.tag_title = false;
-        }
-        else if (strcmp(token, "Track") == 0) {
-            if (mpd.tag_track == true) printf("%s ", token);
-            else mpd.tag_track = false;
-        }
-        else if (strcmp(token, "Genre") == 0) {
-            if (mpd.tag_genre == true) printf("%s ", token);
-            else mpd.tag_genre = false;
-        }
-        else if (strcmp(token, "Date") == 0) {
-            if (mpd.tag_date == true) printf("%s ", token);
-            else mpd.tag_date = false;
-        }
-        else if (strcmp(token, "Composer") == 0) {
-            if (mpd.tag_composer == true) printf("%s ", token);
-            else mpd.tag_composer = false;
-        }
-        else if (strcmp(token, "Performer") == 0) {
-            if (mpd.tag_performer == true) printf("%s ", token);
-            else mpd.tag_performer = false;
+        if (list_get_value(&mpd_tags, token) == 1) {
+            list_push(&mympd_tags, token, 1);
+            printf("%s ", token);
         }
         token = strtok(NULL, s);
    }
@@ -1257,6 +1200,7 @@ int mympd_put_settings(char *buffer) {
     struct mpd_status *status;
     char *replaygain = strdup("");
     int len;
+    int nr = 0;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
     
     status = mpd_run_status(mpd.conn);
@@ -1279,9 +1223,7 @@ int mympd_put_settings(char *buffer) {
         "mixrampdb: %f, mixrampdelay: %f, mpdhost: %Q, mpdport: %d, passwort_set: %B, "
         "streamport: %d, coverimage: %Q, stickers: %B, mixramp: %B, smartpls: %B, maxElementsPerPage: %d, "
         "replaygain: %Q, notificationWeb: %B, notificationPage: %B, jukeboxMode: %d, jukeboxPlaylist: %Q, jukeboxQueueLength: %d, "
-        "tags: { Artist: %B, Album: %B, AlbumArtist: %B, Title: %B, Track: %B, Genre: %B, Date: %B,"
-        "Composer: %B, Performer: %B }"
-        "}}", 
+        "tags: [", 
         mpd_status_get_repeat(status),
         mpd_status_get_single(status),
         mpd_status_get_crossfade(status),
@@ -1303,19 +1245,20 @@ int mympd_put_settings(char *buffer) {
         mympd_state.notificationPage,
         mympd_state.jukeboxMode,
         mympd_state.jukeboxPlaylist,
-        mympd_state.jukeboxQueueLength,
-        mpd.tag_artist,
-        mpd.tag_album,
-        mpd.tag_album_artist,
-        mpd.tag_title,
-        mpd.tag_track,
-        mpd.tag_genre,
-        mpd.tag_date,
-        mpd.tag_composer,
-        mpd.tag_performer
+        mympd_state.jukeboxQueueLength
     );
     mpd_status_free(status);
     free(replaygain);
+    
+    struct node *current = mympd_tags.list;
+    while (current != NULL) {
+        if (nr ++) 
+            len += json_printf(&out, ",");
+        len += json_printf(&out, "%Q", current->data);
+        current = current->next;
+    }
+
+    len += json_printf(&out, "]}}");
 
     if (len > MAX_SIZE)
         printf("Buffer truncated\n");

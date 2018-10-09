@@ -1535,16 +1535,14 @@ function parseSongDetails(obj) {
     modal.getElementsByTagName('h1')[0].innerText = obj.data.title;
     
     var songDetails = '';
-    for (var key in settings.tags) {
-        if (settings.tags[key] == true) {
-            var value = obj.data[key.toLowerCase()];
-            if (key == 'duration') {
-                var minutes = Math.floor(value / 60);
-                var seconds = value - minutes * 60;
-                value = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;        
-            }
-            songDetails += '<tr><th>' + key + '</th><td>' + value + '</td></tr>';
+    for (var i = 0; i < settings.tags.length; i++) {
+        var value = obj.data[settings.tags[i].toLowerCase()];
+        if (settings.tags[i] == 'duration') {
+            var minutes = Math.floor(value / 60);
+            var seconds = value - minutes * 60;
+            value = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;        
         }
+        songDetails += '<tr><th>' + settings.tags[i] + '</th><td>' + value + '</td></tr>';
     }
     
     songDetails += '<tr><th>Uri</th><td><a class="text-success" href="/library/' + obj.data.uri + '">' + obj.data.uri + '</a></td></tr>';
@@ -1676,9 +1674,9 @@ function parseSmartPlaylist(obj) {
     document.getElementById('saveSmartPlaylistSticker').classList.add('hide');
     document.getElementById('saveSmartPlaylistNewest').classList.add('hide');
     var tagList = '<option value="any">Any Tag</option>';
-    for (var key in settings.tags) {
-        if (settings.tags[key] == true && key != 'Track') {
-            tagList += '<option value="' + key + '">' + key + '</option>';
+    for (var i = 0; i < settings.tags.length; i++) {
+        if (settings.tags[i] != 'Track') {
+            tagList += '<option value="' + settings.tags[i] + '">' + settings.tags[i] + '</option>';
         }
     }    
     document.getElementById('selectSaveSmartPlaylistTag').innerHTML = tagList;
@@ -2398,9 +2396,9 @@ function addTagList(x, any) {
     var tagList = '';
     if (any == true)
         tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="any">Any Tag</button>';
-    for (var key in settings.tags) {
-        if (settings.tags[key] == true && key != 'Track') {
-            tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="' + key + '">' + key + '</button>';
+    for (var i = 0; i < settings.tags.length; i++) {
+        if (settings.tags[i] != 'Track') {
+            tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="' + settings.tags[i] + '">' + settings.tags[i] + '</button>';
         }
     }
     var tagListEl = document.getElementById(x);
