@@ -183,14 +183,18 @@ static int inihandler(void* user, const char* section, const char* name, const c
 void read_statefiles() {
     char *crap;
     char value[400];
+
+    printf("Reading states\n");
     if (mympd_state_get("notificationWeb", value)) {
         if (strcmp(value, "true") == 0)
             mympd_state.notificationWeb = true;
         else
             mympd_state.notificationWeb = false;
     }
-    else
+    else {
         mympd_state.notificationWeb = false;
+        mympd_state_set("notificationWeb", "false");
+    }
 
     if (mympd_state_get("notificationPage", value)) {
         if (strcmp(value, "true") == 0)
@@ -198,24 +202,44 @@ void read_statefiles() {
         else
             mympd_state.notificationPage = false;
     }
-    else
+    else {
         mympd_state.notificationPage = true;
-            
+        mympd_state_set("notificationPage", "true");
+    }
     
     if (mympd_state_get("jukeboxMode", value))
         mympd_state.jukeboxMode = strtol(value, &crap, 10);
-    else
+    else {
         mympd_state.jukeboxMode = 0;
+        mympd_state_set("jukeboxMode", "0");
+    }
 
     if (mympd_state_get("jukeboxPlaylist", value))
         mympd_state.jukeboxPlaylist = strdup(value);
-    else
+    else {
         mympd_state.jukeboxPlaylist = "Database";
+        mympd_state_set("jukeboxPlaylist", "Database");
+    }
 
     if (mympd_state_get("jukeboxQueueLength", value))
         mympd_state.jukeboxQueueLength = strtol(value, &crap, 10);
-    else
+    else {
         mympd_state.jukeboxQueueLength = 1;
+        mympd_state_set("jukeboxQueueLength", "1");
+    }
+}
+
+bool testdir(char *name, char *dirname) {
+    DIR* dir = opendir(dirname);
+    if (dir) {
+        closedir(dir);
+        printf("%s: \"%s\"\n", name, dirname);
+        return true;
+    }
+    else {
+        printf("%s: \"%s\" don't exists\n", name, dirname);
+        return false;
+    }
 }
 
 int main(int argc, char **argv) {
@@ -224,6 +248,7 @@ int main(int argc, char **argv) {
     struct mg_connection *nc_http;
     struct mg_bind_opts bind_opts;
     const char *err;
+    char testdirname[400];
     
     //defaults
     config.mpdhost = "127.0.0.1";
@@ -267,18 +292,6 @@ int main(int argc, char **argv) {
     }
 
     printf("Starting myMPD %s\n", MYMPD_VERSION);
-
-    DIR* dir = opendir(SRC_PATH);
-    if (dir) {
-        printf("Document root: %s\n", SRC_PATH);
-        closedir(dir);
-    }
-    else {
-        printf("Document root \"%s\" don't exists\n", SRC_PATH);
-        return EXIT_FAILURE;
-    }
-
-    read_statefiles();
 
     signal(SIGTERM, signal_handler);
     signal(SIGINT, signal_handler);
@@ -341,6 +354,26 @@ int main(int argc, char **argv) {
         mg_mgr_free(&mgr);
         return EXIT_FAILURE;
     }
+
+    if (!testdir("Document root", SRC_PATH)) 
+        return EXIT_FAILURE;
+
+    snprintf(testdirname, 400, "%s/tmp", config.varlibdir);
+    if (!testdir("Temp dir", testdirname)) 
+        return EXIT_FAILURE;
+
+    snprintf(testdirname, 400, "%s/smartpls", config.varlibdir);
+    if (!testdir("Smartpls dir", testdirname)) 
+        return EXIT_FAILURE;
+
+    snprintf(testdirname, 400, "%s/state", config.varlibdir);
+    if (!testdir("State dir", testdirname)) 
+        return EXIT_FAILURE;
+
+    read_statefiles();
+
+    list_init(&mpd_tags);
+    list_init(&mympd_tags);
     
     if (config.ssl == true)
         mg_set_protocol_http_websocket(nc_http);
@@ -358,6 +391,8 @@ int main(int argc, char **argv) {
         mympd_idle(&mgr, 0);
     }
     mg_mgr_free(&mgr);
+    list_free(&mpd_tags);
+    list_free(&mympd_tags);
     mympd_disconnect();
     return EXIT_SUCCESS;
 }

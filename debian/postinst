@@ -6,8 +6,7 @@ getent group mympd > /dev/null
 getent passwd mympd > /dev/null
 [ "$?" = "2" ] && useradd -r mympd -g mympd -d /var/lib/mympd -s /usr/sbin/nologin
 
-echo "Fixing ownership of /var/lib/mympd"
-chown -R mympd.mympd /var/lib/mympd
+
 
 echo "Trying to link musicdir to library"
 if [ -f /etc/mpd.conf ]
@@ -48,7 +47,6 @@ do
   fi
 done
 
-
 # move config into place unless already existing
 if [ ! -f /etc/mympd/mympd.conf ]
 then 
@@ -56,6 +54,16 @@ then
 else
   echo "mympd.conf installed as mympd.conf.dist"
 fi
+
+#default state files
+[ -f /var/lib/mympd/state/jukeboxMode ] || echo -n "0" > /var/lib/mympd/state/jukeboxMode
+[ -f /var/lib/mympd/state/jukeboxPlaylist ] || echo -n "Database" > /var/lib/mympd/state/jukeboxPlaylist
+[ -f /var/lib/mympd/state/jukeboxQueueLength ] || echo -n "1" > /var/lib/mympd/state/jukeboxQueueLength
+[ -f /var/lib/mympd/state/notificationPage ] || echo -n "true" > /var/lib/mympd/state/notificationPage
+[ -f /var/lib/mympd/state/notificationWeb ] || echo -n "false" > /var/lib/mympd/state/notificationWeb
+
+echo "Fixing ownership of /var/lib/mympd"
+chown -R mympd.mympd /var/lib/mympd
 
 if [ -d /etc/mympd/ssl ]
 then

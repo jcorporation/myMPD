@@ -4,7 +4,7 @@ project (mympd C)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/")
 set(CPACK_PACKAGE_VERSION_MAJOR "4")
 set(CPACK_PACKAGE_VERSION_MINOR "3")
-set(CPACK_PACKAGE_VERSION_PATCH "0")
+set(CPACK_PACKAGE_VERSION_PATCH "1")
 
 if(CMAKE_BUILD_TYPE MATCHES RELEASE)
     set(ASSETS_PATH "/usr/share/${PROJECT_NAME}/htdocs")
@@ -31,6 +31,7 @@ set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS NS_ENABLE_SSL)
 set(SOURCES
     src/mympd.c
     src/mpd_client.c
+    src/list.c
     dist/src/mongoose/mongoose.c
     dist/src/frozen/frozen.c
     dist/src/inih/ini.c

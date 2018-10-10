@@ -567,20 +567,46 @@ function appInit() {
     }, false);
     
     document.addEventListener('keydown', function(event) {
-        if (event.target.tagName == 'INPUT')
+        if (event.target.tagName == 'INPUT' || event.target.tagName == 'SELECT')
             return;
-        switch (event.which) {
-            case 37: //left
-                clickPrev();
-                break;
-            case 39: //right
-                clickNext();
-                break;
-            case 32: //space
-                clickPlay();
-                break;
-            default:
-                return;
+        if (event.shiftKey) {
+            switch (event.which) {
+                case 83: //S
+                    sendAPI({"cmd": "MPD_API_QUEUE_SHUFFLE"});
+                    break;
+                case 67: //C
+                    sendAPI({"cmd": "MPD_API_QUEUE_CROP"});
+                    break;
+                default:
+                    return;
+            }
+        }
+        else {
+            switch (event.which) {
+                case 37: //left
+                    clickPrev();
+                    break;
+                case 39: //right
+                    clickNext();
+                    break;
+                case 32: //space
+                    clickPlay();
+                    break;
+                case 83: //s
+                    clickStop();
+                    break;
+                case 173: //-
+                    chVolume(-5);
+                    break;
+                case 171: //+
+                    chVolume(5);
+                    break;
+                case 67: //c
+                    sendAPI({"cmd": "MPD_API_QUEUE_CLEAR"});
+                    break;
+                default:
+                    return;
+            }
         }
         event.preventDefault();
     }, false);
@@ -1029,7 +1055,8 @@ function parseState(obj) {
     setCounter(obj.data.currentSongId, obj.data.totalTime, obj.data.elapsedTime);
     
     //Get current song
-    sendAPI({"cmd": "MPD_API_PLAYER_CURRENT_SONG"}, songChange);
+    if (lastState && lastState.data.currentSongId != obj.data.currentSongId)
+        sendAPI({"cmd": "MPD_API_PLAYER_CURRENT_SONG"}, songChange);
     //clear playback card if not playing
     if (obj.data.songPos == '-1') {
         domCache.currentTrack.innerText = 'Not playing';
@@ -1508,16 +1535,14 @@ function parseSongDetails(obj) {
     modal.getElementsByTagName('h1')[0].innerText = obj.data.title;
     
     var songDetails = '';
-    for (var key in settings.tags) {
-        if (settings.tags[key] == true) {
-            var value = obj.data[key.toLowerCase()];
-            if (key == 'duration') {
-                var minutes = Math.floor(value / 60);
-                var seconds = value - minutes * 60;
-                value = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;        
-            }
-            songDetails += '<tr><th>' + key + '</th><td>' + value + '</td></tr>';
+    for (var i = 0; i < settings.tags.length; i++) {
+        var value = obj.data[settings.tags[i].toLowerCase()];
+        if (settings.tags[i] == 'duration') {
+            var minutes = Math.floor(value / 60);
+            var seconds = value - minutes * 60;
+            value = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;        
         }
+        songDetails += '<tr><th>' + settings.tags[i] + '</th><td>' + value + '</td></tr>';
     }
     
     songDetails += '<tr><th>Uri</th><td><a class="text-success" href="/library/' + obj.data.uri + '">' + obj.data.uri + '</a></td></tr>';
@@ -1649,9 +1674,9 @@ function parseSmartPlaylist(obj) {
     document.getElementById('saveSmartPlaylistSticker').classList.add('hide');
     document.getElementById('saveSmartPlaylistNewest').classList.add('hide');
     var tagList = '<option value="any">Any Tag</option>';
-    for (var key in settings.tags) {
-        if (settings.tags[key] == true && key != 'Track') {
-            tagList += '<option value="' + key + '">' + key + '</option>';
+    for (var i = 0; i < settings.tags.length; i++) {
+        if (settings.tags[i] != 'Track') {
+            tagList += '<option value="' + settings.tags[i] + '">' + settings.tags[i] + '</option>';
         }
     }    
     document.getElementById('selectSaveSmartPlaylistTag').innerHTML = tagList;
@@ -1669,7 +1694,6 @@ function parseSmartPlaylist(obj) {
         document.getElementById('saveSmartPlaylistNewest').classList.remove('hide');
         var timerange = obj.data.timerange / 24 / 60 / 60;
         document.getElementById('inputSaveSmartPlaylistNewestTimerange').value = timerange;
-        document.getElementById('inputSaveSmartPlaylistNewestMaxentries').value = obj.data.maxentries;
     }
     modalSaveSmartPlaylist.show();
     nameEl.focus();
@@ -1711,11 +1735,7 @@ function saveSmartPlaylist() {
             if (!chkInt(timerangeEl, frm))
                 return;
             var timerange = parseInt(timerangeEl.value) * 60 * 60 * 24;
-            var maxentriesEl = document.getElementById('inputSaveSmartPlaylistNewestMaxentries');
-            if (!chkInt(maxentriesEl, frm))
-                return;
-            var maxentries = maxentriesEl.value;
-            sendAPI({"cmd": "MPD_API_SMARTPLS_SAVE", "data": {"type": type, "playlist": name, "timerange": timerange, "maxentries": maxentries}});
+            sendAPI({"cmd": "MPD_API_SMARTPLS_SAVE", "data": {"type": type, "playlist": name, "timerange": timerange}});
         }
         else {
             document.getElementById('saveSmartPlaylistType').classList.add('is-invalid');
@@ -2374,12 +2394,15 @@ function selectTag(btnsEl, desc, setTo) {
 
 function addTagList(x, any) {
     var tagList = '';
+    var tagBlacklist = ["Title", "MUSICBRAINZ_TRACKID", "Count", "Disc", "Comment", "Name"];
     if (any == true)
         tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="any">Any Tag</button>';
-    for (var key in settings.tags) {
-        if (settings.tags[key] == true && key != 'Track') {
-            tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="' + key + '">' + key + '</button>';
-        }
+    for (var i = 0; i < settings.tags.length; i++) {
+        if (settings.tags[i] == 'Track')
+            continue;
+        if (any == false && tagBlacklist.indexOf(settings.tags[i]) > -1)
+            continue;
+        tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="' + settings.tags[i] + '">' + settings.tags[i] + '</button>';
     }
     var tagListEl = document.getElementById(x);
     tagListEl.innerHTML = tagList;

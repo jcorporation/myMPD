@@ -54,7 +54,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
     size_t n = 0;
     char *cmd;
     unsigned int uint_buf1, uint_buf2, uint_rc;
-    int je, int_buf1, int_buf2, int_rc; 
+    int je, int_buf1, int_rc; 
     float float_buf;
     char *p_charbuf1, *p_charbuf2, *p_charbuf3, *p_charbuf4;
     char p_char[4];
@@ -210,8 +210,8 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                     free(p_charbuf3);
                 }
                 else if (strcmp(p_charbuf1, "newest") == 0) {
-                    je = json_scanf(msg.p, msg.len, "{data: {playlist: %Q, timerange: %d, maxentries: %d}}", &p_charbuf2, &int_buf1, &int_buf2);
-                    n = mympd_smartpls_save(p_charbuf1, p_charbuf2, NULL, NULL, int_buf2, int_buf1);
+                    je = json_scanf(msg.p, msg.len, "{data: {playlist: %Q, timerange: %d}}", &p_charbuf2, &int_buf1);
+                    n = mympd_smartpls_save(p_charbuf1, p_charbuf2, NULL, NULL, 0, int_buf1);
                     free(p_charbuf2);
                 }            
                 else if (strcmp(p_charbuf1, "search") == 0) {
@@ -680,15 +680,6 @@ void mympd_mpd_features() {
 
     // Defaults
     mpd.feat_sticker = false;
-    mpd.tag_artist = false;
-    mpd.tag_album = false;
-    mpd.tag_album_artist = false;
-    mpd.tag_title = false;
-    mpd.tag_track = false;
-    mpd.tag_genre = false;
-    mpd.tag_date = false;
-    mpd.tag_composer = false;
-    mpd.tag_performer = false;
 
     mpd_send_allowed_commands(mpd.conn);
     while ((pair = mpd_recv_command_pair(mpd.conn)) != NULL) {
@@ -708,69 +699,22 @@ void mympd_mpd_features() {
     }
  
     printf("MPD supported tags: ");
+    list_free(&mpd_tags);
     mpd_send_list_tag_types(mpd.conn);
     while ((pair = mpd_recv_tag_type_pair(mpd.conn)) != NULL) {
         printf("%s ", pair->value);
-        if (strcmp(pair->value, "Artist") == 0)
-            mpd.tag_artist = true;
-        else if (strcmp(pair->value, "Album") == 0)
-            mpd.tag_album = true;
-        else if (strcmp(pair->value, "AlbumArtist") == 0)
-            mpd.tag_album_artist = true;
-        else if (strcmp(pair->value, "Title") == 0)
-            mpd.tag_title = true;
-        else if (strcmp(pair->value, "Track") == 0)
-            mpd.tag_track = true;
-        else if (strcmp(pair->value, "Genre") == 0)
-            mpd.tag_genre = true;
-        else if (strcmp(pair->value, "Date") == 0)
-            mpd.tag_date = true;
-        else if (strcmp(pair->value, "Composer") == 0)
-            mpd.tag_composer = true;
-        else if (strcmp(pair->value, "Performer") == 0)
-            mpd.tag_performer = true;
+        list_push(&mpd_tags, pair->value, 1);
         mpd_return_pair(mpd.conn, pair);
     }
     mpd_response_finish(mpd.conn);
     printf("\nmyMPD enabled tags: ");
 
+    list_free(&mympd_tags);
     token = strtok(str, s);
     while (token != NULL) {
-        if (strcmp(token, "Artist") == 0) {
-            if (mpd.tag_artist == true) printf("%s ", token);
-            else mpd.tag_artist = false;
-        }
-        else if (strcmp(token, "Album") == 0) {
-            if (mpd.tag_album == true) printf("%s ", token);
-            else mpd.tag_album = false;
-        }
-        else if (strcmp(token, "AlbumArtist") == 0) {
-            if (mpd.tag_album_artist == true) printf("%s ", token);
-            else mpd.tag_album_artist = false;
-        }
-        else if (strcmp(token, "Title") == 0) {
-            if (mpd.tag_title == true) printf("%s ", token);
-            else mpd.tag_title = false;
-        }
-        else if (strcmp(token, "Track") == 0) {
-            if (mpd.tag_track == true) printf("%s ", token);
-            else mpd.tag_track = false;
-        }
-        else if (strcmp(token, "Genre") == 0) {
-            if (mpd.tag_genre == true) printf("%s ", token);
-            else mpd.tag_genre = false;
-        }
-        else if (strcmp(token, "Date") == 0) {
-            if (mpd.tag_date == true) printf("%s ", token);
-            else mpd.tag_date = false;
-        }
-        else if (strcmp(token, "Composer") == 0) {
-            if (mpd.tag_composer == true) printf("%s ", token);
-            else mpd.tag_composer = false;
-        }
-        else if (strcmp(token, "Performer") == 0) {
-            if (mpd.tag_performer == true) printf("%s ", token);
-            else mpd.tag_performer = false;
+        if (list_get_value(&mpd_tags, token) == 1) {
+            list_push(&mympd_tags, token, 1);
+            printf("%s ", token);
         }
         token = strtok(NULL, s);
    }
@@ -1008,11 +952,12 @@ char* mympd_get_tag(struct mpd_song const *song, enum mpd_tag_type tag) {
 void mympd_jukebox() {
     struct mpd_status *status;
     status = mpd_run_status(mpd.conn);
-    int queue_length, num_songs, rand_song, i, j, addSongs;
+    int queue_length, addSongs, i;
     struct mpd_entity *entity;
     const struct mpd_song *song;
     struct mpd_pair *pair;
-    char *album;
+    int lineno = 1;
+    int nkeep = 0;
 
     if (!status) {
         LOG_ERROR_AND_RECOVER("mpd_run_status");
@@ -1022,116 +967,128 @@ void mympd_jukebox() {
     mpd_status_free(status);
     if (queue_length > mympd_state.jukeboxQueueLength)
         return;
-        
-    srand((unsigned int)time(NULL));
-    num_songs = 0;
 
-    if (mympd_state.jukeboxMode == 1 && strcmp(mympd_state.jukeboxPlaylist, "Database") == 0) {
-        struct mpd_stats *stats = mpd_run_stats(mpd.conn);
-        if (stats == NULL) {
-            LOG_ERROR_AND_RECOVER("mpd_run_stats");
-            return;
-        }
-        num_songs = mpd_stats_get_number_of_songs(stats);
-        mpd_stats_free(stats);
-    }
-    else if (mympd_state.jukeboxMode == 1) {
-        if (!mpd_send_list_playlist(mpd.conn, mympd_state.jukeboxPlaylist)) {
-            LOG_ERROR_AND_RECOVER("mpd_send_list_playlist");
-            return;
-        }
-        while ((entity = mpd_recv_entity(mpd.conn)) != NULL) {
-            num_songs++;
-            mpd_entity_free(entity);
-        }    
-    }
-    else if (mympd_state.jukeboxMode == 2) {
-        if (!mpd_search_db_tags(mpd.conn, MPD_TAG_ALBUM)) {
-            LOG_ERROR_AND_RECOVER("mpd_send_list_playlist");
-            return;
-        }
-        if (!mpd_search_commit(mpd.conn)) {
-            LOG_ERROR_AND_RECOVER("mpd_send_list_playlist");
-            return;
-        }
-        while ((pair = mpd_recv_pair_tag(mpd.conn, MPD_TAG_ALBUM)) != NULL) {
-            num_songs++;
-            mpd_return_pair(mpd.conn, pair);
-        }
-        mpd_response_finish(mpd.conn);        
-    }
-    num_songs--;
     if (mympd_state.jukeboxMode == 1) 
         addSongs = mympd_state.jukeboxQueueLength - queue_length;
     else
         addSongs = 1;
-    if (num_songs > 0) {
-        for (j = 0; j < addSongs; j++) {
-            rand_song = rand() % num_songs;
-            if (mympd_state.jukeboxMode == 1) {
-                //add songs
-                if (strcmp(mympd_state.jukeboxPlaylist, "Database") == 0) {
-                    if (!mpd_send_list_all(mpd.conn, "/")) {
-                        LOG_ERROR_AND_RECOVER("mpd_send_list_playlist");
-                        return;
-                    }
-                }
-                else {
-                    if (!mpd_send_list_playlist(mpd.conn, mympd_state.jukeboxPlaylist)) {
-                        LOG_ERROR_AND_RECOVER("mpd_send_list_playlist");
-                        return;
-                    }
-                }
-                i = 0;
-                while ((entity = mpd_recv_entity(mpd.conn)) != NULL) {
-                    if (mpd_entity_get_type(entity) == MPD_ENTITY_TYPE_SONG) {
-                        if (i == rand_song)
-                            break;
-                        i++;
-                    }
-                    mpd_entity_free(entity);
-                }
-                mpd_response_finish(mpd.conn);
-                song = mpd_entity_get_song(entity);        
-                if (song != NULL) {
-                    printf("Jukebox enabled, adding random song: %d/%d\n", rand_song, num_songs);
-                    if (!mpd_run_add(mpd.conn, mpd_song_get_uri(song))) {
-                        LOG_ERROR_AND_RECOVER("mpd_send_list_playlist");
-                    }
-                }
-                mpd_entity_free(entity);
-            }
-            else if (mympd_state.jukeboxMode == 2) {
-                //add album
-                if (!mpd_search_db_tags(mpd.conn, MPD_TAG_ALBUM)) {
-                    LOG_ERROR_AND_RECOVER("mpd_send_list_playlist");
-                    return;
-                }
-                if (!mpd_search_commit(mpd.conn)) {
-                    LOG_ERROR_AND_RECOVER("mpd_send_list_playlist");
-                    return;
-                }
-                i = 0;
-                while ((pair = mpd_recv_pair_tag(mpd.conn, MPD_TAG_ALBUM )) != NULL)  {
-                    if (i == rand_song) {
-                        album = strdup(pair->value);
-                        break;
-                    }
-                    i++;
-                    mpd_return_pair(mpd.conn, pair);
-                }
-                mpd_return_pair(mpd.conn, pair);            
-                mpd_response_finish(mpd.conn);
-                printf("Jukebox enabled, adding random album %s: %d/%d\n", album, rand_song, num_songs);
-                if (!mpd_send_command(mpd.conn, "searchadd", "Album", album, NULL)) {
-                    LOG_ERROR_AND_RECOVER("mpd_send_list_playlist");
-                    return;
-                }
-                mpd_response_finish(mpd.conn);                
+    
+    if (addSongs < 1)
+        return;
+    
+    srand((unsigned int)time(NULL));
+
+    struct list add_list;
+    list_init(&add_list);
+    
+    if (mympd_state.jukeboxMode == 1) {
+        //add songs
+        if (strcmp(mympd_state.jukeboxPlaylist, "Database") == 0) {
+            if (!mpd_send_list_all(mpd.conn, "/")) {
+                LOG_ERROR_AND_RECOVER("mpd_send_list_playlist");
+                list_free(&add_list);
+                return;
             }
         }
-        mpd_run_play(mpd.conn);
+        else {
+            if (!mpd_send_list_playlist(mpd.conn, mympd_state.jukeboxPlaylist)) {
+                LOG_ERROR_AND_RECOVER("mpd_send_list_playlist");
+                list_free(&add_list);
+                return;
+            }
+        }
+        while ((entity = mpd_recv_entity(mpd.conn)) != NULL) {
+            if (mpd_entity_get_type(entity) == MPD_ENTITY_TYPE_SONG) {
+                if (randrange(lineno) < addSongs) {
+		    if (nkeep < addSongs) {
+		        song = mpd_entity_get_song(entity);
+		        list_push(&add_list, mpd_song_get_uri(song), lineno);
+		        nkeep++;
+                    }
+                    else {
+		        i = 0;
+		        if (addSongs > 1)
+		            i = randrange(addSongs);
+                        if (addSongs == 1) {
+                            song = mpd_entity_get_song(entity);
+                            list_replace(&add_list, 0, mpd_song_get_uri(song), lineno);
+                        }
+                        else {
+                            song = mpd_entity_get_song(entity);
+                            list_replace(&add_list, i, mpd_song_get_uri(song), lineno);
+                        }
+                    }
+                }
+                lineno++;
+            }
+            mpd_entity_free(entity);
+        }
     }
+    else if (mympd_state.jukeboxMode == 2) {
+        //add album
+        if (!mpd_search_db_tags(mpd.conn, MPD_TAG_ALBUM)) {
+            LOG_ERROR_AND_RECOVER("mpd_send_list_playlist");
+            list_free(&add_list);
+            return;
+        }
+        if (!mpd_search_commit(mpd.conn)) {
+            LOG_ERROR_AND_RECOVER("mpd_send_list_playlist");
+            list_free(&add_list);
+            return;
+        }
+        while ((pair = mpd_recv_pair_tag(mpd.conn, MPD_TAG_ALBUM )) != NULL)  {
+            if (randrange(lineno) < addSongs) {
+		if (nkeep < addSongs) {
+                    list_push(&add_list, strdup(pair->value), lineno);
+                    nkeep++;
+                }
+		else {
+		    i = 0;
+		    if (addSongs > 1)
+		        i = randrange(addSongs);
+                    if (addSongs == 1) {
+                        list_replace(&add_list, 0, strdup(pair->value), lineno);
+                    }
+                    else {
+                        list_replace(&add_list, i, strdup(pair->value), lineno);
+                    }
+                }
+            }
+            lineno++;
+            mpd_return_pair(mpd.conn, pair);
+        }
+    }
+
+    if (nkeep < addSongs) {
+        fprintf(stderr, "Warning: input didn't contain %d entries\n", addSongs);
+    }
+
+    list_shuffle(&add_list);
+
+    struct node *current = add_list.list;
+    while (current != NULL) {
+        if (mympd_state.jukeboxMode == 1) {
+	    printf("Jukebox adding song: %s\n", current->data);
+	    if (!mpd_run_add(mpd.conn, current->data)) {
+                LOG_ERROR_AND_RECOVER("mpd_run_add");
+            }
+        }
+        else {
+            printf("Jukebox adding album: %s\n", current->data);
+            if (!mpd_send_command(mpd.conn, "searchadd", "Album", current->data, NULL)) {
+                LOG_ERROR_AND_RECOVER("mpd_send_command");
+                return;
+            }
+            mpd_response_finish(mpd.conn);
+        }
+        current = current->next;
+    }
+    list_free(&add_list);
+    mpd_run_play(mpd.conn);
+}
+
+int randrange(int n) {
+    return rand() / (RAND_MAX / (n + 1) + 1);
 }
 
 int mympd_put_state(char *buffer, int *current_song_id, int *next_song_id, int *last_song_id, unsigned *queue_version, unsigned *queue_length) {
@@ -1207,7 +1164,7 @@ bool mympd_state_get(char *name, char *value) {
     snprintf(cfgfile, 400, "%s/state/%s", config.varlibdir, name);
     FILE *fp = fopen(cfgfile, "r");
     if (fp == NULL) {
-        printf("Error opening %s", cfgfile);
+        printf("Error opening %s\n", cfgfile);
         return false;
     }
     read = getline(&line, &n, fp);
@@ -1230,7 +1187,7 @@ bool mympd_state_set(char *name, char *value) {
         
     FILE *fp = fopen(tmpfile, "w");
     if (fp == NULL) {
-        printf("Error opening %s", tmpfile);
+        printf("Error opening %s\n", tmpfile);
         return false;
     }
     fprintf(fp, value);
@@ -1243,6 +1200,7 @@ int mympd_put_settings(char *buffer) {
     struct mpd_status *status;
     char *replaygain = strdup("");
     int len;
+    int nr = 0;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
     
     status = mpd_run_status(mpd.conn);
@@ -1265,9 +1223,7 @@ int mympd_put_settings(char *buffer) {
         "mixrampdb: %f, mixrampdelay: %f, mpdhost: %Q, mpdport: %d, passwort_set: %B, "
         "streamport: %d, coverimage: %Q, stickers: %B, mixramp: %B, smartpls: %B, maxElementsPerPage: %d, "
         "replaygain: %Q, notificationWeb: %B, notificationPage: %B, jukeboxMode: %d, jukeboxPlaylist: %Q, jukeboxQueueLength: %d, "
-        "tags: { Artist: %B, Album: %B, AlbumArtist: %B, Title: %B, Track: %B, Genre: %B, Date: %B,"
-        "Composer: %B, Performer: %B }"
-        "}}", 
+        "tags: [", 
         mpd_status_get_repeat(status),
         mpd_status_get_single(status),
         mpd_status_get_crossfade(status),
@@ -1289,19 +1245,20 @@ int mympd_put_settings(char *buffer) {
         mympd_state.notificationPage,
         mympd_state.jukeboxMode,
         mympd_state.jukeboxPlaylist,
-        mympd_state.jukeboxQueueLength,
-        mpd.tag_artist,
-        mpd.tag_album,
-        mpd.tag_album_artist,
-        mpd.tag_title,
-        mpd.tag_track,
-        mpd.tag_genre,
-        mpd.tag_date,
-        mpd.tag_composer,
-        mpd.tag_performer
+        mympd_state.jukeboxQueueLength
     );
     mpd_status_free(status);
     free(replaygain);
+    
+    struct node *current = mympd_tags.list;
+    while (current != NULL) {
+        if (nr ++) 
+            len += json_printf(&out, ",");
+        len += json_printf(&out, "%Q", current->data);
+        current = current->next;
+    }
+
+    len += json_printf(&out, "]}}");
 
     if (len > MAX_SIZE)
         printf("Buffer truncated\n");
@@ -2071,7 +2028,7 @@ int mympd_smartpls_put(char *buffer, char *playlist) {
     char pl_file[400];
     char *smartpltype;
     char *p_charbuf1, *p_charbuf2;
-    int je, int_buf1, int_buf2;
+    int je, int_buf1;
     int len = 0;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
     
@@ -2091,13 +2048,12 @@ int mympd_smartpls_put(char *buffer, char *playlist) {
             }
         }
         else if (strcmp(smartpltype, "newest") == 0) {
-            je = json_scanf(content, strlen(content), "{timerange: %d, maxentries: %d}", &int_buf1, &int_buf2);
-            if (je == 2) {
-                len = json_printf(&out, "{type: smartpls, data: {playlist: %Q, type: %Q, timerange: %d, maxentries: %d}}",
+            je = json_scanf(content, strlen(content), "{timerange: %d}", &int_buf1);
+            if (je == 1) {
+                len = json_printf(&out, "{type: smartpls, data: {playlist: %Q, type: %Q, timerange: %d}}",
                     playlist,
                     smartpltype,
-                    int_buf1,
-                    int_buf2);
+                    int_buf1);
             }
         }
         else if (strcmp(smartpltype, "search") == 0) {
@@ -2128,9 +2084,9 @@ int mympd_smartpls_save(char *smartpltype, char *playlist, char *tag, char *sear
         mympd_smartpls_update(playlist, tag, maxentries);
     }
     else if (strcmp(smartpltype, "newest") == 0) {
-        json_fprintf(tmp_file, "{type: %Q, timerange: %d, maxentries: %d}", smartpltype, timerange, maxentries);
+        json_fprintf(tmp_file, "{type: %Q, timerange: %d}", smartpltype, timerange);
         rename(tmp_file, pl_file);
-        mympd_smartpls_update_newest(playlist, timerange, maxentries);
+        mympd_smartpls_update_newest(playlist, timerange);
     }
     else if (strcmp(smartpltype, "search") == 0) {
         json_fprintf(tmp_file, "{type: %Q, tag: %Q, searchstr: %Q}", smartpltype, tag, searchstr);
@@ -2148,7 +2104,7 @@ int mympd_smartpls_update_all() {
     char dirname[400];
     int je;
     char *p_charbuf1, *p_charbuf2;
-    int int_buf1, int_buf2;
+    int int_buf1;
     
     if (!config.smartpls)
         return 0;
@@ -2173,9 +2129,9 @@ int mympd_smartpls_update_all() {
                     printf("Can't parse file %s\n", filename);
             }
             else if (strcmp(smartpltype, "newest") == 0) {
-                je = json_scanf(content, strlen(content), "{timerange: %d, maxentries: %d}", &int_buf1, &int_buf2);
-                if (je == 2) {
-                    mympd_smartpls_update_newest(ent->d_name, int_buf1, int_buf2);
+                je = json_scanf(content, strlen(content), "{timerange: %d}", &int_buf1);
+                if (je == 1) {
+                    mympd_smartpls_update_newest(ent->d_name, int_buf1);
                 }
                 else
                     printf("Can't parse file %s\n", filename);                
@@ -2240,23 +2196,18 @@ int mympd_smartpls_update(char *playlist, char *sticker, int maxentries) {
     char *name;
     char *p_value;
     char *crap;
-    char tmpfile[400];
     long value;
     long value_max = 0;
-    size_t len = 0;
-    ssize_t read;
     long i = 0;
 
     if (!mpd_send_sticker_find(mpd.conn, "song", "", sticker)) {
         LOG_ERROR_AND_RECOVER("mpd_send_sticker_find");
         return 1;    
     }
-    snprintf(tmpfile, 400, "%s/tmp/playlist.tmp", config.varlibdir);
-    FILE *fp = fopen(tmpfile, "w");
-    if (fp == NULL) {
-        printf("Error opening %s", tmpfile);
-        return 1;
-    }    
+
+    struct list add_list;
+    list_init(&add_list);
+
     while ((pair = mpd_recv_pair(mpd.conn)) != NULL) {
         if (strcmp(pair->name, "file") == 0) {
             uri = strdup(pair->value);
@@ -2265,111 +2216,60 @@ int mympd_smartpls_update(char *playlist, char *sticker, int maxentries) {
             name = strtok(strdup(pair->value), "=");
             p_value = strtok(NULL, "=");
             value = strtol(p_value, &crap, 10);
-            if (value > 1)            
-                fprintf(fp, "%s::%ld\n", uri, value);
+            if (value > 1)
+                list_push(&add_list, uri, value);
             if (value > value_max)
                 value_max = value;
         }
         mpd_return_pair(mpd.conn, pair);
     }
     mpd_response_finish(mpd.conn);
-    fclose(fp);
+    free(uri);
 
     mympd_smartpls_clear(playlist);
      
     if (value_max > 2)
         value_max = value_max / 2;
-    fp = fopen(tmpfile, "r");
-    if (fp == NULL) {
-        printf("Error opening %s", tmpfile);
-        return 1;
-    }
-    while ((read = getline(&uri, &len, fp)) != -1) {
-        name = strtok(uri, "::");
-        p_value = strtok(NULL, "::");
-        value = strtol(p_value, &crap, 10);
-        if (value < value_max)
-            continue;
-        if (!mpd_run_playlist_add(mpd.conn, playlist, name)) {
-            LOG_ERROR_AND_RECOVER("mpd_run_playlist_add");
-            fclose(fp);
-            free(uri);
-            unlink(tmpfile);
-            return 1;        
+
+    struct node *current = add_list.list;
+    while (current != NULL) {
+        if (current->value >= value_max) {
+            if (!mpd_run_playlist_add(mpd.conn, playlist, current->data)) {
+                LOG_ERROR_AND_RECOVER("mpd_run_playlist_add");
+                list_free(&add_list);
+                return 1;        
+            }
+            i++;
+            if (i >= maxentries)
+                break;
         }
-        i++;
-        if (i >= maxentries)
-            break;
+        current = current->next;
     }
-    fclose(fp);
-    free(uri);
-    unlink(tmpfile);
+    list_free(&add_list);
     printf("Updated %s with %ld songs, minValue: %ld\n", playlist, i, value_max);
     return 0;
 }
 
-int mympd_smartpls_update_newest(char *playlist, int timerange, int maxentries) {
-    struct mpd_song *song;
-    char *uri;
-    char *p_value;
-    char *name;
-    char *crap;
-    char tmpfile[400];
-    time_t value;
-    time_t value_max = 0;
-    size_t len = 0;
-    ssize_t read;
-    long i = 0;
+int mympd_smartpls_update_newest(char *playlist, int timerange) {
+    unsigned long value_max = 0;
+    char searchstr[20];
     
-    if (!mpd_send_list_all_meta(mpd.conn, "/")) {
-        LOG_ERROR_AND_RECOVER("mpd_send_list_all_meta");
-        return 1;    
+    struct mpd_stats *stats = mpd_run_stats(mpd.conn);
+    if (stats != NULL) {
+        value_max = mpd_stats_get_db_update_time(stats);
+        mpd_stats_free(stats);
     }
-    snprintf(tmpfile, 400, "%s/tmp/playlist.tmp", config.varlibdir);
-    FILE *fp = fopen(tmpfile, "w");
-    if (fp == NULL) {
-        printf("Error opening %s", tmpfile);
+    else {
+        LOG_ERROR_AND_RECOVER("mpd_run_stats");
         return 1;
-    }    
-    while ((song = mpd_recv_song(mpd.conn)) != NULL) {
-        value = mpd_song_get_last_modified(song);
-        if (value > value_max)
-            value_max = value;
-        fprintf(fp, "%s::%ld\n", mpd_song_get_uri(song), value);
-        mpd_song_free(song);
     }
-    mpd_response_finish(mpd.conn);
-    fclose(fp);
 
     mympd_smartpls_clear(playlist);
-    
     value_max -= timerange;
-    
-    fp = fopen(tmpfile, "r");
-    if (fp == NULL) {
-        printf("Error opening %s", tmpfile);
-        return 1;
+    if (value_max > 0) {
+        snprintf(searchstr, 20, "%lu", value_max);
+        mympd_search(mpd.buf, searchstr, "modified-since", playlist, 0);
+        printf("Updated %s\n", playlist);
     }
-    while ((read = getline(&uri, &len, fp)) != -1) {
-        name = strtok(uri, "::");
-        p_value = strtok(NULL, "::");
-        value = strtol(p_value, &crap, 10);
-        if (value >= value_max)
-            continue;
-        if (!mpd_run_playlist_add(mpd.conn, playlist, name)) {
-            LOG_ERROR_AND_RECOVER("mpd_run_playlist_add");
-            fclose(fp);
-            unlink(tmpfile);
-            free(uri);
-            return 1;        
-        }
-        i++;
-        if (i >= maxentries)
-            break;
-    }
-    fclose(fp);
-    free(uri);
-    unlink(tmpfile);
-    printf("Updated %s with %ld songs, minValue: %ld\n", playlist, i, value_max);
     return 0;
 }

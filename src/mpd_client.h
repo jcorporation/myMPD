@@ -26,6 +26,7 @@
 #define __MPD_CLIENT_H__
 
 #include "../dist/src/mongoose/mongoose.h"
+#include "list.h"
 
 #define RETURN_ERROR_AND_RECOVER(X) do { \
     printf("MPD X: %s\n", mpd_connection_get_error_message(mpd.conn)); \
@@ -137,16 +138,10 @@ struct t_mpd {
     const unsigned* protocol;
     // Supported tags
     bool feat_sticker;
-    bool tag_artist;
-    bool tag_album;
-    bool tag_album_artist;
-    bool tag_title;
-    bool tag_track;
-    bool tag_genre;
-    bool tag_date;
-    bool tag_composer;
-    bool tag_performer;
 } mpd;
+
+struct list mpd_tags;
+struct list mympd_tags;
 
 typedef struct {
     long mpdport;
@@ -190,6 +185,7 @@ static int is_websocket(const struct mg_connection *nc) {
     return nc->flags & MG_F_IS_WEBSOCKET;
 }
 
+int randrange(int n);
 void mympd_idle(struct mg_mgr *sm, int timeout);
 void mympd_parse_idle(struct mg_mgr *s, int idle_bitmask);
 void callback_mympd(struct mg_connection *nc, const struct mg_str msg);
@@ -208,7 +204,7 @@ int mympd_smartpls_put(char *buffer, char *playlist);
 int mympd_smartpls_update_all();
 int mympd_smartpls_clear(char *playlist);
 int mympd_smartpls_update(char *sticker, char *playlist, int maxentries);
-int mympd_smartpls_update_newest(char *playlist, int timerange, int maxentries);
+int mympd_smartpls_update_newest(char *playlist, int timerange);
 int mympd_smartpls_update_search(char *playlist, char *tag, char *searchstr);
 int mympd_get_updatedb_state(char *buffer);
 int mympd_put_state(char *buffer, int *current_song_id, int *next_song_id, int *last_song_id, unsigned *queue_version, unsigned *queue_length);
