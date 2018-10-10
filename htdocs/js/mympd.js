@@ -1319,7 +1319,6 @@ function parseListDBtags(obj) {
             card.classList.add('mr-0');
             card.setAttribute('id', id);
             card.setAttribute('data-album', encodeURI(obj.data[i].value));
-            card.setAttribute('data-init', 'false');
             card.innerHTML = '<div class="card mb-4" id="card' + id + '">' +
                              ' <a href="#" class="card-img-top"></a>' +
                              ' <div class="card-body">' +
@@ -1399,11 +1398,9 @@ function createListTitleObserver(ele) {
 function getListTitles(changes, observer) {
     changes.forEach(change => {
         if (change.intersectionRatio > 0) {
-            if (change.target.getAttribute('data-init') == 'false') {
-                change.target.setAttribute('data-init', 'true');
-                var album = decodeURI(change.target.getAttribute('data-album'));
-                sendAPI({"cmd": "MPD_API_DATABASE_TAG_ALBUM_TITLE_LIST", "data": { "album": album, "search": app.current.search, "tag": app.current.view}}, parseListTitles);
-            }
+            observer.unobserve(change.target);
+            var album = decodeURI(change.target.getAttribute('data-album'));
+            sendAPI({"cmd": "MPD_API_DATABASE_TAG_ALBUM_TITLE_LIST", "data": { "album": album, "search": app.current.search, "tag": app.current.view}}, parseListTitles);
         }
     });
 }

@@ -61,6 +61,7 @@ small {
 
 .album-cover {
   background-size: cover;
+  background-image: url("/assets/coverimage-loading.png");
   border: 1px solid black;
   border-radius: 5px;
   overflow: hidden;
