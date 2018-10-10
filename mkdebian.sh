@@ -7,7 +7,7 @@ mympd (${VERSION}-1) stable; urgency=medium
 
   * Release from master
 
- -- Juergen Mang <mail@jcgames.de>  Mon, 02 Oct 2018 00:04:00 +0200
+ -- Juergen Mang <mail@jcgames.de>  $(date +"%a, %d %b %Y %H:%m:%S %z")
 EOL
 
 ./mkclean.sh
