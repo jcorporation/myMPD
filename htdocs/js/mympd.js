@@ -49,20 +49,14 @@ app.apps = { "Playback": { "state": "0/-/", "scrollPos": 0 },
                              },
                              "Database":   { 
                                     "active": "AlbumArtist",
-                                    "views": { "AlbumArtist": { "state": "0/-/", "scrollPos": 0 },
-                                               "Genre": { "state": "0/-/", "scrollPos": 0 },
-                                               "Artist": { "state": "0/-/", "scrollPos": 0 },
-                                               "Composer": { "state": "0/-/", "scrollPos": 0 },
-                                               "Performer": { "state": "0/-/", "scrollPos": 0 },
-                                               "Date": { "state": "0/-/", "scrollPos": 0 },
-                                               "Album":  { "state": "0/-/", "scrollPos": 0 },
+                                    "views": { 
                                      }
                              }
                   }
              },
              "Search": { "state": "0/any/", "scrollPos": 0 }
            };
-           
+
 app.current = { "app": "Playback", "tab": undefined, "view": undefined, "page": 0, "filter": "", "search": "", "scrollPos": 0 };
 app.last = { "app": undefined, "tab": undefined, "view": undefined, "filter": "", "search": "",  "scrollPos": 0 };
 
@@ -98,8 +92,6 @@ var modalAddToPlaylist = new Modal(document.getElementById('modalAddToPlaylist')
 var modalRenamePlaylist = new Modal(document.getElementById('modalRenamePlaylist'));
 var modalUpdateDB = new Modal(document.getElementById('modalUpdateDB'));
 var modalSaveSmartPlaylist = new Modal(document.getElementById('modalSaveSmartPlaylist'));
-//var mainMenu = new Dropdown(document.getElementById('mainMenu'));
-//var volumeMenu = new Dropdown(document.getElementById('volumeIcon'));
 
 function appPrepare(scrollPos) {
     if (app.current.app != app.last.app || app.current.tab != app.last.tab || app.current.view != app.last.view) {
@@ -551,9 +543,6 @@ function appInit() {
     }, false);
 
     document.getElementsByTagName('body')[0].addEventListener('click', function(event) {
-//        var oldPopover = document.getElementsByClassName('popover');
-//        for (var i = 0; i < oldPopover.length; i++)
-//            oldPopover[i].remove();
         hideMenu();
     }, false);
 
@@ -935,6 +924,10 @@ function parseSettings(obj) {
     addTagList('BrowseDatabaseByTagDropdown', false);
     addTagList('searchqueuetag', true);
     addTagList('searchtags', true);
+    
+    for (var i = 0; i < obj.data.tags.length; i++) {
+        app.apps.Browse.tabs.Database.views[obj.data.tags[i]] = { "state": "0/-/", "scrollPos": 0 };
+    }
 }
 
 function getSettings() {
@@ -1071,9 +1064,8 @@ function parseState(obj) {
 function getQueue() {
     if (app.current.search.length >= 2) 
         sendAPI({"cmd": "MPD_API_QUEUE_SEARCH", "data": {"filter": app.current.filter, "offset": app.current.page, "searchstr": app.current.search}}, parseQueue);
-    else {
+    else
         sendAPI({"cmd": "MPD_API_QUEUE_LIST", "data": {"offset": app.current.page}}, parseQueue);
-    }
 }
 
 function parseQueue(obj) {
@@ -1305,8 +1297,7 @@ function parsePlaylists(obj) {
 }
 
 function parseListDBtags(obj) {
-//    if (app.current.app !== 'Browse' && app.current.tab !== 'Database' && app.current.view !== 'AlbumArtist')
-//    return;
+    scrollTo(0);
     if (app.current.search != '') {
         document.getElementById('BrowseDatabaseAlbumList').classList.remove('hide');
         document.getElementById('BrowseDatabaseTagList').classList.add('hide');
@@ -1319,7 +1310,7 @@ function parseListDBtags(obj) {
         var cardContainer = document.getElementById('BrowseDatabaseAlbumList');
         var cards = cardContainer.getElementsByClassName('col-md');
         for (var i = 0; i < nrItems; i++) {
-            var id=genId(obj.data[i].value);
+            var id = genId(obj.data[i].value);
             if (cards[i])
                 if (cards[i].getAttribute('id') == id)
                     continue;              
@@ -1327,8 +1318,10 @@ function parseListDBtags(obj) {
             card.classList.add('col-md');
             card.classList.add('mr-0');
             card.setAttribute('id', id);
+            card.setAttribute('data-album', encodeURI(obj.data[i].value));
+            card.setAttribute('data-init', 'false');
             card.innerHTML = '<div class="card mb-4" id="card' + id + '">' +
-                             ' <a href="#" class="card-img-top"><img class="card-img-top" src="" ></a>' +
+                             ' <a href="#" class="card-img-top"></a>' +
                              ' <div class="card-body">' +
                              '  <h5 class="card-title" id="albumartist' + id + '"></h5>' +
                              '  <h4 class="card-title">' + obj.data[i].value + '</h4>' +
@@ -1340,8 +1333,11 @@ function parseListDBtags(obj) {
                 cards[i].replaceWith(card); 
             else 
                 cardContainer.append(card);
-                
-            sendAPI({"cmd": "MPD_API_DATABASE_TAG_ALBUM_TITLE_LIST", "data": { "album": obj.data[i].value, "search": app.current.search, "tag": app.current.view}}, parseListTitles);
+            
+            if ('IntersectionObserver' in window)
+                createListTitleObserver(document.getElementById(id));
+            else
+                sendAPI({"cmd": "MPD_API_DATABASE_TAG_ALBUM_TITLE_LIST", "data": { "album": obj.data[i].value, "search": app.current.search, "tag": app.current.view}}, parseListTitles);
         }
         var cardsLen = cards.length - 1;
         for (var i = cardsLen; i >= nrItems; i --) {
@@ -1390,19 +1386,37 @@ function parseListDBtags(obj) {
     }
 }
 
+function createListTitleObserver(ele) {
+  var options = {
+    root: null,
+    rootMargin: "0px",
+  };
+
+  var observer = new IntersectionObserver(getListTitles, options);
+  observer.observe(ele);
+}
+
+function getListTitles(changes, observer) {
+    changes.forEach(change => {
+        if (change.intersectionRatio > 0) {
+            if (change.target.getAttribute('data-init') == 'false') {
+                change.target.setAttribute('data-init', 'true');
+                var album = decodeURI(change.target.getAttribute('data-album'));
+                sendAPI({"cmd": "MPD_API_DATABASE_TAG_ALBUM_TITLE_LIST", "data": { "album": album, "search": app.current.search, "tag": app.current.view}}, parseListTitles);
+            }
+        }
+    });
+}
+
 function parseListTitles(obj) {
-//    if (app.current.app !== 'Browse' && app.current.tab !== 'Database' && app.current.view !== 'Album') 
-//          return;
-  
     var id = genId(obj.album);
     var card = document.getElementById('card' + id)
     var tbody = card.getElementsByTagName('tbody')[0];
-    var img = card.getElementsByTagName('img')[0];
-    var imga = img.parentNode;
-    img.setAttribute('src', obj.cover);
-    imga.setAttribute('data-uri', encodeURI(obj.data[0].uri.replace(/\/[^\/]+$/, '')));
-    imga.setAttribute('data-name', obj.album);
-    imga.setAttribute('data-type', 'dir');
+    var img = card.getElementsByTagName('a')[0];
+    img.style.backgroundImage = 'url("' + obj.cover + '")';
+    img.setAttribute('data-uri', encodeURI(obj.data[0].uri.replace(/\/[^\/]+$/, '')));
+    img.setAttribute('data-name', obj.album);
+    img.setAttribute('data-type', 'dir');
     document.getElementById('albumartist' + id).innerText = obj.albumartist;
   
     var titleList = '';
@@ -1415,7 +1429,7 @@ function parseListTitles(obj) {
     }
     tbody.innerHTML = titleList;
   
-    imga.addEventListener('click', function(event) {
+    img.addEventListener('click', function(event) {
         showMenu(this, event);
     }, false);
 
