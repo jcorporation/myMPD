@@ -1325,7 +1325,7 @@ int mympd_put_outputs(char *buffer) {
 int replacechar(char *str, char orig, char rep) {
     char *ix = str;
     int n = 0;
-    while((ix = strchr(ix, orig)) != NULL) {
+    while ((ix = strchr(ix, orig)) != NULL) {
         *ix++ = rep;
         n++;
     }
@@ -1537,7 +1537,7 @@ int mympd_put_browse(char *buffer, char *path, unsigned int offset, char *filter
 
     len = json_printf(&out, "{type: browse, data: [");
 
-    while((entity = mpd_recv_entity(mpd.conn)) != NULL) {
+    while ((entity = mpd_recv_entity(mpd.conn)) != NULL) {
         const struct mpd_song *song;
         const struct mpd_directory *dir;
         entity_count ++;
@@ -1661,7 +1661,7 @@ int mympd_put_db_tag(char *buffer, unsigned int offset, char *mpdtagtype, char *
         RETURN_ERROR_AND_RECOVER("mpd_search_commit");
 
     len = json_printf(&out, "{type: listDBtags, data: [");
-    while((pair = mpd_recv_pair_tag(mpd.conn, mpd_tag_name_parse(mpdtagtype))) != NULL) {
+    while ((pair = mpd_recv_pair_tag(mpd.conn, mpd_tag_name_parse(mpdtagtype))) != NULL) {
         entity_count ++;
         if (entity_count > offset && entity_count <= offset + MAX_ELEMENTS_PER_PAGE) {
             if (strcmp(pair->value, "") == 0) {
@@ -1722,7 +1722,7 @@ int mympd_put_songs_in_album(char *buffer, char *album, char *search, char *tag)
     else {
         len = json_printf(&out, "{type: listTitles, data: [");
 
-        while((song = mpd_recv_song(mpd.conn)) != NULL) {
+        while ((song = mpd_recv_song(mpd.conn)) != NULL) {
             entity_count ++;
             if (entity_count <= MAX_ELEMENTS_PER_PAGE) {
                 if (entities_returned ++) 
@@ -1773,7 +1773,7 @@ int mympd_put_playlists(char *buffer, unsigned int offset, char *filter) {
 
     len = json_printf(&out, "{type: playlists, data: [");
 
-    while((pl = mpd_recv_playlist(mpd.conn)) != NULL) {
+    while ((pl = mpd_recv_playlist(mpd.conn)) != NULL) {
         entity_count ++;
         if (entity_count > offset && entity_count <= offset + MAX_ELEMENTS_PER_PAGE) {
             plpath = mpd_playlist_get_path(pl);
@@ -1800,9 +1800,6 @@ int mympd_put_playlists(char *buffer, unsigned int offset, char *filter) {
         mpd_playlist_free(pl);
     }
 
-    if (mpd_connection_get_error(mpd.conn) != MPD_ERROR_SUCCESS || !mpd_response_finish(mpd.conn))
-        RETURN_ERROR_AND_RECOVER("mpd_send_list_playlists");
-        
     len += json_printf(&out, "], totalEntities: %d, offset: %d, returnedEntities: %d}",
         entity_count,
         offset,
@@ -1829,7 +1826,7 @@ int mympd_put_playlist_list(char *buffer, char *uri, unsigned int offset, char *
 
     len = json_printf(&out, "{type: playlist_detail, data: [");
 
-    while((entity = mpd_recv_entity(mpd.conn)) != NULL) {
+    while ((entity = mpd_recv_entity(mpd.conn)) != NULL) {
         const struct mpd_song *song;
         entity_count ++;
         if (entity_count > offset && entity_count <= offset + MAX_ELEMENTS_PER_PAGE) {
@@ -2189,7 +2186,7 @@ int mympd_smartpls_clear(char *playlist) {
         LOG_ERROR_AND_RECOVER("mpd_send_list_playlists");
         return 1;
     }
-    while((pl = mpd_recv_playlist(mpd.conn)) != NULL) {
+    while ((pl = mpd_recv_playlist(mpd.conn)) != NULL) {
         plpath = mpd_playlist_get_path(pl);
         if (strcmp(playlist, plpath) == 0)
             exists = true;
