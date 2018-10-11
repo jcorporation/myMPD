@@ -86,7 +86,8 @@
     X(MPD_API_DATABASE_STATS) \
     X(MPD_API_DATABASE_SONGDETAILS) \
     X(MPD_API_PLAYER_PLAY_TRACK) \
-    X(MPD_API_PLAYER_VOLUME) \
+    X(MPD_API_PLAYER_VOLUME_SET) \
+    X(MPD_API_PLAYER_VOLUME_GET) \
     X(MPD_API_PLAYER_PAUSE) \
     X(MPD_API_PLAYER_PLAY) \
     X(MPD_API_PLAYER_STOP) \
@@ -215,6 +216,7 @@ int mympd_put_browse(char *buffer, char *path, unsigned int offset, char *filter
 int mympd_search(char *buffer, char *searchstr, char *filter, char *plist, unsigned int offset);
 int mympd_search_queue(char *buffer, char *mpdtagtype, unsigned int offset, char *searchstr);
 int mympd_put_welcome(char *buffer);
+int mympd_put_volume(char *buffer);
 int mympd_put_stats(char *buffer);
 int mympd_put_settings(char *buffer);
 int mympd_put_db_tag(char *buffer, unsigned int offset, char *mpdtagtype, char *mpdsearchtagtype, char *searchstr, char *filter);

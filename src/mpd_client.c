@@ -322,13 +322,16 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                 n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
             break;
-        case MPD_API_PLAYER_VOLUME:
+        case MPD_API_PLAYER_VOLUME_SET:
             je = json_scanf(msg.p, msg.len, "{data: {volume:%u}}", &uint_buf1);
             if (je == 1) {
                 mpd_run_set_volume(mpd.conn, uint_buf1);
                 n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
             break;
+        case MPD_API_PLAYER_VOLUME_GET:
+            n = mympd_put_volume(mpd.buf);
+            break;            
         case MPD_API_PLAYER_SEEK:
             je = json_scanf(msg.p, msg.len, "{data: {songid: %u, seek: %u}}", &uint_buf1, &uint_buf2);
             if (je == 2) {
@@ -641,7 +644,7 @@ void mympd_parse_idle(struct mg_mgr *s, int idle_bitmask) {
                     }
                     break;
                 case MPD_IDLE_MIXER:
-                    len = mympd_put_state(mpd.buf, &mpd.song_id, &mpd.next_song_id, &mpd.last_song_id, &mpd.queue_version, &mpd.queue_length);
+                    len = mympd_put_volume(mpd.buf);
                     break;
                 case MPD_IDLE_OUTPUT:
                     len = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"update_outputs\"}");
@@ -1137,6 +1140,28 @@ int mympd_put_state(char *buffer, int *current_song_id, int *next_song_id, int *
     *next_song_id = mpd_status_get_next_song_id(status);
     *queue_version = mpd_status_get_queue_version(status);
     *queue_length = mpd_status_get_queue_length(status);
+    mpd_status_free(status);
+
+    if (len > MAX_SIZE)
+        printf("Buffer truncated\n");
+    return len;
+}
+
+int mympd_put_volume(char *buffer) {
+    struct mpd_status *status;
+    int len;
+    struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
+
+    status = mpd_run_status(mpd.conn);
+    if (!status) {
+        printf("MPD mpd_run_status: %s\n", mpd_connection_get_error_message(mpd.conn));
+        mpd.conn_state = MPD_FAILURE;
+        return 0;
+    }
+    len = json_printf(&out, "{type: update_volume, data: {"
+        "volume: %d}}",
+        mpd_status_get_volume(status)
+    );
     mpd_status_free(status);
 
     if (len > MAX_SIZE)

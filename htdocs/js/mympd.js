@@ -303,7 +303,7 @@ function appInit() {
         event.stopPropagation();
     }, false);
     domCache.volumeBar.addEventListener('change', function(event) {
-        sendAPI({"cmd": "MPD_API_PLAYER_VOLUME", "data": {"volume": domCache.volumeBar.value}});
+        sendAPI({"cmd": "MPD_API_PLAYER_VOLUME_SET", "data": {"volume": domCache.volumeBar.value}});
     }, false);
 
     domCache.progressBar.value = 0;
@@ -766,6 +766,9 @@ function webSocketConnect() {
                 case 'update_finished':
                     updateDBfinished(obj.type);
                     break;
+                case 'update_volume':
+                    parseVolume(obj);
+                    break;
                 case 'error':
                     showNotification(obj.data, '', '', 'danger');
                     break;
@@ -1029,20 +1032,7 @@ function parseState(obj) {
             domCache.btnsPlay[i].removeAttribute('disabled');
 
     //Set volume
-    if (obj.data.volume == -1) {
-      domCache.volumePrct.innerText = 'Volumecontrol disabled';
-      domCache.volumeControl.classList.add('hide');
-    } else {
-        domCache.volumeControl.classList.remove('hide');
-        domCache.volumePrct.innerText = obj.data.volume + ' %';
-        if (obj.data.volume == 0)
-            domCache.volumeIcon.innerText = 'volume_off';
-        else if (obj.data.volume < 50)
-            domCache.volumeIcon.innerText = 'volume_down';
-        else
-            domCache.volumeIcon.innerText = 'volume_up';
-    }
-    domCache.volumeBar.value = obj.data.volume;
+    parseVolume(obj);
 
     //Set play counters
     setCounter(obj.data.currentSongId, obj.data.totalTime, obj.data.elapsedTime);
@@ -1059,6 +1049,24 @@ function parseState(obj) {
     }
 
     lastState = obj;                    
+}
+
+function parseVolume(obj) {
+    if (obj.data.volume == -1) {
+      domCache.volumePrct.innerText = 'Volumecontrol disabled';
+      domCache.volumeControl.classList.add('hide');
+    } 
+    else {
+        domCache.volumeControl.classList.remove('hide');
+        domCache.volumePrct.innerText = obj.data.volume + ' %';
+        if (obj.data.volume == 0)
+            domCache.volumeIcon.innerText = 'volume_off';
+        else if (obj.data.volume < 50)
+            domCache.volumeIcon.innerText = 'volume_down';
+        else
+            domCache.volumeIcon.innerText = 'volume_up';
+    }
+    domCache.volumeBar.value = obj.data.volume;
 }
 
 function getQueue() {
@@ -2430,7 +2438,7 @@ function chVolume(increment) {
     else if (newValue > 100)
         newValue = 100;
     domCache.volumeBar.value = newValue;
-    sendAPI({"cmd": "MPD_API_PLAYER_VOLUME", "data": {"volume": newValue}});
+    sendAPI({"cmd": "MPD_API_PLAYER_VOLUME_SET", "data": {"volume": newValue}});
 }
 
 function beautifyDuration(x) {
