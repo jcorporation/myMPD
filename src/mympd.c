@@ -173,7 +173,14 @@ static int inihandler(void* user, const char* section, const char* name, const c
         else
             p_config->mixramp = false;
     else if (MATCH("taglist"))
-        p_config->taglist = strdup(value);            
+        p_config->taglist = strdup(value);
+    else if (MATCH("max_elements_per_page")) {
+        p_config->max_elements_per_page = strtol(value, &crap, 10);
+        if (p_config->max_elements_per_page > MAX_ELEMENTS_PER_PAGE) {
+            printf("Setting max_elements_per_page to maximal value %d", MAX_ELEMENTS_PER_PAGE);
+            p_config->max_elements_per_page = MAX_ELEMENTS_PER_PAGE;
+        }
+    }
     else
         return 0;  /* unknown section/name, error */
 
@@ -267,6 +274,7 @@ int main(int argc, char **argv) {
     config.mixramp = true;
     config.taglist = "Artist,Album,AlbumArtist,Title,Track,Genre,Date,Composer,Performer";
     config.smartpls = true;
+    config.max_elements_per_page = 100;
     
     mpd.timeout = 3000;
     mpd.last_update_sticker_song_id = -1;

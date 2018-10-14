@@ -44,8 +44,14 @@
         mpd.conn_state = MPD_FAILURE; \
 } while (0)
 
-#define MAX_SIZE 1024 * 100
-#define MAX_ELEMENTS_PER_PAGE 100
+#define CHECK_RETURN_LEN() do { \
+    if (len > MAX_SIZE) \
+        printf("Buffer truncated: %d, %d\n", len, MAX_SIZE); \
+    return len; \
+} while (0)
+
+#define MAX_SIZE 2048 * 400
+#define MAX_ELEMENTS_PER_PAGE 400
 
 #define GEN_ENUM(X) X,
 #define GEN_STR(X) #X,
@@ -161,6 +167,7 @@ typedef struct {
     const char* taglist;
     bool smartpls;
     const char* varlibdir;
+    long max_elements_per_page;
 } t_config;
 
 t_config config;
