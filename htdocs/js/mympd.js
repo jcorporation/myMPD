@@ -716,7 +716,6 @@ function dragAndDropTable(table) {
 
 function playlistMoveTrack(from, to) {
     sendAPI({"cmd": "MPD_API_PLAYLIST_MOVE_TRACK","data": { "plist": app.current.search, "from": from, "to": to}});
-    sendAPI({"cmd": "MPD_API_PLAYLIST_CONTENT_LIST","data": {"offset": app.current.page, "filter": app.current.filter, "uri": app.current.search}}, parsePlaylists);
 }
 
 function webSocketConnect() {
@@ -769,6 +768,12 @@ function webSocketConnect() {
                     break;
                 case 'update_volume':
                     parseVolume(obj);
+                    break;
+                case 'update_stored_playlist':
+                    if (app.current.app == 'Browse' && app.current.tab == 'Playlists' && app.current.view == 'All')
+                        sendAPI({"cmd": "MPD_API_PLAYLIST_LIST","data": {"offset": app.current.page, "filter": app.current.filter}}, parsePlaylists);
+                    else if (app.current.app == 'Browse' && app.current.tab == 'Playlists' && app.current.view == 'Detail')
+                        sendAPI({"cmd": "MPD_API_PLAYLIST_CONTENT_LIST", "data": {"offset": app.current.page, "filter": app.current.filter, "uri": app.current.search}}, parsePlaylists);
                     break;
                 case 'error':
                     showNotification(obj.data, '', '', 'danger');
@@ -1592,14 +1597,12 @@ function removeFromPlaylist(uri, pos) {
     pos--;
     sendAPI({"cmd": "MPD_API_PLAYLIST_RM_TRACK", "data": {"uri": uri, "track": pos}});
     document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
-    sendAPI({"cmd": "MPD_API_PLAYLIST_CONTENT_LIST", "data": {"offset": app.current.page, "filter": app.current.filter, "uri": app.current.search}}, parsePlaylists);
 }
 
 function playlistClear() {
     var uri = document.getElementById('BrowsePlaylistsDetailList').getAttribute('data-uri');
-    sendAPI({"cmd": "MPD_API_PLAYLIST_CLEAR", "data": {"uri": uri}});
+    sendAPI({"cmd": "MPD_API_PLAYLIST_CLEAR_AND_LIST", "data": {"uri": uri}});
     document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
-    sendAPI({"cmd": "MPD_API_PLAYLIST_CONTENT_LIST", "data": {"offset": app.current.page, "filter": app.current.filter, "uri": app.current.search}}, parsePlaylists);
 }
 
 function getAllPlaylists(obj) {
@@ -1867,7 +1870,6 @@ function renamePlaylist() {
     if (to != '' && to != from && valid == '') {
         sendAPI({"cmd": "MPD_API_PLAYLIST_RENAME", "data": {"from": from, "to": to}});
         modalRenamePlaylist.hide();
-        sendAPI({"cmd": "MPD_API_PLAYLIST_LIST","data": {"offset": app.current.page, "filter": app.current.filter}}, parsePlaylists);
     }
     else {
         document.getElementById('renamePlaylistTo').classList.add('is-invalid');
@@ -2126,7 +2128,7 @@ function showDelPlaylist(uri) {
 
 function delPlaylist() {
     var uri = document.getElementById('deletePlaylist').value;
-    sendAPI({"cmd": "MPD_API_PLAYLIST_RM_AND_LIST", "data": {"uri": uri, "offset": app.current.page, "filter": app.current.filter}}, parsePlaylists);
+    sendAPI({"cmd": "MPD_API_PLAYLIST_RM", "data": {"uri": uri}});
     modalDeletePlaylist.hide();
 }
 
