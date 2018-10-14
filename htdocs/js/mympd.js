@@ -92,6 +92,7 @@ var modalAddToPlaylist = new Modal(document.getElementById('modalAddToPlaylist')
 var modalRenamePlaylist = new Modal(document.getElementById('modalRenamePlaylist'));
 var modalUpdateDB = new Modal(document.getElementById('modalUpdateDB'));
 var modalSaveSmartPlaylist = new Modal(document.getElementById('modalSaveSmartPlaylist'));
+var modalDeletePlaylist = new Modal(document.getElementById('modalDeletePlaylist'));
 
 function appPrepare(scrollPos) {
     if (app.current.app != app.last.app || app.current.tab != app.last.tab || app.current.view != app.last.view) {
@@ -1958,7 +1959,7 @@ function showMenu(el, event) {
             (type == 'smartpls' ? addMenuItem({"cmd": "showSmartPlaylist", "options": [uri]}, 'Edit smart playlist') : '') +
             (uri.indexOf('myMPDsmart') != 0 ?
                 addMenuItem({"cmd": "showRenamePlaylist", "options": [uri]}, 'Rename playlist') + 
-                addMenuItem({"cmd": "delPlaylist", "options": [uri]}, 'Delete playlist') : '');
+                addMenuItem({"cmd": "showDelPlaylist", "options": [uri]}, 'Delete playlist') : '');
     }
     else if (app.current.app == 'Browse' && app.current.tab == 'Playlists' && app.current.view == 'Detail') {
         var x = document.getElementById('BrowsePlaylistsDetailList');
@@ -2118,9 +2119,15 @@ function delQueueSong(mode, start, end) {
         sendAPI({"cmd": "MPD_API_QUEUE_RM_TRACK", "data": { "track": start}});
 }
 
-function delPlaylist(uri) {
-    sendAPI({"cmd": "MPD_API_PLAYLIST_RM", "data": {"uri": uri}});
-    sendAPI({"cmd": "MPD_API_PLAYLIST_LIST","data": {"offset": app.current.page, "filter": app.current.filter}}, parsePlaylists);    
+function showDelPlaylist(uri) {
+    document.getElementById('deletePlaylist').value = uri;
+    modalDeletePlaylist.show();
+}
+
+function delPlaylist() {
+    var uri = document.getElementById('deletePlaylist').value;
+    sendAPI({"cmd": "MPD_API_PLAYLIST_RM_AND_LIST", "data": {"uri": uri, "offset": app.current.page, "filter": app.current.filter}}, parsePlaylists);
+    modalDeletePlaylist.hide();
 }
 
 function confirmSettings() {
