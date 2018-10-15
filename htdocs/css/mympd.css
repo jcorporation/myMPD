@@ -286,8 +286,17 @@ caption {
 }
 
 #BrowseDatabaseAlbumListCaption {
-  width:100%;
   margin-left: 15px;
+  margin-right: 15px;
+  width: 100%;
+}
+
+#BrowseDatabaseAlbumListCaption h2 {
+  display: inline;
+}
+
+#BrowseDatabaseAlbumListCaption small {
+  padding-top: 0.8rem;
 }
 
 #menu-dbupdate {

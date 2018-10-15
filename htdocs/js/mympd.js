@@ -1231,9 +1231,11 @@ function parsePlaylists(obj) {
         }
         document.getElementById('BrowsePlaylistsDetailList').setAttribute('data-uri', obj.uri);
         if (obj.smartpls == true)
-            document.getElementById('BrowsePlaylistsDetailList').getElementsByTagName('caption')[0].innerText = 'Smart playlist: ' + obj.uri;
+            document.getElementById('BrowsePlaylistsDetailList').getElementsByTagName('caption')[0].innerHTML = 'Smart playlist: ' + obj.uri +
+                '<small class="pull-right">' + obj.totalEntities + ' Songs </small>';
         else
-            document.getElementById('BrowsePlaylistsDetailList').getElementsByTagName('caption')[0].innerText = 'Playlist: ' + obj.uri;
+            document.getElementById('BrowsePlaylistsDetailList').getElementsByTagName('caption')[0].innerHTML = 'Playlist: ' + obj.uri +
+                '<small class="pull-right">' + obj.totalEntities + ' Songs </small>';
         document.getElementById('BrowsePlaylistsDetailList').classList.remove('hide');
         document.getElementById('BrowsePlaylistsAllList').classList.add('hide');
         document.getElementById('btnBrowsePlaylistsAll').parentNode.classList.remove('hide');
@@ -1319,7 +1321,8 @@ function parseListDBtags(obj) {
         document.getElementById('btnBrowseDatabaseTag').parentNode.classList.remove('hide');
         document.getElementById('BrowseDatabaseAddAllSongs').parentNode.parentNode.classList.remove('hide');
         document.getElementById('btnBrowseDatabaseTag').innerHTML = '&laquo; ' + app.current.view;
-        document.getElementById('BrowseDatabaseAlbumListCaption').innerText = obj.searchtagtype + ': ' + obj.searchstr;
+        document.getElementById('BrowseDatabaseAlbumListCaption').innerHTML = '<h2>' + obj.searchtagtype + ': ' + obj.searchstr + '</h2>' +
+            '<small class="pull-right">' + obj.totalEntities + ' Entries</small><hr/>';
         var nrItems = obj.data.length;
         var cardContainer = document.getElementById('BrowseDatabaseAlbumList');
         var cards = cardContainer.getElementsByClassName('col-md');
@@ -1365,7 +1368,7 @@ function parseListDBtags(obj) {
         document.getElementById('btnBrowseDatabaseByTag').parentNode.classList.remove('hide');
         document.getElementById('BrowseDatabaseAddAllSongs').parentNode.parentNode.classList.add('hide');
         document.getElementById('btnBrowseDatabaseTag').parentNode.classList.add('hide');
-        
+        document.getElementById('BrowseDatabaseTagListCaption').innerHTML = app.current.view + '<small class="pull-right">' + obj.totalEntities +' Tags</small>';        
         var nrItems = obj.data.length;
         var tbody = document.getElementById(app.current.app + app.current.tab + 'TagList').getElementsByTagName('tbody')[0];
         var tr = tbody.getElementsByTagName('tr');
