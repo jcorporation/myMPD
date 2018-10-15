@@ -109,6 +109,15 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                 n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"MPD stickers are disabled\"}");
             }
             break;
+        case MPD_API_SYSCMD:
+            je = json_scanf(msg.p, msg.len, "{data: {cmd: %Q}}", &p_charbuf1);
+            if (je == 1) {
+                int_buf1 = list_get_value(&syscmds, p_charbuf1);
+                if (int_buf1 == 1)
+                    n = mympd_syscmd(mpd.buf, p_charbuf1);
+                free(p_charbuf1);
+            }
+            break;
         case MPD_API_PLAYER_STATE:
             n = mympd_put_state(mpd.buf, &mpd.song_id, &mpd.next_song_id, &mpd.last_song_id, &mpd.queue_version, &mpd.queue_length);
             break;
@@ -1214,6 +1223,28 @@ bool mympd_state_set(char *name, char *value) {
     return true;
 }
 
+int mympd_syscmd(char *buffer, char *cmd) {
+    int len;
+    char filename[400];
+    char *line;
+    size_t n = 0;
+    ssize_t read;
+    
+    snprintf(filename, 400, "%s/syscmds/%s", config.etcdir, cmd);
+    FILE *fp = fopen(filename, "r");    
+    if (fp == NULL) {
+        len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't execute cmd %s\"}", cmd);
+        return len;
+    }
+    read = getline(&line, &n, fp);
+    fclose(fp);
+    strtok(line, "\n");
+    system(line);
+    len = snprintf(buffer, MAX_SIZE, "{\"type\": \"result\", \"data\": \"Executed cmd %s\"}", line);
+    CHECK_RETURN_LEN();    
+    return len;
+}
+
 int mympd_put_settings(char *buffer) {
     struct mpd_status *status;
     char *replaygain = strdup("");
@@ -1276,7 +1307,18 @@ int mympd_put_settings(char *buffer) {
         current = current->next;
     }
 
-    len += json_printf(&out, "]}}");
+    len += json_printf(&out, "], syscmds: [");
+
+    nr = 0;
+    current = syscmds.list;
+    while (current != NULL) {
+        if (nr ++) 
+            len += json_printf(&out, ",");
+        len += json_printf(&out, "%Q", current->data);
+        current = current->next;
+    }
+    
+    len += json_printf(&out, "]}}");    
 
     CHECK_RETURN_LEN();
     return len;
@@ -2148,6 +2190,7 @@ int mympd_smartpls_update_all() {
                     printf("Can't parse file %s\n", filename);
             }
             free(smartpltype);
+            free(content);
         }
         closedir (dir);
     } else {

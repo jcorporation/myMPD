@@ -379,13 +379,21 @@ function appInit() {
     addFilterLetter('BrowseDatabaseFilterLetters');
     addFilterLetter('BrowsePlaylistsFilterLetters');
 
+    document.getElementById('syscmds').addEventListener('click', function(event) {
+        event.preventDefault();
+        if (event.target.nodeName == 'A') {
+            var cmd = JSON.parse(event.target.getAttribute('data-href'));
+            if (typeof window[cmd.cmd] === 'function')
+                window[cmd.cmd](... cmd.options);                    
+        }
+    }, false);
+
     var hrefs = document.querySelectorAll('[data-href]');
     var hrefsLen = hrefs.length;
     for (var i = 0; i < hrefsLen; i++) {
         hrefs[i].classList.add('clickable');
         hrefs[i].addEventListener('click', function(event) {
             event.preventDefault();
-            //event.stopPropagation();
             var cmd = JSON.parse(this.getAttribute('data-href'));
             if (typeof window[cmd.cmd] === 'function') {
                 switch(cmd.cmd) {
@@ -934,9 +942,18 @@ function parseSettings(obj) {
     addTagList('searchqueuetag', true);
     addTagList('searchtags', true);
     
-    for (var i = 0; i < obj.data.tags.length; i++) {
+    for (var i = 0; i < obj.data.tags.length; i++)
         app.apps.Browse.tabs.Database.views[obj.data.tags[i]] = { "state": "0/-/", "scrollPos": 0 };
+
+    var syscmdsList = '';
+    var syscmdsListLen = obj.data.syscmds.length;
+    if (syscmdsListLen > 0) {
+        syscmdsList = '<div class="dropdown-divider"></div>';
+        for (var i = 0; i < syscmdsListLen; i++)
+            syscmdsList += '<a class="dropdown-item text-light bg-dark" href="#" data-href=\'{"cmd": "execSyscmd", "options": ["' + 
+                obj.data.syscmds[i] + '"]}\'>' + obj.data.syscmds[i] + '</a>';
     }
+    document.getElementById('syscmds').innerHTML = syscmdsList;
 }
 
 function getSettings() {
@@ -1603,6 +1620,10 @@ function parseSongDetails(obj) {
     }
     
     modal.getElementsByTagName('tbody')[0].innerHTML = songDetails;
+}
+
+function execSyscmd(cmd) {
+    sendAPI({"cmd": "MPD_API_SYSCMD", "data": {"cmd": cmd}});
 }
 
 function playlistDetails(uri) {

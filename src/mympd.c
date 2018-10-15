@@ -29,6 +29,7 @@
 #include <sys/time.h>
 #include <pwd.h>
 #include <grp.h>
+#include <libgen.h>
 
 #include "../dist/src/mongoose/mongoose.h"
 #include "../dist/src/frozen/frozen.h"
@@ -130,12 +131,8 @@ static int inihandler(void* user, const char* section, const char* name, const c
 
     if (MATCH("mpdhost"))
         p_config->mpdhost = strdup(value);
-    else if (MATCH("mpdhost"))
-        p_config->mpdhost = strdup(value);
     else if (MATCH("mpdport"))
         p_config->mpdport = strtol(value, &crap, 10);
-    else if (MATCH("mpdhost"))
-        p_config->mpdhost = strdup(value);
     else if (MATCH("mpdpass"))
         p_config->mpdpass = strdup(value);
     else if (MATCH("webport"))
@@ -185,6 +182,23 @@ static int inihandler(void* user, const char* section, const char* name, const c
         return 0;  /* unknown section/name, error */
 
     return 1;
+}
+
+void read_syscmds() {
+    DIR *dir;
+    struct dirent *ent;
+    char dirname[400];
+    
+    snprintf(dirname, 400, "%s/syscmds", config.etcdir);
+    printf("Reading syscmds: %s\n", dirname);
+    if ((dir = opendir (dirname)) != NULL) {
+        while ((ent = readdir(dir)) != NULL) {
+            if (strncmp(ent->d_name, ".", 1) == 0)
+                continue;
+            list_push(&syscmds, ent->d_name, 1);
+        }
+        closedir(dir);
+    }
 }
 
 void read_statefiles() {
@@ -266,7 +280,7 @@ int main(int argc, char **argv) {
     config.sslport = "443";
     config.sslcert = "/etc/mympd/ssl/server.pem";
     config.sslkey = "/etc/mympd/ssl/server.key";
-    config.user = "nobody";
+    config.user = "mympd";
     config.streamport = 8000;
     config.coverimage = "folder.jpg";
     config.varlibdir = "/var/lib/mympd";
@@ -275,6 +289,8 @@ int main(int argc, char **argv) {
     config.taglist = "Artist,Album,AlbumArtist,Title,Track,Genre,Date,Composer,Performer";
     config.smartpls = true;
     config.max_elements_per_page = 100;
+    char *etcdir = strdup(argv[1]);
+    config.etcdir = dirname(etcdir);
     
     mpd.timeout = 3000;
     mpd.last_update_sticker_song_id = -1;
@@ -379,6 +395,9 @@ int main(int argc, char **argv) {
         return EXIT_FAILURE;
 
     read_statefiles();
+
+    list_init(&syscmds);    
+    read_syscmds();
 
     list_init(&mpd_tags);
     list_init(&mympd_tags);

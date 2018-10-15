@@ -109,6 +109,7 @@
     X(MPD_API_MESSAGE_SEND) \
     X(MPD_API_WELCOME) \
     X(MPD_API_LIKE) \
+    X(MPD_API_SYSCMD) \
     X(MPD_API_UNKNOWN)
 
 enum mpd_cmd_ids {
@@ -150,6 +151,8 @@ struct t_mpd {
 struct list mpd_tags;
 struct list mympd_tags;
 
+struct list syscmds;
+
 typedef struct {
     long mpdport;
     const char* mpdhost;
@@ -167,6 +170,7 @@ typedef struct {
     const char* taglist;
     bool smartpls;
     const char* varlibdir;
+    const char* etcdir;
     long max_elements_per_page;
 } t_config;
 
@@ -207,6 +211,7 @@ void mympd_get_sticker(const char *uri, t_sticker *sticker);
 void mympd_jukebox();
 bool mympd_state_get(char *name, char *value);
 bool mympd_state_set(char *name, char *value);
+int mympd_syscmd(char *buffer, char *cmd);
 int mympd_smartpls_save(char *smartpltype, char *playlist, char *tag, char *searchstr, int maxentries, int timerange);
 int mympd_smartpls_put(char *buffer, char *playlist);
 int mympd_smartpls_update_all();

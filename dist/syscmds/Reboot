@@ -1,0 +1,1 @@
+sudo /sbin/reboot
