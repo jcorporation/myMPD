@@ -1341,7 +1341,11 @@ function parseListDBtags(obj) {
                              ' <div class="card-body">' +
                              '  <h5 class="card-title" id="albumartist' + id + '"></h5>' +
                              '  <h4 class="card-title">' + obj.data[i].value + '</h4>' +
-                             '  <table class="table table-sm table-hover" id="tbl' + id + '"><tbody></tbody></table'+
+                             '  <a class="color-darkgrey" data-toggle="collapse" href="#collapse' + id +'" id="collapseLink' + id +'">' +
+                             '   <span class="material-icons">keyboard_arrow_right</span> Show Titles</a> ' +
+                             '  <div class="collapse" id="collapse' + id +'">' +
+                             '   <table class="table table-sm table-hover" id="tbl' + id + '"><tbody></tbody></table>'+
+                             '  </div>' +
                              ' </div>'+
                              '</div>';
          
@@ -1432,6 +1436,16 @@ function parseListTitles(obj) {
     img.setAttribute('data-name', obj.album);
     img.setAttribute('data-type', 'dir');
     document.getElementById('albumartist' + id).innerText = obj.albumartist;
+  
+    var titleTable = document.getElementById('collapseLink' + id);
+    var myCollapseInit = new Collapse(titleTable);
+    
+    document.getElementById('collapse' + id).addEventListener('show.bs.collapse', function() {
+        titleTable.innerHTML = '<span class="material-icons">keyboard_arrow_down</span> Hide Titles';
+    }, false);
+    document.getElementById('collapse' + id).addEventListener('hidden.bs.collapse', function() {
+        titleTable.innerHTML = '<span class="material-icons">keyboard_arrow_right</span> Show Titles';
+    }, false);    
   
     var titleList = '';
     var nrItems = obj.data.length;

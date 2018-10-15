@@ -33,10 +33,6 @@ button {
 }
 
 
-.card {
-  min-height: 350px;
-}
-
 @media only screen and (max-width: 576px) {
   .header-logo {
     display:none !important;
