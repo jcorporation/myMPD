@@ -4,7 +4,7 @@
 # (c) 2018 Juergen Mang <mail@jcgames.de>
 
 Name:           myMPD
-Version:        4.4.0
+Version:        4.5.0
 Release:        0 
 License:        GPL-2.0 
 Group:          Productivity/Multimedia/Sound/Players
