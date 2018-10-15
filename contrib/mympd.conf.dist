@@ -37,3 +37,6 @@ taglist = Artist,Album,AlbumArtist,Title,Track,Genre,Date,Composer,Performer
 
 #Enable smart playlists
 smartpls = true
+
+#Elements per page for pagination, max: 400
+max_elements_per_page = 100

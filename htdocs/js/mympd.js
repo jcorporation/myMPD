@@ -49,20 +49,14 @@ app.apps = { "Playback": { "state": "0/-/", "scrollPos": 0 },
                              },
                              "Database":   { 
                                     "active": "AlbumArtist",
-                                    "views": { "AlbumArtist": { "state": "0/-/", "scrollPos": 0 },
-                                               "Genre": { "state": "0/-/", "scrollPos": 0 },
-                                               "Artist": { "state": "0/-/", "scrollPos": 0 },
-                                               "Composer": { "state": "0/-/", "scrollPos": 0 },
-                                               "Performer": { "state": "0/-/", "scrollPos": 0 },
-                                               "Date": { "state": "0/-/", "scrollPos": 0 },
-                                               "Album":  { "state": "0/-/", "scrollPos": 0 },
+                                    "views": { 
                                      }
                              }
                   }
              },
              "Search": { "state": "0/any/", "scrollPos": 0 }
            };
-           
+
 app.current = { "app": "Playback", "tab": undefined, "view": undefined, "page": 0, "filter": "", "search": "", "scrollPos": 0 };
 app.last = { "app": undefined, "tab": undefined, "view": undefined, "filter": "", "search": "",  "scrollPos": 0 };
 
@@ -98,8 +92,7 @@ var modalAddToPlaylist = new Modal(document.getElementById('modalAddToPlaylist')
 var modalRenamePlaylist = new Modal(document.getElementById('modalRenamePlaylist'));
 var modalUpdateDB = new Modal(document.getElementById('modalUpdateDB'));
 var modalSaveSmartPlaylist = new Modal(document.getElementById('modalSaveSmartPlaylist'));
-//var mainMenu = new Dropdown(document.getElementById('mainMenu'));
-//var volumeMenu = new Dropdown(document.getElementById('volumeIcon'));
+var modalDeletePlaylist = new Modal(document.getElementById('modalDeletePlaylist'));
 
 function appPrepare(scrollPos) {
     if (app.current.app != app.last.app || app.current.tab != app.last.tab || app.current.view != app.last.view) {
@@ -311,7 +304,7 @@ function appInit() {
         event.stopPropagation();
     }, false);
     domCache.volumeBar.addEventListener('change', function(event) {
-        sendAPI({"cmd": "MPD_API_PLAYER_VOLUME", "data": {"volume": domCache.volumeBar.value}});
+        sendAPI({"cmd": "MPD_API_PLAYER_VOLUME_SET", "data": {"volume": domCache.volumeBar.value}});
     }, false);
 
     domCache.progressBar.value = 0;
@@ -551,9 +544,6 @@ function appInit() {
     }, false);
 
     document.getElementsByTagName('body')[0].addEventListener('click', function(event) {
-//        var oldPopover = document.getElementsByClassName('popover');
-//        for (var i = 0; i < oldPopover.length; i++)
-//            oldPopover[i].remove();
         hideMenu();
     }, false);
 
@@ -726,7 +716,6 @@ function dragAndDropTable(table) {
 
 function playlistMoveTrack(from, to) {
     sendAPI({"cmd": "MPD_API_PLAYLIST_MOVE_TRACK","data": { "plist": app.current.search, "from": from, "to": to}});
-    sendAPI({"cmd": "MPD_API_PLAYLIST_CONTENT_LIST","data": {"offset": app.current.page, "filter": app.current.filter, "uri": app.current.search}}, parsePlaylists);
 }
 
 function webSocketConnect() {
@@ -776,6 +765,15 @@ function webSocketConnect() {
                 case 'update_database':
                 case 'update_finished':
                     updateDBfinished(obj.type);
+                    break;
+                case 'update_volume':
+                    parseVolume(obj);
+                    break;
+                case 'update_stored_playlist':
+                    if (app.current.app == 'Browse' && app.current.tab == 'Playlists' && app.current.view == 'All')
+                        sendAPI({"cmd": "MPD_API_PLAYLIST_LIST","data": {"offset": app.current.page, "filter": app.current.filter}}, parsePlaylists);
+                    else if (app.current.app == 'Browse' && app.current.tab == 'Playlists' && app.current.view == 'Detail')
+                        sendAPI({"cmd": "MPD_API_PLAYLIST_CONTENT_LIST", "data": {"offset": app.current.page, "filter": app.current.filter, "uri": app.current.search}}, parsePlaylists);
                     break;
                 case 'error':
                     showNotification(obj.data, '', '', 'danger');
@@ -935,6 +933,10 @@ function parseSettings(obj) {
     addTagList('BrowseDatabaseByTagDropdown', false);
     addTagList('searchqueuetag', true);
     addTagList('searchtags', true);
+    
+    for (var i = 0; i < obj.data.tags.length; i++) {
+        app.apps.Browse.tabs.Database.views[obj.data.tags[i]] = { "state": "0/-/", "scrollPos": 0 };
+    }
 }
 
 function getSettings() {
@@ -1036,20 +1038,7 @@ function parseState(obj) {
             domCache.btnsPlay[i].removeAttribute('disabled');
 
     //Set volume
-    if (obj.data.volume == -1) {
-      domCache.volumePrct.innerText = 'Volumecontrol disabled';
-      domCache.volumeControl.classList.add('hide');
-    } else {
-        domCache.volumeControl.classList.remove('hide');
-        domCache.volumePrct.innerText = obj.data.volume + ' %';
-        if (obj.data.volume == 0)
-            domCache.volumeIcon.innerText = 'volume_off';
-        else if (obj.data.volume < 50)
-            domCache.volumeIcon.innerText = 'volume_down';
-        else
-            domCache.volumeIcon.innerText = 'volume_up';
-    }
-    domCache.volumeBar.value = obj.data.volume;
+    parseVolume(obj);
 
     //Set play counters
     setCounter(obj.data.currentSongId, obj.data.totalTime, obj.data.elapsedTime);
@@ -1068,12 +1057,29 @@ function parseState(obj) {
     lastState = obj;                    
 }
 
+function parseVolume(obj) {
+    if (obj.data.volume == -1) {
+      domCache.volumePrct.innerText = 'Volumecontrol disabled';
+      domCache.volumeControl.classList.add('hide');
+    } 
+    else {
+        domCache.volumeControl.classList.remove('hide');
+        domCache.volumePrct.innerText = obj.data.volume + ' %';
+        if (obj.data.volume == 0)
+            domCache.volumeIcon.innerText = 'volume_off';
+        else if (obj.data.volume < 50)
+            domCache.volumeIcon.innerText = 'volume_down';
+        else
+            domCache.volumeIcon.innerText = 'volume_up';
+    }
+    domCache.volumeBar.value = obj.data.volume;
+}
+
 function getQueue() {
     if (app.current.search.length >= 2) 
         sendAPI({"cmd": "MPD_API_QUEUE_SEARCH", "data": {"filter": app.current.filter, "offset": app.current.page, "searchstr": app.current.search}}, parseQueue);
-    else {
+    else
         sendAPI({"cmd": "MPD_API_QUEUE_LIST", "data": {"offset": app.current.page}}, parseQueue);
-    }
 }
 
 function parseQueue(obj) {
@@ -1225,9 +1231,11 @@ function parsePlaylists(obj) {
         }
         document.getElementById('BrowsePlaylistsDetailList').setAttribute('data-uri', obj.uri);
         if (obj.smartpls == true)
-            document.getElementById('BrowsePlaylistsDetailList').getElementsByTagName('caption')[0].innerText = 'Smart playlist: ' + obj.uri;
+            document.getElementById('BrowsePlaylistsDetailList').getElementsByTagName('caption')[0].innerHTML = 'Smart playlist: ' + obj.uri +
+                '<small class="pull-right">' + obj.totalEntities + ' Songs </small>';
         else
-            document.getElementById('BrowsePlaylistsDetailList').getElementsByTagName('caption')[0].innerText = 'Playlist: ' + obj.uri;
+            document.getElementById('BrowsePlaylistsDetailList').getElementsByTagName('caption')[0].innerHTML = 'Playlist: ' + obj.uri +
+                '<small class="pull-right">' + obj.totalEntities + ' Songs </small>';
         document.getElementById('BrowsePlaylistsDetailList').classList.remove('hide');
         document.getElementById('BrowsePlaylistsAllList').classList.add('hide');
         document.getElementById('btnBrowsePlaylistsAll').parentNode.classList.remove('hide');
@@ -1305,8 +1313,7 @@ function parsePlaylists(obj) {
 }
 
 function parseListDBtags(obj) {
-//    if (app.current.app !== 'Browse' && app.current.tab !== 'Database' && app.current.view !== 'AlbumArtist')
-//    return;
+    scrollTo(0);
     if (app.current.search != '') {
         document.getElementById('BrowseDatabaseAlbumList').classList.remove('hide');
         document.getElementById('BrowseDatabaseTagList').classList.add('hide');
@@ -1314,12 +1321,13 @@ function parseListDBtags(obj) {
         document.getElementById('btnBrowseDatabaseTag').parentNode.classList.remove('hide');
         document.getElementById('BrowseDatabaseAddAllSongs').parentNode.parentNode.classList.remove('hide');
         document.getElementById('btnBrowseDatabaseTag').innerHTML = '&laquo; ' + app.current.view;
-        document.getElementById('BrowseDatabaseAlbumListCaption').innerText = obj.searchtagtype + ': ' + obj.searchstr;
+        document.getElementById('BrowseDatabaseAlbumListCaption').innerHTML = '<h2>' + obj.searchtagtype + ': ' + obj.searchstr + '</h2>' +
+            '<small class="pull-right">' + obj.totalEntities + ' Entries</small><hr/>';
         var nrItems = obj.data.length;
         var cardContainer = document.getElementById('BrowseDatabaseAlbumList');
         var cards = cardContainer.getElementsByClassName('col-md');
         for (var i = 0; i < nrItems; i++) {
-            var id=genId(obj.data[i].value);
+            var id = genId(obj.data[i].value);
             if (cards[i])
                 if (cards[i].getAttribute('id') == id)
                     continue;              
@@ -1327,12 +1335,17 @@ function parseListDBtags(obj) {
             card.classList.add('col-md');
             card.classList.add('mr-0');
             card.setAttribute('id', id);
+            card.setAttribute('data-album', encodeURI(obj.data[i].value));
             card.innerHTML = '<div class="card mb-4" id="card' + id + '">' +
-                             ' <a href="#" class="card-img-top"><img class="card-img-top" src="" ></a>' +
+                             ' <a href="#" class="card-img-top"></a>' +
                              ' <div class="card-body">' +
                              '  <h5 class="card-title" id="albumartist' + id + '"></h5>' +
                              '  <h4 class="card-title">' + obj.data[i].value + '</h4>' +
-                             '  <table class="table table-sm table-hover" id="tbl' + id + '"><tbody></tbody></table'+
+                             '  <a class="color-darkgrey" data-toggle="collapse" href="#collapse' + id +'" id="collapseLink' + id +'">' +
+                             '   <span class="material-icons">keyboard_arrow_right</span> Show Titles</a> ' +
+                             '  <div class="collapse" id="collapse' + id +'">' +
+                             '   <table class="table table-sm table-hover" id="tbl' + id + '"><tbody></tbody></table>'+
+                             '  </div>' +
                              ' </div>'+
                              '</div>';
          
@@ -1340,8 +1353,11 @@ function parseListDBtags(obj) {
                 cards[i].replaceWith(card); 
             else 
                 cardContainer.append(card);
-                
-            sendAPI({"cmd": "MPD_API_DATABASE_TAG_ALBUM_TITLE_LIST", "data": { "album": obj.data[i].value, "search": app.current.search, "tag": app.current.view}}, parseListTitles);
+            
+            if ('IntersectionObserver' in window)
+                createListTitleObserver(document.getElementById(id));
+            else
+                sendAPI({"cmd": "MPD_API_DATABASE_TAG_ALBUM_TITLE_LIST", "data": { "album": obj.data[i].value, "search": app.current.search, "tag": app.current.view}}, parseListTitles);
         }
         var cardsLen = cards.length - 1;
         for (var i = cardsLen; i >= nrItems; i --) {
@@ -1356,7 +1372,7 @@ function parseListDBtags(obj) {
         document.getElementById('btnBrowseDatabaseByTag').parentNode.classList.remove('hide');
         document.getElementById('BrowseDatabaseAddAllSongs').parentNode.parentNode.classList.add('hide');
         document.getElementById('btnBrowseDatabaseTag').parentNode.classList.add('hide');
-        
+        document.getElementById('BrowseDatabaseTagListCaption').innerHTML = app.current.view + '<small class="pull-right">' + obj.totalEntities +' Tags</small>';        
         var nrItems = obj.data.length;
         var tbody = document.getElementById(app.current.app + app.current.tab + 'TagList').getElementsByTagName('tbody')[0];
         var tr = tbody.getElementsByTagName('tr');
@@ -1390,20 +1406,46 @@ function parseListDBtags(obj) {
     }
 }
 
+function createListTitleObserver(ele) {
+  var options = {
+    root: null,
+    rootMargin: "0px",
+  };
+
+  var observer = new IntersectionObserver(getListTitles, options);
+  observer.observe(ele);
+}
+
+function getListTitles(changes, observer) {
+    changes.forEach(change => {
+        if (change.intersectionRatio > 0) {
+            observer.unobserve(change.target);
+            var album = decodeURI(change.target.getAttribute('data-album'));
+            sendAPI({"cmd": "MPD_API_DATABASE_TAG_ALBUM_TITLE_LIST", "data": { "album": album, "search": app.current.search, "tag": app.current.view}}, parseListTitles);
+        }
+    });
+}
+
 function parseListTitles(obj) {
-//    if (app.current.app !== 'Browse' && app.current.tab !== 'Database' && app.current.view !== 'Album') 
-//          return;
-  
     var id = genId(obj.album);
     var card = document.getElementById('card' + id)
     var tbody = card.getElementsByTagName('tbody')[0];
-    var img = card.getElementsByTagName('img')[0];
-    var imga = img.parentNode;
-    img.setAttribute('src', obj.cover);
-    imga.setAttribute('data-uri', encodeURI(obj.data[0].uri.replace(/\/[^\/]+$/, '')));
-    imga.setAttribute('data-name', obj.album);
-    imga.setAttribute('data-type', 'dir');
+    var img = card.getElementsByTagName('a')[0];
+    img.style.backgroundImage = 'url("' + obj.cover + '")';
+    img.setAttribute('data-uri', encodeURI(obj.data[0].uri.replace(/\/[^\/]+$/, '')));
+    img.setAttribute('data-name', obj.album);
+    img.setAttribute('data-type', 'dir');
     document.getElementById('albumartist' + id).innerText = obj.albumartist;
+  
+    var titleTable = document.getElementById('collapseLink' + id);
+    var myCollapseInit = new Collapse(titleTable);
+    
+    document.getElementById('collapse' + id).addEventListener('show.bs.collapse', function() {
+        titleTable.innerHTML = '<span class="material-icons">keyboard_arrow_down</span> Hide Titles';
+    }, false);
+    document.getElementById('collapse' + id).addEventListener('hidden.bs.collapse', function() {
+        titleTable.innerHTML = '<span class="material-icons">keyboard_arrow_right</span> Show Titles';
+    }, false);    
   
     var titleList = '';
     var nrItems = obj.data.length;
@@ -1415,7 +1457,7 @@ function parseListTitles(obj) {
     }
     tbody.innerHTML = titleList;
   
-    imga.addEventListener('click', function(event) {
+    img.addEventListener('click', function(event) {
         showMenu(this, event);
     }, false);
 
@@ -1572,14 +1614,12 @@ function removeFromPlaylist(uri, pos) {
     pos--;
     sendAPI({"cmd": "MPD_API_PLAYLIST_RM_TRACK", "data": {"uri": uri, "track": pos}});
     document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
-    sendAPI({"cmd": "MPD_API_PLAYLIST_CONTENT_LIST", "data": {"offset": app.current.page, "filter": app.current.filter, "uri": app.current.search}}, parsePlaylists);
 }
 
 function playlistClear() {
     var uri = document.getElementById('BrowsePlaylistsDetailList').getAttribute('data-uri');
-    sendAPI({"cmd": "MPD_API_PLAYLIST_CLEAR", "data": {"uri": uri}});
+    sendAPI({"cmd": "MPD_API_PLAYLIST_CLEAR_AND_LIST", "data": {"uri": uri}});
     document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
-    sendAPI({"cmd": "MPD_API_PLAYLIST_CONTENT_LIST", "data": {"offset": app.current.page, "filter": app.current.filter, "uri": app.current.search}}, parsePlaylists);
 }
 
 function getAllPlaylists(obj) {
@@ -1847,7 +1887,6 @@ function renamePlaylist() {
     if (to != '' && to != from && valid == '') {
         sendAPI({"cmd": "MPD_API_PLAYLIST_RENAME", "data": {"from": from, "to": to}});
         modalRenamePlaylist.hide();
-        sendAPI({"cmd": "MPD_API_PLAYLIST_LIST","data": {"offset": app.current.page, "filter": app.current.filter}}, parsePlaylists);
     }
     else {
         document.getElementById('renamePlaylistTo').classList.add('is-invalid');
@@ -1939,7 +1978,7 @@ function showMenu(el, event) {
             (type == 'smartpls' ? addMenuItem({"cmd": "showSmartPlaylist", "options": [uri]}, 'Edit smart playlist') : '') +
             (uri.indexOf('myMPDsmart') != 0 ?
                 addMenuItem({"cmd": "showRenamePlaylist", "options": [uri]}, 'Rename playlist') + 
-                addMenuItem({"cmd": "delPlaylist", "options": [uri]}, 'Delete playlist') : '');
+                addMenuItem({"cmd": "showDelPlaylist", "options": [uri]}, 'Delete playlist') : '');
     }
     else if (app.current.app == 'Browse' && app.current.tab == 'Playlists' && app.current.view == 'Detail') {
         var x = document.getElementById('BrowsePlaylistsDetailList');
@@ -2099,9 +2138,15 @@ function delQueueSong(mode, start, end) {
         sendAPI({"cmd": "MPD_API_QUEUE_RM_TRACK", "data": { "track": start}});
 }
 
-function delPlaylist(uri) {
+function showDelPlaylist(uri) {
+    document.getElementById('deletePlaylist').value = uri;
+    modalDeletePlaylist.show();
+}
+
+function delPlaylist() {
+    var uri = document.getElementById('deletePlaylist').value;
     sendAPI({"cmd": "MPD_API_PLAYLIST_RM", "data": {"uri": uri}});
-    sendAPI({"cmd": "MPD_API_PLAYLIST_LIST","data": {"offset": app.current.page, "filter": app.current.filter}}, parsePlaylists);    
+    modalDeletePlaylist.hide();
 }
 
 function confirmSettings() {
@@ -2419,7 +2464,7 @@ function chVolume(increment) {
     else if (newValue > 100)
         newValue = 100;
     domCache.volumeBar.value = newValue;
-    sendAPI({"cmd": "MPD_API_PLAYER_VOLUME", "data": {"volume": newValue}});
+    sendAPI({"cmd": "MPD_API_PLAYER_VOLUME_SET", "data": {"volume": newValue}});
 }
 
 function beautifyDuration(x) {

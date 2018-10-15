@@ -44,8 +44,14 @@
         mpd.conn_state = MPD_FAILURE; \
 } while (0)
 
-#define MAX_SIZE 1024 * 100
-#define MAX_ELEMENTS_PER_PAGE 100
+#define CHECK_RETURN_LEN() do { \
+    if (len > MAX_SIZE) \
+        printf("Buffer truncated: %d, %d\n", len, MAX_SIZE); \
+    return len; \
+} while (0)
+
+#define MAX_SIZE 2048 * 400
+#define MAX_ELEMENTS_PER_PAGE 400
 
 #define GEN_ENUM(X) X,
 #define GEN_STR(X) #X,
@@ -65,12 +71,12 @@
     X(MPD_API_QUEUE_ADD_PLAYLIST) \
     X(MPD_API_QUEUE_REPLACE_PLAYLIST) \
     X(MPD_API_QUEUE_SHUFFLE) \
-    X(MPD_API_PLAYLIST_RM) \
     X(MPD_API_PLAYLIST_CLEAR) \
     X(MPD_API_PLAYLIST_RENAME) \
     X(MPD_API_PLAYLIST_MOVE_TRACK) \
     X(MPD_API_PLAYLIST_ADD_TRACK) \
     X(MPD_API_PLAYLIST_RM_TRACK) \
+    X(MPD_API_PLAYLIST_RM) \
     X(MPD_API_PLAYLIST_LIST) \
     X(MPD_API_PLAYLIST_CONTENT_LIST) \
     X(MPD_API_SMARTPLS_UPDATE_ALL) \
@@ -86,7 +92,8 @@
     X(MPD_API_DATABASE_STATS) \
     X(MPD_API_DATABASE_SONGDETAILS) \
     X(MPD_API_PLAYER_PLAY_TRACK) \
-    X(MPD_API_PLAYER_VOLUME) \
+    X(MPD_API_PLAYER_VOLUME_SET) \
+    X(MPD_API_PLAYER_VOLUME_GET) \
     X(MPD_API_PLAYER_PAUSE) \
     X(MPD_API_PLAYER_PLAY) \
     X(MPD_API_PLAYER_STOP) \
@@ -160,6 +167,7 @@ typedef struct {
     const char* taglist;
     bool smartpls;
     const char* varlibdir;
+    long max_elements_per_page;
 } t_config;
 
 t_config config;
@@ -215,6 +223,7 @@ int mympd_put_browse(char *buffer, char *path, unsigned int offset, char *filter
 int mympd_search(char *buffer, char *searchstr, char *filter, char *plist, unsigned int offset);
 int mympd_search_queue(char *buffer, char *mpdtagtype, unsigned int offset, char *searchstr);
 int mympd_put_welcome(char *buffer);
+int mympd_put_volume(char *buffer);
 int mympd_put_stats(char *buffer);
 int mympd_put_settings(char *buffer);
 int mympd_put_db_tag(char *buffer, unsigned int offset, char *mpdtagtype, char *mpdsearchtagtype, char *searchstr, char *filter);

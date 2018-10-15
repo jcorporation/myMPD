@@ -1,4 +1,4 @@
-var CACHE = 'myMPD-cache-v4.3.1';
+var CACHE = 'myMPD-cache-v4.4.0';
 var urlsToCache = [
     '/',
     '/player.html',
@@ -12,8 +12,8 @@ var urlsToCache = [
     '/assets/appicon-512.png',
     '/assets/coverimage-httpstream.png',
     '/assets/coverimage-notavailable.png',
+    '/assets/coverimage-loading.png',
     '/assets/favicon.ico',
-    '/assets/MaterialIcons-Regular.eot',
     '/assets/MaterialIcons-Regular.ttf',
     '/assets/MaterialIcons-Regular.woff',
     '/assets/MaterialIcons-Regular.woff2'
