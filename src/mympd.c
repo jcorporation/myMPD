@@ -188,6 +188,8 @@ void read_syscmds() {
     DIR *dir;
     struct dirent *ent;
     char dirname[400];
+    char *cmd;
+    long order;
     
     snprintf(dirname, 400, "%s/syscmds", config.etcdir);
     printf("Reading syscmds: %s\n", dirname);
@@ -195,7 +197,9 @@ void read_syscmds() {
         while ((ent = readdir(dir)) != NULL) {
             if (strncmp(ent->d_name, ".", 1) == 0)
                 continue;
-            list_push(&syscmds, ent->d_name, 1);
+            order = strtol(ent->d_name, &cmd, 10);
+            if (strcmp(cmd, "") != 0)
+                list_push(&syscmds, strdup(cmd), order);
         }
         closedir(dir);
     }
@@ -398,6 +402,7 @@ int main(int argc, char **argv) {
 
     list_init(&syscmds);    
     read_syscmds();
+    list_order(&syscmds, true);
 
     list_init(&mpd_tags);
     list_init(&mympd_tags);

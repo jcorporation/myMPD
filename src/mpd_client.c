@@ -113,8 +113,8 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
             je = json_scanf(msg.p, msg.len, "{data: {cmd: %Q}}", &p_charbuf1);
             if (je == 1) {
                 int_buf1 = list_get_value(&syscmds, p_charbuf1);
-                if (int_buf1 == 1)
-                    n = mympd_syscmd(mpd.buf, p_charbuf1);
+                if (int_buf1 > -1)
+                    n = mympd_syscmd(mpd.buf, p_charbuf1, int_buf1);
                 free(p_charbuf1);
             }
             break;
@@ -1223,14 +1223,14 @@ bool mympd_state_set(char *name, char *value) {
     return true;
 }
 
-int mympd_syscmd(char *buffer, char *cmd) {
+int mympd_syscmd(char *buffer, char *cmd, int order) {
     int len;
     char filename[400];
     char *line;
     size_t n = 0;
     ssize_t read;
     
-    snprintf(filename, 400, "%s/syscmds/%s", config.etcdir, cmd);
+    snprintf(filename, 400, "%s/syscmds/%d%s", config.etcdir, order, cmd);
     FILE *fp = fopen(filename, "r");    
     if (fp == NULL) {
         len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't execute cmd %s\"}", cmd);
