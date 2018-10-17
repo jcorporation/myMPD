@@ -1131,9 +1131,9 @@ function parseQueue(obj) {
         row.setAttribute('data-duration', duration);
         row.setAttribute('data-uri', obj.data[i].uri);
         row.innerHTML = '<td>' + (obj.data[i].pos + 1) + '</td>' +
-                        '<td>' + obj.data[i].title + '</td>' +
-                        '<td>' + obj.data[i].artist + '</td>' + 
-                        '<td>' + obj.data[i].album + '</td>' +
+                        '<td>' + obj.data[i].Title + '</td>' +
+                        '<td>' + obj.data[i].Artist + '</td>' + 
+                        '<td>' + obj.data[i].Album + '</td>' +
                         '<td>' + duration + '</td>' +
                         '<td><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>';
         if (i < tr.length)
@@ -1198,9 +1198,9 @@ function parseFilesystem(obj) {
                 var minutes = Math.floor(obj.data[i].duration / 60);
                 var seconds = obj.data[i].duration - minutes * 60;
                 row.innerHTML = '<td><span class="material-icons">music_note</span></td>' + 
-                                '<td>' + obj.data[i].title + '</td>' +
-                                '<td>' + obj.data[i].artist + '</td>' + 
-                                '<td>' + obj.data[i].album  + '</td>' +
+                                '<td>' + obj.data[i].Title + '</td>' +
+                                '<td>' + obj.data[i].Artist + '</td>' + 
+                                '<td>' + obj.data[i].Album  + '</td>' +
                                 '<td>' + minutes + ':' + (seconds < 10 ? '0' : '') + seconds +
                                 '</td><td><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>';
                 break;
@@ -1300,9 +1300,9 @@ function parsePlaylists(obj) {
             var minutes = Math.floor(obj.data[i].duration / 60);
             var seconds = obj.data[i].duration - minutes * 60;
             row.innerHTML = '<td>' + songpos + '</td>' + 
-                            '<td>' + obj.data[i].title + '</td>' +
-                            '<td>' + obj.data[i].artist + '</td>' + 
-                            '<td>' + obj.data[i].album  + '</td>' +
+                            '<td>' + obj.data[i].Title + '</td>' +
+                            '<td>' + obj.data[i].Artist + '</td>' + 
+                            '<td>' + obj.data[i].Album  + '</td>' +
                             '<td>' + minutes + ':' + (seconds < 10 ? '0' : '') + seconds +
                             '</td><td><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>';
             if (i < tr.length)
@@ -1444,15 +1444,15 @@ function getListTitles(changes, observer) {
 }
 
 function parseListTitles(obj) {
-    var id = genId(obj.album);
+    var id = genId(obj.Album);
     var card = document.getElementById('card' + id)
     var tbody = card.getElementsByTagName('tbody')[0];
     var img = card.getElementsByTagName('a')[0];
     img.style.backgroundImage = 'url("' + obj.cover + '")';
     img.setAttribute('data-uri', encodeURI(obj.data[0].uri.replace(/\/[^\/]+$/, '')));
-    img.setAttribute('data-name', obj.album);
+    img.setAttribute('data-name', obj.Album);
     img.setAttribute('data-type', 'dir');
-    document.getElementById('albumartist' + id).innerText = obj.albumartist;
+    document.getElementById('albumartist' + id).innerText = obj.AlbumArtist;
   
     var titleTable = document.getElementById('collapseLink' + id);
     var myCollapseInit = new Collapse(titleTable);
@@ -1467,8 +1467,8 @@ function parseListTitles(obj) {
     var titleList = '';
     var nrItems = obj.data.length;
     for (var i = 0; i < nrItems; i++) {
-        titleList += '<tr data-type="song" data-name="' + obj.data[i].title + '" data-uri="' + encodeURI(obj.data[i].uri) + '">' +
-                     '<td>' + obj.data[i].track + '</td><td>' + obj.data[i].title + '</td>' +
+        titleList += '<tr data-type="song" data-name="' + obj.data[i].Title + '" data-uri="' + encodeURI(obj.data[i].uri) + '">' +
+                     '<td>' + obj.data[i].Track + '</td><td>' + obj.data[i].Title + '</td>' +
                      '<td><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>' + 
                      '</tr>';
     }
@@ -1591,18 +1591,17 @@ function songDetails(uri) {
 function parseSongDetails(obj) {
     var modal = document.getElementById('modalSongDetails');
     modal.getElementsByClassName('album-cover')[0].style.backgroundImage = 'url("' + obj.data.cover + '")';
-    modal.getElementsByTagName('h1')[0].innerText = obj.data.title;
+    modal.getElementsByTagName('h1')[0].innerText = obj.data.Title;
     
     var songDetails = '';
     for (var i = 0; i < settings.tags.length; i++) {
-        var value = obj.data[settings.tags[i].toLowerCase()];
-        if (settings.tags[i] == 'duration') {
-            var minutes = Math.floor(value / 60);
-            var seconds = value - minutes * 60;
-            value = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;        
-        }
-        songDetails += '<tr><th>' + settings.tags[i] + '</th><td>' + value + '</td></tr>';
+        songDetails += '<tr><th>' + settings.tags[i] + '</th><td>' + obj.data[settings.tags[i]] + '</td></tr>';
     }
+    var duration = obj.data.duration;
+    var minutes = Math.floor(duration / 60);
+    var seconds = duration - minutes * 60;
+    duration = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+    songDetails += '<tr><th>Duration</th><td>' + duration + '</td></tr>';
     
     songDetails += '<tr><th>Uri</th><td><a class="text-success" href="/library/' + obj.data.uri + '">' + obj.data.uri + '</a></td></tr>';
     
@@ -2349,7 +2348,7 @@ function notificationsSupported() {
 function songChange(obj) {
     if (obj.type == 'error' || obj.type == 'result') 
         return;
-    var curSong = obj.data.title + obj.data.artist + obj.data.album + obj.data.uri + obj.data.currentSongId;
+    var curSong = obj.data.Title + obj.data.Artist + obj.data.Album + obj.data.uri + obj.data.currentSongId;
     if (lastSong == curSong) 
         return;
     var textNotification = '';
@@ -2358,27 +2357,27 @@ function songChange(obj) {
 
     domCache.currentCover.style.backgroundImage = 'url("' + obj.data.cover + '")';
 
-    if (typeof obj.data.artist != 'undefined' && obj.data.artist.length > 0 && obj.data.artist != '-') {
-        textNotification += obj.data.artist;
-        htmlNotification += obj.data.artist;
-        pageTitle += obj.data.artist + ' - ';
-        domCache.currentArtist.innerText = obj.data.artist;
-        domCache.currentArtist.setAttribute('data-albumartist', obj.data.albumartist);
+    if (typeof obj.data.Artist != 'undefined' && obj.data.Artist.length > 0 && obj.data.Artist != '-') {
+        textNotification += obj.data.Artist;
+        htmlNotification += obj.data.Artist;
+        pageTitle += obj.data.Artist + ' - ';
+        domCache.currentArtist.innerText = obj.data.Artist;
+        domCache.currentArtist.setAttribute('data-albumartist', obj.data.AlbumArtist);
     } else
         domCache.currentArtist.innerText = '';
 
-    if (typeof obj.data.album != 'undefined' && obj.data.album.length > 0 && obj.data.album != '-') {
-        textNotification += ' - ' + obj.data.album;
-        htmlNotification += '<br/>' + obj.data.album;
-        domCache.currentAlbum.innerText = obj.data.album;
-        domCache.currentAlbum.setAttribute('data-album', obj.data.album);
+    if (typeof obj.data.Album != 'undefined' && obj.data.Album.length > 0 && obj.data.Album != '-') {
+        textNotification += ' - ' + obj.data.Album;
+        htmlNotification += '<br/>' + obj.data.Album;
+        domCache.currentAlbum.innerText = obj.data.Album;
+        domCache.currentAlbum.setAttribute('data-album', obj.data.Album);
     }
     else
         domCache.currentAlbum.innerText = '';
 
-    if (typeof obj.data.title != 'undefined' && obj.data.title.length > 0) {
-        pageTitle += obj.data.title;
-        domCache.currentTrack.innerText = obj.data.title;
+    if (typeof obj.data.Title != 'undefined' && obj.data.Title.length > 0) {
+        pageTitle += obj.data.Title;
+        domCache.currentTrack.innerText = obj.data.Title;
         domCache.currentTrack.setAttribute('data-uri', obj.data.uri);
     } else {
         domCache.currentTrack.innerText = '';
@@ -2394,9 +2393,9 @@ function songChange(obj) {
     //Update Artist in queue view for http streams
     var playingTr = document.getElementById('queueTrackId' + obj.data.currentSongId);
     if (playingTr)
-        playingTr.getElementsByTagName('td')[1].innerText = obj.data.title;
+        playingTr.getElementsByTagName('td')[1].innerText = obj.data.Title;
 
-    showNotification(obj.data.title, textNotification, htmlNotification, 'success');
+    showNotification(obj.data.Title, textNotification, htmlNotification, 'success');
     lastSong = curSong;
 }
 

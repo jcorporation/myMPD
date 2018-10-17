@@ -50,6 +50,18 @@
     return len; \
 } while (0)
 
+#define PUT_SONG_TAGS() do { \
+    struct node *current = mympd_tags.list; \
+    int tagnr = 0; \
+    while (current != NULL) { \
+        if (tagnr ++) \
+            len += json_printf(&out, ","); \
+        len += json_printf(&out, "%Q: %Q", current->data, mympd_get_tag(song, mpd_tag_name_parse(current->data))); \
+        current = current->next; \
+    } \
+} while (0)
+
+
 #define MAX_SIZE 2048 * 400
 #define MAX_ELEMENTS_PER_PAGE 400
 

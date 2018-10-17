@@ -1412,19 +1412,14 @@ int mympd_put_current_song(char *buffer) {
         
     mympd_get_cover(mpd_song_get_uri(song), cover, 500);
     
-    len = json_printf(&out, "{type: song_change, data: {pos: %d, title: %Q, "
-        "artist: %Q, album: %Q, uri: %Q, currentSongId: %d, albumartist: %Q, "
-        "duration: %d, cover: %Q",
+    len = json_printf(&out, "{type: song_change, data: {pos: %d, uri: %Q, currentSongId: %d, duration: %d, cover: %Q, ",
         mpd_song_get_pos(song),
-        mympd_get_tag(song, MPD_TAG_TITLE),
-        mympd_get_tag(song, MPD_TAG_ARTIST),
-        mympd_get_tag(song, MPD_TAG_ALBUM),
         mpd_song_get_uri(song),
         mpd.song_id,
-        mympd_get_tag(song, MPD_TAG_ALBUM_ARTIST),
         mpd_song_get_duration(song),
         cover
     );
+    PUT_SONG_TAGS();
 
     mpd_response_finish(mpd.conn);
     
@@ -1457,23 +1452,13 @@ int mympd_put_songdetails(char *buffer, char *uri) {
     mpd_send_list_all_meta(mpd.conn, uri);
     if ((entity = mpd_recv_entity(mpd.conn)) != NULL) {
         song = mpd_entity_get_song(entity);
-        
         mympd_get_cover(uri, cover, 500);
-        len += json_printf(&out, "duration: %d, artist: %Q, album: %Q, title: %Q, albumartist: %Q, cover: %Q, uri: %Q, "
-            "genre: %Q, track: %Q, date: %Q, composer: %Q, performer: %Q",
+        len += json_printf(&out, "duration: %d, cover: %Q, uri: %Q, ",
             mpd_song_get_duration(song),
-            mympd_get_tag(song, MPD_TAG_ARTIST),
-            mympd_get_tag(song, MPD_TAG_ALBUM),
-            mympd_get_tag(song, MPD_TAG_TITLE),
-            mympd_get_tag(song, MPD_TAG_ALBUM_ARTIST),
             cover,
-            uri,
-            mympd_get_tag(song, MPD_TAG_GENRE),
-            mympd_get_tag(song, MPD_TAG_TRACK),
-            mympd_get_tag(song, MPD_TAG_DATE),
-            mympd_get_tag(song, MPD_TAG_COMPOSER),
-            mympd_get_tag(song, MPD_TAG_PERFORMER)
+            uri
         );
+        PUT_SONG_TAGS();
         mpd_entity_free(entity);
     }
     mpd_response_finish(mpd.conn);
@@ -1522,15 +1507,14 @@ int mympd_put_queue(char *buffer, unsigned int offset, unsigned *queue_version, 
             entity_count ++;
             if (entities_returned ++) 
                 len += json_printf(&out, ",");
-            len += json_printf(&out, "{id: %d, pos: %d, duration: %d, artist: %Q, album: %Q, title: %Q, uri: %Q}",
+            len += json_printf(&out, "{id: %d, pos: %d, duration: %d, uri: %Q, ",
                 mpd_song_get_id(song),
                 mpd_song_get_pos(song),
                 mpd_song_get_duration(song),
-                mympd_get_tag(song, MPD_TAG_ARTIST),
-                mympd_get_tag(song, MPD_TAG_ALBUM),
-                mympd_get_tag(song, MPD_TAG_TITLE),
                 mpd_song_get_uri(song)
             );
+            PUT_SONG_TAGS();
+            len += json_printf(&out, "}");
         }
         mpd_entity_free(entity);
     }
@@ -1584,14 +1568,13 @@ int mympd_put_browse(char *buffer, char *path, unsigned int offset, char *filter
                     ) {
                         if (entities_returned ++) 
                             len += json_printf(&out, ",");
-                        len += json_printf(&out, "{type: song, uri: %Q, album: %Q, artist: %Q, duration: %d, title: %Q, name: %Q}",
+                        len += json_printf(&out, "{type: song, uri: %Q, duration: %d, name: %Q, ",
                             mpd_song_get_uri(song),
-                            mympd_get_tag(song, MPD_TAG_ALBUM),
-                            mympd_get_tag(song, MPD_TAG_ARTIST),
                             mpd_song_get_duration(song),
-                            entityName,
                             entityName
                         );
+                        PUT_SONG_TAGS();
+                        len += json_printf(&out, "}");
                     } else {
                         entity_count --;
                     }
@@ -1759,7 +1742,7 @@ int mympd_put_songs_in_album(char *buffer, char *album, char *search, char *tag)
                     mympd_get_cover(mpd_song_get_uri(song), cover, 500);
                     albumartist = strdup(mympd_get_tag(song, MPD_TAG_ALBUM_ARTIST));
                 }
-                len += json_printf(&out, "{type: song, uri: %Q, duration: %d, title: %Q, track: %Q}",
+                len += json_printf(&out, "{type: song, uri: %Q, duration: %d, Title: %Q, Track: %Q}",
                     mpd_song_get_uri(song),
                     mpd_song_get_duration(song),
                     mympd_get_tag(song, MPD_TAG_TITLE),
@@ -1769,7 +1752,7 @@ int mympd_put_songs_in_album(char *buffer, char *album, char *search, char *tag)
             mpd_song_free(song);
         }
         
-        len += json_printf(&out, "], totalEntities: %d, returnedEntities: %d, album: %Q, search: %Q, tag: %Q, cover: %Q, albumartist: %Q}",
+        len += json_printf(&out, "], totalEntities: %d, returnedEntities: %d, Album: %Q, search: %Q, tag: %Q, cover: %Q, AlbumArtist: %Q}",
             entity_count,
             entities_returned,
             album,
@@ -1863,14 +1846,13 @@ int mympd_put_playlist_list(char *buffer, char *uri, unsigned int offset, char *
             ) {
                 if (entities_returned ++) 
                     len += json_printf(&out, ",");
-                len += json_printf(&out, "{type: song, uri: %Q, album: %Q, artist: %Q, duration: %d, title: %Q, name: %Q}",
+                len += json_printf(&out, "{type: song, uri: %Q, duration: %d, name: %Q, ",
                     mpd_song_get_uri(song),
-                    mympd_get_tag(song, MPD_TAG_ALBUM),
-                    mympd_get_tag(song, MPD_TAG_ARTIST),
                     mpd_song_get_duration(song),
-                    entityName,
                     entityName
                 );
+                PUT_SONG_TAGS();
+                len += json_printf(&out, "}");
             } else {
                 entity_count --;
             }
@@ -1922,14 +1904,13 @@ int mympd_search(char *buffer, char *searchstr, char *filter, char *plist, unsig
             if (entity_count > offset && entity_count <= offset + config.max_elements_per_page) {
                 if (entities_returned ++) 
                     len += json_printf(&out, ", ");
-                len += json_printf(&out, "{type: song, uri: %Q, album: %Q, artist: %Q, duration: %d, title: %Q, name: %Q}",
+                len += json_printf(&out, "{type: song, uri: %Q, duration: %d, name: %Q, ",
                     mpd_song_get_uri(song),
-                    mympd_get_tag(song, MPD_TAG_ALBUM),
-                    mympd_get_tag(song, MPD_TAG_ARTIST),
                     mpd_song_get_duration(song),
-                    mympd_get_tag(song, MPD_TAG_TITLE),
                     mympd_get_tag(song, MPD_TAG_TITLE)
                 );
+                PUT_SONG_TAGS();
+                len += json_printf(&out, "}");
             }
             mpd_song_free(song);
         }
@@ -2010,14 +1991,13 @@ int mympd_search_queue(char *buffer, char *mpdtagtype, unsigned int offset, char
             if (entity_count > offset && entity_count <= offset + config.max_elements_per_page) {
                 if (entities_returned ++)
                     len += json_printf(&out, ", ");
-                len += json_printf(&out, "{type: song, id: %d, pos: %d, album: %Q, artist: %Q, duration: %d, title: %Q}",
+                len += json_printf(&out, "{type: song, id: %d, pos: %d, duration: %d, ",
                     mpd_song_get_id(song),
                     mpd_song_get_pos(song),
-                    mympd_get_tag(song, MPD_TAG_ALBUM),
-                    mympd_get_tag(song, MPD_TAG_ARTIST),
-                    mpd_song_get_duration(song),
-                    mympd_get_tag(song, MPD_TAG_TITLE)
+                    mpd_song_get_duration(song)
                 );
+                PUT_SONG_TAGS();
+                len += json_printf(&out, "}");
                 mpd_song_free(song);
             }
         }
