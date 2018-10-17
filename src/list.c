@@ -79,7 +79,7 @@ int list_shuffle(struct list *l) {
     return 0;
 }
 
-int list_order(struct list *l, bool order) {
+int list_sort_by_value(struct list *l, bool order) {
     int swapped; 
     struct node *ptr1; 
     struct node *lptr = NULL; 

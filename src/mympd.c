@@ -402,7 +402,7 @@ int main(int argc, char **argv) {
 
     list_init(&syscmds);    
     read_syscmds();
-    list_order(&syscmds, true);
+    list_sort_by_value(&syscmds, true);
 
     list_init(&mpd_tags);
     list_init(&mympd_tags);
