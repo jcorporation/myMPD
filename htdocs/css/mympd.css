@@ -51,6 +51,10 @@ small {
   color: #aaa;
 }
 
+.card {
+  min-height: 300px;
+}
+
 .card-footer-playback {
   padding: 0px;
 }
