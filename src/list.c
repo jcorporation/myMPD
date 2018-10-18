@@ -11,7 +11,7 @@ int list_init(struct list *l) {
     return 0;
 }
 
-int list_get_value(const struct list *l, char *data) {
+int list_get_value(const struct list *l, const char *data) {
     int value = -1;
     struct node *current = l->list;
     while (current != NULL) {
@@ -108,7 +108,7 @@ int list_sort_by_value(struct list *l, bool order) {
     return 0; 
 }
 
-int list_replace(struct list *l, int pos, char *data, int value) {
+int list_replace(struct list *l, int pos, const char *data, int value) {
     int i = 0;
     struct node *current = l->list;
     while (current->next != NULL) {
@@ -125,7 +125,7 @@ int list_replace(struct list *l, int pos, char *data, int value) {
     return 0;
 }
 
-int list_push(struct list *l, char *data, int value) {
+int list_push(struct list *l, const char *data, int value) {
     struct node *n = malloc(sizeof(struct node));
     n->value = value;
     n->data = strdup(data);

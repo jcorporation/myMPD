@@ -1206,7 +1206,7 @@ bool mympd_state_get(char *name, char *value) {
         return false;
 }
 
-bool mympd_state_set(char *name, char *value) {
+bool mympd_state_set(const char *name, const char *value) {
     char tmpfile[400];
     char cfgfile[400];
     snprintf(cfgfile, 400, "%s/state/%s", config.varlibdir, name);
@@ -1238,9 +1238,13 @@ int mympd_syscmd(char *buffer, char *cmd, int order) {
     }
     read = getline(&line, &n, fp);
     fclose(fp);
-    strtok(line, "\n");
-    system(line);
-    len = snprintf(buffer, MAX_SIZE, "{\"type\": \"result\", \"data\": \"Executed cmd %s\"}", line);
+    if (read > 0) {
+        strtok(line, "\n");
+        system(line);
+        len = snprintf(buffer, MAX_SIZE, "{\"type\": \"result\", \"data\": \"Executed cmd %s\"}", line);
+    } else {
+        len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't execute cmd %s\"}", cmd);
+    }
     CHECK_RETURN_LEN();    
     return len;
 }
@@ -1412,11 +1416,9 @@ int mympd_put_current_song(char *buffer) {
         
     mympd_get_cover(mpd_song_get_uri(song), cover, 500);
     
-    len = json_printf(&out, "{type: song_change, data: {pos: %d, uri: %Q, currentSongId: %d, duration: %d, cover: %Q, ",
+    len = json_printf(&out, "{type: song_change, data: {pos: %d, currentSongId: %d, cover: %Q, ",
         mpd_song_get_pos(song),
-        mpd_song_get_uri(song),
         mpd.song_id,
-        mpd_song_get_duration(song),
         cover
     );
     PUT_SONG_TAGS();
@@ -1453,11 +1455,7 @@ int mympd_put_songdetails(char *buffer, char *uri) {
     if ((entity = mpd_recv_entity(mpd.conn)) != NULL) {
         song = mpd_entity_get_song(entity);
         mympd_get_cover(uri, cover, 500);
-        len += json_printf(&out, "duration: %d, cover: %Q, uri: %Q, ",
-            mpd_song_get_duration(song),
-            cover,
-            uri
-        );
+        len += json_printf(&out, "cover: %Q, ", cover);
         PUT_SONG_TAGS();
         mpd_entity_free(entity);
     }
@@ -1507,11 +1505,9 @@ int mympd_put_queue(char *buffer, unsigned int offset, unsigned *queue_version, 
             entity_count ++;
             if (entities_returned ++) 
                 len += json_printf(&out, ",");
-            len += json_printf(&out, "{id: %d, pos: %d, duration: %d, uri: %Q, ",
+            len += json_printf(&out, "{id: %d, pos: %d, ",
                 mpd_song_get_id(song),
-                mpd_song_get_pos(song),
-                mpd_song_get_duration(song),
-                mpd_song_get_uri(song)
+                mpd_song_get_pos(song)
             );
             PUT_SONG_TAGS();
             len += json_printf(&out, "}");
@@ -1568,11 +1564,7 @@ int mympd_put_browse(char *buffer, char *path, unsigned int offset, char *filter
                     ) {
                         if (entities_returned ++) 
                             len += json_printf(&out, ",");
-                        len += json_printf(&out, "{type: song, uri: %Q, duration: %d, name: %Q, ",
-                            mpd_song_get_uri(song),
-                            mpd_song_get_duration(song),
-                            entityName
-                        );
+                        len += json_printf(&out, "{type: song, ");
                         PUT_SONG_TAGS();
                         len += json_printf(&out, "}");
                     } else {
@@ -1846,11 +1838,7 @@ int mympd_put_playlist_list(char *buffer, char *uri, unsigned int offset, char *
             ) {
                 if (entities_returned ++) 
                     len += json_printf(&out, ",");
-                len += json_printf(&out, "{type: song, uri: %Q, duration: %d, name: %Q, ",
-                    mpd_song_get_uri(song),
-                    mpd_song_get_duration(song),
-                    entityName
-                );
+                len += json_printf(&out, "{type: song, ");
                 PUT_SONG_TAGS();
                 len += json_printf(&out, "}");
             } else {
@@ -1904,11 +1892,7 @@ int mympd_search(char *buffer, char *searchstr, char *filter, char *plist, unsig
             if (entity_count > offset && entity_count <= offset + config.max_elements_per_page) {
                 if (entities_returned ++) 
                     len += json_printf(&out, ", ");
-                len += json_printf(&out, "{type: song, uri: %Q, duration: %d, name: %Q, ",
-                    mpd_song_get_uri(song),
-                    mpd_song_get_duration(song),
-                    mympd_get_tag(song, MPD_TAG_TITLE)
-                );
+                len += json_printf(&out, "{type: song, ");
                 PUT_SONG_TAGS();
                 len += json_printf(&out, "}");
             }
@@ -1991,10 +1975,9 @@ int mympd_search_queue(char *buffer, char *mpdtagtype, unsigned int offset, char
             if (entity_count > offset && entity_count <= offset + config.max_elements_per_page) {
                 if (entities_returned ++)
                     len += json_printf(&out, ", ");
-                len += json_printf(&out, "{type: song, id: %d, pos: %d, duration: %d, ",
+                len += json_printf(&out, "{type: song, id: %d, pos: %d, ",
                     mpd_song_get_id(song),
-                    mpd_song_get_pos(song),
-                    mpd_song_get_duration(song)
+                    mpd_song_get_pos(song)
                 );
                 PUT_SONG_TAGS();
                 len += json_printf(&out, "}");

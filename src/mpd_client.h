@@ -59,6 +59,7 @@
         len += json_printf(&out, "%Q: %Q", current->data, mympd_get_tag(song, mpd_tag_name_parse(current->data))); \
         current = current->next; \
     } \
+    len += json_printf(&out, ", duration: %d, uri: %Q", mpd_song_get_duration(song), mpd_song_get_uri(song)); \
 } while (0)
 
 
@@ -183,7 +184,7 @@ typedef struct {
     bool smartpls;
     const char* varlibdir;
     const char* etcdir;
-    long max_elements_per_page;
+    unsigned long max_elements_per_page;
 } t_config;
 
 t_config config;
@@ -222,7 +223,7 @@ void mympd_last_played_song_id(int song_id);
 void mympd_get_sticker(const char *uri, t_sticker *sticker);
 void mympd_jukebox();
 bool mympd_state_get(char *name, char *value);
-bool mympd_state_set(char *name, char *value);
+bool mympd_state_set(const char *name, const char *value);
 int mympd_syscmd(char *buffer, char *cmd, int order);
 int mympd_smartpls_save(char *smartpltype, char *playlist, char *tag, char *searchstr, int maxentries, int timerange);
 int mympd_smartpls_put(char *buffer, char *playlist);
