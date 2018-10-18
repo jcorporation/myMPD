@@ -1186,7 +1186,10 @@ function parseFilesystem(obj) {
         var row = document.createElement('tr');
         row.setAttribute('data-type', obj.data[i].type);
         row.setAttribute('data-uri', uri);
-        row.setAttribute('data-name', obj.data[i].name);
+        if (obj.data[i].type == 'song')
+            row.setAttribute('data-name', obj.data[i].Title);
+        else
+            row.setAttribute('data-name', obj.data[i].name);
         
         switch(obj.data[i].type) {
             case 'dir':
@@ -1295,7 +1298,7 @@ function parsePlaylists(obj) {
             row.setAttribute('id','playlistTrackId' + songpos);
             row.setAttribute('data-type', obj.data[i].type);
             row.setAttribute('data-uri', uri);
-            row.setAttribute('data-name', obj.data[i].name);
+            row.setAttribute('data-name', obj.data[i].Title);
             row.setAttribute('data-songpos', songpos);
             var minutes = Math.floor(obj.data[i].duration / 60);
             var seconds = obj.data[i].duration - minutes * 60;
