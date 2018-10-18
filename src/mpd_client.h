@@ -233,6 +233,7 @@ int mympd_smartpls_update(char *sticker, char *playlist, int maxentries);
 int mympd_smartpls_update_newest(char *playlist, int timerange);
 int mympd_smartpls_update_search(char *playlist, char *tag, char *searchstr);
 int mympd_get_updatedb_state(char *buffer);
+void mympd_get_song_uri_from_song_id(int song_id, char *uri);
 int mympd_put_state(char *buffer, int *current_song_id, int *next_song_id, int *last_song_id, unsigned *queue_version, unsigned *queue_length);
 int mympd_put_outputs(char *buffer);
 int mympd_put_current_song(char *buffer);

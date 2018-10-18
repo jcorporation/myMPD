@@ -869,25 +869,15 @@ void mympd_get_sticker(const char *uri, t_sticker *sticker) {
         LOG_ERROR_AND_RECOVER("mpd_send_sticker_list");
 }
 
-char* mympd_get_song_uri_from_song_id(int song_id) {
-    char *str;
+void mympd_count_song_id(int song_id, char *name, int value) {
     struct mpd_song *song;
     if (song_id > -1) {
         song = mpd_run_get_queue_song_id(mpd.conn, song_id);
         if (song) {
-            str = strdup(mpd_song_get_uri(song));
+            mympd_count_song_uri(mpd_song_get_uri(song), name, value);
             mpd_song_free(song);
         }
-        else
-            return NULL;
     }
-    else
-        return NULL;
-    return str;
-}
-
-void mympd_count_song_id(int song_id, char *name, int value) {
-    mympd_count_song_uri(mympd_get_song_uri_from_song_id(song_id), name, value);
 }
 
 void mympd_count_song_uri(const char *uri, char *name, int value) {
@@ -931,7 +921,14 @@ void mympd_like_song_uri(const char *uri, int value) {
 }
 
 void mympd_last_played_song_id(int song_id) {
-    mympd_last_played_song_uri(mympd_get_song_uri_from_song_id(song_id));
+    struct mpd_song *song;
+    if (song_id > -1) {
+        song = mpd_run_get_queue_song_id(mpd.conn, song_id);
+        if (song) {
+            mympd_last_played_song_uri(mpd_song_get_uri(song));
+            mpd_song_free(song);
+        }
+    }
 }
 
 void mympd_last_played_song_uri(const char *uri) {
@@ -2203,12 +2200,12 @@ int mympd_smartpls_update_search(char *playlist, char *tag, char *searchstr) {
 int mympd_smartpls_update(char *playlist, char *sticker, int maxentries) {
     struct mpd_pair *pair;
     char *uri = NULL;
-    char *name;
-    char *p_value;
+    const char *p_value;
     char *crap;
     long value;
     long value_max = 0;
     long i = 0;
+    unsigned int j;
 
     if (!mpd_send_sticker_find(mpd.conn, "song", "", sticker)) {
         LOG_ERROR_AND_RECOVER("mpd_send_sticker_find");
@@ -2223,13 +2220,14 @@ int mympd_smartpls_update(char *playlist, char *sticker, int maxentries) {
             uri = strdup(pair->value);
         } 
         else if (strcmp(pair->name, "sticker") == 0) {
-            name = strtok(strdup(pair->value), "=");
-            p_value = strtok(NULL, "=");
-            value = strtol(p_value, &crap, 10);
-            if (value > 1)
-                list_push(&add_list, uri, value);
-            if (value > value_max)
-                value_max = value;
+            p_value = mpd_parse_sticker(pair->value, &j);
+            if (p_value != NULL) {
+                value = strtol(p_value, &crap, 10);
+                if (value > 1)
+                    list_push(&add_list, uri, value);
+                if (value > value_max)
+                    value_max = value;
+            }
         }
         mpd_return_pair(mpd.conn, pair);
     }
