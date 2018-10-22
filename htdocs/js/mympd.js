@@ -204,7 +204,6 @@ function appRoute() {
         sendAPI({"cmd": "MPD_API_PLAYLIST_CONTENT_LIST", "data": {"offset": app.current.page, "filter": app.current.filter, "uri": app.current.search}}, parsePlaylists);
         doSetFilterLetter('BrowsePlaylistsFilter');
     }    
-
     else if (app.current.app == 'Browse' && app.current.tab == 'Database') {
         if (app.current.search != '') {
             sendAPI({"cmd": "MPD_API_DATABASE_TAG_ALBUM_LIST", "data": {"offset": app.current.page, "filter": app.current.filter, "search": app.current.search, "tag": app.current.view}}, parseListDBtags);
@@ -539,6 +538,24 @@ function appInit() {
             event.stopPropagation();
         }
     }, false);
+    
+    document.getElementById('BrowseFilesystemColsDropdown').addEventListener('click', function(event) {
+        if (event.target.nodeName == 'INPUT') {
+            event.stopPropagation();
+        }
+    }, false);
+    
+    document.getElementById('SearchColsDropdown').addEventListener('click', function(event) {
+        if (event.target.nodeName == 'INPUT') {
+            event.stopPropagation();
+        }
+    }, false);
+    
+    document.getElementById('BrowsePlaylistsDetailColsDropdown').addEventListener('click', function(event) {
+        if (event.target.nodeName == 'INPUT') {
+            event.stopPropagation();
+        }
+    }, false);
 
     document.getElementById('search').addEventListener('submit', function() {
         return false;
@@ -564,6 +581,9 @@ function appInit() {
     dragAndDropTable('QueueList');
     dragAndDropTable('BrowsePlaylistsDetailList');
     dragAndDropTableHeader('Queue');
+    dragAndDropTableHeader('Search');
+    dragAndDropTableHeader('BrowseFilesystem');
+    dragAndDropTableHeader('BrowsePlaylistsDetail');
 
     window.addEventListener('hashchange', appRoute, false);
 
@@ -1033,13 +1053,24 @@ function parseSettings(obj) {
     document.getElementById('syscmds').innerHTML = syscmdsList;
     
     setCols('Queue');
+    setCols('Search');
+    setCols('BrowseFilesystem');
+    setCols('BrowsePlaylistsDetail');
+    if (app.current.app == 'Queue')
+        getQueue();
+    else if (app.current.app == 'Search')
+        appRoute();
+    else if (app.current.app == 'Browse' && app.current.tab == 'Filesystem')
+        appRoute();
+    else if (app.current.app == 'Browse' && app.current.tab == 'Playlists' && app.current.view == 'Detail')
+        appRoute();
 }
 
 function setCols(table) {
     var tagChks = '';
-    var tags = settings.tags;
+    var tags = settings.tags.slice();
     tags.push('Duration');
-    if (table == 'Queue')
+    if (table == 'Queue' || table == 'BrowsePlaylistsDetail')
         tags.push('Pos');
     
     for (var i = 0; i < tags.length; i++) {
@@ -1094,10 +1125,7 @@ function saveCols(table) {
         if (name)
             cols.data.cols.push(name);
     }
-    sendAPI(cols);
-    getSettings();
-    if (table == 'Queue')
-        getQueue();
+    sendAPI(cols, getSettings);
 }
 
 function parseOutputs(obj) {
@@ -1130,17 +1158,19 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
     
     //Set playing track in queue view
     if (lastState) {
-        var tr = document.getElementById('queueTrackId' + lastState.data.currentSongId);
-        if (tr) {
-            var durationTd = tr.querySelector('[data-col=Duration]');
-            if (durationTd)
-                durationTd.innerText = tr.getAttribute('data-duration');
-            var posTd = tr.querySelector('[data-col=Pos]');
-            if (posTd) {
-                posTd.classList.remove('material-icons');
-                posTd.innerText = tr.getAttribute('data-songpos');
+        if (lastState.data.currentSongId != currentSongId) {
+            var tr = document.getElementById('queueTrackId' + lastState.data.currentSongId);
+            if (tr) {
+                var durationTd = tr.querySelector('[data-col=Duration]');
+                if (durationTd)
+                    durationTd.innerText = tr.getAttribute('data-duration');
+                var posTd = tr.querySelector('[data-col=Pos]');
+                if (posTd) {
+                    posTd.classList.remove('material-icons');
+                    posTd.innerText = tr.getAttribute('data-songpos');
+                }
+                tr.classList.remove('font-weight-bold');
             }
-            tr.classList.remove('font-weight-bold');
         }
     }
     var tr = document.getElementById('queueTrackId' + currentSongId);
@@ -1150,8 +1180,11 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
             durationTd.innerText = counterText;
         var posTd = tr.querySelector('[data-col=Pos]');
         if (posTd) {
-            posTd.classList.add('material-icons');
-            posTd.innerText = 'play_arrow';
+            if (!posTd.classList.contains('material-icons')) {
+                posTd.classList.add('material-icons');
+                posTd.innerText = 'play_arrow';
+                console.log('A');
+            }
         }
         tr.classList.add('font-weight-bold');
     }
@@ -1264,9 +1297,9 @@ function parseQueue(obj) {
     var tbody = table.getElementsByTagName('tbody')[0];
     var tr = tbody.getElementsByTagName('tr');
     for (var i = 0; i < nrItems; i++) {
-        if (tr[i])
-            if (tr[i].getAttribute('data-trackid') == obj.data[i].id && tr[i].getAttribute('data-songpos') == (obj.data[i].pos + 1))
-                continue;
+        //if (tr[i])
+        //    if (tr[i].getAttribute('data-trackid') == obj.data[i].id && tr[i].getAttribute('data-songpos') == (obj.data[i].pos + 1))
+        //        continue;
                 
         var minutes = Math.floor(obj.data[i].Duration / 60);
         var seconds = obj.data[i].Duration - minutes * 60;
@@ -1282,7 +1315,7 @@ function parseQueue(obj) {
         for (var c = 0; c < settings.colsQueue.length; c++) {
             tds += '<td data-col="' + settings.colsQueue[c] + '">' + obj.data[i][settings.colsQueue[c]] + '</td>';
         }
-        tds += '<td><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>';
+        tds += '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>';
         row.innerHTML = tds;
         if (i < tr.length)
             tr[i].replaceWith(row); 
@@ -1323,43 +1356,52 @@ function parseSearch(obj) {
 function parseFilesystem(obj) {
     if (app.current.app !== 'Browse' && app.current.tab !== 'Filesystem' && app.current.app !== 'Search')
         return;
+    var list = app.current.app + (app.current.tab == 'Filesystem' ? app.current.tab : '');
+    var colspan = settings['cols' + list].length;
+    colspan--;
     var nrItems = obj.data.length;
-    var tbody = document.getElementById(app.current.app + (app.current.tab==undefined ? '' : app.current.tab) + 'List').getElementsByTagName('tbody')[0];
+    var tbody = document.getElementById(app.current.app + (app.current.tab == undefined ? '' : app.current.tab) + 'List').getElementsByTagName('tbody')[0];
     var tr = tbody.getElementsByTagName('tr');
     for (var i = 0; i < nrItems; i++) {
         var uri = encodeURI(obj.data[i].uri);
-        if (tr[i])
-            if (tr[i].getAttribute('data-uri') == uri)
-                continue;
+        //if (tr[i])
+        //    if (tr[i].getAttribute('data-uri') == uri)
+        //        continue;
         var row = document.createElement('tr');
-        row.setAttribute('data-type', obj.data[i].type);
+        row.setAttribute('data-type', obj.data[i].Type);
         row.setAttribute('data-uri', uri);
         if (obj.data[i].type == 'song')
             row.setAttribute('data-name', obj.data[i].Title);
         else
             row.setAttribute('data-name', obj.data[i].name);
         
-        switch(obj.data[i].type) {
+        switch(obj.data[i].Type) {
             case 'dir':
                 row.innerHTML = '<td><span class="material-icons">folder_open</span></td>' +
-                                '<td colspan="4">' + obj.data[i].name + '</td>' +
+                                '<td colspan="' + colspan + '">' + obj.data[i].name + '</td>' +
                                 '<td><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>';
                 break;
             case 'song':
                 var minutes = Math.floor(obj.data[i].Duration / 60);
                 var seconds = obj.data[i].Duration - minutes * 60;
-                row.innerHTML = '<td><span class="material-icons">music_note</span></td>' + 
-                                '<td>' + obj.data[i].Title + '</td>' +
-                                '<td>' + obj.data[i].Artist + '</td>' + 
-                                '<td>' + obj.data[i].Album  + '</td>' +
-                                '<td>' + minutes + ':' + (seconds < 10 ? '0' : '') + seconds +
-                                '</td><td><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>';
+                obj.data[i].Duration = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+                var tds = '';
+                for (var c = 0; c < settings['cols' + list].length; c++) {
+                    tds += '<td data-col="' + settings['cols' + list][c] + '">';
+                    if (settings['cols' + list][c] == 'Type')
+                        tds += '<span class="material-icons">music_note</span>';
+                    else
+                        tds += obj.data[i][settings['cols' + list][c]];
+                    tds += '</td>';
+                }
+                tds += '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>';
+                row.innerHTML = tds;
                 break;
             case 'smartpls':
             case 'plist':
-                row.innerHTML = '<td><span class="material-icons">list</span></td>' +
-                                '<td colspan="4">' + obj.data[i].name + '</td>' +
-                                '<td><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>';
+                row.innerHTML = '<td data-col="Type"><span class="material-icons">list</span></td>' +
+                                '<td colspan="' + colspan + '">' + obj.data[i].name + '</td>' +
+                                '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>';
                 break;
         }
         if (i < tr.length)
@@ -1388,6 +1430,7 @@ function parsePlaylists(obj) {
         document.getElementById('BrowsePlaylistsDetailList').classList.add('hide');
         document.getElementById('btnBrowsePlaylistsAll').parentNode.classList.add('hide');
         document.getElementById('btnPlaylistClear').parentNode.classList.add('hide');
+        document.getElementById('BrowsePlaylistsDetailColsBtn').parentNode.classList.add('hide');
     } else {
         if (obj.uri.indexOf('.') > -1 || obj.smartpls == true) {
             document.getElementById('BrowsePlaylistsDetailList').setAttribute('data-ro', 'true')
@@ -1407,6 +1450,7 @@ function parsePlaylists(obj) {
         document.getElementById('BrowsePlaylistsDetailList').classList.remove('hide');
         document.getElementById('BrowsePlaylistsAllList').classList.add('hide');
         document.getElementById('btnBrowsePlaylistsAll').parentNode.classList.remove('hide');
+        document.getElementById('BrowsePlaylistsDetailColsBtn').parentNode.classList.remove('hide');
     }
             
     var nrItems = obj.data.length;
@@ -1421,12 +1465,12 @@ function parsePlaylists(obj) {
             var d = new Date(obj.data[i].last_modified * 1000);
             var row = document.createElement('tr');
             row.setAttribute('data-uri', uri);
-            row.setAttribute('data-type', obj.data[i].type);
+            row.setAttribute('data-type', obj.data[i].Type);
             row.setAttribute('data-name', obj.data[i].name);
-            row.innerHTML = '<td><span class="material-icons">list</span></td>' +
+            row.innerHTML = '<td data-col="Type"><span class="material-icons">list</span></td>' +
                             '<td>' + obj.data[i].name + '</td>' +
                             '<td>'+ d.toUTCString() + '</td>' +
-                            '<td><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>';
+                            '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>';
             if (i < tr.length)
                 tr[i].replaceWith(row); 
             else 
@@ -1436,26 +1480,27 @@ function parsePlaylists(obj) {
     else if (app.current.view == 'Detail') {
         for (var i = 0; i < nrItems; i++) {
             var uri = encodeURI(obj.data[i].uri);
-            var songpos = obj.offset + i + 1;
-            if (tr[i])
-                if (tr[i].getAttribute('data-uri') == uri && tr[i].getAttribute('id') == 'playlistTrackId' + songpos)
-                    continue;
+            //if (tr[i])
+            //    if (tr[i].getAttribute('data-uri') == uri && tr[i].getAttribute('id') == 'playlistTrackId' + songpos)
+            //        continue;
             var row = document.createElement('tr');
             if (obj.smartpls == false)
                 row.setAttribute('draggable','true');
-            row.setAttribute('id','playlistTrackId' + songpos);
-            row.setAttribute('data-type', obj.data[i].type);
+            row.setAttribute('id','playlistTrackId' + obj.data[i].Pos);
+            row.setAttribute('data-type', obj.data[i].Type);
             row.setAttribute('data-uri', uri);
             row.setAttribute('data-name', obj.data[i].Title);
-            row.setAttribute('data-songpos', songpos);
+            row.setAttribute('data-songpos', obj.data[i].Pos);
             var minutes = Math.floor(obj.data[i].Duration / 60);
             var seconds = obj.data[i].Duration - minutes * 60;
-            row.innerHTML = '<td>' + songpos + '</td>' + 
-                            '<td>' + obj.data[i].Title + '</td>' +
-                            '<td>' + obj.data[i].Artist + '</td>' + 
-                            '<td>' + obj.data[i].Album  + '</td>' +
-                            '<td>' + minutes + ':' + (seconds < 10 ? '0' : '') + seconds +
-                            '</td><td><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>';
+            obj.data[i].Duration = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+            var tds = '';
+            for (var c = 0; c < settings.colsBrowsePlaylistsDetail.length; c++) {
+                tds += '<td data-col="' + settings.colsBrowsePlaylistsDetail[c] + '">' + obj.data[i][settings.colsBrowsePlaylistsDetail[c]] + '</td>';
+            }
+            tds += '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>';
+            row.innerHTML = tds;
+
             if (i < tr.length)
                 tr[i].replaceWith(row); 
             else 
@@ -1551,7 +1596,7 @@ function parseListDBtags(obj) {
                     continue;
             var row = document.createElement('tr');
             row.setAttribute('data-uri', uri);
-            row.innerHTML='<td><span class="material-icons">album</span></td>' +
+            row.innerHTML='<td data-col="Type"><span class="material-icons">album</span></td>' +
                           '<td>' + obj.data[i].value + '</td>';
 
             if (i < tr.length)
@@ -1620,7 +1665,7 @@ function parseListTitles(obj) {
     for (var i = 0; i < nrItems; i++) {
         titleList += '<tr data-type="song" data-name="' + obj.data[i].Title + '" data-uri="' + encodeURI(obj.data[i].uri) + '">' +
                      '<td>' + obj.data[i].Track + '</td><td>' + obj.data[i].Title + '</td>' +
-                     '<td><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>' + 
+                     '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>' + 
                      '</tr>';
     }
     tbody.innerHTML = titleList;
@@ -1879,7 +1924,7 @@ function parseSmartPlaylist(obj) {
     var nameEl = document.getElementById('saveSmartPlaylistName');
     nameEl.value = obj.data.playlist;
     nameEl.classList.remove('is-invalid');
-    document.getElementById('saveSmartPlaylistType').value = obj.data.type;
+    document.getElementById('saveSmartPlaylistType').value = obj.data.Type;
     document.getElementById('saveSmartPlaylistFrm').classList.remove('was-validated');
     document.getElementById('saveSmartPlaylistSearch').classList.add('hide');
     document.getElementById('saveSmartPlaylistSticker').classList.add('hide');

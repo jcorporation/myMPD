@@ -130,9 +130,9 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                     free(mympd_state.colsBrowseDatabase);
                     mympd_state.colsBrowseDatabase = strdup(cols);
                 }
-                else if (strcmp(p_charbuf1,"colsBrowsePlaylistsDetails")==0) {
-                    free(mympd_state.colsBrowsePlaylistsDetails);
-                    mympd_state.colsBrowsePlaylistsDetails = strdup(cols);
+                else if (strcmp(p_charbuf1,"colsBrowsePlaylistsDetail")==0) {
+                    free(mympd_state.colsBrowsePlaylistsDetail);
+                    mympd_state.colsBrowsePlaylistsDetail = strdup(cols);
                 }
                 else if (strcmp(p_charbuf1,"colsBrowseFilesystem")==0) {
                     free(mympd_state.colsBrowseFilesystem);
@@ -1355,7 +1355,7 @@ int mympd_put_settings(char *buffer) {
     len += json_printf(&out, ", colsQueue: %s", mympd_state.colsQueue);
     len += json_printf(&out, ", colsSearch: %s", mympd_state.colsSearch);
     len += json_printf(&out, ", colsBrowseDatabase: %s", mympd_state.colsBrowseFilesystem);
-    len += json_printf(&out, ", colsBrowsePlaylistsDetails: %s", mympd_state.colsBrowsePlaylistsDetails);
+    len += json_printf(&out, ", colsBrowsePlaylistsDetail: %s", mympd_state.colsBrowsePlaylistsDetail);
     len += json_printf(&out, ", colsBrowseFilesystem: %s", mympd_state.colsBrowseFilesystem);
     len += json_printf(&out, "}}");    
 
@@ -1826,7 +1826,7 @@ int mympd_put_playlists(char *buffer, unsigned int offset, char *filter) {
                     smartpls = true;
                 else
                     smartpls = false;
-                len += json_printf(&out, "{type: %Q, uri: %Q, name: %Q, last_modified: %d}",
+                len += json_printf(&out, "{Type: %Q, uri: %Q, name: %Q, last_modified: %d}",
                     (smartpls == true ? "smartpls" : "plist"), 
                     plpath,
                     plpath,
@@ -1875,8 +1875,9 @@ int mympd_put_playlist_list(char *buffer, char *uri, unsigned int offset, char *
             ) {
                 if (entities_returned++) 
                     len += json_printf(&out, ",");
-                len += json_printf(&out, "{type: song, ");
+                len += json_printf(&out, "{Type: song, ");
                 PUT_SONG_TAGS();
+                len += json_printf(&out, ", Pos: %d", entity_count);
                 len += json_printf(&out, "}");
             } else {
                 entity_count--;
@@ -1929,7 +1930,7 @@ int mympd_search(char *buffer, char *searchstr, char *filter, char *plist, unsig
             if (entity_count > offset && entity_count <= offset + config.max_elements_per_page) {
                 if (entities_returned++) 
                     len += json_printf(&out, ", ");
-                len += json_printf(&out, "{type: song, ");
+                len += json_printf(&out, "{Type: song, ");
                 PUT_SONG_TAGS();
                 len += json_printf(&out, "}");
             }

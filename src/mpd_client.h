@@ -206,7 +206,7 @@ typedef struct {
     char* colsQueue;
     char* colsSearch;
     char* colsBrowseDatabase;
-    char* colsBrowsePlaylistsDetails;
+    char* colsBrowsePlaylistsDetail;
     char* colsBrowseFilesystem;
 } t_mympd_state;
 

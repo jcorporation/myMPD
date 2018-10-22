@@ -83,7 +83,7 @@ done
 [ -f /var/lib/mympd/state/notificationWeb ] || echo -n "false" > /var/lib/mympd/state/notificationWeb
 [ -f /var/lib/mympd/state/colsBrowseDatabase ] || echo -n '["Track","Title"]' > /var/lib/mympd/state/colsBrowseDatabase
 [ -f /var/lib/mympd/state/colsBrowseFilesystem ] || echo -n '["Type","Title","Artist","Album","Duration"]' > /var/lib/mympd/state/colsBrowseFilesystem
-[ -f /var/lib/mympd/state/colsBrowsePlaylistsDetails ] || echo -n '["Pos","Title","Artist","Album","Duration"]' > /var/lib/mympd/state/colsBrowsePlaylistsDetails
+[ -f /var/lib/mympd/state/colsBrowsePlaylistsDetail ] || echo -n '["Pos","Title","Artist","Album","Duration"]' > /var/lib/mympd/state/colsBrowsePlaylistsDetail
 [ -f /var/lib/mympd/state/colsQueue ] || echo -n '["Pos","Title","Artist","Album","Duration"]' > /var/lib/mympd/state/colsQueue
 [ -f /var/lib/mympd/state/colsSearch ] || echo -n '["Title","Artist","Album","Duration"]' > /var/lib/mympd/state/colsSearch
 

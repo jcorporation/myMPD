@@ -274,11 +274,11 @@ void read_statefiles() {
         mympd_state_set("colsBrowseDatabase", mympd_state.colsBrowseDatabase);
     }
     
-    if (mympd_state_get("colsBrowsePlaylistsDetails", value))
-        mympd_state.colsBrowsePlaylistsDetails = strdup(value);
+    if (mympd_state_get("colsBrowsePlaylistsDetail", value))
+        mympd_state.colsBrowsePlaylistsDetail = strdup(value);
     else {
-        mympd_state.colsBrowsePlaylistsDetails = strdup("[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]");
-        mympd_state_set("colsBrowsePlaylistsDetails", mympd_state.colsBrowsePlaylistsDetails);
+        mympd_state.colsBrowsePlaylistsDetail = strdup("[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]");
+        mympd_state_set("colsBrowsePlaylistsDetail", mympd_state.colsBrowsePlaylistsDetail);
     }
     
     if (mympd_state_get("colsBrowseFilesystem", value))

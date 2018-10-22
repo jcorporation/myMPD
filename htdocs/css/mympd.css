@@ -43,7 +43,7 @@ button {
   cursor: pointer;
 }
 
-.tblnum, .tblaction {
+[data-col=Pos], [data-col=Type], [data-col=Track], [data-col=Action] {
   width: 30px;
 }
 
