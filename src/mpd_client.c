@@ -109,6 +109,40 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                 n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"MPD stickers are disabled\"}");
             }
             break;
+        case MPD_API_COLS_SAVE:
+            je = json_scanf(msg.p, msg.len, "{data: {table: %Q}}", &p_charbuf1);
+            if (je == 1) {
+                char column_list[800];
+                snprintf(column_list, 800, "%.*s", msg.len, msg.p);
+                char *cols = strchr(column_list, '[');
+                int len = strlen(cols); 
+                if (len > 1)
+                    cols[len - 2]  = '\0';
+                if (strcmp(p_charbuf1,"colsQueue")==0) {
+                    free(mympd_state.colsQueue);
+                    mympd_state.colsQueue = strdup(cols);
+                }
+                else if (strcmp(p_charbuf1,"colsSearch")==0) {
+                    free(mympd_state.colsSearch);
+                    mympd_state.colsSearch = strdup(cols);
+                }
+                else if (strcmp(p_charbuf1,"colsBrowseDatabase")==0) {
+                    free(mympd_state.colsBrowseDatabase);
+                    mympd_state.colsBrowseDatabase = strdup(cols);
+                }
+                else if (strcmp(p_charbuf1,"colsBrowsePlaylistsDetails")==0) {
+                    free(mympd_state.colsBrowsePlaylistsDetails);
+                    mympd_state.colsBrowsePlaylistsDetails = strdup(cols);
+                }
+                else if (strcmp(p_charbuf1,"colsBrowseFilesystem")==0) {
+                    free(mympd_state.colsBrowseFilesystem);
+                    mympd_state.colsBrowseFilesystem = strdup(cols);
+                }
+                mympd_state_set(p_charbuf1, cols);
+                free(p_charbuf1);
+            }
+            n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+            break;
         case MPD_API_SYSCMD:
             je = json_scanf(msg.p, msg.len, "{data: {cmd: %Q}}", &p_charbuf1);
             if (je == 1) {
@@ -1308,9 +1342,7 @@ int mympd_put_settings(char *buffer) {
         len += json_printf(&out, "%Q", current->data);
         current = current->next;
     }
-
     len += json_printf(&out, "], syscmds: [");
-
     nr = 0;
     current = syscmds.list;
     while (current != NULL) {
@@ -1319,8 +1351,13 @@ int mympd_put_settings(char *buffer) {
         len += json_printf(&out, "%Q", current->data);
         current = current->next;
     }
-    
-    len += json_printf(&out, "]}}");    
+    len += json_printf(&out, "]");
+    len += json_printf(&out, ", colsQueue: %s", mympd_state.colsQueue);
+    len += json_printf(&out, ", colsSearch: %s", mympd_state.colsSearch);
+    len += json_printf(&out, ", colsBrowseDatabase: %s", mympd_state.colsBrowseFilesystem);
+    len += json_printf(&out, ", colsBrowsePlaylistsDetails: %s", mympd_state.colsBrowsePlaylistsDetails);
+    len += json_printf(&out, ", colsBrowseFilesystem: %s", mympd_state.colsBrowseFilesystem);
+    len += json_printf(&out, "}}");    
 
     CHECK_RETURN_LEN();
     return len;
@@ -1505,7 +1542,7 @@ int mympd_put_queue(char *buffer, unsigned int offset, unsigned *queue_version, 
             entity_count++;
             if (entities_returned++) 
                 len += json_printf(&out, ",");
-            len += json_printf(&out, "{id: %d, pos: %d, ",
+            len += json_printf(&out, "{id: %d, Pos: %d, ",
                 mpd_song_get_id(song),
                 mpd_song_get_pos(song)
             );
@@ -1564,7 +1601,7 @@ int mympd_put_browse(char *buffer, char *path, unsigned int offset, char *filter
                     ) {
                         if (entities_returned++) 
                             len += json_printf(&out, ",");
-                        len += json_printf(&out, "{type: song, ");
+                        len += json_printf(&out, "{Type: song, ");
                         PUT_SONG_TAGS();
                         len += json_printf(&out, "}");
                     } else {
@@ -1587,7 +1624,7 @@ int mympd_put_browse(char *buffer, char *path, unsigned int offset, char *filter
                     ) {                
                         if (entities_returned++) 
                             len += json_printf(&out, ",");
-                        len += json_printf(&out, "{type: dir, uri: %Q, name: %Q}",
+                        len += json_printf(&out, "{Type: dir, uri: %Q, name: %Q}",
                             entityName,
                             dirName
                         );
@@ -1615,7 +1652,7 @@ int mympd_put_browse(char *buffer, char *path, unsigned int offset, char *filter
                             smartpls = true;
                         else
                             smartpls = false;                    
-                        len += json_printf(&out, "{type: %Q, uri: %Q, name: %Q}",
+                        len += json_printf(&out, "{Type: %Q, uri: %Q, name: %Q}",
                             (smartpls == true ? "smartpls" : "plist"),
                             entityName,
                             plName
@@ -1734,7 +1771,7 @@ int mympd_put_songs_in_album(char *buffer, char *album, char *search, char *tag)
                     mympd_get_cover(mpd_song_get_uri(song), cover, 500);
                     albumartist = strdup(mympd_get_tag(song, MPD_TAG_ALBUM_ARTIST));
                 }
-                len += json_printf(&out, "{type: song, uri: %Q, duration: %d, Title: %Q, Track: %Q}",
+                len += json_printf(&out, "{type: song, uri: %Q, Duration: %d, Title: %Q, Track: %Q}",
                     mpd_song_get_uri(song),
                     mpd_song_get_duration(song),
                     mympd_get_tag(song, MPD_TAG_TITLE),

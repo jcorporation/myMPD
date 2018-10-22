@@ -534,6 +534,12 @@ function appInit() {
             appGoto(app.current.app, app.current.tab, app.current.view, app.current.page + '/' + event.target.getAttribute('data-tag') + '/' + app.current.search);
     }, false);
 
+    document.getElementById('QueueColsDropdown').addEventListener('click', function(event) {
+        if (event.target.nodeName == 'INPUT') {
+            event.stopPropagation();
+        }
+    }, false);
+
     document.getElementById('search').addEventListener('submit', function() {
         return false;
     }, false);
@@ -557,6 +563,7 @@ function appInit() {
 
     dragAndDropTable('QueueList');
     dragAndDropTable('BrowsePlaylistsDetailList');
+    dragAndDropTableHeader('Queue');
 
     window.addEventListener('hashchange', appRoute, false);
 
@@ -668,7 +675,9 @@ function dragAndDropTable(table) {
         }
     }, false);
     tableBody.addEventListener('dragleave', function(event) {
-        event.preventDefault();        
+        event.preventDefault();
+        if (dragEl.nodeName != 'TR')
+            return;
         var target = event.target;
         if (event.target.nodeName == 'TD')
             target = event.target.parentNode;
@@ -677,6 +686,8 @@ function dragAndDropTable(table) {
     }, false);
     tableBody.addEventListener('dragover', function(event) {
         event.preventDefault();
+        if (dragEl.nodeName != 'TR')
+            return;
         var tr = tableBody.getElementsByClassName('dragover');
         var trLen = tr.length;
         for (var i = 0; i < trLen; i++) {
@@ -690,6 +701,9 @@ function dragAndDropTable(table) {
         event.dataTransfer.dropEffect = 'move';
     }, false);
     tableBody.addEventListener('dragend', function(event) {
+        event.preventDefault();
+        if (dragEl.nodeName != 'TR')
+            return;
         var tr = tableBody.getElementsByClassName('dragover');
         var trLen = tr.length;
         for (var i = 0; i < trLen; i++) {
@@ -701,6 +715,8 @@ function dragAndDropTable(table) {
     tableBody.addEventListener('drop', function(event) {
         event.stopPropagation();
         event.preventDefault();
+        if (dragEl.nodeName != 'TR')
+            return;
         var target = event.target;
         if (event.target.nodeName == 'TD')
             target = event.target.parentNode;
@@ -719,6 +735,67 @@ function dragAndDropTable(table) {
             sendAPI({"cmd": "MPD_API_QUEUE_MOVE_TRACK","data": {"from": oldSongpos, "to": newSongpos}});
         else if (app.current.app == 'Browse' && app.current.tab == 'Playlists' && app.current.view == 'Detail')
             playlistMoveTrack(oldSongpos, newSongpos);        
+    }, false);
+}
+
+function dragAndDropTableHeader(table) {
+    var tableHeader=document.getElementById(table + 'List').getElementsByTagName('tr')[0];
+    tableHeader.addEventListener('dragstart', function(event) {
+        if (event.target.nodeName == 'TH') {
+            event.target.classList.add('opacity05');
+            event.dataTransfer.setDragImage(event.target, 0, 0);
+            event.dataTransfer.effectAllowed = 'move';
+            event.dataTransfer.setData('Text', event.target.getAttribute('data-col'));
+            dragEl = event.target.cloneNode(true);
+        }
+    }, false);
+    tableHeader.addEventListener('dragleave', function(event) {
+        event.preventDefault();
+        if (dragEl.nodeName != 'TH')
+            return;
+        if (event.target.nodeName == 'TH')
+            event.target.classList.remove('dragover-th');
+    }, false);
+    tableHeader.addEventListener('dragover', function(event) {
+        event.preventDefault();
+        if (dragEl.nodeName != 'TH')
+            return;
+        var th = tableHeader.getElementsByClassName('dragover-th');
+        var thLen = th.length;
+        for (var i = 0; i < thLen; i++) {
+            th[i].classList.remove('dragover-th');
+        }
+        if (event.target.nodeName == 'TH')
+            event.target.classList.add('dragover-th');
+        event.dataTransfer.dropEffect = 'move';
+    }, false);
+    tableHeader.addEventListener('dragend', function(event) {
+        event.preventDefault();
+        if (dragEl.nodeName != 'TH')
+            return;
+        var th = tableHeader.getElementsByClassName('dragover-th');
+        var thLen = th.length;
+        for (var i = 0; i < thLen; i++) {
+            th[i].classList.remove('dragover-th');
+        }
+        if (this.querySelector('[data-col=' + event.dataTransfer.getData('Text') + ']'))
+            this.querySelector('[data-col=' + event.dataTransfer.getData('Text') + ']').classList.remove('opacity05');
+    }, false);
+    tableHeader.addEventListener('drop', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        if (dragEl.nodeName != 'TH')
+            return;
+        this.querySelector('[data-col=' + event.dataTransfer.getData('Text') + ']').remove();
+        dragEl.classList.remove('opacity05');
+        tableHeader.insertBefore(dragEl, event.target);
+        var th = tableHeader.getElementsByClassName('dragover-th');
+        var thLen = th.length;
+        for (var i = 0; i < thLen; i++) {
+            th[i].classList.remove('dragover-th');
+        }
+        document.getElementById(table + 'List').classList.add('opacity05');
+        saveCols(table);
     }, false);
 }
 
@@ -954,10 +1031,73 @@ function parseSettings(obj) {
                 obj.data.syscmds[i] + '"]}\'>' + obj.data.syscmds[i] + '</a>';
     }
     document.getElementById('syscmds').innerHTML = syscmdsList;
+    
+    setCols('Queue');
+}
+
+function setCols(table) {
+    var tagChks = '';
+    var tags = settings.tags;
+    tags.push('Duration');
+    if (table == 'Queue')
+        tags.push('Pos');
+    
+    for (var i = 0; i < tags.length; i++) {
+        tagChks += '<div class="form-check">' +
+            '<input class="form-check-input" type="checkbox" value="1" name="' + tags[i] + '"';
+        if (settings['cols' + table].includes(tags[i]))
+            tagChks += 'checked';
+        tagChks += '>' +
+            '<label class="form-check-label text-light" for="' + tags[i] + '">&nbsp;&nbsp;' + tags[i] + '</label>' +
+            '</div>';
+    }
+    document.getElementById(table + 'ColsDropdown').firstChild.innerHTML = tagChks;
+    
+    var heading = '';
+    for (var i = 0; i < settings['cols' + table].length; i++) {
+        var h = settings['cols' + table][i];
+        heading += '<th draggable="true" data-col="' + h  + '">';
+        if (h == 'Track' || h == 'Pos')
+            h = '#';
+        heading += h + '</th>';
+    }
+    heading += '<th></th>';
+    document.getElementById(table + 'List').getElementsByTagName('tr')[0].innerHTML = heading;
 }
 
 function getSettings() {
     sendAPI({"cmd": "MPD_API_SETTINGS_GET"}, parseSettings);
+}
+
+function saveCols(table) {
+    var colInputs = document.getElementById(table + 'ColsDropdown').firstChild.getElementsByTagName('input');
+    var header = document.getElementById(table + 'List').getElementsByTagName('tr')[0];
+    
+    for (var i = 0; i < colInputs.length; i++) {
+        var th = header.querySelector('[data-col=' + colInputs[i].name + ']');
+        if (colInputs[i].checked == false) {
+            if (th)
+                th.remove();
+        } 
+        else if (!th) {
+            th = document.createElement('th');
+            th.innerText = colInputs[i].name;
+            th.setAttribute('data-col', colInputs[i].name);
+            header.appendChild(th);
+        }
+    }
+    
+    var cols = {"cmd": "MPD_API_COLS_SAVE", "data": {"table": "cols" + table, "cols": []}};
+    var ths = header.getElementsByTagName('th');
+    for (var i = 0; i < ths.length; i++) {
+        var name = ths[i].getAttribute('data-col');
+        if (name)
+            cols.data.cols.push(name);
+    }
+    sendAPI(cols);
+    getSettings();
+    if (table == 'Queue')
+        getQueue();
 }
 
 function parseOutputs(obj) {
@@ -992,19 +1132,27 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
     if (lastState) {
         var tr = document.getElementById('queueTrackId' + lastState.data.currentSongId);
         if (tr) {
-            var trtds = tr.getElementsByTagName('td');
-            trtds[4].innerText = tr.getAttribute('data-duration');
-            trtds[0].classList.remove('material-icons');
-            trtds[0].innerText = tr.getAttribute('data-songpos');
+            var durationTd = tr.querySelector('[data-col=Duration]');
+            if (durationTd)
+                durationTd.innerText = tr.getAttribute('data-duration');
+            var posTd = tr.querySelector('[data-col=Pos]');
+            if (posTd) {
+                posTd.classList.remove('material-icons');
+                posTd.innerText = tr.getAttribute('data-songpos');
+            }
             tr.classList.remove('font-weight-bold');
         }
     }
     var tr = document.getElementById('queueTrackId' + currentSongId);
     if (tr) {
-        var trtds = tr.getElementsByTagName('td');
-        trtds[4].innerText = counterText;
-        trtds[0].classList.add('material-icons');
-        trtds[0].innerText = 'play_arrow';
+        var durationTd = tr.querySelector('[data-col=Duration]');
+        if (durationTd)
+            durationTd.innerText = counterText;
+        var posTd = tr.querySelector('[data-col=Pos]');
+        if (posTd) {
+            posTd.classList.add('material-icons');
+            posTd.innerText = 'play_arrow';
+        }
         tr.classList.add('font-weight-bold');
     }
     
@@ -1120,22 +1268,22 @@ function parseQueue(obj) {
             if (tr[i].getAttribute('data-trackid') == obj.data[i].id && tr[i].getAttribute('data-songpos') == (obj.data[i].pos + 1))
                 continue;
                 
-        var minutes = Math.floor(obj.data[i].duration / 60);
-        var seconds = obj.data[i].duration - minutes * 60;
-        var duration = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+        var minutes = Math.floor(obj.data[i].Duration / 60);
+        var seconds = obj.data[i].Duration - minutes * 60;
+        obj.data[i].Duration = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
         var row = document.createElement('tr');
         row.setAttribute('draggable','true');
         row.setAttribute('data-trackid', obj.data[i].id);
         row.setAttribute('id','queueTrackId' + obj.data[i].id);
         row.setAttribute('data-songpos', (obj.data[i].pos + 1));
-        row.setAttribute('data-duration', duration);
+        row.setAttribute('data-duration', obj.data[i].Duration);
         row.setAttribute('data-uri', obj.data[i].uri);
-        row.innerHTML = '<td>' + (obj.data[i].pos + 1) + '</td>' +
-                        '<td>' + obj.data[i].Title + '</td>' +
-                        '<td>' + obj.data[i].Artist + '</td>' + 
-                        '<td>' + obj.data[i].Album + '</td>' +
-                        '<td>' + duration + '</td>' +
-                        '<td><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>';
+        var tds = '';
+        for (var c = 0; c < settings.colsQueue.length; c++) {
+            tds += '<td data-col="' + settings.colsQueue[c] + '">' + obj.data[i][settings.colsQueue[c]] + '</td>';
+        }
+        tds += '<td><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>';
+        row.innerHTML = tds;
         if (i < tr.length)
             tr[i].replaceWith(row); 
         else 
@@ -1198,8 +1346,8 @@ function parseFilesystem(obj) {
                                 '<td><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>';
                 break;
             case 'song':
-                var minutes = Math.floor(obj.data[i].duration / 60);
-                var seconds = obj.data[i].duration - minutes * 60;
+                var minutes = Math.floor(obj.data[i].Duration / 60);
+                var seconds = obj.data[i].Duration - minutes * 60;
                 row.innerHTML = '<td><span class="material-icons">music_note</span></td>' + 
                                 '<td>' + obj.data[i].Title + '</td>' +
                                 '<td>' + obj.data[i].Artist + '</td>' + 
@@ -1300,8 +1448,8 @@ function parsePlaylists(obj) {
             row.setAttribute('data-uri', uri);
             row.setAttribute('data-name', obj.data[i].Title);
             row.setAttribute('data-songpos', songpos);
-            var minutes = Math.floor(obj.data[i].duration / 60);
-            var seconds = obj.data[i].duration - minutes * 60;
+            var minutes = Math.floor(obj.data[i].Duration / 60);
+            var seconds = obj.data[i].Duration - minutes * 60;
             row.innerHTML = '<td>' + songpos + '</td>' + 
                             '<td>' + obj.data[i].Title + '</td>' +
                             '<td>' + obj.data[i].Artist + '</td>' + 
@@ -1600,7 +1748,7 @@ function parseSongDetails(obj) {
     for (var i = 0; i < settings.tags.length; i++) {
         songDetails += '<tr><th>' + settings.tags[i] + '</th><td>' + obj.data[settings.tags[i]] + '</td></tr>';
     }
-    var duration = obj.data.duration;
+    var duration = obj.data.Duration;
     var minutes = Math.floor(duration / 60);
     var seconds = duration - minutes * 60;
     duration = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;

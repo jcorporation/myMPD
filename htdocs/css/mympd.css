@@ -249,7 +249,11 @@ caption {
 }
 
 .dragover > td {
-  border-top:25px solid transparent;
+  border-top:2px solid #28a745;
+}
+
+.dragover-th {
+  border-left:2px solid #28a745;
 }
 
 [draggable] {
@@ -260,6 +264,7 @@ caption {
   /* Required to make elements draggable in old WebKit */
   -khtml-user-drag: element;
   -webkit-user-drag: element;
+  cursor: pointer;
 }
 
 @keyframes changewidth {

@@ -59,7 +59,7 @@
         len += json_printf(&out, "%Q: %Q", current->data, mympd_get_tag(song, mpd_tag_name_parse(current->data))); \
         current = current->next; \
     } \
-    len += json_printf(&out, ", duration: %d, uri: %Q", mpd_song_get_duration(song), mpd_song_get_uri(song)); \
+    len += json_printf(&out, ", Duration: %d, uri: %Q", mpd_song_get_duration(song), mpd_song_get_uri(song)); \
 } while (0)
 
 
@@ -123,6 +123,7 @@
     X(MPD_API_WELCOME) \
     X(MPD_API_LIKE) \
     X(MPD_API_SYSCMD) \
+    X(MPD_API_COLS_SAVE) \
     X(MPD_API_UNKNOWN)
 
 enum mpd_cmd_ids {
@@ -202,6 +203,11 @@ typedef struct {
     int jukeboxMode;
     const char* jukeboxPlaylist;
     int jukeboxQueueLength;
+    char* colsQueue;
+    char* colsSearch;
+    char* colsBrowseDatabase;
+    char* colsBrowsePlaylistsDetails;
+    char* colsBrowseFilesystem;
 } t_mympd_state;
 
 t_mympd_state mympd_state;

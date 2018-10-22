@@ -242,7 +242,7 @@ void read_statefiles() {
     if (mympd_state_get("jukeboxPlaylist", value))
         mympd_state.jukeboxPlaylist = strdup(value);
     else {
-        mympd_state.jukeboxPlaylist = "Database";
+        mympd_state.jukeboxPlaylist = strdup("Database");
         mympd_state_set("jukeboxPlaylist", "Database");
     }
 
@@ -251,6 +251,41 @@ void read_statefiles() {
     else {
         mympd_state.jukeboxQueueLength = 1;
         mympd_state_set("jukeboxQueueLength", "1");
+    }
+    
+    if (mympd_state_get("colsQueue", value))
+        mympd_state.colsQueue = strdup(value);
+    else {
+        mympd_state.colsQueue = strdup("[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]");
+        mympd_state_set("colsQueue", mympd_state.colsQueue);
+    }
+    
+    if (mympd_state_get("colsSearch", value))
+        mympd_state.colsSearch = strdup(value);
+    else {
+        mympd_state.colsSearch = strdup("[\"Title\",\"Artist\",\"Album\",\"Duration\"]");
+        mympd_state_set("colsSearch", mympd_state.colsSearch);
+    }
+    
+    if (mympd_state_get("colsBrowseDatabase", value))
+        mympd_state.colsBrowseDatabase = strdup(value);
+    else {
+        mympd_state.colsBrowseDatabase = strdup("[\"Track\",\"Title\"]");
+        mympd_state_set("colsBrowseDatabase", mympd_state.colsBrowseDatabase);
+    }
+    
+    if (mympd_state_get("colsBrowsePlaylistsDetails", value))
+        mympd_state.colsBrowsePlaylistsDetails = strdup(value);
+    else {
+        mympd_state.colsBrowsePlaylistsDetails = strdup("[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]");
+        mympd_state_set("colsBrowsePlaylistsDetails", mympd_state.colsBrowsePlaylistsDetails);
+    }
+    
+    if (mympd_state_get("colsBrowseFilesystem", value))
+        mympd_state.colsBrowseFilesystem = strdup(value);
+    else {
+        mympd_state.colsBrowseFilesystem = strdup("[\"Type\",\"Title\",\"Artist\",\"Album\",\"Duration\"]");
+        mympd_state_set("colsBrowseFilesystem", mympd_state.colsBrowseFilesystem);
     }
 }
 

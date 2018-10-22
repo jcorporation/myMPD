@@ -117,8 +117,7 @@
             </button>
           </div>
           <div class="btn-group mr-2">
-            <button type="button" class="btn btn-secondary material-icons"
-            data-href='{"cmd": "sendAPI", "options": [{"cmd": "MPD_API_QUEUE_SHUFFLE"}]}' title="Shuffle queue">
+            <button type="button" class="btn btn-secondary material-icons" data-href='{"cmd": "sendAPI", "options": [{"cmd": "MPD_API_QUEUE_SHUFFLE"}]}' title="Shuffle queue">
               shuffle
             </button>
           </div>
@@ -154,16 +153,16 @@
               </div>            
             <button data-href='{"cmd": "gotoPage", "options": ["next"]}' id="QueuePaginationTopNext" title="Next Page" type="button" class="btn btn-secondary input-group-append">&raquo;</button>
           </div>
+          <div class="btn-group mr-2">
+            <button id="QueueColsBtn" class="btn btn-secondary dropdown-toggle material-icons" type="button" data-toggle="dropdown">settings</button>
+            <div class="dropdown-menu bg-dark px-2" id="QueueColsDropdown"><form></form>
+              <button data-href='{"cmd": "saveCols", "options": ["Queue"]}' class="btn btn-success btn-block btn-sm mt-2">Apply</button>
+            </div>          
+          </div>
         </div>
 
         <div class="table-responsive-md">
           <table id="QueueList" class="table table-hover table-sm" data-version="">
-            <col class="tblnum"/>
-            <col class="tbltitle"/>
-            <col class="tblartist"/>
-            <col class="tblalbum"/>
-            <col class="tbllength"/>
-            <col class="tblaction"/>
             <thead>
               <tr>
                 <th>#</th>
