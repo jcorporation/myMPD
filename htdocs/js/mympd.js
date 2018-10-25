@@ -959,6 +959,7 @@ function filterCols(x) {
             cols.push(settings[x][i]);
     }
     settings[x] = cols;
+    settings[x].sort();
 }
 
 function parseSettings(obj) {
@@ -1032,6 +1033,13 @@ function parseSettings(obj) {
         document.getElementsByClassName('mixramp')[0].style.display = '';
     else 
         document.getElementsByClassName('mixramp')[0].style.display = 'none';
+        
+    if (!obj.data.tags.includes('AlbumArtist') && obj.data.featTags) {
+        if (obj.data.tags.includes('Artist'))
+            app.apps.Browse.tabs.Database.active = 'Artist';
+        else    
+            app.apps.Browse.tabs.Database.active = settings.tags[0];
+    }
     
     document.getElementById('selectJukeboxMode').value = obj.data.jukeboxMode;
     document.getElementById('inputJukeboxQueueLength').value = obj.data.jukeboxQueueLength;
@@ -1053,6 +1061,7 @@ function parseSettings(obj) {
         document.getElementById('selectJukeboxPlaylist').innerHTML = '<option>Database</option>';
     }
 
+    settings.tags.sort();
     filterCols('colsSearch');
     filterCols('colsQueue');
     filterCols('colsBrowsePlaylistsDetail');
@@ -1107,6 +1116,8 @@ function setCols(table) {
     if (table == 'BrowseFilesystem')
         tags.push('Type');
     
+    tags.sort();
+    
     for (var i = 0; i < tags.length; i++) {
         tagChks += '<div class="form-check">' +
             '<input class="form-check-input" type="checkbox" value="1" name="' + tags[i] + '"';
@@ -1120,13 +1131,11 @@ function setCols(table) {
     
     var heading = '';
     for (var i = 0; i < settings['cols' + table].length; i++) {
-//        if (tags.includes(settings['cols' + table][i])) {
-            var h = settings['cols' + table][i];
-            heading += '<th draggable="true" data-col="' + h  + '">';
-            if (h == 'Track' || h == 'Pos')
-                h = '#';
-            heading += h + '</th>';
-//        }
+        var h = settings['cols' + table][i];
+        heading += '<th draggable="true" data-col="' + h  + '">';
+        if (h == 'Track' || h == 'Pos')
+            h = '#';
+        heading += h + '</th>';
     }
     heading += '<th></th>';
     document.getElementById(table + 'List').getElementsByTagName('tr')[0].innerHTML = heading;
@@ -1812,8 +1821,12 @@ function songClick() {
 
 function artistClick() {
     var albumartist = domCache.currentArtist.getAttribute('data-albumartist');
-    if (albumartist != '') 
-        appGoto('Browse', 'Database', 'AlbumArtist', '0/-/' + albumartist);
+    if (albumartist != '') {
+        if (settings.tags.includes('AlbumArtist'))
+            appGoto('Browse', 'Database', 'AlbumArtist', '0/-/' + albumartist);
+        else if (settings.tags.includes('Artist'))
+            appGoto('Browse', 'Database', 'Artist', '0/-/' + albumartist);
+    }
 }
 
 function albumClick() {
@@ -2603,7 +2616,12 @@ function songChange(obj) {
         htmlNotification += obj.data.Artist;
         pageTitle += obj.data.Artist + ' - ';
         domCache.currentArtist.innerText = obj.data.Artist;
-        domCache.currentArtist.setAttribute('data-albumartist', obj.data.AlbumArtist);
+        if (obj.data.AlbumArtist != undefined)
+            domCache.currentArtist.setAttribute('data-albumartist', obj.data.AlbumArtist);
+        else if (obj.data.Artist != undefined)
+            domCache.currentArtist.setAttribute('data-albumartist', obj.data.Artist);
+        else
+            domCache.currentArtist.setAttribute('data-albumartist', '');
     } else
         domCache.currentArtist.innerText = '';
 
