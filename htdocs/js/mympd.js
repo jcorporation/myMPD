@@ -959,7 +959,6 @@ function filterCols(x) {
             cols.push(settings[x][i]);
     }
     settings[x] = cols;
-    settings[x].sort();
 }
 
 function parseSettings(obj) {
@@ -1352,7 +1351,7 @@ function parseQueue(obj) {
         row.setAttribute('draggable','true');
         row.setAttribute('data-trackid', obj.data[i].id);
         row.setAttribute('id','queueTrackId' + obj.data[i].id);
-        row.setAttribute('data-songpos', (obj.data[i].pos + 1));
+        row.setAttribute('data-songpos', (obj.data[i].Pos + 1));
         row.setAttribute('data-duration', obj.data[i].Duration);
         row.setAttribute('data-uri', obj.data[i].uri);
         var tds = '';
@@ -1414,7 +1413,7 @@ function parseFilesystem(obj) {
         var row = document.createElement('tr');
         row.setAttribute('data-type', obj.data[i].Type);
         row.setAttribute('data-uri', uri);
-        if (obj.data[i].type == 'song')
+        if (obj.data[i].Type == 'song')
             row.setAttribute('data-name', obj.data[i].Title);
         else
             row.setAttribute('data-name', obj.data[i].name);
@@ -1502,7 +1501,8 @@ function parsePlaylists(obj) {
         document.getElementById('BrowsePlaylistsDetailList').classList.remove('hide');
         document.getElementById('BrowsePlaylistsAllList').classList.add('hide');
         document.getElementById('btnBrowsePlaylistsAll').parentNode.classList.remove('hide');
-        document.getElementById('BrowsePlaylistsDetailColsBtn').parentNode.classList.remove('hide');
+        if (settings.featTags)
+            document.getElementById('BrowsePlaylistsDetailColsBtn').parentNode.classList.remove('hide');
     }
             
     var nrItems = obj.data.length;
