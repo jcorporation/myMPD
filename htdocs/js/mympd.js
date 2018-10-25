@@ -943,6 +943,24 @@ function toggleBtn(btn, state) {
         b.classList.remove('active');
 }
 
+function filterCols(x) {
+    var tags = settings.tags.slice();
+    if (settings.featTags == false)
+        tags.push('Title');
+    tags.push('Duration');
+    if (x == 'colsQueue' || x == 'colsBrowsePlaylistsDetail')
+        tags.push('Pos');
+    if (x == 'colsBrowseFilesystem')
+        tags.push('Type');
+        
+    var cols = [];
+    for (var i = 0; i < settings[x].length; i++) {
+        if (tags.includes(settings[x][i])) 
+            cols.push(settings[x][i]);
+    }
+    settings[x] = cols;
+}
+
 function parseSettings(obj) {
     toggleBtn('btnRandom', obj.data.random);
     toggleBtn('btnConsume', obj.data.consume);
@@ -995,18 +1013,21 @@ function parseSettings(obj) {
     
     toggleBtn('btnnotifyPage', obj.data.notificationPage);
 
-    var stickerEls = document.getElementsByClassName('stickers');
-    var stickerElsLen = stickerEls.length;
-    var displayStickers = obj.data.stickers == true ? '' : 'none';
-    for (var i = 0; i < stickerElsLen; i++) 
-        stickerEls[i].style.display = displayStickers;
-
-    var smartplsEls = document.getElementsByClassName('smartpls');
-    var smartplsElsLen = smartplsEls.length;
-    var displaySmartpls = obj.data.smartpls == true ? '' : 'none';
-    for (var i = 0; i < smartplsElsLen; i++)
-        smartplsEls[i].style.display = displaySmartpls;
+    var features = ["featStickers", "featSmartpls", "featPlaylists", "featTags"];
     
+    for (var j = 0; j < features.length; j++) {
+        var Els = document.getElementsByClassName(features[j]);
+        var ElsLen = Els.length;
+        var displayEl = obj.data[features[j]] == true ? '' : 'none';
+        for (var i = 0; i < ElsLen; i++) 
+            Els[i].style.display = displayEl;
+    }
+    
+    if (obj.data.featTags == false) {
+        app.apps.Browse.active = 'Filesystem';
+        app.apps.Search.state = '0/filename/';
+    }
+
     if (obj.data.mixramp == true)
         document.getElementsByClassName('mixramp')[0].style.display = '';
     else 
@@ -1025,8 +1046,17 @@ function parseSettings(obj) {
 
     settings = obj.data;
 
-    playlistEl = 'selectJukeboxPlaylist';
-    sendAPI({"cmd": "MPD_API_PLAYLIST_LIST", "data": {"offset": 0, "filter": "-"}}, getAllPlaylists);
+    if (obj.data.featPlaylists) {
+        playlistEl = 'selectJukeboxPlaylist';
+        sendAPI({"cmd": "MPD_API_PLAYLIST_LIST", "data": {"offset": 0, "filter": "-"}}, getAllPlaylists);
+    } else {
+        document.getElementById('selectJukeboxPlaylist').innerHTML = '<option>Database</option>';
+    }
+
+    filterCols('colsSearch');
+    filterCols('colsQueue');
+    filterCols('colsBrowsePlaylistsDetail');
+    filterCols('colsBrowseFilesystem');
 
     settings.mpdstream = 'http://';
     if (settings.mpdhost == '127.0.0.1' || settings.mpdhost == 'localhost')
@@ -1069,9 +1099,13 @@ function parseSettings(obj) {
 function setCols(table) {
     var tagChks = '';
     var tags = settings.tags.slice();
+    if (settings.featTags == false)
+        tags.push('Title');
     tags.push('Duration');
     if (table == 'Queue' || table == 'BrowsePlaylistsDetail')
         tags.push('Pos');
+    if (table == 'BrowseFilesystem')
+        tags.push('Type');
     
     for (var i = 0; i < tags.length; i++) {
         tagChks += '<div class="form-check">' +
@@ -1086,11 +1120,13 @@ function setCols(table) {
     
     var heading = '';
     for (var i = 0; i < settings['cols' + table].length; i++) {
-        var h = settings['cols' + table][i];
-        heading += '<th draggable="true" data-col="' + h  + '">';
-        if (h == 'Track' || h == 'Pos')
-            h = '#';
-        heading += h + '</th>';
+//        if (tags.includes(settings['cols' + table][i])) {
+            var h = settings['cols' + table][i];
+            heading += '<th draggable="true" data-col="' + h  + '">';
+            if (h == 'Track' || h == 'Pos')
+                h = '#';
+            heading += h + '</th>';
+//        }
     }
     heading += '<th></th>';
     document.getElementById(table + 'List').getElementsByTagName('tr')[0].innerHTML = heading;
@@ -1183,7 +1219,6 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
             if (!posTd.classList.contains('material-icons')) {
                 posTd.classList.add('material-icons');
                 posTd.innerText = 'play_arrow';
-                console.log('A');
             }
         }
         tr.classList.add('font-weight-bold');
@@ -1377,9 +1412,23 @@ function parseFilesystem(obj) {
         
         switch(obj.data[i].Type) {
             case 'dir':
-                row.innerHTML = '<td><span class="material-icons">folder_open</span></td>' +
-                                '<td colspan="' + colspan + '">' + obj.data[i].name + '</td>' +
-                                '<td><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>';
+            case 'smartpls':
+            case 'plist':
+                var tds = '';
+                for (var c = 0; c < settings['cols' + list].length; c++) {
+                    tds += '<td data-col="' + settings['cols' + list][c] + '">';
+                    if (settings['cols' + list][c] == 'Type') {
+                        if (obj.data[i].Type == 'dir')
+                            tds += '<span class="material-icons">folder_open</span>';
+                        else
+                            tds += '<span class="material-icons">list</span>';
+                    }
+                    else if (settings['cols' + list][c] == 'Title')
+                        tds += obj.data[i].name;
+                    tds += '</td>';
+                }
+                tds += '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>';
+                row.innerHTML = tds;
                 break;
             case 'song':
                 var minutes = Math.floor(obj.data[i].Duration / 60);
@@ -1396,12 +1445,6 @@ function parseFilesystem(obj) {
                 }
                 tds += '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>';
                 row.innerHTML = tds;
-                break;
-            case 'smartpls':
-            case 'plist':
-                row.innerHTML = '<td data-col="Type"><span class="material-icons">list</span></td>' +
-                                '<td colspan="' + colspan + '">' + obj.data[i].name + '</td>' +
-                                '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>';
                 break;
         }
         if (i < tr.length)
@@ -1801,7 +1844,7 @@ function parseSongDetails(obj) {
     
     songDetails += '<tr><th>Uri</th><td><a class="text-success" href="/library/' + obj.data.uri + '">' + obj.data.uri + '</a></td></tr>';
     
-    if (settings.stickers == true) {
+    if (settings.featStickers == true) {
         var like = 'not voted';
         if (obj.data.like == 0)
             like = '<span class="material-icons">thumb_down_alt</span>';
@@ -1943,7 +1986,7 @@ function parseSmartPlaylist(obj) {
     }
     else if (obj.data.type == 'sticker') {
         document.getElementById('saveSmartPlaylistSticker').classList.remove('hide');
-        document.getElementById('selectSaveSmartPlaylistSticker').value = obj.data.sticker;
+        document.getElementById('selectSaveSmartPlaylistSticker').value = obj.data.feat_sticker;
         document.getElementById('inputSaveSmartPlaylistStickerMaxentries').value = obj.data.maxentries;
     }
     else if (obj.data.type == 'newest') {
@@ -2033,8 +2076,10 @@ function showAddToPlaylist(uri) {
         document.getElementById('addToPlaylistLabel').innerText = 'Add Stream';
     }
     modalAddToPlaylist.show();
-    playlistEl = 'addToPlaylistPlaylist';
-    sendAPI({"cmd": "MPD_API_PLAYLIST_LIST","data": {"offset": 0, "filter": "-"}}, getAllPlaylists);
+    if (settings.featPlaylists) {
+        playlistEl = 'addToPlaylistPlaylist';
+        sendAPI({"cmd": "MPD_API_PLAYLIST_LIST","data": {"offset": 0, "filter": "-"}}, getAllPlaylists);
+    }
 }
 
 function addToPlaylist() {
@@ -2172,7 +2217,7 @@ function showMenu(el, event) {
         menu += addMenuItem({"cmd": "appendQueue", "options": [type, uri, name]}, 'Append to queue') +
             (type == 'song' ? addMenuItem({"cmd": "appendAfterQueue", "options": [type, uri, nextsongpos, name]}, 'Add after current playing song') : '') +
             addMenuItem({"cmd": "replaceQueue", "options": [type, uri, name]}, 'Replace queue') +
-            (type != 'plist' && type != 'smartpls' ? addMenuItem({"cmd": "showAddToPlaylist", "options": [uri]}, 'Add to playlist') : '') +
+            (type != 'plist' && type != 'smartpls' && settings.featPlaylists ? addMenuItem({"cmd": "showAddToPlaylist", "options": [uri]}, 'Add to playlist') : '') +
             (type == 'song' ? addMenuItem({"cmd": "songDetails", "options": [uri]}, 'Songdetails') : '') +
             (type == 'plist' || type == 'smartpls' ? addMenuItem({"cmd": "playlistDetails", "options": [uri]}, 'View playlist') : '');
         if (app.current.app == 'Search') {
@@ -2183,7 +2228,7 @@ function showMenu(el, event) {
                     addMenuItem({"cmd": "appendQueue", "options": [type, baseuri, name]}, 'Append to queue') +
                     addMenuItem({"cmd": "appendAfterQueue", "options": [type, baseuri, nextsongpos, name]}, 'Add after current playing song') +
                     addMenuItem({"cmd": "replaceQueue", "options": [type, baseuri, name]}, 'Replace queue') +
-                    addMenuItem({"cmd": "showAddToPlaylist", "options": [baseuri]}, 'Add to playlist') +
+                    (settings.featPlaylists ? addMenuItem({"cmd": "showAddToPlaylist", "options": [baseuri]}, 'Add to playlist') : '') +
                 '</div>';
         }
     }
@@ -2582,7 +2627,7 @@ function songChange(obj) {
 
     document.title = pageTitle;
 
-    if (settings.stickers == true) {
+    if (settings.featStickers == true) {
         setVoteSongBtns(obj.data.like, obj.data.uri);
     }
     
@@ -2656,8 +2701,12 @@ function selectTag(btnsEl, desc, setTo) {
 function addTagList(x, any) {
     var tagList = '';
     var tagBlacklist = ["Title", "MUSICBRAINZ_TRACKID", "Count", "Disc", "Comment", "Name"];
-    if (any == true)
-        tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="any">Any Tag</button>';
+    if (any == true) {
+        if (settings.featTags == true)
+            tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="any">Any Tag</button>';
+        else
+            tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="filename">Filename</button>';
+    }
     for (var i = 0; i < settings.tags.length; i++) {
         if (settings.tags[i] == 'Track')
             continue;

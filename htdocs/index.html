@@ -28,7 +28,7 @@
               <div class="collapse" id="menu-dbupdate">
                 <a class="dropdown-item text-light bg-dark" href="#" data-href='{"cmd": "updateDB", "options": []}'>Update Database</a>
                 <a class="dropdown-item text-light bg-dark" href="#" data-href='{"cmd": "rescanDB", "options": []}'>Rescan Database</a>
-                <a class="dropdown-item text-light bg-dark" href="#" data-href='{"cmd": "updateSmartPlaylists", "options": []}'>Update Smart Playlists</a>
+                <a class="dropdown-item text-light bg-dark featSmartpls" href="#" data-href='{"cmd": "updateSmartPlaylists", "options": []}'>Update Smart Playlists</a>
               </div>
             <a class="dropdown-item text-light bg-dark" href="#" data-href='{"cmd": "openLocalPlayer", "options": []}'>Local Player</a>
             <a class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#modalSettings">Settings</a>
@@ -81,7 +81,7 @@
     
     <div class="card" id="cardPlayback">
       <div class="card-header">Playback
-        <div class="btn-group btn-group-sm stickers pull-right">
+        <div class="btn-group btn-group-sm featStickers pull-right">
           <button title="Dislike song" id="btnVoteDown" data-href='{"cmd": "voteSong", "options": [0]}' class="btn btn-sm btn-light material-icons">thumb_down</button>
           <button title="Like song" id="btnVoteUp" data-href='{"cmd": "voteSong", "options": [2]}' class="btn btn-sm btn-light material-icons">thumb_up</button>
         </div>
@@ -90,10 +90,12 @@
         <div class="album-cover" id="currentCover"></div>
         <div class="album-desc">
           <h2 id="currentTrack" data-href='{"cmd": "songClick", "options": []}'></h2>
-          <small>Artist</small>
-          <h4 id="currentArtist" data-href='{"cmd": "artistClick", "options": []}'></h4>
-          <small>Album</small>
-          <h4 id="currentAlbum" data-href='{"cmd": "albumClick", "options": []}'></h4>
+          <div class="featTags">  
+            <small>Artist</small>
+            <h4 id="currentArtist" data-href='{"cmd": "artistClick", "options": []}'></h4>
+            <small>Album</small>
+            <h4 id="currentAlbum" data-href='{"cmd": "albumClick", "options": []}'></h4>
+          </div>
         </div>
       </div>
       <div class="card-footer card-footer-playback">
@@ -111,7 +113,7 @@
       </div>
       <div class="card-body">
         <div class="btn-toolbar card-toolbar" id="queue-buttons">
-          <div class="btn-group mr-2">
+          <div class="btn-group mr-2 featPlaylists">
             <button type="button" class="btn btn-secondary material-icons" data-toggle="modal" data-target="#modalSaveQueue" title="Save queue">
               save
             </button>
@@ -199,10 +201,10 @@
     <div class="card hide" id="cardBrowse">
       <div class="card-header" id="panel-heading-browse">
         <ul class="nav nav-tabs card-header-tabs">
-          <li class="nav-item">
+          <li class="nav-item featTags">
             <a data-href='{"cmd": "appGoto", "options": ["Browse", "Database"]}' class="nav-link text-dark" href="#" id="cardBrowseNavDatabase">Database</a>
           </li>        
-          <li class="nav-item">
+          <li class="nav-item featPlaylists">
             <a data-href='{"cmd": "appGoto", "options": ["Browse", "Playlists"]}' class="nav-link text-dark" href="#" id="cardBrowseNavPlaylists">Playlists</a>
           </li>
           <li class="nav-item">
@@ -310,7 +312,7 @@
               <button id="BrowseDatabaseAddAllSongsBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-right" type="button" data-toggle="dropdown"></button>
               <div class="dropdown-menu bg-dark dropdown-menu-right px-2" id="BrowseDatabaseAddAllSongsDropdown">
                 <button type="button" class="btn btn-secondary btn-sm btn-block">Add all to queue</button>
-                <button type="button" class="btn btn-secondary btn-sm btn-block">Add all to playlist</button>
+                <button type="button" class="btn btn-secondary btn-sm btn-block featPlaylists">Add all to playlist</button>
               </div>
             </div>
           </div>
@@ -375,7 +377,7 @@
               <button id="BrowseFilesystemAddAllSongsBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-right" type="button" data-toggle="dropdown"></button>
               <div class="dropdown-menu bg-dark dropdown-menu-right px-2" id="BrowseFilesystemAddAllSongsDropdown">
                 <button type="button" class="btn btn-secondary btn-sm btn-block">Add all to queue</button>
-                <button type="button" class="btn btn-secondary btn-sm btn-block">Add all to playlist</button>
+                <button type="button" class="btn btn-secondary btn-sm btn-block featPlaylists">Add all to playlist</button>
               </div>
             </div>
           </div>
@@ -460,8 +462,8 @@
               <button id="searchAddAllSongsBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-right" type="button" data-toggle="dropdown"></button>
               <div class="dropdown-menu bg-dark dropdown-menu-right px-2" id="searchAddAllSongsDropdown">
                   <button type="button" class="btn btn-secondary btn-sm btn-block">Add all to queue</button>
-                  <button type="button" class="btn btn-secondary btn-sm btn-block">Add all to playlist</button>
-                  <button type="button" class="btn btn-secondary btn-sm btn-block smartpls">Save as smart playlist</button>
+                  <button type="button" class="btn btn-secondary btn-sm btn-block featPlaylists">Add all to playlist</button>
+                  <button type="button" class="btn btn-secondary btn-sm btn-block featSmartpls">Save as smart playlist</button>
               </div>
             </div>
           </div>
@@ -580,7 +582,7 @@
                 <div class="invalid-feedback">Invalid uri</div>
               </div>
             </div>
-            <div class="row">
+            <div class="row featPlaylists">
               <div class="form-group col-md-12">
                 <button id="toggleAddToPlaylistBtn" class="btn btn-secondary" data-href='{"cmd": "toggleAddToPlaylistFrm", "options":[]}'>Add to playlist</button>
               </div>

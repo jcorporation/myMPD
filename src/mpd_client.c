@@ -726,11 +726,15 @@ void mympd_mpd_features() {
 
     // Defaults
     mpd.feat_sticker = false;
+    mpd.feat_playlists = false;
+    mpd.feat_tags = false;
 
     mpd_send_allowed_commands(mpd.conn);
     while ((pair = mpd_recv_command_pair(mpd.conn)) != NULL) {
         if (strcmp(pair->value, "sticker") == 0)
             mpd.feat_sticker = true;
+        if (strcmp(pair->value, "listplaylists") == 0)
+            mpd.feat_playlists = true;
         mpd_return_pair(mpd.conn, pair);
     }
     mpd_response_finish(mpd.conn);
@@ -743,7 +747,11 @@ void mympd_mpd_features() {
         printf("Stickers are disabled, disabling smartplaylists\n");
         config.smartpls = false;
     }
- 
+    if (mpd.feat_playlists == false && config.smartpls == true) {
+        printf("Playlists are disabled, disabling smartplaylists\n");
+        config.smartpls = false;
+    }
+    
     printf("MPD supported tags: ");
     list_free(&mpd_tags);
     mpd_send_list_tag_types(mpd.conn);
@@ -753,19 +761,25 @@ void mympd_mpd_features() {
         mpd_return_pair(mpd.conn, pair);
     }
     mpd_response_finish(mpd.conn);
-    printf("\nmyMPD enabled tags: ");
-
     list_free(&mympd_tags);
-    token = strtok(str, s);
-    while (token != NULL) {
-        if (list_get_value(&mpd_tags, token) == 1) {
-            list_push(&mympd_tags, token, 1);
-            printf("%s ", token);
+    if (mpd_tags.length == 0) {
+        printf("none\nTags are disabled\n");
+        mpd.feat_tags = false;
+    }
+    else {
+        mpd.feat_tags = true;
+        printf("\nmyMPD enabled tags: ");
+        token = strtok(str, s);
+        while (token != NULL) {
+            if (list_get_value(&mpd_tags, token) == 1) {
+                list_push(&mympd_tags, token, 1);
+                printf("%s ", token);
+            }
+            token = strtok(NULL, s);
         }
-        token = strtok(NULL, s);
-   }
-   printf("\n");
-   free(str);
+        printf("\n");        
+    }
+    free(str);
 }
 
 void mympd_idle(struct mg_mgr *s, int timeout) {
@@ -1015,6 +1029,11 @@ void mympd_jukebox() {
     
     if (addSongs < 1)
         return;
+        
+    if (mpd.feat_playlists == false && strcmp(mympd_state.jukeboxPlaylist, "Database") != 0) {
+        printf("Jukebox: Playlists are disabled\n");
+        return;
+    }
     
     srand((unsigned int)time(NULL));
 
@@ -1025,7 +1044,7 @@ void mympd_jukebox() {
         //add songs
         if (strcmp(mympd_state.jukeboxPlaylist, "Database") == 0) {
             if (!mpd_send_list_all(mpd.conn, "/")) {
-                LOG_ERROR_AND_RECOVER("mpd_send_list_playlist");
+                LOG_ERROR_AND_RECOVER("mpd_send_list_all");
                 list_free(&add_list);
                 return;
             }
@@ -1067,12 +1086,12 @@ void mympd_jukebox() {
     else if (mympd_state.jukeboxMode == 2) {
         //add album
         if (!mpd_search_db_tags(mpd.conn, MPD_TAG_ALBUM)) {
-            LOG_ERROR_AND_RECOVER("mpd_send_list_playlist");
+            LOG_ERROR_AND_RECOVER("mpd_search_db_tags");
             list_free(&add_list);
             return;
         }
         if (!mpd_search_commit(mpd.conn)) {
-            LOG_ERROR_AND_RECOVER("mpd_send_list_playlist");
+            LOG_ERROR_AND_RECOVER("mpd_search_commit");
             list_free(&add_list);
             return;
         }
@@ -1305,8 +1324,8 @@ int mympd_put_settings(char *buffer) {
     
     len = json_printf(&out, "{type: settings, data: {"
         "repeat: %d, single: %d, crossfade: %d, consume: %d, random: %d, "
-        "mixrampdb: %f, mixrampdelay: %f, mpdhost: %Q, mpdport: %d, passwort_set: %B, "
-        "streamport: %d, coverimage: %Q, stickers: %B, mixramp: %B, smartpls: %B, maxElementsPerPage: %d, "
+        "mixrampdb: %f, mixrampdelay: %f, mpdhost: %Q, mpdport: %d, passwort_set: %B, featPlaylists: %B, featTags: %B, "
+        "streamport: %d, coverimage: %Q, featStickers: %B, mixramp: %B, featSmartpls: %B, maxElementsPerPage: %d, "
         "replaygain: %Q, notificationWeb: %B, notificationPage: %B, jukeboxMode: %d, jukeboxPlaylist: %Q, jukeboxQueueLength: %d, "
         "tags: [", 
         mpd_status_get_repeat(status),
@@ -1319,6 +1338,8 @@ int mympd_put_settings(char *buffer) {
         config.mpdhost, 
         config.mpdport, 
         config.mpdpass ? "true" : "false",
+        mpd.feat_playlists,
+        mpd.feat_tags,
         config.streamport, 
         config.coverimage,
         config.stickers,
@@ -1457,7 +1478,10 @@ int mympd_put_current_song(char *buffer) {
         mpd.song_id,
         cover
     );
-    PUT_SONG_TAGS();
+    if (mpd.feat_tags == true)
+        PUT_SONG_TAGS();
+    else
+        PUT_MIN_SONG_TAGS();
 
     mpd_response_finish(mpd.conn);
     
@@ -1493,7 +1517,10 @@ int mympd_put_songdetails(char *buffer, char *uri) {
         song = mpd_entity_get_song(entity);
         mympd_get_cover(uri, cover, 500);
         len += json_printf(&out, "cover: %Q, ", cover);
-        PUT_SONG_TAGS();
+        if (mpd.feat_tags == true)
+            PUT_SONG_TAGS();
+        else
+            PUT_MIN_SONG_TAGS();
         mpd_entity_free(entity);
     }
     mpd_response_finish(mpd.conn);
@@ -1546,7 +1573,10 @@ int mympd_put_queue(char *buffer, unsigned int offset, unsigned *queue_version, 
                 mpd_song_get_id(song),
                 mpd_song_get_pos(song)
             );
-            PUT_SONG_TAGS();
+            if (mpd.feat_tags == true)
+                PUT_SONG_TAGS();
+            else
+                PUT_MIN_SONG_TAGS();
             len += json_printf(&out, "}");
         }
         mpd_entity_free(entity);
@@ -1602,7 +1632,11 @@ int mympd_put_browse(char *buffer, char *path, unsigned int offset, char *filter
                         if (entities_returned++) 
                             len += json_printf(&out, ",");
                         len += json_printf(&out, "{Type: song, ");
-                        PUT_SONG_TAGS();
+                        if (mpd.feat_tags == true)
+                            PUT_SONG_TAGS();
+                        else
+                            PUT_MIN_SONG_TAGS();
+
                         len += json_printf(&out, "}");
                     } else {
                         entity_count--;
@@ -1876,7 +1910,10 @@ int mympd_put_playlist_list(char *buffer, char *uri, unsigned int offset, char *
                 if (entities_returned++) 
                     len += json_printf(&out, ",");
                 len += json_printf(&out, "{Type: song, ");
-                PUT_SONG_TAGS();
+                if (mpd.feat_tags == true)
+                    PUT_SONG_TAGS();
+                else
+                    PUT_MIN_SONG_TAGS();
                 len += json_printf(&out, ", Pos: %d", entity_count);
                 len += json_printf(&out, "}");
             } else {
@@ -1931,7 +1968,10 @@ int mympd_search(char *buffer, char *searchstr, char *filter, char *plist, unsig
                 if (entities_returned++) 
                     len += json_printf(&out, ", ");
                 len += json_printf(&out, "{Type: song, ");
-                PUT_SONG_TAGS();
+                if (mpd.feat_tags == true)
+                    PUT_SONG_TAGS();
+                else
+                    PUT_MIN_SONG_TAGS();
                 len += json_printf(&out, "}");
             }
             mpd_song_free(song);
@@ -2017,7 +2057,10 @@ int mympd_search_queue(char *buffer, char *mpdtagtype, unsigned int offset, char
                     mpd_song_get_id(song),
                     mpd_song_get_pos(song)
                 );
-                PUT_SONG_TAGS();
+                if (mpd.feat_tags == true)
+                    PUT_SONG_TAGS();
+                else
+                    PUT_MIN_SONG_TAGS();
                 len += json_printf(&out, "}");
                 mpd_song_free(song);
             }

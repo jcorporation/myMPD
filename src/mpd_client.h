@@ -29,17 +29,15 @@
 #include "list.h"
 
 #define RETURN_ERROR_AND_RECOVER(X) do { \
-    printf("MPD X: %s\n", mpd_connection_get_error_message(mpd.conn)); \
-    len = json_printf(&out, "{ type:error, data : %Q }", \
-        mpd_connection_get_error_message(mpd.conn) \
-    ); \
+    printf("MPD %s: %s\n", X, mpd_connection_get_error_message(mpd.conn)); \
+    len = json_printf(&out, "{ type:error, data : %Q }", mpd_connection_get_error_message(mpd.conn)); \
     if (!mpd_connection_clear_error(mpd.conn)) \
         mpd.conn_state = MPD_FAILURE; \
     return len; \
 } while (0)
 
 #define LOG_ERROR_AND_RECOVER(X) do { \
-    printf("MPD X: %s\n", mpd_connection_get_error_message(mpd.conn)); \
+    printf("MPD %s: %s\n", X, mpd_connection_get_error_message(mpd.conn)); \
     if (!mpd_connection_clear_error(mpd.conn)) \
         mpd.conn_state = MPD_FAILURE; \
 } while (0)
@@ -60,6 +58,10 @@
         current = current->next; \
     } \
     len += json_printf(&out, ", Duration: %d, uri: %Q", mpd_song_get_duration(song), mpd_song_get_uri(song)); \
+} while (0)
+
+#define PUT_MIN_SONG_TAGS() do { \
+    len += json_printf(&out, "Title: %Q, Duration: %d, uri: %Q", mympd_get_tag(song, MPD_TAG_TITLE), mpd_song_get_duration(song), mpd_song_get_uri(song)); \
 } while (0)
 
 
@@ -160,6 +162,8 @@ struct t_mpd {
     const unsigned* protocol;
     // Supported tags
     bool feat_sticker;
+    bool feat_playlists;
+    bool feat_tags;
 } mpd;
 
 struct list mpd_tags;
