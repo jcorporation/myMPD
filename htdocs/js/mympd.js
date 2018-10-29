@@ -1875,8 +1875,10 @@ function parseSongDetails(obj) {
     var seconds = duration - minutes * 60;
     duration = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
     songDetails += '<tr><th>Duration</th><td>' + duration + '</td></tr>';
-    
-    songDetails += '<tr><th>Uri</th><td><a class="text-success" href="/library/' + obj.data.uri + '">' + obj.data.uri + '</a></td></tr>';
+    if (settings.featLibrary)
+        songDetails += '<tr><th>Filename</th><td><a class="text-success" href="/library/' + obj.data.uri + '">' + obj.data.uri + '</a></td></tr>';
+    else
+        songDetails += '<tr><th>Filename</th><td>' + obj.data.uri + '</td></tr>';
     
     if (settings.featStickers == true) {
         var like = 'not voted';
