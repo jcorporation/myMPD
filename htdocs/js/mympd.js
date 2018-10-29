@@ -1028,6 +1028,10 @@ function parseSettings(obj) {
     if (settings.featTags == false) {
         app.apps.Browse.active = 'Filesystem';
         app.apps.Search.state = '0/filename/';
+        app.apps.Queue.state = '0/filename/';
+        settings.colsQueue = ["Pos", "Title", "Duration"];
+        settings.colsSearch = ["Title", "Duration"];
+        settings.colsBrowseFilesystem = ["Type", "Title", "Duration"];
     }
 
     if (settings.mixramp == true)
@@ -1063,6 +1067,8 @@ function parseSettings(obj) {
     }
 
     settings.tags.sort();
+    settings.searchtags.sort();
+    settings.browsetags.sort();
     filterCols('colsSearch');
     filterCols('colsQueue');
     filterCols('colsBrowsePlaylistsDetail');
@@ -2000,7 +2006,10 @@ function parseSmartPlaylist(obj) {
     document.getElementById('saveSmartPlaylistSearch').classList.add('hide');
     document.getElementById('saveSmartPlaylistSticker').classList.add('hide');
     document.getElementById('saveSmartPlaylistNewest').classList.add('hide');
-    var tagList = '<option value="any">Any Tag</option>';
+    var tagList;
+    if (settings.featTags)
+        tagList = '<option value="any">Any Tag</option>';
+    tagList += '<option value="filename">Filename</option>';
     for (var i = 0; i < settings.searchtags.length; i++)
             tagList += '<option value="' + settings.searchtags[i] + '">' + settings.searchtags[i] + '</option>';
     document.getElementById('selectSaveSmartPlaylistTag').innerHTML = tagList;
@@ -2727,34 +2736,13 @@ function selectTag(btnsEl, desc, setTo) {
         document.getElementById(desc).innerText = aBtn.innerText;
     }
 }
-/*
-function addTagList(x, any) {
-    var tagList = '';
-    var tagBlacklist = ["Title", "MUSICBRAINZ_TRACKID", "Count", "Disc", "Comment", "Name"];
-    if (any == true) {
-        if (settings.featTags == true)
-            tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="any">Any Tag</button>';
-        else
-            tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="filename">Filename</button>';
-    }
-    for (var i = 0; i < settings.tags.length; i++) {
-        if (settings.tags[i] == 'Track')
-            continue;
-        if (any == false && tagBlacklist.indexOf(settings.tags[i]) > -1)
-            continue;
-        tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="' + settings.tags[i] + '">' + settings.tags[i] + '</button>';
-    }
-    var tagListEl = document.getElementById(x);
-    tagListEl.innerHTML = tagList;
-}
-*/
+
 function addTagList(el, list) {
     var tagList = '';
     if (list == 'searchtags') {
         if (settings.featTags == true)
             tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="any">Any Tag</button>';
-        else
-            tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="filename">Filename</button>';
+        tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="filename">Filename</button>';
     }
     for (var i = 0; i < settings[list].length; i++)
         tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="' + settings[list][i] + '">' + settings[list][i] + '</button>';
