@@ -168,6 +168,8 @@ struct t_mpd {
 
 struct list mpd_tags;
 struct list mympd_tags;
+struct list mympd_searchtags;
+struct list mympd_browsetags;
 
 struct list syscmds;
 
@@ -181,15 +183,20 @@ typedef struct {
     const char* sslcert;
     const char* sslkey;
     const char* user;
-    long streamport;
     const char* coverimage;
     bool stickers;
     bool mixramp;
     const char* taglist;
+    const char* searchtaglist;
+    const char* browsetaglist;
     bool smartpls;
     const char* varlibdir;
     const char* etcdir;
     unsigned long max_elements_per_page;
+    bool syscmds;
+    bool localplayer;
+    long streamport;
+    const char* streamurl;
 } t_config;
 
 t_config config;

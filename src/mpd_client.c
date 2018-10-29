@@ -144,13 +144,17 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
             n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             break;
         case MPD_API_SYSCMD:
-            je = json_scanf(msg.p, msg.len, "{data: {cmd: %Q}}", &p_charbuf1);
-            if (je == 1) {
-                int_buf1 = list_get_value(&syscmds, p_charbuf1);
-                if (int_buf1 > -1)
-                    n = mympd_syscmd(mpd.buf, p_charbuf1, int_buf1);
-                free(p_charbuf1);
-            }
+            if (config.syscmds == true) {
+                je = json_scanf(msg.p, msg.len, "{data: {cmd: %Q}}", &p_charbuf1);
+                if (je == 1) {
+                    int_buf1 = list_get_value(&syscmds, p_charbuf1);
+                    if (int_buf1 > -1)
+                        n = mympd_syscmd(mpd.buf, p_charbuf1, int_buf1);
+                    free(p_charbuf1);
+                }
+            } 
+            else
+                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"System commands are disabled.\"}");
             break;
         case MPD_API_PLAYER_STATE:
             n = mympd_put_state(mpd.buf, &mpd.song_id, &mpd.next_song_id, &mpd.last_song_id, &mpd.queue_version, &mpd.queue_length);
@@ -719,7 +723,9 @@ void mympd_parse_idle(struct mg_mgr *s, int idle_bitmask) {
 void mympd_mpd_features() {
     struct mpd_pair *pair;
     char s[2] = ",";
-    char *str = strdup(config.taglist);
+    char *taglist = strdup(config.taglist);
+    char *searchtaglist = strdup(config.searchtaglist);    
+    char *browsetaglist = strdup(config.browsetaglist);
     char *token;    
 
     mpd.protocol = mpd_connection_get_server_version(mpd.conn);
@@ -769,7 +775,7 @@ void mympd_mpd_features() {
     else {
         mpd.feat_tags = true;
         printf("\nmyMPD enabled tags: ");
-        token = strtok(str, s);
+        token = strtok(taglist, s);
         while (token != NULL) {
             if (list_get_value(&mpd_tags, token) == 1) {
                 list_push(&mympd_tags, token, 1);
@@ -777,9 +783,29 @@ void mympd_mpd_features() {
             }
             token = strtok(NULL, s);
         }
-        printf("\n");        
+        printf("\nmyMPD enabled searchtags: ");
+        token = strtok(searchtaglist, s);
+        while (token != NULL) {
+            if (list_get_value(&mpd_tags, token) == 1) {
+                list_push(&mympd_searchtags, token, 1);
+                printf("%s ", token);
+            }
+            token = strtok(NULL, s);
+        }
+        printf("\nmyMPD enabled browsetags: ");
+        token = strtok(browsetaglist, s);
+        while (token != NULL) {
+            if (list_get_value(&mpd_tags, token) == 1) {
+                list_push(&mympd_browsetags, token, 1);
+                printf("%s ", token);
+            }
+            token = strtok(NULL, s);
+        }
+        printf("\n");
     }
-    free(str);
+    free(taglist);
+    free(searchtaglist);
+    free(browsetaglist);
 }
 
 void mympd_idle(struct mg_mgr *s, int timeout) {
@@ -1324,8 +1350,8 @@ int mympd_put_settings(char *buffer) {
     
     len = json_printf(&out, "{type: settings, data: {"
         "repeat: %d, single: %d, crossfade: %d, consume: %d, random: %d, "
-        "mixrampdb: %f, mixrampdelay: %f, mpdhost: %Q, mpdport: %d, passwort_set: %B, featPlaylists: %B, featTags: %B, "
-        "streamport: %d, coverimage: %Q, featStickers: %B, mixramp: %B, featSmartpls: %B, maxElementsPerPage: %d, "
+        "mixrampdb: %f, mixrampdelay: %f, mpdhost: %Q, mpdport: %d, passwort_set: %B, featSyscmds: %B, featPlaylists: %B, featTags: %B, "
+        "localplayer: %B, streamport: %d, streamurl: %Q, coverimage: %Q, featStickers: %B, mixramp: %B, featSmartpls: %B, maxElementsPerPage: %d, "
         "replaygain: %Q, notificationWeb: %B, notificationPage: %B, jukeboxMode: %d, jukeboxPlaylist: %Q, jukeboxQueueLength: %d, "
         "tags: [", 
         mpd_status_get_repeat(status),
@@ -1338,9 +1364,12 @@ int mympd_put_settings(char *buffer) {
         config.mpdhost, 
         config.mpdport, 
         config.mpdpass ? "true" : "false",
+        config.syscmds,
         mpd.feat_playlists,
         mpd.feat_tags,
-        config.streamport, 
+        config.localplayer,
+        config.streamport,
+        config.streamurl,
         config.coverimage,
         config.stickers,
         config.mixramp,
@@ -1356,6 +1385,7 @@ int mympd_put_settings(char *buffer) {
     mpd_status_free(status);
     free(replaygain);
     
+    nr = 0;
     struct node *current = mympd_tags.list;
     while (current != NULL) {
         if (nr++) 
@@ -1363,9 +1393,18 @@ int mympd_put_settings(char *buffer) {
         len += json_printf(&out, "%Q", current->data);
         current = current->next;
     }
-    len += json_printf(&out, "], syscmds: [");
+    len += json_printf(&out, "], searchtags: [");
     nr = 0;
-    current = syscmds.list;
+    current = mympd_searchtags.list;
+    while (current != NULL) {
+        if (nr++) 
+            len += json_printf(&out, ",");
+        len += json_printf(&out, "%Q", current->data);
+        current = current->next;
+    }
+    len += json_printf(&out, "], browsetags: [");
+    nr = 0;
+    current = mympd_browsetags.list;
     while (current != NULL) {
         if (nr++) 
             len += json_printf(&out, ",");
@@ -1373,6 +1412,19 @@ int mympd_put_settings(char *buffer) {
         current = current->next;
     }
     len += json_printf(&out, "]");
+    
+    if (config.syscmds == true) {
+        len += json_printf(&out, ", syscmds: [");
+        nr = 0;
+        current = syscmds.list;
+        while (current != NULL) {
+            if (nr++) 
+                len += json_printf(&out, ",");
+            len += json_printf(&out, "%Q", current->data);
+            current = current->next;
+        }
+        len += json_printf(&out, "]");
+    }
     len += json_printf(&out, ", colsQueue: %s", mympd_state.colsQueue);
     len += json_printf(&out, ", colsSearch: %s", mympd_state.colsSearch);
     len += json_printf(&out, ", colsBrowseDatabase: %s", mympd_state.colsBrowseFilesystem);

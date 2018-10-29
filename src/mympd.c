@@ -171,6 +171,10 @@ static int inihandler(void* user, const char* section, const char* name, const c
             p_config->mixramp = false;
     else if (MATCH("taglist"))
         p_config->taglist = strdup(value);
+    else if (MATCH("searchtaglist"))
+        p_config->searchtaglist = strdup(value);        
+    else if (MATCH("browsetaglist"))
+        p_config->browsetaglist = strdup(value);
     else if (MATCH("max_elements_per_page")) {
         p_config->max_elements_per_page = strtol(value, &crap, 10);
         if (p_config->max_elements_per_page > MAX_ELEMENTS_PER_PAGE) {
@@ -178,6 +182,18 @@ static int inihandler(void* user, const char* section, const char* name, const c
             p_config->max_elements_per_page = MAX_ELEMENTS_PER_PAGE;
         }
     }
+    else if (MATCH("syscmds"))
+        if (strcmp(value, "true") == 0)
+            p_config->syscmds = true;
+        else
+            p_config->syscmds = false;
+    else if (MATCH("localplayer"))
+        if (strcmp(value, "true") == 0)
+            p_config->localplayer = true;
+        else
+            p_config->localplayer = false;
+    else if (MATCH("streamurl"))
+        p_config->streamurl = strdup(value);
     else
         return 0;  /* unknown section/name, error */
 
@@ -190,19 +206,22 @@ void read_syscmds() {
     char dirname[400];
     char *cmd;
     long order;
-    
-    snprintf(dirname, 400, "%s/syscmds", config.etcdir);
-    printf("Reading syscmds: %s\n", dirname);
-    if ((dir = opendir (dirname)) != NULL) {
-        while ((ent = readdir(dir)) != NULL) {
-            if (strncmp(ent->d_name, ".", 1) == 0)
-                continue;
-            order = strtol(ent->d_name, &cmd, 10);
-            if (strcmp(cmd, "") != 0)
-                list_push(&syscmds, strdup(cmd), order);
+    if (config.syscmds == true) {    
+        snprintf(dirname, 400, "%s/syscmds", config.etcdir);
+        printf("Reading syscmds: %s\n", dirname);
+        if ((dir = opendir (dirname)) != NULL) {
+            while ((ent = readdir(dir)) != NULL) {
+                if (strncmp(ent->d_name, ".", 1) == 0)
+                    continue;
+                order = strtol(ent->d_name, &cmd, 10);
+                if (strcmp(cmd, "") != 0)
+                    list_push(&syscmds, strdup(cmd), order);
+            }
+            closedir(dir);
         }
-        closedir(dir);
     }
+    else
+        printf("Syscmds are disabled\n");
 }
 
 void read_statefiles() {
@@ -321,15 +340,20 @@ int main(int argc, char **argv) {
     config.sslkey = "/etc/mympd/ssl/server.key";
     config.user = "mympd";
     config.streamport = 8000;
+    config.streamurl = "";
     config.coverimage = "folder.jpg";
     config.varlibdir = "/var/lib/mympd";
     config.stickers = true;
     config.mixramp = true;
     config.taglist = "Artist,Album,AlbumArtist,Title,Track,Genre,Date,Composer,Performer";
+    config.searchtaglist = "Artist,Album,AlbumArtist,Title,Genre,Composer,Performer";
+    config.browsetaglist = "Artist,Album,AlbumArtist,Genre,Composer,Performer";
     config.smartpls = true;
     config.max_elements_per_page = 100;
     char *etcdir = strdup(argv[1]);
     config.etcdir = dirname(etcdir);
+    config.syscmds = false;
+    config.localplayer = true;
     
     mpd.timeout = 3000;
     mpd.last_update_sticker_song_id = -1;
