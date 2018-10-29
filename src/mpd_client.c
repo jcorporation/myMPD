@@ -1150,6 +1150,7 @@ void mympd_jukebox() {
 
     list_shuffle(&add_list);
 
+    nkeep = 0;
     struct node *current = add_list.list;
     while (current != NULL) {
         if (mympd_state.jukeboxMode == 1) {
@@ -1157,6 +1158,8 @@ void mympd_jukebox() {
 	    if (!mpd_run_add(mpd.conn, current->data)) {
                 LOG_ERROR_AND_RECOVER("mpd_run_add");
             }
+            else
+                nkeep++;
         }
         else {
             printf("Jukebox adding album: %s\n", current->data);
@@ -1164,12 +1167,19 @@ void mympd_jukebox() {
                 LOG_ERROR_AND_RECOVER("mpd_send_command");
                 return;
             }
+            else
+                nkeep++;
             mpd_response_finish(mpd.conn);
         }
         current = current->next;
     }
     list_free(&add_list);
-    mpd_run_play(mpd.conn);
+    if (nkeep > 0) 
+        mpd_run_play(mpd.conn);
+    else {
+        printf("Error adding song(s), trying again...\n");
+        mympd_jukebox();
+    }
 }
 
 int randrange(int n) {
