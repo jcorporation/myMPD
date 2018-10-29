@@ -1015,7 +1015,7 @@ function parseSettings(obj) {
     
     toggleBtn('btnnotifyPage', settings.notificationPage);
 
-    var features = ["featStickers", "featSmartpls", "featPlaylists", "featTags"];
+    var features = ["featStickers", "featSmartpls", "featPlaylists", "featTags", "featLocalplayer", "featSyscmds", "featCoverimage"];
     
     for (var j = 0; j < features.length; j++) {
         var Els = document.getElementsByClassName(features[j]);
@@ -1074,7 +1074,7 @@ function parseSettings(obj) {
     filterCols('colsBrowsePlaylistsDetail');
     filterCols('colsBrowseFilesystem');
 
-    if (settings.localplayer) {
+    if (settings.featLocalplayer) {
         if (settings.streamurl == '') {
             settings.mpdstream = 'http://';
             if (settings.mpdhost == '127.0.0.1' || settings.mpdhost == 'localhost')
@@ -1085,10 +1085,7 @@ function parseSettings(obj) {
         } 
         else
             settings.mpdstream = settings.streamurl;
-        document.getElementsByClassName('featLocalplayer')[0].classList.remove('hide');        
     }
-    else
-        document.getElementsByClassName('featLocalplayer')[0].classList.add('hide');
     
     addTagList('BrowseDatabaseByTagDropdown', 'browsetags');
     addTagList('searchqueuetags', 'searchtags');
@@ -1623,7 +1620,7 @@ function parseListDBtags(obj) {
             card.setAttribute('id', id);
             card.setAttribute('data-album', encodeURI(obj.data[i].value));
             card.innerHTML = '<div class="card mb-4" id="card' + id + '">' +
-                             ' <a href="#" class="card-img-top"></a>' +
+                             (settings.featCoverimage ? ' <a href="#" class="card-img-top"></a>' : '<a href="#" class="card-img-top-nc"></a>') +
                              ' <div class="card-body">' +
                              '  <h5 class="card-title" id="albumartist' + id + '"></h5>' +
                              '  <h4 class="card-title">' + obj.data[i].value + '</h4>' +
@@ -1717,10 +1714,17 @@ function parseListTitles(obj) {
     var card = document.getElementById('card' + id)
     var tbody = card.getElementsByTagName('tbody')[0];
     var img = card.getElementsByTagName('a')[0];
-    img.style.backgroundImage = 'url("' + obj.cover + '")';
+    if (img.classList.contains('card-img-top'))
+        img.style.backgroundImage = 'url("' + obj.cover + '")';
+    else
+        img.style.backgroundImage = '';
     img.setAttribute('data-uri', encodeURI(obj.data[0].uri.replace(/\/[^\/]+$/, '')));
     img.setAttribute('data-name', obj.Album);
     img.setAttribute('data-type', 'dir');
+    img.addEventListener('click', function(event) {
+        showMenu(this, event);
+    }, false);
+    
     document.getElementById('albumartist' + id).innerText = obj.AlbumArtist;
   
     var titleTable = document.getElementById('collapseLink' + id);
@@ -1742,10 +1746,6 @@ function parseListTitles(obj) {
                      '</tr>';
     }
     tbody.innerHTML = titleList;
-  
-    img.addEventListener('click', function(event) {
-        showMenu(this, event);
-    }, false);
 
     tbody.parentNode.addEventListener('click', function(event) {
         if (event.target.nodeName == 'TD') {
@@ -2227,10 +2227,10 @@ function showMenu(el, event) {
     event.preventDefault();
     event.stopPropagation();
 
+    hideMenu();
+
     if (el.getAttribute('data-init'))
         return;
-
-    hideMenu();
 
     var type = el.getAttribute('data-type');
     var uri = decodeURI(el.getAttribute('data-uri'));

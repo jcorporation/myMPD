@@ -26,8 +26,11 @@ streamport = 8000
 #Manual streamurl, overwrites streamport
 #streamurl = http://jukebox:8000
 
+#Enable coverimages
+coverimage = true
+
 #Name for coverimages
-coverimage = folder.jpg
+coverimagename = folder.jpg
 
 #myMPD state directory
 varlibdir = /var/lib/mympd

@@ -151,7 +151,12 @@ static int inihandler(void* user, const char* section, const char* name, const c
     else if (MATCH("streamport"))
         p_config->streamport = strtol(value, &crap, 10);
     else if (MATCH("coverimage"))
-        p_config->coverimage = strdup(value);
+        if (strcmp(value, "true") == 0)
+            p_config->coverimage = true;
+        else
+            p_config->coverimage = false;
+    else if (MATCH("coverimagename"))
+        p_config->coverimagename = strdup(value);
     else if (MATCH("varlibdir"))
         p_config->varlibdir = strdup(value);
     else if (MATCH("stickers"))
@@ -341,7 +346,8 @@ int main(int argc, char **argv) {
     config.user = "mympd";
     config.streamport = 8000;
     config.streamurl = "";
-    config.coverimage = "folder.jpg";
+    config.coverimage = true;
+    config.coverimagename = "folder.jpg";
     config.varlibdir = "/var/lib/mympd";
     config.stickers = true;
     config.mixramp = true;
@@ -358,6 +364,7 @@ int main(int argc, char **argv) {
     mpd.timeout = 3000;
     mpd.last_update_sticker_song_id = -1;
     mpd.last_song_id = -1;
+    mpd.feat_library = false;
     
     if (argc == 2) {
         printf("Parsing config file: %s\n", argv[1]);
@@ -444,6 +451,14 @@ int main(int argc, char **argv) {
 
     if (!testdir("Document root", SRC_PATH)) 
         return EXIT_FAILURE;
+
+    snprintf(testdirname, 400, "%s/library", SRC_PATH);
+    if (testdir("Link to mpd music_directory", testdirname)) {
+        mpd.feat_library = true;
+        printf("Enabling coverimage support\n");
+    }
+    else 
+        printf("Disabling coverimage support\n");
 
     snprintf(testdirname, 400, "%s/tmp", config.varlibdir);
     if (!testdir("Temp dir", testdirname)) 

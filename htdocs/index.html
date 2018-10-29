@@ -34,7 +34,7 @@
             <a class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#modalSettings">Settings</a>
             <a class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#modalAbout">About</a>
             <a id="nav-add2homescreen" class="dropdown-item text-light bg-dark hide" href="#">Add2HomeScreen</a>
-            <div id="syscmds"></div>
+            <div id="syscmds" class="featSyscmds"></div>
           </div>
         </div>
         <div class="btn-toolbar col-auto pl-0 pr-0">
@@ -87,7 +87,7 @@
         </div>
       </div>
       <div class="card-body">
-        <div class="album-cover" id="currentCover"></div>
+        <div class="album-cover featCoverimage" id="currentCover"></div>
         <div class="album-desc">
           <h2 id="currentTrack" data-href='{"cmd": "songClick", "options": []}'></h2>
           <div class="featTags">  
@@ -918,7 +918,7 @@
           <button type="button" class="close" data-dismiss="modal">&times;</button>          
         </div>
         <div class="modal-body">
-          <div class="album-cover"></div>
+          <div class="album-cover featCoverimage"></div>
           <h1></h1>
           <div class="table-responsive-md">
             <table class="table table-sm">

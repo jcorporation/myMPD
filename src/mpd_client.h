@@ -164,6 +164,7 @@ struct t_mpd {
     bool feat_sticker;
     bool feat_playlists;
     bool feat_tags;
+    bool feat_library;
 } mpd;
 
 struct list mpd_tags;
@@ -183,7 +184,8 @@ typedef struct {
     const char* sslcert;
     const char* sslkey;
     const char* user;
-    const char* coverimage;
+    bool coverimage;
+    const char* coverimagename;
     bool stickers;
     bool mixramp;
     const char* taglist;

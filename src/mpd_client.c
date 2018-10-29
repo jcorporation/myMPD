@@ -1350,8 +1350,8 @@ int mympd_put_settings(char *buffer) {
     
     len = json_printf(&out, "{type: settings, data: {"
         "repeat: %d, single: %d, crossfade: %d, consume: %d, random: %d, "
-        "mixrampdb: %f, mixrampdelay: %f, mpdhost: %Q, mpdport: %d, passwort_set: %B, featSyscmds: %B, featPlaylists: %B, featTags: %B, "
-        "localplayer: %B, streamport: %d, streamurl: %Q, coverimage: %Q, featStickers: %B, mixramp: %B, featSmartpls: %B, maxElementsPerPage: %d, "
+        "mixrampdb: %f, mixrampdelay: %f, mpdhost: %Q, mpdport: %d, passwort_set: %B, featSyscmds: %B, featPlaylists: %B, featTags: %B, featLibrary: %B, "
+        "featLocalplayer: %B, streamport: %d, streamurl: %Q, featCoverimage: %B, coverimagename: %Q, featStickers: %B, mixramp: %B, featSmartpls: %B, maxElementsPerPage: %d, "
         "replaygain: %Q, notificationWeb: %B, notificationPage: %B, jukeboxMode: %d, jukeboxPlaylist: %Q, jukeboxQueueLength: %d, "
         "tags: [", 
         mpd_status_get_repeat(status),
@@ -1367,10 +1367,12 @@ int mympd_put_settings(char *buffer) {
         config.syscmds,
         mpd.feat_playlists,
         mpd.feat_tags,
+        mpd.feat_library,
         config.localplayer,
         config.streamport,
         config.streamurl,
         config.coverimage,
+        config.coverimagename,
         config.stickers,
         config.mixramp,
         config.smartpls,
@@ -1480,7 +1482,11 @@ int replacechar(char *str, char orig, char rep) {
 int mympd_get_cover(const char *uri, char *cover, int cover_len) {
     char *path = strdup(uri);
     int len;
-    if (strncasecmp("http:", path, 5) == 0 || strncasecmp("https:", path, 6) == 0) {
+
+    if (!config.coverimage) {
+        len = snprintf(cover, cover_len, "/assets/coverimage-notavailable.png");
+    }
+    else if (strncasecmp("http:", path, 5) == 0 || strncasecmp("https:", path, 6) == 0) {
         if(strlen(path) > 8) {
             if (strncasecmp("http:", path, 5) == 0)
                 path += 7;
@@ -1489,23 +1495,23 @@ int mympd_get_cover(const char *uri, char *cover, int cover_len) {
             replacechar(path, '/', '_');
             replacechar(path, '.', '_');
             snprintf(cover, cover_len, "%s/pics/%s.png", SRC_PATH, path);
-            if (access(cover, F_OK ) == -1 ) {
+            if (access(cover, F_OK ) == -1 )
                 len = snprintf(cover, cover_len, "/assets/coverimage-httpstream.png");
-            } else {
+            else
                 len = snprintf(cover, cover_len, "/pics/%s.png", path);
-            }
-        } else {
+        } else
             len = snprintf(cover, cover_len, "/assets/coverimage-httpstream.png");
-        }
     }
     else {
-        dirname(path);
-        snprintf(cover, cover_len, "%s/library/%s/%s", SRC_PATH, path, config.coverimage);
-        if (access(cover, F_OK ) == -1 ) {
+        if (mpd.feat_library) {
+            dirname(path);
+            snprintf(cover, cover_len, "%s/library/%s/%s", SRC_PATH, path, config.coverimagename);
+            if (access(cover, F_OK ) == -1 )
+                len = snprintf(cover, cover_len, "/assets/coverimage-notavailable.png");
+            else
+                len = snprintf(cover, cover_len, "/library/%s/%s", path, config.coverimagename);
+        } else 
             len = snprintf(cover, cover_len, "/assets/coverimage-notavailable.png");
-        } else {
-            len = snprintf(cover, cover_len, "/library/%s/%s", path, config.coverimage);
-        }
     }
     free(path);
     return len;

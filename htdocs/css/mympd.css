@@ -200,6 +200,12 @@ a.card-img-top {
   background-image: url(/assets/coverimage-loading.png);
 }
 
+a.card-img-top-nc {
+  display: block;
+  height: 20px;
+  background-color:#ccc;
+}
+
 button.active {
   color: #fff;
   background-color: #28a745 !important;
