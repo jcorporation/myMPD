@@ -557,6 +557,12 @@ function appInit() {
         }
     }, false);
 
+    document.getElementById('BrowseDatabaseColsDropdown').addEventListener('click', function(event) {
+        if (event.target.nodeName == 'INPUT') {
+            event.stopPropagation();
+        }
+    }, false);    
+
     document.getElementById('search').addEventListener('submit', function() {
         return false;
     }, false);
@@ -759,7 +765,14 @@ function dragAndDropTable(table) {
 }
 
 function dragAndDropTableHeader(table) {
-    var tableHeader=document.getElementById(table + 'List').getElementsByTagName('tr')[0];
+    var tableHeader;
+    if (document.getElementById(table + 'List'))
+        tableHeader = document.getElementById(table + 'List').getElementsByTagName('tr')[0];
+    else {
+        tableHeader = table.getElementsByTagName('tr')[0];
+        table = 'BrowseDatabase';
+    }
+
     tableHeader.addEventListener('dragstart', function(event) {
         if (event.target.nodeName == 'TH') {
             event.target.classList.add('opacity05');
@@ -814,8 +827,13 @@ function dragAndDropTableHeader(table) {
         for (var i = 0; i < thLen; i++) {
             th[i].classList.remove('dragover-th');
         }
-        document.getElementById(table + 'List').classList.add('opacity05');
-        saveCols(table);
+        if (document.getElementById(table + 'List')) {
+            document.getElementById(table + 'List').classList.add('opacity05');
+            saveCols(table);
+        }
+        else {
+            saveCols(table, this.parentNode.parentNode);
+        }
     }, false);
 }
 
@@ -1032,6 +1050,7 @@ function parseSettings(obj) {
         settings.colsQueue = ["Pos", "Title", "Duration"];
         settings.colsSearch = ["Title", "Duration"];
         settings.colsBrowseFilesystem = ["Type", "Title", "Duration"];
+        settings.colsBrowseDatabase = ["Track", "Title", "Duration"];
     }
 
     if (settings.mixramp == true)
@@ -1057,8 +1076,6 @@ function parseSettings(obj) {
         document.getElementById('selectJukeboxPlaylist').removeAttribute('disabled');
     }
 
-
-
     if (settings.featPlaylists) {
         playlistEl = 'selectJukeboxPlaylist';
         sendAPI({"cmd": "MPD_API_PLAYLIST_LIST", "data": {"offset": 0, "filter": "-"}}, getAllPlaylists);
@@ -1073,6 +1090,7 @@ function parseSettings(obj) {
     filterCols('colsQueue');
     filterCols('colsBrowsePlaylistsDetail');
     filterCols('colsBrowseFilesystem');
+    filterCols('colsBrowseDatabase');
 
     if (settings.featLocalplayer) {
         if (settings.streamurl == '') {
@@ -1112,6 +1130,7 @@ function parseSettings(obj) {
     setCols('Search');
     setCols('BrowseFilesystem');
     setCols('BrowsePlaylistsDetail');
+    setCols('BrowseDatabase', '.tblAlbumTitles');
     if (app.current.app == 'Queue')
         getQueue();
     else if (app.current.app == 'Search')
@@ -1120,9 +1139,11 @@ function parseSettings(obj) {
         appRoute();
     else if (app.current.app == 'Browse' && app.current.tab == 'Playlists' && app.current.view == 'Detail')
         appRoute();
+    else if (app.current.app == 'Browse' && app.current.tab == 'Database' && app.current.search != '')
+        appRoute();
 }
 
-function setCols(table) {
+function setCols(table, className) {
     var tagChks = '';
     var tags = settings.tags.slice();
     if (settings.featTags == false)
@@ -1155,16 +1176,29 @@ function setCols(table) {
         heading += h + '</th>';
     }
     heading += '<th></th>';
-    document.getElementById(table + 'List').getElementsByTagName('tr')[0].innerHTML = heading;
+    if (className == undefined) 
+        document.getElementById(table + 'List').getElementsByTagName('tr')[0].innerHTML = heading;
+    else {
+        var tbls = document.querySelectorAll(className);
+        for (var i = 0; i < tbls.length; i++) {
+            tbls[i].getElementsByTagName('tr')[0].innerHTML = heading;
+        }
+    }
 }
 
 function getSettings() {
     sendAPI({"cmd": "MPD_API_SETTINGS_GET"}, parseSettings);
 }
 
-function saveCols(table) {
+function saveCols(table, tableEl) {
     var colInputs = document.getElementById(table + 'ColsDropdown').firstChild.getElementsByTagName('input');
-    var header = document.getElementById(table + 'List').getElementsByTagName('tr')[0];
+    var header;
+    if (tableEl == undefined)
+         header = document.getElementById(table + 'List').getElementsByTagName('tr')[0];
+    else if (typeof(tableEl) == 'string')
+        header = document.querySelector(tableEl).getElementsByTagName('tr')[0];
+    else
+        header = tableEl.getElementsByTagName('tr')[0];
     
     for (var i = 0; i < colInputs.length; i++) {
         var th = header.querySelector('[data-col=' + colInputs[i].name + ']');
@@ -1603,42 +1637,38 @@ function parseListDBtags(obj) {
         document.getElementById('btnBrowseDatabaseByTag').parentNode.classList.add('hide');
         document.getElementById('btnBrowseDatabaseTag').parentNode.classList.remove('hide');
         document.getElementById('BrowseDatabaseAddAllSongs').parentNode.parentNode.classList.remove('hide');
+        document.getElementById('BrowseDatabaseColsBtn').parentNode.classList.remove('hide');
         document.getElementById('btnBrowseDatabaseTag').innerHTML = '&laquo; ' + app.current.view;
         document.getElementById('BrowseDatabaseAlbumListCaption').innerHTML = '<h2>' + obj.searchtagtype + ': ' + obj.searchstr + '</h2>' +
             '<small class="pull-right">' + obj.totalEntities + ' Entries</small><hr/>';
         var nrItems = obj.data.length;
         var cardContainer = document.getElementById('BrowseDatabaseAlbumList');
-        var cards = cardContainer.getElementsByClassName('col-md');
+        var cards = cardContainer.getElementsByClassName('card');
         for (var i = 0; i < nrItems; i++) {
             var id = genId(obj.data[i].value);
-            if (cards[i])
-                if (cards[i].getAttribute('id') == id)
-                    continue;              
-            var card=document.createElement('div');
-            card.classList.add('col-md');
-            card.classList.add('mr-0');
-            card.setAttribute('id', id);
+//            if (cards[i])
+//                if (cards[i].getAttribute('id') == id)
+//                    continue;              
+            var card = document.createElement('div');
+            card.classList.add('card', 'ml-4', 'mr-4', 'mb-4', 'w-100');
+            card.setAttribute('id', 'card' + id);
             card.setAttribute('data-album', encodeURI(obj.data[i].value));
-            card.innerHTML = '<div class="card mb-4" id="card' + id + '">' +
-                             (settings.featCoverimage ? ' <a href="#" class="card-img-top"></a>' : '<a href="#" class="card-img-top-nc"></a>') +
-                             ' <div class="card-body">' +
-                             '  <h5 class="card-title" id="albumartist' + id + '"></h5>' +
-                             '  <h4 class="card-title">' + obj.data[i].value + '</h4>' +
-                             '  <a class="color-darkgrey" data-toggle="collapse" href="#collapse' + id +'" id="collapseLink' + id +'">' +
-                             '   <span class="material-icons">keyboard_arrow_right</span> Show Titles</a> ' +
-                             '  <div class="collapse" id="collapse' + id +'">' +
-                             '   <table class="table table-sm table-hover" id="tbl' + id + '"><tbody></tbody></table>'+
-                             '  </div>' +
-                             ' </div>'+
-                             '</div>';
-         
+            var html = '<div class="card-header"><span id="albumartist' + id + '"></span> &ndash; ' + obj.data[i].value + '</div>' +
+                             ' <div class="card-body"><div class="row">';
+            if (settings.featCoverimage)
+                html += '  <div class="col-md-auto"><a class="card-img-left"></a></div>';
+            html += '  <div class="col"><table class="tblAlbumTitles table table-sm table-hover" id="tbl' + id + '"><thead><tr></tr></thead><tbody></tbody></table></div>' + 
+                              ' </div></div>' +
+                              '</div>';
+            
+            card.innerHTML = html;
             if (i < cards.length)
                 cards[i].replaceWith(card); 
             else 
                 cardContainer.append(card);
             
             if ('IntersectionObserver' in window)
-                createListTitleObserver(document.getElementById(id));
+                createListTitleObserver(document.getElementById('card' + id));
             else
                 sendAPI({"cmd": "MPD_API_DATABASE_TAG_ALBUM_TITLE_LIST", "data": { "album": obj.data[i].value, "search": app.current.search, "tag": app.current.view}}, parseListTitles);
         }
@@ -1647,6 +1677,10 @@ function parseListDBtags(obj) {
             cards[i].remove();
         }
         setPagination(obj.totalEntities);
+        setCols('BrowseDatabase', '.tblAlbumTitles');
+        var tbls = document.querySelectorAll('.tblAlbumTitles');
+        for (var i = 0; i < tbls.length; i++) 
+            dragAndDropTableHeader(tbls[i]);
         document.getElementById('BrowseDatabaseAlbumList').classList.remove('opacity05');        
     }  
     else {
@@ -1654,6 +1688,7 @@ function parseListDBtags(obj) {
         document.getElementById('BrowseDatabaseTagList').classList.remove('hide');
         document.getElementById('btnBrowseDatabaseByTag').parentNode.classList.remove('hide');
         document.getElementById('BrowseDatabaseAddAllSongs').parentNode.parentNode.classList.add('hide');
+        document.getElementById('BrowseDatabaseColsBtn').parentNode.classList.add('hide');
         document.getElementById('btnBrowseDatabaseTag').parentNode.classList.add('hide');
         document.getElementById('BrowseDatabaseTagListCaption').innerHTML = app.current.view + '<small class="pull-right">' + obj.totalEntities +' Tags</small>';        
         var nrItems = obj.data.length;
@@ -1713,37 +1748,40 @@ function parseListTitles(obj) {
     var id = genId(obj.Album);
     var card = document.getElementById('card' + id)
     var tbody = card.getElementsByTagName('tbody')[0];
-    var img = card.getElementsByTagName('a')[0];
-    if (img.classList.contains('card-img-top'))
-        img.style.backgroundImage = 'url("' + obj.cover + '")';
-    else
-        img.style.backgroundImage = '';
-    img.setAttribute('data-uri', encodeURI(obj.data[0].uri.replace(/\/[^\/]+$/, '')));
-    img.setAttribute('data-name', obj.Album);
-    img.setAttribute('data-type', 'dir');
-    img.addEventListener('click', function(event) {
+    var cardHeader = card.querySelector('.card-header');
+    cardHeader.setAttribute('data-uri', encodeURI(obj.data[0].uri.replace(/\/[^\/]+$/, '')));
+    cardHeader.setAttribute('data-name', obj.Album);
+    cardHeader.setAttribute('data-type', 'dir');
+    cardHeader.addEventListener('click', function(event) {
         showMenu(this, event);
     }, false);
+    cardHeader.classList.add('clickable');
+    var img = card.getElementsByTagName('a')[0];
+    if (img) {
+        img.style.backgroundImage = 'url("' + obj.cover + '")';
+        img.setAttribute('data-uri', encodeURI(obj.data[0].uri.replace(/\/[^\/]+$/, '')));
+        img.setAttribute('data-name', obj.Album);
+        img.setAttribute('data-type', 'dir');
+        img.addEventListener('click', function(event) {
+            showMenu(this, event);
+        }, false);
+    }
     
     document.getElementById('albumartist' + id).innerText = obj.AlbumArtist;
-  
-    var titleTable = document.getElementById('collapseLink' + id);
-    var myCollapseInit = new Collapse(titleTable);
-    
-    document.getElementById('collapse' + id).addEventListener('show.bs.collapse', function() {
-        titleTable.innerHTML = '<span class="material-icons">keyboard_arrow_down</span> Hide Titles';
-    }, false);
-    document.getElementById('collapse' + id).addEventListener('hidden.bs.collapse', function() {
-        titleTable.innerHTML = '<span class="material-icons">keyboard_arrow_right</span> Show Titles';
-    }, false);    
   
     var titleList = '';
     var nrItems = obj.data.length;
     for (var i = 0; i < nrItems; i++) {
-        titleList += '<tr data-type="song" data-name="' + obj.data[i].Title + '" data-uri="' + encodeURI(obj.data[i].uri) + '">' +
-                     '<td>' + obj.data[i].Track + '</td><td>' + obj.data[i].Title + '</td>' +
-                     '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>' + 
-                     '</tr>';
+        if (obj.data[i].Duration) {
+            var minutes = Math.floor(obj.data[i].Duration / 60);
+            var seconds = obj.data[i].Duration - minutes * 60;
+            obj.data[i].Duration = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+        }
+        titleList += '<tr data-type="song" data-name="' + obj.data[i].Title + '" data-uri="' + encodeURI(obj.data[i].uri) + '">';
+        for (var c = 0; c < settings.colsBrowseDatabase.length; c++) {
+            titleList += '<td data-col="' + settings.colsBrowseDatabase[c] + '">' + obj.data[i][settings.colsBrowseDatabase[c]] + '</td>';
+        }
+        titleList += '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">playlist_add</a></td></tr>';
     }
     tbody.innerHTML = titleList;
 

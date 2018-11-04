@@ -316,6 +316,13 @@
               </div>
             </div>
           </div>
+          
+          <div class="btn-group mr-2 featTags hide">
+            <button id="BrowseDatabaseColsBtn" class="btn btn-secondary dropdown-toggle material-icons" type="button" data-toggle="dropdown">settings</button>
+            <div class="dropdown-menu bg-dark px-2" id="BrowseDatabaseColsDropdown"><form></form>
+              <button data-href='{"cmd": "saveCols", "options": ["BrowseDatabase", ".tblAlbumTitles"]}' class="btn btn-success btn-block btn-sm mt-2">Apply</button>
+            </div>          
+          </div>
 
           <div id="BrowseDatabasePaginationTop" class="btn-group mr-2 hide">
             <button data-href='{"cmd": "gotoPage", "options": ["prev"]}' id="BrowseDatabasePaginationTopPrev" title="Previous Page" type="button" class="btn btn-secondary">&laquo;</button>

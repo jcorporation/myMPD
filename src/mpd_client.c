@@ -1439,7 +1439,7 @@ int mympd_put_settings(char *buffer) {
     }
     len += json_printf(&out, ", colsQueue: %s", mympd_state.colsQueue);
     len += json_printf(&out, ", colsSearch: %s", mympd_state.colsSearch);
-    len += json_printf(&out, ", colsBrowseDatabase: %s", mympd_state.colsBrowseFilesystem);
+    len += json_printf(&out, ", colsBrowseDatabase: %s", mympd_state.colsBrowseDatabase);
     len += json_printf(&out, ", colsBrowsePlaylistsDetail: %s", mympd_state.colsBrowsePlaylistsDetail);
     len += json_printf(&out, ", colsBrowseFilesystem: %s", mympd_state.colsBrowseFilesystem);
     len += json_printf(&out, "}}");    
@@ -1873,12 +1873,9 @@ int mympd_put_songs_in_album(char *buffer, char *album, char *search, char *tag)
                     mympd_get_cover(mpd_song_get_uri(song), cover, 500);
                     albumartist = strdup(mympd_get_tag(song, MPD_TAG_ALBUM_ARTIST));
                 }
-                len += json_printf(&out, "{type: song, uri: %Q, Duration: %d, Title: %Q, Track: %Q}",
-                    mpd_song_get_uri(song),
-                    mpd_song_get_duration(song),
-                    mympd_get_tag(song, MPD_TAG_TITLE),
-                    mympd_get_tag(song, MPD_TAG_TRACK)
-                );
+                len += json_printf(&out, "{Type: song, ");
+                PUT_SONG_TAGS();
+                len += json_printf(&out, "}");
             }
             mpd_song_free(song);
         }

@@ -190,20 +190,19 @@ small {
 .col-md {
   max-width: 250px;
   min-width: 250px;
+  
 }
 
-a.card-img-top {
+a.card-img-left {
   overflow: hidden;
   display: block;
-  padding-top: 100%;
+  width: 250px;
+  height: 250px;
+  border-radius: 5px;
   background-size: cover;
-  background-image: url(/assets/coverimage-loading.png);
-}
-
-a.card-img-top-nc {
-  display: block;
-  height: 20px;
-  background-color:#ccc;
+  background-image: url(/assets/coverimage-loading.png);  
+  margin-bottom: 5px;
+  cursor: pointer;
 }
 
 button.active {

@@ -294,7 +294,7 @@ void read_statefiles() {
     if (mympd_state_get("colsBrowseDatabase", value))
         mympd_state.colsBrowseDatabase = strdup(value);
     else {
-        mympd_state.colsBrowseDatabase = strdup("[\"Track\",\"Title\"]");
+        mympd_state.colsBrowseDatabase = strdup("[\"Track\",\"Title\",\"Duration\"]");
         mympd_state_set("colsBrowseDatabase", mympd_state.colsBrowseDatabase);
     }
     
