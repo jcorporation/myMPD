@@ -29,6 +29,7 @@
 #include <sys/time.h>
 #include <pwd.h>
 #include <grp.h>
+#include <libgen.h>
 
 #include "../dist/src/mongoose/mongoose.h"
 #include "../dist/src/frozen/frozen.h"
@@ -130,12 +131,8 @@ static int inihandler(void* user, const char* section, const char* name, const c
 
     if (MATCH("mpdhost"))
         p_config->mpdhost = strdup(value);
-    else if (MATCH("mpdhost"))
-        p_config->mpdhost = strdup(value);
     else if (MATCH("mpdport"))
         p_config->mpdport = strtol(value, &crap, 10);
-    else if (MATCH("mpdhost"))
-        p_config->mpdhost = strdup(value);
     else if (MATCH("mpdpass"))
         p_config->mpdpass = strdup(value);
     else if (MATCH("webport"))
@@ -154,7 +151,12 @@ static int inihandler(void* user, const char* section, const char* name, const c
     else if (MATCH("streamport"))
         p_config->streamport = strtol(value, &crap, 10);
     else if (MATCH("coverimage"))
-        p_config->coverimage = strdup(value);
+        if (strcmp(value, "true") == 0)
+            p_config->coverimage = true;
+        else
+            p_config->coverimage = false;
+    else if (MATCH("coverimagename"))
+        p_config->coverimagename = strdup(value);
     else if (MATCH("varlibdir"))
         p_config->varlibdir = strdup(value);
     else if (MATCH("stickers"))
@@ -174,6 +176,10 @@ static int inihandler(void* user, const char* section, const char* name, const c
             p_config->mixramp = false;
     else if (MATCH("taglist"))
         p_config->taglist = strdup(value);
+    else if (MATCH("searchtaglist"))
+        p_config->searchtaglist = strdup(value);        
+    else if (MATCH("browsetaglist"))
+        p_config->browsetaglist = strdup(value);
     else if (MATCH("max_elements_per_page")) {
         p_config->max_elements_per_page = strtol(value, &crap, 10);
         if (p_config->max_elements_per_page > MAX_ELEMENTS_PER_PAGE) {
@@ -181,10 +187,46 @@ static int inihandler(void* user, const char* section, const char* name, const c
             p_config->max_elements_per_page = MAX_ELEMENTS_PER_PAGE;
         }
     }
+    else if (MATCH("syscmds"))
+        if (strcmp(value, "true") == 0)
+            p_config->syscmds = true;
+        else
+            p_config->syscmds = false;
+    else if (MATCH("localplayer"))
+        if (strcmp(value, "true") == 0)
+            p_config->localplayer = true;
+        else
+            p_config->localplayer = false;
+    else if (MATCH("streamurl"))
+        p_config->streamurl = strdup(value);
     else
         return 0;  /* unknown section/name, error */
 
     return 1;
+}
+
+void read_syscmds() {
+    DIR *dir;
+    struct dirent *ent;
+    char dirname[400];
+    char *cmd;
+    long order;
+    if (config.syscmds == true) {    
+        snprintf(dirname, 400, "%s/syscmds", config.etcdir);
+        printf("Reading syscmds: %s\n", dirname);
+        if ((dir = opendir (dirname)) != NULL) {
+            while ((ent = readdir(dir)) != NULL) {
+                if (strncmp(ent->d_name, ".", 1) == 0)
+                    continue;
+                order = strtol(ent->d_name, &cmd, 10);
+                if (strcmp(cmd, "") != 0)
+                    list_push(&syscmds, strdup(cmd), order);
+            }
+            closedir(dir);
+        }
+    }
+    else
+        printf("Syscmds are disabled\n");
 }
 
 void read_statefiles() {
@@ -224,7 +266,7 @@ void read_statefiles() {
     if (mympd_state_get("jukeboxPlaylist", value))
         mympd_state.jukeboxPlaylist = strdup(value);
     else {
-        mympd_state.jukeboxPlaylist = "Database";
+        mympd_state.jukeboxPlaylist = strdup("Database");
         mympd_state_set("jukeboxPlaylist", "Database");
     }
 
@@ -233,6 +275,41 @@ void read_statefiles() {
     else {
         mympd_state.jukeboxQueueLength = 1;
         mympd_state_set("jukeboxQueueLength", "1");
+    }
+    
+    if (mympd_state_get("colsQueue", value))
+        mympd_state.colsQueue = strdup(value);
+    else {
+        mympd_state.colsQueue = strdup("[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]");
+        mympd_state_set("colsQueue", mympd_state.colsQueue);
+    }
+    
+    if (mympd_state_get("colsSearch", value))
+        mympd_state.colsSearch = strdup(value);
+    else {
+        mympd_state.colsSearch = strdup("[\"Title\",\"Artist\",\"Album\",\"Duration\"]");
+        mympd_state_set("colsSearch", mympd_state.colsSearch);
+    }
+    
+    if (mympd_state_get("colsBrowseDatabase", value))
+        mympd_state.colsBrowseDatabase = strdup(value);
+    else {
+        mympd_state.colsBrowseDatabase = strdup("[\"Track\",\"Title\",\"Duration\"]");
+        mympd_state_set("colsBrowseDatabase", mympd_state.colsBrowseDatabase);
+    }
+    
+    if (mympd_state_get("colsBrowsePlaylistsDetail", value))
+        mympd_state.colsBrowsePlaylistsDetail = strdup(value);
+    else {
+        mympd_state.colsBrowsePlaylistsDetail = strdup("[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]");
+        mympd_state_set("colsBrowsePlaylistsDetail", mympd_state.colsBrowsePlaylistsDetail);
+    }
+    
+    if (mympd_state_get("colsBrowseFilesystem", value))
+        mympd_state.colsBrowseFilesystem = strdup(value);
+    else {
+        mympd_state.colsBrowseFilesystem = strdup("[\"Type\",\"Title\",\"Artist\",\"Album\",\"Duration\"]");
+        mympd_state_set("colsBrowseFilesystem", mympd_state.colsBrowseFilesystem);
     }
 }
 
@@ -266,19 +343,28 @@ int main(int argc, char **argv) {
     config.sslport = "443";
     config.sslcert = "/etc/mympd/ssl/server.pem";
     config.sslkey = "/etc/mympd/ssl/server.key";
-    config.user = "nobody";
+    config.user = "mympd";
     config.streamport = 8000;
-    config.coverimage = "folder.jpg";
+    config.streamurl = "";
+    config.coverimage = true;
+    config.coverimagename = "folder.jpg";
     config.varlibdir = "/var/lib/mympd";
     config.stickers = true;
     config.mixramp = true;
     config.taglist = "Artist,Album,AlbumArtist,Title,Track,Genre,Date,Composer,Performer";
+    config.searchtaglist = "Artist,Album,AlbumArtist,Title,Genre,Composer,Performer";
+    config.browsetaglist = "Artist,Album,AlbumArtist,Genre,Composer,Performer";
     config.smartpls = true;
     config.max_elements_per_page = 100;
+    char *etcdir = strdup(argv[1]);
+    config.etcdir = dirname(etcdir);
+    config.syscmds = false;
+    config.localplayer = true;
     
     mpd.timeout = 3000;
     mpd.last_update_sticker_song_id = -1;
     mpd.last_song_id = -1;
+    mpd.feat_library = false;
     
     if (argc == 2) {
         printf("Parsing config file: %s\n", argv[1]);
@@ -366,6 +452,14 @@ int main(int argc, char **argv) {
     if (!testdir("Document root", SRC_PATH)) 
         return EXIT_FAILURE;
 
+    snprintf(testdirname, 400, "%s/library", SRC_PATH);
+    if (testdir("Link to mpd music_directory", testdirname)) {
+        mpd.feat_library = true;
+        printf("Enabling coverimage support\n");
+    }
+    else 
+        printf("Disabling coverimage support\n");
+
     snprintf(testdirname, 400, "%s/tmp", config.varlibdir);
     if (!testdir("Temp dir", testdirname)) 
         return EXIT_FAILURE;
@@ -379,6 +473,10 @@ int main(int argc, char **argv) {
         return EXIT_FAILURE;
 
     read_statefiles();
+
+    list_init(&syscmds);    
+    read_syscmds();
+    list_sort_by_value(&syscmds, true);
 
     list_init(&mpd_tags);
     list_init(&mympd_tags);

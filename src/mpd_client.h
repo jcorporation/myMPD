@@ -29,17 +29,15 @@
 #include "list.h"
 
 #define RETURN_ERROR_AND_RECOVER(X) do { \
-    printf("MPD X: %s\n", mpd_connection_get_error_message(mpd.conn)); \
-    len = json_printf(&out, "{ type:error, data : %Q }", \
-        mpd_connection_get_error_message(mpd.conn) \
-    ); \
+    printf("MPD %s: %s\n", X, mpd_connection_get_error_message(mpd.conn)); \
+    len = json_printf(&out, "{ type:error, data : %Q }", mpd_connection_get_error_message(mpd.conn)); \
     if (!mpd_connection_clear_error(mpd.conn)) \
         mpd.conn_state = MPD_FAILURE; \
     return len; \
 } while (0)
 
 #define LOG_ERROR_AND_RECOVER(X) do { \
-    printf("MPD X: %s\n", mpd_connection_get_error_message(mpd.conn)); \
+    printf("MPD %s: %s\n", X, mpd_connection_get_error_message(mpd.conn)); \
     if (!mpd_connection_clear_error(mpd.conn)) \
         mpd.conn_state = MPD_FAILURE; \
 } while (0)
@@ -49,6 +47,23 @@
         printf("Buffer truncated: %d, %d\n", len, MAX_SIZE); \
     return len; \
 } while (0)
+
+#define PUT_SONG_TAGS() do { \
+    struct node *current = mympd_tags.list; \
+    int tagnr = 0; \
+    while (current != NULL) { \
+        if (tagnr ++) \
+            len += json_printf(&out, ","); \
+        len += json_printf(&out, "%Q: %Q", current->data, mympd_get_tag(song, mpd_tag_name_parse(current->data))); \
+        current = current->next; \
+    } \
+    len += json_printf(&out, ", Duration: %d, uri: %Q", mpd_song_get_duration(song), mpd_song_get_uri(song)); \
+} while (0)
+
+#define PUT_MIN_SONG_TAGS() do { \
+    len += json_printf(&out, "Title: %Q, Duration: %d, uri: %Q", mympd_get_tag(song, MPD_TAG_TITLE), mpd_song_get_duration(song), mpd_song_get_uri(song)); \
+} while (0)
+
 
 #define MAX_SIZE 2048 * 400
 #define MAX_ELEMENTS_PER_PAGE 400
@@ -109,6 +124,8 @@
     X(MPD_API_MESSAGE_SEND) \
     X(MPD_API_WELCOME) \
     X(MPD_API_LIKE) \
+    X(MPD_API_SYSCMD) \
+    X(MPD_API_COLS_SAVE) \
     X(MPD_API_UNKNOWN)
 
 enum mpd_cmd_ids {
@@ -145,10 +162,17 @@ struct t_mpd {
     const unsigned* protocol;
     // Supported tags
     bool feat_sticker;
+    bool feat_playlists;
+    bool feat_tags;
+    bool feat_library;
 } mpd;
 
 struct list mpd_tags;
 struct list mympd_tags;
+struct list mympd_searchtags;
+struct list mympd_browsetags;
+
+struct list syscmds;
 
 typedef struct {
     long mpdport;
@@ -160,14 +184,21 @@ typedef struct {
     const char* sslcert;
     const char* sslkey;
     const char* user;
-    long streamport;
-    const char* coverimage;
+    bool coverimage;
+    const char* coverimagename;
     bool stickers;
     bool mixramp;
     const char* taglist;
+    const char* searchtaglist;
+    const char* browsetaglist;
     bool smartpls;
     const char* varlibdir;
-    long max_elements_per_page;
+    const char* etcdir;
+    unsigned long max_elements_per_page;
+    bool syscmds;
+    bool localplayer;
+    long streamport;
+    const char* streamurl;
 } t_config;
 
 t_config config;
@@ -185,6 +216,11 @@ typedef struct {
     int jukeboxMode;
     const char* jukeboxPlaylist;
     int jukeboxQueueLength;
+    char* colsQueue;
+    char* colsSearch;
+    char* colsBrowseDatabase;
+    char* colsBrowsePlaylistsDetail;
+    char* colsBrowseFilesystem;
 } t_mympd_state;
 
 t_mympd_state mympd_state;
@@ -206,7 +242,8 @@ void mympd_last_played_song_id(int song_id);
 void mympd_get_sticker(const char *uri, t_sticker *sticker);
 void mympd_jukebox();
 bool mympd_state_get(char *name, char *value);
-bool mympd_state_set(char *name, char *value);
+bool mympd_state_set(const char *name, const char *value);
+int mympd_syscmd(char *buffer, char *cmd, int order);
 int mympd_smartpls_save(char *smartpltype, char *playlist, char *tag, char *searchstr, int maxentries, int timerange);
 int mympd_smartpls_put(char *buffer, char *playlist);
 int mympd_smartpls_update_all();
@@ -215,6 +252,7 @@ int mympd_smartpls_update(char *sticker, char *playlist, int maxentries);
 int mympd_smartpls_update_newest(char *playlist, int timerange);
 int mympd_smartpls_update_search(char *playlist, char *tag, char *searchstr);
 int mympd_get_updatedb_state(char *buffer);
+void mympd_get_song_uri_from_song_id(int song_id, char *uri);
 int mympd_put_state(char *buffer, int *current_song_id, int *next_song_id, int *last_song_id, unsigned *queue_version, unsigned *queue_length);
 int mympd_put_outputs(char *buffer);
 int mympd_put_current_song(char *buffer);

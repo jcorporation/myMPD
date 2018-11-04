@@ -2,6 +2,7 @@
 #include <string.h>
 #include <time.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include "list.h"
 
 int list_init(struct list *l) {
@@ -10,8 +11,8 @@ int list_init(struct list *l) {
     return 0;
 }
 
-int list_get_value(const struct list *l, char *data) {
-    int value = 0;
+int list_get_value(const struct list *l, const char *data) {
+    int value = -1;
     struct node *current = l->list;
     while (current != NULL) {
         if (strcmp(current->data, data) == 0) {
@@ -78,8 +79,36 @@ int list_shuffle(struct list *l) {
     return 0;
 }
 
+int list_sort_by_value(struct list *l, bool order) {
+    int swapped; 
+    struct node *ptr1; 
+    struct node *lptr = NULL; 
+  
+    if (l->list == NULL) 
+        return 1; 
+  
+    do { 
+        swapped = 0; 
+        ptr1 = l->list;
+  
+        while (ptr1->next != lptr)  { 
+            if (order == true && ptr1->value > ptr1->next->value) {  
+                list_swap_item(ptr1, ptr1->next); 
+                swapped = 1; 
+            } 
+            else if (order == false && ptr1->value < ptr1->next->value) {  
+                list_swap_item(ptr1, ptr1->next); 
+                swapped = 1; 
+            } 
+            ptr1 = ptr1->next; 
+        } 
+        lptr = ptr1; 
+    } 
+    while (swapped);
+    return 0; 
+}
 
-int list_replace(struct list *l, int pos, char *data, int value) {
+int list_replace(struct list *l, int pos, const char *data, int value) {
     int i = 0;
     struct node *current = l->list;
     while (current->next != NULL) {
@@ -96,7 +125,7 @@ int list_replace(struct list *l, int pos, char *data, int value) {
     return 0;
 }
 
-int list_push(struct list *l, char *data, int value) {
+int list_push(struct list *l, const char *data, int value) {
     struct node *n = malloc(sizeof(struct node));
     n->value = value;
     n->data = strdup(data);

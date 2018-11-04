@@ -4,7 +4,7 @@
 # (c) 2018 Juergen Mang <mail@jcgames.de>
 
 Name:           myMPD
-Version:        4.4.0
+Version:        4.5.0
 Release:        0 
 License:        GPL-2.0 
 Group:          Productivity/Multimedia/Sound/Players
@@ -81,6 +81,11 @@ done
 [ -f /var/lib/mympd/state/jukeboxQueueLength ] || echo -n "1" > /var/lib/mympd/state/jukeboxQueueLength
 [ -f /var/lib/mympd/state/notificationPage ] || echo -n "true" > /var/lib/mympd/state/notificationPage
 [ -f /var/lib/mympd/state/notificationWeb ] || echo -n "false" > /var/lib/mympd/state/notificationWeb
+[ -f /var/lib/mympd/state/colsBrowseDatabase ] || echo -n '["Track","Title","Duration"]' > /var/lib/mympd/state/colsBrowseDatabase
+[ -f /var/lib/mympd/state/colsBrowseFilesystem ] || echo -n '["Type","Title","Artist","Album","Duration"]' > /var/lib/mympd/state/colsBrowseFilesystem
+[ -f /var/lib/mympd/state/colsBrowsePlaylistsDetail ] || echo -n '["Pos","Title","Artist","Album","Duration"]' > /var/lib/mympd/state/colsBrowsePlaylistsDetail
+[ -f /var/lib/mympd/state/colsQueue ] || echo -n '["Pos","Title","Artist","Album","Duration"]' > /var/lib/mympd/state/colsQueue
+[ -f /var/lib/mympd/state/colsSearch ] || echo -n '["Title","Artist","Album","Duration"]' > /var/lib/mympd/state/colsSearch
 
 echo "Fixing ownership of /var/lib/mympd"
 chown -R mympd.mympd /var/lib/mympd

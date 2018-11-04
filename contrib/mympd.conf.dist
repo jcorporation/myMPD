@@ -17,11 +17,20 @@ sslkey = /etc/mympd/ssl/server.key
 #myMPD user
 user = mympd
 
+#Enable local player, needs streamport or streamurl setting
+localplayer = true
+
 #Port for mpd http stream
 streamport = 8000
 
+#Manual streamurl, overwrites streamport
+#streamurl = http://jukebox:8000
+
+#Enable coverimages
+coverimage = true
+
 #Name for coverimages
-coverimage = folder.jpg
+coverimagename = folder.jpg
 
 #myMPD state directory
 varlibdir = /var/lib/mympd
@@ -34,9 +43,14 @@ stickers = true
 
 #List of tags in myMPD gui
 taglist = Artist,Album,AlbumArtist,Title,Track,Genre,Date,Composer,Performer
+searchtaglist = Artist,Album,AlbumArtist,Title,Genre,Composer,Performer
+browsetaglist = Artist,Album,AlbumArtist,Genre,Composer,Performer
 
 #Enable smart playlists
 smartpls = true
+
+#Enable system commands in /etc/mympd/syscmds/
+syscmds = false
 
 #Elements per page for pagination, max: 400
 max_elements_per_page = 100

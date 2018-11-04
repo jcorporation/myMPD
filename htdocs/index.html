@@ -28,12 +28,13 @@
               <div class="collapse" id="menu-dbupdate">
                 <a class="dropdown-item text-light bg-dark" href="#" data-href='{"cmd": "updateDB", "options": []}'>Update Database</a>
                 <a class="dropdown-item text-light bg-dark" href="#" data-href='{"cmd": "rescanDB", "options": []}'>Rescan Database</a>
-                <a class="dropdown-item text-light bg-dark" href="#" data-href='{"cmd": "updateSmartPlaylists", "options": []}'>Update Smart Playlists</a>
+                <a class="dropdown-item text-light bg-dark featSmartpls" href="#" data-href='{"cmd": "updateSmartPlaylists", "options": []}'>Update Smart Playlists</a>
               </div>
-            <a class="dropdown-item text-light bg-dark" href="#" data-href='{"cmd": "openLocalPlayer", "options": []}'>Local Player</a>
+            <a class="dropdown-item text-light bg-dark featLocalplayer" href="#" data-href='{"cmd": "openLocalPlayer", "options": []}'>Local Player</a>
             <a class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#modalSettings">Settings</a>
             <a class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#modalAbout">About</a>
             <a id="nav-add2homescreen" class="dropdown-item text-light bg-dark hide" href="#">Add2HomeScreen</a>
+            <div id="syscmds" class="featSyscmds"></div>
           </div>
         </div>
         <div class="btn-toolbar col-auto pl-0 pr-0">
@@ -80,19 +81,21 @@
     
     <div class="card" id="cardPlayback">
       <div class="card-header">Playback
-        <div class="btn-group btn-group-sm stickers pull-right">
+        <div class="btn-group btn-group-sm featStickers pull-right">
           <button title="Dislike song" id="btnVoteDown" data-href='{"cmd": "voteSong", "options": [0]}' class="btn btn-sm btn-light material-icons">thumb_down</button>
           <button title="Like song" id="btnVoteUp" data-href='{"cmd": "voteSong", "options": [2]}' class="btn btn-sm btn-light material-icons">thumb_up</button>
         </div>
       </div>
       <div class="card-body">
-        <div class="album-cover" id="currentCover"></div>
+        <div class="album-cover featCoverimage" id="currentCover"></div>
         <div class="album-desc">
           <h2 id="currentTrack" data-href='{"cmd": "songClick", "options": []}'></h2>
-          <small>Artist</small>
-          <h4 id="currentArtist" data-href='{"cmd": "artistClick", "options": []}'></h4>
-          <small>Album</small>
-          <h4 id="currentAlbum" data-href='{"cmd": "albumClick", "options": []}'></h4>
+          <div class="featTags">  
+            <small>Artist</small>
+            <h4 id="currentArtist" data-href='{"cmd": "artistClick", "options": []}'></h4>
+            <small>Album</small>
+            <h4 id="currentAlbum" data-href='{"cmd": "albumClick", "options": []}'></h4>
+          </div>
         </div>
       </div>
       <div class="card-footer card-footer-playback">
@@ -110,14 +113,13 @@
       </div>
       <div class="card-body">
         <div class="btn-toolbar card-toolbar" id="queue-buttons">
-          <div class="btn-group mr-2">
+          <div class="btn-group mr-2 featPlaylists">
             <button type="button" class="btn btn-secondary material-icons" data-toggle="modal" data-target="#modalSaveQueue" title="Save queue">
               save
             </button>
           </div>
           <div class="btn-group mr-2">
-            <button type="button" class="btn btn-secondary material-icons"
-            data-href='{"cmd": "sendAPI", "options": [{"cmd": "MPD_API_QUEUE_SHUFFLE"}]}' title="Shuffle queue">
+            <button type="button" class="btn btn-secondary material-icons" data-href='{"cmd": "sendAPI", "options": [{"cmd": "MPD_API_QUEUE_SHUFFLE"}]}' title="Shuffle queue">
               shuffle
             </button>
           </div>
@@ -137,9 +139,9 @@
               <div class="input-group-append">
                 <button title="Select tags to search" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
                   <span class="material-icons">search</span>
-                  <span id="searchqueuetagdesc">Any Tag</span>
+                  <span id="searchqueuetagsdesc">Any Tag</span>
                 </button>
-                <div class="dropdown-menu bg-dark dropdown-menu-right px-2" id="searchqueuetag">
+                <div class="dropdown-menu bg-dark dropdown-menu-right px-2" id="searchqueuetags">
                 </div>
               </div>
             </div>
@@ -153,16 +155,16 @@
               </div>            
             <button data-href='{"cmd": "gotoPage", "options": ["next"]}' id="QueuePaginationTopNext" title="Next Page" type="button" class="btn btn-secondary input-group-append">&raquo;</button>
           </div>
+          <div class="btn-group mr-2 featTags">
+            <button id="QueueColsBtn" class="btn btn-secondary dropdown-toggle material-icons" type="button" data-toggle="dropdown">settings</button>
+            <div class="dropdown-menu bg-dark px-2" id="QueueColsDropdown"><form></form>
+              <button data-href='{"cmd": "saveCols", "options": ["Queue"]}' class="btn btn-success btn-block btn-sm mt-2">Apply</button>
+            </div>          
+          </div>
         </div>
 
         <div class="table-responsive-md">
           <table id="QueueList" class="table table-hover table-sm" data-version="">
-            <col class="tblnum"/>
-            <col class="tbltitle"/>
-            <col class="tblartist"/>
-            <col class="tblalbum"/>
-            <col class="tbllength"/>
-            <col class="tblaction"/>
             <thead>
               <tr>
                 <th>#</th>
@@ -199,10 +201,10 @@
     <div class="card hide" id="cardBrowse">
       <div class="card-header" id="panel-heading-browse">
         <ul class="nav nav-tabs card-header-tabs">
-          <li class="nav-item">
+          <li class="nav-item featTags">
             <a data-href='{"cmd": "appGoto", "options": ["Browse", "Database"]}' class="nav-link text-dark" href="#" id="cardBrowseNavDatabase">Database</a>
           </li>        
-          <li class="nav-item">
+          <li class="nav-item featPlaylists">
             <a data-href='{"cmd": "appGoto", "options": ["Browse", "Playlists"]}' class="nav-link text-dark" href="#" id="cardBrowseNavPlaylists">Playlists</a>
           </li>
           <li class="nav-item">
@@ -235,13 +237,15 @@
               </div>            
             <button data-href='{"cmd": "gotoPage", "options": ["next"]}' id="BrowsePlaylistsPaginationTopNext" title="Next Page" type="button" class="btn btn-secondary input-group-append">&raquo;</button>
           </div>
+          <div class="btn-group mr-2 hide featTags">
+            <button id="BrowsePlaylistsDetailColsBtn" class="btn btn-secondary dropdown-toggle material-icons" type="button" data-toggle="dropdown">settings</button>
+            <div class="dropdown-menu bg-dark px-2" id="BrowsePlaylistsDetailColsDropdown"><form></form>
+              <button data-href='{"cmd": "saveCols", "options": ["BrowsePlaylistsDetail"]}' class="btn btn-success btn-block btn-sm mt-2">Apply</button>
+            </div>          
+          </div>
         </div>
         <div class="table-responsive-md">
           <table id="BrowsePlaylistsAllList" class="table table-hover table-sm">
-            <col class="tblnum"/>
-            <col class="tbltitle"/>  
-            <col class="tbllastmodified"/>          
-            <col class="tblaction"/>
             <thead>
               <tr>
                 <th></th>
@@ -255,12 +259,6 @@
           </table>
           <table id="BrowsePlaylistsDetailList" class="table table-hover table-sm hide">
             <caption>Playlist List</caption>
-            <col class="tblnum"/>
-            <col class="tbltitle"/>            
-            <col class="tblartist"/>
-            <col class="tblalbum"/>
-            <col class="tbllength"/>
-            <col class="tblaction"/>
             <thead>
               <tr>
                 <th>#</th>
@@ -314,9 +312,16 @@
               <button id="BrowseDatabaseAddAllSongsBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-right" type="button" data-toggle="dropdown"></button>
               <div class="dropdown-menu bg-dark dropdown-menu-right px-2" id="BrowseDatabaseAddAllSongsDropdown">
                 <button type="button" class="btn btn-secondary btn-sm btn-block">Add all to queue</button>
-                <button type="button" class="btn btn-secondary btn-sm btn-block">Add all to playlist</button>
+                <button type="button" class="btn btn-secondary btn-sm btn-block featPlaylists">Add all to playlist</button>
               </div>
             </div>
+          </div>
+          
+          <div class="btn-group mr-2 featTags hide">
+            <button id="BrowseDatabaseColsBtn" class="btn btn-secondary dropdown-toggle material-icons" type="button" data-toggle="dropdown">settings</button>
+            <div class="dropdown-menu bg-dark px-2" id="BrowseDatabaseColsDropdown"><form></form>
+              <button data-href='{"cmd": "saveCols", "options": ["BrowseDatabase", ".tblAlbumTitles"]}' class="btn btn-success btn-block btn-sm mt-2">Apply</button>
+            </div>          
           </div>
 
           <div id="BrowseDatabasePaginationTop" class="btn-group mr-2 hide">
@@ -332,8 +337,6 @@
 
         <div class="table-responsive-md">
           <table id="BrowseDatabaseTagList" class="table table-hover table-sm">
-            <col class="tblnum"/>
-            <col class="tbltitle"/>            
             <thead>
               <tr>
                 <th></th>
@@ -381,7 +384,7 @@
               <button id="BrowseFilesystemAddAllSongsBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-right" type="button" data-toggle="dropdown"></button>
               <div class="dropdown-menu bg-dark dropdown-menu-right px-2" id="BrowseFilesystemAddAllSongsDropdown">
                 <button type="button" class="btn btn-secondary btn-sm btn-block">Add all to queue</button>
-                <button type="button" class="btn btn-secondary btn-sm btn-block">Add all to playlist</button>
+                <button type="button" class="btn btn-secondary btn-sm btn-block featPlaylists">Add all to playlist</button>
               </div>
             </div>
           </div>
@@ -394,6 +397,12 @@
               </div>            
             <button data-href='{"cmd": "gotoPage", "options": ["next"]}' id="BrowseFilesystemPaginationTopNext" title="Next Page" type="button" class="btn btn-secondary input-group-append">&raquo;</button>
           </div>
+          <div class="btn-group mr-2 featTags">
+            <button id="BrowseFilesystemColsBtn" class="btn btn-secondary dropdown-toggle material-icons" type="button" data-toggle="dropdown">settings</button>
+            <div class="dropdown-menu bg-dark px-2" id="BrowseFilesystemColsDropdown"><form></form>
+              <button data-href='{"cmd": "saveCols", "options": ["BrowseFilesystem"]}' class="btn btn-success btn-block btn-sm mt-2">Apply</button>
+            </div>          
+          </div>
         </div>
 
         <ol id="BrowseBreadcrumb" class="breadcrumb">
@@ -401,12 +410,6 @@
 
         <div class="table-responsive-md">
           <table id="BrowseFilesystemList" class="table table-hover table-sm">
-            <col class="tblnum"/>
-            <col class="tbltitle"/>            
-            <col class="tblartist"/>
-            <col class="tblalbum"/>
-            <col class="tbllength"/>
-            <col class="tblaction"/>
             <thead>
               <tr>
                 <th></th>
@@ -466,8 +469,8 @@
               <button id="searchAddAllSongsBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-right" type="button" data-toggle="dropdown"></button>
               <div class="dropdown-menu bg-dark dropdown-menu-right px-2" id="searchAddAllSongsDropdown">
                   <button type="button" class="btn btn-secondary btn-sm btn-block">Add all to queue</button>
-                  <button type="button" class="btn btn-secondary btn-sm btn-block">Add all to playlist</button>
-                  <button type="button" class="btn btn-secondary btn-sm btn-block smartpls">Save as smart playlist</button>
+                  <button type="button" class="btn btn-secondary btn-sm btn-block featPlaylists">Add all to playlist</button>
+                  <button type="button" class="btn btn-secondary btn-sm btn-block featSmartpls">Save as smart playlist</button>
               </div>
             </div>
           </div>
@@ -480,15 +483,15 @@
               </div>            
             <button data-href='{"cmd": "gotoPage", "options": ["next"]}' id="SearchPaginationTopNext" title="Next Page" type="button" class="btn btn-secondary input-group-append">&raquo;</button>
           </div>
+          <div class="btn-group mr-2 featTags">
+            <button id="SearchColsBtn" class="btn btn-secondary dropdown-toggle material-icons" type="button" data-toggle="dropdown">settings</button>
+            <div class="dropdown-menu bg-dark px-2" id="SearchColsDropdown"><form></form>
+              <button data-href='{"cmd": "saveCols", "options": ["Search"]}' class="btn btn-success btn-block btn-sm mt-2">Apply</button>
+            </div>          
+          </div>
         </div>
         <div class="table-responsive-md">
           <table id="SearchList" class="table table-hover table-sm">
-            <col class="tblnum"/>
-            <col class="tbltitle"/>
-            <col class="tblartist"/>
-            <col class="tblalbum"/>
-            <col class="tbllength"/>
-            <col class="tblaction"/>
             <thead>
               <tr>
                 <th></th>
@@ -586,7 +589,7 @@
                 <div class="invalid-feedback">Invalid uri</div>
               </div>
             </div>
-            <div class="row">
+            <div class="row featPlaylists">
               <div class="form-group col-md-12">
                 <button id="toggleAddToPlaylistBtn" class="btn btn-secondary" data-href='{"cmd": "toggleAddToPlaylistFrm", "options":[]}'>Add to playlist</button>
               </div>
@@ -922,7 +925,7 @@
           <button type="button" class="close" data-dismiss="modal">&times;</button>          
         </div>
         <div class="modal-body">
-          <div class="album-cover"></div>
+          <div class="album-cover featCoverimage"></div>
           <h1></h1>
           <div class="table-responsive-md">
             <table class="table table-sm">

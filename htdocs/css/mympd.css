@@ -43,12 +43,16 @@ button {
   cursor: pointer;
 }
 
-.tblnum, .tblaction {
+[data-col=Pos], [data-col=Type], [data-col=Track], [data-col=Action] {
   width: 30px;
 }
 
 small {
   color: #aaa;
+}
+
+.card {
+  min-height: 300px;
 }
 
 .card-footer-playback {
@@ -186,14 +190,19 @@ small {
 .col-md {
   max-width: 250px;
   min-width: 250px;
+  
 }
 
-a.card-img-top {
+a.card-img-left {
   overflow: hidden;
   display: block;
-  padding-top: 100%;
+  width: 250px;
+  height: 250px;
+  border-radius: 5px;
   background-size: cover;
-  background-image: url(/assets/coverimage-loading.png);
+  background-image: url(/assets/coverimage-loading.png);  
+  margin-bottom: 5px;
+  cursor: pointer;
 }
 
 button.active {
@@ -245,7 +254,11 @@ caption {
 }
 
 .dragover > td {
-  border-top:25px solid transparent;
+  border-top:2px solid #28a745;
+}
+
+.dragover-th {
+  border-left:2px solid #28a745;
 }
 
 [draggable] {
@@ -256,6 +269,7 @@ caption {
   /* Required to make elements draggable in old WebKit */
   -khtml-user-drag: element;
   -webkit-user-drag: element;
+  cursor: pointer;
 }
 
 @keyframes changewidth {
