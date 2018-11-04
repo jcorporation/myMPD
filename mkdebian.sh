@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION=$(grep VERSION_ CMakeLists.txt | cut -d\" -f2 | tr '\n' '.')
+VERSION=$(grep VERSION_ CMakeLists.txt | cut -d\" -f2 | tr '\n' '.' | sed 's/\.$//')
 
 export LC_TIME="en_GB.UTF-8"
 cat > debian/changelog << EOL
