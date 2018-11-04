@@ -786,7 +786,7 @@ void mympd_mpd_features() {
         printf("\nmyMPD enabled searchtags: ");
         token = strtok(searchtaglist, s);
         while (token != NULL) {
-            if (list_get_value(&mpd_tags, token) == 1) {
+            if (list_get_value(&mympd_tags, token) == 1) {
                 list_push(&mympd_searchtags, token, 1);
                 printf("%s ", token);
             }
@@ -795,7 +795,7 @@ void mympd_mpd_features() {
         printf("\nmyMPD enabled browsetags: ");
         token = strtok(browsetaglist, s);
         while (token != NULL) {
-            if (list_get_value(&mpd_tags, token) == 1) {
+            if (list_get_value(&mympd_tags, token) == 1) {
                 list_push(&mympd_browsetags, token, 1);
                 printf("%s ", token);
             }
@@ -1442,6 +1442,7 @@ int mympd_put_settings(char *buffer) {
     len += json_printf(&out, ", colsBrowseDatabase: %s", mympd_state.colsBrowseDatabase);
     len += json_printf(&out, ", colsBrowsePlaylistsDetail: %s", mympd_state.colsBrowsePlaylistsDetail);
     len += json_printf(&out, ", colsBrowseFilesystem: %s", mympd_state.colsBrowseFilesystem);
+    len += json_printf(&out, ", colsPlayback: %s", mympd_state.colsPlayback);
     len += json_printf(&out, "}}");    
 
     CHECK_RETURN_LEN();

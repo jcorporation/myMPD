@@ -311,6 +311,13 @@ void read_statefiles() {
         mympd_state.colsBrowseFilesystem = strdup("[\"Type\",\"Title\",\"Artist\",\"Album\",\"Duration\"]");
         mympd_state_set("colsBrowseFilesystem", mympd_state.colsBrowseFilesystem);
     }
+    
+    if (mympd_state_get("colsPlayback", value))
+        mympd_state.colsPlayback = strdup(value);
+    else {
+        mympd_state.colsPlayback = strdup("[\"Artist\",\"Album\",\"Genre\"]");
+        mympd_state_set("colsPlayback", mympd_state.colsPlayback);
+    }
 }
 
 bool testdir(char *name, char *dirname) {

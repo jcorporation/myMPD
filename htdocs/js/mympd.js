@@ -77,10 +77,8 @@ domCache.progressBar = document.getElementById('progressBar');
 domCache.volumeBar = document.getElementById('volumeBar');
 domCache.outputs = document.getElementById('outputs');
 domCache.btnAdd = document.getElementById('nav-add2homescreen');
-domCache.currentTrack = document.getElementById('currentTrack');
-domCache.currentArtist = document.getElementById('currentArtist');
-domCache.currentAlbum = document.getElementById('currentAlbum');
 domCache.currentCover = document.getElementById('currentCover');
+domCache.currentTitle = document.getElementById('currentTitle');
 domCache.btnVoteUp = document.getElementById('btnVoteUp');
 domCache.btnVoteDown = document.getElementById('btnVoteDown');
 
@@ -415,6 +413,11 @@ function appInit() {
             }
         }, false);
     }
+
+    document.getElementById('cardPlaybackTags').addEventListener('click', function(event) {
+        if (event.target.nodeName == 'H4') 
+            gotoBrowse(event.target);
+    }, false);
 
     document.getElementById('outputs').addEventListener('click', function(event) {
         if (event.target.nodeName == 'BUTTON') 
@@ -1061,6 +1064,18 @@ function parseSettings(obj) {
         settings.colsBrowseFilesystem = ["Type", "Title", "Duration"];
         settings.colsBrowseDatabase = ["Track", "Title", "Duration"];
     }
+    else {
+        var pbtl = '';
+        for (var i = 0; i < settings.colsPlayback.length; i++) {
+            pbtl += '<small>' + settings.colsPlayback[i] + '</small>' +
+                  '<h4 ';
+            if (settings.browsetags.includes(settings.colsPlayback[i]))
+                  pbtl += 'class="clickable" ';
+            pbtl += 'id="current' + settings.colsPlayback[i]  + '" data-tag="' + settings.colsPlayback[i] + '">' + 
+                  ( lastSong ? lastSong[settings.colsPlayback[i]] : '') + '</h4>';
+        }
+        document.getElementById('cardPlaybackTags').innerHTML = pbtl;
+    }
 
     if (settings.mixramp == true)
         document.getElementsByClassName('mixramp')[0].style.display = '';
@@ -1100,6 +1115,7 @@ function parseSettings(obj) {
     filterCols('colsBrowsePlaylistsDetail');
     filterCols('colsBrowseFilesystem');
     filterCols('colsBrowseDatabase');
+    filterCols('colsPlayback');
 
     if (settings.featLocalplayer) {
         if (settings.streamurl == '') {
@@ -1350,10 +1366,11 @@ function parseState(obj) {
         sendAPI({"cmd": "MPD_API_PLAYER_CURRENT_SONG"}, songChange);
     //clear playback card if not playing
     if (obj.data.songPos == '-1') {
-        domCache.currentTrack.innerText = 'Not playing';
-        domCache.currentAlbum.innerText = '';
-        domCache.currentArtist.innerText = '';
+        domCache.currentTitle.innerText = 'Not playing';
         domCache.currentCover.style.backgroundImage = '';
+        var pb = document.getElementById('cardPlaybackTags').getElementsByTagName('h4');
+        for (var i = 0; i < pb.length; i++)
+            pb[i].innerText = '';
     }
 
     lastState = obj;                    
@@ -1881,26 +1898,17 @@ function replaceQueue(type, uri, name) {
     }
 }
 
-function songClick() {
-    var uri = domCache.currentTrack.getAttribute('data-uri')
+function titleClick() {
+    var uri = decodeURI(domCache.currentTitle.getAttribute('data-uri'));
     if (uri != '')
         songDetails(uri);
 }
 
-function artistClick() {
-    var albumartist = domCache.currentArtist.getAttribute('data-albumartist');
-    if (albumartist != '') {
-        if (settings.tags.includes('AlbumArtist'))
-            appGoto('Browse', 'Database', 'AlbumArtist', '0/-/' + albumartist);
-        else if (settings.tags.includes('Artist'))
-            appGoto('Browse', 'Database', 'Artist', '0/-/' + albumartist);
-    }
-}
-
-function albumClick() {
-    var album = domCache.currentAlbum.getAttribute('data-album');
-    if (album != '') 
-        appGoto('Browse', 'Database', 'Album', '0/-/' + album);
+function gotoBrowse(x) {
+    var tag = x.getAttribute('data-tag');
+    var name = decodeURI(x.getAttribute('data-name'));
+    if (tag != '' && name != '' && settings.browsetags.includes(tag)) 
+        appGoto('Browse', 'Database', tag, '0/-/' + name);
 }
 
 function songDetails(uri) {
@@ -2685,38 +2693,32 @@ function songChange(obj) {
         textNotification += obj.data.Artist;
         htmlNotification += obj.data.Artist;
         pageTitle += obj.data.Artist + ' - ';
-        domCache.currentArtist.innerText = obj.data.Artist;
-        if (obj.data.AlbumArtist != undefined)
-            domCache.currentArtist.setAttribute('data-albumartist', obj.data.AlbumArtist);
-        else if (obj.data.Artist != undefined)
-            domCache.currentArtist.setAttribute('data-albumartist', obj.data.Artist);
-        else
-            domCache.currentArtist.setAttribute('data-albumartist', '');
-    } else
-        domCache.currentArtist.innerText = '';
+    } 
 
     if (typeof obj.data.Album != 'undefined' && obj.data.Album.length > 0 && obj.data.Album != '-') {
         textNotification += ' - ' + obj.data.Album;
         htmlNotification += '<br/>' + obj.data.Album;
-        domCache.currentAlbum.innerText = obj.data.Album;
-        domCache.currentAlbum.setAttribute('data-album', obj.data.Album);
     }
-    else
-        domCache.currentAlbum.innerText = '';
 
     if (typeof obj.data.Title != 'undefined' && obj.data.Title.length > 0) {
         pageTitle += obj.data.Title;
-        domCache.currentTrack.innerText = obj.data.Title;
-        domCache.currentTrack.setAttribute('data-uri', obj.data.uri);
-    } else {
-        domCache.currentTrack.innerText = '';
-        domCache.currentTrack.setAttribute('data-uri', '');
+        domCache.currentTitle.innerText = obj.data.Title;
+        domCache.currentTitle.setAttribute('data-uri', encodeURI(obj.data.uri));
     }
-
+    else {
+        domCache.currentTitle.innerText = '';
+        domCache.currentTitle.setAttribute('data-uri', '');
+    }
     document.title = pageTitle;
 
     if (settings.featStickers == true) {
         setVoteSongBtns(obj.data.like, obj.data.uri);
+    }
+
+    for (var i = 0; i < settings.colsPlayback.length; i++) {
+        var c = document.getElementById('current' + settings.colsPlayback[i]);
+        c.innerText = obj.data[settings.colsPlayback[i]];
+        c.setAttribute('data-name', encodeURI(obj.data[settings.colsPlayback[i]]));
     }
     
     //Update Artist in queue view for http streams
