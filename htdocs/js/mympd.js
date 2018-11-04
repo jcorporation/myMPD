@@ -635,6 +635,12 @@ function appInit() {
                 case 67: //c
                     sendAPI({"cmd": "MPD_API_QUEUE_CLEAR"});
                     break;
+                case 85: //u
+                    updateDB();
+                    break;
+                case 82: //r
+                    rescanDB();
+                    break;
                 default:
                     return;
             }
