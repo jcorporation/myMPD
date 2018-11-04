@@ -641,6 +641,9 @@ function appInit() {
                 case 82: //r
                     rescanDB();
                     break;
+                case 80: //p
+                    updateSmartPlaylists();
+                    break;
                 default:
                     return;
             }
