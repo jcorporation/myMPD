@@ -81,6 +81,12 @@
     
     <div class="card" id="cardPlayback">
       <div class="card-header">Playback
+        <div class="btn-group mr-2 featTags pull-right">
+          <button id="PlaybackColsBtn" class="btn btn-sm btn-light dropdown-toggle material-icons" type="button" data-toggle="dropdown">settings</button>
+          <div class="dropdown-menu bg-dark px-2" id="PlaybackColsDropdown"><form></form>
+            <button data-href='{"cmd": "saveColsPlayback", "options": ["Playback"]}' class="btn btn-success btn-block btn-sm mt-2">Apply</button>
+          </div>          
+        </div>      
         <div class="btn-group btn-group-sm featStickers pull-right">
           <button title="Dislike song" id="btnVoteDown" data-href='{"cmd": "voteSong", "options": [0]}' class="btn btn-sm btn-light material-icons">thumb_down</button>
           <button title="Like song" id="btnVoteUp" data-href='{"cmd": "voteSong", "options": [2]}' class="btn btn-sm btn-light material-icons">thumb_up</button>

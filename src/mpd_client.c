@@ -138,6 +138,10 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                     free(mympd_state.colsBrowseFilesystem);
                     mympd_state.colsBrowseFilesystem = strdup(cols);
                 }
+                else if (strcmp(p_charbuf1,"colsPlayback")==0) {
+                    free(mympd_state.colsPlayback);
+                    mympd_state.colsPlayback = strdup(cols);
+                }
                 mympd_state_set(p_charbuf1, cols);
                 free(p_charbuf1);
             }
