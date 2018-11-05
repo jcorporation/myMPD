@@ -610,6 +610,8 @@ function appInit() {
     document.addEventListener('keydown', function(event) {
         if (event.target.tagName == 'INPUT' || event.target.tagName == 'SELECT')
             return;
+        if (event.ctrlKey || event.altKey)
+            return;
         if (event.shiftKey) {
             switch (event.which) {
                 case 83: //S
@@ -1070,6 +1072,7 @@ function parseSettings(obj) {
         settings.colsSearch = ["Title", "Duration"];
         settings.colsBrowseFilesystem = ["Type", "Title", "Duration"];
         settings.colsBrowseDatabase = ["Track", "Title", "Duration"];
+        settings.colsPlayback = [];
     }
     else {
         var pbtl = '';
@@ -1949,7 +1952,7 @@ function titleClick() {
 function gotoBrowse(x) {
     var tag = x.parentNode.getAttribute('data-tag');
     var name = decodeURI(x.parentNode.getAttribute('data-name'));
-    if (tag != '' && name != '' && settings.browsetags.includes(tag)) 
+    if (tag != '' && name != '' && name != '-' && settings.browsetags.includes(tag)) 
         appGoto('Browse', 'Database', tag, '0/-/' + name);
 }
 
@@ -2768,7 +2771,8 @@ function songChange(obj) {
     if (playingTr)
         playingTr.getElementsByTagName('td')[1].innerText = obj.data.Title;
 
-    showNotification(obj.data.Title, textNotification, htmlNotification, 'success');
+    if (playstate == 'play')
+        showNotification(obj.data.Title, textNotification, htmlNotification, 'success');
     lastSong = curSong;
     lastSongObj = obj;
 }
