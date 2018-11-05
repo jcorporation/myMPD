@@ -1490,7 +1490,8 @@ int replacechar(char *str, char orig, char rep) {
 }
 
 int mympd_get_cover(const char *uri, char *cover, int cover_len) {
-    char *path = strdup(uri);
+    char *orgpath = strdup(uri);
+    char *path = orgpath;
     int len;
 
     if (!config.coverimage) {
@@ -1523,7 +1524,7 @@ int mympd_get_cover(const char *uri, char *cover, int cover_len) {
         } else 
             len = snprintf(cover, cover_len, "/assets/coverimage-notavailable.png");
     }
-    free(path);
+    free(orgpath);
     return len;
 }
 
