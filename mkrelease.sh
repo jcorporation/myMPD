@@ -11,6 +11,8 @@ then
     java -jar dist/buildtools/closure-compiler.jar htdocs/js/mympd.js > dist/htdocs/js/mympd.min.js
   [ htdocs/sw.js -nt dist/htdocs/sw.min.js ] && \
     java -jar dist/buildtools/closure-compiler.jar htdocs/sw.js > dist/htdocs/sw.min.js
+  [ htdocs/js/keymap.js -nt dist/htdocs/js/keymap.min.js ] && \
+    java -jar dist/buildtools/closure-compiler.jar htdocs/js/keymap.js > dist/htdocs/js/keymap.min.js    
 else
   echo "dist/buildtools/closure-compiler.jar not found, using non-minified files"
   [ htdocs/js/player.js -nt dist/htdocs/js/player.min.js ] && \
@@ -18,7 +20,9 @@ else
   [ htdocs/js/mympd.js -nt  dist/htdocs/js/mympd.min.js ] && \
     cp htdocs/js/mympd.js  dist/htdocs/js/mympd.min.js
   [ htdocs/sw.js -nt dist/htdocs/sw.min.js ] && \
-    cp htdocs/sw.js dist/htdocs/sw.min.js    
+    cp htdocs/sw.js dist/htdocs/sw.min.js
+  [ htdocs/js/keymap.js -nt  dist/htdocs/js/keymap.min.js ] && \
+    cp htdocs/js/keymap.js  dist/htdocs/js/keymap.min.js
 fi
 
 if [ -f dist/buildtools/closure-stylesheets.jar ] && [ "$java" != "" ]

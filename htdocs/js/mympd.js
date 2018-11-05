@@ -85,6 +85,7 @@ domCache.btnVoteDown = document.getElementById('btnVoteDown');
 
 var modalConnectionError = new Modal(document.getElementById('modalConnectionError'), { backdrop: 'static', keyboard: false});
 var modalSettings = new Modal(document.getElementById('modalSettings'));
+var modalAbout = new Modal(document.getElementById('modalAbout'));
 var modalSavequeue = new Modal(document.getElementById('modalSaveQueue'));
 var modalSongDetails = new Modal(document.getElementById('modalSongDetails'));
 var modalAddToPlaylist = new Modal(document.getElementById('modalAddToPlaylist'));
@@ -607,59 +608,24 @@ function appInit() {
         sendAPI({"cmd": "MPD_API_PLAYER_STATE"}, parseState);
     }, false);
     
+    
     document.addEventListener('keydown', function(event) {
         if (event.target.tagName == 'INPUT' || event.target.tagName == 'SELECT')
             return;
         if (event.ctrlKey || event.altKey)
             return;
-        if (event.shiftKey) {
-            switch (event.which) {
-                case 83: //S
-                    sendAPI({"cmd": "MPD_API_QUEUE_SHUFFLE"});
-                    break;
-                case 67: //C
-                    sendAPI({"cmd": "MPD_API_QUEUE_CROP"});
-                    break;
-                default:
-                    return;
-            }
-        }
-        else {
-            switch (event.which) {
-                case 37: //left
-                    clickPrev();
-                    break;
-                case 39: //right
-                    clickNext();
-                    break;
-                case 32: //space
-                    clickPlay();
-                    break;
-                case 83: //s
-                    clickStop();
-                    break;
-                case 173: //-
-                    chVolume(-5);
-                    break;
-                case 171: //+
-                    chVolume(5);
-                    break;
-                case 67: //c
-                    sendAPI({"cmd": "MPD_API_QUEUE_CLEAR"});
-                    break;
-                case 85: //u
-                    updateDB();
-                    break;
-                case 82: //r
-                    rescanDB();
-                    break;
-                case 80: //p
-                    updateSmartPlaylists();
-                    break;
-                default:
-                    return;
-            }
-        }
+        var cmd;
+        if (event.shiftKey)
+            cmd = keymap.shiftKey[event.which];
+        else
+            cmd = keymap.key[event.which];
+        
+        if (cmd && typeof window[cmd.cmd] === 'function') {
+            if (cmd.cmd == 'sendAPI')
+                sendAPI(... cmd.options); 
+            else
+                window[cmd.cmd](... cmd.options);                    
+        }        
         event.preventDefault();
     }, false);
     
@@ -2849,6 +2815,10 @@ function addTagList(el, list) {
 
 function gotoTagList() {
     appGoto(app.current.app, app.current.tab, app.current.view, '0/-/');
+}
+
+function openModal(modal) {
+    window[modal].show();
 }
 
 function chVolume(increment) {
