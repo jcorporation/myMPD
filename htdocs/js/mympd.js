@@ -69,7 +69,7 @@ domCache.panelHeadingBrowseLen = domCache.panelHeadingBrowse.length;
 domCache.counter = document.getElementById('counter');
 domCache.volumePrct = document.getElementById('volumePrct');
 domCache.volumeControl = document.getElementById('volumeControl');
-domCache.volumeIcon = document.getElementById('volumeIcon');
+domCache.volumeMenu = document.getElementById('volumeMenu');
 domCache.btnsPlay = document.getElementsByClassName('btnPlay');
 domCache.btnsPlayLen = domCache.btnsPlay.length;
 domCache.btnPrev = document.getElementById('btnPrev');
@@ -93,6 +93,11 @@ var modalRenamePlaylist = new Modal(document.getElementById('modalRenamePlaylist
 var modalUpdateDB = new Modal(document.getElementById('modalUpdateDB'));
 var modalSaveSmartPlaylist = new Modal(document.getElementById('modalSaveSmartPlaylist'));
 var modalDeletePlaylist = new Modal(document.getElementById('modalDeletePlaylist'));
+
+var dropdownMainMenu = new Dropdown(document.getElementById('mainMenu'));
+var dropdownVolumeMenu = new Dropdown(document.getElementById('volumeMenu'));
+
+var collapseDBupdate = new Collapse(document.getElementById('navDBupdate'));
 
 function appPrepare(scrollPos) {
     if (app.current.app != app.last.app || app.current.tab != app.last.tab || app.current.view != app.last.view) {
@@ -323,13 +328,30 @@ function appInit() {
         else
             icon.innerText = 'keyboard_arrow_right';        
     }, false);
-  
-    document.getElementById('volumeIcon').parentNode.addEventListener('show.bs.dropdown', function () {
+    
+    document.addEventListener('keyup', function(event) {
+        if (event.which != 13)
+            return;
+        if (event.target.nodeName == 'A') {
+            event.stopPropagation();
+            event.preventDefault();
+            event.target.click();
+        }
+    }, false);
+
+    document.getElementById('volumeMenu').parentNode.addEventListener('show.bs.dropdown', function () {
         sendAPI({"cmd": "MPD_API_PLAYER_OUTPUT_LIST"}, parseOutputs);
     });    
     
     document.getElementById('modalAbout').addEventListener('shown.bs.modal', function () {
         sendAPI({"cmd": "MPD_API_DATABASE_STATS"}, parseStats);
+    });
+    
+    document.getElementById('modalAddToPlaylist').addEventListener('shown.bs.modal', function () {
+        if (!document.getElementById('addStreamFrm').classList.contains('hide'))
+            document.getElementById('streamUrl').focus();
+        else
+            document.getElementById('addToPlaylistPlaylist').focus();
     });
 
     document.getElementById('modalUpdateDB').addEventListener('hidden.bs.modal', function () {
@@ -1396,11 +1418,11 @@ function parseVolume(obj) {
         domCache.volumeControl.classList.remove('hide');
         domCache.volumePrct.innerText = obj.data.volume + ' %';
         if (obj.data.volume == 0)
-            domCache.volumeIcon.innerText = 'volume_off';
+            domCache.volumeMenu.innerText = 'volume_off';
         else if (obj.data.volume < 50)
-            domCache.volumeIcon.innerText = 'volume_down';
+            domCache.volumeMenu.innerText = 'volume_down';
         else
-            domCache.volumeIcon.innerText = 'volume_up';
+            domCache.volumeMenu.innerText = 'volume_up';
     }
     domCache.volumeBar.value = obj.data.volume;
 }
@@ -2819,6 +2841,10 @@ function gotoTagList() {
 
 function openModal(modal) {
     window[modal].show();
+}
+
+function openDropdown(dropdown) {
+    window[dropdown].toggle();
 }
 
 function chVolume(increment) {
