@@ -94,7 +94,7 @@ var modalUpdateDB = new Modal(document.getElementById('modalUpdateDB'));
 var modalSaveSmartPlaylist = new Modal(document.getElementById('modalSaveSmartPlaylist'));
 var modalDeletePlaylist = new Modal(document.getElementById('modalDeletePlaylist'));
 
-var dropdownMainMenu = new Dropdown(document.getElementById('mainMenu'));
+var dropdownMainMenu;// = new Dropdown(document.getElementById('mainMenu'));
 var dropdownVolumeMenu = new Dropdown(document.getElementById('volumeMenu'));
 
 var collapseDBupdate = new Collapse(document.getElementById('navDBupdate'));
@@ -329,7 +329,7 @@ function appInit() {
             icon.innerText = 'keyboard_arrow_right';        
     }, false);
     
-    document.addEventListener('keyup', function(event) {
+/*    document.addEventListener('keyup', function(event) {
         if (event.which != 13)
             return;
         if (event.target.nodeName == 'A') {
@@ -338,7 +338,7 @@ function appInit() {
             event.target.click();
         }
     }, false);
-
+*/
     document.getElementById('volumeMenu').parentNode.addEventListener('show.bs.dropdown', function () {
         sendAPI({"cmd": "MPD_API_PLAYER_OUTPUT_LIST"}, parseOutputs);
     });    
@@ -643,12 +643,14 @@ function appInit() {
             cmd = keymap.key[event.which];
         
         if (cmd && typeof window[cmd.cmd] === 'function') {
+            event.preventDefault();
+            event.stopPropagation();
             if (cmd.cmd == 'sendAPI')
                 sendAPI(... cmd.options); 
             else
-                window[cmd.cmd](... cmd.options);                    
+                window[cmd.cmd](... cmd.options);
         }        
-        event.preventDefault();
+        
     }, false);
     
     if ('serviceWorker' in navigator && document.URL.substring(0, 5) == 'https') {
@@ -1137,18 +1139,21 @@ function parseSettings(obj) {
         app.apps.Browse.tabs.Database.views[settings.tags[i]] = { "state": "0/-/", "scrollPos": 0 };
 
     if (settings.featSyscmds) {
+        var mainMenuDropdown = document.getElementById('mainMenuDropdown');
         var syscmdsList = '';
         var syscmdsListLen = settings.syscmds.length;
         if (syscmdsListLen > 0) {
             syscmdsList = '<div class="dropdown-divider"></div>';
-            for (var i = 0; i < syscmdsListLen; i++)
+            for (var i = 0; i < syscmdsListLen; i++) {
                 syscmdsList += '<a class="dropdown-item text-light bg-dark" href="#" data-href=\'{"cmd": "execSyscmd", "options": ["' + 
                     settings.syscmds[i] + '"]}\'>' + settings.syscmds[i] + '</a>';
+            }
         }
         document.getElementById('syscmds').innerHTML = syscmdsList;
     }
     else
         document.getElementById('syscmds').innerHTML = '';
+    dropdownMainMenu = new Dropdown(document.getElementById('mainMenu'));
     
     setCols('Queue');
     setCols('Search');

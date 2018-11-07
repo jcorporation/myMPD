@@ -19,10 +19,10 @@
   <header>
     <nav class="navbar navbar-expand navbar-dark fixed-top bg-dark">
         <div class="dropdown col-auto mr-auto pl-0">
-          <a class="dropdown-toggle navbar-brand" data-toggle="dropdown" href="#" id="mainMenu">
+          <a class="dropdown-toggle navbar-brand" href="#" id="mainMenu">
             <span class="material-icons header-logo">play_circle_outline</span>myMPD
           </a>
-          <div class="dropdown-menu bg-dark">
+          <div class="dropdown-menu bg-dark" id="mainMenuDropdown">
             <a class="dropdown-item text-light bg-dark" href="#" data-href='{"cmd": "showAddToPlaylist", "options": ["stream"]}'>Add Stream</a>
             <a id="navDBupdate" class="dropdown-item text-light bg-dark" data-toggle="collapse" href="#menu-dbupdate"><span class="material-icons material-icons-left">keyboard_arrow_right</span>Update</a>
               <div class="collapse" id="menu-dbupdate">
