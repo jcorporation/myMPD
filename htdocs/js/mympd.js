@@ -93,6 +93,7 @@ var modalRenamePlaylist = new Modal(document.getElementById('modalRenamePlaylist
 var modalUpdateDB = new Modal(document.getElementById('modalUpdateDB'));
 var modalSaveSmartPlaylist = new Modal(document.getElementById('modalSaveSmartPlaylist'));
 var modalDeletePlaylist = new Modal(document.getElementById('modalDeletePlaylist'));
+var modalHelp = new Modal(document.getElementById('modalHelp'));
 
 var dropdownMainMenu;// = new Dropdown(document.getElementById('mainMenu'));
 var dropdownVolumeMenu = new Dropdown(document.getElementById('volumeMenu'));
@@ -329,16 +330,6 @@ function appInit() {
             icon.innerText = 'keyboard_arrow_right';        
     }, false);
     
-/*    document.addEventListener('keyup', function(event) {
-        if (event.which != 13)
-            return;
-        if (event.target.nodeName == 'A') {
-            event.stopPropagation();
-            event.preventDefault();
-            event.target.click();
-        }
-    }, false);
-*/
     document.getElementById('volumeMenu').parentNode.addEventListener('show.bs.dropdown', function () {
         sendAPI({"cmd": "MPD_API_PLAYER_OUTPUT_LIST"}, parseOutputs);
     });    
@@ -352,6 +343,15 @@ function appInit() {
             document.getElementById('streamUrl').focus();
         else
             document.getElementById('addToPlaylistPlaylist').focus();
+    });
+
+    document.getElementById('modalHelp').addEventListener('show.bs.modal', function () {
+        var trs = '';
+        for (var key in keymap) {
+            trs += '<tr><td><div class="key' + (keymap[key].key && keymap[key].key.length > 1 ? ' material-icons material-icons-small' : '') + 
+                   '">' + (keymap[key].key != undefined ? keymap[key].key : key ) + '</div></td><td>' + keymap[key].action + '</td></tr>';
+        }
+        document.getElementById('tbodyShortcuts').innerHTML = trs;
     });
 
     document.getElementById('modalUpdateDB').addEventListener('hidden.bs.modal', function () {
@@ -552,7 +552,10 @@ function appInit() {
     }, false);
 
     document.getElementById('searchqueuestr').addEventListener('keyup', function(event) {
-        appGoto(app.current.app, app.current.tab, app.current.view, '0/' + app.current.filter + '/' + this.value);
+        if (event.key == 'Escape')
+            this.blur();
+        else
+            appGoto(app.current.app, app.current.tab, app.current.view, '0/' + app.current.filter + '/' + this.value);
     }, false);
 
     document.getElementById('searchqueuetags').addEventListener('click', function(event) {
@@ -605,7 +608,10 @@ function appInit() {
     }, false);
 
     document.getElementById('searchstr').addEventListener('keyup', function(event) {
-        appGoto('Search', undefined, undefined, '0/' + app.current.filter + '/' + this.value);
+        if (event.key == 'Escape')
+            this.blur();
+        else
+            appGoto('Search', undefined, undefined, '0/' + app.current.filter + '/' + this.value);
     }, false);
 
     document.getElementById('BrowseDatabaseByTagDropdown').addEventListener('click', function(event) {
@@ -632,16 +638,10 @@ function appInit() {
     
     
     document.addEventListener('keydown', function(event) {
-        if (event.target.tagName == 'INPUT' || event.target.tagName == 'SELECT')
+        if (event.target.tagName == 'INPUT' || event.target.tagName == 'SELECT' ||
+            event.ctrlKey || event.altKey)
             return;
-        if (event.ctrlKey || event.altKey)
-            return;
-        var cmd;
-        if (event.shiftKey)
-            cmd = keymap.shiftKey[event.which];
-        else
-            cmd = keymap.key[event.which];
-        
+        var cmd = keymap[event.key];
         if (cmd && typeof window[cmd.cmd] === 'function') {
             event.preventDefault();
             event.stopPropagation();
@@ -2850,6 +2850,15 @@ function openModal(modal) {
 
 function openDropdown(dropdown) {
     window[dropdown].toggle();
+}
+
+function focusSearch() {
+    if (app.current.app == 'Queue')
+        document.getElementById('searchqueuestr').focus();
+    else if (app.current.app == 'Search')
+        document.getElementById('searchstr').focus();
+    else
+        appGoto('Search');
 }
 
 function chVolume(increment) {

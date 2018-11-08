@@ -836,7 +836,6 @@
           //end patch
           set[i].tagName === 'A' && newSet[push](set[i]);
         }
-        console.log(newSet);
         return newSet;
       })(),
   
@@ -891,6 +890,8 @@
             idx = isSameElement ? 0 
                               : key === 38 ? (idx>1?idx-1:0)
                               : key === 40 ? (idx<menuItems[length]-1?idx+1:idx) : idx;
+            if ( idx == 0 || idx == menuItems[length]-1)
+              break;
           } while ( !menuItems[idx].offsetHeight )
           //end patch
           menuItems[idx] && setFocus(menuItems[idx]);
