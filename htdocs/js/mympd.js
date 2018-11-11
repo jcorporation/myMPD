@@ -402,11 +402,8 @@ function appInit() {
     addFilterLetter('BrowsePlaylistsFilterLetters');
 
     document.getElementById('syscmds').addEventListener('click', function(event) {
-        event.preventDefault();
         if (event.target.nodeName == 'A') {
-            var cmd = JSON.parse(event.target.getAttribute('data-href'));
-            if (typeof window[cmd.cmd] === 'function')
-                window[cmd.cmd](... cmd.options);                    
+            parseCmd(event, event.target.getAttribute('data-href'));
         }
     }, false);
 
@@ -415,17 +412,7 @@ function appInit() {
     for (var i = 0; i < hrefsLen; i++) {
         hrefs[i].classList.add('clickable');
         hrefs[i].addEventListener('click', function(event) {
-            event.preventDefault();
-            var cmd = JSON.parse(this.getAttribute('data-href'));
-            if (typeof window[cmd.cmd] === 'function') {
-                switch(cmd.cmd) {
-                    case 'sendAPI':
-                        sendAPI(... cmd.options); 
-                    break;
-                    default:
-                    window[cmd.cmd](... cmd.options);                    
-                }
-            }
+            parseCmd(event, this.getAttribute('data-href'));
         }, false);
     }
 
@@ -658,12 +645,7 @@ function appInit() {
             return;
         var cmd = keymap[event.key];
         if (cmd && typeof window[cmd.cmd] === 'function') {
-            event.preventDefault();
-            event.stopPropagation();
-            if (cmd.cmd == 'sendAPI')
-                sendAPI(... cmd.options); 
-            else
-                window[cmd.cmd](... cmd.options);
+            parseCmd(event, cmd);
         }        
         
     }, false);
@@ -718,7 +700,10 @@ function appInit() {
 function parseCmd(event, href) {
     event.preventDefault();
     event.stopPropagation();
-    var cmd = JSON.parse(href);
+    var cmd = href;
+    if (typeof(href) == 'string')
+        cmd = JSON.parse(href);
+        
     if (typeof window[cmd.cmd] === 'function') {
         switch(cmd.cmd) {
             case 'sendAPI':
@@ -2463,15 +2448,7 @@ function showMenu(el, event) {
                 var dh = event.target.getAttribute('data-href');
                 if (dh) {
                     var cmd = JSON.parse(b64DecodeUnicode(dh));
-                    if (typeof window[cmd.cmd] === 'function') {
-                        switch(cmd.cmd) {
-                            case 'sendAPI':
-                                sendAPI(... cmd.options); 
-                                break;
-                            default:
-                                window[cmd.cmd](... cmd.options);                    
-                        }
-                    }
+                    parseCmd(event, cmd);
                     hideMenu();
                 }
             }
