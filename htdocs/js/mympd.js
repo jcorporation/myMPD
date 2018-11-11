@@ -82,6 +82,7 @@ domCache.currentCover = document.getElementById('currentCover');
 domCache.currentTitle = document.getElementById('currentTitle');
 domCache.btnVoteUp = document.getElementById('btnVoteUp');
 domCache.btnVoteDown = document.getElementById('btnVoteDown');
+domCache.badgeQueueItems = document.getElementById('badgeQueueItems');
 
 var modalConnectionError = new Modal(document.getElementById('modalConnectionError'), { backdrop: 'static', keyboard: false});
 var modalSettings = new Modal(document.getElementById('modalSettings'));
@@ -1392,6 +1393,8 @@ function parseState(obj) {
     else
         for (var i = 0; i < domCache.btnsPlayLen; i++)
             domCache.btnsPlay[i].removeAttribute('disabled');
+
+    domCache.badgeQueueItems.innerText = obj.data.queueLength;
 
     //Set volume
     parseVolume(obj);
