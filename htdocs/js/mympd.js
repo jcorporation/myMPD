@@ -443,6 +443,16 @@ function appInit() {
         if (event.target.nodeName == 'H4') 
             gotoBrowse(event.target);
     }, false);
+    
+    document.getElementById('modalSongDetails').getElementsByTagName('tbody')[0].addEventListener('click', function(event) {
+        if (event.target.nodeName == 'A')  {
+            if (event.target.parentNode.getAttribute('data-tag') != undefined) {
+                modalSongDetails.hide();
+                event.preventDefault();
+                gotoBrowse(event.target);
+            }
+        }
+    }, false);
 
     document.getElementById('outputs').addEventListener('click', function(event) {
         if (event.target.nodeName == 'BUTTON') 
@@ -1964,7 +1974,12 @@ function parseSongDetails(obj) {
     
     var songDetails = '';
     for (var i = 0; i < settings.tags.length; i++) {
-        songDetails += '<tr><th>' + settings.tags[i] + '</th><td>' + obj.data[settings.tags[i]] + '</td></tr>';
+        songDetails += '<tr><th>' + settings.tags[i] + '</th><td data-tag="' + settings.tags[i] + '" data-name="' + encodeURI(obj.data[settings.tags[i]]) + '">';
+        if (settings.browsetags.includes(settings.tags[i]))
+            songDetails += '<a class="text-success" href="#">' + obj.data[settings.tags[i]] + '</a>';
+        else
+            songDetails += obj.data[settings.tags[i]];
+        songDetails += '</td></tr>';
     }
     var duration = obj.data.Duration;
     var minutes = Math.floor(duration / 60);
@@ -1972,7 +1987,7 @@ function parseSongDetails(obj) {
     duration = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
     songDetails += '<tr><th>Duration</th><td>' + duration + '</td></tr>';
     if (settings.featLibrary)
-        songDetails += '<tr><th>Filename</th><td><a class="text-success" href="/library/' + obj.data.uri + '">' + obj.data.uri + '</a></td></tr>';
+        songDetails += '<tr><th>Filename</th><td><a class="text-success" href="/library/' + encodeURI(obj.data.uri) + '">' + obj.data.uri + '</a></td></tr>';
     else
         songDetails += '<tr><th>Filename</th><td>' + obj.data.uri + '</td></tr>';
     
