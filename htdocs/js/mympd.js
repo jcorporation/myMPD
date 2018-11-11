@@ -565,42 +565,15 @@ function appInit() {
             appGoto(app.current.app, app.current.tab, app.current.view, app.current.page + '/' + event.target.getAttribute('data-tag') + '/' + app.current.search);
     }, false);
 
-    document.getElementById('QueueColsDropdown').addEventListener('click', function(event) {
-        if (event.target.nodeName == 'INPUT') {
-            event.stopPropagation();
-        }
-    }, false);
+    var dropdowns = ['QueueColsDropdown', 'BrowseFilesystemColsDropdown', 'SearchColsDropdown', 'BrowsePlaylistsDetailColsDropdown', 
+        'BrowseDatabaseColsDropdown', 'PlaybackColsDropdown'];
+    for (var i = 0; i < dropdowns.length; i++) {
+        document.getElementById(dropdowns[i]).addEventListener('click', function(event) {
+            if (event.target.nodeName == 'INPUT')
+                event.stopPropagation();
+        }, false);
+    }
     
-    document.getElementById('BrowseFilesystemColsDropdown').addEventListener('click', function(event) {
-        if (event.target.nodeName == 'INPUT') {
-            event.stopPropagation();
-        }
-    }, false);
-    
-    document.getElementById('SearchColsDropdown').addEventListener('click', function(event) {
-        if (event.target.nodeName == 'INPUT') {
-            event.stopPropagation();
-        }
-    }, false);
-    
-    document.getElementById('BrowsePlaylistsDetailColsDropdown').addEventListener('click', function(event) {
-        if (event.target.nodeName == 'INPUT') {
-            event.stopPropagation();
-        }
-    }, false);
-
-    document.getElementById('BrowseDatabaseColsDropdown').addEventListener('click', function(event) {
-        if (event.target.nodeName == 'INPUT') {
-            event.stopPropagation();
-        }
-    }, false);
-
-    document.getElementById('PlaybackColsDropdown').addEventListener('click', function(event) {
-        if (event.target.nodeName == 'INPUT') {
-            event.stopPropagation();
-        }
-    }, false);    
-
     document.getElementById('search').addEventListener('submit', function() {
         return false;
     }, false);
@@ -699,7 +672,6 @@ function appInit() {
 
 function parseCmd(event, href) {
     event.preventDefault();
-    event.stopPropagation();
     var cmd = href;
     if (typeof(href) == 'string')
         cmd = JSON.parse(href);
