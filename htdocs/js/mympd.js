@@ -445,12 +445,16 @@ function appInit() {
     }, false);
     
     document.getElementById('modalSongDetails').getElementsByTagName('tbody')[0].addEventListener('click', function(event) {
-        if (event.target.nodeName == 'A')  {
+        if (event.target.nodeName == 'A') {
             if (event.target.parentNode.getAttribute('data-tag') != undefined) {
                 modalSongDetails.hide();
                 event.preventDefault();
                 gotoBrowse(event.target);
-            }
+            } 
+        }
+        else if (event.target.nodeName == 'BUTTON') { 
+            if (event.target.getAttribute('data-href'))
+                parseCmd(event, event.target.getAttribute('data-href'));
         }
     }, false);
 
@@ -709,6 +713,21 @@ function appInit() {
     window.addEventListener('appinstalled', function(event) {
         console.log('myMPD installed as app');
     });
+}
+
+function parseCmd(event, href) {
+    event.preventDefault();
+    event.stopPropagation();
+    var cmd = JSON.parse(href);
+    if (typeof window[cmd.cmd] === 'function') {
+        switch(cmd.cmd) {
+            case 'sendAPI':
+                sendAPI(... cmd.options); 
+                break;
+            default:
+                window[cmd.cmd](... cmd.options);                    
+        }
+    }
 }
 
 function dragAndDropTable(table) {
@@ -1992,19 +2011,20 @@ function parseSongDetails(obj) {
         songDetails += '<tr><th>Filename</th><td>' + obj.data.uri + '</td></tr>';
     
     if (settings.featStickers == true) {
-        var like = 'not voted';
-        if (obj.data.like == 0)
-            like = '<span class="material-icons">thumb_down_alt</span>';
-        else if (obj.data.like == 2)
-            like = '<span class="material-icons">thumb_up_alt</span>';
         songDetails += '<tr><th colspan="2">Statistics</th></tr>' +
             '<tr><th>Play count</th><td>' + obj.data.playCount + '</td></tr>' +
             '<tr><th>Skip count</th><td>' + obj.data.skipCount + '</td></tr>' +
             '<tr><th>Last played</th><td>' + (obj.data.lastPlayed == 0 ? 'never' : new Date(obj.data.lastPlayed * 1000).toUTCString()) + '</td></tr>' +
-            '<tr><th>Like</th><td>' + like + '</td></tr>';
+            '<tr><th>Like</th><td>' +
+              '<div class="btn-group btn-group-sm">' +
+                '<button title="Dislike song" id="btnVoteDown2" data-href=\'{"cmd": "voteSong", "options": [0]}\' class="btn btn-sm btn-light material-icons">thumb_down</button>' +
+                '<button title="Like song" id="btnVoteUp2" data-href=\'{"cmd": "voteSong", "options": [2]}\' class="btn btn-sm btn-light material-icons">thumb_up</button>' +
+              '</div>' +
+            '</td></tr>';
     }
     
     modal.getElementsByTagName('tbody')[0].innerHTML = songDetails;
+    setVoteSongBtns(obj.data.like, obj.data.uri);
 }
 
 function execSyscmd(cmd) {
@@ -2058,7 +2078,7 @@ function updateSmartPlaylists() {
 }
 
 function voteSong(vote) {
-    var uri = domCache.currentTrack.getAttribute('data-uri');
+    var uri = domCache.currentTitle.getAttribute('data-uri');
     if (uri == '')
         return;
         
@@ -2071,23 +2091,47 @@ function voteSong(vote) {
 }
 
 function setVoteSongBtns(vote, uri) {
+    domCache.btnVoteUp2 = document.getElementById('btnVoteUp2');
+    domCache.btnVoteDown2 = document.getElementById('btnVoteDown2');
+    
+
     if (uri == '' || uri.indexOf('http://') == 0 || uri.indexOf('https://') == 0) {
         domCache.btnVoteUp.setAttribute('disabled', 'disabled');
         domCache.btnVoteDown.setAttribute('disabled', 'disabled');
+        if (domCache.btnVoteUp2) {
+            domCache.btnVoteUp2.setAttribute('disabled', 'disabled');
+            domCache.btnVoteDown2.setAttribute('disabled', 'disabled');
+        }
     } else {
         domCache.btnVoteUp.removeAttribute('disabled');
-        domCache.btnVoteDown.removeAttribute('disabled');    
+        domCache.btnVoteDown.removeAttribute('disabled');
+        if (domCache.btnVoteUp2) {
+            domCache.btnVoteUp2.removeAttribute('disabled');
+            domCache.btnVoteDown2.removeAttribute('disabled');
+        }
     }
     
     if (vote == 0) {
         domCache.btnVoteUp.classList.remove('active-fg-green');
         domCache.btnVoteDown.classList.add('active-fg-red');
+        if (domCache.btnVoteUp2) {
+            domCache.btnVoteUp2.classList.remove('active-fg-green');
+            domCache.btnVoteDown2.classList.add('active-fg-red');
+        }
     } else if (vote == 1) {
         domCache.btnVoteUp.classList.remove('active-fg-green');
         domCache.btnVoteDown.classList.remove('active-fg-red');
+        if (domCache.btnVoteUp2) {
+            domCache.btnVoteUp2.classList.remove('active-fg-green');
+            domCache.btnVoteDown2.classList.remove('active-fg-red');
+        }
     } else if (vote == 2) {
         domCache.btnVoteUp.classList.add('active-fg-green');
         domCache.btnVoteDown.classList.remove('active-fg-red');
+        if (domCache.btnVoteUp2) {
+            domCache.btnVoteUp2.classList.add('active-fg-green');
+            domCache.btnVoteDown2.classList.remove('active-fg-red');
+        }
     }
 }
 
