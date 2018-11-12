@@ -37,9 +37,10 @@ var dragEl;
 var playlistEl;
 
 var app = {};
-app.apps = { "Playback": { "state": "0/-/", "scrollPos": 0 },
-             "Queue": 	 { "state": "0/any/", "scrollPos": 0 },
-             "Browse":   { 
+app.apps = { "Playback":   { "state": "0/-/", "scrollPos": 0 },
+             "Queue": 	   { "state": "0/any/", "scrollPos": 0 },
+             "LastPlayed": { "state": "0/any/", "scrollPos": 0 },
+             "Browse":     { 
                   "active": "Database", 
                   "tabs":  { "Filesystem": { "state": "0/-/", "scrollPos": 0 },
                              "Playlists":  { 
@@ -96,7 +97,7 @@ var modalSaveSmartPlaylist = new Modal(document.getElementById('modalSaveSmartPl
 var modalDeletePlaylist = new Modal(document.getElementById('modalDeletePlaylist'));
 var modalHelp = new Modal(document.getElementById('modalHelp'));
 
-var dropdownMainMenu;// = new Dropdown(document.getElementById('mainMenu'));
+var dropdownMainMenu;
 var dropdownVolumeMenu = new Dropdown(document.getElementById('volumeMenu'));
 
 var collapseDBupdate = new Collapse(document.getElementById('navDBupdate'));
@@ -111,6 +112,7 @@ function appPrepare(scrollPos) {
         document.getElementById('cardQueue').classList.add('hide');
         document.getElementById('cardBrowse').classList.add('hide');
         document.getElementById('cardSearch').classList.add('hide');
+        document.getElementById('cardLastPlayed').classList.add('hide');
         for (var i = 0; i < domCache.panelHeadingBrowseLen; i++) {
             domCache.panelHeadingBrowse[i].classList.remove('active');
         }
@@ -119,7 +121,8 @@ function appPrepare(scrollPos) {
         document.getElementById('cardBrowseFilesystem').classList.add('hide');        
         //show active card + nav
         document.getElementById('card' + app.current.app).classList.remove('hide');
-        document.getElementById('nav' + app.current.app).classList.add('active');
+        if (document.getElementById('nav' + app.current.app))
+            document.getElementById('nav' + app.current.app).classList.add('active');
         if (app.current.tab != undefined) {
             document.getElementById('card' + app.current.app + app.current.tab).classList.remove('hide');
             document.getElementById('card' + app.current.app + 'Nav' + app.current.tab).classList.add('active');    
@@ -203,6 +206,9 @@ function appRoute() {
         selectTag('searchqueuetags', 'searchqueuetagsdesc', app.current.filter);
         getQueue();
     }
+    else if (app.current.app == 'LastPlayed') {
+        sendAPI({"cmd": "MPD_API_QUEUE_LAST_PLAYED", "data": {"offset": app.current.page}}, parseLastPlayed);
+    }
     else if (app.current.app == 'Browse' && app.current.tab == 'Playlists' && app.current.view == 'All') {
         sendAPI({"cmd": "MPD_API_PLAYLIST_LIST", "data": {"offset": app.current.page, "filter": app.current.filter}}, parsePlaylists);
         doSetFilterLetter('BrowsePlaylistsFilter');
@@ -264,10 +270,13 @@ function appRoute() {
         if (searchstrEl.value == '' && app.current.search != '')
             searchstrEl.value = app.current.search;
         if (app.last.app != app.current.app) {
-            if (app.current.search != '')
+            if (app.current.search != '') {
+                var colspan = settings['cols' + app.current.app].length;
+                colspan--;
                 document.getElementById('SearchList').getElementsByTagName('tbody')[0].innerHTML=
                     '<tr><td><span class="material-icons">search</span></td>' +
-                    '<td colspan="5">Searching...</td></tr>';
+                    '<td colspan="' + colspan + '">Searching...</td></tr>';
+            }
         }
 
         if (app.current.search.length >= 2) {
@@ -455,10 +464,14 @@ function appInit() {
     document.getElementById('QueueList').addEventListener('click', function(event) {
         if (event.target.nodeName == 'TD') 
             sendAPI({"cmd": "MPD_API_PLAYER_PLAY_TRACK","data": {"track": event.target.parentNode.getAttribute('data-trackid')}});
-        else if (event.target.nodeName == 'A') {
+        else if (event.target.nodeName == 'A')
             showMenu(event.target, event);
-        }
     }, false);
+    
+    document.getElementById('LastPlayedList').addEventListener('click', function(event) {
+        if (event.target.nodeName == 'A')
+            showMenu(event.target, event);
+    }, false);    
 
     document.getElementById('BrowseFilesystemList').addEventListener('click', function(event) {
         if (event.target.nodeName == 'TD') {
@@ -566,7 +579,7 @@ function appInit() {
     }, false);
 
     var dropdowns = ['QueueColsDropdown', 'BrowseFilesystemColsDropdown', 'SearchColsDropdown', 'BrowsePlaylistsDetailColsDropdown', 
-        'BrowseDatabaseColsDropdown', 'PlaybackColsDropdown'];
+        'BrowseDatabaseColsDropdown', 'PlaybackColsDropdown', 'LastPlayedColsDropdown'];
     for (var i = 0; i < dropdowns.length; i++) {
         document.getElementById(dropdowns[i]).addEventListener('click', function(event) {
             if (event.target.nodeName == 'INPUT')
@@ -601,6 +614,7 @@ function appInit() {
     dragAndDropTable('QueueList');
     dragAndDropTable('BrowsePlaylistsDetailList');
     dragAndDropTableHeader('Queue');
+    dragAndDropTableHeader('LastPlayed');
     dragAndDropTableHeader('Search');
     dragAndDropTableHeader('BrowseFilesystem');
     dragAndDropTableHeader('BrowsePlaylistsDetail');
@@ -964,7 +978,7 @@ function filterCols(x) {
     if (settings.featTags == false)
         tags.push('Title');
     tags.push('Duration');
-    if (x == 'colsQueue' || x == 'colsBrowsePlaylistsDetail')
+    if (x == 'colsQueue' || x == 'colsBrowsePlaylistsDetail' || x == 'colsLastPlayed')
         tags.push('Pos');
     else if (x == 'colsBrowseFilesystem')
         tags.push('Type');
@@ -1046,6 +1060,7 @@ function parseSettings(obj) {
         app.apps.Search.state = '0/filename/';
         app.apps.Queue.state = '0/filename/';
         settings.colsQueue = ["Pos", "Title", "Duration"];
+        settings.colsLastPlayed = ["Pos", "Title", "Duration"];
         settings.colsSearch = ["Title", "Duration"];
         settings.colsBrowseFilesystem = ["Type", "Title", "Duration"];
         settings.colsBrowseDatabase = ["Track", "Title", "Duration"];
@@ -1100,6 +1115,7 @@ function parseSettings(obj) {
     settings.browsetags.sort();
     filterCols('colsSearch');
     filterCols('colsQueue');
+    filterCols('colsLastPlayed');
     filterCols('colsBrowsePlaylistsDetail');
     filterCols('colsBrowseFilesystem');
     filterCols('colsBrowseDatabase');
@@ -1144,12 +1160,15 @@ function parseSettings(obj) {
     
     setCols('Queue');
     setCols('Search');
+    setCols('LastPlayed');
     setCols('BrowseFilesystem');
     setCols('BrowsePlaylistsDetail');
     setCols('BrowseDatabase', '.tblAlbumTitles');
     setCols('Playback');
     if (app.current.app == 'Queue')
         getQueue();
+    else if (app.current.app == 'LastPlayed')
+        appRoute();
     else if (app.current.app == 'Search')
         appRoute();
     else if (app.current.app == 'Browse' && app.current.tab == 'Filesystem')
@@ -1166,7 +1185,7 @@ function setCols(table, className) {
     if (settings.featTags == false)
         tags.push('Title');
     tags.push('Duration');
-    if (table == 'Queue' || table == 'BrowsePlaylistsDetail')
+    if (table == 'Queue' || table == 'BrowsePlaylistsDetail' || table == 'LastPlayed')
         tags.push('Pos');
     if (table == 'BrowseFilesystem')
         tags.push('Type');
@@ -1399,6 +1418,9 @@ function parseState(obj) {
         for (var i = 0; i < pb.length; i++)
             pb[i].innerText = '';
     }
+    
+    if (app.current.app == 'LastPlayed')
+        sendAPI({"cmd": "MPD_API_QUEUE_LAST_PLAYED", "data": {"offset": app.current.page}}, parseLastPlayed);
 
     lastState = obj;                    
 }
@@ -1475,15 +1497,63 @@ function parseQueue(obj) {
         tr[i].remove();
     }                    
 
+    var colspan = settings['cols' + app.current.app].length;
+    colspan--;
+
     if (obj.type == 'queuesearch' && nrItems == 0)
         tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
-                          '<td colspan="5">No results, please refine your search!</td></tr>';
+                          '<td colspan="' + colspan + '">No results, please refine your search!</td></tr>';
     else if (obj.type == 'queue' && nrItems == 0)
         tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
-                          '<td colspan="5">Empty queue</td></tr>';
+                          '<td colspan="' + colspan + '">Empty queue</td></tr>';
 
     setPagination(obj.totalEntities);
     document.getElementById('QueueList').classList.remove('opacity05');
+}
+
+function parseLastPlayed(obj) {
+    if (app.current.app !== 'LastPlayed')
+        return;
+    
+    document.getElementById('panel-heading-last-played').innerText = obj.totalEntities + ' Songs';
+
+    var nrItems = obj.data.length;
+    var table = document.getElementById(app.current.app + 'List');
+    table.setAttribute('data-version', obj.queueVersion);
+    var tbody = table.getElementsByTagName('tbody')[0];
+    var tr = tbody.getElementsByTagName('tr');
+    for (var i = 0; i < nrItems; i++) {
+        var minutes = Math.floor(obj.data[i].Duration / 60);
+        var seconds = obj.data[i].Duration - minutes * 60;
+        obj.data[i].Duration = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+        var row = document.createElement('tr');
+        row.setAttribute('data-songpos', (obj.data[i].Pos + 1));
+        row.setAttribute('data-uri', obj.data[i].uri);
+        var tds = '';
+        for (var c = 0; c < settings.colsLastPlayed.length; c++) {
+            tds += '<td data-col="' + settings.colsLastPlayed[c] + '">' + obj.data[i][settings.colsLastPlayed[c]] + '</td>';
+        }
+        tds += '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>';
+        row.innerHTML = tds;
+        if (i < tr.length)
+            tr[i].replaceWith(row); 
+        else 
+            tbody.append(row);  
+    }
+    var trLen = tr.length - 1;
+    for (var i = trLen; i >= nrItems; i --) {
+        tr[i].remove();
+    }                    
+
+    var colspan = settings['cols' + app.current.app].length;
+    colspan--;
+    
+    if (nrItems == 0)
+        tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
+            '<td colspan="' + colspan + '">Empty list</td></tr>';
+
+    setPagination(obj.totalEntities);
+    document.getElementById('LastPlayedList').classList.remove('opacity05');
 }
 
 function parseSearch(obj) {
@@ -1574,7 +1644,7 @@ function parseFilesystem(obj) {
                     
     if (nrItems == 0)
         tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
-                          '<td colspan="5">No results</td></tr>';
+                          '<td colspan="' + colspan + '">No results</td></tr>';
     document.getElementById(app.current.app + (app.current.tab==undefined ? '' : app.current.tab) + 'List').classList.remove('opacity05');
 }
 
@@ -1671,13 +1741,16 @@ function parsePlaylists(obj) {
 
     setPagination(obj.totalEntities);
     
-    if (nrItems == 0)
+    if (nrItems == 0) {
+        var colspan = settings['cols' + list].length;
+        colspan--;
         if (app.current.view == 'All')
             tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
-                              '<td colspan="5">No playlists found.</td></tr>';
+                              '<td colspan="' + colspan + '">No playlists found.</td></tr>';
         else
             tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
-                              '<td colspan="5">Empty playlist.</td></tr>';
+                              '<td colspan="' + colspan + '">Empty playlist.</td></tr>';
+    }
             
     document.getElementById(app.current.app + app.current.tab + app.current.view + 'List').classList.remove('opacity05');
 }

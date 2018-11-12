@@ -142,6 +142,10 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                     free(mympd_state.colsPlayback);
                     mympd_state.colsPlayback = strdup(cols);
                 }
+                else if (strcmp(p_charbuf1,"colsLastPlayed")==0) {
+                    free(mympd_state.colsLastPlayed);
+                    mympd_state.colsLastPlayed = strdup(cols);
+                }
                 mympd_state_set(p_charbuf1, cols);
                 free(p_charbuf1);
             }
@@ -394,6 +398,12 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
             je = json_scanf(msg.p, msg.len, "{data: {offset: %u}}", &uint_buf1);
             if (je == 1) {
                 n = mympd_put_queue(mpd.buf, uint_buf1, &mpd.queue_version, &mpd.queue_length);
+            }
+            break;
+        case MPD_API_QUEUE_LAST_PLAYED:
+            je = json_scanf(msg.p, msg.len, "{data: {offset: %u}}", &uint_buf1);
+            if (je == 1) {
+                n = mympd_put_last_played_songs(mpd.buf, uint_buf1);
             }
             break;
         case MPD_API_PLAYER_CURRENT_SONG:
@@ -688,10 +698,14 @@ void mympd_parse_idle(struct mg_mgr *s, int idle_bitmask) {
                     break;
                 case MPD_IDLE_PLAYER:
                     len = mympd_put_state(mpd.buf, &mpd.song_id, &mpd.next_song_id, &mpd.last_song_id, &mpd.queue_version, &mpd.queue_length);
-                    if (config.stickers && mpd.song_id != mpd.last_song_id && mpd.last_update_sticker_song_id != mpd.song_id) {
-                        mympd_count_song_id(mpd.song_id, "playCount", 1);
-                        mympd_last_played_song_id(mpd.song_id);
-                        mpd.last_update_sticker_song_id = mpd.song_id;
+                    if (mpd.song_id != mpd.last_song_id) {
+                        if (mpd.last_last_played_id != mpd.song_id)
+                            mympd_last_played_list(mpd.song_id);
+                        if (config.stickers && mpd.last_update_sticker_song_id != mpd.song_id) {
+                            mympd_count_song_id(mpd.song_id, "playCount", 1);
+                            mympd_last_played_song_id(mpd.song_id);
+                            mpd.last_update_sticker_song_id = mpd.song_id;
+                        }
                     }
                     break;
                 case MPD_IDLE_MIXER:
@@ -996,6 +1010,22 @@ void mympd_like_song_uri(const char *uri, int value) {
     snprintf(v, 2, "%d", value);
     if (!mpd_run_sticker_set(mpd.conn, "song", uri, "like", v))
         LOG_ERROR_AND_RECOVER("mpd_send_sticker_set");
+}
+
+void mympd_last_played_list(int song_id) {
+    struct mpd_song *song;
+    if (song_id > -1) {
+        song = mpd_run_get_queue_song_id(mpd.conn, song_id);
+        if (song) {
+            list_push(&last_played, mpd_song_get_uri(song), 1);
+            mpd.last_last_played_id = song_id;
+            mpd_song_free(song);
+            if (last_played.length > config.last_played_count) {
+                list_shift(&last_played, 0);
+            }
+        }
+    }
+
 }
 
 void mympd_last_played_song_id(int song_id) {
@@ -1441,13 +1471,16 @@ int mympd_put_settings(char *buffer) {
         }
         len += json_printf(&out, "]");
     }
-    len += json_printf(&out, ", colsQueue: %s", mympd_state.colsQueue);
-    len += json_printf(&out, ", colsSearch: %s", mympd_state.colsSearch);
-    len += json_printf(&out, ", colsBrowseDatabase: %s", mympd_state.colsBrowseDatabase);
-    len += json_printf(&out, ", colsBrowsePlaylistsDetail: %s", mympd_state.colsBrowsePlaylistsDetail);
-    len += json_printf(&out, ", colsBrowseFilesystem: %s", mympd_state.colsBrowseFilesystem);
-    len += json_printf(&out, ", colsPlayback: %s", mympd_state.colsPlayback);
-    len += json_printf(&out, "}}");    
+    len += json_printf(&out, ", colsQueue: %s, colsSearch: %s, colsBrowseDatabase: %s, colsBrowsePlaylistsDetail: %s, "
+        "colsBrowseFilesystem: %s, colsPlayback: %s, colsLastPlayed: %s}}",
+        mympd_state.colsQueue,
+        mympd_state.colsSearch,
+        mympd_state.colsBrowseDatabase,
+        mympd_state.colsBrowsePlaylistsDetail,
+        mympd_state.colsBrowseFilesystem,
+        mympd_state.colsPlayback,
+        mympd_state.colsLastPlayed
+    );
 
     CHECK_RETURN_LEN();
     return len;
@@ -1615,6 +1648,51 @@ int mympd_put_songdetails(char *buffer, char *uri) {
     CHECK_RETURN_LEN();
     return len;
 }
+
+int mympd_put_last_played_songs(char *buffer, unsigned int offset) {
+    const struct mpd_song *song;
+    struct mpd_entity *entity;
+    int len;
+    unsigned int entity_count = 0;
+    unsigned int entities_returned = 0;
+    struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
+    
+    len = json_printf(&out, "{type: last_played_songs, data: [");
+    
+    struct node *current = last_played.list;
+    while (current != NULL) {
+        entity_count++;
+        if (entity_count > offset && entity_count <= offset + config.max_elements_per_page) {
+            if (entities_returned++) 
+                len += json_printf(&out, ",");
+            len += json_printf(&out, "{Pos: %d, ", entity_count);
+            if (!mpd_send_list_all_meta(mpd.conn, current->data))
+                RETURN_ERROR_AND_RECOVER("mpd_send_list_all_meta");
+            if ((entity = mpd_recv_entity(mpd.conn)) != NULL) {
+                song = mpd_entity_get_song(entity);
+                if (mpd.feat_tags == true)
+                    PUT_SONG_TAGS();
+                else
+                    PUT_MIN_SONG_TAGS();
+                mpd_entity_free(entity);
+                mpd_response_finish(mpd.conn);
+            }
+            len += json_printf(&out, "}");
+        }
+        current = current->next;
+    }
+
+    len += json_printf(&out, "], totalEntities: %d, offset: %d, returnedEntities: %d}",
+        entity_count,
+        offset,
+        entities_returned
+    );
+
+    CHECK_RETURN_LEN();
+    return len;
+}
+
+
 
 int mympd_put_queue(char *buffer, unsigned int offset, unsigned *queue_version, unsigned *queue_length) {
     struct mpd_entity *entity;

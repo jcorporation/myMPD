@@ -140,6 +140,34 @@ int list_push(struct list *l, const char *data, int value) {
     return 0;
 }
 
+struct node *list_node_extract(struct list *l, unsigned idx) {
+    if (l->list == NULL) { return NULL; }
+    struct node *current = l->list, **previous = &l->list;
+    for (; idx > 0; idx--) {
+        if (current->next == NULL) 
+            return NULL;
+        previous = &current->next;
+        current = current->next;
+    }
+    /* set the previous node's 'next' value to the current
+     * nodes next value */
+    *previous = current->next;
+    /* null out this node's next value since it's not part of
+     * a list anymore */
+    current->next = NULL;
+    l->length--;
+    return current;
+}
+
+int list_shift(struct list *l, unsigned idx) {
+    struct node * extracted = list_node_extract(l, idx);
+    if (extracted == NULL) 
+        return -1;
+    free(extracted->data);
+    free(extracted);
+    return 0;
+}
+
 int list_free(struct list *l) {
     struct node *current = l->list, *tmp = NULL;
     while (current != NULL) {

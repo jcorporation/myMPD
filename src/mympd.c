@@ -199,6 +199,8 @@ static int inihandler(void* user, const char* section, const char* name, const c
             p_config->localplayer = false;
     else if (MATCH("streamurl"))
         p_config->streamurl = strdup(value);
+    else if (MATCH("last_played_count"))
+        p_config->last_played_count = strtol(value, &crap, 10);
     else
         return 0;  /* unknown section/name, error */
 
@@ -318,6 +320,13 @@ void read_statefiles() {
         mympd_state.colsPlayback = strdup("[\"Artist\",\"Album\",\"Genre\"]");
         mympd_state_set("colsPlayback", mympd_state.colsPlayback);
     }
+
+    if (mympd_state_get("colsLastPlayed", value))
+        mympd_state.colsLastPlayed = strdup(value);
+    else {
+        mympd_state.colsLastPlayed = strdup("[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]");
+        mympd_state_set("colsLastPlayed", mympd_state.colsLastPlayed);
+    }
 }
 
 bool testdir(char *name, char *dirname) {
@@ -363,6 +372,7 @@ int main(int argc, char **argv) {
     config.browsetaglist = "Artist,Album,AlbumArtist,Genre,Composer,Performer";
     config.smartpls = true;
     config.max_elements_per_page = 100;
+    config.last_played_count = 20;
     char *etcdir = strdup(argv[1]);
     config.etcdir = dirname(etcdir);
     config.syscmds = false;
@@ -371,6 +381,7 @@ int main(int argc, char **argv) {
     mpd.timeout = 3000;
     mpd.last_update_sticker_song_id = -1;
     mpd.last_song_id = -1;
+    mpd.last_last_played_id = -1;
     mpd.feat_library = false;
     
     if (argc == 2) {
@@ -487,6 +498,7 @@ int main(int argc, char **argv) {
 
     list_init(&mpd_tags);
     list_init(&mympd_tags);
+    list_init(&last_played);
     
     if (config.ssl == true)
         mg_set_protocol_http_websocket(nc_http);

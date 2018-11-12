@@ -54,3 +54,6 @@ syscmds = false
 
 #Elements per page for pagination, max: 400
 max_elements_per_page = 100
+
+#Number of songs keep in last played list
+last_played_count = 20

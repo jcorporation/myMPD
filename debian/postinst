@@ -66,6 +66,7 @@ fi
 [ -f /var/lib/mympd/state/colsPlayback ] || echo -n '["Artist","Album","Genre"]' > /var/lib/mympd/state/colsPlayback
 [ -f /var/lib/mympd/state/colsBrowsePlaylistsDetail ] || echo -n '["Pos","Title","Artist","Album","Duration"]' > /var/lib/mympd/state/colsBrowsePlaylistsDetail
 [ -f /var/lib/mympd/state/colsQueue ] || echo -n '["Pos","Title","Artist","Album","Duration"]' > /var/lib/mympd/state/colsQueue
+[ -f /var/lib/mympd/state/colsLastPlayed ] || echo -n '["Pos","Title","Artist","Album","Duration"]' > /var/lib/mympd/state/colsLastPlayed
 [ -f /var/lib/mympd/state/colsSearch ] || echo -n '["Title","Artist","Album","Duration"]' > /var/lib/mympd/state/colsSearch
 
 echo "Fixing ownership of /var/lib/mympd"
