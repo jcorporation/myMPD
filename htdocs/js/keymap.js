@@ -13,6 +13,7 @@ var keymap = {
     "a": {"cmd": "showAddToPlaylist", "options": ["stream"], "action": "Add Stream"},
     "t": {"cmd": "openModal", "options": ["modalSettings"], "action": "Open Settings"},
     "y": {"cmd": "openModal", "options": ["modalAbout"], "action": "Open About"},
+    "i": {"cmd": "clickTitle", "options": [], "action": "Open Song Details"},
     "1": {"cmd": "appGoto", "options": ["Playback"], "action": "Goto Playback"},
     "2": {"cmd": "appGoto", "options": ["Queue"], "action": "Goto Queue"},
     "3": {"cmd": "appGoto", "options": ["Browse","Database"], "action": "Goto Browse Database"},

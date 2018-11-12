@@ -1925,7 +1925,7 @@ function replaceQueue(type, uri, name) {
     }
 }
 
-function titleClick() {
+function clickTitle() {
     var uri = decodeURI(domCache.currentTitle.getAttribute('data-uri'));
     if (uri != '')
         songDetails(uri);
