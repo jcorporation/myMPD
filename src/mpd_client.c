@@ -1014,22 +1014,39 @@ void mympd_like_song_uri(const char *uri, int value) {
 
 void mympd_last_played_list(int song_id) {
     struct mpd_song *song;
+    char tmpfile[400];
+    char cfgfile[400];
+    snprintf(cfgfile, 400, "%s/state/last_played", config.varlibdir);
+    snprintf(tmpfile, 400, "%s/tmp/last_played", config.varlibdir);
+
     if (song_id > -1) {
         song = mpd_run_get_queue_song_id(mpd.conn, song_id);
         if (song) {
-            list_push(&last_played, mpd_song_get_uri(song), 1);
+            list_insert(&last_played, mpd_song_get_uri(song), time(NULL));
             mpd.last_last_played_id = song_id;
             mpd_song_free(song);
             if (last_played.length > config.last_played_count) {
-                list_shift(&last_played, 0);
+                list_shift(&last_played, last_played.length -1);
             }
+            FILE *fp = fopen(tmpfile, "w");
+            if (fp == NULL) {
+                printf("Error opening %s\n", tmpfile);
+                return;
+            }
+            struct node *current = last_played.list;
+            while (current != NULL) {
+                fprintf(fp, "%ld::%s\n", current->value, current->data);
+                current = current->next;
+            }
+            fclose(fp);
+            rename(tmpfile, cfgfile);            
         }
     }
-
 }
 
 void mympd_last_played_song_id(int song_id) {
     struct mpd_song *song;
+    
     if (song_id > -1) {
         song = mpd_run_get_queue_song_id(mpd.conn, song_id);
         if (song) {
@@ -1665,7 +1682,7 @@ int mympd_put_last_played_songs(char *buffer, unsigned int offset) {
         if (entity_count > offset && entity_count <= offset + config.max_elements_per_page) {
             if (entities_returned++) 
                 len += json_printf(&out, ",");
-            len += json_printf(&out, "{Pos: %d, ", entity_count);
+            len += json_printf(&out, "{Pos: %d, LastPlayed: %ld, ", entity_count, current->value);
             if (!mpd_send_list_all_meta(mpd.conn, current->data))
                 RETURN_ERROR_AND_RECOVER("mpd_send_list_all_meta");
             if ((entity = mpd_recv_entity(mpd.conn)) != NULL) {

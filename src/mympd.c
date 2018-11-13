@@ -329,6 +329,31 @@ void read_statefiles() {
     }
 }
 
+int read_last_played() {
+    char cfgfile[400];
+    char *line;
+    char *data;
+    size_t n = 0;
+    ssize_t read;
+    long value;
+    
+    snprintf(cfgfile, 400, "%s/state/last_played", config.varlibdir);
+    FILE *fp = fopen(cfgfile, "r");
+    if (fp == NULL) {
+        printf("Error opening %s\n", cfgfile);
+        return 0;
+    }
+    while ((read = getline(&line, &n, fp)) > 0) {
+        value = strtol(line, &data, 10);
+        if (strlen(data) > 2)
+            data = data + 2;
+        strtok(data, "\n");
+        list_push(&last_played, data, value);
+    }
+    fclose(fp);
+    return last_played.length;;
+}
+
 bool testdir(char *name, char *dirname) {
     DIR* dir = opendir(dirname);
     if (dir) {
@@ -499,6 +524,7 @@ int main(int argc, char **argv) {
     list_init(&mpd_tags);
     list_init(&mympd_tags);
     list_init(&last_played);
+    printf("Reading last played songs: %d\n", read_last_played());
     
     if (config.ssl == true)
         mg_set_protocol_http_websocket(nc_http);

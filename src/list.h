@@ -1,6 +1,6 @@
 struct node {
     char *data;
-    int value;
+    long value;
     struct node *next;
 };
 
@@ -13,6 +13,7 @@ struct list {
 
 int list_init(struct list *l);
 int list_push(struct list *l, const char *data, int value);
+int list_insert(struct list *l, const char *data, int value);
 int list_shift(struct list *l, unsigned idx);
 struct node *list_node_extract(struct list *l, unsigned idx);
 int list_replace(struct list *l, int pos, const char *data, int value);

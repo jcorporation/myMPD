@@ -982,6 +982,8 @@ function filterCols(x) {
         tags.push('Pos');
     else if (x == 'colsBrowseFilesystem')
         tags.push('Type');
+    if (x == 'colsLastPlayed')
+        tags.push('LastPlayed');
         
     var cols = [];
     for (var i = 0; i < settings[x].length; i++) {
@@ -1189,6 +1191,8 @@ function setCols(table, className) {
         tags.push('Pos');
     if (table == 'BrowseFilesystem')
         tags.push('Type');
+    if (table == 'LastPlayed')
+        tags.push('LastPlayed');
     
     tags.sort();
     
@@ -1526,6 +1530,7 @@ function parseLastPlayed(obj) {
         var minutes = Math.floor(obj.data[i].Duration / 60);
         var seconds = obj.data[i].Duration - minutes * 60;
         obj.data[i].Duration = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+        obj.data[i].LastPlayed = new Date(obj.data[i].LastPlayed * 1000).toUTCString();
         var row = document.createElement('tr');
         row.setAttribute('data-songpos', (obj.data[i].Pos + 1));
         row.setAttribute('data-uri', obj.data[i].uri);
@@ -1582,9 +1587,6 @@ function parseFilesystem(obj) {
     var tr = tbody.getElementsByTagName('tr');
     for (var i = 0; i < nrItems; i++) {
         var uri = encodeURI(obj.data[i].uri);
-        //if (tr[i])
-        //    if (tr[i].getAttribute('data-uri') == uri)
-        //        continue;
         var row = document.createElement('tr');
         row.setAttribute('data-type', obj.data[i].Type);
         row.setAttribute('data-uri', uri);
@@ -1686,9 +1688,6 @@ function parsePlaylists(obj) {
     if (app.current.view == 'All') {
         for (var i = 0; i < nrItems; i++) {
             var uri = encodeURI(obj.data[i].uri);
-            if (tr[i])
-                if (tr[i].getAttribute('data-uri') == uri)
-                    continue;
             var d = new Date(obj.data[i].last_modified * 1000);
             var row = document.createElement('tr');
             row.setAttribute('data-uri', uri);
@@ -1707,9 +1706,6 @@ function parsePlaylists(obj) {
     else if (app.current.view == 'Detail') {
         for (var i = 0; i < nrItems; i++) {
             var uri = encodeURI(obj.data[i].uri);
-            //if (tr[i])
-            //    if (tr[i].getAttribute('data-uri') == uri && tr[i].getAttribute('id') == 'playlistTrackId' + songpos)
-            //        continue;
             var row = document.createElement('tr');
             if (obj.smartpls == false)
                 row.setAttribute('draggable','true');
@@ -1772,9 +1768,6 @@ function parseListDBtags(obj) {
         var cards = cardContainer.getElementsByClassName('card');
         for (var i = 0; i < nrItems; i++) {
             var id = genId(obj.data[i].value);
-//            if (cards[i])
-//                if (cards[i].getAttribute('id') == id)
-//                    continue;              
             var card = document.createElement('div');
             card.classList.add('card', 'ml-4', 'mr-4', 'mb-4', 'w-100');
             card.setAttribute('id', 'card' + id);
@@ -1822,9 +1815,6 @@ function parseListDBtags(obj) {
         var tr = tbody.getElementsByTagName('tr');
         for (var i = 0; i < nrItems; i++) {
             var uri = encodeURI(obj.data[i].value);
-            if (tr[i])
-                if (tr[i].getAttribute('data-uri') == uri)
-                    continue;
             var row = document.createElement('tr');
             row.setAttribute('data-uri', uri);
             row.innerHTML='<td data-col="Type"><span class="material-icons">album</span></td>' +

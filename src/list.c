@@ -140,6 +140,17 @@ int list_push(struct list *l, const char *data, int value) {
     return 0;
 }
 
+int list_insert(struct list *l, const char *data, int value) {
+    struct node *n = malloc(sizeof(struct node));
+    n->value = value;
+    n->data = strdup(data);
+    n->next = l->list;
+    
+    l->list = n;
+    l->length++;
+    return 0;
+}
+
 struct node *list_node_extract(struct list *l, unsigned idx) {
     if (l->list == NULL) { return NULL; }
     struct node *current = l->list, **previous = &l->list;
