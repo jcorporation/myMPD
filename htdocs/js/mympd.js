@@ -1062,7 +1062,7 @@ function parseSettings(obj) {
         app.apps.Search.state = '0/filename/';
         app.apps.Queue.state = '0/filename/';
         settings.colsQueue = ["Pos", "Title", "Duration"];
-        settings.colsLastPlayed = ["Pos", "Title", "Duration"];
+        settings.colsLastPlayed = ["Pos", "Title", "LastPlayed"];
         settings.colsSearch = ["Title", "Duration"];
         settings.colsBrowseFilesystem = ["Type", "Title", "Duration"];
         settings.colsBrowseDatabase = ["Track", "Title", "Duration"];

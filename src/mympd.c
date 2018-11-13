@@ -324,7 +324,7 @@ void read_statefiles() {
     if (mympd_state_get("colsLastPlayed", value))
         mympd_state.colsLastPlayed = strdup(value);
     else {
-        mympd_state.colsLastPlayed = strdup("[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]");
+        mympd_state.colsLastPlayed = strdup("[\"Pos\",\"Title\",\"Artist\",\"Album\",\"LastPlayed\"]");
         mympd_state_set("colsLastPlayed", mympd_state.colsLastPlayed);
     }
 }
