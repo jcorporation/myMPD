@@ -500,8 +500,10 @@ int main(int argc, char **argv) {
         mpd.feat_library = true;
         printf("Enabling coverimage support\n");
     }
-    else 
+    else {
         printf("Disabling coverimage support\n");
+        config.coverimage = false;
+    }
 
     snprintf(testdirname, 400, "%s/tmp", config.varlibdir);
     if (!testdir("Temp dir", testdirname)) 
