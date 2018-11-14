@@ -118,9 +118,9 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                 int len = strlen(cols); 
                 if (len > 1)
                     cols[len - 2]  = '\0';
-                if (strcmp(p_charbuf1,"colsQueue")==0) {
-                    free(mympd_state.colsQueue);
-                    mympd_state.colsQueue = strdup(cols);
+                if (strcmp(p_charbuf1,"colsQueueCurrent")==0) {
+                    free(mympd_state.colsQueueCurrent);
+                    mympd_state.colsQueueCurrent = strdup(cols);
                 }
                 else if (strcmp(p_charbuf1,"colsSearch")==0) {
                     free(mympd_state.colsSearch);
@@ -142,9 +142,9 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                     free(mympd_state.colsPlayback);
                     mympd_state.colsPlayback = strdup(cols);
                 }
-                else if (strcmp(p_charbuf1,"colsLastPlayed")==0) {
-                    free(mympd_state.colsLastPlayed);
-                    mympd_state.colsLastPlayed = strdup(cols);
+                else if (strcmp(p_charbuf1,"colsQueueLastPlayed")==0) {
+                    free(mympd_state.colsQueueLastPlayed);
+                    mympd_state.colsQueueLastPlayed = strdup(cols);
                 }
                 mympd_state_set(p_charbuf1, cols);
                 free(p_charbuf1);
@@ -1488,15 +1488,15 @@ int mympd_put_settings(char *buffer) {
         }
         len += json_printf(&out, "]");
     }
-    len += json_printf(&out, ", colsQueue: %s, colsSearch: %s, colsBrowseDatabase: %s, colsBrowsePlaylistsDetail: %s, "
-        "colsBrowseFilesystem: %s, colsPlayback: %s, colsLastPlayed: %s}}",
-        mympd_state.colsQueue,
+    len += json_printf(&out, ", colsQueueCurrent: %s, colsSearch: %s, colsBrowseDatabase: %s, colsBrowsePlaylistsDetail: %s, "
+        "colsBrowseFilesystem: %s, colsPlayback: %s, colsQueueLastPlayed: %s}}",
+        mympd_state.colsQueueCurrent,
         mympd_state.colsSearch,
         mympd_state.colsBrowseDatabase,
         mympd_state.colsBrowsePlaylistsDetail,
         mympd_state.colsBrowseFilesystem,
         mympd_state.colsPlayback,
-        mympd_state.colsLastPlayed
+        mympd_state.colsQueueLastPlayed
     );
 
     CHECK_RETURN_LEN();

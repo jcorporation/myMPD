@@ -219,13 +219,13 @@ typedef struct {
     int jukeboxMode;
     const char *jukeboxPlaylist;
     int jukeboxQueueLength;
-    char *colsQueue;
+    char *colsQueueCurrent;
     char *colsSearch;
     char *colsBrowseDatabase;
     char *colsBrowsePlaylistsDetail;
     char *colsBrowseFilesystem;
     char *colsPlayback;
-    char *colsLastPlayed;
+    char *colsQueueLastPlayed;
 } t_mympd_state;
 
 t_mympd_state mympd_state;

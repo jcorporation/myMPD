@@ -85,9 +85,9 @@ done
 [ -f /var/lib/mympd/state/colsBrowseFilesystem ] || echo -n '["Type","Title","Artist","Album","Duration"]' > /var/lib/mympd/state/colsBrowseFilesystem
 [ -f /var/lib/mympd/state/colsPlayback ] || echo -n '["Artist","Album","Genre"]' > /var/lib/mympd/state/colsPlayback
 [ -f /var/lib/mympd/state/colsBrowsePlaylistsDetail ] || echo -n '["Pos","Title","Artist","Album","Duration"]' > /var/lib/mympd/state/colsBrowsePlaylistsDetail
-[ -f /var/lib/mympd/state/colsQueue ] || echo -n '["Pos","Title","Artist","Album","Duration"]' > /var/lib/mympd/state/colsQueue
+[ -f /var/lib/mympd/state/colsQueueCurrent ] || echo -n '["Pos","Title","Artist","Album","Duration"]' > /var/lib/mympd/state/colsQueueCurrent
 [ -f /var/lib/mympd/state/colsSearch ] || echo -n '["Title","Artist","Album","Duration"]' > /var/lib/mympd/state/colsSearch
-[ -f /var/lib/mympd/state/colsLastPlayed ] || echo -n '["Pos","Title","Artist","Album","LastPlayed"]' > /var/lib/mympd/state/colsLastPlayed
+[ -f /var/lib/mympd/state/colsQueueLastPlayed ] || echo -n '["Pos","Title","Artist","Album","LastPlayed"]' > /var/lib/mympd/state/colsQueueLastPlayed
 
 echo "Fixing ownership of /var/lib/mympd"
 chown -R mympd.mympd /var/lib/mympd

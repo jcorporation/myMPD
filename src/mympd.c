@@ -279,11 +279,11 @@ void read_statefiles() {
         mympd_state_set("jukeboxQueueLength", "1");
     }
     
-    if (mympd_state_get("colsQueue", value))
-        mympd_state.colsQueue = strdup(value);
+    if (mympd_state_get("colsQueueCurrent", value))
+        mympd_state.colsQueueCurrent = strdup(value);
     else {
-        mympd_state.colsQueue = strdup("[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]");
-        mympd_state_set("colsQueue", mympd_state.colsQueue);
+        mympd_state.colsQueueCurrent = strdup("[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]");
+        mympd_state_set("colsQueueCurrent", mympd_state.colsQueueCurrent);
     }
     
     if (mympd_state_get("colsSearch", value))
@@ -321,11 +321,11 @@ void read_statefiles() {
         mympd_state_set("colsPlayback", mympd_state.colsPlayback);
     }
 
-    if (mympd_state_get("colsLastPlayed", value))
-        mympd_state.colsLastPlayed = strdup(value);
+    if (mympd_state_get("colsQueueLastPlayed", value))
+        mympd_state.colsQueueLastPlayed = strdup(value);
     else {
-        mympd_state.colsLastPlayed = strdup("[\"Pos\",\"Title\",\"Artist\",\"Album\",\"LastPlayed\"]");
-        mympd_state_set("colsLastPlayed", mympd_state.colsLastPlayed);
+        mympd_state.colsQueueLastPlayed = strdup("[\"Pos\",\"Title\",\"Artist\",\"Album\",\"LastPlayed\"]");
+        mympd_state_set("colsQueueLastPlayed", mympd_state.colsQueueLastPlayed);
     }
 }
 

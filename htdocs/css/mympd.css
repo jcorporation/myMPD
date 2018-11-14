@@ -321,3 +321,7 @@ div.key {
   heigth: 20px;
   text-align: center;
 }
+
+#QueueCurrentLength, #QueueLastPlayedLength {
+  padding-top: 5px;
+}
