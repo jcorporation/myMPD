@@ -99,7 +99,7 @@
           <div class="featTags" id="cardPlaybackTags"></div>
         </div>
       </div>
-      <div class="card-footer card-footer-playback">
+      <div class="card-footer cardFooterPlayback">
         <div class="d-flex align-items-center">
           <button data-href='{"cmd": "clickPlay", "options": []}' class="mr-1 ml-1 btn btn-light material-icons btnPlay progressBarPlay">pause</button>
           <input type="range" min="0" max="100" step="1" class="mr-1 ml-1 form-control-range flex-grow-1" id="progressBar">
@@ -170,8 +170,6 @@
               <button data-href='{"cmd": "saveCols", "options": ["QueueCurrent"]}' class="btn btn-success btn-block btn-sm mt-2">Apply</button>
             </div>          
           </div>
-          <div class="btn-group mr-2" id="QueueCurrentLength">
-          </div>
         </div>
 
         <div class="table-responsive-md">
@@ -225,8 +223,6 @@
               <button data-href='{"cmd": "saveCols", "options": ["QueueLastPlayed"]}' class="btn btn-success btn-block btn-sm mt-2">Apply</button>
             </div>          
           </div>
-          <div class="btn-group mr-2" id="QueueLastPlayedLength">
-          </div>
         </div>
 
         <div class="table-responsive-md">
@@ -261,6 +257,9 @@
             <button data-href='{"cmd": "gotoPage", "options": ["next"]}' id="QueueLastPlayedPaginationBottomNext" title="Next Page" type="button" class="btn btn-secondary input-group-append">&raquo;</button>
           </div>
         </div>
+      </div>
+      
+      <div class="card-footer" id="cardFooterQueue">
       </div>
     </div>
     
@@ -507,6 +506,8 @@
           </div>
         </div>
       </div>
+      <div class="card-footer" id="cardFooterBrowse">
+      </div>      
     </div>        
 
     <div class="card hide" id="cardSearch">
@@ -588,6 +589,8 @@
             <button data-href='{"cmd": "gotoPage", "options": ["next"]}' id="SearchPaginationBottomNext" title="Next Page" type="button" class="btn btn-secondary input-group-append">&raquo;</button>
           </div>
         </div>
+      </div>
+      <div class="card-footer" id="cardFooterSearch">
       </div>
     </div>    
   </main>    

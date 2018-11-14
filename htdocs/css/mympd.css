@@ -55,7 +55,7 @@ small {
   min-height: 300px;
 }
 
-.card-footer-playback {
+.cardFooterPlayback {
   padding: 0px;
 }
 
@@ -320,8 +320,4 @@ div.key {
   width: 20px;
   heigth: 20px;
   text-align: center;
-}
-
-#QueueCurrentLength, #QueueLastPlayedLength {
-  padding-top: 5px;
 }

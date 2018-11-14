@@ -117,7 +117,7 @@ function appPrepare(scrollPos) {
         document.getElementById('cardPlayback').classList.add('hide');
         document.getElementById('cardQueue').classList.add('hide');
         document.getElementById('cardBrowse').classList.add('hide');
-        document.getElementById('cardQueueLastPlayed').classList.add('hide');
+        document.getElementById('cardSearch').classList.add('hide');
         for (var i = 0; i < domCache.cardHeaderBrowseLen; i++)
             domCache.cardHeaderBrowse[i].classList.remove('active');
         for (var i = 0; i < domCache.cardHeaderQueueLen; i++)
@@ -1465,11 +1465,11 @@ function getQueue() {
 
 function parseQueue(obj) {
     if (typeof(obj.totalTime) != undefined && obj.totalTime > 0 && obj.totalEntities <= settings.maxElementsPerPage )
-        document.getElementById('QueueCurrentLength').innerText = obj.totalEntities + ' ' + (obj.totalEntities > 1 ? 'Songs' : 'Song') + ' – ' + beautifyDuration(obj.totalTime);
+        document.getElementById('cardFooterQueue').innerText = obj.totalEntities + ' ' + (obj.totalEntities > 1 ? 'Songs' : 'Song') + ' – ' + beautifyDuration(obj.totalTime);
     else if (obj.totalEntities > 0)
-        document.getElementById('QueueCurrentLength').innerText = obj.totalEntities + ' ' + (obj.totalEntities > 1 ? 'Songs' : 'Song');
+        document.getElementById('cardFooterQueue').innerText = obj.totalEntities + ' ' + (obj.totalEntities > 1 ? 'Songs' : 'Song');
     else
-        document.getElementById('QueueCurrentLength').innerText = '';
+        document.getElementById('cardFooterQueue').innerText = '';
 
     var nrItems = obj.data.length;
     var table = document.getElementById('QueueCurrentList');
@@ -1518,7 +1518,7 @@ function parseQueue(obj) {
 }
 
 function parseLastPlayed(obj) {
-    document.getElementById('QueueLastPlayedLength').innerText = obj.totalEntities + ' Songs';
+    document.getElementById('cardFooterQueue').innerText = obj.totalEntities + ' Songs';
     var nrItems = obj.data.length;
     var table = document.getElementById('QueueLastPlayedList');
     table.setAttribute('data-version', obj.queueVersion);
@@ -1560,9 +1560,8 @@ function parseLastPlayed(obj) {
 }
 
 function parseSearch(obj) {
-    if (app.current.app !== 'Search')
-        return;
     document.getElementById('panel-heading-search').innerHTML = obj.totalEntities + ' Songs found';
+    document.getElementById('cardFooterSearch').innerHTML = obj.totalEntities + ' Songs found';
     if (obj.totalEntities > 0) {
         document.getElementById('searchAddAllSongs').removeAttribute('disabled');
         document.getElementById('searchAddAllSongsBtn').removeAttribute('disabled');
@@ -1644,6 +1643,7 @@ function parseFilesystem(obj) {
         tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
                           '<td colspan="' + colspan + '">No results</td></tr>';
     document.getElementById(app.current.app + (app.current.tab == undefined ? '' : app.current.tab) + 'List').classList.remove('opacity05');
+    document.getElementById('cardFooterBrowse').innerText = obj.totalEntities + ' Entries';
 }
 
 function parsePlaylists(obj) {
@@ -1696,6 +1696,7 @@ function parsePlaylists(obj) {
             else 
                 tbody.append(row);
         }
+        document.getElementById('cardFooterBrowse').innerText = obj.totalEntities + ' Playlists';
     }
     else if (app.current.view == 'Detail') {
         for (var i = 0; i < nrItems; i++) {
@@ -1723,6 +1724,7 @@ function parsePlaylists(obj) {
             else 
                 tbody.append(row);
         }
+        document.getElementById('cardFooterBrowse').innerText = obj.totalEntities + ' Songs';
     }
     var trLen = tr.length - 1;
     for (var i = trLen; i >= nrItems; i --) {
@@ -1755,8 +1757,8 @@ function parseListDBtags(obj) {
         document.getElementById('BrowseDatabaseAddAllSongs').parentNode.parentNode.classList.remove('hide');
         document.getElementById('BrowseDatabaseColsBtn').parentNode.classList.remove('hide');
         document.getElementById('btnBrowseDatabaseTag').innerHTML = '&laquo; ' + app.current.view;
-        document.getElementById('BrowseDatabaseAlbumListCaption').innerHTML = '<h2>' + obj.searchtagtype + ': ' + obj.searchstr + '</h2>' +
-            '<small class="pull-right">' + obj.totalEntities + ' Entries</small><hr/>';
+        document.getElementById('BrowseDatabaseAlbumListCaption').innerHTML = '<h2>' + obj.searchtagtype + ': ' + obj.searchstr + '</h2><hr/>';
+        document.getElementById('cardFooterBrowse').innerText = obj.totalEntities + ' Entries';
         var nrItems = obj.data.length;
         var cardContainer = document.getElementById('BrowseDatabaseAlbumList');
         var cards = cardContainer.getElementsByClassName('card');
@@ -1803,7 +1805,8 @@ function parseListDBtags(obj) {
         document.getElementById('BrowseDatabaseAddAllSongs').parentNode.parentNode.classList.add('hide');
         document.getElementById('BrowseDatabaseColsBtn').parentNode.classList.add('hide');
         document.getElementById('btnBrowseDatabaseTag').parentNode.classList.add('hide');
-        document.getElementById('BrowseDatabaseTagListCaption').innerHTML = app.current.view + '<small class="pull-right">' + obj.totalEntities +' Tags</small>';        
+        document.getElementById('BrowseDatabaseTagListCaption').innerText = app.current.view;        
+        document.getElementById('cardFooterBrowse').innerText = obj.totalEntities + ' Tags';
         var nrItems = obj.data.length;
         var tbody = document.getElementById(app.current.app + app.current.tab + 'TagList').getElementsByTagName('tbody')[0];
         var tr = tbody.getElementsByTagName('tr');
