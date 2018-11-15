@@ -11,6 +11,10 @@ mympd (${VERSION}-1) stable; urgency=medium
  -- Juergen Mang <mail@jcgames.de>  $(date +"%a, %d %b %Y %H:%m:%S %z")
 EOL
 
-./mkclean.sh
-tar -czvf ../mympd_${VERSION}.orig.tar.gz *
-dpkg-buildpackage -rfakeroot
+if [ "$1" != "u" ]
+then
+  ./mkclean.sh
+  tar -czvf ../mympd_${VERSION}.orig.tar.gz *
+  dpkg-buildpackage -rfakeroot
+fi
+
