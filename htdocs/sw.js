@@ -1,4 +1,4 @@
-var CACHE = 'myMPD-cache-v4.5.1';
+var CACHE = 'myMPD-cache-v4.6.0';
 var urlsToCache = [
     '/',
     '/player.html',
@@ -7,6 +7,7 @@ var urlsToCache = [
     '/js/bootstrap-native-v4.min.js',
     '/js/mympd.min.js',
     '/js/player.min.js',
+    '/js/keymap.min.js',
     '/assets/appicon-167.png',
     '/assets/appicon-192.png',
     '/assets/appicon-512.png',

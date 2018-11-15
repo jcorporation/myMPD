@@ -24,7 +24,7 @@ localplayer = true
 streamport = 8000
 
 #Manual streamurl, overwrites streamport
-#streamurl = http://jukebox:8000
+#streamurl = http://mpdhost:8000
 
 #Enable coverimages
 coverimage = true
@@ -54,3 +54,6 @@ syscmds = false
 
 #Elements per page for pagination, max: 400
 max_elements_per_page = 100
+
+#Number of songs to keep in last played list
+last_played_count = 20

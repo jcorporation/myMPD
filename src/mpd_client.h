@@ -86,6 +86,7 @@
     X(MPD_API_QUEUE_ADD_PLAYLIST) \
     X(MPD_API_QUEUE_REPLACE_PLAYLIST) \
     X(MPD_API_QUEUE_SHUFFLE) \
+    X(MPD_API_QUEUE_LAST_PLAYED) \
     X(MPD_API_PLAYLIST_CLEAR) \
     X(MPD_API_PLAYLIST_RENAME) \
     X(MPD_API_PLAYLIST_MOVE_TRACK) \
@@ -157,6 +158,7 @@ struct t_mpd {
     unsigned queue_version;
     unsigned queue_length;
     int last_update_sticker_song_id;
+    int last_last_played_id;
     
     // Features
     const unsigned* protocol;
@@ -171,34 +173,35 @@ struct list mpd_tags;
 struct list mympd_tags;
 struct list mympd_searchtags;
 struct list mympd_browsetags;
-
+struct list last_played;
 struct list syscmds;
 
 typedef struct {
     long mpdport;
-    const char* mpdhost;
-    const char* mpdpass;
-    const char* webport;
+    const char *mpdhost;
+    const char *mpdpass;
+    const char *webport;
     bool ssl;
-    const char* sslport;
-    const char* sslcert;
-    const char* sslkey;
-    const char* user;
+    const char *sslport;
+    const char *sslcert;
+    const char *sslkey;
+    const char *user;
     bool coverimage;
-    const char* coverimagename;
+    const char *coverimagename;
     bool stickers;
     bool mixramp;
-    const char* taglist;
-    const char* searchtaglist;
-    const char* browsetaglist;
+    const char *taglist;
+    const char *searchtaglist;
+    const char *browsetaglist;
     bool smartpls;
-    const char* varlibdir;
-    const char* etcdir;
+    const char *varlibdir;
+    const char *etcdir;
     unsigned long max_elements_per_page;
     bool syscmds;
     bool localplayer;
     long streamport;
-    const char* streamurl;
+    const char *streamurl;
+    unsigned long last_played_count;
 } t_config;
 
 t_config config;
@@ -214,13 +217,15 @@ typedef struct {
     bool notificationWeb;
     bool notificationPage;
     int jukeboxMode;
-    const char* jukeboxPlaylist;
+    const char *jukeboxPlaylist;
     int jukeboxQueueLength;
-    char* colsQueue;
-    char* colsSearch;
-    char* colsBrowseDatabase;
-    char* colsBrowsePlaylistsDetail;
-    char* colsBrowseFilesystem;
+    char *colsQueueCurrent;
+    char *colsSearch;
+    char *colsBrowseDatabase;
+    char *colsBrowsePlaylistsDetail;
+    char *colsBrowseFilesystem;
+    char *colsPlayback;
+    char *colsQueueLastPlayed;
 } t_mympd_state;
 
 t_mympd_state mympd_state;
@@ -240,6 +245,7 @@ void mympd_like_song_uri(const char *uri, int value);
 void mympd_last_played_song_uri(const char *uri);
 void mympd_last_played_song_id(int song_id);
 void mympd_get_sticker(const char *uri, t_sticker *sticker);
+void mympd_last_played_list(int song_id);
 void mympd_jukebox();
 bool mympd_state_get(char *name, char *value);
 bool mympd_state_set(const char *name, const char *value);
@@ -269,6 +275,7 @@ int mympd_put_songs_in_album(char *buffer, char *album, char *search, char *tag)
 int mympd_put_playlists(char *buffer, unsigned int offset, char *filter);
 int mympd_put_playlist_list(char *buffer, char *uri, unsigned int offset, char *filter);
 int mympd_put_songdetails(char *buffer, char *uri);
+int mympd_put_last_played_songs(char *buffer, unsigned int offset);
 int mympd_queue_crop(char *buffer);
 void mympd_disconnect();
 #endif

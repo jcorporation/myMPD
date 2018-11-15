@@ -826,7 +826,14 @@
       menuItems = (function(){
         var set = menu[children], newSet = [];
         for ( var i=0; i<set[length]; i++ ){
-          set[i][children][length] && (set[i][children][0].tagName === 'A' && newSet[push](set[i][children][0]));
+          //set[i][children][length] && (set[i][children][0].tagName === 'A' && newSet[push](set[i][children][0]));
+          //start patch: push all child elements, not only first
+          if (set[i][children][length]){
+            for ( var j=0; j<set[i][children][length]; j++ ){
+              set[i][children][j].tagName === 'A' && newSet[push](set[i][children][j]);
+            }
+          }
+          //end patch
           set[i].tagName === 'A' && newSet[push](set[i]);
         }
         return newSet;
@@ -874,9 +881,19 @@
           isMenuItem = activeItem[parentNode] === menu || activeItem[parentNode][parentNode] === menu;          
   
         if ( isMenuItem || isSameElement ) { // navigate up | down
-          idx = isSameElement ? 0 
+/*          idx = isSameElement ? 0 
                               : key === 38 ? (idx>1?idx-1:0)
                               : key === 40 ? (idx<menuItems[length]-1?idx+1:idx) : idx;
+*/
+          //start patch: skip hidden elements
+          do {
+            idx = isSameElement ? 0 
+                              : key === 38 ? (idx>1?idx-1:0)
+                              : key === 40 ? (idx<menuItems[length]-1?idx+1:idx) : idx;
+            if ( idx == 0 || idx == menuItems[length]-1)
+              break;
+          } while ( !menuItems[idx].offsetHeight )
+          //end patch
           menuItems[idx] && setFocus(menuItems[idx]);
         }
         if ( (menuItems[length] && isMenuItem // menu has items

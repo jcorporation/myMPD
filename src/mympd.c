@@ -199,6 +199,8 @@ static int inihandler(void* user, const char* section, const char* name, const c
             p_config->localplayer = false;
     else if (MATCH("streamurl"))
         p_config->streamurl = strdup(value);
+    else if (MATCH("last_played_count"))
+        p_config->last_played_count = strtol(value, &crap, 10);
     else
         return 0;  /* unknown section/name, error */
 
@@ -277,11 +279,11 @@ void read_statefiles() {
         mympd_state_set("jukeboxQueueLength", "1");
     }
     
-    if (mympd_state_get("colsQueue", value))
-        mympd_state.colsQueue = strdup(value);
+    if (mympd_state_get("colsQueueCurrent", value))
+        mympd_state.colsQueueCurrent = strdup(value);
     else {
-        mympd_state.colsQueue = strdup("[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]");
-        mympd_state_set("colsQueue", mympd_state.colsQueue);
+        mympd_state.colsQueueCurrent = strdup("[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]");
+        mympd_state_set("colsQueueCurrent", mympd_state.colsQueueCurrent);
     }
     
     if (mympd_state_get("colsSearch", value))
@@ -311,6 +313,45 @@ void read_statefiles() {
         mympd_state.colsBrowseFilesystem = strdup("[\"Type\",\"Title\",\"Artist\",\"Album\",\"Duration\"]");
         mympd_state_set("colsBrowseFilesystem", mympd_state.colsBrowseFilesystem);
     }
+    
+    if (mympd_state_get("colsPlayback", value))
+        mympd_state.colsPlayback = strdup(value);
+    else {
+        mympd_state.colsPlayback = strdup("[\"Artist\",\"Album\",\"Genre\"]");
+        mympd_state_set("colsPlayback", mympd_state.colsPlayback);
+    }
+
+    if (mympd_state_get("colsQueueLastPlayed", value))
+        mympd_state.colsQueueLastPlayed = strdup(value);
+    else {
+        mympd_state.colsQueueLastPlayed = strdup("[\"Pos\",\"Title\",\"Artist\",\"Album\",\"LastPlayed\"]");
+        mympd_state_set("colsQueueLastPlayed", mympd_state.colsQueueLastPlayed);
+    }
+}
+
+int read_last_played() {
+    char cfgfile[400];
+    char *line;
+    char *data;
+    size_t n = 0;
+    ssize_t read;
+    long value;
+    
+    snprintf(cfgfile, 400, "%s/state/last_played", config.varlibdir);
+    FILE *fp = fopen(cfgfile, "r");
+    if (fp == NULL) {
+        printf("Error opening %s\n", cfgfile);
+        return 0;
+    }
+    while ((read = getline(&line, &n, fp)) > 0) {
+        value = strtol(line, &data, 10);
+        if (strlen(data) > 2)
+            data = data + 2;
+        strtok(data, "\n");
+        list_push(&last_played, data, value);
+    }
+    fclose(fp);
+    return last_played.length;;
 }
 
 bool testdir(char *name, char *dirname) {
@@ -356,6 +397,7 @@ int main(int argc, char **argv) {
     config.browsetaglist = "Artist,Album,AlbumArtist,Genre,Composer,Performer";
     config.smartpls = true;
     config.max_elements_per_page = 100;
+    config.last_played_count = 20;
     char *etcdir = strdup(argv[1]);
     config.etcdir = dirname(etcdir);
     config.syscmds = false;
@@ -364,6 +406,7 @@ int main(int argc, char **argv) {
     mpd.timeout = 3000;
     mpd.last_update_sticker_song_id = -1;
     mpd.last_song_id = -1;
+    mpd.last_last_played_id = -1;
     mpd.feat_library = false;
     
     if (argc == 2) {
@@ -457,8 +500,10 @@ int main(int argc, char **argv) {
         mpd.feat_library = true;
         printf("Enabling coverimage support\n");
     }
-    else 
+    else {
         printf("Disabling coverimage support\n");
+        config.coverimage = false;
+    }
 
     snprintf(testdirname, 400, "%s/tmp", config.varlibdir);
     if (!testdir("Temp dir", testdirname)) 
@@ -480,6 +525,8 @@ int main(int argc, char **argv) {
 
     list_init(&mpd_tags);
     list_init(&mympd_tags);
+    list_init(&last_played);
+    printf("Reading last played songs: %d\n", read_last_played());
     
     if (config.ssl == true)
         mg_set_protocol_http_websocket(nc_http);
