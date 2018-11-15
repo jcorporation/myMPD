@@ -2219,7 +2219,7 @@ int mympd_search_queue(char *buffer, char *mpdtagtype, unsigned int offset, char
             if (entity_count > offset && entity_count <= offset + config.max_elements_per_page) {
                 if (entities_returned++)
                     len += json_printf(&out, ", ");
-                len += json_printf(&out, "{type: song, id: %d, pos: %d, ",
+                len += json_printf(&out, "{type: song, id: %d, Pos: %d, ",
                     mpd_song_get_id(song),
                     mpd_song_get_pos(song)
                 );
