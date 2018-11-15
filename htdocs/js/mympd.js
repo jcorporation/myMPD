@@ -1480,11 +1480,12 @@ function parseQueue(obj) {
         var minutes = Math.floor(obj.data[i].Duration / 60);
         var seconds = obj.data[i].Duration - minutes * 60;
         obj.data[i].Duration = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+        obj.data[i].Pos++;
         var row = document.createElement('tr');
         row.setAttribute('draggable','true');
         row.setAttribute('data-trackid', obj.data[i].id);
         row.setAttribute('id','queueTrackId' + obj.data[i].id);
-        row.setAttribute('data-songpos', (obj.data[i].Pos + 1));
+        row.setAttribute('data-songpos', obj.data[i].Pos);
         row.setAttribute('data-duration', obj.data[i].Duration);
         row.setAttribute('data-uri', obj.data[i].uri);
         var tds = '';
