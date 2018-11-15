@@ -1533,6 +1533,8 @@ function parseLastPlayed(obj) {
         var row = document.createElement('tr');
         row.setAttribute('data-songpos', (obj.data[i].Pos + 1));
         row.setAttribute('data-uri', obj.data[i].uri);
+        row.setAttribute('data-name', obj.data[i].Title);
+        row.setAttribute('data-type', 'song');
         var tds = '';
         for (var c = 0; c < settings.colsQueueLastPlayed.length; c++) {
             tds += '<td data-col="' + settings.colsQueueLastPlayed[c] + '">' + obj.data[i][settings.colsQueueLastPlayed[c]] + '</td>';
@@ -2401,9 +2403,7 @@ function hideMenu() {
 function showMenu(el, event) {
     event.preventDefault();
     event.stopPropagation();
-
     hideMenu();
-
     if (el.getAttribute('data-init'))
         return;
 
@@ -2463,6 +2463,12 @@ function showMenu(el, event) {
         menu += addMenuItem({"cmd": "delQueueSong", "options": ["single", el.parentNode.parentNode.getAttribute('data-trackid')]}, 'Remove') +
             addMenuItem({"cmd": "delQueueSong", "options": ["range", 0, el.parentNode.parentNode.getAttribute('data-songpos')]}, 'Remove all upwards') +
             addMenuItem({"cmd": "delQueueSong", "options": ["range", (parseInt(el.parentNode.parentNode.getAttribute('data-songpos'))-1), -1]}, 'Remove all downwards') +
+            (uri.indexOf('http') == -1 ? addMenuItem({"cmd": "songDetails", "options": [uri]}, 'Songdetails') : '');
+    }
+    else if (app.current.app == 'Queue' && app.current.tab == 'LastPlayed') {
+        menu += addMenuItem({"cmd": "appendQueue", "options": [type, uri, name]}, 'Append to queue') +
+            addMenuItem({"cmd": "replaceQueue", "options": [type, uri, name]}, 'Replace queue') +
+            addMenuItem({"cmd": "showAddToPlaylist", "options": [uri]}, 'Add to playlist') +
             (uri.indexOf('http') == -1 ? addMenuItem({"cmd": "songDetails", "options": [uri]}, 'Songdetails') : '');
     }
 
