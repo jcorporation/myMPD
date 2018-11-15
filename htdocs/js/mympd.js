@@ -367,8 +367,9 @@ function appInit() {
     document.getElementById('modalHelp').addEventListener('show.bs.modal', function () {
         var trs = '';
         for (var key in keymap) {
-            trs += '<tr><td><div class="key' + (keymap[key].key && keymap[key].key.length > 1 ? ' material-icons material-icons-small' : '') + 
-                   '">' + (keymap[key].key != undefined ? keymap[key].key : key ) + '</div></td><td>' + keymap[key].action + '</td></tr>';
+            if (keymap[key].req == undefined || settings[keymap[key].req] == true)
+                trs += '<tr><td><div class="key' + (keymap[key].key && keymap[key].key.length > 1 ? ' material-icons material-icons-small' : '') + 
+                       '">' + (keymap[key].key != undefined ? keymap[key].key : key ) + '</div></td><td>' + keymap[key].desc + '</td></tr>';
         }
         document.getElementById('tbodyShortcuts').innerHTML = trs;
     });
@@ -641,7 +642,8 @@ function appInit() {
             return;
         var cmd = keymap[event.key];
         if (cmd && typeof window[cmd.cmd] === 'function') {
-            parseCmd(event, cmd);
+            if (keymap[event.key].req == undefined || settings[keymap[event.key].req] == true)
+                parseCmd(event, cmd);
         }        
         
     }, false);
