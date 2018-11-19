@@ -12,17 +12,23 @@ then
   [ htdocs/sw.js -nt dist/htdocs/sw.min.js ] && \
     java -jar dist/buildtools/closure-compiler.jar htdocs/sw.js > dist/htdocs/sw.min.js
   [ htdocs/js/keymap.js -nt dist/htdocs/js/keymap.min.js ] && \
-    java -jar dist/buildtools/closure-compiler.jar htdocs/js/keymap.js > dist/htdocs/js/keymap.min.js    
+    java -jar dist/buildtools/closure-compiler.jar htdocs/js/keymap.js > dist/htdocs/js/keymap.min.js
+  [ htdocs/js/keymap.js -nt dist/htdocs/js/keymap.min.js ] && \
+    java -jar dist/buildtools/closure-compiler.jar htdocs/js/keymap.js > dist/htdocs/js/keymap.min.js
+  [ dist/htdocs/js/bootstrap-native-v4.js -nt dist/htdocs/js/bootstrap-native-v4.min.js ] && \
+    java -jar dist/buildtools/closure-compiler.jar dist/htdocs/js/bootstrap-native-v4.js > dist/htdocs/js/bootstrap-native-v4.min.js
 else
   echo "dist/buildtools/closure-compiler.jar not found, using non-minified files"
   [ htdocs/js/player.js -nt dist/htdocs/js/player.min.js ] && \
     cp htdocs/js/player.js dist/htdocs/js/player.min.js
-  [ htdocs/js/mympd.js -nt  dist/htdocs/js/mympd.min.js ] && \
-    cp htdocs/js/mympd.js  dist/htdocs/js/mympd.min.js
+  [ htdocs/js/mympd.js -nt dist/htdocs/js/mympd.min.js ] && \
+    cp htdocs/js/mympd.js dist/htdocs/js/mympd.min.js
   [ htdocs/sw.js -nt dist/htdocs/sw.min.js ] && \
     cp htdocs/sw.js dist/htdocs/sw.min.js
-  [ htdocs/js/keymap.js -nt  dist/htdocs/js/keymap.min.js ] && \
-    cp htdocs/js/keymap.js  dist/htdocs/js/keymap.min.js
+  [ htdocs/js/keymap.js -nt dist/htdocs/js/keymap.min.js ] && \
+    cp htdocs/js/keymap.js dist/htdocs/js/keymap.min.js
+  [ dist/htdocs/js/bootstrap-native-v4.js -nt dist/htdocs/js/bootstrap-native-v4.min.js ] && \
+    cp dist/htdocs/js/bootstrap-native-v4.js dist/htdocs/js/bootstrap-native-v4.min.js
 fi
 
 if [ -f dist/buildtools/closure-stylesheets.jar ] && [ "$java" != "" ]
