@@ -2126,6 +2126,81 @@ int mympd_search(char *buffer, char *searchstr, char *filter, char *plist, unsig
         if (mpd_send_command(mpd.conn, "searchaddpl", plist, filter, searchstr, NULL) == false)
             RETURN_ERROR_AND_RECOVER("mpd_searchaddpl");
     }
+    
+    if (strcmp(plist, "") == 0) {
+        while ((song = mpd_recv_song(mpd.conn)) != NULL) {
+            entity_count++;
+            if (entity_count > offset && entity_count <= offset + config.max_elements_per_page) {
+                if (entities_returned++) 
+                    len += json_printf(&out, ", ");
+                len += json_printf(&out, "{Type: song, ");
+                if (mpd.feat_tags == true)
+                    PUT_SONG_TAGS();
+                else
+                    PUT_MIN_SONG_TAGS();
+                len += json_printf(&out, "}");
+            }
+            mpd_song_free(song);
+        }
+    }
+    else
+        mpd_response_finish(mpd.conn);
+
+    if (strcmp(plist, "") == 0) {
+        len += json_printf(&out, "], totalEntities: %d, offset: %d, returnedEntities: %d, searchstr: %Q}",
+            entity_count,
+            offset,
+            entities_returned,
+            searchstr
+        );
+    } 
+    else
+        len = json_printf(&out, "{type: result, data: ok}");
+
+    CHECK_RETURN_LEN();
+    return len;
+}
+
+int mympd_search_v21(char *buffer, char *searchstr, char *filter, char *plist, unsigned int offset) {
+    struct mpd_song *song;
+    unsigned long entity_count = 0;
+    unsigned long entities_returned = 0;
+    int len = 0;
+    struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
+    
+    if (strcmp(plist, "") == 0) {
+        if (mpd_search_db_songs(mpd.conn, false) == false)
+            RETURN_ERROR_AND_RECOVER("mpd_search_db_songs");
+        len = json_printf(&out, "{type: search, data: [");
+    }
+    else if (strcmp(plist, "queue") == 0) {
+        if (mpd_search_add_db_songs(mpd.conn, false) == false)
+            RETURN_ERROR_AND_RECOVER("mpd_search_add_db_songs");
+    }
+    else {
+        if (mpd_search_add_pl_db_songs(mpd.conn) == false)
+            RETURN_ERROR_AND_RECOVER("mpd_search_add_pl_db_songs");
+        if (mpd_search_add_pl_constraint(mpd.conn, MPD_OPERATOR_DEFAULT, plist) == false)
+            RETURN_ERROR_AND_RECOVER("mpd_search_add_pl_constraint");
+    }
+    
+    if (strcmp(filter, "any") == 0) {
+        if (mpd_search_add_any_tag_constraint(mpd.conn, MPD_OPERATOR_DEFAULT, searchstr) == false)
+            RETURN_ERROR_AND_RECOVER("mpd_search_add_any_tag_constraint");
+    }
+    else if (strcmp(filter, "modified-since") == 0) {
+        char *crap;
+        long timestamp = strtol(searchstr, &crap, 10);
+        if (mpd_search_add_modified_since_constraint(mpd.conn, MPD_OPERATOR_DEFAULT, timestamp) == false)
+            RETURN_ERROR_AND_RECOVER("mpd_search_add_tag_constraint");    
+    }
+    else {
+        if (mpd_search_add_tag_constraint(mpd.conn, MPD_OPERATOR_DEFAULT, mpd_tag_name_parse(filter), searchstr) == false)
+            RETURN_ERROR_AND_RECOVER("mpd_search_add_tag_constraint");    
+    }
+
+    if (mpd_search_commit(mpd.conn) == false)
+        RETURN_ERROR_AND_RECOVER("mpd_search_commit");
 
     if (strcmp(plist, "") == 0) {
         while ((song = mpd_recv_song(mpd.conn)) != NULL) {

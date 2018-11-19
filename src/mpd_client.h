@@ -265,6 +265,7 @@ int mympd_put_current_song(char *buffer);
 int mympd_put_queue(char *buffer, unsigned int offset, unsigned *queue_version, unsigned *queue_length);
 int mympd_put_browse(char *buffer, char *path, unsigned int offset, char *filter);
 int mympd_search(char *buffer, char *searchstr, char *filter, char *plist, unsigned int offset);
+int mympd_search_v21(char *buffer, char *searchstr, char *filter, char *plist, unsigned int offset);
 int mympd_search_queue(char *buffer, char *mpdtagtype, unsigned int offset, char *searchstr);
 int mympd_put_welcome(char *buffer);
 int mympd_put_volume(char *buffer);
