@@ -2178,10 +2178,8 @@ int mympd_search_v21(char *buffer, char *searchstr, char *filter, char *plist, u
             RETURN_ERROR_AND_RECOVER("mpd_search_add_db_songs");
     }
     else {
-        if (mpd_search_add_pl_db_songs(mpd.conn) == false)
+        if (mpd_search_add_pl_db_songs(mpd.conn, plist) == false)
             RETURN_ERROR_AND_RECOVER("mpd_search_add_pl_db_songs");
-        if (mpd_search_add_pl_constraint(mpd.conn, MPD_OPERATOR_DEFAULT, plist) == false)
-            RETURN_ERROR_AND_RECOVER("mpd_search_add_pl_constraint");
     }
     
     if (strcmp(filter, "any") == 0) {
