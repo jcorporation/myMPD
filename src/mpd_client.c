@@ -752,6 +752,7 @@ void mympd_mpd_features() {
     mpd.feat_sticker = false;
     mpd.feat_playlists = false;
     mpd.feat_tags = false;
+    mpd.feat_advsearch = false;
 
     mpd_send_allowed_commands(mpd.conn);
     while ((pair = mpd_recv_command_pair(mpd.conn)) != NULL) {
@@ -824,6 +825,13 @@ void mympd_mpd_features() {
     free(taglist);
     free(searchtaglist);
     free(browsetaglist);
+    
+    if (LIBMPDCLIENT_CHECK_VERSION(2, 17, 0) && mpd_connection_cmp_server_version(mpd.conn, 0, 21, 0) >= 0) {
+        mpd.feat_advsearch = true;
+        printf("Enabling advanced search\n");
+    } 
+    else 
+        printf("Disabling advanced search, depends on mpd >= 0.21.0 and libmpdclient >= 2.17.0\n");
 }
 
 void mympd_idle(struct mg_mgr *s, int timeout) {
@@ -1412,9 +1420,9 @@ int mympd_put_settings(char *buffer) {
     len = json_printf(&out, "{type: settings, data: {"
         "repeat: %d, single: %d, crossfade: %d, consume: %d, random: %d, "
         "mixrampdb: %f, mixrampdelay: %f, mpdhost: %Q, mpdport: %d, passwort_set: %B, featSyscmds: %B, featPlaylists: %B, featTags: %B, featLibrary: %B, "
-        "featLocalplayer: %B, streamport: %d, streamurl: %Q, featCoverimage: %B, coverimagename: %Q, featStickers: %B, mixramp: %B, featSmartpls: %B, maxElementsPerPage: %d, "
-        "replaygain: %Q, notificationWeb: %B, notificationPage: %B, jukeboxMode: %d, jukeboxPlaylist: %Q, jukeboxQueueLength: %d, "
-        "tags: [", 
+        "featAdvsearch: %B, featLocalplayer: %B, streamport: %d, streamurl: %Q, featCoverimage: %B, coverimagename: %Q, featStickers: %B, mixramp: %B, "
+        "featSmartpls: %B, maxElementsPerPage: %d, replaygain: %Q, notificationWeb: %B, notificationPage: %B, jukeboxMode: %d, jukeboxPlaylist: %Q, "
+        "jukeboxQueueLength: %d, tags: [", 
         mpd_status_get_repeat(status),
         mpd_status_get_single(status),
         mpd_status_get_crossfade(status),
@@ -1429,6 +1437,7 @@ int mympd_put_settings(char *buffer) {
         mpd.feat_playlists,
         mpd.feat_tags,
         mpd.feat_library,
+        mpd.feat_advsearch,
         config.localplayer,
         config.streamport,
         config.streamurl,

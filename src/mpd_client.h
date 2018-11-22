@@ -167,6 +167,7 @@ struct t_mpd {
     bool feat_playlists;
     bool feat_tags;
     bool feat_library;
+    bool feat_advsearch;
 } mpd;
 
 struct list mpd_tags;
