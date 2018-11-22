@@ -1330,7 +1330,7 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
     var elapsed_minutes = Math.floor(elapsedTime / 60);
     var elapsed_seconds = elapsedTime - elapsed_minutes * 60;
 
-    domCache.progressBar.value = Math.floor(100 * elapsedTime / totalTime);
+    domCache.progressBar.value = Math.floor(1000 * elapsedTime / totalTime);
 
     var counterText = elapsed_minutes + ":" + 
         (elapsed_seconds < 10 ? '0' : '') + elapsed_seconds + " / " +
