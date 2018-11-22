@@ -2322,13 +2322,16 @@ int mympd_put_stats(char *buffer) {
     const unsigned *version = mpd_connection_get_server_version(mpd.conn);
     int len;
     char mpd_version[20];
+    char libmpdclient_version[20];
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
     snprintf(mpd_version, 20, "%i.%i.%i", version[0], version[1], version[2]);
-    
+    snprintf(libmpdclient_version, 20, "%i.%i.%i", LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION);
+
     if (stats == NULL)
         RETURN_ERROR_AND_RECOVER("mympd_put_stats");
     len = json_printf(&out, "{type: mpdstats, data: {artists: %d, albums: %d, songs: %d, "
-        "playtime: %d, uptime: %d, dbUpdated: %d, dbPlaytime: %d, mympdVersion: %Q, mpdVersion: %Q}}",
+        "playtime: %d, uptime: %d, dbUpdated: %d, dbPlaytime: %d, mympdVersion: %Q, mpdVersion: %Q, "
+        "libmpdclientVersion: %Q}}",
         mpd_stats_get_number_of_artists(stats),
         mpd_stats_get_number_of_albums(stats),
         mpd_stats_get_number_of_songs(stats),
@@ -2337,7 +2340,8 @@ int mympd_put_stats(char *buffer) {
         mpd_stats_get_db_update_time(stats),
         mpd_stats_get_db_play_time(stats),
         MYMPD_VERSION,
-        mpd_version
+        mpd_version,
+        libmpdclient_version
     );
     mpd_stats_free(stats);
 

@@ -969,6 +969,7 @@ function parseStats(obj) {
     document.getElementById('mpdstats_dbUpdated').innerText = d.toUTCString();
     document.getElementById('mympdVersion').innerText = obj.data.mympdVersion;
     document.getElementById('mpdVersion').innerText = obj.data.mpdVersion;
+    document.getElementById('libmpdclientVersion').innerText = obj.data.libmpdclientVersion;
 }
 
 function toggleBtn(btn, state) {
