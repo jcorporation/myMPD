@@ -1607,7 +1607,7 @@ function parseFilesystem(obj) {
                         if (obj.data[i].Type == 'dir')
                             tds += '<span class="material-icons">folder_open</span>';
                         else
-                            tds += '<span class="material-icons">list</span>';
+                            tds += '<span class="material-icons">' + (obj.data[i].Type == 'smartpls' ? 'queue_music' :'list') + '</span>';
                     }
                     else if (settings['cols' + list][c] == 'Title')
                         tds += obj.data[i].name;
@@ -1693,7 +1693,7 @@ function parsePlaylists(obj) {
             row.setAttribute('data-uri', uri);
             row.setAttribute('data-type', obj.data[i].Type);
             row.setAttribute('data-name', obj.data[i].name);
-            row.innerHTML = '<td data-col="Type"><span class="material-icons">list</span></td>' +
+            row.innerHTML = '<td data-col="Type"><span class="material-icons">' + (obj.data[i].Type == 'smartpls' ? 'queue_music' :'list') + '</span></td>' +
                             '<td>' + obj.data[i].name + '</td>' +
                             '<td>'+ d.toUTCString() + '</td>' +
                             '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>';
@@ -2200,7 +2200,7 @@ function parseSmartPlaylist(obj) {
     }
     else if (obj.data.type == 'sticker') {
         document.getElementById('saveSmartPlaylistSticker').classList.remove('hide');
-        document.getElementById('selectSaveSmartPlaylistSticker').value = obj.data.feat_sticker;
+        document.getElementById('selectSaveSmartPlaylistSticker').value = obj.data.sticker;
         document.getElementById('inputSaveSmartPlaylistStickerMaxentries').value = obj.data.maxentries;
     }
     else if (obj.data.type == 'newest') {
@@ -2449,7 +2449,7 @@ function showMenu(el, event) {
             addMenuItem({"cmd": "replaceQueue", "options": [type, uri, name]},'Replace queue') +
             (type == 'smartpls' ? addMenuItem({"cmd": "playlistDetails", "options": [uri]}, 'View playlist') : addMenuItem({"cmd": "playlistDetails", "options": [uri]}, 'Edit playlist'))+
             (type == 'smartpls' ? addMenuItem({"cmd": "showSmartPlaylist", "options": [uri]}, 'Edit smart playlist') : '') +
-            (uri.indexOf('myMPDsmart') != 0 ?
+            (type != 'smartpls' ?
                 addMenuItem({"cmd": "showRenamePlaylist", "options": [uri]}, 'Rename playlist') + 
                 addMenuItem({"cmd": "showDelPlaylist", "options": [uri]}, 'Delete playlist') : '');
     }
