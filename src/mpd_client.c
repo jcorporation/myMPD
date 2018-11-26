@@ -925,7 +925,7 @@ int mympd_get_updatedb_state(char *buffer) {
 
     status = mpd_run_status(mpd.conn);
     if (!status)
-        RETURN_ERROR_AND_RECOVER("replay_gain_status");
+        RETURN_ERROR_AND_RECOVER("mpd_run_status");
     update_id = mpd_status_get_update_id(status);
     #ifdef DEBUG
     fprintf(stderr, "Update database ID: %d\n", update_id);
@@ -1203,9 +1203,8 @@ void mympd_jukebox() {
         }
     }
 
-    if (nkeep < addSongs) {
+    if (nkeep < addSongs)
         fprintf(stderr, "Warning: input didn't contain %d entries\n", addSongs);
-    }
 
     list_shuffle(&add_list);
 
@@ -1214,9 +1213,8 @@ void mympd_jukebox() {
     while (current != NULL) {
         if (mympd_state.jukeboxMode == 1) {
 	    printf("Jukebox adding song: %s\n", current->data);
-	    if (!mpd_run_add(mpd.conn, current->data)) {
+	    if (!mpd_run_add(mpd.conn, current->data))
                 LOG_ERROR_AND_RECOVER("mpd_run_add");
-            }
             else
                 nkeep++;
         }
@@ -1321,8 +1319,18 @@ int mympd_put_volume(char *buffer) {
 int mympd_put_welcome(char *buffer) {
     int len;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
-    
-    len = json_printf(&out, "{type: welcome, data: {version: %Q}}", MYMPD_VERSION);
+    const unsigned *version = mpd_connection_get_server_version(mpd.conn);
+    char mpd_version[20];
+    char libmpdclient_version[20];
+
+    snprintf(mpd_version, 20, "%i.%i.%i", version[0], version[1], version[2]);
+    snprintf(libmpdclient_version, 20, "%i.%i.%i", LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION);
+
+    len = json_printf(&out, "{type: welcome, data: {mympdVersion: %Q, mpdVersion: %Q, libmpdclientVersion: %Q}}", 
+        MYMPD_VERSION,
+        mpd_version,
+        libmpdclient_version
+    );
     
     CHECK_RETURN_LEN();
     return len;
@@ -2556,7 +2564,7 @@ int mympd_smartpls_update(char *playlist, char *sticker, int maxentries) {
             p_value = mpd_parse_sticker(pair->value, &j);
             if (p_value != NULL) {
                 value = strtol(p_value, &crap, 10);
-                if (value > 1)
+                if (value >= 1)
                     list_push(&add_list, uri, value);
                 if (value > value_max)
                     value_max = value;
@@ -2567,10 +2575,16 @@ int mympd_smartpls_update(char *playlist, char *sticker, int maxentries) {
     mpd_response_finish(mpd.conn);
     free(uri);
 
+    #ifdef DEBUG
+    printf("add_list length: %d\n", add_list.length);
+    #endif
+
     mympd_smartpls_clear(playlist);
      
     if (value_max > 2)
         value_max = value_max / 2;
+
+    list_sort_by_value(&add_list, false);
 
     struct node *current = add_list.list;
     while (current != NULL) {

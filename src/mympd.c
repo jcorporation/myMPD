@@ -30,6 +30,7 @@
 #include <pwd.h>
 #include <grp.h>
 #include <libgen.h>
+#include <mpd/client.h>
 
 #include "../dist/src/mongoose/mongoose.h"
 #include "../dist/src/frozen/frozen.h"
@@ -410,6 +411,8 @@ int main(int argc, char **argv) {
     mpd.feat_library = false;
     
     if (argc == 2) {
+        printf("Starting myMPD %s\n", MYMPD_VERSION);
+        printf("libmpdclient %i.%i.%i\n", LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION);
         printf("Parsing config file: %s\n", argv[1]);
         if (ini_parse(argv[1], inihandler, &config) < 0) {
             printf("Can't load config file \"%s\"\n", argv[1]);
@@ -427,8 +430,6 @@ int main(int argc, char **argv) {
         );
         return EXIT_FAILURE;    
     }
-
-    printf("Starting myMPD %s\n", MYMPD_VERSION);
 
     signal(SIGTERM, signal_handler);
     signal(SIGINT, signal_handler);
