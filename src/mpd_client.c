@@ -2178,7 +2178,7 @@ int mympd_search(char *buffer, char *searchstr, char *filter, char *plist, unsig
     return len;
 }
 
-int mympd_search_v21(char *buffer, char *searchstr, char *filter, char *plist, unsigned int offset) {
+int mympd_search_adv(char *buffer, char *expression, char *sort, bool sortdesc, char *grouptag, char *plist, unsigned int offset) {
     struct mpd_song *song;
     unsigned long entity_count = 0;
     unsigned long entities_returned = 0;
@@ -2199,21 +2199,19 @@ int mympd_search_v21(char *buffer, char *searchstr, char *filter, char *plist, u
             RETURN_ERROR_AND_RECOVER("mpd_search_add_db_songs_to_playlist");
     }
     
-    if (strcmp(filter, "any") == 0) {
-        if (mpd_search_add_any_tag_constraint(mpd.conn, MPD_OPERATOR_DEFAULT, searchstr) == false)
-            RETURN_ERROR_AND_RECOVER("mpd_search_add_any_tag_constraint");
+    if (mpd_search_add_expression(mpd.conn, expression) == false)
+        RETURN_ERROR_AND_RECOVER("mpd_search_add_expression");
+    
+    if (sort != NULL && strcmp(plist, "") == 0) {
+        if (mpd_search_add_sort_name(mpd.conn, sort, sortdesc) == false)
+            RETURN_ERROR_AND_RECOVER("mpd_search_add_sort_name");
     }
-    else if (strcmp(filter, "modified-since") == 0) {
-        char *crap;
-        long timestamp = strtol(searchstr, &crap, 10);
-        if (mpd_search_add_modified_since_constraint(mpd.conn, MPD_OPERATOR_DEFAULT, timestamp) == false)
-            RETURN_ERROR_AND_RECOVER("mpd_search_add_tag_constraint");    
+    
+    if (grouptag != NULL && strcmp(plist, "") == 0) {
+        if (mpd_search_add_group_tag(mpd.conn, mpd_tag_name_parse(grouptag)) == false)
+            RETURN_ERROR_AND_RECOVER("mpd_search_add_group_tag");
     }
-    else {
-        if (mpd_search_add_tag_constraint(mpd.conn, MPD_OPERATOR_DEFAULT, mpd_tag_name_parse(filter), searchstr) == false)
-            RETURN_ERROR_AND_RECOVER("mpd_search_add_tag_constraint");    
-    }
-
+    
     if (mpd_search_commit(mpd.conn) == false)
         RETURN_ERROR_AND_RECOVER("mpd_search_commit");
 
@@ -2237,11 +2235,15 @@ int mympd_search_v21(char *buffer, char *searchstr, char *filter, char *plist, u
         mpd_response_finish(mpd.conn);
 
     if (strcmp(plist, "") == 0) {
-        len += json_printf(&out, "], totalEntities: %d, offset: %d, returnedEntities: %d, searchstr: %Q}",
+        len += json_printf(&out, "], totalEntities: %d, offset: %d, returnedEntities: %d, expression: %Q, "
+            "sort: %Q, sortdesc: %B, grouptag: %Q}",
             entity_count,
             offset,
             entities_returned,
-            searchstr
+            expression,
+            sort,
+            sortdesc,
+            grouptag
         );
     } 
     else
@@ -2607,7 +2609,7 @@ int mympd_smartpls_update(char *playlist, char *sticker, int maxentries) {
 
 int mympd_smartpls_update_newest(char *playlist, int timerange) {
     unsigned long value_max = 0;
-    char searchstr[20];
+    char searchstr[50];
     
     struct mpd_stats *stats = mpd_run_stats(mpd.conn);
     if (stats != NULL) {
@@ -2622,8 +2624,14 @@ int mympd_smartpls_update_newest(char *playlist, int timerange) {
     mympd_smartpls_clear(playlist);
     value_max -= timerange;
     if (value_max > 0) {
-        snprintf(searchstr, 20, "%lu", value_max);
-        mympd_search(mpd.buf, searchstr, "modified-since", playlist, 0);
+        if (mpd.feat_advsearch == true) {
+            snprintf(searchstr, 50, "(modified-since '%lu')", value_max);
+            mympd_search_adv(mpd.buf, searchstr, NULL, true, NULL, playlist, 0);
+        }
+        else {
+            snprintf(searchstr, 20, "%lu", value_max);
+            mympd_search(mpd.buf, searchstr, "modified-since", playlist, 0);
+        }
         printf("Updated %s\n", playlist);
     }
     return 0;
