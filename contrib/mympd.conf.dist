@@ -1,5 +1,10 @@
 #myMPD config file
 
+#Loglevel
+#1 = default
+#2 = verbose
+loglevel = 1
+
 #Connection to mpd
 mpdhost = 127.0.0.1
 mpdport = 6600

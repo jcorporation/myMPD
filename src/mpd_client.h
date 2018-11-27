@@ -65,6 +65,8 @@
 } while (0)
 
 
+#define VERBOSELOG() if (config.loglevel == 2)
+
 #define MAX_SIZE 2048 * 400
 #define MAX_ELEMENTS_PER_PAGE 400
 
@@ -204,6 +206,7 @@ typedef struct {
     long streamport;
     const char *streamurl;
     unsigned long last_played_count;
+    long loglevel;
 } t_config;
 
 t_config config;

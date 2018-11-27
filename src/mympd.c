@@ -65,9 +65,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
     switch(ev) {
         case MG_EV_WEBSOCKET_HANDSHAKE_REQUEST: {
             struct http_message *hm = (struct http_message *) ev_data;
-            #ifdef DEBUG
-            fprintf(stderr, "New websocket request: %.*s\n", hm->uri.len, hm->uri.p);
-            #endif
+            VERBOSELOG() fprintf(stderr, "New websocket request: %.*s\n", hm->uri.len, hm->uri.p);
             if (mg_vcmp(&hm->uri, "/ws") != 0) {
                 printf("Websocket request not to /ws, closing connection\n");
                 mg_printf(nc, "%s", "HTTP/1.1 403 FORBIDDEN\r\n\r\n");
@@ -76,18 +74,14 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             break;
         }
         case MG_EV_WEBSOCKET_HANDSHAKE_DONE: {
-             #ifdef DEBUG
-             fprintf(stderr, "New Websocket connection established\n");
-             #endif
+             VERBOSELOG() fprintf(stderr, "New Websocket connection established\n");
              struct mg_str d = mg_mk_str("{\"cmd\": \"MPD_API_WELCOME\"}");
              callback_mympd(nc, d);
              break;
         }
         case MG_EV_HTTP_REQUEST: {
             struct http_message *hm = (struct http_message *) ev_data;
-            #ifdef DEBUG
-            fprintf(stderr, "HTTP request: %.*s\n", hm->uri.len, hm->uri.p);
-            #endif
+            VERBOSELOG() fprintf(stderr, "HTTP request: %.*s\n", hm->uri.len, hm->uri.p);
             if (mg_vcmp(&hm->uri, "/api") == 0)
                 handle_api(nc, hm);
             else
@@ -96,14 +90,10 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
         }
         case MG_EV_CLOSE: {
             if (is_websocket(nc)) {
-              #ifdef DEBUG
-              fprintf(stderr, "Websocket connection closed\n");
-              #endif
+              VERBOSELOG() fprintf(stderr, "Websocket connection closed\n");
             }
             else {
-              #ifdef DEBUG
-              fprintf(stderr,"HTTP connection closed\n");
-              #endif
+              VERBOSELOG() fprintf(stderr,"HTTP connection closed\n");
             }
             break;
         }        
@@ -202,8 +192,12 @@ static int inihandler(void* user, const char* section, const char* name, const c
         p_config->streamurl = strdup(value);
     else if (MATCH("last_played_count"))
         p_config->last_played_count = strtol(value, &crap, 10);
-    else
+    else if (MATCH("loglevel"))
+        p_config->loglevel = strtol(value, &crap, 10);
+    else {
+        printf("Unkown config line: %s\n", name);
         return 0;  /* unknown section/name, error */
+    }
 
     return 1;
 }
@@ -403,6 +397,7 @@ int main(int argc, char **argv) {
     config.etcdir = dirname(etcdir);
     config.syscmds = false;
     config.localplayer = true;
+    config.loglevel = 1;
     
     mpd.timeout = 3000;
     mpd.last_update_sticker_song_id = -1;

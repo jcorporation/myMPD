@@ -64,9 +64,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
     struct pollfd fds[1];
     int pollrc;
     
-    #ifdef DEBUG
-    fprintf(stderr, "Got request: %s\n", msg.p);
-    #endif
+    printf("API request: %s\n", msg.p);
     
     je = json_scanf(msg.p, msg.len, "{cmd: %Q}", &cmd);
     if (je == 1) 
@@ -84,16 +82,11 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
     pollrc = poll(fds, 1, 100);
     if (pollrc > 0) {
         idle_bitmask_save = mpd_recv_idle(mpd.conn, false);
-        #ifdef DEBUG
         if (idle_bitmask_save > 0)
-            fprintf(stderr, "IDLE EVENT BEFORE REQUEST: %d\n", idle_bitmask_save);
-        #endif
+            VERBOSELOG() fprintf(stderr, "IDLE EVENT BEFORE REQUEST: %d\n", idle_bitmask_save);
     }
     mpd_response_finish(mpd.conn);
     //handle request
-    #ifdef DEBUG
-    fprintf(stderr, "HANDLE REQUEST: %s\n", cmd);
-    #endif
     switch(cmd_id) {
         case MPD_API_UNKNOWN:
             n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Unknown request\"}");
@@ -645,9 +638,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
     }
 
     if (mpd.conn_state == MPD_CONNECTED && mpd_connection_get_error(mpd.conn) != MPD_ERROR_SUCCESS) {
-        #ifdef DEBUG
-        fprintf(stderr, "Error: %s\n", mpd_connection_get_error_message(mpd.conn));
-        #endif
+        printf("Error: %s\n", mpd_connection_get_error_message(mpd.conn));
         n = snprintf(mpd.buf, MAX_SIZE, "{\"type\":\"error\", \"data\": \"%s\"}", 
             mpd_connection_get_error_message(mpd.conn));
 
@@ -662,15 +653,11 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
         n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"No response for cmd %s\"}", cmd);
     
     if (is_websocket(nc)) {
-        #ifdef DEBUG
-        fprintf(stderr, "Send websocket response:\n %s\n", mpd.buf);
-        #endif
+        VERBOSELOG() fprintf(stderr, "Send websocket response:\n %s\n", mpd.buf);
         mg_send_websocket_frame(nc, WEBSOCKET_OP_TEXT, mpd.buf, n);
     }
     else {
-        #ifdef DEBUG
-        fprintf(stderr, "Send http response (first 800 chars):\n%*.*s\n", 0, 800, mpd.buf);
-        #endif
+        VERBOSELOG() fprintf(stderr, "Send http response (first 800 chars):\n%*.*s\n", 0, 800, mpd.buf);
         mg_send_http_chunk(nc, mpd.buf, n);
     }
     free(cmd);    
@@ -682,9 +669,7 @@ void mympd_notify(struct mg_mgr *s) {
             continue;
         mg_send_websocket_frame(c, WEBSOCKET_OP_TEXT, mpd.buf, strlen(mpd.buf));
     }
-    #ifdef DEBUG
-    fprintf(stderr, "NOTIFY: %s\n", mpd.buf);
-    #endif
+    VERBOSELOG() fprintf(stderr, "NOTIFY: %s\n", mpd.buf);
 }
 
 void mympd_parse_idle(struct mg_mgr *s, int idle_bitmask) {
@@ -695,9 +680,7 @@ void mympd_parse_idle(struct mg_mgr *s, int idle_bitmask) {
         if (idle_name == NULL)
             break;
         if (idle_bitmask & idle_event) {
-            #ifdef DEBUG
-            fprintf(stderr, "IDLE: %s\n", idle_name);
-            #endif
+            VERBOSELOG() fprintf(stderr, "IDLE: %s\n", idle_name);
             switch(idle_event) {
                 case MPD_IDLE_DATABASE:
                     len = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"update_database\"}");
@@ -921,9 +904,7 @@ void mympd_idle(struct mg_mgr *s, int timeout) {
                 }
                 if (idle_bitmask_save > 0) {
                     //Handle idle event saved in mympd_callback
-                    #ifdef DEBUG
-                    fprintf(stderr, "HANDLE SAVED IDLE EVENT\n");
-                    #endif
+                    VERBOSELOG() fprintf(stderr, "HANDLE SAVED IDLE EVENT\n");
                     mympd_parse_idle(s, idle_bitmask_save);
                     idle_bitmask_save = 0;
                 }
@@ -942,9 +923,7 @@ int mympd_get_updatedb_state(char *buffer) {
     if (!status)
         RETURN_ERROR_AND_RECOVER("mpd_run_status");
     update_id = mpd_status_get_update_id(status);
-    #ifdef DEBUG
-    fprintf(stderr, "Update database ID: %d\n", update_id);
-    #endif
+    printf("Update database ID: %d\n", update_id);
     if ( update_id > 0)
         len = json_printf(&out, "{type: update_started, data: {jobid: %d}}", update_id);
     else
@@ -1015,9 +994,7 @@ void mympd_count_song_uri(const char *uri, char *name, int value) {
     else if (old_value < 0)
         old_value = 0;
     snprintf(v, 4, "%d", old_value);
-    #ifdef DEBUG
-    fprintf(stderr, "STICKER_COUNT_SONG: \"%s\" -> %s: %s\n", uri, name, v);
-    #endif    
+    VERBOSELOG() fprintf(stderr, "STICKER_COUNT_SONG: \"%s\" -> %s: %s\n", uri, name, v);
     if (!mpd_run_sticker_set(mpd.conn, "song", uri, name, v))
         LOG_ERROR_AND_RECOVER("mpd_send_sticker_set");
 }
@@ -1366,9 +1343,7 @@ bool mympd_state_get(char *name, char *value) {
     }
     read = getline(&line, &n, fp);
     snprintf(value, 400, "%s", line);
-    #ifdef DEBUG
-    printf("State %s: %s\n", name, value);
-    #endif
+    VERBOSELOG() fprintf(stderr, "State %s: %s\n", name, value);
     fclose(fp);
     if (read > 0)
         return true;
@@ -2603,10 +2578,6 @@ int mympd_smartpls_update(char *playlist, char *sticker, int maxentries) {
     }
     mpd_response_finish(mpd.conn);
     free(uri);
-
-    #ifdef DEBUG
-    printf("add_list length: %d\n", add_list.length);
-    #endif
 
     mympd_smartpls_clear(playlist);
      
