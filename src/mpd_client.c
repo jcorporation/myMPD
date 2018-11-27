@@ -56,6 +56,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
     unsigned int uint_buf1, uint_buf2, uint_rc;
     int je, int_buf1, int_rc; 
     float float_buf;
+    bool bool_buf;
     char *p_charbuf1, *p_charbuf2, *p_charbuf3, *p_charbuf4;
     char p_char[4];
     enum mpd_cmd_ids cmd_id;
@@ -592,6 +593,16 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                 n = mympd_search(mpd.buf, p_charbuf1, p_charbuf2, p_charbuf3, uint_buf1);
                 free(p_charbuf1);
                 free(p_charbuf2);
+            }
+            break;
+        case MPD_API_DATABASE_SEARCH_ADV:
+            je = json_scanf(msg.p, msg.len, "{data: {expression:%Q, sort:%Q, sortdesc:%B, plist:%Q, offset:%u}}", 
+                &p_charbuf1, &p_charbuf2, &bool_buf, &p_charbuf3, &uint_buf1);
+            if (je == 5) {
+                n = mympd_search_adv(mpd.buf, p_charbuf1, p_charbuf2, bool_buf, NULL, p_charbuf3, uint_buf1);
+                free(p_charbuf1);
+                free(p_charbuf2);
+                free(p_charbuf3);
             }
             break;
         case MPD_API_QUEUE_SHUFFLE:
@@ -2202,12 +2213,12 @@ int mympd_search_adv(char *buffer, char *expression, char *sort, bool sortdesc, 
     if (mpd_search_add_expression(mpd.conn, expression) == false)
         RETURN_ERROR_AND_RECOVER("mpd_search_add_expression");
     
-    if (sort != NULL && strcmp(plist, "") == 0) {
+    if (sort != NULL && strcmp(sort, "") != 0 && strcmp(plist, "") == 0) {
         if (mpd_search_add_sort_name(mpd.conn, sort, sortdesc) == false)
             RETURN_ERROR_AND_RECOVER("mpd_search_add_sort_name");
     }
     
-    if (grouptag != NULL && strcmp(plist, "") == 0) {
+    if (grouptag != NULL && strcmp(grouptag, "") != 0 && strcmp(plist, "") == 0) {
         if (mpd_search_add_group_tag(mpd.conn, mpd_tag_name_parse(grouptag)) == false)
             RETURN_ERROR_AND_RECOVER("mpd_search_add_group_tag");
     }

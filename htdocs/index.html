@@ -142,7 +142,7 @@
               </div>
             </div>
           </div>
-          <form id="searchqueue">
+          <form id="searchqueue" class="flex-grow-1">
             <div class="input-group mr-2">
               <input type="text" class="form-control" placeholder="Search Queue" id="searchqueuestr"/>
               <div class="input-group-append">
@@ -164,9 +164,9 @@
               </div>            
             <button data-href='{"cmd": "gotoPage", "options": ["next"]}' id="QueueCurrentPaginationTopNext" title="Next Page" type="button" class="btn btn-secondary input-group-append">&raquo;</button>
           </div>
-          <div class="btn-group mr-2 featTags">
+          <div class="btn-group featTags">
             <button id="QueueCurrentColsBtn" class="btn btn-secondary dropdown-toggle material-icons" type="button" data-toggle="dropdown">settings</button>
-            <div class="dropdown-menu bg-dark px-2" id="QueueCurrentColsDropdown"><form></form>
+            <div class="dropdown-menu bg-dark px-2 dropdown-menu-right" id="QueueCurrentColsDropdown"><form></form>
               <button data-href='{"cmd": "saveCols", "options": ["QueueCurrent"]}' class="btn btn-success btn-block btn-sm mt-2">Apply</button>
             </div>          
           </div>
@@ -517,17 +517,26 @@
       </div>
       <div class="card-body">
         <div class="btn-toolbar card-toolbar" id="SearchButtons">
-          <form id="search">
+          <form id="search" class="flex-grow-1">
             <div class="input-group mr-2">
-              <input type="text" class="form-control" placeholder="Search" id="searchstr"/>
-              <div class="input-group-append">
+              <div class="input-group-prepend">
                 <button title="Select tags to search" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
                   <span class="material-icons">search</span>
                   <span id="searchtagsdesc">Any Tag</span>
                 </button>
-                <div class="dropdown-menu bg-dark dropdown-menu-right px-2" id="searchtags">
+                <div class="dropdown-menu bg-dark px-2" id="searchtags">
                 </div>
               </div>
+              <div class="input-group-prepend featAdvsearch">
+                <select class="form-control" id="searchMatch">
+                  <option value="contains">contains</option>
+                  <option value="==">==</option>
+                  <option value="=~">=~</option>
+                  <option value="!=">!=</option>
+                  <option value="!~">!~</option>
+                </select>
+              </div>
+              <input type="text" class="form-control" placeholder="Search" id="searchstr"/>
             </div>
           </form>
           <div class="input-group mr-2">
@@ -550,15 +559,17 @@
               </div>            
             <button data-href='{"cmd": "gotoPage", "options": ["next"]}' id="SearchPaginationTopNext" title="Next Page" type="button" class="btn btn-secondary input-group-append">&raquo;</button>
           </div>
-          <div class="btn-group mr-2 featTags">
+          <div class="btn-group featTags">
             <button id="SearchColsBtn" class="btn btn-secondary dropdown-toggle material-icons" type="button" data-toggle="dropdown">settings</button>
-            <div class="dropdown-menu bg-dark px-2" id="SearchColsDropdown"><form></form>
+            <div class="dropdown-menu bg-dark px-2 dropdown-menu-right" id="SearchColsDropdown"><form></form>
               <button data-href='{"cmd": "saveCols", "options": ["Search"]}' class="btn btn-success btn-block btn-sm mt-2">Apply</button>
             </div>          
           </div>
         </div>
+        <ol class="FeatAdvsearch breadcrumb" id="searchCrumb"></ol>
+
         <div class="table-responsive-md">
-          <table id="SearchList" class="table table-hover table-sm">
+          <table id="SearchList" class="table table-hover table-sm" data-sort="">
             <thead>
               <tr>
                 <th></th>

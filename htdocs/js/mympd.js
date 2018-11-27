@@ -276,8 +276,30 @@ function appRoute() {
     else if (app.current.app == 'Search') {
         var searchstrEl = document.getElementById('searchstr');
         searchstrEl.focus();
-        if (searchstrEl.value == '' && app.current.search != '')
-            searchstrEl.value = app.current.search;
+        if (settings.featAdvsearch) {
+            var crumbs = '';
+            var elements = app.current.search.substring(1, app.current.search.length - 1).split(' AND ');
+            for (var i = 0; i < elements.length - 1 ; i++) {
+                var value = elements[i].substring(1, elements[i].length - 1);
+                crumbs += '<button data-filter="' + encodeURI(value) + '" class="btn btn-light mr-2">' + value + '<span class="ml-2 badge badge-secondary">&times</span></button>';
+            }
+            document.getElementById('searchCrumb').innerHTML = crumbs;
+            if (searchstrEl.value == '' && elements.length >= 1) {
+                var lastEl = elements[elements.length - 1].substring(1,  elements[elements.length - 1].length - 1);
+                var lastElValue = lastEl.substring(lastEl.indexOf('\'') + 1, lastEl.length - 1);
+                if (searchstrEl.value != lastElValue)
+                    document.getElementById('searchCrumb').innerHTML += '<button data-filter="' + encodeURI(lastEl) +'" class="btn btn-light mr-2">' + lastEl + '<span href="#" class="ml-2 badge badge-secondary">&times;</span></button>';
+                var match = lastEl.substring(lastEl.indexOf(' ') + 1);
+                match = match.substring(0, match.indexOf(' '));
+                if (match == '')
+                    match = 'contains';
+                document.getElementById('searchMatch').value = match;
+            }
+        }
+        else {
+            if (searchstrEl.value == '' && app.current.search != '')
+                searchstrEl.value = app.current.search;
+        }
         if (app.last.app != app.current.app) {
             if (app.current.search != '') {
                 var colspan = settings['cols' + app.current.app].length;
@@ -289,12 +311,33 @@ function appRoute() {
         }
 
         if (app.current.search.length >= 2) {
-            sendAPI({"cmd": "MPD_API_DATABASE_SEARCH", "data": { "plist": "", "offset": app.current.page, "filter": app.current.filter, "searchstr": app.current.search}}, parseSearch);
+            if (settings.featAdvsearch) {
+                var sort = document.getElementById('SearchList').getAttribute('data-sort');
+                var sortdesc = false;
+                if (sort == '') {
+                    if (settings.tags.includes('Title'))
+                        sort = 'Title';
+                    else
+                        sort = 'Filename';
+                    document.getElementById('SearchList').setAttribute('data-sort', sort);
+                }
+                else {
+                    if (sort.indexOf('-') == 0) {
+                        sortdesc = true;
+                        sort = sort.substring(1);
+                    }
+                }
+                sendAPI({"cmd": "MPD_API_DATABASE_SEARCH_ADV", "data": { "plist": "", "offset": app.current.page, "sort": sort, "sortdesc": sortdesc, "expression": app.current.search}}, parseSearch);
+            }
+            else {
+                sendAPI({"cmd": "MPD_API_DATABASE_SEARCH", "data": { "plist": "", "offset": app.current.page, "filter": app.current.filter, "searchstr": app.current.search}}, parseSearch);
+            }
         } else {
             document.getElementById('SearchList').getElementsByTagName('tbody')[0].innerHTML = '';
             document.getElementById('searchAddAllSongs').setAttribute('disabled', 'disabled');
             document.getElementById('searchAddAllSongsBtn').setAttribute('disabled', 'disabled');
             document.getElementById('panel-heading-search').innerText = '';
+            document.getElementById('cardFooterSearch').innerText = '';
             document.getElementById('SearchList').classList.remove('opacity05');
             setPagination(0);
         }
@@ -608,8 +651,81 @@ function appInit() {
     document.getElementById('searchstr').addEventListener('keyup', function(event) {
         if (event.key == 'Escape')
             this.blur();
+        else if (event.key == 'Enter' && settings.featAdvsearch) {
+            if (this.value != '') {
+                var match = document.getElementById('searchMatch');
+                var li = document.createElement('button');
+                li.classList.add('btn', 'btn-light', 'mr-2');
+                li.setAttribute('data-filter', encodeURI(app.current.filter + ' ' + match.options[match.selectedIndex].value +' \'' + this.value + '\''));
+                li.innerHTML = app.current.filter + ' ' + match.options[match.selectedIndex].value + ' \'' + this.value + '\'<span class="ml-2 badge badge-secondary">&times;</span>';
+                this.value = '';
+                document.getElementById('searchCrumb').appendChild(li);
+            }
+            else
+                search(this.value);
+        }
         else
-            appGoto('Search', undefined, undefined, '0/' + app.current.filter + '/' + this.value);
+            search(this.value);
+    }, false);
+
+    document.getElementById('searchCrumb').addEventListener('click', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (event.target.nodeName == 'SPAN') {
+            event.target.parentNode.remove();
+            search('');
+        }
+        else if (event.target.nodeName == 'BUTTON') {
+            var value = decodeURI(event.target.getAttribute('data-filter'));
+            document.getElementById('searchstr').value = value.substring(value.indexOf('\'') + 1, value.length - 1);
+            var filter = value.substring(0, value.indexOf(' '));
+            selectTag('searchtags', 'searchtagsdesc', filter);
+            var match = value.substring(value.indexOf(' ') + 1);
+            match = match.substring(0, match.indexOf(' '));
+            document.getElementById('searchMatch').value = match;
+            event.target.remove();
+            search(document.getElementById('searchstr').value);
+        }
+    }, false);
+
+    document.getElementById('searchMatch').addEventListener('change', function(event) {
+        search(document.getElementById('searchstr').value);
+    }, false);
+    
+    document.getElementById('SearchList').getElementsByTagName('tr')[0].addEventListener('click', function(event) {
+        if (settings.featAdvsearch) {
+            if (event.target.nodeName == 'TH') {
+                var col = event.target.getAttribute('data-col');
+                if (col == 'Duration')
+                    return;
+                var sortcol = document.getElementById('SearchList').getAttribute('data-sort');
+                var sortdesc = true;
+                
+                if (sortcol == col || sortcol == '-' + col) {
+                    if (sortcol.indexOf('-') == 0) {
+                        sortdesc = true;
+                        sortcol = sortcol.substring(1);
+                    }
+                    else
+                        sortdesc = false;
+                }
+                if (sortdesc == false) {
+                    sortcol = '-' + col;
+                    sortdesc = true;
+                }
+                else {
+                    sortdesc = false;
+                    sortcol = col;
+                }
+                
+                var s = document.getElementById('SearchList').getElementsByClassName('sort-dir');
+                for (var i = 0; i < s.length; i++)
+                    s[i].remove();
+                document.getElementById('SearchList').setAttribute('data-sort', sortcol);
+                event.target.innerHTML = col + '<span class="sort-dir material-icons pull-right">' + (sortdesc == true ? 'arrow_drop_up' : 'arrow_drop_down') + '</span>';
+                appRoute();
+            }
+        }
     }, false);
 
     document.getElementById('BrowseDatabaseByTagDropdown').addEventListener('click', function(event) {
@@ -634,8 +750,8 @@ function appInit() {
     window.addEventListener('focus', function() {
         sendAPI({"cmd": "MPD_API_PLAYER_STATE"}, parseState);
     }, false);
-    
-    
+
+
     document.addEventListener('keydown', function(event) {
         if (event.target.tagName == 'INPUT' || event.target.tagName == 'SELECT' ||
             event.ctrlKey || event.altKey)
@@ -710,6 +826,28 @@ function parseCmd(event, href) {
                 window[cmd.cmd](... cmd.options);                    
         }
     }
+}
+
+function search(x) {
+    if (settings.featAdvsearch) {
+        var expression = '(';
+        var crumbs = document.getElementById('searchCrumb').children;
+        for (var i = 0; i < crumbs.length; i++) {
+            expression += '(' + decodeURI(crumbs[i].getAttribute('data-filter')) + ')';
+            if (x != '') expression += ' AND ';
+        }
+        if (x != '') {
+            var match = document.getElementById('searchMatch');
+            expression += '(' + app.current.filter + ' ' + match.options[match.selectedIndex].value + ' \'' + x +'\'))';
+        }
+        else
+            expression += ')';
+        if (expression.length <= 2)
+            expression = '';
+        appGoto('Search', undefined, undefined, '0/' + app.current.filter + '/' + encodeURI(expression));
+    }
+    else
+        appGoto('Search', undefined, undefined, '0/' + app.current.filter + '/' + x);
 }
 
 function dragAndDropTable(table) {
@@ -1059,7 +1197,7 @@ function parseSettings(obj) {
     
     toggleBtn('btnnotifyPage', settings.notificationPage);
 
-    var features = ["featStickers", "featSmartpls", "featPlaylists", "featTags", "featLocalplayer", "featSyscmds", "featCoverimage"];
+    var features = ["featStickers", "featSmartpls", "featPlaylists", "featTags", "featLocalplayer", "featSyscmds", "featCoverimage", "featAdvsearch"];
     
     for (var j = 0; j < features.length; j++) {
         var Els = document.getElementsByClassName(features[j]);
@@ -1221,6 +1359,14 @@ function setCols(table, className) {
     }
     document.getElementById(table + 'ColsDropdown').firstChild.innerHTML = tagChks;
     
+    var sort = document.getElementById('SearchList').getAttribute('data-sort');
+    if (sort == '') {
+        if (settings.featTags)
+            sort = 'Title';
+        else
+            sort = 'Filename';
+    }
+    
     if (table != 'Playback') {
         var heading = '';
         for (var i = 0; i < settings['cols' + table].length; i++) {
@@ -1228,9 +1374,20 @@ function setCols(table, className) {
             heading += '<th draggable="true" data-col="' + h  + '">';
             if (h == 'Track' || h == 'Pos')
                 h = '#';
-            heading += h + '</th>';
+            heading += h;
+
+            if (table == 'Search' && h == sort ) {
+                var sortdesc = false;
+                if (sort.indexOf('-') == 0) {
+                    sortdesc = true;
+                    sort = sort.substring(1);
+                }
+                heading += '<span class="sort-dir material-icons pull-right">' + (sortdesc == true ? 'arrow_drop_up' : 'arrow_drop_down') + '</span>';
+            }
+            heading += '</th>';
         }
         heading += '<th></th>';
+        
         if (className == undefined) 
             document.getElementById(table + 'List').getElementsByTagName('tr')[0].innerHTML = heading;
         else {
