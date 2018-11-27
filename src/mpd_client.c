@@ -2546,7 +2546,10 @@ int mympd_smartpls_clear(char *playlist) {
 
 int mympd_smartpls_update_search(char *playlist, char *tag, char *searchstr) {
     mympd_smartpls_clear(playlist);
-    mympd_search(mpd.buf, searchstr, tag, playlist, 0);
+    if (mpd.feat_advsearch == true && strcmp(tag, "expression") == 0)
+        mympd_search_adv(mpd.buf, searchstr, NULL, true, NULL, playlist, 0);
+    else
+        mympd_search(mpd.buf, searchstr, tag, playlist, 0);
     printf("Updated %s\n", playlist);
     return 0;
 }
