@@ -32,6 +32,7 @@ set(SOURCES
     src/mympd.c
     src/mpd_client.c
     src/list.c
+    src/validate.c
     dist/src/mongoose/mongoose.c
     dist/src/frozen/frozen.c
     dist/src/inih/ini.c

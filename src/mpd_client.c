@@ -33,6 +33,7 @@
 #include <mpd/client.h>
 
 #include "mpd_client.h"
+#include "validate.h"
 #include "config.h"
 #include "../dist/src/frozen/frozen.h"
 
@@ -119,31 +120,31 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                 int len = strlen(cols); 
                 if (len > 1)
                     cols[len - 2]  = '\0';
-                if (strcmp(p_charbuf1,"colsQueueCurrent")==0) {
+                if (strcmp(p_charbuf1, "colsQueueCurrent")==0) {
                     free(mympd_state.colsQueueCurrent);
                     mympd_state.colsQueueCurrent = strdup(cols);
                 }
-                else if (strcmp(p_charbuf1,"colsSearch")==0) {
+                else if (strcmp(p_charbuf1, "colsSearch")==0) {
                     free(mympd_state.colsSearch);
                     mympd_state.colsSearch = strdup(cols);
                 }
-                else if (strcmp(p_charbuf1,"colsBrowseDatabase")==0) {
+                else if (strcmp(p_charbuf1, "colsBrowseDatabase")==0) {
                     free(mympd_state.colsBrowseDatabase);
                     mympd_state.colsBrowseDatabase = strdup(cols);
                 }
-                else if (strcmp(p_charbuf1,"colsBrowsePlaylistsDetail")==0) {
+                else if (strcmp(p_charbuf1, "colsBrowsePlaylistsDetail")==0) {
                     free(mympd_state.colsBrowsePlaylistsDetail);
                     mympd_state.colsBrowsePlaylistsDetail = strdup(cols);
                 }
-                else if (strcmp(p_charbuf1,"colsBrowseFilesystem")==0) {
+                else if (strcmp(p_charbuf1, "colsBrowseFilesystem")==0) {
                     free(mympd_state.colsBrowseFilesystem);
                     mympd_state.colsBrowseFilesystem = strdup(cols);
                 }
-                else if (strcmp(p_charbuf1,"colsPlayback")==0) {
+                else if (strcmp(p_charbuf1, "colsPlayback")==0) {
                     free(mympd_state.colsPlayback);
                     mympd_state.colsPlayback = strdup(cols);
                 }
-                else if (strcmp(p_charbuf1,"colsQueueLastPlayed")==0) {
+                else if (strcmp(p_charbuf1, "colsQueueLastPlayed")==0) {
                     free(mympd_state.colsQueueLastPlayed);
                     mympd_state.colsQueueLastPlayed = strdup(cols);
                 }
@@ -449,6 +450,8 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                 //rename smart playlist
                 char old_pl_file[400];
                 char new_pl_file[400];
+                sanitize_string(p_charbuf1);
+                sanitize_string(p_charbuf2);
                 snprintf(old_pl_file, 400, "%s/smartpls/%s", config.varlibdir, p_charbuf1);
                 snprintf(new_pl_file, 400, "%s/smartpls/%s", config.varlibdir, p_charbuf2);
                 if (access(old_pl_file, F_OK ) != -1) {
@@ -465,7 +468,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                     n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"Renamed playlist %s to %s\"}", p_charbuf1, p_charbuf2);
                 }
                 free(p_charbuf1);
-                free(p_charbuf2);                
+                free(p_charbuf2);
             }
             break;            
         case MPD_API_PLAYLIST_LIST:
@@ -623,6 +626,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
             if (je == 1) {
                 //remove smart playlist
                 char pl_file[400];
+                sanitize_string(p_charbuf1);
                 snprintf(pl_file, 400, "%s/smartpls/%s", config.varlibdir, p_charbuf1);
                 if (access(pl_file, F_OK ) != -1 )
                     unlink(pl_file);
@@ -1353,6 +1357,7 @@ bool mympd_state_get(char *name, char *value) {
     size_t n = 0;
     ssize_t read;
     
+    sanitize_string(name);
     snprintf(cfgfile, 400, "%s/state/%s", config.varlibdir, name);
     FILE *fp = fopen(cfgfile, "r");
     if (fp == NULL) {
@@ -1374,6 +1379,8 @@ bool mympd_state_get(char *name, char *value) {
 bool mympd_state_set(const char *name, const char *value) {
     char tmpfile[400];
     char cfgfile[400];
+    
+    sanitize_string(name);
     snprintf(cfgfile, 400, "%s/state/%s", config.varlibdir, name);
     snprintf(tmpfile, 400, "%s/tmp/%s", config.varlibdir, name);
         
@@ -1395,6 +1402,7 @@ int mympd_syscmd(char *buffer, char *cmd, int order) {
     size_t n = 0;
     ssize_t read;
     
+    sanitize_string(cmd);
     snprintf(filename, 400, "%s/syscmds/%d%s", config.etcdir, order, cmd);
     FILE *fp = fopen(filename, "r");    
     if (fp == NULL) {
@@ -1878,6 +1886,7 @@ int mympd_put_browse(char *buffer, char *path, unsigned int offset, char *filter
                     ) {
                         if (entities_returned++) 
                             len += json_printf(&out, ",");
+                        sanitize_string(plName);
                         snprintf(smartpls_file, 400, "%s/smartpls/%s", config.varlibdir, plName);
                         if (access(smartpls_file, F_OK ) != -1)
                             smartpls = true;
@@ -2050,6 +2059,7 @@ int mympd_put_playlists(char *buffer, unsigned int offset, char *filter) {
                 if (entities_returned++)
                     len += json_printf(&out, ", ");
                 snprintf(smartpls_file, 400, "%s/smartpls/%s", config.varlibdir, plpath);
+                sanitize_string(plpath);
                 if (access(smartpls_file, F_OK ) != -1)
                     smartpls = true;
                 else
@@ -2116,6 +2126,7 @@ int mympd_put_playlist_list(char *buffer, char *uri, unsigned int offset, char *
         }
         mpd_entity_free(entity);
     }
+    sanitize_string(uri);
     snprintf(smartpls_file, 400, "%s/smartpls/%s", config.varlibdir, uri);
     if (access(smartpls_file, F_OK ) != -1)
         smartpls = true;
@@ -2392,6 +2403,7 @@ int mympd_smartpls_put(char *buffer, char *playlist) {
     int len = 0;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
     
+    sanitize_string(playlist);
     snprintf(pl_file, 400, "%s/smartpls/%s", config.varlibdir, playlist);
     char *content = json_fread(pl_file);
     je = json_scanf(content, strlen(content), "{type: %Q }", &smartpltype);
@@ -2436,6 +2448,7 @@ int mympd_smartpls_put(char *buffer, char *playlist) {
 int mympd_smartpls_save(char *smartpltype, char *playlist, char *tag, char *searchstr, int maxentries, int timerange) {
     char tmp_file[400];
     char pl_file[400];
+    sanitize_string(playlist);
     snprintf(tmp_file, 400, "%s/tmp/%s", config.varlibdir, playlist);
     snprintf(pl_file, 400, "%s/smartpls/%s", config.varlibdir, playlist);
     if (strcmp(smartpltype, "sticker") == 0) {
