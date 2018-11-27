@@ -2053,7 +2053,7 @@ int mympd_put_playlists(char *buffer, unsigned int offset, char *filter) {
         entity_count++;
         if (entity_count > offset && entity_count <= offset + config.max_elements_per_page) {
             plpath = mpd_playlist_get_path(pl);
-            if (strncmp(filter,"-",1) == 0 || strncasecmp(filter, plpath, 1) == 0 ||
+            if (strncmp(filter, "-", 1) == 0 || strncasecmp(filter, plpath, 1) == 0 ||
                     (strncmp(filter, "0", 1) == 0 && isalpha(*plpath) == 0 )
             ) {
                 if (entities_returned++)

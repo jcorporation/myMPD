@@ -90,6 +90,8 @@ domCache.currentTitle = document.getElementById('currentTitle');
 domCache.btnVoteUp = document.getElementById('btnVoteUp');
 domCache.btnVoteDown = document.getElementById('btnVoteDown');
 domCache.badgeQueueItems = document.getElementById('badgeQueueItems');
+domCache.searchstr = document.getElementById('searchstr');
+domCache.searchCrumb = document.getElementById('searchCrumb');
 
 var modalConnectionError = new Modal(document.getElementById('modalConnectionError'), { backdrop: 'static', keyboard: false});
 var modalSettings = new Modal(document.getElementById('modalSettings'));
@@ -274,8 +276,7 @@ function appRoute() {
         doSetFilterLetter('BrowseFilesystemFilter');
     }
     else if (app.current.app == 'Search') {
-        var searchstrEl = document.getElementById('searchstr');
-        searchstrEl.focus();
+        domCache.searchstr.focus();
         if (settings.featAdvsearch) {
             var crumbs = '';
             var elements = app.current.search.substring(1, app.current.search.length - 1).split(' AND ');
@@ -283,12 +284,12 @@ function appRoute() {
                 var value = elements[i].substring(1, elements[i].length - 1);
                 crumbs += '<button data-filter="' + encodeURI(value) + '" class="btn btn-light mr-2">' + value + '<span class="ml-2 badge badge-secondary">&times</span></button>';
             }
-            document.getElementById('searchCrumb').innerHTML = crumbs;
-            if (searchstrEl.value == '' && elements.length >= 1) {
+            domCache.searchCrumb.innerHTML = crumbs;
+            if (domCache.searchstr.value == '' && elements.length >= 1) {
                 var lastEl = elements[elements.length - 1].substring(1,  elements[elements.length - 1].length - 1);
                 var lastElValue = lastEl.substring(lastEl.indexOf('\'') + 1, lastEl.length - 1);
-                if (searchstrEl.value != lastElValue)
-                    document.getElementById('searchCrumb').innerHTML += '<button data-filter="' + encodeURI(lastEl) +'" class="btn btn-light mr-2">' + lastEl + '<span href="#" class="ml-2 badge badge-secondary">&times;</span></button>';
+                if (domCache.searchstr.value != lastElValue)
+                    domCache.searchCrumb.innerHTML += '<button data-filter="' + encodeURI(lastEl) +'" class="btn btn-light mr-2">' + lastEl + '<span href="#" class="ml-2 badge badge-secondary">&times;</span></button>';
                 var match = lastEl.substring(lastEl.indexOf(' ') + 1);
                 match = match.substring(0, match.indexOf(' '));
                 if (match == '')
@@ -297,8 +298,8 @@ function appRoute() {
             }
         }
         else {
-            if (searchstrEl.value == '' && app.current.search != '')
-                searchstrEl.value = app.current.search;
+            if (domCache.searchstr.value == '' && app.current.search != '')
+                domCache.searchstr.value = app.current.search;
         }
         if (app.last.app != app.current.app) {
             if (app.current.search != '') {
@@ -310,7 +311,7 @@ function appRoute() {
             }
         }
 
-        if (app.current.search.length >= 2) {
+        if (domCache.searchstr.value.length >= 2 || domCache.searchCrumb.children.length > 0) {
             if (settings.featAdvsearch) {
                 var sort = document.getElementById('SearchList').getAttribute('data-sort');
                 var sortdesc = false;
@@ -648,7 +649,7 @@ function appInit() {
         return false;
     }, false);
 
-    document.getElementById('searchstr').addEventListener('keyup', function(event) {
+    domCache.searchstr.addEventListener('keyup', function(event) {
         if (event.key == 'Escape')
             this.blur();
         else if (event.key == 'Enter' && settings.featAdvsearch) {
@@ -659,7 +660,7 @@ function appInit() {
                 li.setAttribute('data-filter', encodeURI(app.current.filter + ' ' + match.options[match.selectedIndex].value +' \'' + this.value + '\''));
                 li.innerHTML = app.current.filter + ' ' + match.options[match.selectedIndex].value + ' \'' + this.value + '\'<span class="ml-2 badge badge-secondary">&times;</span>';
                 this.value = '';
-                document.getElementById('searchCrumb').appendChild(li);
+                domCache.searchCrumb.appendChild(li);
             }
             else
                 search(this.value);
@@ -668,7 +669,7 @@ function appInit() {
             search(this.value);
     }, false);
 
-    document.getElementById('searchCrumb').addEventListener('click', function(event) {
+    domCache.searchCrumb.addEventListener('click', function(event) {
         event.preventDefault();
         event.stopPropagation();
         if (event.target.nodeName == 'SPAN') {
@@ -677,19 +678,19 @@ function appInit() {
         }
         else if (event.target.nodeName == 'BUTTON') {
             var value = decodeURI(event.target.getAttribute('data-filter'));
-            document.getElementById('searchstr').value = value.substring(value.indexOf('\'') + 1, value.length - 1);
+            domCache.searchstr.value = value.substring(value.indexOf('\'') + 1, value.length - 1);
             var filter = value.substring(0, value.indexOf(' '));
             selectTag('searchtags', 'searchtagsdesc', filter);
             var match = value.substring(value.indexOf(' ') + 1);
             match = match.substring(0, match.indexOf(' '));
             document.getElementById('searchMatch').value = match;
             event.target.remove();
-            search(document.getElementById('searchstr').value);
+            search(domCache.searchstr.value);
         }
     }, false);
 
     document.getElementById('searchMatch').addEventListener('change', function(event) {
-        search(document.getElementById('searchstr').value);
+        search(domCache.searchstr.value);
     }, false);
     
     document.getElementById('SearchList').getElementsByTagName('tr')[0].addEventListener('click', function(event) {
@@ -831,7 +832,7 @@ function parseCmd(event, href) {
 function search(x) {
     if (settings.featAdvsearch) {
         var expression = '(';
-        var crumbs = document.getElementById('searchCrumb').children;
+        var crumbs = domCache.searchCrumb.children;
         for (var i = 0; i < crumbs.length; i++) {
             expression += '(' + decodeURI(crumbs[i].getAttribute('data-filter')) + ')';
             if (x != '') expression += ' AND ';
@@ -3107,7 +3108,7 @@ function focusSearch() {
     if (app.current.app == 'Queue')
         document.getElementById('searchqueuestr').focus();
     else if (app.current.app == 'Search')
-        document.getElementById('searchstr').focus();
+        domCache.searchstr.focus();
     else
         appGoto('Search');
 }

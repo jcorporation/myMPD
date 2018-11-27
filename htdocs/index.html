@@ -136,7 +136,7 @@
             <div class="input-group-prepend">
               <button type="button" class="btn btn-secondary material-icons" data-href='{"cmd": "sendAPI", "options": [{"cmd": "MPD_API_QUEUE_CLEAR"}]}' title="Clear queue">clear_all</button>
               <button id="clearQueueBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-right" type="button" data-toggle="dropdown"></button>
-              <div class="dropdown-menu bg-dark dropdown-menu-right px-2" id="clearQueueDropdown">
+              <div class="dropdown-menu bg-dark px-2" id="clearQueueDropdown">
                   <button type="button" class="btn btn-secondary btn-sm btn-block" data-href='{"cmd": "sendAPI", "options": [{"cmd": "MPD_API_QUEUE_CLEAR"}]}' >Clear queue</button>
                   <button type="button" class="btn btn-secondary btn-sm btn-block" data-href='{"cmd": "sendAPI", "options": [{"cmd": "MPD_API_QUEUE_CROP"}]}' >Crop queue</button>
               </div>
@@ -144,15 +144,16 @@
           </div>
           <form id="searchqueue" class="flex-grow-1">
             <div class="input-group mr-2">
-              <input type="text" class="form-control" placeholder="Search Queue" id="searchqueuestr"/>
-              <div class="input-group-append">
+              <div class="input-group-prepend">
                 <button title="Select tags to search" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
                   <span class="material-icons">search</span>
                   <span id="searchqueuetagsdesc">Any Tag</span>
                 </button>
-                <div class="dropdown-menu bg-dark dropdown-menu-right px-2" id="searchqueuetags">
+                <div class="dropdown-menu bg-dark px-2" id="searchqueuetags">
                 </div>
               </div>
+              <input type="text" class="form-control" placeholder="Search Queue" id="searchqueuestr"/>
+              
             </div>
           </form>
           <div id="QueueCurrentPaginationTop" class="btn-group mr-2 hide">
@@ -447,7 +448,7 @@
             <div class="input-group-prepend">
               <button data-href='{"cmd": "addAllFromBrowseFilesystem", "options": []}' id="BrowseFilesystemAddAllSongs" class="btn btn-secondary material-icons">library_add</button>
               <button id="BrowseFilesystemAddAllSongsBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-right" type="button" data-toggle="dropdown"></button>
-              <div class="dropdown-menu bg-dark dropdown-menu-right px-2" id="BrowseFilesystemAddAllSongsDropdown">
+              <div class="dropdown-menu bg-dark px-2" id="BrowseFilesystemAddAllSongsDropdown">
                 <button type="button" class="btn btn-secondary btn-sm btn-block">Add all to queue</button>
                 <button type="button" class="btn btn-secondary btn-sm btn-block featPlaylists">Add all to playlist</button>
               </div>
