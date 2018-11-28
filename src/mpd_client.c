@@ -96,6 +96,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
     switch(cmd_id) {
         case MPD_API_UNKNOWN:
             n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Unknown request\"}");
+            printf("Unknown API request: %s\n", msg.p);
             break;
         case MPD_API_LIKE:
             if (config.stickers) {
@@ -108,6 +109,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
             } 
             else {
                 n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"MPD stickers are disabled\"}");
+                printf("MPD_API_LIKE: MPD stickers are disabled\n");
             }
             break;
         case MPD_API_COLS_SAVE:
@@ -119,38 +121,44 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                 int len = strlen(cols); 
                 if (len > 1)
                     cols[len - 2]  = '\0';
-                if (strcmp(p_charbuf1, "colsQueueCurrent")==0) {
+                if (strcmp(p_charbuf1, "colsQueueCurrent") == 0) {
                     free(mympd_state.colsQueueCurrent);
                     mympd_state.colsQueueCurrent = strdup(cols);
                 }
-                else if (strcmp(p_charbuf1, "colsSearch")==0) {
+                else if (strcmp(p_charbuf1, "colsSearch") == 0) {
                     free(mympd_state.colsSearch);
                     mympd_state.colsSearch = strdup(cols);
                 }
-                else if (strcmp(p_charbuf1, "colsBrowseDatabase")==0) {
+                else if (strcmp(p_charbuf1, "colsBrowseDatabase") == 0) {
                     free(mympd_state.colsBrowseDatabase);
                     mympd_state.colsBrowseDatabase = strdup(cols);
                 }
-                else if (strcmp(p_charbuf1, "colsBrowsePlaylistsDetail")==0) {
+                else if (strcmp(p_charbuf1, "colsBrowsePlaylistsDetail") == 0) {
                     free(mympd_state.colsBrowsePlaylistsDetail);
                     mympd_state.colsBrowsePlaylistsDetail = strdup(cols);
                 }
-                else if (strcmp(p_charbuf1, "colsBrowseFilesystem")==0) {
+                else if (strcmp(p_charbuf1, "colsBrowseFilesystem") == 0) {
                     free(mympd_state.colsBrowseFilesystem);
                     mympd_state.colsBrowseFilesystem = strdup(cols);
                 }
-                else if (strcmp(p_charbuf1, "colsPlayback")==0) {
+                else if (strcmp(p_charbuf1, "colsPlayback") == 0) {
                     free(mympd_state.colsPlayback);
                     mympd_state.colsPlayback = strdup(cols);
                 }
-                else if (strcmp(p_charbuf1, "colsQueueLastPlayed")==0) {
+                else if (strcmp(p_charbuf1, "colsQueueLastPlayed") == 0) {
                     free(mympd_state.colsQueueLastPlayed);
                     mympd_state.colsQueueLastPlayed = strdup(cols);
                 }
+                else {
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Unknown column %s\"}", p_charbuf1);
+                    printf("MPD_API_COLS_SAVE: Unknown table %s\n", p_charbuf1);
+                    free(p_charbuf1);
+                    break;
+                }
                 mympd_state_set(p_charbuf1, cols);
                 free(p_charbuf1);
+                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
-            n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             break;
         case MPD_API_SYSCMD:
             if (config.syscmds == true) {
@@ -159,6 +167,10 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                     int_buf1 = list_get_value(&syscmds, p_charbuf1);
                     if (int_buf1 > -1)
                         n = mympd_syscmd(mpd.buf, p_charbuf1, int_buf1);
+                    else {
+                        printf("MPD_API_SYSCMD: Syscmd not defined: %s\n", p_charbuf1);
+                        n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"System command not defined\"}");
+                    }
                     free(p_charbuf1);
                 }
             } 
@@ -282,7 +294,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
             if (n == 0)
                 n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             else
-                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Error saving playlist\"}");
+                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Saving playlist failed\"}");
             break;
         case MPD_API_SMARTPLS_GET:
             je = json_scanf(msg.p, msg.len, "{data: {playlist: %Q}}", &p_charbuf1);
@@ -292,30 +304,54 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
             }
             break;
         case MPD_API_PLAYER_PAUSE:
-            mpd_run_toggle_pause(mpd.conn);
-            n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+            if (mpd_run_toggle_pause(mpd.conn))
+                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+            else {
+                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Toggling player pause failed.\"}");
+                printf("MPD_API_PLAYER_PAUSE: Error mpd_run_toggle_pause()\n");
+            }
             break;
         case MPD_API_PLAYER_PREV:
-            mpd_run_previous(mpd.conn);
-            n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+            if (mpd_run_previous(mpd.conn))
+                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+            else {
+                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Goto previous song failed.\"}");
+                printf("MPD_API_PLAYER_PREV: Error mpd_run_previous()\n");
+            }
             break;
         case MPD_API_PLAYER_NEXT:
             if (config.stickers)
                 mympd_count_song_id(mpd.song_id, "skipCount", 1);
-            mpd_run_next(mpd.conn);
-            n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+            if (mpd_run_next(mpd.conn))
+                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+            else {
+                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Skip to next song failed.\"}");
+                printf("MPD_API_PLAYER_NEXT: Error mpd_run_next()\n");
+            }
             break;
         case MPD_API_PLAYER_PLAY:
-            mpd_run_play(mpd.conn);
-            n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+            if (mpd_run_play(mpd.conn))
+                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+            else {
+                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Begin to play failed.\"}");
+                printf("MPD_API_PLAYER_PLAY: Error mpd_run_play()\n");
+            }
             break;
         case MPD_API_PLAYER_STOP:
-            mpd_run_stop(mpd.conn);
-            n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+            if (mpd_run_stop(mpd.conn))
+                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+            else {
+                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Stopping player failed.\"}");
+                printf("MPD_API_PLAYER_STOP: Error mpd_run_stop()\n");
+            }
             break;
         case MPD_API_QUEUE_CLEAR:
-            mpd_run_clear(mpd.conn);
-            n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+            if (mpd_run_clear(mpd.conn))
+                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+            else {
+                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Clearing playlist failed.\"}");
+                printf("MPD_API_QUEUE_CLEAR: Error mpd_run_clear()\n");
+            }
             break;
         case MPD_API_QUEUE_CROP:
             n = mympd_queue_crop(mpd.buf);
@@ -323,15 +359,23 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
         case MPD_API_QUEUE_RM_TRACK:
             je = json_scanf(msg.p, msg.len, "{data: {track:%u}}", &uint_buf1);
             if (je == 1) {
-                mpd_run_delete_id(mpd.conn, uint_buf1);
-                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+                if (mpd_run_delete_id(mpd.conn, uint_buf1))
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+                else {
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Removing track from queue failed.\"}");
+                    printf("MPD_API_QUEUE_RM_TRACK: Error mpd_run_delete_id()\n");
+                }
             }
             break;
         case MPD_API_QUEUE_RM_RANGE:
             je = json_scanf(msg.p, msg.len, "{data: {start: %u, end: %u}}", &uint_buf1, &uint_buf2);
             if (je == 2) {
-                mpd_run_delete_range(mpd.conn, uint_buf1, uint_buf2);
-                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+                if (mpd_run_delete_range(mpd.conn, uint_buf1, uint_buf2))
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+                else {
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Removing track range from queue failed.\"}");
+                    printf("MPD_API_QUEUE_RM_RANGE: Error mpd_run_delete_range()\n");
+                }
             }
             break;
         case MPD_API_QUEUE_MOVE_TRACK:
@@ -341,8 +385,12 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                 uint_buf2--;
                 if (uint_buf1 < uint_buf2)
                     uint_buf2--;
-                mpd_run_move(mpd.conn, uint_buf1, uint_buf2);
-                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+                if (mpd_run_move(mpd.conn, uint_buf1, uint_buf2))
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+                else {
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Moving track in queue failed.\"}");
+                    printf("MPD_API_QUEUE_MOVE_TRACK: Error mpd_run_move()\n");
+                }
             }
             break;
         case MPD_API_PLAYLIST_MOVE_TRACK:
@@ -352,17 +400,26 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                 uint_buf2--;
                 if (uint_buf1 < uint_buf2)
                     uint_buf2--;
-                mpd_send_playlist_move(mpd.conn, p_charbuf1, uint_buf1, uint_buf2);
-                mpd_response_finish(mpd.conn);
+                if (mpd_send_playlist_move(mpd.conn, p_charbuf1, uint_buf1, uint_buf2)) {
+                    mpd_response_finish(mpd.conn);
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+                }
+                else {
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Moving track in playlist failed.\"}");
+                    printf("MPD_API_PLAYLIST_MOVE_TRACK: Error mpd_send_playlist_move()\n");
+                }
                 free(p_charbuf1);
-                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
             break;
         case MPD_API_PLAYER_PLAY_TRACK:
             je = json_scanf(msg.p, msg.len, "{data: { track:%u}}", &uint_buf1);
             if (je == 1) {
-                mpd_run_play_id(mpd.conn, uint_buf1);
-                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+                if (mpd_run_play_id(mpd.conn, uint_buf1))
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+                else {
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Set playing track failed.\"}");
+                    printf("MPD_API_PLAYER_PLAY_TRACK: Error mpd_run_play_id()\n");
+                }
             }
             break;
         case MPD_API_PLAYER_OUTPUT_LIST:
@@ -371,18 +428,33 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
         case MPD_API_PLAYER_TOGGLE_OUTPUT:
             je = json_scanf(msg.p, msg.len, "{data: {output: %u, state: %u}}", &uint_buf1, &uint_buf2);
             if (je == 2) {
-                if (uint_buf2)
-                    mpd_run_enable_output(mpd.conn, uint_buf1);
-                else
-                    mpd_run_disable_output(mpd.conn, uint_buf1);
-                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+                if (uint_buf2) {
+                    if (mpd_run_enable_output(mpd.conn, uint_buf1))
+                        n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+                    else {
+                        n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Enabling output failed.\"}");
+                        printf("MPD_API_PLAYER_TOGGLE_OUTPUT: Error mpd_run_enable_output()\n");
+                    }
+                }
+                else {
+                    if (mpd_run_disable_output(mpd.conn, uint_buf1))
+                        n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+                    else {
+                        n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Disabling output failed.\"}");
+                        printf("MPD_API_PLAYER_TOGGLE_OUTPUT: Error mpd_run_disable_output()\n");
+                    }
+                }
             }
             break;
         case MPD_API_PLAYER_VOLUME_SET:
             je = json_scanf(msg.p, msg.len, "{data: {volume:%u}}", &uint_buf1);
             if (je == 1) {
-                mpd_run_set_volume(mpd.conn, uint_buf1);
-                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+                if (mpd_run_set_volume(mpd.conn, uint_buf1))
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+                else {
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Setting volume failed.\"}");
+                    printf("MPD_API_PLAYER_PLAY_TRACK: Error mpd_run_set_volume()\n");
+                }
             }
             break;
         case MPD_API_PLAYER_VOLUME_GET:
@@ -391,8 +463,12 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
         case MPD_API_PLAYER_SEEK:
             je = json_scanf(msg.p, msg.len, "{data: {songid: %u, seek: %u}}", &uint_buf1, &uint_buf2);
             if (je == 2) {
-                mpd_run_seek_id(mpd.conn, uint_buf1, uint_buf2);
-                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+                if (mpd_run_seek_id(mpd.conn, uint_buf1, uint_buf2))
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+                else {
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Seeking song failed.\"}");
+                    printf("MPD_API_PLAYER_SEEK: Error mpd_run_seek_id()\n");
+                }
             }
             break;
         case MPD_API_QUEUE_LIST:
@@ -455,16 +531,27 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                 snprintf(new_pl_file, 400, "%s/smartpls/%s", config.varlibdir, p_charbuf2);
                 if (access(old_pl_file, F_OK ) != -1) {
                     if (access(new_pl_file, F_OK ) == -1) {
-                        rename(old_pl_file, new_pl_file);
+                        if (rename(old_pl_file, new_pl_file) == -1) {
+                            n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Renaming playlist failed.\"}");
+                            printf("MPD_API_PLAYLIST_RENAME: Rename failed()\n");
+                        }
                         //rename mpd playlist
-                        mpd_run_rename(mpd.conn, p_charbuf1, p_charbuf2);
-                        n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"Renamed playlist %s to %s\"}", p_charbuf1, p_charbuf2);
+                        else if (mpd_run_rename(mpd.conn, p_charbuf1, p_charbuf2))
+                            n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"Renamed playlist %s to %s\"}", p_charbuf1, p_charbuf2);
+                        else {
+                            n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Renaming playlist failed.\"}");
+                            printf("MPD_API_PLAYLIST_RENAME: Error mpd_run_rename()\n");
+                        }
                     } else 
-                        n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Renamed playlist %s already exists\"}", p_charbuf2);
+                        n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Destination playlist %s already exists\"}", p_charbuf2);
                 }
                 else {
-                    mpd_run_rename(mpd.conn, p_charbuf1, p_charbuf2);
-                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"Renamed playlist %s to %s\"}", p_charbuf1, p_charbuf2);
+                    if (mpd_run_rename(mpd.conn, p_charbuf1, p_charbuf2))
+                        n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"Renamed playlist %s to %s\"}", p_charbuf1, p_charbuf2);
+                    else {
+                        n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Renaming playlist failed.\"}");
+                        printf("MPD_API_PLAYLIST_RENAME: Error mpd_run_rename()\n");
+                    }
                 }
                 free(p_charbuf1);
                 free(p_charbuf2);
@@ -488,8 +575,12 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
         case MPD_API_PLAYLIST_ADD_TRACK:
             je = json_scanf(msg.p, msg.len, "{data: {plist:%Q, uri:%Q}}", &p_charbuf1, &p_charbuf2);
             if (je == 2) {
-                mpd_run_playlist_add(mpd.conn, p_charbuf1, p_charbuf2);
-                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"Added %s to playlist %s\"}", p_charbuf2, p_charbuf1);
+                if (mpd_run_playlist_add(mpd.conn, p_charbuf1, p_charbuf2))
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"Added %s to playlist %s\"}", p_charbuf2, p_charbuf1);
+                else {
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Adding song to playlist failed.\"}");
+                    printf("MPD_API_PLAYLIST_ADD_TRACK: Error mpd_run_playlist_add()\n");
+                }
                 free(p_charbuf1);
                 free(p_charbuf2);                
             }
@@ -497,17 +588,25 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
         case MPD_API_PLAYLIST_CLEAR:
             je = json_scanf(msg.p, msg.len, "{data: {uri:%Q}}", &p_charbuf1);
             if (je == 1) {
-                mpd_run_playlist_clear(mpd.conn, p_charbuf1);
+                if (mpd_run_playlist_clear(mpd.conn, p_charbuf1))
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+                else {
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Clearing playlist failed.\"}");
+                    printf("MPD_API_PLAYLIST_CLEAR: Error mpd_run_playlist_clear()\n");
+                }
                 free(p_charbuf1);
-                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
             break;
         case MPD_API_PLAYLIST_RM_TRACK:
             je = json_scanf(msg.p, msg.len, "{data: {uri:%Q, track:%u}}", &p_charbuf1, &uint_buf1);
             if (je == 2) {
-                mpd_run_playlist_delete(mpd.conn, p_charbuf1, uint_buf1);
+                if (mpd_run_playlist_delete(mpd.conn, p_charbuf1, uint_buf1))
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+                else {
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Removing track from playlist failed.\"}");
+                    printf("MPD_API_PLAYLIST_RM_TRACK: Error mpd_run_playlist_delete()\n");
+                }
                 free(p_charbuf1);
-                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
             break;
         case MPD_API_DATABASE_FILESYSTEM_LIST:
@@ -524,61 +623,106 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                 int_rc = mpd_run_add_id_to(mpd.conn, p_charbuf1, int_buf1);
                 if (int_rc > -1 ) 
                     n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+                else {
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Adding track to queue failed.\"}");
+                    printf("MPD_API_QUEUE_ADD_TRACK_AFTER: Error mpd_run_add_id_to()\n");
+                }
                 free(p_charbuf1);
             }
             break;
         case MPD_API_QUEUE_REPLACE_TRACK:
             je = json_scanf(msg.p, msg.len, "{data: {uri:%Q }}", &p_charbuf1);
             if (je == 1) {
-                mpd_run_clear(mpd.conn);
-                mpd_run_add(mpd.conn, p_charbuf1);
+                if (!mpd_run_clear(mpd.conn)) {
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Clearing queue failed.\"}");
+                    printf("MPD_API_QUEUE_REPLACE_TRACK: Error mpd_run_add_id_to()\n");                
+                }
+                else if (!mpd_run_add(mpd.conn, p_charbuf1)) {
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Adding track to queue failed.\"}");
+                    printf("MPD_API_QUEUE_REPLACE_TRACK: Error mpd_run_add_id_to()\n");                
+                }
+                else if (!mpd_run_play(mpd.conn)) {
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Playing failed.\"}");
+                    printf("MPD_API_QUEUE_REPLACE_TRACK: Error mpd_run_play()\n");                
+                }
+                else
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
                 free(p_charbuf1);
-                mpd_run_play(mpd.conn);
-                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
             break;
         case MPD_API_QUEUE_ADD_TRACK:
             je = json_scanf(msg.p, msg.len, "{data: {uri:%Q}}", &p_charbuf1);
             if (je == 1) {
-                mpd_run_add(mpd.conn, p_charbuf1);
+                if (mpd_run_add(mpd.conn, p_charbuf1))
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+                else {
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Append track to queue failed.\"}");
+                    printf("MPD_API_QUEUE_ADD_TRACK: Error mpd_run_add()\n");
+                }
                 free(p_charbuf1);
-                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
             break;
         case MPD_API_QUEUE_ADD_PLAY_TRACK:
             je = json_scanf(msg.p, msg.len, "{data: {uri:%Q}}", &p_charbuf1);
             if (je == 1) {
                 int_buf1 = mpd_run_add_id(mpd.conn, p_charbuf1);
-                if (int_buf1 != -1)
-                    mpd_run_play_id(mpd.conn, int_buf1);
+                if (int_buf1 != -1) {
+                    if (mpd_run_play_id(mpd.conn, int_buf1))
+                        n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+                    else {
+                        n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Setting playstate failed.\"}");
+                        printf("MPD_API_QUEUE_ADD_PLAY_TRACK: Error mpd_run_play_id()\n");
+                    }
+                }
+                else {
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Adding track to queue failed.\"}");
+                    printf("MPD_API_QUEUE_ADD_PLAY_TRACK: Error mpd_run_add_id()\n");
+                }
                 free(p_charbuf1);
-                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
             break;
         case MPD_API_QUEUE_REPLACE_PLAYLIST:
             je = json_scanf(msg.p, msg.len, "{data: {plist:%Q}}", &p_charbuf1);
             if (je == 1) {
-                mpd_run_clear(mpd.conn);
-                mpd_run_load(mpd.conn, p_charbuf1);
+                if (!mpd_run_clear(mpd.conn)) {
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Clearing queue failed.\"}");
+                    printf("MPD_API_QUEUE_REPLACE_PLAYLIST: Error mpd_run_clear()\n");                
+                }
+                else if (!mpd_run_load(mpd.conn, p_charbuf1)) {
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Adding playlist to queue failed.\"}");
+                    printf("MPD_API_QUEUE_REPLACE_PLAYLIST: Error mpd_run_load()\n");
+                }
+                else if (!mpd_run_play(mpd.conn)) {
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Setting playstate failed.\"}");
+                    printf("MPD_API_QUEUE_REPLACE_PLAYLIST: Error mpd_run_play()\n");
+                }
+                else
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
                 free(p_charbuf1);
-                mpd_run_play(mpd.conn);
-                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
             break;
         case MPD_API_QUEUE_ADD_PLAYLIST:
             je = json_scanf(msg.p, msg.len, "{data: {plist:%Q}}", &p_charbuf1);
             if (je == 1) {
-                mpd_run_load(mpd.conn, p_charbuf1);
+                if (mpd_run_load(mpd.conn, p_charbuf1))
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+                else {
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Adding playlist to queue failed.\"}");
+                    printf("MPD_API_QUEUE_ADD_PLAYLIST: Error mpd_run_add_id()\n");
+                }
                 free(p_charbuf1);
-                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
             break;
         case MPD_API_QUEUE_SAVE:
             je = json_scanf(msg.p, msg.len, "{ data: {plist:%Q}}", &p_charbuf1);
             if (je == 1) {
-                mpd_run_save(mpd.conn, p_charbuf1);
+                if (mpd_run_save(mpd.conn, p_charbuf1))
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+                else {
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Saving queue as playlist failed.\"}");
+                    printf("MPD_API_QUEUE_SAVE: Error mpd_run_save()\n");
+                }
                 free(p_charbuf1);
-                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
             break;
         case MPD_API_QUEUE_SEARCH:
@@ -608,16 +752,11 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
             }
             break;
         case MPD_API_QUEUE_SHUFFLE:
-            mpd_run_shuffle(mpd.conn);
-            n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
-            break;
-        case MPD_API_MESSAGE_SEND:
-            je = json_scanf(msg.p, msg.len, "{data: { channel:%Q, text:%Q}}", &p_charbuf1, &p_charbuf2);
-            if (je == 2) {
-                mpd_run_send_message(mpd.conn, p_charbuf1, p_charbuf2);
-                free(p_charbuf1);
-                free(p_charbuf2);
+            if (mpd_run_shuffle(mpd.conn))
                 n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+            else {
+                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Shuffling queue failed.\"}");
+                printf("MPD_API_QUEUE_SHUFFLE: Error mpd_run_shuffle()\n");
             }
             break;
         case MPD_API_PLAYLIST_RM:
@@ -627,12 +766,22 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                 char pl_file[400];
                 sanitize_string(p_charbuf1);
                 snprintf(pl_file, 400, "%s/smartpls/%s", config.varlibdir, p_charbuf1);
-                if (access(pl_file, F_OK ) != -1 )
-                    unlink(pl_file);
+                if (access(pl_file, F_OK ) != -1 ) {
+                    if (unlink(pl_file) == -1) {
+                        n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Deleting smart playlist failed.\"}");
+                        printf("MPD_API_PLAYLIST_RM: Error unlinking smart playlist file()\n");
+                        free(p_charbuf1);
+                        break;
+                    }
+                }
                 //remove mpd playlist
-                mpd_run_rm(mpd.conn, p_charbuf1);
+                if (mpd_run_rm(mpd.conn, p_charbuf1))
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+                else {
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Deleting playlist failed.\"}");
+                    printf("MPD_API_QUEUE_SHUFFLE: Error mpd_run_rm()\n");
+                }
                 free(p_charbuf1);
-                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
             break;
         case MPD_API_SETTINGS_GET:
@@ -1052,7 +1201,8 @@ void mympd_last_played_list(int song_id) {
                 current = current->next;
             }
             fclose(fp);
-            rename(tmp_file, cfg_file);            
+            if (rename(tmp_file, cfg_file) == -1)
+                printf("Error renaming file from %s to %s\n", tmp_file, cfg_file);
         }
     }
 }
@@ -1265,12 +1415,9 @@ int mympd_put_state(char *buffer, int *current_song_id, int *next_song_id, int *
     if (*current_song_id != song_id)
         *last_song_id = *current_song_id;
     
-    len = json_printf(&out, "{type: update_state, data: {"
-        "state: %d, volume: %d, songPos: %d, elapsedTime: %d, "
-        "totalTime: %d, currentSongId: %d, kbitrate: %d, "
-        "audioFormat: { sampleRate: %d, bits: %d, channels: %d}, "
-        "queueLength: %d, nextSongPos: %d, nextSongId: %d, lastSongId: %d, "
-        "queueVersion: %d", 
+    len = json_printf(&out, "{type: update_state, data: {state: %d, volume: %d, songPos: %d, elapsedTime: %d, "
+        "totalTime: %d, currentSongId: %d, kbitrate: %d, audioFormat: { sampleRate: %d, bits: %d, channels: %d}, "
+        "queueLength: %d, nextSongPos: %d, nextSongId: %d, lastSongId: %d, queueVersion: %d", 
         mpd_status_get_state(status),
         mpd_status_get_volume(status), 
         mpd_status_get_song_pos(status),
@@ -1311,8 +1458,7 @@ int mympd_put_volume(char *buffer) {
         mpd.conn_state = MPD_FAILURE;
         return 0;
     }
-    len = json_printf(&out, "{type: update_volume, data: {"
-        "volume: %d}}",
+    len = json_printf(&out, "{type: update_volume, data: {volume: %d}}",
         mpd_status_get_volume(status)
     );
     mpd_status_free(status);
@@ -1379,7 +1525,8 @@ bool mympd_state_set(const char *name, const char *value) {
     }
     fprintf(fp, value);
     fclose(fp);
-    rename(tmp_file, cfg_file);
+    if (rename(tmp_file, cfg_file) == -1)
+        printf("Error renaming file from %s to %s\n", tmp_file, cfg_file);
     return true;
 }
 
@@ -2446,19 +2593,28 @@ int mympd_smartpls_save(char *smartpltype, char *playlist, char *tag, char *sear
     snprintf(tmp_file, 400, "%s/tmp/%s", config.varlibdir, playlist);
     snprintf(pl_file, 400, "%s/smartpls/%s", config.varlibdir, playlist);
     if (strcmp(smartpltype, "sticker") == 0) {
-        json_fprintf(tmp_file, "{type: %Q, sticker: %Q, maxentries: %d}", smartpltype, tag, maxentries);
-        rename(tmp_file, pl_file);
-        mympd_smartpls_update(playlist, tag, maxentries);
+        if (json_fprintf(tmp_file, "{type: %Q, sticker: %Q, maxentries: %d}", smartpltype, tag, maxentries) == -1)
+            printf("Error creating file %s\n", tmp_file);
+        else if (rename(tmp_file, pl_file) == -1)
+            printf("Error renaming file from %s to %s\n", tmp_file, pl_file);
+        else
+            mympd_smartpls_update(playlist, tag, maxentries);
     }
     else if (strcmp(smartpltype, "newest") == 0) {
-        json_fprintf(tmp_file, "{type: %Q, timerange: %d}", smartpltype, timerange);
-        rename(tmp_file, pl_file);
-        mympd_smartpls_update_newest(playlist, timerange);
+        if (json_fprintf(tmp_file, "{type: %Q, timerange: %d}", smartpltype, timerange) == -1)
+            printf("Error creating file %s\n", tmp_file);
+        else if (rename(tmp_file, pl_file) == -1)
+            printf("Error renaming file from %s to %s\n", tmp_file, pl_file);
+        else
+            mympd_smartpls_update_newest(playlist, timerange);
     }
     else if (strcmp(smartpltype, "search") == 0) {
-        json_fprintf(tmp_file, "{type: %Q, tag: %Q, searchstr: %Q}", smartpltype, tag, searchstr);
-        rename(tmp_file, pl_file);
-        mympd_smartpls_update_search(playlist, tag, searchstr);
+        if (json_fprintf(tmp_file, "{type: %Q, tag: %Q, searchstr: %Q}", smartpltype, tag, searchstr) == -1)
+            printf("Error creating file %s\n", tmp_file);
+        else if (rename(tmp_file, pl_file) == -1)
+            printf("Error renaming file from %s to %s\n", tmp_file, pl_file);
+        else
+            mympd_smartpls_update_search(playlist, tag, searchstr);
     }
     return 0;
 }
