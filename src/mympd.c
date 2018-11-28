@@ -65,23 +65,23 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
     switch(ev) {
         case MG_EV_WEBSOCKET_HANDSHAKE_REQUEST: {
             struct http_message *hm = (struct http_message *) ev_data;
-            VERBOSELOG() fprintf(stderr, "New websocket request: %.*s\n", hm->uri.len, hm->uri.p);
+            LOG_VERBOSE() printf("New websocket request: %.*s\n", hm->uri.len, hm->uri.p);
             if (mg_vcmp(&hm->uri, "/ws") != 0) {
-                printf("Websocket request not to /ws, closing connection\n");
+                printf("ERROR: Websocket request not to /ws, closing connection\n");
                 mg_printf(nc, "%s", "HTTP/1.1 403 FORBIDDEN\r\n\r\n");
                 nc->flags |= MG_F_SEND_AND_CLOSE;
             }
             break;
         }
         case MG_EV_WEBSOCKET_HANDSHAKE_DONE: {
-             VERBOSELOG() fprintf(stderr, "New Websocket connection established\n");
-             struct mg_str d = mg_mk_str("{\"cmd\": \"MPD_API_WELCOME\"}");
+             LOG_VERBOSE() printf("New Websocket connection established\n");
+             struct mg_str d = mg_mk_str("{\"cmd\":\"MPD_API_WELCOME\"}");
              callback_mympd(nc, d);
              break;
         }
         case MG_EV_HTTP_REQUEST: {
             struct http_message *hm = (struct http_message *) ev_data;
-            VERBOSELOG() fprintf(stderr, "HTTP request: %.*s\n", hm->uri.len, hm->uri.p);
+            LOG_VERBOSE() printf("HTTP request: %.*s\n", hm->uri.len, hm->uri.p);
             if (mg_vcmp(&hm->uri, "/api") == 0)
                 handle_api(nc, hm);
             else
@@ -90,10 +90,10 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
         }
         case MG_EV_CLOSE: {
             if (is_websocket(nc)) {
-              VERBOSELOG() fprintf(stderr, "Websocket connection closed\n");
+              LOG_VERBOSE() printf("Websocket connection closed\n");
             }
             else {
-              VERBOSELOG() fprintf(stderr,"HTTP connection closed\n");
+              LOG_VERBOSE() printf("HTTP connection closed\n");
             }
             break;
         }        
@@ -107,7 +107,7 @@ static void ev_handler_http(struct mg_connection *nc_http, int ev, void *ev_data
             struct mg_str *host_hdr = mg_get_http_header(hm, "Host");
             char s_redirect[250];
             snprintf(s_redirect, 250, "https://%.*s:%s/", host_hdr->len, host_hdr->p, config.sslport);
-            printf("Redirecting to %s\n", s_redirect);
+            LOG_VERBOSE() printf("Redirecting to %s\n", s_redirect);
             mg_http_send_redirect(nc_http, 301, mg_mk_str(s_redirect), mg_mk_str(NULL));
             break;
         }
@@ -133,6 +133,8 @@ static int inihandler(void* user, const char* section, const char* name, const c
             p_config->ssl = true;
         else
             p_config->ssl = false;
+    else if (MATCH("sslport"))
+        p_config->sslport = strdup(value);
     else if (MATCH("sslcert"))
         p_config->sslcert = strdup(value);
     else if (MATCH("sslkey"))
@@ -210,7 +212,7 @@ void read_syscmds() {
     long order;
     if (config.syscmds == true) {    
         snprintf(dirname, 400, "%s/syscmds", config.etcdir);
-        printf("Reading syscmds: %s\n", dirname);
+        LOG_INFO() printf("Reading syscmds: %s\n", dirname);
         if ((dir = opendir (dirname)) != NULL) {
             while ((ent = readdir(dir)) != NULL) {
                 if (strncmp(ent->d_name, ".", 1) == 0)
@@ -223,14 +225,14 @@ void read_syscmds() {
         }
     }
     else
-        printf("Syscmds are disabled\n");
+        LOG_INFO() printf("Syscmds are disabled\n");
 }
 
 void read_statefiles() {
     char *crap;
     char value[400];
 
-    printf("Reading states\n");
+    LOG_INFO() printf("Reading states\n");
     if (mympd_state_get("notificationWeb", value)) {
         if (strcmp(value, "true") == 0)
             mympd_state.notificationWeb = true;
@@ -353,7 +355,7 @@ bool testdir(char *name, char *dirname) {
     DIR* dir = opendir(dirname);
     if (dir) {
         closedir(dir);
-        printf("%s: \"%s\"\n", name, dirname);
+        LOG_INFO() printf("%s: \"%s\"\n", name, dirname);
         return true;
     }
     else {
@@ -406,9 +408,9 @@ int main(int argc, char **argv) {
     mpd.feat_library = false;
     
     if (argc == 2) {
-        printf("Starting myMPD %s\n", MYMPD_VERSION);
-        printf("libmpdclient %i.%i.%i\n", LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION);
-        printf("Parsing config file: %s\n", argv[1]);
+        LOG_INFO() printf("Starting myMPD %s\n", MYMPD_VERSION);
+        LOG_INFO() printf("Libmpdclient %i.%i.%i\n", LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION);
+        LOG_INFO() printf("Parsing config file: %s\n", argv[1]);
         if (ini_parse(argv[1], inihandler, &config) < 0) {
             printf("Can't load config file \"%s\"\n", argv[1]);
             return EXIT_FAILURE;
@@ -425,6 +427,11 @@ int main(int argc, char **argv) {
         );
         return EXIT_FAILURE;    
     }
+    
+    #ifdef DEBUG
+    printf("Debug flag enabled, setting loglevel to debug\n");
+    config.loglevel = 3;
+    #endif
 
     signal(SIGTERM, signal_handler);
     signal(SIGINT, signal_handler);
@@ -461,10 +468,10 @@ int main(int argc, char **argv) {
     }
 
     if (config.user != NULL) {
-        printf("Droping privileges to %s\n", config.user);
+        LOG_INFO() printf("Droping privileges to %s\n", config.user);
         struct passwd *pw;
         if ((pw = getpwnam(config.user)) == NULL) {
-            printf("Unknown user\n");
+            printf("getpwnam() failed, unknown user\n");
             mg_mgr_free(&mgr);
             return EXIT_FAILURE;
         } else if (setgroups(0, NULL) != 0) { 
@@ -494,10 +501,10 @@ int main(int argc, char **argv) {
     snprintf(testdirname, 400, "%s/library", SRC_PATH);
     if (testdir("Link to mpd music_directory", testdirname)) {
         mpd.feat_library = true;
-        printf("Enabling coverimage support\n");
+        LOG_INFO() printf("Enabling coverimage support\n");
     }
     else {
-        printf("Disabling coverimage support\n");
+        LOG_INFO() printf("Disabling coverimage support\n");
         config.coverimage = false;
     }
 
@@ -522,7 +529,7 @@ int main(int argc, char **argv) {
     list_init(&mpd_tags);
     list_init(&mympd_tags);
     list_init(&last_played);
-    printf("Reading last played songs: %d\n", read_last_played());
+    LOG_INFO() printf("Reading last played songs: %d\n", read_last_played());
     
     if (config.ssl == true)
         mg_set_protocol_http_websocket(nc_http);
@@ -531,9 +538,9 @@ int main(int argc, char **argv) {
     s_http_server_opts.document_root = SRC_PATH;
     s_http_server_opts.enable_directory_listing = "no";
 
-    printf("Listening on http port %s\n", config.webport);
+    LOG_INFO() printf("Listening on http port %s\n", config.webport);
     if (config.ssl == true)
-        printf("Listening on ssl port %s\n", config.sslport);
+        LOG_INFO() printf("Listening on ssl port %s\n", config.sslport);
 
     while (s_signal_received == 0) {
         mg_mgr_poll(&mgr, 100);

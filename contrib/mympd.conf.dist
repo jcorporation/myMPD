@@ -1,8 +1,10 @@
 #myMPD config file
 
 #Loglevel
+#0 = quiet
 #1 = default
 #2 = verbose
+#3 = debug
 loglevel = 1
 
 #Connection to mpd

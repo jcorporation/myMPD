@@ -63,8 +63,11 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
     enum mpd_cmd_ids cmd_id;
     struct pollfd fds[1];
     int pollrc;
+    #ifdef DEBUG
+    struct timespec start, end;
+    #endif
     
-    printf("API request: %s\n", msg.p);
+    LOG_VERBOSE() printf("API request: %s\n", msg.p);
     
     je = json_scanf(msg.p, msg.len, "{cmd: %Q}", &cmd);
     if (je == 1) 
@@ -83,10 +86,13 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
     if (pollrc > 0) {
         idle_bitmask_save = mpd_recv_idle(mpd.conn, false);
         if (idle_bitmask_save > 0)
-            VERBOSELOG() fprintf(stderr, "IDLE EVENT BEFORE REQUEST: %d\n", idle_bitmask_save);
+            LOG_DEBUG() fprintf(stderr, "DEBUG: Idle event before request: %d\n", idle_bitmask_save);
     }
     mpd_response_finish(mpd.conn);
     //handle request
+    #ifdef DEBUG
+    clock_gettime(CLOCK_MONOTONIC_RAW, &start);
+    #endif
     switch(cmd_id) {
         case MPD_API_UNKNOWN:
             n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Unknown request\"}");
@@ -647,20 +653,26 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
             mpd.conn_state = MPD_FAILURE;
     }
 
-    mpd_send_idle(mpd.conn);
-    
+    #ifdef DEBUG
+    clock_gettime(CLOCK_MONOTONIC_RAW, &end);
+    uint64_t delta_us = (end.tv_sec - start.tv_sec) * 1000000 + (end.tv_nsec - start.tv_nsec) / 1000;
+    fprintf(stderr, "DEBUG: Time used: %llu\n", delta_us);
+    #endif
+
     if (n == 0)
         n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"No response for cmd %s\"}", cmd);
     
     if (is_websocket(nc)) {
-        VERBOSELOG() fprintf(stderr, "Send websocket response:\n %s\n", mpd.buf);
+        LOG_DEBUG() fprintf(stderr, "DEBUG: Send websocket response:\n %s\n", mpd.buf);
         mg_send_websocket_frame(nc, WEBSOCKET_OP_TEXT, mpd.buf, n);
     }
     else {
-        VERBOSELOG() fprintf(stderr, "Send http response (first 800 chars):\n%*.*s\n", 0, 800, mpd.buf);
+        LOG_DEBUG() fprintf(stderr, "DEBUG: Send http response (first 800 chars):\n%*.*s\n", 0, 800, mpd.buf);
         mg_send_http_chunk(nc, mpd.buf, n);
     }
-    free(cmd);    
+    free(cmd);
+    
+    mpd_send_idle(mpd.conn);
 }
 
 void mympd_notify(struct mg_mgr *s) {
@@ -669,7 +681,7 @@ void mympd_notify(struct mg_mgr *s) {
             continue;
         mg_send_websocket_frame(c, WEBSOCKET_OP_TEXT, mpd.buf, strlen(mpd.buf));
     }
-    VERBOSELOG() fprintf(stderr, "NOTIFY: %s\n", mpd.buf);
+    LOG_DEBUG() fprintf(stderr, "DEBUG: Websocket notify: %s\n", mpd.buf);
 }
 
 void mympd_parse_idle(struct mg_mgr *s, int idle_bitmask) {
@@ -680,7 +692,7 @@ void mympd_parse_idle(struct mg_mgr *s, int idle_bitmask) {
         if (idle_name == NULL)
             break;
         if (idle_bitmask & idle_event) {
-            VERBOSELOG() fprintf(stderr, "IDLE: %s\n", idle_name);
+            LOG_VERBOSE() printf("MPD idle event: %s\n", idle_name);
             switch(idle_event) {
                 case MPD_IDLE_DATABASE:
                     len = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"update_database\"}");
@@ -761,64 +773,64 @@ void mympd_mpd_features() {
         mpd_return_pair(mpd.conn, pair);
     }
     mpd_response_finish(mpd.conn);
-    printf("MPD protocoll version: %i.%i.%i\n", mpd.protocol[0], mpd.protocol[1], mpd.protocol[2]);
+    LOG_INFO() printf("MPD protocoll version: %i.%i.%i\n", mpd.protocol[0], mpd.protocol[1], mpd.protocol[2]);
     if (mpd.feat_sticker == false && config.stickers == true) {
-        printf("MPD don't support stickers, disabling myMPD feature\n");
+        LOG_INFO() printf("MPD don't support stickers, disabling myMPD feature\n");
         config.stickers = false;
     }
     if (config.stickers == false && config.smartpls == true) {
-        printf("Stickers are disabled, disabling smartplaylists\n");
+        LOG_INFO() printf("Stickers are disabled, disabling smartplaylists\n");
         config.smartpls = false;
     }
     if (mpd.feat_playlists == false && config.smartpls == true) {
-        printf("Playlists are disabled, disabling smartplaylists\n");
+        LOG_INFO() printf("Playlists are disabled, disabling smartplaylists\n");
         config.smartpls = false;
     }
     
-    printf("MPD supported tags: ");
+    LOG_INFO() printf("MPD supported tags: ");
     list_free(&mpd_tags);
     mpd_send_list_tag_types(mpd.conn);
     while ((pair = mpd_recv_tag_type_pair(mpd.conn)) != NULL) {
-        printf("%s ", pair->value);
+        LOG_INFO() printf("%s ", pair->value);
         list_push(&mpd_tags, pair->value, 1);
         mpd_return_pair(mpd.conn, pair);
     }
     mpd_response_finish(mpd.conn);
     list_free(&mympd_tags);
     if (mpd_tags.length == 0) {
-        printf("none\nTags are disabled\n");
+        LOG_INFO() printf("none\nTags are disabled\n");
         mpd.feat_tags = false;
     }
     else {
         mpd.feat_tags = true;
-        printf("\nmyMPD enabled tags: ");
+        LOG_INFO() printf("\nmyMPD enabled tags: ");
         token = strtok(taglist, s);
         while (token != NULL) {
             if (list_get_value(&mpd_tags, token) == 1) {
                 list_push(&mympd_tags, token, 1);
-                printf("%s ", token);
+                LOG_INFO() printf("%s ", token);
             }
             token = strtok(NULL, s);
         }
-        printf("\nmyMPD enabled searchtags: ");
+        LOG_INFO() printf("\nmyMPD enabled searchtags: ");
         token = strtok(searchtaglist, s);
         while (token != NULL) {
             if (list_get_value(&mympd_tags, token) == 1) {
                 list_push(&mympd_searchtags, token, 1);
-                printf("%s ", token);
+                LOG_INFO() printf("%s ", token);
             }
             token = strtok(NULL, s);
         }
-        printf("\nmyMPD enabled browsetags: ");
+        LOG_INFO() printf("\nmyMPD enabled browsetags: ");
         token = strtok(browsetaglist, s);
         while (token != NULL) {
             if (list_get_value(&mympd_tags, token) == 1) {
                 list_push(&mympd_browsetags, token, 1);
-                printf("%s ", token);
+                LOG_INFO() printf("%s ", token);
             }
             token = strtok(NULL, s);
         }
-        printf("\n");
+        LOG_INFO() printf("\n");
     }
     free(taglist);
     free(searchtaglist);
@@ -826,10 +838,10 @@ void mympd_mpd_features() {
     
     if (LIBMPDCLIENT_CHECK_VERSION(2, 17, 0) && mpd_connection_cmp_server_version(mpd.conn, 0, 21, 0) >= 0) {
         mpd.feat_advsearch = true;
-        printf("Enabling advanced search\n");
+        LOG_INFO() printf("Enabling advanced search\n");
     } 
     else 
-        printf("Disabling advanced search, depends on mpd >= 0.21.0 and libmpdclient >= 2.17.0\n");
+        LOG_INFO() printf("Disabling advanced search, depends on mpd >= 0.21.0 and libmpdclient >= 2.17.0\n");
 }
 
 void mympd_idle(struct mg_mgr *s, int timeout) {
@@ -839,7 +851,7 @@ void mympd_idle(struct mg_mgr *s, int timeout) {
     switch (mpd.conn_state) {
         case MPD_DISCONNECTED:
             /* Try to connect */
-            printf("MPD Connecting to %s:%ld\n", config.mpdhost, config.mpdport);
+            LOG_INFO() printf("MPD Connecting to %s:%ld\n", config.mpdhost, config.mpdport);
             mpd.conn = mpd_connection_new(config.mpdhost, config.mpdport, mpd.timeout);
             if (mpd.conn == NULL) {
                 printf("MPD connection failed.");
@@ -865,7 +877,7 @@ void mympd_idle(struct mg_mgr *s, int timeout) {
                 return;
             }
 
-            printf("MPD connected.\n");
+            LOG_INFO() printf("MPD connected.\n");
             mpd_connection_set_timeout(mpd.conn, mpd.timeout);
             mpd.conn_state = MPD_CONNECTED;
             mympd_mpd_features();
@@ -904,7 +916,7 @@ void mympd_idle(struct mg_mgr *s, int timeout) {
                 }
                 if (idle_bitmask_save > 0) {
                     //Handle idle event saved in mympd_callback
-                    VERBOSELOG() fprintf(stderr, "HANDLE SAVED IDLE EVENT\n");
+                    LOG_DEBUG() fprintf(stderr, "DEBUG: Handle saved idle event\n");
                     mympd_parse_idle(s, idle_bitmask_save);
                     idle_bitmask_save = 0;
                 }
@@ -923,7 +935,7 @@ int mympd_get_updatedb_state(char *buffer) {
     if (!status)
         RETURN_ERROR_AND_RECOVER("mpd_run_status");
     update_id = mpd_status_get_update_id(status);
-    printf("Update database ID: %d\n", update_id);
+    LOG_INFO() printf("Update database ID: %d\n", update_id);
     if ( update_id > 0)
         len = json_printf(&out, "{type: update_started, data: {jobid: %d}}", update_id);
     else
@@ -994,7 +1006,7 @@ void mympd_count_song_uri(const char *uri, char *name, int value) {
     else if (old_value < 0)
         old_value = 0;
     snprintf(v, 4, "%d", old_value);
-    VERBOSELOG() fprintf(stderr, "STICKER_COUNT_SONG: \"%s\" -> %s: %s\n", uri, name, v);
+    LOG_VERBOSE() printf("Setting sticker: \"%s\" -> %s: %s\n", uri, name, v);
     if (!mpd_run_sticker_set(mpd.conn, "song", uri, name, v))
         LOG_ERROR_AND_RECOVER("mpd_send_sticker_set");
 }
@@ -1008,16 +1020,17 @@ void mympd_like_song_uri(const char *uri, int value) {
     else if (value < 0)
         value = 0;
     snprintf(v, 2, "%d", value);
+    LOG_VERBOSE() printf("Setting sticker: \"%s\" -> like: %s\n", uri, v);
     if (!mpd_run_sticker_set(mpd.conn, "song", uri, "like", v))
         LOG_ERROR_AND_RECOVER("mpd_send_sticker_set");
 }
 
 void mympd_last_played_list(int song_id) {
     struct mpd_song *song;
-    char tmpfile[400];
-    char cfgfile[400];
-    snprintf(cfgfile, 400, "%s/state/last_played", config.varlibdir);
-    snprintf(tmpfile, 400, "%s/tmp/last_played", config.varlibdir);
+    char tmp_file[400];
+    char cfg_file[400];
+    snprintf(cfg_file, 400, "%s/state/last_played", config.varlibdir);
+    snprintf(tmp_file, 400, "%s/tmp/last_played", config.varlibdir);
 
     if (song_id > -1) {
         song = mpd_run_get_queue_song_id(mpd.conn, song_id);
@@ -1028,9 +1041,9 @@ void mympd_last_played_list(int song_id) {
             if (last_played.length > config.last_played_count) {
                 list_shift(&last_played, last_played.length -1);
             }
-            FILE *fp = fopen(tmpfile, "w");
+            FILE *fp = fopen(tmp_file, "w");
             if (fp == NULL) {
-                printf("Error opening %s\n", tmpfile);
+                printf("Error opening %s\n", tmp_file);
                 return;
             }
             struct node *current = last_played.list;
@@ -1039,7 +1052,7 @@ void mympd_last_played_list(int song_id) {
                 current = current->next;
             }
             fclose(fp);
-            rename(tmpfile, cfgfile);            
+            rename(tmp_file, cfg_file);            
         }
     }
 }
@@ -1108,7 +1121,7 @@ void mympd_jukebox() {
         return;
         
     if (mpd.feat_playlists == false && strcmp(mympd_state.jukeboxPlaylist, "Database") != 0) {
-        printf("Jukebox: Playlists are disabled\n");
+        LOG_INFO() printf("Jukebox: Playlists are disabled\n");
         return;
     }
     
@@ -1204,14 +1217,14 @@ void mympd_jukebox() {
     struct node *current = add_list.list;
     while (current != NULL) {
         if (mympd_state.jukeboxMode == 1) {
-	    printf("Jukebox adding song: %s\n", current->data);
+	    LOG_INFO() printf("Jukebox adding song: %s\n", current->data);
 	    if (!mpd_run_add(mpd.conn, current->data))
                 LOG_ERROR_AND_RECOVER("mpd_run_add");
             else
                 nkeep++;
         }
         else {
-            printf("Jukebox adding album: %s\n", current->data);
+            LOG_INFO() printf("Jukebox adding album: %s\n", current->data);
             if (!mpd_send_command(mpd.conn, "searchadd", "Album", current->data, NULL)) {
                 LOG_ERROR_AND_RECOVER("mpd_send_command");
                 return;
@@ -1329,21 +1342,21 @@ int mympd_put_welcome(char *buffer) {
 }
 
 bool mympd_state_get(char *name, char *value) {
-    char cfgfile[400];
+    char cfg_file[400];
     char *line;
     size_t n = 0;
     ssize_t read;
     
     sanitize_string(name);
-    snprintf(cfgfile, 400, "%s/state/%s", config.varlibdir, name);
-    FILE *fp = fopen(cfgfile, "r");
+    snprintf(cfg_file, 400, "%s/state/%s", config.varlibdir, name);
+    FILE *fp = fopen(cfg_file, "r");
     if (fp == NULL) {
-        printf("Error opening %s\n", cfgfile);
+        printf("Error opening %s\n", cfg_file);
         return false;
     }
     read = getline(&line, &n, fp);
     snprintf(value, 400, "%s", line);
-    VERBOSELOG() fprintf(stderr, "State %s: %s\n", name, value);
+    LOG_DEBUG() fprintf(stderr, "DEBUG: State %s: %s\n", name, value);
     fclose(fp);
     if (read > 0)
         return true;
@@ -1352,21 +1365,21 @@ bool mympd_state_get(char *name, char *value) {
 }
 
 bool mympd_state_set(const char *name, const char *value) {
-    char tmpfile[400];
-    char cfgfile[400];
+    char tmp_file[400];
+    char cfg_file[400];
     
     sanitize_string(name);
-    snprintf(cfgfile, 400, "%s/state/%s", config.varlibdir, name);
-    snprintf(tmpfile, 400, "%s/tmp/%s", config.varlibdir, name);
+    snprintf(cfg_file, 400, "%s/state/%s", config.varlibdir, name);
+    snprintf(tmp_file, 400, "%s/tmp/%s", config.varlibdir, name);
         
-    FILE *fp = fopen(tmpfile, "w");
+    FILE *fp = fopen(tmp_file, "w");
     if (fp == NULL) {
-        printf("Error opening %s\n", tmpfile);
+        printf("Error opening %s\n", tmp_file);
         return false;
     }
     fprintf(fp, value);
     fclose(fp);
-    rename(tmpfile, cfgfile);
+    rename(tmp_file, cfg_file);
     return true;
 }
 
@@ -1382,6 +1395,7 @@ int mympd_syscmd(char *buffer, char *cmd, int order) {
     FILE *fp = fopen(filename, "r");    
     if (fp == NULL) {
         len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't execute cmd %s\"}", cmd);
+        printf("Can't execute syscmd %s\n", cmd);
         return len;
     }
     read = getline(&line, &n, fp);
@@ -1390,8 +1404,10 @@ int mympd_syscmd(char *buffer, char *cmd, int order) {
         strtok(line, "\n");
         system(line);
         len = snprintf(buffer, MAX_SIZE, "{\"type\": \"result\", \"data\": \"Executed cmd %s\"}", line);
+        LOG_VERBOSE() printf("Executed syscmd %s\n", line);
     } else {
         len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't execute cmd %s\"}", cmd);
+        printf("Can't execute syscmd %s\n", cmd);
     }
     CHECK_RETURN_LEN();    
     return len;
@@ -1960,7 +1976,7 @@ int mympd_put_songs_in_album(char *buffer, char *album, char *search, char *tag)
     unsigned long entities_returned = 0;
     int len;
     char cover[500];
-    char *albumartist;
+    char *albumartist = NULL;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
 
     if (mpd_search_db_songs(mpd.conn, true) == false)
@@ -2000,10 +2016,11 @@ int mympd_put_songs_in_album(char *buffer, char *album, char *search, char *tag)
             search,
             tag,
             cover,
-            albumartist
+            (albumartist != NULL ? albumartist : "")
         );
     }
-    free(albumartist);
+    if (albumartist != NULL)
+        free(albumartist);
 
     CHECK_RETURN_LEN();
     return len;
@@ -2177,7 +2194,7 @@ int mympd_search(char *buffer, char *searchstr, char *filter, char *plist, unsig
 
 int mympd_search_adv(char *buffer, char *expression, char *sort, bool sortdesc, char *grouptag, char *plist, unsigned int offset) {
     struct mpd_song *song;
-    unsigned long entity_count = 0;
+    unsigned long entity_count = -1;
     unsigned long entities_returned = 0;
     int len = 0;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
@@ -2198,15 +2215,18 @@ int mympd_search_adv(char *buffer, char *expression, char *sort, bool sortdesc, 
     
     if (mpd_search_add_expression(mpd.conn, expression) == false)
         RETURN_ERROR_AND_RECOVER("mpd_search_add_expression");
-    
-    if (sort != NULL && strcmp(sort, "") != 0 && strcmp(plist, "") == 0) {
-        if (mpd_search_add_sort_name(mpd.conn, sort, sortdesc) == false)
-            RETURN_ERROR_AND_RECOVER("mpd_search_add_sort_name");
-    }
-    
-    if (grouptag != NULL && strcmp(grouptag, "") != 0 && strcmp(plist, "") == 0) {
-        if (mpd_search_add_group_tag(mpd.conn, mpd_tag_name_parse(grouptag)) == false)
-            RETURN_ERROR_AND_RECOVER("mpd_search_add_group_tag");
+
+    if (strcmp(plist, "") == 0) {
+        if (sort != NULL && strcmp(sort, "") != 0) {
+            if (mpd_search_add_sort_name(mpd.conn, sort, sortdesc) == false)
+                RETURN_ERROR_AND_RECOVER("mpd_search_add_sort_name");
+        }
+        if (grouptag != NULL && strcmp(grouptag, "") != 0) {
+            if (mpd_search_add_group_tag(mpd.conn, mpd_tag_name_parse(grouptag)) == false)
+                RETURN_ERROR_AND_RECOVER("mpd_search_add_group_tag");
+        }
+        if (mpd_search_add_window(mpd.conn, offset, offset + config.max_elements_per_page) == false)
+            RETURN_ERROR_AND_RECOVER("mpd_search_add_window");
     }
     
     if (mpd_search_commit(mpd.conn) == false)
@@ -2214,17 +2234,14 @@ int mympd_search_adv(char *buffer, char *expression, char *sort, bool sortdesc, 
 
     if (strcmp(plist, "") == 0) {
         while ((song = mpd_recv_song(mpd.conn)) != NULL) {
-            entity_count++;
-            if (entity_count > offset && entity_count <= offset + config.max_elements_per_page) {
-                if (entities_returned++) 
-                    len += json_printf(&out, ", ");
-                len += json_printf(&out, "{Type: song, ");
-                if (mpd.feat_tags == true)
-                    PUT_SONG_TAGS();
-                else
-                    PUT_MIN_SONG_TAGS();
-                len += json_printf(&out, "}");
-            }
+            if (entities_returned++) 
+                len += json_printf(&out, ", ");
+            len += json_printf(&out, "{Type: song, ");
+            if (mpd.feat_tags == true)
+                PUT_SONG_TAGS();
+            else
+                PUT_MIN_SONG_TAGS();
+            len += json_printf(&out, "}");
             mpd_song_free(song);
         }
     }
@@ -2259,6 +2276,7 @@ int mympd_queue_crop(char *buffer) {
 
     if (length < 0) {
         len = json_printf(&out, "{type: error, data: %Q}", "A playlist longer than 1 song in length is required to crop.");
+        printf("A playlist longer than 1 song in length is required to crop.\n");
     }
     else if (mpd_status_get_state(status) == MPD_STATE_PLAY || mpd_status_get_state(status) == MPD_STATE_PAUSE) {
         playing_song_pos++;
@@ -2270,6 +2288,7 @@ int mympd_queue_crop(char *buffer) {
         len = json_printf(&out, "{type: result, data: ok}");
     } else {
         len = json_printf(&out, "{type: error, data: %Q}", "You need to be playing to crop the playlist");
+        printf("You need to be playing to crop the playlist\n");
     }
     
     mpd_status_free(status);
@@ -2538,7 +2557,7 @@ int mympd_smartpls_update_search(char *playlist, char *tag, char *searchstr) {
         mympd_search_adv(mpd.buf, searchstr, NULL, true, NULL, playlist, 0);
     else
         mympd_search(mpd.buf, searchstr, tag, playlist, 0);
-    printf("Updated %s\n", playlist);
+    LOG_INFO() printf("Updated %s\n", playlist);
     return 0;
 }
 
@@ -2601,7 +2620,7 @@ int mympd_smartpls_update(char *playlist, char *sticker, int maxentries) {
         current = current->next;
     }
     list_free(&add_list);
-    printf("Updated %s with %ld songs, minValue: %ld\n", playlist, i, value_max);
+    LOG_INFO() printf("Updated %s with %ld songs, minValue: %ld\n", playlist, i, value_max);
     return 0;
 }
 
@@ -2630,7 +2649,7 @@ int mympd_smartpls_update_newest(char *playlist, int timerange) {
             snprintf(searchstr, 20, "%lu", value_max);
             mympd_search(mpd.buf, searchstr, "modified-since", playlist, 0);
         }
-        printf("Updated %s\n", playlist);
+        LOG_INFO() printf("Updated %s\n", playlist);
     }
     return 0;
 }

@@ -65,7 +65,9 @@
 } while (0)
 
 
-#define VERBOSELOG() if (config.loglevel == 2)
+#define LOG_INFO() if (config.loglevel >= 1) 
+#define LOG_VERBOSE() if (config.loglevel >= 2) 
+#define LOG_DEBUG() if (config.loglevel == 3) 
 
 #define MAX_SIZE 2048 * 400
 #define MAX_ELEMENTS_PER_PAGE 400
