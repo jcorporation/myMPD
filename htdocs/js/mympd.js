@@ -2100,13 +2100,16 @@ function setPagination(total, returned) {
                     ( j + 1) + '</button>';
             }
             document.getElementById(cat + p[i] + 'Pages').innerHTML = pl;
+            document.getElementById(cat + p[i] + 'Page').classList.remove('nodropdown');
         }
         else if (total == -1) {
             document.getElementById(cat + p[i] + 'Page').setAttribute('disabled', 'disabled');
             document.getElementById(cat + p[i] + 'Page').innerText = (app.current.page / settings.maxElementsPerPage + 1);
+            document.getElementById(cat + p[i] + 'Page').classList.add('nodropdown');
         }
         else {
             document.getElementById(cat + p[i] + 'Page').setAttribute('disabled', 'disabled');
+            document.getElementById(cat + p[i] + 'Page').classList.add('nodropdown');
         }
     
         if (total > app.current.page + settings.maxElementsPerPage || total == -1 && returned >= settings.maxElementsPerPage) {

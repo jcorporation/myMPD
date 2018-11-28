@@ -325,3 +325,7 @@ div.key {
 ol#searchCrumb {
  padding: .5rem;
 }
+
+.nodropdown::after {
+   content: none;
+}
