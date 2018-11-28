@@ -1594,7 +1594,7 @@ function parseState(obj) {
             pb[i].innerText = '';
     }
     
-    if (app.current.app == 'LastPlayed')
+    if (app.current.app == 'Queue' && app.current.tab == 'LastPlayed')
         sendAPI({"cmd": "MPD_API_QUEUE_LAST_PLAYED", "data": {"offset": app.current.page}}, parseLastPlayed);
 
     lastState = obj;                    
