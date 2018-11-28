@@ -615,8 +615,10 @@ function appInit() {
     }, false);
 
     document.getElementById('searchtags').addEventListener('click', function(event) {
-        if (event.target.nodeName == 'BUTTON')
-            appGoto(app.current.app, app.current.tab, app.current.view, '0/' + event.target.getAttribute('data-tag') + '/' + app.current.search);            
+        if (event.target.nodeName == 'BUTTON') {
+            app.current.filter = event.target.getAttribute('data-tag');
+            search(domCache.searchstr.value);
+        }
     }, false);
 
     document.getElementById('searchqueuestr').addEventListener('keyup', function(event) {
@@ -1727,7 +1729,7 @@ function parseSearch(obj) {
         document.getElementById('panel-heading-search').innerText = obj.totalEntities + ' Songs found';
         document.getElementById('cardFooterSearch').innerText = obj.totalEntities + ' Songs found';
     }
-    else if (obj.returnedEntities < settings.maxElementsPerPage) {
+    else if (obj.returnedEntities + app.current.page < settings.maxElementsPerPage) {
         document.getElementById('panel-heading-search').innerText = obj.returnedEntities + ' Songs found';
         document.getElementById('cardFooterSearch').innerText = obj.returnedEntities + ' Songs found';
     }
