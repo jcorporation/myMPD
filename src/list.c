@@ -55,7 +55,6 @@ struct node *list_node_at(const struct list *l, unsigned index) {
     return current;
 }
 
-
 int list_swap_item(struct node *n1, struct node *n2) {
     if (n1 == n2)
         return 1;
@@ -64,19 +63,14 @@ int list_swap_item(struct node *n1, struct node *n2) {
         return 1;
         
     int value = n2->value;
-    char *data = strdup(n2->data);
+    char *data = n2->data;
     
     n2->value = n1->value;
-    n2->data = realloc(n2->data, strlen(n1->data) + 1);
-    if (n2->data)
-        strcpy(n2->data, n1->data);
+    n2->data = n1->data;
     
     n1->value = value;
-    n1->data = realloc(n1->data, strlen(data) + 1);
-    if (n1->data)
-        strcpy(n1->data, data);
+    n1->data = data;
     
-    free(data);
     return 0;
 }
 
