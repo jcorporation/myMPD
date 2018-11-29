@@ -741,6 +741,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                 free(p_charbuf2);
             }
             break;
+#if LIBMPDCLIENT_CHECK_VERSION(2, 17, 0)
         case MPD_API_DATABASE_SEARCH_ADV:
             je = json_scanf(msg.p, msg.len, "{data: {expression:%Q, sort:%Q, sortdesc:%B, plist:%Q, offset:%u}}", 
                 &p_charbuf1, &p_charbuf2, &bool_buf, &p_charbuf3, &uint_buf1);
@@ -751,6 +752,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                 free(p_charbuf3);
             }
             break;
+#endif
         case MPD_API_QUEUE_SHUFFLE:
             if (mpd_run_shuffle(mpd.conn))
                 n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
@@ -2339,6 +2341,7 @@ int mympd_search(char *buffer, char *searchstr, char *filter, char *plist, unsig
     return len;
 }
 
+#if LIBMPDCLIENT_CHECK_VERSION(2, 17, 0)
 int mympd_search_adv(char *buffer, char *expression, char *sort, bool sortdesc, char *grouptag, char *plist, unsigned int offset) {
     struct mpd_song *song;
     unsigned long entity_count = -1;
@@ -2413,6 +2416,7 @@ int mympd_search_adv(char *buffer, char *expression, char *sort, bool sortdesc, 
     CHECK_RETURN_LEN();
     return len;
 }
+#endif
 
 int mympd_queue_crop(char *buffer) {
     int len = 0;
@@ -2709,9 +2713,11 @@ int mympd_smartpls_clear(char *playlist) {
 
 int mympd_smartpls_update_search(char *playlist, char *tag, char *searchstr) {
     mympd_smartpls_clear(playlist);
+#if LIBMPDCLIENT_CHECK_VERSION(2, 17, 0)
     if (mpd.feat_advsearch == true && strcmp(tag, "expression") == 0)
         mympd_search_adv(mpd.buf, searchstr, NULL, true, NULL, playlist, 0);
     else
+#endif
         mympd_search(mpd.buf, searchstr, tag, playlist, 0);
     LOG_INFO() printf("Updated %s\n", playlist);
     return 0;
@@ -2797,14 +2803,18 @@ int mympd_smartpls_update_newest(char *playlist, int timerange) {
     mympd_smartpls_clear(playlist);
     value_max -= timerange;
     if (value_max > 0) {
+#if LIBMPDCLIENT_CHECK_VERSION(2, 17, 0)
         if (mpd.feat_advsearch == true) {
             snprintf(searchstr, 50, "(modified-since '%lu')", value_max);
             mympd_search_adv(mpd.buf, searchstr, NULL, true, NULL, playlist, 0);
         }
         else {
+#endif
             snprintf(searchstr, 20, "%lu", value_max);
             mympd_search(mpd.buf, searchstr, "modified-since", playlist, 0);
+#if LIBMPDCLIENT_CHECK_VERSION(2, 17, 0)
         }
+#endif
         LOG_INFO() printf("Updated %s\n", playlist);
     }
     return 0;
