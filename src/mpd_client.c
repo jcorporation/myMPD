@@ -270,24 +270,31 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
             break;
         case MPD_API_SMARTPLS_SAVE:
             je = json_scanf(msg.p, msg.len, "{data: {type: %Q}}", &p_charbuf1);
+            n = 1;
             if (je == 1) {
                 if (strcmp(p_charbuf1, "sticker") == 0) {
                     je = json_scanf(msg.p, msg.len, "{data: {playlist: %Q, sticker: %Q, maxentries: %d}}", &p_charbuf2, &p_charbuf3, &int_buf1);
-                    n = mympd_smartpls_save(p_charbuf1, p_charbuf2, p_charbuf3, NULL, int_buf1, 0);
-                    free(p_charbuf2);
-                    free(p_charbuf3);
+                    if (je == 3) {
+                        n = mympd_smartpls_save(p_charbuf1, p_charbuf2, p_charbuf3, NULL, int_buf1, 0);
+                        free(p_charbuf2);
+                        free(p_charbuf3);
+                    }
                 }
                 else if (strcmp(p_charbuf1, "newest") == 0) {
                     je = json_scanf(msg.p, msg.len, "{data: {playlist: %Q, timerange: %d}}", &p_charbuf2, &int_buf1);
-                    n = mympd_smartpls_save(p_charbuf1, p_charbuf2, NULL, NULL, 0, int_buf1);
-                    free(p_charbuf2);
+                    if (je == 2) {
+                        n = mympd_smartpls_save(p_charbuf1, p_charbuf2, NULL, NULL, 0, int_buf1);
+                        free(p_charbuf2);
+                    }
                 }            
                 else if (strcmp(p_charbuf1, "search") == 0) {
                     je = json_scanf(msg.p, msg.len, "{data: {playlist: %Q, tag: %Q, searchstr: %Q}}", &p_charbuf2, &p_charbuf3, &p_charbuf4);
-                    n = mympd_smartpls_save(p_charbuf1, p_charbuf2, p_charbuf3, p_charbuf4, 0, 0);
-                    free(p_charbuf2);
-                    free(p_charbuf3);                    
-                    free(p_charbuf4);
+                    if (je == 3) {
+                        n = mympd_smartpls_save(p_charbuf1, p_charbuf2, p_charbuf3, p_charbuf4, 0, 0);
+                        free(p_charbuf2);
+                        free(p_charbuf3);                    
+                        free(p_charbuf4);
+                    }
                 }
                 free(p_charbuf1);
             }
@@ -2602,28 +2609,46 @@ int mympd_smartpls_save(char *smartpltype, char *playlist, char *tag, char *sear
     snprintf(tmp_file, 400, "%s/tmp/%s", config.varlibdir, playlist);
     snprintf(pl_file, 400, "%s/smartpls/%s", config.varlibdir, playlist);
     if (strcmp(smartpltype, "sticker") == 0) {
-        if (json_fprintf(tmp_file, "{type: %Q, sticker: %Q, maxentries: %d}", smartpltype, tag, maxentries) == -1)
+        if (json_fprintf(tmp_file, "{type: %Q, sticker: %Q, maxentries: %d}", smartpltype, tag, maxentries) == -1) {
             printf("Error creating file %s\n", tmp_file);
-        else if (rename(tmp_file, pl_file) == -1)
+            return 1;
+        }
+        else if (rename(tmp_file, pl_file) == -1) {
             printf("Error renaming file from %s to %s\n", tmp_file, pl_file);
-        else
-            mympd_smartpls_update_sticker(playlist, tag, maxentries);
+            return 1;
+        }
+        else if (mympd_smartpls_update_sticker(playlist, tag, maxentries) == 1) {
+            printf("Update of smart playlist %s failed.\n", playlist);
+            return 1;
+        }
     }
     else if (strcmp(smartpltype, "newest") == 0) {
-        if (json_fprintf(tmp_file, "{type: %Q, timerange: %d}", smartpltype, timerange) == -1)
+        if (json_fprintf(tmp_file, "{type: %Q, timerange: %d}", smartpltype, timerange) == -1) {
             printf("Error creating file %s\n", tmp_file);
-        else if (rename(tmp_file, pl_file) == -1)
+            return 1;
+        }
+        else if (rename(tmp_file, pl_file) == -1) {
             printf("Error renaming file from %s to %s\n", tmp_file, pl_file);
-        else
-            mympd_smartpls_update_newest(playlist, timerange);
+            return 1;
+        }
+        else if (mympd_smartpls_update_newest(playlist, timerange) == 1) {
+            printf("Update of smart playlist %s failed.\n", playlist);
+            return 1;
+        }
     }
     else if (strcmp(smartpltype, "search") == 0) {
-        if (json_fprintf(tmp_file, "{type: %Q, tag: %Q, searchstr: %Q}", smartpltype, tag, searchstr) == -1)
+        if (json_fprintf(tmp_file, "{type: %Q, tag: %Q, searchstr: %Q}", smartpltype, tag, searchstr) == -1) {
             printf("Error creating file %s\n", tmp_file);
-        else if (rename(tmp_file, pl_file) == -1)
+            return 1;
+        }
+        else if (rename(tmp_file, pl_file) == -1) {
             printf("Error renaming file from %s to %s\n", tmp_file, pl_file);
-        else
-            mympd_smartpls_update_search(playlist, tag, searchstr);
+            return 1;
+        }
+        else if (mympd_smartpls_update_search(playlist, tag, searchstr) == 1) {
+            printf("Update of smart playlist %s failed.\n", playlist);
+            return 1;
+        }
     }
     return 0;
 }
