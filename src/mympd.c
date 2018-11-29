@@ -500,8 +500,8 @@ int main(int argc, char **argv) {
 
     snprintf(testdirname, 400, "%s/library", SRC_PATH);
     if (testdir("Link to mpd music_directory", testdirname)) {
+        LOG_INFO() printf("Enabling featLibrary support\n");
         mpd.feat_library = true;
-        LOG_INFO() printf("Enabling coverimage support\n");
     }
     else {
         LOG_INFO() printf("Disabling coverimage support\n");

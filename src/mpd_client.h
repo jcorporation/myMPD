@@ -30,7 +30,7 @@
 
 #define RETURN_ERROR_AND_RECOVER(X) do { \
     printf("MPD %s: %s\n", X, mpd_connection_get_error_message(mpd.conn)); \
-    len = json_printf(&out, "{ type:error, data : %Q }", mpd_connection_get_error_message(mpd.conn)); \
+    len = json_printf(&out, "{type: error, data: %Q}", mpd_connection_get_error_message(mpd.conn)); \
     if (!mpd_connection_clear_error(mpd.conn)) \
         mpd.conn_state = MPD_FAILURE; \
     return len; \

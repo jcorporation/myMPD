@@ -805,7 +805,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
     #ifdef DEBUG
     clock_gettime(CLOCK_MONOTONIC_RAW, &end);
     uint64_t delta_us = (end.tv_sec - start.tv_sec) * 1000000 + (end.tv_nsec - start.tv_nsec) / 1000;
-    fprintf(stderr, "DEBUG: Time used: %llu\n", delta_us);
+    fprintf(stderr, "DEBUG: Time used: %lu\n", delta_us);
     #endif
 
     if (n == 0)
@@ -2309,7 +2309,7 @@ int mympd_search(char *buffer, char *searchstr, char *filter, char *plist, unsig
         if (mpd_send_command(mpd.conn, "searchaddpl", plist, filter, searchstr, NULL) == false)
             RETURN_ERROR_AND_RECOVER("mpd_searchaddpl");
     }
-    
+
     if (strcmp(plist, "") == 0) {
         while ((song = mpd_recv_song(mpd.conn)) != NULL) {
             entity_count++;
@@ -2417,7 +2417,7 @@ int mympd_search_adv(char *buffer, char *expression, char *sort, bool sortdesc, 
     else
         len = json_printf(&out, "{type: result, data: ok}");
 #else
-    len = json_printf(&out, "{type: error, data: %s}", "Advanced search is disabled.");
+    len = json_printf(&out, "{type: error, data: %Q}", "Advanced search is disabled.");
 #endif
     CHECK_RETURN_LEN();
     return len;
