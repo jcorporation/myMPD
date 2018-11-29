@@ -741,7 +741,6 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                 free(p_charbuf2);
             }
             break;
-#if LIBMPDCLIENT_CHECK_VERSION(2, 17, 0)
         case MPD_API_DATABASE_SEARCH_ADV:
             je = json_scanf(msg.p, msg.len, "{data: {expression:%Q, sort:%Q, sortdesc:%B, plist:%Q, offset:%u}}", 
                 &p_charbuf1, &p_charbuf2, &bool_buf, &p_charbuf3, &uint_buf1);
@@ -752,7 +751,6 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                 free(p_charbuf3);
             }
             break;
-#endif
         case MPD_API_QUEUE_SHUFFLE:
             if (mpd_run_shuffle(mpd.conn))
                 n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
@@ -924,7 +922,7 @@ void mympd_mpd_features() {
         mpd_return_pair(mpd.conn, pair);
     }
     mpd_response_finish(mpd.conn);
-    LOG_INFO() printf("MPD protocoll version: %i.%i.%i\n", mpd.protocol[0], mpd.protocol[1], mpd.protocol[2]);
+    LOG_INFO() printf("MPD protocoll version: %u.%u.%u\n", mpd.protocol[0], mpd.protocol[1], mpd.protocol[2]);
     if (mpd.feat_sticker == false && config.stickers == true) {
         LOG_INFO() printf("MPD don't support stickers, disabling myMPD feature\n");
         config.stickers = false;
@@ -1476,7 +1474,7 @@ int mympd_put_welcome(char *buffer) {
     char mpd_version[20];
     char libmpdclient_version[20];
 
-    snprintf(mpd_version, 20, "%i.%i.%i", version[0], version[1], version[2]);
+    snprintf(mpd_version, 20, "%u.%u.%u", version[0], version[1], version[2]);
     snprintf(libmpdclient_version, 20, "%i.%i.%i", LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION);
 
     len = json_printf(&out, "{type: welcome, data: {mympdVersion: %Q, mpdVersion: %Q, libmpdclientVersion: %Q}}", 
@@ -1525,7 +1523,7 @@ bool mympd_state_set(const char *name, const char *value) {
         printf("Error opening %s\n", tmp_file);
         return false;
     }
-    fprintf(fp, value);
+    fprintf(fp, "%s", value);
     fclose(fp);
     if (rename(tmp_file, cfg_file) == -1)
         printf("Error renaming file from %s to %s\n", tmp_file, cfg_file);
@@ -1543,20 +1541,25 @@ int mympd_syscmd(char *buffer, char *cmd, int order) {
     snprintf(filename, 400, "%s/syscmds/%d%s", config.etcdir, order, cmd);
     FILE *fp = fopen(filename, "r");    
     if (fp == NULL) {
-        len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't execute cmd %s\"}", cmd);
-        printf("Can't execute syscmd %s\n", cmd);
+        len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't execute cmd %s.\"}", cmd);
+        printf("Can't execute syscmd \"%s\"\n", cmd);
         return len;
     }
     read = getline(&line, &n, fp);
     fclose(fp);
     if (read > 0) {
         strtok(line, "\n");
-        system(line);
-        len = snprintf(buffer, MAX_SIZE, "{\"type\": \"result\", \"data\": \"Executed cmd %s\"}", line);
-        LOG_VERBOSE() printf("Executed syscmd %s\n", line);
+        if (system(line) == 0) {
+            len = snprintf(buffer, MAX_SIZE, "{\"type\": \"result\", \"data\": \"Executed cmd %s.\"}", line);
+            LOG_VERBOSE() printf("Executed syscmd \"%s\"\n", line);
+        }
+        else {
+            len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Executing cmd %s failed.\"}", cmd);
+            printf("Executing syscmd \"%s\" failed.\n", cmd);
+        }
     } else {
-        len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't execute cmd %s\"}", cmd);
-        printf("Can't execute syscmd %s\n", cmd);
+        len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't execute cmd %s.\"}", cmd);
+        printf("Can't execute syscmd \"%s\"\n", cmd);
     }
     CHECK_RETURN_LEN();    
     return len;
@@ -2341,13 +2344,14 @@ int mympd_search(char *buffer, char *searchstr, char *filter, char *plist, unsig
     return len;
 }
 
-#if LIBMPDCLIENT_CHECK_VERSION(2, 17, 0)
+
 int mympd_search_adv(char *buffer, char *expression, char *sort, bool sortdesc, char *grouptag, char *plist, unsigned int offset) {
+    int len = 0;
+    struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);    
+#if LIBMPDCLIENT_CHECK_VERSION(2, 17, 0)
     struct mpd_song *song;
     unsigned long entity_count = -1;
     unsigned long entities_returned = 0;
-    int len = 0;
-    struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
     
     if (strcmp(plist, "") == 0) {
         if (mpd_search_db_songs(mpd.conn, false) == false)
@@ -2412,11 +2416,12 @@ int mympd_search_adv(char *buffer, char *expression, char *sort, bool sortdesc, 
     } 
     else
         len = json_printf(&out, "{type: result, data: ok}");
-
+#else
+    len = json_printf(&out, "{type: error, data: %s}", "Advanced search is disabled.");
+#endif
     CHECK_RETURN_LEN();
     return len;
 }
-#endif
 
 int mympd_queue_crop(char *buffer) {
     int len = 0;
@@ -2510,7 +2515,7 @@ int mympd_put_stats(char *buffer) {
     char mpd_version[20];
     char libmpdclient_version[20];
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
-    snprintf(mpd_version, 20, "%i.%i.%i", version[0], version[1], version[2]);
+    snprintf(mpd_version, 20, "%u.%u.%u", version[0], version[1], version[2]);
     snprintf(libmpdclient_version, 20, "%i.%i.%i", LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION);
 
     if (stats == NULL)
@@ -2602,7 +2607,7 @@ int mympd_smartpls_save(char *smartpltype, char *playlist, char *tag, char *sear
         else if (rename(tmp_file, pl_file) == -1)
             printf("Error renaming file from %s to %s\n", tmp_file, pl_file);
         else
-            mympd_smartpls_update(playlist, tag, maxentries);
+            mympd_smartpls_update_sticker(playlist, tag, maxentries);
     }
     else if (strcmp(smartpltype, "newest") == 0) {
         if (json_fprintf(tmp_file, "{type: %Q, timerange: %d}", smartpltype, timerange) == -1)
@@ -2649,7 +2654,7 @@ int mympd_smartpls_update_all() {
             if (strcmp(smartpltype, "sticker") == 0) {
                 je = json_scanf(content, strlen(content), "{sticker: %Q, maxentries: %d}", &p_charbuf1, &int_buf1);
                 if (je == 2) {
-                    mympd_smartpls_update(ent->d_name, p_charbuf1, int_buf1);
+                    mympd_smartpls_update_sticker(ent->d_name, p_charbuf1, int_buf1);
                     free(p_charbuf1);
                 }
                 else
@@ -2713,17 +2718,15 @@ int mympd_smartpls_clear(char *playlist) {
 
 int mympd_smartpls_update_search(char *playlist, char *tag, char *searchstr) {
     mympd_smartpls_clear(playlist);
-#if LIBMPDCLIENT_CHECK_VERSION(2, 17, 0)
     if (mpd.feat_advsearch == true && strcmp(tag, "expression") == 0)
         mympd_search_adv(mpd.buf, searchstr, NULL, true, NULL, playlist, 0);
     else
-#endif
         mympd_search(mpd.buf, searchstr, tag, playlist, 0);
     LOG_INFO() printf("Updated %s\n", playlist);
     return 0;
 }
 
-int mympd_smartpls_update(char *playlist, char *sticker, int maxentries) {
+int mympd_smartpls_update_sticker(char *playlist, char *sticker, int maxentries) {
     struct mpd_pair *pair;
     char *uri = NULL;
     const char *p_value;
@@ -2731,7 +2734,7 @@ int mympd_smartpls_update(char *playlist, char *sticker, int maxentries) {
     long value;
     long value_max = 0;
     long i = 0;
-    unsigned int j;
+    size_t j;
 
     if (!mpd_send_sticker_find(mpd.conn, "song", "", sticker)) {
         LOG_ERROR_AND_RECOVER("mpd_send_sticker_find");
@@ -2803,18 +2806,14 @@ int mympd_smartpls_update_newest(char *playlist, int timerange) {
     mympd_smartpls_clear(playlist);
     value_max -= timerange;
     if (value_max > 0) {
-#if LIBMPDCLIENT_CHECK_VERSION(2, 17, 0)
         if (mpd.feat_advsearch == true) {
             snprintf(searchstr, 50, "(modified-since '%lu')", value_max);
             mympd_search_adv(mpd.buf, searchstr, NULL, true, NULL, playlist, 0);
         }
         else {
-#endif
             snprintf(searchstr, 20, "%lu", value_max);
             mympd_search(mpd.buf, searchstr, "modified-since", playlist, 0);
-#if LIBMPDCLIENT_CHECK_VERSION(2, 17, 0)
         }
-#endif
         LOG_INFO() printf("Updated %s\n", playlist);
     }
     return 0;

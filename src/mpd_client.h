@@ -260,7 +260,7 @@ int mympd_smartpls_save(char *smartpltype, char *playlist, char *tag, char *sear
 int mympd_smartpls_put(char *buffer, char *playlist);
 int mympd_smartpls_update_all();
 int mympd_smartpls_clear(char *playlist);
-int mympd_smartpls_update(char *sticker, char *playlist, int maxentries);
+int mympd_smartpls_update_sticker(char *playlist, char *sticker, int maxentries);
 int mympd_smartpls_update_newest(char *playlist, int timerange);
 int mympd_smartpls_update_search(char *playlist, char *tag, char *searchstr);
 int mympd_get_updatedb_state(char *buffer);
@@ -271,9 +271,7 @@ int mympd_put_current_song(char *buffer);
 int mympd_put_queue(char *buffer, unsigned int offset, unsigned *queue_version, unsigned *queue_length);
 int mympd_put_browse(char *buffer, char *path, unsigned int offset, char *filter);
 int mympd_search(char *buffer, char *searchstr, char *filter, char *plist, unsigned int offset);
-#if LIBMPDCLIENT_CHECK_VERSION(2, 17, 0)
 int mympd_search_adv(char *buffer, char *expression, char *sort, bool sortdesc, char *grouptag, char *plist, unsigned int offset);
-#endif
 int mympd_search_queue(char *buffer, char *mpdtagtype, unsigned int offset, char *searchstr);
 int mympd_put_welcome(char *buffer);
 int mympd_put_volume(char *buffer);
