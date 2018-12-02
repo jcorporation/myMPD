@@ -78,15 +78,18 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
     if (cmd_id == -1)
         cmd_id = get_cmd_id("MPD_API_UNKNOWN");
 
-    mpd_send_noidle(mpd.conn);
+    LOG_DEBUG() fprintf(stderr, "DEBUG: Leaving mpd idle mode\n");
+    if (mpd_send_noidle(mpd.conn)) {
     //save idle events (processing later)
-    fds[0].fd = mpd_connection_get_fd(mpd.conn);
-    fds[0].events = POLLIN;
-    pollrc = poll(fds, 1, 100);
-    if (pollrc > 0) {
-        idle_bitmask_save = mpd_recv_idle(mpd.conn, false);
-        if (idle_bitmask_save > 0)
-            LOG_DEBUG() fprintf(stderr, "DEBUG: Idle event before request: %d\n", idle_bitmask_save);
+        LOG_DEBUG() fprintf(stderr, "DEBUG: Checking for idle events\n");
+        fds[0].fd = mpd_connection_get_fd(mpd.conn);
+        fds[0].events = POLLIN;
+        pollrc = poll(fds, 1, 200);
+        if (pollrc > 0) {
+            idle_bitmask_save = mpd_recv_idle(mpd.conn, false);
+            if (idle_bitmask_save > 0)
+                LOG_DEBUG() fprintf(stderr, "DEBUG: Idle event before request: %d\n", idle_bitmask_save);
+        }
     }
     mpd_response_finish(mpd.conn);
     //handle request
@@ -827,7 +830,7 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
         mg_send_http_chunk(nc, mpd.buf, n);
     }
     free(cmd);
-    
+    LOG_DEBUG() fprintf(stderr, "DEBUG: Entering mpd idle mode\n");
     mpd_send_idle(mpd.conn);
 }
 
@@ -2563,6 +2566,11 @@ int mympd_smartpls_put(char *buffer, char *playlist) {
     sanitize_string(playlist);
     snprintf(pl_file, 400, "%s/smartpls/%s", config.varlibdir, playlist);
     char *content = json_fread(pl_file);
+    if (content == NULL) {
+        len = json_printf(&out, "{type: error, data: %Q}}", "Can't read smart playlist file");
+        printf("Can't read smart playlist file: %s\n", pl_file);
+        return len;
+    }
     je = json_scanf(content, strlen(content), "{type: %Q }", &smartpltype);
     if (je == 1) {
         if (strcmp(smartpltype, "sticker") == 0) {
@@ -2574,6 +2582,9 @@ int mympd_smartpls_put(char *buffer, char *playlist) {
                     p_charbuf1,
                     int_buf1);
                 free(p_charbuf1);
+            } else {
+                len = json_printf(&out, "{type: error, data: %Q]", "Can't parse smart playlist file");
+                printf("Can't parse smart playlist file: %s\n", pl_file);
             }
         }
         else if (strcmp(smartpltype, "newest") == 0) {
@@ -2583,6 +2594,9 @@ int mympd_smartpls_put(char *buffer, char *playlist) {
                     playlist,
                     smartpltype,
                     int_buf1);
+            } else {
+                len = json_printf(&out, "{type: error, data: %Q]", "Can't parse smart playlist file");
+                printf("Can't parse smart playlist file: %s\n", pl_file);
             }
         }
         else if (strcmp(smartpltype, "search") == 0) {
@@ -2595,9 +2609,18 @@ int mympd_smartpls_put(char *buffer, char *playlist) {
                     p_charbuf2);
                 free(p_charbuf1);
                 free(p_charbuf2);
+            } else {
+                len = json_printf(&out, "{type: error, data: %Q]", "Can't parse smart playlist file");
+                printf("Can't parse smart playlist file: %s\n", pl_file);
             }
+        } else {
+            len = json_printf(&out, "{type: error, data: %Q}}", "Unknown smart playlist type");
+            printf("Unknown smart playlist type: %s\n", pl_file);
         }
         free(smartpltype);        
+    } else {
+        len = json_printf(&out, "{type: error, data: %Q}}", "Unknown smart playlist type");
+        printf("Unknown smart playlist type: %s\n", pl_file);
     }
     return len;
 }
@@ -2673,6 +2696,10 @@ int mympd_smartpls_update_all() {
                 continue;
             snprintf(filename, 400, "%s/smartpls/%s", config.varlibdir, ent->d_name);
             char *content = json_fread(filename);
+            if (content == NULL) {
+                printf("Cant read smart playlist file %s\n", filename);
+                continue;
+            }
             je = json_scanf(content, strlen(content), "{type: %Q }", &smartpltype);
             if (je != 1)
                 continue;
@@ -2683,7 +2710,7 @@ int mympd_smartpls_update_all() {
                     free(p_charbuf1);
                 }
                 else
-                    printf("Can't parse file %s\n", filename);
+                    printf("Can't parse smart playlist file %s\n", filename);
             }
             else if (strcmp(smartpltype, "newest") == 0) {
                 je = json_scanf(content, strlen(content), "{timerange: %d}", &int_buf1);
@@ -2691,7 +2718,7 @@ int mympd_smartpls_update_all() {
                     mympd_smartpls_update_newest(ent->d_name, int_buf1);
                 }
                 else
-                    printf("Can't parse file %s\n", filename);                
+                    printf("Can't parse smart playlist file %s\n", filename);                
             }
             else if (strcmp(smartpltype, "search") == 0) {
                 je = json_scanf(content, strlen(content), "{tag: %Q, searchstr: %Q}", &p_charbuf1, &p_charbuf2);
@@ -2701,14 +2728,14 @@ int mympd_smartpls_update_all() {
                     free(p_charbuf2);
                 }
                 else
-                    printf("Can't parse file %s\n", filename);
+                    printf("Can't parse smart playlist file %s\n", filename);
             }
             free(smartpltype);
             free(content);
         }
         closedir (dir);
     } else {
-        printf("Can't open dir %s\n", dirname);
+        printf("Can't open smart playlist directory %s\n", dirname);
         return 1;
     }
     return 0;
