@@ -1776,7 +1776,7 @@ int mympd_put_current_song(char *buffer) {
     struct mpd_song *song;
     int len;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
-    char cover[500];
+    char cover[500] = "";
     
     song = mpd_run_current_song(mpd.conn);
     if (song == NULL) {
@@ -1821,7 +1821,7 @@ int mympd_put_songdetails(char *buffer, char *uri) {
     const struct mpd_song *song;
     int len;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
-    char cover[500];
+    char cover[500] = "";
     
     len = json_printf(&out, "{type: song_details, data: {");
     if (!mpd_send_list_all_meta(mpd.conn, uri))
@@ -2137,7 +2137,7 @@ int mympd_put_songs_in_album(char *buffer, char *album, char *search, char *tag)
     unsigned long entity_count = 0;
     unsigned long entities_returned = 0;
     int len;
-    char cover[500];
+    char cover[500] = "";
     char *albumartist = NULL;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
 
