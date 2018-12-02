@@ -1560,8 +1560,8 @@ int mympd_syscmd(char *buffer, char *cmd, int order) {
     if (read > 0) {
         strtok(line, "\n");
         if (system(line) == 0) {
-            len = snprintf(buffer, MAX_SIZE, "{\"type\": \"result\", \"data\": \"Executed cmd %s.\"}", line);
-            LOG_VERBOSE() printf("Executed syscmd \"%s\"\n", line);
+            len = snprintf(buffer, MAX_SIZE, "{\"type\": \"result\", \"data\": \"Executed cmd %s.\"}", cmd);
+            LOG_VERBOSE() printf("Executed syscmd: \"%s\"\n", line);
         }
         else {
             len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Executing cmd %s failed.\"}", cmd);
