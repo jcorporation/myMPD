@@ -105,8 +105,10 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
             if (config.stickers) {
                 je = json_scanf(msg.p, msg.len, "{data: {uri: %Q, like: %d}}", &p_charbuf1, &uint_buf1);
                 if (je == 2) {        
-                    mympd_like_song_uri(p_charbuf1, uint_buf1);
-                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+                    if (!mympd_like_song_uri(p_charbuf1, uint_buf1))
+                        n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set like.\"}");
+                    else
+                        n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
                     free(p_charbuf1);
                 }
             } 
@@ -153,14 +155,16 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
                     mympd_state.colsQueueLastPlayed = strdup(cols);
                 }
                 else {
-                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Unknown column %s\"}", p_charbuf1);
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Unknown table %s\"}", p_charbuf1);
                     printf("MPD_API_COLS_SAVE: Unknown table %s\n", p_charbuf1);
                     free(p_charbuf1);
                     break;
                 }
-                mympd_state_set(p_charbuf1, cols);
+                if (n == 0) {
+                    if (mympd_state_set(p_charbuf1, cols))
+                        n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+                }
                 free(p_charbuf1);
-                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
             break;
         case MPD_API_SYSCMD:
@@ -186,70 +190,81 @@ void callback_mympd(struct mg_connection *nc, const struct mg_str msg) {
         case MPD_API_SETTINGS_SET:
             je = json_scanf(msg.p, msg.len, "{data: {notificationWeb: %B}}", &mympd_state.notificationWeb);
             if (je == 1)
-                mympd_state_set("notificationWeb", (mympd_state.notificationWeb == true ? "true" : "false"));
+                if (!mympd_state_set("notificationWeb", (mympd_state.notificationWeb == true ? "true" : "false")))
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state notificationWeb.\"}");
             
             je = json_scanf(msg.p, msg.len, "{data: {notificationPage: %B}}", &mympd_state.notificationPage);
             if (je == 1)
-                mympd_state_set("notificationPage", (mympd_state.notificationPage == true ? "true" : "false"));
+                if (!mympd_state_set("notificationPage", (mympd_state.notificationPage == true ? "true" : "false")))
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state notificationPage.\"}");
             
             je = json_scanf(msg.p, msg.len, "{data: {jukeboxMode: %d}}", &mympd_state.jukeboxMode);
             if (je == 1) {
                 snprintf(p_char, 4, "%d", mympd_state.jukeboxMode);
-                mympd_state_set("jukeboxMode", p_char);
+                if (!mympd_state_set("jukeboxMode", p_char))
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state jukeboxMode.\"}");
             }
 
             je = json_scanf(msg.p, msg.len, "{data: {jukeboxPlaylist: %Q}}", &mympd_state.jukeboxPlaylist);
             if (je == 1)
-                mympd_state_set("jukeboxPlaylist", mympd_state.jukeboxPlaylist);
+                if (!mympd_state_set("jukeboxPlaylist", mympd_state.jukeboxPlaylist))
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state jukeboxPlaylist.\"}");
 
             je = json_scanf(msg.p, msg.len, "{data: {jukeboxQueueLength: %d}}", &mympd_state.jukeboxQueueLength);
             if (je == 1) {
                 snprintf(p_char, 4, "%d", mympd_state.jukeboxQueueLength);
-                mympd_state_set("jukeboxQueueLength", p_char);
+                if (!mympd_state_set("jukeboxQueueLength", p_char))
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state jukeboxQueueLength.\"}");
             }
         
             je = json_scanf(msg.p, msg.len, "{data: {random: %u}}", &uint_buf1);
             if (je == 1)        
-                mpd_run_random(mpd.conn, uint_buf1);
+                if (!mpd_run_random(mpd.conn, uint_buf1))
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set mpd state random.\"}");
             
             je = json_scanf(msg.p, msg.len, "{data: {repeat: %u}}", &uint_buf1);
             if (je == 1)        
-                mpd_run_repeat(mpd.conn, uint_buf1);
+                if (!mpd_run_repeat(mpd.conn, uint_buf1))
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set mpd state repeat.\"}");
             
             je = json_scanf(msg.p, msg.len, "{data: {consume: %u}}", &uint_buf1);
             if (je == 1)        
-                mpd_run_consume(mpd.conn, uint_buf1);
+                if (!mpd_run_consume(mpd.conn, uint_buf1))
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set mpd state consume.\"}");
             
             je = json_scanf(msg.p, msg.len, "{data: {single: %u}}", &uint_buf1);
             if (je == 1)
-                mpd_run_single(mpd.conn, uint_buf1);
+                if (!mpd_run_single(mpd.conn, uint_buf1))
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set mpd state single.\"}");
             
             je = json_scanf(msg.p, msg.len, "{data: {crossfade: %u}}", &uint_buf1);
             if (je == 1)
-                mpd_run_crossfade(mpd.conn, uint_buf1);
+                if (!mpd_run_crossfade(mpd.conn, uint_buf1))
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set mpd state crossfade.\"}");
             
             if (config.mixramp) {
                 je = json_scanf(msg.p, msg.len, "{data: {mixrampdb: %f}}", &float_buf);
                 if (je == 1)        
-                    mpd_run_mixrampdb(mpd.conn, float_buf);
+                    if (!mpd_run_mixrampdb(mpd.conn, float_buf))
+                        n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set mpd state mixrampdb.\"}");
             
                 je = json_scanf(msg.p, msg.len, "{data: {mixrampdelay: %f}}", &float_buf);
-                if (je == 1)        
-                    mpd_run_mixrampdelay(mpd.conn, float_buf);
+                if (je == 1)
+                    if (!mpd_run_mixrampdelay(mpd.conn, float_buf))
+                        n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set mpd state mixrampdelay.\"}");
             }
             
             je = json_scanf(msg.p, msg.len, "{data: {replaygain: %Q}}", &p_charbuf1);
             if (je == 1) {
-                mpd_send_command(mpd.conn, "replay_gain_mode", p_charbuf1, NULL);
-                struct mpd_pair *pair;
-                while ((pair = mpd_recv_pair(mpd.conn)) != NULL) {
-        	    mpd_return_pair(mpd.conn, pair);
-                }
+                if (!mpd_send_command(mpd.conn, "replay_gain_mode", p_charbuf1, NULL))
+                    n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set mpd state replaygain.\"}");
+                mpd_response_finish(mpd.conn);
                 free(p_charbuf1);            
             }
             if (mympd_state.jukeboxMode > 0)
                 mympd_jukebox();
-            n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+            if (n == 0)
+                n = snprintf(mpd.buf, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             break;
         case MPD_API_WELCOME:
             n = mympd_put_welcome(mpd.buf);
@@ -1107,7 +1122,7 @@ int mympd_get_updatedb_state(char *buffer) {
 }
 
 
-void mympd_get_sticker(const char *uri, t_sticker *sticker) {
+bool mympd_get_sticker(const char *uri, t_sticker *sticker) {
     struct mpd_pair *pair;
     char *crap;
     sticker->playCount = 0;
@@ -1115,7 +1130,7 @@ void mympd_get_sticker(const char *uri, t_sticker *sticker) {
     sticker->lastPlayed = 0;
     sticker->like = 1;
     if (uri == NULL || strncasecmp("http:", uri, 5) == 0 || strncasecmp("https:", uri, 6) == 0)
-        return;
+        return false;
 
     if (mpd_send_sticker_list(mpd.conn, "song", uri)) {
         while ((pair = mpd_recv_sticker(mpd.conn)) != NULL) {
@@ -1130,24 +1145,37 @@ void mympd_get_sticker(const char *uri, t_sticker *sticker) {
             mpd_return_sticker(mpd.conn, pair);
         }
     }
-    else
+    else {
         LOG_ERROR_AND_RECOVER("mpd_send_sticker_list");
+        return false;
+    }
+    return true;
 }
 
-void mympd_count_song_id(int song_id, char *name, int value) {
+bool mympd_count_song_id(int song_id, char *name, int value) {
     struct mpd_song *song;
     if (song_id > -1) {
         song = mpd_run_get_queue_song_id(mpd.conn, song_id);
         if (song) {
-            mympd_count_song_uri(mpd_song_get_uri(song), name, value);
-            mpd_song_free(song);
+            if (!mympd_count_song_uri(mpd_song_get_uri(song), name, value)) {
+                mpd_song_free(song);
+                return false;
+            }
+            else {
+                mpd_song_free(song);
+                return true;
+            }
         }
+    } 
+    else {
+        //song_id <= 0, do nothing
     }
+    return true;
 }
 
-void mympd_count_song_uri(const char *uri, char *name, int value) {
+bool mympd_count_song_uri(const char *uri, char *name, int value) {
     if (uri == NULL || strncasecmp("http:", uri, 5) == 0 || strncasecmp("https:", uri, 6) == 0)
-        return;
+        return false;
     struct mpd_pair *pair;
     char *crap;
     int old_value = 0;
@@ -1158,7 +1186,10 @@ void mympd_count_song_uri(const char *uri, char *name, int value) {
                 old_value = strtol(pair->value, &crap, 10);
             mpd_return_sticker(mpd.conn, pair);
         }
-    } 
+    } else {
+        LOG_ERROR_AND_RECOVER("mpd_send_sticker_list");
+        return false;
+    }
     old_value += value;
     if (old_value > 999)
         old_value = 999;
@@ -1166,13 +1197,16 @@ void mympd_count_song_uri(const char *uri, char *name, int value) {
         old_value = 0;
     snprintf(v, 4, "%d", old_value);
     LOG_VERBOSE() printf("Setting sticker: \"%s\" -> %s: %s\n", uri, name, v);
-    if (!mpd_run_sticker_set(mpd.conn, "song", uri, name, v))
+    if (!mpd_run_sticker_set(mpd.conn, "song", uri, name, v)) {
         LOG_ERROR_AND_RECOVER("mpd_send_sticker_set");
+        return false;
+    }
+    return true;
 }
 
-void mympd_like_song_uri(const char *uri, int value) {
+bool mympd_like_song_uri(const char *uri, int value) {
     if (uri == NULL || strncasecmp("http:", uri, 5) == 0 || strncasecmp("https:", uri, 6) == 0)
-        return;
+        return false;
     char v[2];
     if (value > 2)
         value = 2;
@@ -1180,11 +1214,14 @@ void mympd_like_song_uri(const char *uri, int value) {
         value = 0;
     snprintf(v, 2, "%d", value);
     LOG_VERBOSE() printf("Setting sticker: \"%s\" -> like: %s\n", uri, v);
-    if (!mpd_run_sticker_set(mpd.conn, "song", uri, "like", v))
+    if (!mpd_run_sticker_set(mpd.conn, "song", uri, "like", v)) {
         LOG_ERROR_AND_RECOVER("mpd_send_sticker_set");
+        return false;
+    }
+    return true;        
 }
 
-void mympd_last_played_list(int song_id) {
+bool mympd_last_played_list(int song_id) {
     struct mpd_song *song;
     char tmp_file[400];
     char cfg_file[400];
@@ -1203,7 +1240,7 @@ void mympd_last_played_list(int song_id) {
             FILE *fp = fopen(tmp_file, "w");
             if (fp == NULL) {
                 printf("Error opening %s\n", tmp_file);
-                return;
+                return false;
             }
             struct node *current = last_played.list;
             while (current != NULL) {
@@ -1211,35 +1248,58 @@ void mympd_last_played_list(int song_id) {
                 current = current->next;
             }
             fclose(fp);
-            if (rename(tmp_file, cfg_file) == -1)
+            if (rename(tmp_file, cfg_file) == -1) {
                 printf("Error renaming file from %s to %s\n", tmp_file, cfg_file);
+                return false;
+            }
+        } else {
+            printf("Can't get song from id %d\n", song_id);
+            return false;
         }
     }
+    return true;
 }
 
-void mympd_last_played_song_id(int song_id) {
+bool mympd_last_played_song_id(int song_id) {
     struct mpd_song *song;
     
     if (song_id > -1) {
         song = mpd_run_get_queue_song_id(mpd.conn, song_id);
         if (song) {
-            mympd_last_played_song_uri(mpd_song_get_uri(song));
-            mpd_song_free(song);
+            if (!mympd_last_played_song_uri(mpd_song_get_uri(song))) {
+                mpd_song_free(song);
+                return false;
+            }
+            else {
+                mpd_song_free(song);
+                return true;
+            }
+        }
+        else {
+            LOG_ERROR_AND_RECOVER("mpd_run_get_queue_song_id");
+            return false;
         }
     }
+    else {
+        //song_id <= 0, do nothing
+    }
+    return true;
 }
 
-void mympd_last_played_song_uri(const char *uri) {
+bool mympd_last_played_song_uri(const char *uri) {
     if (uri == NULL || strncasecmp("http:", uri, 5) == 0 || strncasecmp("https:", uri, 6) == 0)
-        return;
+        return false;
     char v[20];
     snprintf(v, 20, "%lu", time(NULL));
-    if (!mpd_run_sticker_set(mpd.conn, "song", uri, "lastPlayed", v))
+    if (!mpd_run_sticker_set(mpd.conn, "song", uri, "lastPlayed", v)) {
         LOG_ERROR_AND_RECOVER("mpd_send_sticker_set");
+        return false;
+    }
+    return true;
 }
 
 
-char* mympd_get_tag(struct mpd_song const *song, enum mpd_tag_type tag) {
+char *mympd_get_tag(struct mpd_song const *song, enum mpd_tag_type tag) {
     char *str;
     str = (char *)mpd_song_get_tag(song, tag, 0);
     if (str == NULL) {
@@ -1253,7 +1313,7 @@ char* mympd_get_tag(struct mpd_song const *song, enum mpd_tag_type tag) {
     return str;
 }
 
-void mympd_jukebox() {
+bool mympd_jukebox() {
     struct mpd_status *status;
     status = mpd_run_status(mpd.conn);
     int queue_length, addSongs, i;
@@ -1265,12 +1325,12 @@ void mympd_jukebox() {
 
     if (!status) {
         LOG_ERROR_AND_RECOVER("mpd_run_status");
-        return;
+        return false;
     }
     queue_length = mpd_status_get_queue_length(status);
     mpd_status_free(status);
     if (queue_length > mympd_state.jukeboxQueueLength)
-        return;
+        return true;
 
     if (mympd_state.jukeboxMode == 1) 
         addSongs = mympd_state.jukeboxQueueLength - queue_length;
@@ -1278,11 +1338,11 @@ void mympd_jukebox() {
         addSongs = 1;
     
     if (addSongs < 1)
-        return;
+        return true;
         
     if (mpd.feat_playlists == false && strcmp(mympd_state.jukeboxPlaylist, "Database") != 0) {
         LOG_INFO() printf("Jukebox: Playlists are disabled\n");
-        return;
+        return true;
     }
     
     srand((unsigned int)time(NULL));
@@ -1296,14 +1356,14 @@ void mympd_jukebox() {
             if (!mpd_send_list_all(mpd.conn, "/")) {
                 LOG_ERROR_AND_RECOVER("mpd_send_list_all");
                 list_free(&add_list);
-                return;
+                return false;
             }
         }
         else {
             if (!mpd_send_list_playlist(mpd.conn, mympd_state.jukeboxPlaylist)) {
                 LOG_ERROR_AND_RECOVER("mpd_send_list_playlist");
                 list_free(&add_list);
-                return;
+                return false;
             }
         }
         while ((entity = mpd_recv_entity(mpd.conn)) != NULL) {
@@ -1338,12 +1398,12 @@ void mympd_jukebox() {
         if (!mpd_search_db_tags(mpd.conn, MPD_TAG_ALBUM)) {
             LOG_ERROR_AND_RECOVER("mpd_search_db_tags");
             list_free(&add_list);
-            return;
+            return false;
         }
         if (!mpd_search_commit(mpd.conn)) {
             LOG_ERROR_AND_RECOVER("mpd_search_commit");
             list_free(&add_list);
-            return;
+            return false;
         }
         while ((pair = mpd_recv_pair_tag(mpd.conn, MPD_TAG_ALBUM )) != NULL)  {
             if (randrange(lineno) < addSongs) {
@@ -1387,7 +1447,7 @@ void mympd_jukebox() {
             LOG_INFO() printf("Jukebox adding album: %s\n", current->data);
             if (!mpd_send_command(mpd.conn, "searchadd", "Album", current->data, NULL)) {
                 LOG_ERROR_AND_RECOVER("mpd_send_command");
-                return;
+                return false;
             }
             else
                 nkeep++;
@@ -1402,6 +1462,7 @@ void mympd_jukebox() {
         printf("Error adding song(s), trying again...\n");
         mympd_jukebox();
     }
+    return true;
 }
 
 int randrange(int n) {
@@ -1535,8 +1596,10 @@ bool mympd_state_set(const char *name, const char *value) {
     }
     fprintf(fp, "%s", value);
     fclose(fp);
-    if (rename(tmp_file, cfg_file) == -1)
+    if (rename(tmp_file, cfg_file) == -1) {
         printf("Error renaming file from %s to %s\n", tmp_file, cfg_file);
+        return false;
+    }
     return true;
 }
 
