@@ -2890,7 +2890,7 @@ function addAllFromBrowseFilesystem() {
 
 function addAllFromSearchPlist(plist) {
     var nr = parseInt(document.getElementById('panel-heading-search').innerText);
-    if (nr != NaN && nr > 0) {
+    if (!isNaN(nr) && nr > 0) {
         if (settings.featAdvsearch)
             sendAPI({"cmd": "MPD_API_DATABASE_SEARCH_ADV", "data": {"plist": plist, "sort": "", "sortdesc": false, "expression": app.current.search, "offset": 0}});
         else
