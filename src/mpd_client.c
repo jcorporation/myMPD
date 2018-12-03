@@ -2457,11 +2457,11 @@ int mympd_search_adv(char *buffer, char *expression, char *sort, bool sortdesc, 
         RETURN_ERROR_AND_RECOVER("mpd_search_add_expression");
 
     if (strcmp(plist, "") == 0) {
-        if (sort != NULL && strcmp(sort, "") != 0) {
+        if (sort != NULL && strcmp(sort, "") != 0 && mpd.feat_tags == true) {
             if (mpd_search_add_sort_name(mpd.conn, sort, sortdesc) == false)
                 RETURN_ERROR_AND_RECOVER("mpd_search_add_sort_name");
         }
-        if (grouptag != NULL && strcmp(grouptag, "") != 0) {
+        if (grouptag != NULL && strcmp(grouptag, "") != 0 && mpd.feat_tags == true) {
             if (mpd_search_add_group_tag(mpd.conn, mpd_tag_name_parse(grouptag)) == false)
                 RETURN_ERROR_AND_RECOVER("mpd_search_add_group_tag");
         }

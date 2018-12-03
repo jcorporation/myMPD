@@ -319,7 +319,7 @@ function appRoute() {
                     if (settings.tags.includes('Title'))
                         sort = 'Title';
                     else
-                        sort = 'Filename';
+                        sort = '';
                     document.getElementById('SearchList').setAttribute('data-sort', sort);
                 }
                 else {
