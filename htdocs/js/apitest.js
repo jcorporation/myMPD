@@ -35,6 +35,9 @@ var uri2 = '';
 var album2 = '';
 var artist2 = '';
 var searchstr = 'tabula';
+var time_start = 0;
+var time_end = 0;
+var time_all = 0;
 
 var cmds = [
     '{"cmd":"MPD_API_WELCOME"}',
@@ -91,13 +94,13 @@ var cmds = [
     '{"cmd":"MPD_API_PLAYER_TOGGLE_OUTPUT","data":{"output":"__OUTPUTID__","state":1}}',
     '{"cmd":"MPD_API_PLAYER_STATE"}',
     '{"cmd":"MPD_API_SETTINGS_GET"}',
-    '{"cmd":"MPD_API_SETTINGS_SET", "data":{"random": 0}}',
+    '{"cmd":"MPD_API_SETTINGS_SET","data":{"random": 0}}',
     '{"cmd":"MPD_API_LIKE","data":{"uri":"__URI2__","like":2}}',
-    '{"cmd":"MPD_API_SYSCMD", "data":{"cmd": "Echo"}}'
-//    '{"cmd":"MPD_API_COLS_SAVE"}',
-//    '{"cmd":"MPD_API_SMARTPLS_UPDATE_ALL"}',
-//    '{"cmd":"MPD_API_SMARTPLS_SAVE"}',
-//    '{"cmd":"MPD_API_SMARTPLS_GET"}'
+    '{"cmd":"MPD_API_SYSCMD","data":{"cmd": "Echo"}}',
+    '{"cmd":"MPD_API_COLS_SAVE","data":{"table":"colsPlayback","cols":["Artist","Album","AlbumArtist"]}}',
+    '{"cmd":"MPD_API_SMARTPLS_UPDATE_ALL"}',
+    '{"cmd":"MPD_API_SMARTPLS_SAVE","data":{"type":"newest","playlist":"myMPDsmart-newestSongs","timerange":2678400}}',
+    '{"cmd":"MPD_API_SMARTPLS_GET","data":{"playlist":"myMPDsmart-newestSongs"}}'
 ];
 
 function setTest(cmd, state, response) {
@@ -105,10 +108,12 @@ function setTest(cmd, state, response) {
         ok++;
     else
         failed++;
+    var duration = time_end - time_start;
+    time_all += duration;
     document.getElementById('testCount').innerText = 'Test ' + (i + 1) + '/' + cmds.length + ' - ' +
-        ok + ' ok, ' + failed + ' failed';
+        ok + ' ok, ' + failed + ' failed, duration: ' + time_all + ' ms';
     var tr = document.createElement('tr');
-    tr.innerHTML = '<td>' + (i + 1) + '</td><td>' + cmd + '</td><td class="td-' + state + '">&nbsp;</td><td>' + response + '</td>';
+    tr.innerHTML = '<td>' + (i + 1) + '</td><td>' + cmd + '</td><td class="td-' + state + '">' + duration + ' ms</td><td>' + response + '</td>';
     document.getElementsByTagName('tbody')[0].appendChild(tr);
 }
 
@@ -122,15 +127,16 @@ function sendAPI(request, callback) {
                 var obj;
                 try {
                     obj = JSON.parse(ajaxRequest.responseText);
+                    time_end = new Date().getTime();
                     if (!obj.type)
                         setTest(request, 'error', 'Invalid response: ' + ajaxRequest.responseText);
                     else {
                         if (obj.type == 'search' && obj.data.length > 1) {
                             uri1 = obj.data[0].uri;
-                            artist1 = obj.data[0].Arist;
+                            artist1 = obj.data[0].Artist;
                             album1 = obj.data[0].Album;
                             uri2 = obj.data[1].uri;
-                            artist2 = obj.data[1].Arist;
+                            artist2 = obj.data[1].Artist;
                             album2 = obj.data[1].Album;
                         }
                         else if (obj.type == 'queue' && obj.data.length > 0)
@@ -154,6 +160,8 @@ function sendAPI(request, callback) {
             i++;
             if (i < cmds.length)
                 sendAPI(cmds[i]);
+            else
+                document.getElementsByTagName('h2')[0].innerText = 'Finished';
         }
     };
     request = request.replace(/__TRACKID__/, trackId);
@@ -165,6 +173,8 @@ function sendAPI(request, callback) {
     request = request.replace(/__ARTIST2__/, artist2);
     request = request.replace(/__ALBUM2__/, album2);
     request = request.replace(/__SEARCHSTR__/, searchstr);
+    document.getElementsByTagName('h2')[0].innerText = 'Running ' + request;
+    time_start = new Date().getTime();
     ajaxRequest.send(request);
 }
 
