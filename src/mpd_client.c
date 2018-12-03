@@ -932,22 +932,27 @@ void mympd_mpd_features() {
 
     mpd.protocol = mpd_connection_get_server_version(mpd.conn);
 
+    LOG_INFO() printf("MPD protocoll version: %u.%u.%u\n", mpd.protocol[0], mpd.protocol[1], mpd.protocol[2]);
+
     // Defaults
     mpd.feat_sticker = false;
     mpd.feat_playlists = false;
     mpd.feat_tags = false;
     mpd.feat_advsearch = false;
 
-    mpd_send_allowed_commands(mpd.conn);
-    while ((pair = mpd_recv_command_pair(mpd.conn)) != NULL) {
-        if (strcmp(pair->value, "sticker") == 0)
-            mpd.feat_sticker = true;
-        if (strcmp(pair->value, "listplaylists") == 0)
-            mpd.feat_playlists = true;
-        mpd_return_pair(mpd.conn, pair);
+    if (mpd_send_allowed_commands(mpd.conn)) {
+        while ((pair = mpd_recv_command_pair(mpd.conn)) != NULL) {
+            if (strcmp(pair->value, "sticker") == 0)
+                mpd.feat_sticker = true;
+            if (strcmp(pair->value, "listplaylists") == 0)
+                mpd.feat_playlists = true;
+            mpd_return_pair(mpd.conn, pair);
+        }
+        mpd_response_finish(mpd.conn);
     }
-    mpd_response_finish(mpd.conn);
-    LOG_INFO() printf("MPD protocoll version: %u.%u.%u\n", mpd.protocol[0], mpd.protocol[1], mpd.protocol[2]);
+    else {
+        LOG_ERROR_AND_RECOVER("mpd_send_allowed_commands");
+    }
     if (mpd.feat_sticker == false && config.stickers == true) {
         LOG_INFO() printf("MPD don't support stickers, disabling myMPD feature\n");
         config.stickers = false;
@@ -963,13 +968,17 @@ void mympd_mpd_features() {
     
     LOG_INFO() printf("MPD supported tags: ");
     list_free(&mpd_tags);
-    mpd_send_list_tag_types(mpd.conn);
-    while ((pair = mpd_recv_tag_type_pair(mpd.conn)) != NULL) {
-        LOG_INFO() printf("%s ", pair->value);
-        list_push(&mpd_tags, pair->value, 1);
-        mpd_return_pair(mpd.conn, pair);
+    if (mpd_send_list_tag_types(mpd.conn)) {
+        while ((pair = mpd_recv_tag_type_pair(mpd.conn)) != NULL) {
+            LOG_INFO() printf("%s ", pair->value);
+            list_push(&mpd_tags, pair->value, 1);
+            mpd_return_pair(mpd.conn, pair);
+        }
+        mpd_response_finish(mpd.conn);
     }
-    mpd_response_finish(mpd.conn);
+    else {
+        LOG_ERROR_AND_RECOVER("mpd_send_list_tag_types");
+    }
     list_free(&mympd_tags);
     if (mpd_tags.length == 0) {
         LOG_INFO() printf("none\nTags are disabled\n");
@@ -1080,8 +1089,10 @@ void mympd_idle(struct mg_mgr *s, int timeout) {
             pollrc = poll(fds, 1, timeout);
             if (pollrc > 0 || idle_bitmask_save > 0) {
                 //Handle idle event
+                LOG_DEBUG() fprintf(stderr, "DEBUG: Leaving mpd idle mode\n");
                 mpd_send_noidle(mpd.conn);
                 if (pollrc > 0) {
+                    LOG_DEBUG() fprintf(stderr, "DEBUG: Checking for idle events\n");
                     enum mpd_idle idle_bitmask = mpd_recv_idle(mpd.conn, false);
                     mympd_parse_idle(s, idle_bitmask);
                 } 
@@ -1094,6 +1105,7 @@ void mympd_idle(struct mg_mgr *s, int timeout) {
                     mympd_parse_idle(s, idle_bitmask_save);
                     idle_bitmask_save = 0;
                 }
+                LOG_DEBUG() fprintf(stderr, "DEBUG: Entering mpd idle mode\n");
                 mpd_send_idle(mpd.conn);
             }
             break;
@@ -1291,6 +1303,7 @@ bool mympd_last_played_song_uri(const char *uri) {
         return false;
     char v[20];
     snprintf(v, 20, "%lu", time(NULL));
+    LOG_VERBOSE() printf("Setting sticker: \"%s\" -> lastPlayed: %s\n", uri, v);
     if (!mpd_run_sticker_set(mpd.conn, "song", uri, "lastPlayed", v)) {
         LOG_ERROR_AND_RECOVER("mpd_send_sticker_set");
         return false;
