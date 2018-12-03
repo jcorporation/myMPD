@@ -377,7 +377,7 @@ function appInit() {
     domCache.progressBar.value = 0;
     domCache.progressBar.addEventListener('change', function(event) {
         if (currentSong && currentSong.currentSongId >= 0) {
-            var seekVal = Math.ceil(currentSong.totalTime * (domCache.progressBar.value / 100));
+            var seekVal = Math.ceil(currentSong.totalTime * (domCache.progressBar.value / 1000));
             sendAPI({"cmd": "MPD_API_PLAYER_SEEK", "data": {"songid": currentSong.currentSongId, "seek": seekVal}});
         }
     }, false);
