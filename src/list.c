@@ -1,3 +1,23 @@
+/* myMPD
+   (c) 2018 Juergen Mang <mail@jcgames.de>
+   This project's homepage is: https://github.com/jcorporation/mympd
+   
+   This linked list implementation is based on: https://github.com/joshkunz/ashuffle
+   
+   This program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; version 2 of the License.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License along
+   with this program; if not, write to the Free Software Foundation, Inc.,
+   Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+*/
+
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
@@ -35,7 +55,6 @@ struct node *list_node_at(const struct list *l, unsigned index) {
     return current;
 }
 
-
 int list_swap_item(struct node *n1, struct node *n2) {
     if (n1 == n2)
         return 1;
@@ -44,19 +63,14 @@ int list_swap_item(struct node *n1, struct node *n2) {
         return 1;
         
     int value = n2->value;
-    char *data = strdup(n2->data);
+    char *data = n2->data;
     
     n2->value = n1->value;
-    n2->data = realloc(n2->data, strlen(n1->data) + 1);
-    if (n2->data)
-        strcpy(n2->data, n1->data);
+    n2->data = n1->data;
     
     n1->value = value;
-    n1->data = realloc(n1->data, strlen(data) + 1);
-    if (n1->data)
-        strcpy(n1->data, data);
+    n1->data = data;
     
-    free(data);
     return 0;
 }
 

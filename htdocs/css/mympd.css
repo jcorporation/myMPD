@@ -321,3 +321,11 @@ div.key {
   heigth: 20px;
   text-align: center;
 }
+
+ol#searchCrumb {
+ padding: .5rem;
+}
+
+.nodropdown::after {
+   content: none;
+}

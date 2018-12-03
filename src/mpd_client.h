@@ -30,7 +30,7 @@
 
 #define RETURN_ERROR_AND_RECOVER(X) do { \
     printf("MPD %s: %s\n", X, mpd_connection_get_error_message(mpd.conn)); \
-    len = json_printf(&out, "{ type:error, data : %Q }", mpd_connection_get_error_message(mpd.conn)); \
+    len = json_printf(&out, "{type: error, data: %Q}", mpd_connection_get_error_message(mpd.conn)); \
     if (!mpd_connection_clear_error(mpd.conn)) \
         mpd.conn_state = MPD_FAILURE; \
     return len; \
@@ -65,6 +65,10 @@
 } while (0)
 
 
+#define LOG_INFO() if (config.loglevel >= 1) 
+#define LOG_VERBOSE() if (config.loglevel >= 2) 
+#define LOG_DEBUG() if (config.loglevel == 3) 
+
 #define MAX_SIZE 2048 * 400
 #define MAX_ELEMENTS_PER_PAGE 400
 
@@ -98,6 +102,7 @@
     X(MPD_API_SMARTPLS_UPDATE_ALL) \
     X(MPD_API_SMARTPLS_SAVE) \
     X(MPD_API_SMARTPLS_GET) \
+    X(MPD_API_DATABASE_SEARCH_ADV) \
     X(MPD_API_DATABASE_SEARCH) \
     X(MPD_API_DATABASE_UPDATE) \
     X(MPD_API_DATABASE_RESCAN) \
@@ -122,7 +127,6 @@
     X(MPD_API_PLAYER_STATE) \
     X(MPD_API_SETTINGS_GET) \
     X(MPD_API_SETTINGS_SET) \
-    X(MPD_API_MESSAGE_SEND) \
     X(MPD_API_WELCOME) \
     X(MPD_API_LIKE) \
     X(MPD_API_SYSCMD) \
@@ -167,6 +171,7 @@ struct t_mpd {
     bool feat_playlists;
     bool feat_tags;
     bool feat_library;
+    bool feat_advsearch;
 } mpd;
 
 struct list mpd_tags;
@@ -202,6 +207,7 @@ typedef struct {
     long streamport;
     const char *streamurl;
     unsigned long last_played_count;
+    long loglevel;
 } t_config;
 
 t_config config;
@@ -239,14 +245,14 @@ void mympd_idle(struct mg_mgr *sm, int timeout);
 void mympd_parse_idle(struct mg_mgr *s, int idle_bitmask);
 void callback_mympd(struct mg_connection *nc, const struct mg_str msg);
 void mympd_notify(struct mg_mgr *s);
-void mympd_count_song_id(int song_id, char *name, int value);
-void mympd_count_song_uri(const char *uri, char *name, int value);
-void mympd_like_song_uri(const char *uri, int value);
-void mympd_last_played_song_uri(const char *uri);
-void mympd_last_played_song_id(int song_id);
-void mympd_get_sticker(const char *uri, t_sticker *sticker);
-void mympd_last_played_list(int song_id);
-void mympd_jukebox();
+bool mympd_count_song_id(int song_id, char *name, int value);
+bool mympd_count_song_uri(const char *uri, char *name, int value);
+bool mympd_like_song_uri(const char *uri, int value);
+bool mympd_last_played_song_uri(const char *uri);
+bool mympd_last_played_song_id(int song_id);
+bool mympd_get_sticker(const char *uri, t_sticker *sticker);
+bool mympd_last_played_list(int song_id);
+bool mympd_jukebox();
 bool mympd_state_get(char *name, char *value);
 bool mympd_state_set(const char *name, const char *value);
 int mympd_syscmd(char *buffer, char *cmd, int order);
@@ -254,17 +260,17 @@ int mympd_smartpls_save(char *smartpltype, char *playlist, char *tag, char *sear
 int mympd_smartpls_put(char *buffer, char *playlist);
 int mympd_smartpls_update_all();
 int mympd_smartpls_clear(char *playlist);
-int mympd_smartpls_update(char *sticker, char *playlist, int maxentries);
+int mympd_smartpls_update_sticker(char *playlist, char *sticker, int maxentries);
 int mympd_smartpls_update_newest(char *playlist, int timerange);
 int mympd_smartpls_update_search(char *playlist, char *tag, char *searchstr);
 int mympd_get_updatedb_state(char *buffer);
-void mympd_get_song_uri_from_song_id(int song_id, char *uri);
 int mympd_put_state(char *buffer, int *current_song_id, int *next_song_id, int *last_song_id, unsigned *queue_version, unsigned *queue_length);
 int mympd_put_outputs(char *buffer);
 int mympd_put_current_song(char *buffer);
 int mympd_put_queue(char *buffer, unsigned int offset, unsigned *queue_version, unsigned *queue_length);
 int mympd_put_browse(char *buffer, char *path, unsigned int offset, char *filter);
 int mympd_search(char *buffer, char *searchstr, char *filter, char *plist, unsigned int offset);
+int mympd_search_adv(char *buffer, char *expression, char *sort, bool sortdesc, char *grouptag, char *plist, unsigned int offset);
 int mympd_search_queue(char *buffer, char *mpdtagtype, unsigned int offset, char *searchstr);
 int mympd_put_welcome(char *buffer);
 int mympd_put_volume(char *buffer);
