@@ -2280,7 +2280,7 @@ function updateSmartPlaylists() {
 }
 
 function voteSong(vote) {
-    var uri = domCache.currentTitle.getAttribute('data-uri');
+    var uri = decodeURI(domCache.currentTitle.getAttribute('data-uri'));
     if (uri == '')
         return;
         
