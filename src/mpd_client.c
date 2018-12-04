@@ -987,15 +987,33 @@ void mympd_mpd_features() {
     else {
         mpd.feat_tags = true;
         LOG_INFO() printf("\nmyMPD enabled tags: ");
+        enum mpd_tag_type types[64];
+	unsigned n = 0;
         token = strtok(taglist, s);
         while (token != NULL) {
             if (list_get_value(&mpd_tags, token) == 1) {
                 list_push(&mympd_tags, token, 1);
+                types[n++] = mpd_tag_name_parse(token);
                 LOG_INFO() printf("%s ", token);
             }
             token = strtok(NULL, s);
         }
-        LOG_INFO() printf("\nmyMPD enabled searchtags: ");
+        LOG_INFO() printf("\n");
+        #if LIBMPDCLIENT_CHECK_VERSION(2,12,0)
+        if (mpd_connection_cmp_server_version(mpd.conn, 0, 21, 0) >= 0) {
+            LOG_VERBOSE() printf("Enabling mpd tag types\n");
+            if (mpd_command_list_begin(mpd.conn, false)) {
+                mpd_send_clear_tag_types(mpd.conn);
+                mpd_send_enable_tag_types(mpd.conn, types, n);
+                if (!mpd_command_list_end(mpd.conn))
+                    LOG_ERROR_AND_RECOVER("mpd_command_list_end");
+            }
+            else
+                LOG_ERROR_AND_RECOVER("mpd_command_list_begin");
+            mpd_response_finish(mpd.conn);
+        }
+        #endif
+        LOG_INFO() printf("myMPD enabled searchtags: ");
         token = strtok(searchtaglist, s);
         while (token != NULL) {
             if (list_get_value(&mympd_tags, token) == 1) {
