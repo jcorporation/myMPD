@@ -101,12 +101,16 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
 }
 
 static void ev_handler_http(struct mg_connection *nc_http, int ev, void *ev_data) {
+    char *host;
+    char host_header[1024];
     switch(ev) {
         case MG_EV_HTTP_REQUEST: {
             struct http_message *hm = (struct http_message *) ev_data;
             struct mg_str *host_hdr = mg_get_http_header(hm, "Host");
+            snprintf(host_header, 1024, "%.*s", host_hdr->len, host_hdr->p);
+            host = strtok(host_header, ":");
             char s_redirect[250];
-            snprintf(s_redirect, 250, "https://%.*s:%s/", host_hdr->len, host_hdr->p, config.sslport);
+            snprintf(s_redirect, 250, "https://%s:%s/", host, config.sslport);
             LOG_VERBOSE() printf("Redirecting to %s\n", s_redirect);
             mg_http_send_redirect(nc_http, 301, mg_mk_str(s_redirect), mg_mk_str(NULL));
             break;
