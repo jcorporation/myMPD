@@ -110,7 +110,10 @@ static void ev_handler_http(struct mg_connection *nc_http, int ev, void *ev_data
             snprintf(host_header, 1024, "%.*s", host_hdr->len, host_hdr->p);
             host = strtok(host_header, ":");
             char s_redirect[250];
-            snprintf(s_redirect, 250, "https://%s:%s/", host, config.sslport);
+            if (strcmp(config.sslport, "443") == 0)
+                snprintf(s_redirect, 250, "https://%s/", host);
+            else
+                snprintf(s_redirect, 250, "https://%s:%s/", host, config.sslport);
             LOG_VERBOSE() printf("Redirecting to %s\n", s_redirect);
             mg_http_send_redirect(nc_http, 301, mg_mk_str(s_redirect), mg_mk_str(NULL));
             break;
