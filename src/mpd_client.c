@@ -1696,7 +1696,7 @@ int mympd_put_settings(char *buffer) {
         "mixrampdb: %f, mixrampdelay: %f, mpdhost: %Q, mpdport: %d, passwort_set: %B, featSyscmds: %B, featPlaylists: %B, featTags: %B, featLibrary: %B, "
         "featAdvsearch: %B, featLocalplayer: %B, streamport: %d, streamurl: %Q, featCoverimage: %B, coverimagename: %Q, featStickers: %B, mixramp: %B, "
         "featSmartpls: %B, maxElementsPerPage: %d, replaygain: %Q, notificationWeb: %B, notificationPage: %B, jukeboxMode: %d, jukeboxPlaylist: %Q, "
-        "jukeboxQueueLength: %d, tags: [", 
+        "jukeboxQueueLength: %d, coverimagesize: %d, tags: [", 
         mpd_status_get_repeat(status),
         mpd_status_get_single(status),
         mpd_status_get_crossfade(status),
@@ -1726,7 +1726,8 @@ int mympd_put_settings(char *buffer) {
         mympd_state.notificationPage,
         mympd_state.jukeboxMode,
         mympd_state.jukeboxPlaylist,
-        mympd_state.jukeboxQueueLength
+        mympd_state.jukeboxQueueLength,
+        config.coverimagesize
     );
     mpd_status_free(status);
     free(replaygain);

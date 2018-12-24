@@ -157,6 +157,8 @@ static int inihandler(void* user, const char* section, const char* name, const c
             p_config->coverimage = false;
     else if (MATCH("coverimagename"))
         p_config->coverimagename = strdup(value);
+    else if (MATCH("coverimagesize"))
+        p_config->coverimagesize = strtol(value, &crap, 10);
     else if (MATCH("varlibdir"))
         p_config->varlibdir = strdup(value);
     else if (MATCH("stickers"))
@@ -393,6 +395,7 @@ int main(int argc, char **argv) {
     config.streamurl = "";
     config.coverimage = true;
     config.coverimagename = "folder.jpg";
+    config.coverimagesize = 240;
     config.varlibdir = "/var/lib/mympd";
     config.stickers = true;
     config.mixramp = true;

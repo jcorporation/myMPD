@@ -1200,6 +1200,8 @@ function parseSettings(obj) {
     toggleBtn('btnnotifyPage', settings.notificationPage);
 
     var features = ["featStickers", "featSmartpls", "featPlaylists", "featTags", "featLocalplayer", "featSyscmds", "featCoverimage", "featAdvsearch"];
+
+    document.documentElement.style.setProperty('--mympd-coverimagesize', settings.coverimagesize + "px");
     
     for (var j = 0; j < features.length; j++) {
         var Els = document.getElementsByClassName(features[j]);

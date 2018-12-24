@@ -193,6 +193,7 @@ typedef struct {
     const char *user;
     bool coverimage;
     const char *coverimagename;
+    long coverimagesize;
     bool stickers;
     bool mixramp;
     const char *taglist;

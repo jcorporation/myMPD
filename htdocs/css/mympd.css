@@ -1,17 +1,20 @@
+:root {
+    --mympd-coverimagesize: 240px;
+}
+
 html {
   position: relative;
   min-height: 100%;
 }
 
 body {
-  margin-bottom: 60px;
   padding-top: 50px;
   padding-bottom: 50px;
   background-color: #888;
 }
 
 main {
-  padding-top: 20px;
+  padding-top: 10px;
 }
 
 footer {
@@ -21,6 +24,10 @@ footer {
 
 button {
   overflow: hidden;
+}
+
+.cardBodyPlayback {
+  padding-bottom:0px;
 }
 
 #BrowseBreadrumb {
@@ -65,17 +72,19 @@ small {
   border: 1px solid black;
   border-radius: 5px;
   overflow: hidden;
-  width: 240px;
-  height: 240px;
+  width: var(--mympd-coverimagesize);
+  max-width:100%;
+  height: var(--mympd-coverimagesize);
   background-color: #eee;
   float: left;
-  margin-right: 20px;
-  margin-bottom: 20px;
+  margin-right: 1.25rem;
+  margin-bottom: 1.25rem;
 }
 
 .album-desc {
   min-width: 240px;
   float: left;
+  padding-bottom:1.25rem;
 }
 
 .hide {
@@ -196,8 +205,8 @@ small {
 a.card-img-left {
   overflow: hidden;
   display: block;
-  width: 250px;
-  height: 250px;
+  width: var(--mympd-coverimagesize);
+  height: var(--mympd-coverimagesize);
   border-radius: 5px;
   background-size: cover;
   background-image: url(/assets/coverimage-loading.png);  
@@ -327,5 +336,6 @@ ol#searchCrumb {
 }
 
 .nodropdown::after {
-   content: none;
+  content: none;
 }
+

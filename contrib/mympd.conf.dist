@@ -39,6 +39,9 @@ coverimage = true
 #Name for coverimages
 coverimagename = folder.jpg
 
+#Size for coverimage in px
+coverimagesize = 240
+
 #myMPD state directory
 varlibdir = /var/lib/mympd
 
