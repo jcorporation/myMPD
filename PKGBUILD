@@ -4,7 +4,11 @@
 
 pkgname=mympd
 _pkgname=myMPD
+<<<<<<< HEAD
 pkgver=4.8.0
+=======
+pkgver=5.0.0
+>>>>>>> cd588ab72e10ee934a8ac58f4add1dc9268ed79f
 pkgrel=1
 pkgdesc="myMPD is a standalone and mobile friendly web mpdclient."
 arch=('x86_64' 'armv7h' 'aarch64')
