@@ -30,95 +30,21 @@
 #include <pwd.h>
 #include <grp.h>
 #include <libgen.h>
+#include <pthread.h>
 #include <mpd/client.h>
 
 #include "../dist/src/mongoose/mongoose.h"
-#include "../dist/src/frozen/frozen.h"
 #include "../dist/src/inih/ini.h"
+#include "common.h"
 #include "mpd_client.h"
+#include "web_server.h"
 #include "config.h"
 
 static sig_atomic_t s_signal_received = 0;
-static struct mg_serve_http_opts s_http_server_opts;
-
 
 static void signal_handler(int sig_num) {
     signal(sig_num, signal_handler);  // Reinstantiate signal handler
     s_signal_received = sig_num;
-}
-
-static void handle_api(struct mg_connection *nc, struct http_message *hm) {
-    if (!is_websocket(nc))
-        mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\nContent-Type: application/json\r\n\r\n");
-
-    char buf[1000] = {0};
-    int len = sizeof(buf) - 1 < hm->body.len ? sizeof(buf) - 1 : hm->body.len;
-    memcpy(buf, hm->body.p, len);
-    struct mg_str d = {buf, len};
-    callback_mympd(nc, d);
-
-    if (!is_websocket(nc))
-        mg_send_http_chunk(nc, "", 0); /* Send empty chunk, the end of response */
-}
-
-static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
-    switch(ev) {
-        case MG_EV_WEBSOCKET_HANDSHAKE_REQUEST: {
-            struct http_message *hm = (struct http_message *) ev_data;
-            LOG_VERBOSE() printf("New websocket request: %.*s\n", hm->uri.len, hm->uri.p);
-            if (mg_vcmp(&hm->uri, "/ws") != 0) {
-                printf("ERROR: Websocket request not to /ws, closing connection\n");
-                mg_printf(nc, "%s", "HTTP/1.1 403 FORBIDDEN\r\n\r\n");
-                nc->flags |= MG_F_SEND_AND_CLOSE;
-            }
-            break;
-        }
-        case MG_EV_WEBSOCKET_HANDSHAKE_DONE: {
-             LOG_VERBOSE() printf("New Websocket connection established\n");
-             struct mg_str d = mg_mk_str("{\"cmd\":\"MPD_API_WELCOME\"}");
-             callback_mympd(nc, d);
-             break;
-        }
-        case MG_EV_HTTP_REQUEST: {
-            struct http_message *hm = (struct http_message *) ev_data;
-            LOG_VERBOSE() printf("HTTP request: %.*s\n", hm->uri.len, hm->uri.p);
-            if (mg_vcmp(&hm->uri, "/api") == 0)
-                handle_api(nc, hm);
-            else
-                mg_serve_http(nc, hm, s_http_server_opts);
-            break;
-        }
-        case MG_EV_CLOSE: {
-            if (is_websocket(nc)) {
-              LOG_VERBOSE() printf("Websocket connection closed\n");
-            }
-            else {
-              LOG_VERBOSE() printf("HTTP connection closed\n");
-            }
-            break;
-        }        
-    }
-}
-
-static void ev_handler_http(struct mg_connection *nc_http, int ev, void *ev_data) {
-    char *host;
-    char host_header[1024];
-    switch(ev) {
-        case MG_EV_HTTP_REQUEST: {
-            struct http_message *hm = (struct http_message *) ev_data;
-            struct mg_str *host_hdr = mg_get_http_header(hm, "Host");
-            snprintf(host_header, 1024, "%.*s", host_hdr->len, host_hdr->p);
-            host = strtok(host_header, ":");
-            char s_redirect[250];
-            if (strcmp(config.sslport, "443") == 0)
-                snprintf(s_redirect, 250, "https://%s/", host);
-            else
-                snprintf(s_redirect, 250, "https://%s:%s/", host, config.sslport);
-            LOG_VERBOSE() printf("Redirecting to %s\n", s_redirect);
-            mg_http_send_redirect(nc_http, 301, mg_mk_str(s_redirect), mg_mk_str(NULL));
-            break;
-        }
-    }
 }
 
 static int inihandler(void* user, const char* section, const char* name, const char* value) {
@@ -373,6 +299,36 @@ bool testdir(char *name, char *dirname) {
     }
 }
 
+void *mpd_client_thread(void *arg) {
+    struct mg_mgr *mgr = (struct mg_mgr *) arg;
+    while (s_signal_received == 0) {
+        mympd_idle(100);
+    }
+    mympd_disconnect();
+    return NULL;
+}
+
+void *web_server_thread(void *arg) {
+    struct mg_mgr *mgr = (struct mg_mgr *) arg;
+    while (s_signal_received == 0) {
+        mg_mgr_poll(mgr, 10);
+        unsigned web_server_queue_length = tiny_queue_length(web_server_queue);
+        if (web_server_queue_length > 0) {
+            struct work_result_t *response = tiny_queue_shift(web_server_queue);
+            if (response->conn_id == 0) {
+                //Websocket notify from mpd idle
+                send_ws_notify(mgr, response);
+            } 
+            else {
+                //api response
+                send_api_response(mgr, response);
+            }
+        }
+    }
+    mg_mgr_free(mgr);
+    return NULL;
+}
+
 int main(int argc, char **argv) {
     struct mg_mgr mgr;
     struct mg_connection *nc;
@@ -380,6 +336,8 @@ int main(int argc, char **argv) {
     struct mg_bind_opts bind_opts;
     const char *err;
     char testdirname[400];
+    mpd_client_queue = tiny_queue_create();
+    web_server_queue = tiny_queue_create();
     
     //defaults
     config.mpdhost = "127.0.0.1";
@@ -447,11 +405,11 @@ int main(int argc, char **argv) {
     signal(SIGINT, signal_handler);
     setvbuf(stdout, NULL, _IOLBF, 0);
     setvbuf(stderr, NULL, _IOLBF, 0);
-    
+
     mg_mgr_init(&mgr, NULL);
 
     if (config.ssl == true) {
-        nc_http = mg_bind(&mgr, config.webport, ev_handler_http);
+        nc_http = mg_bind(&mgr, config.webport, ev_handler_redirect);
         if (nc_http == NULL) {
             printf("Error listening on port %s\n", config.webport);
             return EXIT_FAILURE;
@@ -552,13 +510,25 @@ int main(int argc, char **argv) {
     if (config.ssl == true)
         LOG_INFO() printf("Listening on ssl port %s\n", config.sslport);
 
+    pthread_t mpd_client, web_server;
+    pthread_create(&mpd_client, NULL, mpd_client_thread, &mgr);
+    pthread_create(&web_server, NULL, web_server_thread, &mgr);
+
+    //Do nothing...
+
+    pthread_join(mpd_client, NULL);
+    pthread_join(web_server, NULL);
+
+/*
+    mg_start_thread(mpd_client_thread, &mgr);
+
     while (s_signal_received == 0) {
         mg_mgr_poll(&mgr, 100);
-        mympd_idle(&mgr, 0);
     }
     mg_mgr_free(&mgr);
+*/
+
     list_free(&mpd_tags);
     list_free(&mympd_tags);
-    mympd_disconnect();
     return EXIT_SUCCESS;
 }

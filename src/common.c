@@ -1,5 +1,5 @@
 /* myMPD
-   (c) 2018 Juergen Mang <mail@jcgames.de>
+   (c) 2018-2019 Juergen Mang <mail@jcgames.de>
    This project's homepage is: https://github.com/jcorporation/mympd
    
    myMPD ist fork of:
@@ -26,7 +26,7 @@
 #include <string.h>
 #include <limits.h>
 #include <stdio.h>
-#include "validate.h"
+#include "common.h"
 
 void sanitize_string(const char *data) {
     static char ok_chars[] = "abcdefghijklmnopqrstuvwxyz"
@@ -38,18 +38,11 @@ void sanitize_string(const char *data) {
         *cp = '_';
 }
 
-int validate_path(char *path, const char *basepath) {
-    char *rpath = NULL;
-    char *ptr;
-    ptr = realpath(path, rpath);
-    if (ptr == NULL)
-        return 1;
-    if (strncmp(basepath, ptr, strlen(basepath)) == 0) {
-        free(rpath);
+int copy_string(char * const dest, char const * const src, size_t const dst_len, size_t const src_len) {
+    if (dst_len == 0 || src_len == 0)
         return 0;
-    }
-    else {
-        free(rpath);
-        return 1;
-    }
+    size_t const max = (src_len < dst_len) ? src_len : dst_len -1;
+    memcpy(dest, src, max);
+    dest[max] = '\0';
+    return max;
 }

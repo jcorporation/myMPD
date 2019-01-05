@@ -18,6 +18,9 @@
    Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
+#ifndef __LIST_H__
+#define __LIST_H__
+
 struct node {
     char *data;
     long value;
@@ -43,3 +46,4 @@ int list_shuffle(struct list *l);
 int list_sort_by_value(struct list *l, bool order);
 int list_swap_item(struct node *n1, struct node *n2);
 struct node *list_node_at(const struct list * l, unsigned index);
+#endif

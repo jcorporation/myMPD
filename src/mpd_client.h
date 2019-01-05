@@ -26,7 +26,10 @@
 #define __MPD_CLIENT_H__
 
 #include "../dist/src/mongoose/mongoose.h"
+#include "common.h"
+#include "web_server.h"
 #include "list.h"
+#include "tiny_queue.h"
 
 #define RETURN_ERROR_AND_RECOVER(X) do { \
     printf("MPD %s: %s\n", X, mpd_connection_get_error_message(mpd.conn)); \
@@ -64,13 +67,6 @@
     len += json_printf(&out, "Title: %Q, Duration: %d, uri: %Q", mympd_get_tag(song, MPD_TAG_TITLE), mpd_song_get_duration(song), mpd_song_get_uri(song)); \
 } while (0)
 
-
-#define LOG_INFO() if (config.loglevel >= 1) 
-#define LOG_VERBOSE() if (config.loglevel >= 2) 
-#define LOG_DEBUG() if (config.loglevel == 3) 
-
-#define MAX_SIZE 2048 * 400
-#define MAX_ELEMENTS_PER_PAGE 400
 
 #define GEN_ENUM(X) X,
 #define GEN_STR(X) #X,
@@ -153,7 +149,6 @@ struct t_mpd {
 
     // Reponse Buffer
     char buf[MAX_SIZE];
-    size_t buf_size;
 
     // States
     int song_id;
@@ -182,38 +177,6 @@ struct list last_played;
 struct list syscmds;
 
 typedef struct {
-    long mpdport;
-    const char *mpdhost;
-    const char *mpdpass;
-    const char *webport;
-    bool ssl;
-    const char *sslport;
-    const char *sslcert;
-    const char *sslkey;
-    const char *user;
-    bool coverimage;
-    const char *coverimagename;
-    long coverimagesize;
-    bool stickers;
-    bool mixramp;
-    const char *taglist;
-    const char *searchtaglist;
-    const char *browsetaglist;
-    bool smartpls;
-    const char *varlibdir;
-    const char *etcdir;
-    unsigned long max_elements_per_page;
-    bool syscmds;
-    bool localplayer;
-    long streamport;
-    const char *streamurl;
-    unsigned long last_played_count;
-    long loglevel;
-} t_config;
-
-t_config config;
-
-typedef struct {
     long playCount;
     long skipCount;
     long lastPlayed;
@@ -236,16 +199,13 @@ typedef struct {
 } t_mympd_state;
 
 t_mympd_state mympd_state;
-
-static int is_websocket(const struct mg_connection *nc) {
-    return nc->flags & MG_F_IS_WEBSOCKET;
-}
+tiny_queue_t *mpd_client_queue;
 
 int randrange(int n);
-void mympd_idle(struct mg_mgr *sm, int timeout);
-void mympd_parse_idle(struct mg_mgr *s, int idle_bitmask);
-void callback_mympd(struct mg_connection *nc, const struct mg_str msg);
-void mympd_notify(struct mg_mgr *s);
+void mympd_idle(int timeout);
+void mympd_parse_idle(int idle_bitmask);
+void mympd_api(struct work_request_t *request);
+void mympd_notify(size_t n);
 bool mympd_count_song_id(int song_id, char *name, int value);
 bool mympd_count_song_uri(const char *uri, char *name, int value);
 bool mympd_like_song_uri(const char *uri, int value);
