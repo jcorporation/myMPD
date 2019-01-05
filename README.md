@@ -74,7 +74,7 @@ Run
 ```
 Usage: ./mympd /etc/mypd/mympd.conf
 ```
-The ```./mkrelease.sh``` script tries to install a systemd service file.  If this failes you can copy the ```mympd.service``` file from ```/usr/share/mympd/``` to appropriate distribuitoin specific location. 
+The ```./mkrelease.sh``` script tries to install a systemd service file.  If this failes you can copy the ```mympd.service``` file from ```/usr/share/mympd/``` to appropriate distribution specific location. 
 
 SSL
 ---
