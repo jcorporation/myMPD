@@ -25,7 +25,6 @@
 #ifndef __MPD_CLIENT_H__
 #define __MPD_CLIENT_H__
 
-#include "../dist/src/mongoose/mongoose.h"
 #include "common.h"
 #include "web_server.h"
 #include "list.h"

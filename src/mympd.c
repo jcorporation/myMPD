@@ -299,8 +299,7 @@ bool testdir(char *name, char *dirname) {
     }
 }
 
-void *mpd_client_thread(void *arg) {
-    struct mg_mgr *mgr = (struct mg_mgr *) arg;
+void *mpd_client_thread() {
     while (s_signal_received == 0) {
         mympd_idle(100);
     }
@@ -511,23 +510,16 @@ int main(int argc, char **argv) {
         LOG_INFO() printf("Listening on ssl port %s\n", config.sslport);
 
     pthread_t mpd_client, web_server;
-    pthread_create(&mpd_client, NULL, mpd_client_thread, &mgr);
+    pthread_create(&mpd_client, NULL, mpd_client_thread, NULL);
     pthread_create(&web_server, NULL, web_server_thread, &mgr);
 
     //Do nothing...
 
+
+    //clean up
+    //todo: destroy tiny queues
     pthread_join(mpd_client, NULL);
     pthread_join(web_server, NULL);
-
-/*
-    mg_start_thread(mpd_client_thread, &mgr);
-
-    while (s_signal_received == 0) {
-        mg_mgr_poll(&mgr, 100);
-    }
-    mg_mgr_free(&mgr);
-*/
-
     list_free(&mpd_tags);
     list_free(&mympd_tags);
     return EXIT_SUCCESS;
