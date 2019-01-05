@@ -25,7 +25,6 @@
 #ifndef __WEB_SERVER_H__
 #define __WEB_SERVER_H__
 
-#include "../dist/src/mongoose/mongoose.h"
 #include "tiny_queue.h"
 
 tiny_queue_t *web_server_queue;
@@ -42,11 +41,8 @@ struct work_result_t {
     int length;
 } work_result_t;
 
-struct mg_serve_http_opts s_http_server_opts;
+void *web_server_thread();
+bool web_server_init();
+void web_server_free();
 
-int is_websocket(const struct mg_connection *nc);
-void ev_handler(struct mg_connection *nc, int ev, void *ev_data);
-void ev_handler_redirect(struct mg_connection *nc_http, int ev, void *ev_data);
-void send_ws_notify(struct mg_mgr *mgr, struct work_result_t *response);
-void send_api_response(struct mg_mgr *mgr, struct work_result_t *response);
 #endif

@@ -34,6 +34,18 @@ tiny_queue_t* tiny_queue_create() {
     return queue;
 }
 
+void tiny_queue_free(tiny_queue_t *queue) {
+    struct tiny_msg_t *current_head = queue->head, *tmp = NULL;
+    while (current_head != NULL) {
+        free(current_head->data);
+        tmp = current_head;
+        current_head = current_head->next;
+        free(tmp);
+    }
+    free(queue);
+}
+
+
 void tiny_queue_push(tiny_queue_t *queue, void *data) {
     pthread_mutex_lock(&queue->mutex);
     struct tiny_msg_t* new_node = (struct tiny_msg_t*)malloc(sizeof(struct tiny_msg_t));

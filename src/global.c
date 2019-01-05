@@ -22,11 +22,10 @@
    Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#include <stdlib.h>
 #include <string.h>
 #include <limits.h>
 #include <stdio.h>
-#include "common.h"
+#include "global.h"
 
 void sanitize_string(const char *data) {
     static char ok_chars[] = "abcdefghijklmnopqrstuvwxyz"

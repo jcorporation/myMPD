@@ -30,12 +30,10 @@
 #include <ctype.h>
 #include <libgen.h>
 #include <poll.h>
+#include <dirent.h>
 #include <mpd/client.h>
 
-#include "common.h"
 #include "mpd_client.h"
-#include "web_server.h"
-#include "config.h"
 #include "../dist/src/frozen/frozen.h"
 
 const char * mpd_cmd_strs[] = {
@@ -820,7 +818,11 @@ void mympd_api(struct work_request_t *request) {
     #ifdef DEBUG
     clock_gettime(CLOCK_MONOTONIC_RAW, &end);
     uint64_t delta_us = (end.tv_sec - start.tv_sec) * 1000000 + (end.tv_nsec - start.tv_nsec) / 1000;
+    #ifdef PKGARCH44
     fprintf(stderr, "DEBUG: Time used: %lu\n", delta_us);
+    #else
+    fprintf(stderr, "DEBUG: Time used: %llu\n", delta_us);
+    #endif
     #endif
 
     if (n == 0) {
@@ -1835,7 +1837,7 @@ int mympd_get_cover(const char *uri, char *cover, int cover_len) {
                 path += 8;
             replacechar(path, '/', '_');
             replacechar(path, '.', '_');
-            snprintf(cover, cover_len, "%s/pics/%s.png", SRC_PATH, path);
+            snprintf(cover, cover_len, "%s/pics/%s.png", DOC_ROOT, path);
             if (access(cover, F_OK ) == -1 )
                 len = snprintf(cover, cover_len, "/assets/coverimage-httpstream.png");
             else
@@ -1846,7 +1848,7 @@ int mympd_get_cover(const char *uri, char *cover, int cover_len) {
     else {
         if (mpd.feat_library) {
             dirname(path);
-            snprintf(cover, cover_len, "%s/library/%s/%s", SRC_PATH, path, config.coverimagename);
+            snprintf(cover, cover_len, "%s/library/%s/%s", DOC_ROOT, path, config.coverimagename);
             if (access(cover, F_OK ) == -1 )
                 len = snprintf(cover, cover_len, "/assets/coverimage-notavailable.png");
             else

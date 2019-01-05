@@ -22,18 +22,99 @@
    Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#include "common.h"
-#include "config.h"
+#include "global.h"
 #include "web_server.h"
 #include "mpd_client.h"
+#include "../dist/src/mongoose/mongoose.h"
 
+//non-api definitions
 static unsigned long s_next_id = 1;
+struct mg_mgr mgr;
+static struct mg_serve_http_opts s_http_server_opts;
 
-int is_websocket(const struct mg_connection *nc) {
+static int is_websocket(const struct mg_connection *nc);
+static void ev_handler(struct mg_connection *nc, int ev, void *ev_data);
+static void ev_handler_redirect(struct mg_connection *nc_http, int ev, void *ev_data);
+static void send_ws_notify(struct mg_mgr *mgr, struct work_result_t *response);
+static void send_api_response(struct mg_mgr *mgr, struct work_result_t *response);
+
+//api functions
+bool web_server_init() {
+    struct mg_connection *nc;
+    struct mg_connection *nc_http;
+    struct mg_bind_opts bind_opts;
+    const char *err;
+    
+    mg_mgr_init(&mgr, NULL);
+
+    if (config.ssl == true) {
+        nc_http = mg_bind(&mgr, config.webport, ev_handler_redirect);
+        if (nc_http == NULL) {
+            printf("Error listening on port %s\n", config.webport);
+            mg_mgr_free(&mgr);
+            return false;
+        }
+        mg_set_protocol_http_websocket(nc_http);
+        LOG_INFO() printf("Listening on http port %s (redirect only).\n", config.webport);
+
+        memset(&bind_opts, 0, sizeof(bind_opts));
+        bind_opts.ssl_cert = config.sslcert;
+        bind_opts.ssl_key = config.sslkey;
+        bind_opts.error_string = &err;
+        nc = mg_bind_opt(&mgr, config.sslport, ev_handler, bind_opts);
+        if (nc == NULL) {
+            printf("Error listening on port %s: %s\n", config.sslport, err);
+            mg_mgr_free(&mgr);
+            return false;
+        } 
+        LOG_INFO() printf("Listening on ssl port %s\n", config.sslport);
+    }
+    else {
+        nc = mg_bind(&mgr, config.webport, ev_handler);
+        if (nc == NULL) {
+            printf("Error listening on port %s\n", config.webport);
+            mg_mgr_free(&mgr);
+            return false;
+        }
+        LOG_INFO() printf("Listening on http port %s\n", config.webport);
+    }
+    
+    mg_set_protocol_http_websocket(nc);
+    s_http_server_opts.document_root = DOC_ROOT;
+    s_http_server_opts.enable_directory_listing = "no";
+    return true;
+}
+
+void web_server_free() {
+    mg_mgr_free(&mgr);
+}
+
+void *web_server_thread() {
+    while (s_signal_received == 0) {
+        mg_mgr_poll(&mgr, 10);
+        unsigned web_server_queue_length = tiny_queue_length(web_server_queue);
+        if (web_server_queue_length > 0) {
+            struct work_result_t *response = tiny_queue_shift(web_server_queue);
+            if (response->conn_id == 0) {
+                //Websocket notify from mpd idle
+                send_ws_notify(&mgr, response);
+            } 
+            else {
+                //api response
+                send_api_response(&mgr, response);
+            }
+        }
+    }
+    mg_mgr_free(&mgr);
+    return NULL;
+}
+
+//non-api functions
+static int is_websocket(const struct mg_connection *nc) {
     return nc->flags & MG_F_IS_WEBSOCKET;
 }
 
-void send_ws_notify(struct mg_mgr *mgr, struct work_result_t *response) {
+static void send_ws_notify(struct mg_mgr *mgr, struct work_result_t *response) {
     struct mg_connection *c;
     LOG_DEBUG() fprintf(stderr, "DEBUG: Got ws notify, broadcasting\n");
     
@@ -45,7 +126,7 @@ void send_ws_notify(struct mg_mgr *mgr, struct work_result_t *response) {
     free(response);
 }
 
-void send_api_response(struct mg_mgr *mgr, struct work_result_t *response) {
+static void send_api_response(struct mg_mgr *mgr, struct work_result_t *response) {
     struct mg_connection *c;
     LOG_DEBUG() fprintf(stderr, "DEBUG: Got API response for connection %lu.\n", response->conn_id);
     
@@ -61,7 +142,7 @@ void send_api_response(struct mg_mgr *mgr, struct work_result_t *response) {
     free(response);
 }
 
-void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
+static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
     (void) nc;
     (void) ev_data;
     
@@ -94,8 +175,6 @@ void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 struct work_request_t *request = (struct work_request_t*)malloc(sizeof(struct work_request_t));
                 request->conn_id = (unsigned long)nc->user_data;
                 request->length = copy_string(request->data, hm->body.p, 1000, hm->body.len);
-                //sizeof(request->data) - 1 < hm->body.len ? sizeof(request->data) - 1 : hm->body.len;
-                //memcpy(request->data, hm->body.p, request->length);
                 tiny_queue_push(mpd_client_queue, request);
             }
             else {
@@ -119,7 +198,7 @@ void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
     }
 }
 
-void ev_handler_redirect(struct mg_connection *nc_http, int ev, void *ev_data) {
+static void ev_handler_redirect(struct mg_connection *nc_http, int ev, void *ev_data) {
     char *host;
     char host_header[1024];
     switch(ev) {

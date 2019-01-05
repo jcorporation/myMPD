@@ -25,7 +25,7 @@
 #ifndef __MPD_CLIENT_H__
 #define __MPD_CLIENT_H__
 
-#include "common.h"
+#include "global.h"
 #include "web_server.h"
 #include "list.h"
 #include "tiny_queue.h"

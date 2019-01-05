@@ -14,10 +14,18 @@ else()
     set(DEBUG "ON")
 endif()
 
+if("${CMAKE_SIZEOF_VOID_P}" EQUAL "8")
+    MESSAGE("++ 64 bit architecture") 
+    set(PKGARCH64 "ON") 
+else() 
+    MESSAGE("++ 32 bit architecture") 
+    set(PKGARCH64 "OFF") 
+endif()
+
 find_package(LibMPDClient REQUIRED)
 find_package(Threads REQUIRED)
 
-configure_file(src/config.h.in ${PROJECT_BINARY_DIR}/config.h)
+configure_file(src/global.h.in ${PROJECT_BINARY_DIR}/global.h)
 include_directories(${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}	${LIBMPDCLIENT_INCLUDE_DIR})
 
 include(CheckCSourceCompiles)
@@ -35,7 +43,7 @@ set(SOURCES
     src/web_server.c
     src/list.c
     src/tiny_queue.c
-    src/common.c
+    src/global.c
     dist/src/mongoose/mongoose.c
     dist/src/frozen/frozen.c
     dist/src/inih/ini.c

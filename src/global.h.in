@@ -22,19 +22,39 @@
    Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#ifndef __COMMON_H__
-#define __COMMON_H__
+#ifndef __GLOBAL_H__
+#define __GLOBAL_H__
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include <signal.h>
 
+//architecture
+#cmakedefine PKGARCH64
+
+//myMPD version from cmake
+#define MYMPD_VERSION_MAJOR ${CPACK_PACKAGE_VERSION_MAJOR}
+#define MYMPD_VERSION_MINOR ${CPACK_PACKAGE_VERSION_MINOR}
+#define MYMPD_VERSION_PATCH ${CPACK_PACKAGE_VERSION_PATCH}
+#define MYMPD_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}"
+
+//Webserver document root
+#define DOC_ROOT "${ASSETS_PATH}"
+
+//Max size of mpd_client response buffer
 #define MAX_SIZE 2048 * 400
 #define MAX_ELEMENTS_PER_PAGE 400
 
+//central logging definition
+#cmakedefine DEBUG
 #define LOG_INFO() if (config.loglevel >= 1) 
 #define LOG_VERBOSE() if (config.loglevel >= 2) 
 #define LOG_DEBUG() if (config.loglevel == 3) 
 
+//signal handler
+sig_atomic_t s_signal_received;
+
+//myMPD configuration
 typedef struct {
     long mpdport;
     const char *mpdhost;

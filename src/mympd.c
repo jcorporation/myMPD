@@ -31,16 +31,13 @@
 #include <grp.h>
 #include <libgen.h>
 #include <pthread.h>
+#include <dirent.h>
 #include <mpd/client.h>
 
-#include "../dist/src/mongoose/mongoose.h"
 #include "../dist/src/inih/ini.h"
-#include "common.h"
+#include "global.h"
 #include "mpd_client.h"
 #include "web_server.h"
-#include "config.h"
-
-static sig_atomic_t s_signal_received = 0;
 
 static void signal_handler(int sig_num) {
     signal(sig_num, signal_handler);  // Reinstantiate signal handler
@@ -307,33 +304,8 @@ void *mpd_client_thread() {
     return NULL;
 }
 
-void *web_server_thread(void *arg) {
-    struct mg_mgr *mgr = (struct mg_mgr *) arg;
-    while (s_signal_received == 0) {
-        mg_mgr_poll(mgr, 10);
-        unsigned web_server_queue_length = tiny_queue_length(web_server_queue);
-        if (web_server_queue_length > 0) {
-            struct work_result_t *response = tiny_queue_shift(web_server_queue);
-            if (response->conn_id == 0) {
-                //Websocket notify from mpd idle
-                send_ws_notify(mgr, response);
-            } 
-            else {
-                //api response
-                send_api_response(mgr, response);
-            }
-        }
-    }
-    mg_mgr_free(mgr);
-    return NULL;
-}
-
 int main(int argc, char **argv) {
-    struct mg_mgr mgr;
-    struct mg_connection *nc;
-    struct mg_connection *nc_http;
-    struct mg_bind_opts bind_opts;
-    const char *err;
+    s_signal_received = 0;
     char testdirname[400];
     mpd_client_queue = tiny_queue_create();
     web_server_queue = tiny_queue_create();
@@ -385,7 +357,7 @@ int main(int argc, char **argv) {
     } 
     else {
         printf("myMPD  %s\n"
-            "Copyright (C) 2018 Juergen Mang <mail@jcgames.de>\n"
+            "Copyright (C) 2018-2019 Juergen Mang <mail@jcgames.de>\n"
             "https://github.com/jcorporation/myMPD\n"
             "Built " __DATE__ " "__TIME__"\n\n"
             "Usage: %s /path/to/mympd.conf\n",
@@ -405,67 +377,45 @@ int main(int argc, char **argv) {
     setvbuf(stdout, NULL, _IOLBF, 0);
     setvbuf(stderr, NULL, _IOLBF, 0);
 
-    mg_mgr_init(&mgr, NULL);
-
-    if (config.ssl == true) {
-        nc_http = mg_bind(&mgr, config.webport, ev_handler_redirect);
-        if (nc_http == NULL) {
-            printf("Error listening on port %s\n", config.webport);
-            return EXIT_FAILURE;
-        }
-        memset(&bind_opts, 0, sizeof(bind_opts));
-        bind_opts.ssl_cert = config.sslcert;
-        bind_opts.ssl_key = config.sslkey;
-        bind_opts.error_string = &err;
-        
-        nc = mg_bind_opt(&mgr, config.sslport, ev_handler, bind_opts);
-        if (nc == NULL) {
-            printf("Error listening on port %s: %s\n", config.sslport, err);
-            mg_mgr_free(&mgr);
-            return EXIT_FAILURE;
-        }
-    }
-    else {
-        nc = mg_bind(&mgr, config.webport, ev_handler);
-        if (nc == NULL) {
-            printf("Error listening on port %s\n", config.webport);
-            mg_mgr_free(&mgr);
-            return EXIT_FAILURE;
-        }
+    //init webserver
+    if (!web_server_init()) {
+        return EXIT_FAILURE;
     }
 
+    //drop privileges
     if (config.user != NULL) {
         LOG_INFO() printf("Droping privileges to %s\n", config.user);
         struct passwd *pw;
         if ((pw = getpwnam(config.user)) == NULL) {
             printf("getpwnam() failed, unknown user\n");
-            mg_mgr_free(&mgr);
+            web_server_free();
             return EXIT_FAILURE;
         } else if (setgroups(0, NULL) != 0) { 
             printf("setgroups() failed\n");
-            mg_mgr_free(&mgr);
+            web_server_free();
             return EXIT_FAILURE;        
         } else if (setgid(pw->pw_gid) != 0) {
             printf("setgid() failed\n");
-            mg_mgr_free(&mgr);
+            web_server_free();
             return EXIT_FAILURE;
         } else if (setuid(pw->pw_uid) != 0) {
             printf("setuid() failed\n");
-            mg_mgr_free(&mgr);
+            web_server_free();
             return EXIT_FAILURE;
         }
     }
     
     if (getuid() == 0) {
         printf("myMPD should not be run with root privileges\n");
-        mg_mgr_free(&mgr);
+        web_server_free();
         return EXIT_FAILURE;
     }
 
-    if (!testdir("Document root", SRC_PATH)) 
+    //check needed directories
+    if (!testdir("Document root", DOC_ROOT)) 
         return EXIT_FAILURE;
 
-    snprintf(testdirname, 400, "%s/library", SRC_PATH);
+    snprintf(testdirname, 400, "%s/library", DOC_ROOT);
     if (testdir("Link to mpd music_directory", testdirname)) {
         LOG_INFO() printf("Enabling featLibrary support\n");
         mpd.feat_library = true;
@@ -487,40 +437,38 @@ int main(int argc, char **argv) {
     if (!testdir("State dir", testdirname)) 
         return EXIT_FAILURE;
 
+    //read myMPD states under config.varlibdir
     read_statefiles();
 
+    //read system command files
     list_init(&syscmds);    
     read_syscmds();
     list_sort_by_value(&syscmds, true);
 
+    //init lists for tag handling
     list_init(&mpd_tags);
     list_init(&mympd_tags);
+    
+    //read last played songs history file
     list_init(&last_played);
     LOG_INFO() printf("Reading last played songs: %d\n", read_last_played());
     
-    if (config.ssl == true)
-        mg_set_protocol_http_websocket(nc_http);
-    
-    mg_set_protocol_http_websocket(nc);
-    s_http_server_opts.document_root = SRC_PATH;
-    s_http_server_opts.enable_directory_listing = "no";
-
-    LOG_INFO() printf("Listening on http port %s\n", config.webport);
-    if (config.ssl == true)
-        LOG_INFO() printf("Listening on ssl port %s\n", config.sslport);
-
+    //Create working threads
     pthread_t mpd_client, web_server;
+    //mpd connection
     pthread_create(&mpd_client, NULL, mpd_client_thread, NULL);
-    pthread_create(&web_server, NULL, web_server_thread, &mgr);
+    //webserver
+    pthread_create(&web_server, NULL, web_server_thread, NULL);
 
     //Do nothing...
 
 
     //clean up
-    //todo: destroy tiny queues
     pthread_join(mpd_client, NULL);
     pthread_join(web_server, NULL);
     list_free(&mpd_tags);
     list_free(&mympd_tags);
+    tiny_queue_free(web_server_queue);
+    tiny_queue_free(mpd_client_queue);
     return EXIT_SUCCESS;
 }
