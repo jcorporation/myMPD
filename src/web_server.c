@@ -200,13 +200,14 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
 
 static void ev_handler_redirect(struct mg_connection *nc_http, int ev, void *ev_data) {
     char *host;
+    char *crap;
     char host_header[1024];
     switch(ev) {
         case MG_EV_HTTP_REQUEST: {
             struct http_message *hm = (struct http_message *) ev_data;
             struct mg_str *host_hdr = mg_get_http_header(hm, "Host");
             snprintf(host_header, 1024, "%.*s", host_hdr->len, host_hdr->p);
-            host = strtok(host_header, ":");
+            host = strtok_r(host_header, ":", &crap);
             char s_redirect[250];
             if (strcmp(config.sslport, "443") == 0)
                 snprintf(s_redirect, 250, "https://%s/", host);

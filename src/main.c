@@ -165,7 +165,7 @@ void read_statefiles() {
     char value[400];
 
     LOG_INFO() printf("Reading states\n");
-    if (mympd_state_get("notificationWeb", value)) {
+    if (mpd_client_state_get("notificationWeb", value)) {
         if (strcmp(value, "true") == 0)
             mympd_state.notificationWeb = true;
         else
@@ -173,10 +173,10 @@ void read_statefiles() {
     }
     else {
         mympd_state.notificationWeb = false;
-        mympd_state_set("notificationWeb", "false");
+        mpd_client_state_set("notificationWeb", "false");
     }
 
-    if (mympd_state_get("notificationPage", value)) {
+    if (mpd_client_state_get("notificationPage", value)) {
         if (strcmp(value, "true") == 0)
             mympd_state.notificationPage = true;
         else
@@ -184,77 +184,77 @@ void read_statefiles() {
     }
     else {
         mympd_state.notificationPage = true;
-        mympd_state_set("notificationPage", "true");
+        mpd_client_state_set("notificationPage", "true");
     }
     
-    if (mympd_state_get("jukeboxMode", value))
+    if (mpd_client_state_get("jukeboxMode", value))
         mympd_state.jukeboxMode = strtol(value, &crap, 10);
     else {
         mympd_state.jukeboxMode = 0;
-        mympd_state_set("jukeboxMode", "0");
+        mpd_client_state_set("jukeboxMode", "0");
     }
 
-    if (mympd_state_get("jukeboxPlaylist", value))
+    if (mpd_client_state_get("jukeboxPlaylist", value))
         mympd_state.jukeboxPlaylist = strdup(value);
     else {
         mympd_state.jukeboxPlaylist = strdup("Database");
-        mympd_state_set("jukeboxPlaylist", "Database");
+        mpd_client_state_set("jukeboxPlaylist", "Database");
     }
 
-    if (mympd_state_get("jukeboxQueueLength", value))
+    if (mpd_client_state_get("jukeboxQueueLength", value))
         mympd_state.jukeboxQueueLength = strtol(value, &crap, 10);
     else {
         mympd_state.jukeboxQueueLength = 1;
-        mympd_state_set("jukeboxQueueLength", "1");
+        mpd_client_state_set("jukeboxQueueLength", "1");
     }
     
-    if (mympd_state_get("colsQueueCurrent", value))
+    if (mpd_client_state_get("colsQueueCurrent", value))
         mympd_state.colsQueueCurrent = strdup(value);
     else {
         mympd_state.colsQueueCurrent = strdup("[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]");
-        mympd_state_set("colsQueueCurrent", mympd_state.colsQueueCurrent);
+        mpd_client_state_set("colsQueueCurrent", mympd_state.colsQueueCurrent);
     }
     
-    if (mympd_state_get("colsSearch", value))
+    if (mpd_client_state_get("colsSearch", value))
         mympd_state.colsSearch = strdup(value);
     else {
         mympd_state.colsSearch = strdup("[\"Title\",\"Artist\",\"Album\",\"Duration\"]");
-        mympd_state_set("colsSearch", mympd_state.colsSearch);
+        mpd_client_state_set("colsSearch", mympd_state.colsSearch);
     }
     
-    if (mympd_state_get("colsBrowseDatabase", value))
+    if (mpd_client_state_get("colsBrowseDatabase", value))
         mympd_state.colsBrowseDatabase = strdup(value);
     else {
         mympd_state.colsBrowseDatabase = strdup("[\"Track\",\"Title\",\"Duration\"]");
-        mympd_state_set("colsBrowseDatabase", mympd_state.colsBrowseDatabase);
+        mpd_client_state_set("colsBrowseDatabase", mympd_state.colsBrowseDatabase);
     }
     
-    if (mympd_state_get("colsBrowsePlaylistsDetail", value))
+    if (mpd_client_state_get("colsBrowsePlaylistsDetail", value))
         mympd_state.colsBrowsePlaylistsDetail = strdup(value);
     else {
         mympd_state.colsBrowsePlaylistsDetail = strdup("[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]");
-        mympd_state_set("colsBrowsePlaylistsDetail", mympd_state.colsBrowsePlaylistsDetail);
+        mpd_client_state_set("colsBrowsePlaylistsDetail", mympd_state.colsBrowsePlaylistsDetail);
     }
     
-    if (mympd_state_get("colsBrowseFilesystem", value))
+    if (mpd_client_state_get("colsBrowseFilesystem", value))
         mympd_state.colsBrowseFilesystem = strdup(value);
     else {
         mympd_state.colsBrowseFilesystem = strdup("[\"Type\",\"Title\",\"Artist\",\"Album\",\"Duration\"]");
-        mympd_state_set("colsBrowseFilesystem", mympd_state.colsBrowseFilesystem);
+        mpd_client_state_set("colsBrowseFilesystem", mympd_state.colsBrowseFilesystem);
     }
     
-    if (mympd_state_get("colsPlayback", value))
+    if (mpd_client_state_get("colsPlayback", value))
         mympd_state.colsPlayback = strdup(value);
     else {
         mympd_state.colsPlayback = strdup("[\"Artist\",\"Album\",\"Genre\"]");
-        mympd_state_set("colsPlayback", mympd_state.colsPlayback);
+        mpd_client_state_set("colsPlayback", mympd_state.colsPlayback);
     }
 
-    if (mympd_state_get("colsQueueLastPlayed", value))
+    if (mpd_client_state_get("colsQueueLastPlayed", value))
         mympd_state.colsQueueLastPlayed = strdup(value);
     else {
         mympd_state.colsQueueLastPlayed = strdup("[\"Pos\",\"Title\",\"Artist\",\"Album\",\"LastPlayed\"]");
-        mympd_state_set("colsQueueLastPlayed", mympd_state.colsQueueLastPlayed);
+        mpd_client_state_set("colsQueueLastPlayed", mympd_state.colsQueueLastPlayed);
     }
 }
 
@@ -262,6 +262,7 @@ int read_last_played() {
     char cfgfile[400];
     char *line;
     char *data;
+    char *crap;
     size_t n = 0;
     ssize_t read;
     long value;
@@ -276,7 +277,7 @@ int read_last_played() {
         value = strtol(line, &data, 10);
         if (strlen(data) > 2)
             data = data + 2;
-        strtok(data, "\n");
+        strtok_r(data, "\n", &crap);
         list_push(&last_played, data, value);
     }
     fclose(fp);
@@ -298,9 +299,9 @@ bool testdir(char *name, char *dirname) {
 
 void *mpd_client_thread() {
     while (s_signal_received == 0) {
-        mympd_idle(100);
+        mpd_client_idle(100);
     }
-    mympd_disconnect();
+    mpd_client_disconnect();
     return NULL;
 }
 
@@ -309,6 +310,7 @@ int main(int argc, char **argv) {
     char testdirname[400];
     mpd_client_queue = tiny_queue_create();
     web_server_queue = tiny_queue_create();
+    //mympd_queue = tiny_queue_create();
     
     //defaults
     config.mpdhost = "127.0.0.1";
@@ -470,5 +472,6 @@ int main(int argc, char **argv) {
     list_free(&mympd_tags);
     tiny_queue_free(web_server_queue);
     tiny_queue_free(mpd_client_queue);
+    //tiny_queue_free(mympd_queue);
     return EXIT_SUCCESS;
 }
