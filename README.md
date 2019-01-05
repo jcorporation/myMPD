@@ -65,15 +65,16 @@ Unix Build Instructions
 -----------------------
 
 1. Install dependencies: cmake, libmpdclient (dev), OpenSSL (dev) and Java are available from all major distributions.
-2. Build and install: ```cd /path/to/src; ./mkrelease.sh```.
+2. Build and install: ```cd /path/to/src; ./mkrelease.sh``` (toplevel directory of myMPD tarball).
 3. Link your mpd music directory to ```/usr/share/mympd/htdocs/library``` and put ```folder.jpg``` files in your album directories (mkrelease.sh tries to do this for you).
 4. Configure your mpd with http stream output to use the local player.
 
-Run Flags
+Run
 ---------
 ```
 Usage: ./mympd /etc/mypd/mympd.conf
 ```
+The ```./mkrelease.sh``` script tries to install a systemd service file.  If this failes you can copy the ```mympd.service``` file from ```/usr/share/mympd/``` to appropriate distribuitoin specific location. 
 
 SSL
 ---
