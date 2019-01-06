@@ -28,10 +28,6 @@
 #include "../dist/src/mongoose/mongoose.h"
 
 //non-api definitions
-static unsigned long s_next_id = 1;
-struct mg_mgr mgr;
-static struct mg_serve_http_opts s_http_server_opts;
-
 static int is_websocket(const struct mg_connection *nc);
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data);
 static void ev_handler_redirect(struct mg_connection *nc_http, int ev, void *ev_data);
@@ -39,19 +35,20 @@ static void send_ws_notify(struct mg_mgr *mgr, struct work_result_t *response);
 static void send_api_response(struct mg_mgr *mgr, struct work_result_t *response);
 
 //api functions
-bool web_server_init() {
+bool web_server_init(void *arg) {
+    struct mg_mgr *mgr = (struct mg_mgr *) arg;
     struct mg_connection *nc;
     struct mg_connection *nc_http;
     struct mg_bind_opts bind_opts;
     const char *err;
     
-    mg_mgr_init(&mgr, NULL);
+    mg_mgr_init(mgr, NULL);
 
     if (config.ssl == true) {
-        nc_http = mg_bind(&mgr, config.webport, ev_handler_redirect);
+        nc_http = mg_bind(mgr, config.webport, ev_handler_redirect);
         if (nc_http == NULL) {
             printf("Error listening on port %s\n", config.webport);
-            mg_mgr_free(&mgr);
+            mg_mgr_free(mgr);
             return false;
         }
         mg_set_protocol_http_websocket(nc_http);
@@ -61,51 +58,52 @@ bool web_server_init() {
         bind_opts.ssl_cert = config.sslcert;
         bind_opts.ssl_key = config.sslkey;
         bind_opts.error_string = &err;
-        nc = mg_bind_opt(&mgr, config.sslport, ev_handler, bind_opts);
+        nc = mg_bind_opt(mgr, config.sslport, ev_handler, bind_opts);
         if (nc == NULL) {
             printf("Error listening on port %s: %s\n", config.sslport, err);
-            mg_mgr_free(&mgr);
+            mg_mgr_free(mgr);
             return false;
         } 
         LOG_INFO() printf("Listening on ssl port %s\n", config.sslport);
     }
     else {
-        nc = mg_bind(&mgr, config.webport, ev_handler);
+        nc = mg_bind(mgr, config.webport, ev_handler);
         if (nc == NULL) {
             printf("Error listening on port %s\n", config.webport);
-            mg_mgr_free(&mgr);
+            mg_mgr_free(mgr);
             return false;
         }
         LOG_INFO() printf("Listening on http port %s\n", config.webport);
     }
     
     mg_set_protocol_http_websocket(nc);
-    s_http_server_opts.document_root = DOC_ROOT;
-    s_http_server_opts.enable_directory_listing = "no";
-    return true;
+    
+    return mgr;
 }
 
-void web_server_free() {
-    mg_mgr_free(&mgr);
+void web_server_free(void *arg) {
+    struct mg_mgr *mgr = (struct mg_mgr *) arg;
+    mg_mgr_free(mgr);
 }
 
-void *web_server_thread() {
+void *web_server_loop(void *arg) {
+    struct mg_mgr *mgr = (struct mg_mgr *) arg;
     while (s_signal_received == 0) {
-        mg_mgr_poll(&mgr, 10);
+        mg_mgr_poll(mgr, 100);
         unsigned web_server_queue_length = tiny_queue_length(web_server_queue);
         if (web_server_queue_length > 0) {
             struct work_result_t *response = tiny_queue_shift(web_server_queue);
             if (response->conn_id == 0) {
                 //Websocket notify from mpd idle
-                send_ws_notify(&mgr, response);
+                send_ws_notify(mgr, response);
             } 
             else {
                 //api response
-                send_api_response(&mgr, response);
+                send_api_response(mgr, response);
             }
         }
     }
-    mg_mgr_free(&mgr);
+    mg_mgr_free(mgr);
     return NULL;
 }
 
@@ -148,8 +146,11 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
     
     switch(ev) {
         case MG_EV_ACCEPT: {
-            nc->user_data = (void *)++s_next_id;
-            LOG_DEBUG() fprintf(stderr, "DEBUG: New connection id %lu.\n", s_next_id);
+            struct timespec start;
+            clock_gettime(CLOCK_MONOTONIC_RAW, &start);
+            long unsigned conn_id = (start.tv_sec * 1000 + start.tv_nsec / 1000) * 100 + randrange(100);
+            nc->user_data = (void *)conn_id;
+            LOG_DEBUG() fprintf(stderr, "DEBUG: New connection id %lu.\n", conn_id);
             break;
         }
         case MG_EV_WEBSOCKET_HANDSHAKE_REQUEST: {
@@ -178,6 +179,9 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 tiny_queue_push(mpd_client_queue, request);
             }
             else {
+                static struct mg_serve_http_opts s_http_server_opts;
+                s_http_server_opts.document_root = DOC_ROOT;
+                s_http_server_opts.enable_directory_listing = "no";
                 mg_serve_http(nc, hm, s_http_server_opts);
             }
             break;

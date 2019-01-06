@@ -27,6 +27,10 @@
 #include <stdio.h>
 #include "global.h"
 
+int randrange(int n) {
+    return rand() / (RAND_MAX / (n + 1) + 1);
+}
+
 void sanitize_string(const char *data) {
     static char ok_chars[] = "abcdefghijklmnopqrstuvwxyz"
                              "ABCDEFGHIJKLMNOPQRSTUVWXYZ"

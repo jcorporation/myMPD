@@ -38,6 +38,7 @@
 #include "global.h"
 #include "mpd_client.h"
 #include "web_server.h"
+#include "../dist/src/mongoose/mongoose.h"
 
 static void signal_handler(int sig_num) {
     signal(sig_num, signal_handler);  // Reinstantiate signal handler
@@ -297,7 +298,7 @@ bool testdir(char *name, char *dirname) {
     }
 }
 
-void *mpd_client_thread() {
+void *mpd_client_loop() {
     while (s_signal_received == 0) {
         mpd_client_idle(100);
     }
@@ -310,7 +311,8 @@ int main(int argc, char **argv) {
     char testdirname[400];
     mpd_client_queue = tiny_queue_create();
     web_server_queue = tiny_queue_create();
-    //mympd_queue = tiny_queue_create();
+
+    srand((unsigned int)time(NULL));
     
     //defaults
     config.mpdhost = "127.0.0.1";
@@ -380,36 +382,36 @@ int main(int argc, char **argv) {
     setvbuf(stderr, NULL, _IOLBF, 0);
 
     //init webserver
-    if (!web_server_init()) {
+    struct mg_mgr mgr;
+    if (!web_server_init(&mgr)) {
         return EXIT_FAILURE;
     }
-
     //drop privileges
     if (config.user != NULL) {
         LOG_INFO() printf("Droping privileges to %s\n", config.user);
         struct passwd *pw;
         if ((pw = getpwnam(config.user)) == NULL) {
             printf("getpwnam() failed, unknown user\n");
-            web_server_free();
+            web_server_free(&mgr);
             return EXIT_FAILURE;
         } else if (setgroups(0, NULL) != 0) { 
             printf("setgroups() failed\n");
-            web_server_free();
+            web_server_free(&mgr);
             return EXIT_FAILURE;        
         } else if (setgid(pw->pw_gid) != 0) {
             printf("setgid() failed\n");
-            web_server_free();
+            web_server_free(&mgr);
             return EXIT_FAILURE;
         } else if (setuid(pw->pw_uid) != 0) {
             printf("setuid() failed\n");
-            web_server_free();
+            web_server_free(&mgr);
             return EXIT_FAILURE;
         }
     }
     
     if (getuid() == 0) {
         printf("myMPD should not be run with root privileges\n");
-        web_server_free();
+        web_server_free(&mgr);
         return EXIT_FAILURE;
     }
 
@@ -456,22 +458,21 @@ int main(int argc, char **argv) {
     LOG_INFO() printf("Reading last played songs: %d\n", read_last_played());
     
     //Create working threads
-    pthread_t mpd_client, web_server;
+    pthread_t mpd_client_thread, web_server_thread;
     //mpd connection
-    pthread_create(&mpd_client, NULL, mpd_client_thread, NULL);
+    pthread_create(&mpd_client_thread, NULL, mpd_client_loop, NULL);
     //webserver
-    pthread_create(&web_server, NULL, web_server_thread, NULL);
+    pthread_create(&web_server_thread, NULL, web_server_loop, &mgr);
 
     //Do nothing...
 
 
     //clean up
-    pthread_join(mpd_client, NULL);
-    pthread_join(web_server, NULL);
+    pthread_join(mpd_client_thread, NULL);
+    pthread_join(web_server_thread, NULL);
     list_free(&mpd_tags);
     list_free(&mympd_tags);
     tiny_queue_free(web_server_queue);
     tiny_queue_free(mpd_client_queue);
-    //tiny_queue_free(mympd_queue);
     return EXIT_SUCCESS;
 }

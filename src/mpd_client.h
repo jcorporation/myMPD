@@ -191,7 +191,6 @@ typedef struct {
 t_mympd_state mympd_state;
 tiny_queue_t *mpd_client_queue;
 
-int randrange(int n);
 void mpd_client_idle(int timeout);
 void mpd_client_parse_idle(int idle_bitmask);
 void mpd_client_api(struct work_request_t *request);

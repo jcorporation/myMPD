@@ -1362,7 +1362,7 @@ bool mpd_client_jukebox() {
         return true;
     }
     
-    srand((unsigned int)time(NULL));
+    //srand((unsigned int)time(NULL));
 
     struct list add_list;
     list_init(&add_list);
@@ -1480,10 +1480,6 @@ bool mpd_client_jukebox() {
         mpd_client_jukebox();
     }
     return true;
-}
-
-int randrange(int n) {
-    return rand() / (RAND_MAX / (n + 1) + 1);
 }
 
 int mpd_client_put_state(char *buffer, int *current_song_id, int *next_song_id, int *last_song_id, unsigned *queue_version, unsigned *queue_length) {

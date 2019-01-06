@@ -41,8 +41,8 @@ struct work_result_t {
     int length;
 } work_result_t;
 
-void *web_server_thread();
-bool web_server_init();
-void web_server_free();
+void *web_server_loop(void *arg);
+bool web_server_init(void *arg);
+void web_server_free(void *arg);
 
 #endif

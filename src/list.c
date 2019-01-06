@@ -81,7 +81,7 @@ int list_shuffle(struct list *l) {
     if (l->length < 2)
         return 1;
 
-    srand((unsigned int)time(NULL));
+//    srand((unsigned int)time(NULL));
     
     struct node *current = l->list;
     while (current != NULL) {
