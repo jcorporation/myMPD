@@ -339,7 +339,8 @@ int main(int argc, char **argv) {
     config.max_elements_per_page = 100;
     config.last_played_count = 20;
     char *etcdir = strdup(argv[1]);
-    config.etcdir = dirname(etcdir);
+    config.etcdir = strdup(dirname(etcdir));
+    free(etcdir);
     config.syscmds = false;
     config.localplayer = true;
     config.loglevel = 1;
@@ -383,7 +384,7 @@ int main(int argc, char **argv) {
 
     //init webserver
     struct mg_mgr mgr;
-    if (!web_server_init(&mgr)) {
+    if (!web_server_init(&mgr, &config)) {
         return EXIT_FAILURE;
     }
     //drop privileges

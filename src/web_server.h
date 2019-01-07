@@ -30,19 +30,19 @@
 tiny_queue_t *web_server_queue;
 
 struct work_request_t {
-    unsigned long conn_id;  // needed to identify the connection where to send the reply
+    long conn_id;  // needed to identify the connection where to send the reply
     char data[1000];
     int length;
 } work_request_t;
 
 struct work_result_t {
-    unsigned long conn_id;  // needed to identify the connection where to send the reply
+    long conn_id;  // needed to identify the connection where to send the reply
     char data[MAX_SIZE];
     int length;
 } work_result_t;
 
 void *web_server_loop(void *arg);
-bool web_server_init(void *arg);
+bool web_server_init(void *arg_mgr, void *arg_config);
 void web_server_free(void *arg);
 
 #endif

@@ -51,16 +51,16 @@
 #define LOG_VERBOSE() if (config.loglevel >= 2) 
 #define LOG_DEBUG() if (config.loglevel == 3) 
 
+#define LOG_INFO2() if (config->loglevel >= 1) 
+#define LOG_VERBOSE2() if (config->loglevel >= 2) 
+#define LOG_DEBUG2() if (config->loglevel == 3) 
+
 //check and return buffer size
 #define CHECK_RETURN_LEN() do { \
     if (len > MAX_SIZE) \
         printf("Buffer truncated: %d, %d\n", len, MAX_SIZE); \
     return len; \
 } while (0)
-
-//enumeration helpers
-#define GEN_ENUM(X) X,
-#define GEN_STR(X) #X,
 
 //signal handler
 sig_atomic_t s_signal_received;

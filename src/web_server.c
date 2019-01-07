@@ -22,6 +22,8 @@
    Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
+#include <limits.h>
+
 #include "global.h"
 #include "web_server.h"
 #include "mpd_client.h"
@@ -34,50 +36,60 @@ static void ev_handler_redirect(struct mg_connection *nc_http, int ev, void *ev_
 static void send_ws_notify(struct mg_mgr *mgr, struct work_result_t *response);
 static void send_api_response(struct mg_mgr *mgr, struct work_result_t *response);
 
+typedef struct t_user_data {
+    void *config; //pointer to mympd config
+    long conn_id; 
+} t_user_data;
+
 //api functions
-bool web_server_init(void *arg) {
-    struct mg_mgr *mgr = (struct mg_mgr *) arg;
-    struct mg_connection *nc;
+bool web_server_init(void *arg_mgr, void *arg_config) {
+    struct mg_mgr *mgr = (struct mg_mgr *) arg_mgr;
+    t_config *config = (t_config *) arg_config;
+    struct mg_connection *nc_https;
     struct mg_connection *nc_http;
-    struct mg_bind_opts bind_opts;
-    const char *err;
+    struct mg_bind_opts bind_opts_https;
+    struct mg_bind_opts bind_opts_http;
+    const char *err_https;
+    const char *err_http;
+    
+    t_user_data *user_data = (t_user_data*)malloc(sizeof(t_user_data));
+    user_data->config = config;
+    user_data->conn_id = 1;
     
     mg_mgr_init(mgr, NULL);
+    
+    //bind to webport
+    memset(&bind_opts_http, 0, sizeof(bind_opts_http));
+    bind_opts_http.user_data = (void *)user_data;
+    bind_opts_http.error_string = &err_http;
+    if (config->ssl == true)
+        nc_http = mg_bind_opt(mgr, config->webport, ev_handler_redirect, bind_opts_http);
+    else
+        nc_http = mg_bind_opt(mgr, config->webport, ev_handler, bind_opts_http);
+    if (nc_http == NULL) {
+        printf("Error listening on port %s\n", config->webport);
+        mg_mgr_free(mgr);
+        return false;
+    }
+    mg_set_protocol_http_websocket(nc_http);
+    LOG_INFO2() printf("Listening on http port %s.\n", config->webport);
 
-    if (config.ssl == true) {
-        nc_http = mg_bind(mgr, config.webport, ev_handler_redirect);
-        if (nc_http == NULL) {
-            printf("Error listening on port %s\n", config.webport);
-            mg_mgr_free(mgr);
-            return false;
-        }
-        mg_set_protocol_http_websocket(nc_http);
-        LOG_INFO() printf("Listening on http port %s (redirect only).\n", config.webport);
-
-        memset(&bind_opts, 0, sizeof(bind_opts));
-        bind_opts.ssl_cert = config.sslcert;
-        bind_opts.ssl_key = config.sslkey;
-        bind_opts.error_string = &err;
-        nc = mg_bind_opt(mgr, config.sslport, ev_handler, bind_opts);
-        if (nc == NULL) {
-            printf("Error listening on port %s: %s\n", config.sslport, err);
+    //bind to sslport
+    if (config->ssl == true) {
+        memset(&bind_opts_https, 0, sizeof(bind_opts_https));
+        bind_opts_https.user_data = (void *)user_data;
+        bind_opts_https.error_string = &err_https;
+        bind_opts_https.ssl_cert = config->sslcert;
+        bind_opts_https.ssl_key = config->sslkey;
+        nc_https = mg_bind_opt(mgr, config->sslport, ev_handler, bind_opts_https);
+        if (nc_https == NULL) {
+            printf("Error listening on port %s: %s\n", config->sslport, err_https);
             mg_mgr_free(mgr);
             return false;
         } 
-        LOG_INFO() printf("Listening on ssl port %s\n", config.sslport);
+        LOG_INFO2() printf("Listening on ssl port %s\n", config->sslport);
+        mg_set_protocol_http_websocket(nc_https);
     }
-    else {
-        nc = mg_bind(mgr, config.webport, ev_handler);
-        if (nc == NULL) {
-            printf("Error listening on port %s\n", config.webport);
-            mg_mgr_free(mgr);
-            return false;
-        }
-        LOG_INFO() printf("Listening on http port %s\n", config.webport);
-    }
-    
-    mg_set_protocol_http_websocket(nc);
-    
     return mgr;
 }
 
@@ -113,27 +125,23 @@ static int is_websocket(const struct mg_connection *nc) {
 }
 
 static void send_ws_notify(struct mg_mgr *mgr, struct work_result_t *response) {
-    struct mg_connection *c;
-    LOG_DEBUG() fprintf(stderr, "DEBUG: Got ws notify, broadcasting\n");
-    
-    for (c = mg_next(mgr, NULL); c != NULL; c = mg_next(mgr, c)) {
-        if (!is_websocket(c))
+    struct mg_connection *nc;
+    for (nc = mg_next(mgr, NULL); nc != NULL; nc = mg_next(mgr, nc)) {
+        if (!is_websocket(nc))
             continue;
-        mg_send_websocket_frame(c, WEBSOCKET_OP_TEXT, response->data, response->length);
+        mg_send_websocket_frame(nc, WEBSOCKET_OP_TEXT, response->data, response->length);
     }
     free(response);
 }
 
 static void send_api_response(struct mg_mgr *mgr, struct work_result_t *response) {
-    struct mg_connection *c;
-    LOG_DEBUG() fprintf(stderr, "DEBUG: Got API response for connection %lu.\n", response->conn_id);
-    
-    for (c = mg_next(mgr, NULL); c != NULL; c = mg_next(mgr, c)) {
-        if (c->user_data != NULL) {
-            if ((unsigned long)c->user_data == response->conn_id) {
-                LOG_DEBUG() fprintf(stderr, "DEBUG: Sending to connection %lu: %s\n", (unsigned long)c->user_data, response->data);
-                mg_send_head(c, 200, response->length, "Content-Type: application/json");
-                mg_printf(c, "%s", response->data);
+    struct mg_connection *nc;
+    for (nc = mg_next(mgr, NULL); nc != NULL; nc = mg_next(mgr, nc)) {
+        if (nc->user_data != NULL) {
+            t_user_data *user_data = (t_user_data *) nc->user_data;
+            if (user_data->conn_id == response->conn_id) {
+                mg_send_head(nc, 200, response->length, "Content-Type: application/json");
+                mg_printf(nc, "%s", response->data);
             }
         }
     }
@@ -141,21 +149,28 @@ static void send_api_response(struct mg_mgr *mgr, struct work_result_t *response
 }
 
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
-    (void) nc;
-    (void) ev_data;
+    t_user_data *user_data = (t_user_data *) nc->user_data;
+    t_config *config = (t_config *) user_data->config;
     
     switch(ev) {
         case MG_EV_ACCEPT: {
-            struct timespec start;
-            clock_gettime(CLOCK_MONOTONIC_RAW, &start);
-            long unsigned conn_id = (start.tv_sec * 1000 + start.tv_nsec / 1000) * 100 + randrange(100);
-            nc->user_data = (void *)conn_id;
-            LOG_DEBUG() fprintf(stderr, "DEBUG: New connection id %lu.\n", conn_id);
+            //increment conn_id
+            if (user_data->conn_id < LONG_MAX)
+                user_data->conn_id++;
+            else
+                user_data->conn_id = 1;
+            
+            //remove mgr user_data and set connection specific user_data
+            t_user_data *nc_user_data = (t_user_data*)malloc(sizeof(t_user_data));
+            nc_user_data->config = config;
+            nc_user_data->conn_id = user_data->conn_id;
+            nc->user_data = nc_user_data;
+            LOG_DEBUG2() fprintf(stderr, "DEBUG: New connection id %ld.\n", user_data->conn_id);
             break;
         }
         case MG_EV_WEBSOCKET_HANDSHAKE_REQUEST: {
             struct http_message *hm = (struct http_message *) ev_data;
-            LOG_VERBOSE() printf("New websocket request: %.*s\n", hm->uri.len, hm->uri.p);
+            LOG_VERBOSE2() printf("New websocket request (%ld): %.*s\n", user_data->conn_id, hm->uri.len, hm->uri.p);
             if (mg_vcmp(&hm->uri, "/ws") != 0) {
                 printf("ERROR: Websocket request not to /ws, closing connection\n");
                 mg_printf(nc, "%s", "HTTP/1.1 403 FORBIDDEN\r\n\r\n");
@@ -164,17 +179,17 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             break;
         }
         case MG_EV_WEBSOCKET_HANDSHAKE_DONE: {
-             LOG_VERBOSE() printf("New Websocket connection established.\n");
+             LOG_VERBOSE2() printf("New Websocket connection established (%ld).\n", user_data->conn_id);
              char response[] = "{\"type\": \"welcome\", \"data\": {\"mympdVersion\": \"" MYMPD_VERSION "\"}}";
              mg_send_websocket_frame(nc, WEBSOCKET_OP_TEXT, response, strlen(response));
              break;
         }
         case MG_EV_HTTP_REQUEST: {
             struct http_message *hm = (struct http_message *) ev_data;
-            LOG_VERBOSE() printf("HTTP request: %.*s\n", hm->uri.len, hm->uri.p);
+            LOG_VERBOSE2() printf("HTTP request (%ld): %.*s\n", user_data->conn_id, hm->uri.len, hm->uri.p);
             if (mg_vcmp(&hm->uri, "/api") == 0) {
                 struct work_request_t *request = (struct work_request_t*)malloc(sizeof(struct work_request_t));
-                request->conn_id = (unsigned long)nc->user_data;
+                request->conn_id = user_data->conn_id;
                 request->length = copy_string(request->data, hm->body.p, 1000, hm->body.len);
                 tiny_queue_push(mpd_client_queue, request);
             }
@@ -187,13 +202,8 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             break;
         }
         case MG_EV_CLOSE: {
-            if (nc->user_data) {
-                LOG_VERBOSE() fprintf(stderr, "HTTP connection %lu closed.\n", (unsigned long)nc->user_data);
-                nc->user_data = NULL;
-            }
-            else {
-                LOG_VERBOSE() printf("HTTP connection closed.\n");
-            }
+            LOG_VERBOSE2() fprintf(stderr, "HTTP connection %ld closed.\n", user_data->conn_id);
+            free(nc->user_data);
             break;
         }
         default: {
@@ -202,7 +212,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
     }
 }
 
-static void ev_handler_redirect(struct mg_connection *nc_http, int ev, void *ev_data) {
+static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data) {
     char *host;
     char *crap;
     char host_header[1024];
@@ -210,15 +220,18 @@ static void ev_handler_redirect(struct mg_connection *nc_http, int ev, void *ev_
         case MG_EV_HTTP_REQUEST: {
             struct http_message *hm = (struct http_message *) ev_data;
             struct mg_str *host_hdr = mg_get_http_header(hm, "Host");
+            t_user_data *user_data = (t_user_data *) nc->user_data;
+            t_config *config = (t_config *) user_data->config;
+            
             snprintf(host_header, 1024, "%.*s", host_hdr->len, host_hdr->p);
             host = strtok_r(host_header, ":", &crap);
             char s_redirect[250];
-            if (strcmp(config.sslport, "443") == 0)
+            if (strcmp(config->sslport, "443") == 0)
                 snprintf(s_redirect, 250, "https://%s/", host);
             else
-                snprintf(s_redirect, 250, "https://%s:%s/", host, config.sslport);
-            LOG_VERBOSE() printf("Redirecting to %s\n", s_redirect);
-            mg_http_send_redirect(nc_http, 301, mg_mk_str(s_redirect), mg_mk_str(NULL));
+                snprintf(s_redirect, 250, "https://%s:%s/", host, config->sslport);
+            LOG_VERBOSE2() printf("Redirecting to %s\n", s_redirect);
+            mg_http_send_redirect(nc, 301, mg_mk_str(s_redirect), mg_mk_str(NULL));
             break;
         }
         default: {

@@ -119,6 +119,9 @@
     X(MPD_API_COLS_SAVE) \
     X(MPD_API_SYSCMD)
 
+#define GEN_ENUM(X) X,
+#define GEN_STR(X) #X,
+
 enum mpd_cmd_ids {
     MPD_CMDS(GEN_ENUM)
 };
