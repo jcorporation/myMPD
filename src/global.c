@@ -25,6 +25,10 @@
 #include <string.h>
 #include <limits.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+#include "tiny_queue.h"
 #include "global.h"
 
 int randrange(int n) {
@@ -41,6 +45,18 @@ void sanitize_string(const char *data) {
         *cp = '_';
 }
 
+bool validate_string(const char *data) {
+    static char ok_chars[] = "abcdefghijklmnopqrstuvwxyz"
+                             "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                             "1234567890_-. ";
+    const char *cp = data;
+    const char *end = data + strlen(data);
+    for (cp += strspn(cp, ok_chars); cp != end; cp += strspn(cp, ok_chars))
+        return false;
+    return true;
+}
+
+
 int copy_string(char * const dest, char const * const src, size_t const dst_len, size_t const src_len) {
     if (dst_len == 0 || src_len == 0)
         return 0;
@@ -48,4 +64,14 @@ int copy_string(char * const dest, char const * const src, size_t const dst_len,
     memcpy(dest, src, max);
     dest[max] = '\0';
     return max;
+}
+
+enum mypd_cmd_ids get_cmd_id(const char *cmd) {
+    const char * mympd_cmd_strs[] = { MYMPD_CMDS(GEN_STR) };
+
+    for (unsigned i = 0; i < sizeof(mympd_cmd_strs) / sizeof(mympd_cmd_strs[0]); i++)
+        if (!strncmp(cmd, mympd_cmd_strs[i], strlen(mympd_cmd_strs[i])))
+            return i;
+
+    return 0;
 }

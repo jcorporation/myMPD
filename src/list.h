@@ -1,5 +1,5 @@
 /* myMPD
-   (c) 2018 Juergen Mang <mail@jcgames.de>
+   (c) 2018-2019 Juergen Mang <mail@jcgames.de>
    This project's homepage is: https://github.com/jcorporation/mympd
    
    This linked list implementation is based on: https://github.com/joshkunz/ashuffle
@@ -27,12 +27,10 @@ struct node {
     struct node *next;
 };
 
-
 struct list {
     unsigned length;
     struct node *list;
 };
-
 
 int list_init(struct list *l);
 int list_push(struct list *l, const char *data, int value);

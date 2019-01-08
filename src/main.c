@@ -33,11 +33,15 @@
 #include <pthread.h>
 #include <dirent.h>
 #include <mpd/client.h>
+#include <stdbool.h>
 
-#include "../dist/src/inih/ini.h"
+#include "list.h"
+#include "tiny_queue.h"
 #include "global.h"
 #include "mpd_client.h"
 #include "web_server.h"
+#include "mympd_api.h"
+#include "../dist/src/inih/ini.h"
 #include "../dist/src/mongoose/mongoose.h"
 
 static void signal_handler(int sig_num) {
@@ -137,28 +141,31 @@ static int inihandler(void* user, const char* section, const char* name, const c
     return 1;
 }
 
-void read_syscmds() {
+void read_syscmds(void *arg_config) {
     DIR *dir;
     struct dirent *ent;
     char dirname[400];
     char *cmd;
     long order;
-    if (config.syscmds == true) {    
-        snprintf(dirname, 400, "%s/syscmds", config.etcdir);
-        LOG_INFO() printf("Reading syscmds: %s\n", dirname);
+    t_config *config = (t_config *) arg_config;
+    
+    if (config->syscmds == true) {    
+        snprintf(dirname, 400, "%s/syscmds", config->etcdir);
+        LOG_INFO2() printf("Reading syscmds: %s\n", dirname);
         if ((dir = opendir (dirname)) != NULL) {
             while ((ent = readdir(dir)) != NULL) {
                 if (strncmp(ent->d_name, ".", 1) == 0)
                     continue;
                 order = strtol(ent->d_name, &cmd, 10);
                 if (strcmp(cmd, "") != 0)
-                    list_push(&syscmds, strdup(cmd), order);
+                    list_push(config->syscmd_list, strdup(cmd), order);
             }
             closedir(dir);
         }
     }
-    else
-        LOG_INFO() printf("Syscmds are disabled\n");
+    else {
+        LOG_INFO2() printf("Syscmds are disabled\n");
+    }
 }
 
 void read_statefiles() {
@@ -310,6 +317,7 @@ int main(int argc, char **argv) {
     s_signal_received = 0;
     char testdirname[400];
     mpd_client_queue = tiny_queue_create();
+    mympd_api_queue = tiny_queue_create();
     web_server_queue = tiny_queue_create();
 
     srand((unsigned int)time(NULL));
@@ -387,6 +395,7 @@ int main(int argc, char **argv) {
     if (!web_server_init(&mgr, &config)) {
         return EXIT_FAILURE;
     }
+
     //drop privileges
     if (config.user != NULL) {
         LOG_INFO() printf("Droping privileges to %s\n", config.user);
@@ -446,9 +455,10 @@ int main(int argc, char **argv) {
     read_statefiles();
 
     //read system command files
-    list_init(&syscmds);    
-    read_syscmds();
-    list_sort_by_value(&syscmds, true);
+    config.syscmd_list = malloc(sizeof(struct list));
+    list_init(config.syscmd_list);
+    read_syscmds(&config);
+    list_sort_by_value(config.syscmd_list, true);
 
     //init lists for tag handling
     list_init(&mpd_tags);
@@ -459,11 +469,13 @@ int main(int argc, char **argv) {
     LOG_INFO() printf("Reading last played songs: %d\n", read_last_played());
     
     //Create working threads
-    pthread_t mpd_client_thread, web_server_thread;
+    pthread_t mpd_client_thread, web_server_thread, mympd_api_thread;
     //mpd connection
     pthread_create(&mpd_client_thread, NULL, mpd_client_loop, NULL);
     //webserver
     pthread_create(&web_server_thread, NULL, web_server_loop, &mgr);
+    //mympd api
+    pthread_create(&mympd_api_thread, NULL, mympd_api_loop, &config);
 
     //Do nothing...
 
@@ -473,7 +485,9 @@ int main(int argc, char **argv) {
     pthread_join(web_server_thread, NULL);
     list_free(&mpd_tags);
     list_free(&mympd_tags);
+    list_free(config.syscmd_list);
     tiny_queue_free(web_server_queue);
     tiny_queue_free(mpd_client_queue);
+    tiny_queue_free(mympd_api_queue);
     return EXIT_SUCCESS;
 }

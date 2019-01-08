@@ -42,6 +42,7 @@ set(SOURCES
     src/global.c
     src/mpd_client.c
     src/web_server.c
+    src/mympd_api.c
     src/list.c
     src/tiny_queue.c
     dist/src/mongoose/mongoose.c

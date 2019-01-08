@@ -23,25 +23,31 @@
 */
 
 #include <limits.h>
+#include <stdbool.h>
+#include <pthread.h>
 
+#include "list.h"
+#include "tiny_queue.h"
 #include "global.h"
 #include "web_server.h"
 #include "mpd_client.h"
 #include "../dist/src/mongoose/mongoose.h"
+#include "../dist/src/frozen/frozen.h"
 
-//non-api definitions
+//private definitions
 static int is_websocket(const struct mg_connection *nc);
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data);
 static void ev_handler_redirect(struct mg_connection *nc_http, int ev, void *ev_data);
 static void send_ws_notify(struct mg_mgr *mgr, struct work_result_t *response);
 static void send_api_response(struct mg_mgr *mgr, struct work_result_t *response);
+static bool handle_api(long conn_id, const char *request, int request_len);
 
 typedef struct t_user_data {
     void *config; //pointer to mympd config
     long conn_id; 
 } t_user_data;
 
-//api functions
+//public functions
 bool web_server_init(void *arg_mgr, void *arg_config) {
     struct mg_mgr *mgr = (struct mg_mgr *) arg_mgr;
     t_config *config = (t_config *) arg_config;
@@ -93,13 +99,13 @@ bool web_server_init(void *arg_mgr, void *arg_config) {
     return mgr;
 }
 
-void web_server_free(void *arg) {
-    struct mg_mgr *mgr = (struct mg_mgr *) arg;
+void web_server_free(void *arg_mgr) {
+    struct mg_mgr *mgr = (struct mg_mgr *) arg_mgr;
     mg_mgr_free(mgr);
 }
 
-void *web_server_loop(void *arg) {
-    struct mg_mgr *mgr = (struct mg_mgr *) arg;
+void *web_server_loop(void *arg_mgr) {
+    struct mg_mgr *mgr = (struct mg_mgr *) arg_mgr;
     while (s_signal_received == 0) {
         mg_mgr_poll(mgr, 100);
         unsigned web_server_queue_length = tiny_queue_length(web_server_queue);
@@ -119,7 +125,7 @@ void *web_server_loop(void *arg) {
     return NULL;
 }
 
-//non-api functions
+//private functions
 static int is_websocket(const struct mg_connection *nc) {
     return nc->flags & MG_F_IS_WEBSOCKET;
 }
@@ -160,7 +166,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             else
                 user_data->conn_id = 1;
             
-            //remove mgr user_data and set connection specific user_data
+            //replace mgr user_data with connection specific user_data
             t_user_data *nc_user_data = (t_user_data*)malloc(sizeof(t_user_data));
             nc_user_data->config = config;
             nc_user_data->conn_id = user_data->conn_id;
@@ -188,10 +194,13 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             struct http_message *hm = (struct http_message *) ev_data;
             LOG_VERBOSE2() printf("HTTP request (%ld): %.*s\n", user_data->conn_id, hm->uri.len, hm->uri.p);
             if (mg_vcmp(&hm->uri, "/api") == 0) {
-                struct work_request_t *request = (struct work_request_t*)malloc(sizeof(struct work_request_t));
-                request->conn_id = user_data->conn_id;
-                request->length = copy_string(request->data, hm->body.p, 1000, hm->body.len);
-                tiny_queue_push(mpd_client_queue, request);
+                bool rc = handle_api(user_data->conn_id, hm->body.p, hm->body.len);
+                if (rc == false) {
+                    printf("ERROR: Invalid API request.\n");
+                    char *response = "{\"type\": \"error\", \"data\": \"Invalid API request\"}";
+                    mg_send_head(nc, 200, strlen(response), "Content-Type: application/json");
+                    mg_printf(nc, "%s", response);
+                }
             }
             else {
                 static struct mg_serve_http_opts s_http_server_opts;
@@ -238,4 +247,29 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data)
             break;
         }
     }
+}
+
+static bool handle_api(long conn_id, const char *request_body, int request_len) {
+    char *cmd;
+    
+    LOG_VERBOSE() printf("API request: %.*s\n", request_len, request_body);
+    const int je = json_scanf(request_body, request_len, "{cmd: %Q}", &cmd);
+    if (je < 1)
+        return false;
+
+    enum mypd_cmd_ids cmd_id = get_cmd_id(cmd);
+    if (cmd_id == 0)
+        return false;
+    
+    struct work_request_t *request = (struct work_request_t*)malloc(sizeof(struct work_request_t));
+    request->conn_id = conn_id;
+    request->cmd_id = cmd_id;
+    request->length = copy_string(request->data, request_body, 1000, request_len);
+    
+    if (strncmp(cmd, "MYMPD_API_", 10) == 0)
+        tiny_queue_push(mympd_api_queue, request);
+    else
+        tiny_queue_push(mpd_client_queue, request);
+        
+    return true;
 }

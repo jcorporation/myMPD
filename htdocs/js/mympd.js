@@ -2232,7 +2232,7 @@ function parseSongDetails(obj) {
 }
 
 function execSyscmd(cmd) {
-    sendAPI({"cmd": "MPD_API_SYSCMD", "data": {"cmd": cmd}});
+    sendAPI({"cmd": "MYMPD_API_SYSCMD", "data": {"cmd": cmd}});
 }
 
 function playlistDetails(uri) {
