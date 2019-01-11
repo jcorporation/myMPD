@@ -39,21 +39,22 @@
 #include "../dist/src/frozen/frozen.h"
 
 //private definitions
-static void mympd_api(void *arg_request, void *arg_config);
-static int mympd_api_syscmd(char *buffer, const char *cmd, void *arg_config);
+//static void mympd_api(void *arg_request, void *arg_config);
+static void mympd_api(t_work_request *request, t_config *config);
+static int mympd_api_syscmd(char *buffer, const char *cmd, t_config *config);
 
 //public functions
 void *mympd_api_loop(void *arg_config) {
     while (s_signal_received == 0) {
-        struct work_request_t *req = tiny_queue_shift(mympd_api_queue);
-        mympd_api(req, arg_config);
+        struct t_work_request *request = tiny_queue_shift(mympd_api_queue);
+        mympd_api(request, arg_config);
     }
     return NULL;
 }
 
 //private functions
-static void mympd_api(void *arg_request, void *arg_config) {
-    struct work_request_t *request = (struct work_request_t*) arg_request;
+static void mympd_api(t_work_request *request, t_config *config) {
+    //t_work_request *request = (t_work_request *) arg_request;
     size_t len = 0;
     char buffer[MAX_SIZE];
     int je;
@@ -61,10 +62,10 @@ static void mympd_api(void *arg_request, void *arg_config) {
     LOG_VERBOSE() printf("MYMPD API request: %.*s\n", request->length, request->data);
     
     if (request->cmd_id == MYMPD_API_SYSCMD) {
-        if (config.syscmds == true) {
+        if (config->syscmds == true) {
             je = json_scanf(request->data, request->length, "{data: {cmd: %Q}}", &p_charbuf1);
             if (je == 1) {
-                len = mympd_api_syscmd(buffer, p_charbuf1, arg_config);
+                len = mympd_api_syscmd(buffer, p_charbuf1, config);
                 free(p_charbuf1);
             }
         } 
@@ -83,7 +84,7 @@ static void mympd_api(void *arg_request, void *arg_config) {
     }
     LOG_DEBUG() fprintf(stderr, "DEBUG: Send http response to connection %lu (first 800 chars):\n%*.*s\n", request->conn_id, 0, 800, buffer);
 
-    struct work_result_t *response = (struct work_result_t*)malloc(sizeof(struct work_result_t));
+    t_work_result *response = (t_work_result *)malloc(sizeof(t_work_result));
     response->conn_id = request->conn_id;
     response->length = copy_string(response->data, buffer, MAX_SIZE, len);
     tiny_queue_push(web_server_queue, response);
@@ -91,16 +92,15 @@ static void mympd_api(void *arg_request, void *arg_config) {
     free(request);
 }
 
-static int mympd_api_syscmd(char *buffer, const char *cmd, void *arg_config) {
+static int mympd_api_syscmd(char *buffer, const char *cmd, t_config *config) {
     int len;
     char filename[400];
     char *line;
     char *crap;
     size_t n = 0;
     ssize_t read;
-    t_config *config = (t_config *) arg_config;
     
-    const int order = list_get_value(config->syscmd_list, cmd);
+    const int order = list_get_value(&config->syscmd_list, cmd);
     if (order == -1) {
         printf("ERROR: Syscmd not defined: %s\n", cmd);
         len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"System command not defined\"}");
@@ -118,9 +118,10 @@ static int mympd_api_syscmd(char *buffer, const char *cmd, void *arg_config) {
     fclose(fp);
     if (read > 0) {
         strtok_r(line, "\n", &crap);
-        if (system(line) == 0) {
+        const int rc = system(line);
+        if ( rc == 0) {
             len = snprintf(buffer, MAX_SIZE, "{\"type\": \"result\", \"data\": \"Executed cmd %s.\"}", cmd);
-            LOG_VERBOSE2() printf("Executed syscmd: \"%s\"\n", line);
+            LOG_VERBOSE() printf("Executed syscmd: \"%s\"\n", line);
         }
         else {
             len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Executing cmd %s failed.\"}", cmd);

@@ -26,7 +26,7 @@
 #define __WEB_SERVER_H__
 
 void *web_server_loop(void *arg_mgr);
-bool web_server_init(void *arg_mgr, void *arg_config);
+bool web_server_init(void *arg_mgr, t_config *config);
 void web_server_free(void *arg_mgr);
 
 #endif

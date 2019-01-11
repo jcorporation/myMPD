@@ -45,13 +45,9 @@
 
 //central logging definition
 #cmakedefine DEBUG
-#define LOG_INFO() if (config.loglevel >= 1) 
-#define LOG_VERBOSE() if (config.loglevel >= 2) 
-#define LOG_DEBUG() if (config.loglevel == 3) 
-
-#define LOG_INFO2() if (config->loglevel >= 1) 
-#define LOG_VERBOSE2() if (config->loglevel >= 2) 
-#define LOG_DEBUG2() if (config->loglevel == 3) 
+#define LOG_INFO() if (loglevel >= 1) 
+#define LOG_VERBOSE() if (loglevel >= 2) 
+#define LOG_DEBUG() if (loglevel == 3) 
 
 //check and return buffer size
 #define CHECK_RETURN_LEN() do { \
@@ -122,7 +118,14 @@
 #define GEN_ENUM(X) X,
 #define GEN_STR(X) #X,
 
-enum mypd_cmd_ids {
+//Global variables
+
+int loglevel;
+
+//signal handler
+sig_atomic_t s_signal_received;
+
+enum mympd_cmd_ids {
     MYMPD_CMDS(GEN_ENUM)
 };
 
@@ -131,25 +134,21 @@ tiny_queue_t *web_server_queue;
 tiny_queue_t *mpd_client_queue;
 tiny_queue_t *mympd_api_queue;
 
-struct work_request_t {
+typedef struct t_work_request {
     long conn_id;  // needed to identify the connection where to send the reply
     char data[1000];
     int length;
-    enum mypd_cmd_ids cmd_id;
-} work_request_t;
+    enum mympd_cmd_ids cmd_id;
+} t_work_request;
 
-struct work_result_t {
+typedef struct t_work_result {
     long conn_id;  // needed to identify the connection where to send the reply
     char data[MAX_SIZE];
     int length;
-} work_result_t;
-
-
-//signal handler
-sig_atomic_t s_signal_received;
+} t_work_result;
 
 //myMPD configuration
-typedef struct {
+typedef struct t_config {
     long mpdport;
     const char *mpdhost;
     const char *mpdpass;
@@ -177,15 +176,14 @@ typedef struct {
     const char *streamurl;
     unsigned long last_played_count;
     long loglevel;
-    void *syscmd_list;
+    struct list syscmd_list;
 } t_config;
 
-t_config config;
-
 //global functions
+bool testdir(char *name, char *dirname);
 int randrange(int n);
-void sanitize_string(const char *data);
 bool validate_string(const char *data);
 int copy_string(char * const dest, char const * const src, size_t const dst_len, size_t const src_len);
-enum mypd_cmd_ids get_cmd_id(const char *cmd);
+int replacechar(char *str, const char orig, const char rep);
+enum mympd_cmd_ids get_cmd_id(const char *cmd);
 #endif

@@ -38,8 +38,8 @@
 static int is_websocket(const struct mg_connection *nc);
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data);
 static void ev_handler_redirect(struct mg_connection *nc_http, int ev, void *ev_data);
-static void send_ws_notify(struct mg_mgr *mgr, struct work_result_t *response);
-static void send_api_response(struct mg_mgr *mgr, struct work_result_t *response);
+static void send_ws_notify(struct mg_mgr *mgr, t_work_result *response);
+static void send_api_response(struct mg_mgr *mgr, t_work_result *response);
 static bool handle_api(long conn_id, const char *request, int request_len);
 
 typedef struct t_user_data {
@@ -48,9 +48,8 @@ typedef struct t_user_data {
 } t_user_data;
 
 //public functions
-bool web_server_init(void *arg_mgr, void *arg_config) {
+bool web_server_init(void *arg_mgr, t_config *config) {
     struct mg_mgr *mgr = (struct mg_mgr *) arg_mgr;
-    t_config *config = (t_config *) arg_config;
     struct mg_connection *nc_https;
     struct mg_connection *nc_http;
     struct mg_bind_opts bind_opts_https;
@@ -78,7 +77,7 @@ bool web_server_init(void *arg_mgr, void *arg_config) {
         return false;
     }
     mg_set_protocol_http_websocket(nc_http);
-    LOG_INFO2() printf("Listening on http port %s.\n", config->webport);
+    LOG_INFO() printf("Listening on http port %s.\n", config->webport);
 
     //bind to sslport
     if (config->ssl == true) {
@@ -93,7 +92,7 @@ bool web_server_init(void *arg_mgr, void *arg_config) {
             mg_mgr_free(mgr);
             return false;
         } 
-        LOG_INFO2() printf("Listening on ssl port %s\n", config->sslport);
+        LOG_INFO() printf("Listening on ssl port %s\n", config->sslport);
         mg_set_protocol_http_websocket(nc_https);
     }
     return mgr;
@@ -110,7 +109,7 @@ void *web_server_loop(void *arg_mgr) {
         mg_mgr_poll(mgr, 100);
         unsigned web_server_queue_length = tiny_queue_length(web_server_queue);
         if (web_server_queue_length > 0) {
-            struct work_result_t *response = tiny_queue_shift(web_server_queue);
+            t_work_result *response = tiny_queue_shift(web_server_queue);
             if (response->conn_id == 0) {
                 //Websocket notify from mpd idle
                 send_ws_notify(mgr, response);
@@ -130,7 +129,7 @@ static int is_websocket(const struct mg_connection *nc) {
     return nc->flags & MG_F_IS_WEBSOCKET;
 }
 
-static void send_ws_notify(struct mg_mgr *mgr, struct work_result_t *response) {
+static void send_ws_notify(struct mg_mgr *mgr, t_work_result *response) {
     struct mg_connection *nc;
     for (nc = mg_next(mgr, NULL); nc != NULL; nc = mg_next(mgr, nc)) {
         if (!is_websocket(nc))
@@ -140,7 +139,7 @@ static void send_ws_notify(struct mg_mgr *mgr, struct work_result_t *response) {
     free(response);
 }
 
-static void send_api_response(struct mg_mgr *mgr, struct work_result_t *response) {
+static void send_api_response(struct mg_mgr *mgr, t_work_result *response) {
     struct mg_connection *nc;
     for (nc = mg_next(mgr, NULL); nc != NULL; nc = mg_next(mgr, nc)) {
         if (nc->user_data != NULL) {
@@ -171,12 +170,12 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             nc_user_data->config = config;
             nc_user_data->conn_id = user_data->conn_id;
             nc->user_data = nc_user_data;
-            LOG_DEBUG2() fprintf(stderr, "DEBUG: New connection id %ld.\n", user_data->conn_id);
+            LOG_DEBUG() fprintf(stderr, "DEBUG: New connection id %ld.\n", user_data->conn_id);
             break;
         }
         case MG_EV_WEBSOCKET_HANDSHAKE_REQUEST: {
             struct http_message *hm = (struct http_message *) ev_data;
-            LOG_VERBOSE2() printf("New websocket request (%ld): %.*s\n", user_data->conn_id, hm->uri.len, hm->uri.p);
+            LOG_VERBOSE() printf("New websocket request (%ld): %.*s\n", user_data->conn_id, hm->uri.len, hm->uri.p);
             if (mg_vcmp(&hm->uri, "/ws") != 0) {
                 printf("ERROR: Websocket request not to /ws, closing connection\n");
                 mg_printf(nc, "%s", "HTTP/1.1 403 FORBIDDEN\r\n\r\n");
@@ -185,14 +184,14 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             break;
         }
         case MG_EV_WEBSOCKET_HANDSHAKE_DONE: {
-             LOG_VERBOSE2() printf("New Websocket connection established (%ld).\n", user_data->conn_id);
+             LOG_VERBOSE() printf("New Websocket connection established (%ld).\n", user_data->conn_id);
              char response[] = "{\"type\": \"welcome\", \"data\": {\"mympdVersion\": \"" MYMPD_VERSION "\"}}";
              mg_send_websocket_frame(nc, WEBSOCKET_OP_TEXT, response, strlen(response));
              break;
         }
         case MG_EV_HTTP_REQUEST: {
             struct http_message *hm = (struct http_message *) ev_data;
-            LOG_VERBOSE2() printf("HTTP request (%ld): %.*s\n", user_data->conn_id, hm->uri.len, hm->uri.p);
+            LOG_VERBOSE() printf("HTTP request (%ld): %.*s\n", user_data->conn_id, hm->uri.len, hm->uri.p);
             if (mg_vcmp(&hm->uri, "/api") == 0) {
                 bool rc = handle_api(user_data->conn_id, hm->body.p, hm->body.len);
                 if (rc == false) {
@@ -211,7 +210,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             break;
         }
         case MG_EV_CLOSE: {
-            LOG_VERBOSE2() fprintf(stderr, "HTTP connection %ld closed.\n", user_data->conn_id);
+            LOG_VERBOSE() fprintf(stderr, "HTTP connection %ld closed.\n", user_data->conn_id);
             free(nc->user_data);
             break;
         }
@@ -239,7 +238,7 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data)
                 snprintf(s_redirect, 250, "https://%s/", host);
             else
                 snprintf(s_redirect, 250, "https://%s:%s/", host, config->sslport);
-            LOG_VERBOSE2() printf("Redirecting to %s\n", s_redirect);
+            LOG_VERBOSE() printf("Redirecting to %s\n", s_redirect);
             mg_http_send_redirect(nc, 301, mg_mk_str(s_redirect), mg_mk_str(NULL));
             break;
         }
@@ -257,11 +256,11 @@ static bool handle_api(long conn_id, const char *request_body, int request_len) 
     if (je < 1)
         return false;
 
-    enum mypd_cmd_ids cmd_id = get_cmd_id(cmd);
+    enum mympd_cmd_ids cmd_id = get_cmd_id(cmd);
     if (cmd_id == 0)
         return false;
     
-    struct work_request_t *request = (struct work_request_t*)malloc(sizeof(struct work_request_t));
+    t_work_request *request = (t_work_request*)malloc(sizeof(t_work_request));
     request->conn_id = conn_id;
     request->cmd_id = cmd_id;
     request->length = copy_string(request->data, request_body, 1000, request_len);

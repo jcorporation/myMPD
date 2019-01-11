@@ -27,22 +27,27 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <dirent.h>
 
 #include "tiny_queue.h"
+#include "list.h"
 #include "global.h"
+
+bool testdir(char *name, char *dirname) {
+    DIR* dir = opendir(dirname);
+    if (dir) {
+        closedir(dir);
+        LOG_INFO() printf("%s: \"%s\"\n", name, dirname);
+        return true;
+    }
+    else {
+        printf("%s: \"%s\" don't exists\n", name, dirname);
+        return false;
+    }
+}
 
 int randrange(int n) {
     return rand() / (RAND_MAX / (n + 1) + 1);
-}
-
-void sanitize_string(const char *data) {
-    static char ok_chars[] = "abcdefghijklmnopqrstuvwxyz"
-                             "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                             "1234567890_-. ";
-    char *cp = data;
-    const char *end = data + strlen(data);
-    for (cp += strspn(cp, ok_chars); cp != end; cp += strspn(cp, ok_chars))
-        *cp = '_';
 }
 
 bool validate_string(const char *data) {
@@ -51,11 +56,22 @@ bool validate_string(const char *data) {
                              "1234567890_-. ";
     const char *cp = data;
     const char *end = data + strlen(data);
-    for (cp += strspn(cp, ok_chars); cp != end; cp += strspn(cp, ok_chars))
+    for (cp += strspn(cp, ok_chars); cp != end; cp += strspn(cp, ok_chars)) {
+        printf("ERROR: Invalid character in string\n");
         return false;
+    }
     return true;
 }
 
+int replacechar(char *str, const char orig, const char rep) {
+    char *ix = str;
+    int n = 0;
+    while ((ix = strchr(ix, orig)) != NULL) {
+        *ix++ = rep;
+        n++;
+    }
+    return n;
+}
 
 int copy_string(char * const dest, char const * const src, size_t const dst_len, size_t const src_len) {
     if (dst_len == 0 || src_len == 0)
@@ -66,7 +82,7 @@ int copy_string(char * const dest, char const * const src, size_t const dst_len,
     return max;
 }
 
-enum mypd_cmd_ids get_cmd_id(const char *cmd) {
+enum mympd_cmd_ids get_cmd_id(const char *cmd) {
     const char * mympd_cmd_strs[] = { MYMPD_CMDS(GEN_STR) };
 
     for (unsigned i = 0; i < sizeof(mympd_cmd_strs) / sizeof(mympd_cmd_strs[0]); i++)

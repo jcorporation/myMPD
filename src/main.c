@@ -39,17 +39,18 @@
 #include "tiny_queue.h"
 #include "global.h"
 #include "mpd_client.h"
+#include "../dist/src/mongoose/mongoose.h"
 #include "web_server.h"
 #include "mympd_api.h"
 #include "../dist/src/inih/ini.h"
-#include "../dist/src/mongoose/mongoose.h"
+
 
 static void signal_handler(int sig_num) {
     signal(sig_num, signal_handler);  // Reinstantiate signal handler
     s_signal_received = sig_num;
 }
 
-static int inihandler(void* user, const char* section, const char* name, const char* value) {
+static int inihandler(void *user, const char *section, const char *name, const char* value) {
     t_config* p_config = (t_config*)user;
     char *crap;
 
@@ -141,176 +142,30 @@ static int inihandler(void* user, const char* section, const char* name, const c
     return 1;
 }
 
-void read_syscmds(void *arg_config) {
+void read_syscmds(t_config *config) {
     DIR *dir;
     struct dirent *ent;
     char dirname[400];
     char *cmd;
     long order;
-    t_config *config = (t_config *) arg_config;
     
     if (config->syscmds == true) {    
         snprintf(dirname, 400, "%s/syscmds", config->etcdir);
-        LOG_INFO2() printf("Reading syscmds: %s\n", dirname);
+        printf("Reading syscmds: %s\n", dirname);
         if ((dir = opendir (dirname)) != NULL) {
             while ((ent = readdir(dir)) != NULL) {
                 if (strncmp(ent->d_name, ".", 1) == 0)
                     continue;
                 order = strtol(ent->d_name, &cmd, 10);
                 if (strcmp(cmd, "") != 0)
-                    list_push(config->syscmd_list, strdup(cmd), order);
+                    list_push(&config->syscmd_list, strdup(cmd), order);
             }
             closedir(dir);
         }
     }
     else {
-        LOG_INFO2() printf("Syscmds are disabled\n");
+        printf("Syscmds are disabled\n");
     }
-}
-
-void read_statefiles() {
-    char *crap;
-    char value[400];
-
-    LOG_INFO() printf("Reading states\n");
-    if (mpd_client_state_get("notificationWeb", value)) {
-        if (strcmp(value, "true") == 0)
-            mympd_state.notificationWeb = true;
-        else
-            mympd_state.notificationWeb = false;
-    }
-    else {
-        mympd_state.notificationWeb = false;
-        mpd_client_state_set("notificationWeb", "false");
-    }
-
-    if (mpd_client_state_get("notificationPage", value)) {
-        if (strcmp(value, "true") == 0)
-            mympd_state.notificationPage = true;
-        else
-            mympd_state.notificationPage = false;
-    }
-    else {
-        mympd_state.notificationPage = true;
-        mpd_client_state_set("notificationPage", "true");
-    }
-    
-    if (mpd_client_state_get("jukeboxMode", value))
-        mympd_state.jukeboxMode = strtol(value, &crap, 10);
-    else {
-        mympd_state.jukeboxMode = 0;
-        mpd_client_state_set("jukeboxMode", "0");
-    }
-
-    if (mpd_client_state_get("jukeboxPlaylist", value))
-        mympd_state.jukeboxPlaylist = strdup(value);
-    else {
-        mympd_state.jukeboxPlaylist = strdup("Database");
-        mpd_client_state_set("jukeboxPlaylist", "Database");
-    }
-
-    if (mpd_client_state_get("jukeboxQueueLength", value))
-        mympd_state.jukeboxQueueLength = strtol(value, &crap, 10);
-    else {
-        mympd_state.jukeboxQueueLength = 1;
-        mpd_client_state_set("jukeboxQueueLength", "1");
-    }
-    
-    if (mpd_client_state_get("colsQueueCurrent", value))
-        mympd_state.colsQueueCurrent = strdup(value);
-    else {
-        mympd_state.colsQueueCurrent = strdup("[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]");
-        mpd_client_state_set("colsQueueCurrent", mympd_state.colsQueueCurrent);
-    }
-    
-    if (mpd_client_state_get("colsSearch", value))
-        mympd_state.colsSearch = strdup(value);
-    else {
-        mympd_state.colsSearch = strdup("[\"Title\",\"Artist\",\"Album\",\"Duration\"]");
-        mpd_client_state_set("colsSearch", mympd_state.colsSearch);
-    }
-    
-    if (mpd_client_state_get("colsBrowseDatabase", value))
-        mympd_state.colsBrowseDatabase = strdup(value);
-    else {
-        mympd_state.colsBrowseDatabase = strdup("[\"Track\",\"Title\",\"Duration\"]");
-        mpd_client_state_set("colsBrowseDatabase", mympd_state.colsBrowseDatabase);
-    }
-    
-    if (mpd_client_state_get("colsBrowsePlaylistsDetail", value))
-        mympd_state.colsBrowsePlaylistsDetail = strdup(value);
-    else {
-        mympd_state.colsBrowsePlaylistsDetail = strdup("[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]");
-        mpd_client_state_set("colsBrowsePlaylistsDetail", mympd_state.colsBrowsePlaylistsDetail);
-    }
-    
-    if (mpd_client_state_get("colsBrowseFilesystem", value))
-        mympd_state.colsBrowseFilesystem = strdup(value);
-    else {
-        mympd_state.colsBrowseFilesystem = strdup("[\"Type\",\"Title\",\"Artist\",\"Album\",\"Duration\"]");
-        mpd_client_state_set("colsBrowseFilesystem", mympd_state.colsBrowseFilesystem);
-    }
-    
-    if (mpd_client_state_get("colsPlayback", value))
-        mympd_state.colsPlayback = strdup(value);
-    else {
-        mympd_state.colsPlayback = strdup("[\"Artist\",\"Album\",\"Genre\"]");
-        mpd_client_state_set("colsPlayback", mympd_state.colsPlayback);
-    }
-
-    if (mpd_client_state_get("colsQueueLastPlayed", value))
-        mympd_state.colsQueueLastPlayed = strdup(value);
-    else {
-        mympd_state.colsQueueLastPlayed = strdup("[\"Pos\",\"Title\",\"Artist\",\"Album\",\"LastPlayed\"]");
-        mpd_client_state_set("colsQueueLastPlayed", mympd_state.colsQueueLastPlayed);
-    }
-}
-
-int read_last_played() {
-    char cfgfile[400];
-    char *line;
-    char *data;
-    char *crap;
-    size_t n = 0;
-    ssize_t read;
-    long value;
-    
-    snprintf(cfgfile, 400, "%s/state/last_played", config.varlibdir);
-    FILE *fp = fopen(cfgfile, "r");
-    if (fp == NULL) {
-        printf("Error opening %s\n", cfgfile);
-        return 0;
-    }
-    while ((read = getline(&line, &n, fp)) > 0) {
-        value = strtol(line, &data, 10);
-        if (strlen(data) > 2)
-            data = data + 2;
-        strtok_r(data, "\n", &crap);
-        list_push(&last_played, data, value);
-    }
-    fclose(fp);
-    return last_played.length;;
-}
-
-bool testdir(char *name, char *dirname) {
-    DIR* dir = opendir(dirname);
-    if (dir) {
-        closedir(dir);
-        LOG_INFO() printf("%s: \"%s\"\n", name, dirname);
-        return true;
-    }
-    else {
-        printf("%s: \"%s\" don't exists\n", name, dirname);
-        return false;
-    }
-}
-
-void *mpd_client_loop() {
-    while (s_signal_received == 0) {
-        mpd_client_idle(100);
-    }
-    mpd_client_disconnect();
-    return NULL;
 }
 
 int main(int argc, char **argv) {
@@ -322,7 +177,8 @@ int main(int argc, char **argv) {
 
     srand((unsigned int)time(NULL));
     
-    //defaults
+    //mympd config defaults
+    t_config config;
     config.mpdhost = "127.0.0.1";
     config.mpdport = 6600;
     config.mpdpass = NULL;
@@ -353,16 +209,10 @@ int main(int argc, char **argv) {
     config.localplayer = true;
     config.loglevel = 1;
     
-    mpd.timeout = 3000;
-    mpd.last_update_sticker_song_id = -1;
-    mpd.last_song_id = -1;
-    mpd.last_last_played_id = -1;
-    mpd.feat_library = false;
-    
     if (argc == 2) {
-        LOG_INFO() printf("Starting myMPD %s\n", MYMPD_VERSION);
-        LOG_INFO() printf("Libmpdclient %i.%i.%i\n", LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION);
-        LOG_INFO() printf("Parsing config file: %s\n", argv[1]);
+        printf("Starting myMPD %s\n", MYMPD_VERSION);
+        printf("Libmpdclient %i.%i.%i\n", LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION);
+        printf("Parsing config file: %s\n", argv[1]);
         if (ini_parse(argv[1], inihandler, &config) < 0) {
             printf("Can't load config file \"%s\"\n", argv[1]);
             return EXIT_FAILURE;
@@ -383,6 +233,7 @@ int main(int argc, char **argv) {
     #ifdef DEBUG
     printf("Debug flag enabled, setting loglevel to debug\n");
     config.loglevel = 3;
+    loglevel = config.loglevel;
     #endif
 
     signal(SIGTERM, signal_handler);
@@ -398,7 +249,7 @@ int main(int argc, char **argv) {
 
     //drop privileges
     if (config.user != NULL) {
-        LOG_INFO() printf("Droping privileges to %s\n", config.user);
+        printf("Droping privileges to %s\n", config.user);
         struct passwd *pw;
         if ((pw = getpwnam(config.user)) == NULL) {
             printf("getpwnam() failed, unknown user\n");
@@ -430,12 +281,8 @@ int main(int argc, char **argv) {
         return EXIT_FAILURE;
 
     snprintf(testdirname, 400, "%s/library", DOC_ROOT);
-    if (testdir("Link to mpd music_directory", testdirname)) {
-        LOG_INFO() printf("Enabling featLibrary support\n");
-        mpd.feat_library = true;
-    }
-    else {
-        LOG_INFO() printf("Disabling coverimage support\n");
+    if (!testdir("Link to mpd music_directory", testdirname)) {
+        printf("Disabling coverimage support\n");
         config.coverimage = false;
     }
 
@@ -451,41 +298,26 @@ int main(int argc, char **argv) {
     if (!testdir("State dir", testdirname)) 
         return EXIT_FAILURE;
 
-    //read myMPD states under config.varlibdir
-    read_statefiles();
-
     //read system command files
-    config.syscmd_list = malloc(sizeof(struct list));
-    list_init(config.syscmd_list);
+    list_init(&config.syscmd_list);
     read_syscmds(&config);
-    list_sort_by_value(config.syscmd_list, true);
+    list_sort_by_value(&config.syscmd_list, true);
 
-    //init lists for tag handling
-    list_init(&mpd_tags);
-    list_init(&mympd_tags);
-    
-    //read last played songs history file
-    list_init(&last_played);
-    LOG_INFO() printf("Reading last played songs: %d\n", read_last_played());
-    
     //Create working threads
     pthread_t mpd_client_thread, web_server_thread, mympd_api_thread;
     //mpd connection
-    pthread_create(&mpd_client_thread, NULL, mpd_client_loop, NULL);
+    pthread_create(&mpd_client_thread, NULL, mpd_client_loop, &config);
     //webserver
     pthread_create(&web_server_thread, NULL, web_server_loop, &mgr);
     //mympd api
     pthread_create(&mympd_api_thread, NULL, mympd_api_loop, &config);
 
-    //Do nothing...
-
+    //Outsourced all work to separate threads, do nothing...
 
     //clean up
     pthread_join(mpd_client_thread, NULL);
     pthread_join(web_server_thread, NULL);
-    list_free(&mpd_tags);
-    list_free(&mympd_tags);
-    list_free(config.syscmd_list);
+    list_free(&config.syscmd_list);
     tiny_queue_free(web_server_queue);
     tiny_queue_free(mpd_client_queue);
     tiny_queue_free(mympd_api_queue);
