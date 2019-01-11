@@ -86,6 +86,6 @@ SSL
 
 Copyright
 ---------
-ympd: 2013-2014 <andy@ndyk.de>
+myMPD: 2018 - 2019 <mail@jcgames.de>
 
-myMPD: 2018 <mail@jcgames.de>
+ympd: 2013-2014 <andy@ndyk.de>
