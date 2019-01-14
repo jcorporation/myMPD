@@ -29,12 +29,16 @@ var lastSongObj = {};
 var lastState;
 var currentSong = new Object();
 var playstate = '';
+var settingsLock = false;
+var settingsParsed = false;
+var settingsNew = {};
 var settings = {};
 var alertTimeout;
 var progressTimer;
 var deferredPrompt;
 var dragEl;
 var playlistEl;
+var websocketConnected = false;
 
 var app = {};
 app.apps = { "Playback":   { "state": "0/-/", "scrollPos": 0 },
@@ -104,6 +108,7 @@ var modalUpdateDB = new Modal(document.getElementById('modalUpdateDB'));
 var modalSaveSmartPlaylist = new Modal(document.getElementById('modalSaveSmartPlaylist'));
 var modalDeletePlaylist = new Modal(document.getElementById('modalDeletePlaylist'));
 var modalHelp = new Modal(document.getElementById('modalHelp'));
+var modalAppInit = new Modal(document.getElementById('modalAppInit'));
 
 var dropdownMainMenu;
 var dropdownVolumeMenu = new Dropdown(document.getElementById('volumeMenu'));
@@ -353,10 +358,37 @@ function appRoute() {
     app.last.view = app.current.view;
 };
 
-function appInit() {
-    webSocketConnect();
+function appInitStart() {
+    modalAppInit.show();
     getSettings();
-    sendAPI({"cmd": "MPD_API_PLAYER_STATE"}, parseState);
+    appInitWait();
+}
+
+function appInitWait() {
+    setTimeout(function() {
+        if (settingsParsed == true && websocketConnected == true) {
+            //app initialized
+            document.getElementById('appInitWebsocket').classList.remove('unvisible');
+            appInit();
+            document.getElementById('appInitApply').classList.remove('unvisible');
+            document.getElementsByTagName('header')[0].classList.remove('hide');
+            document.getElementsByTagName('main')[0].classList.remove('hide');
+            document.getElementsByTagName('footer')[0].classList.remove('hide');
+            modalAppInit.hide();
+            return;
+        }
+        
+        if (settingsParsed == true) {
+            //parsed settings, now its save to connect to websocket
+            document.getElementById('appInitSettings').classList.remove('unvisible');
+            webSocketConnect();
+        }
+        appInitWait();
+    }, 500);
+}
+
+function appInit() {
+    //sendAPI({"cmd": "MPD_API_PLAYER_STATE"}, parseState);
 
     domCache.volumeBar.value = 0;
 
@@ -811,6 +843,12 @@ function appInit() {
     window.addEventListener('appinstalled', function(event) {
         console.log('myMPD installed as app');
     });
+
+    window.addEventListener('beforeunload', function() {
+        socket.onclose = function () {}; // disable onclose handler first
+        socket.close();
+        websocketConnected = false;
+    });
 }
 
 function parseCmd(event, href) {
@@ -1028,6 +1066,9 @@ function webSocketConnect() {
             }
 
             switch (obj.type) {
+                case 'welcome':
+                    websocketConnected = true;
+                    break;
                 case 'update_state':
                     parseState(obj);
                     break;
@@ -1070,6 +1111,7 @@ function webSocketConnect() {
         }
 
         socket.onclose = function(){
+            websocketConnected = false;
             console.log('disconnected');
             modalConnectionError.show();
             setTimeout(function() {
@@ -1145,8 +1187,8 @@ function filterCols(x) {
     settings[x] = cols;
 }
 
-function parseSettings(obj) {
-    settings = obj.data;
+function parseSettings() {
+    settingsParsed = false;
 
     toggleBtn('btnRandom', settings.random);
     toggleBtn('btnConsume', settings.consume);
@@ -1300,12 +1342,12 @@ function parseSettings(obj) {
     if (settings.featSyscmds) {
         var mainMenuDropdown = document.getElementById('mainMenuDropdown');
         var syscmdsList = '';
-        var syscmdsListLen = settings.syscmds.length;
+        var syscmdsListLen = settings.syscmdList.length;
         if (syscmdsListLen > 0) {
             syscmdsList = '<div class="dropdown-divider"></div>';
             for (var i = 0; i < syscmdsListLen; i++) {
                 syscmdsList += '<a class="dropdown-item text-light bg-dark" href="#" data-href=\'{"cmd": "execSyscmd", "options": ["' + 
-                    settings.syscmds[i] + '"]}\'>' + settings.syscmds[i] + '</a>';
+                    settings.syscmdList[i] + '"]}\'>' + settings.syscmdList[i] + '</a>';
             }
         }
         document.getElementById('syscmds').innerHTML = syscmdsList;
@@ -1333,6 +1375,8 @@ function parseSettings(obj) {
         appRoute();
     else if (app.current.app == 'Browse' && app.current.tab == 'Database' && app.current.search != '')
         appRoute();
+
+    settingsParsed = true;
 }
 
 function setCols(table, className) {
@@ -1404,7 +1448,24 @@ function setCols(table, className) {
 }
 
 function getSettings() {
-    sendAPI({"cmd": "MPD_API_SETTINGS_GET"}, parseSettings);
+    if (settingsLock == false) {
+        settingsLock = true;
+        sendAPI({"cmd": "MYMPD_API_SETTINGS_GET"}, getMpdSettings);
+    }
+}
+
+function getMpdSettings(obj) {
+    settingsNew = obj.data;
+    sendAPI({"cmd": "MPD_API_SETTINGS_GET"}, joinSettings);
+}
+
+function joinSettings(obj) {
+    for (var key in obj.data) {
+        settingsNew[key] = obj.data[key];
+    }
+    settings = Object.assign({}, settingsNew);
+    settingsLock = false;
+    parseSettings();
 }
 
 function saveCols(table, tableEl) {
@@ -1431,7 +1492,7 @@ function saveCols(table, tableEl) {
         }
     }
     
-    var cols = {"cmd": "MPD_API_COLS_SAVE", "data": {"table": "cols" + table, "cols": []}};
+    var cols = {"cmd": "MYMPD_API_COLS_SAVE", "data": {"table": "cols" + table, "cols": []}};
     var ths = header.getElementsByTagName('th');
     for (var i = 0; i < ths.length; i++) {
         var name = ths[i].getAttribute('data-col');
@@ -1460,7 +1521,7 @@ function saveColsPlayback(table) {
         }
     }
     
-    var cols = {"cmd": "MPD_API_COLS_SAVE", "data": {"table": "cols" + table, "cols": []}};
+    var cols = {"cmd": "MYMPD_API_COLS_SAVE", "data": {"table": "cols" + table, "cols": []}};
     var ths = header.getElementsByTagName('div');
     for (var i = 0; i < ths.length; i++) {
         var name = ths[i].getAttribute('data-tag');
@@ -2865,7 +2926,7 @@ function confirmSettings() {
         var selectReplaygain = document.getElementById('selectReplaygain');
         var selectJukeboxPlaylist = document.getElementById('selectJukeboxPlaylist');
         var selectJukeboxMode = document.getElementById('selectJukeboxMode');
-        sendAPI({"cmd": "MPD_API_SETTINGS_SET", "data": {
+        sendAPI({"cmd": "MYMPD_API_SETTINGS_SET", "data": {
             "consume": (document.getElementById('btnConsume').classList.contains('active') ? 1 : 0),
             "random":  (document.getElementById('btnRandom').classList.contains('active') ? 1 : 0),
             "single":  (document.getElementById('btnSingle').classList.contains('active') ? 1 : 0),
@@ -3162,4 +3223,4 @@ function genId(x) {
 }
 
 //Init app
-appInit();
+appInitStart();

@@ -211,6 +211,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
         //push settings to mpd_client queue
         t_work_request *mpd_client_request = (t_work_request *)malloc(sizeof(t_work_request));
         mpd_client_request->conn_id = request->conn_id;
+        mpd_client_request->cmd_id = request->cmd_id;
         mpd_client_request->length = copy_string(mpd_client_request->data, request->data, MAX_SIZE, request->length);
         tiny_queue_push(mpd_client_queue, mpd_client_request);
     }
@@ -411,15 +412,13 @@ static int mympd_api_put_settings(t_config *config, t_mympd_state *mympd_state, 
     int nr = 0;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
     
-    len = json_printf(&out, "{type: settings, data: {mpdhost: %Q, mpdport: %d, passwort_set: %B, featSyscmds: %B, featStickers: %B, featSmartpls: %B, "
+    len = json_printf(&out, "{type: mympdSettings, data: {mpdhost: %Q, mpdport: %d, passwort_set: %B, featSyscmds: %B, "
         "featLocalplayer: %B, streamport: %d, streamurl: %Q, featCoverimage: %B, coverimagename: %Q, coverimagesize: %d, featMixramp: %B, "
         "maxElementsPerPage: %d, notificationWeb: %B, notificationPage: %B, jukeboxMode: %d, jukeboxPlaylist: %Q, jukeboxQueueLength: %d", 
         config->mpdhost, 
         config->mpdport, 
         config->mpdpass ? "true" : "false",
         config->syscmds,
-        config->stickers,
-        config->smartpls,
         config->localplayer,
         config->streamport,
         config->streamurl,
@@ -436,7 +435,7 @@ static int mympd_api_put_settings(t_config *config, t_mympd_state *mympd_state, 
     );
     
     if (config->syscmds == true) {
-        len += json_printf(&out, ", syscmds: [");
+        len += json_printf(&out, ", syscmdList: [");
         nr = 0;
         struct node *current = mympd_state->syscmd_list.list;
         while (current != NULL) {

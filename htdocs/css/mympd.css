@@ -91,6 +91,10 @@ small {
   display: none !important;
 }
 
+.unvisible {
+  visibility: hidden;
+}
+
 .pull-right {
   float: right !important;
 }
