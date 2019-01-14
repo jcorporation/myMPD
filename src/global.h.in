@@ -110,10 +110,11 @@
     X(MPD_API_PLAYER_CURRENT_SONG) \
     X(MPD_API_PLAYER_STATE) \
     X(MPD_API_SETTINGS_GET) \
-    X(MPD_API_SETTINGS_SET) \
     X(MPD_API_LIKE) \
-    X(MPD_API_COLS_SAVE) \
-    X(MYMPD_API_SYSCMD)
+    X(MYMPD_API_COLS_SAVE) \
+    X(MYMPD_API_SYSCMD) \
+    X(MYMPD_API_SETTINGS_GET) \
+    X(MYMPD_API_SETTINGS_SET) \
 
 #define GEN_ENUM(X) X,
 #define GEN_STR(X) #X,
@@ -127,6 +128,13 @@ sig_atomic_t s_signal_received;
 
 enum mympd_cmd_ids {
     MYMPD_CMDS(GEN_ENUM)
+};
+
+
+enum jukebox_modes {
+    JUKEBOX_OFF,
+    JUKEBOX_ADD_SONG,
+    JUKEBOX_ADD_ALBUM,
 };
 
 //message queue
@@ -176,7 +184,6 @@ typedef struct t_config {
     const char *streamurl;
     unsigned long last_played_count;
     long loglevel;
-    struct list syscmd_list;
 } t_config;
 
 //global functions
@@ -186,4 +193,6 @@ bool validate_string(const char *data);
 int copy_string(char * const dest, char const * const src, size_t const dst_len, size_t const src_len);
 int replacechar(char *str, const char orig, const char rep);
 enum mympd_cmd_ids get_cmd_id(const char *cmd);
+bool state_file_read(t_config *config, const char *name, char *value);
+bool state_file_write(t_config *config, const char *name, const char *value);
 #endif

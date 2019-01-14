@@ -54,118 +54,92 @@ static int inihandler(void *user, const char *section, const char *name, const c
     t_config* p_config = (t_config*)user;
     char *crap;
 
-    #define MATCH(n) strcmp(name, n) == 0
+    #define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
 
-    if (MATCH("mpdhost"))
+    if (MATCH("mpd", "mpdhost"))
         p_config->mpdhost = strdup(value);
-    else if (MATCH("mpdport"))
+    else if (MATCH("mpd", "mpdport"))
         p_config->mpdport = strtol(value, &crap, 10);
-    else if (MATCH("mpdpass"))
+    else if (MATCH("mpd", "mpdpass"))
         p_config->mpdpass = strdup(value);
-    else if (MATCH("webport"))
+    else if (MATCH("mpd", "streamport"))
+        p_config->streamport = strtol(value, &crap, 10);
+    else if (MATCH("webserver", "webport"))
         p_config->webport = strdup(value);
-    else if (MATCH("ssl"))
+    else if (MATCH("webserver", "ssl"))
         if (strcmp(value, "true") == 0)
             p_config->ssl = true;
         else
             p_config->ssl = false;
-    else if (MATCH("sslport"))
+    else if (MATCH("webserver", "sslport"))
         p_config->sslport = strdup(value);
-    else if (MATCH("sslcert"))
+    else if (MATCH("webserver", "sslcert"))
         p_config->sslcert = strdup(value);
-    else if (MATCH("sslkey"))
+    else if (MATCH("webserver", "sslkey"))
         p_config->sslkey = strdup(value);
-    else if (MATCH("user"))
+    else if (MATCH("mympd", "user"))
         p_config->user = strdup(value);
-    else if (MATCH("streamport"))
-        p_config->streamport = strtol(value, &crap, 10);
-    else if (MATCH("coverimage"))
+    else if (MATCH("mympd", "coverimage"))
         if (strcmp(value, "true") == 0)
             p_config->coverimage = true;
         else
             p_config->coverimage = false;
-    else if (MATCH("coverimagename"))
+    else if (MATCH("mympd", "coverimagename"))
         p_config->coverimagename = strdup(value);
-    else if (MATCH("coverimagesize"))
+    else if (MATCH("mympd", "coverimagesize"))
         p_config->coverimagesize = strtol(value, &crap, 10);
-    else if (MATCH("varlibdir"))
+    else if (MATCH("mympd", "varlibdir"))
         p_config->varlibdir = strdup(value);
-    else if (MATCH("stickers"))
+    else if (MATCH("mympd", "stickers"))
         if (strcmp(value, "true") == 0)
             p_config->stickers = true;
         else
             p_config->stickers = false;
-    else if (MATCH("smartpls"))
+    else if (MATCH("mympd", "smartpls"))
         if (strcmp(value, "true") == 0)
             p_config->smartpls = true;
         else
             p_config->smartpls = false;
-    else if (MATCH("mixramp"))
+    else if (MATCH("mympd", "mixramp"))
         if (strcmp(value, "true") == 0)
             p_config->mixramp = true;
         else
             p_config->mixramp = false;
-    else if (MATCH("taglist"))
+    else if (MATCH("mympd", "taglist"))
         p_config->taglist = strdup(value);
-    else if (MATCH("searchtaglist"))
+    else if (MATCH("mympd", "searchtaglist"))
         p_config->searchtaglist = strdup(value);        
-    else if (MATCH("browsetaglist"))
+    else if (MATCH("mympd", "browsetaglist"))
         p_config->browsetaglist = strdup(value);
-    else if (MATCH("max_elements_per_page")) {
+    else if (MATCH("mympd", "max_elements_per_page")) {
         p_config->max_elements_per_page = strtol(value, &crap, 10);
         if (p_config->max_elements_per_page > MAX_ELEMENTS_PER_PAGE) {
             printf("Setting max_elements_per_page to maximal value %d", MAX_ELEMENTS_PER_PAGE);
             p_config->max_elements_per_page = MAX_ELEMENTS_PER_PAGE;
         }
     }
-    else if (MATCH("syscmds"))
+    else if (MATCH("mympd", "syscmds"))
         if (strcmp(value, "true") == 0)
             p_config->syscmds = true;
         else
             p_config->syscmds = false;
-    else if (MATCH("localplayer"))
+    else if (MATCH("mympd", "localplayer"))
         if (strcmp(value, "true") == 0)
             p_config->localplayer = true;
         else
             p_config->localplayer = false;
-    else if (MATCH("streamurl"))
+    else if (MATCH("mympd", "streamurl"))
         p_config->streamurl = strdup(value);
-    else if (MATCH("last_played_count"))
+    else if (MATCH("mympd", "last_played_count"))
         p_config->last_played_count = strtol(value, &crap, 10);
-    else if (MATCH("loglevel"))
+    else if (MATCH("mympd", "loglevel"))
         p_config->loglevel = strtol(value, &crap, 10);
     else {
-        printf("Unkown config line: %s\n", name);
+        printf("Unkown config option: %s - %s\n", section, name);
         return 0;  /* unknown section/name, error */
     }
 
     return 1;
-}
-
-void read_syscmds(t_config *config) {
-    DIR *dir;
-    struct dirent *ent;
-    char dirname[400];
-    char *cmd;
-    long order;
-    
-    if (config->syscmds == true) {    
-        snprintf(dirname, 400, "%s/syscmds", config->etcdir);
-        printf("Reading syscmds: %s\n", dirname);
-        if ((dir = opendir (dirname)) != NULL) {
-            while ((ent = readdir(dir)) != NULL) {
-                if (strncmp(ent->d_name, ".", 1) == 0)
-                    continue;
-                order = strtol(ent->d_name, &cmd, 10);
-                if (strcmp(cmd, "") != 0)
-                    list_push(&config->syscmd_list, strdup(cmd), order);
-            }
-            closedir(dir);
-        }
-    }
-    else {
-        printf("Syscmds are disabled\n");
-    }
 }
 
 int main(int argc, char **argv) {
@@ -298,11 +272,6 @@ int main(int argc, char **argv) {
     if (!testdir("State dir", testdirname)) 
         return EXIT_FAILURE;
 
-    //read system command files
-    list_init(&config.syscmd_list);
-    read_syscmds(&config);
-    list_sort_by_value(&config.syscmd_list, true);
-
     //Create working threads
     pthread_t mpd_client_thread, web_server_thread, mympd_api_thread;
     //mpd connection
@@ -314,10 +283,9 @@ int main(int argc, char **argv) {
 
     //Outsourced all work to separate threads, do nothing...
 
-    //clean up
+    //cleanup
     pthread_join(mpd_client_thread, NULL);
     pthread_join(web_server_thread, NULL);
-    list_free(&config.syscmd_list);
     tiny_queue_free(web_server_queue);
     tiny_queue_free(mpd_client_queue);
     tiny_queue_free(mympd_api_queue);
