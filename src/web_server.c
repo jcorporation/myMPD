@@ -196,7 +196,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 bool rc = handle_api(user_data->conn_id, hm->body.p, hm->body.len);
                 if (rc == false) {
                     printf("ERROR: Invalid API request.\n");
-                    char *response = "{\"type\": \"error\", \"data\": \"Invalid API request\"}";
+                    const char *response = "{\"type\": \"error\", \"data\": \"Invalid API request\"}";
                     mg_send_head(nc, 200, strlen(response), "Content-Type: application/json");
                     mg_printf(nc, "%s", response);
                 }

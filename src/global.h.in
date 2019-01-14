@@ -187,7 +187,7 @@ typedef struct t_config {
 } t_config;
 
 //global functions
-bool testdir(char *name, char *dirname);
+bool testdir(const char *name, const char *dirname);
 int randrange(int n);
 bool validate_string(const char *data);
 int copy_string(char * const dest, char const * const src, size_t const dst_len, size_t const src_len);

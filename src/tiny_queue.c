@@ -23,7 +23,7 @@
 #include <pthread.h>
 #include "tiny_queue.h"
 
-tiny_queue_t* tiny_queue_create() {
+tiny_queue_t *tiny_queue_create(void) {
     struct tiny_queue_t* queue = (struct tiny_queue_t*)malloc(sizeof(struct tiny_queue_t));
     queue->head = NULL;
     queue->tail = NULL;

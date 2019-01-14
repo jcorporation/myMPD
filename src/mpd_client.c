@@ -55,13 +55,13 @@
 } while (0)
 
 #define PUT_SONG_TAGS() do { \
-    struct node *current = mpd_state->mympd_tags.list; \
+    struct node *current_tag = mpd_state->mympd_tags.list; \
     int tagnr = 0; \
-    while (current != NULL) { \
+    while (current_tag != NULL) { \
         if (tagnr ++) \
             len += json_printf(&out, ","); \
-        len += json_printf(&out, "%Q: %Q", current->data, mpd_client_get_tag(song, mpd_tag_name_parse(current->data))); \
-        current = current->next; \
+        len += json_printf(&out, "%Q: %Q", current_tag->data, mpd_client_get_tag(song, mpd_tag_name_parse(current_tag->data))); \
+        current_tag = current_tag->next; \
     } \
     len += json_printf(&out, ", Duration: %d, uri: %Q", mpd_song_get_duration(song), mpd_song_get_uri(song)); \
 } while (0)
@@ -1402,7 +1402,7 @@ static char *mpd_client_get_tag(struct mpd_song const *song, const enum mpd_tag_
         else if (tag == MPD_TAG_ALBUM_ARTIST)
             str = (char *)mpd_song_get_tag(song, MPD_TAG_ARTIST, 0);
         else
-            str = "-";
+            str = strdup("-");
     }
     return str;
 }
@@ -1623,7 +1623,7 @@ static int mpd_client_put_volume(t_mpd_state *mpd_state, char *buffer) {
 }
 
 static int mpd_client_put_settings(t_mpd_state *mpd_state, char *buffer) {
-    char *replaygain = "";
+    char *replaygain = strdup("");
     size_t len;
     int nr = 0;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);

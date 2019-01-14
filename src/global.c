@@ -81,7 +81,7 @@ bool state_file_write(t_config *config, const char *name, const char *value) {
 }
 
 
-bool testdir(char *name, char *dirname) {
+bool testdir(const char *name, const char *dirname) {
     DIR* dir = opendir(dirname);
     if (dir) {
         closedir(dir);

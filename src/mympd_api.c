@@ -168,7 +168,6 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             else {
                 len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Unknown table %s\"}", p_charbuf1);
                 printf("MYMPD_API_COLS_SAVE: Unknown table %s\n", p_charbuf1);
-                free(p_charbuf1);
             }
             if (len == 0) {
                 if (state_file_write(config, p_charbuf1, cols))

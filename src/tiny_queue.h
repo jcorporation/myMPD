@@ -33,7 +33,7 @@ typedef struct tiny_queue_t {
     pthread_cond_t wakeup;
 } tiny_queue_t;
 
-tiny_queue_t* tiny_queue_create();
+tiny_queue_t *tiny_queue_create(void);
 void tiny_queue_free(tiny_queue_t *queue);
 void tiny_queue_push(struct tiny_queue_t *queue, void *data);
 void *tiny_queue_shift(struct tiny_queue_t *queue);
