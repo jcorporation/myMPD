@@ -1048,7 +1048,7 @@ function webSocketConnect() {
 
     try {
         socket.onopen = function() {
-            console.log('connected');
+            console.log('Websocket is connected');
             showNotification('Connected to myMPD: ' + wsUrl, '', '', 'success');
             modalConnectionError.hide();
             appRoute();
@@ -1111,11 +1111,14 @@ function webSocketConnect() {
         }
 
         socket.onclose = function(){
+            console.log('Websocket is disconnected');
+            if (websocketConnected == true) {
+                //Show modal only if websocket was already connected before
+                modalConnectionError.show();
+            }
             websocketConnected = false;
-            console.log('disconnected');
-            modalConnectionError.show();
             setTimeout(function() {
-                console.log('reconnect');
+                console.log('Reconnecting websocket');
                 webSocketConnect();
             }, 3000);
         }
