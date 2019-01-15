@@ -34,6 +34,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -O2 -Wall -Wextra -pedantic -Wfor
 	-Wwrite-strings -Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs -Wmissing-include-dirs \
 	-fstack-protector -D_FORTIFY_SOURCE=2 -pie -fPIE \
 	-D MG_ENABLE_SSL -D MG_ENABLE_THREADS -D MG_ENABLE_IPV6 -D MG_DISABLE_MQTT -D MG_DISABLE_MQTT_BROKER \
+	-D CS_NDEBUG \
 	-D MG_DISABLE_DNS_SERVER -D MG_DISABLE_COAP -D MG_DISABLE_HTTP_CGI -D MG_DISABLE_HTTP_SSI -D MG_DISABLE_HTTP_WEBDAV")
 
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -ggdb -fsanitize=address \
