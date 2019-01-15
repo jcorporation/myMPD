@@ -82,7 +82,7 @@ void *mympd_api_loop(void *arg_config) {
     t_work_request *mpd_client_request = (t_work_request *)malloc(sizeof(t_work_request));
     mpd_client_request->conn_id = 0;
     mpd_client_request->cmd_id = MYMPD_API_SETTINGS_SET;
-    mpd_client_request->length = snprintf(mpd_client_request->data, MAX_SIZE, 
+    mpd_client_request->length = snprintf(mpd_client_request->data, 1000, 
         "{\"cmd\":\"MYMPD_API_SETTINGS_SET\", \"data\":{\"jukeboxMode\": %d, \"jukeboxPlaylist\": \"%s\", \"jukeboxQueueLength\": %d}}",
         mympd_state.jukeboxMode,
         mympd_state.jukeboxPlaylist,
@@ -211,7 +211,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
         t_work_request *mpd_client_request = (t_work_request *)malloc(sizeof(t_work_request));
         mpd_client_request->conn_id = request->conn_id;
         mpd_client_request->cmd_id = request->cmd_id;
-        mpd_client_request->length = copy_string(mpd_client_request->data, request->data, MAX_SIZE, request->length);
+        mpd_client_request->length = copy_string(mpd_client_request->data, request->data, 1000, request->length);
         tiny_queue_push(mpd_client_queue, mpd_client_request);
     }
     else if (request->cmd_id == MYMPD_API_SETTINGS_GET) {
