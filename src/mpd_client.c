@@ -231,14 +231,6 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
     clock_gettime(CLOCK_MONOTONIC_RAW, &start);
     #endif
     switch(request->cmd_id) {
-        case MYMPD_API_SYSCMD:
-        case MYMPD_API_COLS_SAVE:
-        case MYMPD_API_SETTINGS_GET:
-            //are handled in mympd_api.c
-        case MPD_API_UNKNOWN:
-            len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Unknown request\"}");
-            printf("Unknown API request: %.*s\n", request->length, request->data);
-            break;
         case MPD_API_LIKE:
             if (mpd_state->feat_sticker) {
                 je = json_scanf(request->data, request->length, "{data: {uri: %Q, like: %d}}", &p_charbuf1, &uint_buf1);

@@ -428,7 +428,7 @@ unsigned int sleep(unsigned int seconds);
  */
 #if !(defined(__cplusplus) && __cplusplus >= 201103L) && \
     !(defined(__DARWIN_C_LEVEL) && __DARWIN_C_LEVEL >= 200809L)
-long long strtoll(const char *, char **, int);
+//long long strtoll(const char *, char **, int);
 #endif
 
 typedef int sock_t;
@@ -3747,7 +3747,7 @@ extern "C" {
 struct mg_ssl_if_ctx;
 struct mg_connection;
 
-void mg_ssl_if_init();
+void mg_ssl_if_init(void);
 
 enum mg_ssl_if_result {
   MG_SSL_OK = 0,
