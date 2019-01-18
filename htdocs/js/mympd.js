@@ -108,7 +108,7 @@ var modalUpdateDB = new Modal(document.getElementById('modalUpdateDB'));
 var modalSaveSmartPlaylist = new Modal(document.getElementById('modalSaveSmartPlaylist'));
 var modalDeletePlaylist = new Modal(document.getElementById('modalDeletePlaylist'));
 var modalHelp = new Modal(document.getElementById('modalHelp'));
-var modalAppInit = new Modal(document.getElementById('modalAppInit'));
+var modalAppInit = new Modal(document.getElementById('modalAppInit'), { backdrop: 'static', keyboard: false});
 
 var dropdownMainMenu;
 var dropdownVolumeMenu = new Dropdown(document.getElementById('volumeMenu'));
