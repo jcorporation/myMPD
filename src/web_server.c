@@ -56,7 +56,7 @@ bool web_server_init(void *arg_mgr, t_config *config) {
     struct mg_bind_opts bind_opts_http;
     const char *err_https;
     const char *err_http;
-    
+
     t_user_data *user_data = (t_user_data*)malloc(sizeof(t_user_data));
     user_data->config = config;
     user_data->conn_id = 1;
@@ -251,7 +251,7 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data)
 static bool handle_api(long conn_id, const char *request_body, int request_len) {
     char *cmd;
     
-    LOG_VERBOSE() printf("API request: %.*s\n", request_len, request_body);
+    LOG_VERBOSE() printf("API request (%ld): %.*s\n", conn_id, request_len, request_body);
     const int je = json_scanf(request_body, request_len, "{cmd: %Q}", &cmd);
     if (je < 1)
         return false;

@@ -207,8 +207,9 @@ int main(int argc, char **argv) {
     #ifdef DEBUG
     printf("Debug flag enabled, setting loglevel to debug\n");
     config.loglevel = 3;
-    loglevel = config.loglevel;
     #endif
+    printf("Setting loglevel to %ld\n", config.loglevel);
+    loglevel = config.loglevel;
 
     signal(SIGTERM, signal_handler);
     signal(SIGINT, signal_handler);

@@ -39,22 +39,23 @@ var deferredPrompt;
 var dragEl;
 var playlistEl;
 var websocketConnected = false;
+var appInited = false;
 
 var app = {};
-app.apps = { "Playback":   { "state": "0/-/", "scrollPos": 0 },
+app.apps = { "Playback":   { "state": "0/-/-/", "scrollPos": 0 },
              "Queue":	   {
                   "active": "Current",
-                  "tabs": { "Current": { "state": "0/any/", "scrollPos": 0 },
-                            "LastPlayed": { "state": "0/any/", "scrollPos": 0 }
+                  "tabs": { "Current": { "state": "0/any/-/", "scrollPos": 0 },
+                            "LastPlayed": { "state": "0/any/-/", "scrollPos": 0 }
                           }
                   },
              "Browse":     { 
                   "active": "Database", 
-                  "tabs":  { "Filesystem": { "state": "0/-/", "scrollPos": 0 },
+                  "tabs":  { "Filesystem": { "state": "0/-/-/", "scrollPos": 0 },
                              "Playlists":  { 
                                     "active": "All",
-                                    "views": { "All":    { "state": "0/-/", "scrollPos": 0 },
-                                               "Detail": { "state": "0/-/", "scrollPos": 0 }
+                                    "views": { "All":    { "state": "0/-/-/", "scrollPos": 0 },
+                                               "Detail": { "state": "0/-/-/", "scrollPos": 0 }
                                     }
                              },
                              "Database":   { 
@@ -64,11 +65,11 @@ app.apps = { "Playback":   { "state": "0/-/", "scrollPos": 0 },
                              }
                   }
              },
-             "Search": { "state": "0/any/", "scrollPos": 0 }
+             "Search": { "state": "0/any/-/", "scrollPos": 0 }
            };
 
-app.current = { "app": "Playback", "tab": undefined, "view": undefined, "page": 0, "filter": "", "search": "", "scrollPos": 0 };
-app.last = { "app": undefined, "tab": undefined, "view": undefined, "filter": "", "search": "",  "scrollPos": 0 };
+app.current = { "app": "Playback", "tab": undefined, "view": undefined, "page": 0, "filter": "", "search": "", "sort": "", "scrollPos": 0 };
+app.last = { "app": undefined, "tab": undefined, "view": undefined, "filter": "", "search": "", "sort": "", "scrollPos": 0 };
 
 var domCache = {};
 domCache.navbarBottomBtns = document.getElementById('navbar-bottom').getElementsByTagName('div');
@@ -189,7 +190,7 @@ function appRoute() {
     }
     var hash = decodeURI(location.hash);
     var params;
-    if (params = hash.match(/^\#\/(\w+)\/?(\w+)?\/?(\w+)?\!((\d+)\/([^\/]+)\/(.*))$/)) {
+    if (params = hash.match(/^\#\/(\w+)\/?(\w+)?\/?(\w+)?\!((\d+)\/([^\/]+)\/([^\/]+)\/(.*))$/)) {
         app.current.app = params[1];
         app.current.tab = params[2];
         app.current.view = params[3];
@@ -210,7 +211,8 @@ function appRoute() {
         }
         app.current.page = parseInt(params[5]);
         app.current.filter = params[6];
-        app.current.search = params[7];
+        app.current.sort = params[7];
+        app.current.search = params[8];
     }
     else {
         appGoto('Playback');
@@ -322,13 +324,13 @@ function appRoute() {
 
         if (domCache.searchstr.value.length >= 2 || domCache.searchCrumb.children.length > 0) {
             if (settings.featAdvsearch) {
-                var sort = document.getElementById('SearchList').getAttribute('data-sort');
+                var sort = app.current.sort;//document.getElementById('SearchList').getAttribute('data-sort');
                 var sortdesc = false;
-                if (sort == '') {
+                if (sort == '-') {
                     if (settings.tags.includes('Title'))
                         sort = 'Title';
                     else
-                        sort = '';
+                        sort = '-';
                     document.getElementById('SearchList').setAttribute('data-sort', sort);
                 }
                 else {
@@ -363,6 +365,7 @@ function appRoute() {
 };
 
 function appInitStart() {
+    appInited = false;
     document.getElementsByTagName('header')[0].classList.add('hide');
     document.getElementsByTagName('main')[0].classList.add('hide');
     document.getElementsByTagName('footer')[0].classList.add('hide');
@@ -385,6 +388,7 @@ function appInitWait() {
             document.getElementsByTagName('main')[0].classList.remove('hide');
             document.getElementsByTagName('footer')[0].classList.remove('hide');
             modalAppInit.hide();
+            appInited = true;
             return;
         }
         
@@ -742,7 +746,7 @@ function appInit() {
                 var col = event.target.getAttribute('data-col');
                 if (col == 'Duration')
                     return;
-                var sortcol = document.getElementById('SearchList').getAttribute('data-sort');
+                var sortcol = app.current.sort; //document.getElementById('SearchList').getAttribute('data-sort');
                 var sortdesc = true;
                 
                 if (sortcol == col || sortcol == '-' + col) {
@@ -765,9 +769,11 @@ function appInit() {
                 var s = document.getElementById('SearchList').getElementsByClassName('sort-dir');
                 for (var i = 0; i < s.length; i++)
                     s[i].remove();
-                document.getElementById('SearchList').setAttribute('data-sort', sortcol);
+                //document.getElementById('SearchList').setAttribute('data-sort', sortcol);
+                app.current.sort = sortcol;
                 event.target.innerHTML = col + '<span class="sort-dir material-icons pull-right">' + (sortdesc == true ? 'arrow_drop_up' : 'arrow_drop_down') + '</span>';
-                appRoute();
+                appGoto(app.current.app, app.current.tab, app.current.view, app.current.page + '/' + app.current.filter + '/' + app.current.sort + '/' + app.current.search);
+                //appRoute();
             }
         }
     }, false);
@@ -894,10 +900,10 @@ function search(x) {
             expression += ')';
         if (expression.length <= 2)
             expression = '';
-        appGoto('Search', undefined, undefined, '0/' + app.current.filter + '/' + encodeURI(expression));
+        appGoto('Search', undefined, undefined, '0/' + app.current.filter + '/' + app.current.sort + '/' + encodeURI(expression));
     }
     else
-        appGoto('Search', undefined, undefined, '0/' + app.current.filter + '/' + x);
+        appGoto('Search', undefined, undefined, '0/' + app.current.filter + '/' + app.current.sort + '/' + x);
 }
 
 function dragAndDropTable(table) {
@@ -1122,7 +1128,7 @@ function webSocketConnect() {
 
         socket.onclose = function(){
             console.log('Websocket is disconnected');
-            if (websocketConnected == true) {
+            if (appInited == true) {
                 //Show modal only if websocket was already connected before
                 modalConnectionError.show();
             }
@@ -1302,6 +1308,9 @@ function parseSettings() {
         else    
             app.apps.Browse.tabs.Database.active = settings.tags[0];
     }
+    if (settings.tags.includes('Title')) {
+        app.apps.Search.sort = 'Title';
+    }
     
     document.getElementById('selectJukeboxMode').value = settings.jukeboxMode;
     document.getElementById('inputJukeboxQueueLength').value = settings.jukeboxQueueLength;
@@ -1350,7 +1359,7 @@ function parseSettings() {
     addTagList('searchtags', 'searchtags');
     
     for (var i = 0; i < settings.tags.length; i++)
-        app.apps.Browse.tabs.Database.views[settings.tags[i]] = { "state": "0/-/", "scrollPos": 0 };
+        app.apps.Browse.tabs.Database.views[settings.tags[i]] = { "state": "0/-/-/", "scrollPos": 0 };
 
     if (settings.featSyscmds) {
         var mainMenuDropdown = document.getElementById('mainMenuDropdown');
@@ -1420,12 +1429,12 @@ function setCols(table, className) {
     }
     document.getElementById(table + 'ColsDropdown').firstChild.innerHTML = tagChks;
     
-    var sort = document.getElementById('SearchList').getAttribute('data-sort');
-    if (sort == '') {
+    //var sort = document.getElementById('SearchList').getAttribute('data-sort');
+    if (app.current.sort == '-') {
         if (settings.featTags)
-            sort = 'Title';
+            app.current.sort = 'Title';
         else
-            sort = 'Filename';
+            app.current.sort = 'Filename';
     }
     
     if (table != 'Playback') {
@@ -1439,9 +1448,9 @@ function setCols(table, className) {
 
             if (table == 'Search' && h == sort ) {
                 var sortdesc = false;
-                if (sort.indexOf('-') == 0) {
+                if (app.current.sort.indexOf('-') == 0) {
                     sortdesc = true;
-                    sort = sort.substring(1);
+                    //sort = sort.substring(1);
                 }
                 heading += '<span class="sort-dir material-icons pull-right">' + (sortdesc == true ? 'arrow_drop_up' : 'arrow_drop_down') + '</span>';
             }
@@ -2256,7 +2265,7 @@ function gotoBrowse(x) {
     var tag = x.parentNode.getAttribute('data-tag');
     var name = decodeURI(x.parentNode.getAttribute('data-name'));
     if (tag != '' && name != '' && name != '-' && settings.browsetags.includes(tag)) 
-        appGoto('Browse', 'Database', tag, '0/-/' + name);
+        appGoto('Browse', 'Database', tag, '0/-/-/' + name);
 }
 
 function songDetails(uri) {
@@ -2311,7 +2320,7 @@ function execSyscmd(cmd) {
 
 function playlistDetails(uri) {
     document.getElementById('BrowsePlaylistsAllList').classList.add('opacity05');
-    appGoto('Browse', 'Playlists', 'Detail', '0/-/' + uri);
+    appGoto('Browse', 'Playlists', 'Detail', '0/-/-/' + uri);
 }
 
 function removeFromPlaylist(uri, pos) {
@@ -3000,7 +3009,7 @@ function gotoPage(x) {
         default:
             app.current.page = x;
     }
-    appGoto(app.current.app, app.current.tab, app.current.view, app.current.page + '/' + app.current.filter + '/' + app.current.search);
+    appGoto(app.current.app, app.current.tab, app.current.view, app.current.page + '/' + app.current.filter + '/' + app.current.sort + '/' + app.current.search);
 }
 
 function saveQueue() {
@@ -3161,7 +3170,7 @@ function addFilterLetter(x) {
             default:
                 filter = event.target.innerText;
         }
-        appGoto(app.current.app, app.current.tab, app.current.view, '0/' + filter + '/' + app.current.search);
+        appGoto(app.current.app, app.current.tab, app.current.view, '0/' + filter + '/' + app.current.sort + '/' + app.current.search);
     }, false);
 }
 
@@ -3190,7 +3199,7 @@ function addTagList(el, list) {
 }
 
 function gotoTagList() {
-    appGoto(app.current.app, app.current.tab, app.current.view, '0/-/');
+    appGoto(app.current.app, app.current.tab, app.current.view, '0/-/-/');
 }
 
 function openModal(modal) {
