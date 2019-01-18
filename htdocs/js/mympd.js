@@ -1207,8 +1207,6 @@ function filterCols(x) {
 }
 
 function parseSettings() {
-    settingsParsed = false;
-
     toggleBtn('btnRandom', settings.random);
     toggleBtn('btnConsume', settings.consume);
     toggleBtn('btnSingle', settings.single);
@@ -1309,7 +1307,7 @@ function parseSettings() {
             app.apps.Browse.tabs.Database.active = settings.tags[0];
     }
     if (settings.tags.includes('Title')) {
-        app.apps.Search.sort = 'Title';
+        app.apps.Search.state = '0/any/Title/';
     }
     
     document.getElementById('selectJukeboxMode').value = settings.jukeboxMode;
@@ -1428,14 +1426,23 @@ function setCols(table, className) {
             '</div>';
     }
     document.getElementById(table + 'ColsDropdown').firstChild.innerHTML = tagChks;
+
+    var sort = app.current.sort;
     
-    //var sort = document.getElementById('SearchList').getAttribute('data-sort');
-    if (app.current.sort == '-') {
-        if (settings.featTags)
-            app.current.sort = 'Title';
-        else
-            app.current.sort = 'Filename';
+    if (table == 'Search') {
+        if (app.apps.Search.state == '0/any/Title/') {
+            if (settings.tags.includes('Title')) {
+                sort = 'Title';
+            }
+            else if (settings.featTags == false) {
+                sort = 'Filename';
+            }
+            else {
+                sort = '-';
+            }
+        }
     }
+        
     
     if (table != 'Playback') {
         var heading = '';
@@ -1446,11 +1453,10 @@ function setCols(table, className) {
                 h = '#';
             heading += h;
 
-            if (table == 'Search' && h == sort ) {
+            if (table == 'Search' && (h == sort || '-' + h == sort) ) {
                 var sortdesc = false;
                 if (app.current.sort.indexOf('-') == 0) {
                     sortdesc = true;
-                    //sort = sort.substring(1);
                 }
                 heading += '<span class="sort-dir material-icons pull-right">' + (sortdesc == true ? 'arrow_drop_up' : 'arrow_drop_down') + '</span>';
             }
