@@ -126,7 +126,7 @@ typedef struct t_sticker {
     long like;
 } t_sticker;
 
-static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state, const int timeout);
+static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state);
 static void mpd_client_parse_idle(t_config *config, t_mpd_state *mpd_state, const int idle_bitmask);
 static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request);
 static void mpd_client_notify(const char *message, const size_t n);
@@ -199,7 +199,7 @@ void *mpd_client_loop(void *arg_config) {
     LOG_INFO() printf("Reading last played songs: %d\n", len);
     
     while (s_signal_received == 0) {
-        mpd_client_idle(config, &mpd_state, 100);
+        mpd_client_idle(config, &mpd_state);
     }
     //Cleanup
     mpd_client_disconnect(config, &mpd_state);
@@ -1107,7 +1107,7 @@ static void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state) {
         LOG_INFO() printf("Disabling advanced search, depends on mpd >= 0.21.0 and libmpdclient >= 2.17.0.\n");
 }
 
-static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state, const int timeout) {
+static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
     struct pollfd fds[1];
     int pollrc;
     char buffer[MAX_SIZE];
@@ -1168,8 +1168,8 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state, const int 
         case MPD_CONNECTED:
             fds[0].fd = mpd_connection_get_fd(mpd_state->conn);
             fds[0].events = POLLIN;
-            pollrc = poll(fds, 1, timeout);
-            unsigned mpd_client_queue_length = tiny_queue_length(mpd_client_queue);
+            pollrc = poll(fds, 1, 50);
+            unsigned mpd_client_queue_length = tiny_queue_length(mpd_client_queue, 50);
             if (pollrc > 0 || mpd_client_queue_length > 0) {
                 LOG_DEBUG() fprintf(stderr, "DEBUG: Leaving mpd idle mode.\n");
                 mpd_send_noidle(mpd_state->conn);
@@ -1185,8 +1185,10 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state, const int 
                 if (mpd_client_queue_length > 0) {
                     //Handle request
                     LOG_DEBUG() fprintf(stderr, "DEBUG: Handle request.\n");
-                    struct work_request_t *req = tiny_queue_shift(mpd_client_queue);
-                    mpd_client_api(config, mpd_state, req);
+                    struct work_request_t *request = tiny_queue_shift(mpd_client_queue, 100);
+                    if (request != NULL) {
+                        mpd_client_api(config, mpd_state, request);
+                    }
                 }
                 LOG_DEBUG() fprintf(stderr, "DEBUG: Entering mpd idle mode.\n");
                 mpd_send_idle(mpd_state->conn);
@@ -2554,7 +2556,7 @@ static int mpd_client_put_stats(t_mpd_state *mpd_state, char *buffer) {
 
 static void mpd_client_disconnect(t_config *config, t_mpd_state *mpd_state) {
     mpd_state->conn_state = MPD_DISCONNECT;
-    mpd_client_idle(config, mpd_state, 100);
+//    mpd_client_idle(config, mpd_state);
 }
 
 static int mpd_client_smartpls_put(t_config *config, char *buffer, const char *playlist) {

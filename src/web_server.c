@@ -106,19 +106,21 @@ void web_server_free(void *arg_mgr) {
 void *web_server_loop(void *arg_mgr) {
     struct mg_mgr *mgr = (struct mg_mgr *) arg_mgr;
     while (s_signal_received == 0) {
-        mg_mgr_poll(mgr, 100);
-        unsigned web_server_queue_length = tiny_queue_length(web_server_queue);
-        if (web_server_queue_length > 0) {
-            t_work_result *response = tiny_queue_shift(web_server_queue);
-            if (response->conn_id == 0) {
-                //Websocket notify from mpd idle
-                send_ws_notify(mgr, response);
-            } 
-            else {
-                //api response
-                send_api_response(mgr, response);
+        mg_mgr_poll(mgr, 50);
+//        unsigned web_server_queue_length = tiny_queue_length(web_server_queue, 100);
+//        if (web_server_queue_length > 0) {
+            t_work_result *response = tiny_queue_shift(web_server_queue, 50);
+            if (response != NULL) {
+                if (response->conn_id == 0) {
+                    //Websocket notify from mpd idle
+                    send_ws_notify(mgr, response);
+                } 
+                else {
+                    //api response
+                    send_api_response(mgr, response);
+                }
             }
-        }
+//        }
     }
     mg_mgr_free(mgr);
     return NULL;

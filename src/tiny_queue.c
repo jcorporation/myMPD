@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <pthread.h>
+#include <asm/errno.h>
 #include "tiny_queue.h"
 
 tiny_queue_t *tiny_queue_create(void) {
@@ -63,18 +64,47 @@ void tiny_queue_push(tiny_queue_t *queue, void *data) {
     pthread_cond_signal(&queue->wakeup);
 }
 
-int tiny_queue_length(tiny_queue_t *queue) {
+int tiny_queue_length(tiny_queue_t *queue, int timeout) {
     pthread_mutex_lock(&queue->mutex);
+    if (timeout > 0) {
+        struct timespec max_wait = {0, 0};
+        clock_gettime(CLOCK_REALTIME, &max_wait);
+        //timeout in ms
+        max_wait.tv_nsec += timeout * 1000;
+        while (queue->length == 0) { 
+            // block if queue is empty
+            int rc = pthread_cond_timedwait(&queue->wakeup, &queue->mutex, &max_wait);
+            if (rc == ETIMEDOUT) {
+                break;
+            }
+        }
+    }
     unsigned len = queue->length;
     pthread_mutex_unlock(&queue->mutex);
     return len;
 }
 
-void *tiny_queue_shift(tiny_queue_t *queue) {
+void *tiny_queue_shift(tiny_queue_t *queue, int timeout) {
     pthread_mutex_lock(&queue->mutex);
-    while (queue->head == NULL) { 
-        // block if buffer is empty
-        pthread_cond_wait(&queue->wakeup, &queue->mutex);
+    if (timeout > 0) {
+        struct timespec max_wait = {0, 0};
+        clock_gettime(CLOCK_REALTIME, &max_wait);
+        //timeout in ms
+        max_wait.tv_nsec += timeout * 1000;
+        while (queue->head == NULL) { 
+            // block if buffer is empty
+            int rc = pthread_cond_timedwait(&queue->wakeup, &queue->mutex, &max_wait);
+            if (rc == ETIMEDOUT) {
+                pthread_mutex_unlock(&queue->mutex);
+                return NULL;
+            }
+        }
+    }
+    else {
+        while (queue->head == NULL) { 
+            // block if buffer is empty
+            pthread_cond_wait(&queue->wakeup, &queue->mutex);
+        }
     }
 
     struct tiny_msg_t* current_head = queue->head;
