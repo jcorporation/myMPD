@@ -39,6 +39,7 @@ var deferredPrompt;
 var dragEl;
 var playlistEl;
 var websocketConnected = false;
+var websocketTimer = null;
 var appInited = false;
 
 var app = {};
@@ -1133,7 +1134,10 @@ function webSocketConnect() {
                 modalConnectionError.show();
             }
             websocketConnected = false;
-            setTimeout(function() {
+            if (websocketTimer != null) {
+                clearTimeout(websocketTimer);
+            }
+            websocketTimer = setTimeout(function() {
                 console.log('Reconnecting websocket');
                 webSocketConnect();
             }, 3000);
