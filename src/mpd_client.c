@@ -107,6 +107,7 @@ typedef struct t_mpd_state {
     enum jukebox_modes jukeboxMode;
     const char *jukeboxPlaylist;
     int jukeboxQueueLength;
+    bool autoPlay;
     
     //taglists
     struct list mpd_tags;
@@ -255,6 +256,7 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
             je = json_scanf(request->data, request->length, "{data: {jukeboxMode: %d}}", &mpd_state->jukeboxMode);
             je = json_scanf(request->data, request->length, "{data: {jukeboxPlaylist: %Q}}", &mpd_state->jukeboxPlaylist);
             je = json_scanf(request->data, request->length, "{data: {jukeboxQueueLength: %d}}", &mpd_state->jukeboxQueueLength);
+            je = json_scanf(request->data, request->length, "{data: {autoPlay: %B}}", &mpd_state->autoPlay);
             //set mpd options
             je = json_scanf(request->data, request->length, "{data: {random: %u}}", &uint_buf1);
             if (je == 1) {
@@ -929,8 +931,14 @@ static void mpd_client_parse_idle(t_config *config, t_mpd_state *mpd_state, int 
                     break;
                 case MPD_IDLE_QUEUE:
                     len = snprintf(buffer, MAX_SIZE, "{\"type\": \"update_queue\"}");
+                    //jukebox enabled
                     if (mpd_state->jukeboxMode != JUKEBOX_OFF)
                         mpd_client_jukebox(config, mpd_state);
+                    //autoPlay enabled
+                    if (mpd_state->autoPlay == true) {
+                        LOG_VERBOSE() printf("AutoPlay enabled, start playing");
+                        mpd_run_play(mpd_state->conn);
+                    }
                     break;
                 case MPD_IDLE_PLAYER:
                     len = mpd_client_put_state(mpd_state, buffer);

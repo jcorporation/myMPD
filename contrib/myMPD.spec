@@ -79,6 +79,7 @@ done
 [ -f /var/lib/mympd/state/jukeboxMode ] || echo -n "0" > /var/lib/mympd/state/jukeboxMode
 [ -f /var/lib/mympd/state/jukeboxPlaylist ] || echo -n "Database" > /var/lib/mympd/state/jukeboxPlaylist
 [ -f /var/lib/mympd/state/jukeboxQueueLength ] || echo -n "1" > /var/lib/mympd/state/jukeboxQueueLength
+[ -f /var/lib/mympd/state/autoPlay ] || echo -n "false" > /var/lib/mympd/state/autoPlay
 [ -f /var/lib/mympd/state/notificationPage ] || echo -n "true" > /var/lib/mympd/state/notificationPage
 [ -f /var/lib/mympd/state/notificationWeb ] || echo -n "false" > /var/lib/mympd/state/notificationWeb
 [ -f /var/lib/mympd/state/colsBrowseDatabase ] || echo -n '["Track","Title","Duration"]' > /var/lib/mympd/state/colsBrowseDatabase

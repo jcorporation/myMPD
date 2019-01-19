@@ -134,6 +134,8 @@ static int inihandler(void *user, const char *section, const char *name, const c
         p_config->last_played_count = strtol(value, &crap, 10);
     else if (MATCH("mympd", "loglevel"))
         p_config->loglevel = strtol(value, &crap, 10);
+    else if (MATCH("theme", "backgroundcolor"))
+        p_config->backgroundcolor = strdup(value);
     else {
         printf("Unkown config option: %s - %s\n", section, name);
         return 0;  /* unknown section/name, error */
@@ -182,6 +184,7 @@ int main(int argc, char **argv) {
     config.syscmds = false;
     config.localplayer = true;
     config.loglevel = 1;
+    config.backgroundcolor = "#888";
     
     if (argc == 2) {
         printf("Starting myMPD %s\n", MYMPD_VERSION);

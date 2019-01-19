@@ -184,6 +184,7 @@ typedef struct t_config {
     const char *streamurl;
     unsigned long last_played_count;
     long loglevel;
+    const char *backgroundcolor;
 } t_config;
 
 //global functions

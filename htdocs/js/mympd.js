@@ -281,7 +281,7 @@ function appRoute() {
         var breadcrumbItemsLen = breadcrumbItems.length;
         for (var i = 0; i < breadcrumbItemsLen; i++) {
             breadcrumbItems[i].addEventListener('click', function() {
-	        appGoto('Browse', 'Filesystem', undefined, '0/' + app.current.filter + '/' + this.getAttribute('data-uri'));
+	        appGoto('Browse', 'Filesystem', undefined, '0/' + app.current.filter + '/' + app.current.sort + '/' + this.getAttribute('data-uri'));
             }, false);
         }
         doSetFilterLetter('BrowseFilesystemFilter');
@@ -576,7 +576,7 @@ function appInit() {
         if (event.target.nodeName == 'TD') {
             switch(event.target.parentNode.getAttribute('data-type')) {
                 case 'dir':
-                    appGoto('Browse', 'Filesystem', undefined, '0/' + app.current.filter +'/' + decodeURI(event.target.parentNode.getAttribute("data-uri")));
+                    appGoto('Browse', 'Filesystem', undefined, '0/' + app.current.filter + app.current.sort + '/'  +'/' + decodeURI(event.target.parentNode.getAttribute("data-uri")));
                     break;
                 case 'song':
                     appendQueue('song', decodeURI(event.target.parentNode.getAttribute("data-uri")), event.target.parentNode.getAttribute("data-name"));
@@ -611,7 +611,7 @@ function appInit() {
     
     document.getElementById('BrowseDatabaseTagList').addEventListener('click', function(event) {
         if (event.target.nodeName == 'TD') {
-            appGoto('Browse', 'Database', app.current.view, '0/-/' + event.target.parentNode.getAttribute('data-uri'));
+            appGoto('Browse', 'Database', app.current.view, '0/-/-/' + event.target.parentNode.getAttribute('data-uri'));
         }
     }, false);
     
@@ -671,12 +671,12 @@ function appInit() {
         if (event.key == 'Escape')
             this.blur();
         else
-            appGoto(app.current.app, app.current.tab, app.current.view, '0/' + app.current.filter + '/' + this.value);
+            appGoto(app.current.app, app.current.tab, app.current.view, '0/' + app.current.filter + app.current.sort + '/'  + '/' + this.value);
     }, false);
 
     document.getElementById('searchqueuetags').addEventListener('click', function(event) {
         if (event.target.nodeName == 'BUTTON')
-            appGoto(app.current.app, app.current.tab, app.current.view, app.current.page + '/' + event.target.getAttribute('data-tag') + '/' + app.current.search);
+            appGoto(app.current.app, app.current.tab, app.current.view, app.current.page + '/' + event.target.getAttribute('data-tag') + app.current.sort + '/'  + '/' + app.current.search);
     }, false);
 
     var dropdowns = ['QueueCurrentColsDropdown', 'BrowseFilesystemColsDropdown', 'SearchColsDropdown', 'BrowsePlaylistsDetailColsDropdown', 
@@ -780,7 +780,7 @@ function appInit() {
 
     document.getElementById('BrowseDatabaseByTagDropdown').addEventListener('click', function(event) {
         if (event.target.nodeName == 'BUTTON')
-            appGoto(app.current.app, app.current.tab, event.target.getAttribute('data-tag') , '0/' + app.current.filter  + '/' + app.current.search);
+            appGoto(app.current.app, app.current.tab, event.target.getAttribute('data-tag') , '0/' + app.current.filter + app.current.sort + '/' + '/' + app.current.search);
     }, false);
 
     document.getElementsByTagName('body')[0].addEventListener('click', function(event) {
@@ -1211,6 +1211,7 @@ function parseSettings() {
     toggleBtn('btnConsume', settings.consume);
     toggleBtn('btnSingle', settings.single);
     toggleBtn('btnRepeat', settings.repeat);
+    toggleBtn('btnAutoPlay', settings.autoPlay);
     
     if (settings.crossfade != undefined) {
         document.getElementById('inputCrossfade').removeAttribute('disabled');
@@ -1261,6 +1262,7 @@ function parseSettings() {
     var features = ["featStickers", "featSmartpls", "featPlaylists", "featTags", "featLocalplayer", "featSyscmds", "featCoverimage", "featAdvsearch"];
 
     document.documentElement.style.setProperty('--mympd-coverimagesize', settings.coverimagesize + "px");
+    document.documentElement.style.setProperty('--mympd-backgroundcolor', settings.backgroundcolor);
     
     for (var j = 0; j < features.length; j++) {
         var Els = document.getElementsByClassName(features[j]);
@@ -2967,7 +2969,8 @@ function confirmSettings() {
             "notificationPage": (document.getElementById('btnnotifyPage').classList.contains('active') ? true : false),
             "jukeboxMode": selectJukeboxMode.options[selectJukeboxMode.selectedIndex].value,
             "jukeboxPlaylist": selectJukeboxPlaylist.options[selectJukeboxPlaylist.selectedIndex].value,
-            "jukeboxQueueLength": document.getElementById('inputJukeboxQueueLength').value
+            "jukeboxQueueLength": document.getElementById('inputJukeboxQueueLength').value,
+            "autoPlay": (document.getElementById('btnAutoPlay').classList.contains('active') ? true : false)
         }}, getSettings);
         modalSettings.hide();
     } else

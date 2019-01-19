@@ -50,6 +50,8 @@ typedef struct t_mympd_state {
     char *jukeboxPlaylist;
     int jukeboxQueueLength;
 
+    bool autoPlay;
+
     //columns
     char *colsQueueCurrent;
     char *colsSearch;
@@ -186,6 +188,11 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
         if (je == 1) {
             if (!state_file_write(config, "notificationPage", (mympd_state->notificationPage == true ? "true" : "false")))
                 len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state notificationPage.\"}");
+        }
+        je = json_scanf(request->data, request->length, "{data: {autoPlay: %B}}", &mympd_state->autoPlay);
+        if (je == 1) {
+            if (!state_file_write(config, "autoPlay", (mympd_state->autoPlay == true ? "true" : "false")))
+                len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state autoPlay.\"}");
         }
         je = json_scanf(request->data, request->length, "{data: {jukeboxMode: %d}}", &mympd_state->jukeboxMode);
         if (je == 1) {
@@ -334,6 +341,17 @@ static void mympd_api_read_statefiles(t_config *config, t_mympd_state *mympd_sta
         mympd_state->notificationPage = true;
         state_file_write(config, "notificationPage", "true");
     }
+
+    if (state_file_read(config, "autoPlay", value)) {
+        if (strcmp(value, "true") == 0)
+            mympd_state->autoPlay = true;
+        else
+            mympd_state->autoPlay = false;
+    }
+    else {
+        mympd_state->autoPlay = false;
+        state_file_write(config, "autoPlay", "false");
+    }
     
     if (state_file_read(config, "jukeboxMode", value))
         mympd_state->jukeboxMode = strtol(value, &crap, 10);
@@ -413,7 +431,8 @@ static int mympd_api_put_settings(t_config *config, t_mympd_state *mympd_state, 
     
     len = json_printf(&out, "{type: mympdSettings, data: {mpdhost: %Q, mpdport: %d, passwort_set: %B, featSyscmds: %B, "
         "featLocalplayer: %B, streamport: %d, streamurl: %Q, featCoverimage: %B, coverimagename: %Q, coverimagesize: %d, featMixramp: %B, "
-        "maxElementsPerPage: %d, notificationWeb: %B, notificationPage: %B, jukeboxMode: %d, jukeboxPlaylist: %Q, jukeboxQueueLength: %d", 
+        "maxElementsPerPage: %d, notificationWeb: %B, notificationPage: %B, jukeboxMode: %d, jukeboxPlaylist: %Q, jukeboxQueueLength: %d, "
+        "autoPlay: %B, backgroundcolor: %Q", 
         config->mpdhost, 
         config->mpdport, 
         config->mpdpass ? "true" : "false",
@@ -430,7 +449,9 @@ static int mympd_api_put_settings(t_config *config, t_mympd_state *mympd_state, 
         mympd_state->notificationPage,
         mympd_state->jukeboxMode,
         mympd_state->jukeboxPlaylist,
-        mympd_state->jukeboxQueueLength
+        mympd_state->jukeboxQueueLength,
+        mympd_state->autoPlay,
+        config->backgroundcolor
     );
     
     if (config->syscmds == true) {

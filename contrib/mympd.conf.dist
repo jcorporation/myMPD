@@ -72,3 +72,7 @@ max_elements_per_page = 100
 
 #Number of songs to keep in last played list
 last_played_count = 20
+
+
+[theme]
+backgroundcolor: #888

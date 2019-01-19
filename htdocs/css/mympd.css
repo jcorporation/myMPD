@@ -1,5 +1,6 @@
 :root {
     --mympd-coverimagesize: 240px;
+    --mympd-bacgkroundcolor: #888;
 }
 
 html {
@@ -11,6 +12,7 @@ body {
   padding-top: 4rem;
   padding-bottom: 4rem;
   background-color: #888;
+  background-color: var(--mympd-backgroundcolor);
 }
 
 main {
