@@ -1033,11 +1033,11 @@ static void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state) {
     else {
         mpd_state->feat_tags = true;
         LOG_INFO() printf("\nmyMPD enabled tags: ");
-        enum mpd_tag_type types[64];
         #if LIBMPDCLIENT_CHECK_VERSION(2,12,0)
+        enum mpd_tag_type types[64];
 	unsigned n = 0;
+	#endif
         token = strtok_r(taglist, s, &rest);
-        #endif
         while (token != NULL) {
             if (list_get_value(&mpd_state->mpd_tags, token) == 1) {
                 list_push(&mpd_state->mympd_tags, token, 1);
