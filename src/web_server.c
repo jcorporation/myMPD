@@ -177,7 +177,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
         }
         case MG_EV_WEBSOCKET_HANDSHAKE_REQUEST: {
             struct http_message *hm = (struct http_message *) ev_data;
-            LOG_VERBOSE() printf("New websocket request (%ld): %.*s\n", user_data->conn_id, hm->uri.len, hm->uri.p);
+            LOG_VERBOSE() printf("New websocket request (%ld): %.*s\n", user_data->conn_id, (int)hm->uri.len, hm->uri.p);
             if (mg_vcmp(&hm->uri, "/ws") != 0) {
                 printf("ERROR: Websocket request not to /ws, closing connection\n");
                 mg_printf(nc, "%s", "HTTP/1.1 403 FORBIDDEN\r\n\r\n");
@@ -193,7 +193,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
         }
         case MG_EV_HTTP_REQUEST: {
             struct http_message *hm = (struct http_message *) ev_data;
-            LOG_VERBOSE() printf("HTTP request (%ld): %.*s\n", user_data->conn_id, hm->uri.len, hm->uri.p);
+            LOG_VERBOSE() printf("HTTP request (%ld): %.*s\n", user_data->conn_id, (int)hm->uri.len, hm->uri.p);
             if (mg_vcmp(&hm->uri, "/api") == 0) {
                 bool rc = handle_api(user_data->conn_id, hm->body.p, hm->body.len);
                 if (rc == false) {
@@ -233,7 +233,7 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data)
             t_user_data *user_data = (t_user_data *) nc->user_data;
             t_config *config = (t_config *) user_data->config;
             
-            snprintf(host_header, 1024, "%.*s", host_hdr->len, host_hdr->p);
+            snprintf(host_header, 1024, "%.*s", (int)host_hdr->len, host_hdr->p);
             host = strtok_r(host_header, ":", &crap);
             char s_redirect[250];
             if (strcmp(config->sslport, "443") == 0)
