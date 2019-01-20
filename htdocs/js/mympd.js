@@ -577,7 +577,7 @@ function appInit() {
         if (event.target.nodeName == 'TD') {
             switch(event.target.parentNode.getAttribute('data-type')) {
                 case 'dir':
-                    appGoto('Browse', 'Filesystem', undefined, '0/' + app.current.filter + app.current.sort + '/'  +'/' + decodeURI(event.target.parentNode.getAttribute("data-uri")));
+                    appGoto('Browse', 'Filesystem', undefined, '0/' + app.current.filter + '/' + app.current.sort + '/' + decodeURI(event.target.parentNode.getAttribute("data-uri")));
                     break;
                 case 'song':
                     appendQueue('song', decodeURI(event.target.parentNode.getAttribute("data-uri")), event.target.parentNode.getAttribute("data-name"));
@@ -672,12 +672,12 @@ function appInit() {
         if (event.key == 'Escape')
             this.blur();
         else
-            appGoto(app.current.app, app.current.tab, app.current.view, '0/' + app.current.filter + app.current.sort + '/'  + '/' + this.value);
+            appGoto(app.current.app, app.current.tab, app.current.view, '0/' + app.current.filter + '/' + app.current.sort + '/' + this.value);
     }, false);
 
     document.getElementById('searchqueuetags').addEventListener('click', function(event) {
         if (event.target.nodeName == 'BUTTON')
-            appGoto(app.current.app, app.current.tab, app.current.view, app.current.page + '/' + event.target.getAttribute('data-tag') + app.current.sort + '/'  + '/' + app.current.search);
+            appGoto(app.current.app, app.current.tab, app.current.view, app.current.page + '/' + event.target.getAttribute('data-tag') + '/' + app.current.sort  + '/' + app.current.search);
     }, false);
 
     var dropdowns = ['QueueCurrentColsDropdown', 'BrowseFilesystemColsDropdown', 'SearchColsDropdown', 'BrowsePlaylistsDetailColsDropdown', 
@@ -781,7 +781,7 @@ function appInit() {
 
     document.getElementById('BrowseDatabaseByTagDropdown').addEventListener('click', function(event) {
         if (event.target.nodeName == 'BUTTON')
-            appGoto(app.current.app, app.current.tab, event.target.getAttribute('data-tag') , '0/' + app.current.filter + app.current.sort + '/' + '/' + app.current.search);
+            appGoto(app.current.app, app.current.tab, event.target.getAttribute('data-tag') , '0/' + app.current.filter + '/' + app.current.sort + '/' + app.current.search);
     }, false);
 
     document.getElementsByTagName('body')[0].addEventListener('click', function(event) {
