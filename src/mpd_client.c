@@ -1140,7 +1140,7 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
             printf("MPD connection failed.\n");
             len = snprintf(buffer, MAX_SIZE, "{\"type\": \"disconnected\"}");
             mpd_client_notify(buffer, len);
-
+            // fall through
         case MPD_DISCONNECT:
         case MPD_RECONNECT:
             if (mpd_state->conn != NULL)

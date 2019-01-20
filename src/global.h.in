@@ -52,7 +52,7 @@
 //check and return buffer size
 #define CHECK_RETURN_LEN() do { \
     if (len > MAX_SIZE) \
-        printf("Buffer truncated: %d, %d\n", len, MAX_SIZE); \
+        printf("ERROR: Buffer truncated\n"); \
     return len; \
 } while (0)
 

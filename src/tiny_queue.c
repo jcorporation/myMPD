@@ -79,6 +79,7 @@ int tiny_queue_push(tiny_queue_t *queue, void *data) {
 }
 
 int tiny_queue_length(tiny_queue_t *queue, int timeout) {
+    timeout = timeout * 1000;  
     int rc = pthread_mutex_lock(&queue->mutex);
     if (rc != 0) {
         printf("Error in pthread_mutex_lock: %d\n", rc);
@@ -88,9 +89,14 @@ int tiny_queue_length(tiny_queue_t *queue, int timeout) {
         struct timespec max_wait = {0, 0};
         clock_gettime(CLOCK_REALTIME, &max_wait);
         //timeout in ms
-        max_wait.tv_nsec += timeout * 1000;
+        if (max_wait.tv_nsec <= (999999999 - timeout)) {
+            max_wait.tv_nsec += timeout;
+        } else {
+            max_wait.tv_sec += 1;
+            max_wait.tv_nsec = timeout - (999999999 - max_wait.tv_nsec);
+        }
         rc = pthread_cond_timedwait(&queue->wakeup, &queue->mutex, &max_wait);
-        if (rc != 0) {
+        if (rc != 0 && rc != ETIMEDOUT) {
             printf("Error in pthread_cond_timedwait: %d\n", rc);
         }
     }
@@ -103,6 +109,7 @@ int tiny_queue_length(tiny_queue_t *queue, int timeout) {
 }
 
 void *tiny_queue_shift(tiny_queue_t *queue, int timeout) {
+    timeout = timeout * 1000;
     int rc = pthread_mutex_lock(&queue->mutex);
     if (rc != 0) {
         printf("Error in pthread_mutex_lock: %d\n", rc);
@@ -113,10 +120,18 @@ void *tiny_queue_shift(tiny_queue_t *queue, int timeout) {
             struct timespec max_wait = {0, 0};
             clock_gettime(CLOCK_REALTIME, &max_wait);
             //timeout in ms
-            max_wait.tv_nsec += timeout * 1000;
+            if (max_wait.tv_nsec <= (999999999 - timeout)) {
+                max_wait.tv_nsec += timeout;
+            } else {
+                max_wait.tv_sec += 1;
+                max_wait.tv_nsec = timeout - (999999999 - max_wait.tv_nsec);
+            }
             rc = pthread_cond_timedwait(&queue->wakeup, &queue->mutex, &max_wait);
             if (rc != 0) {
-                printf("Error in pthread_cond_timedwait: %d\n", rc);
+                if (rc != ETIMEDOUT) {
+                    printf("Error in pthread_cond_timedwait: %d\n", rc);
+                    printf("nsec: %ld\n", max_wait.tv_nsec);
+                }
                 rc = pthread_mutex_unlock(&queue->mutex);
                 if (rc != 0) {
                     printf("Error in pthread_mutex_unlock: %d\n", rc);
