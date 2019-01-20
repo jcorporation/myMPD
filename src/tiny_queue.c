@@ -19,6 +19,7 @@
 */
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <stdbool.h>
 #include <pthread.h>
 #include <asm/errno.h>
@@ -47,8 +48,12 @@ void tiny_queue_free(tiny_queue_t *queue) {
 }
 
 
-void tiny_queue_push(tiny_queue_t *queue, void *data) {
-    pthread_mutex_lock(&queue->mutex);
+int tiny_queue_push(tiny_queue_t *queue, void *data) {
+    int rc = pthread_mutex_lock(&queue->mutex);
+    if (rc != 0) {
+        printf("Error in pthread_mutex_lock: %d\n", rc);
+        return 0;
+    }
     struct tiny_msg_t* new_node = (struct tiny_msg_t*)malloc(sizeof(struct tiny_msg_t));
     new_node->data = data;
     new_node->next = NULL;
@@ -60,53 +65,78 @@ void tiny_queue_push(tiny_queue_t *queue, void *data) {
         queue->tail->next = new_node;
         queue->tail = new_node;
     }
-    pthread_mutex_unlock(&queue->mutex);
-    pthread_cond_signal(&queue->wakeup);
+    rc = pthread_mutex_unlock(&queue->mutex);
+    if (rc != 0) {
+        printf("Error in pthread_mutex_unlock: %d\n", rc);
+        return 0;
+    }
+    rc = pthread_cond_signal(&queue->wakeup);
+    if (rc != 0) {
+        printf("Error in pthread_cond_signal: %d\n", rc);
+        return 0;
+    }
+    return 1;
 }
 
 int tiny_queue_length(tiny_queue_t *queue, int timeout) {
-    pthread_mutex_lock(&queue->mutex);
-    if (timeout > 0) {
+    int rc = pthread_mutex_lock(&queue->mutex);
+    if (rc != 0) {
+        printf("Error in pthread_mutex_lock: %d\n", rc);
+        return 0;
+    }
+    if (timeout > 0 && queue->length == 0) {
         struct timespec max_wait = {0, 0};
         clock_gettime(CLOCK_REALTIME, &max_wait);
         //timeout in ms
         max_wait.tv_nsec += timeout * 1000;
-        while (queue->length == 0) { 
-            // block if queue is empty
-            int rc = pthread_cond_timedwait(&queue->wakeup, &queue->mutex, &max_wait);
-            if (rc == ETIMEDOUT) {
-                break;
-            }
+        rc = pthread_cond_timedwait(&queue->wakeup, &queue->mutex, &max_wait);
+        if (rc != 0) {
+            printf("Error in pthread_cond_timedwait: %d\n", rc);
         }
     }
     unsigned len = queue->length;
-    pthread_mutex_unlock(&queue->mutex);
+    rc = pthread_mutex_unlock(&queue->mutex);
+    if (rc != 0) {
+        printf("Error in pthread_mutex_unlock: %d\n", rc);
+    }
     return len;
 }
 
 void *tiny_queue_shift(tiny_queue_t *queue, int timeout) {
-    pthread_mutex_lock(&queue->mutex);
-    if (timeout > 0) {
-        struct timespec max_wait = {0, 0};
-        clock_gettime(CLOCK_REALTIME, &max_wait);
-        //timeout in ms
-        max_wait.tv_nsec += timeout * 1000;
-        while (queue->head == NULL) { 
-            // block if buffer is empty
-            int rc = pthread_cond_timedwait(&queue->wakeup, &queue->mutex, &max_wait);
-            if (rc == ETIMEDOUT) {
-                pthread_mutex_unlock(&queue->mutex);
+    int rc = pthread_mutex_lock(&queue->mutex);
+    if (rc != 0) {
+        printf("Error in pthread_mutex_lock: %d\n", rc);
+        return 0;
+    }
+    if (queue->length == 0) {
+        if (timeout > 0) {
+            struct timespec max_wait = {0, 0};
+            clock_gettime(CLOCK_REALTIME, &max_wait);
+            //timeout in ms
+            max_wait.tv_nsec += timeout * 1000;
+            rc = pthread_cond_timedwait(&queue->wakeup, &queue->mutex, &max_wait);
+            if (rc != 0) {
+                printf("Error in pthread_cond_timedwait: %d\n", rc);
+                rc = pthread_mutex_unlock(&queue->mutex);
+                if (rc != 0) {
+                    printf("Error in pthread_mutex_unlock: %d\n", rc);
+                }
+                return NULL;
+            }
+        }
+        else {
+            rc = pthread_cond_wait(&queue->wakeup, &queue->mutex);
+            if (rc != 0) {
+                printf("Error in pthread_cond_wait: %d\n", rc);
+                rc = pthread_mutex_unlock(&queue->mutex);
+                if (rc != 0) {
+                    printf("Error in pthread_mutex_unlock: %d\n", rc);
+                }
                 return NULL;
             }
         }
     }
-    else {
-        while (queue->head == NULL) { 
-            // block if buffer is empty
-            pthread_cond_wait(&queue->wakeup, &queue->mutex);
-        }
-    }
-
+    //queue has entry
     struct tiny_msg_t* current_head = queue->head;
     void *data = current_head->data;
     if (queue->head == queue->tail) {
@@ -117,6 +147,9 @@ void *tiny_queue_shift(tiny_queue_t *queue, int timeout) {
     }
     free(current_head);
     queue->length--;
-    pthread_mutex_unlock(&queue->mutex);
+    rc = pthread_mutex_unlock(&queue->mutex);
+    if (rc != 0) {
+        printf("Error in pthread_mutex_unlock: %d\n", rc);
+    }
     return data;
 }

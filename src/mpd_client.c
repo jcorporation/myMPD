@@ -222,15 +222,9 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
     float float_buf;
     bool bool_buf, rc;
     char *p_charbuf1, *p_charbuf2, *p_charbuf3, *p_charbuf4;
-    #ifdef DEBUG
-    struct timespec start, end;
-    #endif
 
     LOG_VERBOSE() printf("API request (%ld): %.*s\n", request->conn_id, request->length, request->data);
     
-    #ifdef DEBUG
-    clock_gettime(CLOCK_MONOTONIC_RAW, &start);
-    #endif
     switch(request->cmd_id) {
         case MPD_API_LIKE:
             if (mpd_state->feat_sticker) {
@@ -878,16 +872,6 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
             mpd_state->conn_state = MPD_FAILURE;
     }
 
-    #ifdef DEBUG
-    clock_gettime(CLOCK_MONOTONIC_RAW, &end);
-    uint64_t delta_us = (end.tv_sec - start.tv_sec) * 1000000 + (end.tv_nsec - start.tv_nsec) / 1000;
-    #ifdef PKGARCH44
-    fprintf(stderr, "DEBUG: Time used: %lu\n", delta_us);
-    #else
-    fprintf(stderr, "DEBUG: Time used: %llu\n", delta_us);
-    #endif
-    #endif
-
     if (len == 0) {
         len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"No response for cmd_id %u.\"}", request->cmd_id);
     }
@@ -1185,7 +1169,7 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
                 if (mpd_client_queue_length > 0) {
                     //Handle request
                     LOG_DEBUG() fprintf(stderr, "DEBUG: Handle request.\n");
-                    struct work_request_t *request = tiny_queue_shift(mpd_client_queue, 100);
+                    struct work_request_t *request = tiny_queue_shift(mpd_client_queue, 50);
                     if (request != NULL) {
                         mpd_client_api(config, mpd_state, request);
                     }
