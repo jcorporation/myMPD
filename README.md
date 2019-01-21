@@ -22,6 +22,7 @@ This fork provides a reworked ui based on Bootstrap 4, a modernized backend and 
  - Playlist management
  - Advanced search (requires mpd >= 0.21.x and libmpdclient >= 2.17)
  - Jukebox mode (add's random songs / albums from database or playlists to queue)
+ - AutoPlay - add song to (empty) queue and mpd starts playing
  - Smart playlists and saved searches
  - Play statistics and song voting (requires mpd stickers)
  - Local coverart support (Albums and Streams)
@@ -65,15 +66,16 @@ Unix Build Instructions
 -----------------------
 
 1. Install dependencies: cmake, libmpdclient (dev), OpenSSL (dev) and Java are available from all major distributions.
-2. Build and install: ```cd /path/to/src; ./mkrelease.sh```.
+2. Build and install: ```cd /path/to/src; ./mkrelease.sh``` (toplevel directory of myMPD tarball).
 3. Link your mpd music directory to ```/usr/share/mympd/htdocs/library``` and put ```folder.jpg``` files in your album directories (mkrelease.sh tries to do this for you).
 4. Configure your mpd with http stream output to use the local player.
 
-Run Flags
+Run
 ---------
 ```
 Usage: ./mympd /etc/mypd/mympd.conf
 ```
+The ```./mkrelease.sh``` script tries to install a systemd service file.  If this failes you can copy the ```mympd.service``` file from ```/usr/share/mympd/``` to appropriate distribution specific location. 
 
 SSL
 ---
@@ -85,6 +87,6 @@ SSL
 
 Copyright
 ---------
-ympd: 2013-2014 <andy@ndyk.de>
+myMPD: 2018-2019 <mail@jcgames.de>
 
-myMPD: 2018 <mail@jcgames.de>
+ympd: 2013-2014 <andy@ndyk.de>
