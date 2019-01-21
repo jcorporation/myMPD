@@ -11,8 +11,7 @@ html {
 body {
   padding-top: 4rem;
   padding-bottom: 4rem;
-  background-color: #888;
-  background-color: var(--mympd-backgroundcolor);
+  background-color: var(--mympd-backgroundcolor, #888);
 }
 
 main {
@@ -74,9 +73,9 @@ small {
   border: 1px solid black;
   border-radius: 5px;
   overflow: hidden;
-  width: var(--mympd-coverimagesize);
+  width: var(--mympd-coverimagesize, 250px);
   max-width:100%;
-  height: var(--mympd-coverimagesize);
+  height: var(--mympd-coverimagesize, 250px);
   background-color: #eee;
   float: left;
   margin-right: 1.25rem;
@@ -333,7 +332,7 @@ div.key {
   background-color: #eee;
   border-radius: 2px;
   width: 20px;
-  heigth: 20px;
+  height: 20px;
   text-align: center;
 }
 

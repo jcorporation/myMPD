@@ -1069,9 +1069,6 @@ function webSocketConnect() {
         }
 
         socket.onmessage = function got_packet(msg) {
-            if (msg.data === lastState || msg.data.length == 0)
-                return;
-                
             try {
                 var obj = JSON.parse(msg.data);
             } catch(e) {

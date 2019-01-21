@@ -1,52 +1,57 @@
 #/bin/sh
 
-java=$(which java 2> /dev/null)
+JAVABIN=$(which java 2> /dev/null)
+HASJAVA="$?"
 
-if [ -f dist/buildtools/closure-compiler.jar ] && [ "$java" != "" ]
-then
-  echo "Minifying javascript"
-  [ htdocs/js/player.js -nt dist/htdocs/js/player.min.js ] && \
-    java -jar dist/buildtools/closure-compiler.jar htdocs/js/player.js > dist/htdocs/js/player.min.js
-  [ htdocs/js/mympd.js -nt  dist/htdocs/js/mympd.min.js ] && \
-    java -jar dist/buildtools/closure-compiler.jar htdocs/js/mympd.js > dist/htdocs/js/mympd.min.js
-  [ htdocs/sw.js -nt dist/htdocs/sw.min.js ] && \
-    java -jar dist/buildtools/closure-compiler.jar htdocs/sw.js > dist/htdocs/sw.min.js
-  [ htdocs/js/keymap.js -nt dist/htdocs/js/keymap.min.js ] && \
-    java -jar dist/buildtools/closure-compiler.jar htdocs/js/keymap.js > dist/htdocs/js/keymap.min.js
-  [ htdocs/js/keymap.js -nt dist/htdocs/js/keymap.min.js ] && \
-    java -jar dist/buildtools/closure-compiler.jar htdocs/js/keymap.js > dist/htdocs/js/keymap.min.js
-  [ dist/htdocs/js/bootstrap-native-v4.js -nt dist/htdocs/js/bootstrap-native-v4.min.js ] && \
-    java -jar dist/buildtools/closure-compiler.jar dist/htdocs/js/bootstrap-native-v4.js > dist/htdocs/js/bootstrap-native-v4.min.js
-else
-  echo "dist/buildtools/closure-compiler.jar not found, using non-minified files"
-  [ htdocs/js/player.js -nt dist/htdocs/js/player.min.js ] && \
-    cp htdocs/js/player.js dist/htdocs/js/player.min.js
-  [ htdocs/js/mympd.js -nt dist/htdocs/js/mympd.min.js ] && \
-    cp htdocs/js/mympd.js dist/htdocs/js/mympd.min.js
-  [ htdocs/sw.js -nt dist/htdocs/sw.min.js ] && \
-    cp htdocs/sw.js dist/htdocs/sw.min.js
-  [ htdocs/js/keymap.js -nt dist/htdocs/js/keymap.min.js ] && \
-    cp htdocs/js/keymap.js dist/htdocs/js/keymap.min.js
-  [ dist/htdocs/js/bootstrap-native-v4.js -nt dist/htdocs/js/bootstrap-native-v4.min.js ] && \
-    cp dist/htdocs/js/bootstrap-native-v4.js dist/htdocs/js/bootstrap-native-v4.min.js
-fi
+function minify {
+  TYPE="$1"
+  SRC="$2"
+  DST="$3"
+  ERROR="1"
 
-if [ -f dist/buildtools/closure-stylesheets.jar ] && [ "$java" != "" ]
-then
-  echo "Minifying stylesheets"
-  [ htdocs/css/mympd.css -nt dist/htdocs/css/mympd.min.css ] && \
-    java -jar dist/buildtools/closure-stylesheets.jar --allow-unrecognized-properties htdocs/css/mympd.css > dist/htdocs/css/mympd.min.css
-else
-  echo "dist/buildtools/closure-stylesheets.jar not found, using non-minified files"
-  [ htdocs/css/mympd.css -nt dist/htdocs/css/mympd.min.css ] && \
-    cp htdocs/css/mympd.css dist/htdocs/css/mympd.min.css    
-fi
+  [ "$DST" -nt "$SRC" ] && return
+
+  if [ "$TYPE" == "html" ]
+  then
+    perl -pe 's/^\s*//gm; s/\s*$//gm' $SRC > $DST
+    ERROR="$?"
+  elif [ "$TYPE" = "js" ] && [ "$HASJAVA" = "1" ]
+  then
+    $JAVABIN -jar dist/buildtools/closure-compiler.jar $SRC > $DST
+    ERROR="$?"
+  elif [ "$TYPE" = "css" ] && [ "$HASJAVA" = "1" ]
+  then
+    $JAVABIN -jar dist/buildtools/closure-stylesheets.jar --allow-unrecognized-properties $SRC > $DST
+    ERROR="$?"
+  elif [ "$TYPE" = "cp" ]
+  then
+    cp $SRC $DST
+    ERROR="$?"
+  else
+    ERROR="1"
+  fi
+
+  if [ "$ERROR" = "1" ]
+  then
+    echo "Error minifying $SRC, copy $SRC to $DST"
+    cp $SRC $DST
+  fi
+}
+
+echo "Minifying javascript"
+minify js htdocs/js/player.js dist/htdocs/js/player.min.js
+minify js htdocs/js/mympd.js dist/htdocs/js/mympd.min.js
+minify js htdocs/sw.js dist/htdocs/sw.min.js
+minify js htdocs/js/keymap.js dist/htdocs/js/keymap.min.js
+minify js htdocs/js/keymap.js dist/htdocs/js/keymap.min.js
+minify js dist/htdocs/js/bootstrap-native-v4.js dist/htdocs/js/bootstrap-native-v4.min.js
+
+echo "Minifying stylesheets"
+minify css htdocs/css/mympd.css dist/htdocs/css/mympd.min.css
 
 echo "Minifying html"
-[ htdocs/index.html -nt dist/htdocs/index.html ] && \
-  perl -pe 's/^\s*//gm; s/\s*$//gm' htdocs/index.html > dist/htdocs/index.html
-[ htdocs/player.html -nt dist/htdocs/player.html ] && \
-  perl -pe 's/^\s*//gm; s/\s*$//gm' htdocs/player.html > dist/htdocs/player.html
+minify html htdocs/index.html dist/htdocs/index.html
+minify html htdocs/player.html dist/htdocs/player.html
 
 echo "Compiling and installing mympd"
 [ -d release ] || mkdir release
