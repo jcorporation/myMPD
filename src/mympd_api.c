@@ -100,7 +100,7 @@ void *mympd_api_loop(void *arg_config) {
     }
 
     while (s_signal_received == 0) {
-        struct t_work_request *request = tiny_queue_shift(mympd_api_queue, 100);
+        struct t_work_request *request = tiny_queue_shift(mympd_api_queue, 0);
         if (request != NULL) {
             mympd_api(config, &mympd_state, request);
         }

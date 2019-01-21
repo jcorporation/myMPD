@@ -22,6 +22,8 @@
    Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
+#define _GNU_SOURCE
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -280,10 +282,13 @@ int main(int argc, char **argv) {
     pthread_t mpd_client_thread, web_server_thread, mympd_api_thread;
     //mpd connection
     pthread_create(&mpd_client_thread, NULL, mpd_client_loop, &config);
+    pthread_setname_np(mpd_client_thread, "mympd_mpdclient");
     //webserver
     pthread_create(&web_server_thread, NULL, web_server_loop, &mgr);
+    pthread_setname_np(web_server_thread, "mympd_webserver");
     //mympd api
     pthread_create(&mympd_api_thread, NULL, mympd_api_loop, &config);
+    pthread_setname_np(mympd_api_thread, "mympd_mympdapi");
 
     //Outsourced all work to separate threads, do nothing...
 
