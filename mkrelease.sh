@@ -14,7 +14,7 @@ function minify {
     return
   fi
 
-  if [ "$TYPE" == "html" ]
+  if [ "$TYPE" = "html" ]
   then
     perl -pe 's/^\s*//gm; s/\s*$//gm' $SRC > $DST
     ERROR="$?"
