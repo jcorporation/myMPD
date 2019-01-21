@@ -1,12 +1,9 @@
 /* myMPD
-   (c) 2018 Juergen Mang <mail@jcgames.de>
+   (c) 2018-2019 Juergen Mang <mail@jcgames.de>
    This project's homepage is: https://github.com/jcorporation/mympd
    
-   myMPD ist fork of:
-   
-   ympd
-   (c) 2013-2014 Andrew Karpow <andy@ndyk.de>
-   This project's homepage is: http://www.ympd.org
+   myMPD ist fork of: ympd (c) 2013-2014 Andrew Karpow <andy@ndyk.de>
+   ympd project's homepage is: http://www.ympd.org
    
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by

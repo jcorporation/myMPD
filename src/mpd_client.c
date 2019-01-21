@@ -1091,8 +1091,9 @@ static void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state) {
         mpd_state->feat_advsearch = true;
         LOG_INFO() printf("Enabling advanced search.\n");
     } 
-    else 
+    else {
         LOG_INFO() printf("Disabling advanced search, depends on mpd >= 0.21.0 and libmpdclient >= 2.17.0.\n");
+    }
 }
 
 static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
