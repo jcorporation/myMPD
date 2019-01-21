@@ -9,7 +9,10 @@ function minify {
   DST="$3"
   ERROR="1"
 
-  [ "$DST" -nt "$SRC" ] && return
+  if [ "$DST" -nt "$SRC" ]
+  then
+    return
+  fi
 
   if [ "$TYPE" == "html" ]
   then
@@ -54,7 +57,7 @@ minify html htdocs/index.html dist/htdocs/index.html
 minify html htdocs/player.html dist/htdocs/player.html
 
 echo "Compiling and installing mympd"
-[ -d release ] || mkdir release
+install -d release
 cd release
 cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=RELEASE ..
 make
