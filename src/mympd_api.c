@@ -278,7 +278,7 @@ static bool mympd_api_read_syscmds(t_config *config, t_mympd_state *mympd_state)
 static int mympd_api_syscmd(t_config *config, t_mympd_state *mympd_state, char *buffer, const char *cmd) {
     int len;
     char filename[400];
-    char *line;
+    char *line = NULL;
     char *crap;
     size_t n = 0;
     ssize_t read;
@@ -314,6 +314,7 @@ static int mympd_api_syscmd(t_config *config, t_mympd_state *mympd_state, char *
         len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't execute cmd %s.\"}", cmd);
         printf("ERROR: Can't execute syscmd \"%s\"\n", cmd);
     }
+    free(line);
     CHECK_RETURN_LEN();    
 }
 

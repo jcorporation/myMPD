@@ -35,7 +35,7 @@
 
 bool state_file_read(t_config *config, const char *name, char *value) {
     char cfg_file[400];
-    char *line;
+    char *line = NULL;
     size_t n = 0;
     ssize_t read;
     
@@ -51,6 +51,7 @@ bool state_file_read(t_config *config, const char *name, char *value) {
     snprintf(value, 400, "%s", line);
     LOG_DEBUG() fprintf(stderr, "DEBUG: State %s: %s\n", name, value);
     fclose(fp);
+    free(line);
     if (read > 0)
         return true;
     else

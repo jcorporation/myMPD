@@ -174,13 +174,23 @@ void *mpd_client_loop(void *arg_config) {
     t_mpd_state mpd_state;
     mpd_state.conn_state = MPD_DISCONNECTED;
     mpd_state.timeout = 3000;
-    mpd_state.last_update_sticker_song_id = -1;
+    mpd_state.song_id = -1;
+    mpd_state.next_song_id = -1;
     mpd_state.last_song_id = -1;
+    mpd_state.queue_version = 0;
+    mpd_state.queue_length = 0;
+    mpd_state.last_update_sticker_song_id = -1;
     mpd_state.last_last_played_id = -1;
+    mpd_state.feat_sticker = false;
+    mpd_state.feat_playlists = false;
+    mpd_state.feat_tags = false;
     mpd_state.feat_library = false;
+    mpd_state.feat_advsearch = false;
+    mpd_state.feat_smartpls = false;
     mpd_state.jukeboxMode = JUKEBOX_OFF;
     mpd_state.jukeboxPlaylist = strdup("Database");
     mpd_state.jukeboxQueueLength = 1;
+    mpd_state.autoPlay = false;
     list_init(&mpd_state.mpd_tags);
     list_init(&mpd_state.mympd_tags);
     list_init(&mpd_state.mympd_searchtags);
@@ -2889,7 +2899,7 @@ static bool mpd_client_smartpls_update_newest(t_config *config, t_mpd_state *mpd
 
 static int mpd_client_read_last_played(t_config *config, t_mpd_state *mpd_state) {
     char cfgfile[400];
-    char *line;
+    char *line = NULL;
     char *data;
     char *crap;
     size_t n = 0;
@@ -2914,5 +2924,6 @@ static int mpd_client_read_last_played(t_config *config, t_mpd_state *mpd_state)
         }
     }
     fclose(fp);
+    free(line);
     return mpd_state->last_played.length;;
 }
