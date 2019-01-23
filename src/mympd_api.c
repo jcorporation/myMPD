@@ -107,6 +107,14 @@ void *mympd_api_loop(void *arg_config) {
     }
 
     list_free(&mympd_state.syscmd_list);
+    free(mympd_state.jukeboxPlaylist);
+    free(mympd_state.colsQueueCurrent);
+    free(mympd_state.colsSearch);
+    free(mympd_state.colsBrowseDatabase);
+    free(mympd_state.colsBrowsePlaylistsDetail);
+    free(mympd_state.colsBrowseFilesystem);
+    free(mympd_state.colsPlayback);
+    free(mympd_state.colsQueueLastPlayed);
     return NULL;
 }
 

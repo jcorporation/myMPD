@@ -105,7 +105,7 @@ typedef struct t_mpd_state {
     
     //mympd states
     enum jukebox_modes jukeboxMode;
-    const char *jukeboxPlaylist;
+    char *jukeboxPlaylist;
     int jukeboxQueueLength;
     bool autoPlay;
     
@@ -218,7 +218,7 @@ void *mpd_client_loop(void *arg_config) {
     list_free(&mpd_state.mympd_searchtags);
     list_free(&mpd_state.mympd_browsetags);
     list_free(&mpd_state.last_played);
-
+    free(mpd_state.jukeboxPlaylist);
     return NULL;
 }
 
@@ -1122,6 +1122,7 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
                 len = snprintf(buffer, MAX_SIZE, "{\"type\": \"disconnected\"}");
                 mpd_client_notify(buffer, len);
                 mpd_state->conn_state = MPD_FAILURE;
+                sleep(3);
                 return;
             }
 
@@ -1130,6 +1131,7 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
                 len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"%s\"}", mpd_connection_get_error_message(mpd_state->conn));
                 mpd_client_notify(buffer, len);
                 mpd_state->conn_state = MPD_FAILURE;
+                sleep(3);
                 return;
             }
 
@@ -2820,6 +2822,10 @@ static bool mpd_client_smartpls_update_sticker(t_mpd_state *mpd_state, const cha
 
     while ((pair = mpd_recv_pair(mpd_state->conn)) != NULL) {
         if (strcmp(pair->name, "file") == 0) {
+            if (uri != NULL) {
+                free(uri);
+                uri = NULL;
+            }
             uri = strdup(pair->value);
         } 
         else if (strcmp(pair->name, "sticker") == 0) {
@@ -2837,7 +2843,10 @@ static bool mpd_client_smartpls_update_sticker(t_mpd_state *mpd_state, const cha
         mpd_return_pair(mpd_state->conn, pair);
     }
     mpd_response_finish(mpd_state->conn);
-    free(uri);
+    if (uri != NULL) {
+        free(uri);
+        uri = NULL;
+    }
 
     mpd_client_smartpls_clear(mpd_state, playlist);
      
