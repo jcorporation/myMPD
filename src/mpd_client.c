@@ -1122,6 +1122,7 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
                 len = snprintf(buffer, MAX_SIZE, "{\"type\": \"disconnected\"}");
                 mpd_client_notify(buffer, len);
                 mpd_state->conn_state = MPD_FAILURE;
+                mpd_connection_free(mpd_state->conn);
                 sleep(3);
                 return;
             }
@@ -1160,8 +1161,9 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
             // fall through
         case MPD_DISCONNECT:
         case MPD_RECONNECT:
-            if (mpd_state->conn != NULL)
+            if (mpd_state->conn != NULL) {
                 mpd_connection_free(mpd_state->conn);
+            }
             mpd_state->conn = NULL;
             mpd_state->conn_state = MPD_DISCONNECTED;
             break;
@@ -2557,7 +2559,9 @@ static int mpd_client_put_stats(t_mpd_state *mpd_state, char *buffer) {
 
 static void mpd_client_disconnect(t_config *config, t_mpd_state *mpd_state) {
     mpd_state->conn_state = MPD_DISCONNECT;
-//    mpd_client_idle(config, mpd_state);
+    if (mpd_state->conn != NULL) {
+        mpd_connection_free(mpd_state->conn);
+    }
 }
 
 static int mpd_client_smartpls_put(t_config *config, char *buffer, const char *playlist) {

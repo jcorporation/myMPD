@@ -158,33 +158,33 @@ typedef struct t_work_result {
 //myMPD configuration
 typedef struct t_config {
     long mpdport;
-    const char *mpdhost;
-    const char *mpdpass;
-    const char *webport;
+    char *mpdhost;
+    char *mpdpass;
+    char *webport;
     bool ssl;
-    const char *sslport;
-    const char *sslcert;
-    const char *sslkey;
-    const char *user;
+    char *sslport;
+    char *sslcert;
+    char *sslkey;
+    char *user;
     bool coverimage;
-    const char *coverimagename;
+    char *coverimagename;
     long coverimagesize;
     bool stickers;
     bool mixramp;
-    const char *taglist;
-    const char *searchtaglist;
-    const char *browsetaglist;
+    char *taglist;
+    char *searchtaglist;
+    char *browsetaglist;
     bool smartpls;
-    const char *varlibdir;
-    const char *etcdir;
+    char *varlibdir;
+    char *etcdir;
     unsigned long max_elements_per_page;
     bool syscmds;
     bool localplayer;
     long streamport;
-    const char *streamurl;
+    char *streamurl;
     unsigned long last_played_count;
     long loglevel;
-    const char *backgroundcolor;
+    char *backgroundcolor;
 } t_config;
 
 //global functions
@@ -194,6 +194,4 @@ bool validate_string(const char *data);
 int copy_string(char * const dest, char const * const src, size_t const dst_len, size_t const src_len);
 int replacechar(char *str, const char orig, const char rep);
 enum mympd_cmd_ids get_cmd_id(const char *cmd);
-bool state_file_read(t_config *config, const char *name, char *value);
-bool state_file_write(t_config *config, const char *name, const char *value);
 #endif

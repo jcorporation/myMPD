@@ -33,55 +33,6 @@
 #include "list.h"
 #include "global.h"
 
-bool state_file_read(t_config *config, const char *name, char *value) {
-    char cfg_file[400];
-    char *line = NULL;
-    size_t n = 0;
-    ssize_t read;
-    
-    if (!validate_string(name))
-        return false;
-    snprintf(cfg_file, 400, "%s/state/%s", config->varlibdir, name);
-    FILE *fp = fopen(cfg_file, "r");
-    if (fp == NULL) {
-        printf("Error opening %s\n", cfg_file);
-        return false;
-    }
-    read = getline(&line, &n, fp);
-    snprintf(value, 400, "%s", line);
-    LOG_DEBUG() fprintf(stderr, "DEBUG: State %s: %s\n", name, value);
-    fclose(fp);
-    free(line);
-    if (read > 0)
-        return true;
-    else
-        return false;
-}
-
-bool state_file_write(t_config *config, const char *name, const char *value) {
-    char tmp_file[400];
-    char cfg_file[400];
-    
-    if (!validate_string(name))
-        return false;
-    snprintf(cfg_file, 400, "%s/state/%s", config->varlibdir, name);
-    snprintf(tmp_file, 400, "%s/tmp/%s", config->varlibdir, name);
-        
-    FILE *fp = fopen(tmp_file, "w");
-    if (fp == NULL) {
-        printf("Error opening %s\n", tmp_file);
-        return false;
-    }
-    fprintf(fp, "%s", value);
-    fclose(fp);
-    if (rename(tmp_file, cfg_file) == -1) {
-        printf("Error renaming file from %s to %s\n", tmp_file, cfg_file);
-        return false;
-    }
-    return true;
-}
-
-
 bool testdir(const char *name, const char *dirname) {
     DIR* dir = opendir(dirname);
     if (dir) {

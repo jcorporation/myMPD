@@ -69,6 +69,10 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
 static bool mympd_api_read_syscmds(t_config *config, t_mympd_state *mympd_state);
 static int mympd_api_syscmd(t_config *config, t_mympd_state *mympd_state, char *buffer, const char *cmd);
 static void mympd_api_read_statefiles(t_config *config, t_mympd_state *mympd_state);
+static char *state_file_rw_string(t_config *config, const char *name, const char *def_value);
+static bool state_file_rw_bool(t_config *config, const char *name, const bool def_value);
+static long state_file_rw_long(t_config *config, const char *name, const long def_value);
+static bool state_file_write(t_config *config, const char *name, const char *value);
 static int mympd_api_put_settings(t_config *config, t_mympd_state *mympd_state, char *buffer);
 
 
@@ -327,112 +331,129 @@ static int mympd_api_syscmd(t_config *config, t_mympd_state *mympd_state, char *
 }
 
 static void mympd_api_read_statefiles(t_config *config, t_mympd_state *mympd_state) {
-    char *crap;
-    char value[400];
-
     LOG_INFO() printf("Reading states\n");
-    if (state_file_read(config, "notificationWeb", value)) {
-        if (strcmp(value, "true") == 0)
-            mympd_state->notificationWeb = true;
-        else
-            mympd_state->notificationWeb = false;
-    }
-    else {
-        mympd_state->notificationWeb = false;
-        state_file_write(config, "notificationWeb", "false");
-    }
+    mympd_state->notificationWeb = state_file_rw_bool(config, "notificationWeb", false);
+    mympd_state->notificationPage = state_file_rw_bool(config, "notificationPage", true);
+    mympd_state->autoPlay = state_file_rw_bool(config, "autoPlay", false);
+    mympd_state->jukeboxMode = state_file_rw_long(config, "jukeboxMode", JUKEBOX_OFF);
+    mympd_state->jukeboxPlaylist = state_file_rw_string(config, "jukeboxPlaylist", "Database");
+    mympd_state->jukeboxQueueLength = state_file_rw_long(config, "jukeboxQueueLength", 1);
+    mympd_state->colsQueueCurrent = state_file_rw_string(config, "colsQueueCurrent", "[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]");
+    mympd_state->colsSearch = state_file_rw_string(config, "colsSearch", "[\"Title\",\"Artist\",\"Album\",\"Duration\"]");    
+    mympd_state->colsBrowseDatabase = state_file_rw_string(config, "colsBrowseDatabase", "[\"Track\",\"Title\",\"Duration\"]");
+    mympd_state->colsBrowsePlaylistsDetail = state_file_rw_string(config, "colsBrowsePlaylistsDetail", "[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]");
+    mympd_state->colsBrowseFilesystem = state_file_rw_string(config, "colsBrowseFilesystem", "[\"Type\",\"Title\",\"Artist\",\"Album\",\"Duration\"]");    
+    mympd_state->colsPlayback = state_file_rw_string(config, "colsPlayback", "[\"Artist\",\"Album\"]");    
+    mympd_state->colsQueueLastPlayed = state_file_rw_string(config, "colsQueueLastPlayed", "[\"Pos\",\"Title\",\"Artist\",\"Album\",\"LastPlayed\"]");    
+}
 
-    if (state_file_read(config, "notificationPage", value)) {
-        if (strcmp(value, "true") == 0)
-            mympd_state->notificationPage = true;
-        else
-            mympd_state->notificationPage = false;
+static char *state_file_rw_string(t_config *config, const char *name, const char *def_value) {
+    char cfg_file[400];
+    char *line = NULL;
+    size_t n = 0;
+    ssize_t read;
+    
+    if (!validate_string(name)) {
+        return NULL;
+    }
+    snprintf(cfg_file, 400, "%s/state/%s", config->varlibdir, name);
+    FILE *fp = fopen(cfg_file, "r");
+    if (fp == NULL) {
+        printf("Error opening %s\n", cfg_file);
+        state_file_write(config, name, def_value);
+        return NULL;
+    }
+    read = getline(&line, &n, fp);
+    if (read > 0) {
+        LOG_DEBUG() fprintf(stderr, "DEBUG: State %s: %s\n", name, line);
+    }
+    fclose(fp);
+    if (read > 0) {
+        return line;
     }
     else {
-        mympd_state->notificationPage = true;
-        state_file_write(config, "notificationPage", "true");
+        free(line);
+        return NULL;
     }
+}
 
-    if (state_file_read(config, "autoPlay", value)) {
-        if (strcmp(value, "true") == 0)
-            mympd_state->autoPlay = true;
-        else
-            mympd_state->autoPlay = false;
-    }
-    else {
-        mympd_state->autoPlay = false;
-        state_file_write(config, "autoPlay", "false");
-    }
+static bool state_file_rw_bool(t_config *config, const char *name, const bool def_value) {
+    char cfg_file[400];
+    char *line = NULL;
+    size_t n = 0;
+    ssize_t read;
+    bool value = def_value;
     
-    if (state_file_read(config, "jukeboxMode", value))
-        mympd_state->jukeboxMode = strtol(value, &crap, 10);
-    else {
-        mympd_state->jukeboxMode = JUKEBOX_OFF;
-        state_file_write(config, "jukeboxMode", "0");
+    if (!validate_string(name))
+        return def_value;
+    snprintf(cfg_file, 400, "%s/state/%s", config->varlibdir, name);
+    FILE *fp = fopen(cfg_file, "r");
+    if (fp == NULL) {
+        printf("Error opening %s\n", cfg_file);
+        state_file_write(config, name, def_value == true ? "true" : "false");
+        return def_value;
     }
+    read = getline(&line, &n, fp);
+    if (read > 0) {
+        LOG_DEBUG() fprintf(stderr, "DEBUG: State %s: %s\n", name, line);
+        value = strcmp(line, "true") == 0 ? true : false;
+    }
+    fclose(fp);
+    free(line);
+    return value;
+}
 
-    if (state_file_read(config, "jukeboxPlaylist", value))
-        mympd_state->jukeboxPlaylist = strdup(value);
-    else {
-        mympd_state->jukeboxPlaylist = strdup("Database");
-        state_file_write(config, "jukeboxPlaylist", "Database");
+static long state_file_rw_long(t_config *config, const char *name, const long def_value) {
+    char cfg_file[400];
+    char *line = NULL;
+    char *crap;
+    size_t n = 0;
+    ssize_t read;
+    long value = def_value;
+    
+    if (!validate_string(name))
+        return def_value;
+    snprintf(cfg_file, 400, "%s/state/%s", config->varlibdir, name);
+    FILE *fp = fopen(cfg_file, "r");
+    if (fp == NULL) {
+        printf("Error opening %s\n", cfg_file);
+        char p_value[65];
+        snprintf(p_value, 65, "%ld", def_value);
+        state_file_write(config, name, p_value);
+        return def_value;
     }
+    read = getline(&line, &n, fp);
+    if (read > 0) {
+        LOG_DEBUG() fprintf(stderr, "DEBUG: State %s: %s\n", name, line);
+        value = strtol(line, &crap, 10);
+    }
+    fclose(fp);
+    free(line);
+    return value;
+}
 
-    if (state_file_read(config, "jukeboxQueueLength", value))
-        mympd_state->jukeboxQueueLength = strtol(value, &crap, 10);
-    else {
-        mympd_state->jukeboxQueueLength = 1;
-        state_file_write(config, "jukeboxQueueLength", "1");
-    }
-    
-    if (state_file_read(config, "colsQueueCurrent", value))
-        mympd_state->colsQueueCurrent = strdup(value);
-    else {
-        mympd_state->colsQueueCurrent = strdup("[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]");
-        state_file_write(config, "colsQueueCurrent", mympd_state->colsQueueCurrent);
-    }
-    
-    if (state_file_read(config, "colsSearch", value))
-        mympd_state->colsSearch = strdup(value);
-    else {
-        mympd_state->colsSearch = strdup("[\"Title\",\"Artist\",\"Album\",\"Duration\"]");
-        state_file_write(config, "colsSearch", mympd_state->colsSearch);
-    }
-    
-    if (state_file_read(config, "colsBrowseDatabase", value))
-        mympd_state->colsBrowseDatabase = strdup(value);
-    else {
-        mympd_state->colsBrowseDatabase = strdup("[\"Track\",\"Title\",\"Duration\"]");
-        state_file_write(config, "colsBrowseDatabase", mympd_state->colsBrowseDatabase);
-    }
-    
-    if (state_file_read(config, "colsBrowsePlaylistsDetail", value))
-        mympd_state->colsBrowsePlaylistsDetail = strdup(value);
-    else {
-        mympd_state->colsBrowsePlaylistsDetail = strdup("[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]");
-        state_file_write(config, "colsBrowsePlaylistsDetail", mympd_state->colsBrowsePlaylistsDetail);
-    }
-    
-    if (state_file_read(config, "colsBrowseFilesystem", value))
-        mympd_state->colsBrowseFilesystem = strdup(value);
-    else {
-        mympd_state->colsBrowseFilesystem = strdup("[\"Type\",\"Title\",\"Artist\",\"Album\",\"Duration\"]");
-        state_file_write(config, "colsBrowseFilesystem", mympd_state->colsBrowseFilesystem);
-    }
-    
-    if (state_file_read(config, "colsPlayback", value))
-        mympd_state->colsPlayback = strdup(value);
-    else {
-        mympd_state->colsPlayback = strdup("[\"Artist\",\"Album\",\"Genre\"]");
-        state_file_write(config, "colsPlayback", mympd_state->colsPlayback);
-    }
 
-    if (state_file_read(config, "colsQueueLastPlayed", value))
-        mympd_state->colsQueueLastPlayed = strdup(value);
-    else {
-        mympd_state->colsQueueLastPlayed = strdup("[\"Pos\",\"Title\",\"Artist\",\"Album\",\"LastPlayed\"]");
-        state_file_write(config, "colsQueueLastPlayed", mympd_state->colsQueueLastPlayed);
+static bool state_file_write(t_config *config, const char *name, const char *value) {
+    char tmp_file[400];
+    char cfg_file[400];
+    
+    if (!validate_string(name))
+        return false;
+    snprintf(cfg_file, 400, "%s/state/%s", config->varlibdir, name);
+    snprintf(tmp_file, 400, "%s/tmp/%s", config->varlibdir, name);
+        
+    FILE *fp = fopen(tmp_file, "w");
+    if (fp == NULL) {
+        printf("Error opening %s\n", tmp_file);
+        return false;
     }
+    fprintf(fp, "%s", value);
+    fclose(fp);
+    if (rename(tmp_file, cfg_file) == -1) {
+        printf("Error renaming file from %s to %s\n", tmp_file, cfg_file);
+        return false;
+    }
+    return true;
 }
 
 static int mympd_api_put_settings(t_config *config, t_mympd_state *mympd_state, char *buffer) {

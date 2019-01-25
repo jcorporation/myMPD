@@ -47,6 +47,8 @@
 static void signal_handler(int sig_num) {
     signal(sig_num, signal_handler);  // Reinstantiate signal handler
     s_signal_received = sig_num;
+    //Wakeup mympd_api_loop
+    pthread_cond_signal(&mympd_api_queue->wakeup);
 }
 
 static int inihandler(void *user, const char *section, const char *name, const char* value) {
@@ -55,61 +57,78 @@ static int inihandler(void *user, const char *section, const char *name, const c
 
     #define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
 
-    if (MATCH("mpd", "mpdhost"))
+    if (MATCH("mpd", "mpdhost")) {
+        free(p_config->mpdhost);
         p_config->mpdhost = strdup(value);
-    else if (MATCH("mpd", "mpdport"))
+    }
+    else if (MATCH("mpd", "mpdport")) {
         p_config->mpdport = strtol(value, &crap, 10);
-    else if (MATCH("mpd", "mpdpass"))
+    }
+    else if (MATCH("mpd", "mpdpass")) {
+        free(p_config->mpdpass);
         p_config->mpdpass = strdup(value);
-    else if (MATCH("mpd", "streamport"))
+    }
+    else if (MATCH("mpd", "streamport")) {
         p_config->streamport = strtol(value, &crap, 10);
-    else if (MATCH("webserver", "webport"))
+    }
+    else if (MATCH("webserver", "webport")) {
+        free(p_config->webport);
         p_config->webport = strdup(value);
-    else if (MATCH("webserver", "ssl"))
-        if (strcmp(value, "true") == 0)
-            p_config->ssl = true;
-        else
-            p_config->ssl = false;
-    else if (MATCH("webserver", "sslport"))
+    }
+    else if (MATCH("webserver", "ssl")) {
+        p_config->ssl = strcmp(value, "true") == 0 ? true : false;
+    }
+    else if (MATCH("webserver", "sslport")) {
+        free(p_config->sslport);
         p_config->sslport = strdup(value);
-    else if (MATCH("webserver", "sslcert"))
+    }
+    else if (MATCH("webserver", "sslcert")) {
+        free(p_config->sslcert);
         p_config->sslcert = strdup(value);
-    else if (MATCH("webserver", "sslkey"))
+    }
+    else if (MATCH("webserver", "sslkey")) {
+        free(p_config->sslkey);
         p_config->sslkey = strdup(value);
-    else if (MATCH("mympd", "user"))
+    }
+    else if (MATCH("mympd", "user")) {
+        free(p_config->user);
         p_config->user = strdup(value);
-    else if (MATCH("mympd", "coverimage"))
-        if (strcmp(value, "true") == 0)
-            p_config->coverimage = true;
-        else
-            p_config->coverimage = false;
-    else if (MATCH("mympd", "coverimagename"))
+    }
+    else if (MATCH("mympd", "coverimage")) {
+        p_config->coverimage = strcmp(value, "true") == 0 ? true : false;
+    }
+    else if (MATCH("mympd", "coverimagename")) {
+        free(p_config->coverimagename);
         p_config->coverimagename = strdup(value);
-    else if (MATCH("mympd", "coverimagesize"))
+    }
+    else if (MATCH("mympd", "coverimagesize")) {
         p_config->coverimagesize = strtol(value, &crap, 10);
-    else if (MATCH("mympd", "varlibdir"))
+    }
+    else if (MATCH("mympd", "varlibdir")) {
+        free(p_config->varlibdir);
         p_config->varlibdir = strdup(value);
-    else if (MATCH("mympd", "stickers"))
-        if (strcmp(value, "true") == 0)
-            p_config->stickers = true;
-        else
-            p_config->stickers = false;
-    else if (MATCH("mympd", "smartpls"))
-        if (strcmp(value, "true") == 0)
-            p_config->smartpls = true;
-        else
-            p_config->smartpls = false;
-    else if (MATCH("mympd", "mixramp"))
-        if (strcmp(value, "true") == 0)
-            p_config->mixramp = true;
-        else
-            p_config->mixramp = false;
-    else if (MATCH("mympd", "taglist"))
+    }
+    else if (MATCH("mympd", "stickers")) {
+        p_config->stickers = strcmp(value, "true") == 0 ? true : false;
+    }
+    else if (MATCH("mympd", "smartpls")) {
+        p_config->smartpls =  strcmp(value, "true") == 0 ? true : false;
+    }
+    else if (MATCH("mympd", "mixramp")) {
+        p_config->mixramp = strcmp(value, "true") == 0 ? true : false;
+    }
+    else if (MATCH("mympd", "taglist")) {
+        free(p_config->taglist);
         p_config->taglist = strdup(value);
-    else if (MATCH("mympd", "searchtaglist"))
-        p_config->searchtaglist = strdup(value);        
-    else if (MATCH("mympd", "browsetaglist"))
+    }
+    else if (MATCH("mympd", "searchtaglist")) {
+        free(p_config->searchtaglist);
+        p_config->searchtaglist = strdup(value);
+    }
+    else if (MATCH("mympd", "browsetaglist")) {
+        free(p_config->browsetaglist);
         p_config->browsetaglist = strdup(value);
+    }
     else if (MATCH("mympd", "max_elements_per_page")) {
         p_config->max_elements_per_page = strtol(value, &crap, 10);
         if (p_config->max_elements_per_page > MAX_ELEMENTS_PER_PAGE) {
@@ -117,27 +136,29 @@ static int inihandler(void *user, const char *section, const char *name, const c
             p_config->max_elements_per_page = MAX_ELEMENTS_PER_PAGE;
         }
     }
-    else if (MATCH("mympd", "syscmds"))
-        if (strcmp(value, "true") == 0)
-            p_config->syscmds = true;
-        else
-            p_config->syscmds = false;
-    else if (MATCH("mympd", "localplayer"))
-        if (strcmp(value, "true") == 0)
-            p_config->localplayer = true;
-        else
-            p_config->localplayer = false;
-    else if (MATCH("mympd", "streamurl"))
+    else if (MATCH("mympd", "syscmds")) {
+        p_config->syscmds = strcmp(value, "true") == 0 ? true : false;
+    }
+    else if (MATCH("mympd", "localplayer")) {
+        p_config->localplayer = strcmp(value, "true") == 0 ? true : false;
+    }
+    else if (MATCH("mympd", "streamurl")) {
+        free(p_config->streamurl);
         p_config->streamurl = strdup(value);
-    else if (MATCH("mympd", "last_played_count"))
+    }
+    else if (MATCH("mympd", "last_played_count")) {
         p_config->last_played_count = strtol(value, &crap, 10);
-    else if (MATCH("mympd", "loglevel"))
+    }
+    else if (MATCH("mympd", "loglevel")) {
         p_config->loglevel = strtol(value, &crap, 10);
-    else if (MATCH("theme", "backgroundcolor"))
+    }
+    else if (MATCH("theme", "backgroundcolor")) {
+        free(p_config->backgroundcolor);
         p_config->backgroundcolor = strdup(value);
+    }
     else {
         printf("Unkown config option: %s - %s\n", section, name);
-        return 0;  /* unknown section/name, error */
+        return 0;  
     }
 
     return 1;
@@ -154,26 +175,26 @@ int main(int argc, char **argv) {
     
     //mympd config defaults
     t_config config;
-    config.mpdhost = "127.0.0.1";
+    config.mpdhost = strdup("127.0.0.1");
     config.mpdport = 6600;
     config.mpdpass = NULL;
-    config.webport = "80";
+    config.webport = strdup("80");
     config.ssl = true;
-    config.sslport = "443";
-    config.sslcert = "/etc/mympd/ssl/server.pem";
-    config.sslkey = "/etc/mympd/ssl/server.key";
-    config.user = "mympd";
+    config.sslport = strdup("443");
+    config.sslcert = strdup("/etc/mympd/ssl/server.pem");
+    config.sslkey = strdup("/etc/mympd/ssl/server.key");
+    config.user = strdup("mympd");
     config.streamport = 8000;
-    config.streamurl = "";
+    config.streamurl = strdup("");
     config.coverimage = true;
-    config.coverimagename = "folder.jpg";
+    config.coverimagename = strdup("folder.jpg");
     config.coverimagesize = 240;
-    config.varlibdir = "/var/lib/mympd";
+    config.varlibdir = strdup("/var/lib/mympd");
     config.stickers = true;
     config.mixramp = true;
-    config.taglist = "Artist,Album,AlbumArtist,Title,Track,Genre,Date,Composer,Performer";
-    config.searchtaglist = "Artist,Album,AlbumArtist,Title,Genre,Composer,Performer";
-    config.browsetaglist = "Artist,Album,AlbumArtist,Genre,Composer,Performer";
+    config.taglist = strdup("Artist,Album,AlbumArtist,Title,Track,Genre,Date,Composer,Performer");
+    config.searchtaglist = strdup("Artist,Album,AlbumArtist,Title,Genre,Composer,Performer");
+    config.browsetaglist = strdup("Artist,Album,AlbumArtist,Genre,Composer,Performer");
     config.smartpls = true;
     config.max_elements_per_page = 100;
     config.last_played_count = 20;
@@ -183,7 +204,7 @@ int main(int argc, char **argv) {
     config.syscmds = false;
     config.localplayer = true;
     config.loglevel = 1;
-    config.backgroundcolor = "#888";
+    config.backgroundcolor = strdup("#888");
     
     if (argc == 2) {
         printf("Starting myMPD %s\n", MYMPD_VERSION);
@@ -292,9 +313,25 @@ int main(int argc, char **argv) {
     //cleanup
     pthread_join(mpd_client_thread, NULL);
     pthread_join(web_server_thread, NULL);
+    pthread_join(mympd_api_thread, NULL);
     tiny_queue_free(web_server_queue);
     tiny_queue_free(mpd_client_queue);
     tiny_queue_free(mympd_api_queue);
+    free(config.mpdhost);
+    free(config.mpdpass);
+    free(config.webport);
+    free(config.sslport);
+    free(config.sslcert);
+    free(config.sslkey);
+    free(config.user);
+    free(config.coverimagename);
+    free(config.taglist);
+    free(config.searchtaglist);
+    free(config.browsetaglist);
+    free(config.varlibdir);
+    free(config.etcdir);
+    free(config.streamurl);
+    free(config.backgroundcolor);
 
     return EXIT_SUCCESS;
 }

@@ -152,19 +152,28 @@ void *tiny_queue_shift(tiny_queue_t *queue, int timeout) {
         }
     }
     //queue has entry
-    struct tiny_msg_t* current_head = queue->head;
-    void *data = current_head->data;
-    if (queue->head == queue->tail) {
-        queue->head = queue->tail = NULL;
+    if (queue->head != NULL) {
+        struct tiny_msg_t* current_head = queue->head;
+        void *data = current_head->data;
+        if (queue->head == queue->tail) {
+            queue->head = queue->tail = NULL;
+        }
+        else {
+            queue->head = queue->head->next;
+        }
+        free(current_head);
+        queue->length--;
+        rc = pthread_mutex_unlock(&queue->mutex);
+        if (rc != 0) {
+            printf("Error in pthread_mutex_unlock: %d\n", rc);
+        }
+        return data;
     }
     else {
-        queue->head = queue->head->next;
+        rc = pthread_mutex_unlock(&queue->mutex);
+        if (rc != 0) {
+            printf("Error in pthread_mutex_unlock: %d\n", rc);
+        }
+        return NULL;
     }
-    free(current_head);
-    queue->length--;
-    rc = pthread_mutex_unlock(&queue->mutex);
-    if (rc != 0) {
-        printf("Error in pthread_mutex_unlock: %d\n", rc);
-    }
-    return data;
 }
