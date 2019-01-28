@@ -1,4 +1,4 @@
-#/bin/sh
+#!/bin/bash
 
 JAVABIN=$(which java 2> /dev/null)
 HASJAVA="$?"
@@ -18,11 +18,11 @@ function minify {
   then
     perl -pe 's/^\s*//gm; s/\s*$//gm' $SRC > $DST
     ERROR="$?"
-  elif [ "$TYPE" = "js" ] && [ "$HASJAVA" = "1" ]
+  elif [ "$TYPE" = "js" ] && [ "$HASJAVA" = "0" ]
   then
     $JAVABIN -jar dist/buildtools/closure-compiler.jar $SRC > $DST
     ERROR="$?"
-  elif [ "$TYPE" = "css" ] && [ "$HASJAVA" = "1" ]
+  elif [ "$TYPE" = "css" ] && [ "$HASJAVA" = "0" ]
   then
     $JAVABIN -jar dist/buildtools/closure-stylesheets.jar --allow-unrecognized-properties $SRC > $DST
     ERROR="$?"
@@ -59,12 +59,19 @@ minify html htdocs/player.html dist/htdocs/player.html
 echo "Compiling and installing mympd"
 install -d release
 cd release
-cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=RELEASE ..
+INSTALL_PREFIX="${MYMPD_INSTALL_PREFIX:-/usr}"
+cmake -DCMAKE_INSTALL_PREFIX:PATH=$INSTALL_PREFIX -DCMAKE_BUILD_TYPE=RELEASE ..
 make
-sudo make install
-cd ..
-
-sudo debian/postinst
+if [ $INSTALL_PREFIX = "/usr" ]
+then
+  sudo make install
+  cd ..
+  sudo debian/postinst
+else
+  # Container build implied when $INSTALL_PREFIX != /usr
+  make install
+  cd ..
+fi
 
 if [ -x /usr/bin/cppcheck ]
 then
