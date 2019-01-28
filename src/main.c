@@ -164,9 +164,34 @@ static int inihandler(void *user, const char *section, const char *name, const c
     return 1;
 }
 
+static void free_config(t_config *config) {
+    free(config->mpdhost);
+    free(config->mpdpass);
+    free(config->webport);
+    free(config->sslport);
+    free(config->sslcert);
+    free(config->sslkey);
+    free(config->user);
+    free(config->coverimagename);
+    free(config->taglist);
+    free(config->searchtaglist);
+    free(config->browsetaglist);
+    free(config->varlibdir);
+    free(config->etcdir);
+    free(config->streamurl);
+    free(config->backgroundcolor);
+    free(config);
+}
+
 int main(int argc, char **argv) {
     s_signal_received = 0;
     char testdirname[400];
+    bool init_webserver = false;
+    bool init_thread_webserver = false;
+    bool init_thread_mpdclient = false;
+    bool init_thread_mympdapi = false;
+    int rc = EXIT_FAILURE;
+    
     mpd_client_queue = tiny_queue_create();
     mympd_api_queue = tiny_queue_create();
     web_server_queue = tiny_queue_create();
@@ -212,7 +237,7 @@ int main(int argc, char **argv) {
         printf("Parsing config file: %s\n", argv[1]);
         if (ini_parse(argv[1], inihandler, config) < 0) {
             printf("Can't load config file \"%s\"\n", argv[1]);
-            return EXIT_FAILURE;
+            goto cleanup;
         }
     } 
     else {
@@ -224,7 +249,7 @@ int main(int argc, char **argv) {
             MYMPD_VERSION,
             argv[0]
         );
-        return EXIT_FAILURE;    
+        goto cleanup;
     }
     
     #ifdef DEBUG
@@ -242,7 +267,10 @@ int main(int argc, char **argv) {
     //init webserver
     struct mg_mgr mgr;
     if (!web_server_init(&mgr, config)) {
-        return EXIT_FAILURE;
+        goto cleanup;
+    }
+    else {
+        init_webserver = true;
     }
 
     //drop privileges
@@ -250,33 +278,29 @@ int main(int argc, char **argv) {
         printf("Droping privileges to %s\n", config->user);
         struct passwd *pw;
         if ((pw = getpwnam(config->user)) == NULL) {
-            printf("getpwnam() failed, unknown user\n");
-            web_server_free(&mgr);
-            return EXIT_FAILURE;
+            printf("ERROR: getpwnam() failed, unknown user\n");
+            goto cleanup;
         } else if (setgroups(0, NULL) != 0) { 
-            printf("setgroups() failed\n");
-            web_server_free(&mgr);
-            return EXIT_FAILURE;        
+            printf("ERROR: setgroups() failed\n");
+            goto cleanup;
         } else if (setgid(pw->pw_gid) != 0) {
-            printf("setgid() failed\n");
-            web_server_free(&mgr);
-            return EXIT_FAILURE;
+            printf("ERROR: setgid() failed\n");
+            goto cleanup;
         } else if (setuid(pw->pw_uid) != 0) {
-            printf("setuid() failed\n");
-            web_server_free(&mgr);
-            return EXIT_FAILURE;
+            printf("ERROR: setuid() failed\n");
+            goto cleanup;
         }
     }
     
     if (getuid() == 0) {
         printf("myMPD should not be run with root privileges\n");
-        web_server_free(&mgr);
-        return EXIT_FAILURE;
+        goto cleanup;
     }
 
     //check needed directories
-    if (!testdir("Document root", DOC_ROOT)) 
-        return EXIT_FAILURE;
+    if (!testdir("Document root", DOC_ROOT)) {
+        goto cleanup;
+    }
 
     snprintf(testdirname, 400, "%s/library", DOC_ROOT);
     if (!testdir("Link to mpd music_directory", testdirname)) {
@@ -285,54 +309,66 @@ int main(int argc, char **argv) {
     }
 
     snprintf(testdirname, 400, "%s/tmp", config->varlibdir);
-    if (!testdir("Temp dir", testdirname)) 
-        return EXIT_FAILURE;
+    if (!testdir("Temp dir", testdirname)) {
+        goto cleanup;
+    }
 
     snprintf(testdirname, 400, "%s/smartpls", config->varlibdir);
-    if (!testdir("Smartpls dir", testdirname)) 
-        return EXIT_FAILURE;
+    if (!testdir("Smartpls dir", testdirname)) {
+        goto cleanup;
+    }
 
     snprintf(testdirname, 400, "%s/state", config->varlibdir);
-    if (!testdir("State dir", testdirname)) 
-        return EXIT_FAILURE;
+    if (!testdir("State dir", testdirname)) {
+        goto cleanup;
+    }
 
     //Create working threads
     pthread_t mpd_client_thread, web_server_thread, mympd_api_thread;
     //mpd connection
-    pthread_create(&mpd_client_thread, NULL, mpd_client_loop, config);
-    pthread_setname_np(mpd_client_thread, "mympd_mpdclient");
+    if (pthread_create(&mpd_client_thread, NULL, mpd_client_loop, config) == 0) {
+        pthread_setname_np(mpd_client_thread, "mympd_mpdclient");
+        init_thread_mpdclient = true;
+    }
+    else {
+        printf("ERROR: can't create mympd_client thread\n");
+        s_signal_received = SIGTERM;
+    }
     //webserver
-    pthread_create(&web_server_thread, NULL, web_server_loop, &mgr);
-    pthread_setname_np(web_server_thread, "mympd_webserver");
+    if (pthread_create(&web_server_thread, NULL, web_server_loop, &mgr) == 0) {
+        pthread_setname_np(web_server_thread, "mympd_webserver");
+        init_thread_webserver = true;
+    }
+    else {
+        printf("ERROR: can't create mympd_webserver thread\n");
+        s_signal_received = SIGTERM;
+    }
     //mympd api
-    pthread_create(&mympd_api_thread, NULL, mympd_api_loop, config);
-    pthread_setname_np(mympd_api_thread, "mympd_mympdapi");
+    if (pthread_create(&mympd_api_thread, NULL, mympd_api_loop, config) == 0) {
+        pthread_setname_np(mympd_api_thread, "mympd_mympdapi");
+        init_thread_mympdapi = true;
+    }
+    else {
+        printf("ERROR: can't create mympd_mympdapi thread\n");
+        s_signal_received = SIGTERM;
+    }
 
     //Outsourced all work to separate threads, do nothing...
+    rc = EXIT_SUCCESS;
 
-    //cleanup
-    pthread_join(mpd_client_thread, NULL);
-    pthread_join(web_server_thread, NULL);
-    pthread_join(mympd_api_thread, NULL);
+    //Try to cleanup all
+    cleanup:
+    if (init_thread_mpdclient)
+        pthread_join(mpd_client_thread, NULL);
+    if (init_thread_webserver)
+        pthread_join(web_server_thread, NULL);
+    if (init_thread_mympdapi)
+        pthread_join(mympd_api_thread, NULL);
+    if (init_webserver)
+        web_server_free(&mgr);
     tiny_queue_free(web_server_queue);
     tiny_queue_free(mpd_client_queue);
     tiny_queue_free(mympd_api_queue);
-    free(config->mpdhost);
-    free(config->mpdpass);
-    free(config->webport);
-    free(config->sslport);
-    free(config->sslcert);
-    free(config->sslkey);
-    free(config->user);
-    free(config->coverimagename);
-    free(config->taglist);
-    free(config->searchtaglist);
-    free(config->browsetaglist);
-    free(config->varlibdir);
-    free(config->etcdir);
-    free(config->streamurl);
-    free(config->backgroundcolor);
-    free(config);
-
-    return EXIT_SUCCESS;
+    free_config(config);
+    return rc;
 }

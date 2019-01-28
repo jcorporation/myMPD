@@ -122,7 +122,6 @@ void *web_server_loop(void *arg_mgr) {
             }
 //        }
     }
-    mg_mgr_free(mgr);
     return NULL;
 }
 
