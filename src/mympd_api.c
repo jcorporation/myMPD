@@ -214,8 +214,11 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             if (!state_file_write(config, "jukeboxMode", p_char))
                 len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state jukeboxMode.\"}");
         }
-        je = json_scanf(request->data, request->length, "{data: {jukeboxPlaylist: %Q}}", &mympd_state->jukeboxPlaylist);
+        je = json_scanf(request->data, request->length, "{data: {jukeboxPlaylist: %Q}}", &p_charbuf1);
         if (je == 1) {
+            free(mympd_state->jukeboxPlaylist);
+            mympd_state->jukeboxPlaylist = p_charbuf1;
+            p_charbuf1 = NULL;
             if (!state_file_write(config, "jukeboxPlaylist", mympd_state->jukeboxPlaylist))
                 len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state jukeboxPlaylist.\"}");
         }

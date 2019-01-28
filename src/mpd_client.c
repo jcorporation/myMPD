@@ -60,14 +60,18 @@
     while (current_tag != NULL) { \
         if (tagnr ++) \
             len += json_printf(&out, ","); \
-        len += json_printf(&out, "%Q: %Q", current_tag->data, mpd_client_get_tag(song, mpd_tag_name_parse(current_tag->data))); \
+        char *value = mpd_client_get_tag(song, mpd_tag_name_parse(current_tag->data)); \
+        len += json_printf(&out, "%Q: %Q", current_tag->data, value); \
+        if (strncmp(value, "-", 1) == 0) { free(value); } \
         current_tag = current_tag->next; \
     } \
     len += json_printf(&out, ", Duration: %d, uri: %Q", mpd_song_get_duration(song), mpd_song_get_uri(song)); \
 } while (0)
 
 #define PUT_MIN_SONG_TAGS() do { \
-    len += json_printf(&out, "Title: %Q, Duration: %d, uri: %Q", mpd_client_get_tag(song, MPD_TAG_TITLE), mpd_song_get_duration(song), mpd_song_get_uri(song)); \
+    char *value = mpd_client_get_tag(song, MPD_TAG_TITLE); \
+    len += json_printf(&out, "Title: %Q, Duration: %d, uri: %Q", value, mpd_song_get_duration(song), mpd_song_get_uri(song)); \
+    if (strncmp(value, "-", 1) == 0) { free(value); } \
 } while (0)
 
 
@@ -258,7 +262,12 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
         case MYMPD_API_SETTINGS_SET:
             //only update mpd_state, already saved in mympd_api.c
             je = json_scanf(request->data, request->length, "{data: {jukeboxMode: %d}}", &mpd_state->jukeboxMode);
-            je = json_scanf(request->data, request->length, "{data: {jukeboxPlaylist: %Q}}", &mpd_state->jukeboxPlaylist);
+            je = json_scanf(request->data, request->length, "{data: {jukeboxPlaylist: %Q}}", &p_charbuf1);
+            if (je == 1) {
+                free(mpd_state->jukeboxPlaylist);
+                mpd_state->jukeboxPlaylist = p_charbuf1;
+                p_charbuf1 = NULL;
+            }
             je = json_scanf(request->data, request->length, "{data: {jukeboxQueueLength: %d}}", &mpd_state->jukeboxQueueLength);
             je = json_scanf(request->data, request->length, "{data: {autoPlay: %B}}", &mpd_state->autoPlay);
             //set mpd options
@@ -1405,12 +1414,15 @@ static char *mpd_client_get_tag(struct mpd_song const *song, const enum mpd_tag_
     char *str;
     str = (char *)mpd_song_get_tag(song, tag, 0);
     if (str == NULL) {
-        if (tag == MPD_TAG_TITLE)
+        if (tag == MPD_TAG_TITLE) {
             str = basename((char *)mpd_song_get_uri(song));
-        else if (tag == MPD_TAG_ALBUM_ARTIST)
+        }
+        else if (tag == MPD_TAG_ALBUM_ARTIST) {
             str = (char *)mpd_song_get_tag(song, MPD_TAG_ARTIST, 0);
-        else
+        }
+        else {
             str = strdup("-");
+        }
     }
     return str;
 }
@@ -1648,6 +1660,7 @@ static int mpd_client_put_settings(t_mpd_state *mpd_state, char *buffer) {
     }
     struct mpd_pair *pair;
     while ((pair = mpd_recv_pair(mpd_state->conn)) != NULL) {
+        free(replaygain);
         replaygain = strdup(pair->value);
 	mpd_return_pair(mpd_state->conn, pair);
     }
@@ -1952,7 +1965,6 @@ static int mpd_client_put_queue(t_config *config, t_mpd_state *mpd_state, char *
 
 static int mpd_client_put_browse(t_config *config, t_mpd_state *mpd_state, char *buffer, const char *path, const unsigned int offset, const char *filter) {
     struct mpd_entity *entity;
-    const struct mpd_playlist *pl;
     unsigned entity_count = 0;
     unsigned entities_returned = 0;
     const char *entityName;
@@ -1967,20 +1979,19 @@ static int mpd_client_put_browse(t_config *config, t_mpd_state *mpd_state, char 
     len = json_printf(&out, "{type: browse, data: [");
 
     while ((entity = mpd_recv_entity(mpd_state->conn)) != NULL) {
-        const struct mpd_song *song;
-        const struct mpd_directory *dir;
         entity_count++;
         if (entity_count > offset && entity_count <= offset + config->max_elements_per_page) {
             switch (mpd_entity_get_type(entity)) {
-                case MPD_ENTITY_TYPE_UNKNOWN:
+                case MPD_ENTITY_TYPE_UNKNOWN: {
                     entity_count--;
                     break;
-                case MPD_ENTITY_TYPE_SONG:
-                    song = mpd_entity_get_song(entity);
+                }
+                case MPD_ENTITY_TYPE_SONG: {
+                    const struct mpd_song *song = mpd_entity_get_song(entity);
                     entityName = mpd_client_get_tag(song, MPD_TAG_TITLE);
                     if (strncmp(filter, "-", 1) == 0 || strncasecmp(filter, entityName, 1) == 0 ||
-                        (strncmp(filter, "0", 1) == 0 && isalpha(*entityName) == 0 )
-                    ) {
+                        (strncmp(filter, "0", 1) == 0 && isalpha(*entityName) == 0 )) 
+                    {
                         if (entities_returned++) 
                             len += json_printf(&out, ",");
                         len += json_printf(&out, "{Type: song, ");
@@ -1990,43 +2001,49 @@ static int mpd_client_put_browse(t_config *config, t_mpd_state *mpd_state, char 
                             PUT_MIN_SONG_TAGS();
 
                         len += json_printf(&out, "}");
-                    } else {
+                    }
+                    else {
                         entity_count--;
                     }
+                    if (strncmp(entityName, "-", 1) == 0) { free((void *) entityName); }
                     break;
-
-                case MPD_ENTITY_TYPE_DIRECTORY:
-                    dir = mpd_entity_get_directory(entity);                
+                }
+                case MPD_ENTITY_TYPE_DIRECTORY: {
+                    const struct mpd_directory *dir = mpd_entity_get_directory(entity);                
                     entityName = mpd_directory_get_path(dir);
                     char *dirName = strrchr(entityName, '/');
 
-                    if (dirName != NULL)
+                    if (dirName != NULL) {
                         dirName++;
-                    else 
-                        dirName = strdup(entityName);
+                    }
+                    else {
+                        dirName = (char *) entityName;
+                    }
 
                     if (strncmp(filter, "-", 1) == 0 || strncasecmp(filter, dirName, 1) == 0 ||
-                        (strncmp(filter, "0", 1) == 0 && isalpha(*dirName) == 0 )
-                    ) {                
+                        (strncmp(filter, "0", 1) == 0 && isalpha(*dirName) == 0 )) 
+                    {                
                         if (entities_returned++) 
                             len += json_printf(&out, ",");
                         len += json_printf(&out, "{Type: dir, uri: %Q, name: %Q}",
                             entityName,
                             dirName
                         );
-                    } else {
+                    }
+                    else {
                         entity_count--;
                     }
+                    dirName = NULL;
                     break;
-                    
-                case MPD_ENTITY_TYPE_PLAYLIST:
-                    pl = mpd_entity_get_playlist(entity);
+                }
+                case MPD_ENTITY_TYPE_PLAYLIST: {
+                    const struct mpd_playlist *pl = mpd_entity_get_playlist(entity);
                     entityName = mpd_playlist_get_path(pl);
                     char *plName = strrchr(entityName, '/');
                     if (plName != NULL) {
                         plName++;
                     } else {
-                        plName = strdup(entityName);
+                        plName = (char *) entityName;
                     }
                     if (strncmp(filter, "-", 1) == 0 || strncasecmp(filter, plName, 1) == 0 ||
                         (strncmp(filter, "0", 1) == 0 && isalpha(*plName) == 0 )) 
@@ -2054,7 +2071,9 @@ static int mpd_client_put_browse(t_config *config, t_mpd_state *mpd_state, char 
                     } else {
                         entity_count--;
                     }
+                    plName = NULL;
                     break;
+                }
             }
         }
         mpd_entity_free(entity);
@@ -2161,7 +2180,9 @@ static int mpd_client_put_songs_in_album(t_config *config, t_mpd_state *mpd_stat
                     len += json_printf(&out, ", ");
                 else {
                     mpd_client_get_cover(config, mpd_state, mpd_song_get_uri(song), cover, 500);
-                    albumartist = strdup(mpd_client_get_tag(song, MPD_TAG_ALBUM_ARTIST));
+                    char *value = mpd_client_get_tag(song, MPD_TAG_ALBUM_ARTIST);
+                    albumartist = strdup(value);
+                    if (strncmp(value, "-", 1) == 0) { free(value); }
                 }
                 len += json_printf(&out, "{Type: song, ");
                 PUT_SONG_TAGS();
@@ -2177,7 +2198,7 @@ static int mpd_client_put_songs_in_album(t_config *config, t_mpd_state *mpd_stat
             search,
             tag,
             cover,
-            (albumartist != NULL ? albumartist : "")
+            (albumartist != NULL ? albumartist : "-")
         );
     }
     if (albumartist != NULL)
@@ -2281,6 +2302,7 @@ static int mpd_client_put_playlist_list(t_config *config, t_mpd_state *mpd_state
             else {
                 entity_count--;
             }
+            if (strncmp(entityName, "-", 1) == 0) { free((void *) entityName); }
         }
         mpd_entity_free(entity);
     }

@@ -271,6 +271,7 @@ static bool handle_api(long conn_id, const char *request_body, int request_len) 
         tiny_queue_push(mympd_api_queue, request);
     else
         tiny_queue_push(mpd_client_queue, request);
-        
+
+    free(cmd);        
     return true;
 }
