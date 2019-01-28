@@ -275,13 +275,17 @@ static bool mympd_api_read_syscmds(t_config *config, t_mympd_state *mympd_state)
                 if (strncmp(ent->d_name, ".", 1) == 0)
                     continue;
                 order = strtol(ent->d_name, &cmd, 10);
-                if (strcmp(cmd, "") != 0)
-                    list_push(&mympd_state->syscmd_list, strdup(cmd), order);
+                if (strcmp(cmd, "") != 0) {
+                    list_push(&mympd_state->syscmd_list, cmd, order);
+                }
+                else {
+                    printf("ERROR: Can't read syscmd file %s\n", ent->d_name);
+                }
             }
             closedir(dir);
         }
         else {
-            printf("ERROR: Can't read syscmds");
+            printf("ERROR: Can't read syscmds\n");
         }
     }
     else {

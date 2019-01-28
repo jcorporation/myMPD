@@ -822,6 +822,7 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
                 len = mpd_client_search(config, mpd_state, buffer, p_charbuf1, p_charbuf2, p_charbuf3, uint_buf1);
                 free(p_charbuf1);
                 free(p_charbuf2);
+                free(p_charbuf3);
             }
             break;
         case MPD_API_DATABASE_SEARCH_ADV:
@@ -2656,6 +2657,7 @@ static int mpd_client_smartpls_put(t_config *config, char *buffer, const char *p
         len = json_printf(&out, "{type: error, data: %Q}}", "Unknown smart playlist type");
         printf("Unknown smart playlist type: %s\n", pl_file);
     }
+    free(content);
     return len;
 }
 
