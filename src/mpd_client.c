@@ -1185,7 +1185,11 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
             unsigned mpd_client_queue_length = tiny_queue_length(mpd_client_queue, 50);
             if (pollrc > 0 || mpd_client_queue_length > 0) {
                 LOG_DEBUG() fprintf(stderr, "DEBUG: Leaving mpd idle mode.\n");
-                mpd_send_noidle(mpd_state->conn);
+                if (!mpd_send_noidle(mpd_state->conn)) {
+                    printf("ERROR: entering idle mode failed\n");
+                    mpd_state->conn_state = MPD_FAILURE;
+                    break;
+                }
                 if (pollrc > 0) {
                     //Handle idle events
                     LOG_DEBUG() fprintf(stderr, "DEBUG: Checking for idle events.\n");
@@ -1204,7 +1208,10 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
                     }
                 }
                 LOG_DEBUG() fprintf(stderr, "DEBUG: Entering mpd idle mode.\n");
-                mpd_send_idle(mpd_state->conn);
+                if (!mpd_send_idle(mpd_state->conn)) {
+                    printf("ERROR: entering idle mode failed\n");
+                    mpd_state->conn_state = MPD_FAILURE;
+                }
             }
             break;
         default:
