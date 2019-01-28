@@ -1,9 +1,9 @@
 /* myMPD
-   (c) 2018 Juergen Mang <mail@jcgames.de>
-   This project's homepage is: https://github.com/jcorporation/ympd
+   (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+   This project's homepage is: https://github.com/jcorporation/mympd
    
    myMPD ist fork of:
-
+   
    ympd
    (c) 2013-2014 Andrew Karpow <andy@ndyk.de>
    This project's homepage is: http://www.ympd.org
@@ -22,13 +22,9 @@
    Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#ifndef __CONFIG_H__
-#define __CONFIG_H__
+#ifndef __MYMPD_API_H__
+#define __MYMPD_API_H__
 
-#define MYMPD_VERSION_MAJOR ${CPACK_PACKAGE_VERSION_MAJOR}
-#define MYMPD_VERSION_MINOR ${CPACK_PACKAGE_VERSION_MINOR}
-#define MYMPD_VERSION_PATCH ${CPACK_PACKAGE_VERSION_PATCH}
-#define MYMPD_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}"
-#define SRC_PATH "${ASSETS_PATH}"
-#cmakedefine DEBUG
+void *mympd_api_loop(void *arg_config);
+
 #endif

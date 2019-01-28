@@ -20,7 +20,7 @@ fi
 echo "Linking pics directory"
 [ -e $PWD/htdocs/pics ] || ln -s /var/lib/mympd/pics htdocs/
 
-[ -d debug ] || mkdir debug
+install -d debug
 cd debug
 cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=DEBUG ..
-make
+make VERBOSE=1

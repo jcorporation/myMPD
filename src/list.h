@@ -1,5 +1,5 @@
 /* myMPD
-   (c) 2018 Juergen Mang <mail@jcgames.de>
+   (c) 2018-2019 Juergen Mang <mail@jcgames.de>
    This project's homepage is: https://github.com/jcorporation/mympd
    
    This linked list implementation is based on: https://github.com/joshkunz/ashuffle
@@ -18,18 +18,19 @@
    Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
+#ifndef __LIST_H__
+#define __LIST_H__
+
 struct node {
     char *data;
     long value;
     struct node *next;
 };
 
-
 struct list {
     unsigned length;
     struct node *list;
 };
-
 
 int list_init(struct list *l);
 int list_push(struct list *l, const char *data, int value);
@@ -43,3 +44,4 @@ int list_shuffle(struct list *l);
 int list_sort_by_value(struct list *l, bool order);
 int list_swap_item(struct node *n1, struct node *n2);
 struct node *list_node_at(const struct list * l, unsigned index);
+#endif
