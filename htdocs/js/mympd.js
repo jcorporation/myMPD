@@ -1275,8 +1275,8 @@ function parseSettings() {
     
     if (settings.featTags == false) {
         app.apps.Browse.active = 'Filesystem';
-        app.apps.Search.state = '0/filename/';
-        app.apps.Queue.state = '0/filename/';
+        app.apps.Search.state = '0/filename/-/';
+        app.apps.Queue.state = '0/filename/-/';
         settings.colsQueueCurrent = ["Pos", "Title", "Duration"];
         settings.colsQueueLastPlayed = ["Pos", "Title", "LastPlayed"];
         settings.colsSearch = ["Title", "Duration"];
