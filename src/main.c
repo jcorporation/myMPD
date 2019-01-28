@@ -174,43 +174,43 @@ int main(int argc, char **argv) {
     srand((unsigned int)time(NULL));
     
     //mympd config defaults
-    t_config config;
-    config.mpdhost = strdup("127.0.0.1");
-    config.mpdport = 6600;
-    config.mpdpass = NULL;
-    config.webport = strdup("80");
-    config.ssl = true;
-    config.sslport = strdup("443");
-    config.sslcert = strdup("/etc/mympd/ssl/server.pem");
-    config.sslkey = strdup("/etc/mympd/ssl/server.key");
-    config.user = strdup("mympd");
-    config.streamport = 8000;
-    config.streamurl = strdup("");
-    config.coverimage = true;
-    config.coverimagename = strdup("folder.jpg");
-    config.coverimagesize = 240;
-    config.varlibdir = strdup("/var/lib/mympd");
-    config.stickers = true;
-    config.mixramp = true;
-    config.taglist = strdup("Artist,Album,AlbumArtist,Title,Track,Genre,Date,Composer,Performer");
-    config.searchtaglist = strdup("Artist,Album,AlbumArtist,Title,Genre,Composer,Performer");
-    config.browsetaglist = strdup("Artist,Album,AlbumArtist,Genre,Composer,Performer");
-    config.smartpls = true;
-    config.max_elements_per_page = 100;
-    config.last_played_count = 20;
+    t_config *config = (t_config *)malloc(sizeof(t_config));
+    config->mpdhost = strdup("127.0.0.1");
+    config->mpdport = 6600;
+    config->mpdpass = NULL;
+    config->webport = strdup("80");
+    config->ssl = true;
+    config->sslport = strdup("443");
+    config->sslcert = strdup("/etc/mympd/ssl/server.pem");
+    config->sslkey = strdup("/etc/mympd/ssl/server.key");
+    config->user = strdup("mympd");
+    config->streamport = 8000;
+    config->streamurl = strdup("");
+    config->coverimage = true;
+    config->coverimagename = strdup("folder.jpg");
+    config->coverimagesize = 240;
+    config->varlibdir = strdup("/var/lib/mympd");
+    config->stickers = true;
+    config->mixramp = true;
+    config->taglist = strdup("Artist,Album,AlbumArtist,Title,Track,Genre,Date,Composer,Performer");
+    config->searchtaglist = strdup("Artist,Album,AlbumArtist,Title,Genre,Composer,Performer");
+    config->browsetaglist = strdup("Artist,Album,AlbumArtist,Genre,Composer,Performer");
+    config->smartpls = true;
+    config->max_elements_per_page = 100;
+    config->last_played_count = 20;
     char *etcdir = strdup(argv[1]);
-    config.etcdir = strdup(dirname(etcdir));
+    config->etcdir = strdup(dirname(etcdir));
     free(etcdir);
-    config.syscmds = false;
-    config.localplayer = true;
-    config.loglevel = 1;
-    config.backgroundcolor = strdup("#888");
+    config->syscmds = false;
+    config->localplayer = true;
+    config->loglevel = 1;
+    config->backgroundcolor = strdup("#888");
     
     if (argc == 2) {
         printf("Starting myMPD %s\n", MYMPD_VERSION);
         printf("Libmpdclient %i.%i.%i\n", LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION);
         printf("Parsing config file: %s\n", argv[1]);
-        if (ini_parse(argv[1], inihandler, &config) < 0) {
+        if (ini_parse(argv[1], inihandler, config) < 0) {
             printf("Can't load config file \"%s\"\n", argv[1]);
             return EXIT_FAILURE;
         }
@@ -229,10 +229,10 @@ int main(int argc, char **argv) {
     
     #ifdef DEBUG
     printf("Debug flag enabled, setting loglevel to debug\n");
-    config.loglevel = 3;
+    config->loglevel = 3;
     #endif
-    printf("Setting loglevel to %ld\n", config.loglevel);
-    loglevel = config.loglevel;
+    printf("Setting loglevel to %ld\n", config->loglevel);
+    loglevel = config->loglevel;
 
     signal(SIGTERM, signal_handler);
     signal(SIGINT, signal_handler);
@@ -241,15 +241,15 @@ int main(int argc, char **argv) {
 
     //init webserver
     struct mg_mgr mgr;
-    if (!web_server_init(&mgr, &config)) {
+    if (!web_server_init(&mgr, config)) {
         return EXIT_FAILURE;
     }
 
     //drop privileges
-    if (config.user != NULL) {
-        printf("Droping privileges to %s\n", config.user);
+    if (config->user != NULL) {
+        printf("Droping privileges to %s\n", config->user);
         struct passwd *pw;
-        if ((pw = getpwnam(config.user)) == NULL) {
+        if ((pw = getpwnam(config->user)) == NULL) {
             printf("getpwnam() failed, unknown user\n");
             web_server_free(&mgr);
             return EXIT_FAILURE;
@@ -281,31 +281,31 @@ int main(int argc, char **argv) {
     snprintf(testdirname, 400, "%s/library", DOC_ROOT);
     if (!testdir("Link to mpd music_directory", testdirname)) {
         printf("Disabling coverimage support\n");
-        config.coverimage = false;
+        config->coverimage = false;
     }
 
-    snprintf(testdirname, 400, "%s/tmp", config.varlibdir);
+    snprintf(testdirname, 400, "%s/tmp", config->varlibdir);
     if (!testdir("Temp dir", testdirname)) 
         return EXIT_FAILURE;
 
-    snprintf(testdirname, 400, "%s/smartpls", config.varlibdir);
+    snprintf(testdirname, 400, "%s/smartpls", config->varlibdir);
     if (!testdir("Smartpls dir", testdirname)) 
         return EXIT_FAILURE;
 
-    snprintf(testdirname, 400, "%s/state", config.varlibdir);
+    snprintf(testdirname, 400, "%s/state", config->varlibdir);
     if (!testdir("State dir", testdirname)) 
         return EXIT_FAILURE;
 
     //Create working threads
     pthread_t mpd_client_thread, web_server_thread, mympd_api_thread;
     //mpd connection
-    pthread_create(&mpd_client_thread, NULL, mpd_client_loop, &config);
+    pthread_create(&mpd_client_thread, NULL, mpd_client_loop, config);
     pthread_setname_np(mpd_client_thread, "mympd_mpdclient");
     //webserver
     pthread_create(&web_server_thread, NULL, web_server_loop, &mgr);
     pthread_setname_np(web_server_thread, "mympd_webserver");
     //mympd api
-    pthread_create(&mympd_api_thread, NULL, mympd_api_loop, &config);
+    pthread_create(&mympd_api_thread, NULL, mympd_api_loop, config);
     pthread_setname_np(mympd_api_thread, "mympd_mympdapi");
 
     //Outsourced all work to separate threads, do nothing...
@@ -317,21 +317,22 @@ int main(int argc, char **argv) {
     tiny_queue_free(web_server_queue);
     tiny_queue_free(mpd_client_queue);
     tiny_queue_free(mympd_api_queue);
-    free(config.mpdhost);
-    free(config.mpdpass);
-    free(config.webport);
-    free(config.sslport);
-    free(config.sslcert);
-    free(config.sslkey);
-    free(config.user);
-    free(config.coverimagename);
-    free(config.taglist);
-    free(config.searchtaglist);
-    free(config.browsetaglist);
-    free(config.varlibdir);
-    free(config.etcdir);
-    free(config.streamurl);
-    free(config.backgroundcolor);
+    free(config->mpdhost);
+    free(config->mpdpass);
+    free(config->webport);
+    free(config->sslport);
+    free(config->sslcert);
+    free(config->sslkey);
+    free(config->user);
+    free(config->coverimagename);
+    free(config->taglist);
+    free(config->searchtaglist);
+    free(config->browsetaglist);
+    free(config->varlibdir);
+    free(config->etcdir);
+    free(config->streamurl);
+    free(config->backgroundcolor);
+    free(config);
 
     return EXIT_SUCCESS;
 }
