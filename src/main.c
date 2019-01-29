@@ -44,18 +44,18 @@
 #include "../dist/src/inih/ini.h"
 
 
-static void signal_handler(int sig_num) {
-    signal(sig_num, signal_handler);  // Reinstantiate signal handler
+static void mympd_signal_handler(int sig_num) {
+    signal(sig_num, mympd_signal_handler);  // Reinstantiate signal handler
     s_signal_received = sig_num;
     //Wakeup mympd_api_loop
     pthread_cond_signal(&mympd_api_queue->wakeup);
 }
 
-static int inihandler(void *user, const char *section, const char *name, const char* value) {
+static int mympd_inihandler(void *user, const char *section, const char *name, const char* value) {
     t_config* p_config = (t_config*)user;
     char *crap;
 
-    #define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
+    #define MATCH(s, n) strcasecmp(section, s) == 0 && strcasecmp(name, n) == 0
 
     if (MATCH("mpd", "mpdhost")) {
         free(p_config->mpdhost);
@@ -164,7 +164,7 @@ static int inihandler(void *user, const char *section, const char *name, const c
     return 1;
 }
 
-static void free_config(t_config *config) {
+static void mympd_free_config(t_config *config) {
     free(config->mpdhost);
     free(config->mpdpass);
     free(config->webport);
@@ -181,6 +181,35 @@ static void free_config(t_config *config) {
     free(config->streamurl);
     free(config->backgroundcolor);
     free(config);
+}
+
+static void mympd_parse_env(struct t_config *config, const char *envvar) {
+    char *name, *section;
+    const char *value = getenv(envvar);
+    if (value != NULL) {
+        char *var = strdup(envvar);
+        section = strtok_r(var, "_", &name);
+        if (section != NULL && name != NULL) {
+            LOG_DEBUG() printf("DEBUG: Using environment variable %s_%s: %s\n", section, name, value);
+            mympd_inihandler(config, section, name, value);
+        }
+        value = NULL;
+    }
+}
+
+static void mympd_get_env(struct t_config *config) {
+    const char* env_vars[]={"MPD_MPDHOST", "MPD_MPDPORT", "MPD_STREAMPORT",
+        "WEBSERVER_WEBPORT", "WEBSERVER_SSL", "WEBSERVER_SSLPORT", "WEBSERVER_SSLCERT", "WEBSERVER_SSLKEY",
+        "MYMPD_LOGLEVEL", "MYMPD_USER", "MYMPD_LOCALPLAYER", "MYMPD_COVERIMAGE", "MYMPD_COVERIMAGENAME", 
+        "MYMPD_COVERIMAGESIZE", "MYMPD_VARLIBDIR", "MYMPD_MIXRAMP", "MYMPD_STICKERS", "MYMPD_TAGLIST", 
+        "MYMPD_SEARCHTAGLIST", "MYMPD_BROWSETAGLIST", "MYMPD_SMARTPLS", "MYMPD_SYSCMDS", 
+        "MYMPD_MAX_ELEMENTS_PER_PAGE", "MYMPD_LAST_PLAYED_COUNT",
+        "THEME_BACKGROUNDCOLOR", 0};
+    const char** ptr = env_vars;
+    while (*ptr != 0) {
+        mympd_parse_env(config, *ptr);
+        ++ptr;
+    }
 }
 
 int main(int argc, char **argv) {
@@ -223,34 +252,49 @@ int main(int argc, char **argv) {
     config->smartpls = true;
     config->max_elements_per_page = 100;
     config->last_played_count = 20;
-    char *etcdir = strdup(argv[1]);
-    config->etcdir = strdup(dirname(etcdir));
-    free(etcdir);
+    config->etcdir = strdup("/etc/mympd");
     config->syscmds = false;
     config->localplayer = true;
     config->loglevel = 1;
     config->backgroundcolor = strdup("#888");
-    
+
+    char *configfile = strdup("/etc/mympd/mympd.conf");
     if (argc == 2) {
-        printf("Starting myMPD %s\n", MYMPD_VERSION);
-        printf("Libmpdclient %i.%i.%i\n", LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION);
-        printf("Parsing config file: %s\n", argv[1]);
-        if (ini_parse(argv[1], inihandler, config) < 0) {
-            printf("Can't load config file \"%s\"\n", argv[1]);
+        if (strncmp(argv[1], "/", 1) == 0) {
+            printf("Starting myMPD %s\n", MYMPD_VERSION);
+            printf("Libmpdclient %i.%i.%i\n", LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION);
+            free(configfile);
+            configfile = argv[1];
+            char *etcdir = strdup(configfile);
+            free(config->etcdir);
+            config->etcdir = strdup(dirname(etcdir));
+            free(etcdir);
+        }
+        else {
+            printf("myMPD  %s\n"
+                "Copyright (C) 2018-2019 Juergen Mang <mail@jcgames.de>\n"
+                "https://github.com/jcorporation/myMPD\n"
+                "Built " __DATE__ " "__TIME__"\n\n"
+                "Usage: %s [/path/to/mympd.conf]\n",
+                MYMPD_VERSION,
+                argv[0]
+            );
             goto cleanup;
         }
-    } 
-    else {
-        printf("myMPD  %s\n"
-            "Copyright (C) 2018-2019 Juergen Mang <mail@jcgames.de>\n"
-            "https://github.com/jcorporation/myMPD\n"
-            "Built " __DATE__ " "__TIME__"\n\n"
-            "Usage: %s /path/to/mympd.conf\n",
-            MYMPD_VERSION,
-            argv[0]
-        );
-        goto cleanup;
     }
+    if (access(configfile, F_OK ) != -1) {
+        printf("Parsing config file: %s\n", configfile);
+        if (ini_parse(configfile, mympd_inihandler, config) < 0) {
+            printf("Can't load config file \"%s\"\n", configfile);
+            goto cleanup;
+        }
+    }
+    else {
+        printf("No config file found, using defaults\n");
+    }
+
+    //read environment - overwrites config file definitions
+    mympd_get_env(config);
     
     #ifdef DEBUG
     printf("Debug flag enabled, setting loglevel to debug\n");
@@ -259,8 +303,9 @@ int main(int argc, char **argv) {
     printf("Setting loglevel to %ld\n", config->loglevel);
     loglevel = config->loglevel;
 
-    signal(SIGTERM, signal_handler);
-    signal(SIGINT, signal_handler);
+    //set signal handler
+    signal(SIGTERM, mympd_signal_handler);
+    signal(SIGINT, mympd_signal_handler);
     setvbuf(stdout, NULL, _IOLBF, 0);
     setvbuf(stderr, NULL, _IOLBF, 0);
 
@@ -369,6 +414,6 @@ int main(int argc, char **argv) {
     tiny_queue_free(web_server_queue);
     tiny_queue_free(mpd_client_queue);
     tiny_queue_free(mympd_api_queue);
-    free_config(config);
+    mympd_free_config(config);
     return rc;
 }
