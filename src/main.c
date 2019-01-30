@@ -368,6 +368,14 @@ int main(int argc, char **argv) {
         goto cleanup;
     }
 
+    if (config->syscmds == true) {
+        snprintf(testdirname, 400, "%s/syscmds", config->etcdir);
+        if (!testdir("Syscmds directory", testdirname)) {
+            printf("Disabling syscmd support\n");
+            config->syscmds = false;
+        }
+    }
+
     //Create working threads
     pthread_t mpd_client_thread, web_server_thread, mympd_api_thread;
     //mpd connection
