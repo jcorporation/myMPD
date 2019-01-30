@@ -73,7 +73,7 @@ Unix Build Instructions
 Run
 ---------
 ```
-Usage: ./mympd /etc/mypd/mympd.conf
+Usage: ./mympd [/etc/mympd/mympd.conf]
 ```
 The ```./mkrelease.sh``` script tries to install a systemd service file.  If this failes you can copy the ```mympd.service``` file from ```/usr/share/mympd/``` to appropriate distribution specific location. 
 
