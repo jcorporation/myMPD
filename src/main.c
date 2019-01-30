@@ -194,6 +194,7 @@ static void mympd_parse_env(struct t_config *config, const char *envvar) {
             mympd_inihandler(config, section, name, value);
         }
         value = NULL;
+        free(var);
     }
 }
 
@@ -319,21 +320,23 @@ int main(int argc, char **argv) {
     }
 
     //drop privileges
-    if (config->user != NULL) {
-        printf("Droping privileges to %s\n", config->user);
-        struct passwd *pw;
-        if ((pw = getpwnam(config->user)) == NULL) {
-            printf("ERROR: getpwnam() failed, unknown user\n");
-            goto cleanup;
-        } else if (setgroups(0, NULL) != 0) { 
-            printf("ERROR: setgroups() failed\n");
-            goto cleanup;
-        } else if (setgid(pw->pw_gid) != 0) {
-            printf("ERROR: setgid() failed\n");
-            goto cleanup;
-        } else if (setuid(pw->pw_uid) != 0) {
-            printf("ERROR: setuid() failed\n");
-            goto cleanup;
+    if (getuid() == 0) {
+        if (config->user != NULL || strlen(config->user) != 0) {
+            printf("Droping privileges to %s\n", config->user);
+            struct passwd *pw;
+            if ((pw = getpwnam(config->user)) == NULL) {
+                printf("ERROR: getpwnam() failed, unknown user\n");
+                goto cleanup;
+            } else if (setgroups(0, NULL) != 0) { 
+                printf("ERROR: setgroups() failed\n");
+                goto cleanup;
+            } else if (setgid(pw->pw_gid) != 0) {
+                printf("ERROR: setgid() failed\n");
+                goto cleanup;
+            } else if (setuid(pw->pw_uid) != 0) {
+                printf("ERROR: setuid() failed\n");
+                goto cleanup;
+            }
         }
     }
     
@@ -423,5 +426,6 @@ int main(int argc, char **argv) {
     tiny_queue_free(mpd_client_queue);
     tiny_queue_free(mympd_api_queue);
     mympd_free_config(config);
+    free(configfile);
     return rc;
 }
