@@ -24,11 +24,10 @@ WORKDIR /
 RUN tar -czvf /mympd.tar.gz -C /myMPD-dist .
 
 FROM library/debian:9-slim
-ENV MYMPD_COVERIMAGENAME=folder.jpg
-ENV MYMPD_MPDHOST=127.0.0.1
-ENV MYMPD_MPDPORT=6600
-ENV MYMPD_SSL=true
 ENV MYMPD_LOGLEVEL=1
+ENV MPD_MPDHOST=127.0.0.1
+ENV MPD_MPDPORT=6600
+ENV WEBSERVER_SSL=true
 RUN apt-get update && apt-get install libssl-dev openssl -y
 COPY --from=build /libmpdclient-master.tar.gz /
 COPY --from=build /mympd.tar.gz /

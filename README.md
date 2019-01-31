@@ -3,8 +3,8 @@ myMPD
 
 myMPD is a lightweight MPD web client that runs without a dedicated webserver or interpreter. 
 It's tuned for minimal resource usage and requires only very litte dependencies.
-myMPD is a fork of ympd (https://github.com/notandy/ympd).
 
+myMPD is a fork of ympd (https://github.com/notandy/ympd).
 This fork provides a reworked ui based on Bootstrap 4, a modernized backend and many new features while having the same small footprint as ympd.
 
 **Design principles:**
@@ -30,6 +30,7 @@ This fork provides a reworked ui based on Bootstrap 4, a modernized backend and 
  - Local playback of mpd http stream (html5 audio api)
  - Progressiv Web App enabled
  - Embedded Webserver (mongoose)
+ - Docker support
 
 myMPD is work in progress. Bugreportes and feature requests are very welcome.
  - https://github.com/jcorporation/myMPD/issues
