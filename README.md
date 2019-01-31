@@ -3,8 +3,8 @@ myMPD
 
 myMPD is a lightweight MPD web client that runs without a dedicated webserver or interpreter. 
 It's tuned for minimal resource usage and requires only very litte dependencies.
-myMPD is a fork of ympd (https://github.com/notandy/ympd).
 
+myMPD is a fork of ympd (https://github.com/notandy/ympd).
 This fork provides a reworked ui based on Bootstrap 4, a modernized backend and many new features while having the same small footprint as ympd.
 
 **Design principles:**
@@ -22,6 +22,7 @@ This fork provides a reworked ui based on Bootstrap 4, a modernized backend and 
  - Playlist management
  - Advanced search (requires mpd >= 0.21.x and libmpdclient >= 2.17)
  - Jukebox mode (add's random songs / albums from database or playlists to queue)
+ - AutoPlay - add song to (empty) queue and mpd starts playing
  - Smart playlists and saved searches
  - Play statistics and song voting (requires mpd stickers)
  - Local coverart support (Albums and Streams)
@@ -29,6 +30,7 @@ This fork provides a reworked ui based on Bootstrap 4, a modernized backend and 
  - Local playback of mpd http stream (html5 audio api)
  - Progressiv Web App enabled
  - Embedded Webserver (mongoose)
+ - Docker support
 
 myMPD is work in progress. Bugreportes and feature requests are very welcome.
  - https://github.com/jcorporation/myMPD/issues
@@ -72,7 +74,7 @@ Unix Build Instructions
 Run
 ---------
 ```
-Usage: ./mympd /etc/mypd/mympd.conf
+Usage: ./mympd [/etc/mympd/mympd.conf]
 ```
 The ```./mkrelease.sh``` script tries to install a systemd service file.  If this failes you can copy the ```mympd.service``` file from ```/usr/share/mympd/``` to appropriate distribution specific location. 
 
@@ -86,6 +88,6 @@ SSL
 
 Copyright
 ---------
-myMPD: 2018 - 2019 <mail@jcgames.de>
 
+myMPD: 2018-2019 <mail@jcgames.de>
 ympd: 2013-2014 <andy@ndyk.de>

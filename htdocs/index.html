@@ -16,7 +16,7 @@
   <link rel="apple-touch-icon" href="/assets/appicon-167.png">
 </head>
 <body>
-  <header>
+  <header class="hide">
     <nav class="navbar navbar-expand navbar-dark fixed-top bg-dark">
         <div class="dropdown col-auto mr-auto pl-0">
           <a class="dropdown-toggle navbar-brand" href="#" id="mainMenu">
@@ -74,7 +74,7 @@
         </div>
     </nav>
   </header>
-  <main class="container">
+  <main class="container hide">
     <noscript>
       <div class="alert alert-danger">JavaScript is disabled!</div>
     </noscript>
@@ -567,10 +567,10 @@
             </div>          
           </div>
         </div>
-        <ol class="FeatAdvsearch breadcrumb" id="searchCrumb"></ol>
+        <ol class="featAdvsearch breadcrumb" id="searchCrumb"></ol>
 
         <div class="table-responsive-md">
-          <table id="SearchList" class="table table-hover table-sm" data-sort="">
+          <table id="SearchList" class="table table-hover table-sm">
             <thead>
               <tr>
                 <th></th>
@@ -607,7 +607,7 @@
     </div>    
   </main>    
   
-  <footer class="footer">
+  <footer class="footer hide">
     <nav class="navbar navbar-expand navbar-dark fixed-bottom bg-dark">
       <div class="d-flex flex-fill navbar-nav" id="navbar-bottom">
         <div id="navPlayback" class="nav-item flex-fill text-center"><a data-href='{"cmd": "appGoto", "options": ["Playback"]}' class="nav-link" href="#">Playback</a></div>
@@ -619,6 +619,23 @@
   </footer>
 
   <!-- Modals -->
+  <div class="modal" id="modalAppInit" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-success text-light">
+          <h5 class="modal-title"><span class="material-icons title-icon">play_circle_outline</span> Initializing myMPD</h5>
+        </div>
+        <div class="modal-body">
+          <p>Please wait, myMPD is initializing...</p>
+          <p><span id="appInitSettings" class="material-icons unvisible">check</span> Fetch settings</p>
+          <p><span id="appInitWebsocket" class="material-icons unvisible">check</span> Connect to websocket</p>
+          <p><span id="appInitApply" class="material-icons unvisible">check</span> Applying settings</p>
+        </div>
+      </div>
+      </div>
+  </div>  
+  
+  
   <div class="modal fade" id="modalConnectionError" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -885,6 +902,13 @@
               <input id="inputMixrampdelay" type="text" class="form-control border-secondary" value="">
               <div class="invalid-feedback">Must be a number.</div>
             </div>            
+          </div>
+          <div class="row">
+            <div class="form-group col-md-6" data-toggle="buttons">          
+              <button data-href='{"cmd": "toggleBtn", "options": ["btnAutoPlay"]}' id="btnAutoPlay" type="button" class="btn btn-secondary btn-block" title="Start playing after first song is added to the queue">
+                AutoPlay
+              </button>
+            </div>
           </div>
           <hr/>
           <h4>Jukebox</h4>

@@ -1,0 +1,29 @@
+version: '3'
+
+services:
+  mympd:
+    container_name: mympd
+#    environment:
+#      MPD_MPDHOST: 192.168.1.1
+#      MPD_MPDPORT: 6600
+#      WEBSERVER_SSL: true
+#      MYMPD_LOGLEVEL: 2
+#    image: mympd:latest
+    build: $MYMPD_BUILD_PATH    
+    networks:
+      - mympd
+    ports:
+      - "40000:80"
+      - "40001:443"
+    restart: always
+    volumes:
+      - /path/to/music/:/usr/share/mympd/htdocs/library/:ro
+      - mympd:/etc/mympd/
+
+networks:
+
+  mympd:
+
+volumes:
+
+  mympd:

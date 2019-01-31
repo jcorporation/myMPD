@@ -1,0 +1,197 @@
+/* myMPD
+   (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+   This project's homepage is: https://github.com/jcorporation/mympd
+   
+   myMPD ist fork of:
+   
+   ympd
+   (c) 2013-2014 Andrew Karpow <andy@ndyk.de>
+   This project's homepage is: http://www.ympd.org
+   
+   This program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; version 2 of the License.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License along
+   with this program; if not, write to the Free Software Foundation, Inc.,
+   Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+*/
+
+#ifndef __GLOBAL_H__
+#define __GLOBAL_H__
+
+#include <signal.h>
+
+//architecture
+#cmakedefine PKGARCH64
+
+//myMPD version from cmake
+#define MYMPD_VERSION_MAJOR ${CPACK_PACKAGE_VERSION_MAJOR}
+#define MYMPD_VERSION_MINOR ${CPACK_PACKAGE_VERSION_MINOR}
+#define MYMPD_VERSION_PATCH ${CPACK_PACKAGE_VERSION_PATCH}
+#define MYMPD_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}"
+
+//Webserver document root
+#define DOC_ROOT "${ASSETS_PATH}"
+
+//Max size of mpd_client response buffer
+#define MAX_SIZE 2048 * 400
+#define MAX_ELEMENTS_PER_PAGE 400
+
+//central logging definition
+#cmakedefine DEBUG
+#define LOG_INFO() if (loglevel >= 1) 
+#define LOG_VERBOSE() if (loglevel >= 2) 
+#define LOG_DEBUG() if (loglevel == 3) 
+
+//check and return buffer size
+#define CHECK_RETURN_LEN() do { \
+    if (len > MAX_SIZE) \
+        printf("ERROR: Buffer truncated %d / %d\n", (int)len, MAX_SIZE); \
+    return len; \
+} while (0)
+
+//API cmds
+#define MYMPD_CMDS(X) \
+    X(MPD_API_UNKNOWN) \
+    X(MPD_API_QUEUE_CLEAR) \
+    X(MPD_API_QUEUE_CROP) \
+    X(MPD_API_QUEUE_SAVE) \
+    X(MPD_API_QUEUE_LIST) \
+    X(MPD_API_QUEUE_SEARCH) \
+    X(MPD_API_QUEUE_RM_TRACK) \
+    X(MPD_API_QUEUE_RM_RANGE) \
+    X(MPD_API_QUEUE_MOVE_TRACK) \
+    X(MPD_API_QUEUE_ADD_TRACK_AFTER) \
+    X(MPD_API_QUEUE_ADD_TRACK) \
+    X(MPD_API_QUEUE_ADD_PLAY_TRACK) \
+    X(MPD_API_QUEUE_REPLACE_TRACK) \
+    X(MPD_API_QUEUE_ADD_PLAYLIST) \
+    X(MPD_API_QUEUE_REPLACE_PLAYLIST) \
+    X(MPD_API_QUEUE_SHUFFLE) \
+    X(MPD_API_QUEUE_LAST_PLAYED) \
+    X(MPD_API_PLAYLIST_CLEAR) \
+    X(MPD_API_PLAYLIST_RENAME) \
+    X(MPD_API_PLAYLIST_MOVE_TRACK) \
+    X(MPD_API_PLAYLIST_ADD_TRACK) \
+    X(MPD_API_PLAYLIST_RM_TRACK) \
+    X(MPD_API_PLAYLIST_RM) \
+    X(MPD_API_PLAYLIST_LIST) \
+    X(MPD_API_PLAYLIST_CONTENT_LIST) \
+    X(MPD_API_SMARTPLS_UPDATE_ALL) \
+    X(MPD_API_SMARTPLS_SAVE) \
+    X(MPD_API_SMARTPLS_GET) \
+    X(MPD_API_DATABASE_SEARCH_ADV) \
+    X(MPD_API_DATABASE_SEARCH) \
+    X(MPD_API_DATABASE_UPDATE) \
+    X(MPD_API_DATABASE_RESCAN) \
+    X(MPD_API_DATABASE_FILESYSTEM_LIST) \
+    X(MPD_API_DATABASE_TAG_LIST) \
+    X(MPD_API_DATABASE_TAG_ALBUM_LIST) \
+    X(MPD_API_DATABASE_TAG_ALBUM_TITLE_LIST) \
+    X(MPD_API_DATABASE_STATS) \
+    X(MPD_API_DATABASE_SONGDETAILS) \
+    X(MPD_API_PLAYER_PLAY_TRACK) \
+    X(MPD_API_PLAYER_VOLUME_SET) \
+    X(MPD_API_PLAYER_VOLUME_GET) \
+    X(MPD_API_PLAYER_PAUSE) \
+    X(MPD_API_PLAYER_PLAY) \
+    X(MPD_API_PLAYER_STOP) \
+    X(MPD_API_PLAYER_SEEK) \
+    X(MPD_API_PLAYER_NEXT) \
+    X(MPD_API_PLAYER_PREV) \
+    X(MPD_API_PLAYER_OUTPUT_LIST) \
+    X(MPD_API_PLAYER_TOGGLE_OUTPUT) \
+    X(MPD_API_PLAYER_CURRENT_SONG) \
+    X(MPD_API_PLAYER_STATE) \
+    X(MPD_API_SETTINGS_GET) \
+    X(MPD_API_LIKE) \
+    X(MYMPD_API_COLS_SAVE) \
+    X(MYMPD_API_SYSCMD) \
+    X(MYMPD_API_SETTINGS_GET) \
+    X(MYMPD_API_SETTINGS_SET) \
+
+#define GEN_ENUM(X) X,
+#define GEN_STR(X) #X,
+
+//Global variables
+
+int loglevel;
+
+//signal handler
+sig_atomic_t s_signal_received;
+
+enum mympd_cmd_ids {
+    MYMPD_CMDS(GEN_ENUM)
+};
+
+
+enum jukebox_modes {
+    JUKEBOX_OFF,
+    JUKEBOX_ADD_SONG,
+    JUKEBOX_ADD_ALBUM,
+};
+
+//message queue
+tiny_queue_t *web_server_queue;
+tiny_queue_t *mpd_client_queue;
+tiny_queue_t *mympd_api_queue;
+
+typedef struct t_work_request {
+    long conn_id;  // needed to identify the connection where to send the reply
+    char data[1000];
+    int length;
+    enum mympd_cmd_ids cmd_id;
+} t_work_request;
+
+typedef struct t_work_result {
+    long conn_id;  // needed to identify the connection where to send the reply
+    char data[MAX_SIZE];
+    int length;
+} t_work_result;
+
+//myMPD configuration
+typedef struct t_config {
+    long mpdport;
+    char *mpdhost;
+    char *mpdpass;
+    char *webport;
+    bool ssl;
+    char *sslport;
+    char *sslcert;
+    char *sslkey;
+    char *user;
+    bool coverimage;
+    char *coverimagename;
+    long coverimagesize;
+    bool stickers;
+    bool mixramp;
+    char *taglist;
+    char *searchtaglist;
+    char *browsetaglist;
+    bool smartpls;
+    char *varlibdir;
+    char *etcdir;
+    unsigned long max_elements_per_page;
+    bool syscmds;
+    bool localplayer;
+    long streamport;
+    char *streamurl;
+    unsigned long last_played_count;
+    long loglevel;
+    char *backgroundcolor;
+} t_config;
+
+//global functions
+bool testdir(const char *name, const char *dirname);
+int randrange(int n);
+bool validate_string(const char *data);
+int copy_string(char * const dest, char const * const src, size_t const dst_len, size_t const src_len);
+int replacechar(char *str, const char orig, const char rep);
+enum mympd_cmd_ids get_cmd_id(const char *cmd);
+#endif

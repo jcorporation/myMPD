@@ -1,5 +1,6 @@
 :root {
     --mympd-coverimagesize: 240px;
+    --mympd-backgroundcolor: #888;
 }
 
 html {
@@ -8,13 +9,13 @@ html {
 }
 
 body {
-  padding-top: 50px;
-  padding-bottom: 50px;
-  background-color: #888;
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+  background-color: var(--mympd-backgroundcolor, #888);
 }
 
 main {
-  padding-top: 10px;
+  padding-top: 1rem;
 }
 
 footer {
@@ -51,7 +52,7 @@ button {
 }
 
 [data-col=Pos], [data-col=Type], [data-col=Track], [data-col=Action] {
-  width: 30px;
+  width: 2rem;
 }
 
 small {
@@ -72,9 +73,9 @@ small {
   border: 1px solid black;
   border-radius: 5px;
   overflow: hidden;
-  width: var(--mympd-coverimagesize);
+  width: var(--mympd-coverimagesize, 250px);
   max-width:100%;
-  height: var(--mympd-coverimagesize);
+  height: var(--mympd-coverimagesize, 250px);
   background-color: #eee;
   float: left;
   margin-right: 1.25rem;
@@ -89,6 +90,10 @@ small {
 
 .hide {
   display: none !important;
+}
+
+.unvisible {
+  visibility: hidden;
 }
 
 .pull-right {
@@ -116,7 +121,7 @@ small {
   font-family: 'Material Icons';
   font-weight: normal;
   font-style: normal;
-  font-size: 18px;  /* Preferred icon size */
+  font-size: 1.4rem;  /* Preferred icon size */
   display:inline-block;
   line-height: 1;
   text-transform: none;
@@ -142,7 +147,7 @@ small {
 }
 
 .material-icons-small {
-  font-size: 16px;
+  font-size: 1rem;
 }
 
 .material-icons-small-left {
@@ -167,7 +172,7 @@ small {
 }
 
 .progressBarPlay {
-  font-size: 22px;
+  font-size: 1.8rem;
 }
 
 #counter {
@@ -230,8 +235,8 @@ button.active-fg-red {
 
 div#alertBox {
   position:fixed;
-  top: 50px; 
-  right:10px;
+  top: 4rem; 
+  right:1rem;
   width:80%; 
   max-width:400px;
   z-index:1000;
@@ -327,7 +332,7 @@ div.key {
   background-color: #eee;
   border-radius: 2px;
   width: 20px;
-  heigth: 20px;
+  height: 20px;
   text-align: center;
 }
 

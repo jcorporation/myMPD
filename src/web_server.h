@@ -1,5 +1,5 @@
 /* myMPD
-   (c) 2018 Juergen Mang <mail@jcgames.de>
+   (c) 2018-2019 Juergen Mang <mail@jcgames.de>
    This project's homepage is: https://github.com/jcorporation/mympd
    
    myMPD ist fork of:
@@ -22,34 +22,11 @@
    Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#include <stdlib.h>
-#include <string.h>
-#include <limits.h>
-#include <stdio.h>
-#include "validate.h"
+#ifndef __WEB_SERVER_H__
+#define __WEB_SERVER_H__
 
-void sanitize_string(const char *data) {
-    static char ok_chars[] = "abcdefghijklmnopqrstuvwxyz"
-                             "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                             "1234567890_-. ";
-    char *cp = data;
-    const char *end = data + strlen(data);
-    for (cp += strspn(cp, ok_chars); cp != end; cp += strspn(cp, ok_chars))
-        *cp = '_';
-}
+void *web_server_loop(void *arg_mgr);
+bool web_server_init(void *arg_mgr, t_config *config);
+void web_server_free(void *arg_mgr);
 
-int validate_path(char *path, const char *basepath) {
-    char *rpath = NULL;
-    char *ptr;
-    ptr = realpath(path, rpath);
-    if (ptr == NULL)
-        return 1;
-    if (strncmp(basepath, ptr, strlen(basepath)) == 0) {
-        free(rpath);
-        return 0;
-    }
-    else {
-        free(rpath);
-        return 1;
-    }
-}
+#endif

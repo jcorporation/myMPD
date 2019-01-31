@@ -40,7 +40,6 @@ var time_end = 0;
 var time_all = 0;
 
 var cmds = [
-    '{"cmd":"MPD_API_WELCOME"}',
     '{"cmd":"MPD_API_QUEUE_CLEAR"}',
     '{"cmd":"MPD_API_DATABASE_SEARCH","data":{"offset":0,"filter":"any","searchstr":"__SEARCHSTR__","plist":""}}',
     '{"cmd":"MPD_API_QUEUE_ADD_TRACK","data":{"uri":"__URI1__"}}',
@@ -64,10 +63,10 @@ var cmds = [
     '{"cmd":"MPD_API_PLAYLIST_LIST","data":{"offset":0,"filter":""}}',
     '{"cmd":"MPD_API_PLAYLIST_CLEAR","data":{"uri":"test2"}}',
     '{"cmd":"MPD_API_DATABASE_SEARCH","data":{"offset":0,"filter":"any","searchstr":"__SEARCHSTR__","plist":"test2"}}',
-    '{"cmd":"MPD_API_QUEUE_CROP"}',
     '{"cmd":"MPD_API_QUEUE_ADD_TRACK","data":{"uri":"__URI1__"}}',
     '{"cmd":"MPD_API_QUEUE_ADD_TRACK","data":{"uri":"__URI2__"}}',
     '{"cmd":"MPD_API_PLAYER_PLAY"}',
+    '{"cmd":"MPD_API_QUEUE_CROP"}',
     '{"cmd":"MPD_API_QUEUE_LAST_PLAYED","data":{"offset":0}}',
     '{"cmd":"MPD_API_PLAYLIST_ADD_TRACK","data":{"plist":"test2","uri":"__URI1__"}}',
     '{"cmd":"MPD_API_PLAYLIST_ADD_TRACK","data":{"plist":"test2","uri":"__URI1__"}}',
@@ -93,11 +92,12 @@ var cmds = [
     '{"cmd":"MPD_API_PLAYER_OUTPUT_LIST"}',
     '{"cmd":"MPD_API_PLAYER_TOGGLE_OUTPUT","data":{"output":"__OUTPUTID__","state":1}}',
     '{"cmd":"MPD_API_PLAYER_STATE"}',
+    '{"cmd":"MYMPD_API_SETTINGS_GET"}',
     '{"cmd":"MPD_API_SETTINGS_GET"}',
-    '{"cmd":"MPD_API_SETTINGS_SET","data":{"random": 0}}',
+    '{"cmd":"MYMPD_API_SETTINGS_SET","data":{"random": 0}}',
     '{"cmd":"MPD_API_LIKE","data":{"uri":"__URI2__","like":2}}',
-    '{"cmd":"MPD_API_SYSCMD","data":{"cmd": "Echo"}}',
-    '{"cmd":"MPD_API_COLS_SAVE","data":{"table":"colsPlayback","cols":["Artist","Album","AlbumArtist"]}}',
+    '{"cmd":"MYMPD_API_SYSCMD","data":{"cmd": "Echo"}}',
+    '{"cmd":"MYMPD_API_COLS_SAVE","data":{"table":"colsPlayback","cols":["Artist","Album","AlbumArtist"]}}',
     '{"cmd":"MPD_API_SMARTPLS_UPDATE_ALL"}',
     '{"cmd":"MPD_API_SMARTPLS_SAVE","data":{"type":"newest","playlist":"myMPDsmart-newestSongs","timerange":2678400}}',
     '{"cmd":"MPD_API_SMARTPLS_GET","data":{"playlist":"myMPDsmart-newestSongs"}}'

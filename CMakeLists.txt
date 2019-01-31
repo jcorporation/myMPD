@@ -2,9 +2,9 @@ cmake_minimum_required(VERSION 2.6)
 
 project (mympd C)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/")
-set(CPACK_PACKAGE_VERSION_MAJOR "4")
-set(CPACK_PACKAGE_VERSION_MINOR "7")
-set(CPACK_PACKAGE_VERSION_PATCH "2")
+set(CPACK_PACKAGE_VERSION_MAJOR "5")
+set(CPACK_PACKAGE_VERSION_MINOR "0")
+set(CPACK_PACKAGE_VERSION_PATCH "0")
 
 if(CMAKE_BUILD_TYPE MATCHES RELEASE)
     set(ASSETS_PATH "/usr/share/${PROJECT_NAME}/htdocs")
@@ -14,32 +14,60 @@ else()
     set(DEBUG "ON")
 endif()
 
-find_package(LibMPDClient REQUIRED)
+if("${CMAKE_SIZEOF_VOID_P}" EQUAL "8")
+    MESSAGE("++ 64 bit architecture") 
+    set(PKGARCH64 "ON") 
+else() 
+    MESSAGE("++ 32 bit architecture") 
+    set(PKGARCH64 "OFF") 
+endif()
 
-configure_file(src/config.h.in ${PROJECT_BINARY_DIR}/config.h)
-include_directories(${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}	${LIBMPDCLIENT_INCLUDE_DIR})
+find_package(LibMPDClient REQUIRED)
+find_package(Threads REQUIRED)
+find_package(OpenSSL REQUIRED)
+
+configure_file(src/global.h.in ${PROJECT_BINARY_DIR}/global.h)
+include_directories(${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}	${LIBMPDCLIENT_INCLUDE_DIR} ${OPENSSL_INCLUDE_DIR})
 
 include(CheckCSourceCompiles)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -Wall -Wextra -pedantic -D MG_ENABLE_SSL -D MG_ENABLE_IPV6 -D MG_DISABLE_MQTT -D MG_DISABLE_MQTT_BROKER -D MG_DISABLE_DNS_SERVER -D MG_DISABLE_COAP -D MG_DISABLE_HTTP_CGI -D MG_DISABLE_HTTP_SSI -D MG_DISABLE_HTTP_WEBDAV")
-set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -ggdb -D_FORTIFY_SOURCE=2 -fstack-protector -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined -fsanitize=shift -fsanitize=integer-divide-by-zero -fsanitize=unreachable -fsanitize=vla-bound -fsanitize=null -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=bounds -fsanitize=bounds-strict -fsanitize=alignment -fsanitize=object-size -fsanitize=float-divide-by-zero -fsanitize=float-cast-overflow -fsanitize=nonnull-attribute -fsanitize=returns-nonnull-attribute -fsanitize=bool -fsanitize=enum -fsanitize=vptr -static-libasan")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -O1 -Wall -fstack-protector -D_FORTIFY_SOURCE=2 -pie -fPIE -DMG_ENABLE_SSL")
 
-find_package(OpenSSL REQUIRED)
-include_directories(${OPENSSL_INCLUDE_DIR})
-set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS NS_ENABLE_SSL)
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -ggdb -fsanitize=address \
+	-fsanitize=undefined -fsanitize=shift -fsanitize=integer-divide-by-zero -fsanitize=unreachable -fsanitize=vla-bound \
+	-fsanitize=null -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=bounds -fsanitize=bounds-strict \
+	-fsanitize=alignment -fsanitize=object-size -fsanitize=float-divide-by-zero -fsanitize=float-cast-overflow \
+	-fsanitize=nonnull-attribute -fsanitize=returns-nonnull-attribute -fsanitize=bool -fsanitize=enum -fsanitize=vptr -static-libasan")
+
+#for use with valgrind, disable above 2 set commands and enable the following set commands
+#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -Wall -DMG_ENABLE_SSL")
+#set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -ggdb")
+
+#compiler flags for mympd src
+file(GLOB MYMPD_SRC_FILES "src/*.c")
+set_property(SOURCE ${MYMPD_SRC_FILES} PROPERTY COMPILE_FLAGS "-Wextra -pedantic -Wformat=2 -Wno-unused-parameter -Wshadow -Wwrite-strings -Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs -Wmissing-include-dirs")
+
+#compiler flags for mongoose.c
+set_property(SOURCE dist/src/mongoose/mongoose.c PROPERTY COMPILE_FLAGS "-Wno-format-truncation")
+
+set (CMAKE_EXE_LINKER_FLAGS "-Wl,-z,relro -Wl,-z,now")
+
 
 set(SOURCES
-    src/mympd.c
+    src/main.c
+    src/global.c
     src/mpd_client.c
+    src/web_server.c
+    src/mympd_api.c
     src/list.c
-    src/validate.c
+    src/tiny_queue.c
     dist/src/mongoose/mongoose.c
     dist/src/frozen/frozen.c
     dist/src/inih/ini.c
 )
 
 add_executable(mympd ${SOURCES})
-target_link_libraries(mympd ${LIBMPDCLIENT_LIBRARY} ${OPENSSL_LIBRARIES})
+target_link_libraries(mympd ${LIBMPDCLIENT_LIBRARY} ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 
 install(TARGETS mympd DESTINATION bin)
 install(FILES contrib/mympd.1 DESTINATION share/man/man1)
