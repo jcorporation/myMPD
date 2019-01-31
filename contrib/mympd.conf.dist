@@ -68,7 +68,7 @@ smartpls = true
 syscmds = false
 
 #Elements per page for pagination, max: 400
-maxelementsperpage = 100
+pagination = 100
 
 #Number of songs to keep in last played list
 lastplayedcount = 20
