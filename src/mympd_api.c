@@ -86,7 +86,7 @@ void *mympd_api_loop(void *arg_config) {
 
     //push jukebox settings to mpd_client queue
     t_work_request *mpd_client_request = (t_work_request *)malloc(sizeof(t_work_request));
-    mpd_client_request->conn_id = 0;
+    mpd_client_request->conn_id = -1;
     mpd_client_request->cmd_id = MYMPD_API_SETTINGS_SET;
     mpd_client_request->length = snprintf(mpd_client_request->data, 1000, 
         "{\"cmd\":\"MYMPD_API_SETTINGS_SET\", \"data\":{\"jukeboxMode\": %d, \"jukeboxPlaylist\": \"%s\", \"jukeboxQueueLength\": %d}}",
@@ -124,24 +124,28 @@ void *mympd_api_loop(void *arg_config) {
 
 //private functions
 static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_request *request) {
-    //t_work_request *request = (t_work_request *) arg_request;
-    size_t len = 0;
-    char buffer[MAX_SIZE];
+//    size_t len = 0;
+//    char buffer[MAX_SIZE];
     int je;
     char *p_charbuf1;
     char p_char[4];
     LOG_VERBOSE() printf("MYMPD API request: %.*s\n", request->length, request->data);
     
+    //create response struct
+    t_work_result *response = (t_work_result *)malloc(sizeof(t_work_result));
+    response->conn_id = request->conn_id;
+    response->length = 0;
+    
     if (request->cmd_id == MYMPD_API_SYSCMD) {
         if (config->syscmds == true) {
             je = json_scanf(request->data, request->length, "{data: {cmd: %Q}}", &p_charbuf1);
             if (je == 1) {
-                len = mympd_api_syscmd(config, mympd_state, buffer, p_charbuf1);
+                response->length = mympd_api_syscmd(config, mympd_state, response->data, p_charbuf1);
                 free(p_charbuf1);
             }
         } 
         else {
-            len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"System commands are disabled.\"}");
+            response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"System commands are disabled.\"}");
         }
     }
     else if (request->cmd_id == MYMPD_API_COLS_SAVE) {
@@ -182,12 +186,12 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                 mympd_state->colsQueueLastPlayed = strdup(cols);
             }
             else {
-                len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Unknown table %s\"}", p_charbuf1);
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Unknown table %s\"}", p_charbuf1);
                 printf("MYMPD_API_COLS_SAVE: Unknown table %s\n", p_charbuf1);
             }
-            if (len == 0) {
+            if (response->length == 0) {
                 if (state_file_write(config, p_charbuf1, cols))
-                    len = snprintf(buffer, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+                    response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
             free(p_charbuf1);
         }
@@ -196,23 +200,23 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
         je = json_scanf(request->data, request->length, "{data: {notificationWeb: %B}}", &mympd_state->notificationWeb);
         if (je == 1) {
             if (!state_file_write(config, "notificationWeb", (mympd_state->notificationWeb == true ? "true" : "false")))
-                len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state notificationWeb.\"}");
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state notificationWeb.\"}");
         }    
         je = json_scanf(request->data, request->length, "{data: {notificationPage: %B}}", &mympd_state->notificationPage);
         if (je == 1) {
             if (!state_file_write(config, "notificationPage", (mympd_state->notificationPage == true ? "true" : "false")))
-                len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state notificationPage.\"}");
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state notificationPage.\"}");
         }
         je = json_scanf(request->data, request->length, "{data: {autoPlay: %B}}", &mympd_state->autoPlay);
         if (je == 1) {
             if (!state_file_write(config, "autoPlay", (mympd_state->autoPlay == true ? "true" : "false")))
-                len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state autoPlay.\"}");
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state autoPlay.\"}");
         }
         je = json_scanf(request->data, request->length, "{data: {jukeboxMode: %d}}", &mympd_state->jukeboxMode);
         if (je == 1) {
             snprintf(p_char, 4, "%d", mympd_state->jukeboxMode);
             if (!state_file_write(config, "jukeboxMode", p_char))
-                len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state jukeboxMode.\"}");
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state jukeboxMode.\"}");
         }
         je = json_scanf(request->data, request->length, "{data: {jukeboxPlaylist: %Q}}", &p_charbuf1);
         if (je == 1) {
@@ -220,43 +224,39 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             mympd_state->jukeboxPlaylist = p_charbuf1;
             p_charbuf1 = NULL;
             if (!state_file_write(config, "jukeboxPlaylist", mympd_state->jukeboxPlaylist))
-                len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state jukeboxPlaylist.\"}");
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state jukeboxPlaylist.\"}");
         }
         je = json_scanf(request->data, request->length, "{data: {jukeboxQueueLength: %d}}", &mympd_state->jukeboxQueueLength);
         if (je == 1) {
            snprintf(p_char, 4, "%d", mympd_state->jukeboxQueueLength);
            if (!state_file_write(config, "jukeboxQueueLength", p_char))
-               len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state jukeboxQueueLength.\"}");
+               response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state jukeboxQueueLength.\"}");
         }
-        if (len == 0) {
-            len = snprintf(buffer, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+        if (response->length == 0) {
+            response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
         }
         //push settings to mpd_client queue
         t_work_request *mpd_client_request = (t_work_request *)malloc(sizeof(t_work_request));
-        mpd_client_request->conn_id = request->conn_id;
+        mpd_client_request->conn_id = -1;
         mpd_client_request->cmd_id = request->cmd_id;
         mpd_client_request->length = copy_string(mpd_client_request->data, request->data, 1000, request->length);
         tiny_queue_push(mpd_client_queue, mpd_client_request);
     }
     else if (request->cmd_id == MYMPD_API_SETTINGS_GET) {
-        len = mympd_api_put_settings(config, mympd_state, buffer);
+        response->length = mympd_api_put_settings(config, mympd_state, response->data);
     }
     else {
-        len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Unknown cmd_id %u.\"}", request->cmd_id);
+        response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Unknown cmd_id %u.\"}", request->cmd_id);
         printf("ERROR: Unknown cmd_id %u\n", request->cmd_id);    
     }
 
-    if (len == 0) {
-        len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"No response for cmd_id %u.\"}", request->cmd_id);
+    if (response->length == 0) {
+        response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"No response for cmd_id %u.\"}", request->cmd_id);
         printf("ERROR: No response for cmd_id %u\n", request->cmd_id);
     }
-    LOG_DEBUG() fprintf(stderr, "DEBUG: Send http response to connection %lu (first 800 chars):\n%*.*s\n", request->conn_id, 0, 800, buffer);
+    LOG_DEBUG() fprintf(stderr, "DEBUG: Send http response to connection %lu (first 800 chars):\n%*.*s\n", request->conn_id, 0, 800, response->data);
 
-    t_work_result *response = (t_work_result *)malloc(sizeof(t_work_result));
-    response->conn_id = request->conn_id;
-    response->length = copy_string(response->data, buffer, MAX_SIZE, len);
     tiny_queue_push(web_server_queue, response);
-
     free(request);
 }
 
