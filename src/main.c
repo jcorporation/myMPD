@@ -129,7 +129,7 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
         free(p_config->browsetaglist);
         p_config->browsetaglist = strdup(value);
     }
-    else if (MATCH("mympd", "max_elements_per_page")) {
+    else if (MATCH("mympd", "maxelementsperpage")) {
         p_config->max_elements_per_page = strtol(value, &crap, 10);
         if (p_config->max_elements_per_page > MAX_ELEMENTS_PER_PAGE) {
             printf("Setting max_elements_per_page to maximal value %d", MAX_ELEMENTS_PER_PAGE);
@@ -146,7 +146,7 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
         free(p_config->streamurl);
         p_config->streamurl = strdup(value);
     }
-    else if (MATCH("mympd", "last_played_count")) {
+    else if (MATCH("mympd", "lastplayedcount")) {
         p_config->last_played_count = strtol(value, &crap, 10);
     }
     else if (MATCH("mympd", "loglevel")) {
@@ -204,7 +204,7 @@ static void mympd_get_env(struct t_config *config) {
         "MYMPD_LOGLEVEL", "MYMPD_USER", "MYMPD_LOCALPLAYER", "MYMPD_COVERIMAGE", "MYMPD_COVERIMAGENAME", 
         "MYMPD_COVERIMAGESIZE", "MYMPD_VARLIBDIR", "MYMPD_MIXRAMP", "MYMPD_STICKERS", "MYMPD_TAGLIST", 
         "MYMPD_SEARCHTAGLIST", "MYMPD_BROWSETAGLIST", "MYMPD_SMARTPLS", "MYMPD_SYSCMDS", 
-        "MYMPD_MAX_ELEMENTS_PER_PAGE", "MYMPD_LAST_PLAYED_COUNT",
+        "MYMPD_MAXELEMENTSPERPAGE", "MYMPD_LASTPLAYEDCOUNT",
         "THEME_BACKGROUNDCOLOR", 0};
     const char** ptr = env_vars;
     while (*ptr != 0) {
