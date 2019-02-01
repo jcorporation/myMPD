@@ -2,9 +2,9 @@
 
 [mpd]
 #Connection to mpd
-mpdhost = 127.0.0.1
-mpdport = 6600
-#mpdpass = 
+host = 127.0.0.1
+port = 6600
+#pass = 
 
 #Port for mpd http stream
 streamport = 8000
