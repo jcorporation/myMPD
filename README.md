@@ -90,4 +90,5 @@ Copyright
 ---------
 
 myMPD: 2018-2019 <mail@jcgames.de>
+
 ympd: 2013-2014 <andy@ndyk.de>
