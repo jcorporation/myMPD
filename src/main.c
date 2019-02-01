@@ -57,14 +57,14 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
 
     #define MATCH(s, n) strcasecmp(section, s) == 0 && strcasecmp(name, n) == 0
 
-    if (MATCH("mpd", "mpdhost")) {
+    if (MATCH("mpd", "host")) {
         free(p_config->mpdhost);
         p_config->mpdhost = strdup(value);
     }
-    else if (MATCH("mpd", "mpdport")) {
+    else if (MATCH("mpd", "port")) {
         p_config->mpdport = strtol(value, &crap, 10);
     }
-    else if (MATCH("mpd", "mpdpass")) {
+    else if (MATCH("mpd", "pass")) {
         free(p_config->mpdpass);
         p_config->mpdpass = strdup(value);
     }
@@ -199,7 +199,7 @@ static void mympd_parse_env(struct t_config *config, const char *envvar) {
 }
 
 static void mympd_get_env(struct t_config *config) {
-    const char* env_vars[]={"MPD_MPDHOST", "MPD_MPDPORT", "MPD_STREAMPORT",
+    const char* env_vars[]={"MPD_HOST", "MPD_PORT", "MPD_PASS", "MPD_STREAMPORT",
         "WEBSERVER_WEBPORT", "WEBSERVER_SSL", "WEBSERVER_SSLPORT", "WEBSERVER_SSLCERT", "WEBSERVER_SSLKEY",
         "MYMPD_LOGLEVEL", "MYMPD_USER", "MYMPD_LOCALPLAYER", "MYMPD_COVERIMAGE", "MYMPD_COVERIMAGENAME", 
         "MYMPD_COVERIMAGESIZE", "MYMPD_VARLIBDIR", "MYMPD_MIXRAMP", "MYMPD_STICKERS", "MYMPD_TAGLIST", 
