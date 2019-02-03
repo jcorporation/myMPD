@@ -405,8 +405,6 @@ function appInitWait() {
 function appInit() {
 //    sendAPI({"cmd": "MPD_API_PLAYER_STATE"}, parseState);
 
-    domCache.volumeBar.value = 0;
-
     document.getElementById('btnChVolumeDown').addEventListener('click', function(event) {
         event.stopPropagation();
     }, false);
