@@ -385,57 +385,25 @@ static char *state_file_rw_string(t_config *config, const char *name, const char
 }
 
 static bool state_file_rw_bool(t_config *config, const char *name, const bool def_value) {
-    char cfg_file[400];
-    char *line = NULL;
-    size_t n = 0;
-    ssize_t read;
     bool value = def_value;
-    
-    if (!validate_string(name))
-        return def_value;
-    snprintf(cfg_file, 400, "%s/state/%s", config->varlibdir, name);
-    FILE *fp = fopen(cfg_file, "r");
-    if (fp == NULL) {
-        printf("Error opening %s\n", cfg_file);
-        state_file_write(config, name, def_value == true ? "true" : "false");
-        return def_value;
-    }
-    read = getline(&line, &n, fp);
-    if (read > 0) {
-        LOG_DEBUG() fprintf(stderr, "DEBUG: State %s: %s\n", name, line);
+    char *line = state_file_rw_string(config, name, def_value == true ? "true" : "false");
+    if (line != NULL) {
         value = strcmp(line, "true") == 0 ? true : false;
+        free(line);
     }
-    fclose(fp);
-    free(line);
     return value;
 }
 
 static long state_file_rw_long(t_config *config, const char *name, const long def_value) {
-    char cfg_file[400];
-    char *line = NULL;
     char *crap;
-    size_t n = 0;
-    ssize_t read;
     long value = def_value;
-    
-    if (!validate_string(name))
-        return def_value;
-    snprintf(cfg_file, 400, "%s/state/%s", config->varlibdir, name);
-    FILE *fp = fopen(cfg_file, "r");
-    if (fp == NULL) {
-        printf("Error opening %s\n", cfg_file);
-        char p_value[65];
-        snprintf(p_value, 65, "%ld", def_value);
-        state_file_write(config, name, p_value);
-        return def_value;
+    char def_value_str[65];
+    snprintf(def_value_str, 65, "%ld", def_value);
+    char *line = state_file_rw_string(config, name, def_value_str);
+    if (line != NULL) {
+        value = strtol(line, &crap,10);
+        free(line);
     }
-    read = getline(&line, &n, fp);
-    if (read > 0) {
-        LOG_DEBUG() fprintf(stderr, "DEBUG: State %s: %s\n", name, line);
-        value = strtol(line, &crap, 10);
-    }
-    fclose(fp);
-    free(line);
     return value;
 }
 
