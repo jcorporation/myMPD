@@ -55,25 +55,20 @@
 } while (0)
 
 #define PUT_SONG_TAGS() do { \
-    struct node *current_tag = mpd_state->mympd_tags.list; \
-    int tagnr = 0; \
-    while (current_tag != NULL) { \
-        if (tagnr ++) \
-            len += json_printf(&out, ","); \
-        char *value = mpd_client_get_tag(song, mpd_tag_name_parse(current_tag->data)); \
-        len += json_printf(&out, "%Q: %Q", current_tag->data, value); \
-        if (strncmp(value, "-", 1) == 0) { free(value); } \
-        current_tag = current_tag->next; \
+    if (mpd_state->feat_tags == true) { \
+        for (unsigned tagnr = 0; tagnr < mpd_state->tag_types_len; ++tagnr) { \
+            if (tagnr > 0) \
+                len += json_printf(&out, ","); \
+            char *value = mpd_client_get_tag(song, mpd_state->tag_types[tagnr]); \
+            len += json_printf(&out, "%Q: %Q",  mpd_tag_name(mpd_state->tag_types[tagnr]), value == NULL ? "-" : value); \
+        } \
+    } \
+    else { \
+        char *value = mpd_client_get_tag(song, MPD_TAG_TITLE); \
+        len += json_printf(&out, "Title: %Q", value == NULL ? "-" : value); \
     } \
     len += json_printf(&out, ", Duration: %d, uri: %Q", mpd_song_get_duration(song), mpd_song_get_uri(song)); \
 } while (0)
-
-#define PUT_MIN_SONG_TAGS() do { \
-    char *value = mpd_client_get_tag(song, MPD_TAG_TITLE); \
-    len += json_printf(&out, "Title: %Q, Duration: %d, uri: %Q", value, mpd_song_get_duration(song), mpd_song_get_uri(song)); \
-    if (strncmp(value, "-", 1) == 0) { free(value); } \
-} while (0)
-
 
 enum mpd_conn_states {
     MPD_DISCONNECTED,
@@ -118,6 +113,9 @@ typedef struct t_mpd_state {
     struct list mympd_tags;
     struct list mympd_searchtags;
     struct list mympd_browsetags;
+    //mpd tagtypes
+    enum mpd_tag_type tag_types[64];
+    unsigned tag_types_len;
     
     //last played list
     struct list last_played;
@@ -199,6 +197,7 @@ void *mpd_client_loop(void *arg_config) {
     list_init(&mpd_state.mympd_tags);
     list_init(&mpd_state.mympd_searchtags);
     list_init(&mpd_state.mympd_browsetags);
+    mpd_state.tag_types_len = 0;
 
     char testdirname[400];    
     snprintf(testdirname, 400, "%s/library", DOC_ROOT);
@@ -1009,6 +1008,7 @@ static void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state) {
     mpd_state->feat_tags = false;
     mpd_state->feat_advsearch = false;
     mpd_state->feat_smartpls = config->smartpls;
+    mpd_state->tag_types_len = 0;
 
     if (mpd_send_allowed_commands(mpd_state->conn)) {
         while ((pair = mpd_recv_command_pair(mpd_state->conn)) != NULL) {
@@ -1057,17 +1057,11 @@ static void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state) {
     else {
         mpd_state->feat_tags = true;
         LOG_INFO() printf("\nmyMPD enabled tags: ");
-        #if LIBMPDCLIENT_CHECK_VERSION(2,12,0)
-        enum mpd_tag_type types[64];
-	unsigned n = 0;
-	#endif
         token = strtok_r(taglist, s, &rest);
         while (token != NULL) {
             if (list_get_value(&mpd_state->mpd_tags, token) == 1) {
                 list_push(&mpd_state->mympd_tags, token, 1);
-                #if LIBMPDCLIENT_CHECK_VERSION(2,12,0)
-                types[n++] = mpd_tag_name_parse(token);
-                #endif
+                mpd_state->tag_types[mpd_state->tag_types_len++] = mpd_tag_name_parse(token);
                 LOG_INFO() printf("%s ", token);
             }
             token = strtok_r(NULL, s, &rest);
@@ -1078,12 +1072,14 @@ static void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state) {
             LOG_VERBOSE() printf("Enabling mpd tag types\n");
             if (mpd_command_list_begin(mpd_state->conn, false)) {
                 mpd_send_clear_tag_types(mpd_state->conn);
-                mpd_send_enable_tag_types(mpd_state->conn, types, n);
-                if (!mpd_command_list_end(mpd_state->conn))
+                mpd_send_enable_tag_types(mpd_state->conn, mpd_state->tag_types, mpd_state->tag_types_len);
+                if (!mpd_command_list_end(mpd_state->conn)) {
                     LOG_ERROR_AND_RECOVER("mpd_command_list_end");
+                }
             }
-            else
+            else {
                 LOG_ERROR_AND_RECOVER("mpd_command_list_begin");
+            }
             mpd_response_finish(mpd_state->conn);
         }
         #endif
@@ -1431,9 +1427,6 @@ static char *mpd_client_get_tag(struct mpd_song const *song, const enum mpd_tag_
         }
         else if (tag == MPD_TAG_ALBUM_ARTIST) {
             str = (char *)mpd_song_get_tag(song, MPD_TAG_ARTIST, 0);
-        }
-        else {
-            str = strdup("-");
         }
     }
     return str;
@@ -1816,10 +1809,7 @@ static int mpd_client_put_current_song(t_config *config, t_mpd_state *mpd_state,
         mpd_state->song_id,
         cover
     );
-    if (mpd_state->feat_tags == true)
-        PUT_SONG_TAGS();
-    else
-        PUT_MIN_SONG_TAGS();
+    PUT_SONG_TAGS();
 
     mpd_response_finish(mpd_state->conn);
     
@@ -1854,10 +1844,7 @@ static int mpd_client_put_songdetails(t_config *config, t_mpd_state *mpd_state, 
         song = mpd_entity_get_song(entity);
         mpd_client_get_cover(config, mpd_state, uri, cover, 500);
         len += json_printf(&out, "cover: %Q, ", cover);
-        if (mpd_state->feat_tags == true)
-            PUT_SONG_TAGS();
-        else
-            PUT_MIN_SONG_TAGS();
+        PUT_SONG_TAGS();
         mpd_entity_free(entity);
     }
     mpd_response_finish(mpd_state->conn);
@@ -1899,10 +1886,7 @@ static int mpd_client_put_last_played_songs(t_config *config, t_mpd_state *mpd_s
                 RETURN_ERROR_AND_RECOVER("mpd_send_list_all_meta");
             if ((entity = mpd_recv_entity(mpd_state->conn)) != NULL) {
                 song = mpd_entity_get_song(entity);
-                if (mpd_state->feat_tags == true)
-                    PUT_SONG_TAGS();
-                else
-                    PUT_MIN_SONG_TAGS();
+                PUT_SONG_TAGS();
                 mpd_entity_free(entity);
                 mpd_response_finish(mpd_state->conn);
             }
@@ -1951,10 +1935,7 @@ static int mpd_client_put_queue(t_config *config, t_mpd_state *mpd_state, char *
                 mpd_song_get_id(song),
                 mpd_song_get_pos(song)
             );
-            if (mpd_state->feat_tags == true)
-                PUT_SONG_TAGS();
-            else
-                PUT_MIN_SONG_TAGS();
+            PUT_SONG_TAGS();
             len += json_printf(&out, "}");
         }
         mpd_entity_free(entity);
@@ -2007,17 +1988,12 @@ static int mpd_client_put_browse(t_config *config, t_mpd_state *mpd_state, char 
                         if (entities_returned++) 
                             len += json_printf(&out, ",");
                         len += json_printf(&out, "{Type: song, ");
-                        if (mpd_state->feat_tags == true)
-                            PUT_SONG_TAGS();
-                        else
-                            PUT_MIN_SONG_TAGS();
-
+                        PUT_SONG_TAGS();
                         len += json_printf(&out, "}");
                     }
                     else {
                         entity_count--;
                     }
-                    if (strncmp(entityName, "-", 1) == 0) { free((void *) entityName); }
                     break;
                 }
                 case MPD_ENTITY_TYPE_DIRECTORY: {
@@ -2193,8 +2169,9 @@ static int mpd_client_put_songs_in_album(t_config *config, t_mpd_state *mpd_stat
                 else {
                     mpd_client_get_cover(config, mpd_state, mpd_song_get_uri(song), cover, 500);
                     char *value = mpd_client_get_tag(song, MPD_TAG_ALBUM_ARTIST);
-                    albumartist = strdup(value);
-                    if (strncmp(value, "-", 1) == 0) { free(value); }
+                    if (value != NULL) {
+                        albumartist = strdup(value);
+                    }
                 }
                 len += json_printf(&out, "{Type: song, ");
                 PUT_SONG_TAGS();
@@ -2304,17 +2281,13 @@ static int mpd_client_put_playlist_list(t_config *config, t_mpd_state *mpd_state
                 if (entities_returned++) 
                     len += json_printf(&out, ",");
                 len += json_printf(&out, "{Type: song, ");
-                if (mpd_state->feat_tags == true)
-                    PUT_SONG_TAGS();
-                else
-                    PUT_MIN_SONG_TAGS();
+                PUT_SONG_TAGS();
                 len += json_printf(&out, ", Pos: %d", entity_count);
                 len += json_printf(&out, "}");
             }
             else {
                 entity_count--;
             }
-            if (strncmp(entityName, "-", 1) == 0) { free((void *) entityName); }
         }
         mpd_entity_free(entity);
     }
@@ -2369,10 +2342,7 @@ static int mpd_client_search(t_config *config, t_mpd_state *mpd_state, char *buf
                 if (entities_returned++) 
                     len += json_printf(&out, ", ");
                 len += json_printf(&out, "{Type: song, ");
-                if (mpd_state->feat_tags == true)
-                    PUT_SONG_TAGS();
-                else
-                    PUT_MIN_SONG_TAGS();
+                PUT_SONG_TAGS();
                 len += json_printf(&out, "}");
             }
             mpd_song_free(song);
@@ -2442,10 +2412,7 @@ static int mpd_client_search_adv(t_config *config, t_mpd_state *mpd_state, char 
             if (entities_returned++) 
                 len += json_printf(&out, ", ");
             len += json_printf(&out, "{Type: song, ");
-            if (mpd_state->feat_tags == true)
-                PUT_SONG_TAGS();
-            else
-                PUT_MIN_SONG_TAGS();
+            PUT_SONG_TAGS();
             len += json_printf(&out, "}");
             mpd_song_free(song);
         }
@@ -2539,10 +2506,7 @@ static int mpd_client_search_queue(t_config *config, t_mpd_state *mpd_state, cha
                     mpd_song_get_id(song),
                     mpd_song_get_pos(song)
                 );
-                if (mpd_state->feat_tags == true)
-                    PUT_SONG_TAGS();
-                else
-                    PUT_MIN_SONG_TAGS();
+                PUT_SONG_TAGS();
                 len += json_printf(&out, "}");
                 mpd_song_free(song);
             }
