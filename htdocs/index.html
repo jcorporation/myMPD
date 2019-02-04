@@ -627,9 +627,13 @@
         </div>
         <div class="modal-body">
           <p>Please wait, myMPD is initializing...</p>
-          <p><span id="appInitSettings" class="material-icons unvisible">check</span> Fetch settings</p>
-          <p><span id="appInitWebsocket" class="material-icons unvisible">check</span> Connect to websocket</p>
-          <p><span id="appInitApply" class="material-icons unvisible">check</span> Applying settings</p>
+          <table>
+            <tr><td><span id="appInitSettings"></span></td><td>&nbsp;&nbsp;Fetch settings</td></tr>
+            <tr><td><span id="appInitWebsocket"></span></td><td>&nbsp;&nbsp;Connect to websocket</td></tr>
+            <tr><td><span id="appInitApply"></span></td><td>&nbsp;&nbsp;Applying settings</td></tr>
+          </table>
+          <br/>
+          <div id="modalAppInitAlert" class="alert alert-danger hide"></div>
         </div>
       </div>
       </div>

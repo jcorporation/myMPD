@@ -30,7 +30,7 @@ var lastState;
 var currentSong = new Object();
 var playstate = '';
 var settingsLock = false;
-var settingsParsed = false;
+var settingsParsed = 'false';
 var settingsNew = {};
 var settings = {};
 var alertTimeout;
@@ -185,7 +185,7 @@ function appGoto(a,t,v,s) {
 }
 
 function appRoute() {
-    if (settingsParsed == false) {
+    if (settingsParsed == 'false') {
         appInitStart();
         return;
     }
@@ -365,26 +365,60 @@ function appRoute() {
     app.last.view = app.current.view;
 };
 
+function initState(objId, state) {
+    var obj = document.getElementById(objId);
+    obj.classList.remove('text-success', 'text-danger', 'spinner-border', 'spinner-border-sm');
+    obj.innerHTML = '';
+    if (state == 'blank') {
+        obj.innerHTML = '';
+    }
+    else if (state == 'load') {
+        obj.innerHTML = '';
+        obj.classList.add('spinner-border', 'spinner-border-sm');
+    }
+    else if (state == 'ok') {
+        obj.innerHTML = 'check';
+        obj.classList.add('material-icons', 'text-success');
+    }
+    else if (state == 'error') {
+        obj.innerHTML = 'error_outline';
+        obj.classList.add('material-icons', 'text-danger');
+    }
+}
+
+function showAppInitAlert(text) {
+    var a = document.getElementById('modalAppInitAlert');
+    a.innerHTML = '<p>' + text + '</p><a id ="appReloadBtn"class="btn btn-danger text-light">Reload</a>';
+    a.classList.remove('hide');
+    document.getElementById('appReloadBtn').addEventListener('click', function() {
+        location.reload();
+    }, false);
+}
+
 function appInitStart() {
     appInited = false;
     document.getElementsByTagName('header')[0].classList.add('hide');
     document.getElementsByTagName('main')[0].classList.add('hide');
     document.getElementsByTagName('footer')[0].classList.add('hide');
-    document.getElementById('appInitSettings').classList.add('unvisible');
-    document.getElementById('appInitWebsocket').classList.add('unvisible');
-    document.getElementById('appInitApply').classList.add('unvisible');
+    initState('appInitSettings', 'load');
+    initState('appInitWebsocket', 'blank');
+    initState('appInitApply', 'blank');
+    var a = document.getElementById('modalAppInitAlert');
+    a.classList.add('hide');
+    a.innerText = '';
     modalAppInit.show();
-    getSettings();
+    getSettings(true);
     appInitWait();
 }
 
 function appInitWait() {
     setTimeout(function() {
-        if (settingsParsed == true && websocketConnected == true) {
+        if (settingsParsed == 'true' && websocketConnected == true) {
             //app initialized
-            document.getElementById('appInitWebsocket').classList.remove('unvisible');
+            initState('appInitWebsocket', 'ok');
+            initState('appInitApply', 'load');
             appInit();
-            document.getElementById('appInitApply').classList.remove('unvisible');
+            initState('appInitApply', 'ok');
             document.getElementsByTagName('header')[0].classList.remove('hide');
             document.getElementsByTagName('main')[0].classList.remove('hide');
             document.getElementsByTagName('footer')[0].classList.remove('hide');
@@ -393,10 +427,15 @@ function appInitWait() {
             return;
         }
         
-        if (settingsParsed == true) {
+        if (settingsParsed == 'true') {
             //parsed settings, now its save to connect to websocket
-            document.getElementById('appInitSettings').classList.remove('unvisible');
+            initState('appInitSettings', 'ok');
+            initState('appInitWebsocket', 'load');
             webSocketConnect();
+        }
+        else if (settingsParsed == 'error') {
+            initState('appInitSettings', 'error');
+            return;
         }
         appInitWait();
     }, 500);
@@ -1128,6 +1167,9 @@ function webSocketConnect() {
                 //Show modal only if websocket was already connected before
                 modalConnectionError.show();
             }
+            else {
+                showAppInitAlert('Websocket connection failed.');
+            }
             websocketConnected = false;
             if (websocketTimer != null) {
                 clearTimeout(websocketTimer);
@@ -1397,7 +1439,7 @@ function parseSettings() {
     else if (app.current.app == 'Browse' && app.current.tab == 'Database' && app.current.search != '')
         appRoute();
 
-    settingsParsed = true;
+    settingsParsed = 'true';
 }
 
 function setCols(table, className) {
@@ -1476,19 +1518,31 @@ function setCols(table, className) {
     }
 }
 
-function getSettings() {
+function getSettings(onerror) {
     if (settingsLock == false) {
         settingsLock = true;
-        sendAPI({"cmd": "MYMPD_API_SETTINGS_GET"}, getMpdSettings);
+        sendAPI({"cmd": "MYMPD_API_SETTINGS_GET"}, getMpdSettings, onerror);
     }
 }
 
 function getMpdSettings(obj) {
+    if (obj.type == 'error') {
+        settingsParsed = 'error';
+        if (appInited == false) {
+            showAppInitAlert(obj.data);
+        }
+        return false;
+    }
     settingsNew = obj.data;
-    sendAPI({"cmd": "MPD_API_SETTINGS_GET"}, joinSettings);
-}
-
-function joinSettings(obj) {
+    sendAPI({"cmd": "MPD_API_SETTINGS_GET"}, joinSettings, true);
+}function joinSettings(obj) {
+    if (obj.type == 'error') {
+        settingsParsed = 'error';
+        if (appInited == false) {
+            showAppInitAlert(obj.data);
+        } 
+        return false;
+    }
     for (var key in obj.data) {
         settingsNew[key] = obj.data[key];
     }
@@ -2790,7 +2844,7 @@ function showMenu(el, event) {
     popoverInit.show();
 }
 
-function sendAPI(request, callback) {
+function sendAPI(request, callback, onerror) {
     var ajaxRequest=new XMLHttpRequest();
     ajaxRequest.open('POST', '/api', true);
     ajaxRequest.setRequestHeader('Content-type', 'application/json');
@@ -2801,11 +2855,18 @@ function sendAPI(request, callback) {
                 if (obj.type == 'error') {
                     showNotification('Error', obj.data, obj.data, 'danger');
                     console.log('Error: ' + obj.data);
+                    if (onerror == true) {
+                        if (callback != undefined && typeof(callback) == 'function') {
+                            callback(obj);
+                        }
+                    }
                 }
-                else if (obj.type == 'result' && obj.data != 'ok')
+                else if (obj.type == 'result' && obj.data != 'ok') {
                     showNotification(obj.data, '', '', 'success');
-                else if (callback != undefined && typeof(callback) == 'function')
+                }
+                else if (callback != undefined && typeof(callback) == 'function') {
                     callback(obj);
+                }
             }
             else {
                 console.log('Empty response for request: ' + JSON.stringify(request));
