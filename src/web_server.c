@@ -42,13 +42,8 @@ static void send_ws_notify(struct mg_mgr *mgr, t_work_result *response);
 static void send_api_response(struct mg_mgr *mgr, t_work_result *response);
 static bool handle_api(long conn_id, const char *request, int request_len);
 
-typedef struct t_user_data {
-    void *config; //pointer to mympd config
-    long conn_id; 
-} t_user_data;
-
 //public functions
-bool web_server_init(void *arg_mgr, t_config *config) {
+bool web_server_init(void *arg_mgr, t_config *config, t_user_data *user_data) {
     struct mg_mgr *mgr = (struct mg_mgr *) arg_mgr;
     struct mg_connection *nc_https;
     struct mg_connection *nc_http;
@@ -57,10 +52,6 @@ bool web_server_init(void *arg_mgr, t_config *config) {
     const char *err_https;
     const char *err_http;
 
-    t_user_data *user_data = (t_user_data*)malloc(sizeof(t_user_data));
-    user_data->config = config;
-    user_data->conn_id = 1;
-    
     mg_mgr_init(mgr, NULL);
     
     //bind to webport
@@ -170,6 +161,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             t_user_data *nc_user_data = (t_user_data*)malloc(sizeof(t_user_data));
             nc_user_data->config = config;
             nc_user_data->conn_id = user_data->conn_id;
+            nc_user_data->global = false;
             nc->user_data = nc_user_data;
             LOG_DEBUG() fprintf(stderr, "DEBUG: New connection id %ld.\n", user_data->conn_id);
             break;
@@ -211,8 +203,13 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             break;
         }
         case MG_EV_CLOSE: {
-            LOG_VERBOSE() fprintf(stderr, "HTTP connection %ld closed.\n", user_data->conn_id);
-            free(nc->user_data);
+            if (nc->user_data != NULL) {
+                if (user_data->global == false) {
+                    LOG_VERBOSE() fprintf(stderr, "HTTP connection %ld closed.\n", user_data->conn_id);
+                    free(nc->user_data);
+                    nc->user_data = NULL;
+                }
+            }
             break;
         }
         default: {

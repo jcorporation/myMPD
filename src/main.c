@@ -226,6 +226,8 @@ int main(int argc, char **argv) {
     mympd_api_queue = tiny_queue_create();
     web_server_queue = tiny_queue_create();
 
+    t_user_data *user_data = (t_user_data*)malloc(sizeof(t_user_data));
+
     srand((unsigned int)time(NULL));
     
     //mympd config defaults
@@ -312,7 +314,12 @@ int main(int argc, char **argv) {
 
     //init webserver
     struct mg_mgr mgr;
-    if (!web_server_init(&mgr, config)) {
+    
+    user_data->config = config;
+    user_data->conn_id = 1;
+    user_data->global = true;
+
+    if (!web_server_init(&mgr, config, user_data)) {
         goto cleanup;
     }
     else {
@@ -427,5 +434,6 @@ int main(int argc, char **argv) {
     tiny_queue_free(mympd_api_queue);
     mympd_free_config(config);
     free(configfile);
+    free(user_data);
     return rc;
 }

@@ -25,8 +25,14 @@
 #ifndef __WEB_SERVER_H__
 #define __WEB_SERVER_H__
 
+typedef struct t_user_data {
+    void *config; //pointer to mympd config
+    long conn_id; 
+    bool global;
+} t_user_data;
+
 void *web_server_loop(void *arg_mgr);
-bool web_server_init(void *arg_mgr, t_config *config);
+bool web_server_init(void *arg_mgr, t_config *config, t_user_data *user_data);
 void web_server_free(void *arg_mgr);
 
 #endif
