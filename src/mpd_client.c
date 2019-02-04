@@ -1121,6 +1121,7 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
     int pollrc;
     char buffer[MAX_SIZE];
     size_t len = 0;
+    unsigned mpd_client_queue_length = 0;
     
     switch (mpd_state->conn_state) {
         case MPD_DISCONNECTED:
@@ -1133,6 +1134,7 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
                 mpd_client_notify(buffer, len);
                 mpd_state->conn_state = MPD_FAILURE;
                 mpd_connection_free(mpd_state->conn);
+
                 sleep(3);
                 return;
             }
@@ -1176,13 +1178,35 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
             }
             mpd_state->conn = NULL;
             mpd_state->conn_state = MPD_DISCONNECTED;
+            //mpd_client_api error response
+            mpd_client_queue_length = tiny_queue_length(mpd_client_queue, 50);
+            if (mpd_client_queue_length > 0) {
+                //Handle request
+                LOG_DEBUG() fprintf(stderr, "DEBUG: Handle request (mpd disconnected).\n");
+                t_work_request *request = tiny_queue_shift(mpd_client_queue, 50);
+                if (request != NULL) {
+                    //create response struct
+                    t_work_result *response = (t_work_result*)malloc(sizeof(t_work_result));
+                    response->conn_id = request->conn_id;
+                    response->length = 0;
+                    response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"MPD disconnected.\"}");
+                    if (response->conn_id > -1) {
+                        LOG_DEBUG() fprintf(stderr, "DEBUG: Send http response to connection %lu (first 800 chars):\n%*.*s\n", request->conn_id, 0, 800, response->data);
+                        tiny_queue_push(web_server_queue, response);
+                    }
+                    else {
+                        free(response);
+                    }
+                    free(request);
+                }
+            }
             break;
 
         case MPD_CONNECTED:
             fds[0].fd = mpd_connection_get_fd(mpd_state->conn);
             fds[0].events = POLLIN;
             pollrc = poll(fds, 1, 50);
-            unsigned mpd_client_queue_length = tiny_queue_length(mpd_client_queue, 50);
+            mpd_client_queue_length = tiny_queue_length(mpd_client_queue, 50);
             if (pollrc > 0 || mpd_client_queue_length > 0) {
                 LOG_DEBUG() fprintf(stderr, "DEBUG: Leaving mpd idle mode.\n");
                 if (!mpd_send_noidle(mpd_state->conn)) {
@@ -1202,7 +1226,7 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
                 if (mpd_client_queue_length > 0) {
                     //Handle request
                     LOG_DEBUG() fprintf(stderr, "DEBUG: Handle request.\n");
-                    struct work_request_t *request = tiny_queue_shift(mpd_client_queue, 50);
+                    t_work_request *request = tiny_queue_shift(mpd_client_queue, 50);
                     if (request != NULL) {
                         mpd_client_api(config, mpd_state, request);
                     }
