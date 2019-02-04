@@ -1,4 +1,4 @@
-// Native Javascript for Bootstrap 4 v2.0.24 | © dnp_theme | MIT-License
+// Native Javascript for Bootstrap 4 v2.0.26 | © dnp_theme | MIT-License
 (function (root, factory) {
   if (typeof define === 'function' && define.amd) {
     // AMD support:
@@ -18,6 +18,7 @@
     root.Popover = bsn.Popover;
     root.ScrollSpy = bsn.ScrollSpy;
     root.Tab = bsn.Tab;
+    root.Toast = bsn.Toast;
     root.Tooltip = bsn.Tooltip;
   }
 }(this, function () {
@@ -51,8 +52,10 @@
     stringScrollSpy = 'ScrollSpy',
     stringTab       = 'Tab',
     stringTooltip   = 'Tooltip',
+    stringToast     = 'Toast',
   
     // options DATA API
+    dataAutohide      = 'data-autohide',
     databackdrop      = 'data-backdrop',
     dataKeyboard      = 'data-keyboard',
     dataTarget        = 'data-target',
@@ -61,19 +64,16 @@
     dataPause         = 'data-pause',
     dataTitle         = 'data-title',
     dataOriginalTitle = 'data-original-title',
-    dataOriginalText  = 'data-original-text',
     dataDismissible   = 'data-dismissible',
     dataTrigger       = 'data-trigger',
     dataAnimation     = 'data-animation',
     dataContainer     = 'data-container',
     dataPlacement     = 'data-placement',
     dataDelay         = 'data-delay',
-    dataOffsetTop     = 'data-offset-top',
-    dataOffsetBottom  = 'data-offset-bottom',
   
     // option keys
     backdrop = 'backdrop', keyboard = 'keyboard', delay = 'delay',
-    content = 'content', target = 'target',
+    content = 'content', target = 'target', currentTarget = 'currentTarget',
     interval = 'interval', pause = 'pause', animation = 'animation',
     placement = 'placement', container = 'container',
   
@@ -89,6 +89,7 @@
     // aria
     ariaExpanded = 'aria-expanded',
     ariaHidden   = 'aria-hidden',
+    ariaSelected = 'aria-selected',
   
     // event names
     clickEvent    = 'click',
@@ -211,15 +212,15 @@
       });
     },
     getTransitionDurationFromElement = function(element) {
-      var duration = globalObject[getComputedStyle](element)[transitionDuration];
+      var duration = supportTransitions ? globalObject[getComputedStyle](element)[transitionDuration] : 0;
       duration = parseFloat(duration);
       duration = typeof duration === 'number' && !isNaN(duration) ? duration * 1000 : 0;
-      return duration + 50; // we take a short offset to make sure we fire on the next frame after animation
+      return duration; // we take a short offset to make sure we fire on the next frame after animation
     },
     emulateTransitionEnd = function(element,handler){ // emulateTransitionEnd since 2.0.4
       var called = 0, duration = getTransitionDurationFromElement(element);
-      supportTransitions && one(element, transitionEndEvent, function(e){ handler(e); called = 1; });
-      setTimeout(function() { !called && handler(); }, duration);
+      duration ? one(element, transitionEndEvent, function(e){ !called && handler(e), called = 1; })
+               : setTimeout(function() { !called && handler(), called = 1; }, 17);
     },
     bootstrapCustomEvent = function (eventName, componentName, related) {
       var OriginalCustomEvent = new CustomEvent( eventName + '.bs.' + componentName);
@@ -315,7 +316,7 @@
       arrowLeft && (arrow[style][left] = arrowLeft + 'px');
     };
   
-  BSN.version = '2.0.24';
+  BSN.version = '2.0.26';
   
   /* Native Javascript for Bootstrap 4 | Alert
   -------------------------------------------*/
@@ -514,17 +515,20 @@
       indicator = queryElement( '.'+component+'-indicators', element ),
       indicators = indicator && indicator[getElementsByTagName]( "LI" ) || [];
   
+    // invalidate when not enough items
+    if (total < 2) { return; }
+  
     // handlers
     var pauseHandler = function () {
         if ( self[interval] !==false && !hasClass(element,paused) ) {
           addClass(element,paused);
-          !isSliding && clearInterval( timer );
+          !isSliding && ( clearInterval(timer), timer = null );
         }
       },
       resumeHandler = function() {
         if ( self[interval] !== false && hasClass(element,paused) ) {
           removeClass(element,paused);
-          !isSliding && clearInterval( timer );
+          !isSliding && ( clearInterval(timer), timer = null );
           !isSliding && self.cycle();
         }
       },
@@ -583,6 +587,11 @@
   
     // public methods
     this.cycle = function() {
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+      }
+  
       timer = setInterval(function() {
         isElementInScrollRange() && (index++, self.slideTo( index ) );
       }, this[interval]);
@@ -605,7 +614,7 @@
   
       // find the right next index 
       if ( next < 0 ) { next = total - 1; } 
-      else if ( next === total ){ next = 0; }
+      else if ( next >= total ){ next = 0; }
   
       // update index
       index = next;
@@ -615,6 +624,7 @@
   
       isSliding = true;
       clearInterval(timer);
+      timer = null;
       setActivePage( next );
   
       if ( supportTransitions && hasClass(element,'slide') ) {
@@ -624,8 +634,8 @@
         addClass(slides[next],carouselItem +'-'+ slideDirection);
         addClass(slides[activeItem],carouselItem +'-'+ slideDirection);
   
-        one(slides[next], transitionEndEvent, function(e) {
-          var timeout = e[target] !== slides[next] ? e.elapsedTime*1000+100 : 20;
+        emulateTransitionEnd(slides[next], function(e) {
+          var timeout = e && e[target] !== slides[next] ? e.elapsedTime*1000+100 : 20;
           
           isSliding && setTimeout(function(){
             isSliding = false;
@@ -826,14 +836,11 @@
       menuItems = (function(){
         var set = menu[children], newSet = [];
         for ( var i=0; i<set[length]; i++ ){
-          //set[i][children][length] && (set[i][children][0].tagName === 'A' && newSet[push](set[i][children][0]));
-          //start patch: push all child elements, not only first
           if (set[i][children][length]){
             for ( var j=0; j<set[i][children][length]; j++ ){
               set[i][children][j].tagName === 'A' && newSet[push](set[i][children][j]);
             }
           }
-          //end patch
           set[i].tagName === 'A' && newSet[push](set[i]);
         }
         return newSet;
@@ -881,19 +888,13 @@
           isMenuItem = activeItem[parentNode] === menu || activeItem[parentNode][parentNode] === menu;          
   
         if ( isMenuItem || isSameElement ) { // navigate up | down
-/*          idx = isSameElement ? 0 
-                              : key === 38 ? (idx>1?idx-1:0)
-                              : key === 40 ? (idx<menuItems[length]-1?idx+1:idx) : idx;
-*/
-          //start patch: skip hidden elements
           do {
             idx = isSameElement ? 0 
-                              : key === 38 ? (idx>1?idx-1:0)
-                              : key === 40 ? (idx<menuItems[length]-1?idx+1:idx) : idx;
-            if ( idx == 0 || idx == menuItems[length]-1)
+                                : key === 38 ? (idx>1?idx-1:0)
+                                : key === 40 ? (idx<menuItems[length]-1?idx+1:idx) : idx;
+            if ( idx === 0 || idx === menuItems[length]-1)
               break;
           } while ( !menuItems[idx].offsetHeight )
-          //end patch
           menuItems[idx] && setFocus(menuItems[idx]);
         }
         if ( (menuItems[length] && isMenuItem // menu has items
@@ -911,7 +912,7 @@
         bootstrapCustomEvent.call(parent, showEvent, component, relatedTarget);
         addClass(menu,showClass);
         addClass(parent,showClass);
-        menu[setAttribute](ariaExpanded,true);
+        element[setAttribute](ariaExpanded,true);
         bootstrapCustomEvent.call(parent, shownEvent, component, relatedTarget);
         element[open] = true;
         off(element, clickEvent, clickHandler);
@@ -924,7 +925,7 @@
         bootstrapCustomEvent.call(parent, hideEvent, component, relatedTarget);
         removeClass(menu,showClass);
         removeClass(parent,showClass);
-        menu[setAttribute](ariaExpanded,false);
+        element[setAttribute](ariaExpanded,false);
         bootstrapCustomEvent.call(parent, hiddenEvent, component, relatedTarget);
         element[open] = false;
         toggleDismiss();
@@ -965,20 +966,18 @@
     // the modal (both JavaScript / DATA API init) / triggering button element (DATA API)
     element = queryElement(element);
   
-    // determine modal, triggering element
-    var btnCheck = element[getAttribute](dataTarget)||element[getAttribute]('href'),
-      checkModal = queryElement( btnCheck ),
-      modal = hasClass(element,'modal') ? element : checkModal,
-      overlayDelay,
-  
       // strings
-      component = 'modal',
-      staticString = 'static',
-      paddingLeft = 'paddingLeft',
-      paddingRight = 'paddingRight',
-      modalBackdropString = 'modal-backdrop';
-  
-    if ( hasClass(element,'modal') ) { element = null; } // modal is now independent of it's triggering element
+      var component = 'modal',
+        staticString = 'static',
+        modalTrigger = 'modalTrigger',
+        paddingRight = 'paddingRight',
+        modalBackdropString = 'modal-backdrop',
+        // determine modal, triggering element
+        btnCheck = element[getAttribute](dataTarget)||element[getAttribute]('href'),
+        checkModal = queryElement( btnCheck ),
+        modal = hasClass(element,component) ? element : checkModal;  
+    
+      if ( hasClass(element, component) ) { element = null; } // modal is now independent of it's triggering element
   
     if ( !modal ) { return; } // invalidate
   
@@ -992,7 +991,7 @@
   
     // bind, constants, event targets and other vars
     var self = this, relatedTarget = null,
-      bodyIsOverflowing, modalIsOverflowing, scrollbarWidth, overlay,
+      bodyIsOverflowing, scrollBarWidth, overlay, overlayDelay,
   
       // also find fixed-top / fixed-bottom items
       fixedItems = getElementsByClassName(HTML,fixedTop).concat(getElementsByClassName(HTML,fixedBottom)),
@@ -1006,17 +1005,19 @@
         var bodyStyle = globalObject[getComputedStyle](DOC[body]),
             bodyPad = parseInt((bodyStyle[paddingRight]), 10), itemPad;
         if (bodyIsOverflowing) {
-          DOC[body][style][paddingRight] = (bodyPad + scrollbarWidth) + 'px';
+          DOC[body][style][paddingRight] = (bodyPad + scrollBarWidth) + 'px';
+          modal[style][paddingRight] = scrollBarWidth+'px';
           if (fixedItems[length]){
             for (var i = 0; i < fixedItems[length]; i++) {
               itemPad = globalObject[getComputedStyle](fixedItems[i])[paddingRight];
-              fixedItems[i][style][paddingRight] = ( parseInt(itemPad) + scrollbarWidth) + 'px';
+              fixedItems[i][style][paddingRight] = ( parseInt(itemPad) + scrollBarWidth) + 'px';
             }
           }
         }
       },
       resetScrollbar = function () {
         DOC[body][style][paddingRight] = '';
+        modal[style][paddingRight] = '';
         if (fixedItems[length]){
           for (var i = 0; i < fixedItems[length]; i++) {
             fixedItems[i][style][paddingRight] = '';
@@ -1024,25 +1025,16 @@
         }
       },
       measureScrollbar = function () { // thx walsh
-        var scrollDiv = DOC[createElement]('div'), scrollBarWidth;
+        var scrollDiv = DOC[createElement]('div'), widthValue;
         scrollDiv.className = component+'-scrollbar-measure'; // this is here to stay
         DOC[body][appendChild](scrollDiv);
-        scrollBarWidth = scrollDiv[offsetWidth] - scrollDiv[clientWidth];
+        widthValue = scrollDiv[offsetWidth] - scrollDiv[clientWidth];
         DOC[body].removeChild(scrollDiv);
-        return scrollBarWidth;
+        return widthValue;
       },
       checkScrollbar = function () {
         bodyIsOverflowing = DOC[body][clientWidth] < getWindowWidth();
-        modalIsOverflowing = modal[scrollHeight] > HTML[clientHeight];
-        scrollbarWidth = measureScrollbar();
-      },
-      adjustDialog = function () {
-        modal[style][paddingLeft] = !bodyIsOverflowing && modalIsOverflowing ? scrollbarWidth + 'px' : '';
-        modal[style][paddingRight] = bodyIsOverflowing && !modalIsOverflowing ? scrollbarWidth + 'px' : '';
-      },
-      resetAdjustments = function () {
-        modal[style][paddingLeft] = '';
-        modal[style][paddingRight] = '';
+        scrollBarWidth = measureScrollbar();
       },
       createOverlay = function() {
         modalOverlay = 1;        
@@ -1087,6 +1079,9 @@
       },
       // triggers
       triggerShow = function() {
+        resizeHandlerToggle();
+        dismissHandlerToggle();
+        keydownHandlerToggle();
         setFocus(modal);
         bootstrapCustomEvent.call(modal, shownEvent, component, relatedTarget);
       },
@@ -1096,7 +1091,6 @@
         
         (function(){
           if (!getElementsByClassName(DOC,component+' '+showClass)[0]) {
-            resetAdjustments();
             resetScrollbar();
             removeClass(DOC[body],component+'-open');
             overlay && hasClass(overlay,'fade') ? (removeClass(overlay,showClass), emulateTransitionEnd(overlay,removeOverlay)) 
@@ -1113,7 +1107,7 @@
         var clickTarget = e[target];
         clickTarget = clickTarget[hasAttribute](dataTarget) || clickTarget[hasAttribute]('href') ? clickTarget : clickTarget[parentNode];
         if ( clickTarget === element && !hasClass(modal,showClass) ) {
-          modal.modalTrigger = element;
+          modal[modalTrigger] = element;
           relatedTarget = element;
           self.show();
           e[preventDefault]();
@@ -1143,7 +1137,10 @@
   
       // we elegantly hide any opened modal
       var currentOpen = getElementsByClassName(DOC,component+' '+showClass)[0];
-      currentOpen && currentOpen !== modal && currentOpen.modalTrigger[stringModal].hide();
+      if (currentOpen && currentOpen !== modal) {
+        modalTrigger in currentOpen && currentOpen[modalTrigger][stringModal].hide();
+        stringModal in currentOpen && currentOpen[stringModal].hide();
+      }
   
       if ( this[backdrop] ) {
         !modalOverlay && createOverlay();
@@ -1160,15 +1157,10 @@
   
         checkScrollbar();
         setScrollbar();
-        adjustDialog();
   
         addClass(DOC[body],component+'-open');
         addClass(modal,showClass);
         modal[setAttribute](ariaHidden, false);
-        
-        resizeHandlerToggle();
-        dismissHandlerToggle();
-        keydownHandlerToggle();
   
         hasClass(modal,'fade') ? emulateTransitionEnd(modal, triggerShow) : triggerShow();
       }, supportTransitions && overlay ? overlayDelay : 0);
@@ -1192,7 +1184,6 @@
       if (hasClass(modal,showClass)) {
         checkScrollbar();
         setScrollbar();
-        adjustDialog();
       }
     };
   
@@ -1203,7 +1194,8 @@
       on(element, clickEvent, clickHandler);
     }
     if ( !!self[content] ) { self.setContent( self[content] ); }
-    !!element && (element[stringModal] = self);
+    if (element) { element[stringModal] = self; modal[modalTrigger] = element; }
+    else { modal[stringModal] = self; }
   };
   
   // DATA API
@@ -1597,10 +1589,8 @@
       },
       // handler 
       clickHandler = function(e) {
-        var href = e[target][getAttribute]('href');
         e[preventDefault]();
-        next = e[target][getAttribute](dataToggle) === component || (href && href.charAt(0) === '#')
-             ? e[target] : e[target][parentNode]; // allow for child elements like icons to use the handler
+        next = e[currentTarget];
         !tabs[isAnimating] && !hasClass(next,active) && self.show();
       };
   
@@ -1613,7 +1603,9 @@
       
       tabs[isAnimating] = true;
       removeClass(activeTab,active);
+      activeTab[setAttribute](ariaSelected,'false');
       addClass(next,active);
+      next[setAttribute](ariaSelected,'true');    
   
       if ( dropdown ) {
         if ( !hasClass(element[parentNode],'dropdown-menu') ) {
@@ -1642,6 +1634,108 @@
   // TAB DATA API
   // ============
   supports[push]( [ stringTab, Tab, '['+dataToggle+'="tab"]' ] );
+  
+  
+  /* Native Javascript for Bootstrap 4 | Toast
+  ---------------------------------------------*/
+  
+  // TOAST DEFINITION
+  // ==================
+  var Toast = function( element,options ) {
+  
+    // initialization element
+    element = queryElement(element);
+  
+    // set options
+    options = options || {};
+  
+    // DATA API
+    var animationData = element[getAttribute](dataAnimation),
+        autohideData = element[getAttribute](dataAutohide),
+        delayData = element[getAttribute](dataDelay),
+        
+        // strings
+        component = 'toast',
+        autohide = 'autohide',
+        animation = 'animation',
+        showing = 'showing',
+        hide = 'hide',
+        fade = 'fade';
+  
+    // set instance options
+    this[animation] = options[animation] === false || animationData === 'false' ? 0 : 1; // true by default
+    this[autohide] = options[autohide] === false || autohideData === 'false' ? 0 : 1; // true by default
+    this[delay] = parseInt(options[delay] || delayData) || 500; // 500ms default
+  
+    // bind,toast and timer
+    var self = this, timer = 0,
+        // get the toast element
+        toast = getClosest(element,'.toast');
+  
+    // private methods
+    // animation complete
+    var showComplete = function() {
+        removeClass( toast, showing );
+        addClass( toast, showClass );
+        bootstrapCustomEvent.call(toast, shownEvent, component);
+        if (self[autohide]) { self.hide(); }
+      },
+      hideComplete = function() {
+        addClass( toast, hide );
+        bootstrapCustomEvent.call(toast, hiddenEvent, component);
+      },
+      close = function() {
+        removeClass( toast,showClass );
+        self[animation] ? emulateTransitionEnd(toast, hideComplete) : hideComplete();
+      },
+      disposeComplete = function(){
+        clearTimeout(timer); timer = null;
+        addClass( toast, hide );
+        off(element, clickEvent, self.hide);
+        element[stringToast] = null;
+        element = null;
+        toast = null;
+      };
+  
+    // public methods
+    this.show = function() {
+      if (toast) {
+        bootstrapCustomEvent.call(toast, showEvent, component);
+        self[animation] && addClass( toast,fade );
+        removeClass( toast,hide );
+        addClass( toast,showing );
+  
+        self[animation] ? emulateTransitionEnd(toast, showComplete) : showComplete();
+      }
+    };
+    this.hide = function(noTimer) {
+      if (toast && hasClass(toast,showClass)) {
+        bootstrapCustomEvent.call(toast, hideEvent, component);
+  
+        if (noTimer) {
+          close();
+        } else {
+          timer = setTimeout( close, self[delay]);
+        }
+      }
+    };
+    this.dispose = function() {
+      if ( toast && hasClass(toast,showClass) ) {
+        removeClass( toast,showClass );
+        self[animation] ? emulateTransitionEnd(toast, disposeComplete) : disposeComplete();
+      }
+    };
+  
+    // init
+    if ( !(stringToast in element) ) { // prevent adding event handlers twice
+      on(element, clickEvent, self.hide);
+    }
+    element[stringToast] = self;
+  };
+  
+  // TOAST DATA API
+  // =================
+  supports[push]( [ stringToast, Toast, '['+dataDismiss+'="toast"]' ] );
   
   
   /* Native Javascript for Bootstrap 4 | Tooltip
@@ -1810,6 +1904,7 @@
     Popover: Popover,
     ScrollSpy: ScrollSpy,
     Tab: Tab,
+    Toast: Toast,
     Tooltip: Tooltip
   };
 }));
