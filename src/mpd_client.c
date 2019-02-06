@@ -198,6 +198,7 @@ void *mpd_client_loop(void *arg_config) {
     list_init(&mpd_state.mympd_searchtags);
     list_init(&mpd_state.mympd_browsetags);
     mpd_state.tag_types_len = 0;
+    memset(mpd_state.tag_types, 0, sizeof(mpd_state.tag_types));
 
     char testdirname[400];    
     snprintf(testdirname, 400, "%s/library", DOC_ROOT);
@@ -1009,6 +1010,7 @@ static void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state) {
     mpd_state->feat_advsearch = false;
     mpd_state->feat_smartpls = config->smartpls;
     mpd_state->tag_types_len = 0;
+    memset(mpd_state->tag_types, 0, sizeof(mpd_state->tag_types));
 
     if (mpd_send_allowed_commands(mpd_state->conn)) {
         while ((pair = mpd_recv_command_pair(mpd_state->conn)) != NULL) {
