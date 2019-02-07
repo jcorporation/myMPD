@@ -134,8 +134,9 @@ int list_replace(struct list *l, int pos, const char *data, int value) {
     
     current->value = value;
     current->data = realloc(current->data, strlen(data) + 1);
-    if (current->data)
+    if (current->data) {
         strcpy(current->data, data);
+    }
     return 0;
 }
 

@@ -78,6 +78,8 @@
     <noscript>
       <div class="alert alert-danger">JavaScript is disabled!</div>
     </noscript>
+    <div id="alertMpdState" class="alert alert-danger hide"></div>
+    <div id="alertMympdState" class="alert alert-danger hide"></div>
     
     <div class="card" id="cardPlayback">
       <div class="card-header">Playback
@@ -639,20 +641,6 @@
       </div>
   </div>  
   
-  
-  <div class="modal fade" id="modalConnectionError" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header bg-danger text-light">
-          <h5 class="modal-title"><span class="material-icons title-icon">error</span> Connection Error</h5>
-        </div>
-        <div class="modal-body">
-          <p>Connection to myMPD failed. Trying to reconnect to <span id="wsUrl"></span></p>
-        </div>
-      </div>
-      </div>
-  </div>
-
   <div class="modal fade" id="modalUpdateDB" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">

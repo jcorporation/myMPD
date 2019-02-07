@@ -1,6 +1,6 @@
 "use strict";
 /* myMPD
-   (c) 2018 Juergen Mang <mail@jcgames.de>
+   (c) 2018-2019 Juergen Mang <mail@jcgames.de>
    This project's homepage is: https://github.com/jcorporation/mympd
    
    myMPD ist fork of:
@@ -33,8 +33,8 @@ var settingsLock = false;
 var settingsParsed = 'false';
 var settingsNew = {};
 var settings = {};
-var alertTimeout;
-var progressTimer;
+var alertTimeout = null;
+var progressTimer = null;
 var deferredPrompt;
 var dragEl;
 var playlistEl;
@@ -99,7 +99,6 @@ domCache.badgeQueueItems = document.getElementById('badgeQueueItems');
 domCache.searchstr = document.getElementById('searchstr');
 domCache.searchCrumb = document.getElementById('searchCrumb');
 
-var modalConnectionError = new Modal(document.getElementById('modalConnectionError'), { backdrop: 'static', keyboard: false});
 var modalSettings = new Modal(document.getElementById('modalSettings'));
 var modalAbout = new Modal(document.getElementById('modalAbout'));
 var modalSavequeue = new Modal(document.getElementById('modalSaveQueue'));
@@ -1116,15 +1115,22 @@ function webSocketConnect() {
                 case 'welcome':
                     websocketConnected = true;
                     showNotification('Connected to myMPD: ' + wsUrl, '', '', 'success');
-                    modalConnectionError.hide();
+                    toggleAlert('alertMympdState', false, '');
                     appRoute();
                     sendAPI({"cmd": "MPD_API_PLAYER_STATE"}, parseState);
                     break;
                 case 'update_state':
                     parseState(obj);
                     break;
-                case 'disconnected':
-                    showNotification('Lost connection to myMPD: ' + wsUrl, '', '', 'danger');
+                case 'mpd_disconnected':
+                    //showNotification('Connection to MPD failed', '', '', 'danger');
+                    toggleAlert('alertMpdState', true, 'Connection to MPD failed.');
+                    if (progressTimer)
+                        clearTimeout(progressTimer);
+                    break;
+                case 'mpd_connected':
+                    showNotification('Connected to MPD', '', '', 'success');
+                    toggleAlert('alertMpdState', false, '');
                     break;
                 case 'update_queue':
                     if (app.current.app === 'Queue')
@@ -1165,7 +1171,9 @@ function webSocketConnect() {
             console.log('Websocket is disconnected');
             if (appInited == true) {
                 //Show modal only if websocket was already connected before
-                modalConnectionError.show();
+                toggleAlert('alertMympdState', true, 'Websocket connection failed.');
+                if (progressTimer)
+                    clearTimeout(progressTimer);
             }
             else {
                 showAppInitAlert('Websocket connection failed.');
@@ -1176,6 +1184,7 @@ function webSocketConnect() {
             }
             websocketTimer = setTimeout(function() {
                 console.log('Reconnecting websocket');
+                toggleAlert('alertMympdState', true, 'Websocket connection failed. Trying to reconnect&nbsp;&nbsp;<div class="spinner-border spinner-border-sm"></div>');
                 webSocketConnect();
             }, 3000);
         }
@@ -1196,7 +1205,6 @@ function getWsUrl() {
         protocol = 'ws://';
 
     var wsUrl = protocol + hostname + (port != '' ? ':' + port : '') + '/ws';
-    document.getElementById('wsUrl').innerText = wsUrl;        
     return wsUrl;
 }
 
@@ -3092,6 +3100,18 @@ function saveQueue() {
         alert(valid);
         document.getElementById('saveQueueName').classList.add('is-invalid');
         document.getElementById('saveQueueFrm').classList.add('was-validated');
+    }
+}
+
+function toggleAlert(alertBox, state, msg) {
+    var mpdState = document.getElementById(alertBox);
+    if (state == false) {
+        mpdState.innerHTML = '';
+        mpdState.classList.add('hide');
+    }
+    else {
+        mpdState.innerHTML = msg;
+        mpdState.classList.remove('hide');
     }
 }
 

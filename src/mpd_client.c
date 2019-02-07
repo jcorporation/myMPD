@@ -1131,8 +1131,8 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
             LOG_INFO() printf("MPD Connecting to %s:%ld\n", config->mpdhost, config->mpdport);
             mpd_state->conn = mpd_connection_new(config->mpdhost, config->mpdport, mpd_state->timeout);
             if (mpd_state->conn == NULL) {
-                printf("MPD connection failed.");
-                len = snprintf(buffer, MAX_SIZE, "{\"type\": \"disconnected\"}");
+                printf("ERROR: MPD connection failed.");
+                len = snprintf(buffer, MAX_SIZE, "{\"type\": \"mpd_disconnected\"}");
                 mpd_client_notify(buffer, len);
                 mpd_state->conn_state = MPD_FAILURE;
                 mpd_connection_free(mpd_state->conn);
@@ -1142,7 +1142,7 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
             }
 
             if (mpd_connection_get_error(mpd_state->conn) != MPD_ERROR_SUCCESS) {
-                printf("MPD connection: %s\n", mpd_connection_get_error_message(mpd_state->conn));
+                printf("ERROR: MPD connection: %s\n", mpd_connection_get_error_message(mpd_state->conn));
                 len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"%s\"}", mpd_connection_get_error_message(mpd_state->conn));
                 mpd_client_notify(buffer, len);
                 mpd_state->conn_state = MPD_FAILURE;
@@ -1151,7 +1151,7 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
             }
 
             if (config->mpdpass && !mpd_run_password(mpd_state->conn, config->mpdpass)) {
-                printf("MPD connection: %s\n", mpd_connection_get_error_message(mpd_state->conn));
+                printf("ERROR: MPD connection: %s\n", mpd_connection_get_error_message(mpd_state->conn));
                 len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"%s\"}", mpd_connection_get_error_message(mpd_state->conn));
                 mpd_client_notify(buffer, len);
                 mpd_state->conn_state = MPD_FAILURE;
@@ -1160,6 +1160,8 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
 
             LOG_INFO() printf("MPD connected.\n");
             mpd_connection_set_timeout(mpd_state->conn, mpd_state->timeout);
+            len = snprintf(buffer, MAX_SIZE, "{\"type\": \"mpd_connected\"}");
+            mpd_client_notify(buffer, len);
             mpd_state->conn_state = MPD_CONNECTED;
             mpd_client_mpd_features(config, mpd_state);
             mpd_client_smartpls_update_all(config, mpd_state);
@@ -1169,8 +1171,8 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
             break;
 
         case MPD_FAILURE:
-            printf("MPD connection failed.\n");
-            len = snprintf(buffer, MAX_SIZE, "{\"type\": \"disconnected\"}");
+            LOG_INFO() printf("MPD connection failed.\n");
+            len = snprintf(buffer, MAX_SIZE, "{\"type\": \"mpd_disconnected\"}");
             mpd_client_notify(buffer, len);
             // fall through
         case MPD_DISCONNECT:
