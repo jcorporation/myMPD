@@ -229,15 +229,13 @@ void *mpd_client_loop(void *arg_config) {
 //private functions
 static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request) {
     t_work_request *request = (t_work_request*) arg_request;
-//    char buffer[MAX_SIZE];
-//    size_t len = 0;
     unsigned int uint_buf1, uint_buf2, uint_rc;
     int je, int_buf1, int_rc; 
     float float_buf;
     bool bool_buf, rc;
     char *p_charbuf1, *p_charbuf2, *p_charbuf3, *p_charbuf4;
 
-    LOG_VERBOSE() printf("API request (%ld): %.*s\n", request->conn_id, request->length, request->data);
+    LOG_VERBOSE() printf("MPD_CLIENT API request (%ld): %.*s\n", request->conn_id, request->length, request->data);
     //create response struct
     t_work_result *response = (t_work_result*)malloc(sizeof(t_work_result));
     response->conn_id = request->conn_id;

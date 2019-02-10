@@ -53,15 +53,22 @@ bool web_server_init(void *arg_mgr, t_config *config, t_user_data *user_data) {
     const char *err_http;
 
     mg_mgr_init(mgr, NULL);
+
+    //initialize global user_data, malloced in main.c
+    user_data->config = config;
+    user_data->conn_id = 1;
+    user_data->global = true;
     
     //bind to webport
     memset(&bind_opts_http, 0, sizeof(bind_opts_http));
     bind_opts_http.user_data = (void *)user_data;
     bind_opts_http.error_string = &err_http;
-    if (config->ssl == true)
+    if (config->ssl == true) {
         nc_http = mg_bind_opt(mgr, config->webport, ev_handler_redirect, bind_opts_http);
-    else
+    }
+    else {
         nc_http = mg_bind_opt(mgr, config->webport, ev_handler, bind_opts_http);
+    }
     if (nc_http == NULL) {
         printf("Error listening on port %s\n", config->webport);
         mg_mgr_free(mgr);
@@ -98,8 +105,8 @@ void *web_server_loop(void *arg_mgr) {
     struct mg_mgr *mgr = (struct mg_mgr *) arg_mgr;
     while (s_signal_received == 0) {
         mg_mgr_poll(mgr, 50);
-//        unsigned web_server_queue_length = tiny_queue_length(web_server_queue, 100);
-//        if (web_server_queue_length > 0) {
+        unsigned web_server_queue_length = tiny_queue_length(web_server_queue, 50);
+        if (web_server_queue_length > 0) {
             t_work_result *response = tiny_queue_shift(web_server_queue, 50);
             if (response != NULL) {
                 if (response->conn_id == 0) {
@@ -111,7 +118,7 @@ void *web_server_loop(void *arg_mgr) {
                     send_api_response(mgr, response);
                 }
             }
-//        }
+        }
     }
     return NULL;
 }
@@ -126,6 +133,13 @@ static void send_ws_notify(struct mg_mgr *mgr, t_work_result *response) {
     for (nc = mg_next(mgr, NULL); nc != NULL; nc = mg_next(mgr, nc)) {
         if (!is_websocket(nc))
             continue;
+        if (nc->user_data != NULL) {
+            t_user_data *user_data = (t_user_data *) nc->user_data;
+            LOG_DEBUG() fprintf(stderr, "DEBUG: Sending notify to conn_id %ld: %.*s\n", user_data->conn_id, 80, response->data);
+        }
+        else {
+            LOG_DEBUG() fprintf(stderr, "DEBUG: Sending notify to unknown connection: %.*s\n", 80, response->data);
+        }
         mg_send_websocket_frame(nc, WEBSOCKET_OP_TEXT, response->data, response->length);
     }
     free(response);
@@ -134,12 +148,19 @@ static void send_ws_notify(struct mg_mgr *mgr, t_work_result *response) {
 static void send_api_response(struct mg_mgr *mgr, t_work_result *response) {
     struct mg_connection *nc;
     for (nc = mg_next(mgr, NULL); nc != NULL; nc = mg_next(mgr, nc)) {
+        if (is_websocket(nc))
+            continue;
         if (nc->user_data != NULL) {
             t_user_data *user_data = (t_user_data *) nc->user_data;
             if (user_data->conn_id == response->conn_id) {
+                LOG_DEBUG() fprintf(stderr, "DEBUG: Sending response to conn_id %ld: %.*s\n", user_data->conn_id, 80, response->data);
                 mg_send_head(nc, 200, response->length, "Content-Type: application/json");
                 mg_printf(nc, "%s", response->data);
+                break;
             }
+        }
+        else {
+            LOG_DEBUG() fprintf(stderr, "DEBUG: Unknown connection.\n");
         }
     }
     free(response);
@@ -158,7 +179,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 user_data->conn_id = 1;
             
             //replace mgr user_data with connection specific user_data
-            t_user_data *nc_user_data = (t_user_data*)malloc(sizeof(t_user_data));
+            t_user_data *nc_user_data = (t_user_data *) malloc(sizeof(t_user_data));
             nc_user_data->config = config;
             nc_user_data->conn_id = user_data->conn_id;
             nc_user_data->global = false;
@@ -178,7 +199,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
         }
         case MG_EV_WEBSOCKET_HANDSHAKE_DONE: {
              LOG_VERBOSE() printf("New Websocket connection established (%ld).\n", user_data->conn_id);
-             char response[] = "{\"type\": \"welcome\", \"data\": {\"mympdVersion\": \"" MYMPD_VERSION "\"}}";
+             const char *response = "{\"type\": \"welcome\", \"data\": {\"mympdVersion\": \"" MYMPD_VERSION "\"}}";
              mg_send_websocket_frame(nc, WEBSOCKET_OP_TEXT, response, strlen(response));
              break;
         }

@@ -314,11 +314,6 @@ int main(int argc, char **argv) {
 
     //init webserver
     struct mg_mgr mgr;
-    
-    user_data->config = config;
-    user_data->conn_id = 1;
-    user_data->global = true;
-
     if (!web_server_init(&mgr, config, user_data)) {
         goto cleanup;
     }
