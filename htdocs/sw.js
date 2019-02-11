@@ -15,7 +15,7 @@ var urlsToCache = [
     '/assets/coverimage-notavailable.png',
     '/assets/coverimage-loading.png',
     '/assets/favicon.ico',
-    '/assets/MaterialIcons-Regular.woff'
+    '/assets/MaterialIcons-Regular.woff2'
 ];
 
 self.addEventListener('install', function(event) {
