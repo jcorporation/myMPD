@@ -6015,7 +6015,6 @@ static const struct {
   const char *mime_type;
 } mg_static_builtin_mime_types[] = {
     MIME_ENTRY("html", "text/html"),
-    MIME_ENTRY("html", "text/html"),
     MIME_ENTRY("htm", "text/html"),
     MIME_ENTRY("shtm", "text/html"),
     MIME_ENTRY("shtml", "text/html"),
@@ -6062,6 +6061,9 @@ static const struct {
     MIME_ENTRY("asf", "video/x-ms-asf"),
     MIME_ENTRY("avi", "video/x-msvideo"),
     MIME_ENTRY("bmp", "image/bmp"),
+    MIME_ENTRY("woff", "font/woff"),
+    MIME_ENTRY("woff2", "font/woff2"),
+    MIME_ENTRY("webmanifest", "application/manifest+json"),
     {NULL, 0, NULL}};
 
 static struct mg_str mg_get_mime_type(const char *path, const char *dflt,

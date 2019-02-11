@@ -395,6 +395,20 @@ function showAppInitAlert(text) {
 }
 
 function appInitStart() {
+    //register serviceworker
+    if ('serviceWorker' in navigator && document.URL.substring(0, 5) == 'https') {
+        window.addEventListener('load', function() {
+            navigator.serviceWorker.register('/sw.min.js', {scope: '/'}).then(function(registration) {
+                // Registration was successful
+                console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                registration.update();
+            }, function(err) {
+                // Registration failed
+                console.log('ServiceWorker registration failed: ', err);
+            });
+        });
+    }
+
     appInited = false;
     document.getElementsByTagName('header')[0].classList.add('hide');
     document.getElementsByTagName('main')[0].classList.add('hide');
@@ -851,18 +865,7 @@ function appInit() {
         
     }, false);
     
-    if ('serviceWorker' in navigator && document.URL.substring(0, 5) == 'https') {
-        window.addEventListener('load', function() {
-            navigator.serviceWorker.register('/sw.min.js', {scope: '/'}).then(function(registration) {
-                // Registration was successful
-                console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                registration.update();
-            }, function(err) {
-                // Registration failed
-                console.log('ServiceWorker registration failed: ', err);
-            });
-        });
-    }
+
     
     window.addEventListener('beforeinstallprompt', function(event) {
         // Prevent Chrome 67 and earlier from automatically showing the prompt
@@ -1646,9 +1649,9 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
     domCache.progressBar.value = Math.floor(1000 * elapsedTime / totalTime);
 
     var counterText = elapsed_minutes + ":" + 
-        (elapsed_seconds < 10 ? '0' : '') + elapsed_seconds + " / " +
+        (elapsed_seconds < 10 ? '0' : '') + elapsed_seconds + "&nbsp;/&nbsp;" +
         total_minutes + ":" + (total_seconds < 10 ? '0' : '') + total_seconds;
-    domCache.counter.innerText = counterText;
+    domCache.counter.innerHTML = counterText;
     
     //Set playing track in queue view
     if (lastState) {
@@ -1671,7 +1674,7 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
     if (tr) {
         var durationTd = tr.querySelector('[data-col=Duration]');
         if (durationTd)
-            durationTd.innerText = counterText;
+            durationTd.innerHTML = counterText;
         var posTd = tr.querySelector('[data-col=Pos]');
         if (posTd) {
             if (!posTd.classList.contains('material-icons')) {
@@ -3163,14 +3166,17 @@ function notificationsSupported() {
 }
 
 function songChange(obj) {
-    if (obj.type == 'error' || obj.type == 'result') 
+    if (obj.type != 'song_change') {
+        console.log(JSON.stringify(obj));
         return;
+    }
     var curSong = obj.data.Title + obj.data.Artist + obj.data.Album + obj.data.uri + obj.data.currentSongId;
     if (lastSong == curSong) 
         return;
     var textNotification = '';
     var htmlNotification = '';
     var pageTitle = 'myMPD: ';
+
 
     domCache.currentCover.style.backgroundImage = 'url("' + obj.data.cover + '")';
 
