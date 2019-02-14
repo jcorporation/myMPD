@@ -1,4 +1,4 @@
-var CACHE = 'myMPD-cache-v5.0.0';
+var CACHE = 'myMPD-cache-v5.1.0';
 var urlsToCache = [
     '/',
     '/player.html',
