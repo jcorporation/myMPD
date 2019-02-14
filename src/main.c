@@ -226,7 +226,7 @@ int main(int argc, char **argv) {
     mympd_api_queue = tiny_queue_create();
     web_server_queue = tiny_queue_create();
 
-    t_user_data *user_data = (t_user_data*)malloc(sizeof(t_user_data));
+    t_user_data *user_data = (t_user_data *)malloc(sizeof(t_user_data));
 
     srand((unsigned int)time(NULL));
     
