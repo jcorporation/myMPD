@@ -31,6 +31,7 @@
 #include <libgen.h>
 #include <poll.h>
 #include <dirent.h>
+#include <pthread.h>
 #include <mpd/client.h>
 
 #include "list.h"

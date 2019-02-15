@@ -31,6 +31,7 @@
 #include <libgen.h>
 #include <dirent.h>
 #include <stdbool.h>
+#include <pthread.h>
 
 #include "list.h"
 #include "tiny_queue.h"
