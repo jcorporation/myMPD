@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 JAVABIN=$(which java 2> /dev/null)
 HASJAVA="$?"
