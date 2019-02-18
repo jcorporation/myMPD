@@ -74,7 +74,8 @@ static bool state_file_rw_bool(t_config *config, const char *name, const bool de
 static long state_file_rw_long(t_config *config, const char *name, const long def_value);
 static bool state_file_write(t_config *config, const char *name, const char *value);
 static int mympd_api_put_settings(t_config *config, t_mympd_state *mympd_state, char *buffer);
-
+static bool mympd_api_bookmark_update(t_config *config, const long id, const char *name, const char *uri, const char *type);
+static int mympd_api_bookmark_list(t_config *config, char *buffer, unsigned int offset);
 
 //public functions
 void *mympd_api_loop(void *arg_config) {
@@ -124,11 +125,11 @@ void *mympd_api_loop(void *arg_config) {
 
 //private functions
 static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_request *request) {
-//    size_t len = 0;
-//    char buffer[MAX_SIZE];
     int je;
-    char *p_charbuf1;
+    char *p_charbuf1, *p_charbuf2, *p_charbuf3;
     char p_char[4];
+    long long_buf1;
+    unsigned int uint_buf1;
     LOG_VERBOSE() printf("MYMPD API request: %.*s\n", request->length, request->data);
     
     //create response struct
@@ -244,6 +245,37 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
     }
     else if (request->cmd_id == MYMPD_API_SETTINGS_GET) {
         response->length = mympd_api_put_settings(config, mympd_state, response->data);
+    }
+    else if (request->cmd_id == MYMPD_API_BOOKMARK_SAVE) {
+        je = json_scanf(request->data, request->length, "{data: {name: %Q, uri: %Q, type: %Q}}", &p_charbuf1, &p_charbuf2, &p_charbuf3);
+        if (je == 3) {
+            if (mympd_api_bookmark_update(config, -1, p_charbuf1, p_charbuf2, p_charbuf3)) {
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+            }
+            else {
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't save bookmark.\"}");
+            }
+            free(p_charbuf1);
+            free(p_charbuf2);
+            free(p_charbuf3);
+        }
+    }
+    else if (request->cmd_id == MYMPD_API_BOOKMARK_RM) {
+        je = json_scanf(request->data, request->length, "{data: {id: %ld}}", &long_buf1);
+        if (je == 1) {
+            if (mympd_api_bookmark_update(config, long_buf1, NULL, NULL, NULL)) {
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+            }
+            else {
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't delete bookmark.\"}");
+            }
+        }
+    }
+    else if (request->cmd_id == MYMPD_API_BOOKMARK_LIST) {
+        je = json_scanf(request->data, request->length, "{data: {offset: %u}}", &uint_buf1);
+        if (je == 1) {
+            response->length = mympd_api_bookmark_list(config, response->data, uint_buf1);
+        }
     }
     else {
         response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Unknown cmd_id %u.\"}", request->cmd_id);
@@ -484,5 +516,90 @@ static int mympd_api_put_settings(t_config *config, t_mympd_state *mympd_state, 
         mympd_state->colsQueueLastPlayed
     );
 
+    CHECK_RETURN_LEN();
+}
+
+static bool mympd_api_bookmark_update(t_config *config, const long id, const char *name, const char *uri, const char *type) {
+    long lid = 0;
+    char tmp_file[400];
+    char b_file[400];
+    char *line = NULL;
+    size_t n = 0;
+    ssize_t read;
+    
+    snprintf(b_file, 400, "%s/state/bookmarks", config->varlibdir);
+    snprintf(tmp_file, 400, "%s/tmp/bookmarks", config->varlibdir);
+    FILE *fo = fopen(tmp_file, "w");
+    if (fo == NULL) {
+        printf("Error opening %s\n", tmp_file);
+        return false;
+    }
+    FILE *fi = fopen(b_file, "r");
+    if (fi == NULL) {
+        printf("Error opening %s\n", b_file);
+    } else {
+        while ((read = getline(&line, &n, fi)) > 0) {
+            int je = json_scanf(line, read, "{id: %ld}", &lid);
+            if (je == 1) {
+                if (lid != id) {
+                    fprintf(fo, "%s", line);
+                }
+            }
+            else {
+                printf("Can't read bookmarks line\n");
+            }
+        }
+        fclose(fi);
+    }
+    if (id == -1) {
+        lid++;
+        char buffer[1024];
+        struct json_out out = JSON_OUT_BUF(buffer, 1024);
+        json_printf(&out, "{id: %ld, name: %Q, uri: %Q, type: %Q}", lid, name, uri, type);
+        fprintf(fo, "%s\n", buffer);
+    }
+    fclose(fo);
+    if (rename(tmp_file, b_file) == -1) {
+        printf("Error renaming file from %s to %s\n", tmp_file, b_file);
+        return false;
+    }
+    return true;
+}
+
+static int mympd_api_bookmark_list(t_config *config, char *buffer, unsigned int offset) {
+    size_t len = 0;
+    char b_file[400];
+    char *line = NULL;
+    char *crap;
+    size_t n = 0;
+    ssize_t read;
+    unsigned int entity_count = 0;
+    unsigned int entities_returned = 0;
+    struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
+    
+    snprintf(b_file, 400, "%s/state/bookmarks", config->varlibdir);
+    FILE *fi = fopen(b_file, "r");
+    if (fi == NULL) {
+        printf("Error opening %s\n", b_file);
+        len = json_printf(&out, "{type: error, data: %Q}", "Can't open bookmarks file");
+    } else {
+        len = json_printf(&out, "{type: bookmark, data: [");
+        while ((read = getline(&line, &n, fi)) > 0) {
+            entity_count++;
+            if (entity_count > offset && entity_count <= offset + config->max_elements_per_page) {
+                if (entities_returned++) {
+                    len += json_printf(&out, ",");
+                }
+                strtok_r(line, "\n", &crap);
+                len += json_printf(&out, "%s", line);
+            }
+        }
+        fclose(fi);
+        len += json_printf(&out, "], totalEntities: %d, offset: %d, returnedEntities: %d}",
+            entity_count,
+            offset,
+            entities_returned
+        );
+    }
     CHECK_RETURN_LEN();
 }

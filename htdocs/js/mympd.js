@@ -2719,6 +2719,10 @@ function showSmartPlaylist(playlist) {
     sendAPI({"cmd": "MPD_API_SMARTPLS_GET", "data": {"playlist": playlist}}, parseSmartPlaylist);
 }
 
+function addBookmark(name, uri, type) {
+    sendAPI({"cmd": "MYMPD_API_BOOKMARK_SAVE", "data": {"name": name, "uri": uri, "type": type}});
+}
+
 function dirname(uri) {
     return uri.replace(/\/[^\/]*$/, '');
 }
@@ -2778,6 +2782,7 @@ function showMenu(el, event) {
             (type != 'plist' && type != 'smartpls' && settings.featPlaylists ? addMenuItem({"cmd": "showAddToPlaylist", "options": [uri]}, 'Add to playlist') : '') +
             (type == 'song' ? addMenuItem({"cmd": "songDetails", "options": [uri]}, 'Songdetails') : '') +
             (type == 'plist' || type == 'smartpls' ? addMenuItem({"cmd": "playlistDetails", "options": [uri]}, 'View playlist') : '');
+        
         if (app.current.app == 'Search') {
             var baseuri = dirname(uri);
             menu += '<div class="dropdown-divider"></div>' +
@@ -2819,6 +2824,8 @@ function showMenu(el, event) {
             addMenuItem({"cmd": "showAddToPlaylist", "options": [uri]}, 'Add to playlist') +
             (uri.indexOf('http') == -1 ? addMenuItem({"cmd": "songDetails", "options": [uri]}, 'Songdetails') : '');
     }
+
+    menu += addMenuItem({"cmd": "addBookmark", "options": [name, uri, type]}, 'Add bookmark');
 
     new Popover(el, { trigger: 'click', delay: 0, dismissible: true, template: '<div class="popover" role="tooltip">' +
         '<div class="arrow"></div>' +
