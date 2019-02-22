@@ -110,9 +110,11 @@ var modalSaveSmartPlaylist = new Modal(document.getElementById('modalSaveSmartPl
 var modalDeletePlaylist = new Modal(document.getElementById('modalDeletePlaylist'));
 var modalHelp = new Modal(document.getElementById('modalHelp'));
 var modalAppInit = new Modal(document.getElementById('modalAppInit'), { backdrop: 'static', keyboard: false});
+var modalSaveBookmark = new Modal(document.getElementById('modalSaveBookmark'));
 
 var dropdownMainMenu;
 var dropdownVolumeMenu = new Dropdown(document.getElementById('volumeMenu'));
+var dropdownBookmarks = new Dropdown(document.getElementById('BrowseFilesystemBookmark'));
 
 var collapseDBupdate = new Collapse(document.getElementById('navDBupdate'));
 
@@ -491,7 +493,11 @@ function appInit() {
     
     document.getElementById('volumeMenu').parentNode.addEventListener('show.bs.dropdown', function () {
         sendAPI({"cmd": "MPD_API_PLAYER_OUTPUT_LIST"}, parseOutputs);
-    });    
+    });
+    
+    document.getElementById('BrowseFilesystemBookmark').parentNode.addEventListener('show.bs.dropdown', function () {
+        sendAPI({"cmd": "MYMPD_API_BOOKMARK_LIST", "data": {"offset": 0}}, parseBookmarks);
+    });
     
     document.getElementById('modalAbout').addEventListener('shown.bs.modal', function () {
         sendAPI({"cmd": "MPD_API_DATABASE_STATS"}, parseStats);
@@ -641,7 +647,31 @@ function appInit() {
             showMenu(event.target, event);
         }
     }, false);
-    
+
+    document.getElementById('BrowseFilesystemBookmarks').addEventListener('click', function(event) {
+        if (event.target.nodeName == 'A') {
+            var id = event.target.parentNode.parentNode.getAttribute('data-id');
+            var type = event.target.parentNode.parentNode.getAttribute('data-type');
+            var uri = decodeURI(event.target.parentNode.parentNode.getAttribute('data-uri'));
+            var name = event.target.parentNode.parentNode.firstChild.innerText;
+            var href = event.target.getAttribute('data-href');
+            
+            if (href == 'delete') {
+                sendAPI({"cmd": "MYMPD_API_BOOKMARK_RM", "data": {"id": id}}, function() {
+                    sendAPI({"cmd": "MYMPD_API_BOOKMARK_LIST", "data": {"offset": 0}}, parseBookmarks);
+                });
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            else if (href == 'edit') {
+                showBookmarkSave(id, name, uri, type);
+            }
+            else if (href == 'goto') {
+                appGoto('Browse', 'Filesystem', null, '0/-/-/' + uri );
+            }
+        }
+    }, false);
+
     document.getElementById('BrowsePlaylistsAllList').addEventListener('click', function(event) {
         if (event.target.nodeName == 'TD') {
             appendQueue('plist', decodeURI(event.target.parentNode.getAttribute("data-uri")), event.target.parentNode.getAttribute("data-name"));
@@ -2719,9 +2749,47 @@ function showSmartPlaylist(playlist) {
     sendAPI({"cmd": "MPD_API_SMARTPLS_GET", "data": {"playlist": playlist}}, parseSmartPlaylist);
 }
 
-function addBookmark(name, uri, type) {
-    sendAPI({"cmd": "MYMPD_API_BOOKMARK_SAVE", "data": {"name": name, "uri": uri, "type": type}});
+function parseBookmarks(obj) {
+    var list = '<table class="table table-sm table-dark table-borderless mb-0">';
+    for (var i = 0; i < obj.data.length; i++) {
+        list += '<tr data-id="' + obj.data[i].id + '" data-type="' + obj.data[i].type + '" ' +
+                'data-uri="' + encodeURI(obj.data[i].uri) + '">' +
+                '<td class="nowrap"><a class="text-light" href="#" data-href="goto">' + obj.data[i].name + '</a></td>' +
+                '<td><a class="text-light material-icons material-icons-small" href="#" data-href="edit">edit</a></td><td>' +
+                '<a class="text-light material-icons material-icons-small" href="#" data-href="delete">delete</a></td></tr>';
+    }
+    if (obj.data.length == 0) {
+        list += '<tr><td class="text-light nowrap">No bookmarks found.</td></tr>';
+    }
+    list += '</table>';
+    document.getElementById('BrowseFilesystemBookmarks').innerHTML = list;
 }
+
+function showBookmarkSave(id, name, uri, type) {
+    document.getElementById('saveBookmarkFrm').classList.remove('was-validated');
+    document.getElementById('saveBookmarkName').classList.remove('is-invalid');
+    document.getElementById('saveBookmarkId').value = id;
+    document.getElementById('saveBookmarkName').value = name;
+    document.getElementById('saveBookmarkUri').value = uri;
+    document.getElementById('saveBookmarkType').value = type;
+    modalSaveBookmark.show();
+}
+
+function saveBookmark() {
+    var id = parseInt(document.getElementById('saveBookmarkId').value);
+    var name = document.getElementById('saveBookmarkName').value;
+    var uri = document.getElementById('saveBookmarkUri').value;
+    var type = document.getElementById('saveBookmarkType').value;
+    if (name != '') {
+        sendAPI({"cmd": "MYMPD_API_BOOKMARK_SAVE", "data": {"id": id, "name": name, "uri": uri, "type": type}});
+        modalSaveBookmark.hide();
+    }
+    else {
+        document.getElementById('saveBookmarkName').classList.add('is-invalid');
+        document.getElementById('saveBookmarkFrm').classList.add('was-validated');
+    }
+}
+
 
 function dirname(uri) {
     return uri.replace(/\/[^\/]*$/, '');
@@ -2781,7 +2849,8 @@ function showMenu(el, event) {
             addMenuItem({"cmd": "replaceQueue", "options": [type, uri, name]}, 'Replace queue') +
             (type != 'plist' && type != 'smartpls' && settings.featPlaylists ? addMenuItem({"cmd": "showAddToPlaylist", "options": [uri]}, 'Add to playlist') : '') +
             (type == 'song' ? addMenuItem({"cmd": "songDetails", "options": [uri]}, 'Songdetails') : '') +
-            (type == 'plist' || type == 'smartpls' ? addMenuItem({"cmd": "playlistDetails", "options": [uri]}, 'View playlist') : '');
+            (type == 'plist' || type == 'smartpls' ? addMenuItem({"cmd": "playlistDetails", "options": [uri]}, 'View playlist') : '') +
+            (type == 'dir' ? addMenuItem({"cmd": "showBookmarkSave", "options": [-1, name, uri, type]}, 'Add bookmark') : '');
         
         if (app.current.app == 'Search') {
             var baseuri = dirname(uri);
@@ -2825,7 +2894,7 @@ function showMenu(el, event) {
             (uri.indexOf('http') == -1 ? addMenuItem({"cmd": "songDetails", "options": [uri]}, 'Songdetails') : '');
     }
 
-    menu += addMenuItem({"cmd": "addBookmark", "options": [name, uri, type]}, 'Add bookmark');
+    
 
     new Popover(el, { trigger: 'click', delay: 0, dismissible: true, template: '<div class="popover" role="tooltip">' +
         '<div class="arrow"></div>' +

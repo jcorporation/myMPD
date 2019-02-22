@@ -40,6 +40,9 @@ button {
   cursor: pointer;
 }
 
+.nowrap {
+  white-space: nowrap;
+}
 
 @media only screen and (max-width: 576px) {
   .header-logo {

@@ -249,9 +249,9 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
         response->length = mympd_api_put_settings(config, mympd_state, response->data);
     }
     else if (request->cmd_id == MYMPD_API_BOOKMARK_SAVE) {
-        je = json_scanf(request->data, request->length, "{data: {name: %Q, uri: %Q, type: %Q}}", &p_charbuf1, &p_charbuf2, &p_charbuf3);
-        if (je == 3) {
-            if (mympd_api_bookmark_update(config, -1, p_charbuf1, p_charbuf2, p_charbuf3)) {
+        je = json_scanf(request->data, request->length, "{data: {id: %ld, name: %Q, uri: %Q, type: %Q}}", &long_buf1, &p_charbuf1, &p_charbuf2, &p_charbuf3);
+        if (je == 4) {
+            if (mympd_api_bookmark_update(config, long_buf1, p_charbuf1, p_charbuf2, p_charbuf3)) {
                 response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
             else {
@@ -522,12 +522,13 @@ static int mympd_api_put_settings(t_config *config, t_mympd_state *mympd_state, 
 }
 
 static bool mympd_api_bookmark_update(t_config *config, const long id, const char *name, const char *uri, const char *type) {
-    long lid = 0;
+    long line_nr = 0;
     char tmp_file[400];
     char b_file[400];
     char *line = NULL;
     size_t n = 0;
     ssize_t read;
+    bool inserted = false;
     
     snprintf(b_file, 400, "%s/state/bookmarks", config->varlibdir);
     snprintf(tmp_file, 400, "%s/tmp/bookmarks", config->varlibdir);
@@ -541,23 +542,43 @@ static bool mympd_api_bookmark_update(t_config *config, const long id, const cha
         printf("Error opening %s\n", b_file);
     } else {
         while ((read = getline(&line, &n, fi)) > 0) {
-            int je = json_scanf(line, read, "{id: %ld}", &lid);
-            if (je == 1) {
-                if (lid != id) {
-                    fprintf(fo, "%s", line);
+            char *lname, *luri, *ltype;
+            long lid;
+            int je = json_scanf(line, read, "{id: %ld, name: %Q, uri: %Q, type: %Q}", &lid, &lname, &luri, &ltype);
+            if (je == 4) {
+                if (name != NULL) {
+                    if (strcmp(name, lname) < 0) {
+                        line_nr++;
+                        char buffer[1024];
+                        struct json_out out = JSON_OUT_BUF(buffer, 1024);
+                        json_printf(&out, "{id: %ld, name: %Q, uri: %Q, type: %Q}", line_nr, name, uri, type);
+                        fprintf(fo, "%s\n", buffer);
+                        inserted = true;
+                    }
                 }
+                if (lid != id) {
+                    line_nr++;
+                    char buffer[1024];
+                    struct json_out out = JSON_OUT_BUF(buffer, 1024);
+                    json_printf(&out, "{id: %ld, name: %Q, uri: %Q, type: %Q}", line_nr, lname, luri, ltype);
+                    fprintf(fo, "%s\n", buffer);
+                }
+                free(lname);
+                free(luri);
+                free(ltype);
             }
             else {
                 printf("Can't read bookmarks line\n");
             }
         }
+        free(line);
         fclose(fi);
     }
-    if (id == -1) {
-        lid++;
+    if (inserted == false && name != NULL) {
+        line_nr++;
         char buffer[1024];
         struct json_out out = JSON_OUT_BUF(buffer, 1024);
-        json_printf(&out, "{id: %ld, name: %Q, uri: %Q, type: %Q}", lid, name, uri, type);
+        json_printf(&out, "{id: %ld, name: %Q, uri: %Q, type: %Q}", line_nr, name, uri, type);
         fprintf(fo, "%s\n", buffer);
     }
     fclose(fo);
@@ -596,6 +617,7 @@ static int mympd_api_bookmark_list(t_config *config, char *buffer, unsigned int 
                 len += json_printf(&out, "%s", line);
             }
         }
+        free(line);
         fclose(fi);
         len += json_printf(&out, "], totalEntities: %d, offset: %d, returnedEntities: %d}",
             entity_count,
