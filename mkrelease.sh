@@ -3,7 +3,7 @@
 JAVABIN=$(which java 2> /dev/null)
 HASJAVA="$?"
 
-function minify {
+minify() {
   TYPE="$1"
   SRC="$2"
   DST="$3"
