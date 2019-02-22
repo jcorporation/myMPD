@@ -40,6 +40,11 @@ var time_end = 0;
 var time_all = 0;
 
 var cmds = [
+    '{"cmd":"MYMPD_API_BOOKMARK_SAVE","data":{"id": -1, "name":"testdir1", "uri":"parent1/child1", "type": "dir"}}',
+    '{"cmd":"MYMPD_API_BOOKMARK_SAVE","data":{"id": -1, "name":"testdir2", "uri":"parent2/child2", "type": "dir"}}',
+    '{"cmd":"MYMPD_API_BOOKMARK_SAVE","data":{"id": 2, "name":"testdir2id2", "uri":"parent1/child1/child2", "type": "dir"}}',
+    '{"cmd":"MYMPD_API_BOOKMARK_LIST","data":{"offset":0}}',
+    '{"cmd":"MYMPD_API_BOOKMARK_RM","data":{"id":1}}',
     '{"cmd":"MPD_API_QUEUE_CLEAR"}',
     '{"cmd":"MPD_API_DATABASE_SEARCH","data":{"offset":0,"filter":"any","searchstr":"__SEARCHSTR__","plist":""}}',
     '{"cmd":"MPD_API_QUEUE_ADD_TRACK","data":{"uri":"__URI1__"}}',

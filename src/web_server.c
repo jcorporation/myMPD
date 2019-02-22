@@ -25,6 +25,7 @@
 #include <limits.h>
 #include <stdbool.h>
 #include <pthread.h>
+#include <signal.h>
 
 #include "list.h"
 #include "tiny_queue.h"
@@ -70,7 +71,7 @@ bool web_server_init(void *arg_mgr, t_config *config, t_user_data *user_data) {
         nc_http = mg_bind_opt(mgr, config->webport, ev_handler, bind_opts_http);
     }
     if (nc_http == NULL) {
-        printf("Error listening on port %s\n", config->webport);
+        printf("Error listening on port %s.\n", config->webport);
         mg_mgr_free(mgr);
         return false;
     }
@@ -86,11 +87,11 @@ bool web_server_init(void *arg_mgr, t_config *config, t_user_data *user_data) {
         bind_opts_https.ssl_key = config->sslkey;
         nc_https = mg_bind_opt(mgr, config->sslport, ev_handler, bind_opts_https);
         if (nc_https == NULL) {
-            printf("Error listening on port %s: %s\n", config->sslport, err_https);
+            printf("Error listening on port %s: %s.\n", config->sslport, err_https);
             mg_mgr_free(mgr);
             return false;
         } 
-        LOG_INFO() printf("Listening on ssl port %s\n", config->sslport);
+        LOG_INFO() printf("Listening on ssl port %s.\n", config->sslport);
         mg_set_protocol_http_websocket(nc_https);
     }
     return mgr;
@@ -135,10 +136,10 @@ static void send_ws_notify(struct mg_mgr *mgr, t_work_result *response) {
             continue;
         if (nc->user_data != NULL) {
             t_user_data *user_data = (t_user_data *) nc->user_data;
-            LOG_DEBUG() fprintf(stderr, "DEBUG: Sending notify to conn_id %ld: %.*s\n", user_data->conn_id, 80, response->data);
+            LOG_DEBUG() fprintf(stderr, "DEBUG: Sending notify to conn_id %ld: %.*s...\n", user_data->conn_id, 80, response->data);
         }
         else {
-            LOG_DEBUG() fprintf(stderr, "DEBUG: Sending notify to unknown connection: %.*s\n", 80, response->data);
+            LOG_DEBUG() fprintf(stderr, "DEBUG: Sending notify to unknown connection: %.*s\n...", 80, response->data);
         }
         mg_send_websocket_frame(nc, WEBSOCKET_OP_TEXT, response->data, response->length);
     }
@@ -153,7 +154,7 @@ static void send_api_response(struct mg_mgr *mgr, t_work_result *response) {
         if (nc->user_data != NULL) {
             t_user_data *user_data = (t_user_data *) nc->user_data;
             if (user_data->conn_id == response->conn_id) {
-                LOG_DEBUG() fprintf(stderr, "DEBUG: Sending response to conn_id %ld: %.*s\n", user_data->conn_id, 80, response->data);
+                LOG_DEBUG() fprintf(stderr, "DEBUG: Sending response to conn_id %ld: %.*s...\n", user_data->conn_id, 80, response->data);
                 mg_send_head(nc, 200, response->length, "Content-Type: application/json");
                 mg_printf(nc, "%s", response->data);
                 break;
@@ -191,7 +192,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             struct http_message *hm = (struct http_message *) ev_data;
             LOG_VERBOSE() printf("New websocket request (%ld): %.*s\n", user_data->conn_id, (int)hm->uri.len, hm->uri.p);
             if (mg_vcmp(&hm->uri, "/ws") != 0) {
-                printf("ERROR: Websocket request not to /ws, closing connection\n");
+                printf("ERROR: Websocket request not to /ws, closing connection.\n");
                 mg_printf(nc, "%s", "HTTP/1.1 403 FORBIDDEN\r\n\r\n");
                 nc->flags |= MG_F_SEND_AND_CLOSE;
             }
@@ -257,7 +258,7 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data)
                 snprintf(s_redirect, 250, "https://%s/", host);
             else
                 snprintf(s_redirect, 250, "https://%s:%s/", host, config->sslport);
-            LOG_VERBOSE() printf("Redirecting to %s\n", s_redirect);
+            LOG_VERBOSE() printf("Redirecting to %s.\n", s_redirect);
             mg_http_send_redirect(nc, 301, mg_mk_str(s_redirect), mg_mk_str(NULL));
             break;
         }

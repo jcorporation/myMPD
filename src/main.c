@@ -33,6 +33,7 @@
 #include <dirent.h>
 #include <mpd/client.h>
 #include <stdbool.h>
+#include <signal.h>
 
 #include "list.h"
 #include "tiny_queue.h"
@@ -226,7 +227,7 @@ int main(int argc, char **argv) {
     mympd_api_queue = tiny_queue_create();
     web_server_queue = tiny_queue_create();
 
-    t_user_data *user_data = (t_user_data*)malloc(sizeof(t_user_data));
+    t_user_data *user_data = (t_user_data *)malloc(sizeof(t_user_data));
 
     srand((unsigned int)time(NULL));
     
@@ -264,8 +265,6 @@ int main(int argc, char **argv) {
     char *configfile = strdup("/etc/mympd/mympd.conf");
     if (argc == 2) {
         if (strncmp(argv[1], "/", 1) == 0) {
-            printf("Starting myMPD %s\n", MYMPD_VERSION);
-            printf("Libmpdclient %i.%i.%i\n", LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION);
             free(configfile);
             configfile = argv[1];
             char *etcdir = strdup(configfile);
@@ -285,6 +284,10 @@ int main(int argc, char **argv) {
             goto cleanup;
         }
     }
+    
+    printf("Starting myMPD %s\n", MYMPD_VERSION);
+    printf("Libmpdclient %i.%i.%i\n", LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION);
+    
     if (access(configfile, F_OK ) != -1) {
         printf("Parsing config file: %s\n", configfile);
         if (ini_parse(configfile, mympd_inihandler, config) < 0) {

@@ -4,7 +4,7 @@ Requires=network.target local-fs.target mpd.service
 After=mpd.service
 
 [Service]
-ExecStart=/usr/bin/mympd /etc/mympd/mympd.conf
+ExecStart=/usr/bin/mympd
 Type=simple
 
 [Install]

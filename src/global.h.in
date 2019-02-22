@@ -25,8 +25,6 @@
 #ifndef __GLOBAL_H__
 #define __GLOBAL_H__
 
-#include <signal.h>
-
 //architecture
 #cmakedefine PKGARCH64
 
@@ -115,6 +113,9 @@
     X(MYMPD_API_SYSCMD) \
     X(MYMPD_API_SETTINGS_GET) \
     X(MYMPD_API_SETTINGS_SET) \
+    X(MYMPD_API_BOOKMARK_LIST) \
+    X(MYMPD_API_BOOKMARK_SAVE) \
+    X(MYMPD_API_BOOKMARK_RM)
 
 #define GEN_ENUM(X) X,
 #define GEN_STR(X) #X,
