@@ -18,6 +18,7 @@ This fork provides a reworked ui based on Bootstrap 4, a modernized backend and 
  - Set mpd settings (repeat, random, etc.)
  - Browse mpd database by tags
  - Browse filesystem and playlists
+ - Bookmarks for directories
  - Queue management
  - Playlist management
  - Advanced search (requires mpd >= 0.21.x and libmpdclient >= 2.17)
