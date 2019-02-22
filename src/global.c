@@ -29,6 +29,7 @@
 #include <stdbool.h>
 #include <dirent.h>
 #include <pthread.h>
+#include <signal.h>
 
 #include "tiny_queue.h"
 #include "list.h"

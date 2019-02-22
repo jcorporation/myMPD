@@ -25,6 +25,7 @@
 #include <limits.h>
 #include <stdbool.h>
 #include <pthread.h>
+#include <signal.h>
 
 #include "list.h"
 #include "tiny_queue.h"

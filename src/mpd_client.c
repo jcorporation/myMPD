@@ -33,6 +33,7 @@
 #include <dirent.h>
 #include <pthread.h>
 #include <mpd/client.h>
+#include <signal.h>
 
 #include "list.h"
 #include "tiny_queue.h"
