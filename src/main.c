@@ -157,6 +157,17 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
         free(p_config->backgroundcolor);
         p_config->backgroundcolor = strdup(value);
     }
+    else if (MATCH("mympd", "love")) {
+        p_config->love = strcmp(value, "true") == 0 ? true : false;
+    }
+    else if (MATCH("mympd", "lovechannel")) {
+        free(p_config->lovechannel);
+        p_config->lovechannel = strdup(value);
+    }
+    else if (MATCH("mympd", "lovemessage")) {
+        free(p_config->lovemessage);
+        p_config->lovemessage = strdup(value);
+    }
     else {
         printf("WARN: Unkown config option: %s - %s\n", section, name);
         return 0;  
@@ -181,6 +192,8 @@ static void mympd_free_config(t_config *config) {
     free(config->etcdir);
     free(config->streamurl);
     free(config->backgroundcolor);
+    free(config->lovechannel);
+    free(config->lovemessage);
     free(config);
 }
 
@@ -261,6 +274,9 @@ int main(int argc, char **argv) {
     config->localplayer = true;
     config->loglevel = 1;
     config->backgroundcolor = strdup("#888");
+    config->love = false;
+    config->lovechannel = strdup("");
+    config->lovemessage = strdup("love");
 
     char *configfile = strdup("/etc/mympd/mympd.conf");
     if (argc == 2) {
