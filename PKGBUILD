@@ -16,13 +16,18 @@ optdepends=()
 provides=()
 conflicts=()
 replaces=()
-install=contrib/archlinux.install
-source=("https://github.com/jcorporation/${_pkgname}/archive/v${pkgver}.tar.gz")
+install=archlinux.install
+source=("mympd_5.1.0.orig.tar.gz")
+#source=("https://github.com/jcorporation/${_pkgname}/archive/v${pkgver}.tar.gz")
 sha256sums=('SKIP')
 
 build() {
-  cd "${srcdir}/${_pkgname}-${pkgver}"
-  
+  if [ -d "${srcdir}/${_pkgname}-${pkgver}" ]
+  then
+    cd "${srcdir}/${_pkgname}-${pkgver}"
+  else
+    cd "${srcdir}"
+  fi
   [ -d release ] || mkdir release
   cd release
   cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=RELEASE ..
@@ -30,9 +35,13 @@ build() {
 }
 
 package() {
-  cd "${srcdir}/${_pkgname}-${pkgver}/release"
+  if [ -d "${srcdir}/${_pkgname}-${pkgver}/release" ]
+  then
+    cd "${srcdir}/${_pkgname}-${pkgver}/release"
+  else
+    cd "${srcdir}/release"
+  fi
   make DESTDIR="$pkgdir/" install
 
-  install -Dm644  "${srcdir}/${_pkgname}-${pkgver}/contrib/mympd.service" "$pkgdir/usr/lib/systemd/system/mympd.service"
-  /usr/share/mympd/crcert.sh
+  install -Dm644  "$pkgdir/usr/share/mympd/mympd.service" "$pkgdir/usr/lib/systemd/system/mympd.service"
 }
