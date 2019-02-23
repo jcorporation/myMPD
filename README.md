@@ -39,7 +39,7 @@ myMPD is work in progress. Bugreportes and feature requests are very welcome.
 Screenshots
 -----------
 
-![image](https://jcgames.de/stuff/myMPD/screenshots_2018-08-27.gif)
+![image](https://jcgames.de/stuff/myMPD/screenshots-2019-02-23.gif)
 
 UI Components
 -------------
