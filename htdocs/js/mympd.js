@@ -1771,8 +1771,11 @@ function parseState(obj) {
     setCounter(obj.data.currentSongId, obj.data.totalTime, obj.data.elapsedTime);
     
     //Get current song
-    if (!lastState || lastState.data.currentSongId != obj.data.currentSongId)
+    if (!lastState || lastState.data.currentSongId != obj.data.currentSongId ||
+        lastState.data.queueVersion != obj.data.queueVersion)
+    {
         sendAPI({"cmd": "MPD_API_PLAYER_CURRENT_SONG"}, songChange);
+    }
     //clear playback card if not playing
     if (obj.data.songPos == '-1') {
         domCache.currentTitle.innerText = 'Not playing';
