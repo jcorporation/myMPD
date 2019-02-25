@@ -89,6 +89,7 @@ done
 [ -f /var/lib/mympd/state/colsQueueCurrent ] || echo -n '["Pos","Title","Artist","Album","Duration"]' > /var/lib/mympd/state/colsQueueCurrent
 [ -f /var/lib/mympd/state/colsSearch ] || echo -n '["Title","Artist","Album","Duration"]' > /var/lib/mympd/state/colsSearch
 [ -f /var/lib/mympd/state/colsQueueLastPlayed ] || echo -n '["Pos","Title","Artist","Album","LastPlayed"]' > /var/lib/mympd/state/colsQueueLastPlayed
+[ -f /var/lib/mympd/state/bookmarks ] || touch /var/lib/mympd/state/bookmarks
 
 echo "Fixing ownership of /var/lib/mympd"
 chown -R mympd.mympd /var/lib/mympd
