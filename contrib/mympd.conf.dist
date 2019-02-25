@@ -73,6 +73,10 @@ pagination = 100
 #Number of songs to keep in last played list
 lastplayedcount = 20
 
+#Love message for scrobbling
+love = true
+lovechannel = mpdscribble
+lovemessage = love
 
 [theme]
 backgroundcolor = #888

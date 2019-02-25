@@ -1341,7 +1341,8 @@ function parseSettings() {
     
     toggleBtn('btnnotifyPage', settings.notificationPage);
 
-    var features = ["featStickers", "featSmartpls", "featPlaylists", "featTags", "featLocalplayer", "featSyscmds", "featCoverimage", "featAdvsearch"];
+    var features = ["featStickers", "featSmartpls", "featPlaylists", "featTags", "featLocalplayer", "featSyscmds", "featCoverimage", "featAdvsearch",
+        "featLove"];
 
     document.documentElement.style.setProperty('--mympd-coverimagesize', settings.coverimagesize + "px");
     document.documentElement.style.setProperty('--mympd-backgroundcolor', settings.backgroundcolor);
@@ -2464,6 +2465,10 @@ function getAllPlaylists(obj) {
 
 function updateSmartPlaylists() {
     sendAPI({"cmd": "MPD_API_SMARTPLS_UPDATE_ALL"});
+}
+
+function loveSong() {
+    sendAPI({"cmd": "MPD_API_LOVE", "data": {}});
 }
 
 function voteSong(vote) {

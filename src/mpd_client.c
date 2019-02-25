@@ -246,7 +246,7 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
     switch(request->cmd_id) {
         case MPD_API_LOVE:
             if (mpd_run_send_message(mpd_state->conn, config->lovechannel, config->lovemessage)) {
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"result\", \"data\": \"Loved song.\"}");
             }
             else {
                 response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't send message.\"}");

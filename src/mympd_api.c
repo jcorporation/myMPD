@@ -473,7 +473,7 @@ static int mympd_api_put_settings(t_config *config, t_mympd_state *mympd_state, 
     len = json_printf(&out, "{type: mympdSettings, data: {mpdhost: %Q, mpdport: %d, passwort_set: %B, featSyscmds: %B, "
         "featLocalplayer: %B, streamport: %d, streamurl: %Q, featCoverimage: %B, coverimagename: %Q, coverimagesize: %d, featMixramp: %B, "
         "maxElementsPerPage: %d, notificationWeb: %B, notificationPage: %B, jukeboxMode: %d, jukeboxPlaylist: %Q, jukeboxQueueLength: %d, "
-        "autoPlay: %B, backgroundcolor: %Q, love: %B, ", 
+        "autoPlay: %B, backgroundcolor: %Q, featLove: %B", 
         config->mpdhost, 
         config->mpdport, 
         config->mpdpass ? "true" : "false",
