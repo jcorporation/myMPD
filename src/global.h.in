@@ -109,6 +109,7 @@
     X(MPD_API_PLAYER_STATE) \
     X(MPD_API_SETTINGS_GET) \
     X(MPD_API_LIKE) \
+    X(MPD_API_LOVE) \
     X(MYMPD_API_COLS_SAVE) \
     X(MYMPD_API_SYSCMD) \
     X(MYMPD_API_SETTINGS_GET) \
@@ -186,6 +187,9 @@ typedef struct t_config {
     unsigned long last_played_count;
     long loglevel;
     char *backgroundcolor;
+    bool love;
+    char *lovechannel;
+    char *lovemessage;
 } t_config;
 
 //global functions
