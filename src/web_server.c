@@ -42,6 +42,7 @@ static void ev_handler_redirect(struct mg_connection *nc_http, int ev, void *ev_
 static void send_ws_notify(struct mg_mgr *mgr, t_work_result *response);
 static void send_api_response(struct mg_mgr *mgr, t_work_result *response);
 static bool handle_api(long conn_id, const char *request, int request_len);
+static int has_prefix(const struct mg_str *uri, const struct mg_str *prefix);
 
 //public functions
 bool web_server_init(void *arg_mgr, t_config *config, t_user_data *user_data) {
@@ -167,6 +168,10 @@ static void send_api_response(struct mg_mgr *mgr, t_work_result *response) {
     free(response);
 }
 
+static int has_prefix(const struct mg_str *uri, const struct mg_str *prefix) {
+  return uri->len > prefix->len && memcmp(uri->p, prefix->p, prefix->len) == 0;
+}
+
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
     t_user_data *user_data = (t_user_data *) nc->user_data;
     t_config *config = (t_config *) user_data->config;
@@ -206,6 +211,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
         }
         case MG_EV_HTTP_REQUEST: {
             struct http_message *hm = (struct http_message *) ev_data;
+            static const struct mg_str cover_prefix = MG_MK_STR("/cover");
             LOG_VERBOSE() printf("HTTP request (%ld): %.*s\n", user_data->conn_id, (int)hm->uri.len, hm->uri.p);
             if (mg_vcmp(&hm->uri, "/api") == 0) {
                 bool rc = handle_api(user_data->conn_id, hm->body.p, hm->body.len);
@@ -214,6 +220,40 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                     const char *response = "{\"type\": \"error\", \"data\": \"Invalid API request\"}";
                     mg_send_head(nc, 200, strlen(response), "Content-Type: application/json");
                     mg_printf(nc, "%s", response);
+                }
+            }
+            else if (has_prefix(&hm->uri, &cover_prefix)) {
+                char uri[1024];
+                copy_string(uri, hm->uri.p, 1024, (int)hm->uri.len);
+                char *filename = uri + 6;
+                LOG_VERBOSE() printf("Exctracting coverimage from %s\n", filename);
+                char cmd[1500];
+                snprintf(cmd, 1500, "%s %s/library%s", config->embeddedcoverexec, DOC_ROOT, filename);
+                FILE *fp = popen(cmd, "r");
+                if (fp == NULL) {
+                    printf("ERROR: Can't exec %s\n", config->embeddedcoverexec);
+                    mg_send_head(nc, 404, 0, "Content-Type: text/plain");
+                }
+                else {
+                    char *line = NULL;
+                    char *crap;
+                    size_t n = 0;
+                    ssize_t read;
+                    if ((read = getline(&line, &n, fp)) > 0) {
+                        strtok_r(line, "\n", &crap);
+                        mg_printf(nc, "HTTP/1.1 200 OK\r\n");
+                        mg_printf(nc, "Content-Type: %s\r\n", line);
+                        mg_printf(nc, "Content-Transfer-Encoding: BASE64\r\n\r\n");
+                        while ((read = getline(&line, &n, fp)) > 0) {
+//                            strtok_r(line, "\n", &crap);
+                            mg_printf(nc, "%s", line);
+                        }
+                    }
+                    else {
+                        printf("ERROR: Can't read output of %s\n", cmd);
+                        mg_send_head(nc, 404, 0, "Content-Type: text/plain");
+                    }
+                    pclose(fp);
                 }
             }
             else {

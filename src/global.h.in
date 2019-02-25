@@ -190,6 +190,8 @@ typedef struct t_config {
     bool love;
     char *lovechannel;
     char *lovemessage;
+    bool embeddedcover;
+    char *embeddedcoverexec;
 } t_config;
 
 //global functions

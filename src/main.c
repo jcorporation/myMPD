@@ -168,6 +168,13 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
         free(p_config->lovemessage);
         p_config->lovemessage = strdup(value);
     }
+    else if (MATCH("mympd", "embeddedcover")) {
+        p_config->embeddedcover = strcmp(value, "true") == 0 ? true : false;
+    }
+    else if (MATCH("mympd", "embeddedcoverexec")) {
+        free(p_config->embeddedcoverexec);
+        p_config->embeddedcoverexec = strdup(value);
+    }
     else {
         printf("WARN: Unkown config option: %s - %s\n", section, name);
         return 0;  
@@ -194,6 +201,7 @@ static void mympd_free_config(t_config *config) {
     free(config->backgroundcolor);
     free(config->lovechannel);
     free(config->lovemessage);
+    free(config->embeddedcoverexec);
     free(config);
 }
 
@@ -219,6 +227,7 @@ static void mympd_get_env(struct t_config *config) {
         "MYMPD_COVERIMAGESIZE", "MYMPD_VARLIBDIR", "MYMPD_MIXRAMP", "MYMPD_STICKERS", "MYMPD_TAGLIST", 
         "MYMPD_SEARCHTAGLIST", "MYMPD_BROWSETAGLIST", "MYMPD_SMARTPLS", "MYMPD_SYSCMDS", 
         "MYMPD_PAGINATION", "MYMPD_LASTPLAYEDCOUNT", "MYMPD_LOVE", "MYMPD_LOVECHANNEL", "MYMPD_LOVEMESSAGE",
+        "MYMPD_EMBEDDEDCOVER", "MYMPD_EMBEDDEDCOVEREXEC",
         "THEME_BACKGROUNDCOLOR", 0};
     const char** ptr = env_vars;
     while (*ptr != 0) {
@@ -277,6 +286,8 @@ int main(int argc, char **argv) {
     config->love = false;
     config->lovechannel = strdup("");
     config->lovemessage = strdup("love");
+    config->embeddedcover = false;
+    config->embeddedcoverexec = strdup("/usr/share/mympd/coverextract");
 
     char *configfile = strdup("/etc/mympd/mympd.conf");
     if (argc == 2) {
