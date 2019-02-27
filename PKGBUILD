@@ -4,7 +4,7 @@
 
 pkgname=mympd
 _pkgname=myMPD
-pkgver=5.1.0
+pkgver=5.2.0
 pkgrel=1
 pkgdesc="myMPD is a standalone and mobile friendly web mpdclient."
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -17,7 +17,7 @@ provides=()
 conflicts=()
 replaces=()
 install=archlinux.install
-source=("mympd_5.1.0.orig.tar.gz")
+source=("mympd_${pkgver}.orig.tar.gz")
 #source=("https://github.com/jcorporation/${_pkgname}/archive/v${pkgver}.tar.gz")
 sha256sums=('SKIP')
 
