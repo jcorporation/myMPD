@@ -1,2 +1,2 @@
 #!/bin/sh
-g++ mediainfo.cpp -ldl -o coverextract
+g++ coverextract.cpp -ldl -o coverextract
