@@ -19,6 +19,7 @@
 #include <iostream>
 #include <fstream>
 #include <string.h>
+#include <sys/stat.h>
 
 #include "mympd_coverextract.h"
 
@@ -78,6 +79,11 @@ static string base64_decode(std::string const& encoded_string) {
     return ret;
 }
 
+static bool file_exists(const std::string& file) {
+    struct stat buf;
+    return (stat(file.c_str(), &buf) == 0);
+}
+
 int coverextract(const char *media_file_ptr, char *buffer, int buffer_len, const bool extract) {
     string media_file = media_file_ptr;
     MediaInfo MI;
@@ -93,17 +99,19 @@ int coverextract(const char *media_file_ptr, char *buffer, int buffer_len, const
             }
         }
         if (extract == true) {
-//TODO: test if file exists
-            ofstream myfile;
-            myfile.open("/var/lib/mympd/covercache/" + output_file);
-            if (myfile.is_open()) {
-                myfile << base64_decode(MI.Get(Stream_General, 0, "Cover_Data"));
-                myfile.close();
-            }
-            else {
-                strncpy(buffer, "cantwrite", buffer_len);
-		MI.Close();
-                return 1;
+            string abs_output_file = "/var/lib/mympd/covercache/" + output_file;
+            if (file_exists(abs_output_file) == false) {
+                ofstream myfile;
+                myfile.open(abs_output_file);
+                if (myfile.is_open()) {
+                    myfile << base64_decode(MI.Get(Stream_General, 0, "Cover_Data"));
+                    myfile.close();
+                }
+                else {
+                    strncpy(buffer, "cantwrite", buffer_len);
+                    MI.Close();
+                    return 1;
+                }
             }
         }
         strncpy(buffer, output_file.c_str(), buffer_len);
