@@ -18,6 +18,7 @@
 
 #ifndef COVEREXTRACT_H
 #define COVEREXTRACT_H
+#define MYMPD_COVEREXTRACT_VERSION "0.1.0"
     #ifdef __cplusplus
     extern "C" {
     #endif

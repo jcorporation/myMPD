@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "coverextract.h"
+#include "mympd_coverextract.h"
 
 int main(int argc, char **argv) {
     char buffer[1024];

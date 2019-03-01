@@ -20,7 +20,7 @@
 #include <fstream>
 #include <string.h>
 
-#include "coverextract.h"
+#include "mympd_coverextract.h"
 
 #include <MediaInfoDLL/MediaInfoDLL.h>
 #define MediaInfoNameSpace MediaInfoDLL;
