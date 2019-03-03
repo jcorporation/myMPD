@@ -84,13 +84,14 @@ static bool file_exists(const std::string& file) {
     return (stat(file.c_str(), &buf) == 0);
 }
 
-int coverextract(const char *media_file_ptr, char *buffer, int buffer_len, const bool extract) {
+int coverextract(const char *media_file_ptr, char *image_filename, int image_filename_len, char *image_mime_type, int image_mime_type_len, const bool extract) {
     string media_file = media_file_ptr;
     MediaInfo MI;
     MI.Option(__T("Internet"), __T("No"));
     MI.Open(__T(media_file));
     if (MI.Get(Stream_General, 0, "Cover") == "Yes") {
         string mime_type = MI.Get(Stream_General, 0, "Cover_Mime");
+        strncpy(image_mime_type, mime_type.c_str(), image_mime_type_len);
         string ext = mime_type.substr(mime_type.find_last_of("/") + 1);
         string output_file = media_file.substr(0, media_file.find_last_of(".")) + "." + ext;
         for (int i = 0 ; i <= output_file.size(); i++) {
@@ -100,24 +101,26 @@ int coverextract(const char *media_file_ptr, char *buffer, int buffer_len, const
         }
         if (extract == true) {
             string abs_output_file = "/var/lib/mympd/covercache/" + output_file;
+            string abs_tmp_file = "/var/lib/mympd/covercache/" + output_file + ".tmp";
             if (file_exists(abs_output_file) == false) {
                 ofstream myfile;
-                myfile.open(abs_output_file);
+                myfile.open(abs_tmp_file);
                 if (myfile.is_open()) {
                     myfile << base64_decode(MI.Get(Stream_General, 0, "Cover_Data"));
                     myfile.close();
+                    rename(abs_tmp_file.c_str(), abs_output_file.c_str());
                 }
                 else {
-                    strncpy(buffer, "cantwrite", buffer_len);
+                    strncpy(image_filename, "cantwrite", image_filename_len);
                     MI.Close();
                     return 1;
                 }
             }
         }
-        strncpy(buffer, output_file.c_str(), buffer_len);
+        strncpy(image_filename, output_file.c_str(), image_filename_len);
     }
     else {
-        strncpy(buffer, "nocover", buffer_len);
+        strncpy(image_filename, "nocover", image_filename_len);
 	MI.Close();
         return 1;
     }

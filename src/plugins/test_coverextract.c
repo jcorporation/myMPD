@@ -23,10 +23,11 @@
 #include "mympd_coverextract.h"
 
 int main(int argc, char **argv) {
-    char buffer[1024];
+    char image_name[1024];
+    char image_mime_type[100];
     if (argc == 2) {
-        int rc = coverextract(argv[1], buffer, 1024, true);
-        printf("RC: %d, Buffer: %s\n", rc, buffer);
+        int rc = coverextract(argv[1], image_name, 1024, image_mime_type, 100, true);
+        printf("rc: %d, image_name: %s, image_mime_type: %s\n", rc, image_name, image_mime_type);
     }
     else {
         printf("Usage: %s mediafile\n", argv[0]);

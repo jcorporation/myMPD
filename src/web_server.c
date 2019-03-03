@@ -222,38 +222,23 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                     mg_printf(nc, "%s", response);
                 }
             }
-            else if (has_prefix(&hm->uri, &cover_prefix)) {
+            else if (has_prefix(&hm->uri, &cover_prefix) && config->plugins_coverextract == true) {
                 char uri[1024];
                 copy_string(uri, hm->uri.p, 1024, (int)hm->uri.len);
                 char *filename = uri + 6;
-                LOG_VERBOSE() printf("Exctracting coverimage from %s\n", filename);
-                char cmd[1500];
-                snprintf(cmd, 1500, "%s %s/library%s", config->embeddedcoverexec, DOC_ROOT, filename);
-                FILE *fp = popen(cmd, "r");
-                if (fp == NULL) {
-                    printf("ERROR: Can't exec %s\n", config->embeddedcoverexec);
-                    mg_send_head(nc, 404, 0, "Content-Type: text/plain");
+                char media_file[1500];
+                snprintf(media_file, 1500, "%s/library%s", DOC_ROOT, filename);
+                LOG_VERBOSE() printf("Exctracting coverimage from %s\n", media_file);
+                char image_file[1500];
+                char image_mime_type[100];
+                int rc = plugin_coverextract(media_file, image_file, 1500, image_mime_type, 100, true);
+                if (rc == 0) {
+                    mg_http_serve_file(nc, hm, image_file, mg_mk_str(image_mime_type), mg_mk_str(""));
                 }
                 else {
-                    char *line = NULL;
-                    char *crap;
-                    size_t n = 0;
-                    ssize_t read;
-                    if ((read = getline(&line, &n, fp)) > 0) {
-                        strtok_r(line, "\n", &crap);
-                        mg_printf(nc, "HTTP/1.1 200 OK\r\n");
-                        mg_printf(nc, "Content-Type: %s\r\n", line);
-                        mg_printf(nc, "Content-Transfer-Encoding: BASE64\r\n\r\n");
-                        while ((read = getline(&line, &n, fp)) > 0) {
-//                            strtok_r(line, "\n", &crap);
-                            mg_printf(nc, "%s", line);
-                        }
-                    }
-                    else {
-                        printf("ERROR: Can't read output of %s\n", cmd);
-                        mg_send_head(nc, 404, 0, "Content-Type: text/plain");
-                    }
-                    pclose(fp);
+                    printf("Error extracting coverimage: %s\n", image_file);
+                    snprintf(image_file, 1500, "%s/assets/coverimage-notavailable.png", DOC_ROOT);
+                    mg_http_serve_file(nc, hm, image_file, mg_mk_str("image/png"), mg_mk_str(""));
                 }
             }
             else {

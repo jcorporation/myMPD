@@ -132,12 +132,15 @@ enum mympd_cmd_ids {
     MYMPD_CMDS(GEN_ENUM)
 };
 
-
 enum jukebox_modes {
     JUKEBOX_OFF,
     JUKEBOX_ADD_SONG,
     JUKEBOX_ADD_ALBUM,
 };
+
+//plugins
+void *handle_plugins_coverextract;
+int (*plugin_coverextract)(const char *, char *, int, char *, int, const bool);
 
 //message queue
 tiny_queue_t *web_server_queue;
@@ -190,8 +193,8 @@ typedef struct t_config {
     bool love;
     char *lovechannel;
     char *lovemessage;
-    bool embeddedcover;
-    char *embeddedcoverexec;
+    bool plugins_coverextract;
+    char *plugins_coverextractlib;
 } t_config;
 
 //global functions

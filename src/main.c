@@ -34,6 +34,7 @@
 #include <mpd/client.h>
 #include <stdbool.h>
 #include <signal.h>
+#include <dlfcn.h>
 
 #include "list.h"
 #include "tiny_queue.h"
@@ -168,12 +169,12 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
         free(p_config->lovemessage);
         p_config->lovemessage = strdup(value);
     }
-    else if (MATCH("mympd", "embeddedcover")) {
-        p_config->embeddedcover = strcmp(value, "true") == 0 ? true : false;
+    else if (MATCH("plugins", "coverextract")) {
+        p_config->plugins_coverextract = strcmp(value, "true") == 0 ? true : false;
     }
-    else if (MATCH("mympd", "embeddedcoverexec")) {
-        free(p_config->embeddedcoverexec);
-        p_config->embeddedcoverexec = strdup(value);
+    else if (MATCH("plugins", "coverextractlib")) {
+        free(p_config->plugins_coverextractlib);
+        p_config->plugins_coverextractlib = strdup(value);
     }
     else {
         printf("WARN: Unkown config option: %s - %s\n", section, name);
@@ -201,7 +202,7 @@ static void mympd_free_config(t_config *config) {
     free(config->backgroundcolor);
     free(config->lovechannel);
     free(config->lovemessage);
-    free(config->embeddedcoverexec);
+    free(config->plugins_coverextractlib);
     free(config);
 }
 
@@ -227,12 +228,37 @@ static void mympd_get_env(struct t_config *config) {
         "MYMPD_COVERIMAGESIZE", "MYMPD_VARLIBDIR", "MYMPD_MIXRAMP", "MYMPD_STICKERS", "MYMPD_TAGLIST", 
         "MYMPD_SEARCHTAGLIST", "MYMPD_BROWSETAGLIST", "MYMPD_SMARTPLS", "MYMPD_SYSCMDS", 
         "MYMPD_PAGINATION", "MYMPD_LASTPLAYEDCOUNT", "MYMPD_LOVE", "MYMPD_LOVECHANNEL", "MYMPD_LOVEMESSAGE",
-        "MYMPD_EMBEDDEDCOVER", "MYMPD_EMBEDDEDCOVEREXEC",
+        "PLUGINS_COVEREXTRACT", "PLUGINS_COVEREXTRACTLIB",
         "THEME_BACKGROUNDCOLOR", 0};
     const char** ptr = env_vars;
     while (*ptr != 0) {
         mympd_parse_env(config, *ptr);
         ++ptr;
+    }
+}
+
+static bool init_plugins(struct t_config *config) {
+    char *error;
+    handle_plugins_coverextract = NULL;
+    if (config->plugins_coverextract == true) {
+        LOG_INFO() printf("Loading plugin %s\n", config->plugins_coverextractlib);
+        handle_plugins_coverextract = dlopen(config->plugins_coverextractlib, RTLD_LAZY);
+        if (!handle_plugins_coverextract) {
+            printf("ERROR loading plugin %s: %s\n", config->plugins_coverextractlib, dlerror());
+            return false;
+        }
+        *(void **) (&plugin_coverextract) = dlsym(handle_plugins_coverextract, "coverextract");
+        if ((error = dlerror()) != NULL)  {
+            printf("ERROR loading plugin %s: %s\n", config->plugins_coverextractlib, error);
+            return false;
+        }
+    }
+    return true;
+}
+
+static void close_plugins(struct t_config *config) {
+    if (config->plugins_coverextract == true && handle_plugins_coverextract != NULL) {
+        dlclose(handle_plugins_coverextract);
     }
 }
 
@@ -286,8 +312,8 @@ int main(int argc, char **argv) {
     config->love = false;
     config->lovechannel = strdup("");
     config->lovemessage = strdup("love");
-    config->embeddedcover = false;
-    config->embeddedcoverexec = strdup("/usr/share/mympd/coverextract");
+    config->plugins_coverextract = false;
+    config->plugins_coverextractlib = strdup("/usr/share/mympd/lib/mympd_coverextract.so");
 
     char *configfile = strdup("/etc/mympd/mympd.conf");
     if (argc == 2) {
@@ -335,6 +361,11 @@ int main(int argc, char **argv) {
     #endif
     printf("Setting loglevel to %ld\n", config->loglevel);
     loglevel = config->loglevel;
+    
+    //init plugins
+    if (init_plugins(config) == false) {
+        goto cleanup;
+    }
 
     //set signal handler
     signal(SIGTERM, mympd_signal_handler);
@@ -457,6 +488,7 @@ int main(int argc, char **argv) {
     tiny_queue_free(web_server_queue);
     tiny_queue_free(mpd_client_queue);
     tiny_queue_free(mympd_api_queue);
+    close_plugins(config);
     mympd_free_config(config);
     free(configfile);
     free(user_data);

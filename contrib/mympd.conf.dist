@@ -78,9 +78,11 @@ love = true
 lovechannel = mpdscribble
 lovemessage = love
 
-#support embedded coverimages
-embeddedcover = false
-embeddedcoverexec = /usr/share/mympd/coverextract
 
 [theme]
 backgroundcolor = #888
+
+
+[plugins]
+coverextract = true
+coverextractlib = /usr/share/mympd/lib/mympd_coverextract.so
