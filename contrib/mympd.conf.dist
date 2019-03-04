@@ -74,7 +74,7 @@ pagination = 100
 lastplayedcount = 20
 
 #Love message for scrobbling
-love = true
+love = false
 lovechannel = mpdscribble
 lovemessage = love
 
@@ -84,5 +84,5 @@ backgroundcolor = #888
 
 
 [plugins]
-coverextract = true
+coverextract = false
 coverextractlib = /usr/share/mympd/lib/mympd_coverextract.so
