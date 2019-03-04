@@ -211,7 +211,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
         }
         case MG_EV_HTTP_REQUEST: {
             struct http_message *hm = (struct http_message *) ev_data;
-            static const struct mg_str cover_prefix = MG_MK_STR("/cover");
+            static const struct mg_str library_prefix = MG_MK_STR("/library");
             LOG_VERBOSE() printf("HTTP request (%ld): %.*s\n", user_data->conn_id, (int)hm->uri.len, hm->uri.p);
             if (mg_vcmp(&hm->uri, "/api") == 0) {
                 bool rc = handle_api(user_data->conn_id, hm->body.p, hm->body.len);
@@ -222,18 +222,18 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                     mg_printf(nc, "%s", response);
                 }
             }
-            else if (has_prefix(&hm->uri, &cover_prefix) && config->plugins_coverextract == true) {
-                char uri[1024];
-                copy_string(uri, hm->uri.p, 1024, (int)hm->uri.len);
-                char *filename = uri + 6;
+            else if (has_prefix(&hm->uri, &library_prefix) && mg_vcmp(&hm->query_string, "cover") == 0 && config->plugins_coverextract == true) {
                 char media_file[1500];
-                snprintf(media_file, 1500, "%s/library%s", DOC_ROOT, filename);
+                snprintf(media_file, 1500, "%s%.*s", DOC_ROOT, (int)hm->uri.len, hm->uri.p);
                 LOG_VERBOSE() printf("Exctracting coverimage from %s\n", media_file);
                 char image_file[1500];
                 char image_mime_type[100];
                 int rc = plugin_coverextract(media_file, image_file, 1500, image_mime_type, 100, true);
                 if (rc == 0) {
-                    mg_http_serve_file(nc, hm, image_file, mg_mk_str(image_mime_type), mg_mk_str(""));
+                    char path[1600];
+                    snprintf(path, 1600, "%s/covercache/%s", config->varlibdir, image_file);
+                    LOG_DEBUG() fprintf(stderr, "DEBUG: serving file %s (%s)\n", path, image_mime_type);
+                    mg_http_serve_file(nc, hm, path, mg_mk_str(image_mime_type), mg_mk_str(""));
                 }
                 else {
                     printf("Error extracting coverimage: %s\n", image_file);

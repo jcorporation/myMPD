@@ -1807,23 +1807,44 @@ static int mpd_client_get_cover(t_config *config, t_mpd_state *mpd_state, const 
             replacechar(path, '/', '_');
             replacechar(path, '.', '_');
             snprintf(cover, cover_len, "%s/pics/%s.png", DOC_ROOT, path);
-            if (access(cover, F_OK ) == -1 )
+            if (access(cover, F_OK ) == -1 ) {
                 len = snprintf(cover, cover_len, "/assets/coverimage-httpstream.png");
-            else
+            }
+            else {
                 len = snprintf(cover, cover_len, "/pics/%s.png", path);
-        } else
+            }
+        } else {
             len = snprintf(cover, cover_len, "/assets/coverimage-httpstream.png");
+        }
     }
     else {
         if (mpd_state->feat_library) {
             dirname(path);
             snprintf(cover, cover_len, "%s/library/%s/%s", DOC_ROOT, path, config->coverimagename);
-            if (access(cover, F_OK ) == -1 )
-                len = snprintf(cover, cover_len, "/assets/coverimage-notavailable.png");
-            else
+            if (access(cover, F_OK ) == -1 ) {
+                if (config->plugins_coverextract == true) {
+                    char media_file[1500];
+                    snprintf(media_file, 1500, "%s/library/%s", DOC_ROOT, uri);
+                    char image_file[1500];
+                    char image_mime_type[100];
+                    int rc = plugin_coverextract(media_file, image_file, 1500, image_mime_type, 100, false);
+                    if (rc == 0) {
+                        len = snprintf(cover, cover_len, "/library/%s?cover", uri);
+                    }
+                    else {
+                        len = snprintf(cover, cover_len, "/assets/coverimage-notavailable.png");
+                    }
+                }
+                else {
+                    len = snprintf(cover, cover_len, "/assets/coverimage-notavailable.png");
+                }
+            }
+            else {
                 len = snprintf(cover, cover_len, "/library/%s/%s", path, config->coverimagename);
-        } else 
+            }
+        } else {
             len = snprintf(cover, cover_len, "/assets/coverimage-notavailable.png");
+        }
     }
     free(orgpath);
     return len;
