@@ -3251,7 +3251,6 @@ function notificationsSupported() {
 
 function songChange(obj) {
     if (obj.type != 'song_change') {
-        console.log(JSON.stringify(obj));
         return;
     }
     var curSong = obj.data.Title + obj.data.Artist + obj.data.Album + obj.data.uri + obj.data.currentSongId;

@@ -222,7 +222,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                     mg_printf(nc, "%s", response);
                 }
             }
-            else if (has_prefix(&hm->uri, &library_prefix) && mg_vcmp(&hm->query_string, "cover") == 0 && config->plugins_coverextract == true) {
+            else if (has_prefix(&hm->uri, &library_prefix) && hm->query_string.len > 0 && mg_vcmp(&hm->query_string, "cover") == 0 && config->plugins_coverextract == true) {
                 char media_file[1500];
                 snprintf(media_file, 1500, "%s%.*s", DOC_ROOT, (int)hm->uri.len, hm->uri.p);
                 LOG_VERBOSE() printf("Exctracting coverimage from %s\n", media_file);
@@ -233,10 +233,17 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                     char path[1600];
                     snprintf(path, 1600, "%s/covercache/%s", config->varlibdir, image_file);
                     LOG_DEBUG() fprintf(stderr, "DEBUG: serving file %s (%s)\n", path, image_mime_type);
-                    mg_http_serve_file(nc, hm, path, mg_mk_str(image_mime_type), mg_mk_str(""));
+                    if (access(path, F_OK ) != -1 ) {
+                        mg_http_serve_file(nc, hm, path, mg_mk_str(image_mime_type), mg_mk_str(""));
+                    }
+                    else {
+                        printf("Error extracting coverimage from %s\n", media_file);
+                        snprintf(image_file, 1500, "%s/assets/coverimage-notavailable.png", DOC_ROOT);
+                        mg_http_serve_file(nc, hm, image_file, mg_mk_str("image/png"), mg_mk_str(""));
+                    }
                 }
                 else {
-                    printf("Error extracting coverimage: %s\n", image_file);
+                    printf("Error extracting coverimage from %s\n", media_file);
                     snprintf(image_file, 1500, "%s/assets/coverimage-notavailable.png", DOC_ROOT);
                     mg_http_serve_file(nc, hm, image_file, mg_mk_str("image/png"), mg_mk_str(""));
                 }
