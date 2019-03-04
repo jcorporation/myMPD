@@ -42,6 +42,7 @@ static void ev_handler_redirect(struct mg_connection *nc_http, int ev, void *ev_
 static void send_ws_notify(struct mg_mgr *mgr, t_work_result *response);
 static void send_api_response(struct mg_mgr *mgr, t_work_result *response);
 static bool handle_api(long conn_id, const char *request, int request_len);
+static int has_prefix(const struct mg_str *uri, const struct mg_str *prefix);
 
 //public functions
 bool web_server_init(void *arg_mgr, t_config *config, t_user_data *user_data) {
@@ -167,6 +168,10 @@ static void send_api_response(struct mg_mgr *mgr, t_work_result *response) {
     free(response);
 }
 
+static int has_prefix(const struct mg_str *uri, const struct mg_str *prefix) {
+  return uri->len > prefix->len && memcmp(uri->p, prefix->p, prefix->len) == 0;
+}
+
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
     t_user_data *user_data = (t_user_data *) nc->user_data;
     t_config *config = (t_config *) user_data->config;
@@ -206,6 +211,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
         }
         case MG_EV_HTTP_REQUEST: {
             struct http_message *hm = (struct http_message *) ev_data;
+            static const struct mg_str library_prefix = MG_MK_STR("/library");
             LOG_VERBOSE() printf("HTTP request (%ld): %.*s\n", user_data->conn_id, (int)hm->uri.len, hm->uri.p);
             if (mg_vcmp(&hm->uri, "/api") == 0) {
                 bool rc = handle_api(user_data->conn_id, hm->body.p, hm->body.len);
@@ -214,6 +220,32 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                     const char *response = "{\"type\": \"error\", \"data\": \"Invalid API request\"}";
                     mg_send_head(nc, 200, strlen(response), "Content-Type: application/json");
                     mg_printf(nc, "%s", response);
+                }
+            }
+            else if (has_prefix(&hm->uri, &library_prefix) && hm->query_string.len > 0 && mg_vcmp(&hm->query_string, "cover") == 0 && config->plugins_coverextract == true) {
+                char media_file[1500];
+                snprintf(media_file, 1500, "%s%.*s", DOC_ROOT, (int)hm->uri.len, hm->uri.p);
+                LOG_VERBOSE() printf("Exctracting coverimage from %s\n", media_file);
+                char image_file[1500];
+                char image_mime_type[100];
+                int rc = plugin_coverextract(media_file, image_file, 1500, image_mime_type, 100, true);
+                if (rc == 0) {
+                    char path[1600];
+                    snprintf(path, 1600, "%s/covercache/%s", config->varlibdir, image_file);
+                    LOG_DEBUG() fprintf(stderr, "DEBUG: serving file %s (%s)\n", path, image_mime_type);
+                    if (access(path, F_OK ) != -1 ) {
+                        mg_http_serve_file(nc, hm, path, mg_mk_str(image_mime_type), mg_mk_str(""));
+                    }
+                    else {
+                        printf("Error extracting coverimage from %s\n", media_file);
+                        snprintf(image_file, 1500, "%s/assets/coverimage-notavailable.png", DOC_ROOT);
+                        mg_http_serve_file(nc, hm, image_file, mg_mk_str("image/png"), mg_mk_str(""));
+                    }
+                }
+                else {
+                    printf("Error extracting coverimage from %s\n", media_file);
+                    snprintf(image_file, 1500, "%s/assets/coverimage-notavailable.png", DOC_ROOT);
+                    mg_http_serve_file(nc, hm, image_file, mg_mk_str("image/png"), mg_mk_str(""));
                 }
             }
             else {

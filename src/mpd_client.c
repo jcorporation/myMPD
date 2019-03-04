@@ -103,6 +103,7 @@ typedef struct t_mpd_state {
     bool feat_library;
     bool feat_advsearch;
     bool feat_smartpls;
+    bool feat_love;
     
     //mympd states
     enum jukebox_modes jukeboxMode;
@@ -170,6 +171,8 @@ static int mpd_client_put_last_played_songs(t_config *config, t_mpd_state *mpd_s
 static int mpd_client_queue_crop(t_mpd_state *mpd_state, char *buffer);
 static void mpd_client_disconnect(t_config *config, t_mpd_state *mpd_state);
 static int mpd_client_read_last_played(t_config *config, t_mpd_state *mpd_state);
+static void mpd_client_feature_love(t_config *config, t_mpd_state *mpd_state);
+static void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state);
 
 //public functions
 void *mpd_client_loop(void *arg_config) {
@@ -191,6 +194,7 @@ void *mpd_client_loop(void *arg_config) {
     mpd_state.feat_library = false;
     mpd_state.feat_advsearch = false;
     mpd_state.feat_smartpls = false;
+    mpd_state.feat_love = false;
     mpd_state.jukeboxMode = JUKEBOX_OFF;
     mpd_state.jukeboxPlaylist = strdup("Database");
     mpd_state.jukeboxQueueLength = 1;
@@ -986,6 +990,14 @@ static void mpd_client_parse_idle(t_config *config, t_mpd_state *mpd_state, int 
                     len = snprintf(buffer, MAX_SIZE, "{\"type\": \"update_sticker\"}");
                     break;
                 case MPD_IDLE_SUBSCRIPTION:
+                    if (config->love == true) {
+                        bool old_love = mpd_state->feat_love;
+                        mpd_client_feature_love(config, mpd_state);
+                        if (old_love != mpd_state->feat_love) {
+                            len = snprintf(buffer, MAX_SIZE, "{\"type\": \"update_options\"}");
+                            mpd_client_notify(buffer, len);
+                        }
+                    }
                     len = snprintf(buffer, MAX_SIZE, "{\"type\": \"update_subscription\"}");
                     break;
                 case MPD_IDLE_MESSAGE:
@@ -997,6 +1009,28 @@ static void mpd_client_parse_idle(t_config *config, t_mpd_state *mpd_state, int 
             if (len > 0) {
                 mpd_client_notify(buffer, len);
             }
+        }
+    }
+}
+
+static void mpd_client_feature_love(t_config *config, t_mpd_state *mpd_state) {
+    struct mpd_pair *pair;
+    mpd_state->feat_love = false;
+    if (config->love == true) {
+        if (mpd_send_channels(mpd_state->conn)) {
+            while ((pair = mpd_recv_channel_pair(mpd_state->conn)) != NULL) {
+                if (strcmp(pair->value, config->lovechannel) == 0) {
+                    mpd_state->feat_love = true;
+                }
+                mpd_return_pair(mpd_state->conn, pair);            
+            }
+        }
+        mpd_response_finish(mpd_state->conn);
+        if (mpd_state->feat_love == false) {
+            LOG_INFO() printf("Disabling featLove, channel %s not found\n", config->lovechannel);
+        }
+        else {
+            LOG_INFO() printf("Enabling featLove, channel %s found\n", config->lovechannel);
         }
     }
 }
@@ -1118,6 +1152,8 @@ static void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state) {
     free(taglist);
     free(searchtaglist);
     free(browsetaglist);
+    
+    mpd_client_feature_love(config, mpd_state);
     
     if (LIBMPDCLIENT_CHECK_VERSION(2, 17, 0) && mpd_connection_cmp_server_version(mpd_state->conn, 0, 21, 0) >= 0) {
         mpd_state->feat_advsearch = true;
@@ -1711,7 +1747,7 @@ static int mpd_client_put_settings(t_mpd_state *mpd_state, char *buffer) {
     len = json_printf(&out, "{type: settings, data: {"
         "repeat: %d, single: %d, crossfade: %d, consume: %d, random: %d, "
         "mixrampdb: %f, mixrampdelay: %f, replaygain: %Q, featPlaylists: %B, featTags: %B, featLibrary: %B, "
-        "featAdvsearch: %B, featStickers: %B, featSmartpls: %B,  tags: [", 
+        "featAdvsearch: %B, featStickers: %B, featSmartpls: %B, featLove: %B, tags: [", 
         mpd_status_get_repeat(status),
         mpd_status_get_single(status),
         mpd_status_get_crossfade(status),
@@ -1725,7 +1761,8 @@ static int mpd_client_put_settings(t_mpd_state *mpd_state, char *buffer) {
         mpd_state->feat_library,
         mpd_state->feat_advsearch,
         mpd_state->feat_sticker,
-        mpd_state->feat_smartpls
+        mpd_state->feat_smartpls,
+        mpd_state->feat_love
     );
     mpd_status_free(status);
     free(replaygain);
@@ -1807,23 +1844,44 @@ static int mpd_client_get_cover(t_config *config, t_mpd_state *mpd_state, const 
             replacechar(path, '/', '_');
             replacechar(path, '.', '_');
             snprintf(cover, cover_len, "%s/pics/%s.png", DOC_ROOT, path);
-            if (access(cover, F_OK ) == -1 )
+            if (access(cover, F_OK ) == -1 ) {
                 len = snprintf(cover, cover_len, "/assets/coverimage-httpstream.png");
-            else
+            }
+            else {
                 len = snprintf(cover, cover_len, "/pics/%s.png", path);
-        } else
+            }
+        } else {
             len = snprintf(cover, cover_len, "/assets/coverimage-httpstream.png");
+        }
     }
     else {
         if (mpd_state->feat_library) {
             dirname(path);
             snprintf(cover, cover_len, "%s/library/%s/%s", DOC_ROOT, path, config->coverimagename);
-            if (access(cover, F_OK ) == -1 )
-                len = snprintf(cover, cover_len, "/assets/coverimage-notavailable.png");
-            else
+            if (access(cover, F_OK ) == -1 ) {
+                if (config->plugins_coverextract == true) {
+                    char media_file[1500];
+                    snprintf(media_file, 1500, "%s/library/%s", DOC_ROOT, uri);
+                    char image_file[1500];
+                    char image_mime_type[100];
+                    int rc = plugin_coverextract(media_file, image_file, 1500, image_mime_type, 100, false);
+                    if (rc == 0) {
+                        len = snprintf(cover, cover_len, "/library/%s?cover", uri);
+                    }
+                    else {
+                        len = snprintf(cover, cover_len, "/assets/coverimage-notavailable.png");
+                    }
+                }
+                else {
+                    len = snprintf(cover, cover_len, "/assets/coverimage-notavailable.png");
+                }
+            }
+            else {
                 len = snprintf(cover, cover_len, "/library/%s/%s", path, config->coverimagename);
-        } else 
+            }
+        } else {
             len = snprintf(cover, cover_len, "/assets/coverimage-notavailable.png");
+        }
     }
     free(orgpath);
     return len;
