@@ -223,8 +223,10 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 }
             }
             else if (has_prefix(&hm->uri, &library_prefix) && hm->query_string.len > 0 && mg_vcmp(&hm->query_string, "cover") == 0 && config->plugins_coverextract == true) {
+                char uri_decoded[1200];
+                mg_url_decode(hm->uri.p, (int)hm->uri.len, uri_decoded, 1200, 0);
                 char media_file[1500];
-                snprintf(media_file, 1500, "%s%.*s", DOC_ROOT, (int)hm->uri.len, hm->uri.p);
+                snprintf(media_file, 1500, "%s%s", DOC_ROOT, uri_decoded);
                 LOG_VERBOSE() printf("Exctracting coverimage from %s\n", media_file);
                 char image_file[1500];
                 char image_mime_type[100];
