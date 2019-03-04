@@ -18,6 +18,12 @@ var urlsToCache = [
     '/assets/MaterialIcons-Regular.woff2'
 ];
 
+var ignoreRequests = new RegExp('(' + [
+  '/api',
+  '/ws',
+  '/library\/(.*)',
+  '/pics\/(.*)'].join('(\/?)|\\') + ')$')
+
 self.addEventListener('install', function(event) {
     event.waitUntil(
         caches.open(CACHE).then(function(cache) {
@@ -27,14 +33,20 @@ self.addEventListener('install', function(event) {
 });
 
 self.addEventListener('fetch', function(event) {
-    if (event.request.url.match('^http://'))
+    if (event.request.url.match('^http://')) {
         return false;
+    }
+    if (ignoreRequests.test(event.request.url)) {
+        return false;
+    }
     event.respondWith(
         caches.match(event.request).then(function(response) {
-            if (response)
+            if (response) {
                 return response
-            else
+            }
+            else {
                 return fetch(event.request);
+            }
         })
     );    
 });
@@ -44,8 +56,9 @@ self.addEventListener('activate', function(event) {
         caches.keys().then(function(cacheNames) {
             return Promise.all(
                 cacheNames.map(function(cacheName) {
-                    if (cacheName != CACHE)
+                    if (cacheName != CACHE) {
                         return caches.delete(cacheName);
+                    }
                 })
             );
         })
