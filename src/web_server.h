@@ -25,14 +25,19 @@
 #ifndef __WEB_SERVER_H__
 #define __WEB_SERVER_H__
 
-typedef struct t_user_data {
+typedef struct t_mg_user_data {
     void *config; //pointer to mympd config
+    char *music_directory;
+    char *pics_directory;
+} t_mg_user_data;
+
+typedef struct t_user_data {
     long conn_id; 
     bool global;
 } t_user_data;
 
 void *web_server_loop(void *arg_mgr);
-bool web_server_init(void *arg_mgr, t_config *config, t_user_data *user_data);
+bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_data, t_user_data *user_data);
 void web_server_free(void *arg_mgr);
 
 #endif

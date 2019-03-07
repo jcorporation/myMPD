@@ -52,14 +52,6 @@ then
   systemctl enable mympd
 fi
 
-if [ -f /etc/mpd.conf ]
-then
-  LIBRARY=$(grep ^music_directory /etc/mpd.conf | awk {'print $2'} | sed -e 's/"//g')
-  [ "$LIBRARY" != "" ] && [ ! -e /usr/share/mympd/htdocs/library ] && ln -s "$LIBRARY" /usr/share/mympd/htdocs/library
-fi
-
-[ -e /usr/share/mympd/htdocs/pics ] || ln -s /var/lib/mympd/pics /usr/share/mympd/htdocs/
-
 # move smartpls into place unless already existing
 for PLDIST in /var/lib/mympd/smartpls/*.dist
 do

@@ -73,6 +73,10 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("mpd", "streamport")) {
         p_config->streamport = strtol(value, &crap, 10);
     }
+    else if (MATCH("mpd", "musicdirectory")) {
+        free(p_config->music_directory);
+        p_config->music_directory = strdup(value);
+    }
     else if (MATCH("webserver", "webport")) {
         free(p_config->webport);
         p_config->webport = strdup(value);
@@ -203,6 +207,7 @@ static void mympd_free_config(t_config *config) {
     free(config->lovechannel);
     free(config->lovemessage);
     free(config->plugins_coverextractlib);
+    free(config->music_directory);
     free(config);
 }
 
@@ -222,7 +227,7 @@ static void mympd_parse_env(struct t_config *config, const char *envvar) {
 }
 
 static void mympd_get_env(struct t_config *config) {
-    const char* env_vars[]={"MPD_HOST", "MPD_PORT", "MPD_PASS", "MPD_STREAMPORT",
+    const char* env_vars[]={"MPD_HOST", "MPD_PORT", "MPD_PASS", "MPD_STREAMPORT", "MPD_MUSICDIRECTORY",
         "WEBSERVER_WEBPORT", "WEBSERVER_SSL", "WEBSERVER_SSLPORT", "WEBSERVER_SSLCERT", "WEBSERVER_SSLKEY",
         "MYMPD_LOGLEVEL", "MYMPD_USER", "MYMPD_LOCALPLAYER", "MYMPD_COVERIMAGE", "MYMPD_COVERIMAGENAME", 
         "MYMPD_COVERIMAGESIZE", "MYMPD_VARLIBDIR", "MYMPD_MIXRAMP", "MYMPD_STICKERS", "MYMPD_TAGLIST", 
@@ -276,6 +281,7 @@ int main(int argc, char **argv) {
     web_server_queue = tiny_queue_create();
 
     t_user_data *user_data = (t_user_data *)malloc(sizeof(t_user_data));
+    t_mg_user_data *mg_user_data = (t_mg_user_data *)malloc(sizeof(t_mg_user_data));
 
     srand((unsigned int)time(NULL));
     
@@ -314,6 +320,7 @@ int main(int argc, char **argv) {
     config->lovemessage = strdup("love");
     config->plugins_coverextract = false;
     config->plugins_coverextractlib = strdup("/usr/share/mympd/lib/mympd_coverextract.so");
+    config->music_directory = strdup("auto");
 
     char *configfile = strdup("/etc/mympd/mympd.conf");
     if (argc == 2) {
@@ -367,6 +374,13 @@ int main(int argc, char **argv) {
         goto cleanup;
     }
 
+    //check music_directory
+    if (strncmp(config->mpdhost, "/", 1) != 0 && strcmp(config->music_directory, "auto") == 0) {
+        free(config->music_directory);
+        config->music_directory = strdup("/var/lib/mpd/music");
+        printf("WARN: Not connected to socket, setting music_directory to %s\n", config->music_directory);
+    }
+
     //set signal handler
     signal(SIGTERM, mympd_signal_handler);
     signal(SIGINT, mympd_signal_handler);
@@ -375,7 +389,7 @@ int main(int argc, char **argv) {
 
     //init webserver
     struct mg_mgr mgr;
-    if (!web_server_init(&mgr, config, user_data)) {
+    if (!web_server_init(&mgr, config, mg_user_data, user_data)) {
         goto cleanup;
     }
     else {
@@ -411,12 +425,6 @@ int main(int argc, char **argv) {
     //check needed directories
     if (!testdir("Document root", DOC_ROOT)) {
         goto cleanup;
-    }
-
-    snprintf(testdirname, 400, "%s/library", DOC_ROOT);
-    if (!testdir("Link to mpd music_directory", testdirname)) {
-        printf("Disabling coverimage support\n");
-        config->coverimage = false;
     }
 
     snprintf(testdirname, 400, "%s/tmp", config->varlibdir);
@@ -491,6 +499,11 @@ int main(int argc, char **argv) {
     close_plugins(config);
     mympd_free_config(config);
     free(configfile);
+    if (mg_user_data->music_directory != NULL)
+        free(mg_user_data->music_directory);
+    if (mg_user_data->pics_directory != NULL)
+        free(mg_user_data->pics_directory);
+    free(mg_user_data);
     free(user_data);
     return rc;
 }

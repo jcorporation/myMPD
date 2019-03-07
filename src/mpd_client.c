@@ -85,7 +85,9 @@ typedef struct t_mpd_state {
     struct mpd_connection *conn;
     enum mpd_conn_states conn_state;
     int timeout;
-
+    // config
+    char *music_directory;
+    
     // States
     int song_id;
     int next_song_id;
@@ -199,19 +201,13 @@ void *mpd_client_loop(void *arg_config) {
     mpd_state.jukeboxPlaylist = strdup("Database");
     mpd_state.jukeboxQueueLength = 1;
     mpd_state.autoPlay = false;
+    mpd_state.music_directory = NULL;
     list_init(&mpd_state.mpd_tags);
     list_init(&mpd_state.mympd_tags);
     list_init(&mpd_state.mympd_searchtags);
     list_init(&mpd_state.mympd_browsetags);
     mpd_state.tag_types_len = 0;
     memset(mpd_state.tag_types, 0, sizeof(mpd_state.tag_types));
-
-    char testdirname[400];    
-    snprintf(testdirname, 400, "%s/library", DOC_ROOT);
-    if (testdir("Link to mpd music_directory", testdirname)) {
-        LOG_INFO() printf("Enabling featLibrary support\n");
-        mpd_state.feat_library = true;
-    }
 
     //read last played songs history file
     list_init(&mpd_state.last_played);
@@ -228,6 +224,9 @@ void *mpd_client_loop(void *arg_config) {
     list_free(&mpd_state.mympd_searchtags);
     list_free(&mpd_state.mympd_browsetags);
     list_free(&mpd_state.last_played);
+    if (mpd_state.music_directory != NULL) {
+        free(mpd_state.music_directory);
+    }
     free(mpd_state.jukeboxPlaylist);
     return NULL;
 }
@@ -1052,6 +1051,7 @@ static void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state) {
     mpd_state->feat_playlists = false;
     mpd_state->feat_tags = false;
     mpd_state->feat_advsearch = false;
+    mpd_state->feat_library = false;
     mpd_state->feat_smartpls = config->smartpls;
     mpd_state->tag_types_len = 0;
     memset(mpd_state->tag_types, 0, sizeof(mpd_state->tag_types));
@@ -1082,6 +1082,47 @@ static void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state) {
         mpd_state->feat_smartpls = false;
     }
     
+
+    if (mpd_state->music_directory != NULL) {
+        free(mpd_state->music_directory);
+        mpd_state->music_directory = NULL;
+    }
+    if (strncmp(config->mpdhost, "/", 1) == 0 && strcmp(config->music_directory, "auto") == 0) {
+        if (mpd_send_command(mpd_state->conn, "config", NULL)) {
+            while ((pair = mpd_recv_pair(mpd_state->conn)) != NULL) {
+                if (strcmp(pair->name, "music_directory") == 0) {
+                    mpd_state->music_directory = strdup(pair->value);
+                }
+                mpd_return_pair(mpd_state->conn, pair);
+            }
+            mpd_response_finish(mpd_state->conn);
+        }
+        else {
+            LOG_ERROR_AND_RECOVER("config");
+        }
+    }
+    if (mpd_state->music_directory == NULL) {
+        //not a local mpd connection
+        mpd_state->music_directory = strdup(config->music_directory);
+    }
+    //Check access to music_directory
+    if (testdir("MPD music_directory", mpd_state->music_directory)) {
+        LOG_INFO() printf("Enabling featLibrary support\n");
+        mpd_state->feat_library = true;
+    }
+    else {
+        LOG_INFO() printf("Disabling featLibrary support\n");
+        mpd_state->feat_library = false;
+    }
+    //push music_directory setting to web_server_queue
+    t_work_result *web_server_response = (t_work_result *)malloc(sizeof(t_work_result));
+    web_server_response->conn_id = -1;
+    web_server_response->length = snprintf(web_server_response->data, MAX_SIZE, 
+        "{\"music_directory\":\"%s\"}",
+        mpd_state->music_directory
+    );
+    tiny_queue_push(web_server_queue, web_server_response);
+
     LOG_INFO() printf("MPD supported tags: ");
     list_free(&mpd_state->mpd_tags);
     if (mpd_send_list_tag_types(mpd_state->conn)) {
@@ -1174,7 +1215,12 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
     switch (mpd_state->conn_state) {
         case MPD_DISCONNECTED:
             /* Try to connect */
-            LOG_INFO() printf("MPD Connecting to %s:%ld\n", config->mpdhost, config->mpdport);
+            if (strncmp(config->mpdhost, "/", 1) == 0) {
+                LOG_INFO() printf("MPD Connecting to socket %s\n", config->mpdhost);
+            }
+            else {
+                LOG_INFO() printf("MPD Connecting to %s:%ld\n", config->mpdhost, config->mpdport);
+            }
             mpd_state->conn = mpd_connection_new(config->mpdhost, config->mpdport, mpd_state->timeout);
             if (mpd_state->conn == NULL) {
                 printf("ERROR: MPD connection failed.");
@@ -1843,7 +1889,9 @@ static int mpd_client_get_cover(t_config *config, t_mpd_state *mpd_state, const 
                 path += 8;
             replacechar(path, '/', '_');
             replacechar(path, '.', '_');
-            snprintf(cover, cover_len, "%s/pics/%s.png", DOC_ROOT, path);
+            replacechar(path, ':', '_');
+            snprintf(cover, cover_len, "%s/pics/%s.png", config->varlibdir, path);
+            fprintf(stderr, "DEBUG: Check for cover %s\n", cover);
             if (access(cover, F_OK ) == -1 ) {
                 len = snprintf(cover, cover_len, "/assets/coverimage-httpstream.png");
             }
@@ -1857,11 +1905,11 @@ static int mpd_client_get_cover(t_config *config, t_mpd_state *mpd_state, const 
     else {
         if (mpd_state->feat_library) {
             dirname(path);
-            snprintf(cover, cover_len, "%s/library/%s/%s", DOC_ROOT, path, config->coverimagename);
+            snprintf(cover, cover_len, "%s/%s/%s", mpd_state->music_directory, path, config->coverimagename);
             if (access(cover, F_OK ) == -1 ) {
                 if (config->plugins_coverextract == true) {
                     char media_file[1500];
-                    snprintf(media_file, 1500, "%s/library/%s", DOC_ROOT, uri);
+                    snprintf(media_file, 1500, "%s/%s", mpd_state->music_directory, uri);
                     char image_file[1500];
                     char image_mime_type[100];
                     int rc = plugin_coverextract(media_file, image_file, 1500, image_mime_type, 100, false);

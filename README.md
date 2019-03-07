@@ -59,6 +59,7 @@ Dependencies
 ------------
  - libmpdclient 2: http://www.musicpd.org/libs/libmpdclient/
  - OpenSSL: https://www.openssl.org/
+ - libmediainfo: https://mediaarea.net/en/MediaInfo (to support embedded album covers)
 
 Build Dependencies
 ------------------
@@ -68,14 +69,14 @@ Build Dependencies
 
 Unix Build Instructions
 -----------------------
-
-1. Install dependencies: cmake, libmpdclient (dev), OpenSSL (dev) and Java are available from all major distributions.
-2. Build and install: ```cd /path/to/src; ./mkrelease.sh``` (toplevel directory of myMPD tarball).
-3. Link your mpd music directory to ```/usr/share/mympd/htdocs/library``` (mkrelease.sh tries to do this for you).
-4. Configure your mpd with http stream output to use the local player.
+1. Install dependencies: cmake, libmpdclient (dev), OpenSSL (dev), libmediainfo (dev) and Java
+2. Extract myMPD tarball and change path to this directory.
+3. Build and install myMPD: ```./mkrelease.sh```
+4. Build and install plugins: ```./mkplugins.sh```
 
 Run
 ---------
+Adapt the configuration file ```/etc/mympd/mympd.conf``` to your needs.
 ```
 Usage: ./mympd [/etc/mympd/mympd.conf]
 ```

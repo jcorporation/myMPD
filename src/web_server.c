@@ -45,7 +45,7 @@ static bool handle_api(long conn_id, const char *request, int request_len);
 static int has_prefix(const struct mg_str *uri, const struct mg_str *prefix);
 
 //public functions
-bool web_server_init(void *arg_mgr, t_config *config, t_user_data *user_data) {
+bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_data, t_user_data *user_data) {
     struct mg_mgr *mgr = (struct mg_mgr *) arg_mgr;
     struct mg_connection *nc_https;
     struct mg_connection *nc_http;
@@ -54,12 +54,17 @@ bool web_server_init(void *arg_mgr, t_config *config, t_user_data *user_data) {
     const char *err_https;
     const char *err_http;
 
-    mg_mgr_init(mgr, NULL);
-
-    //initialize global user_data, malloced in main.c
-    user_data->config = config;
+    //initialize connection user_data, malloced in main.c
     user_data->conn_id = 1;
     user_data->global = true;
+    //initialize mgr user_data, malloced in main.c
+    mg_user_data->config = config;
+    mg_user_data->music_directory = NULL;
+    size_t pics_directory_len = strlen(config->varlibdir) + 6;
+    mg_user_data->pics_directory = malloc(pics_directory_len);
+    snprintf(mg_user_data->pics_directory, pics_directory_len, "%s/pics", config->varlibdir);
+    //init monogoose mgr with mg_user_data
+    mg_mgr_init(mgr, mg_user_data);
     
     //bind to webport
     memset(&bind_opts_http, 0, sizeof(bind_opts_http));
@@ -105,13 +110,30 @@ void web_server_free(void *arg_mgr) {
 
 void *web_server_loop(void *arg_mgr) {
     struct mg_mgr *mgr = (struct mg_mgr *) arg_mgr;
+    t_mg_user_data *mg_user_data = (t_mg_user_data *) mgr->user_data;
     while (s_signal_received == 0) {
-        mg_mgr_poll(mgr, 50);
         unsigned web_server_queue_length = tiny_queue_length(web_server_queue, 50);
         if (web_server_queue_length > 0) {
             t_work_result *response = tiny_queue_shift(web_server_queue, 50);
             if (response != NULL) {
-                if (response->conn_id == 0) {
+                if (response->conn_id == -1) {
+                    //internal message
+                    char *p_charbuf;
+                    int je = json_scanf(response->data, response->length, "{music_directory: %Q}", &p_charbuf);
+                    if (je == 1) {
+                        if (mg_user_data->music_directory != NULL) {
+                            free(mg_user_data->music_directory);
+                        }
+                        mg_user_data->music_directory = p_charbuf;
+                        p_charbuf = NULL;
+                        LOG_DEBUG() fprintf(stderr, "DEBUG: Setting music_directory to %s\n", mg_user_data->music_directory);
+                    }
+                    else {
+                        printf("ERROR unknown internal message: %s\n", response->data);
+                    }
+                    free(response);
+                }
+                else if (response->conn_id == 0) {
                     //Websocket notify from mpd idle
                     send_ws_notify(mgr, response);
                 } 
@@ -121,6 +143,8 @@ void *web_server_loop(void *arg_mgr) {
                 }
             }
         }
+        //webserver polling
+        mg_mgr_poll(mgr, 50);
     }
     return NULL;
 }
@@ -173,8 +197,10 @@ static int has_prefix(const struct mg_str *uri, const struct mg_str *prefix) {
 }
 
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
+    t_mg_user_data *mg_user_data = (t_mg_user_data *) nc->mgr->user_data;
+    t_config *config = (t_config *) mg_user_data->config;
+    
     t_user_data *user_data = (t_user_data *) nc->user_data;
-    t_config *config = (t_config *) user_data->config;
     
     switch(ev) {
         case MG_EV_ACCEPT: {
@@ -184,9 +210,8 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             else
                 user_data->conn_id = 1;
             
-            //replace mgr user_data with connection specific user_data
+            //replace global nc user_data with connection specific user_data
             t_user_data *nc_user_data = (t_user_data *) malloc(sizeof(t_user_data));
-            nc_user_data->config = config;
             nc_user_data->conn_id = user_data->conn_id;
             nc_user_data->global = false;
             nc->user_data = nc_user_data;
@@ -212,8 +237,10 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
         case MG_EV_HTTP_REQUEST: {
             struct http_message *hm = (struct http_message *) ev_data;
             static const struct mg_str library_prefix = MG_MK_STR("/library");
+            static const struct mg_str pics_prefix = MG_MK_STR("/pics");
             LOG_VERBOSE() printf("HTTP request (%ld): %.*s\n", user_data->conn_id, (int)hm->uri.len, hm->uri.p);
             if (mg_vcmp(&hm->uri, "/api") == 0) {
+                //api request
                 bool rc = handle_api(user_data->conn_id, hm->body.p, hm->body.len);
                 if (rc == false) {
                     printf("ERROR: Invalid API request.\n");
@@ -223,10 +250,13 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 }
             }
             else if (has_prefix(&hm->uri, &library_prefix) && hm->query_string.len > 0 && mg_vcmp(&hm->query_string, "cover") == 0 && config->plugins_coverextract == true) {
+                //coverextract
                 char uri_decoded[1200];
+                hm->uri.p += 8;
+                hm->uri.len = (int)hm->uri.len - 8;
                 mg_url_decode(hm->uri.p, (int)hm->uri.len, uri_decoded, 1200, 0);
                 char media_file[1500];
-                snprintf(media_file, 1500, "%s%s", DOC_ROOT, uri_decoded);
+                snprintf(media_file, 1500, "%s%s", mg_user_data->music_directory, uri_decoded);
                 LOG_VERBOSE() printf("Exctracting coverimage from %s\n", media_file);
                 char image_file[1500];
                 char image_mime_type[100];
@@ -250,10 +280,31 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                     mg_http_serve_file(nc, hm, image_file, mg_mk_str("image/png"), mg_mk_str(""));
                 }
             }
+            else if (has_prefix(&hm->uri, &library_prefix)) {
+                //map request for virtual directory /library to music_directory
+                static struct mg_serve_http_opts s_http_server_opts;
+                s_http_server_opts.document_root = mg_user_data->music_directory;
+                s_http_server_opts.enable_directory_listing = "no";
+                hm->uri.p += 8;
+                hm->uri.len = (int)hm->uri.len - 8;
+                fprintf(stderr, "DEBUG: Serving %.*s from directory %s\n", (int)hm->uri.len, hm->uri.p, mg_user_data->music_directory);
+                mg_serve_http(nc, hm, s_http_server_opts);
+            }
+            else if (has_prefix(&hm->uri, &pics_prefix)) {
+                //map request for virtual directory /pics to pics directory (default: /var/lib/mympd/pics)
+                static struct mg_serve_http_opts s_http_server_opts;
+                s_http_server_opts.document_root = mg_user_data->pics_directory;
+                s_http_server_opts.enable_directory_listing = "no";
+                hm->uri.p += 5;
+                hm->uri.len = (int)hm->uri.len - 5;
+                fprintf(stderr, "DEBUG: Serving %.*s from directory %s\n", (int)hm->uri.len, hm->uri.p, mg_user_data->pics_directory);
+                mg_serve_http(nc, hm, s_http_server_opts);
+            }
             else {
                 static struct mg_serve_http_opts s_http_server_opts;
                 s_http_server_opts.document_root = DOC_ROOT;
                 s_http_server_opts.enable_directory_listing = "no";
+                fprintf(stderr, "DEBUG: Serving %.*s from directory %s\n", (int)hm->uri.len, hm->uri.p, DOC_ROOT);
                 mg_serve_http(nc, hm, s_http_server_opts);
             }
             break;
@@ -282,8 +333,10 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data)
         case MG_EV_HTTP_REQUEST: {
             struct http_message *hm = (struct http_message *) ev_data;
             struct mg_str *host_hdr = mg_get_http_header(hm, "Host");
-            t_user_data *user_data = (t_user_data *) nc->user_data;
-            t_config *config = (t_config *) user_data->config;
+            t_mg_user_data *mg_user_data = (t_mg_user_data *) nc->mgr->user_data;
+            t_config *config = (t_config *) mg_user_data->config;
+            //t_user_data *user_data = (t_user_data *) nc->user_data;
+            //t_config *config = (t_config *) user_data->config;
             
             snprintf(host_header, 1024, "%.*s", (int)host_hdr->len, host_hdr->p);
             host = strtok_r(host_header, ":", &crap);
@@ -307,22 +360,26 @@ static bool handle_api(long conn_id, const char *request_body, int request_len) 
     
     LOG_VERBOSE() printf("API request (%ld): %.*s\n", conn_id, request_len, request_body);
     const int je = json_scanf(request_body, request_len, "{cmd: %Q}", &cmd);
-    if (je < 1)
+    if (je < 1) {
         return false;
+    }
 
     enum mympd_cmd_ids cmd_id = get_cmd_id(cmd);
-    if (cmd_id == 0)
+    if (cmd_id == 0) {
         return false;
+    }
     
     t_work_request *request = (t_work_request*)malloc(sizeof(t_work_request));
     request->conn_id = conn_id;
     request->cmd_id = cmd_id;
     request->length = copy_string(request->data, request_body, 1000, request_len);
     
-    if (strncmp(cmd, "MYMPD_API_", 10) == 0)
+    if (strncmp(cmd, "MYMPD_API_", 10) == 0) {
         tiny_queue_push(mympd_api_queue, request);
-    else
+    }
+    else {
         tiny_queue_push(mpd_client_queue, request);
+    }
 
     free(cmd);        
     return true;

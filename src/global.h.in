@@ -195,6 +195,7 @@ typedef struct t_config {
     char *lovemessage;
     bool plugins_coverextract;
     char *plugins_coverextractlib;
+    char *music_directory;
 } t_config;
 
 //global functions

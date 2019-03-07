@@ -2,13 +2,17 @@
 
 [mpd]
 #Connection to mpd
-host = 127.0.0.1
-port = 6600
+host = /var/run/mpd/socket
+#port = 6600
 #pass = 
 
 #Port for mpd http stream
 streamport = 8000
 
+#absolut path of music_directory of mpd
+#auto = get music_directory from mpd (only support, if connected to mpd socket)
+#fallback: /var/lib/mpd/music
+musicdirectory = auto
 
 [webserver]
 #Webserver options
