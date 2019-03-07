@@ -347,6 +347,7 @@ int main(int argc, char **argv) {
     
     printf("Starting myMPD %s\n", MYMPD_VERSION);
     printf("Libmpdclient %i.%i.%i\n", LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION);
+    printf("Mongoose %s\n", MG_VERSION);
     
     if (access(configfile, F_OK ) != -1) {
         printf("Parsing config file: %s\n", configfile);
