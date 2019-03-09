@@ -45,7 +45,7 @@ static bool handle_api(long conn_id, const char *request, int request_len);
 static int has_prefix(const struct mg_str *uri, const struct mg_str *prefix);
 
 //public functions
-bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_data, t_user_data *user_data) {
+bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_data) {
     struct mg_mgr *mgr = (struct mg_mgr *) arg_mgr;
     struct mg_connection *nc_https;
     struct mg_connection *nc_http;
@@ -54,12 +54,10 @@ bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_da
     const char *err_https;
     const char *err_http;
 
-    //initialize connection user_data, malloced in main.c
-    user_data->conn_id = 1;
-    user_data->global = true;
     //initialize mgr user_data, malloced in main.c
     mg_user_data->config = config;
     mg_user_data->music_directory = NULL;
+    mg_user_data->conn_id = 1;
     size_t pics_directory_len = strlen(config->varlibdir) + 6;
     mg_user_data->pics_directory = malloc(pics_directory_len);
     snprintf(mg_user_data->pics_directory, pics_directory_len, "%s/pics", config->varlibdir);
@@ -68,7 +66,6 @@ bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_da
     
     //bind to webport
     memset(&bind_opts_http, 0, sizeof(bind_opts_http));
-    bind_opts_http.user_data = (void *)user_data;
     bind_opts_http.error_string = &err_http;
     if (config->ssl == true) {
         nc_http = mg_bind_opt(mgr, config->webport, ev_handler_redirect, bind_opts_http);
@@ -87,7 +84,6 @@ bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_da
     //bind to sslport
     if (config->ssl == true) {
         memset(&bind_opts_https, 0, sizeof(bind_opts_https));
-        bind_opts_https.user_data = (void *)user_data;
         bind_opts_https.error_string = &err_https;
         bind_opts_https.ssl_cert = config->sslcert;
         bind_opts_https.ssl_key = config->sslkey;
@@ -160,8 +156,7 @@ static void send_ws_notify(struct mg_mgr *mgr, t_work_result *response) {
         if (!is_websocket(nc))
             continue;
         if (nc->user_data != NULL) {
-            t_user_data *user_data = (t_user_data *) nc->user_data;
-            LOG_DEBUG() fprintf(stderr, "DEBUG: Sending notify to conn_id %ld: %.*s...\n", user_data->conn_id, 80, response->data);
+            LOG_DEBUG() fprintf(stderr, "DEBUG: Sending notify to conn_id %ld: %.*s...\n", (long)nc->user_data, 80, response->data);
         }
         else {
             LOG_DEBUG() fprintf(stderr, "DEBUG: Sending notify to unknown connection: %.*s\n...", 80, response->data);
@@ -177,9 +172,8 @@ static void send_api_response(struct mg_mgr *mgr, t_work_result *response) {
         if (is_websocket(nc))
             continue;
         if (nc->user_data != NULL) {
-            t_user_data *user_data = (t_user_data *) nc->user_data;
-            if (user_data->conn_id == response->conn_id) {
-                LOG_DEBUG() fprintf(stderr, "DEBUG: Sending response to conn_id %ld: %.*s...\n", user_data->conn_id, 80, response->data);
+            if ((long)nc->user_data == response->conn_id) {
+                LOG_DEBUG() fprintf(stderr, "DEBUG: Sending response to conn_id %ld: %.*s...\n", (long)nc->user_data, 80, response->data);
                 mg_send_head(nc, 200, response->length, "Content-Type: application/json");
                 mg_printf(nc, "%s", response->data);
                 break;
@@ -200,27 +194,23 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
     t_mg_user_data *mg_user_data = (t_mg_user_data *) nc->mgr->user_data;
     t_config *config = (t_config *) mg_user_data->config;
     
-    t_user_data *user_data = (t_user_data *) nc->user_data;
-    
     switch(ev) {
         case MG_EV_ACCEPT: {
             //increment conn_id
-            if (user_data->conn_id < LONG_MAX)
-                user_data->conn_id++;
-            else
-                user_data->conn_id = 1;
-            
-            //replace global nc user_data with connection specific user_data
-            t_user_data *nc_user_data = (t_user_data *) malloc(sizeof(t_user_data));
-            nc_user_data->conn_id = user_data->conn_id;
-            nc_user_data->global = false;
-            nc->user_data = nc_user_data;
-            LOG_DEBUG() fprintf(stderr, "DEBUG: New connection id %ld.\n", user_data->conn_id);
+            if (mg_user_data->conn_id < LONG_MAX) {
+                mg_user_data->conn_id++;
+            }
+            else {
+                mg_user_data->conn_id = 1;
+            }
+            //set conn_id
+            nc->user_data = (void *)mg_user_data->conn_id;
+            LOG_DEBUG() fprintf(stderr, "DEBUG: New connection id %ld.\n", (long)nc->user_data);
             break;
         }
         case MG_EV_WEBSOCKET_HANDSHAKE_REQUEST: {
             struct http_message *hm = (struct http_message *) ev_data;
-            LOG_VERBOSE() printf("New websocket request (%ld): %.*s\n", user_data->conn_id, (int)hm->uri.len, hm->uri.p);
+            LOG_VERBOSE() printf("New websocket request (%ld): %.*s\n", (long)nc->user_data, (int)hm->uri.len, hm->uri.p);
             if (mg_vcmp(&hm->uri, "/ws") != 0) {
                 printf("ERROR: Websocket request not to /ws, closing connection.\n");
                 mg_printf(nc, "%s", "HTTP/1.1 403 FORBIDDEN\r\n\r\n");
@@ -229,7 +219,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             break;
         }
         case MG_EV_WEBSOCKET_HANDSHAKE_DONE: {
-             LOG_VERBOSE() printf("New Websocket connection established (%ld).\n", user_data->conn_id);
+             LOG_VERBOSE() printf("New Websocket connection established (%ld).\n", (long)nc->user_data);
              const char *response = "{\"type\": \"welcome\", \"data\": {\"mympdVersion\": \"" MYMPD_VERSION "\"}}";
              mg_send_websocket_frame(nc, WEBSOCKET_OP_TEXT, response, strlen(response));
              break;
@@ -238,10 +228,10 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             struct http_message *hm = (struct http_message *) ev_data;
             static const struct mg_str library_prefix = MG_MK_STR("/library");
             static const struct mg_str pics_prefix = MG_MK_STR("/pics");
-            LOG_VERBOSE() printf("HTTP request (%ld): %.*s\n", user_data->conn_id, (int)hm->uri.len, hm->uri.p);
+            LOG_VERBOSE() printf("HTTP request (%ld): %.*s\n", (long)nc->user_data, (int)hm->uri.len, hm->uri.p);
             if (mg_vcmp(&hm->uri, "/api") == 0) {
                 //api request
-                bool rc = handle_api(user_data->conn_id, hm->body.p, hm->body.len);
+                bool rc = handle_api((long)nc->user_data, hm->body.p, hm->body.len);
                 if (rc == false) {
                     printf("ERROR: Invalid API request.\n");
                     const char *response = "{\"type\": \"error\", \"data\": \"Invalid API request\"}";
@@ -311,11 +301,8 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
         }
         case MG_EV_CLOSE: {
             if (nc->user_data != NULL) {
-                if (user_data->global == false) {
-                    LOG_VERBOSE() fprintf(stderr, "HTTP connection %ld closed.\n", user_data->conn_id);
-                    free(nc->user_data);
-                    nc->user_data = NULL;
-                }
+                LOG_VERBOSE() fprintf(stderr, "HTTP connection %ld closed.\n", (long)nc->user_data);
+                nc->user_data = NULL;
             }
             break;
         }
@@ -335,8 +322,6 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data)
             struct mg_str *host_hdr = mg_get_http_header(hm, "Host");
             t_mg_user_data *mg_user_data = (t_mg_user_data *) nc->mgr->user_data;
             t_config *config = (t_config *) mg_user_data->config;
-            //t_user_data *user_data = (t_user_data *) nc->user_data;
-            //t_config *config = (t_config *) user_data->config;
             
             snprintf(host_header, 1024, "%.*s", (int)host_hdr->len, host_hdr->p);
             host = strtok_r(host_header, ":", &crap);

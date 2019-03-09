@@ -280,7 +280,6 @@ int main(int argc, char **argv) {
     mympd_api_queue = tiny_queue_create();
     web_server_queue = tiny_queue_create();
 
-    t_user_data *user_data = (t_user_data *)malloc(sizeof(t_user_data));
     t_mg_user_data *mg_user_data = (t_mg_user_data *)malloc(sizeof(t_mg_user_data));
 
     srand((unsigned int)time(NULL));
@@ -390,7 +389,7 @@ int main(int argc, char **argv) {
 
     //init webserver
     struct mg_mgr mgr;
-    if (!web_server_init(&mgr, config, mg_user_data, user_data)) {
+    if (!web_server_init(&mgr, config, mg_user_data)) {
         goto cleanup;
     }
     else {
@@ -505,6 +504,5 @@ int main(int argc, char **argv) {
     if (mg_user_data->pics_directory != NULL)
         free(mg_user_data->pics_directory);
     free(mg_user_data);
-    free(user_data);
     return rc;
 }
