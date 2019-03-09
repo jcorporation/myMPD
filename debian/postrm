@@ -8,6 +8,3 @@ then
   rm -v -f /usr/lib/systemd/system/mympd.service
   systemctl daemon-reload
 fi
-
-rm -v -f /usr/share/mympd/htdocs/pics
-rm -v -f /usr/share/mympd/htdocs/library

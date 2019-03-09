@@ -71,9 +71,9 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
 static bool mympd_api_read_syscmds(t_config *config, t_mympd_state *mympd_state);
 static int mympd_api_syscmd(t_config *config, t_mympd_state *mympd_state, char *buffer, const char *cmd);
 static void mympd_api_read_statefiles(t_config *config, t_mympd_state *mympd_state);
-static char *state_file_rw_string(t_config *config, const char *name, const char *def_value);
-static bool state_file_rw_bool(t_config *config, const char *name, const bool def_value);
-static long state_file_rw_long(t_config *config, const char *name, const long def_value);
+static char *state_file_rw_string(t_config *config, const char *name, const char *def_value, bool warn);
+static bool state_file_rw_bool(t_config *config, const char *name, const bool def_value, bool warn);
+static long state_file_rw_long(t_config *config, const char *name, const long def_value, bool warn);
 static bool state_file_write(t_config *config, const char *name, const char *value);
 static int mympd_api_put_settings(t_config *config, t_mympd_state *mympd_state, char *buffer);
 static bool mympd_api_bookmark_update(t_config *config, const long id, const char *name, const char *uri, const char *type);
@@ -373,22 +373,22 @@ static int mympd_api_syscmd(t_config *config, t_mympd_state *mympd_state, char *
 
 static void mympd_api_read_statefiles(t_config *config, t_mympd_state *mympd_state) {
     LOG_INFO() printf("Reading states\n");
-    mympd_state->notificationWeb = state_file_rw_bool(config, "notificationWeb", false);
-    mympd_state->notificationPage = state_file_rw_bool(config, "notificationPage", true);
-    mympd_state->autoPlay = state_file_rw_bool(config, "autoPlay", false);
-    mympd_state->jukeboxMode = state_file_rw_long(config, "jukeboxMode", JUKEBOX_OFF);
-    mympd_state->jukeboxPlaylist = state_file_rw_string(config, "jukeboxPlaylist", "Database");
-    mympd_state->jukeboxQueueLength = state_file_rw_long(config, "jukeboxQueueLength", 1);
-    mympd_state->colsQueueCurrent = state_file_rw_string(config, "colsQueueCurrent", "[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]");
-    mympd_state->colsSearch = state_file_rw_string(config, "colsSearch", "[\"Title\",\"Artist\",\"Album\",\"Duration\"]");    
-    mympd_state->colsBrowseDatabase = state_file_rw_string(config, "colsBrowseDatabase", "[\"Track\",\"Title\",\"Duration\"]");
-    mympd_state->colsBrowsePlaylistsDetail = state_file_rw_string(config, "colsBrowsePlaylistsDetail", "[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]");
-    mympd_state->colsBrowseFilesystem = state_file_rw_string(config, "colsBrowseFilesystem", "[\"Type\",\"Title\",\"Artist\",\"Album\",\"Duration\"]");    
-    mympd_state->colsPlayback = state_file_rw_string(config, "colsPlayback", "[\"Artist\",\"Album\"]");    
-    mympd_state->colsQueueLastPlayed = state_file_rw_string(config, "colsQueueLastPlayed", "[\"Pos\",\"Title\",\"Artist\",\"Album\",\"LastPlayed\"]");    
+    mympd_state->notificationWeb = state_file_rw_bool(config, "notificationWeb", false, false);
+    mympd_state->notificationPage = state_file_rw_bool(config, "notificationPage", true, false);
+    mympd_state->autoPlay = state_file_rw_bool(config, "autoPlay", false, false);
+    mympd_state->jukeboxMode = state_file_rw_long(config, "jukeboxMode", JUKEBOX_OFF, false);
+    mympd_state->jukeboxPlaylist = state_file_rw_string(config, "jukeboxPlaylist", "Database", false);
+    mympd_state->jukeboxQueueLength = state_file_rw_long(config, "jukeboxQueueLength", 1, false);
+    mympd_state->colsQueueCurrent = state_file_rw_string(config, "colsQueueCurrent", "[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]", false);
+    mympd_state->colsSearch = state_file_rw_string(config, "colsSearch", "[\"Title\",\"Artist\",\"Album\",\"Duration\"]", false);
+    mympd_state->colsBrowseDatabase = state_file_rw_string(config, "colsBrowseDatabase", "[\"Track\",\"Title\",\"Duration\"]", false);
+    mympd_state->colsBrowsePlaylistsDetail = state_file_rw_string(config, "colsBrowsePlaylistsDetail", "[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]", false);
+    mympd_state->colsBrowseFilesystem = state_file_rw_string(config, "colsBrowseFilesystem", "[\"Type\",\"Title\",\"Artist\",\"Album\",\"Duration\"]", false);
+    mympd_state->colsPlayback = state_file_rw_string(config, "colsPlayback", "[\"Artist\",\"Album\"]", false);
+    mympd_state->colsQueueLastPlayed = state_file_rw_string(config, "colsQueueLastPlayed", "[\"Pos\",\"Title\",\"Artist\",\"Album\",\"LastPlayed\"]", false);
 }
 
-static char *state_file_rw_string(t_config *config, const char *name, const char *def_value) {
+static char *state_file_rw_string(t_config *config, const char *name, const char *def_value, bool warn) {
     char cfg_file[400];
     char *line = NULL;
     size_t n = 0;
@@ -400,9 +400,11 @@ static char *state_file_rw_string(t_config *config, const char *name, const char
     snprintf(cfg_file, 400, "%s/state/%s", config->varlibdir, name);
     FILE *fp = fopen(cfg_file, "r");
     if (fp == NULL) {
-        printf("Error opening %s\n", cfg_file);
+        if (warn == true) {
+            printf("Error opening %s\n", cfg_file);
+        }
         state_file_write(config, name, def_value);
-        return NULL;
+        return strdup(def_value);
     }
     read = getline(&line, &n, fp);
     if (read > 0) {
@@ -414,13 +416,13 @@ static char *state_file_rw_string(t_config *config, const char *name, const char
     }
     else {
         free(line);
-        return NULL;
+        return strdup(def_value);
     }
 }
 
-static bool state_file_rw_bool(t_config *config, const char *name, const bool def_value) {
+static bool state_file_rw_bool(t_config *config, const char *name, const bool def_value, bool warn) {
     bool value = def_value;
-    char *line = state_file_rw_string(config, name, def_value == true ? "true" : "false");
+    char *line = state_file_rw_string(config, name, def_value == true ? "true" : "false", warn);
     if (line != NULL) {
         value = strcmp(line, "true") == 0 ? true : false;
         free(line);
@@ -428,12 +430,12 @@ static bool state_file_rw_bool(t_config *config, const char *name, const bool de
     return value;
 }
 
-static long state_file_rw_long(t_config *config, const char *name, const long def_value) {
+static long state_file_rw_long(t_config *config, const char *name, const long def_value, bool warn) {
     char *crap;
     long value = def_value;
     char def_value_str[65];
     snprintf(def_value_str, 65, "%ld", def_value);
-    char *line = state_file_rw_string(config, name, def_value_str);
+    char *line = state_file_rw_string(config, name, def_value_str, warn);
     if (line != NULL) {
         value = strtol(line, &crap,10);
         free(line);
@@ -538,9 +540,7 @@ static bool mympd_api_bookmark_update(t_config *config, const long id, const cha
         return false;
     }
     FILE *fi = fopen(b_file, "r");
-    if (fi == NULL) {
-        printf("Error opening %s\n", b_file);
-    } else {
+    if (fi != NULL) {
         while ((read = getline(&line, &n, fi)) > 0) {
             char *lname, *luri, *ltype;
             long lid;
@@ -603,8 +603,16 @@ static int mympd_api_bookmark_list(t_config *config, char *buffer, unsigned int 
     snprintf(b_file, 400, "%s/state/bookmarks", config->varlibdir);
     FILE *fi = fopen(b_file, "r");
     if (fi == NULL) {
-        printf("Error opening %s\n", b_file);
-        len = json_printf(&out, "{type: error, data: %Q}", "Can't open bookmarks file");
+        //create empty bookmarks file
+        fi = fopen(b_file, "w");
+        if (fi == NULL) {
+            printf("Error opening %s\n", b_file);
+            len = json_printf(&out, "{type: error, data: %Q}", "Can't open bookmarks file");
+        }
+        else {
+            fclose(fi);
+            len = json_printf(&out, "{type: bookmark, data: [], totalEntities: 0, offset: 0, returnedEntities: 0}");
+        }
     } else {
         len = json_printf(&out, "{type: bookmark, data: [");
         while ((read = getline(&line, &n, fi)) > 0) {

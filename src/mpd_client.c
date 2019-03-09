@@ -3065,7 +3065,6 @@ static int mpd_client_read_last_played(t_config *config, t_mpd_state *mpd_state)
     snprintf(cfgfile, 400, "%s/state/last_played", config->varlibdir);
     FILE *fp = fopen(cfgfile, "r");
     if (fp == NULL) {
-        printf("Error opening %s\n", cfgfile);
         return 0;
     }
     while ((read = getline(&line, &n, fp)) > 0) {

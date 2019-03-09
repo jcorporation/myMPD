@@ -17,8 +17,8 @@ provides=()
 conflicts=()
 replaces=()
 install=archlinux.install
-source=("mympd_${pkgver}.orig.tar.gz")
-#source=("https://github.com/jcorporation/${_pkgname}/archive/v${pkgver}.tar.gz")
+#source=("mympd_${pkgver}.orig.tar.gz")
+source=("https://github.com/jcorporation/${_pkgname}/archive/v${pkgver}.tar.gz")
 sha256sums=('SKIP')
 
 build() {
@@ -28,7 +28,7 @@ build() {
   else
     cd "${srcdir}"
   fi
-  [ -d release ] || mkdir release
+  install -d release
   cd release
   cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=RELEASE ..
   make
