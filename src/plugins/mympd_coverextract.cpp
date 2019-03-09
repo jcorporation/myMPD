@@ -88,6 +88,7 @@ int coverextract(const char *media_file_ptr, char *image_filename, int image_fil
     string media_file = media_file_ptr;
     MediaInfo MI;
     MI.Option(__T("Internet"), __T("No"));
+    MI.Option(__T("Cover_Data"), __T("base64"));
     MI.Open(__T(media_file));
     if (MI.Get(Stream_General, 0, "Cover") == "Yes") {
         string mime_type = MI.Get(Stream_General, 0, "Cover_Mime");
