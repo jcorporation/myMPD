@@ -1489,10 +1489,12 @@ static bool mpd_client_last_played_list(t_config *config, t_mpd_state *mpd_state
         if (song) {
             const char *uri = mpd_song_get_uri(song);
             if (uri == NULL || strncasecmp("http:", uri, 5) == 0 || strncasecmp("https:", uri, 6) == 0) {
+/*Don't add streams to last played list            
                 char *title = mpd_client_get_tag(song, MPD_TAG_TITLE);
                 char entry[1024];
                 snprintf(entry, 1024, "Stream: %s", title != NULL ? title : "-");
                 list_insert(&mpd_state->last_played, entry, time(NULL));
+*/
             }
             else {
                 list_insert(&mpd_state->last_played, uri, time(NULL));
