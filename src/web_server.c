@@ -242,11 +242,14 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             else if (has_prefix(&hm->uri, &library_prefix) && hm->query_string.len > 0 && mg_vcmp(&hm->query_string, "cover") == 0 && config->plugins_coverextract == true) {
                 //coverextract
                 char uri_decoded[1200];
-                hm->uri.p += 8;
-                hm->uri.len = (int)hm->uri.len - 8;
                 mg_url_decode(hm->uri.p, (int)hm->uri.len, uri_decoded, 1200, 0);
+                // replace /library through path to music_directory
+                char *uri_trimmed = uri_decoded;
+                uri_trimmed += 8;
                 char media_file[1500];
-                snprintf(media_file, 1500, "%s%s", mg_user_data->music_directory, uri_decoded);
+                snprintf(media_file, 1500, "%s%s", mg_user_data->music_directory, uri_trimmed);
+                uri_trimmed = NULL;
+                
                 LOG_VERBOSE() printf("Exctracting coverimage from %s\n", media_file);
                 char image_file[1500];
                 char image_mime_type[100];
@@ -273,20 +276,20 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             else if (has_prefix(&hm->uri, &library_prefix)) {
                 //map request for virtual directory /library to music_directory
                 static struct mg_serve_http_opts s_http_server_opts;
-                s_http_server_opts.document_root = mg_user_data->music_directory;
                 s_http_server_opts.enable_directory_listing = "no";
-                hm->uri.p += 8;
-                hm->uri.len = (int)hm->uri.len - 8;
+                char rewrite_pattern[1024];
+                snprintf(rewrite_pattern, 1024, "/library/=%s", mg_user_data->music_directory);
+                s_http_server_opts.url_rewrites = rewrite_pattern;
                 fprintf(stderr, "DEBUG: Serving %.*s from directory %s\n", (int)hm->uri.len, hm->uri.p, mg_user_data->music_directory);
                 mg_serve_http(nc, hm, s_http_server_opts);
             }
             else if (has_prefix(&hm->uri, &pics_prefix)) {
                 //map request for virtual directory /pics to pics directory (default: /var/lib/mympd/pics)
                 static struct mg_serve_http_opts s_http_server_opts;
-                s_http_server_opts.document_root = mg_user_data->pics_directory;
                 s_http_server_opts.enable_directory_listing = "no";
-                hm->uri.p += 5;
-                hm->uri.len = (int)hm->uri.len - 5;
+                char rewrite_pattern[1024];
+                snprintf(rewrite_pattern, 1024, "/pics/=%s", mg_user_data->pics_directory);
+                s_http_server_opts.url_rewrites = rewrite_pattern;
                 fprintf(stderr, "DEBUG: Serving %.*s from directory %s\n", (int)hm->uri.len, hm->uri.p, mg_user_data->pics_directory);
                 mg_serve_http(nc, hm, s_http_server_opts);
             }

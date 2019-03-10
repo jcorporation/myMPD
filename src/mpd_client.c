@@ -72,6 +72,23 @@
     len += json_printf(&out, ", Duration: %d, uri: %Q", mpd_song_get_duration(song), mpd_song_get_uri(song)); \
 } while (0)
 
+#define PUT_EMPTY_SONG_TAGS(TITLE) do { \
+    if (mpd_state->feat_tags == true) { \
+        for (unsigned tagnr = 0; tagnr < mpd_state->tag_types_len; ++tagnr) { \
+            if (tagnr > 0) \
+                len += json_printf(&out, ","); \
+            if (mpd_state->tag_types[tagnr] != MPD_TAG_TITLE) \
+                len += json_printf(&out, "%Q: %Q",  mpd_tag_name(mpd_state->tag_types[tagnr]), "-"); \
+            else \
+                len += json_printf(&out, "Title: %Q", TITLE); \
+        } \
+    } \
+    else { \
+        len += json_printf(&out, "Title: %Q", TITLE); \
+    } \
+    len += json_printf(&out, ", Duration: %d, uri: %Q", 0, ""); \
+} while (0)
+
 enum mpd_conn_states {
     MPD_DISCONNECTED,
     MPD_FAILURE,
@@ -175,6 +192,7 @@ static void mpd_client_disconnect(t_config *config, t_mpd_state *mpd_state);
 static int mpd_client_read_last_played(t_config *config, t_mpd_state *mpd_state);
 static void mpd_client_feature_love(t_config *config, t_mpd_state *mpd_state);
 static void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state);
+static char *mpd_client_get_tag(struct mpd_song const *song, const enum mpd_tag_type tag);
 
 //public functions
 void *mpd_client_loop(void *arg_config) {
@@ -1469,9 +1487,19 @@ static bool mpd_client_last_played_list(t_config *config, t_mpd_state *mpd_state
     if (song_id > -1) {
         song = mpd_run_get_queue_song_id(mpd_state->conn, song_id);
         if (song) {
-            list_insert(&mpd_state->last_played, mpd_song_get_uri(song), time(NULL));
+            const char *uri = mpd_song_get_uri(song);
+            if (uri == NULL || strncasecmp("http:", uri, 5) == 0 || strncasecmp("https:", uri, 6) == 0) {
+                char *title = mpd_client_get_tag(song, MPD_TAG_TITLE);
+                char entry[1024];
+                snprintf(entry, 1024, "Stream: %s", title != NULL ? title : "-");
+                list_insert(&mpd_state->last_played, entry, time(NULL));
+            }
+            else {
+                list_insert(&mpd_state->last_played, uri, time(NULL));
+            }
             mpd_state->last_last_played_id = song_id;
             mpd_song_free(song);
+            
             if (mpd_state->last_played.length > config->last_played_count) {
                 list_shift(&mpd_state->last_played, mpd_state->last_played.length -1);
             }
@@ -2026,13 +2054,18 @@ static int mpd_client_put_last_played_songs(t_config *config, t_mpd_state *mpd_s
             if (entities_returned++) 
                 len += json_printf(&out, ",");
             len += json_printf(&out, "{Pos: %d, LastPlayed: %ld, ", entity_count, current->value);
-            if (!mpd_send_list_all_meta(mpd_state->conn, current->data))
-                RETURN_ERROR_AND_RECOVER("mpd_send_list_all_meta");
-            if ((entity = mpd_recv_entity(mpd_state->conn)) != NULL) {
-                song = mpd_entity_get_song(entity);
-                PUT_SONG_TAGS();
-                mpd_entity_free(entity);
-                mpd_response_finish(mpd_state->conn);
+            if (strncmp(current->data, "Stream:", 7) == 0) {
+                PUT_EMPTY_SONG_TAGS(current->data);
+            }
+            else {
+                if (!mpd_send_list_all_meta(mpd_state->conn, current->data))
+                    RETURN_ERROR_AND_RECOVER("mpd_send_list_all_meta");
+                if ((entity = mpd_recv_entity(mpd_state->conn)) != NULL) {
+                    song = mpd_entity_get_song(entity);
+                    PUT_SONG_TAGS();
+                    mpd_entity_free(entity);
+                    mpd_response_finish(mpd_state->conn);
+                }
             }
             len += json_printf(&out, "}");
         }

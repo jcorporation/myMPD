@@ -1892,7 +1892,11 @@ function parseLastPlayed(obj) {
         for (var c = 0; c < settings.colsQueueLastPlayed.length; c++) {
             tds += '<td data-col="' + settings.colsQueueLastPlayed[c] + '">' + obj.data[i][settings.colsQueueLastPlayed[c]] + '</td>';
         }
-        tds += '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>';
+        tds += '<td data-col="Action">';
+        if (obj.data[i].uri != '') {
+            tds += '<a href="#" class="material-icons color-darkgrey">playlist_add</a>';
+        }
+        tds += '</td>';
         row.innerHTML = tds;
         if (i < tr.length)
             tr[i].replaceWith(row); 
