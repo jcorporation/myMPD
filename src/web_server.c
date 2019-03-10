@@ -57,7 +57,9 @@ bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_da
     //initialize mgr user_data, malloced in main.c
     mg_user_data->config = config;
     mg_user_data->music_directory = NULL;
+    mg_user_data->rewrite_patterns = NULL;
     mg_user_data->conn_id = 1;
+    mg_user_data->feat_library = false;
     size_t pics_directory_len = strlen(config->varlibdir) + 6;
     mg_user_data->pics_directory = malloc(pics_directory_len);
     snprintf(mg_user_data->pics_directory, pics_directory_len, "%s/pics", config->varlibdir);
@@ -115,13 +117,33 @@ void *web_server_loop(void *arg_mgr) {
                 if (response->conn_id == -1) {
                     //internal message
                     char *p_charbuf;
-                    int je = json_scanf(response->data, response->length, "{music_directory: %Q}", &p_charbuf);
-                    if (je == 1) {
+                    bool feat_library;
+                    int je = json_scanf(response->data, response->length, "{music_directory: %Q, featLibrary: %B}", &p_charbuf, &feat_library);
+                    if (je == 2) {
                         if (mg_user_data->music_directory != NULL) {
                             free(mg_user_data->music_directory);
+                            mg_user_data->music_directory = NULL;
                         }
                         mg_user_data->music_directory = p_charbuf;
+                        mg_user_data->feat_library = feat_library;
                         p_charbuf = NULL;
+                        
+                        if (mg_user_data->rewrite_patterns != NULL) {
+                            free(mg_user_data->rewrite_patterns);
+                            mg_user_data->rewrite_patterns = NULL;
+                        }
+                        size_t rewrite_patterns_len = strlen(mg_user_data->pics_directory) + 8;
+                        if (feat_library == true) {
+                            rewrite_patterns_len += strlen(mg_user_data->music_directory) + 11;
+                        }
+                        char *rewrite_patterns = malloc(rewrite_patterns_len);
+                        if (feat_library == true) {
+                            snprintf(rewrite_patterns, rewrite_patterns_len, "/pics/=%s,/library/=%s", mg_user_data->pics_directory, mg_user_data->music_directory);
+                        }
+                        else {
+                            snprintf(rewrite_patterns, rewrite_patterns_len, "/pics/=%s", mg_user_data->pics_directory);
+                        }
+                        mg_user_data->rewrite_patterns = rewrite_patterns;
                         LOG_DEBUG() fprintf(stderr, "DEBUG: Setting music_directory to %s\n", mg_user_data->music_directory);
                     }
                     else {
@@ -227,7 +249,6 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
         case MG_EV_HTTP_REQUEST: {
             struct http_message *hm = (struct http_message *) ev_data;
             static const struct mg_str library_prefix = MG_MK_STR("/library");
-            static const struct mg_str pics_prefix = MG_MK_STR("/pics");
             LOG_VERBOSE() printf("HTTP request (%ld): %.*s\n", (long)nc->user_data, (int)hm->uri.len, hm->uri.p);
             if (mg_vcmp(&hm->uri, "/api") == 0) {
                 //api request
@@ -239,65 +260,57 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                     mg_printf(nc, "%s", response);
                 }
             }
-            else if (has_prefix(&hm->uri, &library_prefix) && hm->query_string.len > 0 && mg_vcmp(&hm->query_string, "cover") == 0 && config->plugins_coverextract == true) {
+            else if (has_prefix(&hm->uri, &library_prefix) && hm->query_string.len > 0 && mg_vcmp(&hm->query_string, "cover") == 0 
+                     && config->plugins_coverextract == true && mg_user_data->feat_library == true) {
+                size_t image_file_len = 1500;
+                char image_file[image_file_len];
+                snprintf(image_file, image_file_len, "%s/assets/coverimage-notavailable.png", DOC_ROOT);
+
+                if (mg_user_data->music_directory == NULL) {
+                    printf("Error extracting coverimage, invalid music_directory\n");
+                    mg_http_serve_file(nc, hm, image_file, mg_mk_str("image/png"), mg_mk_str(""));
+                    break;
+                }
                 //coverextract
-                char uri_decoded[1200];
-                mg_url_decode(hm->uri.p, (int)hm->uri.len, uri_decoded, 1200, 0);
+                char uri_decoded[(int)hm->uri.len];
+                if (mg_url_decode(hm->uri.p, (int)hm->uri.len, uri_decoded, (int)hm->uri.len, 0) == -1) {
+                    printf("ERROR: url_decode buffer to small\n");
+                    mg_http_serve_file(nc, hm, image_file, mg_mk_str("image/png"), mg_mk_str(""));
+                    break;
+                }
                 // replace /library through path to music_directory
                 char *uri_trimmed = uri_decoded;
                 uri_trimmed += 8;
-                char media_file[1500];
-                snprintf(media_file, 1500, "%s%s", mg_user_data->music_directory, uri_trimmed);
+                size_t media_file_len = strlen(mg_user_data->music_directory) + strlen(uri_trimmed) + 1;
+                char media_file[media_file_len];
+                snprintf(media_file, media_file_len, "%s%s", mg_user_data->music_directory, uri_trimmed);
                 uri_trimmed = NULL;
                 
                 LOG_VERBOSE() printf("Exctracting coverimage from %s\n", media_file);
-                char image_file[1500];
-                char image_mime_type[100];
-                int rc = plugin_coverextract(media_file, image_file, 1500, image_mime_type, 100, true);
+                
+                size_t image_mime_type_len = 100;
+                char image_mime_type[image_mime_type_len];
+                int rc = plugin_coverextract(media_file, image_file, image_file_len, image_mime_type, image_mime_type_len, true);
                 if (rc == 0) {
-                    char path[1600];
-                    snprintf(path, 1600, "%s/covercache/%s", config->varlibdir, image_file);
+                    size_t path_len = strlen(config->varlibdir) + strlen(image_file) + 13;
+                    char path[path_len];
+                    snprintf(path, path_len, "%s/covercache/%s", config->varlibdir, image_file);
                     LOG_DEBUG() fprintf(stderr, "DEBUG: serving file %s (%s)\n", path, image_mime_type);
-                    if (access(path, F_OK ) != -1 ) {
-                        mg_http_serve_file(nc, hm, path, mg_mk_str(image_mime_type), mg_mk_str(""));
-                    }
-                    else {
-                        printf("Error extracting coverimage from %s\n", media_file);
-                        snprintf(image_file, 1500, "%s/assets/coverimage-notavailable.png", DOC_ROOT);
-                        mg_http_serve_file(nc, hm, image_file, mg_mk_str("image/png"), mg_mk_str(""));
-                    }
+                    mg_http_serve_file(nc, hm, path, mg_mk_str(image_mime_type), mg_mk_str(""));
                 }
                 else {
                     printf("Error extracting coverimage from %s\n", media_file);
-                    snprintf(image_file, 1500, "%s/assets/coverimage-notavailable.png", DOC_ROOT);
+                    snprintf(image_file, image_file_len, "%s/assets/coverimage-notavailable.png", DOC_ROOT);
                     mg_http_serve_file(nc, hm, image_file, mg_mk_str("image/png"), mg_mk_str(""));
                 }
-            }
-            else if (has_prefix(&hm->uri, &library_prefix)) {
-                //map request for virtual directory /library to music_directory
-                static struct mg_serve_http_opts s_http_server_opts;
-                s_http_server_opts.enable_directory_listing = "no";
-                char rewrite_pattern[1024];
-                snprintf(rewrite_pattern, 1024, "/library/=%s", mg_user_data->music_directory);
-                s_http_server_opts.url_rewrites = rewrite_pattern;
-                fprintf(stderr, "DEBUG: Serving %.*s from directory %s\n", (int)hm->uri.len, hm->uri.p, mg_user_data->music_directory);
-                mg_serve_http(nc, hm, s_http_server_opts);
-            }
-            else if (has_prefix(&hm->uri, &pics_prefix)) {
-                //map request for virtual directory /pics to pics directory (default: /var/lib/mympd/pics)
-                static struct mg_serve_http_opts s_http_server_opts;
-                s_http_server_opts.enable_directory_listing = "no";
-                char rewrite_pattern[1024];
-                snprintf(rewrite_pattern, 1024, "/pics/=%s", mg_user_data->pics_directory);
-                s_http_server_opts.url_rewrites = rewrite_pattern;
-                fprintf(stderr, "DEBUG: Serving %.*s from directory %s\n", (int)hm->uri.len, hm->uri.p, mg_user_data->pics_directory);
-                mg_serve_http(nc, hm, s_http_server_opts);
             }
             else {
                 static struct mg_serve_http_opts s_http_server_opts;
                 s_http_server_opts.document_root = DOC_ROOT;
                 s_http_server_opts.enable_directory_listing = "no";
-                fprintf(stderr, "DEBUG: Serving %.*s from directory %s\n", (int)hm->uri.len, hm->uri.p, DOC_ROOT);
+                if (mg_user_data->rewrite_patterns != NULL) {
+                    s_http_server_opts.url_rewrites = mg_user_data->rewrite_patterns;
+                }
                 mg_serve_http(nc, hm, s_http_server_opts);
             }
             break;

@@ -1136,8 +1136,9 @@ static void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state) {
     t_work_result *web_server_response = (t_work_result *)malloc(sizeof(t_work_result));
     web_server_response->conn_id = -1;
     web_server_response->length = snprintf(web_server_response->data, MAX_SIZE, 
-        "{\"music_directory\":\"%s\"}",
-        mpd_state->music_directory
+        "{\"music_directory\":\"%s\", \"featLibrary\": %s}",
+        mpd_state->music_directory, 
+        mpd_state->feat_library == true ? "true" : "false"
     );
     tiny_queue_push(web_server_queue, web_server_response);
 
@@ -1938,11 +1939,14 @@ static int mpd_client_get_cover(t_config *config, t_mpd_state *mpd_state, const 
             snprintf(cover, cover_len, "%s/%s/%s", mpd_state->music_directory, path, config->coverimagename);
             if (access(cover, F_OK ) == -1 ) {
                 if (config->plugins_coverextract == true) {
-                    char media_file[1500];
-                    snprintf(media_file, 1500, "%s/%s", mpd_state->music_directory, uri);
-                    char image_file[1500];
-                    char image_mime_type[100];
-                    int rc = plugin_coverextract(media_file, image_file, 1500, image_mime_type, 100, false);
+                    size_t media_file_len = strlen(mpd_state->music_directory) + strlen(uri) + 2;
+                    char media_file[media_file_len];
+                    snprintf(media_file, media_file_len, "%s/%s", mpd_state->music_directory, uri);
+                    size_t image_file_len = 1500;
+                    char image_file[image_file_len];
+                    size_t image_mime_type_len = 100;
+                    char image_mime_type[image_mime_type_len];
+                    int rc = plugin_coverextract(media_file, image_file, image_file_len, image_mime_type, image_mime_type_len, false);
                     if (rc == 0) {
                         len = snprintf(cover, cover_len, "/library/%s?cover", uri);
                     }
@@ -1968,7 +1972,8 @@ static int mpd_client_get_cover(t_config *config, t_mpd_state *mpd_state, const 
 static int mpd_client_put_current_song(t_config *config, t_mpd_state *mpd_state, char *buffer) {
     size_t len = 0;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
-    char cover[500] = "";
+    size_t cover_len = 2000;
+    char cover[cover_len];
     
     struct mpd_song *song = mpd_run_current_song(mpd_state->conn);
     if (song == NULL) {
@@ -1976,7 +1981,7 @@ static int mpd_client_put_current_song(t_config *config, t_mpd_state *mpd_state,
         return len;
     }
         
-    mpd_client_get_cover(config, mpd_state, mpd_song_get_uri(song), cover, 500);
+    mpd_client_get_cover(config, mpd_state, mpd_song_get_uri(song), cover, cover_len);
     
     len = json_printf(&out, "{type: song_change, data: {pos: %d, currentSongId: %d, cover: %Q, ",
         mpd_song_get_pos(song),
@@ -2009,14 +2014,15 @@ static int mpd_client_put_songdetails(t_config *config, t_mpd_state *mpd_state, 
     const struct mpd_song *song;
     size_t len = 0;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
-    char cover[500] = "";
+    size_t cover_len = 2000;
+    char cover[2000] = "";
     
     len = json_printf(&out, "{type: song_details, data: {");
     if (!mpd_send_list_all_meta(mpd_state->conn, uri))
         RETURN_ERROR_AND_RECOVER("mpd_send_list_all_meta");
     if ((entity = mpd_recv_entity(mpd_state->conn)) != NULL) {
         song = mpd_entity_get_song(entity);
-        mpd_client_get_cover(config, mpd_state, uri, cover, 500);
+        mpd_client_get_cover(config, mpd_state, uri, cover, cover_len);
         len += json_printf(&out, "cover: %Q, ", cover);
         PUT_SONG_TAGS();
         mpd_entity_free(entity);
@@ -2322,7 +2328,8 @@ static int mpd_client_put_songs_in_album(t_config *config, t_mpd_state *mpd_stat
     unsigned long entity_count = 0;
     unsigned long entities_returned = 0;
     size_t len = 0;
-    char cover[500] = "";
+    size_t cover_len = 2000;
+    char cover[cover_len];
     char *albumartist = NULL;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
 
@@ -2346,7 +2353,7 @@ static int mpd_client_put_songs_in_album(t_config *config, t_mpd_state *mpd_stat
                 if (entities_returned++) 
                     len += json_printf(&out, ", ");
                 else {
-                    mpd_client_get_cover(config, mpd_state, mpd_song_get_uri(song), cover, 500);
+                    mpd_client_get_cover(config, mpd_state, mpd_song_get_uri(song), cover, cover_len);
                     char *value = mpd_client_get_tag(song, MPD_TAG_ALBUM_ARTIST);
                     if (value != NULL) {
                         albumartist = strdup(value);

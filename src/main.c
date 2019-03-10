@@ -503,6 +503,8 @@ int main(int argc, char **argv) {
         free(mg_user_data->music_directory);
     if (mg_user_data->pics_directory != NULL)
         free(mg_user_data->pics_directory);
+    if (mg_user_data->rewrite_patterns != NULL)
+        free(mg_user_data->rewrite_patterns);
     free(mg_user_data);
     return rc;
 }
