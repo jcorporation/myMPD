@@ -10,6 +10,7 @@ host = /var/run/mpd/socket
 streamport = 8000
 
 #absolut path of music_directory of mpd
+#none = no local music_directory
 #auto = get music_directory from mpd (only support, if connected to mpd socket)
 #fallback: /var/lib/mpd/music
 musicdirectory = auto
@@ -43,6 +44,7 @@ localplayer = true
 #streamurl = http://mpdhost:8000
 
 #Enable coverimages
+#Needs configured musicdirectory 
 coverimage = true
 
 #Name for coverimages
