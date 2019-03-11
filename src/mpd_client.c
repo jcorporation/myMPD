@@ -1103,12 +1103,13 @@ static void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state) {
         mpd_state->feat_smartpls = false;
     }
     
-
     if (mpd_state->music_directory != NULL) {
         free(mpd_state->music_directory);
         mpd_state->music_directory = NULL;
     }
+
     if (strncmp(config->mpdhost, "/", 1) == 0 && strncmp(config->music_directory, "auto", 4) == 0) {
+        //get musicdirectory from mpd
         if (mpd_send_command(mpd_state->conn, "config", NULL)) {
             while ((pair = mpd_recv_pair(mpd_state->conn)) != NULL) {
                 if (strcmp(pair->name, "music_directory") == 0) {
@@ -1122,29 +1123,39 @@ static void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state) {
             LOG_ERROR_AND_RECOVER("config");
         }
     }
-    if (mpd_state->music_directory == NULL && strncmp(config->music_directory, "none", 4) != 0) {
-        //not a local mpd connection
+    else if (strncmp(config->music_directory, "none", 4) == 0) {
+        //disabled music_directory
+    }
+    else if (strncmp(config->music_directory, "/", 1) == 0) {
         mpd_state->music_directory = strdup(config->music_directory);
     }
-    //Check access to music_directory
-    if (mpd_state->music_directory != NULL && testdir("MPD music_directory", mpd_state->music_directory)) {
+    //set feat_library
+    if (mpd_state->music_directory == NULL) {
+        LOG_INFO() printf("Disabling featLibrary support\n");
+        mpd_state->feat_library = false;
+    }
+    else if (testdir("MPD music_directory", mpd_state->music_directory)) {
         LOG_INFO() printf("Enabling featLibrary support\n");
         mpd_state->feat_library = true;
     }
     else {
         LOG_INFO() printf("Disabling featLibrary support\n");
         mpd_state->feat_library = false;
-        if (config->coverimage == true) {
-            LOG_INFO() printf("Disabling coverimage support\n");
-            mpd_state->feat_coverimage = false;
-        }
+        free(mpd_state->music_directory);
+        mpd_state->music_directory = NULL;
     }
+    
+    if (config->coverimage == true && mpd_state->feat_library == false) {
+        LOG_INFO() printf("Disabling coverimage support\n");
+        mpd_state->feat_coverimage = false;
+    }
+    
     //push music_directory setting to web_server_queue
     t_work_result *web_server_response = (t_work_result *)malloc(sizeof(t_work_result));
     web_server_response->conn_id = -1;
     web_server_response->length = snprintf(web_server_response->data, MAX_SIZE, 
         "{\"music_directory\":\"%s\", \"featLibrary\": %s}",
-        mpd_state->music_directory, 
+        mpd_state->music_directory != NULL ? mpd_state->music_directory : "",
         mpd_state->feat_library == true ? "true" : "false"
     );
     tiny_queue_push(web_server_queue, web_server_response);
@@ -1942,7 +1953,7 @@ static int mpd_client_get_cover(t_config *config, t_mpd_state *mpd_state, const 
         }
     }
     else {
-        if (mpd_state->feat_library) {
+        if (mpd_state->feat_library == true && mpd_state->music_directory != NULL) {
             dirname(path);
             snprintf(cover, cover_len, "%s/%s/%s", mpd_state->music_directory, path, config->coverimagename);
             if (access(cover, F_OK ) == -1 ) {

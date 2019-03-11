@@ -124,7 +124,9 @@ void *web_server_loop(void *arg_mgr) {
                             free(mg_user_data->music_directory);
                             mg_user_data->music_directory = NULL;
                         }
-                        mg_user_data->music_directory = p_charbuf;
+                        if (strlen(p_charbuf) > 0) {
+                            mg_user_data->music_directory = p_charbuf;
+                        }
                         mg_user_data->feat_library = feat_library;
                         p_charbuf = NULL;
                         
@@ -133,7 +135,7 @@ void *web_server_loop(void *arg_mgr) {
                             mg_user_data->rewrite_patterns = NULL;
                         }
                         size_t rewrite_patterns_len = strlen(mg_user_data->pics_directory) + 8;
-                        if (feat_library == true) {
+                        if (feat_library == true && mg_user_data->music_directory != NULL) {
                             rewrite_patterns_len += strlen(mg_user_data->music_directory) + 11;
                         }
                         char *rewrite_patterns = malloc(rewrite_patterns_len);
