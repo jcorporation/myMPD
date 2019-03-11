@@ -125,10 +125,10 @@ void *web_server_loop(void *arg_mgr) {
                             mg_user_data->music_directory = NULL;
                         }
                         if (strlen(p_charbuf) > 0) {
-                            mg_user_data->music_directory = p_charbuf;
+                            mg_user_data->music_directory = strdup(p_charbuf);
                         }
                         mg_user_data->feat_library = feat_library;
-                        p_charbuf = NULL;
+                        free(p_charbuf);
                         
                         if (mg_user_data->rewrite_patterns != NULL) {
                             free(mg_user_data->rewrite_patterns);
