@@ -389,7 +389,7 @@ function initState(objId, state) {
 
 function showAppInitAlert(text) {
     var a = document.getElementById('modalAppInitAlert');
-    a.innerHTML = '<p>' + text + '</p><a id ="appReloadBtn"class="btn btn-danger text-light">Reload</a>';
+    a.innerHTML = '<p>' + text + '</p><a id ="appReloadBtn"class="btn btn-danger text-light" class="clickable">Reload</a>';
     a.classList.remove('hide');
     document.getElementById('appReloadBtn').addEventListener('click', function() {
         location.reload();
@@ -1568,20 +1568,22 @@ function getSettings(onerror) {
 }
 
 function getMpdSettings(obj) {
-    if (obj.type == 'error') {
+    if (obj == '' || obj.type == 'error') {
         settingsParsed = 'error';
         if (appInited == false) {
-            showAppInitAlert(obj.data);
+            showAppInitAlert(obj == '' ? 'Can not parse settings' : obj.data);
         }
         return false;
     }
     settingsNew = obj.data;
     sendAPI({"cmd": "MPD_API_SETTINGS_GET"}, joinSettings, true);
-}function joinSettings(obj) {
-    if (obj.type == 'error') {
+}
+
+function joinSettings(obj) {
+    if (obj == '' || obj.type == 'error') {
         settingsParsed = 'error';
         if (appInited == false) {
-            showAppInitAlert(obj.data);
+            showAppInitAlert(obj == '' ? 'Can not parse settings' : obj.data);
         } 
         return false;
     }
@@ -2969,6 +2971,11 @@ function sendAPI(request, callback, onerror) {
             }
             else {
                 console.log('Empty response for request: ' + JSON.stringify(request));
+                if (onerror == true) {
+                    if (callback != undefined && typeof(callback) == 'function') {
+                        callback('');
+                    }
+                }
             }
         }
     };
