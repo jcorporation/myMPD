@@ -1156,18 +1156,20 @@ function webSocketConnect() {
                     parseState(obj);
                     break;
                 case 'mpd_disconnected':
-                    //showNotification('Connection to MPD failed', '', '', 'danger');
                     toggleAlert('alertMpdState', true, 'Connection to MPD failed.');
-                    if (progressTimer)
+                    if (progressTimer) {
                         clearTimeout(progressTimer);
+                    }
                     break;
                 case 'mpd_connected':
                     showNotification('Connected to MPD', '', '', 'success');
                     toggleAlert('alertMpdState', false, '');
+                    sendAPI({"cmd": "MPD_API_PLAYER_STATE"}, parseState);
                     break;
                 case 'update_queue':
-                    if (app.current.app === 'Queue')
+                    if (app.current.app === 'Queue') {
                         getQueue();
+                    }
                     sendAPI({"cmd": "MPD_API_PLAYER_STATE"}, parseState);
                     break;
                 case 'update_options':
@@ -1187,10 +1189,12 @@ function webSocketConnect() {
                     parseVolume(obj);
                     break;
                 case 'update_stored_playlist':
-                    if (app.current.app == 'Browse' && app.current.tab == 'Playlists' && app.current.view == 'All')
+                    if (app.current.app == 'Browse' && app.current.tab == 'Playlists' && app.current.view == 'All') {
                         sendAPI({"cmd": "MPD_API_PLAYLIST_LIST","data": {"offset": app.current.page, "filter": app.current.filter}}, parsePlaylists);
-                    else if (app.current.app == 'Browse' && app.current.tab == 'Playlists' && app.current.view == 'Detail')
+                    }
+                    else if (app.current.app == 'Browse' && app.current.tab == 'Playlists' && app.current.view == 'Detail') {
                         sendAPI({"cmd": "MPD_API_PLAYLIST_CONTENT_LIST", "data": {"offset": app.current.page, "filter": app.current.filter, "uri": app.current.search}}, parsePlaylists);
+                    }
                     break;
                 case 'error':
                     showNotification(obj.data, '', '', 'danger');
@@ -1205,8 +1209,9 @@ function webSocketConnect() {
             if (appInited == true) {
                 //Show modal only if websocket was already connected before
                 toggleAlert('alertMympdState', true, 'Websocket connection failed.');
-                if (progressTimer)
+                if (progressTimer) {
                     clearTimeout(progressTimer);
+                }
             }
             else {
                 showAppInitAlert('Websocket connection failed.');
@@ -1718,8 +1723,9 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
         tr.classList.add('font-weight-bold');
     }
     
-    if (progressTimer)
-            clearTimeout(progressTimer);
+    if (progressTimer) {
+        clearTimeout(progressTimer);
+    }
     if (playstate == 'play') {
         progressTimer = setTimeout(function() {
             currentSong.elapsedTime ++;
