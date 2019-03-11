@@ -28,11 +28,12 @@ sslkey = /etc/mympd/ssl/server.key
 
 [mympd]
 #Loglevel
-#0 = quiet
-#1 = default
-#2 = verbose
-#3 = debug
-loglevel = 1
+#0 = error
+#1 = warn
+#2 = info
+#3 = verbose
+#4 = debug
+loglevel = 2
 
 #myMPD user
 user = mympd

@@ -132,7 +132,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
     char p_char[4];
     long long_buf1;
     unsigned int uint_buf1;
-    LOG_VERBOSE() printf("MYMPD API request: %.*s\n", request->length, request->data);
+    LOG_VERBOSE("MYMPD API request: %.*s", request->length, request->data);
     
     //create response struct
     t_work_result *response = (t_work_result *)malloc(sizeof(t_work_result));
@@ -190,7 +190,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             }
             else {
                 response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Unknown table %s\"}", p_charbuf1);
-                printf("MYMPD_API_COLS_SAVE: Unknown table %s\n", p_charbuf1);
+                LOG_ERROR("MYMPD_API_COLS_SAVE: Unknown table %s", p_charbuf1);
             }
             if (response->length == 0) {
                 if (state_file_write(config, p_charbuf1, cols))
@@ -281,14 +281,14 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
     }
     else {
         response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Unknown cmd_id %u.\"}", request->cmd_id);
-        printf("ERROR: Unknown cmd_id %u\n", request->cmd_id);    
+        LOG_ERROR("Unknown cmd_id %u", request->cmd_id);    
     }
 
     if (response->length == 0) {
         response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"No response for cmd_id %u.\"}", request->cmd_id);
-        printf("ERROR: No response for cmd_id %u\n", request->cmd_id);
+        LOG_ERROR("No response for cmd_id %u", request->cmd_id);
     }
-    LOG_DEBUG() fprintf(stderr, "DEBUG: Send http response to connection %lu (first 800 chars):\n%*.*s\n", request->conn_id, 0, 800, response->data);
+    LOG_DEBUG("Send http response to connection %lu (first 800 chars):\n%*.*s", request->conn_id, 0, 800, response->data);
 
     tiny_queue_push(web_server_queue, response);
     free(request);
@@ -303,7 +303,7 @@ static bool mympd_api_read_syscmds(t_config *config, t_mympd_state *mympd_state)
 
     if (config->syscmds == true) {
         snprintf(dirname, 400, "%s/syscmds", config->etcdir);
-        printf("Reading syscmds: %s\n", dirname);
+        LOG_INFO("Reading syscmds: %s", dirname);
         if ((dir = opendir (dirname)) != NULL) {
             while ((ent = readdir(dir)) != NULL) {
                 if (strncmp(ent->d_name, ".", 1) == 0)
@@ -313,17 +313,17 @@ static bool mympd_api_read_syscmds(t_config *config, t_mympd_state *mympd_state)
                     list_push(&mympd_state->syscmd_list, cmd, order);
                 }
                 else {
-                    printf("ERROR: Can't read syscmd file %s\n", ent->d_name);
+                    LOG_ERROR("Can't read syscmd file %s", ent->d_name);
                 }
             }
             closedir(dir);
         }
         else {
-            printf("ERROR: Can't read syscmds\n");
+            LOG_ERROR("Can't read syscmds");
         }
     }
     else {
-        printf("Syscmds are disabled\n");
+        LOG_WARN("Syscmds are disabled");
     }
     return true;
 }
@@ -338,7 +338,7 @@ static int mympd_api_syscmd(t_config *config, t_mympd_state *mympd_state, char *
     
     const int order = list_get_value(&mympd_state->syscmd_list, cmd);
     if (order == -1) {
-        printf("ERROR: Syscmd not defined: %s\n", cmd);
+        LOG_ERROR("Syscmd not defined: %s", cmd);
         len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"System command not defined\"}");
         return len;
     }
@@ -347,7 +347,7 @@ static int mympd_api_syscmd(t_config *config, t_mympd_state *mympd_state, char *
     FILE *fp = fopen(filename, "r");    
     if (fp == NULL) {
         len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't execute cmd %s.\"}", cmd);
-        printf("ERROR: Can't execute syscmd \"%s\"\n", cmd);
+        LOG_ERROR("Can't execute syscmd \"%s\"", cmd);
         return len;
     }
     read = getline(&line, &n, fp);
@@ -357,22 +357,22 @@ static int mympd_api_syscmd(t_config *config, t_mympd_state *mympd_state, char *
         const int rc = system(line);
         if ( rc == 0) {
             len = snprintf(buffer, MAX_SIZE, "{\"type\": \"result\", \"data\": \"Executed cmd %s.\"}", cmd);
-            LOG_VERBOSE() printf("Executed syscmd: \"%s\"\n", line);
+            LOG_VERBOSE("Executed syscmd: \"%s\"", line);
         }
         else {
             len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Executing cmd %s failed.\"}", cmd);
-            printf("ERROR: Executing syscmd \"%s\" failed.\n", cmd);
+            LOG_ERROR("ERROR: Executing syscmd \"%s\" failed", cmd);
         }
     } else {
         len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't execute cmd %s.\"}", cmd);
-        printf("ERROR: Can't execute syscmd \"%s\"\n", cmd);
+        LOG_ERROR("Can't execute syscmd \"%s\"", cmd);
     }
     free(line);
     CHECK_RETURN_LEN();    
 }
 
 static void mympd_api_read_statefiles(t_config *config, t_mympd_state *mympd_state) {
-    LOG_INFO() printf("Reading states\n");
+    LOG_INFO("Reading states");
     mympd_state->notificationWeb = state_file_rw_bool(config, "notificationWeb", false, false);
     mympd_state->notificationPage = state_file_rw_bool(config, "notificationPage", true, false);
     mympd_state->autoPlay = state_file_rw_bool(config, "autoPlay", false, false);
@@ -401,14 +401,14 @@ static char *state_file_rw_string(t_config *config, const char *name, const char
     FILE *fp = fopen(cfg_file, "r");
     if (fp == NULL) {
         if (warn == true) {
-            printf("Error opening %s\n", cfg_file);
+            LOG_WARN("Can't open %s", cfg_file);
         }
         state_file_write(config, name, def_value);
         return strdup(def_value);
     }
     read = getline(&line, &n, fp);
     if (read > 0) {
-        LOG_DEBUG() fprintf(stderr, "DEBUG: State %s: %s\n", name, line);
+        LOG_DEBUG("State %s: %s", name, line);
     }
     fclose(fp);
     if (read > 0) {
@@ -455,13 +455,13 @@ static bool state_file_write(t_config *config, const char *name, const char *val
         
     FILE *fp = fopen(tmp_file, "w");
     if (fp == NULL) {
-        printf("Error opening %s\n", tmp_file);
+        LOG_ERROR("Can't open %s for write", tmp_file);
         return false;
     }
     fprintf(fp, "%s", value);
     fclose(fp);
     if (rename(tmp_file, cfg_file) == -1) {
-        printf("Error renaming file from %s to %s\n", tmp_file, cfg_file);
+        LOG_ERROR("Renaming file from %s to %s failed", tmp_file, cfg_file);
         return false;
     }
     return true;
@@ -535,7 +535,7 @@ static bool mympd_api_bookmark_update(t_config *config, const long id, const cha
     snprintf(tmp_file, 400, "%s/tmp/bookmarks", config->varlibdir);
     FILE *fo = fopen(tmp_file, "w");
     if (fo == NULL) {
-        printf("Error opening %s\n", tmp_file);
+        LOG_ERROR("Can't open %s for writing", tmp_file);
         return false;
     }
     FILE *fi = fopen(b_file, "r");
@@ -567,7 +567,7 @@ static bool mympd_api_bookmark_update(t_config *config, const long id, const cha
                 free(ltype);
             }
             else {
-                printf("Can't read bookmarks line\n");
+                LOG_ERROR("Can't read bookmarks line");
             }
         }
         free(line);
@@ -582,7 +582,7 @@ static bool mympd_api_bookmark_update(t_config *config, const long id, const cha
     }
     fclose(fo);
     if (rename(tmp_file, b_file) == -1) {
-        printf("Error renaming file from %s to %s\n", tmp_file, b_file);
+        LOG_ERROR("Rename file from %s to %s failed", tmp_file, b_file);
         return false;
     }
     return true;
@@ -605,7 +605,7 @@ static int mympd_api_bookmark_list(t_config *config, char *buffer, unsigned int 
         //create empty bookmarks file
         fi = fopen(b_file, "w");
         if (fi == NULL) {
-            printf("Error opening %s\n", b_file);
+            LOG_ERROR("Can't opening %s for write", b_file);
             len = json_printf(&out, "{type: error, data: %Q}", "Can't open bookmarks file");
         }
         else {

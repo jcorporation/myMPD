@@ -76,12 +76,12 @@ bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_da
         nc_http = mg_bind_opt(mgr, config->webport, ev_handler, bind_opts_http);
     }
     if (nc_http == NULL) {
-        printf("Error listening on port %s.\n", config->webport);
+        printf("Error listening on port %s", config->webport);
         mg_mgr_free(mgr);
         return false;
     }
     mg_set_protocol_http_websocket(nc_http);
-    LOG_INFO() printf("Listening on http port %s.\n", config->webport);
+    LOG_INFO("Listening on http port %s", config->webport);
 
     //bind to sslport
     if (config->ssl == true) {
@@ -91,11 +91,11 @@ bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_da
         bind_opts_https.ssl_key = config->sslkey;
         nc_https = mg_bind_opt(mgr, config->sslport, ev_handler, bind_opts_https);
         if (nc_https == NULL) {
-            printf("Error listening on port %s: %s.\n", config->sslport, err_https);
+            printf("Error listening on port %s: %s", config->sslport, err_https);
             mg_mgr_free(mgr);
             return false;
         } 
-        LOG_INFO() printf("Listening on ssl port %s.\n", config->sslport);
+        LOG_INFO("Listening on ssl port %s", config->sslport);
         mg_set_protocol_http_websocket(nc_https);
     }
     return mgr;
@@ -141,16 +141,16 @@ void *web_server_loop(void *arg_mgr) {
                         char *rewrite_patterns = malloc(rewrite_patterns_len);
                         if (feat_library == true) {
                             snprintf(rewrite_patterns, rewrite_patterns_len, "/pics/=%s,/library/=%s", mg_user_data->pics_directory, mg_user_data->music_directory);
-                            LOG_DEBUG() fprintf(stderr, "DEBUG: Setting music_directory to %s\n", mg_user_data->music_directory);
+                            LOG_DEBUG("Setting music_directory to %s", mg_user_data->music_directory);
                         }
                         else {
                             snprintf(rewrite_patterns, rewrite_patterns_len, "/pics/=%s", mg_user_data->pics_directory);
                         }
                         mg_user_data->rewrite_patterns = rewrite_patterns;
-                        LOG_DEBUG() fprintf(stderr, "DEBUG: Setting rewrite_patterns to %s\n", mg_user_data->rewrite_patterns);
+                        LOG_DEBUG("Setting rewrite_patterns to %s", mg_user_data->rewrite_patterns);
                     }
                     else {
-                        printf("ERROR unknown internal message: %s\n", response->data);
+                        LOG_WARN("Unknown internal message: %s", response->data);
                     }
                     free(response);
                 }
@@ -181,10 +181,10 @@ static void send_ws_notify(struct mg_mgr *mgr, t_work_result *response) {
         if (!is_websocket(nc))
             continue;
         if (nc->user_data != NULL) {
-            LOG_DEBUG() fprintf(stderr, "DEBUG: Sending notify to conn_id %ld: %.*s...\n", (long)nc->user_data, 80, response->data);
+            LOG_DEBUG("Sending notify to conn_id %ld: %.*s...", (long)nc->user_data, 80, response->data);
         }
         else {
-            LOG_DEBUG() fprintf(stderr, "DEBUG: Sending notify to unknown connection: %.*s\n...", 80, response->data);
+            LOG_DEBUG("Sending notify to unknown connection: %.*s...", 80, response->data);
         }
         mg_send_websocket_frame(nc, WEBSOCKET_OP_TEXT, response->data, response->length);
     }
@@ -198,14 +198,14 @@ static void send_api_response(struct mg_mgr *mgr, t_work_result *response) {
             continue;
         if (nc->user_data != NULL) {
             if ((long)nc->user_data == response->conn_id) {
-                LOG_DEBUG() fprintf(stderr, "DEBUG: Sending response to conn_id %ld: %.*s...\n", (long)nc->user_data, 80, response->data);
+                LOG_DEBUG("Sending response to conn_id %ld: %.*s...", (long)nc->user_data, 80, response->data);
                 mg_send_head(nc, 200, response->length, "Content-Type: application/json");
                 mg_printf(nc, "%s", response->data);
                 break;
             }
         }
         else {
-            LOG_DEBUG() fprintf(stderr, "DEBUG: Unknown connection.\n");
+            LOG_DEBUG("Unknown connection.");
         }
     }
     free(response);
@@ -230,21 +230,21 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             }
             //set conn_id
             nc->user_data = (void *)mg_user_data->conn_id;
-            LOG_DEBUG() fprintf(stderr, "DEBUG: New connection id %ld.\n", (long)nc->user_data);
+            LOG_DEBUG("New connection id %ld", (long)nc->user_data);
             break;
         }
         case MG_EV_WEBSOCKET_HANDSHAKE_REQUEST: {
             struct http_message *hm = (struct http_message *) ev_data;
-            LOG_VERBOSE() printf("New websocket request (%ld): %.*s\n", (long)nc->user_data, (int)hm->uri.len, hm->uri.p);
+            LOG_VERBOSE("New websocket request (%ld): %.*s", (long)nc->user_data, (int)hm->uri.len, hm->uri.p);
             if (mg_vcmp(&hm->uri, "/ws") != 0) {
-                printf("ERROR: Websocket request not to /ws, closing connection.\n");
+                printf("ERROR: Websocket request not to /ws, closing connection");
                 mg_printf(nc, "%s", "HTTP/1.1 403 FORBIDDEN\r\n\r\n");
                 nc->flags |= MG_F_SEND_AND_CLOSE;
             }
             break;
         }
         case MG_EV_WEBSOCKET_HANDSHAKE_DONE: {
-             LOG_VERBOSE() printf("New Websocket connection established (%ld).\n", (long)nc->user_data);
+             LOG_VERBOSE("New Websocket connection established (%ld)", (long)nc->user_data);
              const char *response = "{\"type\": \"welcome\", \"data\": {\"mympdVersion\": \"" MYMPD_VERSION "\"}}";
              mg_send_websocket_frame(nc, WEBSOCKET_OP_TEXT, response, strlen(response));
              break;
@@ -252,12 +252,12 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
         case MG_EV_HTTP_REQUEST: {
             struct http_message *hm = (struct http_message *) ev_data;
             static const struct mg_str library_prefix = MG_MK_STR("/library");
-            LOG_VERBOSE() printf("HTTP request (%ld): %.*s\n", (long)nc->user_data, (int)hm->uri.len, hm->uri.p);
+            LOG_VERBOSE("HTTP request (%ld): %.*s", (long)nc->user_data, (int)hm->uri.len, hm->uri.p);
             if (mg_vcmp(&hm->uri, "/api") == 0) {
                 //api request
                 bool rc = handle_api((long)nc->user_data, hm->body.p, hm->body.len);
                 if (rc == false) {
-                    printf("ERROR: Invalid API request.\n");
+                    LOG_ERROR("Invalid API request");
                     const char *response = "{\"type\": \"error\", \"data\": \"Invalid API request\"}";
                     mg_send_head(nc, 200, strlen(response), "Content-Type: application/json");
                     mg_printf(nc, "%s", response);
@@ -270,14 +270,14 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 snprintf(image_file, image_file_len, "%s/assets/coverimage-notavailable.png", DOC_ROOT);
 
                 if (mg_user_data->music_directory == NULL) {
-                    printf("Error extracting coverimage, invalid music_directory\n");
+                    LOG_ERROR("Error extracting coverimage, invalid music_directory");
                     mg_http_serve_file(nc, hm, image_file, mg_mk_str("image/png"), mg_mk_str(""));
                     break;
                 }
                 //coverextract
                 char uri_decoded[(int)hm->uri.len];
                 if (mg_url_decode(hm->uri.p, (int)hm->uri.len, uri_decoded, (int)hm->uri.len, 0) == -1) {
-                    printf("ERROR: url_decode buffer to small\n");
+                    LOG_ERROR("url_decode buffer to small");
                     mg_http_serve_file(nc, hm, image_file, mg_mk_str("image/png"), mg_mk_str(""));
                     break;
                 }
@@ -289,7 +289,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 snprintf(media_file, media_file_len, "%s%s", mg_user_data->music_directory, uri_trimmed);
                 uri_trimmed = NULL;
                 
-                LOG_VERBOSE() printf("Exctracting coverimage from %s\n", media_file);
+                LOG_VERBOSE("Exctracting coverimage from %s", media_file);
                 
                 size_t image_mime_type_len = 100;
                 char image_mime_type[image_mime_type_len];
@@ -298,11 +298,11 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                     size_t path_len = strlen(config->varlibdir) + strlen(image_file) + 13;
                     char path[path_len];
                     snprintf(path, path_len, "%s/covercache/%s", config->varlibdir, image_file);
-                    LOG_DEBUG() fprintf(stderr, "DEBUG: serving file %s (%s)\n", path, image_mime_type);
+                    LOG_DEBUG("Serving file %s (%s)", path, image_mime_type);
                     mg_http_serve_file(nc, hm, path, mg_mk_str(image_mime_type), mg_mk_str(""));
                 }
                 else {
-                    printf("Error extracting coverimage from %s\n", media_file);
+                    LOG_ERROR("Error extracting coverimage from %s", media_file);
                     snprintf(image_file, image_file_len, "%s/assets/coverimage-notavailable.png", DOC_ROOT);
                     mg_http_serve_file(nc, hm, image_file, mg_mk_str("image/png"), mg_mk_str(""));
                 }
@@ -320,7 +320,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
         }
         case MG_EV_CLOSE: {
             if (nc->user_data != NULL) {
-                LOG_VERBOSE() fprintf(stderr, "HTTP connection %ld closed.\n", (long)nc->user_data);
+                LOG_VERBOSE("HTTP connection %ld closed", (long)nc->user_data);
                 nc->user_data = NULL;
             }
             break;
@@ -349,7 +349,7 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data)
                 snprintf(s_redirect, 250, "https://%s/", host);
             else
                 snprintf(s_redirect, 250, "https://%s:%s/", host, config->sslport);
-            LOG_VERBOSE() printf("Redirecting to %s.\n", s_redirect);
+            LOG_VERBOSE("Redirecting to %s", s_redirect);
             mg_http_send_redirect(nc, 301, mg_mk_str(s_redirect), mg_mk_str(NULL));
             break;
         }
@@ -362,7 +362,7 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data)
 static bool handle_api(long conn_id, const char *request_body, int request_len) {
     char *cmd;
     
-    LOG_VERBOSE() printf("API request (%ld): %.*s\n", conn_id, request_len, request_body);
+    LOG_VERBOSE("API request (%ld): %.*s", conn_id, request_len, request_body);
     const int je = json_scanf(request_body, request_len, "{cmd: %Q}", &cmd);
     if (je < 1) {
         return false;

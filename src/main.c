@@ -181,7 +181,7 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
         p_config->plugins_coverextractlib = strdup(value);
     }
     else {
-        printf("WARN: Unkown config option: %s - %s\n", section, name);
+        LOG_WARN("Unkown config option: %s - %s", section, name);
         return 0;  
     }
 
@@ -218,7 +218,7 @@ static void mympd_parse_env(struct t_config *config, const char *envvar) {
         char *var = strdup(envvar);
         section = strtok_r(var, "_", &name);
         if (section != NULL && name != NULL) {
-            LOG_DEBUG() printf("DEBUG: Using environment variable %s_%s: %s\n", section, name, value);
+            LOG_DEBUG("Using environment variable %s_%s: %s", section, name, value);
             mympd_inihandler(config, section, name, value);
         }
         value = NULL;
@@ -246,15 +246,15 @@ static bool init_plugins(struct t_config *config) {
     char *error;
     handle_plugins_coverextract = NULL;
     if (config->plugins_coverextract == true) {
-        LOG_INFO() printf("Loading plugin %s\n", config->plugins_coverextractlib);
+        LOG_INFO("Loading plugin %s", config->plugins_coverextractlib);
         handle_plugins_coverextract = dlopen(config->plugins_coverextractlib, RTLD_LAZY);
         if (!handle_plugins_coverextract) {
-            printf("ERROR loading plugin %s: %s\n", config->plugins_coverextractlib, dlerror());
+            LOG_ERROR("Can't load plugin %s: %s", config->plugins_coverextractlib, dlerror());
             return false;
         }
         *(void **) (&plugin_coverextract) = dlsym(handle_plugins_coverextract, "coverextract");
         if ((error = dlerror()) != NULL)  {
-            printf("ERROR loading plugin %s: %s\n", config->plugins_coverextractlib, error);
+            LOG_ERROR("Can't load plugin %s: %s", config->plugins_coverextractlib, error);
             return false;
         }
     }
@@ -275,6 +275,7 @@ int main(int argc, char **argv) {
     bool init_thread_mpdclient = false;
     bool init_thread_mympdapi = false;
     int rc = EXIT_FAILURE;
+    loglevel = 2;
     
     mpd_client_queue = tiny_queue_create();
     mympd_api_queue = tiny_queue_create();
@@ -344,29 +345,29 @@ int main(int argc, char **argv) {
         }
     }
     
-    printf("Starting myMPD %s\n", MYMPD_VERSION);
-    printf("Libmpdclient %i.%i.%i\n", LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION);
-    printf("Mongoose %s\n", MG_VERSION);
+    LOG_INFO("Starting myMPD %s", MYMPD_VERSION);
+    LOG_INFO("Libmpdclient %i.%i.%i", LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION);
+    LOG_INFO("Mongoose %s", MG_VERSION);
     
     if (access(configfile, F_OK ) != -1) {
-        printf("Parsing config file: %s\n", configfile);
+        LOG_INFO("Parsing config file: %s", configfile);
         if (ini_parse(configfile, mympd_inihandler, config) < 0) {
-            printf("Can't load config file \"%s\"\n", configfile);
+            LOG_ERROR("Can't load config file \"%s\"", configfile);
             goto cleanup;
         }
     }
     else {
-        printf("No config file found, using defaults\n");
+        LOG_WARN("No config file found, using defaults");
     }
 
     //read environment - overwrites config file definitions
     mympd_get_env(config);
     
     #ifdef DEBUG
-    printf("Debug flag enabled, setting loglevel to debug\n");
-    config->loglevel = 3;
+    LOG_INFO("Debug flag enabled, setting loglevel to debug");
+    config->loglevel = 4;
     #endif
-    printf("Setting loglevel to %ld\n", config->loglevel);
+    LOG_INFO("Setting loglevel to %ld", config->loglevel);
     loglevel = config->loglevel;
     
     //init plugins
@@ -378,7 +379,7 @@ int main(int argc, char **argv) {
     if (strncmp(config->mpdhost, "/", 1) != 0 && strcmp(config->music_directory, "auto") == 0) {
         free(config->music_directory);
         config->music_directory = strdup("/var/lib/mpd/music");
-        printf("WARN: Not connected to socket, setting music_directory to %s\n", config->music_directory);
+        LOG_WARN("Not connected to socket, setting music_directory to %s", config->music_directory);
     }
 
     //set signal handler
@@ -399,26 +400,26 @@ int main(int argc, char **argv) {
     //drop privileges
     if (getuid() == 0) {
         if (config->user != NULL || strlen(config->user) != 0) {
-            printf("Droping privileges to %s\n", config->user);
+            LOG_INFO("Droping privileges to %s", config->user);
             struct passwd *pw;
             if ((pw = getpwnam(config->user)) == NULL) {
-                printf("ERROR: getpwnam() failed, unknown user\n");
+                LOG_ERROR("getpwnam() failed, unknown user");
                 goto cleanup;
             } else if (setgroups(0, NULL) != 0) { 
-                printf("ERROR: setgroups() failed\n");
+                LOG_ERROR("setgroups() failed");
                 goto cleanup;
             } else if (setgid(pw->pw_gid) != 0) {
-                printf("ERROR: setgid() failed\n");
+                LOG_ERROR("setgid() failed");
                 goto cleanup;
             } else if (setuid(pw->pw_uid) != 0) {
-                printf("ERROR: setuid() failed\n");
+                LOG_ERROR("setuid() failed");
                 goto cleanup;
             }
         }
     }
     
     if (getuid() == 0) {
-        printf("myMPD should not be run with root privileges\n");
+        LOG_ERROR("myMPD should not be run with root privileges");
         goto cleanup;
     }
 
@@ -445,7 +446,7 @@ int main(int argc, char **argv) {
     if (config->syscmds == true) {
         snprintf(testdirname, 400, "%s/syscmds", config->etcdir);
         if (!testdir("Syscmds directory", testdirname)) {
-            printf("Disabling syscmd support\n");
+            LOG_INFO("Disabling syscmd support");
             config->syscmds = false;
         }
     }
@@ -458,7 +459,7 @@ int main(int argc, char **argv) {
         init_thread_mpdclient = true;
     }
     else {
-        printf("ERROR: can't create mympd_client thread\n");
+        LOG_ERROR("Can't create mympd_client thread");
         s_signal_received = SIGTERM;
     }
     //webserver
@@ -467,7 +468,7 @@ int main(int argc, char **argv) {
         init_thread_webserver = true;
     }
     else {
-        printf("ERROR: can't create mympd_webserver thread\n");
+        LOG_ERROR("Can't create mympd_webserver thread");
         s_signal_received = SIGTERM;
     }
     //mympd api
@@ -476,7 +477,7 @@ int main(int argc, char **argv) {
         init_thread_mympdapi = true;
     }
     else {
-        printf("ERROR: can't create mympd_mympdapi thread\n");
+        LOG_ERROR("Can't create mympd_mympdapi thread");
         s_signal_received = SIGTERM;
     }
 

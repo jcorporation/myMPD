@@ -30,6 +30,7 @@
 #include <dirent.h>
 #include <pthread.h>
 #include <signal.h>
+#include <stdarg.h>
 
 #include "tiny_queue.h"
 #include "list.h"
@@ -39,11 +40,11 @@ bool testdir(const char *name, const char *dirname) {
     DIR* dir = opendir(dirname);
     if (dir) {
         closedir(dir);
-        LOG_INFO() printf("%s: \"%s\"\n", name, dirname);
+        LOG_INFO("%s: \"%s\"", name, dirname);
         return true;
     }
     else {
-        printf("%s: \"%s\" don't exists\n", name, dirname);
+        LOG_ERROR("%s: \"%s\" don't exists", name, dirname);
         return false;
     }
 }
@@ -59,7 +60,7 @@ bool validate_string(const char *data) {
     const char *cp = data;
     const char *end = data + strlen(data);
     for (cp += strspn(cp, ok_chars); cp != end; cp += strspn(cp, ok_chars)) {
-        printf("ERROR: Invalid character in string\n");
+        LOG_ERROR("Invalid character in string");
         return false;
     }
     return true;
@@ -92,4 +93,30 @@ enum mympd_cmd_ids get_cmd_id(const char *cmd) {
             return i;
 
     return 0;
+}
+
+static const char *loglevel_names[] = {
+  "ERROR", "WARN", "INFO", "VERBOSE", "DEBUG"
+};
+
+void mympd_log(int level, const char *file, int line, int mode, const char *fmt, ...) {
+    if (level > loglevel) {
+        return;
+    }
+    va_list args;
+    if (mode == LOGMODE_LINE || mode == LOGMODE_START) {
+        if (loglevel == 4) {
+            fprintf(stderr, "%-8s %s:%d: ", loglevel_names[level], file, line);
+        }
+        else {
+            fprintf(stderr, "%-8s ", loglevel_names[level]);
+        }
+    }
+    va_start(args, fmt);
+    vfprintf(stderr, fmt, args);
+    va_end(args);
+    if (mode == LOGMODE_LINE || mode == LOGMODE_END) {
+        fprintf(stderr, "\n");
+        fflush(stderr);
+    }
 }
