@@ -473,7 +473,7 @@ static int mympd_api_put_settings(t_config *config, t_mympd_state *mympd_state, 
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
     
     len = json_printf(&out, "{type: mympdSettings, data: {mpdhost: %Q, mpdport: %d, passwort_set: %B, featSyscmds: %B, "
-        "featLocalplayer: %B, streamport: %d, streamurl: %Q, featCoverimage: %B, coverimagename: %Q, coverimagesize: %d, featMixramp: %B, "
+        "featLocalplayer: %B, streamport: %d, streamurl: %Q, coverimagename: %Q, coverimagesize: %d, featMixramp: %B, "
         "maxElementsPerPage: %d, notificationWeb: %B, notificationPage: %B, jukeboxMode: %d, jukeboxPlaylist: %Q, jukeboxQueueLength: %d, "
         "autoPlay: %B, backgroundcolor: %Q", 
         config->mpdhost, 
@@ -483,7 +483,6 @@ static int mympd_api_put_settings(t_config *config, t_mympd_state *mympd_state, 
         config->localplayer,
         config->streamport,
         config->streamurl,
-        config->coverimage,
         config->coverimagename,
         config->coverimagesize,
         config->mixramp,

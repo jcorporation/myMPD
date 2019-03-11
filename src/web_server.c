@@ -139,12 +139,13 @@ void *web_server_loop(void *arg_mgr) {
                         char *rewrite_patterns = malloc(rewrite_patterns_len);
                         if (feat_library == true) {
                             snprintf(rewrite_patterns, rewrite_patterns_len, "/pics/=%s,/library/=%s", mg_user_data->pics_directory, mg_user_data->music_directory);
+                            LOG_DEBUG() fprintf(stderr, "DEBUG: Setting music_directory to %s\n", mg_user_data->music_directory);
                         }
                         else {
                             snprintf(rewrite_patterns, rewrite_patterns_len, "/pics/=%s", mg_user_data->pics_directory);
                         }
                         mg_user_data->rewrite_patterns = rewrite_patterns;
-                        LOG_DEBUG() fprintf(stderr, "DEBUG: Setting music_directory to %s\n", mg_user_data->music_directory);
+                        LOG_DEBUG() fprintf(stderr, "DEBUG: Setting rewrite_patterns to %s\n", mg_user_data->rewrite_patterns);
                     }
                     else {
                         printf("ERROR unknown internal message: %s\n", response->data);
