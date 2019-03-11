@@ -3318,7 +3318,7 @@ function doSetFilterLetter(x) {
     if (filter == '0')
         filter = '#';
     
-    document.getElementById(x).innerText = 'Filter' + (filter != '-' ? ': '+filter : '');
+    document.getElementById(x).innerHTML = '<span class="material-icons">filter_list</span>' + (filter != '-' ? ' ' + filter : '');
     
     if (filter != '-') {
         var btns = document.getElementById(x + 'Letters').getElementsByTagName('button');
