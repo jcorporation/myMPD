@@ -38,13 +38,18 @@ static inline bool is_base64(unsigned char c) {
     return (isalnum(c) || (c == '+') || (c == '/'));
 }
 
-static string base64_decode(std::string const& encoded_string) {
+static bool write_base64_decoded(std::string const& encoded_string, const std::string& abs_tmp_file) {
     int in_len = encoded_string.size();
     int i = 0;
     int j = 0;
     int in_ = 0;
     unsigned char char_array_4[4], char_array_3[3];
-    string ret;
+    
+    ofstream myfile;
+    myfile.open(abs_tmp_file);
+    if (!myfile.is_open()) {
+        return false;
+    }
 
     while (in_len-- && ( encoded_string[in_] != '=') && is_base64(encoded_string[in_])) {
         char_array_4[i++] = encoded_string[in_]; in_++;
@@ -57,7 +62,7 @@ static string base64_decode(std::string const& encoded_string) {
             char_array_3[2] = ((char_array_4[2] & 0x3) << 6) +   char_array_4[3];
 
             for (i = 0; (i < 3); i++) {
-                ret += char_array_3[i];
+                myfile << char_array_3[i];
             }
             i = 0;
         }
@@ -72,11 +77,12 @@ static string base64_decode(std::string const& encoded_string) {
         char_array_3[1] = ((char_array_4[1] & 0xf) << 4) + ((char_array_4[2] & 0x3c) >> 2);
 
         for (j = 0; (j < i - 1); j++) {
-            ret += char_array_3[j];
+            myfile << char_array_3[j];
         }
     }
 
-    return ret;
+    myfile.close();
+    return true;
 }
 
 static bool file_exists(const std::string& file) {
@@ -104,15 +110,13 @@ int coverextract(const char *media_file_ptr, char *image_filename, int image_fil
             string abs_output_file = "/var/lib/mympd/covercache/" + output_file;
             string abs_tmp_file = "/var/lib/mympd/covercache/" + output_file + ".tmp";
             if (file_exists(abs_output_file) == false) {
-                ofstream myfile;
-                myfile.open(abs_tmp_file);
-                if (myfile.is_open()) {
-                    myfile << base64_decode(MI.Get(Stream_General, 0, "Cover_Data"));
-                    myfile.close();
+                bool rc = write_base64_decoded(MI.Get(Stream_General, 0, "Cover_Data"), abs_tmp_file);
+                if (rc == true) {
                     rename(abs_tmp_file.c_str(), abs_output_file.c_str());
                 }
                 else {
                     strncpy(image_filename, "cantwrite", image_filename_len);
+                    strncpy(image_mime_type, "nomimetype", image_mime_type_len);
                     MI.Close();
                     return 1;
                 }
@@ -122,6 +126,7 @@ int coverextract(const char *media_file_ptr, char *image_filename, int image_fil
     }
     else {
         strncpy(image_filename, "nocover", image_filename_len);
+        strncpy(image_mime_type, "nomimetype", image_mime_type_len);
 	MI.Close();
         return 1;
     }
