@@ -1113,7 +1113,9 @@ static void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state) {
         if (mpd_send_command(mpd_state->conn, "config", NULL)) {
             while ((pair = mpd_recv_pair(mpd_state->conn)) != NULL) {
                 if (strcmp(pair->name, "music_directory") == 0) {
-                    mpd_state->music_directory = strdup(pair->value);
+                    if (strncmp(pair->value, "smb://", 6) != 0 || strncmp(pair->value, "nfs://", 6) != 0) {
+                        mpd_state->music_directory = strdup(pair->value);
+                    }
                 }
                 mpd_return_pair(mpd_state->conn, pair);
             }
