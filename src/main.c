@@ -363,12 +363,8 @@ int main(int argc, char **argv) {
     //read environment - overwrites config file definitions
     mympd_get_env(config);
     
-    #ifdef DEBUG
-    LOG_INFO("Debug flag enabled, setting loglevel to debug");
-    config->loglevel = 4;
-    #endif
-    LOG_INFO("Setting loglevel to %ld", config->loglevel);
-    loglevel = config->loglevel;
+    //set loglevel    
+    set_loglevel(config);
     
     //init plugins
     if (init_plugins(config) == false) {

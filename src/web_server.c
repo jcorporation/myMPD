@@ -181,10 +181,10 @@ static void send_ws_notify(struct mg_mgr *mgr, t_work_result *response) {
         if (!is_websocket(nc))
             continue;
         if (nc->user_data != NULL) {
-            LOG_DEBUG("Sending notify to conn_id %ld: %.*s...", (long)nc->user_data, 80, response->data);
+            LOG_DEBUG("Sending notify to conn_id %ld: %s", (long)nc->user_data, response->data);
         }
         else {
-            LOG_DEBUG("Sending notify to unknown connection: %.*s...", 80, response->data);
+            LOG_WARN("Sending notify to unknown connection: %s", response->data);
         }
         mg_send_websocket_frame(nc, WEBSOCKET_OP_TEXT, response->data, response->length);
     }
@@ -198,14 +198,14 @@ static void send_api_response(struct mg_mgr *mgr, t_work_result *response) {
             continue;
         if (nc->user_data != NULL) {
             if ((long)nc->user_data == response->conn_id) {
-                LOG_DEBUG("Sending response to conn_id %ld: %.*s...", (long)nc->user_data, 80, response->data);
+                LOG_DEBUG("Sending response to conn_id %ld: %s", (long)nc->user_data, response->data);
                 mg_send_head(nc, 200, response->length, "Content-Type: application/json");
                 mg_printf(nc, "%s", response->data);
                 break;
             }
         }
         else {
-            LOG_DEBUG("Unknown connection.");
+            LOG_DEBUG("Unknown connection");
         }
     }
     free(response);

@@ -288,7 +288,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
         response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"No response for cmd_id %u.\"}", request->cmd_id);
         LOG_ERROR("No response for cmd_id %u", request->cmd_id);
     }
-    LOG_DEBUG("Send http response to connection %lu (first 800 chars):\n%*.*s", request->conn_id, 0, 800, response->data);
+    LOG_DEBUG("Push response to queue for connection %lu: %s", request->conn_id, response->data);
 
     tiny_queue_push(web_server_queue, response);
     free(request);

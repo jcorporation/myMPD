@@ -933,7 +933,7 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
         response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"No response for cmd_id %u.\"}", request->cmd_id);
     }
     if (response->conn_id > -1) {
-        LOG_DEBUG("Send http response to connection %lu (first 800 chars):\n%*.*s", request->conn_id, 0, 800, response->data);
+        LOG_DEBUG("Push response to queue for connection %lu: %s", request->conn_id, response->data);
         tiny_queue_push(web_server_queue, response);
     }
     else {
@@ -943,7 +943,7 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
 }
 
 static void mpd_client_notify(const char *message, const size_t len) {
-    LOG_DEBUG("Websocket notify: %s", message);
+    LOG_DEBUG("Push websocket notify to queue: %s", message);
     
     t_work_result *response = (t_work_result *)malloc(sizeof(t_work_result));
     response->conn_id = 0;
@@ -1162,11 +1162,15 @@ static void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state) {
     );
     tiny_queue_push(web_server_queue, web_server_response);
 
-    LOG_INFO_START("MPD supported tags:");
+    size_t max_len = 1024;
+    char logline[max_len];
+    size_t len = 0;
+    
+    len = snprintf(logline, max_len, "MPD supported tags: ");
     list_free(&mpd_state->mpd_tags);
     if (mpd_send_list_tag_types(mpd_state->conn)) {
         while ((pair = mpd_recv_tag_type_pair(mpd_state->conn)) != NULL) {
-            LOG_INFO_ADD("%s ", pair->value);
+            len += snprintf(logline + len, max_len - len, "%s ", pair->value);
             list_push(&mpd_state->mpd_tags, pair->value, 1);
             mpd_return_pair(mpd_state->conn, pair);
         }
@@ -1177,24 +1181,25 @@ static void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state) {
     }
     list_free(&mpd_state->mympd_tags);
     if (mpd_state->mpd_tags.length == 0) {
-        LOG_INFO_END("none");
+        len += snprintf(logline + len, max_len -len, "none");
+        LOG_INFO(logline);
         LOG_INFO("Tags are disabled");
         mpd_state->feat_tags = false;
     }
     else {
         mpd_state->feat_tags = true;
-        LOG_INFO_END("");
-        LOG_INFO_START("myMPD enabled tags: ");
+        LOG_INFO(logline);
+        len = snprintf(logline, max_len, "myMPD enabled tags: ");
         token = strtok_r(taglist, s, &rest);
         while (token != NULL) {
             if (list_get_value(&mpd_state->mpd_tags, token) == 1) {
+                len += snprintf(logline + len, max_len - len, "%s ", token);
                 list_push(&mpd_state->mympd_tags, token, 1);
                 mpd_state->tag_types[mpd_state->tag_types_len++] = mpd_tag_name_parse(token);
-                LOG_INFO_ADD("%s ", token);
             }
             token = strtok_r(NULL, s, &rest);
         }
-        LOG_INFO_END("");
+        LOG_INFO(logline);
         #if LIBMPDCLIENT_CHECK_VERSION(2,12,0)
         if (mpd_connection_cmp_server_version(mpd_state->conn, 0, 21, 0) >= 0) {
             LOG_VERBOSE("Enabling mpd tag types");
@@ -1211,26 +1216,26 @@ static void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state) {
             mpd_response_finish(mpd_state->conn);
         }
         #endif
-        LOG_INFO_START("myMPD enabled searchtags: ");
+        len = snprintf(logline, max_len, "myMPD enabled searchtags: ");
         token = strtok_r(searchtaglist, s, &rest);
         while (token != NULL) {
             if (list_get_value(&mpd_state->mympd_tags, token) == 1) {
+                len += snprintf(logline + len, max_len - len, "%s ", token);
                 list_push(&mpd_state->mympd_searchtags, token, 1);
-                LOG_INFO_ADD("%s ", token);
             }
             token = strtok_r(NULL, s, &rest);
         }
-        LOG_INFO_END("");
-        LOG_INFO_START("myMPD enabled browsetags: ");
+        LOG_INFO(logline);
+        len = snprintf(logline, max_len, "myMPD enabled browsetags: ");
         token = strtok_r(browsetaglist, s, &rest);
         while (token != NULL) {
             if (list_get_value(&mpd_state->mympd_tags, token) == 1) {
+                len += snprintf(logline + len, max_len - len, "%s ", token);
                 list_push(&mpd_state->mympd_browsetags, token, 1);
-                LOG_INFO_ADD("%s ", token);
             }
             token = strtok_r(NULL, s, &rest);
         }
-        LOG_INFO_END("");
+        LOG_INFO(logline);
     }
     free(taglist);
     free(searchtaglist);

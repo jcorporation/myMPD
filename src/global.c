@@ -99,24 +99,42 @@ static const char *loglevel_names[] = {
   "ERROR", "WARN", "INFO", "VERBOSE", "DEBUG"
 };
 
-void mympd_log(int level, const char *file, int line, int mode, const char *fmt, ...) {
+void set_loglevel(t_config *config) {
+    #ifdef DEBUG
+    config->loglevel = 4;
+    #endif
+
+    if (config->loglevel > 4) {
+        config->loglevel = 4;
+    }
+    else if (config->loglevel < 0) {
+        config->loglevel = 0;
+    }
+    LOG_INFO("Setting loglevel to %s", loglevel_names[config->loglevel]);
+    loglevel = config->loglevel;
+}
+
+void mympd_log(int level, const char *file, int line, const char *fmt, ...) {
     if (level > loglevel) {
         return;
     }
+    
+    size_t max_out = 1021;
+    char out[max_out];
+    size_t len = 0;
+    
+    len = snprintf(out, max_out, "%-8s ", loglevel_names[level]);
+    if (loglevel == 4) {
+        len += snprintf(out + len, max_out - len, "%s:%d: ", file, line);
+    }
     va_list args;
-    if (mode == LOGMODE_LINE || mode == LOGMODE_START) {
-        if (loglevel == 4) {
-            fprintf(stderr, "%-8s %s:%d: ", loglevel_names[level], file, line);
-        }
-        else {
-            fprintf(stderr, "%-8s ", loglevel_names[level]);
-        }
-    }
     va_start(args, fmt);
-    vfprintf(stderr, fmt, args);
+    len += vsnprintf(out + len, max_out - len, fmt, args);
     va_end(args);
-    if (mode == LOGMODE_LINE || mode == LOGMODE_END) {
-        fprintf(stderr, "\n");
-        fflush(stderr);
+    fprintf(stderr, "%s", out);
+    if (len > max_out) {
+        fprintf(stderr, "...");
     }
+    fprintf(stderr, "\n");
+    fflush(stderr);
 }
