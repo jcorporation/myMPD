@@ -16,18 +16,16 @@
    Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#ifndef COVEREXTRACT_H
-#define COVEREXTRACT_H
-#define MYMPD_COVEREXTRACT_VERSION "0.1.0"
+#ifndef MYMPD_COVEREXTRACT_H
+#define MYMPD_COVEREXTRACT_H
+#define MYMPD_COVEREXTRACT_VERSION "0.2.0"
     #ifdef __cplusplus
     extern "C" {
     #endif
 
-    extern int coverextract(const char *media_file, char *image_filename, int image_filename_len, char *image_mime_type, int image_mime_type_len, const bool extract);
+    extern bool coverextract(const char *media_file_ptr, char *image_filename, const int image_filename_len, char *image_mime_type, const int image_mime_type_len, const bool extract);
 
     #ifdef __cplusplus
     }
     #endif
 #endif
-
-

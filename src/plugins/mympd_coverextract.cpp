@@ -90,7 +90,7 @@ static bool file_exists(const std::string& file) {
     return (stat(file.c_str(), &buf) == 0);
 }
 
-int coverextract(const char *media_file_ptr, char *image_filename, int image_filename_len, char *image_mime_type, int image_mime_type_len, const bool extract) {
+bool coverextract(const char *media_file_ptr, char *image_filename, const int image_filename_len, char *image_mime_type, const int image_mime_type_len, const bool extract) {
     string media_file = media_file_ptr;
     MediaInfo MI;
     MI.Option(__T("Internet"), __T("No"));
@@ -118,7 +118,7 @@ int coverextract(const char *media_file_ptr, char *image_filename, int image_fil
                     strncpy(image_filename, "cantwrite", image_filename_len);
                     strncpy(image_mime_type, "nomimetype", image_mime_type_len);
                     MI.Close();
-                    return 1;
+                    return false;
                 }
             }
         }
@@ -128,8 +128,8 @@ int coverextract(const char *media_file_ptr, char *image_filename, int image_fil
         strncpy(image_filename, "nocover", image_filename_len);
         strncpy(image_mime_type, "nomimetype", image_mime_type_len);
 	MI.Close();
-        return 1;
+        return false;
     }
     MI.Close();
-    return 0;
+    return true;
 }
