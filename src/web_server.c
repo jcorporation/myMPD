@@ -293,7 +293,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 
                 size_t image_mime_type_len = 100;
                 char image_mime_type[image_mime_type_len];
-                size_t cache_dir_len = strlen(config->varlibdir) + 11;
+                size_t cache_dir_len = strlen(config->varlibdir) + 12;
                 char cache_dir[cache_dir_len];
                 snprintf(cache_dir, cache_dir_len, "%s/covercache", config->varlibdir);
                 bool rc = plugin_coverextract(media_file, cache_dir, image_file, image_file_len, image_mime_type, image_mime_type_len, true);
