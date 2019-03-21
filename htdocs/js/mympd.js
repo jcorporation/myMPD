@@ -264,7 +264,7 @@ function appRoute() {
             document.getElementById('BrowseFilesystemAddAllSongsBtn').setAttribute('disabled', 'disabled');
         }
         // Create breadcrumb
-        var breadcrumbs='<li class="breadcrumb-item"><a data-uri="">root</a></li>';
+        var breadcrumbs='<li class="breadcrumb-item"><a data-uri="" class="material-icons">home</a></li>';
         var pathArray = app.current.search.split('/');
         var pathArrayLen = pathArray.length;
         var fullPath = '';
