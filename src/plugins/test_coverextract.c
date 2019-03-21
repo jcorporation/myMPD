@@ -26,7 +26,7 @@ int main(int argc, char **argv) {
     char image_mime_type[100];
     char *error;
     void *handle_plugins_coverextract = NULL;
-    bool (*plugin_coverextract)(const char *, char *, const int, char *, const int, const bool);
+    bool (*plugin_coverextract)(const char *, const char *, char *, const int, char *, const int, const bool);
     
     handle_plugins_coverextract = dlopen("/usr/share/mympd/lib/libmympd_coverextract.so", RTLD_LAZY);
     if (!handle_plugins_coverextract) {
@@ -39,7 +39,7 @@ int main(int argc, char **argv) {
         return 1;
     }
     if (argc == 2) {
-        int rc = plugin_coverextract(argv[1], image_name, 1024, image_mime_type, 100, true);
+        int rc = plugin_coverextract(argv[1], "/var/lib/mympd/covercache", image_name, 1024, image_mime_type, 100, true);
         printf("rc: %s, image_name: %s, image_mime_type: %s\n", rc == true ? "true" : "false", image_name, image_mime_type);
     }
     else {

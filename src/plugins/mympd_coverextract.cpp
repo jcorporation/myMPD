@@ -90,8 +90,9 @@ static bool file_exists(const std::string& file) {
     return (stat(file.c_str(), &buf) == 0);
 }
 
-bool coverextract(const char *media_file_ptr, char *image_filename, const int image_filename_len, char *image_mime_type, const int image_mime_type_len, const bool extract) {
+bool coverextract(const char *media_file_ptr, const char *cache_dir_ptr, char *image_filename, const int image_filename_len, char *image_mime_type, const int image_mime_type_len, const bool extract) {
     string media_file = media_file_ptr;
+    string cache_dir = cache_dir_ptr;
     MediaInfo MI;
     MI.Option(__T("Internet"), __T("No"));
     MI.Option(__T("Cover_Data"), __T("base64"));
@@ -107,8 +108,8 @@ bool coverextract(const char *media_file_ptr, char *image_filename, const int im
             }
         }
         if (extract == true) {
-            string abs_output_file = "/var/lib/mympd/covercache/" + output_file;
-            string abs_tmp_file = "/var/lib/mympd/covercache/" + output_file + ".tmp";
+            string abs_output_file = cache_dir + "/" + output_file;
+            string abs_tmp_file = cache_dir + "/" + output_file + ".tmp";
             if (file_exists(abs_output_file) == false) {
                 bool rc = write_base64_decoded(MI.Get(Stream_General, 0, "Cover_Data"), abs_tmp_file);
                 if (rc == true) {

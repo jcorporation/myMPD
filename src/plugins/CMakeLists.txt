@@ -14,3 +14,4 @@ install(TARGETS mympd_coverextract DESTINATION share/mympd/lib/)
 
 #testcoverextract executable
 add_executable(test_coverextract ../src/plugins/test_coverextract.c)
+target_link_libraries(test_coverextract ${CMAKE_DL_LIBS})

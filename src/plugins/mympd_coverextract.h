@@ -23,7 +23,7 @@
     extern "C" {
     #endif
 
-    extern bool coverextract(const char *media_file_ptr, char *image_filename, const int image_filename_len, char *image_mime_type, const int image_mime_type_len, const bool extract);
+    extern bool coverextract(const char *media_file_ptr, const char *cache_dir_ptr, char *image_filename, const int image_filename_len, char *image_mime_type, const int image_mime_type_len, const bool extract);
 
     #ifdef __cplusplus
     }

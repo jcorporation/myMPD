@@ -1975,7 +1975,7 @@ static int mpd_client_get_cover(t_config *config, t_mpd_state *mpd_state, const 
                     char image_file[image_file_len];
                     size_t image_mime_type_len = 100;
                     char image_mime_type[image_mime_type_len];
-                    bool rc = plugin_coverextract(media_file, image_file, image_file_len, image_mime_type, image_mime_type_len, false);
+                    bool rc = plugin_coverextract(media_file, "", image_file, image_file_len, image_mime_type, image_mime_type_len, false);
                     if (rc == true) {
                         len = snprintf(cover, cover_len, "/library/%s?cover", uri);
                     }
