@@ -6,10 +6,9 @@
 install -d plugins
 cd plugins
 
-g++ -shared -fPIC ../src/plugins/mympd_coverextract.cpp -ldl -o mympd_coverextract.so
-gcc -Wall ../src/plugins/test_coverextract.c -o test_coverextract -ldl
-
-sudo install -d /usr/share/mympd/lib
-sudo install mympd_coverextract.so /usr/share/mympd/lib/mympd_coverextract.so
+INSTALL_PREFIX="${MYMPD_INSTALL_PREFIX:-/usr}"
+cmake -DCMAKE_INSTALL_PREFIX:PATH=$INSTALL_PREFIX -DCMAKE_BUILD_TYPE=RELEASE ../src/plugins
+make
+sudo make install
 
 export LD_LIBRARY_PATH=/usr/share/mympd/lib/

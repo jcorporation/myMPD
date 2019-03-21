@@ -92,4 +92,4 @@ backgroundcolor = #888
 
 [plugins]
 coverextract = false
-coverextractlib = /usr/share/mympd/lib/mympd_coverextract.so
+coverextractlib = /usr/share/mympd/lib/libmympd_coverextract.so

@@ -147,7 +147,7 @@ enum jukebox_modes {
 
 //plugins
 void *handle_plugins_coverextract;
-int (*plugin_coverextract)(const char *, char *, int, char *, int, const bool);
+bool (*plugin_coverextract)(const char *, char *, const int, char *, const int, const bool);
 
 //message queue
 tiny_queue_t *web_server_queue;
