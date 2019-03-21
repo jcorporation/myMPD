@@ -438,6 +438,13 @@ int main(int argc, char **argv) {
     if (!testdir("State dir", testdirname)) {
         goto cleanup;
     }
+    
+    if (config->plugins_coverextract == true) {
+        snprintf(testdirname, 400, "%s/covercache", config->varlibdir);
+        if (!testdir("Covercache dir", testdirname)) {
+            goto cleanup;
+        }
+    }
 
     if (config->syscmds == true) {
         snprintf(testdirname, 400, "%s/syscmds", config->etcdir);
