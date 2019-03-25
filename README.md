@@ -72,7 +72,6 @@ Unix Build Instructions
 1. Install dependencies: cmake, libmpdclient (dev), OpenSSL (dev), libmediainfo (dev) and Java
 2. Extract myMPD tarball and change path to this directory.
 3. Build and install myMPD: ```./mkrelease.sh```
-4. Build and install plugins: ```./mkplugins.sh```
 
 Run
 ---------
