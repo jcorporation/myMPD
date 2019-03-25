@@ -12,7 +12,7 @@ Summary:        Standalone webclient for mpd
 Url:            https://github.com/jcorporation/myMPD
 Source:         https://github.com/jcorporation/myMPD/archive/v%{version}.zip
 BuildRequires:  gcc
-BuildRequires:	cpp
+BuildRequires:	gcc-c++
 BuildRequires:  cmake
 BuildRequires:  unzip
 BuildRequires:	libmpdclient-devel
