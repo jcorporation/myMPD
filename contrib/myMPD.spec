@@ -107,5 +107,5 @@ fi
 /var/lib/mympd
 
 %changelog
-* Mo Mar 25 2019 Juergen Mang <mail@jcgames.de> - master
+* Mon Mar 25 2019 Juergen Mang <mail@jcgames.de> - master
 - Version from master
