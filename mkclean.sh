@@ -1,7 +1,6 @@
 #!/bin/sh
 rm -rf release
 rm -rf debug
-rm -rf plugins
 rm -rf debian/tmp
 rm -f debian/files
 
