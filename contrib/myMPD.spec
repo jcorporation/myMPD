@@ -12,11 +12,13 @@ Summary:        Standalone webclient for mpd
 Url:            https://github.com/jcorporation/myMPD
 Source:         https://github.com/jcorporation/myMPD/archive/v%{version}.zip
 BuildRequires:  gcc
+BuildRequires:	cpp
 BuildRequires:  cmake
 BuildRequires:  unzip
 BuildRequires:	libmpdclient-devel
 BuildRequires:	pkgconfig
 BuildRequires:	openssl-devel
+BuildRequires:  libmediainfo-devel
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
 %global debug_package %{nil}
@@ -105,5 +107,5 @@ fi
 /var/lib/mympd
 
 %changelog
-* Sa Mar 09 2019 Juergen Mang <mail@jcgames.de> - master
+* Mo Mar 25 2019 Juergen Mang <mail@jcgames.de> - master
 - Version from master
