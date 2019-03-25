@@ -30,6 +30,7 @@
 #include <dirent.h>
 #include <pthread.h>
 #include <signal.h>
+#include <stdarg.h>
 
 #include "tiny_queue.h"
 #include "list.h"
@@ -39,11 +40,11 @@ bool testdir(const char *name, const char *dirname) {
     DIR* dir = opendir(dirname);
     if (dir) {
         closedir(dir);
-        LOG_INFO() printf("%s: \"%s\"\n", name, dirname);
+        LOG_INFO("%s: \"%s\"", name, dirname);
         return true;
     }
     else {
-        printf("%s: \"%s\" don't exists\n", name, dirname);
+        LOG_ERROR("%s: \"%s\" don't exists", name, dirname);
         return false;
     }
 }
@@ -59,7 +60,7 @@ bool validate_string(const char *data) {
     const char *cp = data;
     const char *end = data + strlen(data);
     for (cp += strspn(cp, ok_chars); cp != end; cp += strspn(cp, ok_chars)) {
-        printf("ERROR: Invalid character in string\n");
+        LOG_ERROR("Invalid character in string");
         return false;
     }
     return true;
@@ -92,4 +93,48 @@ enum mympd_cmd_ids get_cmd_id(const char *cmd) {
             return i;
 
     return 0;
+}
+
+static const char *loglevel_names[] = {
+  "ERROR", "WARN", "INFO", "VERBOSE", "DEBUG"
+};
+
+void set_loglevel(t_config *config) {
+    #ifdef DEBUG
+    config->loglevel = 4;
+    #endif
+
+    if (config->loglevel > 4) {
+        config->loglevel = 4;
+    }
+    else if (config->loglevel < 0) {
+        config->loglevel = 0;
+    }
+    LOG_INFO("Setting loglevel to %s", loglevel_names[config->loglevel]);
+    loglevel = config->loglevel;
+}
+
+void mympd_log(int level, const char *file, int line, const char *fmt, ...) {
+    if (level > loglevel) {
+        return;
+    }
+    
+    size_t max_out = 1021;
+    char out[max_out];
+    size_t len = 0;
+    
+    len = snprintf(out, max_out, "%-8s ", loglevel_names[level]);
+    if (loglevel == 4) {
+        len += snprintf(out + len, max_out - len, "%s:%d: ", file, line);
+    }
+    va_list args;
+    va_start(args, fmt);
+    len += vsnprintf(out + len, max_out - len, fmt, args);
+    va_end(args);
+    fprintf(stderr, "%s", out);
+    if (len > max_out) {
+        fprintf(stderr, "...");
+    }
+    fprintf(stderr, "\n");
+    fflush(stderr);
 }

@@ -72,9 +72,3 @@ else
   make install
   cd ..
 fi
-
-if [ -x /usr/bin/cppcheck ]
-then
-  echo "Running cppcheck"
-  cppcheck --enable=warning --inconclusive --force --inline-suppr src/*.c src/*.h
-fi

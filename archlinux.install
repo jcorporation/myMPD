@@ -10,19 +10,6 @@ post_upgrade() {
   getent passwd mympd > /dev/null
   [ "$?" = "2" ] && useradd --system -d /var/lib/mympd -s /usr/sbin/nologin -g mympd mympd
 
-  # link music directory to mympd if not already exising 
-  echo "INFO: Trying to link musicdir to library"
-  if [ -f /etc/mpd.conf ]
-  then
-    LIBRARY=$(grep ^music_directory /etc/mpd.conf | awk {'print $2'} | sed -e 's/"//g')
-    [ "$LIBRARY" != "" ] && [ ! -e /usr/share/mympd/htdocs/library ] && ln -s "$LIBRARY" /usr/share/mympd/htdocs/library
-  else
-    echo "/etc/mpd.conf not found, you must link your musicdir manually to /usr/share/mympd/htdocs/library"
-  fi
-
-  echo "Linking pics directory"
-  [ -e /usr/share/mympd/htdocs/pics ] || ln -s /var/lib/mympd/pics /usr/share/mympd/htdocs/
-
   # install systemd service
   echo "INFO: Installing systemd service"
   if [ -d /etc/systemd/system ]
@@ -60,21 +47,6 @@ post_upgrade() {
     fi
   done
 
-  #default state files
-  [ -f /var/lib/mympd/state/jukeboxMode ] || echo -n "0" > /var/lib/mympd/state/jukeboxMode
-  [ -f /var/lib/mympd/state/jukeboxPlaylist ] || echo -n "Database" > /var/lib/mympd/state/jukeboxPlaylist
-  [ -f /var/lib/mympd/state/jukeboxQueueLength ] || echo -n "1" > /var/lib/mympd/state/jukeboxQueueLength
-  [ -f /var/lib/mympd/state/autoPlay ] || echo -n "false" > /var/lib/mympd/state/autoPlay
-  [ -f /var/lib/mympd/state/notificationPage ] || echo -n "true" > /var/lib/mympd/state/notificationPage
-  [ -f /var/lib/mympd/state/notificationWeb ] || echo -n "false" > /var/lib/mympd/state/notificationWeb
-  [ -f /var/lib/mympd/state/colsBrowseDatabase ] || echo -n '["Track","Title","Duration"]' > /var/lib/mympd/state/colsBrowseDatabase
-  [ -f /var/lib/mympd/state/colsPlayback ] || echo -n '["Artist","Album","Genre"]' > /var/lib/mympd/state/colsPlayback
-  [ -f /var/lib/mympd/state/colsBrowseFilesystem ] || echo -n '["Type","Title","Artist","Album","Duration"]' > /var/lib/mympd/state/colsBrowseFilesystem
-  [ -f /var/lib/mympd/state/colsBrowsePlaylistsDetail ] || echo -n '["Pos","Title","Artist","Album","Duration"]' > /var/lib/mympd/state/colsBrowsePlaylistsDetail
-  [ -f /var/lib/mympd/state/colsQueueCurrent ] || echo -n '["Pos","Title","Artist","Album","Duration"]' > /var/lib/mympd/state/colsQueueCurrent
-  [ -f /var/lib/mympd/state/colsSearch ] || echo -n '["Title","Artist","Album","Duration"]' > /var/lib/mympd/state/colsSearch
-  [ -f /var/lib/mympd/state/colsQueueLastPlayed ] || echo -n '["Pos","Title","Artist","Album","LastPlayed"]' > /var/lib/mympd/state/colsQueueLastPlayed
-
   # fix ownership of /var/lib/mympd
   echo "INFO: Fixing ownership of /var/lib/mympd"
   chown -R mympd.mympd /var/lib/mympd
@@ -108,8 +80,6 @@ post_remove() {
   fi
 
   # remove leftover directories
-  rm -v -f /usr/share/mympd/htdocs/pics
-  rm -v -f /usr/share/mympd/htdocs/library
   rmdir -v /usr/share/mympd/htdocs/
   rmdir -v /usr/share/mympd/
 }

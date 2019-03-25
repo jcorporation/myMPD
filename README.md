@@ -27,11 +27,13 @@ This fork provides a reworked ui based on Bootstrap 4, a modernized backend and 
  - Smart playlists and saved searches
  - Play statistics and song voting (requires mpd stickers)
  - Local coverart support (Albums and Streams)
+ - Support for embedded albumart (requires libmediainfo)
  - HTTP stream support
  - Local playback of mpd http stream (html5 audio api)
  - Progressiv Web App enabled
  - Embedded Webserver (mongoose)
  - Docker support (experimental)
+ - Love message for scrobbling clients
 
 myMPD is work in progress. Bugreportes and feature requests are very welcome.
  - https://github.com/jcorporation/myMPD/issues
@@ -57,6 +59,7 @@ Dependencies
 ------------
  - libmpdclient 2: http://www.musicpd.org/libs/libmpdclient/
  - OpenSSL: https://www.openssl.org/
+ - libmediainfo: https://mediaarea.net/en/MediaInfo (to support embedded album covers)
 
 Build Dependencies
 ------------------
@@ -66,14 +69,13 @@ Build Dependencies
 
 Unix Build Instructions
 -----------------------
-
-1. Install dependencies: cmake, libmpdclient (dev), OpenSSL (dev) and Java are available from all major distributions.
-2. Build and install: ```cd /path/to/src; ./mkrelease.sh``` (toplevel directory of myMPD tarball).
-3. Link your mpd music directory to ```/usr/share/mympd/htdocs/library``` and put ```folder.jpg``` files in your album directories (mkrelease.sh tries to do this for you).
-4. Configure your mpd with http stream output to use the local player.
+1. Install dependencies: cmake, libmpdclient (dev), OpenSSL (dev), libmediainfo (dev) and Java
+2. Extract myMPD tarball and change path to this directory.
+3. Build and install myMPD: ```./mkrelease.sh```
 
 Run
 ---------
+Adapt the configuration file ```/etc/mympd/mympd.conf``` to your needs.
 ```
 Usage: ./mympd [/etc/mympd/mympd.conf]
 ```

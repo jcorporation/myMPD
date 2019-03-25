@@ -2,13 +2,18 @@
 
 [mpd]
 #Connection to mpd
-host = 127.0.0.1
-port = 6600
+host = /var/run/mpd/socket
+#port = 6600
 #pass = 
 
 #Port for mpd http stream
 streamport = 8000
 
+#absolut path of music_directory of mpd
+#none = no local music_directory
+#auto = get music_directory from mpd (only support, if connected to mpd socket)
+#fallback: /var/lib/mpd/music
+musicdirectory = auto
 
 [webserver]
 #Webserver options
@@ -23,11 +28,12 @@ sslkey = /etc/mympd/ssl/server.key
 
 [mympd]
 #Loglevel
-#0 = quiet
-#1 = default
-#2 = verbose
-#3 = debug
-loglevel = 1
+#0 = error
+#1 = warn
+#2 = info
+#3 = verbose
+#4 = debug
+loglevel = 2
 
 #myMPD user
 user = mympd
@@ -39,6 +45,7 @@ localplayer = true
 #streamurl = http://mpdhost:8000
 
 #Enable coverimages
+#Needs configured musicdirectory 
 coverimage = true
 
 #Name for coverimages
@@ -73,6 +80,16 @@ pagination = 100
 #Number of songs to keep in last played list
 lastplayedcount = 20
 
+#Love message for scrobbling
+love = false
+lovechannel = mpdscribble
+lovemessage = love
+
 
 [theme]
 backgroundcolor = #888
+
+
+[plugins]
+coverextract = false
+coverextractlib = /usr/share/mympd/lib/libmympd_coverextract.so

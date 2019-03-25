@@ -264,7 +264,7 @@ function appRoute() {
             document.getElementById('BrowseFilesystemAddAllSongsBtn').setAttribute('disabled', 'disabled');
         }
         // Create breadcrumb
-        var breadcrumbs='<li class="breadcrumb-item"><a data-uri="">root</a></li>';
+        var breadcrumbs='<li class="breadcrumb-item"><a data-uri="" class="material-icons">home</a></li>';
         var pathArray = app.current.search.split('/');
         var pathArrayLen = pathArray.length;
         var fullPath = '';
@@ -389,7 +389,7 @@ function initState(objId, state) {
 
 function showAppInitAlert(text) {
     var a = document.getElementById('modalAppInitAlert');
-    a.innerHTML = '<p>' + text + '</p><a id ="appReloadBtn"class="btn btn-danger text-light">Reload</a>';
+    a.innerHTML = '<p>' + text + '</p><a id ="appReloadBtn"class="btn btn-danger text-light" class="clickable">Reload</a>';
     a.classList.remove('hide');
     document.getElementById('appReloadBtn').addEventListener('click', function() {
         location.reload();
@@ -398,7 +398,7 @@ function showAppInitAlert(text) {
 
 function appInitStart() {
     //register serviceworker
-    if ('serviceWorker' in navigator && document.URL.substring(0, 5) == 'https') {
+    if ('serviceWorker' in navigator && document.URL.substring(0, 5) == 'https' && window.location.hostname != 'localhost') {
         window.addEventListener('load', function() {
             navigator.serviceWorker.register('/sw.min.js', {scope: '/'}).then(function(registration) {
                 // Registration was successful
@@ -1156,18 +1156,20 @@ function webSocketConnect() {
                     parseState(obj);
                     break;
                 case 'mpd_disconnected':
-                    //showNotification('Connection to MPD failed', '', '', 'danger');
                     toggleAlert('alertMpdState', true, 'Connection to MPD failed.');
-                    if (progressTimer)
+                    if (progressTimer) {
                         clearTimeout(progressTimer);
+                    }
                     break;
                 case 'mpd_connected':
                     showNotification('Connected to MPD', '', '', 'success');
                     toggleAlert('alertMpdState', false, '');
+                    sendAPI({"cmd": "MPD_API_PLAYER_STATE"}, parseState);
                     break;
                 case 'update_queue':
-                    if (app.current.app === 'Queue')
+                    if (app.current.app === 'Queue') {
                         getQueue();
+                    }
                     sendAPI({"cmd": "MPD_API_PLAYER_STATE"}, parseState);
                     break;
                 case 'update_options':
@@ -1187,10 +1189,12 @@ function webSocketConnect() {
                     parseVolume(obj);
                     break;
                 case 'update_stored_playlist':
-                    if (app.current.app == 'Browse' && app.current.tab == 'Playlists' && app.current.view == 'All')
+                    if (app.current.app == 'Browse' && app.current.tab == 'Playlists' && app.current.view == 'All') {
                         sendAPI({"cmd": "MPD_API_PLAYLIST_LIST","data": {"offset": app.current.page, "filter": app.current.filter}}, parsePlaylists);
-                    else if (app.current.app == 'Browse' && app.current.tab == 'Playlists' && app.current.view == 'Detail')
+                    }
+                    else if (app.current.app == 'Browse' && app.current.tab == 'Playlists' && app.current.view == 'Detail') {
                         sendAPI({"cmd": "MPD_API_PLAYLIST_CONTENT_LIST", "data": {"offset": app.current.page, "filter": app.current.filter, "uri": app.current.search}}, parsePlaylists);
+                    }
                     break;
                 case 'error':
                     showNotification(obj.data, '', '', 'danger');
@@ -1205,8 +1209,9 @@ function webSocketConnect() {
             if (appInited == true) {
                 //Show modal only if websocket was already connected before
                 toggleAlert('alertMympdState', true, 'Websocket connection failed.');
-                if (progressTimer)
+                if (progressTimer) {
                     clearTimeout(progressTimer);
+                }
             }
             else {
                 showAppInitAlert('Websocket connection failed.');
@@ -1341,7 +1346,8 @@ function parseSettings() {
     
     toggleBtn('btnnotifyPage', settings.notificationPage);
 
-    var features = ["featStickers", "featSmartpls", "featPlaylists", "featTags", "featLocalplayer", "featSyscmds", "featCoverimage", "featAdvsearch"];
+    var features = ["featStickers", "featSmartpls", "featPlaylists", "featTags", "featLocalplayer", "featSyscmds", "featCoverimage", "featAdvsearch",
+        "featLove"];
 
     document.documentElement.style.setProperty('--mympd-coverimagesize', settings.coverimagesize + "px");
     document.documentElement.style.setProperty('--mympd-backgroundcolor', settings.backgroundcolor);
@@ -1567,20 +1573,22 @@ function getSettings(onerror) {
 }
 
 function getMpdSettings(obj) {
-    if (obj.type == 'error') {
+    if (obj == '' || obj.type == 'error') {
         settingsParsed = 'error';
         if (appInited == false) {
-            showAppInitAlert(obj.data);
+            showAppInitAlert(obj == '' ? 'Can not parse settings' : obj.data);
         }
         return false;
     }
     settingsNew = obj.data;
     sendAPI({"cmd": "MPD_API_SETTINGS_GET"}, joinSettings, true);
-}function joinSettings(obj) {
-    if (obj.type == 'error') {
+}
+
+function joinSettings(obj) {
+    if (obj == '' || obj.type == 'error') {
         settingsParsed = 'error';
         if (appInited == false) {
-            showAppInitAlert(obj.data);
+            showAppInitAlert(obj == '' ? 'Can not parse settings' : obj.data);
         } 
         return false;
     }
@@ -1715,8 +1723,9 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
         tr.classList.add('font-weight-bold');
     }
     
-    if (progressTimer)
-            clearTimeout(progressTimer);
+    if (progressTimer) {
+        clearTimeout(progressTimer);
+    }
     if (playstate == 'play') {
         progressTimer = setTimeout(function() {
             currentSong.elapsedTime ++;
@@ -1770,8 +1779,11 @@ function parseState(obj) {
     setCounter(obj.data.currentSongId, obj.data.totalTime, obj.data.elapsedTime);
     
     //Get current song
-    if (!lastState || lastState.data.currentSongId != obj.data.currentSongId)
+    if (!lastState || lastState.data.currentSongId != obj.data.currentSongId ||
+        lastState.data.queueVersion != obj.data.queueVersion)
+    {
         sendAPI({"cmd": "MPD_API_PLAYER_CURRENT_SONG"}, songChange);
+    }
     //clear playback card if not playing
     if (obj.data.songPos == '-1') {
         domCache.currentTitle.innerText = 'Not playing';
@@ -1888,7 +1900,11 @@ function parseLastPlayed(obj) {
         for (var c = 0; c < settings.colsQueueLastPlayed.length; c++) {
             tds += '<td data-col="' + settings.colsQueueLastPlayed[c] + '">' + obj.data[i][settings.colsQueueLastPlayed[c]] + '</td>';
         }
-        tds += '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>';
+        tds += '<td data-col="Action">';
+        if (obj.data[i].uri != '') {
+            tds += '<a href="#" class="material-icons color-darkgrey">playlist_add</a>';
+        }
+        tds += '</td>';
         row.innerHTML = tds;
         if (i < tr.length)
             tr[i].replaceWith(row); 
@@ -2466,6 +2482,10 @@ function updateSmartPlaylists() {
     sendAPI({"cmd": "MPD_API_SMARTPLS_UPDATE_ALL"});
 }
 
+function loveSong() {
+    sendAPI({"cmd": "MPD_API_LOVE", "data": {}});
+}
+
 function voteSong(vote) {
     var uri = decodeURI(domCache.currentTitle.getAttribute('data-uri'));
     if (uri == '')
@@ -2957,6 +2977,11 @@ function sendAPI(request, callback, onerror) {
             }
             else {
                 console.log('Empty response for request: ' + JSON.stringify(request));
+                if (onerror == true) {
+                    if (callback != undefined && typeof(callback) == 'function') {
+                        callback('');
+                    }
+                }
             }
         }
     };
@@ -3243,7 +3268,6 @@ function notificationsSupported() {
 
 function songChange(obj) {
     if (obj.type != 'song_change') {
-        console.log(JSON.stringify(obj));
         return;
     }
     var curSong = obj.data.Title + obj.data.Artist + obj.data.Album + obj.data.uri + obj.data.currentSongId;
@@ -3307,7 +3331,7 @@ function doSetFilterLetter(x) {
     if (filter == '0')
         filter = '#';
     
-    document.getElementById(x).innerText = 'Filter' + (filter != '-' ? ': '+filter : '');
+    document.getElementById(x).innerHTML = '<span class="material-icons">filter_list</span>' + (filter != '-' ? ' ' + filter : '');
     
     if (filter != '-') {
         var btns = document.getElementById(x + 'Letters').getElementsByTagName('button');

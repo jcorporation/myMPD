@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 2.6)
 
-project (mympd C)
+project (mympd)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/")
 set(CPACK_PACKAGE_VERSION_MAJOR "5")
-set(CPACK_PACKAGE_VERSION_MINOR "1")
+set(CPACK_PACKAGE_VERSION_MINOR "2")
 set(CPACK_PACKAGE_VERSION_PATCH "0")
 
 if(CMAKE_BUILD_TYPE MATCHES RELEASE)
@@ -52,7 +52,6 @@ set_property(SOURCE dist/src/mongoose/mongoose.c PROPERTY COMPILE_FLAGS "-Wno-fo
 
 set (CMAKE_EXE_LINKER_FLAGS "-Wl,-z,relro -Wl,-z,now")
 
-
 set(SOURCES
     src/main.c
     src/global.c
@@ -67,7 +66,21 @@ set(SOURCES
 )
 
 add_executable(mympd ${SOURCES})
-target_link_libraries(mympd ${LIBMPDCLIENT_LIBRARY} ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(mympd ${LIBMPDCLIENT_LIBRARY} ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${CMAKE_DL_LIBS})
+
+
+find_package(LibMediainfo)
+if(LIBMEDIAINFO_FOUND)
+  add_library(mympd_coverextract SHARED src/plugins/mympd_coverextract.cpp)
+
+  install(DIRECTORY DESTINATION share/${PROJECT_NAME}/lib)
+  install(TARGETS mympd_coverextract DESTINATION share/${PROJECT_NAME}/lib/)
+
+  #testcoverextract executable
+  add_executable(test_coverextract src/plugins/test_coverextract.c)
+  target_link_libraries(test_coverextract ${CMAKE_DL_LIBS})
+endif()
+
 
 install(TARGETS mympd DESTINATION bin)
 install(FILES contrib/mympd.1 DESTINATION share/man/man1)
@@ -89,5 +102,7 @@ install(DIRECTORY htdocs/assets DESTINATION share/${PROJECT_NAME}/htdocs)
 install(DIRECTORY DESTINATION ../var/lib/${PROJECT_NAME}/pics)
 install(DIRECTORY DESTINATION ../var/lib/${PROJECT_NAME}/tmp)
 install(DIRECTORY DESTINATION ../var/lib/${PROJECT_NAME}/state)
+install(DIRECTORY DESTINATION ../var/lib/${PROJECT_NAME}/covercache)
 install(DIRECTORY DESTINATION ../etc/${PROJECT_NAME}/syscmds)
 install(DIRECTORY dist/smartpls DESTINATION ../var/lib/${PROJECT_NAME})
+

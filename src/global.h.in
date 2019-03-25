@@ -43,14 +43,21 @@
 
 //central logging definition
 #cmakedefine DEBUG
-#define LOG_INFO() if (loglevel >= 1) 
-#define LOG_VERBOSE() if (loglevel >= 2) 
-#define LOG_DEBUG() if (loglevel == 3) 
+
+enum { LOGLEVEL_ERROR, LOGLEVEL_WARN, LOGLEVEL_INFO, LOGLEVEL_VERBOSE, LOGLEVEL_DEBUG };
+
+#define LOG_ERROR(...) mympd_log(LOGLEVEL_ERROR, __FILE__, __LINE__, __VA_ARGS__)
+#define LOG_WARN(...) mympd_log(LOGLEVEL_WARN,  __FILE__, __LINE__, __VA_ARGS__)
+#define LOG_INFO(...) mympd_log(LOGLEVEL_INFO, __FILE__, __LINE__, __VA_ARGS__)
+#define LOG_VERBOSE(...) mympd_log(LOGLEVEL_VERBOSE, __FILE__, __LINE__, __VA_ARGS__)
+#define LOG_DEBUG(...) mympd_log(LOGLEVEL_DEBUG, __FILE__, __LINE__, __VA_ARGS__)
+
+void mympd_log(int level, const char *file, int line, const char *fmt, ...);
 
 //check and return buffer size
 #define CHECK_RETURN_LEN() do { \
     if (len > MAX_SIZE) \
-        printf("ERROR: Buffer truncated %d / %d\n", (int)len, MAX_SIZE); \
+        LOG_ERROR("Buffer truncated %d / %d\n", (int)len, MAX_SIZE); \
     return len; \
 } while (0)
 
@@ -109,6 +116,7 @@
     X(MPD_API_PLAYER_STATE) \
     X(MPD_API_SETTINGS_GET) \
     X(MPD_API_LIKE) \
+    X(MPD_API_LOVE) \
     X(MYMPD_API_COLS_SAVE) \
     X(MYMPD_API_SYSCMD) \
     X(MYMPD_API_SETTINGS_GET) \
@@ -131,12 +139,15 @@ enum mympd_cmd_ids {
     MYMPD_CMDS(GEN_ENUM)
 };
 
-
 enum jukebox_modes {
     JUKEBOX_OFF,
     JUKEBOX_ADD_SONG,
     JUKEBOX_ADD_ALBUM,
 };
+
+//plugins
+void *handle_plugins_coverextract;
+bool (*plugin_coverextract)(const char *, const char *, char *, const int, char *, const int, const bool);
 
 //message queue
 tiny_queue_t *web_server_queue;
@@ -186,6 +197,12 @@ typedef struct t_config {
     unsigned long last_played_count;
     long loglevel;
     char *backgroundcolor;
+    bool love;
+    char *lovechannel;
+    char *lovemessage;
+    bool plugins_coverextract;
+    char *plugins_coverextractlib;
+    char *music_directory;
 } t_config;
 
 //global functions
@@ -195,4 +212,5 @@ bool validate_string(const char *data);
 int copy_string(char * const dest, char const * const src, size_t const dst_len, size_t const src_len);
 int replacechar(char *str, const char orig, const char rep);
 enum mympd_cmd_ids get_cmd_id(const char *cmd);
+void set_loglevel(t_config *config);
 #endif

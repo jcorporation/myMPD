@@ -2,12 +2,6 @@
    (c) 2018-2019 Juergen Mang <mail@jcgames.de>
    This project's homepage is: https://github.com/jcorporation/mympd
    
-   myMPD ist fork of:
-   
-   ympd
-   (c) 2013-2014 Andrew Karpow <andy@ndyk.de>
-   This project's homepage is: http://www.ympd.org
-   
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; version 2 of the License.
@@ -22,20 +16,16 @@
    Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#ifndef __WEB_SERVER_H__
-#define __WEB_SERVER_H__
+#ifndef MYMPD_COVEREXTRACT_H
+#define MYMPD_COVEREXTRACT_H
+#define MYMPD_COVEREXTRACT_VERSION "0.2.0"
+    #ifdef __cplusplus
+    extern "C" {
+    #endif
 
-typedef struct t_mg_user_data {
-    void *config; //pointer to mympd config
-    char *music_directory;
-    char *pics_directory;
-    char *rewrite_patterns;
-    bool feat_library;
-    long conn_id;
-} t_mg_user_data;
+    extern bool coverextract(const char *media_file_ptr, const char *cache_dir_ptr, char *image_filename, const int image_filename_len, char *image_mime_type, const int image_mime_type_len, const bool extract);
 
-void *web_server_loop(void *arg_mgr);
-bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_data);
-void web_server_free(void *arg_mgr);
-
+    #ifdef __cplusplus
+    }
+    #endif
 #endif
