@@ -1,12 +1,8 @@
 #!/bin/sh
 rm -rf release
 rm -rf debug
-rm -rf plugins
 rm -rf debian/tmp
 rm -f debian/files
-
-rm -f htdocs/library
-rm -f htdocs/pics
 
 rm -f htdocs/sw.min.js
 rm -f htdocs/js/mympd.min.js
