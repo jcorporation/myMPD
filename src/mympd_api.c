@@ -114,14 +114,14 @@ void *mympd_api_loop(void *arg_config) {
     }
 
     list_free(&mympd_state.syscmd_list);
-    free(mympd_state.jukeboxPlaylist);
-    free(mympd_state.colsQueueCurrent);
-    free(mympd_state.colsSearch);
-    free(mympd_state.colsBrowseDatabase);
-    free(mympd_state.colsBrowsePlaylistsDetail);
-    free(mympd_state.colsBrowseFilesystem);
-    free(mympd_state.colsPlayback);
-    free(mympd_state.colsQueueLastPlayed);
+    FREE_PTR(mympd_state.jukeboxPlaylist);
+    FREE_PTR(mympd_state.colsQueueCurrent);
+    FREE_PTR(mympd_state.colsSearch);
+    FREE_PTR(mympd_state.colsBrowseDatabase);
+    FREE_PTR(mympd_state.colsBrowsePlaylistsDetail);
+    FREE_PTR(mympd_state.colsBrowseFilesystem);
+    FREE_PTR(mympd_state.colsPlayback);
+    FREE_PTR(mympd_state.colsQueueLastPlayed);
     return NULL;
 }
 
@@ -144,7 +144,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             je = json_scanf(request->data, request->length, "{data: {cmd: %Q}}", &p_charbuf1);
             if (je == 1) {
                 response->length = mympd_api_syscmd(config, mympd_state, response->data, p_charbuf1);
-                free(p_charbuf1);
+                FREE_PTR(p_charbuf1);
             }
         } 
         else {
@@ -161,31 +161,31 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             if (col_len > 1)
                 cols[col_len - 2]  = '\0';
             if (strcmp(p_charbuf1, "colsQueueCurrent") == 0) {
-                free(mympd_state->colsQueueCurrent);
+                FREE_PTR(mympd_state->colsQueueCurrent);
                 mympd_state->colsQueueCurrent = strdup(cols);
             }
             else if (strcmp(p_charbuf1, "colsSearch") == 0) {
-                free(mympd_state->colsSearch);
+                FREE_PTR(mympd_state->colsSearch);
                 mympd_state->colsSearch = strdup(cols);
             }
             else if (strcmp(p_charbuf1, "colsBrowseDatabase") == 0) {
-                free(mympd_state->colsBrowseDatabase);
+                FREE_PTR(mympd_state->colsBrowseDatabase);
                 mympd_state->colsBrowseDatabase = strdup(cols);
             }
             else if (strcmp(p_charbuf1, "colsBrowsePlaylistsDetail") == 0) {
-                free(mympd_state->colsBrowsePlaylistsDetail);
+                FREE_PTR(mympd_state->colsBrowsePlaylistsDetail);
                 mympd_state->colsBrowsePlaylistsDetail = strdup(cols);
             }
             else if (strcmp(p_charbuf1, "colsBrowseFilesystem") == 0) {
-                free(mympd_state->colsBrowseFilesystem);
+                FREE_PTR(mympd_state->colsBrowseFilesystem);
                 mympd_state->colsBrowseFilesystem = strdup(cols);
             }
             else if (strcmp(p_charbuf1, "colsPlayback") == 0) {
-                free(mympd_state->colsPlayback);
+                FREE_PTR(mympd_state->colsPlayback);
                 mympd_state->colsPlayback = strdup(cols);
             }
             else if (strcmp(p_charbuf1, "colsQueueLastPlayed") == 0) {
-                free(mympd_state->colsQueueLastPlayed);
+                FREE_PTR(mympd_state->colsQueueLastPlayed);
                 mympd_state->colsQueueLastPlayed = strdup(cols);
             }
             else {
@@ -196,7 +196,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                 if (state_file_write(config, p_charbuf1, cols))
                     response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
-            free(p_charbuf1);
+            FREE_PTR(p_charbuf1);
         }
     }
     else if (request->cmd_id == MYMPD_API_SETTINGS_SET) {
@@ -223,7 +223,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
         }
         je = json_scanf(request->data, request->length, "{data: {jukeboxPlaylist: %Q}}", &p_charbuf1);
         if (je == 1) {
-            free(mympd_state->jukeboxPlaylist);
+            FREE_PTR(mympd_state->jukeboxPlaylist);
             mympd_state->jukeboxPlaylist = p_charbuf1;
             p_charbuf1 = NULL;
             if (!state_file_write(config, "jukeboxPlaylist", mympd_state->jukeboxPlaylist))
@@ -257,9 +257,9 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             else {
                 response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't save bookmark.\"}");
             }
-            free(p_charbuf1);
-            free(p_charbuf2);
-            free(p_charbuf3);
+            FREE_PTR(p_charbuf1);
+            FREE_PTR(p_charbuf2);
+            FREE_PTR(p_charbuf3);
         }
     }
     else if (request->cmd_id == MYMPD_API_BOOKMARK_RM) {
@@ -291,7 +291,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
     LOG_DEBUG("Push response to queue for connection %lu: %s", request->conn_id, response->data);
 
     tiny_queue_push(web_server_queue, response);
-    free(request);
+    FREE_PTR(request);
 }
 
 static bool mympd_api_read_syscmds(t_config *config, t_mympd_state *mympd_state) {
@@ -367,7 +367,7 @@ static int mympd_api_syscmd(t_config *config, t_mympd_state *mympd_state, char *
         len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't execute cmd %s.\"}", cmd);
         LOG_ERROR("Can't execute syscmd \"%s\"", cmd);
     }
-    free(line);
+    FREE_PTR(line);
     CHECK_RETURN_LEN();    
 }
 
@@ -415,7 +415,7 @@ static char *state_file_rw_string(t_config *config, const char *name, const char
         return line;
     }
     else {
-        free(line);
+        FREE_PTR(line);
         return strdup(def_value);
     }
 }
@@ -425,7 +425,7 @@ static bool state_file_rw_bool(t_config *config, const char *name, const bool de
     char *line = state_file_rw_string(config, name, def_value == true ? "true" : "false", warn);
     if (line != NULL) {
         value = strcmp(line, "true") == 0 ? true : false;
-        free(line);
+        FREE_PTR(line);
     }
     return value;
 }
@@ -438,7 +438,7 @@ static long state_file_rw_long(t_config *config, const char *name, const long de
     char *line = state_file_rw_string(config, name, def_value_str, warn);
     if (line != NULL) {
         value = strtol(line, &crap,10);
-        free(line);
+        FREE_PTR(line);
     }
     return value;
 }
@@ -562,15 +562,15 @@ static bool mympd_api_bookmark_update(t_config *config, const long id, const cha
                     json_printf(&out, "{id: %ld, name: %Q, uri: %Q, type: %Q}", line_nr, lname, luri, ltype);
                     fprintf(fo, "%s\n", buffer);
                 }
-                free(lname);
-                free(luri);
-                free(ltype);
+                FREE_PTR(lname);
+                FREE_PTR(luri);
+                FREE_PTR(ltype);
             }
             else {
                 LOG_ERROR("Can't read bookmarks line");
             }
         }
-        free(line);
+        FREE_PTR(line);
         fclose(fi);
     }
     if (inserted == false && name != NULL) {
@@ -624,7 +624,7 @@ static int mympd_api_bookmark_list(t_config *config, char *buffer, unsigned int 
                 len += json_printf(&out, "%s", line);
             }
         }
-        free(line);
+        FREE_PTR(line);
         fclose(fi);
         len += json_printf(&out, "], totalEntities: %d, offset: %d, returnedEntities: %d}",
             entity_count,

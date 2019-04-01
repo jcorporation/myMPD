@@ -61,6 +61,13 @@ void mympd_log(int level, const char *file, int line, const char *fmt, ...);
     return len; \
 } while (0)
 
+
+#define FREE_PTR(X) do { \
+    if (X != NULL) \
+        free(X); \
+    X = NULL; \
+} while (0)
+
 //API cmds
 #define MYMPD_CMDS(X) \
     X(MPD_API_UNKNOWN) \

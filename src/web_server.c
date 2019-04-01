@@ -104,6 +104,7 @@ bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_da
 void web_server_free(void *arg_mgr) {
     struct mg_mgr *mgr = (struct mg_mgr *) arg_mgr;
     mg_mgr_free(mgr);
+    mgr = NULL;
 }
 
 void *web_server_loop(void *arg_mgr) {
@@ -121,17 +122,16 @@ void *web_server_loop(void *arg_mgr) {
                     int je = json_scanf(response->data, response->length, "{music_directory: %Q, featLibrary: %B}", &p_charbuf, &feat_library);
                     if (je == 2) {
                         if (mg_user_data->music_directory != NULL) {
-                            free(mg_user_data->music_directory);
-                            mg_user_data->music_directory = NULL;
+                            FREE_PTR(mg_user_data->music_directory);
                         }
                         if (strlen(p_charbuf) > 0) {
                             mg_user_data->music_directory = strdup(p_charbuf);
                         }
                         mg_user_data->feat_library = feat_library;
-                        free(p_charbuf);
+                        FREE_PTR(p_charbuf);
                         
                         if (mg_user_data->rewrite_patterns != NULL) {
-                            free(mg_user_data->rewrite_patterns);
+                            FREE_PTR(mg_user_data->rewrite_patterns);
                             mg_user_data->rewrite_patterns = NULL;
                         }
                         size_t rewrite_patterns_len = strlen(mg_user_data->pics_directory) + 8;
@@ -152,7 +152,7 @@ void *web_server_loop(void *arg_mgr) {
                     else {
                         LOG_WARN("Unknown internal message: %s", response->data);
                     }
-                    free(response);
+                    FREE_PTR(response);
                 }
                 else if (response->conn_id == 0) {
                     //Websocket notify from mpd idle
@@ -188,7 +188,7 @@ static void send_ws_notify(struct mg_mgr *mgr, t_work_result *response) {
         }
         mg_send_websocket_frame(nc, WEBSOCKET_OP_TEXT, response->data, response->length);
     }
-    free(response);
+    FREE_PTR(response);
 }
 
 static void send_api_response(struct mg_mgr *mgr, t_work_result *response) {
@@ -208,7 +208,7 @@ static void send_api_response(struct mg_mgr *mgr, t_work_result *response) {
             LOG_DEBUG("Unknown connection");
         }
     }
-    free(response);
+    FREE_PTR(response);
 }
 
 static int has_prefix(const struct mg_str *uri, const struct mg_str *prefix) {
@@ -388,6 +388,6 @@ static bool handle_api(long conn_id, const char *request_body, int request_len) 
         tiny_queue_push(mpd_client_queue, request);
     }
 
-    free(cmd);        
+    FREE_PTR(cmd);        
     return true;
 }
