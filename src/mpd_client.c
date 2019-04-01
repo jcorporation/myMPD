@@ -1005,6 +1005,7 @@ static void mpd_client_parse_idle(t_config *config, t_mpd_state *mpd_state, int 
                     len = mpd_client_get_updatedb_state(mpd_state, buffer);
                     break;
                 case MPD_IDLE_STICKER:
+                    //not used and disabled in idlemask
                     len = snprintf(buffer, MAX_SIZE, "{\"type\": \"update_sticker\"}");
                     break;
                 case MPD_IDLE_SUBSCRIPTION:
@@ -1019,6 +1020,7 @@ static void mpd_client_parse_idle(t_config *config, t_mpd_state *mpd_state, int 
                     len = snprintf(buffer, MAX_SIZE, "{\"type\": \"update_subscription\"}");
                     break;
                 case MPD_IDLE_MESSAGE:
+                    //not used and disabled in idlemask
                     len = snprintf(buffer, MAX_SIZE, "{\"type\": \"update_message\"}");
                     break;
                 default:
@@ -1253,6 +1255,8 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
     char buffer[MAX_SIZE];
     size_t len = 0;
     unsigned mpd_client_queue_length = 0;
+    enum mpd_idle set_idle_mask = MPD_IDLE_DATABASE | MPD_IDLE_STORED_PLAYLIST | MPD_IDLE_QUEUE | MPD_IDLE_PLAYER | MPD_IDLE_MIXER | \
+        MPD_IDLE_OUTPUT | MPD_IDLE_OPTIONS | MPD_IDLE_UPDATE | MPD_IDLE_SUBSCRIPTION;
     
     switch (mpd_state->conn_state) {
         case MPD_DISCONNECTED:
@@ -1299,9 +1303,13 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
             mpd_state->conn_state = MPD_CONNECTED;
             mpd_client_mpd_features(config, mpd_state);
             mpd_client_smartpls_update_all(config, mpd_state);
-            if (mpd_state->jukeboxMode != JUKEBOX_OFF)
+            if (mpd_state->jukeboxMode != JUKEBOX_OFF) {
                 mpd_client_jukebox(config, mpd_state);
-            mpd_send_idle(mpd_state->conn);
+            }
+            if (!mpd_send_idle_mask(mpd_state->conn, set_idle_mask)) {
+                LOG_ERROR("Entering idle mode failed");
+                mpd_state->conn_state = MPD_FAILURE;
+            }
             break;
 
         case MPD_FAILURE:
@@ -1370,7 +1378,7 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
                     }
                 }
                 LOG_DEBUG("Entering mpd idle mode");
-                if (!mpd_send_idle(mpd_state->conn)) {
+                if (!mpd_send_idle_mask(mpd_state->conn, set_idle_mask)) {
                     LOG_ERROR("Entering idle mode failed");
                     mpd_state->conn_state = MPD_FAILURE;
                 }
