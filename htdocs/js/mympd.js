@@ -1361,7 +1361,12 @@ function parseSettings() {
         "featLove"];
 
     document.documentElement.style.setProperty('--mympd-coverimagesize', settings.coverimagesize + "px");
-    document.documentElement.style.setProperty('--mympd-backgroundcolor', settings.backgroundcolor);
+    if (settings.background != 'cover') {
+        document.documentElement.style.setProperty('--mympd-backgroundcolor', settings.background);
+    }
+    else {
+        document.documentElement.style.setProperty('--mympd-backgroundfilter', settings.backgroundFilter);
+    }
     
     for (var j = 0; j < features.length; j++) {
         var Els = document.getElementsByClassName(features[j]);
@@ -1803,6 +1808,9 @@ function parseState(obj) {
     if (obj.data.songPos == '-1') {
         domCache.currentTitle.innerText = 'Not playing';
         domCache.currentCover.style.backgroundImage = '';
+        if (settings.background == 'cover') {
+            document.documentElement.style.setProperty('--mympd-backgroundimage', 'url("")');
+        }
         var pb = document.getElementById('cardPlaybackTags').getElementsByTagName('h4');
         for (var i = 0; i < pb.length; i++)
             pb[i].innerText = '';
@@ -3292,8 +3300,15 @@ function songChange(obj) {
     var htmlNotification = '';
     var pageTitle = 'myMPD: ';
 
-
     domCache.currentCover.style.backgroundImage = 'url("' + obj.data.cover + '")';
+    if (settings.background == 'cover') {
+        if (obj.data.cover.indexOf('coverimage-') > -1 ) {
+            document.documentElement.style.setProperty('--mympd-backgroundimage', 'url("")');        
+        }
+        else {
+            document.documentElement.style.setProperty('--mympd-backgroundimage', 'url("' + obj.data.cover + '")');
+        }
+    }
 
     if (typeof obj.data.Artist != 'undefined' && obj.data.Artist.length > 0 && obj.data.Artist != '-') {
         textNotification += obj.data.Artist;

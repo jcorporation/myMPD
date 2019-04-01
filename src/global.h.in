@@ -203,7 +203,8 @@ typedef struct t_config {
     char *streamurl;
     unsigned long last_played_count;
     long loglevel;
-    char *backgroundcolor;
+    char *background;
+    char *backgroundfilter;
     bool love;
     char *lovechannel;
     char *lovemessage;

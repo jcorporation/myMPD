@@ -158,9 +158,13 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("mympd", "loglevel")) {
         p_config->loglevel = strtol(value, &crap, 10);
     }
-    else if (MATCH("theme", "backgroundcolor")) {
-        FREE_PTR(p_config->backgroundcolor);
-        p_config->backgroundcolor = strdup(value);
+    else if (MATCH("theme", "background")) {
+        FREE_PTR(p_config->background);
+        p_config->background = strdup(value);
+    }
+    else if (MATCH("theme", "backgroundfilter")) {
+        FREE_PTR(p_config->backgroundfilter);
+        p_config->backgroundfilter = strdup(value);
     }
     else if (MATCH("mympd", "love")) {
         p_config->love = strcmp(value, "true") == 0 ? true : false;
@@ -203,7 +207,8 @@ static void mympd_free_config(t_config *config) {
     FREE_PTR(config->varlibdir);
     FREE_PTR(config->etcdir);
     FREE_PTR(config->streamurl);
-    FREE_PTR(config->backgroundcolor);
+    FREE_PTR(config->background);
+    FREE_PTR(config->backgroundfilter);
     FREE_PTR(config->lovechannel);
     FREE_PTR(config->lovemessage);
     FREE_PTR(config->plugins_coverextractlib);
@@ -234,7 +239,7 @@ static void mympd_get_env(struct t_config *config) {
         "MYMPD_SEARCHTAGLIST", "MYMPD_BROWSETAGLIST", "MYMPD_SMARTPLS", "MYMPD_SYSCMDS", 
         "MYMPD_PAGINATION", "MYMPD_LASTPLAYEDCOUNT", "MYMPD_LOVE", "MYMPD_LOVECHANNEL", "MYMPD_LOVEMESSAGE",
         "PLUGINS_COVEREXTRACT", "PLUGINS_COVEREXTRACTLIB",
-        "THEME_BACKGROUNDCOLOR", 0};
+        "THEME_BACKGROUND", "THEME_BACKGROUNDFILTER", 0};
     const char** ptr = env_vars;
     while (*ptr != 0) {
         mympd_parse_env(config, *ptr);
@@ -314,7 +319,8 @@ int main(int argc, char **argv) {
     config->syscmds = false;
     config->localplayer = true;
     config->loglevel = 1;
-    config->backgroundcolor = strdup("#888");
+    config->background = strdup("#888");
+    config->backgroundfilter = strdup("blur(5px)");
     config->love = false;
     config->lovechannel = strdup("");
     config->lovemessage = strdup("love");
