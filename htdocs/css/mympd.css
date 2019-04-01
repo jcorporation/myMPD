@@ -19,13 +19,12 @@ body {
 body:before {
     content: '';
     position: fixed;
-    width: 106vw;
-    height: 106vh;
+    width: 100%;
+    height: 100%;
     background-image: var(--mympd-backgroundimage, url(''));
     background-position: center center;
-    background-repeat: no-repeat;
-    background-position: 100% 100%;
     background-size: cover;
+    margin-top: -4rem;
     filter: var(--mympd-backgroundfilter, '');
     z-index: -9;
 }
