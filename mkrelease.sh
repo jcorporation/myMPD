@@ -26,10 +26,6 @@ minify() {
   then
     $JAVABIN -jar dist/buildtools/closure-stylesheets.jar --allow-unrecognized-properties $SRC > $DST
     ERROR="$?"
-  elif [ "$TYPE" = "cp" ]
-  then
-    cp $SRC $DST
-    ERROR="$?"
   else
     ERROR="1"
   fi
@@ -45,7 +41,6 @@ echo "Minifying javascript"
 minify js htdocs/js/player.js dist/htdocs/js/player.min.js
 minify js htdocs/js/mympd.js dist/htdocs/js/mympd.min.js
 minify js htdocs/sw.js dist/htdocs/sw.min.js
-minify js htdocs/js/keymap.js dist/htdocs/js/keymap.min.js
 minify js htdocs/js/keymap.js dist/htdocs/js/keymap.min.js
 minify js dist/htdocs/js/bootstrap-native-v4.js dist/htdocs/js/bootstrap-native-v4.min.js
 

@@ -61,6 +61,13 @@ void mympd_log(int level, const char *file, int line, const char *fmt, ...);
     return len; \
 } while (0)
 
+
+#define FREE_PTR(X) do { \
+    if (X != NULL) \
+        free(X); \
+    X = NULL; \
+} while (0)
+
 //API cmds
 #define MYMPD_CMDS(X) \
     X(MPD_API_UNKNOWN) \
@@ -196,7 +203,8 @@ typedef struct t_config {
     char *streamurl;
     unsigned long last_played_count;
     long loglevel;
-    char *backgroundcolor;
+    char *background;
+    char *backgroundfilter;
     bool love;
     char *lovechannel;
     char *lovemessage;

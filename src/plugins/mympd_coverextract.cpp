@@ -96,8 +96,13 @@ bool coverextract(const char *media_file_ptr, const char *cache_dir_ptr, char *i
     MediaInfo MI;
     MI.Option(__T("Internet"), __T("No"));
     MI.Option(__T("Cover_Data"), __T("base64"));
-    MI.Open(__T(media_file));
-    if (MI.Get(Stream_General, 0, "Cover") == "Yes") {
+    MI.Option("setlocale_LC_CTYPE", "");
+    if (MI.Open(__T(media_file)) == 0) {
+        strncpy(image_filename, "nocover", image_filename_len);
+        strncpy(image_mime_type, "nomimetype", image_mime_type_len);
+        return false;
+    }
+    else if (MI.Get(Stream_General, 0, "Cover") == "Yes") {
         string mime_type = MI.Get(Stream_General, 0, "Cover_Mime");
         strncpy(image_mime_type, mime_type.c_str(), image_mime_type_len);
         string ext = mime_type.substr(mime_type.find_last_of("/") + 1);

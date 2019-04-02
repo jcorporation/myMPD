@@ -87,7 +87,9 @@ lovemessage = love
 
 
 [theme]
-backgroundcolor = #888
+#background = cover
+#backgroundfilter = blur(5px)
+background = #888
 
 
 [plugins]
