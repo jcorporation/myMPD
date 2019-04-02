@@ -420,12 +420,7 @@ int main(int argc, char **argv) {
         }
     }
     
-    if (getuid() == 0) {
-        LOG_ERROR("myMPD should not be run with root privileges");
-        goto cleanup;
-    }
-
-    //check needed directories
+   //check needed directories
     if (!testdir("Document root", DOC_ROOT)) {
         goto cleanup;
     }
