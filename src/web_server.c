@@ -60,7 +60,7 @@ bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_da
     mg_user_data->rewrite_patterns = NULL;
     mg_user_data->conn_id = 1;
     mg_user_data->feat_library = false;
-    size_t pics_directory_len = strlen(config->varlibdir) + 6;
+    size_t pics_directory_len = config->varlibdir_len + 6;
     mg_user_data->pics_directory = malloc(pics_directory_len);
     snprintf(mg_user_data->pics_directory, pics_directory_len, "%s/pics", config->varlibdir);
     //init monogoose mgr with mg_user_data
@@ -293,12 +293,12 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 
                 size_t image_mime_type_len = 100;
                 char image_mime_type[image_mime_type_len];
-                size_t cache_dir_len = strlen(config->varlibdir) + 12;
+                size_t cache_dir_len = config->varlibdir_len + 12;
                 char cache_dir[cache_dir_len];
                 snprintf(cache_dir, cache_dir_len, "%s/covercache", config->varlibdir);
                 bool rc = plugin_coverextract(media_file, cache_dir, image_file, image_file_len, image_mime_type, image_mime_type_len, true);
                 if (rc == true) {
-                    size_t path_len = strlen(config->varlibdir) + strlen(image_file) + 13;
+                    size_t path_len = config->varlibdir_len + strlen(image_file) + 13;
                     char path[path_len];
                     snprintf(path, path_len, "%s/covercache/%s", config->varlibdir, image_file);
                     LOG_DEBUG("Serving file %s (%s)", path, image_mime_type);
@@ -335,9 +335,6 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
 }
 
 static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data) {
-    char *host;
-    char *crap;
-    char host_header[1024];
     switch(ev) {
         case MG_EV_HTTP_REQUEST: {
             struct http_message *hm = (struct http_message *) ev_data;
@@ -345,13 +342,19 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data)
             t_mg_user_data *mg_user_data = (t_mg_user_data *) nc->mgr->user_data;
             t_config *config = (t_config *) mg_user_data->config;
             
+            size_t host_header_len = (int)host_hdr->len + 1;
+            char host_header[host_header_len];
             snprintf(host_header, 1024, "%.*s", (int)host_hdr->len, host_hdr->p);
-            host = strtok_r(host_header, ":", &crap);
-            char s_redirect[250];
-            if (strcmp(config->sslport, "443") == 0)
-                snprintf(s_redirect, 250, "https://%s/", host);
-            else
-                snprintf(s_redirect, 250, "https://%s:%s/", host, config->sslport);
+            char *crap;
+            char *host = strtok_r(host_header, ":", &crap);
+            size_t s_redirect_len = strlen(host) + strlen(config->sslport) + 11;
+            char s_redirect[s_redirect_len];
+            if (strcmp(config->sslport, "443") == 0) {
+                snprintf(s_redirect, s_redirect_len, "https://%s/", host);
+            }
+            else {
+                snprintf(s_redirect, s_redirect_len, "https://%s:%s/", host, config->sslport);
+            }
             LOG_VERBOSE("Redirecting to %s", s_redirect);
             mg_http_send_redirect(nc, 301, mg_mk_str(s_redirect), mg_mk_str(NULL));
             break;
