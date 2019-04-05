@@ -195,6 +195,7 @@ typedef struct t_config {
     char *browsetaglist;
     bool smartpls;
     char *varlibdir;
+    size_t varlibdir_len;
     char *etcdir;
     unsigned long max_elements_per_page;
     bool syscmds;

@@ -350,6 +350,7 @@ int main(int argc, char **argv) {
             goto cleanup;
         }
     }
+    config->varlibdir_len = strlen(config->varlibdir);
     
     LOG_INFO("Starting myMPD %s", MYMPD_VERSION);
     LOG_INFO("Libmpdclient %i.%i.%i", LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION);
@@ -422,11 +423,6 @@ int main(int argc, char **argv) {
     
    //check needed directories
     if (!testdir("Document root", DOC_ROOT)) {
-        goto cleanup;
-    }
-
-    snprintf(testdirname, 400, "%s/tmp", config->varlibdir);
-    if (!testdir("Temp dir", testdirname)) {
         goto cleanup;
     }
 

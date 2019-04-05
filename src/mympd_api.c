@@ -389,7 +389,6 @@ static void mympd_api_read_statefiles(t_config *config, t_mympd_state *mympd_sta
 }
 
 static char *state_file_rw_string(t_config *config, const char *name, const char *def_value, bool warn) {
-    char cfg_file[400];
     char *line = NULL;
     size_t n = 0;
     ssize_t read;
@@ -397,7 +396,9 @@ static char *state_file_rw_string(t_config *config, const char *name, const char
     if (!validate_string(name)) {
         return NULL;
     }
-    snprintf(cfg_file, 400, "%s/state/%s", config->varlibdir, name);
+    size_t cfg_file_len = config->varlibdir_len + strlen(name) + 8;
+    char cfg_file[cfg_file_len];
+    snprintf(cfg_file, cfg_file_len, "%s/state/%s", config->varlibdir, name);
     FILE *fp = fopen(cfg_file, "r");
     if (fp == NULL) {
         if (warn == true) {
@@ -443,21 +444,23 @@ static long state_file_rw_long(t_config *config, const char *name, const long de
     return value;
 }
 
-
 static bool state_file_write(t_config *config, const char *name, const char *value) {
-    char tmp_file[400];
-    char cfg_file[400];
+    size_t cfg_file_len = config->varlibdir_len + strlen(name) + 8;
+    char cfg_file[cfg_file_len];
+    size_t tmp_file_len = config->varlibdir_len + strlen(name) + 15;
+    char tmp_file[tmp_file_len];
+    int fd;
     
     if (!validate_string(name))
         return false;
-    snprintf(cfg_file, 400, "%s/state/%s", config->varlibdir, name);
-    snprintf(tmp_file, 400, "%s/tmp/%s", config->varlibdir, name);
+    snprintf(cfg_file, cfg_file_len, "%s/state/%s", config->varlibdir, name);
+    snprintf(tmp_file, tmp_file_len, "%s/state/%s.XXXXXX", config->varlibdir, name);
         
-    FILE *fp = fopen(tmp_file, "w");
-    if (fp == NULL) {
+    if ((fd = mkstemp(tmp_file)) < 0 ) {
         LOG_ERROR("Can't open %s for write", tmp_file);
         return false;
     }
+    FILE *fp = fdopen(fd, "w");
     fprintf(fp, "%s", value);
     fclose(fp);
     if (rename(tmp_file, cfg_file) == -1) {
@@ -525,20 +528,24 @@ static int mympd_api_put_settings(t_config *config, t_mympd_state *mympd_state, 
 
 static bool mympd_api_bookmark_update(t_config *config, const long id, const char *name, const char *uri, const char *type) {
     long line_nr = 0;
-    char tmp_file[400];
-    char b_file[400];
+    size_t tmp_file_len = config->varlibdir_len + 24;
+    char tmp_file[tmp_file_len];
+    size_t b_file_len = config->varlibdir_len + 17;
+    char b_file[b_file_len];
     char *line = NULL;
     size_t n = 0;
     ssize_t read;
     bool inserted = false;
+    int fd;
     
-    snprintf(b_file, 400, "%s/state/bookmarks", config->varlibdir);
-    snprintf(tmp_file, 400, "%s/tmp/bookmarks", config->varlibdir);
-    FILE *fo = fopen(tmp_file, "w");
-    if (fo == NULL) {
-        LOG_ERROR("Can't open %s for writing", tmp_file);
+    snprintf(b_file, b_file_len, "%s/state/bookmarks", config->varlibdir);
+    snprintf(tmp_file, tmp_file_len, "%s/state/bookmarks.XXXXXX", config->varlibdir);
+    
+    if ((fd = mkstemp(tmp_file)) < 0 ) {
+        LOG_ERROR("Can't open %s for write", tmp_file);
         return false;
     }
+    FILE *fo = fdopen(fd, "w");
     FILE *fi = fopen(b_file, "r");
     if (fi != NULL) {
         while ((read = getline(&line, &n, fi)) > 0) {
@@ -591,7 +598,8 @@ static bool mympd_api_bookmark_update(t_config *config, const long id, const cha
 
 static int mympd_api_bookmark_list(t_config *config, char *buffer, unsigned int offset) {
     size_t len = 0;
-    char b_file[400];
+    size_t b_file_len = strlen(config->varlibdir) + 17;
+    char b_file[b_file_len];
     char *line = NULL;
     char *crap;
     size_t n = 0;
@@ -600,13 +608,13 @@ static int mympd_api_bookmark_list(t_config *config, char *buffer, unsigned int 
     unsigned int entities_returned = 0;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
     
-    snprintf(b_file, 400, "%s/state/bookmarks", config->varlibdir);
+    snprintf(b_file, b_file_len, "%s/state/bookmarks", config->varlibdir);
     FILE *fi = fopen(b_file, "r");
     if (fi == NULL) {
         //create empty bookmarks file
         fi = fopen(b_file, "w");
         if (fi == NULL) {
-            LOG_ERROR("Can't opening %s for write", b_file);
+            LOG_ERROR("Can't open %s for write", b_file);
             len = json_printf(&out, "{type: error, data: %Q}", "Can't open bookmarks file");
         }
         else {

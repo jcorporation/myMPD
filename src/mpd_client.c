@@ -184,6 +184,7 @@ static int mpd_client_put_stats(t_mpd_state *mpd_state, char *buffer);
 static int mpd_client_put_settings(t_mpd_state *mpd_state, char *buffer);
 static int mpd_client_put_db_tag(t_config *config, t_mpd_state *mpd_state, char *buffer, const unsigned int offset, const char *mpdtagtype, const char *mpdsearchtagtype, const char *searchstr, const char *filter);
 static int mpd_client_put_songs_in_album(t_config *config, t_mpd_state *mpd_state, char *buffer, const char *album, const char *search, const char *tag);
+static int mpd_client_rename_playlist(t_config *config, t_mpd_state *mpd_state, char *buffer, const char *old_playlist, const char *new_playlist);
 static int mpd_client_put_playlists(t_config *config, t_mpd_state *mpd_state, char *buffer, const unsigned int offset, const char *filter);
 static int mpd_client_put_playlist_list(t_config *config, t_mpd_state *mpd_state, char *buffer, const char *uri, const unsigned int offset, const char *filter);
 static int mpd_client_put_songdetails(t_config *config, t_mpd_state *mpd_state, char *buffer, const char *uri);
@@ -639,38 +640,7 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
             je = json_scanf(request->data, request->length, "{data: {from: %Q, to: %Q}}", &p_charbuf1, &p_charbuf2);
             if (je == 2) {
                 //rename smart playlist
-                char old_pl_file[400];
-                char new_pl_file[400];
-                if (validate_string(p_charbuf1) == false || validate_string(p_charbuf2) == false) {
-                    response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Invalid filename.\"}");
-                    break;
-                }
-                snprintf(old_pl_file, 400, "%s/smartpls/%s", config->varlibdir, p_charbuf1);
-                snprintf(new_pl_file, 400, "%s/smartpls/%s", config->varlibdir, p_charbuf2);
-                if (access(old_pl_file, F_OK ) != -1) {
-                    if (access(new_pl_file, F_OK ) == -1) {
-                        if (rename(old_pl_file, new_pl_file) == -1) {
-                            response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Renaming playlist failed.\"}");
-                            LOG_ERROR("Renaming playlist %s to %s failed", old_pl_file, new_pl_file);
-                        }
-                        //rename mpd playlist
-                        else if (mpd_run_rename(mpd_state->conn, p_charbuf1, p_charbuf2))
-                            response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"result\", \"data\": \"Renamed playlist %s to %s\"}", p_charbuf1, p_charbuf2);
-                        else {
-                            response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Renaming playlist failed.\"}");
-                            LOG_ERROR("Error mpd_run_rename()");
-                        }
-                    } else 
-                        response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Destination playlist %s already exists\"}", p_charbuf2);
-                }
-                else {
-                    if (mpd_run_rename(mpd_state->conn, p_charbuf1, p_charbuf2))
-                        response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"result\", \"data\": \"Renamed playlist %s to %s\"}", p_charbuf1, p_charbuf2);
-                    else {
-                        response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Renaming playlist failed.\"}");
-                        LOG_ERROR("Error mpd_run_rename()");
-                    }
-                }
+                response->length = mpd_client_rename_playlist(config, mpd_state, response->data, p_charbuf1, p_charbuf2);
                 FREE_PTR(p_charbuf1);
                 FREE_PTR(p_charbuf2);
             }
@@ -882,12 +852,13 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
             je = json_scanf(request->data, request->length, "{data: {uri:%Q}}", &p_charbuf1);
             if (je == 1) {
                 //remove smart playlist
-                char pl_file[400];
                 if (validate_string(p_charbuf1) == false) {
                     response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Invalid filename.\"}");
                     break;
                 }
-                snprintf(pl_file, 400, "%s/smartpls/%s", config->varlibdir, p_charbuf1);
+                size_t pl_file_len = config->varlibdir_len + strlen(p_charbuf1) + 11;
+                char pl_file[pl_file_len];
+                snprintf(pl_file, pl_file_len, "%s/smartpls/%s", config->varlibdir, p_charbuf1);
                 if (access(pl_file, F_OK ) != -1 ) {
                     if (unlink(pl_file) == -1) {
                         response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Deleting smart playlist failed.\"}");
@@ -897,8 +868,9 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
                     }
                 }
                 //remove mpd playlist
-                if (mpd_run_rm(mpd_state->conn, p_charbuf1))
+                if (mpd_run_rm(mpd_state->conn, p_charbuf1)) {
                     response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+                }
                 else {
                     response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Deleting playlist failed.\"}");
                     LOG_ERROR("Error mpd_run_rm()");
@@ -983,8 +955,9 @@ static void mpd_client_parse_idle(t_config *config, t_mpd_state *mpd_state, int 
                 case MPD_IDLE_PLAYER:
                     len = mpd_client_put_state(mpd_state, buffer);
                     if (mpd_state->song_id != mpd_state->last_song_id) {
-                        if (mpd_state->last_last_played_id != mpd_state->song_id)
+                        if (mpd_state->last_last_played_id != mpd_state->song_id) {
                             mpd_client_last_played_list(config, mpd_state, mpd_state->song_id);
+                        }
                         if (mpd_state->feat_sticker && mpd_state->last_update_sticker_song_id != mpd_state->song_id) {
                             mpd_client_count_song_id(mpd_state, mpd_state->song_id, "playCount", 1);
                             mpd_client_last_played_song_id(mpd_state, mpd_state->song_id);
@@ -1057,7 +1030,7 @@ static void mpd_client_feature_love(t_config *config, t_mpd_state *mpd_state) {
 
 static void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state) {
     struct mpd_pair *pair;
-    char s[2] = ",";
+    char s[] = ",";
     char *taglist = strdup(config->taglist);
     char *searchtaglist = strdup(config->searchtaglist);    
     char *browsetaglist = strdup(config->browsetaglist);
@@ -1274,7 +1247,6 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
                 mpd_client_notify(buffer, len);
                 mpd_state->conn_state = MPD_FAILURE;
                 mpd_connection_free(mpd_state->conn);
-
                 sleep(3);
                 return;
             }
@@ -1395,15 +1367,17 @@ static int mpd_client_get_updatedb_state(t_mpd_state *mpd_state, char *buffer) {
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
 
     status = mpd_run_status(mpd_state->conn);
-    if (!status)
+    if (!status) {
         RETURN_ERROR_AND_RECOVER("mpd_run_status");
+    }
     update_id = mpd_status_get_update_id(status);
     LOG_INFO("Update database ID: %d", update_id);
-    if ( update_id > 0)
+    if ( update_id > 0) {
         len = json_printf(&out, "{type: update_started, data: {jobid: %d}}", update_id);
-    else
+    }
+    else {
         len = json_printf(&out, "{type: update_finished}");
-
+    }
     mpd_status_free(status);    
     
     CHECK_RETURN_LEN();
@@ -1417,19 +1391,25 @@ static bool mpd_client_get_sticker(t_mpd_state *mpd_state, const char *uri, t_st
     sticker->skipCount = 0;
     sticker->lastPlayed = 0;
     sticker->like = 1;
-    if (uri == NULL || strncasecmp("http:", uri, 5) == 0 || strncasecmp("https:", uri, 6) == 0)
+    
+    if (uri == NULL || strncasecmp("http:", uri, 5) == 0 || strncasecmp("https:", uri, 6) == 0) {
         return false;
+    }
 
     if (mpd_send_sticker_list(mpd_state->conn, "song", uri)) {
         while ((pair = mpd_recv_sticker(mpd_state->conn)) != NULL) {
-            if (strcmp(pair->name, "playCount") == 0)
+            if (strcmp(pair->name, "playCount") == 0) {
                 sticker->playCount = strtol(pair->value, &crap, 10);
-            else if (strcmp(pair->name, "skipCount") == 0)
+            }
+            else if (strcmp(pair->name, "skipCount") == 0) {
                 sticker->skipCount = strtol(pair->value, &crap, 10);
-            else if (strcmp(pair->name, "lastPlayed") == 0)
+            }
+            else if (strcmp(pair->name, "lastPlayed") == 0) {
                 sticker->lastPlayed = strtol(pair->value, &crap, 10);
-            else if (strcmp(pair->name, "like") == 0)
+            }
+            else if (strcmp(pair->name, "like") == 0) {
                 sticker->like = strtol(pair->value, &crap, 10);
+            }
             mpd_return_sticker(mpd_state->conn, pair);
         }
     }
@@ -1462,16 +1442,19 @@ static bool mpd_client_count_song_id(t_mpd_state *mpd_state, const int song_id, 
 }
 
 static bool mpd_client_count_song_uri(t_mpd_state *mpd_state, const char *uri, const char *name, const int value) {
-    if (uri == NULL || strncasecmp("http:", uri, 5) == 0 || strncasecmp("https:", uri, 6) == 0)
+    if (uri == NULL || strncasecmp("http:", uri, 5) == 0 || strncasecmp("https:", uri, 6) == 0) {
         return false;
+    }
     struct mpd_pair *pair;
     char *crap;
     int old_value = 0;
     char v[4];
+    
     if (mpd_send_sticker_list(mpd_state->conn, "song", uri)) {
         while ((pair = mpd_recv_sticker(mpd_state->conn)) != NULL) {
-            if (strcmp(pair->name, name) == 0)
+            if (strcmp(pair->name, name) == 0) {
                 old_value = strtol(pair->value, &crap, 10);
+            }
             mpd_return_sticker(mpd_state->conn, pair);
         }
     } else {
@@ -1479,10 +1462,12 @@ static bool mpd_client_count_song_uri(t_mpd_state *mpd_state, const char *uri, c
         return false;
     }
     old_value += value;
-    if (old_value > 999)
+    if (old_value > 999) {
         old_value = 999;
-    else if (old_value < 0)
+    }
+    else if (old_value < 0) {
         old_value = 0;
+    }
     snprintf(v, 4, "%d", old_value);
     LOG_VERBOSE("Setting sticker: \"%s\" -> %s: %s", uri, name, v);
     if (!mpd_run_sticker_set(mpd_state->conn, "song", uri, name, v)) {
@@ -1493,13 +1478,16 @@ static bool mpd_client_count_song_uri(t_mpd_state *mpd_state, const char *uri, c
 }
 
 static bool mpd_client_like_song_uri(t_mpd_state *mpd_state, const char *uri, int value) {
-    if (uri == NULL || strncasecmp("http:", uri, 5) == 0 || strncasecmp("https:", uri, 6) == 0)
+    if (uri == NULL || strncasecmp("http:", uri, 5) == 0 || strncasecmp("https:", uri, 6) == 0) {
         return false;
+    }
     char v[2];
-    if (value > 2)
+    if (value > 2) {
         value = 2;
-    else if (value < 0)
+    }
+    else if (value < 0) {
         value = 0;
+    }
     snprintf(v, 2, "%d", value);
     LOG_VERBOSE("Setting sticker: \"%s\" -> like: %s", uri, v);
     if (!mpd_run_sticker_set(mpd_state->conn, "song", uri, "like", v)) {
@@ -1511,10 +1499,13 @@ static bool mpd_client_like_song_uri(t_mpd_state *mpd_state, const char *uri, in
 
 static bool mpd_client_last_played_list(t_config *config, t_mpd_state *mpd_state, const int song_id) {
     struct mpd_song *song;
-    char tmp_file[400];
-    char cfg_file[400];
-    snprintf(cfg_file, 400, "%s/state/last_played", config->varlibdir);
-    snprintf(tmp_file, 400, "%s/tmp/last_played", config->varlibdir);
+    size_t tmp_file_len = config->varlibdir_len + 26;
+    char tmp_file[tmp_file_len];
+    size_t cfg_file_len = config->varlibdir_len + 19;
+    char cfg_file[cfg_file_len];
+    snprintf(cfg_file, cfg_file_len, "%s/state/last_played", config->varlibdir);
+    snprintf(tmp_file, tmp_file_len, "%s/state/last_played.XXXXXX", config->varlibdir);
+    int fd;
 
     if (song_id > -1) {
         song = mpd_run_get_queue_song_id(mpd_state->conn, song_id);
@@ -1537,11 +1528,12 @@ static bool mpd_client_last_played_list(t_config *config, t_mpd_state *mpd_state
             if (mpd_state->last_played.length > config->last_played_count) {
                 list_shift(&mpd_state->last_played, mpd_state->last_played.length -1);
             }
-            FILE *fp = fopen(tmp_file, "w");
-            if (fp == NULL) {
-                LOG_ERROR("Can't open %s for writing", tmp_file);
+            
+            if ((fd = mkstemp(tmp_file)) < 0 ) {
+                LOG_ERROR("Can't open %s for write", tmp_file);
                 return false;
             }
+            FILE *fp = fdopen(fd, "w");
             struct node *current = mpd_state->last_played.list;
             while (current != NULL) {
                 fprintf(fp, "%ld::%s\n", current->value, current->data);
@@ -1632,13 +1624,16 @@ static bool mpd_client_jukebox(t_config *config, t_mpd_state *mpd_state) {
     if (queue_length > mpd_state->jukeboxQueueLength)
         return true;
 
-    if (mpd_state->jukeboxMode == JUKEBOX_ADD_SONG) 
+    if (mpd_state->jukeboxMode == JUKEBOX_ADD_SONG) {
         addSongs = mpd_state->jukeboxQueueLength - queue_length;
-    else
+    }
+    else {
         addSongs = 1;
+    }
     
-    if (addSongs < 1)
+    if (addSongs < 1) {
         return true;
+    }
         
     if (mpd_state->feat_playlists == false && strcmp(mpd_state->jukeboxPlaylist, "Database") != 0) {
         LOG_WARN("Jukebox: Playlists are disabled");
@@ -1769,9 +1764,7 @@ static int mpd_client_put_state(t_mpd_state *mpd_state, char *buffer) {
 
     struct mpd_status *status = mpd_run_status(mpd_state->conn);
     if (!status) {
-        LOG_ERROR("MPD mpd_run_status: %s", mpd_connection_get_error_message(mpd_state->conn));
-        mpd_state->conn_state = MPD_FAILURE;
-        return 0;
+        RETURN_ERROR_AND_RECOVER("mpd_run_status");
     }
     const struct mpd_audio_format *audioformat = mpd_status_get_audio_format(status);
     const int song_id = mpd_status_get_song_id(status);
@@ -1815,9 +1808,7 @@ static int mpd_client_put_volume(t_mpd_state *mpd_state, char *buffer) {
 
     struct mpd_status *status = mpd_run_status(mpd_state->conn);
     if (!status) {
-        LOG_ERROR("MPD mpd_run_status: %s", mpd_connection_get_error_message(mpd_state->conn));
-        mpd_state->conn_state = MPD_FAILURE;
-        return 0;
+        RETURN_ERROR_AND_RECOVER("mpd_run_status");
     }
     len = json_printf(&out, "{type: update_volume, data: {volume: %d}}",
         mpd_status_get_volume(status)
@@ -1828,27 +1819,26 @@ static int mpd_client_put_volume(t_mpd_state *mpd_state, char *buffer) {
 }
 
 static int mpd_client_put_settings(t_mpd_state *mpd_state, char *buffer) {
-    char *replaygain = strdup("");
+    char *replaygain = NULL;
     size_t len;
     int nr = 0;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
     
     struct mpd_status *status = mpd_run_status(mpd_state->conn);
     if (!status) {
-        LOG_ERROR("MPD mpd_run_status: %s", mpd_connection_get_error_message(mpd_state->conn));
-        mpd_state->conn_state = MPD_FAILURE;
-        return 0;
+        RETURN_ERROR_AND_RECOVER("mpd_run_status");
     }
 
     if (!mpd_send_command(mpd_state->conn, "replay_gain_status", NULL)) {
         RETURN_ERROR_AND_RECOVER("replay_gain_status");
     }
-    struct mpd_pair *pair;
-    while ((pair = mpd_recv_pair(mpd_state->conn)) != NULL) {
-        FREE_PTR(replaygain);
-        replaygain = strdup(pair->value);
-	mpd_return_pair(mpd_state->conn, pair);
+    struct mpd_pair *pair = mpd_recv_pair(mpd_state->conn);
+    if (!pair) {
+        RETURN_ERROR_AND_RECOVER("replay_gain_status");
     }
+    replaygain = strdup(pair->value);
+    mpd_return_pair(mpd_state->conn, pair);
+    mpd_response_finish(mpd_state->conn);
     
     len = json_printf(&out, "{type: settings, data: {"
         "repeat: %d, single: %d, crossfade: %d, consume: %d, random: %d, "
@@ -1861,7 +1851,7 @@ static int mpd_client_put_settings(t_mpd_state *mpd_state, char *buffer) {
         mpd_status_get_random(status),
         mpd_status_get_mixrampdb(status),
         mpd_status_get_mixrampdelay(status),
-        replaygain,
+        replaygain == NULL ? "" : replaygain,
         mpd_state->feat_playlists,
         mpd_state->feat_tags,
         mpd_state->feat_library,
@@ -1911,8 +1901,9 @@ static int mpd_client_put_outputs(t_mpd_state *mpd_state, char *buffer) {
     int nr;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
     
-    if (!mpd_send_outputs(mpd_state->conn))
+    if (!mpd_send_outputs(mpd_state->conn)) {
         RETURN_ERROR_AND_RECOVER("outputs");
+    }
 
     len = json_printf(&out, "{type: outputs, data: {outputs: [");
     nr = 0;    
@@ -2048,8 +2039,9 @@ static int mpd_client_put_songdetails(t_config *config, t_mpd_state *mpd_state, 
     char cover[2000] = "";
     
     len = json_printf(&out, "{type: song_details, data: {");
-    if (!mpd_send_list_all_meta(mpd_state->conn, uri))
+    if (!mpd_send_list_all_meta(mpd_state->conn, uri)) {
         RETURN_ERROR_AND_RECOVER("mpd_send_list_all_meta");
+    }
     if ((entity = mpd_recv_entity(mpd_state->conn)) != NULL) {
         song = mpd_entity_get_song(entity);
         mpd_client_get_cover(config, mpd_state, uri, cover, cover_len);
@@ -2128,11 +2120,13 @@ static int mpd_client_put_queue(t_config *config, t_mpd_state *mpd_state, char *
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
     struct mpd_status *status = mpd_run_status(mpd_state->conn);
     
-    if (!status)
+    if (!status) {
         RETURN_ERROR_AND_RECOVER("mpd_run_status");
+    }
         
-    if (!mpd_send_list_queue_range_meta(mpd_state->conn, offset, offset + config->max_elements_per_page))
+    if (!mpd_send_list_queue_range_meta(mpd_state->conn, offset, offset + config->max_elements_per_page)) {
         RETURN_ERROR_AND_RECOVER("mpd_send_list_queue_meta");
+    }
         
     len = json_printf(&out, "{type: queue, data: [");
 
@@ -2181,8 +2175,9 @@ static int mpd_client_put_browse(t_config *config, t_mpd_state *mpd_state, char 
     size_t len = 0;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
 
-    if (!mpd_send_list_meta(mpd_state->conn, path))
+    if (!mpd_send_list_meta(mpd_state->conn, path)) {
         RETURN_ERROR_AND_RECOVER("mpd_send_list_meta");
+    }
 
     len = json_printf(&out, "{type: browse, data: [");
 
@@ -2282,11 +2277,7 @@ static int mpd_client_put_browse(t_config *config, t_mpd_state *mpd_state, char 
         mpd_entity_free(entity);
     }
 
-    if (mpd_connection_get_error(mpd_state->conn) != MPD_ERROR_SUCCESS || !mpd_response_finish(mpd_state->conn)) {
-        LOG_ERROR("MPD mpd_send_list_meta: %s", mpd_connection_get_error_message(mpd_state->conn));
-        mpd_state->conn_state = MPD_FAILURE;
-        return 0;
-    }
+    mpd_response_finish(mpd_state->conn);
 
     len += json_printf(&out, "], totalEntities: %d, offset: %d, returnedEntities: %d, filter: %Q}",
         entity_count,
@@ -2324,15 +2315,16 @@ static int mpd_client_put_db_tag(t_config *config, t_mpd_state *mpd_state, char 
                 entity_count--;
             }
             else if (strncmp(filter, "-", 1) == 0 || strncasecmp(filter, pair->value, 1) == 0 ||
-                    (strncmp(filter, "0", 1) == 0 && isalpha(*pair->value) == 0 )
-            ) {
+                    (strncmp(filter, "0", 1) == 0 && isalpha(*pair->value) == 0 )) 
+            {
                 if (entities_returned++) 
                     len += json_printf(&out, ", ");
                 len += json_printf(&out, "{type: %Q, value: %Q}",
                     mpdtagtype,
                     pair->value    
                 );
-            } else {
+            }
+            else {
                 entity_count--;
             }
         }
@@ -2372,8 +2364,9 @@ static int mpd_client_put_songs_in_album(t_config *config, t_mpd_state *mpd_stat
     if (mpd_search_add_tag_constraint(mpd_state->conn, MPD_OPERATOR_DEFAULT, MPD_TAG_ALBUM, album) == false)
         RETURN_ERROR_AND_RECOVER("mpd_search_add_tag_constraint");
         
-    if (mpd_search_commit(mpd_state->conn) == false)
+    if (mpd_search_commit(mpd_state->conn) == false) {
         RETURN_ERROR_AND_RECOVER("mpd_search_commit");
+    }
     else {
         len = json_printf(&out, "{type: listTitles, data: [");
 
@@ -2411,6 +2404,44 @@ static int mpd_client_put_songs_in_album(t_config *config, t_mpd_state *mpd_stat
     CHECK_RETURN_LEN();
 }
 
+static int mpd_client_rename_playlist(t_config *config, t_mpd_state *mpd_state, char *buffer, const char *old_playlist, const char *new_playlist) {
+    struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
+    size_t old_pl_file_len = config->varlibdir_len + strlen(old_playlist) + 11;
+    char old_pl_file[old_pl_file_len];
+    size_t new_pl_file_len = config->varlibdir_len + strlen(new_playlist) + 11;
+    char new_pl_file[new_pl_file_len];
+    size_t len = 0;
+    
+    if (validate_string(old_playlist) == false || validate_string(new_playlist) == false) {
+        len = json_printf(&out, "{type: error, data: %Q}", "Invalid filename");
+        return len;
+    }
+    
+    snprintf(old_pl_file, old_pl_file_len, "%s/smartpls/%s", config->varlibdir, old_playlist);
+    snprintf(new_pl_file, new_pl_file_len, "%s/smartpls/%s", config->varlibdir, new_playlist);
+    
+    if (access(old_pl_file, F_OK ) != -1) {
+        //smart playlist
+        if (access(new_pl_file, F_OK ) == -1) {
+            //new playlist doesn't exist
+            if (rename(old_pl_file, new_pl_file) == -1) {
+                len = json_printf(&out, "{type: error, data: %Q}", "Renaming playlist failed");
+                LOG_ERROR("Renaming smart playlist %s to %s failed", old_pl_file, new_pl_file);
+                return len;
+            }
+        } 
+    }
+    
+    if (mpd_run_rename(mpd_state->conn, old_playlist, new_playlist)) {
+        len = json_printf(&out, "{type: result, data: %Q}", "Renamed playlist %s to %s");
+    }
+    else {
+        RETURN_ERROR_AND_RECOVER("mpd_run_rename");
+    }
+
+    CHECK_RETURN_LEN();
+}
+
 static int mpd_client_put_playlists(t_config *config, t_mpd_state *mpd_state, char *buffer, const unsigned int offset, const char *filter) {
     struct mpd_playlist *pl;
     unsigned entity_count = 0;
@@ -2421,8 +2452,9 @@ static int mpd_client_put_playlists(t_config *config, t_mpd_state *mpd_state, ch
     char smartpls_file[400];
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
 
-    if (mpd_send_list_playlists(mpd_state->conn) == false)
+    if (mpd_send_list_playlists(mpd_state->conn) == false) {
         RETURN_ERROR_AND_RECOVER("mpd_send_lists_playlists");
+    }
 
     len = json_printf(&out, "{type: playlists, data: [");
 
@@ -2563,8 +2595,9 @@ static int mpd_client_search(t_config *config, t_mpd_state *mpd_state, char *buf
             mpd_song_free(song);
         }
     }
-    else
+    else {
         mpd_response_finish(mpd_state->conn);
+    }
 
     if (strcmp(plist, "") == 0) {
         len += json_printf(&out, "], totalEntities: %d, offset: %d, returnedEntities: %d, searchstr: %Q}",
@@ -2852,19 +2885,34 @@ static int mpd_client_smartpls_put(t_config *config, char *buffer, const char *p
 }
 
 static bool mpd_client_smartpls_save(t_config *config, t_mpd_state *mpd_state, const char *smartpltype, const char *playlist, const char *tag, const char *searchstr, const int maxentries, const int timerange) {
-    char tmp_file[400];
-    char pl_file[400];
+    size_t tmp_file_len = config->varlibdir_len + strlen(playlist) + 18;
+    char tmp_file[tmp_file_len];
+    size_t pl_file_len = config->varlibdir_len + strlen(playlist) + 11;
+    char pl_file[pl_file_len];
+    int fd;
+    
     if (validate_string(playlist) == false) {
         return false;
     }
-    snprintf(tmp_file, 400, "%s/tmp/%s", config->varlibdir, playlist);
-    snprintf(pl_file, 400, "%s/smartpls/%s", config->varlibdir, playlist);
+    
+    snprintf(tmp_file, tmp_file_len, "%s/smartpls/%s.XXXXXX", config->varlibdir, playlist);
+    snprintf(pl_file, pl_file_len, "%s/smartpls/%s", config->varlibdir, playlist);
+    
+    if ((fd = mkstemp(tmp_file)) < 0 ) {
+        LOG_ERROR("Can't open %s for write", tmp_file);
+        return false;
+    }
+    FILE *fp = fdopen(fd, "w");
+    struct json_out out = JSON_OUT_FILE(fp);
+    
     if (strcmp(smartpltype, "sticker") == 0) {
-        if (json_fprintf(tmp_file, "{type: %Q, sticker: %Q, maxentries: %d}", smartpltype, tag, maxentries) == -1) {
-            LOG_ERROR("Error creating file %s", tmp_file);
+        if (json_printf(&out, "{type: %Q, sticker: %Q, maxentries: %d}", smartpltype, tag, maxentries) == -1) {
+            LOG_ERROR("Can't write to file %s", tmp_file);
+            fclose(fp);
             return false;
         }
-        else if (rename(tmp_file, pl_file) == -1) {
+        fclose(fp);
+        if (rename(tmp_file, pl_file) == -1) {
             LOG_ERROR("Renaming file from %s to %s failed", tmp_file, pl_file);
             return false;
         }
@@ -2874,11 +2922,13 @@ static bool mpd_client_smartpls_save(t_config *config, t_mpd_state *mpd_state, c
         }
     }
     else if (strcmp(smartpltype, "newest") == 0) {
-        if (json_fprintf(tmp_file, "{type: %Q, timerange: %d}", smartpltype, timerange) == -1) {
-            LOG_ERROR("Error creating file %s", tmp_file);
+        if (json_printf(&out, "{type: %Q, timerange: %d}", smartpltype, timerange) == -1) {
+            LOG_ERROR("Can't write to file %s", tmp_file);
+            fclose(fp);
             return false;
         }
-        else if (rename(tmp_file, pl_file) == -1) {
+        fclose(fp);
+        if (rename(tmp_file, pl_file) == -1) {
             LOG_ERROR("Renaming file from %s to %s failed", tmp_file, pl_file);
             return false;
         }
@@ -2888,11 +2938,13 @@ static bool mpd_client_smartpls_save(t_config *config, t_mpd_state *mpd_state, c
         }
     }
     else if (strcmp(smartpltype, "search") == 0) {
-        if (json_fprintf(tmp_file, "{type: %Q, tag: %Q, searchstr: %Q}", smartpltype, tag, searchstr) == -1) {
-            LOG_ERROR("Error creating file %s", tmp_file);
+        if (json_printf(&out, "{type: %Q, tag: %Q, searchstr: %Q}", smartpltype, tag, searchstr) == -1) {
+            LOG_ERROR("Can't write to file %s", tmp_file);
+            fclose(fp);
             return false;
         }
-        else if (rename(tmp_file, pl_file) == -1) {
+        fclose(fp);
+        if (rename(tmp_file, pl_file) == -1) {
             LOG_ERROR("Renaming file from %s to %s failed", tmp_file, pl_file);
             return false;
         }
@@ -2908,30 +2960,33 @@ static bool mpd_client_smartpls_update_all(t_config *config, t_mpd_state *mpd_st
     DIR *dir;
     struct dirent *ent;
     char *smartpltype;
-    char filename[400];
-    char dirname[400];
     int je;
     char *p_charbuf1, *p_charbuf2;
     int int_buf1;
-    
     if (mpd_state->feat_smartpls == false) {
         return true;
     }
     
-    snprintf(dirname, 400, "%s/smartpls", config->varlibdir);
+    size_t dirname_len = config->varlibdir_len + 10;
+    char dirname[dirname_len];
+    snprintf(dirname, dirname_len, "%s/smartpls", config->varlibdir);
     if ((dir = opendir (dirname)) != NULL) {
         while ((ent = readdir(dir)) != NULL) {
-            if (strncmp(ent->d_name, ".", 1) == 0)
+            if (strncmp(ent->d_name, ".", 1) == 0) {
                 continue;
-            snprintf(filename, 400, "%s/smartpls/%s", config->varlibdir, ent->d_name);
+            }
+            size_t filename_len = config->varlibdir_len + strlen(ent->d_name) + 11;
+            char filename[filename_len];
+            snprintf(filename, filename_len, "%s/smartpls/%s", config->varlibdir, ent->d_name);
             char *content = json_fread(filename);
             if (content == NULL) {
                 LOG_ERROR("Cant read smart playlist file %s", filename);
                 continue;
             }
             je = json_scanf(content, strlen(content), "{type: %Q }", &smartpltype);
-            if (je != 1)
+            if (je != 1) {
                 continue;
+            }
             if (strcmp(smartpltype, "sticker") == 0) {
                 je = json_scanf(content, strlen(content), "{sticker: %Q, maxentries: %d}", &p_charbuf1, &int_buf1);
                 if (je == 2) {
@@ -3119,7 +3174,6 @@ static bool mpd_client_smartpls_update_newest(t_config *config, t_mpd_state *mpd
 }
 
 static int mpd_client_read_last_played(t_config *config, t_mpd_state *mpd_state) {
-    char cfgfile[400];
     char *line = NULL;
     char *data;
     char *crap;
@@ -3127,8 +3181,10 @@ static int mpd_client_read_last_played(t_config *config, t_mpd_state *mpd_state)
     ssize_t read;
     long value;
     
-    snprintf(cfgfile, 400, "%s/state/last_played", config->varlibdir);
-    FILE *fp = fopen(cfgfile, "r");
+    size_t lp_file_len = config->varlibdir_len + 19;
+    char lp_file[lp_file_len];
+    snprintf(lp_file, lp_file_len, "%s/state/last_played", config->varlibdir);
+    FILE *fp = fopen(lp_file, "r");
     if (fp == NULL) {
         return 0;
     }
@@ -3145,5 +3201,5 @@ static int mpd_client_read_last_played(t_config *config, t_mpd_state *mpd_state)
     }
     fclose(fp);
     FREE_PTR(line);
-    return mpd_state->last_played.length;;
+    return mpd_state->last_played.length;
 }
