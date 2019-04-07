@@ -1475,8 +1475,13 @@ function parseSettings() {
         if (syscmdsListLen > 0) {
             syscmdsList = '<div class="dropdown-divider"></div>';
             for (var i = 0; i < syscmdsListLen; i++) {
-                syscmdsList += '<a class="dropdown-item text-light bg-dark" href="#" data-href=\'{"cmd": "execSyscmd", "options": ["' + 
-                    settings.syscmdList[i] + '"]}\'>' + settings.syscmdList[i] + '</a>';
+                if (settings.syscmdList[i] == 'HR') {
+                    syscmdsList += '<div class="dropdown-divider"></div>';
+                }
+                else {
+                    syscmdsList += '<a class="dropdown-item text-light bg-dark" href="#" data-href=\'{"cmd": "execSyscmd", "options": ["' + 
+                        settings.syscmdList[i] + '"]}\'>' + settings.syscmdList[i] + '</a>';
+                }
             }
         }
         document.getElementById('syscmds').innerHTML = syscmdsList;
