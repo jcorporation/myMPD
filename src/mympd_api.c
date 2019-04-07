@@ -556,19 +556,15 @@ static bool mympd_api_bookmark_update(t_config *config, const long id, const cha
                 if (name != NULL) {
                     if (strcmp(name, lname) < 0) {
                         line_nr++;
-                        char buffer[1024];
-                        struct json_out out = JSON_OUT_BUF(buffer, 1024);
-                        json_printf(&out, "{id: %ld, name: %Q, uri: %Q, type: %Q}", line_nr, name, uri, type);
-                        fprintf(fo, "%s\n", buffer);
+                        struct json_out out = JSON_OUT_FILE(fo);
+                        json_printf(&out, "{id: %ld, name: %Q, uri: %Q, type: %Q}\n", line_nr, name, uri, type);
                         inserted = true;
                     }
                 }
                 if (lid != id) {
                     line_nr++;
-                    char buffer[1024];
-                    struct json_out out = JSON_OUT_BUF(buffer, 1024);
-                    json_printf(&out, "{id: %ld, name: %Q, uri: %Q, type: %Q}", line_nr, lname, luri, ltype);
-                    fprintf(fo, "%s\n", buffer);
+                    struct json_out out = JSON_OUT_FILE(fo);
+                    json_printf(&out, "{id: %ld, name: %Q, uri: %Q, type: %Q}\n", line_nr, lname, luri, ltype);
                 }
                 FREE_PTR(lname);
                 FREE_PTR(luri);
@@ -583,10 +579,8 @@ static bool mympd_api_bookmark_update(t_config *config, const long id, const cha
     }
     if (inserted == false && name != NULL) {
         line_nr++;
-        char buffer[1024];
-        struct json_out out = JSON_OUT_BUF(buffer, 1024);
-        json_printf(&out, "{id: %ld, name: %Q, uri: %Q, type: %Q}", line_nr, name, uri, type);
-        fprintf(fo, "%s\n", buffer);
+        struct json_out out = JSON_OUT_FILE(fo);
+        json_printf(&out, "{id: %ld, name: %Q, uri: %Q, type: %Q}\n", line_nr, name, uri, type);
     }
     fclose(fo);
     if (rename(tmp_file, b_file) == -1) {
