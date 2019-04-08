@@ -58,11 +58,11 @@
 
 #define PUT_SONG_TAGS() do { \
     if (mpd_state->feat_tags == true) { \
-        for (unsigned tagnr = 0; tagnr < mpd_state->tag_types_len; ++tagnr) { \
+        for (unsigned tagnr = 0; tagnr < mpd_state->mympd_tag_types_len; ++tagnr) { \
             if (tagnr > 0) \
                 len += json_printf(&out, ","); \
-            char *value = mpd_client_get_tag(song, mpd_state->tag_types[tagnr]); \
-            len += json_printf(&out, "%Q: %Q",  mpd_tag_name(mpd_state->tag_types[tagnr]), value == NULL ? "-" : value); \
+            char *value = mpd_client_get_tag(song, mpd_state->mympd_tag_types[tagnr]); \
+            len += json_printf(&out, "%Q: %Q",  mpd_tag_name(mpd_state->mympd_tag_types[tagnr]), value == NULL ? "-" : value); \
         } \
     } \
     else { \
@@ -74,11 +74,11 @@
 
 #define PUT_EMPTY_SONG_TAGS(TITLE) do { \
     if (mpd_state->feat_tags == true) { \
-        for (unsigned tagnr = 0; tagnr < mpd_state->tag_types_len; ++tagnr) { \
+        for (unsigned tagnr = 0; tagnr < mpd_state->mympd_tag_types_len; ++tagnr) { \
             if (tagnr > 0) \
                 len += json_printf(&out, ","); \
-            if (mpd_state->tag_types[tagnr] != MPD_TAG_TITLE) \
-                len += json_printf(&out, "%Q: %Q",  mpd_tag_name(mpd_state->tag_types[tagnr]), "-"); \
+            if (mpd_state->mympd_tag_types[tagnr] != MPD_TAG_TITLE) \
+                len += json_printf(&out, "%Q: %Q",  mpd_tag_name(mpd_state->mympd_tag_types[tagnr]), "-"); \
             else \
                 len += json_printf(&out, "Title: %Q", TITLE); \
         } \
@@ -132,13 +132,14 @@ typedef struct t_mpd_state {
     bool autoPlay;
     
     //taglists
-    struct list mpd_tags;
-    struct list mympd_tags;
-    struct list mympd_searchtags;
-    struct list mympd_browsetags;
-    //mpd tagtypes
-    enum mpd_tag_type tag_types[64];
-    unsigned tag_types_len;
+    enum mpd_tag_type mpd_tag_types[64];
+    size_t mpd_tag_types_len;
+    enum mpd_tag_type mympd_tag_types[64];
+    size_t mympd_tag_types_len;
+    enum mpd_tag_type search_tag_types[64];
+    size_t search_tag_types_len;
+    enum mpd_tag_type browse_tag_types[64];
+    size_t browse_tag_types_len;
     
     //last played list
     struct list last_played;
@@ -223,12 +224,14 @@ void *mpd_client_loop(void *arg_config) {
     mpd_state.jukeboxQueueLength = 1;
     mpd_state.autoPlay = false;
     mpd_state.music_directory = NULL;
-    list_init(&mpd_state.mpd_tags);
-    list_init(&mpd_state.mympd_tags);
-    list_init(&mpd_state.mympd_searchtags);
-    list_init(&mpd_state.mympd_browsetags);
-    mpd_state.tag_types_len = 0;
-    memset(mpd_state.tag_types, 0, sizeof(mpd_state.tag_types));
+    mpd_state.mpd_tag_types_len = 0;
+    memset(mpd_state.mpd_tag_types, 0, sizeof(mpd_state.mpd_tag_types));
+    mpd_state.mympd_tag_types_len = 0;
+    memset(mpd_state.mympd_tag_types, 0, sizeof(mpd_state.mympd_tag_types));
+    mpd_state.search_tag_types_len = 0;
+    memset(mpd_state.search_tag_types, 0, sizeof(mpd_state.search_tag_types));
+    mpd_state.browse_tag_types_len = 0;
+    memset(mpd_state.browse_tag_types, 0, sizeof(mpd_state.browse_tag_types));
 
     //read last played songs history file
     list_init(&mpd_state.last_played);
@@ -240,10 +243,6 @@ void *mpd_client_loop(void *arg_config) {
     }
     //Cleanup
     mpd_client_disconnect(config, &mpd_state);
-    list_free(&mpd_state.mpd_tags);
-    list_free(&mpd_state.mympd_tags);
-    list_free(&mpd_state.mympd_searchtags);
-    list_free(&mpd_state.mympd_browsetags);
     list_free(&mpd_state.last_played);
     FREE_PTR(mpd_state.music_directory);
     FREE_PTR(mpd_state.jukeboxPlaylist);
@@ -1028,6 +1027,15 @@ static void mpd_client_feature_love(t_config *config, t_mpd_state *mpd_state) {
     }
 }
 
+static bool mpd_client_tag_exists(enum mpd_tag_type tag_types[64], size_t tag_types_len, enum mpd_tag_type tag) {
+    for (size_t i = 0; i < tag_types_len; i++) {
+        if (tag_types[i] == tag) {
+	    return true;
+	}
+   }
+   return false;
+}
+
 static void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state) {
     struct mpd_pair *pair;
     char s[] = ",";
@@ -1048,8 +1056,13 @@ static void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state) {
     mpd_state->feat_library = false;
     mpd_state->feat_smartpls = config->smartpls;
     mpd_state->feat_coverimage = config->coverimage;
-    mpd_state->tag_types_len = 0;
-    memset(mpd_state->tag_types, 0, sizeof(mpd_state->tag_types));
+    memset(mpd_state->mpd_tag_types, 0, sizeof(mpd_state->mpd_tag_types));
+    mpd_state->mympd_tag_types_len = 0;
+    memset(mpd_state->mympd_tag_types, 0, sizeof(mpd_state->mympd_tag_types));
+    mpd_state->search_tag_types_len = 0;
+    memset(mpd_state->search_tag_types, 0, sizeof(mpd_state->search_tag_types));
+    mpd_state->browse_tag_types_len = 0;
+    memset(mpd_state->browse_tag_types, 0, sizeof(mpd_state->browse_tag_types));
 
     if (mpd_send_allowed_commands(mpd_state->conn)) {
         while ((pair = mpd_recv_command_pair(mpd_state->conn)) != NULL) {
@@ -1137,11 +1150,10 @@ static void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state) {
     size_t len = 0;
     
     len = snprintf(logline, max_len, "MPD supported tags: ");
-    list_free(&mpd_state->mpd_tags);
     if (mpd_send_list_tag_types(mpd_state->conn)) {
         while ((pair = mpd_recv_tag_type_pair(mpd_state->conn)) != NULL) {
             len += snprintf(logline + len, max_len - len, "%s ", pair->value);
-            list_push(&mpd_state->mpd_tags, pair->value, 1);
+            mpd_state->mpd_tag_types[mpd_state->mpd_tag_types_len++] = mpd_tag_name_parse(pair->value);
             mpd_return_pair(mpd_state->conn, pair);
         }
         mpd_response_finish(mpd_state->conn);
@@ -1149,8 +1161,8 @@ static void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state) {
     else {
         LOG_ERROR_AND_RECOVER("mpd_send_list_tag_types");
     }
-    list_free(&mpd_state->mympd_tags);
-    if (mpd_state->mpd_tags.length == 0) {
+
+    if (mpd_state->mpd_tag_types_len == 0) {
         len += snprintf(logline + len, max_len -len, "none");
         LOG_INFO(logline);
         LOG_INFO("Tags are disabled");
@@ -1162,10 +1174,18 @@ static void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state) {
         len = snprintf(logline, max_len, "myMPD enabled tags: ");
         token = strtok_r(taglist, s, &rest);
         while (token != NULL) {
-            if (list_get_value(&mpd_state->mpd_tags, token) == 1) {
-                len += snprintf(logline + len, max_len - len, "%s ", token);
-                list_push(&mpd_state->mympd_tags, token, 1);
-                mpd_state->tag_types[mpd_state->tag_types_len++] = mpd_tag_name_parse(token);
+            enum mpd_tag_type tag = mpd_tag_name_iparse(token);
+            if (tag == MPD_TAG_UNKNOWN) {
+                LOG_WARN("Unknown tag %s", token);
+            }
+            else {
+                if (mpd_client_tag_exists(mpd_state->mpd_tag_types, mpd_state->mpd_tag_types_len, tag) == true) {
+                    len += snprintf(logline + len, max_len - len, "%s ", mpd_tag_name(tag));
+                    mpd_state->mympd_tag_types[mpd_state->mympd_tag_types_len++] = tag;
+                }
+                else {
+                    LOG_DEBUG("Disabling tag %s", mpd_tag_name(tag));
+                }
             }
             token = strtok_r(NULL, s, &rest);
         }
@@ -1175,7 +1195,7 @@ static void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state) {
             LOG_VERBOSE("Enabling mpd tag types");
             if (mpd_command_list_begin(mpd_state->conn, false)) {
                 mpd_send_clear_tag_types(mpd_state->conn);
-                mpd_send_enable_tag_types(mpd_state->conn, mpd_state->tag_types, mpd_state->tag_types_len);
+                mpd_send_enable_tag_types(mpd_state->conn, mpd_state->mympd_tag_types, mpd_state->mympd_tag_types_len);
                 if (!mpd_command_list_end(mpd_state->conn)) {
                     LOG_ERROR_AND_RECOVER("mpd_command_list_end");
                 }
@@ -1189,9 +1209,18 @@ static void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state) {
         len = snprintf(logline, max_len, "myMPD enabled searchtags: ");
         token = strtok_r(searchtaglist, s, &rest);
         while (token != NULL) {
-            if (list_get_value(&mpd_state->mympd_tags, token) == 1) {
-                len += snprintf(logline + len, max_len - len, "%s ", token);
-                list_push(&mpd_state->mympd_searchtags, token, 1);
+            enum mpd_tag_type tag = mpd_tag_name_iparse(token);
+            if (tag == MPD_TAG_UNKNOWN) {
+                LOG_WARN("Unknown tag %s", token);
+            }
+            else {
+                if (mpd_client_tag_exists(mpd_state->mympd_tag_types, mpd_state->mympd_tag_types_len, tag) == true) {
+                    len += snprintf(logline + len, max_len - len, "%s ", mpd_tag_name(tag));
+                    mpd_state->search_tag_types[mpd_state->search_tag_types_len++] = tag;
+                }
+                else {
+                    LOG_DEBUG("Disabling tag %s", mpd_tag_name(tag));
+                }
             }
             token = strtok_r(NULL, s, &rest);
         }
@@ -1199,9 +1228,18 @@ static void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state) {
         len = snprintf(logline, max_len, "myMPD enabled browsetags: ");
         token = strtok_r(browsetaglist, s, &rest);
         while (token != NULL) {
-            if (list_get_value(&mpd_state->mympd_tags, token) == 1) {
-                len += snprintf(logline + len, max_len - len, "%s ", token);
-                list_push(&mpd_state->mympd_browsetags, token, 1);
+            enum mpd_tag_type tag = mpd_tag_name_iparse(token);
+            if (tag == MPD_TAG_UNKNOWN) {
+                LOG_WARN("Unknown tag %s", token);
+            }
+            else {
+                if (mpd_client_tag_exists(mpd_state->mympd_tag_types, mpd_state->mympd_tag_types_len, tag) == true) {
+                    len += snprintf(logline + len, max_len - len, "%s ", mpd_tag_name(tag));
+                    mpd_state->browse_tag_types[mpd_state->browse_tag_types_len++] = tag;
+                }
+                else {
+                    LOG_DEBUG("Disabling tag %s", mpd_tag_name(tag));
+                }
             }
             token = strtok_r(NULL, s, &rest);
         }
@@ -1820,8 +1858,7 @@ static int mpd_client_put_volume(t_mpd_state *mpd_state, char *buffer) {
 
 static int mpd_client_put_settings(t_mpd_state *mpd_state, char *buffer) {
     char *replaygain = NULL;
-    size_t len;
-    int nr = 0;
+    size_t len, nr;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
     
     struct mpd_status *status = mpd_run_status(mpd_state->conn);
@@ -1864,32 +1901,26 @@ static int mpd_client_put_settings(t_mpd_state *mpd_state, char *buffer) {
     mpd_status_free(status);
     FREE_PTR(replaygain);
     
-    nr = 0;
-    struct node *current = mpd_state->mympd_tags.list;
-    while (current != NULL) {
-        if (nr++) 
+    for (nr = 0; nr < mpd_state->mympd_tag_types_len; nr++) {
+        if (nr > 0) 
             len += json_printf(&out, ",");
-        len += json_printf(&out, "%Q", current->data);
-        current = current->next;
+        len += json_printf(&out, "%Q", mpd_tag_name(mpd_state->mympd_tag_types[nr]));
     }
+    
     len += json_printf(&out, "], searchtags: [");
-    nr = 0;
-    current = mpd_state->mympd_searchtags.list;
-    while (current != NULL) {
-        if (nr++) 
+        for (nr = 0; nr < mpd_state->search_tag_types_len; nr++) {
+        if (nr > 0) 
             len += json_printf(&out, ",");
-        len += json_printf(&out, "%Q", current->data);
-        current = current->next;
+        len += json_printf(&out, "%Q", mpd_tag_name(mpd_state->search_tag_types[nr]));
     }
+    
     len += json_printf(&out, "], browsetags: [");
-    nr = 0;
-    current = mpd_state->mympd_browsetags.list;
-    while (current != NULL) {
-        if (nr++) 
+    for (nr = 0; nr < mpd_state->browse_tag_types_len; nr++) {
+        if (nr > 0) 
             len += json_printf(&out, ",");
-        len += json_printf(&out, "%Q", current->data);
-        current = current->next;
+        len += json_printf(&out, "%Q", mpd_tag_name(mpd_state->browse_tag_types[nr]));
     }
+
     len += json_printf(&out, "]}}");
     
     CHECK_RETURN_LEN();
