@@ -92,10 +92,12 @@ void *mympd_api_loop(void *arg_config) {
     mpd_client_request->conn_id = -1;
     mpd_client_request->cmd_id = MYMPD_API_SETTINGS_SET;
     mpd_client_request->length = snprintf(mpd_client_request->data, 1000, 
-        "{\"cmd\":\"MYMPD_API_SETTINGS_SET\", \"data\":{\"jukeboxMode\": %d, \"jukeboxPlaylist\": \"%s\", \"jukeboxQueueLength\": %d}}",
+        "{\"cmd\":\"MYMPD_API_SETTINGS_SET\", \"data\":{\"jukeboxMode\": %d, \"jukeboxPlaylist\": \"%s\", \"jukeboxQueueLength\": %d, "
+        "\"autoPlay\": %s}}",
         mympd_state.jukeboxMode,
         mympd_state.jukeboxPlaylist,
-        mympd_state.jukeboxQueueLength
+        mympd_state.jukeboxQueueLength,
+        mympd_state.autoPlay == true ? "true" : "false"
     );
     tiny_queue_push(mpd_client_queue, mpd_client_request);
 

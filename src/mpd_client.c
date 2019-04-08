@@ -194,6 +194,7 @@ static int mpd_client_queue_crop(t_mpd_state *mpd_state, char *buffer);
 static void mpd_client_disconnect(t_config *config, t_mpd_state *mpd_state);
 static int mpd_client_read_last_played(t_config *config, t_mpd_state *mpd_state);
 static void mpd_client_feature_love(t_config *config, t_mpd_state *mpd_state);
+static bool mpd_client_tag_exists(const enum mpd_tag_type tag_types[64], const size_t tag_types_len, const enum mpd_tag_type tag);
 static void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state);
 static char *mpd_client_get_tag(struct mpd_song const *song, const enum mpd_tag_type tag);
 
@@ -1027,7 +1028,7 @@ static void mpd_client_feature_love(t_config *config, t_mpd_state *mpd_state) {
     }
 }
 
-static bool mpd_client_tag_exists(enum mpd_tag_type tag_types[64], size_t tag_types_len, enum mpd_tag_type tag) {
+static bool mpd_client_tag_exists(const enum mpd_tag_type tag_types[64], const size_t tag_types_len, const enum mpd_tag_type tag) {
     for (size_t i = 0; i < tag_types_len; i++) {
         if (tag_types[i] == tag) {
 	    return true;
