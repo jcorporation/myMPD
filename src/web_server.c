@@ -347,7 +347,7 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data)
             
             size_t host_header_len = (int)host_hdr->len + 1;
             char host_header[host_header_len];
-            snprintf(host_header, 1024, "%.*s", (int)host_hdr->len, host_hdr->p);
+            snprintf(host_header, host_header_len, "%.*s", (int)host_hdr->len, host_hdr->p);
             char *crap = NULL;
             char *host = strtok_r(host_header, ":", &crap);
             size_t s_redirect_len = strlen(host) + strlen(config->sslport) + 11;
@@ -387,6 +387,11 @@ static bool handle_api(long conn_id, const char *request_body, int request_len) 
     request->conn_id = conn_id;
     request->cmd_id = cmd_id;
     request->length = copy_string(request->data, request_body, 1000, request_len);
+    if (request->length < request_len) {
+        LOG_ERROR("Request buffer truncated %d / %d\n", request_len, 1000); 
+        free(request);
+        return false;
+    }
     
     if (strncmp(cmd, "MYMPD_API_", 10) == 0) {
         tiny_queue_push(mympd_api_queue, request);
