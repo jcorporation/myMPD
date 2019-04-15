@@ -156,8 +156,8 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
     else if (request->cmd_id == MYMPD_API_COLS_SAVE) {
         je = json_scanf(request->data, request->length, "{data: {table: %Q}}", &p_charbuf1);
         if (je == 1) {
-            char column_list[800];
-            snprintf(column_list, 800, "%.*s", request->length, request->data);
+            char column_list[request->length + 1];
+            snprintf(column_list, request->length + 1, "%.*s", request->length, request->data);
             char *cols = strchr(column_list, '[');
             int col_len = strlen(cols); 
             if (col_len > 1)

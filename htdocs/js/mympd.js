@@ -224,21 +224,21 @@ function appRoute() {
     appPrepare(app.current.scrollPos);
 
     if (app.current.app == 'Playback') {
-        sendAPI({"cmd": "MPD_API_PLAYER_CURRENT_SONG"}, songChange);
+        sendAPI({"cmd": "MPD_API_PLAYER_CURRENT_SONG", "data": {"cols": settings.colsPlayback}}, songChange);
     }    
     else if (app.current.app == 'Queue' && app.current.tab == 'Current' ) {
         selectTag('searchqueuetags', 'searchqueuetagsdesc', app.current.filter);
         getQueue();
     }
     else if (app.current.app == 'Queue' && app.current.tab == 'LastPlayed') {
-        sendAPI({"cmd": "MPD_API_QUEUE_LAST_PLAYED", "data": {"offset": app.current.page}}, parseLastPlayed);
+        sendAPI({"cmd": "MPD_API_QUEUE_LAST_PLAYED", "data": {"offset": app.current.page, "cols": settings.colsQueueLastPlayed}}, parseLastPlayed);
     }
     else if (app.current.app == 'Browse' && app.current.tab == 'Playlists' && app.current.view == 'All') {
         sendAPI({"cmd": "MPD_API_PLAYLIST_LIST", "data": {"offset": app.current.page, "filter": app.current.filter}}, parsePlaylists);
         doSetFilterLetter('BrowsePlaylistsFilter');
     }
     else if (app.current.app == 'Browse' && app.current.tab == 'Playlists' && app.current.view == 'Detail') {
-        sendAPI({"cmd": "MPD_API_PLAYLIST_CONTENT_LIST", "data": {"offset": app.current.page, "filter": app.current.filter, "uri": app.current.search}}, parsePlaylists);
+        sendAPI({"cmd": "MPD_API_PLAYLIST_CONTENT_LIST", "data": {"offset": app.current.page, "filter": app.current.filter, "uri": app.current.search, "cols": settings.colsBrowsePlaylistsDetail}}, parsePlaylists);
         doSetFilterLetter('BrowsePlaylistsFilter');
     }    
     else if (app.current.app == 'Browse' && app.current.tab == 'Database') {
@@ -253,7 +253,7 @@ function appRoute() {
         }
     }    
     else if (app.current.app == 'Browse' && app.current.tab == 'Filesystem') {
-        sendAPI({"cmd": "MPD_API_DATABASE_FILESYSTEM_LIST", "data": {"offset": app.current.page, "path": (app.current.search ? app.current.search : "/"), "filter": app.current.filter}}, parseFilesystem);
+        sendAPI({"cmd": "MPD_API_DATABASE_FILESYSTEM_LIST", "data": {"offset": app.current.page, "path": (app.current.search ? app.current.search : "/"), "filter": app.current.filter, "cols": settings.colsBrowseFilesystem}}, parseFilesystem);
         // Don't add all songs from root
         if (app.current.search) {
             document.getElementById('BrowseFilesystemAddAllSongs').removeAttribute('disabled');
@@ -341,10 +341,10 @@ function appRoute() {
                         sort = sort.substring(1);
                     }
                 }
-                sendAPI({"cmd": "MPD_API_DATABASE_SEARCH_ADV", "data": { "plist": "", "offset": app.current.page, "sort": sort, "sortdesc": sortdesc, "expression": app.current.search}}, parseSearch);
+                sendAPI({"cmd": "MPD_API_DATABASE_SEARCH_ADV", "data": { "plist": "", "offset": app.current.page, "sort": sort, "sortdesc": sortdesc, "expression": app.current.search, "cols": settings.colsSearch}}, parseSearch);
             }
             else {
-                sendAPI({"cmd": "MPD_API_DATABASE_SEARCH", "data": { "plist": "", "offset": app.current.page, "filter": app.current.filter, "searchstr": app.current.search}}, parseSearch);
+                sendAPI({"cmd": "MPD_API_DATABASE_SEARCH", "data": { "plist": "", "offset": app.current.page, "filter": app.current.filter, "searchstr": app.current.search, "cols": settings.colsSearch}}, parseSearch);
             }
         } else {
             document.getElementById('SearchList').getElementsByTagName('tbody')[0].innerHTML = '';
@@ -457,8 +457,6 @@ function appInitWait() {
 }
 
 function appInit() {
-//    sendAPI({"cmd": "MPD_API_PLAYER_STATE"}, parseState);
-
     document.getElementById('btnChVolumeDown').addEventListener('click', function(event) {
         event.stopPropagation();
     }, false);
@@ -1198,7 +1196,7 @@ function webSocketConnect() {
                         sendAPI({"cmd": "MPD_API_PLAYLIST_LIST","data": {"offset": app.current.page, "filter": app.current.filter}}, parsePlaylists);
                     }
                     else if (app.current.app == 'Browse' && app.current.tab == 'Playlists' && app.current.view == 'Detail') {
-                        sendAPI({"cmd": "MPD_API_PLAYLIST_CONTENT_LIST", "data": {"offset": app.current.page, "filter": app.current.filter, "uri": app.current.search}}, parsePlaylists);
+                        sendAPI({"cmd": "MPD_API_PLAYLIST_CONTENT_LIST", "data": {"offset": app.current.page, "filter": app.current.filter, "uri": app.current.search, "cols": settings.colsBrowsePlaylistsDetail}}, parsePlaylists);
                     }
                     break;
                 case 'error':
@@ -1807,7 +1805,7 @@ function parseState(obj) {
     if (!lastState || lastState.data.currentSongId != obj.data.currentSongId ||
         lastState.data.queueVersion != obj.data.queueVersion)
     {
-        sendAPI({"cmd": "MPD_API_PLAYER_CURRENT_SONG"}, songChange);
+        sendAPI({"cmd": "MPD_API_PLAYER_CURRENT_SONG", "data": {"cols": settings.colsPlayback}}, songChange);
     }
     //clear playback card if not playing
     if (obj.data.songPos == '-1') {
@@ -1822,7 +1820,7 @@ function parseState(obj) {
     }
     
     if (app.current.app == 'Queue' && app.current.tab == 'LastPlayed')
-        sendAPI({"cmd": "MPD_API_QUEUE_LAST_PLAYED", "data": {"offset": app.current.page}}, parseLastPlayed);
+        sendAPI({"cmd": "MPD_API_QUEUE_LAST_PLAYED", "data": {"offset": app.current.page, "cols": settings.colsQueueLastPlayed}}, parseLastPlayed);
 
     lastState = obj;                    
 }
@@ -1846,10 +1844,12 @@ function parseVolume(obj) {
 }
 
 function getQueue() {
-    if (app.current.search.length >= 2) 
-        sendAPI({"cmd": "MPD_API_QUEUE_SEARCH", "data": {"filter": app.current.filter, "offset": app.current.page, "searchstr": app.current.search}}, parseQueue);
-    else
-        sendAPI({"cmd": "MPD_API_QUEUE_LIST", "data": {"offset": app.current.page}}, parseQueue);
+    if (app.current.search.length >= 2) {
+        sendAPI({"cmd": "MPD_API_QUEUE_SEARCH", "data": {"filter": app.current.filter, "offset": app.current.page, "searchstr": app.current.search, "cols": settings.colsQueueCurrent}}, parseQueue);
+    }
+    else {
+        sendAPI({"cmd": "MPD_API_QUEUE_LIST", "data": {"offset": app.current.page, "cols": settings.colsQueueCurrent}}, parseQueue);
+    }
 }
 
 function parseQueue(obj) {
@@ -2192,7 +2192,7 @@ function parseListDBtags(obj) {
             if ('IntersectionObserver' in window)
                 createListTitleObserver(document.getElementById('card' + id));
             else
-                sendAPI({"cmd": "MPD_API_DATABASE_TAG_ALBUM_TITLE_LIST", "data": { "album": obj.data[i].value, "search": app.current.search, "tag": app.current.view}}, parseListTitles);
+                sendAPI({"cmd": "MPD_API_DATABASE_TAG_ALBUM_TITLE_LIST", "data": { "album": obj.data[i].value, "search": app.current.search, "tag": app.current.view, "cols": settings.colsBrowseDatabase}}, parseListTitles);
         }
         var cardsLen = cards.length - 1;
         for (var i = cardsLen; i >= nrItems; i --) {
@@ -2259,7 +2259,7 @@ function getListTitles(changes, observer) {
         if (change.intersectionRatio > 0) {
             observer.unobserve(change.target);
             var album = decodeURI(change.target.getAttribute('data-album'));
-            sendAPI({"cmd": "MPD_API_DATABASE_TAG_ALBUM_TITLE_LIST", "data": { "album": album, "search": app.current.search, "tag": app.current.view}}, parseListTitles);
+            sendAPI({"cmd": "MPD_API_DATABASE_TAG_ALBUM_TITLE_LIST", "data": { "album": album, "search": app.current.search, "tag": app.current.view, "cols": settings.colsBrowseDatabase}}, parseListTitles);
         }
     });
 }
@@ -2477,7 +2477,7 @@ function removeFromPlaylist(uri, pos) {
 
 function playlistClear() {
     var uri = document.getElementById('BrowsePlaylistsDetailList').getAttribute('data-uri');
-    sendAPI({"cmd": "MPD_API_PLAYLIST_CLEAR_AND_LIST", "data": {"uri": uri}});
+    sendAPI({"cmd": "MPD_API_PLAYLIST_CLEAR", "data": {"uri": uri}});
     document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
 }
 
@@ -3185,17 +3185,19 @@ function addAllFromBrowseFilesystem() {
 function addAllFromSearchPlist(plist) {
     var nr = parseInt(document.getElementById('panel-heading-search').innerText);
     if (!isNaN(nr) && nr > 0) {
-        if (settings.featAdvsearch)
-            sendAPI({"cmd": "MPD_API_DATABASE_SEARCH_ADV", "data": {"plist": plist, "sort": "", "sortdesc": false, "expression": app.current.search, "offset": 0}});
-        else
-            sendAPI({"cmd": "MPD_API_DATABASE_SEARCH", "data": {"plist": plist, "filter": app.current.filter, "searchstr": app.current.search, "offset": 0}});
+        if (settings.featAdvsearch) {
+            sendAPI({"cmd": "MPD_API_DATABASE_SEARCH_ADV", "data": {"plist": plist, "sort": "", "sortdesc": false, "expression": app.current.search, "offset": 0, "cols": settings.colsSearch}});
+        }
+        else {
+            sendAPI({"cmd": "MPD_API_DATABASE_SEARCH", "data": {"plist": plist, "filter": app.current.filter, "searchstr": app.current.search, "offset": 0, "cols": settings.colsSearch}});
+        }
         showNotification('Added ' + nr  +' songs from search to ' + plist, '', '', 'success');
     }
 }
 
 function addAllFromBrowseDatabasePlist(plist) {
     if (app.current.search.length >= 2) {
-        sendAPI({"cmd": "MPD_API_DATABASE_SEARCH", "data": {"plist": plist, "filter": app.current.view, "searchstr": app.current.search, "offset": 0}});
+        sendAPI({"cmd": "MPD_API_DATABASE_SEARCH", "data": {"plist": plist, "filter": app.current.view, "searchstr": app.current.search, "offset": 0, "cols": settings.colsSearch}});
         showNotification('Added songs from database selection to ' + plist, '', '', 'success');
     }
 }

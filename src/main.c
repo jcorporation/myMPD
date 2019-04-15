@@ -31,10 +31,10 @@
 #include <libgen.h>
 #include <pthread.h>
 #include <dirent.h>
-#include <mpd/client.h>
 #include <stdbool.h>
 #include <signal.h>
 #include <dlfcn.h>
+#include <mpd/client.h>
 
 #include "list.h"
 #include "tiny_queue.h"
