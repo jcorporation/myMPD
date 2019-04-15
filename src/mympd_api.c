@@ -33,6 +33,7 @@
 #include <stdbool.h>
 #include <pthread.h>
 #include <signal.h>
+#include <assert.h>
 
 #include "list.h"
 #include "tiny_queue.h"
@@ -89,6 +90,7 @@ void *mympd_api_loop(void *arg_config) {
 
     //push jukebox settings to mpd_client queue
     t_work_request *mpd_client_request = (t_work_request *)malloc(sizeof(t_work_request));
+    assert(mpd_client_request);
     mpd_client_request->conn_id = -1;
     mpd_client_request->cmd_id = MYMPD_API_SETTINGS_SET;
     mpd_client_request->length = snprintf(mpd_client_request->data, 1000, 
@@ -130,7 +132,9 @@ void *mympd_api_loop(void *arg_config) {
 //private functions
 static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_request *request) {
     int je;
-    char *p_charbuf1, *p_charbuf2, *p_charbuf3;
+    char *p_charbuf1 = NULL;
+    char *p_charbuf2 = NULL;
+    char *p_charbuf3 = NULL;
     char p_char[4];
     long long_buf1;
     unsigned int uint_buf1;
@@ -138,6 +142,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
     
     //create response struct
     t_work_result *response = (t_work_result *)malloc(sizeof(t_work_result));
+    assert(response);
     response->conn_id = request->conn_id;
     response->length = 0;
     
@@ -242,6 +247,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
         }
         //push settings to mpd_client queue
         t_work_request *mpd_client_request = (t_work_request *)malloc(sizeof(t_work_request));
+        assert(mpd_client_request);
         mpd_client_request->conn_id = -1;
         mpd_client_request->cmd_id = request->cmd_id;
         mpd_client_request->length = copy_string(mpd_client_request->data, request->data, 1000, request->length);
@@ -300,7 +306,7 @@ static bool mympd_api_read_syscmds(t_config *config, t_mympd_state *mympd_state)
     DIR *dir;
     struct dirent *ent;
     char dirname[400];
-    char *cmd;
+    char *cmd = NULL;
     long order;
 
     if (config->syscmds == true) {
@@ -331,10 +337,10 @@ static bool mympd_api_read_syscmds(t_config *config, t_mympd_state *mympd_state)
 }
 
 static int mympd_api_syscmd(t_config *config, t_mympd_state *mympd_state, char *buffer, const char *cmd) {
-    int len;
+    int len = 0;
     char filename[400];
     char *line = NULL;
-    char *crap;
+    char *crap = NULL;
     size_t n = 0;
     ssize_t read;
     
@@ -434,7 +440,7 @@ static bool state_file_rw_bool(t_config *config, const char *name, const bool de
 }
 
 static long state_file_rw_long(t_config *config, const char *name, const long def_value, bool warn) {
-    char *crap;
+    char *crap = NULL;
     long value = def_value;
     char def_value_str[65];
     snprintf(def_value_str, 65, "%ld", def_value);
@@ -551,7 +557,9 @@ static bool mympd_api_bookmark_update(t_config *config, const long id, const cha
     FILE *fi = fopen(b_file, "r");
     if (fi != NULL) {
         while ((read = getline(&line, &n, fi)) > 0) {
-            char *lname, *luri, *ltype;
+            char *lname = NULL;
+            char *luri = NULL;
+            char *ltype = NULL;
             long lid;
             int je = json_scanf(line, read, "{id: %ld, name: %Q, uri: %Q, type: %Q}", &lid, &lname, &luri, &ltype);
             if (je == 4) {
@@ -597,7 +605,7 @@ static int mympd_api_bookmark_list(t_config *config, char *buffer, unsigned int 
     size_t b_file_len = strlen(config->varlibdir) + 17;
     char b_file[b_file_len];
     char *line = NULL;
-    char *crap;
+    char *crap = NULL;
     size_t n = 0;
     ssize_t read;
     unsigned int entity_count = 0;

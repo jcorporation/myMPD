@@ -26,6 +26,7 @@
 #include <stdbool.h>
 #include <pthread.h>
 #include <signal.h>
+#include <assert.h>
 
 #include "list.h"
 #include "tiny_queue.h"
@@ -62,6 +63,7 @@ bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_da
     mg_user_data->feat_library = false;
     size_t pics_directory_len = config->varlibdir_len + 6;
     mg_user_data->pics_directory = malloc(pics_directory_len);
+    assert(mg_user_data->pics_directory);
     snprintf(mg_user_data->pics_directory, pics_directory_len, "%s/pics", config->varlibdir);
     //init monogoose mgr with mg_user_data
     mg_mgr_init(mgr, mg_user_data);
@@ -117,7 +119,7 @@ void *web_server_loop(void *arg_mgr) {
             if (response != NULL) {
                 if (response->conn_id == -1) {
                     //internal message
-                    char *p_charbuf;
+                    char *p_charbuf = NULL;
                     bool feat_library;
                     int je = json_scanf(response->data, response->length, "{music_directory: %Q, featLibrary: %B}", &p_charbuf, &feat_library);
                     if (je == 2) {
@@ -139,6 +141,7 @@ void *web_server_loop(void *arg_mgr) {
                             rewrite_patterns_len += strlen(mg_user_data->music_directory) + 11;
                         }
                         char *rewrite_patterns = malloc(rewrite_patterns_len);
+                        assert(rewrite_patterns);
                         if (feat_library == true) {
                             snprintf(rewrite_patterns, rewrite_patterns_len, "/pics/=%s,/library/=%s", mg_user_data->pics_directory, mg_user_data->music_directory);
                             LOG_DEBUG("Setting music_directory to %s", mg_user_data->music_directory);
@@ -345,7 +348,7 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data)
             size_t host_header_len = (int)host_hdr->len + 1;
             char host_header[host_header_len];
             snprintf(host_header, 1024, "%.*s", (int)host_hdr->len, host_hdr->p);
-            char *crap;
+            char *crap = NULL;
             char *host = strtok_r(host_header, ":", &crap);
             size_t s_redirect_len = strlen(host) + strlen(config->sslport) + 11;
             char s_redirect[s_redirect_len];
@@ -366,7 +369,7 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data)
 }
 
 static bool handle_api(long conn_id, const char *request_body, int request_len) {
-    char *cmd;
+    char *cmd = NULL;
     
     LOG_VERBOSE("API request (%ld): %.*s", conn_id, request_len, request_body);
     const int je = json_scanf(request_body, request_len, "{cmd: %Q}", &cmd);
@@ -380,6 +383,7 @@ static bool handle_api(long conn_id, const char *request_body, int request_len) 
     }
     
     t_work_request *request = (t_work_request*)malloc(sizeof(t_work_request));
+    assert(request);
     request->conn_id = conn_id;
     request->cmd_id = cmd_id;
     request->length = copy_string(request->data, request_body, 1000, request_len);

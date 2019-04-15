@@ -35,6 +35,7 @@
 #include <signal.h>
 #include <dlfcn.h>
 #include <mpd/client.h>
+#include <assert.h>
 
 #include "list.h"
 #include "tiny_queue.h"
@@ -55,7 +56,7 @@ static void mympd_signal_handler(int sig_num) {
 
 static int mympd_inihandler(void *user, const char *section, const char *name, const char* value) {
     t_config* p_config = (t_config*)user;
-    char *crap;
+    char *crap = NULL;
 
     #define MATCH(s, n) strcasecmp(section, s) == 0 && strcasecmp(name, n) == 0
 
@@ -188,7 +189,6 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
         LOG_WARN("Unkown config option: %s - %s", section, name);
         return 0;  
     }
-
     return 1;
 }
 
@@ -217,7 +217,8 @@ static void mympd_free_config(t_config *config) {
 }
 
 static void mympd_parse_env(struct t_config *config, const char *envvar) {
-    char *name, *section;
+    char *name = NULL;
+    char *section = NULL;
     const char *value = getenv(envvar);
     if (value != NULL) {
         char *var = strdup(envvar);
@@ -248,7 +249,7 @@ static void mympd_get_env(struct t_config *config) {
 }
 
 static bool init_plugins(struct t_config *config) {
-    char *error;
+    char *error = NULL;
     handle_plugins_coverextract = NULL;
     if (config->plugins_coverextract == true) {
         LOG_INFO("Loading plugin %s", config->plugins_coverextractlib);
@@ -287,11 +288,13 @@ int main(int argc, char **argv) {
     web_server_queue = tiny_queue_create();
 
     t_mg_user_data *mg_user_data = (t_mg_user_data *)malloc(sizeof(t_mg_user_data));
+    assert(mg_user_data);
 
     srand((unsigned int)time(NULL));
     
     //mympd config defaults
     t_config *config = (t_config *)malloc(sizeof(t_config));
+    assert(config);
     config->mpdhost = strdup("127.0.0.1");
     config->mpdport = 6600;
     config->mpdpass = NULL;

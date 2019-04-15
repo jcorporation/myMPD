@@ -224,7 +224,7 @@ function appRoute() {
     appPrepare(app.current.scrollPos);
 
     if (app.current.app == 'Playback') {
-        sendAPI({"cmd": "MPD_API_PLAYER_CURRENT_SONG", "data": {"cols": settings.colsPlayback}}, songChange);
+        sendAPI({"cmd": "MPD_API_PLAYER_CURRENT_SONG"}, songChange);
     }    
     else if (app.current.app == 'Queue' && app.current.tab == 'Current' ) {
         selectTag('searchqueuetags', 'searchqueuetagsdesc', app.current.filter);
@@ -1805,7 +1805,7 @@ function parseState(obj) {
     if (!lastState || lastState.data.currentSongId != obj.data.currentSongId ||
         lastState.data.queueVersion != obj.data.queueVersion)
     {
-        sendAPI({"cmd": "MPD_API_PLAYER_CURRENT_SONG", "data": {"cols": settings.colsPlayback}}, songChange);
+        sendAPI({"cmd": "MPD_API_PLAYER_CURRENT_SONG"}, songChange);
     }
     //clear playback card if not playing
     if (obj.data.songPos == '-1') {
@@ -3345,8 +3345,10 @@ function songChange(obj) {
 
     for (var i = 0; i < settings.colsPlayback.length; i++) {
         var c = document.getElementById('current' + settings.colsPlayback[i]);
-        c.getElementsByTagName('h4')[0].innerText = obj.data[settings.colsPlayback[i]];
-        c.setAttribute('data-name', encodeURI(obj.data[settings.colsPlayback[i]]));
+        if (c) {
+            c.getElementsByTagName('h4')[0].innerText = obj.data[settings.colsPlayback[i]];
+            c.setAttribute('data-name', encodeURI(obj.data[settings.colsPlayback[i]]));
+        }
     }
     
     //Update Artist in queue view for http streams
