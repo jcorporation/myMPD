@@ -224,6 +224,11 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
         }
         je = json_scanf(request->data, request->length, "{data: {jukeboxMode: %d}}", &mympd_state->jukeboxMode);
         if (je == 1) {
+            if (mympd_state->jukeboxMode > 2) {
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Invalid jukeboxMode.\"}");
+                LOG_ERROR("Invalid jukeboxMode");
+                mympd_state->jukeboxMode = JUKEBOX_OFF;
+            }
             snprintf(p_char, 4, "%d", mympd_state->jukeboxMode);
             if (!state_file_write(config, "jukeboxMode", p_char))
                 response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state jukeboxMode.\"}");
@@ -238,9 +243,14 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
         }
         je = json_scanf(request->data, request->length, "{data: {jukeboxQueueLength: %d}}", &mympd_state->jukeboxQueueLength);
         if (je == 1) {
-           snprintf(p_char, 4, "%d", mympd_state->jukeboxQueueLength);
-           if (!state_file_write(config, "jukeboxQueueLength", p_char))
-               response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state jukeboxQueueLength.\"}");
+            if (mympd_state->jukeboxQueueLength > 999) {
+                LOG_ERROR("jukeboxQueueLength to big, setting it to maximum value of 999");
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"jukeboxQueueLength to big, setting it to maximum value of 999\"}");
+                mympd_state->jukeboxQueueLength = 999;
+            }
+            snprintf(p_char, 4, "%d", mympd_state->jukeboxQueueLength);
+            if (!state_file_write(config, "jukeboxQueueLength", p_char))
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state jukeboxQueueLength.\"}");
         }
         if (response->length == 0) {
             response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");

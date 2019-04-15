@@ -1555,7 +1555,7 @@ static bool mpd_client_count_song_uri(t_mpd_state *mpd_state, const char *uri, c
     struct mpd_pair *pair;
     char *crap = NULL;
     int old_value = 0;
-    char v[4];
+    char v[10];
     
     if (mpd_send_sticker_list(mpd_state->conn, "song", uri)) {
         while ((pair = mpd_recv_sticker(mpd_state->conn)) != NULL) {
@@ -1569,8 +1569,8 @@ static bool mpd_client_count_song_uri(t_mpd_state *mpd_state, const char *uri, c
         return false;
     }
     old_value += value;
-    if (old_value > 999) {
-        old_value = 999;
+    if (old_value > 999999999) {
+        old_value = 999999999;
     }
     else if (old_value < 0) {
         old_value = 0;
@@ -1685,10 +1685,11 @@ static bool mpd_client_last_played_song_uri(t_mpd_state *mpd_state, const char *
         return false;
     }
     char v[20];
-    snprintf(v, 20, "%lu", time(NULL));
+    time_t seconds = time(NULL);
+    snprintf(v, 20, "%ld", seconds);
     LOG_VERBOSE("Setting sticker: \"%s\" -> lastPlayed: %s", uri, v);
     if (!mpd_run_sticker_set(mpd_state->conn, "song", uri, "lastPlayed", v)) {
-        LOG_ERROR_AND_RECOVER("mpd_send_sticker_set");
+        LOG_ERROR_AND_RECOVER("mpd_run_sticker_set");
         return false;
     }
     return true;

@@ -38,8 +38,8 @@
 #define DOC_ROOT "${ASSETS_PATH}"
 
 //Max size of mpd_client response buffer
-#define MAX_SIZE 2048 * 400
 #define MAX_ELEMENTS_PER_PAGE 400
+#define MAX_SIZE 2048 * MAX_ELEMENTS_PER_PAGE
 
 //central logging definition
 #cmakedefine DEBUG
