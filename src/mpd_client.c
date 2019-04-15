@@ -309,6 +309,9 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
         case MYMPD_API_SETTINGS_SET:
             //only update mpd_state, already saved in mympd_api.c
             je = json_scanf(request->data, request->length, "{data: {jukeboxMode: %d}}", &mpd_state->jukeboxMode);
+            if (je == 1 && mpd_state->jukeboxMode > 2) {
+                mpd_state->jukeboxMode = JUKEBOX_OFF;
+            }
             je = json_scanf(request->data, request->length, "{data: {jukeboxPlaylist: %Q}}", &p_charbuf1);
             if (je == 1) {
                 FREE_PTR(mpd_state->jukeboxPlaylist);
@@ -316,6 +319,9 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
                 p_charbuf1 = NULL;
             }
             je = json_scanf(request->data, request->length, "{data: {jukeboxQueueLength: %d}}", &mpd_state->jukeboxQueueLength);
+            if (je == 1 && mpd_state->jukeboxQueueLength > 999) {
+                mpd_state->jukeboxQueueLength = 999;
+            }
             je = json_scanf(request->data, request->length, "{data: {autoPlay: %B}}", &mpd_state->autoPlay);
             //set mpd options
             je = json_scanf(request->data, request->length, "{data: {random: %u}}", &uint_buf1);
