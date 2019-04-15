@@ -31,6 +31,7 @@
 #include <pthread.h>
 #include <signal.h>
 #include <stdarg.h>
+#include <mpd/client.h>
 
 #include "tiny_queue.h"
 #include "list.h"
@@ -119,7 +120,7 @@ void mympd_log(int level, const char *file, int line, const char *fmt, ...) {
         return;
     }
     
-    size_t max_out = 1021;
+    size_t max_out = 1024;
     char out[max_out];
     size_t len = 0;
     
@@ -129,12 +130,16 @@ void mympd_log(int level, const char *file, int line, const char *fmt, ...) {
     }
     va_list args;
     va_start(args, fmt);
-    len += vsnprintf(out + len, max_out - len, fmt, args);
-    va_end(args);
-    fprintf(stderr, "%s", out);
-    if (len > max_out) {
-        fprintf(stderr, "...");
+    if (len < max_out - 2) {
+        len += vsnprintf(out + len, max_out - len, fmt, args);
     }
-    fprintf(stderr, "\n");
+    va_end(args);
+    if (len < max_out - 2) {
+        snprintf(out + len, max_out -len, "\n");
+    }
+    else {
+        snprintf(out + max_out - 5, 5, "...\n");
+    }
+    fprintf(stderr, "%s", out);
     fflush(stderr);
 }
