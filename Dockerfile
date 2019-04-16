@@ -1,6 +1,6 @@
 FROM library/debian:9 as build
 RUN apt-get update
-RUN apt-get install git meson ninja-build gcc cpp cmake libssl-dev libmediainfo-dev -y
+RUN apt-get install build-essential git meson ninja-build gcc cpp cmake libssl-dev libmediainfo-dev -y
 RUN apt-get install openjdk-8-jre-headless perl -y
 ENV LANG=C.UTF-8
 ENV LC_ALL=C.UTF-8
