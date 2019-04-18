@@ -2045,10 +2045,10 @@ static int mpd_client_get_cover(t_config *config, t_mpd_state *mpd_state, const 
         snprintf(cover, cover_len, "%s/pics/%s.png", config->varlibdir, name);
         LOG_DEBUG("Check for cover %s", cover);
         if (access(cover, F_OK ) == -1 ) {
-            len = snprintf(cover, cover_len, "/assets/coverimage-httpstream.png");
+            len = snprintf(cover, cover_len, "/assets/coverimage-stream.png");
         }
         else {
-            len = snprintf(cover, cover_len, "/pics/%s.png", path);
+            len = snprintf(cover, cover_len, "/pics/%s.png", name);
         }
     }
     else {

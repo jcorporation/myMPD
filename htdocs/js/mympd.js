@@ -2603,7 +2603,7 @@ function setVoteSongBtns(vote, uri) {
     domCache.btnVoteDown2 = document.getElementById('btnVoteDown2');
     
 
-    if (uri == '' || uri.indexOf('http://') == 0 || uri.indexOf('https://') == 0) {
+    if (uri == '' || uri.indexOf('://') > -1) {
         domCache.btnVoteUp.setAttribute('disabled', 'disabled');
         domCache.btnVoteDown.setAttribute('disabled', 'disabled');
         if (domCache.btnVoteUp2) {
