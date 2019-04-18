@@ -1342,7 +1342,7 @@ function parseSettings() {
     }
     
     if (settings.mpdhost.indexOf('/') != 0) {
-        document.getElementById('mpdHost').innerText = settings.mpdhost + ':' + settings.mpdport;
+        document.getElementById('mpdInfo_host').innerText = settings.mpdhost + ':' + settings.mpdport;
     }
     else {
         document.getElementById('mpdInfo_host').innerText = settings.mpdhost;
