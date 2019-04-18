@@ -301,8 +301,8 @@ int main(int argc, char **argv) {
     config->webport = strdup("80");
     config->ssl = true;
     config->sslport = strdup("443");
-    config->sslcert = strdup("/etc/mympd/ssl/server.pem");
-    config->sslkey = strdup("/etc/mympd/ssl/server.key");
+    config->sslcert = strdup("/var/lib/mympd/ssl/server.pem");
+    config->sslkey = strdup("/var/lib/mympd/ssl/server.key");
     config->user = strdup("mympd");
     config->streamport = 8000;
     config->streamurl = strdup("");

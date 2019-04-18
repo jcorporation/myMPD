@@ -22,8 +22,8 @@ webport = 80
 #Enable ssl
 ssl = true
 sslport = 443
-sslcert = /etc/mympd/ssl/server.pem
-sslkey = /etc/mympd/ssl/server.key
+sslcert = /var/lib/mympd/ssl/server.pem
+sslkey = /var/lib/mympd/ssl/server.key
 
 
 [mympd]

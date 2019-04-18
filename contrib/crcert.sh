@@ -1,14 +1,14 @@
 #!/bin/sh
 
-if [ -d /etc/mympd/ssl ]
+if [ -d /var/lib/mympd/ssl ]
 then
-  echo "SSL directory exists, to recreate certificates: \"rm -r /etc/mympd/ssl\""
+  echo "SSL directory exists, to recreate certificates: \"rm -r /var/lib/mympd/ssl\""
   exit 0
 fi
 
-mkdir -p /etc/mympd/ssl/ca/certs
-chmod 700 /etc/mympd/ssl
-cd /etc/mympd/ssl/ca
+mkdir -p /var/lib/mympd/ssl/ca/certs
+chmod 700 /var/lib/mympd/ssl
+cd /var/lib/mympd/ssl/ca
 
 echo '01' > serial
 touch index.txt
@@ -33,10 +33,10 @@ basicConstraints = CA:true
 default_ca = mympd_ca
 
 [mympd_ca]
-dir = /etc/mympd/ssl/ca
-database = /etc/mympd/ssl/ca/index.txt
-new_certs_dir = /etc/mympd/ssl/ca/certs/
-serial = /etc/mympd/ssl/ca/serial
+dir = /var/lib/mympd/ssl/ca
+database = /var/lib/mympd/ssl/ca/index.txt
+new_certs_dir = /var/lib/mympd/ssl/ca/certs/
+serial = /var/lib/mympd/ssl/ca/serial
 copy_extensions = copy
 policy = local_ca_policy
 x509_extensions = local_ca_extensions
@@ -58,7 +58,7 @@ HOSTNAME=$(hostname)
 FQDN=$(hostname -f)
 IP=$(getent hosts $HOSTNAME | awk {'print $1'})
 
-cd /etc/mympd/ssl
+cd /var/lib/mympd/ssl
 echo "Creating cert:"
 echo "\t$HOSTNAME"
 echo "\t$FQDN"
@@ -100,4 +100,4 @@ rm server.csr
 rm ca/ca.cnf
 rm req.cnf
 
-chown -R mympd.mympd /etc/mympd/
+chown -R mympd.mympd /var/lib/mympd/

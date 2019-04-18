@@ -78,7 +78,7 @@ bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_da
         nc_http = mg_bind_opt(mgr, config->webport, ev_handler, bind_opts_http);
     }
     if (nc_http == NULL) {
-        printf("Error listening on port %s", config->webport);
+        LOG_ERROR("Can't bind to port %s: %s", config->webport, err_http);
         mg_mgr_free(mgr);
         return false;
     }
@@ -93,7 +93,7 @@ bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_da
         bind_opts_https.ssl_key = config->sslkey;
         nc_https = mg_bind_opt(mgr, config->sslport, ev_handler, bind_opts_https);
         if (nc_https == NULL) {
-            printf("Error listening on port %s: %s", config->sslport, err_https);
+            LOG_ERROR("Can't bind to port %s: %s", config->sslport, err_https);
             mg_mgr_free(mgr);
             return false;
         } 
