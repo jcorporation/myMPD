@@ -2349,7 +2349,7 @@ function parseListTitles(obj) {
     cardHeader.classList.add('clickable');
     var img = card.getElementsByTagName('a')[0];
     if (img) {
-        img.style.backgroundImage = 'url("' + subdir + obj.cover + '")';
+        img.style.backgroundImage = 'url("' + subdir + obj.data.cover + '"), url("' + subdir + '/assets/coverimage-loading.png")';
         img.setAttribute('data-uri', encodeURI(obj.data[0].uri.replace(/\/[^\/]+$/, '')));
         img.setAttribute('data-name', obj.Album);
         img.setAttribute('data-type', 'dir');
@@ -2492,7 +2492,7 @@ function songDetails(uri) {
 
 function parseSongDetails(obj) {
     var modal = document.getElementById('modalSongDetails');
-    modal.getElementsByClassName('album-cover')[0].style.backgroundImage = 'url("' + subdir + obj.data.cover + '")';
+    modal.getElementsByClassName('album-cover')[0].style.backgroundImage = 'url("' + subdir + obj.data.cover + '"), url("' + subdir + '/assets/coverimage-loading.png")';
     modal.getElementsByTagName('h1')[0].innerText = obj.data.Title;
     
     var songDetails = '';
@@ -3378,7 +3378,7 @@ function songChange(obj) {
     var htmlNotification = '';
     var pageTitle = 'myMPD: ';
 
-    domCache.currentCover.style.backgroundImage = 'url("' + subdir + obj.data.cover + '")';
+    domCache.currentCover.style.backgroundImage = 'url("' + subdir + obj.data.cover + '"), url("' + subdir + '/assets/coverimage-loading.png")';
     if (settings.background == 'cover') {
         if (obj.data.cover.indexOf('coverimage-') > -1 ) {
             document.documentElement.style.setProperty('--mympd-backgroundimage', 'url("")');        
