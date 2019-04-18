@@ -1365,7 +1365,7 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
 
             if (mpd_connection_get_error(mpd_state->conn) != MPD_ERROR_SUCCESS) {
                 LOG_ERROR("MPD connection: %s", mpd_connection_get_error_message(mpd_state->conn));
-                len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"%s\"}", mpd_connection_get_error_message(mpd_state->conn));
+                len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"MPD connection error: %s\"}", mpd_connection_get_error_message(mpd_state->conn));
                 mpd_client_notify(buffer, len);
                 mpd_state->conn_state = MPD_FAILURE;
                 sleep(3);
@@ -1374,7 +1374,7 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
 
             if (config->mpdpass && !mpd_run_password(mpd_state->conn, config->mpdpass)) {
                 LOG_ERROR("MPD connection: %s", mpd_connection_get_error_message(mpd_state->conn));
-                len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"%s\"}", mpd_connection_get_error_message(mpd_state->conn));
+                len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"MPD connection error: %s\"}", mpd_connection_get_error_message(mpd_state->conn));
                 mpd_client_notify(buffer, len);
                 mpd_state->conn_state = MPD_FAILURE;
                 return;
@@ -1951,7 +1951,7 @@ static int mpd_client_put_settings(t_mpd_state *mpd_state, char *buffer) {
     len = json_printf(&out, "{type: settings, data: {"
         "repeat: %d, single: %d, crossfade: %d, consume: %d, random: %d, "
         "mixrampdb: %f, mixrampdelay: %f, replaygain: %Q, featPlaylists: %B, featTags: %B, featLibrary: %B, "
-        "featAdvsearch: %B, featStickers: %B, featSmartpls: %B, featLove: %B, featCoverimage: %B, tags: [", 
+        "featAdvsearch: %B, featStickers: %B, featSmartpls: %B, featLove: %B, featCoverimage: %B, mpdConnected: %B, tags: [", 
         mpd_status_get_repeat(status),
         mpd_status_get_single(status),
         mpd_status_get_crossfade(status),
@@ -1967,7 +1967,8 @@ static int mpd_client_put_settings(t_mpd_state *mpd_state, char *buffer) {
         mpd_state->feat_sticker,
         mpd_state->feat_smartpls,
         mpd_state->feat_love,
-        mpd_state->feat_coverimage
+        mpd_state->feat_coverimage,
+        true
     );
     mpd_status_free(status);
     FREE_PTR(replaygain);

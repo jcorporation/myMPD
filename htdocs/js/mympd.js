@@ -415,7 +415,8 @@ function appInitStart() {
     document.getElementsByTagName('header')[0].classList.add('hide');
     document.getElementsByTagName('main')[0].classList.add('hide');
     document.getElementsByTagName('footer')[0].classList.add('hide');
-    initState('appInitSettings', 'load');
+    initState('appInitMPDSettings', 'load');
+    initState('appInitMyMPDSettings', 'load');
     initState('appInitWebsocket', 'blank');
     initState('appInitApply', 'blank');
     var a = document.getElementById('modalAppInitAlert');
@@ -444,7 +445,6 @@ function appInitWait() {
         
         if (settingsParsed == 'true') {
             //parsed settings, now its save to connect to websocket
-            initState('appInitSettings', 'ok');
             initState('appInitWebsocket', 'load');
             webSocketConnect();
         }
@@ -1131,6 +1131,31 @@ function playlistMoveTrack(from, to) {
     sendAPI({"cmd": "MPD_API_PLAYLIST_MOVE_TRACK","data": { "plist": app.current.search, "from": from, "to": to}});
 }
 
+function setElsState(tag, state) {
+    var els = document.getElementsByTagName(tag);
+    var elsLen = els.length;
+    for (var i = 0; i< elsLen; i++) {
+        if (state == 'disabled') {
+            if (!els[i].classList.contains('alwaysEnabled')) {
+                els[i].setAttribute('disabled', 'disabled');
+                els[i].classList.add('disabled');
+            }
+        }
+        else {
+            if (els[i].classList.contains('disabled')) {
+                els[i].removeAttribute('disabled');
+                els[i].classList.remove('disabled');
+            }
+        }
+    }
+}
+
+function toggleUI(state) {
+    setElsState('a', state);
+    setElsState('input', state);
+    setElsState('button', state);
+}
+
 function webSocketConnect() {
     var wsUrl = getWsUrl();
     socket = new WebSocket(wsUrl);
@@ -1154,6 +1179,7 @@ function webSocketConnect() {
                     toggleAlert('alertMympdState', false, '');
                     appRoute();
                     sendAPI({"cmd": "MPD_API_PLAYER_STATE"}, parseState);
+                    toggleUI('enabled');
                     break;
                 case 'update_state':
                     parseState(obj);
@@ -1163,11 +1189,14 @@ function webSocketConnect() {
                     if (progressTimer) {
                         clearTimeout(progressTimer);
                     }
+                    toggleUI('disabled');
                     break;
                 case 'mpd_connected':
                     showNotification('Connected to MPD', '', '', 'success');
                     toggleAlert('alertMpdState', false, '');
                     sendAPI({"cmd": "MPD_API_PLAYER_STATE"}, parseState);
+                    getSettings(true);
+                    toggleUI('enabled');
                     break;
                 case 'update_queue':
                     if (app.current.app === 'Queue') {
@@ -1200,7 +1229,9 @@ function webSocketConnect() {
                     }
                     break;
                 case 'error':
-                    showNotification(obj.data, '', '', 'danger');
+                    if (document.getElementById('alertMpdState').classList.contains('hide')) {
+                        showNotification(obj.data, '', '', 'danger');
+                    }
                     break;
                 default:
                     break;
@@ -1210,8 +1241,8 @@ function webSocketConnect() {
         socket.onclose = function(){
             console.log('Websocket is disconnected');
             if (appInited == true) {
-                //Show modal only if websocket was already connected before
                 toggleAlert('alertMympdState', true, 'Websocket connection failed.');
+                toggleUI('disabled');
                 if (progressTimer) {
                     clearTimeout(progressTimer);
                 }
@@ -1297,6 +1328,128 @@ function filterCols(x) {
 }
 
 function parseSettings() {
+    if (settings.mpdConnected) {
+        parseMPDSettings();
+    }
+    else {
+        toggleAlert('alertMpdState', true, 'Connection to MPD failed.');
+    }
+
+    var btnnotifyWeb = document.getElementById('btnnotifyWeb');
+    if (notificationsSupported()) {
+        if (settings.notificationWeb) {
+            toggleBtn('btnnotifyWeb', settings.notificationWeb);
+            Notification.requestPermission(function (permission) {
+                if (!('permission' in Notification)) {
+                    Notification.permission = permission;
+                }
+                if (permission === 'granted') {
+                    toggleBtn('btnnotifyWeb', 1);
+                } 
+                else {
+                    toggleBtn('btnnotifyWeb', 0);
+                    settings.notificationWeb = true;
+                }
+            });         
+        }
+        else {
+            toggleBtn('btnnotifyWeb', 0);
+        }
+    }
+    else {
+        btnnotifyWeb.setAttribute('disabled', 'disabled');
+        toggleBtn('btnnotifyWeb', 0);
+    }
+    
+    toggleBtn('btnnotifyPage', settings.notificationPage);
+
+    document.documentElement.style.setProperty('--mympd-coverimagesize', settings.coverimagesize + "px");
+    if (settings.background != 'cover') {
+        document.documentElement.style.setProperty('--mympd-backgroundcolor', settings.background);
+    }
+    else {
+        document.documentElement.style.setProperty('--mympd-backgroundfilter', settings.backgroundFilter);
+    }
+    
+    var features = ["featLocalplayer", "featSyscmds"];
+    for (var j = 0; j < features.length; j++) {
+        var Els = document.getElementsByClassName(features[j]);
+        var ElsLen = Els.length;
+        var displayEl = settings[features[j]] == true ? '' : 'none';
+        for (var i = 0; i < ElsLen; i++) {
+            Els[i].style.display = displayEl;
+        }
+    }
+
+    if (settings.featSyscmds) {
+//        var mainMenuDropdown = document.getElementById('mainMenuDropdown');
+        var syscmdsList = '';
+        var syscmdsListLen = settings.syscmdList.length;
+        if (syscmdsListLen > 0) {
+            syscmdsList = '<div class="dropdown-divider"></div>';
+            for (var i = 0; i < syscmdsListLen; i++) {
+                if (settings.syscmdList[i] == 'HR') {
+                    syscmdsList += '<div class="dropdown-divider"></div>';
+                }
+                else {
+                    syscmdsList += '<a class="dropdown-item text-light bg-dark alwaysEnabled" href="#" data-href=\'{"cmd": "execSyscmd", "options": ["' + 
+                        settings.syscmdList[i] + '"]}\'>' + settings.syscmdList[i] + '</a>';
+                }
+            }
+        }
+        document.getElementById('syscmds').innerHTML = syscmdsList;
+    }
+    else {
+        document.getElementById('syscmds').innerHTML = '';
+    }
+
+    dropdownMainMenu = new Dropdown(document.getElementById('mainMenu'));
+    
+    document.getElementById('selectJukeboxMode').value = settings.jukeboxMode;
+    document.getElementById('inputJukeboxQueueLength').value = settings.jukeboxQueueLength;
+    
+    if (settings.jukeboxMode == 0 || settings.jukeboxMode == 2) {
+        document.getElementById('inputJukeboxQueueLength').setAttribute('disabled', 'disabled');
+        document.getElementById('selectJukeboxPlaylist').setAttribute('disabled', 'disabled');
+    }
+    else if (settings.jukeboxMode == 1) {
+        document.getElementById('inputJukeboxQueueLength').removeAttribute('disabled');
+        document.getElementById('selectJukeboxPlaylist').removeAttribute('disabled');
+    }
+
+    if (settings.featLocalplayer) {
+        if (settings.streamurl == '') {
+            settings.mpdstream = 'http://';
+            if (settings.mpdhost == '127.0.0.1' || settings.mpdhost == 'localhost') {
+                settings.mpdstream += window.location.hostname;
+            }
+            else {
+                settings.mpdstream += settings.mpdhost;
+            }
+            settings.mpdstream += ':' + settings.streamport + '/';
+        } 
+        else {
+            settings.mpdstream = settings.streamurl;
+        }
+    }
+
+    if (app.current.app == 'Queue' && app.current.tab == 'Current')
+        getQueue();
+    else if (app.current.app == 'Queue' && app.current.tab == 'LastPlayed')
+        appRoute();
+    else if (app.current.app == 'Search')
+        appRoute();
+    else if (app.current.app == 'Browse' && app.current.tab == 'Filesystem')
+        appRoute();
+    else if (app.current.app == 'Browse' && app.current.tab == 'Playlists' && app.current.view == 'Detail')
+        appRoute();
+    else if (app.current.app == 'Browse' && app.current.tab == 'Database' && app.current.search != '')
+        appRoute();
+
+    settingsParsed = 'true';
+}
+
+function parseMPDSettings() {
     toggleBtn('btnRandom', settings.random);
     toggleBtn('btnConsume', settings.consume);
     toggleBtn('btnSingle', settings.single);
@@ -1327,45 +1480,8 @@ function parseSettings() {
 
     document.getElementById('selectReplaygain').value = settings.replaygain;
 
-    var btnnotifyWeb = document.getElementById('btnnotifyWeb');
-    if (notificationsSupported()) {
-        if (settings.notificationWeb) {
-            toggleBtn('btnnotifyWeb', settings.notificationWeb);
-            Notification.requestPermission(function (permission) {
-                if (!('permission' in Notification)) {
-                    Notification.permission = permission;
-                }
-                if (permission === 'granted') {
-                    toggleBtn('btnnotifyWeb', 1);
-                } 
-                else {
-                    toggleBtn('btnnotifyWeb', 0);
-                    settings.notificationWeb = true;
-                }
-            });         
-        }
-        else {
-            toggleBtn('btnnotifyWeb', 0);
-        }
-    }
-    else {
-        btnnotifyWeb.setAttribute('disabled', 'disabled');
-        toggleBtn('btnnotifyWeb', 0);
-    }
-    
-    toggleBtn('btnnotifyPage', settings.notificationPage);
-
-    var features = ["featStickers", "featSmartpls", "featPlaylists", "featTags", "featLocalplayer", "featSyscmds", "featCoverimage", "featAdvsearch",
+    var features = ["featStickers", "featSmartpls", "featPlaylists", "featTags", "featCoverimage", "featAdvsearch",
         "featLove"];
-
-    document.documentElement.style.setProperty('--mympd-coverimagesize', settings.coverimagesize + "px");
-    if (settings.background != 'cover') {
-        document.documentElement.style.setProperty('--mympd-backgroundcolor', settings.background);
-    }
-    else {
-        document.documentElement.style.setProperty('--mympd-backgroundfilter', settings.backgroundFilter);
-    }
-    
     for (var j = 0; j < features.length; j++) {
         var Els = document.getElementsByClassName(features[j]);
         var ElsLen = Els.length;
@@ -1414,17 +1530,6 @@ function parseSettings() {
         app.apps.Search.state = '0/any/Title/';
     }
     
-    document.getElementById('selectJukeboxMode').value = settings.jukeboxMode;
-    document.getElementById('inputJukeboxQueueLength').value = settings.jukeboxQueueLength;
-    if (settings.jukeboxMode == 0 || settings.jukeboxMode == 2) {
-        document.getElementById('inputJukeboxQueueLength').setAttribute('disabled', 'disabled');
-        document.getElementById('selectJukeboxPlaylist').setAttribute('disabled', 'disabled');
-    }
-    else if (settings.jukeboxMode == 1) {
-        document.getElementById('inputJukeboxQueueLength').removeAttribute('disabled');
-        document.getElementById('selectJukeboxPlaylist').removeAttribute('disabled');
-    }
-
     if (settings.featPlaylists) {
         playlistEl = 'selectJukeboxPlaylist';
         sendAPI({"cmd": "MPD_API_PLAYLIST_LIST", "data": {"offset": 0, "filter": "-"}}, getAllPlaylists);
@@ -1443,51 +1548,6 @@ function parseSettings() {
     filterCols('colsBrowseFilesystem');
     filterCols('colsBrowseDatabase');
     filterCols('colsPlayback');
-
-    if (settings.featLocalplayer) {
-        if (settings.streamurl == '') {
-            settings.mpdstream = 'http://';
-            if (settings.mpdhost == '127.0.0.1' || settings.mpdhost == 'localhost') {
-                settings.mpdstream += window.location.hostname;
-            }
-            else {
-                settings.mpdstream += settings.mpdhost;
-            }
-            settings.mpdstream += ':' + settings.streamport + '/';
-        } 
-        else
-            settings.mpdstream = settings.streamurl;
-    }
-    
-    addTagList('BrowseDatabaseByTagDropdown', 'browsetags');
-    addTagList('searchqueuetags', 'searchtags');
-    addTagList('searchtags', 'searchtags');
-    
-    for (var i = 0; i < settings.tags.length; i++)
-        app.apps.Browse.tabs.Database.views[settings.tags[i]] = { "state": "0/-/-/", "scrollPos": 0 };
-
-    if (settings.featSyscmds) {
-        var mainMenuDropdown = document.getElementById('mainMenuDropdown');
-        var syscmdsList = '';
-        var syscmdsListLen = settings.syscmdList.length;
-        if (syscmdsListLen > 0) {
-            syscmdsList = '<div class="dropdown-divider"></div>';
-            for (var i = 0; i < syscmdsListLen; i++) {
-                if (settings.syscmdList[i] == 'HR') {
-                    syscmdsList += '<div class="dropdown-divider"></div>';
-                }
-                else {
-                    syscmdsList += '<a class="dropdown-item text-light bg-dark" href="#" data-href=\'{"cmd": "execSyscmd", "options": ["' + 
-                        settings.syscmdList[i] + '"]}\'>' + settings.syscmdList[i] + '</a>';
-                }
-            }
-        }
-        document.getElementById('syscmds').innerHTML = syscmdsList;
-    }
-    else {
-        document.getElementById('syscmds').innerHTML = '';
-    }
-    dropdownMainMenu = new Dropdown(document.getElementById('mainMenu'));
     
     setCols('QueueCurrent');
     setCols('Search');
@@ -1496,20 +1556,14 @@ function parseSettings() {
     setCols('BrowsePlaylistsDetail');
     setCols('BrowseDatabase', '.tblAlbumTitles');
     setCols('Playback');
-    if (app.current.app == 'Queue' && app.current.tab == 'Current')
-        getQueue();
-    else if (app.current.app == 'Queue' && app.current.tab == 'LastPlayed')
-        appRoute();
-    else if (app.current.app == 'Search')
-        appRoute();
-    else if (app.current.app == 'Browse' && app.current.tab == 'Filesystem')
-        appRoute();
-    else if (app.current.app == 'Browse' && app.current.tab == 'Playlists' && app.current.view == 'Detail')
-        appRoute();
-    else if (app.current.app == 'Browse' && app.current.tab == 'Database' && app.current.search != '')
-        appRoute();
 
-    settingsParsed = 'true';
+    addTagList('BrowseDatabaseByTagDropdown', 'browsetags');
+    addTagList('searchqueuetags', 'searchtags');
+    addTagList('searchtags', 'searchtags');
+    
+    for (var i = 0; i < settings.tags.length; i++) {
+        app.apps.Browse.tabs.Database.views[settings.tags[i]] = { "state": "0/-/-/", "scrollPos": 0 };
+    }
 }
 
 function setCols(table, className) {
@@ -1555,7 +1609,6 @@ function setCols(table, className) {
             }
         }
     }
-        
     
     if (table != 'Playback') {
         var heading = '';
@@ -1599,10 +1652,12 @@ function getMpdSettings(obj) {
     if (obj == '' || obj.type == 'error') {
         settingsParsed = 'error';
         if (appInited == false) {
+            initState('appInitMyMPDSettings', 'error');
             showAppInitAlert(obj == '' ? 'Can not parse settings' : obj.data);
         }
         return false;
     }
+    initState('appInitMyMPDSettings', 'ok');
     settingsNew = obj.data;
     sendAPI({"cmd": "MPD_API_SETTINGS_GET"}, joinSettings, true);
 }
@@ -1611,12 +1666,15 @@ function joinSettings(obj) {
     if (obj == '' || obj.type == 'error') {
         settingsParsed = 'error';
         if (appInited == false) {
+            initState('appInitMPDSettings', 'error');
             showAppInitAlert(obj == '' ? 'Can not parse settings' : obj.data);
-        } 
-        return false;
+        }
     }
-    for (var key in obj.data) {
-        settingsNew[key] = obj.data[key];
+    else {
+        for (var key in obj.data) {
+            settingsNew[key] = obj.data[key];
+        }
+        initState('appInitMPDSettings', 'ok');
     }
     settings = Object.assign({}, settingsNew);
     settingsLock = false;
