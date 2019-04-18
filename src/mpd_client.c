@@ -1581,7 +1581,7 @@ static bool mpd_client_count_song_uri(t_mpd_state *mpd_state, const char *uri, c
     else if (old_value < 0) {
         old_value = 0;
     }
-    snprintf(v, 4, "%d", old_value);
+    snprintf(v, 10, "%d", old_value);
     LOG_VERBOSE("Setting sticker: \"%s\" -> %s: %s", uri, name, v);
     if (!mpd_run_sticker_set(mpd_state->conn, "song", uri, name, v)) {
         LOG_ERROR_AND_RECOVER("mpd_send_sticker_set");
@@ -1594,14 +1594,14 @@ static bool mpd_client_like_song_uri(t_mpd_state *mpd_state, const char *uri, in
     if (uri == NULL || strstr(uri, "://") != NULL) {
         return false;
     }
-    char v[2];
+    char v[10];
     if (value > 2) {
         value = 2;
     }
     else if (value < 0) {
         value = 0;
     }
-    snprintf(v, 2, "%d", value);
+    snprintf(v, 10, "%d", value);
     LOG_VERBOSE("Setting sticker: \"%s\" -> like: %s", uri, v);
     if (!mpd_run_sticker_set(mpd_state->conn, "song", uri, "like", v)) {
         LOG_ERROR_AND_RECOVER("mpd_send_sticker_set");
