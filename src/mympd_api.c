@@ -33,6 +33,7 @@
 #include <stdbool.h>
 #include <pthread.h>
 #include <signal.h>
+#include <assert.h>
 
 #include "list.h"
 #include "tiny_queue.h"
@@ -89,13 +90,16 @@ void *mympd_api_loop(void *arg_config) {
 
     //push jukebox settings to mpd_client queue
     t_work_request *mpd_client_request = (t_work_request *)malloc(sizeof(t_work_request));
+    assert(mpd_client_request);
     mpd_client_request->conn_id = -1;
     mpd_client_request->cmd_id = MYMPD_API_SETTINGS_SET;
     mpd_client_request->length = snprintf(mpd_client_request->data, 1000, 
-        "{\"cmd\":\"MYMPD_API_SETTINGS_SET\", \"data\":{\"jukeboxMode\": %d, \"jukeboxPlaylist\": \"%s\", \"jukeboxQueueLength\": %d}}",
+        "{\"cmd\":\"MYMPD_API_SETTINGS_SET\", \"data\":{\"jukeboxMode\": %d, \"jukeboxPlaylist\": \"%s\", \"jukeboxQueueLength\": %d, "
+        "\"autoPlay\": %s}}",
         mympd_state.jukeboxMode,
         mympd_state.jukeboxPlaylist,
-        mympd_state.jukeboxQueueLength
+        mympd_state.jukeboxQueueLength,
+        mympd_state.autoPlay == true ? "true" : "false"
     );
     tiny_queue_push(mpd_client_queue, mpd_client_request);
 
@@ -114,21 +118,23 @@ void *mympd_api_loop(void *arg_config) {
     }
 
     list_free(&mympd_state.syscmd_list);
-    free(mympd_state.jukeboxPlaylist);
-    free(mympd_state.colsQueueCurrent);
-    free(mympd_state.colsSearch);
-    free(mympd_state.colsBrowseDatabase);
-    free(mympd_state.colsBrowsePlaylistsDetail);
-    free(mympd_state.colsBrowseFilesystem);
-    free(mympd_state.colsPlayback);
-    free(mympd_state.colsQueueLastPlayed);
+    FREE_PTR(mympd_state.jukeboxPlaylist);
+    FREE_PTR(mympd_state.colsQueueCurrent);
+    FREE_PTR(mympd_state.colsSearch);
+    FREE_PTR(mympd_state.colsBrowseDatabase);
+    FREE_PTR(mympd_state.colsBrowsePlaylistsDetail);
+    FREE_PTR(mympd_state.colsBrowseFilesystem);
+    FREE_PTR(mympd_state.colsPlayback);
+    FREE_PTR(mympd_state.colsQueueLastPlayed);
     return NULL;
 }
 
 //private functions
 static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_request *request) {
     int je;
-    char *p_charbuf1, *p_charbuf2, *p_charbuf3;
+    char *p_charbuf1 = NULL;
+    char *p_charbuf2 = NULL;
+    char *p_charbuf3 = NULL;
     char p_char[4];
     long long_buf1;
     unsigned int uint_buf1;
@@ -136,6 +142,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
     
     //create response struct
     t_work_result *response = (t_work_result *)malloc(sizeof(t_work_result));
+    assert(response);
     response->conn_id = request->conn_id;
     response->length = 0;
     
@@ -144,7 +151,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             je = json_scanf(request->data, request->length, "{data: {cmd: %Q}}", &p_charbuf1);
             if (je == 1) {
                 response->length = mympd_api_syscmd(config, mympd_state, response->data, p_charbuf1);
-                free(p_charbuf1);
+                FREE_PTR(p_charbuf1);
             }
         } 
         else {
@@ -154,38 +161,38 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
     else if (request->cmd_id == MYMPD_API_COLS_SAVE) {
         je = json_scanf(request->data, request->length, "{data: {table: %Q}}", &p_charbuf1);
         if (je == 1) {
-            char column_list[800];
-            snprintf(column_list, 800, "%.*s", request->length, request->data);
+            char column_list[request->length + 1];
+            snprintf(column_list, request->length + 1, "%.*s", request->length, request->data);
             char *cols = strchr(column_list, '[');
             int col_len = strlen(cols); 
             if (col_len > 1)
                 cols[col_len - 2]  = '\0';
             if (strcmp(p_charbuf1, "colsQueueCurrent") == 0) {
-                free(mympd_state->colsQueueCurrent);
+                FREE_PTR(mympd_state->colsQueueCurrent);
                 mympd_state->colsQueueCurrent = strdup(cols);
             }
             else if (strcmp(p_charbuf1, "colsSearch") == 0) {
-                free(mympd_state->colsSearch);
+                FREE_PTR(mympd_state->colsSearch);
                 mympd_state->colsSearch = strdup(cols);
             }
             else if (strcmp(p_charbuf1, "colsBrowseDatabase") == 0) {
-                free(mympd_state->colsBrowseDatabase);
+                FREE_PTR(mympd_state->colsBrowseDatabase);
                 mympd_state->colsBrowseDatabase = strdup(cols);
             }
             else if (strcmp(p_charbuf1, "colsBrowsePlaylistsDetail") == 0) {
-                free(mympd_state->colsBrowsePlaylistsDetail);
+                FREE_PTR(mympd_state->colsBrowsePlaylistsDetail);
                 mympd_state->colsBrowsePlaylistsDetail = strdup(cols);
             }
             else if (strcmp(p_charbuf1, "colsBrowseFilesystem") == 0) {
-                free(mympd_state->colsBrowseFilesystem);
+                FREE_PTR(mympd_state->colsBrowseFilesystem);
                 mympd_state->colsBrowseFilesystem = strdup(cols);
             }
             else if (strcmp(p_charbuf1, "colsPlayback") == 0) {
-                free(mympd_state->colsPlayback);
+                FREE_PTR(mympd_state->colsPlayback);
                 mympd_state->colsPlayback = strdup(cols);
             }
             else if (strcmp(p_charbuf1, "colsQueueLastPlayed") == 0) {
-                free(mympd_state->colsQueueLastPlayed);
+                FREE_PTR(mympd_state->colsQueueLastPlayed);
                 mympd_state->colsQueueLastPlayed = strdup(cols);
             }
             else {
@@ -196,7 +203,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                 if (state_file_write(config, p_charbuf1, cols))
                     response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
-            free(p_charbuf1);
+            FREE_PTR(p_charbuf1);
         }
     }
     else if (request->cmd_id == MYMPD_API_SETTINGS_SET) {
@@ -217,13 +224,18 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
         }
         je = json_scanf(request->data, request->length, "{data: {jukeboxMode: %d}}", &mympd_state->jukeboxMode);
         if (je == 1) {
+            if (mympd_state->jukeboxMode > 2) {
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Invalid jukeboxMode.\"}");
+                LOG_ERROR("Invalid jukeboxMode");
+                mympd_state->jukeboxMode = JUKEBOX_OFF;
+            }
             snprintf(p_char, 4, "%d", mympd_state->jukeboxMode);
             if (!state_file_write(config, "jukeboxMode", p_char))
                 response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state jukeboxMode.\"}");
         }
         je = json_scanf(request->data, request->length, "{data: {jukeboxPlaylist: %Q}}", &p_charbuf1);
         if (je == 1) {
-            free(mympd_state->jukeboxPlaylist);
+            FREE_PTR(mympd_state->jukeboxPlaylist);
             mympd_state->jukeboxPlaylist = p_charbuf1;
             p_charbuf1 = NULL;
             if (!state_file_write(config, "jukeboxPlaylist", mympd_state->jukeboxPlaylist))
@@ -231,15 +243,21 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
         }
         je = json_scanf(request->data, request->length, "{data: {jukeboxQueueLength: %d}}", &mympd_state->jukeboxQueueLength);
         if (je == 1) {
-           snprintf(p_char, 4, "%d", mympd_state->jukeboxQueueLength);
-           if (!state_file_write(config, "jukeboxQueueLength", p_char))
-               response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state jukeboxQueueLength.\"}");
+            if (mympd_state->jukeboxQueueLength > 999) {
+                LOG_ERROR("jukeboxQueueLength to big, setting it to maximum value of 999");
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"jukeboxQueueLength to big, setting it to maximum value of 999\"}");
+                mympd_state->jukeboxQueueLength = 999;
+            }
+            snprintf(p_char, 4, "%d", mympd_state->jukeboxQueueLength);
+            if (!state_file_write(config, "jukeboxQueueLength", p_char))
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state jukeboxQueueLength.\"}");
         }
         if (response->length == 0) {
             response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
         }
         //push settings to mpd_client queue
         t_work_request *mpd_client_request = (t_work_request *)malloc(sizeof(t_work_request));
+        assert(mpd_client_request);
         mpd_client_request->conn_id = -1;
         mpd_client_request->cmd_id = request->cmd_id;
         mpd_client_request->length = copy_string(mpd_client_request->data, request->data, 1000, request->length);
@@ -257,9 +275,9 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             else {
                 response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't save bookmark.\"}");
             }
-            free(p_charbuf1);
-            free(p_charbuf2);
-            free(p_charbuf3);
+            FREE_PTR(p_charbuf1);
+            FREE_PTR(p_charbuf2);
+            FREE_PTR(p_charbuf3);
         }
     }
     else if (request->cmd_id == MYMPD_API_BOOKMARK_RM) {
@@ -291,14 +309,14 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
     LOG_DEBUG("Push response to queue for connection %lu: %s", request->conn_id, response->data);
 
     tiny_queue_push(web_server_queue, response);
-    free(request);
+    FREE_PTR(request);
 }
 
 static bool mympd_api_read_syscmds(t_config *config, t_mympd_state *mympd_state) {
     DIR *dir;
     struct dirent *ent;
     char dirname[400];
-    char *cmd;
+    char *cmd = NULL;
     long order;
 
     if (config->syscmds == true) {
@@ -329,10 +347,10 @@ static bool mympd_api_read_syscmds(t_config *config, t_mympd_state *mympd_state)
 }
 
 static int mympd_api_syscmd(t_config *config, t_mympd_state *mympd_state, char *buffer, const char *cmd) {
-    int len;
+    int len = 0;
     char filename[400];
     char *line = NULL;
-    char *crap;
+    char *crap = NULL;
     size_t n = 0;
     ssize_t read;
     
@@ -367,7 +385,7 @@ static int mympd_api_syscmd(t_config *config, t_mympd_state *mympd_state, char *
         len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't execute cmd %s.\"}", cmd);
         LOG_ERROR("Can't execute syscmd \"%s\"", cmd);
     }
-    free(line);
+    FREE_PTR(line);
     CHECK_RETURN_LEN();    
 }
 
@@ -389,7 +407,6 @@ static void mympd_api_read_statefiles(t_config *config, t_mympd_state *mympd_sta
 }
 
 static char *state_file_rw_string(t_config *config, const char *name, const char *def_value, bool warn) {
-    char cfg_file[400];
     char *line = NULL;
     size_t n = 0;
     ssize_t read;
@@ -397,7 +414,9 @@ static char *state_file_rw_string(t_config *config, const char *name, const char
     if (!validate_string(name)) {
         return NULL;
     }
-    snprintf(cfg_file, 400, "%s/state/%s", config->varlibdir, name);
+    size_t cfg_file_len = config->varlibdir_len + strlen(name) + 8;
+    char cfg_file[cfg_file_len];
+    snprintf(cfg_file, cfg_file_len, "%s/state/%s", config->varlibdir, name);
     FILE *fp = fopen(cfg_file, "r");
     if (fp == NULL) {
         if (warn == true) {
@@ -415,7 +434,7 @@ static char *state_file_rw_string(t_config *config, const char *name, const char
         return line;
     }
     else {
-        free(line);
+        FREE_PTR(line);
         return strdup(def_value);
     }
 }
@@ -425,39 +444,41 @@ static bool state_file_rw_bool(t_config *config, const char *name, const bool de
     char *line = state_file_rw_string(config, name, def_value == true ? "true" : "false", warn);
     if (line != NULL) {
         value = strcmp(line, "true") == 0 ? true : false;
-        free(line);
+        FREE_PTR(line);
     }
     return value;
 }
 
 static long state_file_rw_long(t_config *config, const char *name, const long def_value, bool warn) {
-    char *crap;
+    char *crap = NULL;
     long value = def_value;
     char def_value_str[65];
     snprintf(def_value_str, 65, "%ld", def_value);
     char *line = state_file_rw_string(config, name, def_value_str, warn);
     if (line != NULL) {
         value = strtol(line, &crap,10);
-        free(line);
+        FREE_PTR(line);
     }
     return value;
 }
 
-
 static bool state_file_write(t_config *config, const char *name, const char *value) {
-    char tmp_file[400];
-    char cfg_file[400];
+    size_t cfg_file_len = config->varlibdir_len + strlen(name) + 8;
+    char cfg_file[cfg_file_len];
+    size_t tmp_file_len = config->varlibdir_len + strlen(name) + 15;
+    char tmp_file[tmp_file_len];
+    int fd;
     
     if (!validate_string(name))
         return false;
-    snprintf(cfg_file, 400, "%s/state/%s", config->varlibdir, name);
-    snprintf(tmp_file, 400, "%s/tmp/%s", config->varlibdir, name);
+    snprintf(cfg_file, cfg_file_len, "%s/state/%s", config->varlibdir, name);
+    snprintf(tmp_file, tmp_file_len, "%s/state/%s.XXXXXX", config->varlibdir, name);
         
-    FILE *fp = fopen(tmp_file, "w");
-    if (fp == NULL) {
+    if ((fd = mkstemp(tmp_file)) < 0 ) {
         LOG_ERROR("Can't open %s for write", tmp_file);
         return false;
     }
+    FILE *fp = fdopen(fd, "w");
     fprintf(fp, "%s", value);
     fclose(fp);
     if (rename(tmp_file, cfg_file) == -1) {
@@ -475,7 +496,7 @@ static int mympd_api_put_settings(t_config *config, t_mympd_state *mympd_state, 
     len = json_printf(&out, "{type: mympdSettings, data: {mpdhost: %Q, mpdport: %d, passwort_set: %B, featSyscmds: %B, "
         "featLocalplayer: %B, streamport: %d, streamurl: %Q, coverimagename: %Q, coverimagesize: %d, featMixramp: %B, "
         "maxElementsPerPage: %d, notificationWeb: %B, notificationPage: %B, jukeboxMode: %d, jukeboxPlaylist: %Q, jukeboxQueueLength: %d, "
-        "autoPlay: %B, backgroundcolor: %Q", 
+        "autoPlay: %B, background: %Q, backgroundFilter: %Q", 
         config->mpdhost, 
         config->mpdport, 
         config->mpdpass ? "true" : "false",
@@ -493,7 +514,8 @@ static int mympd_api_put_settings(t_config *config, t_mympd_state *mympd_state, 
         mympd_state->jukeboxPlaylist,
         mympd_state->jukeboxQueueLength,
         mympd_state->autoPlay,
-        config->backgroundcolor
+        config->background,
+        config->backgroundfilter
     );
     
     if (config->syscmds == true) {
@@ -524,61 +546,61 @@ static int mympd_api_put_settings(t_config *config, t_mympd_state *mympd_state, 
 
 static bool mympd_api_bookmark_update(t_config *config, const long id, const char *name, const char *uri, const char *type) {
     long line_nr = 0;
-    char tmp_file[400];
-    char b_file[400];
+    size_t tmp_file_len = config->varlibdir_len + 24;
+    char tmp_file[tmp_file_len];
+    size_t b_file_len = config->varlibdir_len + 17;
+    char b_file[b_file_len];
     char *line = NULL;
     size_t n = 0;
     ssize_t read;
     bool inserted = false;
+    int fd;
     
-    snprintf(b_file, 400, "%s/state/bookmarks", config->varlibdir);
-    snprintf(tmp_file, 400, "%s/tmp/bookmarks", config->varlibdir);
-    FILE *fo = fopen(tmp_file, "w");
-    if (fo == NULL) {
-        LOG_ERROR("Can't open %s for writing", tmp_file);
+    snprintf(b_file, b_file_len, "%s/state/bookmarks", config->varlibdir);
+    snprintf(tmp_file, tmp_file_len, "%s/state/bookmarks.XXXXXX", config->varlibdir);
+    
+    if ((fd = mkstemp(tmp_file)) < 0 ) {
+        LOG_ERROR("Can't open %s for write", tmp_file);
         return false;
     }
+    FILE *fo = fdopen(fd, "w");
     FILE *fi = fopen(b_file, "r");
     if (fi != NULL) {
         while ((read = getline(&line, &n, fi)) > 0) {
-            char *lname, *luri, *ltype;
+            char *lname = NULL;
+            char *luri = NULL;
+            char *ltype = NULL;
             long lid;
             int je = json_scanf(line, read, "{id: %ld, name: %Q, uri: %Q, type: %Q}", &lid, &lname, &luri, &ltype);
             if (je == 4) {
                 if (name != NULL) {
                     if (strcmp(name, lname) < 0) {
                         line_nr++;
-                        char buffer[1024];
-                        struct json_out out = JSON_OUT_BUF(buffer, 1024);
-                        json_printf(&out, "{id: %ld, name: %Q, uri: %Q, type: %Q}", line_nr, name, uri, type);
-                        fprintf(fo, "%s\n", buffer);
+                        struct json_out out = JSON_OUT_FILE(fo);
+                        json_printf(&out, "{id: %ld, name: %Q, uri: %Q, type: %Q}\n", line_nr, name, uri, type);
                         inserted = true;
                     }
                 }
                 if (lid != id) {
                     line_nr++;
-                    char buffer[1024];
-                    struct json_out out = JSON_OUT_BUF(buffer, 1024);
-                    json_printf(&out, "{id: %ld, name: %Q, uri: %Q, type: %Q}", line_nr, lname, luri, ltype);
-                    fprintf(fo, "%s\n", buffer);
+                    struct json_out out = JSON_OUT_FILE(fo);
+                    json_printf(&out, "{id: %ld, name: %Q, uri: %Q, type: %Q}\n", line_nr, lname, luri, ltype);
                 }
-                free(lname);
-                free(luri);
-                free(ltype);
+                FREE_PTR(lname);
+                FREE_PTR(luri);
+                FREE_PTR(ltype);
             }
             else {
                 LOG_ERROR("Can't read bookmarks line");
             }
         }
-        free(line);
+        FREE_PTR(line);
         fclose(fi);
     }
     if (inserted == false && name != NULL) {
         line_nr++;
-        char buffer[1024];
-        struct json_out out = JSON_OUT_BUF(buffer, 1024);
-        json_printf(&out, "{id: %ld, name: %Q, uri: %Q, type: %Q}", line_nr, name, uri, type);
-        fprintf(fo, "%s\n", buffer);
+        struct json_out out = JSON_OUT_FILE(fo);
+        json_printf(&out, "{id: %ld, name: %Q, uri: %Q, type: %Q}\n", line_nr, name, uri, type);
     }
     fclose(fo);
     if (rename(tmp_file, b_file) == -1) {
@@ -590,22 +612,23 @@ static bool mympd_api_bookmark_update(t_config *config, const long id, const cha
 
 static int mympd_api_bookmark_list(t_config *config, char *buffer, unsigned int offset) {
     size_t len = 0;
-    char b_file[400];
+    size_t b_file_len = strlen(config->varlibdir) + 17;
+    char b_file[b_file_len];
     char *line = NULL;
-    char *crap;
+    char *crap = NULL;
     size_t n = 0;
     ssize_t read;
     unsigned int entity_count = 0;
     unsigned int entities_returned = 0;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
     
-    snprintf(b_file, 400, "%s/state/bookmarks", config->varlibdir);
+    snprintf(b_file, b_file_len, "%s/state/bookmarks", config->varlibdir);
     FILE *fi = fopen(b_file, "r");
     if (fi == NULL) {
         //create empty bookmarks file
         fi = fopen(b_file, "w");
         if (fi == NULL) {
-            LOG_ERROR("Can't opening %s for write", b_file);
+            LOG_ERROR("Can't open %s for write", b_file);
             len = json_printf(&out, "{type: error, data: %Q}", "Can't open bookmarks file");
         }
         else {
@@ -614,7 +637,7 @@ static int mympd_api_bookmark_list(t_config *config, char *buffer, unsigned int 
         }
     } else {
         len = json_printf(&out, "{type: bookmark, data: [");
-        while ((read = getline(&line, &n, fi)) > 0) {
+        while ((read = getline(&line, &n, fi)) > 0 && len < MAX_LIST_SIZE) {
             entity_count++;
             if (entity_count > offset && entity_count <= offset + config->max_elements_per_page) {
                 if (entities_returned++) {
@@ -624,7 +647,7 @@ static int mympd_api_bookmark_list(t_config *config, char *buffer, unsigned int 
                 len += json_printf(&out, "%s", line);
             }
         }
-        free(line);
+        FREE_PTR(line);
         fclose(fi);
         len += json_printf(&out, "], totalEntities: %d, offset: %d, returnedEntities: %d}",
             entity_count,

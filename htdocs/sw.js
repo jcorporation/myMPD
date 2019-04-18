@@ -1,28 +1,29 @@
-var CACHE = 'myMPD-cache-v5.2.1';
+var CACHE = 'myMPD-cache-v5.3.0';
+var subdir = self.location.pathname.replace('/sw.min.js', '').replace(/\/$/, '');
 var urlsToCache = [
-    '/',
-    '/player.html',
-    '/css/bootstrap.min.css',
-    '/css/mympd.min.css',
-    '/js/bootstrap-native-v4.min.js',
-    '/js/mympd.min.js',
-    '/js/player.min.js',
-    '/js/keymap.min.js',
-    '/assets/appicon-167.png',
-    '/assets/appicon-192.png',
-    '/assets/appicon-512.png',
-    '/assets/coverimage-httpstream.png',
-    '/assets/coverimage-notavailable.png',
-    '/assets/coverimage-loading.png',
-    '/assets/favicon.ico',
-    '/assets/MaterialIcons-Regular.woff2'
+    subdir + '/',
+    subdir + '/player.html',
+    subdir + '/css/bootstrap.min.css',
+    subdir + '/css/mympd.min.css',
+    subdir + '/js/bootstrap-native-v4.min.js',
+    subdir + '/js/mympd.min.js',
+    subdir + '/js/player.min.js',
+    subdir + '/js/keymap.min.js',
+    subdir + '/assets/appicon-167.png',
+    subdir + '/assets/appicon-192.png',
+    subdir + '/assets/appicon-512.png',
+    subdir + '/assets/coverimage-httpstream.png',
+    subdir + '/assets/coverimage-notavailable.png',
+    subdir + '/assets/coverimage-loading.png',
+    subdir + '/assets/favicon.ico',
+    subdir + '/assets/MaterialIcons-Regular.woff2'
 ];
 
 var ignoreRequests = new RegExp('(' + [
-  '/api',
-  '/ws',
-  '/library\/(.*)',
-  '/pics\/(.*)'].join('(\/?)|\\') + ')$')
+  subdir + '/api',
+  subdir + '/ws',
+  subdir + '/library\/(.*)',
+  subdir + '/pics\/(.*)'].join('(\/?)|\\') + ')$')
 
 self.addEventListener('install', function(event) {
     event.waitUntil(

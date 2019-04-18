@@ -26,6 +26,7 @@
 #include <stdbool.h>
 #include <pthread.h>
 #include <signal.h>
+#include <assert.h>
 
 #include "list.h"
 #include "tiny_queue.h"
@@ -60,8 +61,9 @@ bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_da
     mg_user_data->rewrite_patterns = NULL;
     mg_user_data->conn_id = 1;
     mg_user_data->feat_library = false;
-    size_t pics_directory_len = strlen(config->varlibdir) + 6;
+    size_t pics_directory_len = config->varlibdir_len + 6;
     mg_user_data->pics_directory = malloc(pics_directory_len);
+    assert(mg_user_data->pics_directory);
     snprintf(mg_user_data->pics_directory, pics_directory_len, "%s/pics", config->varlibdir);
     //init monogoose mgr with mg_user_data
     mg_mgr_init(mgr, mg_user_data);
@@ -76,7 +78,7 @@ bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_da
         nc_http = mg_bind_opt(mgr, config->webport, ev_handler, bind_opts_http);
     }
     if (nc_http == NULL) {
-        printf("Error listening on port %s", config->webport);
+        LOG_ERROR("Can't bind to port %s: %s", config->webport, err_http);
         mg_mgr_free(mgr);
         return false;
     }
@@ -91,7 +93,7 @@ bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_da
         bind_opts_https.ssl_key = config->sslkey;
         nc_https = mg_bind_opt(mgr, config->sslport, ev_handler, bind_opts_https);
         if (nc_https == NULL) {
-            printf("Error listening on port %s: %s", config->sslport, err_https);
+            LOG_ERROR("Can't bind to port %s: %s", config->sslport, err_https);
             mg_mgr_free(mgr);
             return false;
         } 
@@ -104,6 +106,7 @@ bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_da
 void web_server_free(void *arg_mgr) {
     struct mg_mgr *mgr = (struct mg_mgr *) arg_mgr;
     mg_mgr_free(mgr);
+    mgr = NULL;
 }
 
 void *web_server_loop(void *arg_mgr) {
@@ -116,22 +119,21 @@ void *web_server_loop(void *arg_mgr) {
             if (response != NULL) {
                 if (response->conn_id == -1) {
                     //internal message
-                    char *p_charbuf;
+                    char *p_charbuf = NULL;
                     bool feat_library;
                     int je = json_scanf(response->data, response->length, "{music_directory: %Q, featLibrary: %B}", &p_charbuf, &feat_library);
                     if (je == 2) {
                         if (mg_user_data->music_directory != NULL) {
-                            free(mg_user_data->music_directory);
-                            mg_user_data->music_directory = NULL;
+                            FREE_PTR(mg_user_data->music_directory);
                         }
                         if (strlen(p_charbuf) > 0) {
                             mg_user_data->music_directory = strdup(p_charbuf);
                         }
                         mg_user_data->feat_library = feat_library;
-                        free(p_charbuf);
+                        FREE_PTR(p_charbuf);
                         
                         if (mg_user_data->rewrite_patterns != NULL) {
-                            free(mg_user_data->rewrite_patterns);
+                            FREE_PTR(mg_user_data->rewrite_patterns);
                             mg_user_data->rewrite_patterns = NULL;
                         }
                         size_t rewrite_patterns_len = strlen(mg_user_data->pics_directory) + 8;
@@ -139,6 +141,7 @@ void *web_server_loop(void *arg_mgr) {
                             rewrite_patterns_len += strlen(mg_user_data->music_directory) + 11;
                         }
                         char *rewrite_patterns = malloc(rewrite_patterns_len);
+                        assert(rewrite_patterns);
                         if (feat_library == true) {
                             snprintf(rewrite_patterns, rewrite_patterns_len, "/pics/=%s,/library/=%s", mg_user_data->pics_directory, mg_user_data->music_directory);
                             LOG_DEBUG("Setting music_directory to %s", mg_user_data->music_directory);
@@ -152,7 +155,7 @@ void *web_server_loop(void *arg_mgr) {
                     else {
                         LOG_WARN("Unknown internal message: %s", response->data);
                     }
-                    free(response);
+                    FREE_PTR(response);
                 }
                 else if (response->conn_id == 0) {
                     //Websocket notify from mpd idle
@@ -188,7 +191,7 @@ static void send_ws_notify(struct mg_mgr *mgr, t_work_result *response) {
         }
         mg_send_websocket_frame(nc, WEBSOCKET_OP_TEXT, response->data, response->length);
     }
-    free(response);
+    FREE_PTR(response);
 }
 
 static void send_api_response(struct mg_mgr *mgr, t_work_result *response) {
@@ -208,7 +211,7 @@ static void send_api_response(struct mg_mgr *mgr, t_work_result *response) {
             LOG_DEBUG("Unknown connection");
         }
     }
-    free(response);
+    FREE_PTR(response);
 }
 
 static int has_prefix(const struct mg_str *uri, const struct mg_str *prefix) {
@@ -236,8 +239,8 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
         case MG_EV_WEBSOCKET_HANDSHAKE_REQUEST: {
             struct http_message *hm = (struct http_message *) ev_data;
             LOG_VERBOSE("New websocket request (%ld): %.*s", (long)nc->user_data, (int)hm->uri.len, hm->uri.p);
-            if (mg_vcmp(&hm->uri, "/ws") != 0) {
-                printf("ERROR: Websocket request not to /ws, closing connection");
+            if (mg_vcmp(&hm->uri, "/ws/") != 0) {
+                printf("ERROR: Websocket request not to /ws/, closing connection");
                 mg_printf(nc, "%s", "HTTP/1.1 403 FORBIDDEN\r\n\r\n");
                 nc->flags |= MG_F_SEND_AND_CLOSE;
             }
@@ -293,12 +296,12 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 
                 size_t image_mime_type_len = 100;
                 char image_mime_type[image_mime_type_len];
-                size_t cache_dir_len = strlen(config->varlibdir) + 12;
+                size_t cache_dir_len = config->varlibdir_len + 12;
                 char cache_dir[cache_dir_len];
                 snprintf(cache_dir, cache_dir_len, "%s/covercache", config->varlibdir);
                 bool rc = plugin_coverextract(media_file, cache_dir, image_file, image_file_len, image_mime_type, image_mime_type_len, true);
                 if (rc == true) {
-                    size_t path_len = strlen(config->varlibdir) + strlen(image_file) + 13;
+                    size_t path_len = config->varlibdir_len + strlen(image_file) + 13;
                     char path[path_len];
                     snprintf(path, path_len, "%s/covercache/%s", config->varlibdir, image_file);
                     LOG_DEBUG("Serving file %s (%s)", path, image_mime_type);
@@ -335,9 +338,6 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
 }
 
 static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data) {
-    char *host;
-    char *crap;
-    char host_header[1024];
     switch(ev) {
         case MG_EV_HTTP_REQUEST: {
             struct http_message *hm = (struct http_message *) ev_data;
@@ -345,13 +345,19 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data)
             t_mg_user_data *mg_user_data = (t_mg_user_data *) nc->mgr->user_data;
             t_config *config = (t_config *) mg_user_data->config;
             
-            snprintf(host_header, 1024, "%.*s", (int)host_hdr->len, host_hdr->p);
-            host = strtok_r(host_header, ":", &crap);
-            char s_redirect[250];
-            if (strcmp(config->sslport, "443") == 0)
-                snprintf(s_redirect, 250, "https://%s/", host);
-            else
-                snprintf(s_redirect, 250, "https://%s:%s/", host, config->sslport);
+            size_t host_header_len = (int)host_hdr->len + 1;
+            char host_header[host_header_len];
+            snprintf(host_header, host_header_len, "%.*s", (int)host_hdr->len, host_hdr->p);
+            char *crap = NULL;
+            char *host = strtok_r(host_header, ":", &crap);
+            size_t s_redirect_len = strlen(host) + strlen(config->sslport) + 11;
+            char s_redirect[s_redirect_len];
+            if (strcmp(config->sslport, "443") == 0) {
+                snprintf(s_redirect, s_redirect_len, "https://%s/", host);
+            }
+            else {
+                snprintf(s_redirect, s_redirect_len, "https://%s:%s/", host, config->sslport);
+            }
             LOG_VERBOSE("Redirecting to %s", s_redirect);
             mg_http_send_redirect(nc, 301, mg_mk_str(s_redirect), mg_mk_str(NULL));
             break;
@@ -363,7 +369,7 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data)
 }
 
 static bool handle_api(long conn_id, const char *request_body, int request_len) {
-    char *cmd;
+    char *cmd = NULL;
     
     LOG_VERBOSE("API request (%ld): %.*s", conn_id, request_len, request_body);
     const int je = json_scanf(request_body, request_len, "{cmd: %Q}", &cmd);
@@ -377,9 +383,15 @@ static bool handle_api(long conn_id, const char *request_body, int request_len) 
     }
     
     t_work_request *request = (t_work_request*)malloc(sizeof(t_work_request));
+    assert(request);
     request->conn_id = conn_id;
     request->cmd_id = cmd_id;
     request->length = copy_string(request->data, request_body, 1000, request_len);
+    if (request->length < request_len) {
+        LOG_ERROR("Request buffer truncated %d / %d\n", request_len, 1000); 
+        free(request);
+        return false;
+    }
     
     if (strncmp(cmd, "MYMPD_API_", 10) == 0) {
         tiny_queue_push(mympd_api_queue, request);
@@ -388,6 +400,6 @@ static bool handle_api(long conn_id, const char *request_body, int request_len) 
         tiny_queue_push(mpd_client_queue, request);
     }
 
-    free(cmd);        
+    FREE_PTR(cmd);        
     return true;
 }

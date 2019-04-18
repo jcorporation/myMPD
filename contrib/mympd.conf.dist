@@ -22,8 +22,8 @@ webport = 80
 #Enable ssl
 ssl = true
 sslport = 443
-sslcert = /etc/mympd/ssl/server.pem
-sslkey = /etc/mympd/ssl/server.key
+sslcert = /var/lib/mympd/ssl/server.pem
+sslkey = /var/lib/mympd/ssl/server.key
 
 
 [mympd]
@@ -74,7 +74,7 @@ smartpls = true
 #Enable system commands in /etc/mympd/syscmds/
 syscmds = false
 
-#Elements per page for pagination, max: 400
+#Elements per page for pagination, max: 200
 pagination = 100
 
 #Number of songs to keep in last played list
@@ -87,7 +87,9 @@ lovemessage = love
 
 
 [theme]
-backgroundcolor = #888
+#background = cover
+#backgroundfilter = blur(5px)
+background = #888
 
 
 [plugins]

@@ -41,6 +41,7 @@ var playlistEl;
 var websocketConnected = false;
 var websocketTimer = null;
 var appInited = false;
+var subdir = '';
 
 var app = {};
 app.apps = { "Playback":   { "state": "0/-/-/", "scrollPos": 0 },
@@ -231,14 +232,14 @@ function appRoute() {
         getQueue();
     }
     else if (app.current.app == 'Queue' && app.current.tab == 'LastPlayed') {
-        sendAPI({"cmd": "MPD_API_QUEUE_LAST_PLAYED", "data": {"offset": app.current.page}}, parseLastPlayed);
+        sendAPI({"cmd": "MPD_API_QUEUE_LAST_PLAYED", "data": {"offset": app.current.page, "cols": settings.colsQueueLastPlayed}}, parseLastPlayed);
     }
     else if (app.current.app == 'Browse' && app.current.tab == 'Playlists' && app.current.view == 'All') {
         sendAPI({"cmd": "MPD_API_PLAYLIST_LIST", "data": {"offset": app.current.page, "filter": app.current.filter}}, parsePlaylists);
         doSetFilterLetter('BrowsePlaylistsFilter');
     }
     else if (app.current.app == 'Browse' && app.current.tab == 'Playlists' && app.current.view == 'Detail') {
-        sendAPI({"cmd": "MPD_API_PLAYLIST_CONTENT_LIST", "data": {"offset": app.current.page, "filter": app.current.filter, "uri": app.current.search}}, parsePlaylists);
+        sendAPI({"cmd": "MPD_API_PLAYLIST_CONTENT_LIST", "data": {"offset": app.current.page, "filter": app.current.filter, "uri": app.current.search, "cols": settings.colsBrowsePlaylistsDetail}}, parsePlaylists);
         doSetFilterLetter('BrowsePlaylistsFilter');
     }    
     else if (app.current.app == 'Browse' && app.current.tab == 'Database') {
@@ -253,7 +254,7 @@ function appRoute() {
         }
     }    
     else if (app.current.app == 'Browse' && app.current.tab == 'Filesystem') {
-        sendAPI({"cmd": "MPD_API_DATABASE_FILESYSTEM_LIST", "data": {"offset": app.current.page, "path": (app.current.search ? app.current.search : "/"), "filter": app.current.filter}}, parseFilesystem);
+        sendAPI({"cmd": "MPD_API_DATABASE_FILESYSTEM_LIST", "data": {"offset": app.current.page, "path": (app.current.search ? app.current.search : "/"), "filter": app.current.filter, "cols": settings.colsBrowseFilesystem}}, parseFilesystem);
         // Don't add all songs from root
         if (app.current.search) {
             document.getElementById('BrowseFilesystemAddAllSongs').removeAttribute('disabled');
@@ -341,10 +342,10 @@ function appRoute() {
                         sort = sort.substring(1);
                     }
                 }
-                sendAPI({"cmd": "MPD_API_DATABASE_SEARCH_ADV", "data": { "plist": "", "offset": app.current.page, "sort": sort, "sortdesc": sortdesc, "expression": app.current.search}}, parseSearch);
+                sendAPI({"cmd": "MPD_API_DATABASE_SEARCH_ADV", "data": { "plist": "", "offset": app.current.page, "sort": sort, "sortdesc": sortdesc, "expression": app.current.search, "cols": settings.colsSearch}}, parseSearch);
             }
             else {
-                sendAPI({"cmd": "MPD_API_DATABASE_SEARCH", "data": { "plist": "", "offset": app.current.page, "filter": app.current.filter, "searchstr": app.current.search}}, parseSearch);
+                sendAPI({"cmd": "MPD_API_DATABASE_SEARCH", "data": { "plist": "", "offset": app.current.page, "filter": app.current.filter, "searchstr": app.current.search, "cols": settings.colsSearch}}, parseSearch);
             }
         } else {
             document.getElementById('SearchList').getElementsByTagName('tbody')[0].innerHTML = '';
@@ -397,6 +398,8 @@ function showAppInitAlert(text) {
 }
 
 function appInitStart() {
+    subdir = window.location.pathname.replace('/index.html', '').replace(/\/$/, '');
+        
     //register serviceworker
     if ('serviceWorker' in navigator && document.URL.substring(0, 5) == 'https' && window.location.hostname != 'localhost') {
         window.addEventListener('load', function() {
@@ -415,7 +418,8 @@ function appInitStart() {
     document.getElementsByTagName('header')[0].classList.add('hide');
     document.getElementsByTagName('main')[0].classList.add('hide');
     document.getElementsByTagName('footer')[0].classList.add('hide');
-    initState('appInitSettings', 'load');
+    initState('appInitMPDSettings', 'load');
+    initState('appInitMyMPDSettings', 'load');
     initState('appInitWebsocket', 'blank');
     initState('appInitApply', 'blank');
     var a = document.getElementById('modalAppInitAlert');
@@ -444,7 +448,6 @@ function appInitWait() {
         
         if (settingsParsed == 'true') {
             //parsed settings, now its save to connect to websocket
-            initState('appInitSettings', 'ok');
             initState('appInitWebsocket', 'load');
             webSocketConnect();
         }
@@ -457,8 +460,6 @@ function appInitWait() {
 }
 
 function appInit() {
-//    sendAPI({"cmd": "MPD_API_PLAYER_STATE"}, parseState);
-
     document.getElementById('btnChVolumeDown').addEventListener('click', function(event) {
         event.stopPropagation();
     }, false);
@@ -1133,9 +1134,35 @@ function playlistMoveTrack(from, to) {
     sendAPI({"cmd": "MPD_API_PLAYLIST_MOVE_TRACK","data": { "plist": app.current.search, "from": from, "to": to}});
 }
 
+function setElsState(tag, state) {
+    var els = document.getElementsByTagName(tag);
+    var elsLen = els.length;
+    for (var i = 0; i< elsLen; i++) {
+        if (state == 'disabled') {
+            if (!els[i].classList.contains('alwaysEnabled')) {
+                els[i].setAttribute('disabled', 'disabled');
+                els[i].classList.add('disabled');
+            }
+        }
+        else {
+            if (els[i].classList.contains('disabled')) {
+                els[i].removeAttribute('disabled');
+                els[i].classList.remove('disabled');
+            }
+        }
+    }
+}
+
+function toggleUI(state) {
+    setElsState('a', state);
+    setElsState('input', state);
+    setElsState('button', state);
+}
+
 function webSocketConnect() {
     var wsUrl = getWsUrl();
     socket = new WebSocket(wsUrl);
+    console.log('Connecting to ' + wsUrl);
 
     try {
         socket.onopen = function() {
@@ -1156,6 +1183,7 @@ function webSocketConnect() {
                     toggleAlert('alertMympdState', false, '');
                     appRoute();
                     sendAPI({"cmd": "MPD_API_PLAYER_STATE"}, parseState);
+                    toggleUI('enabled');
                     break;
                 case 'update_state':
                     parseState(obj);
@@ -1165,11 +1193,14 @@ function webSocketConnect() {
                     if (progressTimer) {
                         clearTimeout(progressTimer);
                     }
+                    toggleUI('disabled');
                     break;
                 case 'mpd_connected':
                     showNotification('Connected to MPD', '', '', 'success');
                     toggleAlert('alertMpdState', false, '');
                     sendAPI({"cmd": "MPD_API_PLAYER_STATE"}, parseState);
+                    getSettings(true);
+                    toggleUI('enabled');
                     break;
                 case 'update_queue':
                     if (app.current.app === 'Queue') {
@@ -1198,11 +1229,13 @@ function webSocketConnect() {
                         sendAPI({"cmd": "MPD_API_PLAYLIST_LIST","data": {"offset": app.current.page, "filter": app.current.filter}}, parsePlaylists);
                     }
                     else if (app.current.app == 'Browse' && app.current.tab == 'Playlists' && app.current.view == 'Detail') {
-                        sendAPI({"cmd": "MPD_API_PLAYLIST_CONTENT_LIST", "data": {"offset": app.current.page, "filter": app.current.filter, "uri": app.current.search}}, parsePlaylists);
+                        sendAPI({"cmd": "MPD_API_PLAYLIST_CONTENT_LIST", "data": {"offset": app.current.page, "filter": app.current.filter, "uri": app.current.search, "cols": settings.colsBrowsePlaylistsDetail}}, parsePlaylists);
                     }
                     break;
                 case 'error':
-                    showNotification(obj.data, '', '', 'danger');
+                    if (document.getElementById('alertMpdState').classList.contains('hide')) {
+                        showNotification(obj.data, '', '', 'danger');
+                    }
                     break;
                 default:
                     break;
@@ -1212,8 +1245,8 @@ function webSocketConnect() {
         socket.onclose = function(){
             console.log('Websocket is disconnected');
             if (appInited == true) {
-                //Show modal only if websocket was already connected before
                 toggleAlert('alertMympdState', true, 'Websocket connection failed.');
+                toggleUI('disabled');
                 if (progressTimer) {
                     clearTimeout(progressTimer);
                 }
@@ -1242,12 +1275,14 @@ function getWsUrl() {
     var protocol = window.location.protocol;
     var port = window.location.port;
     
-    if (protocol == 'https:')
+    if (protocol == 'https:') {
         protocol = 'wss://';
-    else
+    }
+    else {
         protocol = 'ws://';
+    }
 
-    var wsUrl = protocol + hostname + (port != '' ? ':' + port : '') + '/ws';
+    var wsUrl = protocol + hostname + (port != '' ? ':' + port : '') + subdir + '/ws/';
     return wsUrl;
 }
 
@@ -1261,8 +1296,8 @@ function parseStats(obj) {
     var d = new Date(obj.data.dbUpdated * 1000);
     document.getElementById('mpdstats_dbUpdated').innerText = d.toUTCString();
     document.getElementById('mympdVersion').innerText = obj.data.mympdVersion;
-    document.getElementById('mpdVersion').innerText = obj.data.mpdVersion;
-    document.getElementById('libmpdclientVersion').innerText = obj.data.libmpdclientVersion;
+    document.getElementById('mpdInfo_version').innerText = obj.data.mpdVersion;
+    document.getElementById('mpdInfo_libmpdclientVersion').innerText = obj.data.libmpdclientVersion;
 }
 
 function toggleBtn(btn, state) {
@@ -1299,6 +1334,135 @@ function filterCols(x) {
 }
 
 function parseSettings() {
+    if (settings.mpdConnected) {
+        parseMPDSettings();
+    }
+    else {
+        toggleAlert('alertMpdState', true, 'Connection to MPD failed.');
+    }
+    
+    if (settings.mpdhost.indexOf('/') != 0) {
+        document.getElementById('mpdHost').innerText = settings.mpdhost + ':' + settings.mpdport;
+    }
+    else {
+        document.getElementById('mpdInfo_host').innerText = settings.mpdhost;
+    }
+
+    var btnnotifyWeb = document.getElementById('btnnotifyWeb');
+    if (notificationsSupported()) {
+        if (settings.notificationWeb) {
+            toggleBtn('btnnotifyWeb', settings.notificationWeb);
+            Notification.requestPermission(function (permission) {
+                if (!('permission' in Notification)) {
+                    Notification.permission = permission;
+                }
+                if (permission === 'granted') {
+                    toggleBtn('btnnotifyWeb', 1);
+                } 
+                else {
+                    toggleBtn('btnnotifyWeb', 0);
+                    settings.notificationWeb = true;
+                }
+            });         
+        }
+        else {
+            toggleBtn('btnnotifyWeb', 0);
+        }
+    }
+    else {
+        btnnotifyWeb.setAttribute('disabled', 'disabled');
+        toggleBtn('btnnotifyWeb', 0);
+    }
+    
+    toggleBtn('btnnotifyPage', settings.notificationPage);
+
+    document.documentElement.style.setProperty('--mympd-coverimagesize', settings.coverimagesize + "px");
+    if (settings.background != 'cover') {
+        document.documentElement.style.setProperty('--mympd-backgroundcolor', settings.background);
+    }
+    else {
+        document.documentElement.style.setProperty('--mympd-backgroundfilter', settings.backgroundFilter);
+    }
+    
+    var features = ["featLocalplayer", "featSyscmds"];
+    for (var j = 0; j < features.length; j++) {
+        var Els = document.getElementsByClassName(features[j]);
+        var ElsLen = Els.length;
+        var displayEl = settings[features[j]] == true ? '' : 'none';
+        for (var i = 0; i < ElsLen; i++) {
+            Els[i].style.display = displayEl;
+        }
+    }
+
+    if (settings.featSyscmds) {
+//        var mainMenuDropdown = document.getElementById('mainMenuDropdown');
+        var syscmdsList = '';
+        var syscmdsListLen = settings.syscmdList.length;
+        if (syscmdsListLen > 0) {
+            syscmdsList = '<div class="dropdown-divider"></div>';
+            for (var i = 0; i < syscmdsListLen; i++) {
+                if (settings.syscmdList[i] == 'HR') {
+                    syscmdsList += '<div class="dropdown-divider"></div>';
+                }
+                else {
+                    syscmdsList += '<a class="dropdown-item text-light bg-dark alwaysEnabled" href="#" data-href=\'{"cmd": "execSyscmd", "options": ["' + 
+                        settings.syscmdList[i] + '"]}\'>' + settings.syscmdList[i] + '</a>';
+                }
+            }
+        }
+        document.getElementById('syscmds').innerHTML = syscmdsList;
+    }
+    else {
+        document.getElementById('syscmds').innerHTML = '';
+    }
+
+    dropdownMainMenu = new Dropdown(document.getElementById('mainMenu'));
+    
+    document.getElementById('selectJukeboxMode').value = settings.jukeboxMode;
+    document.getElementById('inputJukeboxQueueLength').value = settings.jukeboxQueueLength;
+    
+    if (settings.jukeboxMode == 0 || settings.jukeboxMode == 2) {
+        document.getElementById('inputJukeboxQueueLength').setAttribute('disabled', 'disabled');
+        document.getElementById('selectJukeboxPlaylist').setAttribute('disabled', 'disabled');
+    }
+    else if (settings.jukeboxMode == 1) {
+        document.getElementById('inputJukeboxQueueLength').removeAttribute('disabled');
+        document.getElementById('selectJukeboxPlaylist').removeAttribute('disabled');
+    }
+
+    if (settings.featLocalplayer) {
+        if (settings.streamurl == '') {
+            settings.mpdstream = 'http://';
+            if (settings.mpdhost == '127.0.0.1' || settings.mpdhost == 'localhost') {
+                settings.mpdstream += window.location.hostname;
+            }
+            else {
+                settings.mpdstream += settings.mpdhost;
+            }
+            settings.mpdstream += ':' + settings.streamport + '/';
+        } 
+        else {
+            settings.mpdstream = settings.streamurl;
+        }
+    }
+
+    if (app.current.app == 'Queue' && app.current.tab == 'Current')
+        getQueue();
+    else if (app.current.app == 'Queue' && app.current.tab == 'LastPlayed')
+        appRoute();
+    else if (app.current.app == 'Search')
+        appRoute();
+    else if (app.current.app == 'Browse' && app.current.tab == 'Filesystem')
+        appRoute();
+    else if (app.current.app == 'Browse' && app.current.tab == 'Playlists' && app.current.view == 'Detail')
+        appRoute();
+    else if (app.current.app == 'Browse' && app.current.tab == 'Database' && app.current.search != '')
+        appRoute();
+
+    settingsParsed = 'true';
+}
+
+function parseMPDSettings() {
     toggleBtn('btnRandom', settings.random);
     toggleBtn('btnConsume', settings.consume);
     toggleBtn('btnSingle', settings.single);
@@ -1329,40 +1493,8 @@ function parseSettings() {
 
     document.getElementById('selectReplaygain').value = settings.replaygain;
 
-    var btnnotifyWeb = document.getElementById('btnnotifyWeb');
-    if (notificationsSupported()) {
-        if (settings.notificationWeb) {
-            toggleBtn('btnnotifyWeb', settings.notificationWeb);
-            Notification.requestPermission(function (permission) {
-                if (!('permission' in Notification)) {
-                    Notification.permission = permission;
-                }
-                if (permission === 'granted') {
-                    toggleBtn('btnnotifyWeb', 1);
-                } 
-                else {
-                    toggleBtn('btnnotifyWeb', 0);
-                    settings.notificationWeb = true;
-                }
-            });         
-        }
-        else {
-            toggleBtn('btnnotifyWeb', 0);
-        }
-    }
-    else {
-        btnnotifyWeb.setAttribute('disabled', 'disabled');
-        toggleBtn('btnnotifyWeb', 0);
-    }
-    
-    toggleBtn('btnnotifyPage', settings.notificationPage);
-
-    var features = ["featStickers", "featSmartpls", "featPlaylists", "featTags", "featLocalplayer", "featSyscmds", "featCoverimage", "featAdvsearch",
+    var features = ["featStickers", "featSmartpls", "featPlaylists", "featTags", "featCoverimage", "featAdvsearch",
         "featLove"];
-
-    document.documentElement.style.setProperty('--mympd-coverimagesize', settings.coverimagesize + "px");
-    document.documentElement.style.setProperty('--mympd-backgroundcolor', settings.backgroundcolor);
-    
     for (var j = 0; j < features.length; j++) {
         var Els = document.getElementsByClassName(features[j]);
         var ElsLen = Els.length;
@@ -1411,17 +1543,6 @@ function parseSettings() {
         app.apps.Search.state = '0/any/Title/';
     }
     
-    document.getElementById('selectJukeboxMode').value = settings.jukeboxMode;
-    document.getElementById('inputJukeboxQueueLength').value = settings.jukeboxQueueLength;
-    if (settings.jukeboxMode == 0 || settings.jukeboxMode == 2) {
-        document.getElementById('inputJukeboxQueueLength').setAttribute('disabled', 'disabled');
-        document.getElementById('selectJukeboxPlaylist').setAttribute('disabled', 'disabled');
-    }
-    else if (settings.jukeboxMode == 1) {
-        document.getElementById('inputJukeboxQueueLength').removeAttribute('disabled');
-        document.getElementById('selectJukeboxPlaylist').removeAttribute('disabled');
-    }
-
     if (settings.featPlaylists) {
         playlistEl = 'selectJukeboxPlaylist';
         sendAPI({"cmd": "MPD_API_PLAYLIST_LIST", "data": {"offset": 0, "filter": "-"}}, getAllPlaylists);
@@ -1440,46 +1561,6 @@ function parseSettings() {
     filterCols('colsBrowseFilesystem');
     filterCols('colsBrowseDatabase');
     filterCols('colsPlayback');
-
-    if (settings.featLocalplayer) {
-        if (settings.streamurl == '') {
-            settings.mpdstream = 'http://';
-            if (settings.mpdhost == '127.0.0.1' || settings.mpdhost == 'localhost') {
-                settings.mpdstream += window.location.hostname;
-            }
-            else {
-                settings.mpdstream += settings.mpdhost;
-            }
-            settings.mpdstream += ':' + settings.streamport + '/';
-        } 
-        else
-            settings.mpdstream = settings.streamurl;
-    }
-    
-    addTagList('BrowseDatabaseByTagDropdown', 'browsetags');
-    addTagList('searchqueuetags', 'searchtags');
-    addTagList('searchtags', 'searchtags');
-    
-    for (var i = 0; i < settings.tags.length; i++)
-        app.apps.Browse.tabs.Database.views[settings.tags[i]] = { "state": "0/-/-/", "scrollPos": 0 };
-
-    if (settings.featSyscmds) {
-        var mainMenuDropdown = document.getElementById('mainMenuDropdown');
-        var syscmdsList = '';
-        var syscmdsListLen = settings.syscmdList.length;
-        if (syscmdsListLen > 0) {
-            syscmdsList = '<div class="dropdown-divider"></div>';
-            for (var i = 0; i < syscmdsListLen; i++) {
-                syscmdsList += '<a class="dropdown-item text-light bg-dark" href="#" data-href=\'{"cmd": "execSyscmd", "options": ["' + 
-                    settings.syscmdList[i] + '"]}\'>' + settings.syscmdList[i] + '</a>';
-            }
-        }
-        document.getElementById('syscmds').innerHTML = syscmdsList;
-    }
-    else {
-        document.getElementById('syscmds').innerHTML = '';
-    }
-    dropdownMainMenu = new Dropdown(document.getElementById('mainMenu'));
     
     setCols('QueueCurrent');
     setCols('Search');
@@ -1488,20 +1569,14 @@ function parseSettings() {
     setCols('BrowsePlaylistsDetail');
     setCols('BrowseDatabase', '.tblAlbumTitles');
     setCols('Playback');
-    if (app.current.app == 'Queue' && app.current.tab == 'Current')
-        getQueue();
-    else if (app.current.app == 'Queue' && app.current.tab == 'LastPlayed')
-        appRoute();
-    else if (app.current.app == 'Search')
-        appRoute();
-    else if (app.current.app == 'Browse' && app.current.tab == 'Filesystem')
-        appRoute();
-    else if (app.current.app == 'Browse' && app.current.tab == 'Playlists' && app.current.view == 'Detail')
-        appRoute();
-    else if (app.current.app == 'Browse' && app.current.tab == 'Database' && app.current.search != '')
-        appRoute();
 
-    settingsParsed = 'true';
+    addTagList('BrowseDatabaseByTagDropdown', 'browsetags');
+    addTagList('searchqueuetags', 'searchtags');
+    addTagList('searchtags', 'searchtags');
+    
+    for (var i = 0; i < settings.tags.length; i++) {
+        app.apps.Browse.tabs.Database.views[settings.tags[i]] = { "state": "0/-/-/", "scrollPos": 0 };
+    }
 }
 
 function setCols(table, className) {
@@ -1547,7 +1622,6 @@ function setCols(table, className) {
             }
         }
     }
-        
     
     if (table != 'Playback') {
         var heading = '';
@@ -1591,10 +1665,12 @@ function getMpdSettings(obj) {
     if (obj == '' || obj.type == 'error') {
         settingsParsed = 'error';
         if (appInited == false) {
+            initState('appInitMyMPDSettings', 'error');
             showAppInitAlert(obj == '' ? 'Can not parse settings' : obj.data);
         }
         return false;
     }
+    initState('appInitMyMPDSettings', 'ok');
     settingsNew = obj.data;
     sendAPI({"cmd": "MPD_API_SETTINGS_GET"}, joinSettings, true);
 }
@@ -1603,12 +1679,15 @@ function joinSettings(obj) {
     if (obj == '' || obj.type == 'error') {
         settingsParsed = 'error';
         if (appInited == false) {
+            initState('appInitMPDSettings', 'error');
             showAppInitAlert(obj == '' ? 'Can not parse settings' : obj.data);
-        } 
-        return false;
+        }
     }
-    for (var key in obj.data) {
-        settingsNew[key] = obj.data[key];
+    else {
+        for (var key in obj.data) {
+            settingsNew[key] = obj.data[key];
+        }
+        initState('appInitMPDSettings', 'ok');
     }
     settings = Object.assign({}, settingsNew);
     settingsLock = false;
@@ -1803,13 +1882,16 @@ function parseState(obj) {
     if (obj.data.songPos == '-1') {
         domCache.currentTitle.innerText = 'Not playing';
         domCache.currentCover.style.backgroundImage = '';
+        if (settings.background == 'cover') {
+            document.documentElement.style.setProperty('--mympd-backgroundimage', 'url("")');
+        }
         var pb = document.getElementById('cardPlaybackTags').getElementsByTagName('h4');
         for (var i = 0; i < pb.length; i++)
             pb[i].innerText = '';
     }
     
     if (app.current.app == 'Queue' && app.current.tab == 'LastPlayed')
-        sendAPI({"cmd": "MPD_API_QUEUE_LAST_PLAYED", "data": {"offset": app.current.page}}, parseLastPlayed);
+        sendAPI({"cmd": "MPD_API_QUEUE_LAST_PLAYED", "data": {"offset": app.current.page, "cols": settings.colsQueueLastPlayed}}, parseLastPlayed);
 
     lastState = obj;                    
 }
@@ -1833,10 +1915,12 @@ function parseVolume(obj) {
 }
 
 function getQueue() {
-    if (app.current.search.length >= 2) 
-        sendAPI({"cmd": "MPD_API_QUEUE_SEARCH", "data": {"filter": app.current.filter, "offset": app.current.page, "searchstr": app.current.search}}, parseQueue);
-    else
-        sendAPI({"cmd": "MPD_API_QUEUE_LIST", "data": {"offset": app.current.page}}, parseQueue);
+    if (app.current.search.length >= 2) {
+        sendAPI({"cmd": "MPD_API_QUEUE_SEARCH", "data": {"filter": app.current.filter, "offset": app.current.page, "searchstr": app.current.search, "cols": settings.colsQueueCurrent}}, parseQueue);
+    }
+    else {
+        sendAPI({"cmd": "MPD_API_QUEUE_LIST", "data": {"offset": app.current.page, "cols": settings.colsQueueCurrent}}, parseQueue);
+    }
 }
 
 function parseQueue(obj) {
@@ -2179,7 +2263,7 @@ function parseListDBtags(obj) {
             if ('IntersectionObserver' in window)
                 createListTitleObserver(document.getElementById('card' + id));
             else
-                sendAPI({"cmd": "MPD_API_DATABASE_TAG_ALBUM_TITLE_LIST", "data": { "album": obj.data[i].value, "search": app.current.search, "tag": app.current.view}}, parseListTitles);
+                sendAPI({"cmd": "MPD_API_DATABASE_TAG_ALBUM_TITLE_LIST", "data": { "album": obj.data[i].value, "search": app.current.search, "tag": app.current.view, "cols": settings.colsBrowseDatabase}}, parseListTitles);
         }
         var cardsLen = cards.length - 1;
         for (var i = cardsLen; i >= nrItems; i --) {
@@ -2246,7 +2330,7 @@ function getListTitles(changes, observer) {
         if (change.intersectionRatio > 0) {
             observer.unobserve(change.target);
             var album = decodeURI(change.target.getAttribute('data-album'));
-            sendAPI({"cmd": "MPD_API_DATABASE_TAG_ALBUM_TITLE_LIST", "data": { "album": album, "search": app.current.search, "tag": app.current.view}}, parseListTitles);
+            sendAPI({"cmd": "MPD_API_DATABASE_TAG_ALBUM_TITLE_LIST", "data": { "album": album, "search": app.current.search, "tag": app.current.view, "cols": settings.colsBrowseDatabase}}, parseListTitles);
         }
     });
 }
@@ -2265,7 +2349,7 @@ function parseListTitles(obj) {
     cardHeader.classList.add('clickable');
     var img = card.getElementsByTagName('a')[0];
     if (img) {
-        img.style.backgroundImage = 'url("' + obj.cover + '")';
+        img.style.backgroundImage = 'url("' + subdir + obj.data.cover + '"), url("' + subdir + '/assets/coverimage-loading.png")';
         img.setAttribute('data-uri', encodeURI(obj.data[0].uri.replace(/\/[^\/]+$/, '')));
         img.setAttribute('data-name', obj.Album);
         img.setAttribute('data-type', 'dir');
@@ -2408,7 +2492,7 @@ function songDetails(uri) {
 
 function parseSongDetails(obj) {
     var modal = document.getElementById('modalSongDetails');
-    modal.getElementsByClassName('album-cover')[0].style.backgroundImage = 'url("' + obj.data.cover + '")';
+    modal.getElementsByClassName('album-cover')[0].style.backgroundImage = 'url("' + subdir + obj.data.cover + '"), url("' + subdir + '/assets/coverimage-loading.png")';
     modal.getElementsByTagName('h1')[0].innerText = obj.data.Title;
     
     var songDetails = '';
@@ -2464,7 +2548,7 @@ function removeFromPlaylist(uri, pos) {
 
 function playlistClear() {
     var uri = document.getElementById('BrowsePlaylistsDetailList').getAttribute('data-uri');
-    sendAPI({"cmd": "MPD_API_PLAYLIST_CLEAR_AND_LIST", "data": {"uri": uri}});
+    sendAPI({"cmd": "MPD_API_PLAYLIST_CLEAR", "data": {"uri": uri}});
     document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
 }
 
@@ -2968,7 +3052,7 @@ function showMenu(el, event) {
 
 function sendAPI(request, callback, onerror) {
     var ajaxRequest=new XMLHttpRequest();
-    ajaxRequest.open('POST', '/api', true);
+    ajaxRequest.open('POST', subdir + '/api', true);
     ajaxRequest.setRequestHeader('Content-type', 'application/json');
     ajaxRequest.onreadystatechange = function() {
         if (ajaxRequest.readyState == 4) {
@@ -3172,17 +3256,19 @@ function addAllFromBrowseFilesystem() {
 function addAllFromSearchPlist(plist) {
     var nr = parseInt(document.getElementById('panel-heading-search').innerText);
     if (!isNaN(nr) && nr > 0) {
-        if (settings.featAdvsearch)
-            sendAPI({"cmd": "MPD_API_DATABASE_SEARCH_ADV", "data": {"plist": plist, "sort": "", "sortdesc": false, "expression": app.current.search, "offset": 0}});
-        else
-            sendAPI({"cmd": "MPD_API_DATABASE_SEARCH", "data": {"plist": plist, "filter": app.current.filter, "searchstr": app.current.search, "offset": 0}});
+        if (settings.featAdvsearch) {
+            sendAPI({"cmd": "MPD_API_DATABASE_SEARCH_ADV", "data": {"plist": plist, "sort": "", "sortdesc": false, "expression": app.current.search, "offset": 0, "cols": settings.colsSearch}});
+        }
+        else {
+            sendAPI({"cmd": "MPD_API_DATABASE_SEARCH", "data": {"plist": plist, "filter": app.current.filter, "searchstr": app.current.search, "offset": 0, "cols": settings.colsSearch}});
+        }
         showNotification('Added ' + nr  +' songs from search to ' + plist, '', '', 'success');
     }
 }
 
 function addAllFromBrowseDatabasePlist(plist) {
     if (app.current.search.length >= 2) {
-        sendAPI({"cmd": "MPD_API_DATABASE_SEARCH", "data": {"plist": plist, "filter": app.current.view, "searchstr": app.current.search, "offset": 0}});
+        sendAPI({"cmd": "MPD_API_DATABASE_SEARCH", "data": {"plist": plist, "filter": app.current.view, "searchstr": app.current.search, "offset": 0, "cols": settings.colsSearch}});
         showNotification('Added songs from database selection to ' + plist, '', '', 'success');
     }
 }
@@ -3292,8 +3378,15 @@ function songChange(obj) {
     var htmlNotification = '';
     var pageTitle = 'myMPD: ';
 
-
-    domCache.currentCover.style.backgroundImage = 'url("' + obj.data.cover + '")';
+    domCache.currentCover.style.backgroundImage = 'url("' + subdir + obj.data.cover + '"), url("' + subdir + '/assets/coverimage-loading.png")';
+    if (settings.background == 'cover') {
+        if (obj.data.cover.indexOf('coverimage-') > -1 ) {
+            document.documentElement.style.setProperty('--mympd-backgroundimage', 'url("")');        
+        }
+        else {
+            document.documentElement.style.setProperty('--mympd-backgroundimage', 'url("' + obj.data.cover + '")');
+        }
+    }
 
     if (typeof obj.data.Artist != 'undefined' && obj.data.Artist.length > 0 && obj.data.Artist != '-') {
         textNotification += obj.data.Artist;
@@ -3323,8 +3416,10 @@ function songChange(obj) {
 
     for (var i = 0; i < settings.colsPlayback.length; i++) {
         var c = document.getElementById('current' + settings.colsPlayback[i]);
-        c.getElementsByTagName('h4')[0].innerText = obj.data[settings.colsPlayback[i]];
-        c.setAttribute('data-name', encodeURI(obj.data[settings.colsPlayback[i]]));
+        if (c) {
+            c.getElementsByTagName('h4')[0].innerText = obj.data[settings.colsPlayback[i]];
+            c.setAttribute('data-name', encodeURI(obj.data[settings.colsPlayback[i]]));
+        }
     }
     
     //Update Artist in queue view for http streams

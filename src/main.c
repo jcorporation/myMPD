@@ -31,10 +31,11 @@
 #include <libgen.h>
 #include <pthread.h>
 #include <dirent.h>
-#include <mpd/client.h>
 #include <stdbool.h>
 #include <signal.h>
 #include <dlfcn.h>
+#include <mpd/client.h>
+#include <assert.h>
 
 #include "list.h"
 #include "tiny_queue.h"
@@ -55,63 +56,63 @@ static void mympd_signal_handler(int sig_num) {
 
 static int mympd_inihandler(void *user, const char *section, const char *name, const char* value) {
     t_config* p_config = (t_config*)user;
-    char *crap;
+    char *crap = NULL;
 
     #define MATCH(s, n) strcasecmp(section, s) == 0 && strcasecmp(name, n) == 0
 
     if (MATCH("mpd", "host")) {
-        free(p_config->mpdhost);
+        FREE_PTR(p_config->mpdhost);
         p_config->mpdhost = strdup(value);
     }
     else if (MATCH("mpd", "port")) {
         p_config->mpdport = strtol(value, &crap, 10);
     }
     else if (MATCH("mpd", "pass")) {
-        free(p_config->mpdpass);
+        FREE_PTR(p_config->mpdpass);
         p_config->mpdpass = strdup(value);
     }
     else if (MATCH("mpd", "streamport")) {
         p_config->streamport = strtol(value, &crap, 10);
     }
     else if (MATCH("mpd", "musicdirectory")) {
-        free(p_config->music_directory);
+        FREE_PTR(p_config->music_directory);
         p_config->music_directory = strdup(value);
     }
     else if (MATCH("webserver", "webport")) {
-        free(p_config->webport);
+        FREE_PTR(p_config->webport);
         p_config->webport = strdup(value);
     }
     else if (MATCH("webserver", "ssl")) {
         p_config->ssl = strcmp(value, "true") == 0 ? true : false;
     }
     else if (MATCH("webserver", "sslport")) {
-        free(p_config->sslport);
+        FREE_PTR(p_config->sslport);
         p_config->sslport = strdup(value);
     }
     else if (MATCH("webserver", "sslcert")) {
-        free(p_config->sslcert);
+        FREE_PTR(p_config->sslcert);
         p_config->sslcert = strdup(value);
     }
     else if (MATCH("webserver", "sslkey")) {
-        free(p_config->sslkey);
+        FREE_PTR(p_config->sslkey);
         p_config->sslkey = strdup(value);
     }
     else if (MATCH("mympd", "user")) {
-        free(p_config->user);
+        FREE_PTR(p_config->user);
         p_config->user = strdup(value);
     }
     else if (MATCH("mympd", "coverimage")) {
         p_config->coverimage = strcmp(value, "true") == 0 ? true : false;
     }
     else if (MATCH("mympd", "coverimagename")) {
-        free(p_config->coverimagename);
+        FREE_PTR(p_config->coverimagename);
         p_config->coverimagename = strdup(value);
     }
     else if (MATCH("mympd", "coverimagesize")) {
         p_config->coverimagesize = strtol(value, &crap, 10);
     }
     else if (MATCH("mympd", "varlibdir")) {
-        free(p_config->varlibdir);
+        FREE_PTR(p_config->varlibdir);
         p_config->varlibdir = strdup(value);
     }
     else if (MATCH("mympd", "stickers")) {
@@ -124,15 +125,15 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
         p_config->mixramp = strcmp(value, "true") == 0 ? true : false;
     }
     else if (MATCH("mympd", "taglist")) {
-        free(p_config->taglist);
+        FREE_PTR(p_config->taglist);
         p_config->taglist = strdup(value);
     }
     else if (MATCH("mympd", "searchtaglist")) {
-        free(p_config->searchtaglist);
+        FREE_PTR(p_config->searchtaglist);
         p_config->searchtaglist = strdup(value);
     }
     else if (MATCH("mympd", "browsetaglist")) {
-        free(p_config->browsetaglist);
+        FREE_PTR(p_config->browsetaglist);
         p_config->browsetaglist = strdup(value);
     }
     else if (MATCH("mympd", "pagination")) {
@@ -149,7 +150,7 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
         p_config->localplayer = strcmp(value, "true") == 0 ? true : false;
     }
     else if (MATCH("mympd", "streamurl")) {
-        free(p_config->streamurl);
+        FREE_PTR(p_config->streamurl);
         p_config->streamurl = strdup(value);
     }
     else if (MATCH("mympd", "lastplayedcount")) {
@@ -158,61 +159,66 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("mympd", "loglevel")) {
         p_config->loglevel = strtol(value, &crap, 10);
     }
-    else if (MATCH("theme", "backgroundcolor")) {
-        free(p_config->backgroundcolor);
-        p_config->backgroundcolor = strdup(value);
+    else if (MATCH("theme", "background")) {
+        FREE_PTR(p_config->background);
+        p_config->background = strdup(value);
+    }
+    else if (MATCH("theme", "backgroundfilter")) {
+        FREE_PTR(p_config->backgroundfilter);
+        p_config->backgroundfilter = strdup(value);
     }
     else if (MATCH("mympd", "love")) {
         p_config->love = strcmp(value, "true") == 0 ? true : false;
     }
     else if (MATCH("mympd", "lovechannel")) {
-        free(p_config->lovechannel);
+        FREE_PTR(p_config->lovechannel);
         p_config->lovechannel = strdup(value);
     }
     else if (MATCH("mympd", "lovemessage")) {
-        free(p_config->lovemessage);
+        FREE_PTR(p_config->lovemessage);
         p_config->lovemessage = strdup(value);
     }
     else if (MATCH("plugins", "coverextract")) {
         p_config->plugins_coverextract = strcmp(value, "true") == 0 ? true : false;
     }
     else if (MATCH("plugins", "coverextractlib")) {
-        free(p_config->plugins_coverextractlib);
+        FREE_PTR(p_config->plugins_coverextractlib);
         p_config->plugins_coverextractlib = strdup(value);
     }
     else {
         LOG_WARN("Unkown config option: %s - %s", section, name);
         return 0;  
     }
-
     return 1;
 }
 
 static void mympd_free_config(t_config *config) {
-    free(config->mpdhost);
-    free(config->mpdpass);
-    free(config->webport);
-    free(config->sslport);
-    free(config->sslcert);
-    free(config->sslkey);
-    free(config->user);
-    free(config->coverimagename);
-    free(config->taglist);
-    free(config->searchtaglist);
-    free(config->browsetaglist);
-    free(config->varlibdir);
-    free(config->etcdir);
-    free(config->streamurl);
-    free(config->backgroundcolor);
-    free(config->lovechannel);
-    free(config->lovemessage);
-    free(config->plugins_coverextractlib);
-    free(config->music_directory);
-    free(config);
+    FREE_PTR(config->mpdhost);
+    FREE_PTR(config->mpdpass);
+    FREE_PTR(config->webport);
+    FREE_PTR(config->sslport);
+    FREE_PTR(config->sslcert);
+    FREE_PTR(config->sslkey);
+    FREE_PTR(config->user);
+    FREE_PTR(config->coverimagename);
+    FREE_PTR(config->taglist);
+    FREE_PTR(config->searchtaglist);
+    FREE_PTR(config->browsetaglist);
+    FREE_PTR(config->varlibdir);
+    FREE_PTR(config->etcdir);
+    FREE_PTR(config->streamurl);
+    FREE_PTR(config->background);
+    FREE_PTR(config->backgroundfilter);
+    FREE_PTR(config->lovechannel);
+    FREE_PTR(config->lovemessage);
+    FREE_PTR(config->plugins_coverextractlib);
+    FREE_PTR(config->music_directory);
+    FREE_PTR(config);
 }
 
 static void mympd_parse_env(struct t_config *config, const char *envvar) {
-    char *name, *section;
+    char *name = NULL;
+    char *section = NULL;
     const char *value = getenv(envvar);
     if (value != NULL) {
         char *var = strdup(envvar);
@@ -222,7 +228,7 @@ static void mympd_parse_env(struct t_config *config, const char *envvar) {
             mympd_inihandler(config, section, name, value);
         }
         value = NULL;
-        free(var);
+        FREE_PTR(var);
     }
 }
 
@@ -234,7 +240,7 @@ static void mympd_get_env(struct t_config *config) {
         "MYMPD_SEARCHTAGLIST", "MYMPD_BROWSETAGLIST", "MYMPD_SMARTPLS", "MYMPD_SYSCMDS", 
         "MYMPD_PAGINATION", "MYMPD_LASTPLAYEDCOUNT", "MYMPD_LOVE", "MYMPD_LOVECHANNEL", "MYMPD_LOVEMESSAGE",
         "PLUGINS_COVEREXTRACT", "PLUGINS_COVEREXTRACTLIB",
-        "THEME_BACKGROUNDCOLOR", 0};
+        "THEME_BACKGROUND", "THEME_BACKGROUNDFILTER", 0};
     const char** ptr = env_vars;
     while (*ptr != 0) {
         mympd_parse_env(config, *ptr);
@@ -243,7 +249,7 @@ static void mympd_get_env(struct t_config *config) {
 }
 
 static bool init_plugins(struct t_config *config) {
-    char *error;
+    char *error = NULL;
     handle_plugins_coverextract = NULL;
     if (config->plugins_coverextract == true) {
         LOG_INFO("Loading plugin %s", config->plugins_coverextractlib);
@@ -282,19 +288,21 @@ int main(int argc, char **argv) {
     web_server_queue = tiny_queue_create();
 
     t_mg_user_data *mg_user_data = (t_mg_user_data *)malloc(sizeof(t_mg_user_data));
+    assert(mg_user_data);
 
     srand((unsigned int)time(NULL));
     
     //mympd config defaults
     t_config *config = (t_config *)malloc(sizeof(t_config));
+    assert(config);
     config->mpdhost = strdup("127.0.0.1");
     config->mpdport = 6600;
     config->mpdpass = NULL;
     config->webport = strdup("80");
     config->ssl = true;
     config->sslport = strdup("443");
-    config->sslcert = strdup("/etc/mympd/ssl/server.pem");
-    config->sslkey = strdup("/etc/mympd/ssl/server.key");
+    config->sslcert = strdup("/var/lib/mympd/ssl/server.pem");
+    config->sslkey = strdup("/var/lib/mympd/ssl/server.key");
     config->user = strdup("mympd");
     config->streamport = 8000;
     config->streamurl = strdup("");
@@ -314,23 +322,24 @@ int main(int argc, char **argv) {
     config->syscmds = false;
     config->localplayer = true;
     config->loglevel = 1;
-    config->backgroundcolor = strdup("#888");
+    config->background = strdup("#888");
+    config->backgroundfilter = strdup("blur(5px)");
     config->love = false;
     config->lovechannel = strdup("");
     config->lovemessage = strdup("love");
     config->plugins_coverextract = false;
     config->plugins_coverextractlib = strdup("/usr/share/mympd/lib/mympd_coverextract.so");
-    config->music_directory = strdup("auto");
+    config->music_directory = NULL;
 
     char *configfile = strdup("/etc/mympd/mympd.conf");
     if (argc == 2) {
         if (strncmp(argv[1], "/", 1) == 0) {
-            free(configfile);
+            FREE_PTR(configfile);
             configfile = argv[1];
             char *etcdir = strdup(configfile);
-            free(config->etcdir);
+            FREE_PTR(config->etcdir);
             config->etcdir = strdup(dirname(etcdir));
-            free(etcdir);
+            FREE_PTR(etcdir);
         }
         else {
             printf("myMPD  %s\n"
@@ -344,6 +353,7 @@ int main(int argc, char **argv) {
             goto cleanup;
         }
     }
+    config->varlibdir_len = strlen(config->varlibdir);
     
     LOG_INFO("Starting myMPD %s", MYMPD_VERSION);
     LOG_INFO("Libmpdclient %i.%i.%i", LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION);
@@ -373,7 +383,7 @@ int main(int argc, char **argv) {
 
     //check music_directory
     if (strncmp(config->mpdhost, "/", 1) != 0 && strcmp(config->music_directory, "auto") == 0) {
-        free(config->music_directory);
+        FREE_PTR(config->music_directory);
         config->music_directory = strdup("/var/lib/mpd/music");
         LOG_WARN("Not connected to socket, setting music_directory to %s", config->music_directory);
     }
@@ -421,11 +431,6 @@ int main(int argc, char **argv) {
 
     //check needed directories
     if (!testdir("Document root", DOC_ROOT)) {
-        goto cleanup;
-    }
-
-    snprintf(testdirname, 400, "%s/tmp", config->varlibdir);
-    if (!testdir("Temp dir", testdirname)) {
         goto cleanup;
     }
 
@@ -502,13 +507,13 @@ int main(int argc, char **argv) {
     tiny_queue_free(mympd_api_queue);
     close_plugins(config);
     mympd_free_config(config);
-    free(configfile);
+    FREE_PTR(configfile);
     if (mg_user_data->music_directory != NULL)
-        free(mg_user_data->music_directory);
+        FREE_PTR(mg_user_data->music_directory);
     if (mg_user_data->pics_directory != NULL)
-        free(mg_user_data->pics_directory);
+        FREE_PTR(mg_user_data->pics_directory);
     if (mg_user_data->rewrite_patterns != NULL)
-        free(mg_user_data->rewrite_patterns);
-    free(mg_user_data);
+        FREE_PTR(mg_user_data->rewrite_patterns);
+    FREE_PTR(mg_user_data);
     return rc;
 }

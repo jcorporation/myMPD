@@ -38,8 +38,9 @@
 #define DOC_ROOT "${ASSETS_PATH}"
 
 //Max size of mpd_client response buffer
-#define MAX_SIZE 2048 * 400
-#define MAX_ELEMENTS_PER_PAGE 400
+#define MAX_ELEMENTS_PER_PAGE 200
+#define MAX_LIST_SIZE 1024 * MAX_ELEMENTS_PER_PAGE
+#define MAX_SIZE 1024 * (MAX_ELEMENTS_PER_PAGE + 2)
 
 //central logging definition
 #cmakedefine DEBUG
@@ -59,6 +60,13 @@ void mympd_log(int level, const char *file, int line, const char *fmt, ...);
     if (len > MAX_SIZE) \
         LOG_ERROR("Buffer truncated %d / %d\n", (int)len, MAX_SIZE); \
     return len; \
+} while (0)
+
+
+#define FREE_PTR(X) do { \
+    if (X != NULL) \
+        free(X); \
+    X = NULL; \
 } while (0)
 
 //API cmds
@@ -188,6 +196,7 @@ typedef struct t_config {
     char *browsetaglist;
     bool smartpls;
     char *varlibdir;
+    size_t varlibdir_len;
     char *etcdir;
     unsigned long max_elements_per_page;
     bool syscmds;
@@ -196,7 +205,8 @@ typedef struct t_config {
     char *streamurl;
     unsigned long last_played_count;
     long loglevel;
-    char *backgroundcolor;
+    char *background;
+    char *backgroundfilter;
     bool love;
     char *lovechannel;
     char *lovemessage;
