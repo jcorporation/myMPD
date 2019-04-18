@@ -1359,7 +1359,6 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
                 mpd_client_notify(buffer, len);
                 mpd_state->conn_state = MPD_FAILURE;
                 mpd_connection_free(mpd_state->conn);
-                sleep(3);
                 return;
             }
 
@@ -1368,7 +1367,6 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
                 len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"MPD connection error: %s\"}", mpd_connection_get_error_message(mpd_state->conn));
                 mpd_client_notify(buffer, len);
                 mpd_state->conn_state = MPD_FAILURE;
-                sleep(3);
                 return;
             }
 
@@ -1431,6 +1429,7 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
                     FREE_PTR(request);
                 }
             }
+            sleep(3);
             break;
 
         case MPD_CONNECTED:
