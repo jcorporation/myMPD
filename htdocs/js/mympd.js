@@ -2349,7 +2349,7 @@ function parseListTitles(obj) {
     cardHeader.classList.add('clickable');
     var img = card.getElementsByTagName('a')[0];
     if (img) {
-        img.style.backgroundImage = 'url("' + subdir + obj.data.cover + '"), url("' + subdir + '/assets/coverimage-loading.png")';
+        img.style.backgroundImage = 'url("' + subdir + obj.cover + '"), url("' + subdir + '/assets/coverimage-loading.png")';
         img.setAttribute('data-uri', encodeURI(obj.data[0].uri.replace(/\/[^\/]+$/, '')));
         img.setAttribute('data-name', obj.Album);
         img.setAttribute('data-type', 'dir');
