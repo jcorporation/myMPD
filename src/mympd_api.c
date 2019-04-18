@@ -637,7 +637,7 @@ static int mympd_api_bookmark_list(t_config *config, char *buffer, unsigned int 
         }
     } else {
         len = json_printf(&out, "{type: bookmark, data: [");
-        while ((read = getline(&line, &n, fi)) > 0) {
+        while ((read = getline(&line, &n, fi)) > 0 && len < MAX_LIST_SIZE) {
             entity_count++;
             if (entity_count > offset && entity_count <= offset + config->max_elements_per_page) {
                 if (entities_returned++) {

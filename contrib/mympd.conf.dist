@@ -74,7 +74,7 @@ smartpls = true
 #Enable system commands in /etc/mympd/syscmds/
 syscmds = false
 
-#Elements per page for pagination, max: 400
+#Elements per page for pagination, max: 200
 pagination = 100
 
 #Number of songs to keep in last played list
