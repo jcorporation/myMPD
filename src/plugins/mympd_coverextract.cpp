@@ -29,6 +29,19 @@
 using namespace std;
 using namespace MediaInfoNameSpace;
 
+static size_t getFilesize(const std::string& filename) {
+    struct stat st;
+    if(stat(filename.c_str(), &st) != 0) {
+        return 0;
+    }
+    return st.st_size;   
+}
+
+static bool file_exists(const std::string& file) {
+    struct stat buf;
+    return (stat(file.c_str(), &buf) == 0);
+}
+
 static const std::string base64_chars = 
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     "abcdefghijklmnopqrstuvwxyz"
@@ -44,9 +57,14 @@ static bool write_base64_decoded(std::string const& encoded_string, const std::s
     int j = 0;
     int in_ = 0;
     unsigned char char_array_4[4], char_array_3[3];
+
+    if (file_exists(abs_tmp_file) == true) {
+        //don't overwrite existing tmp file
+        return false;
+    }
     
     ofstream myfile;
-    myfile.open(abs_tmp_file);
+    myfile.open(abs_tmp_file, ofstream::binary);
     if (!myfile.is_open()) {
         return false;
     }
@@ -82,13 +100,15 @@ static bool write_base64_decoded(std::string const& encoded_string, const std::s
     }
 
     myfile.close();
+    if (getFilesize(abs_tmp_file) == 0) {
+        remove(abs_tmp_file.c_str());
+        return false;
+    }
+    
     return true;
 }
 
-static bool file_exists(const std::string& file) {
-    struct stat buf;
-    return (stat(file.c_str(), &buf) == 0);
-}
+
 
 bool coverextract(const char *media_file_ptr, const char *cache_dir_ptr, char *image_filename, const int image_filename_len, char *image_mime_type, const int image_mime_type_len, const bool extract) {
     string media_file = media_file_ptr;
