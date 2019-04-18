@@ -12,7 +12,7 @@ var urlsToCache = [
     subdir + '/assets/appicon-167.png',
     subdir + '/assets/appicon-192.png',
     subdir + '/assets/appicon-512.png',
-    subdir + '/assets/coverimage-httpstream.png',
+    subdir + '/assets/coverimage-stream.png',
     subdir + '/assets/coverimage-notavailable.png',
     subdir + '/assets/coverimage-loading.png',
     subdir + '/assets/favicon.ico',
