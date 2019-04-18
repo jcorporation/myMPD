@@ -44,7 +44,7 @@ fi
 echo "Fixing ownership of /var/lib/mympd"
 chown -R mympd.mympd /var/lib/mympd
 
-if [ -d /etc/mympd/ssl ]
+if [ -d /var/lib/mympd/ssl ]
 then
   echo "Certificates already created"
 else

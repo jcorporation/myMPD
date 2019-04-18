@@ -24,7 +24,7 @@ post_upgrade() {
   fi
 
   # create ssl certificates unless already existing
-  if [ -d /etc/mympd/ssl ]
+  if [ -d /var/lib/mympd/ssl ]
   then
     echo "INFO: Certificates already created"
   else

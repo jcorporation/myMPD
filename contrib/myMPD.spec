@@ -79,8 +79,13 @@ then
 else
   echo "mympd.conf installed as mympd.conf.dist"
 fi
-  
-/usr/share/mympd/crcert.sh
+
+if [ -d /var/lib/mympd/ssl ]
+then
+  echo "Certificates already created"
+else
+  /usr/share/mympd/crcert.sh
+fi
 
 %postun
 if [ "$1" = "0" ]
