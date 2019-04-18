@@ -41,6 +41,7 @@ var playlistEl;
 var websocketConnected = false;
 var websocketTimer = null;
 var appInited = false;
+var subdir = '';
 
 var app = {};
 app.apps = { "Playback":   { "state": "0/-/-/", "scrollPos": 0 },
@@ -397,6 +398,8 @@ function showAppInitAlert(text) {
 }
 
 function appInitStart() {
+    subdir = window.location.pathname.replace('/index.html', '').replace(/\/$/, '');
+        
     //register serviceworker
     if ('serviceWorker' in navigator && document.URL.substring(0, 5) == 'https' && window.location.hostname != 'localhost') {
         window.addEventListener('load', function() {
@@ -1159,6 +1162,7 @@ function toggleUI(state) {
 function webSocketConnect() {
     var wsUrl = getWsUrl();
     socket = new WebSocket(wsUrl);
+    console.log('Connecting to ' + wsUrl);
 
     try {
         socket.onopen = function() {
@@ -1271,12 +1275,14 @@ function getWsUrl() {
     var protocol = window.location.protocol;
     var port = window.location.port;
     
-    if (protocol == 'https:')
+    if (protocol == 'https:') {
         protocol = 'wss://';
-    else
+    }
+    else {
         protocol = 'ws://';
+    }
 
-    var wsUrl = protocol + hostname + (port != '' ? ':' + port : '') + '/ws';
+    var wsUrl = protocol + hostname + (port != '' ? ':' + port : '') + subdir + '/ws/';
     return wsUrl;
 }
 
@@ -1290,8 +1296,8 @@ function parseStats(obj) {
     var d = new Date(obj.data.dbUpdated * 1000);
     document.getElementById('mpdstats_dbUpdated').innerText = d.toUTCString();
     document.getElementById('mympdVersion').innerText = obj.data.mympdVersion;
-    document.getElementById('mpdVersion').innerText = obj.data.mpdVersion;
-    document.getElementById('libmpdclientVersion').innerText = obj.data.libmpdclientVersion;
+    document.getElementById('mpdInfo_version').innerText = obj.data.mpdVersion;
+    document.getElementById('mpdInfo_libmpdclientVersion').innerText = obj.data.libmpdclientVersion;
 }
 
 function toggleBtn(btn, state) {
@@ -1333,6 +1339,13 @@ function parseSettings() {
     }
     else {
         toggleAlert('alertMpdState', true, 'Connection to MPD failed.');
+    }
+    
+    if (settings.mpdhost.indexOf('/') != 0) {
+        document.getElementById('mpdHost').innerText = settings.mpdhost + ':' + settings.mpdport;
+    }
+    else {
+        document.getElementById('mpdInfo_host').innerText = settings.mpdhost;
     }
 
     var btnnotifyWeb = document.getElementById('btnnotifyWeb');
@@ -2336,7 +2349,7 @@ function parseListTitles(obj) {
     cardHeader.classList.add('clickable');
     var img = card.getElementsByTagName('a')[0];
     if (img) {
-        img.style.backgroundImage = 'url("' + obj.cover + '")';
+        img.style.backgroundImage = 'url("' + subdir + obj.cover + '")';
         img.setAttribute('data-uri', encodeURI(obj.data[0].uri.replace(/\/[^\/]+$/, '')));
         img.setAttribute('data-name', obj.Album);
         img.setAttribute('data-type', 'dir');
@@ -2479,7 +2492,7 @@ function songDetails(uri) {
 
 function parseSongDetails(obj) {
     var modal = document.getElementById('modalSongDetails');
-    modal.getElementsByClassName('album-cover')[0].style.backgroundImage = 'url("' + obj.data.cover + '")';
+    modal.getElementsByClassName('album-cover')[0].style.backgroundImage = 'url("' + subdir + obj.data.cover + '")';
     modal.getElementsByTagName('h1')[0].innerText = obj.data.Title;
     
     var songDetails = '';
@@ -3039,7 +3052,7 @@ function showMenu(el, event) {
 
 function sendAPI(request, callback, onerror) {
     var ajaxRequest=new XMLHttpRequest();
-    ajaxRequest.open('POST', '/api', true);
+    ajaxRequest.open('POST', subdir + '/api', true);
     ajaxRequest.setRequestHeader('Content-type', 'application/json');
     ajaxRequest.onreadystatechange = function() {
         if (ajaxRequest.readyState == 4) {
@@ -3365,7 +3378,7 @@ function songChange(obj) {
     var htmlNotification = '';
     var pageTitle = 'myMPD: ';
 
-    domCache.currentCover.style.backgroundImage = 'url("' + obj.data.cover + '")';
+    domCache.currentCover.style.backgroundImage = 'url("' + subdir + obj.data.cover + '")';
     if (settings.background == 'cover') {
         if (obj.data.cover.indexOf('coverimage-') > -1 ) {
             document.documentElement.style.setProperty('--mympd-backgroundimage', 'url("")');        

@@ -9,12 +9,12 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="theme-color" content="#343a40">
-  <link href="/css/bootstrap.min.css" rel="stylesheet">
-  <link href="/assets/MaterialIcons-Regular.woff2" rel="preload" as="font" type="font/woff2" crossorigin="anonymous">
-  <link href="/css/mympd.min.css" rel="stylesheet">
-  <link href="/assets/favicon.ico" rel="shortcut icon" type="image/vnd.microsoft.icon">
-  <link href="/mympd.webmanifest" rel="manifest" crossorigin="anonymous">
-  <link href="/assets/appicon-167.png" rel="apple-touch-icon">
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/MaterialIcons-Regular.woff2" rel="preload" as="font" type="font/woff2" crossorigin="anonymous">
+  <link href="css/mympd.min.css" rel="stylesheet">
+  <link href="assets/favicon.ico" rel="shortcut icon" type="image/vnd.microsoft.icon">
+  <link href="mympd.webmanifest" rel="manifest" crossorigin="anonymous">
+  <link href="assets/appicon-167.png" rel="apple-touch-icon">
 </head>
 <body>
   <header class="hide">
@@ -990,8 +990,9 @@
               <tr><th>Uptime</th><td id="mpdstats_uptime"></td></tr>
               <tr><th>Play Time</th><td id="mpdstats_playtime"></td></tr>
               <tr><td colspan="2" class="pt-3"><h5>MPD</h5></td></tr>
-              <tr><th>Protocol Version</th><td id="mpdVersion"></td></tr>
-              <tr><th>Libmpdclient Version</th><td id="libmpdclientVersion"></td></tr>
+              <tr><th>Connection</th><td id="mpdInfo_host"></td></tr>
+              <tr><th>Protocol Version</th><td id="mpdInfo_version"></td></tr>
+              <tr><th>Libmpdclient Version</th><td id="mpdInfo_libmpdclientVersion"></td></tr>
             </tbody>
           </table>          
         </div>
@@ -1106,8 +1107,8 @@
     </div>
   </div>
   
-  <script src="/js/keymap.min.js"></script>
-  <script src="/js/bootstrap-native-v4.min.js"></script>
-  <script src="/js/mympd.min.js"></script>
+  <script src="js/keymap.min.js"></script>
+  <script src="js/bootstrap-native-v4.min.js"></script>
+  <script src="js/mympd.min.js"></script>
  </body>
 </html>

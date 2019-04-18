@@ -239,8 +239,8 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
         case MG_EV_WEBSOCKET_HANDSHAKE_REQUEST: {
             struct http_message *hm = (struct http_message *) ev_data;
             LOG_VERBOSE("New websocket request (%ld): %.*s", (long)nc->user_data, (int)hm->uri.len, hm->uri.p);
-            if (mg_vcmp(&hm->uri, "/ws") != 0) {
-                printf("ERROR: Websocket request not to /ws, closing connection");
+            if (mg_vcmp(&hm->uri, "/ws/") != 0) {
+                printf("ERROR: Websocket request not to /ws/, closing connection");
                 mg_printf(nc, "%s", "HTTP/1.1 403 FORBIDDEN\r\n\r\n");
                 nc->flags |= MG_F_SEND_AND_CLOSE;
             }
