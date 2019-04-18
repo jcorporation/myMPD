@@ -7,7 +7,8 @@ services:
 #      MPD_HOST: 192.168.1.1
 #      MPD_PORT: 6600
 #      WEBSERVER_SSL: true
-#      MYMPD_LOGLEVEL: 2
+#      MYMPD_LOGLEVEL: 3
+       MPD_MUSICDIRECTORY: /var/lib/mpd/music
 #    image: mympd:latest
     build: $MYMPD_BUILD_PATH    
     networks:
@@ -17,8 +18,9 @@ services:
       - "40001:443"
     restart: always
     volumes:
-      - /path/to/music/:/usr/share/mympd/htdocs/library/:ro
-      - mympd:/etc/mympd/
+      - /path/to/music/:/var/lib/mpd/music/:ro
+      - mympdetc:/etc/mympd/
+      - mympdlib:/var/lib/mympd/
 
 networks:
 
@@ -26,4 +28,6 @@ networks:
 
 volumes:
 
-  mympd:
+  mympdetc:
+
+  mympdlib:
