@@ -1189,6 +1189,10 @@ function webSocketConnect() {
         socket.onopen = function() {
             console.log('Websocket is connected');
             websocketConnected = true;
+            if (websocketTimer != null) {
+                clearTimeout(websocketTimer);
+                websocketTimer = null;
+            }
         }
 
         socket.onmessage = function got_packet(msg) {
@@ -1277,12 +1281,15 @@ function webSocketConnect() {
             }
             if (websocketTimer != null) {
                 clearTimeout(websocketTimer);
+                websocketTimer = null;
             }
-            websocketTimer = setTimeout(function() {
-                console.log('Reconnecting websocket');
-                toggleAlert('alertMympdState', true, 'Websocket connection failed. Trying to reconnect&nbsp;&nbsp;<div class="spinner-border spinner-border-sm"></div>');
-                webSocketConnect();
-            }, 3000);
+            if (websocketTimer == null) {
+                websocketTimer = setTimeout(function() {
+                    console.log('Reconnecting websocket');
+                    toggleAlert('alertMympdState', true, 'Websocket connection failed. Trying to reconnect&nbsp;&nbsp;<div class="spinner-border spinner-border-sm"></div>');
+                    webSocketConnect();
+                }, 3000);
+            }
         }
 
     } catch(exception) {
