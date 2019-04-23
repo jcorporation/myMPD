@@ -17,5 +17,5 @@
   ],
   "name": "myMPD",
   "short_name": "myMPD",
-  "start_url": "/"
+  "start_url": "."
 }
