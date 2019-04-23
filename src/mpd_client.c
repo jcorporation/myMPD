@@ -94,7 +94,8 @@ enum mpd_conn_states {
     MPD_FAILURE,
     MPD_CONNECTED,
     MPD_RECONNECT,
-    MPD_DISCONNECT
+    MPD_DISCONNECT,
+    MPD_WAIT
 };
 
 typedef struct t_mpd_state {
@@ -102,6 +103,8 @@ typedef struct t_mpd_state {
     struct mpd_connection *conn;
     enum mpd_conn_states conn_state;
     int timeout;
+    time_t reconnect_time;
+    unsigned reconnect_intervall;
     // config
     char *music_directory;
     
@@ -211,6 +214,8 @@ void *mpd_client_loop(void *arg_config) {
     //State of mpd connection
     t_mpd_state mpd_state;
     mpd_state.conn_state = MPD_DISCONNECTED;
+    mpd_state.reconnect_time = 0;
+    mpd_state.reconnect_intervall = 0;
     mpd_state.timeout = 3000;
     mpd_state.song_id = -1;
     mpd_state.next_song_id = -1;
@@ -1344,6 +1349,36 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
         MPD_IDLE_OUTPUT | MPD_IDLE_OPTIONS | MPD_IDLE_UPDATE | MPD_IDLE_SUBSCRIPTION;
     
     switch (mpd_state->conn_state) {
+        case MPD_WAIT: {
+            time_t now = time(NULL);
+            if (now > mpd_state->reconnect_time) {
+                mpd_state->conn_state = MPD_DISCONNECTED;
+            }
+            //mpd_client_api error response
+            mpd_client_queue_length = tiny_queue_length(mpd_client_queue, 50);
+            if (mpd_client_queue_length > 0) {
+                //Handle request
+                LOG_DEBUG("Handle request (mpd disconnected)");
+                t_work_request *request = tiny_queue_shift(mpd_client_queue, 50);
+                if (request != NULL) {
+                    //create response struct
+                    t_work_result *response = (t_work_result*)malloc(sizeof(t_work_result));
+                    assert(response);
+                    response->conn_id = request->conn_id;
+                    response->length = 0;
+                    response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"MPD disconnected.\"}");
+                    if (response->conn_id > -1) {
+                        LOG_DEBUG("Send http response to connection %lu (first 800 chars):\n%*.*s", request->conn_id, 0, 800, response->data);
+                        tiny_queue_push(web_server_queue, response);
+                    }
+                    else {
+                        FREE_PTR(response);
+                    }
+                    FREE_PTR(request);
+                }
+            }            
+            break;
+        }
         case MPD_DISCONNECTED:
             /* Try to connect */
             if (strncmp(config->mpdhost, "/", 1) == 0) {
@@ -1383,6 +1418,8 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
             len = snprintf(buffer, MAX_SIZE, "{\"type\": \"mpd_connected\"}");
             mpd_client_notify(buffer, len);
             mpd_state->conn_state = MPD_CONNECTED;
+            mpd_state->reconnect_intervall += 0;
+            mpd_state->reconnect_time = 0;
             mpd_client_mpd_features(config, mpd_state);
             mpd_client_smartpls_update_all(config, mpd_state);
             if (mpd_state->jukeboxMode != JUKEBOX_OFF) {
@@ -1405,31 +1442,13 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
                 mpd_connection_free(mpd_state->conn);
             }
             mpd_state->conn = NULL;
-            mpd_state->conn_state = MPD_DISCONNECTED;
-            //mpd_client_api error response
-            mpd_client_queue_length = tiny_queue_length(mpd_client_queue, 50);
-            if (mpd_client_queue_length > 0) {
-                //Handle request
-                LOG_DEBUG("Handle request (mpd disconnected)");
-                t_work_request *request = tiny_queue_shift(mpd_client_queue, 50);
-                if (request != NULL) {
-                    //create response struct
-                    t_work_result *response = (t_work_result*)malloc(sizeof(t_work_result));
-                    assert(response);
-                    response->conn_id = request->conn_id;
-                    response->length = 0;
-                    response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"MPD disconnected.\"}");
-                    if (response->conn_id > -1) {
-                        LOG_DEBUG("Send http response to connection %lu (first 800 chars):\n%*.*s", request->conn_id, 0, 800, response->data);
-                        tiny_queue_push(web_server_queue, response);
-                    }
-                    else {
-                        FREE_PTR(response);
-                    }
-                    FREE_PTR(request);
-                }
+            //mpd_state->conn_state = MPD_DISCONNECTED;
+            mpd_state->conn_state = MPD_WAIT;
+            if (mpd_state->reconnect_intervall <= 20) {
+                mpd_state->reconnect_intervall += 2;
             }
-            sleep(3);
+            mpd_state->reconnect_time = time(NULL) + mpd_state->reconnect_intervall;
+            LOG_DEBUG("Waiting %u seconds before reconnection", mpd_state->reconnect_intervall);
             break;
 
         case MPD_CONNECTED:

@@ -42,6 +42,7 @@ var websocketConnected = false;
 var websocketTimer = null;
 var appInited = false;
 var subdir = '';
+var uiEnabled = true;
 
 var app = {};
 app.apps = { "Playback":   { "state": "0/-/-/", "scrollPos": 0 },
@@ -1153,10 +1154,30 @@ function setElsState(tag, state) {
     }
 }
 
-function toggleUI(state) {
-    setElsState('a', state);
-    setElsState('input', state);
-    setElsState('button', state);
+function toggleUI() {
+    var state = 'disabled';
+    if (websocketConnected == true && settings.mpdConnected == true) {
+        state = 'enabled';
+    }
+    var enabled = state == 'disabled' ? false : true;
+    if (enabled != uiEnabled) {
+        setElsState('a', state);
+        setElsState('input', state);
+        setElsState('button', state);
+        uiEnabled = enabled;
+    }
+    if (settings.mpdConnected == true) {
+        toggleAlert('alertMpdState', false, '');
+    }
+    else {
+        toggleAlert('alertMpdState', true, 'MPD disconnected.');
+    }
+    if (websocketConnected == true) {
+        toggleAlert('alertMympdState', false, '');
+    }
+    else {
+        toggleAlert('alertMympdState', true, 'Websocket connection failed.');
+    }
 }
 
 function webSocketConnect() {
@@ -1167,6 +1188,7 @@ function webSocketConnect() {
     try {
         socket.onopen = function() {
             console.log('Websocket is connected');
+            websocketConnected = true;
         }
 
         socket.onmessage = function got_packet(msg) {
@@ -1180,27 +1202,25 @@ function webSocketConnect() {
                 case 'welcome':
                     websocketConnected = true;
                     showNotification('Connected to myMPD: ' + wsUrl, '', '', 'success');
-                    toggleAlert('alertMympdState', false, '');
+                    //toggleAlert('alertMympdState', false, '');
                     appRoute();
-                    sendAPI({"cmd": "MPD_API_PLAYER_STATE"}, parseState);
-                    toggleUI('enabled');
+                    sendAPI({"cmd": "MPD_API_PLAYER_STATE"}, parseState, true);
+                    //toggleUI();
                     break;
                 case 'update_state':
                     parseState(obj);
                     break;
                 case 'mpd_disconnected':
-                    toggleAlert('alertMpdState', true, 'Connection to MPD failed.');
+                    //toggleAlert('alertMpdState', true, 'Connection to MPD failed.');
                     if (progressTimer) {
                         clearTimeout(progressTimer);
                     }
-                    toggleUI('disabled');
+                    getSettings(true);
                     break;
                 case 'mpd_connected':
                     showNotification('Connected to MPD', '', '', 'success');
-                    toggleAlert('alertMpdState', false, '');
                     sendAPI({"cmd": "MPD_API_PLAYER_STATE"}, parseState);
                     getSettings(true);
-                    toggleUI('enabled');
                     break;
                 case 'update_queue':
                     if (app.current.app === 'Queue') {
@@ -1244,9 +1264,10 @@ function webSocketConnect() {
 
         socket.onclose = function(){
             console.log('Websocket is disconnected');
+            websocketConnected = false;
             if (appInited == true) {
-                toggleAlert('alertMympdState', true, 'Websocket connection failed.');
-                toggleUI('disabled');
+                //toggleAlert('alertMympdState', true, 'Websocket connection failed.');
+                toggleUI();
                 if (progressTimer) {
                     clearTimeout(progressTimer);
                 }
@@ -1254,7 +1275,6 @@ function webSocketConnect() {
             else {
                 showAppInitAlert('Websocket connection failed.');
             }
-            websocketConnected = false;
             if (websocketTimer != null) {
                 clearTimeout(websocketTimer);
             }
@@ -1334,12 +1354,12 @@ function filterCols(x) {
 }
 
 function parseSettings() {
-    if (settings.mpdConnected) {
+    if (settings.mpdConnected == true) {
         parseMPDSettings();
     }
-    else {
-        toggleAlert('alertMpdState', true, 'Connection to MPD failed.');
-    }
+//    else {
+//        toggleAlert('alertMpdState', true, 'Connection to MPD failed.');
+//    }
     
     if (settings.mpdhost.indexOf('/') != 0) {
         document.getElementById('mpdInfo_host').innerText = settings.mpdhost + ':' + settings.mpdport;
@@ -1682,6 +1702,7 @@ function joinSettings(obj) {
             initState('appInitMPDSettings', 'error');
             showAppInitAlert(obj == '' ? 'Can not parse settings' : obj.data);
         }
+        settingsNew.mpdConnected = false;
     }
     else {
         for (var key in obj.data) {
@@ -1692,6 +1713,7 @@ function joinSettings(obj) {
     settings = Object.assign({}, settingsNew);
     settingsLock = false;
     parseSettings();
+    toggleUI();
 }
 
 function saveCols(table, tableEl) {
@@ -1829,8 +1851,10 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
 }
 
 function parseState(obj) {
-    if (JSON.stringify(obj) === JSON.stringify(lastState))
+    if (JSON.stringify(obj) === JSON.stringify(lastState)) {
+        toggleUI();
         return;
+    }
 
     //Set playstate
     if (obj.data.state == 1) {
@@ -1894,6 +1918,10 @@ function parseState(obj) {
         sendAPI({"cmd": "MPD_API_QUEUE_LAST_PLAYED", "data": {"offset": app.current.page, "cols": settings.colsQueueLastPlayed}}, parseLastPlayed);
 
     lastState = obj;                    
+    
+    if (settings.mpdConnected == false || uiEnabled == false) {
+        getSettings(true);
+    }
 }
 
 function parseVolume(obj) {
