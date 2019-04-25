@@ -20,6 +20,7 @@ binary-arch:
 	mv debian/debian/tmp/bin debian/tmp/usr
 	mv debian/debian/tmp/share debian/tmp/usr/
 	mv debian/debian/tmp/etc debian/tmp/
+	rm -rf debian/debian
 	cp debian/postinst debian/tmp/DEBIAN
 	cp debian/postrm debian/tmp/DEBIAN
 	dpkg-gencontrol -pmympd
