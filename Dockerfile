@@ -17,6 +17,7 @@ WORKDIR /
 RUN tar -czvf /libmpdclient-master.tar.gz -C /libmpdclient-dist .
 COPY . /myMPD/
 ENV MYMPD_INSTALL_PREFIX=/myMPD-dist/usr
+ENV DOCKER=true
 RUN mkdir -p $MYMPD_INSTALL_PREFIX
 WORKDIR /myMPD
 RUN ./mkrelease.sh
@@ -24,7 +25,7 @@ WORKDIR /
 RUN tar -czvf /mympd.tar.gz -C /myMPD-dist .
 
 FROM library/debian:9-slim
-ENV MYMPD_LOGLEVEL=1
+ENV MYMPD_LOGLEVEL=2
 ENV MPD_HOST=127.0.0.1
 ENV MPD_PORT=6600
 ENV WEBSERVER_SSL=true

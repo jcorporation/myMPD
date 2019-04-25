@@ -108,7 +108,6 @@ fi
 /usr/bin/mympd
 /usr/share/mympd
 %config /etc/mympd
-/usr/share/man/man1/mympd.1.gz
 /var/lib/mympd
 
 %changelog

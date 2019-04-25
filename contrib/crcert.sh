@@ -1,14 +1,20 @@
 #!/bin/sh
 
-if [ -d /var/lib/mympd/ssl ]
+VARDIR=$1
+if [ "$VARDIR" = "" ]
 then
-  echo "SSL directory exists, to recreate certificates: \"rm -r /var/lib/mympd/ssl\""
+  VARDIR="/var/lib/mympd"
+fi
+
+if [ -d ${VARDIR}/ssl ]
+then
+  echo "SSL directory exists, to recreate certificates: \"rm -r ${VARDIR}/ssl\""
   exit 0
 fi
 
-mkdir -p /var/lib/mympd/ssl/ca/certs
-chmod 700 /var/lib/mympd/ssl
-cd /var/lib/mympd/ssl/ca
+mkdir -p ${VARDIR}/ssl/ca/certs
+chmod 700 ${VARDIR}/ssl
+cd ${VARDIR}/ssl/ca
 
 echo '01' > serial
 touch index.txt
@@ -33,10 +39,10 @@ basicConstraints = CA:true
 default_ca = mympd_ca
 
 [mympd_ca]
-dir = /var/lib/mympd/ssl/ca
-database = /var/lib/mympd/ssl/ca/index.txt
-new_certs_dir = /var/lib/mympd/ssl/ca/certs/
-serial = /var/lib/mympd/ssl/ca/serial
+dir = ${VARDIR}/ssl/ca
+database = ${VARDIR}/ssl/ca/index.txt
+new_certs_dir = ${VARDIR}/ssl/ca/certs/
+serial = ${VARDIR}/ssl/ca/serial
 copy_extensions = copy
 policy = local_ca_policy
 x509_extensions = local_ca_extensions
@@ -58,7 +64,7 @@ HOSTNAME=$(hostname)
 FQDN=$(hostname -f)
 IP=$(getent hosts $HOSTNAME | awk {'print $1'})
 
-cd /var/lib/mympd/ssl
+cd ${VARDIR}/ssl
 echo "Creating cert:"
 echo "\t$HOSTNAME"
 echo "\t$FQDN"
@@ -100,4 +106,4 @@ rm server.csr
 rm ca/ca.cnf
 rm req.cnf
 
-chown -R mympd.mympd /var/lib/mympd/
+chown -R mympd.mympd ${VARDIR}
