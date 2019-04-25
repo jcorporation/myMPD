@@ -55,7 +55,8 @@ int randrange(int n) {
 }
 
 bool validate_string(const char *data) {
-    if (strchr(data, '/') != NULL || strchr(data, '\n') != NULL || strchr(data, '\r') != NULL) {
+    if (strchr(data, '/') != NULL || strchr(data, '\n') != NULL || strchr(data, '\r') != NULL ||
+        strchr(data, '"') != NULL || strchr(data, '\'') != NULL) {
         return false;
     }
     return true;

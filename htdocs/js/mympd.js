@@ -3588,7 +3588,7 @@ function validate_plname(x) {
     if (x == '') {
         return false;
     }
-    else if (x.match(/\/|\r|\n/) == null) {
+    else if (x.match(/\/|\r|\n|"|'/) == null) {
         return true;
     }
     else {
