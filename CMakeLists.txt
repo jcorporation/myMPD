@@ -26,11 +26,13 @@ else()
     set(DEBUG "ON")
 endif()
 
+MESSAGE("ASSETS_PATH: ${ASSETS_PATH}")
+
 if("${CMAKE_SIZEOF_VOID_P}" EQUAL "8")
     MESSAGE("++ 64 bit architecture") 
     set(PKGARCH64 "ON")
 else() 
-    MESSAGE("++ 32 bit architecture") 
+    MESSAGE("++ 32 bit architecture")
     set(PKGARCH64 "OFF")
 endif()
 
