@@ -935,9 +935,14 @@ function appInit() {
     
     window.addEventListener('appinstalled', function(event) {
         console.log('myMPD installed as app');
+        showNotification('myMPD installed as app', '', '', 'success');
     });
 
     window.addEventListener('beforeunload', function() {
+        if (websocketTimer != null) {
+            clearTimeout(websocketTimer);
+            websocketTimer = null;
+        }
         socket.onclose = function () {}; // disable onclose handler first
         socket.close();
         websocketConnected = false;
