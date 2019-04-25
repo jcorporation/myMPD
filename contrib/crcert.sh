@@ -3,18 +3,18 @@
 VARDIR=$1
 if [ "$VARDIR" = "" ]
 then
-  VARDIR="/var/lib/mympd"
+  VARDIR="/var/lib/mympd/ssl"
 fi
 
-if [ -d ${VARDIR}/ssl ]
+if [ -d ${VARDIR} ]
 then
-  echo "SSL directory exists, to recreate certificates: \"rm -r ${VARDIR}/ssl\""
+  echo "SSL directory exists, to recreate certificates: \"rm -r ${VARDIR}\""
   exit 0
 fi
 
-mkdir -p ${VARDIR}/ssl/ca/certs
-chmod 700 ${VARDIR}/ssl
-cd ${VARDIR}/ssl/ca
+mkdir -p ${VARDIR}/ca/certs
+chmod 700 ${VARDIR}
+cd ${VARDIR}/ca
 
 echo '01' > serial
 touch index.txt
@@ -39,10 +39,10 @@ basicConstraints = CA:true
 default_ca = mympd_ca
 
 [mympd_ca]
-dir = ${VARDIR}/ssl/ca
-database = ${VARDIR}/ssl/ca/index.txt
-new_certs_dir = ${VARDIR}/ssl/ca/certs/
-serial = ${VARDIR}/ssl/ca/serial
+dir = ${VARDIR}/ca
+database = ${VARDIR}/ca/index.txt
+new_certs_dir = ${VARDIR}/ca/certs/
+serial = ${VARDIR}/ca/serial
 copy_extensions = copy
 policy = local_ca_policy
 x509_extensions = local_ca_extensions
@@ -64,7 +64,7 @@ HOSTNAME=$(hostname)
 FQDN=$(hostname -f)
 IP=$(getent hosts $HOSTNAME | awk {'print $1'})
 
-cd ${VARDIR}/ssl
+cd ${VARDIR}
 echo "Creating cert:"
 echo "\t$HOSTNAME"
 echo "\t$FQDN"
