@@ -5,7 +5,7 @@ BUILDDIR = release
 
 build:
 	mkdir $(BUILDDIR)
-	cd $(BUILDDIR); cmake -DCMAKE_INSTALL_PREFIX:PATH=../debian/tmp -DCMAKE_BUILD_TYPE=RELEASE ..
+	cd $(BUILDDIR); cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=RELEASE ..
 	make -C $(BUILDDIR)
 
 binary: binary-indep binary-arch
@@ -13,14 +13,8 @@ binary: binary-indep binary-arch
 binary-indep:
 
 binary-arch:
-	cd $(BUILDDIR); cmake -P cmake_install.cmake
+	cd $(BUILDDIR); make install DESTDIR=../debian/tmp
 	mkdir -p debian/tmp/DEBIAN
-	mv debian/debian/tmp/var debian/tmp/var
-	mkdir -p debian/tmp/usr/
-	mv debian/debian/tmp/bin debian/tmp/usr
-	mv debian/debian/tmp/share debian/tmp/usr/
-	mv debian/debian/tmp/etc debian/tmp/
-	rm -rf debian/debian
 	cp debian/postinst debian/tmp/DEBIAN
 	cp debian/postrm debian/tmp/DEBIAN
 	dpkg-gencontrol -pmympd
