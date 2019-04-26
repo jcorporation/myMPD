@@ -16,9 +16,9 @@ RUN ninja -C output install
 WORKDIR /
 RUN tar -czvf /libmpdclient-master.tar.gz -C /libmpdclient-dist .
 COPY . /myMPD/
-ENV MYMPD_INSTALL_PREFIX=/myMPD-dist/usr
+ENV DESTDIR=/myMPD-dist
 ENV DOCKER=true
-RUN mkdir -p $MYMPD_INSTALL_PREFIX
+RUN mkdir -p $DESTDIR
 WORKDIR /myMPD
 RUN ./mkrelease.sh
 WORKDIR /

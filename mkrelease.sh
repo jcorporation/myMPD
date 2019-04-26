@@ -55,12 +55,12 @@ echo "Compiling and installing mympd"
 install -d release
 cd release
 export INSTALL_PREFIX="${MYMPD_INSTALL_PREFIX:-/usr}"
-cmake -DCMAKE_INSTALL_PREFIX:PATH=$INSTALL_PREFIX -DCMAKE_BUILD_TYPE=RELEASE ..
+cmake -DCMAKE_INSTALL_PREFIX:PATH=${INSTALL_PREFIX} -DCMAKE_BUILD_TYPE=RELEASE ..
 make
 if [ "$DOCKER" = "true" ]
 then
   # Container build
-  make install
+  make install DESTDIR=$DESTDIR
   cd ..
 else
   sudo -E make install
