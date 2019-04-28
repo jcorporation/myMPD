@@ -2760,9 +2760,8 @@ function chkInt(el, frm) {
 function saveSmartPlaylist() {
     var name = document.getElementById('saveSmartPlaylistName').value;
     var type = document.getElementById('saveSmartPlaylistType').value;
-    var valid = name.replace(/[\w\-]/g, '');
     var frm = document.getElementById('saveSmartPlaylistFrm');
-    if (name != '' && valid == '') {
+    if (validate_plname(name) == true) {
         if (type == 'search') {
             var tagEl = document.getElementById('selectSaveSmartPlaylistTag');
             var tag = tagEl.options[tagEl.selectedIndex].value;
@@ -2845,8 +2844,7 @@ function addToPlaylist() {
     var plist = plistEl.options[plistEl.selectedIndex].text;
     if (plist == 'New Playlist') {
         var newPl = document.getElementById('addToPlaylistNewPlaylist').value;
-        var valid = newPl.replace(/[\w\-]/g, '');
-        if (newPl != '' && valid == '') {
+        if (validate_plname(newPl) == true) {
             plist = newPl;
         } else {
             document.getElementById('addToPlaylistNewPlaylist').classList.add('is-invalid');
@@ -2893,8 +2891,7 @@ function showRenamePlaylist(from) {
 function renamePlaylist() {
     var from = document.getElementById('renamePlaylistFrom').value;
     var to = document.getElementById('renamePlaylistTo').value;
-    var valid = to.replace(/[\w\-]/g, '');
-    if (to != '' && to != from && valid == '') {
+    if (to != from && validate_plname(to) == true && validate_plname(from) == true) {
         sendAPI({"cmd": "MPD_API_PLAYLIST_RENAME", "data": {"from": from, "to": to}});
         modalRenamePlaylist.hide();
     }
@@ -3336,13 +3333,11 @@ function gotoPage(x) {
 
 function saveQueue() {
     var plName = document.getElementById('saveQueueName').value;
-    var valid = plName.replace(/[\w\-]/g, '');
-    if (plName != '' && valid == '') {
+    if (validate_plname(from) == true) {
         sendAPI({"cmd": "MPD_API_QUEUE_SAVE", "data": {"plist": plName}});
         modalSavequeue.hide();
     }
     else {
-        alert(valid);
         document.getElementById('saveQueueName').classList.add('is-invalid');
         document.getElementById('saveQueueFrm').classList.add('was-validated');
     }
@@ -3587,6 +3582,18 @@ function beautifyDuration(x) {
 
 function genId(x) {
     return 'id' + x.replace(/[^\w\-]/g, '');
+}
+
+function validate_plname(x) {
+    if (x == '') {
+        return false;
+    }
+    else if (x.match(/\/|\r|\n|"|'/) == null) {
+        return true;
+    }
+    else {
+        return false;
+    }
 }
 
 //Init app

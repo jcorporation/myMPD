@@ -55,13 +55,8 @@ int randrange(int n) {
 }
 
 bool validate_string(const char *data) {
-    static char ok_chars[] = "abcdefghijklmnopqrstuvwxyz"
-                             "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                             "1234567890_-. ";
-    const char *cp = data;
-    const char *end = data + strlen(data);
-    for (cp += strspn(cp, ok_chars); cp != end; cp += strspn(cp, ok_chars)) {
-        LOG_ERROR("Invalid character in string");
+    if (strchr(data, '/') != NULL || strchr(data, '\n') != NULL || strchr(data, '\r') != NULL ||
+        strchr(data, '"') != NULL || strchr(data, '\'') != NULL) {
         return false;
     }
     return true;

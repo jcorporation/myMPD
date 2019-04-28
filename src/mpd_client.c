@@ -2543,7 +2543,7 @@ static int mpd_client_rename_playlist(t_config *config, t_mpd_state *mpd_state, 
     }
     
     if (mpd_run_rename(mpd_state->conn, old_playlist, new_playlist)) {
-        len = json_printf(&out, "{type: result, data: %Q}", "Renamed playlist %s to %s");
+        len = json_printf(&out, "{type: result, data: %Q}", "Sucessfully renamed playlist");
     }
     else {
         RETURN_ERROR_AND_RECOVER("mpd_run_rename");
