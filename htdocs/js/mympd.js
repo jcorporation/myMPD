@@ -2288,12 +2288,14 @@ function parseListDBtags(obj) {
             card.setAttribute('id', 'card' + id);
             card.setAttribute('data-album', encodeURI(obj.data[i].value));
             var html = '<div class="card-header"><span id="albumartist' + id + '"></span> &ndash; ' + obj.data[i].value + '</div>' +
-                             ' <div class="card-body"><div class="row">';
-            if (settings.featCoverimage)
-                html += '  <div class="col-md-auto"><a class="card-img-left"></a></div>';
-            html += '  <div class="col"><table class="tblAlbumTitles table table-sm table-hover" id="tbl' + id + '"><thead><tr></tr></thead><tbody></tbody></table></div>' + 
-                              ' </div></div>' +
-                              '</div>';
+                       '<div class="card-body"><div class="row">';
+            if (settings.featCoverimage) {
+                html += '<div class="col-md-auto"><a class="card-img-left"></a></div>';
+            }
+            html += '<div class="col"><table class="tblAlbumTitles table table-sm table-hover" id="tbl' + id + '"><thead><tr></tr></thead><tbody></tbody>' +
+                    '<tfoot class="bg-light border-bottom"></tfoot></table></div>' + 
+                    '</div></div>' +
+                    '</div>';
             
             card.innerHTML = html;
             if (i < cards.length)
@@ -2380,6 +2382,7 @@ function parseListTitles(obj) {
     var id = genId(obj.Album);
     var card = document.getElementById('card' + id)
     var tbody = card.getElementsByTagName('tbody')[0];
+    var tfoot = card.getElementsByTagName('tfoot')[0];
     var cardHeader = card.querySelector('.card-header');
     cardHeader.setAttribute('data-uri', encodeURI(obj.data[0].uri.replace(/\/[^\/]+$/, '')));
     cardHeader.setAttribute('data-name', obj.Album);
@@ -2416,6 +2419,10 @@ function parseListTitles(obj) {
         titleList += '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">playlist_add</a></td></tr>';
     }
     tbody.innerHTML = titleList;
+    var minutes = Math.floor(obj.totalTime / 60);
+    var seconds = obj.totalTime - minutes * 60;
+    var totalDuration = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+    tfoot.innerHTML = '<tr><td colspan="' + (settings.colsBrowseDatabase.length + 1) + '">' + obj.totalEntities + ' Songs &ndash; ' + totalDuration + '</td></tr>';
 
     tbody.parentNode.addEventListener('click', function(event) {
         if (event.target.nodeName == 'TD') {

@@ -2471,6 +2471,7 @@ static int mpd_client_put_songs_in_album(t_config *config, t_mpd_state *mpd_stat
     size_t cover_len = 2000;
     char cover[cover_len];
     char *albumartist = NULL;
+    int totalTime = 0;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
 
     if (mpd_search_db_songs(mpd_state->conn, true) == false)
@@ -2503,18 +2504,20 @@ static int mpd_client_put_songs_in_album(t_config *config, t_mpd_state *mpd_stat
                 len += json_printf(&out, "{Type: song, ");
                 PUT_SONG_TAG_COLS(tagcols);
                 len += json_printf(&out, "}");
+                totalTime += mpd_song_get_duration(song);
             }
             mpd_song_free(song);
         }
         
-        len += json_printf(&out, "], totalEntities: %d, returnedEntities: %d, Album: %Q, search: %Q, tag: %Q, cover: %Q, AlbumArtist: %Q}",
+        len += json_printf(&out, "], totalEntities: %d, returnedEntities: %d, Album: %Q, search: %Q, tag: %Q, cover: %Q, AlbumArtist: %Q, totalTime: %d}",
             entity_count,
             entities_returned,
             album,
             search,
             tag,
             cover,
-            (albumartist != NULL ? albumartist : "-")
+            (albumartist != NULL ? albumartist : "-"),
+            totalTime
         );
     }
     FREE_PTR(albumartist);
