@@ -64,7 +64,7 @@ static bool write_base64_decoded(std::string const& encoded_string, const std::s
     }
     
     ofstream myfile;
-    myfile.open(abs_tmp_file, ofstream::binary);
+    myfile.open(abs_tmp_file.c_str(), ofstream::binary);
     if (!myfile.is_open()) {
         return false;
     }
