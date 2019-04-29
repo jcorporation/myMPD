@@ -33,6 +33,7 @@ var settingsLock = false;
 var settingsParsed = 'false';
 var settingsNew = {};
 var settings = {};
+settings.loglevel = 2;
 var alertTimeout = null;
 var progressTimer = null;
 var deferredPrompt;
@@ -406,11 +407,11 @@ function appInitStart() {
         window.addEventListener('load', function() {
             navigator.serviceWorker.register('/sw.min.js', {scope: '/'}).then(function(registration) {
                 // Registration was successful
-                console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                log_info('ServiceWorker registration successful.');
                 registration.update();
             }, function(err) {
                 // Registration failed
-                console.log('ServiceWorker registration failed: ', err);
+                log_error('ServiceWorker registration failed: ', err);
             });
         });
     }
@@ -925,16 +926,18 @@ function appInit() {
         deferredPrompt.prompt();
         // Wait for the user to respond to the prompt
         deferredPrompt.userChoice.then((choiceResult) => {
-            if (choiceResult.outcome === 'accepted')
-                console.log('User accepted the A2HS prompt');
-            else
-                console.log('User dismissed the A2HS prompt');
+            if (choiceResult.outcome === 'accepted') {
+                log_verbose('User accepted the A2HS prompt');
+            }
+            else {
+                log_verbose('User dismissed the A2HS prompt');
+            }
             deferredPrompt = null;
         });
     });
     
     window.addEventListener('appinstalled', function(event) {
-        console.log('myMPD installed as app');
+        log_info('myMPD installed as app');
         showNotification('myMPD installed as app', '', '', 'success');
     });
 
@@ -1188,11 +1191,11 @@ function toggleUI() {
 function webSocketConnect() {
     var wsUrl = getWsUrl();
     socket = new WebSocket(wsUrl);
-    console.log('Connecting to ' + wsUrl);
+    log_info('Connecting to ' + wsUrl);
 
     try {
         socket.onopen = function() {
-            console.log('Websocket is connected');
+            log_info('Websocket is connected');
             websocketConnected = true;
             if (websocketTimer != null) {
                 clearTimeout(websocketTimer);
@@ -1203,8 +1206,9 @@ function webSocketConnect() {
         socket.onmessage = function got_packet(msg) {
             try {
                 var obj = JSON.parse(msg.data);
+                log_debug('Websocket notification: ' + obj.type);
             } catch(e) {
-                console.log('Invalid JSON data received: ' + msg.data);
+                log_error('Invalid JSON data received: ' + msg.data);
             }
 
             switch (obj.type) {
@@ -1235,7 +1239,7 @@ function webSocketConnect() {
                     if (app.current.app === 'Queue') {
                         getQueue();
                     }
-                    sendAPI({"cmd": "MPD_API_PLAYER_STATE"}, parseState);
+                    //sendAPI({"cmd": "MPD_API_PLAYER_STATE"}, parseState);
                     break;
                 case 'update_options':
                     getSettings();
@@ -1272,7 +1276,7 @@ function webSocketConnect() {
         }
 
         socket.onclose = function(){
-            console.log('Websocket is disconnected');
+            log_error('Websocket is disconnected');
             websocketConnected = false;
             if (appInited == true) {
                 //toggleAlert('alertMympdState', true, 'Websocket connection failed.');
@@ -1290,7 +1294,7 @@ function webSocketConnect() {
             }
             if (websocketTimer == null) {
                 websocketTimer = setTimeout(function() {
-                    console.log('Reconnecting websocket');
+                    log_info('Reconnecting websocket');
                     toggleAlert('alertMympdState', true, 'Websocket connection failed. Trying to reconnect&nbsp;&nbsp;<div class="spinner-border spinner-border-sm"></div>');
                     webSocketConnect();
                 }, 3000);
@@ -2537,11 +2541,16 @@ function parseSongDetails(obj) {
     
     var songDetails = '';
     for (var i = 0; i < settings.tags.length; i++) {
+        if (settings.tags[i] == 'Title') {
+            continue;
+        }
         songDetails += '<tr><th>' + settings.tags[i] + '</th><td data-tag="' + settings.tags[i] + '" data-name="' + encodeURI(obj.data[settings.tags[i]]) + '">';
-        if (settings.browsetags.includes(settings.tags[i]))
+        if (settings.browsetags.includes(settings.tags[i])) {
             songDetails += '<a class="text-success" href="#">' + obj.data[settings.tags[i]] + '</a>';
-        else
+        }
+        else {
             songDetails += obj.data[settings.tags[i]];
+        }
         songDetails += '</td></tr>';
     }
     var duration = obj.data.Duration;
@@ -2549,16 +2558,18 @@ function parseSongDetails(obj) {
     var seconds = duration - minutes * 60;
     duration = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
     songDetails += '<tr><th>Duration</th><td>' + duration + '</td></tr>';
-    if (settings.featLibrary)
+    if (settings.featLibrary) {
         songDetails += '<tr><th>Filename</th><td><a class="text-success" href="/library/' + encodeURI(obj.data.uri) + '">' + obj.data.uri + '</a></td></tr>';
-    else
+    }
+    else {
         songDetails += '<tr><th>Filename</th><td>' + obj.data.uri + '</td></tr>';
-    
+    }
     if (settings.featStickers == true) {
         songDetails += '<tr><th colspan="2">Statistics</th></tr>' +
             '<tr><th>Play count</th><td>' + obj.data.playCount + '</td></tr>' +
             '<tr><th>Skip count</th><td>' + obj.data.skipCount + '</td></tr>' +
             '<tr><th>Last played</th><td>' + (obj.data.lastPlayed == 0 ? 'never' : new Date(obj.data.lastPlayed * 1000).toUTCString()) + '</td></tr>' +
+            '<tr><th>Last skipped</th><td>' + (obj.data.lastSkipped == 0 ? 'never' : new Date(obj.data.lastSkipped * 1000).toUTCString()) + '</td></tr>' +
             '<tr><th>Like</th><td>' +
               '<div class="btn-group btn-group-sm">' +
                 '<button title="Dislike song" id="btnVoteDown2" data-href=\'{"cmd": "voteSong", "options": [0]}\' class="btn btn-sm btn-light material-icons">thumb_down</button>' +
@@ -3097,24 +3108,28 @@ function sendAPI(request, callback, onerror) {
                 var obj = JSON.parse(ajaxRequest.responseText);
                 if (obj.type == 'error') {
                     showNotification('Error', obj.data, obj.data, 'danger');
-                    console.log('Error: ' + obj.data);
+                    log_error(obj.data);
                     if (onerror == true) {
                         if (callback != undefined && typeof(callback) == 'function') {
+                            log_debug('Got API response of type "' + obj.type + '" calling ' + callback.name);
                             callback(obj);
                         }
                     }
                 }
                 else if (obj.type == 'result' && obj.data != 'ok') {
+                    log_debug('Got API response: ' + obj.data);
                     showNotification(obj.data, '', '', 'success');
                 }
                 else if (callback != undefined && typeof(callback) == 'function') {
+                    log_debug('Got API response of type "' + obj.type + '" calling ' + callback.name);
                     callback(obj);
                 }
             }
             else {
-                console.log('Empty response for request: ' + JSON.stringify(request));
+                log_error('Empty response for request: ' + JSON.stringify(request));
                 if (onerror == true) {
                     if (callback != undefined && typeof(callback) == 'function') {
+                        log_debug('Got API response of type "' + obj.type + '" calling ' + callback.name);
                         callback('');
                     }
                 }
@@ -3122,6 +3137,7 @@ function sendAPI(request, callback, onerror) {
         }
     };
     ajaxRequest.send(JSON.stringify(request));
+    log_debug('Send API request: ' + request.cmd);
 }
 
 function openLocalPlayer() {
@@ -3593,6 +3609,32 @@ function validate_plname(x) {
     }
     else {
         return false;
+    }
+}
+
+function log_error(line) {
+    log_log(0, 'ERROR: ' + line);
+}
+
+function log_warn(line) {
+    log_log(1, 'WARN: ' + line);
+}
+
+function log_info(line) {
+    log_log(2, 'INFO: ' + line);
+}
+
+function log_verbose(line) {
+    log_log(3, 'VERBOSE: ' + line);
+}
+
+function log_debug(line) {
+    log_log(4, 'DEBUG: ' + line);
+}
+
+function log_log(loglevel, line) {
+    if (settings.loglevel >= loglevel) {
+        console.log(line);
     }
 }
 
