@@ -52,6 +52,7 @@ static void mympd_signal_handler(int sig_num) {
     s_signal_received = sig_num;
     //Wakeup mympd_api_loop
     pthread_cond_signal(&mympd_api_queue->wakeup);
+    LOG_INFO("Signal %d received, exiting", sig_num);
 }
 
 static int mympd_inihandler(void *user, const char *section, const char *name, const char* value) {
@@ -462,6 +463,7 @@ int main(int argc, char **argv) {
     //Create working threads
     pthread_t mpd_client_thread, web_server_thread, mympd_api_thread;
     //mpd connection
+    LOG_INFO("Starting mpd client thread");
     if (pthread_create(&mpd_client_thread, NULL, mpd_client_loop, config) == 0) {
         pthread_setname_np(mpd_client_thread, "mympd_mpdclient");
         init_thread_mpdclient = true;
@@ -471,6 +473,7 @@ int main(int argc, char **argv) {
         s_signal_received = SIGTERM;
     }
     //webserver
+    LOG_INFO("Starting webserver thread");
     if (pthread_create(&web_server_thread, NULL, web_server_loop, &mgr) == 0) {
         pthread_setname_np(web_server_thread, "mympd_webserver");
         init_thread_webserver = true;
@@ -480,6 +483,7 @@ int main(int argc, char **argv) {
         s_signal_received = SIGTERM;
     }
     //mympd api
+    LOG_INFO("Starting mympd api thread");
     if (pthread_create(&mympd_api_thread, NULL, mympd_api_loop, config) == 0) {
         pthread_setname_np(mympd_api_thread, "mympd_mympdapi");
         init_thread_mympdapi = true;
@@ -494,26 +498,30 @@ int main(int argc, char **argv) {
 
     //Try to cleanup all
     cleanup:
-    if (init_thread_mpdclient)
+    if (init_thread_mpdclient) {
         pthread_join(mpd_client_thread, NULL);
-    if (init_thread_webserver)
+        LOG_INFO("Stopping mpd client thread");
+    }
+    if (init_thread_webserver) {
         pthread_join(web_server_thread, NULL);
-    if (init_thread_mympdapi)
+        LOG_INFO("Stopping web server thread");
+    }
+    if (init_thread_mympdapi) {
         pthread_join(mympd_api_thread, NULL);
-    if (init_webserver)
+        LOG_INFO("Stopping mympd api thread");
+    }
+    if (init_webserver) {
         web_server_free(&mgr);
+    }
     tiny_queue_free(web_server_queue);
     tiny_queue_free(mpd_client_queue);
     tiny_queue_free(mympd_api_queue);
     close_plugins(config);
     mympd_free_config(config);
     FREE_PTR(configfile);
-    if (mg_user_data->music_directory != NULL)
-        FREE_PTR(mg_user_data->music_directory);
-    if (mg_user_data->pics_directory != NULL)
-        FREE_PTR(mg_user_data->pics_directory);
-    if (mg_user_data->rewrite_patterns != NULL)
-        FREE_PTR(mg_user_data->rewrite_patterns);
+    FREE_PTR(mg_user_data->music_directory);
+    FREE_PTR(mg_user_data->pics_directory);
+    FREE_PTR(mg_user_data->rewrite_patterns);
     FREE_PTR(mg_user_data);
     return rc;
 }

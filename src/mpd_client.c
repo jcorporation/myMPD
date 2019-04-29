@@ -1,6 +1,5 @@
-/* myMPD
-   (c) 2018-2019 Juergen Mang <mail@jcgames.de>
-   This project's homepage is: https://github.com/jcorporation/mympd
+/* myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de> This project's
+   homepage is: https://github.com/jcorporation/mympd
    
    myMPD ist fork of:
    
@@ -112,10 +111,13 @@ typedef struct t_mpd_state {
     int song_id;
     int next_song_id;
     int last_song_id;
+    char *song_uri;
+    char *last_song_uri;
     unsigned queue_version;
     unsigned queue_length;
     int last_update_sticker_song_id;
     int last_last_played_id;
+    time_t next_song_change_time;
     
     // Features
     const unsigned* protocol;
@@ -152,6 +154,7 @@ typedef struct t_sticker {
     long playCount;
     long skipCount;
     long lastPlayed;
+    long lastSkipped;
     long like;
 } t_sticker;
 
@@ -165,11 +168,10 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state);
 static void mpd_client_parse_idle(t_config *config, t_mpd_state *mpd_state, const int idle_bitmask);
 static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request);
 static void mpd_client_notify(const char *message, const size_t n);
-static bool mpd_client_count_song_id(t_mpd_state *mpd_state, const int song_id, const char *name, const int value);
 static bool mpd_client_count_song_uri(t_mpd_state *mpd_state, const char *uri, const char *name, const int value);
 static bool mpd_client_like_song_uri(t_mpd_state *mpd_state, const char *uri, int value);
-static bool mpd_client_last_played_song_id(t_mpd_state *mpd_state, const int song_id);
 static bool mpd_client_last_played_song_uri(t_mpd_state *mpd_state, const char *uri);
+static bool mpd_client_last_skipped_song_uri(t_mpd_state *mpd_state, const char *uri);
 static bool mpd_client_get_sticker(t_mpd_state *mpd_state, const char *uri, t_sticker *sticker);
 static bool mpd_client_last_played_list(t_config *config, t_mpd_state *mpd_state, const int song_id);
 static bool mpd_client_jukebox(t_config *config, t_mpd_state *mpd_state);
@@ -220,6 +222,8 @@ void *mpd_client_loop(void *arg_config) {
     mpd_state.song_id = -1;
     mpd_state.next_song_id = -1;
     mpd_state.last_song_id = -1;
+    mpd_state.song_uri = NULL;
+    mpd_state.last_song_uri = NULL;
     mpd_state.queue_version = 0;
     mpd_state.queue_length = 0;
     mpd_state.last_update_sticker_song_id = -1;
@@ -237,6 +241,7 @@ void *mpd_client_loop(void *arg_config) {
     mpd_state.jukeboxQueueLength = 1;
     mpd_state.autoPlay = false;
     mpd_state.music_directory = NULL;
+    mpd_state.next_song_change_time = 0;
     mpd_state.mpd_tag_types_len = 0;
     memset(mpd_state.mpd_tag_types, 0, sizeof(mpd_state.mpd_tag_types));
     mpd_state.mympd_tag_types_len = 0;
@@ -259,6 +264,8 @@ void *mpd_client_loop(void *arg_config) {
     list_free(&mpd_state.last_played);
     FREE_PTR(mpd_state.music_directory);
     FREE_PTR(mpd_state.jukeboxPlaylist);
+    FREE_PTR(mpd_state.song_uri);
+    FREE_PTR(mpd_state.last_song_uri);
     return NULL;
 }
 
@@ -459,8 +466,6 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
             }
             break;
         case MPD_API_PLAYER_NEXT:
-            if (mpd_state->feat_sticker)
-                mpd_client_count_song_id(mpd_state, mpd_state->song_id, "skipCount", 1);
             if (mpd_run_next(mpd_state->conn))
                 response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             else {
@@ -1018,10 +1023,15 @@ static void mpd_client_parse_idle(t_config *config, t_mpd_state *mpd_state, int 
                     if (mpd_state->song_id != mpd_state->last_song_id) {
                         if (mpd_state->last_last_played_id != mpd_state->song_id) {
                             mpd_client_last_played_list(config, mpd_state, mpd_state->song_id);
+                            time_t now = time(NULL);
+                            if (mpd_state->feat_sticker && mpd_state->next_song_change_time > now && mpd_state->last_song_uri != NULL) {
+                                mpd_client_count_song_uri(mpd_state, mpd_state->last_song_uri, "skipCount", 1);
+                                mpd_client_last_skipped_song_uri(mpd_state, mpd_state->last_song_uri);
+                            }
                         }
                         if (mpd_state->feat_sticker && mpd_state->last_update_sticker_song_id != mpd_state->song_id) {
-                            mpd_client_count_song_id(mpd_state, mpd_state->song_id, "playCount", 1);
-                            mpd_client_last_played_song_id(mpd_state, mpd_state->song_id);
+                            mpd_client_count_song_uri(mpd_state, mpd_state->song_uri, "playCount", 1);
+                            mpd_client_last_played_song_uri(mpd_state, mpd_state->song_uri);
                             mpd_state->last_update_sticker_song_id = mpd_state->song_id;
                         }
                     }
@@ -1521,6 +1531,7 @@ static bool mpd_client_get_sticker(t_mpd_state *mpd_state, const char *uri, t_st
     sticker->playCount = 0;
     sticker->skipCount = 0;
     sticker->lastPlayed = 0;
+    sticker->lastSkipped = 0;
     sticker->like = 1;
     
     if (uri == NULL || strstr(uri, "://") != NULL) {
@@ -1538,6 +1549,9 @@ static bool mpd_client_get_sticker(t_mpd_state *mpd_state, const char *uri, t_st
             else if (strcmp(pair->name, "lastPlayed") == 0) {
                 sticker->lastPlayed = strtol(pair->value, &crap, 10);
             }
+            else if (strcmp(pair->name, "lastSkipped") == 0) {
+                sticker->lastSkipped = strtol(pair->value, &crap, 10);
+            }
             else if (strcmp(pair->name, "like") == 0) {
                 sticker->like = strtol(pair->value, &crap, 10);
             }
@@ -1547,27 +1561,6 @@ static bool mpd_client_get_sticker(t_mpd_state *mpd_state, const char *uri, t_st
     else {
         LOG_ERROR_AND_RECOVER("mpd_send_sticker_list");
         return false;
-    }
-    return true;
-}
-
-static bool mpd_client_count_song_id(t_mpd_state *mpd_state, const int song_id, const char *name, const int value) {
-    struct mpd_song *song;
-    if (song_id > -1) {
-        song = mpd_run_get_queue_song_id(mpd_state->conn, song_id);
-        if (song) {
-            if (!mpd_client_count_song_uri(mpd_state, mpd_song_get_uri(song), name, value)) {
-                mpd_song_free(song);
-                return false;
-            }
-            else {
-                mpd_song_free(song);
-                return true;
-            }
-        }
-    } 
-    else {
-        //song_id <= 0, do nothing
     }
     return true;
 }
@@ -1678,39 +1671,13 @@ static bool mpd_client_last_played_list(t_config *config, t_mpd_state *mpd_state
     return true;
 }
 
-static bool mpd_client_last_played_song_id(t_mpd_state *mpd_state, const int song_id) {
-    struct mpd_song *song;
-    
-    if (song_id > -1) {
-        song = mpd_run_get_queue_song_id(mpd_state->conn, song_id);
-        if (song) {
-            if (mpd_client_last_played_song_uri(mpd_state, mpd_song_get_uri(song)) == false) {
-                mpd_song_free(song);
-                return false;
-            }
-            else {
-                mpd_song_free(song);
-                return true;
-            }
-        }
-        else {
-            LOG_ERROR_AND_RECOVER("mpd_run_get_queue_song_id");
-            return false;
-        }
-    }
-    else {
-        //song_id <= 0, do nothing
-    }
-    return true;
-}
-
 static bool mpd_client_last_played_song_uri(t_mpd_state *mpd_state, const char *uri) {
     if (uri == NULL || strstr(uri, "://") == NULL) {
         return false;
     }
     char v[20];
-    time_t seconds = time(NULL);
-    snprintf(v, 20, "%ld", seconds);
+    time_t now = time(NULL);
+    snprintf(v, 20, "%ld", now);
     LOG_VERBOSE("Setting sticker: \"%s\" -> lastPlayed: %s", uri, v);
     if (!mpd_run_sticker_set(mpd_state->conn, "song", uri, "lastPlayed", v)) {
         LOG_ERROR_AND_RECOVER("mpd_run_sticker_set");
@@ -1719,6 +1686,20 @@ static bool mpd_client_last_played_song_uri(t_mpd_state *mpd_state, const char *
     return true;
 }
 
+static bool mpd_client_last_skipped_song_uri(t_mpd_state *mpd_state, const char *uri) {
+    if (uri == NULL || strstr(uri, "://") == NULL) {
+        return false;
+    }
+    char v[20];
+    time_t now = time(NULL);
+    snprintf(v, 20, "%ld", now);
+    LOG_VERBOSE("Setting sticker: \"%s\" -> lastSkipped: %s", uri, v);
+    if (!mpd_run_sticker_set(mpd_state->conn, "song", uri, "lastSkipped", v)) {
+        LOG_ERROR_AND_RECOVER("mpd_run_sticker_set");
+        return false;
+    }
+    return true;
+}
 
 static char *mpd_client_get_tag(struct mpd_song const *song, const enum mpd_tag_type tag) {
     char *str = (char *)mpd_song_get_tag(song, tag, 0);
@@ -1895,8 +1876,25 @@ static int mpd_client_put_state(t_mpd_state *mpd_state, char *buffer) {
     }
     const struct mpd_audio_format *audioformat = mpd_status_get_audio_format(status);
     const int song_id = mpd_status_get_song_id(status);
-    if (mpd_state->song_id != song_id)
+    if (mpd_state->song_id != song_id) {
         mpd_state->last_song_id = mpd_state->song_id;
+        struct mpd_song *song = mpd_run_current_song(mpd_state->conn);
+        if (song != NULL) {
+            FREE_PTR(mpd_state->last_song_uri);
+            if (mpd_state->song_uri != NULL) {
+                mpd_state->last_song_uri = mpd_state->song_uri;
+            }
+            mpd_state->song_uri = strdup(mpd_song_get_uri(song));
+            mpd_song_free(song);
+        }
+        else {
+            FREE_PTR(mpd_state->song_uri);
+        }
+        mpd_response_finish(mpd_state->conn);
+    }
+    
+    const int total_time = mpd_status_get_total_time(status);
+    const int elapsed_time =  mpd_status_get_elapsed_time(status);
     
     len = json_printf(&out, "{type: update_state, data: {state: %d, volume: %d, songPos: %d, elapsedTime: %d, "
         "totalTime: %d, currentSongId: %d, kbitrate: %d, audioFormat: { sampleRate: %d, bits: %d, channels: %d}, "
@@ -1904,8 +1902,8 @@ static int mpd_client_put_state(t_mpd_state *mpd_state, char *buffer) {
         mpd_status_get_state(status),
         mpd_status_get_volume(status), 
         mpd_status_get_song_pos(status),
-        mpd_status_get_elapsed_time(status),
-        mpd_status_get_total_time(status),
+        elapsed_time,
+        total_time,
         song_id,
         mpd_status_get_kbit_rate(status),
         audioformat ? audioformat->sample_rate : 0, 
@@ -1924,8 +1922,17 @@ static int mpd_client_put_state(t_mpd_state *mpd_state, char *buffer) {
     mpd_state->next_song_id = mpd_status_get_next_song_id(status);
     mpd_state->queue_version = mpd_status_get_queue_version(status);
     mpd_state->queue_length = mpd_status_get_queue_length(status);
-    mpd_status_free(status);
 
+    if (total_time > 10) {
+        time_t now = time(NULL);
+        mpd_state->next_song_change_time = now + total_time - elapsed_time - 10;
+    }
+    else {
+        mpd_state->next_song_change_time = 0;
+    }
+
+    mpd_status_free(status);
+        
     CHECK_RETURN_LEN();
 }
 
@@ -2171,11 +2178,12 @@ static int mpd_client_put_songdetails(t_config *config, t_mpd_state *mpd_state, 
         t_sticker *sticker = (t_sticker *) malloc(sizeof(t_sticker));
         assert(sticker);
         mpd_client_get_sticker(mpd_state, uri, sticker);
-        len += json_printf(&out, ", playCount: %d, skipCount: %d, like: %d, lastPlayed: %d",
+        len += json_printf(&out, ", playCount: %d, skipCount: %d, like: %d, lastPlayed: %d, lastSkipped: %d",
             sticker->playCount,
             sticker->skipCount,
             sticker->like,
-            sticker->lastPlayed
+            sticker->lastPlayed,
+            sticker->lastSkipped
         );
         FREE_PTR(sticker);
     }
