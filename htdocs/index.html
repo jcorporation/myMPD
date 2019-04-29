@@ -966,35 +966,57 @@
   <div class="modal fade" id="modalAbout" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="aboutLabel"><span class="material-icons title-icon">play_circle_outline</span> About</h5>
+        <div class="modal-header pb-0">
+          <ul class="nav nav-tabs border-bottom-0">
+            <li class="nav-item">
+              <a class="nav-link active text-dark" href="#tabAbout" data-toggle="tab" data-height="true">About</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link text-dark" href="#tabShortcuts" data-toggle="tab" data-height="true">Shortcuts</a>
+            </li>
+          </ul>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
         <div class="modal-body">
-          <h4><a class="text-success" rel="noreferrer" href="https://github.com/jcorporation/ympd">myMPD</a>&nbsp;&ndash;&nbsp;<small>a standalone and mobile friendly web mpdclient</small></h4>
-          <p>myMPD is a lightweight MPD web client that runs without a dedicated webserver or interpreter. It's tuned for minimal resource usage and requires only very litte dependencies. myMPD is a fork of <a class="text-success" href="http://www.ympd.org">ympd</a>.</p>
-          <ul>
-            <li>Version: <span id="mympdVersion"></span></li>
-            <li>Homepage: <a class="text-success" target="_blank" rel="noreferrer" href="https://github.com/jcorporation/mympd">https://github.com/jcorporation/mympd</a></li>
-            <li>Autor: Jürgen Mang &lt;<a class="text-success" href="mailto:mail@jcgames.de">mail@jcgames.de</a>&gt;</li>
-          </ul>
-          <table class="table table-sm">
-            <tbody>
-              <tr><td colspan="2" class="pt-3"><h5>Database Statistics</h5></td></tr>
-              <tr><th>Artists</th><td id="mpdstats_artists"></td></tr>
-              <tr><th>Albums</th><td id="mpdstats_albums"></td></tr>
-              <tr><th>Songs</th><td id="mpdstats_songs"></td></tr>
-              <tr><th>DB Play Time</th><td id="mpdstats_dbPlaytime"></td></tr>
-              <tr><th>DB Updated</th><td id="mpdstats_dbUpdated"></td></tr>
-              <tr><td colspan="2" class="pt-3"><h5>Play Statistics</h5></td></tr>
-              <tr><th>Uptime</th><td id="mpdstats_uptime"></td></tr>
-              <tr><th>Play Time</th><td id="mpdstats_playtime"></td></tr>
-              <tr><td colspan="2" class="pt-3"><h5>MPD</h5></td></tr>
-              <tr><th>Connection</th><td id="mpdInfo_host"></td></tr>
-              <tr><th>Protocol Version</th><td id="mpdInfo_version"></td></tr>
-              <tr><th>Libmpdclient Version</th><td id="mpdInfo_libmpdclientVersion"></td></tr>
-            </tbody>
-          </table>          
+          <div class="tab-content">
+            <div class="tab-pane active" id="tabAbout">
+              <h4><a class="text-success" rel="noreferrer" href="https://github.com/jcorporation/ympd">myMPD</a>&nbsp;&ndash;&nbsp;<small>a standalone and mobile friendly web mpdclient</small></h4>
+              <p>myMPD is a lightweight MPD web client that runs without a dedicated webserver or interpreter. It's tuned for minimal resource usage and requires only very litte dependencies.</p>
+              <ul>
+                <li>Version: <span id="mympdVersion"></span></li>
+                <li>Homepage: <a class="text-success" target="_blank" rel="noreferrer" href="https://github.com/jcorporation/mympd">https://github.com/jcorporation/mympd</a></li>
+                <li>Autor: Jürgen Mang &lt;<a class="text-success" href="mailto:mail@jcgames.de">mail@jcgames.de</a>&gt;</li>
+              </ul>
+              <table class="table table-sm">
+                <tbody>
+                  <tr><td colspan="2" class="pt-3"><h5>Database Statistics</h5></td></tr>
+                  <tr><th>Artists</th><td id="mpdstats_artists"></td></tr>
+                  <tr><th>Albums</th><td id="mpdstats_albums"></td></tr>
+                  <tr><th>Songs</th><td id="mpdstats_songs"></td></tr>
+                  <tr><th>DB Play Time</th><td id="mpdstats_dbPlaytime"></td></tr>
+                  <tr><th>DB Updated</th><td id="mpdstats_dbUpdated"></td></tr>
+                  <tr><td colspan="2" class="pt-3"><h5>Play Statistics</h5></td></tr>
+                  <tr><th>Uptime</th><td id="mpdstats_uptime"></td></tr>
+                  <tr><th>Play Time</th><td id="mpdstats_playtime"></td></tr>
+                  <tr><td colspan="2" class="pt-3"><h5>MPD</h5></td></tr>
+                  <tr><th>Connection</th><td id="mpdInfo_host"></td></tr>
+                  <tr><th>Protocol Version</th><td id="mpdInfo_version"></td></tr>
+                  <tr><th>Libmpdclient Version</th><td id="mpdInfo_libmpdclientVersion"></td></tr>
+                </tbody>
+              </table>          
+            </div>
+            <div class="tab-pane" id="tabShortcuts">
+              <div class="table-responsive-md">
+                <table class="table table-sm">
+                  <thead>
+                    <tr><th>Key</th><th>Action</th></tr>
+                  </thead>
+                  <tbody id="tbodyShortcuts">
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1082,31 +1104,6 @@
     </div>
   </div>
 
-  <div class="modal fade" id="modalHelp" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title"><span class="material-icons title-icon">keyboard</span> Keyboard Shortcuts</h5>
-          <button type="button" class="close" data-dismiss="modal">&times;</button>          
-        </div>
-        <div class="modal-body">
-          <div class="table-responsive-md">
-            <table class="table table-sm">
-              <thead>
-                <tr><th>Key</th><th>Action</th></tr>
-              </thead>
-              <tbody id="tbodyShortcuts">
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        </div>
-      </div>
-    </div>
-  </div>
-  
   <script src="js/keymap.min.js"></script>
   <script src="js/bootstrap-native-v4.min.js"></script>
   <script src="js/mympd.min.js"></script>

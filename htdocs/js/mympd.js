@@ -111,7 +111,6 @@ var modalRenamePlaylist = new Modal(document.getElementById('modalRenamePlaylist
 var modalUpdateDB = new Modal(document.getElementById('modalUpdateDB'));
 var modalSaveSmartPlaylist = new Modal(document.getElementById('modalSaveSmartPlaylist'));
 var modalDeletePlaylist = new Modal(document.getElementById('modalDeletePlaylist'));
-var modalHelp = new Modal(document.getElementById('modalHelp'));
 var modalAppInit = new Modal(document.getElementById('modalAppInit'), { backdrop: 'static', keyboard: false});
 var modalSaveBookmark = new Modal(document.getElementById('modalSaveBookmark'));
 
@@ -504,16 +503,6 @@ function appInit() {
     
     document.getElementById('modalAbout').addEventListener('shown.bs.modal', function () {
         sendAPI({"cmd": "MPD_API_DATABASE_STATS"}, parseStats);
-    });
-    
-    document.getElementById('modalAddToPlaylist').addEventListener('shown.bs.modal', function () {
-        if (!document.getElementById('addStreamFrm').classList.contains('hide'))
-            document.getElementById('streamUrl').focus();
-        else
-            document.getElementById('addToPlaylistPlaylist').focus();
-    });
-
-    document.getElementById('modalHelp').addEventListener('show.bs.modal', function () {
         var trs = '';
         for (var key in keymap) {
             if (keymap[key].req == undefined || settings[keymap[key].req] == true)
@@ -521,6 +510,13 @@ function appInit() {
                        '">' + (keymap[key].key != undefined ? keymap[key].key : key ) + '</div></td><td>' + keymap[key].desc + '</td></tr>';
         }
         document.getElementById('tbodyShortcuts').innerHTML = trs;
+    });
+    
+    document.getElementById('modalAddToPlaylist').addEventListener('shown.bs.modal', function () {
+        if (!document.getElementById('addStreamFrm').classList.contains('hide'))
+            document.getElementById('streamUrl').focus();
+        else
+            document.getElementById('addToPlaylistPlaylist').focus();
     });
 
     document.getElementById('modalUpdateDB').addEventListener('hidden.bs.modal', function () {
@@ -1287,6 +1283,7 @@ function webSocketConnect() {
             }
             else {
                 showAppInitAlert('Websocket connection failed.');
+                log_error('Websocket connection failed.');
             }
             if (websocketTimer != null) {
                 clearTimeout(websocketTimer);
@@ -2565,11 +2562,11 @@ function parseSongDetails(obj) {
         songDetails += '<tr><th>Filename</th><td>' + obj.data.uri + '</td></tr>';
     }
     if (settings.featStickers == true) {
-        songDetails += '<tr><th colspan="2">Statistics</th></tr>' +
+        songDetails += '<tr><th colspan="2" class="pt-3"><h5>Statistics</h5></th></tr>' +
             '<tr><th>Play count</th><td>' + obj.data.playCount + '</td></tr>' +
             '<tr><th>Skip count</th><td>' + obj.data.skipCount + '</td></tr>' +
             '<tr><th>Last played</th><td>' + (obj.data.lastPlayed == 0 ? 'never' : new Date(obj.data.lastPlayed * 1000).toUTCString()) + '</td></tr>' +
-            '<tr><th>Last skipped</th><td>' + (obj.data.lastSkipped == 0 ? 'never' : new Date(obj.data.lastSkipped * 1000).toUTCString()) + '</td></tr>' +
+            '<tr><th>Last&nbsp;skipped</th><td>' + (obj.data.lastSkipped == 0 ? 'never' : new Date(obj.data.lastSkipped * 1000).toUTCString()) + '</td></tr>' +
             '<tr><th>Like</th><td>' +
               '<div class="btn-group btn-group-sm">' +
                 '<button title="Dislike song" id="btnVoteDown2" data-href=\'{"cmd": "voteSong", "options": [0]}\' class="btn btn-sm btn-light material-icons">thumb_down</button>' +
