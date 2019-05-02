@@ -419,8 +419,8 @@ function appInitStart() {
     document.getElementsByTagName('header')[0].classList.add('hide');
     document.getElementsByTagName('main')[0].classList.add('hide');
     document.getElementsByTagName('footer')[0].classList.add('hide');
-    initState('appInitMPDSettings', 'load');
     initState('appInitMyMPDSettings', 'load');
+    initState('appInitMPDSettings', 'blank');
     initState('appInitWebsocket', 'blank');
     initState('appInitApply', 'blank');
     var a = document.getElementById('modalAppInitAlert');
@@ -453,7 +453,8 @@ function appInitWait() {
             webSocketConnect();
         }
         else if (settingsParsed == 'error') {
-            initState('appInitSettings', 'error');
+            initState('appInitMyMPDSettings', 'error');
+            initState('appInitMPDSettings', 'error');
             return;
         }
         appInitWait();
@@ -1235,7 +1236,7 @@ function webSocketConnect() {
                     if (app.current.app === 'Queue') {
                         getQueue();
                     }
-                    //sendAPI({"cmd": "MPD_API_PLAYER_STATE"}, parseState);
+                    sendAPI({"cmd": "MPD_API_PLAYER_STATE"}, parseState);
                     break;
                 case 'update_options':
                     getSettings();
@@ -1699,12 +1700,14 @@ function getMpdSettings(obj) {
         settingsParsed = 'error';
         if (appInited == false) {
             initState('appInitMyMPDSettings', 'error');
+            initState('appInitMPDSettings', 'blank');
             showAppInitAlert(obj == '' ? 'Can not parse settings' : obj.data);
         }
         return false;
     }
     initState('appInitMyMPDSettings', 'ok');
     settingsNew = obj.data;
+    initState('appInitMPDSettings', 'load');
     sendAPI({"cmd": "MPD_API_SETTINGS_GET"}, joinSettings, true);
 }
 
