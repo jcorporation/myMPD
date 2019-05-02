@@ -108,6 +108,7 @@ typedef struct t_mpd_state {
     char *music_directory;
     
     // States
+    enum mpd_state state;
     int song_id;
     int next_song_id;
     int last_song_id;
@@ -118,6 +119,7 @@ typedef struct t_mpd_state {
     int last_update_sticker_song_id;
     int last_last_played_id;
     time_t next_song_change_time;
+    time_t song_elapsed_time;
     
     // Features
     const unsigned* protocol;
@@ -219,6 +221,7 @@ void *mpd_client_loop(void *arg_config) {
     mpd_state.reconnect_time = 0;
     mpd_state.reconnect_intervall = 0;
     mpd_state.timeout = 3000;
+    mpd_state.state = MPD_STATE_UNKNOWN;
     mpd_state.song_id = -1;
     mpd_state.next_song_id = -1;
     mpd_state.last_song_id = -1;
@@ -242,6 +245,7 @@ void *mpd_client_loop(void *arg_config) {
     mpd_state.autoPlay = false;
     mpd_state.music_directory = NULL;
     mpd_state.next_song_change_time = 0;
+    mpd_state.song_elapsed_time = 0;
     mpd_state.mpd_tag_types_len = 0;
     memset(mpd_state.mpd_tag_types, 0, sizeof(mpd_state.mpd_tag_types));
     mpd_state.mympd_tag_types_len = 0;
@@ -474,8 +478,9 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
             }
             break;
         case MPD_API_PLAYER_PLAY:
-            if (mpd_run_play(mpd_state->conn))
+            if (mpd_run_play(mpd_state->conn)) {
                 response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+            }
             else {
                 response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Begin to play failed.\"}");
                 LOG_ERROR("Error mpd_run_play()");
@@ -558,8 +563,9 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
         case MPD_API_PLAYER_PLAY_TRACK:
             je = json_scanf(request->data, request->length, "{data: { track:%u}}", &uint_buf1);
             if (je == 1) {
-                if (mpd_run_play_id(mpd_state->conn, uint_buf1))
+                if (mpd_run_play_id(mpd_state->conn, uint_buf1)) {
                     response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+                }
                 else {
                     response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Set playing track failed.\"}");
                     LOG_ERROR("Error mpd_run_play_id()");
@@ -710,8 +716,9 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
         case MPD_API_PLAYLIST_ADD_TRACK:
             je = json_scanf(request->data, request->length, "{data: {plist:%Q, uri:%Q}}", &p_charbuf1, &p_charbuf2);
             if (je == 2) {
-                if (mpd_run_playlist_add(mpd_state->conn, p_charbuf1, p_charbuf2))
+                if (mpd_run_playlist_add(mpd_state->conn, p_charbuf1, p_charbuf2)) {
                     response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"result\", \"data\": \"Added %s to playlist %s\"}", p_charbuf2, p_charbuf1);
+                }
                 else {
                     response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Adding song to playlist failed.\"}");
                     LOG_ERROR("Error mpd_run_playlist_add");
@@ -723,8 +730,9 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
         case MPD_API_PLAYLIST_CLEAR:
             je = json_scanf(request->data, request->length, "{data: {uri:%Q}}", &p_charbuf1);
             if (je == 1) {
-                if (mpd_run_playlist_clear(mpd_state->conn, p_charbuf1))
+                if (mpd_run_playlist_clear(mpd_state->conn, p_charbuf1)) {
                     response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+                }
                 else {
                     response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Clearing playlist failed.\"}");
                     LOG_ERROR("Error mpd_run_playlist_clear");
@@ -735,8 +743,9 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
         case MPD_API_PLAYLIST_RM_TRACK:
             je = json_scanf(request->data, request->length, "{data: {uri:%Q, track:%u}}", &p_charbuf1, &uint_buf1);
             if (je == 2) {
-                if (mpd_run_playlist_delete(mpd_state->conn, p_charbuf1, uint_buf1))
+                if (mpd_run_playlist_delete(mpd_state->conn, p_charbuf1, uint_buf1)) {
                     response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+                }
                 else {
                     response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Removing track from playlist failed.\"}");
                     LOG_ERROR("Error mpd_run_playlist_delete");
@@ -807,8 +816,9 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
             if (je == 1) {
                 int_buf1 = mpd_run_add_id(mpd_state->conn, p_charbuf1);
                 if (int_buf1 != -1) {
-                    if (mpd_run_play_id(mpd_state->conn, int_buf1))
+                    if (mpd_run_play_id(mpd_state->conn, int_buf1)) {
                         response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+                    }
                     else {
                         response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Setting playstate failed.\"}");
                         LOG_ERROR("Error mpd_run_play_id()");
@@ -1010,12 +1020,17 @@ static void mpd_client_parse_idle(t_config *config, t_mpd_state *mpd_state, int 
                 case MPD_IDLE_QUEUE:
                     len = snprintf(buffer, MAX_SIZE, "{\"type\": \"update_queue\"}");
                     //jukebox enabled
-                    if (mpd_state->jukeboxMode != JUKEBOX_OFF)
+                    if (mpd_state->jukeboxMode != JUKEBOX_OFF) {
                         mpd_client_jukebox(config, mpd_state);
+                    }
                     //autoPlay enabled
                     if (mpd_state->autoPlay == true) {
                         LOG_VERBOSE("AutoPlay enabled, start playing");
-                        mpd_run_play(mpd_state->conn);
+                        if (mpd_state->state != MPD_STATE_PLAY) {
+                            if (!mpd_run_play(mpd_state->conn)) {
+                                LOG_ERROR_AND_RECOVER("mpd_run_play");
+                            }
+                        }
                     }
                     break;
                 case MPD_IDLE_PLAYER:
@@ -1026,7 +1041,9 @@ static void mpd_client_parse_idle(t_config *config, t_mpd_state *mpd_state, int 
                             time_t now = time(NULL);
                             if (mpd_state->feat_sticker && mpd_state->next_song_change_time > now && mpd_state->last_song_uri != NULL) {
                                 mpd_client_count_song_uri(mpd_state, mpd_state->last_song_uri, "skipCount", 1);
-                                mpd_client_last_skipped_song_uri(mpd_state, mpd_state->last_song_uri);
+                                if (mpd_state->song_elapsed_time > 10) {
+                                    mpd_client_last_skipped_song_uri(mpd_state, mpd_state->last_song_uri);
+                                }
                             }
                         }
                         if (mpd_state->feat_sticker && mpd_state->last_update_sticker_song_id != mpd_state->song_id) {
@@ -1857,8 +1874,11 @@ static bool mpd_client_jukebox(t_config *config, t_mpd_state *mpd_state) {
         current = current->next;
     }
     list_free(&add_list);
-    if (nkeep > 0) 
-        mpd_run_play(mpd_state->conn);
+    if (nkeep > 0) {
+        if (!mpd_run_play(mpd_state->conn)) {
+            LOG_ERROR_AND_RECOVER("mpd_run_play");
+        }
+    }
     else {
         LOG_ERROR("Error adding song(s), trying again");
         mpd_client_jukebox(config, mpd_state);
@@ -1895,11 +1915,12 @@ static int mpd_client_put_state(t_mpd_state *mpd_state, char *buffer) {
     
     const int total_time = mpd_status_get_total_time(status);
     const int elapsed_time =  mpd_status_get_elapsed_time(status);
+    const int state = mpd_status_get_state(status);
     
     len = json_printf(&out, "{type: update_state, data: {state: %d, volume: %d, songPos: %d, elapsedTime: %d, "
         "totalTime: %d, currentSongId: %d, kbitrate: %d, audioFormat: { sampleRate: %d, bits: %d, channels: %d}, "
         "queueLength: %d, nextSongPos: %d, nextSongId: %d, lastSongId: %d, queueVersion: %d", 
-        mpd_status_get_state(status),
+        state,
         mpd_status_get_volume(status), 
         mpd_status_get_song_pos(status),
         elapsed_time,
@@ -1918,10 +1939,12 @@ static int mpd_client_put_state(t_mpd_state *mpd_state, char *buffer) {
     
     len += json_printf(&out, "}}");
     
+    mpd_state->state = state;
     mpd_state->song_id = song_id;
     mpd_state->next_song_id = mpd_status_get_next_song_id(status);
     mpd_state->queue_version = mpd_status_get_queue_version(status);
     mpd_state->queue_length = mpd_status_get_queue_length(status);
+    mpd_state->song_elapsed_time = elapsed_time;
 
     if (total_time > 10) {
         time_t now = time(NULL);
