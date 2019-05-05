@@ -1236,7 +1236,7 @@ function webSocketConnect() {
                     if (app.current.app === 'Queue') {
                         getQueue();
                     }
-                    sendAPI({"cmd": "MPD_API_PLAYER_STATE"}, parseState);
+                    parseUpdateQueue(obj);
                     break;
                 case 'update_options':
                     getSettings();
@@ -1938,6 +1938,36 @@ function parseState(obj) {
     if (settings.mpdConnected == false || uiEnabled == false) {
         getSettings(true);
     }
+}
+
+function parseUpdateQueue(obj) {
+    //Set playstate
+    if (obj.data.state == 1) {
+        for (var i = 0; i < domCache.btnsPlayLen; i++)
+            domCache.btnsPlay[i].innerText = 'play_arrow';
+        playstate = 'stop';
+    } else if (obj.data.state == 2) {
+        for (var i = 0; i < domCache.btnsPlayLen; i++)
+            domCache.btnsPlay[i].innerText = 'pause';
+        playstate = 'play';
+    } else {
+        for (var i = 0; i < domCache.btnsPlayLen; i++)
+            domCache.btnsPlay[i].innerText = 'play_arrow';
+	playstate = 'pause';
+    }
+
+    if (obj.data.queueLength == 0) {
+        for (var i = 0; i < domCache.btnsPlayLen; i++) {
+            domCache.btnsPlay[i].setAttribute('disabled','disabled');
+        }
+    }
+    else {
+        for (var i = 0; i < domCache.btnsPlayLen; i++) {
+            domCache.btnsPlay[i].removeAttribute('disabled');
+        }
+    }
+
+    domCache.badgeQueueItems.innerText = obj.data.queueLength;
 }
 
 function parseVolume(obj) {
