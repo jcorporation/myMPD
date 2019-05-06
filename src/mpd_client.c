@@ -1509,7 +1509,7 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
                 }
             }
             if (pollrc > 0 || mpd_client_queue_length > 0 || jukebox_add_song == true || set_played == true) {
-                LOG_DEBUG("Leaving mpd idle mode.");
+                LOG_DEBUG("Leaving mpd idle mode");
                 if (!mpd_send_noidle(mpd_state->conn)) {
                     LOG_ERROR("Leaving idle mode failed");
                     mpd_state->conn_state = MPD_FAILURE;
@@ -1986,13 +1986,13 @@ static int mpd_client_get_state(t_mpd_state *mpd_state, char *buffer) {
         time_t now = time(NULL);
         mpd_state->song_end_time = now + total_time - elapsed_time - 10;
         mpd_state->song_start_time = now - elapsed_time;
+        int half_time = total_time / 2;
         
-        if (total_time > 240) {
+        if (half_time > 240) {
             mpd_state->set_song_played_time = now - elapsed_time + 240;
         }
         else {
-            int half_time = total_time / 2;
-            mpd_state->set_song_played_time = elapsed_time < half_time ? now - elapsed_time + half_time : now - elapsed_time + total_time;
+            mpd_state->set_song_played_time = elapsed_time < half_time ? now - elapsed_time + half_time : now;
         }
     }
     else {
@@ -2276,11 +2276,12 @@ static int mpd_client_put_current_song(t_config *config, t_mpd_state *mpd_state,
         t_sticker *sticker = (t_sticker *) malloc(sizeof(t_sticker));
         assert(sticker);
         mpd_client_get_sticker(mpd_state, mpd_song_get_uri(song), sticker);
-        len += json_printf(&out, ", playCount: %d, skipCount: %d, like: %d, lastPlayed: %d",
+        len += json_printf(&out, ", playCount: %d, skipCount: %d, like: %d, lastPlayed: %d, lastSkipped: %d",
             sticker->playCount,
             sticker->skipCount,
             sticker->like,
-            sticker->lastPlayed
+            sticker->lastPlayed,
+            sticker->lastSkipped
         );
         FREE_PTR(sticker);
     }
