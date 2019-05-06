@@ -1328,7 +1328,7 @@ function parseStats(obj) {
     document.getElementById('mpdstats_playtime').innerText = beautifyDuration(obj.data.playtime);
     document.getElementById('mpdstats_uptime').innerText = beautifyDuration(obj.data.uptime);
     var d = new Date(obj.data.dbUpdated * 1000);
-    document.getElementById('mpdstats_dbUpdated').innerText = d.toUTCString();
+    document.getElementById('mpdstats_dbUpdated').innerText = d.toLocaleString();
     document.getElementById('mympdVersion').innerText = obj.data.mympdVersion;
     document.getElementById('mpdInfo_version').innerText = obj.data.mpdVersion;
     document.getElementById('mpdInfo_libmpdclientVersion').innerText = obj.data.libmpdclientVersion;
@@ -1811,16 +1811,10 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
     currentSong.totalTime = totalTime;
     currentSong.elapsedTime = elapsedTime;
     currentSong.currentSongId = currentSongId;
-    var total_minutes = Math.floor(totalTime / 60);
-    var total_seconds = totalTime - total_minutes * 60;
-    var elapsed_minutes = Math.floor(elapsedTime / 60);
-    var elapsed_seconds = elapsedTime - elapsed_minutes * 60;
 
     domCache.progressBar.value = Math.floor(1000 * elapsedTime / totalTime);
 
-    var counterText = elapsed_minutes + ":" + 
-        (elapsed_seconds < 10 ? '0' : '') + elapsed_seconds + "&nbsp;/&nbsp;" +
-        total_minutes + ":" + (total_seconds < 10 ? '0' : '') + total_seconds;
+    var counterText = beautifySongDuration(elapsedTime) + "&nbsp;/&nbsp;" + beautifySongDuration(totalTime);
     domCache.counter.innerHTML = counterText;
     
     //Set playing track in queue view
@@ -1843,8 +1837,9 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
     var tr = document.getElementById('queueTrackId' + currentSongId);
     if (tr) {
         var durationTd = tr.querySelector('[data-col=Duration]');
-        if (durationTd)
+        if (durationTd) {
             durationTd.innerHTML = counterText;
+        }
         var posTd = tr.querySelector('[data-col=Pos]');
         if (posTd) {
             if (!posTd.classList.contains('material-icons')) {
@@ -1872,40 +1867,23 @@ function parseState(obj) {
         return;
     }
 
-    //Set playstate
-    if (obj.data.state == 1) {
-        for (var i = 0; i < domCache.btnsPlayLen; i++)
-            domCache.btnsPlay[i].innerText = 'play_arrow';
-        playstate = 'stop';
-    } else if (obj.data.state == 2) {
-        for (var i = 0; i < domCache.btnsPlayLen; i++)
-            domCache.btnsPlay[i].innerText = 'pause';
-        playstate = 'play';
-    } else {
-        for (var i = 0; i < domCache.btnsPlayLen; i++)
-            domCache.btnsPlay[i].innerText = 'play_arrow';
-	playstate = 'pause';
-    }
-
-    if (obj.data.nextSongPos == -1 && settings.jukeboxMode == false)
+    //Set play and queue state
+    parseUpdateQueue(obj);
+    
+    if (obj.data.nextSongPos == -1 && settings.jukeboxMode == false) {
         domCache.btnNext.setAttribute('disabled','disabled');
-    else
+    }
+    else {
         domCache.btnNext.removeAttribute('disabled');
+    }
     
-    if (obj.data.songPos <= 0)
+    if (obj.data.songPos <= 0) {
         domCache.btnPrev.setAttribute('disabled','disabled');
-    else
+    }
+    else {
         domCache.btnPrev.removeAttribute('disabled');
+    }
     
-    if (obj.data.queueLength == 0)
-        for (var i = 0; i < domCache.btnsPlayLen; i++)
-            domCache.btnsPlay[i].setAttribute('disabled','disabled');
-    else
-        for (var i = 0; i < domCache.btnsPlayLen; i++)
-            domCache.btnsPlay[i].removeAttribute('disabled');
-
-    domCache.badgeQueueItems.innerText = obj.data.queueLength;
-
     //Set volume
     parseVolume(obj);
 
@@ -1926,12 +1904,14 @@ function parseState(obj) {
             document.documentElement.style.setProperty('--mympd-backgroundimage', 'url("")');
         }
         var pb = document.getElementById('cardPlaybackTags').getElementsByTagName('h4');
-        for (var i = 0; i < pb.length; i++)
+        for (var i = 0; i < pb.length; i++) {
             pb[i].innerText = '';
+        }
     }
     
-    if (app.current.app == 'Queue' && app.current.tab == 'LastPlayed')
+    if (app.current.app == 'Queue' && app.current.tab == 'LastPlayed') {
         sendAPI({"cmd": "MPD_API_QUEUE_LAST_PLAYED", "data": {"offset": app.current.page, "cols": settings.colsQueueLastPlayed}}, parseLastPlayed);
+    }
 
     lastState = obj;                    
     
@@ -1943,16 +1923,21 @@ function parseState(obj) {
 function parseUpdateQueue(obj) {
     //Set playstate
     if (obj.data.state == 1) {
-        for (var i = 0; i < domCache.btnsPlayLen; i++)
+        for (var i = 0; i < domCache.btnsPlayLen; i++) {
             domCache.btnsPlay[i].innerText = 'play_arrow';
+        }
         playstate = 'stop';
-    } else if (obj.data.state == 2) {
-        for (var i = 0; i < domCache.btnsPlayLen; i++)
+    }
+    else if (obj.data.state == 2) {
+        for (var i = 0; i < domCache.btnsPlayLen; i++) {
             domCache.btnsPlay[i].innerText = 'pause';
+        }
         playstate = 'play';
-    } else {
-        for (var i = 0; i < domCache.btnsPlayLen; i++)
+    }
+    else {
+        for (var i = 0; i < domCache.btnsPlayLen; i++) {
             domCache.btnsPlay[i].innerText = 'play_arrow';
+        }
 	playstate = 'pause';
     }
 
@@ -1972,18 +1957,21 @@ function parseUpdateQueue(obj) {
 
 function parseVolume(obj) {
     if (obj.data.volume == -1) {
-      domCache.volumePrct.innerText = 'Volumecontrol disabled';
-      domCache.volumeControl.classList.add('hide');
+        domCache.volumePrct.innerText = 'Volumecontrol disabled';
+        domCache.volumeControl.classList.add('hide');
     } 
     else {
         domCache.volumeControl.classList.remove('hide');
         domCache.volumePrct.innerText = obj.data.volume + ' %';
-        if (obj.data.volume == 0)
+        if (obj.data.volume == 0) {
             domCache.volumeMenu.innerText = 'volume_off';
-        else if (obj.data.volume < 50)
+        }
+        else if (obj.data.volume < 50) {
             domCache.volumeMenu.innerText = 'volume_down';
-        else
+        }
+        else {
             domCache.volumeMenu.innerText = 'volume_up';
+        }
     }
     domCache.volumeBar.value = obj.data.volume;
 }
@@ -1998,12 +1986,15 @@ function getQueue() {
 }
 
 function parseQueue(obj) {
-    if (typeof(obj.totalTime) != undefined && obj.totalTime > 0 && obj.totalEntities <= settings.maxElementsPerPage )
+    if (typeof(obj.totalTime) != undefined && obj.totalTime > 0 && obj.totalEntities <= settings.maxElementsPerPage ) {
         document.getElementById('cardFooterQueue').innerText = obj.totalEntities + ' ' + (obj.totalEntities > 1 ? 'Songs' : 'Song') + ' – ' + beautifyDuration(obj.totalTime);
-    else if (obj.totalEntities > 0)
+    }
+    else if (obj.totalEntities > 0) {
         document.getElementById('cardFooterQueue').innerText = obj.totalEntities + ' ' + (obj.totalEntities > 1 ? 'Songs' : 'Song');
-    else
+    }
+    else {
         document.getElementById('cardFooterQueue').innerText = '';
+    }
 
     var nrItems = obj.data.length;
     var table = document.getElementById('QueueCurrentList');
@@ -2011,9 +2002,7 @@ function parseQueue(obj) {
     var tbody = table.getElementsByTagName('tbody')[0];
     var tr = tbody.getElementsByTagName('tr');
     for (var i = 0; i < nrItems; i++) {
-        var minutes = Math.floor(obj.data[i].Duration / 60);
-        var seconds = obj.data[i].Duration - minutes * 60;
-        obj.data[i].Duration = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+        obj.data[i].Duration = beautifySongDuration(obj.data[i].Duration);
         obj.data[i].Pos++;
         var row = document.createElement('tr');
         row.setAttribute('draggable','true');
@@ -2028,10 +2017,12 @@ function parseQueue(obj) {
         }
         tds += '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>';
         row.innerHTML = tds;
-        if (i < tr.length)
-            tr[i].replaceWith(row); 
-        else 
-            tbody.append(row);  
+        if (i < tr.length) {
+            tr[i].replaceWith(row);
+        }
+        else {
+            tbody.append(row);
+        }
     }
     var trLen = tr.length - 1;
     for (var i = trLen; i >= nrItems; i --) {
@@ -2041,12 +2032,14 @@ function parseQueue(obj) {
     var colspan = settings['colsQueueCurrent'].length;
     colspan--;
 
-    if (obj.type == 'queuesearch' && nrItems == 0)
+    if (obj.type == 'queuesearch' && nrItems == 0) {
         tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
                           '<td colspan="' + colspan + '">No results, please refine your search!</td></tr>';
-    else if (obj.type == 'queue' && nrItems == 0)
+    }
+    else if (obj.type == 'queue' && nrItems == 0) {
         tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
                           '<td colspan="' + colspan + '">Empty queue</td></tr>';
+    }
 
     setPagination(obj.totalEntities, obj.returnedEntities);
     document.getElementById('QueueCurrentList').classList.remove('opacity05');
@@ -2060,10 +2053,8 @@ function parseLastPlayed(obj) {
     var tbody = table.getElementsByTagName('tbody')[0];
     var tr = tbody.getElementsByTagName('tr');
     for (var i = 0; i < nrItems; i++) {
-        var minutes = Math.floor(obj.data[i].Duration / 60);
-        var seconds = obj.data[i].Duration - minutes * 60;
-        obj.data[i].Duration = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
-        obj.data[i].LastPlayed = new Date(obj.data[i].LastPlayed * 1000).toUTCString();
+        obj.data[i].Duration = beautifySongDuration(obj.data[i].Duration);
+        obj.data[i].LastPlayed = new Date(obj.data[i].LastPlayed * 1000).toLocaleString();
         var row = document.createElement('tr');
         row.setAttribute('data-songpos', (obj.data[i].Pos + 1));
         row.setAttribute('data-uri', obj.data[i].uri);
@@ -2079,10 +2070,12 @@ function parseLastPlayed(obj) {
         }
         tds += '</td>';
         row.innerHTML = tds;
-        if (i < tr.length)
-            tr[i].replaceWith(row); 
-        else 
-            tbody.append(row);  
+        if (i < tr.length) {
+            tr[i].replaceWith(row);
+        }
+        else {
+            tbody.append(row);
+        }
     }
     var trLen = tr.length - 1;
     for (var i = trLen; i >= nrItems; i --) {
@@ -2092,9 +2085,10 @@ function parseLastPlayed(obj) {
     var colspan = settings['colsQueueLastPlayed'].length;
     colspan--;
     
-    if (nrItems == 0)
+    if (nrItems == 0) {
         tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
             '<td colspan="' + colspan + '">Empty list</td></tr>';
+    }
 
     setPagination(obj.totalEntities, obj.returnedEntities);
     document.getElementById('QueueLastPlayedList').classList.remove('opacity05');
@@ -2150,29 +2144,32 @@ function parseFilesystem(obj) {
                 for (var c = 0; c < settings['cols' + list].length; c++) {
                     tds += '<td data-col="' + settings['cols' + list][c] + '">';
                     if (settings['cols' + list][c] == 'Type') {
-                        if (obj.data[i].Type == 'dir')
+                        if (obj.data[i].Type == 'dir') {
                             tds += '<span class="material-icons">folder_open</span>';
-                        else
+                        }
+                        else {
                             tds += '<span class="material-icons">' + (obj.data[i].Type == 'smartpls' ? 'queue_music' :'list') + '</span>';
+                        }
                     }
-                    else if (settings['cols' + list][c] == 'Title')
+                    else if (settings['cols' + list][c] == 'Title') {
                         tds += obj.data[i].name;
+                    }
                     tds += '</td>';
                 }
                 tds += '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>';
                 row.innerHTML = tds;
                 break;
             case 'song':
-                var minutes = Math.floor(obj.data[i].Duration / 60);
-                var seconds = obj.data[i].Duration - minutes * 60;
-                obj.data[i].Duration = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+                obj.data[i].Duration = beautifySongDuration(obj.data[i].Duration);
                 var tds = '';
                 for (var c = 0; c < settings['cols' + list].length; c++) {
                     tds += '<td data-col="' + settings['cols' + list][c] + '">';
-                    if (settings['cols' + list][c] == 'Type')
+                    if (settings['cols' + list][c] == 'Type') {
                         tds += '<span class="material-icons">music_note</span>';
-                    else
+                    }
+                    else {
                         tds += obj.data[i][settings['cols' + list][c]];
+                    }
                     tds += '</td>';
                 }
                 tds += '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>';
@@ -2241,7 +2238,7 @@ function parsePlaylists(obj) {
             row.setAttribute('data-name', obj.data[i].name);
             row.innerHTML = '<td data-col="Type"><span class="material-icons">' + (obj.data[i].Type == 'smartpls' ? 'queue_music' :'list') + '</span></td>' +
                             '<td>' + obj.data[i].name + '</td>' +
-                            '<td>'+ d.toUTCString() + '</td>' +
+                            '<td>'+ d.toLocaleString() + '</td>' +
                             '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>';
             if (i < tr.length)
                 tr[i].replaceWith(row); 
@@ -2254,16 +2251,15 @@ function parsePlaylists(obj) {
         for (var i = 0; i < nrItems; i++) {
             var uri = encodeURI(obj.data[i].uri);
             var row = document.createElement('tr');
-            if (obj.smartpls == false)
+            if (obj.smartpls == false) {
                 row.setAttribute('draggable','true');
+            }
             row.setAttribute('id','playlistTrackId' + obj.data[i].Pos);
             row.setAttribute('data-type', obj.data[i].Type);
             row.setAttribute('data-uri', uri);
             row.setAttribute('data-name', obj.data[i].Title);
             row.setAttribute('data-songpos', obj.data[i].Pos);
-            var minutes = Math.floor(obj.data[i].Duration / 60);
-            var seconds = obj.data[i].Duration - minutes * 60;
-            obj.data[i].Duration = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+            obj.data[i].Duration = beautifySongDuration(obj.data[i].Duration);
             var tds = '';
             for (var c = 0; c < settings.colsBrowsePlaylistsDetail.length; c++) {
                 tds += '<td data-col="' + settings.colsBrowsePlaylistsDetail[c] + '">' + obj.data[i][settings.colsBrowsePlaylistsDetail[c]] + '</td>';
@@ -2271,10 +2267,12 @@ function parsePlaylists(obj) {
             tds += '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>';
             row.innerHTML = tds;
 
-            if (i < tr.length)
+            if (i < tr.length) {
                 tr[i].replaceWith(row); 
-            else 
+            }
+            else {
                 tbody.append(row);
+            }
         }
         document.getElementById('cardFooterBrowse').innerText = obj.totalEntities + ' Songs';
     }
@@ -2441,9 +2439,7 @@ function parseListTitles(obj) {
     var nrItems = obj.data.length;
     for (var i = 0; i < nrItems; i++) {
         if (obj.data[i].Duration) {
-            var minutes = Math.floor(obj.data[i].Duration / 60);
-            var seconds = obj.data[i].Duration - minutes * 60;
-            obj.data[i].Duration = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+            obj.data[i].Duration = beautifySongDuration(obj.data[i].Duration);
         }
         titleList += '<tr data-type="song" data-name="' + obj.data[i].Title + '" data-uri="' + encodeURI(obj.data[i].uri) + '">';
         for (var c = 0; c < settings.colsBrowseDatabase.length; c++) {
@@ -2452,10 +2448,7 @@ function parseListTitles(obj) {
         titleList += '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">playlist_add</a></td></tr>';
     }
     tbody.innerHTML = titleList;
-    var minutes = Math.floor(obj.totalTime / 60);
-    var seconds = obj.totalTime - minutes * 60;
-    var totalDuration = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
-    tfoot.innerHTML = '<tr><td colspan="' + (settings.colsBrowseDatabase.length + 1) + '">' + obj.totalEntities + ' Songs &ndash; ' + totalDuration + '</td></tr>';
+    tfoot.innerHTML = '<tr><td colspan="' + (settings.colsBrowseDatabase.length + 1) + '">' + obj.totalEntities + ' Songs &ndash; ' + beautifyDuration(obj.totalTime) + '</td></tr>';
 
     tbody.parentNode.addEventListener('click', function(event) {
         if (event.target.nodeName == 'TD') {
@@ -2590,11 +2583,7 @@ function parseSongDetails(obj) {
         }
         songDetails += '</td></tr>';
     }
-    var duration = obj.data.Duration;
-    var minutes = Math.floor(duration / 60);
-    var seconds = duration - minutes * 60;
-    duration = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
-    songDetails += '<tr><th>Duration</th><td>' + duration + '</td></tr>';
+    songDetails += '<tr><th>Duration</th><td>' + beautifyDuration(obj.data.Duration) + '</td></tr>';
     if (settings.featLibrary) {
         songDetails += '<tr><th>Filename</th><td><a class="text-success" href="/library/' + encodeURI(obj.data.uri) + '">' + obj.data.uri + '</a></td></tr>';
     }
@@ -2605,8 +2594,8 @@ function parseSongDetails(obj) {
         songDetails += '<tr><th colspan="2" class="pt-3"><h5>Statistics</h5></th></tr>' +
             '<tr><th>Play count</th><td>' + obj.data.playCount + '</td></tr>' +
             '<tr><th>Skip count</th><td>' + obj.data.skipCount + '</td></tr>' +
-            '<tr><th>Last played</th><td>' + (obj.data.lastPlayed == 0 ? 'never' : new Date(obj.data.lastPlayed * 1000).toUTCString()) + '</td></tr>' +
-            '<tr><th>Last&nbsp;skipped</th><td>' + (obj.data.lastSkipped == 0 ? 'never' : new Date(obj.data.lastSkipped * 1000).toUTCString()) + '</td></tr>' +
+            '<tr><th>Last played</th><td>' + (obj.data.lastPlayed == 0 ? 'never' : new Date(obj.data.lastPlayed * 1000).toLocaleString()) + '</td></tr>' +
+            '<tr><th>Last&nbsp;skipped</th><td>' + (obj.data.lastSkipped == 0 ? 'never' : new Date(obj.data.lastSkipped * 1000).toLocaleString()) + '</td></tr>' +
             '<tr><th>Like</th><td>' +
               '<div class="btn-group btn-group-sm">' +
                 '<button title="Dislike song" id="btnVoteDown2" data-href=\'{"cmd": "voteSong", "options": [0]}\' class="btn btn-sm btn-light material-icons">thumb_down</button>' +
@@ -3631,6 +3620,15 @@ function beautifyDuration(x) {
     return (days > 0 ? days + '\u2009d ' : '') +
         (hours > 0 ? hours + '\u2009h ' + (minutes < 10 ? '0' : '') : '') +
         minutes + '\u2009m ' + (seconds < 10 ? '0' : '') + seconds + '\u2009s';
+}
+
+function beautifySongDuration(x) {
+    var hours = Math.floor(x / 3600);
+    var minutes = Math.floor(x / 60) - hours * 60;
+    var seconds = x - hours * 3600 - minutes * 60;
+    
+    return (hours > 0 ? hours + ':' + (minutes < 10 ? '0' : '') : '') + 
+        minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
 }
 
 function genId(x) {
