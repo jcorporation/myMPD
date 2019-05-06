@@ -6,9 +6,6 @@ host = /var/run/mpd/socket
 #port = 6600
 #pass = 
 
-#Port for mpd http stream
-streamport = 8000
-
 #absolut path of music_directory of mpd
 #none = no local music_directory
 #auto = get music_directory from mpd (only support, if connected to mpd socket)
@@ -37,22 +34,6 @@ loglevel = 2
 
 #myMPD user
 user = mympd
-
-#Enable local player, needs streamport or streamurl setting
-localplayer = true
-
-#Manual streamurl, overwrites streamport
-#streamurl = http://mpdhost:8000
-
-#Enable coverimages
-#Needs configured musicdirectory 
-coverimage = true
-
-#Name for coverimages
-coverimagename = folder.jpg
-
-#Size for coverimage in px
-coverimagesize = 240
 
 #myMPD state directory
 varlibdir = /var/lib/mympd
@@ -84,12 +65,6 @@ lastplayedcount = 20
 love = false
 lovechannel = mpdscribble
 lovemessage = love
-
-
-[theme]
-#background = cover
-#backgroundfilter = blur(5px)
-background = #888
 
 
 [plugins]

@@ -140,7 +140,8 @@ typedef struct t_mpd_state {
     enum jukebox_modes jukebox_mode;
     char *jukebox_playlist;
     size_t jukebox_queue_length;
-    bool autoPlay;
+    bool auto_play;
+    char *coverimage_name;
     
     //taglists
     enum mpd_tag_type mpd_tag_types[64];
@@ -185,6 +186,7 @@ static bool mpd_client_jukebox_add(t_config *config, t_mpd_state *mpd_state, con
 static bool mpd_client_smartpls_save(t_config *config, t_mpd_state *mpd_state, const char *smartpltype, const char *playlist, const char *tag, const char *searchstr, const int maxentries, const int timerange);
 static int mpd_client_smartpls_put(t_config *config, char *buffer, const char *playlist);
 static bool mpd_client_smartpls_update_all(t_config *config, t_mpd_state *mpd_state);
+static bool mpd_client_smartpls_update(t_config *config, t_mpd_state *mpd_state, char *playlist);
 static bool mpd_client_smartpls_clear(t_mpd_state *mpd_state, const char *playlist);
 static bool mpd_client_smartpls_update_sticker(t_mpd_state *mpd_state, const char *playlist, const char *sticker, const int maxentries);
 static bool mpd_client_smartpls_update_newest(t_config *config, t_mpd_state *mpd_state, const char *playlist, const int timerange);
@@ -249,7 +251,8 @@ void *mpd_client_loop(void *arg_config) {
     mpd_state.jukebox_mode = JUKEBOX_OFF;
     mpd_state.jukebox_playlist = strdup("Database");
     mpd_state.jukebox_queue_length = 1;
-    mpd_state.autoPlay = false;
+    mpd_state.auto_play = false;
+    mpd_state.coverimage_name = strdup("folder.jpg");
     mpd_state.music_directory = NULL;
     mpd_state.song_end_time = 0;
     mpd_state.song_start_time = 0;
@@ -282,6 +285,7 @@ void *mpd_client_loop(void *arg_config) {
     FREE_PTR(mpd_state.jukebox_playlist);
     FREE_PTR(mpd_state.song_uri);
     FREE_PTR(mpd_state.last_song_uri);
+    FREE_PTR(mpd_state.coverimage_name);
     return NULL;
 }
 
@@ -350,7 +354,18 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
             if (je == 1 && mpd_state->jukebox_queue_length > 999) {
                 mpd_state->jukebox_queue_length = 999;
             }
-            je = json_scanf(request->data, request->length, "{data: {autoPlay: %B}}", &mpd_state->autoPlay);
+            je = json_scanf(request->data, request->length, "{data: {autoPlay: %B}}", &mpd_state->auto_play);
+            je = json_scanf(request->data, request->length, "{data: {coverimageName: %Q}}", &p_charbuf1);
+            if (je == 1) {
+                if (validate_string(p_charbuf1) && strlen(p_charbuf1) > 0) {
+                    FREE_PTR(mpd_state->coverimage_name);
+                    mpd_state->coverimage_name = p_charbuf1;
+                    p_charbuf1 = NULL;
+                }
+                else {
+                    FREE_PTR(p_charbuf1);
+                }
+            }
             //set mpd options
             je = json_scanf(request->data, request->length, "{data: {random: %u}}", &uint_buf1);
             if (je == 1) {
@@ -415,10 +430,25 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
             break;
         case MPD_API_SMARTPLS_UPDATE_ALL:
             rc = mpd_client_smartpls_update_all(config, mpd_state);
-            if (rc == true)
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"result\", \"data\": \"Smart Playlists updated\"}");
-            else
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Smart Playlists update failed\"}");
+            if (rc == true) {
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"result\", \"data\": \"Smart Playlists updated.\"}");
+            }
+            else {
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Smart Playlists update failed.\"}");
+            }
+            break;
+        case MPD_API_SMARTPLS_UPDATE:
+            je = json_scanf(request->data, request->length, "{data: {playlist: %Q}}", &p_charbuf1);
+            if (je == 1) {
+                rc = mpd_client_smartpls_update(config, mpd_state, p_charbuf1);
+                if (rc == true) {
+                    response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"result\", \"data\": \"Smart Playlist %s updated.\"}", p_charbuf1);
+                }
+                else {
+                    response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Smart Playlist update failed.\"}");
+                }
+                FREE_PTR(p_charbuf1);
+            }
             break;
         case MPD_API_SMARTPLS_SAVE:
             je = json_scanf(request->data, request->length, "{data: {type: %Q}}", &p_charbuf1);
@@ -1051,7 +1081,7 @@ static void mpd_client_parse_idle(t_config *config, t_mpd_state *mpd_state, int 
                         mpd_client_jukebox(config, mpd_state);
                     }
                     //autoPlay enabled
-                    if (mpd_state->autoPlay == true && mpd_state->queue_length > 1) {
+                    if (mpd_state->auto_play == true && mpd_state->queue_length > 1) {
                         if (mpd_state->state != MPD_STATE_PLAY) {
                             LOG_VERBOSE("AutoPlay enabled, start playing");
                             if (!mpd_run_play(mpd_state->conn)) {
@@ -1186,7 +1216,7 @@ static void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state) {
     mpd_state->feat_advsearch = false;
     mpd_state->feat_library = false;
     mpd_state->feat_smartpls = config->smartpls;
-    mpd_state->feat_coverimage = config->coverimage;
+    mpd_state->feat_coverimage = true;
     memset(mpd_state->mpd_tag_types, 0, sizeof(mpd_state->mpd_tag_types));
     mpd_state->mympd_tag_types_len = 0;
     memset(mpd_state->mympd_tag_types, 0, sizeof(mpd_state->mympd_tag_types));
@@ -1261,7 +1291,7 @@ static void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state) {
         FREE_PTR(mpd_state->music_directory);
     }
     
-    if (config->coverimage == true && mpd_state->feat_library == false) {
+    if (mpd_state->feat_library == false) {
         LOG_WARN("Disabling coverimage support");
         mpd_state->feat_coverimage = false;
     }
@@ -2210,7 +2240,7 @@ static int mpd_client_get_cover(t_config *config, t_mpd_state *mpd_state, const 
     char *path = orgpath;
     size_t len = 0;
 
-    if (!config->coverimage) {
+    if (mpd_state->feat_coverimage == false) {
         len = snprintf(cover, cover_len, "/assets/coverimage-notavailable.png");
     }
     else if (strstr(path, "://") != NULL) {
@@ -2231,7 +2261,7 @@ static int mpd_client_get_cover(t_config *config, t_mpd_state *mpd_state, const 
     else {
         if (mpd_state->feat_library == true && mpd_state->music_directory != NULL) {
             dirname(path);
-            snprintf(cover, cover_len, "%s/%s/%s", mpd_state->music_directory, path, config->coverimagename);
+            snprintf(cover, cover_len, "%s/%s/%s", mpd_state->music_directory, path, mpd_state->coverimage_name);
             if (access(cover, F_OK ) == -1 ) {
                 if (config->plugins_coverextract == true) {
                     size_t media_file_len = strlen(mpd_state->music_directory) + strlen(uri) + 2;
@@ -2254,7 +2284,7 @@ static int mpd_client_get_cover(t_config *config, t_mpd_state *mpd_state, const 
                 }
             }
             else {
-                len = snprintf(cover, cover_len, "/library/%s/%s", path, config->coverimagename);
+                len = snprintf(cover, cover_len, "/library/%s/%s", path, mpd_state->coverimage_name);
             }
         } else {
             len = snprintf(cover, cover_len, "/assets/coverimage-notavailable.png");
@@ -3237,11 +3267,7 @@ static bool mpd_client_smartpls_save(t_config *config, t_mpd_state *mpd_state, c
 static bool mpd_client_smartpls_update_all(t_config *config, t_mpd_state *mpd_state) {
     DIR *dir;
     struct dirent *ent;
-    char *smartpltype = NULL;
-    int je;
-    char *p_charbuf1 = NULL;
-    char *p_charbuf2 = NULL;
-    int int_buf1;
+
     if (mpd_state->feat_smartpls == false) {
         return true;
     }
@@ -3254,56 +3280,9 @@ static bool mpd_client_smartpls_update_all(t_config *config, t_mpd_state *mpd_st
             if (strncmp(ent->d_name, ".", 1) == 0) {
                 continue;
             }
-            size_t filename_len = config->varlibdir_len + strlen(ent->d_name) + 11;
-            char filename[filename_len];
-            snprintf(filename, filename_len, "%s/smartpls/%s", config->varlibdir, ent->d_name);
-            char *content = json_fread(filename);
-            if (content == NULL) {
-                LOG_ERROR("Cant read smart playlist file %s", filename);
-                continue;
+            else {
+                mpd_client_smartpls_update(config, mpd_state, ent->d_name);
             }
-            je = json_scanf(content, strlen(content), "{type: %Q }", &smartpltype);
-            if (je != 1) {
-                continue;
-            }
-            if (strcmp(smartpltype, "sticker") == 0) {
-                je = json_scanf(content, strlen(content), "{sticker: %Q, maxentries: %d}", &p_charbuf1, &int_buf1);
-                if (je == 2) {
-                    if (mpd_client_smartpls_update_sticker(mpd_state, ent->d_name, p_charbuf1, int_buf1) == false) {
-                        LOG_ERROR("Update of smart playlist %s failed.", ent->d_name);
-                    }
-                    FREE_PTR(p_charbuf1);
-                }
-                else {
-                    LOG_ERROR("Can't parse smart playlist file %s", filename);
-                }
-            }
-            else if (strcmp(smartpltype, "newest") == 0) {
-                je = json_scanf(content, strlen(content), "{timerange: %d}", &int_buf1);
-                if (je == 1) {
-                    if (mpd_client_smartpls_update_newest(config, mpd_state, ent->d_name, int_buf1) == false) {
-                        LOG_ERROR("Update of smart playlist %s failed", ent->d_name);
-                    }
-                }
-                else {
-                    LOG_ERROR("Can't parse smart playlist file %s", filename);
-                }
-            }
-            else if (strcmp(smartpltype, "search") == 0) {
-                je = json_scanf(content, strlen(content), "{tag: %Q, searchstr: %Q}", &p_charbuf1, &p_charbuf2);
-                if (je == 2) {
-                    if (mpd_client_smartpls_update_search(config, mpd_state, ent->d_name, p_charbuf1, p_charbuf2) == false) {
-                        LOG_ERROR("Update of smart playlist %s failed", ent->d_name);
-                    }
-                    FREE_PTR(p_charbuf1);
-                    FREE_PTR(p_charbuf2);
-                }
-                else {
-                    LOG_ERROR("Can't parse smart playlist file %s", filename);
-                }
-            }
-            FREE_PTR(smartpltype);
-            FREE_PTR(content);
         }
         closedir (dir);
     } else {
@@ -3311,6 +3290,77 @@ static bool mpd_client_smartpls_update_all(t_config *config, t_mpd_state *mpd_st
         return false;
     }
     return true;
+}
+
+static bool mpd_client_smartpls_update(t_config *config, t_mpd_state *mpd_state, char *playlist) {
+    char *smartpltype = NULL;
+    int je;
+    bool rc = true;
+    char *p_charbuf1 = NULL;
+    char *p_charbuf2 = NULL;
+    int int_buf1;
+    if (mpd_state->feat_smartpls == false) {
+        return true;
+    }
+    
+    size_t filename_len = config->varlibdir_len + strlen(playlist) + 11;
+    char filename[filename_len];
+    snprintf(filename, filename_len, "%s/smartpls/%s", config->varlibdir, playlist);
+    char *content = json_fread(filename);
+    if (content == NULL) {
+        LOG_ERROR("Cant read smart playlist file %s", filename);
+        return false;
+    }
+    je = json_scanf(content, strlen(content), "{type: %Q }", &smartpltype);
+    if (je != 1) {
+        LOG_ERROR("Cant read smart playlist type from %s", filename);
+        return false;
+    }
+    if (strcmp(smartpltype, "sticker") == 0) {
+        je = json_scanf(content, strlen(content), "{sticker: %Q, maxentries: %d}", &p_charbuf1, &int_buf1);
+        if (je == 2) {
+            if (mpd_client_smartpls_update_sticker(mpd_state, playlist, p_charbuf1, int_buf1) == false) {
+                LOG_ERROR("Update of smart playlist %s failed.", playlist);
+                rc = false;
+            }
+            FREE_PTR(p_charbuf1);
+         }
+         else {
+            LOG_ERROR("Can't parse smart playlist file %s", filename);
+            rc = false;
+         }
+    }
+    else if (strcmp(smartpltype, "newest") == 0) {
+        je = json_scanf(content, strlen(content), "{timerange: %d}", &int_buf1);
+        if (je == 1) {
+            if (mpd_client_smartpls_update_newest(config, mpd_state, playlist, int_buf1) == false) {
+                LOG_ERROR("Update of smart playlist %s failed", playlist);
+                rc = false;
+            }
+        }
+        else {
+            LOG_ERROR("Can't parse smart playlist file %s", filename);
+            rc = false;
+        }
+    }
+    else if (strcmp(smartpltype, "search") == 0) {
+        je = json_scanf(content, strlen(content), "{tag: %Q, searchstr: %Q}", &p_charbuf1, &p_charbuf2);
+        if (je == 2) {
+            if (mpd_client_smartpls_update_search(config, mpd_state, playlist, p_charbuf1, p_charbuf2) == false) {
+                LOG_ERROR("Update of smart playlist %s failed", playlist);
+                rc = false;
+            }
+            FREE_PTR(p_charbuf1);
+            FREE_PTR(p_charbuf2);
+        }
+        else {
+            LOG_ERROR("Can't parse smart playlist file %s", filename);
+            rc = false;
+        }
+    }
+    FREE_PTR(smartpltype);
+    FREE_PTR(content);
+    return rc;
 }
 
 static bool mpd_client_smartpls_clear(t_mpd_state *mpd_state, const char *playlist) {

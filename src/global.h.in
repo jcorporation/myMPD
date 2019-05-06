@@ -98,6 +98,7 @@ void mympd_log(int level, const char *file, int line, const char *fmt, ...);
     X(MPD_API_PLAYLIST_LIST) \
     X(MPD_API_PLAYLIST_CONTENT_LIST) \
     X(MPD_API_SMARTPLS_UPDATE_ALL) \
+    X(MPD_API_SMARTPLS_UPDATE) \
     X(MPD_API_SMARTPLS_SAVE) \
     X(MPD_API_SMARTPLS_GET) \
     X(MPD_API_DATABASE_SEARCH_ADV) \
@@ -187,9 +188,6 @@ typedef struct t_config {
     char *sslcert;
     char *sslkey;
     char *user;
-    bool coverimage;
-    char *coverimagename;
-    long coverimagesize;
     bool stickers;
     bool mixramp;
     char *taglist;
@@ -201,13 +199,8 @@ typedef struct t_config {
     char *etcdir;
     unsigned long max_elements_per_page;
     bool syscmds;
-    bool localplayer;
-    long streamport;
-    char *streamurl;
     unsigned long last_played_count;
     long loglevel;
-    char *background;
-    char *backgroundfilter;
     bool love;
     char *lovechannel;
     char *lovemessage;

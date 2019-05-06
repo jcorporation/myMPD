@@ -72,9 +72,6 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
         FREE_PTR(p_config->mpdpass);
         p_config->mpdpass = strdup(value);
     }
-    else if (MATCH("mpd", "streamport")) {
-        p_config->streamport = strtol(value, &crap, 10);
-    }
     else if (MATCH("mpd", "musicdirectory")) {
         FREE_PTR(p_config->music_directory);
         p_config->music_directory = strdup(value);
@@ -101,16 +98,6 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("mympd", "user")) {
         FREE_PTR(p_config->user);
         p_config->user = strdup(value);
-    }
-    else if (MATCH("mympd", "coverimage")) {
-        p_config->coverimage = strcmp(value, "true") == 0 ? true : false;
-    }
-    else if (MATCH("mympd", "coverimagename")) {
-        FREE_PTR(p_config->coverimagename);
-        p_config->coverimagename = strdup(value);
-    }
-    else if (MATCH("mympd", "coverimagesize")) {
-        p_config->coverimagesize = strtol(value, &crap, 10);
     }
     else if (MATCH("mympd", "varlibdir")) {
         FREE_PTR(p_config->varlibdir);
@@ -147,26 +134,11 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("mympd", "syscmds")) {
         p_config->syscmds = strcmp(value, "true") == 0 ? true : false;
     }
-    else if (MATCH("mympd", "localplayer")) {
-        p_config->localplayer = strcmp(value, "true") == 0 ? true : false;
-    }
-    else if (MATCH("mympd", "streamurl")) {
-        FREE_PTR(p_config->streamurl);
-        p_config->streamurl = strdup(value);
-    }
     else if (MATCH("mympd", "lastplayedcount")) {
         p_config->last_played_count = strtol(value, &crap, 10);
     }
     else if (MATCH("mympd", "loglevel")) {
         p_config->loglevel = strtol(value, &crap, 10);
-    }
-    else if (MATCH("theme", "background")) {
-        FREE_PTR(p_config->background);
-        p_config->background = strdup(value);
-    }
-    else if (MATCH("theme", "backgroundfilter")) {
-        FREE_PTR(p_config->backgroundfilter);
-        p_config->backgroundfilter = strdup(value);
     }
     else if (MATCH("mympd", "love")) {
         p_config->love = strcmp(value, "true") == 0 ? true : false;
@@ -201,15 +173,11 @@ static void mympd_free_config(t_config *config) {
     FREE_PTR(config->sslcert);
     FREE_PTR(config->sslkey);
     FREE_PTR(config->user);
-    FREE_PTR(config->coverimagename);
     FREE_PTR(config->taglist);
     FREE_PTR(config->searchtaglist);
     FREE_PTR(config->browsetaglist);
     FREE_PTR(config->varlibdir);
     FREE_PTR(config->etcdir);
-    FREE_PTR(config->streamurl);
-    FREE_PTR(config->background);
-    FREE_PTR(config->backgroundfilter);
     FREE_PTR(config->lovechannel);
     FREE_PTR(config->lovemessage);
     FREE_PTR(config->plugins_coverextractlib);
@@ -234,14 +202,12 @@ static void mympd_parse_env(struct t_config *config, const char *envvar) {
 }
 
 static void mympd_get_env(struct t_config *config) {
-    const char* env_vars[]={"MPD_HOST", "MPD_PORT", "MPD_PASS", "MPD_STREAMPORT", "MPD_MUSICDIRECTORY",
+    const char* env_vars[]={"MPD_HOST", "MPD_PORT", "MPD_PASS", "MPD_MUSICDIRECTORY",
         "WEBSERVER_WEBPORT", "WEBSERVER_SSL", "WEBSERVER_SSLPORT", "WEBSERVER_SSLCERT", "WEBSERVER_SSLKEY",
-        "MYMPD_LOGLEVEL", "MYMPD_USER", "MYMPD_LOCALPLAYER", "MYMPD_COVERIMAGE", "MYMPD_COVERIMAGENAME", 
-        "MYMPD_COVERIMAGESIZE", "MYMPD_VARLIBDIR", "MYMPD_MIXRAMP", "MYMPD_STICKERS", "MYMPD_TAGLIST", 
+        "MYMPD_LOGLEVEL", "MYMPD_USER", "MYMPD_VARLIBDIR", "MYMPD_MIXRAMP", "MYMPD_STICKERS", "MYMPD_TAGLIST", 
         "MYMPD_SEARCHTAGLIST", "MYMPD_BROWSETAGLIST", "MYMPD_SMARTPLS", "MYMPD_SYSCMDS", 
         "MYMPD_PAGINATION", "MYMPD_LASTPLAYEDCOUNT", "MYMPD_LOVE", "MYMPD_LOVECHANNEL", "MYMPD_LOVEMESSAGE",
-        "PLUGINS_COVEREXTRACT", "PLUGINS_COVEREXTRACTLIB",
-        "THEME_BACKGROUND", "THEME_BACKGROUNDFILTER", 0};
+        "PLUGINS_COVEREXTRACT", "PLUGINS_COVEREXTRACTLIB", 0};
     const char** ptr = env_vars;
     while (*ptr != 0) {
         mympd_parse_env(config, *ptr);
@@ -305,11 +271,6 @@ int main(int argc, char **argv) {
     config->sslcert = strdup("/var/lib/mympd/ssl/server.pem");
     config->sslkey = strdup("/var/lib/mympd/ssl/server.key");
     config->user = strdup("mympd");
-    config->streamport = 8000;
-    config->streamurl = strdup("");
-    config->coverimage = true;
-    config->coverimagename = strdup("folder.jpg");
-    config->coverimagesize = 240;
     config->varlibdir = strdup("/var/lib/mympd");
     config->stickers = true;
     config->mixramp = true;
@@ -321,10 +282,7 @@ int main(int argc, char **argv) {
     config->last_played_count = 20;
     config->etcdir = strdup("/etc/mympd");
     config->syscmds = false;
-    config->localplayer = true;
     config->loglevel = 1;
-    config->background = strdup("#888");
-    config->backgroundfilter = strdup("blur(5px)");
     config->love = false;
     config->lovechannel = strdup("");
     config->lovemessage = strdup("love");

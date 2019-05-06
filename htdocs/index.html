@@ -659,7 +659,7 @@
   <div class="modal fade" id="modalUpdateDB" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
-        <div class="modal-header">
+        <div class="modal-header bg-light">
           <h5 class="modal-title"><span class="material-icons title-icon">update</span> Updating MPD database</h5>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
@@ -681,7 +681,7 @@
   <div class="modal fade" id="modalAddToPlaylist" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
-        <div class="modal-header">
+        <div class="modal-header bg-light">
           <h5 class="modal-title"><span class="material-icons title-icon">playlist_add</span> <span id="addToPlaylistLabel">Add to playlist</span></h5>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
@@ -730,7 +730,7 @@
   <div class="modal fade" id="modalRenamePlaylist" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
-        <div class="modal-header">
+        <div class="modal-header bg-light">
           <h5 class="modal-title"><span class="material-icons title-icon">playlist_add</span>Rename playlist</h5>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
@@ -758,7 +758,7 @@
   <div class="modal fade" id="modalDeletePlaylist" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
-        <div class="modal-header">
+        <div class="modal-header bg-light">
           <h5 class="modal-title"><span class="material-icons title-icon">delete</span>Delete playlist</h5>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
@@ -781,7 +781,7 @@
   <div class="modal fade" id="modalSaveSmartPlaylist" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
-        <div class="modal-header">
+        <div class="modal-header bg-light">
           <h5 class="modal-title"><span class="material-icons title-icon">queue_music</span>Save smart playlist</h5>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
@@ -844,121 +844,213 @@
   <div class="modal fade" id="modalSettings" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="settingsLabel"><span class="material-icons title-icon">settings</span> Settings</h5>
+        <div class="modal-header pb-0 bg-light">
+          <ul class="nav nav-tabs border-bottom-0">
+            <li class="nav-item">
+              <a class="nav-link active text-dark" href="#tabPlaybackSettings" data-toggle="tab" data-height="true">Playback</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link text-dark" href="#tabMiscSettings" data-toggle="tab" data-height="true">General</a>
+            </li>
+          </ul>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
         <div class="modal-body">
-         <form id="settingsFrm">
-          <h4>MPD</h4>
-          <div class="row">
-            <div class="form-group col-md-6">
-              <button data-href='{"cmd":"toggleBtn", "options":["btnRandom"]}' id="btnRandom" type="button" class="btn btn-secondary btn-block" title="Random">
-                Random
-              </button>
+          <div class="tab-content">
+            <div class="tab-pane active" id="tabPlaybackSettings">
+              <form id="PlaybackSettingsFrm">
+                <h4>Playback</h4>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="btnRandom">Random</label>
+                  <div class="col-sm-8">
+                    <button data-href='{"cmd":"toggleBtnChk", "options":["btnRandom"]}' id="btnRandom" type="button" class="btn btn-secondary btn-sm material-icons" title="Random">
+                      Random
+                    </button>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="btnConsume">Consume</label>
+                  <div class="col-sm-8">          
+                    <button data-href='{"cmd": "toggleBtnChk", "options": ["btnConsume"]}' id="btnConsume" type="button" class="btn btn-secondary btn-sm material-icons" title="Consume">
+                      Consume
+                    </button>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="btnSingle">Single</label>
+                  <div class="col-sm-8">
+                    <button data-href='{"cmd": "toggleBtnChk", "options": ["btnSingle"]}' id="btnSingle" type="button" class="btn btn-secondary btn-sm material-icons" title="Single">
+                      Single
+                    </button>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="btnRepeat">Repeat</label>
+                  <div class="col-sm-8">
+                    <button data-href='{"cmd": "toggleBtnChk", "options": ["btnRepeat"]}' id="btnRepeat" type="button" class="btn btn-secondary btn-sm material-icons" title="Repeat">
+                      Repeat
+                    </button>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="inputCrossfade">Crossfade</label>
+                  <div class="col-sm-8">
+                    <input id="inputCrossfade" type="text" class="form-control border-secondary" value="">
+                    <div class="invalid-feedback">Must be a number.</div>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="inputReplaygain">Replaygain</label>
+                  <div class="col-sm-8">
+                    <select id="selectReplaygain" class="form-control custom-select border-secondary">
+                      <option value="off">Off</option>
+                      <option value="track">Track</option>
+                      <option value="album">Album</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group row mixramp">
+                  <label class="col-sm-4 col-form-label" for="inputMixrampdb">Mixramp DB</label>
+                  <div class="col-sm-8">
+                    <input id="inputMixrampdb" type="text" class="form-control border-secondary" value="">
+                    <div class="invalid-feedback">Must be a number.</div>
+                  </div>
+                </div>
+                <div class="form-group row mixramp">
+                  <label class="col-sm-4 col-form-label" for="inputMixrampdelay">Mixramp Delay</label>
+                  <div class="col-sm-8">
+                    <input id="inputMixrampdelay" type="text" class="form-control border-secondary" value="">
+                    <div class="invalid-feedback">Must be a number.</div>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="btnAutoPlay">Autoplay</label>
+                  <div class="col-sm-8">          
+                    <button data-href='{"cmd": "toggleBtnChk", "options": ["btnAutoPlay"]}' id="btnAutoPlay" type="button" class="btn btn-secondary btn-sm material-icons" title="Start playing after first song is added to the queue">
+                      radio_button_unchecked
+                    </button>
+                  </div>
+                </div>
+                <hr/>
+                <h4>Jukebox</h4>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="selectJukeboxMode">Mode</label>
+                  <div class="col-sm-8">
+                    <select id="selectJukeboxMode" class="form-control custom-select border-secondary">
+                      <option value="0">Off</option>
+                      <option value="1">Track</option>
+                      <option value="2">Album</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="selectJukeboxPlaylist">Playlist</label>
+                  <div class="col-sm-8">
+                    <select id="selectJukeboxPlaylist" class="form-control custom-select border-secondary">
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="inputJukeboxQueueLength">Keep queue length</label>
+                  <div class="col-sm-8">
+                    <input id="inputJukeboxQueueLength" type="text" class="form-control border-secondary" value="1">
+                    <div class="invalid-feedback">Must be a number and &gt; 0</div>
+                  </div>
+                </div>
+              </form>
             </div>
-            <div class="form-group col-md-6" data-toggle="buttons">          
-              <button data-href='{"cmd": "toggleBtn", "options": ["btnConsume"]}' id="btnConsume" type="button" class="btn btn-secondary btn-block" title="Consume">
-                Consume
-              </button>
+            <div class="tab-pane" id="tabMiscSettings">
+              <form id="MiscSettingsFrm">
+                <h4>Notifications</h4>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="btnNotifyPage">On Page Notifications</label>
+                  <div class="col-sm-8">
+                    <button data-href='{"cmd": "toggleBtnChk", "options": ["btnNotifyPage"]}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnNotifyPage">
+                      radio_button_unchecked
+                    </button>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="btnNotifyWeb">Web Notifications</label>
+                  <div class="col-sm-8">
+                    <button data-href='{"cmd": "toggleBtnChk", "options": ["btnNotifyWeb"]}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnNotifyWeb">
+                      radio_button_unchecked
+                    </button>
+                  </div>
+                </div>
+                <hr/>
+                <h4>Local Playback</h4>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="btnFeatLocalplayer">Local Playback</label>
+                  <div class="col-sm-8 ">
+                    <button data-href='{"cmd": "toggleBtnChk", "options": ["btnFeatLocalplayer"]}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnFeatLocalplayer">
+                      radio_button_unchecked
+                    </button>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <div class="col-sm-4">
+                    <select id="selectStreamMode" class="form-control custom-select border-secondary">
+                      <option value="port">Port</option>
+                      <option value="url">URL</option>
+                    </select>
+                  </div>                  
+                  <div class="col-sm-8">
+                    <input id="inputStreamUrl" type="text" class="form-control border-secondary" value="">
+                    <div class="invalid-feedback">Invalid Stream URL</div>
+                  </div>
+                </div>
+                <hr/>
+                <h4>Albumart</h4>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="btnCoverimage">Albumart</label>
+                  <div class="col-sm-8 ">
+                    <button data-href='{"cmd": "toggleBtnChk", "options": ["btnCoverimage"]}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnCoverimage">
+                      radio_button_unchecked
+                    </button>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="inputCoverimageName">Name</label>
+                  <div class="col-sm-8 ">
+                    <input id="inputCoverimageName" type="text" class="form-control border-secondary" value="folder.jpg" placeholder="folder.jpg">
+                    <div class="invalid-feedback">Invalid Name</div>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="inputCoverimageSize">Size</label>
+                  <div class="col-sm-8 ">
+                    <input id="inputCoverimageSize" type="text" class="form-control border-secondary" value="240" placeholder="Size in px">
+                    <div class="invalid-feedback">Invalid Size</div>
+                  </div>
+                </div>
+                <hr/>
+                <h4>Background</h4>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="btnBgCover">Albumart</label>
+                  <div class="col-sm-8 ">
+                    <button data-href='{"cmd": "toggleBtnChk", "options": ["btnBgCover"]}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnBgCover">
+                      radio_button_unchecked
+                    </button>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="inputBgColor">Solid Color</label>
+                  <div class="col-sm-8">
+                    <input id="inputBgColor" type="text" class="form-control border-secondary" value="#888" placeholder="#888">
+                    <div class="invalid-feedback">Invalid Color</div>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="inputBgCssFilter">CSS Filter</label>
+                  <div class="col-sm-8 ">
+                    <input id="inputBgCssFilter" type="text" class="form-control border-secondary" value="blur(5px)" placeholder="blur(5px)">
+                    <div class="invalid-feedback">Invalid Color</div>
+                  </div>
+                </div>
+              </form>
             </div>
           </div>
-          <div class="row">
-            <div class="form-group col-md-6" data-toggle="buttons">
-              <button data-href='{"cmd": "toggleBtn", "options": ["btnSingle"]}' id="btnSingle" type="button" class="btn btn-secondary btn-block" title="Single">
-                Single
-              </button>
-            </div>
-            <div class="form-group col-md-6" data-toggle="buttons">
-              <button data-href='{"cmd": "toggleBtn", "options": ["btnRepeat"]}' id="btnRepeat" type="button" class="btn btn-secondary btn-block" title="Repeat">
-                Repeat
-              </button>
-            </div>
-          </div>
-          <div class="row">
-            <div class="form-group input-group col-md-6 border-secondary">
-              <div class="input-group-prepend">
-                <div class="input-group-text bg-secondary text-light border-secondary">Crossfade</div>
-              </div>
-              <input id="inputCrossfade" type="text" class="form-control border-secondary" value="">
-              <div class="invalid-feedback">Must be a number.</div>
-            </div>
-            <div class="form-group input-group col-md-6 border-secondary">
-              <div class="input-group-prepend">
-                <div class="input-group-text bg-secondary text-light border-secondary">Replaygain</div>
-              </div>
-              <select id="selectReplaygain" class="form-control custom-select border-secondary">
-                <option value="off">Off</option>
-                <option value="track">Track</option>
-                <option value="album">Album</option>
-              </select>
-            </div>
-          </div>
-          <div class="row mixramp">
-            <div class="form-group input-group col-md-6 border-secondary">
-              <div class="input-group-prepend">
-                <div class="input-group-text bg-secondary text-light border-secondary">Mixramp DB</div>
-              </div>
-              <input id="inputMixrampdb" type="text" class="form-control border-secondary" value="">
-              <div class="invalid-feedback">Must be a number.</div>
-            </div>
-            <div class="form-group input-group col-md-6 border-secondary">
-              <div class="input-group-prepend">
-                <div class="input-group-text bg-secondary text-light border-secondary">Mixramp Delay</div>
-              </div>
-              <input id="inputMixrampdelay" type="text" class="form-control border-secondary" value="">
-              <div class="invalid-feedback">Must be a number.</div>
-            </div>            
-          </div>
-          <div class="row">
-            <div class="form-group col-md-6" data-toggle="buttons">          
-              <button data-href='{"cmd": "toggleBtn", "options": ["btnAutoPlay"]}' id="btnAutoPlay" type="button" class="btn btn-secondary btn-block" title="Start playing after first song is added to the queue">
-                AutoPlay
-              </button>
-            </div>
-          </div>
-          <hr/>
-          <h4>Jukebox</h4>
-          <div class="row">
-            <div class="form-group input-group col-md-6 border-secondary">
-              <div class="input-group-prepend">
-                <div class="input-group-text bg-secondary text-light border-secondary">Mode</div>
-              </div>
-              <select id="selectJukeboxMode" class="form-control custom-select border-secondary">
-                <option value="0">Off</option>
-                <option value="1">Track</option>
-                <option value="2">Album</option>
-              </select>
-            </div>
-            <div class="form-group input-group col-md-6 border-secondary">
-              <select id="selectJukeboxPlaylist" class="form-control custom-select border-secondary">
-              </select>
-            </div>
-          </div>
-          <div class="row">
-            <div class="form-group input-group col-md-6 border-secondary">
-              <div class="input-group-prepend">
-                <div class="input-group-text bg-secondary text-light border-secondary">Min. queue length</div>
-              </div>
-              <input id="inputJukeboxQueueLength" type="text" class="form-control border-secondary" value="1">
-              <div class="invalid-feedback">Must be a number and &gt; 0</div>
-            </div>
-          </div>
-          <hr/>
-          <h4>Notifications</h4>
-          <div class="row">
-            <div class="form-group col-md-6" data-toggle="buttons">
-              <button data-href='{"cmd": "toggleBtn", "options": ["btnnotifyPage"]}' type="button" class="btn btn-secondary btn-block" id="btnnotifyPage">
-                Page Notifications
-              </button>
-            </div>
-            <div class="form-group col-md-6" data-toggle="buttons">
-              <button data-href='{"cmd": "toggleBtn", "options": ["btnnotifyWeb"]}' type="button" class="btn btn-secondary btn-block" id="btnnotifyWeb">
-                Web Notifications
-              </button>
-            </div>
-          </div>
-         </form>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
@@ -971,7 +1063,7 @@
   <div class="modal fade" id="modalAbout" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
-        <div class="modal-header pb-0">
+        <div class="modal-header pb-0 bg-light">
           <ul class="nav nav-tabs border-bottom-0">
             <li class="nav-item">
               <a class="nav-link active text-dark" href="#tabAbout" data-toggle="tab" data-height="true">About</a>
@@ -1030,7 +1122,7 @@
   <div class="modal fade" id="modalSaveQueue" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
-        <div class="modal-header">
+        <div class="modal-header bg-light">
           <h5 class="modal-title"><span class="material-icons title-icon">save</span> Save Queue</h5>
           <button type="button" class="close" data-dismiss="modal">&times;</button>          
         </div>
@@ -1056,7 +1148,7 @@
   <div class="modal fade" id="modalAddToQueue" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
-        <div class="modal-header">
+        <div class="modal-header bg-light">
           <h5 class="modal-title"><span class="material-icons title-icon">add_to_queue</span> Add to Queue</h5>
           <button type="button" class="close" data-dismiss="modal">&times;</button>          
         </div>
@@ -1096,7 +1188,7 @@
   <div class="modal fade" id="modalSaveBookmark" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
-        <div class="modal-header">
+        <div class="modal-header bg-light">
           <h5 class="modal-title"><span class="material-icons title-icon">save</span> Save Bookmark</h5>
           <button type="button" class="close" data-dismiss="modal">&times;</button>          
         </div>
@@ -1128,7 +1220,7 @@
   <div class="modal fade" id="modalSongDetails" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
-        <div class="modal-header">
+        <div class="modal-header bg-light">
           <h5 class="modal-title"><span class="material-icons title-icon">music_note</span> Song Details</h5>
           <button type="button" class="close" data-dismiss="modal">&times;</button>          
         </div>
