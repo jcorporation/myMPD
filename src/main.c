@@ -301,7 +301,7 @@ int main(int argc, char **argv) {
             FREE_PTR(etcdir);
         }
         else {
-            printf("myMPD  %s\n"
+            printf("myMPD %s\n"
                 "Copyright (C) 2018-2019 Juergen Mang <mail@jcgames.de>\n"
                 "https://github.com/jcorporation/myMPD\n"
                 "Built " __DATE__ " "__TIME__"\n\n"
@@ -481,5 +481,6 @@ int main(int argc, char **argv) {
     FREE_PTR(mg_user_data->pics_directory);
     FREE_PTR(mg_user_data->rewrite_patterns);
     FREE_PTR(mg_user_data);
+    printf("Exiting gracefully, thank you for using myMPD\n");
     return rc;
 }
