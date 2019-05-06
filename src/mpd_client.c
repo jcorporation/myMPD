@@ -858,16 +858,31 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
                     response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Setting playstate failed.\"}");
                     LOG_ERROR("Error mpd_run_play");
                 }
-                else
+                else {
                     response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+                }
                 FREE_PTR(p_charbuf1);
+            }
+            break;
+        case MPD_API_QUEUE_ADD_RANDOM:
+            je = json_scanf(request->data, request->length, "{data: {mode:%u, playlist:%Q, quantity:%d}}", &uint_buf1, &p_charbuf1, &int_buf1);
+            if (je == 3) {
+                rc = mpd_client_jukebox_add(config, mpd_state, int_buf1, uint_buf1, p_charbuf1);
+                FREE_PTR(p_charbuf1);
+                if (rc == true) {
+                    response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"result\", \"data\": \"Sucessfully added random songs to queue.\"}");
+                }
+                else {
+                    response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Adding random songs to queue failed.\"}");
+                }
             }
             break;
         case MPD_API_QUEUE_ADD_PLAYLIST:
             je = json_scanf(request->data, request->length, "{data: {plist:%Q}}", &p_charbuf1);
             if (je == 1) {
-                if (mpd_run_load(mpd_state->conn, p_charbuf1))
+                if (mpd_run_load(mpd_state->conn, p_charbuf1)) {
                     response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+                }
                 else {
                     response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Adding playlist to queue failed.\"}");
                     LOG_ERROR("Error mpd_run_load");

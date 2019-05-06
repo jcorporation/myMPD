@@ -88,6 +88,7 @@ void mympd_log(int level, const char *file, int line, const char *fmt, ...);
     X(MPD_API_QUEUE_REPLACE_PLAYLIST) \
     X(MPD_API_QUEUE_SHUFFLE) \
     X(MPD_API_QUEUE_LAST_PLAYED) \
+    X(MPD_API_QUEUE_ADD_RANDOM) \
     X(MPD_API_PLAYLIST_CLEAR) \
     X(MPD_API_PLAYLIST_RENAME) \
     X(MPD_API_PLAYLIST_MOVE_TRACK) \

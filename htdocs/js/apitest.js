@@ -51,6 +51,8 @@ var cmds = [
     '{"cmd":"MPD_API_DATABASE_SEARCH","data":{"offset":0,"filter":"any","searchstr":"__SEARCHSTR__","plist":"queue","cols":["Title","Album"]}}',
     '{"cmd":"MPD_API_QUEUE_LIST","data":{"offset":0,"cols":["Title","Album"]}}',
     '{"cmd":"MPD_API_QUEUE_MOVE_TRACK","data":{"from":1,"to":2}}',
+    '{"cmd":"MPD_API_QUEUE_ADD_RANDOM","data":{"playlist":"Database","quantity":2, "mode":1}}',
+    '{"cmd":"MPD_API_QUEUE_ADD_RANDOM","data":{"playlist":"Database","quantity":1, "mode":2}}',
     '{"cmd":"MPD_API_QUEUE_RM_RANGE","data":{"start":1,"end":-1}}',
     '{"cmd":"MPD_API_PLAYER_PLAY_TRACK","data":{"track":__TRACKID__}}',
     '{"cmd":"MPD_API_PLAYER_SEEK","data":{"songid":__TRACKID__,"seek":10}}',
