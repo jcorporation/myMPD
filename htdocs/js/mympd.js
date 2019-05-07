@@ -957,6 +957,25 @@ function appInit() {
         socket.close();
         websocketConnected = false;
     });
+    
+    document.getElementById('localPlayer').addEventListener('canplay', function() {
+        document.getElementById('alertLocalPlayback').classList.add('hide');
+        if (settings.featLocalplayer == true && settings.localplayerAutoplay == true) {
+            localplayerPlay();
+        }
+    });
+}
+
+async function localplayerPlay() {
+    var localPlayer = document.getElementById('localPlayer');
+    if (localPlayer.paused) {
+        try {
+            await localPlayer.play();
+        } 
+        catch(err) {
+            showNotification('Local Playback', 'Can not start playing', '', 'error');
+        }
+    }
 }
 
 function parseCmd(event, href) {
@@ -1444,6 +1463,7 @@ function parseSettings() {
     document.getElementById('inputBgColor').value = settings.bgColor;
     document.getElementById('inputBgCssFilter').value = settings.bgCssFilter;
     toggleBtnChk('btnFeatLocalplayer', settings.featLocalplayer);
+    toggleBtnChk('btnLocalplayerAutoplay', settings.localplayerAutoplay);
     if (settings.streamUrl == '') {
         document.getElementById('selectStreamMode').value = 'port';
         document.getElementById('inputStreamUrl').value = settings.streamPort;
@@ -1507,7 +1527,6 @@ function parseSettings() {
         document.getElementById('selectJukeboxPlaylist').removeAttribute('disabled');
     }
 
-
     if (settings.featLocalplayer == true) {
         if (settings.streamUrl == '') {
             settings.mpdstream = 'http://';
@@ -1521,6 +1540,13 @@ function parseSettings() {
         } 
         else {
             settings.mpdstream = settings.streamUrl;
+        }
+        var localPlayer = document.getElementById('localPlayer');
+        if (localPlayer.src != settings.mpdstream) {
+            localPlayer.pause();
+            document.getElementById('alertLocalPlayback').classList.remove('hide');
+            localPlayer.src = settings.mpdstream;
+            localPlayer.load();
         }
     }
     
@@ -3241,10 +3267,6 @@ function sendAPI(request, callback, onerror) {
     log_debug('Send API request: ' + request.cmd);
 }
 
-function openLocalPlayer() {
-    window.open('/player.html#' + settings.mpdstream, 'LocalPlayer');
-}
-
 function updateDB() {
     sendAPI({"cmd": "MPD_API_DATABASE_UPDATE"});
     updateDBstarted(true);
@@ -3409,6 +3431,7 @@ function saveSettings() {
             "bgColor": document.getElementById('inputBgColor').value,
             "bgCssFilter": document.getElementById('inputBgCssFilter').value,
             "featLocalplayer": (document.getElementById('btnFeatLocalplayer').classList.contains('active') ? true : false),
+            "localplayerAutoplay": (document.getElementById('btnLocalplayerAutoplay').classList.contains('active') ? true : false),
             "streamUrl": streamUrl,
             "streamPort": streamPort,
             "coverimage": (document.getElementById('btnCoverimage').classList.contains('active') ? true : false),
@@ -3489,7 +3512,7 @@ function toggleAlert(alertBox, state, msg) {
     }
 }
 
-function showNotification(notificationTitle,notificationText,notificationHtml,notificationType) {
+function showNotification(notificationTitle, notificationText, notificationHtml, notificationType) {
     if (settings.notificationWeb == true) {
         var notification = new Notification(notificationTitle, {icon: 'assets/favicon.ico', body: notificationText});
         setTimeout(function(notification) {
@@ -3510,11 +3533,12 @@ function showNotification(notificationTitle,notificationText,notificationHtml,no
         }
         alertBox.classList.remove('alert-success', 'alert-danger');
         alertBox.classList.add('alert','alert-' + notificationType);
-        alertBox.innerHTML = '<div><strong>' + notificationTitle + '</strong><br/>' + notificationHtml + '</div>';
+        alertBox.innerHTML = '<div><strong>' + notificationTitle + '</strong><br/>' + (notificationHtml == '' ? notificationText : notificationHtml) + '</div>';
         document.getElementsByTagName('main')[0].append(alertBox);
         document.getElementById('alertBox').classList.add('alertBoxActive');
-        if (alertTimeout)
+        if (alertTimeout) {
             clearTimeout(alertTimeout);
+        }
         alertTimeout = setTimeout(function() {
             hideNotification();    
         }, 3000);

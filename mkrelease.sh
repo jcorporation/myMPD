@@ -38,7 +38,6 @@ minify() {
 }
 
 echo "Minifying javascript"
-minify js htdocs/js/player.js dist/htdocs/js/player.min.js
 minify js htdocs/js/mympd.js dist/htdocs/js/mympd.min.js
 minify js htdocs/sw.js dist/htdocs/sw.min.js
 minify js htdocs/js/keymap.js dist/htdocs/js/keymap.min.js
@@ -49,7 +48,6 @@ minify css htdocs/css/mympd.css dist/htdocs/css/mympd.min.css
 
 echo "Minifying html"
 minify html htdocs/index.html dist/htdocs/index.html
-minify html htdocs/player.html dist/htdocs/player.html
 
 echo "Compiling and installing mympd"
 install -d release

@@ -2,12 +2,10 @@ var CACHE = 'myMPD-cache-v5.4.0';
 var subdir = self.location.pathname.replace('/sw.min.js', '').replace(/\/$/, '');
 var urlsToCache = [
     subdir + '/',
-    subdir + '/player.html',
     subdir + '/css/bootstrap.min.css',
     subdir + '/css/mympd.min.css',
     subdir + '/js/bootstrap-native-v4.min.js',
     subdir + '/js/mympd.min.js',
-    subdir + '/js/player.min.js',
     subdir + '/js/keymap.min.js',
     subdir + '/assets/appicon-167.png',
     subdir + '/assets/appicon-192.png',

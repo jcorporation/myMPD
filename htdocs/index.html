@@ -31,7 +31,6 @@
                 <a class="dropdown-item text-light bg-dark" href="#" data-href='{"cmd": "rescanDB", "options": []}'>Rescan Database</a>
                 <a class="dropdown-item text-light bg-dark featSmartpls" href="#" data-href='{"cmd": "updateSmartPlaylists", "options": []}'>Update Smart Playlists</a>
               </div>
-            <a class="dropdown-item text-light bg-dark featLocalplayer" href="#" data-href='{"cmd": "openLocalPlayer", "options": []}'>Local Playback</a>
             <a class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#modalSettings">Settings</a>
             <a class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#modalAbout">About</a>
             <a id="nav-add2homescreen" class="dropdown-item text-light bg-dark hide" href="#">Add2HomeScreen</a>
@@ -70,6 +69,16 @@
               </form>
               <div class="dropdown-divider"></div>
               <form id="outputs" class="px-4 py-3"></form>              
+            </div>
+          </div>
+          <div class="btn-group dropdown featLocalplayer ml-2">
+            <button id="localPlaybackMenu" class="btn btn-secondary dropdown-toggle pl-2 pr-2 material-icons" type="button" data-toggle="dropdown">
+              airplay
+            </button>
+            <div class="dropdown-menu dropdown-menu-right bg-dark">
+              <h2 class="dropdown-header dropdown-header-lx text-light">Local Playback</h2>
+              <div id="alertLocalPlayback" class="alert alert-warning mx-4">Connecting to stream...</div>
+              <audio class="mx-4" id="localPlayer" preload="none" controls=""></audio>
             </div>
           </div>
         </div>
@@ -998,6 +1007,14 @@
                   <div class="col-sm-8">
                     <input id="inputStreamUrl" type="text" class="form-control border-secondary" value="">
                     <div class="invalid-feedback">Invalid Stream URL</div>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="btnLocalplayerAutoplay">Autoplay</label>
+                  <div class="col-sm-8 ">
+                    <button data-href='{"cmd": "toggleBtnChk", "options": ["btnLocalplayerAutoplay"]}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnLocalplayerAutoplay">
+                      radio_button_unchecked
+                    </button>
                   </div>
                 </div>
                 <hr/>

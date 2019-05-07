@@ -359,3 +359,7 @@ ol#searchCrumb {
 .nodropdown::after {
   content: none;
 }
+
+.dropdown-header-lx {
+  font-size: 1.2rem;
+}

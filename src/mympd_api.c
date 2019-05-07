@@ -55,6 +55,7 @@ typedef struct t_mympd_state {
 
     bool auto_play;
     bool feat_localplayer;
+    bool localplayer_autoplay;
     int stream_port;
     char *stream_url;
     bool bg_cover;
@@ -238,7 +239,11 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             if (!state_file_write(config, "auto_play", (mympd_state->auto_play == true ? "true" : "false")))
                 response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state auto_play.\"}");
         }
-        
+        je = json_scanf(request->data, request->length, "{data: {localplayerAutoplay: %B}}", &mympd_state->localplayer_autoplay);
+        if (je == 1) {
+            if (!state_file_write(config, "localplayer_autoplay", (mympd_state->localplayer_autoplay == true ? "true" : "false")))
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state localplayer_autoplay.\"}");
+        }
         je = json_scanf(request->data, request->length, "{data: {coverimage: %B}}", &mympd_state->coverimage);
         if (je == 1) {
             if (!state_file_write(config, "coverimage", (mympd_state->coverimage == true ? "true" : "false")))
@@ -497,6 +502,7 @@ static void mympd_api_read_statefiles(t_config *config, t_mympd_state *mympd_sta
     mympd_state->cols_playback = state_file_rw_string(config, "cols_playback", "[\"Artist\",\"Album\"]", false);
     mympd_state->cols_queue_last_played = state_file_rw_string(config, "cols_queue_last_played", "[\"Pos\",\"Title\",\"Artist\",\"Album\",\"LastPlayed\"]", false);
     mympd_state->feat_localplayer = state_file_rw_bool(config, "feat_localplayer", false, false);
+    mympd_state->localplayer_autoplay = state_file_rw_bool(config, "localplayer_autoplay", false, false);
     mympd_state->stream_port = state_file_rw_long(config, "stream_port", 8000, false);
     mympd_state->stream_url = state_file_rw_string(config, "stream_url", "", false);
     mympd_state->bg_cover = state_file_rw_bool(config, "bg_cover", false, false);
@@ -595,13 +601,12 @@ static int mympd_api_put_settings(t_config *config, t_mympd_state *mympd_state, 
     int nr = 0;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
     
-    len = json_printf(&out, "{type: mympdSettings, data: {mpdhost: %Q, mpdport: %d, passwort_set: %B, featSyscmds: %B, "
+    len = json_printf(&out, "{type: mympdSettings, data: {mpdhost: %Q, mpdport: %d, featSyscmds: %B, "
         "featLocalplayer: %B, streamPort: %d, streamUrl: %Q, coverimage: %B, coverimageName: %Q, coverimageSize: %d, featMixramp: %B, "
         "maxElementsPerPage: %d, notificationWeb: %B, notificationPage: %B, jukeboxMode: %d, jukeboxPlaylist: %Q, jukeboxQueueLength: %d, "
-        "autoPlay: %B, bgColor: %Q, bgCover: %B, bgCssFilter: %Q, loglevel: %d, locale: %Q", 
+        "autoPlay: %B, bgColor: %Q, bgCover: %B, bgCssFilter: %Q, loglevel: %d, locale: %Q, localplayerAutoplay: %B", 
         config->mpdhost, 
         config->mpdport, 
-        config->mpdpass ? "true" : "false",
         config->syscmds,
         mympd_state->feat_localplayer,
         mympd_state->stream_port,
@@ -621,7 +626,8 @@ static int mympd_api_put_settings(t_config *config, t_mympd_state *mympd_state, 
         mympd_state->bg_cover,
         mympd_state->bg_css_filter,
         loglevel,
-        mympd_state->locale
+        mympd_state->locale,
+        mympd_state->localplayer_autoplay
     );
     
     if (config->syscmds == true) {
