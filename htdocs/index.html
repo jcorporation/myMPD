@@ -31,7 +31,7 @@
                 <a class="dropdown-item text-light bg-dark" href="#" data-href='{"cmd": "rescanDB", "options": []}'>Rescan Database</a>
                 <a class="dropdown-item text-light bg-dark featSmartpls" href="#" data-href='{"cmd": "updateSmartPlaylists", "options": []}'>Update Smart Playlists</a>
               </div>
-            <a class="dropdown-item text-light bg-dark featLocalplayer" href="#" data-href='{"cmd": "openLocalPlayer", "options": []}'>Local Player</a>
+            <a class="dropdown-item text-light bg-dark featLocalplayer" href="#" data-href='{"cmd": "openLocalPlayer", "options": []}'>Local Playback</a>
             <a class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#modalSettings">Settings</a>
             <a class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#modalAbout">About</a>
             <a id="nav-add2homescreen" class="dropdown-item text-light bg-dark hide" href="#">Add2HomeScreen</a>
@@ -1046,6 +1046,17 @@
                   <div class="col-sm-8 ">
                     <input id="inputBgCssFilter" type="text" class="form-control border-secondary" value="blur(5px)" placeholder="blur(5px)">
                     <div class="invalid-feedback">Invalid Color</div>
+                  </div>
+                </div>
+                <hr/>
+                <h4>Locale</h4>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="selectLocale">Locale</label>
+                  <div class="col-sm-8">
+                    <select id="selectLocale" class="form-control custom-select border-secondary">
+                      <option value="en-GB">English (en-GB)</option>
+                      <option value="de-DE">German (de-DE)</option>
+                    </select>
                   </div>
                 </div>
               </form>

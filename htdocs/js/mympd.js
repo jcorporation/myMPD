@@ -1337,8 +1337,7 @@ function parseStats(obj) {
     document.getElementById('mpdstats_dbPlaytime').innerText = beautifyDuration(obj.data.dbPlaytime);
     document.getElementById('mpdstats_playtime').innerText = beautifyDuration(obj.data.playtime);
     document.getElementById('mpdstats_uptime').innerText = beautifyDuration(obj.data.uptime);
-    var d = new Date(obj.data.dbUpdated * 1000);
-    document.getElementById('mpdstats_dbUpdated').innerText = d.toLocaleString();
+    document.getElementById('mpdstats_dbUpdated').innerText = localeDate(obj.data.dbUpdated);
     document.getElementById('mympdVersion').innerText = obj.data.mympdVersion;
     document.getElementById('mpdInfo_version').innerText = obj.data.mpdVersion;
     document.getElementById('mpdInfo_libmpdclientVersion').innerText = obj.data.libmpdclientVersion;
@@ -1457,6 +1456,7 @@ function parseSettings() {
     toggleBtnChk('btnCoverimage', settings.coverimage);
     document.getElementById('inputCoverimageName').value = settings.coverimageName;
     document.getElementById('inputCoverimageSize').value = settings.coverimageSize;
+    document.getElementById('selectLocale').value = settings.locale;
 
     document.documentElement.style.setProperty('--mympd-coverimagesize', settings.coverimageSize + "px");
     document.documentElement.style.setProperty('--mympd-backgroundcolor', settings.bgColor);
@@ -2120,7 +2120,7 @@ function parseLastPlayed(obj) {
     var tr = tbody.getElementsByTagName('tr');
     for (var i = 0; i < nrItems; i++) {
         obj.data[i].Duration = beautifySongDuration(obj.data[i].Duration);
-        obj.data[i].LastPlayed = new Date(obj.data[i].LastPlayed * 1000).toLocaleString();
+        obj.data[i].LastPlayed = localeDate(obj.data[i].LastPlayed);
         var row = document.createElement('tr');
         row.setAttribute('data-songpos', (obj.data[i].Pos + 1));
         row.setAttribute('data-uri', obj.data[i].uri);
@@ -2297,14 +2297,13 @@ function parsePlaylists(obj) {
     if (app.current.view == 'All') {
         for (var i = 0; i < nrItems; i++) {
             var uri = encodeURI(obj.data[i].uri);
-            var d = new Date(obj.data[i].last_modified * 1000);
             var row = document.createElement('tr');
             row.setAttribute('data-uri', uri);
             row.setAttribute('data-type', obj.data[i].Type);
             row.setAttribute('data-name', obj.data[i].name);
             row.innerHTML = '<td data-col="Type"><span class="material-icons">' + (obj.data[i].Type == 'smartpls' ? 'queue_music' :'list') + '</span></td>' +
                             '<td>' + obj.data[i].name + '</td>' +
-                            '<td>'+ d.toLocaleString() + '</td>' +
+                            '<td>'+ localDate(obj.data[i].last_modified) + '</td>' +
                             '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>';
             if (i < tr.length)
                 tr[i].replaceWith(row); 
@@ -2660,8 +2659,8 @@ function parseSongDetails(obj) {
         songDetails += '<tr><th colspan="2" class="pt-3"><h5>Statistics</h5></th></tr>' +
             '<tr><th>Play count</th><td>' + obj.data.playCount + '</td></tr>' +
             '<tr><th>Skip count</th><td>' + obj.data.skipCount + '</td></tr>' +
-            '<tr><th>Last played</th><td>' + (obj.data.lastPlayed == 0 ? 'never' : new Date(obj.data.lastPlayed * 1000).toLocaleString()) + '</td></tr>' +
-            '<tr><th>Last&nbsp;skipped</th><td>' + (obj.data.lastSkipped == 0 ? 'never' : new Date(obj.data.lastSkipped * 1000).toLocaleString()) + '</td></tr>' +
+            '<tr><th>Last played</th><td>' + (obj.data.lastPlayed == 0 ? 'never' : localeDate(obj.data.lastPlayed)) + '</td></tr>' +
+            '<tr><th>Last&nbsp;skipped</th><td>' + (obj.data.lastSkipped == 0 ? 'never' : localeDate(obj.data.lastSkipped)) + '</td></tr>' +
             '<tr><th>Like</th><td>' +
               '<div class="btn-group btn-group-sm">' +
                 '<button title="Dislike song" id="btnVoteDown2" data-href=\'{"cmd": "voteSong", "options": [0]}\' class="btn btn-sm btn-light material-icons">thumb_down</button>' +
@@ -3390,6 +3389,7 @@ function saveSettings() {
         var selectReplaygain = document.getElementById('selectReplaygain');
         var selectJukeboxPlaylist = document.getElementById('selectJukeboxPlaylist');
         var selectJukeboxMode = document.getElementById('selectJukeboxMode');
+        var selectLocale = document.getElementById('selectLocale');
         sendAPI({"cmd": "MYMPD_API_SETTINGS_SET", "data": {
             "consume": (document.getElementById('btnConsume').classList.contains('active') ? 1 : 0),
             "random": (document.getElementById('btnRandom').classList.contains('active') ? 1 : 0),
@@ -3414,6 +3414,7 @@ function saveSettings() {
             "coverimage": (document.getElementById('btnCoverimage').classList.contains('active') ? true : false),
             "coverimageName": document.getElementById('inputCoverimageName').value,
             "coverimageSize": document.getElementById('inputCoverimageSize').value,
+            "locale": selectLocale.options[selectLocale.selectedIndex].value
         }}, getSettings);
         modalSettings.hide();
     }
@@ -3739,6 +3740,11 @@ function validateFilename(el) {
         el.classList.add('is-invalid');
         return false;
     }
+}
+
+function localeDate(secs) {
+    var d = new Date(secs * 1000);
+    return d.toLocaleString(settings.locale);
 }
 
 function validatePlname(x) {

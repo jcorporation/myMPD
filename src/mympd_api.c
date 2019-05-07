@@ -60,7 +60,7 @@ typedef struct t_mympd_state {
     bool bg_cover;
     char *bg_color;
     char *bg_css_filter;
-    
+    char *locale;
     bool coverimage;
     char *coverimage_name;
     int coverimage_size;
@@ -141,6 +141,7 @@ void *mympd_api_loop(void *arg_config) {
     FREE_PTR(mympd_state.bg_color);
     FREE_PTR(mympd_state.bg_css_filter);
     FREE_PTR(mympd_state.coverimage_name);
+    FREE_PTR(mympd_state.locale);
     return NULL;
 }
 
@@ -283,6 +284,14 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             p_charbuf1 = NULL;
             if (!state_file_write(config, "stream_url", mympd_state->stream_url))
                 response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state stream_url.\"}");
+        }
+        je = json_scanf(request->data, request->length, "{data: {locale: %Q}}", &p_charbuf1);
+        if (je == 1) {
+            FREE_PTR(mympd_state->locale);
+            mympd_state->locale = p_charbuf1;
+            p_charbuf1 = NULL;
+            if (!state_file_write(config, "locale", mympd_state->locale))
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state locale.\"}");
         }
         je = json_scanf(request->data, request->length, "{data: {bgCover: %B}}", &mympd_state->bg_cover);
         if (je == 1) {
@@ -496,6 +505,7 @@ static void mympd_api_read_statefiles(t_config *config, t_mympd_state *mympd_sta
     mympd_state->coverimage = state_file_rw_bool(config, "coverimage", true, false);
     mympd_state->coverimage_name = state_file_rw_string(config, "coverimage_name", "folder.jpg", false);
     mympd_state->coverimage_size = state_file_rw_long(config, "coverimage_size", 240, false);
+    mympd_state->locale = state_file_rw_string(config, "locale", "en-GB", false);
 }
 
 static char *state_file_rw_string(t_config *config, const char *name, const char *def_value, bool warn) {
@@ -588,7 +598,7 @@ static int mympd_api_put_settings(t_config *config, t_mympd_state *mympd_state, 
     len = json_printf(&out, "{type: mympdSettings, data: {mpdhost: %Q, mpdport: %d, passwort_set: %B, featSyscmds: %B, "
         "featLocalplayer: %B, streamPort: %d, streamUrl: %Q, coverimage: %B, coverimageName: %Q, coverimageSize: %d, featMixramp: %B, "
         "maxElementsPerPage: %d, notificationWeb: %B, notificationPage: %B, jukeboxMode: %d, jukeboxPlaylist: %Q, jukeboxQueueLength: %d, "
-        "autoPlay: %B, bgColor: %Q, bgCover: %B, bgCssFilter: %Q, loglevel: %d", 
+        "autoPlay: %B, bgColor: %Q, bgCover: %B, bgCssFilter: %Q, loglevel: %d, locale: %Q", 
         config->mpdhost, 
         config->mpdport, 
         config->mpdpass ? "true" : "false",
@@ -610,7 +620,8 @@ static int mympd_api_put_settings(t_config *config, t_mympd_state *mympd_state, 
         mympd_state->bg_color,
         mympd_state->bg_cover,
         mympd_state->bg_css_filter,
-        loglevel
+        loglevel,
+        mympd_state->locale
     );
     
     if (config->syscmds == true) {
