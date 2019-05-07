@@ -12,7 +12,6 @@ var keymap = {
     "p": {"cmd": "updateSmartPlaylists", "options": [], "desc": "Update Smart Playlists", "req": "featSmartpls"},
     "a": {"cmd": "showAddToPlaylist", "options": ["stream"], "desc": "Add Stream"},
     "t": {"cmd": "openModal", "options": ["modalSettings"], "desc": "Open Settings"},
-    "y": {"cmd": "openModal", "options": ["modalAbout"], "desc": "Open About"},
     "i": {"cmd": "clickTitle", "options": [], "desc": "Open Song Details"},
     "1": {"cmd": "appGoto", "options": ["Playback"], "desc": "Goto Playback"},
     "2": {"cmd": "appGoto", "options": ["Queue","Current"], "desc": "Goto Queue"},
@@ -25,6 +24,6 @@ var keymap = {
     "v": {"cmd": "openDropdown", "options": ["dropdownVolumeMenu"], "desc": "Open Volume Menu"},
     "S": {"cmd": "MPD_API_QUEUE_SHUFFLE", "options": [], "desc": "Shuffle Queue"},
     "C": {"cmd": "MPD_API_QUEUE_CROP", "options": [], "desc": "Crop Queue"},
-    "?": {"cmd": "openModal", "options": ["modalHelp"], "desc": "Open Help"},
+    "?": {"cmd": "openModal", "options": ["modalAbout"], "desc": "Open About"},
     "/": {"cmd": "focusSearch", "options": [], "desc": "Focus Search"}
 }

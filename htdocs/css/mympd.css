@@ -21,12 +21,13 @@ body:before {
     position: fixed;
     width: 100%;
     height: 100%;
-    background-image: var(--mympd-backgroundimage, url(''));
+    background: var(--mympd-backgroundimage, url(''));
     background-position: center center;
     background-size: cover;
-    margin-top: -4rem;
+    top: 3.5rem;
     filter: var(--mympd-backgroundfilter, '');
     z-index: -9;
+    transition: background 1s;
 }
 
 main {
@@ -87,7 +88,7 @@ small {
 
 .album-cover {
   background-size: cover;
-  background-image: url("/assets/coverimage-loading.png");
+  background-image: url("../assets/coverimage-loading.png");
   border: 1px solid black;
   border-radius: 5px;
   overflow: hidden;
@@ -130,7 +131,7 @@ small {
   font-family: 'Material Icons';
   font-style: normal;
   font-weight: 400;
-  src: url(/assets/MaterialIcons-Regular.woff2) format('woff2');
+  src: url(../assets/MaterialIcons-Regular.woff2) format('woff2');
 }
 
 .material-icons {
@@ -230,7 +231,7 @@ a.card-img-left {
   height: var(--mympd-coverimagesize);
   border-radius: 5px;
   background-size: cover;
-  background-image: url(/assets/coverimage-loading.png);  
+  background-image: url(../assets/coverimage-loading.png);  
   margin-bottom: 5px;
   cursor: pointer;
 }
@@ -358,4 +359,8 @@ ol#searchCrumb {
 
 .nodropdown::after {
   content: none;
+}
+
+.dropdown-header-lx {
+  font-size: 1.2rem;
 }

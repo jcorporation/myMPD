@@ -1,4 +1,22 @@
-#/bin/bash
+#/bin/sh
+
+INSTALL_PREFIX="${INSTALL_PREFIX:-/usr}"
+
+if [ "$(expr ${INSTALL_PREFIX} : '^/opt/')" = "5" ]
+then
+  ETCDIR="/etc${INSTALL_PREFIX}"
+  SHAREDIR="${INSTALL_PREFIX}/share"
+  VARDIR="/var${INSTALL_PREFIX}/lib"
+elif [ "$INSTALL_PREFIX" = "/usr" ]
+then
+  ETCDIR="/etc/mympd"
+  SHAREDIR="${INSTALL_PREFIX}/share/mympd"
+  VARDIR="/var/lib/mympd"
+else
+  ETCDIR="${INSTALL_PREFIX}/etc/mympd"
+  SHAREDIR="${INSTALL_PREFIX}/share/mympd"
+  VARDIR="${INSTALL_PREFIX}/var/lib/mympd"
+fi
 
 echo "Checking status of mympd system user and group"
 getent group mympd > /dev/null
@@ -10,47 +28,47 @@ if [ -d /etc/systemd ]
 then
   echo "Installing systemd service"
   [ -d /usr/lib/systemd/system ] || mkdir -p /usr/lib/systemd/system 
-  if [ contrib/mympd.service -nt /usr/lib/systemd/system/mympd.service ]
+  if [ ${SHAREDIR}/mympd.service -nt /usr/lib/systemd/system/mympd.service ]
   then
-    cp contrib/mympd.service /usr/lib/systemd/system/
+    cp ${SHAREDIR}/mympd.service /usr/lib/systemd/system/
     systemctl daemon-reload
   fi
   systemctl enable mympd
 fi
 
 # move smartpls into place unless already existing
-for PLDIST in /var/lib/mympd/smartpls/*.dist
+for PLDIST in ${VARDIR}/smartpls/*.dist
 do
   if [ -f "$PLDIST" ]
   then
     PLS=$(basename $PLDIST .dist)
-    if [ -f /var/lib/mympd/smartpls/$PLS ]
+    if [ -f ${VARDIR}/smartpls/$PLS ]
     then
       rm $PLDIST
     else
-      mv -v $PLDIST /var/lib/mympd/smartpls/$PLS
+      mv -v $PLDIST ${VARDIR}/smartpls/$PLS
     fi
   fi
 done
 
 # move config into place unless already existing
-if [ ! -f /etc/mympd/mympd.conf ]
+if [ ! -f ${ETCDIR}/mympd.conf ]
 then 
-  mv /etc/mympd/mympd.conf.dist /etc/mympd/mympd.conf
+  mv ${ETCDIR}/mympd.conf.dist ${ETCDIR}/mympd.conf
 else
   echo "mympd.conf installed as mympd.conf.dist"
 fi
 
-echo "Fixing ownership of /var/lib/mympd"
-chown -R mympd.mympd /var/lib/mympd
+echo "Fixing ownership of ${VARDIR}"
+chown -R mympd.mympd ${VARDIR}
 
-if [ -d /etc/mympd/ssl ]
+if [ -d ${VARDIR}/ssl ]
 then
   echo "Certificates already created"
 else
   echo "Creating certificates"
-  /usr/share/mympd/crcert.sh
+  ${SHAREDIR}/crcert.sh ${VARDIR}/ssl
 fi
 
 echo "myMPD installed"
-echo "Edit /etc/mympd/mympd.conf before starting myMPD"
+echo "Edit ${ETCDIR}/mympd.conf before starting myMPD"

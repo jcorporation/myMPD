@@ -23,10 +23,13 @@
 #include <stdbool.h>
 #include <pthread.h>
 #include <asm/errno.h>
+#include <assert.h>
+
 #include "tiny_queue.h"
 
 tiny_queue_t *tiny_queue_create(void) {
     struct tiny_queue_t* queue = (struct tiny_queue_t*)malloc(sizeof(struct tiny_queue_t));
+    assert(queue);
     queue->head = NULL;
     queue->tail = NULL;
     queue->length = 0;
@@ -55,6 +58,7 @@ int tiny_queue_push(tiny_queue_t *queue, void *data) {
         return 0;
     }
     struct tiny_msg_t* new_node = (struct tiny_msg_t*)malloc(sizeof(struct tiny_msg_t));
+    assert(new_node);
     new_node->data = data;
     new_node->next = NULL;
     queue->length++;

@@ -23,6 +23,8 @@
 #include <time.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <assert.h>
+
 #include "list.h"
 
 int list_init(struct list *l) {
@@ -81,8 +83,6 @@ int list_shuffle(struct list *l) {
     if (l->length < 2)
         return 1;
 
-//    srand((unsigned int)time(NULL));
-    
     struct node *current = l->list;
     while (current != NULL) {
         pos = rand() / (RAND_MAX / (l->length - n + 1) + 1);
@@ -142,6 +142,7 @@ int list_replace(struct list *l, int pos, const char *data, int value) {
 
 int list_push(struct list *l, const char *data, int value) {
     struct node *n = malloc(sizeof(struct node));
+    assert(n);
     n->value = value;
     n->data = strdup(data);
     n->next = NULL;
@@ -157,6 +158,7 @@ int list_push(struct list *l, const char *data, int value) {
 
 int list_insert(struct list *l, const char *data, int value) {
     struct node *n = malloc(sizeof(struct node));
+    assert(n);
     n->value = value;
     n->data = strdup(data);
     n->next = l->list;

@@ -1,6 +1,6 @@
 FROM library/debian:9 as build
 RUN apt-get update
-RUN apt-get install git meson ninja-build gcc cpp cmake libssl-dev libmediainfo-dev -y
+RUN apt-get install build-essential git meson ninja-build gcc cpp cmake libssl-dev libmediainfo-dev -y
 RUN apt-get install openjdk-8-jre-headless perl -y
 ENV LANG=C.UTF-8
 ENV LC_ALL=C.UTF-8
@@ -16,15 +16,16 @@ RUN ninja -C output install
 WORKDIR /
 RUN tar -czvf /libmpdclient-master.tar.gz -C /libmpdclient-dist .
 COPY . /myMPD/
-ENV MYMPD_INSTALL_PREFIX=/myMPD-dist/usr
-RUN mkdir -p $MYMPD_INSTALL_PREFIX
+ENV DESTDIR=/myMPD-dist
+ENV DOCKER=true
+RUN mkdir -p $DESTDIR
 WORKDIR /myMPD
 RUN ./mkrelease.sh
 WORKDIR /
 RUN tar -czvf /mympd.tar.gz -C /myMPD-dist .
 
 FROM library/debian:9-slim
-ENV MYMPD_LOGLEVEL=1
+ENV MYMPD_LOGLEVEL=2
 ENV MPD_HOST=127.0.0.1
 ENV MPD_PORT=6600
 ENV WEBSERVER_SSL=true

@@ -1,7 +1,6 @@
 #/bin/sh
 [ -e $PWD/htdocs/sw.min.js ] || ln -s $PWD/htdocs/sw.js $PWD/htdocs/sw.min.js
 [ -e $PWD/htdocs/js/mympd.min.js ] || ln -s $PWD/htdocs/js/mympd.js $PWD/htdocs/js/mympd.min.js
-[ -e $PWD/htdocs/js/player.min.js ] || ln -s $PWD/htdocs/js/player.js $PWD/htdocs/js/player.min.js
 [ -e $PWD/htdocs/js/bootstrap-native-v4.min.js ] || ln -s $PWD/dist/htdocs/js/bootstrap-native-v4.js $PWD/htdocs/js/bootstrap-native-v4.min.js
 [ -e $PWD/htdocs/js/keymap.min.js ] || ln -s $PWD/htdocs/js/keymap.js $PWD/htdocs/js/keymap.min.js
 

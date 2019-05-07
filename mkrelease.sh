@@ -38,7 +38,6 @@ minify() {
 }
 
 echo "Minifying javascript"
-minify js htdocs/js/player.js dist/htdocs/js/player.min.js
 minify js htdocs/js/mympd.js dist/htdocs/js/mympd.min.js
 minify js htdocs/sw.js dist/htdocs/sw.min.js
 minify js htdocs/js/keymap.js dist/htdocs/js/keymap.min.js
@@ -49,21 +48,20 @@ minify css htdocs/css/mympd.css dist/htdocs/css/mympd.min.css
 
 echo "Minifying html"
 minify html htdocs/index.html dist/htdocs/index.html
-minify html htdocs/player.html dist/htdocs/player.html
 
 echo "Compiling and installing mympd"
 install -d release
 cd release
-INSTALL_PREFIX="${MYMPD_INSTALL_PREFIX:-/usr}"
-cmake -DCMAKE_INSTALL_PREFIX:PATH=$INSTALL_PREFIX -DCMAKE_BUILD_TYPE=RELEASE ..
+export INSTALL_PREFIX="${MYMPD_INSTALL_PREFIX:-/usr}"
+cmake -DCMAKE_INSTALL_PREFIX:PATH=${INSTALL_PREFIX} -DCMAKE_BUILD_TYPE=RELEASE ..
 make
-if [ $INSTALL_PREFIX = "/usr" ]
+if [ "$DOCKER" = "true" ]
 then
-  sudo make install
+  # Container build
+  make install DESTDIR=$DESTDIR
   cd ..
-  sudo debian/postinst
 else
-  # Container build implied when $INSTALL_PREFIX != /usr
-  make install
+  sudo -E make install
   cd ..
+  sudo -E debian/postinst 
 fi

@@ -26,6 +26,7 @@
 #include <stdbool.h>
 #include <pthread.h>
 #include <signal.h>
+#include <assert.h>
 
 #include "list.h"
 #include "tiny_queue.h"
@@ -62,6 +63,7 @@ bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_da
     mg_user_data->feat_library = false;
     size_t pics_directory_len = config->varlibdir_len + 6;
     mg_user_data->pics_directory = malloc(pics_directory_len);
+    assert(mg_user_data->pics_directory);
     snprintf(mg_user_data->pics_directory, pics_directory_len, "%s/pics", config->varlibdir);
     //init monogoose mgr with mg_user_data
     mg_mgr_init(mgr, mg_user_data);
@@ -76,7 +78,7 @@ bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_da
         nc_http = mg_bind_opt(mgr, config->webport, ev_handler, bind_opts_http);
     }
     if (nc_http == NULL) {
-        printf("Error listening on port %s", config->webport);
+        LOG_ERROR("Can't bind to port %s: %s", config->webport, err_http);
         mg_mgr_free(mgr);
         return false;
     }
@@ -91,7 +93,7 @@ bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_da
         bind_opts_https.ssl_key = config->sslkey;
         nc_https = mg_bind_opt(mgr, config->sslport, ev_handler, bind_opts_https);
         if (nc_https == NULL) {
-            printf("Error listening on port %s: %s", config->sslport, err_https);
+            LOG_ERROR("Can't bind to port %s: %s", config->sslport, err_https);
             mg_mgr_free(mgr);
             return false;
         } 
@@ -117,7 +119,7 @@ void *web_server_loop(void *arg_mgr) {
             if (response != NULL) {
                 if (response->conn_id == -1) {
                     //internal message
-                    char *p_charbuf;
+                    char *p_charbuf = NULL;
                     bool feat_library;
                     int je = json_scanf(response->data, response->length, "{music_directory: %Q, featLibrary: %B}", &p_charbuf, &feat_library);
                     if (je == 2) {
@@ -139,6 +141,7 @@ void *web_server_loop(void *arg_mgr) {
                             rewrite_patterns_len += strlen(mg_user_data->music_directory) + 11;
                         }
                         char *rewrite_patterns = malloc(rewrite_patterns_len);
+                        assert(rewrite_patterns);
                         if (feat_library == true) {
                             snprintf(rewrite_patterns, rewrite_patterns_len, "/pics/=%s,/library/=%s", mg_user_data->pics_directory, mg_user_data->music_directory);
                             LOG_DEBUG("Setting music_directory to %s", mg_user_data->music_directory);
@@ -236,8 +239,8 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
         case MG_EV_WEBSOCKET_HANDSHAKE_REQUEST: {
             struct http_message *hm = (struct http_message *) ev_data;
             LOG_VERBOSE("New websocket request (%ld): %.*s", (long)nc->user_data, (int)hm->uri.len, hm->uri.p);
-            if (mg_vcmp(&hm->uri, "/ws") != 0) {
-                printf("ERROR: Websocket request not to /ws, closing connection");
+            if (mg_vcmp(&hm->uri, "/ws/") != 0) {
+                printf("ERROR: Websocket request not to /ws/, closing connection");
                 mg_printf(nc, "%s", "HTTP/1.1 403 FORBIDDEN\r\n\r\n");
                 nc->flags |= MG_F_SEND_AND_CLOSE;
             }
@@ -314,6 +317,9 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 static struct mg_serve_http_opts s_http_server_opts;
                 s_http_server_opts.document_root = DOC_ROOT;
                 s_http_server_opts.enable_directory_listing = "no";
+                s_http_server_opts.extra_headers = "Content-Security-Policy: default-src 'none'; "
+                    "style-src 'self'; font-src 'self'; script-src 'self'; img-src 'self'; connect-src 'self'; "
+                    "frame-ancestors 'none'; base-uri 'none';";
                 if (mg_user_data->rewrite_patterns != NULL) {
                     s_http_server_opts.url_rewrites = mg_user_data->rewrite_patterns;
                 }
@@ -344,8 +350,8 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data)
             
             size_t host_header_len = (int)host_hdr->len + 1;
             char host_header[host_header_len];
-            snprintf(host_header, 1024, "%.*s", (int)host_hdr->len, host_hdr->p);
-            char *crap;
+            snprintf(host_header, host_header_len, "%.*s", (int)host_hdr->len, host_hdr->p);
+            char *crap = NULL;
             char *host = strtok_r(host_header, ":", &crap);
             size_t s_redirect_len = strlen(host) + strlen(config->sslport) + 11;
             char s_redirect[s_redirect_len];
@@ -366,7 +372,7 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data)
 }
 
 static bool handle_api(long conn_id, const char *request_body, int request_len) {
-    char *cmd;
+    char *cmd = NULL;
     
     LOG_VERBOSE("API request (%ld): %.*s", conn_id, request_len, request_body);
     const int je = json_scanf(request_body, request_len, "{cmd: %Q}", &cmd);
@@ -380,9 +386,15 @@ static bool handle_api(long conn_id, const char *request_body, int request_len) 
     }
     
     t_work_request *request = (t_work_request*)malloc(sizeof(t_work_request));
+    assert(request);
     request->conn_id = conn_id;
     request->cmd_id = cmd_id;
     request->length = copy_string(request->data, request_body, 1000, request_len);
+    if (request->length < request_len) {
+        LOG_ERROR("Request buffer truncated %d / %d\n", request_len, 1000); 
+        free(request);
+        return false;
+    }
     
     if (strncmp(cmd, "MYMPD_API_", 10) == 0) {
         tiny_queue_push(mympd_api_queue, request);

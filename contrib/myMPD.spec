@@ -4,7 +4,7 @@
 # (c) 2018-2019 Juergen Mang <mail@jcgames.de>
 
 Name:           myMPD
-Version:        5.3.0
+Version:        5.4.0
 Release:        0 
 License:        GPL-2.0 
 Group:          Productivity/Multimedia/Sound/Players
@@ -79,8 +79,13 @@ then
 else
   echo "mympd.conf installed as mympd.conf.dist"
 fi
-  
-/usr/share/mympd/crcert.sh
+
+if [ -d /var/lib/mympd/ssl ]
+then
+  echo "Certificates already created"
+else
+  /usr/share/mympd/crcert.sh
+fi
 
 %postun
 if [ "$1" = "0" ]
@@ -103,7 +108,6 @@ fi
 /usr/bin/mympd
 /usr/share/mympd
 %config /etc/mympd
-/usr/share/man/man1/mympd.1.gz
 /var/lib/mympd
 
 %changelog
