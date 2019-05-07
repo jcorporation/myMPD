@@ -272,7 +272,7 @@ function appRoute() {
         var pathArrayLen = pathArray.length;
         var fullPath = '';
         for (var i = 0; i < pathArrayLen; i++) {
-            if (pathArrayLen -1 == i) {
+            if (pathArrayLen - 1 == i) {
                 breadcrumbs += '<li class="breadcrumb-item active">' + pathArray[i] + '</li>';
                 break;
             }
