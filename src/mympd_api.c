@@ -505,7 +505,7 @@ static void mympd_api_read_statefiles(t_config *config, t_mympd_state *mympd_sta
     mympd_state->coverimage = state_file_rw_bool(config, "coverimage", true, false);
     mympd_state->coverimage_name = state_file_rw_string(config, "coverimage_name", "folder.jpg", false);
     mympd_state->coverimage_size = state_file_rw_long(config, "coverimage_size", 240, false);
-    mympd_state->locale = state_file_rw_string(config, "locale", "en-GB", false);
+    mympd_state->locale = state_file_rw_string(config, "locale", "default", false);
 }
 
 static char *state_file_rw_string(t_config *config, const char *name, const char *def_value, bool warn) {
