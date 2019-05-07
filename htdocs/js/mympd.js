@@ -1450,7 +1450,7 @@ function parseSettings() {
             });         
         }
         else {
-            toggleBtnChk('btnMotifyWeb', 0);
+            toggleBtnChk('btnNotifyWeb', 0);
         }
     }
     else {
