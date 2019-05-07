@@ -1618,17 +1618,17 @@ function parseMPDSettings() {
 
     if (settings.bgCover == true && settings.featCoverimage == true && settings.coverimage == true) {
         if (lastSongObj.data && lastSongObj.data.cover.indexOf('coverimage-') > -1 ) {
-            document.documentElement.style.setProperty('--mympd-backgroundimage', 'url("")');
+            clearBackgroundImage();
         }
         else if (lastSongObj.data) {
-             document.documentElement.style.setProperty('--mympd-backgroundimage', 'url("' + lastSongObj.data.cover + '")');
+             setBackgroundImage(lastSongObj.data.cover);
         }
         else {
-            document.documentElement.style.setProperty('--mympd-backgroundimage', 'url("")');
+            clearBackgroundImage();
         }
     }
     else {
-        document.documentElement.style.setProperty('--mympd-backgroundimage', 'url("")');
+        clearBackgroundImage();
     }
     
     if (settings.featTags == false) {
@@ -1993,7 +1993,7 @@ function parseState(obj) {
         domCache.currentTitle.innerText = 'Not playing';
         domCache.currentCover.style.backgroundImage = '';
         if (settings.bgCover == true) {
-            document.documentElement.style.setProperty('--mympd-backgroundimage', 'url("")');
+            clearBackgroundImage();
         }
         var pb = document.getElementById('cardPlaybackTags').getElementsByTagName('h4');
         for (var i = 0; i < pb.length; i++) {
@@ -3560,6 +3560,43 @@ function notificationsSupported() {
     return "Notification" in window;
 }
 
+function setBackgroundImage(imageUrl) {
+    var old = document.querySelectorAll('.albumartbg');
+    for (var i = 0; i < old.length; i++) {
+        if (old[i].style.zIndex == -10) {
+            old[i].remove();        
+        }
+        else {
+            old[i].style.zIndex = -10;
+        }
+    }
+    var div = document.createElement('div');
+    div.classList.add('albumartbg');
+    div.style.backgroundImage = 'url("' + imageUrl + '")';
+    div.style.opacity = 0;
+    var body = document.getElementsByTagName('body')[0];
+    body.insertBefore(div, body.firstChild);
+
+    var img = new Image();
+    img.onload = function() {
+        document.querySelector('.albumartbg').style.opacity = 1;
+    };
+    img.src = imageUrl;
+}
+
+function clearBackgroundImage() {
+    var old = document.querySelectorAll('.albumartbg');
+    for (var i = 0; i < old.length; i++) {
+        if (old[i].style.zIndex == -10) {
+            old[i].remove();        
+        }
+        else {
+            old[i].style.zIndex = -10;
+            old[i].style.opacity = 0;
+        }
+    }
+}
+
 function songChange(obj) {
     if (obj.type != 'song_change') {
         return;
@@ -3574,10 +3611,10 @@ function songChange(obj) {
     domCache.currentCover.style.backgroundImage = 'url("' + subdir + obj.data.cover + '"), url("' + subdir + '/assets/coverimage-loading.png")';
     if (settings.bgCover == true && settings.featCoverimage == true) {
         if (obj.data.cover.indexOf('coverimage-') > -1 ) {
-            document.documentElement.style.setProperty('--mympd-backgroundimage', 'url("")');        
+            clearBackgroundImage();
         }
         else {
-            document.documentElement.style.setProperty('--mympd-backgroundimage', 'url("' + obj.data.cover + '")');
+            setBackgroundImage(obj.data.cover);
         }
     }
 
@@ -3617,22 +3654,26 @@ function songChange(obj) {
     
     //Update Artist in queue view for http streams
     var playingTr = document.getElementById('queueTrackId' + obj.data.currentSongId);
-    if (playingTr)
+    if (playingTr) {
         playingTr.getElementsByTagName('td')[1].innerText = obj.data.Title;
+    }
 
-    if (playstate == 'play')
+    if (playstate == 'play') {
         showNotification(obj.data.Title, textNotification, htmlNotification, 'success');
+    }
     lastSong = curSong;
     lastSongObj = obj;
 }
 
 function doSetFilterLetter(x) {
     var af = document.getElementById(x + 'Letters').getElementsByClassName('active')[0];
-    if (af)
+    if (af) {
         af.classList.remove('active');
+    }
     var filter = app.current.filter;
-    if (filter == '0')
+    if (filter == '0') {
         filter = '#';
+    }
     
     document.getElementById(x).innerHTML = '<span class="material-icons">filter_list</span>' + (filter != '-' ? ' ' + filter : '');
     

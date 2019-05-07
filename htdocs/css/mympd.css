@@ -1,7 +1,6 @@
 :root {
     --mympd-coverimagesize: 240px;
     --mympd-backgroundcolor: #888;
-    --mympd-backgroundimage: url('');
     --mympd-backgroundfilter: blur(5px);
 }
 
@@ -16,18 +15,16 @@ body {
   background-color: var(--mympd-backgroundcolor, #888);
 }
 
-body:before {
-    content: '';
+.albumartbg {
     position: fixed;
     width: 100%;
     height: 100%;
-    background: var(--mympd-backgroundimage, url(''));
     background-position: center center;
     background-size: cover;
     top: 3.5rem;
     filter: var(--mympd-backgroundfilter, '');
+    transition: opacity 1s;
     z-index: -9;
-    transition: background 1s;
 }
 
 main {
