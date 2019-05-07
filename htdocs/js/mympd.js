@@ -2303,7 +2303,7 @@ function parsePlaylists(obj) {
             row.setAttribute('data-name', obj.data[i].name);
             row.innerHTML = '<td data-col="Type"><span class="material-icons">' + (obj.data[i].Type == 'smartpls' ? 'queue_music' :'list') + '</span></td>' +
                             '<td>' + obj.data[i].name + '</td>' +
-                            '<td>'+ localDate(obj.data[i].last_modified) + '</td>' +
+                            '<td>'+ localeDate(obj.data[i].last_modified) + '</td>' +
                             '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>';
             if (i < tr.length)
                 tr[i].replaceWith(row); 
