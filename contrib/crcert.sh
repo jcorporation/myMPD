@@ -62,13 +62,8 @@ openssl req -new -x509 -newkey rsa:2048 -sha256 -days 3650 -nodes -config ca.cnf
 
 HOSTNAME=$(hostname)
 FQDN=$(hostname -f)
-IP=$(getent hosts $HOSTNAME | awk {'print $1'})
 
 cd ${VARDIR}
-echo "Creating cert:"
-echo "\t$HOSTNAME"
-echo "\t$FQDN"
-echo "\t$IP"
 
 cat > req.cnf << EOL
 [req]
@@ -90,11 +85,17 @@ subjectAltName = @alt_names
 DNS.1 = $HOSTNAME
 DNS.2 = $FQDN
 DNS.3 = localhost
-IP.1 = $IP
-IP.2 = 127.0.0.1
+IP.1 = 127.0.0.1
 EOL
 
-openssl req -new -sha256 -newkey rsa:2048 -days 3650 -nodes -config req.cnf \
+I=2
+getent hosts $HOSTNAME | awk {'print $1'} | while read -r line
+do
+    echo "IP.${I} = ${line}" >> req.cnf
+    I=$((I+1))
+done
+
+openssl req -new -sha256 -newkey rsa:2048 -nodes -config req.cnf \
 	-keyout server.key -out server.csr \
 	-extensions v3_req
 
@@ -103,7 +104,5 @@ openssl ca -in server.csr -cert ca/ca.pem -keyfile ca/ca.key -config ca/ca.cnf \
 	-out server.pem -days 3650 -batch
 
 rm server.csr
-rm ca/ca.cnf
-rm req.cnf
 
 chown -R mympd.mympd ${VARDIR}
