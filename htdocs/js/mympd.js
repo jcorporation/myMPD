@@ -1991,7 +1991,8 @@ function parseState(obj) {
     //clear playback card if not playing
     if (obj.data.songPos == '-1') {
         domCache.currentTitle.innerText = 'Not playing';
-        domCache.currentCover.style.backgroundImage = '';
+        //domCache.currentCover.style.backgroundImage = '';
+        clearCurrentCover();
         if (settings.bgCover == true) {
             clearBackgroundImage();
         }
@@ -3572,7 +3573,7 @@ function setBackgroundImage(imageUrl) {
     }
     var div = document.createElement('div');
     div.classList.add('albumartbg');
-    div.style.backgroundImage = 'url("' + imageUrl + '")';
+    div.style.backgroundImage = 'url("' + subdir + imageUrl + '")';
     div.style.opacity = 0;
     var body = document.getElementsByTagName('body')[0];
     body.insertBefore(div, body.firstChild);
@@ -3597,6 +3598,43 @@ function clearBackgroundImage() {
     }
 }
 
+function setCurrentCover(imageUrl) {
+    var old = domCache.currentCover.querySelectorAll('.coverbg');
+    for (var i = 0; i < old.length; i++) {
+        if (old[i].style.zIndex == 2) {
+            old[i].remove();        
+        }
+        else {
+            old[i].style.zIndex = 2;
+        }
+    }
+
+    var div = document.createElement('div');
+    div.classList.add('coverbg');
+    div.style.backgroundImage = 'url("' + subdir + imageUrl + '")';
+    div.style.opacity = 0;
+    domCache.currentCover.insertBefore(div, domCache.currentCover.firstChild);
+
+    var img = new Image();
+    img.onload = function() {
+        domCache.currentCover.querySelector('.coverbg').style.opacity = 1;
+    };
+    img.src = imageUrl;
+}
+
+function clearCurrentCover() {
+    var old = domCache.currentCover.querySelectorAll('.coverbg');
+    for (var i = 0; i < old.length; i++) {
+        if (old[i].style.zIndex == 2) {
+            old[i].remove();        
+        }
+        else {
+            old[i].style.zIndex = 2;
+            old[i].style.opacity = 0;
+        }
+    }
+}
+
 function songChange(obj) {
     if (obj.type != 'song_change') {
         return;
@@ -3608,7 +3646,8 @@ function songChange(obj) {
     var htmlNotification = '';
     var pageTitle = 'myMPD: ';
 
-    domCache.currentCover.style.backgroundImage = 'url("' + subdir + obj.data.cover + '"), url("' + subdir + '/assets/coverimage-loading.png")';
+    //domCache.currentCover.style.backgroundImage = 'url("' + subdir + obj.data.cover + '"), url("' + subdir + '/assets/coverimage-loading.png")';
+    setCurrentCover(obj.data.cover);
     if (settings.bgCover == true && settings.featCoverimage == true) {
         if (obj.data.cover.indexOf('coverimage-') > -1 ) {
             clearBackgroundImage();
