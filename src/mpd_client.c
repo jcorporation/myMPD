@@ -1253,7 +1253,7 @@ static void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state) {
     
     FREE_PTR(mpd_state->music_directory);
 
-    if (strncmp(config->mpdhost, "/", 1) == 0 && strncmp(config->music_directory, "auto", 4) == 0) {
+    if (strncmp(config->mpdhost, "/", 1) == 0 && (config->music_directory == NULL || strncmp(config->music_directory, "auto", 4) == 0)) {
         //get musicdirectory from mpd
         if (mpd_send_command(mpd_state->conn, "config", NULL)) {
             while ((pair = mpd_recv_pair(mpd_state->conn)) != NULL) {
