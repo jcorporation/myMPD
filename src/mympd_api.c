@@ -99,7 +99,7 @@ void *mympd_api_loop(void *arg_config) {
     t_mympd_state mympd_state;
     mympd_api_read_statefiles(config, &mympd_state);
 
-    //push jukebox settings to mpd_client queue
+    //push settings to mpd_client queue
     t_work_request *mpd_client_request = (t_work_request *)malloc(sizeof(t_work_request));
     assert(mpd_client_request);
     struct json_out out = JSON_OUT_BUF(mpd_client_request->data, 1000);

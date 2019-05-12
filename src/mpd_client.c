@@ -274,7 +274,24 @@ void *mpd_client_loop(void *arg_config) {
     list_init(&mpd_state.last_played);
     int len = mpd_client_read_last_played(config, &mpd_state);
     LOG_INFO("Reading last played songs: %d", len);
-    
+
+    //wait for initial settings
+    while (s_signal_received == 0) {
+        t_work_request *request = tiny_queue_shift(mpd_client_queue, 50);
+        if (request != NULL) {
+            if (request->cmd_id == MYMPD_API_SETTINGS_SET) {
+                LOG_DEBUG("Got initial settings from mympd_api");
+                mpd_client_api(config, &mpd_state, request);
+                break;
+            }
+            else {
+                LOG_DEBUG("mpd_client not initialized, discarding message");
+                FREE_PTR(request);
+            }
+        }
+    }
+
+    LOG_INFO("Starting mpd_client");    
     while (s_signal_received == 0) {
         mpd_client_idle(config, &mpd_state);
     }
@@ -412,11 +429,12 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
                 mpd_response_finish(mpd_state->conn);
                 FREE_PTR(p_charbuf1);            
             }
-            if (mpd_state->jukebox_mode != JUKEBOX_OFF) {
+            if (mpd_state->jukebox_mode != JUKEBOX_OFF && mpd_state->conn_state == MPD_CONNECTED) {
                 mpd_client_jukebox(config, mpd_state);
             }
-            if (response->length == 0)
+            if (response->length == 0) {
                 response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+            }
             break;
         case MPD_API_DATABASE_UPDATE:
             uint_rc = mpd_run_update(mpd_state->conn, NULL);
