@@ -1425,11 +1425,11 @@ function parseSettings() {
         parseMPDSettings();
     }
     
-    if (settings.mpdhost.indexOf('/') != 0) {
-        document.getElementById('mpdInfo_host').innerText = settings.mpdhost + ':' + settings.mpdport;
+    if (settings.mpdHost.indexOf('/') != 0) {
+        document.getElementById('mpdInfo_host').innerText = settings.mpdHost + ':' + settings.mpdPort;
     }
     else {
-        document.getElementById('mpdInfo_host').innerText = settings.mpdhost;
+        document.getElementById('mpdInfo_host').innerText = settings.mpdHost;
     }
 
     var btnNotifyWeb = document.getElementById('btnNotifyWeb');
@@ -1481,6 +1481,16 @@ function parseSettings() {
     document.documentElement.style.setProperty('--mympd-coverimagesize', settings.coverimageSize + "px");
     document.documentElement.style.setProperty('--mympd-backgroundcolor', settings.bgColor);
     document.documentElement.style.setProperty('--mympd-backgroundfilter', settings.bgCssFilter);
+
+    toggleBtnChk('btnLoveEnable', settings.love);
+    document.getElementById('inputLoveChannel').value = settings.loveChannel;
+    document.getElementById('inputLoveMessage').value = settings.loveMessage;
+    
+    document.getElementById('inputMaxElementsPerPage').value = settings.maxElementsPerPage;
+    toggleBtnChk('btnStickers', settings.stickers);
+    document.getElementById('inputLastPlayedCount').value = settings.lastPlayedCount;
+    toggleBtnChk('btnSmartpls', settings.smartpls);
+    
     
     var features = ["featLocalplayer", "featSyscmds"];
     for (var j = 0; j < features.length; j++) {
@@ -1530,11 +1540,11 @@ function parseSettings() {
     if (settings.featLocalplayer == true) {
         if (settings.streamUrl == '') {
             settings.mpdstream = 'http://';
-            if (settings.mpdhost.match(/^127\./) != null || settings.mpdhost == 'localhost' || settings.mpdhost.match(/^\//) != null) {
+            if (settings.mpdHost.match(/^127\./) != null || settings.mpdHost == 'localhost' || settings.mpdHost.match(/^\//) != null) {
                 settings.mpdstream += window.location.hostname;
             }
             else {
-                settings.mpdstream += settings.mpdhost;
+                settings.mpdstream += settings.mpdHost;
             }
             settings.mpdstream += ':' + settings.streamPort + '/';
         } 
@@ -1614,6 +1624,27 @@ function parseMPDSettings() {
         for (var i = 0; i < ElsLen; i++) {
             Els[i].style.display = displayEl;
         }
+    }
+    
+    if (settings.featPlaylists == true) {
+        document.getElementById('warnSmartpls').classList.add('hide');
+    }
+    else {
+        document.getElementById('warnSmartpls').classList.remove('hide');
+    }
+
+    if (settings.featStickers == true) {
+        document.getElementById('warnStickers').classList.add('hide');
+    }
+    else {
+        document.getElementById('warnStickers').classList.remove('hide');
+    }
+    
+    if (settings.featLove == false && settings.love == true) {
+        document.getElementById('warnScrobbler').classList.remove('hide');
+    }
+    else {
+        document.getElementById('warnScrobbler').classList.add('hide');
     }
 
     if (settings.bgCover == true && settings.featCoverimage == true && settings.coverimage == true) {
@@ -3389,6 +3420,27 @@ function saveSettings() {
     if (!validateFilename(inputCoverimageName)) {
         formOK = false;
     }
+    
+    var inputMaxElementsPerPage = document.getElementById('inputMaxElementsPerPage');
+    if (!validateInt(inputMaxElementsPerPage)) {
+        formOK = false;
+    }
+    if (parseInt(inputMaxElementsPerPage.value) > 200) {
+        formOK = false;
+    }
+    
+    var inputLastPlayedCount = document.getElementById('inputLastPlayedCount');
+    if (!validateInt(inputLastPlayedCount)) {
+        formOK = false;
+    }
+    
+    if (document.getElementById('btnLoveEnable').classList.contains('active')) {
+        var inputLoveChannel = document.getElementById('inputLoveChannel');
+        var inputLoveMessage = document.getElementById('inputLoveMessage');
+        if (!validateNotBlank(inputLoveChannel) || !validateNotBlank(inputLoveMessage)) {
+            formOK = false;
+        }
+    }
 
     if (settings.featMixramp == true) {
         var inputMixrampdb = document.getElementById('inputMixrampdb');
@@ -3438,7 +3490,14 @@ function saveSettings() {
             "coverimage": (document.getElementById('btnCoverimage').classList.contains('active') ? true : false),
             "coverimageName": document.getElementById('inputCoverimageName').value,
             "coverimageSize": document.getElementById('inputCoverimageSize').value,
-            "locale": selectLocale.options[selectLocale.selectedIndex].value
+            "locale": selectLocale.options[selectLocale.selectedIndex].value,
+            "love": (document.getElementById('btnLoveEnable').classList.contains('active') ? true : false),
+            "loveChannel": document.getElementById('inputLoveChannel').value,
+            "loveMessage": document.getElementById('inputLoveMessage').value,
+            "maxElementsPerPage": document.getElementById('inputMaxElementsPerPage').value,
+            "stickers": (document.getElementById('btnStickers').classList.contains('active') ? true : false),
+            "lastPlayedCount": document.getElementById('inputLastPlayedCount').value,
+            "smartpls": (document.getElementById('btnSmartpls').classList.contains('active') ? true : false),
         }}, getSettings);
         modalSettings.hide();
     }
@@ -3860,6 +3919,17 @@ function validatePlname(x) {
     }
     else {
         return false;
+    }
+}
+
+function validateNotBlank(el) {
+    var value = el.value.replace(/\s/g, '');
+    if (value == '') {
+        el.classList.add('is-invalid');
+        return false;
+    } else {
+        el.classList.remove('is-invalid');
+        return true;
     }
 }
 

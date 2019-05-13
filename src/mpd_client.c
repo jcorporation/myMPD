@@ -414,7 +414,6 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
                 }
             }
             je = json_scanf(request->data, request->length, "{data: {mixramp: %B}}", &mpd_state->mixramp);
-            je = json_scanf(request->data, request->length, "{data: {love: %B}}", &mpd_state->love);
             je = json_scanf(request->data, request->length, "{data: {loveChannel: %Q}}", &p_charbuf1);
             if (je == 1) {
                 FREE_PTR(mpd_state->love_channel);
@@ -426,6 +425,12 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
                 FREE_PTR(mpd_state->love_message);
                 mpd_state->love_message = p_charbuf1;
                 p_charbuf1 = NULL;
+            }
+            je = json_scanf(request->data, request->length, "{data: {love: %B}}", &mpd_state->love);
+            if (je == 1) {
+                if (mpd_state->conn_state == MPD_CONNECTED) {
+                    mpd_client_feature_love(config, mpd_state);
+                }
             }
             je = json_scanf(request->data, request->length, "{data: {taglist: %Q}}", &p_charbuf1);
             if (je == 1) {
