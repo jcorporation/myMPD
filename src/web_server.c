@@ -57,7 +57,7 @@ bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_da
 
     //initialize mgr user_data, malloced in main.c
     mg_user_data->config = config;
-    mg_user_data->music_directory = NULL;
+    mg_user_data->music_directory = strdup(config->music_directory);
     mg_user_data->rewrite_patterns = NULL;
     mg_user_data->conn_id = 1;
     mg_user_data->feat_library = false;
@@ -89,15 +89,15 @@ bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_da
     if (config->ssl == true) {
         memset(&bind_opts_https, 0, sizeof(bind_opts_https));
         bind_opts_https.error_string = &err_https;
-        bind_opts_https.ssl_cert = config->sslcert;
-        bind_opts_https.ssl_key = config->sslkey;
-        nc_https = mg_bind_opt(mgr, config->sslport, ev_handler, bind_opts_https);
+        bind_opts_https.ssl_cert = config->ssl_cert;
+        bind_opts_https.ssl_key = config->ssl_key;
+        nc_https = mg_bind_opt(mgr, config->ssl_port, ev_handler, bind_opts_https);
         if (nc_https == NULL) {
-            LOG_ERROR("Can't bind to port %s: %s", config->sslport, err_https);
+            LOG_ERROR("Can't bind to port %s: %s", config->ssl_port, err_https);
             mg_mgr_free(mgr);
             return false;
         } 
-        LOG_INFO("Listening on ssl port %s", config->sslport);
+        LOG_INFO("Listening on ssl port %s", config->ssl_port);
         mg_set_protocol_http_websocket(nc_https);
     }
     return mgr;
@@ -123,12 +123,8 @@ void *web_server_loop(void *arg_mgr) {
                     bool feat_library;
                     int je = json_scanf(response->data, response->length, "{music_directory: %Q, featLibrary: %B}", &p_charbuf, &feat_library);
                     if (je == 2) {
-                        if (mg_user_data->music_directory != NULL) {
-                            FREE_PTR(mg_user_data->music_directory);
-                        }
-                        if (strlen(p_charbuf) > 0) {
-                            mg_user_data->music_directory = strdup(p_charbuf);
-                        }
+                        FREE_PTR(mg_user_data->music_directory);
+                        mg_user_data->music_directory = strdup(p_charbuf);
                         mg_user_data->feat_library = feat_library;
                         FREE_PTR(p_charbuf);
                         
@@ -137,7 +133,7 @@ void *web_server_loop(void *arg_mgr) {
                             mg_user_data->rewrite_patterns = NULL;
                         }
                         size_t rewrite_patterns_len = strlen(mg_user_data->pics_directory) + 8;
-                        if (feat_library == true && mg_user_data->music_directory != NULL) {
+                        if (feat_library == true && strncmp(mg_user_data->music_directory, "none", 4) != 0) {
                             rewrite_patterns_len += strlen(mg_user_data->music_directory) + 11;
                         }
                         char *rewrite_patterns = malloc(rewrite_patterns_len);
@@ -272,7 +268,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 char image_file[image_file_len];
                 snprintf(image_file, image_file_len, "%s/assets/coverimage-notavailable.png", DOC_ROOT);
 
-                if (mg_user_data->music_directory == NULL) {
+                if (strncmp(mg_user_data->music_directory, "none", 4) != 0) {
                     LOG_ERROR("Error extracting coverimage, invalid music_directory");
                     mg_http_serve_file(nc, hm, image_file, mg_mk_str("image/png"), mg_mk_str(""));
                     break;
@@ -353,13 +349,13 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data)
             snprintf(host_header, host_header_len, "%.*s", (int)host_hdr->len, host_hdr->p);
             char *crap = NULL;
             char *host = strtok_r(host_header, ":", &crap);
-            size_t s_redirect_len = strlen(host) + strlen(config->sslport) + 11;
+            size_t s_redirect_len = strlen(host) + strlen(config->ssl_port) + 11;
             char s_redirect[s_redirect_len];
-            if (strcmp(config->sslport, "443") == 0) {
+            if (strcmp(config->ssl_port, "443") == 0) {
                 snprintf(s_redirect, s_redirect_len, "https://%s/", host);
             }
             else {
-                snprintf(s_redirect, s_redirect_len, "https://%s:%s/", host, config->sslport);
+                snprintf(s_redirect, s_redirect_len, "https://%s:%s/", host, config->ssl_port);
             }
             LOG_VERBOSE("Redirecting to %s", s_redirect);
             mg_http_send_redirect(nc, 301, mg_mk_str(s_redirect), mg_mk_str(NULL));

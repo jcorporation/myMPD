@@ -28,7 +28,7 @@ struct node {
 };
 
 struct list {
-    unsigned length;
+    long length;
     struct node *list;
 };
 
