@@ -63,11 +63,17 @@ void mympd_log(int level, const char *file, int line, const char *fmt, ...);
 } while (0)
 
 
-#define FREE_PTR(X) do { \
-    if (X != NULL) \
-        free(X); \
-    X = NULL; \
+#define FREE_PTR(PTR) do { \
+    if (PTR != NULL) \
+        free(PTR); \
+    PTR = NULL; \
 } while (0)
+
+#define REASSIGN_PTR(DEST, SRC) do { \
+    FREE_PTR(DEST); \
+    DEST = SRC; \
+    SRC = NULL; \
+} while (0);
 
 //API cmds
 #define MYMPD_CMDS(X) \

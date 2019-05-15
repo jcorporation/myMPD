@@ -303,6 +303,15 @@ void *mpd_client_loop(void *arg_config) {
                 break;
             }
             else {
+               //create response struct
+               if (request->conn_id > -1) {
+                    t_work_result *response = (t_work_result*)malloc(sizeof(t_work_result));
+                    assert(response);
+                    response->conn_id = request->conn_id;
+                    response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"MPD disconnected.\"}");
+                    LOG_DEBUG("Send http response to connection %lu (first 800 chars):\n%*.*s", request->conn_id, 0, 800, response->data);
+                    tiny_queue_push(web_server_queue, response);
+                }
                 LOG_DEBUG("mpd_client not initialized, discarding message");
                 FREE_PTR(request);
             }
@@ -386,46 +395,23 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
             response->length = mpd_client_get_state(mpd_state, response->data);
             break;
         case MYMPD_API_SETTINGS_SET:
-            //only update mpd_state, already saved in mympd_api.c
+            //only update mpd_state, already saved and sanitized in mympd_api.c
             je = json_scanf(request->data, request->length, "{data: {jukeboxMode: %d}}", &mpd_state->jukebox_mode);
-            if (je == 1 && mpd_state->jukebox_mode > 2) {
-                mpd_state->jukebox_mode = JUKEBOX_OFF;
-            }
             je = json_scanf(request->data, request->length, "{data: {jukeboxPlaylist: %Q}}", &p_charbuf1);
-            if (je == 1) {
-                FREE_PTR(mpd_state->jukebox_playlist);
-                mpd_state->jukebox_playlist = p_charbuf1;
-                p_charbuf1 = NULL;
-            }
+            if (je == 1)
+                REASSIGN_PTR(mpd_state->jukebox_playlist, p_charbuf1);
             je = json_scanf(request->data, request->length, "{data: {jukeboxQueueLength: %u}}", &mpd_state->jukebox_queue_length);
-            if (je == 1 && mpd_state->jukebox_queue_length > 999) {
-                mpd_state->jukebox_queue_length = 999;
-            }
             je = json_scanf(request->data, request->length, "{data: {autoPlay: %B}}", &mpd_state->auto_play);
             je = json_scanf(request->data, request->length, "{data: {coverimageName: %Q}}", &p_charbuf1);
-            if (je == 1) {
-                if (validate_string(p_charbuf1) && strlen(p_charbuf1) > 0) {
-                    FREE_PTR(mpd_state->coverimage_name);
-                    mpd_state->coverimage_name = p_charbuf1;
-                    p_charbuf1 = NULL;
-                }
-                else {
-                    FREE_PTR(p_charbuf1);
-                }
-            }
+            if (je == 1)
+                REASSIGN_PTR(mpd_state->coverimage_name, p_charbuf1);
             je = json_scanf(request->data, request->length, "{data: {mixramp: %B}}", &mpd_state->mixramp);
             je = json_scanf(request->data, request->length, "{data: {loveChannel: %Q}}", &p_charbuf1);
-            if (je == 1) {
-                FREE_PTR(mpd_state->love_channel);
-                mpd_state->love_channel = p_charbuf1;
-                p_charbuf1 = NULL;
-            }
+            if (je == 1)
+                REASSIGN_PTR(mpd_state->love_channel, p_charbuf1);
             je = json_scanf(request->data, request->length, "{data: {loveMessage: %Q}}", &p_charbuf1);
-            if (je == 1) {
-                FREE_PTR(mpd_state->love_message);
-                mpd_state->love_message = p_charbuf1;
-                p_charbuf1 = NULL;
-            }
+            if (je == 1)
+                REASSIGN_PTR(mpd_state->love_message, p_charbuf1);
             je = json_scanf(request->data, request->length, "{data: {love: %B}}", &mpd_state->love);
             if (je == 1) {
                 if (mpd_state->conn_state == MPD_CONNECTED) {
@@ -433,38 +419,23 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
                 }
             }
             je = json_scanf(request->data, request->length, "{data: {taglist: %Q}}", &p_charbuf1);
-            if (je == 1) {
-                FREE_PTR(mpd_state->taglist);
-                mpd_state->taglist = p_charbuf1;
-                p_charbuf1 = NULL;
-            }
+            if (je == 1)
+                REASSIGN_PTR(mpd_state->taglist, p_charbuf1);
             je = json_scanf(request->data, request->length, "{data: {searchtaglist: %Q}}", &p_charbuf1);
-            if (je == 1) {
-                FREE_PTR(mpd_state->searchtaglist);
-                mpd_state->searchtaglist = p_charbuf1;
-                p_charbuf1 = NULL;
-            }
+            if (je == 1)
+                REASSIGN_PTR(mpd_state->searchtaglist, p_charbuf1);
             je = json_scanf(request->data, request->length, "{data: {browsetaglist: %Q}}", &p_charbuf1);
-            if (je == 1) {
-                FREE_PTR(mpd_state->browsetaglist);
-                mpd_state->browsetaglist = p_charbuf1;
-                p_charbuf1 = NULL;
-            }
+            if (je == 1)
+                REASSIGN_PTR(mpd_state->browsetaglist, p_charbuf1);
             je = json_scanf(request->data, request->length, "{data: {stickers: %B}}", &mpd_state->stickers);
             je = json_scanf(request->data, request->length, "{data: {smartpls: %B}}", &mpd_state->smartpls);
             je = json_scanf(request->data, request->length, "{data: {mpdHost: %Q}}", &p_charbuf1);
-            if (je == 1) {
-                FREE_PTR(mpd_state->mpd_host);
-                mpd_state->mpd_host = p_charbuf1;
-                p_charbuf1 = NULL;
-            }
+            if (je == 1)
+                REASSIGN_PTR(mpd_state->mpd_host, p_charbuf1);
             je = json_scanf(request->data, request->length, "{data: {mpdPort: %Q}}", &mpd_state->mpd_port);
             je = json_scanf(request->data, request->length, "{data: {mpdPass: %Q}}", &p_charbuf1);
-            if (je == 1) {
-                FREE_PTR(mpd_state->mpd_pass);
-                mpd_state->mpd_pass = p_charbuf1;
-                p_charbuf1 = NULL;
-            }
+            if (je == 1)
+                REASSIGN_PTR(mpd_state->mpd_pass, p_charbuf1);
             je = json_scanf(request->data, request->length, "{data: {lastPlayedCount: %Q}}", &mpd_state->last_played_count);
             je = json_scanf(request->data, request->length, "{data: {maxElementsPerPage: %Q}}", &mpd_state->max_elements_per_page);
             //set mpd options
@@ -493,7 +464,7 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
                 if (!mpd_run_crossfade(mpd_state->conn, uint_buf1))
                     response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set mpd state crossfade.\"}");
             }
-            if (mpd_state->mixramp) {
+            if (mpd_state->mixramp == true) {
                 je = json_scanf(request->data, request->length, "{data: {mixrampdb: %f}}", &float_buf);
                 if (je == 1) {
                     if (!mpd_run_mixrampdb(mpd_state->conn, float_buf))
@@ -1547,17 +1518,13 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
                 t_work_request *request = tiny_queue_shift(mpd_client_queue, 50);
                 if (request != NULL) {
                     //create response struct
-                    t_work_result *response = (t_work_result*)malloc(sizeof(t_work_result));
-                    assert(response);
-                    response->conn_id = request->conn_id;
-                    response->length = 0;
-                    response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"MPD disconnected.\"}");
-                    if (response->conn_id > -1) {
+                    if (request->conn_id > -1) {
+                        t_work_result *response = (t_work_result*)malloc(sizeof(t_work_result));
+                        assert(response);
+                        response->conn_id = request->conn_id;
+                        response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"MPD disconnected.\"}");
                         LOG_DEBUG("Send http response to connection %lu (first 800 chars):\n%*.*s", request->conn_id, 0, 800, response->data);
                         tiny_queue_push(web_server_queue, response);
-                    }
-                    else {
-                        FREE_PTR(response);
                     }
                     FREE_PTR(request);
                 }
