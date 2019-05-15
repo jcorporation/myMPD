@@ -1626,18 +1626,18 @@ function parseMPDSettings() {
         }
     }
     
-    if (settings.featPlaylists == true) {
-        document.getElementById('warnSmartpls').classList.add('hide');
-    }
-    else {
+    if (settings.featPlaylists == false && settings.smartpls == true) {
         document.getElementById('warnSmartpls').classList.remove('hide');
     }
+    else {
+        document.getElementById('warnSmartpls').classList.add('hide');
+    }
 
-    if (settings.featStickers == true) {
-        document.getElementById('warnStickers').classList.add('hide');
+    if (settings.featStickers == false && settings.stickers == true) {
+        document.getElementById('warnStickers').classList.remove('hide');
     }
     else {
-        document.getElementById('warnStickers').classList.remove('hide');
+        document.getElementById('warnStickers').classList.add('hide');
     }
     
     if (settings.featLove == false && settings.love == true) {
