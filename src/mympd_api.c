@@ -48,7 +48,6 @@ typedef struct t_mympd_state {
     long mpd_port;
     char *mpd_pass;
     bool stickers;
-    bool mixramp;
     char *taglist;
     char *searchtaglist;
     char *browsetaglist;
@@ -160,7 +159,6 @@ static void mympd_api_push_to_mpd_client(t_mympd_state *mympd_state) {
         "jukeboxQueueLength: %d,"
         "autoPlay: %B,"
         "coverimageName: %Q,"
-        "mixramp: %B,"
         "love: %B,"
         "loveChannel: %Q,"
         "loveMessage: %Q,"
@@ -180,7 +178,6 @@ static void mympd_api_push_to_mpd_client(t_mympd_state *mympd_state) {
         mympd_state->jukebox_queue_length,
         mympd_state->auto_play,
         mympd_state->coverimage_name,
-        mympd_state->mixramp,
         mympd_state->love,
         mympd_state->love_channel,
         mympd_state->love_message,
@@ -411,11 +408,6 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             if (!state_file_write(config, "stickers", (mympd_state->stickers == true ? "true" : "false")))
                 response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state stickers.\"}");
         }
-        je = json_scanf(request->data, request->length, "{data: {mixramp: %B}}", &mympd_state->mixramp);
-        if (je == 1) {
-            if (!state_file_write(config, "mixramp", (mympd_state->mixramp == true ? "true" : "false")))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state mixramp.\"}");
-        }
         je = json_scanf(request->data, request->length, "{data: {taglist: %Q}}", &p_charbuf1);
         if (je == 1) {
             REASSIGN_PTR(mympd_state->taglist, p_charbuf1);
@@ -600,7 +592,6 @@ static void mympd_api_read_statefiles(t_config *config, t_mympd_state *mympd_sta
     mympd_state->mpd_port = state_file_rw_long(config, "mpd_port", config->mpd_port, false);
     mympd_state->mpd_pass = state_file_rw_string(config, "mpd_pass", config->mpd_pass, false);
     mympd_state->stickers = state_file_rw_bool(config, "stickers", config->stickers, false);
-    mympd_state->mixramp = state_file_rw_bool(config, "mixramp", config->mixramp, false);
     mympd_state->taglist = state_file_rw_string(config, "taglist", config->taglist, false);
     mympd_state->searchtaglist = state_file_rw_string(config, "searchtaglist", config->searchtaglist, false);
     mympd_state->browsetaglist = state_file_rw_string(config, "browsetaglist", config->browsetaglist, false);
@@ -738,7 +729,7 @@ static int mympd_api_put_settings(t_config *config, t_mympd_state *mympd_state, 
         mympd_state->coverimage,
         mympd_state->coverimage_name,
         mympd_state->coverimage_size,
-        mympd_state->mixramp,
+        config->mixramp,
         mympd_state->max_elements_per_page,
         mympd_state->notification_web,
         mympd_state->notification_page,

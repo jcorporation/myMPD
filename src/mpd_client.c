@@ -139,7 +139,6 @@ typedef struct t_mpd_state {
     size_t jukebox_queue_length;
     bool auto_play;
     char *coverimage_name;
-    bool mixramp;
     bool love;
     char *love_channel;
     char *love_message;
@@ -272,7 +271,6 @@ void *mpd_client_loop(void *arg_config) {
     memset(mpd_state.search_tag_types, 0, sizeof(mpd_state.search_tag_types));
     mpd_state.browse_tag_types_len = 0;
     memset(mpd_state.browse_tag_types, 0, sizeof(mpd_state.browse_tag_types));
-    mpd_state.mixramp = config->mixramp;
     mpd_state.jukebox_mode = config->jukebox_mode;
     mpd_state.jukebox_playlist = strdup(config->jukebox_playlist);
     mpd_state.jukebox_queue_length = config->jukebox_queue_length;
@@ -405,7 +403,6 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
             je = json_scanf(request->data, request->length, "{data: {coverimageName: %Q}}", &p_charbuf1);
             if (je == 1)
                 REASSIGN_PTR(mpd_state->coverimage_name, p_charbuf1);
-            je = json_scanf(request->data, request->length, "{data: {mixramp: %B}}", &mpd_state->mixramp);
             je = json_scanf(request->data, request->length, "{data: {loveChannel: %Q}}", &p_charbuf1);
             if (je == 1)
                 REASSIGN_PTR(mpd_state->love_channel, p_charbuf1);
@@ -464,7 +461,7 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
                 if (!mpd_run_crossfade(mpd_state->conn, uint_buf1))
                     response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set mpd state crossfade.\"}");
             }
-            if (mpd_state->mixramp == true) {
+            if (config->mixramp == true) {
                 je = json_scanf(request->data, request->length, "{data: {mixrampdb: %f}}", &float_buf);
                 if (je == 1) {
                     if (!mpd_run_mixrampdb(mpd_state->conn, float_buf))
