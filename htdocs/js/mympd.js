@@ -3194,7 +3194,7 @@ function showMenu(el, event) {
             addMenuItem({"cmd": "replaceQueue", "options": [type, uri, name]},'Replace queue') +
             (type == 'smartpls' ? addMenuItem({"cmd": "playlistDetails", "options": [uri]}, 'View playlist') : addMenuItem({"cmd": "playlistDetails", "options": [uri]}, 'Edit playlist'))+
             (type == 'smartpls' ? addMenuItem({"cmd": "showSmartPlaylist", "options": [uri]}, 'Edit smart playlist') : '') +
-            (type == 'smartpls' ? addMenuItem({"cmd": "updateSmartPlaylist", "options": [uri]}, 'Update smart playlist') : '') +
+            (settings.smartpls == true && type == 'smartpls' ? addMenuItem({"cmd": "updateSmartPlaylist", "options": [uri]}, 'Update smart playlist') : '') +
             addMenuItem({"cmd": "showRenamePlaylist", "options": [uri]}, 'Rename playlist') + 
             addMenuItem({"cmd": "showDelPlaylist", "options": [uri]}, 'Delete playlist');
     }
