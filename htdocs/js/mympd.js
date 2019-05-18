@@ -3551,7 +3551,7 @@ function gotoPage(x) {
 
 function saveQueue() {
     var plName = document.getElementById('saveQueueName').value;
-    if (validatePlname(from) == true) {
+    if (validatePlname(plName) == true) {
         sendAPI({"cmd": "MPD_API_QUEUE_SAVE", "data": {"plist": plName}});
         modalSaveQueue.hide();
     }
