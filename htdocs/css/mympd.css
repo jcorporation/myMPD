@@ -375,3 +375,8 @@ ol#searchCrumb {
 .dropdown-header-lx {
   font-size: 1.2rem;
 }
+
+#mainMenuDropdown {
+  overflow-y: auto;
+  max-height: calc(100vh - 9rem);
+}
