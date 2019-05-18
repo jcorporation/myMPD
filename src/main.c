@@ -426,7 +426,7 @@ int main(int argc, char **argv) {
     if (argc == 2) {
         if (strncmp(argv[1], "/", 1) == 0) {
             FREE_PTR(configfile);
-            configfile = argv[1];
+            configfile = strdup(argv[1]);
             char *etcdir = strdup(configfile);
             FREE_PTR(config->etcdir);
             config->etcdir = strdup(dirname(etcdir));
