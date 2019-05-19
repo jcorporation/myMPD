@@ -1734,6 +1734,40 @@ function parseMPDSettings() {
     for (var i = 0; i < settings.tags.length; i++) {
         app.apps.Browse.tabs.Database.views[settings.tags[i]] = { "state": "0/-/-/", "scrollPos": 0 };
     }
+    
+    initTagMultiSelect('btnEnabledTags', 'listEnabledTags', settings.allmpdtags, settings.tags);
+    initTagMultiSelect('btnSearchTags', 'listSearchTags', settings.tags, settings.searchtags);
+    initTagMultiSelect('btnBrowseTags', 'listBrowseTags', settings.tags, settings.browsetags);
+}
+
+function initTagMultiSelect(btnId, listId, allTags, enabledTags) {
+    var btnText = '';
+    var list = '';
+    for (var i = 0; i < allTags.length; i++) {
+        if (enabledTags.includes(allTags[i])) {
+            btnText += allTags[i] + ', ';
+        }
+        list += '<div class="form-check">' +
+            '<input class="form-check-input" type="checkbox" value="1" name="' + allTags[i] + '" ' + 
+            (enabledTags.includes(allTags[i]) ? 'checked="checked"' : '' )+ '>' +
+            '<label class="form-check-label" for="' + allTags[i] + '">&nbsp;&nbsp;' + allTags[i] + '</label>' +
+            '</div>';
+    }
+    document.getElementById(listId).addEventListener('click', function(event) {
+        event.stopPropagation();
+        if (event.target.nodeName == 'INPUT') {
+            var chkBoxes = event.target.parentNode.parentNode.getElementsByTagName('input');
+            btnText = '';
+            for (var i = 0; i < chkBoxes.length; i++) {
+                if (chkBoxes[i].checked == true) {
+                    btnText += chkBoxes[i].name + ', ';
+                }
+            }
+            event.target.parentNode.parentNode.previousElementSibling.innerText = btnText.replace(/(,\s)$/, '');
+        }
+    });
+    document.getElementById(btnId).innerText = btnText.replace(/(,\s)$/, '');
+    document.getElementById(listId).innerHTML = list;
 }
 
 function setCols(table, className) {
@@ -3498,6 +3532,9 @@ function saveSettings() {
             "stickers": (document.getElementById('btnStickers').classList.contains('active') ? true : false),
             "lastPlayedCount": document.getElementById('inputLastPlayedCount').value,
             "smartpls": (document.getElementById('btnSmartpls').classList.contains('active') ? true : false),
+            "taglist": document.getElementById('btnEnabledTags').innerText.replace(/\s/g, ''),
+            "searchtaglist": document.getElementById('btnSearchTags').innerText.replace(/\s/g, ''),
+            "browsetaglist": document.getElementById('btnBrowseTags').innerText.replace(/\s/g, '')
         }}, getSettings);
         modalSettings.hide();
     }
