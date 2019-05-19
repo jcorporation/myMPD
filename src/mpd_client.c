@@ -1383,7 +1383,13 @@ static void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state) {
     if (mpd_send_list_tag_types(mpd_state->conn)) {
         while ((pair = mpd_recv_tag_type_pair(mpd_state->conn)) != NULL) {
             len += snprintf(logline + len, max_len - len, "%s ", pair->value);
-            mpd_state->mpd_tag_types[mpd_state->mpd_tag_types_len++] = mpd_tag_name_parse(pair->value);
+            enum mpd_tag_type tt = mpd_tag_name_parse(pair->value);
+            if (tt != MPD_TAG_UNKNOWN) {
+                mpd_state->mpd_tag_types[mpd_state->mpd_tag_types_len++] = tt;
+            }
+            else {
+                LOG_WARN("Unknown tag %s (libmpdclient to old)", pair->value);
+            }
             mpd_return_pair(mpd_state->conn, pair);
         }
         mpd_response_finish(mpd_state->conn);
