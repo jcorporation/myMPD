@@ -273,6 +273,7 @@ static void mympd_free_config(t_config *config) {
     FREE_PTR(config->music_directory);
     FREE_PTR(config->jukebox_playlist);
     FREE_PTR(config->cols_queue_current);
+    FREE_PTR(config->cols_queue_last_played);
     FREE_PTR(config->cols_search);
     FREE_PTR(config->cols_browse_database);
     FREE_PTR(config->cols_browse_playlists_detail);
@@ -312,7 +313,7 @@ static void mympd_get_env(struct t_config *config) {
         "MYMPD_NOTIFICATIONPAGE", "MYMPD_AUTOPLAY", "MYMPD_JUKEBOXMODE",
         "MYMPD_JUKEBOXPLAYLIST", "MYMPD_JUKEBOXQUEUELENGTH", "MYMPD_COLSQUEUECURRENT",
         "MYMPD_COLSSEARCH", "MYMPD_COLSBROWSEDATABASE", "MYMPD_COLSBROWSEPLAYLISTDETAIL",
-        "MYMPD_COLSBROWSEFILESYSTEM", "MYMPD_COLSPLAYBACK", "MYMPD_COLSQUEUELAYSTPLAYED",
+        "MYMPD_COLSBROWSEFILESYSTEM", "MYMPD_COLSPLAYBACK", "MYMPD_COLSQUEUELASTPLAYED",
         "MYMPD_LOCALPLAYER", "MYMPD_LOCALPLAYERAUTOPLAY", "MYMPD_STREAMPORT",
         "MYMPD_STREAMURL", "THEME_BGCOVER", "THEME_BGCOLOR", "THEME_BGCSSFILTER",
         "THEME_COVERIMAGE", "THEME_COVERIMAGENAME", "THEME_COVERIMAGESIZE",
@@ -405,6 +406,7 @@ int main(int argc, char **argv) {
     config->jukebox_playlist = strdup("Database");
     config->jukebox_queue_length = 1;
     config->cols_queue_current = strdup("[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]");
+    config->cols_queue_last_played = strdup("[\"Pos\",\"Title\",\"Artist\",\"Album\",\"LastPlayed\"]");
     config->cols_search = strdup("[\"Title\",\"Artist\",\"Album\",\"Duration\"]");
     config->cols_browse_database = strdup("[\"Track\",\"Title\",\"Duration\"]");
     config->cols_browse_playlists_detail = strdup("[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]");
