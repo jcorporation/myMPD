@@ -425,7 +425,7 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
             je = json_scanf(request->data, request->length, "{data: {mpdHost: %Q}}", &p_charbuf1);
             if (je == 1)
                 REASSIGN_PTR(mpd_state->mpd_host, p_charbuf1);
-            je = json_scanf(request->data, request->length, "{data: {mpdPort: %Q}}", &mpd_state->mpd_port);
+            je = json_scanf(request->data, request->length, "{data: {mpdPort: %d}}", &mpd_state->mpd_port);
             je = json_scanf(request->data, request->length, "{data: {mpdPass: %Q}}", &p_charbuf1);
             if (je == 1)
                 REASSIGN_PTR(mpd_state->mpd_pass, p_charbuf1);
