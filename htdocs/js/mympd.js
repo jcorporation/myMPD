@@ -3540,6 +3540,10 @@ function saveSettings() {
     }
 }
 
+function resetSettings() {
+    sendAPI({"cmd": "MYMPD_API_SETTINGS_RESET"}, getSettings);
+}
+
 function addAllFromBrowseFilesystem() {
     sendAPI({"cmd": "MPD_API_QUEUE_ADD_TRACK", "data": {"uri": app.current.search}});
     showNotification('Added all songs', '', '', 'success');

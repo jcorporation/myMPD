@@ -95,6 +95,7 @@ static bool state_file_rw_bool(t_config *config, const char *name, const bool de
 static long state_file_rw_long(t_config *config, const char *name, const long def_value, bool warn);
 static bool state_file_write(t_config *config, const char *name, const char *value);
 static int mympd_api_put_settings(t_config *config, t_mympd_state *mympd_state, char *buffer);
+static void mympd_api_settings_reset(t_config *config, t_mympd_state *mympd_state);
 static bool mympd_api_bookmark_update(t_config *config, const long id, const char *name, const char *uri, const char *type);
 static int mympd_api_bookmark_list(t_config *config, char *buffer, unsigned int offset);
 
@@ -271,6 +272,10 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             }
             FREE_PTR(p_charbuf1);
         }
+    }
+    else if (request->cmd_id == MYMPD_API_SETTINGS_RESET) {
+        mympd_api_settings_reset(config, mympd_state);
+        response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
     }
     else if (request->cmd_id == MYMPD_API_SETTINGS_SET) {
         je = json_scanf(request->data, request->length, "{data: {notificationWeb: %B}}", &mympd_state->notification_web);
@@ -584,6 +589,25 @@ static int mympd_api_syscmd(t_config *config, t_mympd_state *mympd_state, char *
     }
     FREE_PTR(line);
     CHECK_RETURN_LEN();    
+}
+
+static void mympd_api_settings_reset(t_config *config, t_mympd_state *mympd_state) {
+    const char* state_files[]={"auto_play", "bg_color", "bg_cover", "bg_css_filter", "browsetaglist", "cols_browse_database",
+        "cols_browse_filesystem", "cols_browse_playlists_detail", "cols_playback", "cols_queue_current", "cols_queue_last_played",
+        "cols_search", "coverimage", "coverimage_name", "coverimage_size", "jukebox_mode", "jukebox_playlist", "jukebox_queue_length",
+        "last_played", "last_played_count", "locale", "localplayer", "localplayer_autoplay", "love", "love_channel", "love_message",
+        "max_elements_per_page",  "mpd_host", "mpd_pass", "mpd_port", "notification_page", "notification_web", "searchtaglist",
+        "smartpls", "stickers", "stream_port", "stream_url", "taglist", 0};
+    const char** ptr = state_files;
+    while (*ptr != 0) {
+        size_t filename_len = strlen(*ptr) + config->varlibdir_len + 8;
+        char filename[filename_len];
+        snprintf(filename, filename_len, "%s/state/%s", config->varlibdir, *ptr);
+        unlink(filename);
+        ++ptr;
+    }
+    mympd_api_read_statefiles(config, mympd_state);
+    mympd_api_push_to_mpd_client(mympd_state);
 }
 
 static void mympd_api_read_statefiles(t_config *config, t_mympd_state *mympd_state) {

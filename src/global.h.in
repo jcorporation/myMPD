@@ -137,6 +137,7 @@ void mympd_log(int level, const char *file, int line, const char *fmt, ...);
     X(MYMPD_API_SYSCMD) \
     X(MYMPD_API_SETTINGS_GET) \
     X(MYMPD_API_SETTINGS_SET) \
+    X(MYMPD_API_SETTINGS_RESET) \
     X(MYMPD_API_BOOKMARK_LIST) \
     X(MYMPD_API_BOOKMARK_SAVE) \
     X(MYMPD_API_BOOKMARK_RM)
