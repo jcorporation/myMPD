@@ -10,9 +10,9 @@ var urlsToCache = [
     subdir + '/assets/appicon-167.png',
     subdir + '/assets/appicon-192.png',
     subdir + '/assets/appicon-512.png',
-    subdir + '/assets/coverimage-stream.png',
-    subdir + '/assets/coverimage-notavailable.png',
-    subdir + '/assets/coverimage-loading.png',
+    subdir + '/assets/coverimage-stream.svg',
+    subdir + '/assets/coverimage-notavailable.svg',
+    subdir + '/assets/coverimage-loading.svg',
     subdir + '/assets/favicon.ico',
     subdir + '/assets/MaterialIcons-Regular.woff2'
 ];

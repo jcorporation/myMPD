@@ -97,7 +97,7 @@ small {
 
 .album-cover {
   background-size: cover;
-  background-image: url("../assets/coverimage-loading.png");
+  background-image: url("../assets/coverimage-loading.svg");
   border: 1px solid black;
   border-radius: 5px;
   overflow: hidden;
@@ -242,7 +242,7 @@ a.card-img-left {
   height: var(--mympd-coverimagesize);
   border-radius: 5px;
   background-size: cover;
-  background-image: url(../assets/coverimage-loading.png);  
+  background-image: url(../assets/coverimage-loading.svg);  
   margin-bottom: 5px;
   cursor: pointer;
 }

@@ -2327,7 +2327,7 @@ static int mpd_client_get_cover(t_config *config, t_mpd_state *mpd_state, const 
     size_t len = 0;
 
     if (mpd_state->feat_coverimage == false) {
-        len = snprintf(cover, cover_len, "/assets/coverimage-notavailable.png");
+        len = snprintf(cover, cover_len, "/assets/coverimage-notavailable.svg");
     }
     else if (strstr(path, "://") != NULL) {
         char *name = strstr(path, "://");
@@ -2338,7 +2338,7 @@ static int mpd_client_get_cover(t_config *config, t_mpd_state *mpd_state, const 
         snprintf(cover, cover_len, "%s/pics/%s.png", config->varlibdir, name);
         LOG_DEBUG("Check for cover %s", cover);
         if (access(cover, F_OK ) == -1 ) {
-            len = snprintf(cover, cover_len, "/assets/coverimage-stream.png");
+            len = snprintf(cover, cover_len, "/assets/coverimage-stream.svg");
         }
         else {
             len = snprintf(cover, cover_len, "/pics/%s.png", name);
@@ -2362,18 +2362,18 @@ static int mpd_client_get_cover(t_config *config, t_mpd_state *mpd_state, const 
                         len = snprintf(cover, cover_len, "/library/%s?cover", uri);
                     }
                     else {
-                        len = snprintf(cover, cover_len, "/assets/coverimage-notavailable.png");
+                        len = snprintf(cover, cover_len, "/assets/coverimage-notavailable.svg");
                     }
                 }
                 else {
-                    len = snprintf(cover, cover_len, "/assets/coverimage-notavailable.png");
+                    len = snprintf(cover, cover_len, "/assets/coverimage-notavailable.svg");
                 }
             }
             else {
                 len = snprintf(cover, cover_len, "/library/%s/%s", path, mpd_state->coverimage_name);
             }
         } else {
-            len = snprintf(cover, cover_len, "/assets/coverimage-notavailable.png");
+            len = snprintf(cover, cover_len, "/assets/coverimage-notavailable.svg");
         }
     }
     FREE_PTR(orgpath);
