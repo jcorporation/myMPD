@@ -8,9 +8,9 @@ host = /var/run/mpd/socket
 
 #absolut path of music_directory of mpd
 #none = no local music_directory
-#auto = get music_directory from mpd (only support, if connected to mpd socket)
-#fallback: /var/lib/mpd/music
+#auto = get music_directory from mpd (only supported, if connected to mpd socket)
 musicdirectory = auto
+
 
 [webserver]
 #Webserver options
@@ -41,32 +41,9 @@ varlibdir = /var/lib/mympd
 #Enable mixramp settings
 mixramp = false
 
-#Enable usage of mpd stickers for play statistics and voting
-stickers = true
-
-#List of tags in myMPD gui
-taglist = Artist,Album,AlbumArtist,Title,Track,Genre,Date,Composer,Performer
-searchtaglist = Artist,Album,AlbumArtist,Title,Genre,Composer,Performer
-browsetaglist = Artist,Album,AlbumArtist,Genre,Composer,Performer
-
-#Enable smart playlists
-smartpls = true
-
 #Enable system commands in /etc/mympd/syscmds/
 syscmds = false
 
-#Elements per page for pagination, max: 200
-pagination = 100
-
-#Number of songs to keep in last played list
-lastplayedcount = 20
-
-#Love message for scrobbling
-love = false
-lovechannel = mpdscribble
-lovemessage = love
-
-
 [plugins]
-coverextract = false
+coverextract = true
 coverextractlib = /usr/share/mympd/lib/libmympd_coverextract.so
