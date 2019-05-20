@@ -454,24 +454,6 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             if (!state_file_write(config, "love_message", mympd_state->love_message))
                 response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state love_message.\"}");
         }
-        je = json_scanf(request->data, request->length, "{data: {taglist: %Q}}", &p_charbuf1);
-        if (je == 1) {
-            REASSIGN_PTR(mympd_state->taglist, p_charbuf1);
-            if (!state_file_write(config, "taglist", mympd_state->taglist))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state taglist.\"}");
-        }
-        je = json_scanf(request->data, request->length, "{data: {searchtaglist: %Q}}", &p_charbuf1);
-        if (je == 1) {
-            REASSIGN_PTR(mympd_state->searchtaglist, p_charbuf1);
-            if (!state_file_write(config, "taglist", mympd_state->searchtaglist))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state searchtaglist.\"}");
-        }
-        je = json_scanf(request->data, request->length, "{data: {browsetaglist: %Q}}", &p_charbuf1);
-        if (je == 1) {
-            REASSIGN_PTR(mympd_state->browsetaglist, p_charbuf1);
-            if (!state_file_write(config, "taglist", mympd_state->browsetaglist))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state browsetaglist.\"}");
-        }
         if (response->length == 0) {
             response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
         }

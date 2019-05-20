@@ -224,7 +224,8 @@ static int mpd_client_put_last_played_songs(t_config *config, t_mpd_state *mpd_s
 static int mpd_client_queue_crop(t_mpd_state *mpd_state, char *buffer);
 static void mpd_client_disconnect(t_config *config, t_mpd_state *mpd_state);
 static int mpd_client_read_last_played(t_config *config, t_mpd_state *mpd_state);
-static void mpd_client_feature_love(t_config *config, t_mpd_state *mpd_state);
+static void mpd_client_feature_love(t_mpd_state *mpd_state);
+static void mpd_client_feature_tags(t_mpd_state *mpd_state);
 static bool mpd_client_tag_exists(const enum mpd_tag_type tag_types[64], const size_t tag_types_len, const enum mpd_tag_type tag);
 static void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state);
 static char *mpd_client_get_tag(struct mpd_song const *song, const enum mpd_tag_type tag);
@@ -410,11 +411,6 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
             if (je == 1)
                 REASSIGN_PTR(mpd_state->love_message, p_charbuf1);
             je = json_scanf(request->data, request->length, "{data: {love: %B}}", &mpd_state->love);
-            if (je == 1) {
-                if (mpd_state->conn_state == MPD_CONNECTED) {
-                    mpd_client_feature_love(config, mpd_state);
-                }
-            }
             je = json_scanf(request->data, request->length, "{data: {taglist: %Q}}", &p_charbuf1);
             if (je == 1)
                 REASSIGN_PTR(mpd_state->taglist, p_charbuf1);
@@ -435,6 +431,11 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
                 REASSIGN_PTR(mpd_state->mpd_pass, p_charbuf1);
             je = json_scanf(request->data, request->length, "{data: {lastPlayedCount: %Q}}", &mpd_state->last_played_count);
             je = json_scanf(request->data, request->length, "{data: {maxElementsPerPage: %Q}}", &mpd_state->max_elements_per_page);
+            //feature detection
+            if (mpd_state->conn_state == MPD_CONNECTED) {
+                mpd_client_feature_love(mpd_state);
+                mpd_client_feature_tags(mpd_state);
+            }
             //set mpd options
             je = json_scanf(request->data, request->length, "{data: {random: %u}}", &uint_buf1);
             if (je == 1) {
@@ -1198,7 +1199,7 @@ static void mpd_client_parse_idle(t_config *config, t_mpd_state *mpd_state, int 
                 case MPD_IDLE_SUBSCRIPTION:
                     if (mpd_state->love == true) {
                         bool old_love = mpd_state->feat_love;
-                        mpd_client_feature_love(config, mpd_state);
+                        mpd_client_feature_love(mpd_state);
                         if (old_love != mpd_state->feat_love) {
                             len = snprintf(buffer, MAX_SIZE, "{\"type\": \"update_options\"}");
                             mpd_client_notify(buffer, len);
@@ -1220,73 +1221,19 @@ static void mpd_client_parse_idle(t_config *config, t_mpd_state *mpd_state, int 
     }
 }
 
-static void mpd_client_feature_love(t_config *config, t_mpd_state *mpd_state) {
-    struct mpd_pair *pair;
-    mpd_state->feat_love = false;
-    if (mpd_state->love == true) {
-        if (mpd_send_channels(mpd_state->conn)) {
-            while ((pair = mpd_recv_channel_pair(mpd_state->conn)) != NULL) {
-                if (strcmp(pair->value, mpd_state->love_channel) == 0) {
-                    mpd_state->feat_love = true;
-                }
-                mpd_return_pair(mpd_state->conn, pair);            
-            }
-        }
-        mpd_response_finish(mpd_state->conn);
-        if (mpd_state->feat_love == false) {
-            LOG_WARN("Disabling featLove, channel %s not found", mpd_state->love_channel);
-        }
-        else {
-            LOG_INFO("Enabling featLove, channel %s found", mpd_state->love_channel);
-        }
-    }
-}
-
-static void json_to_tags(const char *str, int len, void *user_data) {
-    struct json_token t;
-    int i;
-    t_tags *tags = (t_tags *) user_data;
-    tags->len = 0;
-    for (i = 0; json_scanf_array_elem(str, len, "", i, &t) > 0; i++) {
-        char token[t.len + 1];
-        snprintf(token, t.len + 1, "%.*s", t.len, t.ptr);
-        enum mpd_tag_type tag = mpd_tag_name_iparse(token);
-        if (tag != MPD_TAG_UNKNOWN) {
-            tags->tags[tags->len++] = tag;
-        }
-    }
-}
-
-static bool mpd_client_tag_exists(const enum mpd_tag_type tag_types[64], const size_t tag_types_len, const enum mpd_tag_type tag) {
-    for (size_t i = 0; i < tag_types_len; i++) {
-        if (tag_types[i] == tag) {
-	    return true;
-	}
-   }
-   return false;
-}
-
-static void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state) {
-    struct mpd_pair *pair;
+static void mpd_client_feature_tags(t_mpd_state *mpd_state) {
+    size_t max_len = 1024;
+    char logline[max_len];
+    size_t len = 0;
     char s[] = ",";
     char *taglist = strdup(mpd_state->taglist);
     char *searchtaglist = strdup(mpd_state->searchtaglist);    
     char *browsetaglist = strdup(mpd_state->browsetaglist);
     char *token = NULL;
     char *rest = NULL;
+    struct mpd_pair *pair;
 
-    mpd_state->protocol = mpd_connection_get_server_version(mpd_state->conn);
-
-    LOG_INFO("MPD protocoll version: %u.%u.%u", mpd_state->protocol[0], mpd_state->protocol[1], mpd_state->protocol[2]);
-
-    // Defaults
-    mpd_state->feat_sticker = mpd_state->stickers;
-    mpd_state->feat_playlists = false;
-    mpd_state->feat_tags = false;
-    mpd_state->feat_advsearch = false;
-    mpd_state->feat_library = false;
-    mpd_state->feat_smartpls = mpd_state->smartpls;
-    mpd_state->feat_coverimage = true;
+    mpd_state->mpd_tag_types_len = 0;
     memset(mpd_state->mpd_tag_types, 0, sizeof(mpd_state->mpd_tag_types));
     mpd_state->mympd_tag_types_len = 0;
     memset(mpd_state->mympd_tag_types, 0, sizeof(mpd_state->mympd_tag_types));
@@ -1294,98 +1241,14 @@ static void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state) {
     memset(mpd_state->search_tag_types, 0, sizeof(mpd_state->search_tag_types));
     mpd_state->browse_tag_types_len = 0;
     memset(mpd_state->browse_tag_types, 0, sizeof(mpd_state->browse_tag_types));
-
-    if (mpd_send_allowed_commands(mpd_state->conn)) {
-        while ((pair = mpd_recv_command_pair(mpd_state->conn)) != NULL) {
-            if (strcmp(pair->value, "sticker") == 0)
-                mpd_state->feat_sticker = true;
-            else if (strcmp(pair->value, "listplaylists") == 0)
-                mpd_state->feat_playlists = true;
-            mpd_return_pair(mpd_state->conn, pair);
-        }
-        mpd_response_finish(mpd_state->conn);
-    }
-    else {
-        LOG_ERROR_AND_RECOVER("mpd_send_allowed_commands");
-    }
-    if (mpd_state->feat_sticker == true && mpd_state->stickers == false) {
-        LOG_WARN("MPD don't support stickers, disabling myMPD feature");
-        mpd_state->feat_sticker = false;
-    }
-    if (mpd_state->feat_sticker == false && mpd_state->smartpls == true) {
-        LOG_WARN("Stickers are disabled, disabling smart playlists");
-        mpd_state->feat_smartpls = false;
-    }
-    if (mpd_state->feat_playlists == false && mpd_state->smartpls == true) {
-        LOG_WARN("Playlists are disabled, disabling smart playlists");
-        mpd_state->feat_smartpls = false;
-    }
-
-    if (strncmp(mpd_state->mpd_host, "/", 1) == 0 && strncmp(config->music_directory, "auto", 4) == 0) {
-        //get musicdirectory from mpd
-        if (mpd_send_command(mpd_state->conn, "config", NULL)) {
-            while ((pair = mpd_recv_pair(mpd_state->conn)) != NULL) {
-                if (strcmp(pair->name, "music_directory") == 0) {
-                    if (strncmp(pair->value, "smb://", 6) != 0 || strncmp(pair->value, "nfs://", 6) != 0) {
-                        FREE_PTR(mpd_state->music_directory);
-                        mpd_state->music_directory = strdup(pair->value);
-                    }
-                }
-                mpd_return_pair(mpd_state->conn, pair);
-            }
-            mpd_response_finish(mpd_state->conn);
-        }
-        else {
-            LOG_ERROR_AND_RECOVER("config");
-        }
-    }
-    else {
-        FREE_PTR(mpd_state->music_directory);
-        mpd_state->music_directory = strdup(config->music_directory);
-    }
-    //set feat_library
-    if (strncmp(mpd_state->music_directory, "none", 4) == 0) {
-        LOG_WARN("Disabling featLibrary support");
-        mpd_state->feat_library = false;
-    }
-    else if (testdir("MPD music_directory", mpd_state->music_directory)) {
-        LOG_INFO("Enabling featLibrary support");
-        mpd_state->feat_library = true;
-    }
-    else {
-        LOG_WARN("Disabling featLibrary support");
-        mpd_state->feat_library = false;
-        FREE_PTR(mpd_state->music_directory);
-        mpd_state->music_directory = strdup("none");
-    }
-    
-    if (mpd_state->feat_library == false) {
-        LOG_WARN("Disabling coverimage support");
-        mpd_state->feat_coverimage = false;
-    }
-    
-    //push music_directory setting to web_server_queue
-    t_work_result *web_server_response = (t_work_result *)malloc(sizeof(t_work_result));
-    assert(web_server_response);
-    web_server_response->conn_id = -1;
-    web_server_response->length = snprintf(web_server_response->data, MAX_SIZE, 
-        "{\"music_directory\":\"%s\", \"featLibrary\": %s}",
-        mpd_state->music_directory,
-        mpd_state->feat_library == true ? "true" : "false"
-    );
-    tiny_queue_push(web_server_queue, web_server_response);
-
-    size_t max_len = 1024;
-    char logline[max_len];
-    size_t len = 0;
     
     len = snprintf(logline, max_len, "MPD supported tags: ");
     if (mpd_send_list_tag_types(mpd_state->conn)) {
         while ((pair = mpd_recv_tag_type_pair(mpd_state->conn)) != NULL) {
-            len += snprintf(logline + len, max_len - len, "%s ", pair->value);
-            enum mpd_tag_type tt = mpd_tag_name_parse(pair->value);
-            if (tt != MPD_TAG_UNKNOWN) {
-                mpd_state->mpd_tag_types[mpd_state->mpd_tag_types_len++] = tt;
+            enum mpd_tag_type tag = mpd_tag_name_parse(pair->value);
+            if (tag != MPD_TAG_UNKNOWN) {
+                len += snprintf(logline + len, max_len - len, "%s ", pair->value);
+                mpd_state->mpd_tag_types[mpd_state->mpd_tag_types_len++] = tag;
             }
             else {
                 LOG_WARN("Unknown tag %s (libmpdclient to old)", pair->value);
@@ -1484,9 +1347,154 @@ static void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state) {
     FREE_PTR(taglist);
     FREE_PTR(searchtaglist);
     FREE_PTR(browsetaglist);
+
+}
+
+static void mpd_client_feature_love(t_mpd_state *mpd_state) {
+    struct mpd_pair *pair;
+    mpd_state->feat_love = false;
+    if (mpd_state->love == true) {
+        if (mpd_send_channels(mpd_state->conn)) {
+            while ((pair = mpd_recv_channel_pair(mpd_state->conn)) != NULL) {
+                if (strcmp(pair->value, mpd_state->love_channel) == 0) {
+                    mpd_state->feat_love = true;
+                }
+                mpd_return_pair(mpd_state->conn, pair);            
+            }
+        }
+        mpd_response_finish(mpd_state->conn);
+        if (mpd_state->feat_love == false) {
+            LOG_WARN("Disabling featLove, channel %s not found", mpd_state->love_channel);
+        }
+        else {
+            LOG_INFO("Enabling featLove, channel %s found", mpd_state->love_channel);
+        }
+    }
+}
+
+static void json_to_tags(const char *str, int len, void *user_data) {
+    struct json_token t;
+    int i;
+    t_tags *tags = (t_tags *) user_data;
+    tags->len = 0;
+    for (i = 0; json_scanf_array_elem(str, len, "", i, &t) > 0; i++) {
+        char token[t.len + 1];
+        snprintf(token, t.len + 1, "%.*s", t.len, t.ptr);
+        enum mpd_tag_type tag = mpd_tag_name_iparse(token);
+        if (tag != MPD_TAG_UNKNOWN) {
+            tags->tags[tags->len++] = tag;
+        }
+    }
+}
+
+static bool mpd_client_tag_exists(const enum mpd_tag_type tag_types[64], const size_t tag_types_len, const enum mpd_tag_type tag) {
+    for (size_t i = 0; i < tag_types_len; i++) {
+        if (tag_types[i] == tag) {
+	    return true;
+	}
+   }
+   return false;
+}
+
+static void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state) {
+    struct mpd_pair *pair;
+
+    mpd_state->protocol = mpd_connection_get_server_version(mpd_state->conn);
+    LOG_INFO("MPD protocoll version: %u.%u.%u", mpd_state->protocol[0], mpd_state->protocol[1], mpd_state->protocol[2]);
+
+    // Defaults
+    mpd_state->feat_sticker = mpd_state->stickers;
+    mpd_state->feat_playlists = false;
+    mpd_state->feat_tags = false;
+    mpd_state->feat_advsearch = false;
+    mpd_state->feat_library = false;
+    mpd_state->feat_smartpls = mpd_state->smartpls;
+    mpd_state->feat_coverimage = true;
     
-    mpd_client_feature_love(config, mpd_state);
+
+    if (mpd_send_allowed_commands(mpd_state->conn)) {
+        while ((pair = mpd_recv_command_pair(mpd_state->conn)) != NULL) {
+            if (strcmp(pair->value, "sticker") == 0)
+                mpd_state->feat_sticker = true;
+            else if (strcmp(pair->value, "listplaylists") == 0)
+                mpd_state->feat_playlists = true;
+            mpd_return_pair(mpd_state->conn, pair);
+        }
+        mpd_response_finish(mpd_state->conn);
+    }
+    else {
+        LOG_ERROR_AND_RECOVER("mpd_send_allowed_commands");
+    }
+    if (mpd_state->feat_sticker == true && mpd_state->stickers == false) {
+        LOG_WARN("MPD don't support stickers, disabling myMPD feature");
+        mpd_state->feat_sticker = false;
+    }
+    if (mpd_state->feat_sticker == false && mpd_state->smartpls == true) {
+        LOG_WARN("Stickers are disabled, disabling smart playlists");
+        mpd_state->feat_smartpls = false;
+    }
+    if (mpd_state->feat_playlists == false && mpd_state->smartpls == true) {
+        LOG_WARN("Playlists are disabled, disabling smart playlists");
+        mpd_state->feat_smartpls = false;
+    }
+
+    if (strncmp(mpd_state->mpd_host, "/", 1) == 0 && strncmp(config->music_directory, "auto", 4) == 0) {
+        //get musicdirectory from mpd
+        if (mpd_send_command(mpd_state->conn, "config", NULL)) {
+            while ((pair = mpd_recv_pair(mpd_state->conn)) != NULL) {
+                if (strcmp(pair->name, "music_directory") == 0) {
+                    if (strncmp(pair->value, "smb://", 6) != 0 || strncmp(pair->value, "nfs://", 6) != 0) {
+                        FREE_PTR(mpd_state->music_directory);
+                        mpd_state->music_directory = strdup(pair->value);
+                    }
+                }
+                mpd_return_pair(mpd_state->conn, pair);
+            }
+            mpd_response_finish(mpd_state->conn);
+        }
+        else {
+            LOG_ERROR_AND_RECOVER("config");
+        }
+    }
+    else {
+        FREE_PTR(mpd_state->music_directory);
+        mpd_state->music_directory = strdup(config->music_directory);
+    }
+    //set feat_library
+    if (strncmp(mpd_state->music_directory, "none", 4) == 0) {
+        LOG_WARN("Disabling featLibrary support");
+        mpd_state->feat_library = false;
+    }
+    else if (testdir("MPD music_directory", mpd_state->music_directory)) {
+        LOG_INFO("Enabling featLibrary support");
+        mpd_state->feat_library = true;
+    }
+    else {
+        LOG_WARN("Disabling featLibrary support");
+        mpd_state->feat_library = false;
+        FREE_PTR(mpd_state->music_directory);
+        mpd_state->music_directory = strdup("none");
+    }
     
+    if (mpd_state->feat_library == false) {
+        LOG_WARN("Disabling coverimage support");
+        mpd_state->feat_coverimage = false;
+    }
+    
+    //push music_directory setting to web_server_queue
+    t_work_result *web_server_response = (t_work_result *)malloc(sizeof(t_work_result));
+    assert(web_server_response);
+    web_server_response->conn_id = -1;
+    web_server_response->length = snprintf(web_server_response->data, MAX_SIZE, 
+        "{\"music_directory\":\"%s\", \"featLibrary\": %s}",
+        mpd_state->music_directory,
+        mpd_state->feat_library == true ? "true" : "false"
+    );
+    tiny_queue_push(web_server_queue, web_server_response);
+
+
+    mpd_client_feature_tags(mpd_state);
+    mpd_client_feature_love(mpd_state);
     mpd_client_get_state(mpd_state, NULL);
     
     if (LIBMPDCLIENT_CHECK_VERSION(2, 17, 0) && mpd_connection_cmp_server_version(mpd_state->conn, 0, 21, 0) >= 0) {
