@@ -321,7 +321,9 @@ void *mpd_client_loop(void *arg_config) {
     int len = mpd_client_read_last_played(config, &mpd_state);
     LOG_INFO("Reading last played songs: %d", len);
 
-    LOG_INFO("Starting mpd_client");    
+    LOG_INFO("Starting mpd_client");
+    //On startup connect instantly
+    mpd_state.conn_state = MPD_DISCONNECTED;
     while (s_signal_received == 0) {
         mpd_client_idle(config, &mpd_state);
     }
@@ -422,13 +424,26 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
                 REASSIGN_PTR(mpd_state->browsetaglist, p_charbuf1);
             je = json_scanf(request->data, request->length, "{data: {stickers: %B}}", &mpd_state->stickers);
             je = json_scanf(request->data, request->length, "{data: {smartpls: %B}}", &mpd_state->smartpls);
-            je = json_scanf(request->data, request->length, "{data: {mpdHost: %Q}}", &p_charbuf1);
-            if (je == 1)
-                REASSIGN_PTR(mpd_state->mpd_host, p_charbuf1);
-            je = json_scanf(request->data, request->length, "{data: {mpdPort: %d}}", &mpd_state->mpd_port);
-            je = json_scanf(request->data, request->length, "{data: {mpdPass: %Q}}", &p_charbuf1);
-            if (je == 1)
-                REASSIGN_PTR(mpd_state->mpd_pass, p_charbuf1);
+            
+            je = json_scanf(request->data, request->length, "{data: {mpdHost: %Q, mpdPort: %d, mpdPass: %Q}}", &p_charbuf1, &int_buf1, &p_charbuf2);
+            if (je == 3) {
+                if (strcmp(p_charbuf1, mpd_state->mpd_host) != 0 || strcmp(p_charbuf2, "dontsetpassword") != 0 || mpd_state->mpd_port != int_buf1) {
+                    REASSIGN_PTR(mpd_state->mpd_host, p_charbuf1);
+                    if (strcmp(p_charbuf2, "dontsetpassword") != 0) {
+                        REASSIGN_PTR(mpd_state->mpd_pass, p_charbuf2);
+                    }
+                    else {
+                        FREE_PTR(p_charbuf2);
+                    }
+                    mpd_state->mpd_port = int_buf1;
+                    mpd_state->conn_state = MPD_DISCONNECT;
+                }
+                else {
+                    FREE_PTR(p_charbuf1);
+                    FREE_PTR(p_charbuf2);
+                }
+            }
+            
             je = json_scanf(request->data, request->length, "{data: {lastPlayedCount: %Q}}", &mpd_state->last_played_count);
             je = json_scanf(request->data, request->length, "{data: {maxElementsPerPage: %Q}}", &mpd_state->max_elements_per_page);
             //feature detection
@@ -1454,10 +1469,15 @@ static void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state) {
             LOG_ERROR_AND_RECOVER("config");
         }
     }
+    else if (strncmp(mpd_state->mpd_host, "/", 1) != 0 && strncmp(config->music_directory, "auto", 4) == 0) {
+        FREE_PTR(mpd_state->music_directory);
+        mpd_state->music_directory = strdup("none");
+    }
     else {
         FREE_PTR(mpd_state->music_directory);
         mpd_state->music_directory = strdup(config->music_directory);
     }
+    
     //set feat_library
     if (strncmp(mpd_state->music_directory, "none", 4) == 0) {
         LOG_WARN("Disabling featLibrary support");
@@ -1579,7 +1599,7 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
             len = snprintf(buffer, MAX_SIZE, "{\"type\": \"mpd_connected\"}");
             mpd_client_notify(buffer, len);
             mpd_state->conn_state = MPD_CONNECTED;
-            mpd_state->reconnect_intervall += 0;
+            mpd_state->reconnect_intervall = 0;
             mpd_state->reconnect_time = 0;
             mpd_client_mpd_features(config, mpd_state);
             mpd_client_smartpls_update_all(config, mpd_state);
@@ -1603,7 +1623,6 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
                 mpd_connection_free(mpd_state->conn);
             }
             mpd_state->conn = NULL;
-            //mpd_state->conn_state = MPD_DISCONNECTED;
             mpd_state->conn_state = MPD_WAIT;
             if (mpd_state->reconnect_intervall <= 20) {
                 mpd_state->reconnect_intervall += 2;

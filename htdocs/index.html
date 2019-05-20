@@ -24,6 +24,7 @@
             <span class="material-icons header-logo">play_circle_outline</span>myMPD
           </a>
           <div class="dropdown-menu bg-dark" id="mainMenuDropdown">
+            <a class="dropdown-item text-light bg-dark alwaysEnabled" href="#" data-toggle="modal" data-target="#modalConnection">MPD Connection</a>
             <a class="dropdown-item text-light bg-dark" href="#" data-href='{"cmd": "showAddToPlaylist", "options": ["stream"]}'>Add Stream</a>
             <a id="navDBupdate" class="dropdown-item text-light bg-dark" data-toggle="collapse" href="#menu-dbupdate"><span class="material-icons material-icons-left">keyboard_arrow_right</span>Update</a>
               <div class="collapse" id="menu-dbupdate">
@@ -974,6 +975,7 @@
             <div class="tab-pane" id="tabThemeSettings">
               <form id="ThemeSettingsFrm">
                 <h4>Albumart</h4>
+                <div id="warnAlbumart" class="alert alert-warning">Can't access music directory.</div>
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnCoverimage">Albumart</label>
                   <div class="col-sm-8 ">
@@ -1076,7 +1078,7 @@
                     </div>
                   </div>
                   <div class="form-group row">
-                    <label class="col-sm-4 col-form-label" for="btnSearchTags">Tags to Search</label>
+                    <label class="col-sm-4 col-form-label" for="btnSearchTags">Tags to search</label>
                     <div class="col-sm-8 input-group">
                       <input type="text" class="form-control border-secondary" id="inputSearchTags" readonly/>
                       <div class="input-group-append">
@@ -1086,7 +1088,7 @@
                     </div>
                   </div>
                   <div class="form-group row">
-                    <label class="col-sm-4 col-form-label" for="btnBrowseTags">Tags to Browse</label>
+                    <label class="col-sm-4 col-form-label" for="btnBrowseTags">Tags to browse</label>
                     <div class="col-sm-8 input-group">
                       <input type="text" class="form-control border-secondary" id="inputBrowseTags" readonly/>
                       <div class="input-group-append">
@@ -1247,6 +1249,46 @@
               </div>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="modalConnection" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-light">
+          <h5 class="modal-title"><span class="material-icons title-icon">play_circle_outline</span> MPD Connection</h5>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>          
+        </div>
+        <div class="modal-body">
+          <form id="connectionFrm">
+            <div class="form-group row">
+              <label class="col-sm-4 col-form-label" for="inputMpdHost">MPD Host</label>
+              <div class="col-sm-8 ">
+                 <input id="inputMpdHost" type="text" class="form-control border-secondary"/>
+                 <div class="invalid-feedback">Invalid MPD Host</div>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-sm-4 col-form-label" for="inputMpdPort">MPD Port</label>
+              <div class="col-sm-8 ">
+                 <input id="inputMpdPort" type="text" class="form-control border-secondary"/>
+                 <div class="invalid-feedback">Invalid MPD Port</div>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-sm-4 col-form-label" for="inputMpdPass">MPD Password</label>
+              <div class="col-sm-8 ">
+                 <input id="inputMpdPass" type="password" class="form-control border-secondary"/>
+                 <div class="invalid-feedback">Invalid MPD Password</div>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-success" data-href='{"cmd": "saveConnection", "options": []}'>Save</button>
         </div>
       </div>
     </div>

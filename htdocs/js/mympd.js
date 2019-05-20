@@ -102,6 +102,7 @@ domCache.badgeQueueItems = document.getElementById('badgeQueueItems');
 domCache.searchstr = document.getElementById('searchstr');
 domCache.searchCrumb = document.getElementById('searchCrumb');
 
+var modalConnection = new Modal(document.getElementById('modalConnection'));
 var modalSettings = new Modal(document.getElementById('modalSettings'));
 var modalAbout = new Modal(document.getElementById('modalAbout'));
 var modalSaveQueue = new Modal(document.getElementById('modalSaveQueue'));
@@ -548,6 +549,13 @@ function appInit() {
         document.getElementById('inputCrossfade').classList.remove('is-invalid');
         document.getElementById('inputMixrampdb').classList.remove('is-invalid');
         document.getElementById('inputMixrampdelay').classList.remove('is-invalid');
+    });
+
+    document.getElementById('modalConnection').addEventListener('shown.bs.modal', function () {
+        getSettings();
+        document.getElementById('inputMpdHost').classList.remove('is-invalid');
+        document.getElementById('inputMpdPort').classList.remove('is-invalid');
+        document.getElementById('inputMpdPass').classList.remove('is-invalid');
     });
 
     document.getElementById('selectJukeboxMode').addEventListener('change', function () {
@@ -1431,6 +1439,10 @@ function parseSettings() {
     else {
         document.getElementById('mpdInfo_host').innerText = settings.mpdHost;
     }
+    
+    document.getElementById('inputMpdHost').value = settings.mpdHost;
+    document.getElementById('inputMpdPort').value = settings.mpdPort;
+    document.getElementById('inputMpdPass').value = settings.mpdPass;
 
     var btnNotifyWeb = document.getElementById('btnNotifyWeb');
     if (notificationsSupported()) {
@@ -1645,6 +1657,13 @@ function parseMPDSettings() {
     }
     else {
         document.getElementById('warnScrobbler').classList.add('hide');
+    }
+    
+    if (settings.featLibrary == false && settings.coverimage == true) {
+        document.getElementById('warnAlbumart').classList.remove('hide');
+    }
+    else {
+        document.getElementById('warnAlbumart').classList.add('hide');
     }
 
     if (settings.bgCover == true && settings.featCoverimage == true && settings.coverimage == true) {
@@ -1950,6 +1969,28 @@ function saveColsPlayback(table) {
             cols.data.cols.push(name);
     }
     sendAPI(cols, getSettings);
+}
+
+function saveConnection() {
+    var formOK = true;
+    var mpdHostEl = document.getElementById('inputMpdHost');
+    var mpdPortEl = document.getElementById('inputMpdPort');
+    var mpdPassEl = document.getElementById('inputMpdPass');
+    if (mpdPortEl.value == '') {
+        mpdPortEl.value = '6600';
+    }
+    if (mpdHostEl.value.indexOf('/') != 0) {
+        if (!validateInt(mpdPortEl)) {
+            formOK = false;        
+        }
+        if (!validateHost(mpdHostEl)) {
+            formOK = false;        
+        }
+    }
+    if (formOK == true) {
+        sendAPI({"cmd": "MYMPD_API_CONNECTION_SAVE", "data": {"mpdHost": mpdHostEl.value, "mpdPort": mpdPortEl.value, "mpdPass": mpdPassEl.value}});
+        modalConnection.hide();    
+    }
 }
 
 function parseOutputs(obj) {
@@ -3998,6 +4039,17 @@ function validateFloat(el) {
 
 function validateStream(el) {
     if (el.value.indexOf('://') > -1) {
+        el.classList.remove('is-invalid');
+        return true;
+    }
+    else {
+        el.classList.add('is-invalid');
+        return false;
+    }
+}
+
+function validateHost(el) {
+    if (el.value.match('^(\w\-\.)$') == null) {
         el.classList.remove('is-invalid');
         return true;
     }

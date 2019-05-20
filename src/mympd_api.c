@@ -390,24 +390,6 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             if (!state_file_write(config, "jukebox_queue_length", p_char))
                 response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state jukebox_queue_length.\"}");
         }
-        je = json_scanf(request->data, request->length, "{data: {mpdHost: %Q}}", &p_charbuf1);
-        if (je == 1) {
-            REASSIGN_PTR(mympd_state->mpd_host, p_charbuf1);
-            if (!state_file_write(config, "mpd_host", mympd_state->mpd_host))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state mpd_host.\"}");
-        }
-        je = json_scanf(request->data, request->length, "{data: {mpdPort: %d}}", &mympd_state->mpd_port);
-        if (je == 1) {
-            snprintf(p_char, 7, "%ld", mympd_state->mpd_port);
-            if (!state_file_write(config, "mpd_port", p_char))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state mpd_port.\"}");
-        }
-        je = json_scanf(request->data, request->length, "{data: {mpdPass: %Q}}", &p_charbuf1);
-        if (je == 1 && strcmp(p_charbuf1, "dontsetpassword") != 0) {
-            REASSIGN_PTR(mympd_state->mpd_pass, p_charbuf1);
-            if (!state_file_write(config, "mpd_pass", mympd_state->mpd_pass))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state mpd_pass.\"}");
-        }
         je = json_scanf(request->data, request->length, "{data: {stickers: %B}}", &mympd_state->stickers);
         if (je == 1) {
             if (!state_file_write(config, "stickers", (mympd_state->stickers == true ? "true" : "false")))
@@ -467,6 +449,28 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
     }
     else if (request->cmd_id == MYMPD_API_SETTINGS_GET) {
         response->length = mympd_api_put_settings(config, mympd_state, response->data);
+    }
+    else if (request->cmd_id == MYMPD_API_CONNECTION_SAVE) {
+        je = json_scanf(request->data, request->length, "{data: {mpdHost: %Q, mpdPort: %d, mpdPass: %Q}}", &p_charbuf1, &mympd_state->mpd_port, &p_charbuf2);
+        if (je == 3) {
+            if (strcmp(p_charbuf2, "dontsetpassword") != 0) {
+                REASSIGN_PTR(mympd_state->mpd_pass, p_charbuf1);
+                if (!state_file_write(config, "mpd_pass", mympd_state->mpd_pass))
+                    response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state mpd_pass.\"}");
+            }
+            else {
+                FREE_PTR(p_charbuf2);
+            }
+            REASSIGN_PTR(mympd_state->mpd_host, p_charbuf1);
+            if (!state_file_write(config, "mpd_host", mympd_state->mpd_host))
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state mpd_host.\"}");
+            snprintf(p_char, 7, "%ld", mympd_state->mpd_port);
+            if (!state_file_write(config, "mpd_port", p_char))
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state mpd_port.\"}");
+            //push settings to mpd_client queue
+            mympd_api_push_to_mpd_client(mympd_state);
+            response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
+        }
     }
     else if (request->cmd_id == MYMPD_API_BOOKMARK_SAVE) {
         je = json_scanf(request->data, request->length, "{data: {id: %ld, name: %Q, uri: %Q, type: %Q}}", &long_buf1, &p_charbuf1, &p_charbuf2, &p_charbuf3);
@@ -738,14 +742,14 @@ static int mympd_api_put_settings(t_config *config, t_mympd_state *mympd_state, 
     int nr = 0;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
     
-    len = json_printf(&out, "{type: mympdSettings, data: {mpdHost: %Q, mpdPort: %d, mpdPass: %B, featSyscmds: %B, "
+    len = json_printf(&out, "{type: mympdSettings, data: {mpdHost: %Q, mpdPort: %d, mpdPass: %Q, featSyscmds: %B, "
         "featLocalplayer: %B, streamPort: %d, streamUrl: %Q, coverimage: %B, coverimageName: %Q, coverimageSize: %d, featMixramp: %B, "
         "maxElementsPerPage: %d, notificationWeb: %B, notificationPage: %B, jukeboxMode: %d, jukeboxPlaylist: %Q, jukeboxQueueLength: %d, "
         "autoPlay: %B, bgColor: %Q, bgCover: %B, bgCssFilter: %Q, loglevel: %d, locale: %Q, localplayerAutoplay: %B, "
         "stickers: %B, smartpls: %B, lastPlayedCount: %ld, love: %B, loveChannel: %Q, loveMessage: %Q",
         mympd_state->mpd_host, 
         mympd_state->mpd_port,
-        strlen(mympd_state->mpd_pass) > 0 ? true : false,
+        "dontsetpassword",
         config->syscmds,
         mympd_state->localplayer,
         mympd_state->stream_port,
