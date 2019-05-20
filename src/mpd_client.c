@@ -1202,10 +1202,8 @@ static void mpd_client_parse_idle(t_config *config, t_mpd_state *mpd_state, int 
                         mpd_client_feature_love(mpd_state);
                         if (old_love != mpd_state->feat_love) {
                             len = snprintf(buffer, MAX_SIZE, "{\"type\": \"update_options\"}");
-                            mpd_client_notify(buffer, len);
                         }
                     }
-                    len = snprintf(buffer, MAX_SIZE, "{\"type\": \"update_subscription\"}");
                     break;
                 case MPD_IDLE_MESSAGE:
                     //not used and disabled in idlemask
