@@ -580,6 +580,21 @@ function appInit() {
         }
     }, false);
     
+    document.getElementById('selectMusicDirectory').addEventListener('change', function (event) {
+        if (this.options[this.selectedIndex].value == 'auto') {
+            document.getElementById('inputMusicDirectory').value = settings.musicDirectoryValue;
+            document.getElementById('inputMusicDirectory').setAttribute('readonly', 'readonly');
+        }
+        else if (this.options[this.selectedIndex].value == 'none') {
+            document.getElementById('inputMusicDirectory').value = '';
+            document.getElementById('inputMusicDirectory').setAttribute('readonly', 'readonly');
+        }
+        else {
+            document.getElementById('inputMusicDirectory').value = '';
+            document.getElementById('inputMusicDirectory').removeAttribute('readonly');
+        }
+    }, false);
+    
     addFilterLetter('BrowseFilesystemFilterLetters');
     addFilterLetter('BrowseDatabaseFilterLetters');
     addFilterLetter('BrowsePlaylistsFilterLetters');
@@ -1576,6 +1591,22 @@ function parseSettings() {
     for (var i = 0; i < mixrampEls.length; i++) {
         mixrampEls[i].style.display = settings.featMixramp == true ? '' : 'none';
     }
+    
+    if (settings.musicDirectory == 'auto') {
+        document.getElementById('selectMusicDirectory').value = settings.musicDirectory;
+        document.getElementById('inputMusicDirectory').value = settings.musicDirectoryValue;
+        document.getElementById('inputMusicDirectory').setAttribute('readonly', 'readonly');
+    }
+    else if (settings.musicDirectory == 'none') {
+        document.getElementById('selectMusicDirectory').value = settings.musicDirectory;
+        document.getElementById('inputMusicDirectory').value = '';
+        document.getElementById('inputMusicDirectory').setAttribute('readonly', 'readonly');
+    }
+    else {
+        document.getElementById('selectMusicDirectory').value = 'custom';
+        document.getElementById('inputMusicDirectory').value = settings.musicDirectoryValue;
+        document.getElementById('inputMusicDirectory').removeAttribute('readonly');
+    }
 
     if (app.current.app == 'Queue' && app.current.tab == 'Current')
         getQueue();
@@ -1976,6 +2007,17 @@ function saveConnection() {
     var mpdHostEl = document.getElementById('inputMpdHost');
     var mpdPortEl = document.getElementById('inputMpdPort');
     var mpdPassEl = document.getElementById('inputMpdPass');
+    var musicDirectoryEl  = document.getElementById('selectMusicDirectory');
+    var musicDirectory = musicDirectoryEl.options[musicDirectoryEl.selectedIndex].value;
+    
+    if (musicDirectory == 'custom') {
+        var musicDirectoryValueEl  = document.getElementById('inputMusicDirectory');
+        if (!validatePath(musicDirectoryValueEl)) {
+            formOK = false;        
+        }
+        musicDirectory = musicDirectoryValueEl.value;
+    }    
+    
     if (mpdPortEl.value == '') {
         mpdPortEl.value = '6600';
     }
@@ -1988,7 +2030,7 @@ function saveConnection() {
         }
     }
     if (formOK == true) {
-        sendAPI({"cmd": "MYMPD_API_CONNECTION_SAVE", "data": {"mpdHost": mpdHostEl.value, "mpdPort": mpdPortEl.value, "mpdPass": mpdPassEl.value}});
+        sendAPI({"cmd": "MYMPD_API_CONNECTION_SAVE", "data": {"mpdHost": mpdHostEl.value, "mpdPort": mpdPortEl.value, "mpdPass": mpdPassEl.value, "musicDirectory": musicDirectory}});
         modalConnection.hide();    
     }
 }
@@ -3980,6 +4022,21 @@ function validateFilename(el) {
         return false;
     }
     else if (el.value.match(/^[\w\-]+\.\w+$/) != null) {
+        el.classList.remove('is-invalid');
+        return true;
+    }
+    else {
+        el.classList.add('is-invalid');
+        return false;
+    }
+}
+
+function validatePath(el) {
+    if (el.value == '') {
+        el.classList.add('is-invalid');
+        return false;
+    }
+    else if (el.value.match(/^\/[\/\.\w\-]+$/) != null) {
         el.classList.remove('is-invalid');
         return true;
     }

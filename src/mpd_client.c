@@ -104,8 +104,6 @@ typedef struct t_mpd_state {
     int timeout;
     time_t reconnect_time;
     unsigned reconnect_intervall;
-    // config
-    char *music_directory;
     // States
     enum mpd_state state;
     int song_id;
@@ -152,6 +150,8 @@ typedef struct t_mpd_state {
     char *mpd_pass;
     long last_played_count;
     long max_elements_per_page;
+    char *music_directory;
+    char *music_directory_value;
     //taglists
     enum mpd_tag_type mpd_tag_types[64];
     size_t mpd_tag_types_len;
@@ -226,6 +226,7 @@ static void mpd_client_disconnect(t_config *config, t_mpd_state *mpd_state);
 static int mpd_client_read_last_played(t_config *config, t_mpd_state *mpd_state);
 static void mpd_client_feature_love(t_mpd_state *mpd_state);
 static void mpd_client_feature_tags(t_mpd_state *mpd_state);
+static void mpd_client_feature_music_directory(t_mpd_state *mpd_state);
 static bool mpd_client_tag_exists(const enum mpd_tag_type tag_types[64], const size_t tag_types_len, const enum mpd_tag_type tag);
 static void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state);
 static char *mpd_client_get_tag(struct mpd_song const *song, const enum mpd_tag_type tag);
@@ -249,14 +250,6 @@ void *mpd_client_loop(void *arg_config) {
     mpd_state.queue_version = 0;
     mpd_state.queue_length = 0;
     mpd_state.last_last_played_id = -1;
-    mpd_state.feat_sticker = false;
-    mpd_state.feat_playlists = false;
-    mpd_state.feat_tags = false;
-    mpd_state.feat_library = false;
-    mpd_state.feat_advsearch = false;
-    mpd_state.feat_smartpls = false;
-    mpd_state.feat_love = false;
-    mpd_state.feat_coverimage = false;
     mpd_state.song_end_time = 0;
     mpd_state.song_start_time = 0;
     mpd_state.last_song_end_time = 0;
@@ -272,25 +265,19 @@ void *mpd_client_loop(void *arg_config) {
     memset(mpd_state.search_tag_types, 0, sizeof(mpd_state.search_tag_types));
     mpd_state.browse_tag_types_len = 0;
     memset(mpd_state.browse_tag_types, 0, sizeof(mpd_state.browse_tag_types));
-    mpd_state.jukebox_mode = config->jukebox_mode;
-    mpd_state.jukebox_playlist = strdup(config->jukebox_playlist);
-    mpd_state.jukebox_queue_length = config->jukebox_queue_length;
-    mpd_state.auto_play = config->auto_play;
-    mpd_state.coverimage_name = strdup(config->coverimage_name);
-    mpd_state.music_directory = strdup(config->music_directory);
-    mpd_state.love = config->love;
-    mpd_state.love_channel = strdup(config->love_channel);;
-    mpd_state.love_message = strdup(config->love_message);
-    mpd_state.taglist  = strdup(config->taglist);
-    mpd_state.searchtaglist = strdup(config->searchtaglist);
-    mpd_state.browsetaglist = strdup(config->browsetaglist);
-    mpd_state.stickers = config->stickers;
-    mpd_state.smartpls = config->smartpls;
-    mpd_state.mpd_host = strdup(config->mpd_host);
-    mpd_state.mpd_port = config->mpd_port;
-    mpd_state.mpd_pass = strdup(config->mpd_pass);
-    mpd_state.last_played_count = config->last_played_count;
-    mpd_state.max_elements_per_page = config->max_elements_per_page;
+    mpd_state.music_directory = NULL;
+    mpd_state.music_directory_value = NULL;
+    mpd_state.jukebox_playlist = NULL;
+    mpd_state.song_uri = NULL;
+    mpd_state.last_song_uri = NULL;
+    mpd_state.coverimage_name = NULL;
+    mpd_state.love_channel = NULL;
+    mpd_state.love_message = NULL;
+    mpd_state.taglist = NULL;
+    mpd_state.searchtaglist = NULL;
+    mpd_state.browsetaglist = NULL;
+    mpd_state.mpd_host = NULL;
+    mpd_state.mpd_pass = NULL;
 
     //wait for initial settings
     while (s_signal_received == 0) {
@@ -331,6 +318,7 @@ void *mpd_client_loop(void *arg_config) {
     mpd_client_disconnect(config, &mpd_state);
     list_free(&mpd_state.last_played);
     FREE_PTR(mpd_state.music_directory);
+    FREE_PTR(mpd_state.music_directory_value);
     FREE_PTR(mpd_state.jukebox_playlist);
     FREE_PTR(mpd_state.song_uri);
     FREE_PTR(mpd_state.last_song_uri);
@@ -424,10 +412,17 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
                 REASSIGN_PTR(mpd_state->browsetaglist, p_charbuf1);
             je = json_scanf(request->data, request->length, "{data: {stickers: %B}}", &mpd_state->stickers);
             je = json_scanf(request->data, request->length, "{data: {smartpls: %B}}", &mpd_state->smartpls);
-            
+            je = json_scanf(request->data, request->length, "{data: {musicDirectory: %Q}}", &p_charbuf1);
+            if (je == 1)
+                REASSIGN_PTR(mpd_state->music_directory, p_charbuf1);
             je = json_scanf(request->data, request->length, "{data: {mpdHost: %Q, mpdPort: %d, mpdPass: %Q}}", &p_charbuf1, &int_buf1, &p_charbuf2);
             if (je == 3) {
-                if (strcmp(p_charbuf1, mpd_state->mpd_host) != 0 || strcmp(p_charbuf2, "dontsetpassword") != 0 || mpd_state->mpd_port != int_buf1) {
+                if (mpd_state->mpd_host == NULL || mpd_state->mpd_pass == NULL) {
+                    REASSIGN_PTR(mpd_state->mpd_host, p_charbuf1);
+                    REASSIGN_PTR(mpd_state->mpd_pass, p_charbuf2);
+                    mpd_state->mpd_port = int_buf1;
+                }
+                else if (strcmp(p_charbuf1, mpd_state->mpd_host) != 0 || (strcmp(p_charbuf2, "dontsetpassword") != 0 && strcmp(mpd_state->mpd_pass, p_charbuf2) != 0) || mpd_state->mpd_port != int_buf1) {
                     REASSIGN_PTR(mpd_state->mpd_host, p_charbuf1);
                     if (strcmp(p_charbuf2, "dontsetpassword") != 0) {
                         REASSIGN_PTR(mpd_state->mpd_pass, p_charbuf2);
@@ -450,6 +445,7 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
             if (mpd_state->conn_state == MPD_CONNECTED) {
                 mpd_client_feature_love(mpd_state);
                 mpd_client_feature_tags(mpd_state);
+                mpd_client_feature_music_directory(mpd_state);
             }
             //set mpd options
             je = json_scanf(request->data, request->length, "{data: {random: %u}}", &uint_buf1);
@@ -1385,6 +1381,71 @@ static void mpd_client_feature_love(t_mpd_state *mpd_state) {
     }
 }
 
+static void mpd_client_feature_music_directory(t_mpd_state *mpd_state) {
+    struct mpd_pair *pair;
+    mpd_state->feat_library = false;
+    FREE_PTR(mpd_state->music_directory_value);
+    mpd_state->music_directory_value = strdup("");
+
+    if (strncmp(mpd_state->mpd_host, "/", 1) == 0 && strncmp(mpd_state->music_directory, "auto", 4) == 0) {
+        //get musicdirectory from mpd
+        if (mpd_send_command(mpd_state->conn, "config", NULL)) {
+            while ((pair = mpd_recv_pair(mpd_state->conn)) != NULL) {
+                if (strcmp(pair->name, "music_directory") == 0) {
+                    if (strncmp(pair->value, "smb://", 6) != 0 && strncmp(pair->value, "nfs://", 6) != 0) {
+                        FREE_PTR(mpd_state->music_directory_value);
+                        mpd_state->music_directory_value = strdup(pair->value);
+                    }
+                }
+                mpd_return_pair(mpd_state->conn, pair);
+            }
+            mpd_response_finish(mpd_state->conn);
+        }
+        else {
+            LOG_ERROR_AND_RECOVER("config");
+        }
+    }
+    else if (strncmp(mpd_state->music_directory, "/", 1) == 0) {
+        FREE_PTR(mpd_state->music_directory_value);
+        mpd_state->music_directory_value = strdup(mpd_state->music_directory);
+    }
+    else {
+        //none or garbage, empty music_directory_value
+    }
+    
+    //set feat_library
+    if (strlen(mpd_state->music_directory_value) == 0) {
+        LOG_WARN("Disabling featLibrary support");
+        mpd_state->feat_library = false;
+    }
+    else if (testdir("MPD music_directory", mpd_state->music_directory_value)) {
+        LOG_INFO("Enabling featLibrary support");
+        mpd_state->feat_library = true;
+    }
+    else {
+        LOG_WARN("Disabling featLibrary support");
+        mpd_state->feat_library = false;
+        FREE_PTR(mpd_state->music_directory_value);
+        mpd_state->music_directory_value = strdup("");
+    }
+    
+    if (mpd_state->feat_library == false) {
+        LOG_WARN("Disabling coverimage support");
+        mpd_state->feat_coverimage = false;
+    }
+
+    //push music_directory setting to web_server_queue
+    t_work_result *web_server_response = (t_work_result *)malloc(sizeof(t_work_result));
+    assert(web_server_response);
+    web_server_response->conn_id = -1;
+    web_server_response->length = snprintf(web_server_response->data, MAX_SIZE, 
+        "{\"musicDirectory\":\"%s\", \"featLibrary\": %s}",
+        mpd_state->music_directory_value,
+        mpd_state->feat_library == true ? "true" : "false"
+    );
+    tiny_queue_push(web_server_queue, web_server_response);
+}
+
 static void json_to_tags(const char *str, int len, void *user_data) {
     struct json_token t;
     int i;
@@ -1420,11 +1481,10 @@ static void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state) {
     mpd_state->feat_playlists = false;
     mpd_state->feat_tags = false;
     mpd_state->feat_advsearch = false;
-    mpd_state->feat_library = false;
+
     mpd_state->feat_smartpls = mpd_state->smartpls;
     mpd_state->feat_coverimage = true;
     
-
     if (mpd_send_allowed_commands(mpd_state->conn)) {
         while ((pair = mpd_recv_command_pair(mpd_state->conn)) != NULL) {
             if (strcmp(pair->value, "sticker") == 0)
@@ -1451,66 +1511,7 @@ static void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state) {
         mpd_state->feat_smartpls = false;
     }
 
-    if (strncmp(mpd_state->mpd_host, "/", 1) == 0 && strncmp(config->music_directory, "auto", 4) == 0) {
-        //get musicdirectory from mpd
-        if (mpd_send_command(mpd_state->conn, "config", NULL)) {
-            while ((pair = mpd_recv_pair(mpd_state->conn)) != NULL) {
-                if (strcmp(pair->name, "music_directory") == 0) {
-                    if (strncmp(pair->value, "smb://", 6) != 0 || strncmp(pair->value, "nfs://", 6) != 0) {
-                        FREE_PTR(mpd_state->music_directory);
-                        mpd_state->music_directory = strdup(pair->value);
-                    }
-                }
-                mpd_return_pair(mpd_state->conn, pair);
-            }
-            mpd_response_finish(mpd_state->conn);
-        }
-        else {
-            LOG_ERROR_AND_RECOVER("config");
-        }
-    }
-    else if (strncmp(mpd_state->mpd_host, "/", 1) != 0 && strncmp(config->music_directory, "auto", 4) == 0) {
-        FREE_PTR(mpd_state->music_directory);
-        mpd_state->music_directory = strdup("none");
-    }
-    else {
-        FREE_PTR(mpd_state->music_directory);
-        mpd_state->music_directory = strdup(config->music_directory);
-    }
-    
-    //set feat_library
-    if (strncmp(mpd_state->music_directory, "none", 4) == 0) {
-        LOG_WARN("Disabling featLibrary support");
-        mpd_state->feat_library = false;
-    }
-    else if (testdir("MPD music_directory", mpd_state->music_directory)) {
-        LOG_INFO("Enabling featLibrary support");
-        mpd_state->feat_library = true;
-    }
-    else {
-        LOG_WARN("Disabling featLibrary support");
-        mpd_state->feat_library = false;
-        FREE_PTR(mpd_state->music_directory);
-        mpd_state->music_directory = strdup("none");
-    }
-    
-    if (mpd_state->feat_library == false) {
-        LOG_WARN("Disabling coverimage support");
-        mpd_state->feat_coverimage = false;
-    }
-    
-    //push music_directory setting to web_server_queue
-    t_work_result *web_server_response = (t_work_result *)malloc(sizeof(t_work_result));
-    assert(web_server_response);
-    web_server_response->conn_id = -1;
-    web_server_response->length = snprintf(web_server_response->data, MAX_SIZE, 
-        "{\"music_directory\":\"%s\", \"featLibrary\": %s}",
-        mpd_state->music_directory,
-        mpd_state->feat_library == true ? "true" : "false"
-    );
-    tiny_queue_push(web_server_queue, web_server_response);
-
-
+    mpd_client_feature_music_directory(mpd_state);
     mpd_client_feature_tags(mpd_state);
     mpd_client_feature_love(mpd_state);
     mpd_client_get_state(mpd_state, NULL);
@@ -2254,7 +2255,8 @@ static int mpd_client_put_settings(t_mpd_state *mpd_state, char *buffer) {
         "repeat: %d, single: %d, crossfade: %d, consume: %d, random: %d, "
         "mixrampdb: %f, mixrampdelay: %f, replaygain: %Q, featPlaylists: %B,"
         "featTags: %B, featLibrary: %B, featAdvsearch: %B, featStickers: %B,"
-        "featSmartpls: %B, featLove: %B, featCoverimage: %B, mpdConnected: %B, tags: [", 
+        "featSmartpls: %B, featLove: %B, featCoverimage: %B, musicDirectoryValue: %Q, "
+        "mpdConnected: %B, tags: [", 
         mpd_status_get_repeat(status),
         mpd_status_get_single(status),
         mpd_status_get_crossfade(status),
@@ -2271,6 +2273,7 @@ static int mpd_client_put_settings(t_mpd_state *mpd_state, char *buffer) {
         mpd_state->feat_smartpls,
         mpd_state->feat_love,
         mpd_state->feat_coverimage,
+        mpd_state->music_directory_value,
         true
     );
     mpd_status_free(status);
@@ -2307,8 +2310,6 @@ static int mpd_client_put_settings(t_mpd_state *mpd_state, char *buffer) {
     
     CHECK_RETURN_LEN();
 }
-
-
 
 static int mpd_client_put_outputs(t_mpd_state *mpd_state, char *buffer) {
     struct mpd_output *output;
@@ -2364,14 +2365,14 @@ static int mpd_client_get_cover(t_config *config, t_mpd_state *mpd_state, const 
         }
     }
     else {
-        if (mpd_state->feat_library == true && strncmp(mpd_state->music_directory, "none", 4) != 0) {
+        if (mpd_state->feat_library == true && strlen(mpd_state->music_directory_value) > 0) {
             dirname(path);
-            snprintf(cover, cover_len, "%s/%s/%s", mpd_state->music_directory, path, mpd_state->coverimage_name);
+            snprintf(cover, cover_len, "%s/%s/%s", mpd_state->music_directory_value, path, mpd_state->coverimage_name);
             if (access(cover, F_OK ) == -1 ) {
                 if (config->plugins_coverextract == true) {
-                    size_t media_file_len = strlen(mpd_state->music_directory) + strlen(uri) + 2;
+                    size_t media_file_len = strlen(mpd_state->music_directory_value) + strlen(uri) + 2;
                     char media_file[media_file_len];
-                    snprintf(media_file, media_file_len, "%s/%s", mpd_state->music_directory, uri);
+                    snprintf(media_file, media_file_len, "%s/%s", mpd_state->music_directory_value, uri);
                     size_t image_file_len = 1500;
                     char image_file[image_file_len];
                     size_t image_mime_type_len = 100;

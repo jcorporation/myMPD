@@ -57,7 +57,7 @@ bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_da
 
     //initialize mgr user_data, malloced in main.c
     mg_user_data->config = config;
-    mg_user_data->music_directory = strdup(config->music_directory);
+    mg_user_data->music_directory = strdup("");
     mg_user_data->rewrite_patterns = NULL;
     mg_user_data->conn_id = 1;
     mg_user_data->feat_library = false;
@@ -121,7 +121,7 @@ void *web_server_loop(void *arg_mgr) {
                     //internal message
                     char *p_charbuf = NULL;
                     bool feat_library;
-                    int je = json_scanf(response->data, response->length, "{music_directory: %Q, featLibrary: %B}", &p_charbuf, &feat_library);
+                    int je = json_scanf(response->data, response->length, "{musicDirectory: %Q, featLibrary: %B}", &p_charbuf, &feat_library);
                     if (je == 2) {
                         FREE_PTR(mg_user_data->music_directory);
                         mg_user_data->music_directory = strdup(p_charbuf);
@@ -268,7 +268,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 char image_file[image_file_len];
                 snprintf(image_file, image_file_len, "%s/assets/coverimage-notavailable.png", DOC_ROOT);
 
-                if (strncmp(mg_user_data->music_directory, "none", 4) != 0) {
+                if (strlen(mg_user_data->music_directory) == 0) {
                     LOG_ERROR("Error extracting coverimage, invalid music_directory");
                     mg_http_serve_file(nc, hm, image_file, mg_mk_str("image/png"), mg_mk_str(""));
                     break;

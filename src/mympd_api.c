@@ -81,6 +81,7 @@ typedef struct t_mympd_state {
     char *coverimage_name;
     long coverimage_size;
     char *locale;
+    char *music_directory;
     //system commands
     struct list syscmd_list;
 } t_mympd_state;
@@ -145,6 +146,7 @@ void *mympd_api_loop(void *arg_config) {
     FREE_PTR(mympd_state.bg_css_filter);
     FREE_PTR(mympd_state.coverimage_name);
     FREE_PTR(mympd_state.locale);
+    FREE_PTR(mympd_state.music_directory);
     return NULL;
 }
 
@@ -172,7 +174,8 @@ static void mympd_api_push_to_mpd_client(t_mympd_state *mympd_state) {
         "mpdPort: %ld,"
         "mpdPass: %Q,"
         "lastPlayedCount: %ld,"
-        "maxElementsPerPage: %ld"
+        "maxElementsPerPage: %ld,"
+        "musicDirectory: %Q"
         "}}",
         mympd_state->jukebox_mode,
         mympd_state->jukebox_playlist,
@@ -191,7 +194,8 @@ static void mympd_api_push_to_mpd_client(t_mympd_state *mympd_state) {
         mympd_state->mpd_port,
         mympd_state->mpd_pass,
         mympd_state->last_played_count,
-        mympd_state->max_elements_per_page
+        mympd_state->max_elements_per_page,
+        mympd_state->music_directory
     );
     tiny_queue_push(mpd_client_queue, mpd_client_request);
 }
@@ -418,7 +422,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             if (!state_file_write(config, "smartpls", (mympd_state->smartpls == true ? "true" : "false")))
                 response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state smartpls.\"}");
         }
-        je = json_scanf(request->data, request->length, "{data: {maxElementsPerpage: %d}}", &mympd_state->max_elements_per_page);
+        je = json_scanf(request->data, request->length, "{data: {maxElementsPerPage: %d}}", &mympd_state->max_elements_per_page);
         if (je == 1) {
             snprintf(p_char, 7, "%ld", mympd_state->max_elements_per_page);
             if (!state_file_write(config, "max_elements_per_page", p_char))
@@ -451,8 +455,9 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
         response->length = mympd_api_put_settings(config, mympd_state, response->data);
     }
     else if (request->cmd_id == MYMPD_API_CONNECTION_SAVE) {
-        je = json_scanf(request->data, request->length, "{data: {mpdHost: %Q, mpdPort: %d, mpdPass: %Q}}", &p_charbuf1, &mympd_state->mpd_port, &p_charbuf2);
-        if (je == 3) {
+        je = json_scanf(request->data, request->length, "{data: {mpdHost: %Q, mpdPort: %d, mpdPass: %Q, musicDirectory: %Q}}", 
+            &p_charbuf1, &mympd_state->mpd_port, &p_charbuf2, &p_charbuf3);
+        if (je == 4) {
             if (strcmp(p_charbuf2, "dontsetpassword") != 0) {
                 REASSIGN_PTR(mympd_state->mpd_pass, p_charbuf1);
                 if (!state_file_write(config, "mpd_pass", mympd_state->mpd_pass))
@@ -462,8 +467,11 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                 FREE_PTR(p_charbuf2);
             }
             REASSIGN_PTR(mympd_state->mpd_host, p_charbuf1);
+            REASSIGN_PTR(mympd_state->music_directory, p_charbuf3);
             if (!state_file_write(config, "mpd_host", mympd_state->mpd_host))
                 response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state mpd_host.\"}");
+            if (!state_file_write(config, "music_directory", mympd_state->music_directory))
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state music_directory.\"}");
             snprintf(p_char, 7, "%ld", mympd_state->mpd_port);
             if (!state_file_write(config, "mpd_port", p_char))
                 response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state mpd_port.\"}");
@@ -601,7 +609,7 @@ static void mympd_api_settings_reset(t_config *config, t_mympd_state *mympd_stat
         "cols_search", "coverimage", "coverimage_name", "coverimage_size", "jukebox_mode", "jukebox_playlist", "jukebox_queue_length",
         "last_played", "last_played_count", "locale", "localplayer", "localplayer_autoplay", "love", "love_channel", "love_message",
         "max_elements_per_page",  "mpd_host", "mpd_pass", "mpd_port", "notification_page", "notification_web", "searchtaglist",
-        "smartpls", "stickers", "stream_port", "stream_url", "taglist", 0};
+        "smartpls", "stickers", "stream_port", "stream_url", "taglist", "music_directory", 0};
     const char** ptr = state_files;
     while (*ptr != 0) {
         size_t filename_len = strlen(*ptr) + config->varlibdir_len + 8;
@@ -653,6 +661,7 @@ static void mympd_api_read_statefiles(t_config *config, t_mympd_state *mympd_sta
     mympd_state->coverimage_name = state_file_rw_string(config, "coverimage_name", config->coverimage_name, false);
     mympd_state->coverimage_size = state_file_rw_long(config, "coverimage_size", config->coverimage_size, false);
     mympd_state->locale = state_file_rw_string(config, "locale", config->locale, false);
+    mympd_state->music_directory = state_file_rw_string(config, "music_directory", config->music_directory, false);
 }
 
 static char *state_file_rw_string(t_config *config, const char *name, const char *def_value, bool warn) {
@@ -746,7 +755,7 @@ static int mympd_api_put_settings(t_config *config, t_mympd_state *mympd_state, 
         "featLocalplayer: %B, streamPort: %d, streamUrl: %Q, coverimage: %B, coverimageName: %Q, coverimageSize: %d, featMixramp: %B, "
         "maxElementsPerPage: %d, notificationWeb: %B, notificationPage: %B, jukeboxMode: %d, jukeboxPlaylist: %Q, jukeboxQueueLength: %d, "
         "autoPlay: %B, bgColor: %Q, bgCover: %B, bgCssFilter: %Q, loglevel: %d, locale: %Q, localplayerAutoplay: %B, "
-        "stickers: %B, smartpls: %B, lastPlayedCount: %ld, love: %B, loveChannel: %Q, loveMessage: %Q",
+        "stickers: %B, smartpls: %B, lastPlayedCount: %ld, love: %B, loveChannel: %Q, loveMessage: %Q, musicDirectory: %Q",
         mympd_state->mpd_host, 
         mympd_state->mpd_port,
         "dontsetpassword",
@@ -776,7 +785,8 @@ static int mympd_api_put_settings(t_config *config, t_mympd_state *mympd_state, 
         mympd_state->last_played_count,
         mympd_state->love,
         mympd_state->love_channel,
-        mympd_state->love_message
+        mympd_state->love_message,
+        mympd_state->music_directory
     );
     
     if (config->syscmds == true) {
