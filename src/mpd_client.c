@@ -1480,7 +1480,7 @@ static void mpd_client_mpd_features(t_mpd_state *mpd_state) {
     LOG_INFO("MPD protocoll version: %u.%u.%u", mpd_state->protocol[0], mpd_state->protocol[1], mpd_state->protocol[2]);
 
     // Defaults
-    mpd_state->feat_sticker = mpd_state->stickers;
+    mpd_state->feat_sticker = false;
     mpd_state->feat_playlists = false;
     mpd_state->feat_tags = false;
     mpd_state->feat_advsearch = false;
@@ -1490,10 +1490,14 @@ static void mpd_client_mpd_features(t_mpd_state *mpd_state) {
     
     if (mpd_send_allowed_commands(mpd_state->conn)) {
         while ((pair = mpd_recv_command_pair(mpd_state->conn)) != NULL) {
-            if (strcmp(pair->value, "sticker") == 0)
+            if (strcmp(pair->value, "sticker") == 0) {
+                LOG_DEBUG("MPD supports stickers");
                 mpd_state->feat_sticker = true;
-            else if (strcmp(pair->value, "listplaylists") == 0)
+            }
+            else if (strcmp(pair->value, "listplaylists") == 0) {
+                LOG_DEBUG("MPD supports playlists");
                 mpd_state->feat_playlists = true;
+            }
             mpd_return_pair(mpd_state->conn, pair);
         }
         mpd_response_finish(mpd_state->conn);
@@ -1501,8 +1505,11 @@ static void mpd_client_mpd_features(t_mpd_state *mpd_state) {
     else {
         LOG_ERROR_AND_RECOVER("mpd_send_allowed_commands");
     }
-    if (mpd_state->feat_sticker == true && mpd_state->stickers == false) {
+    if (mpd_state->feat_sticker == false && mpd_state->stickers == true) {
         LOG_WARN("MPD don't support stickers, disabling myMPD feature");
+        mpd_state->feat_sticker = false;
+    }
+    if (mpd_state->feat_sticker == true && mpd_state->stickers == false) {
         mpd_state->feat_sticker = false;
     }
     if (mpd_state->feat_sticker == false && mpd_state->smartpls == true) {
