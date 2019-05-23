@@ -441,8 +441,8 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
                 }
             }
             
-            je = json_scanf(request->data, request->length, "{data: {lastPlayedCount: %Q}}", &mpd_state->last_played_count);
-            je = json_scanf(request->data, request->length, "{data: {maxElementsPerPage: %Q}}", &mpd_state->max_elements_per_page);
+            je = json_scanf(request->data, request->length, "{data: {lastPlayedCount: %d}}", &mpd_state->last_played_count);
+            je = json_scanf(request->data, request->length, "{data: {maxElementsPerPage: %d}}", &mpd_state->max_elements_per_page);
             //feature detection
             if (mpd_state->conn_state == MPD_CONNECTED) {
                 mpd_client_feature_love(mpd_state);
