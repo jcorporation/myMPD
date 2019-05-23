@@ -2202,10 +2202,12 @@ static int mpd_client_put_queue_state(t_mpd_state *mpd_state, struct mpd_status 
     size_t len = 0;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
 
-    len = json_printf(&out, "{type: update_queue, data: {state: %d, queueLength: %d, queueVersion: %d}}", 
+    len = json_printf(&out, "{type: update_queue, data: {state: %d, queueLength: %d, queueVersion: %d, songPos: %d, nextSongPos: %d}}", 
         mpd_status_get_state(status),
         mpd_status_get_queue_length(status),
-        mpd_status_get_queue_version(status)
+        mpd_status_get_queue_version(status),
+        mpd_status_get_song_pos(status),
+        mpd_status_get_next_song_pos(status)
     );
    
     CHECK_RETURN_LEN();

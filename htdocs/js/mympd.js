@@ -2068,19 +2068,7 @@ function parseState(obj) {
     //Set play and queue state
     parseUpdateQueue(obj);
     
-    if (obj.data.nextSongPos == -1 && settings.jukeboxMode == false) {
-        domCache.btnNext.setAttribute('disabled','disabled');
-    }
-    else {
-        domCache.btnNext.removeAttribute('disabled');
-    }
-    
-    if (obj.data.songPos <= 0) {
-        domCache.btnPrev.setAttribute('disabled','disabled');
-    }
-    else {
-        domCache.btnPrev.removeAttribute('disabled');
-    }
+
     
     //Set volume
     parseVolume(obj);
@@ -2152,6 +2140,20 @@ function parseUpdateQueue(obj) {
     }
 
     domCache.badgeQueueItems.innerText = obj.data.queueLength;
+    
+    if (obj.data.nextSongPos == -1 && settings.jukeboxMode == false) {
+        domCache.btnNext.setAttribute('disabled','disabled');
+    }
+    else {
+        domCache.btnNext.removeAttribute('disabled');
+    }
+    
+    if (obj.data.songPos <= 0) {
+        domCache.btnPrev.setAttribute('disabled','disabled');
+    }
+    else {
+        domCache.btnPrev.removeAttribute('disabled');
+    }
 }
 
 function parseVolume(obj) {
