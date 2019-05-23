@@ -161,6 +161,7 @@ static void mympd_api_push_to_mpd_client(t_mympd_state *mympd_state) {
         "jukeboxPlaylist: %Q,"
         "jukeboxQueueLength: %d,"
         "autoPlay: %B,"
+        "coverimage: %B,"
         "coverimageName: %Q,"
         "love: %B,"
         "loveChannel: %Q,"
@@ -181,6 +182,7 @@ static void mympd_api_push_to_mpd_client(t_mympd_state *mympd_state) {
         mympd_state->jukebox_playlist,
         mympd_state->jukebox_queue_length,
         mympd_state->auto_play,
+        mympd_state->coverimage,
         mympd_state->coverimage_name,
         mympd_state->love,
         mympd_state->love_channel,

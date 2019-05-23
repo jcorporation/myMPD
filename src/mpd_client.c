@@ -136,6 +136,7 @@ typedef struct t_mpd_state {
     char *jukebox_playlist;
     size_t jukebox_queue_length;
     bool auto_play;
+    bool coverimage;
     char *coverimage_name;
     bool love;
     char *love_channel;
@@ -391,6 +392,7 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
                 REASSIGN_PTR(mpd_state->jukebox_playlist, p_charbuf1);
             je = json_scanf(request->data, request->length, "{data: {jukeboxQueueLength: %u}}", &mpd_state->jukebox_queue_length);
             je = json_scanf(request->data, request->length, "{data: {autoPlay: %B}}", &mpd_state->auto_play);
+            je = json_scanf(request->data, request->length, "{data: {coverimage: %B}}", &mpd_state->coverimage);
             je = json_scanf(request->data, request->length, "{data: {coverimageName: %Q}}", &p_charbuf1);
             if (je == 1)
                 REASSIGN_PTR(mpd_state->coverimage_name, p_charbuf1);
@@ -1384,6 +1386,7 @@ static void mpd_client_feature_love(t_mpd_state *mpd_state) {
 static void mpd_client_feature_music_directory(t_mpd_state *mpd_state) {
     struct mpd_pair *pair;
     mpd_state->feat_library = false;
+    mpd_state->feat_coverimage = mpd_state->coverimage;
     FREE_PTR(mpd_state->music_directory_value);
     mpd_state->music_directory_value = strdup("");
 

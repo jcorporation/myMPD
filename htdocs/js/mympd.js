@@ -1696,6 +1696,12 @@ function parseMPDSettings() {
     else {
         document.getElementById('warnAlbumart').classList.add('hide');
     }
+    if (settings.musicDirectoryValue == '' && settings.musicDirectory != 'none') {
+        document.getElementById('warnMusicDirectory').classList.remove('hide');
+    }
+    else {
+        document.getElementById('warnMusicDirectory').classList.add('hide');
+    }
 
     if (settings.bgCover == true && settings.featCoverimage == true && settings.coverimage == true) {
         if (lastSongObj.data && lastSongObj.data.cover.indexOf('coverimage-') > -1 ) {
@@ -2030,7 +2036,7 @@ function saveConnection() {
         }
     }
     if (formOK == true) {
-        sendAPI({"cmd": "MYMPD_API_CONNECTION_SAVE", "data": {"mpdHost": mpdHostEl.value, "mpdPort": mpdPortEl.value, "mpdPass": mpdPassEl.value, "musicDirectory": musicDirectory}});
+        sendAPI({"cmd": "MYMPD_API_CONNECTION_SAVE", "data": {"mpdHost": mpdHostEl.value, "mpdPort": mpdPortEl.value, "mpdPass": mpdPassEl.value, "musicDirectory": musicDirectory}}, getSettings);
         modalConnection.hide();    
     }
 }
