@@ -26,7 +26,12 @@ var ignoreRequests = new RegExp('(' + [
 self.addEventListener('install', function(event) {
     event.waitUntil(
         caches.open(CACHE).then(function(cache) {
-            return cache.addAll(urlsToCache);
+//            return cache.addAll(urlsToCache);
+            urlsToCache.map(function(url) {
+	        return cache.add(url).catch(function (reason) {
+	            return console.log('ServiceWorker: ' + String(reason) + ' ' + url);
+                });
+            });
         })
     );
 });
