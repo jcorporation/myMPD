@@ -315,7 +315,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 s_http_server_opts.enable_directory_listing = "no";
                 s_http_server_opts.extra_headers = "Content-Security-Policy: default-src 'none'; "
                     "style-src 'self'; font-src 'self'; script-src 'self'; img-src 'self' data:; "
-                    "connect-src 'self' ws: wss:; "
+                    "connect-src 'self' ws: wss:; manifest-src 'self'; "
                     "media-src *; frame-ancestors 'none'; base-uri 'none';";
                 if (mg_user_data->rewrite_patterns != NULL) {
                     s_http_server_opts.url_rewrites = mg_user_data->rewrite_patterns;
