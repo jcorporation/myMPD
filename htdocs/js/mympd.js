@@ -1198,8 +1198,10 @@ function setElsState(tag, state) {
     for (var i = 0; i< elsLen; i++) {
         if (state == 'disabled') {
             if (!els[i].classList.contains('alwaysEnabled')) {
-                els[i].setAttribute('disabled', 'disabled');
-                els[i].classList.add('disabled');
+                if (els[i].getAttribute('disabled')) {
+                    els[i].setAttribute('disabled', 'disabled');
+                    els[i].classList.add('disabled');
+                }
             }
         }
         else {
@@ -2116,8 +2118,6 @@ function parseState(obj) {
     //Set play and queue state
     parseUpdateQueue(obj);
     
-
-    
     //Set volume
     parseVolume(obj);
 
@@ -2178,7 +2178,7 @@ function parseUpdateQueue(obj) {
 
     if (obj.data.queueLength == 0) {
         for (var i = 0; i < domCache.btnsPlayLen; i++) {
-            domCache.btnsPlay[i].setAttribute('disabled','disabled');
+            domCache.btnsPlay[i].setAttribute('disabled', 'disabled');
         }
     }
     else {
@@ -2190,14 +2190,14 @@ function parseUpdateQueue(obj) {
     domCache.badgeQueueItems.innerText = obj.data.queueLength;
     
     if (obj.data.nextSongPos == -1 && settings.jukeboxMode == false) {
-        domCache.btnNext.setAttribute('disabled','disabled');
+        domCache.btnNext.setAttribute('disabled', 'disabled');
     }
     else {
         domCache.btnNext.removeAttribute('disabled');
     }
     
     if (obj.data.songPos <= 0) {
-        domCache.btnPrev.setAttribute('disabled','disabled');
+        domCache.btnPrev.setAttribute('disabled', 'disabled');
     }
     else {
         domCache.btnPrev.removeAttribute('disabled');
@@ -3239,7 +3239,6 @@ function saveBookmark() {
         document.getElementById('saveBookmarkName').classList.add('is-invalid');
     }
 }
-
 
 function dirname(uri) {
     return uri.replace(/\/[^\/]*$/, '');
