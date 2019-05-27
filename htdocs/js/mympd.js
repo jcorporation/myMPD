@@ -330,7 +330,7 @@ function appRoute() {
 
         if (domCache.searchstr.value.length >= 2 || domCache.searchCrumb.children.length > 0) {
             if (settings.featAdvsearch) {
-                var sort = app.current.sort;//document.getElementById('SearchList').getAttribute('data-sort');
+                var sort = app.current.sort;
                 var sortdesc = false;
                 if (sort == '-') {
                     if (settings.tags.includes('Title'))
@@ -1272,16 +1272,13 @@ function webSocketConnect() {
                 case 'welcome':
                     websocketConnected = true;
                     showNotification('Connected to myMPD: ' + wsUrl, '', '', 'success');
-                    //toggleAlert('alertMympdState', false, '');
                     appRoute();
                     sendAPI({"cmd": "MPD_API_PLAYER_STATE"}, parseState, true);
-                    //toggleUI();
                     break;
                 case 'update_state':
                     parseState(obj);
                     break;
                 case 'mpd_disconnected':
-                    //toggleAlert('alertMpdState', true, 'Connection to MPD failed.');
                     if (progressTimer) {
                         clearTimeout(progressTimer);
                     }
@@ -2110,7 +2107,9 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
     if (playstate == 'play') {
         progressTimer = setTimeout(function() {
             currentSong.elapsedTime ++;
-            setCounter(currentSong.currentSongId, currentSong.totalTime, currentSong.elapsedTime);    
+            requestAnimationFrame(function() {
+                setCounter(currentSong.currentSongId, currentSong.totalTime, currentSong.elapsedTime);
+            });
         }, 1000);
     }
 }
@@ -3842,7 +3841,6 @@ function songChange(obj) {
     var htmlNotification = '';
     var pageTitle = 'myMPD: ';
 
-    //domCache.currentCover.style.backgroundImage = 'url("' + subdir + obj.data.cover + '"), url("' + subdir + '/assets/coverimage-loading.png")';
     setCurrentCover(obj.data.cover);
     if (settings.bgCover == true && settings.featCoverimage == true) {
         if (obj.data.cover.indexOf('coverimage-') > -1 ) {
