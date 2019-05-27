@@ -810,7 +810,7 @@
               </div>
             </div>
             <hr/>
-            <div class="row" id="saveSmartPlaylistSearch" class="hide">
+            <div class="row hide" id="saveSmartPlaylistSearch">
               <div class="form-group col-md-6">          
                 <label for="selectSaveSmartPlaylistTag">Tag</label>
                 <select id="selectSaveSmartPlaylistTag" class="form-control custom-select"></select>
@@ -820,7 +820,7 @@
                 <input type="text" class="form-control" id="inputSaveSmartPlaylistSearchstr"/>
               </div>
             </div>
-            <div class="row" id="saveSmartPlaylistSticker" class="hide">
+            <div class="row hide" id="saveSmartPlaylistSticker">
               <div class="form-group col-md-6">          
                 <label for="selectSaveSmartPlaylistSticker">Sticker</label>
                 <select id="selectSaveSmartPlaylistSticker" class="form-control custom-select">
@@ -834,7 +834,7 @@
                 <div class="invalid-feedback">Must be a number.</div>
               </div>
             </div>
-            <div class="row" id="saveSmartPlaylistNewest" class="hide">
+            <div class="row hide" id="saveSmartPlaylistNewest">
               <div class="form-group col-md-6">
                 <label for="inputSaveSmartPlaylistNewestTimerange">Timerange (days)</label>
                 <input type="text" class="form-control" id="inputSaveSmartPlaylistNewestTimerange"/>
@@ -913,7 +913,7 @@
                   </div>
                 </div>
                 <div class="form-group row">
-                  <label class="col-sm-4 col-form-label" for="inputReplaygain">Replaygain</label>
+                  <label class="col-sm-4 col-form-label" for="selectReplaygain">Replaygain</label>
                   <div class="col-sm-8">
                     <select id="selectReplaygain" class="form-control custom-select border-secondary">
                       <option value="off">Off</option>
@@ -1341,7 +1341,7 @@
           <button type="button" class="close" data-dismiss="modal">&times;</button>          
         </div>
         <div class="modal-body">
-          <formid="addToQueueFrm">
+          <form id="addToQueueFrm">
           <div class="row">
             <div class="form-group col-md-6">
               <label class="control-label" for="selectAddToQueueMode">Add random</label>
@@ -1358,7 +1358,7 @@
           </div>
           <div class="row">
             <div class="form-group col-md-6">
-              <label class="control-label" for="inputAddToQueueNum">Quantity</label>
+              <label class="control-label" for="inputAddToQueueQuantity">Quantity</label>
               <input id="inputAddToQueueQuantity" type="text" class="form-control border-secondary" value="1">
               <div class="invalid-feedback">Must be a number and &gt; 0</div>
             </div>
