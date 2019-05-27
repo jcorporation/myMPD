@@ -23,7 +23,7 @@
    Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-var socket;
+var socket = null;
 var lastSong = '';
 var lastSongObj = {};
 var lastState;
@@ -865,7 +865,7 @@ function appInit() {
                 var col = event.target.getAttribute('data-col');
                 if (col == 'Duration')
                     return;
-                var sortcol = app.current.sort; //document.getElementById('SearchList').getAttribute('data-sort');
+                var sortcol = app.current.sort;
                 var sortdesc = true;
                 
                 if (sortcol == col || sortcol == '-' + col) {
@@ -888,11 +888,9 @@ function appInit() {
                 var s = document.getElementById('SearchList').getElementsByClassName('sort-dir');
                 for (var i = 0; i < s.length; i++)
                     s[i].remove();
-                //document.getElementById('SearchList').setAttribute('data-sort', sortcol);
                 app.current.sort = sortcol;
                 event.target.innerHTML = col + '<span class="sort-dir material-icons pull-right">' + (sortdesc == true ? 'arrow_drop_up' : 'arrow_drop_down') + '</span>';
                 appGoto(app.current.app, app.current.tab, app.current.view, app.current.page + '/' + app.current.filter + '/' + app.current.sort + '/' + app.current.search);
-                //appRoute();
             }
         }
     }, false);
@@ -977,7 +975,10 @@ function appInit() {
             websocketTimer = null;
         }
         socket.onclose = function () {}; // disable onclose handler first
-        socket.close();
+        if (socket != null) {
+            socket.close();
+            socket = null;
+        }
         websocketConnected = false;
     });
     
@@ -1004,8 +1005,9 @@ async function localplayerPlay() {
 function parseCmd(event, href) {
     event.preventDefault();
     var cmd = href;
-    if (typeof(href) == 'string')
+    if (typeof(href) == 'string') {
         cmd = JSON.parse(href);
+    }
         
     if (typeof window[cmd.cmd] === 'function') {
         switch(cmd.cmd) {
@@ -1240,6 +1242,10 @@ function toggleUI() {
 }
 
 function webSocketConnect() {
+    if (socket != null) {
+        log_info("Socket already connected");
+        return;
+    }
     var wsUrl = getWsUrl();
     socket = new WebSocket(wsUrl);
     log_info('Connecting to ' + wsUrl);
@@ -1330,7 +1336,6 @@ function webSocketConnect() {
             log_error('Websocket is disconnected');
             websocketConnected = false;
             if (appInited == true) {
-                //toggleAlert('alertMympdState', true, 'Websocket connection failed.');
                 toggleUI();
                 if (progressTimer) {
                     clearTimeout(progressTimer);
@@ -1351,6 +1356,7 @@ function webSocketConnect() {
                     webSocketConnect();
                 }, 3000);
             }
+            socket = null;
         }
 
     } catch(exception) {
