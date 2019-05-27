@@ -490,8 +490,9 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
             
             je = json_scanf(request->data, request->length, "{data: {replaygain: %Q}}", &p_charbuf1);
             if (je == 1) {
-                if (!mpd_send_command(mpd_state->conn, "replay_gain_mode", p_charbuf1, NULL))
+                if (!mpd_send_command(mpd_state->conn, "replay_gain_mode", p_charbuf1, NULL)) {
                     response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set mpd state replaygain.\"}");
+                }
                 mpd_response_finish(mpd_state->conn);
                 FREE_PTR(p_charbuf1);            
             }

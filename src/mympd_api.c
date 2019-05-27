@@ -432,6 +432,10 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
         }
         je = json_scanf(request->data, request->length, "{data: {maxElementsPerPage: %d}}", &mympd_state->max_elements_per_page);
         if (je == 1) {
+            if (mympd_state->max_elements_per_page > MAX_ELEMENTS_PER_PAGE) {
+                LOG_WARN("max_elements_per_page to big, setting it to maximum value of %d", MAX_ELEMENTS_PER_PAGE);
+                mympd_state->max_elements_per_page = MAX_ELEMENTS_PER_PAGE;
+            }
             snprintf(p_char, 7, "%ld", mympd_state->max_elements_per_page);
             if (!state_file_write(config, "max_elements_per_page", p_char))
                 response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state max_elements_per_page.\"}");
@@ -454,10 +458,16 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                 response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state love_message.\"}");
         }
         if (response->length == 0) {
+            //forward request to mpd_client queue            
+            t_work_request *mpd_client_request = (t_work_request *)malloc(sizeof(t_work_request));
+            assert(mpd_client_request);
+            mpd_client_request->conn_id = -1;
+            mpd_client_request->cmd_id = request->cmd_id;
+            mpd_client_request->length = copy_string(mpd_client_request->data, request->data, 1000, request->length);
+            tiny_queue_push(mpd_client_queue, mpd_client_request);
+            
             response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
         }
-        //push settings to mpd_client queue
-        mympd_api_push_to_mpd_client(mympd_state);
     }
     else if (request->cmd_id == MYMPD_API_SETTINGS_GET) {
         response->length = mympd_api_put_settings(config, mympd_state, response->data);
