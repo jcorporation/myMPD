@@ -105,48 +105,51 @@ void *mympd_api_loop(void *arg_config) {
     t_config *config = (t_config *) arg_config;
     
     //read myMPD states under config.varlibdir
-    t_mympd_state mympd_state;
-    mympd_api_read_statefiles(config, &mympd_state);
+    t_mympd_state *mympd_state = (t_mympd_state *)malloc(sizeof(t_mympd_state));
+    
+    mympd_api_read_statefiles(config, mympd_state);
 
     //push settings to mpd_client queue
-    mympd_api_push_to_mpd_client(&mympd_state);
+    mympd_api_push_to_mpd_client(mympd_state);
 
     //read system command files
-    list_init(&mympd_state.syscmd_list);
-    bool rc = mympd_api_read_syscmds(config, &mympd_state);
+    list_init(&mympd_state->syscmd_list);
+    bool rc = mympd_api_read_syscmds(config, mympd_state);
     if (rc == true) {
-        list_sort_by_value(&mympd_state.syscmd_list, true);
+        list_sort_by_value(&mympd_state->syscmd_list, true);
     }
 
     while (s_signal_received == 0) {
         struct t_work_request *request = tiny_queue_shift(mympd_api_queue, 0);
         if (request != NULL) {
-            mympd_api(config, &mympd_state, request);
+            mympd_api(config, mympd_state, request);
         }
     }
 
-    list_free(&mympd_state.syscmd_list);
-    FREE_PTR(mympd_state.mpd_host);
-    FREE_PTR(mympd_state.mpd_pass);
-    FREE_PTR(mympd_state.taglist);
-    FREE_PTR(mympd_state.searchtaglist);
-    FREE_PTR(mympd_state.browsetaglist);
-    FREE_PTR(mympd_state.love_channel);
-    FREE_PTR(mympd_state.love_message);
-    FREE_PTR(mympd_state.jukebox_playlist);
-    FREE_PTR(mympd_state.cols_queue_current);
-    FREE_PTR(mympd_state.cols_search);
-    FREE_PTR(mympd_state.cols_browse_database);
-    FREE_PTR(mympd_state.cols_browse_playlists_detail);
-    FREE_PTR(mympd_state.cols_browse_filesystem);
-    FREE_PTR(mympd_state.cols_playback);
-    FREE_PTR(mympd_state.cols_queue_last_played);
-    FREE_PTR(mympd_state.stream_url);
-    FREE_PTR(mympd_state.bg_color);
-    FREE_PTR(mympd_state.bg_css_filter);
-    FREE_PTR(mympd_state.coverimage_name);
-    FREE_PTR(mympd_state.locale);
-    FREE_PTR(mympd_state.music_directory);
+    list_free(&mympd_state->syscmd_list);
+    FREE_PTR(mympd_state->mpd_host);
+    FREE_PTR(mympd_state->mpd_pass);
+    FREE_PTR(mympd_state->taglist);
+    FREE_PTR(mympd_state->searchtaglist);
+    FREE_PTR(mympd_state->browsetaglist);
+    FREE_PTR(mympd_state->love_channel);
+    FREE_PTR(mympd_state->love_message);
+    FREE_PTR(mympd_state->jukebox_playlist);
+    FREE_PTR(mympd_state->cols_queue_current);
+    FREE_PTR(mympd_state->cols_search);
+    FREE_PTR(mympd_state->cols_browse_database);
+    FREE_PTR(mympd_state->cols_browse_playlists_detail);
+    FREE_PTR(mympd_state->cols_browse_filesystem);
+    FREE_PTR(mympd_state->cols_playback);
+    FREE_PTR(mympd_state->cols_queue_last_played);
+    FREE_PTR(mympd_state->stream_url);
+    FREE_PTR(mympd_state->bg_color);
+    FREE_PTR(mympd_state->bg_css_filter);
+    FREE_PTR(mympd_state->coverimage_name);
+    FREE_PTR(mympd_state->locale);
+    FREE_PTR(mympd_state->music_directory);
+    free(mympd_state);
+    mympd_state = NULL;
     return NULL;
 }
 
@@ -211,6 +214,8 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
     char p_char[7];
     long long_buf1;
     unsigned int uint_buf1;
+    int int_buf1;
+    bool bool_buf;
     LOG_VERBOSE("MYMPD API request: %.*s", request->length, request->data);
     
     //create response struct
@@ -284,28 +289,33 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
         response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
     }
     else if (request->cmd_id == MYMPD_API_SETTINGS_SET) {
-        je = json_scanf(request->data, request->length, "{data: {notificationWeb: %B}}", &mympd_state->notification_web);
+        je = json_scanf(request->data, request->length, "{data: {notificationWeb: %B}}", &bool_buf);
         if (je == 1) {
+            mympd_state->notification_web = bool_buf;
             if (!state_file_write(config, "notification_web", (mympd_state->notification_web == true ? "true" : "false")))
                 response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state notification_web.\"}");
         }    
-        je = json_scanf(request->data, request->length, "{data: {notificationPage: %B}}", &mympd_state->notification_page);
+        je = json_scanf(request->data, request->length, "{data: {notificationPage: %B}}", &bool_buf);
         if (je == 1) {
+            mympd_state->notification_page = bool_buf;
             if (!state_file_write(config, "notification_page", (mympd_state->notification_page == true ? "true" : "false")))
                 response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state notification_page.\"}");
         }
-        je = json_scanf(request->data, request->length, "{data: {autoPlay: %B}}", &mympd_state->auto_play);
+        je = json_scanf(request->data, request->length, "{data: {autoPlay: %B}}", &bool_buf);
         if (je == 1) {
+            mympd_state->auto_play = bool_buf;
             if (!state_file_write(config, "auto_play", (mympd_state->auto_play == true ? "true" : "false")))
                 response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state auto_play.\"}");
         }
-        je = json_scanf(request->data, request->length, "{data: {localplayerAutoplay: %B}}", &mympd_state->localplayer_autoplay);
+        je = json_scanf(request->data, request->length, "{data: {localplayerAutoplay: %B}}", &bool_buf);
         if (je == 1) {
+            mympd_state->localplayer_autoplay = bool_buf;
             if (!state_file_write(config, "localplayer_autoplay", (mympd_state->localplayer_autoplay == true ? "true" : "false")))
                 response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state localplayer_autoplay.\"}");
         }
-        je = json_scanf(request->data, request->length, "{data: {coverimage: %B}}", &mympd_state->coverimage);
+        je = json_scanf(request->data, request->length, "{data: {coverimage: %B}}", &bool_buf);
         if (je == 1) {
+            mympd_state->coverimage = bool_buf;
             if (!state_file_write(config, "coverimage", (mympd_state->coverimage == true ? "true" : "false")))
                 response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state coverimage.\"}");
         }
@@ -322,19 +332,22 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             }
         }
         
-        je = json_scanf(request->data, request->length, "{data: {coverimageSize: %d}}", &mympd_state->coverimage_size);
+        je = json_scanf(request->data, request->length, "{data: {coverimageSize: %d}}", &int_buf1);
         if (je == 1) {
+            mympd_state->coverimage_size = int_buf1;
             snprintf(p_char, 7, "%ld", mympd_state->coverimage_size);
             if (!state_file_write(config, "coverimage_size", p_char))
                 response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state coverimage_size.\"}");
         }
-        je = json_scanf(request->data, request->length, "{data: {featLocalplayer: %B}}", &mympd_state->localplayer);
+        je = json_scanf(request->data, request->length, "{data: {featLocalplayer: %B}}", &bool_buf);
         if (je == 1) {
+            mympd_state->localplayer = bool_buf;
             if (!state_file_write(config, "localplayer", (mympd_state->localplayer == true ? "true" : "false")))
                 response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state localplayer.\"}");
         }
-        je = json_scanf(request->data, request->length, "{data: {streamPort: %d}}", &mympd_state->stream_port);
+        je = json_scanf(request->data, request->length, "{data: {streamPort: %d}}", &int_buf1);
         if (je == 1) {
+            mympd_state->stream_port = int_buf1;
             snprintf(p_char, 7, "%ld", mympd_state->stream_port);
             if (!state_file_write(config, "stream_port", p_char))
                 response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state stream_port.\"}");
@@ -351,8 +364,9 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             if (!state_file_write(config, "locale", mympd_state->locale))
                 response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state locale.\"}");
         }
-        je = json_scanf(request->data, request->length, "{data: {bgCover: %B}}", &mympd_state->bg_cover);
+        je = json_scanf(request->data, request->length, "{data: {bgCover: %B}}", &bool_buf);
         if (je == 1) {
+            mympd_state->bg_cover = bool_buf;
             if (!state_file_write(config, "bg_cover", (mympd_state->bg_cover == true ? "true" : "false")))
                 response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state bg_cover.\"}");
         }
@@ -368,8 +382,9 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             if (!state_file_write(config, "bg_css_filter", mympd_state->bg_css_filter))
                 response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state bg_css_filter.\"}");
         }
-        je = json_scanf(request->data, request->length, "{data: {jukeboxMode: %d}}", &mympd_state->jukebox_mode);
+        je = json_scanf(request->data, request->length, "{data: {jukeboxMode: %u}}", &uint_buf1);
         if (je == 1) {
+            mympd_state->jukebox_mode = uint_buf1;
             if (mympd_state->jukebox_mode > 2) {
                 response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Invalid jukeboxMode.\"}");
                 LOG_ERROR("Invalid jukeboxMode");
@@ -385,8 +400,9 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             if (!state_file_write(config, "jukebox_playlist", mympd_state->jukebox_playlist))
                 response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state jukebox_playlist.\"}");
         }
-        je = json_scanf(request->data, request->length, "{data: {jukeboxQueueLength: %d}}", &mympd_state->jukebox_queue_length);
+        je = json_scanf(request->data, request->length, "{data: {jukeboxQueueLength: %d}}", &int_buf1);
         if (je == 1) {
+            mympd_state->jukebox_queue_length = int_buf1;
             if (mympd_state->jukebox_queue_length > 999) {
                 LOG_WARN("jukeboxQueueLength to big, setting it to maximum value of 999");
                 response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"jukeboxQueueLength to big, setting it to maximum value of 999\"}");
@@ -396,13 +412,15 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             if (!state_file_write(config, "jukebox_queue_length", p_char))
                 response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state jukebox_queue_length.\"}");
         }
-        je = json_scanf(request->data, request->length, "{data: {stickers: %B}}", &mympd_state->stickers);
+        je = json_scanf(request->data, request->length, "{data: {stickers: %B}}", &bool_buf);
         if (je == 1) {
+            mympd_state->stickers = bool_buf;
             if (!state_file_write(config, "stickers", (mympd_state->stickers == true ? "true" : "false")))
                 response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state stickers.\"}");
         }
-        je = json_scanf(request->data, request->length, "{data: {lastPlayedCount: %d}}", &mympd_state->last_played_count);
+        je = json_scanf(request->data, request->length, "{data: {lastPlayedCount: %d}}", &int_buf1);
         if (je == 1) {
+            mympd_state->last_played_count = int_buf1;
             snprintf(p_char, 7, "%ld", mympd_state->last_played_count);
             if (!state_file_write(config, "last_played_count", p_char))
                 response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state last_played_count.\"}");
@@ -430,8 +448,9 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             if (!state_file_write(config, "smartpls", (mympd_state->smartpls == true ? "true" : "false")))
                 response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state smartpls.\"}");
         }
-        je = json_scanf(request->data, request->length, "{data: {maxElementsPerPage: %d}}", &mympd_state->max_elements_per_page);
+        je = json_scanf(request->data, request->length, "{data: {maxElementsPerPage: %d}}", &int_buf1);
         if (je == 1) {
+            mympd_state->max_elements_per_page = int_buf1;
             if (mympd_state->max_elements_per_page > MAX_ELEMENTS_PER_PAGE) {
                 LOG_WARN("max_elements_per_page to big, setting it to maximum value of %d", MAX_ELEMENTS_PER_PAGE);
                 mympd_state->max_elements_per_page = MAX_ELEMENTS_PER_PAGE;
@@ -440,8 +459,9 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             if (!state_file_write(config, "max_elements_per_page", p_char))
                 response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state max_elements_per_page.\"}");
         }
-        je = json_scanf(request->data, request->length, "{data: {love: %B}}", &mympd_state->love);
+        je = json_scanf(request->data, request->length, "{data: {love: %B}}", &bool_buf);
         if (je == 1) {
+            mympd_state->love = bool_buf;
             if (!state_file_write(config, "love", (mympd_state->love == true ? "true" : "false")))
                 response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state love.\"}");
         }
