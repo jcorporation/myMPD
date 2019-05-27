@@ -401,6 +401,12 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             if (!state_file_write(config, "stickers", (mympd_state->stickers == true ? "true" : "false")))
                 response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state stickers.\"}");
         }
+        je = json_scanf(request->data, request->length, "{data: {lastPlayedCount: %d}}", &mympd_state->last_played_count);
+        if (je == 1) {
+            snprintf(p_char, 7, "%ld", mympd_state->last_played_count);
+            if (!state_file_write(config, "last_played_count", p_char))
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state last_played_count.\"}");
+        }
         je = json_scanf(request->data, request->length, "{data: {taglist: %Q}}", &p_charbuf1);
         if (je == 1) {
             REASSIGN_PTR(mympd_state->taglist, p_charbuf1);
