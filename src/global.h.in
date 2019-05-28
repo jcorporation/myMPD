@@ -173,14 +173,14 @@ tiny_queue_t *mpd_client_queue;
 tiny_queue_t *mympd_api_queue;
 
 typedef struct t_work_request {
-    long conn_id;  // needed to identify the connection where to send the reply
+    int conn_id;  // needed to identify the connection where to send the reply
     char data[1000];
     int length;
     enum mympd_cmd_ids cmd_id;
 } t_work_request;
 
 typedef struct t_work_result {
-    long conn_id;  // needed to identify the connection where to send the reply
+    int conn_id;  // needed to identify the connection where to send the reply
     char data[MAX_SIZE];
     int length;
 } t_work_result;
@@ -188,7 +188,7 @@ typedef struct t_work_result {
 //myMPD configuration
 typedef struct t_config {
     char *mpd_host;
-    long mpd_port;
+    int mpd_port;
     char *mpd_pass;
     char *webport;
     bool ssl;
@@ -205,10 +205,10 @@ typedef struct t_config {
     char *varlibdir;
     size_t varlibdir_len;
     char *etcdir;
-    unsigned long max_elements_per_page;
+    int max_elements_per_page;
     bool syscmds;
-    unsigned long last_played_count;
-    long loglevel;
+    int last_played_count;
+    int loglevel;
     bool love;
     char *love_channel;
     char *love_message;
@@ -218,9 +218,9 @@ typedef struct t_config {
     bool notification_web;
     bool notification_page;
     bool auto_play;
-    long jukebox_mode;
+    int jukebox_mode;
     char *jukebox_playlist;
-    long jukebox_queue_length;
+    int jukebox_queue_length;
     char *cols_queue_current;
     char *cols_search;
     char *cols_browse_database;
@@ -230,14 +230,14 @@ typedef struct t_config {
     char *cols_queue_last_played;
     bool localplayer;
     bool localplayer_autoplay;
-    long stream_port;
+    int stream_port;
     char *stream_url;
     bool bg_cover;
     char *bg_color;
     char *bg_css_filter;
     bool coverimage;
     char *coverimage_name;
-    long coverimage_size;
+    int coverimage_size;
     char *locale;
 } t_config;
 

@@ -34,6 +34,7 @@
 #include <mpd/client.h>
 #include <signal.h>
 #include <assert.h>
+#include <inttypes.h>
 
 #include "list.h"
 #include "tiny_queue.h"
@@ -147,10 +148,10 @@ typedef struct t_mpd_state {
     bool stickers;
     bool smartpls;
     char *mpd_host;
-    long mpd_port;
+    int mpd_port;
     char *mpd_pass;
-    long last_played_count;
-    long max_elements_per_page;
+    int last_played_count;
+    int max_elements_per_page;
     char *music_directory;
     char *music_directory_value;
     //taglists
@@ -167,11 +168,11 @@ typedef struct t_mpd_state {
 } t_mpd_state;
 
 typedef struct t_sticker {
-    long playCount;
-    long skipCount;
-    long lastPlayed;
-    long lastSkipped;
-    long like;
+    int playCount;
+    int skipCount;
+    int lastPlayed;
+    int lastSkipped;
+    int like;
 } t_sticker;
 
 typedef struct t_tags {
@@ -348,7 +349,7 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
     char *p_charbuf3 = NULL;
     char *p_charbuf4 = NULL;
 
-    LOG_VERBOSE("API request (%ld): %.*s", request->conn_id, request->length, request->data);
+    LOG_VERBOSE("API request (%d): %.*s", request->conn_id, request->length, request->data);
     //create response struct
     t_work_result *response = (t_work_result*)malloc(sizeof(t_work_result));
     assert(response);
@@ -387,17 +388,17 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
             break;
         case MYMPD_API_SETTINGS_SET:
             //only update mpd_state, already saved and sanitized in mympd_api.c
-            je = json_scanf(request->data, request->length, "{data: {jukeboxMode: %u}}", &uint_buf1);
+            je = json_scanf(request->data, request->length, "{data: {jukeboxMode: %d}}", &int_buf1);
             if (je == 1) {
-                mpd_state->jukebox_mode = uint_buf1;
+                mpd_state->jukebox_mode = int_buf1;
             }
             je = json_scanf(request->data, request->length, "{data: {jukeboxPlaylist: %Q}}", &p_charbuf1);
             if (je == 1) {
                 REASSIGN_PTR(mpd_state->jukebox_playlist, p_charbuf1);
             }
-            je = json_scanf(request->data, request->length, "{data: {jukeboxQueueLength: %u}}", &uint_buf1);
+            je = json_scanf(request->data, request->length, "{data: {jukeboxQueueLength: %d}}", &int_buf1);
             if (je == 1) {
-                mpd_state->jukebox_queue_length = uint_buf1;
+                mpd_state->jukebox_queue_length = int_buf1;
             }
             je = json_scanf(request->data, request->length, "{data: {autoPlay: %B}}", &bool_buf);
             if (je == 1) {
@@ -1612,7 +1613,7 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
                 LOG_INFO("MPD Connecting to socket %s", mpd_state->mpd_host);
             }
             else {
-                LOG_INFO("MPD Connecting to %s:%ld", mpd_state->mpd_host, mpd_state->mpd_port);
+                LOG_INFO("MPD Connecting to %s:%d", mpd_state->mpd_host, mpd_state->mpd_port);
             }
             mpd_state->conn = mpd_connection_new(mpd_state->mpd_host, mpd_state->mpd_port, mpd_state->timeout);
             if (mpd_state->conn == NULL) {
@@ -1782,19 +1783,19 @@ static bool mpd_client_get_sticker(t_mpd_state *mpd_state, const char *uri, t_st
     if (mpd_send_sticker_list(mpd_state->conn, "song", uri)) {
         while ((pair = mpd_recv_sticker(mpd_state->conn)) != NULL) {
             if (strcmp(pair->name, "playCount") == 0) {
-                sticker->playCount = strtol(pair->value, &crap, 10);
+                sticker->playCount = strtoimax(pair->value, &crap, 10);
             }
             else if (strcmp(pair->name, "skipCount") == 0) {
-                sticker->skipCount = strtol(pair->value, &crap, 10);
+                sticker->skipCount = strtoimax(pair->value, &crap, 10);
             }
             else if (strcmp(pair->name, "lastPlayed") == 0) {
-                sticker->lastPlayed = strtol(pair->value, &crap, 10);
+                sticker->lastPlayed = strtoimax(pair->value, &crap, 10);
             }
             else if (strcmp(pair->name, "lastSkipped") == 0) {
-                sticker->lastSkipped = strtol(pair->value, &crap, 10);
+                sticker->lastSkipped = strtoimax(pair->value, &crap, 10);
             }
             else if (strcmp(pair->name, "like") == 0) {
-                sticker->like = strtol(pair->value, &crap, 10);
+                sticker->like = strtoimax(pair->value, &crap, 10);
             }
             mpd_return_sticker(mpd_state->conn, pair);
         }
@@ -1818,7 +1819,7 @@ static bool mpd_client_count_song_uri(t_mpd_state *mpd_state, const char *uri, c
     if (mpd_send_sticker_list(mpd_state->conn, "song", uri)) {
         while ((pair = mpd_recv_sticker(mpd_state->conn)) != NULL) {
             if (strcmp(pair->name, name) == 0) {
-                old_value = strtol(pair->value, &crap, 10);
+                old_value = strtoimax(pair->value, &crap, 10);
             }
             mpd_return_sticker(mpd_state->conn, pair);
         }
@@ -1896,7 +1897,7 @@ static bool mpd_client_last_played_list(t_config *config, t_mpd_state *mpd_state
             FILE *fp = fdopen(fd, "w");
             struct node *current = mpd_state->last_played.list;
             while (current != NULL) {
-                fprintf(fp, "%ld::%s\n", current->value, current->data);
+                fprintf(fp, "%d::%s\n", current->value, current->data);
                 current = current->next;
             }
             fclose(fp);
@@ -1917,7 +1918,6 @@ static bool mpd_client_last_played_song_uri(t_mpd_state *mpd_state, const char *
         return false;
     }
     char v[20];
-    //time_t now = time(NULL);
     snprintf(v, 20, "%ld", mpd_state->song_start_time);
     LOG_VERBOSE("Setting sticker: \"%s\" -> lastPlayed: %s", uri, v);
     if (!mpd_run_sticker_set(mpd_state->conn, "song", uri, "lastPlayed", v)) {
@@ -2542,7 +2542,7 @@ static int mpd_client_put_last_played_songs(t_mpd_state *mpd_state, char *buffer
         if (entity_count > offset && entity_count <= offset + mpd_state->max_elements_per_page) {
             if (entities_returned++) 
                 len += json_printf(&out, ",");
-            len += json_printf(&out, "{Pos: %d, LastPlayed: %ld, ", entity_count, current->value);
+            len += json_printf(&out, "{Pos: %d, LastPlayed: %d, ", entity_count, current->value);
             if (!mpd_send_list_all_meta(mpd_state->conn, current->data))
                 RETURN_ERROR_AND_RECOVER("mpd_send_list_all_meta");
             if ((entity = mpd_recv_entity(mpd_state->conn)) != NULL) {
@@ -2799,8 +2799,8 @@ static int mpd_client_put_db_tag(t_mpd_state *mpd_state, char *buffer, const uns
 
 static int mpd_client_put_songs_in_album(t_config *config, t_mpd_state *mpd_state, char *buffer, const char *album, const char *search, const char *tag, const t_tags *tagcols) {
     struct mpd_song *song;
-    unsigned long entity_count = 0;
-    unsigned long entities_returned = 0;
+    int entity_count = 0;
+    int entities_returned = 0;
     size_t len = 0;
     size_t cover_len = 2000;
     char cover[cover_len];
@@ -3062,8 +3062,9 @@ static int mpd_client_search(t_mpd_state *mpd_state, char *buffer, const char *s
             searchstr
         );
     } 
-    else
+    else {
         len = json_printf(&out, "{type: result, data: ok}");
+    }
 
     CHECK_RETURN_LEN();
 }
@@ -3074,8 +3075,7 @@ static int mpd_client_search_adv(t_mpd_state *mpd_state, char *buffer, const cha
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);    
 #if LIBMPDCLIENT_CHECK_VERSION(2, 17, 0)
     struct mpd_song *song;
-    unsigned long entity_count = -1;
-    unsigned long entities_returned = 0;
+    unsigned entities_returned = 0;
     
     if (strcmp(plist, "") == 0) {
         if (mpd_search_db_songs(mpd_state->conn, false) == false)
@@ -3125,9 +3125,9 @@ static int mpd_client_search_adv(t_mpd_state *mpd_state, char *buffer, const cha
     }
 
     if (strcmp(plist, "") == 0) {
-        len += json_printf(&out, "], totalEntities: %d, offset: %d, returnedEntities: %d, expression: %Q, "
+        len += json_printf(&out, "], totalEntities: %d, offset: %d, returnedEntities: %u, expression: %Q, "
             "sort: %Q, sortdesc: %B, grouptag: %Q}",
-            entity_count,
+            -1,
             offset,
             entities_returned,
             expression,
@@ -3560,9 +3560,9 @@ static bool mpd_client_smartpls_update_sticker(t_mpd_state *mpd_state, const cha
     char *uri = NULL;
     const char *p_value;
     char *crap = NULL;
-    long value;
-    long value_max = 0;
-    long i = 0;
+    int value;
+    int value_max = 0;
+    int i = 0;
     size_t j;
 
     if (mpd_send_sticker_find(mpd_state->conn, "song", "", sticker) == false) {
@@ -3581,7 +3581,7 @@ static bool mpd_client_smartpls_update_sticker(t_mpd_state *mpd_state, const cha
         else if (strcmp(pair->name, "sticker") == 0) {
             p_value = mpd_parse_sticker(pair->value, &j);
             if (p_value != NULL) {
-                value = strtol(p_value, &crap, 10);
+                value = strtoimax(p_value, &crap, 10);
                 if (value >= 1) {
                     list_push(&add_list, uri, value);
                 }
@@ -3618,7 +3618,7 @@ static bool mpd_client_smartpls_update_sticker(t_mpd_state *mpd_state, const cha
         current = current->next;
     }
     list_free(&add_list);
-    LOG_INFO("Updated smart playlist %s with %ld songs, minValue: %ld", playlist, i, value_max);
+    LOG_INFO("Updated smart playlist %s with %d songs, minValue: %d", playlist, i, value_max);
     return true;
 }
 
@@ -3659,7 +3659,7 @@ static int mpd_client_read_last_played(t_config *config, t_mpd_state *mpd_state)
     char *crap = NULL;
     size_t n = 0;
     ssize_t read;
-    long value;
+    int value;
     
     size_t lp_file_len = config->varlibdir_len + 19;
     char lp_file[lp_file_len];
@@ -3669,7 +3669,7 @@ static int mpd_client_read_last_played(t_config *config, t_mpd_state *mpd_state)
         return 0;
     }
     while ((read = getline(&line, &n, fp)) > 0) {
-        value = strtol(line, &data, 10);
+        value = strtoimax(line, &data, 10);
         if (strlen(data) > 2) {
             data = data + 2;
             strtok_r(data, "\n", &crap);

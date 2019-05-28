@@ -2367,8 +2367,8 @@ function parseSearch(obj) {
         document.getElementById('searchAddAllSongsBtn').removeAttribute('disabled');
     } 
     else {
-        document.getElementById('searchAddAllSongs').setAttribute('disabled','disabled');
-        document.getElementById('searchAddAllSongsBtn').setAttribute('disabled','disabled');
+        document.getElementById('searchAddAllSongs').setAttribute('disabled', 'disabled');
+        document.getElementById('searchAddAllSongsBtn').setAttribute('disabled', 'disabled');
     }
     parseFilesystem(obj);
 }

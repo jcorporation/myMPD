@@ -27,6 +27,7 @@
 #include <pthread.h>
 #include <signal.h>
 #include <assert.h>
+#include <inttypes.h>
 
 #include "list.h"
 #include "tiny_queue.h"
@@ -42,7 +43,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data);
 static void ev_handler_redirect(struct mg_connection *nc_http, int ev, void *ev_data);
 static void send_ws_notify(struct mg_mgr *mgr, t_work_result *response);
 static void send_api_response(struct mg_mgr *mgr, t_work_result *response);
-static bool handle_api(long conn_id, const char *request, int request_len);
+static bool handle_api(int conn_id, const char *request, int request_len);
 static int has_prefix(const struct mg_str *uri, const struct mg_str *prefix);
 
 //public functions
@@ -221,7 +222,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
     switch(ev) {
         case MG_EV_ACCEPT: {
             //increment conn_id
-            if (mg_user_data->conn_id < LONG_MAX) {
+            if (mg_user_data->conn_id < INT_MAX) {
                 mg_user_data->conn_id++;
             }
             else {
@@ -368,10 +369,10 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data)
     }
 }
 
-static bool handle_api(long conn_id, const char *request_body, int request_len) {
+static bool handle_api(int conn_id, const char *request_body, int request_len) {
     char *cmd = NULL;
     
-    LOG_VERBOSE("API request (%ld): %.*s", conn_id, request_len, request_body);
+    LOG_VERBOSE("API request (%d): %.*s", conn_id, request_len, request_body);
     const int je = json_scanf(request_body, request_len, "{cmd: %Q}", &cmd);
     if (je < 1) {
         return false;

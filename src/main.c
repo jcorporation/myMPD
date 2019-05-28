@@ -36,6 +36,7 @@
 #include <dlfcn.h>
 #include <mpd/client.h>
 #include <assert.h>
+#include <inttypes.h>
 
 #include "list.h"
 #include "tiny_queue.h"
@@ -66,7 +67,7 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
         p_config->mpd_host = strdup(value);
     }
     else if (MATCH("mpd", "port")) {
-        p_config->mpd_port = strtol(value, &crap, 10);
+        p_config->mpd_port = strtoimax(value, &crap, 10);
     }
     else if (MATCH("mpd", "pass")) {
         FREE_PTR(p_config->mpd_pass);
@@ -125,7 +126,7 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
         p_config->browsetaglist = strdup(value);
     }
     else if (MATCH("mympd", "pagination")) {
-        p_config->max_elements_per_page = strtol(value, &crap, 10);
+        p_config->max_elements_per_page = strtoimax(value, &crap, 10);
         if (p_config->max_elements_per_page > MAX_ELEMENTS_PER_PAGE) {
             LOG_WARN("Setting max_elements_per_page to maximal value %d", MAX_ELEMENTS_PER_PAGE);
             p_config->max_elements_per_page = MAX_ELEMENTS_PER_PAGE;
@@ -135,10 +136,10 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
         p_config->syscmds = strcmp(value, "true") == 0 ? true : false;
     }
     else if (MATCH("mympd", "lastplayedcount")) {
-        p_config->last_played_count = strtol(value, &crap, 10);
+        p_config->last_played_count = strtoimax(value, &crap, 10);
     }
     else if (MATCH("mympd", "loglevel")) {
-        p_config->loglevel = strtol(value, &crap, 10);
+        p_config->loglevel = strtoimax(value, &crap, 10);
     }
     else if (MATCH("mympd", "love")) {
         p_config->love = strcmp(value, "true") == 0 ? true : false;
@@ -168,7 +169,7 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
         p_config->auto_play = strcmp(value, "true") == 0 ? true : false;
     }
     else if (MATCH("mympd", "jukeboxmode")) {
-        p_config->jukebox_mode = strtol(value, &crap, 10);
+        p_config->jukebox_mode = strtoimax(value, &crap, 10);
         if (p_config->jukebox_mode < 0 || p_config->jukebox_mode > 2) {
             LOG_WARN("Invalid jukeboxmode %d", p_config->jukebox_mode);
             p_config->jukebox_mode = JUKEBOX_OFF;
@@ -179,7 +180,7 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
         p_config->jukebox_playlist = strdup(value);
     }
     else if (MATCH("mympd", "jukeboxqueuelength")) {
-        p_config->jukebox_queue_length = strtol(value, &crap, 10);
+        p_config->jukebox_queue_length = strtoimax(value, &crap, 10);
     }
     else if (MATCH("mympd", "colsqueuecurrent")) {
         FREE_PTR(p_config->cols_queue_current);
@@ -216,7 +217,7 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
         p_config->localplayer_autoplay = strcmp(value, "true") == 0 ? true : false;
     }
     else if (MATCH("mympd", "streamport")) {
-        p_config->stream_port = strtol(value, &crap, 10);
+        p_config->stream_port = strtoimax(value, &crap, 10);
     }
     else if (MATCH("mympd", "streamurl")) {
         FREE_PTR(p_config->stream_url);
@@ -241,7 +242,7 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
         p_config->coverimage_name = strdup(value);
     }
     else if (MATCH("theme", "coverimagesize")) {
-        p_config->coverimage_size = strtol(value, &crap, 10);
+        p_config->coverimage_size = strtoimax(value, &crap, 10);
     }
     else if (MATCH("theme", "locale")) {
         FREE_PTR(p_config->locale);
