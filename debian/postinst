@@ -28,7 +28,8 @@ if [ -d /etc/systemd ]
 then
   echo "Installing systemd service"
   [ -d /usr/lib/systemd/system ] || mkdir -p /usr/lib/systemd/system 
-  if [ ${SHAREDIR}/mympd.service -nt /usr/lib/systemd/system/mympd.service ]
+  if [ ! -f /usr/lib/systemd/system/mympd.service ] ||
+     [ ${SHAREDIR}/mympd.service -nt /usr/lib/systemd/system/mympd.service ]
   then
     cp ${SHAREDIR}/mympd.service /usr/lib/systemd/system/
     systemctl daemon-reload
