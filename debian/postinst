@@ -1,4 +1,4 @@
-#/bin/sh
+#!/bin/sh
 
 INSTALL_PREFIX="${INSTALL_PREFIX:-/usr}"
 
@@ -22,7 +22,7 @@ echo "Checking status of mympd system user and group"
 getent group mympd > /dev/null
 [ "$?" = "2" ] && groupadd -r mympd
 getent passwd mympd > /dev/null
-[ "$?" = "2" ] && useradd -r mympd -g mympd -d /var/lib/mympd -s /usr/sbin/nologin
+[ "$?" = "2" ] && useradd -r mympd -g mympd -d ${VARDIR} -s /usr/sbin/nologin
 
 if [ -d /etc/systemd ]
 then
