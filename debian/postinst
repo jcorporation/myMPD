@@ -43,8 +43,8 @@ then
   echo "Installing systemd service"
   [ -d /usr/lib/systemd/system ] || mkdir -p /usr/lib/systemd/system
 
-  NEWER=$(newer "${SHAREDIR}/mympd.service" "/usr/lib/systemd/system/mympd.service")
-  if [ "$NEWER" = "0" ]
+  newer "${SHAREDIR}/mympd.service" "/usr/lib/systemd/system/mympd.service"
+  if [ "$?" = "0" ]
   then
     cp "${SHAREDIR}/mympd.service" /usr/lib/systemd/system/
     systemctl daemon-reload
@@ -69,8 +69,8 @@ done
 
 # replace directories
 sed -i -e "s|/var/lib/mympd|${VARDIR}|" \
-  -e "s|/usr/share/mympd|${SHAREDIR}|"
-  -e "s|/etc/mympd|${ETCDIR}|"
+  -e "s|/usr/share/mympd|${SHAREDIR}|" \
+  -e "s|/etc/mympd|${ETCDIR}|" \
   /etc/mympd/mympd.conf.dist
 
 # move config into place unless already existing

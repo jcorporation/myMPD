@@ -22,9 +22,10 @@ minify() {
   DST="$3"
   ERROR="1"
 
-  NEWER=$(newer "$DST" "$SRC")
-  if [ "$NEWER" = "1" ]
+  newer "$DST" "$SRC"
+  if [ "$?" = "0" ]
   then
+    echo "Skipping $SRC"
     return
   fi
 
