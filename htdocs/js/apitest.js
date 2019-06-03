@@ -69,18 +69,18 @@ var cmds = [
     '{"cmd":"MPD_API_QUEUE_REPLACE_PLAYLIST","data":{"plist":"test2"}}',
     '{"cmd":"MPD_API_PLAYLIST_LIST","data":{"offset":0,"filter":""}}',
     '{"cmd":"MPD_API_PLAYLIST_CLEAR","data":{"uri":"test2"}}',
-    '{"cmd":"MPD_API_DATABASE_SEARCH","data":{"offset":0,"filter":"any","searchstr":"__SEARCHSTR__","plist":"test2","cols":["Title","Album"]}}',
+    '{"cmd":"MPD_API_DATABASE_SEARCH","data":{"offset":0,"filter":"any","searchstr":"__SEARCHSTR__","plist":"test2","cols":["Title","Album","Artist"]}}',
     '{"cmd":"MPD_API_QUEUE_ADD_TRACK","data":{"uri":"__URI1__"}}',
     '{"cmd":"MPD_API_QUEUE_ADD_TRACK","data":{"uri":"__URI2__"}}',
     '{"cmd":"MPD_API_PLAYER_PLAY"}',
     '{"cmd":"MPD_API_QUEUE_CROP"}',
-    '{"cmd":"MPD_API_QUEUE_LAST_PLAYED","data":{"offset":0}}',
+    '{"cmd":"MPD_API_QUEUE_LAST_PLAYED","data":{"offset":0,"cols":["Artist","Album","AlbumArtist"]}}',
     '{"cmd":"MPD_API_PLAYLIST_ADD_TRACK","data":{"plist":"test2","uri":"__URI1__"}}',
     '{"cmd":"MPD_API_PLAYLIST_ADD_TRACK","data":{"plist":"test2","uri":"__URI1__"}}',
     '{"cmd":"MPD_API_PLAYLIST_MOVE_TRACK","data":{"plist":"test2","from":1,"to":2}}',
     '{"cmd":"MPD_API_PLAYLIST_RM_TRACK","data":{"uri":"test2","track":1}',
     '{"cmd":"MPD_API_PLAYLIST_RM","data":{"uri":"test2"}}',
-    '{"cmd":"MPD_API_DATABASE_SEARCH_ADV","data":{"offset":0,"expression":"(any contains \'__SEARCHSTR__\')","sort":"Title", "sortdesc":false,"plist":"","cols":["Title","Album"]}}',
+    '{"cmd":"MPD_API_DATABASE_SEARCH_ADV","data":{"offset":0,"expression":"(any contains \'__SEARCHSTR__\')","sort":"Title", "sortdesc":false,"plist":"","cols":["Title","Album","Artist"]}}',
     '{"cmd":"MPD_API_DATABASE_UPDATE"}',
 //    '{"cmd":"MPD_API_DATABASE_RESCAN"}',
     '{"cmd":"MPD_API_DATABASE_FILESYSTEM_LIST","data":{"offset":0,"filter":"","path":"","cols":["Title","Album"]}}',
@@ -120,7 +120,8 @@ function setTest(cmd, state, response) {
     document.getElementById('testCount').innerText = 'Test ' + (i + 1) + '/' + cmds.length + ' - ' +
         ok + ' ok, ' + failed + ' failed, duration: ' + time_all + ' ms';
     var tr = document.createElement('tr');
-    tr.innerHTML = '<td>' + (i + 1) + '</td><td>' + cmd + '</td><td class="td-' + state + '">' + duration + ' ms</td><td>' + response + '</td>';
+    tr.innerHTML = '<td>' + (i + 1) + '</td><td>' + cmd + '</td><td>' + duration + ' ms</td><td>' + response + '</td>';
+    tr.childNodes[2].style.backgroundColor = (state == 'ok' ? 'green' : 'red');
     document.getElementsByTagName('tbody')[0].appendChild(tr);
 }
 
