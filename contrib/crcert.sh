@@ -14,7 +14,7 @@ fi
 
 mkdir -p ${VARDIR}/ca/certs
 chmod 700 ${VARDIR}
-cd ${VARDIR}/ca
+cd ${VARDIR}/ca || exit 1
 
 echo '01' > serial
 touch index.txt
@@ -63,7 +63,7 @@ openssl req -new -x509 -newkey rsa:2048 -sha256 -days 3650 -nodes -config ca.cnf
 HOSTNAME=$(hostname)
 FQDN=$(hostname -f)
 
-cd ${VARDIR}
+cd ${VARDIR} || exit 1
 
 cat > req.cnf << EOL
 [req]
@@ -89,7 +89,7 @@ IP.1 = 127.0.0.1
 EOL
 
 I=2
-getent hosts $HOSTNAME | awk {'print $1'} | while read -r line
+getent hosts "$HOSTNAME" | awk '{print $1}' | while read -r line
 do
     echo "IP.${I} = ${line}" >> req.cnf
     I=$((I+1))
