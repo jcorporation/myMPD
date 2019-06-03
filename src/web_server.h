@@ -31,7 +31,7 @@ typedef struct t_mg_user_data {
     char *pics_directory;
     char *rewrite_patterns;
     bool feat_library;
-    long conn_id;
+    int conn_id;
 } t_mg_user_data;
 
 void *web_server_loop(void *arg_mgr);

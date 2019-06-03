@@ -181,7 +181,7 @@ static void send_ws_notify(struct mg_mgr *mgr, t_work_result *response) {
         if (!is_websocket(nc))
             continue;
         if (nc->user_data != NULL) {
-            LOG_DEBUG("Sending notify to conn_id %ld: %s", (long)nc->user_data, response->data);
+            LOG_DEBUG("Sending notify to conn_id %d: %s", (intptr_t)nc->user_data, response->data);
         }
         else {
             LOG_WARN("Sending notify to unknown connection: %s", response->data);
@@ -197,8 +197,8 @@ static void send_api_response(struct mg_mgr *mgr, t_work_result *response) {
         if (is_websocket(nc))
             continue;
         if (nc->user_data != NULL) {
-            if ((long)nc->user_data == response->conn_id) {
-                LOG_DEBUG("Sending response to conn_id %ld: %s", (long)nc->user_data, response->data);
+            if ((intptr_t)nc->user_data == response->conn_id) {
+                LOG_DEBUG("Sending response to conn_id %d: %s", (intptr_t)nc->user_data, response->data);
                 mg_send_head(nc, 200, response->length, "Content-Type: application/json");
                 mg_printf(nc, "%s", response->data);
                 break;
@@ -229,13 +229,13 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 mg_user_data->conn_id = 1;
             }
             //set conn_id
-            nc->user_data = (void *)mg_user_data->conn_id;
-            LOG_DEBUG("New connection id %ld", (long)nc->user_data);
+            nc->user_data = (void *)(intptr_t)mg_user_data->conn_id;
+            LOG_DEBUG("New connection id %d", (intptr_t)nc->user_data);
             break;
         }
         case MG_EV_WEBSOCKET_HANDSHAKE_REQUEST: {
             struct http_message *hm = (struct http_message *) ev_data;
-            LOG_VERBOSE("New websocket request (%ld): %.*s", (long)nc->user_data, (int)hm->uri.len, hm->uri.p);
+            LOG_VERBOSE("New websocket request (%d): %.*s", (intptr_t)nc->user_data, (int)hm->uri.len, hm->uri.p);
             if (mg_vcmp(&hm->uri, "/ws/") != 0) {
                 printf("ERROR: Websocket request not to /ws/, closing connection");
                 mg_printf(nc, "%s", "HTTP/1.1 403 FORBIDDEN\r\n\r\n");
@@ -244,7 +244,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             break;
         }
         case MG_EV_WEBSOCKET_HANDSHAKE_DONE: {
-             LOG_VERBOSE("New Websocket connection established (%ld)", (long)nc->user_data);
+             LOG_VERBOSE("New Websocket connection established (%d)", (intptr_t)nc->user_data);
              const char *response = "{\"type\": \"welcome\", \"data\": {\"mympdVersion\": \"" MYMPD_VERSION "\"}}";
              mg_send_websocket_frame(nc, WEBSOCKET_OP_TEXT, response, strlen(response));
              break;
@@ -252,10 +252,10 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
         case MG_EV_HTTP_REQUEST: {
             struct http_message *hm = (struct http_message *) ev_data;
             static const struct mg_str library_prefix = MG_MK_STR("/library");
-            LOG_VERBOSE("HTTP request (%ld): %.*s", (long)nc->user_data, (int)hm->uri.len, hm->uri.p);
+            LOG_VERBOSE("HTTP request (%d): %.*s", (intptr_t)nc->user_data, (int)hm->uri.len, hm->uri.p);
             if (mg_vcmp(&hm->uri, "/api") == 0) {
                 //api request
-                bool rc = handle_api((long)nc->user_data, hm->body.p, hm->body.len);
+                bool rc = handle_api((intptr_t)nc->user_data, hm->body.p, hm->body.len);
                 if (rc == false) {
                     LOG_ERROR("Invalid API request");
                     const char *response = "{\"type\": \"error\", \"data\": \"Invalid API request\"}";
@@ -327,7 +327,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
         }
         case MG_EV_CLOSE: {
             if (nc->user_data != NULL) {
-                LOG_VERBOSE("HTTP connection %ld closed", (long)nc->user_data);
+                LOG_VERBOSE("HTTP connection %ld closed", (intptr_t)nc->user_data);
                 nc->user_data = NULL;
             }
             break;
