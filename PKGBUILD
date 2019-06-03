@@ -24,12 +24,12 @@ sha256sums=('SKIP')
 build() {
   if [ -d "${srcdir}/${_pkgname}-${pkgver}" ]
   then
-    cd "${srcdir}/${_pkgname}-${pkgver}"
+    cd "${srcdir}/${_pkgname}-${pkgver}" || exit 1
   else
-    cd "${srcdir}"
+    cd "${srcdir}" || exit 1
   fi
   install -d release
-  cd release
+  cd release || exit 1
   cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=RELEASE ..
   make
 }

@@ -31,12 +31,12 @@ myMPD is a standalone and mobile friendly web mpdclient.
 
 %build
 mkdir release
-cd release
+cd release || exit 1
 cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=RELEASE ..
 make
 
 %install
-cd release
+cd release || exit 1
 make install DESTDIR=%{buildroot}
 
 %post
@@ -60,11 +60,11 @@ do
   if [ -f "$PLDIST" ]
   then
     PLS=$(basename $PLDIST .dist)
-    if [ -f /var/lib/mympd/smartpls/$PLS ]
+    if [ -f "/var/lib/mympd/smartpls/$PLS" ]
     then
-      rm $PLDIST
+      rm "$PLDIST"
     else
-      mv -v $PLDIST /var/lib/mympd/smartpls/$PLS
+      mv -v "$PLDIST" "/var/lib/mympd/smartpls/$PLS"
     fi
   fi
 done
@@ -92,11 +92,13 @@ if [ "$1" = "0" ]
 then
   if [ -f /usr/lib/systemd/system/mympd.service ]
   then
-    if `systemctl is-active --quiet mympd`
+    if [ "$(systemctl is-active mympd)" = "active" ]
     then
-      echo "stopping mympd.service" && systemctl stop mympd 
+      echo "stopping mympd.service"
+      systemctl stop mympd 
     fi
-    echo "disabling mympd.service" && systemctl disable mympd
+    echo "disabling mympd.service"
+    systemctl disable mympd
     rm -v -f /usr/lib/systemd/system/mympd.service
     systemctl daemon-reload
   fi
@@ -111,5 +113,5 @@ fi
 /var/lib/mympd
 
 %changelog
-* Wed Mar 27 2019 Juergen Mang <mail@jcgames.de> - master
+* Mon Jun 03 2019 Juergen Mang <mail@jcgames.de> - master
 - Version from master

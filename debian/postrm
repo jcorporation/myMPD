@@ -2,14 +2,14 @@
 
 if [ -f /usr/lib/systemd/system/mympd.service ]
 then
-  if `systemctl is-active --quiet mympd`
+  if [ "$(systemctl is-active mympd)" = "active" ]
   then
     echo "Stopping mympd.service" && systemctl stop mympd 
   fi
   echo "Disabling mympd.service" && systemctl disable mympd
 fi
 
-if [ "$1" == "purge" ]
+if [ "$1" = "purge" ]
 then
   if [ -f /usr/lib/systemd/system/mympd.service ]
   then

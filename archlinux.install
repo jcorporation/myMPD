@@ -37,12 +37,12 @@ post_upgrade() {
   do
     if [ -f "$PLDIST" ]
     then
-      PLS=$(basename $PLDIST .dist)
-      if [ -f /var/lib/mympd/smartpls/$PLS ]
+      PLS=$(basename "$PLDIST" .dist)
+      if [ -f "/var/lib/mympd/smartpls/$PLS" ]
       then
-        rm $PLDIST
+        rm "$PLDIST"
       else
-        mv -v $PLDIST /var/lib/mympd/smartpls/$PLS
+        mv -v "$PLDIST" "/var/lib/mympd/smartpls/$PLS"
       fi
     fi
   done
@@ -56,27 +56,29 @@ post_upgrade() {
   then 
     mv /etc/mympd/mympd.conf.dist /etc/mympd/mympd.conf
   else
-    echo -e "\e[93mWARNING\e[0m: \e[1mmympd.conf \e[0minstalled as \e[1mmympd.conf.dist\e[0m"
+    echo "WARNING: mympd.conf installed as mympd.conf.dist"
   fi
 
   # installation complete
-  echo -e "\e[93mWARNING\e[0m: Edit \e[1m/etc/mympd/mympd.conf \e[0mbefore starting myMPD"
+  echo "WARNING: Edit /etc/mympd/mympd.conf before starting myMPD"
 }
 
 post_remove() {
   # stop and remove systemd service
   systemctl daemon-reload
-  if `systemctl is-active --quiet mympd`
-    then
-    echo "stopping mympd.service" && systemctl stop mympd 
+  if [ "$(systemctl is-active mympd)" = "active" ]
+  then
+    echo "stopping mympd.service"
+    systemctl stop mympd 
   fi
-  echo "disabling mympd.service" && systemctl disable mympd 
+  echo "disabling mympd.service"
+  systemctl disable mympd 
  
   # backup config 
   if [ -f /etc/mympd/mympd.conf ]
   then 
     mv /etc/mympd/mympd.conf /etc/mympd/mympd.conf.pacsave
-    echo -e "\e[93mINFO\e[0m: /etc/mympd/mympd.conf backed up to /etc/mympd/mympd.conf.pacsave"
+    echo "INFO: /etc/mympd/mympd.conf backed up to /etc/mympd/mympd.conf.pacsave"
   fi
 
   # remove leftover directories
