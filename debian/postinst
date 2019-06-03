@@ -1,8 +1,22 @@
-#/bin/sh
+#!/bin/sh
+
+newer() {
+  M1=0
+  M2=0
+  [ -f "$1" ] && M1=$(stat -c%Y "$1")
+  [ -f "$2" ] && M2=$(stat -c%Y "$2")
+  if [ "$M1" -gt "$M2" ]
+  then
+    return 0
+  else
+    return 1
+  fi
+}
 
 INSTALL_PREFIX="${INSTALL_PREFIX:-/usr}"
 
-if [ "$(expr ${INSTALL_PREFIX} : '^/opt/')" = "5" ]
+ISOPT=$(expr "${INSTALL_PREFIX}" : '^/opt/')
+if [ "$ISOPT" = "5" ]
 then
   ETCDIR="/etc${INSTALL_PREFIX}"
   SHAREDIR="${INSTALL_PREFIX}/share"
@@ -22,53 +36,60 @@ echo "Checking status of mympd system user and group"
 getent group mympd > /dev/null
 [ "$?" = "2" ] && groupadd -r mympd
 getent passwd mympd > /dev/null
-[ "$?" = "2" ] && useradd -r mympd -g mympd -d /var/lib/mympd -s /usr/sbin/nologin
+[ "$?" = "2" ] && useradd -r mympd -g mympd -d "${VARDIR}" -s /usr/sbin/nologin
 
 if [ -d /etc/systemd ]
 then
   echo "Installing systemd service"
-  [ -d /usr/lib/systemd/system ] || mkdir -p /usr/lib/systemd/system 
-  if [ ! -f /usr/lib/systemd/system/mympd.service ] ||
-     [ ${SHAREDIR}/mympd.service -nt /usr/lib/systemd/system/mympd.service ]
+  [ -d /usr/lib/systemd/system ] || mkdir -p /usr/lib/systemd/system
+
+  newer "${SHAREDIR}/mympd.service" "/usr/lib/systemd/system/mympd.service"
+  if [ "$?" = "0" ]
   then
-    cp ${SHAREDIR}/mympd.service /usr/lib/systemd/system/
+    cp "${SHAREDIR}/mympd.service" /usr/lib/systemd/system/
     systemctl daemon-reload
   fi
   systemctl enable mympd
 fi
 
 # move smartpls into place unless already existing
-for PLDIST in ${VARDIR}/smartpls/*.dist
+for PLDIST in "${VARDIR}"/smartpls/*.dist
 do
   if [ -f "$PLDIST" ]
   then
-    PLS=$(basename $PLDIST .dist)
-    if [ -f ${VARDIR}/smartpls/$PLS ]
+    PLS=$(basename "$PLDIST" .dist)
+    if [ -f "${VARDIR}/smartpls/$PLS" ]
     then
-      rm $PLDIST
+      rm "$PLDIST"
     else
-      mv -v $PLDIST ${VARDIR}/smartpls/$PLS
+      mv -v "$PLDIST" "${VARDIR}/smartpls/$PLS"
     fi
   fi
 done
 
+# replace directories
+sed -i -e "s|/var/lib/mympd|${VARDIR}|" \
+  -e "s|/usr/share/mympd|${SHAREDIR}|" \
+  -e "s|/etc/mympd|${ETCDIR}|" \
+  /etc/mympd/mympd.conf.dist
+
 # move config into place unless already existing
-if [ ! -f ${ETCDIR}/mympd.conf ]
+if [ ! -f "${ETCDIR}/mympd.conf" ]
 then 
-  mv ${ETCDIR}/mympd.conf.dist ${ETCDIR}/mympd.conf
+  mv "${ETCDIR}/mympd.conf.dist" "${ETCDIR}/mympd.conf"
 else
   echo "mympd.conf installed as mympd.conf.dist"
 fi
 
 echo "Fixing ownership of ${VARDIR}"
-chown -R mympd.mympd ${VARDIR}
+chown -R mympd.mympd "${VARDIR}"
 
-if [ -d ${VARDIR}/ssl ]
+if [ -d "${VARDIR}/ssl" ]
 then
   echo "Certificates already created"
 else
   echo "Creating certificates"
-  ${SHAREDIR}/crcert.sh ${VARDIR}/ssl
+  "${SHAREDIR}/crcert.sh" "${VARDIR}/ssl"
 fi
 
 echo "myMPD installed"

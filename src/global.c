@@ -91,9 +91,11 @@ enum mympd_cmd_ids get_cmd_id(const char *cmd) {
     return 0;
 }
 
+
 static const char *loglevel_names[] = {
   "ERROR", "WARN", "INFO", "VERBOSE", "DEBUG"
 };
+
 
 void set_loglevel(t_config *config) {
     #ifdef DEBUG

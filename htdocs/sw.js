@@ -1,20 +1,18 @@
-var CACHE = 'myMPD-cache-v5.3.1';
+var CACHE = 'myMPD-cache-v5.4.0';
 var subdir = self.location.pathname.replace('/sw.min.js', '').replace(/\/$/, '');
 var urlsToCache = [
     subdir + '/',
-    subdir + '/player.html',
     subdir + '/css/bootstrap.min.css',
     subdir + '/css/mympd.min.css',
     subdir + '/js/bootstrap-native-v4.min.js',
     subdir + '/js/mympd.min.js',
-    subdir + '/js/player.min.js',
     subdir + '/js/keymap.min.js',
     subdir + '/assets/appicon-167.png',
     subdir + '/assets/appicon-192.png',
     subdir + '/assets/appicon-512.png',
-    subdir + '/assets/coverimage-stream.png',
-    subdir + '/assets/coverimage-notavailable.png',
-    subdir + '/assets/coverimage-loading.png',
+    subdir + '/assets/coverimage-stream.svg',
+    subdir + '/assets/coverimage-notavailable.svg',
+    subdir + '/assets/coverimage-loading.svg',
     subdir + '/assets/favicon.ico',
     subdir + '/assets/MaterialIcons-Regular.woff2'
 ];
@@ -28,7 +26,11 @@ var ignoreRequests = new RegExp('(' + [
 self.addEventListener('install', function(event) {
     event.waitUntil(
         caches.open(CACHE).then(function(cache) {
-            return cache.addAll(urlsToCache);
+            urlsToCache.map(function(url) {
+	        return cache.add(url).catch(function (reason) {
+	            return console.log('ServiceWorker: ' + String(reason) + ' ' + url);
+                });
+            });
         })
     );
 });

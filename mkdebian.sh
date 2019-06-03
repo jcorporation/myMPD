@@ -14,7 +14,6 @@ EOL
 if [ "$1" != "u" ]
 then
   ./mkclean.sh
-  tar -czvf ../mympd_${VERSION}.orig.tar.gz *
+  tar -czvf "../mympd_${VERSION}.orig.tar.gz" -- *
   dpkg-buildpackage -rfakeroot
 fi
-

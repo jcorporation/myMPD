@@ -23,12 +23,12 @@
 
 struct node {
     char *data;
-    long value;
+    int value;
     struct node *next;
 };
 
 struct list {
-    unsigned length;
+    int length;
     struct node *list;
 };
 

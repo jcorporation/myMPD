@@ -1,10 +1,24 @@
+#!/bin/sh
+
 if [ -f /usr/lib/systemd/system/mympd.service ]
 then
-  if `systemctl is-active --quiet mympd`
+  if [ "$(systemctl is-active mympd)" = "active" ]
   then
-    echo "stopping mympd.service" && systemctl stop mympd 
+    echo "Stopping mympd.service" && systemctl stop mympd 
   fi
-  echo "disabling mympd.service" && systemctl disable mympd
-  rm -v -f /usr/lib/systemd/system/mympd.service
-  systemctl daemon-reload
+  echo "Disabling mympd.service" && systemctl disable mympd
+fi
+
+if [ "$1" = "purge" ]
+then
+  if [ -f /usr/lib/systemd/system/mympd.service ]
+  then
+    rm /usr/lib/systemd/system/mympd.service
+    systemctl daemon-reload
+  fi
+  rm -rf /usr/share/mympd
+  rm -rf /etc/mympd
+  rm -rf /var/lib/mympd
+  userdel mympd
+  groupdel mympd
 fi

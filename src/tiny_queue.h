@@ -26,7 +26,7 @@ typedef struct tiny_msg_t {
 } tiny_msg_t;
 
 typedef struct tiny_queue_t {
-    unsigned length;
+    int length;
     struct tiny_msg_t *head;
     struct tiny_msg_t *tail;
     pthread_mutex_t mutex;

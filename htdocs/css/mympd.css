@@ -1,7 +1,6 @@
 :root {
     --mympd-coverimagesize: 240px;
     --mympd-backgroundcolor: #888;
-    --mympd-backgroundimage: url('');
     --mympd-backgroundfilter: blur(5px);
 }
 
@@ -16,17 +15,28 @@ body {
   background-color: var(--mympd-backgroundcolor, #888);
 }
 
-body:before {
-    content: '';
+.albumartbg {
     position: fixed;
     width: 100%;
     height: 100%;
-    background-image: var(--mympd-backgroundimage, url(''));
     background-position: center center;
     background-size: cover;
-    margin-top: -4rem;
+    top: 3.5rem;
     filter: var(--mympd-backgroundfilter, '');
+    transition: opacity 1s;
     z-index: -9;
+}
+
+.coverbg {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-position: center center;
+    background-size: cover;
+    top: 0;
+    left: 0;
+    transition: opacity 1s;
+    z-index: 3;
 }
 
 main {
@@ -87,7 +97,7 @@ small {
 
 .album-cover {
   background-size: cover;
-  background-image: url("../assets/coverimage-loading.png");
+  background-image: url("../assets/coverimage-loading.svg");
   border: 1px solid black;
   border-radius: 5px;
   overflow: hidden;
@@ -98,6 +108,8 @@ small {
   float: left;
   margin-right: 1.25rem;
   margin-bottom: 1.25rem;
+  position: relative;
+  z-index: 1;
 }
 
 .album-desc {
@@ -230,7 +242,7 @@ a.card-img-left {
   height: var(--mympd-coverimagesize);
   border-radius: 5px;
   background-size: cover;
-  background-image: url(../assets/coverimage-loading.png);  
+  background-image: url(../assets/coverimage-loading.svg);  
   margin-bottom: 5px;
   cursor: pointer;
 }
@@ -358,4 +370,13 @@ ol#searchCrumb {
 
 .nodropdown::after {
   content: none;
+}
+
+.dropdown-header-lx {
+  font-size: 1.2rem;
+}
+
+#mainMenuDropdown {
+  overflow-y: auto;
+  max-height: calc(100vh - 9rem);
 }
