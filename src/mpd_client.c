@@ -1975,17 +1975,12 @@ static bool mpd_client_jukebox(t_mpd_state *mpd_state) {
         return true;
     }
 
-    if (mpd_state->jukebox_mode == JUKEBOX_ADD_SONG) {
-        //add song if add_time is reached or queue is empty
-        addSongs = mpd_state->jukebox_queue_length - queue_length;
-        if (now > add_time && add_time > 0) {
-            addSongs++;
-        }
+    //add song if add_time is reached or queue is empty
+    addSongs = mpd_state->jukebox_queue_length - queue_length;
+    if (now > add_time && add_time > 0) {
+        addSongs++;
     }
-    else {
-        addSongs = 1;
-    }
-    
+
     if (addSongs < 1) {
         return true;
     }
