@@ -205,7 +205,7 @@ static int mpd_client_get_updatedb_state(t_mpd_state *mpd_state, char *buffer);
 static int mpd_client_get_state(t_mpd_state *mpd_state, char *buffer);
 static int mpd_client_put_state(t_mpd_state *mpd_state, struct mpd_status *status, char *buffer);
 static int mpd_client_get_queue_state(t_mpd_state *mpd_state, char *buffer);
-static int mpd_client_put_queue_state(t_mpd_state *mpd_state, struct mpd_status *status, char *buffer);
+static int mpd_client_put_queue_state(struct mpd_status *status, char *buffer);
 static int mpd_client_put_outputs(t_mpd_state *mpd_state, char *buffer);
 static int mpd_client_put_current_song(t_config *config, t_mpd_state *mpd_state, char *buffer);
 static int mpd_client_put_queue(t_mpd_state *mpd_state, char *buffer, const unsigned int offset, const t_tags *tagcols);
@@ -2233,13 +2233,13 @@ static int mpd_client_get_queue_state(t_mpd_state *mpd_state, char *buffer) {
     mpd_state->state = mpd_status_get_state(status);
 
     if (buffer != NULL) {
-        len = mpd_client_put_queue_state(mpd_state, status, buffer);
+        len = mpd_client_put_queue_state(status, buffer);
     }
     mpd_status_free(status);
     return len;
 }
 
-static int mpd_client_put_queue_state(t_mpd_state *mpd_state, struct mpd_status *status, char *buffer) {
+static int mpd_client_put_queue_state(struct mpd_status *status, char *buffer) {
     size_t len = 0;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
 
