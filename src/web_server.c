@@ -200,7 +200,7 @@ static void send_api_response(struct mg_mgr *mgr, t_work_result *response) {
             if ((intptr_t)nc->user_data == response->conn_id) {
                 LOG_DEBUG("Sending response to conn_id %d: %s", (intptr_t)nc->user_data, response->data);
                 mg_send_head(nc, 200, response->length, "Content-Type: application/json");
-                mg_printf(nc, "%s", response->data);
+                mg_printf(nc, "%.*s", response->length, response->data);
                 break;
             }
         }
