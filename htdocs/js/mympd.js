@@ -560,13 +560,31 @@ function appInit() {
 
     document.getElementById('selectJukeboxMode').addEventListener('change', function () {
         var value = this.options[this.selectedIndex].value;
-        if (value == 0 || value == 2) {
+        if (value == 0) {
             document.getElementById('inputJukeboxQueueLength').setAttribute('disabled', 'disabled');
             document.getElementById('selectJukeboxPlaylist').setAttribute('disabled', 'disabled');
+        }
+        else if (value == 2) {
+            document.getElementById('inputJukeboxQueueLength').setAttribute('disabled', 'disabled');
+            document.getElementById('selectJukeboxPlaylist').setAttribute('disabled', 'disabled');
+            document.getElementById('selectJukeboxPlaylist').value = 'Database';
         }
         else if (value == 1) {
             document.getElementById('inputJukeboxQueueLength').removeAttribute('disabled');
             document.getElementById('selectJukeboxPlaylist').removeAttribute('disabled');
+        }
+    });
+    
+    document.getElementById('selectAddToQueueMode').addEventListener('change', function () {
+        var value = this.options[this.selectedIndex].value;
+        if (value == 2) {
+            document.getElementById('inputAddToQueueQuantity').setAttribute('disabled', 'disabled');
+            document.getElementById('selectAddToQueuePlaylist').setAttribute('disabled', 'disabled');
+            document.getElementById('selectAddToQueuePlaylist').value = 'Database';
+        }
+        else if (value == 1) {
+            document.getElementById('inputAddToQueueQuantity').removeAttribute('disabled');
+            document.getElementById('selectAddToQueuePlaylist').removeAttribute('disabled');
         }
     });
 
@@ -1560,9 +1578,14 @@ function parseSettings() {
     document.getElementById('selectJukeboxMode').value = settings.jukeboxMode;
     document.getElementById('inputJukeboxQueueLength').value = settings.jukeboxQueueLength;
     
-    if (settings.jukeboxMode == 0 || settings.jukeboxMode == 2) {
+    if (settings.jukeboxMode == 0) {
         document.getElementById('inputJukeboxQueueLength').setAttribute('disabled', 'disabled');
         document.getElementById('selectJukeboxPlaylist').setAttribute('disabled', 'disabled');
+    }
+    else if (settings.jukeboxMode == 2) {
+        document.getElementById('inputJukeboxQueueLength').setAttribute('disabled', 'disabled');
+        document.getElementById('selectJukeboxPlaylist').setAttribute('disabled', 'disabled');
+        document.getElementById('selectJukeboxPlaylist').value = 'Database';
     }
     else if (settings.jukeboxMode == 1) {
         document.getElementById('inputJukeboxQueueLength').removeAttribute('disabled');
@@ -1766,7 +1789,7 @@ function parseMPDSettings() {
         sendAPI({"cmd": "MPD_API_PLAYLIST_LIST", "data": {"offset": 0, "filter": "-"}}, getAllPlaylists);
     }
     else {
-        document.getElementById('selectJukeboxPlaylist').innerHTML = '<option>Database</option>';
+        document.getElementById('selectJukeboxPlaylist').innerHTML = '<option value="Database">Database</option>';
     }
 
     settings.tags.sort();
@@ -2887,16 +2910,17 @@ function getAllPlaylists(obj) {
     var playlists = '';
     if (obj.offset == 0) {
         if (playlistEl == 'addToPlaylistPlaylist') {
-            playlists = '<option></option><option>New Playlist</option>';
+            playlists = '<option value=""></option><option value="New Playlist">New Playlist</option>';
         }
         else if (playlistEl == 'selectJukeboxPlaylist' || playlistEl == 'selectAddToQueuePlaylist') {
-            playlists = '<option>Database</option>';
+            playlists = '<option value="Database">Database</option>';
         }
     }
     for (var i = 0; i < nrItems; i++) {
-        playlists += '<option';
-        if (playlistEl == 'selectJukeboxPlaylist' && obj.data[i].uri == settings.jukeboxPlaylist)
+        playlists += '<option value="' + obj.data[i].uri + '"';
+        if (playlistEl == 'selectJukeboxPlaylist' && obj.data[i].uri == settings.jukeboxPlaylist) {
             playlists += ' selected';
+        }
         playlists += '>' + obj.data[i].uri + '</option>';
     }
     if (obj.offset == 0) {
