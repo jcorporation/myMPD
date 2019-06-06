@@ -104,6 +104,7 @@ install(FILES dist/htdocs/sw.min.js DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR
 install(FILES dist/htdocs/js/bootstrap-native-v4.min.js DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}${SUBDIR}/htdocs/js/)
 install(FILES dist/htdocs/js/mympd.min.js DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}${SUBDIR}/htdocs/js/)
 install(FILES dist/htdocs/js/keymap.min.js DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}${SUBDIR}/htdocs/js/)
+install(FILES dist/htdocs/js/i18n.min.js DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}${SUBDIR}/htdocs/js/)
 install(FILES dist/htdocs/css/bootstrap.min.css DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}${SUBDIR}/htdocs/css/)
 install(FILES dist/htdocs/css/mympd.min.css DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}${SUBDIR}/htdocs/css/)
 install(DIRECTORY htdocs/assets DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}${SUBDIR}/htdocs)
