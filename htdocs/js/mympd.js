@@ -408,11 +408,11 @@ function appInitStart() {
         window.addEventListener('load', function() {
             navigator.serviceWorker.register('/sw.min.js', {scope: '/'}).then(function(registration) {
                 // Registration was successful
-                log_info('ServiceWorker registration successful.');
+                logInfo('ServiceWorker registration successful.');
                 registration.update();
             }, function(err) {
                 // Registration failed
-                log_error('ServiceWorker registration failed: ', err);
+                logError('ServiceWorker registration failed: ', err);
             });
         });
     }
@@ -973,17 +973,17 @@ function appInit() {
         // Wait for the user to respond to the prompt
         deferredPrompt.userChoice.then((choiceResult) => {
             if (choiceResult.outcome === 'accepted') {
-                log_verbose('User accepted the A2HS prompt');
+                logVerbose('User accepted the A2HS prompt');
             }
             else {
-                log_verbose('User dismissed the A2HS prompt');
+                logVerbose('User dismissed the A2HS prompt');
             }
             deferredPrompt = null;
         });
     });
     
     window.addEventListener('appinstalled', function(event) {
-        log_info('myMPD installed as app');
+        logInfo('myMPD installed as app');
         showNotification('myMPD installed as app', '', '', 'success');
     });
 
@@ -1261,16 +1261,16 @@ function toggleUI() {
 
 function webSocketConnect() {
     if (socket != null) {
-        log_info("Socket already connected");
+        logInfo("Socket already connected");
         return;
     }
     var wsUrl = getWsUrl();
     socket = new WebSocket(wsUrl);
-    log_info('Connecting to ' + wsUrl);
+    logInfo('Connecting to ' + wsUrl);
 
     try {
         socket.onopen = function() {
-            log_info('Websocket is connected');
+            logInfo('Websocket is connected');
             websocketConnected = true;
             if (websocketTimer != null) {
                 clearTimeout(websocketTimer);
@@ -1281,9 +1281,9 @@ function webSocketConnect() {
         socket.onmessage = function got_packet(msg) {
             try {
                 var obj = JSON.parse(msg.data);
-                log_debug('Websocket notification: ' + obj.type);
+                logDebug('Websocket notification: ' + obj.type);
             } catch(e) {
-                log_error('Invalid JSON data received: ' + msg.data);
+                logError('Invalid JSON data received: ' + msg.data);
             }
 
             switch (obj.type) {
@@ -1348,7 +1348,7 @@ function webSocketConnect() {
         }
 
         socket.onclose = function(){
-            log_error('Websocket is disconnected');
+            logError('Websocket is disconnected');
             websocketConnected = false;
             if (appInited == true) {
                 toggleUI();
@@ -1358,7 +1358,7 @@ function webSocketConnect() {
             }
             else {
                 showAppInitAlert('Websocket connection failed.');
-                log_error('Websocket connection failed.');
+                logError('Websocket connection failed.');
             }
             if (websocketTimer != null) {
                 clearTimeout(websocketTimer);
@@ -1366,7 +1366,7 @@ function webSocketConnect() {
             }
             if (websocketTimer == null) {
                 websocketTimer = setTimeout(function() {
-                    log_info('Reconnecting websocket');
+                    logInfo('Reconnecting websocket');
                     toggleAlert('alertMympdState', true, 'Websocket connection failed. Trying to reconnect&nbsp;&nbsp;<div class="spinner-border spinner-border-sm"></div>');
                     webSocketConnect();
                 }, 3000);
@@ -1464,6 +1464,44 @@ function filterCols(x) {
             cols.push(settings[x][i]);
     }
     settings[x] = cols;
+}
+
+function t(phrase, arg) {
+    var result;
+    if (phrases[phrase]) {
+        result = phrases[phrase][settings.locale];
+    }
+    else {
+        result = phrase;
+    }
+    if (result == undefined) {
+        result = phrase;
+    }
+    if (isNaN(arg)) {
+    
+    }
+    else {
+        var p = result.split(' |||| ');
+        if (arg == 1) {
+            result = p[0];
+        }
+        else {
+            result = p[1];
+        }
+        result = result.replace('%{smart_count}', arg);
+    }
+    return result;
+}
+
+function i18nHtml() {
+    var attributes = [['data-phrase', 'innerText'], ['data-title-phrase', 'title'], ['data-placeholder-phrase', 'placeholder']];
+    for (var i = 0; i < attributes.length; i++) {
+        var els = document.querySelectorAll('[' + attributes[i][0] + ']');
+        var elsLen = els.length;
+        for (var j = 0; j < elsLen; j++) {
+            els[j][attributes[i][1]] = t(els[j].getAttribute(attributes[i][0]));
+        }
+    }
 }
 
 function parseSettings() {
@@ -1648,6 +1686,8 @@ function parseSettings() {
         appRoute();
     else if (app.current.app == 'Browse' && app.current.tab == 'Database' && app.current.search != '')
         appRoute();
+
+    i18nHtml();
 
     settingsParsed = 'true';
 }
@@ -1870,14 +1910,16 @@ function setCols(table, className) {
     tags.sort();
     
     for (var i = 0; i < tags.length; i++) {
-        if (table == 'Playback' && tags[i] == 'Title')
+        if (table == 'Playback' && tags[i] == 'Title') {
             continue;
+        }
         tagChks += '<div class="form-check">' +
             '<input class="form-check-input" type="checkbox" value="1" name="' + tags[i] + '"';
-        if (settings['cols' + table].includes(tags[i]))
+        if (settings['cols' + table].includes(tags[i])) {
             tagChks += 'checked';
+        }
         tagChks += '>' +
-            '<label class="form-check-label text-light" for="' + tags[i] + '">&nbsp;&nbsp;' + tags[i] + '</label>' +
+            '<label class="form-check-label text-light" for="' + tags[i] + '">&nbsp;&nbsp;' + t(tags[i]) + '</label>' +
             '</div>';
     }
     document.getElementById(table + 'ColsDropdown').firstChild.innerHTML = tagChks;
@@ -1905,7 +1947,7 @@ function setCols(table, className) {
             heading += '<th draggable="true" data-col="' + h  + '">';
             if (h == 'Track' || h == 'Pos')
                 h = '#';
-            heading += h;
+            heading += t(h);
 
             if (table == 'Search' && (h == sort || '-' + h == sort) ) {
                 var sortdesc = false;
@@ -2264,7 +2306,7 @@ function getQueue() {
 
 function parseQueue(obj) {
     if (typeof(obj.totalTime) != undefined && obj.totalTime > 0 && obj.totalEntities <= settings.maxElementsPerPage ) {
-        document.getElementById('cardFooterQueue').innerText = obj.totalEntities + ' ' + (obj.totalEntities > 1 ? 'Songs' : 'Song') + ' – ' + beautifyDuration(obj.totalTime);
+        document.getElementById('cardFooterQueue').innerText = t('Num Songs', obj.totalEntities) + ' – ' + beautifyDuration(obj.totalTime);
     }
     else if (obj.totalEntities > 0) {
         document.getElementById('cardFooterQueue').innerText = obj.totalEntities + ' ' + (obj.totalEntities > 1 ? 'Songs' : 'Song');
@@ -3030,8 +3072,8 @@ function parseSmartPlaylist(obj) {
     document.getElementById('saveSmartPlaylistNewest').classList.add('hide');
     var tagList;
     if (settings.featTags)
-        tagList = '<option value="any">Any Tag</option>';
-    tagList += '<option value="filename">Filename</option>';
+        tagList = '<option value="any">' + t('Any Tag') + '</option>';
+    tagList += '<option value="filename">' + t('Filename') + '</option>';
     for (var i = 0; i < settings.searchtags.length; i++)
             tagList += '<option value="' + settings.searchtags[i] + '">' + settings.searchtags[i] + '</option>';
     document.getElementById('selectSaveSmartPlaylistTag').innerHTML = tagList;
@@ -3420,28 +3462,28 @@ function sendAPI(request, callback, onerror) {
                 var obj = JSON.parse(ajaxRequest.responseText);
                 if (obj.type == 'error') {
                     showNotification('Error', obj.data, obj.data, 'danger');
-                    log_error(obj.data);
+                    logError(obj.data);
                     if (onerror == true) {
                         if (callback != undefined && typeof(callback) == 'function') {
-                            log_debug('Got API response of type "' + obj.type + '" calling ' + callback.name);
+                            logDebug('Got API response of type "' + obj.type + '" calling ' + callback.name);
                             callback(obj);
                         }
                     }
                 }
                 else if (obj.type == 'result' && obj.data != 'ok') {
-                    log_debug('Got API response: ' + obj.data);
+                    logDebug('Got API response: ' + obj.data);
                     showNotification(obj.data, '', '', 'success');
                 }
                 else if (callback != undefined && typeof(callback) == 'function') {
-                    log_debug('Got API response of type "' + obj.type + '" calling ' + callback.name);
+                    logDebug('Got API response of type "' + obj.type + '" calling ' + callback.name);
                     callback(obj);
                 }
             }
             else {
-                log_error('Empty response for request: ' + JSON.stringify(request));
+                logError('Empty response for request: ' + JSON.stringify(request));
                 if (onerror == true) {
                     if (callback != undefined && typeof(callback) == 'function') {
-                        log_debug('Got API response of type "' + obj.type + '" calling ' + callback.name);
+                        logDebug('Got API response of type "' + obj.type + '" calling ' + callback.name);
                         callback('');
                     }
                 }
@@ -3449,7 +3491,7 @@ function sendAPI(request, callback, onerror) {
         }
     };
     ajaxRequest.send(JSON.stringify(request));
-    log_debug('Send API request: ' + request.cmd);
+    logDebug('Send API request: ' + request.cmd);
 }
 
 function updateDB() {
@@ -3986,11 +4028,11 @@ function addTagList(el, list) {
     var tagList = '';
     if (list == 'searchtags') {
         if (settings.featTags == true)
-            tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="any">Any Tag</button>';
-        tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="filename">Filename</button>';
+            tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="any">' + t('Any Tag') + '</button>';
+        tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="filename">' + t('Filename') + '</button>';
     }
     for (var i = 0; i < settings[list].length; i++)
-        tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="' + settings[list][i] + '">' + settings[list][i] + '</button>';
+        tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="' + settings[list][i] + '">' + t(settings[list][i]) + '</button>';
     document.getElementById(el).innerHTML = tagList;
 }
 
@@ -4151,27 +4193,27 @@ function validateHost(el) {
     }
 }
 
-function log_error(line) {
-    log_log(0, 'ERROR: ' + line);
+function logError(line) {
+    logLog(0, 'ERROR: ' + line);
 }
 
-function log_warn(line) {
-    log_log(1, 'WARN: ' + line);
+function logWarn(line) {
+    logLog(1, 'WARN: ' + line);
 }
 
-function log_info(line) {
-    log_log(2, 'INFO: ' + line);
+function logInfo(line) {
+    logLog(2, 'INFO: ' + line);
 }
 
-function log_verbose(line) {
-    log_log(3, 'VERBOSE: ' + line);
+function logVerbose(line) {
+    logLog(3, 'VERBOSE: ' + line);
 }
 
-function log_debug(line) {
-    log_log(4, 'DEBUG: ' + line);
+function logDebug(line) {
+    logLog(4, 'DEBUG: ' + line);
 }
 
-function log_log(loglevel, line) {
+function logLog(loglevel, line) {
     if (settings.loglevel >= loglevel) {
         console.log(line);
     }
