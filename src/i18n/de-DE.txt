@@ -1,0 +1,654 @@
+MPD connection
+MPD Verbindung
+
+Add stream
+Stream hinzufügen
+
+Update
+Aktualisieren
+
+Update database
+Datenbank aktualisieren
+
+Rescan database
+Datenbank neu einlesen
+
+Update smart slaylists
+Intelligente Wiedergabelisten aktualisieren
+
+Settings
+Einstellungen
+
+About
+Über myMPD
+
+Add to home screen
+Zum Startbildschirm hinzufügen
+
+Local playback
+Lokale Wiedergabe
+
+Connecting to stream...
+Verbinde...
+
+JavaScript is disabled
+JavaScript ist deaktiviert
+
+Apply
+Anwenden
+
+Playback
+Wiedergabe
+
+Queue
+Warteschlange
+
+Browse
+Durchsuchen
+
+Search
+Suchen
+
+Last Played
+Zuletzt gespielt
+
+Save queue
+Warteschlange speichern
+
+Shuffle queue
+Warteschlange mischen
+
+Add to queue
+Zu Warteschlange hinzufügen
+
+Clear queue
+Warteschlange leeren
+
+Crop queue
+Warteschlange abschneiden
+
+Any Tag
+Alle Tags
+
+Filename
+Dateiname
+
+Search queue
+Warteschlange durchsuchen
+
+Title
+Titel
+
+Artists
+Künstler
+
+Artist
+Künstler
+
+Album
+Album
+
+Duration
+Länge
+
+AlbumArtist
+Album Interpret
+
+Composer
+Komponist
+
+Performer
+Interpret
+
+Genre
+Genre
+
+Date
+Datum
+
+Pos
+Pos
+
+Track
+Lied
+
+Song
+Lied
+
+Last played
+Zuletzt gespielt
+
+Database
+Datenbank
+
+Filesystem
+Dateisystem
+
+Playlists
+Wiedergabelisten
+
+Playlist
+Wiedergabeliste
+
+Clear playlist
+Playlist leeren
+
+Last modified
+Zuletzt geändert
+
+Previous page
+Vorige Seite
+
+Next page
+Nächste Seite
+
+Num songs
+%{smart_count} Lied |||| %{smart_count} Lieder
+
+Num playlists
+%{smart_count} Wiedergabeliste |||| %{smart_count} Wiedergabelisten
+
+Add all to queue
+Alles zu Warteschlange hinzufügen
+
+Add all to playlist
+Alles zu einer Wiedergabeliste hinzufügen
+
+Save as smart playlist
+Als intelligente Wiedergabeliste sichern
+
+To top
+Nach oben
+
+Bookmarks
+Lesezeichen
+
+Select tag to search
+Tag zum Suchen auswählen
+
+contains
+enthält
+
+Initializing myMPD
+Initialisiere myMPD
+
+Please wait, myMPD is initializing...
+Einen Moment noch, myMPD lädt...
+
+Fetch myMPD settings
+Lade myMPD Einstellungen
+
+Fetch MPD settings
+Lade MPD Einstellungen
+
+Connect to websocket
+Verbinde Websocket
+
+Applying settings
+Wende Einstellungen an
+
+Updating MPD database
+Aktualisiere MPD Datenbank
+
+Dependent on the size of your music collection this can take a while.
+Der Aktualisierungsvorgang kann eineige Zeit in Anspruch nehmen.
+
+Add to playlist
+Zu Wiedergabeliste hinzufügen
+
+Stream URI
+Stream URL
+
+http://uri.to/stream.mp3
+http://url.zum/stream.mp3
+
+Invalid URI
+Ungültige URL
+
+Please choose playlist.
+Bitte Wiedergabeliste auswählen
+
+Create Playlist
+Neue Wiedergabeliste
+
+Invalid filename
+Ungültiger Dateiname
+
+Invalid type
+Ungültiger Typ
+
+Add
+Hinzufügen
+
+Rename playlist
+Wiedergabeliste umbenennen
+
+From
+Von
+
+To
+Zu
+
+Cancel
+Abbrechen
+
+Save
+Speichern
+
+Delete playlist
+Wiedergabeliste löschen
+
+Delete
+Löschen
+
+Love song
+Lieblingslied
+
+Dislike song
+Schlechtes Lied
+
+Like song
+Gutes Lied
+
+folder.jpg
+folder.jpg
+
+Size in px
+Größe in PX
+
+Save smart playlist
+Intelligente Wiedergabeliste sichern
+
+Name
+Name
+
+Tag
+Tag
+
+Sticker
+Sticker
+
+Max. songs
+Max. Lieder
+
+Must be a number
+Muss eine Zahl sein
+
+Timerange (days)
+Tage
+
+Like
+Like
+
+Play count
+Gespielt
+
+Theme
+Design
+
+General
+Allgemein
+
+Random
+Zufall
+
+Consume
+Konsumieren
+
+Single
+Nur ein Lied
+
+Repeat
+Schleife
+
+Crossfade
+Crossfade
+
+Replaygain
+Lautstärkeanpassung
+
+Off
+deaktiviert
+
+Mixramp DB
+Mixramp DB
+
+Mixramp delay
+Mixramp Verzögerung
+
+Autoplay
+Automatische Wiedergabe
+
+Jukebox
+Jukebox
+
+Jukebox mode
+Jukebox Modus
+
+Keep queue length
+Warteschlangenlänge
+
+Must be a number and greater than zero
+Muss eine Zahl größer als 0 sein
+
+Albumart
+Albumcover
+
+Can't access music directory
+Musik Verzeichnis nicht verfügbar
+
+Size
+Größe
+
+Invalid size
+Ungültige Größe
+
+Solid color
+Farbe
+
+Invalid color
+Ungültige Farbe
+
+CSS filter
+CSS Filter
+
+Invalid CSS filter
+Ungültiger CSS Filter
+
+Locale
+Sprache
+
+Browser default
+Browsereinstellung
+
+Pagination
+Seitenumbruch
+
+Must be a number smaller or equal 200
+Muss eine Zahl kleinergleich 200 sein
+
+Notifications
+Hinweise
+
+On page notifications
+Integrierte Hinweise
+
+Web notifications
+Systemhinweise
+
+Tags to use
+Genutzte Tags
+
+Tags to search
+Tags für die Suche
+
+Tags to browse
+Tags for die Datenbankanzeige
+
+Local playback
+Lokale Wiedergabe
+
+URI
+URL
+
+Port
+Port
+
+Statistics
+Statistiken
+
+Stickers are disabled
+Sticker sind deaktiviert
+
+Playback statistics
+Wiedergabestatistiken
+
+Last played list count
+Anzahl zuletzt gespielte Lieder
+
+Smart playlists
+Intelligente Wiedergabelisten
+
+Smart playlist
+Intelligente Wiedergabeliste
+
+Playlists are disabled
+Wiedergabelisten sind deaktiviert
+
+Scrobbler Integration
+Scrobbler Intergration
+
+MPD channel not found
+MPD Channel nicht gefunden
+
+Send love message
+Sende Lieblingslied
+
+MPD channel
+MPD Channel
+
+Invalid channel name
+Ungültiger Channel name
+
+Message
+Nachricht
+
+Invalid message
+Ungültige Zeichen in Nachricht
+
+Reset
+Zurücksetzen
+
+Shortcuts
+Tastenkombinationen
+
+Version
+Version
+
+Homepage
+Homepage
+
+Author
+Autor
+
+Database Statistics
+Datenbank Satistiken
+
+Artists
+Interpreten
+
+Albums
+Alben
+
+Songs
+Lieder
+
+DB play time
+Datenbank Wiedergabedauer
+
+DB updated
+Datenbank zuletzt aktualisiert
+
+Uptime
+Uptime
+
+Play time
+Wiedergabedauer
+
+Connection
+Verbindung
+
+Protocol version
+Protokoll Version
+
+Libmpdclient version
+Libmpdclient Version
+
+Shortcut
+Tastenkürzel
+
+Action
+Aktion
+
+MPD host
+MPD Host
+
+Invalid MPD host
+Ungültiger MPD Host
+
+MPD port
+MPD Port
+
+Invalid MPD port
+Ungültiger MPD Port
+
+MPD password
+MPD Passwort
+
+Invalid MPD password
+Ungültiges MPD Passwort
+
+Music directory
+Musikverzeichnis
+
+Autodetect
+Automatisch
+
+None
+Keines
+
+Specify
+Manuell
+
+Invalid music directory
+Ungültiges Musikverzeichnis
+
+Music directory not found
+Musikverzeichnis nicht gefunden
+
+Playlist name
+Wiedergabelistenname
+
+Add randrom
+Zufällig
+
+Quantity
+Anzahl
+
+Save bookmark
+Lesezeichen speichern
+
+Bookmark name
+Name
+
+Bookmark URI
+Lesezeichen URL
+
+Song details
+Lieddetails
+
+Close
+Schließen
+
+Searching...
+Suche...
+
+Previous song
+Voriges Lied
+
+Next song
+Nächstes Lied
+
+Toggle play / pause
+Play / Pause
+
+Stop playing
+Stop
+
+
+Volume down
+Lauter
+
+Volume up
+Leiser
+
+Open settings
+Einstellungen
+
+Open song details
+Lieddetails
+
+Open local player
+Lokale Wiedergabe
+
+Goto playback
+Gehe zu Wiedergabe
+
+Goto queue
+Gehe zu Warteschlange
+
+Goto last played
+Gehe zu Zuletzt gespielt
+
+Goto browse database
+Gehe zu Datenbank durchsuchen
+
+Goto browse playlists
+Gehe zu Wiedergabelisten
+
+Goto browse filesystem
+Gehe zu Dateisystem
+
+Goto search
+Fehe zur Suche
+
+Open main menu
+Öffne Hauptmenü
+
+Open volume menu
+Öffne Lautstärkemenü
+
+Open about
+Öffne Über myMPD
+
+Focus search
+Gehe zur Suche
+
+myMPD installed as app
+myMPD wurde als App installiert
+
+Can not start playing
+Wiedergabe kann nicht gestartet werden
+
+MPD disconnected
+MPD nicht verbunden
+
+Websocket connection failed
+Websocket Verbindung fehlgeschlagen
+
+Connected to myMPD
+Verbindung zu myMPD hergestellt
+
+Connected to MPD
+Verbindung zu MPD hergestellt
+
+Websocket connection failed, trying to reconnect
+Websocket Verbindung fehlgeschlagen, versuche neue Verbindung
+
+Can not parse settings
+Einstellungen können nicht geladen werden
+
+Volumecontrol disabled
+Lautstärkeregelung deaktiviert
+
+No results, please refine your search
+Keine Ergebenise, bitte passe die Suche an
+
+Empty queue
+Leere Warteschlange
+
+Empty list
+Leere Liste
+
+No playlists found
+Keine Wiedergabelisten gefunden

@@ -56,7 +56,6 @@ echo "Minifying javascript"
 minify js htdocs/js/mympd.js dist/htdocs/js/mympd.min.js
 minify js htdocs/sw.js dist/htdocs/sw.min.js
 minify js htdocs/js/keymap.js dist/htdocs/js/keymap.min.js
-minify js htdocs/js/i18n.js dist/htdocs/js/i18n.min.js
 minify js dist/htdocs/js/bootstrap-native-v4.js dist/htdocs/js/bootstrap-native-v4.min.js
 
 echo "Minifying stylesheets"
