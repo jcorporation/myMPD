@@ -13,7 +13,7 @@ Datenbank aktualisieren
 Rescan database
 Datenbank neu einlesen
 
-Update smart slaylists
+Update smart playlists
 Intelligente Wiedergabelisten aktualisieren
 
 Settings
@@ -244,11 +244,23 @@ Löschen
 Love song
 Lieblingslied
 
+Scrobbled love
+Lieblingslied gescrobbelt
+
+Failed to send love message to channel
+Lieblingslied Nachricht konnte nicht gesendet werden
+
 Dislike song
 Schlechtes Lied
 
 Like song
 Gutes Lied
+
+Failed to set like
+Wertung konnte nicht gesetzt werden
+
+MPD stickers are disabled
+MPD Sticker sind deaktiviert
 
 folder.jpg
 folder.jpg
@@ -411,6 +423,12 @@ Anzahl zuletzt gespielte Lieder
 
 Smart playlists
 Intelligente Wiedergabelisten
+
+Smart playlists updated
+Intelligente Wiedergabelisten aktualisiert
+
+Smart playlist %{playlist} updated
+Intelligente Wiedergabeliste %{playlist} aktualisiert
 
 Smart playlist
 Intelligente Wiedergabeliste
@@ -727,3 +745,56 @@ Neue Wiedergabeliste
 never
 noch nie
 
+Failed to set mpd state %{state}
+Setzen des MPD Status %{state} fehlgeschlagen
+
+Failed to save playlist
+Wiedergabeliste konnte nicht gespeichert werden
+
+Goto previous song failed
+Zurück zum vorigen Lied fehlgeschlagen
+
+Skip to next song failed
+Weiter zum nächsten Lied fehlgeschlagen
+
+Begin to play failed
+Wiedergabe konnte nicht gestart werden
+
+Stop playing failed
+Wiedergabe konnte nicht beendet werden
+
+Clearing queue failed
+Warteschlange konnte nicht geleert werden
+
+Removing track from queue failed
+Lied konnte nicht aus der Warteschlange entfernt werden
+
+Removing track range from queue failed
+Leder konnten nicht aus der Warteschlange entfernt werden
+
+Moving track in queue failed
+Lied konnte in der Warteschlange nicht verschoben werden
+
+Moving track in playlist failed
+Lied konnte in der Wiedergabeliste nicht verschoben werden
+
+Set playing track failed
+Lied konnte nicht abgespielt werden
+
+Enabling output failed
+Musikausgabegeräte konnte nicht aktiviert werden
+
+Disabling output failed
+Musikausgabegerät konnte nicht deaktiviert werden
+
+Setting volume failed
+Lautstärke konnte nicht geändert werden
+
+Seeking song failed
+Abspielposition konnte nicht geändert werden
+
+Added %{uri} to playlist %{playlist}
+%{uri} zu Wiedergabeliste %{playlist} hinzugefügt
+
+Adding song to playlist failed
+Lied konnte nicht zur Wiedergabeliste hinzugefügt werden

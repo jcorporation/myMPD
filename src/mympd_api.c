@@ -498,21 +498,25 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
         if (je == 4) {
             if (strcmp(p_charbuf2, "dontsetpassword") != 0) {
                 REASSIGN_PTR(mympd_state->mpd_pass, p_charbuf1);
-                if (!state_file_write(config, "mpd_pass", mympd_state->mpd_pass))
+                if (!state_file_write(config, "mpd_pass", mympd_state->mpd_pass)) {
                     response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state mpd_pass.\"}");
+                }
             }
             else {
                 FREE_PTR(p_charbuf2);
             }
             REASSIGN_PTR(mympd_state->mpd_host, p_charbuf1);
             REASSIGN_PTR(mympd_state->music_directory, p_charbuf3);
-            if (!state_file_write(config, "mpd_host", mympd_state->mpd_host))
+            if (!state_file_write(config, "mpd_host", mympd_state->mpd_host)) {
                 response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state mpd_host.\"}");
-            if (!state_file_write(config, "music_directory", mympd_state->music_directory))
+            }
+            if (!state_file_write(config, "music_directory", mympd_state->music_directory)) {
                 response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state music_directory.\"}");
+            }
             snprintf(p_char, 7, "%d", mympd_state->mpd_port);
-            if (!state_file_write(config, "mpd_port", p_char))
+            if (!state_file_write(config, "mpd_port", p_char)) {
                 response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state mpd_port.\"}");
+            }
             //push settings to mpd_client queue
             mympd_api_push_to_mpd_client(mympd_state);
             response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");

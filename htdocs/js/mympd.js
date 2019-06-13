@@ -404,7 +404,9 @@ function showAppInitAlert(text) {
 
 function appInitStart() {
     subdir = window.location.pathname.replace('/index.html', '').replace(/\/$/, '');
-        
+    
+    i18nHtml(document.getElementById('modalAppInit'));
+    
     //register serviceworker
     if ('serviceWorker' in navigator && document.URL.substring(0, 5) == 'https' && window.location.hostname != 'localhost') {
         window.addEventListener('load', function() {
@@ -1512,10 +1514,10 @@ function t(phrase, number, data) {
     return result;
 }
 
-function i18nHtml() {
+function i18nHtml(root) {
     var attributes = [['data-phrase', 'innerText'], ['data-title-phrase', 'title'], ['data-placeholder-phrase', 'placeholder']];
     for (var i = 0; i < attributes.length; i++) {
-        var els = document.querySelectorAll('[' + attributes[i][0] + ']');
+        var els = root.querySelectorAll('[' + attributes[i][0] + ']');
         var elsLen = els.length;
         for (var j = 0; j < elsLen; j++) {
             els[j][attributes[i][1]] = t(els[j].getAttribute(attributes[i][0]));
@@ -1713,7 +1715,7 @@ function parseSettings() {
     else if (app.current.app == 'Browse' && app.current.tab == 'Database' && app.current.search != '')
         appRoute();
 
-    i18nHtml();
+    i18nHtml(document.getElementsByTagName('body')[0]);
 
     settingsParsed = 'true';
 }
@@ -3484,7 +3486,12 @@ function sendAPI(request, callback, onerror) {
             if (ajaxRequest.responseText != '') {
                 var obj = JSON.parse(ajaxRequest.responseText);
                 if (obj.type == 'error') {
-                    showNotification(t('Error'), t(obj.data), t(obj.data), 'danger');
+                    if (obj.number != undefined) {
+                        showNotification(t(obj.data, obj.number, obj.values), '', '', 'danger');
+                    }
+                    else {
+                        showNotification(t(obj.data, obj.values), '', '', 'success');
+                    }
                     logError(obj.data);
                     if (onerror == true) {
                         if (callback != undefined && typeof(callback) == 'function') {
@@ -3495,7 +3502,12 @@ function sendAPI(request, callback, onerror) {
                 }
                 else if (obj.type == 'result' && obj.data != 'ok') {
                     logDebug('Got API response: ' + obj.data);
-                    showNotification(t(obj.data), '', '', 'success');
+                    if (obj.number != undefined) {
+                        showNotification(t(obj.data, obj.number, obj.values), '', '', 'success');
+                    }
+                    else {
+                        showNotification(t(obj.data, obj.values), '', '', 'success');
+                    }
                 }
                 else if (callback != undefined && typeof(callback) == 'function') {
                     logDebug('Got API response of type "' + obj.type + '" calling ' + callback.name);
