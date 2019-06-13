@@ -1,10 +1,15 @@
 #!/usr/bin/perl -w
 use strict;
 
-my $i18n;
-my @langs = ("en-US", "de-DE");
-
 my $p = defined($ARGV[0]) ? 1 : 0;
+my $i18n;
+my @langs = ();
+
+opendir my $dir, "." or die "Can't open directory: $!";
+while (my $entry = readdir $dir) {
+    push @langs, $1 if $entry =~ /^([\w\-]+)\.txt$/;
+}
+closedir $dir;
 
 for my $lang (@langs) {
     open my $file, $lang.".txt" or die "Can't open ".$lang.".txt";
