@@ -44,6 +44,7 @@ var websocketTimer = null;
 var appInited = false;
 var subdir = '';
 var uiEnabled = true;
+var locale = navigator.language || navigator.userLanguage;
 
 var app = {};
 app.apps = { "Playback":   { "state": "0/-/-/", "scrollPos": 0 },
@@ -520,6 +521,7 @@ function appInit() {
     document.getElementById('modalAddToPlaylist').addEventListener('shown.bs.modal', function () {
         if (!document.getElementById('addStreamFrm').classList.contains('hide')) {
             document.getElementById('streamUrl').focus();
+            document.getElementById('streamUrl').value = '';
         }
         else {
             document.getElementById('addToPlaylistPlaylist').focus();
@@ -590,7 +592,7 @@ function appInit() {
     });
 
     document.getElementById('addToPlaylistPlaylist').addEventListener('change', function (event) {
-        if (this.options[this.selectedIndex].text == 'New Playlist') {
+        if (this.options[this.selectedIndex].value == 'new') {
             document.getElementById('addToPlaylistNewPlaylistDiv').classList.remove('hide');
             document.getElementById('addToPlaylistNewPlaylist').focus();
         }
@@ -1470,30 +1472,43 @@ function filterCols(x) {
     settings[x] = cols;
 }
 
-function t(phrase, arg) {
+function smartCount(number) {
+    if (number == 0) { return 1; }
+    else if (number == 1) { return 0; }
+    else { return 1; }
+}
+
+function t(phrase, number, data) {
     var result = undefined;
+    if (isNaN(number)) {
+        data = number;
+    }
+    
     if (phrases[phrase]) {
-        result = phrases[phrase][settings.locale];
+        result = phrases[phrase][locale];
         if (result == undefined) {
+            if (locale != 'en-US') {
+                logDebug('Phrase "' + phrase + '" for locale ' + locale + ' not found');
+            }
             result = phrases[phrase]['en-US'];
         }
     }
     if (result == undefined) {
         result = phrase;
     }
-    if (isNaN(arg)) {
-    
-    }
-    else {
+
+    if (isNaN(number) == false) {
         var p = result.split(' |||| ');
-        if (arg == 1) {
-            result = p[0];
-        }
-        else {
-            result = p[1];
-        }
-        result = result.replace('%{smart_count}', arg);
+        result = p[smartCount(number)];
+        result = result.replace('%{smart_count}', number);
     }
+    
+    if (data != null) {
+        result = result.replace(/\%\{(\w+)\}/, function(m0, m1) {
+            return data[m1];
+        });
+    }
+    
     return result;
 }
 
@@ -1509,6 +1524,13 @@ function i18nHtml() {
 }
 
 function parseSettings() {
+    if (settings.locale == 'default') {
+        locale = navigator.language || navigator.userLanguage;
+    }
+    else {
+        locale = settings.locale;
+    }
+
     if (settings.mpdConnected == true) {
         parseMPDSettings();
     }
@@ -2896,7 +2918,7 @@ function parseSongDetails(obj) {
         if (settings.tags[i] == 'Title') {
             continue;
         }
-        songDetails += '<tr><th>' + settings.tags[i] + '</th><td data-tag="' + settings.tags[i] + '" data-name="' + encodeURI(obj.data[settings.tags[i]]) + '">';
+        songDetails += '<tr><th>' + t(settings.tags[i]) + '</th><td data-tag="' + settings.tags[i] + '" data-name="' + encodeURI(obj.data[settings.tags[i]]) + '">';
         if (settings.browsetags.includes(settings.tags[i])) {
             songDetails += '<a class="text-success" href="#">' + obj.data[settings.tags[i]] + '</a>';
         }
@@ -2905,23 +2927,23 @@ function parseSongDetails(obj) {
         }
         songDetails += '</td></tr>';
     }
-    songDetails += '<tr><th>Duration</th><td>' + beautifyDuration(obj.data.Duration) + '</td></tr>';
+    songDetails += '<tr><th>' + t('Duration') + '</th><td>' + beautifyDuration(obj.data.Duration) + '</td></tr>';
     if (settings.featLibrary) {
-        songDetails += '<tr><th>Filename</th><td><a class="text-success" href="/library/' + encodeURI(obj.data.uri) + '">' + obj.data.uri + '</a></td></tr>';
+        songDetails += '<tr><th>' + t('Filename') + '</th><td><a class="text-success" href="/library/' + encodeURI(obj.data.uri) + '">' + obj.data.uri + '</a></td></tr>';
     }
     else {
-        songDetails += '<tr><th>Filename</th><td>' + obj.data.uri + '</td></tr>';
+        songDetails += '<tr><th>' + t('Filename') + '</th><td>' + obj.data.uri + '</td></tr>';
     }
     if (settings.featStickers == true) {
-        songDetails += '<tr><th colspan="2" class="pt-3"><h5>Statistics</h5></th></tr>' +
-            '<tr><th>Play count</th><td>' + obj.data.playCount + '</td></tr>' +
-            '<tr><th>Skip count</th><td>' + obj.data.skipCount + '</td></tr>' +
-            '<tr><th>Last played</th><td>' + (obj.data.lastPlayed == 0 ? 'never' : localeDate(obj.data.lastPlayed)) + '</td></tr>' +
-            '<tr><th>Last&nbsp;skipped</th><td>' + (obj.data.lastSkipped == 0 ? 'never' : localeDate(obj.data.lastSkipped)) + '</td></tr>' +
-            '<tr><th>Like</th><td>' +
+        songDetails += '<tr><th colspan="2" class="pt-3"><h5>' + t('Statistics') + '</h5></th></tr>' +
+            '<tr><th>' + t('Play count') + '</th><td>' + obj.data.playCount + '</td></tr>' +
+            '<tr><th>' + t('Skip count') + '</th><td>' + obj.data.skipCount + '</td></tr>' +
+            '<tr><th>' + t('Last played') + '</th><td>' + (obj.data.lastPlayed == 0 ? t('never') : localeDate(obj.data.lastPlayed)) + '</td></tr>' +
+            '<tr><th>' + t('Last skipped') + '</th><td>' + (obj.data.lastSkipped == 0 ? t('never') : localeDate(obj.data.lastSkipped)) + '</td></tr>' +
+            '<tr><th>' + t('Like') + '</th><td>' +
               '<div class="btn-group btn-group-sm">' +
-                '<button title="Dislike song" id="btnVoteDown2" data-href=\'{"cmd": "voteSong", "options": [0]}\' class="btn btn-sm btn-light material-icons">thumb_down</button>' +
-                '<button title="Like song" id="btnVoteUp2" data-href=\'{"cmd": "voteSong", "options": [2]}\' class="btn btn-sm btn-light material-icons">thumb_up</button>' +
+                '<button title="' + t('Dislike song') + '" id="btnVoteDown2" data-href=\'{"cmd": "voteSong", "options": [0]}\' class="btn btn-sm btn-light material-icons">thumb_down</button>' +
+                '<button title="' + t('Like song') + '" id="btnVoteUp2" data-href=\'{"cmd": "voteSong", "options": [2]}\' class="btn btn-sm btn-light material-icons">thumb_up</button>' +
               '</div>' +
             '</td></tr>';
     }
@@ -2956,10 +2978,10 @@ function getAllPlaylists(obj) {
     var playlists = '';
     if (obj.offset == 0) {
         if (playlistEl == 'addToPlaylistPlaylist') {
-            playlists = '<option value=""></option><option value="New Playlist">New Playlist</option>';
+            playlists = '<option value=""></option><option value="new">' + t('New playlist') + '</option>';
         }
         else if (playlistEl == 'selectJukeboxPlaylist' || playlistEl == 'selectAddToQueuePlaylist') {
-            playlists = '<option value="Database">Database</option>';
+            playlists = '<option value="Database">' + t('Database') + '</option>';
         }
     }
     for (var i = 0; i < nrItems; i++) {
@@ -3166,13 +3188,13 @@ function showAddToPlaylist(uri) {
         document.getElementById('addStreamFrm').classList.add('hide');
         document.getElementById('addToPlaylistFooter').classList.remove('hide');
         document.getElementById('addToPlaylistFrm').classList.remove('hide');
-        document.getElementById('addToPlaylistLabel').innerText = t('Add to playlist');
+        document.getElementById('addToPlaylistCaption').innerText = t('Add to playlist');
     } else {
         document.getElementById('addStreamFooter').classList.remove('hide');
         document.getElementById('addStreamFrm').classList.remove('hide');
         document.getElementById('addToPlaylistFooter').classList.add('hide');
         document.getElementById('addToPlaylistFrm').classList.add('hide');
-        document.getElementById('addToPlaylistLabel').innerText = t('Add Stream');
+        document.getElementById('addToPlaylistCaption').innerText = t('Add stream');
     }
     modalAddToPlaylist.show();
     if (settings.featPlaylists) {
@@ -3192,7 +3214,7 @@ function addToPlaylist() {
     }
     var plistEl = document.getElementById('addToPlaylistPlaylist');
     var plist = plistEl.options[plistEl.selectedIndex].text;
-    if (plist == 'New Playlist') {
+    if (plist == 'new') {
         var newPl = document.getElementById('addToPlaylistNewPlaylist').value;
         if (validatePlname(newPl) == true) {
             plist = newPl;
@@ -3238,14 +3260,11 @@ function addToQueue() {
 }
 
 function addStream() {
-    var streamUrl = document.getElementById('streamUrl').value;
-    if (streamUrl != '' && streamUrl.indexOf('http') == 0) {
-        sendAPI({"cmd": "MPD_API_QUEUE_ADD_TRACK", "data": {"uri": streamUrl}});
+    var streamUriEl = document.getElementById('streamUrl');
+    if (validateStream(streamUriEl) == true) {
+        sendAPI({"cmd": "MPD_API_QUEUE_ADD_TRACK", "data": {"uri": streamUriEl.value}});
         modalAddToPlaylist.hide();
-        showNotification('Added stream ' + streamUrl + 'to queue', '', '', 'success');
-    }
-    else {
-        document.getElementById('streamUrl').classList.add('is-invalid');
+        showNotification(t('Added stream %{streamUri} to queue', {"streamUri": streamUriEl.value}), '', '', 'success');
     }
 }
 
@@ -3368,55 +3387,55 @@ function showMenu(el, event) {
     var menu = '';
     if ((app.current.app == 'Browse' && app.current.tab == 'Filesystem') || app.current.app == 'Search' ||
         (app.current.app == 'Browse' && app.current.tab == 'Database')) {
-        menu += addMenuItem({"cmd": "appendQueue", "options": [type, uri, name]}, 'Append to queue') +
-            (type == 'song' ? addMenuItem({"cmd": "appendAfterQueue", "options": [type, uri, nextsongpos, name]}, 'Add after current playing song') : '') +
-            addMenuItem({"cmd": "replaceQueue", "options": [type, uri, name]}, 'Replace queue') +
-            (type != 'plist' && type != 'smartpls' && settings.featPlaylists ? addMenuItem({"cmd": "showAddToPlaylist", "options": [uri]}, 'Add to playlist') : '') +
-            (type == 'song' ? addMenuItem({"cmd": "songDetails", "options": [uri]}, 'Songdetails') : '') +
-            (type == 'plist' || type == 'smartpls' ? addMenuItem({"cmd": "playlistDetails", "options": [uri]}, 'View playlist') : '') +
-            (type == 'dir' ? addMenuItem({"cmd": "showBookmarkSave", "options": [-1, name, uri, type]}, 'Add bookmark') : '');
+        menu += addMenuItem({"cmd": "appendQueue", "options": [type, uri, name]}, t('Append to queue')) +
+            (type == 'song' ? addMenuItem({"cmd": "appendAfterQueue", "options": [type, uri, nextsongpos, name]}, t('Add after current playing song')) : '') +
+            addMenuItem({"cmd": "replaceQueue", "options": [type, uri, name]}, t('Replace queue')) +
+            (type != 'plist' && type != 'smartpls' && settings.featPlaylists ? addMenuItem({"cmd": "showAddToPlaylist", "options": [uri]}, t('Add to playlist')) : '') +
+            (type == 'song' ? addMenuItem({"cmd": "songDetails", "options": [uri]}, t('Song details')) : '') +
+            (type == 'plist' || type == 'smartpls' ? addMenuItem({"cmd": "playlistDetails", "options": [uri]}, t('View playlist')) : '') +
+            (type == 'dir' ? addMenuItem({"cmd": "showBookmarkSave", "options": [-1, name, uri, type]}, t('Add bookmark')) : '');
         
         if (app.current.app == 'Search') {
             var baseuri = dirname(uri);
             menu += '<div class="dropdown-divider"></div>' +
                 '<a class="dropdown-item" id="advancedMenuLink" data-toggle="collapse" href="#advancedMenu"><span class="material-icons material-icons-small-left">keyboard_arrow_right</span>Album actions</a>' +
                 '<div class="collapse" id="advancedMenu">' +
-                    addMenuItem({"cmd": "appendQueue", "options": [type, baseuri, name]}, 'Append to queue') +
-                    addMenuItem({"cmd": "appendAfterQueue", "options": [type, baseuri, nextsongpos, name]}, 'Add after current playing song') +
-                    addMenuItem({"cmd": "replaceQueue", "options": [type, baseuri, name]}, 'Replace queue') +
-                    (settings.featPlaylists ? addMenuItem({"cmd": "showAddToPlaylist", "options": [baseuri]}, 'Add to playlist') : '') +
+                    addMenuItem({"cmd": "appendQueue", "options": [type, baseuri, name]}, t('Append to queue')) +
+                    addMenuItem({"cmd": "appendAfterQueue", "options": [type, baseuri, nextsongpos, name]}, t('Add after current playing song')) +
+                    addMenuItem({"cmd": "replaceQueue", "options": [type, baseuri, name]}, t('Replace queue')) +
+                    (settings.featPlaylists ? addMenuItem({"cmd": "showAddToPlaylist", "options": [baseuri]}, t('Add to playlist')) : '') +
                 '</div>';
         }
     }
     else if (app.current.app == 'Browse' && app.current.tab == 'Playlists' && app.current.view == 'All') {
-        menu += addMenuItem({"cmd": "appendQueue", "options": [type, uri, name]}, 'Append to queue') +
-            addMenuItem({"cmd": "replaceQueue", "options": [type, uri, name]},'Replace queue') +
-            (type == 'smartpls' ? addMenuItem({"cmd": "playlistDetails", "options": [uri]}, 'View playlist') : addMenuItem({"cmd": "playlistDetails", "options": [uri]}, 'Edit playlist'))+
-            (type == 'smartpls' ? addMenuItem({"cmd": "showSmartPlaylist", "options": [uri]}, 'Edit smart playlist') : '') +
-            (settings.smartpls == true && type == 'smartpls' ? addMenuItem({"cmd": "updateSmartPlaylist", "options": [uri]}, 'Update smart playlist') : '') +
-            addMenuItem({"cmd": "showRenamePlaylist", "options": [uri]}, 'Rename playlist') + 
-            addMenuItem({"cmd": "showDelPlaylist", "options": [uri]}, 'Delete playlist');
+        menu += addMenuItem({"cmd": "appendQueue", "options": [type, uri, name]}, t('Append to queue')) +
+            addMenuItem({"cmd": "replaceQueue", "options": [type, uri, name]}, t('Replace queue')) +
+            (type == 'smartpls' ? addMenuItem({"cmd": "playlistDetails", "options": [uri]}, t('View playlist')) : addMenuItem({"cmd": "playlistDetails", "options": [uri]}, t('Edit playlist')))+
+            (type == 'smartpls' ? addMenuItem({"cmd": "showSmartPlaylist", "options": [uri]}, t('Edit smart playlist')) : '') +
+            (settings.smartpls == true && type == 'smartpls' ? addMenuItem({"cmd": "updateSmartPlaylist", "options": [uri]}, t('Update smart playlist')) : '') +
+            addMenuItem({"cmd": "showRenamePlaylist", "options": [uri]}, t('Rename playlist')) + 
+            addMenuItem({"cmd": "showDelPlaylist", "options": [uri]}, t('Delete playlist'));
     }
     else if (app.current.app == 'Browse' && app.current.tab == 'Playlists' && app.current.view == 'Detail') {
         var x = document.getElementById('BrowsePlaylistsDetailList');
-        menu += addMenuItem({"cmd": "appendQueue", "options": [type, uri, name]}, 'Append to queue') +
-            addMenuItem({"cmd": "replaceQueue", "options": [type, uri, name]}, 'Replace queue') +
+        menu += addMenuItem({"cmd": "appendQueue", "options": [type, uri, name]}, t('Append to queue')) +
+            addMenuItem({"cmd": "replaceQueue", "options": [type, uri, name]}, t('Replace queue')) +
             (x.getAttribute('data-ro') == 'false' ? addMenuItem({"cmd": "removeFromPlaylist", "options": [x.getAttribute('data-uri'), 
-                    el.parentNode.parentNode.getAttribute('data-songpos')]}, 'Remove') : '') +
-            addMenuItem({"cmd": "showAddToPlaylist", "options": [uri]}, 'Add to playlist') +
-            (uri.indexOf('http') == -1 ? addMenuItem({"cmd": "songDetails", "options": [uri]}, 'Songdetails') : '');
+                    el.parentNode.parentNode.getAttribute('data-songpos')]}, t('Remove')) : '') +
+            addMenuItem({"cmd": "showAddToPlaylist", "options": [uri]}, t('Add to playlist')) +
+            (uri.indexOf('http') == -1 ? addMenuItem({"cmd": "songDetails", "options": [uri]}, t('Song details')) : '');
     }
     else if (app.current.app == 'Queue' && app.current.tab == 'Current') {
-        menu += addMenuItem({"cmd": "delQueueSong", "options": ["single", el.parentNode.parentNode.getAttribute('data-trackid')]}, 'Remove') +
-            addMenuItem({"cmd": "delQueueSong", "options": ["range", 0, el.parentNode.parentNode.getAttribute('data-songpos')]}, 'Remove all upwards') +
-            addMenuItem({"cmd": "delQueueSong", "options": ["range", (parseInt(el.parentNode.parentNode.getAttribute('data-songpos'))-1), -1]}, 'Remove all downwards') +
-            (uri.indexOf('http') == -1 ? addMenuItem({"cmd": "songDetails", "options": [uri]}, 'Songdetails') : '');
+        menu += addMenuItem({"cmd": "delQueueSong", "options": ["single", el.parentNode.parentNode.getAttribute('data-trackid')]}, t('Remove')) +
+            addMenuItem({"cmd": "delQueueSong", "options": ["range", 0, el.parentNode.parentNode.getAttribute('data-songpos')]}, t('Remove all upwards')) +
+            addMenuItem({"cmd": "delQueueSong", "options": ["range", (parseInt(el.parentNode.parentNode.getAttribute('data-songpos'))-1), -1]}, t('Remove all downwards')) +
+            (uri.indexOf('http') == -1 ? addMenuItem({"cmd": "songDetails", "options": [uri]}, t('Song details')) : '');
     }
     else if (app.current.app == 'Queue' && app.current.tab == 'LastPlayed') {
-        menu += addMenuItem({"cmd": "appendQueue", "options": [type, uri, name]}, 'Append to queue') +
-            addMenuItem({"cmd": "replaceQueue", "options": [type, uri, name]}, 'Replace queue') +
-            addMenuItem({"cmd": "showAddToPlaylist", "options": [uri]}, 'Add to playlist') +
-            (uri.indexOf('http') == -1 ? addMenuItem({"cmd": "songDetails", "options": [uri]}, 'Songdetails') : '');
+        menu += addMenuItem({"cmd": "appendQueue", "options": [type, uri, name]}, t('Append to queue')) +
+            addMenuItem({"cmd": "replaceQueue", "options": [type, uri, name]}, t('Replace queue')) +
+            addMenuItem({"cmd": "showAddToPlaylist", "options": [uri]}, t('Add to playlist')) +
+            (uri.indexOf('http') == -1 ? addMenuItem({"cmd": "songDetails", "options": [uri]}, t('Song details')) : '');
     }
 
     
@@ -3465,7 +3484,7 @@ function sendAPI(request, callback, onerror) {
             if (ajaxRequest.responseText != '') {
                 var obj = JSON.parse(ajaxRequest.responseText);
                 if (obj.type == 'error') {
-                    showNotification('Error', obj.data, obj.data, 'danger');
+                    showNotification(t('Error'), t(obj.data), t(obj.data), 'danger');
                     logError(obj.data);
                     if (onerror == true) {
                         if (callback != undefined && typeof(callback) == 'function') {
@@ -3476,7 +3495,7 @@ function sendAPI(request, callback, onerror) {
                 }
                 else if (obj.type == 'result' && obj.data != 'ok') {
                     logDebug('Got API response: ' + obj.data);
-                    showNotification(obj.data, '', '', 'success');
+                    showNotification(t(obj.data), '', '', 'success');
                 }
                 else if (callback != undefined && typeof(callback) == 'function') {
                     logDebug('Got API response of type "' + obj.type + '" calling ' + callback.name);
@@ -3518,16 +3537,18 @@ function updateDBstarted(showModal) {
         document.getElementById('updateDBprogress').classList.add('updateDBprogressAnimate');
     }
     else {
-        showNotification('Database update started', '', '', 'success');
+        showNotification(t('Database update started'), '', '', 'success');
     }
 }
 
 function updateDBfinished(idleEvent) {
     if (document.getElementById('modalUpdateDB').classList.contains('show')) {
-        if (idleEvent == 'update_database')
-            document.getElementById('updateDBfinished').innerText = 'Database successfully updated.';
-        else if (idleEvent == 'update_finished')
-            document.getElementById('updateDBfinished').innerText = 'Database update finished.';
+        if (idleEvent == 'update_database') {
+            document.getElementById('updateDBfinished').innerText = t('Database successfully updated');
+        }
+        else if (idleEvent == 'update_finished') {
+            document.getElementById('updateDBfinished').innerText = t('Database update finished');
+        }
         var updateDBprogress = document.getElementById('updateDBprogress');
         updateDBprogress.classList.remove('updateDBprogressAnimate');
         updateDBprogress.style.width = '100%';
@@ -3535,10 +3556,12 @@ function updateDBfinished(idleEvent) {
         document.getElementById('updateDBfooter').classList.remove('hide');
     }
     else {
-        if (idleEvent == 'update_database')
-            showNotification('Database successfully updated.', '', '', 'success');
-        else if (idleEvent == 'update_finished')
-            showNotification('Database update finished.', '', '', 'success');
+        if (idleEvent == 'update_database') {
+            showNotification(t('Database successfully updated'), '', '', 'success');
+        }
+        else if (idleEvent == 'update_finished') {
+            showNotification(t('Database update finished'), '', '', 'success');
+        }
     }
 }
 
@@ -3715,22 +3738,19 @@ function addAllFromBrowseFilesystem() {
 }
 
 function addAllFromSearchPlist(plist) {
-    var nr = parseInt(document.getElementById('panel-heading-search').innerText);
-    if (!isNaN(nr) && nr > 0) {
-        if (settings.featAdvsearch) {
-            sendAPI({"cmd": "MPD_API_DATABASE_SEARCH_ADV", "data": {"plist": plist, "sort": "", "sortdesc": false, "expression": app.current.search, "offset": 0, "cols": settings.colsSearch}});
-        }
-        else {
-            sendAPI({"cmd": "MPD_API_DATABASE_SEARCH", "data": {"plist": plist, "filter": app.current.filter, "searchstr": app.current.search, "offset": 0, "cols": settings.colsSearch}});
-        }
-        showNotification('Added ' + nr  +' songs from search to ' + plist, '', '', 'success');
+    if (settings.featAdvsearch) {
+        sendAPI({"cmd": "MPD_API_DATABASE_SEARCH_ADV", "data": {"plist": plist, "sort": "", "sortdesc": false, "expression": app.current.search, "offset": 0, "cols": settings.colsSearch}});
     }
+    else {
+        sendAPI({"cmd": "MPD_API_DATABASE_SEARCH", "data": {"plist": plist, "filter": app.current.filter, "searchstr": app.current.search, "offset": 0, "cols": settings.colsSearch}});
+    }
+    showNotification(t('Added all songs from search to %{playlist}', {"playlist": plist}), '', '', 'success');
 }
 
 function addAllFromBrowseDatabasePlist(plist) {
     if (app.current.search.length >= 2) {
         sendAPI({"cmd": "MPD_API_DATABASE_SEARCH", "data": {"plist": plist, "filter": app.current.view, "searchstr": app.current.search, "offset": 0, "cols": settings.colsSearch}});
-        showNotification('Added songs from database selection to ' + plist, '', '', 'success');
+        showNotification(t('Added all songs from database selection to %{playlist}', {"playlist": plist}), '', '', 'success');
     }
 }
 
@@ -4053,12 +4073,15 @@ function openDropdown(dropdown) {
 }
 
 function focusSearch() {
-    if (app.current.app == 'Queue')
+    if (app.current.app == 'Queue') {
         document.getElementById('searchqueuestr').focus();
-    else if (app.current.app == 'Search')
+    }
+    else if (app.current.app == 'Search') {
         domCache.searchstr.focus();
-    else
+    }
+    else {
         appGoto('Search');
+    }
 }
 
 function chVolume(increment) {
@@ -4127,7 +4150,7 @@ function validatePath(el) {
 
 function localeDate(secs) {
     var d = new Date(secs * 1000);
-    return d.toLocaleString(settings.locale);
+    return d.toLocaleString(locale);
 }
 
 function validatePlname(x) {

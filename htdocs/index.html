@@ -58,7 +58,7 @@
               volume_up
             </button>
             <div class="dropdown-menu dropdown-menu-right bg-dark">
-              <h2 class="dropdown-header text-light">Volume: <span id="volumePrct"></span></h2>
+              <h2 class="dropdown-header text-light"><span data-phrase="Volume">Volume</span>: <span id="volumePrct"></span></h2>
               <form class="px-4 py-0 pb-3" id="volumeControl">
                 <div class="btn-group">
                   <button id="btnChVolumeDown" data-href='{"cmd": "chVolume", "options": [-5]}' class="btn btn-secondary">&minus;</button>
@@ -158,8 +158,8 @@
               <button data-title-phrase="Clear queue" type="button" class="btn btn-secondary material-icons" data-href='{"cmd": "sendAPI", "options": [{"cmd": "MPD_API_QUEUE_CLEAR"}]}'>clear_all</button>
               <button id="clearQueueBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-right" type="button" data-toggle="dropdown"></button>
               <div class="dropdown-menu bg-dark px-2" id="clearQueueDropdown">
-                  <button data-title-phrase="Clear queue" type="button" class="btn btn-secondary btn-sm btn-block" data-href='{"cmd": "sendAPI", "options": [{"cmd": "MPD_API_QUEUE_CLEAR"}]}' >Clear queue</button>
-                  <button data-title-phrase="Crop queue" type="button" class="btn btn-secondary btn-sm btn-block" data-href='{"cmd": "sendAPI", "options": [{"cmd": "MPD_API_QUEUE_CROP"}]}' >Crop queue</button>
+                  <button data-phrase="Clear queue" type="button" class="btn btn-secondary btn-sm btn-block" data-href='{"cmd": "sendAPI", "options": [{"cmd": "MPD_API_QUEUE_CLEAR"}]}' ></button>
+                  <button data-phrase="Crop queue" type="button" class="btn btn-secondary btn-sm btn-block" data-href='{"cmd": "sendAPI", "options": [{"cmd": "MPD_API_QUEUE_CROP"}]}' ></button>
               </div>
             </div>
           </div>
@@ -538,7 +538,7 @@
 
     <div class="card hide" id="cardSearch">
       <div class="card-header">
-        Search
+        <span data-phrase="Search"></span>
         <span id="panel-heading-search" class="text pull-right"></span>
       </div>
       <div class="card-body">
@@ -691,7 +691,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header bg-light">
-          <h5 class="modal-title"><span class="material-icons title-icon">playlist_add</span> <span id="addToPlaylistLabel" data-phrase="Add to playlist"></span></h5>
+          <h5 class="modal-title"><span class="material-icons title-icon">playlist_add</span> <span id="addToPlaylistCaption" data-phrase="Add to playlist"></span></h5>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
         <div class="modal-body">
@@ -916,7 +916,7 @@
                   <div class="col-sm-8">
                     <select id="selectReplaygain" class="form-control custom-select border-secondary">
                       <option value="off" data-phrase="Off"></option>
-                      <option value="track" data-phrase="Track"></option>
+                      <option value="track" data-phrase="Song"></option>
                       <option value="album" data-phrase="Album"></option>
                     </select>
                   </div>
@@ -950,7 +950,7 @@
                   <div class="col-sm-8">
                     <select id="selectJukeboxMode" class="form-control custom-select border-secondary">
                       <option value="0" data-phrase="Off"></option>
-                      <option value="1" data-phrase="Track"></option>
+                      <option value="1" data-phrase="Song"></option>
                       <option value="2" data-phrase="Album"></option>
                     </select>
                   </div>

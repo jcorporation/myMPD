@@ -49,9 +49,6 @@ Durchsuchen
 Search
 Suchen
 
-Last Played
-Zuletzt gespielt
-
 Save queue
 Warteschlange speichern
 
@@ -98,7 +95,7 @@ Composer
 Komponist
 
 Performer
-Interpret
+Aufführender
 
 Genre
 Genre
@@ -110,13 +107,16 @@ Pos
 Pos
 
 Track
-Lied
+Liednummer
 
 Song
 Lied
 
 Last played
 Zuletzt gespielt
+
+Last skipped
+Zuletzt übersprungen
 
 Database
 Datenbank
@@ -278,10 +278,13 @@ Timerange (days)
 Tage
 
 Like
-Like
+Wertung
 
 Play count
-Gespielt
+Wie oft gespielt
+
+Skip count
+Wie oft übersprungen
 
 Theme
 Design
@@ -565,7 +568,6 @@ Play / Pause
 Stop playing
 Stop
 
-
 Volume down
 Lauter
 
@@ -641,6 +643,9 @@ Einstellungen können nicht geladen werden
 Volumecontrol disabled
 Lautstärkeregelung deaktiviert
 
+Volume
+Lautstärke
+
 No results, please refine your search
 Keine Ergebenise, bitte passe die Suche an
 
@@ -652,3 +657,73 @@ Leere Liste
 
 No playlists found
 Keine Wiedergabelisten gefunden
+
+Added stream %{streamUri} to queue
+Stream %{streamUri} zu Warteschlange hinzugefügt
+
+Append to queue
+An Warteschlange anhängen
+
+Add after current playing song
+Nach aktuellem Lied hinzufügen
+
+View playlist
+Wiedergabeliste anzeigen
+
+Add bookmark
+Lesezeichen hinzufügen
+
+Replace queue
+Warteschlange ersetzen
+
+Edit smart playlist
+Intelligente Wiedergabeliste bearbeiten
+
+Edit playlist
+Wiegergabeliste bearbeiten
+
+Update smart playlist
+Intelligente Wiedergabeliste aktualisieren
+
+Delete playlist
+Wiedergabeliste löschen
+
+Remove
+Entfernen
+
+Remove all upwards
+Alle Lieder darüber entfernen
+
+Remove all downwards
+Aller Lieder darunter entfernen
+
+Error
+Fehler
+
+Database update started
+Datenbankaktualisierung gestartet
+
+Database successfully updated
+Datenbank erfolgreich aktualisiert
+
+Database update finished
+Datenbankaktualisierung beendet
+
+Added all songs from search to %{playlist}
+Alle Lieder der Suche zu %{playlist} hinzugefügt
+
+queue
+Warteschlange
+
+Added all songs from database selection to %{playlist}
+Alle Lieder der Auswahl zu %{playlist} hinzugefügt
+
+Add random
+Zufällig hinzufügen
+
+New playlist
+Neue Wiedergabeliste
+
+never
+noch nie
+
