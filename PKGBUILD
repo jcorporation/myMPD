@@ -28,6 +28,7 @@ build() {
   else
     cd "${srcdir}" || exit 1
   fi
+  export ARCHLINUX=true
   install -d release
   cd release || exit 1
   cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=RELEASE ..
