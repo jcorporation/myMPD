@@ -44,5 +44,5 @@ package() {
   fi
   make DESTDIR="$pkgdir/" install
 
-  install -Dm644  "$pkgdir/usr/share/mympd/mympd.service" "$pkgdir/usr/lib/systemd/system/mympd.service"
+  install -Dm644  "$pkgdir/usr/share/webapps/mympd/mympd.service" "$pkgdir/usr/lib/systemd/system/mympd.service"
 }
