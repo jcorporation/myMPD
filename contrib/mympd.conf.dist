@@ -46,4 +46,3 @@ syscmds = false
 
 [plugins]
 coverextract = true
-coverextractlib = /usr/share/mympd/lib/libmympd_coverextract.so

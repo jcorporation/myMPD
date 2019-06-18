@@ -29,7 +29,7 @@ post_upgrade() {
     echo "INFO: Certificates already created"
   else
     echo "INFO: Creating certificates"
-    /usr/share/mympd/crcert.sh
+    /usr/share/webapps/mympd/crcert.sh
   fi
 
   # move smartpls into place unless already existing

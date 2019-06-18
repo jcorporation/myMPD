@@ -28,6 +28,7 @@ build() {
   else
     cd "${srcdir}" || exit 1
   fi
+  export ARCHLINUX=true
   install -d release
   cd release || exit 1
   cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=RELEASE ..
@@ -43,5 +44,5 @@ package() {
   fi
   make DESTDIR="$pkgdir/" install
 
-  install -Dm644  "$pkgdir/usr/share/mympd/mympd.service" "$pkgdir/usr/lib/systemd/system/mympd.service"
+  install -Dm644  "$pkgdir/usr/share/webapps/mympd/mympd.service" "$pkgdir/usr/lib/systemd/system/mympd.service"
 }
