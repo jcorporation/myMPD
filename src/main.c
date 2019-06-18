@@ -155,10 +155,6 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("plugins", "coverextract")) {
         p_config->plugins_coverextract = strcmp(value, "true") == 0 ? true : false;
     }
-    else if (MATCH("plugins", "coverextractlib")) {
-        FREE_PTR(p_config->plugins_coverextractlib);
-        p_config->plugins_coverextractlib = strdup(value);
-    }
     else if (MATCH("mympd", "notificationweb")) {
         p_config->notification_web = strcmp(value, "true") == 0 ? true : false;
     }
@@ -270,7 +266,6 @@ static void mympd_free_config(t_config *config) {
     FREE_PTR(config->etcdir);
     FREE_PTR(config->love_channel);
     FREE_PTR(config->love_message);
-    FREE_PTR(config->plugins_coverextractlib);
     FREE_PTR(config->music_directory);
     FREE_PTR(config->jukebox_playlist);
     FREE_PTR(config->cols_queue_current);
@@ -310,7 +305,7 @@ static void mympd_get_env(struct t_config *config) {
         "MYMPD_LOGLEVEL", "MYMPD_USER", "MYMPD_VARLIBDIR", "MYMPD_MIXRAMP", "MYMPD_STICKERS", "MYMPD_TAGLIST", 
         "MYMPD_SEARCHTAGLIST", "MYMPD_BROWSETAGLIST", "MYMPD_SMARTPLS", "MYMPD_SYSCMDS", 
         "MYMPD_PAGINATION", "MYMPD_LASTPLAYEDCOUNT", "MYMPD_LOVE", "MYMPD_LOVECHANNEL", "MYMPD_LOVEMESSAGE",
-        "PLUGINS_COVEREXTRACT", "PLUGINS_COVEREXTRACTLIB", "MYMPD_NOTIFICATIONWEB",
+        "PLUGINS_COVEREXTRACT", "MYMPD_NOTIFICATIONWEB",
         "MYMPD_NOTIFICATIONPAGE", "MYMPD_AUTOPLAY", "MYMPD_JUKEBOXMODE",
         "MYMPD_JUKEBOXPLAYLIST", "MYMPD_JUKEBOXQUEUELENGTH", "MYMPD_COLSQUEUECURRENT",
         "MYMPD_COLSSEARCH", "MYMPD_COLSBROWSEDATABASE", "MYMPD_COLSBROWSEPLAYLISTDETAIL",
@@ -330,15 +325,18 @@ static bool init_plugins(struct t_config *config) {
     char *error = NULL;
     handle_plugins_coverextract = NULL;
     if (config->plugins_coverextract == true) {
-        LOG_INFO("Loading plugin %s", config->plugins_coverextractlib);
-        handle_plugins_coverextract = dlopen(config->plugins_coverextractlib, RTLD_LAZY);
+        size_t coverextractplugin_len = strlen(PLUGIN_PATH) + 26;
+        char coverextractplugin[coverextractplugin_len];
+        snprintf(coverextractplugin, coverextractplugin_len, "%s/libmympd_coverextract.so", PLUGIN_PATH);
+        LOG_INFO("Loading plugin %s", coverextractplugin);
+        handle_plugins_coverextract = dlopen(coverextractplugin, RTLD_LAZY);
         if (!handle_plugins_coverextract) {
-            LOG_ERROR("Can't load plugin %s: %s", config->plugins_coverextractlib, dlerror());
+            LOG_ERROR("Can't load plugin %s: %s", coverextractplugin, dlerror());
             return false;
         }
         *(void **) (&plugin_coverextract) = dlsym(handle_plugins_coverextract, "coverextract");
         if ((error = dlerror()) != NULL)  {
-            LOG_ERROR("Can't load plugin %s: %s", config->plugins_coverextractlib, error);
+            LOG_ERROR("Can't load plugin %s: %s", coverextractplugin, error);
             return false;
         }
     }
@@ -391,14 +389,13 @@ int main(int argc, char **argv) {
     config->smartpls = true;
     config->max_elements_per_page = 100;
     config->last_played_count = 20;
-    config->etcdir = strdup("/etc/mympd");
+    config->etcdir = strdup(ETC_PATH);
     config->syscmds = false;
     config->loglevel = 2;
     config->love = false;
     config->love_channel = strdup("");
     config->love_message = strdup("love");
     config->plugins_coverextract = false;
-    config->plugins_coverextractlib = strdup("/usr/share/mympd/lib/mympd_coverextract.so");
     config->music_directory = strdup("auto");
     config->notification_web = false;
     config->notification_page = true;
@@ -425,7 +422,9 @@ int main(int argc, char **argv) {
     config->coverimage_size = 240;
     config->locale = strdup("default");
 
-    char *configfile = strdup("/etc/mympd/mympd.conf");
+    size_t configfile_len = strlen(ETC_PATH) + 12;
+    char *configfile = malloc(configfile_len);
+    snprintf(configfile, configfile_len, "%s/mympd.conf", ETC_PATH);
     if (argc == 2) {
         if (strncmp(argv[1], "/", 1) == 0) {
             FREE_PTR(configfile);
@@ -461,7 +460,7 @@ int main(int argc, char **argv) {
         }
     }
     else {
-        LOG_WARN("No config file found, using defaults");
+        LOG_WARN("Config file %s not found, using defaults", configfile);
     }
 
     //read environment - overwrites config file definitions
