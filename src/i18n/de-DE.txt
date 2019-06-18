@@ -798,3 +798,102 @@ Added %{uri} to playlist %{playlist}
 
 Adding song to playlist failed
 Lied konnte nicht zur Wiedergabeliste hinzugefügt werden
+
+Clearing playlist failed
+Wiedergabeliste konnte nicht geleert werden
+
+Removing track from playlist failed
+Lied konnte nicht von Wiedergabeliste entfernt werden
+
+Adding song to queue failed
+Lied konnte nicht zur Warteschlange hinzugefügt werden
+
+Adding playlist to queue failed
+Wiedergabeliste konnte nicht zur Warteschlange hinzugefügt werden
+
+Sucessfully added random songs to queue
+Zufällige Lieder wurden zur Warteschlange hinzugefügt
+
+Adding random songs to queue failed
+Zufällige Lieder konnten nicht zur Warteschlange hinzugefügt werden
+
+Saving queue as playlist failed
+Warteschlange konnte nicht als Wiedergabeliste gespeichert werden
+
+Shuffling queue failed
+Warteschlange konnte nicht gemischt werden
+
+Deleting smart playlist failed
+Intelligente Wiedergabeliste konnte nicht gelöscht werden
+
+Deleting playlist failed
+Wiedergabeliste konnte nicht gelöscht werden
+
+Unknown request
+Unbekannter Befehl
+
+No response for cmd_id %{cmdId}
+Keine Rückmeldung für cmd_id %{cmdId}
+
+MPD connection error: %{error}
+MPD Verbindungsfehler: %{error}
+
+Renaming playlist failed
+Wiedergabeliste konnte nicht umbenannt werden
+
+Sucessfully renamed playlist
+Wiedergabeliste erfolgreich umbenannt
+
+Advanced search is disabled
+Erweiterte Suche ist deaktiviert
+
+A queue longer than 1 song in length is required to crop
+Die Warteschlange muss länger als 1 Lied sein um sie abzuschneiden
+
+You need to be playing to crop the playlist
+Wiedergabe muss gestartet sein um die Warteschlange abzuschneiden
+
+Can not read smart playlist file
+Intelligente Wiedergabeliste konnte nicht eingelesen werden
+
+Can not parse smart playlist file
+Intelligente Wiedergabeliste konnte nicht geparsed werden
+
+Unknown smart playlist type
+Unbekannter intelligenter Wiedergabenlisten Typ
+
+System commands are disabled
+Systembefehle sind deaktiviert
+
+Failed to set myMPD state %{state}
+myMPD Option %{state} konnte nicht gespeichert werden
+
+Invalid filename for coverimage_name
+Ungültiger Dateiname für Albumcover Name
+
+Invalid jukebox mode
+Ungültiger Jukebox Modus
+
+jukebox_queue_length to big, setting it to maximum value of 999
+Jukebox Warteschlangenlänge zu groß, setze Wert auf Maxiumum von 999
+
+Saving bookmark failed
+Lesezeichen konnte nicht gespeichert werden
+
+Deleting bookmark failed
+Lesezeichen konnte nicht gelöscht werden
+
+System command not defined
+Systembefehl nicht definiert
+
+Can not execute cmd %{cmd}
+Kann Systembefehl %{cmd} nicht ausführen
+
+Successfully execute cmd %{cmd}
+Systembefehl %{cmd} erfolgreich ausgeführt
+
+Failed to execute cmd %{cmd}
+Fehler beim Ausführen des Systembefehls %{cmd}
+
+Failed to open bookmarks file
+Lesezeichen Datei konnte nicht geöffnet werden

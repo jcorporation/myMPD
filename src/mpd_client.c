@@ -908,7 +908,7 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
                     response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
                 }
                 else {
-                    response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Removing track from playlist failed.\"}");
+                    response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Removing track from playlist failed\"}");
                     LOG_ERROR("Error mpd_run_playlist_delete");
                 }
                 FREE_PTR(p_charbuf1);
@@ -934,7 +934,7 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
                 if (int_rc > -1 ) 
                     response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
                 else {
-                    response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Adding track to queue failed.\"}");
+                    response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Adding song to queue failed\"}");
                     LOG_ERROR("Error mpd_run_add_id_to()");
                 }
                 FREE_PTR(p_charbuf1);
@@ -944,15 +944,15 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
             je = json_scanf(request->data, request->length, "{data: {uri:%Q }}", &p_charbuf1);
             if (je == 1) {
                 if (!mpd_run_clear(mpd_state->conn)) {
-                    response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Clearing queue failed.\"}");
+                    response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Clearing queue failed\"}");
                     LOG_ERROR("Error mpd_run_clear");
                 }
                 else if (!mpd_run_add(mpd_state->conn, p_charbuf1)) {
-                    response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Adding track to queue failed.\"}");
+                    response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Adding song to queue failed\"}");
                     LOG_ERROR("Error mpd_run_add");
                 }
                 else if (!mpd_run_play(mpd_state->conn)) {
-                    response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Playing failed.\"}");
+                    response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can not start playing\"}");
                     LOG_ERROR("Error mpd_run_play");
                 }
                 else
@@ -966,7 +966,7 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
                 if (mpd_run_add(mpd_state->conn, p_charbuf1))
                     response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
                 else {
-                    response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Append track to queue failed.\"}");
+                    response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Adding song to queue failed\"}");
                     LOG_ERROR("Error mpd_run_add");
                 }
                 FREE_PTR(p_charbuf1);
@@ -981,12 +981,12 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
                         response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
                     }
                     else {
-                        response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Setting playstate failed.\"}");
+                        response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can not start playing\"}");
                         LOG_ERROR("Error mpd_run_play_id()");
                     }
                 }
                 else {
-                    response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Adding track to queue failed.\"}");
+                    response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Adding song to queue failed\"}");
                     LOG_ERROR("Error mpd_run_add_id");
                 }
                 FREE_PTR(p_charbuf1);
@@ -996,15 +996,15 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
             je = json_scanf(request->data, request->length, "{data: {plist:%Q}}", &p_charbuf1);
             if (je == 1) {
                 if (!mpd_run_clear(mpd_state->conn)) {
-                    response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Clearing queue failed.\"}");
+                    response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Clearing queue failed\"}");
                     LOG_ERROR("Error mpd_run_clear");                
                 }
                 else if (!mpd_run_load(mpd_state->conn, p_charbuf1)) {
-                    response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Adding playlist to queue failed.\"}");
+                    response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Adding playlist to queue failed\"}");
                     LOG_ERROR("Error mpd_run_load");
                 }
                 else if (!mpd_run_play(mpd_state->conn)) {
-                    response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Setting playstate failed.\"}");
+                    response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can not start playing\"}");
                     LOG_ERROR("Error mpd_run_play");
                 }
                 else {
@@ -1019,10 +1019,10 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
                 rc = mpd_client_jukebox_add(mpd_state, int_buf1, uint_buf1, p_charbuf1);
                 FREE_PTR(p_charbuf1);
                 if (rc == true) {
-                    response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"result\", \"data\": \"Sucessfully added random songs to queue.\"}");
+                    response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"result\", \"data\": \"Sucessfully added random songs to queue\"}");
                 }
                 else {
-                    response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Adding random songs to queue failed.\"}");
+                    response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Adding random songs to queue failed\"}");
                 }
             }
             break;
@@ -1033,7 +1033,7 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
                     response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
                 }
                 else {
-                    response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Adding playlist to queue failed.\"}");
+                    response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Adding playlist to queue failed\"}");
                     LOG_ERROR("Error mpd_run_load");
                 }
                 FREE_PTR(p_charbuf1);
@@ -1045,7 +1045,7 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
                 if (mpd_run_save(mpd_state->conn, p_charbuf1))
                     response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
                 else {
-                    response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Saving queue as playlist failed.\"}");
+                    response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Saving queue as playlist failed\"}");
                     LOG_ERROR("Error mpd_run_save");
                 }
                 FREE_PTR(p_charbuf1);
@@ -1096,7 +1096,7 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
             if (mpd_run_shuffle(mpd_state->conn))
                 response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             else {
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Shuffling queue failed.\"}");
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Shuffling queue failed\"}");
                 LOG_ERROR("Error mpd_run_shuffle");
             }
             break;
@@ -1105,7 +1105,7 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
             if (je == 1) {
                 //remove smart playlist
                 if (validate_string(p_charbuf1) == false) {
-                    response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Invalid filename.\"}");
+                    response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Invalid filename\"}");
                     break;
                 }
                 size_t pl_file_len = config->varlibdir_len + strlen(p_charbuf1) + 11;
@@ -1113,7 +1113,7 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
                 snprintf(pl_file, pl_file_len, "%s/smartpls/%s", config->varlibdir, p_charbuf1);
                 if (access(pl_file, F_OK ) != -1 ) {
                     if (unlink(pl_file) == -1) {
-                        response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Deleting smart playlist failed.\"}");
+                        response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Deleting smart playlist failed\"}");
                         LOG_ERROR("Deleting smart playlist failed");
                         FREE_PTR(p_charbuf1);
                         break;
@@ -1124,7 +1124,7 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
                     response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
                 }
                 else {
-                    response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Deleting playlist failed.\"}");
+                    response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Deleting playlist failed\"}");
                     LOG_ERROR("Error mpd_run_rm()");
                 }
                 FREE_PTR(p_charbuf1);
@@ -1152,7 +1152,7 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
     }
 
     if (response->length == 0) {
-        response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"No response for cmd_id %u.\"}", request->cmd_id);
+        response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"No response for cmd_id %%{cmdId}\", \"values\": {\"cmdId\": %u}}", request->cmd_id);
     }
     if (response->conn_id > -1) {
         LOG_DEBUG("Push response to queue for connection %lu: %s", request->conn_id, response->data);
@@ -1626,7 +1626,7 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
 
             if (mpd_connection_get_error(mpd_state->conn) != MPD_ERROR_SUCCESS) {
                 LOG_ERROR("MPD connection: %s", mpd_connection_get_error_message(mpd_state->conn));
-                len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"MPD connection error: %s\"}", mpd_connection_get_error_message(mpd_state->conn));
+                len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"MPD connection error: %%{error}\", \"values\": {\"error\": \"%s\"}}", mpd_connection_get_error_message(mpd_state->conn));
                 mpd_client_notify(buffer, len);
                 mpd_state->conn_state = MPD_FAILURE;
                 return;
@@ -1634,7 +1634,7 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
 
             if (strlen(mpd_state->mpd_pass) > 0 && !mpd_run_password(mpd_state->conn, mpd_state->mpd_pass)) {
                 LOG_ERROR("MPD connection: %s", mpd_connection_get_error_message(mpd_state->conn));
-                len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"MPD connection error: %s\"}", mpd_connection_get_error_message(mpd_state->conn));
+                len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"MPD connection error: %%{error}\", \"values\": {\"error\": \"%s\"}}", mpd_connection_get_error_message(mpd_state->conn));
                 mpd_client_notify(buffer, len);
                 mpd_state->conn_state = MPD_FAILURE;
                 return;
@@ -3134,7 +3134,16 @@ static int mpd_client_search_adv(t_mpd_state *mpd_state, char *buffer, const cha
         len = json_printf(&out, "{type: result, data: ok}");
     }
 #else
-    len = json_printf(&out, "{type: error, data: %Q}", "Advanced search is disabled.");
+    //prevent unused warnings
+    (void) *mpd_state;
+    (void) *expression;
+    (void) *sort;
+    (void) *sortdesc;
+    (void) *grouptag;
+    (void) *plist;
+    (void) *offset;
+    (void) *tagcols;
+    len = json_printf(&out, "{type: error, data: %Q}", "Advanced search is disabled");
 #endif
     CHECK_RETURN_LEN();
 }
@@ -3147,7 +3156,7 @@ static int mpd_client_queue_crop(t_mpd_state *mpd_state, char *buffer) {
     int playing_song_pos = mpd_status_get_song_pos(status);
 
     if (length < 1) {
-        len = json_printf(&out, "{type: error, data: %Q}", "A playlist longer than 1 song in length is required to crop.");
+        len = json_printf(&out, "{type: error, data: %Q}", "A queue longer than 1 song in length is required to crop");
         LOG_ERROR("A playlist longer than 1 song in length is required to crop");
     }
     else if (mpd_status_get_state(status) == MPD_STATE_PLAY || mpd_status_get_state(status) == MPD_STATE_PAUSE) {
@@ -3272,13 +3281,13 @@ static int mpd_client_smartpls_put(t_config *config, char *buffer, const char *p
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
     
     if (validate_string(playlist) == false) {
-        len = json_printf(&out, "{type: error, data: %Q}}", "Can't read smart playlist file");
+        len = json_printf(&out, "{type: error, data: %Q}}", "Can not read smart playlist file");
         return len;
     }
     snprintf(pl_file, pl_file_len, "%s/smartpls/%s", config->varlibdir, playlist);
     char *content = json_fread(pl_file);
     if (content == NULL) {
-        len = json_printf(&out, "{type: error, data: %Q}}", "Can't read smart playlist file");
+        len = json_printf(&out, "{type: error, data: %Q}}", "Can not read smart playlist file");
         LOG_ERROR("Can't read smart playlist file: %s", pl_file);
         return len;
     }
@@ -3294,7 +3303,7 @@ static int mpd_client_smartpls_put(t_config *config, char *buffer, const char *p
                     int_buf1);
                 FREE_PTR(p_charbuf1);
             } else {
-                len = json_printf(&out, "{type: error, data: %Q]", "Can't parse smart playlist file");
+                len = json_printf(&out, "{type: error, data: %Q]", "Can not parse smart playlist file");
                 LOG_ERROR("Can't parse smart playlist file: %s", pl_file);
             }
         }
@@ -3306,7 +3315,7 @@ static int mpd_client_smartpls_put(t_config *config, char *buffer, const char *p
                     smartpltype,
                     int_buf1);
             } else {
-                len = json_printf(&out, "{type: error, data: %Q]", "Can't parse smart playlist file");
+                len = json_printf(&out, "{type: error, data: %Q]", "Can not parse smart playlist file");
                 LOG_ERROR("Can't parse smart playlist file: %s", pl_file);
             }
         }
@@ -3321,7 +3330,7 @@ static int mpd_client_smartpls_put(t_config *config, char *buffer, const char *p
                 FREE_PTR(p_charbuf1);
                 FREE_PTR(p_charbuf2);
             } else {
-                len = json_printf(&out, "{type: error, data: %Q]", "Can't parse smart playlist file");
+                len = json_printf(&out, "{type: error, data: %Q]", "Can not parse smart playlist file");
                 LOG_ERROR("Can't parse smart playlist file: %s", pl_file);
             }
         } else {
