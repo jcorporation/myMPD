@@ -44,6 +44,7 @@ var websocketTimer = null;
 var appInited = false;
 var subdir = '';
 var uiEnabled = true;
+var locale = navigator.language || navigator.userLanguage;
 
 var app = {};
 app.apps = { "Playback":   { "state": "0/-/-/", "scrollPos": 0 },
@@ -119,6 +120,7 @@ var modalSaveBookmark = new Modal(document.getElementById('modalSaveBookmark'));
 var dropdownMainMenu;
 var dropdownVolumeMenu = new Dropdown(document.getElementById('volumeMenu'));
 var dropdownBookmarks = new Dropdown(document.getElementById('BrowseFilesystemBookmark'));
+var dropdownLocalPlayer = new Dropdown(document.getElementById('localPlaybackMenu'));
 
 var collapseDBupdate = new Collapse(document.getElementById('navDBupdate'));
 
@@ -324,7 +326,7 @@ function appRoute() {
                 colspan--;
                 document.getElementById('SearchList').getElementsByTagName('tbody')[0].innerHTML=
                     '<tr><td><span class="material-icons">search</span></td>' +
-                    '<td colspan="' + colspan + '">Searching...</td></tr>';
+                    '<td colspan="' + colspan + '">' + t('Searching...') + '</td></tr>';
             }
         }
 
@@ -402,17 +404,19 @@ function showAppInitAlert(text) {
 
 function appInitStart() {
     subdir = window.location.pathname.replace('/index.html', '').replace(/\/$/, '');
-        
+    
+    i18nHtml(document.getElementById('modalAppInit'));
+    
     //register serviceworker
     if ('serviceWorker' in navigator && document.URL.substring(0, 5) == 'https' && window.location.hostname != 'localhost') {
         window.addEventListener('load', function() {
             navigator.serviceWorker.register('/sw.min.js', {scope: '/'}).then(function(registration) {
                 // Registration was successful
-                log_info('ServiceWorker registration successful.');
+                logInfo('ServiceWorker registration successful.');
                 registration.update();
             }, function(err) {
                 // Registration failed
-                log_error('ServiceWorker registration failed: ', err);
+                logError('ServiceWorker registration failed: ', err);
             });
         });
     }
@@ -510,7 +514,7 @@ function appInit() {
         for (var key in keymap) {
             if (keymap[key].req == undefined || settings[keymap[key].req] == true) {
                 trs += '<tr><td><div class="key' + (keymap[key].key && keymap[key].key.length > 1 ? ' material-icons material-icons-small' : '') + 
-                       '">' + (keymap[key].key != undefined ? keymap[key].key : key ) + '</div></td><td>' + keymap[key].desc + '</td></tr>';
+                       '">' + (keymap[key].key != undefined ? keymap[key].key : key ) + '</div></td><td>' + t(keymap[key].desc) + '</td></tr>';
             }
         }
         document.getElementById('tbodyShortcuts').innerHTML = trs;
@@ -519,6 +523,7 @@ function appInit() {
     document.getElementById('modalAddToPlaylist').addEventListener('shown.bs.modal', function () {
         if (!document.getElementById('addStreamFrm').classList.contains('hide')) {
             document.getElementById('streamUrl').focus();
+            document.getElementById('streamUrl').value = '';
         }
         else {
             document.getElementById('addToPlaylistPlaylist').focus();
@@ -589,7 +594,7 @@ function appInit() {
     });
 
     document.getElementById('addToPlaylistPlaylist').addEventListener('change', function (event) {
-        if (this.options[this.selectedIndex].text == 'New Playlist') {
+        if (this.options[this.selectedIndex].value == 'new') {
             document.getElementById('addToPlaylistNewPlaylistDiv').classList.remove('hide');
             document.getElementById('addToPlaylistNewPlaylist').focus();
         }
@@ -763,10 +768,10 @@ function appInit() {
 
     document.getElementById('BrowseFilesystemAddAllSongsDropdown').addEventListener('click', function(event) {
         if (event.target.nodeName == 'BUTTON') {
-            if (event.target.innerText == 'Add all to queue') {
+            if (event.target.getAttribute('data-phrase') == 'Add all to queue') {
                 addAllFromBrowse();
             }
-            else if (event.target.innerText == 'Add all to playlist') {
+            else if (event.target.getAttribute('data-phrase') == 'Add all to playlist') {
                 showAddToPlaylist(app.current.search);                
             }
         }
@@ -774,13 +779,13 @@ function appInit() {
 
     document.getElementById('searchAddAllSongsDropdown').addEventListener('click', function(event) {
         if (event.target.nodeName == 'BUTTON') {
-            if (event.target.innerText == 'Add all to queue') {
+            if (event.target.getAttribute('data-phrase') == 'Add all to queue') {
                 addAllFromSearchPlist('queue');
             }
-            else if (event.target.innerText == 'Add all to playlist') {
+            else if (event.target.getAttribute('data-phrase') == 'Add all to playlist') {
                 showAddToPlaylist('SEARCH');                
             }
-            else if (event.target.innerText == 'Save as smart playlist') {
+            else if (event.target.getAttribute('data-phrase') == 'Save as smart playlist') {
                 saveSearchAsSmartPlaylist();
             }
         }
@@ -788,10 +793,10 @@ function appInit() {
     
     document.getElementById('BrowseDatabaseAddAllSongsDropdown').addEventListener('click', function(event) {
         if (event.target.nodeName == 'BUTTON') {
-            if (event.target.innerText == 'Add all to queue') {
+            if (event.target.getAttribute('data-phrase') == 'Add all to queue') {
                 addAllFromBrowseDatabasePlist('queue');
             }
-            else if (event.target.innerText == 'Add all to playlist') {
+            else if (event.target.getAttribute('data-phrase') == 'Add all to playlist') {
                 showAddToPlaylist('DATABASE');
             }
         }
@@ -973,18 +978,18 @@ function appInit() {
         // Wait for the user to respond to the prompt
         deferredPrompt.userChoice.then((choiceResult) => {
             if (choiceResult.outcome === 'accepted') {
-                log_verbose('User accepted the A2HS prompt');
+                logVerbose('User accepted the A2HS prompt');
             }
             else {
-                log_verbose('User dismissed the A2HS prompt');
+                logVerbose('User dismissed the A2HS prompt');
             }
             deferredPrompt = null;
         });
     });
     
     window.addEventListener('appinstalled', function(event) {
-        log_info('myMPD installed as app');
-        showNotification('myMPD installed as app', '', '', 'success');
+        logInfo('myMPD installed as app');
+        showNotification(t('myMPD installed as app'), '', '', 'success');
     });
 
     window.addEventListener('beforeunload', function() {
@@ -1015,7 +1020,7 @@ async function localplayerPlay() {
             await localPlayer.play();
         } 
         catch(err) {
-            showNotification('Local Playback', 'Can not start playing', '', 'error');
+            showNotification(t('Local playback'), t('Can not start playing'), '', 'error');
         }
     }
 }
@@ -1249,28 +1254,28 @@ function toggleUI() {
         toggleAlert('alertMpdState', false, '');
     }
     else {
-        toggleAlert('alertMpdState', true, 'MPD disconnected.');
+        toggleAlert('alertMpdState', true, t('MPD disconnected'));
     }
     if (websocketConnected == true) {
         toggleAlert('alertMympdState', false, '');
     }
     else {
-        toggleAlert('alertMympdState', true, 'Websocket connection failed.');
+        toggleAlert('alertMympdState', true, t('Websocket connection failed'));
     }
 }
 
 function webSocketConnect() {
     if (socket != null) {
-        log_info("Socket already connected");
+        logInfo("Socket already connected");
         return;
     }
     var wsUrl = getWsUrl();
     socket = new WebSocket(wsUrl);
-    log_info('Connecting to ' + wsUrl);
+    logInfo('Connecting to ' + wsUrl);
 
     try {
         socket.onopen = function() {
-            log_info('Websocket is connected');
+            logInfo('Websocket is connected');
             websocketConnected = true;
             if (websocketTimer != null) {
                 clearTimeout(websocketTimer);
@@ -1281,15 +1286,15 @@ function webSocketConnect() {
         socket.onmessage = function got_packet(msg) {
             try {
                 var obj = JSON.parse(msg.data);
-                log_debug('Websocket notification: ' + obj.type);
+                logDebug('Websocket notification: ' + obj.type);
             } catch(e) {
-                log_error('Invalid JSON data received: ' + msg.data);
+                logError('Invalid JSON data received: ' + msg.data);
             }
 
             switch (obj.type) {
                 case 'welcome':
                     websocketConnected = true;
-                    showNotification('Connected to myMPD: ' + wsUrl, '', '', 'success');
+                    showNotification(t('Connected to myMPD') + ': ' + wsUrl, '', '', 'success');
                     appRoute();
                     sendAPI({"cmd": "MPD_API_PLAYER_STATE"}, parseState, true);
                     break;
@@ -1303,7 +1308,7 @@ function webSocketConnect() {
                     getSettings(true);
                     break;
                 case 'mpd_connected':
-                    showNotification('Connected to MPD', '', '', 'success');
+                    showNotification(t('Connected to MPD'), '', '', 'success');
                     sendAPI({"cmd": "MPD_API_PLAYER_STATE"}, parseState);
                     getSettings(true);
                     break;
@@ -1348,7 +1353,7 @@ function webSocketConnect() {
         }
 
         socket.onclose = function(){
-            log_error('Websocket is disconnected');
+            logError('Websocket is disconnected');
             websocketConnected = false;
             if (appInited == true) {
                 toggleUI();
@@ -1357,8 +1362,8 @@ function webSocketConnect() {
                 }
             }
             else {
-                showAppInitAlert('Websocket connection failed.');
-                log_error('Websocket connection failed.');
+                showAppInitAlert(t('Websocket connection failed'));
+                logError('Websocket connection failed.');
             }
             if (websocketTimer != null) {
                 clearTimeout(websocketTimer);
@@ -1366,8 +1371,8 @@ function webSocketConnect() {
             }
             if (websocketTimer == null) {
                 websocketTimer = setTimeout(function() {
-                    log_info('Reconnecting websocket');
-                    toggleAlert('alertMympdState', true, 'Websocket connection failed. Trying to reconnect&nbsp;&nbsp;<div class="spinner-border spinner-border-sm"></div>');
+                    logInfo('Reconnecting websocket');
+                    toggleAlert('alertMympdState', true, t('Websocket connection failed, trying to reconnect') + '&nbsp;&nbsp;<div class="spinner-border spinner-border-sm"></div>');
                     webSocketConnect();
                 }, 3000);
             }
@@ -1375,7 +1380,7 @@ function webSocketConnect() {
         }
 
     } catch(exception) {
-        alert('Error: ' + exception);
+        logError(exception);
     }
 }
 
@@ -1437,36 +1442,97 @@ function toggleBtnChk(btn, state) {
     if (state == 1 || state == true) {
         b.classList.add('active');
         b.innerText = 'check';
-        b.title = 'Click to disable';
     }
     else {
         b.classList.remove('active');
         b.innerText = 'radio_button_unchecked';
-        b.title = 'Click to enable';
     }
 }
 
 function filterCols(x) {
     var tags = settings.tags.slice();
-    if (settings.featTags == false)
+    if (settings.featTags == false) {
         tags.push('Title');
+    }
     tags.push('Duration');
-    if (x == 'colsQueueCurrent' || x == 'colsBrowsePlaylistsDetail' || x == 'colsQueueLastPlayed')
+    if (x == 'colsQueueCurrent' || x == 'colsBrowsePlaylistsDetail' || x == 'colsQueueLastPlayed') {
         tags.push('Pos');
-    else if (x == 'colsBrowseFilesystem')
+    }
+    else if (x == 'colsBrowseFilesystem') {
         tags.push('Type');
-    if (x == 'colsQueueLastPlayed')
+    }
+    if (x == 'colsQueueLastPlayed') {
         tags.push('LastPlayed');
+    }
         
     var cols = [];
     for (var i = 0; i < settings[x].length; i++) {
-        if (tags.includes(settings[x][i]))
+        if (tags.includes(settings[x][i])) {
             cols.push(settings[x][i]);
+        }
     }
     settings[x] = cols;
 }
 
+function smartCount(number) {
+    if (number == 0) { return 1; }
+    else if (number == 1) { return 0; }
+    else { return 1; }
+}
+
+function t(phrase, number, data) {
+    var result = undefined;
+    if (isNaN(number)) {
+        data = number;
+    }
+    
+    if (phrases[phrase]) {
+        result = phrases[phrase][locale];
+        if (result == undefined) {
+            if (locale != 'en-US') {
+                logDebug('Phrase "' + phrase + '" for locale ' + locale + ' not found');
+            }
+            result = phrases[phrase]['en-US'];
+        }
+    }
+    if (result == undefined) {
+        result = phrase;
+    }
+
+    if (isNaN(number) == false) {
+        var p = result.split(' |||| ');
+        result = p[smartCount(number)];
+        result = result.replace('%{smart_count}', number);
+    }
+    
+    if (data != null) {
+        result = result.replace(/\%\{(\w+)\}/, function(m0, m1) {
+            return data[m1];
+        });
+    }
+    
+    return result;
+}
+
+function i18nHtml(root) {
+    var attributes = [['data-phrase', 'innerText'], ['data-title-phrase', 'title'], ['data-placeholder-phrase', 'placeholder']];
+    for (var i = 0; i < attributes.length; i++) {
+        var els = root.querySelectorAll('[' + attributes[i][0] + ']');
+        var elsLen = els.length;
+        for (var j = 0; j < elsLen; j++) {
+            els[j][attributes[i][1]] = t(els[j].getAttribute(attributes[i][0]));
+        }
+    }
+}
+
 function parseSettings() {
+    if (settings.locale == 'default') {
+        locale = navigator.language || navigator.userLanguage;
+    }
+    else {
+        locale = settings.locale;
+    }
+
     if (settings.mpdConnected == true) {
         parseMPDSettings();
     }
@@ -1649,6 +1715,8 @@ function parseSettings() {
     else if (app.current.app == 'Browse' && app.current.tab == 'Database' && app.current.search != '')
         appRoute();
 
+    i18nHtml(document.getElementsByTagName('body')[0]);
+
     settingsParsed = 'true';
 }
 
@@ -1762,7 +1830,7 @@ function parseMPDSettings() {
         for (var i = 0; i < settings.colsPlayback.length; i++) {
             pbtl += '<div id="current' + settings.colsPlayback[i]  + '" data-tag="' + settings.colsPlayback[i] + '" '+
                     'data-name="' + encodeURI((lastSongObj.data ? lastSongObj.data[settings.colsPlayback[i]] : '')) + '">' +
-                    '<small>' + settings.colsPlayback[i] + '</small>' +
+                    '<small>' + t(settings.colsPlayback[i]) + '</small>' +
                     '<h4';
             if (settings.browsetags.includes(settings.colsPlayback[i])) {
                 pbtl += ' class="clickable"';
@@ -1789,7 +1857,7 @@ function parseMPDSettings() {
         sendAPI({"cmd": "MPD_API_PLAYLIST_LIST", "data": {"offset": 0, "filter": "-"}}, getAllPlaylists);
     }
     else {
-        document.getElementById('selectJukeboxPlaylist').innerHTML = '<option value="Database">Database</option>';
+        document.getElementById('selectJukeboxPlaylist').innerHTML = '<option value="Database">' + t('Database') + '</option>';
     }
 
     settings.tags.sort();
@@ -1834,7 +1902,7 @@ function initTagMultiSelect(inputId, listId, allTags, enabledTags) {
         list += '<div class="form-check">' +
             '<input class="form-check-input" type="checkbox" value="1" name="' + allTags[i] + '" ' + 
             (enabledTags.includes(allTags[i]) ? 'checked="checked"' : '' )+ '>' +
-            '<label class="form-check-label" for="' + allTags[i] + '">&nbsp;&nbsp;' + allTags[i] + '</label>' +
+            '<label class="form-check-label" for="' + allTags[i] + '">&nbsp;&nbsp;' + t(allTags[i]) + '</label>' +
             '</div>';
     }
     document.getElementById(listId).addEventListener('click', function(event) {
@@ -1870,14 +1938,16 @@ function setCols(table, className) {
     tags.sort();
     
     for (var i = 0; i < tags.length; i++) {
-        if (table == 'Playback' && tags[i] == 'Title')
+        if (table == 'Playback' && tags[i] == 'Title') {
             continue;
+        }
         tagChks += '<div class="form-check">' +
             '<input class="form-check-input" type="checkbox" value="1" name="' + tags[i] + '"';
-        if (settings['cols' + table].includes(tags[i]))
+        if (settings['cols' + table].includes(tags[i])) {
             tagChks += 'checked';
+        }
         tagChks += '>' +
-            '<label class="form-check-label text-light" for="' + tags[i] + '">&nbsp;&nbsp;' + tags[i] + '</label>' +
+            '<label class="form-check-label text-light" for="' + tags[i] + '">&nbsp;&nbsp;' + t(tags[i]) + '</label>' +
             '</div>';
     }
     document.getElementById(table + 'ColsDropdown').firstChild.innerHTML = tagChks;
@@ -1905,7 +1975,7 @@ function setCols(table, className) {
             heading += '<th draggable="true" data-col="' + h  + '">';
             if (h == 'Track' || h == 'Pos')
                 h = '#';
-            heading += h;
+            heading += t(h);
 
             if (table == 'Search' && (h == sort || '-' + h == sort) ) {
                 var sortdesc = false;
@@ -1942,7 +2012,7 @@ function getMpdSettings(obj) {
         if (appInited == false) {
             initState('appInitMyMPDSettings', 'error');
             initState('appInitMPDSettings', 'blank');
-            showAppInitAlert(obj == '' ? 'Can not parse settings' : obj.data);
+            showAppInitAlert(obj == '' ? t('Can not parse settings') : obj.data);
         }
         return false;
     }
@@ -1957,7 +2027,7 @@ function joinSettings(obj) {
         settingsParsed = 'error';
         if (appInited == false) {
             initState('appInitMPDSettings', 'error');
-            showAppInitAlert(obj == '' ? 'Can not parse settings' : obj.data);
+            showAppInitAlert(obj == '' ? t('Can not parse settings') : obj.data);
         }
         settingsNew.mpdConnected = false;
     }
@@ -2019,8 +2089,8 @@ function saveColsPlayback(table) {
         } 
         else if (!th) {
             th = document.createElement('div');
-            th.innerHTML = '<small>' + colInputs[i].name + '</small><h4></h4>';
-            th.setAttribute('id', 'current'+ colInputs[i].name);
+            th.innerHTML = '<small>' + t(colInputs[i].name) + '</small><h4></h4>';
+            th.setAttribute('id', 'current' + colInputs[i].name);
             th.setAttribute('data-tag', colInputs[i].name);
             header.appendChild(th);
         }
@@ -2234,7 +2304,7 @@ function parseUpdateQueue(obj) {
 
 function parseVolume(obj) {
     if (obj.data.volume == -1) {
-        domCache.volumePrct.innerText = 'Volumecontrol disabled';
+        domCache.volumePrct.innerText = t('Volumecontrol disabled');
         domCache.volumeControl.classList.add('hide');
     } 
     else {
@@ -2264,10 +2334,10 @@ function getQueue() {
 
 function parseQueue(obj) {
     if (typeof(obj.totalTime) != undefined && obj.totalTime > 0 && obj.totalEntities <= settings.maxElementsPerPage ) {
-        document.getElementById('cardFooterQueue').innerText = obj.totalEntities + ' ' + (obj.totalEntities > 1 ? 'Songs' : 'Song') + ' – ' + beautifyDuration(obj.totalTime);
+        document.getElementById('cardFooterQueue').innerText = t('Num songs', obj.totalEntities) + ' – ' + beautifyDuration(obj.totalTime);
     }
     else if (obj.totalEntities > 0) {
-        document.getElementById('cardFooterQueue').innerText = obj.totalEntities + ' ' + (obj.totalEntities > 1 ? 'Songs' : 'Song');
+        document.getElementById('cardFooterQueue').innerText = t('Num songs', obj.totalEntities);
     }
     else {
         document.getElementById('cardFooterQueue').innerText = '';
@@ -2311,11 +2381,11 @@ function parseQueue(obj) {
 
     if (obj.type == 'queuesearch' && nrItems == 0) {
         tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
-                          '<td colspan="' + colspan + '">No results, please refine your search!</td></tr>';
+                          '<td colspan="' + colspan + '">' + t('No results, please refine your search') + '</td></tr>';
     }
     else if (obj.type == 'queue' && nrItems == 0) {
         tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
-                          '<td colspan="' + colspan + '">Empty queue</td></tr>';
+                          '<td colspan="' + colspan + '">' + t('Empty queue') + '</td></tr>';
     }
 
     setPagination(obj.totalEntities, obj.returnedEntities);
@@ -2323,7 +2393,7 @@ function parseQueue(obj) {
 }
 
 function parseLastPlayed(obj) {
-    document.getElementById('cardFooterQueue').innerText = obj.totalEntities + ' Songs';
+    document.getElementById('cardFooterQueue').innerText = t('Num songs', obj.totalEntities);
     var nrItems = obj.data.length;
     var table = document.getElementById('QueueLastPlayedList');
     table.setAttribute('data-version', obj.queueVersion);
@@ -2364,7 +2434,7 @@ function parseLastPlayed(obj) {
     
     if (nrItems == 0) {
         tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
-            '<td colspan="' + colspan + '">Empty list</td></tr>';
+            '<td colspan="' + colspan + '">' + t('Empty list') + '</td></tr>';
     }
 
     setPagination(obj.totalEntities, obj.returnedEntities);
@@ -2373,16 +2443,16 @@ function parseLastPlayed(obj) {
 
 function parseSearch(obj) {
     if (obj.totalEntities > -1) {
-        document.getElementById('panel-heading-search').innerText = obj.totalEntities + ' Songs found';
-        document.getElementById('cardFooterSearch').innerText = obj.totalEntities + ' Songs found';
+        document.getElementById('panel-heading-search').innerText = t('Num songs', obj.totalEntities);
+        document.getElementById('cardFooterSearch').innerText = t('Num songs', obj.totalEntities);
     }
     else if (obj.returnedEntities + app.current.page < settings.maxElementsPerPage) {
-        document.getElementById('panel-heading-search').innerText = obj.returnedEntities + ' Songs found';
-        document.getElementById('cardFooterSearch').innerText = obj.returnedEntities + ' Songs found';
+        document.getElementById('panel-heading-search').innerText = t('Num songs', obj.returnedEntities);
+        document.getElementById('cardFooterSearch').innerText = t('Num songs', obj.returnedEntities);
     }
     else {
-        document.getElementById('panel-heading-search').innerHTML = '&ge; ' + settings.maxElementsPerPage + ' Songs found';
-        document.getElementById('cardFooterSearch').innerHTML = '&ge; ' + settings.maxElementsPerPage + ' Songs found';
+        document.getElementById('panel-heading-search').innerHTML = '&ge; ' + t('Num songs', settings.maxElementsPerPage);
+        document.getElementById('cardFooterSearch').innerHTML = '&ge; ' + t('Num songs', settings.maxElementsPerPage);
     }
     
     if (obj.returnedEntities > 0) {
@@ -2467,7 +2537,7 @@ function parseFilesystem(obj) {
                     
     if (nrItems == 0)
         tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
-                          '<td colspan="' + colspan + '">No results</td></tr>';
+                          '<td colspan="' + colspan + '">' + t('Empty list') + '</td></tr>';
     document.getElementById(app.current.app + (app.current.tab == undefined ? '' : app.current.tab) + 'List').classList.remove('opacity05');
     document.getElementById('cardFooterBrowse').innerText = obj.totalEntities + ' Entries';
 }
@@ -2490,10 +2560,10 @@ function parsePlaylists(obj) {
         }
         document.getElementById('BrowsePlaylistsDetailList').setAttribute('data-uri', obj.uri);
         if (obj.smartpls == true)
-            document.getElementById('BrowsePlaylistsDetailList').getElementsByTagName('caption')[0].innerHTML = 'Smart playlist: ' + obj.uri +
+            document.getElementById('BrowsePlaylistsDetailList').getElementsByTagName('caption')[0].innerHTML = t('Smart playlist') + ': ' + obj.uri +
                 '<small class="pull-right">' + obj.totalEntities + ' Songs </small>';
         else
-            document.getElementById('BrowsePlaylistsDetailList').getElementsByTagName('caption')[0].innerHTML = 'Playlist: ' + obj.uri +
+            document.getElementById('BrowsePlaylistsDetailList').getElementsByTagName('caption')[0].innerHTML = t('Playlist') + ': ' + obj.uri +
                 '<small class="pull-right">' + obj.totalEntities + ' Songs </small>';
         document.getElementById('BrowsePlaylistsDetailList').classList.remove('hide');
         document.getElementById('BrowsePlaylistsAllList').classList.add('hide');
@@ -2521,7 +2591,7 @@ function parsePlaylists(obj) {
             else 
                 tbody.append(row);
         }
-        document.getElementById('cardFooterBrowse').innerText = obj.totalEntities + ' Playlists';
+        document.getElementById('cardFooterBrowse').innerText = t('Num playlists', obj.totalEntities);
     }
     else if (app.current.view == 'Detail') {
         for (var i = 0; i < nrItems; i++) {
@@ -2550,7 +2620,7 @@ function parsePlaylists(obj) {
                 tbody.append(row);
             }
         }
-        document.getElementById('cardFooterBrowse').innerText = obj.totalEntities + ' Songs';
+        document.getElementById('cardFooterBrowse').innerText = t('Num songs', obj.totalEntities);
     }
     var trLen = tr.length - 1;
     for (var i = trLen; i >= nrItems; i --) {
@@ -2564,10 +2634,10 @@ function parsePlaylists(obj) {
         colspan--;
         if (app.current.view == 'All')
             tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
-                              '<td colspan="' + colspan + '">No playlists found.</td></tr>';
+                              '<td colspan="' + colspan + '">' + t('No playlists found') + '</td></tr>';
         else
             tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
-                              '<td colspan="' + colspan + '">Empty playlist.</td></tr>';
+                              '<td colspan="' + colspan + '">' + t('Empty list') + '</td></tr>';
     }
             
     document.getElementById(app.current.app + app.current.tab + app.current.view + 'List').classList.remove('opacity05');
@@ -2850,7 +2920,7 @@ function parseSongDetails(obj) {
         if (settings.tags[i] == 'Title') {
             continue;
         }
-        songDetails += '<tr><th>' + settings.tags[i] + '</th><td data-tag="' + settings.tags[i] + '" data-name="' + encodeURI(obj.data[settings.tags[i]]) + '">';
+        songDetails += '<tr><th>' + t(settings.tags[i]) + '</th><td data-tag="' + settings.tags[i] + '" data-name="' + encodeURI(obj.data[settings.tags[i]]) + '">';
         if (settings.browsetags.includes(settings.tags[i])) {
             songDetails += '<a class="text-success" href="#">' + obj.data[settings.tags[i]] + '</a>';
         }
@@ -2859,23 +2929,23 @@ function parseSongDetails(obj) {
         }
         songDetails += '</td></tr>';
     }
-    songDetails += '<tr><th>Duration</th><td>' + beautifyDuration(obj.data.Duration) + '</td></tr>';
+    songDetails += '<tr><th>' + t('Duration') + '</th><td>' + beautifyDuration(obj.data.Duration) + '</td></tr>';
     if (settings.featLibrary) {
-        songDetails += '<tr><th>Filename</th><td><a class="text-success" href="/library/' + encodeURI(obj.data.uri) + '">' + obj.data.uri + '</a></td></tr>';
+        songDetails += '<tr><th>' + t('Filename') + '</th><td><a class="text-success" href="/library/' + encodeURI(obj.data.uri) + '">' + obj.data.uri + '</a></td></tr>';
     }
     else {
-        songDetails += '<tr><th>Filename</th><td>' + obj.data.uri + '</td></tr>';
+        songDetails += '<tr><th>' + t('Filename') + '</th><td>' + obj.data.uri + '</td></tr>';
     }
     if (settings.featStickers == true) {
-        songDetails += '<tr><th colspan="2" class="pt-3"><h5>Statistics</h5></th></tr>' +
-            '<tr><th>Play count</th><td>' + obj.data.playCount + '</td></tr>' +
-            '<tr><th>Skip count</th><td>' + obj.data.skipCount + '</td></tr>' +
-            '<tr><th>Last played</th><td>' + (obj.data.lastPlayed == 0 ? 'never' : localeDate(obj.data.lastPlayed)) + '</td></tr>' +
-            '<tr><th>Last&nbsp;skipped</th><td>' + (obj.data.lastSkipped == 0 ? 'never' : localeDate(obj.data.lastSkipped)) + '</td></tr>' +
-            '<tr><th>Like</th><td>' +
+        songDetails += '<tr><th colspan="2" class="pt-3"><h5>' + t('Statistics') + '</h5></th></tr>' +
+            '<tr><th>' + t('Play count') + '</th><td>' + obj.data.playCount + '</td></tr>' +
+            '<tr><th>' + t('Skip count') + '</th><td>' + obj.data.skipCount + '</td></tr>' +
+            '<tr><th>' + t('Last played') + '</th><td>' + (obj.data.lastPlayed == 0 ? t('never') : localeDate(obj.data.lastPlayed)) + '</td></tr>' +
+            '<tr><th>' + t('Last skipped') + '</th><td>' + (obj.data.lastSkipped == 0 ? t('never') : localeDate(obj.data.lastSkipped)) + '</td></tr>' +
+            '<tr><th>' + t('Like') + '</th><td>' +
               '<div class="btn-group btn-group-sm">' +
-                '<button title="Dislike song" id="btnVoteDown2" data-href=\'{"cmd": "voteSong", "options": [0]}\' class="btn btn-sm btn-light material-icons">thumb_down</button>' +
-                '<button title="Like song" id="btnVoteUp2" data-href=\'{"cmd": "voteSong", "options": [2]}\' class="btn btn-sm btn-light material-icons">thumb_up</button>' +
+                '<button title="' + t('Dislike song') + '" id="btnVoteDown2" data-href=\'{"cmd": "voteSong", "options": [0]}\' class="btn btn-sm btn-light material-icons">thumb_down</button>' +
+                '<button title="' + t('Like song') + '" id="btnVoteUp2" data-href=\'{"cmd": "voteSong", "options": [2]}\' class="btn btn-sm btn-light material-icons">thumb_up</button>' +
               '</div>' +
             '</td></tr>';
     }
@@ -2910,10 +2980,10 @@ function getAllPlaylists(obj) {
     var playlists = '';
     if (obj.offset == 0) {
         if (playlistEl == 'addToPlaylistPlaylist') {
-            playlists = '<option value=""></option><option value="New Playlist">New Playlist</option>';
+            playlists = '<option value=""></option><option value="new">' + t('New playlist') + '</option>';
         }
         else if (playlistEl == 'selectJukeboxPlaylist' || playlistEl == 'selectAddToQueuePlaylist') {
-            playlists = '<option value="Database">Database</option>';
+            playlists = '<option value="Database">' + t('Database') + '</option>';
         }
     }
     for (var i = 0; i < nrItems; i++) {
@@ -3030,8 +3100,8 @@ function parseSmartPlaylist(obj) {
     document.getElementById('saveSmartPlaylistNewest').classList.add('hide');
     var tagList;
     if (settings.featTags)
-        tagList = '<option value="any">Any Tag</option>';
-    tagList += '<option value="filename">Filename</option>';
+        tagList = '<option value="any">' + t('Any Tag') + '</option>';
+    tagList += '<option value="filename">' + t('Filename') + '</option>';
     for (var i = 0; i < settings.searchtags.length; i++)
             tagList += '<option value="' + settings.searchtags[i] + '">' + settings.searchtags[i] + '</option>';
     document.getElementById('selectSaveSmartPlaylistTag').innerHTML = tagList;
@@ -3120,13 +3190,13 @@ function showAddToPlaylist(uri) {
         document.getElementById('addStreamFrm').classList.add('hide');
         document.getElementById('addToPlaylistFooter').classList.remove('hide');
         document.getElementById('addToPlaylistFrm').classList.remove('hide');
-        document.getElementById('addToPlaylistLabel').innerText = 'Add to playlist';
+        document.getElementById('addToPlaylistCaption').innerText = t('Add to playlist');
     } else {
         document.getElementById('addStreamFooter').classList.remove('hide');
         document.getElementById('addStreamFrm').classList.remove('hide');
         document.getElementById('addToPlaylistFooter').classList.add('hide');
         document.getElementById('addToPlaylistFrm').classList.add('hide');
-        document.getElementById('addToPlaylistLabel').innerText = 'Add Stream';
+        document.getElementById('addToPlaylistCaption').innerText = t('Add stream');
     }
     modalAddToPlaylist.show();
     if (settings.featPlaylists) {
@@ -3146,7 +3216,7 @@ function addToPlaylist() {
     }
     var plistEl = document.getElementById('addToPlaylistPlaylist');
     var plist = plistEl.options[plistEl.selectedIndex].text;
-    if (plist == 'New Playlist') {
+    if (plist == 'new') {
         var newPl = document.getElementById('addToPlaylistNewPlaylist').value;
         if (validatePlname(newPl) == true) {
             plist = newPl;
@@ -3192,14 +3262,11 @@ function addToQueue() {
 }
 
 function addStream() {
-    var streamUrl = document.getElementById('streamUrl').value;
-    if (streamUrl != '' && streamUrl.indexOf('http') == 0) {
-        sendAPI({"cmd": "MPD_API_QUEUE_ADD_TRACK", "data": {"uri": streamUrl}});
+    var streamUriEl = document.getElementById('streamUrl');
+    if (validateStream(streamUriEl) == true) {
+        sendAPI({"cmd": "MPD_API_QUEUE_ADD_TRACK", "data": {"uri": streamUriEl.value}});
         modalAddToPlaylist.hide();
-        showNotification('Added stream ' + streamUrl + 'to queue', '', '', 'success');
-    }
-    else {
-        document.getElementById('streamUrl').classList.add('is-invalid');
+        showNotification(t('Added stream %{streamUri} to queue', {"streamUri": streamUriEl.value}), '', '', 'success');
     }
 }
 
@@ -3322,55 +3389,55 @@ function showMenu(el, event) {
     var menu = '';
     if ((app.current.app == 'Browse' && app.current.tab == 'Filesystem') || app.current.app == 'Search' ||
         (app.current.app == 'Browse' && app.current.tab == 'Database')) {
-        menu += addMenuItem({"cmd": "appendQueue", "options": [type, uri, name]}, 'Append to queue') +
-            (type == 'song' ? addMenuItem({"cmd": "appendAfterQueue", "options": [type, uri, nextsongpos, name]}, 'Add after current playing song') : '') +
-            addMenuItem({"cmd": "replaceQueue", "options": [type, uri, name]}, 'Replace queue') +
-            (type != 'plist' && type != 'smartpls' && settings.featPlaylists ? addMenuItem({"cmd": "showAddToPlaylist", "options": [uri]}, 'Add to playlist') : '') +
-            (type == 'song' ? addMenuItem({"cmd": "songDetails", "options": [uri]}, 'Songdetails') : '') +
-            (type == 'plist' || type == 'smartpls' ? addMenuItem({"cmd": "playlistDetails", "options": [uri]}, 'View playlist') : '') +
-            (type == 'dir' ? addMenuItem({"cmd": "showBookmarkSave", "options": [-1, name, uri, type]}, 'Add bookmark') : '');
+        menu += addMenuItem({"cmd": "appendQueue", "options": [type, uri, name]}, t('Append to queue')) +
+            (type == 'song' ? addMenuItem({"cmd": "appendAfterQueue", "options": [type, uri, nextsongpos, name]}, t('Add after current playing song')) : '') +
+            addMenuItem({"cmd": "replaceQueue", "options": [type, uri, name]}, t('Replace queue')) +
+            (type != 'plist' && type != 'smartpls' && settings.featPlaylists ? addMenuItem({"cmd": "showAddToPlaylist", "options": [uri]}, t('Add to playlist')) : '') +
+            (type == 'song' ? addMenuItem({"cmd": "songDetails", "options": [uri]}, t('Song details')) : '') +
+            (type == 'plist' || type == 'smartpls' ? addMenuItem({"cmd": "playlistDetails", "options": [uri]}, t('View playlist')) : '') +
+            (type == 'dir' ? addMenuItem({"cmd": "showBookmarkSave", "options": [-1, name, uri, type]}, t('Add bookmark')) : '');
         
         if (app.current.app == 'Search') {
             var baseuri = dirname(uri);
             menu += '<div class="dropdown-divider"></div>' +
                 '<a class="dropdown-item" id="advancedMenuLink" data-toggle="collapse" href="#advancedMenu"><span class="material-icons material-icons-small-left">keyboard_arrow_right</span>Album actions</a>' +
                 '<div class="collapse" id="advancedMenu">' +
-                    addMenuItem({"cmd": "appendQueue", "options": [type, baseuri, name]}, 'Append to queue') +
-                    addMenuItem({"cmd": "appendAfterQueue", "options": [type, baseuri, nextsongpos, name]}, 'Add after current playing song') +
-                    addMenuItem({"cmd": "replaceQueue", "options": [type, baseuri, name]}, 'Replace queue') +
-                    (settings.featPlaylists ? addMenuItem({"cmd": "showAddToPlaylist", "options": [baseuri]}, 'Add to playlist') : '') +
+                    addMenuItem({"cmd": "appendQueue", "options": [type, baseuri, name]}, t('Append to queue')) +
+                    addMenuItem({"cmd": "appendAfterQueue", "options": [type, baseuri, nextsongpos, name]}, t('Add after current playing song')) +
+                    addMenuItem({"cmd": "replaceQueue", "options": [type, baseuri, name]}, t('Replace queue')) +
+                    (settings.featPlaylists ? addMenuItem({"cmd": "showAddToPlaylist", "options": [baseuri]}, t('Add to playlist')) : '') +
                 '</div>';
         }
     }
     else if (app.current.app == 'Browse' && app.current.tab == 'Playlists' && app.current.view == 'All') {
-        menu += addMenuItem({"cmd": "appendQueue", "options": [type, uri, name]}, 'Append to queue') +
-            addMenuItem({"cmd": "replaceQueue", "options": [type, uri, name]},'Replace queue') +
-            (type == 'smartpls' ? addMenuItem({"cmd": "playlistDetails", "options": [uri]}, 'View playlist') : addMenuItem({"cmd": "playlistDetails", "options": [uri]}, 'Edit playlist'))+
-            (type == 'smartpls' ? addMenuItem({"cmd": "showSmartPlaylist", "options": [uri]}, 'Edit smart playlist') : '') +
-            (settings.smartpls == true && type == 'smartpls' ? addMenuItem({"cmd": "updateSmartPlaylist", "options": [uri]}, 'Update smart playlist') : '') +
-            addMenuItem({"cmd": "showRenamePlaylist", "options": [uri]}, 'Rename playlist') + 
-            addMenuItem({"cmd": "showDelPlaylist", "options": [uri]}, 'Delete playlist');
+        menu += addMenuItem({"cmd": "appendQueue", "options": [type, uri, name]}, t('Append to queue')) +
+            addMenuItem({"cmd": "replaceQueue", "options": [type, uri, name]}, t('Replace queue')) +
+            (type == 'smartpls' ? addMenuItem({"cmd": "playlistDetails", "options": [uri]}, t('View playlist')) : addMenuItem({"cmd": "playlistDetails", "options": [uri]}, t('Edit playlist')))+
+            (type == 'smartpls' ? addMenuItem({"cmd": "showSmartPlaylist", "options": [uri]}, t('Edit smart playlist')) : '') +
+            (settings.smartpls == true && type == 'smartpls' ? addMenuItem({"cmd": "updateSmartPlaylist", "options": [uri]}, t('Update smart playlist')) : '') +
+            addMenuItem({"cmd": "showRenamePlaylist", "options": [uri]}, t('Rename playlist')) + 
+            addMenuItem({"cmd": "showDelPlaylist", "options": [uri]}, t('Delete playlist'));
     }
     else if (app.current.app == 'Browse' && app.current.tab == 'Playlists' && app.current.view == 'Detail') {
         var x = document.getElementById('BrowsePlaylistsDetailList');
-        menu += addMenuItem({"cmd": "appendQueue", "options": [type, uri, name]}, 'Append to queue') +
-            addMenuItem({"cmd": "replaceQueue", "options": [type, uri, name]}, 'Replace queue') +
+        menu += addMenuItem({"cmd": "appendQueue", "options": [type, uri, name]}, t('Append to queue')) +
+            addMenuItem({"cmd": "replaceQueue", "options": [type, uri, name]}, t('Replace queue')) +
             (x.getAttribute('data-ro') == 'false' ? addMenuItem({"cmd": "removeFromPlaylist", "options": [x.getAttribute('data-uri'), 
-                    el.parentNode.parentNode.getAttribute('data-songpos')]}, 'Remove') : '') +
-            addMenuItem({"cmd": "showAddToPlaylist", "options": [uri]}, 'Add to playlist') +
-            (uri.indexOf('http') == -1 ? addMenuItem({"cmd": "songDetails", "options": [uri]}, 'Songdetails') : '');
+                    el.parentNode.parentNode.getAttribute('data-songpos')]}, t('Remove')) : '') +
+            addMenuItem({"cmd": "showAddToPlaylist", "options": [uri]}, t('Add to playlist')) +
+            (uri.indexOf('http') == -1 ? addMenuItem({"cmd": "songDetails", "options": [uri]}, t('Song details')) : '');
     }
     else if (app.current.app == 'Queue' && app.current.tab == 'Current') {
-        menu += addMenuItem({"cmd": "delQueueSong", "options": ["single", el.parentNode.parentNode.getAttribute('data-trackid')]}, 'Remove') +
-            addMenuItem({"cmd": "delQueueSong", "options": ["range", 0, el.parentNode.parentNode.getAttribute('data-songpos')]}, 'Remove all upwards') +
-            addMenuItem({"cmd": "delQueueSong", "options": ["range", (parseInt(el.parentNode.parentNode.getAttribute('data-songpos'))-1), -1]}, 'Remove all downwards') +
-            (uri.indexOf('http') == -1 ? addMenuItem({"cmd": "songDetails", "options": [uri]}, 'Songdetails') : '');
+        menu += addMenuItem({"cmd": "delQueueSong", "options": ["single", el.parentNode.parentNode.getAttribute('data-trackid')]}, t('Remove')) +
+            addMenuItem({"cmd": "delQueueSong", "options": ["range", 0, el.parentNode.parentNode.getAttribute('data-songpos')]}, t('Remove all upwards')) +
+            addMenuItem({"cmd": "delQueueSong", "options": ["range", (parseInt(el.parentNode.parentNode.getAttribute('data-songpos'))-1), -1]}, t('Remove all downwards')) +
+            (uri.indexOf('http') == -1 ? addMenuItem({"cmd": "songDetails", "options": [uri]}, t('Song details')) : '');
     }
     else if (app.current.app == 'Queue' && app.current.tab == 'LastPlayed') {
-        menu += addMenuItem({"cmd": "appendQueue", "options": [type, uri, name]}, 'Append to queue') +
-            addMenuItem({"cmd": "replaceQueue", "options": [type, uri, name]}, 'Replace queue') +
-            addMenuItem({"cmd": "showAddToPlaylist", "options": [uri]}, 'Add to playlist') +
-            (uri.indexOf('http') == -1 ? addMenuItem({"cmd": "songDetails", "options": [uri]}, 'Songdetails') : '');
+        menu += addMenuItem({"cmd": "appendQueue", "options": [type, uri, name]}, t('Append to queue')) +
+            addMenuItem({"cmd": "replaceQueue", "options": [type, uri, name]}, t('Replace queue')) +
+            addMenuItem({"cmd": "showAddToPlaylist", "options": [uri]}, t('Add to playlist')) +
+            (uri.indexOf('http') == -1 ? addMenuItem({"cmd": "songDetails", "options": [uri]}, t('Song details')) : '');
     }
 
     
@@ -3419,29 +3486,39 @@ function sendAPI(request, callback, onerror) {
             if (ajaxRequest.responseText != '') {
                 var obj = JSON.parse(ajaxRequest.responseText);
                 if (obj.type == 'error') {
-                    showNotification('Error', obj.data, obj.data, 'danger');
-                    log_error(obj.data);
+                    if (obj.number != undefined) {
+                        showNotification(t(obj.data, obj.number, obj.values), '', '', 'danger');
+                    }
+                    else {
+                        showNotification(t(obj.data, obj.values), '', '', 'success');
+                    }
+                    logError(obj.data);
                     if (onerror == true) {
                         if (callback != undefined && typeof(callback) == 'function') {
-                            log_debug('Got API response of type "' + obj.type + '" calling ' + callback.name);
+                            logDebug('Got API response of type "' + obj.type + '" calling ' + callback.name);
                             callback(obj);
                         }
                     }
                 }
                 else if (obj.type == 'result' && obj.data != 'ok') {
-                    log_debug('Got API response: ' + obj.data);
-                    showNotification(obj.data, '', '', 'success');
+                    logDebug('Got API response: ' + obj.data);
+                    if (obj.number != undefined) {
+                        showNotification(t(obj.data, obj.number, obj.values), '', '', 'success');
+                    }
+                    else {
+                        showNotification(t(obj.data, obj.values), '', '', 'success');
+                    }
                 }
                 else if (callback != undefined && typeof(callback) == 'function') {
-                    log_debug('Got API response of type "' + obj.type + '" calling ' + callback.name);
+                    logDebug('Got API response of type "' + obj.type + '" calling ' + callback.name);
                     callback(obj);
                 }
             }
             else {
-                log_error('Empty response for request: ' + JSON.stringify(request));
+                logError('Empty response for request: ' + JSON.stringify(request));
                 if (onerror == true) {
                     if (callback != undefined && typeof(callback) == 'function') {
-                        log_debug('Got API response of type "' + obj.type + '" calling ' + callback.name);
+                        logDebug('Got API response of type "' + obj.type + '" calling ' + callback.name);
                         callback('');
                     }
                 }
@@ -3449,7 +3526,7 @@ function sendAPI(request, callback, onerror) {
         }
     };
     ajaxRequest.send(JSON.stringify(request));
-    log_debug('Send API request: ' + request.cmd);
+    logDebug('Send API request: ' + request.cmd);
 }
 
 function updateDB() {
@@ -3472,16 +3549,18 @@ function updateDBstarted(showModal) {
         document.getElementById('updateDBprogress').classList.add('updateDBprogressAnimate');
     }
     else {
-        showNotification('Database update started', '', '', 'success');
+        showNotification(t('Database update started'), '', '', 'success');
     }
 }
 
 function updateDBfinished(idleEvent) {
     if (document.getElementById('modalUpdateDB').classList.contains('show')) {
-        if (idleEvent == 'update_database')
-            document.getElementById('updateDBfinished').innerText = 'Database successfully updated.';
-        else if (idleEvent == 'update_finished')
-            document.getElementById('updateDBfinished').innerText = 'Database update finished.';
+        if (idleEvent == 'update_database') {
+            document.getElementById('updateDBfinished').innerText = t('Database successfully updated');
+        }
+        else if (idleEvent == 'update_finished') {
+            document.getElementById('updateDBfinished').innerText = t('Database update finished');
+        }
         var updateDBprogress = document.getElementById('updateDBprogress');
         updateDBprogress.classList.remove('updateDBprogressAnimate');
         updateDBprogress.style.width = '100%';
@@ -3489,10 +3568,12 @@ function updateDBfinished(idleEvent) {
         document.getElementById('updateDBfooter').classList.remove('hide');
     }
     else {
-        if (idleEvent == 'update_database')
-            showNotification('Database successfully updated.', '', '', 'success');
-        else if (idleEvent == 'update_finished')
-            showNotification('Database update finished.', '', '', 'success');
+        if (idleEvent == 'update_database') {
+            showNotification(t('Database successfully updated'), '', '', 'success');
+        }
+        else if (idleEvent == 'update_finished') {
+            showNotification(t('Database update finished'), '', '', 'success');
+        }
     }
 }
 
@@ -3669,22 +3750,19 @@ function addAllFromBrowseFilesystem() {
 }
 
 function addAllFromSearchPlist(plist) {
-    var nr = parseInt(document.getElementById('panel-heading-search').innerText);
-    if (!isNaN(nr) && nr > 0) {
-        if (settings.featAdvsearch) {
-            sendAPI({"cmd": "MPD_API_DATABASE_SEARCH_ADV", "data": {"plist": plist, "sort": "", "sortdesc": false, "expression": app.current.search, "offset": 0, "cols": settings.colsSearch}});
-        }
-        else {
-            sendAPI({"cmd": "MPD_API_DATABASE_SEARCH", "data": {"plist": plist, "filter": app.current.filter, "searchstr": app.current.search, "offset": 0, "cols": settings.colsSearch}});
-        }
-        showNotification('Added ' + nr  +' songs from search to ' + plist, '', '', 'success');
+    if (settings.featAdvsearch) {
+        sendAPI({"cmd": "MPD_API_DATABASE_SEARCH_ADV", "data": {"plist": plist, "sort": "", "sortdesc": false, "expression": app.current.search, "offset": 0, "cols": settings.colsSearch}});
     }
+    else {
+        sendAPI({"cmd": "MPD_API_DATABASE_SEARCH", "data": {"plist": plist, "filter": app.current.filter, "searchstr": app.current.search, "offset": 0, "cols": settings.colsSearch}});
+    }
+    showNotification(t('Added all songs from search to %{playlist}', {"playlist": plist}), '', '', 'success');
 }
 
 function addAllFromBrowseDatabasePlist(plist) {
     if (app.current.search.length >= 2) {
         sendAPI({"cmd": "MPD_API_DATABASE_SEARCH", "data": {"plist": plist, "filter": app.current.view, "searchstr": app.current.search, "offset": 0, "cols": settings.colsSearch}});
-        showNotification('Added songs from database selection to ' + plist, '', '', 'success');
+        showNotification(t('Added all songs from database selection to %{playlist}', {"playlist": plist}), '', '', 'success');
     }
 }
 
@@ -3986,11 +4064,11 @@ function addTagList(el, list) {
     var tagList = '';
     if (list == 'searchtags') {
         if (settings.featTags == true)
-            tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="any">Any Tag</button>';
-        tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="filename">Filename</button>';
+            tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="any">' + t('Any Tag') + '</button>';
+        tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="filename">' + t('Filename') + '</button>';
     }
     for (var i = 0; i < settings[list].length; i++)
-        tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="' + settings[list][i] + '">' + settings[list][i] + '</button>';
+        tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="' + settings[list][i] + '">' + t(settings[list][i]) + '</button>';
     document.getElementById(el).innerHTML = tagList;
 }
 
@@ -4007,12 +4085,15 @@ function openDropdown(dropdown) {
 }
 
 function focusSearch() {
-    if (app.current.app == 'Queue')
+    if (app.current.app == 'Queue') {
         document.getElementById('searchqueuestr').focus();
-    else if (app.current.app == 'Search')
+    }
+    else if (app.current.app == 'Search') {
         domCache.searchstr.focus();
-    else
+    }
+    else {
         appGoto('Search');
+    }
 }
 
 function chVolume(increment) {
@@ -4081,7 +4162,7 @@ function validatePath(el) {
 
 function localeDate(secs) {
     var d = new Date(secs * 1000);
-    return d.toLocaleString(settings.locale);
+    return d.toLocaleString(locale);
 }
 
 function validatePlname(x) {
@@ -4151,27 +4232,27 @@ function validateHost(el) {
     }
 }
 
-function log_error(line) {
-    log_log(0, 'ERROR: ' + line);
+function logError(line) {
+    logLog(0, 'ERROR: ' + line);
 }
 
-function log_warn(line) {
-    log_log(1, 'WARN: ' + line);
+function logWarn(line) {
+    logLog(1, 'WARN: ' + line);
 }
 
-function log_info(line) {
-    log_log(2, 'INFO: ' + line);
+function logInfo(line) {
+    logLog(2, 'INFO: ' + line);
 }
 
-function log_verbose(line) {
-    log_log(3, 'VERBOSE: ' + line);
+function logVerbose(line) {
+    logLog(3, 'VERBOSE: ' + line);
 }
 
-function log_debug(line) {
-    log_log(4, 'DEBUG: ' + line);
+function logDebug(line) {
+    logLog(4, 'DEBUG: ' + line);
 }
 
-function log_log(loglevel, line) {
+function logLog(loglevel, line) {
     if (settings.loglevel >= loglevel) {
         console.log(line);
     }

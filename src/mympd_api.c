@@ -233,7 +233,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             }
         } 
         else {
-            response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"System commands are disabled.\"}");
+            response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"System commands are disabled\"}");
         }
     }
     else if (request->cmd_id == MYMPD_API_COLS_SAVE) {
@@ -274,7 +274,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                 mympd_state->cols_queue_last_played = strdup(cols);
             }
             else {
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Unknown table %s\"}", p_charbuf1);
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Unknown table %%{table}\", \"values\": {\"table\": \"%s\"}}", p_charbuf1);
                 LOG_ERROR("MYMPD_API_COLS_SAVE: Unknown table %s", p_charbuf1);
             }
             if (response->length == 0) {
@@ -293,42 +293,42 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
         if (je == 1) {
             mympd_state->notification_web = bool_buf;
             if (!state_file_write(config, "notification_web", (mympd_state->notification_web == true ? "true" : "false")))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state notification_web.\"}");
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"notification_web\"}}");
         }    
         je = json_scanf(request->data, request->length, "{data: {notificationPage: %B}}", &bool_buf);
         if (je == 1) {
             mympd_state->notification_page = bool_buf;
             if (!state_file_write(config, "notification_page", (mympd_state->notification_page == true ? "true" : "false")))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state notification_page.\"}");
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"notification_page\"}}");
         }
         je = json_scanf(request->data, request->length, "{data: {autoPlay: %B}}", &bool_buf);
         if (je == 1) {
             mympd_state->auto_play = bool_buf;
             if (!state_file_write(config, "auto_play", (mympd_state->auto_play == true ? "true" : "false")))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state auto_play.\"}");
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"auto_play\"}}");
         }
         je = json_scanf(request->data, request->length, "{data: {localplayerAutoplay: %B}}", &bool_buf);
         if (je == 1) {
             mympd_state->localplayer_autoplay = bool_buf;
             if (!state_file_write(config, "localplayer_autoplay", (mympd_state->localplayer_autoplay == true ? "true" : "false")))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state localplayer_autoplay.\"}");
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"localplayer_autoplay\"}}");
         }
         je = json_scanf(request->data, request->length, "{data: {coverimage: %B}}", &bool_buf);
         if (je == 1) {
             mympd_state->coverimage = bool_buf;
             if (!state_file_write(config, "coverimage", (mympd_state->coverimage == true ? "true" : "false")))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state coverimage.\"}");
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"coverimage\"}}");
         }
         je = json_scanf(request->data, request->length, "{data: {coverimageName: %Q}}", &p_charbuf1);
         if (je == 1) {
             if (validate_string(p_charbuf1) && strlen(p_charbuf1) > 0) {
                 REASSIGN_PTR(mympd_state->coverimage_name, p_charbuf1);
                 if (!state_file_write(config, "coverimage_name", mympd_state->coverimage_name))
-                    response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state coverimage_name.\"}");
+                    response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"coverimage_name\"}}");
             }
             else {
                 FREE_PTR(p_charbuf1);
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Invalid filename for coverimage_name.\"}");
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Invalid filename for coverimage_name\"}");
             }
         }
         
@@ -337,116 +337,116 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             mympd_state->coverimage_size = int_buf1;
             snprintf(p_char, 7, "%d", mympd_state->coverimage_size);
             if (!state_file_write(config, "coverimage_size", p_char))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state coverimage_size.\"}");
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"coverimage_size\"}}");
         }
         je = json_scanf(request->data, request->length, "{data: {featLocalplayer: %B}}", &bool_buf);
         if (je == 1) {
             mympd_state->localplayer = bool_buf;
             if (!state_file_write(config, "localplayer", (mympd_state->localplayer == true ? "true" : "false")))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state localplayer.\"}");
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"localplayer\"}}");
         }
         je = json_scanf(request->data, request->length, "{data: {streamPort: %d}}", &int_buf1);
         if (je == 1) {
             mympd_state->stream_port = int_buf1;
             snprintf(p_char, 7, "%d", mympd_state->stream_port);
             if (!state_file_write(config, "stream_port", p_char))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state stream_port.\"}");
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"stream_port\"}}");
         }
         je = json_scanf(request->data, request->length, "{data: {streamUrl: %Q}}", &p_charbuf1);
         if (je == 1) {
             REASSIGN_PTR(mympd_state->stream_url, p_charbuf1);
             if (!state_file_write(config, "stream_url", mympd_state->stream_url))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state stream_url.\"}");
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"stream_url\"}}");
         }
         je = json_scanf(request->data, request->length, "{data: {locale: %Q}}", &p_charbuf1);
         if (je == 1) {
             REASSIGN_PTR(mympd_state->locale, p_charbuf1);
             if (!state_file_write(config, "locale", mympd_state->locale))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state locale.\"}");
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"locale\"}}");
         }
         je = json_scanf(request->data, request->length, "{data: {bgCover: %B}}", &bool_buf);
         if (je == 1) {
             mympd_state->bg_cover = bool_buf;
             if (!state_file_write(config, "bg_cover", (mympd_state->bg_cover == true ? "true" : "false")))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state bg_cover.\"}");
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"bg_cover\"}}");
         }
         je = json_scanf(request->data, request->length, "{data: {bgColor: %Q}}", &p_charbuf1);
         if (je == 1) {
             REASSIGN_PTR(mympd_state->bg_color, p_charbuf1);
             if (!state_file_write(config, "bg_color", mympd_state->bg_color))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state bg_color.\"}");
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"bg_color\"}}");
         }
         je = json_scanf(request->data, request->length, "{data: {bgCssFilter: %Q}}", &p_charbuf1);
         if (je == 1) {
             REASSIGN_PTR(mympd_state->bg_css_filter, p_charbuf1);
             if (!state_file_write(config, "bg_css_filter", mympd_state->bg_css_filter))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state bg_css_filter.\"}");
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"bg_css_filter\"}}");
         }
         je = json_scanf(request->data, request->length, "{data: {jukeboxMode: %u}}", &uint_buf1);
         if (je == 1) {
             mympd_state->jukebox_mode = uint_buf1;
             if (mympd_state->jukebox_mode > 2) {
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Invalid jukeboxMode.\"}");
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Invalid jukebox mode\"}");
                 LOG_ERROR("Invalid jukeboxMode");
                 mympd_state->jukebox_mode = JUKEBOX_OFF;
             }
             snprintf(p_char, 7, "%d", mympd_state->jukebox_mode);
             if (!state_file_write(config, "jukebox_mode", p_char))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state jukebox_mode.\"}");
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"jukebox_mode\"}}");
         }
         je = json_scanf(request->data, request->length, "{data: {jukeboxPlaylist: %Q}}", &p_charbuf1);
         if (je == 1) {
             REASSIGN_PTR(mympd_state->jukebox_playlist, p_charbuf1);
             if (!state_file_write(config, "jukebox_playlist", mympd_state->jukebox_playlist))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state jukebox_playlist.\"}");
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"jukebox_playlist\"}}");
         }
         je = json_scanf(request->data, request->length, "{data: {jukeboxQueueLength: %d}}", &int_buf1);
         if (je == 1) {
             mympd_state->jukebox_queue_length = int_buf1;
             if (mympd_state->jukebox_queue_length > 999) {
-                LOG_WARN("jukeboxQueueLength to big, setting it to maximum value of 999");
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"jukeboxQueueLength to big, setting it to maximum value of 999\"}");
+                LOG_WARN("jukebox_queue_length to big, setting it to maximum value of 999");
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"jukebox_queue_length to big, setting it to maximum value of 999\"}");
                 mympd_state->jukebox_queue_length = 999;
             }
             snprintf(p_char, 7, "%d", mympd_state->jukebox_queue_length);
             if (!state_file_write(config, "jukebox_queue_length", p_char))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state jukebox_queue_length.\"}");
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"jukebox_queue_length\"}}");
         }
         je = json_scanf(request->data, request->length, "{data: {stickers: %B}}", &bool_buf);
         if (je == 1) {
             mympd_state->stickers = bool_buf;
             if (!state_file_write(config, "stickers", (mympd_state->stickers == true ? "true" : "false")))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state stickers.\"}");
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"stickers\"}}");
         }
         je = json_scanf(request->data, request->length, "{data: {lastPlayedCount: %d}}", &int_buf1);
         if (je == 1) {
             mympd_state->last_played_count = int_buf1;
             snprintf(p_char, 7, "%d", mympd_state->last_played_count);
             if (!state_file_write(config, "last_played_count", p_char))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state last_played_count.\"}");
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"last_played_count\"}}");
         }
         je = json_scanf(request->data, request->length, "{data: {taglist: %Q}}", &p_charbuf1);
         if (je == 1) {
             REASSIGN_PTR(mympd_state->taglist, p_charbuf1);
             if (!state_file_write(config, "taglist", mympd_state->taglist))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state taglist.\"}");
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"taglist\"}}");
         }
         je = json_scanf(request->data, request->length, "{data: {searchtaglist: %Q}}", &p_charbuf1);
         if (je == 1) {
             REASSIGN_PTR(mympd_state->searchtaglist, p_charbuf1);
             if (!state_file_write(config, "searchtaglist", mympd_state->searchtaglist))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state searchtaglist.\"}");
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"searchtaglist\"}}");
         }
         je = json_scanf(request->data, request->length, "{data: {browsetaglist: %Q}}", &p_charbuf1);
         if (je == 1) {
             REASSIGN_PTR(mympd_state->browsetaglist, p_charbuf1);
             if (!state_file_write(config, "browsetaglist", mympd_state->browsetaglist))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state browsetaglist.\"}");
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"browsetaglist\"}}");
         }
         je = json_scanf(request->data, request->length, "{data: {smartpls: %B}}", &mympd_state->smartpls);
         if (je == 1) {
             if (!state_file_write(config, "smartpls", (mympd_state->smartpls == true ? "true" : "false")))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state smartpls.\"}");
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"smartpls\"}}");
         }
         je = json_scanf(request->data, request->length, "{data: {maxElementsPerPage: %d}}", &int_buf1);
         if (je == 1) {
@@ -457,25 +457,25 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             }
             snprintf(p_char, 7, "%d", mympd_state->max_elements_per_page);
             if (!state_file_write(config, "max_elements_per_page", p_char))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state max_elements_per_page.\"}");
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"max_elements_per_page\"}}");
         }
         je = json_scanf(request->data, request->length, "{data: {love: %B}}", &bool_buf);
         if (je == 1) {
             mympd_state->love = bool_buf;
             if (!state_file_write(config, "love", (mympd_state->love == true ? "true" : "false")))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state love.\"}");
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"love\"}}");
         }
         je = json_scanf(request->data, request->length, "{data: {loveChannel: %Q}}", &p_charbuf1);
         if (je == 1) {
             REASSIGN_PTR(mympd_state->love_channel, p_charbuf1);
             if (!state_file_write(config, "love_channel", mympd_state->love_channel))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state love_channel.\"}");
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"love_channel\"}}");
         }
         je = json_scanf(request->data, request->length, "{data: {loveMessage: %Q}}", &p_charbuf1);
         if (je == 1) {
             REASSIGN_PTR(mympd_state->love_message, p_charbuf1);
             if (!state_file_write(config, "love_message", mympd_state->love_message))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state love_message.\"}");
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"love_message\"}}");
         }
         if (response->length == 0) {
             //forward request to mpd_client queue            
@@ -498,21 +498,25 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
         if (je == 4) {
             if (strcmp(p_charbuf2, "dontsetpassword") != 0) {
                 REASSIGN_PTR(mympd_state->mpd_pass, p_charbuf1);
-                if (!state_file_write(config, "mpd_pass", mympd_state->mpd_pass))
-                    response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state mpd_pass.\"}");
+                if (!state_file_write(config, "mpd_pass", mympd_state->mpd_pass)) {
+                    response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"mpd_pass\"}}");
+                }
             }
             else {
                 FREE_PTR(p_charbuf2);
             }
             REASSIGN_PTR(mympd_state->mpd_host, p_charbuf1);
             REASSIGN_PTR(mympd_state->music_directory, p_charbuf3);
-            if (!state_file_write(config, "mpd_host", mympd_state->mpd_host))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state mpd_host.\"}");
-            if (!state_file_write(config, "music_directory", mympd_state->music_directory))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state music_directory.\"}");
+            if (!state_file_write(config, "mpd_host", mympd_state->mpd_host)) {
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"mpd_host\"}}");
+            }
+            if (!state_file_write(config, "music_directory", mympd_state->music_directory)) {
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"music_directory\"}}");
+            }
             snprintf(p_char, 7, "%d", mympd_state->mpd_port);
-            if (!state_file_write(config, "mpd_port", p_char))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't set state mpd_port.\"}");
+            if (!state_file_write(config, "mpd_port", p_char)) {
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"mpd_port\"}}");
+            }
             //push settings to mpd_client queue
             mympd_api_push_to_mpd_client(mympd_state);
             response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
@@ -525,7 +529,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                 response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
             else {
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't save bookmark.\"}");
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Saving bookmark failed\"}");
             }
             FREE_PTR(p_charbuf1);
             FREE_PTR(p_charbuf2);
@@ -539,7 +543,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                 response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
             }
             else {
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't delete bookmark.\"}");
+                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Deleting bookmark failed\"}");
             }
         }
     }
@@ -550,12 +554,12 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
         }
     }
     else {
-        response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Unknown cmd_id %u.\"}", request->cmd_id);
+        response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Unknown request\"}");
         LOG_ERROR("Unknown cmd_id %u", request->cmd_id);    
     }
 
     if (response->length == 0) {
-        response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"No response for cmd_id %u.\"}", request->cmd_id);
+        response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"No response for cmd_id %%{cmdId}\", \"values\": {\"cmdId\": %u}}", request->cmd_id);
         LOG_ERROR("No response for cmd_id %u", request->cmd_id);
     }
     LOG_DEBUG("Push response to queue for connection %lu: %s", request->conn_id, response->data);
@@ -616,7 +620,7 @@ static int mympd_api_syscmd(t_config *config, t_mympd_state *mympd_state, char *
     snprintf(filename, 400, "%s/syscmds/%d%s", config->etcdir, order, cmd);
     FILE *fp = fopen(filename, "r");    
     if (fp == NULL) {
-        len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't execute cmd %s.\"}", cmd);
+        len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can not execute cmd %%{cmd}\", \"values\":{\"cmd\": \"%s\"}}", cmd);
         LOG_ERROR("Can't execute syscmd \"%s\"", cmd);
         return len;
     }
@@ -626,15 +630,15 @@ static int mympd_api_syscmd(t_config *config, t_mympd_state *mympd_state, char *
         strtok_r(line, "\n", &crap);
         const int rc = system(line);
         if ( rc == 0) {
-            len = snprintf(buffer, MAX_SIZE, "{\"type\": \"result\", \"data\": \"Executed cmd %s.\"}", cmd);
+            len = snprintf(buffer, MAX_SIZE, "{\"type\": \"result\", \"data\": \"Successfully execute cmd %%{cmd}\", \"values\":{\"cmd\": \"%s\"}}", cmd);
             LOG_VERBOSE("Executed syscmd: \"%s\"", line);
         }
         else {
-            len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Executing cmd %s failed.\"}", cmd);
-            LOG_ERROR("ERROR: Executing syscmd \"%s\" failed", cmd);
+            len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to execute cmd %%{cmd}\", \"values\":{\"cmd\": \"%s\"}}", cmd);
+            LOG_ERROR("Executing syscmd \"%s\" failed", cmd);
         }
     } else {
-        len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can't execute cmd %s.\"}", cmd);
+        len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can not execute cmd %%{cmd}\", \"values\":{\"cmd\": \"%s\"}}", cmd);
         LOG_ERROR("Can't execute syscmd \"%s\"", cmd);
     }
     FREE_PTR(line);
@@ -938,7 +942,7 @@ static int mympd_api_bookmark_list(t_config *config, char *buffer, unsigned int 
         fi = fopen(b_file, "w");
         if (fi == NULL) {
             LOG_ERROR("Can't open %s for write", b_file);
-            len = json_printf(&out, "{type: error, data: %Q}", "Can't open bookmarks file");
+            len = json_printf(&out, "{type: error, data: %Q}", "Failed to open bookmarks file");
         }
         else {
             fclose(fi);
