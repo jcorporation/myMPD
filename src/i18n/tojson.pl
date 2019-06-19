@@ -11,7 +11,11 @@ while (my $entry = readdir $dir) {
 }
 closedir $dir;
 
+print "var locales=[";
+my $i = 0;
 for my $lang (@langs) {
+    print "," if $i > 0;
+    print "\"$lang\"";
     open my $file, $lang.".txt" or die "Can't open ".$lang.".txt";
     while (my $key = <$file>) {
         next if $key =~ /^\s*$/;
@@ -23,11 +27,14 @@ for my $lang (@langs) {
         $i18n->{$key}->{$lang} = $value;
     }
     close $file;
+    $i++;
 }
 
+print "];";
+print "\n" if $p eq 1;
 print "var phrases={";
 
-my $i = 0;
+$i = 0;
 for my $key (sort keys %$i18n) {
     print "," if $i > 0;
     print "\n\t" if $p eq 1;
