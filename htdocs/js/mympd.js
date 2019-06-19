@@ -404,6 +404,11 @@ function showAppInitAlert(text) {
 
 function appInitStart() {
     subdir = window.location.pathname.replace('/index.html', '').replace(/\/$/, '');
+    var localeList = '<option value="default" data-phrase="Browser default"></option>';
+    for (var i = 0; i < locales.length; i++) {
+        localeList += '<option value="' + locales[i].code + '">' + locales[i].desc + ' (' + locales[i].code + ')</option>';
+    }
+    document.getElementById('selectLocale').innerHTML = localeList;
     
     i18nHtml(document.getElementById('modalAppInit'));
     

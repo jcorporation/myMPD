@@ -7,7 +7,7 @@ my @langs = ();
 
 opendir my $dir, "." or die "Can't open directory: $!";
 while (my $entry = readdir $dir) {
-    push @langs, $1 if $entry =~ /^([\w\-]+)\.txt$/;
+    push @langs, $1 if $entry =~ /^(\w+\-\w+)\.txt$/;
 }
 closedir $dir;
 
@@ -15,8 +15,10 @@ print "var locales=[";
 my $i = 0;
 for my $lang (@langs) {
     print "," if $i > 0;
-    print "\"$lang\"";
     open my $file, $lang.".txt" or die "Can't open ".$lang.".txt";
+    my $desc = <$file>;
+    chomp($desc);
+    print "{\"code\": \"$lang\",\"desc\": \"$desc\"}";
     while (my $key = <$file>) {
         next if $key =~ /^\s*$/;
         chomp($key);

@@ -1,3 +1,5 @@
+English
+
 Num Songs
 %{smart_count} Song |||| %{smart_count} Songs
 

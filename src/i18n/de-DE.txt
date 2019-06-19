@@ -1,3 +1,5 @@
+Deutsch
+
 MPD connection
 MPD Verbindung
 
