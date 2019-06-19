@@ -3135,14 +3135,14 @@ static int mpd_client_search_adv(t_mpd_state *mpd_state, char *buffer, const cha
     }
 #else
     //prevent unused warnings
-    (void) *mpd_state;
-    (void) *expression;
-    (void) *sort;
-    (void) *sortdesc;
-    (void) *grouptag;
-    (void) *plist;
-    (void) *offset;
-    (void) *tagcols;
+    (void)(mpd_state);
+    (void)(expression);
+    (void)(sort);
+    (void)(sortdesc);
+    (void)(grouptag);
+    (void)(plist);
+    (void)(offset);
+    (void)(tagcols);
     len = json_printf(&out, "{type: error, data: %Q}", "Advanced search is disabled");
 #endif
     CHECK_RETURN_LEN();
