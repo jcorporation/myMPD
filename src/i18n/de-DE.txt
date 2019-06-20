@@ -117,6 +117,9 @@ Lied
 Last played
 Zuletzt gespielt
 
+LastPlayed
+Zuletzt gespielt
+
 Last skipped
 Zuletzt übersprungen
 
@@ -149,6 +152,9 @@ Num songs
 
 Num playlists
 %{smart_count} Wiedergabeliste |||| %{smart_count} Wiedergabelisten
+
+Num entries
+%{smart_count} Eintrag |||| %{smart_count} Einträge
 
 Add all to queue
 Alles zu Warteschlange hinzufügen
@@ -899,3 +905,7 @@ Fehler beim Ausführen des Systembefehls %{cmd}
 
 Failed to open bookmarks file
 Lesezeichen Datei konnte nicht geöffnet werden
+
+No bookmarks found
+Keine Lesezeichen gefunden
+

@@ -5,3 +5,6 @@ Num songs
 
 Num playlists
 %{smart_count} Playlist |||| %{smart_count} Playlists
+
+Num entries
+%{smart_count} Entry |||| %{smart_count} Entries

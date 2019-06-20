@@ -2502,7 +2502,7 @@ function parseFilesystem(obj) {
                             tds += '<span class="material-icons">folder_open</span>';
                         }
                         else {
-                            tds += '<span class="material-icons">' + (obj.data[i].Type == 'smartpls' ? 'queue_music' :'list') + '</span>';
+                            tds += '<span class="material-icons">' + (obj.data[i].Type == 'smartpls' ? 'queue_music' : 'list') + '</span>';
                         }
                     }
                     else if (settings['cols' + list][c] == 'Title') {
@@ -2546,7 +2546,7 @@ function parseFilesystem(obj) {
         tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
                           '<td colspan="' + colspan + '">' + t('Empty list') + '</td></tr>';
     document.getElementById(app.current.app + (app.current.tab == undefined ? '' : app.current.tab) + 'List').classList.remove('opacity05');
-    document.getElementById('cardFooterBrowse').innerText = obj.totalEntities + ' Entries';
+    document.getElementById('cardFooterBrowse').innerText = t('Num entries', obj.totalEntities);
 }
 
 function parsePlaylists(obj) {
@@ -3314,7 +3314,7 @@ function parseBookmarks(obj) {
                 '<a class="text-light material-icons material-icons-small" href="#" data-href="delete">delete</a></td></tr>';
     }
     if (obj.data.length == 0) {
-        list += '<tr><td class="text-light nowrap">No bookmarks found.</td></tr>';
+        list += '<tr><td class="text-light nowrap">' +t('No bookmarks found') + '</td></tr>';
     }
     list += '</table>';
     document.getElementById('BrowseFilesystemBookmarks').innerHTML = list;
