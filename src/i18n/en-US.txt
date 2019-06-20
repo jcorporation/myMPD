@@ -8,3 +8,15 @@ Num playlists
 
 Num entries
 %{smart_count} Entry |||| %{smart_count} Entries
+
+days
+Tage
+
+hours
+Std
+
+minutes
+Min
+
+seconds
+Sek

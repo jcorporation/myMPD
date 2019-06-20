@@ -4119,9 +4119,10 @@ function beautifyDuration(x) {
     var minutes = Math.floor(x / 60) - hours * 60 - days * 1440;
     var seconds = x - days * 86400 - hours * 3600 - minutes * 60;
 
-    return (days > 0 ? days + '\u2009d ' : '') +
-        (hours > 0 ? hours + '\u2009h ' + (minutes < 10 ? '0' : '') : '') +
-        minutes + '\u2009m ' + (seconds < 10 ? '0' : '') + seconds + '\u2009s';
+    return (days > 0 ? days + '\u2009'+ t('days') + ' ' : '') +
+        (hours > 0 ? hours + '\u2009' + t('hours') + ' ' + 
+        (minutes < 10 ? '0' : '') : '') + minutes + '\u2009' + t('minutes') + ' ' + 
+        (seconds < 10 ? '0' : '') + seconds + '\u2009' + t('seconds');
 }
 
 function beautifySongDuration(x) {

@@ -480,8 +480,8 @@ Homepage
 Author
 Autor
 
-Database Statistics
-Datenbank Satistiken
+Database statistics
+Datenbank Statistiken
 
 Artists
 Interpreten
