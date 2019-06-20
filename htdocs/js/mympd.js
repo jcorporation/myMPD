@@ -3452,7 +3452,7 @@ function showMenu(el, event) {
     new Popover(el, { trigger: 'click', delay: 0, dismissible: true, template: '<div class="popover" role="tooltip">' +
         '<div class="arrow"></div>' +
         '<div class="popover-content">' + menu + '</div>' +
-        '</div>'});
+        '</div>', content: ' '});
     var popoverInit = el.Popover;
     el.setAttribute('data-init', 'true');
     el.addEventListener('shown.bs.popover', function(event) {

@@ -394,7 +394,7 @@
           </div>
           <div class="input-group mr-2 hide">
             <div class="input-group-prepend">
-              <button data-href='{"cmd": "addAllFromBrowseDatabase", "options": []}' id="BrowseDatabaseAddAllSongs" class="btn btn-secondary material-icons">library_add</button>
+              <button data-href='{"cmd": "addAllFromBrowseDatabasePlist", "options": ["queue"]}' id="BrowseDatabaseAddAllSongs" class="btn btn-secondary material-icons">library_add</button>
               <button id="BrowseDatabaseAddAllSongsBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-right" type="button" data-toggle="dropdown"></button>
               <div class="dropdown-menu bg-dark px-2" id="BrowseDatabaseAddAllSongsDropdown">
                 <button data-phrase="Add all to queue" type="button" class="btn btn-secondary btn-sm btn-block"></button>
@@ -651,7 +651,7 @@
           <h5 class="modal-title"><span class="material-icons title-icon">play_circle_outline</span> <span data-phrase="Initializing myMPD"></span></h5>
         </div>
         <div class="modal-body">
-          <p data-phrase="Please wait, myMMPD is initializing..."></p>
+          <p data-phrase="Please wait, myMPD is initializing..."></p>
           <table>
             <tr><td><span id="appInitMyMPDSettings"></span></td><td>&nbsp;&nbsp;<span data-phrase="Fetch myMPD settings"></span></td></tr>
             <tr><td><span id="appInitMPDSettings"></span></td><td>&nbsp;&nbsp;<span data-phrase="Fetch MPD settings"></span></td></tr>
