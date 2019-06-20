@@ -65,6 +65,10 @@ echo "Minifying html"
 minify html htdocs/index.html dist/htdocs/index.html
 
 echo "Compiling and installing mympd"
+cd src/i18n || exit 1
+./tojson.pl > ../../dist/htdocs/js/i18n.min.js
+cd ../..
+
 install -d release
 cd release || exit 1
 export INSTALL_PREFIX="${MYMPD_INSTALL_PREFIX:-/usr}"
