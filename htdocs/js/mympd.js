@@ -1506,7 +1506,9 @@ function t(phrase, number, data) {
 
     if (isNaN(number) == false) {
         var p = result.split(' |||| ');
-        result = p[smartCount(number)];
+        if (p.length > 1) {
+            result = p[smartCount(number)];
+        }
         result = result.replace('%{smart_count}', number);
     }
     

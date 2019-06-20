@@ -1,6 +1,6 @@
 English
 
-Num Songs
+Num songs
 %{smart_count} Song |||| %{smart_count} Songs
 
 Num playlists
