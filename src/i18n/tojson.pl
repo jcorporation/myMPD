@@ -13,7 +13,7 @@ closedir $dir;
 
 print "var locales=[";
 my $i = 0;
-for my $lang (@langs) {
+for my $lang (sort @langs) {
     print "," if $i > 0;
     open my $file, $lang.".txt" or die "Can't open ".$lang.".txt";
     my $desc = <$file>;
