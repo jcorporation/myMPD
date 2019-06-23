@@ -1,0 +1,925 @@
+한국어
+
+MPD connection
+MPD 연결
+
+Add stream
+스트림 추가
+
+Update
+업데이트
+
+Update database
+데이터베이스 업데이트
+
+Rescan database
+데이터베이스 다시 검색
+
+Update smart playlists
+스마트 연주목록 업데이트
+
+Settings
+설정
+
+About
+myMPD에 대하여
+
+Add to home screen
+홈 화면에 추가
+
+Local playback
+로컬 연주
+
+Connecting to stream...
+스트림에 연결 중...
+
+JavaScript is disabled
+자바스크립트 사용 안 함
+
+Apply
+적용
+
+Playback
+연주
+
+Queue
+순서
+
+Browse
+열기
+
+Search
+찾기
+
+Save queue
+순서 저장
+
+Shuffle queue
+순서 뒤섞기
+
+Add to queue
+순서에 추가
+
+Clear queue
+순서 비우기
+
+Crop queue
+순서 남기기
+
+Any Tag
+모든 태그
+
+Filename
+파일 이름
+
+Search queue
+순서 찾기
+
+Title
+제목
+
+Artists
+연주가
+
+Artist
+연주가
+
+Album
+음반
+
+Duration
+길이
+
+AlbumArtist
+음반 연주가
+
+Composer
+작곡가
+
+Performer
+연주자
+
+Genre
+장르
+
+Date
+날짜
+
+Pos
+위치
+
+Track
+트랙
+
+Song
+곡
+
+Last played
+앞서 연주함
+
+LastPlayed
+앞서 연주함
+
+Last skipped
+앞서 건너뜀
+
+Database
+데이터 베이스
+
+Filesystem
+파일 시스템
+
+Playlists
+연주목록
+
+Playlist
+연주목록
+
+Clear playlist
+연주목록 비우기
+
+Last modified
+앞서 수정함
+
+Previous page
+이전 페이지
+
+Next page
+다음 페이지
+
+Num songs
+%{smart_count} 곡 |||| %{smart_count} 곡
+
+Num playlists
+%{smart_count} 연주목록 |||| %{smart_count} 연주목록
+
+Num entries
+%{smart_count} 항목 |||| %{smart_count} 항목
+
+Add all to queue
+순서에 모두 추가
+
+Add all to playlist
+연주목록에 모두 추가
+
+Save as smart playlist
+스마트 연주목록 저장
+
+To top
+위로
+
+Bookmarks
+즐겨찾기
+
+Select tag to search
+찾을 태그 선택
+
+contains
+내용
+
+Initializing myMPD
+myMPD 초기화
+
+Please wait, myMPD is initializing...
+myMPD 초기화 하는 중...
+
+Fetch myMPD settings
+myMPD 설정 가져오기
+
+Fetch MPD settings
+MPD 설정 가져오기
+
+Connect to websocket
+웹소켓에 연결
+
+Applying settings
+설정 적용
+
+Updating MPD database
+MPD 데이터베이스 업데이트 중
+
+Dependent on the size of your music collection this can take a while
+음원 크기에 따라 시간이 걸릴 수 있습니다
+
+Add to playlist
+연주목록에 추가
+
+Stream URI
+스트림 주소
+
+http://uri.to/stream.mp3
+http://주소/stream.mp3
+
+Invalid URI
+틀린 주소
+
+Please choose playlist
+연주목록을 선택합니다
+
+Create Playlist
+연주목록 만들기
+
+Invalid filename
+틀린 파일 이름
+
+Invalid type
+틀린 형식
+
+Add
+추가
+
+Rename playlist
+연주목록 이름 바꾸기
+
+From
+원래
+
+To
+바꿈
+
+Cancel
+취소
+
+Save
+저장
+
+Delete playlist
+연주목록 지우기
+
+Delete
+지우기
+
+Love song
+애청곡
+
+Scrobbled love
+애청곡 추천
+
+Failed to send love message to channel
+채널에 애청곡 메시지 보내기 실패함
+
+Dislike song
+곡 좋아하지 않음
+
+Like song
+곡 좋아요
+
+Failed to set like
+좋아요 설정 실패함
+
+MPD stickers are disabled
+MPD 스티커 사용 안 함
+
+folder.jpg
+folder.jpg
+
+Size in px
+픽셀 크기
+
+Save smart playlist
+스마트 연주목록 저장
+
+Name
+이름
+
+Tag
+태그
+
+Sticker
+스티커
+
+Max. songs
+최대 곡
+
+Must be a number
+숫자여야 함
+
+Timerange (days)
+시간 범위 (날짜)
+
+Like
+좋아요
+
+Play count
+연주 횟수
+
+Skip count
+건너뛴 횟수
+
+Theme
+테마
+
+General
+일반
+
+Random
+무작위
+
+Consume
+써버리기
+
+Single
+한 곡만
+
+Repeat
+다시
+
+Crossfade
+크로스페이드
+
+Replaygain
+리플레이게인
+
+Off
+끄기
+
+Mixramp DB
+Mixramp DB
+
+Mixramp delay
+Mixramp 지연
+
+Autoplay
+자동 연주
+
+Jukebox
+뮤직박스
+
+Jukebox mode
+뮤직박스 모드
+
+Keep queue length
+순서 길이 유지
+
+Must be a number and greater than zero
+0보다 큰 숫자여야 함
+
+Albumart
+음반표지
+
+Can't access music directory
+음원 디렉터리에 접근할 수 없음
+
+Size
+크기
+
+Invalid size
+틀린 크기
+
+Solid color
+꽉 찬 색상
+
+Invalid color
+틀린 색상
+
+CSS filter
+CSS 필터
+
+Invalid CSS filter
+틀린 CSS 필터
+
+Locale
+언어
+
+Browser default
+기본 열기
+
+Pagination
+페이지 매기기
+
+Must be a number smaller or equal 200
+200이하의 숫자여야 함
+
+Notifications
+알림
+
+On page notifications
+페이지에 알림
+
+Web notifications
+웹 알림
+
+Tags to use
+쓸 태그
+
+Tags to search
+찾을 태그
+
+Tags to browse
+열 태그
+
+Local playback
+로컬 연주
+
+URI
+주소
+
+Port
+포트
+
+Statistics
+통계
+
+Stickers are disabled
+스티커 사용 안 함
+
+Playback statistics
+연주 통계
+
+Last played list count
+앞서 연주한 목록 횟수
+
+Smart playlists
+스마트 연주목록
+
+Smart playlists updated
+스마트 연주목록 업데이트됨
+
+Smart playlist %{playlist} updated
+%{playlist} 스마트 연주목록 업데이트됨
+
+Smart playlist
+스마트 연주목록
+
+Playlists are disabled
+연주목록 사용 안 함
+
+Scrobbler Integration
+추천 통합
+
+MPD channel not found
+MPD 채널 없음
+
+Send love message
+애청곡 메시지 보내기
+
+MPD channel
+MPD 채널
+
+Invalid channel name
+틀린 채널 이름
+
+Message
+메시지
+
+Invalid message
+틀린 메시지
+
+Reset
+다시 설정
+
+Shortcuts
+단축키
+
+Version
+버전
+
+Homepage
+홈페이지
+
+Author
+저자
+
+Database statistics
+데이터베이스 통계
+
+Artists
+연주가
+
+Albums
+음반
+
+Songs
+곡
+
+DB play time
+DB 연주 시간
+
+DB updated
+DB 업데이트됨
+
+Uptime
+가동 시간
+
+Play time
+연주 시간
+
+Connection
+연결
+
+Protocol version
+프로토콜 버전
+
+Libmpdclient version
+Libmpdclient 버전
+
+Shortcut
+단축키
+
+Action
+기능
+
+MPD host
+MPD 호스트
+
+Invalid MPD host
+틀린 MPD 호스트
+
+MPD port
+MPD 포트
+
+Invalid MPD port
+틀린 MPD 포트
+
+MPD password
+MPD 비밀번호
+
+Invalid MPD password
+틀린 MPD 비밀번호
+
+Music directory
+음원 디렉터리
+
+Autodetect
+자동 감지
+
+None
+없음
+
+Specify
+지정
+
+Invalid music directory
+틀린 음원 디렉터리
+
+Music directory not found
+음원 디렉터리 없음
+
+Playlist name
+연주목록 이름
+
+Add randrom
+무작위 추가
+
+Quantity
+갯수
+
+Save bookmark
+즐겨찾기 저장
+
+Bookmark name
+즐겨찾기 이름
+
+Bookmark URI
+즐겨찾기 주소
+
+Song details
+곡 정보
+
+Close
+닫기
+
+Searching...
+찾는 중...
+
+Previous song
+이전 곡
+
+Next song
+다음 곡
+
+Toggle play / pause
+연주 / 잠시 멈춤
+
+Stop playing
+정지
+
+Volume down
+소리 작게
+
+Volume up
+소리 크게
+
+Open settings
+설정 열기
+
+Open song details
+곡 정보 열기
+
+Open local player
+로컬 연주기 열기
+
+Goto playback
+연주로 가기
+
+Goto queue
+순서로 가기
+
+Goto last played
+앞선 연주로 가기
+
+Goto browse database
+데이터베이스 열기로 가기
+
+Goto browse playlists
+연주목록 열기로 가기
+
+Goto browse filesystem
+파일 시스템 열기로 가기
+
+Goto search
+찾기로 가기
+
+Open main menu
+주 메뉴로 가기
+
+Open volume menu
+소리 메뉴 열기
+
+Open about
+myMPD에 대하여 열기
+
+Focus search
+초점 찾기
+
+myMPD installed as app
+myMPD가 앱으로 설치됨
+
+Can not start playing
+연주를 시작할 수 없음
+
+MPD disconnected
+MPD 연결 끊어짐
+
+Websocket connection failed
+웹소켓 연결 실패함
+
+Connected to myMPD
+myMPD로 연결됨
+
+Connected to MPD
+MPD로 연결됨
+
+Websocket connection failed, trying to reconnect
+웹소켓 연결 실패함, 다시 시도 중
+
+Can not parse settings
+설정을 분석할 수 없음
+
+Volumecontrol disabled
+소리 조절 사용 안 함
+
+Volume
+소리
+
+No results, please refine your search
+결과 없음, 맞게 찾아야 함
+
+Empty queue
+순서 비우기
+
+Empty list
+목록 비우기
+
+No playlists found
+연주목록 찾을 수 없음
+
+Added stream %{streamUri} to queue
+%{streamUri} 스트림을 순서에 추가함
+
+Append to queue
+순서에 추가
+
+Add after current playing song
+지금 연주 중인 곡 다음에 추가
+
+View playlist
+연주목록 보기
+
+Add bookmark
+즐겨찾기 추가
+
+Replace queue
+순서 바꾸기
+
+Edit smart playlist
+스마트 연주목록 편집
+
+Edit playlist
+연주목록 편집
+
+Update smart playlist
+스마트 연주목록 업데이트
+
+Delete playlist
+연주목록 지우기
+
+Remove
+지우기
+
+Remove all upwards
+위로 지우기
+
+Remove all downwards
+아래로 지우기
+
+Error
+오류
+
+Database update started
+데이터베이스 업데이트 시작됨
+
+Database successfully updated
+데이터베이스 업데이트됨
+
+Database update finished
+데이터베이스 업데이트 마침
+
+Added all songs from search to %{playlist}
+찾기의 모든 곡이 %{playlist}에 추가됨
+
+queue
+순서
+
+Added all songs from database selection to %{playlist}
+데이터베이스의 모든 곡이 %{playlist}에 추가됨
+
+Add random
+무작위 추가
+
+New playlist
+새 연주목록
+
+never
+안 함
+
+Failed to set mpd state %{state}
+MPD 상태 %{state} 설정에 실패함
+
+Failed to save playlist
+연주목록 저장에 실패함
+
+Goto previous song failed
+이전 곡으로 가기에 실패함
+
+Skip to next song failed
+다음 곡으로 가기에 실패함
+
+Begin to play failed
+연주 시작에 실패함
+
+Stop playing failed
+연주 정지에 실패함
+
+Clearing queue failed
+순서 지우기에 실패함
+
+Removing track from queue failed
+순서의 곡 지우기에 실패함
+
+Removing track range from queue failed
+순서의 곡 범위 지우기에 실패함
+
+Moving track in queue failed
+순서의 곡 옮기기에 실패함
+
+Moving track in playlist failed
+연주목록의 곡 옮기기에 실패함
+
+Set playing track failed
+연주곡 설정에 실패함
+
+Enabling output failed
+출력 사용에 실패함
+
+Disabling output failed
+출력 사용 안 함에 실패함
+
+Setting volume failed
+소리 설정에 실패함
+
+Seeking song failed
+곡 찾기에 실패함
+
+Added %{uri} to playlist %{playlist}
+%{uri}의 %{playlist} 연주목록 추가에 실패함
+
+Adding song to playlist failed
+연주목록의 곡 추가에 실패함
+
+Clearing playlist failed
+연주목록 비우기에 실패함
+
+Removing track from playlist failed
+연주목록의 곡 지우기에 실패함
+
+Adding song to queue failed
+순서의 곡 추가에 실패함
+
+Adding playlist to queue failed
+순서의 연주목록 추가에 실패함
+
+Sucessfully added random songs to queue
+무작위 곡을 순서에 추가함
+
+Adding random songs to queue failed
+무작위 곡의 순서 추가에 실패함
+
+Saving queue as playlist failed
+순서의 연주목록 저장에 실패함
+
+Shuffling queue failed
+순서 뒤섞기 실패함
+
+Deleting smart playlist failed
+스마트 연주목록 지우기에 실패함
+
+Deleting playlist failed
+연주목록 지우기에 실패함
+
+Unknown request
+알 수 없는 요구
+
+No response for cmd_id %{cmdId}
+%{cmdId} 명령어 ID에 반응 없음
+
+MPD connection error: %{error}
+MPD 연결 오류: %{error}
+
+Renaming playlist failed
+연주목록 이름 바꾸기에 실패함
+
+Sucessfully renamed playlist
+연주목록 이름 바꿈
+
+Advanced search is disabled
+상세 찾기 사용 안 함
+
+A queue longer than 1 song in length is required to crop
+남기려면 순서에 한 곡이상이어야 함
+
+You need to be playing to crop the playlist
+연주목록에 남기려면 연주 중이어야 함
+
+Can not read smart playlist file
+스마트 연주목록 파일을 읽을 수 없음
+
+Can not parse smart playlist file
+스마트 연주목록 파일을 분석할 수 없음
+
+Unknown smart playlist type
+스마트 연주목록 형식을 알 수 없음
+
+System commands are disabled
+시스템 명령어 사용 안 함
+
+Failed to set myMPD state %{state}
+myMPD 상태 %{state} 저장할 수 없음
+
+Invalid filename for coverimage_name
+음반표지의 파일 이름 틀림
+
+Invalid jukebox mode
+뮤직박스 모드 틀림
+
+jukebox_queue_length to big, setting it to maximum value of 999
+뮤직박스가 너무 커서 최대 크기인 999로 설정함
+
+Saving bookmark failed
+즐겨찾기 저장에 실패함
+
+Deleting bookmark failed
+즐겨찾기 지우기에 실패함
+
+System command not defined
+시스템 명령어 정의 안됨
+
+Can not execute cmd %{cmd}
+%{cmd} 명령어를 실행할 수 없음
+
+Successfully execute cmd %{cmd}
+%{cmd} 명령어 실행함
+
+Failed to execute cmd %{cmd}
+%{cmd} 명령어 실행에 실패함
+
+Failed to open bookmarks file
+즐겨찾기 파일 열기에 실패함
+
+No bookmarks found
+즐겨찾기를 찾을 수 없음
+
+Background
+배경
+
+days
+일
+
+hours
+시간
+
+minutes
+분
+
+seconds
+초

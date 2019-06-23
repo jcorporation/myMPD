@@ -157,13 +157,13 @@ Num entries
 %{smart_count} Eintrag |||| %{smart_count} Einträge
 
 Add all to queue
-Alles zu Warteschlange hinzufügen
+Alles zur Warteschlange hinzufügen
 
 Add all to playlist
 Alles zu einer Wiedergabeliste hinzufügen
 
 Save as smart playlist
-Als intelligente Wiedergabeliste sichern
+Als intelligente Wiedergabeliste speichern
 
 To top
 Nach oben
@@ -190,19 +190,19 @@ Fetch MPD settings
 Lade MPD Einstellungen
 
 Connect to websocket
-Verbinde Websocket
+Websocketverbindung wird hergestellt
 
 Applying settings
-Wende Einstellungen an
+Einstellungen werden angewendet
 
 Updating MPD database
-Aktualisiere MPD Datenbank
+MPD Datenbank wird aktualisiert
 
-Dependent on the size of your music collection this can take a while.
-Der Aktualisierungsvorgang kann eineige Zeit in Anspruch nehmen.
+Dependent on the size of your music collection this can take a while
+Der Aktualisierungsvorgang kann einige Zeit in Anspruch nehmen
 
 Add to playlist
-Zu Wiedergabeliste hinzufügen
+Zu einer Wiedergabeliste hinzufügen
 
 Stream URI
 Stream URL
@@ -213,11 +213,11 @@ http://url.zum/stream.mp3
 Invalid URI
 Ungültige URL
 
-Please choose playlist.
+Please choose playlist
 Bitte Wiedergabeliste auswählen
 
 Create Playlist
-Neue Wiedergabeliste
+Neue Wiedergabeliste erstellen
 
 Invalid filename
 Ungültiger Dateiname
@@ -253,7 +253,7 @@ Love song
 Lieblingslied
 
 Scrobbled love
-Lieblingslied gescrobbelt
+Lieblingslied wurde gescrobbelt
 
 Failed to send love message to channel
 Lieblingslied Nachricht konnte nicht gesendet werden
@@ -322,7 +322,7 @@ Single
 Nur ein Lied
 
 Repeat
-Schleife
+Wiederholen
 
 Crossfade
 Crossfade
@@ -358,7 +358,7 @@ Albumart
 Albumcover
 
 Can't access music directory
-Musik Verzeichnis nicht verfügbar
+Musik Verzeichnis ist nicht verfügbar
 
 Size
 Größe
@@ -406,7 +406,7 @@ Tags to search
 Tags für die Suche
 
 Tags to browse
-Tags for die Datenbankanzeige
+Tags für die Datenbankanzeige
 
 Local playback
 Lokale Wiedergabe
@@ -673,7 +673,7 @@ Volume
 Lautstärke
 
 No results, please refine your search
-Keine Ergebenise, bitte passe die Suche an
+Keine Ergebnisse, bitte passe die Suche an
 
 Empty queue
 Leere Warteschlange
