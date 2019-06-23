@@ -909,3 +909,17 @@ Lesezeichen Datei konnte nicht geöffnet werden
 No bookmarks found
 Keine Lesezeichen gefunden
 
+Background
+Hintergrund
+
+Days
+Tage
+
+Hours
+Std
+
+Minutes
+Min
+
+Seconds
+Sek
