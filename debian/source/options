@@ -1,1 +1,1 @@
-extend-diff-ignore = "(\.git\/|\.github\/)"
+extend-diff-ignore = "(\.git\/|\.github\/|\.gitlab-ci\.yml)"
