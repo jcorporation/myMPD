@@ -109,6 +109,7 @@ fi
 %doc README.md LICENSE
 /usr/bin/mympd
 /usr/share/mympd
+/usr/lib/mympd
 %config /etc/mympd
 /var/lib/mympd
 
