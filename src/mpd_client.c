@@ -2952,16 +2952,16 @@ static int mpd_client_put_playlists(t_config *config, t_mpd_state *mpd_state, ch
 
 static int mpd_client_put_playlist_list(t_config *config, t_mpd_state *mpd_state, char *buffer, const char *uri, const unsigned int offset, const char *filter, const t_tags *tagcols) {
     struct mpd_entity *entity;
-    unsigned entity_count = 0;
     unsigned entities_returned = 0;
+    unsigned entity_count = 0;
     const char *entityName;
-    char smartpls_file[400];
-    bool smartpls;
+    bool smartpls = false;
     size_t len = 0;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
 
-    if (mpd_send_list_playlist_meta(mpd_state->conn, uri) == false)
+    if (mpd_send_list_playlist_meta(mpd_state->conn, uri) == false) {
         RETURN_ERROR_AND_RECOVER("mpd_send_list_meta");
+    }
 
     len = json_printf(&out, "{type: playlist_detail, data: [");
 
@@ -2974,8 +2974,9 @@ static int mpd_client_put_playlist_list(t_config *config, t_mpd_state *mpd_state
             if (strncmp(filter, "-", 1) == 0 || strncasecmp(filter, entityName, 1) == 0 ||
                (strncmp(filter, "0", 1) == 0 && isalpha(*entityName) == 0))
             {
-                if (entities_returned++) 
+                if (entities_returned++) {
                     len += json_printf(&out, ",");
+                }
                 len += json_printf(&out, "{Type: song, ");
                 PUT_SONG_TAG_COLS(tagcols);
                 len += json_printf(&out, ", Pos: %d", entity_count);
@@ -2987,15 +2988,14 @@ static int mpd_client_put_playlist_list(t_config *config, t_mpd_state *mpd_state
         }
         mpd_entity_free(entity);
     }
+    mpd_response_finish(mpd_state->conn);
     
-    smartpls = false;
     if (validate_string(uri) == true) {
-        snprintf(smartpls_file, 400, "%s/smartpls/%s", config->varlibdir, uri);
+        size_t smartpls_file_len = config->varlibdir_len + strlen(uri) + 11;
+        char smartpls_file[smartpls_file_len];
+        snprintf(smartpls_file, smartpls_file_len, "%s/smartpls/%s", config->varlibdir, uri);
         if (access(smartpls_file, F_OK ) != -1) {
             smartpls = true;
-        }
-        else {
-            smartpls = false;
         }
     }
     len += json_printf(&out, "], totalEntities: %d, offset: %d, returnedEntities: %d, filter: %Q, uri: %Q, smartpls: %B}",
