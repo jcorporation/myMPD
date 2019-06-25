@@ -1513,7 +1513,7 @@ function t(phrase, number, data) {
     }
     
     if (data != null) {
-        result = result.replace(/\%\{(\w+)\}/, function(m0, m1) {
+        result = result.replace(/\%\{(\w+)\}/g, function(m0, m1) {
             return data[m1];
         });
     }
@@ -2791,7 +2791,7 @@ function parseListTitles(obj) {
         titleList += '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">playlist_add</a></td></tr>';
     }
     tbody.innerHTML = titleList;
-    tfoot.innerHTML = '<tr><td colspan="' + (settings.colsBrowseDatabase.length + 1) + '">' + obj.totalEntities + ' Songs &ndash; ' + beautifyDuration(obj.totalTime) + '</td></tr>';
+    tfoot.innerHTML = '<tr><td colspan="' + (settings.colsBrowseDatabase.length + 1) + '">' + t('Num songs', obj.totalEntities) + ' &ndash; ' + beautifyDuration(obj.totalTime) + '</td></tr>';
 
     tbody.parentNode.addEventListener('click', function(event) {
         if (event.target.nodeName == 'TD') {
@@ -2857,11 +2857,11 @@ function appendQueue(type, uri, name) {
         case 'song':
         case 'dir':
             sendAPI({"cmd": "MPD_API_QUEUE_ADD_TRACK", "data": {"uri": uri}});
-            showNotification('"' + name + '" added', '', '', 'success');
+            showNotification(t('%{name} added to queue', {"name": name}), '', '', 'success');
             break;
         case 'plist':
             sendAPI({"cmd": "MPD_API_QUEUE_ADD_PLAYLIST", "data": {"plist": uri}});
-            showNotification('"' + name + '" added', '', '', 'success');
+            showNotification(t('%{name} added to queue', {"name": name}), '', '', 'success');
             break;
     }
 }
@@ -2870,7 +2870,8 @@ function appendAfterQueue(type, uri, to, name) {
     switch(type) {
         case 'song':
             sendAPI({"cmd": "MPD_API_QUEUE_ADD_TRACK_AFTER", "data": {"uri": uri, "to": to}});
-            showNotification('"' + name + '" added to pos ' + to, '', '', 'success');
+            to++;
+            showNotification(t('%{name} added to queue position %{to}', {"name": name, "to": to}), '', '', 'success');
             break;
     }
 }
@@ -2880,11 +2881,11 @@ function replaceQueue(type, uri, name) {
         case 'song':
         case 'dir':
             sendAPI({"cmd": "MPD_API_QUEUE_REPLACE_TRACK", "data": {"uri": uri}});
-            showNotification('"' + name + '" replaced', '', '', 'success');
+            showNotification(t('Queue replaced with %{name}', {"name": name}), '', '', 'success');
             break;
         case 'plist':
             sendAPI({"cmd": "MPD_API_QUEUE_REPLACE_PLAYLIST", "data": {"plist": uri}});
-            showNotification('"' + name + '" replaced', '', '', 'success');
+            showNotification(t('Queue replaced with %{name}', {"name": name}), '', '', 'success');
             break;
     }
 }
@@ -2898,8 +2899,9 @@ function clickTitle() {
 function gotoBrowse(x) {
     var tag = x.parentNode.getAttribute('data-tag');
     var name = decodeURI(x.parentNode.getAttribute('data-name'));
-    if (tag != '' && name != '' && name != '-' && settings.browsetags.includes(tag)) 
+    if (tag != '' && name != '' && name != '-' && settings.browsetags.includes(tag)) {
         appGoto('Browse', 'Database', tag, '0/-/-/' + name);
+    }
 }
 
 function songDetails(uri) {
@@ -3746,7 +3748,7 @@ function resetSettings() {
 
 function addAllFromBrowseFilesystem() {
     sendAPI({"cmd": "MPD_API_QUEUE_ADD_TRACK", "data": {"uri": app.current.search}});
-    showNotification('Added all songs', '', '', 'success');
+    showNotification(t('Added all songs'), '', '', 'success');
 }
 
 function addAllFromSearchPlist(plist) {

@@ -926,3 +926,15 @@ Min
 
 Seconds
 Sek
+
+Added all songs
+Alle Lieder hinzugefügt
+
+%{name} added to queue
+%{name} hinzugefügt
+
+%{name} added to queue position %{to}
+%{name} an Warteschlangenposition %{to} hinzugefügt
+
+Queue replaced with %{name}
+Warteschlange mit %{name} ersetzt
