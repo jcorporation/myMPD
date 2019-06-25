@@ -915,14 +915,14 @@ No bookmarks found
 Background
 배경
 
-days
+Days
 일
 
-hours
+Hours
 시간
 
-minutes
+Minutes
 분
 
-seconds
+Seconds
 초
