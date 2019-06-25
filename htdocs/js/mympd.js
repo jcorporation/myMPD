@@ -1349,7 +1349,7 @@ function webSocketConnect() {
                     break;
                 case 'error':
                     if (document.getElementById('alertMpdState').classList.contains('hide')) {
-                        showNotification(obj.data, '', '', 'danger');
+                        showNotification(t(obj.data), '', '', 'danger');
                     }
                     break;
                 default:
@@ -3169,7 +3169,7 @@ function saveSmartPlaylist() {
             return;
         }
         modalSaveSmartPlaylist.hide();
-        showNotification('Saved smart playlist ' + name, '', '', 'success');
+        showNotification(t('Saved smart playlist %{name}', {"name": name}), '', '', 'success');
     }
     else {
         document.getElementById('saveSmartPlaylistName').classList.add('is-invalid');

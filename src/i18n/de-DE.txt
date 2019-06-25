@@ -938,3 +938,7 @@ Alle Lieder hinzugefügt
 
 Queue replaced with %{name}
 Warteschlange mit %{name} ersetzt
+
+Saved smart playlist %{name}
+Intelligente Wiedergabeliste %{name} gespeichert
+
