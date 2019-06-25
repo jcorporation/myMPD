@@ -2668,7 +2668,7 @@ function parseListDBtags(obj) {
             html += '<div class="col"><table class="tblAlbumTitles table table-sm table-hover" id="tbl' + id + '"><thead><tr></tr></thead><tbody></tbody>' +
                     '<tfoot class="bg-light border-bottom"></tfoot></table></div>' + 
                     '</div></div>' +
-                    '</div>';
+                    '</div><div class="card-footer"></div>';
             
             card.innerHTML = html;
             if (i < cards.length)
@@ -2755,7 +2755,7 @@ function parseListTitles(obj) {
     var id = genId(obj.Album);
     var card = document.getElementById('card' + id)
     var tbody = card.getElementsByTagName('tbody')[0];
-    var tfoot = card.getElementsByTagName('tfoot')[0];
+    var cardFooter = card.querySelector('.card-footer');
     var cardHeader = card.querySelector('.card-header');
     cardHeader.setAttribute('data-uri', encodeURI(obj.data[0].uri.replace(/\/[^\/]+$/, '')));
     cardHeader.setAttribute('data-name', obj.Album);
@@ -2790,7 +2790,7 @@ function parseListTitles(obj) {
         titleList += '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">playlist_add</a></td></tr>';
     }
     tbody.innerHTML = titleList;
-    tfoot.innerHTML = '<tr><td colspan="' + (settings.colsBrowseDatabase.length + 1) + '">' + t('Num songs', obj.totalEntities) + ' &ndash; ' + beautifyDuration(obj.totalTime) + '</td></tr>';
+    cardFooter.innerHTML = t('Num songs', obj.totalEntities) + ' &ndash; ' + beautifyDuration(obj.totalTime);
 
     tbody.parentNode.addEventListener('click', function(event) {
         if (event.target.nodeName == 'TD') {
