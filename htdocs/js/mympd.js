@@ -276,22 +276,14 @@ function appRoute() {
         var fullPath = '';
         for (var i = 0; i < pathArrayLen; i++) {
             if (pathArrayLen - 1 == i) {
-                breadcrumbs += '<li class="breadcrumb-item active">' + pathArray[i] + '</li>';
+                breadcrumbs += '<li class="breadcrumb-item active">' + e(pathArray[i]) + '</li>';
                 break;
             }
             fullPath += pathArray[i];
-            breadcrumbs += '<li class="breadcrumb-item"><a data-uri="' + fullPath + '">' + pathArray[i] + '</a></li>';
+            breadcrumbs += '<li class="breadcrumb-item"><a class="text-body" href="#" data-uri="' + encodeURI(fullPath) + '">' + e(pathArray[i]) + '</a></li>';
             fullPath += '/';
         }
-        var elBrowseBreadcrumb=document.getElementById('BrowseBreadcrumb');
-        elBrowseBreadcrumb.innerHTML = breadcrumbs;
-        var breadcrumbItems = elBrowseBreadcrumb.getElementsByTagName('a');
-        var breadcrumbItemsLen = breadcrumbItems.length;
-        for (var i = 0; i < breadcrumbItemsLen; i++) {
-            breadcrumbItems[i].addEventListener('click', function() {
-	        appGoto('Browse', 'Filesystem', undefined, '0/' + app.current.filter + '/' + app.current.sort + '/' + this.getAttribute('data-uri'));
-            }, false);
-        }
+        document.getElementById('BrowseBreadcrumb').innerHTML = breadcrumbs;
         doSetFilterLetter('BrowseFilesystemFilter');
     }
     else if (app.current.app == 'Search') {
@@ -301,14 +293,14 @@ function appRoute() {
             var elements = app.current.search.substring(1, app.current.search.length - 1).split(' AND ');
             for (var i = 0; i < elements.length - 1 ; i++) {
                 var value = elements[i].substring(1, elements[i].length - 1);
-                crumbs += '<button data-filter="' + encodeURI(value) + '" class="btn btn-light mr-2">' + value + '<span class="ml-2 badge badge-secondary">&times</span></button>';
+                crumbs += '<button data-filter="' + encodeURI(value) + '" class="btn btn-light mr-2">' + e(value) + '<span class="ml-2 badge badge-secondary">&times</span></button>';
             }
             domCache.searchCrumb.innerHTML = crumbs;
             if (domCache.searchstr.value == '' && elements.length >= 1) {
                 var lastEl = elements[elements.length - 1].substring(1,  elements[elements.length - 1].length - 1);
                 var lastElValue = lastEl.substring(lastEl.indexOf('\'') + 1, lastEl.length - 1);
                 if (domCache.searchstr.value != lastElValue)
-                    domCache.searchCrumb.innerHTML += '<button data-filter="' + encodeURI(lastEl) +'" class="btn btn-light mr-2">' + lastEl + '<span href="#" class="ml-2 badge badge-secondary">&times;</span></button>';
+                    domCache.searchCrumb.innerHTML += '<button data-filter="' + encodeURI(lastEl) +'" class="btn btn-light mr-2">' + e(lastEl) + '<span href="#" class="ml-2 badge badge-secondary">&times;</span></button>';
                 var match = lastEl.substring(lastEl.indexOf(' ') + 1);
                 match = match.substring(0, match.indexOf(' '));
                 if (match == '')
@@ -375,27 +367,27 @@ function appRoute() {
 function initState(objId, state) {
     var obj = document.getElementById(objId);
     obj.classList.remove('text-success', 'text-danger', 'spinner-border', 'spinner-border-sm');
-    obj.innerHTML = '';
+    obj.innerText = '';
     if (state == 'blank') {
-        obj.innerHTML = '';
+        obj.innerText = '';
     }
     else if (state == 'load') {
-        obj.innerHTML = '';
+        obj.innerText = '';
         obj.classList.add('spinner-border', 'spinner-border-sm');
     }
     else if (state == 'ok') {
-        obj.innerHTML = 'check';
+        obj.innerText = 'check';
         obj.classList.add('material-icons', 'text-success');
     }
     else if (state == 'error') {
-        obj.innerHTML = 'error_outline';
+        obj.innerText = 'error_outline';
         obj.classList.add('material-icons', 'text-danger');
     }
 }
 
 function showAppInitAlert(text) {
     var a = document.getElementById('modalAppInitAlert');
-    a.innerHTML = '<p>' + text + '</p><a id ="appReloadBtn"class="btn btn-danger text-light" class="clickable">Reload</a>';
+    a.innerHTML = '<p>' + e(text) + '</p><a id ="appReloadBtn"class="btn btn-danger text-light" class="clickable">Reload</a>';
     a.classList.remove('hide');
     document.getElementById('appReloadBtn').addEventListener('click', function() {
         location.reload();
@@ -406,7 +398,7 @@ function appInitStart() {
     subdir = window.location.pathname.replace('/index.html', '').replace(/\/$/, '');
     var localeList = '<option value="default" data-phrase="Browser default"></option>';
     for (var i = 0; i < locales.length; i++) {
-        localeList += '<option value="' + locales[i].code + '">' + locales[i].desc + ' (' + locales[i].code + ')</option>';
+        localeList += '<option value="' + e(locales[i].code) + '">' + e(locales[i].desc) + ' (' + e(locales[i].code) + ')</option>';
     }
     document.getElementById('selectLocale').innerHTML = localeList;
     
@@ -661,6 +653,13 @@ function appInit() {
         if (event.target.nodeName == 'H4') 
             gotoBrowse(event.target);
     }, false);
+
+    document.getElementById('BrowseBreadcrumb').addEventListener('click', function(event) {
+        if (event.target.nodeName == 'A') {
+            event.preventDefault();
+            appGoto('Browse', 'Filesystem', undefined, '0/' + app.current.filter + '/' + app.current.sort + '/' + decodeURI(event.target.getAttribute('data-uri')));
+        }
+    }, false);
     
     document.getElementById('modalSongDetails').getElementsByTagName('tbody')[0].addEventListener('click', function(event) {
         if (event.target.nodeName == 'A') {
@@ -852,7 +851,7 @@ function appInit() {
                 var li = document.createElement('button');
                 li.classList.add('btn', 'btn-light', 'mr-2');
                 li.setAttribute('data-filter', encodeURI(app.current.filter + ' ' + match.options[match.selectedIndex].value +' \'' + this.value + '\''));
-                li.innerHTML = app.current.filter + ' ' + match.options[match.selectedIndex].value + ' \'' + this.value + '\'<span class="ml-2 badge badge-secondary">&times;</span>';
+                li.innerHTML = app.current.filter + ' ' + match.options[match.selectedIndex].value + ' \'' + e(this.value) + '\'<span class="ml-2 badge badge-secondary">&times;</span>';
                 this.value = '';
                 domCache.searchCrumb.appendChild(li);
             }
@@ -1636,7 +1635,7 @@ function parseSettings() {
                 }
                 else {
                     syscmdsList += '<a class="dropdown-item text-light bg-dark alwaysEnabled" href="#" data-href=\'{"cmd": "execSyscmd", "options": ["' + 
-                        settings.syscmdList[i] + '"]}\'>' + settings.syscmdList[i] + '</a>';
+                        e(settings.syscmdList[i]) + '"]}\'>' + e(settings.syscmdList[i]) + '</a>';
                 }
             }
         }
@@ -1842,7 +1841,7 @@ function parseMPDSettings() {
             if (settings.browsetags.includes(settings.colsPlayback[i])) {
                 pbtl += ' class="clickable"';
             }
-            pbtl += '>' + (lastSongObj.data ? lastSongObj.data[settings.colsPlayback[i]] : '') + '</h4></div>';
+            pbtl += '>' + (lastSongObj.data ? e(lastSongObj.data[settings.colsPlayback[i]]) : '') + '</h4></div>';
         }
         document.getElementById('cardPlaybackTags').innerHTML = pbtl;
     }
@@ -2153,7 +2152,7 @@ function parseOutputs(obj) {
         btns += '<button id="btnOutput' + obj.data.outputs[i].id +'" data-output-id="' + obj.data.outputs[i].id + '" class="btn btn-secondary btn-block';
         if (obj.data.outputs[i].state == 1)
             btns += ' active';
-        btns += '"><span class="material-icons float-left">volume_up</span> ' + obj.data.outputs[i].name + '</button>';
+        btns += '"><span class="material-icons float-left">volume_up</span> ' + e(obj.data.outputs[i].name) + '</button>';
     }
     domCache.outputs.innerHTML = btns;
 }
@@ -2367,7 +2366,7 @@ function parseQueue(obj) {
         row.setAttribute('data-uri', obj.data[i].uri);
         var tds = '';
         for (var c = 0; c < settings.colsQueueCurrent.length; c++) {
-            tds += '<td data-col="' + settings.colsQueueCurrent[c] + '">' + obj.data[i][settings.colsQueueCurrent[c]] + '</td>';
+            tds += '<td data-col="' + settings.colsQueueCurrent[c] + '">' + e(obj.data[i][settings.colsQueueCurrent[c]]) + '</td>';
         }
         tds += '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>';
         row.innerHTML = tds;
@@ -2416,7 +2415,7 @@ function parseLastPlayed(obj) {
         row.setAttribute('data-type', 'song');
         var tds = '';
         for (var c = 0; c < settings.colsQueueLastPlayed.length; c++) {
-            tds += '<td data-col="' + settings.colsQueueLastPlayed[c] + '">' + obj.data[i][settings.colsQueueLastPlayed[c]] + '</td>';
+            tds += '<td data-col="' + settings.colsQueueLastPlayed[c] + '">' + e(obj.data[i][settings.colsQueueLastPlayed[c]]) + '</td>';
         }
         tds += '<td data-col="Action">';
         if (obj.data[i].uri != '') {
@@ -2496,7 +2495,7 @@ function parseFilesystem(obj) {
                         }
                     }
                     else if (settings['cols' + list][c] == 'Title') {
-                        tds += obj.data[i].name;
+                        tds += e(obj.data[i].name);
                     }
                     tds += '</td>';
                 }
@@ -2512,7 +2511,7 @@ function parseFilesystem(obj) {
                         tds += '<span class="material-icons">music_note</span>';
                     }
                     else {
-                        tds += obj.data[i][settings['cols' + list][c]];
+                        tds += e(obj.data[i][settings['cols' + list][c]]);
                     }
                     tds += '</td>';
                 }
@@ -2576,7 +2575,7 @@ function parsePlaylists(obj) {
             row.setAttribute('data-type', obj.data[i].Type);
             row.setAttribute('data-name', obj.data[i].name);
             row.innerHTML = '<td data-col="Type"><span class="material-icons">' + (obj.data[i].Type == 'smartpls' ? 'queue_music' : 'list') + '</span></td>' +
-                            '<td>' + obj.data[i].name + '</td>' +
+                            '<td>' + e(obj.data[i].name) + '</td>' +
                             '<td>'+ localeDate(obj.data[i].last_modified) + '</td>' +
                             '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>';
             if (i < tr.length) {
@@ -2603,7 +2602,7 @@ function parsePlaylists(obj) {
             obj.data[i].Duration = beautifySongDuration(obj.data[i].Duration);
             var tds = '';
             for (var c = 0; c < settings.colsBrowsePlaylistsDetail.length; c++) {
-                tds += '<td data-col="' + settings.colsBrowsePlaylistsDetail[c] + '">' + obj.data[i][settings.colsBrowsePlaylistsDetail[c]] + '</td>';
+                tds += '<td data-col="' + settings.colsBrowsePlaylistsDetail[c] + '">' + e(obj.data[i][settings.colsBrowsePlaylistsDetail[c]]) + '</td>';
             }
             tds += '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>';
             row.innerHTML = tds;
@@ -2650,8 +2649,8 @@ function parseListDBtags(obj) {
         document.getElementById('BrowseDatabaseAddAllSongs').parentNode.parentNode.classList.remove('hide');
         document.getElementById('BrowseDatabaseColsBtn').parentNode.classList.remove('hide');
         document.getElementById('btnBrowseDatabaseTag').innerHTML = '&laquo; ' + app.current.view;
-        document.getElementById('BrowseDatabaseAlbumListCaption').innerHTML = '<h2>' + obj.searchtagtype + ': ' + obj.searchstr + '</h2><hr/>';
-        document.getElementById('cardFooterBrowse').innerText = obj.totalEntities + ' Entries';
+        document.getElementById('BrowseDatabaseAlbumListCaption').innerHTML = '<h2>' + e(obj.searchtagtype) + ': ' + e(obj.searchstr) + '</h2><hr/>';
+        document.getElementById('cardFooterBrowse').innerText = t('Num entries', obj.totalEntities);
         var nrItems = obj.data.length;
         var cardContainer = document.getElementById('BrowseDatabaseAlbumList');
         var cards = cardContainer.getElementsByClassName('card');
@@ -2661,7 +2660,7 @@ function parseListDBtags(obj) {
             card.classList.add('card', 'ml-4', 'mr-4', 'mb-4', 'w-100');
             card.setAttribute('id', 'card' + id);
             card.setAttribute('data-album', encodeURI(obj.data[i].value));
-            var html = '<div class="card-header"><span id="albumartist' + id + '"></span> &ndash; ' + obj.data[i].value + '</div>' +
+            var html = '<div class="card-header"><span id="albumartist' + id + '"></span> &ndash; ' + e(obj.data[i].value) + '</div>' +
                        '<div class="card-body"><div class="row">';
             if (settings.featCoverimage == true && settings.coverimage == true) {
                 html += '<div class="col-md-auto"><a class="card-img-left"></a></div>';
@@ -2710,7 +2709,7 @@ function parseListDBtags(obj) {
             var row = document.createElement('tr');
             row.setAttribute('data-uri', uri);
             row.innerHTML='<td data-col="Type"><span class="material-icons">album</span></td>' +
-                          '<td>' + obj.data[i].value + '</td>';
+                          '<td>' + e(obj.data[i].value) + '</td>';
 
             if (i < tr.length)
                 tr[i].replaceWith(row); 
@@ -2786,7 +2785,7 @@ function parseListTitles(obj) {
         }
         titleList += '<tr data-type="song" data-name="' + obj.data[i].Title + '" data-uri="' + encodeURI(obj.data[i].uri) + '">';
         for (var c = 0; c < settings.colsBrowseDatabase.length; c++) {
-            titleList += '<td data-col="' + settings.colsBrowseDatabase[c] + '">' + obj.data[i][settings.colsBrowseDatabase[c]] + '</td>';
+            titleList += '<td data-col="' + settings.colsBrowseDatabase[c] + '">' + e(obj.data[i][settings.colsBrowseDatabase[c]]) + '</td>';
         }
         titleList += '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">playlist_add</a></td></tr>';
     }
@@ -2921,7 +2920,7 @@ function parseSongDetails(obj) {
         }
         songDetails += '<tr><th>' + t(settings.tags[i]) + '</th><td data-tag="' + settings.tags[i] + '" data-name="' + encodeURI(obj.data[settings.tags[i]]) + '">';
         if (settings.browsetags.includes(settings.tags[i])) {
-            songDetails += '<a class="text-success" href="#">' + obj.data[settings.tags[i]] + '</a>';
+            songDetails += '<a class="text-success" href="#">' + e(obj.data[settings.tags[i]]) + '</a>';
         }
         else {
             songDetails += obj.data[settings.tags[i]];
@@ -2930,10 +2929,10 @@ function parseSongDetails(obj) {
     }
     songDetails += '<tr><th>' + t('Duration') + '</th><td>' + beautifyDuration(obj.data.Duration) + '</td></tr>';
     if (settings.featLibrary) {
-        songDetails += '<tr><th>' + t('Filename') + '</th><td><a class="text-success" href="/library/' + encodeURI(obj.data.uri) + '">' + obj.data.uri + '</a></td></tr>';
+        songDetails += '<tr><th>' + t('Filename') + '</th><td><a class="text-success" href="/library/' + encodeURI(obj.data.uri) + '">' + e(obj.data.uri) + '</a></td></tr>';
     }
     else {
-        songDetails += '<tr><th>' + t('Filename') + '</th><td>' + obj.data.uri + '</td></tr>';
+        songDetails += '<tr><th>' + t('Filename') + '</th><td>' + e(obj.data.uri) + '</td></tr>';
     }
     if (settings.featStickers == true) {
         songDetails += '<tr><th colspan="2" class="pt-3"><h5>' + t('Statistics') + '</h5></th></tr>' +
@@ -2989,11 +2988,11 @@ function getAllPlaylists(obj) {
         if (playlistEl == 'addToPlaylistPlaylist' && obj.data[i].Type == 'smartpls') {
             continue;
         }
-        playlists += '<option value="' + obj.data[i].uri + '"';
+        playlists += '<option value="' + e(obj.data[i].uri) + '"';
         if (playlistEl == 'selectJukeboxPlaylist' && obj.data[i].uri == settings.jukeboxPlaylist) {
             playlists += ' selected';
         }
-        playlists += '>' + obj.data[i].uri + '</option>';
+        playlists += '>' + e(obj.data[i].uri) + '</option>';
     }
     if (obj.offset == 0) {
         document.getElementById(playlistEl).innerHTML = playlists;
@@ -3104,8 +3103,9 @@ function parseSmartPlaylist(obj) {
     if (settings.featTags)
         tagList = '<option value="any">' + t('Any Tag') + '</option>';
     tagList += '<option value="filename">' + t('Filename') + '</option>';
-    for (var i = 0; i < settings.searchtags.length; i++)
-            tagList += '<option value="' + settings.searchtags[i] + '">' + settings.searchtags[i] + '</option>';
+    for (var i = 0; i < settings.searchtags.length; i++) {
+        tagList += '<option value="' + settings.searchtags[i] + '">' + t(settings.searchtags[i]) + '</option>';
+    }
     document.getElementById('selectSaveSmartPlaylistTag').innerHTML = tagList;
     if (obj.data.type == 'search') {
         document.getElementById('saveSmartPlaylistSearch').classList.remove('hide');
@@ -3304,7 +3304,7 @@ function parseBookmarks(obj) {
     for (var i = 0; i < obj.data.length; i++) {
         list += '<tr data-id="' + obj.data[i].id + '" data-type="' + obj.data[i].type + '" ' +
                 'data-uri="' + encodeURI(obj.data[i].uri) + '">' +
-                '<td class="nowrap"><a class="text-light" href="#" data-href="goto">' + obj.data[i].name + '</a></td>' +
+                '<td class="nowrap"><a class="text-light" href="#" data-href="goto">' + e(obj.data[i].name) + '</a></td>' +
                 '<td><a class="text-light material-icons material-icons-small" href="#" data-href="edit">edit</a></td><td>' +
                 '<a class="text-light material-icons material-icons-small" href="#" data-href="delete">delete</a></td></tr>';
     }
@@ -3833,7 +3833,7 @@ function showNotification(notificationTitle, notificationText, notificationHtml,
         }
         alertBox.classList.remove('alert-success', 'alert-danger');
         alertBox.classList.add('alert','alert-' + notificationType);
-        alertBox.innerHTML = '<div><strong>' + notificationTitle + '</strong><br/>' + (notificationHtml == '' ? notificationText : notificationHtml) + '</div>';
+        alertBox.innerHTML = '<div><strong>' + e(notificationTitle) + '</strong><br/>' + (notificationHtml == '' ? e(notificationText) : notificationHtml) + '</div>';
         document.getElementsByTagName('main')[0].append(alertBox);
         document.getElementById('alertBox').classList.add('alertBoxActive');
         if (alertTimeout) {
@@ -4272,6 +4272,18 @@ function logDebug(line) {
 function logLog(loglevel, line) {
     if (settings.loglevel >= loglevel) {
         console.log(line);
+    }
+}
+
+function e(x) {
+    if (isNaN(x)) {
+        return x.replace(/([<>])/g, function(m0, m1) {
+            if (m1 == '<') return '&lt;';
+            else if (m1 == '>') return '&gt;';
+        });
+    }
+    else {
+        return x;
     }
 }
 
