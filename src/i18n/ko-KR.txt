@@ -681,6 +681,9 @@ Empty queue
 Empty list
 목록 비우기
 
+Empty playlist
+목록 비우기
+
 No playlists found
 연주목록 찾을 수 없음
 

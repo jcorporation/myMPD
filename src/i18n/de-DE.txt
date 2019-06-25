@@ -681,6 +681,9 @@ Leere Warteschlange
 Empty list
 Leere Liste
 
+Empty playlist
+Leere Wiedergabeliste
+
 No playlists found
 Keine Wiedergabelisten gefunden
 
