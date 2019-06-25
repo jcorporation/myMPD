@@ -33,7 +33,7 @@ endif()
 MESSAGE("ASSETS_PATH: ${ASSETS_PATH}")
 set(ETC_PATH "${CMAKE_INSTALL_FULL_SYSCONFDIR}${SUBDIR}")
 MESSAGE("ETC_PATH: ${ETC_PATH}")
-set(PLUGIN_PATH "${CMAKE_INSTALL_FULL_DATAROOTDIR}${SUBDIR}/lib")
+set(PLUGIN_PATH "${CMAKE_INSTALL_FULL_LIBDIR}${SUBDIR}")
 MESSAGE("PLUGIN_PATH: ${PLUGIN_PATH}")
 
 if("${CMAKE_SIZEOF_VOID_P}" EQUAL "8")
@@ -96,7 +96,7 @@ if(LIBMEDIAINFO_FOUND)
   add_library(mympd_coverextract SHARED src/plugins/mympd_coverextract.cpp)
 
   install(DIRECTORY DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}${SUBDIR}/lib)
-  install(TARGETS mympd_coverextract DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}${SUBDIR}/lib/)
+  install(TARGETS mympd_coverextract DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}${SUBDIR}/)
 
   #testcoverextract executable
   add_executable(test_coverextract src/plugins/test_coverextract.c)
