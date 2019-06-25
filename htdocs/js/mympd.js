@@ -2449,18 +2449,8 @@ function parseLastPlayed(obj) {
 }
 
 function parseSearch(obj) {
-    if (obj.totalEntities > -1) {
-        document.getElementById('panel-heading-search').innerText = t('Num songs', obj.totalEntities);
-        document.getElementById('cardFooterSearch').innerText = t('Num songs', obj.totalEntities);
-    }
-    else if (obj.returnedEntities + app.current.page < settings.maxElementsPerPage) {
-        document.getElementById('panel-heading-search').innerText = t('Num songs', obj.returnedEntities);
-        document.getElementById('cardFooterSearch').innerText = t('Num songs', obj.returnedEntities);
-    }
-    else {
-        document.getElementById('panel-heading-search').innerHTML = '&ge; ' + t('Num songs', settings.maxElementsPerPage);
-        document.getElementById('cardFooterSearch').innerHTML = '&ge; ' + t('Num songs', settings.maxElementsPerPage);
-    }
+    document.getElementById('panel-heading-search').innerText = gtPage('Num songs', obj.returnedEntities, obj.totalEntities);
+    document.getElementById('cardFooterSearch').innerText = gtPage('Num songs', obj.returnedEntities, obj.totalEntities);
     
     if (obj.returnedEntities > 0) {
         document.getElementById('searchAddAllSongs').removeAttribute('disabled');
@@ -2566,12 +2556,8 @@ function parsePlaylists(obj) {
             document.getElementById('btnPlaylistClear').parentNode.classList.remove('hide');
         }
         document.getElementById('BrowsePlaylistsDetailList').setAttribute('data-uri', obj.uri);
-        if (obj.smartpls == true)
-            document.getElementById('BrowsePlaylistsDetailList').getElementsByTagName('caption')[0].innerHTML = t('Smart playlist') + ': ' + obj.uri +
-                '<small class="pull-right">' + obj.totalEntities + ' Songs </small>';
-        else
-            document.getElementById('BrowsePlaylistsDetailList').getElementsByTagName('caption')[0].innerHTML = t('Playlist') + ': ' + obj.uri +
-                '<small class="pull-right">' + obj.totalEntities + ' Songs </small>';
+        document.getElementById('BrowsePlaylistsDetailList').getElementsByTagName('caption')[0].innerHTML = 
+            (obj.smartpls == true ? t('Smart playlist') : t('Playlist'))  + ': ' + obj.uri;
         document.getElementById('BrowsePlaylistsDetailList').classList.remove('hide');
         document.getElementById('BrowsePlaylistsAllList').classList.add('hide');
         document.getElementById('btnBrowsePlaylistsAll').parentNode.classList.remove('hide');
@@ -2589,16 +2575,18 @@ function parsePlaylists(obj) {
             row.setAttribute('data-uri', uri);
             row.setAttribute('data-type', obj.data[i].Type);
             row.setAttribute('data-name', obj.data[i].name);
-            row.innerHTML = '<td data-col="Type"><span class="material-icons">' + (obj.data[i].Type == 'smartpls' ? 'queue_music' :'list') + '</span></td>' +
+            row.innerHTML = '<td data-col="Type"><span class="material-icons">' + (obj.data[i].Type == 'smartpls' ? 'queue_music' : 'list') + '</span></td>' +
                             '<td>' + obj.data[i].name + '</td>' +
                             '<td>'+ localeDate(obj.data[i].last_modified) + '</td>' +
                             '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>';
-            if (i < tr.length)
-                tr[i].replaceWith(row); 
-            else 
+            if (i < tr.length) {
+                tr[i].replaceWith(row);
+            }
+            else {
                 tbody.append(row);
+            }
         }
-        document.getElementById('cardFooterBrowse').innerText = t('Num playlists', obj.totalEntities);
+        document.getElementById('cardFooterBrowse').innerText = gtPage('Num playlists', obj.returnedEntities, obj.totalEntities);
     }
     else if (app.current.view == 'Detail') {
         for (var i = 0; i < nrItems; i++) {
@@ -2627,7 +2615,7 @@ function parsePlaylists(obj) {
                 tbody.append(row);
             }
         }
-        document.getElementById('cardFooterBrowse').innerText = t('Num songs', obj.totalEntities);
+        document.getElementById('cardFooterBrowse').innerText = gtPage('Num songs', obj.returnedEntities, obj.totalEntities);
     }
     var trLen = tr.length - 1;
     for (var i = trLen; i >= nrItems; i --) {
@@ -2639,12 +2627,14 @@ function parsePlaylists(obj) {
     if (nrItems == 0) {
         var colspan = settings['cols' + list].length;
         colspan--;
-        if (app.current.view == 'All')
+        if (app.current.view == 'All') {
             tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
                               '<td colspan="' + colspan + '">' + t('No playlists found') + '</td></tr>';
-        else
+        }
+        else {
             tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
-                              '<td colspan="' + colspan + '">' + t('Empty list') + '</td></tr>';
+                              '<td colspan="' + colspan + '">' + t('Empty playlist') + '</td></tr>';
+        }
     }
             
     document.getElementById(app.current.app + app.current.tab + app.current.view + 'List').classList.remove('opacity05');
@@ -2994,6 +2984,9 @@ function getAllPlaylists(obj) {
         }
     }
     for (var i = 0; i < nrItems; i++) {
+        if (playlistEl == 'addToPlaylistPlaylist' && obj.data[i].Type == 'smartpls') {
+            continue;
+        }
         playlists += '<option value="' + obj.data[i].uri + '"';
         if (playlistEl == 'selectJukeboxPlaylist' && obj.data[i].uri == settings.jukeboxPlaylist) {
             playlists += ' selected';
@@ -3222,7 +3215,7 @@ function addToPlaylist() {
         }
     }
     var plistEl = document.getElementById('addToPlaylistPlaylist');
-    var plist = plistEl.options[plistEl.selectedIndex].text;
+    var plist = plistEl.options[plistEl.selectedIndex].value;
     if (plist == 'new') {
         var newPl = document.getElementById('addToPlaylistNewPlaylist').value;
         if (validatePlname(newPl) == true) {
@@ -4105,12 +4098,26 @@ function focusSearch() {
 
 function chVolume(increment) {
     var newValue = parseInt(domCache.volumeBar.value) + increment;
-    if (newValue < 0) 
+    if (newValue < 0)  {
         newValue = 0;
-    else if (newValue > 100)
+    }
+    else if (newValue > 100) {
         newValue = 100;
+    }
     domCache.volumeBar.value = newValue;
     sendAPI({"cmd": "MPD_API_PLAYER_VOLUME_SET", "data": {"volume": newValue}});
+}
+
+function gtPage(phrase, returnedEntities, totalEntities) {
+    if (totalEntities > -1) {
+        return t(phrase, totalEntities);
+    }
+    else if (returnedEntities + app.current.page < settings.maxElementsPerPage) {
+        return t(phrase, returnedEntities);
+    }
+    else {
+        return '> ' + t(phrase, settings.maxElementsPerPage);
+    }
 }
 
 function beautifyDuration(x) {
