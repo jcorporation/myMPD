@@ -634,7 +634,7 @@ Open main menu
 주 메뉴로 가기
 
 Open volume menu
-소리 메뉴 열기
+음량 메뉴 열기
 
 Open about
 myMPD에 대하여 열기
@@ -667,10 +667,10 @@ Can not parse settings
 설정을 분석할 수 없음
 
 Volumecontrol disabled
-소리 조절 사용 안 함
+음량 조절 안 함
 
 Volume
-소리
+음량
 
 No results, please refine your search
 결과 없음, 맞게 찾아야 함
@@ -682,7 +682,7 @@ Empty list
 목록 비우기
 
 Empty playlist
-목록 비우기
+연주목록 비우기
 
 No playlists found
 연주목록 찾을 수 없음
@@ -739,13 +739,13 @@ Database update finished
 데이터베이스 업데이트 마침
 
 Added all songs from search to %{playlist}
-찾기의 모든 곡이 %{playlist}에 추가됨
+찾기의 모든 곡을 %{playlist}에 추가함
 
 queue
 순서
 
 Added all songs from database selection to %{playlist}
-데이터베이스의 모든 곡이 %{playlist}에 추가됨
+데이터베이스의 모든 곡을 %{playlist}에 추가함
 
 Add random
 무작위 추가
@@ -799,7 +799,7 @@ Disabling output failed
 출력 사용 안 함에 실패함
 
 Setting volume failed
-소리 설정에 실패함
+음량 설정 실패함
 
 Seeking song failed
 곡 찾기에 실패함
@@ -926,3 +926,19 @@ Minutes
 
 Seconds
 초
+
+Added all songs
+모든 곡을 추가함
+
+%{name} added to queue
+순서에 %{name} 추가함
+
+%{name} added to queue position %{to}
+%{to} 순서 위치에 %{name} 추가함
+
+Queue replaced with %{name}
+%{name} 순서 바꿈
+
+Saved smart playlist %{name}
+%{name} 스마트 연주목록 저장함
+
