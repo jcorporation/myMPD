@@ -6,7 +6,7 @@ project (mympd)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/")
 set(CPACK_PACKAGE_VERSION_MAJOR "5")
 set(CPACK_PACKAGE_VERSION_MINOR "5")
-set(CPACK_PACKAGE_VERSION_PATCH "0")
+set(CPACK_PACKAGE_VERSION_PATCH "1")
 
 if("$ENV{ARCHLINUX}" MATCHES "true")
   set(WEBAPPS "/webapps")
@@ -95,7 +95,6 @@ find_package(LibMediainfo)
 if(LIBMEDIAINFO_FOUND)
   add_library(mympd_coverextract SHARED src/plugins/mympd_coverextract.cpp)
 
-  install(DIRECTORY DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}${SUBDIR}/lib)
   install(TARGETS mympd_coverextract DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}${SUBDIR}/)
 
   #testcoverextract executable
