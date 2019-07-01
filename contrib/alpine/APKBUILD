@@ -1,7 +1,7 @@
 # Contributor: Juergen Mang <mail@jcgames.de>
 # Maintainer: Juergen Mang <mail@jcgames.de>
 pkgname=myMPD
-pkgver=5.5.1
+pkgver=5.5.2
 pkgrel=0
 pkgdesc="myMPD is a standalone and mobile friendly web mpdclient"
 url="https://github.com/jcorporation/myMPD"
@@ -11,7 +11,7 @@ depends="libmpdclient libmediainfo openssl"
 makedepends="cmake libmpdclient-dev libmediainfo-dev openssl-dev linux-headers"
 install="$pkgname.pre-install $pkgname.post-install"
 source="
-	https://github.com/jcorporation/myMPD/archive/v5.5.1.zip
+	https://github.com/jcorporation/myMPD/archive/v${pkgver}.zip
 	myMPD.initd
 	"
 builddir="$srcdir/$pkgname-$pkgver"

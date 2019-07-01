@@ -4,7 +4,7 @@
 # (c) 2018-2019 Juergen Mang <mail@jcgames.de>
 
 Name:           myMPD
-Version:        5.5.1
+Version:        5.5.2
 Release:        0 
 License:        GPL-2.0 
 Group:          Productivity/Multimedia/Sound/Players
@@ -114,5 +114,5 @@ fi
 /var/lib/mympd
 
 %changelog
-* Mon Jun 26 2019 Juergen Mang <mail@jcgames.de> - master
+* Mon Jul 02 2019 Juergen Mang <mail@jcgames.de> - master
 - Version from master
