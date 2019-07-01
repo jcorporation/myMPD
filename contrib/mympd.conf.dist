@@ -35,9 +35,6 @@ loglevel = 2
 #myMPD user
 user = mympd
 
-#myMPD state directory
-varlibdir = /var/lib/mympd
-
 #Enable mixramp settings
 mixramp = false
 
@@ -45,4 +42,4 @@ mixramp = false
 syscmds = false
 
 [plugins]
-coverextract = true
+coverextract = false

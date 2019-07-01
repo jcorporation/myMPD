@@ -380,9 +380,9 @@ int main(int argc, char **argv) {
     config->ssl_cert = strdup("/var/lib/mympd/ssl/server.pem");
     config->ssl_key = strdup("/var/lib/mympd/ssl/server.key");
     config->user = strdup("mympd");
-    config->varlibdir = strdup("/var/lib/mympd");
+    config->varlibdir = strdup(VARLIB_PATH);
     config->stickers = true;
-    config->mixramp = true;
+    config->mixramp = false;
     config->taglist = strdup("Artist,Album,AlbumArtist,Title,Track,Genre,Date,Composer,Performer");
     config->searchtaglist = strdup("Artist,Album,AlbumArtist,Title,Genre,Composer,Performer");
     config->browsetaglist = strdup("Artist,Album,AlbumArtist,Genre,Composer,Performer");
@@ -437,8 +437,7 @@ int main(int argc, char **argv) {
         else {
             printf("myMPD %s\n"
                 "Copyright (C) 2018-2019 Juergen Mang <mail@jcgames.de>\n"
-                "https://github.com/jcorporation/myMPD\n"
-                "Built " __DATE__ " "__TIME__"\n\n"
+                "https://github.com/jcorporation/myMPD\n\n"
                 "Usage: %s [/path/to/mympd.conf]\n",
                 MYMPD_VERSION,
                 argv[0]
@@ -455,7 +454,7 @@ int main(int argc, char **argv) {
     if (access(configfile, F_OK ) != -1) {
         LOG_INFO("Parsing config file: %s", configfile);
         if (ini_parse(configfile, mympd_inihandler, config) < 0) {
-            LOG_ERROR("Can't load config file \"%s\"", configfile);
+            LOG_ERROR("Can't load config file %s", configfile);
             goto cleanup;
         }
     }

@@ -34,10 +34,11 @@
 #define MYMPD_VERSION_PATCH ${CPACK_PACKAGE_VERSION_PATCH}
 #define MYMPD_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}"
 
-//Webserver document root
+//default paths
 #define DOC_ROOT "${ASSETS_PATH}"
 #define ETC_PATH "${ETC_PATH}"
 #define PLUGIN_PATH "${PLUGIN_PATH}"
+#define VARLIB_PATH "${VARLIB_PATH}"
 
 //Max size of mpd_client response buffer
 #define MAX_ELEMENTS_PER_PAGE 200
