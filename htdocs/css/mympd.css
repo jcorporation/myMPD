@@ -195,10 +195,6 @@ small {
   margin-bottom:0px;
 }
 
-.card-body {
-  overflow-x:hidden;
-}
-
 .progressBarPlay {
   font-size: 1.8rem;
 }
