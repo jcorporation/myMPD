@@ -1,0 +1,39 @@
+#!/bin/sh
+
+ETCDIR="/etc/mympd"
+SHAREDIR="/usr/share/mympd"
+VARDIR="/var/lib/mympd"
+
+# move smartpls into place unless already existing
+for PLDIST in "${VARDIR}"/smartpls/*.dist
+do
+  if [ -f "$PLDIST" ]
+  then
+    PLS=$(basename "$PLDIST" .dist)
+    if [ -f "${VARDIR}/smartpls/$PLS" ]
+    then
+      rm "$PLDIST"
+    else
+      mv -v "$PLDIST" "${VARDIR}/smartpls/$PLS"
+    fi
+  fi
+done
+
+# move config into place unless already existing
+if [ ! -f "${ETCDIR}/mympd.conf" ]
+then 
+  mv "${ETCDIR}/mympd.conf.dist" "${ETCDIR}/mympd.conf"
+else
+  echo "mympd.conf installed as mympd.conf.dist"
+fi
+
+if [ -d "${VARDIR}/ssl" ]
+then
+  echo "Certificates already created"
+else
+  echo "Creating certificates"
+  "${SHAREDIR}/crcert.sh" "${VARDIR}/ssl"
+fi
+
+echo "myMPD installed"
+echo "Edit ${ETCDIR}/mympd.conf before starting myMPD"

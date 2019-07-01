@@ -1,0 +1,47 @@
+# Contributor: Juergen Mang <mail@jcgames.de>
+# Maintainer: Juergen Mang <mail@jcgames.de>
+pkgname=myMPD
+pkgver=5.5.1
+pkgrel=0
+pkgdesc="myMPD is a standalone and mobile friendly web mpdclient"
+url="https://github.com/jcorporation/myMPD"
+arch="all"
+license="GPL-2.0-or-later"
+depends="libmpdclient libmediainfo openssl"
+makedepends="cmake libmpdclient-dev libmediainfo-dev openssl-dev linux-headers"
+install="$pkgname.pre-install $pkgname.post-install"
+source="
+	https://github.com/jcorporation/myMPD/archive/v5.5.1.zip
+	myMPD.initd
+	"
+builddir="$srcdir/$pkgname-$pkgver"
+options="!check"
+#no test suite
+
+build() {
+	cd "$builddir"
+	mkdir release
+	cd release
+	if [ "$CBUILD" != "$CHOST" ]; then
+		CMAKE_CROSSOPTS="-DCMAKE_SYSTEM_NAME=Linux -DCMAKE_HOST_SYSTEM_NAME=Linux"
+	fi
+	cmake \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib \
+		-DBUILD_SHARED_LIBS=True \
+		-DCMAKE_BUILD_TYPE=RELEASE \
+		-DCMAKE_CXX_FLAGS="$CXXFLAGS" \
+		-DCMAKE_C_FLAGS="$CFLAGS" \
+		${CMAKE_CROSSOPTS} ..
+	make
+}
+
+package() {
+	cd "$builddir/release"
+	make DESTDIR="$pkgdir" install
+
+	install -m755 -D "$srcdir"/$pkgname.initd \
+		"$pkgdir"/etc/init.d/$pkgname
+	chown -R mympd.mympd "$pkgdir"/var/lib/mympd
+}
+
