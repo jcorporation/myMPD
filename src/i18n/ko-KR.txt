@@ -427,7 +427,7 @@ Playback statistics
 연주 통계
 
 Last played list count
-앞서 연주한 목록 횟수
+앞선 연주 목록 개수
 
 Smart playlists
 스마트 연주목록
@@ -451,7 +451,7 @@ MPD channel not found
 MPD 채널 없음
 
 Send love message
-애청곡 메시지 보내기
+애청 메시지 보내기
 
 MPD channel
 MPD 채널
