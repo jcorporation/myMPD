@@ -1,15 +1,21 @@
 #!/bin/sh
 
-if [ -f /usr/lib/systemd/system/mympd.service ]
+ACTION=$1
+USERNAME="mympd"
+
+if [ "$ACTION" = "remove" ]
 then
-  if [ "$(systemctl is-active mympd)" = "active" ]
+  if [ -f /usr/lib/systemd/system/mympd.service ]
   then
-    echo "Stopping mympd.service" && systemctl stop mympd 
+    if [ "$(systemctl is-active mympd)" = "active" ]
+    then
+      echo "Stopping mympd.service" && systemctl stop mympd 
+    fi
+    echo "Disabling mympd.service" && systemctl disable mympd
   fi
-  echo "Disabling mympd.service" && systemctl disable mympd
 fi
 
-if [ "$1" = "purge" ]
+if [ "$ACTION" = "purge" ]
 then
   if [ -f /usr/lib/systemd/system/mympd.service ]
   then
@@ -17,8 +23,14 @@ then
     systemctl daemon-reload
   fi
   rm -rf /usr/share/mympd
+  rm -rf /usr/lib/mympd
   rm -rf /etc/mympd
   rm -rf /var/lib/mympd
-  userdel mympd
-  groupdel mympd
+  if [ -x "$(command -v deluser)" ]
+  then
+     deluser --quiet --system $USERNAME > /dev/null || true
+     deluser --quiet --system --group $USERNAME > /dev/null || true
+  else
+     echo >&2 "not removing $USERNAME system account because deluser command was not found"
+  fi
 fi
