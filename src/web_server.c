@@ -194,8 +194,9 @@ static void send_ws_notify(struct mg_mgr *mgr, t_work_result *response) {
 static void send_api_response(struct mg_mgr *mgr, t_work_result *response) {
     struct mg_connection *nc;
     for (nc = mg_next(mgr, NULL); nc != NULL; nc = mg_next(mgr, nc)) {
-        if (is_websocket(nc))
+        if (is_websocket(nc)) {
             continue;
+        }
         if (nc->user_data != NULL) {
             if ((intptr_t)nc->user_data == response->conn_id) {
                 LOG_DEBUG("Sending response to conn_id %d: %s", (intptr_t)nc->user_data, response->data);
@@ -313,11 +314,26 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             else {
                 static struct mg_serve_http_opts s_http_server_opts;
                 s_http_server_opts.document_root = DOC_ROOT;
-                s_http_server_opts.enable_directory_listing = "no";
-                s_http_server_opts.extra_headers = "Content-Security-Policy: default-src 'none'; "
-                    "style-src 'self'; font-src 'self'; script-src 'self'; img-src 'self' data:; "
-                    "connect-src 'self' ws: wss:; manifest-src 'self'; "
-                    "media-src *; frame-ancestors 'none'; base-uri 'none';";
+                if (has_prefix(&hm->uri, &library_prefix) && mg_user_data->feat_library == true) {
+                    s_http_server_opts.enable_directory_listing = "yes";
+                    s_http_server_opts.extra_headers = "Content-Security-Policy: default-src 'none'; "
+                        "style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self' 'unsafe-inline'; img-src 'self' data:; "
+                        "connect-src 'self' ws: wss:; manifest-src 'self'; "
+                        "media-src *; frame-ancestors 'none'; base-uri 'none';\r\n"
+                        "X-Content-Type-Options: nosniff\r\n"
+                        "X-XSS-Protection: 1; mode=block\r\n"
+                        "X-Frame-Options: deny";
+                }
+                else {
+                    s_http_server_opts.enable_directory_listing = "no";
+                    s_http_server_opts.extra_headers = "Content-Security-Policy: default-src 'none'; "
+                        "style-src 'self'; font-src 'self'; script-src 'self'; img-src 'self' data:; "
+                        "connect-src 'self' ws: wss:; manifest-src 'self'; "
+                        "media-src *; frame-ancestors 'none'; base-uri 'none';\r\n"
+                        "X-Content-Type-Options: nosniff\r\n"
+                        "X-XSS-Protection: 1; mode=block\r\n"
+                        "X-Frame-Options: deny";
+                }
                 if (mg_user_data->rewrite_patterns != NULL) {
                     s_http_server_opts.url_rewrites = mg_user_data->rewrite_patterns;
                 }
