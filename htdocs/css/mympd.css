@@ -15,7 +15,7 @@ body {
   background-color: var(--mympd-backgroundcolor, #888);
 }
 
-.breakAll {
+.breakAll, td[data-col=Title] {
   word-break: break-all
 }
 
