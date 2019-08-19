@@ -2358,7 +2358,7 @@ function parseQueue(obj) {
         obj.data[i].Duration = beautifySongDuration(obj.data[i].Duration);
         obj.data[i].Pos++;
         var row = document.createElement('tr');
-        row.setAttribute('draggable','true');
+        row.setAttribute('draggable', 'true');
         row.setAttribute('data-trackid', obj.data[i].id);
         row.setAttribute('id','queueTrackId' + obj.data[i].id);
         row.setAttribute('data-songpos', obj.data[i].Pos);
@@ -2648,8 +2648,8 @@ function parseListDBtags(obj) {
         document.getElementById('btnBrowseDatabaseTag').parentNode.classList.remove('hide');
         document.getElementById('BrowseDatabaseAddAllSongs').parentNode.parentNode.classList.remove('hide');
         document.getElementById('BrowseDatabaseColsBtn').parentNode.classList.remove('hide');
-        document.getElementById('btnBrowseDatabaseTag').innerHTML = '&laquo; ' + app.current.view;
-        document.getElementById('BrowseDatabaseAlbumListCaption').innerHTML = '<h2>' + e(obj.searchtagtype) + ': ' + e(obj.searchstr) + '</h2><hr/>';
+        document.getElementById('btnBrowseDatabaseTag').innerHTML = '&laquo; ' + t(app.current.view);
+        document.getElementById('BrowseDatabaseAlbumListCaption').innerHTML = '<h2>' + t(obj.searchtagtype) + ': ' + e(obj.searchstr) + '</h2><hr/>';
         document.getElementById('cardFooterBrowse').innerText = t('Num entries', obj.totalEntities);
         var nrItems = obj.data.length;
         var cardContainer = document.getElementById('BrowseDatabaseAlbumList');
