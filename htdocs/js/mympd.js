@@ -488,19 +488,17 @@ function appInit() {
         }
     }, false);
 
-    document.getElementById('navDBupdate').addEventListener('click', function(event) {
-        event.stopPropagation();
-        event.preventDefault();
-        var icon = this.getElementsByTagName('span')[0];
-        icon.innerText = icon.innerText == 'keyboard_arrow_right' ? 'keyboard_arrow_down' : 'keyboard_arrow_right';
-    }, false);
-    
-    document.getElementById('navSyscmds').addEventListener('click', function(event) {
-        event.stopPropagation();
-        event.preventDefault();
-        var icon = this.getElementsByTagName('span')[0];
-        icon.innerText = icon.innerText == 'keyboard_arrow_right' ? 'keyboard_arrow_down' : 'keyboard_arrow_right';
-    }, false);
+
+    var collapseArrows = document.querySelectorAll('.subMenu');
+    var collapseArrowsLen = collapseArrows.length;
+    for (var i = 0; i < collapseArrowsLen; i++) {
+        collapseArrows[i].addEventListener('click', function(event) {
+            event.stopPropagation();
+            event.preventDefault();
+            var icon = this.getElementsByTagName('span')[0];
+            icon.innerText = icon.innerText == 'keyboard_arrow_right' ? 'keyboard_arrow_down' : 'keyboard_arrow_right';
+        }, false);
+    }    
     
     document.getElementById('volumeMenu').parentNode.addEventListener('show.bs.dropdown', function () {
         sendAPI({"cmd": "MPD_API_PLAYER_OUTPUT_LIST"}, parseOutputs);
