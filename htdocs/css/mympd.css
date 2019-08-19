@@ -351,7 +351,7 @@ caption {
   padding-top: 0.8rem;
 }
 
-#menu-dbupdate {
+#menu-dbupdate, .menu-indent {
   padding-left:1rem;
 }
 

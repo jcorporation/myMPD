@@ -123,6 +123,7 @@ var dropdownBookmarks = new Dropdown(document.getElementById('BrowseFilesystemBo
 var dropdownLocalPlayer = new Dropdown(document.getElementById('localPlaybackMenu'));
 
 var collapseDBupdate = new Collapse(document.getElementById('navDBupdate'));
+var collapseSyscmds = new Collapse(document.getElementById('navSyscmds'));
 
 function appPrepare(scrollPos) {
     if (app.current.app != app.last.app || app.current.tab != app.last.tab || app.current.view != app.last.view) {
@@ -491,10 +492,14 @@ function appInit() {
         event.stopPropagation();
         event.preventDefault();
         var icon = this.getElementsByTagName('span')[0];
-        if (icon.innerText == 'keyboard_arrow_right')
-            icon.innerText = 'keyboard_arrow_down';
-        else
-            icon.innerText = 'keyboard_arrow_right';        
+        icon.innerText = icon.innerText == 'keyboard_arrow_right' ? 'keyboard_arrow_down' : 'keyboard_arrow_right';
+    }, false);
+    
+    document.getElementById('navSyscmds').addEventListener('click', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        var icon = this.getElementsByTagName('span')[0];
+        icon.innerText = icon.innerText == 'keyboard_arrow_right' ? 'keyboard_arrow_down' : 'keyboard_arrow_right';
     }, false);
     
     document.getElementById('volumeMenu').parentNode.addEventListener('show.bs.dropdown', function () {
@@ -1625,10 +1630,11 @@ function parseSettings() {
     }
 
     if (settings.featSyscmds) {
+        var syscmdsMaxListLen = 4;
         var syscmdsList = '';
         var syscmdsListLen = settings.syscmdList.length;
         if (syscmdsListLen > 0) {
-            syscmdsList = '<div class="dropdown-divider"></div>';
+            syscmdsList = syscmdsListLen > syscmdsMaxListLen ? '' : '<div class="dropdown-divider"></div>';
             for (var i = 0; i < syscmdsListLen; i++) {
                 if (settings.syscmdList[i] == 'HR') {
                     syscmdsList += '<div class="dropdown-divider"></div>';
@@ -1640,6 +1646,14 @@ function parseSettings() {
             }
         }
         document.getElementById('syscmds').innerHTML = syscmdsList;
+        if (syscmdsListLen > syscmdsMaxListLen) {
+            document.getElementById('navSyscmds').classList.remove('hide');
+            document.getElementById('syscmds').classList.add('collapse', 'menu-indent');
+        }
+        else {
+            document.getElementById('navSyscmds').classList.add('hide');
+            document.getElementById('syscmds').classList.remove('collapse', 'menu-indent');
+        }
     }
     else {
         document.getElementById('syscmds').innerHTML = '';
