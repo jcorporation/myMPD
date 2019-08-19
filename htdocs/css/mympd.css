@@ -15,6 +15,10 @@ body {
   background-color: var(--mympd-backgroundcolor, #888);
 }
 
+.breakAll {
+  word-break: break-all
+}
+
 .albumartbg {
     position: fixed;
     width: 100%;

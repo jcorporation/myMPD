@@ -2929,10 +2929,10 @@ function parseSongDetails(obj) {
     }
     songDetails += '<tr><th>' + t('Duration') + '</th><td>' + beautifyDuration(obj.data.Duration) + '</td></tr>';
     if (settings.featLibrary) {
-        songDetails += '<tr><th>' + t('Filename') + '</th><td><a class="text-success" href="/library/' + encodeURI(obj.data.uri) + '">' + e(obj.data.uri) + '</a></td></tr>';
+        songDetails += '<tr><th>' + t('Filename') + '</th><td><a class="breakAll text-success" href="/library/' + encodeURI(obj.data.uri) + '">' + e(obj.data.uri) + '</a></td></tr>';
     }
     else {
-        songDetails += '<tr><th>' + t('Filename') + '</th><td>' + e(obj.data.uri) + '</td></tr>';
+        songDetails += '<tr><th>' + t('Filename') + '</th><td class="breakAll">' + e(obj.data.uri) + '</td></tr>';
     }
     if (settings.featStickers == true) {
         songDetails += '<tr><th colspan="2" class="pt-3"><h5>' + t('Statistics') + '</h5></th></tr>' +
