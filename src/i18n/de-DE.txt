@@ -944,3 +944,6 @@ Intelligente Wiedergabeliste %{name} gespeichert
 
 System commands
 Systembefehle
+
+Focus table
+In Tabelle navigieren

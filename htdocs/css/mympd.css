@@ -380,3 +380,7 @@ ol#searchCrumb {
   overflow-y: auto;
   max-height: calc(100vh - 9rem);
 }
+
+table:focus tr.selected {
+  background-color: #ccc;
+}

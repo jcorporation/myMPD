@@ -962,6 +962,13 @@ function appInit() {
     }, false);
     
 
+    var tables = document.getElementsByTagName('table');
+    for (var i = 0; i < tables.length; i++) {
+        tables[i].setAttribute('tabindex', 0);
+        tables[i].addEventListener('keydown', function(event) {
+            navigateTable(this, event.key);
+        }, false);
+    }
     
     window.addEventListener('beforeinstallprompt', function(event) {
         // Prevent Chrome 67 and earlier from automatically showing the prompt
@@ -1028,6 +1035,60 @@ async function localplayerPlay() {
         } 
         catch(err) {
             showNotification(t('Local playback'), t('Can not start playing'), '', 'error');
+        }
+    }
+}
+
+function focusTable() {
+    var table = document.getElementById(app.current.app + app.current.tab + (app.current.view != null ? app.current.view : '') + 'List');
+    if (table == null) {
+        table = document.getElementById(app.current.app + app.current.tab + 'TagList');
+    }
+    if (table != null) {
+        table.focus();
+        var sel = table.getElementsByClassName('selected');
+        if (sel.length == 0) {
+            table.getElementsByTagName('tbody')[0].rows[0].classList.add('selected');
+        }
+    }
+}
+
+function navigateTable(table, keyCode) {
+    var cur = table.getElementsByClassName('selected')[0];
+    if (cur) {
+        var next = null;
+        var scrollY = 0;
+        if (keyCode == 'ArrowDown') {
+            event.preventDefault();
+            event.stopPropagation();
+            next = cur.nextElementSibling;
+            if (next) {
+                scrollY = next.offsetHeight;
+            }
+        }
+        else if (keyCode == 'ArrowUp') {
+            event.preventDefault();
+            event.stopPropagation();
+            next = cur.previousElementSibling;
+            if (next) {
+                scrollY = 0 - next.offsetHeight;
+            }
+        }
+        else if (keyCode == 'Enter') {
+            event.preventDefault();
+            event.stopPropagation();
+            var popupBtn = cur.lastChild.firstChild;
+            if (popupBtn.nodeName == 'A') {
+                popupBtn.click();
+            }
+            else {
+                cur.click();
+            }
+        }
+        if (next) {
+            cur.classList.remove('selected');
+            next.classList.add('selected');
+            window.scrollBy(0, scrollY);
         }
     }
 }
@@ -2350,6 +2411,17 @@ function getQueue() {
     }
 }
 
+function replaceTblRow(row, el) {
+    var menuEl = row.querySelector('[data-popover]');
+    if (menuEl) {
+        hideMenu();
+    }
+    if (row.classList.contains('selected')) {
+        el.classList.add('selected');
+    }
+    row.replaceWith(el);
+}
+
 function parseQueue(obj) {
     if (typeof(obj.totalTime) != undefined && obj.totalTime > 0 && obj.totalEntities <= settings.maxElementsPerPage ) {
         document.getElementById('cardFooterQueue').innerText = t('Num songs', obj.totalEntities) + ' – ' + beautifyDuration(obj.totalTime);
@@ -2383,7 +2455,7 @@ function parseQueue(obj) {
         tds += '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>';
         row.innerHTML = tds;
         if (i < tr.length) {
-            tr[i].replaceWith(row);
+            replaceTblRow(tr[i], row);
         }
         else {
             tbody.append(row);
@@ -2436,7 +2508,7 @@ function parseLastPlayed(obj) {
         tds += '</td>';
         row.innerHTML = tds;
         if (i < tr.length) {
-            tr[i].replaceWith(row);
+            replaceTblRow(tr[i], row);
         }
         else {
             tbody.append(row);
@@ -2531,10 +2603,12 @@ function parseFilesystem(obj) {
                 row.innerHTML = tds;
                 break;
         }
-        if (i < tr.length)
-            tr[i].replaceWith(row); 
-        else 
+        if (i < tr.length) {
+            replaceTblRow(tr[i], row);
+        }
+        else {
             tbody.append(row);
+        }
     }
     var trLen = tr.length - 1;
     for (var i = trLen; i >= nrItems; i --) {
@@ -2591,7 +2665,7 @@ function parsePlaylists(obj) {
                             '<td>'+ localeDate(obj.data[i].last_modified) + '</td>' +
                             '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>';
             if (i < tr.length) {
-                tr[i].replaceWith(row);
+                replaceTblRow(tr[i], row);
             }
             else {
                 tbody.append(row);
@@ -2620,7 +2694,7 @@ function parsePlaylists(obj) {
             row.innerHTML = tds;
 
             if (i < tr.length) {
-                tr[i].replaceWith(row); 
+                replaceTblRow(tr[i], row);
             }
             else {
                 tbody.append(row);
@@ -2683,15 +2757,19 @@ function parseListDBtags(obj) {
                     '</div><div class="card-footer"></div>';
             
             card.innerHTML = html;
-            if (i < cards.length)
+            if (i < cards.length) {
                 cards[i].replaceWith(card); 
-            else 
+            }
+            else {
                 cardContainer.append(card);
+            }
             
-            if ('IntersectionObserver' in window)
+            if ('IntersectionObserver' in window) {
                 createListTitleObserver(document.getElementById('card' + id));
-            else
+            }
+            else {
                 sendAPI({"cmd": "MPD_API_DATABASE_TAG_ALBUM_TITLE_LIST", "data": { "album": obj.data[i].value, "search": app.current.search, "tag": app.current.view, "cols": settings.colsBrowseDatabase}}, parseListTitles);
+            }
         }
         var cardsLen = cards.length - 1;
         for (var i = cardsLen; i >= nrItems; i --) {
@@ -2700,8 +2778,9 @@ function parseListDBtags(obj) {
         setPagination(obj.totalEntities, obj.returnedEntities);
         setCols('BrowseDatabase', '.tblAlbumTitles');
         var tbls = document.querySelectorAll('.tblAlbumTitles');
-        for (var i = 0; i < tbls.length; i++) 
+        for (var i = 0; i < tbls.length; i++) {
             dragAndDropTableHeader(tbls[i]);
+        }
         document.getElementById('BrowseDatabaseAlbumList').classList.remove('opacity05');        
     }  
     else {
@@ -2722,12 +2801,12 @@ function parseListDBtags(obj) {
             row.setAttribute('data-uri', uri);
             row.innerHTML='<td data-col="Type"><span class="material-icons">album</span></td>' +
                           '<td>' + e(obj.data[i].value) + '</td>';
-
-            if (i < tr.length)
-                tr[i].replaceWith(row); 
-            else 
+            if (i < tr.length) {
+                replaceTblRow(tr[i], row);
+            }
+            else {
                 tbody.append(row);
-
+            }
         }
         var trLen = tr.length - 1;
         for (var i = trLen; i >= nrItems; i --) {
@@ -3042,7 +3121,6 @@ function voteSong(vote) {
 function setVoteSongBtns(vote, uri) {
     domCache.btnVoteUp2 = document.getElementById('btnVoteUp2');
     domCache.btnVoteDown2 = document.getElementById('btnVoteDown2');
-    
 
     if (uri == '' || uri.indexOf('://') > -1) {
         domCache.btnVoteUp.setAttribute('disabled', 'disabled');
@@ -3145,8 +3223,6 @@ function parseSmartPlaylist(obj) {
     modalSaveSmartPlaylist.show();
     nameEl.focus();
 }
-
-
 
 function saveSmartPlaylist() {
     var name = document.getElementById('saveSmartPlaylistName').value;
@@ -3377,6 +3453,9 @@ function hideMenu() {
         new Popover(menuEl, {});
         menuEl.Popover.hide();
         menuEl.removeAttribute('data-popover');
+        if (menuEl.parentNode.parentNode.classList.contains('selected')) {
+            focusTable();
+        }
     }
 }
 
@@ -3454,8 +3533,6 @@ function showMenu(el, event) {
             (uri.indexOf('http') == -1 ? addMenuItem({"cmd": "songDetails", "options": [uri]}, t('Song details')) : '');
     }
 
-    
-
     new Popover(el, { trigger: 'click', delay: 0, dismissible: true, template: '<div class="popover" role="tooltip">' +
         '<div class="arrow"></div>' +
         '<div class="popover-content">' + menu + '</div>' +
@@ -3475,18 +3552,37 @@ function showMenu(el, event) {
                     hideMenu();
                 }
             }
-        }, false);        
+        }, false);
+        document.getElementsByClassName('popover-content')[0].addEventListener('keydown', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            if (event.key == 'ArrowDown') {
+                if (event.target.nextElementSibling)
+                    event.target.nextElementSibling.focus();
+            }
+            else if (event.key == 'ArrowUp') {
+                if (event.target.previousElementSibling)
+                    event.target.previousElementSibling.focus();
+            } 
+            else if (event.key == 'Enter') {
+                event.target.click();
+            }
+            else if (event.key == 'Escape') {
+                hideMenu();
+            }
+        }, false);
         var collapseLink = document.getElementById('advancedMenuLink');
         if (collapseLink) {
             collapseLink.addEventListener('click', function(event) {
-            var icon = this.getElementsByTagName('span')[0];
-            if (icon.innerText == 'keyboard_arrow_right')
-                icon.innerText = 'keyboard_arrow_down';
-            else
-                icon.innerText = 'keyboard_arrow_right';
-        }, false);
+                var icon = this.getElementsByTagName('span')[0];
+                if (icon.innerText == 'keyboard_arrow_right')
+                    icon.innerText = 'keyboard_arrow_down';
+                else
+                    icon.innerText = 'keyboard_arrow_right';
+            }, false);
             var myCollapseInit = new Collapse(collapseLink);
         }
+        document.getElementsByClassName('popover-content')[0].firstChild.focus();
     }, false);
     popoverInit.show();
 }

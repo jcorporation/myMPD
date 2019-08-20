@@ -25,5 +25,6 @@ var keymap = {
     "S": {"cmd": "MPD_API_QUEUE_SHUFFLE", "options": [], "desc": "Shuffle queue"},
     "C": {"cmd": "MPD_API_QUEUE_CROP", "options": [], "desc": "Crop queue"},
     "?": {"cmd": "openModal", "options": ["modalAbout"], "desc": "Open about"},
-    "/": {"cmd": "focusSearch", "options": [], "desc": "Focus search"}
+    "/": {"cmd": "focusSearch", "options": [], "desc": "Focus search"},
+    "n": {"cmd": "focusTable", "options": [], "desc": "Focus table"}
 }
