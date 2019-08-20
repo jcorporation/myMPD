@@ -2944,6 +2944,21 @@ function setPagination(total, returned) {
     }
 }
 
+function queueSelectedItem(append) {
+    var item = document.activeElement.querySelector('.selected');
+    if (item) {
+        if (item.parentNode.parentNode.id == 'QueueCurrentList') {
+            return;
+        }
+        if (append == true) {
+            appendQueue(item.getAttribute('data-type'), item.getAttribute('data-uri'), item.getAttribute('data-name'));
+        }
+        else {
+            replaceQueue(item.getAttribute('data-type'), item.getAttribute('data-uri'), item.getAttribute('data-name'));
+        }
+    }
+}
+
 function appendQueue(type, uri, name) {
     switch(type) {
         case 'song':

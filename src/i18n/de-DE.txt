@@ -947,3 +947,12 @@ Systembefehle
 
 Focus table
 In Tabelle navigieren
+
+Append item to queue
+Ausgewähltes Element an Warteschlange anhängen
+
+Replace queue with item
+Warteschlange mit ausgewähltem Element ersetzen
+
+Type
+Typ
