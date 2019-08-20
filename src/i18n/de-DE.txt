@@ -942,3 +942,5 @@ Warteschlange mit %{name} ersetzt
 Saved smart playlist %{name}
 Intelligente Wiedergabeliste %{name} gespeichert
 
+System commands
+Systembefehle

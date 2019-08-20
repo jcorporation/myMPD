@@ -1,7 +1,7 @@
 # Contributor: Juergen Mang <mail@jcgames.de>
 # Maintainer: Juergen Mang <mail@jcgames.de>
 pkgname=myMPD
-pkgver=5.5.2
+pkgver=5.5.3
 pkgrel=0
 pkgdesc="myMPD is a standalone and mobile friendly web mpdclient"
 url="https://github.com/jcorporation/myMPD"

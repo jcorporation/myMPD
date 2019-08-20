@@ -123,6 +123,7 @@ var dropdownBookmarks = new Dropdown(document.getElementById('BrowseFilesystemBo
 var dropdownLocalPlayer = new Dropdown(document.getElementById('localPlaybackMenu'));
 
 var collapseDBupdate = new Collapse(document.getElementById('navDBupdate'));
+var collapseSyscmds = new Collapse(document.getElementById('navSyscmds'));
 
 function appPrepare(scrollPos) {
     if (app.current.app != app.last.app || app.current.tab != app.last.tab || app.current.view != app.last.view) {
@@ -487,15 +488,17 @@ function appInit() {
         }
     }, false);
 
-    document.getElementById('navDBupdate').addEventListener('click', function(event) {
-        event.stopPropagation();
-        event.preventDefault();
-        var icon = this.getElementsByTagName('span')[0];
-        if (icon.innerText == 'keyboard_arrow_right')
-            icon.innerText = 'keyboard_arrow_down';
-        else
-            icon.innerText = 'keyboard_arrow_right';        
-    }, false);
+
+    var collapseArrows = document.querySelectorAll('.subMenu');
+    var collapseArrowsLen = collapseArrows.length;
+    for (var i = 0; i < collapseArrowsLen; i++) {
+        collapseArrows[i].addEventListener('click', function(event) {
+            event.stopPropagation();
+            event.preventDefault();
+            var icon = this.getElementsByTagName('span')[0];
+            icon.innerText = icon.innerText == 'keyboard_arrow_right' ? 'keyboard_arrow_down' : 'keyboard_arrow_right';
+        }, false);
+    }    
     
     document.getElementById('volumeMenu').parentNode.addEventListener('show.bs.dropdown', function () {
         sendAPI({"cmd": "MPD_API_PLAYER_OUTPUT_LIST"}, parseOutputs);
@@ -1625,10 +1628,11 @@ function parseSettings() {
     }
 
     if (settings.featSyscmds) {
+        var syscmdsMaxListLen = 4;
         var syscmdsList = '';
         var syscmdsListLen = settings.syscmdList.length;
         if (syscmdsListLen > 0) {
-            syscmdsList = '<div class="dropdown-divider"></div>';
+            syscmdsList = syscmdsListLen > syscmdsMaxListLen ? '' : '<div class="dropdown-divider"></div>';
             for (var i = 0; i < syscmdsListLen; i++) {
                 if (settings.syscmdList[i] == 'HR') {
                     syscmdsList += '<div class="dropdown-divider"></div>';
@@ -1640,6 +1644,14 @@ function parseSettings() {
             }
         }
         document.getElementById('syscmds').innerHTML = syscmdsList;
+        if (syscmdsListLen > syscmdsMaxListLen) {
+            document.getElementById('navSyscmds').classList.remove('hide');
+            document.getElementById('syscmds').classList.add('collapse', 'menu-indent');
+        }
+        else {
+            document.getElementById('navSyscmds').classList.add('hide');
+            document.getElementById('syscmds').classList.remove('collapse', 'menu-indent');
+        }
     }
     else {
         document.getElementById('syscmds').innerHTML = '';
@@ -2358,7 +2370,7 @@ function parseQueue(obj) {
         obj.data[i].Duration = beautifySongDuration(obj.data[i].Duration);
         obj.data[i].Pos++;
         var row = document.createElement('tr');
-        row.setAttribute('draggable','true');
+        row.setAttribute('draggable', 'true');
         row.setAttribute('data-trackid', obj.data[i].id);
         row.setAttribute('id','queueTrackId' + obj.data[i].id);
         row.setAttribute('data-songpos', obj.data[i].Pos);
@@ -2648,8 +2660,8 @@ function parseListDBtags(obj) {
         document.getElementById('btnBrowseDatabaseTag').parentNode.classList.remove('hide');
         document.getElementById('BrowseDatabaseAddAllSongs').parentNode.parentNode.classList.remove('hide');
         document.getElementById('BrowseDatabaseColsBtn').parentNode.classList.remove('hide');
-        document.getElementById('btnBrowseDatabaseTag').innerHTML = '&laquo; ' + app.current.view;
-        document.getElementById('BrowseDatabaseAlbumListCaption').innerHTML = '<h2>' + e(obj.searchtagtype) + ': ' + e(obj.searchstr) + '</h2><hr/>';
+        document.getElementById('btnBrowseDatabaseTag').innerHTML = '&laquo; ' + t(app.current.view);
+        document.getElementById('BrowseDatabaseAlbumListCaption').innerHTML = '<h2>' + t(obj.searchtagtype) + ': ' + e(obj.searchstr) + '</h2><hr/>';
         document.getElementById('cardFooterBrowse').innerText = t('Num entries', obj.totalEntities);
         var nrItems = obj.data.length;
         var cardContainer = document.getElementById('BrowseDatabaseAlbumList');
@@ -2929,10 +2941,10 @@ function parseSongDetails(obj) {
     }
     songDetails += '<tr><th>' + t('Duration') + '</th><td>' + beautifyDuration(obj.data.Duration) + '</td></tr>';
     if (settings.featLibrary) {
-        songDetails += '<tr><th>' + t('Filename') + '</th><td><a class="text-success" href="/library/' + encodeURI(obj.data.uri) + '">' + e(obj.data.uri) + '</a></td></tr>';
+        songDetails += '<tr><th>' + t('Filename') + '</th><td><a class="breakAll text-success" href="/library/' + encodeURI(obj.data.uri) + '">' + e(obj.data.uri) + '</a></td></tr>';
     }
     else {
-        songDetails += '<tr><th>' + t('Filename') + '</th><td>' + e(obj.data.uri) + '</td></tr>';
+        songDetails += '<tr><th>' + t('Filename') + '</th><td class="breakAll">' + e(obj.data.uri) + '</td></tr>';
     }
     if (settings.featStickers == true) {
         songDetails += '<tr><th colspan="2" class="pt-3"><h5>' + t('Statistics') + '</h5></th></tr>' +
