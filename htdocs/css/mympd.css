@@ -16,7 +16,8 @@ body {
 }
 
 .breakAll, td[data-col=Title] {
-  word-break: break-all
+  word-break: break-all;
+  min-width: 6rem;
 }
 
 .albumartbg {
