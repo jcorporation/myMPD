@@ -1877,7 +1877,10 @@ static bool mpd_client_last_played_list(t_config *config, t_mpd_state *mpd_state
         if (song) {
             const char *uri = mpd_song_get_uri(song);
             if (uri == NULL || strstr(uri, "://") != NULL) {
-                //Don't add streams to last played list            
+                //Don't add streams to last played list
+                mpd_state->last_last_played_id = song_id;
+                mpd_song_free(song);
+                return true;
             }
             else {
                 list_insert(&mpd_state->last_played, uri, time(NULL));
@@ -1904,6 +1907,10 @@ static bool mpd_client_last_played_list(t_config *config, t_mpd_state *mpd_state
                 LOG_ERROR("Renaming file from %s to %s failed", tmp_file, cfg_file);
                 return false;
             }
+            //notify clients
+            char buffer[MAX_SIZE];
+            size_t len = snprintf(buffer, MAX_SIZE, "{\"type\": \"update_lastplayed\"}");
+            mpd_client_notify(buffer, len);
         } else {
             LOG_ERROR("Can't get song from id %d", song_id);
             return false;

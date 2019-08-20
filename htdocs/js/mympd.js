@@ -1410,6 +1410,11 @@ function webSocketConnect() {
                         sendAPI({"cmd": "MPD_API_PLAYLIST_CONTENT_LIST", "data": {"offset": app.current.page, "filter": app.current.filter, "uri": app.current.search, "cols": settings.colsBrowsePlaylistsDetail}}, parsePlaylists);
                     }
                     break;
+                case 'update_lastplayed':
+                    if (app.current.app == 'Queue' && app.current.tab == 'LastPlayed') {
+                        sendAPI({"cmd": "MPD_API_QUEUE_LAST_PLAYED", "data": {"offset": app.current.page, "cols": settings.colsQueueLastPlayed}}, parseLastPlayed);
+                    }
+                    break;
                 case 'error':
                     if (document.getElementById('alertMpdState').classList.contains('hide')) {
                         showNotification(t(obj.data), '', '', 'danger');
@@ -2320,10 +2325,7 @@ function parseState(obj) {
             pb[i].innerText = '';
         }
     }
-    
-    if (app.current.app == 'Queue' && app.current.tab == 'LastPlayed') {
-        sendAPI({"cmd": "MPD_API_QUEUE_LAST_PLAYED", "data": {"offset": app.current.page, "cols": settings.colsQueueLastPlayed}}, parseLastPlayed);
-    }
+
 
     lastState = obj;                    
     
