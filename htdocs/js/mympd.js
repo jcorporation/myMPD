@@ -1039,16 +1039,28 @@ async function localplayerPlay() {
     }
 }
 
-function focusTable() {
-    var table = document.getElementById(app.current.app + app.current.tab + (app.current.view != null ? app.current.view : '') + 'List');
+function focusTable(rownr) {
+    var table = document.getElementById(app.current.app + (app.current.tab != null ? app.current.tab : '') + (app.current.view != null ? app.current.view : '') + 'List');
     if (table == null) {
         table = document.getElementById(app.current.app + app.current.tab + 'TagList');
     }
     if (table != null) {
         table.focus();
         var sel = table.getElementsByClassName('selected');
-        if (sel.length == 0) {
-            table.getElementsByTagName('tbody')[0].rows[0].classList.add('selected');
+        if (rownr == undefined) {
+            if (sel.length == 0) {
+                table.getElementsByTagName('tbody')[0].rows[0].classList.add('selected');
+            }
+        }
+        else {
+            var row = table.getElementsByTagName('tbody')[0].rows[rownr];
+            if (sel) {
+                sel[0].classList.remove('selected');
+            }
+            if (row) {
+                row.classList.add('selected');
+                scrollTo(0);
+            }
         }
     }
 }
@@ -1074,16 +1086,18 @@ function navigateTable(table, keyCode) {
                 scrollY = 0 - next.offsetHeight;
             }
         }
-        else if (keyCode == 'Enter') {
+        else if (keyCode == ' ') {
             event.preventDefault();
             event.stopPropagation();
             var popupBtn = cur.lastChild.firstChild;
             if (popupBtn.nodeName == 'A') {
                 popupBtn.click();
             }
-            else {
-                cur.click();
-            }
+        }
+        else if (keyCode == 'Enter') {
+            event.preventDefault();
+            event.stopPropagation();
+            cur.firstChild.click();
         }
         if (next) {
             cur.classList.remove('selected');
@@ -2466,7 +2480,7 @@ function parseQueue(obj) {
     var trLen = tr.length - 1;
     for (var i = trLen; i >= nrItems; i --) {
         tr[i].remove();
-    }                    
+    }
 
     var colspan = settings['colsQueueCurrent'].length;
     colspan--;
@@ -2553,17 +2567,20 @@ function parseFilesystem(obj) {
     var colspan = settings['cols' + list].length;
     colspan--;
     var nrItems = obj.data.length;
-    var tbody = document.getElementById(app.current.app + (app.current.tab == undefined ? '' : app.current.tab) + 'List').getElementsByTagName('tbody')[0];
+    var table = document.getElementById(app.current.app + (app.current.tab == undefined ? '' : app.current.tab) + 'List');
+    var tbody = table.getElementsByTagName('tbody')[0];
     var tr = tbody.getElementsByTagName('tr');
     for (var i = 0; i < nrItems; i++) {
         var uri = encodeURI(obj.data[i].uri);
         var row = document.createElement('tr');
         row.setAttribute('data-type', obj.data[i].Type);
         row.setAttribute('data-uri', uri);
-        if (obj.data[i].Type == 'song')
+        if (obj.data[i].Type == 'song') {
             row.setAttribute('data-name', obj.data[i].Title);
-        else
+        }
+        else {
             row.setAttribute('data-name', obj.data[i].name);
+        }
         
         switch(obj.data[i].Type) {
             case 'dir':
@@ -2615,6 +2632,10 @@ function parseFilesystem(obj) {
     var trLen = tr.length - 1;
     for (var i = trLen; i >= nrItems; i --) {
         tr[i].remove();
+    }
+
+    if (document.activeElement == table) {
+        focusTable(0);    
     }
     
     setPagination(obj.totalEntities, obj.returnedEntities);
