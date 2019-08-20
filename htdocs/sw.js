@@ -1,4 +1,4 @@
-var CACHE = 'myMPD-cache-v5.5.3';
+var CACHE = 'myMPD-cache-v5.6.0';
 var subdir = self.location.pathname.replace('/sw.min.js', '').replace(/\/$/, '');
 var urlsToCache = [
     subdir + '/',
