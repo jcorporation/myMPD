@@ -1040,11 +1040,21 @@ async function localplayerPlay() {
     }
 }
 
-function focusTable(rownr) {
-    var table = document.getElementById(app.current.app + (app.current.tab != null ? app.current.tab : '') + (app.current.view != null ? app.current.view : '') + 'List');
+function focusTable(rownr, table) {
     if (table == null) {
-        table = document.getElementById(app.current.app + app.current.tab + 'TagList');
+        table = document.getElementById(app.current.app + (app.current.tab != null ? app.current.tab : '') + (app.current.view != null ? app.current.view : '') + 'List');
+        //support for BrowseDatabaseAlbum list
+        if (table == null) {
+            table = document.getElementById(app.current.app + app.current.tab + 'TagList');
+        }
+        //support for BrowseDatabaseAlbum cards
+        if (app.current.app == 'Browse' && app.current.tab == 'Database' && 
+            !document.getElementById('BrowseDatabaseAlbumList').classList.contains('hide'))
+        {
+            table = document.getElementById('BrowseDatabaseAlbumList').getElementsByTagName('table')[0];
+        }
     }
+
     if (table != null) {
         var sel = table.getElementsByClassName('selected');
         if (rownr == undefined) {
@@ -1129,6 +1139,29 @@ function navigateTable(table, keyCode) {
         else if (keyCode == 'Escape') {
             cur.blur();
             cur.classList.remove('selected');
+            handled = true;
+        }
+        //only for BrowseDatabaseAlbum cards
+        else if (app.current.app == 'Browse' && app.current.tab == 'Database' && 
+                 !document.getElementById('BrowseDatabaseAlbumList').classList.contains('hide') &&
+                 (keyCode == 'n' || keyCode == 'p')) {
+            var tablesHtml = document.getElementById('BrowseDatabaseAlbumList').getElementsByTagName('table');
+            var tables = Array.prototype.slice.call(tablesHtml);
+            var idx = document.activeElement.nodeName == 'TR' ? tables.indexOf(document.activeElement.parentNode.parentNode)
+                                                              : tables.indexOf(document.activeElement);
+            idx = event.key == 'p' ? (idx > 1 ? idx - 1 : 0)
+                                   : event.key == 'n' ? ( idx < tables.length - 1 ? ( document.activeElement.nodeName == 'TR' ? idx + 1 : idx )
+                                                                                  : idx)
+                                                      : idx;
+            
+            if (tables[idx].getElementsByTagName('tbody')[0].rows.length > 0) {
+                next = tables[idx].getElementsByTagName('tbody')[0].rows[0];
+            }
+            else {
+                //Titlelist not loaded yet, scroll table into view
+                tables[idx].focus();
+                scrollFocusIntoView();
+            }
             handled = true;
         }
         if (handled == true) {
@@ -2839,7 +2872,7 @@ function parseListDBtags(obj) {
             if (settings.featCoverimage == true && settings.coverimage == true) {
                 html += '<div class="col-md-auto"><a class="card-img-left"></a></div>';
             }
-            html += '<div class="col"><table class="tblAlbumTitles table table-sm table-hover" id="tbl' + id + '"><thead><tr></tr></thead><tbody></tbody>' +
+            html += '<div class="col"><table class="tblAlbumTitles table table-sm table-hover" tabindex="0" id="tbl' + id + '"><thead><tr></tr></thead><tbody></tbody>' +
                     '<tfoot class="bg-light border-bottom"></tfoot></table></div>' + 
                     '</div></div>' +
                     '</div><div class="card-footer"></div>';
@@ -2941,6 +2974,7 @@ function getListTitles(changes, observer) {
 function parseListTitles(obj) {
     var id = genId(obj.Album);
     var card = document.getElementById('card' + id)
+    var table = card.getElementsByTagName('table')[0];
     var tbody = card.getElementsByTagName('tbody')[0];
     var cardFooter = card.querySelector('.card-footer');
     var cardHeader = card.querySelector('.card-header');
@@ -2951,6 +2985,9 @@ function parseListTitles(obj) {
         showMenu(this, event);
     }, false);
     cardHeader.classList.add('clickable');
+    table.addEventListener('keydown', function(event) {
+        navigateTable(this, event.key);
+    }, false);
     var img = card.getElementsByTagName('a')[0];
     if (img) {
         img.style.backgroundImage = 'url("' + subdir + obj.cover + '"), url("' + subdir + '/assets/coverimage-loading.png")';
@@ -2970,7 +3007,7 @@ function parseListTitles(obj) {
         if (obj.data[i].Duration) {
             obj.data[i].Duration = beautifySongDuration(obj.data[i].Duration);
         }
-        titleList += '<tr data-type="song" data-name="' + obj.data[i].Title + '" data-uri="' + encodeURI(obj.data[i].uri) + '">';
+        titleList += '<tr tabindex="0" data-type="song" data-name="' + obj.data[i].Title + '" data-uri="' + encodeURI(obj.data[i].uri) + '">';
         for (var c = 0; c < settings.colsBrowseDatabase.length; c++) {
             titleList += '<td data-col="' + settings.colsBrowseDatabase[c] + '">' + e(obj.data[i][settings.colsBrowseDatabase[c]]) + '</td>';
         }
@@ -3585,7 +3622,7 @@ function hideMenu() {
         menuEl.Popover.hide();
         menuEl.removeAttribute('data-popover');
         if (menuEl.parentNode.parentNode.classList.contains('selected')) {
-            focusTable();
+            focusTable(undefined, menuEl.parentNode.parentNode.parentNode.parentNode);
         }
     }
 }
