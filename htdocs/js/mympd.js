@@ -3594,14 +3594,20 @@ function showMenu(el, event) {
         document.getElementsByClassName('popover-content')[0].addEventListener('keydown', function(event) {
             event.preventDefault();
             event.stopPropagation();
-            if (event.key == 'ArrowDown') {
-                if (event.target.nextElementSibling)
-                    event.target.nextElementSibling.focus();
+            if (event.key == 'ArrowDown' || event.key == 'ArrowUp') {
+                var menuItemsHtml = this.getElementsByTagName('a');
+                var menuItems = Array.prototype.slice.call(menuItemsHtml);
+                var idx = menuItems.indexOf(document.activeElement);
+                do {
+                    idx = event.key == 'ArrowUp' ? (idx > 1 ? idx - 1 : 0)
+                                                 : event.key == 'ArrowDown' ? ( idx < menuItems.length - 1 ? idx + 1 : idx)
+                                                                            : idx;
+                    if ( idx === 0 || idx === menuItems.length -1 ) {
+                        break;
+                    }
+                } while ( !menuItems[idx].offsetHeight )
+                menuItems[idx] && menuItems[idx].focus();
             }
-            else if (event.key == 'ArrowUp') {
-                if (event.target.previousElementSibling)
-                    event.target.previousElementSibling.focus();
-            } 
             else if (event.key == 'Enter') {
                 event.target.click();
             }
