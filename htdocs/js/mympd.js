@@ -700,6 +700,7 @@ function appInit() {
     document.getElementById('BrowseFilesystemList').addEventListener('click', function(event) {
         if (event.target.nodeName == 'TD') {
             switch(event.target.parentNode.getAttribute('data-type')) {
+                case 'parentDir':
                 case 'dir':
                     appGoto('Browse', 'Filesystem', undefined, '0/' + app.current.filter + '/' + app.current.sort + '/' + decodeURI(event.target.parentNode.getAttribute("data-uri")));
                     break;
@@ -1045,11 +1046,15 @@ function focusTable(rownr) {
         table = document.getElementById(app.current.app + app.current.tab + 'TagList');
     }
     if (table != null) {
-        table.focus();
         var sel = table.getElementsByClassName('selected');
         if (rownr == undefined) {
             if (sel.length == 0) {
-                table.getElementsByTagName('tbody')[0].rows[0].classList.add('selected');
+                var row = table.getElementsByTagName('tbody')[0].rows[0];
+                row.focus();
+                row.classList.add('selected');
+            }
+            else {
+                sel[0].focus();
             }
         }
         else {
@@ -1058,51 +1063,79 @@ function focusTable(rownr) {
                 sel[0].classList.remove('selected');
             }
             if (row) {
+                row.focus();
                 row.classList.add('selected');
-                scrollTo(0);
             }
         }
+        //insert goto parent row
+        if (table.id == 'BrowseFilesystemList') {
+            var tbody = table.getElementsByTagName('tbody')[0];
+            if (tbody.rows[0].getAttribute('data-type') != 'parentDir' && app.current.search != '') {
+                var nrCells = table.getElementsByTagName('thead')[0].rows[0].cells.length;
+                var uri = app.current.search.replace(/\/?([^\/]+)$/,'');
+                var row = tbody.insertRow(0);
+                row.setAttribute('data-type', 'parentDir');
+                row.setAttribute('tabindex', 0);
+                row.setAttribute('data-uri', encodeURI(uri));
+                row.innerHTML = '<td colspan="' + nrCells + '">..</td>';
+            }
+        }
+        scrollFocusIntoView();
+    }
+}
+
+function scrollFocusIntoView() {
+    var el = document.activeElement;
+    var posY = el.getBoundingClientRect().top;
+    var height = el.offsetHeight;
+    
+    if (posY < 74) {
+        window.scrollBy(0, - 74);
+    }
+    else if (posY + height > window.innerHeight - 74) {
+        window.scrollBy(0, 74);
     }
 }
 
 function navigateTable(table, keyCode) {
-    var cur = table.getElementsByClassName('selected')[0];
+    var cur = document.activeElement;
     if (cur) {
         var next = null;
         var scrollY = 0;
+        var handled = false;
         if (keyCode == 'ArrowDown') {
-            event.preventDefault();
-            event.stopPropagation();
             next = cur.nextElementSibling;
-            if (next) {
-                scrollY = next.offsetHeight;
-            }
+            handled = true;
         }
         else if (keyCode == 'ArrowUp') {
-            event.preventDefault();
-            event.stopPropagation();
             next = cur.previousElementSibling;
-            if (next) {
-                scrollY = 0 - next.offsetHeight;
-            }
+            handled = true;
         }
         else if (keyCode == ' ') {
-            event.preventDefault();
-            event.stopPropagation();
             var popupBtn = cur.lastChild.firstChild;
             if (popupBtn.nodeName == 'A') {
                 popupBtn.click();
             }
+            handled = true;
         }
         else if (keyCode == 'Enter') {
+            cur.firstChild.click();
+            handled = true;
+        }
+        else if (keyCode == 'Escape') {
+            cur.blur();
+            cur.classList.remove('selected');
+            handled = true;
+        }
+        if (handled == true) {
             event.preventDefault();
             event.stopPropagation();
-            cur.firstChild.click();
         }
         if (next) {
             cur.classList.remove('selected');
             next.classList.add('selected');
-            window.scrollBy(0, scrollY);
+            next.focus();
+            scrollFocusIntoView();
         }
     }
 }
@@ -2434,6 +2467,7 @@ function replaceTblRow(row, el) {
     }
     if (row.classList.contains('selected')) {
         el.classList.add('selected');
+        el.focus();
     }
     row.replaceWith(el);
 }
@@ -2570,11 +2604,13 @@ function parseFilesystem(obj) {
     var table = document.getElementById(app.current.app + (app.current.tab == undefined ? '' : app.current.tab) + 'List');
     var tbody = table.getElementsByTagName('tbody')[0];
     var tr = tbody.getElementsByTagName('tr');
+    var navigate = document.activeElement.parentNode.parentNode == table ? true : false;
     for (var i = 0; i < nrItems; i++) {
         var uri = encodeURI(obj.data[i].uri);
         var row = document.createElement('tr');
         row.setAttribute('data-type', obj.data[i].Type);
         row.setAttribute('data-uri', uri);
+        row.setAttribute('tabindex', 0);
         if (obj.data[i].Type == 'song') {
             row.setAttribute('data-name', obj.data[i].Title);
         }
@@ -2634,10 +2670,10 @@ function parseFilesystem(obj) {
         tr[i].remove();
     }
 
-    if (document.activeElement == table) {
-        focusTable(0);    
+    if (navigate == true) {
+        focusTable(0);
     }
-    
+
     setPagination(obj.totalEntities, obj.returnedEntities);
                     
     if (nrItems == 0)
