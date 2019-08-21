@@ -1058,13 +1058,17 @@ function focusTable(rownr) {
             }
         }
         else {
-            var row = table.getElementsByTagName('tbody')[0].rows[rownr];
-            if (sel) {
+            if (sel && sel.length > 0) {
                 sel[0].classList.remove('selected');
             }
-            if (row) {
-                row.focus();
-                row.classList.add('selected');
+            var rows = table.getElementsByTagName('tbody')[0].rows;
+            var rowsLen = rows.length;
+            if (rowsLen < rownr) {
+                rownr = 0;
+            }
+            if (rowsLen > rownr) {
+                rows[rownr].focus();
+                rows[rownr].classList.add('selected');
             }
         }
         //insert goto parent row
@@ -2462,14 +2466,17 @@ function getQueue() {
 
 function replaceTblRow(row, el) {
     var menuEl = row.querySelector('[data-popover]');
+    var result = false;
     if (menuEl) {
         hideMenu();
     }
     if (row.classList.contains('selected')) {
         el.classList.add('selected');
         el.focus();
+        result = true;
     }
     row.replaceWith(el);
+    return result;
 }
 
 function parseQueue(obj) {
@@ -2485,6 +2492,8 @@ function parseQueue(obj) {
 
     var nrItems = obj.data.length;
     var table = document.getElementById('QueueCurrentList');
+    var navigate = document.activeElement.parentNode.parentNode == table ? true : false;
+    var activeRow = 0;
     table.setAttribute('data-version', obj.queueVersion);
     var tbody = table.getElementsByTagName('tbody')[0];
     var tr = tbody.getElementsByTagName('tr');
@@ -2498,6 +2507,7 @@ function parseQueue(obj) {
         row.setAttribute('data-songpos', obj.data[i].Pos);
         row.setAttribute('data-duration', obj.data[i].Duration);
         row.setAttribute('data-uri', obj.data[i].uri);
+        row.setAttribute('tabindex', 0);
         var tds = '';
         for (var c = 0; c < settings.colsQueueCurrent.length; c++) {
             tds += '<td data-col="' + settings.colsQueueCurrent[c] + '">' + e(obj.data[i][settings.colsQueueCurrent[c]]) + '</td>';
@@ -2505,7 +2515,7 @@ function parseQueue(obj) {
         tds += '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>';
         row.innerHTML = tds;
         if (i < tr.length) {
-            replaceTblRow(tr[i], row);
+            activeRow = replaceTblRow(tr[i], row) == true ? i : activeRow;
         }
         else {
             tbody.append(row);
@@ -2528,6 +2538,10 @@ function parseQueue(obj) {
                           '<td colspan="' + colspan + '">' + t('Empty queue') + '</td></tr>';
     }
 
+    if (navigate == true) {
+        focusTable(activeRow);
+    }
+    
     setPagination(obj.totalEntities, obj.returnedEntities);
     document.getElementById('QueueCurrentList').classList.remove('opacity05');
 }
@@ -2536,17 +2550,18 @@ function parseLastPlayed(obj) {
     document.getElementById('cardFooterQueue').innerText = t('Num songs', obj.totalEntities);
     var nrItems = obj.data.length;
     var table = document.getElementById('QueueLastPlayedList');
-    table.setAttribute('data-version', obj.queueVersion);
+    var navigate = document.activeElement.parentNode.parentNode == table ? true : false;
+    var activeRow = 0;
     var tbody = table.getElementsByTagName('tbody')[0];
     var tr = tbody.getElementsByTagName('tr');
     for (var i = 0; i < nrItems; i++) {
         obj.data[i].Duration = beautifySongDuration(obj.data[i].Duration);
         obj.data[i].LastPlayed = localeDate(obj.data[i].LastPlayed);
         var row = document.createElement('tr');
-        row.setAttribute('data-songpos', (obj.data[i].Pos + 1));
         row.setAttribute('data-uri', obj.data[i].uri);
         row.setAttribute('data-name', obj.data[i].Title);
         row.setAttribute('data-type', 'song');
+        row.setAttribute('tabindex', 0);
         var tds = '';
         for (var c = 0; c < settings.colsQueueLastPlayed.length; c++) {
             tds += '<td data-col="' + settings.colsQueueLastPlayed[c] + '">' + e(obj.data[i][settings.colsQueueLastPlayed[c]]) + '</td>';
@@ -2558,7 +2573,7 @@ function parseLastPlayed(obj) {
         tds += '</td>';
         row.innerHTML = tds;
         if (i < tr.length) {
-            replaceTblRow(tr[i], row);
+            activeRow = replaceTblRow(tr[i], row) == true ? i : activeRow;
         }
         else {
             tbody.append(row);
@@ -2575,6 +2590,10 @@ function parseLastPlayed(obj) {
     if (nrItems == 0) {
         tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
             '<td colspan="' + colspan + '">' + t('Empty list') + '</td></tr>';
+    }
+
+    if (navigate == true) {
+        focusTable(activeRow);
     }
 
     setPagination(obj.totalEntities, obj.returnedEntities);
@@ -2605,6 +2624,7 @@ function parseFilesystem(obj) {
     var tbody = table.getElementsByTagName('tbody')[0];
     var tr = tbody.getElementsByTagName('tr');
     var navigate = document.activeElement.parentNode.parentNode == table ? true : false;
+    var activeRow = 0;
     for (var i = 0; i < nrItems; i++) {
         var uri = encodeURI(obj.data[i].uri);
         var row = document.createElement('tr');
@@ -2659,7 +2679,7 @@ function parseFilesystem(obj) {
                 break;
         }
         if (i < tr.length) {
-            replaceTblRow(tr[i], row);
+            activeRow = replaceTblRow(tr[i], row) == true ? i : activeRow;
         }
         else {
             tbody.append(row);
@@ -2710,8 +2730,11 @@ function parsePlaylists(obj) {
     }
             
     var nrItems = obj.data.length;
-    var tbody = document.getElementById(app.current.app + app.current.tab + app.current.view + 'List').getElementsByTagName('tbody')[0];
+    var table = document.getElementById(app.current.app + app.current.tab + app.current.view + 'List');
+    var tbody = table.getElementsByTagName('tbody')[0];
     var tr = tbody.getElementsByTagName('tr');
+    var navigate = document.activeElement.parentNode.parentNode == table ? true : false;
+    var activeRow = 0;
     if (app.current.view == 'All') {
         for (var i = 0; i < nrItems; i++) {
             var uri = encodeURI(obj.data[i].uri);
@@ -2719,12 +2742,13 @@ function parsePlaylists(obj) {
             row.setAttribute('data-uri', uri);
             row.setAttribute('data-type', obj.data[i].Type);
             row.setAttribute('data-name', obj.data[i].name);
+            row.setAttribute('tabindex', 0);
             row.innerHTML = '<td data-col="Type"><span class="material-icons">' + (obj.data[i].Type == 'smartpls' ? 'queue_music' : 'list') + '</span></td>' +
                             '<td>' + e(obj.data[i].name) + '</td>' +
                             '<td>'+ localeDate(obj.data[i].last_modified) + '</td>' +
                             '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>';
             if (i < tr.length) {
-                replaceTblRow(tr[i], row);
+                activeRow = replaceTblRow(tr[i], row) == true ? i : activeRow;
             }
             else {
                 tbody.append(row);
@@ -2744,6 +2768,7 @@ function parsePlaylists(obj) {
             row.setAttribute('data-uri', uri);
             row.setAttribute('data-name', obj.data[i].Title);
             row.setAttribute('data-songpos', obj.data[i].Pos);
+            row.setAttribute('tabindex', 0);
             obj.data[i].Duration = beautifySongDuration(obj.data[i].Duration);
             var tds = '';
             for (var c = 0; c < settings.colsBrowsePlaylistsDetail.length; c++) {
@@ -2753,7 +2778,7 @@ function parsePlaylists(obj) {
             row.innerHTML = tds;
 
             if (i < tr.length) {
-                replaceTblRow(tr[i], row);
+                activeRow = replaceTblRow(tr[i], row) == true ? i : activeRow;
             }
             else {
                 tbody.append(row);
@@ -2764,6 +2789,10 @@ function parsePlaylists(obj) {
     var trLen = tr.length - 1;
     for (var i = trLen; i >= nrItems; i --) {
         tr[i].remove();
+    }
+
+    if (navigate == true) {
+        focusTable(0);
     }
 
     setPagination(obj.totalEntities, obj.returnedEntities);
@@ -2852,16 +2881,20 @@ function parseListDBtags(obj) {
         document.getElementById('BrowseDatabaseTagListCaption').innerText = app.current.view;        
         document.getElementById('cardFooterBrowse').innerText = obj.totalEntities + ' Tags';
         var nrItems = obj.data.length;
-        var tbody = document.getElementById(app.current.app + app.current.tab + 'TagList').getElementsByTagName('tbody')[0];
+        var table = document.getElementById(app.current.app + app.current.tab + 'TagList');
+        var tbody = table.getElementsByTagName('tbody')[0];
+        var navigate = document.activeElement.parentNode.parentNode == table ? true : false;
+        var activeRow = 0;
         var tr = tbody.getElementsByTagName('tr');
         for (var i = 0; i < nrItems; i++) {
             var uri = encodeURI(obj.data[i].value);
             var row = document.createElement('tr');
             row.setAttribute('data-uri', uri);
+            row.setAttribute('tabindex', 0);
             row.innerHTML='<td data-col="Type"><span class="material-icons">album</span></td>' +
                           '<td>' + e(obj.data[i].value) + '</td>';
             if (i < tr.length) {
-                replaceTblRow(tr[i], row);
+                activeRow = replaceTblRow(tr[i], row) == true ? i : activeRow;
             }
             else {
                 tbody.append(row);
@@ -2871,7 +2904,11 @@ function parseListDBtags(obj) {
         for (var i = trLen; i >= nrItems; i --) {
             tr[i].remove();
         }
-
+        
+        if (navigate == true) {
+            focusTable(0);
+        }
+        
         setPagination(obj.totalEntities, obj.returnedEntities);
 
         if (nrItems == 0) 
@@ -3002,7 +3039,7 @@ function setPagination(total, returned) {
 }
 
 function queueSelectedItem(append) {
-    var item = document.activeElement.querySelector('.selected');
+    var item = document.activeElement;
     if (item) {
         if (item.parentNode.parentNode.id == 'QueueCurrentList') {
             return;
@@ -3013,6 +3050,16 @@ function queueSelectedItem(append) {
         else {
             replaceQueue(item.getAttribute('data-type'), item.getAttribute('data-uri'), item.getAttribute('data-name'));
         }
+    }
+}
+
+function dequeueSelectedItem() {
+    var item = document.activeElement;
+    if (item) {
+        if (item.parentNode.parentNode.id != 'QueueCurrentList') {
+            return;
+        }
+        delQueueSong('single', item.getAttribute('data-trackid'));
     }
 }
 
