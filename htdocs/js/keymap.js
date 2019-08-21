@@ -29,5 +29,6 @@ var keymap = {
     "n": {"cmd": "focusTable", "options": [], "desc": "Focus table"},
     "q": {"cmd": "queueSelectedItem", "options": [true], "desc": "Append item to queue"},
     "Q": {"cmd": "queueSelectedItem", "options": [false], "desc": "Replace queue with item"},
-    "d": {"cmd": "dequeueSelectedItem", "options": [], "desc": "Remove item from queue"}
+    "d": {"cmd": "dequeueSelectedItem", "options": [], "desc": "Remove item from queue"},
+    "x": {"cmd": "addSelectedItemToPlaylist", "options": [], "desc": "Append item to playlist"}
 }

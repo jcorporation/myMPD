@@ -959,3 +959,6 @@ Typ
 
 Remove item from queue
 Ausgewähltes Element aus Warteschlange entfernen
+
+Append item to playlist
+Ausgewähltes Element zu einer Wiedergabeliste hinzufügen

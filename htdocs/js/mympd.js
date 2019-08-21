@@ -3063,6 +3063,16 @@ function dequeueSelectedItem() {
     }
 }
 
+function addSelectedItemToPlaylist() {
+    var item = document.activeElement;
+    if (item) {
+        if (item.parentNode.parentNode.id == 'BrowsePlaylistsAllList') {
+            return;
+        }
+        showAddToPlaylist(item.getAttribute('data-uri'));
+    }
+}
+
 function appendQueue(type, uri, name) {
     switch(type) {
         case 'song':
