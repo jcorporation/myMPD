@@ -2401,6 +2401,7 @@ function parseState(obj) {
         domCache.currentTitle.innerText = 'Not playing';
         document.title = 'myMPD';
         document.getElementById('headerTitle').innerText = '';
+        document.getElementById('headerTitle').removeAttribute('title');
         clearCurrentCover();
         if (settings.bgCover == true) {
             clearBackgroundImage();
@@ -4261,6 +4262,7 @@ function songChange(obj) {
     }
     document.title = 'myMPD: ' + pageTitle;
     document.getElementById('headerTitle').innerText = pageTitle;
+    document.getElementById('headerTitle').title = pageTitle;
 
     if (settings.featStickers == true) {
         setVoteSongBtns(obj.data.like, obj.data.uri);
