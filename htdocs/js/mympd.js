@@ -2399,7 +2399,8 @@ function parseState(obj) {
     //clear playback card if not playing
     if (obj.data.songPos == '-1') {
         domCache.currentTitle.innerText = 'Not playing';
-        //domCache.currentCover.style.backgroundImage = '';
+        document.title = 'myMPD';
+        document.getElementById('headerTitle').innerText = '';
         clearCurrentCover();
         if (settings.bgCover == true) {
             clearBackgroundImage();
@@ -3150,8 +3151,9 @@ function replaceQueue(type, uri, name) {
 
 function clickTitle() {
     var uri = decodeURI(domCache.currentTitle.getAttribute('data-uri'));
-    if (uri != '')
+    if (uri != '') {
         songDetails(uri);
+    }
 }
 
 function gotoBrowse(x) {
