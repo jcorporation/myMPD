@@ -4225,7 +4225,7 @@ function songChange(obj) {
         return;
     var textNotification = '';
     var htmlNotification = '';
-    var pageTitle = 'myMPD: ';
+    var pageTitle = '';
 
     setCurrentCover(obj.data.cover);
     if (settings.bgCover == true && settings.featCoverimage == true) {
@@ -4257,7 +4257,8 @@ function songChange(obj) {
         domCache.currentTitle.innerText = '';
         domCache.currentTitle.setAttribute('data-uri', '');
     }
-    document.title = pageTitle;
+    document.title = 'myMPD: ' + pageTitle;
+    document.getElementById('headerTitle').innerText = pageTitle;
 
     if (settings.featStickers == true) {
         setVoteSongBtns(obj.data.like, obj.data.uri);

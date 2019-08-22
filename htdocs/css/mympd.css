@@ -80,6 +80,16 @@ button {
   }
 }
 
+@media only screen and (max-width: 768px) {
+  #headerTitle {
+    display:none !important;
+  }
+}
+
+#headerTitle {
+ text-overflow: ellipsis;
+}
+
 .clickable {
   cursor: pointer;
 }
