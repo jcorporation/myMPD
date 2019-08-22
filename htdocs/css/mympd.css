@@ -363,7 +363,7 @@ caption {
 }
 
 #menu-dbupdate, .menu-indent {
-  padding-left:1rem;
+  padding-left: 1rem;
 }
 
 div.key {
@@ -395,4 +395,8 @@ ol#searchCrumb {
 
 tr:focus {
   background-color: #ccc;
+}
+
+textarea.small {
+  font-size: 80%;
 }

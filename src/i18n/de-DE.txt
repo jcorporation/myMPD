@@ -962,3 +962,9 @@ Ausgewähltes Element aus Warteschlange entfernen
 
 Append item to playlist
 Ausgewähltes Element zu einer Wiedergabeliste hinzufügen
+
+Fingerprint
+Fingerabdruck
+
+Calculate
+Berechne Fingerabdruck

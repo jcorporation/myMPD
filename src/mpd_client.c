@@ -132,6 +132,7 @@ typedef struct t_mpd_state {
     bool feat_smartpls;
     bool feat_love;
     bool feat_coverimage;
+    bool feat_fingerprint;
     //mympd states
     enum jukebox_modes jukebox_mode;
     char *jukebox_playlist;
@@ -221,6 +222,7 @@ static int mpd_client_rename_playlist(t_config *config, t_mpd_state *mpd_state, 
 static int mpd_client_put_playlists(t_config *config, t_mpd_state *mpd_state, char *buffer, const unsigned int offset, const char *filter);
 static int mpd_client_put_playlist_list(t_config *config, t_mpd_state *mpd_state, char *buffer, const char *uri, const unsigned int offset, const char *filter, const t_tags *tagcols);
 static int mpd_client_put_songdetails(t_config *config, t_mpd_state *mpd_state, char *buffer, const char *uri);
+static int mpd_client_put_fingerprint(t_mpd_state *mpd_state, char *buffer, const char *uri);
 static int mpd_client_put_last_played_songs(t_mpd_state *mpd_state, char *buffer, const unsigned int offset, const t_tags *tagcols);
 static int mpd_client_queue_crop(t_mpd_state *mpd_state, char *buffer);
 static void mpd_client_disconnect(t_mpd_state *mpd_state);
@@ -241,7 +243,7 @@ void *mpd_client_loop(void *arg_config) {
     mpd_state->conn_state = MPD_DISCONNECTED;
     mpd_state->reconnect_time = 0;
     mpd_state->reconnect_intervall = 0;
-    mpd_state->timeout = 3000;
+    mpd_state->timeout = 10000;
     mpd_state->state = MPD_STATE_UNKNOWN;
     mpd_state->song_id = -1;
     mpd_state->next_song_id = -1;
@@ -812,7 +814,14 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
                 response->length = mpd_client_put_songdetails(config, mpd_state, response->data, p_charbuf1);
                 FREE_PTR(p_charbuf1);
             }
-            break;            
+            break;
+        case MPD_API_DATABASE_FINGERPRINT:
+            je = json_scanf(request->data, request->length, "{data: { uri: %Q}}", &p_charbuf1);
+            if (je == 1) {
+                response->length = mpd_client_put_fingerprint(mpd_state, response->data, p_charbuf1);
+                FREE_PTR(p_charbuf1);
+            }
+            break;
         case MPD_API_DATABASE_TAG_LIST:
             je = json_scanf(request->data, request->length, "{data: {offset: %u, filter: %Q, tag: %Q}}", &uint_buf1, &p_charbuf1, &p_charbuf2);
             if (je == 3) {
@@ -1519,6 +1528,7 @@ static void mpd_client_mpd_features(t_mpd_state *mpd_state) {
     mpd_state->feat_playlists = false;
     mpd_state->feat_tags = false;
     mpd_state->feat_advsearch = false;
+    mpd_state->feat_fingerprint = false;
 
     mpd_state->feat_smartpls = mpd_state->smartpls;
     mpd_state->feat_coverimage = true;
@@ -1532,6 +1542,10 @@ static void mpd_client_mpd_features(t_mpd_state *mpd_state) {
             else if (strcmp(pair->value, "listplaylists") == 0) {
                 LOG_DEBUG("MPD supports playlists");
                 mpd_state->feat_playlists = true;
+            }
+            else if (strcmp(pair->value, "getfingerprint") == 0) {
+                LOG_DEBUG("MPD supports fingerprints");
+                mpd_state->feat_fingerprint = true;
             }
             mpd_return_pair(mpd_state->conn, pair);
         }
@@ -2301,8 +2315,8 @@ static int mpd_client_put_settings(t_mpd_state *mpd_state, char *buffer) {
         "repeat: %d, single: %d, crossfade: %d, consume: %d, random: %d, "
         "mixrampdb: %f, mixrampdelay: %f, replaygain: %Q, featPlaylists: %B,"
         "featTags: %B, featLibrary: %B, featAdvsearch: %B, featStickers: %B,"
-        "featSmartpls: %B, featLove: %B, featCoverimage: %B, musicDirectoryValue: %Q, "
-        "mpdConnected: %B, tags: [", 
+        "featSmartpls: %B, featLove: %B, featCoverimage: %B, featFingerprint: %B, "
+        "musicDirectoryValue: %Q, mpdConnected: %B, tags: [", 
         mpd_status_get_repeat(status),
         mpd_status_get_single(status),
         mpd_status_get_crossfade(status),
@@ -2319,6 +2333,7 @@ static int mpd_client_put_settings(t_mpd_state *mpd_state, char *buffer) {
         mpd_state->feat_smartpls,
         mpd_state->feat_love,
         mpd_state->feat_coverimage,
+        mpd_state->feat_fingerprint,
         mpd_state->music_directory_value,
         true
     );
@@ -2488,6 +2503,29 @@ static int mpd_client_put_current_song(t_config *config, t_mpd_state *mpd_state,
     CHECK_RETURN_LEN();
 }
 
+static int mpd_client_put_fingerprint(t_mpd_state *mpd_state, char *buffer, const char *uri) {
+    size_t len = 0;
+    struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
+    
+    len = json_printf(&out, "{type: fingerprint, data: {");
+    if (mpd_state->feat_fingerprint == true) {
+        char fp_buffer[8192];
+        const char *fingerprint = mpd_run_getfingerprint_chromaprint(mpd_state->conn, uri, fp_buffer, sizeof(fp_buffer));
+        if (fingerprint == NULL) {
+            RETURN_ERROR_AND_RECOVER("mpd_getfingerprint");
+        }
+        len += json_printf(&out, "fingerprint: %Q", fingerprint);
+        mpd_response_finish(mpd_state->conn);
+    }
+    else {
+        len += json_printf(&out, "fingerprint: %Q", "not supported by mpd");
+    }
+
+    len += json_printf(&out, "}}");
+    
+    CHECK_RETURN_LEN();
+}
+
 static int mpd_client_put_songdetails(t_config *config, t_mpd_state *mpd_state, char *buffer, const char *uri) {
     struct mpd_entity *entity;
     const struct mpd_song *song;
@@ -2497,6 +2535,7 @@ static int mpd_client_put_songdetails(t_config *config, t_mpd_state *mpd_state, 
     char cover[2000] = "";
     
     len = json_printf(&out, "{type: song_details, data: {");
+
     if (!mpd_send_list_all_meta(mpd_state->conn, uri)) {
         RETURN_ERROR_AND_RECOVER("mpd_send_list_all_meta");
     }

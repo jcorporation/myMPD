@@ -666,7 +666,15 @@ function appInit() {
     
     document.getElementById('modalSongDetails').getElementsByTagName('tbody')[0].addEventListener('click', function(event) {
         if (event.target.nodeName == 'A') {
-            if (event.target.parentNode.getAttribute('data-tag') != undefined) {
+            if (event.target.id == 'calcFingerprint') {
+                sendAPI({"cmd": "MPD_API_DATABASE_FINGERPRINT", "data": {"uri": decodeURI(event.target.getAttribute('data-uri'))}}, parseFingerprint);
+                event.preventDefault();
+                var parent = event.target.parentNode;
+                var spinner = document.createElement('div');
+                spinner.classList.add('spinner-border', 'spinner-border-sm');
+                parent.replaceChild(spinner, parent.firstChild);
+            }
+            else if (event.target.parentNode.getAttribute('data-tag') != undefined) {
                 modalSongDetails.hide();
                 event.preventDefault();
                 gotoBrowse(event.target);
@@ -3170,6 +3178,14 @@ function songDetails(uri) {
     modalSongDetails.show();
 }
 
+function parseFingerprint(obj) {
+    var textarea = document.createElement('textarea');
+    textarea.value = obj.data.fingerprint;
+    textarea.classList.add('form-control', 'text-monospace', 'small');
+    var fpTd = document.getElementById('fingerprint');
+    fpTd.replaceChild(textarea, fpTd.firstChild);
+}
+
 function parseSongDetails(obj) {
     var modal = document.getElementById('modalSongDetails');
     modal.getElementsByClassName('album-cover')[0].style.backgroundImage = 'url("' + subdir + obj.data.cover + '"), url("' + subdir + '/assets/coverimage-loading.png")';
@@ -3195,6 +3211,10 @@ function parseSongDetails(obj) {
     }
     else {
         songDetails += '<tr><th>' + t('Filename') + '</th><td class="breakAll">' + e(obj.data.uri) + '</td></tr>';
+    }
+    if (settings.featFingerprint == true) {
+        songDetails += '<tr><th>' + t('Fingerprint') + '</th><td class="breakAll" id="fingerprint"><a class="text-success" data-uri="' + encodeURI(obj.data.uri) + '" id="calcFingerprint" href="#">' + t('Calculate') + '</a></td></tr>';
+
     }
     if (settings.featStickers == true) {
         songDetails += '<tr><th colspan="2" class="pt-3"><h5>' + t('Statistics') + '</h5></th></tr>' +

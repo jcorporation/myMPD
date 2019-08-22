@@ -120,6 +120,7 @@ void mympd_log(int level, const char *file, int line, const char *fmt, ...);
     X(MPD_API_DATABASE_TAG_ALBUM_TITLE_LIST) \
     X(MPD_API_DATABASE_STATS) \
     X(MPD_API_DATABASE_SONGDETAILS) \
+    X(MPD_API_DATABASE_FINGERPRINT) \
     X(MPD_API_PLAYER_PLAY_TRACK) \
     X(MPD_API_PLAYER_VOLUME_SET) \
     X(MPD_API_PLAYER_VOLUME_GET) \
