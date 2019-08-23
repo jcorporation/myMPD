@@ -2599,24 +2599,29 @@ static int mpd_client_put_last_played_songs(t_config *config, t_mpd_state *mpd_s
     
     len = json_printf(&out, "{type: last_played_songs, data: [");
     
-    struct node *current = mpd_state->last_played.list;
-    while (current != NULL && len < MAX_LIST_SIZE) {
-        entity_count++;
-        if (entity_count > offset && entity_count <= offset + mpd_state->max_elements_per_page) {
-            if (entities_returned++) 
-                len += json_printf(&out, ",");
-            len += json_printf(&out, "{Pos: %d, LastPlayed: %d, ", entity_count, current->value);
-            if (!mpd_send_list_all_meta(mpd_state->conn, current->data))
-                RETURN_ERROR_AND_RECOVER("mpd_send_list_all_meta");
-            if ((entity = mpd_recv_entity(mpd_state->conn)) != NULL) {
-                song = mpd_entity_get_song(entity);
-                PUT_SONG_TAG_COLS(tagcols);
-                mpd_entity_free(entity);
-                mpd_response_finish(mpd_state->conn);
+    if (mpd_state->last_played.length > 0) {
+        struct node *current = mpd_state->last_played.list;
+        while (current != NULL && len < MAX_LIST_SIZE) {
+            entity_count++;
+            if (entity_count > offset && entity_count <= offset + mpd_state->max_elements_per_page) {
+                if (entities_returned++) 
+                    len += json_printf(&out, ",");
+                len += json_printf(&out, "{Pos: %d, LastPlayed: %d, ", entity_count, current->value);
+                if (!mpd_send_list_all_meta(mpd_state->conn, current->data)) {
+                    LOG_ERROR_AND_RECOVER("mpd_send_list_all_meta");
+                }
+                else {
+                    if ((entity = mpd_recv_entity(mpd_state->conn)) != NULL) {
+                        song = mpd_entity_get_song(entity);
+                        PUT_SONG_TAG_COLS(tagcols);
+                        mpd_entity_free(entity);
+                        mpd_response_finish(mpd_state->conn);
+                    }
+                }
+                len += json_printf(&out, "}");
             }
-            len += json_printf(&out, "}");
+            current = current->next;
         }
-        current = current->next;
     }
 
     char *line = NULL;
@@ -2641,11 +2646,13 @@ static int mpd_client_put_last_played_songs(t_config *config, t_mpd_state *mpd_s
                 if (!mpd_send_list_all_meta(mpd_state->conn, data)) {
                     LOG_ERROR_AND_RECOVER("mpd_send_list_all_meta");
                 }
-                if ((entity = mpd_recv_entity(mpd_state->conn)) != NULL) {
-                    song = mpd_entity_get_song(entity);
-                    PUT_SONG_TAG_COLS(tagcols);
-                    mpd_entity_free(entity);
-                    mpd_response_finish(mpd_state->conn);
+                else {
+                    if ((entity = mpd_recv_entity(mpd_state->conn)) != NULL) {
+                        song = mpd_entity_get_song(entity);
+                        PUT_SONG_TAG_COLS(tagcols);
+                        mpd_entity_free(entity);
+                        mpd_response_finish(mpd_state->conn);
+                    }
                 }
                 len += json_printf(&out, "}");
             }
