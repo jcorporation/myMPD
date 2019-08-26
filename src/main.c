@@ -358,6 +358,11 @@ int main(int argc, char **argv) {
     bool init_thread_mympdapi = false;
     int rc = EXIT_FAILURE;
     loglevel = 2;
+
+    if (chdir("/") != 0) {
+        goto end;
+    }
+    umask(0077);
     
     mpd_client_queue = tiny_queue_create();
     mympd_api_queue = tiny_queue_create();
@@ -611,5 +616,6 @@ int main(int argc, char **argv) {
     if (rc == EXIT_SUCCESS) {
         printf("Exiting gracefully, thank you for using myMPD\n");
     }
+    end:
     return rc;
 }
