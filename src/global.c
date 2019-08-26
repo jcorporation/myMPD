@@ -31,22 +31,39 @@
 #include <pthread.h>
 #include <signal.h>
 #include <stdarg.h>
+#include <sys/stat.h>
 #include <mpd/client.h>
 
 #include "tiny_queue.h"
 #include "list.h"
 #include "global.h"
 
-bool testdir(const char *name, const char *dirname) {
+int testdir(const char *name, const char *dirname, bool create) {
     DIR* dir = opendir(dirname);
     if (dir) {
         closedir(dir);
         LOG_INFO("%s: \"%s\"", name, dirname);
-        return true;
+        //directory exists
+        return 0;
     }
     else {
-        LOG_ERROR("%s: \"%s\" don't exists", name, dirname);
-        return false;
+        if (create == true) {
+            if (mkdir(dirname, 0700) != 0) {
+                LOG_ERROR("%s: creating \"%s\" failed", name, dirname);
+                //directory not exists and creating failed
+                return 2;
+            }
+            else {
+                LOG_INFO("%s: \"%s\" created", name, dirname);
+                //directory successfully created
+                return 1;
+            }
+        }
+        else {
+            LOG_ERROR("%s: \"%s\" don't exists", name, dirname);
+            //directory not exists
+            return 3;
+        }
     }
 }
 

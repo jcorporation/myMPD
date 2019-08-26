@@ -54,21 +54,6 @@ then
   systemctl enable mympd
 fi
 
-# move smartpls into place unless already existing
-for PLDIST in /var/lib/mympd/smartpls/*.dist
-do
-  if [ -f "$PLDIST" ]
-  then
-    PLS=$(basename $PLDIST .dist)
-    if [ -f "/var/lib/mympd/smartpls/$PLS" ]
-    then
-      rm "$PLDIST"
-    else
-      mv -v "$PLDIST" "/var/lib/mympd/smartpls/$PLS"
-    fi
-  fi
-done
-
 echo "Fixing ownership of /var/lib/mympd"
 chown -R mympd.mympd /var/lib/mympd
 

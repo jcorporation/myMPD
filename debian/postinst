@@ -52,21 +52,6 @@ then
   systemctl enable mympd
 fi
 
-# move smartpls into place unless already existing
-for PLDIST in "${VARDIR}"/smartpls/*.dist
-do
-  if [ -f "$PLDIST" ]
-  then
-    PLS=$(basename "$PLDIST" .dist)
-    if [ -f "${VARDIR}/smartpls/$PLS" ]
-    then
-      rm "$PLDIST"
-    else
-      mv -v "$PLDIST" "${VARDIR}/smartpls/$PLS"
-    fi
-  fi
-done
-
 # replace directories
 sed -i -e "s|/var/lib/mympd|${VARDIR}|" \
   -e "s|/usr/share/mympd|${SHAREDIR}|" \

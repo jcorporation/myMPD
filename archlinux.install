@@ -32,21 +32,6 @@ post_upgrade() {
     /usr/share/webapps/mympd/crcert.sh
   fi
 
-  # move smartpls into place unless already existing
-  for PLDIST in /var/lib/mympd/smartpls/*.dist
-  do
-    if [ -f "$PLDIST" ]
-    then
-      PLS=$(basename "$PLDIST" .dist)
-      if [ -f "/var/lib/mympd/smartpls/$PLS" ]
-      then
-        rm "$PLDIST"
-      else
-        mv -v "$PLDIST" "/var/lib/mympd/smartpls/$PLS"
-      fi
-    fi
-  done
-
   # fix ownership of /var/lib/mympd
   echo "INFO: Fixing ownership of /var/lib/mympd"
   chown -R mympd.mympd /var/lib/mympd
@@ -80,8 +65,4 @@ post_remove() {
     mv /etc/webapps/mympd/mympd.conf /etc/webapps/mympd/mympd.conf.pacsave
     echo "INFO: /etc/webapps/mympd/mympd.conf backed up to /etc/webapps/mympd/mympd.conf.pacsave"
   fi
-
-  # remove leftover directories
-  rmdir -v /usr/share/mympd/htdocs/
-  rmdir -v /usr/share/mympd/
 }

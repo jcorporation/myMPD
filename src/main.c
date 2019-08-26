@@ -349,9 +349,52 @@ static void close_plugins(struct t_config *config) {
     }
 }
 
+static bool do_chown(const char *file_path, const char *user_name) {
+  struct passwd *pwd;
+
+  pwd = getpwnam(user_name);
+  if (pwd == NULL) {
+      LOG_ERROR("Can't get passwd entry for user %s", user_name);
+      return false;
+  }
+  
+  if (chown(file_path, pwd->pw_uid, pwd->pw_gid) == -1) {
+      LOG_ERROR("Can't chown %s to %s", file_path, user_name);
+      return false;
+  }
+  return true;
+}
+
+static bool smartpls_init(t_config *config, const char *name, const char *value) {
+    size_t cfg_file_len = config->varlibdir_len + strlen(name) + 11;
+    char cfg_file[cfg_file_len];
+    size_t tmp_file_len = config->varlibdir_len + strlen(name) + 18;
+    char tmp_file[tmp_file_len];
+    int fd;
+    
+    if (!validate_string(name))
+        return false;
+    snprintf(cfg_file, cfg_file_len, "%s/smartpls/%s", config->varlibdir, name);
+    snprintf(tmp_file, tmp_file_len, "%s/smartpls/%s.XXXXXX", config->varlibdir, name);
+        
+    if ((fd = mkstemp(tmp_file)) < 0 ) {
+        LOG_ERROR("Can't open %s for write", tmp_file);
+        return false;
+    }
+    FILE *fp = fdopen(fd, "w");
+    fprintf(fp, "%s", value);
+    fclose(fp);
+    if (rename(tmp_file, cfg_file) == -1) {
+        LOG_ERROR("Renaming file from %s to %s failed", tmp_file, cfg_file);
+        return false;
+    }
+    return true;
+}
+
 int main(int argc, char **argv) {
     s_signal_received = 0;
     char testdirname[400];
+    int testdir_rc = 0;
     bool init_webserver = false;
     bool init_thread_webserver = false;
     bool init_thread_mpdclient = false;
@@ -485,12 +528,33 @@ int main(int argc, char **argv) {
     setvbuf(stderr, NULL, _IOLBF, 0);
 
     //init webserver
+    if (config->ssl == true) {
+        if (access(config->ssl_cert, F_OK ) == -1 || access(config->ssl_key, F_OK ) == -1) {
+            //ssl key and cert not yet created
+            //ToDo: create it
+            LOG_ERROR("SSL certificate not found, create it with %s/crcert.sh", DATAROOT_PATH);
+            goto cleanup;
+        }
+    }
+    
     struct mg_mgr mgr;
     if (!web_server_init(&mgr, config, mg_user_data)) {
         goto cleanup;
     }
     else {
         init_webserver = true;
+    }
+
+    //check varlibdir
+    testdir_rc = testdir("State directory", config->varlibdir, true);
+    if (testdir_rc == 1) {
+        //directory created, set user and group 
+        if (do_chown(config->varlibdir, config->user) != true) {
+            goto cleanup;
+        }
+    }
+    else if (testdir_rc > 1) {
+        goto cleanup;
     }
 
     //drop privileges
@@ -520,30 +584,50 @@ int main(int argc, char **argv) {
     }
 
     //check needed directories
-    if (!testdir("Document root", DOC_ROOT)) {
+    testdir_rc = testdir("Document root", DOC_ROOT, false);
+    if (testdir_rc > 1) {
         goto cleanup;
     }
 
     snprintf(testdirname, 400, "%s/smartpls", config->varlibdir);
-    if (!testdir("Smartpls dir", testdirname)) {
+    testdir_rc = testdir("Smartpls dir", testdirname, true);
+    if (testdir_rc == 1) {
+        //directory created, create default smart playlists
+        smartpls_init(config, "myMPDsmart-bestRated", 
+            "{\"type\": \"sticker\", \"sticker\": \"like\", \"maxentries\": 200}\n");
+        smartpls_init(config, "myMPDsmart-mostPlayed", 
+            "{\"type\": \"sticker\", \"sticker\": \"playCount\", \"maxentries\": 200}\n");
+        smartpls_init(config, "myMPDsmart-newestSongs", 
+            "{\"type\": \"newest\", \"timerange\": 604800}\n");
+    }
+    else if (testdir_rc > 1) {
         goto cleanup;
     }
 
     snprintf(testdirname, 400, "%s/state", config->varlibdir);
-    if (!testdir("State dir", testdirname)) {
+    testdir_rc = testdir("State dir", testdirname, true);
+    if (testdir_rc > 1) {
+        goto cleanup;
+    }
+    
+    snprintf(testdirname, 400, "%s/pics", config->varlibdir);
+    testdir_rc = testdir("Pics dir", testdirname, true);
+    if (testdir_rc > 1) {
         goto cleanup;
     }
     
     if (config->plugins_coverextract == true) {
         snprintf(testdirname, 400, "%s/covercache", config->varlibdir);
-        if (!testdir("Covercache dir", testdirname)) {
+        testdir_rc = testdir("Covercache dir", testdirname, true);
+        if (testdir_rc > 1) {
             goto cleanup;
         }
     }
 
     if (config->syscmds == true) {
         snprintf(testdirname, 400, "%s/syscmds", config->etcdir);
-        if (!testdir("Syscmds directory", testdirname)) {
+        testdir_rc = testdir("Syscmds directory", testdirname, false);
+        if (testdir_rc > 1) {
             LOG_INFO("Disabling syscmd support");
             config->syscmds = false;
         }
@@ -609,10 +693,12 @@ int main(int argc, char **argv) {
     close_plugins(config);
     mympd_free_config(config);
     FREE_PTR(configfile);
-    FREE_PTR(mg_user_data->music_directory);
-    FREE_PTR(mg_user_data->pics_directory);
-    FREE_PTR(mg_user_data->rewrite_patterns);
-    FREE_PTR(mg_user_data);
+    if (init_webserver) {
+        FREE_PTR(mg_user_data->music_directory);
+        FREE_PTR(mg_user_data->pics_directory);
+        FREE_PTR(mg_user_data->rewrite_patterns);
+    }
+        FREE_PTR(mg_user_data);
     if (rc == EXIT_SUCCESS) {
         printf("Exiting gracefully, thank you for using myMPD\n");
     }

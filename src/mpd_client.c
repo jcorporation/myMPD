@@ -1463,7 +1463,7 @@ static void mpd_client_feature_music_directory(t_mpd_state *mpd_state) {
         LOG_WARN("Disabling featLibrary support");
         mpd_state->feat_library = false;
     }
-    else if (testdir("MPD music_directory", mpd_state->music_directory_value)) {
+    else if (testdir("MPD music_directory", mpd_state->music_directory_value, false) == 0) {
         LOG_INFO("Enabling featLibrary support");
         mpd_state->feat_library = true;
     }
@@ -2531,6 +2531,7 @@ static int mpd_client_put_fingerprint(t_mpd_state *mpd_state, char *buffer, cons
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
     
     len = json_printf(&out, "{type: fingerprint, data: {");
+    #if LIBMPDCLIENT_CHECK_VERSION(2,17,0)
     if (mpd_state->feat_fingerprint == true) {
         char fp_buffer[8192];
         const char *fingerprint = mpd_run_getfingerprint_chromaprint(mpd_state->conn, uri, fp_buffer, sizeof(fp_buffer));
@@ -2543,7 +2544,11 @@ static int mpd_client_put_fingerprint(t_mpd_state *mpd_state, char *buffer, cons
     else {
         len += json_printf(&out, "fingerprint: %Q", "not supported by mpd");
     }
-
+    #else
+        len += json_printf(&out, "fingerprint: %Q", "libmpdclient to old");
+        (void)(mpd_state);
+        (void)(uri);
+    #endif
     len += json_printf(&out, "}}");
     
     CHECK_RETURN_LEN();
