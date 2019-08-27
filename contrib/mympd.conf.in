@@ -19,8 +19,8 @@ webport = 80
 #Enable ssl
 ssl = true
 sslport = 443
-sslcert = /var/lib/mympd/ssl/server.pem
-sslkey = /var/lib/mympd/ssl/server.key
+sslcert = ${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/lib${SUBDIRVAR}/ssl/server.pem
+sslkey = ${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/lib${SUBDIRVAR}/ssl/server.key
 
 
 [mympd]
@@ -38,7 +38,7 @@ user = mympd
 #Enable mixramp settings
 mixramp = false
 
-#Enable system commands in /etc/mympd/syscmds/
+#Enable system commands in ${CMAKE_INSTALL_FULL_SYSCONFDIR}${SUBDIR}/syscmds/
 syscmds = false
 
 [plugins]

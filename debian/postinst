@@ -52,20 +52,6 @@ then
   systemctl enable mympd
 fi
 
-# replace directories
-sed -i -e "s|/var/lib/mympd|${VARDIR}|" \
-  -e "s|/usr/share/mympd|${SHAREDIR}|" \
-  -e "s|/etc/mympd|${ETCDIR}|" \
-  /etc/mympd/mympd.conf.dist
-
-# move config into place unless already existing
-if [ ! -f "${ETCDIR}/mympd.conf" ]
-then 
-  mv "${ETCDIR}/mympd.conf.dist" "${ETCDIR}/mympd.conf"
-else
-  echo "mympd.conf installed as mympd.conf.dist"
-fi
-
 echo "Fixing ownership of ${VARDIR}"
 chown -R mympd.mympd "${VARDIR}"
 

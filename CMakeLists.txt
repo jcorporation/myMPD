@@ -53,6 +53,8 @@ find_package(Threads REQUIRED)
 find_package(OpenSSL REQUIRED)
 
 configure_file(src/global.h.in ${PROJECT_BINARY_DIR}/global.h)
+configure_file(cmake/CopyConfig.cmake.in cmake/CopyConfig.cmake)
+configure_file(contrib/mympd.conf.in contrib/mympd.conf)
 include_directories(${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}	${LIBMPDCLIENT_INCLUDE_DIR} ${OPENSSL_INCLUDE_DIR})
 
 include(CheckCSourceCompiles)
@@ -108,7 +110,7 @@ endif()
 
 
 install(TARGETS mympd DESTINATION ${CMAKE_INSTALL_FULL_BINDIR})
-install(FILES contrib/mympd.conf.dist DESTINATION ${CMAKE_INSTALL_FULL_SYSCONFDIR}${SUBDIR}/)
+install(SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/cmake/CopyConfig.cmake)
 install(DIRECTORY DESTINATION ${CMAKE_INSTALL_FULL_SYSCONFDIR}${SUBDIR}/syscmds)
 install(PROGRAMS contrib/crcert.sh DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}${SUBDIR}/)
 install(FILES contrib/mympd.service DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}${SUBDIR}/)

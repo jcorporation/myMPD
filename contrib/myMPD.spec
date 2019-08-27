@@ -57,14 +57,6 @@ fi
 echo "Fixing ownership of /var/lib/mympd"
 chown -R mympd.mympd /var/lib/mympd
 
-# move config into place unless already existing
-if [ ! -f /etc/mympd/mympd.conf ]
-then 
-  mv /etc/mympd/mympd.conf.dist /etc/mympd/mympd.conf
-else
-  echo "mympd.conf installed as mympd.conf.dist"
-fi
-
 if [ -d /var/lib/mympd/ssl ]
 then
   echo "Certificates already created"
@@ -95,9 +87,9 @@ fi
 /usr/bin/mympd
 /usr/share/mympd
 /usr/lib/mympd
-%config /etc/mympd
+%config(noreplace) /etc/mympd
 /var/lib/mympd
 
 %changelog
-* Mon Jul 02 2019 Juergen Mang <mail@jcgames.de> - master
+* Tue Aug 27 2019 Juergen Mang <mail@jcgames.de> - master
 - Version from master

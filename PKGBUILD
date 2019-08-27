@@ -16,6 +16,7 @@ optdepends=('libmediainfo')
 provides=()
 conflicts=()
 replaces=()
+backup=('etc/webapps/mympd/mympd.conf')
 install=archlinux.install
 #source=("mympd_${pkgver}.orig.tar.gz")
 source=("https://github.com/jcorporation/${_pkgname}/archive/v${pkgver}.tar.gz")

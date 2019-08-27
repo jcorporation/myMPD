@@ -36,14 +36,6 @@ post_upgrade() {
   echo "INFO: Fixing ownership of /var/lib/mympd"
   chown -R mympd.mympd /var/lib/mympd
 
-  # move config into place unless already existing
-  if [ ! -f /etc/webapps/mympd/mympd.conf ]
-  then 
-    mv /etc/webapps/mympd/mympd.conf.dist /etc/webapps/mympd/mympd.conf
-  else
-    echo "WARNING: mympd.conf installed as mympd.conf.dist"
-  fi
-
   # installation complete
   echo "WARNING: Edit /etc/webapps/mympd/mympd.conf before starting myMPD"
 }
@@ -58,11 +50,4 @@ post_remove() {
   fi
   echo "disabling mympd.service"
   systemctl disable mympd 
- 
-  # backup config 
-  if [ -f /etc/webapps/mympd/mympd.conf ]
-  then 
-    mv /etc/webapps/mympd/mympd.conf /etc/webapps/mympd/mympd.conf.pacsave
-    echo "INFO: /etc/webapps/mympd/mympd.conf backed up to /etc/webapps/mympd/mympd.conf.pacsave"
-  fi
 }
