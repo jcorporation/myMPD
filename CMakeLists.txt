@@ -55,6 +55,8 @@ find_package(OpenSSL REQUIRED)
 configure_file(src/global.h.in ${PROJECT_BINARY_DIR}/global.h)
 configure_file(cmake/CopyConfig.cmake.in cmake/CopyConfig.cmake)
 configure_file(contrib/mympd.conf.in contrib/mympd.conf)
+configure_file(contrib/mympd.service.in contrib/mympd.service)
+
 include_directories(${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}	${LIBMPDCLIENT_INCLUDE_DIR} ${OPENSSL_INCLUDE_DIR})
 
 include(CheckCSourceCompiles)
@@ -96,7 +98,6 @@ set(SOURCES
 add_executable(mympd ${SOURCES})
 target_link_libraries(mympd ${LIBMPDCLIENT_LIBRARY} ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${CMAKE_DL_LIBS})
 
-
 find_package(LibMediainfo)
 if(LIBMEDIAINFO_FOUND)
   add_library(mympd_coverextract SHARED src/plugins/mympd_coverextract.cpp)
@@ -108,12 +109,11 @@ if(LIBMEDIAINFO_FOUND)
   target_link_libraries(test_coverextract ${CMAKE_DL_LIBS})
 endif()
 
-
 install(TARGETS mympd DESTINATION ${CMAKE_INSTALL_FULL_BINDIR})
 install(SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/cmake/CopyConfig.cmake)
 install(DIRECTORY DESTINATION ${CMAKE_INSTALL_FULL_SYSCONFDIR}${SUBDIR}/syscmds)
 install(PROGRAMS contrib/crcert.sh DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}${SUBDIR}/)
-install(FILES contrib/mympd.service DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}${SUBDIR}/)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/contrib/mympd.service DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}${SUBDIR}/)
 install(FILES htdocs/mympd.webmanifest DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}${SUBDIR}/htdocs/)
 install(FILES htdocs/robots.txt DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}${SUBDIR}/htdocs/)
 install(FILES dist/htdocs/index.html DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}${SUBDIR}/htdocs/)

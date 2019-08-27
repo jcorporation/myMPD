@@ -4,7 +4,7 @@ Requires=network.target local-fs.target mpd.service
 After=mpd.service
 
 [Service]
-ExecStart=/usr/bin/mympd
+ExecStart=${CMAKE_INSTALL_FULL_BINDIR}/mympd
 Type=simple
 
 # disallow writing to /usr, /bin, /sbin, ...
