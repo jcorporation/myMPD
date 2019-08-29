@@ -20,7 +20,7 @@ ENV DESTDIR=/myMPD-dist
 ENV DOCKER=true
 RUN mkdir -p $DESTDIR
 WORKDIR /myMPD
-RUN ./mkrelease.sh
+RUN ./build.sh release
 WORKDIR /
 RUN tar -czvf /mympd.tar.gz -C /myMPD-dist .
 
