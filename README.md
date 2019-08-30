@@ -66,13 +66,13 @@ Build Dependencies
 ------------------
  - cmake 2.6
  - libasan3: for debug builds only
- - Java: optional for minifying .css and .js files
+ - Java, Perl: optional for minifying files
 
 Unix Build Instructions
 -----------------------
-1. Install dependencies: cmake, libmpdclient (dev), OpenSSL (dev), libmediainfo (dev) and Java
+1. Install dependencies: cmake, libmpdclient (dev), OpenSSL (dev), libmediainfo (dev), Java and Perl
 2. Extract myMPD tarball and change path to this directory.
-3. Build and install myMPD: ```./mkrelease.sh```
+3. Build and install myMPD: ```./build.sh release```
 
 Run
 ---------
@@ -80,15 +80,14 @@ Adapt the configuration file ```/etc/mympd/mympd.conf``` to your needs.
 ```
 Usage: ./mympd [/etc/mympd/mympd.conf]
 ```
-The ```./mkrelease.sh``` script tries to install a systemd service file.  If this failes you can copy the ```mympd.service``` file from ```/usr/share/mympd/``` to appropriate distribution specific location. 
+The ```./build.sh``` script installs a startup script for systemd, open-rc (Alpine Linux) or sysVinit.
 
 SSL
 ---
 
-1. Create ca and certificate ```/usr/share/mympd/crcert.sh``` (mkrelease.sh does this for you).
-2. Set ```ssl=true``` in /etc/mympd/mympd.conf (use default certificate under ```/var/lib/mympd/ssl/```).
-3. Import ```/var/lib/mympd/ssl/ca/ca.pem``` in your browser to trust the certificate.
-4. myMPD redirects http requests to https, ensure that myMPD hostname is resolvable.
+1. Set ```ssl=true``` in /etc/mympd/mympd.conf (creates default certificates under ```/var/lib/mympd/ssl/```).
+2. Import ```/var/lib/mympd/ssl/ca/ca.pem``` in your browser to trust the certificate.
+3. myMPD redirects http requests to https, ensure that myMPD hostname is resolvable.
 
 Copyright
 ---------
