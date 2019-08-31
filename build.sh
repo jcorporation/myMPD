@@ -84,7 +84,7 @@ buildrelease() {
   else
     sudo -E make install
     cd ..
-    sudo -E debian/postinst 
+    sudo -E contrib/packaging/debian/postinst 
   fi
 }
 

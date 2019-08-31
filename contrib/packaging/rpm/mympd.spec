@@ -46,14 +46,6 @@ getent group mympd > /dev/null
 getent passwd mympd > /dev/null
 [ "$?" = "2" ] && useradd -r mympd -g mympd -d /var/lib/mympd -s /usr/sbin/nologin
 
-if [ -d /etc/systemd ]
-then
-  [ -d /usr/lib/systemd/system ] || mkdir -p /usr/lib/systemd/system 
-  cp /usr/share/mympd/mympd.service /usr/lib/systemd/system/
-  systemctl daemon-reload
-  systemctl enable mympd
-fi
-
 echo "Fixing ownership of /var/lib/mympd"
 chown -R mympd.mympd /var/lib/mympd
 
@@ -67,18 +59,7 @@ fi
 %postun
 if [ "$1" = "0" ]
 then
-  if [ -f /usr/lib/systemd/system/mympd.service ]
-  then
-    if [ "$(systemctl is-active mympd)" = "active" ]
-    then
-      echo "stopping mympd.service"
-      systemctl stop mympd 
-    fi
-    echo "disabling mympd.service"
-    systemctl disable mympd
-    rm -v -f /usr/lib/systemd/system/mympd.service
-    systemctl daemon-reload
-  fi
+  echo "Please purge /var/lib/mympd manually"
 fi
 
 %files 
@@ -87,6 +68,7 @@ fi
 /usr/bin/mympd
 /usr/share/mympd
 /usr/lib/mympd
+/usr/lib/systemd/system/mympd.service
 %config(noreplace) /etc/mympd.conf
 /var/lib/mympd
 

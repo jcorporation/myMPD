@@ -3,32 +3,7 @@
 ACTION=$1
 USERNAME="mympd"
 
-if [ "$ACTION" = "remove" ]
-then
-  if [ -f /usr/lib/systemd/system/mympd.service ]
-  then
-    if [ "$(systemctl is-active mympd)" = "active" ]
-    then
-      echo "Stopping mympd.service" && systemctl stop mympd 
-    fi
-    echo "Disabling mympd.service" && systemctl disable mympd
-  fi
-fi
-
 if [ "$ACTION" = "purge" ]
 then
-  if [ -f /usr/lib/systemd/system/mympd.service ]
-  then
-    rm /usr/lib/systemd/system/mympd.service
-    systemctl daemon-reload
-  fi
-  rm -rf /etc/mympd.conf
-  rm -rf /var/lib/mympd
-  if [ -x "$(command -v deluser)" ]
-  then
-     deluser --quiet --system $USERNAME > /dev/null || true
-     deluser --quiet --system --group $USERNAME > /dev/null || true
-  else
-     echo >&2 "not removing $USERNAME system account because deluser command was not found"
-  fi
+  echo "Please purge /var/lib/mympd manually"
 fi

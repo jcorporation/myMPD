@@ -10,19 +10,6 @@ post_upgrade() {
   getent passwd mympd > /dev/null
   [ "$?" = "2" ] && useradd --system -d /var/lib/mympd -s /usr/sbin/nologin -g mympd mympd
 
-  # install systemd service
-  echo "INFO: Installing systemd service"
-  if [ -d /etc/systemd/system ]
-  then
-    echo "INFO: reloading systemd"
-    systemctl daemon-reload
-    if [ ! -f /etc/systemd/system/multi-user.target.wants/mympd.service ]
-    then
-      echo "INFO: enabling mympd.service"
-      systemctl enable mympd
-    fi
-  fi
-
   # create ssl certificates unless already existing
   if [ -d /var/lib/mympd/ssl ]
   then
@@ -37,17 +24,9 @@ post_upgrade() {
   chown -R mympd.mympd /var/lib/mympd
 
   # installation complete
-  echo "WARNING: Edit /etc/webapps/mympd/mympd.conf before starting myMPD"
+  echo "WARNING: Edit /etc/webapps/mympd.conf before starting myMPD"
 }
 
 post_remove() {
-  # stop and remove systemd service
-  systemctl daemon-reload
-  if [ "$(systemctl is-active mympd)" = "active" ]
-  then
-    echo "stopping mympd.service"
-    systemctl stop mympd 
-  fi
-  echo "disabling mympd.service"
-  systemctl disable mympd 
+  echo "WARNING: Please purge /var/lib/mympd manually"
 }

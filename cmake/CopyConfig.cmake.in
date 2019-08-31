@@ -1,7 +1,23 @@
-IF (NOT EXISTS "$ENV{DESTDIR}@CMAKE_INSTALL_FULL_SYSCONFDIR@/mympd.conf")
+#Install mympd.conf
+IF(NOT EXISTS "$ENV{DESTDIR}@CMAKE_INSTALL_FULL_SYSCONFDIR@/mympd.conf")
   MESSAGE("-- Installing: $ENV{DESTDIR}@CMAKE_INSTALL_FULL_SYSCONFDIR@/mympd.conf")
   EXECUTE_PROCESS (COMMAND @CMAKE_COMMAND@ -E copy "@CMAKE_CURRENT_BINARY_DIR@/contrib/mympd.conf" "$ENV{DESTDIR}@CMAKE_INSTALL_FULL_SYSCONFDIR@/mympd.conf")
 ELSE()
-  MESSAGE("-- Installing: $ENV{DESTDIR}@CMAKE_INSTALL_FULL_SYSCONFDIR@@SUBDIR@/mympd.conf.dist")
+  MESSAGE("-- Installing: $ENV{DESTDIR}@CMAKE_INSTALL_FULL_SYSCONFDIR@/mympd.conf.dist")
   EXECUTE_PROCESS (COMMAND @CMAKE_COMMAND@ -E copy "@CMAKE_CURRENT_BINARY_DIR@/contrib/mympd.conf" "$ENV{DESTDIR}@CMAKE_INSTALL_FULL_SYSCONFDIR@/mympd.conf.dist")
-ENDIF ()
+ENDIF()
+
+#Install startup script
+IF (EXISTS "/usr/lib/systemd")
+  #Install systemd unit
+  MESSAGE("-- Installing: $ENV{DESTDIR}/usr/lib/systemd/system/mympd.service")
+  EXECUTE_PROCESS (COMMAND @CMAKE_COMMAND@ -E copy "@CMAKE_CURRENT_BINARY_DIR@/contrib/mympd.service" "$ENV{DESTDIR}/usr/lib/systemd/system/mympd.service")
+ELSEIF(EXISTS "/sbin/openrc-run")
+  #Install openrc script
+  MESSAGE("-- Installing: $ENV{DESTDIR}/etc/init.d/mympd")
+  EXECUTE_PROCESS (COMMAND @CMAKE_COMMAND@ -E copy "@CMAKE_CURRENT_BINARY_DIR@/contrib/packaging/alpine/myMPD.initd" "$ENV{DESTDIR}/etc/init.d/mympd")
+ELSEIF(EXISTS "/etc/init.d")
+  #Install sysVinit script
+  MESSAGE("-- Installing: $ENV{DESTDIR}/etc/init.d/mympd")
+  EXECUTE_PROCESS (COMMAND @CMAKE_COMMAND@ -E copy "@CMAKE_CURRENT_BINARY_DIR@/contrib/mympd.sysVinit" "$ENV{DESTDIR}/etc/init.d/mympd")
+ENDIF()
