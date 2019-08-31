@@ -32,11 +32,10 @@ This fork provides a reworked ui based on Bootstrap 4, a modernized backend and 
  - Local playback of mpd http stream (html5 audio api)
  - Progressiv Web App enabled
  - Embedded Webserver (mongoose)
- - Docker support (experimental)
  - Love message for scrobbling clients
  - Localized user interface
 
-myMPD is work in progress. Bugreportes and feature requests are very welcome.
+myMPD is work in progress. Feedback, bug reportes and feature requests are very welcome.
  - https://github.com/jcorporation/myMPD/issues
 
 Screenshots
@@ -66,7 +65,7 @@ Build Dependencies
 ------------------
  - cmake 2.6
  - libasan3: for debug builds only
- - Java, Perl: optional for minifying files
+ - Java, Perl: to minify files
 
 Unix Build Instructions
 -----------------------
@@ -76,18 +75,11 @@ Unix Build Instructions
 
 Run
 ---------
-Adapt the configuration file ```/etc/mympd/mympd.conf``` to your needs.
+Adapt the configuration file ```/etc/mympd.conf``` to your needs.
 ```
-Usage: ./mympd [/etc/mympd/mympd.conf]
+Usage: ./mympd [/etc/mympd.conf]
 ```
 The ```./build.sh``` script installs a startup script for systemd, open-rc (Alpine Linux) or sysVinit.
-
-SSL
----
-
-1. Set ```ssl=true``` in /etc/mympd/mympd.conf (creates default certificates under ```/var/lib/mympd/ssl/```).
-2. Import ```/var/lib/mympd/ssl/ca/ca.pem``` in your browser to trust the certificate.
-3. myMPD redirects http requests to https, ensure that myMPD hostname is resolvable.
 
 Copyright
 ---------
