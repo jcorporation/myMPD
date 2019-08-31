@@ -209,7 +209,6 @@ typedef struct t_config {
     bool smartpls;
     char *varlibdir;
     size_t varlibdir_len;
-    char *etcdir;
     int max_elements_per_page;
     bool syscmds;
     int last_played_count;
@@ -244,6 +243,8 @@ typedef struct t_config {
     char *coverimage_name;
     int coverimage_size;
     char *locale;
+    //system commands
+    struct list syscmd_list;
 } t_config;
 
 //global functions

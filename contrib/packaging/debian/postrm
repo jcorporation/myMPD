@@ -22,9 +22,7 @@ then
     rm /usr/lib/systemd/system/mympd.service
     systemctl daemon-reload
   fi
-  rm -rf /usr/share/mympd
-  rm -rf /usr/lib/mympd
-  rm -rf /etc/mympd
+  rm -rf /etc/mympd.conf
   rm -rf /var/lib/mympd
   if [ -x "$(command -v deluser)" ]
   then

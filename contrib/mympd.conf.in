@@ -38,8 +38,13 @@ user = mympd
 #Enable mixramp settings
 mixramp = false
 
-#Enable system commands in ${CMAKE_INSTALL_FULL_SYSCONFDIR}${SUBDIR}/syscmds/
+#Enable system commands defined in syscmds section
 syscmds = false
 
 [plugins]
 coverextract = false
+
+[syscmds]
+Reboot = sudo /sbin/reboot
+Shutdown = sudo /sbin/halt
+Echo = echo "test"

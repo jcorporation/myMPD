@@ -1936,7 +1936,7 @@ static bool mpd_client_last_played_list(t_config *config, t_mpd_state *mpd_state
                 return true;
             }
             else {
-                list_insert(&mpd_state->last_played, uri, time(NULL));
+                list_insert(&mpd_state->last_played, uri, time(NULL), NULL);
             }
             mpd_state->last_last_played_id = song_id;
             mpd_song_free(song);
@@ -2083,13 +2083,13 @@ static bool mpd_client_jukebox_add(t_mpd_state *mpd_state, const int addSongs, c
                 if (randrange(lineno) < addSongs) {
 		    if (nkeep < addSongs) {
 		        song = mpd_entity_get_song(entity);
-		        list_push(&add_list, mpd_song_get_uri(song), lineno);
+		        list_push(&add_list, mpd_song_get_uri(song), lineno, NULL);
 		        nkeep++;
                     }
                     else {
                         i = addSongs > 1 ? randrange(addSongs) : 0;
                         song = mpd_entity_get_song(entity);
-                        list_replace(&add_list, i, mpd_song_get_uri(song), lineno);
+                        list_replace(&add_list, i, mpd_song_get_uri(song), lineno, NULL);
                     }
                 }
                 lineno++;
@@ -2112,12 +2112,12 @@ static bool mpd_client_jukebox_add(t_mpd_state *mpd_state, const int addSongs, c
         while ((pair = mpd_recv_pair_tag(mpd_state->conn, MPD_TAG_ALBUM )) != NULL)  {
             if (randrange(lineno) < addSongs) {
 		if (nkeep < addSongs) {
-                    list_push(&add_list, strdup(pair->value), lineno);
+                    list_push(&add_list, strdup(pair->value), lineno, NULL);
                     nkeep++;
                 }
 		else {
                     i = addSongs > 1 ? randrange(addSongs) : 0;
-                    list_replace(&add_list, i, strdup(pair->value), lineno);
+                    list_replace(&add_list, i, strdup(pair->value), lineno, NULL);
                 }
             }
             lineno++;
@@ -3705,7 +3705,7 @@ static bool mpd_client_smartpls_update_sticker(t_mpd_state *mpd_state, const cha
             if (p_value != NULL) {
                 value = strtoimax(p_value, &crap, 10);
                 if (value >= 1) {
-                    list_push(&add_list, uri, value);
+                    list_push(&add_list, uri, value, NULL);
                 }
                 if (value > value_max) {
                     value_max = value;

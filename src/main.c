@@ -244,6 +244,9 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
         FREE_PTR(p_config->locale);
         p_config->locale = strdup(value);
     }
+    else if (strcasecmp(section, "syscmds") == 0) {
+        list_push(&p_config->syscmd_list, name, 0, (void *)strdup(value));
+    }
     else {
         LOG_WARN("Unkown config option: %s - %s", section, name);
         return 0;  
@@ -263,7 +266,6 @@ static void mympd_free_config(t_config *config) {
     FREE_PTR(config->searchtaglist);
     FREE_PTR(config->browsetaglist);
     FREE_PTR(config->varlibdir);
-    FREE_PTR(config->etcdir);
     FREE_PTR(config->love_channel);
     FREE_PTR(config->love_message);
     FREE_PTR(config->music_directory);
@@ -280,6 +282,7 @@ static void mympd_free_config(t_config *config) {
     FREE_PTR(config->bg_css_filter);
     FREE_PTR(config->coverimage_name);
     FREE_PTR(config->locale);
+    list_free(&config->syscmd_list);
     FREE_PTR(config);
 }
 
@@ -437,7 +440,6 @@ int main(int argc, char **argv) {
     config->smartpls = true;
     config->max_elements_per_page = 100;
     config->last_played_count = 20;
-    config->etcdir = strdup(ETC_PATH);
     config->syscmds = false;
     config->loglevel = 2;
     config->love = false;
@@ -477,10 +479,6 @@ int main(int argc, char **argv) {
         if (strncmp(argv[1], "/", 1) == 0) {
             FREE_PTR(configfile);
             configfile = strdup(argv[1]);
-            char *etcdir = strdup(configfile);
-            FREE_PTR(config->etcdir);
-            config->etcdir = strdup(dirname(etcdir));
-            FREE_PTR(etcdir);
         }
         else {
             printf("myMPD %s\n"
@@ -494,7 +492,8 @@ int main(int argc, char **argv) {
         }
     }
     config->varlibdir_len = strlen(config->varlibdir);
-    
+    list_init(&config->syscmd_list);
+
     LOG_INFO("Starting myMPD %s", MYMPD_VERSION);
     LOG_INFO("Libmpdclient %i.%i.%i", LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION);
     LOG_INFO("Mongoose %s", MG_VERSION);
@@ -621,15 +620,6 @@ int main(int argc, char **argv) {
         testdir_rc = testdir("Covercache dir", testdirname, true);
         if (testdir_rc > 1) {
             goto cleanup;
-        }
-    }
-
-    if (config->syscmds == true) {
-        snprintf(testdirname, 400, "%s/syscmds", config->etcdir);
-        testdir_rc = testdir("Syscmds directory", testdirname, false);
-        if (testdir_rc > 1) {
-            LOG_INFO("Disabling syscmd support");
-            config->syscmds = false;
         }
     }
 

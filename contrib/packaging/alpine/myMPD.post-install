@@ -1,16 +1,12 @@
 #!/bin/sh
 
-ETCDIR="/etc/mympd"
-SHAREDIR="/usr/share/mympd"
-VARDIR="/var/lib/mympd"
-
-if [ -d "${VARDIR}/ssl" ]
+if [ -d /var/lib/mympd/ssl ]
 then
   echo "Certificates already created"
 else
   echo "Creating certificates"
-  "${SHAREDIR}/crcert.sh" "${VARDIR}/ssl"
+  /usr/share/mympd/crcert.sh /var/lib/mympd/ssl
 fi
 
 echo "myMPD installed"
-echo "Edit ${ETCDIR}/mympd.conf before starting myMPD"
+echo "Edit /etc/mympd.conf before starting myMPD"

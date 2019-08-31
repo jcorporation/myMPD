@@ -87,8 +87,7 @@ fi
 /usr/bin/mympd
 /usr/share/mympd
 /usr/lib/mympd
-%config(noreplace) /etc/mympd/mympd.conf
-%config /etc/mympd/syscmds
+%config(noreplace) /etc/mympd.conf
 /var/lib/mympd
 
 %changelog
