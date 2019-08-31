@@ -32,7 +32,7 @@ ENV WEBSERVER_SSL=true
 RUN apt-get update && apt-get install openssl libmediainfo0v5 -y
 COPY --from=build /libmpdclient-master.tar.gz /
 COPY --from=build /mympd.tar.gz /
-COPY --from=build /myMPD/debian/postinst /
+COPY --from=build /myMPD/contrib/packaging/debian/postinst /
 WORKDIR /
 RUN tar xfv libmpdclient-master.tar.gz -C /
 RUN tar xfv mympd.tar.gz -C /
