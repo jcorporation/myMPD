@@ -22,10 +22,10 @@
    Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#ifndef __MYMPD_API_H__
-#define __MYMPD_API_H__
+#ifndef __MYMPD_CERT_H__
+#define __MYMPD_CERT_H__
 
-void *mympd_api_loop(void *arg_config);
-void mympd_api_settings_delete(t_config *config);
+bool create_certificates(char *dir);
+void cleanup_certificates(char *dir);
 
 #endif

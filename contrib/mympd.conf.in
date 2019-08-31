@@ -19,8 +19,6 @@ webport = 80
 #Enable ssl
 ssl = true
 sslport = 443
-sslcert = ${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/lib${SUBDIRVAR}/ssl/server.pem
-sslkey = ${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/lib${SUBDIRVAR}/ssl/server.key
 
 
 [mympd]

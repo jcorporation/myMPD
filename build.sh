@@ -89,6 +89,7 @@ buildrelease() {
 }
 
 builddebug() {
+  MEMCHECK=$1
   [ -e "$PWD/htdocs/sw.min.js" ] || ln -s "$PWD/htdocs/sw.js" "$PWD/htdocs/sw.min.js"
   [ -e "$PWD/htdocs/js/mympd.min.js" ] || ln -s "$PWD/htdocs/js/mympd.js" "$PWD/htdocs/js/mympd.min.js"
   [ -e "$PWD/htdocs/js/bootstrap-native-v4.min.js" ] || ln -s "$PWD/dist/htdocs/js/bootstrap-native-v4.js" "$PWD/htdocs/js/bootstrap-native-v4.min.js"
@@ -98,7 +99,7 @@ builddebug() {
 
   install -d debug
   cd debug || exit 1
-  cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=DEBUG ..
+  cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=DEBUG -DMEMCHECK=$MEMCHECK ..
   make VERBOSE=1
 
   cd ../src/i18n || exit 1
@@ -195,7 +196,10 @@ case "$1" in
 	  buildrelease
 	;;
 	debug)
-	  builddebug
+	  builddebug "FALSE"
+	;;
+	memcheck)
+	  builddebug "TRUE"
 	;;
 	cleanup)
 	  cleanup
@@ -222,7 +226,8 @@ case "$1" in
 	  echo "Usage: $0 <option>"
 	  echo "Options:"
 	  echo "  release:   build and installs release files"
-	  echo "  debug:     builds debug files, executeable in debug/ assets in htdocs/"
+	  echo "  debug:     builds debug files linked with libasan3, executeable in debug/ assets in htdocs/"
+	  echo "  memcheck:     builds debug files for use with valgrind, executeable in debug/ assets in htdocs/"
 	  echo "  cleanup:   cleanup source tree"
 	  echo "  check:     runs cppcheck"
 	  echo "  pkgalpine: creates the alpine package"

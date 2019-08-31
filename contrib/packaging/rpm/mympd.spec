@@ -46,16 +46,6 @@ getent group mympd > /dev/null
 getent passwd mympd > /dev/null
 [ "$?" = "2" ] && useradd -r mympd -g mympd -d /var/lib/mympd -s /usr/sbin/nologin
 
-echo "Fixing ownership of /var/lib/mympd"
-chown -R mympd.mympd /var/lib/mympd
-
-if [ -d /var/lib/mympd/ssl ]
-then
-  echo "Certificates already created"
-else
-  /usr/share/mympd/crcert.sh
-fi
-
 %postun
 if [ "$1" = "0" ]
 then
@@ -70,8 +60,7 @@ fi
 /usr/lib/mympd
 /usr/lib/systemd/system/mympd.service
 %config(noreplace) /etc/mympd.conf
-/var/lib/mympd
 
 %changelog
-* Tue Aug 27 2019 Juergen Mang <mail@jcgames.de> - master
+* Sat Aug 31 2019 Juergen Mang <mail@jcgames.de> - master
 - Version from master

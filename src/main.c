@@ -46,7 +46,7 @@
 #include "web_server.h"
 #include "mympd_api.h"
 #include "../dist/src/inih/ini.h"
-
+#include "cert.h"
 
 static void mympd_signal_handler(int sig_num) {
     signal(sig_num, mympd_signal_handler);  // Reinstantiate signal handler
@@ -89,10 +89,16 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
         p_config->ssl_port = strdup(value);
     }
     else if (MATCH("webserver", "sslcert")) {
+        if (strcmp(p_config->ssl_cert, value) != 0) {
+            p_config->custom_cert = true;
+        }
         FREE_PTR(p_config->ssl_cert);
         p_config->ssl_cert = strdup(value);
     }
     else if (MATCH("webserver", "sslkey")) {
+        if (strcmp(p_config->ssl_key, value) != 0) {
+            p_config->custom_cert = true;
+        }
         FREE_PTR(p_config->ssl_key);
         p_config->ssl_key = strdup(value);
     }
@@ -303,7 +309,7 @@ static void mympd_parse_env(struct t_config *config, const char *envvar) {
 }
 
 static void mympd_get_env(struct t_config *config) {
-    const char* env_vars[]={"MPD_HOST", "MPD_PORT", "MPD_PASS", "MPD_MUSICDIRECTORY",
+    const char *env_vars[]={"MPD_HOST", "MPD_PORT", "MPD_PASS", "MPD_MUSICDIRECTORY",
         "WEBSERVER_WEBPORT", "WEBSERVER_SSL", "WEBSERVER_SSLPORT", "WEBSERVER_SSLCERT", "WEBSERVER_SSLKEY",
         "MYMPD_LOGLEVEL", "MYMPD_USER", "MYMPD_VARLIBDIR", "MYMPD_MIXRAMP", "MYMPD_STICKERS", "MYMPD_TAGLIST", 
         "MYMPD_SEARCHTAGLIST", "MYMPD_BROWSETAGLIST", "MYMPD_SMARTPLS", "MYMPD_SYSCMDS", 
@@ -394,6 +400,99 @@ static bool smartpls_init(t_config *config, const char *name, const char *value)
     return true;
 }
 
+static void smartpls_default(t_config *config) {
+    smartpls_init(config, "myMPDsmart-bestRated", 
+        "{\"type\": \"sticker\", \"sticker\": \"like\", \"maxentries\": 200}\n");
+    smartpls_init(config, "myMPDsmart-mostPlayed", 
+        "{\"type\": \"sticker\", \"sticker\": \"playCount\", \"maxentries\": 200}\n");
+    smartpls_init(config, "myMPDsmart-newestSongs", 
+        "{\"type\": \"newest\", \"timerange\": 604800}\n");
+}
+
+static void clear_covercache(t_config *config) {
+    size_t covercache_len = config->varlibdir_len + 12;
+    char covercache[covercache_len];
+    snprintf(covercache, covercache_len, "%s/covercache", config->varlibdir);
+    DIR *covercache_dir = opendir(covercache);
+    if (covercache_dir != NULL) {
+        struct dirent *next_file;
+        while ( (next_file = readdir(covercache_dir)) != NULL ) {
+            if (strncmp(next_file->d_name, ".", 1) != 0) {
+                size_t filepath_len = strlen(covercache) + strlen(next_file->d_name) + 2;
+                char filepath[filepath_len];
+                snprintf(filepath, filepath_len, "%s/%s", covercache, next_file->d_name);
+                if (unlink(filepath) != 0) {
+                    printf("Error deleting %s\n", filepath);
+                }
+            }
+        }
+        closedir(covercache_dir);
+    }
+    else {
+        printf("Error opening directory %s\n", covercache);
+    }
+}
+
+static void handle_option(t_config *config, char *cmd, char *option) {
+    #define MATCH_OPTION(o) strcasecmp(option, o) == 0
+
+    if (MATCH_OPTION("certs_remove")) {
+        char testdirname[400];
+        snprintf(testdirname, 400, "%s/ssl", config->varlibdir);
+        cleanup_certificates(testdirname);
+    }
+    else if (MATCH_OPTION("certs_create")) {
+        char testdirname[400];
+        snprintf(testdirname, 400, "%s/ssl", config->varlibdir);
+        int testdir_rc = testdir("SSL certificates", testdirname, true);
+        if (testdir_rc == 1) {
+            create_certificates(testdirname);
+        }
+        else if (testdir_rc == 0) {
+            LOG_INFO("Remove certificates with certs_remove before creating new ones");
+        }
+    }
+    else if (MATCH_OPTION("reset_state")) {
+        mympd_api_settings_delete(config);
+    }
+    else if (MATCH_OPTION("reset_smartpls")) {
+        smartpls_default(config);
+    }
+    else if (MATCH_OPTION("reset_lastplayed")) {
+        char filename[400];
+        snprintf(filename, 400, "%s/state/last_played", config->varlibdir);
+        unlink(filename);
+    }
+    else if (MATCH_OPTION("clear_covercache")) {
+        clear_covercache(config);    
+    }
+    else if (MATCH_OPTION("version")) {
+        printf("myMPD %s\n"
+               "Copyright (C) 2018-2019 Juergen Mang <mail@jcgames.de>\n"
+               "https://github.com/jcorporation/myMPD\n"
+               "Libmpdclient %i.%i.%i\n",
+               MYMPD_VERSION,
+               LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION
+        );
+    }
+    else {
+        printf("myMPD %s\n"
+               "Copyright (C) 2018-2019 Juergen Mang <mail@jcgames.de>\n"
+               "https://github.com/jcorporation/myMPD\n\n"
+               "Usage: %s [/etc/mympd.conf] <command>\n"
+               "Commands (you should stop mympd before):\n"
+               "  certs_create:     create ssl certificates\n"
+               "  certs_remove:     remove ssl certificates\n"
+               "  reset_state:      delete all myMPD settings\n"
+               "  reset_smartpls:   create default smart playlists\n"
+               "  reset_lastplayed: truncates last played list\n"
+               "  clear_covercache: empties the covercache directory\n",
+               MYMPD_VERSION,
+               cmd
+        );
+    }
+}
+
 int main(int argc, char **argv) {
     s_signal_received = 0;
     char testdirname[400];
@@ -428,8 +527,9 @@ int main(int argc, char **argv) {
     config->webport = strdup("80");
     config->ssl = true;
     config->ssl_port = strdup("443");
-    config->ssl_cert = strdup("/var/lib/mympd/ssl/server.pem");
-    config->ssl_key = strdup("/var/lib/mympd/ssl/server.key");
+    config->ssl_cert = strdup(VARLIB_PATH"/ssl/server.pem");
+    config->ssl_key = strdup(VARLIB_PATH"/ssl/server.key");
+    config->custom_cert = false;
     config->user = strdup("mympd");
     config->varlibdir = strdup(VARLIB_PATH);
     config->stickers = true;
@@ -471,49 +571,81 @@ int main(int argc, char **argv) {
     config->coverimage_name = strdup("folder.jpg");
     config->coverimage_size = 250;
     config->locale = strdup("default");
+    config->varlibdir_len = strlen(config->varlibdir);    
+    list_init(&config->syscmd_list);
 
     size_t configfile_len = strlen(ETC_PATH) + 12;
     char *configfile = malloc(configfile_len);
     snprintf(configfile, configfile_len, "%s/mympd.conf", ETC_PATH);
-    if (argc == 2) {
+    
+    char *option = NULL;
+    
+    if (argc >= 2) {
         if (strncmp(argv[1], "/", 1) == 0) {
             FREE_PTR(configfile);
             configfile = strdup(argv[1]);
+            if (argc == 3) {
+                option = strdup(argv[2]);
+            }
         }
         else {
-            printf("myMPD %s\n"
-                "Copyright (C) 2018-2019 Juergen Mang <mail@jcgames.de>\n"
-                "https://github.com/jcorporation/myMPD\n\n"
-                "Usage: %s [/path/to/mympd.conf]\n",
-                MYMPD_VERSION,
-                argv[0]
-            );
-            goto cleanup;
+            option = strdup(argv[1]);
         }
     }
-    config->varlibdir_len = strlen(config->varlibdir);
-    list_init(&config->syscmd_list);
 
-    LOG_INFO("Starting myMPD %s", MYMPD_VERSION);
-    LOG_INFO("Libmpdclient %i.%i.%i", LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION);
-    LOG_INFO("Mongoose %s", MG_VERSION);
+    if (option == NULL) {    
+        LOG_INFO("Starting myMPD %s", MYMPD_VERSION);
+        LOG_INFO("Libmpdclient %i.%i.%i", LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION);
+        LOG_INFO("Mongoose %s", MG_VERSION);
+    }
     
     if (access(configfile, F_OK ) != -1) {
-        LOG_INFO("Parsing config file: %s", configfile);
+        if (option == NULL) {
+            LOG_INFO("Parsing config file: %s", configfile);
+        }
         if (ini_parse(configfile, mympd_inihandler, config) < 0) {
             LOG_ERROR("Can't load config file %s", configfile);
             goto cleanup;
         }
     }
     else {
-        LOG_WARN("Config file %s not found, using defaults", configfile);
+        if (option == NULL) {
+            LOG_WARN("Config file %s not found, using defaults", configfile);
+        }
     }
 
     //read environment - overwrites config file definitions
     mympd_get_env(config);
     
-    //set loglevel    
-    set_loglevel(config);
+    //reset varlibdir_len, avoids many strlen calls
+    config->varlibdir_len = strlen(config->varlibdir);
+    
+    //set correct path to certificate/key, if varlibdir is non default and cert paths are default
+    if (strcmp(config->varlibdir, VARLIB_PATH) != 0 && config->custom_cert == false) {
+        FREE_PTR(config->ssl_cert);
+        size_t ssl_cert_len = config->varlibdir_len + 16;
+        config->ssl_cert = malloc(ssl_cert_len);
+        assert(config->ssl_cert);
+        snprintf(config->ssl_cert, ssl_cert_len, "%s/ssl/server.pem", config->varlibdir);
+        
+        FREE_PTR(config->ssl_key);
+        size_t ssl_key_len = config->varlibdir_len + 16;
+        config->ssl_key = malloc(ssl_key_len);
+        assert(config->ssl_key);
+        snprintf(config->ssl_key, ssl_key_len, "%s/ssl/server.key", config->varlibdir);
+    }
+    
+    //set loglevel
+    if (option == NULL) {
+        set_loglevel(config);
+    }
+    
+    //handle commandline options
+    if (option != NULL) {
+        handle_option(config, argv[0], option);
+        free(option);
+        goto cleanup;
+    }
     
     //init plugins
     if (init_plugins(config) == false) {
@@ -526,24 +658,6 @@ int main(int argc, char **argv) {
     setvbuf(stdout, NULL, _IOLBF, 0);
     setvbuf(stderr, NULL, _IOLBF, 0);
 
-    //init webserver
-    if (config->ssl == true) {
-        if (access(config->ssl_cert, F_OK ) == -1 || access(config->ssl_key, F_OK ) == -1) {
-            //ssl key and cert not yet created
-            //ToDo: create it
-            LOG_ERROR("SSL certificate not found, create it with %s/crcert.sh", DATAROOT_PATH);
-            goto cleanup;
-        }
-    }
-    
-    struct mg_mgr mgr;
-    if (!web_server_init(&mgr, config, mg_user_data)) {
-        goto cleanup;
-    }
-    else {
-        init_webserver = true;
-    }
-
     //check varlibdir
     testdir_rc = testdir("State directory", config->varlibdir, true);
     if (testdir_rc == 1) {
@@ -554,6 +668,34 @@ int main(int argc, char **argv) {
     }
     else if (testdir_rc > 1) {
         goto cleanup;
+    }
+
+    //check for ssl certificates
+    if (config->ssl == true && config->custom_cert == false) {
+        snprintf(testdirname, 400, "%s/ssl", config->varlibdir);
+        testdir_rc = testdir("SSL certificates", testdirname, true);
+        if (testdir_rc == 1) {
+            //directory created, create certificates
+            if (!create_certificates(testdirname)) {
+                //error creating certificates, remove directory
+                LOG_ERROR("Certificate creation failed, cleanup directory %s", testdirname);
+                cleanup_certificates(testdirname);
+                //disable ssl
+                config->ssl = false;
+            }
+        }
+        else if (testdir_rc > 1) {
+            goto cleanup;
+        }
+    }  
+    
+    //init webserver    
+    struct mg_mgr mgr;
+    if (!web_server_init(&mgr, config, mg_user_data)) {
+        goto cleanup;
+    }
+    else {
+        init_webserver = true;
     }
 
     //drop privileges
@@ -582,7 +724,7 @@ int main(int argc, char **argv) {
         goto cleanup;
     }
 
-    //check needed directories
+    //check for needed directories
     testdir_rc = testdir("Document root", DOC_ROOT, false);
     if (testdir_rc > 1) {
         goto cleanup;
@@ -592,12 +734,7 @@ int main(int argc, char **argv) {
     testdir_rc = testdir("Smartpls dir", testdirname, true);
     if (testdir_rc == 1) {
         //directory created, create default smart playlists
-        smartpls_init(config, "myMPDsmart-bestRated", 
-            "{\"type\": \"sticker\", \"sticker\": \"like\", \"maxentries\": 200}\n");
-        smartpls_init(config, "myMPDsmart-mostPlayed", 
-            "{\"type\": \"sticker\", \"sticker\": \"playCount\", \"maxentries\": 200}\n");
-        smartpls_init(config, "myMPDsmart-newestSongs", 
-            "{\"type\": \"newest\", \"timerange\": 604800}\n");
+        smartpls_default(config);
     }
     else if (testdir_rc > 1) {
         goto cleanup;

@@ -200,6 +200,7 @@ typedef struct t_config {
     char *ssl_port;
     char *ssl_cert;
     char *ssl_key;
+    bool custom_cert;
     char *user;
     bool stickers;
     bool mixramp;

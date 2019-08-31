@@ -63,17 +63,20 @@ include_directories(${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}	${LIBMPDCLIENT_I
 
 include(CheckCSourceCompiles)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -O1 -Wall -fstack-protector -D_FORTIFY_SOURCE=2 -pie -fPIE -DMG_ENABLE_SSL")
+if(${MEMCHECK} MATCHES TRUE)
+  #for use with valgrind
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -Wall -DMG_ENABLE_SSL")
+  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -ggdb")
+else()
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -O1 -Wall -fstack-protector -D_FORTIFY_SOURCE=2 -pie -fPIE -DMG_ENABLE_SSL")
 
-set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -ggdb -fsanitize=address \
+  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -ggdb -fsanitize=address \
 	-fsanitize=undefined -fsanitize=shift -fsanitize=integer-divide-by-zero -fsanitize=unreachable -fsanitize=vla-bound \
 	-fsanitize=null -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=bounds -fsanitize=bounds-strict \
 	-fsanitize=alignment -fsanitize=object-size -fsanitize=float-divide-by-zero -fsanitize=float-cast-overflow \
 	-fsanitize=nonnull-attribute -fsanitize=returns-nonnull-attribute -fsanitize=bool -fsanitize=enum -fsanitize=vptr -static-libasan")
+endif()
 
-#for use with valgrind, disable above 2 set commands and enable the following set commands
-#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -Wall -DMG_ENABLE_SSL")
-#set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -ggdb")
 
 #compiler flags for mympd src
 file(GLOB MYMPD_SRC_FILES "src/*.c")
@@ -92,6 +95,7 @@ set(SOURCES
     src/mympd_api.c
     src/list.c
     src/tiny_queue.c
+    src/cert.c
     dist/src/mongoose/mongoose.c
     dist/src/frozen/frozen.c
     dist/src/inih/ini.c
@@ -113,7 +117,6 @@ endif()
 
 install(TARGETS mympd DESTINATION ${CMAKE_INSTALL_FULL_BINDIR})
 install(SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/cmake/CopyConfig.cmake)
-install(PROGRAMS contrib/crcert.sh DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}${SUBDIR}/)
 install(FILES htdocs/mympd.webmanifest DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}${SUBDIR}/htdocs/)
 install(FILES htdocs/robots.txt DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}${SUBDIR}/htdocs/)
 install(FILES dist/htdocs/index.html DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}${SUBDIR}/htdocs/)
@@ -125,4 +128,3 @@ install(FILES dist/htdocs/js/i18n.min.js DESTINATION ${CMAKE_INSTALL_FULL_DATARO
 install(FILES dist/htdocs/css/bootstrap.min.css DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}${SUBDIR}/htdocs/css/)
 install(FILES dist/htdocs/css/mympd.min.css DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}${SUBDIR}/htdocs/css/)
 install(DIRECTORY htdocs/assets DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}${SUBDIR}/htdocs)
-install(DIRECTORY DESTINATION ${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/lib${SUBDIRVAR})

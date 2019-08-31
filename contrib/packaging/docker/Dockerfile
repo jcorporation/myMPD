@@ -32,12 +32,11 @@ ENV WEBSERVER_SSL=true
 RUN apt-get update && apt-get install openssl libmediainfo0v5 -y
 COPY --from=build /libmpdclient-master.tar.gz /
 COPY --from=build /mympd.tar.gz /
-COPY --from=build /myMPD/contrib/packaging/debian/postinst /
 WORKDIR /
-RUN tar xfv libmpdclient-master.tar.gz -C /
-RUN tar xfv mympd.tar.gz -C /
+RUN tar -xfv libmpdclient-master.tar.gz -C /
+RUN tar -xfv mympd.tar.gz -C /
 RUN rm libmpdclient-master.tar.gz
 RUN rm mympd.tar.gz
-COPY contrib/packaging/docker/init.sh /
-RUN chmod +x /init.sh
-ENTRYPOINT ["/init.sh"]
+RUN groupadd -r mympd
+RUN useradd -r -g mympd -s /bin/false -d /nonexistent mympd
+ENTRYPOINT ["/usr/bin/mympd"]

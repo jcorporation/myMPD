@@ -9,7 +9,7 @@ arch="all"
 license="GPL-2.0-or-later"
 depends="libmpdclient libmediainfo openssl"
 makedepends="cmake libmpdclient-dev libmediainfo-dev openssl-dev linux-headers"
-install="$pkgname.pre-install $pkgname.post-install"
+install="$pkgname.pre-install"
 source="
 	https://github.com/jcorporation/myMPD/archive/v${pkgver}.zip
 	myMPD.initd
@@ -39,6 +39,4 @@ build() {
 package() {
 	cd "$builddir/release"
 	make DESTDIR="$pkgdir" install
-
-	chown -R mympd.mympd "$pkgdir"/var/lib/mympd
 }

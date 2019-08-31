@@ -195,6 +195,23 @@ static void mympd_api_push_to_mpd_client(t_mympd_state *mympd_state) {
     tiny_queue_push(mpd_client_queue, mpd_client_request);
 }
 
+void mympd_api_settings_delete(t_config *config) {
+    const char* state_files[]={"auto_play", "bg_color", "bg_cover", "bg_css_filter", "browsetaglist", "cols_browse_database",
+        "cols_browse_filesystem", "cols_browse_playlists_detail", "cols_playback", "cols_queue_current", "cols_queue_last_played",
+        "cols_search", "coverimage", "coverimage_name", "coverimage_size", "jukebox_mode", "jukebox_playlist", "jukebox_queue_length",
+        "last_played", "last_played_count", "locale", "localplayer", "localplayer_autoplay", "love", "love_channel", "love_message",
+        "max_elements_per_page",  "mpd_host", "mpd_pass", "mpd_port", "notification_page", "notification_web", "searchtaglist",
+        "smartpls", "stickers", "stream_port", "stream_url", "taglist", "music_directory", 0};
+    const char** ptr = state_files;
+    while (*ptr != 0) {
+        size_t filename_len = strlen(*ptr) + config->varlibdir_len + 8;
+        char filename[filename_len];
+        snprintf(filename, filename_len, "%s/state/%s", config->varlibdir, *ptr);
+        unlink(filename);
+        ++ptr;
+    }
+}
+
 //private functions
 static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_request *request) {
     int je;
@@ -580,20 +597,8 @@ static int mympd_api_syscmd(t_config *config, char *buffer, const char *cmd) {
 }
 
 static void mympd_api_settings_reset(t_config *config, t_mympd_state *mympd_state) {
-    const char* state_files[]={"auto_play", "bg_color", "bg_cover", "bg_css_filter", "browsetaglist", "cols_browse_database",
-        "cols_browse_filesystem", "cols_browse_playlists_detail", "cols_playback", "cols_queue_current", "cols_queue_last_played",
-        "cols_search", "coverimage", "coverimage_name", "coverimage_size", "jukebox_mode", "jukebox_playlist", "jukebox_queue_length",
-        "last_played", "last_played_count", "locale", "localplayer", "localplayer_autoplay", "love", "love_channel", "love_message",
-        "max_elements_per_page",  "mpd_host", "mpd_pass", "mpd_port", "notification_page", "notification_web", "searchtaglist",
-        "smartpls", "stickers", "stream_port", "stream_url", "taglist", "music_directory", 0};
-    const char** ptr = state_files;
-    while (*ptr != 0) {
-        size_t filename_len = strlen(*ptr) + config->varlibdir_len + 8;
-        char filename[filename_len];
-        snprintf(filename, filename_len, "%s/state/%s", config->varlibdir, *ptr);
-        unlink(filename);
-        ++ptr;
-    }
+
+    mympd_api_settings_delete(config);
     mympd_api_read_statefiles(config, mympd_state);
     mympd_api_push_to_mpd_client(mympd_state);
 }

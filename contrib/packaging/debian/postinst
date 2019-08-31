@@ -1,40 +1,10 @@
 #!/bin/sh
 
-INSTALL_PREFIX="${INSTALL_PREFIX:-/usr}"
-
-ISOPT=$(expr "${INSTALL_PREFIX}" : '^/opt/')
-if [ "$ISOPT" = "5" ]
-then
-  ETCDIR="/etc${INSTALL_PREFIX}"
-  SHAREDIR="${INSTALL_PREFIX}/share"
-  VARDIR="/var${INSTALL_PREFIX}/lib"
-elif [ "$INSTALL_PREFIX" = "/usr" ]
-then
-  ETCDIR="/etc/mympd"
-  SHAREDIR="${INSTALL_PREFIX}/share/mympd"
-  VARDIR="/var/lib/mympd"
-else
-  ETCDIR="${INSTALL_PREFIX}/etc/mympd"
-  SHAREDIR="${INSTALL_PREFIX}/share/mympd"
-  VARDIR="${INSTALL_PREFIX}/var/lib/mympd"
-fi
-
 echo "Checking status of mympd system user and group"
 getent group mympd > /dev/null
 [ "$?" = "2" ] && groupadd -r mympd
 getent passwd mympd > /dev/null
-[ "$?" = "2" ] && useradd -r mympd -g mympd -d "${VARDIR}" -s /usr/sbin/nologin
-
-echo "Fixing ownership of ${VARDIR}"
-chown -R mympd.mympd "${VARDIR}"
-
-if [ -d "${VARDIR}/ssl" ]
-then
-  echo "Certificates already created"
-else
-  echo "Creating certificates"
-  "${SHAREDIR}/crcert.sh" "${VARDIR}/ssl"
-fi
+[ "$?" = "2" ] && useradd -r -g mympd -s /bin/false -d /nonexistent mympd
 
 echo "myMPD installed"
-echo "Edit ${ETCDIR}/mympd.conf before starting myMPD"
+echo "Edit mympd.conf before starting myMPD"

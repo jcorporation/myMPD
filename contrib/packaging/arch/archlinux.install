@@ -10,19 +10,6 @@ post_upgrade() {
   getent passwd mympd > /dev/null
   [ "$?" = "2" ] && useradd --system -d /var/lib/mympd -s /usr/sbin/nologin -g mympd mympd
 
-  # create ssl certificates unless already existing
-  if [ -d /var/lib/mympd/ssl ]
-  then
-    echo "INFO: Certificates already created"
-  else
-    echo "INFO: Creating certificates"
-    /usr/share/webapps/mympd/crcert.sh
-  fi
-
-  # fix ownership of /var/lib/mympd
-  echo "INFO: Fixing ownership of /var/lib/mympd"
-  chown -R mympd.mympd /var/lib/mympd
-
   # installation complete
   echo "WARNING: Edit /etc/webapps/mympd.conf before starting myMPD"
 }
