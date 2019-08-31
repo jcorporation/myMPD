@@ -1,5 +1,5 @@
 :root {
-    --mympd-coverimagesize: 240px;
+    --mympd-coverimagesize: 250px;
     --mympd-backgroundcolor: #888;
     --mympd-backgroundfilter: blur(5px);
 }
@@ -97,7 +97,9 @@ button {
 [data-col=Pos], [data-col=Type], [data-col=Track] {
   width: 2rem;
   min-width: min-content;
+  /* @alternate */
   min-width: -moz-min-content;
+  /* @alternate */
   min-width: -webkit-min-content;
 }
 

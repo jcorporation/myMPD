@@ -469,7 +469,7 @@ int main(int argc, char **argv) {
     config->bg_css_filter = strdup("blur(5px)");
     config->coverimage = true;
     config->coverimage_name = strdup("folder.jpg");
-    config->coverimage_size = 240;
+    config->coverimage_size = 250;
     config->locale = strdup("default");
 
     size_t configfile_len = strlen(ETC_PATH) + 12;
