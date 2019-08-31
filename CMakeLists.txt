@@ -55,7 +55,9 @@ find_package(OpenSSL REQUIRED)
 configure_file(src/global.h.in ${PROJECT_BINARY_DIR}/global.h)
 configure_file(cmake/CopyConfig.cmake.in cmake/CopyConfig.cmake @ONLY)
 configure_file(contrib/mympd.conf.in contrib/mympd.conf)
-configure_file(contrib/mympd.service.in contrib/mympd.service)
+configure_file(contrib/initscripts/mympd.service.in contrib/initscripts/mympd.service @ONLY)
+configure_file(contrib/initscripts/mympd.sysVinit.in contrib/initscripts/mympd.sysVinit @ONLY)
+configure_file(contrib/initscripts/mympd.openrc.in contrib/initscripts/mympd.openrc @ONLY)
 
 include_directories(${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}	${LIBMPDCLIENT_INCLUDE_DIR} ${OPENSSL_INCLUDE_DIR})
 

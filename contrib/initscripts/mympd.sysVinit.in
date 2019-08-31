@@ -16,7 +16,7 @@
 # Process name ( For display )
 NAME=mympd
 # Daemon name, where is the actual executable
-DAEMON=/usr/bin/mympd
+DAEMON=@CMAKE_INSTALL_FULL_BINDIR@/mympd
 # pid file for the daemon
 PIDFILE=/var/run/mympd.pid
 
