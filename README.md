@@ -70,7 +70,7 @@ Build Dependencies
 Unix Build Instructions
 -----------------------
 1. Install dependencies: cmake, libmpdclient (dev), OpenSSL (dev), libmediainfo (dev), Java and Perl
-2. Extract myMPD tarball and change path to this directory.
+2. Extract myMPD tarball and change path to this directory
 3. Build and install myMPD: ```./build.sh release```
 
 Run
@@ -79,7 +79,7 @@ Adapt the configuration file ```/etc/mympd.conf``` to your needs.
 ```
 Usage: ./mympd [/etc/mympd.conf]
 ```
-The ```./build.sh``` script installs a startup script for systemd, open-rc (Alpine Linux) or sysVinit.
+The ```./build.sh``` script installs a startup script for systemd, openrc (Alpine Linux) or sysVinit.
 
 Copyright
 ---------
