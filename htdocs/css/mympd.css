@@ -94,13 +94,22 @@ button {
   cursor: pointer;
 }
 
-[data-col=Pos], [data-col=Type], [data-col=Track], [data-col=Action] {
-  min-width: 2rem;
+[data-col=Pos], [data-col=Type], [data-col=Track] {
+  width: 2rem;
+  min-width: min-content;
+  min-width: -moz-min-content;
+  min-width: -webkit-min-content;
+}
+
+[data-col=Action] {
+  width: 2rem;
+  text-align: right;
 }
 
 tr > th {
   white-space: nowrap;
   overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 small {
