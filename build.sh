@@ -164,10 +164,9 @@ EOL
 }
 
 pkgdocker() {
-  cleanup
+  prepare
   cp contrib/packaging/docker/Dockerfile .
   docker build -t mympd .
-  rm Dockerfile
 }
 
 pkgalpine() {
@@ -226,10 +225,10 @@ case "$1" in
 	  echo "  debug:     builds debug files, executeable in debug/ assets in htdocs/"
 	  echo "  cleanup:   cleanup source tree"
 	  echo "  check:     runs cppcheck"
+	  echo "  pkgalpine: creates the alpine package"
+	  echo "  pkgarch:   creates the arch package"
 	  echo "  pkgdebian: creates the debian package"
 	  echo "  pkgdocker: creates the docker image (debian based with latest libmpdclient)"
-	  echo "  pkgalpine: creates the alpine package"
 	  echo "  pkgrpm:    creates the rpm package"
-	  echo "  pkgarch:   creates the arch package"
 	;;
 esac
