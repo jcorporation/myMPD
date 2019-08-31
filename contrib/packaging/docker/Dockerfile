@@ -38,6 +38,6 @@ RUN tar xfv libmpdclient-master.tar.gz -C /
 RUN tar xfv mympd.tar.gz -C /
 RUN rm libmpdclient-master.tar.gz
 RUN rm mympd.tar.gz
-COPY contrib/docker/init.sh /
+COPY contrib/packaging/docker/init.sh /
 RUN chmod +x /init.sh
 ENTRYPOINT ["/init.sh"]
