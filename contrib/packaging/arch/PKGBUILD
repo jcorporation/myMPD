@@ -20,7 +20,8 @@ backup=('etc/webapps/mympd.conf')
 install=archlinux.install
 source=("mympd_${pkgver}.orig.tar.gz"
 	"archlinux.install")
-sha256sums=('SKIP')
+sha256sums=('SKIP'
+	    'SKIP')
 
 build() {
   cd "${srcdir}" || exit 1

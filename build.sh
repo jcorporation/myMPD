@@ -184,6 +184,7 @@ pkgrpm() {
 
 pkgarch() {
   prepare
+  VERSION=$(grep VERSION_ CMakeLists.txt | cut -d\" -f2 | tr '\n' '.' | sed 's/\.$//')
   tar -czvf "mympd_${VERSION}.orig.tar.gz" -- *
   cp contrib/packaging/arch/* .
   makepkg

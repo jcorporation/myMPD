@@ -31,9 +31,9 @@ else()
 endif()
 
 MESSAGE("ASSETS_PATH: ${ASSETS_PATH}")
-set(ETC_PATH "${CMAKE_INSTALL_FULL_SYSCONFDIR}")
+set(ETC_PATH "${CMAKE_INSTALL_FULL_SYSCONFDIR}${WEBAPPS}")
 MESSAGE("ETC_PATH: ${ETC_PATH}")
-set(PLUGIN_PATH "${CMAKE_INSTALL_FULL_LIBDIR}${SUBDIR}")
+set(PLUGIN_PATH "${CMAKE_INSTALL_FULL_LIBDIR}${SUBDIRVAR}")
 MESSAGE("PLUGIN_PATH: ${PLUGIN_PATH}")
 set(VARLIB_PATH "${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/lib${SUBDIRVAR}")
 MESSAGE("VARLIB_PATH: ${VARLIB_PATH}")
@@ -112,7 +112,7 @@ find_package(LibMediainfo)
 if(LIBMEDIAINFO_FOUND)
   add_library(mympd_coverextract SHARED src/plugins/mympd_coverextract.cpp)
 
-  install(TARGETS mympd_coverextract DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}${SUBDIR}/)
+  install(TARGETS mympd_coverextract DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}${SUBDIRVAR}/)
 
   #testcoverextract executable
   add_executable(test_coverextract src/plugins/test_coverextract.c)
