@@ -158,7 +158,7 @@ mympd (${VERSION}-1) stable; urgency=medium
  -- Juergen Mang <mail@jcgames.de>  $(date +"%a, %d %b %Y %H:%m:%S %z")
 EOL
 
-  tar -czvf "../mympd_${VERSION}.orig.tar.gz" -- *
+  tar -czf "../mympd_${VERSION}.orig.tar.gz" -- *
   dpkg-buildpackage -rfakeroot
 }
 
@@ -170,7 +170,7 @@ pkgdocker() {
 
 pkgalpine() {
   prepare
-  tar -czvf "mympd_${VERSION}.orig.tar.gz" -- *
+  tar -czf "mympd_${VERSION}.orig.tar.gz" -- *
   cp contrib/packaging/alpine/* .
   abuild checksum
   abuild -r
@@ -178,13 +178,22 @@ pkgalpine() {
 
 pkgrpm() {
   prepare
-  cp contrib/packaging/rpm/* .
+  SRC=$(ls)
+  mkdir "mympd-${VERSION}"
+  for F in $SRC
+  do
+    mv "$F" "mympd-${VERSION}"
+  done
+  install -d ~/rpmbuild/SOURCES
+  tar -czf "mympd_${VERSION}.orig.tar.gz" "mympd-${VERSION}"
+  mv "mympd_${VERSION}.orig.tar.gz" ~/rpmbuild/SOURCES/
+  cp ../../contrib/packaging/rpm/mympd.spec .
   rpmbuild -ba mympd.spec
 }
 
 pkgarch() {
   prepare
-  tar -czvf "mympd_${VERSION}.orig.tar.gz" -- *
+  tar -czf "mympd_${VERSION}.orig.tar.gz" -- *
   cp contrib/packaging/arch/* .
   makepkg
   namcap PKGBUILD
