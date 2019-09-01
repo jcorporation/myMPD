@@ -102,6 +102,10 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
         FREE_PTR(p_config->ssl_key);
         p_config->ssl_key = strdup(value);
     }
+    else if (MATCH("webserver", "sslsan")) {
+        FREE_PTR(p_config->ssl_san);
+        p_config->ssl_san = strdup(value);
+    }
     else if (MATCH("mympd", "user")) {
         FREE_PTR(p_config->user);
         p_config->user = strdup(value);
@@ -268,6 +272,7 @@ static void mympd_free_config(t_config *config) {
     FREE_PTR(config->ssl_port);
     FREE_PTR(config->ssl_cert);
     FREE_PTR(config->ssl_key);
+    FREE_PTR(config->ssl_san);
     FREE_PTR(config->user);
     FREE_PTR(config->taglist);
     FREE_PTR(config->searchtaglist);
@@ -312,6 +317,7 @@ static void mympd_parse_env(struct t_config *config, const char *envvar) {
 static void mympd_get_env(struct t_config *config) {
     const char *env_vars[]={"MPD_HOST", "MPD_PORT", "MPD_PASS", "MPD_MUSICDIRECTORY",
         "WEBSERVER_WEBPORT", "WEBSERVER_SSL", "WEBSERVER_SSLPORT", "WEBSERVER_SSLCERT", "WEBSERVER_SSLKEY",
+        "WEBSERVER_SSLSAN",
         "MYMPD_LOGLEVEL", "MYMPD_USER", "MYMPD_VARLIBDIR", "MYMPD_MIXRAMP", "MYMPD_STICKERS", "MYMPD_TAGLIST", 
         "MYMPD_SEARCHTAGLIST", "MYMPD_BROWSETAGLIST", "MYMPD_SMARTPLS", "MYMPD_SYSCMDS", 
         "MYMPD_PAGINATION", "MYMPD_LASTPLAYEDCOUNT", "MYMPD_LOVE", "MYMPD_LOVECHANNEL", "MYMPD_LOVEMESSAGE",
@@ -446,7 +452,7 @@ static void handle_option(t_config *config, char *cmd, char *option) {
         snprintf(testdirname, 400, "%s/ssl", config->varlibdir);
         int testdir_rc = testdir("SSL certificates", testdirname, true);
         if (testdir_rc == 1) {
-            create_certificates(testdirname);
+            create_certificates(testdirname, config->ssl_san);
         }
         else if (testdir_rc == 0) {
             LOG_INFO("Remove certificates with certs_remove before creating new ones");
@@ -529,6 +535,7 @@ int main(int argc, char **argv) {
     config->ssl_port = strdup("443");
     config->ssl_cert = strdup(VARLIB_PATH"/ssl/server.pem");
     config->ssl_key = strdup(VARLIB_PATH"/ssl/server.key");
+    config->ssl_san = strdup("");
     config->custom_cert = false;
     config->user = strdup("mympd");
     config->varlibdir = strdup(VARLIB_PATH);
@@ -672,7 +679,7 @@ int main(int argc, char **argv) {
         testdir_rc = testdir("SSL certificates", testdirname, true);
         if (testdir_rc == 1) {
             //directory created, create certificates
-            if (!create_certificates(testdirname)) {
+            if (!create_certificates(testdirname, config->ssl_san)) {
                 //error creating certificates, remove directory
                 LOG_ERROR("Certificate creation failed, cleanup directory %s", testdirname);
                 cleanup_certificates(testdirname);

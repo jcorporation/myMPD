@@ -38,7 +38,7 @@ static bool write_to_disk(EVP_PKEY *pkey, X509 *cert, const char *dir, const cha
 
 //public functions
 
-bool create_certificates(char *dir) {
+bool create_certificates(const char *dir, const char *custom_san) {
     LOG_INFO("Creating self signed ca certificate");
     EVP_PKEY *ca_key = generate_keypair();
     if (!ca_key) {
@@ -51,12 +51,16 @@ bool create_certificates(char *dir) {
         return false;
     }
     
+    //get subject alternative names
     char san[2048];
     int san_len = get_san(san, 2048);
+    san_len += snprintf(san + san_len, 2048 - san_len, ", %s", custom_san);
     if (san_len > 2048) {
         //buffer to small
         return false;
     }
+    
+    
     LOG_INFO("Creating server certificate with san: %s", san);
     EVP_PKEY *server_key = generate_keypair();
     if (!server_key) {
@@ -94,7 +98,7 @@ bool create_certificates(char *dir) {
     return true;
 }
 
-void cleanup_certificates(char *dir) {
+void cleanup_certificates(const char *dir) {
     const char *files[]={"ca.key", "ca.pem", "server.key", "server.pem", 0};    
     const char** ptr = files;
     while (*ptr != 0) {
