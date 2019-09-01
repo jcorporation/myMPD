@@ -169,13 +169,13 @@ int main(int argc, char **argv) {
 
     //check varlibdir
     testdir_rc = testdir("Localstate dir", config->varlibdir, true);
-    if (testdir_rc == 1 || testdir_rc == 0) {
+    if (testdir_rc < 2) {
         //directory exists or was created, set user and group 
-        if (do_chown(config->varlibdir, config->user) != true) {
+        if (do_chown(config->varlibdir, config->user) == false) {
             goto cleanup;
         }
     }
-    else if (testdir_rc > 1) {
+    else {
         goto cleanup;
     }
     
@@ -207,10 +207,23 @@ int main(int argc, char **argv) {
         snprintf(testdirname, 400, "%s/ssl", config->varlibdir);
         testdir_rc = testdir("SSL certificates", testdirname, true);
         if (testdir_rc < 2) {
+            //chown to mympd user
+            if (do_chown(testdirname, config->user) == false) {
+                goto cleanup;
+            }
             //directory created, create certificates
             if (!create_certificates(testdirname, config->ssl_san)) {
                 //error creating certificates, remove directory
                 LOG_ERROR("Certificate creation failed");
+                goto cleanup;
+            }
+            //chown to mympd user
+            snprintf(testdirname, 400, "%s/ssl/ca.pem", config->varlibdir);
+            if (do_chown(testdirname, config->user) == false) {
+                goto cleanup;
+            }
+            snprintf(testdirname, 400, "%s/ssl/server.pem", config->varlibdir);
+            if (do_chown(testdirname, config->user) == false) {
                 goto cleanup;
             }
         }

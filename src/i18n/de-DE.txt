@@ -968,3 +968,12 @@ Fingerabdruck
 
 Calculate
 Berechne Fingerabdruck
+
+Certificate
+Zertifikat
+
+myMPD CA
+myMPD Stammzertifikat
+
+Download
+Herunterladen

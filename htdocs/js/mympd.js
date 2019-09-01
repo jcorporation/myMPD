@@ -1775,7 +1775,7 @@ function parseSettings() {
     toggleBtnChk('btnSmartpls', settings.smartpls);
     
     
-    var features = ["featLocalplayer", "featSyscmds"];
+    var features = ["featLocalplayer", "featSyscmds", "featMixramp", "featCacert"];
     for (var j = 0; j < features.length; j++) {
         var Els = document.getElementsByClassName(features[j]);
         var ElsLen = Els.length;
@@ -1857,10 +1857,6 @@ function parseSettings() {
         }
     }
     
-    var mixrampEls = document.getElementsByClassName('mixramp');
-    for (var i = 0; i < mixrampEls.length; i++) {
-        mixrampEls[i].style.display = settings.featMixramp == true ? '' : 'none';
-    }
     
     if (settings.musicDirectory == 'auto') {
         document.getElementById('selectMusicDirectory').value = settings.musicDirectory;
@@ -3207,7 +3203,7 @@ function parseSongDetails(obj) {
     }
     songDetails += '<tr><th>' + t('Duration') + '</th><td>' + beautifyDuration(obj.data.Duration) + '</td></tr>';
     if (settings.featLibrary) {
-        songDetails += '<tr><th>' + t('Filename') + '</th><td><a class="breakAll text-success" href="/library/' + encodeURI(obj.data.uri) + '">' + e(obj.data.uri) + '</a></td></tr>';
+        songDetails += '<tr><th>' + t('Filename') + '</th><td><a class="breakAll text-success" href="/library/' + encodeURI(obj.data.uri) + '" download>' + e(obj.data.uri) + '</a></td></tr>';
     }
     else {
         songDetails += '<tr><th>' + t('Filename') + '</th><td class="breakAll">' + e(obj.data.uri) + '</td></tr>';

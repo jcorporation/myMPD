@@ -20,6 +20,7 @@ var urlsToCache = [
 
 var ignoreRequests = new RegExp('(' + [
   subdir + '/api',
+  subdir + '/ca.crt',
   subdir + '/ws',
   subdir + '/library\/(.*)',
   subdir + '/pics\/(.*)'].join('(\/?)|\\') + ')$')

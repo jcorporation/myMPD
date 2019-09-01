@@ -18,6 +18,7 @@
 #include <openssl/bn.h>
 
 #include "log.h"
+#include "utility.h"
 
 //private definitions
 

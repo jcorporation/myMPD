@@ -270,6 +270,13 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                     mg_printf(nc, "%s", response);
                 }
             }
+            else if (mg_vcmp(&hm->uri, "/ca.crt") == 0 && config->custom_cert == false) {
+                //deliver ca certificate
+                size_t ca_file_len = config->varlibdir_len + 12;
+                char ca_file[ca_file_len];
+                snprintf(ca_file, ca_file_len, "%s/ssl/ca.pem", config->varlibdir);
+                mg_http_serve_file(nc, hm, ca_file, mg_mk_str("application/x-x509-ca-cert"), mg_mk_str(""));
+            }
             else if (has_prefix(&hm->uri, &library_prefix) && hm->query_string.len > 0 && mg_vcmp(&hm->query_string, "cover") == 0 
                      && config->plugins_coverextract == true && mg_user_data->feat_library == true) {
                 size_t image_file_len = 1500;
