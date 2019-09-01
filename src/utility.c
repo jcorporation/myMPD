@@ -29,14 +29,10 @@
 #include <stdbool.h>
 #include <dirent.h>
 #include <pthread.h>
-#include <signal.h>
 #include <sys/stat.h>
-#include <mpd/client.h>
 
 #include "log.h"
-#include "tiny_queue.h"
-#include "list.h"
-#include "global.h"
+#include "utility.h"
 
 int testdir(const char *name, const char *dirname, bool create) {
     DIR* dir = opendir(dirname);
@@ -96,14 +92,4 @@ int copy_string(char * const dest, char const * const src, size_t const dst_len,
     memcpy(dest, src, max);
     dest[max] = '\0';
     return max;
-}
-
-enum mympd_cmd_ids get_cmd_id(const char *cmd) {
-    const char * mympd_cmd_strs[] = { MYMPD_CMDS(GEN_STR) };
-
-    for (unsigned i = 0; i < sizeof(mympd_cmd_strs) / sizeof(mympd_cmd_strs[0]); i++)
-        if (!strncmp(cmd, mympd_cmd_strs[i], strlen(mympd_cmd_strs[i])))
-            return i;
-
-    return 0;
 }

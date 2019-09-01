@@ -51,7 +51,7 @@ else()
   set(COVEREXTRACT "false")
 endif()
 
-configure_file(src/global.h.in ${PROJECT_BINARY_DIR}/global.h)
+configure_file(src/config_defs.h.in ${PROJECT_BINARY_DIR}/config_defs.h)
 configure_file(cmake/CopyConfig.cmake.in cmake/CopyConfig.cmake @ONLY)
 configure_file(contrib/mympd.conf.in contrib/mympd.conf @ONLY)
 configure_file(contrib/initscripts/mympd.service.in contrib/initscripts/mympd.service @ONLY)
@@ -89,7 +89,6 @@ set (CMAKE_EXE_LINKER_FLAGS "-Wl,-z,relro -Wl,-z,now")
 
 set(SOURCES
     src/main.c
-    src/global.c
     src/mpd_client.c
     src/web_server.c
     src/mympd_api.c
@@ -97,6 +96,10 @@ set(SOURCES
     src/tiny_queue.c
     src/cert.c
     src/log.c
+    src/config.c
+    src/handle_options.c
+    src/utility.c
+    src/api.c
     dist/src/mongoose/mongoose.c
     dist/src/frozen/frozen.c
     dist/src/inih/ini.c

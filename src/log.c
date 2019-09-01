@@ -33,10 +33,6 @@ static const char *loglevel_names[] = {
 };
 
 void set_loglevel(int level) {
-    #ifdef DEBUG
-    loglevel = 4;
-    #endif
-
     if (level > 4) {
         level = 4;
     }

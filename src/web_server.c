@@ -29,9 +29,12 @@
 #include <assert.h>
 #include <inttypes.h>
 
+#include "api.h"
+#include "utility.h"
 #include "log.h"
 #include "list.h"
 #include "tiny_queue.h"
+#include "config_defs.h"
 #include "global.h"
 #include "web_server.h"
 #include "mpd_client.h"
