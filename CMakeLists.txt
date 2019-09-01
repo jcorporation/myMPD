@@ -96,6 +96,7 @@ set(SOURCES
     src/list.c
     src/tiny_queue.c
     src/cert.c
+    src/log.c
     dist/src/mongoose/mongoose.c
     dist/src/frozen/frozen.c
     dist/src/inih/ini.c

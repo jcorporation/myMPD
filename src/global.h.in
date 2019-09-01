@@ -43,18 +43,8 @@
 #define MAX_LIST_SIZE 1024 * MAX_ELEMENTS_PER_PAGE
 #define MAX_SIZE 1024 * (MAX_ELEMENTS_PER_PAGE + 2)
 
-//central logging definition
+//Debug build
 #cmakedefine DEBUG
-
-enum { LOGLEVEL_ERROR, LOGLEVEL_WARN, LOGLEVEL_INFO, LOGLEVEL_VERBOSE, LOGLEVEL_DEBUG };
-
-#define LOG_ERROR(...) mympd_log(LOGLEVEL_ERROR, __FILE__, __LINE__, __VA_ARGS__)
-#define LOG_WARN(...) mympd_log(LOGLEVEL_WARN,  __FILE__, __LINE__, __VA_ARGS__)
-#define LOG_INFO(...) mympd_log(LOGLEVEL_INFO, __FILE__, __LINE__, __VA_ARGS__)
-#define LOG_VERBOSE(...) mympd_log(LOGLEVEL_VERBOSE, __FILE__, __LINE__, __VA_ARGS__)
-#define LOG_DEBUG(...) mympd_log(LOGLEVEL_DEBUG, __FILE__, __LINE__, __VA_ARGS__)
-
-void mympd_log(int level, const char *file, int line, const char *fmt, ...);
 
 //check and return buffer size
 #define CHECK_RETURN_LEN() do { \
@@ -148,13 +138,10 @@ void mympd_log(int level, const char *file, int line, const char *fmt, ...);
 #define GEN_ENUM(X) X,
 #define GEN_STR(X) #X,
 
-//Global variables
-
-int loglevel;
-
 //signal handler
 sig_atomic_t s_signal_received;
 
+//global enums
 enum mympd_cmd_ids {
     MYMPD_CMDS(GEN_ENUM)
 };
@@ -253,5 +240,4 @@ bool validate_string(const char *data);
 int copy_string(char * const dest, char const * const src, size_t const dst_len, size_t const src_len);
 int replacechar(char *str, const char orig, const char rep);
 enum mympd_cmd_ids get_cmd_id(const char *cmd);
-void set_loglevel(t_config *config);
 #endif

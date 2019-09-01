@@ -38,6 +38,7 @@
 #include <assert.h>
 #include <inttypes.h>
 
+#include "log.h"
 #include "list.h"
 #include "tiny_queue.h"
 #include "global.h"
@@ -655,7 +656,7 @@ int main(int argc, char **argv) {
     }
     
     //set loglevel
-    set_loglevel(config);
+    set_loglevel(config->loglevel);
     
     //check varlibdir
     testdir_rc = testdir("Localstate dir", config->varlibdir, true);

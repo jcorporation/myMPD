@@ -36,6 +36,7 @@
 #include <assert.h>
 #include <inttypes.h>
 
+#include "log.h"
 #include "list.h"
 #include "tiny_queue.h"
 #include "global.h"
