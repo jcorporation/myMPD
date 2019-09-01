@@ -33,8 +33,8 @@ RUN apt-get update && apt-get install openssl libmediainfo0v5 -y
 COPY --from=build /libmpdclient-master.tar.gz /
 COPY --from=build /mympd.tar.gz /
 WORKDIR /
-RUN tar -xfv libmpdclient-master.tar.gz -C /
-RUN tar -xfv mympd.tar.gz -C /
+RUN tar -xzvf libmpdclient-master.tar.gz -C /
+RUN tar -xzvf mympd.tar.gz -C /
 RUN rm libmpdclient-master.tar.gz
 RUN rm mympd.tar.gz
 RUN groupadd -r mympd
