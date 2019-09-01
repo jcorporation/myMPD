@@ -10,11 +10,8 @@ license="GPL-2.0-or-later"
 depends="libmpdclient libmediainfo openssl"
 makedepends="cmake libmpdclient-dev libmediainfo-dev openssl-dev linux-headers"
 install="$pkgname.pre-install"
-source="
-	https://github.com/jcorporation/myMPD/archive/v${pkgver}.zip
-	myMPD.initd
-	"
-builddir="$srcdir/$pkgname-$pkgver"
+source="mympd_$pkgver.orig.tar.gz"
+builddir="$srcdir"
 options="!check"
 #no test suite
 

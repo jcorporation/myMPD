@@ -1,5 +1,7 @@
 #!/bin/sh
 
+VERSION=$(grep VERSION_ CMakeLists.txt | cut -d\" -f2 | tr '\n' '.' | sed 's/\.$//')
+
 newer() {
   M1=0
   M2=0
@@ -146,10 +148,7 @@ prepare() {
 
 pkgdebian() {
   prepare
-  
   cp -a contrib/packaging/debian .
-  VERSION=$(grep VERSION_ CMakeLists.txt | cut -d\" -f2 | tr '\n' '.' | sed 's/\.$//')
-
   export LC_TIME="en_GB.UTF-8"
   cat > debian/changelog << EOL
 mympd (${VERSION}-1) stable; urgency=medium
@@ -171,6 +170,7 @@ pkgdocker() {
 
 pkgalpine() {
   prepare
+  tar -czvf "mympd_${VERSION}.orig.tar.gz" -- *
   cp contrib/packaging/alpine/* .
   abuild checksum
   abuild -r
@@ -184,7 +184,6 @@ pkgrpm() {
 
 pkgarch() {
   prepare
-  VERSION=$(grep VERSION_ CMakeLists.txt | cut -d\" -f2 | tr '\n' '.' | sed 's/\.$//')
   tar -czvf "mympd_${VERSION}.orig.tar.gz" -- *
   cp contrib/packaging/arch/* .
   makepkg
