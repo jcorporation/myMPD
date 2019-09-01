@@ -19,11 +19,10 @@ minify() {
   DST="$3"
   ERROR="1"
   
-  JAVABIN=$(which java 2> /dev/null)
+  JAVABIN=$(command -v java 2> /dev/null)
   HASJAVA="$?"
 
-  newer "$DST" "$SRC"
-  if [ "$?" = "0" ]
+  if newer "$DST" "$SRC"
   then
     echo "Skipping $SRC"
     return
@@ -68,7 +67,7 @@ buildrelease() {
   echo "Creating i18n json"
   cd src/i18n || exit 1
   ./tojson.pl > ../../dist/htdocs/js/i18n.min.js
-  cd ../..
+  cd ../.. || exit 1
 
   echo "Compiling and installing mympd"
   install -d release
@@ -99,7 +98,7 @@ builddebug() {
 
   install -d debug
   cd debug || exit 1
-  cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=DEBUG -DMEMCHECK=$MEMCHECK ..
+  cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=DEBUG -DMEMCHECK="$MEMCHECK" ..
   make VERBOSE=1
 
   cd ../src/i18n || exit 1
@@ -136,12 +135,12 @@ check () {
 
 prepare() {
   cleanup
-  SRC=$(ls -d $PWD/* -1)
+  SRC=$(ls -d "$PWD"/* -1)
   mkdir -p package/build
   cd package/build || exit 1
   for F in $SRC
   do
-    cp -a $F .
+    cp -a "$F" .
   done
 }
 
@@ -185,6 +184,7 @@ pkgrpm() {
 
 pkgarch() {
   prepare
+  tar -czvf "mympd_${VERSION}.orig.tar.gz" -- *
   cp contrib/packaging/arch/* .
   makepkg
   namcap PKGBUILD
