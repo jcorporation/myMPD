@@ -227,13 +227,13 @@ case "$1" in
 	  echo "Options:"
 	  echo "  release:   build and installs release files"
 	  echo "  debug:     builds debug files linked with libasan3, executeable in debug/ assets in htdocs/"
-	  echo "  memcheck:     builds debug files for use with valgrind, executeable in debug/ assets in htdocs/"
+	  echo "  memcheck:  builds debug files for use with valgrind, executeable in debug/ assets in htdocs/"
 	  echo "  cleanup:   cleanup source tree"
 	  echo "  check:     runs cppcheck"
 	  echo "  pkgalpine: creates the alpine package"
 	  echo "  pkgarch:   creates the arch package"
 	  echo "  pkgdebian: creates the debian package"
-	  echo "  pkgdocker: creates the docker image (debian based with latest libmpdclient)"
+	  echo "  pkgdocker: creates the docker image (debian based with libmpdclient from git master branch)"
 	  echo "  pkgrpm:    creates the rpm package"
 	;;
 esac

@@ -100,6 +100,7 @@ bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_da
         } 
         LOG_INFO("Listening on ssl port %s", config->ssl_port);
         LOG_DEBUG("Using certificate: %s", config->ssl_cert);
+        LOG_DEBUG("Using private key: %s", config->ssl_key);
         mg_set_protocol_http_websocket(nc_https);
     }
     return mgr;

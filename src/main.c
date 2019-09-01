@@ -360,9 +360,7 @@ static void close_plugins(struct t_config *config) {
 }
 
 static bool do_chown(const char *file_path, const char *user_name) {
-  struct passwd *pwd;
-
-  pwd = getpwnam(user_name);
+  struct passwd *pwd = getpwnam(user_name);
   if (pwd == NULL) {
       LOG_ERROR("Can't get passwd entry for user %s", user_name);
       return false;
@@ -640,8 +638,8 @@ int main(int argc, char **argv) {
     
     //check varlibdir
     testdir_rc = testdir("State directory", config->varlibdir, true);
-    if (testdir_rc == 1) {
-        //directory created, set user and group 
+    if (testdir_rc == 1 || testdir_rc == 0) {
+        //directory exists or was created, set user and group 
         if (do_chown(config->varlibdir, config->user) != true) {
             goto cleanup;
         }
