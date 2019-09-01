@@ -17,11 +17,7 @@
 #include <openssl/x509v3.h>
 #include <openssl/bn.h>
 
-#include <signal.h>
-
-#include "list.h"
-#include "tiny_queue.h"
-#include "global.h"
+#include "log.h"
 
 //private definitions
 
@@ -78,7 +74,7 @@ bool create_certificates(const char *dir, const char *custom_san) {
     char servercert_file[servercert_file_len];
     snprintf(servercert_file, servercert_file_len, "%s/server.pem", dir);
     size_t serverkey_file_len = strlen(dir) + 12;
-    char serverkey_file[cakey_file_len];
+    char serverkey_file[serverkey_file_len];
     snprintf(serverkey_file, serverkey_file_len, "%s/server.key", dir);
     
     EVP_PKEY *server_key = NULL;
@@ -163,28 +159,29 @@ static bool load_certificate(const char *key_file, EVP_PKEY **key, const char *c
 	*cert = NULL;
 	*key = NULL;
 
-	/* Load certificate. */
-	bio = BIO_new(BIO_s_file());
-	if (!BIO_read_filename(bio, cert_file)) {
-	    BIO_free_all(bio);
-	    return false;
-	}
-	*cert = PEM_read_bio_X509(bio, NULL, NULL, NULL);
-	BIO_free_all(bio);
-	if (!*cert) {
-	    return false;
-	}
-
 	/* Load private key. */
 	bio = BIO_new(BIO_s_file());
 	if (!BIO_read_filename(bio, key_file)) {
-	    X509_free(*cert);
+	    BIO_free_all(bio);
 	    return false;
 	}
 	*key = PEM_read_bio_PrivateKey(bio, NULL, NULL, NULL);
 	BIO_free_all(bio);
 	if (!*key) {
-	    X509_free(*cert);
+	    return false;
+	}
+
+	/* Load certificate. */
+	bio = BIO_new(BIO_s_file());
+	if (!BIO_read_filename(bio, cert_file)) {
+	    BIO_free_all(bio);
+	    EVP_PKEY_free(*key);
+	    return false;
+	}
+	*cert = PEM_read_bio_X509(bio, NULL, NULL, NULL);
+	BIO_free_all(bio);
+	if (!*cert) {
+	    EVP_PKEY_free(*key);
 	    return false;
 	}
 	
