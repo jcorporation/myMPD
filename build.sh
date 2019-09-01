@@ -100,9 +100,10 @@ builddebug() {
   [ -e "$PWD/htdocs/css/bootstrap.min.css" ] || ln -s "$PWD/dist/htdocs/css/bootstrap.min.css" "$PWD/htdocs/css/bootstrap.min.css"
 
   echo "Creating i18n json"
-  cd ../src/i18n || exit 1
+  cd src/i18n || exit 1
   ./tojson.pl pretty > ../../htdocs/js/i18n.min.js
-
+  cd ../.. || exit 1
+  
   echo "Compiling"
   install -d debug
   cd debug || exit 1
