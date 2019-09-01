@@ -34,88 +34,162 @@ static void add_extension(X509V3_CTX *ctx, X509 *cert, int nid, const char *valu
 static X509 *sign_certificate_request(EVP_PKEY *ca_key, X509 *ca_cert, X509_REQ *req, const char *san);
 static EVP_PKEY *generate_keypair(void);
 static X509 *generate_selfsigned_cert(EVP_PKEY *pkey);
-static bool write_to_disk(EVP_PKEY *pkey, X509 *cert, const char *dir, const char *name);
+static bool write_to_disk(const char *pkey_filename, EVP_PKEY *pkey, const char *cert_filename, X509 *cert);
+static bool load_certificate(const char *key_file, EVP_PKEY **key, const char *cert_file, X509 **cert);
 
 //public functions
 
 bool create_certificates(const char *dir, const char *custom_san) {
-    LOG_INFO("Creating self signed ca certificate");
-    EVP_PKEY *ca_key = generate_keypair();
-    if (!ca_key) {
-        return false;
-    }
+    bool rc_ca = false;
+    bool rc_cert = false;
     
-    X509 *ca_cert = generate_selfsigned_cert(ca_key);
-    if (!ca_cert) {
-        EVP_PKEY_free(ca_key);
-        return false;
-    }
+    //read ca certificate / private key or create it
+    size_t cacert_file_len = strlen(dir) + 8;
+    char cacert_file[cacert_file_len];
+    snprintf(cacert_file, cacert_file_len, "%s/ca.pem", dir);
+    size_t cakey_file_len = strlen(dir) + 8;
+    char cakey_file[cakey_file_len];
+    snprintf(cakey_file, cakey_file_len, "%s/ca.key", dir);
     
-    //get subject alternative names
-    char san[2048];
-    int san_len = get_san(san, 2048);
-    san_len += snprintf(san + san_len, 2048 - san_len, ", %s", custom_san);
-    if (san_len > 2048) {
-        //buffer to small
-        return false;
-    }
-    
-    
-    LOG_INFO("Creating server certificate with san: %s", san);
-    EVP_PKEY *server_key = generate_keypair();
-    if (!server_key) {
-        EVP_PKEY_free(ca_key);
-        X509_free(ca_cert);
-        return false;
-    }
-    X509_REQ *server_req = generate_request(server_key);
-    if (!server_req) {
-        EVP_PKEY_free(ca_key);
-        X509_free(ca_cert);
-        EVP_PKEY_free(server_key);
-        return false;
-    }
-    X509 *server_cert = sign_certificate_request(ca_key, ca_cert, server_req, san);
-    if (!server_cert) {
-        EVP_PKEY_free(ca_key);
-        X509_free(ca_cert);
-        EVP_PKEY_free(server_key);
-        X509_REQ_free(server_req);
-        return false;
-    }
+    EVP_PKEY *ca_key = NULL;
+    X509 *ca_cert = NULL;
 
-    bool rc_ca = write_to_disk(ca_key, ca_cert, dir, "ca");
-    bool rc_cert = write_to_disk(server_key, server_cert, dir, "server");
+    if (!load_certificate(cakey_file, &ca_key, cacert_file, &ca_cert)) {
+        LOG_INFO("Creating self signed ca certificate");
+        ca_key = generate_keypair();
+        if (!ca_key) {
+            return false;
+        }
+    
+        ca_cert = generate_selfsigned_cert(ca_key);
+        if (!ca_cert) {
+            EVP_PKEY_free(ca_key);
+            return false;
+        }
+        rc_ca = write_to_disk(cakey_file, ca_key, cacert_file, ca_cert);
+    }
+    else {
+        LOG_INFO("CA certificate and private key found");
+        rc_ca = true;
+    }
+    
+    //read server certificate / privat key or create it
+    size_t servercert_file_len = strlen(dir) + 12;
+    char servercert_file[servercert_file_len];
+    snprintf(servercert_file, servercert_file_len, "%s/server.pem", dir);
+    size_t serverkey_file_len = strlen(dir) + 12;
+    char serverkey_file[cakey_file_len];
+    snprintf(serverkey_file, serverkey_file_len, "%s/server.key", dir);
+    
+    EVP_PKEY *server_key = NULL;
+    X509 *server_cert = NULL;
+
+    if (!load_certificate(serverkey_file, &server_key, servercert_file, &server_cert)) {
+        char san[2048];
+        int san_len = get_san(san, 2048);
+        san_len += snprintf(san + san_len, 2048 - san_len, ", %s", custom_san);
+        if (san_len > 2048) {
+            //buffer to small
+            EVP_PKEY_free(ca_key);
+            X509_free(ca_cert);
+            LOG_ERROR("Determining subject alternative names failed");
+            return false;
+        }
+        LOG_INFO("Creating server certificate with san: %s", san);
+        //get subject alternative names
+
+        server_key = generate_keypair();
+        if (!server_key) {
+            EVP_PKEY_free(ca_key);
+            X509_free(ca_cert);
+            return false;
+        }
+        X509_REQ *server_req = generate_request(server_key);
+        if (!server_req) {
+            EVP_PKEY_free(ca_key);
+            X509_free(ca_cert);
+            EVP_PKEY_free(server_key);
+            return false;
+        }
+        server_cert = sign_certificate_request(ca_key, ca_cert, server_req, san);
+        X509_REQ_free(server_req);
+        if (!server_cert) {
+            EVP_PKEY_free(ca_key);
+            X509_free(ca_cert);
+            EVP_PKEY_free(server_key);
+            X509_REQ_free(server_req);
+            return false;
+        }
+        
+        rc_cert = write_to_disk(serverkey_file, server_key, servercert_file, server_cert);
+    }
+    else {
+        LOG_INFO("Server certificate and private key found");
+        rc_cert = true;
+    }
 
     EVP_PKEY_free(ca_key);
     X509_free(ca_cert);
     EVP_PKEY_free(server_key);
     X509_free(server_cert);
-    X509_REQ_free(server_req);
     if (!rc_ca || !rc_cert) {
         return false;
     }
     return true;
 }
 
-void cleanup_certificates(const char *dir) {
-    const char *files[]={"ca.key", "ca.pem", "server.key", "server.pem", 0};    
-    const char** ptr = files;
-    while (*ptr != 0) {
-        size_t tmp_file_len = strlen(dir) + strlen(*ptr) + 2;
-        char tmp_file[tmp_file_len];
-        snprintf(tmp_file, tmp_file_len, "%s/%s", dir, *ptr);
-        if (unlink(tmp_file) != 0) {
-            LOG_ERROR("Error removing file %s", tmp_file);
-        }
-        ++ptr;
+bool cleanup_certificates(const char *dir, const char *name) {
+    size_t tmp_file_len = strlen(dir) + strlen(name) + 6;
+    char tmp_file[tmp_file_len];
+    snprintf(tmp_file, tmp_file_len, "%s/%s.pem", dir, name);
+    if (unlink(tmp_file) != 0) {
+        LOG_ERROR("Error removing file %s", tmp_file);
+        return false;
     }
-    if (rmdir(dir) != 0) {
-        LOG_ERROR("Error removing directory %s", dir);
+    snprintf(tmp_file, tmp_file_len, "%s/%s.key", dir, name);
+    if (unlink(tmp_file) != 0) {
+        LOG_ERROR("Error removing file %s", tmp_file);
+        return false;
     }
+    
+    return true;
 }
 
 //private functions
+
+//loads the existing ca
+static bool load_certificate(const char *key_file, EVP_PKEY **key, const char *cert_file, X509 **cert) {
+	BIO *bio = NULL;
+	*cert = NULL;
+	*key = NULL;
+
+	/* Load certificate. */
+	bio = BIO_new(BIO_s_file());
+	if (!BIO_read_filename(bio, cert_file)) {
+	    BIO_free_all(bio);
+	    return false;
+	}
+	*cert = PEM_read_bio_X509(bio, NULL, NULL, NULL);
+	BIO_free_all(bio);
+	if (!*cert) {
+	    return false;
+	}
+
+	/* Load private key. */
+	bio = BIO_new(BIO_s_file());
+	if (!BIO_read_filename(bio, key_file)) {
+	    X509_free(*cert);
+	    return false;
+	}
+	*key = PEM_read_bio_PrivateKey(bio, NULL, NULL, NULL);
+	BIO_free_all(bio);
+	if (!*key) {
+	    X509_free(*cert);
+	    return false;
+	}
+	
+	return true;
+}
 
 /*Gets local hostname and ip for subject alternative names */
 static int get_san(char *buffer, size_t buffer_len) {
@@ -328,22 +402,14 @@ static X509 *generate_selfsigned_cert(EVP_PKEY *pkey) {
     return cert;
 }
 
-static bool write_to_disk(EVP_PKEY *pkey, X509 *cert, const char *dir, const char *name) {
-    size_t pem_file_len = strlen(dir) + strlen(name) + 6;
-    char pem_file[pem_file_len];
-    size_t tmp_file_len = strlen(dir) + strlen(name) + 13;
-    char tmp_file[tmp_file_len];
-    int fd;
-    
-    if (!validate_string(name)) {
-        return false;
-    }
-    
+static bool write_to_disk(const char *pkey_filename, EVP_PKEY *pkey, const char *cert_filename, X509 *cert) {
     /* Write the key to disk. */    
-    snprintf(pem_file, pem_file_len, "%s/%s.key", dir, name);
-    snprintf(tmp_file, tmp_file_len, "%s/%s.key.XXXXXX", dir, name);
-    if ((fd = mkstemp(tmp_file)) < 0 ) {
-        LOG_ERROR("Can't open %s for write", tmp_file);
+    size_t pkey_filename_tmp_len = strlen(pkey_filename) + 8;
+    char pkey_filename_tmp[pkey_filename_tmp_len];
+    int fd;
+    snprintf(pkey_filename_tmp, pkey_filename_tmp_len, "%s.XXXXXX", pkey_filename);
+    if ((fd = mkstemp(pkey_filename_tmp)) < 0 ) {
+        LOG_ERROR("Can't open %s for write", pkey_filename_tmp);
         return false;
     }
     FILE *pkey_file = fdopen(fd, "w");
@@ -353,16 +419,17 @@ static bool write_to_disk(EVP_PKEY *pkey, X509 *cert, const char *dir, const cha
         LOG_ERROR("Unable to write private key to disk");
         return false;
     }
-    if (rename(tmp_file, pem_file) == -1) {
-        LOG_ERROR("Renaming file from %s to %s failed", tmp_file, pem_file);
+    if (rename(pkey_filename_tmp, pkey_filename) == -1) {
+        LOG_ERROR("Renaming file from %s to %s failed", pkey_filename_tmp, pkey_filename);
         return false;
     }
     
     /* Write the certificate to disk. */
-    snprintf(pem_file, pem_file_len, "%s/%s.pem", dir, name);
-    snprintf(tmp_file, tmp_file_len, "%s/%s.pem.XXXXXX", dir, name);
-    if ((fd = mkstemp(tmp_file)) < 0 ) {
-        LOG_ERROR("Can't open %s for write", tmp_file);
+    size_t cert_filename_tmp_len = strlen(cert_filename) + 8;
+    char cert_filename_tmp[cert_filename_tmp_len];
+    snprintf(cert_filename_tmp, cert_filename_tmp_len, "%s.XXXXXX", cert_filename);
+    if ((fd = mkstemp(cert_filename_tmp)) < 0 ) {
+        LOG_ERROR("Can't open %s for write", cert_filename_tmp);
         return false;
     }
     FILE *cert_file = fdopen(fd, "w");
@@ -372,8 +439,8 @@ static bool write_to_disk(EVP_PKEY *pkey, X509 *cert, const char *dir, const cha
         LOG_ERROR("Unable to write certificate to disk");
         return false;
     }
-    if (rename(tmp_file, pem_file) == -1) {
-        LOG_ERROR("Renaming file from %s to %s failed", tmp_file, pem_file);
+    if (rename(cert_filename_tmp, cert_filename) == -1) {
+        LOG_ERROR("Renaming file from %s to %s failed", cert_filename_tmp, cert_filename);
         return false;
     }
     

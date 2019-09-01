@@ -406,13 +406,23 @@ static bool smartpls_init(t_config *config, const char *name, const char *value)
     return true;
 }
 
-static void smartpls_default(t_config *config) {
-    smartpls_init(config, "myMPDsmart-bestRated", 
+static bool smartpls_default(t_config *config) {
+    bool rc = true;
+    
+    rc = smartpls_init(config, "myMPDsmart-bestRated", 
         "{\"type\": \"sticker\", \"sticker\": \"like\", \"maxentries\": 200}\n");
-    smartpls_init(config, "myMPDsmart-mostPlayed", 
+    if (rc == false) {
+        return rc;
+    }
+    rc = smartpls_init(config, "myMPDsmart-mostPlayed", 
         "{\"type\": \"sticker\", \"sticker\": \"playCount\", \"maxentries\": 200}\n");
-    smartpls_init(config, "myMPDsmart-newestSongs", 
+    if (rc == false) {
+        return rc;
+    }
+    rc = smartpls_init(config, "myMPDsmart-newestSongs", 
         "{\"type\": \"newest\", \"timerange\": 604800}\n");
+
+    return rc;
 }
 
 static void clear_covercache(t_config *config) {
@@ -439,47 +449,48 @@ static void clear_covercache(t_config *config) {
     }
 }
 
-static void handle_option(t_config *config, char *cmd, char *option) {
+static bool handle_option(t_config *config, char *cmd, char *option) {
     #define MATCH_OPTION(o) strcasecmp(option, o) == 0
 
-    if (MATCH_OPTION("certs_remove")) {
+    if (MATCH_OPTION("cert_remove")) {
         char testdirname[400];
         snprintf(testdirname, 400, "%s/ssl", config->varlibdir);
-        cleanup_certificates(testdirname);
+        return cleanup_certificates(testdirname, "server");
+    }
+    else if (MATCH_OPTION("ca_remove")) {
+        char testdirname[400];
+        snprintf(testdirname, 400, "%s/ssl", config->varlibdir);
+        return cleanup_certificates(testdirname, "ca");
     }
     else if (MATCH_OPTION("certs_create")) {
         char testdirname[400];
         snprintf(testdirname, 400, "%s/ssl", config->varlibdir);
         int testdir_rc = testdir("SSL certificates", testdirname, true);
-        if (testdir_rc == 1) {
-            create_certificates(testdirname, config->ssl_san);
-        }
-        else if (testdir_rc == 0) {
-            LOG_INFO("Remove certificates with certs_remove before creating new ones");
+        if (testdir_rc < 2) {
+            return create_certificates(testdirname, config->ssl_san);
         }
     }
     else if (MATCH_OPTION("reset_state")) {
         mympd_api_settings_delete(config);
+        return true;
     }
     else if (MATCH_OPTION("reset_smartpls")) {
-        smartpls_default(config);
+        return smartpls_default(config);
     }
     else if (MATCH_OPTION("reset_lastplayed")) {
         char filename[400];
         snprintf(filename, 400, "%s/state/last_played", config->varlibdir);
-        unlink(filename);
+        if (unlink(filename) == 0) {
+            return true;
+        }
+        else {
+            LOG_ERROR("last_played file not exists");
+            return false;
+        }
     }
     else if (MATCH_OPTION("clear_covercache")) {
-        clear_covercache(config);    
-    }
-    else if (MATCH_OPTION("version")) {
-        printf("myMPD %s\n"
-               "Copyright (C) 2018-2019 Juergen Mang <mail@jcgames.de>\n"
-               "https://github.com/jcorporation/myMPD\n"
-               "Libmpdclient %i.%i.%i\n",
-               MYMPD_VERSION,
-               LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION
-        );
+        clear_covercache(config);
+        return true;
     }
     else {
         printf("myMPD %s\n"
@@ -488,7 +499,8 @@ static void handle_option(t_config *config, char *cmd, char *option) {
                "Usage: %s [/etc/mympd.conf] <command>\n"
                "Commands (you should stop mympd before):\n"
                "  certs_create:     create ssl certificates\n"
-               "  certs_remove:     remove ssl certificates\n"
+               "  cert_remove:      remove server certificates\n"
+               "  ca_remove:        remove ca certificates\n"
                "  reset_state:      delete all myMPD settings\n"
                "  reset_smartpls:   create default smart playlists\n"
                "  reset_lastplayed: truncates last played list\n"
@@ -497,6 +509,8 @@ static void handle_option(t_config *config, char *cmd, char *option) {
                cmd
         );
     }
+    
+    return false;
 }
 
 int main(int argc, char **argv) {
@@ -644,7 +658,7 @@ int main(int argc, char **argv) {
     set_loglevel(config);
     
     //check varlibdir
-    testdir_rc = testdir("State directory", config->varlibdir, true);
+    testdir_rc = testdir("Localstate dir", config->varlibdir, true);
     if (testdir_rc == 1 || testdir_rc == 0) {
         //directory exists or was created, set user and group 
         if (do_chown(config->varlibdir, config->user) != true) {
@@ -657,7 +671,12 @@ int main(int argc, char **argv) {
     
     //handle commandline options and exit
     if (option != NULL) {
-        handle_option(config, argv[0], option);
+        if (handle_option(config, argv[0], option) == false) {
+            rc = EXIT_FAILURE;
+        }
+        else {
+            rc = EXIT_SUCCESS;
+        }
         free(option);
         goto cleanup;
     }
@@ -677,17 +696,15 @@ int main(int argc, char **argv) {
     if (config->ssl == true && config->custom_cert == false) {
         snprintf(testdirname, 400, "%s/ssl", config->varlibdir);
         testdir_rc = testdir("SSL certificates", testdirname, true);
-        if (testdir_rc == 1) {
+        if (testdir_rc < 2) {
             //directory created, create certificates
             if (!create_certificates(testdirname, config->ssl_san)) {
                 //error creating certificates, remove directory
-                LOG_ERROR("Certificate creation failed, cleanup directory %s", testdirname);
-                cleanup_certificates(testdirname);
-                //disable ssl
-                config->ssl = false;
+                LOG_ERROR("Certificate creation failed");
+                goto cleanup;
             }
         }
-        else if (testdir_rc > 1) {
+        else {
             goto cleanup;
         }
     }  

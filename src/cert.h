@@ -26,6 +26,6 @@
 #define __MYMPD_CERT_H__
 
 bool create_certificates(const char *dir, const char *custom_san);
-void cleanup_certificates(const char *dir);
+bool cleanup_certificates(const char *dir, const char *name);
 
 #endif
