@@ -82,6 +82,7 @@ bool create_certificates(const char *dir, const char *custom_san) {
     X509 *server_cert = NULL;
 
     if (!load_certificate(serverkey_file, &server_key, servercert_file, &server_cert)) {
+        //get subject alternative names
         char san[2048];
         int san_len = get_san(san, 2048);
         san_len += snprintf(san + san_len, 2048 - san_len, ", %s", custom_san);
@@ -93,8 +94,6 @@ bool create_certificates(const char *dir, const char *custom_san) {
             return false;
         }
         LOG_INFO("Creating server certificate with san: %s", san);
-        //get subject alternative names
-
         server_key = generate_keypair();
         if (!server_key) {
             EVP_PKEY_free(ca_key);
