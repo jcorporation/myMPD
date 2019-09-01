@@ -1,4 +1,4 @@
-#myMPD config file
+#myMPD configuration file
 
 [mpd]
 #Connection to mpd
@@ -17,6 +17,7 @@ musicdirectory = auto
 webport = 80
 
 #Enable ssl
+#Certificates are generated under @CMAKE_INSTALL_FULL_LOCALSTATEDIR@/lib@SUBDIRVAR@/ssl/
 ssl = true
 sslport = 443
 
@@ -41,8 +42,11 @@ syscmds = false
 
 
 [plugins]
-coverextract = false
+coverextract = @COVEREXTRACT@
 
 
 [syscmds]
 Shutdown = sudo /sbin/halt
+#To use this command, add following lines to /etc/sudoers
+#Cmnd_Alias MYMPD_CMDS = /sbin/halt
+#mympd ALL=NOPASSWD: MYMPD_CMDS

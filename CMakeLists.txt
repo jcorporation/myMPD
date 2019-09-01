@@ -23,11 +23,11 @@ else()
 endif()
 
 if(CMAKE_BUILD_TYPE MATCHES RELEASE)
-    set(ASSETS_PATH "${CMAKE_INSTALL_PREFIX}/share${SUBDIR}/htdocs")
-    set(DEBUG "OFF")
+  set(ASSETS_PATH "${CMAKE_INSTALL_PREFIX}/share${SUBDIR}/htdocs")
+  set(DEBUG "OFF")
 else()
-    set(ASSETS_PATH "${PROJECT_SOURCE_DIR}/htdocs")
-    set(DEBUG "ON")
+  set(ASSETS_PATH "${PROJECT_SOURCE_DIR}/htdocs")
+  set(DEBUG "ON")
 endif()
 
 MESSAGE("ASSETS_PATH: ${ASSETS_PATH}")
@@ -40,21 +40,20 @@ MESSAGE("VARLIB_PATH: ${VARLIB_PATH}")
 set(DATAROOT_PATH "${CMAKE_INSTALL_FULL_DATAROOTDIR}${SUBDIR}")
 MESSAGE("DATAROOT_PATH: ${DATAROOT_PATH}")
 
-if("${CMAKE_SIZEOF_VOID_P}" EQUAL "8")
-    MESSAGE("++ 64 bit architecture") 
-    set(PKGARCH64 "ON")
-else() 
-    MESSAGE("++ 32 bit architecture")
-    set(PKGARCH64 "OFF")
-endif()
-
 find_package(LibMPDClient REQUIRED)
 find_package(Threads REQUIRED)
 find_package(OpenSSL REQUIRED)
+find_package(LibMediainfo)
+
+if(LIBMEDIAINFO_FOUND)
+  set(COVEREXTRACT "true")
+else()
+  set(COVEREXTRACT "false")
+endif()
 
 configure_file(src/global.h.in ${PROJECT_BINARY_DIR}/global.h)
 configure_file(cmake/CopyConfig.cmake.in cmake/CopyConfig.cmake @ONLY)
-configure_file(contrib/mympd.conf.in contrib/mympd.conf)
+configure_file(contrib/mympd.conf.in contrib/mympd.conf @ONLY)
 configure_file(contrib/initscripts/mympd.service.in contrib/initscripts/mympd.service @ONLY)
 configure_file(contrib/initscripts/mympd.sysVinit.in contrib/initscripts/mympd.sysVinit @ONLY)
 configure_file(contrib/initscripts/mympd.openrc.in contrib/initscripts/mympd.openrc @ONLY)
@@ -80,7 +79,8 @@ endif()
 
 #compiler flags for mympd src
 file(GLOB MYMPD_SRC_FILES "src/*.c")
-set_property(SOURCE ${MYMPD_SRC_FILES} PROPERTY COMPILE_FLAGS "-Wextra -pedantic -Wformat=2 -Wunused-parameter -Wshadow -Wwrite-strings -Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs -Wmissing-include-dirs")
+set_property(SOURCE ${MYMPD_SRC_FILES} PROPERTY COMPILE_FLAGS "-Wextra -pedantic -Wformat=2 -Wunused-parameter -Wshadow -Wwrite-strings \
+	-Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs -Wmissing-include-dirs")
 
 #compiler flags for mongoose.c
 set_property(SOURCE dist/src/mongoose/mongoose.c PROPERTY COMPILE_FLAGS "-Wno-format-truncation")
