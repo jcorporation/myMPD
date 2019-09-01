@@ -109,6 +109,7 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("mympd", "varlibdir")) {
         FREE_PTR(p_config->varlibdir);
         p_config->varlibdir = strdup(value);
+        p_config->varlibdir_len = strlen(p_config->varlibdir);
     }
     else if (MATCH("mympd", "stickers")) {
         p_config->stickers = strcmp(value, "true") == 0 ? true : false;
@@ -381,8 +382,9 @@ static bool smartpls_init(t_config *config, const char *name, const char *value)
     char tmp_file[tmp_file_len];
     int fd;
     
-    if (!validate_string(name))
+    if (!validate_string(name)) {
         return false;
+    }
     snprintf(cfg_file, cfg_file_len, "%s/smartpls/%s", config->varlibdir, name);
     snprintf(tmp_file, tmp_file_len, "%s/smartpls/%s.XXXXXX", config->varlibdir, name);
         
@@ -574,6 +576,7 @@ int main(int argc, char **argv) {
     config->varlibdir_len = strlen(config->varlibdir);    
     list_init(&config->syscmd_list);
 
+    //get configuration file
     size_t configfile_len = strlen(ETC_PATH) + 12;
     char *configfile = malloc(configfile_len);
     snprintf(configfile, configfile_len, "%s/mympd.conf", ETC_PATH);
@@ -616,10 +619,7 @@ int main(int argc, char **argv) {
 
     //read environment - overwrites config file definitions
     mympd_get_env(config);
-    
-    //reset varlibdir_len, avoids many strlen calls
-    config->varlibdir_len = strlen(config->varlibdir);
-    
+
     //set correct path to certificate/key, if varlibdir is non default and cert paths are default
     if (strcmp(config->varlibdir, VARLIB_PATH) != 0 && config->custom_cert == false) {
         FREE_PTR(config->ssl_cert);
@@ -636,11 +636,21 @@ int main(int argc, char **argv) {
     }
     
     //set loglevel
-    if (option == NULL) {
-        set_loglevel(config);
+    set_loglevel(config);
+    
+    //check varlibdir
+    testdir_rc = testdir("State directory", config->varlibdir, true);
+    if (testdir_rc == 1) {
+        //directory created, set user and group 
+        if (do_chown(config->varlibdir, config->user) != true) {
+            goto cleanup;
+        }
+    }
+    else if (testdir_rc > 1) {
+        goto cleanup;
     }
     
-    //handle commandline options
+    //handle commandline options and exit
     if (option != NULL) {
         handle_option(config, argv[0], option);
         free(option);
@@ -657,18 +667,6 @@ int main(int argc, char **argv) {
     signal(SIGINT, mympd_signal_handler);
     setvbuf(stdout, NULL, _IOLBF, 0);
     setvbuf(stderr, NULL, _IOLBF, 0);
-
-    //check varlibdir
-    testdir_rc = testdir("State directory", config->varlibdir, true);
-    if (testdir_rc == 1) {
-        //directory created, set user and group 
-        if (do_chown(config->varlibdir, config->user) != true) {
-            goto cleanup;
-        }
-    }
-    else if (testdir_rc > 1) {
-        goto cleanup;
-    }
 
     //check for ssl certificates
     if (config->ssl == true && config->custom_cert == false) {
@@ -825,7 +823,7 @@ int main(int argc, char **argv) {
         FREE_PTR(mg_user_data->pics_directory);
         FREE_PTR(mg_user_data->rewrite_patterns);
     }
-        FREE_PTR(mg_user_data);
+    FREE_PTR(mg_user_data);
     if (rc == EXIT_SUCCESS) {
         printf("Exiting gracefully, thank you for using myMPD\n");
     }

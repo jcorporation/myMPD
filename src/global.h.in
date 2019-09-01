@@ -25,9 +25,6 @@
 #ifndef __GLOBAL_H__
 #define __GLOBAL_H__
 
-//architecture
-#cmakedefine PKGARCH64
-
 //myMPD version from cmake
 #define MYMPD_VERSION_MAJOR ${CPACK_PACKAGE_VERSION_MAJOR}
 #define MYMPD_VERSION_MINOR ${CPACK_PACKAGE_VERSION_MINOR}
