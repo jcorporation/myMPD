@@ -266,7 +266,7 @@ case "$1" in
 	  echo "  install:        installs release files from directory release"
 	  echo "                  following environment variables are respected"
 	  echo "                  DESTDIR=\"\""
-	  echo "  installrelease: calls release and install afterwards"
+	  echo "  releaseinstall: calls release and install afterwards"
 	  echo "  debug:          builds debug files in directory debug"
 	  echo "                  linked with libasan3, uses assets in htdocs"
 	  echo "  memcheck:       builds debug files in directory debug "
