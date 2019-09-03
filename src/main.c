@@ -103,6 +103,27 @@ static bool do_chown(const char *file_path, const char *user_name) {
   return true;
 }
 
+static bool chown_certs(t_config *config) {
+    char testdirname[400];
+    snprintf(testdirname, 400, "%s/ssl/ca.pem", config->varlibdir);
+    if (do_chown(testdirname, config->user) == false) {
+        return false;
+    }
+    snprintf(testdirname, 400, "%s/ssl/ca.key", config->varlibdir);
+    if (do_chown(testdirname, config->user) == false) {
+        return false;
+    }
+    snprintf(testdirname, 400, "%s/ssl/server.pem", config->varlibdir);
+    if (do_chown(testdirname, config->user) == false) {
+        return false;
+    }
+    snprintf(testdirname, 400, "%s/ssl/server.key", config->varlibdir);
+    if (do_chown(testdirname, config->user) == false) {
+        return false;
+    }
+    return true;
+}
+
 int main(int argc, char **argv) {
     s_signal_received = 0;
     char testdirname[400];
@@ -117,7 +138,8 @@ int main(int argc, char **argv) {
     if (chdir("/") != 0) {
         goto end;
     }
-    umask(0077);
+    //user and group have rw access
+    umask(0007);
     
     mpd_client_queue = tiny_queue_create();
     mympd_api_queue = tiny_queue_create();
@@ -218,12 +240,7 @@ int main(int argc, char **argv) {
                 goto cleanup;
             }
             //chown to mympd user
-            snprintf(testdirname, 400, "%s/ssl/ca.pem", config->varlibdir);
-            if (do_chown(testdirname, config->user) == false) {
-                goto cleanup;
-            }
-            snprintf(testdirname, 400, "%s/ssl/server.pem", config->varlibdir);
-            if (do_chown(testdirname, config->user) == false) {
+            if (chown_certs(config)== false) {
                 goto cleanup;
             }
         }
