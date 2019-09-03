@@ -17,18 +17,15 @@ WORKDIR /
 RUN tar -czvf /libmpdclient-master.tar.gz -C /libmpdclient-dist .
 COPY . /myMPD/
 ENV DESTDIR=/myMPD-dist
-ENV DOCKER=true
 RUN mkdir -p $DESTDIR
 WORKDIR /myMPD
-RUN ./build.sh release
+RUN ./build.sh releaseinstall
 WORKDIR /
 RUN tar -czvf /mympd.tar.gz -C /myMPD-dist .
 
 FROM library/debian:9-slim
-ENV MYMPD_LOGLEVEL=2
 ENV MPD_HOST=127.0.0.1
 ENV MPD_PORT=6600
-ENV WEBSERVER_SSL=true
 RUN apt-get update && apt-get install openssl libmediainfo0v5 -y
 COPY --from=build /libmpdclient-master.tar.gz /
 COPY --from=build /mympd.tar.gz /
