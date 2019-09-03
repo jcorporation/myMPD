@@ -21,8 +21,7 @@ minify() {
   DST="$3"
   ERROR="1"
   
-  JAVABIN=$(command -v java 2> /dev/null)
-  HASJAVA="$?"
+  JAVABIN=$(command -v java)
 
   if newer "$DST" "$SRC"
   then
@@ -35,11 +34,11 @@ minify() {
   then
     perl -pe 's/^\s*//gm; s/\s*$//gm' "$SRC" > "$DST"
     ERROR="$?"
-  elif [ "$TYPE" = "js" ] && [ "$HASJAVA" = "0" ]
+  elif [ "$TYPE" = "js" ] && [ "$JAVABIN" != "" ]
   then
     $JAVABIN -jar dist/buildtools/closure-compiler.jar "$SRC" > "$DST"
     ERROR="$?"
-  elif [ "$TYPE" = "css" ] && [ "$HASJAVA" = "0" ]
+  elif [ "$TYPE" = "css" ] && [ "$JAVABIN" != "" ]
   then
     $JAVABIN -jar dist/buildtools/closure-stylesheets.jar --allow-unrecognized-properties "$SRC" > "$DST"
     ERROR="$?"
@@ -72,20 +71,19 @@ buildrelease() {
   ./tojson.pl > ../../dist/htdocs/js/i18n.min.js
   cd ../.. || exit 1
 
-  echo "Compiling and installing mympd"
+  echo "Compiling mympd"
   install -d release
   cd release || exit 1
   export INSTALL_PREFIX="${MYMPD_INSTALL_PREFIX:-/usr}"
   cmake -DCMAKE_INSTALL_PREFIX:PATH="$INSTALL_PREFIX" -DCMAKE_BUILD_TYPE=RELEASE ..
   make
-  if [ "$DOCKER" = "true" ]
-  then
-    # Container build
-    make install DESTDIR="$DESTDIR"
-  else
-    sudo -E make install
-    sudo -E ../contrib/packaging/debian/postinst 
-  fi
+}
+
+installrelease() {
+  echo "Installing mympd"
+  cd release || exit 1  
+  make install DESTDIR="$DESTDIR"
+  ../contrib/packaging/debian/postinst 
 }
 
 builddebug() {
@@ -193,6 +191,14 @@ pkgrpm() {
   mv "mympd_${VERSION}.orig.tar.gz" ~/rpmbuild/SOURCES/
   cp ../../contrib/packaging/rpm/mympd.spec .
   rpmbuild -ba mympd.spec
+  RPMLINT=$(command -v rpmlint)
+  if [ "$RPMLINT" != "" ]
+  then
+    ARCH=$(uname -p)
+    rpmlint "~/rpmbuild/RPMS/${ARCH}/mympd-${VERSION}-0.${ARCH}.rpm"
+  else
+    echo "WARNING: rpmlint not found, can't check package"
+  fi
 }
 
 pkgarch() {
@@ -200,13 +206,27 @@ pkgarch() {
   tar -czf "mympd_${VERSION}.orig.tar.gz" -- *
   cp contrib/packaging/arch/* .
   makepkg
-  namcap PKGBUILD
-  namcap mympd-*.pkg.tar.xz
+  NAMCAP=$(command -v namcap)
+  if [ "$NAMCAP" != "" ]
+  then
+    namcap PKGBUILD
+    namcap mympd-*.pkg.tar.xz
+  else
+    echo "WARNING: namcap not found, can't check package"
+  fi
 }
 
 case "$1" in
 	release)
 	  buildrelease
+	;;
+	install)
+	  installrelease
+	;;
+	releaseinstall)
+	  buildrelease
+	  cd .. || exit 1
+	  installrelease
 	;;
 	debug)
 	  builddebug "FALSE"
@@ -238,15 +258,23 @@ case "$1" in
 	*)
 	  echo "Usage: $0 <option>"
 	  echo "Options:"
-	  echo "  release:   build and installs release files"
-	  echo "  debug:     builds debug files linked with libasan3, executeable in debug/ assets in htdocs/"
-	  echo "  memcheck:  builds debug files for use with valgrind, executeable in debug/ assets in htdocs/"
-	  echo "  cleanup:   cleanup source tree"
-	  echo "  check:     runs cppcheck"
-	  echo "  pkgalpine: creates the alpine package"
-	  echo "  pkgarch:   creates the arch package"
-	  echo "  pkgdebian: creates the debian package"
-	  echo "  pkgdocker: creates the docker image (debian based with libmpdclient from git master branch)"
-	  echo "  pkgrpm:    creates the rpm package"
+	  echo "  release:        build release files in directory release"
+	  echo "                  following environment variables are respected"
+	  echo "                  MYMPD_INSTALL_PREFIX=/usr"
+	  echo "  install:        installs release files from directory release"
+	  echo "                  following environment variables are respected"
+	  echo "                  DESTDIR=\"\""
+	  echo "  installrelease: calls release and install afterwards"
+	  echo "  debug:          builds debug files in directory debug"
+	  echo "                  linked with libasan3, uses assets in htdocs"
+	  echo "  memcheck:       builds debug files in directory debug "
+	  echo "                  for use with valgrind, uses assets in htdocs/"
+	  echo "  cleanup:        cleanup source tree"
+	  echo "  check:          runs cppcheck"
+	  echo "  pkgalpine:      creates the alpine package"
+	  echo "  pkgarch:        creates the arch package"
+	  echo "  pkgdebian:      creates the debian package"
+	  echo "  pkgdocker:      creates the docker image (debian based with libmpdclient from git master branch)"
+	  echo "  pkgrpm:         creates the rpm package"
 	;;
 esac
