@@ -12,12 +12,12 @@ Summary:        Standalone web mpdclient
 Url:            https://github.com/jcorporation/myMPD
 Source:         mympd_%{version}.orig.tar.gz
 BuildRequires:  gcc
-BuildRequires:	gcc-c++
+BuildRequires:  gcc-c++
 BuildRequires:  cmake
 BuildRequires:  unzip
-BuildRequires:	libmpdclient-devel
-BuildRequires:	pkgconfig
-BuildRequires:	openssl-devel
+BuildRequires:  libmpdclient-devel
+BuildRequires:  pkgconfig
+BuildRequires:  openssl-devel
 BuildRequires:  libmediainfo-devel
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 

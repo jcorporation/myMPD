@@ -186,7 +186,7 @@ pkgrpm() {
   do
     mv "$F" "mympd-${VERSION}"
   done
-  install -d ~/rpmbuild/SOURCES
+  install -d "$HOME/rpmbuild/SOURCES"
   tar -czf "mympd_${VERSION}.orig.tar.gz" "mympd-${VERSION}"
   mv "mympd_${VERSION}.orig.tar.gz" ~/rpmbuild/SOURCES/
   cp ../../contrib/packaging/rpm/mympd.spec .
@@ -194,8 +194,9 @@ pkgrpm() {
   RPMLINT=$(command -v rpmlint)
   if [ "$RPMLINT" != "" ]
   then
+    echo "Checking package with rpmlint"
     ARCH=$(uname -p)
-    rpmlint "~/rpmbuild/RPMS/${ARCH}/mympd-${VERSION}-0.${ARCH}.rpm"
+    rpmlint "$HOME/rpmbuild/RPMS/${ARCH}/mympd-${VERSION}-0.${ARCH}.rpm"
   else
     echo "WARNING: rpmlint not found, can't check package"
   fi
@@ -209,6 +210,7 @@ pkgarch() {
   NAMCAP=$(command -v namcap)
   if [ "$NAMCAP" != "" ]
   then
+    echo "Checking package with namcap"
     namcap PKGBUILD
     namcap mympd-*.pkg.tar.xz
   else
