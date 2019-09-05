@@ -138,8 +138,11 @@ int main(int argc, char **argv) {
     if (chdir("/") != 0) {
         goto end;
     }
-    //user and group have rw access
+    //only user and group have rw access
     umask(0007);
+
+    //get startup uid
+    uid_t startup_uid = getuid();
     
     mpd_client_queue = tiny_queue_create();
     mympd_api_queue = tiny_queue_create();
@@ -229,9 +232,11 @@ int main(int argc, char **argv) {
         snprintf(testdirname, 400, "%s/ssl", config->varlibdir);
         testdir_rc = testdir("SSL certificates", testdirname, true);
         if (testdir_rc < 2) {
-            //chown to mympd user
-            if (do_chown(testdirname, config->user) == false) {
-                goto cleanup;
+            //chown to mympd user if root
+            if (startup_uid == 0) {
+                if (do_chown(testdirname, config->user) == false) {
+                    goto cleanup;
+                }
             }
             //directory created, create certificates
             if (!create_certificates(testdirname, config->ssl_san)) {
@@ -239,9 +244,11 @@ int main(int argc, char **argv) {
                 LOG_ERROR("Certificate creation failed");
                 goto cleanup;
             }
-            //chown to mympd user
-            if (chown_certs(config)== false) {
-                goto cleanup;
+            //chown to mympd user if root
+            if (startup_uid == 0) {
+                if (chown_certs(config)== false) {
+                    goto cleanup;
+                }
             }
         }
         else {
@@ -259,7 +266,7 @@ int main(int argc, char **argv) {
     }
 
     //drop privileges
-    if (getuid() == 0) {
+    if (startup_uid == 0) {
         if (config->user != NULL || strlen(config->user) != 0) {
             LOG_INFO("Droping privileges to %s", config->user);
             struct passwd *pw;
@@ -278,7 +285,7 @@ int main(int argc, char **argv) {
             }
         }
     }
-    
+    //check if not root
     if (getuid() == 0) {
         LOG_ERROR("myMPD should not be run with root privileges");
         goto cleanup;
