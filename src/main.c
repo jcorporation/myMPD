@@ -319,6 +319,13 @@ int main(int argc, char **argv) {
         goto cleanup;
     }
     
+    //create empty document_root
+    snprintf(testdirname, 400, "%s/empty", config->varlibdir);
+    testdir_rc = testdir("Empty dir", testdirname, true);
+    if (testdir_rc > 1) {
+        goto cleanup;
+    }
+    
     if (config->plugins_coverextract == true) {
         snprintf(testdirname, 400, "%s/covercache", config->varlibdir);
         testdir_rc = testdir("Covercache dir", testdirname, true);

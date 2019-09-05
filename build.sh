@@ -71,6 +71,22 @@ buildrelease() {
   ./tojson.pl > ../../dist/htdocs/js/i18n.min.js
   cd ../.. || exit 1
 
+  echo "Creating compressed assets"
+  ASSETS="dist/htdocs/sw.min.js htdocs/mympd.webmanifest dist/htdocs/index.html"
+  ASSETS="$ASSETS htdocs/assets/coverimage-notavailable.svg htdocs/assets/coverimage-stream.svg"
+  ASSETS="$ASSETS htdocs/assets/coverimage-loading.svg dist/htdocs/css/bootstrap.min.css"
+  ASSETS="$ASSETS dist/htdocs/css/mympd.min.css dist/htdocs/js/keymap.min.js"
+  ASSETS="$ASSETS dist/htdocs/js/mympd.min.js dist/htdocs/js/i18n.min.js"
+  ASSETS="$ASSETS dist/htdocs/js/bootstrap-native-v4.min.js"
+  for ASSET in $ASSETS
+  do
+    COMPRESSED="dist/release_assets/$(basename $ASSET).gz"
+    if newer "$ASSET" "$COMPRESSED"
+    then 
+      gzip -9 -v -c "$ASSET" > "$COMPRESSED"
+    fi
+  done
+  
   echo "Compiling mympd"
   install -d release
   cd release || exit 1

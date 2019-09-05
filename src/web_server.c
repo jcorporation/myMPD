@@ -41,6 +41,37 @@
 #include "../dist/src/mongoose/mongoose.h"
 #include "../dist/src/frozen/frozen.h"
 
+//embed assets in release build
+#ifndef DEBUG
+#define INCBIN_PREFIX 
+#define INCBIN_STYLE INCBIN_STYLE_SNAKE
+#include "../dist/src/incbin/incbin.h"
+//compressed assets
+INCBIN(sw_min_js, "../dist/release_assets/sw.min.js.gz");
+INCBIN(mympd_webmanifest, "../dist/release_assets/mympd.webmanifest.gz");
+INCBIN(index_html, "../dist/release_assets/index.html.gz");
+INCBIN(coverimage_notavailable_svg, "../dist/release_assets/coverimage-notavailable.svg.gz");
+INCBIN(coverimage_stream_svg, "../dist/release_assets/coverimage-stream.svg.gz");
+INCBIN(coverimage_loading_svg, "../dist/release_assets/coverimage-loading.svg.gz");
+INCBIN(bootstrap_min_css, "../dist/release_assets/bootstrap.min.css.gz");
+INCBIN(mympd_min_css, "../dist/release_assets/mympd.min.css.gz");
+INCBIN(keymap_min_js, "../dist/release_assets/keymap.min.js.gz");
+INCBIN(mympd_min_js, "../dist/release_assets/mympd.min.js.gz");
+INCBIN(i18n_min_js, "../dist/release_assets/i18n.min.js.gz");
+INCBIN(bootstrap_nativ_v4_min_js, "../dist/release_assets/bootstrap-native-v4.min.js.gz");
+//uncompressed assets
+INCBIN(robots_txt, "../htdocs/robots.txt");
+INCBIN(favicon_ico, "../htdocs/assets/favicon.ico");
+INCBIN(appicon_192_png, "../htdocs/assets/appicon-192.png");
+INCBIN(appicon_512_png, "../htdocs/assets/appicon-512.png");
+INCBIN(appicon_167_png, "../htdocs/assets/appicon-167.png");
+INCBIN(MaterialIcons_Regular_woff2, "../htdocs/assets/MaterialIcons-Regular.woff2");
+
+//Todo: define asset struct
+//uri, mime-type, compressed, incbin_size, incbin_data
+
+#endif
+
 //private definitions
 static int is_websocket(const struct mg_connection *nc);
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data);
@@ -259,6 +290,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
         case MG_EV_HTTP_REQUEST: {
             struct http_message *hm = (struct http_message *) ev_data;
             static const struct mg_str library_prefix = MG_MK_STR("/library");
+            static const struct mg_str pics_prefix = MG_MK_STR("/pics");
             LOG_VERBOSE("HTTP request (%d): %.*s", (intptr_t)nc->user_data, (int)hm->uri.len, hm->uri.p);
             if (mg_vcmp(&hm->uri, "/api") == 0) {
                 //api request
@@ -327,6 +359,9 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             else {
                 static struct mg_serve_http_opts s_http_server_opts;
                 s_http_server_opts.document_root = DOC_ROOT;
+                if (mg_user_data->rewrite_patterns != NULL) {
+                    s_http_server_opts.url_rewrites = mg_user_data->rewrite_patterns;
+                }
                 if (has_prefix(&hm->uri, &library_prefix) && mg_user_data->feat_library == true) {
                     s_http_server_opts.enable_directory_listing = "yes";
                     s_http_server_opts.extra_headers = "Content-Security-Policy: default-src 'none'; "
@@ -347,10 +382,22 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                         "X-XSS-Protection: 1; mode=block\r\n"
                         "X-Frame-Options: deny";
                 }
-                if (mg_user_data->rewrite_patterns != NULL) {
-                    s_http_server_opts.url_rewrites = mg_user_data->rewrite_patterns;
-                }
+                #ifdef DEBUG
+                //serve all files from filesystem
                 mg_serve_http(nc, hm, s_http_server_opts);
+                #else
+                //serve only files in library_prefix and pics_prefix from filesystem
+                //if (has_prefix(&hm->uri, &library_prefix) || has_prefix(&hm->uri, &pics_prefix)) {
+                    mg_serve_http(nc, hm, s_http_server_opts);
+                //}
+                //else {
+                    //enforce 0-terminated string
+                //    int uri_len = (int)hm->uri.len + 1;
+                //    char uri[uri_len] = hm->uri.p;
+                //    uri[uri_len] = '\0';
+                    //Todo: get and send asset
+                //}
+                #endif
             }
             break;
         }
