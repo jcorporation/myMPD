@@ -44,7 +44,6 @@
 #define ETC_PATH "${ETC_PATH}"
 #define PLUGIN_PATH "${PLUGIN_PATH}"
 #define VARLIB_PATH "${VARLIB_PATH}"
-#define DATAROOT_PATH "${DATAROOT_PATH}"
 
 enum jukebox_modes {
     JUKEBOX_OFF,

@@ -1,6 +1,16 @@
 #!/bin/sh
 
+#get myMPD version
 VERSION=$(grep VERSION_ CMakeLists.txt | cut -d\" -f2 | tr '\n' '.' | sed 's/\.$//')
+
+#gzip is needed to compress assets for release
+GZIPBIN=$(command -v gzip)
+if [ "$GZIPBIN" == "" ]
+then
+  echo "ERROR: gzip not found"
+  exit 1
+fi
+GZIP="$GZIPBIN -v -9 -c -"
 
 newer() {
   M1=0
@@ -22,25 +32,26 @@ minify() {
   ERROR="1"
   
   JAVABIN=$(command -v java)
+  PERLBIN=$(command -v perl)
 
   if newer "$DST" "$SRC"
   then
     echo "Skipping $SRC"
     return
   fi
-  echo "Minifying $SRC"
+  echo -n "Minifying $SRC"
 
-  if [ "$TYPE" = "html" ]
+  if [ "$TYPE" = "html" ] && [ "$PERLBIN" != "" ]
   then
-    perl -pe 's/^\s*//gm; s/\s*$//gm' "$SRC" > "$DST"
+    $PERLBIN -pe 's/^\s*//gm; s/\s*$//gm' "$SRC" | $GZIP > "$DST"
     ERROR="$?"
   elif [ "$TYPE" = "js" ] && [ "$JAVABIN" != "" ]
   then
-    $JAVABIN -jar dist/buildtools/closure-compiler.jar "$SRC" > "$DST"
+    $JAVABIN -jar dist/buildtools/closure-compiler.jar "$SRC" | $GZIP > "$DST"
     ERROR="$?"
   elif [ "$TYPE" = "css" ] && [ "$JAVABIN" != "" ]
   then
-    $JAVABIN -jar dist/buildtools/closure-stylesheets.jar --allow-unrecognized-properties "$SRC" > "$DST"
+    $JAVABIN -jar dist/buildtools/closure-stylesheets.jar --allow-unrecognized-properties "$SRC" | $GZIP > "$DST"
     ERROR="$?"
   else
     ERROR="1"
@@ -48,39 +59,36 @@ minify() {
 
   if [ "$ERROR" = "1" ]
   then
-    echo "Error minifying $SRC, copy $SRC to $DST"
-    cp "$SRC" "$DST"
+    echo -n "Error minifying $SRC, compressing $SRC to $DST"
+    $GZIP < $SRC > "$DST"
   fi
 }
 
 buildrelease() {
-  echo "Minifying javascript"
-  minify js htdocs/js/mympd.js dist/htdocs/js/mympd.min.js
-  minify js htdocs/sw.js dist/htdocs/sw.min.js
-  minify js htdocs/js/keymap.js dist/htdocs/js/keymap.min.js
-  minify js dist/htdocs/js/bootstrap-native-v4.js dist/htdocs/js/bootstrap-native-v4.min.js
+  echo "Minifying and compressing javascript"
+  minify js htdocs/js/mympd.js dist/htdocs/js/mympd.min.js.gz
+  minify js htdocs/sw.js dist/htdocs/sw.min.js.gz
+  minify js htdocs/js/keymap.js dist/htdocs/js/keymap.min.js.gz
+  minify js dist/htdocs/js/bootstrap-native-v4.js dist/htdocs/js/bootstrap-native-v4.min.js.gz
 
-  echo "Minifying stylesheets"
-  minify css htdocs/css/mympd.css dist/htdocs/css/mympd.min.css
+  echo "Minifying and compressing stylesheets"
+  minify css htdocs/css/mympd.css dist/htdocs/css/mympd.min.css.gz
 
-  echo "Minifying html"
-  minify html htdocs/index.html dist/htdocs/index.html
+  echo "Minifying and compressing html"
+  minify html htdocs/index.html dist/htdocs/index.html.gz
 
-  echo "Creating i18n json"
+  echo -n "Creating and compressing i18n json"
   cd src/i18n || exit 1
-  ./tojson.pl > ../../dist/htdocs/js/i18n.min.js
+  ./tojson.pl | $GZIP > ../../dist/htdocs/js/i18n.min.js.gz
   cd ../.. || exit 1
 
-  echo "Creating compressed assets"
-  ASSETS="dist/htdocs/sw.min.js htdocs/mympd.webmanifest dist/htdocs/index.html"
+  echo "Creating other compressed assets"
+  ASSETS="htdocs/mympd.webmanifest"
   ASSETS="$ASSETS htdocs/assets/coverimage-notavailable.svg htdocs/assets/coverimage-stream.svg"
-  ASSETS="$ASSETS htdocs/assets/coverimage-loading.svg dist/htdocs/css/bootstrap.min.css"
-  ASSETS="$ASSETS dist/htdocs/css/mympd.min.css dist/htdocs/js/keymap.min.js"
-  ASSETS="$ASSETS dist/htdocs/js/mympd.min.js dist/htdocs/js/i18n.min.js"
-  ASSETS="$ASSETS dist/htdocs/js/bootstrap-native-v4.min.js"
+  ASSETS="$ASSETS htdocs/assets/coverimage-loading.svg "
   for ASSET in $ASSETS
   do
-    COMPRESSED="dist/release_assets/$(basename $ASSET).gz"
+    COMPRESSED="dist/${ASSET}.gz"
     if newer "$ASSET" "$COMPRESSED"
     then 
       gzip -9 -v -c "$ASSET" > "$COMPRESSED"
@@ -143,11 +151,12 @@ cleanup() {
 }
 
 check () {
-  if [ -x /usr/bin/cppcheck ]
+  CPPCHECKBIN=$(command -v cppcheck)
+  if [ "$CPPCHECKBIN" != "" ]
   then
     echo "Running cppcheck"
-    cppcheck --enable=warning --inconclusive --force --inline-suppr src/*.c src/*.h
-    cppcheck --enable=warning --inconclusive --force --inline-suppr src/plugins/*.c src/plugins/*.h src/plugins/*.cpp
+    $CPPCHECKBIN --enable=warning --inconclusive --force --inline-suppr src/*.c src/*.h
+    $CPPCHECKBIN --enable=warning --inconclusive --force --inline-suppr src/plugins/*.c src/plugins/*.h src/plugins/*.cpp
   else
     echo "cppcheck not found"
   fi
