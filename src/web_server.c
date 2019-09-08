@@ -47,18 +47,18 @@
 #define INCBIN_STYLE INCBIN_STYLE_SNAKE
 #include "../dist/src/incbin/incbin.h"
 //compressed assets
-INCBIN(sw_min_js, "../dist/htdocs/sw.min.js.gz");
+INCBIN(sw__js, "../dist/htdocs/sw.js.gz");
 INCBIN(mympd_webmanifest, "../dist/htdocs/mympd.webmanifest.gz");
 INCBIN(index_html, "../dist/htdocs/index.html.gz");
 INCBIN(coverimage_notavailable_svg, "../dist/htdocs/assets/coverimage-notavailable.svg.gz");
 INCBIN(coverimage_stream_svg, "../dist/htdocs/assets/coverimage-stream.svg.gz");
 INCBIN(coverimage_loading_svg, "../dist/htdocs/assets/coverimage-loading.svg.gz");
-INCBIN(bootstrap_min_css, "../dist/htdocs/css/bootstrap.min.css.gz");
-INCBIN(mympd_min_css, "../dist/htdocs/css/mympd.min.css.gz");
-INCBIN(keymap_min_js, "../dist/htdocs/js/keymap.min.js.gz");
-INCBIN(mympd_min_js, "../dist/htdocs/js/mympd.min.js.gz");
-INCBIN(i18n_min_js, "../dist/htdocs/js//i18n.min.js.gz");
-INCBIN(bootstrap_nativ_v4_min_js, "../dist/htdocs/js/bootstrap-native-v4.min.js.gz");
+INCBIN(bootstrap_css, "../dist/htdocs/css/bootstrap.css.gz");
+INCBIN(mympd_css, "../dist/htdocs/css/mympd.css.gz");
+INCBIN(keymap_js, "../dist/htdocs/js/keymap.js.gz");
+INCBIN(mympd_js, "../dist/htdocs/js/mympd.js.gz");
+INCBIN(i18n_js, "../dist/htdocs/js//i18n.js.gz");
+INCBIN(bootstrap_nativ_v4_js, "../dist/htdocs/js/bootstrap-native-v4.js.gz");
 //uncompressed assets
 INCBIN(robots_txt, "../htdocs/robots.txt");
 INCBIN(favicon_ico, "../htdocs/assets/favicon.ico");
