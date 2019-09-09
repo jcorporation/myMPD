@@ -54,12 +54,13 @@ Backend
  - Mongoose: https://github.com/cesanta/mongoose
  - Frozen: https://github.com/cesanta/frozen
  - inih: https://github.com/benhoyt/inih
+ - incbin: https://github.com/graphitemaster/incbin
 
 Dependencies
 ------------
  - libmpdclient 2: http://www.musicpd.org/libs/libmpdclient/
  - OpenSSL: https://www.openssl.org/
- - libmediainfo: https://mediaarea.net/en/MediaInfo (to support embedded album covers)
+ - libmediainfo: https://mediaarea.net/en/MediaInfo (to support embedded albumart)
 
 Build Dependencies
 ------------------
@@ -71,7 +72,7 @@ Unix Build Instructions
 -----------------------
 1. Install dependencies: cmake, libmpdclient (dev), OpenSSL (dev), libmediainfo (dev), Java and Perl
 2. Extract myMPD tarball and change path to this directory
-3. Build and install myMPD: ```./build.sh release```
+3. Build and install myMPD: ```./build.sh releaseinstall```
 
 Run
 ---------
