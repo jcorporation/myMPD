@@ -22,7 +22,7 @@
 }
 
 .splashScreenIcon {
-  font-size: 4.5rem !important;
+  font-size: 4.8rem !important;
   vertical-align: text-bottom !important;
 }
 
@@ -194,6 +194,11 @@ small {
 
 .hide {
   display: none !important;
+}
+
+.hide-fade {
+  opacity: 0;
+  transition: opacity 0.5s linear;
 }
 
 .unvisible {

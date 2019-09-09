@@ -409,9 +409,13 @@ function appInitWait() {
         if (settingsParsed == 'true' && websocketConnected == true) {
             //app initialized
             document.getElementById('splashScreenAlert').innerText = t('Applying settings');
+            document.getElementById('splashScreen').classList.add('hide-fade');
+            setTimeout(function() {
+                document.getElementById('splashScreen').classList.add('hide');
+                document.getElementById('splashScreen').classList.remove('hide-fade');
+                document.getElementsByTagName('body')[0].classList.remove('overflow-hidden');
+            }, 500);
             appInit();
-            document.getElementById('splashScreen').classList.add('hide');
-            document.getElementsByTagName('body')[0].classList.remove('overflow-hidden');
             appInited = true;
             return;
         }
