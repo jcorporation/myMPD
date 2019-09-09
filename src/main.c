@@ -292,10 +292,13 @@ int main(int argc, char **argv) {
     }
 
     //check for needed directories
+    #ifdef DEBUG
+    //release uses empty document root and delivers embedded files
     testdir_rc = testdir("Document root", DOC_ROOT, false);
     if (testdir_rc > 1) {
         goto cleanup;
     }
+    #endif
 
     snprintf(testdirname, 400, "%s/smartpls", config->varlibdir);
     testdir_rc = testdir("Smartpls dir", testdirname, true);
