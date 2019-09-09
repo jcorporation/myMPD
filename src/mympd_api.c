@@ -569,7 +569,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
     }
 
     if (response->length == 0) {
-        response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"No response for cmd_id %%{cmdId}\", \"values\": {\"cmdId\": %u}}", request->cmd_id);
+        response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"No response for cmd_id %%{cmdId}\", \"values\": {\"cmdId\": %d}}", request->cmd_id);
         LOG_ERROR("No response for cmd_id %u", request->cmd_id);
     }
     LOG_DEBUG("Push response to queue for connection %lu: %s", request->conn_id, response->data);
