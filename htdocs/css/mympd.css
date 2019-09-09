@@ -1,7 +1,50 @@
 :root {
-    --mympd-coverimagesize: 250px;
-    --mympd-backgroundcolor: #888;
-    --mympd-backgroundfilter: blur(5px);
+  --mympd-coverimagesize: 250px;
+  --mympd-backgroundcolor: #888;
+  --mympd-backgroundfilter: blur(5px);
+}
+
+#splashScreen {
+  background: linear-gradient(0deg, rgba(0,0,0,1) 0%, rgba(52,58,64,1) 100%);
+  width: 100vw;
+  height: 100vh;
+  z-index: 2000;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+}
+
+#splashScreenLogo {
+  color: white;
+  font-size: 4rem;
+  text-align: center;
+  margin-top: 25vh;
+}
+
+.splashScreenIcon {
+  font-size: 4.5rem !important;
+  vertical-align: text-bottom !important;
+}
+
+#splashScreenAlert {
+  min-height: 4rem;
+  width: 100vw;
+  color: #f8f9fa;
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+  z-index: 2001;
+  font-size: 1.2rem;
+  padding: 1rem;
+  text-align: center;
+}
+
+#appReloadBtn {
+  float: right;
+}
+
+.overflow-hidden {
+  overflow: hidden;
 }
 
 html {

@@ -114,7 +114,6 @@ var modalRenamePlaylist = new Modal(document.getElementById('modalRenamePlaylist
 var modalUpdateDB = new Modal(document.getElementById('modalUpdateDB'));
 var modalSaveSmartPlaylist = new Modal(document.getElementById('modalSaveSmartPlaylist'));
 var modalDeletePlaylist = new Modal(document.getElementById('modalDeletePlaylist'));
-var modalAppInit = new Modal(document.getElementById('modalAppInit'), { backdrop: 'static', keyboard: false});
 var modalSaveBookmark = new Modal(document.getElementById('modalSaveBookmark'));
 
 var dropdownMainMenu;
@@ -365,31 +364,9 @@ function appRoute() {
     app.last.view = app.current.view;
 };
 
-function initState(objId, state) {
-    var obj = document.getElementById(objId);
-    obj.classList.remove('text-success', 'text-danger', 'spinner-border', 'spinner-border-sm');
-    obj.innerText = '';
-    if (state == 'blank') {
-        obj.innerText = '';
-    }
-    else if (state == 'load') {
-        obj.innerText = '';
-        obj.classList.add('spinner-border', 'spinner-border-sm');
-    }
-    else if (state == 'ok') {
-        obj.innerText = 'check';
-        obj.classList.add('material-icons', 'text-success');
-    }
-    else if (state == 'error') {
-        obj.innerText = 'error_outline';
-        obj.classList.add('material-icons', 'text-danger');
-    }
-}
-
 function showAppInitAlert(text) {
-    var a = document.getElementById('modalAppInitAlert');
-    a.innerHTML = '<p>' + e(text) + '</p><a id ="appReloadBtn"class="btn btn-danger text-light" class="clickable">Reload</a>';
-    a.classList.remove('hide');
+    var a = document.getElementById('splashScreenAlert');
+    a.innerHTML = '<a id="appReloadBtn" class="btn btn-danger text-light clickable">Reload</a><p class="text-danger">' + t(text) + '</p>';
     document.getElementById('appReloadBtn').addEventListener('click', function() {
         location.reload();
     }, false);
@@ -403,7 +380,7 @@ function appInitStart() {
     }
     document.getElementById('selectLocale').innerHTML = localeList;
     
-    i18nHtml(document.getElementById('modalAppInit'));
+    i18nHtml(document.getElementById('splashScreenAlert'));
     
     //register serviceworker
     if ('serviceWorker' in navigator && document.URL.substring(0, 5) == 'https' && window.location.hostname != 'localhost') {
@@ -420,17 +397,9 @@ function appInitStart() {
     }
 
     appInited = false;
-    document.getElementsByTagName('header')[0].classList.add('hide');
-    document.getElementsByTagName('main')[0].classList.add('hide');
-    document.getElementsByTagName('footer')[0].classList.add('hide');
-    initState('appInitMyMPDSettings', 'load');
-    initState('appInitMPDSettings', 'blank');
-    initState('appInitWebsocket', 'blank');
-    initState('appInitApply', 'blank');
-    var a = document.getElementById('modalAppInitAlert');
-    a.classList.add('hide');
-    a.innerText = '';
-    modalAppInit.show();
+    document.getElementById('splashScreen').classList.remove('hide');
+    document.getElementsByTagName('body')[0].classList.add('overflow-hidden');
+    document.getElementById('splashScreenAlert').innerText = t('Fetch myMPD settings');
     getSettings(true);
     appInitWait();
 }
@@ -439,26 +408,20 @@ function appInitWait() {
     setTimeout(function() {
         if (settingsParsed == 'true' && websocketConnected == true) {
             //app initialized
-            initState('appInitWebsocket', 'ok');
-            initState('appInitApply', 'load');
+            document.getElementById('splashScreenAlert').innerText = t('Applying settings');
             appInit();
-            initState('appInitApply', 'ok');
-            document.getElementsByTagName('header')[0].classList.remove('hide');
-            document.getElementsByTagName('main')[0].classList.remove('hide');
-            document.getElementsByTagName('footer')[0].classList.remove('hide');
-            modalAppInit.hide();
+            document.getElementById('splashScreen').classList.add('hide');
+            document.getElementsByTagName('body')[0].classList.remove('overflow-hidden');
             appInited = true;
             return;
         }
         
         if (settingsParsed == 'true') {
             //parsed settings, now its save to connect to websocket
-            initState('appInitWebsocket', 'load');
+            document.getElementById('splashScreenAlert').innerText = t('Connect to websocket');
             webSocketConnect();
         }
         else if (settingsParsed == 'error') {
-            initState('appInitMyMPDSettings', 'error');
-            initState('appInitMPDSettings', 'error');
             return;
         }
         appInitWait();
@@ -2182,15 +2145,12 @@ function getMpdSettings(obj) {
     if (obj == '' || obj.type == 'error') {
         settingsParsed = 'error';
         if (appInited == false) {
-            initState('appInitMyMPDSettings', 'error');
-            initState('appInitMPDSettings', 'blank');
             showAppInitAlert(obj == '' ? t('Can not parse settings') : obj.data);
         }
         return false;
     }
-    initState('appInitMyMPDSettings', 'ok');
     settingsNew = obj.data;
-    initState('appInitMPDSettings', 'load');
+    document.getElementById('splashScreenAlert').innerText = t('Fetch MPD settings');
     sendAPI({"cmd": "MPD_API_SETTINGS_GET"}, joinSettings, true);
 }
 
@@ -2198,7 +2158,6 @@ function joinSettings(obj) {
     if (obj == '' || obj.type == 'error') {
         settingsParsed = 'error';
         if (appInited == false) {
-            initState('appInitMPDSettings', 'error');
             showAppInitAlert(obj == '' ? t('Can not parse settings') : obj.data);
         }
         settingsNew.mpdConnected = false;
@@ -2207,7 +2166,6 @@ function joinSettings(obj) {
         for (var key in obj.data) {
             settingsNew[key] = obj.data[key];
         }
-        initState('appInitMPDSettings', 'ok');
     }
     settings = Object.assign({}, settingsNew);
     settingsLock = false;

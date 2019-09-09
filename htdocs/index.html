@@ -16,8 +16,16 @@
   <link href="mympd.webmanifest" rel="manifest" crossorigin="anonymous">
   <link href="assets/appicon-167.png" rel="apple-touch-icon">
 </head>
-<body>
-  <header class="hide">
+<body class="overflow-hidden">
+  <!-- Splash screen -->
+  <div id="splashScreen">
+    <div id="splashScreenLogo">
+      <span class="material-icons splashScreenIcon">play_circle_outline</span> myMPD
+    </div>
+    <div id="splashScreenAlert">Initializing myMPD</div>
+  </div>
+  <!-- Header -->
+  <header>
     <nav class="navbar navbar-expand navbar-dark fixed-top bg-dark d-flex justify-content-between">
       <div class="dropdown nav-item mr-3" id="headerLeft">
         <a class="dropdown-toggle navbar-brand pr-0" href="#" id="mainMenu">
@@ -75,7 +83,8 @@
       </div>
     </nav>
   </header>
-  <main class="container hide">
+  <!-- Main content -->
+  <main class="container">
     <noscript>
       <div data-phrase="JavaScript is disabled" class="alert alert-danger"></div>
     </noscript>
@@ -602,8 +611,9 @@
       </div>
     </div>    
   </main>    
-  
-  <footer class="footer hide">
+
+  <!-- Footer -->  
+  <footer class="footer">
     <nav class="navbar navbar-expand navbar-dark fixed-bottom bg-dark">
       <div class="d-flex flex-fill navbar-nav" id="navbar-bottom">
         <div id="navPlayback" class="nav-item flex-fill text-center"><a data-phrase="Playback" data-href='{"cmd": "appGoto", "options": ["Playback"]}' class="nav-link" href="#"></a></div>
@@ -615,27 +625,6 @@
   </footer>
 
   <!-- Modals -->
-  <div class="modal" id="modalAppInit" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header bg-success text-light">
-          <h5 class="modal-title"><span class="material-icons title-icon">play_circle_outline</span> <span data-phrase="Initializing myMPD"></span></h5>
-        </div>
-        <div class="modal-body">
-          <p data-phrase="Please wait, myMPD is initializing..."></p>
-          <table>
-            <tr><td><span id="appInitMyMPDSettings"></span></td><td>&nbsp;&nbsp;<span data-phrase="Fetch myMPD settings"></span></td></tr>
-            <tr><td><span id="appInitMPDSettings"></span></td><td>&nbsp;&nbsp;<span data-phrase="Fetch MPD settings"></span></td></tr>
-            <tr><td><span id="appInitWebsocket"></span></td><td>&nbsp;&nbsp;<span data-phrase="Connect to websocket"></span></td></tr>
-            <tr><td><span id="appInitApply"></span></td><td>&nbsp;&nbsp;<span data-phrase="Applying settings"></span></td></tr>
-          </table>
-          <br/>
-          <div id="modalAppInitAlert" class="alert alert-danger hide"></div>
-        </div>
-      </div>
-      </div>
-  </div>  
-  
   <div class="modal fade" id="modalUpdateDB" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
