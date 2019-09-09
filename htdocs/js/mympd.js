@@ -408,7 +408,7 @@ function appInitStart() {
     //register serviceworker
     if ('serviceWorker' in navigator && document.URL.substring(0, 5) == 'https' && window.location.hostname != 'localhost') {
         window.addEventListener('load', function() {
-            navigator.serviceWorker.register('/sw.min.js', {scope: '/'}).then(function(registration) {
+            navigator.serviceWorker.register('/sw.js', {scope: '/'}).then(function(registration) {
                 // Registration was successful
                 logInfo('ServiceWorker registration successful.');
                 registration.update();

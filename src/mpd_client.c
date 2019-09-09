@@ -1163,7 +1163,7 @@ static void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_r
     }
 
     if (response->length == 0) {
-        response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"No response for cmd_id %%{cmdId}\", \"values\": {\"cmdId\": %u}}", request->cmd_id);
+        response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"No response for cmd_id %%{cmdId}\", \"values\": {\"cmdId\": %d}}", request->cmd_id);
     }
     if (response->conn_id > -1) {
         LOG_DEBUG("Push response to queue for connection %lu: %s", request->conn_id, response->data);
@@ -2467,7 +2467,7 @@ static int mpd_client_get_cover(t_config *config, t_mpd_state *mpd_state, const 
                     char image_mime_type[image_mime_type_len];
                     bool rc = plugin_coverextract(media_file, "", image_file, image_file_len, image_mime_type, image_mime_type_len, false);
                     if (rc == true) {
-                        len = snprintf(cover, cover_len, "/library/%s?cover", uri);
+                        len = snprintf(cover, cover_len, "/albumart/%s", uri);
                     }
                     else {
                         len = snprintf(cover, cover_len, "/assets/coverimage-notavailable.svg");

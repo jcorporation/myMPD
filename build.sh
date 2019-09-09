@@ -1,6 +1,24 @@
 #!/bin/sh
 
+#get myMPD version
 VERSION=$(grep VERSION_ CMakeLists.txt | cut -d\" -f2 | tr '\n' '.' | sed 's/\.$//')
+
+#gzip is needed to compress assets for release
+GZIPBIN=$(command -v gzip)
+if [ "$GZIPBIN" = "" ]
+then
+  echo "ERROR: gzip not found"
+  exit 1
+fi
+GZIP="$GZIPBIN -v -9 -c -"
+
+#perl is needed to create i18n.js
+PERLBIN=$(command -v perl)
+if [ "$PERLBIN" = "" ]
+then
+  echo "ERROR: perl not found"
+  exit 1
+fi
 
 newer() {
   M1=0
@@ -28,19 +46,19 @@ minify() {
     echo "Skipping $SRC"
     return
   fi
-  echo "Minifying $SRC"
+  echo -n "Minifying $SRC"
 
-  if [ "$TYPE" = "html" ]
+  if [ "$TYPE" = "html" ] && [ "$PERLBIN" != "" ]
   then
-    perl -pe 's/^\s*//gm; s/\s*$//gm' "$SRC" > "$DST"
+    $PERLBIN -pe 's/^\s*//gm; s/\s*$//gm' "$SRC" | $GZIP > "$DST"
     ERROR="$?"
   elif [ "$TYPE" = "js" ] && [ "$JAVABIN" != "" ]
   then
-    $JAVABIN -jar dist/buildtools/closure-compiler.jar "$SRC" > "$DST"
+    $JAVABIN -jar dist/buildtools/closure-compiler.jar "$SRC" | $GZIP > "$DST"
     ERROR="$?"
   elif [ "$TYPE" = "css" ] && [ "$JAVABIN" != "" ]
   then
-    $JAVABIN -jar dist/buildtools/closure-stylesheets.jar --allow-unrecognized-properties "$SRC" > "$DST"
+    $JAVABIN -jar dist/buildtools/closure-stylesheets.jar --allow-unrecognized-properties "$SRC" | $GZIP > "$DST"
     ERROR="$?"
   else
     ERROR="1"
@@ -48,32 +66,55 @@ minify() {
 
   if [ "$ERROR" = "1" ]
   then
-    echo "Error minifying $SRC, copy $SRC to $DST"
-    cp "$SRC" "$DST"
+    echo -n "Error minifying $SRC, compressing $SRC to $DST"
+    $GZIP < $SRC > "$DST"
   fi
 }
 
 buildrelease() {
-  echo "Minifying javascript"
-  minify js htdocs/js/mympd.js dist/htdocs/js/mympd.min.js
-  minify js htdocs/sw.js dist/htdocs/sw.min.js
-  minify js htdocs/js/keymap.js dist/htdocs/js/keymap.min.js
-  minify js dist/htdocs/js/bootstrap-native-v4.js dist/htdocs/js/bootstrap-native-v4.min.js
+  echo "Minifying and compressing javascript"
+  minify js htdocs/js/mympd.js dist/htdocs/js/mympd.js.gz
+  minify js htdocs/sw.js dist/htdocs/sw.js.gz
+  minify js htdocs/js/keymap.js dist/htdocs/js/keymap.js.gz
+  minify js dist/htdocs/js/bootstrap-native-v4.js dist/htdocs/js/bootstrap-native-v4.js.gz
 
-  echo "Minifying stylesheets"
-  minify css htdocs/css/mympd.css dist/htdocs/css/mympd.min.css
+  echo "Minifying and compressing stylesheets"
+  minify css htdocs/css/mympd.css dist/htdocs/css/mympd.css.gz
+  if newer dist/htdocs/css/bootstrap.css dist/htdocs/css/bootstrap.css.gz
+  then
+    echo -n "Compressing already minified dist/htdocs/css/bootstrap.css"
+    $GZIP < dist/htdocs/css/bootstrap.css > dist/htdocs/css/bootstrap.css.gz
+  else
+    echo "Skipping dist/htdocs/css/bootstrap.css"
+  fi
 
-  echo "Minifying html"
-  minify html htdocs/index.html dist/htdocs/index.html
+  echo "Minifying and compressing html"
+  minify html htdocs/index.html dist/htdocs/index.html.gz
 
-  echo "Creating i18n json"
+  echo -n "Creating and compressing i18n json"
   cd src/i18n || exit 1
-  ./tojson.pl > ../../dist/htdocs/js/i18n.min.js
+  $PERLBIN ./tojson.pl | $GZIP > ../../dist/htdocs/js/i18n.js.gz
   cd ../.. || exit 1
+
+  echo "Creating other compressed assets"
+  ASSETS="htdocs/mympd.webmanifest"
+  ASSETS="$ASSETS htdocs/assets/coverimage-notavailable.svg htdocs/assets/coverimage-stream.svg"
+  ASSETS="$ASSETS htdocs/assets/coverimage-loading.svg "
+  for ASSET in $ASSETS
+  do
+    COMPRESSED="dist/${ASSET}.gz"
+    if newer "$ASSET" "$COMPRESSED"
+    then 
+      gzip -9 -v -c "$ASSET" > "$COMPRESSED"
+    fi
+  done
 
   echo "Compiling mympd"
   install -d release
   cd release || exit 1
+  #force rebuild of web_server.c with embedded assets
+  rm -f CMakeFiles/mympd.dir/src/web_server.c.o
+  #set INSTALL_PREFIX and build myMPD
   export INSTALL_PREFIX="${MYMPD_INSTALL_PREFIX:-/usr}"
   cmake -DCMAKE_INSTALL_PREFIX:PATH="$INSTALL_PREFIX" -DCMAKE_BUILD_TYPE=RELEASE ..
   make
@@ -89,17 +130,13 @@ installrelease() {
 builddebug() {
   MEMCHECK=$1
 
-  echo "Linking non-minfied files"
-  [ -e "$PWD/htdocs/sw.min.js" ] || ln -s "$PWD/htdocs/sw.js" "$PWD/htdocs/sw.min.js"
-  [ -e "$PWD/htdocs/js/mympd.min.js" ] || ln -s "$PWD/htdocs/js/mympd.js" "$PWD/htdocs/js/mympd.min.js"
-  [ -e "$PWD/htdocs/js/bootstrap-native-v4.min.js" ] || ln -s "$PWD/dist/htdocs/js/bootstrap-native-v4.js" "$PWD/htdocs/js/bootstrap-native-v4.min.js"
-  [ -e "$PWD/htdocs/js/keymap.min.js" ] || ln -s "$PWD/htdocs/js/keymap.js" "$PWD/htdocs/js/keymap.min.js"
-  [ -e "$PWD/htdocs/css/mympd.min.css" ] || ln -s "$PWD/htdocs/css/mympd.css" "$PWD/htdocs/css/mympd.min.css"
-  [ -e "$PWD/htdocs/css/bootstrap.min.css" ] || ln -s "$PWD/dist/htdocs/css/bootstrap.min.css" "$PWD/htdocs/css/bootstrap.min.css"
+  echo "Linking bootstrap css and js"
+  [ -e "$PWD/htdocs/css/bootstrap.css" ] || ln -s "$PWD/dist/htdocs/css/bootstrap.css" "$PWD/htdocs/css/bootstrap.css"
+  [ -e "$PWD/htdocs/js/bootstrap-native-v4.js" ] || ln -s "$PWD/dist/htdocs/js/bootstrap-native-v4.js" "$PWD/htdocs/js/bootstrap-native-v4.js"
 
   echo "Creating i18n json"
   cd src/i18n || exit 1
-  ./tojson.pl pretty > ../../htdocs/js/i18n.min.js
+  $PERLBIN ./tojson.pl pretty > ../../htdocs/js/i18n.js
   cd ../.. || exit 1
   
   echo "Compiling"
@@ -110,28 +147,27 @@ builddebug() {
 }
 
 cleanup() {
+  #build directories
   rm -rf release
   rm -rf debug
   rm -rf package
-
-  rm -f htdocs/sw.min.js
-  rm -f htdocs/js/mympd.min.js
+  
+  #htdocs
   rm -f htdocs/js/bootstrap-native-v4.min.js
-  rm -f htdocs/js/keymap.min.js
-  rm -f htdocs/js/i18n.min.js
+  rm -f htdocs/js/i18n.js
+  rm -f htdocs/css/bootstrap.css
 
-  rm -f htdocs/css/mympd.min.css
-  rm -f htdocs/css/bootstrap.min.css
-
+  #tmp files
   find ./ -name \*~ -delete
 }
 
 check () {
-  if [ -x /usr/bin/cppcheck ]
+  CPPCHECKBIN=$(command -v cppcheck)
+  if [ "$CPPCHECKBIN" != "" ]
   then
     echo "Running cppcheck"
-    cppcheck --enable=warning --inconclusive --force --inline-suppr src/*.c src/*.h
-    cppcheck --enable=warning --inconclusive --force --inline-suppr src/plugins/*.c src/plugins/*.h src/plugins/*.cpp
+    $CPPCHECKBIN --enable=warning --inconclusive --force --inline-suppr src/*.c src/*.h
+    $CPPCHECKBIN --enable=warning --inconclusive --force --inline-suppr src/plugins/*.c src/plugins/*.h src/plugins/*.cpp
   else
     echo "cppcheck not found"
   fi

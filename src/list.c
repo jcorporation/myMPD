@@ -59,6 +59,17 @@ void *list_get_extra(const struct list *l, const char *data) {
     return extra;
 }
 
+struct node *list_get_node(const struct list *l, const char *data) {
+    struct node *current = l->list;
+    while (current != NULL) {
+        if (strcmp(current->data, data) == 0) {
+            break;
+        }
+        current = current->next;
+    }
+    return current;
+}
+
 struct node *list_node_at(const struct list *l, unsigned index) {
     /* if there's no data in the list, fail */
     if (l->list == NULL) { return NULL; }
