@@ -46,19 +46,19 @@ minify() {
     echo "Skipping $SRC"
     return
   fi
-  echo -n "Minifying $SRC"
+  echo "Minifying $SRC"
 
   if [ "$TYPE" = "html" ] && [ "$PERLBIN" != "" ]
   then
-    $PERLBIN -pe 's/^\s*//gm; s/\s*$//gm' "$SRC" | $GZIP > "$DST"
+    $PERLBIN -pe 's/^<!--debug-->.*\n//gm; s/<!--release\s+(.+)-->/$1/g; s/^\s*//gm; s/\s*$//gm' "$SRC" | $GZIP > "$DST"
     ERROR="$?"
   elif [ "$TYPE" = "js" ] && [ "$JAVABIN" != "" ]
   then
-    $JAVABIN -jar dist/buildtools/closure-compiler.jar "$SRC" | $GZIP > "$DST"
+    $JAVABIN -jar dist/buildtools/closure-compiler.jar "$SRC" > "$DST"
     ERROR="$?"
   elif [ "$TYPE" = "css" ] && [ "$JAVABIN" != "" ]
   then
-    $JAVABIN -jar dist/buildtools/closure-stylesheets.jar --allow-unrecognized-properties "$SRC" | $GZIP > "$DST"
+    $JAVABIN -jar dist/buildtools/closure-stylesheets.jar --allow-unrecognized-properties "$SRC" > "$DST"
     ERROR="$?"
   else
     ERROR="1"
@@ -66,35 +66,46 @@ minify() {
 
   if [ "$ERROR" = "1" ]
   then
-    echo -n "Error minifying $SRC, compressing $SRC to $DST"
-    $GZIP < $SRC > "$DST"
+    echo "Error minifying $SRC, copy $SRC to $DST"
+    cp "$SRC" "$DST"
   fi
 }
 
 buildrelease() {
-  echo "Minifying and compressing javascript"
-  minify js htdocs/js/mympd.js dist/htdocs/js/mympd.js.gz
-  minify js htdocs/sw.js dist/htdocs/sw.js.gz
-  minify js htdocs/js/keymap.js dist/htdocs/js/keymap.js.gz
-  minify js dist/htdocs/js/bootstrap-native-v4.js dist/htdocs/js/bootstrap-native-v4.js.gz
-
-  echo "Minifying and compressing stylesheets"
-  minify css htdocs/css/mympd.css dist/htdocs/css/mympd.css.gz
-  if newer dist/htdocs/css/bootstrap.css dist/htdocs/css/bootstrap.css.gz
-  then
-    echo -n "Compressing already minified dist/htdocs/css/bootstrap.css"
-    $GZIP < dist/htdocs/css/bootstrap.css > dist/htdocs/css/bootstrap.css.gz
-  else
-    echo "Skipping dist/htdocs/css/bootstrap.css"
-  fi
-
+  echo "Creating i18n json"
+  cd src/i18n || exit 1
+  $PERLBIN ./tojson.pl > ../../dist/htdocs/js/i18n.min.js
+  cd ../.. || exit 1
+  
+  echo "Minifying javascript"
+  minify js htdocs/sw.js dist/htdocs/sw.min.js
+  minify js htdocs/js/keymap.js dist/htdocs/js/keymap.min.js
+  minify js dist/htdocs/js/bootstrap-native-v4.js dist/htdocs/js/bootstrap-native-v4.min.js
+  minify js htdocs/js/mympd.js dist/htdocs/js/mympd.min.js
+  
+  echo "Combining and compressing javascript"
+  cp dist/htdocs/js/i18n.min.js dist/htdocs/js/combined.js
+  cat dist/htdocs/js/keymap.min.js >> dist/htdocs/js/combined.js
+  cat dist/htdocs/js/bootstrap-native-v4.min.js >> dist/htdocs/js/combined.js
+  cat dist/htdocs/js/mympd.min.js >> dist/htdocs/js/combined.js
+  
+  rm -f dist/htdocs/js/combined.js.gz
+  $GZIPBIN -v -9 dist/htdocs/js/combined.js
+  rm -f dist/htdocs/sw.js.gz
+  $GZIPBIN -v -9 -c dist/htdocs/sw.min.js > dist/htdocs/sw.js.gz
+ 
+  echo "Minifying stylesheets"
+  minify css htdocs/css/mympd.css dist/htdocs/css/mympd.min.css
+  
+  echo "Combining and compressing stylesheets"
+  cp dist/htdocs/css/bootstrap.css dist/htdocs/css/combined.css
+  cat dist/htdocs/css/mympd.min.css >> dist/htdocs/css/combined.css
+  
+  rm -f dist/htdocs/css/combined.css.gz
+  $GZIPBIN -v -9 dist/htdocs/css/combined.css
+  
   echo "Minifying and compressing html"
   minify html htdocs/index.html dist/htdocs/index.html.gz
-
-  echo -n "Creating and compressing i18n json"
-  cd src/i18n || exit 1
-  $PERLBIN ./tojson.pl | $GZIP > ../../dist/htdocs/js/i18n.js.gz
-  cd ../.. || exit 1
 
   echo "Creating other compressed assets"
   ASSETS="htdocs/mympd.webmanifest"
@@ -105,7 +116,7 @@ buildrelease() {
     COMPRESSED="dist/${ASSET}.gz"
     if newer "$ASSET" "$COMPRESSED"
     then 
-      gzip -9 -v -c "$ASSET" > "$COMPRESSED"
+      $GZIPBIN -v -9 -c "$ASSET" > "$COMPRESSED"
     fi
   done
 

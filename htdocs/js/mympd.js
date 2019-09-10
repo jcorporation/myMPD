@@ -383,7 +383,10 @@ function appInitStart() {
     i18nHtml(document.getElementById('splashScreenAlert'));
     
     //register serviceworker
-    if ('serviceWorker' in navigator && document.URL.substring(0, 5) == 'https' && window.location.hostname != 'localhost') {
+    var script = document.getElementsByTagName("script")[0].src.replace(/^.*[\/]/, '');
+    if ('serviceWorker' in navigator && document.URL.substring(0, 5) == 'https' 
+        && window.location.hostname != 'localhost' && script == 'combined.js')
+    {
         window.addEventListener('load', function() {
             navigator.serviceWorker.register('/sw.js', {scope: '/'}).then(function(registration) {
                 // Registration was successful

@@ -33,14 +33,9 @@ INCBIN(index_html, "../dist/htdocs/index.html.gz");
 INCBIN(coverimage_notavailable_svg, "../dist/htdocs/assets/coverimage-notavailable.svg.gz");
 INCBIN(coverimage_stream_svg, "../dist/htdocs/assets/coverimage-stream.svg.gz");
 INCBIN(coverimage_loading_svg, "../dist/htdocs/assets/coverimage-loading.svg.gz");
-INCBIN(bootstrap_css, "../dist/htdocs/css/bootstrap.css.gz");
-INCBIN(mympd_css, "../dist/htdocs/css/mympd.css.gz");
-INCBIN(keymap_js, "../dist/htdocs/js/keymap.js.gz");
-INCBIN(mympd_js, "../dist/htdocs/js/mympd.js.gz");
-INCBIN(i18n_js, "../dist/htdocs/js//i18n.js.gz");
-INCBIN(bootstrap_nativ_v4_js, "../dist/htdocs/js/bootstrap-native-v4.js.gz");
+INCBIN(combined_css, "../dist/htdocs/css/combined.css.gz");
+INCBIN(combined_js, "../dist/htdocs/js/combined.js.gz");
 //uncompressed assets
-INCBIN(robots_txt, "../htdocs/robots.txt");
 INCBIN(favicon_ico, "../htdocs/assets/favicon.ico");
 INCBIN(appicon_192_png, "../htdocs/assets/appicon-192.png");
 INCBIN(appicon_512_png, "../htdocs/assets/appicon-512.png");
@@ -57,25 +52,19 @@ struct embedded_file {
 
 static bool serve_embedded_files(struct mg_connection *nc, struct http_message *hm) {
     const struct embedded_file embedded_files[] = {
+        {"/", "text/html", true, index_html_data, index_html_size},
+        {"/css/combined.css", "text/css", true, combined_css_data, combined_css_size},
+        {"/js/combined.js", "application/javascript", true, combined_js_data, combined_js_size},
         {"/sw.js", "application/javascript", true, sw_js_data, sw_js_size},
         {"/mympd.webmanifest", "application/manifest+json", true, mympd_webmanifest_data, mympd_webmanifest_size},
-        {"/index.html", "text/html", true, index_html_data, index_html_size},
-        {"/", "text/html", true, index_html_data, index_html_size},
         {"/assets/coverimage-notavailable.svg", "image/svg+xml", true, coverimage_notavailable_svg_data, coverimage_notavailable_svg_size},
+        {"/assets/MaterialIcons-Regular.woff2", "font/woff2", false, MaterialIcons_Regular_woff2_data, MaterialIcons_Regular_woff2_size},
         {"/assets/coverimage-stream.svg", "image/svg+xml", true, coverimage_stream_svg_data, coverimage_stream_svg_size},
         {"/assets/coverimage-loading.svg", "image/svg+xml", true, coverimage_loading_svg_data, coverimage_loading_svg_size},
-        {"/css/bootstrap.css", "text/css", true, bootstrap_css_data, bootstrap_css_size},
-        {"/css/mympd.css", "text/css", true, mympd_css_data, mympd_css_size},
-        {"/js/keymap.js", "application/javascript", true, keymap_js_data, keymap_js_size},
-        {"/js/mympd.js", "application/javascript", true, mympd_js_data, mympd_js_size},
-        {"/js/i18n.js", "application/javascript", true, i18n_js_data, i18n_js_size},
-        {"/js/bootstrap-native-v4.js", "application/javascript", true, bootstrap_nativ_v4_js_data, bootstrap_nativ_v4_js_size},
-        {"/robots.txt", "text/plain", false, robots_txt_data, robots_txt_size},
         {"/assets/favicon.ico", "image/vnd.microsoft.icon", false, favicon_ico_data, favicon_ico_size},
         {"/assets/appicon-192.png", "image/png", false, appicon_192_png_data, appicon_192_png_size},
         {"/assets/appicon-512.png", "image/png", false, appicon_512_png_data, appicon_512_png_size},
         {"/assets/appicon-167.png", "image/png", false, appicon_167_png_data, appicon_167_png_size},
-        {"/assets/MaterialIcons-Regular.woff2", "font/woff2", false, MaterialIcons_Regular_woff2_data, MaterialIcons_Regular_woff2_size},
         {NULL, NULL, false, NULL, 0}
     };
     //decode uri
@@ -86,6 +75,10 @@ static bool serve_embedded_files(struct mg_connection *nc, struct http_message *
         LOG_ERROR("uri_decoded buffer to small");
         mg_printf(nc, "%s", "HTTP/1.1 500 INTERNAL SERVER ERROR\r\n\r\n");
         return false;
+    }
+    //set index.html as direcory index
+    if (strcmp(uri_decoded, "/index.html") == 0) {
+        uri_decoded_len = 1;
     }
     //find fileinfo
     const struct embedded_file *p = NULL;
