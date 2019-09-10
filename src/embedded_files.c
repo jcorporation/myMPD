@@ -39,7 +39,6 @@ INCBIN(combined_js, "../dist/htdocs/js/combined.js.gz");
 INCBIN(favicon_ico, "../htdocs/assets/favicon.ico");
 INCBIN(appicon_192_png, "../htdocs/assets/appicon-192.png");
 INCBIN(appicon_512_png, "../htdocs/assets/appicon-512.png");
-INCBIN(appicon_167_png, "../htdocs/assets/appicon-167.png");
 INCBIN(MaterialIcons_Regular_woff2, "../htdocs/assets/MaterialIcons-Regular.woff2");
 
 struct embedded_file {
@@ -64,7 +63,6 @@ static bool serve_embedded_files(struct mg_connection *nc, struct http_message *
         {"/assets/favicon.ico", "image/vnd.microsoft.icon", false, favicon_ico_data, favicon_ico_size},
         {"/assets/appicon-192.png", "image/png", false, appicon_192_png_data, appicon_192_png_size},
         {"/assets/appicon-512.png", "image/png", false, appicon_512_png_data, appicon_512_png_size},
-        {"/assets/appicon-167.png", "image/png", false, appicon_167_png_data, appicon_167_png_size},
         {NULL, NULL, false, NULL, 0}
     };
     //decode uri
