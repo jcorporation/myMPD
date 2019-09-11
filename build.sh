@@ -1,5 +1,8 @@
 #!/bin/sh
 
+#set umask
+umask 0022
+
 #get myMPD version
 VERSION=$(grep VERSION_ CMakeLists.txt | cut -d\" -f2 | tr '\n' '.' | sed 's/\.$//')
 
@@ -164,7 +167,7 @@ cleanup() {
   rm -rf package
   
   #htdocs
-  rm -f htdocs/js/bootstrap-native-v4.min.js
+  rm -f htdocs/js/bootstrap-native-v4.js
   rm -f htdocs/js/i18n.js
   rm -f htdocs/css/bootstrap.css
 
@@ -209,6 +212,16 @@ EOL
 
   tar -czf "../mympd_${VERSION}.orig.tar.gz" -- *
   dpkg-buildpackage -rfakeroot
+  LINTIAN=$(command -v lintian)
+  if [ "$LINTIAN" != "" ]
+  then
+    echo "Checking package with lintian"
+    ARCH=$(uname -p)
+    [ "$ARCH" = "x86_64" ] && ARCH="amd64"
+    $LINTIAN "../mympd_${VERSION}-1_${ARCH}.deb"
+  else
+    echo "WARNING: lintian not found, can't check package"
+  fi
 }
 
 pkgdocker() {
@@ -243,7 +256,7 @@ pkgrpm() {
   then
     echo "Checking package with rpmlint"
     ARCH=$(uname -p)
-    rpmlint "$HOME/rpmbuild/RPMS/${ARCH}/mympd-${VERSION}-0.${ARCH}.rpm"
+    $RPMLINT "$HOME/rpmbuild/RPMS/${ARCH}/mympd-${VERSION}-0.${ARCH}.rpm"
   else
     echo "WARNING: rpmlint not found, can't check package"
   fi
@@ -258,8 +271,8 @@ pkgarch() {
   if [ "$NAMCAP" != "" ]
   then
     echo "Checking package with namcap"
-    namcap PKGBUILD
-    namcap mympd-*.pkg.tar.xz
+    $NAMCAP PKGBUILD
+    $NAMCAP mympd-*.pkg.tar.xz
   else
     echo "WARNING: namcap not found, can't check package"
   fi

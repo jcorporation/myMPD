@@ -17,6 +17,7 @@ binary-arch:
 	mkdir -p debian/tmp/DEBIAN
 	cp debian/postinst debian/tmp/DEBIAN
 	cp debian/postrm debian/tmp/DEBIAN
+	cp debian/conffiles debian/tmp/DEBIAN
 	dpkg-gencontrol -pmympd
 	dpkg --build debian/tmp ..
 
