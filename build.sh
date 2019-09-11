@@ -87,25 +87,22 @@ buildrelease() {
   minify js htdocs/js/mympd.js dist/htdocs/js/mympd.min.js
   
   echo "Combining and compressing javascript"
-  cp dist/htdocs/js/i18n.min.js dist/htdocs/js/combined.js
-  cat dist/htdocs/js/keymap.min.js >> dist/htdocs/js/combined.js
-  cat dist/htdocs/js/bootstrap-native-v4.min.js >> dist/htdocs/js/combined.js
-  cat dist/htdocs/js/mympd.min.js >> dist/htdocs/js/combined.js
+  cat dist/htdocs/js/i18n.min.js \
+      dist/htdocs/js/keymap.min.js \
+      dist/htdocs/js/bootstrap-native-v4.min.js \
+      dist/htdocs/js/mympd.min.js > dist/htdocs/js/combined.js
   
-  rm -f dist/htdocs/js/combined.js.gz
-  $GZIPBIN -v -9 dist/htdocs/js/combined.js
-  rm -f dist/htdocs/sw.js.gz
-  $GZIPBIN -v -9 -c dist/htdocs/sw.min.js > dist/htdocs/sw.js.gz
+  $GZIPBIN -f -v -9 dist/htdocs/js/combined.js
+  $GZIPBIN -f -v -9 -c dist/htdocs/sw.min.js > dist/htdocs/sw.js.gz
  
   echo "Minifying stylesheets"
   minify css htdocs/css/mympd.css dist/htdocs/css/mympd.min.css
   
   echo "Combining and compressing stylesheets"
-  cp dist/htdocs/css/bootstrap.css dist/htdocs/css/combined.css
-  cat dist/htdocs/css/mympd.min.css >> dist/htdocs/css/combined.css
+  cat dist/htdocs/css/bootstrap.css \
+      dist/htdocs/css/mympd.min.css > dist/htdocs/css/combined.css
   
-  rm -f dist/htdocs/css/combined.css.gz
-  $GZIPBIN -v -9 dist/htdocs/css/combined.css
+  $GZIPBIN -f -v -9 dist/htdocs/css/combined.css
   
   echo "Minifying and compressing html"
   minify html htdocs/index.html dist/htdocs/index.html.gz
