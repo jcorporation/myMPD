@@ -10,5 +10,6 @@ Package: mympd
 Architecture: any
 Depends: libc6, libmpdclient2, openssl, libmediainfo0v5
 Description: Standalone and modern web mpd client.
- myMPD is a standalone and modern web mpd client.
- No need for a webserver or interpreter.
+ myMPD is a lightweight MPD web client that runs without a dedicated
+ webserver or interpreter. It's tuned for minimal resource usage and
+ requires only very few dependencies.
