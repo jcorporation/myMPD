@@ -160,6 +160,23 @@ builddebug() {
   make VERBOSE=1
 }
 
+cleanupoldinstall() {
+  if [ -d /usr/share/mympd ]
+  then
+    echo "Previous installation found"
+    rm -rf /usr/share/mympd
+    rm -rf /var/lib/mympd/tmp
+    mv /etc/mympd/mympd.conf /etc/mympd.conf
+    rm -rf /etc/mympd
+  else
+    echo "No old installation found"
+  fi
+  if [ -d /lib/systemd/system/mympd.service ]
+  then
+    mv /usr/lib/systemd/system/mympd.service /lib/systemd/system/mympd.service
+  fi
+}
+
 cleanup() {
   #build directories
   rm -rf release
@@ -283,12 +300,17 @@ case "$1" in
 	  buildrelease
 	;;
 	install)
+	  cleanupoldinstall
 	  installrelease
 	;;
 	releaseinstall)
 	  buildrelease
 	  cd .. || exit 1
+	  cleanupoldinstall
 	  installrelease
+	;;
+	cleanupoldinst)
+	  cleanupoldinstall
 	;;
 	debug)
 	  builddebug "FALSE"
@@ -331,6 +353,7 @@ case "$1" in
 	  echo "                  linked with libasan3, uses assets in htdocs"
 	  echo "  memcheck:       builds debug files in directory debug "
 	  echo "                  for use with valgrind, uses assets in htdocs/"
+	  echo "  cleanupoldinst: removes deprecated files"
 	  echo "  cleanup:        cleanup source tree"
 	  echo "  check:          runs cppcheck"
 	  echo "  pkgalpine:      creates the alpine package"
