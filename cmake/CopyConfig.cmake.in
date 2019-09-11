@@ -10,6 +10,10 @@ ENDIF()
 #Install startup script
 IF (EXISTS "/usr/lib/systemd")
   #Install systemd unit
+  MESSAGE("-- Installing: $ENV{DESTDIR}/usr/lib/systemd/system/mympd.service")
+  EXECUTE_PROCESS (COMMAND @CMAKE_COMMAND@ -E copy "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd.service" "$ENV{DESTDIR}/usr/lib/systemd/system/mympd.service")
+ELSEIF (EXISTS "/usr/lib/systemd")
+  #Install systemd unit
   MESSAGE("-- Installing: $ENV{DESTDIR}/lib/systemd/system/mympd.service")
   EXECUTE_PROCESS (COMMAND @CMAKE_COMMAND@ -E copy "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd.service" "$ENV{DESTDIR}/lib/systemd/system/mympd.service")
 ELSEIF(EXISTS "/sbin/openrc-run")
