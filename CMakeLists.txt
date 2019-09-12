@@ -8,7 +8,7 @@ set(CPACK_PACKAGE_VERSION_MAJOR "5")
 set(CPACK_PACKAGE_VERSION_MINOR "6")
 set(CPACK_PACKAGE_VERSION_PATCH "0")
 
-if("$ENV{ARCHLINUX}" MATCHES "true")
+if(EXISTS "/etc/arch-release")
   set(WEBAPPS "/webapps")
 else()
   set(WEBAPPS "")
