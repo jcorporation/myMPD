@@ -19,7 +19,7 @@ ELSEIF (EXISTS "/lib/systemd/system")
 ELSEIF(EXISTS "/sbin/openrc-run")
   #Install openrc script
   MESSAGE("-- Installing: $ENV{DESTDIR}/etc/init.d/mympd")
-  EXECUTE_PROCESS (COMMAND @CMAKE_COMMAND@ -E copy "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/myMPD.openrc" "$ENV{DESTDIR}/etc/init.d/mympd")
+  EXECUTE_PROCESS (COMMAND @CMAKE_COMMAND@ -E copy "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd.openrc" "$ENV{DESTDIR}/etc/init.d/mympd")
 ELSEIF(EXISTS "/etc/init.d")
   #Install sysVinit script
   MESSAGE("-- Installing: $ENV{DESTDIR}/etc/init.d/mympd")
