@@ -111,7 +111,6 @@ set(SOURCES
 add_executable(mympd ${SOURCES})
 target_link_libraries(mympd ${LIBMPDCLIENT_LIBRARY} ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${CMAKE_DL_LIBS})
 
-find_package(LibMediainfo)
 if(LIBMEDIAINFO_FOUND)
   add_library(mympd_coverextract SHARED src/plugins/mympd_coverextract.cpp)
 
