@@ -8,7 +8,7 @@ Version:        5.6.0
 Release:        0 
 License:        GPLv2
 Group:          Productivity/Multimedia/Sound/Players
-Summary:        Standalone web mpdclient
+Summary:        Standalone web mpd client
 Url:            https://github.com/jcorporation/myMPD
 Source:         mympd_%{version}.orig.tar.gz
 BuildRequires:  gcc
@@ -56,7 +56,6 @@ fi
 %defattr(-,root,root,-)
 %doc README.md LICENSE
 /usr/bin/mympd
-/usr/share/mympd
 /usr/lib/mympd
 /usr/lib/systemd/system/mympd.service
 %config(noreplace) /etc/mympd.conf
