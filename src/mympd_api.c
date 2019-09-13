@@ -36,8 +36,12 @@
 #include <assert.h>
 #include <inttypes.h>
 
+#include "api.h"
+#include "utility.h"
+#include "log.h"
 #include "list.h"
 #include "tiny_queue.h"
+#include "config_defs.h"
 #include "global.h"
 #include "mympd_api.h"
 #include "mpd_client.h"
@@ -83,14 +87,11 @@ typedef struct t_mympd_state {
     int coverimage_size;
     char *locale;
     char *music_directory;
-    //system commands
-    struct list syscmd_list;
 } t_mympd_state;
 
 static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_request *request);
 static void mympd_api_push_to_mpd_client(t_mympd_state *mympd_state);
-static bool mympd_api_read_syscmds(t_config *config, t_mympd_state *mympd_state);
-static int mympd_api_syscmd(t_config *config, t_mympd_state *mympd_state, char *buffer, const char *cmd);
+static int mympd_api_syscmd(t_config *config, char *buffer, const char *cmd);
 static void mympd_api_read_statefiles(t_config *config, t_mympd_state *mympd_state);
 static char *state_file_rw_string(t_config *config, const char *name, const char *def_value, bool warn);
 static bool state_file_rw_bool(t_config *config, const char *name, const bool def_value, bool warn);
@@ -113,13 +114,6 @@ void *mympd_api_loop(void *arg_config) {
     //push settings to mpd_client queue
     mympd_api_push_to_mpd_client(mympd_state);
 
-    //read system command files
-    list_init(&mympd_state->syscmd_list);
-    bool rc = mympd_api_read_syscmds(config, mympd_state);
-    if (rc == true) {
-        list_sort_by_value(&mympd_state->syscmd_list, true);
-    }
-
     while (s_signal_received == 0) {
         struct t_work_request *request = tiny_queue_shift(mympd_api_queue, 0);
         if (request != NULL) {
@@ -127,7 +121,6 @@ void *mympd_api_loop(void *arg_config) {
         }
     }
 
-    list_free(&mympd_state->syscmd_list);
     FREE_PTR(mympd_state->mpd_host);
     FREE_PTR(mympd_state->mpd_pass);
     FREE_PTR(mympd_state->taglist);
@@ -206,6 +199,23 @@ static void mympd_api_push_to_mpd_client(t_mympd_state *mympd_state) {
     tiny_queue_push(mpd_client_queue, mpd_client_request);
 }
 
+void mympd_api_settings_delete(t_config *config) {
+    const char* state_files[]={"auto_play", "bg_color", "bg_cover", "bg_css_filter", "browsetaglist", "cols_browse_database",
+        "cols_browse_filesystem", "cols_browse_playlists_detail", "cols_playback", "cols_queue_current", "cols_queue_last_played",
+        "cols_search", "coverimage", "coverimage_name", "coverimage_size", "jukebox_mode", "jukebox_playlist", "jukebox_queue_length",
+        "last_played", "last_played_count", "locale", "localplayer", "localplayer_autoplay", "love", "love_channel", "love_message",
+        "max_elements_per_page",  "mpd_host", "mpd_pass", "mpd_port", "notification_page", "notification_web", "searchtaglist",
+        "smartpls", "stickers", "stream_port", "stream_url", "taglist", "music_directory", 0};
+    const char** ptr = state_files;
+    while (*ptr != 0) {
+        size_t filename_len = strlen(*ptr) + config->varlibdir_len + 8;
+        char filename[filename_len];
+        snprintf(filename, filename_len, "%s/state/%s", config->varlibdir, *ptr);
+        unlink(filename);
+        ++ptr;
+    }
+}
+
 //private functions
 static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_request *request) {
     int je;
@@ -228,7 +238,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
         if (config->syscmds == true) {
             je = json_scanf(request->data, request->length, "{data: {cmd: %Q}}", &p_charbuf1);
             if (je == 1) {
-                response->length = mympd_api_syscmd(config, mympd_state, response->data, p_charbuf1);
+                response->length = mympd_api_syscmd(config, response->data, p_charbuf1);
                 FREE_PTR(p_charbuf1);
             }
         } 
@@ -559,7 +569,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
     }
 
     if (response->length == 0) {
-        response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"No response for cmd_id %%{cmdId}\", \"values\": {\"cmdId\": %u}}", request->cmd_id);
+        response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"No response for cmd_id %%{cmdId}\", \"values\": {\"cmdId\": %d}}", request->cmd_id);
         LOG_ERROR("No response for cmd_id %u", request->cmd_id);
     }
     LOG_DEBUG("Push response to queue for connection %lu: %s", request->conn_id, response->data);
@@ -568,98 +578,31 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
     FREE_PTR(request);
 }
 
-static bool mympd_api_read_syscmds(t_config *config, t_mympd_state *mympd_state) {
-    DIR *dir;
-    struct dirent *ent;
-    char dirname[400];
-    char *cmd = NULL;
-    int order;
-
-    if (config->syscmds == true) {
-        snprintf(dirname, 400, "%s/syscmds", config->etcdir);
-        LOG_INFO("Reading syscmds: %s", dirname);
-        if ((dir = opendir (dirname)) != NULL) {
-            while ((ent = readdir(dir)) != NULL) {
-                if (strncmp(ent->d_name, ".", 1) == 0)
-                    continue;
-                order = strtoimax(ent->d_name, &cmd, 10);
-                if (strcmp(cmd, "") != 0) {
-                    list_push(&mympd_state->syscmd_list, cmd, order);
-                }
-                else {
-                    LOG_ERROR("Can't read syscmd file %s", ent->d_name);
-                }
-            }
-            closedir(dir);
-        }
-        else {
-            LOG_ERROR("Can't read syscmds");
-        }
-    }
-    else {
-        LOG_WARN("Syscmds are disabled");
-    }
-    return true;
-}
-
-static int mympd_api_syscmd(t_config *config, t_mympd_state *mympd_state, char *buffer, const char *cmd) {
+static int mympd_api_syscmd(t_config *config, char *buffer, const char *cmd) {
     int len = 0;
-    char filename[400];
-    char *line = NULL;
-    char *crap = NULL;
-    size_t n = 0;
-    ssize_t read;
     
-    const int order = list_get_value(&mympd_state->syscmd_list, cmd);
-    if (order == -1) {
+    char *cmdline = (char *)list_get_extra(&config->syscmd_list, cmd);
+    if (cmdline == NULL) {
         LOG_ERROR("Syscmd not defined: %s", cmd);
         len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"System command not defined\"}");
         return len;
     }
 
-    snprintf(filename, 400, "%s/syscmds/%d%s", config->etcdir, order, cmd);
-    FILE *fp = fopen(filename, "r");    
-    if (fp == NULL) {
-        len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can not execute cmd %%{cmd}\", \"values\":{\"cmd\": \"%s\"}}", cmd);
-        LOG_ERROR("Can't execute syscmd \"%s\"", cmd);
-        return len;
+    const int rc = system(cmdline);
+    if ( rc == 0) {
+        len = snprintf(buffer, MAX_SIZE, "{\"type\": \"result\", \"data\": \"Successfully execute cmd %%{cmd}\", \"values\":{\"cmd\": \"%s\"}}", cmd);
+        LOG_VERBOSE("Executed syscmd: \"%s\"", cmdline);
     }
-    read = getline(&line, &n, fp);
-    fclose(fp);
-    if (read > 0) {
-        strtok_r(line, "\n", &crap);
-        const int rc = system(line);
-        if ( rc == 0) {
-            len = snprintf(buffer, MAX_SIZE, "{\"type\": \"result\", \"data\": \"Successfully execute cmd %%{cmd}\", \"values\":{\"cmd\": \"%s\"}}", cmd);
-            LOG_VERBOSE("Executed syscmd: \"%s\"", line);
-        }
-        else {
-            len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to execute cmd %%{cmd}\", \"values\":{\"cmd\": \"%s\"}}", cmd);
-            LOG_ERROR("Executing syscmd \"%s\" failed", cmd);
-        }
-    } else {
-        len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Can not execute cmd %%{cmd}\", \"values\":{\"cmd\": \"%s\"}}", cmd);
-        LOG_ERROR("Can't execute syscmd \"%s\"", cmd);
+    else {
+        len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to execute cmd %%{cmd}\", \"values\":{\"cmd\": \"%s\"}}", cmd);
+        LOG_ERROR("Executing syscmd \"%s\" failed", cmdline);
     }
-    FREE_PTR(line);
     CHECK_RETURN_LEN();    
 }
 
 static void mympd_api_settings_reset(t_config *config, t_mympd_state *mympd_state) {
-    const char* state_files[]={"auto_play", "bg_color", "bg_cover", "bg_css_filter", "browsetaglist", "cols_browse_database",
-        "cols_browse_filesystem", "cols_browse_playlists_detail", "cols_playback", "cols_queue_current", "cols_queue_last_played",
-        "cols_search", "coverimage", "coverimage_name", "coverimage_size", "jukebox_mode", "jukebox_playlist", "jukebox_queue_length",
-        "last_played", "last_played_count", "locale", "localplayer", "localplayer_autoplay", "love", "love_channel", "love_message",
-        "max_elements_per_page",  "mpd_host", "mpd_pass", "mpd_port", "notification_page", "notification_web", "searchtaglist",
-        "smartpls", "stickers", "stream_port", "stream_url", "taglist", "music_directory", 0};
-    const char** ptr = state_files;
-    while (*ptr != 0) {
-        size_t filename_len = strlen(*ptr) + config->varlibdir_len + 8;
-        char filename[filename_len];
-        snprintf(filename, filename_len, "%s/state/%s", config->varlibdir, *ptr);
-        unlink(filename);
-        ++ptr;
-    }
+
+    mympd_api_settings_delete(config);
     mympd_api_read_statefiles(config, mympd_state);
     mympd_api_push_to_mpd_client(mympd_state);
 }
@@ -790,10 +733,9 @@ static bool state_file_write(t_config *config, const char *name, const char *val
 
 static int mympd_api_put_settings(t_config *config, t_mympd_state *mympd_state, char *buffer) {
     size_t len;
-    int nr = 0;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
     
-    len = json_printf(&out, "{type: mympdSettings, data: {mpdHost: %Q, mpdPort: %d, mpdPass: %Q, featSyscmds: %B, "
+    len = json_printf(&out, "{type: mympdSettings, data: {mpdHost: %Q, mpdPort: %d, mpdPass: %Q, featSyscmds: %B, featCacert: %B, "
         "featLocalplayer: %B, streamPort: %d, streamUrl: %Q, coverimage: %B, coverimageName: %Q, coverimageSize: %d, featMixramp: %B, "
         "maxElementsPerPage: %d, notificationWeb: %B, notificationPage: %B, jukeboxMode: %d, jukeboxPlaylist: %Q, jukeboxQueueLength: %d, "
         "autoPlay: %B, bgColor: %Q, bgCover: %B, bgCssFilter: %Q, loglevel: %d, locale: %Q, localplayerAutoplay: %B, "
@@ -802,6 +744,7 @@ static int mympd_api_put_settings(t_config *config, t_mympd_state *mympd_state, 
         mympd_state->mpd_port,
         "dontsetpassword",
         config->syscmds,
+        (config->custom_cert == false && config->ssl == true ? true : false),
         mympd_state->localplayer,
         mympd_state->stream_port,
         mympd_state->stream_url,
@@ -833,8 +776,8 @@ static int mympd_api_put_settings(t_config *config, t_mympd_state *mympd_state, 
     
     if (config->syscmds == true) {
         len += json_printf(&out, ", syscmdList: [");
-        nr = 0;
-        struct node *current = mympd_state->syscmd_list.list;
+        int nr = 0;
+        struct node *current = config->syscmd_list.list;
         while (current != NULL) {
             if (nr++) 
                 len += json_printf(&out, ",");

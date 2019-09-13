@@ -1,0 +1,37 @@
+# Maintainer: Juergen Mang <mail [at] jcgames [dot] de>
+# Website: https://github.com/jcorporation/myMPD
+# PKGBUILD Based on https://github.com/CultofRobots/archphile-custom/tree/master/mympd
+
+pkgname=mympd
+_pkgname=myMPD
+pkgver=5.6.0
+pkgrel=1
+pkgdesc="A standalone and mobile friendly web mpdclient."
+arch=('x86_64' 'armv7h' 'aarch64')
+url="http://github.org/jcorporation/myMPD"
+license=('GPL')
+depends=('libmpdclient' 'openssl')
+makedepends=('cmake')
+optdepends=('libmediainfo')
+provides=()
+conflicts=()
+replaces=()
+backup=('etc/webapps/mympd.conf')
+install=archlinux.install
+source=("mympd_${pkgver}.orig.tar.gz"
+	"archlinux.install")
+sha256sums=('SKIP'
+	    'SKIP')
+
+build() {
+  cd "${srcdir}" || exit 1
+  install -d release
+  cd release || exit 1
+  cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=RELEASE ..
+  make
+}
+
+package() {
+  cd "${srcdir}/release"
+  make DESTDIR="$pkgdir/" install
+}

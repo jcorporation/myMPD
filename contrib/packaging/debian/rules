@@ -1,0 +1,27 @@
+#!/usr/bin/make -f
+export DH_VERBOSE = 1
+
+BUILDDIR = release
+
+build:
+	mkdir $(BUILDDIR)
+	cd $(BUILDDIR); cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=RELEASE ..
+	make -C $(BUILDDIR)
+
+binary: binary-indep binary-arch
+
+binary-indep:
+
+binary-arch:
+	cd $(BUILDDIR); make install DESTDIR=../debian/tmp
+	mkdir -p debian/tmp/DEBIAN
+	cp debian/postinst debian/tmp/DEBIAN
+	cp debian/postrm debian/tmp/DEBIAN
+	cp debian/conffiles debian/tmp/DEBIAN
+	dpkg-gencontrol -pmympd
+	dpkg --build debian/tmp ..
+
+clean:
+	rm -rf $(BUILDDIR)
+
+.PHONY: binary binary-arch binary-indep clean

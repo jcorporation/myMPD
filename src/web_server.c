@@ -29,22 +29,51 @@
 #include <assert.h>
 #include <inttypes.h>
 
+#include "api.h"
+#include "utility.h"
+#include "log.h"
 #include "list.h"
 #include "tiny_queue.h"
+#include "config_defs.h"
 #include "global.h"
 #include "web_server.h"
 #include "mpd_client.h"
 #include "../dist/src/mongoose/mongoose.h"
 #include "../dist/src/frozen/frozen.h"
 
+#define EXTRA_HEADERS_DIR "Content-Security-Policy: default-src 'none'; "\
+                          "style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self' 'unsafe-inline'; img-src 'self' data:; "\
+                          "connect-src 'self' ws: wss:; manifest-src 'self'; "\
+                          "media-src *; frame-ancestors 'none'; base-uri 'none';\r\n"\
+                          "X-Content-Type-Options: nosniff\r\n"\
+                          "X-XSS-Protection: 1; mode=block\r\n"\
+                          "X-Frame-Options: deny"
+
+#define EXTRA_HEADERS "Content-Security-Policy: default-src 'none'; "\
+                      "style-src 'self'; font-src 'self'; script-src 'self'; img-src 'self' data:; "\
+                      "connect-src 'self' ws: wss:; manifest-src 'self'; "\
+                      "media-src *; frame-ancestors 'none'; base-uri 'none';\r\n"\
+                      "X-Content-Type-Options: nosniff\r\n"\
+                      "X-XSS-Protection: 1; mode=block\r\n"\
+                      "X-Frame-Options: deny"
+
+#ifndef DEBUG
+//embedded files for release build
+#include "embedded_files.c"
+#endif
+
 //private definitions
+static bool parse_internal_message(t_work_result *response, t_mg_user_data *mg_user_data);
+static int has_prefix(const struct mg_str *uri, const struct mg_str *prefix);
 static int is_websocket(const struct mg_connection *nc);
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data);
 static void ev_handler_redirect(struct mg_connection *nc_http, int ev, void *ev_data);
 static void send_ws_notify(struct mg_mgr *mgr, t_work_result *response);
 static void send_api_response(struct mg_mgr *mgr, t_work_result *response);
 static bool handle_api(int conn_id, const char *request, int request_len);
-static int has_prefix(const struct mg_str *uri, const struct mg_str *prefix);
+static bool handle_coverextract(struct mg_connection *nc, struct http_message *hm,t_mg_user_data *mg_user_data, t_config *config);
+
+
 
 //public functions
 bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_data) {
@@ -66,6 +95,7 @@ bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_da
     mg_user_data->pics_directory = malloc(pics_directory_len);
     assert(mg_user_data->pics_directory);
     snprintf(mg_user_data->pics_directory, pics_directory_len, "%s/pics", config->varlibdir);
+
     //init monogoose mgr with mg_user_data
     mg_mgr_init(mgr, mg_user_data);
     
@@ -99,6 +129,8 @@ bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_da
             return false;
         } 
         LOG_INFO("Listening on ssl port %s", config->ssl_port);
+        LOG_DEBUG("Using certificate: %s", config->ssl_cert);
+        LOG_DEBUG("Using private key: %s", config->ssl_key);
         mg_set_protocol_http_websocket(nc_https);
     }
     return mgr;
@@ -120,42 +152,10 @@ void *web_server_loop(void *arg_mgr) {
             if (response != NULL) {
                 if (response->conn_id == -1) {
                     //internal message
-                    char *p_charbuf = NULL;
-                    bool feat_library;
-                    int je = json_scanf(response->data, response->length, "{musicDirectory: %Q, featLibrary: %B}", &p_charbuf, &feat_library);
-                    if (je == 2) {
-                        FREE_PTR(mg_user_data->music_directory);
-                        mg_user_data->music_directory = strdup(p_charbuf);
-                        mg_user_data->feat_library = feat_library;
-                        FREE_PTR(p_charbuf);
-                        
-                        if (mg_user_data->rewrite_patterns != NULL) {
-                            FREE_PTR(mg_user_data->rewrite_patterns);
-                            mg_user_data->rewrite_patterns = NULL;
-                        }
-                        size_t rewrite_patterns_len = strlen(mg_user_data->pics_directory) + 8;
-                        if (feat_library == true && strncmp(mg_user_data->music_directory, "none", 4) != 0) {
-                            rewrite_patterns_len += strlen(mg_user_data->music_directory) + 11;
-                        }
-                        char *rewrite_patterns = malloc(rewrite_patterns_len);
-                        assert(rewrite_patterns);
-                        if (feat_library == true) {
-                            snprintf(rewrite_patterns, rewrite_patterns_len, "/pics/=%s,/library/=%s", mg_user_data->pics_directory, mg_user_data->music_directory);
-                            LOG_DEBUG("Setting music_directory to %s", mg_user_data->music_directory);
-                        }
-                        else {
-                            snprintf(rewrite_patterns, rewrite_patterns_len, "/pics/=%s", mg_user_data->pics_directory);
-                        }
-                        mg_user_data->rewrite_patterns = rewrite_patterns;
-                        LOG_DEBUG("Setting rewrite_patterns to %s", mg_user_data->rewrite_patterns);
-                    }
-                    else {
-                        LOG_WARN("Unknown internal message: %s", response->data);
-                    }
-                    FREE_PTR(response);
+                    parse_internal_message(response, mg_user_data);
                 }
                 else if (response->conn_id == 0) {
-                    //Websocket notify from mpd idle
+                    //websocket notify from mpd idle
                     send_ws_notify(mgr, response);
                 } 
                 else {
@@ -171,6 +171,44 @@ void *web_server_loop(void *arg_mgr) {
 }
 
 //private functions
+static bool parse_internal_message(t_work_result *response, t_mg_user_data *mg_user_data) {
+    char *p_charbuf = NULL;
+    bool feat_library;
+    int je = json_scanf(response->data, response->length, "{musicDirectory: %Q, featLibrary: %B}", &p_charbuf, &feat_library);
+    if (je == 2) {
+        FREE_PTR(mg_user_data->music_directory);
+        mg_user_data->music_directory = strdup(p_charbuf);
+        mg_user_data->feat_library = feat_library;
+        FREE_PTR(p_charbuf);
+        
+        if (mg_user_data->rewrite_patterns != NULL) {
+            FREE_PTR(mg_user_data->rewrite_patterns);
+            mg_user_data->rewrite_patterns = NULL;
+        }
+        size_t rewrite_patterns_len = strlen(mg_user_data->pics_directory) + 8;
+        if (feat_library == true && strncmp(mg_user_data->music_directory, "none", 4) != 0) {
+            rewrite_patterns_len += strlen(mg_user_data->music_directory) + 11;
+        }
+        char *rewrite_patterns = malloc(rewrite_patterns_len);
+        assert(rewrite_patterns);
+        if (feat_library == true) {
+            snprintf(rewrite_patterns, rewrite_patterns_len, "/pics/=%s,/library/=%s", mg_user_data->pics_directory, mg_user_data->music_directory);
+            LOG_DEBUG("Setting music_directory to %s", mg_user_data->music_directory);
+        }
+        else {
+            snprintf(rewrite_patterns, rewrite_patterns_len, "/pics/=%s", mg_user_data->pics_directory);
+        }
+        mg_user_data->rewrite_patterns = rewrite_patterns;
+        LOG_DEBUG("Setting rewrite_patterns to %s", mg_user_data->rewrite_patterns);
+    }
+    else {
+        LOG_WARN("Unknown internal message: %s", response->data);
+        return false;
+    }
+    FREE_PTR(response);
+    return true;
+}
+
 static int is_websocket(const struct mg_connection *nc) {
     return nc->flags & MG_F_IS_WEBSOCKET;
 }
@@ -238,7 +276,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             struct http_message *hm = (struct http_message *) ev_data;
             LOG_VERBOSE("New websocket request (%d): %.*s", (intptr_t)nc->user_data, (int)hm->uri.len, hm->uri.p);
             if (mg_vcmp(&hm->uri, "/ws/") != 0) {
-                printf("ERROR: Websocket request not to /ws/, closing connection");
+                LOG_ERROR("Websocket request not to /ws/, closing connection");
                 mg_printf(nc, "%s", "HTTP/1.1 403 FORBIDDEN\r\n\r\n");
                 nc->flags |= MG_F_SEND_AND_CLOSE;
             }
@@ -253,6 +291,8 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
         case MG_EV_HTTP_REQUEST: {
             struct http_message *hm = (struct http_message *) ev_data;
             static const struct mg_str library_prefix = MG_MK_STR("/library");
+            static const struct mg_str albumart_prefix = MG_MK_STR("/albumart");
+            static const struct mg_str pics_prefix = MG_MK_STR("/pics");
             LOG_VERBOSE("HTTP request (%d): %.*s", (intptr_t)nc->user_data, (int)hm->uri.len, hm->uri.p);
             if (mg_vcmp(&hm->uri, "/api") == 0) {
                 //api request
@@ -264,80 +304,60 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                     mg_printf(nc, "%s", response);
                 }
             }
-            else if (has_prefix(&hm->uri, &library_prefix) && hm->query_string.len > 0 && mg_vcmp(&hm->query_string, "cover") == 0 
-                     && config->plugins_coverextract == true && mg_user_data->feat_library == true) {
-                size_t image_file_len = 1500;
-                char image_file[image_file_len];
-                snprintf(image_file, image_file_len, "%s/assets/coverimage-notavailable.png", DOC_ROOT);
-
-                if (strlen(mg_user_data->music_directory) == 0) {
-                    LOG_ERROR("Error extracting coverimage, invalid music_directory");
-                    mg_http_serve_file(nc, hm, image_file, mg_mk_str("image/png"), mg_mk_str(""));
-                    break;
-                }
-                //coverextract
-                char uri_decoded[(int)hm->uri.len];
-                if (mg_url_decode(hm->uri.p, (int)hm->uri.len, uri_decoded, (int)hm->uri.len, 0) == -1) {
-                    LOG_ERROR("url_decode buffer to small");
-                    mg_http_serve_file(nc, hm, image_file, mg_mk_str("image/png"), mg_mk_str(""));
-                    break;
-                }
-                // replace /library through path to music_directory
-                char *uri_trimmed = uri_decoded;
-                uri_trimmed += 8;
-                size_t media_file_len = strlen(mg_user_data->music_directory) + strlen(uri_trimmed) + 1;
-                char media_file[media_file_len];
-                snprintf(media_file, media_file_len, "%s%s", mg_user_data->music_directory, uri_trimmed);
-                uri_trimmed = NULL;
-                
-                LOG_VERBOSE("Exctracting coverimage from %s", media_file);
-                
-                size_t image_mime_type_len = 100;
-                char image_mime_type[image_mime_type_len];
-                size_t cache_dir_len = config->varlibdir_len + 12;
-                char cache_dir[cache_dir_len];
-                snprintf(cache_dir, cache_dir_len, "%s/covercache", config->varlibdir);
-                bool rc = plugin_coverextract(media_file, cache_dir, image_file, image_file_len, image_mime_type, image_mime_type_len, true);
-                if (rc == true) {
-                    size_t path_len = config->varlibdir_len + strlen(image_file) + 13;
-                    char path[path_len];
-                    snprintf(path, path_len, "%s/covercache/%s", config->varlibdir, image_file);
-                    LOG_DEBUG("Serving file %s (%s)", path, image_mime_type);
-                    mg_http_serve_file(nc, hm, path, mg_mk_str(image_mime_type), mg_mk_str(""));
+            else if (mg_vcmp(&hm->uri, "/ca.crt") == 0) { 
+                if (config->custom_cert == false) {
+                    //deliver ca certificate
+                    size_t ca_file_len = config->varlibdir_len + 12;
+                    char ca_file[ca_file_len];
+                    snprintf(ca_file, ca_file_len, "%s/ssl/ca.pem", config->varlibdir);
+                    mg_http_serve_file(nc, hm, ca_file, mg_mk_str("application/x-x509-ca-cert"), mg_mk_str(""));
                 }
                 else {
-                    LOG_ERROR("Error extracting coverimage from %s", media_file);
-                    snprintf(image_file, image_file_len, "%s/assets/coverimage-notavailable.png", DOC_ROOT);
-                    mg_http_serve_file(nc, hm, image_file, mg_mk_str("image/png"), mg_mk_str(""));
+                    LOG_ERROR("Custom cert enabled, don't deliver myMPD ca");
+                    mg_printf(nc, "%s", "HTTP/1.1 404 NOT FOUND\r\n\r\n");
                 }
             }
-            else {
-                static struct mg_serve_http_opts s_http_server_opts;
-                s_http_server_opts.document_root = DOC_ROOT;
-                if (has_prefix(&hm->uri, &library_prefix) && mg_user_data->feat_library == true) {
-                    s_http_server_opts.enable_directory_listing = "yes";
-                    s_http_server_opts.extra_headers = "Content-Security-Policy: default-src 'none'; "
-                        "style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self' 'unsafe-inline'; img-src 'self' data:; "
-                        "connect-src 'self' ws: wss:; manifest-src 'self'; "
-                        "media-src *; frame-ancestors 'none'; base-uri 'none';\r\n"
-                        "X-Content-Type-Options: nosniff\r\n"
-                        "X-XSS-Protection: 1; mode=block\r\n"
-                        "X-Frame-Options: deny";
+            else if (has_prefix(&hm->uri, &albumart_prefix)) {
+                if (config->plugins_coverextract == true && mg_user_data->feat_library == true) {
+                    //coverextract
+                    handle_coverextract(nc, hm, mg_user_data, config);
                 }
                 else {
-                    s_http_server_opts.enable_directory_listing = "no";
-                    s_http_server_opts.extra_headers = "Content-Security-Policy: default-src 'none'; "
-                        "style-src 'self'; font-src 'self'; script-src 'self'; img-src 'self' data:; "
-                        "connect-src 'self' ws: wss:; manifest-src 'self'; "
-                        "media-src *; frame-ancestors 'none'; base-uri 'none';\r\n"
-                        "X-Content-Type-Options: nosniff\r\n"
-                        "X-XSS-Protection: 1; mode=block\r\n"
-                        "X-Frame-Options: deny";
+                    LOG_ERROR("Coverextract not enabled or unknown music_directory");
+                    mg_printf(nc, "%s", "HTTP/1.1 404 NOT FOUND\r\n\r\n");   
                 }
+            }
+            else if (has_prefix(&hm->uri, &library_prefix) || has_prefix(&hm->uri, &pics_prefix)) {
+                static struct mg_serve_http_opts s_http_server_opts;
+                s_http_server_opts.document_root = DOC_ROOT;
                 if (mg_user_data->rewrite_patterns != NULL) {
                     s_http_server_opts.url_rewrites = mg_user_data->rewrite_patterns;
                 }
+                s_http_server_opts.enable_directory_listing = "yes";
+                s_http_server_opts.extra_headers = EXTRA_HEADERS_DIR;
+
+                if (mg_user_data->feat_library == true || has_prefix(&hm->uri, &pics_prefix)) {
+                    //serve directory
+                    mg_serve_http(nc, hm, s_http_server_opts);
+                }
+                else {
+                    LOG_ERROR("Unknown music_directory");
+                    mg_printf(nc, "%s", "HTTP/1.1 404 NOT FOUND\r\n\r\n");   
+                }
+            }
+            else {
+                //all other uris
+                #ifdef DEBUG
+                //serve all files from filesystem
+                static struct mg_serve_http_opts s_http_server_opts;
+                s_http_server_opts.document_root = DOC_ROOT;
+                s_http_server_opts.enable_directory_listing = "no";
+                s_http_server_opts.extra_headers = EXTRA_HEADERS;
                 mg_serve_http(nc, hm, s_http_server_opts);
+                #else
+                //serve embedded files
+                serve_embedded_files(nc, hm);
+                #endif
             }
             break;
         }
@@ -419,4 +439,60 @@ static bool handle_api(int conn_id, const char *request_body, int request_len) {
 
     FREE_PTR(cmd);        
     return true;
+}
+
+static bool handle_coverextract(struct mg_connection *nc, struct http_message *hm, t_mg_user_data *mg_user_data, t_config *config) {
+    size_t image_file_len = 1500;
+    char image_file[image_file_len];
+    snprintf(image_file, image_file_len, "%s/assets/coverimage-notavailable.png", DOC_ROOT);
+
+    if (strlen(mg_user_data->music_directory) == 0) {
+        LOG_ERROR("Error extracting coverimage, invalid music_directory");
+        mg_http_serve_file(nc, hm, image_file, mg_mk_str("image/png"), mg_mk_str(""));
+        return false;
+    }
+    
+    //decode uri
+    int uri_decoded_len;
+    char uri_decoded[(int)hm->uri.len + 1];
+    if ((uri_decoded_len = mg_url_decode(hm->uri.p, (int)hm->uri.len, uri_decoded, (int)hm->uri.len + 1, 0)) == -1) {
+        LOG_ERROR("uri_decoded buffer to small");
+        mg_http_serve_file(nc, hm, image_file, mg_mk_str("image/png"), mg_mk_str(""));
+        return false;
+    }
+    
+    // replace /albumart through path to music_directory
+    if (uri_decoded_len < 10) {
+        LOG_ERROR("length of uri_decoded < 10 ");
+        mg_http_serve_file(nc, hm, image_file, mg_mk_str("image/png"), mg_mk_str(""));
+        return false;
+    }
+    char *uri_trimmed = uri_decoded;
+    uri_trimmed += 9;
+    size_t media_file_len = strlen(mg_user_data->music_directory) + strlen(uri_trimmed) + 1;
+    char media_file[media_file_len];
+    snprintf(media_file, media_file_len, "%s%s", mg_user_data->music_directory, uri_trimmed);
+    uri_trimmed = NULL;
+                
+    LOG_VERBOSE("Exctracting coverimage from %s", media_file);
+                
+    size_t image_mime_type_len = 100;
+    char image_mime_type[image_mime_type_len];
+    size_t cache_dir_len = config->varlibdir_len + 12;
+    char cache_dir[cache_dir_len];
+    snprintf(cache_dir, cache_dir_len, "%s/covercache", config->varlibdir);
+    bool rc = plugin_coverextract(media_file, cache_dir, image_file, image_file_len, image_mime_type, image_mime_type_len, true);
+    if (rc == true) {
+        size_t path_len = config->varlibdir_len + strlen(image_file) + 13;
+        char path[path_len];
+        snprintf(path, path_len, "%s/covercache/%s", config->varlibdir, image_file);
+        LOG_DEBUG("Serving file %s (%s)", path, image_mime_type);
+        mg_http_serve_file(nc, hm, path, mg_mk_str(image_mime_type), mg_mk_str(""));
+    }
+    else {
+        LOG_ERROR("Error extracting coverimage from %s", media_file);
+        snprintf(image_file, image_file_len, "%s/assets/coverimage-notavailable.png", DOC_ROOT);
+        mg_http_serve_file(nc, hm, image_file, mg_mk_str("image/png"), mg_mk_str(""));
+    }
+    return rc;
 }

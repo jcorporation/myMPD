@@ -1,14 +1,9 @@
-var CACHE = 'myMPD-cache-v5.5.3';
-var subdir = self.location.pathname.replace('/sw.min.js', '').replace(/\/$/, '');
+var CACHE = 'myMPD-cache-v5.6.0';
+var subdir = self.location.pathname.replace('/sw.js', '').replace(/\/$/, '');
 var urlsToCache = [
     subdir + '/',
-    subdir + '/css/bootstrap.min.css',
-    subdir + '/css/mympd.min.css',
-    subdir + '/js/bootstrap-native-v4.min.js',
-    subdir + '/js/mympd.min.js',
-    subdir + '/js/keymap.min.js',
-    subdir + '/js/i18n.min.js',
-    subdir + '/assets/appicon-167.png',
+    subdir + '/css/combined.css',
+    subdir + '/js/combined.js',
     subdir + '/assets/appicon-192.png',
     subdir + '/assets/appicon-512.png',
     subdir + '/assets/coverimage-stream.svg',
@@ -20,8 +15,10 @@ var urlsToCache = [
 
 var ignoreRequests = new RegExp('(' + [
   subdir + '/api',
+  subdir + '/ca.crt',
   subdir + '/ws',
   subdir + '/library\/(.*)',
+  subdir + '/albumart\/(.*)',
   subdir + '/pics\/(.*)'].join('(\/?)|\\') + ')$')
 
 self.addEventListener('install', function(event) {

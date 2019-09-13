@@ -1,0 +1,9 @@
+#!/bin/sh
+
+ACTION=$1
+USERNAME="mympd"
+
+if [ "$ACTION" = "purge" ]
+then
+  echo "Please purge /var/lib/mympd manually"
+fi

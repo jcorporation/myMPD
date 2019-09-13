@@ -1,4 +1,0 @@
-#!/bin/sh
-
-/postinst
-mympd

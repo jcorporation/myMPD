@@ -1,0 +1,51 @@
+#myMPD configuration file
+
+[mpd]
+#Connection to mpd, unix socket or host/port, socket preferred
+host = /var/run/mpd/socket
+#host = 127.0.0.1
+#port = 6600
+#pass = 
+
+#absolut path of music_directory of mpd
+#none = no local music_directory
+#auto = get music_directory from mpd (only supported, if connected to mpd socket)
+musicdirectory = auto
+
+
+[webserver]
+#Webserver options
+webport = 80
+
+#Enable ssl
+#Certificates are generated under @CMAKE_INSTALL_FULL_LOCALSTATEDIR@/lib@SUBDIRVAR@/ssl/
+ssl = true
+sslport = 443
+
+
+[mympd]
+#Loglevel
+#0 = error
+#1 = warn
+#2 = info
+#3 = verbose
+#4 = debug
+loglevel = 2
+
+#myMPD user
+#group is the primary group of this user
+user = mympd
+
+#Enable system commands defined in syscmds section
+syscmds = false
+
+
+[plugins]
+coverextract = @COVEREXTRACT@
+
+
+[syscmds]
+Shutdown = sudo /sbin/halt
+#To use this command add following lines to /etc/sudoers (without #)
+#Cmnd_Alias MYMPD_CMDS = /sbin/halt
+#mympd ALL=NOPASSWD: MYMPD_CMDS

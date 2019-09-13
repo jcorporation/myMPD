@@ -1,0 +1,21 @@
+[Unit]
+Description=myMPD server daemon
+Requires=network.target local-fs.target mpd.service
+After=mpd.service
+
+[Service]
+ExecStart=@CMAKE_INSTALL_FULL_BINDIR@/mympd
+Type=simple
+
+# disallow writing to /usr, /bin, /sbin, ...
+ProtectSystem=yes
+
+# more paranoid security settings
+ProtectKernelTunables=yes
+ProtectControlGroups=yes
+ProtectKernelModules=yes
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+RestrictNamespaces=yes
+
+[Install]
+WantedBy=multi-user.target

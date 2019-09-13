@@ -1,7 +1,50 @@
 :root {
-    --mympd-coverimagesize: 240px;
-    --mympd-backgroundcolor: #888;
-    --mympd-backgroundfilter: blur(5px);
+  --mympd-coverimagesize: 250px;
+  --mympd-backgroundcolor: #888;
+  --mympd-backgroundfilter: blur(5px);
+}
+
+#splashScreen {
+  background: linear-gradient(0deg, rgba(0,0,0,1) 0%, rgba(52,58,64,1) 100%);
+  width: 100vw;
+  height: 100vh;
+  z-index: 2000;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+}
+
+#splashScreenLogo {
+  color: white;
+  font-size: 4rem;
+  text-align: center;
+  margin-top: 25vh;
+}
+
+.splashScreenIcon {
+  font-size: 4.8rem !important;
+  vertical-align: text-bottom !important;
+}
+
+#splashScreenAlert {
+  min-height: 8rem;
+  width: 100vw;
+  color: #f8f9fa;
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+  z-index: 2001;
+  font-size: 1.2rem;
+  padding: 1rem;
+  text-align: center;
+}
+
+#appReloadBtn {
+  float: right;
+}
+
+.overflow-hidden {
+  overflow: hidden;
 }
 
 html {
@@ -16,7 +59,8 @@ body {
 }
 
 .breakAll, td[data-col=Title] {
-  word-break: break-all
+  word-break: break-all;
+  min-width: 6rem;
 }
 
 .albumartbg {
@@ -79,12 +123,38 @@ button {
   }
 }
 
+@media only screen and (max-width: 768px) {
+  #headerTitle {
+    display:none !important;
+  }
+}
+
+#headerTitle {
+ text-overflow: ellipsis;
+}
+
 .clickable {
   cursor: pointer;
 }
 
-[data-col=Pos], [data-col=Type], [data-col=Track], [data-col=Action] {
+[data-col=Pos], [data-col=Type], [data-col=Track] {
   width: 2rem;
+  min-width: min-content;
+  /* @alternate */
+  min-width: -moz-min-content;
+  /* @alternate */
+  min-width: -webkit-min-content;
+}
+
+[data-col=Action] {
+  width: 2rem;
+  text-align: right;
+}
+
+tr > th {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 small {
@@ -124,6 +194,11 @@ small {
 
 .hide {
   display: none !important;
+}
+
+.hide-fade {
+  opacity: 0;
+  transition: opacity 0.5s linear;
 }
 
 .unvisible {
@@ -352,16 +427,17 @@ caption {
 }
 
 #menu-dbupdate, .menu-indent {
-  padding-left:1rem;
+  padding-left: 1rem;
 }
 
 div.key {
   border: 1px solid #bbb;
   background-color: #eee;
   border-radius: 2px;
-  width: 20px;
-  height: 20px;
+  width: 2rem;
+  height: 2rem;
   text-align: center;
+  line-height: 2rem;
 }
 
 ol#searchCrumb {
@@ -379,4 +455,12 @@ ol#searchCrumb {
 #mainMenuDropdown {
   overflow-y: auto;
   max-height: calc(100vh - 9rem);
+}
+
+tr:focus {
+  background-color: #ccc;
+}
+
+textarea.small {
+  font-size: 80%;
 }

@@ -1,0 +1,16 @@
+#!/sbin/openrc-run
+
+# myMPD init.d file for alpine linux.
+
+name=mympd
+command="@CMAKE_INSTALL_FULL_BINDIR@/mympd"
+command_args=""
+command_background="yes"
+
+start_stop_daemon_args=""
+pidfile="/run/$name.pid"
+
+depend() {
+	need net
+	after firewall
+}

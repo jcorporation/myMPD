@@ -640,7 +640,7 @@ Open about
 myMPD에 대하여 열기
 
 Focus search
-초점 찾기
+찾기로 가기
 
 myMPD installed as app
 myMPD가 앱으로 설치됨
@@ -944,3 +944,27 @@ Saved smart playlist %{name}
 
 System commands
 시스템 명령어
+
+Focus table
+목록에서 찾기
+
+Append item to queue
+순서에 항목 추가
+
+Replace queue with item
+순서에 항목 대체
+
+Type
+형식
+
+Remove item from queue
+순서에서 항목 지우기
+
+Append item to playlist
+연주목록에 항목 추가
+
+Fingerprint
+지문
+
+Calculate
+계산

@@ -1,0 +1,113 @@
+/* myMPD
+   (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+   This project's homepage is: https://github.com/jcorporation/mympd
+   
+   myMPD ist fork of:
+   
+   ympd
+   (c) 2013-2014 Andrew Karpow <andy@ndyk.de>
+   This project's homepage is: http://www.ympd.org
+   
+   This program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; version 2 of the License.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License along
+   with this program; if not, write to the Free Software Foundation, Inc.,
+   Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+*/
+
+#ifndef __CONFIG_STRUCT_H__
+#define __CONFIG_STRUCT_H__
+
+//Max size of mpd_client response buffer
+#define MAX_ELEMENTS_PER_PAGE 200
+#define MAX_LIST_SIZE 1024 * MAX_ELEMENTS_PER_PAGE
+#define MAX_SIZE 1024 * (MAX_ELEMENTS_PER_PAGE + 2)
+
+//Debug build
+#cmakedefine DEBUG
+
+//myMPD version from cmake
+#define MYMPD_VERSION_MAJOR ${CPACK_PACKAGE_VERSION_MAJOR}
+#define MYMPD_VERSION_MINOR ${CPACK_PACKAGE_VERSION_MINOR}
+#define MYMPD_VERSION_PATCH ${CPACK_PACKAGE_VERSION_PATCH}
+#define MYMPD_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}"
+
+//default paths
+#define DOC_ROOT "${ASSETS_PATH}"
+#define ETC_PATH "${ETC_PATH}"
+#define PLUGIN_PATH "${PLUGIN_PATH}"
+#define VARLIB_PATH "${VARLIB_PATH}"
+
+enum jukebox_modes {
+    JUKEBOX_OFF,
+    JUKEBOX_ADD_SONG,
+    JUKEBOX_ADD_ALBUM,
+};
+
+//myMPD configuration
+typedef struct t_config {
+    char *mpd_host;
+    int mpd_port;
+    char *mpd_pass;
+    char *webport;
+    bool ssl;
+    char *ssl_port;
+    char *ssl_cert;
+    char *ssl_key;
+    bool custom_cert;
+    char *ssl_san;
+    char *user;
+    bool stickers;
+    bool mixramp;
+    char *taglist;
+    char *searchtaglist;
+    char *browsetaglist;
+    bool smartpls;
+    char *varlibdir;
+    size_t varlibdir_len;
+    int max_elements_per_page;
+    bool syscmds;
+    int last_played_count;
+    int loglevel;
+    bool love;
+    char *love_channel;
+    char *love_message;
+    bool plugins_coverextract;
+    char *plugins_coverextractlib;
+    char *music_directory;
+    bool notification_web;
+    bool notification_page;
+    bool auto_play;
+    int jukebox_mode;
+    char *jukebox_playlist;
+    int jukebox_queue_length;
+    char *cols_queue_current;
+    char *cols_search;
+    char *cols_browse_database;
+    char *cols_browse_playlists_detail;
+    char *cols_browse_filesystem;
+    char *cols_playback;
+    char *cols_queue_last_played;
+    bool localplayer;
+    bool localplayer_autoplay;
+    int stream_port;
+    char *stream_url;
+    bool bg_cover;
+    char *bg_color;
+    char *bg_css_filter;
+    bool coverimage;
+    char *coverimage_name;
+    int coverimage_size;
+    char *locale;
+    //system commands
+    struct list syscmd_list;
+} t_config;
+
+#endif

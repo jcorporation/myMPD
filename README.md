@@ -32,11 +32,10 @@ This fork provides a reworked ui based on Bootstrap 4, a modernized backend and 
  - Local playback of mpd http stream (html5 audio api)
  - Progressiv Web App enabled
  - Embedded Webserver (mongoose)
- - Docker support (experimental)
  - Love message for scrobbling clients
  - Localized user interface
 
-myMPD is work in progress. Bugreportes and feature requests are very welcome.
+myMPD is work in progress. Feedback, bug reportes and feature requests are very welcome.
  - https://github.com/jcorporation/myMPD/issues
 
 Screenshots
@@ -55,40 +54,33 @@ Backend
  - Mongoose: https://github.com/cesanta/mongoose
  - Frozen: https://github.com/cesanta/frozen
  - inih: https://github.com/benhoyt/inih
+ - incbin: https://github.com/graphitemaster/incbin
 
 Dependencies
 ------------
  - libmpdclient 2: http://www.musicpd.org/libs/libmpdclient/
  - OpenSSL: https://www.openssl.org/
- - libmediainfo: https://mediaarea.net/en/MediaInfo (to support embedded album covers)
+ - libmediainfo: https://mediaarea.net/en/MediaInfo (to support embedded albumart)
 
 Build Dependencies
 ------------------
  - cmake 2.6
  - libasan3: for debug builds only
- - Java: optional for minifying .css and .js files
+ - Java, Perl: to minify files
 
 Unix Build Instructions
 -----------------------
-1. Install dependencies: cmake, libmpdclient (dev), OpenSSL (dev), libmediainfo (dev) and Java
-2. Extract myMPD tarball and change path to this directory.
-3. Build and install myMPD: ```./mkrelease.sh```
+1. Install dependencies: cmake, libmpdclient (dev), OpenSSL (dev), libmediainfo (dev), Java and Perl
+2. Extract myMPD tarball and change path to this directory
+3. Build and install myMPD: ```./build.sh releaseinstall```
 
 Run
 ---------
-Adapt the configuration file ```/etc/mympd/mympd.conf``` to your needs.
+Adapt the configuration file ```/etc/mympd.conf``` to your needs.
 ```
-Usage: ./mympd [/etc/mympd/mympd.conf]
+Usage: ./mympd [/etc/mympd.conf]
 ```
-The ```./mkrelease.sh``` script tries to install a systemd service file.  If this failes you can copy the ```mympd.service``` file from ```/usr/share/mympd/``` to appropriate distribution specific location. 
-
-SSL
----
-
-1. Create ca and certificate ```/usr/share/mympd/crcert.sh``` (mkrelease.sh does this for you).
-2. Set ```ssl=true``` in /etc/mympd/mympd.conf (use default certificate under ```/var/lib/mympd/ssl/```).
-3. Import ```/var/lib/mympd/ssl/ca/ca.pem``` in your browser to trust the certificate.
-4. myMPD redirects http requests to https, ensure that myMPD hostname is resolvable.
+The ```./build.sh``` script installs a startup script for systemd, openrc (Alpine Linux) or sysVinit.
 
 Copyright
 ---------

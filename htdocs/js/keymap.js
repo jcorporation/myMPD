@@ -25,5 +25,10 @@ var keymap = {
     "S": {"cmd": "MPD_API_QUEUE_SHUFFLE", "options": [], "desc": "Shuffle queue"},
     "C": {"cmd": "MPD_API_QUEUE_CROP", "options": [], "desc": "Crop queue"},
     "?": {"cmd": "openModal", "options": ["modalAbout"], "desc": "Open about"},
-    "/": {"cmd": "focusSearch", "options": [], "desc": "Focus search"}
+    "/": {"cmd": "focusSearch", "options": [], "desc": "Focus search"},
+    "n": {"cmd": "focusTable", "options": [], "desc": "Focus table"},
+    "q": {"cmd": "queueSelectedItem", "options": [true], "desc": "Append item to queue"},
+    "Q": {"cmd": "queueSelectedItem", "options": [false], "desc": "Replace queue with item"},
+    "d": {"cmd": "dequeueSelectedItem", "options": [], "desc": "Remove item from queue"},
+    "x": {"cmd": "addSelectedItemToPlaylist", "options": [], "desc": "Append item to playlist"}
 }

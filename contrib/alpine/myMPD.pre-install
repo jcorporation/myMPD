@@ -1,6 +1,0 @@
-#!/bin/sh
-
-addgroup -S mympd 2>/dev/null
-adduser -S -D -H -s /bin/flase -G mympd -g mympd mympd 2>/dev/null
-
-exit 0

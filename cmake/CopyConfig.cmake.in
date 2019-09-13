@@ -1,0 +1,27 @@
+#Install mympd.conf
+IF(NOT EXISTS "$ENV{DESTDIR}@ETC_PATH@/mympd.conf")
+  MESSAGE("-- Installing: $ENV{DESTDIR}@ETC_PATH@/mympd.conf")
+  EXECUTE_PROCESS (COMMAND @CMAKE_COMMAND@ -E copy "@CMAKE_CURRENT_BINARY_DIR@/contrib/mympd.conf" "$ENV{DESTDIR}@ETC_PATH@/mympd.conf")
+ELSE()
+  MESSAGE("-- Installing: $ENV{DESTDIR}@ETC_PATH@/mympd.conf.dist")
+  EXECUTE_PROCESS (COMMAND @CMAKE_COMMAND@ -E copy "@CMAKE_CURRENT_BINARY_DIR@/contrib/mympd.conf" "$ENV{DESTDIR}@ETC_PATH@/mympd.conf.dist")
+ENDIF()
+
+#Install startup script
+IF (EXISTS "/usr/lib/systemd/system")
+  #Install systemd unit
+  MESSAGE("-- Installing: $ENV{DESTDIR}/usr/lib/systemd/system/mympd.service")
+  EXECUTE_PROCESS (COMMAND @CMAKE_COMMAND@ -E copy "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd.service" "$ENV{DESTDIR}/usr/lib/systemd/system/mympd.service")
+ELSEIF (EXISTS "/lib/systemd/system")
+  #Install systemd unit
+  MESSAGE("-- Installing: $ENV{DESTDIR}/lib/systemd/system/mympd.service")
+  EXECUTE_PROCESS (COMMAND @CMAKE_COMMAND@ -E copy "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd.service" "$ENV{DESTDIR}/lib/systemd/system/mympd.service")
+ELSEIF(EXISTS "/sbin/openrc-run")
+  #Install openrc script
+  MESSAGE("-- Installing: $ENV{DESTDIR}/etc/init.d/mympd")
+  EXECUTE_PROCESS (COMMAND @CMAKE_COMMAND@ -E copy "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd.openrc" "$ENV{DESTDIR}/etc/init.d/mympd")
+ELSEIF(EXISTS "/etc/init.d")
+  #Install sysVinit script
+  MESSAGE("-- Installing: $ENV{DESTDIR}/etc/init.d/mympd")
+  EXECUTE_PROCESS (COMMAND @CMAKE_COMMAND@ -E copy "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd.sysVinit" "$ENV{DESTDIR}/etc/init.d/mympd")
+ENDIF()
