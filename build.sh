@@ -36,6 +36,20 @@ newer() {
   fi
 }
 
+setversion() {
+  export LC_TIME="en_GB.UTF-8"
+  
+  sed -e "s/__VERSION__/${VERSION}/g" htdocs/sw.js.in > htdocs/sw.js
+  sed -e "s/__VERSION__/${VERSION}/g" contrib/packaging/alpine/APKBUILD.in > contrib/packaging/alpine/APKBUILD
+  sed -e "s/__VERSION__/${VERSION}/g" contrib/packaging/arch/PKGBUILD.in > contrib/packaging/arch/PKGBUILD
+  DATE=$(date +"%a %b %d %Y")
+  sed -e "s/__VERSION__/${VERSION}/g" "-e s/__DATE__/$DATE/g" \
+  	contrib/packaging/rpm/mympd.spec.in > contrib/packaging/rpm/mympd.spec
+  DATE=$(date +"%a, %d %b %Y %H:%m:%S %z")
+  sed -e "s/__VERSION__/${VERSION}/g" "-e s/__DATE__/$DATE/g" \
+  	contrib/packaging/debian/changelog.in > contrib/packaging/debian/changelog
+}
+
 minify() {
   TYPE="$1"
   SRC="$2"
@@ -217,14 +231,6 @@ pkgdebian() {
   prepare
   cp -a contrib/packaging/debian .
   export LC_TIME="en_GB.UTF-8"
-  cat > debian/changelog << EOL
-mympd (${VERSION}-1) stable; urgency=medium
-
-  * Release from master
-
- -- Juergen Mang <mail@jcgames.de>  $(date +"%a, %d %b %Y %H:%m:%S %z")
-EOL
-
   tar -czf "../mympd_${VERSION}.orig.tar.gz" -- *
   dpkg-buildpackage -rfakeroot
   LINTIAN=$(command -v lintian)
@@ -337,6 +343,9 @@ case "$1" in
 	pkgarch)
 	  pkgarch
 	;;
+	setversion)
+	  setversion
+	;;
 	*)
 	  echo "Usage: $0 <option>"
 	  echo "Options:"
@@ -359,5 +368,6 @@ case "$1" in
 	  echo "  pkgdebian:      creates the debian package"
 	  echo "  pkgdocker:      creates the docker image (debian based with libmpdclient from git master branch)"
 	  echo "  pkgrpm:         creates the rpm package"
+	  echo "  setversion:     sets version and date in packaging files from CMakeLists.txt"
 	;;
 esac
