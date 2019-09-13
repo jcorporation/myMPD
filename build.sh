@@ -165,12 +165,13 @@ cleanupoldinstall() {
     rm -rf /var/lib/mympd/tmp
     mv /etc/mympd/mympd.conf /etc/mympd.conf
     rm -rf /etc/mympd
+    rm -f /usr/lib/systemd/system/mympd.service
+    if ! ls -1qA /usr/lib/systemd/system/ | grep -q .
+    then
+      rmdir /usr/lib/systemd/system
+    fi
   else
     echo "No old installation found"
-  fi
-  if [ -d /lib/systemd/system/mympd.service ]
-  then
-    mv /usr/lib/systemd/system/mympd.service /lib/systemd/system/mympd.service
   fi
 }
 
