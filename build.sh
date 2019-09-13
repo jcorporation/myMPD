@@ -348,6 +348,7 @@ case "$1" in
 	;;
 	*)
 	  echo "Usage: $0 <option>"
+	  echo "Version: ${VERSION}"
 	  echo "Options:"
 	  echo "  release:        build release files in directory release"
 	  echo "                  following environment variables are respected"
@@ -358,7 +359,7 @@ case "$1" in
 	  echo "  releaseinstall: calls release and install afterwards"
 	  echo "  debug:          builds debug files in directory debug"
 	  echo "                  linked with libasan3, uses assets in htdocs"
-	  echo "  memcheck:       builds debug files in directory debug "
+	  echo "  memcheck:       builds debug files in directory debug"
 	  echo "                  for use with valgrind, uses assets in htdocs/"
 	  echo "  cleanupoldinst: removes deprecated files"
 	  echo "  cleanup:        cleanup source tree"
