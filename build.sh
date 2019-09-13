@@ -1,5 +1,7 @@
 #!/bin/sh
 
+STARTPATH=$(pwd)
+
 #set umask
 umask 0022
 
@@ -204,6 +206,10 @@ cleanup() {
   find ./ -name \*~ -delete
 }
 
+cleanuposc() {
+  rm -rf osc
+}
+
 check () {
   CPPCHECKBIN=$(command -v cppcheck)
   if [ "$CPPCHECKBIN" != "" ]
@@ -223,8 +229,10 @@ prepare() {
   cd package/build || exit 1
   for F in $SRC
   do
+    [ "$F" = "$STARTPATH/osc" ] && continue
     cp -a "$F" .
   done
+  rm -r dist/buildtools
 }
 
 pkgdebian() {
@@ -254,6 +262,7 @@ pkgdocker() {
 pkgalpine() {
   prepare
   tar -czf "mympd_${VERSION}.orig.tar.gz" -- *
+  [ "$1" = "taronly" ] && return 0
   cp contrib/packaging/alpine/* .
   abuild checksum
   abuild -r
@@ -267,9 +276,10 @@ pkgrpm() {
   do
     mv "$F" "mympd-${VERSION}"
   done
+  tar -czf "mympd-${VERSION}.tar.gz" "mympd-${VERSION}"
+  [ "$1" = "taronly" ] && return 0
   install -d "$HOME/rpmbuild/SOURCES"
-  tar -czf "mympd_${VERSION}.orig.tar.gz" "mympd-${VERSION}"
-  mv "mympd_${VERSION}.orig.tar.gz" ~/rpmbuild/SOURCES/
+  mv "mympd-${VERSION}.tar.gz" ~/rpmbuild/SOURCES/
   cp ../../contrib/packaging/rpm/mympd.spec .
   rpmbuild -ba mympd.spec
   RPMLINT=$(command -v rpmlint)
@@ -286,6 +296,7 @@ pkgrpm() {
 pkgarch() {
   prepare
   tar -czf "mympd_${VERSION}.orig.tar.gz" -- *
+  [ "$1" = "taronly" ] && return 0
   cp contrib/packaging/arch/* .
   makepkg
   NAMCAP=$(command -v namcap)
@@ -297,6 +308,47 @@ pkgarch() {
   else
     echo "WARNING: namcap not found, can't check package"
   fi
+}
+
+pkgosc() {
+  cleanup
+  cleanuposc
+  [ "$OSC_REPO" = "" ] && OSC_REPO="home:jcorporation/myMPD"
+  
+  mkdir osc
+  cd osc || exit 1  
+  osc checkout "$OSC_REPO"
+  rm -f "$OSC_REPO"/*
+  
+  cd "$STARTPATH" || exit 1
+  pkgrpm taronly
+
+  cd "$STARTPATH" || exit 1
+  cp "package/build/mympd-${VERSION}.tar.gz" "osc/$OSC_REPO/"
+  
+  if [ -f /etc/debian_version ]
+  then
+    pkgdebian
+  else
+    pkgalpine taronly
+    rm -f "$OSC_REPO"/debian.*
+  fi
+
+  cd "$STARTPATH/osc" || exit 1
+  cp ../package/mympd_${VERSION}.orig.tar.gz "$OSC_REPO/"
+  if [ -f /etc/debian_version ]
+  then
+    cp ../package/mympd_${VERSION}-1.dsc "$OSC_REPO/"
+    cp ../package/mympd_${VERSION}-1.debian.tar.xz  "$OSC_REPO/"
+  fi
+  cp ../contrib/packaging/rpm/mympd.spec "$OSC_REPO/"
+  cp ../contrib/packaging/arch/PKGBUILD "$OSC_REPO/"
+  cp ../contrib/packaging/arch/archlinux.install "$OSC_REPO/"
+
+  cd "$OSC_REPO"
+  osc addremove
+  osc st
+  osc commit
 }
 
 case "$1" in
@@ -324,6 +376,7 @@ case "$1" in
 	;;
 	cleanup)
 	  cleanup
+	  cleanuposc
 	;;
 	check)
 	  check
@@ -345,6 +398,9 @@ case "$1" in
 	;;
 	setversion)
 	  setversion
+	;;
+	pkgosc)
+	  pkgosc
 	;;
 	*)
 	  echo "Usage: $0 <option>"
@@ -370,5 +426,9 @@ case "$1" in
 	  echo "  pkgdocker:      creates the docker image (debian based with libmpdclient from git master branch)"
 	  echo "  pkgrpm:         creates the rpm package"
 	  echo "  setversion:     sets version and date in packaging files from CMakeLists.txt"
+#Working on osc support
+#	  echo "  pkgosc:            updates a osc repository"
+#	  echo "                  following environment variables are respected"
+#	  echo "                  OSC_REPO=\"home:jcorporation/myMPD\""
 	;;
 esac

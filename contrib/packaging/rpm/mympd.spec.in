@@ -10,7 +10,7 @@ License:        GPLv2
 Group:          Productivity/Multimedia/Sound/Players
 Summary:        Standalone web mpd client
 Url:            https://github.com/jcorporation/myMPD
-Source:         mympd_%{version}.orig.tar.gz
+Source:         mympd-%{version}.tar.gz
 BuildRequires:  gcc
 BuildRequires:  gcc-c++
 BuildRequires:  cmake
@@ -44,7 +44,8 @@ echo "Checking status of mympd system user and group"
 getent group mympd > /dev/null
 [ "$?" = "2" ] && groupadd -r mympd
 getent passwd mympd > /dev/null
-[ "$?" = "2" ] && useradd -r mympd -g mympd -d /var/lib/mympd -s /usr/sbin/nologin
+[ "$?" = "2" ] && useradd -r -g mympd -d /var/lib/mympd -s /bin/false mympd
+true
 
 %postun
 if [ "$1" = "0" ]
