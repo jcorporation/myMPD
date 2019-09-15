@@ -108,6 +108,11 @@ static bool do_chroot(struct t_config *config) {
         if (chdir("/") != 0) {
             return false;
         }
+        //reset environment
+        clearenv();
+        char env_pwd[] = "PWD=/";
+        putenv(env_pwd);
+        //set mympd config
         FREE_PTR(config->varlibdir);
         config->varlibdir = strdup("");
         config->varlibdir_len = 0;
