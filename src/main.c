@@ -111,6 +111,10 @@ static bool do_chroot(struct t_config *config) {
         FREE_PTR(config->varlibdir);
         config->varlibdir = strdup("");
         config->varlibdir_len = 0;
+        if (config->syscmds == true) {
+            LOG_INFO("Disabling syscmds");
+            config->syscmds = false;
+        }
         return true;
     }
     return false;
