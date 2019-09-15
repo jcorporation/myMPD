@@ -89,7 +89,7 @@ static bool serve_embedded_files(struct mg_connection *nc, struct http_message *
     if (p->compressed == true) {
         struct mg_str *header_encoding = mg_get_http_header(hm, "Accept-Encoding");
         if (header_encoding == NULL || mg_strstr(mg_mk_str_n(header_encoding->p, header_encoding->len), mg_mk_str("gzip")) == NULL) {
-            mg_printf(nc, "%s", "HTTP/1.1 500 BROWSER DONT SUPPORT GZIP COMPRESSION\r\n\r\n");
+            mg_printf(nc, "%s", "HTTP/1.1 406 BROWSER DONT SUPPORT GZIP COMPRESSION\r\n\r\n");
             return false;
         }
     }
