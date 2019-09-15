@@ -70,7 +70,7 @@ minify() {
 
   if [ "$TYPE" = "html" ] && [ "$PERLBIN" != "" ]
   then
-    $PERLBIN -pe 's/^<!--debug-->.*\n//gm; s/<!--release\s+(.+)-->/$1/g; s/^\s*//gm; s/\s*$//gm' "$SRC" | $GZIP > "$DST"
+    $PERLBIN -pe 's/^<!--debug-->.*\n//gm; s/<!--release\s+(.+)-->/$1/g; s/<!--(.+)-->//g; s/^\s*//gm; s/\s*$//gm' "$SRC" | $GZIP > "$DST"
     ERROR="$?"
   elif [ "$TYPE" = "js" ] && [ "$JAVABIN" != "" ]
   then
@@ -294,7 +294,6 @@ pkgrpm() {
 pkgarch() {
   prepare
   tar -czf "mympd_${VERSION}.orig.tar.gz" -- *
-  [ "$1" = "taronly" ] && return 0
   cp contrib/packaging/arch/* .
   makepkg
   if [ "$SIGN" = "TRUE" ]
@@ -337,17 +336,17 @@ pkgosc() {
   fi
 
   cd "$STARTPATH/osc" || exit 1
-  cp ../package/mympd_${VERSION}.orig.tar.gz "$OSC_REPO/"
+  cp "../package/mympd_${VERSION}.orig.tar.gz" "$OSC_REPO/"
   if [ -f /etc/debian_version ]
   then
-    cp ../package/mympd_${VERSION}-1.dsc "$OSC_REPO/"
-    cp ../package/mympd_${VERSION}-1.debian.tar.xz  "$OSC_REPO/"
+    cp "../package/mympd_${VERSION}-1.dsc" "$OSC_REPO/"
+    cp "../package/mympd_${VERSION}-1.debian.tar.xz"  "$OSC_REPO/"
   fi
   cp ../contrib/packaging/rpm/mympd.spec "$OSC_REPO/"
   cp ../contrib/packaging/arch/PKGBUILD "$OSC_REPO/"
   cp ../contrib/packaging/arch/archlinux.install "$OSC_REPO/"
 
-  cd "$OSC_REPO"
+  cd "$OSC_REPO" || exit 1
   osc addremove
   osc st
   osc commit
