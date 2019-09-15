@@ -241,7 +241,7 @@ pkgdebian() {
   dpkg-buildpackage -rfakeroot
 
   #get created package name
-  PACKAGE=$(ls ../mympd_${VERSION}-1_*.deb)
+  PACKAGE=$(ls ../mympd_"${VERSION}"-1_*.deb)
   if [ "$PACKAGE" = "" ]
   then
     echo "Can't find package"
@@ -323,7 +323,7 @@ pkgarch() {
   then
     KEYARG=""
     [ "$GPGKEYID" != "" ] && KEYARG="--key $PGPGKEYID"
-    makepkg --sign $KEYARG mympd-*.pkg.tar.xz
+    makepkg --sign "$KEYARG" mympd-*.pkg.tar.xz
   fi
   NAMCAP=$(command -v namcap)
   if [ "$NAMCAP" != "" ]
