@@ -31,4 +31,4 @@ var keymap = {
     "Q": {"cmd": "queueSelectedItem", "options": [false], "desc": "Replace queue with item"},
     "d": {"cmd": "dequeueSelectedItem", "options": [], "desc": "Remove item from queue"},
     "x": {"cmd": "addSelectedItemToPlaylist", "options": [], "desc": "Append item to playlist"}
-}
+};
