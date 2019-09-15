@@ -39,6 +39,7 @@ newer() {
 }
 
 setversion() {
+  echo "Setting version to ${VERSION}"
   export LC_TIME="en_GB.UTF-8"
   
   sed -e "s/__VERSION__/${VERSION}/g" htdocs/sw.js.in > htdocs/sw.js
