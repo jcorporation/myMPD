@@ -239,13 +239,36 @@ pkgdebian() {
   export LC_TIME="en_GB.UTF-8"
   tar -czf "../mympd_${VERSION}.orig.tar.gz" -- *
   dpkg-buildpackage -rfakeroot
+
+  #get created package name
+  PACKAGE=$(ls ../mympd_${VERSION}-1_*.deb)
+  if [ "$PACKAGE" = "" ]
+  then
+    echo "Can't find package"
+  fi
+
+  if [ "$SIGN" = "TRUE" ]
+  then  
+    DPKGSIG=$(command -v dpkg-sig)
+    if [ "$DPKGSIG" != "" ]
+    then
+      if [ "$GPGKEYID" != "" ]
+      then
+        echo "Signing package with key $GPGKEYID"
+        dpkg-sig -k "$GPGKEYID" --sign builder "$PACKAGE"
+      else
+        echo "WARNING: GPGKEYID not set, can't sign package"
+      fi
+    else
+      echo "WARNING: dpkg-sig not found, can't sign package"
+    fi
+  fi
+  
   LINTIAN=$(command -v lintian)
   if [ "$LINTIAN" != "" ]
   then
     echo "Checking package with lintian"
-    ARCH=$(uname -p)
-    [ "$ARCH" = "x86_64" ] && ARCH="amd64"
-    $LINTIAN "../mympd_${VERSION}-1_${ARCH}.deb"
+    $LINTIAN "$PACKAGE"
   else
     echo "WARNING: lintian not found, can't check package"
   fi
@@ -426,6 +449,9 @@ case "$1" in
 	  echo "                  following environment variables are respected"
 	  echo "                    - SIGN=\"FALSE\""
 	  echo "  pkgdebian:      creates the debian package"
+	  echo "                  following environment variables are respected"
+	  echo "                    - SIGN=\"FALSE\""
+	  echo "                    - GPGKEYID=\"\""
 	  echo "  pkgdocker:      creates the docker image (debian based with libmpdclient from git master branch)"
 	  echo "  pkgrpm:         creates the rpm package"
 	  echo "  setversion:     sets version and date in packaging files from CMakeLists.txt"
