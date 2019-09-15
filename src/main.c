@@ -120,6 +120,10 @@ static bool do_chroot(struct t_config *config) {
             LOG_INFO("Disabling syscmds");
             config->syscmds = false;
         }
+        if (config->plugins_coverextract == true) {
+            LOG_INFO("Disabling plugin coverextract");
+            config->plugins_coverextract = false;
+        }
         return true;
     }
     return false;
