@@ -321,7 +321,9 @@ pkgarch() {
   makepkg
   if [ "$SIGN" = "TRUE" ]
   then
-    makepkg --sign mympd-*.pkg.tar.xz
+    KEYARG=""
+    [ "$GPGKEYID" != "" ] && KEYARG="--key $PGPGKEYID"
+    makepkg --sign $KEYARG mympd-*.pkg.tar.xz
   fi
   NAMCAP=$(command -v namcap)
   if [ "$NAMCAP" != "" ]
@@ -448,6 +450,7 @@ case "$1" in
 	  echo "  pkgarch:        creates the arch package"
 	  echo "                  following environment variables are respected"
 	  echo "                    - SIGN=\"FALSE\""
+	  echo "                    - GPGKEYID=\"\""
 	  echo "  pkgdebian:      creates the debian package"
 	  echo "                  following environment variables are respected"
 	  echo "                    - SIGN=\"FALSE\""
