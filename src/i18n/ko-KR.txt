@@ -968,3 +968,12 @@ Fingerprint
 
 Calculate
 계산
+
+Certificate
+인증
+
+myMPD CA
+myMPD 인증서
+
+Download
+내려받기
