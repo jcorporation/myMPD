@@ -103,6 +103,19 @@ static bool do_chown(const char *file_path, const char *user_name) {
   return true;
 }
 
+static bool do_chroot(struct t_config *config) {
+    if (chroot(config->varlibdir) == 0) {
+        if (chdir("/") != 0) {
+            return false;
+        }
+        FREE_PTR(config->varlibdir);
+        config->varlibdir = strdup("");
+        config->varlibdir_len = 0;
+        return true;
+    }
+    return false;
+}
+
 static bool chown_certs(t_config *config) {
     char testdirname[400];
     snprintf(testdirname, 400, "%s/ssl/ca.pem", config->varlibdir);
@@ -273,13 +286,23 @@ int main(int argc, char **argv) {
             if ((pw = getpwnam(config->user)) == NULL) {
                 LOG_ERROR("getpwnam() failed, unknown user");
                 goto cleanup;
-            } else if (setgroups(0, NULL) != 0) { 
+            }
+            else if (setgroups(0, NULL) != 0) { 
                 LOG_ERROR("setgroups() failed");
                 goto cleanup;
-            } else if (setgid(pw->pw_gid) != 0) {
+            }
+            else if (setgid(pw->pw_gid) != 0) {
                 LOG_ERROR("setgid() failed");
                 goto cleanup;
-            } else if (setuid(pw->pw_uid) != 0) {
+            }
+            if (config->chroot == true) {
+                LOG_INFO("Chroot to %s", config->varlibdir);
+                if (do_chroot(config) == false) {
+                    LOG_ERROR("Chroot to %s failed", config->varlibdir);
+                    goto cleanup;
+                }
+            }
+            if (setuid(pw->pw_uid) != 0) {
                 LOG_ERROR("setuid() failed");
                 goto cleanup;
             }

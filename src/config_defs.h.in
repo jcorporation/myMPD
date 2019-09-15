@@ -74,6 +74,7 @@ typedef struct t_config {
     size_t varlibdir_len;
     int max_elements_per_page;
     bool syscmds;
+    bool chroot;
     int last_played_count;
     int loglevel;
     bool love;
