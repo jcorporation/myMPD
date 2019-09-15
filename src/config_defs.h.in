@@ -81,7 +81,6 @@ typedef struct t_config {
     char *love_channel;
     char *love_message;
     bool plugins_coverextract;
-    char *plugins_coverextractlib;
     char *music_directory;
     bool notification_web;
     bool notification_page;
