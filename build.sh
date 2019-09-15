@@ -46,10 +46,10 @@ setversion() {
   sed -e "s/__VERSION__/${VERSION}/g" contrib/packaging/alpine/APKBUILD.in > contrib/packaging/alpine/APKBUILD
   sed -e "s/__VERSION__/${VERSION}/g" contrib/packaging/arch/PKGBUILD.in > contrib/packaging/arch/PKGBUILD
   DATE=$(date +"%a %b %d %Y")
-  sed -e "s/__VERSION__/${VERSION}/g" "-e s/__DATE__/$DATE/g" \
+  sed -e "s/__VERSION__/${VERSION}/g" -e "s/__DATE__/$DATE/g" \
   	contrib/packaging/rpm/mympd.spec.in > contrib/packaging/rpm/mympd.spec
   DATE=$(date +"%a, %d %b %Y %H:%m:%S %z")
-  sed -e "s/__VERSION__/${VERSION}/g" "-e s/__DATE__/$DATE/g" \
+  sed -e "s/__VERSION__/${VERSION}/g" -e "s/__DATE__/$DATE/g" \
   	contrib/packaging/debian/changelog.in > contrib/packaging/debian/changelog
 }
 
@@ -183,10 +183,7 @@ cleanupoldinstall() {
     mv /etc/mympd/mympd.conf /etc/mympd.conf
     rm -rf /etc/mympd
     rm -f /usr/lib/systemd/system/mympd.service
-    if ! ls -1qA /usr/lib/systemd/system/ | grep -q .
-    then
-      rmdir /usr/lib/systemd/system
-    fi
+    rmdir --ignore-fail-on-non-empty /usr/lib/systemd/system
   else
     echo "No old installation found"
   fi
