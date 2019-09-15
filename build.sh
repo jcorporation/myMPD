@@ -300,6 +300,10 @@ pkgarch() {
   [ "$1" = "taronly" ] && return 0
   cp contrib/packaging/arch/* .
   makepkg
+  if [ "$SIGN" = "TRUE" ]
+  then
+    makepkg --sign mympd-*.pkg.tar.xz
+  fi
   NAMCAP=$(command -v namcap)
   if [ "$NAMCAP" != "" ]
   then
@@ -409,10 +413,10 @@ case "$1" in
 	  echo "Options:"
 	  echo "  release:        build release files in directory release"
 	  echo "                  following environment variables are respected"
-	  echo "                  MYMPD_INSTALL_PREFIX=/usr"
+	  echo "                    - MYMPD_INSTALL_PREFIX=\"/usr\""
 	  echo "  install:        installs release files from directory release"
 	  echo "                  following environment variables are respected"
-	  echo "                  DESTDIR=\"\""
+	  echo "                    - DESTDIR=\"\""
 	  echo "  releaseinstall: calls release and install afterwards"
 	  echo "  debug:          builds debug files in directory debug"
 	  echo "                  linked with libasan3, uses assets in htdocs"
@@ -423,6 +427,8 @@ case "$1" in
 	  echo "  check:          runs cppcheck"
 	  echo "  pkgalpine:      creates the alpine package"
 	  echo "  pkgarch:        creates the arch package"
+	  echo "                  following environment variables are respected"
+	  echo "                    - SIGN=\"FALSE\""
 	  echo "  pkgdebian:      creates the debian package"
 	  echo "  pkgdocker:      creates the docker image (debian based with libmpdclient from git master branch)"
 	  echo "  pkgrpm:         creates the rpm package"
