@@ -264,6 +264,21 @@ cleanuposc() {
   rm -rf osc
 }
 
+cleanupdist() {
+  rm -f dist/htdocs/js/i18n.min.js
+  rm -f dist/htdocs/js/keymap.min.js 
+  rm -f dist/htdocs/js/bootstrap-native-v4.min.js 
+  rm -f dist/htdocs/js/mympd.min.js
+  rm -f dist/htdocs/js/combined.js.gz
+  rm -f dist/htdocs/css/mympd.min.css
+  rm -f dist/htdocs/css/combined.css.gz
+  rm -f dist/htdocs/sw.min.js
+  rm -f dist/htdocs/sw.js.gz
+  rm -f dist/htdocs/mympd.webmanifest.gz
+  rm -f dist/htdocs/index.html.gz
+  rm -f dist/htdocs/assets/*.gz
+}
+
 check () {
   CPPCHECKBIN=$(command -v cppcheck)
   if [ "$CPPCHECKBIN" != "" ]
@@ -487,7 +502,8 @@ case "$1" in
 	*)
 	  echo "Usage: $0 <option>"
 	  echo "Version: ${VERSION}"
-	  echo "Options:"
+	  echo ""
+	  echo "Build options:"
 	  echo "  release:        build release files in directory release"
 	  echo "                  following environment variables are respected"
 	  echo "                    - MYMPD_INSTALL_PREFIX=\"/usr\""
@@ -499,9 +515,14 @@ case "$1" in
 	  echo "                  linked with libasan3, uses assets in htdocs"
 	  echo "  memcheck:       builds debug files in directory debug"
 	  echo "                  for use with valgrind, uses assets in htdocs/"
-	  echo "  cleanupoldinst: removes deprecated files"
+	  echo "  check:          runs cppcheck on source files"
+	  echo ""
+	  echo "Cleanup options:"
 	  echo "  cleanup:        cleanup source tree"
-	  echo "  check:          runs cppcheck"
+	  echo "  cleanupdist:    cleanup dist directory, forces release to build new assets"
+	  echo "  cleanupoldinst: removes deprecated files"
+	  echo ""
+	  echo "Packaging options:"
 	  echo "  pkgalpine:      creates the alpine package"
 	  echo "  pkgarch:        creates the arch package"
 	  echo "                  following environment variables are respected"
@@ -518,5 +539,6 @@ case "$1" in
 #	  echo "  pkgosc:            updates a osc repository"
 #	  echo "                  following environment variables are respected"
 #	  echo "                  OSC_REPO=\"home:jcorporation/myMPD\""
+	  echo ""
 	;;
 esac
