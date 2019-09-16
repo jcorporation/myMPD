@@ -171,7 +171,7 @@ buildrelease() {
   fi
   
   echo "Minifying and compressing html"
-  if minify html htdocs/index.html dist/htdocs/index.html.gz
+  if ! minify html htdocs/index.html dist/htdocs/index.html.gz
   then
     ASSETSCHANGED=1
   fi
