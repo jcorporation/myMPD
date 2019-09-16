@@ -190,7 +190,7 @@ buildrelease() {
     fi
   done
 
-  echo "Compiling mympd"
+  echo "Compiling myMPD"
   install -d release
   cd release || exit 1
   if [ "$ASSETSCHANGED" = "1" ]
@@ -206,11 +206,17 @@ buildrelease() {
   make
 }
 
+addmympduser() {
+  echo "Checking status of mympd system user and group"
+  getent group mympd > /dev/null || groupadd -r mympd
+  getent passwd mympd > /dev/null || useradd -r -g mympd -s /bin/false -d /var/lib/mympd mympd
+}
+
 installrelease() {
-  echo "Installing mympd"
+  echo "Installing myMPD"
   cd release || exit 1  
   make install DESTDIR="$DESTDIR"
-  ../contrib/packaging/debian/postinst 
+  addmympduser
 }
 
 builddebug() {
@@ -222,7 +228,7 @@ builddebug() {
 
   createi18n ../../htdocs/js/i18n.js pretty
   
-  echo "Compiling"
+  echo "Compiling myMPD"
   install -d debug
   cd debug || exit 1
   cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=DEBUG -DMEMCHECK="$MEMCHECK" ..
@@ -232,15 +238,15 @@ builddebug() {
 cleanupoldinstall() {
   if [ -d /usr/share/mympd ]
   then
-    echo "Previous installation found"
+    echo "Previous myMPD installation found"
     rm -rf /usr/share/mympd
     rm -rf /var/lib/mympd/tmp
-    mv /etc/mympd/mympd.conf /etc/mympd.conf
+    [ -f /etc/mympd/mympd.conf ] && mv /etc/mympd/mympd.conf /etc/mympd.conf
     rm -rf /etc/mympd
     rm -f /usr/lib/systemd/system/mympd.service
     rmdir --ignore-fail-on-non-empty /usr/lib/systemd/system
   else
-    echo "No old installation found"
+    echo "No old myMPD installation found"
   fi
 }
 
@@ -501,6 +507,9 @@ case "$1" in
 	pkgosc)
 	  pkgosc
 	;;
+	addmympduser)
+	  addmympduser
+	;;
 	*)
 	  echo "Usage: $0 <option>"
 	  echo "Version: ${VERSION}"
@@ -536,11 +545,14 @@ case "$1" in
 	  echo "                    - GPGKEYID=\"\""
 	  echo "  pkgdocker:      creates the docker image (debian based with libmpdclient from git master branch)"
 	  echo "  pkgrpm:         creates the rpm package"
-	  echo "  setversion:     sets version and date in packaging files from CMakeLists.txt"
 #Working on osc support
 #	  echo "  pkgosc:            updates a osc repository"
 #	  echo "                  following environment variables are respected"
 #	  echo "                  OSC_REPO=\"home:jcorporation/myMPD\""
+	  echo ""
+	  echo "Misc options:"
+	  echo "  setversion:     sets version and date in packaging files from CMakeLists.txt"
+	  echo "  addmympduser:   adds mympd group and user"
 	  echo ""
 	;;
 esac

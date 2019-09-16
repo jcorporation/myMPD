@@ -3,15 +3,13 @@ post_install() {
 }
 
 post_upgrade() {
-  # create mympd user, group if not already existing
-  echo "INFO: Checking status of mympd system user and group"
-  getent group mympd > /dev/null
-  [ "$?" = "2" ] && groupadd --system mympd
-  getent passwd mympd > /dev/null
-  [ "$?" = "2" ] && useradd --system -d /var/lib/mympd -s /usr/sbin/nologin -g mympd mympd
+  echo "Checking status of mympd system user and group"
+  getent group mympd > /dev/null || groupadd -r mympd
+  getent passwd mympd > /dev/null || useradd -r -g mympd -s /bin/false -d /var/lib/mympd mympd
 
   # installation complete
-  echo "WARNING: Edit /etc/webapps/mympd/mympd.conf before starting myMPD"
+  echo "Edit /etc/webapps/mympd/mympd.conf before starting myMPD"
+  exit 0
 }
 
 post_remove() {
