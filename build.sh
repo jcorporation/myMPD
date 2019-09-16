@@ -413,6 +413,13 @@ pkgarch() {
 }
 
 pkgosc() {
+  OSCBIN=$(command -v osc)
+  if [ "$OSCBIN" = "" ]
+  then
+    echo "ERROR: osc not found"
+    exit 1
+  fi
+  
   cleanup
   cleanuposc
   [ "$OSC_REPO" = "" ] && OSC_REPO="home:jcorporation/myMPD"
