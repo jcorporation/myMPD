@@ -457,6 +457,7 @@ pkgosc() {
   cd "$OSC_REPO" || exit 1
   osc addremove
   osc st
+  osc vc
   osc commit
 }
 
@@ -552,10 +553,9 @@ case "$1" in
 	  echo "                    - GPGKEYID=\"\""
 	  echo "  pkgdocker:      creates the docker image (debian based with libmpdclient from git master branch)"
 	  echo "  pkgrpm:         creates the rpm package"
-#Working on osc support
-#	  echo "  pkgosc:            updates a osc repository"
-#	  echo "                  following environment variables are respected"
-#	  echo "                  OSC_REPO=\"home:jcorporation/myMPD\""
+	  echo "  pkgosc:         updates the open build service repository"
+	  echo "                  following environment variables are respected"
+	  echo "                    - OSC_REPO=\"home:jcorporation/myMPD\""
 	  echo ""
 	  echo "Misc options:"
 	  echo "  setversion:     sets version and date in packaging files from CMakeLists.txt"
