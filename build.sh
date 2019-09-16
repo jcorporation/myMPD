@@ -38,6 +38,19 @@ newer() {
   fi
 }
 
+newer_s() {
+  FILE1=$1
+  for FILE2 in "$@"
+  do
+    [ "$FILE1" = "$FILE2" ] && continue
+    if newer "$FILE2" "$FILE1"
+    then
+      return 1
+    fi
+  done
+  return 0
+}
+
 setversion() {
   echo "Setting version to ${VERSION}"
   export LC_TIME="en_GB.UTF-8"
@@ -63,13 +76,15 @@ minify() {
 
   if newer "$DST" "$SRC"
   then
+    #File already minified"
     echo "Skipping $SRC"
-    return
+    return 0
   fi
   echo "Minifying $SRC"
 
   if [ "$TYPE" = "html" ] && [ "$PERLBIN" != "" ]
   then
+    # shellcheck disable=SC2016
     $PERLBIN -pe 's/^<!--debug-->.*\n//gm; s/<!--release\s+(.+)-->/$1/g; s/<!--(.+)-->//g; s/^\s*//gm; s/\s*$//gm' "$SRC" | $GZIP > "$DST"
     ERROR="$?"
   elif [ "$TYPE" = "js" ] && [ "$JAVABIN" != "" ]
@@ -88,14 +103,30 @@ minify() {
   then
     echo "Error minifying $SRC, copy $SRC to $DST"
     cp "$SRC" "$DST"
+    return 2
   fi
+  #successfull minified file
+  return 1
+}
+
+createi18n() {
+  DST=$1
+  PRETTY=$2
+  cd src/i18n || exit 1
+  if newer_s "$DST" ./*.txt
+  then
+    echo "Skip creating i18n json"
+  else
+    echo "Creating i18n json"
+    $PERLBIN ./tojson.pl "$PRETTY" > "$DST"
+  fi
+  cd ../.. || exit 1
 }
 
 buildrelease() {
-  echo "Creating i18n json"
-  cd src/i18n || exit 1
-  $PERLBIN ./tojson.pl > ../../dist/htdocs/js/i18n.min.js
-  cd ../.. || exit 1
+  ASSETSCHANGED=0
+
+  createi18n ../../dist/htdocs/js/i18n.min.js
   
   echo "Minifying javascript"
   minify js htdocs/sw.js dist/htdocs/sw.min.js
@@ -104,44 +135,72 @@ buildrelease() {
   minify js htdocs/js/mympd.js dist/htdocs/js/mympd.min.js
   
   echo "Combining and compressing javascript"
-  cat dist/htdocs/js/i18n.min.js \
-      dist/htdocs/js/keymap.min.js \
-      dist/htdocs/js/bootstrap-native-v4.min.js \
-      dist/htdocs/js/mympd.min.js > dist/htdocs/js/combined.js
-  
-  $GZIPBIN -f -v -9 dist/htdocs/js/combined.js
-  $GZIPBIN -f -v -9 -c dist/htdocs/sw.min.js > dist/htdocs/sw.js.gz
+  JSFILES="dist/htdocs/js/i18n.min.js dist/htdocs/js/keymap.min.js dist/htdocs/js/bootstrap-native-v4.min.js dist/htdocs/js/mympd.min.js"
+  # shellcheck disable=SC2086
+  if newer_s dist/htdocs/js/combined.js.gz $JSFILES
+  then
+    # shellcheck disable=SC2086
+    cat $JSFILES > dist/htdocs/js/combined.js
+    $GZIPBIN -f -v -9 dist/htdocs/js/combined.js
+    ASSETSCHANGED=1
+  else
+    echo "Skip creating dist/htdocs/js/combined.js.gz"
+  fi
+  if newer dist/htdocs/sw.min.js dist/htdocs/sw.js.gz
+  then
+    $GZIPBIN -f -v -9 -c dist/htdocs/sw.min.js > dist/htdocs/sw.js.gz
+    ASSETSCHANGED=1
+  else
+    echo "Skip dist/htdocs/sw.js.gz"
+  fi
  
   echo "Minifying stylesheets"
   minify css htdocs/css/mympd.css dist/htdocs/css/mympd.min.css
   
   echo "Combining and compressing stylesheets"
-  cat dist/htdocs/css/bootstrap.css \
-      dist/htdocs/css/mympd.min.css > dist/htdocs/css/combined.css
-  
-  $GZIPBIN -f -v -9 dist/htdocs/css/combined.css
+  CSSFILES="dist/htdocs/css/bootstrap.min.css dist/htdocs/css/mympd.min.css"
+  # shellcheck disable=SC2086
+  if newer_s dist/htdocs/css/combined.css.gz $CSSFILES
+  then
+    # shellcheck disable=SC2086
+    cat $CSSFILES > dist/htdocs/css/combined.css
+    $GZIPBIN -f -v -9 dist/htdocs/css/combined.css
+    ASSETSCHANGED=1
+  else
+    echo "Skip creating dist/htdocs/css/combined.css.gz"
+  fi
   
   echo "Minifying and compressing html"
-  minify html htdocs/index.html dist/htdocs/index.html.gz
+  if minify html htdocs/index.html dist/htdocs/index.html.gz
+  then
+    ASSETSCHANGED=1
+  fi
 
   echo "Creating other compressed assets"
-  ASSETS="htdocs/mympd.webmanifest"
-  ASSETS="$ASSETS htdocs/assets/coverimage-notavailable.svg htdocs/assets/coverimage-stream.svg"
-  ASSETS="$ASSETS htdocs/assets/coverimage-loading.svg "
+  ASSETS="htdocs/mympd.webmanifest htdocs/assets/*.svg"
   for ASSET in $ASSETS
   do
     COMPRESSED="dist/${ASSET}.gz"
     if newer "$ASSET" "$COMPRESSED"
-    then 
+    then
+      echo "Compressing $ASSET"
       $GZIPBIN -v -9 -c "$ASSET" > "$COMPRESSED"
+      ASSETSCHANGED=1
+    else
+      echo "Skipping $ASSET"
     fi
   done
 
   echo "Compiling mympd"
   install -d release
   cd release || exit 1
-  #force rebuild of web_server.c with embedded assets
-  rm -f CMakeFiles/mympd.dir/src/web_server.c.o
+  if [ "$ASSETSCHANGED" = "1" ]
+  then
+    #force rebuild of web_server.c with embedded assets
+    rm -f CMakeFiles/mympd.dir/src/web_server.c.o
+  else
+    echo "Assets not changed"
+  fi
   #set INSTALL_PREFIX and build myMPD
   export INSTALL_PREFIX="${MYMPD_INSTALL_PREFIX:-/usr}"
   cmake -DCMAKE_INSTALL_PREFIX:PATH="$INSTALL_PREFIX" -DCMAKE_BUILD_TYPE=RELEASE ..
@@ -162,10 +221,7 @@ builddebug() {
   [ -e "$PWD/htdocs/css/bootstrap.css" ] || ln -s "$PWD/dist/htdocs/css/bootstrap.css" "$PWD/htdocs/css/bootstrap.css"
   [ -e "$PWD/htdocs/js/bootstrap-native-v4.js" ] || ln -s "$PWD/dist/htdocs/js/bootstrap-native-v4.js" "$PWD/htdocs/js/bootstrap-native-v4.js"
 
-  echo "Creating i18n json"
-  cd src/i18n || exit 1
-  $PERLBIN ./tojson.pl pretty > ../../htdocs/js/i18n.js
-  cd ../.. || exit 1
+  createi18n ../../htdocs/js/i18n.js pretty
   
   echo "Compiling"
   install -d debug
