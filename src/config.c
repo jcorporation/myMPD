@@ -94,6 +94,9 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
         FREE_PTR(p_config->user);
         p_config->user = strdup(value);
     }
+    else if (MATCH("mympd", "chroot")) {
+        p_config->chroot = strcmp(value, "true") == 0 ? true : false;
+    }
     else if (MATCH("mympd", "varlibdir")) {
         FREE_PTR(p_config->varlibdir);
         p_config->varlibdir = strdup(value);
@@ -274,7 +277,7 @@ static void mympd_get_env(struct t_config *config) {
         "MYMPD_LOGLEVEL", "MYMPD_USER", "MYMPD_VARLIBDIR", "MYMPD_MIXRAMP", "MYMPD_STICKERS", "MYMPD_TAGLIST", 
         "MYMPD_SEARCHTAGLIST", "MYMPD_BROWSETAGLIST", "MYMPD_SMARTPLS", "MYMPD_SYSCMDS", 
         "MYMPD_PAGINATION", "MYMPD_LASTPLAYEDCOUNT", "MYMPD_LOVE", "MYMPD_LOVECHANNEL", "MYMPD_LOVEMESSAGE",
-        "PLUGINS_COVEREXTRACT", "MYMPD_NOTIFICATIONWEB",
+        "PLUGINS_COVEREXTRACT", "MYMPD_NOTIFICATIONWEB", "MYMPD_CHROOT",
         "MYMPD_NOTIFICATIONPAGE", "MYMPD_AUTOPLAY", "MYMPD_JUKEBOXMODE",
         "MYMPD_JUKEBOXPLAYLIST", "MYMPD_JUKEBOXQUEUELENGTH", "MYMPD_COLSQUEUECURRENT",
         "MYMPD_COLSSEARCH", "MYMPD_COLSBROWSEDATABASE", "MYMPD_COLSBROWSEPLAYLISTDETAIL",
@@ -336,6 +339,7 @@ void mympd_config_defaults(t_config *config) {
     config->ssl_san = strdup("");
     config->custom_cert = false;
     config->user = strdup("mympd");
+    config->chroot = false;
     config->varlibdir = strdup(VARLIB_PATH);
     config->stickers = true;
     config->mixramp = false;

@@ -18,7 +18,7 @@ musicdirectory = auto
 webport = 80
 
 #Enable ssl
-#Certificates are generated under @CMAKE_INSTALL_FULL_LOCALSTATEDIR@/lib@SUBDIRVAR@/ssl/
+#Certificates are generated under @VARLIB_PATH@/ssl/
 ssl = true
 sslport = 443
 

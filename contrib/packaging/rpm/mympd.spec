@@ -4,7 +4,7 @@
 # (c) 2018-2019 Juergen Mang <mail@jcgames.de>
 
 Name:           mympd
-Version:        5.6.0
+Version:        5.6.1
 Release:        0 
 License:        GPLv2
 Group:          Productivity/Multimedia/Sound/Players
@@ -41,11 +41,9 @@ make install DESTDIR=%{buildroot}
 
 %post
 echo "Checking status of mympd system user and group"
-getent group mympd > /dev/null
-[ "$?" = "2" ] && groupadd -r mympd
-getent passwd mympd > /dev/null
-[ "$?" = "2" ] && useradd -r -g mympd -d /var/lib/mympd -s /bin/false mympd
-true
+getent group mympd > /dev/null || groupadd -r mympd
+getent passwd mympd > /dev/null || useradd -r -g mympd -s /bin/false -d /var/lib/mympd mympd
+exit 0
 
 %postun
 if [ "$1" = "0" ]
@@ -62,5 +60,5 @@ fi
 %config(noreplace) /etc/mympd.conf
 
 %changelog
-* Fri Sep 13 2019 Juergen Mang <mail@jcgames.de> 5.6.0-0
+* Sun Sep 15 2019 Juergen Mang <mail@jcgames.de> 5.6.1-0
 - Version from master

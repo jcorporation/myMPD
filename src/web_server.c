@@ -28,6 +28,7 @@
 #include <signal.h>
 #include <assert.h>
 #include <inttypes.h>
+#include <string.h>
 
 #include "api.h"
 #include "utility.h"

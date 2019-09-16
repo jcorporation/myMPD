@@ -35,5 +35,5 @@ RUN tar -xzvf mympd.tar.gz -C /
 RUN rm libmpdclient-master.tar.gz
 RUN rm mympd.tar.gz
 RUN groupadd -r mympd
-RUN useradd -r -g mympd -s /bin/false -d /nonexistent mympd
+RUN useradd -r -g mympd -s /bin/false -d /var/lib/mympd mympd
 ENTRYPOINT ["/usr/bin/mympd"]

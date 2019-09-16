@@ -1,7 +1,7 @@
 # Contributor: Juergen Mang <mail@jcgames.de>
 # Maintainer: Juergen Mang <mail@jcgames.de>
 pkgname=myMPD
-pkgver=5.6.0
+pkgver=5.6.1
 pkgrel=0
 pkgdesc="myMPD is a standalone and mobile friendly web mpdclient"
 url="https://github.com/jcorporation/myMPD"
@@ -18,22 +18,12 @@ options="!check"
 build() {
 	cd "$builddir"
 	mkdir release
-	cd release
-	if [ "$CBUILD" != "$CHOST" ]; then
-		CMAKE_CROSSOPTS="-DCMAKE_SYSTEM_NAME=Linux -DCMAKE_HOST_SYSTEM_NAME=Linux"
-	fi
-	cmake \
-		-DCMAKE_INSTALL_PREFIX=/usr \
-		-DCMAKE_INSTALL_LIBDIR=lib \
-		-DBUILD_SHARED_LIBS=True \
-		-DCMAKE_BUILD_TYPE=RELEASE \
-		-DCMAKE_CXX_FLAGS="$CXXFLAGS" \
-		-DCMAKE_C_FLAGS="$CFLAGS" \
-		${CMAKE_CROSSOPTS} ..
+	cd release || exit 1
+	cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=RELEASE ..
 	make
 }
 
 package() {
-	cd "$builddir/release"
+	cd "$builddir/release" || exit 1
 	make DESTDIR="$pkgdir" install
 }

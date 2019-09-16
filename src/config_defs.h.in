@@ -74,13 +74,13 @@ typedef struct t_config {
     size_t varlibdir_len;
     int max_elements_per_page;
     bool syscmds;
+    bool chroot;
     int last_played_count;
     int loglevel;
     bool love;
     char *love_channel;
     char *love_message;
     bool plugins_coverextract;
-    char *plugins_coverextractlib;
     char *music_directory;
     bool notification_web;
     bool notification_page;
