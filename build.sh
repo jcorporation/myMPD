@@ -45,10 +45,10 @@ newer_s() {
     [ "$FILE1" = "$FILE2" ] && continue
     if newer "$FILE2" "$FILE1"
     then
-      return 1
+      return 0
     fi
   done
-  return 0
+  return 1
 }
 
 setversion() {
@@ -115,10 +115,10 @@ createi18n() {
   cd src/i18n || exit 1
   if newer_s "$DST" ./*.txt
   then
-    echo "Skip creating i18n json"
-  else
     echo "Creating i18n json"
     $PERLBIN ./tojson.pl "$PRETTY" > "$DST"
+  else
+    echo "Skip creating i18n json"
   fi
   cd ../.. || exit 1
 }
@@ -183,7 +183,6 @@ buildrelease() {
     COMPRESSED="dist/${ASSET}.gz"
     if newer "$ASSET" "$COMPRESSED"
     then
-      echo "Compressing $ASSET"
       $GZIPBIN -v -9 -c "$ASSET" > "$COMPRESSED"
       ASSETSCHANGED=1
     else
@@ -474,6 +473,9 @@ case "$1" in
 	cleanup)
 	  cleanup
 	  cleanuposc
+	;;
+	cleanupdist)
+	  cleanupdist
 	;;
 	check)
 	  check
