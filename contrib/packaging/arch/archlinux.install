@@ -11,7 +11,7 @@ post_upgrade() {
   [ "$?" = "2" ] && useradd --system -d /var/lib/mympd -s /usr/sbin/nologin -g mympd mympd
 
   # installation complete
-  echo "WARNING: Edit /etc/webapps/mympd.conf before starting myMPD"
+  echo "WARNING: Edit /etc/webapps/mympd/mympd.conf before starting myMPD"
 }
 
 post_remove() {
