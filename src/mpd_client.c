@@ -45,6 +45,7 @@
 #include "global.h"
 #include "mpd_client.h"
 #include "../dist/src/frozen/frozen.h"
+#include "../dist/src/sds/sds.h"
 
 //private definitions
 #define RETURN_ERROR_AND_RECOVER(X) do { \
@@ -238,6 +239,7 @@ static bool mpd_client_tag_exists(const enum mpd_tag_type tag_types[64], const s
 static void mpd_client_mpd_features(t_mpd_state *mpd_state);
 static char *mpd_client_get_tag(struct mpd_song const *song, const enum mpd_tag_type tag);
 static void json_to_tags(const char *str, int len, void *user_data);
+static sds mpd_client_get_cover(t_config *config, t_mpd_state *mpd_state, const char *uri, sds cover);
 
 //public functions
 void *mpd_client_loop(void *arg_config) {
@@ -2429,13 +2431,12 @@ static int mpd_client_put_outputs(t_mpd_state *mpd_state, char *buffer) {
     CHECK_RETURN_LEN();
 }
 
-static int mpd_client_get_cover(t_config *config, t_mpd_state *mpd_state, const char *uri, char *cover, const int cover_len) {
+static sds mpd_client_get_cover(t_config *config, t_mpd_state *mpd_state, const char *uri, sds cover) {
     char *orgpath = strdup(uri);
     char *path = orgpath;
-    size_t len = 0;
 
     if (mpd_state->feat_coverimage == false) {
-        len = snprintf(cover, cover_len, "/assets/coverimage-notavailable.svg");
+        cover = sdscat(sdsempty(), "/assets/coverimage-notavailable.svg");
     }
     else if (strstr(path, "://") != NULL) {
         char *name = strstr(path, "://");
@@ -2443,73 +2444,70 @@ static int mpd_client_get_cover(t_config *config, t_mpd_state *mpd_state, const 
         replacechar(name, '/', '_');
         replacechar(name, '.', '_');
         replacechar(name, ':', '_');
-        snprintf(cover, cover_len, "%s/pics/%s.png", config->varlibdir, name);
+        cover = sdscatprintf(sdsempty(), "%s/pics/%s.png", config->varlibdir, name);
         LOG_DEBUG("Check for cover %s", cover);
         if (access(cover, F_OK ) == -1 ) {
-            len = snprintf(cover, cover_len, "/assets/coverimage-stream.svg");
+            cover = sdscatprintf(sdsempty(), "/assets/coverimage-stream.svg");
         }
         else {
-            len = snprintf(cover, cover_len, "/pics/%s.png", name);
+            cover = sdscatprintf(sdsempty(), "/pics/%s.png", name);
         }
     }
-    else {
-        if (mpd_state->feat_library == true && strlen(mpd_state->music_directory_value) > 0) {
-            dirname(path);
-            snprintf(cover, cover_len, "%s/%s/%s", mpd_state->music_directory_value, path, mpd_state->coverimage_name);
-            if (access(cover, F_OK ) == -1 ) {
-                if (config->plugins_coverextract == true) {
-                    size_t media_file_len = strlen(mpd_state->music_directory_value) + strlen(uri) + 2;
-                    char media_file[media_file_len];
-                    snprintf(media_file, media_file_len, "%s/%s", mpd_state->music_directory_value, uri);
-                    size_t image_file_len = 1500;
-                    char image_file[image_file_len];
-                    size_t image_mime_type_len = 100;
-                    char image_mime_type[image_mime_type_len];
-                    bool rc = plugin_coverextract(media_file, "", image_file, image_file_len, image_mime_type, image_mime_type_len, false);
-                    if (rc == true) {
-                        len = snprintf(cover, cover_len, "/albumart/%s", uri);
-                    }
-                    else {
-                        len = snprintf(cover, cover_len, "/assets/coverimage-notavailable.svg");
-                    }
+    else if (mpd_state->feat_library == true && strlen(mpd_state->music_directory_value) > 0) {
+        dirname(path);
+        cover = sdscatprintf(sdsempty(), "%s/%s/%s", mpd_state->music_directory_value, path, mpd_state->coverimage_name);
+        if (access(cover, F_OK ) == -1 ) {
+            if (config->plugins_coverextract == true) {
+                sds media_file = sdscatprintf(sdsempty(), "%s/%s", mpd_state->music_directory_value, uri);
+                size_t image_file_len = 1500;
+                char image_file[image_file_len];
+                size_t image_mime_type_len = 100;
+                char image_mime_type[image_mime_type_len];
+                bool rc = plugin_coverextract(media_file, "", image_file, image_file_len, image_mime_type, image_mime_type_len, false);
+                if (rc == true) {
+                    cover = sdscatprintf(sdsempty(), "/albumart/%s", uri);
                 }
                 else {
-                    len = snprintf(cover, cover_len, "/assets/coverimage-notavailable.svg");
+                    cover = sdscatprintf(sdsempty(), "/assets/coverimage-notavailable.svg");
                 }
             }
             else {
-                len = snprintf(cover, cover_len, "/library/%s/%s", path, mpd_state->coverimage_name);
+                cover = sdscatprintf(sdsempty(), "/assets/coverimage-notavailable.svg");
             }
-        } else {
-            len = snprintf(cover, cover_len, "/assets/coverimage-notavailable.svg");
+        }
+        else {
+            cover = sdscatprintf(sdsempty(), "/library/%s/%s", path, mpd_state->coverimage_name);
         }
     }
+    else {
+        cover = sdscatprintf(sdsempty(), "/assets/coverimage-notavailable.svg");
+    }
+
     FREE_PTR(orgpath);
-    return len;
+    return cover;
 }
 
 static int mpd_client_put_current_song(t_config *config, t_mpd_state *mpd_state, char *buffer) {
     size_t len = 0;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
-    size_t cover_len = 2000;
-    char cover[cover_len];
     
     struct mpd_song *song = mpd_run_current_song(mpd_state->conn);
     if (song == NULL) {
         len = json_printf(&out, "{type: result, data: ok}");
         return len;
     }
-        
-    mpd_client_get_cover(config, mpd_state, mpd_song_get_uri(song), cover, cover_len);
     
-    len = json_printf(&out, "{type: song_change, data: {pos: %d, currentSongId: %d, cover: %Q, ",
+    len = json_printf(&out, "{type: song_change, data: {pos: %d, currentSongId: %d, ",
         mpd_song_get_pos(song),
-        mpd_state->song_id,
-        cover
+        mpd_state->song_id
     );
     PUT_SONG_TAG_ALL();
 
     mpd_response_finish(mpd_state->conn);
+    
+    sds cover = sdsempty();
+    cover = mpd_client_get_cover(config, mpd_state, mpd_song_get_uri(song), cover);
+    len += json_printf(&out, ", cover: %Q", cover);
     
     if (mpd_state->feat_sticker) {
         t_sticker *sticker = (t_sticker *) malloc(sizeof(t_sticker));
@@ -2526,6 +2524,7 @@ static int mpd_client_put_current_song(t_config *config, t_mpd_state *mpd_state,
     }
     len += json_printf(&out, "}}");
     mpd_song_free(song);
+    sdsfree(cover);
 
     CHECK_RETURN_LEN();
 }
@@ -2563,8 +2562,6 @@ static int mpd_client_put_songdetails(t_config *config, t_mpd_state *mpd_state, 
     const struct mpd_song *song;
     size_t len = 0;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
-    size_t cover_len = 2000;
-    char cover[2000] = "";
     
     len = json_printf(&out, "{type: song_details, data: {");
 
@@ -2573,12 +2570,14 @@ static int mpd_client_put_songdetails(t_config *config, t_mpd_state *mpd_state, 
     }
     if ((entity = mpd_recv_entity(mpd_state->conn)) != NULL) {
         song = mpd_entity_get_song(entity);
-        mpd_client_get_cover(config, mpd_state, uri, cover, cover_len);
-        len += json_printf(&out, "cover: %Q, ", cover);
         PUT_SONG_TAG_ALL();
         mpd_entity_free(entity);
     }
     mpd_response_finish(mpd_state->conn);
+    
+    sds cover = sdsempty();
+    cover = mpd_client_get_cover(config, mpd_state, uri, cover);
+    len += json_printf(&out, ", cover: %Q", cover);
 
     if (mpd_state->feat_sticker) {
         t_sticker *sticker = (t_sticker *) malloc(sizeof(t_sticker));
@@ -2594,6 +2593,8 @@ static int mpd_client_put_songdetails(t_config *config, t_mpd_state *mpd_state, 
         FREE_PTR(sticker);
     }
     len += json_printf(&out, "}}");
+    
+    sdsfree(cover);
     
     CHECK_RETURN_LEN();
 }
@@ -2916,12 +2917,10 @@ static int mpd_client_put_db_tag(t_mpd_state *mpd_state, char *buffer, const uns
 
 static int mpd_client_put_songs_in_album(t_config *config, t_mpd_state *mpd_state, char *buffer, const char *album, const char *search, const char *tag, const t_tags *tagcols) {
     struct mpd_song *song;
+    struct mpd_song *first_song = NULL;
     int entity_count = 0;
     int entities_returned = 0;
     size_t len = 0;
-    size_t cover_len = 2000;
-    char cover[cover_len];
-    char *albumartist = NULL;
     int totalTime = 0;
     struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
 
@@ -2946,17 +2945,24 @@ static int mpd_client_put_songs_in_album(t_config *config, t_mpd_state *mpd_stat
                 len += json_printf(&out, ", ");
             }
             else {
-                mpd_client_get_cover(config, mpd_state, mpd_song_get_uri(song), cover, cover_len);
-                char *value = mpd_client_get_tag(song, MPD_TAG_ALBUM_ARTIST);
-                if (value != NULL) {
-                    albumartist = strdup(value);
-                }
+                first_song = mpd_song_dup(song);
             }
             len += json_printf(&out, "{Type: song, ");
             PUT_SONG_TAG_COLS(tagcols);
             len += json_printf(&out, "}");
             totalTime += mpd_song_get_duration(song);
             mpd_song_free(song);
+        }
+        mpd_response_finish(mpd_state->conn);
+
+        sds cover = sdsempty();
+        char *albumartist = NULL;
+        if (first_song != NULL) {
+            cover = mpd_client_get_cover(config, mpd_state, mpd_song_get_uri(first_song), cover);
+            albumartist = mpd_client_get_tag(first_song, MPD_TAG_ALBUM_ARTIST);
+        }
+        else {
+            cover = sdscat(cover, "/assets/coverimage-notavailable.svg");
         }
         
         len += json_printf(&out, "], totalEntities: %d, returnedEntities: %d, Album: %Q, search: %Q, tag: %Q, cover: %Q, AlbumArtist: %Q, totalTime: %d}",
@@ -2969,9 +2975,12 @@ static int mpd_client_put_songs_in_album(t_config *config, t_mpd_state *mpd_stat
             (albumartist != NULL ? albumartist : "-"),
             totalTime
         );
+        sdsfree(cover);
+        if (first_song != NULL) {
+            mpd_song_free(first_song);
+        }
     }
-    FREE_PTR(albumartist);
-
+    
     CHECK_RETURN_LEN();
 }
 

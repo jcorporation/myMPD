@@ -55,10 +55,11 @@ Backend
  - Frozen: https://github.com/cesanta/frozen
  - inih: https://github.com/benhoyt/inih
  - incbin: https://github.com/graphitemaster/incbin
+ - sds: https://github.com/antirez/sds
 
 Dependencies
 ------------
- - libmpdclient 2: http://www.musicpd.org/libs/libmpdclient/
+ - libmpdclient2: http://www.musicpd.org/libs/libmpdclient/
  - OpenSSL: https://www.openssl.org/
  - libmediainfo: https://mediaarea.net/en/MediaInfo (to support embedded albumart)
 
@@ -66,7 +67,8 @@ Build Dependencies
 ------------------
  - cmake 2.6
  - libasan3: for debug builds only
- - Java, Perl: to minify files
+ - Java: to minify files
+ - Perl: to create i18n.json
 
 Unix Build Instructions
 -----------------------

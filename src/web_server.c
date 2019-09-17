@@ -30,6 +30,7 @@
 #include <inttypes.h>
 #include <string.h>
 
+#include "../dist/src/sds/sds.h"
 #include "api.h"
 #include "utility.h"
 #include "log.h"
@@ -74,8 +75,6 @@ static void send_api_response(struct mg_mgr *mgr, t_work_result *response);
 static bool handle_api(int conn_id, const char *request, int request_len);
 static bool handle_coverextract(struct mg_connection *nc, struct http_message *hm,t_mg_user_data *mg_user_data, t_config *config);
 
-
-
 //public functions
 bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_data) {
     struct mg_mgr *mgr = (struct mg_mgr *) arg_mgr;
@@ -88,15 +87,12 @@ bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_da
 
     //initialize mgr user_data, malloced in main.c
     mg_user_data->config = config;
-    mg_user_data->music_directory = strdup("");
-    mg_user_data->rewrite_patterns = NULL;
+    mg_user_data->music_directory = sdsempty();
+    mg_user_data->rewrite_patterns = sdsempty();
     mg_user_data->conn_id = 1;
     mg_user_data->feat_library = false;
-    size_t pics_directory_len = config->varlibdir_len + 6;
-    mg_user_data->pics_directory = malloc(pics_directory_len);
-    assert(mg_user_data->pics_directory);
-    snprintf(mg_user_data->pics_directory, pics_directory_len, "%s/pics", config->varlibdir);
-
+    mg_user_data->pics_directory = sdscatprintf(sdsempty(), "%s/pics", config->varlibdir);
+    
     //init monogoose mgr with mg_user_data
     mg_mgr_init(mgr, mg_user_data);
     
@@ -177,29 +173,15 @@ static bool parse_internal_message(t_work_result *response, t_mg_user_data *mg_u
     bool feat_library;
     int je = json_scanf(response->data, response->length, "{musicDirectory: %Q, featLibrary: %B}", &p_charbuf, &feat_library);
     if (je == 2) {
-        FREE_PTR(mg_user_data->music_directory);
-        mg_user_data->music_directory = strdup(p_charbuf);
+        mg_user_data->music_directory = sdsnew(p_charbuf);
         mg_user_data->feat_library = feat_library;
         FREE_PTR(p_charbuf);
         
-        if (mg_user_data->rewrite_patterns != NULL) {
-            FREE_PTR(mg_user_data->rewrite_patterns);
-            mg_user_data->rewrite_patterns = NULL;
-        }
-        size_t rewrite_patterns_len = strlen(mg_user_data->pics_directory) + 8;
-        if (feat_library == true && strncmp(mg_user_data->music_directory, "none", 4) != 0) {
-            rewrite_patterns_len += strlen(mg_user_data->music_directory) + 11;
-        }
-        char *rewrite_patterns = malloc(rewrite_patterns_len);
-        assert(rewrite_patterns);
         if (feat_library == true) {
-            snprintf(rewrite_patterns, rewrite_patterns_len, "/pics/=%s,/library/=%s", mg_user_data->pics_directory, mg_user_data->music_directory);
+            mg_user_data->rewrite_patterns = sdscatprintf(sdsempty(), "/library/=%s,", mg_user_data->music_directory);
             LOG_DEBUG("Setting music_directory to %s", mg_user_data->music_directory);
         }
-        else {
-            snprintf(rewrite_patterns, rewrite_patterns_len, "/pics/=%s", mg_user_data->pics_directory);
-        }
-        mg_user_data->rewrite_patterns = rewrite_patterns;
+        mg_user_data->rewrite_patterns = sdscatprintf(mg_user_data->rewrite_patterns, "/pics/=%s", mg_user_data->pics_directory);
         LOG_DEBUG("Setting rewrite_patterns to %s", mg_user_data->rewrite_patterns);
     }
     else {
@@ -308,10 +290,9 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             else if (mg_vcmp(&hm->uri, "/ca.crt") == 0) { 
                 if (config->custom_cert == false) {
                     //deliver ca certificate
-                    size_t ca_file_len = config->varlibdir_len + 12;
-                    char ca_file[ca_file_len];
-                    snprintf(ca_file, ca_file_len, "%s/ssl/ca.pem", config->varlibdir);
+                    sds ca_file = sdscatprintf(sdsempty(), "%s/ssl/ca.pem", config->varlibdir);
                     mg_http_serve_file(nc, hm, ca_file, mg_mk_str("application/x-x509-ca-cert"), mg_mk_str(""));
+                    sds_free(ca_file);
                 }
                 else {
                     LOG_ERROR("Custom cert enabled, don't deliver myMPD ca");
@@ -331,9 +312,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             else if (has_prefix(&hm->uri, &library_prefix) || has_prefix(&hm->uri, &pics_prefix)) {
                 static struct mg_serve_http_opts s_http_server_opts;
                 s_http_server_opts.document_root = DOC_ROOT;
-                if (mg_user_data->rewrite_patterns != NULL) {
-                    s_http_server_opts.url_rewrites = mg_user_data->rewrite_patterns;
-                }
+                s_http_server_opts.url_rewrites = mg_user_data->rewrite_patterns;
                 s_http_server_opts.enable_directory_listing = "yes";
                 s_http_server_opts.extra_headers = EXTRA_HEADERS_DIR;
 
@@ -357,7 +336,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 mg_serve_http(nc, hm, s_http_server_opts);
                 #else
                 //serve embedded files
-                serve_embedded_files(nc, hm);
+                serve_embedded_files(nc, hm->uri.p, hm->uri.len);
                 #endif
             }
             break;
@@ -383,21 +362,21 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data)
             t_mg_user_data *mg_user_data = (t_mg_user_data *) nc->mgr->user_data;
             t_config *config = (t_config *) mg_user_data->config;
             
-            size_t host_header_len = (int)host_hdr->len + 1;
-            char host_header[host_header_len];
-            snprintf(host_header, host_header_len, "%.*s", (int)host_hdr->len, host_hdr->p);
-            char *crap = NULL;
-            char *host = strtok_r(host_header, ":", &crap);
-            size_t s_redirect_len = strlen(host) + strlen(config->ssl_port) + 11;
-            char s_redirect[s_redirect_len];
-            if (strcmp(config->ssl_port, "443") == 0) {
-                snprintf(s_redirect, s_redirect_len, "https://%s/", host);
+            sds host_header = sdscatlen(sdsempty(), host_hdr->p, (int)host_hdr->len);
+            
+            int count;
+            sds *tokens = sdssplitlen(host_header, sdslen(host_header), ":", 1, &count);
+            
+            sds s_redirect = sdscatprintf(sdsempty(), "https://%s", tokens[0]);
+            if (strcmp(config->ssl_port, "443") != 0) {
+                s_redirect = sdscatprintf(s_redirect, ":%s", config->ssl_port);
             }
-            else {
-                snprintf(s_redirect, s_redirect_len, "https://%s:%s/", host, config->ssl_port);
-            }
+            s_redirect = sdscat(s_redirect, "/");
             LOG_VERBOSE("Redirecting to %s", s_redirect);
             mg_http_send_redirect(nc, 301, mg_mk_str(s_redirect), mg_mk_str(NULL));
+            sdsfreesplitres(tokens, count);
+            sds_free(host_header);
+            sds_free(s_redirect);
             break;
         }
         default: {
@@ -442,58 +421,54 @@ static bool handle_api(int conn_id, const char *request_body, int request_len) {
     return true;
 }
 
+static void serve_na_image(struct mg_connection *nc, struct http_message *hm) {
+    #ifdef DEBUG
+    sds na_image = sdscatprintf(sdsempty(), "%s/assets/coverimage-notavailable.png", DOC_ROOT);
+    mg_http_serve_file(nc, hm, na_image, mg_mk_str("image/png"), mg_mk_str(""));
+    #else
+    sds na_image = sdsnew("/assets/coverimage-notavailable.png");
+    serve_embedded_files(nc, na_image, sdslen(na_image));
+    #endif
+    sds_free(na_image);
+}
+
 static bool handle_coverextract(struct mg_connection *nc, struct http_message *hm, t_mg_user_data *mg_user_data, t_config *config) {
     size_t image_file_len = 1500;
     char image_file[image_file_len];
-    snprintf(image_file, image_file_len, "%s/assets/coverimage-notavailable.png", DOC_ROOT);
 
-    if (strlen(mg_user_data->music_directory) == 0) {
-        LOG_ERROR("Error extracting coverimage, invalid music_directory");
-        mg_http_serve_file(nc, hm, image_file, mg_mk_str("image/png"), mg_mk_str(""));
-        return false;
-    }
-    
     //decode uri
     int uri_decoded_len;
     char uri_decoded[(int)hm->uri.len + 1];
     if ((uri_decoded_len = mg_url_decode(hm->uri.p, (int)hm->uri.len, uri_decoded, (int)hm->uri.len + 1, 0)) == -1) {
         LOG_ERROR("uri_decoded buffer to small");
-        mg_http_serve_file(nc, hm, image_file, mg_mk_str("image/png"), mg_mk_str(""));
+        serve_na_image(nc, hm);
         return false;
     }
     
     // replace /albumart through path to music_directory
-    if (uri_decoded_len < 10) {
-        LOG_ERROR("length of uri_decoded < 10 ");
-        mg_http_serve_file(nc, hm, image_file, mg_mk_str("image/png"), mg_mk_str(""));
-        return false;
-    }
-    char *uri_trimmed = uri_decoded;
-    uri_trimmed += 9;
-    size_t media_file_len = strlen(mg_user_data->music_directory) + strlen(uri_trimmed) + 1;
-    char media_file[media_file_len];
-    snprintf(media_file, media_file_len, "%s%s", mg_user_data->music_directory, uri_trimmed);
-    uri_trimmed = NULL;
-                
+    sds uri_trimmed = sdsnew(uri_decoded);
+    sdsrange(uri_trimmed, 9, -1);
+    sds media_file = sdscatprintf(sdsempty(), "%s%s", mg_user_data->music_directory, uri_trimmed);
+    sds_free(uri_trimmed);
     LOG_VERBOSE("Exctracting coverimage from %s", media_file);
                 
     size_t image_mime_type_len = 100;
     char image_mime_type[image_mime_type_len];
-    size_t cache_dir_len = config->varlibdir_len + 12;
-    char cache_dir[cache_dir_len];
-    snprintf(cache_dir, cache_dir_len, "%s/covercache", config->varlibdir);
+    
+    sds cache_dir = sdscatprintf(sdsempty(), "%s/covercache", config->varlibdir);
+
     bool rc = plugin_coverextract(media_file, cache_dir, image_file, image_file_len, image_mime_type, image_mime_type_len, true);
+    sds_free(cache_dir);
+    sds_free(media_file);
     if (rc == true) {
-        size_t path_len = config->varlibdir_len + strlen(image_file) + 13;
-        char path[path_len];
-        snprintf(path, path_len, "%s/covercache/%s", config->varlibdir, image_file);
+        sds path = sdscatprintf(sdsempty(), "%s/covercache/%s", config->varlibdir, image_file);
         LOG_DEBUG("Serving file %s (%s)", path, image_mime_type);
         mg_http_serve_file(nc, hm, path, mg_mk_str(image_mime_type), mg_mk_str(""));
+        sds_free(path);
     }
     else {
         LOG_ERROR("Error extracting coverimage from %s", media_file);
-        snprintf(image_file, image_file_len, "%s/assets/coverimage-notavailable.png", DOC_ROOT);
-        mg_http_serve_file(nc, hm, image_file, mg_mk_str("image/png"), mg_mk_str(""));
+        serve_na_image(nc, hm);
     }
     return rc;
 }

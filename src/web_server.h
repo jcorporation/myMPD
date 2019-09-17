@@ -27,9 +27,9 @@
 
 typedef struct t_mg_user_data {
     void *config; //pointer to mympd config
-    char *music_directory;
-    char *pics_directory;
-    char *rewrite_patterns;
+    sds music_directory;
+    sds pics_directory;
+    sds rewrite_patterns;
     bool feat_library;
     int conn_id;
 } t_mg_user_data;

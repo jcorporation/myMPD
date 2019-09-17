@@ -49,7 +49,7 @@ struct embedded_file {
   const unsigned size;
 };
 
-static bool serve_embedded_files(struct mg_connection *nc, struct http_message *hm) {
+static bool serve_embedded_files(struct mg_connection *nc, const char *uri, const size_t uri_len) {
     const struct embedded_file embedded_files[] = {
         {"/", "text/html", true, index_html_data, index_html_size},
         {"/css/combined.css", "text/css", true, combined_css_data, combined_css_size},
@@ -67,9 +67,9 @@ static bool serve_embedded_files(struct mg_connection *nc, struct http_message *
     };
     //decode uri
     int uri_decoded_len;
-    char uri_decoded[(size_t)hm->uri.len + 1];
+    char uri_decoded[hm->uri_len + 1];
     
-    if ((uri_decoded_len = mg_url_decode(hm->uri.p, (int)hm->uri.len, uri_decoded, (int)hm->uri.len + 1, 0)) == -1) {
+    if ((uri_decoded_len = mg_url_decode(uri, hm->uri_len, uri_decoded, uri_len + 1, 0)) == -1) {
         LOG_ERROR("uri_decoded buffer to small");
         mg_printf(nc, "%s", "HTTP/1.1 500 INTERNAL SERVER ERROR\r\n\r\n");
         return false;
@@ -111,7 +111,7 @@ static bool serve_embedded_files(struct mg_connection *nc, struct http_message *
         return true;
     }
     else {
-        LOG_ERROR("Embedded asset %.*s not found", (int)hm->uri.len, hm->uri.p);
+        LOG_ERROR("Embedded asset %.*s not found", uri_len, uri);
         mg_printf(nc, "%s", "HTTP/1.1 404 NOT FOUND\r\n\r\n");
     }
     return false;

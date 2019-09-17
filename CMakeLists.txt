@@ -113,6 +113,7 @@ set(SOURCES
     dist/src/mongoose/mongoose.c
     dist/src/frozen/frozen.c
     dist/src/inih/ini.c
+    dist/src/sds/sds.c
 )
 
 add_executable(mympd ${SOURCES})

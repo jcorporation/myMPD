@@ -38,6 +38,7 @@
 #include <assert.h>
 #include <inttypes.h>
 
+#include "../dist/src/sds/sds.h"
 #include "utility.h"
 #include "log.h"
 #include "list.h"
@@ -65,18 +66,19 @@ static bool init_plugins(struct t_config *config) {
     char *error = NULL;
     handle_plugins_coverextract = NULL;
     if (config->plugins_coverextract == true) {
-        size_t coverextractplugin_len = strlen(PLUGIN_PATH) + 26;
-        char coverextractplugin[coverextractplugin_len];
-        snprintf(coverextractplugin, coverextractplugin_len, "%s/libmympd_coverextract.so", PLUGIN_PATH);
+        sds coverextractplugin = sdscatprintf(sdsempty(), "%s/libmympd_coverextract.so", PLUGIN_PATH);
         LOG_INFO("Loading plugin %s", coverextractplugin);
-        handle_plugins_coverextract = dlopen(coverextractplugin, RTLD_LAZY);
+        handle_plugins_coverextract = dlopen(coverextractplugin, RTLD_NOW);
+        sds_free(coverextractplugin);
         if (!handle_plugins_coverextract) {
             LOG_ERROR("Can't load plugin %s: %s", coverextractplugin, dlerror());
+            sds_free(coverextractplugin);
             return false;
         }
         *(void **) (&plugin_coverextract) = dlsym(handle_plugins_coverextract, "coverextract");
         if ((error = dlerror()) != NULL)  {
             LOG_ERROR("Can't load plugin %s: %s", coverextractplugin, error);
+            sds_free(coverextractplugin);
             return false;
         }
     }
@@ -130,29 +132,33 @@ static bool do_chroot(struct t_config *config) {
 }
 
 static bool chown_certs(t_config *config) {
-    char testdirname[400];
-    snprintf(testdirname, 400, "%s/ssl/ca.pem", config->varlibdir);
-    if (do_chown(testdirname, config->user) == false) {
+    sds filename = sdscatprintf(sdsempty(), "%s/ssl/ca.pem", config->varlibdir);
+    if (do_chown(filename, config->user) == false) {
+        sdsfree(filename);
         return false;
     }
-    snprintf(testdirname, 400, "%s/ssl/ca.key", config->varlibdir);
-    if (do_chown(testdirname, config->user) == false) {
+    filename = sdscatprintf(sdsempty(), "%s/ssl/ca.key", config->varlibdir);
+    if (do_chown(filename, config->user) == false) {
+        sdsfree(filename);
         return false;
     }
-    snprintf(testdirname, 400, "%s/ssl/server.pem", config->varlibdir);
-    if (do_chown(testdirname, config->user) == false) {
+    filename = sdscatprintf(sdsempty(), "%s/ssl/server.pem", config->varlibdir);
+    if (do_chown(filename, config->user) == false) {
+        sdsfree(filename);
         return false;
     }
-    snprintf(testdirname, 400, "%s/ssl/server.key", config->varlibdir);
-    if (do_chown(testdirname, config->user) == false) {
+    filename = sdscatprintf(sdsempty(), "%s/ssl/server.key", config->varlibdir);
+    if (do_chown(filename, config->user) == false) {
+        sdsfree(filename);
         return false;
     }
+    sdsfree(filename);
     return true;
 }
 
 int main(int argc, char **argv) {
     s_signal_received = 0;
-    char testdirname[400];
+    sds testdirname = sdsempty();
     int testdir_rc = 0;
     bool init_webserver = false;
     bool init_thread_webserver = false;
@@ -181,25 +187,23 @@ int main(int argc, char **argv) {
     
     //mympd config defaults
     t_config *config = (t_config *)malloc(sizeof(t_config));
+    assert(config);
     mympd_config_defaults(config);
 
     //get configuration file
-    size_t configfile_len = strlen(ETC_PATH) + 12;
-    char *configfile = malloc(configfile_len);
-    snprintf(configfile, configfile_len, "%s/mympd.conf", ETC_PATH);
+    sds configfile = sdscatprintf(sdsempty(), "%s/mympd.conf", ETC_PATH);
     
-    char *option = NULL;
+    sds option = sdsempty();
     
     if (argc >= 2) {
         if (strncmp(argv[1], "/", 1) == 0) {
-            FREE_PTR(configfile);
-            configfile = strdup(argv[1]);
+            configfile = sdsnew(argv[1]);
             if (argc == 3) {
-                option = strdup(argv[2]);
+                option = sdsnew(argv[2]);
             }
         }
         else {
-            option = strdup(argv[1]);
+            option = sdsnew(argv[1]);
         }
     }
 
@@ -255,7 +259,7 @@ int main(int argc, char **argv) {
 
     //check for ssl certificates
     if (config->ssl == true && config->custom_cert == false) {
-        snprintf(testdirname, 400, "%s/ssl", config->varlibdir);
+        testdirname = sdscatprintf(sdsempty(), "%s/ssl", config->varlibdir);
         testdir_rc = testdir("SSL certificates", testdirname, true);
         if (testdir_rc < 2) {
             //chown to mympd user if root
@@ -336,7 +340,7 @@ int main(int argc, char **argv) {
     }
     #endif
 
-    snprintf(testdirname, 400, "%s/smartpls", config->varlibdir);
+    testdirname = sdscatprintf(sdsempty(), "%s/smartpls", config->varlibdir);
     testdir_rc = testdir("Smartpls dir", testdirname, true);
     if (testdir_rc == 1) {
         //directory created, create default smart playlists
@@ -346,27 +350,27 @@ int main(int argc, char **argv) {
         goto cleanup;
     }
 
-    snprintf(testdirname, 400, "%s/state", config->varlibdir);
+    testdirname = sdscatprintf(sdsempty(), "%s/state", config->varlibdir);
     testdir_rc = testdir("State dir", testdirname, true);
     if (testdir_rc > 1) {
         goto cleanup;
     }
     
-    snprintf(testdirname, 400, "%s/pics", config->varlibdir);
+    testdirname = sdscatprintf(sdsempty(), "%s/pics", config->varlibdir);
     testdir_rc = testdir("Pics dir", testdirname, true);
     if (testdir_rc > 1) {
         goto cleanup;
     }
     
     //create empty document_root
-    snprintf(testdirname, 400, "%s/empty", config->varlibdir);
+    testdirname = sdscatprintf(sdsempty(), "%s/empty", config->varlibdir);
     testdir_rc = testdir("Empty dir", testdirname, true);
     if (testdir_rc > 1) {
         goto cleanup;
     }
     
     if (config->plugins_coverextract == true) {
-        snprintf(testdirname, 400, "%s/covercache", config->varlibdir);
+        testdirname = sdscatprintf(sdsempty(), "%s/covercache", config->varlibdir);
         testdir_rc = testdir("Covercache dir", testdirname, true);
         if (testdir_rc > 1) {
             goto cleanup;
@@ -432,11 +436,13 @@ int main(int argc, char **argv) {
     tiny_queue_free(mympd_api_queue);
     close_plugins(config);
     mympd_free_config(config);
-    FREE_PTR(configfile);
+    sds_free(configfile);
+    sds_free(option);
+    sds_free(testdirname);
     if (init_webserver) {
-        FREE_PTR(mg_user_data->music_directory);
-        FREE_PTR(mg_user_data->pics_directory);
-        FREE_PTR(mg_user_data->rewrite_patterns);
+        sds_free(mg_user_data->music_directory);
+        sds_free(mg_user_data->pics_directory);
+        sds_free(mg_user_data->rewrite_patterns);
     }
     FREE_PTR(mg_user_data);
     if (rc == EXIT_SUCCESS) {
