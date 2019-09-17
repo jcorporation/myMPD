@@ -49,25 +49,52 @@ void mympd_log(int level, const char *file, int line, const char *fmt, ...) {
         return;
     }
     
-    size_t max_out = 1024;
+    int max_out = 1024;
     char out[max_out];
-    size_t len = 0;
+    int out_len = 0;
+    int len = 0;
     
     len = snprintf(out, max_out, "%-8s ", loglevel_names[level]);
-    if (loglevel == 4) {
-        len += snprintf(out + len, max_out - len, "%s:%d: ", file, line);
+    if (len == -1) {
+        fprintf(stderr, "ERROR: Can't write to log buffer\n");
+        return;
     }
+    out_len += len;
+
+    if (loglevel == 4) {
+        len = snprintf(out + len, max_out - len, "%s:%d: ", file, line);
+        if (len == -1) {
+            fprintf(stderr, "ERROR: Can't write to log buffer\n");
+            return;
+        }
+        out_len += len;
+    }
+
     va_list args;
     va_start(args, fmt);
-    if (len < max_out - 2) {
-        len += vsnprintf(out + len, max_out - len, fmt, args);
+    if (out_len < max_out - 2) {
+        len = vsnprintf(out + len, max_out - len, fmt, args);
+        if (len == -1) {
+            fprintf(stderr, "ERROR: Can't write to log buffer\n");
+            return;
+        }
+        out_len += len;
     }
     va_end(args);
-    if (len < max_out - 2) {
-        snprintf(out + len, max_out -len, "\n");
+    
+    if (out_len < max_out - 2) {
+        len = snprintf(out + len, max_out -len, "\n");
+        if (len == -1) {
+            fprintf(stderr, "ERROR: Can't write to log buffer\n");
+            return;
+        }
     }
     else {
-        snprintf(out + max_out - 5, 5, "...\n");
+        len = snprintf(out + max_out - 5, 5, "...\n");
+        if (len == -1) {
+            fprintf(stderr, "ERROR: Can't write to log buffer\n");
+            return;
+        }
     }
     fprintf(stderr, "%s", out);
     fflush(stderr);
