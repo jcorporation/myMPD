@@ -99,8 +99,8 @@ set (CMAKE_EXE_LINKER_FLAGS "-Wl,-z,relro -Wl,-z,now")
 
 set(SOURCES
     src/main.c
-    src/mpd_client.c
     src/web_server.c
+    src/mpd_client.c
     src/mympd_api.c
     src/list.c
     src/tiny_queue.c

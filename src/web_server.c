@@ -171,9 +171,9 @@ void *web_server_loop(void *arg_mgr) {
 static bool parse_internal_message(t_work_result *response, t_mg_user_data *mg_user_data) {
     char *p_charbuf = NULL;
     bool feat_library;
-    int je = json_scanf(response->data, response->length, "{musicDirectory: %Q, featLibrary: %B}", &p_charbuf, &feat_library);
+    int je = json_scanf(response->data, sdslen(response->data), "{musicDirectory: %Q, featLibrary: %B}", &p_charbuf, &feat_library);
     if (je == 2) {
-        mg_user_data->music_directory = sdsnew(p_charbuf);
+        mg_user_data->music_directory = sdscat(sdsempty(), p_charbuf);
         mg_user_data->feat_library = feat_library;
         FREE_PTR(p_charbuf);
         
@@ -188,6 +188,7 @@ static bool parse_internal_message(t_work_result *response, t_mg_user_data *mg_u
         LOG_WARN("Unknown internal message: %s", response->data);
         return false;
     }
+    sds_free(response->data);
     FREE_PTR(response);
     return true;
 }
@@ -207,8 +208,9 @@ static void send_ws_notify(struct mg_mgr *mgr, t_work_result *response) {
         else {
             LOG_WARN("Sending notify to unknown connection: %s", response->data);
         }
-        mg_send_websocket_frame(nc, WEBSOCKET_OP_TEXT, response->data, response->length);
+        mg_send_websocket_frame(nc, WEBSOCKET_OP_TEXT, response->data, sdslen(response->data));
     }
+    sds_free(response->data);
     FREE_PTR(response);
 }
 
@@ -221,8 +223,8 @@ static void send_api_response(struct mg_mgr *mgr, t_work_result *response) {
         if (nc->user_data != NULL) {
             if ((intptr_t)nc->user_data == response->conn_id) {
                 LOG_DEBUG("Sending response to conn_id %d: %s", (intptr_t)nc->user_data, response->data);
-                mg_send_head(nc, 200, response->length, "Content-Type: application/json");
-                mg_printf(nc, "%.*s", response->length, response->data);
+                mg_send_head(nc, 200, sdslen(response->data), "Content-Type: application/json");
+                mg_printf(nc, "%.*s", sdslen(response->data), response->data);
                 break;
             }
         }
@@ -230,6 +232,7 @@ static void send_api_response(struct mg_mgr *mgr, t_work_result *response) {
             LOG_DEBUG("Unknown connection");
         }
     }
+    sds_free(response->data);
     FREE_PTR(response);
 }
 
@@ -388,6 +391,11 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data)
 static bool handle_api(int conn_id, const char *request_body, int request_len) {
     char *cmd = NULL;
     
+    if (request_len > 1000) {
+        LOG_ERROR("Request to long, discarding)");
+        return false;
+    }
+    
     LOG_VERBOSE("API request (%d): %.*s", conn_id, request_len, request_body);
     const int je = json_scanf(request_body, request_len, "{cmd: %Q}", &cmd);
     if (je < 1) {
@@ -403,12 +411,7 @@ static bool handle_api(int conn_id, const char *request_body, int request_len) {
     assert(request);
     request->conn_id = conn_id;
     request->cmd_id = cmd_id;
-    request->length = copy_string(request->data, request_body, 1000, request_len);
-    if (request->length < request_len) {
-        LOG_ERROR("Request buffer truncated %d / %d\n", request_len, 1000); 
-        free(request);
-        return false;
-    }
+    request->data = sdscatlen(sdsempty(), request_body, request_len);
     
     if (strncmp(cmd, "MYMPD_API_", 10) == 0) {
         tiny_queue_push(mympd_api_queue, request);

@@ -25,6 +25,8 @@
 #ifndef __UTILITY_H__
 #define __UtILITY_H__
 
+sds tojson(sds buffer, const char *key, const char *value, bool comma);
+sds tojson_bool(sds buffer, const char *key, bool value, bool comma);
 int testdir(const char *name, const char *dirname, bool create);
 int randrange(int n);
 bool validate_string(const char *data);

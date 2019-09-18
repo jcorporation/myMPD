@@ -22,7 +22,7 @@
 #define __LIST_H__
 
 struct node {
-    char *data;
+    sds data;
     void *extra;
     int value;
     struct node *next;

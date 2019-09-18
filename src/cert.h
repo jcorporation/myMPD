@@ -25,7 +25,7 @@
 #ifndef __MYMPD_CERT_H__
 #define __MYMPD_CERT_H__
 
-bool create_certificates(const char *dir, const char *custom_san);
-bool cleanup_certificates(const char *dir, const char *name);
+bool create_certificates(sds dir, sds custom_san);
+bool cleanup_certificates(sds dir, const char *name);
 
 #endif

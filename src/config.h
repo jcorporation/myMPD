@@ -28,6 +28,6 @@
 //global functions
 void mympd_config_defaults(t_config *config);
 void mympd_free_config(t_config *config);
-bool mympd_read_config(t_config *config, const char *configfile);
+bool mympd_read_config(t_config *config, sds configfile);
 
 #endif

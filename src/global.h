@@ -39,15 +39,13 @@ tiny_queue_t *mympd_api_queue;
 
 typedef struct t_work_request {
     int conn_id;  // needed to identify the connection where to send the reply
-    char data[1000];
-    int length;
+    sds data;
     enum mympd_cmd_ids cmd_id;
 } t_work_request;
 
 typedef struct t_work_result {
     int conn_id;  // needed to identify the connection where to send the reply
-    char data[MAX_SIZE];
-    int length;
+    sds data;
 } t_work_result;
 
 #endif

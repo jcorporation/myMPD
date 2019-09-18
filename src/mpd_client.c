@@ -36,6 +36,7 @@
 #include <assert.h>
 #include <inttypes.h>
 
+#include "../dist/src/sds/sds.h"
 #include "utility.h"
 #include "api.h"
 #include "log.h"

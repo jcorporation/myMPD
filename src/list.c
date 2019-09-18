@@ -25,6 +25,7 @@
 #include <stdbool.h>
 #include <assert.h>
 
+#include "../dist/src/sds/sds.h"
 #include "list.h"
 
 int list_init(struct list *l) {
@@ -89,7 +90,7 @@ int list_swap_item(struct node *n1, struct node *n2) {
         return 1;
         
     int value = n2->value;
-    char *data = n2->data;
+    sds data = n2->data;
     void *extra = n2->extra;
     
     n2->value = n1->value;
@@ -160,11 +161,8 @@ int list_replace(struct list *l, int pos, const char *data, int value, void *ext
     }
     
     current->value = value;
-    current->data = realloc(current->data, strlen(data) + 1);
+    current->data = sdscat(sdsempty(), data);
     current->extra = extra;
-    if (current->data) {
-        strcpy(current->data, data);
-    }
     return 0;
 }
 
@@ -172,7 +170,7 @@ int list_push(struct list *l, const char *data, int value, void *extra) {
     struct node *n = malloc(sizeof(struct node));
     assert(n);
     n->value = value;
-    n->data = strdup(data);
+    n->data = sdsnew(data);
     n->extra = extra;
     n->next = NULL;
 
@@ -189,7 +187,7 @@ int list_insert(struct list *l, const char *data, int value, void *extra) {
     struct node *n = malloc(sizeof(struct node));
     assert(n);
     n->value = value;
-    n->data = strdup(data);
+    n->data = sdsnew(data);
     n->extra = extra;
     n->next = l->list;
     
@@ -222,7 +220,7 @@ int list_shift(struct list *l, unsigned idx) {
     struct node * extracted = list_node_extract(l, idx);
     if (extracted == NULL) 
         return -1;
-    free(extracted->data);
+    sds_free(extracted->data);
     free(extracted->extra);
     free(extracted);
     return 0;
@@ -231,7 +229,7 @@ int list_shift(struct list *l, unsigned idx) {
 int list_free(struct list *l) {
     struct node *current = l->list, *tmp = NULL;
     while (current != NULL) {
-        free(current->data);
+        sds_free(current->data);
         if (current->extra != NULL) {
             free(current->extra);
             current->extra = NULL;

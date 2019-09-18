@@ -36,6 +36,7 @@
 #include <assert.h>
 #include <inttypes.h>
 
+#include "../dist/src/sds/sds.h"
 #include "api.h"
 #include "utility.h"
 #include "log.h"
@@ -49,58 +50,61 @@
 
 //private definitions
 typedef struct t_mympd_state {
-    char *mpd_host;
+    sds mpd_host;
     int mpd_port;
-    char *mpd_pass;
+    sds mpd_pass;
     bool stickers;
-    char *taglist;
-    char *searchtaglist;
-    char *browsetaglist;
+    sds taglist;
+    sds searchtaglist;
+    sds browsetaglist;
     bool smartpls;
     int max_elements_per_page;
     int last_played_count;
     bool love;
-    char *love_channel;
-    char *love_message;
+    sds love_channel;
+    sds love_message;
     bool notification_web;
     bool notification_page;
     bool auto_play;
     enum jukebox_modes jukebox_mode;
-    char *jukebox_playlist;
+    sds jukebox_playlist;
     int jukebox_queue_length;
-    char *cols_queue_current;
-    char *cols_search;
-    char *cols_browse_database;
-    char *cols_browse_playlists_detail;
-    char *cols_browse_filesystem;
-    char *cols_playback;
-    char *cols_queue_last_played;
+    sds cols_queue_current;
+    sds cols_search;
+    sds cols_browse_database;
+    sds cols_browse_playlists_detail;
+    sds cols_browse_filesystem;
+    sds cols_playback;
+    sds cols_queue_last_played;
     bool localplayer;
     bool localplayer_autoplay;
     int stream_port;
-    char *stream_url;
+    sds stream_url;
     bool bg_cover;
-    char *bg_color;
-    char *bg_css_filter;
+    sds bg_color;
+    sds bg_css_filter;
     bool coverimage;
-    char *coverimage_name;
+    sds coverimage_name;
     int coverimage_size;
-    char *locale;
-    char *music_directory;
+    sds locale;
+    sds music_directory;
 } t_mympd_state;
 
 static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_request *request);
 static void mympd_api_push_to_mpd_client(t_mympd_state *mympd_state);
-static int mympd_api_syscmd(t_config *config, char *buffer, const char *cmd);
+static sds mympd_api_syscmd(t_config *config, char *buffer, const char *cmd);
 static void mympd_api_read_statefiles(t_config *config, t_mympd_state *mympd_state);
-static char *state_file_rw_string(t_config *config, const char *name, const char *def_value, bool warn);
+static sds state_file_rw_string(t_config *config, const char *name, const char *def_value, bool warn);
 static bool state_file_rw_bool(t_config *config, const char *name, const bool def_value, bool warn);
 static int state_file_rw_int(t_config *config, const char *name, const int def_value, bool warn);
 static bool state_file_write(t_config *config, const char *name, const char *value);
-static int mympd_api_put_settings(t_config *config, t_mympd_state *mympd_state, char *buffer);
+static sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buffer);
 static void mympd_api_settings_reset(t_config *config, t_mympd_state *mympd_state);
 static bool mympd_api_bookmark_update(t_config *config, const int id, const char *name, const char *uri, const char *type);
-static int mympd_api_bookmark_list(t_config *config, char *buffer, unsigned int offset);
+static sds mympd_api_bookmark_list(t_config *config, sds buffer, unsigned int offset);
+static bool mympd_api_cols_save(t_config *config, t_mympd_state *mympd_state, const char *table, const char *cols);
+static bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state, const char *key, struct json_token *val);
+static bool mympd_api_connection_save(t_config *config, t_mympd_state *mympd_state, const char *key, struct json_token *val);
 
 //public functions
 void *mympd_api_loop(void *arg_config) {
@@ -121,82 +125,29 @@ void *mympd_api_loop(void *arg_config) {
         }
     }
 
-    FREE_PTR(mympd_state->mpd_host);
-    FREE_PTR(mympd_state->mpd_pass);
-    FREE_PTR(mympd_state->taglist);
-    FREE_PTR(mympd_state->searchtaglist);
-    FREE_PTR(mympd_state->browsetaglist);
-    FREE_PTR(mympd_state->love_channel);
-    FREE_PTR(mympd_state->love_message);
-    FREE_PTR(mympd_state->jukebox_playlist);
-    FREE_PTR(mympd_state->cols_queue_current);
-    FREE_PTR(mympd_state->cols_search);
-    FREE_PTR(mympd_state->cols_browse_database);
-    FREE_PTR(mympd_state->cols_browse_playlists_detail);
-    FREE_PTR(mympd_state->cols_browse_filesystem);
-    FREE_PTR(mympd_state->cols_playback);
-    FREE_PTR(mympd_state->cols_queue_last_played);
-    FREE_PTR(mympd_state->stream_url);
-    FREE_PTR(mympd_state->bg_color);
-    FREE_PTR(mympd_state->bg_css_filter);
-    FREE_PTR(mympd_state->coverimage_name);
-    FREE_PTR(mympd_state->locale);
-    FREE_PTR(mympd_state->music_directory);
-    free(mympd_state);
-    mympd_state = NULL;
+    sds_free(mympd_state->mpd_host);
+    sds_free(mympd_state->mpd_pass);
+    sds_free(mympd_state->taglist);
+    sds_free(mympd_state->searchtaglist);
+    sds_free(mympd_state->browsetaglist);
+    sds_free(mympd_state->love_channel);
+    sds_free(mympd_state->love_message);
+    sds_free(mympd_state->jukebox_playlist);
+    sds_free(mympd_state->cols_queue_current);
+    sds_free(mympd_state->cols_search);
+    sds_free(mympd_state->cols_browse_database);
+    sds_free(mympd_state->cols_browse_playlists_detail);
+    sds_free(mympd_state->cols_browse_filesystem);
+    sds_free(mympd_state->cols_playback);
+    sds_free(mympd_state->cols_queue_last_played);
+    sds_free(mympd_state->stream_url);
+    sds_free(mympd_state->bg_color);
+    sds_free(mympd_state->bg_css_filter);
+    sds_free(mympd_state->coverimage_name);
+    sds_free(mympd_state->locale);
+    sds_free(mympd_state->music_directory);
+    FREE_PTR(mympd_state);
     return NULL;
-}
-
-static void mympd_api_push_to_mpd_client(t_mympd_state *mympd_state) {
-    t_work_request *mpd_client_request = (t_work_request *)malloc(sizeof(t_work_request));
-    assert(mpd_client_request);
-    struct json_out out = JSON_OUT_BUF(mpd_client_request->data, 1000);
-    mpd_client_request->conn_id = -1;
-    mpd_client_request->cmd_id = MYMPD_API_SETTINGS_SET;
-    mpd_client_request->length = json_printf(&out, "{cmd: MYMPD_API_SETTINGS_SET,data:{"
-        "jukeboxMode: %d,"
-        "jukeboxPlaylist: %Q,"
-        "jukeboxQueueLength: %d,"
-        "autoPlay: %B,"
-        "coverimage: %B,"
-        "coverimageName: %Q,"
-        "love: %B,"
-        "loveChannel: %Q,"
-        "loveMessage: %Q,"
-        "taglist: %Q,"
-        "searchtaglist: %Q,"
-        "browsetaglist: %Q,"
-        "stickers: %B,"
-        "smartpls: %B,"
-        "mpdHost: %Q,"
-        "mpdPort: %d,"
-        "mpdPass: %Q,"
-        "lastPlayedCount: %d,"
-        "maxElementsPerPage: %d,"
-        "musicDirectory: %Q"
-        "}}",
-        mympd_state->jukebox_mode,
-        mympd_state->jukebox_playlist,
-        mympd_state->jukebox_queue_length,
-        mympd_state->auto_play,
-        mympd_state->coverimage,
-        mympd_state->coverimage_name,
-        mympd_state->love,
-        mympd_state->love_channel,
-        mympd_state->love_message,
-        mympd_state->taglist,
-        mympd_state->searchtaglist,
-        mympd_state->browsetaglist,
-        mympd_state->stickers,
-        mympd_state->smartpls,
-        mympd_state->mpd_host,
-        mympd_state->mpd_port,
-        mympd_state->mpd_pass,
-        mympd_state->last_played_count,
-        mympd_state->max_elements_per_page,
-        mympd_state->music_directory
-    );
-    tiny_queue_push(mpd_client_queue, mpd_client_request);
 }
 
 void mympd_api_settings_delete(t_config *config) {
@@ -207,13 +158,13 @@ void mympd_api_settings_delete(t_config *config) {
         "max_elements_per_page",  "mpd_host", "mpd_pass", "mpd_port", "notification_page", "notification_web", "searchtaglist",
         "smartpls", "stickers", "stream_port", "stream_url", "taglist", "music_directory", 0};
     const char** ptr = state_files;
+    sds filename = sdsempty();
     while (*ptr != 0) {
-        size_t filename_len = strlen(*ptr) + config->varlibdir_len + 8;
-        char filename[filename_len];
-        snprintf(filename, filename_len, "%s/state/%s", config->varlibdir, *ptr);
+        filename = sdscatprintf(sdsempty(), "%s/state/%s", config->varlibdir, *ptr);
         unlink(filename);
         ++ptr;
     }
+    sds_free(filename);
 }
 
 //private functions
@@ -222,386 +173,414 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
     char *p_charbuf1 = NULL;
     char *p_charbuf2 = NULL;
     char *p_charbuf3 = NULL;
-    char p_char[7];
     unsigned int uint_buf1;
     int int_buf1;
-    bool bool_buf;
-    LOG_VERBOSE("MYMPD API request: %.*s", request->length, request->data);
+    LOG_VERBOSE("MYMPD API request: %s", request->data);
     
     //create response struct
     t_work_result *response = (t_work_result *)malloc(sizeof(t_work_result));
     assert(response);
     response->conn_id = request->conn_id;
-    response->length = 0;
+    sds data = sdsempty();
     
-    if (request->cmd_id == MYMPD_API_SYSCMD) {
-        if (config->syscmds == true) {
-            je = json_scanf(request->data, request->length, "{data: {cmd: %Q}}", &p_charbuf1);
+    switch(request->cmd_id) {
+        case MYMPD_API_SYSCMD:
+            if (config->syscmds == true) {
+                je = json_scanf(request->data, sdslen(request->data), "{data: {cmd: %Q}}", &p_charbuf1);
+                if (je == 1) {
+                    data = mympd_api_syscmd(config, data, p_charbuf1);
+                    FREE_PTR(p_charbuf1);
+                }
+            } 
+            else {
+                data = sdscat(data, "{\"type\": \"error\", \"data\": \"System commands are disabled\"}");
+            }
+            break;
+        case MYMPD_API_COLS_SAVE:
+            je = json_scanf(request->data, sdslen(request->data), "{data: {table: %Q}}", &p_charbuf1);
             if (je == 1) {
-                response->length = mympd_api_syscmd(config, response->data, p_charbuf1);
+                sdsrange(request->data, 0, -2);
+                char *cols = strchr(request->data, '[');
+                if (mympd_api_cols_save(config, mympd_state, p_charbuf1, cols)) {
+                    data = sdscat(data, "{\"type\": \"result\", \"data\": \"ok\"}");
+                }
+                else {
+                    sds tablename = sdscatrepr(sdsempty(), p_charbuf1, strlen(p_charbuf1));
+                    data = sdscatprintf(data, "{\"type\": \"error\", \"data\": \"Unknown table %%{table}\", \"values\": {\"table\": \"%s\"}}", tablename);
+                    LOG_ERROR("MYMPD_API_COLS_SAVE: Unknown table %s", tablename);
+                    sds_free(tablename);
+                }
                 FREE_PTR(p_charbuf1);
             }
-        } 
-        else {
-            response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"System commands are disabled\"}");
-        }
-    }
-    else if (request->cmd_id == MYMPD_API_COLS_SAVE) {
-        je = json_scanf(request->data, request->length, "{data: {table: %Q}}", &p_charbuf1);
-        if (je == 1) {
-            char column_list[request->length + 1];
-            snprintf(column_list, request->length + 1, "%.*s", request->length, request->data);
-            char *cols = strchr(column_list, '[');
-            int col_len = strlen(cols); 
-            if (col_len > 1)
-                cols[col_len - 2]  = '\0';
-            if (strcmp(p_charbuf1, "colsQueueCurrent") == 0) {
-                FREE_PTR(mympd_state->cols_queue_current);
-                mympd_state->cols_queue_current = strdup(cols);
-            }
-            else if (strcmp(p_charbuf1, "colsSearch") == 0) {
-                FREE_PTR(mympd_state->cols_search);
-                mympd_state->cols_search = strdup(cols);
-            }
-            else if (strcmp(p_charbuf1, "colsBrowseDatabase") == 0) {
-                FREE_PTR(mympd_state->cols_browse_database);
-                mympd_state->cols_browse_database = strdup(cols);
-            }
-            else if (strcmp(p_charbuf1, "colsBrowsePlaylistsDetail") == 0) {
-                FREE_PTR(mympd_state->cols_browse_playlists_detail);
-                mympd_state->cols_browse_playlists_detail = strdup(cols);
-            }
-            else if (strcmp(p_charbuf1, "colsBrowseFilesystem") == 0) {
-                FREE_PTR(mympd_state->cols_browse_filesystem);
-                mympd_state->cols_browse_filesystem = strdup(cols);
-            }
-            else if (strcmp(p_charbuf1, "colsPlayback") == 0) {
-                FREE_PTR(mympd_state->cols_playback);
-                mympd_state->cols_playback = strdup(cols);
-            }
-            else if (strcmp(p_charbuf1, "colsQueueLastPlayed") == 0) {
-                FREE_PTR(mympd_state->cols_queue_last_played);
-                mympd_state->cols_queue_last_played = strdup(cols);
-            }
-            else {
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Unknown table %%{table}\", \"values\": {\"table\": \"%s\"}}", p_charbuf1);
-                LOG_ERROR("MYMPD_API_COLS_SAVE: Unknown table %s", p_charbuf1);
-            }
-            if (response->length == 0) {
-                if (state_file_write(config, p_charbuf1, cols))
-                    response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
-            }
-            FREE_PTR(p_charbuf1);
-        }
-    }
-    else if (request->cmd_id == MYMPD_API_SETTINGS_RESET) {
-        mympd_api_settings_reset(config, mympd_state);
-        response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
-    }
-    else if (request->cmd_id == MYMPD_API_SETTINGS_SET) {
-        je = json_scanf(request->data, request->length, "{data: {notificationWeb: %B}}", &bool_buf);
-        if (je == 1) {
-            mympd_state->notification_web = bool_buf;
-            if (!state_file_write(config, "notification_web", (mympd_state->notification_web == true ? "true" : "false")))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"notification_web\"}}");
-        }    
-        je = json_scanf(request->data, request->length, "{data: {notificationPage: %B}}", &bool_buf);
-        if (je == 1) {
-            mympd_state->notification_page = bool_buf;
-            if (!state_file_write(config, "notification_page", (mympd_state->notification_page == true ? "true" : "false")))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"notification_page\"}}");
-        }
-        je = json_scanf(request->data, request->length, "{data: {autoPlay: %B}}", &bool_buf);
-        if (je == 1) {
-            mympd_state->auto_play = bool_buf;
-            if (!state_file_write(config, "auto_play", (mympd_state->auto_play == true ? "true" : "false")))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"auto_play\"}}");
-        }
-        je = json_scanf(request->data, request->length, "{data: {localplayerAutoplay: %B}}", &bool_buf);
-        if (je == 1) {
-            mympd_state->localplayer_autoplay = bool_buf;
-            if (!state_file_write(config, "localplayer_autoplay", (mympd_state->localplayer_autoplay == true ? "true" : "false")))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"localplayer_autoplay\"}}");
-        }
-        je = json_scanf(request->data, request->length, "{data: {coverimage: %B}}", &bool_buf);
-        if (je == 1) {
-            mympd_state->coverimage = bool_buf;
-            if (!state_file_write(config, "coverimage", (mympd_state->coverimage == true ? "true" : "false")))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"coverimage\"}}");
-        }
-        je = json_scanf(request->data, request->length, "{data: {coverimageName: %Q}}", &p_charbuf1);
-        if (je == 1) {
-            if (validate_string(p_charbuf1) && strlen(p_charbuf1) > 0) {
-                REASSIGN_PTR(mympd_state->coverimage_name, p_charbuf1);
-                if (!state_file_write(config, "coverimage_name", mympd_state->coverimage_name))
-                    response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"coverimage_name\"}}");
-            }
-            else {
-                FREE_PTR(p_charbuf1);
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Invalid filename for coverimage_name\"}");
-            }
-        }
-        
-        je = json_scanf(request->data, request->length, "{data: {coverimageSize: %d}}", &int_buf1);
-        if (je == 1) {
-            mympd_state->coverimage_size = int_buf1;
-            snprintf(p_char, 7, "%d", mympd_state->coverimage_size);
-            if (!state_file_write(config, "coverimage_size", p_char))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"coverimage_size\"}}");
-        }
-        je = json_scanf(request->data, request->length, "{data: {featLocalplayer: %B}}", &bool_buf);
-        if (je == 1) {
-            mympd_state->localplayer = bool_buf;
-            if (!state_file_write(config, "localplayer", (mympd_state->localplayer == true ? "true" : "false")))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"localplayer\"}}");
-        }
-        je = json_scanf(request->data, request->length, "{data: {streamPort: %d}}", &int_buf1);
-        if (je == 1) {
-            mympd_state->stream_port = int_buf1;
-            snprintf(p_char, 7, "%d", mympd_state->stream_port);
-            if (!state_file_write(config, "stream_port", p_char))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"stream_port\"}}");
-        }
-        je = json_scanf(request->data, request->length, "{data: {streamUrl: %Q}}", &p_charbuf1);
-        if (je == 1) {
-            REASSIGN_PTR(mympd_state->stream_url, p_charbuf1);
-            if (!state_file_write(config, "stream_url", mympd_state->stream_url))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"stream_url\"}}");
-        }
-        je = json_scanf(request->data, request->length, "{data: {locale: %Q}}", &p_charbuf1);
-        if (je == 1) {
-            REASSIGN_PTR(mympd_state->locale, p_charbuf1);
-            if (!state_file_write(config, "locale", mympd_state->locale))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"locale\"}}");
-        }
-        je = json_scanf(request->data, request->length, "{data: {bgCover: %B}}", &bool_buf);
-        if (je == 1) {
-            mympd_state->bg_cover = bool_buf;
-            if (!state_file_write(config, "bg_cover", (mympd_state->bg_cover == true ? "true" : "false")))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"bg_cover\"}}");
-        }
-        je = json_scanf(request->data, request->length, "{data: {bgColor: %Q}}", &p_charbuf1);
-        if (je == 1) {
-            REASSIGN_PTR(mympd_state->bg_color, p_charbuf1);
-            if (!state_file_write(config, "bg_color", mympd_state->bg_color))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"bg_color\"}}");
-        }
-        je = json_scanf(request->data, request->length, "{data: {bgCssFilter: %Q}}", &p_charbuf1);
-        if (je == 1) {
-            REASSIGN_PTR(mympd_state->bg_css_filter, p_charbuf1);
-            if (!state_file_write(config, "bg_css_filter", mympd_state->bg_css_filter))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"bg_css_filter\"}}");
-        }
-        je = json_scanf(request->data, request->length, "{data: {jukeboxMode: %u}}", &uint_buf1);
-        if (je == 1) {
-            mympd_state->jukebox_mode = uint_buf1;
-            if (mympd_state->jukebox_mode > 2) {
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Invalid jukebox mode\"}");
-                LOG_ERROR("Invalid jukeboxMode");
-                mympd_state->jukebox_mode = JUKEBOX_OFF;
-            }
-            snprintf(p_char, 7, "%d", mympd_state->jukebox_mode);
-            if (!state_file_write(config, "jukebox_mode", p_char))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"jukebox_mode\"}}");
-        }
-        je = json_scanf(request->data, request->length, "{data: {jukeboxPlaylist: %Q}}", &p_charbuf1);
-        if (je == 1) {
-            REASSIGN_PTR(mympd_state->jukebox_playlist, p_charbuf1);
-            if (!state_file_write(config, "jukebox_playlist", mympd_state->jukebox_playlist))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"jukebox_playlist\"}}");
-        }
-        je = json_scanf(request->data, request->length, "{data: {jukeboxQueueLength: %d}}", &int_buf1);
-        if (je == 1) {
-            mympd_state->jukebox_queue_length = int_buf1;
-            if (mympd_state->jukebox_queue_length > 999) {
-                LOG_WARN("jukebox_queue_length to big, setting it to maximum value of 999");
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"jukebox_queue_length to big, setting it to maximum value of 999\"}");
-                mympd_state->jukebox_queue_length = 999;
-            }
-            snprintf(p_char, 7, "%d", mympd_state->jukebox_queue_length);
-            if (!state_file_write(config, "jukebox_queue_length", p_char))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"jukebox_queue_length\"}}");
-        }
-        je = json_scanf(request->data, request->length, "{data: {stickers: %B}}", &bool_buf);
-        if (je == 1) {
-            mympd_state->stickers = bool_buf;
-            if (!state_file_write(config, "stickers", (mympd_state->stickers == true ? "true" : "false")))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"stickers\"}}");
-        }
-        je = json_scanf(request->data, request->length, "{data: {lastPlayedCount: %d}}", &int_buf1);
-        if (je == 1) {
-            mympd_state->last_played_count = int_buf1;
-            snprintf(p_char, 7, "%d", mympd_state->last_played_count);
-            if (!state_file_write(config, "last_played_count", p_char))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"last_played_count\"}}");
-        }
-        je = json_scanf(request->data, request->length, "{data: {taglist: %Q}}", &p_charbuf1);
-        if (je == 1) {
-            REASSIGN_PTR(mympd_state->taglist, p_charbuf1);
-            if (!state_file_write(config, "taglist", mympd_state->taglist))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"taglist\"}}");
-        }
-        je = json_scanf(request->data, request->length, "{data: {searchtaglist: %Q}}", &p_charbuf1);
-        if (je == 1) {
-            REASSIGN_PTR(mympd_state->searchtaglist, p_charbuf1);
-            if (!state_file_write(config, "searchtaglist", mympd_state->searchtaglist))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"searchtaglist\"}}");
-        }
-        je = json_scanf(request->data, request->length, "{data: {browsetaglist: %Q}}", &p_charbuf1);
-        if (je == 1) {
-            REASSIGN_PTR(mympd_state->browsetaglist, p_charbuf1);
-            if (!state_file_write(config, "browsetaglist", mympd_state->browsetaglist))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"browsetaglist\"}}");
-        }
-        je = json_scanf(request->data, request->length, "{data: {smartpls: %B}}", &mympd_state->smartpls);
-        if (je == 1) {
-            if (!state_file_write(config, "smartpls", (mympd_state->smartpls == true ? "true" : "false")))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"smartpls\"}}");
-        }
-        je = json_scanf(request->data, request->length, "{data: {maxElementsPerPage: %d}}", &int_buf1);
-        if (je == 1) {
-            mympd_state->max_elements_per_page = int_buf1;
-            if (mympd_state->max_elements_per_page > MAX_ELEMENTS_PER_PAGE) {
-                LOG_WARN("max_elements_per_page to big, setting it to maximum value of %d", MAX_ELEMENTS_PER_PAGE);
-                mympd_state->max_elements_per_page = MAX_ELEMENTS_PER_PAGE;
-            }
-            snprintf(p_char, 7, "%d", mympd_state->max_elements_per_page);
-            if (!state_file_write(config, "max_elements_per_page", p_char))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"max_elements_per_page\"}}");
-        }
-        je = json_scanf(request->data, request->length, "{data: {love: %B}}", &bool_buf);
-        if (je == 1) {
-            mympd_state->love = bool_buf;
-            if (!state_file_write(config, "love", (mympd_state->love == true ? "true" : "false")))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"love\"}}");
-        }
-        je = json_scanf(request->data, request->length, "{data: {loveChannel: %Q}}", &p_charbuf1);
-        if (je == 1) {
-            REASSIGN_PTR(mympd_state->love_channel, p_charbuf1);
-            if (!state_file_write(config, "love_channel", mympd_state->love_channel))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"love_channel\"}}");
-        }
-        je = json_scanf(request->data, request->length, "{data: {loveMessage: %Q}}", &p_charbuf1);
-        if (je == 1) {
-            REASSIGN_PTR(mympd_state->love_message, p_charbuf1);
-            if (!state_file_write(config, "love_message", mympd_state->love_message))
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"love_message\"}}");
-        }
-        if (response->length == 0) {
-            //forward request to mpd_client queue            
-            t_work_request *mpd_client_request = (t_work_request *)malloc(sizeof(t_work_request));
-            assert(mpd_client_request);
-            mpd_client_request->conn_id = -1;
-            mpd_client_request->cmd_id = request->cmd_id;
-            mpd_client_request->length = copy_string(mpd_client_request->data, request->data, 1000, request->length);
-            tiny_queue_push(mpd_client_queue, mpd_client_request);
-            
-            response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
-        }
-    }
-    else if (request->cmd_id == MYMPD_API_SETTINGS_GET) {
-        response->length = mympd_api_put_settings(config, mympd_state, response->data);
-    }
-    else if (request->cmd_id == MYMPD_API_CONNECTION_SAVE) {
-        je = json_scanf(request->data, request->length, "{data: {mpdHost: %Q, mpdPort: %d, mpdPass: %Q, musicDirectory: %Q}}", 
-            &p_charbuf1, &mympd_state->mpd_port, &p_charbuf2, &p_charbuf3);
-        if (je == 4) {
-            if (strcmp(p_charbuf2, "dontsetpassword") != 0) {
-                REASSIGN_PTR(mympd_state->mpd_pass, p_charbuf1);
-                if (!state_file_write(config, "mpd_pass", mympd_state->mpd_pass)) {
-                    response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"mpd_pass\"}}");
+            break;
+        case MYMPD_API_SETTINGS_RESET:
+            mympd_api_settings_reset(config, mympd_state);
+            data = sdscat(data, "{\"type\": \"result\", \"data\": \"ok\"}");
+            break;
+        case MYMPD_API_SETTINGS_SET: {
+            void *h = NULL;
+            struct json_token key;
+            struct json_token val;
+            bool rc = true;
+            while ((h = json_next_key(request->data, sdslen(request->data), h, ".data", &key, &val)) != NULL) {
+                rc = mympd_api_settings_set(config, mympd_state, key.ptr, &val);
+                if (rc == false) {
+                    break;
                 }
             }
+            if (rc == true) {
+                //forward request to mpd_client queue            
+                t_work_request *mpd_client_request = (t_work_request *)malloc(sizeof(t_work_request));
+                assert(mpd_client_request);
+                mpd_client_request->conn_id = -1;
+                mpd_client_request->cmd_id = request->cmd_id;
+                mpd_client_request->data = sdsdup(request->data);
+                tiny_queue_push(mpd_client_queue, mpd_client_request);
+                data = sdscat(data, "{\"type\": \"result\", \"data\": \"ok\"}");
+            }
             else {
+                sds settingname = sdscatrepr(sdsempty(), val.ptr, val.len);
+                data = sdscatprintf(data, "{\"type\": \"error\", \"data\": \"Can't save setting %%{setting}\", \"values\": {\"setting\": \"%s\"}}", settingname);
+                LOG_ERROR("MYMPD_API_SETTINGS_SET: Can't save setting %s", settingname);
+                sds_free(settingname);
+            }
+            break;
+        }
+        case MYMPD_API_SETTINGS_GET:
+            data = mympd_api_settings_put(config, mympd_state, data);
+            break;
+        case MYMPD_API_CONNECTION_SAVE: {
+            void *h = NULL;
+            struct json_token key;
+            struct json_token val;
+            bool rc = true;
+            while ((h = json_next_key(request->data, sdslen(request->data), h, ".data", &key, &val)) != NULL) {
+                rc = mympd_api_connection_save(config, mympd_state, key.ptr, &val);
+                if (rc == false) {
+                    break;
+                }
+            }
+            if (rc == true) {
+                //push settings to mpd_client queue
+                mympd_api_push_to_mpd_client(mympd_state);
+                data = sdscat(data, "{\"type\": \"result\", \"data\": \"ok\"}");
+            }
+            else {
+                sds settingname = sdscatrepr(sdsempty(), val.ptr, val.len);
+                data = sdscatprintf(data, "{\"type\": \"error\", \"data\": \"Can't save setting %%{setting}\", \"values\": {\"setting\": \"%s\"}}", settingname);
+                LOG_ERROR("MYMPD_API_CONNECTION_SAVE: Can't save setting %s", settingname);
+                sds_free(settingname);
+            }
+            break;
+        }
+        case MYMPD_API_BOOKMARK_SAVE:
+            je = json_scanf(request->data, sdslen(request->data), "{data: {id: %d, name: %Q, uri: %Q, type: %Q}}", &int_buf1, &p_charbuf1, &p_charbuf2, &p_charbuf3);
+            if (je == 4) {
+                if (mympd_api_bookmark_update(config, int_buf1, p_charbuf1, p_charbuf2, p_charbuf3)) {
+                    data = sdscat(data, "{\"type\": \"result\", \"data\": \"ok\"}");
+                }
+                else {
+                    data = sdscat(data, "{\"type\": \"error\", \"data\": \"Saving bookmark failed\"}");
+                }
+                FREE_PTR(p_charbuf1);
                 FREE_PTR(p_charbuf2);
+                FREE_PTR(p_charbuf3);
             }
-            REASSIGN_PTR(mympd_state->mpd_host, p_charbuf1);
-            REASSIGN_PTR(mympd_state->music_directory, p_charbuf3);
-            if (!state_file_write(config, "mpd_host", mympd_state->mpd_host)) {
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"mpd_host\"}}");
+            break;
+        case MYMPD_API_BOOKMARK_RM:
+            je = json_scanf(request->data, sdslen(request->data), "{data: {id: %d}}", &int_buf1);
+            if (je == 1) {
+                if (mympd_api_bookmark_update(config, int_buf1, NULL, NULL, NULL)) {
+                    data = sdscat(data, "{\"type\": \"result\", \"data\": \"ok\"}");
+                }
+                else {
+                    data = sdscat(data, "{\"type\": \"error\", \"data\": \"Deleting bookmark failed\"}");
+                }
             }
-            if (!state_file_write(config, "music_directory", mympd_state->music_directory)) {
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"music_directory\"}}");
+            break;
+        case MYMPD_API_BOOKMARK_LIST:
+            je = json_scanf(request->data, sdslen(request->data), "{data: {offset: %u}}", &uint_buf1);
+            if (je == 1) {
+                data = mympd_api_bookmark_list(config, data, uint_buf1);
             }
-            snprintf(p_char, 7, "%d", mympd_state->mpd_port);
-            if (!state_file_write(config, "mpd_port", p_char)) {
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to set myMPD state %%{state}\", \"values\": {\"state\": \"mpd_port\"}}");
-            }
-            //push settings to mpd_client queue
-            mympd_api_push_to_mpd_client(mympd_state);
-            response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
-        }
-    }
-    else if (request->cmd_id == MYMPD_API_BOOKMARK_SAVE) {
-        je = json_scanf(request->data, request->length, "{data: {id: %d, name: %Q, uri: %Q, type: %Q}}", &int_buf1, &p_charbuf1, &p_charbuf2, &p_charbuf3);
-        if (je == 4) {
-            if (mympd_api_bookmark_update(config, int_buf1, p_charbuf1, p_charbuf2, p_charbuf3)) {
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
-            }
-            else {
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Saving bookmark failed\"}");
-            }
-            FREE_PTR(p_charbuf1);
-            FREE_PTR(p_charbuf2);
-            FREE_PTR(p_charbuf3);
-        }
-    }
-    else if (request->cmd_id == MYMPD_API_BOOKMARK_RM) {
-        je = json_scanf(request->data, request->length, "{data: {id: %d}}", &int_buf1);
-        if (je == 1) {
-            if (mympd_api_bookmark_update(config, int_buf1, NULL, NULL, NULL)) {
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"result\", \"data\": \"ok\"}");
-            }
-            else {
-                response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Deleting bookmark failed\"}");
-            }
-        }
-    }
-    else if (request->cmd_id == MYMPD_API_BOOKMARK_LIST) {
-        je = json_scanf(request->data, request->length, "{data: {offset: %u}}", &uint_buf1);
-        if (je == 1) {
-            response->length = mympd_api_bookmark_list(config, response->data, uint_buf1);
-        }
-    }
-    else {
-        response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Unknown request\"}");
-        LOG_ERROR("Unknown cmd_id %u", request->cmd_id);    
+            break;
+        default:
+            data = sdscat(data, "{\"type\": \"error\", \"data\": \"Unknown request\"}");
+            LOG_ERROR("Unknown cmd_id %u", request->cmd_id);
     }
 
-    if (response->length == 0) {
-        response->length = snprintf(response->data, MAX_SIZE, "{\"type\": \"error\", \"data\": \"No response for cmd_id %%{cmdId}\", \"values\": {\"cmdId\": %d}}", request->cmd_id);
+    if (sdslen(data) == 0) {
+        data = sdscatprintf(data, "{\"type\": \"error\", \"data\": \"No response for cmd_id %%{cmdId}\", \"values\": {\"cmdId\": %d}}", request->cmd_id);
         LOG_ERROR("No response for cmd_id %u", request->cmd_id);
     }
+    response->data = data;
     LOG_DEBUG("Push response to queue for connection %lu: %s", request->conn_id, response->data);
-
     tiny_queue_push(web_server_queue, response);
+    sds_free(request->data);
     FREE_PTR(request);
 }
 
-static int mympd_api_syscmd(t_config *config, char *buffer, const char *cmd) {
-    int len = 0;
+static void mympd_api_push_to_mpd_client(t_mympd_state *mympd_state) {
+    t_work_request *mpd_client_request = (t_work_request *)malloc(sizeof(t_work_request));
+    assert(mpd_client_request);
+    mpd_client_request->conn_id = -1;
+    mpd_client_request->cmd_id = MYMPD_API_SETTINGS_SET;
+    sds data = sdsempty();
     
-    char *cmdline = (char *)list_get_extra(&config->syscmd_list, cmd);
+    data = sdscat(data, "{\"cmd\":\"MYMPD_API_SETTINGS_SET\",\"data\":{");
+    data = tojson_long(data, "jukeboxMode", mympd_state->jukebox_mode, true);
+    data = tojson_char(data, "jukeboxPlaylist", mympd_state->jukebox_playlist, true);
+    data = tojson_long(data, "jukeboxQueueLength", mympd_state->jukebox_queue_length, true);
+    data = tojson_bool(data, "autoPlay", mympd_state->auto_play, true);
+    data = tojson_bool(data, "coverimage,", mympd_state->coverimage, true);
+    data = tojson_char(data, "coverimageName", mympd_state->coverimage_name, true);
+    data = tojson_bool(data, "love", mympd_state->love, true);
+    data = tojson_char(data, "loveChannel", mympd_state->love_channel, true);
+    data = tojson_char(data, "loveMessage", mympd_state->love_message, true);
+    data = tojson_char(data, "taglist", mympd_state->taglist, true);
+    data = tojson_char(data, "searchtaglist", mympd_state->searchtaglist, true);
+    data = tojson_char(data, "browsetaglist", mympd_state->browsetaglist, true);
+    data = tojson_bool(data, "stickers", mympd_state->stickers, true);
+    data = tojson_bool(data, "smartpls", mympd_state->smartpls, true);
+    data = tojson_char(data, "mpdHost", mympd_state->mpd_host, true);
+    data = tojson_char(data, "mpdPass", mympd_state->mpd_pass, true);
+    data = tojson_long(data, "mpdPort", mympd_state->mpd_port, true);
+    data = tojson_long(data, "lastPlayedCount", mympd_state->last_played_count, true);
+    data = tojson_long(data, "maxElementsPerPage", mympd_state->max_elements_per_page, true);
+    data = tojson_char(data, "musicDirectory", mympd_state->music_directory, false);
+    data = sdscat(data, "}}");
+
+    mpd_client_request->data = data;    
+    tiny_queue_push(mpd_client_queue, mpd_client_request);
+}
+
+static bool mympd_api_connection_save(t_config *config, t_mympd_state *mympd_state, const char *key, struct json_token *val) {
+    char *crap;
+    sds settingname = sdsempty();
+    if (strcmp(key, "mpdPass") == 0) {
+        if (strcmp(key, "dontsetpassword") != 0) {
+            mympd_state->mpd_pass = sdscatlen(sdsempty(), val->ptr, val->len);
+            settingname = sdscat(sdsempty(), "mpd_pass");
+        }
+        return true;
+    }
+    else if (strcmp(key, "mpdHost") == 0) {
+        mympd_state->mpd_host = sdscatlen(sdsempty(), val->ptr, val->len);
+        settingname = sdscat(sdsempty(), "mpd_host");
+    }
+    else if (strcmp(key, "mpdPort") == 0) {
+        mympd_state->mpd_port = strtoimax(val->ptr, &crap, 10);
+        settingname = sdscat(sdsempty(), "mpd_port");
+    }
+    else if (strcmp(key, "musicDirectory") == 0) {
+        mympd_state->mpd_host = sdscatlen(sdsempty(), val->ptr, val->len);
+        settingname = sdscat(sdsempty(), "music_directory");
+    }
+    else {
+        sds_free(settingname);
+        return false;    
+    }
+
+    bool rc = state_file_write(config, settingname, val->ptr);
+    sds_free(settingname);
+    return rc;
+}
+
+static sds mympd_api_syscmd(t_config *config, char *buffer, const char *cmd) {
+    sds cmdline = (char *)list_get_extra(&config->syscmd_list, cmd);
     if (cmdline == NULL) {
         LOG_ERROR("Syscmd not defined: %s", cmd);
-        len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"System command not defined\"}");
-        return len;
+        buffer = sdscat(buffer, "{\"type\": \"error\", \"data\": \"System command not defined\"}");
+        return buffer;
     }
 
     const int rc = system(cmdline);
     if ( rc == 0) {
-        len = snprintf(buffer, MAX_SIZE, "{\"type\": \"result\", \"data\": \"Successfully execute cmd %%{cmd}\", \"values\":{\"cmd\": \"%s\"}}", cmd);
+        buffer = sdscatprintf(buffer, "{\"type\": \"result\", \"data\": \"Successfully execute cmd %%{cmd}\", \"values\":{\"cmd\": \"%s\"}}", cmd);
         LOG_VERBOSE("Executed syscmd: \"%s\"", cmdline);
     }
     else {
-        len = snprintf(buffer, MAX_SIZE, "{\"type\": \"error\", \"data\": \"Failed to execute cmd %%{cmd}\", \"values\":{\"cmd\": \"%s\"}}", cmd);
+        buffer = sdscatprintf(buffer, "{\"type\": \"error\", \"data\": \"Failed to execute cmd %%{cmd}\", \"values\":{\"cmd\": \"%s\"}}", cmd);
         LOG_ERROR("Executing syscmd \"%s\" failed", cmdline);
     }
-    CHECK_RETURN_LEN();    
+    return buffer;
+}
+
+static bool mympd_api_cols_save(t_config *config, t_mympd_state *mympd_state, const char *table, const char *cols) {
+    if (strcmp(table, "colsQueueCurrent") == 0) {
+        mympd_state->cols_queue_current = sdscat(sdsempty(), cols);
+    }
+    else if (strcmp(table, "colsSearch") == 0) {
+        mympd_state->cols_search = sdscat(sdsempty(), cols);
+    }
+    else if (strcmp(table, "colsBrowseDatabase") == 0) {
+        mympd_state->cols_browse_database = sdscat(sdsempty(), cols);
+    }
+    else if (strcmp(table, "colsBrowsePlaylistsDetail") == 0) {
+        mympd_state->cols_browse_playlists_detail = sdscat(sdsempty(), cols);
+    }
+    else if (strcmp(table, "colsBrowseFilesystem") == 0) {
+        mympd_state->cols_browse_filesystem = sdscat(sdsempty(), cols);
+    }
+    else if (strcmp(table, "colsPlayback") == 0) {
+        mympd_state->cols_playback = sdscat(sdsempty(), cols);
+    }
+    else if (strcmp(table, "colsQueueLastPlayed") == 0) {
+        mympd_state->cols_queue_last_played = sdscat(sdsempty(), cols);
+    }
+    else {
+        return false;
+    }
+    
+    if (!state_file_write(config, table, cols)) {
+        return false;
+    }
+    
+    return true;
+}
+
+static bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state, const char *key, struct json_token *val) {
+    sds settingname = sdsempty();
+    char *crap;
+    if (strcmp(key, "notificationWeb") == 0) {
+        mympd_state->notification_web = val->type == JSON_TYPE_TRUE ? true : false;
+        settingname = sdscat(sdsempty(), "notification_web");
+    }
+    else if (strcmp(key, "notificationPage") == 0) {
+        mympd_state->notification_page = val->type == JSON_TYPE_TRUE ? true : false;
+        settingname = sdscat(sdsempty(), "notification_page");
+    }
+    else if (strcmp(key, "autoPlay") == 0) {
+        mympd_state->auto_play = val->type == JSON_TYPE_TRUE ? true : false;
+        settingname = sdscat(sdsempty(), "auto_play");
+    }
+    else if (strcmp(key, "localplayerAutoplay") == 0) {
+        mympd_state->localplayer_autoplay = val->type == JSON_TYPE_TRUE ? true : false;
+        settingname = sdscat(sdsempty(), "localplayer_autoplay");
+    }
+    else if (strcmp(key, "coverimage") == 0) {
+        mympd_state->coverimage = val->type == JSON_TYPE_TRUE ? true : false;
+        settingname = sdscat(sdsempty(), "coverimage");
+    }
+    else if (strcmp(key, "coverimageName") == 0) {
+        if (validate_string(val->ptr) && val->len > 0) {
+            mympd_state->coverimage_name = sdscatlen(sdsempty(), val->ptr, val->len);
+            settingname = sdscat(sdsempty(), "coverimage_name");
+        }
+        else {
+            return false;
+        }
+    }
+    else if (strcmp(key, "coverimageSize") == 0) {
+        mympd_state->coverimage_size = strtoimax(val->ptr, &crap, 10);
+        settingname = sdscat(sdsempty(), "coverimage_size");
+    }
+    else if (strcmp(key, "featLocalplayer") == 0) {
+        mympd_state->localplayer = val->type == JSON_TYPE_TRUE ? true : false;
+        settingname = sdscat(sdsempty(), "localplayer");
+    }
+    else if (strcmp(key, "streamPort") == 0) {
+        mympd_state->stream_port = strtoimax(val->ptr, &crap, 10);
+        settingname = sdscat(sdsempty(), "stream_port");
+    }
+    else if (strcmp(key, "streamUrl") == 0) {
+        mympd_state->stream_url = sdscatlen(sdsempty(), val->ptr, val->len);
+        settingname = sdscat(sdsempty(), "stream_url");
+    }
+    else if (strcmp(key, "locale") == 0) {
+        mympd_state->locale = sdscatlen(sdsempty(), val->ptr, val->len);
+        settingname = sdscat(sdsempty(), "locale");
+    }
+    else if (strcmp(key, "bgCover") == 0) {
+        mympd_state->bg_cover = val->type == JSON_TYPE_TRUE ? true : false;
+        settingname = sdscat(sdsempty(), "bg_cover");
+    }
+    else if (strcmp(key, "bgColor") == 0) {
+        mympd_state->bg_color = sdscatlen(sdsempty(), val->ptr, val->len);
+        settingname = sdscat(sdsempty(), "bg_color");
+    }
+    else if (strcmp(key, "bgCssFilter") == 0) {
+        mympd_state->bg_css_filter = sdscatlen(sdsempty(), val->ptr, val->len);
+        settingname = sdscat(sdsempty(), "bg_css_filter");
+    }
+    else if (strcmp(key, "jukeboxMode") == 0) {
+        int jukebox_mode = strtoimax(val->ptr, &crap, 10);
+        if (jukebox_mode < 0 || jukebox_mode > 2) {
+            return false;
+        }
+        mympd_state->jukebox_mode = jukebox_mode;
+        settingname = sdscat(sdsempty(), "jukebox_mode");
+    }
+    else if (strcmp(key, "jukeboxPlaylist") == 0) {
+        mympd_state->jukebox_playlist = sdscatlen(sdsempty(), val->ptr, val->len);
+        settingname = sdscat(sdsempty(), "jukebox_playlist");
+    }
+    else if (strcmp(key, "jukeboxQueueLength") == 0) {
+        int jukebox_queue_length = strtoimax(val->ptr, &crap, 10);
+        if (jukebox_queue_length <= 0 || jukebox_queue_length > 999) {
+            return false;
+        }
+        mympd_state->jukebox_queue_length = jukebox_queue_length;
+        settingname = sdscat(sdsempty(), "jukebox_queue_length");
+    }
+    else if (strcmp(key, "stickers") == 0) {
+        mympd_state->stickers = val->type == JSON_TYPE_TRUE ? true : false;
+        settingname = sdscat(sdsempty(), "stickers");
+    }
+    else if (strcmp(key, "lastPlayedCount") == 0) {
+        int last_played_count = strtoimax(val->ptr, &crap, 10);
+        if (last_played_count <= 0) {
+            return false;
+        }
+        mympd_state->last_played_count = last_played_count;
+        settingname = sdscat(sdsempty(), "last_played_count");
+    }
+    else if (strcmp(key, "taglist") == 0) {
+        mympd_state->taglist = sdscatlen(sdsempty(), val->ptr, val->len);
+        settingname = sdscat(sdsempty(), "taglist");
+    }
+    else if (strcmp(key, "searchtaglist") == 0) {
+        mympd_state->searchtaglist = sdscatlen(sdsempty(), val->ptr, val->len);
+        settingname = sdscat(sdsempty(), "searchtaglist");
+    }
+    else if (strcmp(key, "browsetaglist") == 0) {
+        mympd_state->browsetaglist = sdscatlen(sdsempty(), val->ptr, val->len);
+        settingname = sdscat(sdsempty(), "browsetaglist");
+    }
+    else if (strcmp(key, "smartpls") == 0) {
+        mympd_state->smartpls = val->type == JSON_TYPE_TRUE ? true : false;
+        settingname = sdscat(sdsempty(), "smartpls");
+    }
+    else if (strcmp(key, "maxElementsPerPage") == 0) {
+        int max_elements_per_page = strtoimax(val->ptr, &crap, 10);
+        if (max_elements_per_page <= 0 || max_elements_per_page > 999) {
+            return false;
+        }
+        mympd_state->max_elements_per_page = max_elements_per_page;
+        settingname = sdscat(sdsempty(), "max_elements_per_page");
+    }
+    else if (strcmp(key, "love") == 0) {
+        mympd_state->love = val->type == JSON_TYPE_TRUE ? true : false;
+        settingname = sdscat(sdsempty(), "love");
+    }
+    else if (strcmp(key, "loveChannel") == 0) {
+        mympd_state->love_channel = sdscatlen(sdsempty(), val->ptr, val->len);
+        settingname = sdscat(sdsempty(), "love_channel");
+    }
+    else if (strcmp(key, "loveMessage") == 0) {
+        mympd_state->love_message = sdscatlen(sdsempty(), val->ptr, val->len);
+        settingname = sdscat(sdsempty(), "love_message");
+    }
+    else {
+        sds_free(settingname);
+        return false;
+    }
+    bool rc = state_file_write(config, settingname, val->ptr);
+    sds_free(settingname);
+    return rc;
 }
 
 static void mympd_api_settings_reset(t_config *config, t_mympd_state *mympd_state) {
-
     mympd_api_settings_delete(config);
     mympd_api_read_statefiles(config, mympd_state);
     mympd_api_push_to_mpd_client(mympd_state);
@@ -649,24 +628,27 @@ static void mympd_api_read_statefiles(t_config *config, t_mympd_state *mympd_sta
     mympd_state->music_directory = state_file_rw_string(config, "music_directory", config->music_directory, false);
 }
 
-static char *state_file_rw_string(t_config *config, const char *name, const char *def_value, bool warn) {
+static sds state_file_rw_string(t_config *config, const char *name, const char *def_value, bool warn) {
     char *line = NULL;
     size_t n = 0;
     ssize_t read;
     
+    sds result = sdsempty();
+    
     if (!validate_string(name)) {
-        return NULL;
+        return result;
     }
-    size_t cfg_file_len = config->varlibdir_len + strlen(name) + 8;
-    char cfg_file[cfg_file_len];
-    snprintf(cfg_file, cfg_file_len, "%s/state/%s", config->varlibdir, name);
+    
+    sds cfg_file = sdscatprintf(sdsempty(), "%s/state/%s", config->varlibdir, name);
     FILE *fp = fopen(cfg_file, "r");
+    sds_free(cfg_file);
     if (fp == NULL) {
         if (warn == true) {
             LOG_WARN("Can't open %s", cfg_file);
         }
         state_file_write(config, name, def_value);
-        return strdup(def_value);
+        result = sdscat(sdsempty(), def_value);
+        return result;
     }
     read = getline(&line, &n, fp);
     if (read > 0) {
@@ -674,20 +656,23 @@ static char *state_file_rw_string(t_config *config, const char *name, const char
     }
     fclose(fp);
     if (read > 0) {
-        return line;
+        result = sdscat(sdsempty(), line);
+        FREE_PTR(line);
+        return result;
     }
     else {
         FREE_PTR(line);
-        return strdup(def_value);
+        result = sdscat(sdsempty(), def_value);
+        return result;
     }
 }
 
 static bool state_file_rw_bool(t_config *config, const char *name, const bool def_value, bool warn) {
     bool value = def_value;
-    char *line = state_file_rw_string(config, name, def_value == true ? "true" : "false", warn);
-    if (line != NULL) {
+    sds line = state_file_rw_string(config, name, def_value == true ? "true" : "false", warn);
+    if (sdslen(line) > 0) {
         value = strcmp(line, "true") == 0 ? true : false;
-        FREE_PTR(line);
+        sds_free(line);
     }
     return value;
 }
@@ -695,131 +680,118 @@ static bool state_file_rw_bool(t_config *config, const char *name, const bool de
 static int state_file_rw_int(t_config *config, const char *name, const int def_value, bool warn) {
     char *crap = NULL;
     int value = def_value;
-    char def_value_str[7];
-    snprintf(def_value_str, 7, "%d", def_value);
-    char *line = state_file_rw_string(config, name, def_value_str, warn);
-    if (line != NULL) {
+    sds def_value_str = sdsfromlonglong(def_value);
+    sds line = state_file_rw_string(config, name, def_value_str, warn);
+    if (sdslen(line) > 0) {
         value = strtoimax(line, &crap, 10);
-        FREE_PTR(line);
+        sds_free(line);
     }
     return value;
 }
 
 static bool state_file_write(t_config *config, const char *name, const char *value) {
-    size_t cfg_file_len = config->varlibdir_len + strlen(name) + 8;
-    char cfg_file[cfg_file_len];
-    size_t tmp_file_len = config->varlibdir_len + strlen(name) + 15;
-    char tmp_file[tmp_file_len];
-    int fd;
-    
-    if (!validate_string(name))
+    if (!validate_string(name)) {
         return false;
-    snprintf(cfg_file, cfg_file_len, "%s/state/%s", config->varlibdir, name);
-    snprintf(tmp_file, tmp_file_len, "%s/state/%s.XXXXXX", config->varlibdir, name);
-        
+    }
+    sds tmp_file = sdscatprintf(sdsempty(), "%s/state/%s.XXXXXX", config->varlibdir, name);
+    int fd;
     if ((fd = mkstemp(tmp_file)) < 0 ) {
         LOG_ERROR("Can't open %s for write", tmp_file);
+        sds_free(tmp_file);
         return false;
     }
     FILE *fp = fdopen(fd, "w");
     fprintf(fp, "%s", value);
     fclose(fp);
+    sds cfg_file = sdscatprintf(sdsempty(), "%s/state/%s", config->varlibdir, name);
     if (rename(tmp_file, cfg_file) == -1) {
         LOG_ERROR("Renaming file from %s to %s failed", tmp_file, cfg_file);
+        sds_free(tmp_file);
+        sds_free(cfg_file);
         return false;
     }
+    sds_free(tmp_file);
+    sds_free(cfg_file);
     return true;
 }
 
-static int mympd_api_put_settings(t_config *config, t_mympd_state *mympd_state, char *buffer) {
-    size_t len;
-    struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
-    
-    len = json_printf(&out, "{type: mympdSettings, data: {mpdHost: %Q, mpdPort: %d, mpdPass: %Q, featSyscmds: %B, featCacert: %B, "
-        "featLocalplayer: %B, streamPort: %d, streamUrl: %Q, coverimage: %B, coverimageName: %Q, coverimageSize: %d, featMixramp: %B, "
-        "maxElementsPerPage: %d, notificationWeb: %B, notificationPage: %B, jukeboxMode: %d, jukeboxPlaylist: %Q, jukeboxQueueLength: %d, "
-        "autoPlay: %B, bgColor: %Q, bgCover: %B, bgCssFilter: %Q, loglevel: %d, locale: %Q, localplayerAutoplay: %B, "
-        "stickers: %B, smartpls: %B, lastPlayedCount: %d, love: %B, loveChannel: %Q, loveMessage: %Q, musicDirectory: %Q",
-        mympd_state->mpd_host, 
-        mympd_state->mpd_port,
-        "dontsetpassword",
-        config->syscmds,
-        (config->custom_cert == false && config->ssl == true ? true : false),
-        mympd_state->localplayer,
-        mympd_state->stream_port,
-        mympd_state->stream_url,
-        mympd_state->coverimage,
-        mympd_state->coverimage_name,
-        mympd_state->coverimage_size,
-        config->mixramp,
-        mympd_state->max_elements_per_page,
-        mympd_state->notification_web,
-        mympd_state->notification_page,
-        mympd_state->jukebox_mode,
-        mympd_state->jukebox_playlist,
-        mympd_state->jukebox_queue_length,
-        mympd_state->auto_play,
-        mympd_state->bg_color,
-        mympd_state->bg_cover,
-        mympd_state->bg_css_filter,
-        loglevel,
-        mympd_state->locale,
-        mympd_state->localplayer_autoplay,
-        mympd_state->stickers,
-        mympd_state->smartpls,
-        mympd_state->last_played_count,
-        mympd_state->love,
-        mympd_state->love_channel,
-        mympd_state->love_message,
-        mympd_state->music_directory
-    );
-    
+static sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buffer) {
+    buffer = sdscat(buffer, "{\"type\":\"mympdSettings\",\"data\":{");
+    buffer = tojson_char(buffer, "mpdHost", mympd_state->mpd_host, true);
+    buffer = tojson_long(buffer, "mpdPort", mympd_state->mpd_port, true);
+    buffer = tojson_char(buffer, "mpdPass", "dontsetpassword", true);
+    buffer = tojson_bool(buffer, "featSyscmds", config->syscmds, true);
+    buffer = tojson_bool(buffer, "featCacert", (config->custom_cert == false && config->ssl == true ? true : false), true);
+    buffer = tojson_bool(buffer, "featLocalplayer", mympd_state->localplayer, true);
+    buffer = tojson_long(buffer, "streamPort", mympd_state->stream_port, true);
+    buffer = tojson_char(buffer, "streamUrl", mympd_state->stream_url, true);
+    buffer = tojson_bool(buffer, "coverimage", mympd_state->coverimage, true);
+    buffer = tojson_char(buffer, "coverimageName", mympd_state->coverimage_name, true);
+    buffer = tojson_long(buffer, "coverimageSize", mympd_state->coverimage_size, true);
+    buffer = tojson_bool(buffer, "featMixramp", config->mixramp, true);
+    buffer = tojson_long(buffer, "maxElementsPerPage", mympd_state->max_elements_per_page, true);
+    buffer = tojson_bool(buffer, "notificationWeb", mympd_state->notification_web, true);
+    buffer = tojson_bool(buffer, "notificationPage", mympd_state->notification_page, true);
+    buffer = tojson_long(buffer, "jukeboxMode", mympd_state->jukebox_mode, true);
+    buffer = tojson_char(buffer, "jukeboxPlaylist", mympd_state->jukebox_playlist, true);
+    buffer = tojson_long(buffer, "jukeboxQueueLength", mympd_state->jukebox_queue_length, true);
+    buffer = tojson_bool(buffer, "autoPlay", mympd_state->auto_play, true);
+    buffer = tojson_char(buffer, "bgColor", mympd_state->bg_color, true);
+    buffer = tojson_bool(buffer, "bgCover", mympd_state->bg_cover, true);
+    buffer = tojson_char(buffer, "bgCssFilter", mympd_state->bg_css_filter, true);
+    buffer = tojson_long(buffer, "loglevel", loglevel, true);
+    buffer = tojson_char(buffer, "locale", mympd_state->locale, true);
+    buffer = tojson_bool(buffer, "localplayerAutoplay", mympd_state->localplayer_autoplay, true);
+    buffer = tojson_bool(buffer, "stickers", mympd_state->stickers, true);
+    buffer = tojson_bool(buffer, "smartpls", mympd_state->smartpls, true);
+    buffer = tojson_long(buffer, "lastPlayedCount", mympd_state->last_played_count, true);
+    buffer = tojson_bool(buffer, "love", mympd_state->love, true);
+    buffer = tojson_char(buffer, "loveChannel", mympd_state->love_channel, true);
+    buffer = tojson_char(buffer, "loveMessage", mympd_state->love_message, true);
+    buffer = tojson_char(buffer, "musicDirectory", mympd_state->music_directory, true);
+    buffer = sdscatprintf(buffer, "\"colsQueueCurrent\":%s,", mympd_state->cols_queue_current);
+    buffer = sdscatprintf(buffer, "\"colsSearch\":%s,", mympd_state->cols_search);
+    buffer = sdscatprintf(buffer, "\"colsBrowseDatabase\":%s,", mympd_state->cols_browse_database);
+    buffer = sdscatprintf(buffer, "\"colsBrowsePlaylistsDetail\":%s,", mympd_state->cols_browse_playlists_detail);
+    buffer = sdscatprintf(buffer, "\"colsBrowseFilesystem\":%s,", mympd_state->cols_browse_filesystem);
+    buffer = sdscatprintf(buffer, "\"colsPlayback\":%s,", mympd_state->cols_playback);
+    buffer = sdscatprintf(buffer, "\"colsQueueLastPlayed\":%s", mympd_state->cols_queue_last_played);
+
     if (config->syscmds == true) {
-        len += json_printf(&out, ", syscmdList: [");
+        buffer = sdscat(buffer, ",\"syscmdList\":[");
         int nr = 0;
         struct node *current = config->syscmd_list.list;
         while (current != NULL) {
-            if (nr++) 
-                len += json_printf(&out, ",");
-            len += json_printf(&out, "%Q", current->data);
+            if (nr++) {
+                buffer = sdscat(buffer, ",");
+            }
+            buffer = sdscatrepr(buffer, current->data, strlen(current->data));
             current = current->next;
         }
-        len += json_printf(&out, "]");
+        buffer = sdscat(buffer, "]");
     }
-    len += json_printf(&out, ", colsQueueCurrent: %s, colsSearch: %s, colsBrowseDatabase: %s, colsBrowsePlaylistsDetail: %s, "
-        "colsBrowseFilesystem: %s, colsPlayback: %s, colsQueueLastPlayed: %s}}",
-        mympd_state->cols_queue_current,
-        mympd_state->cols_search,
-        mympd_state->cols_browse_database,
-        mympd_state->cols_browse_playlists_detail,
-        mympd_state->cols_browse_filesystem,
-        mympd_state->cols_playback,
-        mympd_state->cols_queue_last_played
-    );
 
-    CHECK_RETURN_LEN();
+    buffer = sdscat(buffer, "}}");
+    return buffer;
 }
 
 static bool mympd_api_bookmark_update(t_config *config, const int id, const char *name, const char *uri, const char *type) {
     int line_nr = 0;
-    size_t tmp_file_len = config->varlibdir_len + 24;
-    char tmp_file[tmp_file_len];
-    size_t b_file_len = config->varlibdir_len + 17;
-    char b_file[b_file_len];
     char *line = NULL;
     size_t n = 0;
     ssize_t read;
     bool inserted = false;
     int fd;
-    
-    snprintf(b_file, b_file_len, "%s/state/bookmarks", config->varlibdir);
-    snprintf(tmp_file, tmp_file_len, "%s/state/bookmarks.XXXXXX", config->varlibdir);
+    sds tmp_file = sdscatprintf(sdsempty(), "%s/state/bookmarks.XXXXXX", config->varlibdir);
     
     if ((fd = mkstemp(tmp_file)) < 0 ) {
         LOG_ERROR("Can't open %s for write", tmp_file);
+        sds_free(tmp_file);
         return false;
     }
     FILE *fo = fdopen(fd, "w");
+    
+    sds b_file = sdscatprintf(sdsempty(), "%s/state/bookmarks", config->varlibdir);
     FILE *fi = fopen(b_file, "r");
     if (fi != NULL) {
         while ((read = getline(&line, &n, fi)) > 0) {
@@ -859,57 +831,61 @@ static bool mympd_api_bookmark_update(t_config *config, const int id, const char
         json_printf(&out, "{id: %d, name: %Q, uri: %Q, type: %Q}\n", line_nr, name, uri, type);
     }
     fclose(fo);
+    
     if (rename(tmp_file, b_file) == -1) {
         LOG_ERROR("Rename file from %s to %s failed", tmp_file, b_file);
+        sds_free(tmp_file);
+        sds_free(b_file);
         return false;
     }
+    sds_free(tmp_file);
+    sds_free(b_file);
     return true;
 }
 
-static int mympd_api_bookmark_list(t_config *config, char *buffer, unsigned int offset) {
+static sds mympd_api_bookmark_list(t_config *config, sds buffer, unsigned int offset) {
     size_t len = 0;
-    size_t b_file_len = strlen(config->varlibdir) + 17;
-    char b_file[b_file_len];
     char *line = NULL;
     char *crap = NULL;
     size_t n = 0;
     ssize_t read;
     unsigned entity_count = 0;
     unsigned entities_returned = 0;
-    struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
     
-    snprintf(b_file, b_file_len, "%s/state/bookmarks", config->varlibdir);
+    sds b_file = sdscatprintf(sdsempty(), "%s/state/bookmarks", config->varlibdir);
     FILE *fi = fopen(b_file, "r");
+
     if (fi == NULL) {
         //create empty bookmarks file
         fi = fopen(b_file, "w");
         if (fi == NULL) {
             LOG_ERROR("Can't open %s for write", b_file);
-            len = json_printf(&out, "{type: error, data: %Q}", "Failed to open bookmarks file");
+            buffer = sdscat(sdsempty(), "{\"type\":\"error\",\"data\":\"Failed to open bookmarks file\"}");
         }
         else {
             fclose(fi);
-            len = json_printf(&out, "{type: bookmark, data: [], totalEntities: 0, offset: 0, returnedEntities: 0}");
+            buffer = sdscat(sdsempty(), "{\"type\":\"bookmark\",\"data\":[],\"totalEntities\":0,\"offset\":0,\"returnedEntities\":0}");
         }
     } else {
-        len = json_printf(&out, "{type: bookmark, data: [");
+        buffer = sdscat(buffer, "{\"type\":\"bookmark\",\"data\":[");
         while ((read = getline(&line, &n, fi)) > 0 && len < MAX_LIST_SIZE) {
             entity_count++;
             if (entity_count > offset && entity_count <= offset + config->max_elements_per_page) {
                 if (entities_returned++) {
-                    len += json_printf(&out, ",");
+                    buffer = sdscat(buffer, ",");
                 }
                 strtok_r(line, "\n", &crap);
-                len += json_printf(&out, "%s", line);
+                buffer = sdscat(buffer, line);
             }
         }
         FREE_PTR(line);
         fclose(fi);
-        len += json_printf(&out, "], totalEntities: %d, offset: %d, returnedEntities: %d}",
+        buffer = sdscatprintf(buffer, "],\"totalEntities\":%d,\"offset\":%d,\"returnedEntities\":%d}",
             entity_count,
             offset,
             entities_returned
         );
     }
-    CHECK_RETURN_LEN();
+    sds_free(b_file);
+    return buffer;
 }

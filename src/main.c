@@ -197,13 +197,13 @@ int main(int argc, char **argv) {
     
     if (argc >= 2) {
         if (strncmp(argv[1], "/", 1) == 0) {
-            configfile = sdsnew(argv[1]);
+            configfile = sdscat(sdsempty(), argv[1]);
             if (argc == 3) {
-                option = sdsnew(argv[2]);
+                option = sdscat(sdsempty(), argv[2]);
             }
         }
         else {
-            option = sdsnew(argv[1]);
+            option = sdscat(sdsempty(), argv[1]);
         }
     }
 

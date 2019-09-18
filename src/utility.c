@@ -31,8 +31,34 @@
 #include <pthread.h>
 #include <sys/stat.h>
 
+#include "../dist/src/sds/sds.h"
 #include "log.h"
 #include "utility.h"
+
+sds tojson_char(sds buffer, const char *key, const char *value, bool comma) {
+    buffer = sdscatprintf(buffer, "\"%s\":", key);
+    buffer = sdscatrepr(buffer, value, strlen(value));
+    if (comma) {
+        buffer = sdscat(buffer, ",");
+    }
+    return buffer;
+}
+
+sds tojson_bool(sds buffer, const char *key, bool value, bool comma) {
+    buffer = sdscatprintf(buffer, "\"%s\":%s", key, value == true ? "true" : "false");
+    if (comma) {
+        buffer = sdscat(buffer, ",");
+    }
+    return buffer;
+}
+
+sds tojson_long(sds buffer, const char *key, long value, bool comma) {
+    buffer = sdscatprintf(buffer, "\"%s\":%ld", key, value);
+    if (comma) {
+        buffer = sdscat(buffer, ",");
+    }
+    return buffer;
+}
 
 int testdir(const char *name, const char *dirname, bool create) {
     DIR* dir = opendir(dirname);
@@ -46,7 +72,7 @@ int testdir(const char *name, const char *dirname, bool create) {
         if (create == true) {
             if (mkdir(dirname, 0700) != 0) {
                 LOG_ERROR("%s: creating \"%s\" failed", name, dirname);
-                //directory not exists and creating failed
+                //directory not exists and creating it failed
                 return 2;
             }
             else {
@@ -69,7 +95,7 @@ int randrange(int n) {
 
 bool validate_string(const char *data) {
     if (strchr(data, '/') != NULL || strchr(data, '\n') != NULL || strchr(data, '\r') != NULL ||
-        strchr(data, '"') != NULL || strchr(data, '\'') != NULL) {
+        strchr(data, '"') != NULL || strchr(data, '\'') != NULL || strchr(data, '\\') != NULL) {
         return false;
     }
     return true;
