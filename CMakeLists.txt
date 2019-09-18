@@ -100,7 +100,6 @@ set (CMAKE_EXE_LINKER_FLAGS "-Wl,-z,relro -Wl,-z,now")
 set(SOURCES
     src/main.c
     src/web_server.c
-    src/mpd_client.c
     src/mympd_api.c
     src/list.c
     src/tiny_queue.c
@@ -114,6 +113,9 @@ set(SOURCES
     dist/src/frozen/frozen.c
     dist/src/inih/ini.c
     dist/src/sds/sds.c
+    src/mpd_client.c
+    src/jukebox.c
+    src/smartpls.c
 )
 
 add_executable(mympd ${SOURCES})

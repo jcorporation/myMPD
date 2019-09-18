@@ -1,6 +1,5 @@
-/* myMPD
-   (c) 2018-2019 Juergen Mang <mail@jcgames.de>
-   This project's homepage is: https://github.com/jcorporation/mympd
+/* myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de> This project's
+   homepage is: https://github.com/jcorporation/mympd
    
    myMPD ist fork of:
    
@@ -21,8 +20,17 @@
    with this program; if not, write to the Free Software Foundation, Inc.,
    Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
-   
-#ifndef __MPD_CLIENT_H__
-#define __MPD_CLIENT_H__
-void *mpd_client_loop(void *arg_config);
+
+#ifndef __FEATURES_H__
+#define __FEATURES_H__
+typedef struct t_tags {
+    size_t len;
+    enum mpd_tag_type tags[64];
+} t_tags;
+
+void mpd_client_feature_love(t_mpd_state *mpd_state);
+void mpd_client_feature_tags(t_mpd_state *mpd_state);
+void mpd_client_feature_music_directory(t_mpd_state *mpd_state);
+bool mpd_client_tag_exists(const enum mpd_tag_type tag_types[64], const size_t tag_types_len, const enum mpd_tag_type tag);
+void mpd_client_mpd_features(t_mpd_state *mpd_state);
 #endif

@@ -1,6 +1,5 @@
-/* myMPD
-   (c) 2018-2019 Juergen Mang <mail@jcgames.de>
-   This project's homepage is: https://github.com/jcorporation/mympd
+/* myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de> This project's
+   homepage is: https://github.com/jcorporation/mympd
    
    myMPD ist fork of:
    
@@ -21,8 +20,9 @@
    with this program; if not, write to the Free Software Foundation, Inc.,
    Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
-   
-#ifndef __MPD_CLIENT_H__
-#define __MPD_CLIENT_H__
-void *mpd_client_loop(void *arg_config);
+
+#ifndef __JUKEBOX_H__
+#define __JUKEBOX_H__
+bool mpd_client_jukebox(t_mpd_state *mpd_state);
+bool mpd_client_jukebox_add(t_mpd_state *mpd_state, const int addSongs, const enum jukebox_modes jukebox_mode, const char *jukebox_playlist);
 #endif
