@@ -23,33 +23,20 @@
 */
 
 #ifndef __UTILITY_H__
-#define __UtILITY_H__
+#define __UTILITY_H__
 
-sds tojson(sds buffer, const char *key, const char *value, bool comma);
+sds tojson_char(sds buffer, const char *key, const char *value, bool comma);
 sds tojson_bool(sds buffer, const char *key, bool value, bool comma);
+sds tojson_long(sds buffer, const char *key, long value, bool comma);
 int testdir(const char *name, const char *dirname, bool create);
 int randrange(int n);
 bool validate_string(const char *data);
-int copy_string(char * const dest, char const * const src, size_t const dst_len, size_t const src_len);
 int replacechar(char *str, const char orig, const char rep);
 
 #define FREE_PTR(PTR) do { \
     if (PTR != NULL) \
         free(PTR); \
     PTR = NULL; \
-} while (0)
-
-#define REASSIGN_PTR(DEST, SRC) do { \
-    FREE_PTR(DEST); \
-    DEST = SRC; \
-    SRC = NULL; \
-} while (0);
-
-//check and return buffer size
-#define CHECK_RETURN_LEN() do { \
-    if (len > MAX_SIZE) \
-        LOG_ERROR("Buffer truncated %d / %d\n", (int)len, MAX_SIZE); \
-    return len; \
 } while (0)
 
 #endif

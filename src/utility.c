@@ -110,12 +110,3 @@ int replacechar(char *str, const char orig, const char rep) {
     }
     return n;
 }
-
-int copy_string(char * const dest, char const * const src, size_t const dst_len, size_t const src_len) {
-    if (dst_len == 0 || src_len == 0)
-        return 0;
-    size_t const max = (src_len < dst_len) ? src_len : dst_len -1;
-    memcpy(dest, src, max);
-    dest[max] = '\0';
-    return max;
-}
