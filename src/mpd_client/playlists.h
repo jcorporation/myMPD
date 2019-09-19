@@ -36,4 +36,5 @@ int mpd_client_put_playlists(t_config *config, t_mpd_state *mpd_state, char *buf
 int mpd_client_put_playlist_list(t_config *config, t_mpd_state *mpd_state, char *buffer, const char *uri, const unsigned int offset, 
     const char *filter, const t_tags *tagcols);
 int mpd_client_rename_playlist(t_config *config, t_mpd_state *mpd_state, char *buffer, const char *old_playlist, const char *new_playlist);
+sds mpd_client_playlist_delete(t_config *config, t_mpd_state *mpd_state, sds buffer, const char *playlist);
 #endif

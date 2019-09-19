@@ -22,27 +22,25 @@
 */
 
 #include <stdio.h>
-#include <string.h>
-#include <unistd.h>
 #include <stdlib.h>
-#include <libgen.h>
-#include <ctype.h>
 #include <poll.h>
 #include <pthread.h>
 #include <mpd/client.h>
 #include <signal.h>
 #include <assert.h>
-#include <inttypes.h>
 
 #include "../dist/src/sds/sds.h"
-#include "utility.h"
 #include "log.h"
 #include "list.h"
 #include "config_defs.h"
 #include "tiny_queue.h"
+#include "api.h"
 #include "global.h"
-#include "mpd_client/api.h"
+#include "mpd_client/mpd_client_api.h"
+#include "mpd_client/jukebox.h"
 #include "mpd_client/mpd_client_utils.h"
+#include "mpd_client/playlists.h"
+#include "mpd_client/stats.h"
 #include "mpd_client.h"
 #include "../dist/src/frozen/frozen.h"
 
@@ -247,21 +245,6 @@ static void mpd_client_parse_idle(t_config *config, t_mpd_state *mpd_state, int 
         }
     }
 
-}
-
-static void json_to_tags(const char *str, int len, void *user_data) {
-    struct json_token t;
-    int i;
-    t_tags *tags = (t_tags *) user_data;
-    tags->len = 0;
-    for (i = 0; json_scanf_array_elem(str, len, "", i, &t) > 0; i++) {
-        char token[t.len + 1];
-        snprintf(token, t.len + 1, "%.*s", t.len, t.ptr);
-        enum mpd_tag_type tag = mpd_tag_name_iparse(token);
-        if (tag != MPD_TAG_UNKNOWN) {
-            tags->tags[tags->len++] = tag;
-        }
-    }
 }
 
 static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {

@@ -175,7 +175,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
     char *p_charbuf3 = NULL;
     unsigned int uint_buf1;
     int int_buf1;
-    LOG_VERBOSE("MYMPD API request: %s", request->data);
+    LOG_VERBOSE("MYMPD API request (%d): %s", request->conn_id, request->data);
     
     //create response struct
     t_work_result *response = (t_work_result *)malloc(sizeof(t_work_result));
@@ -241,7 +241,6 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             else {
                 sds settingname = sdscatrepr(sdsempty(), val.ptr, val.len);
                 data = sdscatprintf(data, "{\"type\": \"error\", \"data\": \"Can't save setting %%{setting}\", \"values\": {\"setting\": \"%s\"}}", settingname);
-                LOG_ERROR("MYMPD_API_SETTINGS_SET: Can't save setting %s", settingname);
                 sds_free(settingname);
             }
             break;
@@ -363,7 +362,11 @@ static bool mympd_api_connection_save(t_config *config, t_mympd_state *mympd_sta
             mympd_state->mpd_pass = sdscatlen(sdsempty(), settingvalue, sdslen(settingvalue));
             settingname = sdscat(sdsempty(), "mpd_pass");
         }
-        return true;
+        else {
+            sds_free(settingname);
+            sds_free(settingvalue);
+            return true;
+        }
     }
     else if (strncmp(key->ptr, "mpdHost", key->len) == 0) {
         mympd_state->mpd_host = sdscatlen(sdsempty(), settingvalue, sdslen(settingvalue));
@@ -378,6 +381,7 @@ static bool mympd_api_connection_save(t_config *config, t_mympd_state *mympd_sta
         settingname = sdscat(sdsempty(), "music_directory");
     }
     else {
+        LOG_ERROR("Setting with name \"%s\" not supported", settingname);
         sds_free(settingname);
         sds_free(settingvalue);
         return false;    
@@ -473,6 +477,8 @@ static bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state,
             settingname = sdscat(sdsempty(), "coverimage_name");
         }
         else {
+            sds_free(settingname);
+            sds_free(settingvalue);
             return false;
         }
     }
@@ -511,6 +517,8 @@ static bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state,
     else if (strncmp(key->ptr, "jukeboxMode", key->len) == 0) {
         int jukebox_mode = strtoimax(settingvalue, &crap, 10);
         if (jukebox_mode < 0 || jukebox_mode > 2) {
+            sds_free(settingname);
+            sds_free(settingvalue);
             return false;
         }
         mympd_state->jukebox_mode = jukebox_mode;
@@ -523,6 +531,8 @@ static bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state,
     else if (strncmp(key->ptr, "jukeboxQueueLength", key->len) == 0) {
         int jukebox_queue_length = strtoimax(settingvalue, &crap, 10);
         if (jukebox_queue_length <= 0 || jukebox_queue_length > 999) {
+            sds_free(settingname);
+            sds_free(settingvalue);
             return false;
         }
         mympd_state->jukebox_queue_length = jukebox_queue_length;
@@ -535,6 +545,8 @@ static bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state,
     else if (strncmp(key->ptr, "lastPlayedCount", key->len) == 0) {
         int last_played_count = strtoimax(settingvalue, &crap, 10);
         if (last_played_count <= 0) {
+            sds_free(settingname);
+            sds_free(settingvalue);
             return false;
         }
         mympd_state->last_played_count = last_played_count;
@@ -559,6 +571,8 @@ static bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state,
     else if (strncmp(key->ptr, "maxElementsPerPage", key->len) == 0) {
         int max_elements_per_page = strtoimax(settingvalue, &crap, 10);
         if (max_elements_per_page <= 0 || max_elements_per_page > 999) {
+            sds_free(settingname);
+            sds_free(settingvalue);
             return false;
         }
         mympd_state->max_elements_per_page = max_elements_per_page;
@@ -577,6 +591,7 @@ static bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state,
         settingname = sdscat(sdsempty(), "love_message");
     }
     else {
+        LOG_ERROR("Setting with name \"%s\" not supported", settingname);
         sds_free(settingname);
         sds_free(settingvalue);
         return false;

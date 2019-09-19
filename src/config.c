@@ -91,7 +91,6 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     }
     else if (MATCH("mympd", "varlibdir")) {
         p_config->varlibdir = sdscat(sdsempty(), value);
-        p_config->varlibdir_len = sdslen(p_config->varlibdir);
     }
     else if (MATCH("mympd", "stickers")) {
         p_config->stickers = strcmp(value, "true") == 0 ? true : false;
@@ -356,7 +355,6 @@ void mympd_config_defaults(t_config *config) {
     config->coverimage_name = strdup("folder.jpg");
     config->coverimage_size = 250;
     config->locale = strdup("default");
-    config->varlibdir_len = strlen(config->varlibdir);    
     list_init(&config->syscmd_list);
 }
 

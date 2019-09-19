@@ -115,24 +115,26 @@ bool mpd_client_count_song_uri(t_mpd_state *mpd_state, const char *uri, const ch
     return true;
 }
 
-bool mpd_client_like_song_uri(t_mpd_state *mpd_state, const char *uri, int value) {
+sds mpd_client_like_song_uri(t_mpd_state *mpd_state, sds buffer, const char *uri, int value) {
     if (uri == NULL || strstr(uri, "://") != NULL) {
-        return false;
+        buffer = sdscat(buffer, "{\"type\": \"error\", \"data\": \"Failed to set like, invalid song uri\"}");
+        return buffer;
     }
-    char v[10];
-    if (value > 2) {
-        value = 2;
+    if (value > 2 || value < 0) {
+        buffer = sdscat(buffer, "{\"type\": \"error\", \"data\": \"Failed to set like, invalid like value\"}");
+        return buffer;
     }
-    else if (value < 0) {
-        value = 0;
-    }
-    snprintf(v, 10, "%d", value);
-    LOG_VERBOSE("Setting sticker: \"%s\" -> like: %s", uri, v);
-    if (!mpd_run_sticker_set(mpd_state->conn, "song", uri, "like", v)) {
+    sds value_str = sdsfromlonglong(value);
+    LOG_VERBOSE("Setting sticker: \"%s\" -> like: %s", uri, value_str);
+    bool rc = mpd_run_sticker_set(mpd_state->conn, "song", uri, "like", value_str);
+    sds_free(value_str);
+    if (rc == false) {
         LOG_ERROR_AND_RECOVER("mpd_send_sticker_set");
-        return false;
+        buffer = sdscat(buffer, "{\"type\": \"error\", \"data\": \"Failed to set like\"}");
+        return buffer;
     }
-    return true;        
+    buffer = sdscat(buffer, "{\"type\": \"result\", \"data\": \"ok\"}");
+    return buffer;        
 }
 
 bool mpd_client_last_played_list_save(t_config *config, t_mpd_state *mpd_state) {

@@ -23,14 +23,5 @@
 
 #ifndef __FEATURES_H__
 #define __FEATURES_H__
-typedef struct t_tags {
-    size_t len;
-    enum mpd_tag_type tags[64];
-} t_tags;
-
-void mpd_client_feature_love(t_mpd_state *mpd_state);
-void mpd_client_feature_tags(t_mpd_state *mpd_state);
-void mpd_client_feature_music_directory(t_mpd_state *mpd_state);
-bool mpd_client_tag_exists(const enum mpd_tag_type tag_types[64], const size_t tag_types_len, const enum mpd_tag_type tag);
 void mpd_client_mpd_features(t_mpd_state *mpd_state);
 #endif

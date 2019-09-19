@@ -22,24 +22,19 @@
 */
 
 #include <stdio.h>
-#include <string.h>
-#include <unistd.h>
 #include <stdlib.h>
-#include <libgen.h>
-#include <ctype.h>
-#include <libgen.h>
+#include <string.h>
 #include <pthread.h>
 #include <mpd/client.h>
 
-#include "../dist/src/sds/sds.h"
-#include "utility.h"
-#include "log.h"
-#include "list.h"
-#include "config_defs.h"
+#include "../../dist/src/sds/sds.h"
+#include "../log.h"
+#include "../list.h"
+#include "../config_defs.h"
+#include "mpd_client_utils.h"
 #include "jukebox.h"
-#include "../dist/src/sds/sds.h"
 
-static bool mpd_client_jukebox(t_mpd_state *mpd_state) {
+bool mpd_client_jukebox(t_mpd_state *mpd_state) {
     int addSongs;
     
     struct mpd_status *status = mpd_run_status(mpd_state->conn);
@@ -87,7 +82,7 @@ static bool mpd_client_jukebox(t_mpd_state *mpd_state) {
     return rc;
 }
 
-static bool mpd_client_jukebox_add(t_mpd_state *mpd_state, const int addSongs, const enum jukebox_modes jukebox_mode, const char *jukebox_playlist) {
+bool mpd_client_jukebox_add(t_mpd_state *mpd_state, const int addSongs, const enum jukebox_modes jukebox_mode, const char *jukebox_playlist) {
     int i;
     struct mpd_entity *entity;
     const struct mpd_song *song;
@@ -152,12 +147,12 @@ static bool mpd_client_jukebox_add(t_mpd_state *mpd_state, const int addSongs, c
         while ((pair = mpd_recv_pair_tag(mpd_state->conn, MPD_TAG_ALBUM )) != NULL)  {
             if (randrange(lineno) < addSongs) {
 		if (nkeep < addSongs) {
-                    list_push(&add_list, strdup(pair->value), lineno, NULL);
+                    list_push(&add_list, pair->value, lineno, NULL);
                     nkeep++;
                 }
 		else {
                     i = addSongs > 1 ? randrange(addSongs) : 0;
-                    list_replace(&add_list, i, strdup(pair->value), lineno, NULL);
+                    list_replace(&add_list, i, pair->value, lineno, NULL);
                 }
             }
             lineno++;

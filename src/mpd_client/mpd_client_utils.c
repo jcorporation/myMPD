@@ -21,31 +21,14 @@
    Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
 #include <stdlib.h>
 #include <libgen.h>
-#include <ctype.h>
-#include <poll.h>
-#include <dirent.h>
 #include <pthread.h>
 #include <mpd/client.h>
-#include <signal.h>
-#include <assert.h>
-#include <inttypes.h>
 
-#include "../dist/src/sds/sds.h"
-#include "utility.h"
-#include "api.h"
-#include "log.h"
-#include "list.h"
-#include "config_defs.h"
-#include "tiny_queue.h"
-#include "global.h"
-#include "mpd_client.h"
-#include "../dist/src/frozen/frozen.h"
-#include "../dist/src/sds/sds.h"
+#include "../../dist/src/sds/sds.h"
+#include "../utility.h"
+#include "mpd_client_utils.h"
 
 void json_to_tags(const char *str, int len, void *user_data) {
     struct json_token t;
@@ -73,4 +56,13 @@ char *mpd_client_get_tag(struct mpd_song const *song, const enum mpd_tag_type ta
         }
     }
     return str;
+}
+
+bool mpd_client_tag_exists(const enum mpd_tag_type tag_types[64], const size_t tag_types_len, const enum mpd_tag_type tag) {
+    for (size_t i = 0; i < tag_types_len; i++) {
+        if (tag_types[i] == tag) {
+            return true;
+        }
+   }
+   return false;
 }

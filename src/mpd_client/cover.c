@@ -23,20 +23,14 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <unistd.h>
 #include <stdlib.h>
-#include <libgen.h>
-#include <ctype.h>
-#include <pthread.h>
-#include <mpd/client.h>
-#include <inttypes.h>
 
-#include "../dist/src/sds/sds.h"
-#include "utility.h"
-#include "log.h"
-#include "config_defs.h"
+#include "../../dist/src/sds/sds.h"
+#include "../utility.h"
+#include "../log.h"
+#include "../config_defs.h"
+#include "mpd_client_utils.h"
 #include "cover.h"
-#include "../dist/src/sds/sds.h"
 
 sds mpd_client_get_cover(t_config *config, t_mpd_state *mpd_state, const char *uri, sds cover) {
     char *orgpath = strdup(uri);

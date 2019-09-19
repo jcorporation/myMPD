@@ -26,32 +26,38 @@
 
 #define RETURN_ERROR_AND_RECOVER(X) do { \
     LOG_ERROR("MPD error %s: %s", X, mpd_connection_get_error_message(mpd_state->conn)); \
-    len = json_printf(&out, "{type: error, data: %Q}", mpd_connection_get_error_message(mpd_state->conn)); \
-    if (!mpd_connection_clear_error(mpd_state->conn)) \
+    buffer = sdscat(sdsempty(), "{\"type\":\"error\","); \
+    buffer = tojson_char(buffer, "data", mpd_connection_get_error_message(mpd_state->conn), false); \
+    buffer = sdscat(buffer, "}"); \
+    if (!mpd_connection_clear_error(mpd_state->conn)) { \
         mpd_state->conn_state = MPD_FAILURE; \
-    return len; \
+    } \
+    return buffer; \
 } while (0)
 
 #define LOG_ERROR_AND_RECOVER(X) do { \
     LOG_ERROR("MPD error %s: %s", X, mpd_connection_get_error_message(mpd_state->conn)); \
-    if (!mpd_connection_clear_error(mpd_state->conn)) \
+    if (!mpd_connection_clear_error(mpd_state->conn)) { \
         mpd_state->conn_state = MPD_FAILURE; \
+    } \
 } while (0)
 
 #define PUT_SONG_TAG_COLS(TAGCOLS) do { \
     if (mpd_state->feat_tags == true) { \
-        for (unsigned tagnr = 0; tagnr < TAGCOLS->len; ++tagnr) { \
+        for (int tagnr = 0; tagnr < TAGCOLS->len; ++tagnr) { \
             if (tagnr > 0) \
-                len += json_printf(&out, ","); \
+                buffer = sdscat(buffer, ","); \
             char *tag_value = mpd_client_get_tag(song, TAGCOLS->tags[tagnr]); \
-            len += json_printf(&out, "%Q: %Q",  mpd_tag_name(TAGCOLS->tags[tagnr]), tag_value == NULL ? "-" : tag_value); \
+            buffer = tojson_char(buffer, mpd_tag_name(TAGCOLS->tags[tagnr]), tag_value == NULL ? "-" : tag_value, false); \
         } \
     } \
     else { \
         char *tag_value = mpd_client_get_tag(song, MPD_TAG_TITLE); \
-        len += json_printf(&out, "Title: %Q", tag_value == NULL ? "-" : tag_value); \
+        buffer = tojson_char(buffer, "Title", tag_value == NULL ? "-" : tag_value, false); \
     } \
-    len += json_printf(&out, ", Duration: %d, uri: %Q", mpd_song_get_duration(song), mpd_song_get_uri(song)); \
+    buffer = sdscat(buffer, ","); \
+    buffer = tojson_long(buffer, "Duration", mpd_song_get_duration(song), true); \
+    buffer = tojson_long(buffer, "uri", mpd_song_get_uri(song), false); \
 } while (0)
 
 #define PUT_SONG_TAG_ALL() do { \
@@ -59,15 +65,17 @@
         for (unsigned tagnr = 0; tagnr < mpd_state->mympd_tag_types_len; ++tagnr) { \
             if (tagnr > 0) \
                 len += json_printf(&out, ","); \
-            char *value = mpd_client_get_tag(song, mpd_state->mympd_tag_types[tagnr]); \
-            len += json_printf(&out, "%Q: %Q",  mpd_tag_name(mpd_state->mympd_tag_types[tagnr]), value == NULL ? "-" : value); \
+            char *tag_value = mpd_client_get_tag(song, mpd_state->mympd_tag_types[tagnr]); \
+            buffer = tojson_char(buffer, mpd_tag_name(mpd_state->mympd_tag_types[tagnr]), tag_value == NULL ? "-" : tag_value, false); \
         } \
     } \
     else { \
-        char *value = mpd_client_get_tag(song, MPD_TAG_TITLE); \
-        len += json_printf(&out, "Title: %Q", value == NULL ? "-" : value); \
+        char *tag_value = mpd_client_get_tag(song, MPD_TAG_TITLE); \
+        buffer = tojson_char(buffer, "Title", tag_value == NULL ? "-" : tag_value, false); \
     } \
-    len += json_printf(&out, ", Duration: %d, uri: %Q", mpd_song_get_duration(song), mpd_song_get_uri(song)); \
+    buffer = sdscat(buffer, ","); \
+    buffer = tojson_long(buffer, "Duration", mpd_song_get_duration(song), true); \
+    buffer = tojson_long(buffer, "uri", mpd_song_get_uri(song), false); \
 } while (0)
 
 enum mpd_conn_states {
@@ -78,6 +86,11 @@ enum mpd_conn_states {
     MPD_DISCONNECT,
     MPD_WAIT
 };
+
+typedef struct t_tags {
+    size_t len;
+    enum mpd_tag_type tags[64];
+} t_tags;
 
 typedef struct t_mpd_state {
     // Connection
@@ -91,8 +104,8 @@ typedef struct t_mpd_state {
     int song_id;
     int next_song_id;
     int last_song_id;
-    char *song_uri;
-    char *last_song_uri;
+    sds song_uri;
+    sds last_song_uri;
     unsigned queue_version;
     unsigned queue_length;
     int last_last_played_id;
@@ -116,26 +129,26 @@ typedef struct t_mpd_state {
     bool feat_fingerprint;
     //mympd states
     enum jukebox_modes jukebox_mode;
-    char *jukebox_playlist;
+    sds jukebox_playlist;
     size_t jukebox_queue_length;
     bool auto_play;
     bool coverimage;
-    char *coverimage_name;
+    sds coverimage_name;
     bool love;
-    char *love_channel;
-    char *love_message;
-    char *taglist;
-    char *searchtaglist;
-    char *browsetaglist;
+    sds love_channel;
+    sds love_message;
+    sds taglist;
+    sds searchtaglist;
+    sds browsetaglist;
     bool stickers;
     bool smartpls;
-    char *mpd_host;
+    sds mpd_host;
     int mpd_port;
-    char *mpd_pass;
+    sds mpd_pass;
     int last_played_count;
     int max_elements_per_page;
-    char *music_directory;
-    char *music_directory_value;
+    sds music_directory;
+    sds music_directory_value;
     //taglists
     enum mpd_tag_type mpd_tag_types[64];
     size_t mpd_tag_types_len;
@@ -149,6 +162,7 @@ typedef struct t_mpd_state {
     struct list last_played;
 } t_mpd_state;
 
-static char *mpd_client_get_tag(struct mpd_song const *song, const enum mpd_tag_type tag);
-static void json_to_tags(const char *str, int len, void *user_data);
+char *mpd_client_get_tag(struct mpd_song const *song, const enum mpd_tag_type tag);
+bool mpd_client_tag_exists(const enum mpd_tag_type tag_types[64], const size_t tag_types_len, const enum mpd_tag_type tag);
+void json_to_tags(const char *str, int len, void *user_data);
 #endif

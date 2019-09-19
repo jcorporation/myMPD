@@ -91,6 +91,9 @@ endif()
 file(GLOB MYMPD_SRC_FILES "src/*.c")
 set_property(SOURCE ${MYMPD_SRC_FILES} PROPERTY COMPILE_FLAGS "-Wextra -pedantic -Wformat=2 -Wunused-parameter -Wshadow -Wwrite-strings \
 	-Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs -Wmissing-include-dirs")
+file(GLOB MYMPD_SRC_FILES2 "src/mpd_client/*.c")
+set_property(SOURCE ${MYMPD_SRC_FILES2} PROPERTY COMPILE_FLAGS "-Wextra -pedantic -Wformat=2 -Wunused-parameter -Wshadow -Wwrite-strings \
+	-Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs -Wmissing-include-dirs")
 
 #compiler flags for mongoose.c
 set_property(SOURCE dist/src/mongoose/mongoose.c PROPERTY COMPILE_FLAGS "-Wno-format-truncation")
@@ -99,6 +102,7 @@ set (CMAKE_EXE_LINKER_FLAGS "-Wl,-z,relro -Wl,-z,now")
 
 set(SOURCES
     src/main.c
+    src/mpd_client.c
     src/web_server.c
     src/mympd_api.c
     src/list.c
@@ -109,13 +113,14 @@ set(SOURCES
     src/handle_options.c
     src/utility.c
     src/api.c
+    src/mpd_client/cover.c
+    src/mpd_client/features.c
+    src/mpd_client/jukebox.c
+    src/mpd_client/mpd_client_utils.c
     dist/src/mongoose/mongoose.c
     dist/src/frozen/frozen.c
     dist/src/inih/ini.c
     dist/src/sds/sds.c
-    src/mpd_client.c
-    src/jukebox.c
-    src/smartpls.c
 )
 
 add_executable(mympd ${SOURCES})

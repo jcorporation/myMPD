@@ -25,19 +25,17 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include <dirent.h>
+#include <errno.h>
 #include <pthread.h>
 #include <mpd/client.h>
 #include <inttypes.h>
 
-#include "../dist/src/sds/sds.h"
-#include "utility.h"
-#include "log.h"
-#include "list.h"
-#include "config_defs.h"
-#include "smarpls.h"
-#include "../dist/src/frozen/frozen.h"
-#include "../dist/src/sds/sds.h"
+#include "../../dist/src/sds/sds.h"
+#include "../utility.h"
+#include "../log.h"
+#include "../list.h"
+#include "../config_defs.h"
+#include "playlists.h"
 
 static int mpd_client_put_playlists(t_config *config, t_mpd_state *mpd_state, char *buffer, const unsigned int offset, const char *filter) {
     struct mpd_playlist *pl;
@@ -195,6 +193,31 @@ static int mpd_client_rename_playlist(t_config *config, t_mpd_state *mpd_state, 
     }
 
     CHECK_RETURN_LEN();
+}
+
+sds mpd_client_playlist_delete(t_config *config, t_mpd_state *mpd_state, sds buffer, const char *playlist) {
+    if (validate_string(playlist) == false) {
+        buffer = sdscat(buffer, "{\"type\": \"error\", \"data\": \"Invalid filename\"}");
+        return buffer;
+    }
+    //remove smart playlist    
+    sds pl_file = sdscatprintf(sdsempty(), "%s/smartpls/%s", config->varlibdir, playlist);
+    int rc = unlink(pl_file);
+    sds_free(pl_file);
+    if (rc == -1 && errno != ENOENT) {
+        buffer = sdscat(buffer, "{\"type\": \"error\", \"data\": \"Deleting smart playlist failed\"}");
+        LOG_ERROR("Deleting smart playlist \"%s\" failed", playlist);
+        return buffer;
+    }
+    //remove mpd playlist
+    if (mpd_run_rm(mpd_state->conn, playlist)) {
+        buffer = sdscat(buffer, "{\"type\": \"result\", \"data\": \"ok\"}");
+    }
+    else {
+        buffer = sdscat(buffer, "{\"type\": \"error\", \"data\": \"Deleting playlist failed\"}");
+        LOG_ERROR_AND_RECOVER("mpd_run_rm");
+    }
+    return buffer;
 }
 
 int mpd_client_smartpls_put(t_config *config, char *buffer, const char *playlist) {

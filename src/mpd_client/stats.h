@@ -31,13 +31,13 @@ typedef struct t_sticker {
     int like;
 } t_sticker;
 
-static bool mpd_client_count_song_uri(t_mpd_state *mpd_state, const char *uri, const char *name, const int value);
-static bool mpd_client_like_song_uri(t_mpd_state *mpd_state, const char *uri, int value);
-static bool mpd_client_last_played_song_uri(t_mpd_state *mpd_state, const char *uri);
-static bool mpd_client_last_skipped_song_uri(t_mpd_state *mpd_state, const char *uri);
-static bool mpd_client_get_sticker(t_mpd_state *mpd_state, const char *uri, t_sticker *sticker);
-static bool mpd_client_last_played_list(t_config *config, t_mpd_state *mpd_state, const int song_id);
-static bool mpd_client_last_played_list_save(t_config *config, t_mpd_state *mpd_state);
-static int mpd_client_put_stats(t_mpd_state *mpd_state, char *buffer);
-static int mpd_client_put_last_played_songs(t_config *config, t_mpd_state *mpd_state, char *buffer, const unsigned int offset, const t_tags *tagcols);
+bool mpd_client_count_song_uri(t_mpd_state *mpd_state, const char *uri, const char *name, const int value);
+sds mpd_client_like_song_uri(t_mpd_state *mpd_state, sds buffer, const char *uri, int value);
+bool mpd_client_last_played_song_uri(t_mpd_state *mpd_state, const char *uri);
+bool mpd_client_last_skipped_song_uri(t_mpd_state *mpd_state, const char *uri);
+bool mpd_client_get_sticker(t_mpd_state *mpd_state, const char *uri, t_sticker *sticker);
+bool mpd_client_last_played_list(t_config *config, t_mpd_state *mpd_state, const int song_id);
+bool mpd_client_last_played_list_save(t_config *config, t_mpd_state *mpd_state);
+int mpd_client_put_stats(t_mpd_state *mpd_state, char *buffer);
+int mpd_client_put_last_played_songs(t_config *config, t_mpd_state *mpd_state, char *buffer, const unsigned int offset, const t_tags *tagcols);
 #endif

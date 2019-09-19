@@ -71,7 +71,6 @@ typedef struct t_config {
     sds browsetaglist;
     bool smartpls;
     sds varlibdir;
-    size_t varlibdir_len;
     int max_elements_per_page;
     bool syscmds;
     bool chroot;
