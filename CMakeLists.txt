@@ -117,6 +117,7 @@ set(SOURCES
     src/mpd_client/features.c
     src/mpd_client/jukebox.c
     src/mpd_client/mpd_client_utils.c
+    src/mpd_client/mpd_client_api.c
     dist/src/mongoose/mongoose.c
     dist/src/frozen/frozen.c
     dist/src/inih/ini.c
