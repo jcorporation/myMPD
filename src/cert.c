@@ -197,7 +197,7 @@ static bool load_certificate(sds key_file, EVP_PKEY **key, sds cert_file, X509 *
 static sds get_san(sds buffer) {
     buffer = sdscatprintf(sdsempty(), "DNS:localhost, IP:127.0.0.1");
   
-    // Retrieve hostname 
+    //Retrieve short hostname 
     char hostbuffer[256];
     int hostname = gethostname(hostbuffer, sizeof(hostbuffer)); 
     if (hostname == -1) {
@@ -205,6 +205,7 @@ static sds get_san(sds buffer) {
     }
     buffer = sdscatprintf(buffer, ", DNS:%s", hostbuffer);
 
+    //Retrieve fqdn
     struct addrinfo hints={0};
     hints.ai_family=AF_UNSPEC;
     hints.ai_flags=AI_CANONNAME;
