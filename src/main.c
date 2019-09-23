@@ -223,9 +223,11 @@ int main(int argc, char **argv) {
     //check varlibdir
     testdir_rc = testdir("Localstate dir", config->varlibdir, true);
     if (testdir_rc < 2) {
-        //directory exists or was created, set user and group 
-        if (do_chown(config->varlibdir, config->user) == false) {
-            goto cleanup;
+        //directory exists or was created, set user and group if I am root
+        if (startup_uid == 0) {
+            if (do_chown(config->varlibdir, config->user) == false) {
+                goto cleanup;
+            }
         }
     }
     else {
@@ -268,7 +270,7 @@ int main(int argc, char **argv) {
             }
             //directory created, create certificates
             if (!create_certificates(testdirname, config->ssl_san)) {
-                //error creating certificates, remove directory
+                //error creating certificates
                 LOG_ERROR("Certificate creation failed");
                 goto cleanup;
             }
@@ -295,7 +297,7 @@ int main(int argc, char **argv) {
 
     //drop privileges
     if (startup_uid == 0) {
-        if (config->user != NULL || strlen(config->user) != 0) {
+        if (config->user != NULL || sdslen(config->user) != 0) {
             LOG_INFO("Droping privileges to %s", config->user);
             struct passwd *pw;
             if ((pw = getpwnam(config->user)) == NULL) {
