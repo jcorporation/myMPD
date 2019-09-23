@@ -30,6 +30,43 @@
 #include "../utility.h"
 #include "mpd_client_utils.h"
 
+sds put_song_tags(sds buffer, t_mpd_state *mpd_state, const t_tags *tagcols, const struct mpd_song *song) {
+    if (mpd_state->feat_tags == true) {
+        for (int tagnr = 0; tagnr < tagcols->len; ++tagnr) {
+            char *tag_value = mpd_client_get_tag(song, tagcols->tags[tagnr]);
+            buffer = tojson_char(buffer, mpd_tag_name(tagcols->tags[tagnr]), tag_value == NULL ? "-" : tag_value, true);
+        }
+    }
+    else {
+        char *tag_value = mpd_client_get_tag(song, MPD_TAG_TITLE);
+        buffer = tojson_char(buffer, "Title", tag_value == NULL ? "-" : tag_value, true);
+    }
+    buffer = tojson_long(buffer, "Duration", mpd_song_get_duration(song), true);
+    buffer = tojson_long(buffer, "uri", mpd_song_get_uri(song), false);
+}
+
+sds check_error_and_recover(sds buffer, sds method, int request_id) {
+    if (mpd_connection_get_error != MPD_ERROR_SUCCESS) {
+        LOG_ERROR("MPD error: %s", mpd_connection_get_error_message(mpd_state->conn));
+        if (buffer != NULL) {
+            buffer = jsonrpc_respond_error(buffer, method, request_id, mpd_connection_get_error_message(mpd_state->conn));
+        }
+        if (!mpd_connection_clear_error(mpd_state->conn)) {
+            mpd_state->conn_state = MPD_FAILURE;
+        }
+    }
+    return buffer;
+}
+
+sds respond_with_mpd_error_or_ok(sds buffer, sds method, int request_id) {
+    buffer = sdscat(sdsempty(), sdsempty());
+    buffer = check_error_and_recover(buffer, method, request_id);
+    if (sdslen(buffer) == 0) {
+        buffer = jsonrpc_respond_ok(buffer, method, request_id);
+    }
+    return buffer;
+}
+
 void json_to_tags(const char *str, int len, void *user_data) {
     struct json_token t;
     int i;
@@ -63,6 +100,11 @@ bool mpd_client_tag_exists(const enum mpd_tag_type tag_types[64], const size_t t
         if (tag_types[i] == tag) {
             return true;
         }
-   }
-   return false;
+    }
+    return false;
+}
+
+void reset_t_tags(tags) {
+    tags->len = 0;
+    memset(tags->tags, 0, sizeof(tags->tags));
 }

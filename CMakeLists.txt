@@ -114,6 +114,7 @@ set(SOURCES
     src/utility.c
     src/api.c
     src/mpd_client/cover.c
+    src/mpd_client/browse.c
     src/mpd_client/features.c
     src/mpd_client/jukebox.c
     src/mpd_client/mpd_client_utils.c

@@ -20,12 +20,9 @@
    with this program; if not, write to the Free Software Foundation, Inc.,
    Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
-#ifndef __STATE_H__
-#define __STATE_H__
-int mpd_client_get_updatedb_state(t_mpd_state *mpd_state, char *buffer);
-int mpd_client_get_state(t_mpd_state *mpd_state, char *buffer);
-int mpd_client_put_state(t_mpd_state *mpd_state, struct mpd_status *status, char *buffer);
-int mpd_client_put_outputs(t_mpd_state *mpd_state, char *buffer);
-int mpd_client_put_current_song(t_config *config, t_mpd_state *mpd_state, char *buffer);
-int mpd_client_put_volume(t_mpd_state *mpd_state, char *buffer);
+
+#ifndef __MPD_SETTINGS_H__
+#define __MPD_SETTINGS_H__
+bool mpd_api_settings_set(t_config *config, t_mpd_state *mpd_state, struct json_token *key, struct json_token *val, bool *mpd_host_changed);
+int mpd_client_put_settings(t_mpd_state *mpd_state, char *buffer);
 #endif

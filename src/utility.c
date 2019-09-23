@@ -35,9 +35,56 @@
 #include "log.h"
 #include "utility.h"
 
+sds jsonrpc_start_result(sds buffer, const char *method, int id) {
+    buffer = sdscatprintf(sdsempty(), "{\"jsonrpc\":\"2.0\",\"id\":%d,\"result\":{\"method\":", id);
+    buffer = sdscatrepr(buffer, method, strlen(method));
+    buffer = sdscat(buffer, ",data:");
+}
+
+sds jsonrpc_end_result(sds buffer) {
+    buffer = sdscatprintf(buffer, "}}");
+}
+
+sds jsonrpc_respond_ok(sds buffer, const char *method, int id) {
+    buffer = sdscatprintf(sdsempty(), "{\"jsonrpc\":\"2.0\",\"id\":%d,\"result\":{\"method\":", id);
+    buffer = sdscatrepr(buffer, method, strlen(method));
+    buffer = sdscat(buffer, ",\"data\":\"ok\"}}");
+}
+
+sds jsonrpc_respond_message(sds buffer, const char *method, int id, const char *message, bool error) {
+    buffer = sdscatprintf(sdsempty(), "{\"jsonrpc\":\"2.0\",\"id\":%d,\"%s\":{\"method\":", 
+        id, (error == true ? "error" : "result"));
+    buffer = sdscatrepr(buffer, method, strlen(method));
+    buffer = sdscat(buffer, ",\"data\":");
+    buffer = sdscatrepr(buffer, message, strlen(message));
+    buffer = sdscatprintf(buffer, "}}");
+}
+
+sds jsonrpc_start_phrase(sds buffer, const char *method, int id, const char *message, bool error) {
+    buffer = sdscatprintf(sdsempty(), "{\"jsonrpc\":\"2.0\",\"id\":%d,\"%s\":{\"method\":", 
+        id, (error == true ? "error" : "result"));
+    buffer = sdscatrepr(buffer, method, strlen(method));
+    buffer = sdscat(buffer, ",\"data\":");
+    buffer = sdscatrepr(buffer, message, strlen(message));
+    buffer = sdscat(buffer, ",\"values\":{");
+}
+
+sds jsonrpc_end_phrase(sds buffer, int id, const char *error) {
+    buffer = sdscat(buffer, "}}}");
+}
+
 sds tojson_char(sds buffer, const char *key, const char *value, bool comma) {
     buffer = sdscatprintf(buffer, "\"%s\":", key);
     buffer = sdscatrepr(buffer, value, strlen(value));
+    if (comma) {
+        buffer = sdscat(buffer, ",");
+    }
+    return buffer;
+}
+
+sds tojson_char_len(sds buffer, const char *key, const char *value, size_t len bool comma) {
+    buffer = sdscatprintf(buffer, "\"%s\":", key);
+    buffer = sdscatrepr(buffer, value, len);
     if (comma) {
         buffer = sdscat(buffer, ",");
     }

@@ -389,21 +389,24 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data)
 }
 
 static bool handle_api(int conn_id, const char *request_body, int request_len) {
-    char *cmd = NULL;
-    
     if (request_len > 1000) {
         LOG_ERROR("Request to long, discarding)");
         return false;
     }
     
     LOG_VERBOSE("API request (%d): %.*s", conn_id, request_len, request_body);
-    const int je = json_scanf(request_body, request_len, "{cmd: %Q}", &cmd);
-    if (je < 1) {
+    char *cmd = NULL;
+    char *jsonrpc = NULL;
+    int id = 0;
+    const int je = json_scanf(request_body, request_len, "{jsonrpc: %Q, method: %Q, id: %d}", &jsonrpc, &cmd, &id);
+    if (je < 3) {
         return false;
     }
 
     enum mympd_cmd_ids cmd_id = get_cmd_id(cmd);
-    if (cmd_id == 0) {
+    if (cmd_id == 0 || strncmp(jsonrpc, "2.0", 3) != 0) {
+        FREE_PTR(cmd);
+        FREE_PTR(jsonrpc);
         return false;
     }
     
@@ -411,6 +414,8 @@ static bool handle_api(int conn_id, const char *request_body, int request_len) {
     assert(request);
     request->conn_id = conn_id;
     request->cmd_id = cmd_id;
+    request->id = id;
+    request->method = sdscat(sdsempty(), cmd);
     request->data = sdscatlen(sdsempty(), request_body, request_len);
     
     if (strncmp(cmd, "MYMPD_API_", 10) == 0) {
@@ -420,7 +425,8 @@ static bool handle_api(int conn_id, const char *request_body, int request_len) {
         tiny_queue_push(mpd_client_queue, request);
     }
 
-    FREE_PTR(cmd);        
+    FREE_PTR(cmd);
+    FREE_PTR(jsonrpc);    
     return true;
 }
 

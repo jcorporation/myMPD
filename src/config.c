@@ -112,9 +112,9 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     }
     else if (MATCH("mympd", "pagination")) {
         p_config->max_elements_per_page = strtoimax(value, &crap, 10);
-        if (p_config->max_elements_per_page > MAX_ELEMENTS_PER_PAGE) {
-            LOG_WARN("Setting max_elements_per_page to maximal value %d", MAX_ELEMENTS_PER_PAGE);
-            p_config->max_elements_per_page = MAX_ELEMENTS_PER_PAGE;
+        if (p_config->max_elements_per_page > 1000) {
+            LOG_WARN("Setting max_elements_per_page to maximal value 1000");
+            p_config->max_elements_per_page = 1000;
         }
     }
     else if (MATCH("mympd", "syscmds")) {

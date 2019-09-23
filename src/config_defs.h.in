@@ -25,11 +25,6 @@
 #ifndef __CONFIG_STRUCT_H__
 #define __CONFIG_STRUCT_H__
 
-//Max size of mpd_client response buffer
-#define MAX_ELEMENTS_PER_PAGE 200
-#define MAX_LIST_SIZE 1024 * MAX_ELEMENTS_PER_PAGE
-#define MAX_SIZE 1024 * (MAX_ELEMENTS_PER_PAGE + 2)
-
 //Debug build
 #cmakedefine DEBUG
 

@@ -44,13 +44,10 @@
 #include "search.h"
 #include "state.h"
 #include "stats.h"
+#include "mpd_settings.h"
 #include "mpd_client_api.h"
 #include "../dist/src/frozen/frozen.h"
 
-//private definitions
-static bool mpd_api_settings_set(t_config *config, t_mpd_state *mpd_state, struct json_token *key, struct json_token *val, bool *mpd_host_changed);
-
-//public functions
 void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request) {
     t_work_request *request = (t_work_request*) arg_request;
     unsigned int uint_buf1, uint_buf2, uint_rc;
@@ -72,10 +69,10 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
     switch(request->cmd_id) {
         case MPD_API_LOVE:
             if (mpd_run_send_message(mpd_state->conn, mpd_state->love_channel, mpd_state->love_message)) {
-                data = sdscat(data, "{\"type\": \"result\", \"data\": \"Scrobbled love\"}");
+                data = jsonrpc_respond_message(data, request->method, request->id, "Scrobbled love", false);
             }
             else {
-                data = sdscat(data, "{\"type\": \"error\", \"data\": \"Failed to send love message to channel\"}");
+                data = jsonrpc_respond_message(data, request->method, request->id, "Failed to send love message to channel", true);
             }
         break;
         case MPD_API_LIKE:
@@ -87,7 +84,7 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
                 }
             } 
             else {
-                data = sdscat(data, "{\"type\": \"error\", \"data\": \"MPD stickers are disabled\"}");
+                data = jsonrpc_respond_message(data, request->method, request->id, "MPD stickers are disabled", true);
                 LOG_ERROR("MPD stickers are disabled");
             }
             break;
@@ -120,34 +117,30 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
                         mpd_client_jukebox(mpd_state);
                     }
                 }
-                data = sdscat(data, "{\"type\": \"result\", \"data\": \"ok\"}");
+                data = jsonrpc_respond_ok(data, request->method, request->id);
             }
             else {
-                sds settingname = sdscatrepr(sdsempty(), val.ptr, val.len);
-                data = sdscatprintf(data, "{\"type\": \"error\", \"data\": \"Can't save setting %%{setting}\", \"values\": {\"setting\": \"%s\"}}", settingname);
-                sds_free(settingname);
+                buffer = jsonrpc_start_phrase(buffer, request->method, request->id, "Can't save setting %{setting}", true);
+                buffer = tojson_char_len("setting", val.ptr, val.len, false);
+                buffer = jsonrpc_end_phrase(buffer);
             }
             break;
 
         case MPD_API_DATABASE_UPDATE:
-            uint_rc = mpd_run_update(mpd_state->conn, NULL);
-            if (uint_rc > 0) {
-                data = sdscat(data, "{\"type\": \"result\", \"data\": \"ok\"}");
-            }
+            mpd_run_update(mpd_state->conn, NULL);
+            data = respond_with_mpd_error_or_ok(data, request->method, request->id);
             break;
         case MPD_API_DATABASE_RESCAN:
-            uint_rc = mpd_run_rescan(mpd_state->conn, NULL);
-            if (uint_rc > 0) {
-                data = sdscat(data, "{\"type\": \"result\", \"data\": \"ok\"}");
-            }
+            mpd_run_rescan(mpd_state->conn, NULL);
+            data = respond_with_mpd_error_or_ok(data, request->method, request->id);
             break;
         case MPD_API_SMARTPLS_UPDATE_ALL:
             rc = mpd_client_smartpls_update_all(config, mpd_state);
             if (rc == true) {
-                data = sdscat(data, "{\"type\": \"result\", \"data\": \"Smart playlists updated\"}");
+                data = jsonrpc_respond_message(data, request->method, request->id, "Smart playlists updated", false);
             }
             else {
-                data = sdscat(data, "{\"type\": \"error\", \"data\": \"Smart playlists update failed\"}");
+                data = jsonrpc_respond_message(data, request->method, request->id, "Smart playlists update failed", true);
             }
             break;
         case MPD_API_SMARTPLS_UPDATE:
@@ -155,10 +148,14 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
             if (je == 1) {
                 rc = mpd_client_smartpls_update(config, mpd_state, p_charbuf1);
                 if (rc == true) {
-                    data = sdscat(data, "{\"type\": \"result\", \"data\": \"Smart playlist %%{playlist} updated\", \"values\": {\"playlist\": \"%s\"}}", p_charbuf1);
+                    buffer = jsonrpc_start_phrase(buffer, request->method, request->id, "Smart playlist %{playlist} updated");
+                    buffer = tojson_char("playlist", p_charbuf1, false);
+                    buffer = jsonrpc_end_phrase(buffer);
                 }
                 else {
-                    data = sdscat(data, "{\"type\": \"error\", \"data\": \"Smart playlist update failed\"}");
+                    buffer = jsonrpc_start_phrase(buffer, request->method, request->id, "Updating of smart playlist %{playlist} failed");
+                    buffer = tojson_char("playlist", p_charbuf1, false);
+                    buffer = jsonrpc_end_phrase(buffer);
                 }
                 FREE_PTR(p_charbuf1);
             }
@@ -194,10 +191,10 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
                 FREE_PTR(p_charbuf1);
             }
             if (rc == true) {
-                data = sdscat(data, "{\"type\": \"result\", \"data\": \"ok\"}");
+                data = jsonrpc_respond_ok(data, request->method, request->id);
             }
             else {
-                data = sdscat(data, "{\"type\": \"error\", \"data\": \"Failed to save playlist\"}");
+                data = jsonrpc_respond_message(data, request->method, request->id, "Failed to save playlist", true);
             }
             break;
         case MPD_API_SMARTPLS_GET:
@@ -208,58 +205,28 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
             }
             break;
         case MPD_API_PLAYER_PAUSE:
-            if (mpd_run_toggle_pause(mpd_state->conn)) {
-                data = sdscat(data, "{\"type\": \"result\", \"data\": \"ok\"}");
-            }
-            else {
-                data = sdscat(data, "{\"type\": \"error\", \"data\": \"Toggling player pause failed.\"}");
-                LOG_ERROR("Error mpd_run_toggle_pause()");
-            }
+            mpd_run_toggle_pause(mpd_state->conn);
+            data = respond_with_mpd_error_or_ok(data, request->method, request->id);
             break;
         case MPD_API_PLAYER_PREV:
-            if (mpd_run_previous(mpd_state->conn)) {
-                data = sdscat(data, "{\"type\": \"result\", \"data\": \"ok\"}");
-            }
-            else {
-                data = sdscat(data, "{\"type\": \"error\", \"data\": \"Goto previous song failed\"}");
-                LOG_ERROR("Error mpd_run_previous()");
-            }
+            mpd_run_previous(mpd_state->conn);
+            data = respond_with_mpd_error_or_ok(data, request->method, request->id);
             break;
         case MPD_API_PLAYER_NEXT:
-            if (mpd_run_next(mpd_state->conn)) {
-                data = sdscat(data, "{\"type\": \"result\", \"data\": \"ok\"}");
-            }
-            else {
-                data = sdscat(data, "{\"type\": \"error\", \"data\": \"Skip to next song failed\"}");
-                LOG_ERROR("Error mpd_run_next()");
-            }
+            mpd_run_next(mpd_state->conn);
+            data = respond_with_mpd_error_or_ok(data, request->method, request->id);
             break;
         case MPD_API_PLAYER_PLAY:
-            if (mpd_run_play(mpd_state->conn)) {
-                data = sdscat(data, "{\"type\": \"result\", \"data\": \"ok\"}");
-            }
-            else {
-                data = sdscat(data, "{\"type\": \"error\", \"data\": \"Begin to play failed\"}");
-                LOG_ERROR("Error mpd_run_play()");
-            }
+            mpd_run_play(mpd_state->conn);
+            data = respond_with_mpd_error_or_ok(data, request->method, request->id);
             break;
         case MPD_API_PLAYER_STOP:
-            if (mpd_run_stop(mpd_state->conn)) {
-                data = sdscat(data, "{\"type\": \"result\", \"data\": \"ok\"}");
-            }
-            else {
-                data = sdscat(data, "{\"type\": \"error\", \"data\": \"Stop playing failed\"}");
-                LOG_ERROR("Error mpd_run_stop()");
-            }
+            mpd_run_stop(mpd_state->conn);
+            data = respond_with_mpd_error_or_ok(data, request->method, request->id);
             break;
         case MPD_API_QUEUE_CLEAR:
-            if (mpd_run_clear(mpd_state->conn)) {
-                data = sdscat(data, "{\"type\": \"result\", \"data\": \"ok\"}");
-            }
-            else {
-                data = sdscat(data, "{\"type\": \"error\", \"data\": \"Clearing queue failed\"}");
-                LOG_ERROR("Error mpd_run_clear()");
-            }
+            mpd_run_clear(mpd_state->conn);
+            data = respond_with_mpd_error_or_ok(data, request->method, request->id);
             break;
         case MPD_API_QUEUE_CROP:
             data = mpd_client_queue_crop(mpd_state, data);
@@ -267,23 +234,15 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
         case MPD_API_QUEUE_RM_TRACK:
             je = json_scanf(request->data, sdslen(request->data), "{data: {track:%u}}", &uint_buf1);
             if (je == 1) {
-                if (mpd_run_delete_id(mpd_state->conn, uint_buf1))
-                    data = sdscat(data, "{\"type\": \"result\", \"data\": \"ok\"}");
-                else {
-                    data = sdscat(data, "{\"type\": \"error\", \"data\": \"Removing track from queue failed\"}");
-                    LOG_ERROR("Error mpd_run_delete_id()");
-                }
+                mpd_run_delete_id(mpd_state->conn, uint_buf1);
+                data = respond_with_mpd_error_or_ok(data, request->method, request->id);
             }
             break;
         case MPD_API_QUEUE_RM_RANGE:
             je = json_scanf(request->data, sdslen(request->data), "{data: {start: %u, end: %u}}", &uint_buf1, &uint_buf2);
             if (je == 2) {
-                if (mpd_run_delete_range(mpd_state->conn, uint_buf1, uint_buf2))
-                    data = sdscat(data, "{\"type\": \"result\", \"data\": \"ok\"}");
-                else {
-                    data = sdscat(data, "{\"type\": \"error\", \"data\": \"Removing track range from queue failed\"}");
-                    LOG_ERROR("Error mpd_run_delete_range()");
-                }
+                mpd_run_delete_range(mpd_state->conn, uint_buf1, uint_buf2);
+                data = respond_with_mpd_error_or_ok(data, request->method, request->id);
             }
             break;
         case MPD_API_QUEUE_MOVE_TRACK:
@@ -291,14 +250,11 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
             if (je == 2) {
                 uint_buf1--;
                 uint_buf2--;
-                if (uint_buf1 < uint_buf2)
+                if (uint_buf1 < uint_buf2) {
                     uint_buf2--;
-                if (mpd_run_move(mpd_state->conn, uint_buf1, uint_buf2))
-                    data = sdscat(data, "{\"type\": \"result\", \"data\": \"ok\"}");
-                else {
-                    data = sdscat(data, "{\"type\": \"error\", \"data\": \"Moving track in queue failed\"}");
-                    LOG_ERROR("Error mpd_run_move()");
                 }
+                mpd_run_move(mpd_state->conn, uint_buf1, uint_buf2);
+                data = respond_with_mpd_error_or_ok(data, request->method, request->id);
             }
             break;
         case MPD_API_PLAYLIST_MOVE_TRACK:
@@ -306,29 +262,19 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
             if (je == 3) {
                 uint_buf1--;
                 uint_buf2--;
-                if (uint_buf1 < uint_buf2)
+                if (uint_buf1 < uint_buf2) {
                     uint_buf2--;
-                if (mpd_send_playlist_move(mpd_state->conn, p_charbuf1, uint_buf1, uint_buf2)) {
-                    mpd_response_finish(mpd_state->conn);
-                    data = sdscat(data, "{\"type\": \"result\", \"data\": \"ok\"}");
                 }
-                else {
-                    data = sdscat(data, "{\"type\": \"error\", \"data\": \"Moving track in playlist failed\"}");
-                    LOG_ERROR("Error mpd_send_playlist_move()");
-                }
+                mpd_send_playlist_move(mpd_state->conn, p_charbuf1, uint_buf1, uint_buf2);
+                data = respond_with_mpd_error_or_ok(data, request->method, request->id);
                 FREE_PTR(p_charbuf1);
             }
             break;
         case MPD_API_PLAYER_PLAY_TRACK:
             je = json_scanf(request->data, sdslen(request->data), "{data: { track:%u}}", &uint_buf1);
             if (je == 1) {
-                if (mpd_run_play_id(mpd_state->conn, uint_buf1)) {
-                    data = sdscat(data, "{\"type\": \"result\", \"data\": \"ok\"}");
-                }
-                else {
-                    data = sdscat(data, "{\"type\": \"error\", \"data\": \"Set playing song failed\"}");
-                    LOG_ERROR("Error mpd_run_play_id()");
-                }
+                mpd_run_play_id(mpd_state->conn, uint_buf1);
+                data = respond_with_mpd_error_or_ok(data, request->method, request->id);
             }
             break;
         case MPD_API_PLAYER_OUTPUT_LIST:
@@ -337,33 +283,20 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
         case MPD_API_PLAYER_TOGGLE_OUTPUT:
             je = json_scanf(request->data, sdslen(request->data), "{data: {output: %u, state: %u}}", &uint_buf1, &uint_buf2);
             if (je == 2) {
-                if (uint_buf2) {
-                    if (mpd_run_enable_output(mpd_state->conn, uint_buf1))
-                        data = sdscat(data, "{\"type\": \"result\", \"data\": \"ok\"}");
-                    else {
-                        data = sdscat(data, "{\"type\": \"error\", \"data\": \"Enabling output failed\"}");
-                        LOG_ERROR("Error mpd_run_enable_output()");
-                    }
+                if (uint_buf2 == 1) {
+                    mpd_run_enable_output(mpd_state->conn, uint_buf1);
                 }
                 else {
-                    if (mpd_run_disable_output(mpd_state->conn, uint_buf1))
-                        data = sdscat(data, "{\"type\": \"result\", \"data\": \"ok\"}");
-                    else {
-                        data = sdscat(data, "{\"type\": \"error\", \"data\": \"Disabling output failed\"}");
-                        LOG_ERROR("Error mpd_run_disable_output()");
-                    }
+                    mpd_run_disable_output(mpd_state->conn, uint_buf1);
                 }
+                data = respond_with_mpd_error_or_ok(data, request->method, request->id);
             }
             break;
         case MPD_API_PLAYER_VOLUME_SET:
             je = json_scanf(request->data, sdslen(request->data), "{data: {volume:%u}}", &uint_buf1);
             if (je == 1) {
-                if (mpd_run_set_volume(mpd_state->conn, uint_buf1))
-                    data = sdscat(data, "{\"type\": \"result\", \"data\": \"ok\"}");
-                else {
-                    data = sdscat(data, "{\"type\": \"error\", \"data\": \"Setting volume failed\"}");
-                    LOG_ERROR("MPD_API_PLAYER_PLAY_TRACK: Error mpd_run_set_volume()");
-                }
+                mpd_run_set_volume(mpd_state->conn, uint_buf1);
+                data = respond_with_mpd_error_or_ok(data, request->method, request->id);
             }
             break;
         case MPD_API_PLAYER_VOLUME_GET:
@@ -372,12 +305,8 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
         case MPD_API_PLAYER_SEEK:
             je = json_scanf(request->data, sdslen(request->data), "{data: {songid: %u, seek: %u}}", &uint_buf1, &uint_buf2);
             if (je == 2) {
-                if (mpd_run_seek_id(mpd_state->conn, uint_buf1, uint_buf2))
-                    data = sdscat(data, "{\"type\": \"result\", \"data\": \"ok\"}");
-                else {
-                    data = sdscat(data, "{\"type\": \"error\", \"data\": \"Seeking song failed\"}");
-                    LOG_ERROR("Error mpd_run_seek_id()");
-                }
+                mpd_run_seek_id(mpd_state->conn, uint_buf1, uint_buf2);
+                data = respond_with_mpd_error_or_ok(data, request->method, request->id);
             }
             break;
         case MPD_API_QUEUE_LIST: {
@@ -407,21 +336,26 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
         case MPD_API_DATABASE_SONGDETAILS:
             je = json_scanf(request->data, sdslen(request->data), "{data: { uri: %Q}}", &p_charbuf1);
             if (je == 1) {
-                data = mpd_client_put_songdetails(config, mpd_state, data, p_charbuf1);
+                data = mpd_client_put_songdetails(config, mpd_state, data, request->method, request->id, p_charbuf1);
                 FREE_PTR(p_charbuf1);
             }
             break;
         case MPD_API_DATABASE_FINGERPRINT:
-            je = json_scanf(request->data, sdslen(request->data), "{data: { uri: %Q}}", &p_charbuf1);
-            if (je == 1) {
-                data = mpd_client_put_fingerprint(mpd_state, data, p_charbuf1);
-                FREE_PTR(p_charbuf1);
+            if (mpd_state->feat_fingerprint == true) {
+                je = json_scanf(request->data, sdslen(request->data), "{data: { uri: %Q}}", &p_charbuf1);
+                if (je == 1) {
+                    data = mpd_client_put_fingerprint(mpd_state, data, request->method, request->id, p_charbuf1);
+                    FREE_PTR(p_charbuf1);
+                }
+            }
+            else {
+                buffer = jsonrpc_respond_message(buffer, request_id, "fingerprint command not supported", true);
             }
             break;
         case MPD_API_DATABASE_TAG_LIST:
             je = json_scanf(request->data, sdslen(request->data), "{data: {offset: %u, filter: %Q, tag: %Q}}", &uint_buf1, &p_charbuf1, &p_charbuf2);
             if (je == 3) {
-                data = mpd_client_put_db_tag(mpd_state, data, uint_buf1, p_charbuf2, "", "", p_charbuf1);
+                data = mpd_client_put_db_tag(mpd_state, data, request->method, request->id, uint_buf1, p_charbuf2, "", "", p_charbuf1);
                 FREE_PTR(p_charbuf1);
                 FREE_PTR(p_charbuf2);
             }
@@ -442,7 +376,7 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
             je = json_scanf(request->data, sdslen(request->data), "{data: {album: %Q, search: %Q, tag: %Q, cols: %M}}", 
                 &p_charbuf1, &p_charbuf2, &p_charbuf3, json_to_tags, tagcols);
             if (je == 4) {
-                data = mpd_client_put_songs_in_album(config, mpd_state, data, p_charbuf1, p_charbuf2, p_charbuf3, tagcols);
+                data = mpd_client_put_songs_in_album(config, mpd_state, data, request->method, request->id, p_charbuf1, p_charbuf2, p_charbuf3, tagcols);
                 FREE_PTR(p_charbuf1);
                 FREE_PTR(p_charbuf2);
                 FREE_PTR(p_charbuf3);
@@ -489,8 +423,7 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
                     data = sdscat(data, "}}");
                 }
                 else {
-                    data = sdscat(data, "{\"type\": \"error\", \"data\": \"Adding song to playlist failed\"}");
-                    LOG_ERROR("Error mpd_run_playlist_add");
+                    data = check_error_and_recover(data, request->method, request_id);
                 }
                 FREE_PTR(p_charbuf1);
                 FREE_PTR(p_charbuf2);                
@@ -499,26 +432,16 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
         case MPD_API_PLAYLIST_CLEAR:
             je = json_scanf(request->data, sdslen(request->data), "{data: {uri:%Q}}", &p_charbuf1);
             if (je == 1) {
-                if (mpd_run_playlist_clear(mpd_state->conn, p_charbuf1)) {
-                    data = sdscat(data, "{\"type\": \"result\", \"data\": \"ok\"}");
-                }
-                else {
-                    data = sdscat(data, "{\"type\": \"error\", \"data\": \"Clearing playlist failed\"}");
-                    LOG_ERROR("Error mpd_run_playlist_clear");
-                }
+                mpd_run_playlist_clear(mpd_state->conn, p_charbuf1);
+                data = respond_with_mpd_error_or_ok(data, request->method, request->id);
                 FREE_PTR(p_charbuf1);
             }
             break;
         case MPD_API_PLAYLIST_RM_TRACK:
             je = json_scanf(request->data, sdslen(request->data), "{data: {uri:%Q, track:%u}}", &p_charbuf1, &uint_buf1);
             if (je == 2) {
-                if (mpd_run_playlist_delete(mpd_state->conn, p_charbuf1, uint_buf1)) {
-                    data = sdscat(data, "{\"type\": \"result\", \"data\": \"ok\"}");
-                }
-                else {
-                    data = sdscat(data, "{\"type\": \"error\", \"data\": \"Removing track from playlist failed\"}");
-                    LOG_ERROR("Error mpd_run_playlist_delete");
-                }
+                mpd_run_playlist_delete(mpd_state->conn, p_charbuf1, uint_buf1);
+                data = respond_with_mpd_error_or_ok(data, request->method, request->id);
                 FREE_PTR(p_charbuf1);
             }
             break;
@@ -528,7 +451,7 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
             je = json_scanf(request->data, sdslen(request->data), "{data: {offset:%u, filter:%Q, path:%Q, cols: %M}}", 
                 &uint_buf1, &p_charbuf1, &p_charbuf2, json_to_tags, tagcols);
             if (je == 4) {
-                data = mpd_client_put_browse(config, mpd_state, data, p_charbuf2, uint_buf1, p_charbuf1, tagcols);
+                data = mpd_client_put_filesystem(config, mpd_state, data, request->method, request->id, p_charbuf2, uint_buf1, p_charbuf1, tagcols);
                 FREE_PTR(p_charbuf1);
                 FREE_PTR(p_charbuf2);
             }
@@ -538,45 +461,31 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
         case MPD_API_QUEUE_ADD_TRACK_AFTER:
             je = json_scanf(request->data, sdslen(request->data), "{data: {uri:%Q, to:%d}}", &p_charbuf1, &int_buf1);
             if (je == 2) {
-                int_rc = mpd_run_add_id_to(mpd_state->conn, p_charbuf1, int_buf1);
-                if (int_rc > -1 ) 
-                    data = sdscat(data, "{\"type\": \"result\", \"data\": \"ok\"}");
-                else {
-                    data = sdscat(data, "{\"type\": \"error\", \"data\": \"Adding song to queue failed\"}");
-                    LOG_ERROR("Error mpd_run_add_id_to()");
-                }
+                mpd_run_add_id_to(mpd_state->conn, p_charbuf1, int_buf1);
+                data = respond_with_mpd_error_or_ok(data, request->method, request->id);
                 FREE_PTR(p_charbuf1);
             }
             break;
         case MPD_API_QUEUE_REPLACE_TRACK:
             je = json_scanf(request->data, sdslen(request->data), "{data: {uri:%Q }}", &p_charbuf1);
             if (je == 1) {
-                if (!mpd_run_clear(mpd_state->conn)) {
-                    data = sdscat(data, "{\"type\": \"error\", \"data\": \"Clearing queue failed\"}");
-                    LOG_ERROR("Error mpd_run_clear");
+                if (mpd_command_list_begin(mpd_state->conn, false)) {
+                    mpd_send_clear(mpd->state->conn);
+                    mpd_send_add(mpd_state->conn, p_charbuf1);
+                    mpd_send_play(mpd_state->conn);
+                    if (mpd_command_list_end(mpd_state->conn)) {
+                        mpd_response_finish(mpd_state->conn);
+                    }
                 }
-                else if (!mpd_run_add(mpd_state->conn, p_charbuf1)) {
-                    data = sdscat(data, "{\"type\": \"error\", \"data\": \"Adding song to queue failed\"}");
-                    LOG_ERROR("Error mpd_run_add");
-                }
-                else if (!mpd_run_play(mpd_state->conn)) {
-                    data = sdscat(data, "{\"type\": \"error\", \"data\": \"Can not start playing\"}");
-                    LOG_ERROR("Error mpd_run_play");
-                }
-                else
-                    data = sdscat(data, "{\"type\": \"result\", \"data\": \"ok\"}");
+                data = respond_with_mpd_error_or_ok(data, request->method, request->id);
                 FREE_PTR(p_charbuf1);
             }
             break;
         case MPD_API_QUEUE_ADD_TRACK:
             je = json_scanf(request->data, sdslen(request->data), "{data: {uri:%Q}}", &p_charbuf1);
             if (je == 1) {
-                if (mpd_run_add(mpd_state->conn, p_charbuf1))
-                    data = sdscat(data, "{\"type\": \"result\", \"data\": \"ok\"}");
-                else {
-                    data = sdscat(data, "{\"type\": \"error\", \"data\": \"Adding song to queue failed\"}");
-                    LOG_ERROR("Error mpd_run_add");
-                }
+                mpd_run_add(mpd_state->conn, p_charbuf1);
+                data = respond_with_mpd_error_or_ok(data, request->method, request->id);
                 FREE_PTR(p_charbuf1);
             }
             break;
@@ -585,39 +494,24 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
             if (je == 1) {
                 int_buf1 = mpd_run_add_id(mpd_state->conn, p_charbuf1);
                 if (int_buf1 != -1) {
-                    if (mpd_run_play_id(mpd_state->conn, int_buf1)) {
-                        data = sdscat(data, "{\"type\": \"result\", \"data\": \"ok\"}");
-                    }
-                    else {
-                        data = sdscat(data, "{\"type\": \"error\", \"data\": \"Can not start playing\"}");
-                        LOG_ERROR("Error mpd_run_play_id()");
-                    }
+                    mpd_run_play_id(mpd_state->conn, int_buf1);
                 }
-                else {
-                    data = sdscat(data, "{\"type\": \"error\", \"data\": \"Adding song to queue failed\"}");
-                    LOG_ERROR("Error mpd_run_add_id");
-                }
+                data = respond_with_mpd_error_or_ok(data, request->method, request->id);
                 FREE_PTR(p_charbuf1);
             }
             break;
         case MPD_API_QUEUE_REPLACE_PLAYLIST:
             je = json_scanf(request->data, sdslen(request->data), "{data: {plist:%Q}}", &p_charbuf1);
             if (je == 1) {
-                if (!mpd_run_clear(mpd_state->conn)) {
-                    data = sdscat(data, "{\"type\": \"error\", \"data\": \"Clearing queue failed\"}");
-                    LOG_ERROR("Error mpd_run_clear");                
+                if (mpd_command_list_begin(mpd_state->conn, false)) {
+                    mpd_send_clear(mpd->state->conn);
+                    mpd_send_load(mpd_state->conn, p_charbuf1);
+                    mpd_send_play(mpd_state->conn);
+                    if (mpd_command_list_end(mpd_state->conn)) {
+                        mpd_response_finish(mpd_state->conn);
+                    }
                 }
-                else if (!mpd_run_load(mpd_state->conn, p_charbuf1)) {
-                    data = sdscat(data, "{\"type\": \"error\", \"data\": \"Adding playlist to queue failed\"}");
-                    LOG_ERROR("Error mpd_run_load");
-                }
-                else if (!mpd_run_play(mpd_state->conn)) {
-                    data = sdscat(data, "{\"type\": \"error\", \"data\": \"Can not start playing\"}");
-                    LOG_ERROR("Error mpd_run_play");
-                }
-                else {
-                    data = sdscat(data, "{\"type\": \"result\", \"data\": \"ok\"}");
-                }
+                data = respond_with_mpd_error_or_ok(data, request->method, request->id);
                 FREE_PTR(p_charbuf1);
             }
             break;
@@ -627,36 +521,26 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
                 rc = mpd_client_jukebox_add(mpd_state, int_buf1, uint_buf1, p_charbuf1);
                 FREE_PTR(p_charbuf1);
                 if (rc == true) {
-                    data = sdscat(data, "{\"type\": \"result\", \"data\": \"Sucessfully added random songs to queue\"}");
+                    data = json_respond_message(data, request->method, request->id, "Sucessfully added random songs to queue", false);
                 }
                 else {
-                    data = sdscat(data, "{\"type\": \"error\", \"data\": \"Adding random songs to queue failed\"}");
+                    data = json_respond_message(data, request->method, request->id, "Adding random songs to queue failed", true);
                 }
             }
             break;
         case MPD_API_QUEUE_ADD_PLAYLIST:
             je = json_scanf(request->data, sdslen(request->data), "{data: {plist:%Q}}", &p_charbuf1);
             if (je == 1) {
-                if (mpd_run_load(mpd_state->conn, p_charbuf1)) {
-                    data = sdscat(data, "{\"type\": \"result\", \"data\": \"ok\"}");
-                }
-                else {
-                    data = sdscat(data, "{\"type\": \"error\", \"data\": \"Adding playlist to queue failed\"}");
-                    LOG_ERROR("Error mpd_run_load");
-                }
+                mpd_run_load(mpd_state->conn, p_charbuf1);
+                data = respond_with_mpd_error_or_ok(data, request->method, request->id);
                 FREE_PTR(p_charbuf1);
             }
             break;
         case MPD_API_QUEUE_SAVE:
             je = json_scanf(request->data, sdslen(request->data), "{ data: {plist:%Q}}", &p_charbuf1);
             if (je == 1) {
-                if (mpd_run_save(mpd_state->conn, p_charbuf1)) {
-                    data = sdscat(data, "{\"type\": \"result\", \"data\": \"ok\"}");
-                }
-                else {
-                    data = sdscat(data, "{\"type\": \"error\", \"data\": \"Saving queue as playlist failed\"}");
-                    LOG_ERROR("Error mpd_run_save");
-                }
+                mpd_run_save(mpd_state->conn, p_charbuf1);
+                data = respond_with_mpd_error_or_ok(data, request->method, request->id);
                 FREE_PTR(p_charbuf1);
             }
             break;
@@ -723,20 +607,12 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
             data = mpd_client_put_stats(mpd_state, data);
             break;
         default:
-            data = sdscat(data, "{\"type\": \"error\", \"data\": \"Unknown request\"}");
+            data = jsonrpc_respond_message(data, request->method, request->id, "Unknown request", true);
             LOG_ERROR("Unknown API request: %.*s", sdslen(request->data), request->data);
     }
 
-    if (mpd_state->conn_state == MPD_CONNECTED && mpd_connection_get_error(mpd_state->conn) != MPD_ERROR_SUCCESS) {
-        LOG_ERROR("MPD error: %s", mpd_connection_get_error_message(mpd_state->conn));
-        data = sdscat(sdsempty(), "{\"type\":\"error\", \"data\": \"%s\"}", mpd_connection_get_error_message(mpd_state->conn));
-        /* Try to recover error */
-        if (!mpd_connection_clear_error(mpd_state->conn))
-            mpd_state->conn_state = MPD_FAILURE;
-    }
-
     if (sdslen(data) == 0) {
-        data = sdscat(data, "{\"type\": \"error\", \"data\": \"No response for cmd_id %%{cmdId}\", \"values\": {\"cmdId\": %d}}", request->cmd_id);
+        data = sdscatprintf(data, "{\"type\": \"error\", \"data\": \"No response for method %%{method}\", \"values\": {\"method\": %s}}", request->method);
     }
     if (response->conn_id > -1) {
         LOG_DEBUG("Push response to queue for connection %lu: %s", request->conn_id, data);
@@ -748,156 +624,6 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
         FREE_PTR(response);
     }
     sds_free(request->data);
+    sds_free(request->method);
     FREE_PTR(request);
-}
-
-//private functions
-static bool mpd_api_settings_set(t_config *config, t_mpd_state *mpd_state, struct json_token *key, struct json_token *val, bool *mpd_host_changed) {
-    bool rc = true;
-    char *crap;
-    sds settingvalue = sdscatlen(sdsempty(), val->ptr, val->len);
-    if (strncmp(key->ptr, "mpdPass", key->len) == 0) {
-        if (strcmp(key, "dontsetpassword") != 0) {
-            mpd_host_changed = true;
-            mpd_state->mpd_pass = sdscatlen(sdsempty(), settingvalue, sdslen(settingvalue));
-        }
-        else {
-            sds_free(settingvalue);
-            return true;
-        }
-    }
-    else if (strncmp(key->ptr, "mpdHost", key->len) == 0) {
-        if (strncmp(val->ptr, mpd_state->mpd_host, val->len) != 0) {
-            mpd_host_changed = true;
-            mpd_state->mpd_host = sdscatlen(sdsempty(), settingvalue, sdslen(settingvalue));
-        }
-    }
-    else if (strncmp(key->ptr, "mpdPort", key->len) == 0) {
-        int mpd_port = strtoimax(settingvalue, &crap, 10);
-        if (mpd_state->mpd_port != mpd_port) {
-            mpd_host_changed = true;
-            mpd_state->mpd_port = mpd_port;
-        }
-    }
-    else if (strncmp(key->ptr, "musicDirectory", key->len) == 0) {
-        mpd_state->mpd_host = sdscatlen(sdsempty(), settingvalue, sdslen(settingvalue));
-    }
-    else if (strncmp(key->ptr, "jukeboxMode", key->len) == 0) {
-        int jukebox_mode = strtoimax(settingvalue, &crap, 10);
-        if (jukebox_mode < 0 || jukebox_mode > 2) {
-            sds_free(settingvalue);
-            return false;
-        }
-        mpd_state->jukebox_mode = jukebox_mode;
-    }
-    else if (strncmp(key->ptr, "jukeboxPlaylist", key->len) == 0) {
-        mpd_state->jukebox_playlist = sdscatlen(sdsempty(), settingvalue, sdslen(settingvalue));
-    }
-    else if (strncmp(key->ptr, "jukeboxQueueLength", key->len) == 0) {
-        int jukebox_queue_length = strtoimax(settingvalue, &crap, 10);
-        if (jukebox_queue_length <= 0 || jukebox_queue_length > 999) {
-            sds_free(settingvalue);
-            return false;
-        }
-        mpd_state->jukebox_queue_length = jukebox_queue_length;
-    }
-    else if (strncmp(key->ptr, "autoPlay", key->len) == 0) {
-        mpd_state->auto_play = val->type == JSON_TYPE_TRUE ? true : false;
-    }
-    else if (strncmp(key->ptr, "coverimage", key->len) == 0) {
-        mympd_state->coverimage = val->type == JSON_TYPE_TRUE ? true : false;
-        settingname = sdscat(sdsempty(), "coverimage");
-    }
-    else if (strncmp(key->ptr, "coverimageName", key->len) == 0) {
-        if (validate_string(settingvalue) && sdslen(settingvalue) > 0) {
-            mpd_state->coverimage_name = sdscatlen(sdsempty(), settingvalue, sdslen(settingvalue));
-        }
-        else {
-            sds_free(settingvalue);
-            return false;
-        }
-    }
-    else if (strncmp(key->ptr, "love", key->len) == 0) {
-        mpd_state->love = val->type == JSON_TYPE_TRUE ? true : false;
-    }
-    else if (strcmp(key->ptr, "loveChannel", key->len) == 0) {
-        mpd_state->love_channel = sdscatlen(sdsempty(), settingvalue, sdslen(settingvalue));
-    }
-    else if (strncmp(key->ptr, "loveMessage", key->len) == 0) {
-        mpd_state->love_message = sdscatlen(sdsempty(), settingvalue, sdslen(settingvalue));
-    }
-    else if (strncmp(key->ptr, "taglist", key->len) == 0) {
-        mpd_state->taglist = sdscatlen(sdsempty(), settingvalue, sdslen(settingvalue));
-    }
-    else if (strncmp(key->ptr, "searchtaglist", key->len) == 0) {
-        mpd_state->searchtaglist = sdscatlen(sdsempty(), settingvalue, sdslen(settingvalue));
-    }
-    else if (strncmp(key->ptr, "browsetaglist", key->len) == 0) {
-        mpd_state->browsetaglist = sdscatlen(sdsempty(), settingvalue, sdslen(settingvalue));
-    }
-    else if (strncmp(key->ptr, "stickers", key->len) == 0) {
-        mpd_state->stickers = val->type == JSON_TYPE_TRUE ? true : false;
-    }
-    else if (strncmp(key->ptr, "smartpls", key->len) == 0) {
-        mpd_state->smartpls = val->type == JSON_TYPE_TRUE ? true : false;
-    }
-    else if (strncmp(key->ptr, "maxElementsPerPage", key->len) == 0) {
-        int max_elements_per_page = strtoimax(settingvalue, &crap, 10);
-        if (max_elements_per_page <= 0 || max_elements_per_page > 999) {
-            sds_free(settingvalue);
-            return false;
-        }
-        mpd_state->max_elements_per_page = max_elements_per_page;
-    }
-    else if (strncmp(key->ptr, "lastPlayedCount", key->len) == 0) {
-        int last_played_count = strtoimax(settingvalue, &crap, 10);
-        if (last_played_count <= 0) {
-            sds_free(settingvalue);
-            return false;
-        }
-        mpd_state->last_played_count = last_played_count;
-    }
-    else if (strncmp(key->ptr, "random", key->len) == 0) {
-        unsigned uint_buf = strtoumax(settingvalue, &crap, 10);
-        rc = mpd_run_random(mpd_state->conn, uint_buf));
-    }
-    else if (strncmp(key->ptr, "repeat", key->len) == 0) {
-        unsigned uint_buf = strtoumax(settingvalue, &crap, 10);
-        rc = mpd_run_repeat(mpd_state->conn, uint_buf));
-    }
-    else if (strncmp(key->ptr, "consume", key->len) == 0) {
-        unsigned uint_buf = strtoumax(settingvalue, &crap, 10);
-        rc = mpd_run_consume(mpd_state->conn, uint_buf));
-    }
-    else if (strncmp(key->ptr, "single", key->len) == 0) {
-        unsigned uint_buf = strtoumax(settingvalue, &crap, 10);
-        rc = mpd_run_single(mpd_state->conn, uint_buf));
-    }
-    else if (strncmp(key->ptr, "crossfade", key->len) == 0) {
-        unsigned uint_buf = strtoumax(settingvalue, &crap, 10);
-        rc = mpd_run_crossfade(mpd_state->conn, uint_buf));
-    }
-    else if (strncmp(key->ptr, "mixrampdb", key->len) == 0) {
-        if (config->mixramp == true) {
-            float float_buf = strtof(settingvalue, &crap, 10);
-            rc = mpd_run_mixrampdb(mpd_state->conn, float_buf));
-        }
-    }
-    else if (strncmp(key->ptr, "mixrampdelay", key->len) == 0) {
-        if (config->mixramp == true) {
-            float float_buf = strtof(settingvalue, &crap, 10);
-            rc = mpd_run_mixrampdelay(mpd_state->conn, float_buf));
-        }
-    }
-    else if (strncmp(key->ptr, "replaygain", key->len) == 0) {
-        rc = mpd_send_command(mpd_state->conn, "replay_gain_mode", settingvalue, NULL));
-    }    
-    else {
-        LOG_ERROR("Setting with name \"%s\" not supported", settingname);
-        sds_free(settingvalue);
-        return false;
-    }
-
-    sds_free(settingvalue);
-    return rc;
 }

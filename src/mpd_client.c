@@ -75,14 +75,6 @@ void *mpd_client_loop(void *arg_config) {
     mpd_state->last_skipped_id = 0;
     mpd_state->crossfade = 0;
     mpd_state->set_song_played_time = 0;
-    mpd_state->mpd_tag_types_len = 0;
-    memset(mpd_state->mpd_tag_types, 0, sizeof(mpd_state->mpd_tag_types));
-    mpd_state->mympd_tag_types_len = 0;
-    memset(mpd_state->mympd_tag_types, 0, sizeof(mpd_state->mympd_tag_types));
-    mpd_state->search_tag_types_len = 0;
-    memset(mpd_state->search_tag_types, 0, sizeof(mpd_state->search_tag_types));
-    mpd_state->browse_tag_types_len = 0;
-    memset(mpd_state->browse_tag_types, 0, sizeof(mpd_state->browse_tag_types));
     mpd_state->music_directory = NULL;
     mpd_state->music_directory_value = NULL;
     mpd_state->jukebox_playlist = NULL;
@@ -96,6 +88,10 @@ void *mpd_client_loop(void *arg_config) {
     mpd_state->browsetaglist = NULL;
     mpd_state->mpd_host = NULL;
     mpd_state->mpd_pass = NULL;
+    reset_t_tags(mpd_state->mpd_tag_types);
+    reset_t_tags(mpd_state->mympd_tag_types);
+    reset_t_tags(mpd_state->search_tag_types);
+    reset_t_tags(mpd_state->browse_tag_types);
 
     //wait for initial settings
     while (s_signal_received == 0) {

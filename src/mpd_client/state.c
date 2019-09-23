@@ -225,31 +225,31 @@ static int mpd_client_put_settings(t_mpd_state *mpd_state, char *buffer) {
     mpd_status_free(status);
     FREE_PTR(replaygain);
     
-    for (nr = 0; nr < mpd_state->mympd_tag_types_len; nr++) {
+    for (nr = 0; nr < mpd_state->mympd_tag_types->len; nr++) {
         if (nr > 0) 
             len += json_printf(&out, ",");
-        len += json_printf(&out, "%Q", mpd_tag_name(mpd_state->mympd_tag_types[nr]));
+        len += json_printf(&out, "%Q", mpd_tag_name(mpd_state->mympd_tag_types->tags[nr]));
     }
     
     len += json_printf(&out, "], searchtags: [");
-        for (nr = 0; nr < mpd_state->search_tag_types_len; nr++) {
+        for (nr = 0; nr < mpd_state->search_tag_types->len; nr++) {
         if (nr > 0) 
             len += json_printf(&out, ",");
-        len += json_printf(&out, "%Q", mpd_tag_name(mpd_state->search_tag_types[nr]));
+        len += json_printf(&out, "%Q", mpd_tag_name(mpd_state->search_tag_types->tags[nr]));
     }
     
     len += json_printf(&out, "], browsetags: [");
-    for (nr = 0; nr < mpd_state->browse_tag_types_len; nr++) {
+    for (nr = 0; nr < mpd_state->browse_tag_types->len; nr++) {
         if (nr > 0) 
             len += json_printf(&out, ",");
-        len += json_printf(&out, "%Q", mpd_tag_name(mpd_state->browse_tag_types[nr]));
+        len += json_printf(&out, "%Q", mpd_tag_name(mpd_state->browse_tag_types->tags[nr]));
     }
 
     len += json_printf(&out, "], allmpdtags: [");
-    for (nr = 0; nr < mpd_state->mpd_tag_types_len; nr++) {
+    for (nr = 0; nr < mpd_state->mpd_tag_types->len; nr++) {
         if (nr > 0) 
             len += json_printf(&out, ",");
-        len += json_printf(&out, "%Q", mpd_tag_name(mpd_state->mpd_tag_types[nr]));
+        len += json_printf(&out, "%Q", mpd_tag_name(mpd_state->mpd_tag_types->tags[nr]));
     }
 
     len += json_printf(&out, "]}}");

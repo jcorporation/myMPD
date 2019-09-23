@@ -23,9 +23,14 @@
 
 #ifndef __BROWSE_H__
 #define __BROWSE_H__
-int mpd_client_put_filesystem(t_config *config, t_mpd_state *mpd_state, char *buffer, const char *path, const unsigned int offset, const char *filter, const t_tags *tagcols);
-int mpd_client_put_db_tag(t_mpd_state *mpd_state, char *buffer, const unsigned int offset, const char *mpdtagtype, const char *mpdsearchtagtype, const char *searchstr, const char *filter);
-int mpd_client_put_songs_in_album(t_config *config, t_mpd_state *mpd_state, char *buffer, const char *album, const char *search, const char *tag, const t_tags *tagcols);
-int mpd_client_put_songdetails(t_config *config, t_mpd_state *mpd_state, char *buffer, const char *uri);
-int mpd_client_put_fingerprint(t_mpd_state *mpd_state, char *buffer, const char *uri);
+sds mpd_client_put_fingerprint(t_mpd_state *mpd_state, sds buffer, sds method, int request_id,
+                               const char *uri);
+sds mpd_client_put_songdetails(t_config *config, t_mpd_state *mpd_state, sds buffer, sds method, int request_id, 
+                               const char *uri);
+sds mpd_client_put_filesystem(t_config *config, t_mpd_state *mpd_state, sds buffer, sds method, int request_id, 
+                              const char *path, const unsigned int offset, const char *filter, const t_tags *tagcols);
+sds mpd_client_put_db_tag(t_mpd_state *mpd_state, sds buffer, sds method, int request_id,
+                          const unsigned int offset, const char *mpdtagtype, const char *mpdsearchtagtype, const char *searchstr, const char *filter);
+sds mpd_client_put_songs_in_album(t_config *config, t_mpd_state *mpd_state, sds buffer, const char *method, int request_id,
+                                  const char *album, const char *search, const char *tag, const t_tags *tagcols);
 #endif

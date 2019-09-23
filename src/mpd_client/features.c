@@ -67,15 +67,20 @@ void mpd_client_mpd_features(t_mpd_state *mpd_state) {
                 mpd_state->feat_playlists = true;
             }
             else if (strcmp(pair->value, "getfingerprint") == 0) {
-                LOG_DEBUG("MPD supports fingerprints");
-                mpd_state->feat_fingerprint = true;
+                LOG_DEBUG("MPD supports fingerprint command");
+                if (LIBMPDCLIENT_CHECK_VERSION(2, 17, 0)) {
+                    mpd_state->feat_fingerprint = true;
+                }
+                else {
+                    LOG_DEBUG("libmpdclient don't support fingerprint command");
+                }
             }
             mpd_return_pair(mpd_state->conn, pair);
         }
         mpd_response_finish(mpd_state->conn);
     }
     else {
-        LOG_ERROR_AND_RECOVER("mpd_send_allowed_commands");
+        check_error_and_recover(NULL, NULL, 0);
     }
     if (mpd_state->feat_sticker == false && mpd_state->stickers == true) {
         LOG_WARN("MPD don't support stickers, disabling myMPD feature");
@@ -116,14 +121,10 @@ static void mpd_client_feature_tags(t_mpd_state *mpd_state) {
     int tokens_count;
     struct mpd_pair *pair;
 
-    mpd_state->mpd_tag_types_len = 0;
-    memset(mpd_state->mpd_tag_types, 0, sizeof(mpd_state->mpd_tag_types));
-    mpd_state->mympd_tag_types_len = 0;
-    memset(mpd_state->mympd_tag_types, 0, sizeof(mpd_state->mympd_tag_types));
-    mpd_state->search_tag_types_len = 0;
-    memset(mpd_state->search_tag_types, 0, sizeof(mpd_state->search_tag_types));
-    mpd_state->browse_tag_types_len = 0;
-    memset(mpd_state->browse_tag_types, 0, sizeof(mpd_state->browse_tag_types));
+    reset_t_tags(mpd_state->mpd_tag_types);
+    reset_t_tags(mpd_state->mympd_tag_types);
+    reset_t_tags(mpd_state->search_tag_types);
+    reset_t_tags(mpd_state->browse_tag_types);
     
     sds logline = sdsnew("MPD supported tags: ");
     if (mpd_send_list_tag_types(mpd_state->conn)) {
@@ -131,7 +132,7 @@ static void mpd_client_feature_tags(t_mpd_state *mpd_state) {
             enum mpd_tag_type tag = mpd_tag_name_parse(pair->value);
             if (tag != MPD_TAG_UNKNOWN) {
                 logline = sdscatprintf(logline, "%s ", pair->value);
-                mpd_state->mpd_tag_types[mpd_state->mpd_tag_types_len++] = tag;
+                mpd_state->mpd_tag_types->tags[mpd_state->mpd_tag_types->len++] = tag;
             }
             else {
                 LOG_WARN("Unknown tag %s (libmpdclient to old)", pair->value);
@@ -141,7 +142,7 @@ static void mpd_client_feature_tags(t_mpd_state *mpd_state) {
         mpd_response_finish(mpd_state->conn);
     }
     else {
-        LOG_ERROR_AND_RECOVER("mpd_send_list_tag_types");
+        check_error_and_recover(NULL, NULL, 0);
     }
 
     if (mpd_state->mpd_tag_types_len == 0) {
@@ -162,9 +163,9 @@ static void mpd_client_feature_tags(t_mpd_state *mpd_state) {
                 LOG_WARN("Unknown tag %s", token);
             }
             else {
-                if (mpd_client_tag_exists(mpd_state->mpd_tag_types, mpd_state->mpd_tag_types_len, tag) == true) {
+                if (mpd_client_tag_exists(mpd_state->mpd_tag_types->tags, mpd_state->mpd_tag_types->len, tag) == true) {
                     logline = sdscatprintf(logline, "%s ", mpd_tag_name(tag));
-                    mpd_state->mympd_tag_types[mpd_state->mympd_tag_types_len++] = tag;
+                    mpd_state->mympd_tag_types->tags[mpd_state->mympd_tag_types->len++] = tag;
                 }
                 else {
                     LOG_DEBUG("Disabling tag %s", mpd_tag_name(tag));
@@ -179,15 +180,12 @@ static void mpd_client_feature_tags(t_mpd_state *mpd_state) {
             LOG_VERBOSE("Enabling mpd tag types");
             if (mpd_command_list_begin(mpd_state->conn, false)) {
                 mpd_send_clear_tag_types(mpd_state->conn);
-                mpd_send_enable_tag_types(mpd_state->conn, mpd_state->mympd_tag_types, mpd_state->mympd_tag_types_len);
-                if (!mpd_command_list_end(mpd_state->conn)) {
-                    LOG_ERROR_AND_RECOVER("mpd_command_list_end");
+                mpd_send_enable_tag_types(mpd_state->conn, mpd_state->mympd_tag_types->tags, mpd_state->mympd_tag_types->len);
+                if (mpd_command_list_end(mpd_state->conn)) {
+                    mpd_response_finish(mpd_state->conn);
                 }
             }
-            else {
-                LOG_ERROR_AND_RECOVER("mpd_command_list_begin");
-            }
-            mpd_response_finish(mpd_state->conn);
+            check_error_and_recover(NULL);
         }
         #endif
         logline = sdscat(sdsempty(), "myMPD enabled searchtags: ");
@@ -199,9 +197,9 @@ static void mpd_client_feature_tags(t_mpd_state *mpd_state) {
                 LOG_WARN("Unknown tag %s", token);
             }
             else {
-                if (mpd_client_tag_exists(mpd_state->mympd_tag_types, mpd_state->mympd_tag_types_len, tag) == true) {
+                if (mpd_client_tag_exists(mpd_state->mympd_tag_types->tags, mpd_state->mympd_tag_types->len, tag) == true) {
                     logline = sdscatprintf(logline, "%s ", mpd_tag_name(tag));
-                    mpd_state->search_tag_types[mpd_state->search_tag_types_len++] = tag;
+                    mpd_state->search_tag_types->tags[mpd_state->search_tag_types->len++] = tag;
                 }
                 else {
                     LOG_DEBUG("Disabling tag %s", mpd_tag_name(tag));
@@ -220,9 +218,9 @@ static void mpd_client_feature_tags(t_mpd_state *mpd_state) {
                 LOG_WARN("Unknown tag %s", token);
             }
             else {
-                if (mpd_client_tag_exists(mpd_state->mympd_tag_types, mpd_state->mympd_tag_types_len, tag) == true) {
+                if (mpd_client_tag_exists(mpd_state->mympd_tag_types->tags, mpd_state->mympd_tag_types->len, tag) == true) {
                     logline = sdscatprintf(logline, "%s ", mpd_tag_name(tag));
-                    mpd_state->browse_tag_types[mpd_state->browse_tag_types_len++] = tag;
+                    mpd_state->browse_tag_types->tags[mpd_state->browse_tag_types->len++] = tag;
                 }
                 else {
                     LOG_DEBUG("Disabling tag %s", mpd_tag_name(tag));
@@ -280,7 +278,7 @@ static void mpd_client_feature_music_directory(t_mpd_state *mpd_state) {
             mpd_response_finish(mpd_state->conn);
         }
         else {
-            LOG_ERROR_AND_RECOVER("config");
+            check_error_and_recover(NULL, NULL, 0);
         }
     }
     else if (strncmp(mpd_state->music_directory, "/", 1) == 0) {

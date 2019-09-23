@@ -309,13 +309,14 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
     }
 
     if (sdslen(data) == 0) {
-        data = sdscatprintf(data, "{\"type\": \"error\", \"data\": \"No response for cmd_id %%{cmdId}\", \"values\": {\"cmdId\": %d}}", request->cmd_id);
+        data = sdscatprintf(data, "{\"type\": \"error\", \"data\": \"No response for method %%{method}\", \"values\": {\"method\": %s}}", request->method);
         LOG_ERROR("No response for cmd_id %u", request->cmd_id);
     }
     response->data = data;
     LOG_DEBUG("Push response to queue for connection %lu: %s", request->conn_id, response->data);
     tiny_queue_push(web_server_queue, response);
     sds_free(request->data);
+    sds_free(request->method);
     FREE_PTR(request);
 }
 
