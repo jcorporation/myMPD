@@ -29,8 +29,8 @@
 #include "../utility.h"
 #include "../log.h"
 #include "../config_defs.h"
-#include "mpd_client_utils.h"
-#include "cover.h"
+#include "mpd_client_utility.h"
+#include "mpd_client_cover.h"
 
 sds mpd_client_get_cover(t_config *config, t_mpd_state *mpd_state, const char *uri, sds cover) {
     char *orgpath = strdup(uri);

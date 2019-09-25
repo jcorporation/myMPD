@@ -35,52 +35,46 @@
 #include "../log.h"
 #include "../list.h"
 #include "../config_defs.h"
-#include "playlists.h"
+#include "mpd_client_playlists.h"
 
-static int mpd_client_put_playlists(t_config *config, t_mpd_state *mpd_state, char *buffer, const unsigned int offset, const char *filter) {
+sds mpd_client_put_playlists(t_config *config, t_mpd_state *mpd_state, sds buffer, sds method, int request_id,
+                             const unsigned int offset, const char *filter) 
+{
+    buffer = jsonrpc_start_result(buffer, method, request_id);
+    buffer = sdscat(buffer,"[");
+
+    if (mpd_send_list_playlists(mpd_state->conn) == false) {
+        buffer = check_error_and_recover(buffer);
+        return buffer;
+    }
+
     struct mpd_playlist *pl;
     unsigned entity_count = 0;
     unsigned entities_returned = 0;
-    const char *plpath;
-    size_t len = 0;
-    bool smartpls;
-    struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
-
-    if (mpd_send_list_playlists(mpd_state->conn) == false) {
-        RETURN_ERROR_AND_RECOVER("mpd_send_lists_playlists");
-    }
-
-    len = json_printf(&out, "{type: playlists, data: [");
-
-    while ((pl = mpd_recv_playlist(mpd_state->conn)) != NULL && len < MAX_LIST_SIZE) {
+    while ((pl = mpd_recv_playlist(mpd_state->conn)) != NULL) {
         entity_count++;
         if (entity_count > offset && entity_count <= offset + mpd_state->max_elements_per_page) {
-            plpath = mpd_playlist_get_path(pl);
+            const char *plpath = mpd_playlist_get_path(pl);
             if (strncmp(filter, "-", 1) == 0 || strncasecmp(filter, plpath, 1) == 0 ||
                (strncmp(filter, "0", 1) == 0 && isalpha(*plpath) == 0 )) 
             {
-                if (entities_returned++)
-                    len += json_printf(&out, ", ");
-                size_t smartpls_file_len = config->varlibdir_len + strlen(plpath) + 11;
-                char smartpls_file[smartpls_file_len];
-                snprintf(smartpls_file, smartpls_file_len, "%s/smartpls/%s", config->varlibdir, plpath);
+                if (entities_returned++) {
+                    buffer = sdscat(buffer,",");
+                }
+                sds smartpls_file = sdscatprintf(sdsempty(), "%s/smartpls/%s", config->varlibdir, plpath);
+                bool smartpls = false;
                 if (validate_string(plpath) == true) {
                     if (access(smartpls_file, F_OK ) != -1) {
                         smartpls = true;
                     }
-                    else {
-                        smartpls = false;
-                    }
                 }
-                else {
-                    smartpls = false;
-                }
-                len += json_printf(&out, "{Type: %Q, uri: %Q, name: %Q, last_modified: %d}",
-                    (smartpls == true ? "smartpls" : "plist"), 
-                    plpath,
-                    plpath,
-                    mpd_playlist_get_last_modified(pl)
-                );
+                sds_free(smartpls_file);
+                buffer = sdscat(buffer, "{");
+                buffer = tojson_char(buffer, "Type", (smartpls == true ? "smartpls" : "plist"), true);
+                buffer = tojson_char(buffer, "uri", plpath, true);
+                buffer = tojson_char(buffer, "name", plpath, true);
+                buffer = tojson_long(buffer, "last_modified", mpd_playlist_get_last_modified(pl), false);
+                buffer = sdscat(buffer, "}");
             } else {
                 entity_count--;
             }
@@ -88,46 +82,42 @@ static int mpd_client_put_playlists(t_config *config, t_mpd_state *mpd_state, ch
         mpd_playlist_free(pl);
     }
 
-    len += json_printf(&out, "], totalEntities: %d, offset: %d, returnedEntities: %d}",
-        entity_count,
-        offset,
-        entities_returned
-    );
-
-    CHECK_RETURN_LEN();
+    buffer = sdscatprintf(buffer, "],\"totalEntities\":%d,\"returnedEntities\":%d,", entity_count, entities_returned);
+    buffer = tojson_long(buffer, "offset", offset, false);
+    buffer = jsonrpc_end_result(buffer);
+    
+    return buffer;
 }
 
-static int mpd_client_put_playlist_list(t_config *config, t_mpd_state *mpd_state, char *buffer, const char *uri, const unsigned int offset, const char *filter, const t_tags *tagcols) {
+sds mpd_client_put_playlist_list(t_config *config, t_mpd_state *mpd_state, sds buffer, sds method, int request_id,
+                                 const char *uri, const unsigned int offset, const char *filter, const t_tags *tagcols)
+{
+    buffer = jsonrpc_start_result(buffer, method, request_id);
+    buffer = sdscat(buffer,"[");
+
+    if (mpd_send_list_playlist_meta(mpd_state->conn, uri) == false) {
+        buffer = check_error_and_recover(buffer);
+        return buffer;
+    }
+
     struct mpd_entity *entity;
     unsigned entities_returned = 0;
     unsigned entity_count = 0;
-    const char *entityName;
-    bool smartpls = false;
-    size_t len = 0;
-    struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
-
-    if (mpd_send_list_playlist_meta(mpd_state->conn, uri) == false) {
-        RETURN_ERROR_AND_RECOVER("mpd_send_list_meta");
-    }
-
-    len = json_printf(&out, "{type: playlist_detail, data: [");
-
-    while ((entity = mpd_recv_entity(mpd_state->conn)) != NULL && len < MAX_LIST_SIZE) {
-        const struct mpd_song *song;
+    while ((entity = mpd_recv_entity(mpd_state->conn)) != NULL) {
         entity_count++;
         if (entity_count > offset && entity_count <= offset + mpd_state->max_elements_per_page) {
-            song = mpd_entity_get_song(entity);
-            entityName = mpd_client_get_tag(song, MPD_TAG_TITLE);
+            const struct mpd_song *song = mpd_entity_get_song(entity);
+            const char *entityName = mpd_client_get_tag(song, MPD_TAG_TITLE);
             if (strncmp(filter, "-", 1) == 0 || strncasecmp(filter, entityName, 1) == 0 ||
                (strncmp(filter, "0", 1) == 0 && isalpha(*entityName) == 0))
             {
                 if (entities_returned++) {
-                    len += json_printf(&out, ",");
+                    buffer= sdscat(buffer, ",");
                 }
-                len += json_printf(&out, "{Type: song, ");
-                PUT_SONG_TAG_COLS(tagcols);
-                len += json_printf(&out, ", Pos: %d", entity_count);
-                len += json_printf(&out, "}");
+                buffer = sdscat(buffer, "{\"Type\": \"song\",");
+                buffer = put_song_tags(buffer, mpd_state, tagcols, song);
+                buffer = tojson_long(buffer, "Pos", entity_count);
+                buffer = sdscat(buffer, "}");
             }
             else {
                 entity_count--;
@@ -137,67 +127,66 @@ static int mpd_client_put_playlist_list(t_config *config, t_mpd_state *mpd_state
     }
     mpd_response_finish(mpd_state->conn);
     
+    bool smartpls = false;
     if (validate_string(uri) == true) {
         size_t smartpls_file_len = config->varlibdir_len + strlen(uri) + 11;
         char smartpls_file[smartpls_file_len];
-        snprintf(smartpls_file, smartpls_file_len, "%s/smartpls/%s", config->varlibdir, uri);
+        sds smartpls_file = sdscatprintf(sdsempty(), "%s/smartpls/%s", config->varlibdir, uri);
         if (access(smartpls_file, F_OK ) != -1) {
             smartpls = true;
         }
     }
-    len += json_printf(&out, "], totalEntities: %d, offset: %d, returnedEntities: %d, filter: %Q, uri: %Q, smartpls: %B}",
-        entity_count,
-        offset,
-        entities_returned,
-        filter,
-        uri,
-        smartpls
-    );
 
-    CHECK_RETURN_LEN();
+    buffer = sdscatprintf(buffer, "],\"totalEntities\":%d,\"returnedEntities\":%d,", entity_count, entities_returned);
+    buffer = tojson_long(buffer, "offset", offset, true);
+    buffer = tojson_char(buffer, "filter", filter, true);
+    buffer = tojson_char(buffer, "uri", uri, true);
+    buffer = tojson_bool(buffer, "smartpls", smartpls, false);
+    buffer = jsonrpc_end_result(buffer);
+    
+    return buffer;
 }
 
-static int mpd_client_rename_playlist(t_config *config, t_mpd_state *mpd_state, char *buffer, const char *old_playlist, const char *new_playlist) {
-    struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
-    size_t old_pl_file_len = config->varlibdir_len + strlen(old_playlist) + 11;
-    char old_pl_file[old_pl_file_len];
-    size_t new_pl_file_len = config->varlibdir_len + strlen(new_playlist) + 11;
-    char new_pl_file[new_pl_file_len];
-    size_t len = 0;
-
+sds mpd_client_playlist_rename(t_config *config, t_mpd_state *mpd_state, sds buffer, sds method, int request_id,
+                                const char *old_playlist, const char *new_playlist)
+{
     if (validate_string(old_playlist) == false || validate_string(new_playlist) == false) {
-        len = json_printf(&out, "{type: error, data: %Q}", "Invalid filename");
-        return len;
+        buffer = jsonrpc_respond_message(buffer, method, request_id, "Invalid filename", true);
+        return buffer;
     }
 
-    snprintf(old_pl_file, old_pl_file_len, "%s/smartpls/%s", config->varlibdir, old_playlist);
-    snprintf(new_pl_file, new_pl_file_len, "%s/smartpls/%s", config->varlibdir, new_playlist);
+    sds old_pl_file = sdscatprintf(sdsempty(), "%s/smartpls/%s", config->varlibdir, old_playlist);
+    sds new_pl_file = sdscatprintf(sdsempty(), "%s/smartpls/%s", config->varlibdir, new_playlist);
 
     if (access(old_pl_file, F_OK ) != -1) {
         //smart playlist
         if (access(new_pl_file, F_OK ) == -1) {
             //new playlist doesn't exist
             if (rename(old_pl_file, new_pl_file) == -1) {
-                len = json_printf(&out, "{type: error, data: %Q}", "Renaming playlist failed");
                 LOG_ERROR("Renaming smart playlist %s to %s failed", old_pl_file, new_pl_file);
-                return len;
+                buffer = jsonrpc_respond_message(buffer, method, request_id, "Renaming playlist failed", true);
+                sds_free(old_pl_file);
+                sds_free(new_pl_file);
+                return buffer;
             }
         } 
     }
-
+    sds_free(old_pl_file);
+    sds_free(new_pl_file);
+    //rename mpd playlist
     if (mpd_run_rename(mpd_state->conn, old_playlist, new_playlist)) {
-        len = json_printf(&out, "{type: result, data: %Q}", "Sucessfully renamed playlist");
+        buffer = jsonrpc_respond_message(buffer, method, request_id, "Sucessfully renamed playlist", false);
     }
-    else {
-        RETURN_ERROR_AND_RECOVER("mpd_run_rename");
+    else { 
+        buffer = check_error_and_recover(buffer, method, request_id);
     }
-
-    CHECK_RETURN_LEN();
+    return buffer;
 }
 
-sds mpd_client_playlist_delete(t_config *config, t_mpd_state *mpd_state, sds buffer, const char *playlist) {
+sds mpd_client_playlist_delete(t_config *config, t_mpd_state *mpd_state, sds buffer, sds method, int request_id,
+                               const char *playlist) {
     if (validate_string(playlist) == false) {
-        buffer = sdscat(buffer, "{\"type\": \"error\", \"data\": \"Invalid filename\"}");
+        buffer = jsonrpc_respond_message(buffer, method, request_id, "Invalid filename", true);
         return buffer;
     }
     //remove smart playlist    
@@ -205,17 +194,16 @@ sds mpd_client_playlist_delete(t_config *config, t_mpd_state *mpd_state, sds buf
     int rc = unlink(pl_file);
     sds_free(pl_file);
     if (rc == -1 && errno != ENOENT) {
-        buffer = sdscat(buffer, "{\"type\": \"error\", \"data\": \"Deleting smart playlist failed\"}");
+        buffer = jsonrpc_respond_message(buffer, method, request_id, "Deleting smart playlist failed", true);
         LOG_ERROR("Deleting smart playlist \"%s\" failed", playlist);
         return buffer;
     }
     //remove mpd playlist
     if (mpd_run_rm(mpd_state->conn, playlist)) {
-        buffer = sdscat(buffer, "{\"type\": \"result\", \"data\": \"ok\"}");
+        buffer = jsonrpc_respond_ok(buffer, method, request_id);
     }
     else {
-        buffer = sdscat(buffer, "{\"type\": \"error\", \"data\": \"Deleting playlist failed\"}");
-        LOG_ERROR_AND_RECOVER("mpd_run_rm");
+        buffer = check_error_and_recover(buffer, method, request_id);
     }
     return buffer;
 }

@@ -34,8 +34,8 @@
 #include "../list.h"
 #include "../config_defs.h"
 #include "../tiny_queue.h"
-#include "mpd_client_utils.h"
-#include "browse.h"
+#include "mpd_client_utility.h"
+#include "mpd_client_browse.h"
 
 sds mpd_client_put_fingerprint(t_mpd_state *mpd_state, sds buffer, sds method, int request_id,
                                const char *uri)
@@ -213,7 +213,7 @@ sds mpd_client_put_filesystem(t_config *config, t_mpd_state *mpd_state, sds buff
 
     mpd_response_finish(mpd_state->conn);
 
-    buffer= sdscatprintf(data, "],\"totalEntities\":%d,\"offset\":%d,\"returnedEntities\":%d,", entity_count, offset, entities_returned);
+    buffer = sdscatprintf(buffer, "],\"totalEntities\":%d,\"offset\":%d,\"returnedEntities\":%d,", entity_count, offset, entities_returned);
     buffer = tojson_char(buffer, "filter", filter, false);
     buffer = jsonrpc_end_result(buffer);
     return buffer;
@@ -267,7 +267,7 @@ sds mpd_client_put_db_tag(t_mpd_state *mpd_state, sds buffer, sds method, int re
         mpd_return_pair(mpd_state->conn, pair);
     }
 
-    buffer= sdscatprintf(data, "],\"totalEntities\":%d,\"offset\":%d,\"returnedEntities\":%d,", entity_count, offset, entities_returned);
+    buffer = sdscatprintf(buffer, "],\"totalEntities\":%d,\"offset\":%d,\"returnedEntities\":%d,", entity_count, offset, entities_returned);
     buffer = tojson_char(buffer, "filter", filter, true);
     buffer = tojson_char(buffer, "searchstr", searchstr, true);
     buffer = tojson_char(buffer, "searchtagtype", mpdsearchtagtype, true);
@@ -332,7 +332,7 @@ sds mpd_client_put_songs_in_album(t_config *config, t_mpd_state *mpd_state, sds 
         cover = sdscat(cover, "/assets/coverimage-notavailable.svg");
     }
 
-    buffer= sdscatprintf(data, "],\"totalEntities\":%d,\"returnedEntities\":%d,", entity_count, entities_returned);
+    buffer = sdscatprintf(buffer, "],\"totalEntities\":%d,\"returnedEntities\":%d,", entity_count, entities_returned);
     buffer = tojson_char(buffer, "Album", album, true);
     buffer = tojson_char(buffer, "search", search, true);
     buffer = tojson_char(buffer, "tag", tag, true);

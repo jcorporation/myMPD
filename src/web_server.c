@@ -61,7 +61,7 @@
 
 #ifndef DEBUG
 //embedded files for release build
-#include "embedded_files.c"
+#include "web_server_embedded_files.c"
 #endif
 
 //private definitions

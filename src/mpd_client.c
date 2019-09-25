@@ -37,12 +37,12 @@
 #include "api.h"
 #include "global.h"
 #include "mpd_client/mpd_client_api.h"
-#include "mpd_client/jukebox.h"
-#include "mpd_client/mpd_client_utils.h"
-#include "mpd_client/playlists.h"
-#include "mpd_client/stats.h"
+#include "mpd_client/mpd_client_jukebox.h"
+#include "mpd_client/mpd_client_utility.h"
+#include "mpd_client/mpd_client_playlists.h"
+#include "mpd_client/mpd_client_stats.h"
+#include "mpd_client/mpd_client_features.h"
 #include "mpd_client.h"
-#include "../dist/src/frozen/frozen.h"
 
 //private definitions
 static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state);

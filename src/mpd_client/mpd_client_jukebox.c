@@ -31,8 +31,8 @@
 #include "../log.h"
 #include "../list.h"
 #include "../config_defs.h"
-#include "mpd_client_utils.h"
-#include "jukebox.h"
+#include "mpd_client_utility.h"
+#include "mpd_client_jukebox.h"
 
 bool mpd_client_jukebox(t_mpd_state *mpd_state) {
     int addSongs;

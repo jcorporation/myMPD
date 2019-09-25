@@ -31,7 +31,7 @@
 #include "../log.h"
 #include "../list.h"
 #include "../config_defs.h"
-#include "mpd_client_utils.h"
+#include "mpd_client_utility.h"
 #include "state.h"
 #include "features.h"
 

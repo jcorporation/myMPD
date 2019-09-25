@@ -23,20 +23,16 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <unistd.h>
 #include <stdlib.h>
-#include <libgen.h>
 #include <pthread.h>
 #include <mpd/client.h>
-#include <inttypes.h>
 
-#include "../dist/src/sds/sds.h"
-#include "utility.h"
-#include "log.h"
-#include "config_defs.h"
-#include "queue.h"
+#include "../../dist/src/sds/sds.h"
+#include "../utility.h"
+#include "../log.h"
+#include "../config_defs.h"
+#include "mpd_client_queue.h"
 #include "../dist/src/frozen/frozen.h"
-#include "../dist/src/sds/sds.h"
 
 int mpd_client_get_queue_state(t_mpd_state *mpd_state, char *buffer) {
     int len = 0;

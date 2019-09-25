@@ -34,17 +34,17 @@
 #include "../list.h"
 #include "../config_defs.h"
 #include "../tiny_queue.h"
-#include "mpd_client_utils.h"
-#include "browse.h"
-#include "cover.h" 
-#include "features.h"
-#include "jukebox.h"
-#include "playlists.h"
-#include "queue.h"
-#include "search.h"
-#include "state.h"
-#include "stats.h"
-#include "mpd_settings.h"
+#include "mpd_client_utility.h"
+#include "mpd_client_browse.h"
+#include "mpd_client_cover.h" 
+#include "mpd_client_features.h"
+#include "mpd_client_jukebox.h"
+#include "mpd_client_playlists.h"
+#include "mpd_client_queue.h"
+#include "mpd_client_search.h"
+#include "mpd_client_state.h"
+#include "mpd_client_stats.h"
+#include "mpd_client_mpd_settings.h"
 #include "mpd_client_api.h"
 #include "../dist/src/frozen/frozen.h"
 
@@ -387,15 +387,20 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
         case MPD_API_PLAYLIST_RENAME:
             je = json_scanf(request->data, sdslen(request->data), "{data: {from: %Q, to: %Q}}", &p_charbuf1, &p_charbuf2);
             if (je == 2) {
-                data = mpd_client_rename_playlist(config, mpd_state, data, p_charbuf1, p_charbuf2);
+                data = mpd_client_playlist_rename(config, mpd_state, data, request->method, request->id, p_charbuf1, p_charbuf2);
                 FREE_PTR(p_charbuf1);
                 FREE_PTR(p_charbuf2);
+                    data = jsonrpc_respond_message(data, request_id, "Renaming playlist failed", true);
+                }
+                else {
+                    data = jsonrpc_respond_message(data, request_id, "Sucessfully renamed playlist", false);
+                }
             }
             break;            
         case MPD_API_PLAYLIST_LIST:
             je = json_scanf(request->data, sdslen(request->data), "{data: {offset: %u, filter: %Q}}", &uint_buf1, &p_charbuf1);
             if (je == 2) {
-                data = mpd_client_put_playlists(config, mpd_state, data, uint_buf1, p_charbuf1);
+                data = mpd_client_put_playlists(config, mpd_state, data, request->method, request->id, uint_buf1, p_charbuf1);
                 FREE_PTR(p_charbuf1);
             }
             break;
@@ -405,7 +410,7 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
             je = json_scanf(request->data, sdslen(request->data), "{data: {uri: %Q, offset:%u, filter:%Q, cols: %M}}", 
                 &p_charbuf1, &uint_buf1, &p_charbuf2, json_to_tags, tagcols);
             if (je == 4) {
-                data = mpd_client_put_playlist_list(config, mpd_state, data, p_charbuf1, uint_buf1, p_charbuf2, tagcols);
+                data = mpd_client_put_playlist_list(config, mpd_state, data, request->method, request->id, p_charbuf1, uint_buf1, p_charbuf2, tagcols);
                 FREE_PTR(p_charbuf1);
                 FREE_PTR(p_charbuf2);
             }
@@ -596,7 +601,7 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
         case MPD_API_PLAYLIST_RM:
             je = json_scanf(request->data, sdslen(request->data), "{data: {uri:%Q}}", &p_charbuf1);
             if (je == 1) {
-                data = mpd_client_playlist_delete(config, mpd_state, data, p_charbuf1)
+                data = mpd_client_playlist_delete(config, mpd_state, data, request->method, request->id, p_charbuf1)
                 FREE_PTR(p_charbuf1);
             }
             break;

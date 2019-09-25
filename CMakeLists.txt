@@ -113,12 +113,13 @@ set(SOURCES
     src/handle_options.c
     src/utility.c
     src/api.c
-    src/mpd_client/cover.c
-    src/mpd_client/browse.c
-    src/mpd_client/features.c
-    src/mpd_client/jukebox.c
-    src/mpd_client/mpd_client_utils.c
+    src/mpd_client/mpd_client_cover.c
+    src/mpd_client/mpd_client_browse.c
+    src/mpd_client/mpd_client_features.c
+    src/mpd_client/mpd_client_jukebox.c
+    src/mpd_client/mpd_client_utility.c
     src/mpd_client/mpd_client_api.c
+    src/mpd_client/mpd_client_playlists.c
     dist/src/mongoose/mongoose.c
     dist/src/frozen/frozen.c
     dist/src/inih/ini.c
