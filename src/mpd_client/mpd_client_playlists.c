@@ -208,7 +208,7 @@ sds mpd_client_playlist_delete(t_config *config, t_mpd_state *mpd_state, sds buf
     return buffer;
 }
 
-sds mpd_client_smartpls_put(t_config *config, sds buffer, , sds method, int request_id,
+sds mpd_client_smartpls_put(t_config *config, sds buffer, sds method, int request_id,
                             const char *playlist)
 {
     if (validate_string(playlist) == false) {

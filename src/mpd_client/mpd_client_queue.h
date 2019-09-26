@@ -23,9 +23,11 @@
 
 #ifndef __QUEUE_H__
 #define __QUEUE_H__
-int mpd_client_get_queue_state(t_mpd_state *mpd_state, char *buffer);
-int mpd_client_put_queue_state(struct mpd_status *status, char *buffer);
-int mpd_client_put_queue(t_mpd_state *mpd_state, char *buffer, const unsigned int offset, const t_tags *tagcols);
-int mpd_client_search_queue(t_mpd_state *mpd_state, char *buffer, const char *mpdtagtype, const unsigned int offset, const char *searchstr, const t_tags *tagcols);
-int mpd_client_queue_crop(t_mpd_state *mpd_state, char *buffer);
+sds mpd_client_get_queue_state(t_mpd_state *mpd_state, sds buffer);
+sds mpd_client_put_queue_state(struct mpd_status *status, sds buffer);
+sds mpd_client_put_queue(t_mpd_state *mpd_state, sds buffer, sds method, int request_id,
+                         const unsigned int offset, const t_tags *tagcols);
+sds mpd_client_crop_queue(t_mpd_state *mpd_state, sds buffer, sds method, int request_id);
+sds mpd_client_search_queue(t_mpd_state *mpd_state, sds buffer, sds method, int request_id,
+                            const char *mpdtagtype, const unsigned int offset, const char *searchstr, const t_tags *tagcols)
 #endif

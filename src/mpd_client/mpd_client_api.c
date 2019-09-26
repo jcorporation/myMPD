@@ -229,7 +229,7 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
             data = respond_with_mpd_error_or_ok(data, request->method, request->id);
             break;
         case MPD_API_QUEUE_CROP:
-            data = mpd_client_queue_crop(mpd_state, data);
+            data = mpd_client_crop_queue(mpd_state, data, request->method, request->id);
             break;
         case MPD_API_QUEUE_RM_TRACK:
             je = json_scanf(request->data, sdslen(request->data), "{data: {track:%u}}", &uint_buf1);
@@ -314,7 +314,7 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
             assert(tagcols);
             je = json_scanf(request->data, sdslen(request->data), "{data: {offset: %u, cols: %M}}", &uint_buf1, json_to_tags, tagcols);
             if (je == 2) {
-                data = mpd_client_put_queue(mpd_state, data, uint_buf1, tagcols);
+                data = mpd_client_put_queue(mpd_state, data, request->method, request->id, uint_buf1, tagcols);
             }
             free(tagcols);
             break;
@@ -555,7 +555,7 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
             je = json_scanf(request->data, sdslen(request->data), "{data: {offset:%u, filter:%Q, searchstr:%Q, cols: %M}}", 
                 &uint_buf1, &p_charbuf1, &p_charbuf2, json_to_tags, tagcols);
             if (je == 4) {
-                data = mpd_client_search_queue(mpd_state, data, p_charbuf1, uint_buf1, p_charbuf2, tagcols);
+                data = mpd_client_search_queue(mpd_state, data, request->method, request->id, p_charbuf1, uint_buf1, p_charbuf2, tagcols);
                 FREE_PTR(p_charbuf1);
                 FREE_PTR(p_charbuf2);
             }

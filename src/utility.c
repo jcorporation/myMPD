@@ -35,20 +35,35 @@
 #include "log.h"
 #include "utility.h"
 
+sds jsonrpc_start_notify(sds buffer, const char *method) {
+    buffer = sdscatprintf(sdsempty(), "{\"jsonrpc\":\"2.0\",");
+    buffer = sdscatrepr(buffer, method, strlen(method));
+    buffer = sdscat(buffer, ",params:{");
+    return buffer;
+}
+
+sds jsonrpc_end_notify(sds buffer) {
+    buffer = sdscatprintf(buffer, "}}");
+    return buffer;
+}
+
 sds jsonrpc_start_result(sds buffer, const char *method, int id) {
     buffer = sdscatprintf(sdsempty(), "{\"jsonrpc\":\"2.0\",\"id\":%d,\"result\":{\"method\":", id);
     buffer = sdscatrepr(buffer, method, strlen(method));
     buffer = sdscat(buffer, ",data:");
+    return buffer;
 }
 
 sds jsonrpc_end_result(sds buffer) {
     buffer = sdscatprintf(buffer, "}}");
+    return buffer;
 }
 
 sds jsonrpc_respond_ok(sds buffer, const char *method, int id) {
     buffer = sdscatprintf(sdsempty(), "{\"jsonrpc\":\"2.0\",\"id\":%d,\"result\":{\"method\":", id);
     buffer = sdscatrepr(buffer, method, strlen(method));
     buffer = sdscat(buffer, ",\"data\":\"ok\"}}");
+    return buffer;
 }
 
 sds jsonrpc_respond_message(sds buffer, const char *method, int id, const char *message, bool error) {
@@ -58,6 +73,7 @@ sds jsonrpc_respond_message(sds buffer, const char *method, int id, const char *
     buffer = sdscat(buffer, ",\"data\":");
     buffer = sdscatrepr(buffer, message, strlen(message));
     buffer = sdscatprintf(buffer, "}}");
+    return buffer;
 }
 
 sds jsonrpc_start_phrase(sds buffer, const char *method, int id, const char *message, bool error) {
@@ -67,10 +83,12 @@ sds jsonrpc_start_phrase(sds buffer, const char *method, int id, const char *mes
     buffer = sdscat(buffer, ",\"data\":");
     buffer = sdscatrepr(buffer, message, strlen(message));
     buffer = sdscat(buffer, ",\"values\":{");
+    return buffer;
 }
 
 sds jsonrpc_end_phrase(sds buffer, int id, const char *error) {
     buffer = sdscat(buffer, "}}}");
+    return buffer;
 }
 
 sds tojson_char(sds buffer, const char *key, const char *value, bool comma) {
