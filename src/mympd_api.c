@@ -382,10 +382,9 @@ static bool mympd_api_connection_save(t_config *config, t_mympd_state *mympd_sta
         settingname = sdscat(sdsempty(), "music_directory");
     }
     else {
-        LOG_ERROR("Setting with name \"%s\" not supported", settingname);
         sds_free(settingname);
         sds_free(settingvalue);
-        return false;    
+        return true;
     }
 
     bool rc = state_file_write(config, settingname, settingvalue);
@@ -592,10 +591,9 @@ static bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state,
         settingname = sdscat(sdsempty(), "love_message");
     }
     else {
-        LOG_ERROR("Setting with name \"%s\" not supported", settingname);
         sds_free(settingname);
         sds_free(settingvalue);
-        return false;
+        return true;
     }
     bool rc = state_file_write(config, settingname, settingvalue);
     sds_free(settingname);

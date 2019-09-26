@@ -200,7 +200,7 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
         case MPD_API_SMARTPLS_GET:
             je = json_scanf(request->data, sdslen(request->data), "{data: {playlist: %Q}}", &p_charbuf1);
             if (je == 1) {
-                data = mpd_client_smartpls_put(config, data, p_charbuf1);
+                data = mpd_client_smartpls_put(config, data, request->method, request->id, p_charbuf1);
                 FREE_PTR(p_charbuf1);
             }
             break;

@@ -178,9 +178,8 @@ bool mpd_api_settings_set(t_config *config, t_mpd_state *mpd_state, struct json_
         rc = mpd_send_command(mpd_state->conn, "replay_gain_mode", settingvalue, NULL));
     }    
     else {
-        LOG_ERROR("Setting with name \"%s\" not supported", settingname);
         sds_free(settingvalue);
-        return false;
+        return true;
     }
 
     sds_free(settingvalue);

@@ -31,10 +31,11 @@ sds mpd_client_playlist_delete(t_config *config, t_mpd_state *mpd_state, sds buf
                                const char *playlist);
 sds mpd_client_playlist_rename(t_config *config, t_mpd_state *mpd_state, sds buffer, sds method, int request_id,
                                 const char *old_playlist, const char *new_playlist)
-
-int mpd_client_smartpls_put(t_config *config, char *buffer, const char *playlist);
+sds mpd_client_smartpls_put(t_config *config, sds buffer, , sds method, int request_id,
+                            const char *playlist)
 bool mpd_client_smartpls_save(t_config *config, t_mpd_state *mpd_state, const char *smartpltype, 
     const char *playlist, const char *tag, const char *searchstr, const int maxentries, const int timerange);
+
 bool mpd_client_smartpls_update_all(t_config *config, t_mpd_state *mpd_state);
 bool mpd_client_smartpls_update(t_config *config, t_mpd_state *mpd_state, char *playlist);
 bool mpd_client_smartpls_clear(t_mpd_state *mpd_state, const char *playlist);
