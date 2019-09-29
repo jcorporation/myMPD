@@ -568,7 +568,7 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
             je = json_scanf(request->data, sdslen(request->data), "{data: {searchstr:%Q, filter:%Q, plist:%Q, offset:%u, cols: %M}}", 
                 &p_charbuf1, &p_charbuf2, &p_charbuf3, &uint_buf1, json_to_tags, tagcols);
             if (je == 5) {
-                data = mpd_client_search(mpd_state, data, p_charbuf1, p_charbuf2, p_charbuf3, uint_buf1, tagcols);
+                data = mpd_client_search(mpd_state, data, request->method, request->id, p_charbuf1, p_charbuf2, p_charbuf3, uint_buf1, tagcols);
                 FREE_PTR(p_charbuf1);
                 FREE_PTR(p_charbuf2);
                 FREE_PTR(p_charbuf3);
@@ -582,7 +582,7 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
             je = json_scanf(request->data, sdslen(request->data), "{data: {expression:%Q, sort:%Q, sortdesc:%B, plist:%Q, offset:%u, cols: %M}}", 
                 &p_charbuf1, &p_charbuf2, &bool_buf, &p_charbuf3, &uint_buf1, json_to_tags, tagcols);
             if (je == 6) {
-                data = mpd_client_search_adv(mpd_state, data, p_charbuf1, p_charbuf2, bool_buf, NULL, p_charbuf3, uint_buf1, tagcols);
+                data = mpd_client_search_adv(mpd_state, data, request->method, request->id, p_charbuf1, p_charbuf2, bool_buf, NULL, p_charbuf3, uint_buf1, tagcols);
                 FREE_PTR(p_charbuf1);
                 FREE_PTR(p_charbuf2);
                 FREE_PTR(p_charbuf3);
@@ -606,10 +606,10 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
             }
             break;
         case MPD_API_SETTINGS_GET:
-            data = mpd_client_put_settings(mpd_state, data);
+            data = mpd_client_put_settings(mpd_state, data, request->method, request->id);
             break;
         case MPD_API_DATABASE_STATS:
-            data = mpd_client_put_stats(mpd_state, data);
+            data = mpd_client_put_stats(mpd_state, data, request->method, request->id);
             break;
         default:
             data = jsonrpc_respond_message(data, request->method, request->id, "Unknown request", true);

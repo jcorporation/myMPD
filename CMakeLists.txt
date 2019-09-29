@@ -121,6 +121,8 @@ set(SOURCES
     src/mpd_client/mpd_client_utility.c
     src/mpd_client/mpd_client_playlists.c
     src/mpd_client/mpd_client_queue.c
+    src/mpd_client/mpd_client_search.c
+    src/mpd_client/mpd_client_settings.c
     dist/src/mongoose/mongoose.c
     dist/src/frozen/frozen.c
     dist/src/inih/ini.c
