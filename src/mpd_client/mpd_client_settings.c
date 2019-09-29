@@ -182,10 +182,6 @@ bool mpd_api_settings_set(t_config *config, t_mpd_state *mpd_state, struct json_
     else if (strncmp(key->ptr, "replaygain", key->len) == 0) {
         rc = mpd_send_command(mpd_state->conn, "replay_gain_mode", settingvalue, NULL));
     }    
-    else {
-        sds_free(settingvalue);
-        return true;
-    }
 
     sds_free(settingvalue);
     return rc;
@@ -242,7 +238,7 @@ sds mpd_client_put_settings(t_mpd_state *mpd_state, sds buffer, sds method, int 
     buffer = sdscat(buffer, ",");
     buffer = print_tags_array(buffer, "allmpdtags", mpd_state->mpd_tag_types);
 
-    buffer = sdscat(buffer, "{");
+    buffer = sdscat(buffer, "}");
     buffer = jsonrpc_end_response(buffer);
     
     return buffer;
