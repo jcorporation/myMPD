@@ -32,6 +32,7 @@ sds jsonrpc_end_result(sds buffer);
 sds jsonrpc_respond_ok(sds buffer, const char *method, int id);
 sds jsonrpc_respond_message(sds buffer, const char *method, int id, const char *message, bool error);
 sds jsonrpc_start_phrase(sds buffer, const char *method, int id, const char *message, bool error);
+sds jsonrpc_start_phrase_notify(sds buffer, const char *message, bool error);
 sds jsonrpc_end_phrase(sds buffer, int id, const char *error);
 sds tojson_char(sds buffer, const char *key, const char *value, bool comma);
 sds tojson_bool(sds buffer, const char *key, bool value, bool comma);

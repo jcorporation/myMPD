@@ -21,8 +21,8 @@
    Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#ifndef __MPD_CLIENT_UTILS_H__
-#define __MPD_CLIENT_UTILS_H__
+#ifndef __MPD_CLIENT_UTILITY_H__
+#define __MPD_CLIENT_UTILITY_H__
 enum mpd_conn_states {
     MPD_DISCONNECTED,
     MPD_FAILURE,
@@ -104,9 +104,13 @@ typedef struct t_mpd_state {
 } t_mpd_state;
 
 sds put_song_tags(sds buffer, t_mpd_state *mpd_state, const t_tags *tagcols, const struct mpd_song *song);
-sds log_error_and_recover(sds buffer);
+sds check_error_and_recover(t_mpd_state *mpd_state, sds buffer, sds method, int request_id);
+sds check_error_and_recover_notify(t_mpd_state *mpd_state, sds buffer, sds method);
+sds respond_with_mpd_error_or_ok(t_mpd_state *mpd_state, sds buffer, sds method, int request_id);
 char *mpd_client_get_tag(struct mpd_song const *song, const enum mpd_tag_type tag);
 bool mpd_client_tag_exists(const enum mpd_tag_type tag_types[64], const size_t tag_types_len, const enum mpd_tag_type tag);
 void json_to_tags(const char *str, int len, void *user_data);
 void reset_t_tags(tags);
+void free_mpd_state(t_mpd_state *mpd_state);
+void default_mpd_state(t_mpd_state *mpd_state);
 #endif

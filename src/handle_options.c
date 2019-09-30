@@ -34,7 +34,7 @@
 #include "log.h"
 #include "list.h"
 #include "config_defs.h"
-#include "mympd_api.h"
+#include "mympd_api/mympd_api_settings.h"
 #include "cert.h"
 #include "utility.h"
 #include "handle_options.h"

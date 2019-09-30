@@ -22,7 +22,8 @@
    Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#ifndef __MYMPD_API_H__
-#define __MYMPD_API_H__
-void *mympd_api_loop(void *arg_config);
+#ifndef __MYMPD_API_BOOKMARKS_H
+#define __MYMPD_API_BOOKMARKS_H
+bool mympd_api_bookmark_update(t_config *config, const int id, const char *name, const char *uri, const char *type);
+sds mympd_api_bookmark_list(t_config *config, sds buffer, unsigned int offset);
 #endif

@@ -55,43 +55,7 @@ void *mpd_client_loop(void *arg_config) {
     t_config *config = (t_config *) arg_config;
     //State of mpd connection
     t_mpd_state *mpd_state = (t_mpd_state *)malloc(sizeof(t_mpd_state));
-    mpd_state->conn_state = MPD_DISCONNECTED;
-    mpd_state->reconnect_time = 0;
-    mpd_state->reconnect_intervall = 0;
-    mpd_state->timeout = 10000;
-    mpd_state->state = MPD_STATE_UNKNOWN;
-    mpd_state->song_id = -1;
-    mpd_state->next_song_id = -1;
-    mpd_state->last_song_id = -1;
-    mpd_state->song_uri = NULL;
-    mpd_state->last_song_uri = NULL;
-    mpd_state->queue_version = 0;
-    mpd_state->queue_length = 0;
-    mpd_state->last_last_played_id = -1;
-    mpd_state->song_end_time = 0;
-    mpd_state->song_start_time = 0;
-    mpd_state->last_song_end_time = 0;
-    mpd_state->last_song_start_time = 0;
-    mpd_state->last_skipped_id = 0;
-    mpd_state->crossfade = 0;
-    mpd_state->set_song_played_time = 0;
-    mpd_state->music_directory = NULL;
-    mpd_state->music_directory_value = NULL;
-    mpd_state->jukebox_playlist = NULL;
-    mpd_state->song_uri = NULL;
-    mpd_state->last_song_uri = NULL;
-    mpd_state->coverimage_name = NULL;
-    mpd_state->love_channel = NULL;
-    mpd_state->love_message = NULL;
-    mpd_state->taglist = NULL;
-    mpd_state->searchtaglist = NULL;
-    mpd_state->browsetaglist = NULL;
-    mpd_state->mpd_host = NULL;
-    mpd_state->mpd_pass = NULL;
-    reset_t_tags(mpd_state->mpd_tag_types);
-    reset_t_tags(mpd_state->mympd_tag_types);
-    reset_t_tags(mpd_state->search_tag_types);
-    reset_t_tags(mpd_state->browse_tag_types);
+    default_mpd_state(mpd_state);
 
     //wait for initial settings
     while (s_signal_received == 0) {
@@ -108,7 +72,7 @@ void *mpd_client_loop(void *arg_config) {
                     t_work_result *response = (t_work_result*)malloc(sizeof(t_work_result));
                     assert(response);
                     response->conn_id = request->conn_id;
-                    response->data = sdscat(sdsempty(), "{\"type\": \"error\", \"data\": \"MPD disconnected\"}");
+                    response->data = jsonrpc_respond_message(sdsempty(), request->method, request->id, "MPD disconnected", true);
                     LOG_DEBUG("Send http response to connection %lu: %s", request->conn_id, response->data);
                     tiny_queue_push(web_server_queue, response);
                 }
@@ -129,21 +93,7 @@ void *mpd_client_loop(void *arg_config) {
     //Cleanup
     mpd_client_disconnect(mpd_state);
     mpd_client_last_played_list_save(config, mpd_state);
-    FREE_PTR(mpd_state->music_directory);
-    FREE_PTR(mpd_state->music_directory_value);
-    FREE_PTR(mpd_state->jukebox_playlist);
-    FREE_PTR(mpd_state->song_uri);
-    FREE_PTR(mpd_state->last_song_uri);
-    FREE_PTR(mpd_state->coverimage_name);
-    FREE_PTR(mpd_state->love_channel);
-    FREE_PTR(mpd_state->love_message);
-    FREE_PTR(mpd_state->taglist);
-    FREE_PTR(mpd_state->searchtaglist);
-    FREE_PTR(mpd_state->browsetaglist);
-    FREE_PTR(mpd_state->mpd_host);
-    FREE_PTR(mpd_state->mpd_pass);
-    free(mpd_state);
-    mpd_state = NULL;
+    free_mpd_state(mpd_state);
     return NULL;
 }
 
@@ -169,11 +119,11 @@ static void mpd_client_parse_idle(t_config *config, t_mpd_state *mpd_state, int 
             sds buffer = sdsempty();
             switch(idle_event) {
                 case MPD_IDLE_DATABASE:
-                    buffer = sdscat(buffer, "{\"type\": \"update_database\"}");
+                    buffer = jsonrpc_respond_message_notify(buffer, "update_database", false);
                     mpd_client_smartpls_update_all(config, mpd_state);
                     break;
                 case MPD_IDLE_STORED_PLAYLIST:
-                    buffer = sdscat(buffer, "{\"type\": \"update_stored_playlist\"}");
+                    buffer = jsonrpc_respond_message_notify(buffer, "update_stored_playlist", false);
                     break;
                 case MPD_IDLE_QUEUE:
                     buffer = mpd_client_get_queue_state(mpd_state, buffer);
@@ -186,14 +136,14 @@ static void mpd_client_parse_idle(t_config *config, t_mpd_state *mpd_state, int 
                         if (mpd_state->state != MPD_STATE_PLAY) {
                             LOG_VERBOSE("AutoPlay enabled, start playing");
                             if (!mpd_run_play(mpd_state->conn)) {
-                                LOG_ERROR_AND_RECOVER("mpd_run_play");
+                                check_error_and_recover(mpd_state, NULL, NULL, 0);
                             }
                         }
                     }
                     break;
                 case MPD_IDLE_PLAYER:
                     //get and put mpd state                
-                    buffer = mpd_client_get_state(mpd_state, buffer);
+                    buffer = mpd_client_put_state(mpd_state, buffer, NULL, 0);
                     //song has changed
                     if (mpd_state->song_id != mpd_state->last_song_id && mpd_state->last_skipped_id != mpd_state->last_song_id  && mpd_state->last_song_uri != NULL) {
                         time_t now = time(NULL);
@@ -210,14 +160,14 @@ static void mpd_client_parse_idle(t_config *config, t_mpd_state *mpd_state, int 
                     }
                     break;
                 case MPD_IDLE_MIXER:
-                    buffer = mpd_client_put_volume(mpd_state, buffer);
+                    buffer = mpd_client_put_volume(mpd_state, buffer, NULL, 0);
                     break;
                 case MPD_IDLE_OUTPUT:
-                    buffer = sdscat(buffer, "{\"type\": \"update_outputs\"}");
+                    buffer = jsonrpc_respond_message_notify(buffer, "update_outputs", false);
                     break;
                 case MPD_IDLE_OPTIONS:
                     mpd_client_get_queue_state(mpd_state, NULL);
-                    buffer = sdscat(buffer, "{\"type\": \"update_options\"}");
+                    buffer = jsonrpc_respond_message_notify(buffer, "update_options", false);
                     break;
                 case MPD_IDLE_UPDATE:
                     buffer = mpd_client_get_updatedb_state(mpd_state, buffer);
@@ -227,7 +177,7 @@ static void mpd_client_parse_idle(t_config *config, t_mpd_state *mpd_state, int 
                         bool old_love = mpd_state->feat_love;
                         mpd_client_feature_love(mpd_state);
                         if (old_love != mpd_state->feat_love) {
-                            buffer = sdscat(buffer, "{\"type\": \"update_options\"}");
+                            buffer = jsonrpc_respond_message_notify(buffer, "update_options", false);
                         }
                     }
                     break;
@@ -269,7 +219,7 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
                         t_work_result *response = (t_work_result*)malloc(sizeof(t_work_result));
                         assert(response);
                         response->conn_id = request->conn_id;
-                        response->data = sdsnew("{\"type\": \"error\", \"data\": \"MPD disconnected.\"}");
+                        response->data = jsonrpc_respond_message(sdsempty(), request->method, request->id, "MPD disconnected", true);
                         LOG_DEBUG("Send http response to connection %lu: %s", request->conn_id, response->data);
                         tiny_queue_push(web_server_queue, response);
                     }
@@ -281,15 +231,15 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
         case MPD_DISCONNECTED:
             /* Try to connect */
             if (strncmp(mpd_state->mpd_host, "/", 1) == 0) {
-                LOG_INFO("MPD Connecting to socket %s", mpd_state->mpd_host);
+                LOG_INFO("MPD connecting to socket %s", mpd_state->mpd_host);
             }
             else {
-                LOG_INFO("MPD Connecting to %s:%d", mpd_state->mpd_host, mpd_state->mpd_port);
+                LOG_INFO("MPD connecting to %s:%d", mpd_state->mpd_host, mpd_state->mpd_port);
             }
             mpd_state->conn = mpd_connection_new(mpd_state->mpd_host, mpd_state->mpd_port, mpd_state->timeout);
             if (mpd_state->conn == NULL) {
-                LOG_ERROR("MPD connection failed.");
-                buffer = sdscat(sdsempty(), "{\"type\": \"mpd_disconnected\"}");
+                LOG_ERROR("MPD connection to failed: out-of-memory");
+                buffer = jsonrpc_respond_message_notify(sdsempty(), "mpd_disconnected", true);
                 mpd_client_notify(buffer);
                 mpd_state->conn_state = MPD_FAILURE;
                 mpd_connection_free(mpd_state->conn);
@@ -298,7 +248,9 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
 
             if (mpd_connection_get_error(mpd_state->conn) != MPD_ERROR_SUCCESS) {
                 LOG_ERROR("MPD connection: %s", mpd_connection_get_error_message(mpd_state->conn));
-                buffer = sdscatprintf(sdsempty(), "{\"type\": \"error\", \"data\": \"MPD connection error: %%{error}\", \"values\": {\"error\": \"%s\"}}", mpd_connection_get_error_message(mpd_state->conn));
+                buffer = jsonrpc_start_phrase_notify(buffer, "MPD connection error: %{error}", true);
+                buffer = tojson_char(buffer, "error", mpd_connection_get_error_message(mpd_state->conn));
+                buffer = jsonrpc_end_phrase(buffer);
                 mpd_client_notify(buffer);
                 mpd_state->conn_state = MPD_FAILURE;
                 return;
@@ -306,7 +258,9 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
 
             if (strlen(mpd_state->mpd_pass) > 0 && !mpd_run_password(mpd_state->conn, mpd_state->mpd_pass)) {
                 LOG_ERROR("MPD connection: %s", mpd_connection_get_error_message(mpd_state->conn));
-                buffer = sdscatprintf(sdsempty(), "{\"type\": \"error\", \"data\": \"MPD connection error: %%{error}\", \"values\": {\"error\": \"%s\"}}", mpd_connection_get_error_message(mpd_state->conn));
+                buffer = jsonrpc_start_phrase_notify(buffer, "MPD connection error: %{error}", true);
+                buffer = tojson_char(buffer, "error", mpd_connection_get_error_message(mpd_state->conn));
+                buffer = jsonrpc_end_phrase(buffer);
                 mpd_client_notify(buffer);
                 mpd_state->conn_state = MPD_FAILURE;
                 return;
@@ -314,7 +268,7 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
 
             LOG_INFO("MPD connected");
             mpd_connection_set_timeout(mpd_state->conn, mpd_state->timeout);
-            buffer = sdscat(sdsempty(), "{\"type\": \"mpd_connected\"}");
+            buffer = jsonrpc_respond_message_notify(sdsempty(), "mpd_connected", false);
             mpd_client_notify(buffer);
             mpd_state->conn_state = MPD_CONNECTED;
             mpd_state->reconnect_intervall = 0;
@@ -332,7 +286,7 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
 
         case MPD_FAILURE:
             LOG_ERROR("MPD connection failed");
-            buffer = sdscat(sdsempty(), "{\"type\": \"mpd_disconnected\"}");
+            buffer = jsonrpc_respond_message_notify(sdsempty(), "mpd_disconnected", true);
             mpd_client_notify(buffer);
             // fall through
         case MPD_DISCONNECT:
@@ -369,7 +323,7 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
             if (pollrc > 0 || mpd_client_queue_length > 0 || jukebox_add_song == true || set_played == true) {
                 LOG_DEBUG("Leaving mpd idle mode");
                 if (!mpd_send_noidle(mpd_state->conn)) {
-                    LOG_ERROR("Leaving idle mode failed");
+                    check_error_and_recover(mpd_state, NULL, NULL, 0);
                     mpd_state->conn_state = MPD_FAILURE;
                     break;
                 }
@@ -405,7 +359,7 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
                 }
                 LOG_DEBUG("Entering mpd idle mode");
                 if (!mpd_send_idle_mask(mpd_state->conn, set_idle_mask)) {
-                    LOG_ERROR("Entering idle mode failed");
+                    check_error_and_recover(mpd_state, NULL, NULL, 0);
                     mpd_state->conn_state = MPD_FAILURE;
                 }
             }

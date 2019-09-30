@@ -80,7 +80,7 @@ void mpd_client_mpd_features(t_mpd_state *mpd_state) {
         mpd_response_finish(mpd_state->conn);
     }
     else {
-        check_error_and_recover(NULL, NULL, 0);
+        check_error_and_recover(mpd_state, NULL, NULL, 0);
     }
     if (mpd_state->feat_sticker == false && mpd_state->stickers == true) {
         LOG_WARN("MPD don't support stickers, disabling myMPD feature");
@@ -142,7 +142,7 @@ static void mpd_client_feature_tags(t_mpd_state *mpd_state) {
         mpd_response_finish(mpd_state->conn);
     }
     else {
-        check_error_and_recover(NULL, NULL, 0);
+        check_error_and_recover(mpd_state, NULL, NULL, 0);
     }
 
     if (mpd_state->mpd_tag_types_len == 0) {
@@ -185,7 +185,7 @@ static void mpd_client_feature_tags(t_mpd_state *mpd_state) {
                     mpd_response_finish(mpd_state->conn);
                 }
             }
-            check_error_and_recover(NULL);
+            check_error_and_recover(mpd_state, NULL, NULL, 0);
         }
         #endif
         logline = sdscat(sdsempty(), "myMPD enabled searchtags: ");
@@ -278,7 +278,7 @@ static void mpd_client_feature_music_directory(t_mpd_state *mpd_state) {
             mpd_response_finish(mpd_state->conn);
         }
         else {
-            check_error_and_recover(NULL, NULL, 0);
+            check_error_and_recover(mpd_state, NULL, NULL, 0);
         }
     }
     else if (strncmp(mpd_state->music_directory, "/", 1) == 0) {

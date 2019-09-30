@@ -36,7 +36,7 @@
 #include "utility.h"
 
 sds jsonrpc_start_notify(sds buffer, const char *method) {
-    buffer = sdscatprintf(sdsempty(), "{\"jsonrpc\":\"2.0\",");
+    buffer = sdscatprintf(sdsempty(), "{\"jsonrpc\":\"2.0\",\"method\":");
     buffer = sdscatrepr(buffer, method, strlen(method));
     buffer = sdscat(buffer, ",params:{");
     return buffer;
@@ -76,6 +76,15 @@ sds jsonrpc_respond_message(sds buffer, const char *method, int id, const char *
     return buffer;
 }
 
+sds jsonrpc_respond_message_notify(sds buffer, const char *message, bool error) {
+    buffer = sdscatprintf(sdsempty(), "{\"jsonrpc\":\"2.0\",\"%s\":{", 
+        id, (error == true ? "error" : "result"));
+    buffer = sdscat(buffer, "\"data\":");
+    buffer = sdscatrepr(buffer, message, strlen(message));
+    buffer = sdscatprintf(buffer, "}}");
+    return buffer;
+}
+
 sds jsonrpc_start_phrase(sds buffer, const char *method, int id, const char *message, bool error) {
     buffer = sdscatprintf(sdsempty(), "{\"jsonrpc\":\"2.0\",\"id\":%d,\"%s\":{\"method\":", 
         id, (error == true ? "error" : "result"));
@@ -88,6 +97,15 @@ sds jsonrpc_start_phrase(sds buffer, const char *method, int id, const char *mes
 
 sds jsonrpc_end_phrase(sds buffer, int id, const char *error) {
     buffer = sdscat(buffer, "}}}");
+    return buffer;
+}
+
+sds jsonrpc_start_phrase_notify(sds buffer, const char *message, bool error) {
+    buffer = sdscatprintf(sdsempty(), "{\"jsonrpc\":\"2.0\",\"%s\":{", 
+        id, (error == true ? "error" : "result"));
+    buffer = sdscat(buffer, ",\"data\":");
+    buffer = sdscatrepr(buffer, message, strlen(message));
+    buffer = sdscat(buffer, ",\"values\":{");
     return buffer;
 }
 

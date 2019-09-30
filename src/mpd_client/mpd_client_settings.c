@@ -190,17 +190,17 @@ bool mpd_api_settings_set(t_config *config, t_mpd_state *mpd_state, struct json_
 sds mpd_client_put_settings(t_mpd_state *mpd_state, sds buffer, sds method, int request_id) {
     struct mpd_status *status = mpd_run_status(mpd_state->conn);
     if (status == NULL) {
-        buffer = check_error_and_recover(buffer, method, request_id);
+        buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
         return buffer;
     }
 
     if (!mpd_send_command(mpd_state->conn, "replay_gain_status", NULL)) {
-        buffer = check_error_and_recover(buffer, method, request_id);
+        buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
         return buffer;
     }
     struct mpd_pair *pair = mpd_recv_pair(mpd_state->conn);
     if (pair == NULL) {
-        buffer = check_error_and_recover(buffer, method, request_id);
+        buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
         return buffer;
     }
     char *replaygain = strdup(pair->value);

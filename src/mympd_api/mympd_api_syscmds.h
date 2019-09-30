@@ -22,7 +22,7 @@
    Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#ifndef __MYMPD_API_H__
-#define __MYMPD_API_H__
-void *mympd_api_loop(void *arg_config);
+#ifndef __MYMPD_API_SYSCMDS_H
+#define __MYMPD_API_SYSCMDS_H
+sds mympd_api_syscmd(t_config *config, char *buffer, const char *cmd);
 #endif

@@ -38,8 +38,8 @@ bool mpd_client_jukebox(t_mpd_state *mpd_state) {
     int addSongs;
     
     struct mpd_status *status = mpd_run_status(mpd_state->conn);
-    if (!status) {
-        check_error_and_recover(NULL, NULL, 0);
+    if (status == NULL) {
+        check_error_and_recover(mpd_state, NULL, NULL, 0);
         return false;
     }
     size_t queue_length = mpd_status_get_queue_length(status);
@@ -72,7 +72,7 @@ bool mpd_client_jukebox(t_mpd_state *mpd_state) {
     
     if (rc == true) {
         if (!mpd_run_play(mpd_state->conn)) {
-            check_error_and_recover(NULL, NULL, 0);
+            check_error_and_recover(mpd_state, NULL, NULL, 0);
         }
     }
     else {
@@ -101,14 +101,14 @@ bool mpd_client_jukebox_add(t_mpd_state *mpd_state, const int addSongs, const en
         //add songs
         if (strcmp(jukebox_playlist, "Database") == 0) {
             if (!mpd_send_list_all(mpd_state->conn, "/")) {
-                check_error_and_recover(NULL, NULL, 0);
+                check_error_and_recover(mpd_state, NULL, NULL, 0);
                 list_free(&add_list);
                 return false;
             }
         }
         else {
             if (!mpd_send_list_playlist(mpd_state->conn, jukebox_playlist)) {
-                check_error_and_recover(NULL, NULL, 0);
+                check_error_and_recover(mpd_state, NULL, NULL, 0);
                 list_free(&add_list);
                 return false;
             }
@@ -135,12 +135,12 @@ bool mpd_client_jukebox_add(t_mpd_state *mpd_state, const int addSongs, const en
     else if (jukebox_mode == JUKEBOX_ADD_ALBUM) {
         //add album
         if (!mpd_search_db_tags(mpd_state->conn, MPD_TAG_ALBUM)) {
-            check_error_and_recover(NULL, NULL, 0);
+            check_error_and_recover(mpd_state, NULL, NULL, 0);
             list_free(&add_list);
             return false;
         }
         if (!mpd_search_commit(mpd_state->conn)) {
-            check_error_and_recover(NULL, NULL, 0);
+            check_error_and_recover(mpd_state, NULL, NULL, 0);
             list_free(&add_list);
             return false;
         }
@@ -172,7 +172,7 @@ bool mpd_client_jukebox_add(t_mpd_state *mpd_state, const int addSongs, const en
         if (jukebox_mode == JUKEBOX_ADD_SONG) {
 	    LOG_INFO("Jukebox adding song: %s", current->data);
 	    if (!mpd_run_add(mpd_state->conn, current->data)) {
-                check_error_and_recover(NULL, NULL, 0);
+                check_error_and_recover(mpd_state, NULL, NULL, 0);
             }
             else {
                 nkeep++;
@@ -181,7 +181,7 @@ bool mpd_client_jukebox_add(t_mpd_state *mpd_state, const int addSongs, const en
         else {
             LOG_INFO("Jukebox adding album: %s", current->data);
             if (!mpd_send_command(mpd_state->conn, "searchadd", "Album", current->data, NULL)) {
-                check_error_and_recover(NULL, NULL, 0);
+                check_error_and_recover(mpd_state, NULL, NULL, 0);
                 return false;
             }
             else {
@@ -194,7 +194,7 @@ bool mpd_client_jukebox_add(t_mpd_state *mpd_state, const int addSongs, const en
     list_free(&add_list);
     if (nkeep > 0) {
         if (!mpd_run_play(mpd_state->conn)) {
-            check_error_and_recover(NULL, NULL, 0);
+            check_error_and_recover(mpd_state, NULL, NULL, 0);
         }
     }
     else {

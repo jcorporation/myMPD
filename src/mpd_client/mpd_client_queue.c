@@ -37,7 +37,7 @@
 sds mpd_client_get_queue_state(t_mpd_state *mpd_state, sds buffer) {
     struct mpd_status *status = mpd_run_status(mpd_state->conn);
     if (status == NULL) {
-        check_error_and_recover(NULL, NULL, 0);
+        check_error_and_recover(mpd_state, NULL, NULL, 0);
         return buffer;
     }
 
@@ -69,11 +69,11 @@ sds mpd_client_put_queue(t_mpd_state *mpd_state, sds buffer, sds method, int req
 {
     struct mpd_status *status = mpd_run_status(mpd_state->conn);
     if (status == NULL) {
-        buffer = check_error_and_recover(buffer, method, request_id);
+        buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
     }
         
     if (!mpd_send_list_queue_range_meta(mpd_state->conn, offset, offset + mpd_state->max_elements_per_page)) {
-        buffer = check_error_and_recover(buffer, method, request_id);
+        buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
         return buffer;
     }
         
@@ -149,25 +149,25 @@ sds mpd_client_search_queue(t_mpd_state *mpd_state, sds buffer, sds method, int 
                             const char *mpdtagtype, const unsigned int offset, const char *searchstr, const t_tags *tagcols)
 {
     if (mpd_search_queue_songs(mpd_state->conn, false) == false) {
-        buffer = check_error_and_recover(buffer, method, request_id);
+        buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
         return buffer;
     }
     
     if (mpd_tag_name_parse(mpdtagtype) != MPD_TAG_UNKNOWN) {
         if (mpd_search_add_tag_constraint(mpd_state->conn, MPD_OPERATOR_DEFAULT, mpd_tag_name_parse(mpdtagtype), searchstr) == false) {
-            buffer = check_error_and_recover(buffer, method, request_id);
+            buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
             return buffer;
         }
     }
     else {
         if (mpd_search_add_any_tag_constraint(mpd_state->conn, MPD_OPERATOR_DEFAULT, searchstr) == false) {
-            buffer = check_error_and_recover(buffer, method, request_id);
+            buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
             return buffer;
         }
     }
 
     if (mpd_search_commit(mpd_state->conn) == false) {
-        buffer = check_error_and_recover(buffer, method, request_id);
+        buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
         return buffer;
     }
 

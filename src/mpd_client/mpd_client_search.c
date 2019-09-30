@@ -42,7 +42,7 @@ sds mpd_client_search(t_mpd_state *mpd_state, sds buffer, sds method, int reques
 {
     if (strcmp(plist, "") == 0) {
         if (mpd_send_command(mpd_state->conn, "search", filter, searchstr, NULL) == false) {
-            buffer = check_error_and_recover(buffer, method, request_id);
+            buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
             return buffer;
         }
         buffer = jsonrpc_start_result(buffer, method, request_id);
@@ -50,13 +50,13 @@ sds mpd_client_search(t_mpd_state *mpd_state, sds buffer, sds method, int reques
     }
     else if (strcmp(plist, "queue") == 0) {
         if (mpd_send_command(mpd_state->conn, "searchadd", filter, searchstr, NULL) == false) {
-            buffer = check_error_and_recover(buffer, method, request_id);
+            buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
             return buffer;
         }
     }
     else {
         if (mpd_send_command(mpd_state->conn, "searchaddpl", plist, filter, searchstr, NULL) == false) {
-            buffer = check_error_and_recover(buffer, method, request_id);
+            buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
             return buffer;
         }
     }
@@ -102,7 +102,7 @@ sds mpd_client_search_adv(t_mpd_state *mpd_state, sds buffer, sds method, int re
 #if LIBMPDCLIENT_CHECK_VERSION(2, 17, 0)
     if (strcmp(plist, "") == 0) {
         if (mpd_search_db_songs(mpd_state->conn, false) == false) {
-            buffer = check_error_and_recover(buffer, method, request_id);
+            buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
             return buffer;
         }
         buffer = jsonrpc_start_result(buffer, method, request_id);
@@ -110,43 +110,43 @@ sds mpd_client_search_adv(t_mpd_state *mpd_state, sds buffer, sds method, int re
     }
     else if (strcmp(plist, "queue") == 0) {
         if (mpd_search_add_db_songs(mpd_state->conn, false) == false) {
-            buffer = check_error_and_recover(buffer, method, request_id);
+            buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
             return buffer;
         }
     }
     else {
         if (mpd_search_add_db_songs_to_playlist(mpd_state->conn, plist) == false) {
-            buffer = check_error_and_recover(buffer, method, request_id);
+            buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
             return buffer;
         }
     }
     
     if (mpd_search_add_expression(mpd_state->conn, expression) == false) {
-            buffer = check_error_and_recover(buffer, method, request_id);
+            buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
             return buffer;
     }
 
     if (strcmp(plist, "") == 0) {
         if (sort != NULL && strcmp(sort, "") != 0 && strcmp(sort, "-") != 0 && mpd_state->feat_tags == true) {
             if (mpd_search_add_sort_name(mpd_state->conn, sort, sortdesc) == false) {
-                buffer = check_error_and_recover(buffer, method, request_id);
+                buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
                 return buffer;
             }
         }
         if (grouptag != NULL && strcmp(grouptag, "") != 0 && mpd_state->feat_tags == true) {
             if (mpd_search_add_group_tag(mpd_state->conn, mpd_tag_name_parse(grouptag)) == false) {
-                buffer = check_error_and_recover(buffer, method, request_id);
+                buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
                 return buffer;
             }
         }
         if (mpd_search_add_window(mpd_state->conn, offset, offset + mpd_state->max_elements_per_page) == false) {
-            buffer = check_error_and_recover(buffer, method, request_id);
+            buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
             return buffer;
         }
     }
     
     if (mpd_search_commit(mpd_state->conn) == false) {
-        buffer = check_error_and_recover(buffer, method, request_id);
+        buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
         return buffer;
     }
 

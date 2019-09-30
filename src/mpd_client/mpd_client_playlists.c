@@ -44,7 +44,7 @@ sds mpd_client_put_playlists(t_config *config, t_mpd_state *mpd_state, sds buffe
     buffer = sdscat(buffer,"[");
 
     if (mpd_send_list_playlists(mpd_state->conn) == false) {
-        buffer = check_error_and_recover(buffer);
+        buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
         return buffer;
     }
 
@@ -96,7 +96,7 @@ sds mpd_client_put_playlist_list(t_config *config, t_mpd_state *mpd_state, sds b
     buffer = sdscat(buffer,"[");
 
     if (mpd_send_list_playlist_meta(mpd_state->conn, uri) == false) {
-        buffer = check_error_and_recover(buffer);
+        buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
         return buffer;
     }
 
@@ -178,7 +178,7 @@ sds mpd_client_playlist_rename(t_config *config, t_mpd_state *mpd_state, sds buf
         buffer = jsonrpc_respond_message(buffer, method, request_id, "Sucessfully renamed playlist", false);
     }
     else { 
-        buffer = check_error_and_recover(buffer, method, request_id);
+        buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
     }
     return buffer;
 }
@@ -203,7 +203,7 @@ sds mpd_client_playlist_delete(t_config *config, t_mpd_state *mpd_state, sds buf
         buffer = jsonrpc_respond_ok(buffer, method, request_id);
     }
     else {
-        buffer = check_error_and_recover(buffer, method, request_id);
+        buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
     }
     return buffer;
 }
@@ -439,7 +439,7 @@ bool mpd_client_smartpls_clear(t_mpd_state *mpd_state, const char *playlist) {
     const char *plpath;
     bool exists = false;
     if (mpd_send_list_playlists(mpd_state->conn) == false) {
-        check_error_and_recover(NULL, NULL, 0);
+        check_error_and_recover(mpd_state, NULL, NULL, 0);
         return 1;
     }
     while ((pl = mpd_recv_playlist(mpd_state->conn)) != NULL) {
@@ -456,7 +456,7 @@ bool mpd_client_smartpls_clear(t_mpd_state *mpd_state, const char *playlist) {
     
     if (exists) {
         if (mpd_run_rm(mpd_state->conn, playlist) == false) {
-            check_error_and_recover(NULL, NULL, 0);
+            check_error_and_recover(mpd_state, NULL, NULL, 0);
             return false;
         }
     }
@@ -480,7 +480,7 @@ bool mpd_client_smartpls_update_search(t_mpd_state *mpd_state, const char *playl
 bool mpd_client_smartpls_update_sticker(t_mpd_state *mpd_state, const char *playlist, const char *sticker, const int maxentries) {
 
     if (mpd_send_sticker_find(mpd_state->conn, "song", "", sticker) == false) {
-        check_error_and_recover(NULL, NULL, 0);
+        check_error_and_recover(mpd_state, NULL, NULL, 0);
         return false;    
     }
 
@@ -528,7 +528,7 @@ bool mpd_client_smartpls_update_sticker(t_mpd_state *mpd_state, const char *play
     while (current != NULL) {
         if (current->value >= value_max) {
             if (mpd_run_playlist_add(mpd_state->conn, playlist, current->data) == false) {
-                check_error_and_recover(NULL, NULL, 0);
+                check_error_and_recover(mpd_state, NULL, NULL, 0);
                 list_free(&add_list);
                 return 1;        
             }
@@ -552,7 +552,7 @@ bool mpd_client_smartpls_update_newest(t_mpd_state *mpd_state, const char *playl
         mpd_stats_free(stats);
     }
     else {
-        check_error_and_recover(NULL, NULL, 0);
+        check_error_and_recover(mpd_state, NULL, NULL, 0);
         return false;
     }
 

@@ -25,53 +25,48 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include <libgen.h>
 #include <ctype.h>
-#include <poll.h>
-#include <dirent.h>
 #include <pthread.h>
 #include <mpd/client.h>
-#include <inttypes.h>
 
 #include "../dist/src/sds/sds.h"
-#include "utility.h"
-#include "api.h"
-#include "log.h"
-#include "list.h"
-#include "config_defs.h"
-#include "tiny_queue.h"
+#include "../utility.h"
+#include "../log.h"
+#include "../list.h"
+#include "../config_defs.h"
+#include "mpd_client_cover.h"
 #include "mpd_client_api.h"
-#include "../dist/src/frozen/frozen.h"
-#include "../dist/src/sds/sds.h"
 
-int mpd_client_get_updatedb_state(t_mpd_state *mpd_state, char *buffer) {
-    struct mpd_status *status;
-    int len, update_id;
-    struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
-
-    status = mpd_run_status(mpd_state->conn);
-    if (!status) {
-        RETURN_ERROR_AND_RECOVER("mpd_run_status");
+sds mpd_client_get_updatedb_state(t_mpd_state *mpd_state, sds buffer) {
+    struct mpd_status *status = mpd_run_status(mpd_state->conn);
+    if (status == NULL) {
+        buffer = check_error_and_recover_notify(mpd_state, buffer);
     }
-    update_id = mpd_status_get_update_id(status);
+    int update_id = mpd_status_get_update_id(status);
     LOG_INFO("Update database ID: %d", update_id);
     if ( update_id > 0) {
-        len = json_printf(&out, "{type: update_started, data: {jobid: %d}}", update_id);
+        buffer = jsonrpc_start_notify(buffer, "update_started");
+        buffer = tojson_long(buffer, "jobid", update_id, false);
+        buffer = jsonrpc_end_notify(buffer);
     }
     else {
-        len = json_printf(&out, "{type: update_finished}");
+        buffer = jsonrpc_start_notify(buffer, "update_finished");
+        buffer = jsonrpc_end_notify(buffer);
     }
     mpd_status_free(status);    
-    
-    CHECK_RETURN_LEN();
+    return buffer;    
 }
 
-int mpd_client_get_state(t_mpd_state *mpd_state, char *buffer) {
-    int len = 0;
+sds mpd_client_put_state(t_mpd_state *mpd_state, sds buffer, sds method, int request_id) {
     struct mpd_status *status = mpd_run_status(mpd_state->conn);
-    if (!status) {
-        LOG_ERROR_AND_RECOVER("mpd_run_status");
-        return -1;
+    if (status == NULL) {
+        if (method == NULL) {
+            buffer = check_error_and_recover_notify(mpd_state, buffer);
+        }
+        else {
+            buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
+        }
+        return buffer;
     }
 
     int song_id = mpd_status_get_song_id(status);
@@ -123,208 +118,135 @@ int mpd_client_get_state(t_mpd_state *mpd_state, char *buffer) {
         mpd_state->set_song_played_time = 0;
     }
     
-    if (buffer != NULL) {
-        len = mpd_client_put_state(mpd_state, status, buffer);
+    if (method == NULL) {
+        buffer = jsonrpc_start_notify(buffer, "update_state");
     }
-    mpd_status_free(status);
-    return len;
-}
-
-int mpd_client_put_state(t_mpd_state *mpd_state, struct mpd_status *status, char *buffer) {
-    int len = 0;
-    struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
-
+    else {
+        buffer = jsonrpc_start_result(buffer, method, request_id);
+        buffer = sdscat(buffer, "{");
+    }
     const struct mpd_audio_format *audioformat = mpd_status_get_audio_format(status);
-
-    len = json_printf(&out, "{type: update_state, data: {state: %d, volume: %d, songPos: %d, elapsedTime: %d, "
-        "totalTime: %d, currentSongId: %d, kbitrate: %d, audioFormat: { sampleRate: %d, bits: %d, channels: %d}, "
-        "queueLength: %d, nextSongPos: %d, nextSongId: %d, lastSongId: %d, queueVersion: %d}}", 
-        mpd_status_get_state(status),
-        mpd_status_get_volume(status), 
-        mpd_status_get_song_pos(status),
-        mpd_status_get_elapsed_time(status),
-        mpd_status_get_total_time(status),
-        mpd_status_get_song_id(status),
-        mpd_status_get_kbit_rate(status),
-        audioformat ? audioformat->sample_rate : 0, 
-        audioformat ? audioformat->bits : 0, 
-        audioformat ? audioformat->channels : 0,
-        mpd_status_get_queue_length(status),
-        mpd_status_get_next_song_pos(status),
-        mpd_status_get_next_song_id(status),
-        mpd_state->last_song_id ? mpd_state->last_song_id : -1,
-        mpd_status_get_queue_version(status)
-    );
-   
-    CHECK_RETURN_LEN();
+    buffer = tojson_long(buffer, "state", mpd_status_get_state(status), true);
+    buffer = tojson_long(buffer, "volume", mpd_status_get_volume(status), true);
+    buffer = tojson_long(buffer, "songPos", mpd_status_get_song_pos(status), true);
+    buffer = tojson_long(buffer, "elapsedTime", mpd_status_get_elapsed_time(status), true);
+    buffer = tojson_long(buffer, "totalTime", mpd_status_get_total_time(status), true);
+    buffer = tojson_long(buffer, "currentSongId", mpd_status_get_song_id(status), true);
+    buffer = tojson_long(buffer, "kbitrate", mpd_status_get_kbit_rate(status), true);
+    buffer = tojson_long(buffer, "queueLength", mpd_status_get_queue_length(status), true);
+    buffer = tojson_long(buffer, "queueVersion", mpd_status_get_queue_version(status), true);
+    buffer = tojson_long(buffer, "nextSongPos", mpd_status_get_next_song_pos(status), true);
+    buffer = tojson_long(buffer, "nextSongId", mpd_status_get_next_song_id(status), true);
+    buffer = tojson_long(buffer, "lastSongId", (mpd_state->last_song_id ? mpd_state->last_song_id : -1), true);
+    buffer = sdscat(buffer, "\"audioFormat\":{");
+    buffer = tojson_long(buffer, "sampleRate", (audioformat ? audioformat->sample_rate : 0), true);
+    buffer = tojson_long(buffer, "bits", (audioformat ? audioformat->bits : 0), true);
+    buffer = tojson_long(buffer, "channels", (audioformat ? audioformat->channels : 0), false);
+    buffer = sdscat(buffer, "}");
+    if (method == NULL) {
+        buffer = jsonrpc_end_notify(buffer);
+    }
+    else {
+        buffer = sdscat(buffer, "}");
+        buffer = jsonrpc_end_result(buffer);
+    }
+    mpd_status_free(status);
+    return buffer;
 }
 
-int mpd_client_put_volume(t_mpd_state *mpd_state, char *buffer) {
-    size_t len = 0;
-    struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
-
+sds mpd_client_put_volume(t_mpd_state *mpd_state, sds buffer, sds method, int request_id) {
     struct mpd_status *status = mpd_run_status(mpd_state->conn);
-    if (!status) {
-        RETURN_ERROR_AND_RECOVER("mpd_run_status");
+    if (status == NULL) {
+        if (method == NULL) {
+            buffer = check_error_and_recover_notify(mpd_state, buffer);
+        }
+        else {
+            buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
+        }
+        return buffer;
     }
-    len = json_printf(&out, "{type: update_volume, data: {volume: %d}}",
-        mpd_status_get_volume(status)
-    );
+    if (method == NULL) {
+        buffer = jsonrpc_start_notify(buffer, "update_state");
+    }
+    else {
+        buffer = jsonrpc_start_result(buffer, method, request_id);
+        buffer = sdscat(buffer, "{");
+    }
+    buffer = tojson_long(buffer, "volume", mpd_status_get_volume(status), true);
+    if (method == NULL) {
+        buffer = jsonrpc_end_notify(buffer);
+    }
+    else {
+        buffer = sdscat(buffer, "}");
+        buffer = jsonrpc_end_result(buffer);
+    }
     mpd_status_free(status);
 
-    CHECK_RETURN_LEN();
+    return buffer;
 }
 
-static int mpd_client_put_settings(t_mpd_state *mpd_state, char *buffer) {
-    char *replaygain = NULL;
-    size_t len, nr;
-    struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
-    
-    struct mpd_status *status = mpd_run_status(mpd_state->conn);
-    if (!status) {
-        RETURN_ERROR_AND_RECOVER("mpd_run_status");
-    }
-
-    if (!mpd_send_command(mpd_state->conn, "replay_gain_status", NULL)) {
-        RETURN_ERROR_AND_RECOVER("replay_gain_status");
-    }
-    struct mpd_pair *pair = mpd_recv_pair(mpd_state->conn);
-    if (!pair) {
-        RETURN_ERROR_AND_RECOVER("replay_gain_status");
-    }
-    replaygain = strdup(pair->value);
-    mpd_return_pair(mpd_state->conn, pair);
-    mpd_response_finish(mpd_state->conn);
-    
-    len = json_printf(&out, "{type: settings, data: {"
-        "repeat: %d, single: %d, crossfade: %d, consume: %d, random: %d, "
-        "mixrampdb: %f, mixrampdelay: %f, replaygain: %Q, featPlaylists: %B,"
-        "featTags: %B, featLibrary: %B, featAdvsearch: %B, featStickers: %B,"
-        "featSmartpls: %B, featLove: %B, featCoverimage: %B, featFingerprint: %B, "
-        "musicDirectoryValue: %Q, mpdConnected: %B, tags: [", 
-        mpd_status_get_repeat(status),
-        mpd_status_get_single(status),
-        mpd_status_get_crossfade(status),
-        mpd_status_get_consume(status),
-        mpd_status_get_random(status),
-        mpd_status_get_mixrampdb(status),
-        mpd_status_get_mixrampdelay(status),
-        replaygain == NULL ? "" : replaygain,
-        mpd_state->feat_playlists,
-        mpd_state->feat_tags,
-        mpd_state->feat_library,
-        mpd_state->feat_advsearch,
-        mpd_state->feat_sticker,
-        mpd_state->feat_smartpls,
-        mpd_state->feat_love,
-        mpd_state->feat_coverimage,
-        mpd_state->feat_fingerprint,
-        mpd_state->music_directory_value,
-        true
-    );
-    mpd_status_free(status);
-    FREE_PTR(replaygain);
-    
-    for (nr = 0; nr < mpd_state->mympd_tag_types->len; nr++) {
-        if (nr > 0) 
-            len += json_printf(&out, ",");
-        len += json_printf(&out, "%Q", mpd_tag_name(mpd_state->mympd_tag_types->tags[nr]));
-    }
-    
-    len += json_printf(&out, "], searchtags: [");
-        for (nr = 0; nr < mpd_state->search_tag_types->len; nr++) {
-        if (nr > 0) 
-            len += json_printf(&out, ",");
-        len += json_printf(&out, "%Q", mpd_tag_name(mpd_state->search_tag_types->tags[nr]));
-    }
-    
-    len += json_printf(&out, "], browsetags: [");
-    for (nr = 0; nr < mpd_state->browse_tag_types->len; nr++) {
-        if (nr > 0) 
-            len += json_printf(&out, ",");
-        len += json_printf(&out, "%Q", mpd_tag_name(mpd_state->browse_tag_types->tags[nr]));
-    }
-
-    len += json_printf(&out, "], allmpdtags: [");
-    for (nr = 0; nr < mpd_state->mpd_tag_types->len; nr++) {
-        if (nr > 0) 
-            len += json_printf(&out, ",");
-        len += json_printf(&out, "%Q", mpd_tag_name(mpd_state->mpd_tag_types->tags[nr]));
-    }
-
-    len += json_printf(&out, "]}}");
-    
-    CHECK_RETURN_LEN();
-}
-
-int mpd_client_put_outputs(t_mpd_state *mpd_state, char *buffer) {
-    struct mpd_output *output;
-    size_t len;
-    int nr;
-    struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
-    
+sds mpd_client_put_outputs(t_mpd_state *mpd_state, sds buffer, sds method, int request_id) {
     if (!mpd_send_outputs(mpd_state->conn)) {
-        RETURN_ERROR_AND_RECOVER("outputs");
+        buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
+        return buffer;
     }
 
-    len = json_printf(&out, "{type: outputs, data: {outputs: [");
-    nr = 0;    
-    while ((output = mpd_recv_output(mpd_state->conn)) != NULL && len < MAX_LIST_SIZE) {
-        if (nr++) 
-            len += json_printf(&out, ",");
-        len += json_printf(&out, "{id: %d, name: %Q, state: %d}",
-            mpd_output_get_id(output),
-            mpd_output_get_name(output),
-            mpd_output_get_enabled(output)
-        );
+    buffer = jsonrpc_start_result(buffer, method, request_id);
+    buffer = sdscat(buffer, "[");
+    int nr = 0;
+    struct mpd_output *output;
+    while ((output = mpd_recv_output(mpd_state->conn)) != NULL) {
+        if (nr++) {
+            buffer = sdscat(buffer, ",");
+        }
+        buffer = tojson_long(buffer, "id", mpd_output_get_id(output), true);
+        buffer = tojson_char(buffer, "name", mpd_output_get_name(output), true);
+        buffer = tojson_long(buffer, "state", mpd_output_get_enabled(output), false);
         mpd_output_free(output);
     }
-    if (!mpd_response_finish(mpd_state->conn))
-        LOG_ERROR_AND_RECOVER("outputs");
 
-    len += json_printf(&out,"]}}");
+    buffer = sdscat(buffer, "}");
+    buffer = jsonrpc_end_result(buffer);
     
-    CHECK_RETURN_LEN();
+    return buffer;
 }
 
-int mpd_client_put_current_song(t_config *config, t_mpd_state *mpd_state, char *buffer) {
-    size_t len = 0;
-    struct json_out out = JSON_OUT_BUF(buffer, MAX_SIZE);
-    
+sds mpd_client_put_current_song(t_config *config, t_mpd_state *mpd_state, sds buffer, sds method, int request_id) {
     struct mpd_song *song = mpd_run_current_song(mpd_state->conn);
     if (song == NULL) {
-        len = json_printf(&out, "{type: result, data: ok}");
-        return len;
+        buffer = jsonrpc_respond_message(buffer, method, request_id, "No current song", false);
+        return buffer;
     }
-    
-    len = json_printf(&out, "{type: song_change, data: {pos: %d, currentSongId: %d, ",
-        mpd_song_get_pos(song),
-        mpd_state->song_id
-    );
-    PUT_SONG_TAG_ALL();
+
+    buffer = jsonrpc_start_result(buffer, method, request_id);
+    buffer = sdscat(buffer, "{");
+    buffer = tojson_long(buffer, "pos", mpd_song_get_pos(song), true);
+    buffer = tojson_long(buffer, "currentSongId", mpd_state->song_id, true);
+    buffer = put_song_tags(buffer, mpd_state, mpd_state->mympd_tag_types, song);
 
     mpd_response_finish(mpd_state->conn);
-    
+
     sds cover = sdsempty();
-    cover = mpd_client_get_cover(config, mpd_state, mpd_song_get_uri(song), cover);
-    len += json_printf(&out, ", cover: %Q", cover);
-    
+    cover = mpd_client_get_cover(config, mpd_state, uri, cover);
+    buffer = sdscat(buffer, ",");
+    buffer = tojson_char(buffer, "cover", cover, false);
+    sdsfree(cover);
+
     if (mpd_state->feat_sticker) {
         t_sticker *sticker = (t_sticker *) malloc(sizeof(t_sticker));
         assert(sticker);
-        mpd_client_get_sticker(mpd_state, mpd_song_get_uri(song), sticker);
-        len += json_printf(&out, ", playCount: %d, skipCount: %d, like: %d, lastPlayed: %d, lastSkipped: %d",
-            sticker->playCount,
-            sticker->skipCount,
-            sticker->like,
-            sticker->lastPlayed,
-            sticker->lastSkipped
-        );
+        mpd_client_get_sticker(mpd_state, uri, sticker);
+        buffer = sdscat(buffer, ",");
+        buffer = tojson_long(buffer, "playCount", sticker->playCount, true);
+        buffer = tojson_long(buffer, "skipCount", sticker->skipCount, true);
+        buffer = tojson_long(buffer, "like", sticker->like, true);
+        buffer = tojson_long(buffer, "lastPlayed", sticker->lastPlayed, true);
+        buffer = tojson_long(buffer, "lastSkipped", sticker->lastSkipped, false);
         FREE_PTR(sticker);
     }
-    len += json_printf(&out, "}}");
     mpd_song_free(song);
-    sdsfree(cover);
 
-    CHECK_RETURN_LEN();
+    buffer = sdscat(buffer, "}");
+    buffer = jsonrpc_end_result(buffer);
+    return buffer;
 }

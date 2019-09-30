@@ -285,9 +285,10 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 bool rc = handle_api((intptr_t)nc->user_data, hm->body.p, hm->body.len);
                 if (rc == false) {
                     LOG_ERROR("Invalid API request");
-                    const char *response = "{\"type\": \"error\", \"data\": \"Invalid API request\"}";
-                    mg_send_head(nc, 200, strlen(response), "Content-Type: application/json");
+                    sds response = jsonrpc_respond_message(buffer, NULL, 0, "Invalid API request", true);
+                    mg_send_head(nc, 200, sdslen(response), "Content-Type: application/json");
                     mg_printf(nc, "%s", response);
+                    sds_free(response);
                 }
             }
             else if (mg_vcmp(&hm->uri, "/ca.crt") == 0) { 
