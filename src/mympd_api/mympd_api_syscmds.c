@@ -27,12 +27,13 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <stdbool.h>
 
 #include "../dist/src/sds/sds.h"
 #include "../utility.h"
 #include "../log.h"
 #include "../list.h"
-#include "../config_defs.h"
+#include "config_defs.h"
 #include "mympd_api_utility.h"
 #include "mympd_api_syscmds.h"
 

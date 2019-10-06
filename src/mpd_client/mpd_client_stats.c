@@ -25,13 +25,14 @@
 #include <string.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <inttypes.h>
 #include <mpd/client.h>
 
 #include "../dist/src/sds/sds.h"
 #include "../utility.h"
 #include "../log.h"
 #include "../list.h"
-#include "../config_defs.h"
+#include "config_defs.h"
 #include "mpd_client_utility.h"
 #include "mpd_client_stats.h"
 
@@ -122,6 +123,7 @@ bool mpd_client_last_played_list_save(t_config *config, t_mpd_state *mpd_state) 
     char *line = NULL;
     size_t n = 0;
     ssize_t read;
+    sds cfg_file = sdscatfmt(sdsempty(), "%s/state/last_played", config->varlibdir);
     FILE *fi = fopen(cfg_file, "r");
     if (fi != NULL) {
         while ((read = getline(&line, &n, fi)) > 0 && i < mpd_state->last_played_count) {
@@ -133,7 +135,6 @@ bool mpd_client_last_played_list_save(t_config *config, t_mpd_state *mpd_state) 
     }
     fclose(fp);
     
-    sds cfg_file = sdscatfmt(sdsempty(), "%s/state/last_played", config->varlibdir);
     if (rename(tmp_file, cfg_file) == -1) {
         LOG_ERROR("Renaming file from %s to %s failed", tmp_file, cfg_file);
         sds_free(tmp_file);
@@ -225,7 +226,7 @@ sds mpd_client_put_last_played_songs(t_config *config, t_mpd_state *mpd_state, s
                 if (entities_returned++) {
                     buffer = sdscat(buffer, ",");
                 }
-                buffer = mpd_client_put_last_played_obj(mpd_state, buffer, entity_count, current->value, current->data, tagcols)
+                buffer = mpd_client_put_last_played_obj(mpd_state, buffer, entity_count, current->value, current->data, tagcols);
             }
             current = current->next;
         }
@@ -251,7 +252,7 @@ sds mpd_client_put_last_played_songs(t_config *config, t_mpd_state *mpd_state, s
                     if (entities_returned++) {
                         buffer = sdscat(buffer, ",");
                     }
-                    buffer = mpd_client_put_last_played_obj(mpd_state, buffer, entity_count, value, data, tagcols)
+                    buffer = mpd_client_put_last_played_obj(mpd_state, buffer, entity_count, value, data, tagcols);
                 }
                 else {
                     LOG_ERROR("Reading last_played line failed");
@@ -263,9 +264,9 @@ sds mpd_client_put_last_played_songs(t_config *config, t_mpd_state *mpd_state, s
     }
 
     buffer = sdscat(buffer, "],");
-    buffer = tojson_long(buffer, "totalEntities", entity_count);
-    buffer = tojson_long(buffer, "offset", offset);
-    buffer = tojson_long(buffer, "returnedEntities", entities_returned);
+    buffer = tojson_long(buffer, "totalEntities", entity_count, true);
+    buffer = tojson_long(buffer, "offset", offset, true);
+    buffer = tojson_long(buffer, "returnedEntities", entities_returned, false);
     buffer = jsonrpc_end_result(buffer);
     
     return buffer;

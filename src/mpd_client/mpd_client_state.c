@@ -27,15 +27,18 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <pthread.h>
+#include <assert.h>
 #include <mpd/client.h>
 
 #include "../dist/src/sds/sds.h"
 #include "../utility.h"
 #include "../log.h"
 #include "../list.h"
-#include "../config_defs.h"
+#include "config_defs.h"
+#include "mpd_client_utility.h"
 #include "mpd_client_cover.h"
 #include "mpd_client_api.h"
+#include "mpd_client_state.h"
 
 sds mpd_client_get_updatedb_state(t_mpd_state *mpd_state, sds buffer) {
     struct mpd_status *status = mpd_run_status(mpd_state->conn);
@@ -222,12 +225,12 @@ sds mpd_client_put_current_song(t_config *config, t_mpd_state *mpd_state, sds bu
     buffer = sdscat(buffer, "{");
     buffer = tojson_long(buffer, "pos", mpd_song_get_pos(song), true);
     buffer = tojson_long(buffer, "currentSongId", mpd_state->song_id, true);
-    buffer = put_song_tags(buffer, mpd_state, mpd_state->mympd_tag_types, song);
+    buffer = put_song_tags(buffer, mpd_state, &mpd_state->mympd_tag_types, song);
 
     mpd_response_finish(mpd_state->conn);
 
     sds cover = sdsempty();
-    cover = mpd_client_get_cover(config, mpd_state, uri, cover);
+    cover = mpd_client_get_cover(config, mpd_state, mpd_song_get_uri(song), cover);
     buffer = sdscat(buffer, ",");
     buffer = tojson_char(buffer, "cover", cover, false);
     sdsfree(cover);
@@ -235,7 +238,7 @@ sds mpd_client_put_current_song(t_config *config, t_mpd_state *mpd_state, sds bu
     if (mpd_state->feat_sticker) {
         t_sticker *sticker = (t_sticker *) malloc(sizeof(t_sticker));
         assert(sticker);
-        mpd_client_get_sticker(mpd_state, uri, sticker);
+        mpd_client_get_sticker(mpd_state, mpd_song_get_uri(song), sticker);
         buffer = sdscat(buffer, ",");
         buffer = tojson_long(buffer, "playCount", sticker->playCount, true);
         buffer = tojson_long(buffer, "skipCount", sticker->skipCount, true);

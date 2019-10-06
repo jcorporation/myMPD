@@ -52,7 +52,6 @@
 //private definitions
 static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state);
 static void mpd_client_parse_idle(t_config *config, t_mpd_state *mpd_state, const int idle_bitmask);
-static void mpd_client_notify(sds message);
 static void mpd_client_disconnect(t_mpd_state *mpd_state);
 
 //public functions
@@ -103,15 +102,6 @@ void *mpd_client_loop(void *arg_config) {
 }
 
 //private functions
-static void mpd_client_notify(sds message) {
-    LOG_DEBUG("Push websocket notify to queue: %s", message);
-    t_work_result *response = (t_work_result *)malloc(sizeof(t_work_result));
-    assert(response);
-    response->conn_id = 0;
-    response->data = sdsdup(message);
-    tiny_queue_push(web_server_queue, response);
-}
-
 static void mpd_client_parse_idle(t_config *config, t_mpd_state *mpd_state, int idle_bitmask) {
     for (unsigned j = 0;; j++) {
         enum mpd_idle idle_event = 1 << j;

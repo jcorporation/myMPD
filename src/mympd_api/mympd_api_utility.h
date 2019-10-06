@@ -66,6 +66,5 @@ typedef struct t_mympd_state {
 } t_mympd_state;
 
 void free_mympd_state(t_mympd_state *mympd_state);
+void mympd_api_push_to_mpd_client(t_mympd_state *mympd_state);
 #endif
-
-

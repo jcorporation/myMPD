@@ -27,15 +27,16 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <stdbool.h>
 
 #include "../../dist/src/sds/sds.h"
+#include "../dist/src/frozen/frozen.h"
 #include "../utility.h"
 #include "../log.h"
 #include "../list.h"
-#include "../config_defs.h"
+#include "config_defs.h"
 #include "mympd_api_utility.h"
 #include "mympd_api_bookmarks.h"
-#include "../dist/src/frozen/frozen.h"
 
 //private definitions
 static bool write_bookmarks_line(FILE *fp, int id, const char *name,
@@ -166,8 +167,8 @@ sds mympd_api_bookmark_list(t_config *config, sds buffer, sds method, int reques
 static bool write_bookmarks_line(FILE *fp, int id, const char *name, 
                                  const char *uri, const char *type)
 {
-    sds line = sdscatfmt(sdsempty(), "{\"id\": %d,\"name\":%Q,\"uri\":\"%Q\",\"type\":\"%Q\"}\n", line_nr, name, uri, type);
-    int rc = fputs(line, fo);
+    sds line = sdscatfmt(sdsempty(), "{\"id\": %d,\"name\":%Q,\"uri\":\"%Q\",\"type\":\"%Q\"}\n", id, name, uri, type);
+    int rc = fputs(line, fp);
     sds_free(line);
     if (rc > 0) {
         return true;

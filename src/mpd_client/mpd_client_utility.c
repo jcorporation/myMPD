@@ -26,15 +26,29 @@
 #include <pthread.h>
 #include <string.h>
 #include <inttypes.h>
+#include <signal.h>
+#include <assert.h>
 #include <mpd/client.h>
 
 #include "../../dist/src/sds/sds.h"
 #include "../../dist/src/frozen/frozen.h"
 #include "../list.h"
 #include "config_defs.h"
+#include "../tiny_queue.h"
+#include "../api.h"
+#include "../global.h"
 #include "../utility.h"
 #include "../log.h"
 #include "mpd_client_utility.h"
+
+void mpd_client_notify(sds message) {
+    LOG_DEBUG("Push websocket notify to queue: %s", message);
+    t_work_result *response = (t_work_result *)malloc(sizeof(t_work_result));
+    assert(response);
+    response->conn_id = 0;
+    response->data = sdsdup(message);
+    tiny_queue_push(web_server_queue, response);
+}
 
 sds put_song_tags(sds buffer, t_mpd_state *mpd_state, const t_tags *tagcols, const struct mpd_song *song) {
     if (mpd_state->feat_tags == true) {

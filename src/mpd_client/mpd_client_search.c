@@ -153,7 +153,7 @@ sds mpd_client_search_adv(t_mpd_state *mpd_state, sds buffer, sds method, int re
     if (strcmp(plist, "") == 0) {
         struct mpd_song *song;
         unsigned entities_returned = 0;
-        while ((song = mpd_recv_song(mpd_state->conn)) != NULL && len < MAX_LIST_SIZE) {
+        while ((song = mpd_recv_song(mpd_state->conn)) != NULL) {
             if (entities_returned++) {
                 buffer = sdscat(buffer,",");
             }

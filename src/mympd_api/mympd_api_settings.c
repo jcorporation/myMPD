@@ -37,13 +37,13 @@
 #include <inttypes.h>
 
 #include "../../dist/src/sds/sds.h"
+#include "../dist/src/frozen/frozen.h"
 #include "../utility.h"
 #include "../log.h"
 #include "../list.h"
-#include "../config_defs.h"
+#include "config_defs.h"
 #include "mympd_api_utility.h"
 #include "mympd_api_settings.h"
-#include "../dist/src/frozen/frozen.h"
 
 void mympd_api_settings_delete(t_config *config) {
     const char* state_files[]={"auto_play", "bg_color", "bg_cover", "bg_css_filter", "browsetaglist", "cols_browse_database",
@@ -67,7 +67,7 @@ bool mympd_api_connection_save(t_config *config, t_mympd_state *mympd_state, str
     sds settingname = sdsempty();
     sds settingvalue = sdscatlen(sdsempty(), val->ptr, val->len);
     if (strncmp(key->ptr, "mpdPass", key->len) == 0) {
-        if (strcmp(key, "dontsetpassword") != 0) {
+        if (strncmp(val->ptr, "dontsetpassword", val->len) != 0) {
             mympd_state->mpd_pass = sdscatlen(sdsempty(), settingvalue, sdslen(settingvalue));
             settingname = sdscat(sdsempty(), "mpd_pass");
         }
@@ -270,7 +270,7 @@ bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state, struct
         mympd_state->love = val->type == JSON_TYPE_TRUE ? true : false;
         settingname = sdscat(sdsempty(), "love");
     }
-    else if (strcmp(key->ptr, "loveChannel", key->len) == 0) {
+    else if (strncmp(key->ptr, "loveChannel", key->len) == 0) {
         mympd_state->love_channel = sdscatlen(sdsempty(), settingvalue, sdslen(settingvalue));
         settingname = sdscat(sdsempty(), "love_channel");
     }

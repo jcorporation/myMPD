@@ -37,6 +37,7 @@
 #include <inttypes.h>
 
 #include "../dist/src/sds/sds.h"
+#include "../dist/src/frozen/frozen.h"
 #include "api.h"
 #include "utility.h"
 #include "log.h"
@@ -50,11 +51,9 @@
 #include "mympd_api/mympd_api_syscmds.h"
 #include "mympd_api/mympd_api_bookmarks.h"
 #include "mympd_api.h"
-#include "../dist/src/frozen/frozen.h"
 
 //private definitions
 static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_request *request);
-static void mympd_api_push_to_mpd_client(t_mympd_state *mympd_state);
 
 //public functions
 void *mympd_api_loop(void *arg_config) {
@@ -100,7 +99,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             if (config->syscmds == true) {
                 je = json_scanf(request->data, sdslen(request->data), "{params: {cmd: %Q}}", &p_charbuf1);
                 if (je == 1) {
-                    data = mympd_api_syscmd(config, data, p_charbuf1);
+                    data = mympd_api_syscmd(config, data, request->method, request->id, p_charbuf1);
                     FREE_PTR(p_charbuf1);
                 }
             } 
@@ -118,9 +117,9 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                 }
                 else {
                     data = jsonrpc_start_phrase(data, request->method, request->id, "Unknown table %{table}", true);
-                    data = tojson_char(data, p_charbuf1, false);
+                    data = tojson_char(data, "table", p_charbuf1, false);
                     data = jsonrpc_end_phrase(data);
-                    LOG_ERROR("MYMPD_API_COLS_SAVE: Unknown table %s", tablename);
+                    LOG_ERROR("MYMPD_API_COLS_SAVE: Unknown table %s", p_charbuf1);
                 }
                 FREE_PTR(p_charbuf1);
             }
@@ -153,7 +152,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             }
             else {
                 data = jsonrpc_start_phrase(data, request->method, request->id, "Can't save setting %{setting}", true);
-                data = tojson_char_len(data, val.ptr, val.len, false);
+                data = tojson_char_len(data, "setting", val.ptr, val.len, false);
                 data = jsonrpc_end_phrase(data);
             }
             break;
@@ -179,7 +178,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             }
             else {
                 data = jsonrpc_start_phrase(data, request->method, request->id, "Can't save setting %{setting}", true);
-                data = tojson_char_len(data, val.ptr, val.len, false);
+                data = tojson_char_len(data, "setting", val.ptr, val.len, false);
                 data = jsonrpc_end_phrase(data);
             }
             break;
@@ -232,38 +231,4 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
     sds_free(request->data);
     sds_free(request->method);
     FREE_PTR(request);
-}
-
-static void mympd_api_push_to_mpd_client(t_mympd_state *mympd_state) {
-    t_work_request *mpd_client_request = (t_work_request *)malloc(sizeof(t_work_request));
-    assert(mpd_client_request);
-    mpd_client_request->conn_id = -1;
-    mpd_client_request->cmd_id = MYMPD_API_SETTINGS_SET;
-    sds data = sdsempty();
-    
-    data = sdscat(data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_SETTINGS_SET\",\"params\":{");
-    data = tojson_long(data, "jukeboxMode", mympd_state->jukebox_mode, true);
-    data = tojson_char(data, "jukeboxPlaylist", mympd_state->jukebox_playlist, true);
-    data = tojson_long(data, "jukeboxQueueLength", mympd_state->jukebox_queue_length, true);
-    data = tojson_bool(data, "autoPlay", mympd_state->auto_play, true);
-    data = tojson_bool(data, "coverimage,", mympd_state->coverimage, true);
-    data = tojson_char(data, "coverimageName", mympd_state->coverimage_name, true);
-    data = tojson_bool(data, "love", mympd_state->love, true);
-    data = tojson_char(data, "loveChannel", mympd_state->love_channel, true);
-    data = tojson_char(data, "loveMessage", mympd_state->love_message, true);
-    data = tojson_char(data, "taglist", mympd_state->taglist, true);
-    data = tojson_char(data, "searchtaglist", mympd_state->searchtaglist, true);
-    data = tojson_char(data, "browsetaglist", mympd_state->browsetaglist, true);
-    data = tojson_bool(data, "stickers", mympd_state->stickers, true);
-    data = tojson_bool(data, "smartpls", mympd_state->smartpls, true);
-    data = tojson_char(data, "mpdHost", mympd_state->mpd_host, true);
-    data = tojson_char(data, "mpdPass", mympd_state->mpd_pass, true);
-    data = tojson_long(data, "mpdPort", mympd_state->mpd_port, true);
-    data = tojson_long(data, "lastPlayedCount", mympd_state->last_played_count, true);
-    data = tojson_long(data, "maxElementsPerPage", mympd_state->max_elements_per_page, true);
-    data = tojson_char(data, "musicDirectory", mympd_state->music_directory, false);
-    data = sdscat(data, "}}");
-
-    mpd_client_request->data = data;    
-    tiny_queue_push(mpd_client_queue, mpd_client_request);
 }
