@@ -24,11 +24,17 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <unistd.h>
+#include <libgen.h>
+#include <mpd/client.h>
 
 #include "../../dist/src/sds/sds.h"
 #include "../utility.h"
 #include "../log.h"
-#include "../config_defs.h"
+#include "../list.h"
+#include "config_defs.h"
+#include "../plugins.h"
 #include "mpd_client_utility.h"
 #include "mpd_client_cover.h"
 
@@ -45,43 +51,43 @@ sds mpd_client_get_cover(t_config *config, t_mpd_state *mpd_state, const char *u
         replacechar(name, '/', '_');
         replacechar(name, '.', '_');
         replacechar(name, ':', '_');
-        cover = sdscatprintf(sdsempty(), "%s/pics/%s.png", config->varlibdir, name);
+        cover = sdscatfmt(sdsempty(), "%s/pics/%s.png", config->varlibdir, name);
         LOG_DEBUG("Check for cover %s", cover);
         if (access(cover, F_OK ) == -1 ) {
-            cover = sdscatprintf(sdsempty(), "/assets/coverimage-stream.svg");
+            cover = sdscatfmt(sdsempty(), "/assets/coverimage-stream.svg");
         }
         else {
-            cover = sdscatprintf(sdsempty(), "/pics/%s.png", name);
+            cover = sdscatfmt(sdsempty(), "/pics/%s.png", name);
         }
     }
     else if (mpd_state->feat_library == true && strlen(mpd_state->music_directory_value) > 0) {
         dirname(path);
-        cover = sdscatprintf(sdsempty(), "%s/%s/%s", mpd_state->music_directory_value, path, mpd_state->coverimage_name);
+        cover = sdscatfmt(sdsempty(), "%s/%s/%s", mpd_state->music_directory_value, path, mpd_state->coverimage_name);
         if (access(cover, F_OK ) == -1 ) {
             if (config->plugins_coverextract == true) {
-                sds media_file = sdscatprintf(sdsempty(), "%s/%s", mpd_state->music_directory_value, uri);
+                sds media_file = sdscatfmt(sdsempty(), "%s/%s", mpd_state->music_directory_value, uri);
                 size_t image_file_len = 1500;
                 char image_file[image_file_len];
                 size_t image_mime_type_len = 100;
                 char image_mime_type[image_mime_type_len];
                 bool rc = plugin_coverextract(media_file, "", image_file, image_file_len, image_mime_type, image_mime_type_len, false);
                 if (rc == true) {
-                    cover = sdscatprintf(sdsempty(), "/albumart/%s", uri);
+                    cover = sdscatfmt(sdsempty(), "/albumart/%s", uri);
                 }
                 else {
-                    cover = sdscatprintf(sdsempty(), "/assets/coverimage-notavailable.svg");
+                    cover = sdscatfmt(sdsempty(), "/assets/coverimage-notavailable.svg");
                 }
             }
             else {
-                cover = sdscatprintf(sdsempty(), "/assets/coverimage-notavailable.svg");
+                cover = sdscatfmt(sdsempty(), "/assets/coverimage-notavailable.svg");
             }
         }
         else {
-            cover = sdscatprintf(sdsempty(), "/library/%s/%s", path, mpd_state->coverimage_name);
+            cover = sdscatfmt(sdsempty(), "/library/%s/%s", path, mpd_state->coverimage_name);
         }
     }
     else {
-        cover = sdscatprintf(sdsempty(), "/assets/coverimage-notavailable.svg");
+        cover = sdscatfmt(sdsempty(), "/assets/coverimage-notavailable.svg");
     }
 
     FREE_PTR(orgpath);

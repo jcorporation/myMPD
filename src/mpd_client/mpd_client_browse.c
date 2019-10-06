@@ -25,6 +25,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <assert.h>
+#include <ctype.h>
+#include <unistd.h>
 #include <mpd/client.h>
 
 #include "../../dist/src/sds/sds.h"
@@ -32,9 +35,10 @@
 #include "../api.h"
 #include "../log.h"
 #include "../list.h"
-#include "../config_defs.h"
+#include "config_defs.h"
 #include "../tiny_queue.h"
 #include "mpd_client_utility.h"
+#include "mpd_client_cover.h"
 #include "mpd_client_browse.h"
 
 sds mpd_client_put_fingerprint(t_mpd_state *mpd_state, sds buffer, sds method, int request_id,
@@ -74,7 +78,7 @@ sds mpd_client_put_songdetails(t_config *config, t_mpd_state *mpd_state, sds buf
     struct mpd_entity *entity;
     if ((entity = mpd_recv_entity(mpd_state->conn)) != NULL) {
         const struct mpd_song *song = mpd_entity_get_song(entity);
-        buffer = put_song_tags(buffer, mpd_state, mpd_state->mympd_tag_types, song);
+        buffer = put_song_tags(buffer, mpd_state, &mpd_state->mympd_tag_types, song);
         mpd_entity_free(entity);
     }
     else {
@@ -166,7 +170,7 @@ sds mpd_client_put_filesystem(t_config *config, t_mpd_state *mpd_state, sds buff
                         }
                         buffer = sdscat(buffer, "{\"Type\":\"dir\",");
                         buffer = tojson_char(buffer, "uri", entityName, true);
-                        buffer = tojosn_char(buffer, "name", dirName, false);
+                        buffer = tojson_char(buffer, "name", dirName, false);
                     }
                     else {
                         entity_count--;
@@ -191,13 +195,13 @@ sds mpd_client_put_filesystem(t_config *config, t_mpd_state *mpd_state, sds buff
                         }
                         bool smartpls = false;
                         if (validate_string(plName) == true) {
-                            sds smartpls_file = sdscatprintf(sdsempty(), "%s/smartpls/%s", config->varlibdir, plName);
+                            sds smartpls_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->varlibdir, plName);
                             if (access(smartpls_file, F_OK ) != -1) {
                                 smartpls = true;
                             }
                             sds_free(smartpls_file);
                         }
-                        buffer = sdscatprintf(buffer, "{\"Type\": \"%s\"", (smartpls == true ? "smartpls" : "plist"));
+                        buffer = sdscatfmt(buffer, "{\"Type\": \"%s\"", (smartpls == true ? "smartpls" : "plist"));
                         buffer = tojson_char(buffer, "uri", entityName, true);
                         buffer = tojson_char(buffer, "name", plName, false);
                     } else {
@@ -213,7 +217,7 @@ sds mpd_client_put_filesystem(t_config *config, t_mpd_state *mpd_state, sds buff
 
     mpd_response_finish(mpd_state->conn);
 
-    buffer = sdscatprintf(buffer, "],\"totalEntities\":%d,\"offset\":%d,\"returnedEntities\":%d,", entity_count, offset, entities_returned);
+    buffer = sdscatfmt(buffer, "],\"totalEntities\":%d,\"offset\":%d,\"returnedEntities\":%d,", entity_count, offset, entities_returned);
     buffer = tojson_char(buffer, "filter", filter, false);
     buffer = jsonrpc_end_result(buffer);
     return buffer;
@@ -267,7 +271,7 @@ sds mpd_client_put_db_tag(t_mpd_state *mpd_state, sds buffer, sds method, int re
         mpd_return_pair(mpd_state->conn, pair);
     }
 
-    buffer = sdscatprintf(buffer, "],\"totalEntities\":%d,\"offset\":%d,\"returnedEntities\":%d,", entity_count, offset, entities_returned);
+    buffer = sdscatfmt(buffer, "],\"totalEntities\":%d,\"offset\":%d,\"returnedEntities\":%d,", entity_count, offset, entities_returned);
     buffer = tojson_char(buffer, "filter", filter, true);
     buffer = tojson_char(buffer, "searchstr", searchstr, true);
     buffer = tojson_char(buffer, "searchtagtype", mpdsearchtagtype, true);
@@ -332,7 +336,7 @@ sds mpd_client_put_songs_in_album(t_config *config, t_mpd_state *mpd_state, sds 
         cover = sdscat(cover, "/assets/coverimage-notavailable.svg");
     }
 
-    buffer = sdscatprintf(buffer, "],\"totalEntities\":%d,\"returnedEntities\":%d,", entity_count, entities_returned);
+    buffer = sdscatfmt(buffer, "],\"totalEntities\":%d,\"returnedEntities\":%d,", entity_count, entities_returned);
     buffer = tojson_char(buffer, "Album", album, true);
     buffer = tojson_char(buffer, "search", search, true);
     buffer = tojson_char(buffer, "tag", tag, true);

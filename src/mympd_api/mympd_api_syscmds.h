@@ -24,5 +24,6 @@
 
 #ifndef __MYMPD_API_SYSCMDS_H
 #define __MYMPD_API_SYSCMDS_H
-sds mympd_api_syscmd(t_config *config, char *buffer, const char *cmd);
+sds mympd_api_syscmd(t_config *config, sds buffer, sds method, int request_id, 
+                     const char *cmd);
 #endif

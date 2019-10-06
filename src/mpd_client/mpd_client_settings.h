@@ -25,5 +25,5 @@
 #define __MPD_CLIENT_SETTINGS_H__
 bool mpd_api_settings_set(t_config *config, t_mpd_state *mpd_state, struct json_token *key, 
                           struct json_token *val, bool *mpd_host_changed);
-sds mpd_client_put_settings(t_mpd_state *mpd_state, sds buffer, sds method, int request_id)
+sds mpd_client_put_settings(t_mpd_state *mpd_state, sds buffer, sds method, int request_id);
 #endif

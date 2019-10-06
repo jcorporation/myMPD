@@ -40,46 +40,6 @@ static sds mpd_client_put_last_played_obj(t_mpd_state *mpd_state, sds buffer,
                                           unsigned entity_count, int last_played, const char *uri, const t_tags *tagcols);
 
 //public functions
-bool mpd_client_get_sticker(t_mpd_state *mpd_state, const char *uri, t_sticker *sticker) {
-    struct mpd_pair *pair;
-    char *crap = NULL;
-    sticker->playCount = 0;
-    sticker->skipCount = 0;
-    sticker->lastPlayed = 0;
-    sticker->lastSkipped = 0;
-    sticker->like = 1;
-    
-    if (uri == NULL || strstr(uri, "://") != NULL) {
-        return false;
-    }
-
-    if (mpd_send_sticker_list(mpd_state->conn, "song", uri)) {
-        while ((pair = mpd_recv_sticker(mpd_state->conn)) != NULL) {
-            if (strcmp(pair->name, "playCount") == 0) {
-                sticker->playCount = strtoimax(pair->value, &crap, 10);
-            }
-            else if (strcmp(pair->name, "skipCount") == 0) {
-                sticker->skipCount = strtoimax(pair->value, &crap, 10);
-            }
-            else if (strcmp(pair->name, "lastPlayed") == 0) {
-                sticker->lastPlayed = strtoimax(pair->value, &crap, 10);
-            }
-            else if (strcmp(pair->name, "lastSkipped") == 0) {
-                sticker->lastSkipped = strtoimax(pair->value, &crap, 10);
-            }
-            else if (strcmp(pair->name, "like") == 0) {
-                sticker->like = strtoimax(pair->value, &crap, 10);
-            }
-            mpd_return_sticker(mpd_state->conn, pair);
-        }
-    }
-    else {
-        check_error_and_recover(mpd_state, NULL, NULL, 0);
-        return false;
-    }
-    return true;
-}
-
 bool mpd_client_count_song_uri(t_mpd_state *mpd_state, const char *uri, const char *name, const int value) {
     if (uri == NULL || strstr(uri, "://") != NULL) {
         return false;
@@ -141,7 +101,7 @@ sds mpd_client_like_song_uri(t_mpd_state *mpd_state, sds buffer, sds method, int
 
 bool mpd_client_last_played_list_save(t_config *config, t_mpd_state *mpd_state) {
     LOG_VERBOSE("Saving last_played list to disc");
-    sds tmp_file = sdscatprintf(sdsempty(), "%s/state/last_played.XXXXXX", config->varlibdir);
+    sds tmp_file = sdscatfmt(sdsempty(), "%s/state/last_played.XXXXXX", config->varlibdir);
     int fd;
     if ((fd = mkstemp(tmp_file)) < 0 ) {
         LOG_ERROR("Can't open %s for write", tmp_file);
@@ -173,7 +133,7 @@ bool mpd_client_last_played_list_save(t_config *config, t_mpd_state *mpd_state) 
     }
     fclose(fp);
     
-    sds cfg_file = sdscatprintf(sdsempty(), "%s/state/last_played", config->varlibdir);
+    sds cfg_file = sdscatfmt(sdsempty(), "%s/state/last_played", config->varlibdir);
     if (rename(tmp_file, cfg_file) == -1) {
         LOG_ERROR("Renaming file from %s to %s failed", tmp_file, cfg_file);
         sds_free(tmp_file);
@@ -277,23 +237,25 @@ sds mpd_client_put_last_played_songs(t_config *config, t_mpd_state *mpd_state, s
     size_t n = 0;
     ssize_t read;
     
-    sds lp_file = sdscatprintf(sdsempty(), "%s/state/last_played", config->varlibdir);
+    sds lp_file = sdscatfmt(sdsempty(), "%s/state/last_played", config->varlibdir);
     FILE *fp = fopen(lp_file, "r");
     sds_free(lp_file);
     if (fp != NULL) {
-        while ((read = getline(&line, &n, fp)) > 0 && entity_count > offset && entity_count <= offset + mpd_state->max_elements_per_page) {
+        while ((read = getline(&line, &n, fp)) > 0) {
             entity_count++;
-            int value = strtoimax(line, &data, 10);
-            if (strlen(data) > 2) {
-                data = data + 2;
-                strtok_r(data, "\n", &crap);
-                if (entities_returned++) {
-                    buffer = sdscat(buffer, ",");
+            if (entity_count > offset && entity_count <= offset + mpd_state->max_elements_per_page) {
+                int value = strtoimax(line, &data, 10);
+                if (strlen(data) > 2) {
+                    data = data + 2;
+                    strtok_r(data, "\n", &crap);
+                    if (entities_returned++) {
+                        buffer = sdscat(buffer, ",");
+                    }
+                    buffer = mpd_client_put_last_played_obj(mpd_state, buffer, entity_count, value, data, tagcols)
                 }
-                buffer = mpd_client_put_last_played_obj(mpd_state, buffer, entity_count, value, data, tagcols)
-            }
-            else {
-                LOG_ERROR("Reading last_played line failed");
+                else {
+                    LOG_ERROR("Reading last_played line failed");
+                }
             }
         }
         fclose(fp);
@@ -317,8 +279,8 @@ sds mpd_client_put_stats(t_mpd_state *mpd_state, sds buffer, sds method, int req
     }
     
     const unsigned *version = mpd_connection_get_server_version(mpd_state->conn);
-    sds mpd_version = sdscatprintf(sdsempty(),"%u.%u.%u", version[0], version[1], version[2]);
-    sds libmpdclient_version = sdscatprintf(sdsempty(), "%i.%i.%i", LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION);
+    sds mpd_version = sdscatfmt(sdsempty(),"%u.%u.%u", version[0], version[1], version[2]);
+    sds libmpdclient_version = sdscatfmt(sdsempty(), "%i.%i.%i", LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION);
 
     buffer = jsonrpc_start_result(buffer, method, request_id);
     buffer = sdscat(buffer, "{");

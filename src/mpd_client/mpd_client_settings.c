@@ -25,14 +25,16 @@
 #include <string.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <inttypes.h>
+#include <stdbool.h>
 #include <mpd/client.h>
 
 #include "../../dist/src/sds/sds.h"
+#include "../../dist/src/frozen/frozen.h"
 #include "../utility.h"
-#include "../api.h"
 #include "../log.h"
 #include "../list.h"
-#include "../config_defs.h"
+#include "config_defs.h"
 #include "mpd_client_utility.h"
 #include "mpd_client_settings.h"
 
@@ -47,8 +49,8 @@ bool mpd_api_settings_set(t_config *config, t_mpd_state *mpd_state, struct json_
     char *crap;
     sds settingvalue = sdscatlen(sdsempty(), val->ptr, val->len);
     if (strncmp(key->ptr, "mpdPass", key->len) == 0) {
-        if (strcmp(key, "dontsetpassword") != 0) {
-            mpd_host_changed = true;
+        if (strncmp(val->ptr, "dontsetpassword", val->len) != 0) {
+            *mpd_host_changed = true;
             mpd_state->mpd_pass = sdscatlen(sdsempty(), settingvalue, sdslen(settingvalue));
         }
         else {
@@ -58,14 +60,14 @@ bool mpd_api_settings_set(t_config *config, t_mpd_state *mpd_state, struct json_
     }
     else if (strncmp(key->ptr, "mpdHost", key->len) == 0) {
         if (strncmp(val->ptr, mpd_state->mpd_host, val->len) != 0) {
-            mpd_host_changed = true;
+            *mpd_host_changed = true;
             mpd_state->mpd_host = sdscatlen(sdsempty(), settingvalue, sdslen(settingvalue));
         }
     }
     else if (strncmp(key->ptr, "mpdPort", key->len) == 0) {
         int mpd_port = strtoimax(settingvalue, &crap, 10);
         if (mpd_state->mpd_port != mpd_port) {
-            mpd_host_changed = true;
+            *mpd_host_changed = true;
             mpd_state->mpd_port = mpd_port;
         }
     }
@@ -95,8 +97,7 @@ bool mpd_api_settings_set(t_config *config, t_mpd_state *mpd_state, struct json_
         mpd_state->auto_play = val->type == JSON_TYPE_TRUE ? true : false;
     }
     else if (strncmp(key->ptr, "coverimage", key->len) == 0) {
-        mympd_state->coverimage = val->type == JSON_TYPE_TRUE ? true : false;
-        settingname = sdscat(sdsempty(), "coverimage");
+        mpd_state->coverimage = val->type == JSON_TYPE_TRUE ? true : false;
     }
     else if (strncmp(key->ptr, "coverimageName", key->len) == 0) {
         if (validate_string(settingvalue) && sdslen(settingvalue) > 0) {
@@ -110,7 +111,7 @@ bool mpd_api_settings_set(t_config *config, t_mpd_state *mpd_state, struct json_
     else if (strncmp(key->ptr, "love", key->len) == 0) {
         mpd_state->love = val->type == JSON_TYPE_TRUE ? true : false;
     }
-    else if (strcmp(key->ptr, "loveChannel", key->len) == 0) {
+    else if (strncmp(key->ptr, "loveChannel", key->len) == 0) {
         mpd_state->love_channel = sdscatlen(sdsempty(), settingvalue, sdslen(settingvalue));
     }
     else if (strncmp(key->ptr, "loveMessage", key->len) == 0) {
@@ -149,38 +150,38 @@ bool mpd_api_settings_set(t_config *config, t_mpd_state *mpd_state, struct json_
     }
     else if (strncmp(key->ptr, "random", key->len) == 0) {
         unsigned uint_buf = strtoumax(settingvalue, &crap, 10);
-        rc = mpd_run_random(mpd_state->conn, uint_buf));
+        rc = mpd_run_random(mpd_state->conn, uint_buf);
     }
     else if (strncmp(key->ptr, "repeat", key->len) == 0) {
         unsigned uint_buf = strtoumax(settingvalue, &crap, 10);
-        rc = mpd_run_repeat(mpd_state->conn, uint_buf));
+        rc = mpd_run_repeat(mpd_state->conn, uint_buf);
     }
     else if (strncmp(key->ptr, "consume", key->len) == 0) {
         unsigned uint_buf = strtoumax(settingvalue, &crap, 10);
-        rc = mpd_run_consume(mpd_state->conn, uint_buf));
+        rc = mpd_run_consume(mpd_state->conn, uint_buf);
     }
     else if (strncmp(key->ptr, "single", key->len) == 0) {
         unsigned uint_buf = strtoumax(settingvalue, &crap, 10);
-        rc = mpd_run_single(mpd_state->conn, uint_buf));
+        rc = mpd_run_single(mpd_state->conn, uint_buf);
     }
     else if (strncmp(key->ptr, "crossfade", key->len) == 0) {
         unsigned uint_buf = strtoumax(settingvalue, &crap, 10);
-        rc = mpd_run_crossfade(mpd_state->conn, uint_buf));
+        rc = mpd_run_crossfade(mpd_state->conn, uint_buf);
     }
     else if (strncmp(key->ptr, "mixrampdb", key->len) == 0) {
         if (config->mixramp == true) {
-            float float_buf = strtof(settingvalue, &crap, 10);
-            rc = mpd_run_mixrampdb(mpd_state->conn, float_buf));
+            float float_buf = strtof(settingvalue, &crap);
+            rc = mpd_run_mixrampdb(mpd_state->conn, float_buf);
         }
     }
     else if (strncmp(key->ptr, "mixrampdelay", key->len) == 0) {
         if (config->mixramp == true) {
-            float float_buf = strtof(settingvalue, &crap, 10);
-            rc = mpd_run_mixrampdelay(mpd_state->conn, float_buf));
+            float float_buf = strtof(settingvalue, &crap);
+            rc = mpd_run_mixrampdelay(mpd_state->conn, float_buf);
         }
     }
     else if (strncmp(key->ptr, "replaygain", key->len) == 0) {
-        rc = mpd_send_command(mpd_state->conn, "replay_gain_mode", settingvalue, NULL));
+        rc = mpd_send_command(mpd_state->conn, "replay_gain_mode", settingvalue, NULL);
     }    
 
     sds_free(settingvalue);
@@ -207,7 +208,7 @@ sds mpd_client_put_settings(t_mpd_state *mpd_state, sds buffer, sds method, int 
     mpd_return_pair(mpd_state->conn, pair);
     mpd_response_finish(mpd_state->conn);
     
-    buffer = jsonrpc_start_response(buffer, method, request_id);
+    buffer = jsonrpc_start_result(buffer, method, request_id);
     buffer = sdscat(buffer, "{");
     buffer = tojson_long(buffer, "repeat", mpd_status_get_repeat(status), true);
     buffer = tojson_long(buffer, "single", mpd_status_get_single(status), true);
@@ -239,19 +240,19 @@ sds mpd_client_put_settings(t_mpd_state *mpd_state, sds buffer, sds method, int 
     buffer = print_tags_array(buffer, "allmpdtags", mpd_state->mpd_tag_types);
 
     buffer = sdscat(buffer, "}");
-    buffer = jsonrpc_end_response(buffer);
+    buffer = jsonrpc_end_result(buffer);
     
     return buffer;
 }
 
 //private functions
 static sds print_tags_array(sds buffer, const char *tagsname, t_tags tags) {
-    buffer = sdscatprintf(buffer, "\"%s\": [", tagsname);
-    for (int i = 0; i < tags->len; i++) {
+    buffer = sdscatfmt(buffer, "\"%s\": [", tagsname);
+    for (size_t i = 0; i < tags.len; i++) {
         if (i > 0) {
             buffer = sdscat(buffer, ",");
         }
-        const char *tagname = mpd_tag_name(mpd_state->mympd_tag_types->tags[i];
+        const char *tagname = mpd_tag_name(tags.tags[i]);
         buffer = sdscatrepr(buffer, tagname, strlen(tagname));
     }
     buffer = sdscat(buffer, "]");

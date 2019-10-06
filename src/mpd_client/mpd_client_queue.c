@@ -30,7 +30,9 @@
 #include "../../dist/src/sds/sds.h"
 #include "../utility.h"
 #include "../log.h"
-#include "../config_defs.h"
+#include "../list.h"
+#include "config_defs.h"
+#include "mpd_client_utility.h"
 #include "mpd_client_queue.h"
 #include "../dist/src/frozen/frozen.h"
 
@@ -103,8 +105,8 @@ sds mpd_client_put_queue(t_mpd_state *mpd_state, sds buffer, sds method, int req
     buffer = sdscat(buffer, "],");
     buffer = tojson_long(buffer, "totalTime", totalTime, true);
     buffer = tojson_long(buffer, "totalEntities", mpd_status_get_queue_length(status), true);
-    buffer = tojson_long(buffer, "offset", offset,, true);
-    buffer = tojson_long(buffer, "returnedEntities", entities_returned,, true);
+    buffer = tojson_long(buffer, "offset", offset, true);
+    buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
     buffer = tojson_long(buffer, "queueVersion", mpd_status_get_queue_version(status), false);
     buffer = jsonrpc_end_result(buffer);
     
@@ -192,9 +194,9 @@ sds mpd_client_search_queue(t_mpd_state *mpd_state, sds buffer, sds method, int 
     }
 
     buffer = sdscat(buffer, "],");
-    buffer = tojson_long(buffer, "totalEntities", mpd_status_get_queue_length(status), true);
-    buffer = tojson_long(buffer, "offset", offset,, true);
-    buffer = tojson_long(buffer, "returnedEntities", entities_returned,, true);
+    buffer = tojson_long(buffer, "totalEntities", entity_count, true);
+    buffer = tojson_long(buffer, "offset", offset, true);
+    buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
     buffer = tojson_char(buffer, "mpdtagtype", mpdtagtype, false);
     buffer = jsonrpc_end_result(buffer);
     return buffer;

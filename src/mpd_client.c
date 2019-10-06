@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #include <poll.h>
 #include <pthread.h>
+#include <string.h>
 #include <mpd/client.h>
 #include <signal.h>
 #include <assert.h>
@@ -36,11 +37,15 @@
 #include "tiny_queue.h"
 #include "api.h"
 #include "global.h"
+#include "utility.h"
+#include "mpd_client/mpd_client_utility.h"
 #include "mpd_client/mpd_client_api.h"
 #include "mpd_client/mpd_client_jukebox.h"
-#include "mpd_client/mpd_client_utility.h"
 #include "mpd_client/mpd_client_playlists.h"
 #include "mpd_client/mpd_client_stats.h"
+#include "mpd_client/mpd_client_state.h"
+#include "mpd_client/mpd_client_features.h"
+#include "mpd_client/mpd_client_queue.h"
 #include "mpd_client/mpd_client_features.h"
 #include "mpd_client.h"
 
@@ -181,8 +186,9 @@ static void mpd_client_parse_idle(t_config *config, t_mpd_state *mpd_state, int 
                         }
                     }
                     break;
-                default:
-                //other idle events not used
+                default: {
+                    //other idle events not used
+                }
             }
             if (sdslen(buffer) > 0) {
                 mpd_client_notify(buffer);
@@ -249,7 +255,7 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
             if (mpd_connection_get_error(mpd_state->conn) != MPD_ERROR_SUCCESS) {
                 LOG_ERROR("MPD connection: %s", mpd_connection_get_error_message(mpd_state->conn));
                 buffer = jsonrpc_start_phrase_notify(buffer, "MPD connection error: %{error}", true);
-                buffer = tojson_char(buffer, "error", mpd_connection_get_error_message(mpd_state->conn));
+                buffer = tojson_char(buffer, "error", mpd_connection_get_error_message(mpd_state->conn), false);
                 buffer = jsonrpc_end_phrase(buffer);
                 mpd_client_notify(buffer);
                 mpd_state->conn_state = MPD_FAILURE;
@@ -259,7 +265,7 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
             if (strlen(mpd_state->mpd_pass) > 0 && !mpd_run_password(mpd_state->conn, mpd_state->mpd_pass)) {
                 LOG_ERROR("MPD connection: %s", mpd_connection_get_error_message(mpd_state->conn));
                 buffer = jsonrpc_start_phrase_notify(buffer, "MPD connection error: %{error}", true);
-                buffer = tojson_char(buffer, "error", mpd_connection_get_error_message(mpd_state->conn));
+                buffer = tojson_char(buffer, "error", mpd_connection_get_error_message(mpd_state->conn), false);
                 buffer = jsonrpc_end_phrase(buffer);
                 mpd_client_notify(buffer);
                 mpd_state->conn_state = MPD_FAILURE;

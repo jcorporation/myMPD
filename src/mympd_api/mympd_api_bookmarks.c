@@ -33,17 +33,25 @@
 #include "../log.h"
 #include "../list.h"
 #include "../config_defs.h"
+#include "mympd_api_utility.h"
 #include "mympd_api_bookmarks.h"
 #include "../dist/src/frozen/frozen.h"
 
-bool mympd_api_bookmark_update(t_config *config, const int id, const char *name, const char *uri, const char *type) {
+//private definitions
+static bool write_bookmarks_line(FILE *fp, int id, const char *name,
+                                 const char *uri, const char *type);
+
+//public functions
+bool mympd_api_bookmark_update(t_config *config, const int id, const char *name, 
+                               const char *uri, const char *type)
+{
     int line_nr = 0;
     char *line = NULL;
     size_t n = 0;
     ssize_t read;
     bool inserted = false;
     int fd;
-    sds tmp_file = sdscatprintf(sdsempty(), "%s/state/bookmarks.XXXXXX", config->varlibdir);
+    sds tmp_file = sdscatfmt(sdsempty(), "%s/state/bookmarks.XXXXXX", config->varlibdir);
     
     if ((fd = mkstemp(tmp_file)) < 0 ) {
         LOG_ERROR("Can't open %s for write", tmp_file);
@@ -52,7 +60,7 @@ bool mympd_api_bookmark_update(t_config *config, const int id, const char *name,
     }
     FILE *fo = fdopen(fd, "w");
     
-    sds b_file = sdscatprintf(sdsempty(), "%s/state/bookmarks", config->varlibdir);
+    sds b_file = sdscatfmt(sdsempty(), "%s/state/bookmarks", config->varlibdir);
     FILE *fi = fopen(b_file, "r");
     if (fi != NULL) {
         while ((read = getline(&line, &n, fi)) > 0) {
@@ -65,15 +73,15 @@ bool mympd_api_bookmark_update(t_config *config, const int id, const char *name,
                 if (name != NULL) {
                     if (strcmp(name, lname) < 0) {
                         line_nr++;
-                        struct json_out out = JSON_OUT_FILE(fo);
-                        json_printf(&out, "{id: %d, name: %Q, uri: %Q, type: %Q}\n", line_nr, name, uri, type);
-                        inserted = true;
+                        bool rc = write_bookmarks_line(fo, line_nr, name, uri, type);
+                        if (rc == true) {
+                            inserted = true;
+                        }
                     }
                 }
                 if (lid != id) {
                     line_nr++;
-                    struct json_out out = JSON_OUT_FILE(fo);
-                    json_printf(&out, "{id: %d, name: %Q, uri: %Q, type: %Q}\n", line_nr, lname, luri, ltype);
+                    write_bookmarks_line(fo, line_nr, lname, luri, ltype);
                 }
                 FREE_PTR(lname);
                 FREE_PTR(luri);
@@ -88,8 +96,7 @@ bool mympd_api_bookmark_update(t_config *config, const int id, const char *name,
     }
     if (inserted == false && name != NULL) {
         line_nr++;
-        struct json_out out = JSON_OUT_FILE(fo);
-        json_printf(&out, "{id: %d, name: %Q, uri: %Q, type: %Q}\n", line_nr, name, uri, type);
+        write_bookmarks_line(fo, line_nr, name, uri, type);
     }
     fclose(fo);
     
@@ -104,8 +111,9 @@ bool mympd_api_bookmark_update(t_config *config, const int id, const char *name,
     return true;
 }
 
-sds mympd_api_bookmark_list(t_config *config, sds buffer, unsigned int offset) {
-    size_t len = 0;
+sds mympd_api_bookmark_list(t_config *config, sds buffer, sds method, int request_id,
+                            unsigned int offset)
+{
     char *line = NULL;
     char *crap = NULL;
     size_t n = 0;
@@ -113,23 +121,25 @@ sds mympd_api_bookmark_list(t_config *config, sds buffer, unsigned int offset) {
     unsigned entity_count = 0;
     unsigned entities_returned = 0;
     
-    sds b_file = sdscatprintf(sdsempty(), "%s/state/bookmarks", config->varlibdir);
+    sds b_file = sdscatfmt(sdsempty(), "%s/state/bookmarks", config->varlibdir);
     FILE *fi = fopen(b_file, "r");
+
+    buffer = jsonrpc_start_result(buffer, method, request_id);
+    buffer = sdscat(buffer, "[");
 
     if (fi == NULL) {
         //create empty bookmarks file
         fi = fopen(b_file, "w");
         if (fi == NULL) {
             LOG_ERROR("Can't open %s for write", b_file);
-            buffer = sdscat(sdsempty(), "{\"type\":\"error\",\"data\":\"Failed to open bookmarks file\"}");
+            buffer = jsonrpc_respond_message(sdsempty(), method, request_id, "Failed to open bookmarks file", true);
         }
         else {
             fclose(fi);
-            buffer = sdscat(sdsempty(), "{\"type\":\"bookmark\",\"data\":[],\"totalEntities\":0,\"offset\":0,\"returnedEntities\":0}");
         }
-    } else {
-        buffer = sdscat(buffer, "{\"type\":\"bookmark\",\"data\":[");
-        while ((read = getline(&line, &n, fi)) > 0 && len < MAX_LIST_SIZE) {
+    }
+    else {
+        while ((read = getline(&line, &n, fi)) > 0) {
             entity_count++;
             if (entity_count > offset && entity_count <= offset + config->max_elements_per_page) {
                 if (entities_returned++) {
@@ -141,12 +151,27 @@ sds mympd_api_bookmark_list(t_config *config, sds buffer, unsigned int offset) {
         }
         FREE_PTR(line);
         fclose(fi);
-        buffer = sdscatprintf(buffer, "],\"totalEntities\":%d,\"offset\":%d,\"returnedEntities\":%d}",
-            entity_count,
-            offset,
-            entities_returned
-        );
+
     }
     sds_free(b_file);
+    buffer = sdscat(buffer, "],");
+    buffer = tojson_long(buffer, "totalEntities", entity_count, true);
+    buffer = tojson_long(buffer, "offset", offset, true);
+    buffer = tojson_long(buffer, "returnedEntities", entities_returned, false);
+    buffer = jsonrpc_end_result(buffer);
     return buffer;
+}
+
+//private functions
+static bool write_bookmarks_line(FILE *fp, int id, const char *name, 
+                                 const char *uri, const char *type)
+{
+    sds line = sdscatfmt(sdsempty(), "{\"id\": %d,\"name\":%Q,\"uri\":\"%Q\",\"type\":\"%Q\"}\n", line_nr, name, uri, type);
+    int rc = fputs(line, fo);
+    sds_free(line);
+    if (rc > 0) {
+        return true;
+    }
+    LOG_ERROR("Can't write bookmarks line to file");
+    return false;
 }

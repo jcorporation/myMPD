@@ -25,18 +25,23 @@
 #include <string.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <signal.h>
+#include <assert.h>
 #include <mpd/client.h>
 
 #include "../../dist/src/sds/sds.h"
 #include "../log.h"
 #include "../list.h"
-#include "../config_defs.h"
+#include "../utility.h"
+#include "../api.h"
+#include "../tiny_queue.h"
+#include "../global.h"
+#include "config_defs.h"
 #include "mpd_client_utility.h"
-#include "state.h"
-#include "features.h"
+#include "mpd_client_state.h"
+#include "mpd_client_features.h"
 
 //private definitions
-static void mpd_client_feature_love(t_mpd_state *mpd_state);
 static void mpd_client_feature_tags(t_mpd_state *mpd_state);
 static void mpd_client_feature_music_directory(t_mpd_state *mpd_state);
 
@@ -101,7 +106,9 @@ void mpd_client_mpd_features(t_mpd_state *mpd_state) {
     mpd_client_feature_music_directory(mpd_state);
     mpd_client_feature_tags(mpd_state);
     mpd_client_feature_love(mpd_state);
-    mpd_client_get_state(mpd_state, NULL);
+    sds buffer = sdsempty();
+    buffer = mpd_client_put_state(mpd_state, buffer, NULL, 0);
+    sds_free(buffer);
     
     if (LIBMPDCLIENT_CHECK_VERSION(2, 17, 0) && mpd_connection_cmp_server_version(mpd_state->conn, 0, 21, 0) >= 0) {
         mpd_state->feat_advsearch = true;
@@ -112,131 +119,7 @@ void mpd_client_mpd_features(t_mpd_state *mpd_state) {
     }
 }
 
-//private functions
-static void mpd_client_feature_tags(t_mpd_state *mpd_state) {
-    sds taglist = sdsnew(mpd_state->taglist);
-    sds searchtaglist = sdsnew(mpd_state->searchtaglist);    
-    sds browsetaglist = sdsnew(mpd_state->browsetaglist);
-    sds *tokens;
-    int tokens_count;
-    struct mpd_pair *pair;
-
-    reset_t_tags(mpd_state->mpd_tag_types);
-    reset_t_tags(mpd_state->mympd_tag_types);
-    reset_t_tags(mpd_state->search_tag_types);
-    reset_t_tags(mpd_state->browse_tag_types);
-    
-    sds logline = sdsnew("MPD supported tags: ");
-    if (mpd_send_list_tag_types(mpd_state->conn)) {
-        while ((pair = mpd_recv_tag_type_pair(mpd_state->conn)) != NULL) {
-            enum mpd_tag_type tag = mpd_tag_name_parse(pair->value);
-            if (tag != MPD_TAG_UNKNOWN) {
-                logline = sdscatprintf(logline, "%s ", pair->value);
-                mpd_state->mpd_tag_types->tags[mpd_state->mpd_tag_types->len++] = tag;
-            }
-            else {
-                LOG_WARN("Unknown tag %s (libmpdclient to old)", pair->value);
-            }
-            mpd_return_pair(mpd_state->conn, pair);
-        }
-        mpd_response_finish(mpd_state->conn);
-    }
-    else {
-        check_error_and_recover(mpd_state, NULL, NULL, 0);
-    }
-
-    if (mpd_state->mpd_tag_types_len == 0) {
-        logline = sdscat(logline, "none");
-        LOG_INFO(logline);
-        LOG_INFO("Tags are disabled");
-        mpd_state->feat_tags = false;
-    }
-    else {
-        mpd_state->feat_tags = true;
-        LOG_INFO(logline);
-        logline = sdscat(sdsempty(), "myMPD enabled tags: ");
-        tokens = sdssplitlen(taglist, sdslen(taglist), ",", 1, &tokens_count);
-        for (int i = 0; i < tokens_count; i++) {
-            sdstrim(tokens[i], " ");
-            enum mpd_tag_type tag = mpd_tag_name_iparse(tokens[i]);
-            if (tag == MPD_TAG_UNKNOWN) {
-                LOG_WARN("Unknown tag %s", token);
-            }
-            else {
-                if (mpd_client_tag_exists(mpd_state->mpd_tag_types->tags, mpd_state->mpd_tag_types->len, tag) == true) {
-                    logline = sdscatprintf(logline, "%s ", mpd_tag_name(tag));
-                    mpd_state->mympd_tag_types->tags[mpd_state->mympd_tag_types->len++] = tag;
-                }
-                else {
-                    LOG_DEBUG("Disabling tag %s", mpd_tag_name(tag));
-                }
-            }
-        }
-        sdsfreesplitres(tokens, tokens_count);
-        LOG_INFO(logline);
-        
-        #if LIBMPDCLIENT_CHECK_VERSION(2,12,0)
-        if (mpd_connection_cmp_server_version(mpd_state->conn, 0, 21, 0) >= 0) {
-            LOG_VERBOSE("Enabling mpd tag types");
-            if (mpd_command_list_begin(mpd_state->conn, false)) {
-                mpd_send_clear_tag_types(mpd_state->conn);
-                mpd_send_enable_tag_types(mpd_state->conn, mpd_state->mympd_tag_types->tags, mpd_state->mympd_tag_types->len);
-                if (mpd_command_list_end(mpd_state->conn)) {
-                    mpd_response_finish(mpd_state->conn);
-                }
-            }
-            check_error_and_recover(mpd_state, NULL, NULL, 0);
-        }
-        #endif
-        logline = sdscat(sdsempty(), "myMPD enabled searchtags: ");
-        tokens = sdssplitlen(searchtaglist, sdslen(searchtaglist), ",", 1, &tokens_count);
-        for (int i = 0; i < tokens_count; i++) {
-            sdstrim(tokens[i], " ");
-            enum mpd_tag_type tag = mpd_tag_name_iparse(tokens[i]);
-            if (tag == MPD_TAG_UNKNOWN) {
-                LOG_WARN("Unknown tag %s", token);
-            }
-            else {
-                if (mpd_client_tag_exists(mpd_state->mympd_tag_types->tags, mpd_state->mympd_tag_types->len, tag) == true) {
-                    logline = sdscatprintf(logline, "%s ", mpd_tag_name(tag));
-                    mpd_state->search_tag_types->tags[mpd_state->search_tag_types->len++] = tag;
-                }
-                else {
-                    LOG_DEBUG("Disabling tag %s", mpd_tag_name(tag));
-                }
-            }
-        }
-        sdsfreesplitres(tokens, tokens_count);
-        LOG_INFO(logline);
-
-        logline = sdscat(sdsempty(), "myMPD enabled browsetags: ");
-        tokens = sdssplitlen(browsetaglist, sdslen(browsetaglist), ",", 1, &tokens_count);
-        for (int i = 0; i < tokens_count; i++) {
-            sdstrim(tokens[i], " ");
-            enum mpd_tag_type tag = mpd_tag_name_iparse(tokens[i]);
-            if (tag == MPD_TAG_UNKNOWN) {
-                LOG_WARN("Unknown tag %s", token);
-            }
-            else {
-                if (mpd_client_tag_exists(mpd_state->mympd_tag_types->tags, mpd_state->mympd_tag_types->len, tag) == true) {
-                    logline = sdscatprintf(logline, "%s ", mpd_tag_name(tag));
-                    mpd_state->browse_tag_types->tags[mpd_state->browse_tag_types->len++] = tag;
-                }
-                else {
-                    LOG_DEBUG("Disabling tag %s", mpd_tag_name(tag));
-                }
-            }
-        }
-        sdsfreesplitres(tokens, tokens_count);
-        LOG_INFO(logline);
-    }
-    sds_free(logline);
-    sds_free(taglist);
-    sds_free(searchtaglist);
-    sds_free(browsetaglist);
-}
-
-static void mpd_client_feature_love(t_mpd_state *mpd_state) {
+void mpd_client_feature_love(t_mpd_state *mpd_state) {
     struct mpd_pair *pair;
     mpd_state->feat_love = false;
     if (mpd_state->love == true) {
@@ -257,6 +140,132 @@ static void mpd_client_feature_love(t_mpd_state *mpd_state) {
         }
     }
 }
+
+//private functions
+static void mpd_client_feature_tags(t_mpd_state *mpd_state) {
+    sds taglist = sdsnew(mpd_state->taglist);
+    sds searchtaglist = sdsnew(mpd_state->searchtaglist);    
+    sds browsetaglist = sdsnew(mpd_state->browsetaglist);
+    sds *tokens;
+    int tokens_count;
+    struct mpd_pair *pair;
+
+    reset_t_tags(&mpd_state->mpd_tag_types);
+    reset_t_tags(&mpd_state->mympd_tag_types);
+    reset_t_tags(&mpd_state->search_tag_types);
+    reset_t_tags(&mpd_state->browse_tag_types);
+    
+    sds logline = sdsnew("MPD supported tags: ");
+    if (mpd_send_list_tag_types(mpd_state->conn)) {
+        while ((pair = mpd_recv_tag_type_pair(mpd_state->conn)) != NULL) {
+            enum mpd_tag_type tag = mpd_tag_name_parse(pair->value);
+            if (tag != MPD_TAG_UNKNOWN) {
+                logline = sdscatfmt(logline, "%s ", pair->value);
+                mpd_state->mpd_tag_types.tags[mpd_state->mpd_tag_types.len++] = tag;
+            }
+            else {
+                LOG_WARN("Unknown tag %s (libmpdclient to old)", pair->value);
+            }
+            mpd_return_pair(mpd_state->conn, pair);
+        }
+        mpd_response_finish(mpd_state->conn);
+    }
+    else {
+        check_error_and_recover(mpd_state, NULL, NULL, 0);
+    }
+
+    if (mpd_state->mpd_tag_types.len == 0) {
+        logline = sdscat(logline, "none");
+        LOG_INFO(logline);
+        LOG_INFO("Tags are disabled");
+        mpd_state->feat_tags = false;
+    }
+    else {
+        mpd_state->feat_tags = true;
+        LOG_INFO(logline);
+        logline = sdscat(sdsempty(), "myMPD enabled tags: ");
+        tokens = sdssplitlen(taglist, sdslen(taglist), ",", 1, &tokens_count);
+        for (int i = 0; i < tokens_count; i++) {
+            sdstrim(tokens[i], " ");
+            enum mpd_tag_type tag = mpd_tag_name_iparse(tokens[i]);
+            if (tag == MPD_TAG_UNKNOWN) {
+                LOG_WARN("Unknown tag %s", tokens[i]);
+            }
+            else {
+                if (mpd_client_tag_exists(mpd_state->mpd_tag_types.tags, mpd_state->mpd_tag_types.len, tag) == true) {
+                    logline = sdscatfmt(logline, "%s ", mpd_tag_name(tag));
+                    mpd_state->mympd_tag_types.tags[mpd_state->mympd_tag_types.len++] = tag;
+                }
+                else {
+                    LOG_DEBUG("Disabling tag %s", mpd_tag_name(tag));
+                }
+            }
+        }
+        sdsfreesplitres(tokens, tokens_count);
+        LOG_INFO(logline);
+        
+        #if LIBMPDCLIENT_CHECK_VERSION(2,12,0)
+        if (mpd_connection_cmp_server_version(mpd_state->conn, 0, 21, 0) >= 0) {
+            LOG_VERBOSE("Enabling mpd tag types");
+            if (mpd_command_list_begin(mpd_state->conn, false)) {
+                mpd_send_clear_tag_types(mpd_state->conn);
+                mpd_send_enable_tag_types(mpd_state->conn, mpd_state->mympd_tag_types.tags, mpd_state->mympd_tag_types.len);
+                if (mpd_command_list_end(mpd_state->conn)) {
+                    mpd_response_finish(mpd_state->conn);
+                }
+            }
+            check_error_and_recover(mpd_state, NULL, NULL, 0);
+        }
+        #endif
+        logline = sdscat(sdsempty(), "myMPD enabled searchtags: ");
+        tokens = sdssplitlen(searchtaglist, sdslen(searchtaglist), ",", 1, &tokens_count);
+        for (int i = 0; i < tokens_count; i++) {
+            sdstrim(tokens[i], " ");
+            enum mpd_tag_type tag = mpd_tag_name_iparse(tokens[i]);
+            if (tag == MPD_TAG_UNKNOWN) {
+                LOG_WARN("Unknown tag %s", tokens[i]);
+            }
+            else {
+                if (mpd_client_tag_exists(mpd_state->mympd_tag_types.tags, mpd_state->mympd_tag_types.len, tag) == true) {
+                    logline = sdscatfmt(logline, "%s ", mpd_tag_name(tag));
+                    mpd_state->search_tag_types.tags[mpd_state->search_tag_types.len++] = tag;
+                }
+                else {
+                    LOG_DEBUG("Disabling tag %s", mpd_tag_name(tag));
+                }
+            }
+        }
+        sdsfreesplitres(tokens, tokens_count);
+        LOG_INFO(logline);
+
+        logline = sdscat(sdsempty(), "myMPD enabled browsetags: ");
+        tokens = sdssplitlen(browsetaglist, sdslen(browsetaglist), ",", 1, &tokens_count);
+        for (int i = 0; i < tokens_count; i++) {
+            sdstrim(tokens[i], " ");
+            enum mpd_tag_type tag = mpd_tag_name_iparse(tokens[i]);
+            if (tag == MPD_TAG_UNKNOWN) {
+                LOG_WARN("Unknown tag %s", tokens[i]);
+            }
+            else {
+                if (mpd_client_tag_exists(mpd_state->mympd_tag_types.tags, mpd_state->mympd_tag_types.len, tag) == true) {
+                    logline = sdscatfmt(logline, "%s ", mpd_tag_name(tag));
+                    mpd_state->browse_tag_types.tags[mpd_state->browse_tag_types.len++] = tag;
+                }
+                else {
+                    LOG_DEBUG("Disabling tag %s", mpd_tag_name(tag));
+                }
+            }
+        }
+        sdsfreesplitres(tokens, tokens_count);
+        LOG_INFO(logline);
+    }
+    sds_free(logline);
+    sds_free(taglist);
+    sds_free(searchtaglist);
+    sds_free(browsetaglist);
+}
+
+
 
 static void mpd_client_feature_music_directory(t_mpd_state *mpd_state) {
     struct mpd_pair *pair;
@@ -300,7 +309,7 @@ static void mpd_client_feature_music_directory(t_mpd_state *mpd_state) {
     else {
         LOG_WARN("Disabling featLibrary support");
         mpd_state->feat_library = false;
-        mpd_state->music_directory_value = sdscat(sdsempty, "");;
+        mpd_state->music_directory_value = sdscat(sdsempty(), "");;
     }
     
     if (mpd_state->feat_library == false) {
@@ -312,7 +321,7 @@ static void mpd_client_feature_music_directory(t_mpd_state *mpd_state) {
     t_work_result *web_server_response = (t_work_result *)malloc(sizeof(t_work_result));
     assert(web_server_response);
     web_server_response->conn_id = -1;
-    web_server_response->data = sdscatprintf(sdsempty(), "{\"musicDirectory\":\"%s\", \"featLibrary\": %s}",
+    web_server_response->data = sdscatfmt(sdsempty(), "{\"musicDirectory\":\"%s\", \"featLibrary\": %s}",
         mpd_state->music_directory_value,
         mpd_state->feat_library == true ? "true" : "false"
     );

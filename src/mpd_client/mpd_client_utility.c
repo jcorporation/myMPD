@@ -24,15 +24,21 @@
 #include <stdlib.h>
 #include <libgen.h>
 #include <pthread.h>
+#include <string.h>
+#include <inttypes.h>
 #include <mpd/client.h>
 
 #include "../../dist/src/sds/sds.h"
+#include "../../dist/src/frozen/frozen.h"
+#include "../list.h"
+#include "config_defs.h"
 #include "../utility.h"
-#include "mpd_client_utils.h"
+#include "../log.h"
+#include "mpd_client_utility.h"
 
 sds put_song_tags(sds buffer, t_mpd_state *mpd_state, const t_tags *tagcols, const struct mpd_song *song) {
     if (mpd_state->feat_tags == true) {
-        for (int tagnr = 0; tagnr < tagcols->len; ++tagnr) {
+        for (size_t tagnr = 0; tagnr < tagcols->len; ++tagnr) {
             char *tag_value = mpd_client_get_tag(song, tagcols->tags[tagnr]);
             buffer = tojson_char(buffer, mpd_tag_name(tagcols->tags[tagnr]), tag_value == NULL ? "-" : tag_value, true);
         }
@@ -42,11 +48,12 @@ sds put_song_tags(sds buffer, t_mpd_state *mpd_state, const t_tags *tagcols, con
         buffer = tojson_char(buffer, "Title", tag_value == NULL ? "-" : tag_value, true);
     }
     buffer = tojson_long(buffer, "Duration", mpd_song_get_duration(song), true);
-    buffer = tojson_long(buffer, "uri", mpd_song_get_uri(song), false);
+    buffer = tojson_char(buffer, "uri", mpd_song_get_uri(song), false);
+    return buffer;
 }
 
-sds check_error_and_recover(t_mpd_state *state, sds buffer, sds method, int request_id) {
-    if (mpd_connection_get_error != MPD_ERROR_SUCCESS) {
+sds check_error_and_recover(t_mpd_state *mpd_state, sds buffer, sds method, int request_id) {
+    if (mpd_connection_get_error(mpd_state->conn) != MPD_ERROR_SUCCESS) {
         LOG_ERROR("MPD error: %s", mpd_connection_get_error_message(mpd_state->conn));
         if (buffer != NULL) {
             buffer = jsonrpc_respond_message(buffer, method, request_id, mpd_connection_get_error_message(mpd_state->conn), true);
@@ -59,7 +66,7 @@ sds check_error_and_recover(t_mpd_state *state, sds buffer, sds method, int requ
 }
 
 sds check_error_and_recover_notify(t_mpd_state *mpd_state, sds buffer) {
-    if (mpd_connection_get_error != MPD_ERROR_SUCCESS) {
+    if (mpd_connection_get_error(mpd_state->conn) != MPD_ERROR_SUCCESS) {
         LOG_ERROR("MPD error: %s", mpd_connection_get_error_message(mpd_state->conn));
         if (buffer != NULL) {
             buffer = jsonrpc_respond_message_notify(buffer, mpd_connection_get_error_message(mpd_state->conn), true);
@@ -86,9 +93,9 @@ void json_to_tags(const char *str, int len, void *user_data) {
     t_tags *tags = (t_tags *) user_data;
     tags->len = 0;
     for (i = 0; json_scanf_array_elem(str, len, "", i, &t) > 0; i++) {
-        char token[t.len + 1];
-        snprintf(token, t.len + 1, "%.*s", t.len, t.ptr);
+        sds token = sdscatlen(sdsempty(), t.ptr, t.len);
         enum mpd_tag_type tag = mpd_tag_name_iparse(token);
+        sds_free(token);
         if (tag != MPD_TAG_UNKNOWN) {
             tags->tags[tags->len++] = tag;
         }
@@ -108,6 +115,46 @@ char *mpd_client_get_tag(struct mpd_song const *song, const enum mpd_tag_type ta
     return str;
 }
 
+bool mpd_client_get_sticker(t_mpd_state *mpd_state, const char *uri, t_sticker *sticker) {
+    struct mpd_pair *pair;
+    char *crap = NULL;
+    sticker->playCount = 0;
+    sticker->skipCount = 0;
+    sticker->lastPlayed = 0;
+    sticker->lastSkipped = 0;
+    sticker->like = 1;
+
+    if (uri == NULL || strstr(uri, "://") != NULL) {
+        return false;
+    }
+
+    if (mpd_send_sticker_list(mpd_state->conn, "song", uri)) {
+        while ((pair = mpd_recv_sticker(mpd_state->conn)) != NULL) {
+            if (strcmp(pair->name, "playCount") == 0) {
+                sticker->playCount = strtoimax(pair->value, &crap, 10);
+            }
+            else if (strcmp(pair->name, "skipCount") == 0) {
+                sticker->skipCount = strtoimax(pair->value, &crap, 10);
+            }
+            else if (strcmp(pair->name, "lastPlayed") == 0) {
+                sticker->lastPlayed = strtoimax(pair->value, &crap, 10);
+            }
+            else if (strcmp(pair->name, "lastSkipped") == 0) {
+                sticker->lastSkipped = strtoimax(pair->value, &crap, 10);
+            }
+            else if (strcmp(pair->name, "like") == 0) {
+                sticker->like = strtoimax(pair->value, &crap, 10);
+            }
+            mpd_return_sticker(mpd_state->conn, pair);
+        }
+    }
+    else {
+        check_error_and_recover(mpd_state, NULL, NULL, 0);
+        return false;
+    }
+    return true;
+}
+
 bool mpd_client_tag_exists(const enum mpd_tag_type tag_types[64], const size_t tag_types_len, const enum mpd_tag_type tag) {
     for (size_t i = 0; i < tag_types_len; i++) {
         if (tag_types[i] == tag) {
@@ -117,7 +164,7 @@ bool mpd_client_tag_exists(const enum mpd_tag_type tag_types[64], const size_t t
     return false;
 }
 
-void reset_t_tags(tags) {
+void reset_t_tags(t_tags *tags) {
     tags->len = 0;
     memset(tags->tags, 0, sizeof(tags->tags));
 }
@@ -156,10 +203,10 @@ void default_mpd_state(t_mpd_state *mpd_state) {
     mpd_state->browsetaglist = sdsempty();
     mpd_state->mpd_host = sdsempty();
     mpd_state->mpd_pass = sdsempty();
-    reset_t_tags(mpd_state->mpd_tag_types);
-    reset_t_tags(mpd_state->mympd_tag_types);
-    reset_t_tags(mpd_state->search_tag_types);
-    reset_t_tags(mpd_state->browse_tag_types);
+    reset_t_tags(&mpd_state->mpd_tag_types);
+    reset_t_tags(&mpd_state->mympd_tag_types);
+    reset_t_tags(&mpd_state->search_tag_types);
+    reset_t_tags(&mpd_state->browse_tag_types);
 }
 
 void free_mpd_state(t_mpd_state *mpd_state) {

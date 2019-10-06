@@ -25,6 +25,6 @@
 sds mpd_client_get_updatedb_state(t_mpd_state *mpd_state, sds buffer);
 sds mpd_client_put_state(t_mpd_state *mpd_state, sds buffer, sds method, int request_id);
 sds mpd_client_put_volume(t_mpd_state *mpd_state, sds buffer, sds method, int request_id);
-sds mpd_client_put_outputs(t_mpd_state *mpd_state, sds buffer, sds method, int request_id)
+sds mpd_client_put_outputs(t_mpd_state *mpd_state, sds buffer, sds method, int request_id);
 sds mpd_client_put_current_song(t_config *config, t_mpd_state *mpd_state, sds buffer, sds method, int request_id);
 #endif

@@ -42,8 +42,8 @@ bool create_certificates(const char *dir, const char *custom_san) {
     bool rc_cert = false;
     
     //read ca certificate / private key or create it
-    sds cacert_file = sdscatprintf(sdsempty(), "%s/ca.pem", dir);
-    sds cakey_file = sdscatprintf(sdsempty(), "%s/ca.key", dir);
+    sds cacert_file = sdscatfmt(sdsempty(), "%s/ca.pem", dir);
+    sds cakey_file = sdscatfmt(sdsempty(), "%s/ca.key", dir);
     
     EVP_PKEY *ca_key = NULL;
     X509 *ca_cert = NULL;
@@ -75,8 +75,8 @@ bool create_certificates(const char *dir, const char *custom_san) {
 
     
     //read server certificate / privat key or create it
-    sds servercert_file = sdscatprintf(sdsempty(), "%s/server.pem", dir);
-    sds serverkey_file = sdscatprintf(sdsempty(), "%s/server.key", dir);
+    sds servercert_file = sdscatfmt(sdsempty(), "%s/server.pem", dir);
+    sds serverkey_file = sdscatfmt(sdsempty(), "%s/server.key", dir);
     
     EVP_PKEY *server_key = NULL;
     X509 *server_cert = NULL;
@@ -85,7 +85,7 @@ bool create_certificates(const char *dir, const char *custom_san) {
         //get subject alternative names
         sds san = sdsempty();
         san = get_san(san);
-        san = sdscatprintf(san, ", %s", custom_san);
+        san = sdscatfmt(san, ", %s", custom_san);
         LOG_INFO("Creating server certificate with san: %s", san);
         server_key = generate_keypair();
         if (!server_key) {
@@ -139,13 +139,13 @@ bool create_certificates(const char *dir, const char *custom_san) {
 }
 
 bool cleanup_certificates(sds dir, const char *name) {
-    sds cert_file = sdscatprintf(sdsempty(), "%s/%s.pem", dir, name);
+    sds cert_file = sdscatfmt(sdsempty(), "%s/%s.pem", dir, name);
     if (unlink(cert_file) != 0) {
         LOG_ERROR("Error removing file %s", cert_file);
         sds_free(cert_file);
         return false;
     }
-    cert_file = sdscatprintf(sdsempty(), "%s/%s.key", dir, name);
+    cert_file = sdscatfmt(sdsempty(), "%s/%s.key", dir, name);
     if (unlink(cert_file) != 0) {
         LOG_ERROR("Error removing file %s", cert_file);
         sds_free(cert_file);
@@ -195,7 +195,7 @@ static bool load_certificate(sds key_file, EVP_PKEY **key, sds cert_file, X509 *
 
 /*Gets local hostname and ip for subject alternative names */
 static sds get_san(sds buffer) {
-    buffer = sdscatprintf(sdsempty(), "DNS:localhost, IP:127.0.0.1");
+    buffer = sdscatfmt(sdsempty(), "DNS:localhost, IP:127.0.0.1");
   
     //Retrieve short hostname 
     char hostbuffer[256];
@@ -203,7 +203,7 @@ static sds get_san(sds buffer) {
     if (hostname == -1) {
         return buffer;
     }
-    buffer = sdscatprintf(buffer, ", DNS:%s", hostbuffer);
+    buffer = sdscatfmt(buffer, ", DNS:%s", hostbuffer);
 
     //Retrieve fqdn
     struct addrinfo hints={0};
@@ -213,7 +213,7 @@ static sds get_san(sds buffer) {
     if (getaddrinfo(hostbuffer, 0, &hints, &res) == 0) {
         // The hostname was successfully resolved.
         if (strcmp(hostbuffer, res->ai_canonname) != 0) {
-            buffer = sdscatprintf(buffer, ", DNS:%s", res->ai_canonname);
+            buffer = sdscatfmt(buffer, ", DNS:%s", res->ai_canonname);
         }
         freeaddrinfo(res);
     }
@@ -223,7 +223,7 @@ static sds get_san(sds buffer) {
     if (host_entry != NULL) {  
         // To convert an Internet network address into ASCII string 
         char *IPbuffer = inet_ntoa(*((struct in_addr*)host_entry->h_addr_list[0]));
-        buffer = sdscatprintf(buffer, ", IP:%s", IPbuffer);
+        buffer = sdscatfmt(buffer, ", IP:%s", IPbuffer);
     }
     
     return buffer;
@@ -406,7 +406,7 @@ static X509 *generate_selfsigned_cert(EVP_PKEY *pkey) {
 
 static bool write_to_disk(sds key_file, EVP_PKEY *pkey, sds cert_file, X509 *cert) {
     /* Write the key to disk. */    
-    sds key_file_tmp = sdscatprintf(sdsempty(), "%s.XXXXXX", key_file);
+    sds key_file_tmp = sdscatfmt(sdsempty(), "%s.XXXXXX", key_file);
     int fd;
     if ((fd = mkstemp(key_file_tmp)) < 0 ) {
         LOG_ERROR("Can't open %s for write", key_file_tmp);
@@ -429,7 +429,7 @@ static bool write_to_disk(sds key_file, EVP_PKEY *pkey, sds cert_file, X509 *cer
     sds_free(key_file_tmp);
     
     /* Write the certificate to disk. */
-    sds cert_file_tmp = sdscatprintf(sdsempty(), "%s.XXXXXX", cert_file);
+    sds cert_file_tmp = sdscatfmt(sdsempty(), "%s.XXXXXX", cert_file);
     if ((fd = mkstemp(cert_file_tmp)) < 0 ) {
         LOG_ERROR("Can't open %s for write", cert_file_tmp);
         sds_free(cert_file_tmp);

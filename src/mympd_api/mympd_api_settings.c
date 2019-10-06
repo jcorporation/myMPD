@@ -41,6 +41,7 @@
 #include "../log.h"
 #include "../list.h"
 #include "../config_defs.h"
+#include "mympd_api_utility.h"
 #include "mympd_api_settings.h"
 #include "../dist/src/frozen/frozen.h"
 
@@ -54,7 +55,7 @@ void mympd_api_settings_delete(t_config *config) {
     const char** ptr = state_files;
     sds filename = sdsempty();
     while (*ptr != 0) {
-        filename = sdscatprintf(sdsempty(), "%s/state/%s", config->varlibdir, *ptr);
+        filename = sdscatfmt(sdsempty(), "%s/state/%s", config->varlibdir, *ptr);
         unlink(filename);
         ++ptr;
     }
@@ -347,7 +348,7 @@ sds state_file_rw_string(t_config *config, const char *name, const char *def_val
         return result;
     }
     
-    sds cfg_file = sdscatprintf(sdsempty(), "%s/state/%s", config->varlibdir, name);
+    sds cfg_file = sdscatfmt(sdsempty(), "%s/state/%s", config->varlibdir, name);
     FILE *fp = fopen(cfg_file, "r");
     sds_free(cfg_file);
     if (fp == NULL) {
@@ -401,7 +402,7 @@ bool state_file_write(t_config *config, const char *name, const char *value) {
     if (!validate_string(name)) {
         return false;
     }
-    sds tmp_file = sdscatprintf(sdsempty(), "%s/state/%s.XXXXXX", config->varlibdir, name);
+    sds tmp_file = sdscatfmt(sdsempty(), "%s/state/%s.XXXXXX", config->varlibdir, name);
     int fd;
     if ((fd = mkstemp(tmp_file)) < 0 ) {
         LOG_ERROR("Can't open %s for write", tmp_file);
@@ -411,7 +412,7 @@ bool state_file_write(t_config *config, const char *name, const char *value) {
     FILE *fp = fdopen(fd, "w");
     fprintf(fp, "%s", value);
     fclose(fp);
-    sds cfg_file = sdscatprintf(sdsempty(), "%s/state/%s", config->varlibdir, name);
+    sds cfg_file = sdscatfmt(sdsempty(), "%s/state/%s", config->varlibdir, name);
     if (rename(tmp_file, cfg_file) == -1) {
         LOG_ERROR("Renaming file from %s to %s failed", tmp_file, cfg_file);
         sds_free(tmp_file);
@@ -457,13 +458,13 @@ sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buf
     buffer = tojson_char(buffer, "loveChannel", mympd_state->love_channel, true);
     buffer = tojson_char(buffer, "loveMessage", mympd_state->love_message, true);
     buffer = tojson_char(buffer, "musicDirectory", mympd_state->music_directory, true);
-    buffer = sdscatprintf(buffer, "\"colsQueueCurrent\":%s,", mympd_state->cols_queue_current);
-    buffer = sdscatprintf(buffer, "\"colsSearch\":%s,", mympd_state->cols_search);
-    buffer = sdscatprintf(buffer, "\"colsBrowseDatabase\":%s,", mympd_state->cols_browse_database);
-    buffer = sdscatprintf(buffer, "\"colsBrowsePlaylistsDetail\":%s,", mympd_state->cols_browse_playlists_detail);
-    buffer = sdscatprintf(buffer, "\"colsBrowseFilesystem\":%s,", mympd_state->cols_browse_filesystem);
-    buffer = sdscatprintf(buffer, "\"colsPlayback\":%s,", mympd_state->cols_playback);
-    buffer = sdscatprintf(buffer, "\"colsQueueLastPlayed\":%s", mympd_state->cols_queue_last_played);
+    buffer = sdscatfmt(buffer, "\"colsQueueCurrent\":%s,", mympd_state->cols_queue_current);
+    buffer = sdscatfmt(buffer, "\"colsSearch\":%s,", mympd_state->cols_search);
+    buffer = sdscatfmt(buffer, "\"colsBrowseDatabase\":%s,", mympd_state->cols_browse_database);
+    buffer = sdscatfmt(buffer, "\"colsBrowsePlaylistsDetail\":%s,", mympd_state->cols_browse_playlists_detail);
+    buffer = sdscatfmt(buffer, "\"colsBrowseFilesystem\":%s,", mympd_state->cols_browse_filesystem);
+    buffer = sdscatfmt(buffer, "\"colsPlayback\":%s,", mympd_state->cols_playback);
+    buffer = sdscatfmt(buffer, "\"colsQueueLastPlayed\":%s", mympd_state->cols_queue_last_played);
 
     if (config->syscmds == true) {
         buffer = sdscat(buffer, ",\"syscmdList\":[");

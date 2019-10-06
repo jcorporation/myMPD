@@ -30,9 +30,9 @@
 
 #include "../dist/src/sds/sds.h"
 #include "../utility.h"
-#include "../api.h"
 #include "../log.h"
-#include "../config_defs.h"
+#include "../list.h"
+#include "config_defs.h"
 #include "mpd_client_utility.h"
 #include "mpd_client_search.h"
 
@@ -65,7 +65,7 @@ sds mpd_client_search(t_mpd_state *mpd_state, sds buffer, sds method, int reques
         struct mpd_song *song;
         unsigned entity_count = 0;
         unsigned entities_returned = 0;
-        while ((song = mpd_recv_song(mpd_state->conn)) != NULL && len) {
+        while ((song = mpd_recv_song(mpd_state->conn)) != NULL) {
             entity_count++;
             if (entity_count > offset && entity_count <= offset + mpd_state->max_elements_per_page) {
                 if (entities_returned++) {
@@ -79,8 +79,8 @@ sds mpd_client_search(t_mpd_state *mpd_state, sds buffer, sds method, int reques
             mpd_song_free(song);
         }
         buffer = sdscat(buffer, "],");
-        buffer = tojson_long(buffer, "totalEntities", mpd_status_get_queue_length(status), true);
-        buffer = tojson_long(buffer, "offset", offset,, true);
+        buffer = tojson_long(buffer, "totalEntities", entity_count, true);
+        buffer = tojson_long(buffer, "offset", offset, true);
         buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
         buffer = tojson_char(buffer, "searchstr", searchstr, false);
         buffer = jsonrpc_end_result(buffer);
@@ -164,8 +164,8 @@ sds mpd_client_search_adv(t_mpd_state *mpd_state, sds buffer, sds method, int re
             mpd_song_free(song);
         }
         buffer = sdscat(buffer, "],");
-        buffer = tojson_long(buffer, "totalEntities", mpd_status_get_queue_length(status), true);
-        buffer = tojson_long(buffer, "offset", offset,, true);
+        buffer = tojson_long(buffer, "totalEntities", -1, true);
+        buffer = tojson_long(buffer, "offset", offset, true);
         buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
         buffer = tojson_char(buffer, "expression", expression, true);
         buffer = tojson_char(buffer, "sort", sort, true);
@@ -187,7 +187,7 @@ sds mpd_client_search_adv(t_mpd_state *mpd_state, sds buffer, sds method, int re
     (void)(plist);
     (void)(offset);
     (void)(tagcols);
-    buffer = jsonrpc_respond_message(buffer, method, request_id, "Advanced search is disabled");
+    buffer = jsonrpc_respond_message(buffer, method, request_id, "Advanced search is disabled", true);
 #endif
     return buffer;
 }

@@ -212,7 +212,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
         case MYMPD_API_BOOKMARK_LIST:
             je = json_scanf(request->data, sdslen(request->data), "{params: {offset: %u}}", &uint_buf1);
             if (je == 1) {
-                data = mympd_api_bookmark_list(config, data, uint_buf1);
+                data = mympd_api_bookmark_list(config, data, request->method, request->id, uint_buf1);
             }
             break;
         default:
@@ -241,7 +241,7 @@ static void mympd_api_push_to_mpd_client(t_mympd_state *mympd_state) {
     mpd_client_request->cmd_id = MYMPD_API_SETTINGS_SET;
     sds data = sdsempty();
     
-    data = sdscat(data, "{\"cmd\":\"MYMPD_API_SETTINGS_SET\",\"data\":{");
+    data = sdscat(data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_SETTINGS_SET\",\"params\":{");
     data = tojson_long(data, "jukeboxMode", mympd_state->jukebox_mode, true);
     data = tojson_char(data, "jukeboxPlaylist", mympd_state->jukebox_playlist, true);
     data = tojson_long(data, "jukeboxQueueLength", mympd_state->jukebox_queue_length, true);

@@ -28,10 +28,6 @@
 //signal handler
 sig_atomic_t s_signal_received;
 
-//plugins
-void *handle_plugins_coverextract;
-bool (*plugin_coverextract)(const char *, const char *, char *, const int, char *, const int, const bool);
-
 //message queue
 tiny_queue_t *web_server_queue;
 tiny_queue_t *mpd_client_queue;

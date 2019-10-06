@@ -374,8 +374,8 @@ bool mympd_read_config(t_config *config, sds configfile) {
 
     //set correct path to certificate/key, if varlibdir is non default and cert paths are default
     if (strcmp(config->varlibdir, VARLIB_PATH) != 0 && config->custom_cert == false) {
-        config->ssl_cert = sdscatprintf(sdsempty(), "%s/ssl/server.pem", config->varlibdir);
-        config->ssl_key = sdscatprintf(sdsempty(), "%s/ssl/server.key", config->varlibdir);
+        config->ssl_cert = sdscatfmt(sdsempty(), "%s/ssl/server.pem", config->varlibdir);
+        config->ssl_key = sdscatfmt(sdsempty(), "%s/ssl/server.key", config->varlibdir);
     }
 
     return true;

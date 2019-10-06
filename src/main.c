@@ -53,6 +53,7 @@
 #include "mympd_api.h"
 #include "cert.h"
 #include "handle_options.h"
+#include "plugins.h"
 
 static void mympd_signal_handler(int sig_num) {
     signal(sig_num, mympd_signal_handler);  // Reinstantiate signal handler
@@ -60,35 +61,6 @@ static void mympd_signal_handler(int sig_num) {
     //Wakeup mympd_api_loop
     pthread_cond_signal(&mympd_api_queue->wakeup);
     LOG_INFO("Signal %d received, exiting", sig_num);
-}
-
-static bool init_plugins(struct t_config *config) {
-    char *error = NULL;
-    handle_plugins_coverextract = NULL;
-    if (config->plugins_coverextract == true) {
-        sds coverextractplugin = sdscatprintf(sdsempty(), "%s/libmympd_coverextract.so", PLUGIN_PATH);
-        LOG_INFO("Loading plugin %s", coverextractplugin);
-        handle_plugins_coverextract = dlopen(coverextractplugin, RTLD_NOW);
-        sds_free(coverextractplugin);
-        if (!handle_plugins_coverextract) {
-            LOG_ERROR("Can't load plugin %s: %s", coverextractplugin, dlerror());
-            sds_free(coverextractplugin);
-            return false;
-        }
-        *(void **) (&plugin_coverextract) = dlsym(handle_plugins_coverextract, "coverextract");
-        if ((error = dlerror()) != NULL)  {
-            LOG_ERROR("Can't load plugin %s: %s", coverextractplugin, error);
-            sds_free(coverextractplugin);
-            return false;
-        }
-    }
-    return true;
-}
-
-static void close_plugins(struct t_config *config) {
-    if (config->plugins_coverextract == true && handle_plugins_coverextract != NULL) {
-        dlclose(handle_plugins_coverextract);
-    }
 }
 
 static bool do_chown(const char *file_path, const char *user_name) {
@@ -130,22 +102,22 @@ static bool do_chroot(struct t_config *config) {
 }
 
 static bool chown_certs(t_config *config) {
-    sds filename = sdscatprintf(sdsempty(), "%s/ssl/ca.pem", config->varlibdir);
+    sds filename = sdscatfmt(sdsempty(), "%s/ssl/ca.pem", config->varlibdir);
     if (do_chown(filename, config->user) == false) {
         sdsfree(filename);
         return false;
     }
-    filename = sdscatprintf(sdsempty(), "%s/ssl/ca.key", config->varlibdir);
+    filename = sdscatfmt(sdsempty(), "%s/ssl/ca.key", config->varlibdir);
     if (do_chown(filename, config->user) == false) {
         sdsfree(filename);
         return false;
     }
-    filename = sdscatprintf(sdsempty(), "%s/ssl/server.pem", config->varlibdir);
+    filename = sdscatfmt(sdsempty(), "%s/ssl/server.pem", config->varlibdir);
     if (do_chown(filename, config->user) == false) {
         sdsfree(filename);
         return false;
     }
-    filename = sdscatprintf(sdsempty(), "%s/ssl/server.key", config->varlibdir);
+    filename = sdscatfmt(sdsempty(), "%s/ssl/server.key", config->varlibdir);
     if (do_chown(filename, config->user) == false) {
         sdsfree(filename);
         return false;
@@ -189,7 +161,7 @@ int main(int argc, char **argv) {
     mympd_config_defaults(config);
 
     //get configuration file
-    sds configfile = sdscatprintf(sdsempty(), "%s/mympd.conf", ETC_PATH);
+    sds configfile = sdscatfmt(sdsempty(), "%s/mympd.conf", ETC_PATH);
     
     sds option = sdsempty();
     
@@ -242,7 +214,6 @@ int main(int argc, char **argv) {
         else {
             rc = EXIT_SUCCESS;
         }
-        free(option);
         goto cleanup;
     }
     
@@ -259,7 +230,7 @@ int main(int argc, char **argv) {
 
     //check for ssl certificates
     if (config->ssl == true && config->custom_cert == false) {
-        testdirname = sdscatprintf(sdsempty(), "%s/ssl", config->varlibdir);
+        testdirname = sdscatfmt(sdsempty(), "%s/ssl", config->varlibdir);
         testdir_rc = testdir("SSL certificates", testdirname, true);
         if (testdir_rc < 2) {
             //chown to mympd user if root
@@ -340,7 +311,7 @@ int main(int argc, char **argv) {
     }
     #endif
 
-    testdirname = sdscatprintf(sdsempty(), "%s/smartpls", config->varlibdir);
+    testdirname = sdscatfmt(sdsempty(), "%s/smartpls", config->varlibdir);
     testdir_rc = testdir("Smartpls dir", testdirname, true);
     if (testdir_rc == 1) {
         //directory created, create default smart playlists
@@ -350,27 +321,27 @@ int main(int argc, char **argv) {
         goto cleanup;
     }
 
-    testdirname = sdscatprintf(sdsempty(), "%s/state", config->varlibdir);
+    testdirname = sdscatfmt(sdsempty(), "%s/state", config->varlibdir);
     testdir_rc = testdir("State dir", testdirname, true);
     if (testdir_rc > 1) {
         goto cleanup;
     }
     
-    testdirname = sdscatprintf(sdsempty(), "%s/pics", config->varlibdir);
+    testdirname = sdscatfmt(sdsempty(), "%s/pics", config->varlibdir);
     testdir_rc = testdir("Pics dir", testdirname, true);
     if (testdir_rc > 1) {
         goto cleanup;
     }
     
     //create empty document_root
-    testdirname = sdscatprintf(sdsempty(), "%s/empty", config->varlibdir);
+    testdirname = sdscatfmt(sdsempty(), "%s/empty", config->varlibdir);
     testdir_rc = testdir("Empty dir", testdirname, true);
     if (testdir_rc > 1) {
         goto cleanup;
     }
     
     if (config->plugins_coverextract == true) {
-        testdirname = sdscatprintf(sdsempty(), "%s/covercache", config->varlibdir);
+        testdirname = sdscatfmt(sdsempty(), "%s/covercache", config->varlibdir);
         testdir_rc = testdir("Covercache dir", testdirname, true);
         if (testdir_rc > 1) {
             goto cleanup;

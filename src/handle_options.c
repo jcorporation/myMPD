@@ -31,9 +31,11 @@
 #include <stdbool.h>
 
 #include "../dist/src/sds/sds.h"
+#include "../dist/src/frozen/frozen.h"
 #include "log.h"
 #include "list.h"
 #include "config_defs.h"
+#include "mympd_api/mympd_api_utility.h"
 #include "mympd_api/mympd_api_settings.h"
 #include "cert.h"
 #include "utility.h"
@@ -67,19 +69,19 @@ bool handle_option(t_config *config, char *cmd, sds option) {
     #define MATCH_OPTION(o) strcasecmp(option, o) == 0
 
     if (MATCH_OPTION("cert_remove")) {
-        sds ssldir = sdscatprintf(sdsempty(), "%s/ssl", config->varlibdir);
+        sds ssldir = sdscatfmt(sdsempty(), "%s/ssl", config->varlibdir);
         bool rc = cleanup_certificates(ssldir, "server");
         sds_free(ssldir);
         return rc;
     }
     else if (MATCH_OPTION("ca_remove")) {
-        sds ssldir = sdscatprintf(sdsempty(), "%s/ssl", config->varlibdir);
+        sds ssldir = sdscatfmt(sdsempty(), "%s/ssl", config->varlibdir);
         bool rc = cleanup_certificates(ssldir, "ca");
         sds_free(ssldir);
         return rc;
     }
     else if (MATCH_OPTION("certs_create")) {
-        sds ssldir = sdscatprintf(sdsempty(), "%s/ssl", config->varlibdir);
+        sds ssldir = sdscatfmt(sdsempty(), "%s/ssl", config->varlibdir);
         int testdir_rc = testdir("SSL certificates", ssldir, true);
         sds_free(ssldir);
         if (testdir_rc < 2) {
@@ -95,7 +97,7 @@ bool handle_option(t_config *config, char *cmd, sds option) {
         return smartpls_default(config);
     }
     else if (MATCH_OPTION("reset_lastplayed")) {
-        sds lpfile = sdscatprintf(sdsempty(), "%s/state/last_played", config->varlibdir);
+        sds lpfile = sdscatfmt(sdsempty(), "%s/state/last_played", config->varlibdir);
         int rc = unlink(lpfile);
         sds_free(lpfile);
         if (rc == 0) {
@@ -137,7 +139,7 @@ static bool smartpls_init(t_config *config, const char *name, const char *value)
         return false;
     }
     
-    sds tmp_file = sdscatprintf(sdsempty(), "%s/smartpls/%s.XXXXXX", config->varlibdir, name);
+    sds tmp_file = sdscatfmt(sdsempty(), "%s/smartpls/%s.XXXXXX", config->varlibdir, name);
 
     int fd;
     if ((fd = mkstemp(tmp_file)) < 0 ) {
@@ -148,7 +150,7 @@ static bool smartpls_init(t_config *config, const char *name, const char *value)
     FILE *fp = fdopen(fd, "w");
     fprintf(fp, "%s", value);
     fclose(fp);
-    sds cfg_file = sdscatprintf(sdsempty(), "%s/smartpls/%s", config->varlibdir, name);
+    sds cfg_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->varlibdir, name);
     if (rename(tmp_file, cfg_file) == -1) {
         LOG_ERROR("Renaming file from %s to %s failed", tmp_file, cfg_file);
         sds_free(tmp_file);
@@ -161,7 +163,7 @@ static bool smartpls_init(t_config *config, const char *name, const char *value)
 }
 
 static void clear_covercache(t_config *config) {
-    sds covercache = sdscatprintf(sdsempty(), "%s/covercache", config->varlibdir);
+    sds covercache = sdscatfmt(sdsempty(), "%s/covercache", config->varlibdir);
     LOG_INFO("Cleaning covercache %s", covercache);
     DIR *covercache_dir = opendir(covercache);
     if (covercache_dir != NULL) {
@@ -169,7 +171,7 @@ static void clear_covercache(t_config *config) {
         sds filepath = sdsempty();
         while ( (next_file = readdir(covercache_dir)) != NULL ) {
             if (strncmp(next_file->d_name, ".", 1) != 0) {
-                filepath = sdscatprintf(sdsempty(), "%s/%s", covercache, next_file->d_name);
+                filepath = sdscatfmt(sdsempty(), "%s/%s", covercache, next_file->d_name);
                 if (unlink(filepath) != 0) {
                     LOG_ERROR("Error deleting %s", filepath);
                 }

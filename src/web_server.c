@@ -40,6 +40,7 @@
 #include "global.h"
 #include "web_server.h"
 #include "mpd_client.h"
+#include "plugins.h"
 #include "../dist/src/mongoose/mongoose.h"
 #include "../dist/src/frozen/frozen.h"
 
@@ -91,7 +92,7 @@ bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_da
     mg_user_data->rewrite_patterns = sdsempty();
     mg_user_data->conn_id = 1;
     mg_user_data->feat_library = false;
-    mg_user_data->pics_directory = sdscatprintf(sdsempty(), "%s/pics", config->varlibdir);
+    mg_user_data->pics_directory = sdscatfmt(sdsempty(), "%s/pics", config->varlibdir);
     
     //init monogoose mgr with mg_user_data
     mg_mgr_init(mgr, mg_user_data);
@@ -178,10 +179,10 @@ static bool parse_internal_message(t_work_result *response, t_mg_user_data *mg_u
         FREE_PTR(p_charbuf);
         
         if (feat_library == true) {
-            mg_user_data->rewrite_patterns = sdscatprintf(sdsempty(), "/library/=%s,", mg_user_data->music_directory);
+            mg_user_data->rewrite_patterns = sdscatfmt(sdsempty(), "/library/=%s,", mg_user_data->music_directory);
             LOG_DEBUG("Setting music_directory to %s", mg_user_data->music_directory);
         }
-        mg_user_data->rewrite_patterns = sdscatprintf(mg_user_data->rewrite_patterns, "/pics/=%s", mg_user_data->pics_directory);
+        mg_user_data->rewrite_patterns = sdscatfmt(mg_user_data->rewrite_patterns, "/pics/=%s", mg_user_data->pics_directory);
         LOG_DEBUG("Setting rewrite_patterns to %s", mg_user_data->rewrite_patterns);
     }
     else {
@@ -224,7 +225,7 @@ static void send_api_response(struct mg_mgr *mgr, t_work_result *response) {
             if ((intptr_t)nc->user_data == response->conn_id) {
                 LOG_DEBUG("Sending response to conn_id %d: %s", (intptr_t)nc->user_data, response->data);
                 mg_send_head(nc, 200, sdslen(response->data), "Content-Type: application/json");
-                mg_printf(nc, "%.*s", sdslen(response->data), response->data);
+                mg_printf(nc, "%.*s", (int)sdslen(response->data), response->data);
                 break;
             }
         }
@@ -285,7 +286,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 bool rc = handle_api((intptr_t)nc->user_data, hm->body.p, hm->body.len);
                 if (rc == false) {
                     LOG_ERROR("Invalid API request");
-                    sds response = jsonrpc_respond_message(buffer, NULL, 0, "Invalid API request", true);
+                    sds response = jsonrpc_respond_message(sdsempty(), NULL, 0, "Invalid API request", true);
                     mg_send_head(nc, 200, sdslen(response), "Content-Type: application/json");
                     mg_printf(nc, "%s", response);
                     sds_free(response);
@@ -294,7 +295,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             else if (mg_vcmp(&hm->uri, "/ca.crt") == 0) { 
                 if (config->custom_cert == false) {
                     //deliver ca certificate
-                    sds ca_file = sdscatprintf(sdsempty(), "%s/ssl/ca.pem", config->varlibdir);
+                    sds ca_file = sdscatfmt(sdsempty(), "%s/ssl/ca.pem", config->varlibdir);
                     mg_http_serve_file(nc, hm, ca_file, mg_mk_str("application/x-x509-ca-cert"), mg_mk_str(""));
                     sds_free(ca_file);
                 }
@@ -371,9 +372,9 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data)
             int count;
             sds *tokens = sdssplitlen(host_header, sdslen(host_header), ":", 1, &count);
             
-            sds s_redirect = sdscatprintf(sdsempty(), "https://%s", tokens[0]);
+            sds s_redirect = sdscatfmt(sdsempty(), "https://%s", tokens[0]);
             if (strcmp(config->ssl_port, "443") != 0) {
-                s_redirect = sdscatprintf(s_redirect, ":%s", config->ssl_port);
+                s_redirect = sdscatfmt(s_redirect, ":%s", config->ssl_port);
             }
             s_redirect = sdscat(s_redirect, "/");
             LOG_VERBOSE("Redirecting to %s", s_redirect);
@@ -433,7 +434,7 @@ static bool handle_api(int conn_id, const char *request_body, int request_len) {
 
 static void serve_na_image(struct mg_connection *nc, struct http_message *hm) {
     #ifdef DEBUG
-    sds na_image = sdscatprintf(sdsempty(), "%s/assets/coverimage-notavailable.png", DOC_ROOT);
+    sds na_image = sdscatfmt(sdsempty(), "%s/assets/coverimage-notavailable.png", DOC_ROOT);
     mg_http_serve_file(nc, hm, na_image, mg_mk_str("image/png"), mg_mk_str(""));
     #else
     sds na_image = sdsnew("/assets/coverimage-notavailable.png");
@@ -458,20 +459,20 @@ static bool handle_coverextract(struct mg_connection *nc, struct http_message *h
     // replace /albumart through path to music_directory
     sds uri_trimmed = sdsnew(uri_decoded);
     sdsrange(uri_trimmed, 9, -1);
-    sds media_file = sdscatprintf(sdsempty(), "%s%s", mg_user_data->music_directory, uri_trimmed);
+    sds media_file = sdscatfmt(sdsempty(), "%s%s", mg_user_data->music_directory, uri_trimmed);
     sds_free(uri_trimmed);
     LOG_VERBOSE("Exctracting coverimage from %s", media_file);
                 
     size_t image_mime_type_len = 100;
     char image_mime_type[image_mime_type_len];
     
-    sds cache_dir = sdscatprintf(sdsempty(), "%s/covercache", config->varlibdir);
+    sds cache_dir = sdscatfmt(sdsempty(), "%s/covercache", config->varlibdir);
 
     bool rc = plugin_coverextract(media_file, cache_dir, image_file, image_file_len, image_mime_type, image_mime_type_len, true);
     sds_free(cache_dir);
     sds_free(media_file);
     if (rc == true) {
-        sds path = sdscatprintf(sdsempty(), "%s/covercache/%s", config->varlibdir, image_file);
+        sds path = sdscatfmt(sdsempty(), "%s/covercache/%s", config->varlibdir, image_file);
         LOG_DEBUG("Serving file %s (%s)", path, image_mime_type);
         mg_http_serve_file(nc, hm, path, mg_mk_str(image_mime_type), mg_mk_str(""));
         sds_free(path);

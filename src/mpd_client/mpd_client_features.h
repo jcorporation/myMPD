@@ -21,7 +21,8 @@
    Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#ifndef __FEATURES_H__
-#define __FEATURES_H__
+#ifndef __MPD_CLIENT_FEATURES_H__
+#define __MPD_CLIENT_FEATURES_H__
 void mpd_client_mpd_features(t_mpd_state *mpd_state);
+void mpd_client_feature_love(t_mpd_state *mpd_state);
 #endif
