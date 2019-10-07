@@ -41,6 +41,7 @@ void mympd_api_push_to_mpd_client(t_mympd_state *mympd_state) {
     assert(mpd_client_request);
     mpd_client_request->conn_id = -1;
     mpd_client_request->cmd_id = MYMPD_API_SETTINGS_SET;
+    mpd_client_request->method = sdsnew("MYMPD_API_SETTINGS_SET");
     sds data = sdsempty();
 
     data = sdscat(data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_SETTINGS_SET\",\"params\":{");
@@ -48,7 +49,7 @@ void mympd_api_push_to_mpd_client(t_mympd_state *mympd_state) {
     data = tojson_char(data, "jukeboxPlaylist", mympd_state->jukebox_playlist, true);
     data = tojson_long(data, "jukeboxQueueLength", mympd_state->jukebox_queue_length, true);
     data = tojson_bool(data, "autoPlay", mympd_state->auto_play, true);
-    data = tojson_bool(data, "coverimage,", mympd_state->coverimage, true);
+    data = tojson_bool(data, "coverimage", mympd_state->coverimage, true);
     data = tojson_char(data, "coverimageName", mympd_state->coverimage_name, true);
     data = tojson_bool(data, "love", mympd_state->love, true);
     data = tojson_char(data, "loveChannel", mympd_state->love_channel, true);
@@ -71,26 +72,26 @@ void mympd_api_push_to_mpd_client(t_mympd_state *mympd_state) {
 }
 
 void free_mympd_state(t_mympd_state *mympd_state) {
-    sds_free(mympd_state->mpd_host);
-    sds_free(mympd_state->mpd_pass);
-    sds_free(mympd_state->taglist);
-    sds_free(mympd_state->searchtaglist);
-    sds_free(mympd_state->browsetaglist);
-    sds_free(mympd_state->love_channel);
-    sds_free(mympd_state->love_message);
-    sds_free(mympd_state->jukebox_playlist);
-    sds_free(mympd_state->cols_queue_current);
-    sds_free(mympd_state->cols_search);
-    sds_free(mympd_state->cols_browse_database);
-    sds_free(mympd_state->cols_browse_playlists_detail);
-    sds_free(mympd_state->cols_browse_filesystem);
-    sds_free(mympd_state->cols_playback);
-    sds_free(mympd_state->cols_queue_last_played);
-    sds_free(mympd_state->stream_url);
-    sds_free(mympd_state->bg_color);
-    sds_free(mympd_state->bg_css_filter);
-    sds_free(mympd_state->coverimage_name);
-    sds_free(mympd_state->locale);
-    sds_free(mympd_state->music_directory);
+    sdsfree(mympd_state->mpd_host);
+    sdsfree(mympd_state->mpd_pass);
+    sdsfree(mympd_state->taglist);
+    sdsfree(mympd_state->searchtaglist);
+    sdsfree(mympd_state->browsetaglist);
+    sdsfree(mympd_state->love_channel);
+    sdsfree(mympd_state->love_message);
+    sdsfree(mympd_state->jukebox_playlist);
+    sdsfree(mympd_state->cols_queue_current);
+    sdsfree(mympd_state->cols_search);
+    sdsfree(mympd_state->cols_browse_database);
+    sdsfree(mympd_state->cols_browse_playlists_detail);
+    sdsfree(mympd_state->cols_browse_filesystem);
+    sdsfree(mympd_state->cols_playback);
+    sdsfree(mympd_state->cols_queue_last_played);
+    sdsfree(mympd_state->stream_url);
+    sdsfree(mympd_state->bg_color);
+    sdsfree(mympd_state->bg_css_filter);
+    sdsfree(mympd_state->coverimage_name);
+    sdsfree(mympd_state->locale);
+    sdsfree(mympd_state->music_directory);
     FREE_PTR(mympd_state);
 }

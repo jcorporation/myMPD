@@ -56,7 +56,7 @@ bool mympd_api_bookmark_update(t_config *config, const int id, const char *name,
     
     if ((fd = mkstemp(tmp_file)) < 0 ) {
         LOG_ERROR("Can't open %s for write", tmp_file);
-        sds_free(tmp_file);
+        sdsfree(tmp_file);
         return false;
     }
     FILE *fo = fdopen(fd, "w");
@@ -103,12 +103,12 @@ bool mympd_api_bookmark_update(t_config *config, const int id, const char *name,
     
     if (rename(tmp_file, b_file) == -1) {
         LOG_ERROR("Rename file from %s to %s failed", tmp_file, b_file);
-        sds_free(tmp_file);
-        sds_free(b_file);
+        sdsfree(tmp_file);
+        sdsfree(b_file);
         return false;
     }
-    sds_free(tmp_file);
-    sds_free(b_file);
+    sdsfree(tmp_file);
+    sdsfree(b_file);
     return true;
 }
 
@@ -154,7 +154,7 @@ sds mympd_api_bookmark_list(t_config *config, sds buffer, sds method, int reques
         fclose(fi);
 
     }
-    sds_free(b_file);
+    sdsfree(b_file);
     buffer = sdscat(buffer, "],");
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);
     buffer = tojson_long(buffer, "offset", offset, true);
@@ -167,9 +167,14 @@ sds mympd_api_bookmark_list(t_config *config, sds buffer, sds method, int reques
 static bool write_bookmarks_line(FILE *fp, int id, const char *name, 
                                  const char *uri, const char *type)
 {
-    sds line = sdscatfmt(sdsempty(), "{\"id\": %d,\"name\":%Q,\"uri\":\"%Q\",\"type\":\"%Q\"}\n", id, name, uri, type);
+    sds line = sdscat(sdsempty(), "{");
+    line = tojson_long(line, "id", id, true);
+    line = tojson_char(line, "name", name, true);
+    line = tojson_char(line, "uri", uri, true);
+    line = tojson_char(line, "type", type, false);
+    line = sdscat(line, "}\n");
     int rc = fputs(line, fp);
-    sds_free(line);
+    sdsfree(line);
     if (rc > 0) {
         return true;
     }

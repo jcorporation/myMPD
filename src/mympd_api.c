@@ -134,7 +134,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             struct json_token key;
             struct json_token val;
             bool rc = true;
-            while ((h = json_next_key(request->data, sdslen(request->data), h, ".data", &key, &val)) != NULL) {
+            while ((h = json_next_key(request->data, sdslen(request->data), h, ".params", &key, &val)) != NULL) {
                 rc = mympd_api_settings_set(config, mympd_state, &key, &val);
                 if (rc == false) {
                     break;
@@ -146,6 +146,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                 assert(mpd_client_request);
                 mpd_client_request->conn_id = -1;
                 mpd_client_request->cmd_id = request->cmd_id;
+                mpd_client_request->method = sdsdup(request->method);
                 mpd_client_request->data = sdsdup(request->data);
                 tiny_queue_push(mpd_client_queue, mpd_client_request);
                 data = jsonrpc_respond_ok(data, request->method, request->id);
@@ -158,14 +159,14 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             break;
         }
         case MYMPD_API_SETTINGS_GET:
-            data = mympd_api_settings_put(config, mympd_state, data);
+            data = mympd_api_settings_put(config, mympd_state, data, request->method, request->id);
             break;
         case MYMPD_API_CONNECTION_SAVE: {
             void *h = NULL;
             struct json_token key;
             struct json_token val;
             bool rc = true;
-            while ((h = json_next_key(request->data, sdslen(request->data), h, ".data", &key, &val)) != NULL) {
+            while ((h = json_next_key(request->data, sdslen(request->data), h, ".params", &key, &val)) != NULL) {
                 rc = mympd_api_connection_save(config, mympd_state, &key, &val);
                 if (rc == false) {
                     break;
@@ -228,7 +229,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
     response->data = data;
     LOG_DEBUG("Push response to queue for connection %lu: %s", request->conn_id, response->data);
     tiny_queue_push(web_server_queue, response);
-    sds_free(request->data);
-    sds_free(request->method);
+    sdsfree(request->data);
+    sdsfree(request->method);
     FREE_PTR(request);
 }

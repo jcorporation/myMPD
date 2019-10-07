@@ -19,23 +19,13 @@
    Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-
 #include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <pthread.h>
 #include <stdbool.h>
 #include <dlfcn.h>
-#include <mpd/client.h>
-#include <assert.h>
-#include <inttypes.h>
 
 #include "../dist/src/sds/sds.h"
-#include "utility.h"
 #include "log.h"
 #include "list.h"
-#include "tiny_queue.h"
 #include "config_defs.h"
 #include "plugins.h"
 
@@ -46,18 +36,18 @@ bool init_plugins(struct t_config *config) {
         sds coverextractplugin = sdscatfmt(sdsempty(), "%s/libmympd_coverextract.so", PLUGIN_PATH);
         LOG_INFO("Loading plugin %s", coverextractplugin);
         handle_plugins_coverextract = dlopen(coverextractplugin, RTLD_NOW);
-        sds_free(coverextractplugin);
         if (!handle_plugins_coverextract) {
             LOG_ERROR("Can't load plugin %s: %s", coverextractplugin, dlerror());
-            sds_free(coverextractplugin);
+            sdsfree(coverextractplugin);
             return false;
         }
         *(void **) (&plugin_coverextract) = dlsym(handle_plugins_coverextract, "coverextract");
         if ((error = dlerror()) != NULL)  {
             LOG_ERROR("Can't load plugin %s: %s", coverextractplugin, error);
-            sds_free(coverextractplugin);
+            sdsfree(coverextractplugin);
             return false;
         }
+        sdsfree(coverextractplugin);
     }
     return true;
 }

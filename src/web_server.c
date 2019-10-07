@@ -189,7 +189,7 @@ static bool parse_internal_message(t_work_result *response, t_mg_user_data *mg_u
         LOG_WARN("Unknown internal message: %s", response->data);
         return false;
     }
-    sds_free(response->data);
+    sdsfree(response->data);
     FREE_PTR(response);
     return true;
 }
@@ -211,7 +211,7 @@ static void send_ws_notify(struct mg_mgr *mgr, t_work_result *response) {
         }
         mg_send_websocket_frame(nc, WEBSOCKET_OP_TEXT, response->data, sdslen(response->data));
     }
-    sds_free(response->data);
+    sdsfree(response->data);
     FREE_PTR(response);
 }
 
@@ -233,7 +233,7 @@ static void send_api_response(struct mg_mgr *mgr, t_work_result *response) {
             LOG_DEBUG("Unknown connection");
         }
     }
-    sds_free(response->data);
+    sdsfree(response->data);
     FREE_PTR(response);
 }
 
@@ -286,10 +286,10 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 bool rc = handle_api((intptr_t)nc->user_data, hm->body.p, hm->body.len);
                 if (rc == false) {
                     LOG_ERROR("Invalid API request");
-                    sds response = jsonrpc_respond_message(sdsempty(), NULL, 0, "Invalid API request", true);
+                    sds response = jsonrpc_respond_message(sdsempty(), sdsempty(), 0, "Invalid API request", true);
                     mg_send_head(nc, 200, sdslen(response), "Content-Type: application/json");
                     mg_printf(nc, "%s", response);
-                    sds_free(response);
+                    sdsfree(response);
                 }
             }
             else if (mg_vcmp(&hm->uri, "/ca.crt") == 0) { 
@@ -297,7 +297,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                     //deliver ca certificate
                     sds ca_file = sdscatfmt(sdsempty(), "%s/ssl/ca.pem", config->varlibdir);
                     mg_http_serve_file(nc, hm, ca_file, mg_mk_str("application/x-x509-ca-cert"), mg_mk_str(""));
-                    sds_free(ca_file);
+                    sdsfree(ca_file);
                 }
                 else {
                     LOG_ERROR("Custom cert enabled, don't deliver myMPD ca");
@@ -380,8 +380,8 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data)
             LOG_VERBOSE("Redirecting to %s", s_redirect);
             mg_http_send_redirect(nc, 301, mg_mk_str(s_redirect), mg_mk_str(NULL));
             sdsfreesplitres(tokens, count);
-            sds_free(host_header);
-            sds_free(s_redirect);
+            sdsfree(host_header);
+            sdsfree(s_redirect);
             break;
         }
         default: {
@@ -440,7 +440,7 @@ static void serve_na_image(struct mg_connection *nc, struct http_message *hm) {
     sds na_image = sdsnew("/assets/coverimage-notavailable.png");
     serve_embedded_files(nc, na_image, sdslen(na_image));
     #endif
-    sds_free(na_image);
+    sdsfree(na_image);
 }
 
 static bool handle_coverextract(struct mg_connection *nc, struct http_message *hm, t_mg_user_data *mg_user_data, t_config *config) {
@@ -460,7 +460,7 @@ static bool handle_coverextract(struct mg_connection *nc, struct http_message *h
     sds uri_trimmed = sdsnew(uri_decoded);
     sdsrange(uri_trimmed, 9, -1);
     sds media_file = sdscatfmt(sdsempty(), "%s%s", mg_user_data->music_directory, uri_trimmed);
-    sds_free(uri_trimmed);
+    sdsfree(uri_trimmed);
     LOG_VERBOSE("Exctracting coverimage from %s", media_file);
                 
     size_t image_mime_type_len = 100;
@@ -469,13 +469,13 @@ static bool handle_coverextract(struct mg_connection *nc, struct http_message *h
     sds cache_dir = sdscatfmt(sdsempty(), "%s/covercache", config->varlibdir);
 
     bool rc = plugin_coverextract(media_file, cache_dir, image_file, image_file_len, image_mime_type, image_mime_type_len, true);
-    sds_free(cache_dir);
-    sds_free(media_file);
+    sdsfree(cache_dir);
+    sdsfree(media_file);
     if (rc == true) {
         sds path = sdscatfmt(sdsempty(), "%s/covercache/%s", config->varlibdir, image_file);
         LOG_DEBUG("Serving file %s (%s)", path, image_mime_type);
         mg_http_serve_file(nc, hm, path, mg_mk_str(image_mime_type), mg_mk_str(""));
-        sds_free(path);
+        sdsfree(path);
     }
     else {
         LOG_ERROR("Error extracting coverimage from %s", media_file);

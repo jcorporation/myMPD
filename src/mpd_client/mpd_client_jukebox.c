@@ -119,13 +119,13 @@ bool mpd_client_jukebox_add(t_mpd_state *mpd_state, const int addSongs, const en
                 if (randrange(lineno) < addSongs) {
 		    if (nkeep < addSongs) {
 		        song = mpd_entity_get_song(entity);
-		        list_push(&add_list, mpd_song_get_uri(song), lineno, NULL);
+		        list_push(&add_list, mpd_song_get_uri(song), lineno, sdsempty());
 		        nkeep++;
                     }
                     else {
                         i = addSongs > 1 ? randrange(addSongs) : 0;
                         song = mpd_entity_get_song(entity);
-                        list_replace(&add_list, i, mpd_song_get_uri(song), lineno, NULL);
+                        list_replace(&add_list, i, mpd_song_get_uri(song), lineno, sdsempty());
                     }
                 }
                 lineno++;
@@ -153,7 +153,7 @@ bool mpd_client_jukebox_add(t_mpd_state *mpd_state, const int addSongs, const en
                 }
 		else {
                     i = addSongs > 1 ? randrange(addSongs) : 0;
-                    list_replace(&add_list, i, pair->value, lineno, NULL);
+                    list_replace(&add_list, i, pair->value, lineno, sdsempty());
                 }
             }
             lineno++;

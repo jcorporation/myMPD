@@ -135,7 +135,11 @@ int main(int argc, char **argv) {
     bool init_thread_mpdclient = false;
     bool init_thread_mympdapi = false;
     int rc = EXIT_FAILURE;
-    loglevel = 2;
+    #ifdef DEBUG
+    set_loglevel(4);
+    #else
+    set_loglevel = 2;
+    #endif
 
     if (chdir("/") != 0) {
         goto end;
@@ -206,8 +210,9 @@ int main(int argc, char **argv) {
         goto cleanup;
     }
     
+    LOG_DEBUG("myMPD started with option: %s", option);
     //handle commandline options and exit
-    if (option != NULL) {
+    if (sdslen(option) > 0) {
         if (handle_option(config, argv[0], option) == false) {
             rc = EXIT_FAILURE;
         }
@@ -407,13 +412,13 @@ int main(int argc, char **argv) {
     tiny_queue_free(mympd_api_queue);
     close_plugins(config);
     mympd_free_config(config);
-    sds_free(configfile);
-    sds_free(option);
-    sds_free(testdirname);
+    sdsfree(configfile);
+    sdsfree(option);
+    sdsfree(testdirname);
     if (init_webserver) {
-        sds_free(mg_user_data->music_directory);
-        sds_free(mg_user_data->pics_directory);
-        sds_free(mg_user_data->rewrite_patterns);
+        sdsfree(mg_user_data->music_directory);
+        sdsfree(mg_user_data->pics_directory);
+        sdsfree(mg_user_data->rewrite_patterns);
     }
     FREE_PTR(mg_user_data);
     if (rc == EXIT_SUCCESS) {

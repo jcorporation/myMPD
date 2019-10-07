@@ -109,7 +109,7 @@ void json_to_tags(const char *str, int len, void *user_data) {
     for (i = 0; json_scanf_array_elem(str, len, "", i, &t) > 0; i++) {
         sds token = sdscatlen(sdsempty(), t.ptr, t.len);
         enum mpd_tag_type tag = mpd_tag_name_iparse(token);
-        sds_free(token);
+        sdsfree(token);
         if (tag != MPD_TAG_UNKNOWN) {
             tags->tags[tags->len++] = tag;
         }
@@ -224,18 +224,18 @@ void default_mpd_state(t_mpd_state *mpd_state) {
 }
 
 void free_mpd_state(t_mpd_state *mpd_state) {
-    FREE_PTR(mpd_state->music_directory);
-    FREE_PTR(mpd_state->music_directory_value);
-    FREE_PTR(mpd_state->jukebox_playlist);
-    FREE_PTR(mpd_state->song_uri);
-    FREE_PTR(mpd_state->last_song_uri);
-    FREE_PTR(mpd_state->coverimage_name);
-    FREE_PTR(mpd_state->love_channel);
-    FREE_PTR(mpd_state->love_message);
-    FREE_PTR(mpd_state->taglist);
-    FREE_PTR(mpd_state->searchtaglist);
-    FREE_PTR(mpd_state->browsetaglist);
-    FREE_PTR(mpd_state->mpd_host);
-    FREE_PTR(mpd_state->mpd_pass);
+    sdsfree(mpd_state->music_directory);
+    sdsfree(mpd_state->music_directory_value);
+    sdsfree(mpd_state->jukebox_playlist);
+    sdsfree(mpd_state->song_uri);
+    sdsfree(mpd_state->last_song_uri);
+    sdsfree(mpd_state->coverimage_name);
+    sdsfree(mpd_state->love_channel);
+    sdsfree(mpd_state->love_message);
+    sdsfree(mpd_state->taglist);
+    sdsfree(mpd_state->searchtaglist);
+    sdsfree(mpd_state->browsetaglist);
+    sdsfree(mpd_state->mpd_host);
+    sdsfree(mpd_state->mpd_pass);
     free(mpd_state);
 }

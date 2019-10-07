@@ -183,7 +183,7 @@ static void mpd_client_parse_idle(t_config *config, t_mpd_state *mpd_state, int 
             if (sdslen(buffer) > 0) {
                 mpd_client_notify(buffer);
             }
-            sds_free(buffer);
+            sdsfree(buffer);
         }
     }
 
@@ -363,7 +363,7 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
         default:
             LOG_ERROR("Invalid mpd connection state");
     }
-    sds_free(buffer);
+    sdsfree(buffer);
 }
 
 static void mpd_client_disconnect(t_mpd_state *mpd_state) {

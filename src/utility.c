@@ -37,7 +37,7 @@
 
 sds jsonrpc_start_notify(sds buffer, const char *method) {
     buffer = sdscatfmt(sdsempty(), "{\"jsonrpc\":\"2.0\",\"method\":");
-    buffer = sdscatrepr(buffer, method, strlen(method));
+    buffer = sdscatjson(buffer, method, strlen(method));
     buffer = sdscat(buffer, ",\"params\":{");
     return buffer;
 }
@@ -48,8 +48,8 @@ sds jsonrpc_end_notify(sds buffer) {
 }
 
 sds jsonrpc_start_result(sds buffer, const char *method, int id) {
-    buffer = sdscatfmt(sdsempty(), "{\"jsonrpc\":\"2.0\",\"id\":%d,\"result\":{\"method\":", id);
-    buffer = sdscatrepr(buffer, method, strlen(method));
+    buffer = sdscatprintf(sdsempty(), "{\"jsonrpc\":\"2.0\",\"id\":%d,\"result\":{\"method\":", id);
+    buffer = sdscatjson(buffer, method, strlen(method));
     buffer = sdscat(buffer, ",\"data\":");
     return buffer;
 }
@@ -60,21 +60,21 @@ sds jsonrpc_end_result(sds buffer) {
 }
 
 sds jsonrpc_respond_ok(sds buffer, const char *method, int id) {
-    buffer = sdscatfmt(sdsempty(), "{\"jsonrpc\":\"2.0\",\"id\":%d,\"result\":{\"method\":", id);
-    buffer = sdscatrepr(buffer, method, strlen(method));
+    buffer = sdscatprintf(sdsempty(), "{\"jsonrpc\":\"2.0\",\"id\":%d,\"result\":{\"method\":", id);
+    buffer = sdscatjson(buffer, method, strlen(method));
     buffer = sdscat(buffer, ",\"message\":\"ok\"}}");
     return buffer;
 }
 
 sds jsonrpc_respond_message(sds buffer, const char *method, int id, const char *message, bool error) {
-    buffer = sdscatfmt(sdsempty(), "{\"jsonrpc\":\"2.0\",\"id\":%d,\"%s\":{\"method\":", 
+    buffer = sdscatprintf(sdsempty(), "{\"jsonrpc\":\"2.0\",\"id\":%d,\"%s\":{\"method\":", 
         id, (error == true ? "error" : "result"));
-    buffer = sdscatrepr(buffer, method, strlen(method));
+    buffer = sdscatjson(buffer, method, strlen(method));
     if (error == true) {
         buffer = sdscat(buffer, ",\"code\": -32000");
     }
     buffer = sdscat(buffer, ",\"message\":");
-    buffer = sdscatrepr(buffer, message, strlen(message));
+    buffer = sdscatjson(buffer, message, strlen(message));
     buffer = sdscatfmt(buffer, "}}");
     return buffer;
 }
@@ -83,23 +83,23 @@ sds jsonrpc_respond_message_notify(sds buffer, const char *message, bool error) 
     buffer = sdscatfmt(sdsempty(), "{\"jsonrpc\":\"2.0\",\"%s\":{", 
         (error == true ? "error" : "result"));
     if (error == true) {
-        buffer = sdscat(buffer, ",\"code\": -32000");
+        buffer = sdscat(buffer, "\"code\": -32000,");
     }
     buffer = sdscat(buffer, "\"message\":");
-    buffer = sdscatrepr(buffer, message, strlen(message));
+    buffer = sdscatjson(buffer, message, strlen(message));
     buffer = sdscatfmt(buffer, "}}");
     return buffer;
 }
 
 sds jsonrpc_start_phrase(sds buffer, const char *method, int id, const char *message, bool error) {
-    buffer = sdscatfmt(sdsempty(), "{\"jsonrpc\":\"2.0\",\"id\":%d,\"%s\":{\"method\":", 
+    buffer = sdscatprintf(sdsempty(), "{\"jsonrpc\":\"2.0\",\"id\":%d,\"%s\":{\"method\":", 
         id, (error == true ? "error" : "result"));
-    buffer = sdscatrepr(buffer, method, strlen(method));
+    buffer = sdscatjson(buffer, method, strlen(method));
     if (error == true) {
         buffer = sdscat(buffer, ",\"code\": -32000");
     }
     buffer = sdscat(buffer, ",\"message\":");
-    buffer = sdscatrepr(buffer, message, strlen(message));
+    buffer = sdscatjson(buffer, message, strlen(message));
     buffer = sdscat(buffer, ",\"data\":{");
     return buffer;
 }
@@ -113,17 +113,17 @@ sds jsonrpc_start_phrase_notify(sds buffer, const char *message, bool error) {
     buffer = sdscatfmt(sdsempty(), "{\"jsonrpc\":\"2.0\",\"%s\":{", 
         (error == true ? "error" : "result"));
     if (error == true) {
-        buffer = sdscat(buffer, ",\"code\": -32000");
+        buffer = sdscat(buffer, "\"code\": -32000,");
     }
-    buffer = sdscat(buffer, ",\"message\":");
-    buffer = sdscatrepr(buffer, message, strlen(message));
+    buffer = sdscat(buffer, "\"message\":");
+    buffer = sdscatjson(buffer, message, strlen(message));
     buffer = sdscat(buffer, ",\"data\":{");
     return buffer;
 }
 
 sds tojson_char(sds buffer, const char *key, const char *value, bool comma) {
     buffer = sdscatfmt(buffer, "\"%s\":", key);
-    buffer = sdscatrepr(buffer, value, strlen(value));
+    buffer = sdscatjson(buffer, value, strlen(value));
     if (comma) {
         buffer = sdscat(buffer, ",");
     }
@@ -132,11 +132,38 @@ sds tojson_char(sds buffer, const char *key, const char *value, bool comma) {
 
 sds tojson_char_len(sds buffer, const char *key, const char *value, size_t len, bool comma) {
     buffer = sdscatfmt(buffer, "\"%s\":", key);
-    buffer = sdscatrepr(buffer, value, len);
+    buffer = sdscatjson(buffer, value, len);
     if (comma) {
         buffer = sdscat(buffer, ",");
     }
     return buffer;
+}
+
+sds sdscatjson(sds s, const char *p, size_t len) {
+    s = sdscatlen(s,"\"",1);
+    while(len--) {
+        switch(*p) {
+        case '\\':
+        case '"':
+            s = sdscatprintf(s,"\\%c",*p);
+            break;
+        case '\n': s = sdscatlen(s,"\\n",2);     break;
+        case '\r': s = sdscatlen(s,"\\r",2);     break;
+        case '\t': s = sdscatlen(s,"\\t",2);     break;
+        case '\a': s = sdscatlen(s,"\\a",2);     break;
+        case '\b': s = sdscatlen(s,"\\b",2);     break;
+        // Escape < to prevent script execution
+        case '<' : s = sdscatlen(s,"\\u003C",6); break;
+        default:
+            if (isprint(*p))
+                s = sdscatprintf(s,"%c",*p);
+            else
+                s = sdscatprintf(s,"\\u%04X",(unsigned char)*p);
+            break;
+        }
+        p++;
+    }
+    return sdscatlen(s,"\"",1);
 }
 
 sds tojson_bool(sds buffer, const char *key, bool value, bool comma) {
@@ -148,7 +175,7 @@ sds tojson_bool(sds buffer, const char *key, bool value, bool comma) {
 }
 
 sds tojson_long(sds buffer, const char *key, long value, bool comma) {
-    buffer = sdscatfmt(buffer, "\"%s\":%ld", key, value);
+    buffer = sdscatprintf(buffer, "\"%s\":%ld", key, value);
     if (comma) {
         buffer = sdscat(buffer, ",");
     }
@@ -156,7 +183,7 @@ sds tojson_long(sds buffer, const char *key, long value, bool comma) {
 }
 
 sds tojson_float(sds buffer, const char *key, float value, bool comma) {
-    buffer = sdscatfmt(buffer, "\"%s\":%f", key, value);
+    buffer = sdscatprintf(buffer, "\"%s\":%f", key, value);
     if (comma) {
         buffer = sdscat(buffer, ",");
     }

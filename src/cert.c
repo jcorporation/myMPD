@@ -52,16 +52,16 @@ bool create_certificates(const char *dir, const char *custom_san) {
         LOG_INFO("Creating self signed ca certificate");
         ca_key = generate_keypair();
         if (!ca_key) {
-            sds_free(cacert_file);
-            sds_free(cakey_file);
+            sdsfree(cacert_file);
+            sdsfree(cakey_file);
             return false;
         }
     
         ca_cert = generate_selfsigned_cert(ca_key);
         if (!ca_cert) {
             EVP_PKEY_free(ca_key);
-            sds_free(cacert_file);
-            sds_free(cakey_file);
+            sdsfree(cacert_file);
+            sdsfree(cakey_file);
             return false;
         }
         rc_ca = write_to_disk(cakey_file, ca_key, cacert_file, ca_cert);
@@ -70,8 +70,8 @@ bool create_certificates(const char *dir, const char *custom_san) {
         LOG_INFO("CA certificate and private key found");
         rc_ca = true;
     }
-    sds_free(cacert_file);
-    sds_free(cakey_file);
+    sdsfree(cacert_file);
+    sdsfree(cakey_file);
 
     
     //read server certificate / privat key or create it
@@ -91,9 +91,9 @@ bool create_certificates(const char *dir, const char *custom_san) {
         if (!server_key) {
             EVP_PKEY_free(ca_key);
             X509_free(ca_cert);
-            sds_free(san);
-            sds_free(servercert_file);
-            sds_free(serverkey_file);
+            sdsfree(san);
+            sdsfree(servercert_file);
+            sdsfree(serverkey_file);
             return false;
         }
         X509_REQ *server_req = generate_request(server_key);
@@ -101,9 +101,9 @@ bool create_certificates(const char *dir, const char *custom_san) {
             EVP_PKEY_free(ca_key);
             X509_free(ca_cert);
             EVP_PKEY_free(server_key);
-            sds_free(san);
-            sds_free(servercert_file);
-            sds_free(serverkey_file);
+            sdsfree(san);
+            sdsfree(servercert_file);
+            sdsfree(serverkey_file);
             return false;
         }
         server_cert = sign_certificate_request(ca_key, ca_cert, server_req, san);
@@ -113,12 +113,12 @@ bool create_certificates(const char *dir, const char *custom_san) {
             X509_free(ca_cert);
             EVP_PKEY_free(server_key);
             X509_REQ_free(server_req);
-            sds_free(san);
-            sds_free(servercert_file);
-            sds_free(serverkey_file);
+            sdsfree(san);
+            sdsfree(servercert_file);
+            sdsfree(serverkey_file);
             return false;
         }
-        sds_free(san);
+        sdsfree(san);
         rc_cert = write_to_disk(serverkey_file, server_key, servercert_file, server_cert);
     }
     else {
@@ -126,8 +126,8 @@ bool create_certificates(const char *dir, const char *custom_san) {
         rc_cert = true;
     }
 
-    sds_free(servercert_file);
-    sds_free(serverkey_file);
+    sdsfree(servercert_file);
+    sdsfree(serverkey_file);
     EVP_PKEY_free(ca_key);
     X509_free(ca_cert);
     EVP_PKEY_free(server_key);
@@ -142,16 +142,16 @@ bool cleanup_certificates(sds dir, const char *name) {
     sds cert_file = sdscatfmt(sdsempty(), "%s/%s.pem", dir, name);
     if (unlink(cert_file) != 0) {
         LOG_ERROR("Error removing file %s", cert_file);
-        sds_free(cert_file);
+        sdsfree(cert_file);
         return false;
     }
     cert_file = sdscatfmt(sdsempty(), "%s/%s.key", dir, name);
     if (unlink(cert_file) != 0) {
         LOG_ERROR("Error removing file %s", cert_file);
-        sds_free(cert_file);
+        sdsfree(cert_file);
         return false;
     }
-    sds_free(cert_file);
+    sdsfree(cert_file);
     
     return true;
 }
@@ -410,7 +410,7 @@ static bool write_to_disk(sds key_file, EVP_PKEY *pkey, sds cert_file, X509 *cer
     int fd;
     if ((fd = mkstemp(key_file_tmp)) < 0 ) {
         LOG_ERROR("Can't open %s for write", key_file_tmp);
-        sds_free(key_file_tmp);
+        sdsfree(key_file_tmp);
         return false;
     }
     FILE *key_file_fp = fdopen(fd, "w");
@@ -418,21 +418,21 @@ static bool write_to_disk(sds key_file, EVP_PKEY *pkey, sds cert_file, X509 *cer
     fclose(key_file_fp);
     if (!rc) {
         LOG_ERROR("Unable to write private key to disk");
-        sds_free(key_file_tmp);
+        sdsfree(key_file_tmp);
         return false;
     }
     if (rename(key_file_tmp, key_file) == -1) {
         LOG_ERROR("Renaming file from %s to %s failed", key_file_tmp, key_file);
-        sds_free(key_file_tmp);
+        sdsfree(key_file_tmp);
         return false;
     }
-    sds_free(key_file_tmp);
+    sdsfree(key_file_tmp);
     
     /* Write the certificate to disk. */
     sds cert_file_tmp = sdscatfmt(sdsempty(), "%s.XXXXXX", cert_file);
     if ((fd = mkstemp(cert_file_tmp)) < 0 ) {
         LOG_ERROR("Can't open %s for write", cert_file_tmp);
-        sds_free(cert_file_tmp);
+        sdsfree(cert_file_tmp);
         return false;
     }
     FILE *cert_file_fp = fdopen(fd, "w");
@@ -440,15 +440,15 @@ static bool write_to_disk(sds key_file, EVP_PKEY *pkey, sds cert_file, X509 *cer
     fclose(cert_file_fp);
     if (!rc) {
         LOG_ERROR("Unable to write certificate to disk");
-        sds_free(cert_file_tmp);
+        sdsfree(cert_file_tmp);
         return false;
     }
     if (rename(cert_file_tmp, cert_file) == -1) {
         LOG_ERROR("Renaming file from %s to %s failed", cert_file_tmp, cert_file);
-        sds_free(cert_file_tmp);
+        sdsfree(cert_file_tmp);
         return false;
     }
-    sds_free(cert_file_tmp);
+    sdsfree(cert_file_tmp);
     
     return true;
 }

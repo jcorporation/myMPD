@@ -59,7 +59,7 @@ void mympd_api_settings_delete(t_config *config) {
         unlink(filename);
         ++ptr;
     }
-    sds_free(filename);
+    sdsfree(filename);
 }
 
 bool mympd_api_connection_save(t_config *config, t_mympd_state *mympd_state, struct json_token *key, struct json_token *val) {
@@ -72,8 +72,8 @@ bool mympd_api_connection_save(t_config *config, t_mympd_state *mympd_state, str
             settingname = sdscat(sdsempty(), "mpd_pass");
         }
         else {
-            sds_free(settingname);
-            sds_free(settingvalue);
+            sdsfree(settingname);
+            sdsfree(settingvalue);
             return true;
         }
     }
@@ -90,14 +90,14 @@ bool mympd_api_connection_save(t_config *config, t_mympd_state *mympd_state, str
         settingname = sdscat(sdsempty(), "music_directory");
     }
     else {
-        sds_free(settingname);
-        sds_free(settingvalue);
+        sdsfree(settingname);
+        sdsfree(settingvalue);
         return true;
     }
 
     bool rc = state_file_write(config, settingname, settingvalue);
-    sds_free(settingname);
-    sds_free(settingvalue);
+    sdsfree(settingname);
+    sdsfree(settingvalue);
     return rc;
 }
 
@@ -165,8 +165,8 @@ bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state, struct
             settingname = sdscat(sdsempty(), "coverimage_name");
         }
         else {
-            sds_free(settingname);
-            sds_free(settingvalue);
+            sdsfree(settingname);
+            sdsfree(settingvalue);
             return false;
         }
     }
@@ -205,8 +205,8 @@ bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state, struct
     else if (strncmp(key->ptr, "jukeboxMode", key->len) == 0) {
         int jukebox_mode = strtoimax(settingvalue, &crap, 10);
         if (jukebox_mode < 0 || jukebox_mode > 2) {
-            sds_free(settingname);
-            sds_free(settingvalue);
+            sdsfree(settingname);
+            sdsfree(settingvalue);
             return false;
         }
         mympd_state->jukebox_mode = jukebox_mode;
@@ -219,8 +219,8 @@ bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state, struct
     else if (strncmp(key->ptr, "jukeboxQueueLength", key->len) == 0) {
         int jukebox_queue_length = strtoimax(settingvalue, &crap, 10);
         if (jukebox_queue_length <= 0 || jukebox_queue_length > 999) {
-            sds_free(settingname);
-            sds_free(settingvalue);
+            sdsfree(settingname);
+            sdsfree(settingvalue);
             return false;
         }
         mympd_state->jukebox_queue_length = jukebox_queue_length;
@@ -233,8 +233,8 @@ bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state, struct
     else if (strncmp(key->ptr, "lastPlayedCount", key->len) == 0) {
         int last_played_count = strtoimax(settingvalue, &crap, 10);
         if (last_played_count <= 0) {
-            sds_free(settingname);
-            sds_free(settingvalue);
+            sdsfree(settingname);
+            sdsfree(settingvalue);
             return false;
         }
         mympd_state->last_played_count = last_played_count;
@@ -259,8 +259,8 @@ bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state, struct
     else if (strncmp(key->ptr, "maxElementsPerPage", key->len) == 0) {
         int max_elements_per_page = strtoimax(settingvalue, &crap, 10);
         if (max_elements_per_page <= 0 || max_elements_per_page > 999) {
-            sds_free(settingname);
-            sds_free(settingvalue);
+            sdsfree(settingname);
+            sdsfree(settingvalue);
             return false;
         }
         mympd_state->max_elements_per_page = max_elements_per_page;
@@ -279,13 +279,13 @@ bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state, struct
         settingname = sdscat(sdsempty(), "love_message");
     }
     else {
-        sds_free(settingname);
-        sds_free(settingvalue);
+        sdsfree(settingname);
+        sdsfree(settingvalue);
         return true;
     }
     bool rc = state_file_write(config, settingname, settingvalue);
-    sds_free(settingname);
-    sds_free(settingvalue);
+    sdsfree(settingname);
+    sdsfree(settingvalue);
     return rc;
 }
 
@@ -350,7 +350,7 @@ sds state_file_rw_string(t_config *config, const char *name, const char *def_val
     
     sds cfg_file = sdscatfmt(sdsempty(), "%s/state/%s", config->varlibdir, name);
     FILE *fp = fopen(cfg_file, "r");
-    sds_free(cfg_file);
+    sdsfree(cfg_file);
     if (fp == NULL) {
         if (warn == true) {
             LOG_WARN("Can't open %s", cfg_file);
@@ -381,7 +381,7 @@ bool state_file_rw_bool(t_config *config, const char *name, const bool def_value
     sds line = state_file_rw_string(config, name, def_value == true ? "true" : "false", warn);
     if (sdslen(line) > 0) {
         value = strcmp(line, "true") == 0 ? true : false;
-        sds_free(line);
+        sdsfree(line);
     }
     return value;
 }
@@ -393,7 +393,7 @@ int state_file_rw_int(t_config *config, const char *name, const int def_value, b
     sds line = state_file_rw_string(config, name, def_value_str, warn);
     if (sdslen(line) > 0) {
         value = strtoimax(line, &crap, 10);
-        sds_free(line);
+        sdsfree(line);
     }
     return value;
 }
@@ -406,7 +406,7 @@ bool state_file_write(t_config *config, const char *name, const char *value) {
     int fd;
     if ((fd = mkstemp(tmp_file)) < 0 ) {
         LOG_ERROR("Can't open %s for write", tmp_file);
-        sds_free(tmp_file);
+        sdsfree(tmp_file);
         return false;
     }
     FILE *fp = fdopen(fd, "w");
@@ -415,17 +415,18 @@ bool state_file_write(t_config *config, const char *name, const char *value) {
     sds cfg_file = sdscatfmt(sdsempty(), "%s/state/%s", config->varlibdir, name);
     if (rename(tmp_file, cfg_file) == -1) {
         LOG_ERROR("Renaming file from %s to %s failed", tmp_file, cfg_file);
-        sds_free(tmp_file);
-        sds_free(cfg_file);
+        sdsfree(tmp_file);
+        sdsfree(cfg_file);
         return false;
     }
-    sds_free(tmp_file);
-    sds_free(cfg_file);
+    sdsfree(tmp_file);
+    sdsfree(cfg_file);
     return true;
 }
 
-sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buffer) {
-    buffer = sdscat(buffer, "{\"type\":\"mympdSettings\",\"data\":{");
+sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buffer, sds method, int request_id) {
+    buffer = jsonrpc_start_result(buffer, method, request_id);
+    buffer = sdscat(buffer, "{");
     buffer = tojson_char(buffer, "mpdHost", mympd_state->mpd_host, true);
     buffer = tojson_long(buffer, "mpdPort", mympd_state->mpd_port, true);
     buffer = tojson_char(buffer, "mpdPass", "dontsetpassword", true);
@@ -480,6 +481,7 @@ sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buf
         buffer = sdscat(buffer, "]");
     }
 
-    buffer = sdscat(buffer, "}}");
+    buffer = sdscat(buffer, "}");
+    buffer = jsonrpc_end_result(buffer);
     return buffer;
 }

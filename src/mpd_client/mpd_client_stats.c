@@ -91,7 +91,7 @@ sds mpd_client_like_song_uri(t_mpd_state *mpd_state, sds buffer, sds method, int
     sds value_str = sdsfromlonglong(value);
     LOG_VERBOSE("Setting sticker: \"%s\" -> like: %s", uri, value_str);
     bool rc = mpd_run_sticker_set(mpd_state->conn, "song", uri, "like", value_str);
-    sds_free(value_str);
+    sdsfree(value_str);
     if (rc == false) {
         buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
         return buffer;
@@ -106,7 +106,7 @@ bool mpd_client_last_played_list_save(t_config *config, t_mpd_state *mpd_state) 
     int fd;
     if ((fd = mkstemp(tmp_file)) < 0 ) {
         LOG_ERROR("Can't open %s for write", tmp_file);
-        sds_free(tmp_file);
+        sdsfree(tmp_file);
         return false;
     }    
     
@@ -137,12 +137,12 @@ bool mpd_client_last_played_list_save(t_config *config, t_mpd_state *mpd_state) 
     
     if (rename(tmp_file, cfg_file) == -1) {
         LOG_ERROR("Renaming file from %s to %s failed", tmp_file, cfg_file);
-        sds_free(tmp_file);
-        sds_free(cfg_file);
+        sdsfree(tmp_file);
+        sdsfree(cfg_file);
         return false;
     }
-    sds_free(tmp_file);
-    sds_free(cfg_file);
+    sdsfree(tmp_file);
+    sdsfree(cfg_file);
     //empt list after write to disc
     list_free(&mpd_state->last_played);    
     return true;
@@ -171,7 +171,7 @@ bool mpd_client_last_played_list(t_config *config, t_mpd_state *mpd_state, const
             //notify clients
             sds buffer = jsonrpc_respond_message_notify(sdsempty(), "update_lastplayed", false);
             mpd_client_notify(buffer);
-            sds_free(buffer);
+            sdsfree(buffer);
         } else {
             LOG_ERROR("Can't get song from id %d", song_id);
             return false;
@@ -240,7 +240,7 @@ sds mpd_client_put_last_played_songs(t_config *config, t_mpd_state *mpd_state, s
     
     sds lp_file = sdscatfmt(sdsempty(), "%s/state/last_played", config->varlibdir);
     FILE *fp = fopen(lp_file, "r");
-    sds_free(lp_file);
+    sdsfree(lp_file);
     if (fp != NULL) {
         while ((read = getline(&line, &n, fp)) > 0) {
             entity_count++;
@@ -298,8 +298,8 @@ sds mpd_client_put_stats(t_mpd_state *mpd_state, sds buffer, sds method, int req
     buffer = sdscat(buffer, "}");
     buffer = jsonrpc_end_result(buffer);
 
-    sds_free(mpd_version);
-    sds_free(libmpdclient_version);
+    sdsfree(mpd_version);
+    sdsfree(libmpdclient_version);
     mpd_stats_free(stats);
 
     return buffer;

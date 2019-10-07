@@ -62,7 +62,7 @@ void mympd_log(int level, const char *file, int line, const char *fmt, ...) {
     out_len += len;
 
     if (loglevel == 4) {
-        len = snprintf(out + len, max_out - len, "%s:%d: ", file, line);
+        len = snprintf(out + out_len, max_out - out_len, "%s:%d: ", file, line);
         if (len == -1) {
             fprintf(stderr, "ERROR: Can't write to log buffer\n");
             return;
@@ -73,7 +73,7 @@ void mympd_log(int level, const char *file, int line, const char *fmt, ...) {
     va_list args;
     va_start(args, fmt);
     if (out_len < max_out - 2) {
-        len = vsnprintf(out + len, max_out - len, fmt, args);
+        len = vsnprintf(out + out_len, max_out - out_len, fmt, args);
         if (len == -1) {
             fprintf(stderr, "ERROR: Can't write to log buffer\n");
             return;
@@ -83,7 +83,7 @@ void mympd_log(int level, const char *file, int line, const char *fmt, ...) {
     va_end(args);
     
     if (out_len < max_out - 2) {
-        len = snprintf(out + len, max_out -len, "\n");
+        len = snprintf(out + out_len, max_out - out_len, "\n");
         if (len == -1) {
             fprintf(stderr, "ERROR: Can't write to log buffer\n");
             return;

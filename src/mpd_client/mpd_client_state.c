@@ -79,15 +79,12 @@ sds mpd_client_put_state(t_mpd_state *mpd_state, sds buffer, sds method, int req
         mpd_state->last_song_start_time = mpd_state->song_start_time;
         struct mpd_song *song = mpd_run_current_song(mpd_state->conn);
         if (song != NULL) {
-            FREE_PTR(mpd_state->last_song_uri);
-            if (mpd_state->song_uri != NULL) {
-                mpd_state->last_song_uri = mpd_state->song_uri;
-            }
-            mpd_state->song_uri = strdup(mpd_song_get_uri(song));
+            mpd_state->last_song_uri = sdscat(sdsempty(), mpd_state->song_uri);
+            mpd_state->song_uri = sdscat(sdsempty(), mpd_song_get_uri(song));
             mpd_song_free(song);
         }
         else {
-            FREE_PTR(mpd_state->song_uri);
+            mpd_state->song_uri = sdscat(sdsempty(), "");
         }
         mpd_response_finish(mpd_state->conn);
     }
@@ -175,7 +172,7 @@ sds mpd_client_put_volume(t_mpd_state *mpd_state, sds buffer, sds method, int re
         buffer = jsonrpc_start_result(buffer, method, request_id);
         buffer = sdscat(buffer, "{");
     }
-    buffer = tojson_long(buffer, "volume", mpd_status_get_volume(status), true);
+    buffer = tojson_long(buffer, "volume", mpd_status_get_volume(status), false);
     if (method == NULL) {
         buffer = jsonrpc_end_notify(buffer);
     }
@@ -202,13 +199,15 @@ sds mpd_client_put_outputs(t_mpd_state *mpd_state, sds buffer, sds method, int r
         if (nr++) {
             buffer = sdscat(buffer, ",");
         }
+        buffer = sdscat(buffer, "{");
         buffer = tojson_long(buffer, "id", mpd_output_get_id(output), true);
         buffer = tojson_char(buffer, "name", mpd_output_get_name(output), true);
         buffer = tojson_long(buffer, "state", mpd_output_get_enabled(output), false);
+        buffer = sdscat(buffer, "}");
         mpd_output_free(output);
     }
 
-    buffer = sdscat(buffer, "}");
+    buffer = sdscat(buffer, "]");
     buffer = jsonrpc_end_result(buffer);
     
     return buffer;

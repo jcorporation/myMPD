@@ -71,19 +71,19 @@ bool handle_option(t_config *config, char *cmd, sds option) {
     if (MATCH_OPTION("cert_remove")) {
         sds ssldir = sdscatfmt(sdsempty(), "%s/ssl", config->varlibdir);
         bool rc = cleanup_certificates(ssldir, "server");
-        sds_free(ssldir);
+        sdsfree(ssldir);
         return rc;
     }
     else if (MATCH_OPTION("ca_remove")) {
         sds ssldir = sdscatfmt(sdsempty(), "%s/ssl", config->varlibdir);
         bool rc = cleanup_certificates(ssldir, "ca");
-        sds_free(ssldir);
+        sdsfree(ssldir);
         return rc;
     }
     else if (MATCH_OPTION("certs_create")) {
         sds ssldir = sdscatfmt(sdsempty(), "%s/ssl", config->varlibdir);
         int testdir_rc = testdir("SSL certificates", ssldir, true);
-        sds_free(ssldir);
+        sdsfree(ssldir);
         if (testdir_rc < 2) {
             return create_certificates(ssldir, config->ssl_san);
         }
@@ -99,7 +99,7 @@ bool handle_option(t_config *config, char *cmd, sds option) {
     else if (MATCH_OPTION("reset_lastplayed")) {
         sds lpfile = sdscatfmt(sdsempty(), "%s/state/last_played", config->varlibdir);
         int rc = unlink(lpfile);
-        sds_free(lpfile);
+        sdsfree(lpfile);
         if (rc == 0) {
             return true;
         }
@@ -144,7 +144,7 @@ static bool smartpls_init(t_config *config, const char *name, const char *value)
     int fd;
     if ((fd = mkstemp(tmp_file)) < 0 ) {
         LOG_ERROR("Can't open %s for write", tmp_file);
-        sds_free(tmp_file);
+        sdsfree(tmp_file);
         return false;
     }
     FILE *fp = fdopen(fd, "w");
@@ -153,12 +153,12 @@ static bool smartpls_init(t_config *config, const char *name, const char *value)
     sds cfg_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->varlibdir, name);
     if (rename(tmp_file, cfg_file) == -1) {
         LOG_ERROR("Renaming file from %s to %s failed", tmp_file, cfg_file);
-        sds_free(tmp_file);
-        sds_free(cfg_file);
+        sdsfree(tmp_file);
+        sdsfree(cfg_file);
         return false;
     }
-    sds_free(tmp_file);
-    sds_free(cfg_file);
+    sdsfree(tmp_file);
+    sdsfree(cfg_file);
     return true;
 }
 
@@ -182,5 +182,5 @@ static void clear_covercache(t_config *config) {
     else {
         LOG_ERROR("Error opening directory %s", covercache);
     }
-    sds_free(covercache);
+    sdsfree(covercache);
 }

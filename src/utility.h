@@ -40,6 +40,7 @@ sds tojson_char_len(sds buffer, const char *key, const char *value, size_t len, 
 sds tojson_bool(sds buffer, const char *key, bool value, bool comma);
 sds tojson_long(sds buffer, const char *key, long value, bool comma);
 sds tojson_float(sds buffer, const char *key, float value, bool comma);
+sds sdscatjson(sds s, const char *p, size_t len);
 int testdir(const char *name, const char *dirname, bool create);
 int randrange(int n);
 bool validate_string(const char *data);

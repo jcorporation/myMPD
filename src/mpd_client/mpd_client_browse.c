@@ -171,6 +171,7 @@ sds mpd_client_put_filesystem(t_config *config, t_mpd_state *mpd_state, sds buff
                         buffer = sdscat(buffer, "{\"Type\":\"dir\",");
                         buffer = tojson_char(buffer, "uri", entityName, true);
                         buffer = tojson_char(buffer, "name", dirName, false);
+                        buffer = sdscat(buffer, "}");
                     }
                     else {
                         entity_count--;
@@ -199,11 +200,12 @@ sds mpd_client_put_filesystem(t_config *config, t_mpd_state *mpd_state, sds buff
                             if (access(smartpls_file, F_OK ) != -1) {
                                 smartpls = true;
                             }
-                            sds_free(smartpls_file);
+                            sdsfree(smartpls_file);
                         }
                         buffer = sdscatfmt(buffer, "{\"Type\": \"%s\"", (smartpls == true ? "smartpls" : "plist"));
                         buffer = tojson_char(buffer, "uri", entityName, true);
                         buffer = tojson_char(buffer, "name", plName, false);
+                        buffer = sdscat(buffer, "}");
                     } else {
                         entity_count--;
                     }
@@ -217,7 +219,10 @@ sds mpd_client_put_filesystem(t_config *config, t_mpd_state *mpd_state, sds buff
 
     mpd_response_finish(mpd_state->conn);
 
-    buffer = sdscatfmt(buffer, "],\"totalEntities\":%d,\"offset\":%d,\"returnedEntities\":%d,", entity_count, offset, entities_returned);
+    buffer = sdscat(buffer, "],");
+    buffer = tojson_long(buffer, "totalEntities", entity_count, true);
+    buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
+    buffer = tojson_long(buffer, "offset", offset, true);
     buffer = tojson_char(buffer, "filter", filter, false);
     buffer = jsonrpc_end_result(buffer);
     return buffer;
@@ -271,7 +276,10 @@ sds mpd_client_put_db_tag(t_mpd_state *mpd_state, sds buffer, sds method, int re
         mpd_return_pair(mpd_state->conn, pair);
     }
 
-    buffer = sdscatfmt(buffer, "],\"totalEntities\":%d,\"offset\":%d,\"returnedEntities\":%d,", entity_count, offset, entities_returned);
+    buffer = sdscat(buffer, "],");
+    buffer = tojson_long(buffer, "totalEntities", entity_count, true);
+    buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
+    buffer = tojson_long(buffer, "offset", offset, true);
     buffer = tojson_char(buffer, "filter", filter, true);
     buffer = tojson_char(buffer, "searchstr", searchstr, true);
     buffer = tojson_char(buffer, "searchtagtype", mpdsearchtagtype, true);
@@ -336,7 +344,9 @@ sds mpd_client_put_songs_in_album(t_config *config, t_mpd_state *mpd_state, sds 
         cover = sdscat(cover, "/assets/coverimage-notavailable.svg");
     }
 
-    buffer = sdscatfmt(buffer, "],\"totalEntities\":%d,\"returnedEntities\":%d,", entity_count, entities_returned);
+    buffer = sdscat(buffer, "],");
+    buffer = tojson_long(buffer, "totalEntities", entity_count, true);
+    buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
     buffer = tojson_char(buffer, "Album", album, true);
     buffer = tojson_char(buffer, "search", search, true);
     buffer = tojson_char(buffer, "tag", tag, true);

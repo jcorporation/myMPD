@@ -221,8 +221,8 @@ int list_shift(struct list *l, unsigned idx) {
     struct node * extracted = list_node_extract(l, idx);
     if (extracted == NULL) 
         return -1;
-    sds_free(extracted->data);
-    sds_free(extracted->extra);
+    sdsfree(extracted->data);
+    sdsfree(extracted->extra);
     free(extracted);
     return 0;
 }
@@ -231,8 +231,8 @@ int list_free(struct list *l) {
     struct node *current = l->list;
     struct node *tmp = NULL;
     while (current != NULL) {
-        sds_free(current->data);
-        sds_free(current->extra);
+        sdsfree(current->data);
+        sdsfree(current->extra);
         tmp = current;
         current = current->next;
         free(tmp);

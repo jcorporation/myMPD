@@ -108,7 +108,7 @@ void mpd_client_mpd_features(t_mpd_state *mpd_state) {
     mpd_client_feature_love(mpd_state);
     sds buffer = sdsempty();
     buffer = mpd_client_put_state(mpd_state, buffer, NULL, 0);
-    sds_free(buffer);
+    sdsfree(buffer);
     
     if (LIBMPDCLIENT_CHECK_VERSION(2, 17, 0) && mpd_connection_cmp_server_version(mpd_state->conn, 0, 21, 0) >= 0) {
         mpd_state->feat_advsearch = true;
@@ -259,10 +259,10 @@ static void mpd_client_feature_tags(t_mpd_state *mpd_state) {
         sdsfreesplitres(tokens, tokens_count);
         LOG_INFO(logline);
     }
-    sds_free(logline);
-    sds_free(taglist);
-    sds_free(searchtaglist);
-    sds_free(browsetaglist);
+    sdsfree(logline);
+    sdsfree(taglist);
+    sdsfree(searchtaglist);
+    sdsfree(browsetaglist);
 }
 
 
@@ -321,9 +321,11 @@ static void mpd_client_feature_music_directory(t_mpd_state *mpd_state) {
     t_work_result *web_server_response = (t_work_result *)malloc(sizeof(t_work_result));
     assert(web_server_response);
     web_server_response->conn_id = -1;
-    web_server_response->data = sdscatfmt(sdsempty(), "{\"musicDirectory\":\"%s\", \"featLibrary\": %s}",
-        mpd_state->music_directory_value,
-        mpd_state->feat_library == true ? "true" : "false"
-    );
+    
+    sds data = sdsnew("{");
+    data = tojson_char(data, "musicDirectory", mpd_state->music_directory_value, true);
+    data = tojson_bool(data, "featLibrary", mpd_state->feat_library, false);
+    data = sdscat(data, "}");
+    web_server_response->data = data;
     tiny_queue_push(web_server_queue, web_server_response);
 }

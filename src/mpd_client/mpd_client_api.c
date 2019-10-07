@@ -61,7 +61,7 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
     char *p_charbuf3 = NULL;
     char *p_charbuf4 = NULL;
 
-    LOG_VERBOSE("MPD CLIENT API request (%d): %s", request->conn_id, request->data);
+    LOG_VERBOSE("MPD CLIENT API request (%d) %s: %s", request->conn_id, request->method, request->data);
     //create response struct
     t_work_result *response = (t_work_result*)malloc(sizeof(t_work_result));
     assert(response);
@@ -99,7 +99,7 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
             struct json_token val;
             rc = true;
             bool mpd_host_changed = false;
-            while ((h = json_next_key(request->data, sdslen(request->data), h, ".data", &key, &val)) != NULL) {
+            while ((h = json_next_key(request->data, sdslen(request->data), h, ".params", &key, &val)) != NULL) {
                 rc = mpd_api_settings_set(config, mpd_state, &key, &val, &mpd_host_changed);
                 if (rc == false) {
                     break;
@@ -268,6 +268,7 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
                     uint_buf2--;
                 }
                 mpd_send_playlist_move(mpd_state->conn, p_charbuf1, uint_buf1, uint_buf2);
+                mpd_response_finish(mpd_state->conn);
                 data = respond_with_mpd_error_or_ok(mpd_state, data, request->method, request->id);
                 FREE_PTR(p_charbuf1);
             }
@@ -620,10 +621,10 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
         tiny_queue_push(web_server_queue, response);
     }
     else {
-        sds_free(data);
+        sdsfree(data);
         FREE_PTR(response);
     }
-    sds_free(request->data);
-    sds_free(request->method);
+    sdsfree(request->data);
+    sdsfree(request->method);
     FREE_PTR(request);
 }
