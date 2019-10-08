@@ -30,6 +30,7 @@
 #include <dirent.h>
 #include <pthread.h>
 #include <sys/stat.h>
+#include <ctype.h>
 
 #include "../dist/src/sds/sds.h"
 #include "log.h"
@@ -239,4 +240,41 @@ int replacechar(char *str, const char orig, const char rep) {
         n++;
     }
     return n;
+}
+
+
+sds sdsurldecode(sds s, const char *p, size_t len, int is_form_url_encoded) {
+    size_t i;
+    int a, b;
+#define HEXTOI(x) (isdigit(x) ? x - '0' : x - 'W')
+
+    for (i = 0; i < len; i++) {
+        switch(*p) {
+        case '%':
+            if (i < len - 2 && isxdigit(*(const unsigned char *) (p + 1)) &&
+                isxdigit(*(const unsigned char *) (p + 2)))
+            {
+                a = tolower(*(const unsigned char *) (p + 1));
+                b = tolower(*(const unsigned char *) (p + 2));
+                s = sdscatprintf(s, "%c", (char) ((HEXTOI(a) << 4) | HEXTOI(b)));
+                i += 2;
+                p += 2;
+            } 
+            else {
+                s = sdscat(sdsempty(), "");
+                return s;
+            }
+            break;
+        case '+':
+            if (is_form_url_encoded == 1) {
+                s = sdscatlen(s, " ", 1);
+                break;
+            }
+            //fall through
+        default:
+            s = sdscatlen(s, p, 1);
+        }
+        p++;
+    }
+    return s;
 }

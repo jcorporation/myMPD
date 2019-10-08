@@ -45,6 +45,7 @@ int testdir(const char *name, const char *dirname, bool create);
 int randrange(int n);
 bool validate_string(const char *data);
 int replacechar(char *str, const char orig, const char rep);
+sds sdsurldecode(sds s, const char *p, size_t len, int is_form_url_encoded);
 
 #define FREE_PTR(PTR) do { \
     if (PTR != NULL) \
