@@ -27,6 +27,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
+#include "../dist/src/sds/sds.h"
 #include "log.h"
 
 static const char *loglevel_names[] = {
@@ -48,54 +49,26 @@ void mympd_log(int level, const char *file, int line, const char *fmt, ...) {
     if (level > loglevel) {
         return;
     }
-    
-    int max_out = 1024;
-    char out[max_out];
-    int out_len = 0;
-    int len = 0;
-    
-    len = snprintf(out, max_out, "%-8s ", loglevel_names[level]);
-    if (len == -1) {
-        fprintf(stderr, "ERROR: Can't write to log buffer\n");
-        return;
-    }
-    out_len += len;
+    sds logline = sdscatprintf(sdsempty(), "%-8s ", loglevel_names[level]);
 
     if (loglevel == 4) {
-        len = snprintf(out + out_len, max_out - out_len, "%s:%d: ", file, line);
-        if (len == -1) {
-            fprintf(stderr, "ERROR: Can't write to log buffer\n");
-            return;
-        }
-        out_len += len;
+        logline = sdscatprintf(logline, "%s:%d: ", file, line);
     }
 
     va_list args;
     va_start(args, fmt);
-    if (out_len < max_out - 2) {
-        len = vsnprintf(out + out_len, max_out - out_len, fmt, args);
-        if (len == -1) {
-            fprintf(stderr, "ERROR: Can't write to log buffer\n");
-            return;
-        }
-        out_len += len;
-    }
+    logline = sdscatvprintf(logline, fmt, args);
     va_end(args);
-    
-    if (out_len < max_out - 2) {
-        len = snprintf(out + out_len, max_out - out_len, "\n");
-        if (len == -1) {
-            fprintf(stderr, "ERROR: Can't write to log buffer\n");
-            return;
-        }
+
+    if (sdslen(logline) > 1023) {
+        sdsrange(logline, 0, 1020);
+        logline = sdscatlen(logline, "...\n", 4);
     }
     else {
-        len = snprintf(out + max_out - 5, 5, "...\n");
-        if (len == -1) {
-            fprintf(stderr, "ERROR: Can't write to log buffer\n");
-            return;
-        }
+        logline = sdscatlen(logline, "\n", 1);
     }
-    fprintf(stderr, "%s", out);
+    
+    fputs(logline, stderr);
     fflush(stderr);
+    sdsfree(logline);
 }
