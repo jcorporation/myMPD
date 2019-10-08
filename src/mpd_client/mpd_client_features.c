@@ -298,7 +298,7 @@ static void mpd_client_feature_music_directory(t_mpd_state *mpd_state) {
     }
     
     //set feat_library
-    if (strlen(mpd_state->music_directory_value) == 0) {
+    if (sdslen(mpd_state->music_directory_value) == 0) {
         LOG_WARN("Disabling featLibrary support");
         mpd_state->feat_library = false;
     }

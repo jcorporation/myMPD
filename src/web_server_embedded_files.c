@@ -49,7 +49,7 @@ struct embedded_file {
   const unsigned size;
 };
 
-static bool serve_embedded_files(struct mg_connection *nc, const char *uri, const size_t uri_len) {
+static bool serve_embedded_files(struct mg_connection *nc, sds uri) {
     const struct embedded_file embedded_files[] = {
         {"/", "text/html", true, index_html_data, index_html_size},
         {"/css/combined.css", "text/css", true, combined_css_data, combined_css_size},
@@ -66,35 +66,35 @@ static bool serve_embedded_files(struct mg_connection *nc, const char *uri, cons
         {NULL, NULL, false, NULL, 0}
     };
     //decode uri
-    int uri_decoded_len;
-    char uri_decoded[hm->uri_len + 1];
-    
-    if ((uri_decoded_len = mg_url_decode(uri, hm->uri_len, uri_decoded, uri_len + 1, 0)) == -1) {
-        LOG_ERROR("uri_decoded buffer to small");
+    sds uri_decoded = sdsurldecode(sdsempty(), uri, sdslen(uri), 0);
+    if (sdslen(uri_decoded) == 0) {
+        LOG_ERROR("Failed to decode uri");
         mg_printf(nc, "%s", "HTTP/1.1 500 INTERNAL SERVER ERROR\r\n\r\n");
+        sdsfree(uri_decoded);
         return false;
     }
     //set index.html as direcory index
     if (strcmp(uri_decoded, "/index.html") == 0) {
-        uri_decoded_len = 1;
+        sdsrange(uri_decoded, 0, 1);
     }
     //find fileinfo
     const struct embedded_file *p = NULL;
     for (p = embedded_files; p->uri != NULL; p++) {
-        if (uri_decoded_len == (int)strlen(p->uri) && strncmp(p->uri, uri_decoded, uri_decoded_len) == 0) {
+        if (sdslen(uri_decoded) == (int)strlen(p->uri) && strncmp(p->uri, uri_decoded, sdslen(uri_decoded)) == 0) {
             break;
         }
     }
+    sdsfree(uri_decoded);
     
-    if (p->compressed == true) {
-        struct mg_str *header_encoding = mg_get_http_header(hm, "Accept-Encoding");
-        if (header_encoding == NULL || mg_strstr(mg_mk_str_n(header_encoding->p, header_encoding->len), mg_mk_str("gzip")) == NULL) {
-            mg_printf(nc, "%s", "HTTP/1.1 406 BROWSER DONT SUPPORT GZIP COMPRESSION\r\n\r\n");
-            return false;
-        }
-    }
-
     if (p != NULL) {
+        //respond with error if browser don't support compression and asset is compressed
+        if (p->compressed == true) {
+            struct mg_str *header_encoding = mg_get_http_header(hm, "Accept-Encoding");
+            if (header_encoding == NULL || mg_strstr(mg_mk_str_n(header_encoding->p, header_encoding->len), mg_mk_str("gzip")) == NULL) {
+                mg_printf(nc, "%s", "HTTP/1.1 406 BROWSER DONT SUPPORT GZIP COMPRESSION\r\n\r\n");
+                return false;
+            }
+        }
         //send header
         mg_printf(nc, "HTTP/1.1 200 OK\r\n"
                       EXTRA_HEADERS"\r\n"

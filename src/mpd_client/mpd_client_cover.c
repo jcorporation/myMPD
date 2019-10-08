@@ -60,7 +60,7 @@ sds mpd_client_get_cover(t_config *config, t_mpd_state *mpd_state, const char *u
             cover = sdscatfmt(sdsempty(), "/pics/%s.png", name);
         }
     }
-    else if (mpd_state->feat_library == true && strlen(mpd_state->music_directory_value) > 0) {
+    else if (mpd_state->feat_library == true && sdslen(mpd_state->music_directory_value) > 0) {
         dirname(path);
         cover = sdscatfmt(sdsempty(), "%s/%s/%s", mpd_state->music_directory_value, path, mpd_state->coverimage_name);
         if (access(cover, F_OK ) == -1 ) {

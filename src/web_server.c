@@ -341,7 +341,9 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 mg_serve_http(nc, hm, s_http_server_opts);
                 #else
                 //serve embedded files
-                serve_embedded_files(nc, hm->uri.p, hm->uri.len);
+                sds uri = sdsnewlen(hm->uri.p, hm->uri.len);
+                serve_embedded_files(nc, uri);
+                sdsfree(uri);
                 #endif
             }
             break;
@@ -444,27 +446,25 @@ static void serve_na_image(struct mg_connection *nc, struct http_message *hm) {
 }
 
 static bool handle_coverextract(struct mg_connection *nc, struct http_message *hm, t_mg_user_data *mg_user_data, t_config *config) {
-    size_t image_file_len = 1500;
-    char image_file[image_file_len];
-
     //decode uri
-    int uri_decoded_len;
-    char uri_decoded[(int)hm->uri.len + 1];
-    if ((uri_decoded_len = mg_url_decode(hm->uri.p, (int)hm->uri.len, uri_decoded, (int)hm->uri.len + 1, 0)) == -1) {
-        LOG_ERROR("uri_decoded buffer to small");
+    sds uri_decoded = sdsurldecode(sdsempty(), hm->uri.p, (int)hm->uri.len, 0);
+    if (sdslen(uri_decoded) == 0) {
+        LOG_ERROR("Failed to decode uri");
         serve_na_image(nc, hm);
+        sdsfree(uri_decoded);
         return false;
     }
     
     // replace /albumart through path to music_directory
-    sds uri_trimmed = sdsnew(uri_decoded);
-    sdsrange(uri_trimmed, 9, -1);
-    sds media_file = sdscatfmt(sdsempty(), "%s%s", mg_user_data->music_directory, uri_trimmed);
-    sdsfree(uri_trimmed);
+    sdsrange(uri_decoded, 9, -1);
+    sds media_file = sdscatfmt(sdsempty(), "%s%s", mg_user_data->music_directory, uri_decoded);
+    sdsfree(uri_decoded);
     LOG_VERBOSE("Exctracting coverimage from %s", media_file);
                 
     size_t image_mime_type_len = 100;
     char image_mime_type[image_mime_type_len];
+    size_t image_file_len = 1500;
+    char image_file[image_file_len];
     
     sds cache_dir = sdscatfmt(sdsempty(), "%s/covercache", config->varlibdir);
 

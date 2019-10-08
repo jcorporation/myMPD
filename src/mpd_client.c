@@ -252,7 +252,7 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
                 return;
             }
 
-            if (strlen(mpd_state->mpd_pass) > 0 && !mpd_run_password(mpd_state->conn, mpd_state->mpd_pass)) {
+            if (sdslen(mpd_state->mpd_pass) > 0 && !mpd_run_password(mpd_state->conn, mpd_state->mpd_pass)) {
                 LOG_ERROR("MPD connection: %s", mpd_connection_get_error_message(mpd_state->conn));
                 buffer = jsonrpc_start_phrase_notify(buffer, "MPD connection error: %{error}", true);
                 buffer = tojson_char(buffer, "error", mpd_connection_get_error_message(mpd_state->conn), false);

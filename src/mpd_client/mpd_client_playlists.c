@@ -510,7 +510,7 @@ bool mpd_client_smartpls_update_sticker(t_mpd_state *mpd_state, const char *play
                 char *crap;
                 int value = strtoimax(p_value, &crap, 10);
                 if (value >= 1) {
-                    list_push(&add_list, uri, value, NULL);
+                    list_push(&add_list, uri, value, sdsempty());
                 }
                 if (value > value_max) {
                     value_max = value;

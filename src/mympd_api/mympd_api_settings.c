@@ -475,7 +475,7 @@ sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buf
             if (nr++) {
                 buffer = sdscat(buffer, ",");
             }
-            buffer = sdscatrepr(buffer, current->data, strlen(current->data));
+            buffer = sdscatjson(buffer, current->data, sdslen(current->data));
             current = current->next;
         }
         buffer = sdscat(buffer, "]");

@@ -254,7 +254,7 @@ static sds print_tags_array(sds buffer, const char *tagsname, t_tags tags) {
             buffer = sdscat(buffer, ",");
         }
         const char *tagname = mpd_tag_name(tags.tags[i]);
-        buffer = sdscatrepr(buffer, tagname, strlen(tagname));
+        buffer = sdscatjson(buffer, tagname, strlen(tagname));
     }
     buffer = sdscat(buffer, "]");
     return buffer;

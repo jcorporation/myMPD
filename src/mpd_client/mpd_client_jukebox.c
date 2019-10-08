@@ -148,7 +148,7 @@ bool mpd_client_jukebox_add(t_mpd_state *mpd_state, const int addSongs, const en
         while ((pair = mpd_recv_pair_tag(mpd_state->conn, MPD_TAG_ALBUM )) != NULL)  {
             if (randrange(lineno) < addSongs) {
 		if (nkeep < addSongs) {
-                    list_push(&add_list, pair->value, lineno, NULL);
+                    list_push(&add_list, pair->value, lineno, sdsempty());
                     nkeep++;
                 }
 		else {
