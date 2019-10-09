@@ -16,24 +16,14 @@ options="!check"
 #no test suite
 
 build() {
-	cd "$builddir"
+	cd "$builddir" || exit 1
 	mkdir release
-	cd release
-	if [ "$CBUILD" != "$CHOST" ]; then
-		CMAKE_CROSSOPTS="-DCMAKE_SYSTEM_NAME=Linux -DCMAKE_HOST_SYSTEM_NAME=Linux"
-	fi
-	cmake \
-		-DCMAKE_INSTALL_PREFIX=/usr \
-		-DCMAKE_INSTALL_LIBDIR=lib \
-		-DBUILD_SHARED_LIBS=True \
-		-DCMAKE_BUILD_TYPE=RELEASE \
-		-DCMAKE_CXX_FLAGS="$CXXFLAGS" \
-		-DCMAKE_C_FLAGS="$CFLAGS" \
-		${CMAKE_CROSSOPTS} ..
+	cd release || exit 1
+	cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=RELEASE ..
 	make
 }
 
 package() {
-	cd "$builddir/release"
+	cd "$builddir/release" || exit 1
 	make DESTDIR="$pkgdir" install
 }

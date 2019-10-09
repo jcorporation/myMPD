@@ -2,7 +2,7 @@ FROM library/debian:9 as build
 RUN apt-get update \
   && apt-get install -y --no-install-recommends build-essential git \
   meson ninja-build gcc cpp cmake libssl-dev libmediainfo-dev \
-  openjdk-8-jre-headless perl
+  openjdk-8-jre-headless perl \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 ENV LANG=C.UTF-8
@@ -30,7 +30,7 @@ FROM library/debian:9-slim
 ENV MPD_HOST=127.0.0.1
 ENV MPD_PORT=6600
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends openssl libmediainfo0v5 
+  && apt-get install -y --no-install-recommends openssl libmediainfo0v5 \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 COPY --from=build /libmpdclient-master.tar.gz /
