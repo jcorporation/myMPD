@@ -180,10 +180,14 @@ small {
   height: var(--mympd-coverimagesize, 250px);
   background-color: #eee;
   float: left;
-  margin-right: 1.25rem;
   margin-bottom: 1.25rem;
+  margin-right: 1.25rem;
   position: relative;
   z-index: 1;
+}
+
+.album-cover-songdetails {
+  margin-right:0;
 }
 
 .album-desc {

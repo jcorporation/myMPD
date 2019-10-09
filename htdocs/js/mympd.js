@@ -642,7 +642,8 @@ function appInit() {
                 var parent = event.target.parentNode;
                 var spinner = document.createElement('div');
                 spinner.classList.add('spinner-border', 'spinner-border-sm');
-                parent.replaceChild(spinner, parent.firstChild);
+                event.target.classList.add('hide');
+                parent.appendChild(spinner);
             }
             else if (event.target.parentNode.getAttribute('data-tag') != undefined) {
                 modalSongDetails.hide();
@@ -3161,7 +3162,8 @@ function parseFingerprint(obj) {
     textarea.value = obj.data.fingerprint;
     textarea.classList.add('form-control', 'text-monospace', 'small');
     var fpTd = document.getElementById('fingerprint');
-    fpTd.replaceChild(textarea, fpTd.firstChild);
+    fpTd.innerHTML = '';
+    fpTd.appendChild(textarea);
 }
 
 function parseSongDetails(obj) {
