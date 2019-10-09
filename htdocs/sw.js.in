@@ -15,11 +15,11 @@ var urlsToCache = [
 
 var ignoreRequests = new RegExp('(' + [
   subdir + '/api',
-  subdir + '/ca.crt',
+  subdir + '/ca\.crt',
   subdir + '/ws',
-  subdir + '/library\/(.*)',
-  subdir + '/albumart\/(.*)',
-  subdir + '/pics\/(.*)'].join('(\/?)|\\') + ')$')
+  subdir + '/library/(.*)',
+  subdir + '/albumart/(.*)',
+  subdir + '/pics/(.*)'].join('(/?)|\\') + ')$')
 
 self.addEventListener('install', function(event) {
     event.waitUntil(
