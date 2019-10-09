@@ -1561,10 +1561,15 @@ function toggleBtn(btn, state) {
         return;
     }
     if (state == undefined) {
-        state = b.classList.contains('active') ? 0 : 1;
+        //toggle state
+        state = b.classList.contains('active') ? false : true;
+    }
+    else if (state == 0 || state == 1) {
+        //1 = true, 0 = false
+        state = state == 1 ? true : false;
     }
 
-    if (state == true || state == 1) {
+    if (state == true) {
         b.classList.add('active');
     }
     else {
@@ -1578,10 +1583,15 @@ function toggleBtnChk(btn, state) {
         return;
     }
     if (state == undefined) {
-        state = b.classList.contains('active') ? 0 : 1;
+        //toggle state
+        state = b.classList.contains('active') ? false : true;
+    }
+    else if (state == 0 || state == 1) {
+        //1 = true, 0 = false
+        state = state == 1 ? true : false;
     }
 
-    if (state == true || state == 1) {
+    if (state == true) {
         b.classList.add('active');
         b.innerText = 'check';
     }
@@ -1701,21 +1711,21 @@ function parseSettings() {
                     Notification.permission = permission;
                 }
                 if (permission === 'granted') {
-                    toggleBtnChk('btnNotifyWeb', 1);
+                    toggleBtnChk('btnNotifyWeb', true);
                 } 
                 else {
-                    toggleBtnChk('btnNotifyWeb', 0);
+                    toggleBtnChk('btnNotifyWeb', false);
                     settings.notificationWeb = true;
                 }
             });         
         }
         else {
-            toggleBtnChk('btnNotifyWeb', 0);
+            toggleBtnChk('btnNotifyWeb', false);
         }
     }
     else {
         btnNotifyWeb.setAttribute('disabled', 'disabled');
-        toggleBtnChk('btnNotifyWeb', 0);
+        toggleBtnChk('btnNotifyWeb', false);
     }
     
     toggleBtnChk('btnNotifyPage', settings.notificationPage);
@@ -2835,16 +2845,16 @@ function parseListDBtags(obj) {
         document.getElementById('btnBrowseDatabaseTag').innerHTML = '&laquo; ' + t(app.current.view);
         document.getElementById('BrowseDatabaseAlbumListCaption').innerHTML = '<h2>' + t(obj.searchtagtype) + ': ' + e(obj.searchstr) + '</h2><hr/>';
         document.getElementById('cardFooterBrowse').innerText = t('Num entries', obj.totalEntities);
-        var nrItems = obj.data.length;
-        var cardContainer = document.getElementById('BrowseDatabaseAlbumList');
-        var cards = cardContainer.getElementsByClassName('card');
+        let nrItems = obj.data.length;
+        let cardContainer = document.getElementById('BrowseDatabaseAlbumList');
+        let cards = cardContainer.getElementsByClassName('card');
         for (var i = 0; i < nrItems; i++) {
-            var id = genId(obj.data[i].value);
-            var card = document.createElement('div');
+            let id = genId(obj.data[i].value);
+            let card = document.createElement('div');
             card.classList.add('card', 'ml-4', 'mr-4', 'mb-4', 'w-100');
             card.setAttribute('id', 'card' + id);
             card.setAttribute('data-album', encodeURI(obj.data[i].value));
-            var html = '<div class="card-header"><span id="albumartist' + id + '"></span> &ndash; ' + e(obj.data[i].value) + '</div>' +
+            let html = '<div class="card-header"><span id="albumartist' + id + '"></span> &ndash; ' + e(obj.data[i].value) + '</div>' +
                        '<div class="card-body"><div class="row">';
             if (settings.featCoverimage == true && settings.coverimage == true) {
                 html += '<div class="col-md-auto"><a class="card-img-left"></a></div>';
@@ -2869,7 +2879,7 @@ function parseListDBtags(obj) {
                 sendAPI({"cmd": "MPD_API_DATABASE_TAG_ALBUM_TITLE_LIST", "data": { "album": obj.data[i].value, "search": app.current.search, "tag": app.current.view, "cols": settings.colsBrowseDatabase}}, parseListTitles);
             }
         }
-        var cardsLen = cards.length - 1;
+        let cardsLen = cards.length - 1;
         for (var i = cardsLen; i >= nrItems; i --) {
             cards[i].remove();
         }
@@ -2890,12 +2900,12 @@ function parseListDBtags(obj) {
         document.getElementById('btnBrowseDatabaseTag').parentNode.classList.add('hide');
         document.getElementById('BrowseDatabaseTagListCaption').innerText = app.current.view;        
         document.getElementById('cardFooterBrowse').innerText = obj.totalEntities + ' Tags';
-        var nrItems = obj.data.length;
-        var table = document.getElementById(app.current.app + app.current.tab + 'TagList');
-        var tbody = table.getElementsByTagName('tbody')[0];
-        var navigate = document.activeElement.parentNode.parentNode == table ? true : false;
-        var activeRow = 0;
-        var tr = tbody.getElementsByTagName('tr');
+        let nrItems = obj.data.length;
+        let table = document.getElementById(app.current.app + app.current.tab + 'TagList');
+        let tbody = table.getElementsByTagName('tbody')[0];
+        let navigate = document.activeElement.parentNode.parentNode == table ? true : false;
+        let activeRow = 0;
+        let tr = tbody.getElementsByTagName('tr');
         for (var i = 0; i < nrItems; i++) {
             var uri = encodeURI(obj.data[i].value);
             var row = document.createElement('tr');
@@ -2910,7 +2920,7 @@ function parseListDBtags(obj) {
                 tbody.append(row);
             }
         }
-        var trLen = tr.length - 1;
+        let trLen = tr.length - 1;
         for (var i = trLen; i >= nrItems; i --) {
             tr[i].remove();
         }
@@ -2921,9 +2931,10 @@ function parseListDBtags(obj) {
         
         setPagination(obj.totalEntities, obj.returnedEntities);
 
-        if (nrItems == 0) 
+        if (nrItems == 0) {
             tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
                               '<td>No entries found.</td></tr>';
+        }
         document.getElementById('BrowseDatabaseTagList').classList.remove('opacity05');                              
     }
 }
