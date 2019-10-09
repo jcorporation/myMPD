@@ -394,7 +394,7 @@ function appInitStart() {
                 registration.update();
             }, function(err) {
                 // Registration failed
-                logError('ServiceWorker registration failed: ', err);
+                logError('ServiceWorker registration failed: ' + err);
             });
         });
     }
@@ -651,28 +651,33 @@ function appInit() {
             } 
         }
         else if (event.target.nodeName == 'BUTTON') { 
-            if (event.target.getAttribute('data-href'))
+            if (event.target.getAttribute('data-href')) {
                 parseCmd(event, event.target.getAttribute('data-href'));
+            }
         }
     }, false);
 
     document.getElementById('outputs').addEventListener('click', function(event) {
-        if (event.target.nodeName == 'BUTTON') 
+        if (event.target.nodeName == 'BUTTON') {
             event.stopPropagation();
             sendAPI({"cmd": "MPD_API_PLAYER_TOGGLE_OUTPUT", "data": {"output": event.target.getAttribute('data-output-id'), "state": (event.target.classList.contains('active') ? 0 : 1)}});
             toggleBtn(event.target.id);
+        }
     }, false);
     
     document.getElementById('QueueCurrentList').addEventListener('click', function(event) {
-        if (event.target.nodeName == 'TD') 
+        if (event.target.nodeName == 'TD') {
             sendAPI({"cmd": "MPD_API_PLAYER_PLAY_TRACK","data": {"track": event.target.parentNode.getAttribute('data-trackid')}});
-        else if (event.target.nodeName == 'A')
+        }
+        else if (event.target.nodeName == 'A') {
             showMenu(event.target, event);
+        }
     }, false);
     
     document.getElementById('QueueLastPlayedList').addEventListener('click', function(event) {
-        if (event.target.nodeName == 'A')
+        if (event.target.nodeName == 'A') {
             showMenu(event.target, event);
+        }
     }, false);    
 
     document.getElementById('BrowseFilesystemList').addEventListener('click', function(event) {
@@ -872,18 +877,20 @@ function appInit() {
         if (settings.featAdvsearch) {
             if (event.target.nodeName == 'TH') {
                 var col = event.target.getAttribute('data-col');
-                if (col == 'Duration')
+                if (col == 'Duration') {
                     return;
+                }
                 var sortcol = app.current.sort;
                 var sortdesc = true;
                 
                 if (sortcol == col || sortcol == '-' + col) {
                     if (sortcol.indexOf('-') == 0) {
                         sortdesc = true;
-                        sortcol = sortcol.substring(1);
+                        col = sortcol.substring(1);
                     }
-                    else
+                    else {
                         sortdesc = false;
+                    }
                 }
                 if (sortdesc == false) {
                     sortcol = '-' + col;
@@ -895,8 +902,9 @@ function appInit() {
                 }
                 
                 var s = document.getElementById('SearchList').getElementsByClassName('sort-dir');
-                for (var i = 0; i < s.length; i++)
+                for (var i = 0; i < s.length; i++) {
                     s[i].remove();
+                }
                 app.current.sort = sortcol;
                 event.target.innerHTML = col + '<span class="sort-dir material-icons pull-right">' + (sortdesc == true ? 'arrow_drop_up' : 'arrow_drop_down') + '</span>';
                 appGoto(app.current.app, app.current.tab, app.current.view, app.current.page + '/' + app.current.filter + '/' + app.current.sort + '/' + app.current.search);
@@ -905,8 +913,9 @@ function appInit() {
     }, false);
 
     document.getElementById('BrowseDatabaseByTagDropdown').addEventListener('click', function(event) {
-        if (event.target.nodeName == 'BUTTON')
+        if (event.target.nodeName == 'BUTTON') {
             appGoto(app.current.app, app.current.tab, event.target.getAttribute('data-tag') , '0/' + app.current.filter + '/' + app.current.sort + '/' + app.current.search);
+        }
     }, false);
 
     document.getElementsByTagName('body')[0].addEventListener('click', function(event) {
@@ -1037,7 +1046,7 @@ function focusTable(rownr, table) {
         var sel = table.getElementsByClassName('selected');
         if (rownr == undefined) {
             if (sel.length == 0) {
-                var row = table.getElementsByTagName('tbody')[0].rows[0];
+                let row = table.getElementsByTagName('tbody')[0].rows[0];
                 row.focus();
                 row.classList.add('selected');
             }
@@ -1063,9 +1072,9 @@ function focusTable(rownr, table) {
         if (table.id == 'BrowseFilesystemList') {
             var tbody = table.getElementsByTagName('tbody')[0];
             if (tbody.rows[0].getAttribute('data-type') != 'parentDir' && app.current.search != '') {
-                var nrCells = table.getElementsByTagName('thead')[0].rows[0].cells.length;
-                var uri = app.current.search.replace(/\/?([^\/]+)$/,'');
-                var row = tbody.insertRow(0);
+                let nrCells = table.getElementsByTagName('thead')[0].rows[0].cells.length;
+                let uri = app.current.search.replace(/\/?([^\/]+)$/,'');
+                let row = tbody.insertRow(0);
                 row.setAttribute('data-type', 'parentDir');
                 row.setAttribute('tabindex', 0);
                 row.setAttribute('data-uri', encodeURI(uri));
@@ -1504,13 +1513,11 @@ function webSocketConnect() {
                 clearTimeout(websocketTimer);
                 websocketTimer = null;
             }
-            if (websocketTimer == null) {
-                websocketTimer = setTimeout(function() {
-                    logInfo('Reconnecting websocket');
-                    toggleAlert('alertMympdState', true, t('Websocket connection failed, trying to reconnect') + '&nbsp;&nbsp;<div class="spinner-border spinner-border-sm"></div>');
-                    webSocketConnect();
-                }, 3000);
-            }
+            websocketTimer = setTimeout(function() {
+                logInfo('Reconnecting websocket');
+                toggleAlert('alertMympdState', true, t('Websocket connection failed, trying to reconnect') + '&nbsp;&nbsp;<div class="spinner-border spinner-border-sm"></div>');
+                webSocketConnect();
+            }, 3000);
             socket = null;
         }
 
@@ -1557,7 +1564,7 @@ function toggleBtn(btn, state) {
         state = b.classList.contains('active') ? 0 : 1;
     }
 
-    if (state == 1 || state == true) {
+    if (state == true || state == 1) {
         b.classList.add('active');
     }
     else {
@@ -1574,7 +1581,7 @@ function toggleBtnChk(btn, state) {
         state = b.classList.contains('active') ? 0 : 1;
     }
 
-    if (state == 1 || state == true) {
+    if (state == true || state == 1) {
         b.classList.add('active');
         b.innerText = 'check';
     }
@@ -2303,10 +2310,10 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
         if (lastState.data.currentSongId != currentSongId) {
             var tr = document.getElementById('queueTrackId' + lastState.data.currentSongId);
             if (tr) {
-                var durationTd = tr.querySelector('[data-col=Duration]');
+                let durationTd = tr.querySelector('[data-col=Duration]');
                 if (durationTd)
                     durationTd.innerText = tr.getAttribute('data-duration');
-                var posTd = tr.querySelector('[data-col=Pos]');
+                let posTd = tr.querySelector('[data-col=Pos]');
                 if (posTd) {
                     posTd.classList.remove('material-icons');
                     posTd.innerText = tr.getAttribute('data-songpos');
@@ -2317,7 +2324,7 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
     }
     var tr = document.getElementById('queueTrackId' + currentSongId);
     if (tr) {
-        var durationTd = tr.querySelector('[data-col=Duration]');
+        let durationTd = tr.querySelector('[data-col=Duration]');
         if (durationTd) {
             durationTd.innerHTML = counterText;
         }
@@ -2484,7 +2491,7 @@ function replaceTblRow(row, el) {
 }
 
 function parseQueue(obj) {
-    if (typeof(obj.totalTime) != undefined && obj.totalTime > 0 && obj.totalEntities <= settings.maxElementsPerPage ) {
+    if (typeof(obj.totalTime) != 'undefined' && obj.totalTime > 0 && obj.totalEntities <= settings.maxElementsPerPage ) {
         document.getElementById('cardFooterQueue').innerText = t('Num songs', obj.totalEntities) + ' – ' + beautifyDuration(obj.totalTime);
     }
     else if (obj.totalEntities > 0) {
@@ -2632,6 +2639,7 @@ function parseFilesystem(obj) {
     for (var i = 0; i < nrItems; i++) {
         var uri = encodeURI(obj.data[i].uri);
         var row = document.createElement('tr');
+        var tds = '';
         row.setAttribute('data-type', obj.data[i].Type);
         row.setAttribute('data-uri', uri);
         row.setAttribute('tabindex', 0);
@@ -2646,7 +2654,6 @@ function parseFilesystem(obj) {
             case 'dir':
             case 'smartpls':
             case 'plist':
-                var tds = '';
                 for (var c = 0; c < settings['cols' + list].length; c++) {
                     tds += '<td data-col="' + settings['cols' + list][c] + '">';
                     if (settings['cols' + list][c] == 'Type') {
@@ -2667,7 +2674,6 @@ function parseFilesystem(obj) {
                 break;
             case 'song':
                 obj.data[i].Duration = beautifySongDuration(obj.data[i].Duration);
-                var tds = '';
                 for (var c = 0; c < settings['cols' + list].length; c++) {
                     tds += '<td data-col="' + settings['cols' + list][c] + '">';
                     if (settings['cols' + list][c] == 'Type') {
@@ -2741,8 +2747,8 @@ function parsePlaylists(obj) {
     var activeRow = 0;
     if (app.current.view == 'All') {
         for (var i = 0; i < nrItems; i++) {
-            var uri = encodeURI(obj.data[i].uri);
-            var row = document.createElement('tr');
+            let uri = encodeURI(obj.data[i].uri);
+            let row = document.createElement('tr');
             row.setAttribute('data-uri', uri);
             row.setAttribute('data-type', obj.data[i].Type);
             row.setAttribute('data-name', obj.data[i].name);
@@ -2762,8 +2768,8 @@ function parsePlaylists(obj) {
     }
     else if (app.current.view == 'Detail') {
         for (var i = 0; i < nrItems; i++) {
-            var uri = encodeURI(obj.data[i].uri);
-            var row = document.createElement('tr');
+            let uri = encodeURI(obj.data[i].uri);
+            let row = document.createElement('tr');
             if (obj.smartpls == false) {
                 row.setAttribute('draggable','true');
             }
@@ -3615,14 +3621,15 @@ function showMenu(el, event) {
     event.preventDefault();
     event.stopPropagation();
     hideMenu();
-    if (el.getAttribute('data-init'))
+    if (el.getAttribute('data-init')) {
         return;
+    }
 
     var type = el.getAttribute('data-type');
     var uri = decodeURI(el.getAttribute('data-uri'));
     var name = el.getAttribute('data-name');
     var nextsongpos = 0;
-    if (type == null || uri == null) {
+    if (type == null || uri == '') {
         type = el.parentNode.parentNode.getAttribute('data-type');
         uri = decodeURI(el.parentNode.parentNode.getAttribute('data-uri'));
         name = el.parentNode.parentNode.getAttribute('data-name');
@@ -3738,7 +3745,7 @@ function showMenu(el, event) {
                 else
                     icon.innerText = 'keyboard_arrow_right';
             }, false);
-            var myCollapseInit = new Collapse(collapseLink);
+            new Collapse(collapseLink);
         }
         document.getElementsByClassName('popover-content')[0].firstChild.focus();
     }, false);
@@ -3786,7 +3793,7 @@ function sendAPI(request, callback, onerror) {
                 logError('Empty response for request: ' + JSON.stringify(request));
                 if (onerror == true) {
                     if (callback != undefined && typeof(callback) == 'function') {
-                        logDebug('Got API response of type "' + obj.type + '" calling ' + callback.name);
+                        logDebug('Got empty API response calling ' + callback.name);
                         callback('');
                     }
                 }
