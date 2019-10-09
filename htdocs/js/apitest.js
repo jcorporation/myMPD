@@ -125,7 +125,7 @@ function setTest(cmd, state, response) {
     document.getElementsByTagName('tbody')[0].appendChild(tr);
 }
 
-function sendAPI(request, callback) {
+function sendAPI(request) {
     var ajaxRequest=new XMLHttpRequest();
     ajaxRequest.open('POST', '/api', true);
     ajaxRequest.setRequestHeader('Content-type', 'application/json');
