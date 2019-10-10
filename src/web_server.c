@@ -345,7 +345,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 #else
                 //serve embedded files
                 sds uri = sdsnewlen(hm->uri.p, hm->uri.len);
-                serve_embedded_files(nc, uri);
+                serve_embedded_files(nc, uri, hm);
                 sdsfree(uri);
                 #endif
             }
@@ -443,7 +443,7 @@ static void serve_na_image(struct mg_connection *nc, struct http_message *hm) {
     mg_http_serve_file(nc, hm, na_image, mg_mk_str("image/png"), mg_mk_str(""));
     #else
     sds na_image = sdsnew("/assets/coverimage-notavailable.png");
-    serve_embedded_files(nc, na_image, sdslen(na_image));
+    serve_embedded_files(nc, na_image, hm);
     #endif
     sdsfree(na_image);
 }

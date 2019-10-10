@@ -358,7 +358,7 @@ void mympd_config_defaults(t_config *config) {
 bool mympd_read_config(t_config *config, sds configfile) {
     LOG_INFO("Parsing config file: %s", configfile);
     if (ini_parse(configfile, mympd_inihandler, config) < 0) {
-        LOG_ERROR("Can't parse config file %s, using defaults", configfile);
+        LOG_WARN("Can't parse config file %s, using defaults", configfile);
     }
     //read environment - overwrites config file definitions
     mympd_get_env(config);

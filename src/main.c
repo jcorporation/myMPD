@@ -140,7 +140,7 @@ int main(int argc, char **argv) {
     #ifdef DEBUG
     set_loglevel(4);
     #else
-    set_loglevel = 2;
+    set_loglevel(2);
     #endif
 
     if (chdir("/") != 0) {

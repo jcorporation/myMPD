@@ -43,14 +43,14 @@ INCBIN(MaterialIcons_Regular_woff2, "../htdocs/assets/MaterialIcons-Regular.woff
 
 struct embedded_file {
   const char *uri;
-  const int uri_len;
+  const size_t uri_len;
   const char *mimetype;
   bool compressed;
   const unsigned char *data;
   const unsigned size;
 };
 
-static bool serve_embedded_files(struct mg_connection *nc, sds uri) {
+static bool serve_embedded_files(struct mg_connection *nc, sds uri, struct http_message *hm) {
     const struct embedded_file embedded_files[] = {
         {"/", 1, "text/html", true, index_html_data, index_html_size},
         {"/css/combined.css", 17, "text/css", true, combined_css_data, combined_css_size},
@@ -64,7 +64,7 @@ static bool serve_embedded_files(struct mg_connection *nc, sds uri) {
         {"/assets/favicon.ico", 19, "image/vnd.microsoft.icon", false, favicon_ico_data, favicon_ico_size},
         {"/assets/appicon-192.png", 23, "image/png", false, appicon_192_png_data, appicon_192_png_size},
         {"/assets/appicon-512.png", 23, "image/png", false, appicon_512_png_data, appicon_512_png_size},
-        {NULL, NULL, false, NULL, 0}
+        {NULL, 0, NULL, false, NULL, 0}
     };
     //decode uri
     sds uri_decoded = sdsurldecode(sdsempty(), uri, sdslen(uri), 0);
@@ -112,7 +112,7 @@ static bool serve_embedded_files(struct mg_connection *nc, sds uri) {
         return true;
     }
     else {
-        LOG_ERROR("Embedded asset %.*s not found", uri_len, uri);
+        LOG_ERROR("Embedded asset %s not found", uri);
         mg_printf(nc, "%s", "HTTP/1.1 404 NOT FOUND\r\n\r\n");
     }
     return false;
