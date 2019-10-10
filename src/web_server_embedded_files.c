@@ -81,7 +81,7 @@ static bool serve_embedded_files(struct mg_connection *nc, sds uri) {
     //find fileinfo
     const struct embedded_file *p = NULL;
     for (p = embedded_files; p->uri != NULL; p++) {
-        if (sdslen(uri_decoded) == p->uri_len) && strncmp(p->uri, uri_decoded, sdslen(uri_decoded)) == 0) {
+        if (sdslen(uri_decoded) == p->uri_len && strncmp(p->uri, uri_decoded, sdslen(uri_decoded)) == 0) {
             break;
         }
     }

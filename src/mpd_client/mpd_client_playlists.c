@@ -69,7 +69,7 @@ sds mpd_client_put_playlists(t_config *config, t_mpd_state *mpd_state, sds buffe
                 sds smartpls_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->varlibdir, plpath);
                 bool smartpls = false;
                 if (validate_string(plpath) == true) {
-                    if (access(smartpls_file, F_OK ) != -1) {
+                    if (access(smartpls_file, F_OK ) != -1) { /* Flawfinder: ignore */
                         smartpls = true;
                     }
                 }
@@ -137,7 +137,7 @@ sds mpd_client_put_playlist_list(t_config *config, t_mpd_state *mpd_state, sds b
     bool smartpls = false;
     if (validate_string(uri) == true) {
         sds smartpls_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->varlibdir, uri);
-        if (access(smartpls_file, F_OK ) != -1) {
+        if (access(smartpls_file, F_OK ) != -1) { /* Flawfinder: ignore */
             smartpls = true;
         }
     }
@@ -165,9 +165,9 @@ sds mpd_client_playlist_rename(t_config *config, t_mpd_state *mpd_state, sds buf
     sds old_pl_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->varlibdir, old_playlist);
     sds new_pl_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->varlibdir, new_playlist);
 
-    if (access(old_pl_file, F_OK ) != -1) {
+    if (access(old_pl_file, F_OK ) != -1) { /* Flawfinder: ignore */
         //smart playlist
-        if (access(new_pl_file, F_OK ) == -1) {
+        if (access(new_pl_file, F_OK ) == -1) { /* Flawfinder: ignore */
             //new playlist doesn't exist
             if (rename(old_pl_file, new_pl_file) == -1) {
                 LOG_ERROR("Renaming smart playlist %s to %s failed", old_pl_file, new_pl_file);

@@ -47,7 +47,7 @@ sds mympd_api_syscmd(t_config *config, sds buffer, sds method, int request_id,
         return buffer;
     }
     LOG_DEBUG("Executing syscmd \"%s\"", cmdline);
-    const int rc = system(cmdline);
+    const int rc = system(cmdline); /* Flawfinder: ignore */
     if (rc == 0) {
         buffer = jsonrpc_start_phrase(buffer, method, request_id, "Successfully execute cmd %{cmd}", false);
         buffer = tojson_char(buffer, "cmd", cmd, false);

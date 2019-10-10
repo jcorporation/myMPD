@@ -410,7 +410,7 @@ static bool write_to_disk(sds key_file, EVP_PKEY *pkey, sds cert_file, X509 *cer
     /* Write the key to disk. */    
     sds key_file_tmp = sdscatfmt(sdsempty(), "%s.XXXXXX", key_file);
     int fd;
-    if ((fd = mkstemp(key_file_tmp)) < 0 ) { /* Flawfinder: ignore */
+    if ((fd = mkstemp(key_file_tmp)) < 0 ) {
         LOG_ERROR("Can't open %s for write", key_file_tmp);
         sdsfree(key_file_tmp);
         return false;
@@ -432,7 +432,7 @@ static bool write_to_disk(sds key_file, EVP_PKEY *pkey, sds cert_file, X509 *cer
     
     /* Write the certificate to disk. */
     sds cert_file_tmp = sdscatfmt(sdsempty(), "%s.XXXXXX", cert_file);
-    if ((fd = mkstemp(cert_file_tmp)) < 0 ) { /* Flawfinder: ignore */
+    if ((fd = mkstemp(cert_file_tmp)) < 0 ) {
         LOG_ERROR("Can't open %s for write", cert_file_tmp);
         sdsfree(cert_file_tmp);
         return false;

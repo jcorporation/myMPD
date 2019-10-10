@@ -197,7 +197,7 @@ sds mpd_client_put_filesystem(t_config *config, t_mpd_state *mpd_state, sds buff
                         bool smartpls = false;
                         if (validate_string(plName) == true) {
                             sds smartpls_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->varlibdir, plName);
-                            if (access(smartpls_file, F_OK ) != -1) {
+                            if (access(smartpls_file, F_OK ) != -1) { /* Flawfinder: ignore */
                                 smartpls = true;
                             }
                             sdsfree(smartpls_file);
