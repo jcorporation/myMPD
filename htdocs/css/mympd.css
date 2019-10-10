@@ -10,8 +10,8 @@
   height: 100vh;
   z-index: 2000;
   position: absolute;
-  top: 0px;
-  left: 0px;
+  top: 0;
+  left: 0;
 }
 
 #splashScreenLogo {
@@ -31,8 +31,8 @@
   width: 100vw;
   color: #f8f9fa;
   position: absolute;
-  bottom: 0px;
-  left: 0px;
+  bottom: 0;
+  left: 0;
   z-index: 2001;
   font-size: 1.2rem;
   padding: 1rem;
@@ -101,7 +101,7 @@ button {
 }
 
 .cardBodyPlayback {
-  padding-bottom:0px;
+  padding-bottom: 0;
 }
 
 #BrowseBreadrumb {
@@ -166,7 +166,7 @@ small {
 }
 
 .cardFooterPlayback {
-  padding: 0px;
+  padding: 0;
 }
 
 .album-cover {
@@ -180,10 +180,14 @@ small {
   height: var(--mympd-coverimagesize, 250px);
   background-color: #eee;
   float: left;
-  margin-right: 1.25rem;
   margin-bottom: 1.25rem;
+  margin-right: 1.25rem;
   position: relative;
   z-index: 1;
+}
+
+.album-cover-songdetails {
+  margin-right:0;
 }
 
 .album-desc {
@@ -263,15 +267,15 @@ small {
 }
 
 .color-darkgrey, .color-darkgrey:hover {
-  color:#6c757d !important;
+  color: #6c757d !important;
 }
 
 #btn-outputs-block > button {
-  margin-bottom:10px;
+  margin-bottom: 10px;
 }
 
 #btn-outputs-block > button:last-child {
-  margin-bottom:0px;
+  margin-bottom: 0;
 }
 
 .progressBarPlay {
@@ -283,8 +287,8 @@ small {
 }
 
 #volumeBar {
-  margin-top:2px;
-  width:160px;
+  margin-top: 2px;
+  width: 160px;
 }
 
 .title-icon {
@@ -339,13 +343,13 @@ button.active-fg-red {
 div#alertBox {
   position:fixed;
   top: 4rem; 
-  right:1rem;
-  width:80%; 
-  max-width:400px;
-  z-index:1000;
-  opacity:0;
-  visibility:visible;
-  transition:opacity 0.5s ease-in; 
+  right: 1rem;
+  width: 80%; 
+  max-width: 400px;
+  z-index: 1000;
+  opacity: 0;
+  visibility: visible;
+  transition: opacity 0.5s ease-in; 
 }
 
 div.alertBoxActive {
@@ -382,6 +386,7 @@ caption {
   -moz-user-select: none;
   -khtml-user-select: none;
   -webkit-user-select: none;
+  -ms-user-select: none;
   user-select: none;
   /* Required to make elements draggable in old WebKit */
   -khtml-user-drag: element;
@@ -395,7 +400,7 @@ caption {
 }
 
 #updateDBprogress {
-  width:20px;
+  width: 20px;
 }
 
 .updateDBprogressAnimate {

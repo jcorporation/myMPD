@@ -41,10 +41,8 @@ make install DESTDIR=%{buildroot}
 
 %post
 echo "Checking status of mympd system user and group"
-getent group mympd > /dev/null
-[ "$?" = "2" ] && groupadd -r mympd
-getent passwd mympd > /dev/null
-[ "$?" = "2" ] && useradd -r -g mympd -d /var/lib/mympd -s /bin/false mympd
+getent group mympd > /dev/null || groupadd -r mympd
+getent passwd mympd > /dev/null || useradd -r -g mympd -s /bin/false -d /var/lib/mympd mympd
 true
 
 %postun
