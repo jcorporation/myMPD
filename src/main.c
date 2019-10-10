@@ -64,21 +64,23 @@ static void mympd_signal_handler(int sig_num) {
 }
 
 static bool do_chown(const char *file_path, const char *user_name) {
-  struct passwd *pwd = getpwnam(user_name);
-  if (pwd == NULL) {
-      LOG_ERROR("Can't get passwd entry for user %s", user_name);
-      return false;
-  }
+    struct passwd *pwd = getpwnam(user_name);
+    if (pwd == NULL) {
+        LOG_ERROR("Can't get passwd entry for user %s", user_name);
+        return false;
+    }
   
-  if (chown(file_path, pwd->pw_uid, pwd->pw_gid) == -1) {
-      LOG_ERROR("Can't chown %s to %s", file_path, user_name);
-      return false;
-  }
-  return true;
+    int rc = chown(file_path, pwd->pw_uid, pwd->pw_gid); /* Flawfinder: ignore */
+    //Originaly owned by root
+    if (rc == -1) {
+        LOG_ERROR("Can't chown %s to %s", file_path, user_name);
+        return false;
+    }
+    return true;
 }
 
 static bool do_chroot(struct t_config *config) {
-    if (chroot(config->varlibdir) == 0) {
+    if (chroot(config->varlibdir) == 0) { /* Flawfinder: ignore */
         if (chdir("/") != 0) {
             return false;
         }
@@ -145,7 +147,7 @@ int main(int argc, char **argv) {
         goto end;
     }
     //only user and group have rw access
-    umask(0007);
+    umask(0007); /* Flawfinder: ignore */
 
     //get startup uid
     uid_t startup_uid = getuid();
@@ -157,7 +159,7 @@ int main(int argc, char **argv) {
     t_mg_user_data *mg_user_data = (t_mg_user_data *)malloc(sizeof(t_mg_user_data));
     assert(mg_user_data);
 
-    srand((unsigned int)time(NULL));
+    srand((unsigned int)time(NULL)); /* Flawfinder: ignore */
     
     //mympd config defaults
     t_config *config = (t_config *)malloc(sizeof(t_config));

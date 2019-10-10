@@ -229,7 +229,7 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
 static void mympd_parse_env(struct t_config *config, const char *envvar) {
     char *name = NULL;
     char *section = NULL;
-    const char *value = getenv(envvar);
+    const char *value = getenv(envvar); /* Flawfinder: ignore */
     if (value != NULL) {
         char *var = strdup(envvar);
         section = strtok_r(var, "_", &name);
@@ -356,15 +356,9 @@ void mympd_config_defaults(t_config *config) {
 }
 
 bool mympd_read_config(t_config *config, sds configfile) {
-    if (access(configfile, F_OK ) != -1) {
-        LOG_INFO("Parsing config file: %s", configfile);
-        if (ini_parse(configfile, mympd_inihandler, config) < 0) {
-            LOG_ERROR("Can't load config file %s", configfile);
-            return false;
-        }
-    }
-    else {
-        LOG_WARN("Config file %s not found, using defaults", configfile);
+    LOG_INFO("Parsing config file: %s", configfile);
+    if (ini_parse(configfile, mympd_inihandler, config) < 0) {
+        LOG_ERROR("Can't parse config file %s, using defaults", configfile);
     }
     //read environment - overwrites config file definitions
     mympd_get_env(config);

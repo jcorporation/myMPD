@@ -198,7 +198,7 @@ static sds get_san(sds buffer) {
     buffer = sdscatfmt(sdsempty(), "DNS:localhost, IP:127.0.0.1");
   
     //Retrieve short hostname 
-    char hostbuffer[256];
+    char hostbuffer[256]; /* Flawfinder: ignore */
     int hostname = gethostname(hostbuffer, sizeof(hostbuffer)); 
     if (hostname == -1) {
         return buffer;
@@ -231,8 +231,10 @@ static sds get_san(sds buffer) {
 
 /* Generates a 20 byte random serial number and sets in certificate. */
 static int generate_set_random_serial(X509 *crt) {
-	unsigned char serial_bytes[20];
-	if (RAND_bytes(serial_bytes, sizeof(serial_bytes)) != 1) return 0;
+	unsigned char serial_bytes[20]; /* Flawfinder: ignore */
+	if (RAND_bytes(serial_bytes, sizeof(serial_bytes)) != 1) {
+	    return 0;
+        }
 	serial_bytes[0] &= 0x7f; /* Ensure positive serial! */
 	BIGNUM *bn = BN_new();
 	BN_bin2bn(serial_bytes, sizeof(serial_bytes), bn);
@@ -408,7 +410,7 @@ static bool write_to_disk(sds key_file, EVP_PKEY *pkey, sds cert_file, X509 *cer
     /* Write the key to disk. */    
     sds key_file_tmp = sdscatfmt(sdsempty(), "%s.XXXXXX", key_file);
     int fd;
-    if ((fd = mkstemp(key_file_tmp)) < 0 ) {
+    if ((fd = mkstemp(key_file_tmp)) < 0 ) { /* Flawfinder: ignore */
         LOG_ERROR("Can't open %s for write", key_file_tmp);
         sdsfree(key_file_tmp);
         return false;
@@ -430,7 +432,7 @@ static bool write_to_disk(sds key_file, EVP_PKEY *pkey, sds cert_file, X509 *cer
     
     /* Write the certificate to disk. */
     sds cert_file_tmp = sdscatfmt(sdsempty(), "%s.XXXXXX", cert_file);
-    if ((fd = mkstemp(cert_file_tmp)) < 0 ) {
+    if ((fd = mkstemp(cert_file_tmp)) < 0 ) { /* Flawfinder: ignore */
         LOG_ERROR("Can't open %s for write", cert_file_tmp);
         sdsfree(cert_file_tmp);
         return false;

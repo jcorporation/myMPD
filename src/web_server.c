@@ -271,8 +271,11 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
         }
         case MG_EV_WEBSOCKET_HANDSHAKE_DONE: {
              LOG_VERBOSE("New Websocket connection established (%d)", (intptr_t)nc->user_data);
-             const char *response = "{\"type\": \"welcome\", \"data\": {\"mympdVersion\": \"" MYMPD_VERSION "\"}}";
-             mg_send_websocket_frame(nc, WEBSOCKET_OP_TEXT, response, strlen(response));
+             sds response = jsonrpc_start_notify(sdsempty(), "welcome");
+             response = tojson_char(response, "mympdVersion", MYMPD_VERSION, false);
+             response = jsonrpc_end_notify(response);
+             mg_send_websocket_frame(nc, WEBSOCKET_OP_TEXT, response, sdslen(response));
+             sdsfree(response);
              break;
         }
         case MG_EV_HTTP_REQUEST: {
@@ -462,9 +465,9 @@ static bool handle_coverextract(struct mg_connection *nc, struct http_message *h
     LOG_VERBOSE("Exctracting coverimage from %s", media_file);
                 
     size_t image_mime_type_len = 100;
-    char image_mime_type[image_mime_type_len];
+    char image_mime_type[image_mime_type_len]; /* Flawfinder: ignore */
     size_t image_file_len = 1500;
-    char image_file[image_file_len];
+    char image_file[image_file_len]; /* Flawfinder: ignore */
     
     sds cache_dir = sdscatfmt(sdsempty(), "%s/covercache", config->varlibdir);
 

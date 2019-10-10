@@ -142,7 +142,7 @@ static bool smartpls_init(t_config *config, const char *name, const char *value)
     sds tmp_file = sdscatfmt(sdsempty(), "%s/smartpls/%s.XXXXXX", config->varlibdir, name);
 
     int fd;
-    if ((fd = mkstemp(tmp_file)) < 0 ) {
+    if ((fd = mkstemp(tmp_file)) < 0 ) { /* Flawfinder: ignore */
         LOG_ERROR("Can't open %s for write", tmp_file);
         sdsfree(tmp_file);
         return false;

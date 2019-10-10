@@ -43,6 +43,7 @@ INCBIN(MaterialIcons_Regular_woff2, "../htdocs/assets/MaterialIcons-Regular.woff
 
 struct embedded_file {
   const char *uri;
+  const int uri_len;
   const char *mimetype;
   bool compressed;
   const unsigned char *data;
@@ -51,18 +52,18 @@ struct embedded_file {
 
 static bool serve_embedded_files(struct mg_connection *nc, sds uri) {
     const struct embedded_file embedded_files[] = {
-        {"/", "text/html", true, index_html_data, index_html_size},
-        {"/css/combined.css", "text/css", true, combined_css_data, combined_css_size},
-        {"/js/combined.js", "application/javascript", true, combined_js_data, combined_js_size},
-        {"/sw.js", "application/javascript", true, sw_js_data, sw_js_size},
-        {"/mympd.webmanifest", "application/manifest+json", true, mympd_webmanifest_data, mympd_webmanifest_size},
-        {"/assets/coverimage-notavailable.svg", "image/svg+xml", true, coverimage_notavailable_svg_data, coverimage_notavailable_svg_size},
-        {"/assets/MaterialIcons-Regular.woff2", "font/woff2", false, MaterialIcons_Regular_woff2_data, MaterialIcons_Regular_woff2_size},
-        {"/assets/coverimage-stream.svg", "image/svg+xml", true, coverimage_stream_svg_data, coverimage_stream_svg_size},
-        {"/assets/coverimage-loading.svg", "image/svg+xml", true, coverimage_loading_svg_data, coverimage_loading_svg_size},
-        {"/assets/favicon.ico", "image/vnd.microsoft.icon", false, favicon_ico_data, favicon_ico_size},
-        {"/assets/appicon-192.png", "image/png", false, appicon_192_png_data, appicon_192_png_size},
-        {"/assets/appicon-512.png", "image/png", false, appicon_512_png_data, appicon_512_png_size},
+        {"/", 1, "text/html", true, index_html_data, index_html_size},
+        {"/css/combined.css", 17, "text/css", true, combined_css_data, combined_css_size},
+        {"/js/combined.js", 15, "application/javascript", true, combined_js_data, combined_js_size},
+        {"/sw.js", 6, "application/javascript", true, sw_js_data, sw_js_size},
+        {"/mympd.webmanifest", 18, "application/manifest+json", true, mympd_webmanifest_data, mympd_webmanifest_size},
+        {"/assets/coverimage-notavailable.svg", 35, "image/svg+xml", true, coverimage_notavailable_svg_data, coverimage_notavailable_svg_size},
+        {"/assets/MaterialIcons-Regular.woff2", 35, "font/woff2", false, MaterialIcons_Regular_woff2_data, MaterialIcons_Regular_woff2_size},
+        {"/assets/coverimage-stream.svg", 29, "image/svg+xml", true, coverimage_stream_svg_data, coverimage_stream_svg_size},
+        {"/assets/coverimage-loading.svg", 30, "image/svg+xml", true, coverimage_loading_svg_data, coverimage_loading_svg_size},
+        {"/assets/favicon.ico", 19, "image/vnd.microsoft.icon", false, favicon_ico_data, favicon_ico_size},
+        {"/assets/appicon-192.png", 23, "image/png", false, appicon_192_png_data, appicon_192_png_size},
+        {"/assets/appicon-512.png", 23, "image/png", false, appicon_512_png_data, appicon_512_png_size},
         {NULL, NULL, false, NULL, 0}
     };
     //decode uri
@@ -80,7 +81,7 @@ static bool serve_embedded_files(struct mg_connection *nc, sds uri) {
     //find fileinfo
     const struct embedded_file *p = NULL;
     for (p = embedded_files; p->uri != NULL; p++) {
-        if (sdslen(uri_decoded) == (int)strlen(p->uri) && strncmp(p->uri, uri_decoded, sdslen(uri_decoded)) == 0) {
+        if (sdslen(uri_decoded) == p->uri_len) && strncmp(p->uri, uri_decoded, sdslen(uri_decoded)) == 0) {
             break;
         }
     }
