@@ -290,6 +290,8 @@ check () {
   then
     echo "Running cppcheck"
     $CPPCHECKBIN --enable=warning --inconclusive --force --inline-suppr src/*.c src/*.h
+    $CPPCHECKBIN --enable=warning --inconclusive --force --inline-suppr src/mpd_client/*.c src/mpd_client/*.h
+    $CPPCHECKBIN --enable=warning --inconclusive --force --inline-suppr src/mympd_api/*.c src/mympd_api/*.h
     $CPPCHECKBIN --enable=warning --inconclusive --force --inline-suppr src/plugins/*.c src/plugins/*.h src/plugins/*.cpp
   else
     echo "cppcheck not found"
@@ -300,6 +302,8 @@ check () {
   then
     echo "Running flawfinder"
     $FLAWFINDERBIN src
+    $FLAWFINDERBIN src/mpd_client
+    $FLAWFINDERBIN src/mympd_api
     $FLAWFINDERBIN src/plugins
   else
     echo "flawfinder not found"
