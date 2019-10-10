@@ -3187,14 +3187,17 @@ function parseSongDetails(obj) {
     }
     songDetails += '<tr><th>' + t('Duration') + '</th><td>' + beautifyDuration(obj.data.Duration) + '</td></tr>';
     if (settings.featLibrary) {
-        songDetails += '<tr><th>' + t('Filename') + '</th><td><a class="breakAll text-success" href="/library/' + encodeURI(obj.data.uri) + '" download>' + e(obj.data.uri) + '</a></td></tr>';
+        songDetails += '<tr><th>' + t('Filename') + '</th><td><a class="breakAll text-success" href="/library/' + 
+            encodeURI(obj.data.uri) + '" download title="' + e(obj.data.uri) + '">' + 
+            e(basename(obj.data.uri)) + '</a></td></tr>';
     }
     else {
-        songDetails += '<tr><th>' + t('Filename') + '</th><td class="breakAll">' + e(obj.data.uri) + '</td></tr>';
+        songDetails += '<tr><th>' + t('Filename') + '</th><td class="breakAll"><span title="' + e(obj.data.uri) + '">' + 
+            e(basename(obj.data.uri)) + '</span></td></tr>';
     }
     if (settings.featFingerprint == true) {
-        songDetails += '<tr><th>' + t('Fingerprint') + '</th><td class="breakAll" id="fingerprint"><a class="text-success" data-uri="' + encodeURI(obj.data.uri) + '" id="calcFingerprint" href="#">' + t('Calculate') + '</a></td></tr>';
-
+        songDetails += '<tr><th>' + t('Fingerprint') + '</th><td class="breakAll" id="fingerprint"><a class="text-success" data-uri="' + 
+            encodeURI(obj.data.uri) + '" id="calcFingerprint" href="#">' + t('Calculate') + '</a></td></tr>';
     }
     if (settings.featStickers == true) {
         songDetails += '<tr><th colspan="2" class="pt-3"><h5>' + t('Statistics') + '</h5></th></tr>' +
@@ -4408,6 +4411,10 @@ function gtPage(phrase, returnedEntities, totalEntities) {
     else {
         return '> ' + t(phrase, settings.maxElementsPerPage);
     }
+}
+
+function basename(path) {
+   return path.split('/').reverse()[0];
 }
 
 function beautifyDuration(x) {
