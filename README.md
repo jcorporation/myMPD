@@ -51,11 +51,11 @@ UI Components
 
 Backend
 -------
- - Mongoose: https://github.com/cesanta/mongoose
- - Frozen: https://github.com/cesanta/frozen
- - inih: https://github.com/benhoyt/inih
- - incbin: https://github.com/graphitemaster/incbin
- - sds: https://github.com/antirez/sds
+ - Mongoose: https://github.com/cesanta/mongoose (web server)
+ - Frozen: https://github.com/cesanta/frozen (json parsing)
+ - inih: https://github.com/benhoyt/inih (config file parsing)
+ - incbin: https://github.com/graphitemaster/incbin (embedding assets)
+ - sds: https://github.com/antirez/sds (safe string handling)
 
 Dependencies
 ------------
