@@ -26,6 +26,7 @@ self.addEventListener('install', function(event) {
         caches.open(CACHE).then(function(cache) {
             urlsToCache.map(function(url) {
                 return cache.add(url).catch(function (reason) {
+                    // eslint-disable-next-line no-console
                     return console.log('ServiceWorker: ' + String(reason) + ' ' + url);
                 });
             });
