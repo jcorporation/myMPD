@@ -15,7 +15,7 @@ var urlsToCache = [
 
 var ignoreRequests = new RegExp('(' + [
   subdir + '/api',
-  subdir + '/ca\.crt',
+  subdir + '/ca.crt',
   subdir + '/ws',
   subdir + '/library/(.*)',
   subdir + '/albumart/(.*)',
@@ -25,8 +25,8 @@ self.addEventListener('install', function(event) {
     event.waitUntil(
         caches.open(CACHE).then(function(cache) {
             urlsToCache.map(function(url) {
-	        return cache.add(url).catch(function (reason) {
-	            return console.log('ServiceWorker: ' + String(reason) + ' ' + url);
+                return cache.add(url).catch(function (reason) {
+                    return console.log('ServiceWorker: ' + String(reason) + ' ' + url);
                 });
             });
         })
