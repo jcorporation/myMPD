@@ -1,3 +1,4 @@
+//eslint-disable-next-line no-unused-vars
 var keymap = {
     "ArrowLeft": {"cmd": "clickPrev", "options": [], "desc": "Previous song", "key": "keyboard_arrow_left"},
     "ArrowRight": {"cmd": "clickNext", "options": [], "desc": "Next song", "key": "keyboard_arrow_right"},

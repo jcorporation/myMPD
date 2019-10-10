@@ -1,4 +1,4 @@
-var CACHE = 'myMPD-cache-v5.6.1';
+var CACHE = 'myMPD-cache-v5.6.2';
 var subdir = self.location.pathname.replace('/sw.js', '').replace(/\/$/, '');
 var urlsToCache = [
     subdir + '/',
@@ -17,16 +17,17 @@ var ignoreRequests = new RegExp('(' + [
   subdir + '/api',
   subdir + '/ca.crt',
   subdir + '/ws',
-  subdir + '/library\/(.*)',
-  subdir + '/albumart\/(.*)',
-  subdir + '/pics\/(.*)'].join('(\/?)|\\') + ')$')
+  subdir + '/library/(.*)',
+  subdir + '/albumart/(.*)',
+  subdir + '/pics/(.*)'].join('(/?)|\\') + ')$')
 
 self.addEventListener('install', function(event) {
     event.waitUntil(
         caches.open(CACHE).then(function(cache) {
             urlsToCache.map(function(url) {
-	        return cache.add(url).catch(function (reason) {
-	            return console.log('ServiceWorker: ' + String(reason) + ' ' + url);
+                return cache.add(url).catch(function (reason) {
+                    // eslint-disable-next-line no-console
+                    return console.log('ServiceWorker: ' + String(reason) + ' ' + url);
                 });
             });
         })

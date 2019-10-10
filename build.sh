@@ -294,6 +294,16 @@ check () {
   else
     echo "cppcheck not found"
   fi
+  
+  FLAWFINDERBIN=$(command -v flawfinder)
+  if [ "$FLAWFINDERBIN" != "" ]
+  then
+    echo "Running flawfinder"
+    $FLAWFINDERBIN src
+    $FLAWFINDERBIN src/plugins
+  else
+    echo "flawfinder not found"
+  fi  
 }
 
 prepare() {
@@ -534,7 +544,7 @@ case "$1" in
 	  echo "                  linked with libasan3, uses assets in htdocs"
 	  echo "  memcheck:       builds debug files in directory debug"
 	  echo "                  for use with valgrind, uses assets in htdocs/"
-	  echo "  check:          runs cppcheck on source files"
+	  echo "  check:          runs cppcheck and flawfinder on source files"
 	  echo ""
 	  echo "Cleanup options:"
 	  echo "  cleanup:        cleanup source tree"

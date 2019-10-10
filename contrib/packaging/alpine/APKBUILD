@@ -1,7 +1,7 @@
 # Contributor: Juergen Mang <mail@jcgames.de>
 # Maintainer: Juergen Mang <mail@jcgames.de>
 pkgname=myMPD
-pkgver=5.6.1
+pkgver=5.6.2
 pkgrel=0
 pkgdesc="myMPD is a standalone and mobile friendly web mpdclient"
 url="https://github.com/jcorporation/myMPD"
@@ -16,7 +16,7 @@ options="!check"
 #no test suite
 
 build() {
-	cd "$builddir"
+	cd "$builddir" || exit 1
 	mkdir release
 	cd release || exit 1
 	cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=RELEASE ..
