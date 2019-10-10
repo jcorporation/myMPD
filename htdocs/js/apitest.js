@@ -125,7 +125,7 @@ function setTest(cmd, state, response) {
     document.getElementsByTagName('tbody')[0].appendChild(tr);
 }
 
-function sendAPI(request, callback) {
+function sendAPI(request) {
     var ajaxRequest=new XMLHttpRequest();
     ajaxRequest.open('POST', '/api', true);
     ajaxRequest.setRequestHeader('Content-type', 'application/json');
@@ -150,7 +150,7 @@ function sendAPI(request, callback) {
                         else if (obj.type == 'queue' && obj.data.length > 0)
                             trackId = obj.data[0].id;
                         else if (obj.type == 'outputs' && obj.data.length > 0)
-                            ouputId = obj.data[0].id;
+                            outputId = obj.data[0].id;
                         
                         if (obj.type == 'error')
                             setTest(request, 'error', ajaxRequest.responseText);
