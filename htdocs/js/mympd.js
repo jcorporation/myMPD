@@ -1746,8 +1746,6 @@ function parseSettings() {
     
     toggleBtnChk('btnNotifyPage', settings.notificationPage);
     toggleBtnChk('btnBgCover', settings.bgCover);
-    document.getElementById('inputBgColor').value = settings.bgColor;
-    document.getElementById('inputBgCssFilter').value = settings.bgCssFilter;
     toggleBtnChk('btnFeatLocalplayer', settings.featLocalplayer);
     toggleBtnChk('btnLocalplayerAutoplay', settings.localplayerAutoplay);
     if (settings.streamUrl == '') {
@@ -1758,15 +1756,25 @@ function parseSettings() {
         document.getElementById('selectStreamMode').value = 'url';
         document.getElementById('inputStreamUrl').value = settings.streamUrl;
     }
-    
     toggleBtnChk('btnCoverimage', settings.coverimage);
-    document.getElementById('inputCoverimageName').value = settings.coverimageName;
-    document.getElementById('inputCoverimageSize').value = settings.coverimageSize;
     document.getElementById('selectLocale').value = settings.locale;
+    document.getElementById('inputCoverimageName').value = settings.coverimageName;
 
-    document.documentElement.style.setProperty('--mympd-coverimagesize', settings.coverimageSize + "px");
-    document.documentElement.style.setProperty('--mympd-backgroundcolor', settings.bgColor);
-    document.documentElement.style.setProperty('--mympd-backgroundfilter', settings.bgCssFilter);
+    document.getElementById('inputCoverimageSize').value = settings.coverimageSize;
+    let albumcover = document.querySelectorAll('.albumcover');
+    for (let i = 0; i < albumcover.length; i++) {
+	albumcover[i].style.width = settings.coverimageSize;
+	albumcover[i].style.height = settings.coverimageSize;
+    }
+    
+    document.getElementById('inputBgColor').value = settings.bgColor;
+    document.getElementsByTagName('body')[0].style.backgroundColor = settings.bgColor;
+
+    document.getElementById('inputBgCssFilter').value = settings.bgCssFilter;    
+    let albumartbg = document.querySelectorAll('.albumartbg');
+    for (let i = 0; i < albumartbg.length; i++) {
+	albumartbg[i].style.filter = settings.bgCssFilter;
+    }
 
     toggleBtnChk('btnLoveEnable', settings.love);
     document.getElementById('inputLoveChannel').value = settings.loveChannel;
@@ -2888,7 +2896,7 @@ function parseListDBtags(obj) {
             let html = '<div class="card-header"><span id="albumartist' + id + '"></span> &ndash; ' + e(obj.data[i].value) + '</div>' +
                        '<div class="card-body"><div class="row">';
             if (settings.featCoverimage == true && settings.coverimage == true) {
-                html += '<div class="col-md-auto"><a class="card-img-left"></a></div>';
+                html += '<div class="col-md-auto"><a class="card-img-left album-cover-loading"></a></div>';
             }
             html += '<div class="col"><table class="tblAlbumTitles table table-sm table-hover" tabindex="0" id="tbl' + id + '"><thead><tr></tr></thead><tbody></tbody>' +
                     '<tfoot class="bg-light border-bottom"></tfoot></table></div>' + 
@@ -4240,6 +4248,7 @@ function setBackgroundImage(imageUrl) {
     }
     let div = document.createElement('div');
     div.classList.add('albumartbg');
+    div.style.filter = settings.bgCssFilter;
     div.style.backgroundImage = 'url("' + subdir + imageUrl + '")';
     div.style.opacity = 0;
     let body = document.getElementsByTagName('body')[0];
