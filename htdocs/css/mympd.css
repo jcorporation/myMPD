@@ -1,9 +1,3 @@
-:root {
-  --mympd-coverimagesize: 250px;
-  --mympd-backgroundcolor: #888;
-  --mympd-backgroundfilter: blur(5px);
-}
-
 #splashScreen {
   background: linear-gradient(0deg, rgba(0,0,0,1) 0%, rgba(52,58,64,1) 100%);
   width: 100vw;
@@ -55,7 +49,7 @@ html {
 body {
   padding-top: 4rem;
   padding-bottom: 4rem;
-  background-color: var(--mympd-backgroundcolor, #888);
+  background-color: #888;
 }
 
 .breakAll, td[data-col=Title] {
@@ -70,7 +64,7 @@ body {
     background-position: center center;
     background-size: cover;
     top: 3.5rem;
-    filter: var(--mympd-backgroundfilter, '');
+    filter: blur(5px);
     transition: opacity 1s;
     z-index: -9;
 }
@@ -171,19 +165,22 @@ small {
 
 .album-cover {
   background-size: cover;
-  background-image: url("../assets/coverimage-loading.svg");
   border: 1px solid black;
   border-radius: 5px;
   overflow: hidden;
-  width: var(--mympd-coverimagesize, 250px);
   max-width:100%;
-  height: var(--mympd-coverimagesize, 250px);
+  width: 250px;
+  height: 250px;
   background-color: #eee;
   float: left;
   margin-bottom: 1.25rem;
   margin-right: 1.25rem;
   position: relative;
   z-index: 1;
+}
+
+.album-cover-loading {
+  background-image: url("../assets/coverimage-loading.svg");
 }
 
 .album-cover-songdetails {
@@ -317,11 +314,10 @@ small {
 a.card-img-left {
   overflow: hidden;
   display: block;
-  width: var(--mympd-coverimagesize);
-  height: var(--mympd-coverimagesize);
+  width: 250px;
+  height: 250px;
   border-radius: 5px;
   background-size: cover;
-  background-image: url(../assets/coverimage-loading.svg);  
   margin-bottom: 5px;
   cursor: pointer;
 }
