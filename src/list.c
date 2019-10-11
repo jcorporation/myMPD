@@ -25,6 +25,7 @@
 #include <stdbool.h>
 #include <assert.h>
 
+#include "../dist/src/sds/sds.h"
 #include "list.h"
 
 int list_init(struct list *l) {
@@ -46,8 +47,8 @@ int list_get_value(const struct list *l, const char *data) {
     return value;
 }
 
-void *list_get_extra(const struct list *l, const char *data) {
-    void *extra = NULL;
+sds list_get_extra(const struct list *l, const char *data) {
+    sds extra = NULL;
     struct node *current = l->list;
     while (current != NULL) {
         if (strcmp(current->data, data) == 0) {
@@ -89,8 +90,8 @@ int list_swap_item(struct node *n1, struct node *n2) {
         return 1;
         
     int value = n2->value;
-    char *data = n2->data;
-    void *extra = n2->extra;
+    sds data = n2->data;
+    sds extra = n2->extra;
     
     n2->value = n1->value;
     n2->data = n1->data;
@@ -149,31 +150,29 @@ int list_sort_by_value(struct list *l, bool order) {
     return 0; 
 }
 
-int list_replace(struct list *l, int pos, const char *data, int value, void *extra) {
+int list_replace(struct list *l, int pos, const char *data, int value, const char *extra) {
     int i = 0;
     struct node *current = l->list;
     while (current->next != NULL) {
-        if (i == pos)
+        if (i == pos) {
             break;
+        }
         current = current->next;
         i++;
     }
     
     current->value = value;
-    current->data = realloc(current->data, strlen(data) + 1);
-    current->extra = extra;
-    if (current->data) {
-        strcpy(current->data, data);
-    }
+    current->data = sdscat(sdsempty(), data);
+    current->extra = sdscat(sdsempty(), extra);
     return 0;
 }
 
-int list_push(struct list *l, const char *data, int value, void *extra) {
+int list_push(struct list *l, const char *data, int value, const char *extra) {
     struct node *n = malloc(sizeof(struct node));
     assert(n);
     n->value = value;
-    n->data = strdup(data);
-    n->extra = extra;
+    n->data = sdsnew(data);
+    n->extra = sdsnew(extra);
     n->next = NULL;
 
     struct node **next = &l->list;
@@ -185,12 +184,12 @@ int list_push(struct list *l, const char *data, int value, void *extra) {
     return 0;
 }
 
-int list_insert(struct list *l, const char *data, int value, void *extra) {
+int list_insert(struct list *l, const char *data, int value, const char *extra) {
     struct node *n = malloc(sizeof(struct node));
     assert(n);
     n->value = value;
-    n->data = strdup(data);
-    n->extra = extra;
+    n->data = sdsnew(data);
+    n->extra = sdsnew(extra);
     n->next = l->list;
     
     l->list = n;
@@ -222,20 +221,18 @@ int list_shift(struct list *l, unsigned idx) {
     struct node * extracted = list_node_extract(l, idx);
     if (extracted == NULL) 
         return -1;
-    free(extracted->data);
-    free(extracted->extra);
+    sdsfree(extracted->data);
+    sdsfree(extracted->extra);
     free(extracted);
     return 0;
 }
 
 int list_free(struct list *l) {
-    struct node *current = l->list, *tmp = NULL;
+    struct node *current = l->list;
+    struct node *tmp = NULL;
     while (current != NULL) {
-        free(current->data);
-        if (current->extra != NULL) {
-            free(current->extra);
-            current->extra = NULL;
-        }
+        sdsfree(current->data);
+        sdsfree(current->extra);
         tmp = current;
         current = current->next;
         free(tmp);

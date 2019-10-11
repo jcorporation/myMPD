@@ -43,58 +43,59 @@ INCBIN(MaterialIcons_Regular_woff2, "../htdocs/assets/MaterialIcons-Regular.woff
 
 struct embedded_file {
   const char *uri;
+  const size_t uri_len;
   const char *mimetype;
   bool compressed;
   const unsigned char *data;
   const unsigned size;
 };
 
-static bool serve_embedded_files(struct mg_connection *nc, struct http_message *hm) {
+static bool serve_embedded_files(struct mg_connection *nc, sds uri, struct http_message *hm) {
     const struct embedded_file embedded_files[] = {
-        {"/", "text/html", true, index_html_data, index_html_size},
-        {"/css/combined.css", "text/css", true, combined_css_data, combined_css_size},
-        {"/js/combined.js", "application/javascript", true, combined_js_data, combined_js_size},
-        {"/sw.js", "application/javascript", true, sw_js_data, sw_js_size},
-        {"/mympd.webmanifest", "application/manifest+json", true, mympd_webmanifest_data, mympd_webmanifest_size},
-        {"/assets/coverimage-notavailable.svg", "image/svg+xml", true, coverimage_notavailable_svg_data, coverimage_notavailable_svg_size},
-        {"/assets/MaterialIcons-Regular.woff2", "font/woff2", false, MaterialIcons_Regular_woff2_data, MaterialIcons_Regular_woff2_size},
-        {"/assets/coverimage-stream.svg", "image/svg+xml", true, coverimage_stream_svg_data, coverimage_stream_svg_size},
-        {"/assets/coverimage-loading.svg", "image/svg+xml", true, coverimage_loading_svg_data, coverimage_loading_svg_size},
-        {"/assets/favicon.ico", "image/vnd.microsoft.icon", false, favicon_ico_data, favicon_ico_size},
-        {"/assets/appicon-192.png", "image/png", false, appicon_192_png_data, appicon_192_png_size},
-        {"/assets/appicon-512.png", "image/png", false, appicon_512_png_data, appicon_512_png_size},
-        {NULL, NULL, false, NULL, 0}
+        {"/", 1, "text/html", true, index_html_data, index_html_size},
+        {"/css/combined.css", 17, "text/css", true, combined_css_data, combined_css_size},
+        {"/js/combined.js", 15, "application/javascript", true, combined_js_data, combined_js_size},
+        {"/sw.js", 6, "application/javascript", true, sw_js_data, sw_js_size},
+        {"/mympd.webmanifest", 18, "application/manifest+json", true, mympd_webmanifest_data, mympd_webmanifest_size},
+        {"/assets/coverimage-notavailable.svg", 35, "image/svg+xml", true, coverimage_notavailable_svg_data, coverimage_notavailable_svg_size},
+        {"/assets/MaterialIcons-Regular.woff2", 35, "font/woff2", false, MaterialIcons_Regular_woff2_data, MaterialIcons_Regular_woff2_size},
+        {"/assets/coverimage-stream.svg", 29, "image/svg+xml", true, coverimage_stream_svg_data, coverimage_stream_svg_size},
+        {"/assets/coverimage-loading.svg", 30, "image/svg+xml", true, coverimage_loading_svg_data, coverimage_loading_svg_size},
+        {"/assets/favicon.ico", 19, "image/vnd.microsoft.icon", false, favicon_ico_data, favicon_ico_size},
+        {"/assets/appicon-192.png", 23, "image/png", false, appicon_192_png_data, appicon_192_png_size},
+        {"/assets/appicon-512.png", 23, "image/png", false, appicon_512_png_data, appicon_512_png_size},
+        {NULL, 0, NULL, false, NULL, 0}
     };
     //decode uri
-    int uri_decoded_len;
-    char uri_decoded[(size_t)hm->uri.len + 1];
-    
-    if ((uri_decoded_len = mg_url_decode(hm->uri.p, (int)hm->uri.len, uri_decoded, (int)hm->uri.len + 1, 0)) == -1) {
-        LOG_ERROR("uri_decoded buffer to small");
+    sds uri_decoded = sdsurldecode(sdsempty(), uri, sdslen(uri), 0);
+    if (sdslen(uri_decoded) == 0) {
+        LOG_ERROR("Failed to decode uri");
         mg_printf(nc, "%s", "HTTP/1.1 500 INTERNAL SERVER ERROR\r\n\r\n");
+        sdsfree(uri_decoded);
         return false;
     }
     //set index.html as direcory index
     if (strcmp(uri_decoded, "/index.html") == 0) {
-        uri_decoded_len = 1;
+        sdsrange(uri_decoded, 0, 1);
     }
     //find fileinfo
     const struct embedded_file *p = NULL;
     for (p = embedded_files; p->uri != NULL; p++) {
-        if (uri_decoded_len == (int)strlen(p->uri) && strncmp(p->uri, uri_decoded, uri_decoded_len) == 0) {
+        if (sdslen(uri_decoded) == p->uri_len && strncmp(p->uri, uri_decoded, sdslen(uri_decoded)) == 0) {
             break;
         }
     }
+    sdsfree(uri_decoded);
     
-    if (p->compressed == true) {
-        struct mg_str *header_encoding = mg_get_http_header(hm, "Accept-Encoding");
-        if (header_encoding == NULL || mg_strstr(mg_mk_str_n(header_encoding->p, header_encoding->len), mg_mk_str("gzip")) == NULL) {
-            mg_printf(nc, "%s", "HTTP/1.1 406 BROWSER DONT SUPPORT GZIP COMPRESSION\r\n\r\n");
-            return false;
-        }
-    }
-
     if (p != NULL) {
+        //respond with error if browser don't support compression and asset is compressed
+        if (p->compressed == true) {
+            struct mg_str *header_encoding = mg_get_http_header(hm, "Accept-Encoding");
+            if (header_encoding == NULL || mg_strstr(mg_mk_str_n(header_encoding->p, header_encoding->len), mg_mk_str("gzip")) == NULL) {
+                mg_printf(nc, "%s", "HTTP/1.1 406 BROWSER DONT SUPPORT GZIP COMPRESSION\r\n\r\n");
+                return false;
+            }
+        }
         //send header
         mg_printf(nc, "HTTP/1.1 200 OK\r\n"
                       EXTRA_HEADERS"\r\n"
@@ -111,7 +112,7 @@ static bool serve_embedded_files(struct mg_connection *nc, struct http_message *
         return true;
     }
     else {
-        LOG_ERROR("Embedded asset %.*s not found", (int)hm->uri.len, hm->uri.p);
+        LOG_ERROR("Embedded asset %s not found", uri);
         mg_printf(nc, "%s", "HTTP/1.1 404 NOT FOUND\r\n\r\n");
     }
     return false;

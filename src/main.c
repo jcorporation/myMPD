@@ -38,6 +38,7 @@
 #include <assert.h>
 #include <inttypes.h>
 
+#include "../dist/src/sds/sds.h"
 #include "utility.h"
 #include "log.h"
 #include "list.h"
@@ -52,6 +53,7 @@
 #include "mympd_api.h"
 #include "cert.h"
 #include "handle_options.h"
+#include "plugins.h"
 
 static void mympd_signal_handler(int sig_num) {
     signal(sig_num, mympd_signal_handler);  // Reinstantiate signal handler
@@ -61,50 +63,24 @@ static void mympd_signal_handler(int sig_num) {
     LOG_INFO("Signal %d received, exiting", sig_num);
 }
 
-static bool init_plugins(struct t_config *config) {
-    char *error = NULL;
-    handle_plugins_coverextract = NULL;
-    if (config->plugins_coverextract == true) {
-        size_t coverextractplugin_len = strlen(PLUGIN_PATH) + 26;
-        char coverextractplugin[coverextractplugin_len];
-        snprintf(coverextractplugin, coverextractplugin_len, "%s/libmympd_coverextract.so", PLUGIN_PATH);
-        LOG_INFO("Loading plugin %s", coverextractplugin);
-        handle_plugins_coverextract = dlopen(coverextractplugin, RTLD_LAZY);
-        if (!handle_plugins_coverextract) {
-            LOG_ERROR("Can't load plugin %s: %s", coverextractplugin, dlerror());
-            return false;
-        }
-        *(void **) (&plugin_coverextract) = dlsym(handle_plugins_coverextract, "coverextract");
-        if ((error = dlerror()) != NULL)  {
-            LOG_ERROR("Can't load plugin %s: %s", coverextractplugin, error);
-            return false;
-        }
+static bool do_chown(const char *file_path, const char *user_name) {
+    struct passwd *pwd = getpwnam(user_name);
+    if (pwd == NULL) {
+        LOG_ERROR("Can't get passwd entry for user %s", user_name);
+        return false;
+    }
+  
+    int rc = chown(file_path, pwd->pw_uid, pwd->pw_gid); /* Flawfinder: ignore */
+    //Originaly owned by root
+    if (rc == -1) {
+        LOG_ERROR("Can't chown %s to %s", file_path, user_name);
+        return false;
     }
     return true;
 }
 
-static void close_plugins(struct t_config *config) {
-    if (config->plugins_coverextract == true && handle_plugins_coverextract != NULL) {
-        dlclose(handle_plugins_coverextract);
-    }
-}
-
-static bool do_chown(const char *file_path, const char *user_name) {
-  struct passwd *pwd = getpwnam(user_name);
-  if (pwd == NULL) {
-      LOG_ERROR("Can't get passwd entry for user %s", user_name);
-      return false;
-  }
-  
-  if (chown(file_path, pwd->pw_uid, pwd->pw_gid) == -1) {
-      LOG_ERROR("Can't chown %s to %s", file_path, user_name);
-      return false;
-  }
-  return true;
-}
-
 static bool do_chroot(struct t_config *config) {
-    if (chroot(config->varlibdir) == 0) {
+    if (chroot(config->varlibdir) == 0) { /* Flawfinder: ignore */
         if (chdir("/") != 0) {
             return false;
         }
@@ -113,9 +89,7 @@ static bool do_chroot(struct t_config *config) {
         char env_pwd[] = "PWD=/";
         putenv(env_pwd);
         //set mympd config
-        FREE_PTR(config->varlibdir);
-        config->varlibdir = strdup("");
-        config->varlibdir_len = 0;
+        config->varlibdir = sdscat(sdsempty(), "");
         if (config->syscmds == true) {
             LOG_INFO("Disabling syscmds");
             config->syscmds = false;
@@ -130,42 +104,50 @@ static bool do_chroot(struct t_config *config) {
 }
 
 static bool chown_certs(t_config *config) {
-    char testdirname[400];
-    snprintf(testdirname, 400, "%s/ssl/ca.pem", config->varlibdir);
-    if (do_chown(testdirname, config->user) == false) {
+    sds filename = sdscatfmt(sdsempty(), "%s/ssl/ca.pem", config->varlibdir);
+    if (do_chown(filename, config->user) == false) {
+        sdsfree(filename);
         return false;
     }
-    snprintf(testdirname, 400, "%s/ssl/ca.key", config->varlibdir);
-    if (do_chown(testdirname, config->user) == false) {
+    filename = sdscatfmt(sdsempty(), "%s/ssl/ca.key", config->varlibdir);
+    if (do_chown(filename, config->user) == false) {
+        sdsfree(filename);
         return false;
     }
-    snprintf(testdirname, 400, "%s/ssl/server.pem", config->varlibdir);
-    if (do_chown(testdirname, config->user) == false) {
+    filename = sdscatfmt(sdsempty(), "%s/ssl/server.pem", config->varlibdir);
+    if (do_chown(filename, config->user) == false) {
+        sdsfree(filename);
         return false;
     }
-    snprintf(testdirname, 400, "%s/ssl/server.key", config->varlibdir);
-    if (do_chown(testdirname, config->user) == false) {
+    filename = sdscatfmt(sdsempty(), "%s/ssl/server.key", config->varlibdir);
+    if (do_chown(filename, config->user) == false) {
+        sdsfree(filename);
         return false;
     }
+    sdsfree(filename);
     return true;
 }
 
 int main(int argc, char **argv) {
     s_signal_received = 0;
-    char testdirname[400];
+    sds testdirname = sdsempty();
     int testdir_rc = 0;
     bool init_webserver = false;
     bool init_thread_webserver = false;
     bool init_thread_mpdclient = false;
     bool init_thread_mympdapi = false;
     int rc = EXIT_FAILURE;
-    loglevel = 2;
+    #ifdef DEBUG
+    set_loglevel(4);
+    #else
+    set_loglevel(2);
+    #endif
 
     if (chdir("/") != 0) {
         goto end;
     }
     //only user and group have rw access
-    umask(0007);
+    umask(0007); /* Flawfinder: ignore */
 
     //get startup uid
     uid_t startup_uid = getuid();
@@ -177,29 +159,27 @@ int main(int argc, char **argv) {
     t_mg_user_data *mg_user_data = (t_mg_user_data *)malloc(sizeof(t_mg_user_data));
     assert(mg_user_data);
 
-    srand((unsigned int)time(NULL));
+    srand((unsigned int)time(NULL)); /* Flawfinder: ignore */
     
     //mympd config defaults
     t_config *config = (t_config *)malloc(sizeof(t_config));
+    assert(config);
     mympd_config_defaults(config);
 
     //get configuration file
-    size_t configfile_len = strlen(ETC_PATH) + 12;
-    char *configfile = malloc(configfile_len);
-    snprintf(configfile, configfile_len, "%s/mympd.conf", ETC_PATH);
+    sds configfile = sdscatfmt(sdsempty(), "%s/mympd.conf", ETC_PATH);
     
-    char *option = NULL;
+    sds option = sdsempty();
     
     if (argc >= 2) {
         if (strncmp(argv[1], "/", 1) == 0) {
-            FREE_PTR(configfile);
-            configfile = strdup(argv[1]);
+            configfile = sdscat(sdsempty(), argv[1]);
             if (argc == 3) {
-                option = strdup(argv[2]);
+                option = sdscat(sdsempty(), argv[2]);
             }
         }
         else {
-            option = strdup(argv[1]);
+            option = sdscat(sdsempty(), argv[1]);
         }
     }
 
@@ -221,24 +201,26 @@ int main(int argc, char **argv) {
     //check varlibdir
     testdir_rc = testdir("Localstate dir", config->varlibdir, true);
     if (testdir_rc < 2) {
-        //directory exists or was created, set user and group 
-        if (do_chown(config->varlibdir, config->user) == false) {
-            goto cleanup;
+        //directory exists or was created, set user and group if I am root
+        if (startup_uid == 0) {
+            if (do_chown(config->varlibdir, config->user) == false) {
+                goto cleanup;
+            }
         }
     }
     else {
         goto cleanup;
     }
     
+    LOG_DEBUG("myMPD started with option: %s", option);
     //handle commandline options and exit
-    if (option != NULL) {
+    if (sdslen(option) > 0) {
         if (handle_option(config, argv[0], option) == false) {
             rc = EXIT_FAILURE;
         }
         else {
             rc = EXIT_SUCCESS;
         }
-        free(option);
         goto cleanup;
     }
     
@@ -255,7 +237,7 @@ int main(int argc, char **argv) {
 
     //check for ssl certificates
     if (config->ssl == true && config->custom_cert == false) {
-        snprintf(testdirname, 400, "%s/ssl", config->varlibdir);
+        testdirname = sdscatfmt(sdsempty(), "%s/ssl", config->varlibdir);
         testdir_rc = testdir("SSL certificates", testdirname, true);
         if (testdir_rc < 2) {
             //chown to mympd user if root
@@ -266,7 +248,7 @@ int main(int argc, char **argv) {
             }
             //directory created, create certificates
             if (!create_certificates(testdirname, config->ssl_san)) {
-                //error creating certificates, remove directory
+                //error creating certificates
                 LOG_ERROR("Certificate creation failed");
                 goto cleanup;
             }
@@ -293,7 +275,7 @@ int main(int argc, char **argv) {
 
     //drop privileges
     if (startup_uid == 0) {
-        if (config->user != NULL || strlen(config->user) != 0) {
+        if (config->user != NULL || sdslen(config->user) != 0) {
             LOG_INFO("Droping privileges to %s", config->user);
             struct passwd *pw;
             if ((pw = getpwnam(config->user)) == NULL) {
@@ -336,7 +318,7 @@ int main(int argc, char **argv) {
     }
     #endif
 
-    snprintf(testdirname, 400, "%s/smartpls", config->varlibdir);
+    testdirname = sdscatfmt(sdsempty(), "%s/smartpls", config->varlibdir);
     testdir_rc = testdir("Smartpls dir", testdirname, true);
     if (testdir_rc == 1) {
         //directory created, create default smart playlists
@@ -346,27 +328,27 @@ int main(int argc, char **argv) {
         goto cleanup;
     }
 
-    snprintf(testdirname, 400, "%s/state", config->varlibdir);
+    testdirname = sdscatfmt(sdsempty(), "%s/state", config->varlibdir);
     testdir_rc = testdir("State dir", testdirname, true);
     if (testdir_rc > 1) {
         goto cleanup;
     }
     
-    snprintf(testdirname, 400, "%s/pics", config->varlibdir);
+    testdirname = sdscatfmt(sdsempty(), "%s/pics", config->varlibdir);
     testdir_rc = testdir("Pics dir", testdirname, true);
     if (testdir_rc > 1) {
         goto cleanup;
     }
     
     //create empty document_root
-    snprintf(testdirname, 400, "%s/empty", config->varlibdir);
+    testdirname = sdscatfmt(sdsempty(), "%s/empty", config->varlibdir);
     testdir_rc = testdir("Empty dir", testdirname, true);
     if (testdir_rc > 1) {
         goto cleanup;
     }
     
     if (config->plugins_coverextract == true) {
-        snprintf(testdirname, 400, "%s/covercache", config->varlibdir);
+        testdirname = sdscatfmt(sdsempty(), "%s/covercache", config->varlibdir);
         testdir_rc = testdir("Covercache dir", testdirname, true);
         if (testdir_rc > 1) {
             goto cleanup;
@@ -432,11 +414,13 @@ int main(int argc, char **argv) {
     tiny_queue_free(mympd_api_queue);
     close_plugins(config);
     mympd_free_config(config);
-    FREE_PTR(configfile);
+    sdsfree(configfile);
+    sdsfree(option);
+    sdsfree(testdirname);
     if (init_webserver) {
-        FREE_PTR(mg_user_data->music_directory);
-        FREE_PTR(mg_user_data->pics_directory);
-        FREE_PTR(mg_user_data->rewrite_patterns);
+        sdsfree(mg_user_data->music_directory);
+        sdsfree(mg_user_data->pics_directory);
+        sdsfree(mg_user_data->rewrite_patterns);
     }
     FREE_PTR(mg_user_data);
     if (rc == EXIT_SUCCESS) {

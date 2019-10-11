@@ -88,8 +88,16 @@ endif()
 
 
 #compiler flags for mympd src
-file(GLOB MYMPD_SRC_FILES "src/*.c")
-set_property(SOURCE ${MYMPD_SRC_FILES} PROPERTY COMPILE_FLAGS "-Wextra -pedantic -Wformat=2 -Wunused-parameter -Wshadow -Wwrite-strings \
+file(GLOB MYMPD_SRC_FILES1 "src/*.c")
+set_property(SOURCE ${MYMPD_SRC_FILES1} PROPERTY COMPILE_FLAGS "-Wextra -pedantic -Wformat=2 -Wunused-parameter -Wshadow -Wwrite-strings \
+	-Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs -Wmissing-include-dirs")
+
+file(GLOB MYMPD_SRC_FILES2 "src/mpd_client/*.c")
+set_property(SOURCE ${MYMPD_SRC_FILES2} PROPERTY COMPILE_FLAGS "-Wextra -pedantic -Wformat=2 -Wunused-parameter -Wshadow -Wwrite-strings \
+	-Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs -Wmissing-include-dirs")
+
+file(GLOB MYMPD_SRC_FILES3 "src/mympd_api/*.c")
+set_property(SOURCE ${MYMPD_SRC_FILES3} PROPERTY COMPILE_FLAGS "-Wextra -pedantic -Wformat=2 -Wunused-parameter -Wshadow -Wwrite-strings \
 	-Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs -Wmissing-include-dirs")
 
 #compiler flags for mongoose.c
@@ -99,9 +107,7 @@ set (CMAKE_EXE_LINKER_FLAGS "-Wl,-z,relro -Wl,-z,now")
 
 set(SOURCES
     src/main.c
-    src/mpd_client.c
-    src/web_server.c
-    src/mympd_api.c
+    src/api.c
     src/list.c
     src/tiny_queue.c
     src/cert.c
@@ -109,10 +115,30 @@ set(SOURCES
     src/config.c
     src/handle_options.c
     src/utility.c
-    src/api.c
+    src/plugins.c
+    src/web_server.c
+    src/mpd_client.c
+    src/mpd_client/mpd_client_api.c
+    src/mpd_client/mpd_client_cover.c
+    src/mpd_client/mpd_client_browse.c
+    src/mpd_client/mpd_client_features.c
+    src/mpd_client/mpd_client_jukebox.c
+    src/mpd_client/mpd_client_utility.c
+    src/mpd_client/mpd_client_playlists.c
+    src/mpd_client/mpd_client_queue.c
+    src/mpd_client/mpd_client_search.c
+    src/mpd_client/mpd_client_settings.c
+    src/mpd_client/mpd_client_state.c
+    src/mpd_client/mpd_client_stats.c
+    src/mympd_api.c
+    src/mympd_api/mympd_api_bookmarks.c
+    src/mympd_api/mympd_api_utility.c
+    src/mympd_api/mympd_api_settings.c
+    src/mympd_api/mympd_api_syscmds.c
     dist/src/mongoose/mongoose.c
     dist/src/frozen/frozen.c
     dist/src/inih/ini.c
+    dist/src/sds/sds.c
 )
 
 add_executable(mympd ${SOURCES})

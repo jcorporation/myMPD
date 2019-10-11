@@ -26,6 +26,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+
+#include "../dist/src/sds/sds.h"
 #include "log.h"
 
 static const char *loglevel_names[] = {
@@ -47,27 +49,26 @@ void mympd_log(int level, const char *file, int line, const char *fmt, ...) {
     if (level > loglevel) {
         return;
     }
-    
-    size_t max_out = 1024;
-    char out[max_out];
-    size_t len = 0;
-    
-    len = snprintf(out, max_out, "%-8s ", loglevel_names[level]);
+    sds logline = sdscatprintf(sdsempty(), "%-8s ", loglevel_names[level]);
+
     if (loglevel == 4) {
-        len += snprintf(out + len, max_out - len, "%s:%d: ", file, line);
+        logline = sdscatprintf(logline, "%s:%d: ", file, line);
     }
+
     va_list args;
     va_start(args, fmt);
-    if (len < max_out - 2) {
-        len += vsnprintf(out + len, max_out - len, fmt, args);
-    }
+    logline = sdscatvprintf(logline, fmt, args);
     va_end(args);
-    if (len < max_out - 2) {
-        snprintf(out + len, max_out -len, "\n");
+
+    if (sdslen(logline) > 1023) {
+        sdsrange(logline, 0, 1020);
+        logline = sdscatlen(logline, "...\n", 4);
     }
     else {
-        snprintf(out + max_out - 5, 5, "...\n");
+        logline = sdscatlen(logline, "\n", 1);
     }
-    fprintf(stderr, "%s", out);
+    
+    fputs(logline, stderr);
     fflush(stderr);
+    sdsfree(logline);
 }

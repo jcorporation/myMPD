@@ -24,8 +24,5 @@
 
 #ifndef __MYMPD_API_H__
 #define __MYMPD_API_H__
-
 void *mympd_api_loop(void *arg_config);
-void mympd_api_settings_delete(t_config *config);
-
 #endif

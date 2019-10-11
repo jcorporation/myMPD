@@ -286,21 +286,24 @@ cleanupdist() {
 
 check () {
   CPPCHECKBIN=$(command -v cppcheck)
+  [ "$CPPCHECKOPTS" = "" ] && CPPCHECKOPTS="--enable=warning"
   if [ "$CPPCHECKBIN" != "" ]
   then
     echo "Running cppcheck"
-    $CPPCHECKBIN --enable=warning --inconclusive --force --inline-suppr src/*.c src/*.h
-    $CPPCHECKBIN --enable=warning --inconclusive --force --inline-suppr src/plugins/*.c src/plugins/*.h src/plugins/*.cpp
+    $CPPCHECKBIN $CPPCHECKOPTS src/*.c src/*.h
+    $CPPCHECKBIN $CPPCHECKOPTS src/mpd_client/*.c src/mpd_client/*.h
+    $CPPCHECKBIN $CPPCHECKOPTS src/mympd_api/*.c src/mympd_api/*.h
+    $CPPCHECKBIN $CPPCHECKOPTS src/plugins/*.c src/plugins/*.h src/plugins/*.cpp
   else
     echo "cppcheck not found"
   fi
   
   FLAWFINDERBIN=$(command -v flawfinder)
+  [ "$FLAWFINDEROPTS" = "" ] && FLAWFINDEROPTS="-m3"
   if [ "$FLAWFINDERBIN" != "" ]
   then
     echo "Running flawfinder"
-    $FLAWFINDERBIN src
-    $FLAWFINDERBIN src/plugins
+    $FLAWFINDERBIN $FLAWFINDEROPTS src
   else
     echo "flawfinder not found"
   fi  
@@ -545,6 +548,9 @@ case "$1" in
 	  echo "  memcheck:       builds debug files in directory debug"
 	  echo "                  for use with valgrind, uses assets in htdocs/"
 	  echo "  check:          runs cppcheck and flawfinder on source files"
+	  echo "                  following environment variables are respected"
+	  echo "                    - CPPCHECKOPTS=\"--enable=warning\""
+	  echo "                    - FLAWFINDEROPTS=\"-m3\""
 	  echo ""
 	  echo "Cleanup options:"
 	  echo "  cleanup:        cleanup source tree"

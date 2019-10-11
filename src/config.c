@@ -28,6 +28,7 @@
 #include <inttypes.h>
 #include <unistd.h>
 
+#include "../dist/src/sds/sds.h"
 #include "utility.h"
 #include "log.h"
 #include "list.h"
@@ -47,60 +48,49 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     #define MATCH(s, n) strcasecmp(section, s) == 0 && strcasecmp(name, n) == 0
 
     if (MATCH("mpd", "host")) {
-        FREE_PTR(p_config->mpd_host);
-        p_config->mpd_host = strdup(value);
+        p_config->mpd_host = sdscat(sdsempty(), value);
     }
     else if (MATCH("mpd", "port")) {
         p_config->mpd_port = strtoimax(value, &crap, 10);
     }
     else if (MATCH("mpd", "pass")) {
-        FREE_PTR(p_config->mpd_pass);
-        p_config->mpd_pass = strdup(value);
+        p_config->mpd_pass = sdscat(sdsempty(), value);
     }
     else if (MATCH("mpd", "musicdirectory")) {
-        FREE_PTR(p_config->music_directory);
-        p_config->music_directory = strdup(value);
+        p_config->music_directory = sdscat(sdsempty(), value);
     }
     else if (MATCH("webserver", "webport")) {
-        FREE_PTR(p_config->webport);
-        p_config->webport = strdup(value);
+        p_config->webport = sdscat(sdsempty(), value);
     }
     else if (MATCH("webserver", "ssl")) {
         p_config->ssl = strcmp(value, "true") == 0 ? true : false;
     }
     else if (MATCH("webserver", "sslport")) {
-        FREE_PTR(p_config->ssl_port);
-        p_config->ssl_port = strdup(value);
+        p_config->ssl_port = sdscat(sdsempty(), value);
     }
     else if (MATCH("webserver", "sslcert")) {
         if (strcmp(p_config->ssl_cert, value) != 0) {
             p_config->custom_cert = true;
         }
-        FREE_PTR(p_config->ssl_cert);
-        p_config->ssl_cert = strdup(value);
+        p_config->ssl_cert = sdscat(sdsempty(), value);
     }
     else if (MATCH("webserver", "sslkey")) {
         if (strcmp(p_config->ssl_key, value) != 0) {
             p_config->custom_cert = true;
         }
-        FREE_PTR(p_config->ssl_key);
-        p_config->ssl_key = strdup(value);
+        p_config->ssl_key = sdscat(sdsempty(), value);
     }
     else if (MATCH("webserver", "sslsan")) {
-        FREE_PTR(p_config->ssl_san);
-        p_config->ssl_san = strdup(value);
+        p_config->ssl_san = sdscat(sdsempty(), value);
     }
     else if (MATCH("mympd", "user")) {
-        FREE_PTR(p_config->user);
-        p_config->user = strdup(value);
+        p_config->user = sdscat(sdsempty(), value);
     }
     else if (MATCH("mympd", "chroot")) {
         p_config->chroot = strcmp(value, "true") == 0 ? true : false;
     }
     else if (MATCH("mympd", "varlibdir")) {
-        FREE_PTR(p_config->varlibdir);
-        p_config->varlibdir = strdup(value);
-        p_config->varlibdir_len = strlen(p_config->varlibdir);
+        p_config->varlibdir = sdscat(sdsempty(), value);
     }
     else if (MATCH("mympd", "stickers")) {
         p_config->stickers = strcmp(value, "true") == 0 ? true : false;
@@ -112,22 +102,19 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
         p_config->mixramp = strcmp(value, "true") == 0 ? true : false;
     }
     else if (MATCH("mympd", "taglist")) {
-        FREE_PTR(p_config->taglist);
-        p_config->taglist = strdup(value);
+        p_config->taglist = sdscat(sdsempty(), value);
     }
     else if (MATCH("mympd", "searchtaglist")) {
-        FREE_PTR(p_config->searchtaglist);
-        p_config->searchtaglist = strdup(value);
+        p_config->searchtaglist = sdscat(sdsempty(), value);
     }
     else if (MATCH("mympd", "browsetaglist")) {
-        FREE_PTR(p_config->browsetaglist);
-        p_config->browsetaglist = strdup(value);
+        p_config->browsetaglist = sdscat(sdsempty(), value);
     }
     else if (MATCH("mympd", "pagination")) {
         p_config->max_elements_per_page = strtoimax(value, &crap, 10);
-        if (p_config->max_elements_per_page > MAX_ELEMENTS_PER_PAGE) {
-            LOG_WARN("Setting max_elements_per_page to maximal value %d", MAX_ELEMENTS_PER_PAGE);
-            p_config->max_elements_per_page = MAX_ELEMENTS_PER_PAGE;
+        if (p_config->max_elements_per_page > 1000) {
+            LOG_WARN("Setting max_elements_per_page to maximal value 1000");
+            p_config->max_elements_per_page = 1000;
         }
     }
     else if (MATCH("mympd", "syscmds")) {
@@ -143,12 +130,10 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
         p_config->love = strcmp(value, "true") == 0 ? true : false;
     }
     else if (MATCH("mympd", "lovechannel")) {
-        FREE_PTR(p_config->love_channel);
-        p_config->love_channel = strdup(value);
+        p_config->love_channel = sdscat(sdsempty(), value);
     }
     else if (MATCH("mympd", "lovemessage")) {
-        FREE_PTR(p_config->love_message);
-        p_config->love_message = strdup(value);
+        p_config->love_message = sdscat(sdsempty(), value);
     }
     else if (MATCH("plugins", "coverextract")) {
         p_config->plugins_coverextract = strcmp(value, "true") == 0 ? true : false;
@@ -170,39 +155,31 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
         }
     }
     else if (MATCH("mympd", "jukeboxplaylist")) {
-        FREE_PTR(p_config->jukebox_playlist);
-        p_config->jukebox_playlist = strdup(value);
+        p_config->jukebox_playlist = sdscat(sdsempty(), value);
     }
     else if (MATCH("mympd", "jukeboxqueuelength")) {
         p_config->jukebox_queue_length = strtoimax(value, &crap, 10);
     }
     else if (MATCH("mympd", "colsqueuecurrent")) {
-        FREE_PTR(p_config->cols_queue_current);
-        p_config->cols_queue_current = strdup(value);
+        p_config->cols_queue_current = sdscat(sdsempty(), value);
     }
     else if (MATCH("mympd", "colssearch")) {
-        FREE_PTR(p_config->cols_search);
-        p_config->cols_search = strdup(value);
+        p_config->cols_search = sdscat(sdsempty(), value);
     }
     else if (MATCH("mympd", "colsbrowsedatabase")) {
-        FREE_PTR(p_config->cols_browse_database);
-        p_config->cols_browse_database = strdup(value);
+        p_config->cols_browse_database = sdscat(sdsempty(), value);
     }
     else if (MATCH("mympd", "colsbrowseplaylistsdetail")) {
-        FREE_PTR(p_config->cols_browse_playlists_detail);
-        p_config->cols_browse_playlists_detail = strdup(value);
+        p_config->cols_browse_playlists_detail = sdscat(sdsempty(), value);
     }
     else if (MATCH("mympd", "colsbrowsefilesystem")) {
-        FREE_PTR(p_config->cols_browse_filesystem);
-        p_config->cols_browse_filesystem = strdup(value);
+        p_config->cols_browse_filesystem = sdscat(sdsempty(), value);
     }
     else if (MATCH("mympd", "colsplayback")) {
-        FREE_PTR(p_config->cols_playback);
-        p_config->cols_playback = strdup(value);
+        p_config->cols_playback = sdscat(sdsempty(), value);
     }
     else if (MATCH("mympd", "colsqueuelastplayed")) {
-        FREE_PTR(p_config->cols_queue_last_played);
-        p_config->cols_queue_last_played = strdup(value);
+        p_config->cols_queue_last_played = sdscat(sdsempty(), value);
     }
     else if (MATCH("mympd", "localplayer")) {
         p_config->localplayer = strcmp(value, "true") == 0 ? true : false;
@@ -214,36 +191,33 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
         p_config->stream_port = strtoimax(value, &crap, 10);
     }
     else if (MATCH("mympd", "streamurl")) {
-        FREE_PTR(p_config->stream_url);
-        p_config->stream_url = strdup(value);
+        p_config->stream_url = sdscat(sdsempty(), value);
     }
     else if (MATCH("theme", "bgcover")) {
         p_config->bg_cover = strcmp(value, "true") == 0 ? true : false;
     }
     else if (MATCH("theme", "bgcolor")) {
-        FREE_PTR(p_config->bg_color);
-        p_config->bg_color = strdup(value);
+        p_config->bg_color = sdscat(sdsempty(), value);
     }
     else if (MATCH("theme", "bgcssfilter")) {
         FREE_PTR(p_config->bg_css_filter);
-        p_config->bg_css_filter = strdup(value);
+        p_config->bg_css_filter = sdscat(sdsempty(), value);
     }
     else if (MATCH("theme", "coverimage")) {
         p_config->coverimage = strcmp(value, "true") == 0 ? true : false;
     }
     else if (MATCH("theme", "coverimagename")) {
-        FREE_PTR(p_config->coverimage_name);
-        p_config->coverimage_name = strdup(value);
+        p_config->coverimage_name = sdscat(sdsempty(), value);
     }
     else if (MATCH("theme", "coverimagesize")) {
         p_config->coverimage_size = strtoimax(value, &crap, 10);
     }
     else if (MATCH("theme", "locale")) {
-        FREE_PTR(p_config->locale);
-        p_config->locale = strdup(value);
+        p_config->locale = sdscat(sdsempty(), value);
     }
     else if (strcasecmp(section, "syscmds") == 0) {
-        list_push(&p_config->syscmd_list, name, 0, (void *)strdup(value));
+        LOG_DEBUG("Adding syscmd %s: %s", name, value);
+        list_push(&p_config->syscmd_list, name, 0, value);
     }
     else {
         LOG_WARN("Unkown config option: %s - %s", section, name);
@@ -252,12 +226,10 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     return 1;
 }
 
-
-
 static void mympd_parse_env(struct t_config *config, const char *envvar) {
     char *name = NULL;
     char *section = NULL;
-    const char *value = getenv(envvar);
+    const char *value = getenv(envvar); /* Flawfinder: ignore */
     if (value != NULL) {
         char *var = strdup(envvar);
         section = strtok_r(var, "_", &name);
@@ -295,122 +267,106 @@ static void mympd_get_env(struct t_config *config) {
 
 //global functions
 void mympd_free_config(t_config *config) {
-    FREE_PTR(config->mpd_host);
-    FREE_PTR(config->mpd_pass);
-    FREE_PTR(config->webport);
-    FREE_PTR(config->ssl_port);
-    FREE_PTR(config->ssl_cert);
-    FREE_PTR(config->ssl_key);
-    FREE_PTR(config->ssl_san);
-    FREE_PTR(config->user);
-    FREE_PTR(config->taglist);
-    FREE_PTR(config->searchtaglist);
-    FREE_PTR(config->browsetaglist);
-    FREE_PTR(config->varlibdir);
-    FREE_PTR(config->love_channel);
-    FREE_PTR(config->love_message);
-    FREE_PTR(config->music_directory);
-    FREE_PTR(config->jukebox_playlist);
-    FREE_PTR(config->cols_queue_current);
-    FREE_PTR(config->cols_queue_last_played);
-    FREE_PTR(config->cols_search);
-    FREE_PTR(config->cols_browse_database);
-    FREE_PTR(config->cols_browse_playlists_detail);
-    FREE_PTR(config->cols_browse_filesystem);
-    FREE_PTR(config->cols_playback);
-    FREE_PTR(config->stream_url);
-    FREE_PTR(config->bg_color);
-    FREE_PTR(config->bg_css_filter);
-    FREE_PTR(config->coverimage_name);
-    FREE_PTR(config->locale);
+    sdsfree(config->mpd_host);
+    sdsfree(config->mpd_pass);
+    sdsfree(config->webport);
+    sdsfree(config->ssl_port);
+    sdsfree(config->ssl_cert);
+    sdsfree(config->ssl_key);
+    sdsfree(config->ssl_san);
+    sdsfree(config->user);
+    sdsfree(config->taglist);
+    sdsfree(config->searchtaglist);
+    sdsfree(config->browsetaglist);
+    sdsfree(config->varlibdir);
+    sdsfree(config->love_channel);
+    sdsfree(config->love_message);
+    sdsfree(config->music_directory);
+    sdsfree(config->jukebox_playlist);
+    sdsfree(config->cols_queue_current);
+    sdsfree(config->cols_queue_last_played);
+    sdsfree(config->cols_search);
+    sdsfree(config->cols_browse_database);
+    sdsfree(config->cols_browse_playlists_detail);
+    sdsfree(config->cols_browse_filesystem);
+    sdsfree(config->cols_playback);
+    sdsfree(config->stream_url);
+    sdsfree(config->bg_color);
+    sdsfree(config->bg_css_filter);
+    sdsfree(config->coverimage_name);
+    sdsfree(config->locale);
     list_free(&config->syscmd_list);
     FREE_PTR(config);
 }
 
 void mympd_config_defaults(t_config *config) {
-    config->mpd_host = strdup("127.0.0.1");
+    config->mpd_host = sdsnew("127.0.0.1");
     config->mpd_port = 6600;
-    config->mpd_pass = strdup("");
-    config->webport = strdup("80");
+    config->mpd_pass = sdsempty();
+    config->webport = sdsnew("80");
     config->ssl = true;
-    config->ssl_port = strdup("443");
-    config->ssl_cert = strdup(VARLIB_PATH"/ssl/server.pem");
-    config->ssl_key = strdup(VARLIB_PATH"/ssl/server.key");
-    config->ssl_san = strdup("");
+    config->ssl_port = sdsnew("443");
+    config->ssl_cert = sdsnew(VARLIB_PATH"/ssl/server.pem");
+    config->ssl_key = sdsnew(VARLIB_PATH"/ssl/server.key");
+    config->ssl_san = sdsempty();
     config->custom_cert = false;
-    config->user = strdup("mympd");
+    config->user = sdsnew("mympd");
     config->chroot = false;
-    config->varlibdir = strdup(VARLIB_PATH);
+    config->varlibdir = sdsnew(VARLIB_PATH);
     config->stickers = true;
     config->mixramp = false;
-    config->taglist = strdup("Artist,Album,AlbumArtist,Title,Track,Genre,Date,Composer,Performer");
-    config->searchtaglist = strdup("Artist,Album,AlbumArtist,Title,Genre,Composer,Performer");
-    config->browsetaglist = strdup("Artist,Album,AlbumArtist,Genre,Composer,Performer");
+    config->taglist = sdsnew("Artist,Album,AlbumArtist,Title,Track,Genre,Date,Composer,Performer");
+    config->searchtaglist = sdsnew("Artist,Album,AlbumArtist,Title,Genre,Composer,Performer");
+    config->browsetaglist = sdsnew("Artist,Album,AlbumArtist,Genre,Composer,Performer");
     config->smartpls = true;
     config->max_elements_per_page = 100;
     config->last_played_count = 20;
     config->syscmds = false;
     config->loglevel = 2;
     config->love = false;
-    config->love_channel = strdup("");
-    config->love_message = strdup("love");
+    config->love_channel = sdsnew("");
+    config->love_message = sdsnew("love");
     config->plugins_coverextract = false;
-    config->music_directory = strdup("auto");
+    config->music_directory = sdsnew("auto");
     config->notification_web = false;
     config->notification_page = true;
     config->auto_play = false;
     config->jukebox_mode = JUKEBOX_OFF;
-    config->jukebox_playlist = strdup("Database");
+    config->jukebox_playlist = sdsnew("Database");
     config->jukebox_queue_length = 1;
-    config->cols_queue_current = strdup("[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]");
-    config->cols_queue_last_played = strdup("[\"Pos\",\"Title\",\"Artist\",\"Album\",\"LastPlayed\"]");
-    config->cols_search = strdup("[\"Title\",\"Artist\",\"Album\",\"Duration\"]");
-    config->cols_browse_database = strdup("[\"Track\",\"Title\",\"Duration\"]");
-    config->cols_browse_playlists_detail = strdup("[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]");
-    config->cols_browse_filesystem = strdup("[\"Type\",\"Title\",\"Artist\",\"Album\",\"Duration\"]");
-    config->cols_playback = strdup("[\"Artist\",\"Album\"]");
+    config->cols_queue_current = sdsnew("[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]");
+    config->cols_queue_last_played = sdsnew("[\"Pos\",\"Title\",\"Artist\",\"Album\",\"LastPlayed\"]");
+    config->cols_search = sdsnew("[\"Title\",\"Artist\",\"Album\",\"Duration\"]");
+    config->cols_browse_database = sdsnew("[\"Track\",\"Title\",\"Duration\"]");
+    config->cols_browse_playlists_detail = sdsnew("[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]");
+    config->cols_browse_filesystem = sdsnew("[\"Type\",\"Title\",\"Artist\",\"Album\",\"Duration\"]");
+    config->cols_playback = sdsnew("[\"Artist\",\"Album\"]");
     config->localplayer = false;
     config->localplayer_autoplay = false;
     config->stream_port = 8000;
-    config->stream_url = strdup("");
+    config->stream_url = sdsempty();
     config->bg_cover = false;
-    config->bg_color = strdup("#888");
-    config->bg_css_filter = strdup("blur(5px)");
+    config->bg_color = sdsnew("#888");
+    config->bg_css_filter = sdsnew("blur(5px)");
     config->coverimage = true;
-    config->coverimage_name = strdup("folder.jpg");
+    config->coverimage_name = sdsnew("folder.jpg");
     config->coverimage_size = 250;
-    config->locale = strdup("default");
-    config->varlibdir_len = strlen(config->varlibdir);    
+    config->locale = sdsnew("default");
     list_init(&config->syscmd_list);
 }
 
-bool mympd_read_config(t_config *config, const char *configfile) {
-    if (access(configfile, F_OK ) != -1) {
-        LOG_INFO("Parsing config file: %s", configfile);
-        if (ini_parse(configfile, mympd_inihandler, config) < 0) {
-            LOG_ERROR("Can't load config file %s", configfile);
-            return false;
-        }
-    }
-    else {
-        LOG_WARN("Config file %s not found, using defaults", configfile);
+bool mympd_read_config(t_config *config, sds configfile) {
+    LOG_INFO("Parsing config file: %s", configfile);
+    if (ini_parse(configfile, mympd_inihandler, config) < 0) {
+        LOG_WARN("Can't parse config file %s, using defaults", configfile);
     }
     //read environment - overwrites config file definitions
     mympd_get_env(config);
 
     //set correct path to certificate/key, if varlibdir is non default and cert paths are default
     if (strcmp(config->varlibdir, VARLIB_PATH) != 0 && config->custom_cert == false) {
-        FREE_PTR(config->ssl_cert);
-        size_t ssl_cert_len = config->varlibdir_len + 16;
-        config->ssl_cert = malloc(ssl_cert_len);
-        assert(config->ssl_cert);
-        snprintf(config->ssl_cert, ssl_cert_len, "%s/ssl/server.pem", config->varlibdir);
-
-        FREE_PTR(config->ssl_key);
-        size_t ssl_key_len = config->varlibdir_len + 16;
-        config->ssl_key = malloc(ssl_key_len);
-        assert(config->ssl_key);
-        snprintf(config->ssl_key, ssl_key_len, "%s/ssl/server.key", config->varlibdir);
+        config->ssl_cert = sdscatfmt(sdsempty(), "%s/ssl/server.pem", config->varlibdir);
+        config->ssl_key = sdscatfmt(sdsempty(), "%s/ssl/server.key", config->varlibdir);
     }
 
     return true;
