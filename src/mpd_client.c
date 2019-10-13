@@ -2647,6 +2647,7 @@ static int mpd_client_put_last_played_songs(t_config *config, t_mpd_state *mpd_s
         while ((read = getline(&line, &n, fp)) > 0 && entity_count > offset && entity_count <= offset + mpd_state->max_elements_per_page) {
             int value = strtoimax(line, &data, 10);
             if (strlen(data) > 2) {
+                entity_count++;
                 data = data + 2;
                 strtok_r(data, "\n", &crap);
                 if (entities_returned++) 
