@@ -628,7 +628,7 @@ Goto browse filesystem
 Gehe zu Dateisystem
 
 Goto search
-Fehe zur Suche
+Gehe zur Suche
 
 Open main menu
 Öffne Hauptmenü
