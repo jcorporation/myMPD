@@ -31,6 +31,7 @@
 #include <mpd/client.h>
 
 #include "../../dist/src/sds/sds.h"
+#include "../sds_extras.h"
 #include "../../dist/src/frozen/frozen.h"
 #include "../list.h"
 #include "config_defs.h"
@@ -93,7 +94,7 @@ sds check_error_and_recover_notify(t_mpd_state *mpd_state, sds buffer) {
 }
 
 sds respond_with_mpd_error_or_ok(t_mpd_state *mpd_state, sds buffer, sds method, int request_id) {
-    buffer = sdscat(sdsempty(), sdsempty());
+    buffer = sdscrop(buffer);
     buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
     if (sdslen(buffer) == 0) {
         buffer = jsonrpc_respond_ok(buffer, method, request_id);
@@ -190,9 +191,9 @@ void default_mpd_state(t_mpd_state *mpd_state) {
     mpd_state->timeout = 10000;
     mpd_state->state = MPD_STATE_UNKNOWN;
     mpd_state->song_id = -1;
+    mpd_state->song_uri = sdsempty();
     mpd_state->next_song_id = -1;
     mpd_state->last_song_id = -1;
-    mpd_state->song_uri = sdsempty();
     mpd_state->last_song_uri = sdsempty();
     mpd_state->queue_version = 0;
     mpd_state->queue_length = 0;
@@ -207,8 +208,6 @@ void default_mpd_state(t_mpd_state *mpd_state) {
     mpd_state->music_directory = sdsempty();
     mpd_state->music_directory_value = sdsempty();
     mpd_state->jukebox_playlist = sdsempty();
-    mpd_state->song_uri = sdsempty();
-    mpd_state->last_song_uri = sdsempty();
     mpd_state->coverimage_name = sdsempty();
     mpd_state->love_channel = sdsempty();
     mpd_state->love_message = sdsempty();
@@ -216,6 +215,7 @@ void default_mpd_state(t_mpd_state *mpd_state) {
     mpd_state->searchtaglist = sdsempty();
     mpd_state->browsetaglist = sdsempty();
     mpd_state->mpd_host = sdsempty();
+    mpd_state->mpd_port = 0;
     mpd_state->mpd_pass = sdsempty();
     reset_t_tags(&mpd_state->mpd_tag_types);
     reset_t_tags(&mpd_state->mympd_tag_types);

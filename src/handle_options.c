@@ -31,6 +31,7 @@
 #include <stdbool.h>
 
 #include "../dist/src/sds/sds.h"
+#include "sds_extras.h"
 #include "../dist/src/frozen/frozen.h"
 #include "log.h"
 #include "list.h"
@@ -168,13 +169,13 @@ static void clear_covercache(t_config *config) {
     DIR *covercache_dir = opendir(covercache);
     if (covercache_dir != NULL) {
         struct dirent *next_file;
-        sds filepath = sdsempty();
         while ( (next_file = readdir(covercache_dir)) != NULL ) {
             if (strncmp(next_file->d_name, ".", 1) != 0) {
-                filepath = sdscatfmt(sdsempty(), "%s/%s", covercache, next_file->d_name);
+                sds filepath = sdscatfmt(sdsempty(), "%s/%s", covercache, next_file->d_name);
                 if (unlink(filepath) != 0) {
                     LOG_ERROR("Error deleting %s", filepath);
                 }
+                sdsfree(filepath);
             }
         }
         closedir(covercache_dir);

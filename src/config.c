@@ -29,6 +29,7 @@
 #include <unistd.h>
 
 #include "../dist/src/sds/sds.h"
+#include "sds_extras.h"
 #include "utility.h"
 #include "log.h"
 #include "list.h"
@@ -48,49 +49,49 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     #define MATCH(s, n) strcasecmp(section, s) == 0 && strcasecmp(name, n) == 0
 
     if (MATCH("mpd", "host")) {
-        p_config->mpd_host = sdscat(sdsempty(), value);
+        p_config->mpd_host = sdsreplace(p_config->mpd_host, value);
     }
     else if (MATCH("mpd", "port")) {
         p_config->mpd_port = strtoimax(value, &crap, 10);
     }
     else if (MATCH("mpd", "pass")) {
-        p_config->mpd_pass = sdscat(sdsempty(), value);
+        p_config->mpd_pass = sdsreplace(p_config->mpd_pass, value);
     }
     else if (MATCH("mpd", "musicdirectory")) {
-        p_config->music_directory = sdscat(sdsempty(), value);
+        p_config->music_directory = sdsreplace(p_config->music_directory, value);
     }
     else if (MATCH("webserver", "webport")) {
-        p_config->webport = sdscat(sdsempty(), value);
+        p_config->webport = sdsreplace(p_config->webport, value);
     }
     else if (MATCH("webserver", "ssl")) {
         p_config->ssl = strcmp(value, "true") == 0 ? true : false;
     }
     else if (MATCH("webserver", "sslport")) {
-        p_config->ssl_port = sdscat(sdsempty(), value);
+        p_config->ssl_port = sdsreplace(p_config->ssl_port, value);
     }
     else if (MATCH("webserver", "sslcert")) {
         if (strcmp(p_config->ssl_cert, value) != 0) {
             p_config->custom_cert = true;
         }
-        p_config->ssl_cert = sdscat(sdsempty(), value);
+        p_config->ssl_cert = sdsreplace(p_config->ssl_cert, value);
     }
     else if (MATCH("webserver", "sslkey")) {
         if (strcmp(p_config->ssl_key, value) != 0) {
             p_config->custom_cert = true;
         }
-        p_config->ssl_key = sdscat(sdsempty(), value);
+        p_config->ssl_key = sdsreplace(p_config->ssl_key, value);
     }
     else if (MATCH("webserver", "sslsan")) {
-        p_config->ssl_san = sdscat(sdsempty(), value);
+        p_config->ssl_san = sdsreplace(p_config->ssl_san, value);
     }
     else if (MATCH("mympd", "user")) {
-        p_config->user = sdscat(sdsempty(), value);
+        p_config->user = sdsreplace(p_config->user, value);
     }
     else if (MATCH("mympd", "chroot")) {
         p_config->chroot = strcmp(value, "true") == 0 ? true : false;
     }
     else if (MATCH("mympd", "varlibdir")) {
-        p_config->varlibdir = sdscat(sdsempty(), value);
+        p_config->varlibdir = sdsreplace(p_config->varlibdir, value);
     }
     else if (MATCH("mympd", "stickers")) {
         p_config->stickers = strcmp(value, "true") == 0 ? true : false;
@@ -102,13 +103,13 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
         p_config->mixramp = strcmp(value, "true") == 0 ? true : false;
     }
     else if (MATCH("mympd", "taglist")) {
-        p_config->taglist = sdscat(sdsempty(), value);
+        p_config->taglist = sdsreplace(p_config->taglist, value);
     }
     else if (MATCH("mympd", "searchtaglist")) {
-        p_config->searchtaglist = sdscat(sdsempty(), value);
+        p_config->searchtaglist = sdsreplace(p_config->searchtaglist, value);
     }
     else if (MATCH("mympd", "browsetaglist")) {
-        p_config->browsetaglist = sdscat(sdsempty(), value);
+        p_config->browsetaglist = sdsreplace(p_config->browsetaglist, value);
     }
     else if (MATCH("mympd", "pagination")) {
         p_config->max_elements_per_page = strtoimax(value, &crap, 10);
@@ -130,10 +131,10 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
         p_config->love = strcmp(value, "true") == 0 ? true : false;
     }
     else if (MATCH("mympd", "lovechannel")) {
-        p_config->love_channel = sdscat(sdsempty(), value);
+        p_config->love_channel = sdsreplace(p_config->love_channel, value);
     }
     else if (MATCH("mympd", "lovemessage")) {
-        p_config->love_message = sdscat(sdsempty(), value);
+        p_config->love_message = sdsreplace(p_config->love_message, value);
     }
     else if (MATCH("plugins", "coverextract")) {
         p_config->plugins_coverextract = strcmp(value, "true") == 0 ? true : false;
@@ -155,31 +156,31 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
         }
     }
     else if (MATCH("mympd", "jukeboxplaylist")) {
-        p_config->jukebox_playlist = sdscat(sdsempty(), value);
+        p_config->jukebox_playlist = sdsreplace(p_config->jukebox_playlist, value);
     }
     else if (MATCH("mympd", "jukeboxqueuelength")) {
         p_config->jukebox_queue_length = strtoimax(value, &crap, 10);
     }
     else if (MATCH("mympd", "colsqueuecurrent")) {
-        p_config->cols_queue_current = sdscat(sdsempty(), value);
+        p_config->cols_queue_current = sdsreplace(p_config->cols_queue_current, value);
     }
     else if (MATCH("mympd", "colssearch")) {
-        p_config->cols_search = sdscat(sdsempty(), value);
+        p_config->cols_search = sdsreplace(p_config->cols_search, value);
     }
     else if (MATCH("mympd", "colsbrowsedatabase")) {
-        p_config->cols_browse_database = sdscat(sdsempty(), value);
+        p_config->cols_browse_database = sdsreplace(p_config->cols_browse_database, value);
     }
     else if (MATCH("mympd", "colsbrowseplaylistsdetail")) {
-        p_config->cols_browse_playlists_detail = sdscat(sdsempty(), value);
+        p_config->cols_browse_playlists_detail = sdsreplace(p_config->cols_browse_playlists_detail, value);
     }
     else if (MATCH("mympd", "colsbrowsefilesystem")) {
-        p_config->cols_browse_filesystem = sdscat(sdsempty(), value);
+        p_config->cols_browse_filesystem = sdsreplace(p_config->cols_browse_filesystem, value);
     }
     else if (MATCH("mympd", "colsplayback")) {
-        p_config->cols_playback = sdscat(sdsempty(), value);
+        p_config->cols_playback = sdsreplace(p_config->cols_playback, value);
     }
     else if (MATCH("mympd", "colsqueuelastplayed")) {
-        p_config->cols_queue_last_played = sdscat(sdsempty(), value);
+        p_config->cols_queue_last_played = sdsreplace(p_config->cols_queue_last_played, value);
     }
     else if (MATCH("mympd", "localplayer")) {
         p_config->localplayer = strcmp(value, "true") == 0 ? true : false;
@@ -191,29 +192,29 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
         p_config->stream_port = strtoimax(value, &crap, 10);
     }
     else if (MATCH("mympd", "streamurl")) {
-        p_config->stream_url = sdscat(sdsempty(), value);
+        p_config->stream_url = sdsreplace(p_config->stream_url, value);
     }
     else if (MATCH("theme", "bgcover")) {
         p_config->bg_cover = strcmp(value, "true") == 0 ? true : false;
     }
     else if (MATCH("theme", "bgcolor")) {
-        p_config->bg_color = sdscat(sdsempty(), value);
+        p_config->bg_color = sdsreplace(p_config->bg_color, value);
     }
     else if (MATCH("theme", "bgcssfilter")) {
         FREE_PTR(p_config->bg_css_filter);
-        p_config->bg_css_filter = sdscat(sdsempty(), value);
+        p_config->bg_css_filter = sdsreplace(p_config->bg_css_filter, value);
     }
     else if (MATCH("theme", "coverimage")) {
         p_config->coverimage = strcmp(value, "true") == 0 ? true : false;
     }
     else if (MATCH("theme", "coverimagename")) {
-        p_config->coverimage_name = sdscat(sdsempty(), value);
+        p_config->coverimage_name = sdsreplace(p_config->coverimage_name, value);
     }
     else if (MATCH("theme", "coverimagesize")) {
         p_config->coverimage_size = strtoimax(value, &crap, 10);
     }
     else if (MATCH("theme", "locale")) {
-        p_config->locale = sdscat(sdsempty(), value);
+        p_config->locale = sdsreplace(p_config->locale, value);
     }
     else if (strcasecmp(section, "syscmds") == 0) {
         LOG_DEBUG("Adding syscmd %s: %s", name, value);
@@ -324,7 +325,7 @@ void mympd_config_defaults(t_config *config) {
     config->syscmds = false;
     config->loglevel = 2;
     config->love = false;
-    config->love_channel = sdsnew("");
+    config->love_channel = sdsempty();
     config->love_message = sdsnew("love");
     config->plugins_coverextract = false;
     config->music_directory = sdsnew("auto");
@@ -365,8 +366,10 @@ bool mympd_read_config(t_config *config, sds configfile) {
 
     //set correct path to certificate/key, if varlibdir is non default and cert paths are default
     if (strcmp(config->varlibdir, VARLIB_PATH) != 0 && config->custom_cert == false) {
-        config->ssl_cert = sdscatfmt(sdsempty(), "%s/ssl/server.pem", config->varlibdir);
-        config->ssl_key = sdscatfmt(sdsempty(), "%s/ssl/server.key", config->varlibdir);
+        config->ssl_cert = sdscrop(config->ssl_cert);
+        config->ssl_cert = sdscatfmt(config->ssl_cert, "%s/ssl/server.pem", config->varlibdir);
+        config->ssl_key = sdscrop(config->ssl_key);
+        config->ssl_key = sdscatfmt(config->ssl_key, "%s/ssl/server.key", config->varlibdir);
     }
 
     return true;

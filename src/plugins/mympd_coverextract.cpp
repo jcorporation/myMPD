@@ -127,7 +127,7 @@ bool coverextract(const char *media_file_ptr, const char *cache_dir_ptr, char *i
         strncpy(image_mime_type, mime_type.c_str(), image_mime_type_len);
         string ext = mime_type.substr(mime_type.find_last_of("/") + 1);
         string output_file = media_file.substr(0, media_file.find_last_of(".")) + "." + ext;
-        for (int i = 0 ; i < output_file.size(); i++) {
+        for (size_t i = 0 ; i < output_file.size(); i++) {
             if (output_file[i] == '/') {
                 output_file[i] = '_';
             }

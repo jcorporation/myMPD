@@ -30,6 +30,7 @@
 #include <mpd/client.h>
 
 #include "../../dist/src/sds/sds.h"
+#include "../sds_extras.h"
 #include "../../dist/src/frozen/frozen.h"
 #include "../utility.h"
 #include "../log.h"
@@ -52,7 +53,7 @@ bool mpd_api_settings_set(t_config *config, t_mpd_state *mpd_state, struct json_
     if (strncmp(key->ptr, "mpdPass", key->len) == 0) {
         if (strncmp(val->ptr, "dontsetpassword", val->len) != 0) {
             *mpd_host_changed = true;
-            mpd_state->mpd_pass = sdscatlen(sdsempty(), settingvalue, sdslen(settingvalue));
+            mpd_state->mpd_pass = sdsreplacelen(mpd_state->mpd_pass, settingvalue, sdslen(settingvalue));
         }
         else {
             sdsfree(settingvalue);
@@ -62,7 +63,7 @@ bool mpd_api_settings_set(t_config *config, t_mpd_state *mpd_state, struct json_
     else if (strncmp(key->ptr, "mpdHost", key->len) == 0) {
         if (strncmp(val->ptr, mpd_state->mpd_host, val->len) != 0) {
             *mpd_host_changed = true;
-            mpd_state->mpd_host = sdscatlen(sdsempty(), settingvalue, sdslen(settingvalue));
+            mpd_state->mpd_host = sdsreplacelen(mpd_state->mpd_host, settingvalue, sdslen(settingvalue));
         }
     }
     else if (strncmp(key->ptr, "mpdPort", key->len) == 0) {
@@ -73,7 +74,7 @@ bool mpd_api_settings_set(t_config *config, t_mpd_state *mpd_state, struct json_
         }
     }
     else if (strncmp(key->ptr, "musicDirectory", key->len) == 0) {
-        mpd_state->music_directory = sdscatlen(sdsempty(), settingvalue, sdslen(settingvalue));
+        mpd_state->music_directory = sdsreplacelen(mpd_state->music_directory, settingvalue, sdslen(settingvalue));
     }
     else if (strncmp(key->ptr, "jukeboxMode", key->len) == 0) {
         int jukebox_mode = strtoimax(settingvalue, &crap, 10);
@@ -84,7 +85,7 @@ bool mpd_api_settings_set(t_config *config, t_mpd_state *mpd_state, struct json_
         mpd_state->jukebox_mode = jukebox_mode;
     }
     else if (strncmp(key->ptr, "jukeboxPlaylist", key->len) == 0) {
-        mpd_state->jukebox_playlist = sdscatlen(sdsempty(), settingvalue, sdslen(settingvalue));
+        mpd_state->jukebox_playlist = sdsreplacelen(mpd_state->jukebox_playlist, settingvalue, sdslen(settingvalue));
     }
     else if (strncmp(key->ptr, "jukeboxQueueLength", key->len) == 0) {
         int jukebox_queue_length = strtoimax(settingvalue, &crap, 10);
@@ -102,7 +103,7 @@ bool mpd_api_settings_set(t_config *config, t_mpd_state *mpd_state, struct json_
     }
     else if (strncmp(key->ptr, "coverimageName", key->len) == 0) {
         if (validate_string(settingvalue) && sdslen(settingvalue) > 0) {
-            mpd_state->coverimage_name = sdscatlen(sdsempty(), settingvalue, sdslen(settingvalue));
+            mpd_state->coverimage_name = sdsreplacelen(mpd_state->coverimage_name, settingvalue, sdslen(settingvalue));
         }
         else {
             sdsfree(settingvalue);
@@ -113,19 +114,19 @@ bool mpd_api_settings_set(t_config *config, t_mpd_state *mpd_state, struct json_
         mpd_state->love = val->type == JSON_TYPE_TRUE ? true : false;
     }
     else if (strncmp(key->ptr, "loveChannel", key->len) == 0) {
-        mpd_state->love_channel = sdscatlen(sdsempty(), settingvalue, sdslen(settingvalue));
+        mpd_state->love_channel = sdsreplacelen(mpd_state->love_channel, settingvalue, sdslen(settingvalue));
     }
     else if (strncmp(key->ptr, "loveMessage", key->len) == 0) {
-        mpd_state->love_message = sdscatlen(sdsempty(), settingvalue, sdslen(settingvalue));
+        mpd_state->love_message = sdsreplacelen(mpd_state->love_message, settingvalue, sdslen(settingvalue));
     }
     else if (strncmp(key->ptr, "taglist", key->len) == 0) {
-        mpd_state->taglist = sdscatlen(sdsempty(), settingvalue, sdslen(settingvalue));
+        mpd_state->taglist = sdsreplacelen(mpd_state->taglist, settingvalue, sdslen(settingvalue));
     }
     else if (strncmp(key->ptr, "searchtaglist", key->len) == 0) {
-        mpd_state->searchtaglist = sdscatlen(sdsempty(), settingvalue, sdslen(settingvalue));
+        mpd_state->searchtaglist = sdsreplacelen(mpd_state->searchtaglist, settingvalue, sdslen(settingvalue));
     }
     else if (strncmp(key->ptr, "browsetaglist", key->len) == 0) {
-        mpd_state->browsetaglist = sdscatlen(sdsempty(), settingvalue, sdslen(settingvalue));
+        mpd_state->browsetaglist = sdsreplacelen(mpd_state->browsetaglist, settingvalue, sdslen(settingvalue));
     }
     else if (strncmp(key->ptr, "stickers", key->len) == 0) {
         mpd_state->stickers = val->type == JSON_TYPE_TRUE ? true : false;

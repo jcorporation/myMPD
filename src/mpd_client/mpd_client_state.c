@@ -31,6 +31,7 @@
 #include <mpd/client.h>
 
 #include "../dist/src/sds/sds.h"
+#include "../sds_extras.h"
 #include "../utility.h"
 #include "../log.h"
 #include "../list.h"
@@ -79,12 +80,12 @@ sds mpd_client_put_state(t_mpd_state *mpd_state, sds buffer, sds method, int req
         mpd_state->last_song_start_time = mpd_state->song_start_time;
         struct mpd_song *song = mpd_run_current_song(mpd_state->conn);
         if (song != NULL) {
-            mpd_state->last_song_uri = sdscat(sdsempty(), mpd_state->song_uri);
-            mpd_state->song_uri = sdscat(sdsempty(), mpd_song_get_uri(song));
+            mpd_state->last_song_uri = sdsreplace(mpd_state->last_song_uri, mpd_state->song_uri);
+            mpd_state->song_uri = sdsreplace(mpd_state->song_uri, mpd_song_get_uri(song));
             mpd_song_free(song);
         }
         else {
-            mpd_state->song_uri = sdscat(sdsempty(), "");
+            mpd_state->song_uri = sdscrop(mpd_state->song_uri);
         }
         mpd_response_finish(mpd_state->conn);
     }

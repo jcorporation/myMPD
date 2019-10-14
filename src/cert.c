@@ -18,6 +18,7 @@
 #include <openssl/bn.h>
 
 #include "../dist/src/sds/sds.h"
+#include "sds_extras.h"
 #include "log.h"
 #include "utility.h"
 
@@ -145,13 +146,14 @@ bool cleanup_certificates(sds dir, const char *name) {
         sdsfree(cert_file);
         return false;
     }
-    cert_file = sdscatfmt(sdsempty(), "%s/%s.key", dir, name);
+    sdsfree(cert_file);
+    sds key_file = sdscatfmt(sdsempty(), "%s/%s.key", dir, name);
     if (unlink(cert_file) != 0) {
-        LOG_ERROR("Error removing file %s", cert_file);
-        sdsfree(cert_file);
+        LOG_ERROR("Error removing file %s", key_file);
+        sdsfree(key_file);
         return false;
     }
-    sdsfree(cert_file);
+    sdsfree(key_file);
     
     return true;
 }
@@ -195,7 +197,7 @@ static bool load_certificate(sds key_file, EVP_PKEY **key, sds cert_file, X509 *
 
 /*Gets local hostname and ip for subject alternative names */
 static sds get_san(sds buffer) {
-    buffer = sdscatfmt(sdsempty(), "DNS:localhost, IP:127.0.0.1");
+    buffer = sdscatfmt(buffer, "DNS:localhost, IP:127.0.0.1");
   
     //Retrieve short hostname 
     char hostbuffer[256]; /* Flawfinder: ignore */

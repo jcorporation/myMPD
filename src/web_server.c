@@ -31,6 +31,7 @@
 #include <string.h>
 
 #include "../dist/src/sds/sds.h"
+#include "sds_extras.h"
 #include "api.h"
 #include "utility.h"
 #include "log.h"
@@ -174,12 +175,13 @@ static bool parse_internal_message(t_work_result *response, t_mg_user_data *mg_u
     bool feat_library;
     int je = json_scanf(response->data, sdslen(response->data), "{musicDirectory: %Q, featLibrary: %B}", &p_charbuf, &feat_library);
     if (je == 2) {
-        mg_user_data->music_directory = sdscat(sdsempty(), p_charbuf);
+        mg_user_data->music_directory = sdsreplace(mg_user_data->music_directory, p_charbuf);
         mg_user_data->feat_library = feat_library;
         FREE_PTR(p_charbuf);
         
         if (feat_library == true) {
-            mg_user_data->rewrite_patterns = sdscatfmt(sdsempty(), "/library/=%s,", mg_user_data->music_directory);
+            mg_user_data->rewrite_patterns = sdscrop(mg_user_data->rewrite_patterns);
+            mg_user_data->rewrite_patterns = sdscatfmt(mg_user_data->rewrite_patterns, "/library/=%s,", mg_user_data->music_directory);
             LOG_DEBUG("Setting music_directory to %s", mg_user_data->music_directory);
         }
         mg_user_data->rewrite_patterns = sdscatfmt(mg_user_data->rewrite_patterns, "/pics/=%s", mg_user_data->pics_directory);
@@ -289,10 +291,12 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 bool rc = handle_api((intptr_t)nc->user_data, hm->body.p, hm->body.len);
                 if (rc == false) {
                     LOG_ERROR("Invalid API request");
-                    sds response = jsonrpc_respond_message(sdsempty(), sdsempty(), 0, "Invalid API request", true);
+                    sds method = sdsempty();
+                    sds response = jsonrpc_respond_message(sdsempty(), method, 0, "Invalid API request", true);
                     mg_send_head(nc, 200, sdslen(response), "Content-Type: application/json");
                     mg_printf(nc, "%s", response);
                     sdsfree(response);
+                    sdsfree(method);
                 }
             }
             else if (mg_vcmp(&hm->uri, "/ca.crt") == 0) { 

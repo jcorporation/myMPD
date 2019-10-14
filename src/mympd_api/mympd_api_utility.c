@@ -27,6 +27,7 @@
 #include <assert.h>
 
 #include "../../dist/src/sds/sds.h"
+#include "../sds_extras.h"
 #include "../log.h"
 #include "../list.h"
 #include "config_defs.h"
@@ -40,6 +41,7 @@ void mympd_api_push_to_mpd_client(t_mympd_state *mympd_state) {
     t_work_request *mpd_client_request = (t_work_request *)malloc(sizeof(t_work_request));
     assert(mpd_client_request);
     mpd_client_request->conn_id = -1;
+    mpd_client_request->id = 0;
     mpd_client_request->cmd_id = MYMPD_API_SETTINGS_SET;
     mpd_client_request->method = sdsnew("MYMPD_API_SETTINGS_SET");
     sds data = sdsempty();

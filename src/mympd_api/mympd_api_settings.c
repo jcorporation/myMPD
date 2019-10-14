@@ -37,6 +37,7 @@
 #include <inttypes.h>
 
 #include "../../dist/src/sds/sds.h"
+#include "../sds_extras.h"
 #include "../dist/src/frozen/frozen.h"
 #include "../utility.h"
 #include "../log.h"
@@ -53,13 +54,12 @@ void mympd_api_settings_delete(t_config *config) {
         "max_elements_per_page",  "mpd_host", "mpd_pass", "mpd_port", "notification_page", "notification_web", "searchtaglist",
         "smartpls", "stickers", "stream_port", "stream_url", "taglist", "music_directory", 0};
     const char** ptr = state_files;
-    sds filename = sdsempty();
     while (*ptr != 0) {
-        filename = sdscatfmt(sdsempty(), "%s/state/%s", config->varlibdir, *ptr);
+        sds filename = sdscatfmt(sdsempty(), "%s/state/%s", config->varlibdir, *ptr);
         unlink(filename);
+        sdsfree(filename);
         ++ptr;
     }
-    sdsfree(filename);
 }
 
 bool mympd_api_connection_save(t_config *config, t_mympd_state *mympd_state, struct json_token *key, struct json_token *val) {
@@ -68,8 +68,8 @@ bool mympd_api_connection_save(t_config *config, t_mympd_state *mympd_state, str
     sds settingvalue = sdscatlen(sdsempty(), val->ptr, val->len);
     if (strncmp(key->ptr, "mpdPass", key->len) == 0) {
         if (strncmp(val->ptr, "dontsetpassword", val->len) != 0) {
-            mympd_state->mpd_pass = sdscatlen(sdsempty(), settingvalue, sdslen(settingvalue));
-            settingname = sdscat(sdsempty(), "mpd_pass");
+            mympd_state->mpd_pass = sdsreplacelen(mympd_state->mpd_pass, settingvalue, sdslen(settingvalue));
+            settingname = sdscat(settingname, "mpd_pass");
         }
         else {
             sdsfree(settingname);
@@ -78,16 +78,16 @@ bool mympd_api_connection_save(t_config *config, t_mympd_state *mympd_state, str
         }
     }
     else if (strncmp(key->ptr, "mpdHost", key->len) == 0) {
-        mympd_state->mpd_host = sdscatlen(sdsempty(), settingvalue, sdslen(settingvalue));
-        settingname = sdscat(sdsempty(), "mpd_host");
+        mympd_state->mpd_host = sdsreplacelen(mympd_state->mpd_host, settingvalue, sdslen(settingvalue));
+        settingname = sdscat(settingname, "mpd_host");
     }
     else if (strncmp(key->ptr, "mpdPort", key->len) == 0) {
         mympd_state->mpd_port = strtoimax(settingvalue, &crap, 10);
-        settingname = sdscat(sdsempty(), "mpd_port");
+        settingname = sdscat(settingname, "mpd_port");
     }
     else if (strncmp(key->ptr, "musicDirectory", key->len) == 0) {
-        mympd_state->mpd_host = sdscatlen(sdsempty(), settingvalue, sdslen(settingvalue));
-        settingname = sdscat(sdsempty(), "music_directory");
+        mympd_state->music_directory = sdsreplacelen(mympd_state->music_directory, settingvalue, sdslen(settingvalue));
+        settingname = sdscat(settingname, "music_directory");
     }
     else {
         sdsfree(settingname);
@@ -103,25 +103,25 @@ bool mympd_api_connection_save(t_config *config, t_mympd_state *mympd_state, str
 
 bool mympd_api_cols_save(t_config *config, t_mympd_state *mympd_state, const char *table, const char *cols) {
     if (strcmp(table, "colsQueueCurrent") == 0) {
-        mympd_state->cols_queue_current = sdscat(sdsempty(), cols);
+        mympd_state->cols_queue_current = sdsreplace(mympd_state->cols_queue_current, cols);
     }
     else if (strcmp(table, "colsSearch") == 0) {
-        mympd_state->cols_search = sdscat(sdsempty(), cols);
+        mympd_state->cols_search = sdsreplace(mympd_state->cols_search, cols);
     }
     else if (strcmp(table, "colsBrowseDatabase") == 0) {
-        mympd_state->cols_browse_database = sdscat(sdsempty(), cols);
+        mympd_state->cols_browse_database = sdsreplace(mympd_state->cols_browse_database, cols);
     }
     else if (strcmp(table, "colsBrowsePlaylistsDetail") == 0) {
-        mympd_state->cols_browse_playlists_detail = sdscat(sdsempty(), cols);
+        mympd_state->cols_browse_playlists_detail = sdsreplace(mympd_state->cols_browse_playlists_detail, cols);
     }
     else if (strcmp(table, "colsBrowseFilesystem") == 0) {
-        mympd_state->cols_browse_filesystem = sdscat(sdsempty(), cols);
+        mympd_state->cols_browse_filesystem = sdsreplace(mympd_state->cols_browse_filesystem, cols);
     }
     else if (strcmp(table, "colsPlayback") == 0) {
-        mympd_state->cols_playback = sdscat(sdsempty(), cols);
+        mympd_state->cols_playback = sdsreplace(mympd_state->cols_playback, cols);
     }
     else if (strcmp(table, "colsQueueLastPlayed") == 0) {
-        mympd_state->cols_queue_last_played = sdscat(sdsempty(), cols);
+        mympd_state->cols_queue_last_played = sdsreplace(mympd_state->cols_queue_last_played, cols);
     }
     else {
         return false;
@@ -141,28 +141,28 @@ bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state, struct
     
     if (strncmp(key->ptr, "notificationWeb", key->len) == 0) {
         mympd_state->notification_web = val->type == JSON_TYPE_TRUE ? true : false;
-        settingname = sdscat(sdsempty(), "notification_web");
+        settingname = sdscat(settingname, "notification_web");
     }
     else if (strncmp(key->ptr, "notificationPage", key->len) == 0) {
         mympd_state->notification_page = val->type == JSON_TYPE_TRUE ? true : false;
-        settingname = sdscat(sdsempty(), "notification_page");
+        settingname = sdscat(settingname, "notification_page");
     }
     else if (strncmp(key->ptr, "autoPlay", key->len) == 0) {
         mympd_state->auto_play = val->type == JSON_TYPE_TRUE ? true : false;
-        settingname = sdscat(sdsempty(), "auto_play");
+        settingname = sdscat(settingname, "auto_play");
     }
     else if (strncmp(key->ptr, "localplayerAutoplay", key->len) == 0) {
         mympd_state->localplayer_autoplay = val->type == JSON_TYPE_TRUE ? true : false;
-        settingname = sdscat(sdsempty(), "localplayer_autoplay");
+        settingname = sdscat(settingname, "localplayer_autoplay");
     }
     else if (strncmp(key->ptr, "coverimage", key->len) == 0) {
         mympd_state->coverimage = val->type == JSON_TYPE_TRUE ? true : false;
-        settingname = sdscat(sdsempty(), "coverimage");
+        settingname = sdscat(settingname, "coverimage");
     }
     else if (strncmp(key->ptr, "coverimageName", key->len) == 0) {
         if (validate_string(settingvalue) && sdslen(settingvalue) > 0) {
-            mympd_state->coverimage_name = sdscatlen(sdsempty(), settingvalue, sdslen(settingvalue));
-            settingname = sdscat(sdsempty(), "coverimage_name");
+            mympd_state->coverimage_name = sdsreplacelen(mympd_state->coverimage_name, settingvalue, sdslen(settingvalue));
+            settingname = sdscat(settingname, "coverimage_name");
         }
         else {
             sdsfree(settingname);
@@ -172,35 +172,35 @@ bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state, struct
     }
     else if (strncmp(key->ptr, "coverimageSize", key->len) == 0) {
         mympd_state->coverimage_size = strtoimax(settingvalue, &crap, 10);
-        settingname = sdscat(sdsempty(), "coverimage_size");
+        settingname = sdscat(settingname, "coverimage_size");
     }
     else if (strncmp(key->ptr, "featLocalplayer", key->len) == 0) {
         mympd_state->localplayer = val->type == JSON_TYPE_TRUE ? true : false;
-        settingname = sdscat(sdsempty(), "localplayer");
+        settingname = sdscat(settingname, "localplayer");
     }
     else if (strncmp(key->ptr, "streamPort", key->len) == 0) {
         mympd_state->stream_port = strtoimax(settingvalue, &crap, 10);
-        settingname = sdscat(sdsempty(), "stream_port");
+        settingname = sdscat(settingname, "stream_port");
     }
     else if (strncmp(key->ptr, "streamUrl", key->len) == 0) {
-        mympd_state->stream_url = sdscatlen(sdsempty(), settingvalue, sdslen(settingvalue));
-        settingname = sdscat(sdsempty(), "stream_url");
+        mympd_state->stream_url = sdsreplacelen(mympd_state->stream_url, settingvalue, sdslen(settingvalue));
+        settingname = sdscat(settingname, "stream_url");
     }
     else if (strncmp(key->ptr, "locale", key->len) == 0) {
-        mympd_state->locale = sdscatlen(sdsempty(), settingvalue, sdslen(settingvalue));
-        settingname = sdscat(sdsempty(), "locale");
+        mympd_state->locale = sdsreplacelen(mympd_state->locale, settingvalue, sdslen(settingvalue));
+        settingname = sdscat(settingname, "locale");
     }
     else if (strncmp(key->ptr, "bgCover", key->len) == 0) {
         mympd_state->bg_cover = val->type == JSON_TYPE_TRUE ? true : false;
-        settingname = sdscat(sdsempty(), "bg_cover");
+        settingname = sdscat(settingname, "bg_cover");
     }
     else if (strncmp(key->ptr, "bgColor", key->len) == 0) {
-        mympd_state->bg_color = sdscatlen(sdsempty(), settingvalue, sdslen(settingvalue));
-        settingname = sdscat(sdsempty(), "bg_color");
+        mympd_state->bg_color = sdsreplacelen(mympd_state->bg_color, settingvalue, sdslen(settingvalue));
+        settingname = sdscat(settingname, "bg_color");
     }
     else if (strncmp(key->ptr, "bgCssFilter", key->len) == 0) {
-        mympd_state->bg_css_filter = sdscatlen(sdsempty(), settingvalue, sdslen(settingvalue));
-        settingname = sdscat(sdsempty(), "bg_css_filter");
+        mympd_state->bg_css_filter = sdsreplacelen(mympd_state->bg_css_filter, settingvalue, sdslen(settingvalue));
+        settingname = sdscat(settingname, "bg_css_filter");
     }
     else if (strncmp(key->ptr, "jukeboxMode", key->len) == 0) {
         int jukebox_mode = strtoimax(settingvalue, &crap, 10);
@@ -210,11 +210,11 @@ bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state, struct
             return false;
         }
         mympd_state->jukebox_mode = jukebox_mode;
-        settingname = sdscat(sdsempty(), "jukebox_mode");
+        settingname = sdscat(settingname, "jukebox_mode");
     }
     else if (strncmp(key->ptr, "jukeboxPlaylist", key->len) == 0) {
-        mympd_state->jukebox_playlist = sdscatlen(sdsempty(), settingvalue, sdslen(settingvalue));
-        settingname = sdscat(sdsempty(), "jukebox_playlist");
+        mympd_state->jukebox_playlist = sdsreplacelen(mympd_state->jukebox_playlist, settingvalue, sdslen(settingvalue));
+        settingname = sdscat(settingname, "jukebox_playlist");
     }
     else if (strncmp(key->ptr, "jukeboxQueueLength", key->len) == 0) {
         int jukebox_queue_length = strtoimax(settingvalue, &crap, 10);
@@ -224,11 +224,11 @@ bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state, struct
             return false;
         }
         mympd_state->jukebox_queue_length = jukebox_queue_length;
-        settingname = sdscat(sdsempty(), "jukebox_queue_length");
+        settingname = sdscat(settingname, "jukebox_queue_length");
     }
     else if (strncmp(key->ptr, "stickers", key->len) == 0) {
         mympd_state->stickers = val->type == JSON_TYPE_TRUE ? true : false;
-        settingname = sdscat(sdsempty(), "stickers");
+        settingname = sdscat(settingname, "stickers");
     }
     else if (strncmp(key->ptr, "lastPlayedCount", key->len) == 0) {
         int last_played_count = strtoimax(settingvalue, &crap, 10);
@@ -238,23 +238,23 @@ bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state, struct
             return false;
         }
         mympd_state->last_played_count = last_played_count;
-        settingname = sdscat(sdsempty(), "last_played_count");
+        settingname = sdscat(settingname, "last_played_count");
     }
     else if (strncmp(key->ptr, "taglist", key->len) == 0) {
-        mympd_state->taglist = sdscatlen(sdsempty(), settingvalue, sdslen(settingvalue));
-        settingname = sdscat(sdsempty(), "taglist");
+        mympd_state->taglist = sdsreplacelen(mympd_state->taglist, settingvalue, sdslen(settingvalue));
+        settingname = sdscat(settingname, "taglist");
     }
     else if (strncmp(key->ptr, "searchtaglist", key->len) == 0) {
-        mympd_state->searchtaglist = sdscatlen(sdsempty(), settingvalue, sdslen(settingvalue));
-        settingname = sdscat(sdsempty(), "searchtaglist");
+        mympd_state->searchtaglist = sdsreplacelen(mympd_state->searchtaglist, settingvalue, sdslen(settingvalue));
+        settingname = sdscat(settingname, "searchtaglist");
     }
     else if (strncmp(key->ptr, "browsetaglist", key->len) == 0) {
-        mympd_state->browsetaglist = sdscatlen(sdsempty(), settingvalue, sdslen(settingvalue));
-        settingname = sdscat(sdsempty(), "browsetaglist");
+        mympd_state->browsetaglist = sdsreplacelen(mympd_state->browsetaglist, settingvalue, sdslen(settingvalue));
+        settingname = sdscat(settingname, "browsetaglist");
     }
     else if (strncmp(key->ptr, "smartpls", key->len) == 0) {
         mympd_state->smartpls = val->type == JSON_TYPE_TRUE ? true : false;
-        settingname = sdscat(sdsempty(), "smartpls");
+        settingname = sdscat(settingname, "smartpls");
     }
     else if (strncmp(key->ptr, "maxElementsPerPage", key->len) == 0) {
         int max_elements_per_page = strtoimax(settingvalue, &crap, 10);
@@ -264,19 +264,19 @@ bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state, struct
             return false;
         }
         mympd_state->max_elements_per_page = max_elements_per_page;
-        settingname = sdscat(sdsempty(), "max_elements_per_page");
+        settingname = sdscat(settingname, "max_elements_per_page");
     }
     else if (strncmp(key->ptr, "love", key->len) == 0) {
         mympd_state->love = val->type == JSON_TYPE_TRUE ? true : false;
-        settingname = sdscat(sdsempty(), "love");
+        settingname = sdscat(settingname, "love");
     }
     else if (strncmp(key->ptr, "loveChannel", key->len) == 0) {
-        mympd_state->love_channel = sdscatlen(sdsempty(), settingvalue, sdslen(settingvalue));
-        settingname = sdscat(sdsempty(), "love_channel");
+        mympd_state->love_channel = sdsreplacelen(mympd_state->love_channel, settingvalue, sdslen(settingvalue));
+        settingname = sdscat(settingname, "love_channel");
     }
     else if (strncmp(key->ptr, "loveMessage", key->len) == 0) {
-        mympd_state->love_message = sdscatlen(sdsempty(), settingvalue, sdslen(settingvalue));
-        settingname = sdscat(sdsempty(), "love_message");
+        mympd_state->love_message = sdsreplacelen(mympd_state->love_message, settingvalue, sdslen(settingvalue));
+        settingname = sdscat(settingname, "love_message");
     }
     else {
         sdsfree(settingname);
@@ -356,7 +356,7 @@ sds state_file_rw_string(t_config *config, const char *name, const char *def_val
             LOG_WARN("Can't open %s", cfg_file);
         }
         state_file_write(config, name, def_value);
-        result = sdscat(sdsempty(), def_value);
+        result = sdscat(result, def_value);
         return result;
     }
     read = getline(&line, &n, fp);
@@ -365,13 +365,13 @@ sds state_file_rw_string(t_config *config, const char *name, const char *def_val
     }
     fclose(fp);
     if (read > 0) {
-        result = sdscat(sdsempty(), line);
+        result = sdscat(result, line);
         FREE_PTR(line);
         return result;
     }
     else {
         FREE_PTR(line);
-        result = sdscat(sdsempty(), def_value);
+        result = sdscat(result, def_value);
         return result;
     }
 }
@@ -391,6 +391,7 @@ int state_file_rw_int(t_config *config, const char *name, const int def_value, b
     int value = def_value;
     sds def_value_str = sdsfromlonglong(def_value);
     sds line = state_file_rw_string(config, name, def_value_str, warn);
+    sdsfree(def_value_str);
     if (sdslen(line) > 0) {
         value = strtoimax(line, &crap, 10);
         sdsfree(line);

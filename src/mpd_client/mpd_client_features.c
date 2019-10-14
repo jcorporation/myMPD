@@ -30,6 +30,7 @@
 #include <mpd/client.h>
 
 #include "../../dist/src/sds/sds.h"
+#include "../sds_extras.h"
 #include "../log.h"
 #include "../list.h"
 #include "../utility.h"
@@ -183,7 +184,7 @@ static void mpd_client_feature_tags(t_mpd_state *mpd_state) {
     else {
         mpd_state->feat_tags = true;
         LOG_INFO(logline);
-        logline = sdscat(sdsempty(), "myMPD enabled tags: ");
+        logline = sdsreplace(logline, "myMPD enabled tags: ");
         tokens = sdssplitlen(taglist, sdslen(taglist), ",", 1, &tokens_count);
         for (int i = 0; i < tokens_count; i++) {
             sdstrim(tokens[i], " ");
@@ -217,7 +218,7 @@ static void mpd_client_feature_tags(t_mpd_state *mpd_state) {
             check_error_and_recover(mpd_state, NULL, NULL, 0);
         }
         #endif
-        logline = sdscat(sdsempty(), "myMPD enabled searchtags: ");
+        logline = sdsreplace(logline, "myMPD enabled searchtags: ");
         tokens = sdssplitlen(searchtaglist, sdslen(searchtaglist), ",", 1, &tokens_count);
         for (int i = 0; i < tokens_count; i++) {
             sdstrim(tokens[i], " ");
@@ -238,7 +239,7 @@ static void mpd_client_feature_tags(t_mpd_state *mpd_state) {
         sdsfreesplitres(tokens, tokens_count);
         LOG_INFO(logline);
 
-        logline = sdscat(sdsempty(), "myMPD enabled browsetags: ");
+        logline = sdsreplace(logline, "myMPD enabled browsetags: ");
         tokens = sdssplitlen(browsetaglist, sdslen(browsetaglist), ",", 1, &tokens_count);
         for (int i = 0; i < tokens_count; i++) {
             sdstrim(tokens[i], " ");
@@ -271,7 +272,7 @@ static void mpd_client_feature_music_directory(t_mpd_state *mpd_state) {
     struct mpd_pair *pair;
     mpd_state->feat_library = false;
     mpd_state->feat_coverimage = mpd_state->coverimage;
-    mpd_state->music_directory_value = sdscat(sdsempty(), "");
+    mpd_state->music_directory_value = sdscrop(mpd_state->music_directory_value);
 
     if (strncmp(mpd_state->mpd_host, "/", 1) == 0 && strncmp(mpd_state->music_directory, "auto", 4) == 0) {
         //get musicdirectory from mpd
@@ -279,7 +280,7 @@ static void mpd_client_feature_music_directory(t_mpd_state *mpd_state) {
             while ((pair = mpd_recv_pair(mpd_state->conn)) != NULL) {
                 if (strcmp(pair->name, "music_directory") == 0) {
                     if (strncmp(pair->value, "smb://", 6) != 0 && strncmp(pair->value, "nfs://", 6) != 0) {
-                        mpd_state->music_directory_value = sdscat(sdsempty(), pair->value);
+                        mpd_state->music_directory_value = sdsreplace(mpd_state->music_directory_value, pair->value);
                     }
                 }
                 mpd_return_pair(mpd_state->conn, pair);
@@ -291,7 +292,7 @@ static void mpd_client_feature_music_directory(t_mpd_state *mpd_state) {
         }
     }
     else if (strncmp(mpd_state->music_directory, "/", 1) == 0) {
-        mpd_state->music_directory_value = sdscat(sdsempty(), mpd_state->music_directory);
+        mpd_state->music_directory_value = sdsreplace(mpd_state->music_directory_value, mpd_state->music_directory);
     }
     else {
         //none or garbage, empty music_directory_value
@@ -309,7 +310,7 @@ static void mpd_client_feature_music_directory(t_mpd_state *mpd_state) {
     else {
         LOG_WARN("Disabling featLibrary support");
         mpd_state->feat_library = false;
-        mpd_state->music_directory_value = sdscat(sdsempty(), "");;
+        mpd_state->music_directory_value = sdscrop(mpd_state->music_directory_value);
     }
     
     if (mpd_state->feat_library == false) {

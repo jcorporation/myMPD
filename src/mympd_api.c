@@ -37,6 +37,7 @@
 #include <inttypes.h>
 
 #include "../dist/src/sds/sds.h"
+#include "sds_extras.h"
 #include "../dist/src/frozen/frozen.h"
 #include "api.h"
 #include "utility.h"
@@ -146,6 +147,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                 assert(mpd_client_request);
                 mpd_client_request->conn_id = -1;
                 mpd_client_request->cmd_id = request->cmd_id;
+                mpd_client_request->id = request->id;
                 mpd_client_request->method = sdsdup(request->method);
                 mpd_client_request->data = sdsdup(request->data);
                 tiny_queue_push(mpd_client_queue, mpd_client_request);

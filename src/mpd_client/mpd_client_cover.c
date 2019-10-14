@@ -30,6 +30,7 @@
 #include <mpd/client.h>
 
 #include "../../dist/src/sds/sds.h"
+#include "../sds_extras.h"
 #include "../utility.h"
 #include "../log.h"
 #include "../list.h"
@@ -43,7 +44,7 @@ sds mpd_client_get_cover(t_config *config, t_mpd_state *mpd_state, const char *u
     char *path = orgpath;
 
     if (mpd_state->feat_coverimage == false) {
-        cover = sdscat(sdsempty(), "/assets/coverimage-notavailable.svg");
+        cover = sdsreplace(cover, "/assets/coverimage-notavailable.svg");
     }
     else if (strstr(path, "://") != NULL) {
         char *name = strstr(path, "://");
@@ -51,18 +52,21 @@ sds mpd_client_get_cover(t_config *config, t_mpd_state *mpd_state, const char *u
         replacechar(name, '/', '_');
         replacechar(name, '.', '_');
         replacechar(name, ':', '_');
-        cover = sdscatfmt(sdsempty(), "%s/pics/%s.png", config->varlibdir, name);
+        cover = sdscatfmt(cover, "%s/pics/%s.png", config->varlibdir, name);
         LOG_DEBUG("Check for cover %s", cover);
         if (access(cover, F_OK ) == -1 ) { /* Flawfinder: ignore */
-            cover = sdscatfmt(sdsempty(), "/assets/coverimage-stream.svg");
+            cover = sdscrop(cover);
+            cover = sdscatfmt(cover, "/assets/coverimage-stream.svg");
         }
         else {
-            cover = sdscatfmt(sdsempty(), "/pics/%s.png", name);
+            cover = sdscrop(cover);
+            cover = sdscatfmt(cover, "/pics/%s.png", name);
         }
     }
     else if (mpd_state->feat_library == true && sdslen(mpd_state->music_directory_value) > 0) {
         dirname(path);
-        cover = sdscatfmt(sdsempty(), "%s/%s/%s", mpd_state->music_directory_value, path, mpd_state->coverimage_name);
+        cover = sdscrop(cover);
+        cover = sdscatfmt(cover, "%s/%s/%s", mpd_state->music_directory_value, path, mpd_state->coverimage_name);
         if (access(cover, F_OK ) == -1 ) { /* Flawfinder: ignore */
             if (config->plugins_coverextract == true) {
                 sds media_file = sdscatfmt(sdsempty(), "%s/%s", mpd_state->music_directory_value, uri);
@@ -71,23 +75,26 @@ sds mpd_client_get_cover(t_config *config, t_mpd_state *mpd_state, const char *u
                 size_t image_mime_type_len = 100;
                 char image_mime_type[image_mime_type_len];
                 bool rc = plugin_coverextract(media_file, "", image_file, image_file_len, image_mime_type, image_mime_type_len, false);
+                sdsfree(media_file);
                 if (rc == true) {
-                    cover = sdscatfmt(sdsempty(), "/albumart/%s", uri);
+                    cover = sdscrop(cover);
+                    cover = sdscatfmt(cover, "/albumart/%s", uri);
                 }
                 else {
-                    cover = sdscatfmt(sdsempty(), "/assets/coverimage-notavailable.svg");
+                    cover = sdsreplace(cover, "/assets/coverimage-notavailable.svg");
                 }
             }
             else {
-                cover = sdscatfmt(sdsempty(), "/assets/coverimage-notavailable.svg");
+                cover = sdsreplace(cover, "/assets/coverimage-notavailable.svg");
             }
         }
         else {
-            cover = sdscatfmt(sdsempty(), "/library/%s/%s", path, mpd_state->coverimage_name);
+            cover = sdscrop(cover);
+            cover = sdscatfmt(cover, "/library/%s/%s", path, mpd_state->coverimage_name);
         }
     }
     else {
-        cover = sdscatfmt(sdsempty(), "/assets/coverimage-notavailable.svg");
+        cover = sdsreplace(cover, "/assets/coverimage-notavailable.svg");
     }
 
     FREE_PTR(orgpath);

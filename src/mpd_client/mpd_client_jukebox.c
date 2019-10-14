@@ -28,6 +28,7 @@
 #include <mpd/client.h>
 
 #include "../../dist/src/sds/sds.h"
+#include "../sds_extras.h"
 #include "../log.h"
 #include "../list.h"
 #include "../utility.h"
@@ -119,13 +120,13 @@ bool mpd_client_jukebox_add(t_mpd_state *mpd_state, const int addSongs, const en
                 if (randrange(lineno) < addSongs) {
 		    if (nkeep < addSongs) {
 		        song = mpd_entity_get_song(entity);
-		        list_push(&add_list, mpd_song_get_uri(song), lineno, sdsempty());
+		        list_push(&add_list, mpd_song_get_uri(song), lineno, NULL);
 		        nkeep++;
                     }
                     else {
                         i = addSongs > 1 ? randrange(addSongs) : 0;
                         song = mpd_entity_get_song(entity);
-                        list_replace(&add_list, i, mpd_song_get_uri(song), lineno, sdsempty());
+                        list_replace(&add_list, i, mpd_song_get_uri(song), lineno, NULL);
                     }
                 }
                 lineno++;
@@ -148,12 +149,12 @@ bool mpd_client_jukebox_add(t_mpd_state *mpd_state, const int addSongs, const en
         while ((pair = mpd_recv_pair_tag(mpd_state->conn, MPD_TAG_ALBUM )) != NULL)  {
             if (randrange(lineno) < addSongs) {
 		if (nkeep < addSongs) {
-                    list_push(&add_list, pair->value, lineno, sdsempty());
+                    list_push(&add_list, pair->value, lineno, NULL);
                     nkeep++;
                 }
 		else {
                     i = addSongs > 1 ? randrange(addSongs) : 0;
-                    list_replace(&add_list, i, pair->value, lineno, sdsempty());
+                    list_replace(&add_list, i, pair->value, lineno, NULL);
                 }
             }
             lineno++;

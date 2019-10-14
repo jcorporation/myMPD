@@ -26,6 +26,7 @@
 #include <assert.h>
 
 #include "../dist/src/sds/sds.h"
+#include "sds_extras.h"
 #include "list.h"
 
 int list_init(struct list *l) {
@@ -162,8 +163,13 @@ int list_replace(struct list *l, int pos, const char *data, int value, const cha
     }
     
     current->value = value;
-    current->data = sdscat(sdsempty(), data);
-    current->extra = sdscat(sdsempty(), extra);
+    current->data = sdsreplace(current->data, data);
+    if (extra != NULL) {
+        current->extra = sdsreplace(current->extra, extra);
+    }
+    else {
+        current->extra = sdscrop(current->extra);
+    }
     return 0;
 }
 
@@ -172,7 +178,12 @@ int list_push(struct list *l, const char *data, int value, const char *extra) {
     assert(n);
     n->value = value;
     n->data = sdsnew(data);
-    n->extra = sdsnew(extra);
+    if (extra != NULL) {
+        n->extra = sdsnew(extra);
+    }
+    else {
+        n->extra = sdsempty();
+    }
     n->next = NULL;
 
     struct node **next = &l->list;
@@ -189,7 +200,12 @@ int list_insert(struct list *l, const char *data, int value, const char *extra) 
     assert(n);
     n->value = value;
     n->data = sdsnew(data);
-    n->extra = sdsnew(extra);
+    if (extra != NULL) {
+        n->extra = sdsnew(extra);
+    }
+    else {
+        n->extra = sdsempty();
+    }
     n->next = l->list;
     
     l->list = n;

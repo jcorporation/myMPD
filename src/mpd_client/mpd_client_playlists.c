@@ -33,6 +33,7 @@
 #include <ctype.h>
 
 #include "../../dist/src/sds/sds.h"
+#include "../sds_extras.h"
 #include "../../dist/src/frozen/frozen.h"
 #include "../utility.h"
 #include "../log.h"
@@ -140,6 +141,7 @@ sds mpd_client_put_playlist_list(t_config *config, t_mpd_state *mpd_state, sds b
         if (access(smartpls_file, F_OK ) != -1) { /* Flawfinder: ignore */
             smartpls = true;
         }
+        sdsfree(smartpls_file);
     }
 
     buffer = sdscat(buffer, "],");
@@ -277,13 +279,13 @@ sds mpd_client_smartpls_put(t_config *config, sds buffer, sds method, int reques
             buffer = jsonrpc_end_result(buffer);
         }
         else {
-            buffer = jsonrpc_respond_message(sdsempty(), method, request_id, "Can not parse smart playlist file", true);
+            buffer = jsonrpc_respond_message(buffer, method, request_id, "Can not parse smart playlist file", true);
             LOG_ERROR("Can't parse smart playlist file: %s", playlist);
         }
         FREE_PTR(smartpltype);        
     }
     else {
-        buffer = jsonrpc_respond_message(sdsempty(), method, request_id, "Unknown smart playlist type", true);
+        buffer = jsonrpc_respond_message(buffer, method, request_id, "Unknown smart playlist type", true);
         LOG_ERROR("Unknown smart playlist type: %s", playlist);
     }
     FREE_PTR(content);
@@ -364,8 +366,10 @@ bool mpd_client_smartpls_update_all(t_config *config, t_mpd_state *mpd_state) {
         closedir (dir);
     } else {
         LOG_ERROR("Can't open smart playlist directory %s", dirname);
+        sdsfree(dirname);
         return false;
     }
+    sdsfree(dirname);
     return true;
 }
 
@@ -510,7 +514,7 @@ bool mpd_client_smartpls_update_sticker(t_mpd_state *mpd_state, const char *play
                 char *crap;
                 int value = strtoimax(p_value, &crap, 10);
                 if (value >= 1) {
-                    list_push(&add_list, uri, value, sdsempty());
+                    list_push(&add_list, uri, value, NULL);
                 }
                 if (value > value_max) {
                     value_max = value;
@@ -566,19 +570,21 @@ bool mpd_client_smartpls_update_newest(t_mpd_state *mpd_state, const char *playl
     mpd_client_smartpls_clear(mpd_state, playlist);
     value_max -= timerange;
     sds buffer = sdsempty();
+    sds method = sdsempty();
     if (value_max > 0) {
         if (mpd_state->feat_advsearch == true) {
             sds searchstr = sdscatfmt(sdsempty(), "(modified-since '%d')", value_max);
-            buffer = mpd_client_search_adv(mpd_state, buffer, sdsempty(), 0, searchstr, NULL, true, NULL, playlist, 0, NULL);
+            buffer = mpd_client_search_adv(mpd_state, buffer, method, 0, searchstr, NULL, true, NULL, playlist, 0, NULL);
             sdsfree(searchstr);
         }
         else {
             sds searchstr = sdsfromlonglong(value_max);
-            buffer = mpd_client_search(mpd_state, buffer, sdsempty(), 0, searchstr, "modified-since", playlist, 0, NULL);
+            buffer = mpd_client_search(mpd_state, buffer, method, 0, searchstr, "modified-since", playlist, 0, NULL);
             sdsfree(searchstr);
         }
         LOG_INFO("Updated smart playlist %s", playlist);
     }
     sdsfree(buffer);
+    sdsfree(method);
     return true;
 }

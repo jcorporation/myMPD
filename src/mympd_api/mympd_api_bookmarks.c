@@ -30,6 +30,7 @@
 #include <stdbool.h>
 
 #include "../../dist/src/sds/sds.h"
+#include "../sds_extras.h"
 #include "../dist/src/frozen/frozen.h"
 #include "../utility.h"
 #include "../log.h"
@@ -133,7 +134,8 @@ sds mympd_api_bookmark_list(t_config *config, sds buffer, sds method, int reques
         fi = fopen(b_file, "w");
         if (fi == NULL) {
             LOG_ERROR("Can't open %s for write", b_file);
-            buffer = jsonrpc_respond_message(sdsempty(), method, request_id, "Failed to open bookmarks file", true);
+            buffer = sdscrop(buffer);
+            buffer = jsonrpc_respond_message(buffer, method, request_id, "Failed to open bookmarks file", true);
         }
         else {
             fclose(fi);

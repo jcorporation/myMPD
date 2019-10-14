@@ -39,6 +39,7 @@
 #include <inttypes.h>
 
 #include "../dist/src/sds/sds.h"
+#include "sds_extras.h"
 #include "utility.h"
 #include "log.h"
 #include "list.h"
@@ -89,7 +90,7 @@ static bool do_chroot(struct t_config *config) {
         char env_pwd[] = "PWD=/";
         putenv(env_pwd);
         //set mympd config
-        config->varlibdir = sdscat(sdsempty(), "");
+        config->varlibdir = sdscrop(config->varlibdir);
         if (config->syscmds == true) {
             LOG_INFO("Disabling syscmds");
             config->syscmds = false;
@@ -109,17 +110,20 @@ static bool chown_certs(t_config *config) {
         sdsfree(filename);
         return false;
     }
-    filename = sdscatfmt(sdsempty(), "%s/ssl/ca.key", config->varlibdir);
+    filename = sdscrop(filename);
+    filename = sdscatfmt(filename, "%s/ssl/ca.key", config->varlibdir);
     if (do_chown(filename, config->user) == false) {
         sdsfree(filename);
         return false;
     }
-    filename = sdscatfmt(sdsempty(), "%s/ssl/server.pem", config->varlibdir);
+    filename = sdscrop(filename);
+    filename = sdscatfmt(filename, "%s/ssl/server.pem", config->varlibdir);
     if (do_chown(filename, config->user) == false) {
         sdsfree(filename);
         return false;
     }
-    filename = sdscatfmt(sdsempty(), "%s/ssl/server.key", config->varlibdir);
+    filename = sdscrop(filename);
+    filename = sdscatfmt(filename, "%s/ssl/server.key", config->varlibdir);
     if (do_chown(filename, config->user) == false) {
         sdsfree(filename);
         return false;
@@ -173,13 +177,13 @@ int main(int argc, char **argv) {
     
     if (argc >= 2) {
         if (strncmp(argv[1], "/", 1) == 0) {
-            configfile = sdscat(sdsempty(), argv[1]);
+            configfile = sdsreplace(configfile, argv[1]);
             if (argc == 3) {
-                option = sdscat(sdsempty(), argv[2]);
+                option = sdsreplace(option, argv[2]);
             }
         }
         else {
-            option = sdscat(sdsempty(), argv[1]);
+            option = sdsreplace(option, argv[1]);
         }
     }
 
@@ -237,7 +241,8 @@ int main(int argc, char **argv) {
 
     //check for ssl certificates
     if (config->ssl == true && config->custom_cert == false) {
-        testdirname = sdscatfmt(sdsempty(), "%s/ssl", config->varlibdir);
+        testdirname = sdscrop(testdirname);
+        testdirname = sdscatfmt(testdirname, "%s/ssl", config->varlibdir);
         testdir_rc = testdir("SSL certificates", testdirname, true);
         if (testdir_rc < 2) {
             //chown to mympd user if root
@@ -318,7 +323,8 @@ int main(int argc, char **argv) {
     }
     #endif
 
-    testdirname = sdscatfmt(sdsempty(), "%s/smartpls", config->varlibdir);
+    testdirname = sdscrop(testdirname);
+    testdirname = sdscatfmt(testdirname, "%s/smartpls", config->varlibdir);
     testdir_rc = testdir("Smartpls dir", testdirname, true);
     if (testdir_rc == 1) {
         //directory created, create default smart playlists
@@ -328,27 +334,31 @@ int main(int argc, char **argv) {
         goto cleanup;
     }
 
-    testdirname = sdscatfmt(sdsempty(), "%s/state", config->varlibdir);
+    testdirname = sdscrop(testdirname);
+    testdirname = sdscatfmt(testdirname, "%s/state", config->varlibdir);
     testdir_rc = testdir("State dir", testdirname, true);
     if (testdir_rc > 1) {
         goto cleanup;
     }
     
-    testdirname = sdscatfmt(sdsempty(), "%s/pics", config->varlibdir);
+    testdirname = sdscrop(testdirname);
+    testdirname = sdscatfmt(testdirname, "%s/pics", config->varlibdir);
     testdir_rc = testdir("Pics dir", testdirname, true);
     if (testdir_rc > 1) {
         goto cleanup;
     }
     
     //create empty document_root
-    testdirname = sdscatfmt(sdsempty(), "%s/empty", config->varlibdir);
+    testdirname = sdscrop(testdirname);
+    testdirname = sdscatfmt(testdirname, "%s/empty", config->varlibdir);
     testdir_rc = testdir("Empty dir", testdirname, true);
     if (testdir_rc > 1) {
         goto cleanup;
     }
     
     if (config->plugins_coverextract == true) {
-        testdirname = sdscatfmt(sdsempty(), "%s/covercache", config->varlibdir);
+        testdirname = sdscrop(testdirname);
+        testdirname = sdscatfmt(testdirname, "%s/covercache", config->varlibdir);
         testdir_rc = testdir("Covercache dir", testdirname, true);
         if (testdir_rc > 1) {
             goto cleanup;

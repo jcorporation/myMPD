@@ -33,11 +33,13 @@
 #include <ctype.h>
 
 #include "../dist/src/sds/sds.h"
+#include "sds_extras.h"
 #include "log.h"
 #include "utility.h"
 
 sds jsonrpc_start_notify(sds buffer, const char *method) {
-    buffer = sdscatfmt(sdsempty(), "{\"jsonrpc\":\"2.0\",\"method\":");
+    buffer = sdscrop(buffer);
+    buffer = sdscatfmt(buffer, "{\"jsonrpc\":\"2.0\",\"method\":");
     buffer = sdscatjson(buffer, method, strlen(method)); /* Flawfinder: ignore */
     buffer = sdscat(buffer, ",\"params\":{");
     return buffer;
@@ -49,7 +51,8 @@ sds jsonrpc_end_notify(sds buffer) {
 }
 
 sds jsonrpc_start_result(sds buffer, const char *method, int id) {
-    buffer = sdscatprintf(sdsempty(), "{\"jsonrpc\":\"2.0\",\"id\":%d,\"result\":{\"method\":", id);
+    buffer = sdscrop(buffer);
+    buffer = sdscatprintf(buffer, "{\"jsonrpc\":\"2.0\",\"id\":%d,\"result\":{\"method\":", id);
     buffer = sdscatjson(buffer, method, strlen(method)); /* Flawfinder: ignore */
     buffer = sdscat(buffer, ",\"data\":");
     return buffer;
@@ -61,14 +64,16 @@ sds jsonrpc_end_result(sds buffer) {
 }
 
 sds jsonrpc_respond_ok(sds buffer, const char *method, int id) {
-    buffer = sdscatprintf(sdsempty(), "{\"jsonrpc\":\"2.0\",\"id\":%d,\"result\":{\"method\":", id);
+    buffer = sdscrop(buffer);
+    buffer = sdscatprintf(buffer, "{\"jsonrpc\":\"2.0\",\"id\":%d,\"result\":{\"method\":", id);
     buffer = sdscatjson(buffer, method, strlen(method)); /* Flawfinder: ignore */
     buffer = sdscat(buffer, ",\"message\":\"ok\"}}");
     return buffer;
 }
 
 sds jsonrpc_respond_message(sds buffer, const char *method, int id, const char *message, bool error) {
-    buffer = sdscatprintf(sdsempty(), "{\"jsonrpc\":\"2.0\",\"id\":%d,\"%s\":{\"method\":", 
+    buffer = sdscrop(buffer);
+    buffer = sdscatprintf(buffer, "{\"jsonrpc\":\"2.0\",\"id\":%d,\"%s\":{\"method\":", 
         id, (error == true ? "error" : "result"));
     buffer = sdscatjson(buffer, method, strlen(method)); /* Flawfinder: ignore */
     if (error == true) {
@@ -81,7 +86,8 @@ sds jsonrpc_respond_message(sds buffer, const char *method, int id, const char *
 }
 
 sds jsonrpc_respond_message_notify(sds buffer, const char *message, bool error) {
-    buffer = sdscatfmt(sdsempty(), "{\"jsonrpc\":\"2.0\",\"%s\":{", 
+    buffer = sdscrop(buffer);
+    buffer = sdscatfmt(buffer, "{\"jsonrpc\":\"2.0\",\"%s\":{", 
         (error == true ? "error" : "result"));
     if (error == true) {
         buffer = sdscat(buffer, "\"code\": -32000,");
@@ -93,7 +99,8 @@ sds jsonrpc_respond_message_notify(sds buffer, const char *message, bool error) 
 }
 
 sds jsonrpc_start_phrase(sds buffer, const char *method, int id, const char *message, bool error) {
-    buffer = sdscatprintf(sdsempty(), "{\"jsonrpc\":\"2.0\",\"id\":%d,\"%s\":{\"method\":", 
+    buffer = sdscrop(buffer);
+    buffer = sdscatprintf(buffer, "{\"jsonrpc\":\"2.0\",\"id\":%d,\"%s\":{\"method\":", 
         id, (error == true ? "error" : "result"));
     buffer = sdscatjson(buffer, method, strlen(method)); /* Flawfinder: ignore */
     if (error == true) {
@@ -111,7 +118,8 @@ sds jsonrpc_end_phrase(sds buffer) {
 }
 
 sds jsonrpc_start_phrase_notify(sds buffer, const char *message, bool error) {
-    buffer = sdscatfmt(sdsempty(), "{\"jsonrpc\":\"2.0\",\"%s\":{", 
+    buffer = sdscrop(buffer);
+    buffer = sdscatfmt(buffer, "{\"jsonrpc\":\"2.0\",\"%s\":{", 
         (error == true ? "error" : "result"));
     if (error == true) {
         buffer = sdscat(buffer, "\"code\": -32000,");
@@ -138,33 +146,6 @@ sds tojson_char_len(sds buffer, const char *key, const char *value, size_t len, 
         buffer = sdscat(buffer, ",");
     }
     return buffer;
-}
-
-sds sdscatjson(sds s, const char *p, size_t len) {
-    s = sdscatlen(s,"\"",1);
-    while(len--) {
-        switch(*p) {
-        case '\\':
-        case '"':
-            s = sdscatprintf(s,"\\%c",*p);
-            break;
-        case '\n': s = sdscatlen(s,"\\n",2);     break;
-        case '\r': s = sdscatlen(s,"\\r",2);     break;
-        case '\t': s = sdscatlen(s,"\\t",2);     break;
-        case '\a': s = sdscatlen(s,"\\a",2);     break;
-        case '\b': s = sdscatlen(s,"\\b",2);     break;
-        // Escape < to prevent script execution
-        case '<' : s = sdscatlen(s,"\\u003C",6); break;
-        default:
-            if (isprint(*p))
-                s = sdscatprintf(s,"%c",*p);
-            else
-                s = sdscatprintf(s,"\\u%04X",(unsigned char)*p);
-            break;
-        }
-        p++;
-    }
-    return sdscatlen(s,"\"",1);
 }
 
 sds tojson_bool(sds buffer, const char *key, bool value, bool comma) {
@@ -240,41 +221,4 @@ int replacechar(char *str, const char orig, const char rep) {
         n++;
     }
     return n;
-}
-
-
-sds sdsurldecode(sds s, const char *p, size_t len, int is_form_url_encoded) {
-    size_t i;
-    int a, b;
-#define HEXTOI(x) (isdigit(x) ? x - '0' : x - 'W')
-
-    for (i = 0; i < len; i++) {
-        switch(*p) {
-        case '%':
-            if (i < len - 2 && isxdigit(*(const unsigned char *) (p + 1)) &&
-                isxdigit(*(const unsigned char *) (p + 2)))
-            {
-                a = tolower(*(const unsigned char *) (p + 1));
-                b = tolower(*(const unsigned char *) (p + 2));
-                s = sdscatprintf(s, "%c", (char) ((HEXTOI(a) << 4) | HEXTOI(b)));
-                i += 2;
-                p += 2;
-            } 
-            else {
-                s = sdscat(sdsempty(), "");
-                return s;
-            }
-            break;
-        case '+':
-            if (is_form_url_encoded == 1) {
-                s = sdscatlen(s, " ", 1);
-                break;
-            }
-            //fall through
-        default:
-            s = sdscatlen(s, p, 1);
-        }
-        p++;
-    }
-    return s;
 }

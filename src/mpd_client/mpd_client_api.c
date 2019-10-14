@@ -30,6 +30,7 @@
 #include <mpd/client.h>
 
 #include "../../dist/src/sds/sds.h"
+#include "../sds_extras.h"
 #include "../dist/src/frozen/frozen.h"
 #include "../utility.h"
 #include "../api.h"
@@ -61,7 +62,7 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
     char *p_charbuf3 = NULL;
     char *p_charbuf4 = NULL;
 
-    LOG_VERBOSE("MPD CLIENT API request (%d) %s: %s", request->conn_id, request->method, request->data);
+    LOG_VERBOSE("MPD CLIENT API request (%d)(%d) %s: %s", request->conn_id, request->id, request->method, request->data);
     //create response struct
     t_work_result *response = (t_work_result*)malloc(sizeof(t_work_result));
     assert(response);
