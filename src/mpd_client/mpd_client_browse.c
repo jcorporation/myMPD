@@ -203,7 +203,7 @@ sds mpd_client_put_filesystem(t_config *config, t_mpd_state *mpd_state, sds buff
                             }
                             sdsfree(smartpls_file);
                         }
-                        buffer = sdscatfmt(buffer, "{\"Type\": \"%s\"", (smartpls == true ? "smartpls" : "plist"));
+                        buffer = sdscatfmt(buffer, "{\"Type\": \"%s\",", (smartpls == true ? "smartpls" : "plist"));
                         buffer = tojson_char(buffer, "uri", entityName, true);
                         buffer = tojson_char(buffer, "name", plName, false);
                         buffer = sdscat(buffer, "}");

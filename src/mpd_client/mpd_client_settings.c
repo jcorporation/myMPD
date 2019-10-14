@@ -184,6 +184,7 @@ bool mpd_api_settings_set(t_config *config, t_mpd_state *mpd_state, struct json_
     }
     else if (strncmp(key->ptr, "replaygain", key->len) == 0) {
         rc = mpd_send_command(mpd_state->conn, "replay_gain_mode", settingvalue, NULL);
+        mpd_response_finish(mpd_state->conn);
     }    
 
     sdsfree(settingvalue);

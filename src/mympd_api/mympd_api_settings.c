@@ -136,9 +136,10 @@ bool mympd_api_cols_save(t_config *config, t_mympd_state *mympd_state, const cha
 
 bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state, struct json_token *key, struct json_token *val) {
     sds settingname = sdsempty();
-    sds settingvalue = sdscatlen(sdsempty(), key->ptr, key->len);
+    sds settingvalue = sdscatlen(sdsempty(), val->ptr, val->len);
     char *crap;
-    
+
+    LOG_DEBUG("Parse setting %.*s: %.*s", key->len, key->ptr, val->len, val->ptr);    
     if (strncmp(key->ptr, "notificationWeb", key->len) == 0) {
         mympd_state->notification_web = val->type == JSON_TYPE_TRUE ? true : false;
         settingname = sdscat(settingname, "notification_web");
@@ -411,7 +412,7 @@ bool state_file_write(t_config *config, const char *name, const char *value) {
         return false;
     }
     FILE *fp = fdopen(fd, "w");
-    fprintf(fp, "%s", value);
+    fputs(value, fp);
     fclose(fp);
     sds cfg_file = sdscatfmt(sdsempty(), "%s/state/%s", config->varlibdir, name);
     if (rename(tmp_file, cfg_file) == -1) {

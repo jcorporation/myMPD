@@ -26,11 +26,11 @@
 #define __UTILITY_H__
 sds jsonrpc_start_notify(sds buffer, const char *method);
 sds jsonrpc_end_notify(sds buffer);
+sds jsonrpc_notify(sds buffer, const char *method);
 sds jsonrpc_start_result(sds buffer, const char *method, int id);
 sds jsonrpc_end_result(sds buffer);
 sds jsonrpc_respond_ok(sds buffer, const char *method, int id);
 sds jsonrpc_respond_message(sds buffer, const char *method, int id, const char *message, bool error);
-sds jsonrpc_respond_message_notify(sds buffer, const char *message, bool error);
 sds jsonrpc_start_phrase(sds buffer, const char *method, int id, const char *message, bool error);
 sds jsonrpc_start_phrase_notify(sds buffer, const char *message, bool error);
 sds jsonrpc_end_phrase(sds buffer);

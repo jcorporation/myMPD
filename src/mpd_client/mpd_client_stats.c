@@ -161,7 +161,7 @@ bool mpd_client_last_played_list(t_config *config, t_mpd_state *mpd_state, const
                 return true;
             }
             else {
-                list_insert(&mpd_state->last_played, uri, time(NULL), sdsempty());
+                list_insert(&mpd_state->last_played, uri, time(NULL), NULL);
             }
             mpd_state->last_last_played_id = song_id;
             mpd_song_free(song);
@@ -170,7 +170,7 @@ bool mpd_client_last_played_list(t_config *config, t_mpd_state *mpd_state, const
                 mpd_client_last_played_list_save(config, mpd_state);
             }
             //notify clients
-            sds buffer = jsonrpc_respond_message_notify(sdsempty(), "update_lastplayed", false);
+            sds buffer = jsonrpc_notify(sdsempty(), "update_lastplayed");
             mpd_client_notify(buffer);
             sdsfree(buffer);
         } else {
@@ -189,8 +189,10 @@ bool mpd_client_last_played_song_uri(t_mpd_state *mpd_state, const char *uri) {
     LOG_VERBOSE("Setting sticker: \"%s\" -> lastPlayed: %s", uri, value_str);
     if (!mpd_run_sticker_set(mpd_state->conn, "song", uri, "lastPlayed", value_str)) {
         check_error_and_recover(mpd_state, NULL, NULL, 0);
+        sdsfree(value_str);
         return false;
     }
+    sdsfree(value_str);
     return true;
 }
 
@@ -203,8 +205,10 @@ bool mpd_client_last_skipped_song_uri(t_mpd_state *mpd_state, const char *uri) {
     LOG_VERBOSE("Setting sticker: \"%s\" -> lastSkipped: %s", uri, value_str);
     if (!mpd_run_sticker_set(mpd_state->conn, "song", uri, "lastSkipped", value_str)) {
         check_error_and_recover(mpd_state, NULL, NULL, 0);
+        sdsfree(value_str);
         return false;
     }
+    sdsfree(value_str);
     return true;
 }
 

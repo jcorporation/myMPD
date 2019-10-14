@@ -155,7 +155,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             }
             else {
                 data = jsonrpc_start_phrase(data, request->method, request->id, "Can't save setting %{setting}", true);
-                data = tojson_char_len(data, "setting", val.ptr, val.len, false);
+                data = tojson_char_len(data, "setting", key.ptr, key.len, false);
                 data = jsonrpc_end_phrase(data);
             }
             break;

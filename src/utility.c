@@ -46,7 +46,15 @@ sds jsonrpc_start_notify(sds buffer, const char *method) {
 }
 
 sds jsonrpc_end_notify(sds buffer) {
-    buffer = sdscatfmt(buffer, "}}");
+    buffer = sdscat(buffer, "}}");
+    return buffer;
+}
+
+sds jsonrpc_notify(sds buffer, const char *method) {
+    buffer = sdscrop(buffer);
+    buffer = sdscatfmt(buffer, "{\"jsonrpc\":\"2.0\",\"method\":");
+    buffer = sdscatjson(buffer, method, strlen(method)); /* Flawfinder: ignore */
+    buffer = sdscat(buffer, ",\"params\":{}}");
     return buffer;
 }
 
@@ -80,19 +88,6 @@ sds jsonrpc_respond_message(sds buffer, const char *method, int id, const char *
         buffer = sdscat(buffer, ",\"code\": -32000");
     }
     buffer = sdscat(buffer, ",\"message\":");
-    buffer = sdscatjson(buffer, message, strlen(message)); /* Flawfinder: ignore */
-    buffer = sdscatfmt(buffer, "}}");
-    return buffer;
-}
-
-sds jsonrpc_respond_message_notify(sds buffer, const char *message, bool error) {
-    buffer = sdscrop(buffer);
-    buffer = sdscatfmt(buffer, "{\"jsonrpc\":\"2.0\",\"%s\":{", 
-        (error == true ? "error" : "result"));
-    if (error == true) {
-        buffer = sdscat(buffer, "\"code\": -32000,");
-    }
-    buffer = sdscat(buffer, "\"message\":");
     buffer = sdscatjson(buffer, message, strlen(message)); /* Flawfinder: ignore */
     buffer = sdscatfmt(buffer, "}}");
     return buffer;

@@ -84,7 +84,9 @@ sds check_error_and_recover_notify(t_mpd_state *mpd_state, sds buffer) {
     if (mpd_connection_get_error(mpd_state->conn) != MPD_ERROR_SUCCESS) {
         LOG_ERROR("MPD error: %s", mpd_connection_get_error_message(mpd_state->conn));
         if (buffer != NULL) {
-            buffer = jsonrpc_respond_message_notify(buffer, mpd_connection_get_error_message(mpd_state->conn), true);
+            buffer = jsonrpc_start_notify(buffer, "error");
+            buffer = tojson_char(buffer, "message", mpd_connection_get_error_message(mpd_state->conn), false);
+            buffer = jsonrpc_end_notify(buffer);
         }
         if (!mpd_connection_clear_error(mpd_state->conn)) {
             mpd_state->conn_state = MPD_FAILURE;
