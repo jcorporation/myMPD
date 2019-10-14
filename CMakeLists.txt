@@ -116,6 +116,7 @@ set(SOURCES
     src/handle_options.c
     src/utility.c
     src/plugins.c
+    src/sds_extras.c
     src/web_server.c
     src/mpd_client.c
     src/mpd_client/mpd_client_api.c
