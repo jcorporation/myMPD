@@ -38,7 +38,9 @@ RUN apt-get update \
   && apt-get install -y --no-install-recommends openssl libmediainfo0v5 \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
+# hadolint ignore=DL3010
 COPY --from=build /libmpdclient-master.tar.gz /
+# hadolint ignore=DL3010
 COPY --from=build /mympd.tar.gz /
 WORKDIR /
 RUN tar -xzvf libmpdclient-master.tar.gz -C /
