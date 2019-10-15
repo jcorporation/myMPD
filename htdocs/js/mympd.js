@@ -4654,15 +4654,12 @@ function logDebug(line) {
 function logLog(loglevel, line) {
     if (settings.loglevel >= loglevel) {
         if (loglevel == 0) {
-            // eslint-disable-next-line no-console
             console.error(line);
         }
         else if (loglevel == 1) {
-            // eslint-disable-next-line no-console
             console.warn(line);
         }
         else {
-            // eslint-disable-next-line no-console
             console.log(line);
         }
     }
