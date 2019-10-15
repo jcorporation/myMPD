@@ -44,7 +44,7 @@ static bool load_certificate(sds key_file, EVP_PKEY **key, sds cert_file, X509 *
 
 //public functions
 
-bool create_certificates(const char *dir, const char *custom_san) {
+bool create_certificates(sds dir, sds custom_san) {
     bool rc_ca = false;
     bool rc_cert = false;
     
@@ -80,7 +80,6 @@ bool create_certificates(const char *dir, const char *custom_san) {
     sdsfree(cacert_file);
     sdsfree(cakey_file);
 
-    
     //read server certificate / privat key or create it
     sds servercert_file = sdscatfmt(sdsempty(), "%s/server.pem", dir);
     sds serverkey_file = sdscatfmt(sdsempty(), "%s/server.key", dir);
@@ -92,7 +91,9 @@ bool create_certificates(const char *dir, const char *custom_san) {
         //get subject alternative names
         sds san = sdsempty();
         san = get_san(san);
-        san = sdscatfmt(san, ", %s", custom_san);
+        if (sdslen(custom_san) > 0) {
+            san = sdscatfmt(san, ", %s", custom_san);
+        }
         LOG_INFO("Creating server certificate with san: %s", san);
         server_key = generate_keypair();
         if (!server_key) {
@@ -203,8 +204,8 @@ static bool load_certificate(sds key_file, EVP_PKEY **key, sds cert_file, X509 *
 
 /*Gets local hostname and ip for subject alternative names */
 static sds get_san(sds buffer) {
-    buffer = sdscatfmt(buffer, "DNS:localhost, IP:127.0.0.1");
-  
+    buffer = sdscatfmt(buffer, "DNS:localhost, IP:127.0.0.1, IP:::1");
+
     //Retrieve short hostname 
     char hostbuffer[256]; /* Flawfinder: ignore */
     int hostname = gethostname(hostbuffer, sizeof(hostbuffer)); 
@@ -213,27 +214,43 @@ static sds get_san(sds buffer) {
     }
     buffer = sdscatfmt(buffer, ", DNS:%s", hostbuffer);
 
-    //Retrieve fqdn
+    //Retrieve fqdn and ips
     struct addrinfo hints={0};
     hints.ai_family=AF_UNSPEC;
     hints.ai_flags=AI_CANONNAME;
-    struct addrinfo* res=0;
+    struct addrinfo* res = 0;
     if (getaddrinfo(hostbuffer, 0, &hints, &res) == 0) {
         // The hostname was successfully resolved.
         if (strcmp(hostbuffer, res->ai_canonname) != 0) {
             buffer = sdscatfmt(buffer, ", DNS:%s", res->ai_canonname);
         }
+        char addrstr[100];
+        sds old_addrstr = sdsempty();
+        void *ptr = NULL;
+        while (res) {
+            inet_ntop(res->ai_family, res->ai_addr->sa_data, addrstr, 100);
+
+            switch (res->ai_family) {
+                case AF_INET:
+                    ptr = &((struct sockaddr_in *) res->ai_addr)->sin_addr;
+                    break;
+                case AF_INET6:
+                    ptr = &((struct sockaddr_in6 *) res->ai_addr)->sin6_addr;
+                    break;
+            }
+            if (ptr != NULL) {
+                inet_ntop(res->ai_family, ptr, addrstr, 100);
+                if (strcmp(old_addrstr, addrstr) != 0) {
+                    buffer = sdscatfmt(buffer, ", IP:%s", addrstr);
+                    old_addrstr = sdsreplace(old_addrstr, addrstr);
+                }
+            }
+            res = res->ai_next;
+            ptr = NULL;
+        }
         freeaddrinfo(res);
+        sdsfree(old_addrstr);
     }
-  
-    // To retrieve host information 
-    struct hostent *host_entry = gethostbyname(hostbuffer); 
-    if (host_entry != NULL) {  
-        // To convert an Internet network address into ASCII string 
-        char *IPbuffer = inet_ntoa(*((struct in_addr*)host_entry->h_addr_list[0]));
-        buffer = sdscatfmt(buffer, ", IP:%s", IPbuffer);
-    }
-    
     return buffer;
 }
 
