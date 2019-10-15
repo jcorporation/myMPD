@@ -412,11 +412,9 @@ int main(int argc, char **argv) {
     sdsfree(configfile);
     sdsfree(option);
     sdsfree(testdirname);
-    if (init_webserver) {
-        sdsfree(mg_user_data->music_directory);
-        sdsfree(mg_user_data->pics_directory);
-        sdsfree(mg_user_data->rewrite_patterns);
-    }
+    sdsfree(mg_user_data->music_directory);
+    sdsfree(mg_user_data->pics_directory);
+    sdsfree(mg_user_data->rewrite_patterns);
     FREE_PTR(mg_user_data);
     if (rc == EXIT_SUCCESS) {
         printf("Exiting gracefully, thank you for using myMPD\n");
