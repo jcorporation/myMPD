@@ -146,6 +146,7 @@ buildrelease() {
   then
     echo "\"use strict\";" > dist/htdocs/js/combined.js
     # shellcheck disable=SC2086
+    # shellcheck disable=SC2002
     cat $JSFILES | grep -v "\"use strict\";" >> dist/htdocs/js/combined.js
     $GZIPBIN -f -v -9 dist/htdocs/js/combined.js
     ASSETSCHANGED=1
