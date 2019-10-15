@@ -4,10 +4,10 @@
 
 | Version | Supported          |
 | ------- | ------------------ |
-| Master   | :white_check_mark: |
+| Master  | :white_check_mark: |
 | Latest Release   | :white_check_mark:                |
 
 
 ## Reporting a Vulnerability
-
-Mail me at mail@jcgames.de or open an issue.
+- Open an issue: https://github.com/jcorporation/myMPD/issues
+- Mail to me:  <mail@jcgames.de>

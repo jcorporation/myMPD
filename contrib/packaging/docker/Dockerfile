@@ -1,3 +1,8 @@
+#
+# SPDX-License-Identifier: GPL-2.0-or-later
+# myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+# https://github.com/jcorporation/mympd
+#
 FROM library/debian:9 as build
 RUN apt-get update \
   && apt-get install -y --no-install-recommends build-essential git \

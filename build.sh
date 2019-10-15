@@ -1,4 +1,9 @@
 #!/bin/sh
+#
+# SPDX-License-Identifier: GPL-2.0-or-later
+# myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+# https://github.com/jcorporation/mympd
+#
 
 STARTPATH=$(pwd)
 
@@ -139,8 +144,9 @@ buildrelease() {
   # shellcheck disable=SC2086
   if newer_s dist/htdocs/js/combined.js.gz $JSFILES
   then
+    echo "\"use strict\";" > dist/htdocs/js/combined.js
     # shellcheck disable=SC2086
-    cat $JSFILES > dist/htdocs/js/combined.js
+    cat $JSFILES | grep -v "\"use strict\";" >> dist/htdocs/js/combined.js
     $GZIPBIN -f -v -9 dist/htdocs/js/combined.js
     ASSETSCHANGED=1
   else
