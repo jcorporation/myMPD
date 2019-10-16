@@ -1652,7 +1652,7 @@ function t(phrase, number, data) {
         result = phrases[phrase][locale];
         if (result == undefined) {
             if (locale != 'en-US') {
-                logDebug('Phrase "' + phrase + '" for locale ' + locale + ' not found');
+                logWarn('Phrase "' + phrase + '" for locale ' + locale + ' not found');
             }
             result = phrases[phrase]['en-US'];
         }
@@ -1675,7 +1675,7 @@ function t(phrase, number, data) {
         });
     }
     
-    return result;
+    return e(result);
 }
 
 function i18nHtml(root) {
