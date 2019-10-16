@@ -191,9 +191,10 @@ static bool check_ssl_certs(t_config *config, uid_t startup_uid) {
 }
 
 static bool check_dirs(t_config *config) {
+    int testdir_rc;
     #ifdef DEBUG
     //release uses empty document root and delivers embedded files
-    int testdir_rc = testdir("Document root", DOC_ROOT, false);
+    testdir_rc = testdir("Document root", DOC_ROOT, false);
     if (testdir_rc > 1) {
         return false;
     }
