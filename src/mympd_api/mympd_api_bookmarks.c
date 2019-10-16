@@ -8,7 +8,6 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include <pthread.h>
 #include <stdbool.h>
 
 #include "../../dist/src/sds/sds.h"

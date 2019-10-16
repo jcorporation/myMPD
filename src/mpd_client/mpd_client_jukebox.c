@@ -7,7 +7,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <pthread.h>
 #include <mpd/client.h>
 
 #include "../../dist/src/sds/sds.h"

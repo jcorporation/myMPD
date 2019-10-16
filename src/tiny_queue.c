@@ -7,9 +7,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include <pthread.h>
 #include <asm/errno.h>
 #include <assert.h>
+#include <pthread.h>
 
 #include "tiny_queue.h"
 

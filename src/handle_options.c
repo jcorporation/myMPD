@@ -11,7 +11,6 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/time.h>
-#include <pthread.h>
 #include <dirent.h>
 #include <stdbool.h>
 

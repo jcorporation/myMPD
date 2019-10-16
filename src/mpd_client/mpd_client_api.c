@@ -7,7 +7,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <pthread.h>
 #include <signal.h>
 #include <assert.h>
 #include <mpd/client.h>

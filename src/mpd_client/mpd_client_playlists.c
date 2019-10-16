@@ -10,7 +10,6 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <dirent.h>
-#include <pthread.h>
 #include <mpd/client.h>
 #include <inttypes.h>
 #include <ctype.h>

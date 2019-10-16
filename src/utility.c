@@ -10,7 +10,6 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <dirent.h>
-#include <pthread.h>
 #include <sys/stat.h>
 #include <ctype.h>
 

@@ -13,9 +13,6 @@
 #include <libgen.h>
 #include <dirent.h>
 #include <stdbool.h>
-#include <pthread.h>
-#include <signal.h>
-#include <assert.h>
 #include <inttypes.h>
 
 #include "../../dist/src/sds/sds.h"
