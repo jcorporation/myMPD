@@ -186,7 +186,6 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
         p_config->bg_color = sdsreplace(p_config->bg_color, value);
     }
     else if (MATCH("theme", "bgcssfilter")) {
-        FREE_PTR(p_config->bg_css_filter);
         p_config->bg_css_filter = sdsreplace(p_config->bg_css_filter, value);
     }
     else if (MATCH("theme", "coverimage")) {
