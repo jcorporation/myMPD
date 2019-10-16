@@ -117,10 +117,139 @@ static bool chown_certs(t_config *config) {
     return true;
 }
 
+static bool drop_privileges(t_config *config, uid_t startup_uid) {
+    if (startup_uid == 0) {
+        if (sdslen(config->user) > 0) {
+            LOG_INFO("Droping privileges to %s", config->user);
+            struct passwd *pw;
+            if ((pw = getpwnam(config->user)) == NULL) {
+                LOG_ERROR("getpwnam() failed, unknown user");
+                return false;
+            }
+            else if (setgroups(0, NULL) != 0) { 
+                LOG_ERROR("setgroups() failed");
+                return false;
+            }
+            else if (setgid(pw->pw_gid) != 0) {
+                LOG_ERROR("setgid() failed");
+                return false;
+            }
+            if (config->chroot == true) {
+                LOG_INFO("Chroot to %s", config->varlibdir);
+                if (do_chroot(config) == false) {
+                    LOG_ERROR("Chroot to %s failed", config->varlibdir);
+                    return false;
+                }
+            }
+            if (setuid(pw->pw_uid) != 0) {
+                LOG_ERROR("setuid() failed");
+                return false;
+            }
+        }
+        
+    }
+    //check if not root
+    if (getuid() == 0) {
+        LOG_ERROR("myMPD should not be run with root privileges");
+        return false;
+    }
+    return true;
+}
+
+static bool check_ssl_certs(t_config *config, uid_t startup_uid) {
+    if (config->ssl == true && config->custom_cert == false) {
+        sds testdirname = sdscatfmt(sdsempty(), "%s/ssl", config->varlibdir);
+        int testdir_rc = testdir("SSL certificates", testdirname, true);
+        if (testdir_rc < 2) {
+            //chown to mympd user if root
+            if (startup_uid == 0) {
+                if (do_chown(testdirname, config->user) == false) {
+                    sdsfree(testdirname);
+                    return false;
+                }
+            }
+            //directory created, create certificates
+            if (!create_certificates(testdirname, config->ssl_san)) {
+                //error creating certificates
+                LOG_ERROR("Certificate creation failed");
+                sdsfree(testdirname);
+                return false;
+            }
+            sdsfree(testdirname);
+            //chown to mympd user if root
+            if (startup_uid == 0) {
+                if (chown_certs(config)== false) {
+                    return false;
+                }
+            }
+        }
+        else {
+            return false;
+        }
+    }
+    return true;
+}
+
+static bool check_dirs(t_config *config) {
+    #ifdef DEBUG
+    //release uses empty document root and delivers embedded files
+    int testdir_rc = testdir("Document root", DOC_ROOT, false);
+    if (testdir_rc > 1) {
+        return false;
+    }
+    #endif
+
+    sds testdirname = sdscatfmt(sdsempty(), "%s/smartpls", config->varlibdir);
+    testdir_rc = testdir("Smartpls dir", testdirname, true);
+    if (testdir_rc == 1) {
+        //directory created, create default smart playlists
+        smartpls_default(config);
+    }
+    else if (testdir_rc > 1) {
+        sdsfree(testdirname);
+        return false;
+    }
+
+    testdirname = sdscrop(testdirname);
+    testdirname = sdscatfmt(testdirname, "%s/state", config->varlibdir);
+    testdir_rc = testdir("State dir", testdirname, true);
+    if (testdir_rc > 1) {
+        sdsfree(testdirname);
+        return false;
+    }
+    
+    testdirname = sdscrop(testdirname);
+    testdirname = sdscatfmt(testdirname, "%s/pics", config->varlibdir);
+    testdir_rc = testdir("Pics dir", testdirname, true);
+    if (testdir_rc > 1) {
+        sdsfree(testdirname);
+        return false;
+    }
+    
+    //create empty document_root
+    testdirname = sdscrop(testdirname);
+    testdirname = sdscatfmt(testdirname, "%s/empty", config->varlibdir);
+    testdir_rc = testdir("Empty dir", testdirname, true);
+    if (testdir_rc > 1) {
+        sdsfree(testdirname);
+        return false;
+    }
+    
+    if (config->plugins_coverextract == true) {
+        testdirname = sdscrop(testdirname);
+        testdirname = sdscatfmt(testdirname, "%s/covercache", config->varlibdir);
+        testdir_rc = testdir("Covercache dir", testdirname, true);
+        if (testdir_rc > 1) {
+            sdsfree(testdirname);
+            return false;
+        }
+    }
+    sdsfree(testdirname);
+    return true;
+}
+
 int main(int argc, char **argv) {
     s_signal_received = 0;
-    sds testdirname = sdsempty();
-    int testdir_rc = 0;
     bool init_webserver = false;
     bool init_thread_webserver = false;
     bool init_thread_mpdclient = false;
@@ -188,7 +317,7 @@ int main(int argc, char **argv) {
     #endif
 
     //check varlibdir
-    testdir_rc = testdir("Localstate dir", config->varlibdir, true);
+    int testdir_rc = testdir("Localstate dir", config->varlibdir, true);
     if (testdir_rc < 2) {
         //directory exists or was created, set user and group if I am root
         if (startup_uid == 0) {
@@ -225,35 +354,10 @@ int main(int argc, char **argv) {
     setvbuf(stderr, NULL, _IOLBF, 0);
 
     //check for ssl certificates
-    if (config->ssl == true && config->custom_cert == false) {
-        testdirname = sdscrop(testdirname);
-        testdirname = sdscatfmt(testdirname, "%s/ssl", config->varlibdir);
-        testdir_rc = testdir("SSL certificates", testdirname, true);
-        if (testdir_rc < 2) {
-            //chown to mympd user if root
-            if (startup_uid == 0) {
-                if (do_chown(testdirname, config->user) == false) {
-                    goto cleanup;
-                }
-            }
-            //directory created, create certificates
-            if (!create_certificates(testdirname, config->ssl_san)) {
-                //error creating certificates
-                LOG_ERROR("Certificate creation failed");
-                goto cleanup;
-            }
-            //chown to mympd user if root
-            if (startup_uid == 0) {
-                if (chown_certs(config)== false) {
-                    goto cleanup;
-                }
-            }
-        }
-        else {
-            goto cleanup;
-        }
-    }  
-    
+    if (check_ssl_certs(config, startup_uid) == false) {
+        goto cleanup;
+    }
+
     //init webserver    
     struct mg_mgr mgr;
     if (!web_server_init(&mgr, config, mg_user_data)) {
@@ -264,90 +368,13 @@ int main(int argc, char **argv) {
     }
 
     //drop privileges
-    if (startup_uid == 0) {
-        if (config->user != NULL || sdslen(config->user) != 0) {
-            LOG_INFO("Droping privileges to %s", config->user);
-            struct passwd *pw;
-            if ((pw = getpwnam(config->user)) == NULL) {
-                LOG_ERROR("getpwnam() failed, unknown user");
-                goto cleanup;
-            }
-            else if (setgroups(0, NULL) != 0) { 
-                LOG_ERROR("setgroups() failed");
-                goto cleanup;
-            }
-            else if (setgid(pw->pw_gid) != 0) {
-                LOG_ERROR("setgid() failed");
-                goto cleanup;
-            }
-            if (config->chroot == true) {
-                LOG_INFO("Chroot to %s", config->varlibdir);
-                if (do_chroot(config) == false) {
-                    LOG_ERROR("Chroot to %s failed", config->varlibdir);
-                    goto cleanup;
-                }
-            }
-            if (setuid(pw->pw_uid) != 0) {
-                LOG_ERROR("setuid() failed");
-                goto cleanup;
-            }
-        }
-    }
-    //check if not root
-    if (getuid() == 0) {
-        LOG_ERROR("myMPD should not be run with root privileges");
+    if (drop_privileges(config, startup_uid) == false) {
         goto cleanup;
     }
 
     //check for needed directories
-    #ifdef DEBUG
-    //release uses empty document root and delivers embedded files
-    testdir_rc = testdir("Document root", DOC_ROOT, false);
-    if (testdir_rc > 1) {
+    if (check_dirs(config) == false) {
         goto cleanup;
-    }
-    #endif
-
-    testdirname = sdscrop(testdirname);
-    testdirname = sdscatfmt(testdirname, "%s/smartpls", config->varlibdir);
-    testdir_rc = testdir("Smartpls dir", testdirname, true);
-    if (testdir_rc == 1) {
-        //directory created, create default smart playlists
-        smartpls_default(config);
-    }
-    else if (testdir_rc > 1) {
-        goto cleanup;
-    }
-
-    testdirname = sdscrop(testdirname);
-    testdirname = sdscatfmt(testdirname, "%s/state", config->varlibdir);
-    testdir_rc = testdir("State dir", testdirname, true);
-    if (testdir_rc > 1) {
-        goto cleanup;
-    }
-    
-    testdirname = sdscrop(testdirname);
-    testdirname = sdscatfmt(testdirname, "%s/pics", config->varlibdir);
-    testdir_rc = testdir("Pics dir", testdirname, true);
-    if (testdir_rc > 1) {
-        goto cleanup;
-    }
-    
-    //create empty document_root
-    testdirname = sdscrop(testdirname);
-    testdirname = sdscatfmt(testdirname, "%s/empty", config->varlibdir);
-    testdir_rc = testdir("Empty dir", testdirname, true);
-    if (testdir_rc > 1) {
-        goto cleanup;
-    }
-    
-    if (config->plugins_coverextract == true) {
-        testdirname = sdscrop(testdirname);
-        testdirname = sdscatfmt(testdirname, "%s/covercache", config->varlibdir);
-        testdir_rc = testdir("Covercache dir", testdirname, true);
-        if (testdir_rc > 1) {
-            goto cleanup;
-        }
     }
 
     //Create working threads
@@ -389,19 +416,19 @@ int main(int argc, char **argv) {
 
     //Try to cleanup all
     cleanup:
-    if (init_thread_mpdclient) {
+    if (init_thread_mpdclient == true) {
         pthread_join(mpd_client_thread, NULL);
         LOG_INFO("Stopping mpd client thread");
     }
-    if (init_thread_webserver) {
+    if (init_thread_webserver == true) {
         pthread_join(web_server_thread, NULL);
         LOG_INFO("Stopping web server thread");
     }
-    if (init_thread_mympdapi) {
+    if (init_thread_mympdapi == true) {
         pthread_join(mympd_api_thread, NULL);
         LOG_INFO("Stopping mympd api thread");
     }
-    if (init_webserver) {
+    if (init_webserver == true) {
         web_server_free(&mgr);
     }
     tiny_queue_free(web_server_queue);
@@ -411,7 +438,6 @@ int main(int argc, char **argv) {
     mympd_free_config(config);
     sdsfree(configfile);
     sdsfree(option);
-    sdsfree(testdirname);
     sdsfree(mg_user_data->music_directory);
     sdsfree(mg_user_data->pics_directory);
     sdsfree(mg_user_data->rewrite_patterns);
