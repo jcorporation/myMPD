@@ -138,6 +138,14 @@ buildrelease() {
   JSSRCFILES="$JSSRCFILES htdocs/js/notification.js htdocs/js/playlists.js htdocs/js/popover.js htdocs/js/queue.js"
   JSSRCFILES="$JSSRCFILES htdocs/js/search.js htdocs/js/settings.js htdocs/js/song.js htdocs/js/state.js htdocs/js/tables.js"
   JSSRCFILES="$JSSRCFILES htdocs/js/utility.js htdocs/js/validate.js"
+  for F in $JSSRCFILES
+  do
+    if tail -1 "$F" | perl -npe 'exit 1 if m/\n/; exit 0'
+    then
+      echo "ERROR: $F don't end with newline character"
+      exit 1
+    fi
+  done
   # shellcheck disable=SC2086
   if newer_s dist/htdocs/js/mympd.js $JSSRCFILES
   then
