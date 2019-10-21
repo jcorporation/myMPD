@@ -22,7 +22,7 @@ function parseOutputs(obj) {
     let btns = '';
     for (let i = 0; i < obj.result.numOutputs; i++) {
         btns += '<button id="btnOutput' + obj.result.data[i].id +'" data-output-id="' + obj.result.data[i].id + '" class="btn btn-secondary btn-block';
-        if (obj.result.data[i].state == 1) {
+        if (obj.result.data[i].state === 1) {
             btns += ' active';
         }
         btns += '"><span class="material-icons float-left">volume_up</span> ' + e(obj.result.data[i].name) + '</button>';
@@ -42,7 +42,7 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
     
     //Set playing track in queue view
     if (lastState) {
-        if (lastState.currentSongId != currentSongId) {
+        if (lastState.currentSongId !== currentSongId) {
             let tr = document.getElementById('queueTrackId' + lastState.currentSongId);
             if (tr) {
                 let durationTd = tr.querySelector('[data-col=Duration]');
@@ -76,7 +76,7 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
     if (progressTimer) {
         clearTimeout(progressTimer);
     }
-    if (playstate == 'play') {
+    if (playstate === 'play') {
         progressTimer = setTimeout(function() {
             currentSong.elapsedTime ++;
             requestAnimationFrame(function() {
@@ -102,19 +102,19 @@ function parseState(obj) {
     setCounter(obj.result.currentSongId, obj.result.totalTime, obj.result.elapsedTime);
     
     //Get current song
-    if (!lastState || lastState.currentSongId != obj.result.currentSongId ||
-        lastState.queueVersion != obj.result.queueVersion)
+    if (!lastState || lastState.currentSongId !== obj.result.currentSongId ||
+        lastState.queueVersion !== obj.result.queueVersion)
     {
         sendAPI("MPD_API_PLAYER_CURRENT_SONG", {}, songChange);
     }
     //clear playback card if not playing
-    if (obj.result.songPos == '-1') {
+    if (obj.result.songPos === '-1') {
         domCache.currentTitle.innerText = 'Not playing';
         document.title = 'myMPD';
         document.getElementById('headerTitle').innerText = '';
         document.getElementById('headerTitle').removeAttribute('title');
         clearCurrentCover();
-        if (settings.bgCover == true) {
+        if (settings.bgCover === true) {
             clearBackgroundImage();
         }
         let pb = document.getElementById('cardPlaybackTags').getElementsByTagName('h4');
@@ -126,20 +126,20 @@ function parseState(obj) {
 
     lastState = obj.result;                    
     
-    if (settings.mpdConnected == false || uiEnabled == false) {
+    if (settings.mpdConnected === false || uiEnabled === false) {
         getSettings(true);
     }
 }
 
 function parseVolume(obj) {
-    if (obj.result.volume == -1) {
+    if (obj.result.volume === -1) {
         domCache.volumePrct.innerText = t('Volumecontrol disabled');
         domCache.volumeControl.classList.add('hide');
     } 
     else {
         domCache.volumeControl.classList.remove('hide');
         domCache.volumePrct.innerText = obj.result.volume + ' %';
-        if (obj.result.volume == 0) {
+        if (obj.result.volume === 0) {
             domCache.volumeMenu.innerText = 'volume_off';
         }
         else if (obj.result.volume < 50) {
@@ -155,7 +155,7 @@ function parseVolume(obj) {
 function setBackgroundImage(imageUrl) {
     let old = document.querySelectorAll('.albumartbg');
     for (let i = 0; i < old.length; i++) {
-        if (old[i].style.zIndex == -10) {
+        if (old[i].style.zIndex === -10) {
             old[i].remove();        
         }
         else {
@@ -180,7 +180,7 @@ function setBackgroundImage(imageUrl) {
 function clearBackgroundImage() {
     let old = document.querySelectorAll('.albumartbg');
     for (let i = 0; i < old.length; i++) {
-        if (old[i].style.zIndex == -10) {
+        if (old[i].style.zIndex === -10) {
             old[i].remove();        
         }
         else {
@@ -193,7 +193,7 @@ function clearBackgroundImage() {
 function setCurrentCover(imageUrl) {
     let old = domCache.currentCover.querySelectorAll('.coverbg');
     for (let i = 0; i < old.length; i++) {
-        if (old[i].style.zIndex == 2) {
+        if (old[i].style.zIndex === 2) {
             old[i].remove();        
         }
         else {
@@ -217,7 +217,7 @@ function setCurrentCover(imageUrl) {
 function clearCurrentCover() {
     let old = domCache.currentCover.querySelectorAll('.coverbg');
     for (let i = 0; i < old.length; i++) {
-        if (old[i].style.zIndex == 2) {
+        if (old[i].style.zIndex === 2) {
             old[i].remove();        
         }
         else {
@@ -229,7 +229,7 @@ function clearCurrentCover() {
 
 function songChange(obj) {
     let curSong = obj.result.uri + ':' + obj.result.currentSongId;
-    if (lastSong == curSong) {
+    if (lastSong === curSong) {
         return;
     }
     let textNotification = '';
@@ -237,7 +237,7 @@ function songChange(obj) {
     let pageTitle = '';
 
     setCurrentCover(obj.result.cover);
-    if (settings.bgCover == true && settings.featCoverimage == true) {
+    if (settings.bgCover === true && settings.featCoverimage === true) {
         if (obj.result.cover.indexOf('coverimage-') > -1 ) {
             clearBackgroundImage();
         }
@@ -246,18 +246,18 @@ function songChange(obj) {
         }
     }
 
-    if (typeof obj.result.Artist != 'undefined' && obj.result.Artist.length > 0 && obj.result.Artist != '-') {
+    if (obj.result.Artist !== undefined && obj.result.Artist.length > 0 && obj.result.Artist !== '-') {
         textNotification += obj.result.Artist;
         htmlNotification += obj.result.Artist;
         pageTitle += obj.result.Artist + ' - ';
     } 
 
-    if (typeof obj.result.Album != 'undefined' && obj.result.Album.length > 0 && obj.result.Album != '-') {
+    if (obj.result.Album !== undefined && obj.result.Album.length > 0 && obj.result.Album !== '-') {
         textNotification += ' - ' + obj.result.Album;
         htmlNotification += '<br/>' + obj.result.Album;
     }
 
-    if (typeof obj.result.Title != 'undefined' && obj.result.Title.length > 0) {
+    if (obj.result.Title !== undefined && obj.result.Title.length > 0) {
         pageTitle += obj.result.Title;
         domCache.currentTitle.innerText = obj.result.Title;
         domCache.currentTitle.setAttribute('data-uri', encodeURI(obj.result.uri));
@@ -270,7 +270,7 @@ function songChange(obj) {
     document.getElementById('headerTitle').innerText = pageTitle;
     document.getElementById('headerTitle').title = pageTitle;
 
-    if (settings.featStickers == true) {
+    if (settings.featStickers === true) {
         setVoteSongBtns(obj.result.like, obj.result.uri);
     }
 
@@ -289,7 +289,7 @@ function songChange(obj) {
         playingTr.getElementsByTagName('td')[1].innerText = obj.result.Title;
     }
 
-    if (playstate == 'play') {
+    if (playstate === 'play') {
         showNotification(obj.result.Title, textNotification, htmlNotification, 'success');
     }
     lastSong = curSong;
@@ -317,7 +317,7 @@ function chVolume(increment) {
 //eslint-disable-next-line no-unused-vars
 function clickTitle() {
     let uri = decodeURI(domCache.currentTitle.getAttribute('data-uri'));
-    if (uri != '') {
+    if (uri !== '') {
         songDetails(uri);
     }
 }

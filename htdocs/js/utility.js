@@ -24,17 +24,17 @@ function doSetFilterLetter(x) {
         af.classList.remove('active');
     }
     let filter = app.current.filter;
-    if (filter == '0') {
+    if (filter === '0') {
         filter = '#';
     }
     
-    document.getElementById(x).innerHTML = '<span class="material-icons">filter_list</span>' + (filter != '-' ? ' ' + filter : '');
+    document.getElementById(x).innerHTML = '<span class="material-icons">filter_list</span>' + (filter !== '-' ? ' ' + filter : '');
     
-    if (filter != '-') {
+    if (filter !== '-') {
         let btns = document.getElementById(x + 'Letters').getElementsByTagName('button');
         let btnsLen = btns.length;
         for (let i = 0; i < btnsLen; i++) {
-            if (btns[i].innerText == filter) {
+            if (btns[i].innerText === filter) {
                 btns[i].classList.add('active');
                 break;
             }
@@ -82,13 +82,15 @@ function selectTag(btnsEl, desc, setTo) {
 
 function addTagList(el, list) {
     let tagList = '';
-    if (list == 'searchtags') {
-        if (settings.featTags == true)
+    if (list === 'searchtags') {
+        if (settings.featTags === true) {
             tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="any">' + t('Any Tag') + '</button>';
+        }
         tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="filename">' + t('Filename') + '</button>';
     }
-    for (let i = 0; i < settings[list].length; i++)
+    for (let i = 0; i < settings[list].length; i++) {
         tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="' + settings[list][i] + '">' + t(settings[list][i]) + '</button>';
+    }
     document.getElementById(el).innerHTML = tagList;
 }
 
@@ -104,10 +106,10 @@ function openDropdown(dropdown) {
 
 //eslint-disable-next-line no-unused-vars
 function focusSearch() {
-    if (app.current.app == 'Queue') {
+    if (app.current.app === 'Queue') {
         document.getElementById('searchqueuestr').focus();
     }
-    else if (app.current.app == 'Search') {
+    else if (app.current.app === 'Search') {
         domCache.searchstr.focus();
     }
     else {
@@ -120,16 +122,16 @@ function toggleBtn(btn, state) {
     if (!b) {
         return;
     }
-    if (state == undefined) {
+    if (state === undefined) {
         //toggle state
         state = b.classList.contains('active') ? false : true;
     }
-    else if (state == 0 || state == 1) {
+    else if (state === 0 || state === 1) {
         //1 = true, 0 = false
-        state = state == 1 ? true : false;
+        state = state === 1 ? true : false;
     }
 
-    if (state == true) {
+    if (state === true) {
         b.classList.add('active');
     }
     else {
@@ -142,16 +144,16 @@ function toggleBtnChk(btn, state) {
     if (!b) {
         return;
     }
-    if (state == undefined) {
+    if (state === undefined) {
         //toggle state
         state = b.classList.contains('active') ? false : true;
     }
-    else if (state == 0 || state == 1) {
+    else if (state === 0 || state === 1) {
         //1 = true, 0 = false
-        state = state == 1 ? true : false;
+        state = state === 1 ? true : false;
     }
 
-    if (state == true) {
+    if (state === true) {
         b.classList.add('active');
         b.innerText = 'check';
     }
@@ -162,9 +164,9 @@ function toggleBtnChk(btn, state) {
 }
 
 function setPagination(total, returned) {
-    let cat = app.current.app + (app.current.tab == undefined ? '': app.current.tab);
+    let cat = app.current.app + (app.current.tab === undefined ? '': app.current.tab);
     let totalPages = Math.ceil(total / settings.maxElementsPerPage);
-    if (totalPages == 0) 
+    if (totalPages === 0) 
         totalPages = 1;
     let p = ['PaginationTop', 'PaginationBottom'];
     for (let i = 0; i < 2; i++) {
@@ -179,7 +181,7 @@ function setPagination(total, returned) {
             document.getElementById(cat + p[i] + 'Pages').innerHTML = pl;
             document.getElementById(cat + p[i] + 'Page').classList.remove('nodropdown');
         }
-        else if (total == -1) {
+        else if (total === -1) {
             document.getElementById(cat + p[i] + 'Page').setAttribute('disabled', 'disabled');
             document.getElementById(cat + p[i] + 'Page').innerText = (app.current.page / settings.maxElementsPerPage + 1);
             document.getElementById(cat + p[i] + 'Page').classList.add('nodropdown');
@@ -189,7 +191,7 @@ function setPagination(total, returned) {
             document.getElementById(cat + p[i] + 'Page').classList.add('nodropdown');
         }
     
-        if (total > app.current.page + settings.maxElementsPerPage || total == -1 && returned >= settings.maxElementsPerPage) {
+        if (total > app.current.page + settings.maxElementsPerPage || total === -1 && returned >= settings.maxElementsPerPage) {
             document.getElementById(cat + p[i] + 'Next').removeAttribute('disabled');
             document.getElementById(cat + p[i]).classList.remove('hide');
             document.getElementById(cat + 'ButtonsBottom').classList.remove('hide');
@@ -217,7 +219,7 @@ function genId(x) {
 function parseCmd(event, href) {
     event.preventDefault();
     let cmd = href;
-    if (typeof(href) == 'string') {
+    if (typeof(href) === 'string') {
         cmd = JSON.parse(href);
     }
 

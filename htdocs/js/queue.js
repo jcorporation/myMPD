@@ -7,13 +7,13 @@
 
 function parseUpdateQueue(obj) {
     //Set playstate
-    if (obj.result.state == 1) {
+    if (obj.result.state === 1) {
         for (let i = 0; i < domCache.btnsPlayLen; i++) {
             domCache.btnsPlay[i].innerText = 'play_arrow';
         }
         playstate = 'stop';
     }
-    else if (obj.result.state == 2) {
+    else if (obj.result.state === 2) {
         for (let i = 0; i < domCache.btnsPlayLen; i++) {
             domCache.btnsPlay[i].innerText = 'pause';
         }
@@ -26,7 +26,7 @@ function parseUpdateQueue(obj) {
 	playstate = 'pause';
     }
 
-    if (obj.result.queueLength == 0) {
+    if (obj.result.queueLength === 0) {
         for (let i = 0; i < domCache.btnsPlayLen; i++) {
             domCache.btnsPlay[i].setAttribute('disabled', 'disabled');
         }
@@ -39,7 +39,7 @@ function parseUpdateQueue(obj) {
 
     domCache.badgeQueueItems.innerText = obj.result.queueLength;
     
-    if (obj.result.nextSongPos == -1 && settings.jukeboxMode == false) {
+    if (obj.result.nextSongPos === -1 && settings.jukeboxMode === false) {
         domCache.btnNext.setAttribute('disabled', 'disabled');
     }
     else {
@@ -64,7 +64,7 @@ function getQueue() {
 }
 
 function parseQueue(obj) {
-    if (typeof(obj.result.totalTime) != 'undefined' && obj.result.totalTime > 0 && obj.result.totalEntities <= settings.maxElementsPerPage ) {
+    if (typeof(obj.result.totalTime) !== undefined && obj.result.totalTime > 0 && obj.result.totalEntities <= settings.maxElementsPerPage ) {
         document.getElementById('cardFooterQueue').innerText = t('Num songs', obj.result.totalEntities) + ' – ' + beautifyDuration(obj.result.totalTime);
     }
     else if (obj.result.totalEntities > 0) {
@@ -76,7 +76,7 @@ function parseQueue(obj) {
 
     let nrItems = obj.result.returnedEntities;
     let table = document.getElementById('QueueCurrentList');
-    let navigate = document.activeElement.parentNode.parentNode == table ? true : false;
+    let navigate = document.activeElement.parentNode.parentNode === table ? true : false;
     let activeRow = 0;
     table.setAttribute('data-version', obj.queueVersion);
     let tbody = table.getElementsByTagName('tbody')[0];
@@ -99,7 +99,7 @@ function parseQueue(obj) {
         tds += '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>';
         row.innerHTML = tds;
         if (i < tr.length) {
-            activeRow = replaceTblRow(tr[i], row) == true ? i : activeRow;
+            activeRow = replaceTblRow(tr[i], row) === true ? i : activeRow;
         }
         else {
             tbody.append(row);
@@ -113,16 +113,16 @@ function parseQueue(obj) {
     let colspan = settings['colsQueueCurrent'].length;
     colspan--;
 
-    if (obj.type == 'queuesearch' && nrItems == 0) {
+    if (obj.type === 'queuesearch' && nrItems === 0) {
         tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
                           '<td colspan="' + colspan + '">' + t('No results, please refine your search') + '</td></tr>';
     }
-    else if (obj.type == 'queue' && nrItems == 0) {
+    else if (obj.type === 'queue' && nrItems === 0) {
         tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
                           '<td colspan="' + colspan + '">' + t('Empty queue') + '</td></tr>';
     }
 
-    if (navigate == true) {
+    if (navigate === true) {
         focusTable(activeRow);
     }
     
@@ -134,7 +134,7 @@ function parseLastPlayed(obj) {
     document.getElementById('cardFooterQueue').innerText = t('Num songs', obj.result.totalEntities);
     let nrItems = obj.result.returnedEntities;
     let table = document.getElementById('QueueLastPlayedList');
-    let navigate = document.activeElement.parentNode.parentNode == table ? true : false;
+    let navigate = document.activeElement.parentNode.parentNode === table ? true : false;
     let activeRow = 0;
     let tbody = table.getElementsByTagName('tbody')[0];
     let tr = tbody.getElementsByTagName('tr');
@@ -151,13 +151,13 @@ function parseLastPlayed(obj) {
             tds += '<td data-col="' + settings.colsQueueLastPlayed[c] + '">' + e(obj.result.data[i][settings.colsQueueLastPlayed[c]]) + '</td>';
         }
         tds += '<td data-col="Action">';
-        if (obj.result.data[i].uri != '') {
+        if (obj.result.data[i].uri !== '') {
             tds += '<a href="#" class="material-icons color-darkgrey">playlist_add</a>';
         }
         tds += '</td>';
         row.innerHTML = tds;
         if (i < tr.length) {
-            activeRow = replaceTblRow(tr[i], row) == true ? i : activeRow;
+            activeRow = replaceTblRow(tr[i], row) === true ? i : activeRow;
         }
         else {
             tbody.append(row);
@@ -171,12 +171,12 @@ function parseLastPlayed(obj) {
     let colspan = settings['colsQueueLastPlayed'].length;
     colspan--;
     
-    if (nrItems == 0) {
+    if (nrItems === 0) {
         tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
             '<td colspan="' + colspan + '">' + t('Empty list') + '</td></tr>';
     }
 
-    if (navigate == true) {
+    if (navigate === true) {
         focusTable(activeRow);
     }
 
@@ -188,10 +188,10 @@ function parseLastPlayed(obj) {
 function queueSelectedItem(append) {
     let item = document.activeElement;
     if (item) {
-        if (item.parentNode.parentNode.id == 'QueueCurrentList') {
+        if (item.parentNode.parentNode.id === 'QueueCurrentList') {
             return;
         }
-        if (append == true) {
+        if (append === true) {
             appendQueue(item.getAttribute('data-type'), item.getAttribute('data-uri'), item.getAttribute('data-name'));
         }
         else {
@@ -204,7 +204,7 @@ function queueSelectedItem(append) {
 function dequeueSelectedItem() {
     let item = document.activeElement;
     if (item) {
-        if (item.parentNode.parentNode.id != 'QueueCurrentList') {
+        if (item.parentNode.parentNode.id !== 'QueueCurrentList') {
             return;
         }
         delQueueSong('single', item.getAttribute('data-trackid'));
@@ -258,7 +258,7 @@ function addToQueue() {
         formOK = false;
     }
     
-    if (formOK == true) {
+    if (formOK === true) {
         let selectAddToQueueMode = document.getElementById('selectAddToQueueMode');
         let selectAddToQueuePlaylist = document.getElementById('selectAddToQueuePlaylist');
         sendAPI("MPD_API_QUEUE_ADD_RANDOM", {
@@ -273,7 +273,7 @@ function addToQueue() {
 //eslint-disable-next-line no-unused-vars
 function saveQueue() {
     let plName = document.getElementById('saveQueueName').value;
-    if (validatePlname(plName) == true) {
+    if (validatePlname(plName) === true) {
         sendAPI("MPD_API_QUEUE_SAVE", {"plist": plName});
         modalSaveQueue.hide();
     }
@@ -283,10 +283,10 @@ function saveQueue() {
 }
 
 function delQueueSong(mode, start, end) {
-    if (mode == 'range') {
+    if (mode === 'range') {
         sendAPI("MPD_API_QUEUE_RM_RANGE", {"start": start, "end": end});
     }
-    else if (mode == 'single') {
+    else if (mode === 'single') {
         sendAPI("MPD_API_QUEUE_RM_TRACK", { "track": start});
     }
 }

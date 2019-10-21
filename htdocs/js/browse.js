@@ -8,20 +8,20 @@
 function gotoBrowse(x) {
     let tag = x.parentNode.getAttribute('data-tag');
     let name = decodeURI(x.parentNode.getAttribute('data-name'));
-    if (tag != '' && name != '' && name != '-' && settings.browsetags.includes(tag)) {
+    if (tag !== '' && name !== '' && name !== '-' && settings.browsetags.includes(tag)) {
         appGoto('Browse', 'Database', tag, '0/-/-/' + name);
     }
 }
 
 function parseFilesystem(obj) {
-    let list = app.current.app + (app.current.tab == 'Filesystem' ? app.current.tab : '');
+    let list = app.current.app + (app.current.tab === 'Filesystem' ? app.current.tab : '');
     let colspan = settings['cols' + list].length;
     colspan--;
     let nrItems = obj.result.returnedEntities;
-    let table = document.getElementById(app.current.app + (app.current.tab == undefined ? '' : app.current.tab) + 'List');
+    let table = document.getElementById(app.current.app + (app.current.tab === undefined ? '' : app.current.tab) + 'List');
     let tbody = table.getElementsByTagName('tbody')[0];
     let tr = tbody.getElementsByTagName('tr');
-    let navigate = document.activeElement.parentNode.parentNode == table ? true : false;
+    let navigate = document.activeElement.parentNode.parentNode === table ? true : false;
     let activeRow = 0;
     for (let i = 0; i < nrItems; i++) {
         let uri = encodeURI(obj.result.data[i].uri);
@@ -30,7 +30,7 @@ function parseFilesystem(obj) {
         row.setAttribute('data-type', obj.result.data[i].Type);
         row.setAttribute('data-uri', uri);
         row.setAttribute('tabindex', 0);
-        if (obj.result.data[i].Type == 'song') {
+        if (obj.result.data[i].Type === 'song') {
             row.setAttribute('data-name', obj.result.data[i].Title);
         }
         else {
@@ -43,15 +43,15 @@ function parseFilesystem(obj) {
             case 'plist':
                 for (let c = 0; c < settings['cols' + list].length; c++) {
                     tds += '<td data-col="' + settings['cols' + list][c] + '">';
-                    if (settings['cols' + list][c] == 'Type') {
-                        if (obj.result.data[i].Type == 'dir') {
+                    if (settings['cols' + list][c] === 'Type') {
+                        if (obj.result.data[i].Type === 'dir') {
                             tds += '<span class="material-icons">folder_open</span>';
                         }
                         else {
-                            tds += '<span class="material-icons">' + (obj.result.data[i].Type == 'smartpls' ? 'queue_music' : 'list') + '</span>';
+                            tds += '<span class="material-icons">' + (obj.result.data[i].Type === 'smartpls' ? 'queue_music' : 'list') + '</span>';
                         }
                     }
-                    else if (settings['cols' + list][c] == 'Title') {
+                    else if (settings['cols' + list][c] === 'Title') {
                         tds += e(obj.result.data[i].name);
                     }
                     tds += '</td>';
@@ -63,7 +63,7 @@ function parseFilesystem(obj) {
                 obj.result.data[i].Duration = beautifySongDuration(obj.result.data[i].Duration);
                 for (let c = 0; c < settings['cols' + list].length; c++) {
                     tds += '<td data-col="' + settings['cols' + list][c] + '">';
-                    if (settings['cols' + list][c] == 'Type') {
+                    if (settings['cols' + list][c] === 'Type') {
                         tds += '<span class="material-icons">music_note</span>';
                     }
                     else {
@@ -76,7 +76,7 @@ function parseFilesystem(obj) {
                 break;
         }
         if (i < tr.length) {
-            activeRow = replaceTblRow(tr[i], row) == true ? i : activeRow;
+            activeRow = replaceTblRow(tr[i], row) === true ? i : activeRow;
         }
         else {
             tbody.append(row);
@@ -87,23 +87,23 @@ function parseFilesystem(obj) {
         tr[i].remove();
     }
 
-    if (navigate == true) {
+    if (navigate === true) {
         focusTable(0);
     }
 
     setPagination(obj.result.totalEntities, obj.result.returnedEntities);
                     
-    if (nrItems == 0)
+    if (nrItems === 0)
         tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
                           '<td colspan="' + colspan + '">' + t('Empty list') + '</td></tr>';
-    document.getElementById(app.current.app + (app.current.tab == undefined ? '' : app.current.tab) + 'List').classList.remove('opacity05');
+    document.getElementById(app.current.app + (app.current.tab === undefined ? '' : app.current.tab) + 'List').classList.remove('opacity05');
     document.getElementById('cardFooterBrowse').innerText = t('Num entries', obj.result.totalEntities);
 }
 
 
 function parseListDBtags(obj) {
     scrollToPosY(0);
-    if (app.current.search != '') {
+    if (app.current.search !== '') {
         document.getElementById('BrowseDatabaseAlbumList').classList.remove('hide');
         document.getElementById('BrowseDatabaseTagList').classList.add('hide');
         document.getElementById('btnBrowseDatabaseByTag').parentNode.classList.add('hide');
@@ -124,7 +124,7 @@ function parseListDBtags(obj) {
             card.setAttribute('data-album', encodeURI(obj.result.data[i].value));
             let html = '<div class="card-header"><span id="albumartist' + id + '"></span> &ndash; ' + e(obj.result.data[i].value) + '</div>' +
                        '<div class="card-body"><div class="row">';
-            if (settings.featCoverimage == true && settings.coverimage == true) {
+            if (settings.featCoverimage === true && settings.coverimage === true) {
                 html += '<div class="col-md-auto"><a class="card-img-left album-cover-loading"></a></div>';
             }
             html += '<div class="col"><table class="tblAlbumTitles table table-sm table-hover" tabindex="0" id="tbl' + id + '"><thead><tr></tr></thead><tbody></tbody>' +
@@ -171,7 +171,7 @@ function parseListDBtags(obj) {
         let nrItems = obj.result.returnedEntities;
         let table = document.getElementById(app.current.app + app.current.tab + 'TagList');
         let tbody = table.getElementsByTagName('tbody')[0];
-        let navigate = document.activeElement.parentNode.parentNode == table ? true : false;
+        let navigate = document.activeElement.parentNode.parentNode === table ? true : false;
         let activeRow = 0;
         let tr = tbody.getElementsByTagName('tr');
         for (let i = 0; i < nrItems; i++) {
@@ -182,7 +182,7 @@ function parseListDBtags(obj) {
             row.innerHTML='<td data-col="Type"><span class="material-icons">album</span></td>' +
                           '<td>' + e(obj.result.data[i].value) + '</td>';
             if (i < tr.length) {
-                activeRow = replaceTblRow(tr[i], row) == true ? i : activeRow;
+                activeRow = replaceTblRow(tr[i], row) === true ? i : activeRow;
             }
             else {
                 tbody.append(row);
@@ -193,13 +193,13 @@ function parseListDBtags(obj) {
             tr[i].remove();
         }
         
-        if (navigate == true) {
+        if (navigate === true) {
             focusTable(0);
         }
         
         setPagination(obj.result.totalEntities, obj.returnedEntities);
 
-        if (nrItems == 0) {
+        if (nrItems === 0) {
             tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
                               '<td>No entries found.</td></tr>';
         }
@@ -273,10 +273,10 @@ function parseListTitles(obj) {
     cardFooter.innerHTML = t('Num songs', obj.result.totalEntities) + ' &ndash; ' + beautifyDuration(obj.result.totalTime);
 
     tbody.parentNode.addEventListener('click', function(event) {
-        if (event.target.nodeName == 'TD') {
+        if (event.target.nodeName === 'TD') {
             appendQueue('song', decodeURI(event.target.parentNode.getAttribute('data-uri')), event.target.parentNode.getAttribute('data-name'));
         }
-        else if (event.target.nodeName == 'A') {
+        else if (event.target.nodeName === 'A') {
             showMenu(event.target, event);
         }
     }, false);
@@ -325,7 +325,7 @@ function saveBookmark() {
     let name = document.getElementById('saveBookmarkName').value;
     let uri = document.getElementById('saveBookmarkUri').value;
     let type = document.getElementById('saveBookmarkType').value;
-    if (name != '') {
+    if (name !== '') {
         sendAPI("MYMPD_API_BOOKMARK_SAVE", {"id": id, "name": name, "uri": uri, "type": type});
         modalSaveBookmark.hide();
     }

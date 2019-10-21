@@ -11,27 +11,27 @@ function sendAPI(method, params, callback, onerror) {
     ajaxRequest.open('POST', subdir + '/api', true);
     ajaxRequest.setRequestHeader('Content-type', 'application/json');
     ajaxRequest.onreadystatechange = function() {
-        if (ajaxRequest.readyState == 4) {
-            if (ajaxRequest.responseText != '') {
+        if (ajaxRequest.readyState === 4) {
+            if (ajaxRequest.responseText !== '') {
                 let obj = JSON.parse(ajaxRequest.responseText);
                 if (obj.error) {
                     showNotification(t(obj.error.message, obj.error.data), '', '', 'danger');
                     logError(JSON.stringify(obj.error));
-                    if (onerror == true) {
-                        if (callback != undefined && typeof(callback) == 'function') {
+                    if (onerror === true) {
+                        if (callback !== undefined && typeof(callback) === 'function') {
                             logDebug('Got API response of type error calling ' + callback.name);
                             callback(obj);
                         }
                     }
                 }
-                else if (obj.result && obj.result.message && obj.result.message != 'ok') {
+                else if (obj.result && obj.result.message && obj.result.message !== 'ok') {
                     logDebug('Got API response: ' + JSON.stringify(obj.result));
                     showNotification(t(obj.result.message, obj.result.data), '', '', 'success');
                 }
-                else if (obj.result && obj.result.message && obj.result.message == 'ok') {
+                else if (obj.result && obj.result.message && obj.result.message === 'ok') {
                     logDebug('Got API response: ' + JSON.stringify(obj.result));
                 }
-                else if (obj.result && callback != undefined && typeof(callback) == 'function') {
+                else if (obj.result && callback !== undefined && typeof(callback) === 'function') {
                     logDebug('Got API response of type "' + obj.result.method + '" calling ' + callback.name);
                     callback(obj);
                 }
@@ -41,8 +41,8 @@ function sendAPI(method, params, callback, onerror) {
             }
             else {
                 logError('Empty response for request: ' + JSON.stringify(request));
-                if (onerror == true) {
-                    if (callback != undefined && typeof(callback) == 'function') {
+                if (onerror === true) {
+                    if (callback !== undefined && typeof(callback) === 'function') {
                         logDebug('Got empty API response calling ' + callback.name);
                         callback('');
                     }
@@ -55,7 +55,7 @@ function sendAPI(method, params, callback, onerror) {
 }
 
 function webSocketConnect() {
-    if (socket != null) {
+    if (socket !== null) {
         logInfo("Socket already connected");
         return;
     }
@@ -67,7 +67,7 @@ function webSocketConnect() {
         socket.onopen = function() {
             logInfo('Websocket is connected');
             websocketConnected = true;
-            if (websocketTimer != null) {
+            if (websocketTimer !== null) {
                 clearTimeout(websocketTimer);
                 websocketTimer = null;
             }
@@ -129,15 +129,15 @@ function webSocketConnect() {
                     parseVolume(obj);
                     break;
                 case 'update_stored_playlist':
-                    if (app.current.app == 'Browse' && app.current.tab == 'Playlists' && app.current.view == 'All') {
+                    if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'All') {
                         sendAPI("MPD_API_PLAYLIST_LIST", {"offset": app.current.page, "filter": app.current.filter}, parsePlaylists);
                     }
-                    else if (app.current.app == 'Browse' && app.current.tab == 'Playlists' && app.current.view == 'Detail') {
+                    else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'Detail') {
                         sendAPI("MPD_API_PLAYLIST_CONTENT_LIST", {"offset": app.current.page, "filter": app.current.filter, "uri": app.current.search, "cols": settings.colsBrowsePlaylistsDetail}, parsePlaylists);
                     }
                     break;
                 case 'update_lastplayed':
-                    if (app.current.app == 'Queue' && app.current.tab == 'LastPlayed') {
+                    if (app.current.app === 'Queue' && app.current.tab === 'LastPlayed') {
                         sendAPI("MPD_API_QUEUE_LAST_PLAYED", {"offset": app.current.page, "cols": settings.colsQueueLastPlayed}, parseLastPlayed);
                     }
                     break;
@@ -154,7 +154,7 @@ function webSocketConnect() {
         socket.onclose = function(){
             logError('Websocket is disconnected');
             websocketConnected = false;
-            if (appInited == true) {
+            if (appInited === true) {
                 toggleUI();
                 if (progressTimer) {
                     clearTimeout(progressTimer);
@@ -164,7 +164,7 @@ function webSocketConnect() {
                 showAppInitAlert(t('Websocket connection failed'));
                 logError('Websocket connection failed.');
             }
-            if (websocketTimer != null) {
+            if (websocketTimer !== null) {
                 clearTimeout(websocketTimer);
                 websocketTimer = null;
             }
@@ -186,13 +186,13 @@ function getWsUrl() {
     let protocol = window.location.protocol;
     let port = window.location.port;
     
-    if (protocol == 'https:') {
+    if (protocol === 'https:') {
         protocol = 'wss://';
     }
     else {
         protocol = 'ws://';
     }
 
-    let wsUrl = protocol + hostname + (port != '' ? ':' + port : '') + subdir + '/ws/';
+    let wsUrl = protocol + hostname + (port !== '' ? ':' + port : '') + subdir + '/ws/';
     return wsUrl;
 }

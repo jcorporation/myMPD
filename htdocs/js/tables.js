@@ -6,24 +6,24 @@
 */
 
 function focusTable(rownr, table) {
-    if (table == null) {
-        table = document.getElementById(app.current.app + (app.current.tab != null ? app.current.tab : '') + (app.current.view != null ? app.current.view : '') + 'List');
+    if (table === null) {
+        table = document.getElementById(app.current.app + (app.current.tab !== undefined ? app.current.tab : '') + (app.current.view !== undefined ? app.current.view : '') + 'List');
         //support for BrowseDatabaseAlbum list
-        if (table == null) {
+        if (table === null) {
             table = document.getElementById(app.current.app + app.current.tab + 'TagList');
         }
         //support for BrowseDatabaseAlbum cards
-        if (app.current.app == 'Browse' && app.current.tab == 'Database' && 
+        if (app.current.app === 'Browse' && app.current.tab === 'Database' && 
             !document.getElementById('BrowseDatabaseAlbumList').classList.contains('hide'))
         {
             table = document.getElementById('BrowseDatabaseAlbumList').getElementsByTagName('table')[0];
         }
     }
 
-    if (table != null) {
+    if (table !== null) {
         let sel = table.getElementsByClassName('selected');
-        if (rownr == undefined) {
-            if (sel.length == 0) {
+        if (rownr === undefined) {
+            if (sel.length === 0) {
                 let row = table.getElementsByTagName('tbody')[0].rows[0];
                 row.focus();
                 row.classList.add('selected');
@@ -47,9 +47,9 @@ function focusTable(rownr, table) {
             }
         }
         //insert goto parent row
-        if (table.id == 'BrowseFilesystemList') {
+        if (table.id === 'BrowseFilesystemList') {
             let tbody = table.getElementsByTagName('tbody')[0];
-            if (tbody.rows[0].getAttribute('data-type') != 'parentDir' && app.current.search != '') {
+            if (tbody.rows[0].getAttribute('data-type') !== 'parentDir' && app.current.search !== '') {
                 let nrCells = table.getElementsByTagName('thead')[0].rows[0].cells.length;
                 let uri = app.current.search.replace(/\/?([^/]+)$/,'');
                 let row = tbody.insertRow(0);
@@ -81,40 +81,40 @@ function navigateTable(table, keyCode) {
     if (cur) {
         let next = null;
         let handled = false;
-        if (keyCode == 'ArrowDown') {
+        if (keyCode === 'ArrowDown') {
             next = cur.nextElementSibling;
             handled = true;
         }
-        else if (keyCode == 'ArrowUp') {
+        else if (keyCode === 'ArrowUp') {
             next = cur.previousElementSibling;
             handled = true;
         }
-        else if (keyCode == ' ') {
+        else if (keyCode === ' ') {
             let popupBtn = cur.lastChild.firstChild;
-            if (popupBtn.nodeName == 'A') {
+            if (popupBtn.nodeName === 'A') {
                 popupBtn.click();
             }
             handled = true;
         }
-        else if (keyCode == 'Enter') {
+        else if (keyCode === 'Enter') {
             cur.firstChild.click();
             handled = true;
         }
-        else if (keyCode == 'Escape') {
+        else if (keyCode === 'Escape') {
             cur.blur();
             cur.classList.remove('selected');
             handled = true;
         }
         //only for BrowseDatabaseAlbum cards
-        else if (app.current.app == 'Browse' && app.current.tab == 'Database' && 
+        else if (app.current.app === 'Browse' && app.current.tab === 'Database' && 
                  !document.getElementById('BrowseDatabaseAlbumList').classList.contains('hide') &&
-                 (keyCode == 'n' || keyCode == 'p')) {
+                 (keyCode === 'n' || keyCode === 'p')) {
             let tablesHtml = document.getElementById('BrowseDatabaseAlbumList').getElementsByTagName('table');
             let tables = Array.prototype.slice.call(tablesHtml);
-            let idx = document.activeElement.nodeName == 'TR' ? tables.indexOf(document.activeElement.parentNode.parentNode)
+            let idx = document.activeElement.nodeName === 'TR' ? tables.indexOf(document.activeElement.parentNode.parentNode)
                                                               : tables.indexOf(document.activeElement);
-            idx = event.key == 'p' ? (idx > 1 ? idx - 1 : 0)
-                                   : event.key == 'n' ? ( idx < tables.length - 1 ? ( document.activeElement.nodeName == 'TR' ? idx + 1 : idx )
+            idx = event.key === 'p' ? (idx > 1 ? idx - 1 : 0)
+                                   : event.key === 'n' ? ( idx < tables.length - 1 ? ( document.activeElement.nodeName === 'TR' ? idx + 1 : idx )
                                                                                   : idx)
                                                       : idx;
             
@@ -128,7 +128,7 @@ function navigateTable(table, keyCode) {
             }
             handled = true;
         }
-        if (handled == true) {
+        if (handled === true) {
             event.preventDefault();
             event.stopPropagation();
         }
@@ -144,7 +144,7 @@ function navigateTable(table, keyCode) {
 function dragAndDropTable(table) {
     let tableBody=document.getElementById(table).getElementsByTagName('tbody')[0];
     tableBody.addEventListener('dragstart', function(event) {
-        if (event.target.nodeName == 'TR') {
+        if (event.target.nodeName === 'TR') {
             event.target.classList.add('opacity05');
             event.dataTransfer.setDragImage(event.target, 0, 0);
             event.dataTransfer.effectAllowed = 'move';
@@ -154,20 +154,20 @@ function dragAndDropTable(table) {
     }, false);
     tableBody.addEventListener('dragleave', function(event) {
         event.preventDefault();
-        if (dragEl.nodeName != 'TR') {
+        if (dragEl.nodeName !== 'TR') {
             return;
         }
         let target = event.target;
-        if (event.target.nodeName == 'TD') {
+        if (event.target.nodeName === 'TD') {
             target = event.target.parentNode;
         }
-        if (target.nodeName == 'TR') {
+        if (target.nodeName === 'TR') {
             target.classList.remove('dragover');
         }
     }, false);
     tableBody.addEventListener('dragover', function(event) {
         event.preventDefault();
-        if (dragEl.nodeName != 'TR') {
+        if (dragEl.nodeName !== 'TR') {
             return;
         }
         let tr = tableBody.getElementsByClassName('dragover');
@@ -176,17 +176,17 @@ function dragAndDropTable(table) {
             tr[i].classList.remove('dragover');
         }
         let target = event.target;
-        if (event.target.nodeName == 'TD') {
+        if (event.target.nodeName === 'TD') {
             target = event.target.parentNode;
         }
-        if (target.nodeName == 'TR') {
+        if (target.nodeName === 'TR') {
             target.classList.add('dragover');
         }
         event.dataTransfer.dropEffect = 'move';
     }, false);
     tableBody.addEventListener('dragend', function(event) {
         event.preventDefault();
-        if (dragEl.nodeName != 'TR') {
+        if (dragEl.nodeName !== 'TR') {
             return;
         }
         let tr = tableBody.getElementsByClassName('dragover');
@@ -194,17 +194,18 @@ function dragAndDropTable(table) {
         for (let i = 0; i < trLen; i++) {
             tr[i].classList.remove('dragover');
         }
-        if (document.getElementById(event.dataTransfer.getData('Text')))
+        if (document.getElementById(event.dataTransfer.getData('Text'))) {
             document.getElementById(event.dataTransfer.getData('Text')).classList.remove('opacity05');
+        }
     }, false);
     tableBody.addEventListener('drop', function(event) {
         event.stopPropagation();
         event.preventDefault();
-        if (dragEl.nodeName != 'TR') {
+        if (dragEl.nodeName !== 'TR') {
             return;
         }
         let target = event.target;
-        if (event.target.nodeName == 'TD') {
+        if (event.target.nodeName === 'TD') {
             target = event.target.parentNode;
         }
         let oldSongpos = document.getElementById(event.dataTransfer.getData('Text')).getAttribute('data-songpos');
@@ -218,10 +219,10 @@ function dragAndDropTable(table) {
             tr[i].classList.remove('dragover');
         }
         document.getElementById(table).classList.add('opacity05');
-        if (app.current.app == 'Queue' && app.current.tab == 'Current') {
+        if (app.current.app === 'Queue' && app.current.tab === 'Current') {
             sendAPI("MPD_API_QUEUE_MOVE_TRACK", {"from": oldSongpos, "to": newSongpos});
         }
-        else if (app.current.app == 'Browse' && app.current.tab == 'Playlists' && app.current.view == 'Detail') {
+        else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'Detail') {
             playlistMoveTrack(oldSongpos, newSongpos);
         }
     }, false);
@@ -238,7 +239,7 @@ function dragAndDropTableHeader(table) {
     }
 
     tableHeader.addEventListener('dragstart', function(event) {
-        if (event.target.nodeName == 'TH') {
+        if (event.target.nodeName === 'TH') {
             event.target.classList.add('opacity05');
             event.dataTransfer.setDragImage(event.target, 0, 0);
             event.dataTransfer.effectAllowed = 'move';
@@ -248,16 +249,16 @@ function dragAndDropTableHeader(table) {
     }, false);
     tableHeader.addEventListener('dragleave', function(event) {
         event.preventDefault();
-        if (dragEl.nodeName != 'TH') {
+        if (dragEl.nodeName !== 'TH') {
             return;
         }
-        if (event.target.nodeName == 'TH') {
+        if (event.target.nodeName === 'TH') {
             event.target.classList.remove('dragover-th');
         }
     }, false);
     tableHeader.addEventListener('dragover', function(event) {
         event.preventDefault();
-        if (dragEl.nodeName != 'TH') {
+        if (dragEl.nodeName !== 'TH') {
             return;
         }
         let th = tableHeader.getElementsByClassName('dragover-th');
@@ -265,14 +266,14 @@ function dragAndDropTableHeader(table) {
         for (let i = 0; i < thLen; i++) {
             th[i].classList.remove('dragover-th');
         }
-        if (event.target.nodeName == 'TH') {
+        if (event.target.nodeName === 'TH') {
             event.target.classList.add('dragover-th');
         }
         event.dataTransfer.dropEffect = 'move';
     }, false);
     tableHeader.addEventListener('dragend', function(event) {
         event.preventDefault();
-        if (dragEl.nodeName != 'TH') {
+        if (dragEl.nodeName !== 'TH') {
             return;
         }
         let th = tableHeader.getElementsByClassName('dragover-th');
@@ -287,7 +288,7 @@ function dragAndDropTableHeader(table) {
     tableHeader.addEventListener('drop', function(event) {
         event.stopPropagation();
         event.preventDefault();
-        if (dragEl.nodeName != 'TH') {
+        if (dragEl.nodeName !== 'TH') {
             return;
         }
         this.querySelector('[data-col=' + event.dataTransfer.getData('Text') + ']').remove();
@@ -311,24 +312,24 @@ function dragAndDropTableHeader(table) {
 function setCols(table, className) {
     let tagChks = '';
     var tags = settings.tags.slice();
-    if (settings.featTags == false) {
+    if (settings.featTags === false) {
         tags.push('Title');
     }
     tags.push('Duration');
-    if (table == 'QueueCurrent' || table == 'BrowsePlaylistsDetail' || table == 'QueueLastPlayed') {
+    if (table === 'QueueCurrent' || table === 'BrowsePlaylistsDetail' || table === 'QueueLastPlayed') {
         tags.push('Pos');
     }
-    if (table == 'BrowseFilesystem') {
+    if (table === 'BrowseFilesystem') {
         tags.push('Type');
     }
-    if (table == 'QueueLastPlayed') {
+    if (table === 'QueueLastPlayed') {
         tags.push('LastPlayed');
     }
     
     tags.sort();
     
     for (let i = 0; i < tags.length; i++) {
-        if (table == 'Playback' && tags[i] == 'Title') {
+        if (table === 'Playback' && tags[i] === 'Title') {
             continue;
         }
         tagChks += '<div class="form-check">' +
@@ -344,12 +345,12 @@ function setCols(table, className) {
 
     let sort = app.current.sort;
     
-    if (table == 'Search') {
-        if (app.apps.Search.state == '0/any/Title/') {
+    if (table === 'Search') {
+        if (app.apps.Search.state === '0/any/Title/') {
             if (settings.tags.includes('Title')) {
                 sort = 'Title';
             }
-            else if (settings.featTags == false) {
+            else if (settings.featTags === false) {
                 sort = 'Filename';
             }
             else {
@@ -358,28 +359,28 @@ function setCols(table, className) {
         }
     }
     
-    if (table != 'Playback') {
+    if (table !== 'Playback') {
         let heading = '';
         for (let i = 0; i < settings['cols' + table].length; i++) {
             let h = settings['cols' + table][i];
             heading += '<th draggable="true" data-col="' + h  + '">';
-            if (h == 'Track' || h == 'Pos') {
+            if (h === 'Track' || h === 'Pos') {
                 h = '#';
             }
             heading += t(h);
 
-            if (table == 'Search' && (h == sort || '-' + h == sort) ) {
+            if (table === 'Search' && (h === sort || '-' + h === sort) ) {
                 let sortdesc = false;
-                if (app.current.sort.indexOf('-') == 0) {
+                if (app.current.sort.indexOf('-') === 0) {
                     sortdesc = true;
                 }
-                heading += '<span class="sort-dir material-icons pull-right">' + (sortdesc == true ? 'arrow_drop_up' : 'arrow_drop_down') + '</span>';
+                heading += '<span class="sort-dir material-icons pull-right">' + (sortdesc === true ? 'arrow_drop_up' : 'arrow_drop_down') + '</span>';
             }
             heading += '</th>';
         }
         heading += '<th></th>';
         
-        if (className == undefined) {
+        if (className === undefined) {
             document.getElementById(table + 'List').getElementsByTagName('tr')[0].innerHTML = heading;
         }
         else {
@@ -394,10 +395,10 @@ function setCols(table, className) {
 function saveCols(table, tableEl) {
     let colInputs = document.getElementById(table + 'ColsDropdown').firstChild.getElementsByTagName('input');
     var header;
-    if (tableEl == undefined) {
+    if (tableEl === undefined) {
          header = document.getElementById(table + 'List').getElementsByTagName('tr')[0];
     }
-    else if (typeof(tableEl) == 'string') {
+    else if (typeof(tableEl) === 'string') {
         header = document.querySelector(tableEl).getElementsByTagName('tr')[0];
     }
     else {
@@ -406,9 +407,10 @@ function saveCols(table, tableEl) {
     
     for (let i = 0; i < colInputs.length; i++) {
         let th = header.querySelector('[data-col=' + colInputs[i].name + ']');
-        if (colInputs[i].checked == false) {
-            if (th)
+        if (colInputs[i].checked === false) {
+            if (th) {
                 th.remove();
+            }
         } 
         else if (!th) {
             th = document.createElement('th');
@@ -436,9 +438,10 @@ function saveColsPlayback(table) {
 
     for (let i = 0; i < colInputs.length; i++) {
         let th = document.getElementById('current' + colInputs[i].name);
-        if (colInputs[i].checked == false) {
-            if (th)
+        if (colInputs[i].checked === false) {
+            if (th) {
                 th.remove();
+            }
         } 
         else if (!th) {
             th = document.createElement('div');

@@ -20,7 +20,7 @@ async function localplayerPlay() {
 //eslint-disable-next-line no-unused-vars
 function addStream() {
     let streamUriEl = document.getElementById('streamUrl');
-    if (validateStream(streamUriEl) == true) {
+    if (validateStream(streamUriEl) === true) {
         sendAPI("MPD_API_QUEUE_ADD_TRACK", {"uri": streamUriEl.value});
         modalAddToPlaylist.hide();
         showNotification(t('Added stream %{streamUri} to queue', {"streamUri": streamUriEl.value}), '', '', 'success');
@@ -29,7 +29,7 @@ function addStream() {
 
 //eslint-disable-next-line no-unused-vars
 function clickPlay() {
-    if (playstate != 'play') {
+    if (playstate !== 'play') {
         sendAPI("MPD_API_PLAYER_PLAY", {});
     }
     else {
@@ -70,7 +70,7 @@ function rescanDB() {
 }
 
 function updateDBstarted(showModal) {
-    if (showModal == true) {
+    if (showModal === true) {
         document.getElementById('updateDBfinished').innerText = '';
         document.getElementById('updateDBfooter').classList.add('hide');
         let updateDBprogress = document.getElementById('updateDBprogress');
@@ -86,10 +86,10 @@ function updateDBstarted(showModal) {
 
 function updateDBfinished(idleEvent) {
     if (document.getElementById('modalUpdateDB').classList.contains('show')) {
-        if (idleEvent == 'update_database') {
+        if (idleEvent === 'update_database') {
             document.getElementById('updateDBfinished').innerText = t('Database successfully updated');
         }
-        else if (idleEvent == 'update_finished') {
+        else if (idleEvent === 'update_finished') {
             document.getElementById('updateDBfinished').innerText = t('Database update finished');
         }
         let updateDBprogress = document.getElementById('updateDBprogress');
@@ -99,10 +99,10 @@ function updateDBfinished(idleEvent) {
         document.getElementById('updateDBfooter').classList.remove('hide');
     }
     else {
-        if (idleEvent == 'update_database') {
+        if (idleEvent === 'update_database') {
             showNotification(t('Database successfully updated'), '', '', 'success');
         }
-        else if (idleEvent == 'update_finished') {
+        else if (idleEvent === 'update_finished') {
             showNotification(t('Database update finished'), '', '', 'success');
         }
     }
