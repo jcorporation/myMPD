@@ -160,6 +160,14 @@ buildrelease() {
   
   echo "Combining and compressing javascript"
   JSFILES="dist/htdocs/js/i18n.min.js dist/htdocs/js/keymap.min.js dist/htdocs/js/bootstrap-native-v4.min.js dist/htdocs/js/mympd.min.js"
+  for F in $JSFILES
+  do
+    if tail -1 "$F" | perl -npe 'exit 1 if m/\n/; exit 0'
+    then
+      echo "ERROR: $F don't end with newline character"
+      exit 1
+    fi
+  done
   # shellcheck disable=SC2086
   if newer_s dist/htdocs/js/combined.js.gz $JSFILES
   then
