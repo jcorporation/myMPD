@@ -3953,10 +3953,10 @@ function clickTitle() {
 */
 
 function focusTable(rownr, table) {
-    if (table === null) {
+    if (table === undefined) {
         table = document.getElementById(app.current.app + (app.current.tab !== undefined ? app.current.tab : '') + (app.current.view !== undefined ? app.current.view : '') + 'List');
         //support for BrowseDatabaseAlbum list
-        if (table === null) {
+        if (table === undefined) {
             table = document.getElementById(app.current.app + app.current.tab + 'TagList');
         }
         //support for BrowseDatabaseAlbum cards
@@ -3967,7 +3967,7 @@ function focusTable(rownr, table) {
         }
     }
 
-    if (table !== null) {
+    if (table !== undefined) {
         let sel = table.getElementsByClassName('selected');
         if (rownr === undefined) {
             if (sel.length === 0) {
