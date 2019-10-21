@@ -433,10 +433,16 @@ Smart playlists
 Intelligente Wiedergabelisten
 
 Smart playlists updated
-Intelligente Wiedergabelisten aktualisiert
+Intelligente Wiedergabelisten wurden aktualisiert
+
+Smart playlists update failed
+Intelligente Wiedergabelisten konnten nicht aktualisiert werden
 
 Smart playlist %{playlist} updated
 Intelligente Wiedergabeliste %{playlist} aktualisiert
+
+Updating of smart playlist %{playlist} failed
+Intelligente Wiedergabeliste %{playlist} konnte nicht aktualisiert werden
 
 Smart playlist
 Intelligente Wiedergabeliste
@@ -843,8 +849,8 @@ Wiedergabeliste konnte nicht gelöscht werden
 Unknown request
 Unbekannter Befehl
 
-No response for cmd_id %{cmdId}
-Keine Rückmeldung für cmd_id %{cmdId}
+No response for method %{method}
+Keine Rückmeldung für Aufruf %{method}
 
 MPD connection error: %{error}
 MPD Verbindungsfehler: %{error}

@@ -1,3 +1,9 @@
+/*
+ SPDX-License-Identifier: GPL-2.0-or-later
+ myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+ https://github.com/jcorporation/mympd
+*/
+
 //eslint-disable-next-line no-unused-vars
 var keymap = {
     "ArrowLeft": {"cmd": "clickPrev", "options": [], "desc": "Previous song", "key": "keyboard_arrow_left"},
@@ -6,7 +12,7 @@ var keymap = {
     "s": {"cmd": "clickStop", "options": [], "desc": "Stop playing"},
     "-": {"cmd": "chVolume", "options": [-5], "desc": "Volume down"},
     "+": {"cmd": "chVolume", "options": [5], "desc": "Volume up"},
-    "c": {"cmd": "MPD_API_QUEUE_CLEAR", "options": [], "desc": "Clear queue"},
+    "c": {"cmd": "sendAPI", "options": [{"cmd": "MPD_API_QUEUE_CLEAR"}], "desc": "Clear queue"},
     "u": {"cmd": "updateDB", "options": [], "desc": "Update database"},
     "r": {"cmd": "rescanDB", "options": [], "desc": "Rescan database"},
     "p": {"cmd": "updateSmartPlaylists", "options": [], "desc": "Update smart playlists", "req": "featSmartpls"},
@@ -23,8 +29,8 @@ var keymap = {
     "7": {"cmd": "appGoto", "options": ["Search"], "desc": "Goto search"},
     "m": {"cmd": "openDropdown", "options": ["dropdownMainMenu"], "desc": "Open main menu"},
     "v": {"cmd": "openDropdown", "options": ["dropdownVolumeMenu"], "desc": "Open volume menu"},
-    "S": {"cmd": "MPD_API_QUEUE_SHUFFLE", "options": [], "desc": "Shuffle queue"},
-    "C": {"cmd": "MPD_API_QUEUE_CROP", "options": [], "desc": "Crop queue"},
+    "S": {"cmd": "sendAPI", "options": [{"cmd": "MPD_API_QUEUE_SHUFFLE"}], "desc": "Shuffle queue"},
+    "C": {"cmd": "sendAPI", "options": [{"cmd": "MPD_API_QUEUE_CROP"}], "desc": "Crop queue"},
     "?": {"cmd": "openModal", "options": ["modalAbout"], "desc": "Open about"},
     "/": {"cmd": "focusSearch", "options": [], "desc": "Focus search"},
     "n": {"cmd": "focusTable", "options": [], "desc": "Focus table"},

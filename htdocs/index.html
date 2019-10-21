@@ -1,3 +1,8 @@
+<!--
+ SPDX-License-Identifier: GPL-2.0-or-later
+ myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+ https://github.com/jcorporation/mympd
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -110,7 +115,7 @@
         </div>
       </div>
       <div class="card-body cardBodyPlayback">
-        <div class="album-cover featCoverimage" id="currentCover"></div>
+        <div class="album-cover album-cover-loading featCoverimage" id="currentCover"></div>
         <div class="album-desc breakAll">
           <h2 id="currentTitle" data-href='{"cmd": "clickTitle", "options": []}'></h2>
           <div class="featTags" id="cardPlaybackTags"></div>
@@ -1379,7 +1384,7 @@
           <h1 class="breakAll"></h1>
           <div class="row">
             <div class="col-md-auto">
-              <div class="album-cover album-cover-songdetails featCoverimage"></div>
+              <div class="album-cover album-cover-loading album-cover-songdetails featCoverimage"></div>
             </div>
             <div class="col table-responsive-md">
               <table class="table table-sm">
@@ -1398,6 +1403,22 @@
 <!--debug-->  <script src="js/i18n.js"></script>
 <!--debug-->  <script src="js/keymap.js"></script>
 <!--debug-->  <script src="js/bootstrap-native-v4.js"></script>
+<!--debug-->  <script src="js/utility.js"></script>
+<!--debug-->  <script src="js/locale.js"></script>
+<!--debug-->  <script src="js/log.js"></script>
+<!--debug-->  <script src="js/validate.js"></script>
+<!--debug-->  <script src="js/notification.js"></script>
+<!--debug-->  <script src="js/settings.js"></script>
+<!--debug-->  <script src="js/api.js"></script>
+<!--debug-->  <script src="js/tables.js"></script>
+<!--debug-->  <script src="js/search.js"></script>
+<!--debug-->  <script src="js/queue.js"></script>
+<!--debug-->  <script src="js/playlists.js"></script>
+<!--debug-->  <script src="js/browse.js"></script>
+<!--debug-->  <script src="js/state.js"></script>
+<!--debug-->  <script src="js/song.js"></script>
+<!--debug-->  <script src="js/misc.js"></script>
+<!--debug-->  <script src="js/popover.js"></script>
 <!--debug-->  <script src="js/mympd.js"></script>
 <!--release   <script src="js/combined.js"></script>-->
  </body>

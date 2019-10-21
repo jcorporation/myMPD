@@ -1,4 +1,10 @@
-var CACHE = 'myMPD-cache-v5.6.2';
+/*
+ SPDX-License-Identifier: GPL-2.0-or-later
+ myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+ https://github.com/jcorporation/mympd
+*/
+
+var CACHE = 'myMPD-cache-v5.7.0';
 var subdir = self.location.pathname.replace('/sw.js', '').replace(/\/$/, '');
 var urlsToCache = [
     subdir + '/',
@@ -25,9 +31,8 @@ self.addEventListener('install', function(event) {
     event.waitUntil(
         caches.open(CACHE).then(function(cache) {
             urlsToCache.map(function(url) {
-                return cache.add(url).catch(function (reason) {
-                    // eslint-disable-next-line no-console
-                    return console.log('ServiceWorker: ' + String(reason) + ' ' + url);
+	        return cache.add(url).catch(function (reason) {
+	            return console.log('ServiceWorker: ' + String(reason) + ' ' + url);
                 });
             });
         })

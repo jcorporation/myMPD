@@ -1,4 +1,9 @@
-#myMPD configuration file
+# myMPD configuration file
+#
+# SPDX-License-Identifier: GPL-2.0-or-later
+# myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+# https://github.com/jcorporation/mympd
+#
 
 [mpd]
 #Connection to mpd, unix socket or host/port, socket preferred

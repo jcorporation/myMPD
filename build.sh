@@ -1,4 +1,9 @@
 #!/bin/sh
+#
+# SPDX-License-Identifier: GPL-2.0-or-later
+# myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+# https://github.com/jcorporation/mympd
+#
 
 STARTPATH=$(pwd)
 
@@ -30,11 +35,11 @@ newer() {
   M2=0
   [ -f "$1" ] && M1=$(stat -c%Y "$1")
   [ -f "$2" ] && M2=$(stat -c%Y "$2")
-  if [ "$M1" -gt "$M2" ]
+  if [ "$M1" -lt "$M2" ]
   then
-    return 0
-  else
     return 1
+  else
+    return 0
   fi
 }
 
@@ -129,18 +134,47 @@ buildrelease() {
   createi18n ../../dist/htdocs/js/i18n.min.js
   
   echo "Minifying javascript"
+  JSSRCFILES="htdocs/js/api.js htdocs/js/browse.js htdocs/js/locale.js htdocs/js/log.js htdocs/js/misc.js htdocs/js/mympd.js"
+  JSSRCFILES="$JSSRCFILES htdocs/js/notification.js htdocs/js/playlists.js htdocs/js/popover.js htdocs/js/queue.js"
+  JSSRCFILES="$JSSRCFILES htdocs/js/search.js htdocs/js/settings.js htdocs/js/song.js htdocs/js/state.js htdocs/js/tables.js"
+  JSSRCFILES="$JSSRCFILES htdocs/js/utility.js htdocs/js/validate.js"
+  for F in $JSSRCFILES
+  do
+    if tail -1 "$F" | perl -npe 'exit 1 if m/\n/; exit 0'
+    then
+      echo "ERROR: $F don't end with newline character"
+      exit 1
+    fi
+  done
+  # shellcheck disable=SC2086
+  if newer_s dist/htdocs/js/mympd.js $JSSRCFILES
+  then
+    # shellcheck disable=SC2086
+    # shellcheck disable=SC2002
+    cat $JSSRCFILES | grep -v "\"use strict\";" > dist/htdocs/js/mympd.js
+  fi
   minify js htdocs/sw.js dist/htdocs/sw.min.js
   minify js htdocs/js/keymap.js dist/htdocs/js/keymap.min.js
   minify js dist/htdocs/js/bootstrap-native-v4.js dist/htdocs/js/bootstrap-native-v4.min.js
-  minify js htdocs/js/mympd.js dist/htdocs/js/mympd.min.js
+  minify js dist/htdocs/js/mympd.js dist/htdocs/js/mympd.min.js
   
   echo "Combining and compressing javascript"
   JSFILES="dist/htdocs/js/i18n.min.js dist/htdocs/js/keymap.min.js dist/htdocs/js/bootstrap-native-v4.min.js dist/htdocs/js/mympd.min.js"
+  for F in $JSFILES
+  do
+    if tail -1 "$F" | perl -npe 'exit 1 if m/\n/; exit 0'
+    then
+      echo "ERROR: $F don't end with newline character"
+      exit 1
+    fi
+  done
   # shellcheck disable=SC2086
   if newer_s dist/htdocs/js/combined.js.gz $JSFILES
   then
+    echo "\"use strict\";" > dist/htdocs/js/combined.js
     # shellcheck disable=SC2086
-    cat $JSFILES > dist/htdocs/js/combined.js
+    # shellcheck disable=SC2002
+    cat $JSFILES >> dist/htdocs/js/combined.js
     $GZIPBIN -f -v -9 dist/htdocs/js/combined.js
     ASSETSCHANGED=1
   else
@@ -273,6 +307,7 @@ cleanupdist() {
   rm -f dist/htdocs/js/i18n.min.js
   rm -f dist/htdocs/js/keymap.min.js 
   rm -f dist/htdocs/js/bootstrap-native-v4.min.js 
+  rm -f dist/htdocs/js/mympd.js
   rm -f dist/htdocs/js/mympd.min.js
   rm -f dist/htdocs/js/combined.js.gz
   rm -f dist/htdocs/css/mympd.min.css
@@ -286,21 +321,24 @@ cleanupdist() {
 
 check () {
   CPPCHECKBIN=$(command -v cppcheck)
+  [ "$CPPCHECKOPTS" = "" ] && CPPCHECKOPTS="--enable=warning"
   if [ "$CPPCHECKBIN" != "" ]
   then
     echo "Running cppcheck"
-    $CPPCHECKBIN --enable=warning --inconclusive --force --inline-suppr src/*.c src/*.h
-    $CPPCHECKBIN --enable=warning --inconclusive --force --inline-suppr src/plugins/*.c src/plugins/*.h src/plugins/*.cpp
+    $CPPCHECKBIN $CPPCHECKOPTS src/*.c src/*.h
+    $CPPCHECKBIN $CPPCHECKOPTS src/mpd_client/*.c src/mpd_client/*.h
+    $CPPCHECKBIN $CPPCHECKOPTS src/mympd_api/*.c src/mympd_api/*.h
+    $CPPCHECKBIN $CPPCHECKOPTS src/plugins/*.c src/plugins/*.h src/plugins/*.cpp
   else
     echo "cppcheck not found"
   fi
   
   FLAWFINDERBIN=$(command -v flawfinder)
+  [ "$FLAWFINDEROPTS" = "" ] && FLAWFINDEROPTS="-m3"
   if [ "$FLAWFINDERBIN" != "" ]
   then
     echo "Running flawfinder"
-    $FLAWFINDERBIN src
-    $FLAWFINDERBIN src/plugins
+    $FLAWFINDERBIN $FLAWFINDEROPTS src
   else
     echo "flawfinder not found"
   fi  
@@ -545,6 +583,9 @@ case "$1" in
 	  echo "  memcheck:       builds debug files in directory debug"
 	  echo "                  for use with valgrind, uses assets in htdocs/"
 	  echo "  check:          runs cppcheck and flawfinder on source files"
+	  echo "                  following environment variables are respected"
+	  echo "                    - CPPCHECKOPTS=\"--enable=warning\""
+	  echo "                    - FLAWFINDEROPTS=\"-m3\""
 	  echo ""
 	  echo "Cleanup options:"
 	  echo "  cleanup:        cleanup source tree"
