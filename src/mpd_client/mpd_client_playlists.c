@@ -29,7 +29,7 @@ sds mpd_client_put_playlists(t_config *config, t_mpd_state *mpd_state, sds buffe
                              const unsigned int offset, const char *filter) 
 {
     buffer = jsonrpc_start_result(buffer, method, request_id);
-    buffer = sdscat(buffer,"[");
+    buffer = sdscat(buffer,",\"data\":[");
 
     if (mpd_send_list_playlists(mpd_state->conn) == false) {
         buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
@@ -83,7 +83,7 @@ sds mpd_client_put_playlist_list(t_config *config, t_mpd_state *mpd_state, sds b
                                  const char *uri, const unsigned int offset, const char *filter, const t_tags *tagcols)
 {
     buffer = jsonrpc_start_result(buffer, method, request_id);
-    buffer = sdscat(buffer,"[");
+    buffer = sdscat(buffer,",\"data\":[");
 
     if (mpd_send_list_playlist_meta(mpd_state->conn, uri) == false) {
         buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
@@ -104,9 +104,10 @@ sds mpd_client_put_playlist_list(t_config *config, t_mpd_state *mpd_state, sds b
                 if (entities_returned++) {
                     buffer= sdscat(buffer, ",");
                 }
-                buffer = sdscat(buffer, "{\"Type\": \"song\",");
+                buffer = sdscat(buffer, "{");
+                buffer = tojson_char(buffer, "Type", "song", true);
+                buffer = tojson_long(buffer, "Pos", entity_count, true);
                 buffer = put_song_tags(buffer, mpd_state, tagcols, song);
-                buffer = tojson_long(buffer, ",Pos", entity_count, false);
                 buffer = sdscat(buffer, "}");
             }
             else {
@@ -222,7 +223,7 @@ sds mpd_client_smartpls_put(t_config *config, sds buffer, sds method, int reques
     int je = json_scanf(content, strlen(content), "{type: %Q }", &smartpltype);
     if (je == 1) {
         buffer = jsonrpc_start_result(buffer, method, request_id);
-        buffer = sdscat(buffer, "{");
+        buffer = sdscat(buffer, ",");
         buffer = tojson_char(buffer, "playlist", playlist, true);
         buffer = tojson_char(buffer, "type", smartpltype, true);
         bool rc = true;
@@ -257,7 +258,6 @@ sds mpd_client_smartpls_put(t_config *config, sds buffer, sds method, int reques
             rc = false;            
         }
         if (rc == true) {
-            buffer = sdscat(buffer,"}");
             buffer = jsonrpc_end_result(buffer);
         }
         else {

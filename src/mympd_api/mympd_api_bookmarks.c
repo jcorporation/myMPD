@@ -108,7 +108,7 @@ sds mympd_api_bookmark_list(t_config *config, sds buffer, sds method, int reques
     FILE *fi = fopen(b_file, "r");
 
     buffer = jsonrpc_start_result(buffer, method, request_id);
-    buffer = sdscat(buffer, "[");
+    buffer = sdscat(buffer, ", \"data\": [");
 
     if (fi == NULL) {
         //create empty bookmarks file

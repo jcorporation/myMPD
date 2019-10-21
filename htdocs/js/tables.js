@@ -154,34 +154,41 @@ function dragAndDropTable(table) {
     }, false);
     tableBody.addEventListener('dragleave', function(event) {
         event.preventDefault();
-        if (dragEl.nodeName != 'TR')
+        if (dragEl.nodeName != 'TR') {
             return;
+        }
         let target = event.target;
-        if (event.target.nodeName == 'TD')
+        if (event.target.nodeName == 'TD') {
             target = event.target.parentNode;
-        if (target.nodeName == 'TR')
+        }
+        if (target.nodeName == 'TR') {
             target.classList.remove('dragover');
+        }
     }, false);
     tableBody.addEventListener('dragover', function(event) {
         event.preventDefault();
-        if (dragEl.nodeName != 'TR')
+        if (dragEl.nodeName != 'TR') {
             return;
+        }
         let tr = tableBody.getElementsByClassName('dragover');
         let trLen = tr.length;
         for (let i = 0; i < trLen; i++) {
             tr[i].classList.remove('dragover');
         }
         let target = event.target;
-        if (event.target.nodeName == 'TD')
+        if (event.target.nodeName == 'TD') {
             target = event.target.parentNode;
-        if (target.nodeName == 'TR')
+        }
+        if (target.nodeName == 'TR') {
             target.classList.add('dragover');
+        }
         event.dataTransfer.dropEffect = 'move';
     }, false);
     tableBody.addEventListener('dragend', function(event) {
         event.preventDefault();
-        if (dragEl.nodeName != 'TR')
+        if (dragEl.nodeName != 'TR') {
             return;
+        }
         let tr = tableBody.getElementsByClassName('dragover');
         let trLen = tr.length;
         for (let i = 0; i < trLen; i++) {
@@ -193,11 +200,13 @@ function dragAndDropTable(table) {
     tableBody.addEventListener('drop', function(event) {
         event.stopPropagation();
         event.preventDefault();
-        if (dragEl.nodeName != 'TR')
+        if (dragEl.nodeName != 'TR') {
             return;
+        }
         let target = event.target;
-        if (event.target.nodeName == 'TD')
+        if (event.target.nodeName == 'TD') {
             target = event.target.parentNode;
+        }
         let oldSongpos = document.getElementById(event.dataTransfer.getData('Text')).getAttribute('data-songpos');
         let newSongpos = target.getAttribute('data-songpos');
         document.getElementById(event.dataTransfer.getData('Text')).remove();
@@ -239,10 +248,12 @@ function dragAndDropTableHeader(table) {
     }, false);
     tableHeader.addEventListener('dragleave', function(event) {
         event.preventDefault();
-        if (dragEl.nodeName != 'TH')
+        if (dragEl.nodeName != 'TH') {
             return;
-        if (event.target.nodeName == 'TH')
+        }
+        if (event.target.nodeName == 'TH') {
             event.target.classList.remove('dragover-th');
+        }
     }, false);
     tableHeader.addEventListener('dragover', function(event) {
         event.preventDefault();
@@ -254,8 +265,9 @@ function dragAndDropTableHeader(table) {
         for (let i = 0; i < thLen; i++) {
             th[i].classList.remove('dragover-th');
         }
-        if (event.target.nodeName == 'TH')
+        if (event.target.nodeName == 'TH') {
             event.target.classList.add('dragover-th');
+        }
         event.dataTransfer.dropEffect = 'move';
     }, false);
     tableHeader.addEventListener('dragend', function(event) {
@@ -268,14 +280,16 @@ function dragAndDropTableHeader(table) {
         for (let i = 0; i < thLen; i++) {
             th[i].classList.remove('dragover-th');
         }
-        if (this.querySelector('[data-col=' + event.dataTransfer.getData('Text') + ']'))
+        if (this.querySelector('[data-col=' + event.dataTransfer.getData('Text') + ']')) {
             this.querySelector('[data-col=' + event.dataTransfer.getData('Text') + ']').classList.remove('opacity05');
+        }
     }, false);
     tableHeader.addEventListener('drop', function(event) {
         event.stopPropagation();
         event.preventDefault();
-        if (dragEl.nodeName != 'TH')
+        if (dragEl.nodeName != 'TH') {
             return;
+        }
         this.querySelector('[data-col=' + event.dataTransfer.getData('Text') + ']').remove();
         dragEl.classList.remove('opacity05');
         tableHeader.insertBefore(dragEl, event.target);
@@ -301,12 +315,15 @@ function setCols(table, className) {
         tags.push('Title');
     }
     tags.push('Duration');
-    if (table == 'QueueCurrent' || table == 'BrowsePlaylistsDetail' || table == 'QueueLastPlayed')
+    if (table == 'QueueCurrent' || table == 'BrowsePlaylistsDetail' || table == 'QueueLastPlayed') {
         tags.push('Pos');
-    if (table == 'BrowseFilesystem')
+    }
+    if (table == 'BrowseFilesystem') {
         tags.push('Type');
-    if (table == 'QueueLastPlayed')
+    }
+    if (table == 'QueueLastPlayed') {
         tags.push('LastPlayed');
+    }
     
     tags.sort();
     

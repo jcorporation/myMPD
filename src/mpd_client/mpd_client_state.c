@@ -106,7 +106,7 @@ sds mpd_client_put_state(t_mpd_state *mpd_state, sds buffer, sds method, int req
     }
     else {
         buffer = jsonrpc_start_result(buffer, method, request_id);
-        buffer = sdscat(buffer, "{");
+        buffer = sdscat(buffer, ",");
     }
     const struct mpd_audio_format *audioformat = mpd_status_get_audio_format(status);
     buffer = tojson_long(buffer, "state", mpd_status_get_state(status), true);
@@ -130,7 +130,6 @@ sds mpd_client_put_state(t_mpd_state *mpd_state, sds buffer, sds method, int req
         buffer = jsonrpc_end_notify(buffer);
     }
     else {
-        buffer = sdscat(buffer, "}");
         buffer = jsonrpc_end_result(buffer);
     }
     mpd_status_free(status);
@@ -149,18 +148,17 @@ sds mpd_client_put_volume(t_mpd_state *mpd_state, sds buffer, sds method, int re
         return buffer;
     }
     if (method == NULL) {
-        buffer = jsonrpc_start_notify(buffer, "update_state");
+        buffer = jsonrpc_start_notify(buffer, "update_volume");
     }
     else {
         buffer = jsonrpc_start_result(buffer, method, request_id);
-        buffer = sdscat(buffer, "{");
+        buffer = sdscat(buffer, ",");
     }
     buffer = tojson_long(buffer, "volume", mpd_status_get_volume(status), false);
     if (method == NULL) {
         buffer = jsonrpc_end_notify(buffer);
     }
     else {
-        buffer = sdscat(buffer, "}");
         buffer = jsonrpc_end_result(buffer);
     }
     mpd_status_free(status);
@@ -175,7 +173,7 @@ sds mpd_client_put_outputs(t_mpd_state *mpd_state, sds buffer, sds method, int r
     }
 
     buffer = jsonrpc_start_result(buffer, method, request_id);
-    buffer = sdscat(buffer, "[");
+    buffer = sdscat(buffer, ",\"data\":[");
     int nr = 0;
     struct mpd_output *output;
     while ((output = mpd_recv_output(mpd_state->conn)) != NULL) {
@@ -190,7 +188,8 @@ sds mpd_client_put_outputs(t_mpd_state *mpd_state, sds buffer, sds method, int r
         mpd_output_free(output);
     }
 
-    buffer = sdscat(buffer, "]");
+    buffer = sdscat(buffer, "],");
+    buffer = tojson_long(buffer, "numOutputs", nr, false);
     buffer = jsonrpc_end_result(buffer);
     
     return buffer;
@@ -204,7 +203,7 @@ sds mpd_client_put_current_song(t_config *config, t_mpd_state *mpd_state, sds bu
     }
 
     buffer = jsonrpc_start_result(buffer, method, request_id);
-    buffer = sdscat(buffer, "{");
+    buffer = sdscat(buffer, ",");
     buffer = tojson_long(buffer, "pos", mpd_song_get_pos(song), true);
     buffer = tojson_long(buffer, "currentSongId", mpd_state->song_id, true);
     buffer = put_song_tags(buffer, mpd_state, &mpd_state->mympd_tag_types, song);
@@ -231,7 +230,6 @@ sds mpd_client_put_current_song(t_config *config, t_mpd_state *mpd_state, sds bu
     }
     mpd_song_free(song);
 
-    buffer = sdscat(buffer, "}");
     buffer = jsonrpc_end_result(buffer);
     return buffer;
 }

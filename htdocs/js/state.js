@@ -6,27 +6,26 @@
 */
 
 function parseStats(obj) {
-    document.getElementById('mpdstats_artists').innerText =  obj.data.artists;
-    document.getElementById('mpdstats_albums').innerText = obj.data.albums;
-    document.getElementById('mpdstats_songs').innerText = obj.data.songs;
-    document.getElementById('mpdstats_dbPlaytime').innerText = beautifyDuration(obj.data.dbPlaytime);
-    document.getElementById('mpdstats_playtime').innerText = beautifyDuration(obj.data.playtime);
-    document.getElementById('mpdstats_uptime').innerText = beautifyDuration(obj.data.uptime);
-    document.getElementById('mpdstats_dbUpdated').innerText = localeDate(obj.data.dbUpdated);
-    document.getElementById('mympdVersion').innerText = obj.data.mympdVersion;
-    document.getElementById('mpdInfo_version').innerText = obj.data.mpdVersion;
-    document.getElementById('mpdInfo_libmpdclientVersion').innerText = obj.data.libmpdclientVersion;
+    document.getElementById('mpdstats_artists').innerText =  obj.result.artists;
+    document.getElementById('mpdstats_albums').innerText = obj.result.albums;
+    document.getElementById('mpdstats_songs').innerText = obj.result.songs;
+    document.getElementById('mpdstats_dbPlaytime').innerText = beautifyDuration(obj.result.dbPlaytime);
+    document.getElementById('mpdstats_playtime').innerText = beautifyDuration(obj.result.playtime);
+    document.getElementById('mpdstats_uptime').innerText = beautifyDuration(obj.result.uptime);
+    document.getElementById('mpdstats_dbUpdated').innerText = localeDate(obj.result.dbUpdated);
+    document.getElementById('mympdVersion').innerText = obj.result.mympdVersion;
+    document.getElementById('mpdInfo_version').innerText = obj.result.mpdVersion;
+    document.getElementById('mpdInfo_libmpdclientVersion').innerText = obj.result.libmpdclientVersion;
 }
 
 function parseOutputs(obj) {
     let btns = '';
-    let outputsLen = obj.data.length;
-    for (let i = 0; i < outputsLen; i++) {
-        btns += '<button id="btnOutput' + obj.data[i].id +'" data-output-id="' + obj.data[i].id + '" class="btn btn-secondary btn-block';
-        if (obj.data[i].state == 1) {
+    for (let i = 0; i < obj.result.numOutputs; i++) {
+        btns += '<button id="btnOutput' + obj.result.data[i].id +'" data-output-id="' + obj.result.data[i].id + '" class="btn btn-secondary btn-block';
+        if (obj.result.data[i].state == 1) {
             btns += ' active';
         }
-        btns += '"><span class="material-icons float-left">volume_up</span> ' + e(obj.data[i].name) + '</button>';
+        btns += '"><span class="material-icons float-left">volume_up</span> ' + e(obj.result.data[i].name) + '</button>';
     }
     domCache.outputs.innerHTML = btns;
 }
@@ -43,8 +42,8 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
     
     //Set playing track in queue view
     if (lastState) {
-        if (lastState.data.currentSongId != currentSongId) {
-            let tr = document.getElementById('queueTrackId' + lastState.data.currentSongId);
+        if (lastState.currentSongId != currentSongId) {
+            let tr = document.getElementById('queueTrackId' + lastState.currentSongId);
             if (tr) {
                 let durationTd = tr.querySelector('[data-col=Duration]');
                 if (durationTd)
@@ -88,7 +87,7 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
 }
 
 function parseState(obj) {
-    if (JSON.stringify(obj) === JSON.stringify(lastState)) {
+    if (JSON.stringify(obj.result) === JSON.stringify(lastState)) {
         toggleUI();
         return;
     }
@@ -100,16 +99,16 @@ function parseState(obj) {
     parseVolume(obj);
 
     //Set play counters
-    setCounter(obj.data.currentSongId, obj.data.totalTime, obj.data.elapsedTime);
+    setCounter(obj.result.currentSongId, obj.result.totalTime, obj.result.elapsedTime);
     
     //Get current song
-    if (!lastState || lastState.data.currentSongId != obj.data.currentSongId ||
-        lastState.data.queueVersion != obj.data.queueVersion)
+    if (!lastState || lastState.currentSongId != obj.result.currentSongId ||
+        lastState.queueVersion != obj.result.queueVersion)
     {
         sendAPI("MPD_API_PLAYER_CURRENT_SONG", {}, songChange);
     }
     //clear playback card if not playing
-    if (obj.data.songPos == '-1') {
+    if (obj.result.songPos == '-1') {
         domCache.currentTitle.innerText = 'Not playing';
         document.title = 'myMPD';
         document.getElementById('headerTitle').innerText = '';
@@ -125,7 +124,7 @@ function parseState(obj) {
     }
 
 
-    lastState = obj;                    
+    lastState = obj.result;                    
     
     if (settings.mpdConnected == false || uiEnabled == false) {
         getSettings(true);
@@ -133,24 +132,24 @@ function parseState(obj) {
 }
 
 function parseVolume(obj) {
-    if (obj.data.volume == -1) {
+    if (obj.result.volume == -1) {
         domCache.volumePrct.innerText = t('Volumecontrol disabled');
         domCache.volumeControl.classList.add('hide');
     } 
     else {
         domCache.volumeControl.classList.remove('hide');
-        domCache.volumePrct.innerText = obj.data.volume + ' %';
-        if (obj.data.volume == 0) {
+        domCache.volumePrct.innerText = obj.result.volume + ' %';
+        if (obj.result.volume == 0) {
             domCache.volumeMenu.innerText = 'volume_off';
         }
-        else if (obj.data.volume < 50) {
+        else if (obj.result.volume < 50) {
             domCache.volumeMenu.innerText = 'volume_down';
         }
         else {
             domCache.volumeMenu.innerText = 'volume_up';
         }
     }
-    domCache.volumeBar.value = obj.data.volume;
+    domCache.volumeBar.value = obj.result.volume;
 }
 
 function setBackgroundImage(imageUrl) {
@@ -229,41 +228,39 @@ function clearCurrentCover() {
 }
 
 function songChange(obj) {
-    if (obj.method != 'MPD_API_PLAYER_CURRENT_SONG' && obj.method != 'song_change') {
+    let curSong = obj.result.uri + ':' + obj.result.currentSongId;
+    if (lastSong == curSong) {
         return;
     }
-    let curSong = obj.data.Title + obj.data.Artist + obj.data.Album + obj.data.uri + obj.data.currentSongId;
-    if (lastSong == curSong) 
-        return;
     let textNotification = '';
     let htmlNotification = '';
     let pageTitle = '';
 
-    setCurrentCover(obj.data.cover);
+    setCurrentCover(obj.result.cover);
     if (settings.bgCover == true && settings.featCoverimage == true) {
-        if (obj.data.cover.indexOf('coverimage-') > -1 ) {
+        if (obj.result.cover.indexOf('coverimage-') > -1 ) {
             clearBackgroundImage();
         }
         else {
-            setBackgroundImage(obj.data.cover);
+            setBackgroundImage(obj.result.cover);
         }
     }
 
-    if (typeof obj.data.Artist != 'undefined' && obj.data.Artist.length > 0 && obj.data.Artist != '-') {
-        textNotification += obj.data.Artist;
-        htmlNotification += obj.data.Artist;
-        pageTitle += obj.data.Artist + ' - ';
+    if (typeof obj.result.Artist != 'undefined' && obj.result.Artist.length > 0 && obj.result.Artist != '-') {
+        textNotification += obj.result.Artist;
+        htmlNotification += obj.result.Artist;
+        pageTitle += obj.result.Artist + ' - ';
     } 
 
-    if (typeof obj.data.Album != 'undefined' && obj.data.Album.length > 0 && obj.data.Album != '-') {
-        textNotification += ' - ' + obj.data.Album;
-        htmlNotification += '<br/>' + obj.data.Album;
+    if (typeof obj.result.Album != 'undefined' && obj.result.Album.length > 0 && obj.result.Album != '-') {
+        textNotification += ' - ' + obj.result.Album;
+        htmlNotification += '<br/>' + obj.result.Album;
     }
 
-    if (typeof obj.data.Title != 'undefined' && obj.data.Title.length > 0) {
-        pageTitle += obj.data.Title;
-        domCache.currentTitle.innerText = obj.data.Title;
-        domCache.currentTitle.setAttribute('data-uri', encodeURI(obj.data.uri));
+    if (typeof obj.result.Title != 'undefined' && obj.result.Title.length > 0) {
+        pageTitle += obj.result.Title;
+        domCache.currentTitle.innerText = obj.result.Title;
+        domCache.currentTitle.setAttribute('data-uri', encodeURI(obj.result.uri));
     }
     else {
         domCache.currentTitle.innerText = '';
@@ -274,28 +271,29 @@ function songChange(obj) {
     document.getElementById('headerTitle').title = pageTitle;
 
     if (settings.featStickers == true) {
-        setVoteSongBtns(obj.data.like, obj.data.uri);
+        setVoteSongBtns(obj.result.like, obj.result.uri);
     }
 
+    logDebug('colsPlayback: ' + JSON.stringify(settings.colsPlayback));
     for (let i = 0; i < settings.colsPlayback.length; i++) {
         let c = document.getElementById('current' + settings.colsPlayback[i]);
         if (c) {
-            c.getElementsByTagName('h4')[0].innerText = obj.data[settings.colsPlayback[i]];
-            c.setAttribute('data-name', encodeURI(obj.data[settings.colsPlayback[i]]));
+            c.getElementsByTagName('h4')[0].innerText = obj.result[settings.colsPlayback[i]];
+            c.setAttribute('data-name', encodeURI(obj.result[settings.colsPlayback[i]]));
         }
     }
     
     //Update Artist in queue view for http streams
-    let playingTr = document.getElementById('queueTrackId' + obj.data.currentSongId);
+    let playingTr = document.getElementById('queueTrackId' + obj.result.currentSongId);
     if (playingTr) {
-        playingTr.getElementsByTagName('td')[1].innerText = obj.data.Title;
+        playingTr.getElementsByTagName('td')[1].innerText = obj.result.Title;
     }
 
     if (playstate == 'play') {
-        showNotification(obj.data.Title, textNotification, htmlNotification, 'success');
+        showNotification(obj.result.Title, textNotification, htmlNotification, 'success');
     }
     lastSong = curSong;
-    lastSongObj = obj;
+    lastSongObj = obj.result;
 }
 
 //eslint-disable-next-line no-unused-vars

@@ -47,30 +47,32 @@ function getSettings(onerror) {
 }
 
 function getMpdSettings(obj) {
-    if (obj == '' || obj.type == 'error') {
+    if (obj != '' && obj.result) {
+        settingsNew = obj.result;
+        document.getElementById('splashScreenAlert').innerText = t('Fetch MPD settings');
+        sendAPI("MPD_API_SETTINGS_GET", {}, joinSettings, true);
+    }
+    else {
         settingsParsed = 'error';
         if (appInited == false) {
-            showAppInitAlert(obj == '' ? t('Can not parse settings') : obj.data);
+            showAppInitAlert(obj == '' ? t('Can not parse settings') : t(obj.error.message));
         }
         return false;
     }
-    settingsNew = obj.data;
-    document.getElementById('splashScreenAlert').innerText = t('Fetch MPD settings');
-    sendAPI("MPD_API_SETTINGS_GET", {}, joinSettings, true);
 }
 
 function joinSettings(obj) {
-    if (obj == '' || obj.type == 'error') {
-        settingsParsed = 'error';
-        if (appInited == false) {
-            showAppInitAlert(obj == '' ? t('Can not parse settings') : obj.data);
+    if (obj != '' && obj.result) {
+        for (let key in obj.result) {
+            settingsNew[key] = obj.result[key];
         }
-        settingsNew.mpdConnected = false;
     }
     else {
-        for (let key in obj.data) {
-            settingsNew[key] = obj.data[key];
+        settingsParsed = 'error';
+        if (appInited == false) {
+            showAppInitAlert(obj == '' ? t('Can not parse settings') : t(obj.error.message));
         }
+        settingsNew.mpdConnected = false;
     }
     settings = Object.assign({}, settingsNew);
     settingsLock = false;
@@ -372,11 +374,11 @@ function parseMPDSettings() {
     }
 
     if (settings.bgCover == true && settings.featCoverimage == true && settings.coverimage == true) {
-        if (lastSongObj.data && lastSongObj.data.cover.indexOf('coverimage-') > -1 ) {
+        if (lastSongObj.cover.indexOf('coverimage-') > -1 ) {
             clearBackgroundImage();
         }
-        else if (lastSongObj.data) {
-             setBackgroundImage(lastSongObj.data.cover);
+        else if (lastSongObj.cover) {
+             setBackgroundImage(lastSongObj.cover);
         }
         else {
             clearBackgroundImage();
@@ -401,13 +403,13 @@ function parseMPDSettings() {
         let pbtl = '';
         for (let i = 0; i < settings.colsPlayback.length; i++) {
             pbtl += '<div id="current' + settings.colsPlayback[i]  + '" data-tag="' + settings.colsPlayback[i] + '" '+
-                    'data-name="' + encodeURI((lastSongObj.data ? lastSongObj.data[settings.colsPlayback[i]] : '')) + '">' +
+                    'data-name="' + (lastSongObj[settings.colsPlayback[i]] ? encodeURI(lastSongObj[settings.colsPlayback[i]]) : '') + '">' +
                     '<small>' + t(settings.colsPlayback[i]) + '</small>' +
                     '<h4';
             if (settings.browsetags.includes(settings.colsPlayback[i])) {
                 pbtl += ' class="clickable"';
             }
-            pbtl += '>' + (lastSongObj.data ? e(lastSongObj.data[settings.colsPlayback[i]]) : '') + '</h4></div>';
+            pbtl += '>' + (lastSongObj[settings.colsPlayback[i]] ? e(lastSongObj[settings.colsPlayback[i]]) : '') + '</h4></div>';
         }
         document.getElementById('cardPlaybackTags').innerHTML = pbtl;
     }

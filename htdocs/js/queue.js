@@ -7,13 +7,13 @@
 
 function parseUpdateQueue(obj) {
     //Set playstate
-    if (obj.data.state == 1) {
+    if (obj.result.state == 1) {
         for (let i = 0; i < domCache.btnsPlayLen; i++) {
             domCache.btnsPlay[i].innerText = 'play_arrow';
         }
         playstate = 'stop';
     }
-    else if (obj.data.state == 2) {
+    else if (obj.result.state == 2) {
         for (let i = 0; i < domCache.btnsPlayLen; i++) {
             domCache.btnsPlay[i].innerText = 'pause';
         }
@@ -26,7 +26,7 @@ function parseUpdateQueue(obj) {
 	playstate = 'pause';
     }
 
-    if (obj.data.queueLength == 0) {
+    if (obj.result.queueLength == 0) {
         for (let i = 0; i < domCache.btnsPlayLen; i++) {
             domCache.btnsPlay[i].setAttribute('disabled', 'disabled');
         }
@@ -37,16 +37,16 @@ function parseUpdateQueue(obj) {
         }
     }
 
-    domCache.badgeQueueItems.innerText = obj.data.queueLength;
+    domCache.badgeQueueItems.innerText = obj.result.queueLength;
     
-    if (obj.data.nextSongPos == -1 && settings.jukeboxMode == false) {
+    if (obj.result.nextSongPos == -1 && settings.jukeboxMode == false) {
         domCache.btnNext.setAttribute('disabled', 'disabled');
     }
     else {
         domCache.btnNext.removeAttribute('disabled');
     }
     
-    if (obj.data.songPos <= 0) {
+    if (obj.result.songPos <= 0) {
         domCache.btnPrev.setAttribute('disabled', 'disabled');
     }
     else {
@@ -64,17 +64,17 @@ function getQueue() {
 }
 
 function parseQueue(obj) {
-    if (typeof(obj.totalTime) != 'undefined' && obj.totalTime > 0 && obj.totalEntities <= settings.maxElementsPerPage ) {
-        document.getElementById('cardFooterQueue').innerText = t('Num songs', obj.totalEntities) + ' – ' + beautifyDuration(obj.totalTime);
+    if (typeof(obj.result.totalTime) != 'undefined' && obj.result.totalTime > 0 && obj.result.totalEntities <= settings.maxElementsPerPage ) {
+        document.getElementById('cardFooterQueue').innerText = t('Num songs', obj.result.totalEntities) + ' – ' + beautifyDuration(obj.result.totalTime);
     }
-    else if (obj.totalEntities > 0) {
-        document.getElementById('cardFooterQueue').innerText = t('Num songs', obj.totalEntities);
+    else if (obj.result.totalEntities > 0) {
+        document.getElementById('cardFooterQueue').innerText = t('Num songs', obj.result.totalEntities);
     }
     else {
         document.getElementById('cardFooterQueue').innerText = '';
     }
 
-    let nrItems = obj.data.length;
+    let nrItems = obj.result.returnedEntities;
     let table = document.getElementById('QueueCurrentList');
     let navigate = document.activeElement.parentNode.parentNode == table ? true : false;
     let activeRow = 0;
@@ -82,19 +82,19 @@ function parseQueue(obj) {
     let tbody = table.getElementsByTagName('tbody')[0];
     let tr = tbody.getElementsByTagName('tr');
     for (let i = 0; i < nrItems; i++) {
-        obj.data[i].Duration = beautifySongDuration(obj.data[i].Duration);
-        obj.data[i].Pos++;
+        obj.result.data[i].Duration = beautifySongDuration(obj.result.data[i].Duration);
+        obj.result.data[i].Pos++;
         let row = document.createElement('tr');
         row.setAttribute('draggable', 'true');
-        row.setAttribute('data-trackid', obj.data[i].id);
-        row.setAttribute('id','queueTrackId' + obj.data[i].id);
-        row.setAttribute('data-songpos', obj.data[i].Pos);
-        row.setAttribute('data-duration', obj.data[i].Duration);
-        row.setAttribute('data-uri', obj.data[i].uri);
+        row.setAttribute('data-trackid', obj.result.data[i].id);
+        row.setAttribute('id','queueTrackId' + obj.result.data[i].id);
+        row.setAttribute('data-songpos', obj.result.data[i].Pos);
+        row.setAttribute('data-duration', obj.result.data[i].Duration);
+        row.setAttribute('data-uri', obj.result.data[i].uri);
         row.setAttribute('tabindex', 0);
         let tds = '';
         for (let c = 0; c < settings.colsQueueCurrent.length; c++) {
-            tds += '<td data-col="' + settings.colsQueueCurrent[c] + '">' + e(obj.data[i][settings.colsQueueCurrent[c]]) + '</td>';
+            tds += '<td data-col="' + settings.colsQueueCurrent[c] + '">' + e(obj.result.data[i][settings.colsQueueCurrent[c]]) + '</td>';
         }
         tds += '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">playlist_add</a></td>';
         row.innerHTML = tds;
@@ -126,32 +126,32 @@ function parseQueue(obj) {
         focusTable(activeRow);
     }
     
-    setPagination(obj.totalEntities, obj.returnedEntities);
+    setPagination(obj.result.totalEntities, obj.returnedEntities);
     document.getElementById('QueueCurrentList').classList.remove('opacity05');
 }
 
 function parseLastPlayed(obj) {
-    document.getElementById('cardFooterQueue').innerText = t('Num songs', obj.totalEntities);
-    let nrItems = obj.data.length;
+    document.getElementById('cardFooterQueue').innerText = t('Num songs', obj.result.totalEntities);
+    let nrItems = obj.result.returnedEntities;
     let table = document.getElementById('QueueLastPlayedList');
     let navigate = document.activeElement.parentNode.parentNode == table ? true : false;
     let activeRow = 0;
     let tbody = table.getElementsByTagName('tbody')[0];
     let tr = tbody.getElementsByTagName('tr');
     for (let i = 0; i < nrItems; i++) {
-        obj.data[i].Duration = beautifySongDuration(obj.data[i].Duration);
-        obj.data[i].LastPlayed = localeDate(obj.data[i].LastPlayed);
+        obj.result.data[i].Duration = beautifySongDuration(obj.result.data[i].Duration);
+        obj.result.data[i].LastPlayed = localeDate(obj.result.data[i].LastPlayed);
         let row = document.createElement('tr');
-        row.setAttribute('data-uri', obj.data[i].uri);
-        row.setAttribute('data-name', obj.data[i].Title);
+        row.setAttribute('data-uri', obj.result.data[i].uri);
+        row.setAttribute('data-name', obj.result.data[i].Title);
         row.setAttribute('data-type', 'song');
         row.setAttribute('tabindex', 0);
         let tds = '';
         for (let c = 0; c < settings.colsQueueLastPlayed.length; c++) {
-            tds += '<td data-col="' + settings.colsQueueLastPlayed[c] + '">' + e(obj.data[i][settings.colsQueueLastPlayed[c]]) + '</td>';
+            tds += '<td data-col="' + settings.colsQueueLastPlayed[c] + '">' + e(obj.result.data[i][settings.colsQueueLastPlayed[c]]) + '</td>';
         }
         tds += '<td data-col="Action">';
-        if (obj.data[i].uri != '') {
+        if (obj.result.data[i].uri != '') {
             tds += '<a href="#" class="material-icons color-darkgrey">playlist_add</a>';
         }
         tds += '</td>';
@@ -180,7 +180,7 @@ function parseLastPlayed(obj) {
         focusTable(activeRow);
     }
 
-    setPagination(obj.totalEntities, obj.returnedEntities);
+    setPagination(obj.result.totalEntities, obj.returnedEntities);
     document.getElementById('QueueLastPlayedList').classList.remove('opacity05');
 }
 

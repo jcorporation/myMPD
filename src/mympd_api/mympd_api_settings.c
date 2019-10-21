@@ -407,7 +407,7 @@ bool state_file_write(t_config *config, const char *name, const char *value) {
 
 sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buffer, sds method, int request_id) {
     buffer = jsonrpc_start_result(buffer, method, request_id);
-    buffer = sdscat(buffer, "{");
+    buffer = sdscat(buffer, ",");
     buffer = tojson_char(buffer, "mpdHost", mympd_state->mpd_host, true);
     buffer = tojson_long(buffer, "mpdPort", mympd_state->mpd_port, true);
     buffer = tojson_char(buffer, "mpdPass", "dontsetpassword", true);
@@ -462,7 +462,6 @@ sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buf
         buffer = sdscat(buffer, "]");
     }
 
-    buffer = sdscat(buffer, "}");
     buffer = jsonrpc_end_result(buffer);
     return buffer;
 }

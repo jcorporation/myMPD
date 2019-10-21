@@ -63,7 +63,7 @@ sds mpd_client_put_queue(t_mpd_state *mpd_state, sds buffer, sds method, int req
     }
         
     buffer = jsonrpc_start_result(buffer, method, request_id);
-    buffer = sdscat(buffer, "[");
+    buffer = sdscat(buffer, ",\"data\":[");
     int totalTime = 0;
     unsigned entity_count = 0;
     unsigned entities_returned = 0;
@@ -157,7 +157,7 @@ sds mpd_client_search_queue(t_mpd_state *mpd_state, sds buffer, sds method, int 
     }
 
     buffer = jsonrpc_start_result(buffer, method, request_id);
-    buffer = sdscat(buffer, "[");
+    buffer = sdscat(buffer, ",\"data\":[");
     struct mpd_song *song;
     unsigned entity_count = 0;
     unsigned entities_returned = 0;

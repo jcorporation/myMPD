@@ -29,7 +29,7 @@ sds mpd_client_search(t_mpd_state *mpd_state, sds buffer, sds method, int reques
             return buffer;
         }
         buffer = jsonrpc_start_result(buffer, method, request_id);
-        buffer = sdscat(buffer, "[");
+        buffer = sdscat(buffer, ",\"data\":[");
     }
     else if (strcmp(plist, "queue") == 0) {
         if (mpd_send_command(mpd_state->conn, "searchadd", filter, searchstr, NULL) == false) {
@@ -89,7 +89,7 @@ sds mpd_client_search_adv(t_mpd_state *mpd_state, sds buffer, sds method, int re
             return buffer;
         }
         buffer = jsonrpc_start_result(buffer, method, request_id);
-        buffer = sdscat(buffer, "[");
+        buffer = sdscat(buffer, ",\"data\":[");
     }
     else if (strcmp(plist, "queue") == 0) {
         if (mpd_search_add_db_songs(mpd_state->conn, false) == false) {

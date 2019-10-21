@@ -53,7 +53,7 @@ function showMenu(el, event) {
     }
     
     if (lastState)
-        nextsongpos = lastState.data.nextSongPos;
+        nextsongpos = lastState.nextSongPos;
 
     let menu = '';
     if ((app.current.app == 'Browse' && app.current.tab == 'Filesystem') || app.current.app == 'Search' ||

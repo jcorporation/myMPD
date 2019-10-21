@@ -43,7 +43,6 @@ sds jsonrpc_start_result(sds buffer, const char *method, int id) {
     buffer = sdscrop(buffer);
     buffer = sdscatprintf(buffer, "{\"jsonrpc\":\"2.0\",\"id\":%d,\"result\":{\"method\":", id);
     buffer = sdscatjson(buffer, method, strlen(method)); /* Flawfinder: ignore */
-    buffer = sdscat(buffer, ",\"data\":");
     return buffer;
 }
 

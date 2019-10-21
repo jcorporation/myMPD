@@ -36,10 +36,9 @@ sds mpd_client_put_fingerprint(t_mpd_state *mpd_state, sds buffer, sds method, i
         buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
         return buffer;
     }
-    buffer = sdscat(buffer, "{");
+    buffer = sdscat(buffer, ",");
     buffer = tojson_char(buffer, "fingerprint", fingerprint, false);
     mpd_response_finish(mpd_state->conn);
-    buffer = sdscat(buffer, "}");
     #else
     (void)(mpd_state);
     (void)(uri);
@@ -52,7 +51,7 @@ sds mpd_client_put_songdetails(t_config *config, t_mpd_state *mpd_state, sds buf
                                const char *uri)
 {
     buffer = jsonrpc_start_result(buffer, method, request_id);
-    buffer = sdscat(buffer,"{");    
+    buffer = sdscat(buffer,",");
 
     if (!mpd_send_list_all_meta(mpd_state->conn, uri)) {
         buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
@@ -88,7 +87,6 @@ sds mpd_client_put_songdetails(t_config *config, t_mpd_state *mpd_state, sds buf
         buffer = tojson_long(buffer, "lastSkipped", sticker->lastSkipped, false);
         FREE_PTR(sticker);
     }
-    buffer = sdscat(buffer, "}"); 
     buffer = jsonrpc_end_result(buffer);
     return buffer;
 }
@@ -97,7 +95,7 @@ sds mpd_client_put_filesystem(t_config *config, t_mpd_state *mpd_state, sds buff
                               const char *path, const unsigned int offset, const char *filter, const t_tags *tagcols)
 {
     buffer = jsonrpc_start_result(buffer, method, request_id);
-    buffer = sdscat(buffer, "[");
+    buffer = sdscat(buffer, ",\"data\":[");
     
     if (!mpd_send_list_meta(mpd_state->conn, path)) {
         buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
@@ -215,7 +213,7 @@ sds mpd_client_put_db_tag(t_mpd_state *mpd_state, sds buffer, sds method, int re
                           const unsigned int offset, const char *mpdtagtype, const char *mpdsearchtagtype, const char *searchstr, const char *filter)
 {
     buffer = jsonrpc_start_result(buffer, method, request_id);
-    buffer = sdscat(buffer, "[");
+    buffer = sdscat(buffer, ",\"data\":[");
     
     if (mpd_search_db_tags(mpd_state->conn, mpd_tag_name_parse(mpdtagtype)) == false) {
         buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
@@ -275,7 +273,7 @@ sds mpd_client_put_songs_in_album(t_config *config, t_mpd_state *mpd_state, sds 
                                   const char *album, const char *search, const char *tag, const t_tags *tagcols)
 {
     buffer = jsonrpc_start_result(buffer, method, request_id);
-    buffer = sdscat(buffer, "[");
+    buffer = sdscat(buffer, ",\"data\":[");
 
     if (mpd_search_db_songs(mpd_state->conn, true) == false) {
         buffer = check_error_and_recover(mpd_state, buffer, method, request_id);

@@ -12,7 +12,7 @@ function songDetails(uri) {
 
 function parseFingerprint(obj) {
     let textarea = document.createElement('textarea');
-    textarea.value = obj.data.fingerprint;
+    textarea.value = obj.result.fingerprint;
     textarea.classList.add('form-control', 'text-monospace', 'small');
     let fpTd = document.getElementById('fingerprint');
     fpTd.innerHTML = '';
@@ -21,43 +21,43 @@ function parseFingerprint(obj) {
 
 function parseSongDetails(obj) {
     let modal = document.getElementById('modalSongDetails');
-    modal.getElementsByClassName('album-cover')[0].style.backgroundImage = 'url("' + subdir + obj.data.cover + '"), url("' + subdir + '/assets/coverimage-loading.png")';
-    modal.getElementsByTagName('h1')[0].innerText = obj.data.Title;
+    modal.getElementsByClassName('album-cover')[0].style.backgroundImage = 'url("' + subdir + obj.result.cover + '"), url("' + subdir + '/assets/coverimage-loading.png")';
+    modal.getElementsByTagName('h1')[0].innerText = obj.result.Title;
     
     let songDetails = '';
     for (let i = 0; i < settings.tags.length; i++) {
         if (settings.tags[i] == 'Title') {
             continue;
         }
-        songDetails += '<tr><th>' + t(settings.tags[i]) + '</th><td data-tag="' + settings.tags[i] + '" data-name="' + encodeURI(obj.data[settings.tags[i]]) + '">';
+        songDetails += '<tr><th>' + t(settings.tags[i]) + '</th><td data-tag="' + settings.tags[i] + '" data-name="' + encodeURI(obj.result[settings.tags[i]]) + '">';
         if (settings.browsetags.includes(settings.tags[i])) {
-            songDetails += '<a class="text-success" href="#">' + e(obj.data[settings.tags[i]]) + '</a>';
+            songDetails += '<a class="text-success" href="#">' + e(obj.result[settings.tags[i]]) + '</a>';
         }
         else {
-            songDetails += obj.data[settings.tags[i]];
+            songDetails += obj.result[settings.tags[i]];
         }
         songDetails += '</td></tr>';
     }
-    songDetails += '<tr><th>' + t('Duration') + '</th><td>' + beautifyDuration(obj.data.Duration) + '</td></tr>';
+    songDetails += '<tr><th>' + t('Duration') + '</th><td>' + beautifyDuration(obj.result.Duration) + '</td></tr>';
     if (settings.featLibrary) {
         songDetails += '<tr><th>' + t('Filename') + '</th><td><a class="breakAll text-success" href="/library/' + 
-            encodeURI(obj.data.uri) + '" download title="' + e(obj.data.uri) + '">' + 
-            e(basename(obj.data.uri)) + '</a></td></tr>';
+            encodeURI(obj.result.uri) + '" download title="' + e(obj.result.uri) + '">' + 
+            e(basename(obj.result.uri)) + '</a></td></tr>';
     }
     else {
-        songDetails += '<tr><th>' + t('Filename') + '</th><td class="breakAll"><span title="' + e(obj.data.uri) + '">' + 
-            e(basename(obj.data.uri)) + '</span></td></tr>';
+        songDetails += '<tr><th>' + t('Filename') + '</th><td class="breakAll"><span title="' + e(obj.result.uri) + '">' + 
+            e(basename(obj.result.uri)) + '</span></td></tr>';
     }
     if (settings.featFingerprint == true) {
         songDetails += '<tr><th>' + t('Fingerprint') + '</th><td class="breakAll" id="fingerprint"><a class="text-success" data-uri="' + 
-            encodeURI(obj.data.uri) + '" id="calcFingerprint" href="#">' + t('Calculate') + '</a></td></tr>';
+            encodeURI(obj.result.uri) + '" id="calcFingerprint" href="#">' + t('Calculate') + '</a></td></tr>';
     }
     if (settings.featStickers == true) {
         songDetails += '<tr><th colspan="2" class="pt-3"><h5>' + t('Statistics') + '</h5></th></tr>' +
-            '<tr><th>' + t('Play count') + '</th><td>' + obj.data.playCount + '</td></tr>' +
-            '<tr><th>' + t('Skip count') + '</th><td>' + obj.data.skipCount + '</td></tr>' +
-            '<tr><th>' + t('Last played') + '</th><td>' + (obj.data.lastPlayed == 0 ? t('never') : localeDate(obj.data.lastPlayed)) + '</td></tr>' +
-            '<tr><th>' + t('Last skipped') + '</th><td>' + (obj.data.lastSkipped == 0 ? t('never') : localeDate(obj.data.lastSkipped)) + '</td></tr>' +
+            '<tr><th>' + t('Play count') + '</th><td>' + obj.result.playCount + '</td></tr>' +
+            '<tr><th>' + t('Skip count') + '</th><td>' + obj.result.skipCount + '</td></tr>' +
+            '<tr><th>' + t('Last played') + '</th><td>' + (obj.result.lastPlayed == 0 ? t('never') : localeDate(obj.result.lastPlayed)) + '</td></tr>' +
+            '<tr><th>' + t('Last skipped') + '</th><td>' + (obj.result.lastSkipped == 0 ? t('never') : localeDate(obj.result.lastSkipped)) + '</td></tr>' +
             '<tr><th>' + t('Like') + '</th><td>' +
               '<div class="btn-group btn-group-sm">' +
                 '<button title="' + t('Dislike song') + '" id="btnVoteDown2" data-href=\'{"cmd": "voteSong", "options": [0]}\' class="btn btn-sm btn-light material-icons">thumb_down</button>' +
@@ -67,7 +67,7 @@ function parseSongDetails(obj) {
     }
     
     modal.getElementsByTagName('tbody')[0].innerHTML = songDetails;
-    setVoteSongBtns(obj.data.like, obj.data.uri);
+    setVoteSongBtns(obj.result.like, obj.result.uri);
 }
 
 //eslint-disable-next-line no-unused-vars

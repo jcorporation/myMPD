@@ -28,8 +28,8 @@ function search(x) {
 }
 
 function parseSearch(obj) {
-    document.getElementById('panel-heading-search').innerText = gtPage('Num songs', obj.returnedEntities, obj.totalEntities);
-    document.getElementById('cardFooterSearch').innerText = gtPage('Num songs', obj.returnedEntities, obj.totalEntities);
+    document.getElementById('panel-heading-search').innerText = gtPage('Num songs', obj.returnedEntities, obj.result.totalEntities);
+    document.getElementById('cardFooterSearch').innerText = gtPage('Num songs', obj.returnedEntities, obj.result.totalEntities);
     
     if (obj.returnedEntities > 0) {
         document.getElementById('searchAddAllSongs').removeAttribute('disabled');

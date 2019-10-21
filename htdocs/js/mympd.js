@@ -995,8 +995,8 @@ function appInit() {
             clearTimeout(websocketTimer);
             websocketTimer = null;
         }
-        socket.onclose = function () {}; // disable onclose handler first
         if (socket != null) {
+            socket.onclose = function () {}; // disable onclose handler first
             socket.close();
             socket = null;
         }

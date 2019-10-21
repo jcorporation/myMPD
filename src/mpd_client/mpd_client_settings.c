@@ -194,7 +194,7 @@ sds mpd_client_put_settings(t_mpd_state *mpd_state, sds buffer, sds method, int 
     mpd_response_finish(mpd_state->conn);
     
     buffer = jsonrpc_start_result(buffer, method, request_id);
-    buffer = sdscat(buffer, "{");
+    buffer = sdscat(buffer, ",");
     buffer = tojson_long(buffer, "repeat", mpd_status_get_repeat(status), true);
     buffer = tojson_long(buffer, "single", mpd_status_get_single(status), true);
     buffer = tojson_long(buffer, "crossfade", mpd_status_get_crossfade(status), true);
@@ -224,7 +224,6 @@ sds mpd_client_put_settings(t_mpd_state *mpd_state, sds buffer, sds method, int 
     buffer = sdscat(buffer, ",");
     buffer = print_tags_array(buffer, "allmpdtags", mpd_state->mpd_tag_types);
 
-    buffer = sdscat(buffer, "}");
     buffer = jsonrpc_end_result(buffer);
     
     return buffer;

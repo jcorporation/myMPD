@@ -20,7 +20,7 @@ function sendAPI(method, params, callback, onerror) {
                     if (onerror == true) {
                         if (callback != undefined && typeof(callback) == 'function') {
                             logDebug('Got API response of type error calling ' + callback.name);
-                            callback(obj.result);
+                            callback(obj);
                         }
                     }
                 }
@@ -31,9 +31,9 @@ function sendAPI(method, params, callback, onerror) {
                 else if (obj.result && obj.result.message && obj.result.message == 'ok') {
                     logDebug('Got API response: ' + JSON.stringify(obj.result));
                 }
-                else if (obj.result && obj.result.data && callback != undefined && typeof(callback) == 'function') {
+                else if (obj.result && callback != undefined && typeof(callback) == 'function') {
                     logDebug('Got API response of type "' + obj.result.method + '" calling ' + callback.name);
-                    callback(obj.result);
+                    callback(obj);
                 }
                 else {
                     logError('Got invalid API response: ' + JSON.stringify(obj));
@@ -89,9 +89,8 @@ function webSocketConnect() {
                     sendAPI("MPD_API_PLAYER_STATE", {}, parseState, true);
                     break;
                 case 'update_state':
-                    obj.result = {};
-                    obj.result.data = obj.params;
-                    parseState(obj.result);
+                    obj.result = obj.params;
+                    parseState(obj);
                     break;
                 case 'mpd_disconnected':
                     if (progressTimer) {
@@ -108,9 +107,8 @@ function webSocketConnect() {
                     if (app.current.app === 'Queue') {
                         getQueue();
                     }
-                    obj.result = {};
-                    obj.result.data = obj.params;
-                    parseUpdateQueue(obj.result);
+                    obj.result = obj.params;
+                    parseUpdateQueue(obj);
                     break;
                 case 'update_options':
                     getSettings();
@@ -127,9 +125,8 @@ function webSocketConnect() {
                     updateDBfinished(obj.method);
                     break;
                 case 'update_volume':
-                    obj.result = {};
-                    obj.result.data = obj.params;
-                    parseVolume(obj.result);
+                    obj.result = obj.params;
+                    parseVolume(obj);
                     break;
                 case 'update_stored_playlist':
                     if (app.current.app == 'Browse' && app.current.tab == 'Playlists' && app.current.view == 'All') {

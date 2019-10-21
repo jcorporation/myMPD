@@ -17,42 +17,42 @@ function parseFilesystem(obj) {
     let list = app.current.app + (app.current.tab == 'Filesystem' ? app.current.tab : '');
     let colspan = settings['cols' + list].length;
     colspan--;
-    let nrItems = obj.data.length;
+    let nrItems = obj.result.returnedEntities;
     let table = document.getElementById(app.current.app + (app.current.tab == undefined ? '' : app.current.tab) + 'List');
     let tbody = table.getElementsByTagName('tbody')[0];
     let tr = tbody.getElementsByTagName('tr');
     let navigate = document.activeElement.parentNode.parentNode == table ? true : false;
     let activeRow = 0;
     for (let i = 0; i < nrItems; i++) {
-        let uri = encodeURI(obj.data[i].uri);
+        let uri = encodeURI(obj.result.data[i].uri);
         let row = document.createElement('tr');
         let tds = '';
-        row.setAttribute('data-type', obj.data[i].Type);
+        row.setAttribute('data-type', obj.result.data[i].Type);
         row.setAttribute('data-uri', uri);
         row.setAttribute('tabindex', 0);
-        if (obj.data[i].Type == 'song') {
-            row.setAttribute('data-name', obj.data[i].Title);
+        if (obj.result.data[i].Type == 'song') {
+            row.setAttribute('data-name', obj.result.data[i].Title);
         }
         else {
-            row.setAttribute('data-name', obj.data[i].name);
+            row.setAttribute('data-name', obj.result.data[i].name);
         }
         
-        switch(obj.data[i].Type) {
+        switch(obj.result.data[i].Type) {
             case 'dir':
             case 'smartpls':
             case 'plist':
                 for (let c = 0; c < settings['cols' + list].length; c++) {
                     tds += '<td data-col="' + settings['cols' + list][c] + '">';
                     if (settings['cols' + list][c] == 'Type') {
-                        if (obj.data[i].Type == 'dir') {
+                        if (obj.result.data[i].Type == 'dir') {
                             tds += '<span class="material-icons">folder_open</span>';
                         }
                         else {
-                            tds += '<span class="material-icons">' + (obj.data[i].Type == 'smartpls' ? 'queue_music' : 'list') + '</span>';
+                            tds += '<span class="material-icons">' + (obj.result.data[i].Type == 'smartpls' ? 'queue_music' : 'list') + '</span>';
                         }
                     }
                     else if (settings['cols' + list][c] == 'Title') {
-                        tds += e(obj.data[i].name);
+                        tds += e(obj.result.data[i].name);
                     }
                     tds += '</td>';
                 }
@@ -60,14 +60,14 @@ function parseFilesystem(obj) {
                 row.innerHTML = tds;
                 break;
             case 'song':
-                obj.data[i].Duration = beautifySongDuration(obj.data[i].Duration);
+                obj.result.data[i].Duration = beautifySongDuration(obj.result.data[i].Duration);
                 for (let c = 0; c < settings['cols' + list].length; c++) {
                     tds += '<td data-col="' + settings['cols' + list][c] + '">';
                     if (settings['cols' + list][c] == 'Type') {
                         tds += '<span class="material-icons">music_note</span>';
                     }
                     else {
-                        tds += e(obj.data[i][settings['cols' + list][c]]);
+                        tds += e(obj.result.data[i][settings['cols' + list][c]]);
                     }
                     tds += '</td>';
                 }
@@ -91,13 +91,13 @@ function parseFilesystem(obj) {
         focusTable(0);
     }
 
-    setPagination(obj.totalEntities, obj.returnedEntities);
+    setPagination(obj.result.totalEntities, obj.result.returnedEntities);
                     
     if (nrItems == 0)
         tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
                           '<td colspan="' + colspan + '">' + t('Empty list') + '</td></tr>';
     document.getElementById(app.current.app + (app.current.tab == undefined ? '' : app.current.tab) + 'List').classList.remove('opacity05');
-    document.getElementById('cardFooterBrowse').innerText = t('Num entries', obj.totalEntities);
+    document.getElementById('cardFooterBrowse').innerText = t('Num entries', obj.result.totalEntities);
 }
 
 
@@ -111,18 +111,18 @@ function parseListDBtags(obj) {
         document.getElementById('BrowseDatabaseAddAllSongs').parentNode.parentNode.classList.remove('hide');
         document.getElementById('BrowseDatabaseColsBtn').parentNode.classList.remove('hide');
         document.getElementById('btnBrowseDatabaseTag').innerHTML = '&laquo; ' + t(app.current.view);
-        document.getElementById('BrowseDatabaseAlbumListCaption').innerHTML = '<h2>' + t(obj.searchtagtype) + ': ' + e(obj.searchstr) + '</h2><hr/>';
-        document.getElementById('cardFooterBrowse').innerText = t('Num entries', obj.totalEntities);
-        let nrItems = obj.data.length;
+        document.getElementById('BrowseDatabaseAlbumListCaption').innerHTML = '<h2>' + t(obj.result.searchtagtype) + ': ' + e(obj.result.searchstr) + '</h2><hr/>';
+        document.getElementById('cardFooterBrowse').innerText = t('Num entries', obj.result.totalEntities);
+        let nrItems = obj.result.returnedEntities;
         let cardContainer = document.getElementById('BrowseDatabaseAlbumList');
         let cards = cardContainer.getElementsByClassName('card');
         for (let i = 0; i < nrItems; i++) {
-            let id = genId(obj.data[i].value);
+            let id = genId(obj.result.data[i].value);
             let card = document.createElement('div');
             card.classList.add('card', 'ml-4', 'mr-4', 'mb-4', 'w-100');
             card.setAttribute('id', 'card' + id);
-            card.setAttribute('data-album', encodeURI(obj.data[i].value));
-            let html = '<div class="card-header"><span id="albumartist' + id + '"></span> &ndash; ' + e(obj.data[i].value) + '</div>' +
+            card.setAttribute('data-album', encodeURI(obj.result.data[i].value));
+            let html = '<div class="card-header"><span id="albumartist' + id + '"></span> &ndash; ' + e(obj.result.data[i].value) + '</div>' +
                        '<div class="card-body"><div class="row">';
             if (settings.featCoverimage == true && settings.coverimage == true) {
                 html += '<div class="col-md-auto"><a class="card-img-left album-cover-loading"></a></div>';
@@ -144,14 +144,14 @@ function parseListDBtags(obj) {
                 createListTitleObserver(document.getElementById('card' + id));
             }
             else {
-                sendAPI("MPD_API_DATABASE_TAG_ALBUM_TITLE_LIST", {"album": obj.data[i].value, "search": app.current.search, "tag": app.current.view, "cols": settings.colsBrowseDatabase}, parseListTitles);
+                sendAPI("MPD_API_DATABASE_TAG_ALBUM_TITLE_LIST", {"album": obj.result.data[i].value, "search": app.current.search, "tag": app.current.view, "cols": settings.colsBrowseDatabase}, parseListTitles);
             }
         }
         let cardsLen = cards.length - 1;
         for (let i = cardsLen; i >= nrItems; i --) {
             cards[i].remove();
         }
-        setPagination(obj.totalEntities, obj.returnedEntities);
+        setPagination(obj.result.totalEntities, obj.returnedEntities);
         setCols('BrowseDatabase', '.tblAlbumTitles');
         let tbls = document.querySelectorAll('.tblAlbumTitles');
         for (let i = 0; i < tbls.length; i++) {
@@ -166,21 +166,21 @@ function parseListDBtags(obj) {
         document.getElementById('BrowseDatabaseAddAllSongs').parentNode.parentNode.classList.add('hide');
         document.getElementById('BrowseDatabaseColsBtn').parentNode.classList.add('hide');
         document.getElementById('btnBrowseDatabaseTag').parentNode.classList.add('hide');
-        document.getElementById('BrowseDatabaseTagListCaption').innerText = app.current.view;        
-        document.getElementById('cardFooterBrowse').innerText = obj.totalEntities + ' Tags';
-        let nrItems = obj.data.length;
+        document.getElementById('BrowseDatabaseTagListCaption').innerText = t(app.current.view);
+        document.getElementById('cardFooterBrowse').innerText = t('Num entries', obj.result.totalEntities);
+        let nrItems = obj.result.returnedEntities;
         let table = document.getElementById(app.current.app + app.current.tab + 'TagList');
         let tbody = table.getElementsByTagName('tbody')[0];
         let navigate = document.activeElement.parentNode.parentNode == table ? true : false;
         let activeRow = 0;
         let tr = tbody.getElementsByTagName('tr');
         for (let i = 0; i < nrItems; i++) {
-            let uri = encodeURI(obj.data[i].value);
+            let uri = encodeURI(obj.result.data[i].value);
             let row = document.createElement('tr');
             row.setAttribute('data-uri', uri);
             row.setAttribute('tabindex', 0);
             row.innerHTML='<td data-col="Type"><span class="material-icons">album</span></td>' +
-                          '<td>' + e(obj.data[i].value) + '</td>';
+                          '<td>' + e(obj.result.data[i].value) + '</td>';
             if (i < tr.length) {
                 activeRow = replaceTblRow(tr[i], row) == true ? i : activeRow;
             }
@@ -197,7 +197,7 @@ function parseListDBtags(obj) {
             focusTable(0);
         }
         
-        setPagination(obj.totalEntities, obj.returnedEntities);
+        setPagination(obj.result.totalEntities, obj.returnedEntities);
 
         if (nrItems == 0) {
             tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
@@ -228,14 +228,14 @@ function getListTitles(changes, observer) {
 }
 
 function parseListTitles(obj) {
-    let id = genId(obj.Album);
+    let id = genId(obj.result.Album);
     let card = document.getElementById('card' + id)
     let table = card.getElementsByTagName('table')[0];
     let tbody = card.getElementsByTagName('tbody')[0];
     let cardFooter = card.querySelector('.card-footer');
     let cardHeader = card.querySelector('.card-header');
-    cardHeader.setAttribute('data-uri', encodeURI(obj.data[0].uri.replace(/\/[^/]+$/, '')));
-    cardHeader.setAttribute('data-name', obj.Album);
+    cardHeader.setAttribute('data-uri', encodeURI(obj.result.data[0].uri.replace(/\/[^/]+$/, '')));
+    cardHeader.setAttribute('data-name', obj.result.Album);
     cardHeader.setAttribute('data-type', 'dir');
     cardHeader.addEventListener('click', function(event) {
         showMenu(this, event);
@@ -246,31 +246,31 @@ function parseListTitles(obj) {
     }, false);
     let img = card.getElementsByTagName('a')[0];
     if (img) {
-        img.style.backgroundImage = 'url("' + subdir + obj.cover + '"), url("' + subdir + '/assets/coverimage-loading.png")';
-        img.setAttribute('data-uri', encodeURI(obj.data[0].uri.replace(/\/[^/]+$/, '')));
-        img.setAttribute('data-name', obj.Album);
+        img.style.backgroundImage = 'url("' + subdir + obj.result.cover + '"), url("' + subdir + '/assets/coverimage-loading.png")';
+        img.setAttribute('data-uri', encodeURI(obj.result.data[0].uri.replace(/\/[^/]+$/, '')));
+        img.setAttribute('data-name', obj.result.Album);
         img.setAttribute('data-type', 'dir');
         img.addEventListener('click', function(event) {
             showMenu(this, event);
         }, false);
     }
     
-    document.getElementById('albumartist' + id).innerText = obj.AlbumArtist;
+    document.getElementById('albumartist' + id).innerText = obj.result.AlbumArtist;
   
     let titleList = '';
-    let nrItems = obj.data.length;
+    let nrItems = obj.result.returnedEntities;
     for (let i = 0; i < nrItems; i++) {
-        if (obj.data[i].Duration) {
-            obj.data[i].Duration = beautifySongDuration(obj.data[i].Duration);
+        if (obj.result.data[i].Duration) {
+            obj.result.data[i].Duration = beautifySongDuration(obj.result.data[i].Duration);
         }
-        titleList += '<tr tabindex="0" data-type="song" data-name="' + obj.data[i].Title + '" data-uri="' + encodeURI(obj.data[i].uri) + '">';
+        titleList += '<tr tabindex="0" data-type="song" data-name="' + obj.result.data[i].Title + '" data-uri="' + encodeURI(obj.result.data[i].uri) + '">';
         for (let c = 0; c < settings.colsBrowseDatabase.length; c++) {
-            titleList += '<td data-col="' + settings.colsBrowseDatabase[c] + '">' + e(obj.data[i][settings.colsBrowseDatabase[c]]) + '</td>';
+            titleList += '<td data-col="' + settings.colsBrowseDatabase[c] + '">' + e(obj.result.data[i][settings.colsBrowseDatabase[c]]) + '</td>';
         }
         titleList += '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">playlist_add</a></td></tr>';
     }
     tbody.innerHTML = titleList;
-    cardFooter.innerHTML = t('Num songs', obj.totalEntities) + ' &ndash; ' + beautifyDuration(obj.totalTime);
+    cardFooter.innerHTML = t('Num songs', obj.result.totalEntities) + ' &ndash; ' + beautifyDuration(obj.result.totalTime);
 
     tbody.parentNode.addEventListener('click', function(event) {
         if (event.target.nodeName == 'TD') {
@@ -296,14 +296,14 @@ function addAllFromBrowseDatabasePlist(plist) {
 
 function parseBookmarks(obj) {
     let list = '<table class="table table-sm table-dark table-borderless mb-0">';
-    for (let i = 0; i < obj.data.length; i++) {
-        list += '<tr data-id="' + obj.data[i].id + '" data-type="' + obj.data[i].type + '" ' +
-                'data-uri="' + encodeURI(obj.data[i].uri) + '">' +
-                '<td class="nowrap"><a class="text-light" href="#" data-href="goto">' + e(obj.data[i].name) + '</a></td>' +
+    for (let i = 0; i < obj.result.returnedEntities; i++) {
+        list += '<tr data-id="' + obj.result.data[i].id + '" data-type="' + obj.result.data[i].type + '" ' +
+                'data-uri="' + encodeURI(obj.result.data[i].uri) + '">' +
+                '<td class="nowrap"><a class="text-light" href="#" data-href="goto">' + e(obj.result.data[i].name) + '</a></td>' +
                 '<td><a class="text-light material-icons material-icons-small" href="#" data-href="edit">edit</a></td><td>' +
                 '<a class="text-light material-icons material-icons-small" href="#" data-href="delete">delete</a></td></tr>';
     }
-    if (obj.data.length == 0) {
+    if (obj.result.returnedEntities === 0) {
         list += '<tr><td class="text-light nowrap">' +t('No bookmarks found') + '</td></tr>';
     }
     list += '</table>';

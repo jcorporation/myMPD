@@ -203,7 +203,7 @@ sds mpd_client_put_last_played_songs(t_config *config, t_mpd_state *mpd_state, s
     unsigned entities_returned = 0;
     
     buffer = jsonrpc_start_result(buffer, method, request_id);
-    buffer = sdscat(buffer, "[");
+    buffer = sdscat(buffer, ",\"data\":[");
     
     if (mpd_state->last_played.length > 0) {
         struct node *current = mpd_state->last_played.list;
@@ -271,7 +271,7 @@ sds mpd_client_put_stats(t_mpd_state *mpd_state, sds buffer, sds method, int req
     sds libmpdclient_version = sdscatfmt(sdsempty(), "%i.%i.%i", LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION);
 
     buffer = jsonrpc_start_result(buffer, method, request_id);
-    buffer = sdscat(buffer, "{");
+    buffer = sdscat(buffer, ",");
     buffer = tojson_long(buffer, "artists", mpd_stats_get_number_of_artists(stats), true);
     buffer = tojson_long(buffer, "albums", mpd_stats_get_number_of_albums(stats), true);
     buffer = tojson_long(buffer, "songs", mpd_stats_get_number_of_songs(stats), true);
@@ -282,7 +282,6 @@ sds mpd_client_put_stats(t_mpd_state *mpd_state, sds buffer, sds method, int req
     buffer = tojson_char(buffer, "mympdVersion", MYMPD_VERSION, true);
     buffer = tojson_char(buffer, "mpdVersion", mpd_version, true);
     buffer = tojson_char(buffer, "libmpdclientVersion", libmpdclient_version, false);
-    buffer = sdscat(buffer, "}");
     buffer = jsonrpc_end_result(buffer);
 
     sdsfree(mpd_version);
