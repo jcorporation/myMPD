@@ -3209,7 +3209,7 @@ function parseMPDSettings() {
     }
 
     if (settings.bgCover === true && settings.featCoverimage === true && settings.coverimage === true) {
-        if (lastSongObj.cover.indexOf('coverimage-') > -1 ) {
+        if (lastSongObj.cover && lastSongObj.cover.indexOf('coverimage-') > -1 ) {
             clearBackgroundImage();
         }
         else if (lastSongObj.cover) {

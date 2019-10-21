@@ -458,14 +458,16 @@ bool mpd_client_smartpls_clear(t_mpd_state *mpd_state, const char *playlist) {
 
 bool mpd_client_smartpls_update_search(t_mpd_state *mpd_state, const char *playlist, const char *tag, const char *searchstr) {
     sds buffer = sdsempty();
+    sds method = sdsempty();
     mpd_client_smartpls_clear(mpd_state, playlist);
     if (mpd_state->feat_advsearch == true && strcmp(tag, "expression") == 0) {
-        buffer = mpd_client_search_adv(mpd_state, buffer, NULL, 0, searchstr, NULL, true, NULL, playlist, 0, NULL);
+        buffer = mpd_client_search_adv(mpd_state, buffer, method, 0, searchstr, NULL, true, NULL, playlist, 0, NULL);
     }
     else {
-        buffer = mpd_client_search(mpd_state, buffer, NULL, 0, searchstr, tag, playlist, 0, NULL);
+        buffer = mpd_client_search(mpd_state, buffer, method, 0, searchstr, tag, playlist, 0, NULL);
     }
     sdsfree(buffer);
+    sdsfree(method);
     LOG_INFO("Updated smart playlist %s", playlist);
     return true;
 }
@@ -555,7 +557,7 @@ bool mpd_client_smartpls_update_newest(t_mpd_state *mpd_state, const char *playl
     sds method = sdsempty();
     if (value_max > 0) {
         if (mpd_state->feat_advsearch == true) {
-            sds searchstr = sdscatfmt(sdsempty(), "(modified-since '%d')", value_max);
+            sds searchstr = sdscatprintf(sdsempty(), "(modified-since '%d')", value_max);
             buffer = mpd_client_search_adv(mpd_state, buffer, method, 0, searchstr, NULL, true, NULL, playlist, 0, NULL);
             sdsfree(searchstr);
         }

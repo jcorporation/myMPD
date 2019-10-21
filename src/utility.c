@@ -107,7 +107,12 @@ sds jsonrpc_start_phrase_notify(sds buffer, const char *message, bool error) {
 
 sds tojson_char(sds buffer, const char *key, const char *value, bool comma) {
     buffer = sdscatfmt(buffer, "\"%s\":", key);
-    buffer = sdscatjson(buffer, value, strlen(value)); /* Flawfinder: ignore */
+    if (value != NULL) {
+        buffer = sdscatjson(buffer, value, strlen(value)); /* Flawfinder: ignore */
+    }
+    else {
+        buffer = sdscat(buffer, "\"\"");
+    }
     if (comma) {
         buffer = sdscat(buffer, ",");
     }
@@ -116,7 +121,12 @@ sds tojson_char(sds buffer, const char *key, const char *value, bool comma) {
 
 sds tojson_char_len(sds buffer, const char *key, const char *value, size_t len, bool comma) {
     buffer = sdscatfmt(buffer, "\"%s\":", key);
-    buffer = sdscatjson(buffer, value, len);
+    if (value != NULL) {
+        buffer = sdscatjson(buffer, value, len);
+    }
+    else {
+        buffer = sdscat(buffer, "\"\"");
+    }
     if (comma) {
         buffer = sdscat(buffer, ",");
     }

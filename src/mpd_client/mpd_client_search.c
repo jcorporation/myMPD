@@ -82,6 +82,10 @@ sds mpd_client_search_adv(t_mpd_state *mpd_state, sds buffer, sds method, int re
                           const char *grouptag, const char *plist, const unsigned int offset,
                           const t_tags *tagcols)
 {
+    if (strcmp(expression, "") == 0) {
+        buffer = jsonrpc_respond_message(buffer, method, request_id, "No search expression defined", true);
+        return buffer;
+    }
 #if LIBMPDCLIENT_CHECK_VERSION(2, 17, 0)
     if (strcmp(plist, "") == 0) {
         if (mpd_search_db_songs(mpd_state->conn, false) == false) {
