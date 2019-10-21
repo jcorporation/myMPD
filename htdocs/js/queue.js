@@ -64,7 +64,7 @@ function getQueue() {
 }
 
 function parseQueue(obj) {
-    if (typeof(obj.result.totalTime) !== undefined && obj.result.totalTime > 0 && obj.result.totalEntities <= settings.maxElementsPerPage ) {
+    if (obj.result.totalTime && obj.result.totalTime > 0 && obj.result.totalEntities <= settings.maxElementsPerPage ) {
         document.getElementById('cardFooterQueue').innerText = t('Num songs', obj.result.totalEntities) + ' – ' + beautifyDuration(obj.result.totalTime);
     }
     else if (obj.result.totalEntities > 0) {
