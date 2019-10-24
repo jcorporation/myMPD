@@ -105,9 +105,6 @@ Genre
 Date
 날짜
 
-Pos
-위치
-
 Track
 트랙
 
@@ -150,9 +147,6 @@ Next page
 Num songs
 %{smart_count} 곡 |||| %{smart_count} 곡
 
-Num playlists
-%{smart_count} 연주목록 |||| %{smart_count} 연주목록
-
 Num entries
 %{smart_count} 항목 |||| %{smart_count} 항목
 
@@ -179,9 +173,6 @@ contains
 
 Initializing myMPD
 myMPD 초기화
-
-Please wait, myMPD is initializing...
-myMPD 초기화 하는 중...
 
 Fetch myMPD settings
 myMPD 설정 가져오기
@@ -263,9 +254,6 @@ Dislike song
 
 Like song
 곡 좋아요
-
-Failed to set like
-좋아요 설정 실패함
 
 MPD stickers are disabled
 MPD 스티커 사용 안 함
@@ -558,9 +546,6 @@ Music directory not found
 Playlist name
 연주목록 이름
 
-Add randrom
-무작위 추가
-
 Quantity
 갯수
 
@@ -726,9 +711,6 @@ Remove all upwards
 Remove all downwards
 아래로 지우기
 
-Error
-오류
-
 Database update started
 데이터베이스 업데이트 시작됨
 
@@ -740,9 +722,6 @@ Database update finished
 
 Added all songs from search to %{playlist}
 찾기의 모든 곡을 %{playlist}에 추가함
-
-queue
-순서
 
 Added all songs from database selection to %{playlist}
 데이터베이스의 모든 곡을 %{playlist}에 추가함
@@ -756,71 +735,11 @@ New playlist
 never
 안 함
 
-Failed to set mpd state %{state}
-MPD 상태 %{state} 설정에 실패함
-
 Failed to save playlist
 연주목록 저장에 실패함
 
-Goto previous song failed
-이전 곡으로 가기에 실패함
-
-Skip to next song failed
-다음 곡으로 가기에 실패함
-
-Begin to play failed
-연주 시작에 실패함
-
-Stop playing failed
-연주 정지에 실패함
-
-Clearing queue failed
-순서 지우기에 실패함
-
-Removing track from queue failed
-순서의 곡 지우기에 실패함
-
-Removing track range from queue failed
-순서의 곡 범위 지우기에 실패함
-
-Moving track in queue failed
-순서의 곡 옮기기에 실패함
-
-Moving track in playlist failed
-연주목록의 곡 옮기기에 실패함
-
-Set playing track failed
-연주곡 설정에 실패함
-
-Enabling output failed
-출력 사용에 실패함
-
-Disabling output failed
-출력 사용 안 함에 실패함
-
-Setting volume failed
-음량 설정 실패함
-
-Seeking song failed
-곡 찾기에 실패함
-
 Added %{uri} to playlist %{playlist}
 %{uri}의 %{playlist} 연주목록 추가에 실패함
-
-Adding song to playlist failed
-연주목록의 곡 추가에 실패함
-
-Clearing playlist failed
-연주목록 비우기에 실패함
-
-Removing track from playlist failed
-연주목록의 곡 지우기에 실패함
-
-Adding song to queue failed
-순서의 곡 추가에 실패함
-
-Adding playlist to queue failed
-순서의 연주목록 추가에 실패함
 
 Sucessfully added random songs to queue
 무작위 곡을 순서에 추가함
@@ -828,23 +747,11 @@ Sucessfully added random songs to queue
 Adding random songs to queue failed
 무작위 곡의 순서 추가에 실패함
 
-Saving queue as playlist failed
-순서의 연주목록 저장에 실패함
-
-Shuffling queue failed
-순서 뒤섞기 실패함
-
 Deleting smart playlist failed
 스마트 연주목록 지우기에 실패함
 
-Deleting playlist failed
-연주목록 지우기에 실패함
-
 Unknown request
 알 수 없는 요구
-
-No response for cmd_id %{cmdId}
-%{cmdId} 명령어 ID에 반응 없음
 
 MPD connection error: %{error}
 MPD 연결 오류: %{error}
@@ -876,18 +783,6 @@ Unknown smart playlist type
 System commands are disabled
 시스템 명령어 사용 안 함
 
-Failed to set myMPD state %{state}
-myMPD 상태 %{state} 저장할 수 없음
-
-Invalid filename for coverimage_name
-음반표지의 파일 이름 틀림
-
-Invalid jukebox mode
-뮤직박스 모드 틀림
-
-jukebox_queue_length to big, setting it to maximum value of 999
-뮤직박스가 너무 커서 최대 크기인 999로 설정함
-
 Saving bookmark failed
 즐겨찾기 저장에 실패함
 
@@ -896,9 +791,6 @@ Deleting bookmark failed
 
 System command not defined
 시스템 명령어 정의 안됨
-
-Can not execute cmd %{cmd}
-%{cmd} 명령어를 실행할 수 없음
 
 Successfully execute cmd %{cmd}
 %{cmd} 명령어 실행함

@@ -3,9 +3,6 @@ English
 Num songs
 %{smart_count} Song |||| %{smart_count} Songs
 
-Num playlists
-%{smart_count} Playlist |||| %{smart_count} Playlists
-
 Num entries
 %{smart_count} Entry |||| %{smart_count} Entries
 

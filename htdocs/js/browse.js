@@ -304,7 +304,7 @@ function parseBookmarks(obj) {
                 '<a class="text-light material-icons material-icons-small" href="#" data-href="delete">delete</a></td></tr>';
     }
     if (obj.result.returnedEntities === 0) {
-        list += '<tr><td class="text-light nowrap">' +t('No bookmarks found') + '</td></tr>';
+        list += '<tr><td class="text-light nowrap">' + t('No bookmarks found') + '</td></tr>';
     }
     list += '</table>';
     document.getElementById('BrowseFilesystemBookmarks').innerHTML = list;

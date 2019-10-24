@@ -335,7 +335,7 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
                 }
             }
             else {
-                data = jsonrpc_respond_message(data, request->method, request->id, "fingerprint command not supported", true);
+                data = jsonrpc_respond_message(data, request->method, request->id, "Fingerprint command not supported", true);
             }
             break;
         case MPD_API_DATABASE_TAG_LIST:
