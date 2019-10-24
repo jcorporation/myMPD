@@ -30,12 +30,18 @@ function sendAPI(method, params, callback, onerror) {
                 else if (obj.result && obj.result.message && obj.result.message === 'ok') {
                     logDebug('Got API response: ' + JSON.stringify(obj.result));
                 }
-                else if (obj.result && callback !== undefined && typeof(callback) === 'function') {
-                    logDebug('Got API response of type "' + obj.result.method + '" calling ' + callback.name);
-                    callback(obj);
+                else if (obj.result && obj.result.method) {
+                    logDebug('Got API response of type: ' + obj.result.method);
                 }
                 else {
                     logError('Got invalid API response: ' + JSON.stringify(obj));
+                    if (onerror !== true) {
+                        return;
+                    }
+                }
+                if (callback !== undefined && typeof(callback) === 'function') {
+                    logDebug('Calling ' + callback.name);
+                    callback(obj);
                 }
             }
             else {
@@ -500,7 +506,7 @@ function parseBookmarks(obj) {
                 '<a class="text-light material-icons material-icons-small" href="#" data-href="delete">delete</a></td></tr>';
     }
     if (obj.result.returnedEntities === 0) {
-        list += '<tr><td class="text-light nowrap">' +t('No bookmarks found') + '</td></tr>';
+        list += '<tr><td class="text-light nowrap">' + t('No bookmarks found') + '</td></tr>';
     }
     list += '</table>';
     document.getElementById('BrowseFilesystemBookmarks').innerHTML = list;
@@ -3439,7 +3445,7 @@ function initTagMultiSelect(inputId, listId, allTags, enabledTags) {
     let list = '';
     for (let i = 0; i < allTags.length; i++) {
         if (enabledTags.includes(allTags[i])) {
-            value += allTags[i] + ', ';
+            value += t(allTags[i]) + ', ';
         }
         list += '<div class="form-check">' +
             '<input class="form-check-input" type="checkbox" value="1" name="' + allTags[i] + '" ' + 
@@ -3454,7 +3460,7 @@ function initTagMultiSelect(inputId, listId, allTags, enabledTags) {
             let value = '';
             for (let i = 0; i < chkBoxes.length; i++) {
                 if (chkBoxes[i].checked === true) {
-                    value += chkBoxes[i].name + ', ';
+                    value += t(chkBoxes[i].name) + ', ';
                 }
             }
             event.target.parentNode.parentNode.parentNode.previousElementSibling.value = value.replace(/(,\s)$/, '');
