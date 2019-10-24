@@ -31,12 +31,18 @@ function sendAPI(method, params, callback, onerror) {
                 else if (obj.result && obj.result.message && obj.result.message === 'ok') {
                     logDebug('Got API response: ' + JSON.stringify(obj.result));
                 }
-                else if (obj.result && callback !== undefined && typeof(callback) === 'function') {
-                    logDebug('Got API response of type "' + obj.result.method + '" calling ' + callback.name);
-                    callback(obj);
+                else if (obj.result && obj.result.method) {
+                    logDebug('Got API response of type: ' + obj.result.method);
                 }
                 else {
                     logError('Got invalid API response: ' + JSON.stringify(obj));
+                    if (onerror !== true) {
+                        return;
+                    }
+                }
+                if (callback !== undefined && typeof(callback) === 'function') {
+                    logDebug('Calling ' + callback.name);
+                    callback(obj);
                 }
             }
             else {
