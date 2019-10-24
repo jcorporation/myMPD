@@ -135,6 +135,9 @@ Herausgeber
 Grouping
 Grupierung
 
+Pos
+Pos
+
 Invalid API request
 Ungültiger API Befehl
 
@@ -179,6 +182,9 @@ Nächste Seite
 
 Num songs
 %{smart_count} Lied |||| %{smart_count} Lieder
+
+Num playlists
+%{smart_count} Wiedergabeliste |||| %{smart_count} Wiedergabelisten
 
 Num entries
 %{smart_count} Eintrag |||| %{smart_count} Einträge

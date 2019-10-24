@@ -111,6 +111,9 @@ Track
 Song
 곡
 
+Pos
+위치
+
 Last played
 앞서 연주함
 
@@ -146,6 +149,9 @@ Next page
 
 Num songs
 %{smart_count} 곡 |||| %{smart_count} 곡
+
+Num playlists
+%{smart_count} 연주목록 |||| %{smart_count} 연주목록
 
 Num entries
 %{smart_count} 항목 |||| %{smart_count} 항목

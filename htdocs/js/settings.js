@@ -604,7 +604,7 @@ function initTagMultiSelect(inputId, listId, allTags, enabledTags) {
     let list = '';
     for (let i = 0; i < allTags.length; i++) {
         if (enabledTags.includes(allTags[i])) {
-            value += allTags[i] + ', ';
+            value += t(allTags[i]) + ', ';
         }
         list += '<div class="form-check">' +
             '<input class="form-check-input" type="checkbox" value="1" name="' + allTags[i] + '" ' + 
@@ -619,7 +619,7 @@ function initTagMultiSelect(inputId, listId, allTags, enabledTags) {
             let value = '';
             for (let i = 0; i < chkBoxes.length; i++) {
                 if (chkBoxes[i].checked === true) {
-                    value += chkBoxes[i].name + ', ';
+                    value += t(chkBoxes[i].name) + ', ';
                 }
             }
             event.target.parentNode.parentNode.parentNode.previousElementSibling.value = value.replace(/(,\s)$/, '');

@@ -1,6 +1,5 @@
 #!/usr/bin/perl -w
 use strict;
-use Data::Dumper;
 
 my $pretty = defined($ARGV[0]) ? 1 : 0;
 my $phrases;
@@ -49,6 +48,9 @@ for my $filename (@files) {
         elsif ($filename =~ /\.js$/) {
             while ($line =~ /(\s+|\(|\+)t\('([^']+)'/g) {
                 $phrases->{$2} = 1;
+            }
+            while ($line =~ /gtPage\('([^']+)'/g) {
+                $phrases->{$1} = 1;
             }
             while ($line =~ /"desc":\s*"([^"]+)"/g) {
                 $phrases->{$1} = 1;

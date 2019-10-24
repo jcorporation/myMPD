@@ -24,3 +24,4 @@ musicbrainz_releasetrackid
 musicbrainz_workid
 Type
 LastPlayed
+Pos
