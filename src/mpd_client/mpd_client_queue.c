@@ -108,7 +108,6 @@ sds mpd_client_crop_queue(t_mpd_state *mpd_state, sds buffer, sds method, int re
     if (length < 1) {
         buffer = jsonrpc_respond_message(buffer, method, request_id, "A queue longer than 1 song in length is required to crop", true);
         LOG_ERROR("A playlist longer than 1 song in length is required to crop");
-        return buffer;
     }
     else if (mpd_status_get_state(status) == MPD_STATE_PLAY || mpd_status_get_state(status) == MPD_STATE_PAUSE) {
         playing_song_pos++;
