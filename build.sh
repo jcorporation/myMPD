@@ -106,7 +106,12 @@ minify() {
 
   if [ "$ERROR" = "1" ]
   then
-    echo "Error minifying $SRC, copy $SRC to $DST"
+    if [ "$JAVABIN" = "" ]
+    then
+      echo "Java not found, copy $SRC to $DST"
+    else
+      echo "Error minifying $SRC, copy $SRC to $DST"
+    fi
     cp "$SRC" "$DST"
     return 2
   fi
