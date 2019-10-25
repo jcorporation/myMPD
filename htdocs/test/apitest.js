@@ -156,7 +156,7 @@ function sendAPI(request) {
                 sendAPI(cmds[i]);
             }
             else {
-                document.getElementsByTagName('h2')[0].innerText = 'Finished';
+                document.getElementsByTagName('h5')[0].innerText = 'Finished';
             }
         }
     };
