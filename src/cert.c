@@ -434,8 +434,8 @@ static X509 *generate_selfsigned_cert(EVP_PKEY *pkey) {
 static bool write_to_disk(sds key_file, EVP_PKEY *pkey, sds cert_file, X509 *cert) {
     /* Write the key to disk. */    
     sds key_file_tmp = sdscatfmt(sdsempty(), "%s.XXXXXX", key_file);
-    int fd;
-    if ((fd = mkstemp(key_file_tmp)) < 0 ) {
+    int fd = mkstemp(key_file_tmp);
+    if (fd < 0) {
         LOG_ERROR("Can't open %s for write", key_file_tmp);
         sdsfree(key_file_tmp);
         return false;

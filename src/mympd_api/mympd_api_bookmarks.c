@@ -28,21 +28,19 @@ static bool write_bookmarks_line(FILE *fp, int id, const char *name,
 bool mympd_api_bookmark_update(t_config *config, const int id, const char *name, 
                                const char *uri, const char *type)
 {
-    int line_nr = 0;
-    char *line = NULL;
-    size_t n = 0;
-    ssize_t read;
-    bool inserted = false;
-    int fd;
     sds tmp_file = sdscatfmt(sdsempty(), "%s/state/bookmarks.XXXXXX", config->varlibdir);
-    
-    if ((fd = mkstemp(tmp_file)) < 0 ) {
+    int fd = mkstemp(tmp_file);
+    if (fd < 0 ) {
         LOG_ERROR("Can't open %s for write", tmp_file);
         sdsfree(tmp_file);
         return false;
     }
     FILE *fo = fdopen(fd, "w");
-    
+    int line_nr = 0;
+    char *line = NULL;
+    size_t n = 0;
+    ssize_t read;
+    bool inserted = false;
     sds b_file = sdscatfmt(sdsempty(), "%s/state/bookmarks", config->varlibdir);
     FILE *fi = fopen(b_file, "r");
     if (fi != NULL) {

@@ -86,8 +86,8 @@ sds mpd_client_like_song_uri(t_mpd_state *mpd_state, sds buffer, sds method, int
 bool mpd_client_last_played_list_save(t_config *config, t_mpd_state *mpd_state) {
     LOG_VERBOSE("Saving last_played list to disc");
     sds tmp_file = sdscatfmt(sdsempty(), "%s/state/last_played.XXXXXX", config->varlibdir);
-    int fd;
-    if ((fd = mkstemp(tmp_file)) < 0 ) {
+    int fd = mkstemp(tmp_file);
+    if (fd < 0 ) {
         LOG_ERROR("Can't open %s for write", tmp_file);
         sdsfree(tmp_file);
         return false;

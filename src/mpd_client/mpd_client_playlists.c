@@ -282,8 +282,8 @@ bool mpd_client_smartpls_save(t_config *config, t_mpd_state *mpd_state, const ch
     }
     
     sds tmp_file = sdscatfmt(sdsempty(), "%s/smartpls/%s.XXXXXX", config->varlibdir, playlist);
-    int fd;    
-    if ((fd = mkstemp(tmp_file)) < 0 ) {
+    int fd = mkstemp(tmp_file);
+    if (fd < 0 ) {
         LOG_ERROR("Can't open %s for write", tmp_file);
         sdsfree(tmp_file);
         return false;
