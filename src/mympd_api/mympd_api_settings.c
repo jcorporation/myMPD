@@ -81,35 +81,45 @@ bool mympd_api_connection_save(t_config *config, t_mympd_state *mympd_state, str
 }
 
 bool mympd_api_cols_save(t_config *config, t_mympd_state *mympd_state, const char *table, const char *cols) {
+    sds tablename = sdsempty();
     if (strcmp(table, "colsQueueCurrent") == 0) {
         mympd_state->cols_queue_current = sdsreplace(mympd_state->cols_queue_current, cols);
-    }
-    else if (strcmp(table, "colsSearch") == 0) {
-        mympd_state->cols_search = sdsreplace(mympd_state->cols_search, cols);
-    }
-    else if (strcmp(table, "colsBrowseDatabase") == 0) {
-        mympd_state->cols_browse_database = sdsreplace(mympd_state->cols_browse_database, cols);
-    }
-    else if (strcmp(table, "colsBrowsePlaylistsDetail") == 0) {
-        mympd_state->cols_browse_playlists_detail = sdsreplace(mympd_state->cols_browse_playlists_detail, cols);
-    }
-    else if (strcmp(table, "colsBrowseFilesystem") == 0) {
-        mympd_state->cols_browse_filesystem = sdsreplace(mympd_state->cols_browse_filesystem, cols);
-    }
-    else if (strcmp(table, "colsPlayback") == 0) {
-        mympd_state->cols_playback = sdsreplace(mympd_state->cols_playback, cols);
+        tablename = sdsreplace(tablename, "cols_queue_current");
     }
     else if (strcmp(table, "colsQueueLastPlayed") == 0) {
         mympd_state->cols_queue_last_played = sdsreplace(mympd_state->cols_queue_last_played, cols);
+        tablename = sdsreplace(tablename, "cols_queue_last_played");
+    }
+    else if (strcmp(table, "colsSearch") == 0) {
+        mympd_state->cols_search = sdsreplace(mympd_state->cols_search, cols);
+        tablename = sdsreplace(tablename, "cols_search");
+    }
+    else if (strcmp(table, "colsBrowseDatabase") == 0) {
+        mympd_state->cols_browse_database = sdsreplace(mympd_state->cols_browse_database, cols);
+        tablename = sdsreplace(tablename, "cols_browse_database");
+    }
+    else if (strcmp(table, "colsBrowsePlaylistsDetail") == 0) {
+        mympd_state->cols_browse_playlists_detail = sdsreplace(mympd_state->cols_browse_playlists_detail, cols);
+        tablename = sdsreplace(tablename, "cols_browse_playlists_detail");
+    }
+    else if (strcmp(table, "colsBrowseFilesystem") == 0) {
+        mympd_state->cols_browse_filesystem = sdsreplace(mympd_state->cols_browse_filesystem, cols);
+        tablename = sdsreplace(tablename, "cols_browse_filesystem");
+    }
+    else if (strcmp(table, "colsPlayback") == 0) {
+        mympd_state->cols_playback = sdsreplace(mympd_state->cols_playback, cols);
+        tablename = sdsreplace(tablename, "cols_playback");
     }
     else {
+        sdsfree(tablename);
         return false;
     }
     
     if (!state_file_write(config, table, cols)) {
+        sdsfree(tablename);
         return false;
     }
-    
+    sdsfree(tablename);
     return true;
 }
 

@@ -93,7 +93,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
         case MYMPD_API_COLS_SAVE:
             je = json_scanf(request->data, sdslen(request->data), "{params: {table: %Q}}", &p_charbuf1);
             if (je == 1) {
-                sdsrange(request->data, 0, -2);
+                sdsrange(request->data, 0, -3);
                 char *cols = strchr(request->data, '[');
                 if (mympd_api_cols_save(config, mympd_state, p_charbuf1, cols)) {
                     data = jsonrpc_respond_ok(data, request->method, request->id);
