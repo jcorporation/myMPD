@@ -104,8 +104,8 @@ function sendAPI(request) {
             }
         }
     };
-    int1 = return getRandomInt();
-    int2 = return getRandomInt();
+    int1 = getRandomInt();
+    int2 = getRandomInt();
     string1 = blns[j];
     string2 = blns[getRandomUint(blns_len)];
     string3 = blns[getRandomUint(blns_len)];
