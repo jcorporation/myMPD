@@ -78,20 +78,32 @@ Search queue
 Title
 제목
 
+Work
+작품
+
 Artists
 연주가
 
 Artist
 연주가
 
+ArtistSort
+연주가 정렬
+
 Album
 음반
+
+AlbumSort
+음반 정렬
 
 Duration
 길이
 
 AlbumArtist
 음반 연주가
+
+AlbumArtistSort
+음반 연주가 정렬
 
 Composer
 작곡가
@@ -111,8 +123,29 @@ Track
 Song
 곡
 
+Comment
+설명
+
+Disc
+디스크
+
+Label
+음반사
+
+Grouping
+묶음
+
 Pos
 위치
+
+Invalid API request
+잘못된 API 요구
+
+Failed to set like, invalid like value
+잘못된 값으로 좋아요 설정에 실패함
+
+Failed to set like, invalid song uri
+잘못된 곡 주소로 좋아요 설정에 실패함
 
 Last played
 앞서 연주함
@@ -208,7 +241,7 @@ http://uri.to/stream.mp3
 http://주소/stream.mp3
 
 Invalid URI
-틀린 주소
+잘못된 주소
 
 Please choose playlist
 연주목록을 선택합니다
@@ -217,10 +250,10 @@ Create Playlist
 연주목록 만들기
 
 Invalid filename
-틀린 파일 이름
+잘못된 파일 이름
 
 Invalid type
-틀린 형식
+잘못된 형식
 
 Add
 추가
@@ -277,6 +310,9 @@ Name
 이름
 
 Tag
+태그
+
+Tags
 태그
 
 Sticker
@@ -358,19 +394,19 @@ Size
 크기
 
 Invalid size
-틀린 크기
+잘못된 크기
 
 Solid color
 꽉 찬 색상
 
 Invalid color
-틀린 색상
+잘못된 색상
 
 CSS filter
 CSS 필터
 
 Invalid CSS filter
-틀린 CSS 필터
+잘못된 CSS 필터
 
 Locale
 언어
@@ -429,8 +465,14 @@ Smart playlists
 Smart playlists updated
 스마트 연주목록 업데이트됨
 
+Smart playlists update failed
+스마트 연주목록 업데이트 실패함
+
 Smart playlist %{playlist} updated
-%{playlist} 스마트 연주목록 업데이트됨
+%{playlist} 스마트 연주목록 업데이트함
+
+Updating of smart playlist %{playlist} failed
+%{playlist} 스마트 연주목록 업데이트 실패함
 
 Smart playlist
 스마트 연주목록
@@ -451,13 +493,13 @@ MPD channel
 MPD 채널
 
 Invalid channel name
-틀린 채널 이름
+잘못된 채널 이름
 
 Message
 메시지
 
 Invalid message
-틀린 메시지
+잘못된 메시지
 
 Reset
 다시 설정
@@ -517,19 +559,19 @@ MPD host
 MPD 호스트
 
 Invalid MPD host
-틀린 MPD 호스트
+잘못된 MPD 호스트
 
 MPD port
 MPD 포트
 
 Invalid MPD port
-틀린 MPD 포트
+잘못된 MPD 포트
 
 MPD password
 MPD 비밀번호
 
 Invalid MPD password
-틀린 MPD 비밀번호
+잘못된 MPD 비밀번호
 
 Music directory
 음원 디렉터리
@@ -544,7 +586,7 @@ Specify
 지정
 
 Invalid music directory
-틀린 음원 디렉터리
+잘못된 음원 디렉터리
 
 Music directory not found
 음원 디렉터리 없음
@@ -652,7 +694,7 @@ Connected to MPD
 MPD로 연결됨
 
 Websocket connection failed, trying to reconnect
-웹소켓 연결 실패함, 다시 시도 중
+웹소켓 연결 실패하여, 다시 시도 중
 
 Can not parse settings
 설정을 분석할 수 없음
@@ -664,7 +706,7 @@ Volume
 음량
 
 No results, please refine your search
-결과 없음, 맞게 찾아야 함
+결과가 없으므로, 맞게 찾아야 함
 
 Empty queue
 순서 비우기
@@ -758,6 +800,9 @@ Deleting smart playlist failed
 
 Unknown request
 알 수 없는 요구
+
+No response for method %{method}
+%{method} 응답 없음
 
 MPD connection error: %{error}
 MPD 연결 오류: %{error}
@@ -875,3 +920,36 @@ myMPD 인증서
 
 Download
 내려받기
+
+Can't save setting %{setting}
+%{setting} 설정 저장할 수 없음
+
+No current song
+지금 곡 없음
+
+No search expression defined
+찾을 문구 없음
+
+Unknown table %{table}
+%{table} 테이블 알 수 없음
+
+Fingerprint command not supported
+지문 명령어 지원 안 됨
+
+musicbrainz_albumartistid
+뮤직브레인즈 음반 연주자 ID
+
+musicbrainz_albumid
+뮤직브레인즈 음반 ID
+
+musicbrainz_artistid
+뮤직브레인즈 연주자 ID
+
+musicbrainz_releasetrackid
+뮤직브레인즈 발표 곡 ID
+
+musicbrainz_trackid
+뮤직브레인즈 곡 ID
+
+musicbrainz_workid
+뮤직브레인즈 작품 ID
