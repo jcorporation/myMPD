@@ -5,7 +5,7 @@ var blns = [
   "Artist",
   "Album",
   "queue", 
-  "Database"
+  "Database",
   "Echo",
   "undefined", 
   "undef", 
