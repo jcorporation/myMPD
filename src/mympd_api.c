@@ -90,11 +90,11 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                 data = jsonrpc_respond_message(data, request->method, request->id, "System commands are disabled", true);
             }
             break;
-        case MYMPD_API_COLS_SAVE:
-            je = json_scanf(request->data, sdslen(request->data), "{params: {table: %Q}}", &p_charbuf1);
-            if (je == 1) {
-                sdsrange(request->data, 0, -3);
-                char *cols = strchr(request->data, '[');
+        case MYMPD_API_COLS_SAVE: {
+            sds cols = sdsnew("[");
+            je = json_scanf(request->data, sdslen(request->data), "{params: {table: %Q, cols: %M}}", &p_charbuf1, json_to_cols, cols);
+            if (je == 2) {
+                cols = sdscat(cols, "]");
                 if (mympd_api_cols_save(config, mympd_state, p_charbuf1, cols)) {
                     data = jsonrpc_respond_ok(data, request->method, request->id);
                 }
@@ -103,10 +103,12 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                     data = tojson_char(data, "table", p_charbuf1, false);
                     data = jsonrpc_end_phrase(data);
                     LOG_ERROR("MYMPD_API_COLS_SAVE: Unknown table %s", p_charbuf1);
-                }
+                }            
                 FREE_PTR(p_charbuf1);
             }
+            sdsfree(cols);
             break;
+        }
         case MYMPD_API_SETTINGS_RESET:
             //ToDo: error checking
             mympd_api_settings_reset(config, mympd_state);

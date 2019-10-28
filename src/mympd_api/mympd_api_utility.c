@@ -7,9 +7,12 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <signal.h>
+#include <string.h>
 #include <assert.h>
+#include <mpd/client.h>
 
 #include "../../dist/src/sds/sds.h"
+#include "../../dist/src/frozen/frozen.h"
 #include "../sds_extras.h"
 #include "../log.h"
 #include "../list.h"
@@ -79,4 +82,36 @@ void free_mympd_state(t_mympd_state *mympd_state) {
     sdsfree(mympd_state->locale);
     sdsfree(mympd_state->music_directory);
     FREE_PTR(mympd_state);
+}
+
+static const char *mympd_cols[]={"Pos", "Duration", "Type", "LastPlayed", 0};
+
+static bool is_mympd_col(sds token) {
+    const char** ptr = mympd_cols;
+    while (*ptr != 0) {
+        if (strncmp(token, *ptr, sdslen(token)) == 0) {
+            return true;
+        }
+        ++ptr;
+    }
+    return false;
+}
+
+void json_to_cols(const char *str, int len, void *user_data) {
+    struct json_token t;
+    int j = 0;
+    for (int i = 0; json_scanf_array_elem(str, len, "", i, &t) > 0; i++) {
+        if (j > 0) {
+            user_data = sdscatlen(user_data, ",", 1);
+        }
+        sds token = sdscatlen(sdsempty(), t.ptr, t.len);
+        if (mpd_tag_name_iparse(token) != MPD_TAG_UNKNOWN || is_mympd_col(token) == true) {
+            user_data = sdscatlen(user_data, t.ptr, t.len);
+            j++;
+        }
+        else {
+            LOG_WARN("Unknown column: %s", token);
+        }
+        sdsfree(token);
+    }
 }
