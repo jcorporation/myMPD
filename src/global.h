@@ -28,4 +28,6 @@ typedef struct t_work_result {
     sds data;
 } t_work_result;
 
+void free_request(t_work_request *request);
+
 #endif
