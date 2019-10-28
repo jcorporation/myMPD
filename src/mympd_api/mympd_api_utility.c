@@ -100,7 +100,7 @@ static bool is_mympd_col(sds token) {
 sds json_to_cols(sds cols, char *str, size_t len) {
     struct json_token t;
     int j = 0;
-    for (int i = 0; json_scanf_array_elem(str, len, ".cols", i, &t) > 0; i++) {
+    for (int i = 0; json_scanf_array_elem(str, len, ".params.cols", i, &t) > 0; i++) {
         if (j > 0) {
             cols = sdscatlen(cols, ",", 1);
         }

@@ -115,7 +115,7 @@ bool mympd_api_cols_save(t_config *config, t_mympd_state *mympd_state, const cha
         return false;
     }
     
-    if (!state_file_write(config, table, cols)) {
+    if (!state_file_write(config, tablename, cols)) {
         sdsfree(tablename);
         return false;
     }
