@@ -309,8 +309,9 @@ function appRoute() {
             }
         }
         else {
-            if (domCache.searchstr.value === '' && app.current.search !== '')
+            if (domCache.searchstr.value === '' && app.current.search !== '') {
                 domCache.searchstr.value = app.current.search;
+            }
         }
         if (app.last.app !== app.current.app) {
             if (app.current.search !== '') {
@@ -327,10 +328,12 @@ function appRoute() {
                 let sort = app.current.sort;
                 let sortdesc = false;
                 if (sort === '-') {
-                    if (settings.tags.includes('Title'))
+                    if (settings.tags.includes('Title')) {
                         sort = 'Title';
-                    else
+                    }
+                    else {
                         sort = '-';
+                    }
                     document.getElementById('SearchList').setAttribute('data-sort', sort);
                 }
                 else {
@@ -801,10 +804,12 @@ function appInit() {
     }, false);
 
     document.getElementById('searchqueuestr').addEventListener('keyup', function(event) {
-        if (event.key === 'Escape')
+        if (event.key === 'Escape') {
             this.blur();
-        else
+        }
+        else {
             appGoto(app.current.app, app.current.tab, app.current.view, '0/' + app.current.filter + '/' + app.current.sort + '/' + this.value);
+        }
     }, false);
 
     document.getElementById('searchqueuetags').addEventListener('click', function(event) {
@@ -830,8 +835,9 @@ function appInit() {
     }, false);
 
     domCache.searchstr.addEventListener('keyup', function(event) {
-        if (event.key === 'Escape')
+        if (event.key === 'Escape') {
             this.blur();
+        }
         else if (event.key === 'Enter' && settings.featAdvsearch) {
             if (this.value !== '') {
                 let match = document.getElementById('searchMatch');
@@ -842,11 +848,13 @@ function appInit() {
                 this.value = '';
                 domCache.searchCrumb.appendChild(li);
             }
-            else
+            else {
                 search(this.value);
+            }
         }
-        else
+        else {
             search(this.value);
+        }
     }, false);
 
     domCache.searchCrumb.addEventListener('click', function(event) {
