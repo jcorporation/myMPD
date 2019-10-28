@@ -232,10 +232,10 @@ sds mpd_client_smartpls_put(t_config *config, sds buffer, sds method, int reques
             if (je == 2) {
                 buffer = tojson_char(buffer, "sticker", p_charbuf1, true);
                 buffer = tojson_long(buffer, "maxentries", int_buf1, false);
-                FREE_PTR(p_charbuf1);
             } else {
                 rc = false;
             }
+            FREE_PTR(p_charbuf1);
         }
         else if (strcmp(smartpltype, "newest") == 0) {
             je = json_scanf(content, strlen(content), "{timerange: %d}", &int_buf1);
@@ -387,12 +387,12 @@ bool mpd_client_smartpls_update(t_config *config, t_mpd_state *mpd_state, const 
                 LOG_ERROR("Update of smart playlist %s failed.", playlist);
                 rc = false;
             }
-            FREE_PTR(p_charbuf1);
          }
          else {
             LOG_ERROR("Can't parse smart playlist file %s", filename);
             rc = false;
          }
+         FREE_PTR(p_charbuf1);
     }
     else if (strcmp(smartpltype, "newest") == 0) {
         je = json_scanf(content, strlen(content), "{timerange: %d}", &int_buf1);
@@ -414,13 +414,14 @@ bool mpd_client_smartpls_update(t_config *config, t_mpd_state *mpd_state, const 
                 LOG_ERROR("Update of smart playlist %s failed", playlist);
                 rc = false;
             }
-            FREE_PTR(p_charbuf1);
-            FREE_PTR(p_charbuf2);
+
         }
         else {
             LOG_ERROR("Can't parse smart playlist file %s", filename);
             rc = false;
         }
+        FREE_PTR(p_charbuf1);
+        FREE_PTR(p_charbuf2);
     }
     FREE_PTR(smartpltype);
     FREE_PTR(content);

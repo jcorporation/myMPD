@@ -65,7 +65,7 @@ void *mpd_client_loop(void *arg_config) {
                     tiny_queue_push(web_server_queue, response);
                 }
                 LOG_DEBUG("mpd_client not initialized, discarding message");
-                FREE_PTR(request);
+                free_request(request);
             }
         }
     }
@@ -203,7 +203,7 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
                         LOG_DEBUG("Send http response to connection %lu: %s", request->conn_id, response->data);
                         tiny_queue_push(web_server_queue, response);
                     }
-                    FREE_PTR(request);
+                    free_request(request);
                 }
             }            
             break;

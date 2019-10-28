@@ -97,16 +97,16 @@ static bool is_mympd_col(sds token) {
     return false;
 }
 
-void json_to_cols(const char *str, int len, void *user_data) {
+sds json_to_cols(sds cols, char *str, size_t len) {
     struct json_token t;
     int j = 0;
-    for (int i = 0; json_scanf_array_elem(str, len, "", i, &t) > 0; i++) {
+    for (int i = 0; json_scanf_array_elem(str, len, ".cols", i, &t) > 0; i++) {
         if (j > 0) {
-            user_data = sdscatlen(user_data, ",", 1);
+            cols = sdscatlen(cols, ",", 1);
         }
         sds token = sdscatlen(sdsempty(), t.ptr, t.len);
         if (mpd_tag_name_iparse(token) != MPD_TAG_UNKNOWN || is_mympd_col(token) == true) {
-            user_data = sdscatlen(user_data, t.ptr, t.len);
+            cols = sdscatjson(cols, t.ptr, t.len);
             j++;
         }
         else {
@@ -114,4 +114,5 @@ void json_to_cols(const char *str, int len, void *user_data) {
         }
         sdsfree(token);
     }
+    return cols;
 }

@@ -171,8 +171,8 @@ sds mpd_client_search_queue(t_mpd_state *mpd_state, sds buffer, sds method, int 
             buffer = tojson_long(buffer, "Pos", mpd_song_get_pos(song), true);
             buffer = put_song_tags(buffer, mpd_state, tagcols, song);
             buffer = sdscat(buffer, "}");
-            mpd_song_free(song);
         }
+        mpd_song_free(song);
     }
 
     buffer = sdscat(buffer, "],");

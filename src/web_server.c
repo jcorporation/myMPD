@@ -393,6 +393,8 @@ static bool handle_api(int conn_id, const char *request_body, int request_len) {
     int id = 0;
     const int je = json_scanf(request_body, request_len, "{jsonrpc: %Q, method: %Q, id: %d}", &jsonrpc, &cmd, &id);
     if (je < 3) {
+        FREE_PTR(cmd);
+        FREE_PTR(jsonrpc);
         return false;
     }
 
