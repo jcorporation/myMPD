@@ -33,6 +33,9 @@ function logLog(loglevel, line) {
         else if (loglevel === 1) {
             console.warn(line);
         }
+        else if (loglevel === 4) {
+            console.debug(line);
+        }
         else {
             console.log(line);
         }
