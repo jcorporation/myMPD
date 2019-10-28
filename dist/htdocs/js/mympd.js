@@ -3654,6 +3654,7 @@ function parseStats(obj) {
     document.getElementById('mpdstats_dbPlaytime').innerText = beautifyDuration(obj.result.dbPlaytime);
     document.getElementById('mpdstats_playtime').innerText = beautifyDuration(obj.result.playtime);
     document.getElementById('mpdstats_uptime').innerText = beautifyDuration(obj.result.uptime);
+    document.getElementById('mpdstats_mympd_uptime').innerText = beautifyDuration(obj.result.myMPDuptime);
     document.getElementById('mpdstats_dbUpdated').innerText = localeDate(obj.result.dbUpdated);
     document.getElementById('mympdVersion').innerText = obj.result.mympdVersion;
     document.getElementById('mpdInfo_version').innerText = obj.result.mpdVersion;

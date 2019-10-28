@@ -534,8 +534,11 @@ Datenbank Wiedergabedauer
 DB updated
 Datenbank zuletzt aktualisiert
 
-Uptime
-Uptime
+MPD uptime
+MPD Uptime
+
+myMPD uptime
+myMPD Uptime
 
 Play time
 Wiedergabedauer

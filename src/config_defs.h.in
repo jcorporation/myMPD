@@ -100,6 +100,7 @@ typedef struct t_config {
     sds coverimage_name;
     int coverimage_size;
     sds locale;
+    time_t startup_time;
     //system commands
     struct list syscmd_list;
 } t_config;

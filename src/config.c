@@ -12,6 +12,7 @@
 #include <assert.h>
 #include <inttypes.h>
 #include <unistd.h>
+#include <time.h>
 
 #include "../dist/src/sds/sds.h"
 #include "sds_extras.h"
@@ -337,6 +338,7 @@ void mympd_config_defaults(t_config *config) {
     config->coverimage_name = sdsnew("folder.jpg");
     config->coverimage_size = 250;
     config->locale = sdsnew("default");
+    config->startup_time = time(NULL);
     list_init(&config->syscmd_list);
 }
 

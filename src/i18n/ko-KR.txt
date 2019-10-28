@@ -534,8 +534,11 @@ DB 연주 시간
 DB updated
 DB 업데이트됨
 
-Uptime
-가동 시간
+MPD uptime
+MPD 가동 시간
+
+myMPD uptime
+myMPD 가동 시간
 
 Play time
 연주 시간

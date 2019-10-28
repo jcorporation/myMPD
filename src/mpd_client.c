@@ -122,7 +122,7 @@ static void mpd_client_parse_idle(t_config *config, t_mpd_state *mpd_state, int 
                     break;
                 case MPD_IDLE_PLAYER:
                     //get and put mpd state                
-                    buffer = mpd_client_put_state(mpd_state, buffer, NULL, 0);
+                    buffer = mpd_client_put_state(config, mpd_state, buffer, NULL, 0);
                     //song has changed
                     if (mpd_state->song_id != mpd_state->last_song_id && mpd_state->last_skipped_id != mpd_state->last_song_id  && mpd_state->last_song_uri != NULL) {
                         time_t now = time(NULL);
@@ -256,7 +256,7 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
             mpd_state->conn_state = MPD_CONNECTED;
             mpd_state->reconnect_intervall = 0;
             mpd_state->reconnect_time = 0;
-            mpd_client_mpd_features(mpd_state);
+            mpd_client_mpd_features(config, mpd_state);
             mpd_client_smartpls_update_all(config, mpd_state);
             if (mpd_state->jukebox_mode != JUKEBOX_OFF) {
                 mpd_client_jukebox(mpd_state);

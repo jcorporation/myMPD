@@ -8,6 +8,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <inttypes.h>
+#include <time.h>
 #include <mpd/client.h>
 
 #include "../dist/src/sds/sds.h"
@@ -259,7 +260,7 @@ sds mpd_client_put_last_played_songs(t_config *config, t_mpd_state *mpd_state, s
     return buffer;
 }
 
-sds mpd_client_put_stats(t_mpd_state *mpd_state, sds buffer, sds method, int request_id) {
+sds mpd_client_put_stats(t_config *config, t_mpd_state *mpd_state, sds buffer, sds method, int request_id) {
     struct mpd_stats *stats = mpd_run_stats(mpd_state->conn);
     if (stats == NULL) {
         buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
@@ -277,6 +278,7 @@ sds mpd_client_put_stats(t_mpd_state *mpd_state, sds buffer, sds method, int req
     buffer = tojson_long(buffer, "songs", mpd_stats_get_number_of_songs(stats), true);
     buffer = tojson_long(buffer, "playtime", mpd_stats_get_play_time(stats), true);
     buffer = tojson_long(buffer, "uptime", mpd_stats_get_uptime(stats), true);
+    buffer = tojson_long(buffer, "myMPDuptime", time(NULL) - config->startup_time, true);
     buffer = tojson_long(buffer, "dbUpdated", mpd_stats_get_db_update_time(stats), true);
     buffer = tojson_long(buffer, "dbPlaytime", mpd_stats_get_db_play_time(stats), true);
     buffer = tojson_char(buffer, "mympdVersion", MYMPD_VERSION, true);

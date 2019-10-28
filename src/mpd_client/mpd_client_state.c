@@ -43,7 +43,7 @@ sds mpd_client_get_updatedb_state(t_mpd_state *mpd_state, sds buffer) {
     return buffer;    
 }
 
-sds mpd_client_put_state(t_mpd_state *mpd_state, sds buffer, sds method, int request_id) {
+sds mpd_client_put_state(t_config *config, t_mpd_state *mpd_state, sds buffer, sds method, int request_id) {
     struct mpd_status *status = mpd_run_status(mpd_state->conn);
     if (status == NULL) {
         if (method == NULL) {
@@ -81,7 +81,8 @@ sds mpd_client_put_state(t_mpd_state *mpd_state, sds buffer, sds method, int req
 
     const int total_time = mpd_status_get_total_time(status);
     const int elapsed_time =  mpd_status_get_elapsed_time(status);
-    if (total_time > 10) {
+    time_t uptime = time(NULL) - config->startup_time;
+    if (total_time > 10 && uptime > elapsed_time) {
         time_t now = time(NULL);
         mpd_state->song_end_time = now + total_time - elapsed_time - 10;
         mpd_state->song_start_time = now - elapsed_time;

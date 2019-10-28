@@ -73,7 +73,7 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
             }
             break;
         case MPD_API_PLAYER_STATE:
-            data = mpd_client_put_state(mpd_state, data, request->method, request->id);
+            data = mpd_client_put_state(config, mpd_state, data, request->method, request->id);
             break;
         case MYMPD_API_SETTINGS_SET: {
             void *h = NULL;
@@ -94,7 +94,7 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
                 }
                 if (mpd_state->conn_state == MPD_CONNECTED) {
                     //feature detection
-                    mpd_client_mpd_features(mpd_state);
+                    mpd_client_mpd_features(config, mpd_state);
                     
                     if (mpd_state->jukebox_mode != JUKEBOX_OFF) {
                         //enable jukebox
@@ -536,7 +536,7 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
             data = mpd_client_put_settings(mpd_state, data, request->method, request->id);
             break;
         case MPD_API_DATABASE_STATS:
-            data = mpd_client_put_stats(mpd_state, data, request->method, request->id);
+            data = mpd_client_put_stats(config, mpd_state, data, request->method, request->id);
             break;
         default:
             data = jsonrpc_respond_message(data, request->method, request->id, "Unknown request", true);

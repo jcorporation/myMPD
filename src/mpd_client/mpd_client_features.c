@@ -30,7 +30,7 @@ static void mpd_client_feature_tags(t_mpd_state *mpd_state);
 static void mpd_client_feature_music_directory(t_mpd_state *mpd_state);
 
 //public functions
-void mpd_client_mpd_features(t_mpd_state *mpd_state) {
+void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state) {
     mpd_state->protocol = mpd_connection_get_server_version(mpd_state->conn);
     LOG_INFO("MPD protocoll version: %u.%u.%u", mpd_state->protocol[0], mpd_state->protocol[1], mpd_state->protocol[2]);
 
@@ -51,7 +51,7 @@ void mpd_client_mpd_features(t_mpd_state *mpd_state) {
     
     //set state
     sds buffer = sdsempty();
-    buffer = mpd_client_put_state(mpd_state, buffer, NULL, 0);
+    buffer = mpd_client_put_state(config, mpd_state, buffer, NULL, 0);
     sdsfree(buffer);
     
     if (LIBMPDCLIENT_CHECK_VERSION(2, 17, 0) && mpd_connection_cmp_server_version(mpd_state->conn, 0, 21, 0) >= 0) {
