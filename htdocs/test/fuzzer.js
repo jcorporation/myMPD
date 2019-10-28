@@ -128,6 +128,10 @@ function sendAPI(id) {
                 i = 0;
                 setTimeout(function() { sendAPI(i); }, sleep);
             }
+            else {
+                document.getElementsByTagName('h5')[0].innerText = 'Finished';
+                return;
+            }
         }
     };
     
