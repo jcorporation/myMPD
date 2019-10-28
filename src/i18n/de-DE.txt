@@ -600,6 +600,9 @@ Anzahl
 Save bookmark
 Lesezeichen speichern
 
+Clearing bookmarks failed
+Löschen aller Lesezeichen fehlgeschlagen
+
 Bookmark name
 Name
 
