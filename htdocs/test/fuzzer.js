@@ -54,7 +54,7 @@ function defineCmds() {
         {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYLIST_MOVE_TRACK","params":{"plist":string1,"from":int1,"to":int2}},
         {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYLIST_RM_TRACK","params":{"uri":string1,"track":int1}},
         {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYLIST_RM","params":{"uri":string1}},
-        {"jsonrpc":"2.0","id":0,"method":"MPD_API_DATABASE_SEARCH_ADV","params":{"offset":int1,"expression":"(any contains \'"+string1+"\')","sort":string2, "sortdesc":false,"plist":string3,"cols":[string4]}},
+        {"jsonrpc":"2.0","id":0,"method":"MPD_API_DATABASE_SEARCH_ADV","params":{"offset":int1,"expression":"(any contains '"+string1+"')","sort":string2, "sortdesc":false,"plist":string3,"cols":[string4]}},
         {"jsonrpc":"2.0","id":0,"method":"MPD_API_DATABASE_SEARCH_ADV","params":{"offset":int1,"expression":string1,"sort":string2, "sortdesc":true,"plist":string3,"cols":[string4]}},
         {"jsonrpc":"2.0","id":0,"method":"MPD_API_DATABASE_SEARCH_ADV","params":{"offset":int1,"expression":string1,"sort":string2, "sortdesc":string3,"plist":string4,"cols":[string5]}},
         {"jsonrpc":"2.0","id":0,"method":"MPD_API_DATABASE_FILESYSTEM_LIST","params":{"offset":int1,"filter":string1,"path":string2,"cols":[string3,string4]}},
