@@ -95,7 +95,7 @@ function getRandomInt() {
 
 function sendAPI(id) {
     if (id === 0) {
-        cmds = defineCmds(id);
+        cmds = defineCmds();
     }
     var request = cmds[id];
     
@@ -114,7 +114,7 @@ function sendAPI(id) {
                 setTest(request, ajaxRequest.responseText);
             }
             catch(e) {
-                setTest(request, 'error', 'JSON parse error: ' + e);
+                setTest(request, 'JSON parse error: ' + e);
                 console.error('Request: ' + JSON.stringify(request));
                 console.error('JSON parse error: ' + e);
                 console.error('Response: ' + ajaxRequest.responseText);
