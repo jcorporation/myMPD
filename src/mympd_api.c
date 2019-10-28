@@ -83,7 +83,6 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                 je = json_scanf(request->data, sdslen(request->data), "{params: {cmd: %Q}}", &p_charbuf1);
                 if (je == 1) {
                     data = mympd_api_syscmd(config, data, request->method, request->id, p_charbuf1);
-                    FREE_PTR(p_charbuf1);
                 }
             } 
             else {
@@ -91,10 +90,11 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             }
             break;
         case MYMPD_API_COLS_SAVE: {
-            sds cols = sdsnew("[");
-            je = json_scanf(request->data, sdslen(request->data), "{params: {table: %Q, cols: %M}}", &p_charbuf1, json_to_cols, cols);
-            if (je == 2) {
-                cols = sdscat(cols, "]");
+            sds cols = sdsnewlen("[", 1);
+            je = json_scanf(request->data, sdslen(request->data), "{params: {table: %Q}}", &p_charbuf1);
+            if (je == 1) {
+                cols = json_to_cols(cols, request->data, sdslen(request->data));
+                cols = sdscatlen(cols, "]", 1);
                 if (mympd_api_cols_save(config, mympd_state, p_charbuf1, cols)) {
                     data = jsonrpc_respond_ok(data, request->method, request->id);
                 }
@@ -104,7 +104,6 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                     data = jsonrpc_end_phrase(data);
                     LOG_ERROR("MYMPD_API_COLS_SAVE: Unknown table %s", p_charbuf1);
                 }            
-                FREE_PTR(p_charbuf1);
             }
             sdsfree(cols);
             break;
@@ -179,9 +178,6 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                 else {
                     data = jsonrpc_respond_message(data, request->method, request->id, "Saving bookmark failed", true);
                 }
-                FREE_PTR(p_charbuf1);
-                FREE_PTR(p_charbuf2);
-                FREE_PTR(p_charbuf3);
             }
             break;
         case MYMPD_API_BOOKMARK_RM:
@@ -195,6 +191,14 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                 }
             }
             break;
+        case MYMPD_API_BOOKMARK_CLEAR:
+            if (mympd_api_bookmark_clear(config)) {
+                data = jsonrpc_respond_ok(data, request->method, request->id);
+            }
+            else {
+                data = jsonrpc_respond_message(data, request->method, request->id, "Clearing bookmarks failed", true);
+            }
+            break;
         case MYMPD_API_BOOKMARK_LIST:
             je = json_scanf(request->data, sdslen(request->data), "{params: {offset: %u}}", &uint_buf1);
             if (je == 1) {
@@ -206,6 +210,10 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             LOG_ERROR("Unknown API request: %.*s", sdslen(request->data), request->data);
     }
 
+    FREE_PTR(p_charbuf1);
+    FREE_PTR(p_charbuf2);
+    FREE_PTR(p_charbuf3);
+
     if (sdslen(data) == 0) {
         data = jsonrpc_start_phrase(data, request->method, request->id, "No response for method %{method}", true);
         data = tojson_char(data, "method", request->method, false);
@@ -215,7 +223,5 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
     response->data = data;
     LOG_DEBUG("Push response to queue for connection %lu: %s", request->conn_id, response->data);
     tiny_queue_push(web_server_queue, response);
-    sdsfree(request->data);
-    sdsfree(request->method);
-    FREE_PTR(request);
+    free_request(request);
 }

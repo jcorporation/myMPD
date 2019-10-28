@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <errno.h>
 
 #include "../../dist/src/sds/sds.h"
 #include "../sds_extras.h"
@@ -64,13 +65,13 @@ bool mympd_api_bookmark_update(t_config *config, const int id, const char *name,
                     line_nr++;
                     write_bookmarks_line(fo, line_nr, lname, luri, ltype);
                 }
-                FREE_PTR(lname);
-                FREE_PTR(luri);
-                FREE_PTR(ltype);
             }
             else {
                 LOG_ERROR("Can't read bookmarks line");
             }
+            FREE_PTR(lname);
+            FREE_PTR(luri);
+            FREE_PTR(ltype);
         }
         FREE_PTR(line);
         fclose(fi);
@@ -89,6 +90,16 @@ bool mympd_api_bookmark_update(t_config *config, const int id, const char *name,
     }
     sdsfree(tmp_file);
     sdsfree(b_file);
+    return true;
+}
+
+bool mympd_api_bookmark_clear(t_config *config) {
+    sds b_file = sdscatfmt(sdsempty(), "%s/state/bookmarks", config->varlibdir);
+    int rc = unlink(b_file);
+    sdsfree(b_file);
+    if (rc == -1 && errno != ENOENT) {
+        return false;
+    }
     return true;
 }
 
