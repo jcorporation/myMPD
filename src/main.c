@@ -252,6 +252,7 @@ static bool check_dirs(t_config *config) {
 int main(int argc, char **argv) {
     s_signal_received = 0;
     bool init_webserver = false;
+    bool init_mg_user_data = false;
     bool init_thread_webserver = false;
     bool init_thread_mpdclient = false;
     bool init_thread_mympdapi = false;
@@ -275,9 +276,12 @@ int main(int argc, char **argv) {
     mympd_api_queue = tiny_queue_create();
     web_server_queue = tiny_queue_create();
 
+    //create mg_user_data struct for web_server
     t_mg_user_data *mg_user_data = (t_mg_user_data *)malloc(sizeof(t_mg_user_data));
     assert(mg_user_data);
+    init_mg_user_data = true;
 
+    //initialize random number generator
     srand((unsigned int)time(NULL)); /* Flawfinder: ignore */
     
     //mympd config defaults
@@ -288,6 +292,7 @@ int main(int argc, char **argv) {
     //get configuration file
     sds configfile = sdscatfmt(sdsempty(), "%s/mympd.conf", ETC_PATH);
     
+    //command line option
     sds option = sdsempty();
     
     if (argc >= 2) {
@@ -361,6 +366,7 @@ int main(int argc, char **argv) {
 
     //init webserver    
     struct mg_mgr mgr;
+    init_mg_user_data = true;
     if (!web_server_init(&mgr, config, mg_user_data)) {
         goto cleanup;
     }
@@ -439,9 +445,11 @@ int main(int argc, char **argv) {
     mympd_free_config(config);
     sdsfree(configfile);
     sdsfree(option);
-    sdsfree(mg_user_data->music_directory);
-    sdsfree(mg_user_data->pics_directory);
-    sdsfree(mg_user_data->rewrite_patterns);
+    if (init_mg_user_data == true) {
+        sdsfree(mg_user_data->music_directory);
+        sdsfree(mg_user_data->pics_directory);
+        sdsfree(mg_user_data->rewrite_patterns);
+    }
     FREE_PTR(mg_user_data);
     if (rc == EXIT_SUCCESS) {
         printf("Exiting gracefully, thank you for using myMPD\n");
