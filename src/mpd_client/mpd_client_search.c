@@ -70,7 +70,14 @@ sds mpd_client_search(t_mpd_state *mpd_state, sds buffer, sds method, int reques
     }
     else {
         mpd_response_finish(mpd_state->conn);
-        buffer = jsonrpc_respond_ok(buffer, method, request_id);
+        if (strcmp(plist, "queue") == 0) {
+            buffer = jsonrpc_respond_message(buffer, method, request_id, "Added songs to queue", false);
+        }
+        else {
+            buffer = jsonrpc_start_phrase(buffer, method, request_id, "Added songs to %{playlist}", false);
+            buffer = tojson_char(buffer, "playlist", plist, false);
+            buffer = jsonrpc_end_phrase(buffer);
+        }
     }
 
     return buffer;
@@ -162,7 +169,14 @@ sds mpd_client_search_adv(t_mpd_state *mpd_state, sds buffer, sds method, int re
     }
     else {
         mpd_response_finish(mpd_state->conn);
-        buffer = jsonrpc_respond_ok(buffer, method, request_id);
+        if (strcmp(plist, "queue") == 0) {
+            buffer = jsonrpc_respond_message(buffer, method, request_id, "Added songs to queue", false);
+        }
+        else {
+            buffer = jsonrpc_start_phrase(buffer, method, request_id, "Added songs to %{playlist}", false);
+            buffer = tojson_char(buffer, "playlist", plist, false);
+            buffer = jsonrpc_end_phrase(buffer);
+        }
     }
 #else
     //prevent unused warnings

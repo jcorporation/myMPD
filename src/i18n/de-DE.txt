@@ -774,11 +774,11 @@ Datenbank erfolgreich aktualisiert
 Database update finished
 Datenbankaktualisierung beendet
 
-Added all songs from search to %{playlist}
-Alle Lieder der Suche zu %{playlist} hinzugefügt
+Added songs to %{playlist}
+Lieder zur Wiedergabeliste %{playlist} hinzugefügt
 
-Added all songs from database selection to %{playlist}
-Alle Lieder der Auswahl zu %{playlist} hinzugefügt
+Added songs to queue
+Lieder zur Warteschlange hinzugefügt
 
 Add random
 Zufällig hinzufügen
