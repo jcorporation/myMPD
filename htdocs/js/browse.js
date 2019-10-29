@@ -151,7 +151,7 @@ function parseListDBtags(obj) {
         for (let i = cardsLen; i >= nrItems; i --) {
             cards[i].remove();
         }
-        setPagination(obj.result.totalEntities, obj.returnedEntities);
+        setPagination(obj.result.totalEntities, obj.result.returnedEntities);
         setCols('BrowseDatabase', '.tblAlbumTitles');
         let tbls = document.querySelectorAll('.tblAlbumTitles');
         for (let i = 0; i < tbls.length; i++) {
@@ -197,7 +197,7 @@ function parseListDBtags(obj) {
             focusTable(0);
         }
         
-        setPagination(obj.result.totalEntities, obj.returnedEntities);
+        setPagination(obj.result.totalEntities, obj.result.returnedEntities);
 
         if (nrItems === 0) {
             tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
@@ -290,7 +290,6 @@ function addAllFromBrowseFilesystem() {
 function addAllFromBrowseDatabasePlist(plist) {
     if (app.current.search.length >= 2) {
         sendAPI("MPD_API_DATABASE_SEARCH", {"plist": plist, "filter": app.current.view, "searchstr": app.current.search, "offset": 0, "cols": settings.colsSearch});
-        showNotification(t('Added all songs from database selection to %{playlist}', {"playlist": plist}), '', '', 'success');
     }
 }
 

@@ -126,7 +126,7 @@ function parseQueue(obj) {
         focusTable(activeRow);
     }
     
-    setPagination(obj.result.totalEntities, obj.returnedEntities);
+    setPagination(obj.result.totalEntities, obj.result.returnedEntities);
     document.getElementById('QueueCurrentList').classList.remove('opacity05');
 }
 
@@ -180,7 +180,7 @@ function parseLastPlayed(obj) {
         focusTable(activeRow);
     }
 
-    setPagination(obj.result.totalEntities, obj.returnedEntities);
+    setPagination(obj.result.totalEntities, obj.result.returnedEntities);
     document.getElementById('QueueLastPlayedList').classList.remove('opacity05');
 }
 

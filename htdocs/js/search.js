@@ -28,10 +28,10 @@ function search(x) {
 }
 
 function parseSearch(obj) {
-    document.getElementById('panel-heading-search').innerText = gtPage('Num songs', obj.returnedEntities, obj.result.totalEntities);
-    document.getElementById('cardFooterSearch').innerText = gtPage('Num songs', obj.returnedEntities, obj.result.totalEntities);
+    document.getElementById('panel-heading-search').innerText = gtPage('Num songs', obj.result.returnedEntities, obj.result.totalEntities);
+    document.getElementById('cardFooterSearch').innerText = gtPage('Num songs', obj.result.returnedEntities, obj.result.totalEntities);
     
-    if (obj.returnedEntities > 0) {
+    if (obj.result.returnedEntities > 0) {
         document.getElementById('searchAddAllSongs').removeAttribute('disabled');
         document.getElementById('searchAddAllSongsBtn').removeAttribute('disabled');
     } 
@@ -53,5 +53,4 @@ function addAllFromSearchPlist(plist) {
     else {
         sendAPI("MPD_API_DATABASE_SEARCH", {"plist": plist, "filter": app.current.filter, "searchstr": app.current.search, "offset": 0, "cols": settings.colsSearch});
     }
-    showNotification(t('Added all songs from search to %{playlist}', {"playlist": plist}), '', '', 'success');
 }

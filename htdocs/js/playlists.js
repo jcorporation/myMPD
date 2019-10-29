@@ -98,7 +98,7 @@ function parsePlaylists(obj) {
         focusTable(0);
     }
 
-    setPagination(obj.result.totalEntities, obj.returnedEntities);
+    setPagination(obj.result.totalEntities, obj.result.returnedEntities);
     
     if (nrItems === 0) {
         if (app.current.view === 'All') {
@@ -154,7 +154,7 @@ function getAllPlaylists(obj) {
     else {
         document.getElementById(playlistEl).innerHTML += playlists;
     }
-    if (obj.result.totalEntities > obj.returnedEntities) {
+    if (obj.result.totalEntities > obj.result.returnedEntities) {
         obj.result.offset += settings.maxElementsPerPage;
         sendAPI("MPD_API_PLAYLIST_LIST", {"offset": obj.result.offset, "filter": "-"}, getAllPlaylists);
     }
