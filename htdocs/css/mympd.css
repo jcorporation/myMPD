@@ -27,7 +27,7 @@
 }
 
 #splashScreenAlert {
-  min-height: 8rem;
+  min-height: 25vh;
   width: 100vw;
   color: #f8f9fa;
   position: absolute;
@@ -37,10 +37,6 @@
   font-size: 1.2rem;
   padding: 1rem;
   text-align: center;
-}
-
-#appReloadBtn {
-  float: right;
 }
 
 .overflow-hidden {

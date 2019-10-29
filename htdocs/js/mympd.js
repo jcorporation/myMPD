@@ -368,7 +368,8 @@ function appRoute() {
 }
 
 function showAppInitAlert(text) {
-    document.getElementById('splashScreenAlert').innerHTML = '<a id="appReloadBtn" class="btn btn-danger text-light clickable">Reload</a><p class="text-danger">' + t(text) + '</p>';
+    document.getElementById('splashScreenAlert').innerHTML = '<p class="text-danger">' + t(text) + '</p>' +
+        '<p><a id="appReloadBtn" class="btn btn-danger text-light clickable">Reload</a></p>';
     document.getElementById('appReloadBtn').addEventListener('click', function() {
         location.reload();
     }, false);
@@ -405,6 +406,7 @@ function appInitStart() {
     document.getElementById('splashScreen').classList.remove('hide');
     document.getElementsByTagName('body')[0].classList.add('overflow-hidden');
     document.getElementById('splashScreenAlert').innerText = t('Fetch myMPD settings');
+
     getSettings(true);
     appInitWait();
 }
