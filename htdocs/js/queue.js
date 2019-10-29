@@ -78,7 +78,7 @@ function parseQueue(obj) {
     let table = document.getElementById('QueueCurrentList');
     let navigate = document.activeElement.parentNode.parentNode === table ? true : false;
     let activeRow = 0;
-    table.setAttribute('data-version', obj.queueVersion);
+    table.setAttribute('data-version', obj.result.queueVersion);
     let tbody = table.getElementsByTagName('tbody')[0];
     let tr = tbody.getElementsByTagName('tr');
     for (let i = 0; i < nrItems; i++) {
@@ -113,11 +113,11 @@ function parseQueue(obj) {
     let colspan = settings['colsQueueCurrent'].length;
     colspan--;
 
-    if (obj.type === 'queuesearch' && nrItems === 0) {
+    if (obj.result.method === 'MPD_API_QUEUE_SEARCH' && nrItems === 0) {
         tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
                           '<td colspan="' + colspan + '">' + t('No results, please refine your search') + '</td></tr>';
     }
-    else if (obj.type === 'queue' && nrItems === 0) {
+    else if (obj.result.method === 'MPD_API_QUEUE_ADD_TRACK' && nrItems === 0) {
         tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
                           '<td colspan="' + colspan + '">' + t('Empty queue') + '</td></tr>';
     }

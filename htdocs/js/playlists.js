@@ -63,7 +63,7 @@ function parsePlaylists(obj) {
         for (let i = 0; i < nrItems; i++) {
             let uri = encodeURI(obj.result.data[i].uri);
             let row = document.createElement('tr');
-            if (obj.smartpls === false) {
+            if (obj.result.smartpls === false) {
                 row.setAttribute('draggable','true');
             }
             row.setAttribute('id','playlistTrackId' + obj.result.data[i].Pos);
