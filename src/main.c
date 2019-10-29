@@ -335,10 +335,10 @@ int main(int argc, char **argv) {
     else {
         goto cleanup;
     }
-    
-    LOG_DEBUG("myMPD started with option: %s", option);
+
     //handle commandline options and exit
     if (sdslen(option) > 0) {
+        LOG_DEBUG("myMPD started with option: %s", option);
         if (handle_option(config, argv[0], option) == false) {
             rc = EXIT_FAILURE;
         }
