@@ -142,10 +142,10 @@ Invalid API request
 잘못된 API 요구
 
 Failed to set like, invalid like value
-잘못된 값으로 좋아요 설정에 실패함
+잘못된 값으로 좋아요 설정 안 됨
 
 Failed to set like, invalid song uri
-잘못된 곡 주소로 좋아요 설정에 실패함
+잘못된 곡 주소로 좋아요 설정 안 됨
 
 Last played
 앞서 연주함
@@ -286,7 +286,7 @@ Scrobbled love
 애청곡 추천
 
 Failed to send love message to channel
-채널에 애청곡 메시지 보내기 실패함
+채널에 애청곡 메시지 보내기 안 됨
 
 Dislike song
 곡 좋아하지 않음
@@ -466,13 +466,13 @@ Smart playlists updated
 스마트 연주목록 업데이트됨
 
 Smart playlists update failed
-스마트 연주목록 업데이트 실패함
+스마트 연주목록 업데이트 안 됨
 
 Smart playlist %{playlist} updated
 %{playlist} 스마트 연주목록 업데이트함
 
 Updating of smart playlist %{playlist} failed
-%{playlist} 스마트 연주목록 업데이트 실패함
+%{playlist} 스마트 연주목록 업데이트 안 됨
 
 Smart playlist
 스마트 연주목록
@@ -600,6 +600,9 @@ Playlist name
 Quantity
 갯수
 
+Clearing bookmarks failed
+즐겨찾기 지우기 안 됨
+
 Save bookmark
 즐겨찾기 저장
 
@@ -688,7 +691,7 @@ MPD disconnected
 MPD 연결 끊어짐
 
 Websocket connection failed
-웹소켓 연결 실패함
+웹소켓 연결 안 됨
 
 Connected to myMPD
 myMPD로 연결됨
@@ -697,7 +700,7 @@ Connected to MPD
 MPD로 연결됨
 
 Websocket connection failed, trying to reconnect
-웹소켓 연결 실패하여, 다시 시도 중
+웹소켓 연결이 안 되어, 다시 시도하는 중
 
 Can not parse settings
 설정을 분석할 수 없음
@@ -771,11 +774,11 @@ Database successfully updated
 Database update finished
 데이터베이스 업데이트 마침
 
-Added all songs from search to %{playlist}
-찾기의 모든 곡을 %{playlist}에 추가함
+Added songs to %{playlist}
+%{playlist}에 곡 추가함
 
-Added all songs from database selection to %{playlist}
-데이터베이스의 모든 곡을 %{playlist}에 추가함
+Added songs to queue
+순서에 곡 추가함
 
 Add random
 무작위 추가
@@ -787,7 +790,7 @@ never
 안 함
 
 Failed to save playlist
-연주목록 저장에 실패함
+연주목록 저장 안 됨
 
 Added %{uri} to playlist %{playlist}
 %{uri}의 %{playlist} 연주목록 추가에 실패함
@@ -796,10 +799,10 @@ Sucessfully added random songs to queue
 무작위 곡을 순서에 추가함
 
 Adding random songs to queue failed
-무작위 곡의 순서 추가에 실패함
+순서에 무작위 곡 추가 안 됨
 
 Deleting smart playlist failed
-스마트 연주목록 지우기에 실패함
+스마트 연주목록 지우기 안 됨
 
 Unknown request
 알 수 없는 요구
@@ -811,7 +814,7 @@ MPD connection error: %{error}
 MPD 연결 오류: %{error}
 
 Renaming playlist failed
-연주목록 이름 바꾸기에 실패함
+연주목록 이름 바꾸기 안 됨
 
 Sucessfully renamed playlist
 연주목록 이름 바꿈
@@ -838,10 +841,10 @@ System commands are disabled
 시스템 명령어 사용 안 함
 
 Saving bookmark failed
-즐겨찾기 저장에 실패함
+즐겨찾기 저장 안 됨
 
 Deleting bookmark failed
-즐겨찾기 지우기에 실패함
+즐겨찾기 지우기 안 됨
 
 System command not defined
 시스템 명령어 정의 안됨
@@ -850,10 +853,10 @@ Successfully execute cmd %{cmd}
 %{cmd} 명령어 실행함
 
 Failed to execute cmd %{cmd}
-%{cmd} 명령어 실행에 실패함
+%{cmd} 명령어 실행 안 됨
 
 Failed to open bookmarks file
-즐겨찾기 파일 열기에 실패함
+즐겨찾기 파일 열기 안 됨
 
 No bookmarks found
 즐겨찾기를 찾을 수 없음
