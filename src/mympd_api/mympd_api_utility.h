@@ -45,6 +45,7 @@ typedef struct t_mympd_state {
     int coverimage_size;
     sds locale;
     sds music_directory;
+    bool bookmarks;
 } t_mympd_state;
 
 void free_mympd_state(t_mympd_state *mympd_state);

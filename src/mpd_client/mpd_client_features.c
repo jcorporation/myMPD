@@ -40,7 +40,7 @@ void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state) {
     mpd_state->feat_tags = false;
     mpd_state->feat_advsearch = false;
     mpd_state->feat_fingerprint = false;
-    mpd_state->feat_smartpls = mpd_state->smartpls;
+    mpd_state->feat_smartpls = mpd_state->smartpls;;
     mpd_state->feat_coverimage = true;
     
     //get features

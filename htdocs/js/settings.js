@@ -133,6 +133,7 @@ function parseSettings() {
     toggleBtnChk('btnBgCover', settings.bgCover);
     toggleBtnChk('btnFeatLocalplayer', settings.featLocalplayer);
     toggleBtnChk('btnLocalplayerAutoplay', settings.localplayerAutoplay);
+    toggleBtnChk('btnBookmarks', settings.featBookmarks);
     if (settings.streamUrl === '') {
         document.getElementById('selectStreamMode').value = 'port';
         document.getElementById('inputStreamUrl').value = settings.streamPort;
@@ -146,6 +147,7 @@ function parseSettings() {
     document.getElementById('inputCoverimageName').value = settings.coverimageName;
 
     document.getElementById('inputCoverimageSize').value = settings.coverimageSize;
+
     let albumcover = document.querySelectorAll('.albumcover');
     for (let i = 0; i < albumcover.length; i++) {
 	albumcover[i].style.width = settings.coverimageSize;
@@ -156,6 +158,7 @@ function parseSettings() {
     document.getElementsByTagName('body')[0].style.backgroundColor = settings.bgColor;
 
     document.getElementById('inputBgCssFilter').value = settings.bgCssFilter;    
+
     let albumartbg = document.querySelectorAll('.albumartbg');
     for (let i = 0; i < albumartbg.length; i++) {
 	albumartbg[i].style.filter = settings.bgCssFilter;
@@ -171,7 +174,7 @@ function parseSettings() {
     toggleBtnChk('btnSmartpls', settings.smartpls);
     
     
-    let features = ["featLocalplayer", "featSyscmds", "featMixramp", "featCacert"];
+    let features = ["featLocalplayer", "featSyscmds", "featMixramp", "featCacert", "featBookmarks"];
     for (let j = 0; j < features.length; j++) {
         let Els = document.getElementsByClassName(features[j]);
         let ElsLen = Els.length;
@@ -179,6 +182,22 @@ function parseSettings() {
         for (let i = 0; i < ElsLen; i++) {
             Els[i].style.display = displayEl;
         }
+    }
+    
+    let readonlyEls = document.getElementsByClassName('warnReadonly');
+    for (let i = 0; i < readonlyEls.length; i++) {
+        if (settings.readonly === false) {
+            readonlyEls[i].classList.add('hide');
+        }
+        else {
+            readonlyEls[i].classList.remove('hide');
+        }
+    }
+    if (settings.readonly == true) {
+        document.getElementById('btnBookmarks').setAttribute('disabled', 'disabled');
+    }
+    else {
+        document.getElementById('btnBookmarks').removeAttribute('disabled');
     }
 
     if (settings.featSyscmds) {
@@ -325,8 +344,8 @@ function parseMPDSettings() {
 
     document.getElementById('selectReplaygain').value = settings.replaygain;
 
-    let features = ["featStickers", "featSmartpls", "featPlaylists", "featTags", "featCoverimage", "featAdvsearch",
-        "featLove"];
+    let features = ['featStickers', 'featSmartpls', 'featPlaylists', 'featTags', 'featCoverimage', 'featAdvsearch',
+        'featLove'];
     for (let j = 0; j < features.length; j++) {
         let Els = document.getElementsByClassName(features[j]);
         let ElsLen = Els.length;
@@ -344,6 +363,13 @@ function parseMPDSettings() {
     }
     else {
         document.getElementById('warnSmartpls').classList.add('hide');
+    }
+    
+    if (settings.featPlaylists === true && settings.readonly === false) {
+        document.getElementById('btnSmartpls').removeAttribute('disabled');
+    }
+    else {
+        document.getElementById('btnSmartpls').setAttribute('disabled', 'disabled');
     }
 
     if (settings.featStickers === false && settings.stickers === true) {
@@ -587,6 +613,7 @@ function saveSettings() {
             "love": (document.getElementById('btnLoveEnable').classList.contains('active') ? true : false),
             "loveChannel": document.getElementById('inputLoveChannel').value,
             "loveMessage": document.getElementById('inputLoveMessage').value,
+            "bookmarks": (document.getElementById('btnBookmarks').classList.contains('active') ? true : false),
             "maxElementsPerPage": document.getElementById('inputMaxElementsPerPage').value,
             "stickers": (document.getElementById('btnStickers').classList.contains('active') ? true : false),
             "lastPlayedCount": document.getElementById('inputLastPlayedCount').value,

@@ -101,6 +101,8 @@ typedef struct t_config {
     int coverimage_size;
     sds locale;
     time_t startup_time;
+    bool readonly;
+    bool bookmarks;
     //system commands
     struct list syscmd_list;
 } t_config;

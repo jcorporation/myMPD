@@ -323,17 +323,20 @@ int main(int argc, char **argv) {
     #endif
 
     //check varlibdir
-    int testdir_rc = testdir("Localstate dir", config->varlibdir, true);
-    if (testdir_rc < 2) {
-        //directory exists or was created, set user and group if I am root
-        if (startup_uid == 0) {
-            if (do_chown(config->varlibdir, config->user) == false) {
-                goto cleanup;
+    if (config->readonly == false) {
+        int testdir_rc = testdir("Localstate dir", config->varlibdir, true);
+        if (testdir_rc < 2) {
+            //directory exists or was created; set user and group, if uid = 0
+            if (startup_uid == 0) {
+                if (do_chown(config->varlibdir, config->user) == false) {
+                    goto cleanup;
+                }
             }
         }
-    }
-    else {
-        goto cleanup;
+        else {
+            //set readonly mode if varlibdir is not accessible
+            mympd_set_readonly(config);
+        }
     }
 
     //handle commandline options and exit
@@ -360,8 +363,10 @@ int main(int argc, char **argv) {
     setvbuf(stderr, NULL, _IOLBF, 0);
 
     //check for ssl certificates
-    if (check_ssl_certs(config, startup_uid) == false) {
-        goto cleanup;
+    if (config->readonly == false) {
+        if (check_ssl_certs(config, startup_uid) == false) {
+            goto cleanup;
+        }
     }
 
     //init webserver    
@@ -380,8 +385,10 @@ int main(int argc, char **argv) {
     }
 
     //check for needed directories
-    if (check_dirs(config) == false) {
-        goto cleanup;
+    if (config->readonly == false) {
+        if (check_dirs(config) == false) {
+            goto cleanup;
+        }
     }
 
     //Create working threads

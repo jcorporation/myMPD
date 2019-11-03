@@ -89,7 +89,7 @@ bool handle_option(t_config *config, char *cmd, sds option) {
             return true;
         }
         else {
-            LOG_ERROR("last_played file not exists");
+            LOG_ERROR("last_played file does not exist");
             return false;
         }
     }

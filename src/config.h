@@ -9,4 +9,5 @@
 void mympd_config_defaults(t_config *config);
 void mympd_free_config(t_config *config);
 bool mympd_read_config(t_config *config, sds configfile);
+void mympd_set_readonly(t_config *config);
 #endif

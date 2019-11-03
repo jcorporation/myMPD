@@ -466,7 +466,7 @@
               </div>
             </div>
           </div>
-          <div class="btn-group mr-2">
+          <div class="btn-group mr-2 featBookmarks">
             <button data-title-phrase="Bookmarks" id="BrowseFilesystemBookmark" class="btn btn-secondary dropdown-toggle material-icons" type="button" data-toggle="dropdown">collections_bookmark</button>
             <div class="dropdown-menu bg-dark px-2" id="BrowseFilesystemBookmarks">
             </div>
@@ -1113,6 +1113,7 @@
                 <hr/>
                 <h4 data-phrase="Smart playlists"></h4>
                 <div id="warnSmartpls" class="alert alert-warning" data-phrase="Playlists are disabled"></div>
+                <div class="warnReadonly alert alert-warning" data-phrase="myMPD is in readonly mode"></div>
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnSmartpls" data-phrase="Smart playlists"></label>
                   <div class="col-sm-8 ">
@@ -1122,7 +1123,18 @@
                   </div>
                 </div>
                 <hr/>
-                <h4 data-phrase="Scrobbler Integration"></h4>
+                <h4 data-phrase="Bookmarks"></h4>
+                <div class="warnReadonly alert alert-warning" data-phrase="myMPD is in readonly mode"></div>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="btnBookmarks" data-phrase="Bookmarks"></label>
+                  <div class="col-sm-8 ">
+                    <button data-href='{"cmd": "toggleBtnChk", "options": ["btnBookmarks"]}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnBookmarks">
+                      radio_button_unchecked
+                    </button>
+                  </div>
+                </div>
+                <hr/>
+                <h4 data-phrase="Scrobbler integration"></h4>
                 <div id="warnScrobbler" class="alert alert-warning" data-phrase="MPD channel not found"></div>
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnLoveEnable" data-phrase="Send love message"></label>
@@ -1231,6 +1243,7 @@
           <button type="button" class="close" data-dismiss="modal">&times;</button>          
         </div>
         <div class="modal-body">
+          <div class="warnReadonly alert alert-warning" data-phrase="myMPD is in readonly mode"></div>
           <form id="connectionFrm">
             <div class="form-group row">
               <label class="col-sm-4 col-form-label" for="inputMpdHost" data-phrase="MPD host"></label>

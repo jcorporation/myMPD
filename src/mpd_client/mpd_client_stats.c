@@ -85,6 +85,10 @@ sds mpd_client_like_song_uri(t_mpd_state *mpd_state, sds buffer, sds method, int
 }
 
 bool mpd_client_last_played_list_save(t_config *config, t_mpd_state *mpd_state) {
+    if (config->readonly == true) {
+        LOG_VERBOSE("Skip saving last_played list to disc");
+        return true;
+    }
     LOG_VERBOSE("Saving last_played list to disc");
     sds tmp_file = sdscatfmt(sdsempty(), "%s/state/last_played.XXXXXX", config->varlibdir);
     int fd = mkstemp(tmp_file);
@@ -149,8 +153,14 @@ bool mpd_client_last_played_list(t_config *config, t_mpd_state *mpd_state, const
             mpd_state->last_last_played_id = song_id;
             mpd_song_free(song);
             //write last_played list to disc
-            if (mpd_state->last_played.length > 9 || mpd_state->last_played.length > mpd_state->last_played_count) {
-                mpd_client_last_played_list_save(config, mpd_state);
+            if (config->readonly == false) {
+                if (mpd_state->last_played.length > 9 || mpd_state->last_played.length > mpd_state->last_played_count) {
+                    mpd_client_last_played_list_save(config, mpd_state);
+                }
+            }
+            else if (mpd_state->last_played.length > mpd_state->last_played_count) {
+                //remove first entry
+                list_shift(&mpd_state->last_played, 0);
             }
             //notify clients
             sds buffer = jsonrpc_notify(sdsempty(), "update_lastplayed");
@@ -220,35 +230,36 @@ sds mpd_client_put_last_played_songs(t_config *config, t_mpd_state *mpd_state, s
         }
     }
 
-    char *line = NULL;
-    char *data = NULL;
-    char *crap = NULL;
-    size_t n = 0;
-    ssize_t read;
-    
-    sds lp_file = sdscatfmt(sdsempty(), "%s/state/last_played", config->varlibdir);
-    FILE *fp = fopen(lp_file, "r");
-    sdsfree(lp_file);
-    if (fp != NULL) {
-        while ((read = getline(&line, &n, fp)) > 0) {
-            entity_count++;
-            if (entity_count > offset && entity_count <= offset + mpd_state->max_elements_per_page) {
-                int value = strtoimax(line, &data, 10);
-                if (strlen(data) > 2) {
-                    data = data + 2;
-                    strtok_r(data, "\n", &crap);
-                    if (entities_returned++) {
-                        buffer = sdscat(buffer, ",");
+    if (config->readonly == false) {
+        char *line = NULL;
+        char *data = NULL;
+        char *crap = NULL;
+        size_t n = 0;
+        ssize_t read;
+        sds lp_file = sdscatfmt(sdsempty(), "%s/state/last_played", config->varlibdir);
+        FILE *fp = fopen(lp_file, "r");
+        sdsfree(lp_file);
+        if (fp != NULL) {
+            while ((read = getline(&line, &n, fp)) > 0) {
+                entity_count++;
+                if (entity_count > offset && entity_count <= offset + mpd_state->max_elements_per_page) {
+                    int value = strtoimax(line, &data, 10);
+                    if (strlen(data) > 2) {
+                        data = data + 2;
+                        strtok_r(data, "\n", &crap);
+                        if (entities_returned++) {
+                            buffer = sdscat(buffer, ",");
+                        }
+                        buffer = mpd_client_put_last_played_obj(mpd_state, buffer, entity_count, value, data, tagcols);
                     }
-                    buffer = mpd_client_put_last_played_obj(mpd_state, buffer, entity_count, value, data, tagcols);
-                }
-                else {
-                    LOG_ERROR("Reading last_played line failed");
+                    else {
+                        LOG_ERROR("Reading last_played line failed");
+                    }
                 }
             }
+            fclose(fp);
+            FREE_PTR(line);
         }
-        fclose(fp);
-        FREE_PTR(line);
     }
 
     buffer = sdscat(buffer, "],");

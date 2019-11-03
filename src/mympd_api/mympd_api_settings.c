@@ -26,12 +26,15 @@
 #include "mympd_api_settings.h"
 
 void mympd_api_settings_delete(t_config *config) {
+    if (config->readonly == true) {
+        return;
+    }
     const char* state_files[]={"auto_play", "bg_color", "bg_cover", "bg_css_filter", "browsetaglist", "cols_browse_database",
         "cols_browse_filesystem", "cols_browse_playlists_detail", "cols_playback", "cols_queue_current", "cols_queue_last_played",
         "cols_search", "coverimage", "coverimage_name", "coverimage_size", "jukebox_mode", "jukebox_playlist", "jukebox_queue_length",
         "last_played", "last_played_count", "locale", "localplayer", "localplayer_autoplay", "love", "love_channel", "love_message",
         "max_elements_per_page",  "mpd_host", "mpd_pass", "mpd_port", "notification_page", "notification_web", "searchtaglist",
-        "smartpls", "stickers", "stream_port", "stream_url", "taglist", "music_directory", 0};
+        "smartpls", "stickers", "stream_port", "stream_url", "taglist", "music_directory", "bookmarks", 0};
     const char** ptr = state_files;
     while (*ptr != 0) {
         sds filename = sdscatfmt(sdsempty(), "%s/state/%s", config->varlibdir, *ptr);
@@ -243,7 +246,12 @@ bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state, struct
         settingname = sdscat(settingname, "browsetaglist");
     }
     else if (strncmp(key->ptr, "smartpls", key->len) == 0) {
-        mympd_state->smartpls = val->type == JSON_TYPE_TRUE ? true : false;
+        if (config->readonly == false) {
+            mympd_state->smartpls = val->type == JSON_TYPE_TRUE ? true : false;
+        }
+        else {
+            mympd_state->smartpls = false;
+        }
         settingname = sdscat(settingname, "smartpls");
     }
     else if (strncmp(key->ptr, "maxElementsPerPage", key->len) == 0) {
@@ -267,6 +275,15 @@ bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state, struct
     else if (strncmp(key->ptr, "loveMessage", key->len) == 0) {
         mympd_state->love_message = sdsreplacelen(mympd_state->love_message, settingvalue, sdslen(settingvalue));
         settingname = sdscat(settingname, "love_message");
+    }
+    else if (strncmp(key->ptr, "bookmarks", key->len) == 0) {
+        if (config->readonly == false) {
+            mympd_state->bookmarks = val->type == JSON_TYPE_TRUE ? true : false;
+        }
+        else {
+            mympd_state->bookmarks = false;
+        }
+        settingname = sdscat(settingname, "bookmarks");
     }
     else {
         sdsfree(settingname);
@@ -325,6 +342,11 @@ void mympd_api_read_statefiles(t_config *config, t_mympd_state *mympd_state) {
     mympd_state->coverimage_size = state_file_rw_int(config, "coverimage_size", config->coverimage_size, false);
     mympd_state->locale = state_file_rw_string(config, "locale", config->locale, false);
     mympd_state->music_directory = state_file_rw_string(config, "music_directory", config->music_directory, false);
+    mympd_state->bookmarks = state_file_rw_bool(config, "bookmarks", config->bookmarks, false);
+    if (config->readonly == true) {
+        mympd_state->bookmarks = false;
+        mympd_state->smartpls = false;
+    }
 }
 
 sds state_file_rw_string(t_config *config, const char *name, const char *def_value, bool warn) {
@@ -390,7 +412,10 @@ int state_file_rw_int(t_config *config, const char *name, const int def_value, b
 }
 
 bool state_file_write(t_config *config, const char *name, const char *value) {
-    if (!validate_string(name)) {
+    if (config->readonly == true) {
+        return true;
+    }
+    else if (!validate_string(name)) {
         return false;
     }
     sds tmp_file = sdscatfmt(sdsempty(), "%s/state/%s.XXXXXX", config->varlibdir, name);
@@ -450,6 +475,8 @@ sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buf
     buffer = tojson_char(buffer, "loveChannel", mympd_state->love_channel, true);
     buffer = tojson_char(buffer, "loveMessage", mympd_state->love_message, true);
     buffer = tojson_char(buffer, "musicDirectory", mympd_state->music_directory, true);
+    buffer = tojson_bool(buffer, "readonly", config->readonly, true);
+    buffer = tojson_bool(buffer, "featBookmarks", mympd_state->bookmarks, true);
     buffer = sdscatfmt(buffer, "\"colsQueueCurrent\":%s,", mympd_state->cols_queue_current);
     buffer = sdscatfmt(buffer, "\"colsSearch\":%s,", mympd_state->cols_search);
     buffer = sdscatfmt(buffer, "\"colsBrowseDatabase\":%s,", mympd_state->cols_browse_database);

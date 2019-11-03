@@ -180,6 +180,12 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("mympd", "streamurl")) {
         p_config->stream_url = sdsreplace(p_config->stream_url, value);
     }
+    else if (MATCH("mympd", "readonly")) {
+        p_config->readonly = strcmp(value, "true") == 0 ? true : false;
+    }
+    else if (MATCH("mympd", "bookmarks")) {
+        p_config->bookmarks = strcmp(value, "true") == 0 ? true : false;
+    }
     else if (MATCH("theme", "bgcover")) {
         p_config->bg_cover = strcmp(value, "true") == 0 ? true : false;
     }
@@ -235,8 +241,8 @@ static void mympd_get_env(struct t_config *config) {
         "MYMPD_LOGLEVEL", "MYMPD_USER", "MYMPD_VARLIBDIR", "MYMPD_MIXRAMP", "MYMPD_STICKERS", "MYMPD_TAGLIST", 
         "MYMPD_SEARCHTAGLIST", "MYMPD_BROWSETAGLIST", "MYMPD_SMARTPLS", "MYMPD_SYSCMDS", 
         "MYMPD_PAGINATION", "MYMPD_LASTPLAYEDCOUNT", "MYMPD_LOVE", "MYMPD_LOVECHANNEL", "MYMPD_LOVEMESSAGE",
-        "PLUGINS_COVEREXTRACT", "MYMPD_NOTIFICATIONWEB", "MYMPD_CHROOT",
-        "MYMPD_NOTIFICATIONPAGE", "MYMPD_AUTOPLAY", "MYMPD_JUKEBOXMODE",
+        "PLUGINS_COVEREXTRACT", "MYMPD_NOTIFICATIONWEB", "MYMPD_CHROOT", "MYMPD_READONLY",
+        "MYMPD_NOTIFICATIONPAGE", "MYMPD_AUTOPLAY", "MYMPD_JUKEBOXMODE", "MYMPD_BOOKMARKS",
         "MYMPD_JUKEBOXPLAYLIST", "MYMPD_JUKEBOXQUEUELENGTH", "MYMPD_COLSQUEUECURRENT",
         "MYMPD_COLSSEARCH", "MYMPD_COLSBROWSEDATABASE", "MYMPD_COLSBROWSEPLAYLISTDETAIL",
         "MYMPD_COLSBROWSEFILESYSTEM", "MYMPD_COLSPLAYBACK", "MYMPD_COLSQUEUELASTPLAYED",
@@ -339,6 +345,8 @@ void mympd_config_defaults(t_config *config) {
     config->coverimage_size = 250;
     config->locale = sdsnew("default");
     config->startup_time = time(NULL);
+    config->readonly = false;
+    config->bookmarks = true;
     list_init(&config->syscmd_list);
 }
 
@@ -357,6 +365,26 @@ bool mympd_read_config(t_config *config, sds configfile) {
         config->ssl_key = sdscrop(config->ssl_key);
         config->ssl_key = sdscatfmt(config->ssl_key, "%s/ssl/server.key", config->varlibdir);
     }
+    if (config->readonly == true) {
+        mympd_set_readonly(config);
+    }
 
     return true;
+}
+
+void mympd_set_readonly(t_config *config) {
+    LOG_INFO("Entering readonly mode");
+    config->readonly = true;
+    if (config->plugins_coverextract == true) {
+        LOG_INFO("Disabling plugin coverextract");
+        config->plugins_coverextract = false;
+    }
+    if (config->bookmarks == true) {
+        LOG_INFO("Disabling bookmarks");
+        config->bookmarks = false;
+    }
+    if (config->smartpls == true) {
+        LOG_INFO("Disabling smart playlists");
+        config->smartpls = false;
+    }
 }

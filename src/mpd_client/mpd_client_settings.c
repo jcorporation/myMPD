@@ -204,7 +204,7 @@ sds mpd_client_put_settings(t_mpd_state *mpd_state, sds buffer, sds method, int 
     buffer = tojson_char(buffer, "replaygain", replaygain == NULL ? "" : replaygain, true);
     buffer = tojson_bool(buffer, "featPlaylists", mpd_state->feat_playlists, true);
     buffer = tojson_bool(buffer, "featTags", mpd_state->feat_tags, true);
-    buffer = tojson_bool(buffer, "featLibray", mpd_state->feat_library, true);
+    buffer = tojson_bool(buffer, "featLibrary", mpd_state->feat_library, true);
     buffer = tojson_bool(buffer, "featAdvsearch", mpd_state->feat_advsearch, true);
     buffer = tojson_bool(buffer, "featStickers", mpd_state->feat_sticker, true);
     buffer = tojson_bool(buffer, "featSmartpls", mpd_state->feat_smartpls, true);

@@ -49,14 +49,16 @@ sds mpd_client_put_playlists(t_config *config, t_mpd_state *mpd_state, sds buffe
                 if (entities_returned++) {
                     buffer = sdscat(buffer,",");
                 }
-                sds smartpls_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->varlibdir, plpath);
                 bool smartpls = false;
-                if (validate_string(plpath) == true) {
-                    if (access(smartpls_file, F_OK ) != -1) { /* Flawfinder: ignore */
-                        smartpls = true;
+                if (mpd_state->feat_smartpls == false) {
+                    sds smartpls_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->varlibdir, plpath);
+                    if (validate_string(plpath) == true) {
+                        if (access(smartpls_file, F_OK ) != -1) { /* Flawfinder: ignore */
+                            smartpls = true;
+                        }
                     }
+                    sdsfree(smartpls_file);
                 }
-                sdsfree(smartpls_file);
                 buffer = sdscat(buffer, "{");
                 buffer = tojson_char(buffer, "Type", (smartpls == true ? "smartpls" : "plist"), true);
                 buffer = tojson_char(buffer, "uri", plpath, true);
@@ -119,12 +121,14 @@ sds mpd_client_put_playlist_list(t_config *config, t_mpd_state *mpd_state, sds b
     mpd_response_finish(mpd_state->conn);
     
     bool smartpls = false;
-    if (validate_string(uri) == true) {
-        sds smartpls_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->varlibdir, uri);
-        if (access(smartpls_file, F_OK ) != -1) { /* Flawfinder: ignore */
-            smartpls = true;
+    if (mpd_state->feat_smartpls == false) {
+        if (validate_string(uri) == true) {
+            sds smartpls_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->varlibdir, uri);
+            if (access(smartpls_file, F_OK ) != -1) { /* Flawfinder: ignore */
+                smartpls = true;
+            }
+            sdsfree(smartpls_file);
         }
-        sdsfree(smartpls_file);
     }
 
     buffer = sdscat(buffer, "],");
@@ -146,25 +150,25 @@ sds mpd_client_playlist_rename(t_config *config, t_mpd_state *mpd_state, sds buf
         buffer = jsonrpc_respond_message(buffer, method, request_id, "Invalid filename", true);
         return buffer;
     }
-
-    sds old_pl_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->varlibdir, old_playlist);
-    sds new_pl_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->varlibdir, new_playlist);
-
-    if (access(old_pl_file, F_OK ) != -1) { /* Flawfinder: ignore */
-        //smart playlist
-        if (access(new_pl_file, F_OK ) == -1) { /* Flawfinder: ignore */
-            //new playlist doesn't exist
-            if (rename(old_pl_file, new_pl_file) == -1) {
-                LOG_ERROR("Renaming smart playlist %s to %s failed", old_pl_file, new_pl_file);
-                buffer = jsonrpc_respond_message(buffer, method, request_id, "Renaming playlist failed", true);
-                sdsfree(old_pl_file);
-                sdsfree(new_pl_file);
-                return buffer;
-            }
-        } 
+    if (mpd_state->feat_smartpls == false) {
+        sds old_pl_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->varlibdir, old_playlist);
+        sds new_pl_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->varlibdir, new_playlist);
+        if (access(old_pl_file, F_OK ) != -1) { /* Flawfinder: ignore */
+            //smart playlist
+            if (access(new_pl_file, F_OK ) == -1) { /* Flawfinder: ignore */
+                //new playlist doesn't exist
+                if (rename(old_pl_file, new_pl_file) == -1) {
+                    LOG_ERROR("Renaming smart playlist %s to %s failed", old_pl_file, new_pl_file);
+                    buffer = jsonrpc_respond_message(buffer, method, request_id, "Renaming playlist failed", true);
+                    sdsfree(old_pl_file);
+                    sdsfree(new_pl_file);
+                    return buffer;
+                }
+            } 
+        }
+        sdsfree(old_pl_file);
+        sdsfree(new_pl_file);
     }
-    sdsfree(old_pl_file);
-    sdsfree(new_pl_file);
     //rename mpd playlist
     if (mpd_run_rename(mpd_state->conn, old_playlist, new_playlist)) {
         buffer = jsonrpc_respond_message(buffer, method, request_id, "Sucessfully renamed playlist", false);
@@ -181,14 +185,16 @@ sds mpd_client_playlist_delete(t_config *config, t_mpd_state *mpd_state, sds buf
         buffer = jsonrpc_respond_message(buffer, method, request_id, "Invalid filename", true);
         return buffer;
     }
-    //remove smart playlist    
-    sds pl_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->varlibdir, playlist);
-    int rc = unlink(pl_file);
-    sdsfree(pl_file);
-    if (rc == -1 && errno != ENOENT) {
-        buffer = jsonrpc_respond_message(buffer, method, request_id, "Deleting smart playlist failed", true);
-        LOG_ERROR("Deleting smart playlist \"%s\" failed", playlist);
-        return buffer;
+    //remove smart playlist
+    if (mpd_state->feat_smartpls == false) {
+        sds pl_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->varlibdir, playlist);
+        int rc = unlink(pl_file);
+        sdsfree(pl_file);
+        if (rc == -1 && errno != ENOENT) {
+            buffer = jsonrpc_respond_message(buffer, method, request_id, "Deleting smart playlist failed", true);
+            LOG_ERROR("Deleting smart playlist \"%s\" failed", playlist);
+            return buffer;
+        }
     }
     //remove mpd playlist
     if (mpd_run_rm(mpd_state->conn, playlist)) {
@@ -277,7 +283,10 @@ sds mpd_client_smartpls_put(t_config *config, sds buffer, sds method, int reques
 bool mpd_client_smartpls_save(t_config *config, t_mpd_state *mpd_state, const char *smartpltype, const char *playlist, 
                               const char *tag, const char *searchstr, const int maxentries, const int timerange)
 {
-    if (validate_string(playlist) == false) {
+    if (mpd_state->feat_smartpls == false) {
+        return false;
+    }
+    else if (validate_string(playlist) == false) {
         return false;
     }
     
