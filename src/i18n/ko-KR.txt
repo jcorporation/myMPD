@@ -480,7 +480,7 @@ Smart playlist
 Playlists are disabled
 연주목록 사용 안 함
 
-Scrobbler Integration
+Scrobbler integration
 추천 통합
 
 MPD channel not found

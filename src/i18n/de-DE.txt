@@ -462,6 +462,9 @@ Anzahl zuletzt gespielte Lieder
 Smart playlists
 Intelligente Wiedergabelisten
 
+Smart playlists are disabled
+Intelligente Wiedergabelisten sind deaktiviert
+
 Smart playlists updated
 Intelligente Wiedergabelisten wurden aktualisiert
 
@@ -480,8 +483,8 @@ Intelligente Wiedergabeliste
 Playlists are disabled
 Wiedergabelisten sind deaktiviert
 
+Scrobbler integration
 Scrobbler Integration
-Scrobbler Intergration
 
 MPD channel not found
 MPD Channel nicht gefunden
@@ -959,3 +962,6 @@ MB Track ID
 
 musicbrainz_workid
 MB Werk ID
+
+myMPD is in readonly mode
+myMPD ist im Readonly Modus
