@@ -353,7 +353,7 @@ function parseListDBtags(obj) {
         for (let i = cardsLen; i >= nrItems; i --) {
             cards[i].remove();
         }
-        setPagination(obj.result.totalEntities, obj.returnedEntities);
+        setPagination(obj.result.totalEntities, obj.result.returnedEntities);
         setCols('BrowseDatabase', '.tblAlbumTitles');
         let tbls = document.querySelectorAll('.tblAlbumTitles');
         for (let i = 0; i < tbls.length; i++) {
@@ -399,7 +399,7 @@ function parseListDBtags(obj) {
             focusTable(0);
         }
         
-        setPagination(obj.result.totalEntities, obj.returnedEntities);
+        setPagination(obj.result.totalEntities, obj.result.returnedEntities);
 
         if (nrItems === 0) {
             tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
@@ -492,7 +492,6 @@ function addAllFromBrowseFilesystem() {
 function addAllFromBrowseDatabasePlist(plist) {
     if (app.current.search.length >= 2) {
         sendAPI("MPD_API_DATABASE_SEARCH", {"plist": plist, "filter": app.current.view, "searchstr": app.current.search, "offset": 0, "cols": settings.colsSearch});
-        showNotification(t('Added all songs from database selection to %{playlist}', {"playlist": plist}), '', '', 'success');
     }
 }
 
@@ -1162,7 +1161,8 @@ function appRoute() {
 }
 
 function showAppInitAlert(text) {
-    document.getElementById('splashScreenAlert').innerHTML = '<a id="appReloadBtn" class="btn btn-danger text-light clickable">Reload</a><p class="text-danger">' + t(text) + '</p>';
+    document.getElementById('splashScreenAlert').innerHTML = '<p class="text-danger">' + t(text) + '</p>' +
+        '<p><a id="appReloadBtn" class="btn btn-danger text-light clickable">Reload</a></p>';
     document.getElementById('appReloadBtn').addEventListener('click', function() {
         location.reload();
     }, false);
@@ -1199,6 +1199,7 @@ function appInitStart() {
     document.getElementById('splashScreen').classList.remove('hide');
     document.getElementsByTagName('body')[0].classList.add('overflow-hidden');
     document.getElementById('splashScreenAlert').innerText = t('Fetch myMPD settings');
+
     getSettings(true);
     appInitWait();
 }
@@ -1996,7 +1997,7 @@ function parsePlaylists(obj) {
         for (let i = 0; i < nrItems; i++) {
             let uri = encodeURI(obj.result.data[i].uri);
             let row = document.createElement('tr');
-            if (obj.smartpls === false) {
+            if (obj.result.smartpls === false) {
                 row.setAttribute('draggable','true');
             }
             row.setAttribute('id','playlistTrackId' + obj.result.data[i].Pos);
@@ -2031,7 +2032,7 @@ function parsePlaylists(obj) {
         focusTable(0);
     }
 
-    setPagination(obj.result.totalEntities, obj.returnedEntities);
+    setPagination(obj.result.totalEntities, obj.result.returnedEntities);
     
     if (nrItems === 0) {
         if (app.current.view === 'All') {
@@ -2087,7 +2088,7 @@ function getAllPlaylists(obj) {
     else {
         document.getElementById(playlistEl).innerHTML += playlists;
     }
-    if (obj.result.totalEntities > obj.returnedEntities) {
+    if (obj.result.totalEntities > obj.result.returnedEntities) {
         obj.result.offset += settings.maxElementsPerPage;
         sendAPI("MPD_API_PLAYLIST_LIST", {"offset": obj.result.offset, "filter": "-"}, getAllPlaylists);
     }
@@ -2398,7 +2399,7 @@ function showMenu(el, event) {
             (type !== 'plist' && type !== 'smartpls' && settings.featPlaylists ? addMenuItem({"cmd": "showAddToPlaylist", "options": [uri]}, t('Add to playlist')) : '') +
             (type === 'song' ? addMenuItem({"cmd": "songDetails", "options": [uri]}, t('Song details')) : '') +
             (type === 'plist' || type === 'smartpls' ? addMenuItem({"cmd": "playlistDetails", "options": [uri]}, t('View playlist')) : '') +
-            (type === 'dir' ? addMenuItem({"cmd": "showBookmarkSave", "options": [-1, name, uri, type]}, t('Add bookmark')) : '');
+            (type === 'dir' && settings.featBookmarks ? addMenuItem({"cmd": "showBookmarkSave", "options": [-1, name, uri, type]}, t('Add bookmark')) : '');
         
         if (app.current.app === 'Search') {
             let baseuri = dirname(uri);
@@ -2583,7 +2584,7 @@ function parseQueue(obj) {
     let table = document.getElementById('QueueCurrentList');
     let navigate = document.activeElement.parentNode.parentNode === table ? true : false;
     let activeRow = 0;
-    table.setAttribute('data-version', obj.queueVersion);
+    table.setAttribute('data-version', obj.result.queueVersion);
     let tbody = table.getElementsByTagName('tbody')[0];
     let tr = tbody.getElementsByTagName('tr');
     for (let i = 0; i < nrItems; i++) {
@@ -2618,11 +2619,11 @@ function parseQueue(obj) {
     let colspan = settings['colsQueueCurrent'].length;
     colspan--;
 
-    if (obj.type === 'queuesearch' && nrItems === 0) {
+    if (obj.result.method === 'MPD_API_QUEUE_SEARCH' && nrItems === 0) {
         tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
                           '<td colspan="' + colspan + '">' + t('No results, please refine your search') + '</td></tr>';
     }
-    else if (obj.type === 'queue' && nrItems === 0) {
+    else if (obj.result.method === 'MPD_API_QUEUE_ADD_TRACK' && nrItems === 0) {
         tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
                           '<td colspan="' + colspan + '">' + t('Empty queue') + '</td></tr>';
     }
@@ -2631,7 +2632,7 @@ function parseQueue(obj) {
         focusTable(activeRow);
     }
     
-    setPagination(obj.result.totalEntities, obj.returnedEntities);
+    setPagination(obj.result.totalEntities, obj.result.returnedEntities);
     document.getElementById('QueueCurrentList').classList.remove('opacity05');
 }
 
@@ -2685,7 +2686,7 @@ function parseLastPlayed(obj) {
         focusTable(activeRow);
     }
 
-    setPagination(obj.result.totalEntities, obj.returnedEntities);
+    setPagination(obj.result.totalEntities, obj.result.returnedEntities);
     document.getElementById('QueueLastPlayedList').classList.remove('opacity05');
 }
 
@@ -2824,10 +2825,10 @@ function search(x) {
 }
 
 function parseSearch(obj) {
-    document.getElementById('panel-heading-search').innerText = gtPage('Num songs', obj.returnedEntities, obj.result.totalEntities);
-    document.getElementById('cardFooterSearch').innerText = gtPage('Num songs', obj.returnedEntities, obj.result.totalEntities);
+    document.getElementById('panel-heading-search').innerText = gtPage('Num songs', obj.result.returnedEntities, obj.result.totalEntities);
+    document.getElementById('cardFooterSearch').innerText = gtPage('Num songs', obj.result.returnedEntities, obj.result.totalEntities);
     
-    if (obj.returnedEntities > 0) {
+    if (obj.result.returnedEntities > 0) {
         document.getElementById('searchAddAllSongs').removeAttribute('disabled');
         document.getElementById('searchAddAllSongsBtn').removeAttribute('disabled');
     } 
@@ -2849,7 +2850,6 @@ function addAllFromSearchPlist(plist) {
     else {
         sendAPI("MPD_API_DATABASE_SEARCH", {"plist": plist, "filter": app.current.filter, "searchstr": app.current.search, "offset": 0, "cols": settings.colsSearch});
     }
-    showNotification(t('Added all songs from search to %{playlist}', {"playlist": plist}), '', '', 'success');
 }
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
@@ -2985,6 +2985,7 @@ function parseSettings() {
     toggleBtnChk('btnBgCover', settings.bgCover);
     toggleBtnChk('btnFeatLocalplayer', settings.featLocalplayer);
     toggleBtnChk('btnLocalplayerAutoplay', settings.localplayerAutoplay);
+    toggleBtnChk('btnBookmarks', settings.featBookmarks);
     if (settings.streamUrl === '') {
         document.getElementById('selectStreamMode').value = 'port';
         document.getElementById('inputStreamUrl').value = settings.streamPort;
@@ -2998,6 +2999,7 @@ function parseSettings() {
     document.getElementById('inputCoverimageName').value = settings.coverimageName;
 
     document.getElementById('inputCoverimageSize').value = settings.coverimageSize;
+
     let albumcover = document.querySelectorAll('.albumcover');
     for (let i = 0; i < albumcover.length; i++) {
 	albumcover[i].style.width = settings.coverimageSize;
@@ -3008,6 +3010,7 @@ function parseSettings() {
     document.getElementsByTagName('body')[0].style.backgroundColor = settings.bgColor;
 
     document.getElementById('inputBgCssFilter').value = settings.bgCssFilter;    
+
     let albumartbg = document.querySelectorAll('.albumartbg');
     for (let i = 0; i < albumartbg.length; i++) {
 	albumartbg[i].style.filter = settings.bgCssFilter;
@@ -3023,7 +3026,7 @@ function parseSettings() {
     toggleBtnChk('btnSmartpls', settings.smartpls);
     
     
-    let features = ["featLocalplayer", "featSyscmds", "featMixramp", "featCacert"];
+    let features = ["featLocalplayer", "featSyscmds", "featMixramp", "featCacert", "featBookmarks"];
     for (let j = 0; j < features.length; j++) {
         let Els = document.getElementsByClassName(features[j]);
         let ElsLen = Els.length;
@@ -3031,6 +3034,22 @@ function parseSettings() {
         for (let i = 0; i < ElsLen; i++) {
             Els[i].style.display = displayEl;
         }
+    }
+    
+    let readonlyEls = document.getElementsByClassName('warnReadonly');
+    for (let i = 0; i < readonlyEls.length; i++) {
+        if (settings.readonly === false) {
+            readonlyEls[i].classList.add('hide');
+        }
+        else {
+            readonlyEls[i].classList.remove('hide');
+        }
+    }
+    if (settings.readonly == true) {
+        document.getElementById('btnBookmarks').setAttribute('disabled', 'disabled');
+    }
+    else {
+        document.getElementById('btnBookmarks').removeAttribute('disabled');
     }
 
     if (settings.featSyscmds) {
@@ -3177,8 +3196,8 @@ function parseMPDSettings() {
 
     document.getElementById('selectReplaygain').value = settings.replaygain;
 
-    let features = ["featStickers", "featSmartpls", "featPlaylists", "featTags", "featCoverimage", "featAdvsearch",
-        "featLove"];
+    let features = ['featStickers', 'featSmartpls', 'featPlaylists', 'featTags', 'featCoverimage', 'featAdvsearch',
+        'featLove'];
     for (let j = 0; j < features.length; j++) {
         let Els = document.getElementsByClassName(features[j]);
         let ElsLen = Els.length;
@@ -3196,6 +3215,13 @@ function parseMPDSettings() {
     }
     else {
         document.getElementById('warnSmartpls').classList.add('hide');
+    }
+    
+    if (settings.featPlaylists === true && settings.readonly === false) {
+        document.getElementById('btnSmartpls').removeAttribute('disabled');
+    }
+    else {
+        document.getElementById('btnSmartpls').setAttribute('disabled', 'disabled');
     }
 
     if (settings.featStickers === false && settings.stickers === true) {
@@ -3439,24 +3465,36 @@ function saveSettings() {
             "love": (document.getElementById('btnLoveEnable').classList.contains('active') ? true : false),
             "loveChannel": document.getElementById('inputLoveChannel').value,
             "loveMessage": document.getElementById('inputLoveMessage').value,
+            "bookmarks": (document.getElementById('btnBookmarks').classList.contains('active') ? true : false),
             "maxElementsPerPage": document.getElementById('inputMaxElementsPerPage').value,
             "stickers": (document.getElementById('btnStickers').classList.contains('active') ? true : false),
             "lastPlayedCount": document.getElementById('inputLastPlayedCount').value,
             "smartpls": (document.getElementById('btnSmartpls').classList.contains('active') ? true : false),
-            "taglist": document.getElementById('inputEnabledTags').value.replace(/\s/g, ''),
-            "searchtaglist": document.getElementById('inputSearchTags').value.replace(/\s/g, ''),
-            "browsetaglist": document.getElementById('inputBrowseTags').value.replace(/\s/g, '')
+            "taglist": getTagMultiSelectValues('listEnabledTags'),
+            "searchtaglist": getTagMultiSelectValues('listSearchTags'),
+            "browsetaglist": getTagMultiSelectValues('listBrowseTags')
         }, getSettings);
         modalSettings.hide();
     }
 }
 
+function getTagMultiSelectValues(taglist) {
+    let values = [];
+    let chkBoxes = document.getElementById(taglist).getElementsByTagName('input');
+    for (let i = 0; i < chkBoxes.length; i++) {
+        if (chkBoxes[i].checked === true) {
+            values.push(chkBoxes[i].name);
+        }
+    }
+    return values.join(',');
+}
+
 function initTagMultiSelect(inputId, listId, allTags, enabledTags) {
-    let value = '';
+    let values = [];
     let list = '';
     for (let i = 0; i < allTags.length; i++) {
         if (enabledTags.includes(allTags[i])) {
-            value += t(allTags[i]) + ', ';
+            values.push(t(allTags[i]));
         }
         list += '<div class="form-check">' +
             '<input class="form-check-input" type="checkbox" value="1" name="' + allTags[i] + '" ' + 
@@ -3464,21 +3502,22 @@ function initTagMultiSelect(inputId, listId, allTags, enabledTags) {
             '<label class="form-check-label" for="' + allTags[i] + '">&nbsp;&nbsp;' + t(allTags[i]) + '</label>' +
             '</div>';
     }
+    document.getElementById(inputId).value = values.join(', ');
+    document.getElementById(listId).innerHTML = list;
+
     document.getElementById(listId).addEventListener('click', function(event) {
         event.stopPropagation();
         if (event.target.nodeName === 'INPUT') {
             let chkBoxes = event.target.parentNode.parentNode.getElementsByTagName('input');
-            let value = '';
+            let values = [];
             for (let i = 0; i < chkBoxes.length; i++) {
                 if (chkBoxes[i].checked === true) {
-                    value += t(chkBoxes[i].name) + ', ';
+                    values.push(t(chkBoxes[i].name));
                 }
             }
-            event.target.parentNode.parentNode.parentNode.previousElementSibling.value = value.replace(/(,\s)$/, '');
+            event.target.parentNode.parentNode.parentNode.previousElementSibling.value = values.join(', ');
         }
     });
-    document.getElementById(inputId).value = value.replace(/(,\s)$/, '');
-    document.getElementById(listId).innerHTML = list;
 }
 
 function filterCols(x) {
