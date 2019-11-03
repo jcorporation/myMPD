@@ -462,9 +462,6 @@ Anzahl zuletzt gespielte Lieder
 Smart playlists
 Intelligente Wiedergabelisten
 
-Smart playlists are disabled
-Intelligente Wiedergabelisten sind deaktiviert
-
 Smart playlists updated
 Intelligente Wiedergabelisten wurden aktualisiert
 
