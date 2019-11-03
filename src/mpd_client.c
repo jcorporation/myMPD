@@ -256,6 +256,8 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
             mpd_state->conn_state = MPD_CONNECTED;
             mpd_state->reconnect_intervall = 0;
             mpd_state->reconnect_time = 0;
+            //reset list of supported tags
+            reset_t_tags(&mpd_state->mpd_tag_types);
             mpd_client_mpd_features(config, mpd_state);
             mpd_client_smartpls_update_all(config, mpd_state);
             if (mpd_state->jukebox_mode != JUKEBOX_OFF) {

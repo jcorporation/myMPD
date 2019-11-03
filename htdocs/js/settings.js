@@ -618,20 +618,31 @@ function saveSettings() {
             "stickers": (document.getElementById('btnStickers').classList.contains('active') ? true : false),
             "lastPlayedCount": document.getElementById('inputLastPlayedCount').value,
             "smartpls": (document.getElementById('btnSmartpls').classList.contains('active') ? true : false),
-            "taglist": document.getElementById('inputEnabledTags').value.replace(/\s/g, ''),
-            "searchtaglist": document.getElementById('inputSearchTags').value.replace(/\s/g, ''),
-            "browsetaglist": document.getElementById('inputBrowseTags').value.replace(/\s/g, '')
+            "taglist": getTagMultiSelectValues('listEnabledTags'),
+            "searchtaglist": getTagMultiSelectValues('listSearchTags'),
+            "browsetaglist": getTagMultiSelectValues('listBrowseTags')
         }, getSettings);
         modalSettings.hide();
     }
 }
 
+function getTagMultiSelectValues(taglist) {
+    let values = [];
+    let chkBoxes = document.getElementById(taglist).getElementsByTagName('input');
+    for (let i = 0; i < chkBoxes.length; i++) {
+        if (chkBoxes[i].checked === true) {
+            values.push(chkBoxes[i].name);
+        }
+    }
+    return values.join(',');
+}
+
 function initTagMultiSelect(inputId, listId, allTags, enabledTags) {
-    let value = '';
+    let values = [];
     let list = '';
     for (let i = 0; i < allTags.length; i++) {
         if (enabledTags.includes(allTags[i])) {
-            value += t(allTags[i]) + ', ';
+            values.push(t(allTags[i]));
         }
         list += '<div class="form-check">' +
             '<input class="form-check-input" type="checkbox" value="1" name="' + allTags[i] + '" ' + 
@@ -639,21 +650,22 @@ function initTagMultiSelect(inputId, listId, allTags, enabledTags) {
             '<label class="form-check-label" for="' + allTags[i] + '">&nbsp;&nbsp;' + t(allTags[i]) + '</label>' +
             '</div>';
     }
+    document.getElementById(inputId).value = values.join(', ');
+    document.getElementById(listId).innerHTML = list;
+
     document.getElementById(listId).addEventListener('click', function(event) {
         event.stopPropagation();
         if (event.target.nodeName === 'INPUT') {
             let chkBoxes = event.target.parentNode.parentNode.getElementsByTagName('input');
-            let value = '';
+            let values = [];
             for (let i = 0; i < chkBoxes.length; i++) {
                 if (chkBoxes[i].checked === true) {
-                    value += t(chkBoxes[i].name) + ', ';
+                    values.push(t(chkBoxes[i].name));
                 }
             }
-            event.target.parentNode.parentNode.parentNode.previousElementSibling.value = value.replace(/(,\s)$/, '');
+            event.target.parentNode.parentNode.parentNode.previousElementSibling.value = values.join(', ');
         }
     });
-    document.getElementById(inputId).value = value.replace(/(,\s)$/, '');
-    document.getElementById(listId).innerHTML = list;
 }
 
 function filterCols(x) {

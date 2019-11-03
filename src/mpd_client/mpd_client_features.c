@@ -46,8 +46,8 @@ void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state) {
     //get features
     mpd_client_feature_commands(mpd_state);
     mpd_client_feature_music_directory(mpd_state);
-    mpd_client_feature_tags(mpd_state);
     mpd_client_feature_love(mpd_state);
+    mpd_client_feature_tags(mpd_state);
     
     //set state
     sds buffer = sdsempty();
@@ -139,28 +139,33 @@ static void mpd_client_feature_tags(t_mpd_state *mpd_state) {
     int tokens_count;
     struct mpd_pair *pair;
 
-    reset_t_tags(&mpd_state->mpd_tag_types);
+//    reset_t_tags(&mpd_state->mpd_tag_types);
     reset_t_tags(&mpd_state->mympd_tag_types);
     reset_t_tags(&mpd_state->search_tag_types);
     reset_t_tags(&mpd_state->browse_tag_types);
     
     sds logline = sdsnew("MPD supported tags: ");
-    if (mpd_send_list_tag_types(mpd_state->conn)) {
-        while ((pair = mpd_recv_tag_type_pair(mpd_state->conn)) != NULL) {
-            enum mpd_tag_type tag = mpd_tag_name_parse(pair->value);
-            if (tag != MPD_TAG_UNKNOWN) {
-                logline = sdscatfmt(logline, "%s ", pair->value);
-                mpd_state->mpd_tag_types.tags[mpd_state->mpd_tag_types.len++] = tag;
+    if (mpd_state->mpd_tag_types.len == 0) {
+        if (mpd_send_list_tag_types(mpd_state->conn)) {
+            while ((pair = mpd_recv_tag_type_pair(mpd_state->conn)) != NULL) {
+                enum mpd_tag_type tag = mpd_tag_name_parse(pair->value);
+                if (tag != MPD_TAG_UNKNOWN) {
+                    logline = sdscatfmt(logline, "%s ", pair->value);
+                    mpd_state->mpd_tag_types.tags[mpd_state->mpd_tag_types.len++] = tag;
+                }
+                else {
+                    LOG_WARN("Unknown tag %s (libmpdclient to old)", pair->value);
+                }
+                mpd_return_pair(mpd_state->conn, pair);
             }
-            else {
-                LOG_WARN("Unknown tag %s (libmpdclient to old)", pair->value);
-            }
-            mpd_return_pair(mpd_state->conn, pair);
+            mpd_response_finish(mpd_state->conn);
         }
-        mpd_response_finish(mpd_state->conn);
+        else {
+            check_error_and_recover(mpd_state, NULL, NULL, 0);
+        }
     }
     else {
-        check_error_and_recover(mpd_state, NULL, NULL, 0);
+        logline = sdscat(logline, "already parsed");
     }
 
     if (mpd_state->mpd_tag_types.len == 0) {
@@ -253,8 +258,6 @@ static void mpd_client_feature_tags(t_mpd_state *mpd_state) {
     sdsfree(searchtaglist);
     sdsfree(browsetaglist);
 }
-
-
 
 static void mpd_client_feature_music_directory(t_mpd_state *mpd_state) {
     struct mpd_pair *pair;
