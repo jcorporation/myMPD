@@ -623,10 +623,26 @@
   <footer class="footer">
     <nav class="navbar navbar-expand navbar-dark fixed-bottom bg-dark">
       <div class="d-flex flex-fill navbar-nav" id="navbar-bottom">
-        <div id="navPlayback" class="nav-item flex-fill text-center"><a data-phrase="Playback" data-href='{"cmd": "appGoto", "options": ["Playback"]}' class="nav-link" href="#"></a></div>
-        <div id="navQueue" class="nav-item flex-fill text-center"><a data-href='{"cmd": "appGoto", "options": ["Queue"]}' class="nav-link" href="#"><span data-phrase="Queue"></span> <span id="badgeQueueItems" class="badge badge-secondary"></span></a></div>
-        <div id="navBrowse" class="nav-item flex-fill text-center"><a data-phrase="Browse" data-href='{"cmd": "appGoto", "options": ["Browse"]}' class="nav-link" href="#"></a></div>
-        <div id="navSearch" class="nav-item flex-fill text-center"><a data-phrase="Search" data-href='{"cmd": "appGoto", "options": ["Search"]}' class="nav-link" href="#"></a></div>
+        <div id="navPlayback" class="nav-item flex-fill text-center">
+          <a data-title-phrase="Playback" data-href='{"cmd": "appGoto", "options": ["Playback"]}' class="nav-link" href="#">
+            <span class="material-icons">play_arrow</span><span class="footerText" data-phrase="Playback"></span>
+          </a>
+        </div>
+        <div id="navQueue" class="nav-item flex-fill text-center">
+          <a data-title-phrase="Queue" data-href='{"cmd": "appGoto", "options": ["Queue"]}' class="nav-link" href="#">
+            <span class="material-icons">queue_music</span><span class="footerText" data-phrase="Queue"></span><span id="badgeQueueItems" class="badge badge-secondary"></span>
+          </a>
+        </div>
+        <div id="navBrowse" class="nav-item flex-fill text-center">
+          <a data-title-phrase="Browse" data-href='{"cmd": "appGoto", "options": ["Browse"]}' class="nav-link" href="#">
+            <span class="material-icons">library_music</span><span class="footerText" data-phrase="Browse"></span>
+          </a>
+        </div>
+        <div id="navSearch" class="nav-item flex-fill text-center">
+          <a data-title-phrase="Search" data-href='{"cmd": "appGoto", "options": ["Search"]}' class="nav-link" href="#">
+            <span class="material-icons">search</span><span class="footerText" data-phrase="Search"></span>
+          </a>
+        </div>
       </div>
     </nav>
   </footer>

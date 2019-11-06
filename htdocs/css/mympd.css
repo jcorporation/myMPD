@@ -92,6 +92,10 @@ footer {
   bottom: 0;
 }
 
+.footerText, #badgeQueueItems {
+  margin-left: 0.5rem;
+}
+
 button {
   overflow: hidden;
 }
@@ -113,15 +117,24 @@ button {
   white-space: nowrap;
 }
 
+@media only screen and (max-width: 384px) {
+  #btnStop {
+    display: none;
+  }
+}
+
 @media only screen and (max-width: 576px) {
   .header-logo {
-    display:none !important;
+    display: none !important;
+  }
+  .footerText {
+    display: none;
   }
 }
 
 @media only screen and (max-width: 768px) {
   #headerTitle {
-    display:none !important;
+    display: none !important;
   }
 }
 
@@ -186,7 +199,7 @@ small {
 }
 
 .album-cover-songdetails {
-  margin-right:0;
+  margin-right: 0;
 }
 
 .album-desc {
