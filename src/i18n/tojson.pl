@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 use strict;
 
-my $pretty = defined($ARGV[0]) ? 1 : 0;
+my $pretty = defined($ARGV[0]) ? ($ARGV[0] eq "pretty" ? 1 : 0) : 0;
 my $phrases;
 my $i18n;
 my @langs = ();
@@ -14,7 +14,7 @@ while (my $entry = readdir $dir) {
 closedir $dir;
 
 #extra phrases
-open my $file, "extra_phrases.txt" or die "Cant open file \"extra_phrases.txt\": $!";
+open my $file, "extra_phrases.txt" or die "Can't open file \"extra_phrases.txt\": $!";
 while (my $line = <$file>) {
     chomp($line);
     $phrases->{$line}->{"en-US"} = $line;
@@ -35,7 +35,7 @@ for my $dirname (@dirs) {
 }
 
 for my $filename (@files) {
-    open my $file, $filename or die "Cant open file \"$filename\": $!";
+    open my $file, $filename or die "Can't open file \"$filename\": $!";
     while (my $line = <$file>) {
         if ($filename =~ /\.c$/) {
             while ($line =~ /(jsonrpc_respond_message|jsonrpc_start_phrase)\([\w\-()]+\s*,\s*[\w\->]+\s*,\s*[\w\->]+,\s*"([^"]+)"/g) {
@@ -67,13 +67,17 @@ for my $filename (@files) {
 
 #print i18n.js
 print "var locales=[";
+print "\n\t" if $pretty eq 1;
 my $i = 0;
 for my $lang (sort @langs) {
-    print "," if $i > 0;
+    if ($i > 0) {
+        print ",";
+        print "\n\t" if $pretty eq 1;
+    }
     open my $file, $lang.".txt" or die "Can't open ".$lang.".txt";
     my $desc = <$file>;
     chomp($desc);
-    print "{\"code\": \"$lang\",\"desc\": \"$desc\"}";
+    print "{\"code\":\"$lang\",\"desc\":\"$desc\"}";
     while (my $key = <$file>) {
         next if $key =~ /^\s*$/;
         chomp($key);
@@ -87,6 +91,7 @@ for my $lang (sort @langs) {
     $i++;
 }
 
+print "\n" if $pretty eq 1;
 print "];";
 print "\n" if $pretty eq 1;
 print "var phrases={";
@@ -114,9 +119,8 @@ for my $key (sort keys %$phrases) {
     print "}";
     $i++;
 }
-
-print "};";
 print "\n" if $pretty eq 1;
+print "};\n";
 
 #check for obsolet translations
 for my $key (sort keys %$i18n) {
