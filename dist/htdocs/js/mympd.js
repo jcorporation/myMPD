@@ -3910,7 +3910,7 @@ function clearCurrentCover() {
 }
 
 function songChange(obj) {
-    let curSong = obj.result.uri + ':' + obj.result.currentSongId;
+    let curSong = JSON.stringify(obj.result);
     if (lastSong === curSong) {
         return;
     }
