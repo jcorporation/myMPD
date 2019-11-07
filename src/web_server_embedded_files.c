@@ -56,9 +56,10 @@ static bool serve_embedded_files(struct mg_connection *nc, sds uri, struct http_
         sdsfree(uri_decoded);
         return false;
     }
-    //set index.html as direcory index
+    //set index.html as directory index
     if (strcmp(uri_decoded, "/index.html") == 0) {
-        sdsrange(uri_decoded, 0, 1);
+        sdsrange(uri_decoded, 0, 0);
+        LOG_DEBUG("Set uri to %s", uri_decoded);
     }
     //find fileinfo
     const struct embedded_file *p = NULL;
@@ -69,12 +70,13 @@ static bool serve_embedded_files(struct mg_connection *nc, sds uri, struct http_
     }
     sdsfree(uri_decoded);
     
-    if (p != NULL) {
+    if (p != NULL && p->uri != NULL) {
         //respond with error if browser don't support compression and asset is compressed
         if (p->compressed == true) {
             struct mg_str *header_encoding = mg_get_http_header(hm, "Accept-Encoding");
             if (header_encoding == NULL || mg_strstr(mg_mk_str_n(header_encoding->p, header_encoding->len), mg_mk_str("gzip")) == NULL) {
                 mg_printf(nc, "%s", "HTTP/1.1 406 BROWSER DONT SUPPORT GZIP COMPRESSION\r\n\r\n");
+                LOG_ERROR("Browser don't support gzip compression");
                 return false;
             }
         }
