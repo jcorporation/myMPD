@@ -80,6 +80,17 @@ function joinSettings(obj) {
     toggleUI();
 }
 
+function checkConsume() {
+    let stateConsume = document.getElementById('btnConsume').classList.contains('active') ? true : false;
+    let stateJukeboxMode = document.getElementById('selectJukeboxMode').value === '0' ? false : true;
+    if (stateJukeboxMode === true && stateConsume === false) {
+        document.getElementById('warnConsume').classList.remove('hide');
+    }
+    else {
+        document.getElementById('warnConsume').classList.add('hide');
+    }
+}
+
 function parseSettings() {
     if (settings.locale === 'default') {
         locale = navigator.language || navigator.userLanguage;
@@ -309,6 +320,8 @@ function parseSettings() {
     }
 
     i18nHtml(document.getElementsByTagName('body')[0]);
+
+    checkConsume();
 
     settingsParsed = 'true';
 }

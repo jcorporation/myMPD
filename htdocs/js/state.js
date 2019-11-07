@@ -237,9 +237,14 @@ function songChange(obj) {
     let htmlNotification = '';
     let pageTitle = '';
 
-    setCurrentCover(obj.result.cover);
+    if (obj.result.cover !== undefined) {
+        setCurrentCover(obj.result.cover);
+    }
+    else {
+        setCurrentCover('/assets/coverimage-notavailable.svg');
+    }
     if (settings.bgCover === true && settings.featCoverimage === true) {
-        if (obj.result.cover.indexOf('coverimage-') > -1 ) {
+        if (obj.result.cover === undefined || obj.result.cover.indexOf('coverimage-') > -1 ) {
             clearBackgroundImage();
         }
         else {
@@ -271,7 +276,7 @@ function songChange(obj) {
     document.getElementById('headerTitle').innerText = pageTitle;
     document.getElementById('headerTitle').title = pageTitle;
 
-    if (settings.featStickers === true) {
+    if (obj.result.uri !== undefined && settings.featStickers === true) {
         setVoteSongBtns(obj.result.like, obj.result.uri);
     }
 
@@ -279,8 +284,12 @@ function songChange(obj) {
     for (let i = 0; i < settings.colsPlayback.length; i++) {
         let c = document.getElementById('current' + settings.colsPlayback[i]);
         if (c) {
-            c.getElementsByTagName('h4')[0].innerText = obj.result[settings.colsPlayback[i]];
-            c.setAttribute('data-name', encodeURI(obj.result[settings.colsPlayback[i]]));
+            let value = obj.result[settings.colsPlayback[i]];
+            if (value === undefined) {
+                value = '';
+            }
+            c.getElementsByTagName('h4')[0].innerText = value;
+            c.setAttribute('data-name', encodeURI(value));
         }
     }
     

@@ -539,29 +539,37 @@ function appInit() {
 
     document.getElementById('selectJukeboxMode').addEventListener('change', function () {
         let value = this.options[this.selectedIndex].value;
-        if (value === 0) {
+        if (value === '0') {
             document.getElementById('inputJukeboxQueueLength').setAttribute('disabled', 'disabled');
             document.getElementById('selectJukeboxPlaylist').setAttribute('disabled', 'disabled');
         }
-        else if (value === 2) {
+        else if (value === '2') {
             document.getElementById('inputJukeboxQueueLength').setAttribute('disabled', 'disabled');
             document.getElementById('selectJukeboxPlaylist').setAttribute('disabled', 'disabled');
             document.getElementById('selectJukeboxPlaylist').value = 'Database';
         }
-        else if (value === 1) {
+        else if (value === '1') {
             document.getElementById('inputJukeboxQueueLength').removeAttribute('disabled');
             document.getElementById('selectJukeboxPlaylist').removeAttribute('disabled');
         }
+        if (value !== '0') {
+            toggleBtnChk('btnConsume', true);            
+        }
+        checkConsume();
+    });
+    
+    document.getElementById('btnConsume').addEventListener('mouseup', function() {
+        setTimeout(function() { checkConsume(); }, 100);
     });
     
     document.getElementById('selectAddToQueueMode').addEventListener('change', function () {
         let value = this.options[this.selectedIndex].value;
-        if (value === 2) {
+        if (value === '2') {
             document.getElementById('inputAddToQueueQuantity').setAttribute('disabled', 'disabled');
             document.getElementById('selectAddToQueuePlaylist').setAttribute('disabled', 'disabled');
             document.getElementById('selectAddToQueuePlaylist').value = 'Database';
         }
-        else if (value === 1) {
+        else if (value === '1') {
             document.getElementById('inputAddToQueueQuantity').removeAttribute('disabled');
             document.getElementById('selectAddToQueuePlaylist').removeAttribute('disabled');
         }
