@@ -928,7 +928,7 @@
                 </div>
                 <hr/>
                 <h4 data-phrase="Jukebox"></h4>
-                <div id="warnConsume" class="alert alert-warning" data-phrase="Consume must be enabled"></div>
+                <div id="warnConsume" class="alert alert-warning hide" data-phrase="Consume must be enabled"></div>
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="selectJukeboxMode" data-phrase="Jukebox mode"></label>
                   <div class="col-sm-8">
@@ -958,7 +958,7 @@
             <div class="tab-pane" id="tabThemeSettings">
               <form id="ThemeSettingsFrm">
                 <h4 data-phrase="Albumart"></h4>
-                <div id="warnAlbumart" class="alert alert-warning" data-phrase="Can't access music directory"></div>
+                <div id="warnAlbumart" class="alert alert-warning hide" data-phrase="Can't access music directory"></div>
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnCoverimage" data-phrase="Albumart"></label>
                   <div class="col-sm-8 ">
@@ -1111,7 +1111,7 @@
                 </div>
                 <hr/>
                 <h4 data-phrase="Statistics"></h4>
-                <div id="warnStickers" class="alert alert-warning" data-phrase="Stickers are disabled"></div>
+                <div id="warnStickers" class="alert alert-warning hide" data-phrase="Stickers are disabled"></div>
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnStickers" data-phrase="Playback statistics"></label>
                   <div class="col-sm-8 ">
@@ -1129,8 +1129,8 @@
                 </div>
                 <hr/>
                 <h4 data-phrase="Smart playlists"></h4>
-                <div id="warnSmartpls" class="alert alert-warning" data-phrase="Playlists are disabled"></div>
-                <div class="warnReadonly alert alert-warning" data-phrase="myMPD is in readonly mode"></div>
+                <div id="warnSmartpls" class="alert alert-warning hide" data-phrase="Playlists are disabled"></div>
+                <div class="warnReadonly alert alert-warning hide" data-phrase="myMPD is in readonly mode"></div>
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnSmartpls" data-phrase="Smart playlists"></label>
                   <div class="col-sm-8 ">
@@ -1141,7 +1141,7 @@
                 </div>
                 <hr/>
                 <h4 data-phrase="Bookmarks"></h4>
-                <div class="warnReadonly alert alert-warning" data-phrase="myMPD is in readonly mode"></div>
+                <div class="warnReadonly alert alert-warning hide" data-phrase="myMPD is in readonly mode"></div>
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnBookmarks" data-phrase="Bookmarks"></label>
                   <div class="col-sm-8 ">
@@ -1152,7 +1152,7 @@
                 </div>
                 <hr/>
                 <h4 data-phrase="Scrobbler integration"></h4>
-                <div id="warnScrobbler" class="alert alert-warning" data-phrase="MPD channel not found"></div>
+                <div id="warnScrobbler" class="alert alert-warning hide" data-phrase="MPD channel not found"></div>
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnLoveEnable" data-phrase="Send love message"></label>
                   <div class="col-sm-8 ">
@@ -1260,7 +1260,6 @@
           <button type="button" class="close" data-dismiss="modal">&times;</button>          
         </div>
         <div class="modal-body">
-          <div class="warnReadonly alert alert-warning" data-phrase="myMPD is in readonly mode"></div>
           <form id="connectionFrm">
             <div class="form-group row">
               <label class="col-sm-4 col-form-label" for="inputMpdHost" data-phrase="MPD host"></label>
@@ -1295,7 +1294,7 @@
                  <div class="invalid-feedback" data-phrase="Invalid music directory"></div>
               </div>
             </div>
-            <div id="warnMusicDirectory" class="alert alert-warning" data-phrase="Music directory not found"></div>
+            <div id="warnMusicDirectory" class="alert alert-warning hide" data-phrase="Music directory not found"></div>
           </form>
         </div>
         <div class="modal-footer">
