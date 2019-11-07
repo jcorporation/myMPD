@@ -962,3 +962,6 @@ MB Werk ID
 
 myMPD is in readonly mode
 myMPD ist im Readonly Modus
+
+Consume must be enabled
+Konsumieren muss aktiviert sein
