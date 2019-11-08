@@ -109,7 +109,8 @@ bool handle_option(t_config *config, char *cmd, sds option) {
                "  reset_state:      delete all myMPD settings\n"
                "  reset_smartpls:   create default smart playlists\n"
                "  reset_lastplayed: truncates last played list\n"
-               "  clear_covercache: empties the covercache directory\n",
+               "  clear_covercache: empties the covercache directory\n"
+               "  help:             display this help\n",
                MYMPD_VERSION,
                cmd
         );
