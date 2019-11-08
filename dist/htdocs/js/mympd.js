@@ -1332,29 +1332,37 @@ function appInit() {
 
     document.getElementById('selectJukeboxMode').addEventListener('change', function () {
         let value = this.options[this.selectedIndex].value;
-        if (value === 0) {
+        if (value === '0') {
             document.getElementById('inputJukeboxQueueLength').setAttribute('disabled', 'disabled');
             document.getElementById('selectJukeboxPlaylist').setAttribute('disabled', 'disabled');
         }
-        else if (value === 2) {
+        else if (value === '2') {
             document.getElementById('inputJukeboxQueueLength').setAttribute('disabled', 'disabled');
             document.getElementById('selectJukeboxPlaylist').setAttribute('disabled', 'disabled');
             document.getElementById('selectJukeboxPlaylist').value = 'Database';
         }
-        else if (value === 1) {
+        else if (value === '1') {
             document.getElementById('inputJukeboxQueueLength').removeAttribute('disabled');
             document.getElementById('selectJukeboxPlaylist').removeAttribute('disabled');
         }
+        if (value !== '0') {
+            toggleBtnChk('btnConsume', true);            
+        }
+        checkConsume();
+    });
+    
+    document.getElementById('btnConsume').addEventListener('mouseup', function() {
+        setTimeout(function() { checkConsume(); }, 100);
     });
     
     document.getElementById('selectAddToQueueMode').addEventListener('change', function () {
         let value = this.options[this.selectedIndex].value;
-        if (value === 2) {
+        if (value === '2') {
             document.getElementById('inputAddToQueueQuantity').setAttribute('disabled', 'disabled');
             document.getElementById('selectAddToQueuePlaylist').setAttribute('disabled', 'disabled');
             document.getElementById('selectAddToQueuePlaylist').value = 'Database';
         }
-        else if (value === 1) {
+        else if (value === '1') {
             document.getElementById('inputAddToQueueQuantity').removeAttribute('disabled');
             document.getElementById('selectAddToQueuePlaylist').removeAttribute('disabled');
         }
@@ -2932,6 +2940,17 @@ function joinSettings(obj) {
     toggleUI();
 }
 
+function checkConsume() {
+    let stateConsume = document.getElementById('btnConsume').classList.contains('active') ? true : false;
+    let stateJukeboxMode = document.getElementById('selectJukeboxMode').value === '0' ? false : true;
+    if (stateJukeboxMode === true && stateConsume === false) {
+        document.getElementById('warnConsume').classList.remove('hide');
+    }
+    else {
+        document.getElementById('warnConsume').classList.add('hide');
+    }
+}
+
 function parseSettings() {
     if (settings.locale === 'default') {
         locale = navigator.language || navigator.userLanguage;
@@ -3161,6 +3180,8 @@ function parseSettings() {
     }
 
     i18nHtml(document.getElementsByTagName('body')[0]);
+
+    checkConsume();
 
     settingsParsed = 'true';
 }
@@ -3918,9 +3939,14 @@ function songChange(obj) {
     let htmlNotification = '';
     let pageTitle = '';
 
-    setCurrentCover(obj.result.cover);
+    if (obj.result.cover !== undefined) {
+        setCurrentCover(obj.result.cover);
+    }
+    else {
+        setCurrentCover('/assets/coverimage-notavailable.svg');
+    }
     if (settings.bgCover === true && settings.featCoverimage === true) {
-        if (obj.result.cover.indexOf('coverimage-') > -1 ) {
+        if (obj.result.cover === undefined || obj.result.cover.indexOf('coverimage-') > -1 ) {
             clearBackgroundImage();
         }
         else {
@@ -3952,7 +3978,7 @@ function songChange(obj) {
     document.getElementById('headerTitle').innerText = pageTitle;
     document.getElementById('headerTitle').title = pageTitle;
 
-    if (settings.featStickers === true) {
+    if (obj.result.uri !== undefined && settings.featStickers === true) {
         setVoteSongBtns(obj.result.like, obj.result.uri);
     }
 
@@ -3960,8 +3986,12 @@ function songChange(obj) {
     for (let i = 0; i < settings.colsPlayback.length; i++) {
         let c = document.getElementById('current' + settings.colsPlayback[i]);
         if (c) {
-            c.getElementsByTagName('h4')[0].innerText = obj.result[settings.colsPlayback[i]];
-            c.setAttribute('data-name', encodeURI(obj.result[settings.colsPlayback[i]]));
+            let value = obj.result[settings.colsPlayback[i]];
+            if (value === undefined) {
+                value = '';
+            }
+            c.getElementsByTagName('h4')[0].innerText = value;
+            c.setAttribute('data-name', encodeURI(value));
         }
     }
     
