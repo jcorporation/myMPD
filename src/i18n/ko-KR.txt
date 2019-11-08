@@ -480,7 +480,7 @@ Smart playlist
 Playlists are disabled
 연주목록 사용 안 함
 
-Scrobbler integration
+Scrobbler Integration
 추천 통합
 
 MPD channel not found
@@ -959,3 +959,9 @@ musicbrainz_trackid
 
 musicbrainz_workid
 뮤직브레인즈 작품 ID
+
+myMPD is in readonly mode
+읽기 전용 모드임
+
+Consume must be enabled
+소비를 선택해야 함
