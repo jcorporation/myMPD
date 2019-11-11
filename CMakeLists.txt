@@ -109,6 +109,9 @@ set_property(SOURCE ${MYMPD_SRC_FILES3} PROPERTY COMPILE_FLAGS "-Wextra -pedanti
 #compiler flags for inih, issue#188
 set_property(SOURCE dist/src/inih/ini.c PROPERTY COMPILE_FLAGS "-Wno-stringop-truncation")
 
+#compiler flags for frozen
+set_property(SOURCE dist/src/frozen/frozen.c PROPERTY COMPILE_FLAGS "-Wno-stringop-overflow")
+
 #compiler flags for mongoose.c
 set_property(SOURCE dist/src/mongoose/mongoose.c PROPERTY COMPILE_FLAGS "-Wno-format-truncation")
 
