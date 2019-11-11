@@ -190,9 +190,9 @@ function toggleAddToPlaylistFrm() {
 
 function parseSmartPlaylist(obj) {
     let nameEl = document.getElementById('saveSmartPlaylistName');
-    nameEl.value = obj.result.data.playlist;
+    nameEl.value = obj.result.playlist;
     nameEl.classList.remove('is-invalid');
-    document.getElementById('saveSmartPlaylistType').value = obj.result.data.type;
+    document.getElementById('saveSmartPlaylistType').value = obj.result.type;
     document.getElementById('saveSmartPlaylistSearch').classList.add('hide');
     document.getElementById('saveSmartPlaylistSticker').classList.add('hide');
     document.getElementById('saveSmartPlaylistNewest').classList.add('hide');
