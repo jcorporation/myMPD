@@ -241,6 +241,8 @@ sds mpd_client_smartpls_put(t_config *config, sds buffer, sds method, int reques
             } else {
                 rc = false;    
             }
+            FREE_PTR(p_charbuf1);
+            FREE_PTR(p_charbuf2);
         }
         else {
             rc = false;            
