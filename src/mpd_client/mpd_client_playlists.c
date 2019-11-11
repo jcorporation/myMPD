@@ -49,16 +49,7 @@ sds mpd_client_put_playlists(t_config *config, t_mpd_state *mpd_state, sds buffe
                 if (entities_returned++) {
                     buffer = sdscat(buffer,",");
                 }
-                bool smartpls = false;
-                if (mpd_state->feat_smartpls == true) {
-                    sds smartpls_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->varlibdir, plpath);
-                    if (validate_string(plpath) == true) {
-                        if (access(smartpls_file, F_OK ) != -1) { /* Flawfinder: ignore */
-                            smartpls = true;
-                        }
-                    }
-                    sdsfree(smartpls_file);
-                }
+                bool smartpls = is_smartpls(config, mpd_state, plpath);
                 buffer = sdscat(buffer, "{");
                 buffer = tojson_char(buffer, "Type", (smartpls == true ? "smartpls" : "plist"), true);
                 buffer = tojson_char(buffer, "uri", plpath, true);
@@ -120,16 +111,7 @@ sds mpd_client_put_playlist_list(t_config *config, t_mpd_state *mpd_state, sds b
     }
     mpd_response_finish(mpd_state->conn);
     
-    bool smartpls = false;
-    if (mpd_state->feat_smartpls == false) {
-        if (validate_string(uri) == true) {
-            sds smartpls_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->varlibdir, uri);
-            if (access(smartpls_file, F_OK ) != -1) { /* Flawfinder: ignore */
-                smartpls = true;
-            }
-            sdsfree(smartpls_file);
-        }
-    }
+    bool smartpls = is_smartpls(config, mpd_state, uri);
 
     buffer = sdscat(buffer, "],");
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);

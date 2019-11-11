@@ -11,6 +11,7 @@
 #include <inttypes.h>
 #include <signal.h>
 #include <assert.h>
+#include <unistd.h>
 #include <mpd/client.h>
 
 #include "../../dist/src/sds/sds.h"
@@ -113,6 +114,20 @@ char *mpd_client_get_tag(struct mpd_song const *song, const enum mpd_tag_type ta
         }
     }
     return str;
+}
+
+bool is_smartpls(t_config *config, t_mpd_state *mpd_state, const char *plpath) {
+    bool smartpls = false;
+    if (mpd_state->feat_smartpls == true) {
+        sds smartpls_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->varlibdir, plpath);
+        if (validate_string(plpath) == true) {
+            if (access(smartpls_file, F_OK ) != -1) { /* Flawfinder: ignore */
+                smartpls = true;
+            }
+        }
+        sdsfree(smartpls_file);
+    }
+    return smartpls;
 }
 
 bool mpd_client_get_sticker(t_mpd_state *mpd_state, const char *uri, t_sticker *sticker) {
