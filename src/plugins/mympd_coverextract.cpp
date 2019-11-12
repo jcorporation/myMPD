@@ -1,19 +1,7 @@
-/* myMPD
-   (c) 2018-2019 Juergen Mang <mail@jcgames.de>
-   This project's homepage is: https://github.com/jcorporation/mympd
-   
-   This program is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; version 2 of the License.
-
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License along
-   with this program; if not, write to the Free Software Foundation, Inc.,
-   Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+/*
+ SPDX-License-Identifier: GPL-2.0-or-later
+ myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+ https://github.com/jcorporation/mympd
 */
 
 #include <iostream>
@@ -127,7 +115,7 @@ bool coverextract(const char *media_file_ptr, const char *cache_dir_ptr, char *i
         strncpy(image_mime_type, mime_type.c_str(), image_mime_type_len);
         string ext = mime_type.substr(mime_type.find_last_of("/") + 1);
         string output_file = media_file.substr(0, media_file.find_last_of(".")) + "." + ext;
-        for (int i = 0 ; i < output_file.size(); i++) {
+        for (size_t i = 0 ; i < output_file.size(); i++) {
             if (output_file[i] == '/') {
                 output_file[i] = '_';
             }

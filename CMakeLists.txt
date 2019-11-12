@@ -1,3 +1,9 @@
+#
+# SPDX-License-Identifier: GPL-2.0-or-later
+# myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+# https://github.com/jcorporation/mympd
+#
+
 cmake_minimum_required(VERSION 2.6)
 
 include(GNUInstallDirs)
@@ -5,8 +11,8 @@ include(GNUInstallDirs)
 project (mympd)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/")
 set(CPACK_PACKAGE_VERSION_MAJOR "5")
-set(CPACK_PACKAGE_VERSION_MINOR "6")
-set(CPACK_PACKAGE_VERSION_PATCH "2")
+set(CPACK_PACKAGE_VERSION_MINOR "7")
+set(CPACK_PACKAGE_VERSION_PATCH "0")
 
 if(EXISTS "/etc/arch-release")
   set(WEBAPPS "/webapps/${PROJECT_NAME}")
@@ -71,12 +77,12 @@ include(CheckCSourceCompiles)
 
 if(${MEMCHECK} MATCHES TRUE)
   #for use with valgrind
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -Wall -DMG_ENABLE_SSL")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -Wall -Werror -DMG_ENABLE_SSL")
   set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -ggdb")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu99 -Wall")
   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -ggdb")
 else()
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -O1 -Wall -fstack-protector -D_FORTIFY_SOURCE=2 -pie -fPIE -DMG_ENABLE_SSL")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -O1 -Wall -Werror -fstack-protector -D_FORTIFY_SOURCE=2 -pie -fPIE -DMG_ENABLE_SSL")
   set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -s")
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -s")
   set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -ggdb -fsanitize=address \
@@ -88,9 +94,23 @@ endif()
 
 
 #compiler flags for mympd src
-file(GLOB MYMPD_SRC_FILES "src/*.c")
-set_property(SOURCE ${MYMPD_SRC_FILES} PROPERTY COMPILE_FLAGS "-Wextra -pedantic -Wformat=2 -Wunused-parameter -Wshadow -Wwrite-strings \
+file(GLOB MYMPD_SRC_FILES1 "src/*.c")
+set_property(SOURCE ${MYMPD_SRC_FILES1} PROPERTY COMPILE_FLAGS "-Wextra -pedantic -Wformat=2 -Wunused-parameter -Wshadow -Wwrite-strings \
 	-Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs -Wmissing-include-dirs")
+
+file(GLOB MYMPD_SRC_FILES2 "src/mpd_client/*.c")
+set_property(SOURCE ${MYMPD_SRC_FILES2} PROPERTY COMPILE_FLAGS "-Wextra -pedantic -Wformat=2 -Wunused-parameter -Wshadow -Wwrite-strings \
+	-Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs -Wmissing-include-dirs")
+
+file(GLOB MYMPD_SRC_FILES3 "src/mympd_api/*.c")
+set_property(SOURCE ${MYMPD_SRC_FILES3} PROPERTY COMPILE_FLAGS "-Wextra -pedantic -Wformat=2 -Wunused-parameter -Wshadow -Wwrite-strings \
+	-Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs -Wmissing-include-dirs")
+
+#compiler flags for inih, issue#188
+set_property(SOURCE dist/src/inih/ini.c PROPERTY COMPILE_FLAGS "-Wno-stringop-truncation")
+
+#compiler flags for frozen
+set_property(SOURCE dist/src/frozen/frozen.c PROPERTY COMPILE_FLAGS "-Wno-stringop-overflow")
 
 #compiler flags for mongoose.c
 set_property(SOURCE dist/src/mongoose/mongoose.c PROPERTY COMPILE_FLAGS "-Wno-format-truncation")
@@ -99,9 +119,8 @@ set (CMAKE_EXE_LINKER_FLAGS "-Wl,-z,relro -Wl,-z,now")
 
 set(SOURCES
     src/main.c
-    src/mpd_client.c
-    src/web_server.c
-    src/mympd_api.c
+    src/api.c
+    src/global.c
     src/list.c
     src/tiny_queue.c
     src/cert.c
@@ -109,10 +128,31 @@ set(SOURCES
     src/config.c
     src/handle_options.c
     src/utility.c
-    src/api.c
+    src/plugins.c
+    src/sds_extras.c
+    src/web_server.c
+    src/mpd_client.c
+    src/mpd_client/mpd_client_api.c
+    src/mpd_client/mpd_client_cover.c
+    src/mpd_client/mpd_client_browse.c
+    src/mpd_client/mpd_client_features.c
+    src/mpd_client/mpd_client_jukebox.c
+    src/mpd_client/mpd_client_utility.c
+    src/mpd_client/mpd_client_playlists.c
+    src/mpd_client/mpd_client_queue.c
+    src/mpd_client/mpd_client_search.c
+    src/mpd_client/mpd_client_settings.c
+    src/mpd_client/mpd_client_state.c
+    src/mpd_client/mpd_client_stats.c
+    src/mympd_api.c
+    src/mympd_api/mympd_api_bookmarks.c
+    src/mympd_api/mympd_api_utility.c
+    src/mympd_api/mympd_api_settings.c
+    src/mympd_api/mympd_api_syscmds.c
     dist/src/mongoose/mongoose.c
     dist/src/frozen/frozen.c
     dist/src/inih/ini.c
+    dist/src/sds/sds.c
 )
 
 add_executable(mympd ${SOURCES})

@@ -1,3 +1,8 @@
+<!--
+ SPDX-License-Identifier: GPL-2.0-or-later
+ myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+ https://github.com/jcorporation/mympd
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,10 +14,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="theme-color" content="#343a40">
-<!--release   <link href="css/combined.css" rel="stylesheet">-->
 <!--debug-->  <link href="css/bootstrap.css" rel="stylesheet">
   <link href="assets/MaterialIcons-Regular.woff2" rel="preload" as="font" type="font/woff2" crossorigin="anonymous">
 <!--debug-->  <link href="css/mympd.css" rel="stylesheet">
+<!--release   <link href="css/combined.css" rel="stylesheet">-->
   <link href="assets/favicon.ico" rel="shortcut icon" type="image/vnd.microsoft.icon">
   <link href="mympd.webmanifest" rel="manifest" crossorigin="anonymous">
   <link href="assets/appicon-192.png" rel="apple-touch-icon">
@@ -110,7 +115,7 @@
         </div>
       </div>
       <div class="card-body cardBodyPlayback">
-        <div class="album-cover featCoverimage" id="currentCover"></div>
+        <div class="album-cover album-cover-loading featCoverimage" id="currentCover"></div>
         <div class="album-desc breakAll">
           <h2 id="currentTitle" data-href='{"cmd": "clickTitle", "options": []}'></h2>
           <div class="featTags" id="cardPlaybackTags"></div>
@@ -461,7 +466,7 @@
               </div>
             </div>
           </div>
-          <div class="btn-group mr-2">
+          <div class="btn-group mr-2 featBookmarks">
             <button data-title-phrase="Bookmarks" id="BrowseFilesystemBookmark" class="btn btn-secondary dropdown-toggle material-icons" type="button" data-toggle="dropdown">collections_bookmark</button>
             <div class="dropdown-menu bg-dark px-2" id="BrowseFilesystemBookmarks">
             </div>
@@ -618,10 +623,26 @@
   <footer class="footer">
     <nav class="navbar navbar-expand navbar-dark fixed-bottom bg-dark">
       <div class="d-flex flex-fill navbar-nav" id="navbar-bottom">
-        <div id="navPlayback" class="nav-item flex-fill text-center"><a data-phrase="Playback" data-href='{"cmd": "appGoto", "options": ["Playback"]}' class="nav-link" href="#"></a></div>
-        <div id="navQueue" class="nav-item flex-fill text-center"><a data-href='{"cmd": "appGoto", "options": ["Queue"]}' class="nav-link" href="#"><span data-phrase="Queue"></span> <span id="badgeQueueItems" class="badge badge-secondary"></span></a></div>
-        <div id="navBrowse" class="nav-item flex-fill text-center"><a data-phrase="Browse" data-href='{"cmd": "appGoto", "options": ["Browse"]}' class="nav-link" href="#"></a></div>
-        <div id="navSearch" class="nav-item flex-fill text-center"><a data-phrase="Search" data-href='{"cmd": "appGoto", "options": ["Search"]}' class="nav-link" href="#"></a></div>
+        <div id="navPlayback" class="nav-item flex-fill text-center">
+          <a data-title-phrase="Playback" data-href='{"cmd": "appGoto", "options": ["Playback"]}' class="nav-link" href="#">
+            <span class="material-icons">play_arrow</span><span class="footerText" data-phrase="Playback"></span>
+          </a>
+        </div>
+        <div id="navQueue" class="nav-item flex-fill text-center">
+          <a data-title-phrase="Queue" data-href='{"cmd": "appGoto", "options": ["Queue"]}' class="nav-link" href="#">
+            <span class="material-icons">queue_music</span><span class="footerText" data-phrase="Queue"></span><span id="badgeQueueItems" class="badge badge-secondary"></span>
+          </a>
+        </div>
+        <div id="navBrowse" class="nav-item flex-fill text-center">
+          <a data-title-phrase="Browse" data-href='{"cmd": "appGoto", "options": ["Browse"]}' class="nav-link" href="#">
+            <span class="material-icons">library_music</span><span class="footerText" data-phrase="Browse"></span>
+          </a>
+        </div>
+        <div id="navSearch" class="nav-item flex-fill text-center">
+          <a data-title-phrase="Search" data-href='{"cmd": "appGoto", "options": ["Search"]}' class="nav-link" href="#">
+            <span class="material-icons">search</span><span class="footerText" data-phrase="Search"></span>
+          </a>
+        </div>
       </div>
     </nav>
   </footer>
@@ -907,6 +928,7 @@
                 </div>
                 <hr/>
                 <h4 data-phrase="Jukebox"></h4>
+                <div id="warnConsume" class="alert alert-warning hide" data-phrase="Consume must be enabled"></div>
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="selectJukeboxMode" data-phrase="Jukebox mode"></label>
                   <div class="col-sm-8">
@@ -936,7 +958,7 @@
             <div class="tab-pane" id="tabThemeSettings">
               <form id="ThemeSettingsFrm">
                 <h4 data-phrase="Albumart"></h4>
-                <div id="warnAlbumart" class="alert alert-warning" data-phrase="Can't access music directory"></div>
+                <div id="warnAlbumart" class="alert alert-warning hide" data-phrase="Can't access music directory"></div>
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnCoverimage" data-phrase="Albumart"></label>
                   <div class="col-sm-8 ">
@@ -949,7 +971,7 @@
                   <label class="col-sm-4 col-form-label" for="inputCoverimageName" data-phrase="Name"></label>
                   <div class="col-sm-8 ">
                     <input id="inputCoverimageName" type="text" class="form-control border-secondary" value="folder.jpg" data-placeholder-phrase="folder.jpg">
-                    <div class="invalid-feedback" data-phrase="Invalid fileame"></div>
+                    <div class="invalid-feedback" data-phrase="Invalid filename"></div>
                   </div>
                 </div>
                 <div class="form-group row">
@@ -1089,7 +1111,7 @@
                 </div>
                 <hr/>
                 <h4 data-phrase="Statistics"></h4>
-                <div id="warnStickers" class="alert alert-warning" data-phrase="Stickers are disabled"></div>
+                <div id="warnStickers" class="alert alert-warning hide" data-phrase="Stickers are disabled"></div>
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnStickers" data-phrase="Playback statistics"></label>
                   <div class="col-sm-8 ">
@@ -1107,7 +1129,8 @@
                 </div>
                 <hr/>
                 <h4 data-phrase="Smart playlists"></h4>
-                <div id="warnSmartpls" class="alert alert-warning" data-phrase="Playlists are disabled"></div>
+                <div id="warnSmartpls" class="alert alert-warning hide" data-phrase="Playlists are disabled"></div>
+                <div class="warnReadonly alert alert-warning hide" data-phrase="myMPD is in readonly mode"></div>
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnSmartpls" data-phrase="Smart playlists"></label>
                   <div class="col-sm-8 ">
@@ -1117,8 +1140,19 @@
                   </div>
                 </div>
                 <hr/>
-                <h4 data-phrase="Scrobbler Integration"></h4>
-                <div id="warnScrobbler" class="alert alert-warning" data-phrase="MPD channel not found"></div>
+                <h4 data-phrase="Bookmarks"></h4>
+                <div class="warnReadonly alert alert-warning hide" data-phrase="myMPD is in readonly mode"></div>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="btnBookmarks" data-phrase="Bookmarks"></label>
+                  <div class="col-sm-8 ">
+                    <button data-href='{"cmd": "toggleBtnChk", "options": ["btnBookmarks"]}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnBookmarks">
+                      radio_button_unchecked
+                    </button>
+                  </div>
+                </div>
+                <hr/>
+                <h4 data-phrase="Scrobbler integration"></h4>
+                <div id="warnScrobbler" class="alert alert-warning hide" data-phrase="MPD channel not found"></div>
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnLoveEnable" data-phrase="Send love message"></label>
                   <div class="col-sm-8 ">
@@ -1186,7 +1220,8 @@
                   <tr><th data-phrase="DB play time"></th><td id="mpdstats_dbPlaytime"></td></tr>
                   <tr><th data-phrase="DB updated"></th><td id="mpdstats_dbUpdated"></td></tr>
                   <tr><td colspan="2" class="pt-3"><h5 data-phrase="Playback statistics"></h5></td></tr>
-                  <tr><th data-phrase="Uptime"></th><td id="mpdstats_uptime"></td></tr>
+                  <tr><th data-phrase="myMPD uptime"></th><td id="mpdstats_mympd_uptime"></td></tr>
+                  <tr><th data-phrase="MPD uptime"></th><td id="mpdstats_uptime"></td></tr>
                   <tr><th data-phrase="Play time"></th><td id="mpdstats_playtime"></td></tr>
                   <tr><td colspan="2" class="pt-3"><h5>MPD</h5></td></tr>
                   <tr><th data-phrase="Connection"></th><td id="mpdInfo_host"></td></tr>
@@ -1221,7 +1256,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header bg-light">
-          <h5 class="modal-title"><span class="material-icons title-icon">play_circle_outline</span> <span data-phrase="MPD Connection"></span></h5>
+          <h5 class="modal-title"><span class="material-icons title-icon">play_circle_outline</span> <span data-phrase="MPD connection"></span></h5>
           <button type="button" class="close" data-dismiss="modal">&times;</button>          
         </div>
         <div class="modal-body">
@@ -1259,7 +1294,7 @@
                  <div class="invalid-feedback" data-phrase="Invalid music directory"></div>
               </div>
             </div>
-            <div id="warnMusicDirectory" class="alert alert-warning" data-phrase="Music directory not found"></div>
+            <div id="warnMusicDirectory" class="alert alert-warning hide" data-phrase="Music directory not found"></div>
           </form>
         </div>
         <div class="modal-footer">
@@ -1290,7 +1325,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Cancel"></button>
-          <button type="button" class="btn btn-success" data-href='{"cmd": "saveQueue", "options": []}' data-phrase="Save Queue"></button>
+          <button type="button" class="btn btn-success" data-href='{"cmd": "saveQueue", "options": []}' data-phrase="Save queue"></button>
         </div>
       </div>
     </div>
@@ -1379,7 +1414,7 @@
           <h1 class="breakAll"></h1>
           <div class="row">
             <div class="col-md-auto">
-              <div class="album-cover album-cover-songdetails featCoverimage"></div>
+              <div class="album-cover album-cover-loading album-cover-songdetails featCoverimage"></div>
             </div>
             <div class="col table-responsive-md">
               <table class="table table-sm">
@@ -1398,6 +1433,22 @@
 <!--debug-->  <script src="js/i18n.js"></script>
 <!--debug-->  <script src="js/keymap.js"></script>
 <!--debug-->  <script src="js/bootstrap-native-v4.js"></script>
+<!--debug-->  <script src="js/utility.js"></script>
+<!--debug-->  <script src="js/locale.js"></script>
+<!--debug-->  <script src="js/log.js"></script>
+<!--debug-->  <script src="js/validate.js"></script>
+<!--debug-->  <script src="js/notification.js"></script>
+<!--debug-->  <script src="js/settings.js"></script>
+<!--debug-->  <script src="js/api.js"></script>
+<!--debug-->  <script src="js/tables.js"></script>
+<!--debug-->  <script src="js/search.js"></script>
+<!--debug-->  <script src="js/queue.js"></script>
+<!--debug-->  <script src="js/playlists.js"></script>
+<!--debug-->  <script src="js/browse.js"></script>
+<!--debug-->  <script src="js/state.js"></script>
+<!--debug-->  <script src="js/song.js"></script>
+<!--debug-->  <script src="js/misc.js"></script>
+<!--debug-->  <script src="js/popover.js"></script>
 <!--debug-->  <script src="js/mympd.js"></script>
 <!--release   <script src="js/combined.js"></script>-->
  </body>

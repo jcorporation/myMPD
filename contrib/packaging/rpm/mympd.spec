@@ -1,12 +1,13 @@
 #
-# spec file for package myMPD
+# SPDX-License-Identifier: GPL-2.0-or-later
+# myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+# https://github.com/jcorporation/mympd
 #
-# (c) 2018-2019 Juergen Mang <mail@jcgames.de>
 
 Name:           mympd
-Version:        5.6.2
+Version:        5.7.0
 Release:        0 
-License:        GPLv2
+License:        GPL-2.0-or-later
 Group:          Productivity/Multimedia/Sound/Players
 Summary:        Standalone web mpd client
 Url:            https://github.com/jcorporation/myMPD
@@ -60,5 +61,5 @@ fi
 %config(noreplace) /etc/mympd.conf
 
 %changelog
-* Wed Oct 09 2019 Juergen Mang <mail@jcgames.de> 5.6.2-0
+* Tue Oct 15 2019 Juergen Mang <mail@jcgames.de> 5.7.0-0
 - Version from master

@@ -1,4 +1,10 @@
+#
+# SPDX-License-Identifier: GPL-2.0-or-later
+# myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+# https://github.com/jcorporation/mympd
+#
 FROM library/debian:9 as build
+# hadolint ignore=DL3008
 RUN apt-get update \
   && apt-get install -y --no-install-recommends build-essential git \
   meson ninja-build gcc cpp cmake libssl-dev libmediainfo-dev \
@@ -29,11 +35,14 @@ RUN tar -czvf /mympd.tar.gz -C /myMPD-dist .
 FROM library/debian:9-slim
 ENV MPD_HOST=127.0.0.1
 ENV MPD_PORT=6600
+# hadolint ignore=DL3008
 RUN apt-get update \
   && apt-get install -y --no-install-recommends openssl libmediainfo0v5 \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
+# hadolint ignore=DL3010
 COPY --from=build /libmpdclient-master.tar.gz /
+# hadolint ignore=DL3010
 COPY --from=build /mympd.tar.gz /
 WORKDIR /
 RUN tar -xzvf libmpdclient-master.tar.gz -C /

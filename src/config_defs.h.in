@@ -25,11 +25,6 @@
 #ifndef __CONFIG_STRUCT_H__
 #define __CONFIG_STRUCT_H__
 
-//Max size of mpd_client response buffer
-#define MAX_ELEMENTS_PER_PAGE 200
-#define MAX_LIST_SIZE 1024 * MAX_ELEMENTS_PER_PAGE
-#define MAX_SIZE 1024 * (MAX_ELEMENTS_PER_PAGE + 2)
-
 //Debug build
 #cmakedefine DEBUG
 
@@ -53,59 +48,61 @@ enum jukebox_modes {
 
 //myMPD configuration
 typedef struct t_config {
-    char *mpd_host;
+    sds mpd_host;
     int mpd_port;
-    char *mpd_pass;
-    char *webport;
+    sds mpd_pass;
+    sds webport;
     bool ssl;
-    char *ssl_port;
-    char *ssl_cert;
-    char *ssl_key;
+    sds ssl_port;
+    sds ssl_cert;
+    sds ssl_key;
     bool custom_cert;
-    char *ssl_san;
-    char *user;
+    sds ssl_san;
+    sds user;
     bool stickers;
     bool mixramp;
-    char *taglist;
-    char *searchtaglist;
-    char *browsetaglist;
+    sds taglist;
+    sds searchtaglist;
+    sds browsetaglist;
     bool smartpls;
-    char *varlibdir;
-    size_t varlibdir_len;
+    sds varlibdir;
     int max_elements_per_page;
     bool syscmds;
     bool chroot;
     int last_played_count;
     int loglevel;
     bool love;
-    char *love_channel;
-    char *love_message;
+    sds love_channel;
+    sds love_message;
     bool plugins_coverextract;
-    char *music_directory;
+    sds music_directory;
     bool notification_web;
     bool notification_page;
     bool auto_play;
     int jukebox_mode;
-    char *jukebox_playlist;
+    sds jukebox_playlist;
     int jukebox_queue_length;
-    char *cols_queue_current;
-    char *cols_search;
-    char *cols_browse_database;
-    char *cols_browse_playlists_detail;
-    char *cols_browse_filesystem;
-    char *cols_playback;
-    char *cols_queue_last_played;
+    sds cols_queue_current;
+    sds cols_search;
+    sds cols_browse_database;
+    sds cols_browse_playlists_detail;
+    sds cols_browse_filesystem;
+    sds cols_playback;
+    sds cols_queue_last_played;
     bool localplayer;
     bool localplayer_autoplay;
     int stream_port;
-    char *stream_url;
+    sds stream_url;
     bool bg_cover;
-    char *bg_color;
-    char *bg_css_filter;
+    sds bg_color;
+    sds bg_css_filter;
     bool coverimage;
-    char *coverimage_name;
+    sds coverimage_name;
     int coverimage_size;
-    char *locale;
+    sds locale;
+    time_t startup_time;
+    bool readonly;
+    bool bookmarks;
     //system commands
     struct list syscmd_list;
 } t_config;

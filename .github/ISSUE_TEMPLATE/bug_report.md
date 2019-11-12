@@ -4,10 +4,14 @@ about: Create a report to help us improve
 
 ---
 
+myMPD version: [e.g. 5.6.2]
+
 **Describe the bug**
+
 A clear and concise description of what the bug is.
 
 **To Reproduce**
+
 Steps to reproduce the behavior:
 1. Go to '...'
 2. Click on '....'
@@ -15,21 +19,40 @@ Steps to reproduce the behavior:
 4. See error
 
 **Expected behavior**
+
 A clear and concise description of what you expected to happen.
 
 **Screenshots**
+
 If applicable, add screenshots to help explain your problem.
 
-**Desktop (please complete the following information):**
- - OS: [e.g. iOS]
+**Server plattform (please complete the following information):**
+ - OS: [e.g. DietPI]
+ - OS version [e.g. 6.26]
+ - Plattform: [e.g. x86_64]
+ - MPD version: [e.g. 0.21.16]
+ - Libmpdclient Version: [e.g. 2.16]
+
+**Client plattform (please complete the following information):**
+ - Device: [e.g. iPhone6, Laptop]
+ - OS: [e.g. iOS, Windows 10, Ubuntu Linux 19.10]
  - Browser [e.g. chrome, safari]
- - Version [e.g. 22]
+ - Browser version [e.g. 22]
 
-**Smartphone (please complete the following information):**
- - Device: [e.g. iPhone6]
- - OS: [e.g. iOS8.1]
- - Browser [e.g. stock browser, safari]
- - Version [e.g. 22]
+**Debug logs (please attach if it can be usefull)**
 
-**Additional context**
+See https://github.com/jcorporation/myMPD/wiki/Debug
+
+ - myMPD debug log
+ - MPD verbose log
+ - Browser error console
+ - Browser network console
+ 
+ **Configuration (please attach if it can be usefull)**
+
+ - /etc/mympd.conf
+ - tarball of /var/lib/mympd/state (``tar -cf mympd_state.tar /var/lib/mympd/state``)
+ 
+ **Additional context**
+
 Add any other context about the problem here.

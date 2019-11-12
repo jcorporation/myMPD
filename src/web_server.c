@@ -1,25 +1,7 @@
-/* myMPD
-   (c) 2018-2019 Juergen Mang <mail@jcgames.de>
-   This project's homepage is: https://github.com/jcorporation/mympd
-   
-   myMPD ist fork of:
-   
-   ympd
-   (c) 2013-2014 Andrew Karpow <andy@ndyk.de>
-   This project's homepage is: http://www.ympd.org
-   
-   This program is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; version 2 of the License.
-
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License along
-   with this program; if not, write to the Free Software Foundation, Inc.,
-   Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+/*
+ SPDX-License-Identifier: GPL-2.0-or-later
+ myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+ https://github.com/jcorporation/mympd
 */
 
 #include <limits.h>
@@ -30,6 +12,8 @@
 #include <inttypes.h>
 #include <string.h>
 
+#include "../dist/src/sds/sds.h"
+#include "sds_extras.h"
 #include "api.h"
 #include "utility.h"
 #include "log.h"
@@ -39,6 +23,7 @@
 #include "global.h"
 #include "web_server.h"
 #include "mpd_client.h"
+#include "plugins.h"
 #include "../dist/src/mongoose/mongoose.h"
 #include "../dist/src/frozen/frozen.h"
 
@@ -60,7 +45,7 @@
 
 #ifndef DEBUG
 //embedded files for release build
-#include "embedded_files.c"
+#include "web_server_embedded_files.c"
 #endif
 
 //private definitions
@@ -74,8 +59,6 @@ static void send_api_response(struct mg_mgr *mgr, t_work_result *response);
 static bool handle_api(int conn_id, const char *request, int request_len);
 static bool handle_coverextract(struct mg_connection *nc, struct http_message *hm,t_mg_user_data *mg_user_data, t_config *config);
 
-
-
 //public functions
 bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_data) {
     struct mg_mgr *mgr = (struct mg_mgr *) arg_mgr;
@@ -88,15 +71,12 @@ bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_da
 
     //initialize mgr user_data, malloced in main.c
     mg_user_data->config = config;
-    mg_user_data->music_directory = strdup("");
-    mg_user_data->rewrite_patterns = NULL;
+    mg_user_data->music_directory = sdsempty();
+    mg_user_data->rewrite_patterns = sdsempty();
     mg_user_data->conn_id = 1;
     mg_user_data->feat_library = false;
-    size_t pics_directory_len = config->varlibdir_len + 6;
-    mg_user_data->pics_directory = malloc(pics_directory_len);
-    assert(mg_user_data->pics_directory);
-    snprintf(mg_user_data->pics_directory, pics_directory_len, "%s/pics", config->varlibdir);
-
+    mg_user_data->pics_directory = sdscatfmt(sdsempty(), "%s/pics", config->varlibdir);
+    
     //init monogoose mgr with mg_user_data
     mg_mgr_init(mgr, mg_user_data);
     
@@ -175,37 +155,25 @@ void *web_server_loop(void *arg_mgr) {
 static bool parse_internal_message(t_work_result *response, t_mg_user_data *mg_user_data) {
     char *p_charbuf = NULL;
     bool feat_library;
-    int je = json_scanf(response->data, response->length, "{musicDirectory: %Q, featLibrary: %B}", &p_charbuf, &feat_library);
+    int je = json_scanf(response->data, sdslen(response->data), "{musicDirectory: %Q, featLibrary: %B}", &p_charbuf, &feat_library);
     if (je == 2) {
-        FREE_PTR(mg_user_data->music_directory);
-        mg_user_data->music_directory = strdup(p_charbuf);
+        mg_user_data->music_directory = sdsreplace(mg_user_data->music_directory, p_charbuf);
         mg_user_data->feat_library = feat_library;
         FREE_PTR(p_charbuf);
         
-        if (mg_user_data->rewrite_patterns != NULL) {
-            FREE_PTR(mg_user_data->rewrite_patterns);
-            mg_user_data->rewrite_patterns = NULL;
-        }
-        size_t rewrite_patterns_len = strlen(mg_user_data->pics_directory) + 8;
-        if (feat_library == true && strncmp(mg_user_data->music_directory, "none", 4) != 0) {
-            rewrite_patterns_len += strlen(mg_user_data->music_directory) + 11;
-        }
-        char *rewrite_patterns = malloc(rewrite_patterns_len);
-        assert(rewrite_patterns);
         if (feat_library == true) {
-            snprintf(rewrite_patterns, rewrite_patterns_len, "/pics/=%s,/library/=%s", mg_user_data->pics_directory, mg_user_data->music_directory);
+            mg_user_data->rewrite_patterns = sdscrop(mg_user_data->rewrite_patterns);
+            mg_user_data->rewrite_patterns = sdscatfmt(mg_user_data->rewrite_patterns, "/library/=%s,", mg_user_data->music_directory);
             LOG_DEBUG("Setting music_directory to %s", mg_user_data->music_directory);
         }
-        else {
-            snprintf(rewrite_patterns, rewrite_patterns_len, "/pics/=%s", mg_user_data->pics_directory);
-        }
-        mg_user_data->rewrite_patterns = rewrite_patterns;
+        mg_user_data->rewrite_patterns = sdscatfmt(mg_user_data->rewrite_patterns, "/pics/=%s", mg_user_data->pics_directory);
         LOG_DEBUG("Setting rewrite_patterns to %s", mg_user_data->rewrite_patterns);
     }
     else {
         LOG_WARN("Unknown internal message: %s", response->data);
         return false;
     }
+    sdsfree(response->data);
     FREE_PTR(response);
     return true;
 }
@@ -225,8 +193,9 @@ static void send_ws_notify(struct mg_mgr *mgr, t_work_result *response) {
         else {
             LOG_WARN("Sending notify to unknown connection: %s", response->data);
         }
-        mg_send_websocket_frame(nc, WEBSOCKET_OP_TEXT, response->data, response->length);
+        mg_send_websocket_frame(nc, WEBSOCKET_OP_TEXT, response->data, sdslen(response->data));
     }
+    sdsfree(response->data);
     FREE_PTR(response);
 }
 
@@ -239,8 +208,8 @@ static void send_api_response(struct mg_mgr *mgr, t_work_result *response) {
         if (nc->user_data != NULL) {
             if ((intptr_t)nc->user_data == response->conn_id) {
                 LOG_DEBUG("Sending response to conn_id %d: %s", (intptr_t)nc->user_data, response->data);
-                mg_send_head(nc, 200, response->length, "Content-Type: application/json");
-                mg_printf(nc, "%.*s", response->length, response->data);
+                mg_send_head(nc, 200, sdslen(response->data), "Content-Type: application/json");
+                mg_printf(nc, "%.*s", (int)sdslen(response->data), response->data);
                 break;
             }
         }
@@ -248,6 +217,7 @@ static void send_api_response(struct mg_mgr *mgr, t_work_result *response) {
             LOG_DEBUG("Unknown connection");
         }
     }
+    sdsfree(response->data);
     FREE_PTR(response);
 }
 
@@ -285,8 +255,11 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
         }
         case MG_EV_WEBSOCKET_HANDSHAKE_DONE: {
              LOG_VERBOSE("New Websocket connection established (%d)", (intptr_t)nc->user_data);
-             const char *response = "{\"type\": \"welcome\", \"data\": {\"mympdVersion\": \"" MYMPD_VERSION "\"}}";
-             mg_send_websocket_frame(nc, WEBSOCKET_OP_TEXT, response, strlen(response));
+             sds response = jsonrpc_start_notify(sdsempty(), "welcome");
+             response = tojson_char(response, "mympdVersion", MYMPD_VERSION, false);
+             response = jsonrpc_end_notify(response);
+             mg_send_websocket_frame(nc, WEBSOCKET_OP_TEXT, response, sdslen(response));
+             sdsfree(response);
              break;
         }
         case MG_EV_HTTP_REQUEST: {
@@ -300,18 +273,20 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 bool rc = handle_api((intptr_t)nc->user_data, hm->body.p, hm->body.len);
                 if (rc == false) {
                     LOG_ERROR("Invalid API request");
-                    const char *response = "{\"type\": \"error\", \"data\": \"Invalid API request\"}";
-                    mg_send_head(nc, 200, strlen(response), "Content-Type: application/json");
+                    sds method = sdsempty();
+                    sds response = jsonrpc_respond_message(sdsempty(), method, 0, "Invalid API request", true);
+                    mg_send_head(nc, 200, sdslen(response), "Content-Type: application/json");
                     mg_printf(nc, "%s", response);
+                    sdsfree(response);
+                    sdsfree(method);
                 }
             }
             else if (mg_vcmp(&hm->uri, "/ca.crt") == 0) { 
                 if (config->custom_cert == false) {
                     //deliver ca certificate
-                    size_t ca_file_len = config->varlibdir_len + 12;
-                    char ca_file[ca_file_len];
-                    snprintf(ca_file, ca_file_len, "%s/ssl/ca.pem", config->varlibdir);
+                    sds ca_file = sdscatfmt(sdsempty(), "%s/ssl/ca.pem", config->varlibdir);
                     mg_http_serve_file(nc, hm, ca_file, mg_mk_str("application/x-x509-ca-cert"), mg_mk_str(""));
+                    sdsfree(ca_file);
                 }
                 else {
                     LOG_ERROR("Custom cert enabled, don't deliver myMPD ca");
@@ -331,9 +306,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             else if (has_prefix(&hm->uri, &library_prefix) || has_prefix(&hm->uri, &pics_prefix)) {
                 static struct mg_serve_http_opts s_http_server_opts;
                 s_http_server_opts.document_root = DOC_ROOT;
-                if (mg_user_data->rewrite_patterns != NULL) {
-                    s_http_server_opts.url_rewrites = mg_user_data->rewrite_patterns;
-                }
+                s_http_server_opts.url_rewrites = mg_user_data->rewrite_patterns;
                 s_http_server_opts.enable_directory_listing = "yes";
                 s_http_server_opts.extra_headers = EXTRA_HEADERS_DIR;
 
@@ -357,7 +330,9 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 mg_serve_http(nc, hm, s_http_server_opts);
                 #else
                 //serve embedded files
-                serve_embedded_files(nc, hm);
+                sds uri = sdsnewlen(hm->uri.p, hm->uri.len);
+                serve_embedded_files(nc, uri, hm);
+                sdsfree(uri);
                 #endif
             }
             break;
@@ -383,21 +358,21 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data)
             t_mg_user_data *mg_user_data = (t_mg_user_data *) nc->mgr->user_data;
             t_config *config = (t_config *) mg_user_data->config;
             
-            size_t host_header_len = (int)host_hdr->len + 1;
-            char host_header[host_header_len];
-            snprintf(host_header, host_header_len, "%.*s", (int)host_hdr->len, host_hdr->p);
-            char *crap = NULL;
-            char *host = strtok_r(host_header, ":", &crap);
-            size_t s_redirect_len = strlen(host) + strlen(config->ssl_port) + 11;
-            char s_redirect[s_redirect_len];
-            if (strcmp(config->ssl_port, "443") == 0) {
-                snprintf(s_redirect, s_redirect_len, "https://%s/", host);
+            sds host_header = sdscatlen(sdsempty(), host_hdr->p, (int)host_hdr->len);
+            
+            int count;
+            sds *tokens = sdssplitlen(host_header, sdslen(host_header), ":", 1, &count);
+            
+            sds s_redirect = sdscatfmt(sdsempty(), "https://%s", tokens[0]);
+            if (strcmp(config->ssl_port, "443") != 0) {
+                s_redirect = sdscatfmt(s_redirect, ":%s", config->ssl_port);
             }
-            else {
-                snprintf(s_redirect, s_redirect_len, "https://%s:%s/", host, config->ssl_port);
-            }
+            s_redirect = sdscat(s_redirect, "/");
             LOG_VERBOSE("Redirecting to %s", s_redirect);
             mg_http_send_redirect(nc, 301, mg_mk_str(s_redirect), mg_mk_str(NULL));
+            sdsfreesplitres(tokens, count);
+            sdsfree(host_header);
+            sdsfree(s_redirect);
             break;
         }
         default: {
@@ -407,16 +382,26 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data)
 }
 
 static bool handle_api(int conn_id, const char *request_body, int request_len) {
-    char *cmd = NULL;
+    if (request_len > 1000) {
+        LOG_ERROR("Request to long, discarding)");
+        return false;
+    }
     
     LOG_VERBOSE("API request (%d): %.*s", conn_id, request_len, request_body);
-    const int je = json_scanf(request_body, request_len, "{cmd: %Q}", &cmd);
-    if (je < 1) {
+    char *cmd = NULL;
+    char *jsonrpc = NULL;
+    int id = 0;
+    const int je = json_scanf(request_body, request_len, "{jsonrpc: %Q, method: %Q, id: %d}", &jsonrpc, &cmd, &id);
+    if (je < 3) {
+        FREE_PTR(cmd);
+        FREE_PTR(jsonrpc);
         return false;
     }
 
     enum mympd_cmd_ids cmd_id = get_cmd_id(cmd);
-    if (cmd_id == 0) {
+    if (cmd_id == 0 || strncmp(jsonrpc, "2.0", 3) != 0) {
+        FREE_PTR(cmd);
+        FREE_PTR(jsonrpc);
         return false;
     }
     
@@ -424,12 +409,9 @@ static bool handle_api(int conn_id, const char *request_body, int request_len) {
     assert(request);
     request->conn_id = conn_id;
     request->cmd_id = cmd_id;
-    request->length = copy_string(request->data, request_body, 1000, request_len);
-    if (request->length < request_len) {
-        LOG_ERROR("Request buffer truncated %d / %d\n", request_len, 1000); 
-        free(request);
-        return false;
-    }
+    request->id = id;
+    request->method = sdscat(sdsempty(), cmd);
+    request->data = sdscatlen(sdsempty(), request_body, request_len);
     
     if (strncmp(cmd, "MYMPD_API_", 10) == 0) {
         tiny_queue_push(mympd_api_queue, request);
@@ -438,62 +420,57 @@ static bool handle_api(int conn_id, const char *request_body, int request_len) {
         tiny_queue_push(mpd_client_queue, request);
     }
 
-    FREE_PTR(cmd);        
+    FREE_PTR(cmd);
+    FREE_PTR(jsonrpc);    
     return true;
 }
 
-static bool handle_coverextract(struct mg_connection *nc, struct http_message *hm, t_mg_user_data *mg_user_data, t_config *config) {
-    size_t image_file_len = 1500;
-    char image_file[image_file_len];
-    snprintf(image_file, image_file_len, "%s/assets/coverimage-notavailable.png", DOC_ROOT);
+static void serve_na_image(struct mg_connection *nc, struct http_message *hm) {
+    #ifdef DEBUG
+    sds na_image = sdscatfmt(sdsempty(), "%s/assets/coverimage-notavailable.png", DOC_ROOT);
+    mg_http_serve_file(nc, hm, na_image, mg_mk_str("image/png"), mg_mk_str(""));
+    #else
+    sds na_image = sdsnew("/assets/coverimage-notavailable.png");
+    serve_embedded_files(nc, na_image, hm);
+    #endif
+    sdsfree(na_image);
+}
 
-    if (strlen(mg_user_data->music_directory) == 0) {
-        LOG_ERROR("Error extracting coverimage, invalid music_directory");
-        mg_http_serve_file(nc, hm, image_file, mg_mk_str("image/png"), mg_mk_str(""));
-        return false;
-    }
-    
+static bool handle_coverextract(struct mg_connection *nc, struct http_message *hm, t_mg_user_data *mg_user_data, t_config *config) {
     //decode uri
-    int uri_decoded_len;
-    char uri_decoded[(int)hm->uri.len + 1];
-    if ((uri_decoded_len = mg_url_decode(hm->uri.p, (int)hm->uri.len, uri_decoded, (int)hm->uri.len + 1, 0)) == -1) {
-        LOG_ERROR("uri_decoded buffer to small");
-        mg_http_serve_file(nc, hm, image_file, mg_mk_str("image/png"), mg_mk_str(""));
+    sds uri_decoded = sdsurldecode(sdsempty(), hm->uri.p, (int)hm->uri.len, 0);
+    if (sdslen(uri_decoded) == 0) {
+        LOG_ERROR("Failed to decode uri");
+        serve_na_image(nc, hm);
+        sdsfree(uri_decoded);
         return false;
     }
     
     // replace /albumart through path to music_directory
-    if (uri_decoded_len < 10) {
-        LOG_ERROR("length of uri_decoded < 10 ");
-        mg_http_serve_file(nc, hm, image_file, mg_mk_str("image/png"), mg_mk_str(""));
-        return false;
-    }
-    char *uri_trimmed = uri_decoded;
-    uri_trimmed += 9;
-    size_t media_file_len = strlen(mg_user_data->music_directory) + strlen(uri_trimmed) + 1;
-    char media_file[media_file_len];
-    snprintf(media_file, media_file_len, "%s%s", mg_user_data->music_directory, uri_trimmed);
-    uri_trimmed = NULL;
-                
+    sdsrange(uri_decoded, 9, -1);
+    sds media_file = sdscatfmt(sdsempty(), "%s%s", mg_user_data->music_directory, uri_decoded);
+    sdsfree(uri_decoded);
     LOG_VERBOSE("Exctracting coverimage from %s", media_file);
                 
     size_t image_mime_type_len = 100;
-    char image_mime_type[image_mime_type_len];
-    size_t cache_dir_len = config->varlibdir_len + 12;
-    char cache_dir[cache_dir_len];
-    snprintf(cache_dir, cache_dir_len, "%s/covercache", config->varlibdir);
+    char image_mime_type[image_mime_type_len]; /* Flawfinder: ignore */
+    size_t image_file_len = 1500;
+    char image_file[image_file_len]; /* Flawfinder: ignore */
+    
+    sds cache_dir = sdscatfmt(sdsempty(), "%s/covercache", config->varlibdir);
+
     bool rc = plugin_coverextract(media_file, cache_dir, image_file, image_file_len, image_mime_type, image_mime_type_len, true);
+    sdsfree(cache_dir);
+    sdsfree(media_file);
     if (rc == true) {
-        size_t path_len = config->varlibdir_len + strlen(image_file) + 13;
-        char path[path_len];
-        snprintf(path, path_len, "%s/covercache/%s", config->varlibdir, image_file);
+        sds path = sdscatfmt(sdsempty(), "%s/covercache/%s", config->varlibdir, image_file);
         LOG_DEBUG("Serving file %s (%s)", path, image_mime_type);
         mg_http_serve_file(nc, hm, path, mg_mk_str(image_mime_type), mg_mk_str(""));
+        sdsfree(path);
     }
     else {
         LOG_ERROR("Error extracting coverimage from %s", media_file);
-        snprintf(image_file, image_file_len, "%s/assets/coverimage-notavailable.png", DOC_ROOT);
-        mg_http_serve_file(nc, hm, image_file, mg_mk_str("image/png"), mg_mk_str(""));
+        serve_na_image(nc, hm);
     }
     return rc;
 }

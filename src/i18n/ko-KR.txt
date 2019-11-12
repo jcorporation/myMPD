@@ -78,20 +78,32 @@ Search queue
 Title
 제목
 
+Work
+작품
+
 Artists
 연주가
 
 Artist
 연주가
 
+ArtistSort
+연주가 정렬
+
 Album
 음반
+
+AlbumSort
+음반 정렬
 
 Duration
 길이
 
 AlbumArtist
 음반 연주가
+
+AlbumArtistSort
+음반 연주가 정렬
 
 Composer
 작곡가
@@ -105,14 +117,35 @@ Genre
 Date
 날짜
 
-Pos
-위치
-
 Track
 트랙
 
 Song
 곡
+
+Comment
+설명
+
+Disc
+디스크
+
+Label
+음반사
+
+Grouping
+묶음
+
+Pos
+위치
+
+Invalid API request
+잘못된 API 요구
+
+Failed to set like, invalid like value
+잘못된 값으로 좋아요 설정 안 됨
+
+Failed to set like, invalid song uri
+잘못된 곡 주소로 좋아요 설정 안 됨
 
 Last played
 앞서 연주함
@@ -180,9 +213,6 @@ contains
 Initializing myMPD
 myMPD 초기화
 
-Please wait, myMPD is initializing...
-myMPD 초기화 하는 중...
-
 Fetch myMPD settings
 myMPD 설정 가져오기
 
@@ -211,7 +241,7 @@ http://uri.to/stream.mp3
 http://주소/stream.mp3
 
 Invalid URI
-틀린 주소
+잘못된 주소
 
 Please choose playlist
 연주목록을 선택합니다
@@ -220,10 +250,10 @@ Create Playlist
 연주목록 만들기
 
 Invalid filename
-틀린 파일 이름
+잘못된 파일 이름
 
 Invalid type
-틀린 형식
+잘못된 형식
 
 Add
 추가
@@ -256,16 +286,13 @@ Scrobbled love
 애청곡 추천
 
 Failed to send love message to channel
-채널에 애청곡 메시지 보내기 실패함
+채널에 애청곡 메시지 보내기 안 됨
 
 Dislike song
 곡 좋아하지 않음
 
 Like song
 곡 좋아요
-
-Failed to set like
-좋아요 설정 실패함
 
 MPD stickers are disabled
 MPD 스티커 사용 안 함
@@ -283,6 +310,9 @@ Name
 이름
 
 Tag
+태그
+
+Tags
 태그
 
 Sticker
@@ -364,19 +394,19 @@ Size
 크기
 
 Invalid size
-틀린 크기
+잘못된 크기
 
 Solid color
 꽉 찬 색상
 
 Invalid color
-틀린 색상
+잘못된 색상
 
 CSS filter
 CSS 필터
 
 Invalid CSS filter
-틀린 CSS 필터
+잘못된 CSS 필터
 
 Locale
 언어
@@ -435,8 +465,14 @@ Smart playlists
 Smart playlists updated
 스마트 연주목록 업데이트됨
 
+Smart playlists update failed
+스마트 연주목록 업데이트 안 됨
+
 Smart playlist %{playlist} updated
-%{playlist} 스마트 연주목록 업데이트됨
+%{playlist} 스마트 연주목록 업데이트함
+
+Updating of smart playlist %{playlist} failed
+%{playlist} 스마트 연주목록 업데이트 안 됨
 
 Smart playlist
 스마트 연주목록
@@ -444,7 +480,7 @@ Smart playlist
 Playlists are disabled
 연주목록 사용 안 함
 
-Scrobbler Integration
+Scrobbler integration
 추천 통합
 
 MPD channel not found
@@ -457,13 +493,13 @@ MPD channel
 MPD 채널
 
 Invalid channel name
-틀린 채널 이름
+잘못된 채널 이름
 
 Message
 메시지
 
 Invalid message
-틀린 메시지
+잘못된 메시지
 
 Reset
 다시 설정
@@ -498,8 +534,11 @@ DB 연주 시간
 DB updated
 DB 업데이트됨
 
-Uptime
-가동 시간
+MPD uptime
+MPD 가동 시간
+
+myMPD uptime
+myMPD 가동 시간
 
 Play time
 연주 시간
@@ -523,19 +562,19 @@ MPD host
 MPD 호스트
 
 Invalid MPD host
-틀린 MPD 호스트
+잘못된 MPD 호스트
 
 MPD port
 MPD 포트
 
 Invalid MPD port
-틀린 MPD 포트
+잘못된 MPD 포트
 
 MPD password
 MPD 비밀번호
 
 Invalid MPD password
-틀린 MPD 비밀번호
+잘못된 MPD 비밀번호
 
 Music directory
 음원 디렉터리
@@ -550,7 +589,7 @@ Specify
 지정
 
 Invalid music directory
-틀린 음원 디렉터리
+잘못된 음원 디렉터리
 
 Music directory not found
 음원 디렉터리 없음
@@ -558,11 +597,11 @@ Music directory not found
 Playlist name
 연주목록 이름
 
-Add randrom
-무작위 추가
-
 Quantity
 갯수
+
+Clearing bookmarks failed
+즐겨찾기 지우기 안 됨
 
 Save bookmark
 즐겨찾기 저장
@@ -652,7 +691,7 @@ MPD disconnected
 MPD 연결 끊어짐
 
 Websocket connection failed
-웹소켓 연결 실패함
+웹소켓 연결 안 됨
 
 Connected to myMPD
 myMPD로 연결됨
@@ -661,7 +700,7 @@ Connected to MPD
 MPD로 연결됨
 
 Websocket connection failed, trying to reconnect
-웹소켓 연결 실패함, 다시 시도 중
+웹소켓 연결이 안 되어, 다시 시도하는 중
 
 Can not parse settings
 설정을 분석할 수 없음
@@ -673,7 +712,7 @@ Volume
 음량
 
 No results, please refine your search
-결과 없음, 맞게 찾아야 함
+결과가 없으므로, 맞게 찾아야 함
 
 Empty queue
 순서 비우기
@@ -726,9 +765,6 @@ Remove all upwards
 Remove all downwards
 아래로 지우기
 
-Error
-오류
-
 Database update started
 데이터베이스 업데이트 시작됨
 
@@ -738,14 +774,11 @@ Database successfully updated
 Database update finished
 데이터베이스 업데이트 마침
 
-Added all songs from search to %{playlist}
-찾기의 모든 곡을 %{playlist}에 추가함
+Added songs to %{playlist}
+%{playlist}에 곡 추가함
 
-queue
-순서
-
-Added all songs from database selection to %{playlist}
-데이터베이스의 모든 곡을 %{playlist}에 추가함
+Added songs to queue
+순서에 곡 추가함
 
 Add random
 무작위 추가
@@ -756,101 +789,32 @@ New playlist
 never
 안 함
 
-Failed to set mpd state %{state}
-MPD 상태 %{state} 설정에 실패함
-
 Failed to save playlist
-연주목록 저장에 실패함
-
-Goto previous song failed
-이전 곡으로 가기에 실패함
-
-Skip to next song failed
-다음 곡으로 가기에 실패함
-
-Begin to play failed
-연주 시작에 실패함
-
-Stop playing failed
-연주 정지에 실패함
-
-Clearing queue failed
-순서 지우기에 실패함
-
-Removing track from queue failed
-순서의 곡 지우기에 실패함
-
-Removing track range from queue failed
-순서의 곡 범위 지우기에 실패함
-
-Moving track in queue failed
-순서의 곡 옮기기에 실패함
-
-Moving track in playlist failed
-연주목록의 곡 옮기기에 실패함
-
-Set playing track failed
-연주곡 설정에 실패함
-
-Enabling output failed
-출력 사용에 실패함
-
-Disabling output failed
-출력 사용 안 함에 실패함
-
-Setting volume failed
-음량 설정 실패함
-
-Seeking song failed
-곡 찾기에 실패함
+연주목록 저장 안 됨
 
 Added %{uri} to playlist %{playlist}
 %{uri}의 %{playlist} 연주목록 추가에 실패함
-
-Adding song to playlist failed
-연주목록의 곡 추가에 실패함
-
-Clearing playlist failed
-연주목록 비우기에 실패함
-
-Removing track from playlist failed
-연주목록의 곡 지우기에 실패함
-
-Adding song to queue failed
-순서의 곡 추가에 실패함
-
-Adding playlist to queue failed
-순서의 연주목록 추가에 실패함
 
 Sucessfully added random songs to queue
 무작위 곡을 순서에 추가함
 
 Adding random songs to queue failed
-무작위 곡의 순서 추가에 실패함
-
-Saving queue as playlist failed
-순서의 연주목록 저장에 실패함
-
-Shuffling queue failed
-순서 뒤섞기 실패함
+순서에 무작위 곡 추가 안 됨
 
 Deleting smart playlist failed
-스마트 연주목록 지우기에 실패함
-
-Deleting playlist failed
-연주목록 지우기에 실패함
+스마트 연주목록 지우기 안 됨
 
 Unknown request
 알 수 없는 요구
 
-No response for cmd_id %{cmdId}
-%{cmdId} 명령어 ID에 반응 없음
+No response for method %{method}
+%{method} 응답 없음
 
 MPD connection error: %{error}
 MPD 연결 오류: %{error}
 
 Renaming playlist failed
-연주목록 이름 바꾸기에 실패함
+연주목록 이름 바꾸기 안 됨
 
 Sucessfully renamed playlist
 연주목록 이름 바꿈
@@ -876,38 +840,23 @@ Unknown smart playlist type
 System commands are disabled
 시스템 명령어 사용 안 함
 
-Failed to set myMPD state %{state}
-myMPD 상태 %{state} 저장할 수 없음
-
-Invalid filename for coverimage_name
-음반표지의 파일 이름 틀림
-
-Invalid jukebox mode
-뮤직박스 모드 틀림
-
-jukebox_queue_length to big, setting it to maximum value of 999
-뮤직박스가 너무 커서 최대 크기인 999로 설정함
-
 Saving bookmark failed
-즐겨찾기 저장에 실패함
+즐겨찾기 저장 안 됨
 
 Deleting bookmark failed
-즐겨찾기 지우기에 실패함
+즐겨찾기 지우기 안 됨
 
 System command not defined
 시스템 명령어 정의 안됨
-
-Can not execute cmd %{cmd}
-%{cmd} 명령어를 실행할 수 없음
 
 Successfully execute cmd %{cmd}
 %{cmd} 명령어 실행함
 
 Failed to execute cmd %{cmd}
-%{cmd} 명령어 실행에 실패함
+%{cmd} 명령어 실행 안 됨
 
 Failed to open bookmarks file
-즐겨찾기 파일 열기에 실패함
+즐겨찾기 파일 열기 안 됨
 
 No bookmarks found
 즐겨찾기를 찾을 수 없음
@@ -977,3 +926,42 @@ myMPD 인증서
 
 Download
 내려받기
+
+Can't save setting %{setting}
+%{setting} 설정 저장할 수 없음
+
+No current song
+지금 곡 없음
+
+No search expression defined
+찾을 문구 없음
+
+Unknown table %{table}
+%{table} 테이블 알 수 없음
+
+Fingerprint command not supported
+지문 명령어 지원 안 됨
+
+musicbrainz_albumartistid
+뮤직브레인즈 음반 연주자 ID
+
+musicbrainz_albumid
+뮤직브레인즈 음반 ID
+
+musicbrainz_artistid
+뮤직브레인즈 연주자 ID
+
+musicbrainz_releasetrackid
+뮤직브레인즈 발표 곡 ID
+
+musicbrainz_trackid
+뮤직브레인즈 곡 ID
+
+musicbrainz_workid
+뮤직브레인즈 작품 ID
+
+myMPD is in readonly mode
+읽기 전용 모드임
+
+Consume must be enabled
+소비를 선택해야 함

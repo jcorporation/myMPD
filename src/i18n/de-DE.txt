@@ -78,19 +78,31 @@ Warteschlange durchsuchen
 Title
 Titel
 
+Work
+Werk
+
 Artists
 Künstler
 
 Artist
 Künstler
 
+ArtistSort
+Künstler
+
 Album
+Album
+
+AlbumSort
 Album
 
 Duration
 Länge
 
 AlbumArtist
+Album Interpret
+
+AlbumArtistSort
 Album Interpret
 
 Composer
@@ -105,14 +117,35 @@ Genre
 Date
 Datum
 
-Pos
-Pos
-
 Track
 Liednummer
 
 Song
 Lied
+
+Comment
+Kommentar
+
+Disc
+CD
+
+Label
+Herausgeber
+
+Grouping
+Grupierung
+
+Pos
+Pos
+
+Invalid API request
+Ungültiger API Befehl
+
+Failed to set like, invalid like value
+Wertung konnte nicht gesetzt werden, ungültiger Wert
+
+Failed to set like, invalid song uri
+Wertung konnte nicht gesetzt werden, ungültige Lied URL
 
 Last played
 Zuletzt gespielt
@@ -179,9 +212,6 @@ enthält
 
 Initializing myMPD
 Initialisiere myMPD
-
-Please wait, myMPD is initializing...
-Einen Moment noch, myMPD lädt...
 
 Fetch myMPD settings
 Lade myMPD Einstellungen
@@ -264,9 +294,6 @@ Schlechtes Lied
 Like song
 Gutes Lied
 
-Failed to set like
-Wertung konnte nicht gesetzt werden
-
 MPD stickers are disabled
 MPD Sticker sind deaktiviert
 
@@ -284,6 +311,9 @@ Name
 
 Tag
 Tag
+
+Tags
+Tags
 
 Sticker
 Sticker
@@ -433,10 +463,16 @@ Smart playlists
 Intelligente Wiedergabelisten
 
 Smart playlists updated
-Intelligente Wiedergabelisten aktualisiert
+Intelligente Wiedergabelisten wurden aktualisiert
+
+Smart playlists update failed
+Intelligente Wiedergabelisten konnten nicht aktualisiert werden
 
 Smart playlist %{playlist} updated
 Intelligente Wiedergabeliste %{playlist} aktualisiert
+
+Updating of smart playlist %{playlist} failed
+Intelligente Wiedergabeliste %{playlist} konnte nicht aktualisiert werden
 
 Smart playlist
 Intelligente Wiedergabeliste
@@ -444,8 +480,8 @@ Intelligente Wiedergabeliste
 Playlists are disabled
 Wiedergabelisten sind deaktiviert
 
+Scrobbler integration
 Scrobbler Integration
-Scrobbler Intergration
 
 MPD channel not found
 MPD Channel nicht gefunden
@@ -498,8 +534,11 @@ Datenbank Wiedergabedauer
 DB updated
 Datenbank zuletzt aktualisiert
 
-Uptime
-Uptime
+MPD uptime
+MPD Uptime
+
+myMPD uptime
+myMPD Uptime
 
 Play time
 Wiedergabedauer
@@ -558,14 +597,14 @@ Musikverzeichnis nicht gefunden
 Playlist name
 Wiedergabelistenname
 
-Add randrom
-Zufällig
-
 Quantity
 Anzahl
 
 Save bookmark
 Lesezeichen speichern
+
+Clearing bookmarks failed
+Löschen aller Lesezeichen fehlgeschlagen
 
 Bookmark name
 Name
@@ -726,9 +765,6 @@ Alle Lieder darüber entfernen
 Remove all downwards
 Aller Lieder darunter entfernen
 
-Error
-Fehler
-
 Database update started
 Datenbankaktualisierung gestartet
 
@@ -738,14 +774,11 @@ Datenbank erfolgreich aktualisiert
 Database update finished
 Datenbankaktualisierung beendet
 
-Added all songs from search to %{playlist}
-Alle Lieder der Suche zu %{playlist} hinzugefügt
+Added songs to %{playlist}
+Lieder zur Wiedergabeliste %{playlist} hinzugefügt
 
-queue
-Warteschlange
-
-Added all songs from database selection to %{playlist}
-Alle Lieder der Auswahl zu %{playlist} hinzugefügt
+Added songs to queue
+Lieder zur Warteschlange hinzugefügt
 
 Add random
 Zufällig hinzufügen
@@ -756,71 +789,11 @@ Neue Wiedergabeliste
 never
 noch nie
 
-Failed to set mpd state %{state}
-Setzen des MPD Status %{state} fehlgeschlagen
-
 Failed to save playlist
 Wiedergabeliste konnte nicht gespeichert werden
 
-Goto previous song failed
-Zurück zum vorigen Lied fehlgeschlagen
-
-Skip to next song failed
-Weiter zum nächsten Lied fehlgeschlagen
-
-Begin to play failed
-Wiedergabe konnte nicht gestart werden
-
-Stop playing failed
-Wiedergabe konnte nicht beendet werden
-
-Clearing queue failed
-Warteschlange konnte nicht geleert werden
-
-Removing track from queue failed
-Lied konnte nicht aus der Warteschlange entfernt werden
-
-Removing track range from queue failed
-Leder konnten nicht aus der Warteschlange entfernt werden
-
-Moving track in queue failed
-Lied konnte in der Warteschlange nicht verschoben werden
-
-Moving track in playlist failed
-Lied konnte in der Wiedergabeliste nicht verschoben werden
-
-Set playing track failed
-Lied konnte nicht abgespielt werden
-
-Enabling output failed
-Musikausgabegeräte konnte nicht aktiviert werden
-
-Disabling output failed
-Musikausgabegerät konnte nicht deaktiviert werden
-
-Setting volume failed
-Lautstärke konnte nicht geändert werden
-
-Seeking song failed
-Abspielposition konnte nicht geändert werden
-
 Added %{uri} to playlist %{playlist}
 %{uri} zu Wiedergabeliste %{playlist} hinzugefügt
-
-Adding song to playlist failed
-Lied konnte nicht zur Wiedergabeliste hinzugefügt werden
-
-Clearing playlist failed
-Wiedergabeliste konnte nicht geleert werden
-
-Removing track from playlist failed
-Lied konnte nicht von Wiedergabeliste entfernt werden
-
-Adding song to queue failed
-Lied konnte nicht zur Warteschlange hinzugefügt werden
-
-Adding playlist to queue failed
-Wiedergabeliste konnte nicht zur Warteschlange hinzugefügt werden
 
 Sucessfully added random songs to queue
 Zufällige Lieder wurden zur Warteschlange hinzugefügt
@@ -828,23 +801,14 @@ Zufällige Lieder wurden zur Warteschlange hinzugefügt
 Adding random songs to queue failed
 Zufällige Lieder konnten nicht zur Warteschlange hinzugefügt werden
 
-Saving queue as playlist failed
-Warteschlange konnte nicht als Wiedergabeliste gespeichert werden
-
-Shuffling queue failed
-Warteschlange konnte nicht gemischt werden
-
 Deleting smart playlist failed
 Intelligente Wiedergabeliste konnte nicht gelöscht werden
-
-Deleting playlist failed
-Wiedergabeliste konnte nicht gelöscht werden
 
 Unknown request
 Unbekannter Befehl
 
-No response for cmd_id %{cmdId}
-Keine Rückmeldung für cmd_id %{cmdId}
+No response for method %{method}
+Keine Rückmeldung für Aufruf %{method}
 
 MPD connection error: %{error}
 MPD Verbindungsfehler: %{error}
@@ -876,18 +840,6 @@ Unbekannter intelligenter Wiedergabenlisten Typ
 System commands are disabled
 Systembefehle sind deaktiviert
 
-Failed to set myMPD state %{state}
-myMPD Option %{state} konnte nicht gespeichert werden
-
-Invalid filename for coverimage_name
-Ungültiger Dateiname für Albumcover Name
-
-Invalid jukebox mode
-Ungültiger Jukebox Modus
-
-jukebox_queue_length to big, setting it to maximum value of 999
-Jukebox Warteschlangenlänge zu groß, setze Wert auf Maxiumum von 999
-
 Saving bookmark failed
 Lesezeichen konnte nicht gespeichert werden
 
@@ -896,9 +848,6 @@ Lesezeichen konnte nicht gelöscht werden
 
 System command not defined
 Systembefehl nicht definiert
-
-Can not execute cmd %{cmd}
-Kann Systembefehl %{cmd} nicht ausführen
 
 Successfully execute cmd %{cmd}
 Systembefehl %{cmd} erfolgreich ausgeführt
@@ -977,3 +926,42 @@ myMPD Stammzertifikat
 
 Download
 Herunterladen
+
+Can't save setting %{setting}
+%{setting} konnte nicht gespeichert werden
+
+No current song
+Kein Lied ausgwählt
+
+No search expression defined
+Kein Suchausdruck angegeben
+
+Unknown table %{table}
+Unbekannte Tabelle %{table}
+
+Fingerprint command not supported
+Fingerprint Befehl ist nicht unterstützt
+
+musicbrainz_albumartistid
+MB AlbumArtist ID
+
+musicbrainz_albumid
+MB Album ID
+
+musicbrainz_artistid
+MB Künstler ID
+
+musicbrainz_releasetrackid
+MB Release Track ID
+
+musicbrainz_trackid
+MB Track ID
+
+musicbrainz_workid
+MB Werk ID
+
+myMPD is in readonly mode
+myMPD ist im Readonly Modus
+
+Consume must be enabled
+Konsumieren muss aktiviert sein

@@ -51,14 +51,15 @@ UI Components
 
 Backend
 -------
- - Mongoose: https://github.com/cesanta/mongoose
- - Frozen: https://github.com/cesanta/frozen
- - inih: https://github.com/benhoyt/inih
- - incbin: https://github.com/graphitemaster/incbin
+ - Mongoose: https://github.com/cesanta/mongoose (web server)
+ - Frozen: https://github.com/cesanta/frozen (json parsing)
+ - inih: https://github.com/benhoyt/inih (config file parsing)
+ - incbin: https://github.com/graphitemaster/incbin (embedding assets)
+ - sds: https://github.com/antirez/sds (safe string handling)
 
 Dependencies
 ------------
- - libmpdclient 2: http://www.musicpd.org/libs/libmpdclient/
+ - libmpdclient2: http://www.musicpd.org/libs/libmpdclient/
  - OpenSSL: https://www.openssl.org/
  - libmediainfo: https://mediaarea.net/en/MediaInfo (to support embedded albumart)
 
@@ -66,7 +67,8 @@ Build Dependencies
 ------------------
  - cmake 2.6
  - libasan3: for debug builds only
- - Java, Perl: to minify files
+ - Java: to minify files
+ - Perl: to create i18n.json
 
 Unix Build Instructions
 -----------------------

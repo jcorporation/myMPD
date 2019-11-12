@@ -1,7 +1,8 @@
 *~
 /debug/
 /release/
-/ocs/
+/osc/
+/package/
 /htdocs/css/bootstrap.css
 /htdocs/js/bootstrap-native-v4.js
 /htdocs/js/i18n.js
