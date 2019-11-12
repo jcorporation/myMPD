@@ -291,6 +291,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 else {
                     LOG_ERROR("Custom cert enabled, don't deliver myMPD ca");
                     mg_printf(nc, "%s", "HTTP/1.1 404 NOT FOUND\r\n\r\n");
+                    nc->flags |= MG_F_SEND_AND_CLOSE;
                 }
             }
             else if (has_prefix(&hm->uri, &albumart_prefix)) {
@@ -300,7 +301,8 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 }
                 else {
                     LOG_ERROR("Coverextract not enabled or unknown music_directory");
-                    mg_printf(nc, "%s", "HTTP/1.1 404 NOT FOUND\r\n\r\n");   
+                    mg_printf(nc, "%s", "HTTP/1.1 404 NOT FOUND\r\n\r\n");
+                    nc->flags |= MG_F_SEND_AND_CLOSE;
                 }
             }
             else if (has_prefix(&hm->uri, &library_prefix) || has_prefix(&hm->uri, &pics_prefix)) {
@@ -317,6 +319,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 else {
                     LOG_ERROR("Unknown music_directory");
                     mg_printf(nc, "%s", "HTTP/1.1 404 NOT FOUND\r\n\r\n");   
+                    nc->flags |= MG_F_SEND_AND_CLOSE;
                 }
             }
             else {
