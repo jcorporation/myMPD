@@ -4,7 +4,7 @@
  https://github.com/jcorporation/mympd
 */
 
-var CACHE = 'myMPD-cache-v5.7.0';
+var CACHE = 'myMPD-cache-v5.7.1';
 var subdir = self.location.pathname.replace('/sw.js', '').replace(/\/$/, '');
 var urlsToCache = [
     subdir + '/',
@@ -31,8 +31,8 @@ self.addEventListener('install', function(event) {
     event.waitUntil(
         caches.open(CACHE).then(function(cache) {
             urlsToCache.map(function(url) {
-	        return cache.add(url).catch(function (reason) {
-	            return console.log('ServiceWorker: ' + String(reason) + ' ' + url);
+		return cache.add(url).catch(function (reason) {
+                    return console.log('ServiceWorker: ' + String(reason) + ' ' + url);
                 });
             });
         })
