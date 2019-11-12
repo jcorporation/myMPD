@@ -263,6 +263,10 @@ small {
   font-feature-settings: 'liga';
 }
 
+.material-icons:hover {
+  text-decoration: none;
+}
+
 .material-icons-left {
   font-size: 1rem;
   margin-left: -1em;

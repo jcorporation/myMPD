@@ -32,6 +32,8 @@ var subdir = '';
 var uiEnabled = true;
 var locale = navigator.language || navigator.userLanguage;
 
+var ligatureMore = 'menu';
+
 var app = {};
 app.apps = { "Playback":   { "state": "0/-/-/", "scrollPos": 0 },
              "Queue":	   {
