@@ -13,6 +13,16 @@ function basename(uri) {
    return uri.split('/').reverse()[0];
 }
 
+function filetype(uri) {
+    let ext = uri.split('.').pop();
+    switch (ext) {
+        case 'mp3': return 'MP3 - MPEG-1 Audio Layer III';
+        case 'flac': return 'FLAC - Free Lossless Audio Codec';
+        case 'ogg': return 'OGG - Ogg Vorbis';
+        default: ext.toUpperCase();
+    }
+}
+
 function scrollToPosY(pos) {
     document.body.scrollTop = pos; // For Safari
     document.documentElement.scrollTop = pos; // For Chrome, Firefox, IE and Opera

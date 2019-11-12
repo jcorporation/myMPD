@@ -280,6 +280,8 @@ function songChange(obj) {
         setVoteSongBtns(obj.result.like, obj.result.uri);
     }
 
+    obj.result['Filetype'] = filetype(obj.result.uri);
+
     for (let i = 0; i < settings.colsPlayback.length; i++) {
         let c = document.getElementById('current' + settings.colsPlayback[i]);
         if (c) {

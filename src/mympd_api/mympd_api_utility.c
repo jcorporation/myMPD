@@ -84,7 +84,7 @@ void free_mympd_state(t_mympd_state *mympd_state) {
     FREE_PTR(mympd_state);
 }
 
-static const char *mympd_cols[]={"Pos", "Duration", "Type", "LastPlayed", "Filename", 0};
+static const char *mympd_cols[]={"Pos", "Duration", "Type", "LastPlayed", "Filename", "Filetype", 0};
 
 static bool is_mympd_col(sds token) {
     const char** ptr = mympd_cols;

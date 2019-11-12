@@ -696,7 +696,9 @@ function filterCols(x) {
     if (x === 'colsQueueLastPlayed') {
         tags.push('LastPlayed');
     }
-        
+    if (x === 'colsPlayback') {
+        tags.push('Filetype');
+    }
     let cols = [];
     for (let i = 0; i < settings[x].length; i++) {
         if (tags.includes(settings[x][i])) {

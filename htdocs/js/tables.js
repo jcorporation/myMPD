@@ -325,6 +325,9 @@ function setCols(table, className) {
     if (table === 'QueueLastPlayed') {
         tags.push('LastPlayed');
     }
+    if (table === 'Playback') {
+        tags.push('Filetype');
+    }
     
     tags.sort();
     

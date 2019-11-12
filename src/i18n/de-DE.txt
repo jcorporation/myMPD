@@ -72,6 +72,9 @@ Alle Tags
 Filename
 Dateiname
 
+Filetype
+Dateityp
+
 Search queue
 Warteschlange durchsuchen
 
