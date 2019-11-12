@@ -229,7 +229,7 @@ function clearCurrentCover() {
 }
 
 function songChange(obj) {
-    let curSong = JSON.stringify(obj.result);
+    let curSong = obj.result.Title + ':' + obj.result.Artist + ':' + obj.result.Album + ':' + obj.result.uri + ':' + obj.result.currentSongId;
     if (lastSong === curSong) {
         return;
     }
@@ -280,7 +280,6 @@ function songChange(obj) {
         setVoteSongBtns(obj.result.like, obj.result.uri);
     }
 
-    logDebug('colsPlayback: ' + JSON.stringify(settings.colsPlayback));
     for (let i = 0; i < settings.colsPlayback.length; i++) {
         let c = document.getElementById('current' + settings.colsPlayback[i]);
         if (c) {
