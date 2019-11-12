@@ -156,11 +156,11 @@ function parseVolume(obj) {
 function setBackgroundImage(imageUrl) {
     let old = document.querySelectorAll('.albumartbg');
     for (let i = 0; i < old.length; i++) {
-        if (old[i].style.zIndex === -10) {
-            old[i].remove();        
+        if (old[i].style.zIndex === '-10') {
+            old[i].remove();
         }
         else {
-            old[i].style.zIndex = -10;
+            old[i].style.zIndex = '-10';
         }
     }
     let div = document.createElement('div');
@@ -181,12 +181,12 @@ function setBackgroundImage(imageUrl) {
 function clearBackgroundImage() {
     let old = document.querySelectorAll('.albumartbg');
     for (let i = 0; i < old.length; i++) {
-        if (old[i].style.zIndex === -10) {
+        if (old[i].style.zIndex === '-10') {
             old[i].remove();        
         }
         else {
-            old[i].style.zIndex = -10;
-            old[i].style.opacity = 0;
+            old[i].style.zIndex = '-10';
+            old[i].style.opacity = '0';
         }
     }
 }
@@ -194,11 +194,11 @@ function clearBackgroundImage() {
 function setCurrentCover(imageUrl) {
     let old = domCache.currentCover.querySelectorAll('.coverbg');
     for (let i = 0; i < old.length; i++) {
-        if (old[i].style.zIndex === 2) {
+        if (old[i].style.zIndex === '2') {
             old[i].remove();        
         }
         else {
-            old[i].style.zIndex = 2;
+            old[i].style.zIndex = '2';
         }
     }
 
@@ -218,12 +218,12 @@ function setCurrentCover(imageUrl) {
 function clearCurrentCover() {
     let old = domCache.currentCover.querySelectorAll('.coverbg');
     for (let i = 0; i < old.length; i++) {
-        if (old[i].style.zIndex === 2) {
+        if (old[i].style.zIndex === '2') {
             old[i].remove();        
         }
         else {
-            old[i].style.zIndex = 2;
-            old[i].style.opacity = 0;
+            old[i].style.zIndex = '2';
+            old[i].style.opacity = '0';
         }
     }
 }
