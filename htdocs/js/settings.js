@@ -444,11 +444,11 @@ function parseMPDSettings() {
             pbtl += '<div id="current' + settings.colsPlayback[i]  + '" data-tag="' + settings.colsPlayback[i] + '" '+
                     'data-name="' + (lastSongObj[settings.colsPlayback[i]] ? encodeURI(lastSongObj[settings.colsPlayback[i]]) : '') + '">' +
                     '<small>' + t(settings.colsPlayback[i]) + '</small>' +
-                    '<h4';
+                    '<p';
             if (settings.browsetags.includes(settings.colsPlayback[i])) {
                 pbtl += ' class="clickable"';
             }
-            pbtl += '>' + (lastSongObj[settings.colsPlayback[i]] ? e(lastSongObj[settings.colsPlayback[i]]) : '') + '</h4></div>';
+            pbtl += '>' + (lastSongObj[settings.colsPlayback[i]] ? e(lastSongObj[settings.colsPlayback[i]]) : '') + '</p></div>';
         }
         document.getElementById('cardPlaybackTags').innerHTML = pbtl;
     }
@@ -698,6 +698,7 @@ function filterCols(x) {
     }
     if (x === 'colsPlayback') {
         tags.push('Filetype');
+        tags.push('Fileformat');
     }
     let cols = [];
     for (let i = 0; i < settings[x].length; i++) {

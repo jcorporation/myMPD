@@ -25,3 +25,4 @@ musicbrainz_workid
 Type
 LastPlayed
 Pos
+Fileformat

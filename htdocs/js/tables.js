@@ -327,6 +327,7 @@ function setCols(table, className) {
     }
     if (table === 'Playback') {
         tags.push('Filetype');
+        tags.push('Fileformat');
     }
     
     tags.sort();
@@ -448,7 +449,7 @@ function saveColsPlayback(table) {
         } 
         else if (!th) {
             th = document.createElement('div');
-            th.innerHTML = '<small>' + t(colInputs[i].name) + '</small><h4></h4>';
+            th.innerHTML = '<small>' + t(colInputs[i].name) + '</small><p></p>';
             th.setAttribute('id', 'current' + colInputs[i].name);
             th.setAttribute('data-tag', colInputs[i].name);
             header.appendChild(th);

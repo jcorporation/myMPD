@@ -118,9 +118,15 @@ function parseState(obj) {
         if (settings.bgCover === true) {
             clearBackgroundImage();
         }
-        let pb = document.getElementById('cardPlaybackTags').getElementsByTagName('h4');
+        let pb = document.getElementById('cardPlaybackTags').getElementsByTagName('p');
         for (let i = 0; i < pb.length; i++) {
             pb[i].innerText = '';
+        }
+    }
+    else {
+        let cff = document.getElementById('currentFileformat');
+        if (cff) {
+            cff.getElementsByTagName('p')[0].innerText = obj.result.audioFormat.bits + t('bits') + ' - ' + obj.result.audioFormat.sampleRate / 1000 + t('kHz');
         }
     }
 
@@ -281,6 +287,12 @@ function songChange(obj) {
     }
 
     obj.result['Filetype'] = filetype(obj.result.uri);
+    if (lastState) {
+        obj.result['Fileformat'] = lastState.audioFormat.bits + t('bits') + ' - ' + lastState.audioFormat.sampleRate / 1000 + t('kHz');
+    }
+    else {
+        obj.result['Fileformat'] = '';
+    }
 
     for (let i = 0; i < settings.colsPlayback.length; i++) {
         let c = document.getElementById('current' + settings.colsPlayback[i]);
@@ -289,7 +301,7 @@ function songChange(obj) {
             if (value === undefined) {
                 value = '';
             }
-            c.getElementsByTagName('h4')[0].innerText = value;
+            c.getElementsByTagName('p')[0].innerText = value;
             c.setAttribute('data-name', encodeURI(value));
         }
     }

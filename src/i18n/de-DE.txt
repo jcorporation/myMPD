@@ -75,6 +75,15 @@ Dateiname
 Filetype
 Dateityp
 
+Fileformat
+Dateiformat
+
+bits
+Bits
+
+kHz
+kHz
+
 Search queue
 Warteschlange durchsuchen
 
