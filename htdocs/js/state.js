@@ -126,7 +126,7 @@ function parseState(obj) {
     else {
         let cff = document.getElementById('currentFileformat');
         if (cff) {
-            cff.getElementsByTagName('p')[0].innerText = obj.result.audioFormat.bits + t('bits') + ' - ' + obj.result.audioFormat.sampleRate / 1000 + t('kHz');
+            cff.getElementsByTagName('p')[0].innerText = fileformat(obj.result.audioFormat);
         }
     }
 
@@ -288,7 +288,7 @@ function songChange(obj) {
 
     obj.result['Filetype'] = filetype(obj.result.uri);
     if (lastState) {
-        obj.result['Fileformat'] = lastState.audioFormat.bits + t('bits') + ' - ' + lastState.audioFormat.sampleRate / 1000 + t('kHz');
+        obj.result['Fileformat'] = fileformat(lastState.audioFormat);
     }
     else {
         obj.result['Fileformat'] = '';
@@ -300,6 +300,9 @@ function songChange(obj) {
             let value = obj.result[settings.colsPlayback[i]];
             if (value === undefined) {
                 value = '';
+            }
+            if (settings.colsPlayback[i] == 'Duration') {
+                value = beautifySongDuration(value);
             }
             c.getElementsByTagName('p')[0].innerText = value;
             c.setAttribute('data-name', encodeURI(value));

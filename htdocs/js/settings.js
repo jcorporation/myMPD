@@ -448,7 +448,17 @@ function parseMPDSettings() {
             if (settings.browsetags.includes(settings.colsPlayback[i])) {
                 pbtl += ' class="clickable"';
             }
-            pbtl += '>' + (lastSongObj[settings.colsPlayback[i]] ? e(lastSongObj[settings.colsPlayback[i]]) : '') + '</p></div>';
+            pbtl += '>';
+            if (settings.colsPlayback[i] === 'Duration') {
+                pbtl += (lastSongObj[settings.colsPlayback[i]] ? beautifySongDuration(lastSongObj[settings.colsPlayback[i]]) : '');
+            }
+            else if (settings.colsPlayback[i] === 'Fileformat') {
+                pbtl += (lastState ? fileformat(lastState.audioFormat) : '');
+            }
+            else {
+                pbtl += (lastSongObj[settings.colsPlayback[i]] ? e(lastSongObj[settings.colsPlayback[i]]) : '');
+            }
+            pbtl += '</p></div>';
         }
         document.getElementById('cardPlaybackTags').innerHTML = pbtl;
     }

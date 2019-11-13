@@ -23,6 +23,10 @@ function filetype(uri) {
     }
 }
 
+function fileformat(audioformat) {
+    return audioformat.bits + t('bits') + ' - ' + audioformat.sampleRate / 1000 + t('kHz');
+}
+
 function scrollToPosY(pos) {
     document.body.scrollTop = pos; // For Safari
     document.documentElement.scrollTop = pos; // For Chrome, Firefox, IE and Opera
