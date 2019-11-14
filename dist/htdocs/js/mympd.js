@@ -448,7 +448,7 @@ function parseListTitles(obj) {
     }, false);
     let img = card.getElementsByTagName('a')[0];
     if (img) {
-        img.style.backgroundImage = 'url("' + subdir + obj.result.cover + '"), url("' + subdir + '/assets/coverimage-loading.png")';
+        img.style.backgroundImage = 'url("' + subdir + obj.result.cover + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
         img.setAttribute('data-uri', encodeURI(obj.result.data[0].uri.replace(/\/[^/]+$/, '')));
         img.setAttribute('data-name', obj.result.Album);
         img.setAttribute('data-type', 'dir');
@@ -3602,7 +3602,7 @@ function parseFingerprint(obj) {
 
 function parseSongDetails(obj) {
     let modal = document.getElementById('modalSongDetails');
-    modal.getElementsByClassName('album-cover')[0].style.backgroundImage = 'url("' + subdir + obj.result.cover + '"), url("' + subdir + '/assets/coverimage-loading.png")';
+    modal.getElementsByClassName('album-cover')[0].style.backgroundImage = 'url("' + subdir + obj.result.cover + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
     modal.getElementsByTagName('h1')[0].innerText = obj.result.Title;
     
     let songDetails = '';
