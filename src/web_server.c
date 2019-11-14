@@ -430,10 +430,10 @@ static bool handle_api(int conn_id, const char *request_body, int request_len) {
 
 static void serve_na_image(struct mg_connection *nc, struct http_message *hm) {
     #ifdef DEBUG
-    sds na_image = sdscatfmt(sdsempty(), "%s/assets/coverimage-notavailable.png", DOC_ROOT);
+    sds na_image = sdscatfmt(sdsempty(), "%s/assets/coverimage-notavailable.svg", DOC_ROOT);
     mg_http_serve_file(nc, hm, na_image, mg_mk_str("image/png"), mg_mk_str(""));
     #else
-    sds na_image = sdsnew("/assets/coverimage-notavailable.png");
+    sds na_image = sdsnew("/assets/coverimage-notavailable.svg");
     serve_embedded_files(nc, na_image, hm);
     #endif
     sdsfree(na_image);

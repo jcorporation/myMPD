@@ -21,7 +21,7 @@ function parseFingerprint(obj) {
 
 function parseSongDetails(obj) {
     let modal = document.getElementById('modalSongDetails');
-    modal.getElementsByClassName('album-cover')[0].style.backgroundImage = 'url("' + subdir + obj.result.cover + '"), url("' + subdir + '/assets/coverimage-loading.png")';
+    modal.getElementsByClassName('album-cover')[0].style.backgroundImage = 'url("' + subdir + obj.result.cover + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
     modal.getElementsByTagName('h1')[0].innerText = obj.result.Title;
     
     let songDetails = '';
