@@ -30,6 +30,10 @@ then
   exit 1
 fi
 
+#java is optional to minify js and css
+JAVABIN=$(command -v java)
+
+#returns true if FILE1 is newer than FILE2
 newer() {
   M1=0
   M2=0
@@ -37,22 +41,27 @@ newer() {
   [ -f "$2" ] && M2=$(stat -c%Y "$2")
   if [ "$M1" -lt "$M2" ]
   then
+    #echo "$1 is older than $2"
     return 1
   else
+    #echo "$1 is newer or equal than $2"
     return 0
   fi
 }
 
-newer_s() {
+#returns true if FILE1 is older than FILE...
+older_s() {
   FILE1=$1
   for FILE2 in "$@"
   do
     [ "$FILE1" = "$FILE2" ] && continue
     if newer "$FILE2" "$FILE1"
     then
+      #echo "$FILE1 is older than $FILE2"
       return 0
     fi
   done
+  #echo "$FILE1 is newer or equal than $@"
   return 1
 }
 
@@ -77,8 +86,6 @@ minify() {
   DST="$3"
   ERROR="1"
   
-  JAVABIN=$(command -v java)
-
   if newer "$DST" "$SRC"
   then
     #File already minified"
@@ -123,7 +130,7 @@ createi18n() {
   DST=$1
   PRETTY=$2
   cd src/i18n || exit 1
-  if newer_s "$DST" ./*.txt
+  if older_s "$DST" ./*.txt
   then
     echo "Creating i18n json"
     $PERLBIN ./tojson.pl "$PRETTY" > "$DST"
@@ -152,11 +159,14 @@ buildrelease() {
     fi
   done
   # shellcheck disable=SC2086
-  if newer_s dist/htdocs/js/mympd.js $JSSRCFILES
+  if older_s dist/htdocs/js/mympd.js $JSSRCFILES
   then
     # shellcheck disable=SC2086
     # shellcheck disable=SC2002
+    echo "Creating mympd.js"
     cat $JSSRCFILES | grep -v "\"use strict\";" > dist/htdocs/js/mympd.js
+  else
+    echo "Skip creating mympd.js"
   fi
   minify js htdocs/sw.js dist/htdocs/sw.min.js
   minify js htdocs/js/keymap.js dist/htdocs/js/keymap.min.js
@@ -174,7 +184,7 @@ buildrelease() {
     fi
   done
   # shellcheck disable=SC2086
-  if newer_s dist/htdocs/js/combined.js.gz $JSFILES
+  if older_s dist/htdocs/js/combined.js.gz $JSFILES
   then
     echo "\"use strict\";" > dist/htdocs/js/combined.js
     # shellcheck disable=SC2086
@@ -199,7 +209,7 @@ buildrelease() {
   echo "Combining and compressing stylesheets"
   CSSFILES="dist/htdocs/css/bootstrap.min.css dist/htdocs/css/mympd.min.css"
   # shellcheck disable=SC2086
-  if newer_s dist/htdocs/css/combined.css.gz $CSSFILES
+  if older_s dist/htdocs/css/combined.css.gz $CSSFILES
   then
     # shellcheck disable=SC2086
     cat $CSSFILES > dist/htdocs/css/combined.css
@@ -234,8 +244,9 @@ buildrelease() {
   cd release || exit 1
   if [ "$ASSETSCHANGED" = "1" ]
   then
+    echo "Assets changed"
     #force rebuild of web_server.c with embedded assets
-    rm -f CMakeFiles/mympd.dir/src/web_server.c.o
+    rm -vf CMakeFiles/mympd.dir/src/web_server.c.o
   else
     echo "Assets not changed"
   fi
