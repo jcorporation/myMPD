@@ -20,7 +20,8 @@ then
   echo "ERROR: gzip not found"
   exit 1
 fi
-GZIP="$GZIPBIN -v -9 -c -"
+GZIP="$GZIPBIN -f -v -9"
+GZIPCAT="$GZIPBIN -f -v -9 -c"
 
 #perl is needed to create i18n.js
 PERLBIN=$(command -v perl)
@@ -90,15 +91,20 @@ minify() {
   then
     #File already minified"
     echo "Skipping $SRC"
-    return 0
+    return 1
   fi
   echo "Minifying $SRC"
 
   if [ "$TYPE" = "html" ] && [ "$PERLBIN" != "" ]
   then
     # shellcheck disable=SC2016
-    $PERLBIN -pe 's/^<!--debug-->.*\n//gm; s/<!--release\s+(.+)-->/$1/g; s/<!--(.+)-->//g; s/^\s*//gm; s/\s*$//gm' "$SRC" | $GZIP > "$DST"
+    $PERLBIN -pe 's/^<!--debug-->.*\n//gm; s/<!--release\s+(.+)-->/$1/g; s/<!--(.+)-->//g; s/^\s*//gm; s/\s*$//gm' "$SRC" > "$DST"
     ERROR="$?"
+    if [ "$ERROR" = "1" ]
+    then
+      echo "Error minifying $SRC"
+      exit 1
+    fi
   elif [ "$TYPE" = "js" ] && [ "$JAVABIN" != "" ]
   then
     $JAVABIN -jar dist/buildtools/closure-compiler.jar "$SRC" > "$DST"
@@ -120,10 +126,9 @@ minify() {
       echo "Error minifying $SRC, copy $SRC to $DST"
     fi
     cp "$SRC" "$DST"
-    return 2
   fi
-  #successfull minified file
-  return 1
+  #successfull minified or copied file
+  return 0
 }
 
 createi18n() {
@@ -190,14 +195,14 @@ buildrelease() {
     # shellcheck disable=SC2086
     # shellcheck disable=SC2002
     cat $JSFILES >> dist/htdocs/js/combined.js
-    $GZIPBIN -f -v -9 dist/htdocs/js/combined.js
+    $GZIP dist/htdocs/js/combined.js
     ASSETSCHANGED=1
   else
     echo "Skip creating dist/htdocs/js/combined.js.gz"
   fi
   if newer dist/htdocs/sw.min.js dist/htdocs/sw.js.gz
   then
-    $GZIPBIN -f -v -9 -c dist/htdocs/sw.min.js > dist/htdocs/sw.js.gz
+    $GZIPCAT dist/htdocs/sw.min.js > dist/htdocs/sw.js.gz
     ASSETSCHANGED=1
   else
     echo "Skip dist/htdocs/sw.js.gz"
@@ -213,15 +218,16 @@ buildrelease() {
   then
     # shellcheck disable=SC2086
     cat $CSSFILES > dist/htdocs/css/combined.css
-    $GZIPBIN -f -v -9 dist/htdocs/css/combined.css
+    $GZIP dist/htdocs/css/combined.css
     ASSETSCHANGED=1
   else
     echo "Skip creating dist/htdocs/css/combined.css.gz"
   fi
   
   echo "Minifying and compressing html"
-  if ! minify html htdocs/index.html dist/htdocs/index.html.gz
+  if minify html htdocs/index.html dist/htdocs/index.html
   then
+    $GZIPCAT dist/htdocs/index.html > dist/htdocs/index.html.gz
     ASSETSCHANGED=1
   fi
 
@@ -232,7 +238,7 @@ buildrelease() {
     COMPRESSED="dist/${ASSET}.gz"
     if newer "$ASSET" "$COMPRESSED"
     then
-      $GZIPBIN -v -9 -c "$ASSET" > "$COMPRESSED"
+      $GZIPCAT "$ASSET" > "$COMPRESSED"
       ASSETSCHANGED=1
     else
       echo "Skipping $ASSET"
