@@ -166,9 +166,9 @@ buildrelease() {
   # shellcheck disable=SC2086
   if older_s dist/htdocs/js/mympd.js $JSSRCFILES
   then
+    echo "Creating mympd.js"
     # shellcheck disable=SC2086
     # shellcheck disable=SC2002
-    echo "Creating mympd.js"
     cat $JSSRCFILES | grep -v "\"use strict\";" > dist/htdocs/js/mympd.js
   else
     echo "Skip creating mympd.js"
