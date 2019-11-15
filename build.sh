@@ -34,7 +34,7 @@ fi
 #java is optional to minify js and css
 JAVABIN=$(command -v java)
 
-#returns true if FILE1 is newer than FILE2
+#returns true if FILE1 is newer or equal than FILE2
 newer() {
   M1=0
   M2=0
@@ -44,8 +44,12 @@ newer() {
   then
     #echo "$1 is older than $2"
     return 1
+  elif [ "$M1" -eq "$M2" ]
+  then
+    #echo "$1 is equal than $2"
+    return 0
   else
-    #echo "$1 is newer or equal than $2"
+    #echo "$1 is newer than $2"
     return 0
   fi
 }
