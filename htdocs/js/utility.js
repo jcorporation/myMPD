@@ -14,12 +14,21 @@ function basename(uri) {
 }
 
 function filetype(uri) {
-    let ext = uri.split('.').pop();
+    if (uri == undefined) {
+        return '';
+    }
+    let ext = uri.split('.').pop().toUpperCase();
     switch (ext) {
-        case 'mp3': return 'MP3 - MPEG-1 Audio Layer III';
-        case 'flac': return 'FLAC - Free Lossless Audio Codec';
-        case 'ogg': return 'OGG - Ogg Vorbis';
-        default: ext.toUpperCase();
+        case 'MP3':  return ext + ' - MPEG-1 Audio Layer III';
+        case 'FLAC': return ext + ' - Free Lossless Audio Codec';
+        case 'OGG':  return ext + ' - Ogg Vorbis';
+        case 'OPUS': return ext + ' - Opus Audio';
+        case 'WAV':  return ext + ' - WAVE Audio File';
+        case 'WV':   return ext + ' - WavPack';
+        case 'AAC':  return ext + ' - Advancded Audio Coding';
+        case 'MPC':  return ext + ' - Musepack';
+        case 'MP4':  return ext + ' - MPEG-4';
+        default:     return ext;
     }
 }
 

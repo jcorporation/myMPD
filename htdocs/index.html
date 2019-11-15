@@ -847,6 +847,9 @@
             <li class="nav-item">
               <a class="nav-link text-dark" href="#tabGeneralSettings" data-toggle="tab" data-height="true" data-phrase="General"></a>
             </li>
+            <li class="nav-item">
+              <a class="nav-link text-dark" href="#tabAdvancedSettings" data-toggle="tab" data-height="true" data-phrase="Advanced"></a>
+            </li>
           </ul>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
@@ -1177,10 +1180,26 @@
                 </div>
               </form>
             </div>
+            <div class="tab-pane" id="tabAdvancedSettings">
+              <form id="AdvancedSettingsFrm">
+                <h4 data-phrase="Advanced"></h4>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="btnResetSettings" data-phrase="Reset settings"></label>
+                  <div class="col-sm-8 ">
+                    <button type="button" id="btnResetSettings" class="btn btn-danger" data-href='{"cmd": "resetSettings", "options": []}' data-phrase="Reset"></button>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="btnClearAndReload" data-phrase="Clear cache and reload"></label>
+                  <div class="col-sm-8 ">
+                    <button type="button" id="btnClearAndReload" class="btn btn-danger" data-href='{"cmd": "clearAndReload", "options": []}' data-phrase="Reload"></button>
+                  </div>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-danger" data-href='{"cmd": "resetSettings", "options": []}' data-phrase="Reset"></button>
           <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Cancel"></button>
           <button type="button" class="btn btn-success" data-href='{"cmd": "saveSettings", "options": []}' data-phrase="Save"></button>
         </div>
