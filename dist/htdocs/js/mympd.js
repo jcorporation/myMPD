@@ -1164,10 +1164,22 @@ function appRoute() {
 
 function showAppInitAlert(text) {
     document.getElementById('splashScreenAlert').innerHTML = '<p class="text-danger">' + t(text) + '</p>' +
-        '<p><a id="appReloadBtn" class="btn btn-danger text-light clickable">Reload</a></p>';
+        '<p><a id="appReloadBtn" class="btn btn-danger text-light clickable">' + t('Reload') + '</a></p>';
     document.getElementById('appReloadBtn').addEventListener('click', function() {
-        location.reload();
+        clearAndReload();
     }, false);
+}
+
+
+function clearAndReload() {
+    if ('serviceWorker' in navigator) {
+        caches.keys().then(function(cacheNames) {
+            cacheNames.forEach(function(cacheName) {
+                caches.delete(cacheName);
+            });
+        });
+    }
+    location.reload();
 }
 
 function appInitStart() {
