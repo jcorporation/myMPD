@@ -132,6 +132,12 @@ button {
   }
 }
 
+@media only screen and (min-width: 576px) and (max-width: 992px) {
+  .modal-lg {
+    max-width: calc(100vw - 5rem) !important;
+  }
+}
+
 @media only screen and (max-width: 768px) {
   #headerTitle {
     display: none !important;
@@ -484,3 +490,8 @@ tr:focus {
 textarea.small {
   font-size: 80%;
 }
+
+.input-group-append {
+  align-self: baseline;
+}
+
