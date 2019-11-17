@@ -986,3 +986,6 @@ myMPD ist im Readonly Modus
 
 Consume must be enabled
 Konsumieren muss aktiviert sein
+
+Advanced
+Erweitert
