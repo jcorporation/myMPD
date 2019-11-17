@@ -103,6 +103,7 @@ typedef struct t_config {
     time_t startup_time;
     bool readonly;
     bool bookmarks;
+    int volume_step;
     //system commands
     struct list syscmd_list;
 } t_config;

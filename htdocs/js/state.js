@@ -328,6 +328,11 @@ function gotoTagList() {
 }
 
 //eslint-disable-next-line no-unused-vars
+function volumeStep(dir) {
+    let inc = dir === 'up' ? settings.volumeStep : 0 - settings.volumeStep;
+    chVolume(inc);
+}
+
 function chVolume(increment) {
     let newValue = parseInt(domCache.volumeBar.value) + increment;
     if (newValue < 0)  {

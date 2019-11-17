@@ -68,11 +68,11 @@
             <h2 class="dropdown-header text-light"><span data-phrase="Volume">Volume</span>: <span id="volumePrct"></span></h2>
             <form class="px-4 py-0 pb-3" id="volumeControl">
               <div class="btn-group">
-                <button id="btnChVolumeDown" data-href='{"cmd": "chVolume", "options": [-5]}' class="btn btn-secondary">&minus;</button>
+                <button id="btnChVolumeDown" data-href='{"cmd": "volumeStep", "options": ["down"]}' class="btn btn-secondary">&minus;</button>
                   <div class="btn btn-secondary">
                     <input type="range" min="0" max="100" step="1" class="form-control-range" id="volumeBar">
                   </div>
-                <button id="btnChVolumeUp" data-href='{"cmd": "chVolume", "options": [5]}' class="btn btn-secondary">+</button>
+                <button id="btnChVolumeUp" data-href='{"cmd": "volumeStep", "options": ["up"]}' class="btn btn-secondary">+</button>
               </div>
             </form>
             <div class="dropdown-divider"></div>
