@@ -942,22 +942,22 @@ Unknown table %{table}
 Fingerprint command not supported
 지문 명령어 지원 안 됨
 
-musicbrainz_albumartistid
+MUSICBRAINZ_ALBUMARTISTID
 뮤직브레인즈 음반 연주자 ID
 
-musicbrainz_albumid
+MUSICBRAINZ_ALBUMID
 뮤직브레인즈 음반 ID
 
-musicbrainz_artistid
+MUSICBRAINZ_ARTISTID
 뮤직브레인즈 연주자 ID
 
-musicbrainz_releasetrackid
+MUSICBRAINZ_RELEASETRACKID
 뮤직브레인즈 발표 곡 ID
 
-musicbrainz_trackid
+MUSICBRAINZ_TRACKID
 뮤직브레인즈 곡 ID
 
-musicbrainz_workid
+MUSICBRAINZ_WORKID
 뮤직브레인즈 작품 ID
 
 myMPD is in readonly mode

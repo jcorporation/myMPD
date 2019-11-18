@@ -104,6 +104,9 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
             p_config->max_elements_per_page = 1000;
         }
     }
+    else if (MATCH("mympd", "volumestep")) {
+        p_config->volume_step = strtoimax(value, &crap, 10);
+    }
     else if (MATCH("mympd", "syscmds")) {
         p_config->syscmds = strcmp(value, "true") == 0 ? true : false;
     }
@@ -247,7 +250,8 @@ static void mympd_get_env(struct t_config *config) {
         "MYMPD_COLSSEARCH", "MYMPD_COLSBROWSEDATABASE", "MYMPD_COLSBROWSEPLAYLISTDETAIL",
         "MYMPD_COLSBROWSEFILESYSTEM", "MYMPD_COLSPLAYBACK", "MYMPD_COLSQUEUELASTPLAYED",
         "MYMPD_LOCALPLAYER", "MYMPD_LOCALPLAYERAUTOPLAY", "MYMPD_STREAMPORT",
-        "MYMPD_STREAMURL", "THEME_BGCOVER", "THEME_BGCOLOR", "THEME_BGCSSFILTER",
+        "MYMPD_STREAMURL", "MYMPD_VOLUMESTEP",
+        "THEME_BGCOVER", "THEME_BGCOLOR", "THEME_BGCSSFILTER",
         "THEME_COVERIMAGE", "THEME_COVERIMAGENAME", "THEME_COVERIMAGESIZE",
         "THEME_LOCALE", 0};
     const char** ptr = env_vars;
@@ -347,6 +351,7 @@ void mympd_config_defaults(t_config *config) {
     config->startup_time = time(NULL);
     config->readonly = false;
     config->bookmarks = true;
+    config->volume_step = 5;
     list_init(&config->syscmd_list);
 }
 

@@ -21,7 +21,7 @@ function parseFingerprint(obj) {
 
 function parseSongDetails(obj) {
     let modal = document.getElementById('modalSongDetails');
-    modal.getElementsByClassName('album-cover')[0].style.backgroundImage = 'url("' + subdir + obj.result.cover + '"), url("' + subdir + '/assets/coverimage-loading.png")';
+    modal.getElementsByClassName('album-cover')[0].style.backgroundImage = 'url("' + subdir + obj.result.cover + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
     modal.getElementsByTagName('h1')[0].innerText = obj.result.Title;
     
     let songDetails = '';
@@ -48,6 +48,7 @@ function parseSongDetails(obj) {
         songDetails += '<tr><th>' + t('Filename') + '</th><td class="breakAll"><span title="' + e(obj.result.uri) + '">' + 
             e(basename(obj.result.uri)) + '</span></td></tr>';
     }
+    songDetails += '<tr><th>' + t('Filetype') + '</th><td>' + filetype(obj.result.uri) + '</td></tr>';
     if (settings.featFingerprint === true) {
         songDetails += '<tr><th>' + t('Fingerprint') + '</th><td class="breakAll" id="fingerprint"><a class="text-success" data-uri="' + 
             encodeURI(obj.result.uri) + '" id="calcFingerprint" href="#">' + t('Calculate') + '</a></td></tr>';

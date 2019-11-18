@@ -13,6 +13,29 @@ function basename(uri) {
    return uri.split('/').reverse()[0];
 }
 
+function filetype(uri) {
+    if (uri == undefined) {
+        return '';
+    }
+    let ext = uri.split('.').pop().toUpperCase();
+    switch (ext) {
+        case 'MP3':  return ext + ' - MPEG-1 Audio Layer III';
+        case 'FLAC': return ext + ' - Free Lossless Audio Codec';
+        case 'OGG':  return ext + ' - Ogg Vorbis';
+        case 'OPUS': return ext + ' - Opus Audio';
+        case 'WAV':  return ext + ' - WAVE Audio File';
+        case 'WV':   return ext + ' - WavPack';
+        case 'AAC':  return ext + ' - Advancded Audio Coding';
+        case 'MPC':  return ext + ' - Musepack';
+        case 'MP4':  return ext + ' - MPEG-4';
+        default:     return ext;
+    }
+}
+
+function fileformat(audioformat) {
+    return audioformat.bits + t('bits') + ' - ' + audioformat.sampleRate / 1000 + t('kHz');
+}
+
 function scrollToPosY(pos) {
     document.body.scrollTop = pos; // For Safari
     document.documentElement.scrollTop = pos; // For Chrome, Firefox, IE and Opera

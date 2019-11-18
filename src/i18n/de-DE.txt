@@ -72,6 +72,18 @@ Alle Tags
 Filename
 Dateiname
 
+Filetype
+Dateityp
+
+Fileformat
+Dateiformat
+
+bits
+Bits
+
+kHz
+kHz
+
 Search queue
 Warteschlange durchsuchen
 
@@ -503,6 +515,15 @@ Ungültige Zeichen in Nachricht
 
 Reset
 Zurücksetzen
+
+Reset settings
+Einstellungen zurücksetzen
+
+Clear cache and reload
+Cache löschen und neu laden
+
+Reload
+Neu laden
 
 Shortcuts
 Tastenkombinationen
@@ -942,26 +963,29 @@ Unbekannte Tabelle %{table}
 Fingerprint command not supported
 Fingerprint Befehl ist nicht unterstützt
 
-musicbrainz_albumartistid
-MB AlbumArtist ID
+MUSICBRAINZ_ALBUMARTISTID
+Musicbrainz AlbumArtist ID
 
-musicbrainz_albumid
-MB Album ID
+MUSICBRAINZ_ALBUMID
+Musicbrainz Album ID
 
-musicbrainz_artistid
-MB Künstler ID
+MUSICBRAINZ_ARTISTID
+Musicbrainz Künstler ID
 
-musicbrainz_releasetrackid
-MB Release Track ID
+MUSICBRAINZ_RELEASETRACKID
+Musicbrainz Release Track ID
 
-musicbrainz_trackid
-MB Track ID
+MUSICBRAINZ_TRACKID
+Musicbrainz Track ID
 
-musicbrainz_workid
-MB Werk ID
+MUSICBRAINZ_WORKID
+Musicbrainz Werk ID
 
 myMPD is in readonly mode
 myMPD ist im Readonly Modus
 
 Consume must be enabled
 Konsumieren muss aktiviert sein
+
+Advanced
+Erweitert

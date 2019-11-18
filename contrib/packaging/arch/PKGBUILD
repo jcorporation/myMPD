@@ -1,13 +1,10 @@
-#
-# SPDX-License-Identifier: GPL-2.0-or-later
-# myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
-# https://github.com/jcorporation/mympd
-#
+# Maintainer: Juergen Mang <mail [at] jcgames [dot] de>
+# Website: https://github.com/jcorporation/myMPD
 # PKGBUILD Based on https://github.com/CultofRobots/archphile-custom/tree/master/mympd
 
 pkgname=mympd
 _pkgname=myMPD
-pkgver=5.7.0
+pkgver=5.7.1
 pkgrel=1
 pkgdesc="A standalone and mobile friendly web mpdclient."
 arch=('x86_64' 'armv7h' 'aarch64')
