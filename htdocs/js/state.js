@@ -282,11 +282,15 @@ function songChange(obj) {
     document.getElementById('headerTitle').innerText = pageTitle;
     document.getElementById('headerTitle').title = pageTitle;
 
-    if (obj.result.uri !== undefined && settings.featStickers === true) {
-        setVoteSongBtns(obj.result.like, obj.result.uri);
+    if (obj.result.uri !== undefined) {
+        if (settings.featStickers === true) {
+            setVoteSongBtns(obj.result.like, obj.result.uri);
+        }
+        obj.result['Filetype'] = filetype(obj.result.uri);
+    else {
+        obj.result['Filetype'] = '';
     }
-
-    obj.result['Filetype'] = filetype(obj.result.uri);
+    
     if (lastState) {
         obj.result['Fileformat'] = fileformat(lastState.audioFormat);
     }
