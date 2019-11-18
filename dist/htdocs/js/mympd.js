@@ -4017,6 +4017,7 @@ function songChange(obj) {
             setVoteSongBtns(obj.result.like, obj.result.uri);
         }
         obj.result['Filetype'] = filetype(obj.result.uri);
+    }
     else {
         obj.result['Filetype'] = '';
     }
