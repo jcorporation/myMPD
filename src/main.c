@@ -454,7 +454,7 @@ int main(int argc, char **argv) {
     sdsfree(option);
     if (init_mg_user_data == true) {
         sdsfree(mg_user_data->music_directory);
-        sdsfree(mg_user_data->pics_directory);
+        sdsfree(mg_user_data->coverimage_name);
         sdsfree(mg_user_data->rewrite_patterns);
     }
     FREE_PTR(mg_user_data);

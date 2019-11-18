@@ -10,8 +10,8 @@
 typedef struct t_mg_user_data {
     void *config; //pointer to mympd config
     sds music_directory;
-    sds pics_directory;
     sds rewrite_patterns;
+    sds coverimage_name;
     bool feat_library;
     int conn_id;
 } t_mg_user_data;

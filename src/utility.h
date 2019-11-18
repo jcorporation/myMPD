@@ -25,6 +25,7 @@ int testdir(const char *name, const char *dirname, bool create);
 int randrange(int n);
 bool validate_string(const char *data);
 int replacechar(char *str, const char orig, const char rep);
+bool validate_uri(const char *data);
 
 #define FREE_PTR(PTR) do { \
     if (PTR != NULL) \

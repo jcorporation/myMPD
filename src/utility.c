@@ -198,6 +198,13 @@ bool validate_string(const char *data) {
     return true;
 }
 
+bool validate_uri(const char *data) {
+    if (strstr(data, "..") != NULL || strchr(data, '~') != NULL) {
+        return false;
+    }
+    return true;
+}
+
 int replacechar(char *str, const char orig, const char rep) {
     char *ix = str;
     int n = 0;

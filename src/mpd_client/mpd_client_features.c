@@ -316,6 +316,7 @@ static void mpd_client_feature_music_directory(t_mpd_state *mpd_state) {
     
     sds data = sdsnew("{");
     data = tojson_char(data, "musicDirectory", mpd_state->music_directory_value, true);
+    data = tojson_char(data, "coverimageName", mpd_state->coverimage_name, true);
     data = tojson_bool(data, "featLibrary", mpd_state->feat_library, false);
     data = sdscat(data, "}");
     web_server_response->data = data;
