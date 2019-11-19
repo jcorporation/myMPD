@@ -6,5 +6,5 @@
    
 #ifndef __MAINTENANCE_H__
 #define __MAINTENANCE_H__
-void clear_covercache(t_config *config);
+int clear_covercache(t_config *config, int keepdays);
 #endif

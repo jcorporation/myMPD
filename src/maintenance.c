@@ -24,8 +24,12 @@
 #include "config_defs.h"
 #include "maintenance.h"
 
-void clear_covercache(t_config *config) {
-    time_t now = time(NULL) - config->covercache_keep_days * 24 * 60 * 60;
+int clear_covercache(t_config *config, int keepdays) {
+    int num_deleted = 0;
+    if (keepdays == -1) {
+        keepdays = config->covercache_keep_days;
+    }
+    time_t now = time(NULL) - keepdays * 24 * 60 * 60;
     
     sds covercache = sdscatfmt(sdsempty(), "%s/covercache", config->varlibdir);
     LOG_INFO("Cleaning covercache %s", covercache);
@@ -38,10 +42,13 @@ void clear_covercache(t_config *config) {
                 sds filepath = sdscatfmt(sdsempty(), "%s/%s", covercache, next_file->d_name);
                 struct stat status;
                 if (stat(filepath, &status) == 0) {
-                    LOG_DEBUG("%s: %ld\n", filepath, status.st_mtime);
                     if (status.st_mtime < now) {
+                        LOG_DEBUG("Deleting %s: %ld", filepath, status.st_mtime);
                         if (unlink(filepath) != 0) {
                             LOG_ERROR("Error deleting %s", filepath);
+                        }
+                        else {
+                            num_deleted++;
                         }
                     }
                 }
@@ -54,4 +61,5 @@ void clear_covercache(t_config *config) {
         LOG_ERROR("Error opening directory %s", covercache);
     }
     sdsfree(covercache);
+    return num_deleted;
 }
