@@ -58,6 +58,16 @@ function execSyscmd(cmd) {
 }
 
 //eslint-disable-next-line no-unused-vars
+function clearCovercache() {
+    sendAPI("MYMPD_API_COVERCACHE_CLEAR", {});
+}
+
+//eslint-disable-next-line no-unused-vars
+function cropCovercache() {
+    sendAPI("MYMPD_API_COVERCACHE_CROP", {});
+}
+
+//eslint-disable-next-line no-unused-vars
 function updateDB() {
     sendAPI("MPD_API_DATABASE_UPDATE", {});
     updateDBstarted(true);

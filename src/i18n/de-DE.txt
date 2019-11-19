@@ -989,3 +989,18 @@ Konsumieren muss aktiviert sein
 
 Advanced
 Erweitert
+
+Successfully croped covercache
+Covercache erfolgreich bereinigt
+
+Successfully cleared covercache
+Covercache erfolgreich geleert
+
+Clear covercache
+Covercache löschen
+
+Clear
+Löschen
+
+Crop
+Abschneiden

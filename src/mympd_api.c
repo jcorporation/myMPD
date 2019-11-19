@@ -29,6 +29,7 @@
 #include "config_defs.h"
 #include "global.h"
 #include "mpd_client.h"
+#include "maintenance.h"
 #include "mympd_api/mympd_api_utility.h"
 #include "mympd_api/mympd_api_settings.h"
 #include "mympd_api/mympd_api_syscmds.h"
@@ -204,6 +205,14 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             if (je == 1) {
                 data = mympd_api_bookmark_list(config, data, request->method, request->id, uint_buf1);
             }
+            break;
+        case MYMPD_API_COVERCACHE_CROP:
+            clear_covercache(config, -1);
+            data = jsonrpc_respond_message(data, request->method, request->id, "Successfully croped covercache", false);
+            break;
+        case MYMPD_API_COVERCACHE_CLEAR:
+            clear_covercache(config, 0);
+            data = jsonrpc_respond_message(data, request->method, request->id, "Successfully cleared covercache", false);
             break;
         default:
             data = jsonrpc_respond_message(data, request->method, request->id, "Unknown request", true);
