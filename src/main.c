@@ -40,6 +40,7 @@
 #include "cert.h"
 #include "handle_options.h"
 #include "plugins.h"
+#include "maintenance.h"
 
 static void mympd_signal_handler(int sig_num) {
     signal(sig_num, mympd_signal_handler);  // Reinstantiate signal handler
@@ -246,6 +247,10 @@ static bool check_dirs(t_config *config) {
     if (testdir_rc > 1) {
         sdsfree(testdirname);
         return false;
+    }
+    else if (testdir_rc == 0) {
+        //crop covercache
+        clear_covercache(config, -1);
     }
     sdsfree(testdirname);
     return true;
