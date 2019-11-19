@@ -107,6 +107,9 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("mympd", "volumestep")) {
         p_config->volume_step = strtoimax(value, &crap, 10);
     }
+    else if (MATCH("mympd", "covercachekeepdays")) {
+        p_config->covercache_keep_days = strtoimax(value, &crap, 10);
+    }    
     else if (MATCH("mympd", "syscmds")) {
         p_config->syscmds = strcmp(value, "true") == 0 ? true : false;
     }
@@ -250,7 +253,7 @@ static void mympd_get_env(struct t_config *config) {
         "MYMPD_COLSSEARCH", "MYMPD_COLSBROWSEDATABASE", "MYMPD_COLSBROWSEPLAYLISTDETAIL",
         "MYMPD_COLSBROWSEFILESYSTEM", "MYMPD_COLSPLAYBACK", "MYMPD_COLSQUEUELASTPLAYED",
         "MYMPD_LOCALPLAYER", "MYMPD_LOCALPLAYERAUTOPLAY", "MYMPD_STREAMPORT",
-        "MYMPD_STREAMURL", "MYMPD_VOLUMESTEP",
+        "MYMPD_STREAMURL", "MYMPD_VOLUMESTEP", "MYMPD_COVERCACHEKEEPDAYS",
         "THEME_BGCOVER", "THEME_BGCOLOR", "THEME_BGCSSFILTER",
         "THEME_COVERIMAGE", "THEME_COVERIMAGENAME", "THEME_COVERIMAGESIZE",
         "THEME_LOCALE", 0};
@@ -352,6 +355,7 @@ void mympd_config_defaults(t_config *config) {
     config->readonly = false;
     config->bookmarks = true;
     config->volume_step = 5;
+    config->covercache_keep_days = 7;
     list_init(&config->syscmd_list);
 }
 

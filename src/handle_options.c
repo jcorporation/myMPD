@@ -24,11 +24,11 @@
 #include "mympd_api/mympd_api_settings.h"
 #include "cert.h"
 #include "utility.h"
+#include "maintenance.h"
 #include "handle_options.h"
 
 //private function definitions
 static bool smartpls_init(t_config *config, const char *name, const char *value);
-static void clear_covercache(t_config *config);
 
 //global functions
 bool smartpls_default(t_config *config) {
@@ -145,27 +145,4 @@ static bool smartpls_init(t_config *config, const char *name, const char *value)
     sdsfree(tmp_file);
     sdsfree(cfg_file);
     return true;
-}
-
-static void clear_covercache(t_config *config) {
-    sds covercache = sdscatfmt(sdsempty(), "%s/covercache", config->varlibdir);
-    LOG_INFO("Cleaning covercache %s", covercache);
-    DIR *covercache_dir = opendir(covercache);
-    if (covercache_dir != NULL) {
-        struct dirent *next_file;
-        while ( (next_file = readdir(covercache_dir)) != NULL ) {
-            if (strncmp(next_file->d_name, ".", 1) != 0) {
-                sds filepath = sdscatfmt(sdsempty(), "%s/%s", covercache, next_file->d_name);
-                if (unlink(filepath) != 0) {
-                    LOG_ERROR("Error deleting %s", filepath);
-                }
-                sdsfree(filepath);
-            }
-        }
-        closedir(covercache_dir);
-    }
-    else {
-        LOG_ERROR("Error opening directory %s", covercache);
-    }
-    sdsfree(covercache);
 }

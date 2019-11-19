@@ -127,6 +127,7 @@ set(SOURCES
     src/log.c
     src/config.c
     src/handle_options.c
+    src/maintenance.c
     src/utility.c
     src/plugins.c
     src/sds_extras.c
