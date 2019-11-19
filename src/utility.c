@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <dirent.h>
+#include <unistd.h>
 #include <sys/stat.h>
 #include <ctype.h>
 
@@ -199,7 +200,7 @@ bool validate_string(const char *data) {
 }
 
 bool validate_uri(const char *data) {
-    if (strstr(data, "..") != NULL || strchr(data, '~') != NULL) {
+    if (strstr(data, "/../") != NULL) {
         return false;
     }
     return true;
@@ -213,4 +214,49 @@ int replacechar(char *str, const char orig, const char rep) {
         n++;
     }
     return n;
+}
+
+const struct mime_type_entry image_files[] = {
+    {"png",  "image/png",                ""},
+    {"jpg",  "image/jpeg",               ""},
+    {"jpeg", "image/jpeg",               ""},
+    {"svg",  "image/svg+xml",            ""},
+    {"tiff", "image/tiff",               ""},
+    {"bmp",  "image/x-ms-bmp",           ""},
+    {NULL,   "application/octet-stream", NULL}
+};
+
+sds find_image_file(sds basefilename) {
+    const struct mime_type_entry *p = NULL;
+    for (p = image_files; p->extension != NULL; p++) {
+        sds testfilename = sdscatfmt(sdsempty(), "%s.%s", basefilename, p->extension);
+        if (access(testfilename, F_OK) == 0) { /* Flawfinder: ignore */
+            sdsfree(testfilename);
+            break;
+        }
+        sdsfree(testfilename);
+    }
+    if (p->extension != NULL) {
+        basefilename = sdscatfmt(basefilename, ".%s", p->extension);
+    }
+    else {
+        basefilename = sdscrop(basefilename);
+    }
+    return basefilename;
+}
+
+sds get_mime_type_by_ext(const char *filename) {
+    const char *ext = strrchr(filename, '.');
+    if (ext == NULL) {
+        return NULL;
+    }
+
+    const struct mime_type_entry *p = NULL;
+    for (p = image_files; p->extension != NULL; p++) {
+        if (strcmp(ext, p->extension) == 0) {
+            break;
+        }
+    }
+    sds mime_type = sdsnew(p->mime_type);
+    return mime_type;
 }

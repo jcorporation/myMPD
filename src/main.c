@@ -200,6 +200,7 @@ static bool check_dirs(t_config *config) {
     }
     #endif
 
+    //smart playlists
     sds testdirname = sdscatfmt(sdsempty(), "%s/smartpls", config->varlibdir);
     testdir_rc = testdir("Smartpls dir", testdirname, true);
     if (testdir_rc == 1) {
@@ -211,6 +212,7 @@ static bool check_dirs(t_config *config) {
         return false;
     }
 
+    //state directory
     testdirname = sdscrop(testdirname);
     testdirname = sdscatfmt(testdirname, "%s/state", config->varlibdir);
     testdir_rc = testdir("State dir", testdirname, true);
@@ -219,6 +221,7 @@ static bool check_dirs(t_config *config) {
         return false;
     }
     
+    //for stream images
     testdirname = sdscrop(testdirname);
     testdirname = sdscatfmt(testdirname, "%s/pics", config->varlibdir);
     testdir_rc = testdir("Pics dir", testdirname, true);
@@ -235,15 +238,14 @@ static bool check_dirs(t_config *config) {
         sdsfree(testdirname);
         return false;
     }
-    
-    if (config->plugins_coverextract == true) {
-        testdirname = sdscrop(testdirname);
-        testdirname = sdscatfmt(testdirname, "%s/covercache", config->varlibdir);
-        testdir_rc = testdir("Covercache dir", testdirname, true);
-        if (testdir_rc > 1) {
-            sdsfree(testdirname);
-            return false;
-        }
+
+    //covercache for coverextract and mpd coverhandling    
+    testdirname = sdscrop(testdirname);
+    testdirname = sdscatfmt(testdirname, "%s/covercache", config->varlibdir);
+    testdir_rc = testdir("Covercache dir", testdirname, true);
+    if (testdir_rc > 1) {
+        sdsfree(testdirname);
+        return false;
     }
     sdsfree(testdirname);
     return true;

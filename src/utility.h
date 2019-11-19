@@ -26,11 +26,19 @@ int randrange(int n);
 bool validate_string(const char *data);
 int replacechar(char *str, const char orig, const char rep);
 bool validate_uri(const char *data);
+sds find_image_file(sds basefilename);
+sds get_mime_type_by_ext(const char *filename);
 
 #define FREE_PTR(PTR) do { \
     if (PTR != NULL) \
         free(PTR); \
     PTR = NULL; \
 } while (0)
+
+struct mime_type_entry {
+    const char *extension;
+    const char *mime_type;
+    const char *magic_bytes;
+};
 
 #endif

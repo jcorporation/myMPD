@@ -13,6 +13,7 @@ typedef struct t_mg_user_data {
     sds rewrite_patterns;
     sds coverimage_name;
     bool feat_library;
+    bool feat_mpd_albumart;
     int conn_id;
 } t_mg_user_data;
 

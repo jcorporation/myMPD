@@ -81,6 +81,7 @@ bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_da
     mg_user_data->coverimage_name = sdsdup(config->coverimage_name);
     mg_user_data->conn_id = 1;
     mg_user_data->feat_library = false;
+    mg_user_data->feat_mpd_albumart = false;
     
     //init monogoose mgr with mg_user_data
     mg_mgr_init(mgr, mg_user_data);
@@ -161,11 +162,14 @@ static bool parse_internal_message(t_work_result *response, t_mg_user_data *mg_u
     char *p_charbuf1 = NULL;
     char *p_charbuf2 = NULL;
     bool feat_library;
-    int je = json_scanf(response->data, sdslen(response->data), "{musicDirectory: %Q, coverimageName: %Q, featLibrary: %B}", &p_charbuf1, &p_charbuf2, &feat_library);
-    if (je == 3) {
+    bool feat_mpd_albumart;
+    int je = json_scanf(response->data, sdslen(response->data), "{musicDirectory: %Q, coverimageName: %Q, featLibrary: %B, featMpdAlbumart: %B}", 
+        &p_charbuf1, &p_charbuf2, &feat_library, &feat_mpd_albumart);
+    if (je == 4) {
         mg_user_data->music_directory = sdsreplace(mg_user_data->music_directory, p_charbuf1);
         mg_user_data->coverimage_name = sdsreplace(mg_user_data->coverimage_name, p_charbuf2);
         mg_user_data->feat_library = feat_library;
+        mg_user_data->feat_mpd_albumart = feat_mpd_albumart;
         mg_user_data->rewrite_patterns = sdscrop(mg_user_data->rewrite_patterns);
         if (feat_library == true) {
             mg_user_data->rewrite_patterns = sdscatfmt(mg_user_data->rewrite_patterns, "/library/=%s", mg_user_data->music_directory);
@@ -458,8 +462,7 @@ static bool handle_albumart(struct mg_connection *nc, struct http_message *hm, t
     }
     if (validate_uri(uri_decoded) == false) {
         LOG_ERROR("Invalid uri: %s", uri_decoded);
-        mg_printf(nc, "%s", "HTTP/1.1 403 FORBIDDEN\r\n\r\n");
-        nc->flags |= MG_F_SEND_AND_CLOSE;
+        serve_na_image(nc, hm);
         sdsfree(uri_decoded);
         return true;
     }
@@ -476,22 +479,44 @@ static bool handle_albumart(struct mg_connection *nc, struct http_message *hm, t
         replacechar(name, '/', '_');
         replacechar(name, '.', '_');
         replacechar(name, ':', '_');
-        sds coverfile = sdscatfmt(sdsempty(), "%s/pics/%s.png", config->varlibdir, name);
+        sds coverfile = sdscatfmt(sdsempty(), "%s/pics/%s", config->varlibdir, name);
         LOG_DEBUG("Check for stream cover %s", coverfile);
-        if (access(coverfile, F_OK ) == 0) { /* Flawfinder: ignore */
-            LOG_DEBUG("Serving file %s (%s)", coverfile, "image/png");
-            mg_http_serve_file(nc, hm, coverfile, mg_mk_str("image/png"), mg_mk_str(""));
+        coverfile = find_image_file(coverfile);
+        sds mime_type = get_mime_type_by_ext(coverfile);
+        if (sdslen(coverfile) > 0) {
+            LOG_DEBUG("Serving file %s (%s)", coverfile, mime_type);
+            mg_http_serve_file(nc, hm, coverfile, mg_mk_str(mime_type), mg_mk_str(""));
         }
         else {
             serve_stream_image(nc, hm);
         }
         sdsfree(coverfile);
+        sdsfree(mime_type);
         sdsfree(uri_decoded);
         return true;
     }
+    //remove /albumart/
     sdsrange(uri_decoded, 10, -1);
+    //create absolute file
     sds mediafile = sdscatfmt(sdsempty(), "%s/%s", mg_user_data->music_directory, uri_decoded);
     LOG_DEBUG("Absolut media_file: %s", mediafile);
+    //check covercache
+    sds covercachefile = sdscatfmt(sdsempty(), "%s/covercache/%s", config->varlibdir, uri_decoded);
+    replacechar(covercachefile, '/', '_');
+    covercachefile = find_image_file(covercachefile);
+    sds mime_type = get_mime_type_by_ext(covercachefile);
+    if (sdslen(covercachefile) > 0) {
+        LOG_DEBUG("Serving file %s (%s)", covercachefile, mime_type);
+        mg_http_serve_file(nc, hm, covercachefile, mg_mk_str(mime_type), mg_mk_str(""));
+        sdsfree(uri_decoded);
+        sdsfree(covercachefile);
+        sdsfree(mediafile);
+        sdsfree(mime_type);
+        return true;
+    }
+    sdsfree(mime_type);
+    sdsfree(covercachefile);
+    //check music_directory folder
     if (mg_user_data->feat_library == true && access(mediafile, F_OK) == 0) {
         //try image in folder under music_directory
         char *path = uri_decoded;
@@ -508,7 +533,7 @@ static bool handle_albumart(struct mg_connection *nc, struct http_message *hm, t
             return true;
         }
         sdsfree(coverfile);
-        //try embedded coverextract plugin
+        //try coverextract plugin
         if (config->plugins_coverextract == true) {
             LOG_DEBUG("Exctracting coverimage from %s/%s", mg_user_data->music_directory, mediafile);
             bool rc = handle_coverextract(nc, hm, config, uri_decoded);
@@ -519,17 +544,9 @@ static bool handle_albumart(struct mg_connection *nc, struct http_message *hm, t
             }
         }
     }
-    else if (mg_user_data->feat_library == true) {
-        //file not found
-        LOG_ERROR("Uri not found: %s", uri_decoded);    
-        mg_printf(nc, "%s", "HTTP/1.1 404 NOT FOUND\r\n\r\n");
-        nc->flags |= MG_F_SEND_AND_CLOSE;
-        sdsfree(uri_decoded);
-        sdsfree(mediafile);
-        return true;
-    }
-    else {
-        //todo: ask mpd
+    //ask mpd
+    else if (mg_user_data->feat_library == false && mg_user_data->feat_mpd_albumart == true) {
+        LOG_DEBUG("Sending getalbumart to mpd_client_queue");
 /*
     t_work_request *request = (t_work_request*)malloc(sizeof(t_work_request));
     assert(request);
@@ -539,11 +556,14 @@ static bool handle_albumart(struct mg_connection *nc, struct http_message *hm, t
     request->method = sdscat(sdsempty(), cmd);
     request->data = sdscatlen(sdsempty(), request_body, request_len);
     tiny_queue_push(mpd_client_queue, request);
+    sdsfree(mediafile);
+    sdsfree(uri_decoded);
     return false;
 */
     }
     (void) conn_id;
 
+    LOG_VERBOSE("No coverimage found for %s", mediafile);
     sdsfree(mediafile);
     sdsfree(uri_decoded);
     serve_na_image(nc, hm);
@@ -551,8 +571,6 @@ static bool handle_albumart(struct mg_connection *nc, struct http_message *hm, t
 }
 
 static bool handle_coverextract(struct mg_connection *nc, struct http_message *hm, t_config *config, sds media_file) {
-    
-                
     size_t image_mime_type_len = 100;
     char image_mime_type[image_mime_type_len]; /* Flawfinder: ignore */
     size_t image_file_len = 1500;
