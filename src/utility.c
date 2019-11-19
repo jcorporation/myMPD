@@ -248,7 +248,7 @@ sds find_image_file(sds basefilename) {
 sds get_mime_type_by_ext(const char *filename) {
     const char *ext = strrchr(filename, '.');
     if (ext == NULL) {
-        return NULL;
+        return sdsempty();
     }
 
     const struct mime_type_entry *p = NULL;
