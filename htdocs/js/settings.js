@@ -204,11 +204,13 @@ function parseSettings() {
             readonlyEls[i].classList.remove('hide');
         }
     }
-    if (settings.readonly == true) {
+    if (settings.readonly === true) {
         document.getElementById('btnBookmarks').setAttribute('disabled', 'disabled');
+        document.getElementsByClassName('groupClearCovercache')[0].classList.add('hide');
     }
     else {
         document.getElementById('btnBookmarks').removeAttribute('disabled');
+        document.getElementsByClassName('groupClearCovercache')[0].classList.remove('hide');
     }
 
     if (settings.featSyscmds) {
