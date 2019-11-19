@@ -281,7 +281,6 @@ int main(int argc, char **argv) {
     //create mg_user_data struct for web_server
     t_mg_user_data *mg_user_data = (t_mg_user_data *)malloc(sizeof(t_mg_user_data));
     assert(mg_user_data);
-    init_mg_user_data = true;
 
     //initialize random number generator
     srand((unsigned int)time(NULL)); /* Flawfinder: ignore */
