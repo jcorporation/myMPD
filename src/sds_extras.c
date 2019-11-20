@@ -93,11 +93,6 @@ sds sdscrop(sds s) {
     if (s == NULL) {
         return sdsempty();
     }
-    else if (sdslen(s) > 0) {
-        sdsfree(s);
-        return sdsempty();
-    }
-    else {
-        return s;
-    }
+    sdsclear(s);
+    return s;
 }
