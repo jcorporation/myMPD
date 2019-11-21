@@ -70,6 +70,9 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("webserver", "sslsan")) {
         p_config->ssl_san = sdsreplace(p_config->ssl_san, value);
     }
+    else if (MATCH("webserver", "publishlibrary")) {
+        p_config->publish_library = strcmp(value, "true") == 0 ? true : false;
+    }
     else if (MATCH("mympd", "user")) {
         p_config->user = sdsreplace(p_config->user, value);
     }
@@ -243,7 +246,7 @@ static void mympd_parse_env(struct t_config *config, const char *envvar) {
 static void mympd_get_env(struct t_config *config) {
     const char *env_vars[]={"MPD_HOST", "MPD_PORT", "MPD_PASS", "MPD_MUSICDIRECTORY",
         "WEBSERVER_WEBPORT", "WEBSERVER_SSL", "WEBSERVER_SSLPORT", "WEBSERVER_SSLCERT", "WEBSERVER_SSLKEY",
-        "WEBSERVER_SSLSAN",
+        "WEBSERVER_SSLSAN", "WEBSERVER_PUBLISHLIBRARY",
         "MYMPD_LOGLEVEL", "MYMPD_USER", "MYMPD_VARLIBDIR", "MYMPD_MIXRAMP", "MYMPD_STICKERS", "MYMPD_TAGLIST", 
         "MYMPD_SEARCHTAGLIST", "MYMPD_BROWSETAGLIST", "MYMPD_SMARTPLS", "MYMPD_SYSCMDS", 
         "MYMPD_PAGINATION", "MYMPD_LASTPLAYEDCOUNT", "MYMPD_LOVE", "MYMPD_LOVECHANNEL", "MYMPD_LOVEMESSAGE",
@@ -356,6 +359,7 @@ void mympd_config_defaults(t_config *config) {
     config->bookmarks = true;
     config->volume_step = 5;
     config->covercache_keep_days = 7;
+    config->publish_library = true;
     list_init(&config->syscmd_list);
 }
 

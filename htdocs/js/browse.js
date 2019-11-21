@@ -245,8 +245,8 @@ function parseListTitles(obj) {
         navigateTable(this, event.key);
     }, false);
     let img = card.getElementsByTagName('a')[0];
-    if (img) {
-        img.style.backgroundImage = 'url("' + subdir + obj.result.cover + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
+    if (img && obj.result.data.length > 0) {
+        img.style.backgroundImage = 'url("' + subdir + obj.result.data[0].uri + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
         img.setAttribute('data-uri', encodeURI(obj.result.data[0].uri.replace(/\/[^/]+$/, '')));
         img.setAttribute('data-name', obj.result.Album);
         img.setAttribute('data-type', 'dir');

@@ -105,6 +105,7 @@ typedef struct t_config {
     bool bookmarks;
     int volume_step;
     int covercache_keep_days;
+    bool publish_library;
     //system commands
     struct list syscmd_list;
 } t_config;

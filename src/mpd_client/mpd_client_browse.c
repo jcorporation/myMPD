@@ -46,7 +46,7 @@ sds mpd_client_put_fingerprint(t_mpd_state *mpd_state, sds buffer, sds method, i
     return buffer;
 }
 
-sds mpd_client_put_songdetails(t_config *config, t_mpd_state *mpd_state, sds buffer, sds method, int request_id, 
+sds mpd_client_put_songdetails(t_mpd_state *mpd_state, sds buffer, sds method, int request_id, 
                                const char *uri)
 {
     buffer = jsonrpc_start_result(buffer, method, request_id);
@@ -68,12 +68,6 @@ sds mpd_client_put_songdetails(t_config *config, t_mpd_state *mpd_state, sds buf
     }
     mpd_response_finish(mpd_state->conn);
     
-    sds cover = sdsempty();
-    cover = mpd_client_get_cover(config, mpd_state, uri, cover);
-    buffer = sdscat(buffer, ",");
-    buffer = tojson_char(buffer, "cover", cover, false);
-    sdsfree(cover);
-
     if (mpd_state->feat_sticker) {
         t_sticker *sticker = (t_sticker *) malloc(sizeof(t_sticker));
         assert(sticker);
@@ -261,7 +255,7 @@ sds mpd_client_put_db_tag(t_mpd_state *mpd_state, sds buffer, sds method, int re
     return buffer;
 }
 
-sds mpd_client_put_songs_in_album(t_config *config, t_mpd_state *mpd_state, sds buffer, sds method, int request_id,
+sds mpd_client_put_songs_in_album(t_mpd_state *mpd_state, sds buffer, sds method, int request_id,
                                   const char *album, const char *search, const char *tag, const t_tags *tagcols)
 {
     buffer = jsonrpc_start_result(buffer, method, request_id);
@@ -307,14 +301,9 @@ sds mpd_client_put_songs_in_album(t_config *config, t_mpd_state *mpd_state, sds 
     }
     mpd_response_finish(mpd_state->conn);
 
-    sds cover = sdsempty();
     char *albumartist = NULL;
     if (first_song != NULL) {
-        cover = mpd_client_get_cover(config, mpd_state, mpd_song_get_uri(first_song), cover);
         albumartist = mpd_client_get_tag(first_song, MPD_TAG_ALBUM_ARTIST);
-    }
-    else {
-        cover = sdscat(cover, "/assets/coverimage-notavailable.svg");
     }
 
     buffer = sdscat(buffer, "],");
@@ -323,12 +312,10 @@ sds mpd_client_put_songs_in_album(t_config *config, t_mpd_state *mpd_state, sds 
     buffer = tojson_char(buffer, "Album", album, true);
     buffer = tojson_char(buffer, "search", search, true);
     buffer = tojson_char(buffer, "tag", tag, true);
-    buffer = tojson_char(buffer, "cover", cover, true);
     buffer = tojson_char(buffer, "AlbumArtist", (albumartist != NULL ? albumartist : "-"), true);
     buffer = tojson_long(buffer, "totalTime", totalTime, false);
     buffer = jsonrpc_end_result(buffer);
         
-    sdsfree(cover);
     if (first_song != NULL) {
         mpd_song_free(first_song);
     }

@@ -305,13 +305,13 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
             break;
         }
         case MPD_API_PLAYER_CURRENT_SONG: {
-            data = mpd_client_put_current_song(config, mpd_state, data, request->method, request->id);
+            data = mpd_client_put_current_song(mpd_state, data, request->method, request->id);
             break;
         }
         case MPD_API_DATABASE_SONGDETAILS:
             je = json_scanf(request->data, sdslen(request->data), "{params: { uri: %Q}}", &p_charbuf1);
             if (je == 1) {
-                data = mpd_client_put_songdetails(config, mpd_state, data, request->method, request->id, p_charbuf1);
+                data = mpd_client_put_songdetails(mpd_state, data, request->method, request->id, p_charbuf1);
             }
             break;
         case MPD_API_DATABASE_FINGERPRINT:
@@ -344,7 +344,7 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
             je = json_scanf(request->data, sdslen(request->data), "{params: {album: %Q, search: %Q, tag: %Q, cols: %M}}", 
                 &p_charbuf1, &p_charbuf2, &p_charbuf3, json_to_tags, tagcols);
             if (je == 4) {
-                data = mpd_client_put_songs_in_album(config, mpd_state, data, request->method, request->id, p_charbuf1, p_charbuf2, p_charbuf3, tagcols);
+                data = mpd_client_put_songs_in_album(mpd_state, data, request->method, request->id, p_charbuf1, p_charbuf2, p_charbuf3, tagcols);
             }
             free(tagcols);
             break;

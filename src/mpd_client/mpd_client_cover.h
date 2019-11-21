@@ -4,7 +4,7 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __COVER_H__
-#define __COVER_H__
-sds mpd_client_get_cover(t_config *config, t_mpd_state *mpd_state, const char *uri, sds cover);
+#ifndef __MPD_CLIENT_COVER_H__
+#define __MPD_CLIENT_COVER_H__
+
 #endif

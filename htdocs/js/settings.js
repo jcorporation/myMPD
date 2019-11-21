@@ -415,15 +415,7 @@ function parseMPDSettings() {
     }
 
     if (settings.bgCover === true && settings.featCoverimage === true && settings.coverimage === true) {
-        if (lastSongObj.cover && lastSongObj.cover.indexOf('coverimage-') > -1 ) {
-            clearBackgroundImage();
-        }
-        else if (lastSongObj.cover) {
-             setBackgroundImage(lastSongObj.cover);
-        }
-        else {
-            clearBackgroundImage();
-        }
+        setBackgroundImage(lastSongObj.uri);
     }
     else {
         clearBackgroundImage();
