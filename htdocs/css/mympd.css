@@ -300,6 +300,10 @@ small {
   margin-bottom: 0;
 }
 
+.btnCleanup {
+  min-width: 8rem;
+}
+
 .progressBarPlay {
   font-size: 1.8rem;
 }
