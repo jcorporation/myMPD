@@ -495,16 +495,17 @@ static bool handle_albumart(struct mg_connection *nc, struct http_message *hm, t
         sds coverfile = sdscatfmt(sdsempty(), "%s/pics/%s", config->varlibdir, name);
         LOG_DEBUG("Check for stream cover %s", coverfile);
         coverfile = find_image_file(coverfile);
-        sds mime_type = get_mime_type_by_ext(coverfile);
+        
         if (sdslen(coverfile) > 0) {
+            sds mime_type = get_mime_type_by_ext(coverfile);
             LOG_DEBUG("Serving file %s (%s)", coverfile, mime_type);
             mg_http_serve_file(nc, hm, coverfile, mg_mk_str(mime_type), mg_mk_str(""));
+            sdsfree(mime_type);
         }
         else {
             serve_stream_image(nc, hm);
         }
         sdsfree(coverfile);
-        sdsfree(mime_type);
         sdsfree(uri_decoded);
         return true;
     }
@@ -517,8 +518,8 @@ static bool handle_albumart(struct mg_connection *nc, struct http_message *hm, t
     sds covercachefile = sdscatfmt(sdsempty(), "%s/covercache/%s", config->varlibdir, uri_decoded);
     replacechar(covercachefile, '/', '_');
     covercachefile = find_image_file(covercachefile);
-    sds mime_type = get_mime_type_by_ext(covercachefile);
     if (sdslen(covercachefile) > 0) {
+        sds mime_type = get_mime_type_by_ext(covercachefile);
         LOG_DEBUG("Serving file %s (%s)", covercachefile, mime_type);
         mg_http_serve_file(nc, hm, covercachefile, mg_mk_str(mime_type), mg_mk_str(""));
         sdsfree(uri_decoded);
@@ -527,8 +528,9 @@ static bool handle_albumart(struct mg_connection *nc, struct http_message *hm, t
         sdsfree(mime_type);
         return true;
     }
-    sdsfree(mime_type);
-    sdsfree(covercachefile);
+    else {
+        sdsfree(covercachefile);
+    }
     //check music_directory folder
     if (mg_user_data->feat_library == true && access(mediafile, F_OK) == 0) {
         //try image in folder under music_directory
