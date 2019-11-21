@@ -51,16 +51,9 @@ static bool serve_embedded_files(struct mg_connection *nc, sds uri, struct http_
     //decode uri
     sds uri_decoded = sdsurldecode(sdsempty(), uri, sdslen(uri), 0);
     if (sdslen(uri_decoded) == 0) {
-        LOG_ERROR("Failed to decode uri");
-        mg_printf(nc, "%s", "HTTP/1.1 500 INTERNAL SERVER ERROR\r\n\r\n");
-        nc->flags |= MG_F_SEND_AND_CLOSE;
+        send_error(nc, 500, "Failed to decode uri");
         sdsfree(uri_decoded);
         return false;
-    }
-    //set index.html as directory index
-    if (strcmp(uri_decoded, "/index.html") == 0) {
-        sdsrange(uri_decoded, 0, 0);
-        LOG_DEBUG("Set uri to %s", uri_decoded);
     }
     //find fileinfo
     const struct embedded_file *p = NULL;
@@ -76,9 +69,7 @@ static bool serve_embedded_files(struct mg_connection *nc, sds uri, struct http_
         if (p->compressed == true) {
             struct mg_str *header_encoding = mg_get_http_header(hm, "Accept-Encoding");
             if (header_encoding == NULL || mg_strstr(mg_mk_str_n(header_encoding->p, header_encoding->len), mg_mk_str("gzip")) == NULL) {
-                mg_printf(nc, "%s", "HTTP/1.1 406 BROWSER DONT SUPPORT GZIP COMPRESSION\r\n\r\n");
-                nc->flags |= MG_F_SEND_AND_CLOSE;
-                LOG_ERROR("Browser don't support gzip compression");
+                send_error(nc, 406, "Browser don't support gzip compression");
                 return false;
             }
         }
@@ -98,9 +89,9 @@ static bool serve_embedded_files(struct mg_connection *nc, sds uri, struct http_
         return true;
     }
     else {
-        LOG_ERROR("Embedded asset %s not found", uri);
-        mg_printf(nc, "%s", "HTTP/1.1 404 NOT FOUND\r\n\r\n");
-        nc->flags |= MG_F_SEND_AND_CLOSE;
+        sds errormsg = sdscatfmt(sdsempty(), "Embedded asset %s not found", uri);
+        send_error(nc, 404, errormsg);
+        sdsfree(errormsg);
     }
     return false;
 }

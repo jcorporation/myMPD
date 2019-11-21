@@ -51,7 +51,6 @@
 
 //private definitions
 static bool parse_internal_message(t_work_result *response, t_mg_user_data *mg_user_data);
-static int has_prefix(const struct mg_str *uri, const struct mg_str *prefix);
 static int is_websocket(const struct mg_connection *nc);
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data);
 static void ev_handler_redirect(struct mg_connection *nc_http, int ev, void *ev_data);
@@ -63,6 +62,7 @@ static bool handle_albumart(struct mg_connection *nc, struct http_message *hm, t
 static void serve_na_image(struct mg_connection *nc, struct http_message *hm);
 static void serve_stream_image(struct mg_connection *nc, struct http_message *hm);
 static void serve_asset_image(struct mg_connection *nc, struct http_message *hm, const char *name);
+static void send_error(struct mg_connection *nc, int code, const char *msg);
 
 //public functions
 bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_data) {
@@ -219,7 +219,7 @@ static void send_api_response(struct mg_mgr *mgr, t_work_result *response) {
             if ((intptr_t)nc->user_data == response->conn_id) {
                 LOG_DEBUG("Sending response to conn_id %d: %s", (intptr_t)nc->user_data, response->data);
                 mg_send_head(nc, 200, sdslen(response->data), "Content-Type: application/json");
-                mg_printf(nc, "%.*s", (int)sdslen(response->data), response->data);
+                mg_send(nc, response->data, sdslen(response->data));
                 break;
             }
         }
@@ -231,8 +231,18 @@ static void send_api_response(struct mg_mgr *mgr, t_work_result *response) {
     FREE_PTR(response);
 }
 
-static int has_prefix(const struct mg_str *uri, const struct mg_str *prefix) {
-  return uri->len > prefix->len && memcmp(uri->p, prefix->p, prefix->len) == 0;
+static void send_error(struct mg_connection *nc, int code, const char *msg) {
+    sds errorpage = sdscatfmt(sdsempty(), "<html><head><title>myMPD error</title></head><body>"
+        "<h1>myMPD error</h1>"
+        "<p>%s</p>"
+        "</body></html>",
+        msg);
+    mg_send_head(nc, code, sdslen(errorpage), "Content-Type: text/html");
+    mg_send(nc, errorpage, sdslen(errorpage));
+    sdsfree(errorpage);
+    if (code >= 400) {
+        LOG_ERROR(msg);
+    }
 }
 
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
@@ -257,9 +267,8 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             struct http_message *hm = (struct http_message *) ev_data;
             LOG_VERBOSE("New websocket request (%d): %.*s", (intptr_t)nc->user_data, (int)hm->uri.len, hm->uri.p);
             if (mg_vcmp(&hm->uri, "/ws/") != 0) {
-                LOG_ERROR("Websocket request not to /ws/, closing connection");
-                mg_printf(nc, "%s", "HTTP/1.1 403 FORBIDDEN\r\n\r\n");
                 nc->flags |= MG_F_SEND_AND_CLOSE;
+                send_error(nc, 403, "Websocket request not to /ws/, closing connection");
             }
             break;
         }
@@ -285,7 +294,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                     sds method = sdsempty();
                     sds response = jsonrpc_respond_message(sdsempty(), method, 0, "Invalid API request", true);
                     mg_send_head(nc, 200, sdslen(response), "Content-Type: application/json");
-                    mg_printf(nc, "%s", response);
+                    mg_send(nc, response, sdslen(response));
                     sdsfree(response);
                     sdsfree(method);
                 }
@@ -298,30 +307,34 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                     sdsfree(ca_file);
                 }
                 else {
-                    LOG_ERROR("Custom cert enabled, don't deliver myMPD ca");
-                    mg_printf(nc, "%s", "HTTP/1.1 404 NOT FOUND\r\n\r\n");
-                    nc->flags |= MG_F_SEND_AND_CLOSE;
+                    send_error(nc, 404, "Custom cert enabled, don't deliver myMPD ca");
                 }
             }
-            else if (has_prefix(&hm->uri, &albumart_prefix)) {
+            else if (mg_str_starts_with(hm->uri, albumart_prefix) == 1) {
                 handle_albumart(nc, hm, mg_user_data, config, (intptr_t)nc->user_data);
             }
-            else if (has_prefix(&hm->uri, &library_prefix)) {
-                static struct mg_serve_http_opts s_http_server_opts;
-                s_http_server_opts.document_root = DOC_ROOT;
-                s_http_server_opts.url_rewrites = mg_user_data->rewrite_patterns;
-                s_http_server_opts.enable_directory_listing = "yes";
-                s_http_server_opts.extra_headers = EXTRA_HEADERS_DIR;
-
-                if (mg_user_data->feat_library == true) {
+            else if (mg_str_starts_with(hm->uri, library_prefix) == 1) {
+                if (config->publish_library == false) {
+                    send_error(nc, 403, "Publishing of music directory is disabled");
+                }
+                else if (mg_user_data->feat_library == true) {
                     //serve directory
+                    static struct mg_serve_http_opts s_http_server_opts;
+                    s_http_server_opts.document_root = DOC_ROOT;
+                    s_http_server_opts.url_rewrites = mg_user_data->rewrite_patterns;
+                    s_http_server_opts.enable_directory_listing = "yes";
+                    s_http_server_opts.extra_headers = EXTRA_HEADERS_DIR;
                     mg_serve_http(nc, hm, s_http_server_opts);
                 }
                 else {
-                    LOG_ERROR("Unknown music_directory");
-                    mg_printf(nc, "%s", "HTTP/1.1 404 NOT FOUND\r\n\r\n");   
-                    nc->flags |= MG_F_SEND_AND_CLOSE;
+                    send_error(nc, 404, "Unknown music_directory");
                 }
+            }
+            else if (mg_vcmp(&hm->uri, "/index.html") == 0) {
+                mg_http_send_redirect(nc, 301, mg_mk_str("/"), mg_mk_str(NULL));
+            }
+            else if (mg_vcmp(&hm->uri, "/favicon.ico") == 0) {
+                mg_http_send_redirect(nc, 301, mg_mk_str("/assets/favicon.ico"), mg_mk_str(NULL));
             }
             else {
                 //all other uris
