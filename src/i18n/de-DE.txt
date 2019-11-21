@@ -573,6 +573,9 @@ Protokoll Version
 Libmpdclient version
 Libmpdclient Version
 
+Libmympdclient version
+Libmympdclient Version
+
 Shortcut
 Tastenkürzel
 

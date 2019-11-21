@@ -320,6 +320,9 @@ int main(int argc, char **argv) {
 
     LOG_INFO("Starting myMPD %s", MYMPD_VERSION);
     LOG_INFO("Libmpdclient %i.%i.%i", LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION);
+    #ifdef EMBEDDED_LIBMPDCLIENT
+        LOG_INFO("Libmympdclient %i.%i.%i", LIBMYMPDCLIENT_MAJOR_VERSION, LIBMYMPDCLIENT_MINOR_VERSION, LIBMYMPDCLIENT_PATCH_VERSION);
+    #endif
     LOG_INFO("Mongoose %s", MG_VERSION);
     
     if (mympd_read_config(config, configfile) == false) {
@@ -328,9 +331,9 @@ int main(int argc, char **argv) {
 
     //set loglevel
     #ifdef DEBUG
-    set_loglevel(4);
+        set_loglevel(4);
     #else
-    set_loglevel(config->loglevel);
+        set_loglevel(config->loglevel);
     #endif
 
     //check varlibdir

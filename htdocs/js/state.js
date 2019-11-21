@@ -17,6 +17,13 @@ function parseStats(obj) {
     document.getElementById('mympdVersion').innerText = obj.result.mympdVersion;
     document.getElementById('mpdInfo_version').innerText = obj.result.mpdVersion;
     document.getElementById('mpdInfo_libmpdclientVersion').innerText = obj.result.libmpdclientVersion;
+    if (obj.result.libmympdclientVersion !== undefined) {
+        document.getElementById('mpdInfo_libmympdclientVersion').innerText = obj.result.libmympdclientVersion;
+        document.getElementById('mpdInfo_libmympdclientVersion').parentNode.classList.remove('hide');
+    }
+    else {
+        document.getElementById('mpdInfo_libmympdclientVersion').parentNode.classList.add('hide');    
+    }
 }
 
 function parseOutputs(obj) {
