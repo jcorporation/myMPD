@@ -162,6 +162,7 @@ function parseVolume(obj) {
 function setBackgroundImage(url) {
     if (url === undefined) {
         clearBackgroundImage();
+        return;
     }
     let old = document.querySelectorAll('.albumartbg');
     for (let i = 0; i < old.length; i++) {
@@ -203,6 +204,7 @@ function clearBackgroundImage() {
 function setCurrentCover(url) {
     if (url === undefined) {
         clearCurrentCover();
+        return;
     }
     let old = domCache.currentCover.querySelectorAll('.coverbg');
     for (let i = 0; i < old.length; i++) {
