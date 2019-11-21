@@ -519,8 +519,8 @@ Zurücksetzen
 Reset settings
 Einstellungen zurücksetzen
 
-Clear cache and reload
-Cache löschen und neu laden
+Clear app cache and reload
+Browser Cache löschen und neu laden
 
 Reload
 Neu laden
