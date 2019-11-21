@@ -53,7 +53,9 @@ else()
 endif()
 MESSAGE("ASSETS_PATH: ${ASSETS_PATH}")
 
-find_package(LibMPDClient REQUIRED)
+if(NOT ${EMBEDDED_LIBMPDCLIENT} MATCHES "ON")
+  find_package(LibMPDClient REQUIRED)
+endif()
 find_package(Threads REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(LibMediainfo)
@@ -64,6 +66,13 @@ else()
   set(COVEREXTRACT "false")
 endif()
 
+if(${EMBEDDED_LIBMPDCLIENT} MATCHES "ON")
+  set(EMBEDDED_LIBMPDCLIENT "ON")
+  message("Compiling with embedded libmpdclient")
+else()
+  message("Compiling with libmpdclient from system")
+endif()
+
 configure_file(src/config_defs.h.in ${PROJECT_BINARY_DIR}/config_defs.h)
 configure_file(cmake/CopyConfig.cmake.in cmake/CopyConfig.cmake @ONLY)
 configure_file(contrib/mympd.conf.in contrib/mympd.conf @ONLY)
@@ -71,11 +80,15 @@ configure_file(contrib/initscripts/mympd.service.in contrib/initscripts/mympd.se
 configure_file(contrib/initscripts/mympd.sysVinit.in contrib/initscripts/mympd.sysVinit @ONLY)
 configure_file(contrib/initscripts/mympd.openrc.in contrib/initscripts/mympd.openrc @ONLY)
 
-include_directories(${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}	${LIBMPDCLIENT_INCLUDE_DIR} ${OPENSSL_INCLUDE_DIR})
+if(${EMBEDDED_LIBMPDCLIENT} MATCHES "ON")
+  include_directories(${PROJECT_BINARY_DIR} dist/src/libmpdclient/include ${PROJECT_SOURCE_DIR} ${OPENSSL_INCLUDE_DIR})
+else()
+  include_directories(${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR} ${LIBMPDCLIENT_INCLUDE_DIR} ${OPENSSL_INCLUDE_DIR})
+endif()
 
 include(CheckCSourceCompiles)
 
-if(${MEMCHECK} MATCHES TRUE)
+if(${MEMCHECK} MATCHES "TRUE")
   #for use with valgrind
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -Wall -Werror -DMG_ENABLE_SSL")
   set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -ggdb")
@@ -156,8 +169,64 @@ set(SOURCES
     dist/src/sds/sds.c
 )
 
-add_executable(mympd ${SOURCES})
-target_link_libraries(mympd ${LIBMPDCLIENT_LIBRARY} ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${CMAKE_DL_LIBS})
+set(LIBMPDCLIENT_SOURCES
+    dist/src/libmpdclient/src/albumart.c
+    dist/src/libmpdclient/src/async.c
+    dist/src/libmpdclient/src/audio_format.c
+    dist/src/libmpdclient/src/capabilities.c
+    dist/src/libmpdclient/src/cmessage.c
+    dist/src/libmpdclient/src/cmount.c
+    dist/src/libmpdclient/src/connection.c
+    dist/src/libmpdclient/src/coutput.c
+    dist/src/libmpdclient/src/cplaylist.c
+    dist/src/libmpdclient/src/cstats.c
+    dist/src/libmpdclient/src/cstatus.c
+    dist/src/libmpdclient/src/database.c
+    dist/src/libmpdclient/src/directory.c
+    dist/src/libmpdclient/src/entity.c
+    dist/src/libmpdclient/src/error.c
+    dist/src/libmpdclient/src/fd_util.c
+    dist/src/libmpdclient/src/fingerprint.c
+    dist/src/libmpdclient/src/idle.c
+    dist/src/libmpdclient/src/ierror.c
+    dist/src/libmpdclient/src/iso8601.c
+    dist/src/libmpdclient/src/kvlist.c
+    dist/src/libmpdclient/src/list.c
+    dist/src/libmpdclient/src/message.c
+    dist/src/libmpdclient/src/mixer.c
+    dist/src/libmpdclient/src/mount.c
+    dist/src/libmpdclient/src/output.c
+    dist/src/libmpdclient/src/parser.c
+    dist/src/libmpdclient/src/password.c
+    dist/src/libmpdclient/src/player.c
+    dist/src/libmpdclient/src/playlist.c
+    dist/src/libmpdclient/src/queue.c
+    dist/src/libmpdclient/src/quote.c
+    dist/src/libmpdclient/src/rdirectory.c
+    dist/src/libmpdclient/src/recv.c
+    dist/src/libmpdclient/src/resolver.c
+    dist/src/libmpdclient/src/response.c
+    dist/src/libmpdclient/src/rplaylist.c
+    dist/src/libmpdclient/src/run.c
+    dist/src/libmpdclient/src/search.c
+    dist/src/libmpdclient/src/send.c
+    dist/src/libmpdclient/src/settings.c
+    dist/src/libmpdclient/src/socket.c
+    dist/src/libmpdclient/src/song.c
+    dist/src/libmpdclient/src/stats.c
+    dist/src/libmpdclient/src/status.c
+    dist/src/libmpdclient/src/sticker.c
+    dist/src/libmpdclient/src/sync.c
+    dist/src/libmpdclient/src/tag.c
+)
+
+if(${EMBEDDED_LIBMPDCLIENT} MATCHES "ON")
+  add_executable(mympd ${SOURCES} ${LIBMPDCLIENT_SOURCES})
+  target_link_libraries(mympd ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${CMAKE_DL_LIBS})
+else()
+  add_executable(mympd ${SOURCES})
+  target_link_libraries(mympd ${LIBMPDCLIENT_LIBRARY} ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${CMAKE_DL_LIBS})
+endif()
 
 if(LIBMEDIAINFO_FOUND)
   add_library(mympd_coverextract SHARED src/plugins/mympd_coverextract.cpp)

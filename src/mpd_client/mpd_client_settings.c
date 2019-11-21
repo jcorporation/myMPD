@@ -9,7 +9,12 @@
 #include <stdlib.h>
 #include <inttypes.h>
 #include <stdbool.h>
-#include <mpd/client.h>
+
+#ifdef EMBEDDED_LIBMPDCLIENT
+    #include <mpd/client.h>
+#else
+    #include <mpd/client.h>
+#endif
 
 #include "../../dist/src/sds/sds.h"
 #include "../sds_extras.h"

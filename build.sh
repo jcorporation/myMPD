@@ -5,6 +5,11 @@
 # https://github.com/jcorporation/mympd
 #
 
+if [ "${EMBEDDED_LIBMPDCLIENT}" = "" ]
+then
+  export EMBEDDED_LIBMPDCLIENT="ON"
+fi
+
 STARTPATH=$(pwd)
 
 #set umask
@@ -262,7 +267,7 @@ buildrelease() {
   fi
   #set INSTALL_PREFIX and build myMPD
   export INSTALL_PREFIX="${MYMPD_INSTALL_PREFIX:-/usr}"
-  cmake -DCMAKE_INSTALL_PREFIX:PATH="$INSTALL_PREFIX" -DCMAKE_BUILD_TYPE=RELEASE ..
+  cmake -DCMAKE_INSTALL_PREFIX:PATH="$INSTALL_PREFIX" -DCMAKE_BUILD_TYPE=RELEASE -DEMBEDDED_LIBMPDCLIENT="$EMBEDDED_LIBMPDCLIENT" ..
   make
 }
 
@@ -291,7 +296,7 @@ builddebug() {
   echo "Compiling myMPD"
   install -d debug
   cd debug || exit 1
-  cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=DEBUG -DMEMCHECK="$MEMCHECK" ..
+  cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=DEBUG -DMEMCHECK="$MEMCHECK" -DEMBEDDED_LIBMPDCLIENT="$EMBEDDED_LIBMPDCLIENT" ..
   make VERBOSE=1
 }
 

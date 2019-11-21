@@ -9,9 +9,14 @@
 #include <poll.h>
 #include <pthread.h>
 #include <string.h>
-#include <mpd/client.h>
 #include <signal.h>
 #include <assert.h>
+
+#ifdef EMBEDDED_LIBMPDCLIENT
+    #include <mpd/client.h>
+#else
+    #include <mpd/client.h>
+#endif
 
 #include "../dist/src/sds/sds.h"
 #include "sds_extras.h"
