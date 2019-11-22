@@ -30,6 +30,13 @@ else()
   set(SUBDIRLIB "")
 endif()
 
+if(${EMBEDDED_LIBMPDCLIENT} MATCHES "OFF")
+   message("Compiling with libmpdclient from system")
+else()
+  set(EMBEDDED_LIBMPDCLIENT "ON")
+  message("Compiling with embedded libmpdclient")
+endif()
+
 set(ETC_PATH "${CMAKE_INSTALL_FULL_SYSCONFDIR}${SUBDIR_ETC}")
 MESSAGE("ETC_PATH: ${ETC_PATH}")
 
@@ -64,13 +71,6 @@ if(LIBMEDIAINFO_FOUND)
   set(COVEREXTRACT "true")
 else()
   set(COVEREXTRACT "false")
-endif()
-
-if(${EMBEDDED_LIBMPDCLIENT} MATCHES "ON")
-  set(EMBEDDED_LIBMPDCLIENT "ON")
-  message("Compiling with embedded libmpdclient")
-else()
-  message("Compiling with libmpdclient from system")
 endif()
 
 configure_file(src/config_defs.h.in ${PROJECT_BINARY_DIR}/config_defs.h)
@@ -119,6 +119,10 @@ file(GLOB MYMPD_SRC_FILES3 "src/mympd_api/*.c")
 set_property(SOURCE ${MYMPD_SRC_FILES3} PROPERTY COMPILE_FLAGS "-Wextra -pedantic -Wformat=2 -Wunused-parameter -Wshadow -Wwrite-strings \
 	-Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs -Wmissing-include-dirs")
 
+file(GLOB MYMPD_SRC_FILES4 "src/web_server/*.c")
+set_property(SOURCE ${MYMPD_SRC_FILES4} PROPERTY COMPILE_FLAGS "-Wextra -pedantic -Wformat=2 -Wunused-parameter -Wshadow -Wwrite-strings \
+	-Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs -Wmissing-include-dirs")
+
 #compiler flags for inih, issue#188
 set_property(SOURCE dist/src/inih/ini.c PROPERTY COMPILE_FLAGS "-Wno-stringop-truncation")
 
@@ -144,7 +148,6 @@ set(SOURCES
     src/utility.c
     src/plugins.c
     src/sds_extras.c
-    src/web_server.c
     src/mpd_client.c
     src/mpd_client/mpd_client_api.c
     src/mpd_client/mpd_client_cover.c
@@ -163,6 +166,9 @@ set(SOURCES
     src/mympd_api/mympd_api_utility.c
     src/mympd_api/mympd_api_settings.c
     src/mympd_api/mympd_api_syscmds.c
+    src/web_server.c
+    src/web_server/web_server_utility.c
+    src/web_server/web_server_albumart.c
     dist/src/mongoose/mongoose.c
     dist/src/frozen/frozen.c
     dist/src/inih/ini.c

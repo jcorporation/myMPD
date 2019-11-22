@@ -4,24 +4,50 @@
  https://github.com/jcorporation/mympd
 */
 
-#define INCBIN_PREFIX 
-#define INCBIN_STYLE INCBIN_STYLE_SNAKE
-#include "../dist/src/incbin/incbin.h"
+#include "../dist/src/sds/sds.h"
+#include "../sds_extras.h"
+#include "../dist/src/mongoose/mongoose.h"
+#include "../log.h"
+#include "web_server_utility.h"
 
-//compressed assets
-INCBIN(sw_js, "../dist/htdocs/sw.js.gz");
-INCBIN(mympd_webmanifest, "../dist/htdocs/mympd.webmanifest.gz");
-INCBIN(index_html, "../dist/htdocs/index.html.gz");
-INCBIN(coverimage_notavailable_svg, "../dist/htdocs/assets/coverimage-notavailable.svg.gz");
-INCBIN(coverimage_stream_svg, "../dist/htdocs/assets/coverimage-stream.svg.gz");
-INCBIN(coverimage_loading_svg, "../dist/htdocs/assets/coverimage-loading.svg.gz");
-INCBIN(combined_css, "../dist/htdocs/css/combined.css.gz");
-INCBIN(combined_js, "../dist/htdocs/js/combined.js.gz");
-//uncompressed assets
-INCBIN(favicon_ico, "../htdocs/assets/favicon.ico");
-INCBIN(appicon_192_png, "../htdocs/assets/appicon-192.png");
-INCBIN(appicon_512_png, "../htdocs/assets/appicon-512.png");
-INCBIN(MaterialIcons_Regular_woff2, "../htdocs/assets/MaterialIcons-Regular.woff2");
+#ifndef DEBUG
+//embedded files for release build
+#include "web_server_embedded_files.c"
+#endif
+
+void send_error(struct mg_connection *nc, int code, const char *msg) {
+    sds errorpage = sdscatfmt(sdsempty(), "<html><head><title>myMPD error</title></head><body>"
+        "<h1>myMPD error</h1>"
+        "<p>%s</p>"
+        "</body></html>",
+        msg);
+    mg_send_head(nc, code, sdslen(errorpage), "Content-Type: text/html");
+    mg_send(nc, errorpage, sdslen(errorpage));
+    sdsfree(errorpage);
+    if (code >= 400) {
+        LOG_ERROR(msg);
+    }
+}
+
+void serve_na_image(struct mg_connection *nc, struct http_message *hm) {
+    serve_asset_image(nc, hm, "coverimage-notavailable.svg");
+}
+
+void serve_stream_image(struct mg_connection *nc, struct http_message *hm) {
+    serve_asset_image(nc, hm, "coverimage-stream.svg");
+}
+
+void serve_asset_image(struct mg_connection *nc, struct http_message *hm, const char *name) {
+    #ifdef DEBUG
+    sds na_image = sdscatfmt(sdsempty(), "%s/assets/%s", DOC_ROOT, name);
+    mg_http_serve_file(nc, hm, na_image, mg_mk_str("image/svg+xml"), mg_mk_str(""));
+    #else
+    sds na_image = sdscatfmt(sdsempty(), "/assets/%s", name);
+    serve_embedded_files(nc, na_image, hm);
+    #endif
+    LOG_DEBUG("Serving file %s (%s)", na_image, "image/svg+xml");
+    sdsfree(na_image);
+}
 
 struct embedded_file {
   const char *uri;
@@ -32,7 +58,7 @@ struct embedded_file {
   const unsigned size;
 };
 
-static bool serve_embedded_files(struct mg_connection *nc, sds uri, struct http_message *hm) {
+bool serve_embedded_files(struct mg_connection *nc, sds uri, struct http_message *hm) {
     const struct embedded_file embedded_files[] = {
         {"/", 1, "text/html", true, index_html_data, index_html_size},
         {"/css/combined.css", 17, "text/css", true, combined_css_data, combined_css_size},

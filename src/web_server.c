@@ -14,6 +14,9 @@
 #include <string.h>
 
 #include "../dist/src/sds/sds.h"
+#include "../dist/src/mongoose/mongoose.h"
+#include "../dist/src/frozen/frozen.h"
+
 #include "sds_extras.h"
 #include "api.h"
 #include "utility.h"
@@ -22,32 +25,9 @@
 #include "tiny_queue.h"
 #include "config_defs.h"
 #include "global.h"
+#include "web_server/web_server_utility.h"
+#include "web_server/web_server_albumart.h"
 #include "web_server.h"
-#include "mpd_client.h"
-#include "plugins.h"
-#include "../dist/src/mongoose/mongoose.h"
-#include "../dist/src/frozen/frozen.h"
-
-#define EXTRA_HEADERS_DIR "Content-Security-Policy: default-src 'none'; "\
-                          "style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self' 'unsafe-inline'; img-src 'self' data:; "\
-                          "connect-src 'self' ws: wss:; manifest-src 'self'; "\
-                          "media-src *; frame-ancestors 'none'; base-uri 'none';\r\n"\
-                          "X-Content-Type-Options: nosniff\r\n"\
-                          "X-XSS-Protection: 1; mode=block\r\n"\
-                          "X-Frame-Options: deny"
-
-#define EXTRA_HEADERS "Content-Security-Policy: default-src 'none'; "\
-                      "style-src 'self'; font-src 'self'; script-src 'self'; img-src 'self' data:; "\
-                      "connect-src 'self' ws: wss:; manifest-src 'self'; "\
-                      "media-src *; frame-ancestors 'none'; base-uri 'none';\r\n"\
-                      "X-Content-Type-Options: nosniff\r\n"\
-                      "X-XSS-Protection: 1; mode=block\r\n"\
-                      "X-Frame-Options: deny"
-
-#ifndef DEBUG
-//embedded files for release build
-#include "web_server_embedded_files.c"
-#endif
 
 //private definitions
 static bool parse_internal_message(t_work_result *response, t_mg_user_data *mg_user_data);
@@ -57,12 +37,6 @@ static void ev_handler_redirect(struct mg_connection *nc_http, int ev, void *ev_
 static void send_ws_notify(struct mg_mgr *mgr, t_work_result *response);
 static void send_api_response(struct mg_mgr *mgr, t_work_result *response);
 static bool handle_api(int conn_id, const char *request, int request_len);
-static bool handle_coverextract(struct mg_connection *nc, struct http_message *hm, t_config *config, sds media_file);
-static bool handle_albumart(struct mg_connection *nc, struct http_message *hm, t_mg_user_data *mg_user_data, t_config *config, int conn_id);
-static void serve_na_image(struct mg_connection *nc, struct http_message *hm);
-static void serve_stream_image(struct mg_connection *nc, struct http_message *hm);
-static void serve_asset_image(struct mg_connection *nc, struct http_message *hm, const char *name);
-static void send_error(struct mg_connection *nc, int code, const char *msg);
 
 //public functions
 bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_data) {
@@ -229,20 +203,6 @@ static void send_api_response(struct mg_mgr *mgr, t_work_result *response) {
     }
     sdsfree(response->data);
     FREE_PTR(response);
-}
-
-static void send_error(struct mg_connection *nc, int code, const char *msg) {
-    sds errorpage = sdscatfmt(sdsempty(), "<html><head><title>myMPD error</title></head><body>"
-        "<h1>myMPD error</h1>"
-        "<p>%s</p>"
-        "</body></html>",
-        msg);
-    mg_send_head(nc, code, sdslen(errorpage), "Content-Type: text/html");
-    mg_send(nc, errorpage, sdslen(errorpage));
-    sdsfree(errorpage);
-    if (code >= 400) {
-        LOG_ERROR(msg);
-    }
 }
 
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
@@ -440,166 +400,4 @@ static bool handle_api(int conn_id, const char *request_body, int request_len) {
     FREE_PTR(cmd);
     FREE_PTR(jsonrpc);    
     return true;
-}
-
-static void serve_na_image(struct mg_connection *nc, struct http_message *hm) {
-    serve_asset_image(nc, hm, "coverimage-notavailable.svg");
-}
-
-static void serve_stream_image(struct mg_connection *nc, struct http_message *hm) {
-    serve_asset_image(nc, hm, "coverimage-stream.svg");
-}
-
-static void serve_asset_image(struct mg_connection *nc, struct http_message *hm, const char *name) {
-    #ifdef DEBUG
-    sds na_image = sdscatfmt(sdsempty(), "%s/assets/%s", DOC_ROOT, name);
-    mg_http_serve_file(nc, hm, na_image, mg_mk_str("image/svg+xml"), mg_mk_str(""));
-    #else
-    sds na_image = sdscatfmt(sdsempty(), "/assets/%s", name);
-    serve_embedded_files(nc, na_image, hm);
-    #endif
-    LOG_DEBUG("Serving file %s (%s)", na_image, "image/svg+xml");
-    sdsfree(na_image);
-}
-
-//returns true if an image is served
-//returns false if waiting for mpd_client to handle request
-static bool handle_albumart(struct mg_connection *nc, struct http_message *hm, t_mg_user_data *mg_user_data, t_config *config, int conn_id) {
-    //decode uri
-    sds uri_decoded = sdsurldecode(sdsempty(), hm->uri.p, (int)hm->uri.len, 0);
-    if (sdslen(uri_decoded) == 0) {
-        LOG_ERROR("Failed to decode uri");
-        serve_na_image(nc, hm);
-        sdsfree(uri_decoded);
-        return true;
-    }
-    if (validate_uri(uri_decoded) == false) {
-        LOG_ERROR("Invalid uri: %s", uri_decoded);
-        serve_na_image(nc, hm);
-        sdsfree(uri_decoded);
-        return true;
-    }
-    //try image in /pics folder, if uri contains ://
-    if (strstr(uri_decoded, "://") != NULL) {
-        char *name = strstr(uri_decoded, "://");
-        if (strlen(name) < 4) {
-            LOG_ERROR("Uri to short");
-            serve_na_image(nc, hm);
-            sdsfree(uri_decoded);
-            return true;
-        }
-        name += 3;
-        replacechar(name, '/', '_');
-        replacechar(name, '.', '_');
-        replacechar(name, ':', '_');
-        sds coverfile = sdscatfmt(sdsempty(), "%s/pics/%s", config->varlibdir, name);
-        LOG_DEBUG("Check for stream cover %s", coverfile);
-        coverfile = find_image_file(coverfile);
-        
-        if (sdslen(coverfile) > 0) {
-            sds mime_type = get_mime_type_by_ext(coverfile);
-            LOG_DEBUG("Serving file %s (%s)", coverfile, mime_type);
-            mg_http_serve_file(nc, hm, coverfile, mg_mk_str(mime_type), mg_mk_str(""));
-            sdsfree(mime_type);
-        }
-        else {
-            serve_stream_image(nc, hm);
-        }
-        sdsfree(coverfile);
-        sdsfree(uri_decoded);
-        return true;
-    }
-    //remove /albumart/
-    sdsrange(uri_decoded, 10, -1);
-    //create absolute file
-    sds mediafile = sdscatfmt(sdsempty(), "%s/%s", mg_user_data->music_directory, uri_decoded);
-    LOG_DEBUG("Absolut media_file: %s", mediafile);
-    //check covercache
-    sds covercachefile = sdscatfmt(sdsempty(), "%s/covercache/%s", config->varlibdir, uri_decoded);
-    replacechar(covercachefile, '/', '_');
-    covercachefile = find_image_file(covercachefile);
-    if (sdslen(covercachefile) > 0) {
-        sds mime_type = get_mime_type_by_ext(covercachefile);
-        LOG_DEBUG("Serving file %s (%s)", covercachefile, mime_type);
-        mg_http_serve_file(nc, hm, covercachefile, mg_mk_str(mime_type), mg_mk_str(""));
-        sdsfree(uri_decoded);
-        sdsfree(covercachefile);
-        sdsfree(mediafile);
-        sdsfree(mime_type);
-        return true;
-    }
-    else {
-        sdsfree(covercachefile);
-    }
-    //check music_directory folder
-    if (mg_user_data->feat_library == true && access(mediafile, F_OK) == 0) {
-        //try image in folder under music_directory
-        char *path = uri_decoded;
-        dirname(path);
-        sds coverfile = sdscatfmt(sdsempty(), "%s/%s/%s", mg_user_data->music_directory, path, mg_user_data->coverimage_name);
-        LOG_DEBUG("Check for cover %s", coverfile);
-        if (access(coverfile, F_OK ) == 0) { /* Flawfinder: ignore */
-            //todo: get mime_type
-            LOG_DEBUG("Serving file %s (%s)", coverfile, "image/jpeg");
-            mg_http_serve_file(nc, hm, coverfile, mg_mk_str("image/jpeg"), mg_mk_str(""));
-            sdsfree(uri_decoded);
-            sdsfree(coverfile);
-            sdsfree(mediafile);
-            return true;
-        }
-        sdsfree(coverfile);
-        //try coverextract plugin
-        if (config->plugins_coverextract == true) {
-            LOG_DEBUG("Exctracting coverimage from %s/%s", mg_user_data->music_directory, mediafile);
-            bool rc = handle_coverextract(nc, hm, config, uri_decoded);
-            if (rc == true) {
-                sdsfree(uri_decoded);
-                sdsfree(mediafile);
-                return true;
-            }
-        }
-    }
-    //ask mpd
-    else if (mg_user_data->feat_library == false && mg_user_data->feat_mpd_albumart == true) {
-        LOG_DEBUG("Sending getalbumart to mpd_client_queue");
-/*
-    t_work_request *request = (t_work_request*)malloc(sizeof(t_work_request));
-    assert(request);
-    request->conn_id = conn_id;
-    request->cmd_id = cmd_id;
-    request->id = id;
-    request->method = sdscat(sdsempty(), cmd);
-    request->data = sdscatlen(sdsempty(), request_body, request_len);
-    tiny_queue_push(mpd_client_queue, request);
-    sdsfree(mediafile);
-    sdsfree(uri_decoded);
-    return false;
-*/
-    }
-    (void) conn_id;
-
-    LOG_VERBOSE("No coverimage found for %s", mediafile);
-    sdsfree(mediafile);
-    sdsfree(uri_decoded);
-    serve_na_image(nc, hm);
-    return true;
-}
-
-static bool handle_coverextract(struct mg_connection *nc, struct http_message *hm, t_config *config, sds media_file) {
-    size_t image_mime_type_len = 100;
-    char image_mime_type[image_mime_type_len]; /* Flawfinder: ignore */
-    size_t image_file_len = 1500;
-    char image_file[image_file_len]; /* Flawfinder: ignore */
-    
-    sds cache_dir = sdscatfmt(sdsempty(), "%s/covercache", config->varlibdir);
-
-    bool rc = plugin_coverextract(media_file, cache_dir, image_file, image_file_len, image_mime_type, image_mime_type_len, true);
-    sdsfree(cache_dir);
-    if (rc == true) {
-        sds path = sdscatfmt(sdsempty(), "%s/covercache/%s", config->varlibdir, image_file);
-        LOG_DEBUG("Serving file %s (%s)", path, image_mime_type);
-        mg_http_serve_file(nc, hm, path, mg_mk_str(image_mime_type), mg_mk_str(""));
-        sdsfree(path);
-    }
-    return rc;
 }

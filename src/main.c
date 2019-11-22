@@ -21,14 +21,11 @@
 #include <dlfcn.h>
 #include <assert.h>
 #include <inttypes.h>
-
-#ifdef EMBEDDED_LIBMPDCLIENT
-    #include <mpd/client.h>
-#else
-    #include <mpd/client.h>
-#endif
+#include <mpd/client.h>
 
 #include "../dist/src/sds/sds.h"
+#include "../dist/src/mongoose/mongoose.h"
+
 #include "sds_extras.h"
 #include "utility.h"
 #include "log.h"
@@ -39,7 +36,7 @@
 #include "api.h"
 #include "global.h"
 #include "mpd_client.h"
-#include "../dist/src/mongoose/mongoose.h"
+#include "web_server/web_server_utility.h"
 #include "web_server.h"
 #include "mympd_api.h"
 #include "cert.h"

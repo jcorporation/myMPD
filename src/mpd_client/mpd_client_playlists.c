@@ -12,12 +12,7 @@
 #include <dirent.h>
 #include <inttypes.h>
 #include <ctype.h>
-
-#ifdef EMBEDDED_LIBMPDCLIENT
-    #include <mpd/client.h>
-#else
-    #include <mpd/client.h>
-#endif
+#include <mpd/client.h>
 
 #include "../../dist/src/sds/sds.h"
 #include "../sds_extras.h"

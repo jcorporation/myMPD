@@ -8,12 +8,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
-
-#ifdef EMBEDDED_LIBMPDCLIENT
-    #include <mpd/client.h>
-#else
-    #include <mpd/client.h>
-#endif
+#include <mpd/client.h>
 
 #include "../../dist/src/sds/sds.h"
 #include "../sds_extras.h"

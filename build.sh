@@ -8,6 +8,7 @@
 if [ "${EMBEDDED_LIBMPDCLIENT}" = "" ]
 then
   export EMBEDDED_LIBMPDCLIENT="ON"
+  echo "Setting EMBEDDED_LIBMPDCLIENT=ON"
 fi
 
 STARTPATH=$(pwd)
@@ -605,14 +606,19 @@ case "$1" in
 	  echo "  release:        build release files in directory release"
 	  echo "                  following environment variables are respected"
 	  echo "                    - MYMPD_INSTALL_PREFIX=\"/usr\""
+	  echo "                    - EMBEDDED_LIBMPDCLIENT=\"ON\""
 	  echo "  install:        installs release files from directory release"
 	  echo "                  following environment variables are respected"
 	  echo "                    - DESTDIR=\"\""
 	  echo "  releaseinstall: calls release and install afterwards"
 	  echo "  debug:          builds debug files in directory debug"
+	  echo "                  following environment variables are respected"
+	  echo "                    - EMBEDDED_LIBMPDCLIENT=\"ON\""
 	  echo "                  linked with libasan3, uses assets in htdocs"
 	  echo "  memcheck:       builds debug files in directory debug"
 	  echo "                  for use with valgrind, uses assets in htdocs/"
+	  echo "                  following environment variables are respected"
+	  echo "                    - EMBEDDED_LIBMPDCLIENT=\"ON\""
 	  echo "  check:          runs cppcheck and flawfinder on source files"
 	  echo "                  following environment variables are respected"
 	  echo "                    - CPPCHECKOPTS=\"--enable=warning\""
