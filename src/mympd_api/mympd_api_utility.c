@@ -30,9 +30,8 @@ void mympd_api_push_to_mpd_client(t_mympd_state *mympd_state) {
     mpd_client_request->id = 0;
     mpd_client_request->cmd_id = MYMPD_API_SETTINGS_SET;
     mpd_client_request->method = sdsnew("MYMPD_API_SETTINGS_SET");
-    sds data = sdsempty();
 
-    data = sdscat(data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_SETTINGS_SET\",\"params\":{");
+    sds data = sdscat(sdsempty(), "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_SETTINGS_SET\",\"params\":{");
     data = tojson_long(data, "jukeboxMode", mympd_state->jukebox_mode, true);
     data = tojson_char(data, "jukeboxPlaylist", mympd_state->jukebox_playlist, true);
     data = tojson_long(data, "jukeboxQueueLength", mympd_state->jukebox_queue_length, true);

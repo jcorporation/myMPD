@@ -128,23 +128,29 @@ bool handle_albumart(struct mg_connection *nc, struct http_message *hm, t_mg_use
         }
     }
     //ask mpd
+    #ifdef EMBEDDED_LIBMPDCLIENT
     else if (mg_user_data->feat_library == false && mg_user_data->feat_mpd_albumart == true) {
         LOG_DEBUG("Sending getalbumart to mpd_client_queue");
-/*
-    t_work_request *request = (t_work_request*)malloc(sizeof(t_work_request));
-    assert(request);
-    request->conn_id = conn_id;
-    request->cmd_id = cmd_id;
-    request->id = id;
-    request->method = sdscat(sdsempty(), cmd);
-    request->data = sdscatlen(sdsempty(), request_body, request_len);
-    tiny_queue_push(mpd_client_queue, request);
-    sdsfree(mediafile);
-    sdsfree(uri_decoded);
-    return false;
-*/
+        t_work_request *request = (t_work_request*)malloc(sizeof(t_work_request));
+        assert(request);
+        request->conn_id = conn_id;
+        request->id = 0;
+        request->method = sdsnew("MPD_API_ALBUMART");
+        request->cmd_id = MPD_API_ALBUMART;
+        
+        sds data = sdscat(sdsempty(), "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPD_API_ALBUMART\",\"params\":{");
+        data = tojson_char(data, "uri", uri_decoded, false);
+        data = sdscat(data, "}}");
+        
+        request->data = data;
+        tiny_queue_push(mpd_client_queue, request);
+        sdsfree(mediafile);
+        sdsfree(uri_decoded);
+        return false;
     }
+    #else
     (void) conn_id;
+    #endif
 
     LOG_VERBOSE("No coverimage found for %s", mediafile);
     sdsfree(mediafile);
