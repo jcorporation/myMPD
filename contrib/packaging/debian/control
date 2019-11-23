@@ -8,7 +8,7 @@ Homepage: https://github.com/jcorporation/myMPD
 
 Package: mympd
 Architecture: any
-Depends: libc6, openssl, libmediainfo0v5, libmagic
+Depends: libc6, openssl, libmediainfo0v5, libmagic1
 Description: Standalone and modern web mpd client.
  myMPD is a lightweight MPD web client that runs without a dedicated
  webserver or interpreter. It's tuned for minimal resource usage and
