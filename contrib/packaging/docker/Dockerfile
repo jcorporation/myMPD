@@ -26,7 +26,7 @@ ENV MPD_HOST=127.0.0.1
 ENV MPD_PORT=6600
 # hadolint ignore=DL3008
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends openssl libmediainfo0v5 libmagic \
+  && apt-get install -y --no-install-recommends openssl libmediainfo0v5 libmagic1 \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 # hadolint ignore=DL3010
