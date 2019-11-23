@@ -538,6 +538,12 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
         case MPD_API_DATABASE_STATS:
             data = mpd_client_put_stats(config, mpd_state, data, request->method, request->id);
             break;
+        case MPD_API_ALBUMART:
+            je = json_scanf(request->data, sdslen(request->data), "{params: {uri:%Q}}", &p_charbuf1);
+            if (je == 1) {
+                data = mpd_client_getcover(config, mpd_state, data, request->method, request->id, p_charbuf1);
+            }
+            break;
         default:
             data = jsonrpc_respond_message(data, request->method, request->id, "Unknown request", true);
             LOG_ERROR("Unknown API request: %.*s", sdslen(request->data), request->data);
