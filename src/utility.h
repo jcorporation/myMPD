@@ -28,6 +28,8 @@ int replacechar(char *str, const char orig, const char rep);
 bool validate_uri(const char *data);
 sds find_image_file(sds basefilename);
 sds get_mime_type_by_ext(const char *filename);
+sds get_ext_by_mime_type(const char *mime_type);
+sds get_mime_type_by_magic(const char *filename);
 
 #define FREE_PTR(PTR) do { \
     if (PTR != NULL) \
@@ -38,7 +40,6 @@ sds get_mime_type_by_ext(const char *filename);
 struct mime_type_entry {
     const char *extension;
     const char *mime_type;
-    const char *magic_bytes;
 };
 
 #endif

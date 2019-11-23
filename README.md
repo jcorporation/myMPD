@@ -56,10 +56,11 @@ Backend
  - inih: https://github.com/benhoyt/inih (config file parsing)
  - incbin: https://github.com/graphitemaster/incbin (embedding assets)
  - sds: https://github.com/antirez/sds (safe string handling)
+ - libmpdclient2: https://github.com/jcorporation/libmpdclient/tree/libmympdclient
 
 Dependencies
 ------------
- - libmpdclient2: http://www.musicpd.org/libs/libmpdclient/
+ - libmagic
  - OpenSSL: https://www.openssl.org/
  - libmediainfo: https://mediaarea.net/en/MediaInfo (to support embedded albumart)
 
@@ -72,7 +73,7 @@ Build Dependencies
 
 Unix Build Instructions
 -----------------------
-1. Install dependencies: cmake, libmpdclient (dev), OpenSSL (dev), libmediainfo (dev), Java and Perl
+1. Install dependencies: cmake, libmagic (dev), OpenSSL (dev), libmediainfo (dev), Java and Perl
 2. Extract myMPD tarball and change path to this directory
 3. Build and install myMPD: ```./build.sh releaseinstall```
 

@@ -66,6 +66,7 @@ endif()
 find_package(Threads REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(LibMediainfo)
+find_package(LibMagic REQUIRED)
 
 if(LIBMEDIAINFO_FOUND)
   set(COVEREXTRACT "true")
@@ -228,10 +229,10 @@ set(LIBMPDCLIENT_SOURCES
 
 if(${EMBEDDED_LIBMPDCLIENT} MATCHES "ON")
   add_executable(mympd ${SOURCES} ${LIBMPDCLIENT_SOURCES})
-  target_link_libraries(mympd ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${CMAKE_DL_LIBS})
+  target_link_libraries(mympd ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${CMAKE_DL_LIBS} ${LIBMAGIC_LIBRARIES})
 else()
   add_executable(mympd ${SOURCES})
-  target_link_libraries(mympd ${LIBMPDCLIENT_LIBRARY} ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${CMAKE_DL_LIBS})
+  target_link_libraries(mympd ${LIBMPDCLIENT_LIBRARY} ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${CMAKE_DL_LIBS} ${LIBMAGIC_LIBRARIES})
 endif()
 
 if(LIBMEDIAINFO_FOUND)

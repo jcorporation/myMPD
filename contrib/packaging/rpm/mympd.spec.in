@@ -15,10 +15,10 @@ BuildRequires:  gcc
 BuildRequires:  gcc-c++
 BuildRequires:  cmake
 BuildRequires:  unzip
-BuildRequires:  libmpdclient-devel
 BuildRequires:  pkgconfig
 BuildRequires:  openssl-devel
 BuildRequires:  libmediainfo-devel
+BuildRequires:	libmagic-dev
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
 %global debug_package %{nil}

@@ -13,6 +13,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <ctype.h>
+#include <magic.h>
 
 #include "../dist/src/sds/sds.h"
 #include "sds_extras.h"
@@ -217,13 +218,13 @@ int replacechar(char *str, const char orig, const char rep) {
 }
 
 const struct mime_type_entry image_files[] = {
-    {"png",  "image/png",                ""},
-    {"jpg",  "image/jpeg",               ""},
-    {"jpeg", "image/jpeg",               ""},
-    {"svg",  "image/svg+xml",            ""},
-    {"tiff", "image/tiff",               ""},
-    {"bmp",  "image/x-ms-bmp",           ""},
-    {NULL,   "application/octet-stream", NULL}
+    {"png",  "image/png"},
+    {"jpg",  "image/jpeg"},
+    {"jpeg", "image/jpeg"},
+    {"svg",  "image/svg+xml"},
+    {"tiff", "image/tiff"},
+    {"bmp",  "image/x-ms-bmp"},
+    {NULL,   "application/octet-stream"}
 };
 
 sds find_image_file(sds basefilename) {
@@ -258,5 +259,31 @@ sds get_mime_type_by_ext(const char *filename) {
         }
     }
     sds mime_type = sdsnew(p->mime_type);
+    return mime_type;
+}
+
+sds get_ext_by_mime_type(const char *mime_type) {
+    const struct mime_type_entry *p = NULL;
+    for (p = image_files; p->extension != NULL; p++) {
+        if (strcmp(mime_type, p->mime_type) == 0) {
+            break;
+        }
+    }
+    sds ext = sdsnew(p->extension);
+    return ext;
+}
+
+sds get_mime_type_by_magic(const char *filename) {
+    const char *mimetype;
+    magic_t magic_cookie;
+    magic_cookie = magic_open(MAGIC_MIME_TYPE);
+    if (magic_cookie  == NULL){
+        LOG_ERROR("Error creating magic cookie");
+        return sdsempty();
+    }
+    magic_load(magic_cookie, NULL);
+    mimetype = magic_file(magic_cookie, filename);
+    magic_close(magic_cookie);
+    sds mime_type = sdsnew(mimetype);
     return mime_type;
 }
