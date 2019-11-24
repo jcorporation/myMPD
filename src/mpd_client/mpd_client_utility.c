@@ -28,10 +28,8 @@
 
 void mpd_client_notify(sds message) {
     LOG_DEBUG("Push websocket notify to queue: %s", message);
-    t_work_result *response = (t_work_result *)malloc(sizeof(t_work_result));
-    assert(response);
-    response->conn_id = 0;
-    response->data = sdsdup(message);
+    t_work_result *response = create_result_new(0, 0, 0, "", NULL);
+    response->data = sdsreplace(response->data, message);
     tiny_queue_push(web_server_queue, response);
 }
 

@@ -73,9 +73,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
     LOG_VERBOSE("MYMPD API request (%d): %s", request->conn_id, request->data);
     
     //create response struct
-    t_work_result *response = (t_work_result *)malloc(sizeof(t_work_result));
-    assert(response);
-    response->conn_id = request->conn_id;
+    t_work_result *response = create_result(request);
     sds data = sdsempty();
     
     switch(request->cmd_id) {
@@ -229,7 +227,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
         data = jsonrpc_end_phrase(data);
         LOG_ERROR("No response for cmd_id %u", request->cmd_id);
     }
-    response->data = data;
+    response->data = sdsreplace(response->data, data);
     LOG_DEBUG("Push response to queue for connection %lu: %s", request->conn_id, response->data);
     tiny_queue_push(web_server_queue, response);
     free_request(request);

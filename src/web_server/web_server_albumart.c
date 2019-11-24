@@ -13,6 +13,7 @@
 
 #include "../dist/src/sds/sds.h"
 #include "../dist/src/mongoose/mongoose.h"
+#include "../dist/src/frozen/frozen.h"
 #include "../sds_extras.h"
 #include "../api.h"
 #include "../utility.h"
@@ -29,6 +30,29 @@
 static bool handle_coverextract(struct mg_connection *nc, struct http_message *hm, t_config *config, sds media_file);
 
 //public functions
+void send_albumart(struct mg_connection *nc, struct http_message *hm, sds data, sds binary) {
+    char *p_charbuf1 = NULL;
+    char *p_charbuf2 = NULL;
+    char *p_charbuf3 = NULL;
+    int je = json_scanf(data, sdslen(data), "{result: {coverfile:%Q, coverfile_name:%Q, mime_type:%Q}}", 
+        &p_charbuf1, &p_charbuf2, &p_charbuf3);
+    if (je == 3) {
+        if (strcmp(p_charbuf1, "binary") == 0) {
+            sds header = sdscatfmt(sdsempty(), "Content-Type: %s", p_charbuf3);
+            mg_send_head(nc, 200, sdslen(binary), header);
+            mg_send(nc, binary, sdslen(binary));
+            sdsfree(header);
+        }
+        else {
+            mg_http_serve_file(nc, hm, p_charbuf2, mg_mk_str(p_charbuf3), mg_mk_str(""));
+        }
+    }
+    else {
+        serve_na_image(nc, hm);
+    }
+    FREE_PTR(p_charbuf1);
+    FREE_PTR(p_charbuf2);
+}
 
 //returns true if an image is served
 //returns false if waiting for mpd_client to handle request
@@ -137,6 +161,7 @@ bool handle_albumart(struct mg_connection *nc, struct http_message *hm, t_mg_use
         request->id = 0;
         request->method = sdsnew("MPD_API_ALBUMART");
         request->cmd_id = MPD_API_ALBUMART;
+        request->hm = hm;
         
         sds data = sdscat(sdsempty(), "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPD_API_ALBUMART\",\"params\":{");
         data = tojson_char(data, "uri", uri_decoded, false);

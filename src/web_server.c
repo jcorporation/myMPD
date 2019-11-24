@@ -36,7 +36,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data);
 static void ev_handler_redirect(struct mg_connection *nc_http, int ev, void *ev_data);
 static void send_ws_notify(struct mg_mgr *mgr, t_work_result *response);
 static void send_api_response(struct mg_mgr *mgr, t_work_result *response);
-static bool handle_api(int conn_id, const char *request, int request_len);
+static bool handle_api(int conn_id, struct http_message *hm);
 
 //public functions
 bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_data) {
@@ -157,8 +157,7 @@ static bool parse_internal_message(t_work_result *response, t_mg_user_data *mg_u
     }
     FREE_PTR(p_charbuf1);
     FREE_PTR(p_charbuf2);
-    sdsfree(response->data);
-    FREE_PTR(response);
+    free_result(response);
     return true;
 }
 
@@ -179,8 +178,7 @@ static void send_ws_notify(struct mg_mgr *mgr, t_work_result *response) {
         }
         mg_send_websocket_frame(nc, WEBSOCKET_OP_TEXT, response->data, sdslen(response->data));
     }
-    sdsfree(response->data);
-    FREE_PTR(response);
+    free_result(response);
 }
 
 static void send_api_response(struct mg_mgr *mgr, t_work_result *response) {
@@ -192,8 +190,13 @@ static void send_api_response(struct mg_mgr *mgr, t_work_result *response) {
         if (nc->user_data != NULL) {
             if ((intptr_t)nc->user_data == response->conn_id) {
                 LOG_DEBUG("Sending response to conn_id %d: %s", (intptr_t)nc->user_data, response->data);
-                mg_send_head(nc, 200, sdslen(response->data), "Content-Type: application/json");
-                mg_send(nc, response->data, sdslen(response->data));
+                if (response->cmd_id == MPD_API_ALBUMART) {
+                    send_albumart(nc, response->hm, response->data, response->binary);
+                }
+                else {
+                    mg_send_head(nc, 200, sdslen(response->data), "Content-Type: application/json");
+                    mg_send(nc, response->data, sdslen(response->data));
+                }
                 break;
             }
         }
@@ -201,8 +204,7 @@ static void send_api_response(struct mg_mgr *mgr, t_work_result *response) {
             LOG_DEBUG("Unknown connection");
         }
     }
-    sdsfree(response->data);
-    FREE_PTR(response);
+    free_result(response);
 }
 
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
@@ -248,7 +250,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             LOG_VERBOSE("HTTP request (%d): %.*s", (intptr_t)nc->user_data, (int)hm->uri.len, hm->uri.p);
             if (mg_vcmp(&hm->uri, "/api") == 0) {
                 //api request
-                bool rc = handle_api((intptr_t)nc->user_data, hm->body.p, hm->body.len);
+                bool rc = handle_api((intptr_t)nc->user_data, hm);
                 if (rc == false) {
                     LOG_ERROR("Invalid API request");
                     sds method = sdsempty();
@@ -358,17 +360,17 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data)
     }
 }
 
-static bool handle_api(int conn_id, const char *request_body, int request_len) {
-    if (request_len > 1000) {
+static bool handle_api(int conn_id, struct http_message *hm) {
+    if (hm->body.len > 1000) {
         LOG_ERROR("Request to long, discarding)");
         return false;
     }
     
-    LOG_VERBOSE("API request (%d): %.*s", conn_id, request_len, request_body);
+    LOG_VERBOSE("API request (%d): %.*s", conn_id, hm->body.len, hm->body.p);
     char *cmd = NULL;
     char *jsonrpc = NULL;
     int id = 0;
-    const int je = json_scanf(request_body, request_len, "{jsonrpc: %Q, method: %Q, id: %d}", &jsonrpc, &cmd, &id);
+    const int je = json_scanf(hm->body.p, hm->body.len, "{jsonrpc: %Q, method: %Q, id: %d}", &jsonrpc, &cmd, &id);
     if (je < 3) {
         FREE_PTR(cmd);
         FREE_PTR(jsonrpc);
@@ -388,7 +390,8 @@ static bool handle_api(int conn_id, const char *request_body, int request_len) {
     request->cmd_id = cmd_id;
     request->id = id;
     request->method = sdscat(sdsempty(), cmd);
-    request->data = sdscatlen(sdsempty(), request_body, request_len);
+    request->data = sdscatlen(sdsempty(), hm->body.p, hm->body.len);
+    request->hm = hm;
     
     if (strncmp(cmd, "MYMPD_API_", 10) == 0) {
         tiny_queue_push(mympd_api_queue, request);

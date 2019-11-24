@@ -46,9 +46,7 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
 
     LOG_VERBOSE("MPD CLIENT API request (%d)(%d) %s: %s", request->conn_id, request->id, request->method, request->data);
     //create response struct
-    t_work_result *response = (t_work_result*)malloc(sizeof(t_work_result));
-    assert(response);
-    response->conn_id = request->conn_id;
+    t_work_result *response = create_result(request);
     sds data = sdsempty();
     
     switch(request->cmd_id) {
@@ -541,7 +539,7 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
         case MPD_API_ALBUMART:
             je = json_scanf(request->data, sdslen(request->data), "{params: {uri:%Q}}", &p_charbuf1);
             if (je == 1) {
-                data = mpd_client_getcover(config, mpd_state, data, request->method, request->id, p_charbuf1);
+                data = mpd_client_getcover(config, mpd_state, data, request->method, request->id, p_charbuf1, &response->binary);
             }
             break;
         default:
@@ -561,12 +559,12 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
     }
     if (response->conn_id > -1) {
         LOG_DEBUG("Push response to queue for connection %lu: %s", request->conn_id, data);
-        response->data = data;
+        response->data = sdsreplace(response->data, data);
         tiny_queue_push(web_server_queue, response);
     }
     else {
         sdsfree(data);
-        FREE_PTR(response);
+        free_result(response);
     }
     free_request(request);
 }

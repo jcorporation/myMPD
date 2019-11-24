@@ -287,3 +287,18 @@ sds get_mime_type_by_magic(const char *filename) {
     sds mime_type = sdsnew(mimetype);
     return mime_type;
 }
+
+sds get_mime_type_by_magic_stream(sds stream) {
+    const char *mimetype;
+    magic_t magic_cookie;
+    magic_cookie = magic_open(MAGIC_MIME_TYPE);
+    if (magic_cookie  == NULL){
+        LOG_ERROR("Error creating magic cookie");
+        return sdsempty();
+    }
+    magic_load(magic_cookie, NULL);
+    mimetype = magic_buffer(magic_cookie, stream, sdslen(stream));
+    magic_close(magic_cookie);
+    sds mime_type = sdsnew(mimetype);
+    return mime_type;
+}
