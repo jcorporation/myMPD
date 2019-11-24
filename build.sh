@@ -262,7 +262,7 @@ buildrelease() {
   then
     echo "Assets changed"
     #force rebuild of web_server.c with embedded assets
-    rm -vf CMakeFiles/mympd.dir/src/web_server.c.o
+    rm -vf CMakeFiles/mympd.dir/src/web_server/web_server_utility.c.o
   else
     echo "Assets not changed"
   fi

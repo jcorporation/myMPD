@@ -65,16 +65,14 @@ void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state) {
     }
     
     //push settings to web_server_queue
-    t_work_result *web_server_response = (t_work_result *)malloc(sizeof(t_work_result));
-    assert(web_server_response);
-    web_server_response->conn_id = -1;
+    t_work_result *web_server_response = create_result_new(-1, 0, 0, "", NULL);
     sds data = sdsnew("{");
     data = tojson_char(data, "musicDirectory", mpd_state->music_directory_value, true);
     data = tojson_char(data, "coverimageName", mpd_state->coverimage_name, true);
     data = tojson_bool(data, "featLibrary", mpd_state->feat_library, false);
     data = tojson_bool(data, "featMpdAlbumart", mpd_state->feat_mpd_albumart, false);
     data = sdscat(data, "}");
-    web_server_response->data = data;
+    web_server_response->data = sdsreplace(web_server_response->data, data);
     tiny_queue_push(web_server_queue, web_server_response);
 }
 
@@ -338,7 +336,14 @@ static void mpd_client_feature_music_directory(t_mpd_state *mpd_state) {
     }
     
     if (mpd_state->feat_library == false) {
+        #ifdef EMBEDDED_LIBMPDCLIENT
+        if (mpd_connection_cmp_server_version(mpd_state->conn, 0, 21, 0) < 0) {
+            LOG_WARN("Disabling coverimage support");
+            mpd_state->feat_coverimage = false;
+        }
+        #else
         LOG_WARN("Disabling coverimage support");
         mpd_state->feat_coverimage = false;
+        #endif
     }
 }

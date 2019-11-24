@@ -217,6 +217,14 @@ int replacechar(char *str, const char orig, const char rep) {
     return n;
 }
 
+int uri_to_filename(char *str) {
+    int n = replacechar(str, '/', '_');
+    n+= replacechar(str, '.', '_');
+    n+= replacechar(str, ':', '_');
+    return n;
+}
+
+
 const struct mime_type_entry image_files[] = {
     {"png",  "image/png"},
     {"jpg",  "image/jpeg"},
@@ -283,8 +291,8 @@ sds get_mime_type_by_magic(const char *filename) {
     }
     magic_load(magic_cookie, NULL);
     mimetype = magic_file(magic_cookie, filename);
-    magic_close(magic_cookie);
     sds mime_type = sdsnew(mimetype);
+    magic_close(magic_cookie);
     return mime_type;
 }
 
@@ -298,7 +306,7 @@ sds get_mime_type_by_magic_stream(sds stream) {
     }
     magic_load(magic_cookie, NULL);
     mimetype = magic_buffer(magic_cookie, stream, sdslen(stream));
-    magic_close(magic_cookie);
     sds mime_type = sdsnew(mimetype);
+    magic_close(magic_cookie);
     return mime_type;
 }

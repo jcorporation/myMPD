@@ -29,11 +29,14 @@ sds mpd_client_getcover(t_config *config, t_mpd_state *mpd_state, sds buffer, sd
     unsigned offset = 0;
     unsigned size = 0;
     FILE *fp = NULL;
-    sds tmp_file = sdscatfmt(sdsempty(), "%s/covercache/%s.XXXXXX", config->varlibdir, uri);
+    sds filename = sdsnew(uri);
+    uri_to_filename(filename);
+    sds tmp_file = sdscatfmt(sdsempty(), "%s/covercache/%s.XXXXXX", config->varlibdir, filename);
     if (config->readonly == false) {
         int fd = mkstemp(tmp_file);
         if (fd < 0 ) {
             LOG_ERROR("Can't open %s for write", tmp_file);
+            sdsfree(filename);
             sdsfree(tmp_file);
             buffer = jsonrpc_respond_message(buffer, method, request_id, "Can't write covercache file", true);
             return buffer;
@@ -71,14 +74,15 @@ sds mpd_client_getcover(t_config *config, t_mpd_state *mpd_state, sds buffer, sd
         else {
             mime_type = get_mime_type_by_magic(tmp_file);
         }
-        sds ext = get_ext_by_mime_type(mime_type);        
-        sds cover_file = sdscatfmt(sdsempty(), "%s/covercache/%s.%s", config->varlibdir, uri, ext);
+        sds ext = get_ext_by_mime_type(mime_type);
+        sds cover_file = sdscatfmt(sdsempty(), "%s/covercache/%s.%s", config->varlibdir, filename, ext);
         if (config->readonly == false) {
             if (rename(tmp_file, cover_file) == -1) {
                 LOG_ERROR("Rename file from %s to %s failed", tmp_file, cover_file);
                 sdsfree(mime_type);
                 sdsfree(ext);
                 sdsfree(cover_file);
+                sdsfree(filename);
                 buffer = jsonrpc_respond_message(buffer, method, request_id, "Can't write covercache file", true);
                 return buffer;
             }
@@ -106,5 +110,6 @@ sds mpd_client_getcover(t_config *config, t_mpd_state *mpd_state, sds buffer, sd
         }
     }
     sdsfree(tmp_file);
+    sdsfree(filename);
     return buffer;
 }

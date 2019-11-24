@@ -52,6 +52,7 @@ void send_albumart(struct mg_connection *nc, struct http_message *hm, sds data, 
     }
     FREE_PTR(p_charbuf1);
     FREE_PTR(p_charbuf2);
+    FREE_PTR(p_charbuf3);
 }
 
 //returns true if an image is served
@@ -81,9 +82,7 @@ bool handle_albumart(struct mg_connection *nc, struct http_message *hm, t_mg_use
             return true;
         }
         name += 3;
-        replacechar(name, '/', '_');
-        replacechar(name, '.', '_');
-        replacechar(name, ':', '_');
+        uri_to_filename(name);
         sds coverfile = sdscatfmt(sdsempty(), "%s/pics/%s", config->varlibdir, name);
         LOG_DEBUG("Check for stream cover %s", coverfile);
         coverfile = find_image_file(coverfile);
@@ -107,8 +106,10 @@ bool handle_albumart(struct mg_connection *nc, struct http_message *hm, t_mg_use
     sds mediafile = sdscatfmt(sdsempty(), "%s/%s", mg_user_data->music_directory, uri_decoded);
     LOG_DEBUG("Absolut media_file: %s", mediafile);
     //check covercache
-    sds covercachefile = sdscatfmt(sdsempty(), "%s/covercache/%s", config->varlibdir, uri_decoded);
-    replacechar(covercachefile, '/', '_');
+    sds filename = sdsdup(uri_decoded);
+    uri_to_filename(filename);
+    sds covercachefile = sdscatfmt(sdsempty(), "%s/covercache/%s", config->varlibdir, filename);
+    sdsfree(filename);
     covercachefile = find_image_file(covercachefile);
     if (sdslen(covercachefile) > 0) {
         sds mime_type = get_mime_type_by_ext(covercachefile);

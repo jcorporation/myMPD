@@ -33,7 +33,9 @@ typedef struct t_mg_user_data {
     int conn_id;
 } t_mg_user_data;
 
+#ifndef DEBUG
 bool serve_embedded_files(struct mg_connection *nc, sds uri, struct http_message *hm);
+#endif
 void send_error(struct mg_connection *nc, int code, const char *msg);
 void serve_na_image(struct mg_connection *nc, struct http_message *hm);
 void serve_stream_image(struct mg_connection *nc, struct http_message *hm);

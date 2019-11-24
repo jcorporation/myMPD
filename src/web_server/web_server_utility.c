@@ -8,6 +8,8 @@
 #include "../sds_extras.h"
 #include "../dist/src/mongoose/mongoose.h"
 #include "../log.h"
+#include "../list.h"
+#include "config_defs.h"
 #include "web_server_utility.h"
 
 #ifndef DEBUG
@@ -49,6 +51,7 @@ void serve_asset_image(struct mg_connection *nc, struct http_message *hm, const 
     sdsfree(na_image);
 }
 
+#ifndef DEBUG
 struct embedded_file {
   const char *uri;
   const size_t uri_len;
@@ -121,3 +124,4 @@ bool serve_embedded_files(struct mg_connection *nc, sds uri, struct http_message
     }
     return false;
 }
+#endif
