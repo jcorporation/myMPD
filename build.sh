@@ -302,7 +302,7 @@ builddebug() {
 }
 
 cleanupoldinstall() {
-  if [ -d /usr/share/mympd ]
+  if [ -d /usr/share/mympd ] || [ -d /usr/lib/mympd ]
   then
     echo "Previous myMPD installation found"
     rm -rf /usr/share/mympd
@@ -311,6 +311,7 @@ cleanupoldinstall() {
     rm -rf /etc/mympd
     rm -f /usr/lib/systemd/system/mympd.service
     rmdir --ignore-fail-on-non-empty /usr/lib/systemd/system
+    rm -r /usr/lib/mympd
   else
     echo "No old myMPD installation found"
   fi
