@@ -7,7 +7,7 @@ FROM library/debian:9 as build
 # hadolint ignore=DL3008
 RUN apt-get update \
   && apt-get install -y --no-install-recommends build-essential git \
-  gcc cpp cmake libssl-dev libmediainfo-dev libmagic-dev \
+  gcc cmake libssl-dev libid3tag0-dev libmagic-dev \
   openjdk-8-jre-headless perl \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
@@ -26,7 +26,7 @@ ENV MPD_HOST=127.0.0.1
 ENV MPD_PORT=6600
 # hadolint ignore=DL3008
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends openssl libmediainfo0v5 libmagic1 \
+  && apt-get install -y --no-install-recommends openssl libid3tag0 libmagic1 \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 # hadolint ignore=DL3010
