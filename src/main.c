@@ -242,17 +242,20 @@ static bool check_dirs(t_config *config) {
         return false;
     }
 
-    //covercache for coverextract and mpd coverhandling    
-    testdirname = sdscrop(testdirname);
-    testdirname = sdscatfmt(testdirname, "%s/covercache", config->varlibdir);
-    testdir_rc = testdir("Covercache dir", testdirname, true);
-    if (testdir_rc > 1) {
-        sdsfree(testdirname);
-        return false;
-    }
-    else if (testdir_rc == 0) {
-        //crop covercache
-        clear_covercache(config, -1);
+    //covercache for coverextract and mpd coverhandling
+    if (config->covercache == true) {
+        testdirname = sdscrop(testdirname);
+        testdirname = sdscatfmt(testdirname, "%s/covercache", config->varlibdir);
+        testdir_rc = testdir("Covercache dir", testdirname, true);
+        if (testdir_rc > 1) {
+            sdsfree(testdirname);
+            return false;
+        }
+        else if (testdir_rc == 0) {
+            //crop covercache
+            clear_covercache(config, -1);
+            
+        }
     }
     sdsfree(testdirname);
     return true;

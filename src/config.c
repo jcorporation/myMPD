@@ -112,6 +112,12 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     }
     else if (MATCH("mympd", "covercachekeepdays")) {
         p_config->covercache_keep_days = strtoimax(value, &crap, 10);
+    }
+    else if (MATCH("mympd", "covercache")) {
+        p_config->covercache = strcmp(value, "true") == 0 ? true : false;
+    }
+    else if (MATCH("mympd", "covercacheavoid")) {
+        p_config->covercache_avoid = strtoumax(value, &crap, 10);
     }    
     else if (MATCH("mympd", "syscmds")) {
         p_config->syscmds = strcmp(value, "true") == 0 ? true : false;
@@ -256,7 +262,8 @@ static void mympd_get_env(struct t_config *config) {
         "MYMPD_COLSSEARCH", "MYMPD_COLSBROWSEDATABASE", "MYMPD_COLSBROWSEPLAYLISTDETAIL",
         "MYMPD_COLSBROWSEFILESYSTEM", "MYMPD_COLSPLAYBACK", "MYMPD_COLSQUEUELASTPLAYED",
         "MYMPD_LOCALPLAYER", "MYMPD_LOCALPLAYERAUTOPLAY", "MYMPD_STREAMPORT",
-        "MYMPD_STREAMURL", "MYMPD_VOLUMESTEP", "MYMPD_COVERCACHEKEEPDAYS",
+        "MYMPD_STREAMURL", "MYMPD_VOLUMESTEP", "MYMPD_COVERCACHEKEEPDAYS", "MYMPD_COVERCACHE",
+        "MYMPD_COVERCACHEAVOID",
         "THEME_BGCOVER", "THEME_BGCOLOR", "THEME_BGCSSFILTER",
         "THEME_COVERIMAGE", "THEME_COVERIMAGENAME", "THEME_COVERIMAGESIZE",
         "THEME_LOCALE", 0};
@@ -358,8 +365,10 @@ void mympd_config_defaults(t_config *config) {
     config->readonly = false;
     config->bookmarks = true;
     config->volume_step = 5;
-    config->covercache_keep_days = 7;
     config->publish_library = true;
+    config->covercache_keep_days = 7;
+    config->covercache = true;
+    config->covercache_avoid = 2097152;
     list_init(&config->syscmd_list);
 }
 
@@ -399,5 +408,9 @@ void mympd_set_readonly(t_config *config) {
     if (config->smartpls == true) {
         LOG_INFO("Disabling smart playlists");
         config->smartpls = false;
+    }
+    if (config->covercache == true) {
+        LOG_INFO("Disabling covercache");
+        config->covercache = false;
     }
 }

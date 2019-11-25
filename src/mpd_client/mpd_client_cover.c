@@ -32,7 +32,7 @@ sds mpd_client_getcover(t_config *config, t_mpd_state *mpd_state, sds buffer, sd
     sds filename = sdsnew(uri);
     uri_to_filename(filename);
     sds tmp_file = sdscatfmt(sdsempty(), "%s/covercache/%s.XXXXXX", config->varlibdir, filename);
-    if (config->readonly == false) {
+    if (config->covercache == true) {
         int fd = mkstemp(tmp_file);
         if (fd < 0 ) {
             LOG_ERROR("Can't open %s for write", tmp_file);
@@ -48,11 +48,11 @@ sds mpd_client_getcover(t_config *config, t_mpd_state *mpd_state, sds buffer, sd
         struct mpd_albumart albumart_buffer;
         struct mpd_albumart *albumart;
         while ((albumart = mpd_run_albumart(mpd_state->conn, uri, offset, &albumart_buffer)) != NULL) {
-            if (config->readonly == false) {
+            if (config->covercache == true) {
                 fwrite(albumart->data, 1, albumart->data_length, fp);
             }
-            if (albumart->size < 10485760 || config->readonly == true) {
-                // smaller than 10 MB, or readonly mode
+            if (albumart->size < config->covercache_avoid || config->covercache == false) {
+                // smaller than covercacheavoid (default 2 MB), or disabled covercache
                 *binary = sdscatlen(*binary, albumart->data, albumart->data_length);
             }
             offset += albumart->data_length;
@@ -63,7 +63,7 @@ sds mpd_client_getcover(t_config *config, t_mpd_state *mpd_state, sds buffer, sd
         //todo: implement readpicture command
     }
 #endif
-    if (config->readonly == false) {
+    if (config->covercache == true) {
         fclose(fp);
     }
     if (size > 0) {
@@ -76,7 +76,7 @@ sds mpd_client_getcover(t_config *config, t_mpd_state *mpd_state, sds buffer, sd
         }
         sds ext = get_ext_by_mime_type(mime_type);
         sds cover_file = sdscatfmt(sdsempty(), "%s/covercache/%s.%s", config->varlibdir, filename, ext);
-        if (config->readonly == false) {
+        if (config->covercache == true) {
             if (rename(tmp_file, cover_file) == -1) {
                 LOG_ERROR("Rename file from %s to %s failed", tmp_file, cover_file);
                 sdsfree(mime_type);

@@ -26,6 +26,10 @@
 
 int clear_covercache(t_config *config, int keepdays) {
     int num_deleted = 0;
+    if (config->covercache == false) {
+        LOG_WARN("Covercache is disabled");
+        return 0;
+    }
     if (keepdays == -1) {
         keepdays = config->covercache_keep_days;
     }
@@ -60,6 +64,7 @@ int clear_covercache(t_config *config, int keepdays) {
     else {
         LOG_ERROR("Error opening directory %s", covercache);
     }
+    LOG_INFO("Deleted %d files from covercache", num_deleted);
     sdsfree(covercache);
     return num_deleted;
 }

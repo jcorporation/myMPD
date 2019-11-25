@@ -107,8 +107,10 @@ typedef struct t_config {
     bool readonly;
     bool bookmarks;
     int volume_step;
-    int covercache_keep_days;
     bool publish_library;
+    int covercache_keep_days;
+    bool covercache;
+    unsigned covercache_avoid;
     //system commands
     struct list syscmd_list;
 } t_config;

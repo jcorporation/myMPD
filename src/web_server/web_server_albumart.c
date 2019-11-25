@@ -105,23 +105,25 @@ bool handle_albumart(struct mg_connection *nc, struct http_message *hm, t_mg_use
     sds mediafile = sdscatfmt(sdsempty(), "%s/%s", mg_user_data->music_directory, uri_decoded);
     LOG_DEBUG("Absolut media_file: %s", mediafile);
     //check covercache
-    sds filename = sdsdup(uri_decoded);
-    uri_to_filename(filename);
-    sds covercachefile = sdscatfmt(sdsempty(), "%s/covercache/%s", config->varlibdir, filename);
-    sdsfree(filename);
-    covercachefile = find_image_file(covercachefile);
-    if (sdslen(covercachefile) > 0) {
-        sds mime_type = get_mime_type_by_ext(covercachefile);
-        LOG_DEBUG("Serving file %s (%s)", covercachefile, mime_type);
-        mg_http_serve_file(nc, hm, covercachefile, mg_mk_str(mime_type), mg_mk_str(""));
-        sdsfree(uri_decoded);
-        sdsfree(covercachefile);
-        sdsfree(mediafile);
-        sdsfree(mime_type);
-        return true;
-    }
-    else {
-        sdsfree(covercachefile);
+    if (config->covercache == true) {
+        sds filename = sdsdup(uri_decoded);
+        uri_to_filename(filename);
+        sds covercachefile = sdscatfmt(sdsempty(), "%s/covercache/%s", config->varlibdir, filename);
+        sdsfree(filename);
+        covercachefile = find_image_file(covercachefile);
+        if (sdslen(covercachefile) > 0) {
+            sds mime_type = get_mime_type_by_ext(covercachefile);
+            LOG_DEBUG("Serving file %s (%s)", covercachefile, mime_type);
+            mg_http_serve_file(nc, hm, covercachefile, mg_mk_str(mime_type), mg_mk_str(""));
+            sdsfree(uri_decoded);
+            sdsfree(covercachefile);
+            sdsfree(mediafile);
+            sdsfree(mime_type);
+            return true;
+        }
+        else {
+            sdsfree(covercachefile);
+        }
     }
     //check music_directory folder
     if (mg_user_data->feat_library == true && access(mediafile, F_OK) == 0) {
