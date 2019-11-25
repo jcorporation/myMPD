@@ -61,8 +61,8 @@ Backend
 Dependencies
 ------------
  - libmagic
- - OpenSSL: https://www.openssl.org/
- - libmediainfo: https://mediaarea.net/en/MediaInfo (to support embedded albumart)
+ - OpenSSL
+ - libid3tag
 
 Build Dependencies
 ------------------
@@ -73,7 +73,7 @@ Build Dependencies
 
 Unix Build Instructions
 -----------------------
-1. Install dependencies: cmake, libmagic (dev), OpenSSL (dev), libmediainfo (dev), Java and Perl
+1. Install dependencies: cmake, libmagic (dev), OpenSSL (dev), libid3tag (dev), Java and Perl
 2. Extract myMPD tarball and change path to this directory
 3. Build and install myMPD: ```./build.sh releaseinstall```
 

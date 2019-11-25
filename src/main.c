@@ -41,7 +41,6 @@
 #include "mympd_api.h"
 #include "cert.h"
 #include "handle_options.h"
-#include "plugins.h"
 #include "maintenance.h"
 
 static void mympd_signal_handler(int sig_num) {
@@ -82,10 +81,6 @@ static bool do_chroot(struct t_config *config) {
         if (config->syscmds == true) {
             LOG_INFO("Disabling syscmds");
             config->syscmds = false;
-        }
-        if (config->plugins_coverextract == true) {
-            LOG_INFO("Disabling plugin coverextract");
-            config->plugins_coverextract = false;
         }
         return true;
     }
@@ -369,11 +364,6 @@ int main(int argc, char **argv) {
         goto cleanup;
     }
     
-    //init plugins
-    if (init_plugins(config) == false) {
-        goto cleanup;
-    }
-
     //set signal handler
     signal(SIGTERM, mympd_signal_handler);
     signal(SIGINT, mympd_signal_handler);
@@ -466,7 +456,6 @@ int main(int argc, char **argv) {
     tiny_queue_free(web_server_queue);
     tiny_queue_free(mpd_client_queue);
     tiny_queue_free(mympd_api_queue);
-    close_plugins(config);
     mympd_free_config(config);
     sdsfree(configfile);
     sdsfree(option);

@@ -137,9 +137,6 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("mympd", "lovemessage")) {
         p_config->love_message = sdsreplace(p_config->love_message, value);
     }
-    else if (MATCH("plugins", "coverextract")) {
-        p_config->plugins_coverextract = strcmp(value, "true") == 0 ? true : false;
-    }
     else if (MATCH("mympd", "notificationweb")) {
         p_config->notification_web = strcmp(value, "true") == 0 ? true : false;
     }
@@ -256,7 +253,7 @@ static void mympd_get_env(struct t_config *config) {
         "MYMPD_LOGLEVEL", "MYMPD_USER", "MYMPD_VARLIBDIR", "MYMPD_MIXRAMP", "MYMPD_STICKERS", "MYMPD_TAGLIST", 
         "MYMPD_SEARCHTAGLIST", "MYMPD_BROWSETAGLIST", "MYMPD_SMARTPLS", "MYMPD_SYSCMDS", 
         "MYMPD_PAGINATION", "MYMPD_LASTPLAYEDCOUNT", "MYMPD_LOVE", "MYMPD_LOVECHANNEL", "MYMPD_LOVEMESSAGE",
-        "PLUGINS_COVEREXTRACT", "MYMPD_NOTIFICATIONWEB", "MYMPD_CHROOT", "MYMPD_READONLY",
+        "MYMPD_NOTIFICATIONWEB", "MYMPD_CHROOT", "MYMPD_READONLY",
         "MYMPD_NOTIFICATIONPAGE", "MYMPD_AUTOPLAY", "MYMPD_JUKEBOXMODE", "MYMPD_BOOKMARKS",
         "MYMPD_JUKEBOXPLAYLIST", "MYMPD_JUKEBOXQUEUELENGTH", "MYMPD_COLSQUEUECURRENT",
         "MYMPD_COLSSEARCH", "MYMPD_COLSBROWSEDATABASE", "MYMPD_COLSBROWSEPLAYLISTDETAIL",
@@ -335,7 +332,6 @@ void mympd_config_defaults(t_config *config) {
     config->love = false;
     config->love_channel = sdsempty();
     config->love_message = sdsnew("love");
-    config->plugins_coverextract = false;
     config->music_directory = sdsnew("auto");
     config->notification_web = false;
     config->notification_page = true;
@@ -397,10 +393,6 @@ bool mympd_read_config(t_config *config, sds configfile) {
 void mympd_set_readonly(t_config *config) {
     LOG_INFO("Entering readonly mode");
     config->readonly = true;
-    if (config->plugins_coverextract == true) {
-        LOG_INFO("Disabling plugin coverextract");
-        config->plugins_coverextract = false;
-    }
     if (config->bookmarks == true) {
         LOG_INFO("Disabling bookmarks");
         config->bookmarks = false;

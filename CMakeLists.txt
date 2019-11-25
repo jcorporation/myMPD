@@ -8,7 +8,7 @@ cmake_minimum_required(VERSION 2.6)
 
 include(GNUInstallDirs)
 
-project (mympd)
+project (mympd C)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/")
 set(CPACK_PACKAGE_VERSION_MAJOR "5")
 set(CPACK_PACKAGE_VERSION_MINOR "8")
@@ -65,14 +65,8 @@ if(NOT ${EMBEDDED_LIBMPDCLIENT} MATCHES "ON")
 endif()
 find_package(Threads REQUIRED)
 find_package(OpenSSL REQUIRED)
-find_package(LibMediainfo)
 find_package(LibMagic REQUIRED)
-
-if(LIBMEDIAINFO_FOUND)
-  set(COVEREXTRACT "true")
-else()
-  set(COVEREXTRACT "false")
-endif()
+find_package(LibId3Tag REQUIRED)
 
 configure_file(src/config_defs.h.in ${PROJECT_BINARY_DIR}/config_defs.h)
 configure_file(cmake/CopyConfig.cmake.in cmake/CopyConfig.cmake @ONLY)
@@ -82,9 +76,9 @@ configure_file(contrib/initscripts/mympd.sysVinit.in contrib/initscripts/mympd.s
 configure_file(contrib/initscripts/mympd.openrc.in contrib/initscripts/mympd.openrc @ONLY)
 
 if(${EMBEDDED_LIBMPDCLIENT} MATCHES "ON")
-  include_directories(${PROJECT_BINARY_DIR} dist/src/libmpdclient/include ${PROJECT_SOURCE_DIR} ${OPENSSL_INCLUDE_DIR})
+  include_directories(${PROJECT_BINARY_DIR} dist/src/libmpdclient/include ${PROJECT_SOURCE_DIR} ${OPENSSL_INCLUDE_DIR} ${LIBID3TAG_INCLUDE_DIRS})
 else()
-  include_directories(${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR} ${LIBMPDCLIENT_INCLUDE_DIR} ${OPENSSL_INCLUDE_DIR})
+  include_directories(${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR} ${LIBMPDCLIENT_INCLUDE_DIR} ${OPENSSL_INCLUDE_DIR} ${LIBID3TAG_INCLUDE_DIRS})
 endif()
 
 include(CheckCSourceCompiles)
@@ -93,12 +87,9 @@ if(${MEMCHECK} MATCHES "TRUE")
   #for use with valgrind
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -Wall -Werror -DMG_ENABLE_SSL")
   set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -ggdb")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu99 -Wall")
-  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -ggdb")
 else()
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -O1 -Wall -Werror -fstack-protector -D_FORTIFY_SOURCE=2 -pie -fPIE -DMG_ENABLE_SSL")
   set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -s")
-  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -s")
   set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -ggdb -fsanitize=address \
 	-fsanitize=undefined -fsanitize=shift -fsanitize=integer-divide-by-zero -fsanitize=unreachable -fsanitize=vla-bound \
 	-fsanitize=null -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=bounds -fsanitize=bounds-strict \
@@ -147,7 +138,6 @@ set(SOURCES
     src/handle_options.c
     src/maintenance.c
     src/utility.c
-    src/plugins.c
     src/sds_extras.c
     src/mpd_client.c
     src/mpd_client/mpd_client_api.c
@@ -230,20 +220,10 @@ set(LIBMPDCLIENT_SOURCES
 
 if(${EMBEDDED_LIBMPDCLIENT} MATCHES "ON")
   add_executable(mympd ${SOURCES} ${LIBMPDCLIENT_SOURCES})
-  target_link_libraries(mympd ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${CMAKE_DL_LIBS} ${LIBMAGIC_LIBRARIES})
+  target_link_libraries(mympd ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${LIBMAGIC_LIBRARIES} ${LIBID3TAG_LIBRARIES})
 else()
   add_executable(mympd ${SOURCES})
-  target_link_libraries(mympd ${LIBMPDCLIENT_LIBRARY} ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${CMAKE_DL_LIBS} ${LIBMAGIC_LIBRARIES})
-endif()
-
-if(LIBMEDIAINFO_FOUND)
-  add_library(mympd_coverextract SHARED src/plugins/mympd_coverextract.cpp)
-
-  install(TARGETS mympd_coverextract DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}${SUBDIR}/)
-
-  #testcoverextract executable
-  add_executable(test_coverextract src/plugins/test_coverextract.c)
-  target_link_libraries(test_coverextract ${CMAKE_DL_LIBS})
+  target_link_libraries(mympd ${LIBMPDCLIENT_LIBRARY} ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${LIBMAGIC_LIBRARIES} ${LIBID3TAG_LIBRARIES})
 endif()
 
 install(TARGETS mympd DESTINATION ${CMAKE_INSTALL_FULL_BINDIR})

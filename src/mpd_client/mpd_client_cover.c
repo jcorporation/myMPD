@@ -18,7 +18,6 @@
 #include "../log.h"
 #include "../list.h"
 #include "config_defs.h"
-#include "../plugins.h"
 #include "../utility.h"
 #include "mpd_client_utility.h"
 #include "mpd_client_cover.h"

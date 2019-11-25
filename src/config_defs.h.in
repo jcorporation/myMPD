@@ -77,7 +77,6 @@ typedef struct t_config {
     bool love;
     sds love_channel;
     sds love_message;
-    bool plugins_coverextract;
     sds music_directory;
     bool notification_web;
     bool notification_page;

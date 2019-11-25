@@ -9,6 +9,7 @@
 #include <signal.h>
 #include <string.h>
 #include <libgen.h>
+#include <id3tag.h>
 
 #include "../dist/src/sds/sds.h"
 #include "../dist/src/mongoose/mongoose.h"
@@ -21,12 +22,11 @@
 #include "../tiny_queue.h"
 #include "config_defs.h"
 #include "../global.h"
-#include "../plugins.h"
 #include "web_server_utility.h"
 #include "web_server_albumart.h"
 
 //privat definitions
-static bool handle_coverextract(struct mg_connection *nc, struct http_message *hm, t_config *config, sds media_file);
+static bool handle_coverextract_id3(struct mg_connection *nc, t_config *config, const char *uri, const char *media_file);
 
 //public functions
 void send_albumart(struct mg_connection *nc, struct http_message *hm, sds data, sds binary) {
@@ -143,14 +143,12 @@ bool handle_albumart(struct mg_connection *nc, struct http_message *hm, t_mg_use
         }
         sdsfree(coverfile);
         //try coverextract plugin
-        if (config->plugins_coverextract == true) {
-            LOG_DEBUG("Exctracting coverimage from %s/%s", mg_user_data->music_directory, mediafile);
-            bool rc = handle_coverextract(nc, hm, config, uri_decoded);
-            if (rc == true) {
-                sdsfree(uri_decoded);
-                sdsfree(mediafile);
-                return true;
-            }
+        
+        bool rc = handle_coverextract_id3(nc, config, uri_decoded, mediafile);
+        if (rc == true) {
+            sdsfree(uri_decoded);
+            sdsfree(mediafile);
+            return true;
         }
     }
     //ask mpd
@@ -179,22 +177,59 @@ bool handle_albumart(struct mg_connection *nc, struct http_message *hm, t_mg_use
 }
 
 //privat functions
-
-static bool handle_coverextract(struct mg_connection *nc, struct http_message *hm, t_config *config, sds media_file) {
-    size_t image_mime_type_len = 100;
-    char image_mime_type[image_mime_type_len]; /* Flawfinder: ignore */
-    size_t image_file_len = 1500;
-    char image_file[image_file_len]; /* Flawfinder: ignore */
-    
-    sds cache_dir = sdscatfmt(sdsempty(), "%s/covercache", config->varlibdir);
-
-    bool rc = plugin_coverextract(media_file, cache_dir, image_file, image_file_len, image_mime_type, image_mime_type_len, true);
-    sdsfree(cache_dir);
-    if (rc == true) {
-        sds path = sdscatfmt(sdsempty(), "%s/covercache/%s", config->varlibdir, image_file);
-        LOG_DEBUG("Serving file %s (%s)", path, image_mime_type);
-        mg_http_serve_file(nc, hm, path, mg_mk_str(image_mime_type), mg_mk_str(""));
-        sdsfree(path);
+static bool handle_coverextract_id3(struct mg_connection *nc, t_config *config, const char *uri, const char *media_file) {
+    LOG_DEBUG("Exctracting coverimage from %s", media_file);
+    bool rc = false;
+    struct id3_file *file_struct = id3_file_open(media_file, ID3_FILE_MODE_READONLY);
+    if (file_struct == NULL) {
+        LOG_ERROR("Can't parse id3_file: %s", media_file);
+        return false;
     }
+    struct id3_tag *tags = id3_file_tag(file_struct);
+    if (tags == NULL) {
+        LOG_ERROR("Can't read id3 tags from file: %s", media_file);
+        return false;
+    }
+    struct id3_frame *frame = id3_tag_findframe(tags, "APIC", 0);
+    if (frame != NULL) {
+        id3_length_t length;
+        const id3_byte_t *pic = id3_field_getbinarydata(id3_frame_field(frame, 4), &length);
+        if (config->covercache == true) {
+            sds filename = sdsnew(uri);
+            uri_to_filename(filename);
+            sds tmp_file = sdscatfmt(sdsempty(), "%s/covercache/%s.XXXXXX", config->varlibdir, filename);
+            FILE *fp = fopen(tmp_file, "w");
+            if (fp != NULL) {
+                fwrite(pic, 1, length, fp);
+                fclose(fp);
+            }
+            else {
+                LOG_ERROR("Can't write covercachefile: %s", tmp_file);
+                sdsfree(tmp_file);
+                sdsfree(filename);
+                return false;
+            }
+            sds ext = get_ext_by_mime_type((char *)id3_field_getlatin1(id3_frame_field(frame, 1)));
+            sds cover_file = sdscatfmt(sdsempty(), "%s/covercache/%s.%s", config->varlibdir, filename, ext);
+            if (rename(tmp_file, cover_file) == -1) {
+                LOG_ERROR("Rename file from %s to %s failed", tmp_file, cover_file);
+                sdsfree(ext);
+                sdsfree(cover_file);
+                sdsfree(filename);
+                return false;
+            }
+            sdsfree(ext);
+            sdsfree(cover_file);
+            sdsfree(tmp_file);
+            sdsfree(filename);
+        }
+        sds header = sdscatfmt(sdsempty(), "Content-Type: %s", id3_field_getlatin1(id3_frame_field(frame, 1)));
+        mg_send_head(nc, 200, length, header);
+        mg_send(nc, pic, length);
+        sdsfree(header);
+        LOG_DEBUG("Coverimage successfully extracted");
+        rc = true;        
+    }
+    id3_file_close(file_struct);
     return rc;
 }
