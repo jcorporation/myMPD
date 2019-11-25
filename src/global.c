@@ -32,6 +32,18 @@ t_work_result *create_result_new(int conn_id, int request_id, int cmd_id, const 
     return response;
 }
 
+t_work_request *create_request(int conn_id, int request_id, int cmd_id, const char *method, struct http_message *hm, const char *data) {
+    t_work_request *request = (t_work_request *)malloc(sizeof(t_work_request));
+    assert(request);
+    request->conn_id = conn_id;
+    request->cmd_id = cmd_id;
+    request->id = request_id;
+    request->method = sdsnew(method);
+    request->data = sdsnew(data);
+    request->hm = hm;
+    return request;
+}
+
 void free_request(t_work_request *request) {
     if (request != NULL) {
         sdsfree(request->data);

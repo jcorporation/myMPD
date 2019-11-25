@@ -8,7 +8,6 @@
 #include <stdbool.h>
 #include <signal.h>
 #include <string.h>
-#include <assert.h>
 #include <mpd/client.h>
 
 #include "../../dist/src/sds/sds.h"
@@ -24,38 +23,32 @@
 #include "mympd_api_utility.h"
 
 void mympd_api_push_to_mpd_client(t_mympd_state *mympd_state) {
-    t_work_request *mpd_client_request = (t_work_request *)malloc(sizeof(t_work_request));
-    assert(mpd_client_request);
-    mpd_client_request->conn_id = -1;
-    mpd_client_request->id = 0;
-    mpd_client_request->cmd_id = MYMPD_API_SETTINGS_SET;
-    mpd_client_request->method = sdsnew("MYMPD_API_SETTINGS_SET");
+    t_work_request *request = create_request(-1, 0, MYMPD_API_SETTINGS_SET, "MYMPD_API_SETTINGS_SET", NULL, "");
 
-    sds data = sdscat(sdsempty(), "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_SETTINGS_SET\",\"params\":{");
-    data = tojson_long(data, "jukeboxMode", mympd_state->jukebox_mode, true);
-    data = tojson_char(data, "jukeboxPlaylist", mympd_state->jukebox_playlist, true);
-    data = tojson_long(data, "jukeboxQueueLength", mympd_state->jukebox_queue_length, true);
-    data = tojson_bool(data, "autoPlay", mympd_state->auto_play, true);
-    data = tojson_bool(data, "coverimage", mympd_state->coverimage, true);
-    data = tojson_char(data, "coverimageName", mympd_state->coverimage_name, true);
-    data = tojson_bool(data, "love", mympd_state->love, true);
-    data = tojson_char(data, "loveChannel", mympd_state->love_channel, true);
-    data = tojson_char(data, "loveMessage", mympd_state->love_message, true);
-    data = tojson_char(data, "taglist", mympd_state->taglist, true);
-    data = tojson_char(data, "searchtaglist", mympd_state->searchtaglist, true);
-    data = tojson_char(data, "browsetaglist", mympd_state->browsetaglist, true);
-    data = tojson_bool(data, "stickers", mympd_state->stickers, true);
-    data = tojson_bool(data, "smartpls", mympd_state->smartpls, true);
-    data = tojson_char(data, "mpdHost", mympd_state->mpd_host, true);
-    data = tojson_char(data, "mpdPass", mympd_state->mpd_pass, true);
-    data = tojson_long(data, "mpdPort", mympd_state->mpd_port, true);
-    data = tojson_long(data, "lastPlayedCount", mympd_state->last_played_count, true);
-    data = tojson_long(data, "maxElementsPerPage", mympd_state->max_elements_per_page, true);
-    data = tojson_char(data, "musicDirectory", mympd_state->music_directory, false);
-    data = sdscat(data, "}}");
+    request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_SETTINGS_SET\",\"params\":{");
+    request->data = tojson_long(request->data, "jukeboxMode", mympd_state->jukebox_mode, true);
+    request->data = tojson_char(request->data, "jukeboxPlaylist", mympd_state->jukebox_playlist, true);
+    request->data = tojson_long(request->data, "jukeboxQueueLength", mympd_state->jukebox_queue_length, true);
+    request->data = tojson_bool(request->data, "autoPlay", mympd_state->auto_play, true);
+    request->data = tojson_bool(request->data, "coverimage", mympd_state->coverimage, true);
+    request->data = tojson_char(request->data, "coverimageName", mympd_state->coverimage_name, true);
+    request->data = tojson_bool(request->data, "love", mympd_state->love, true);
+    request->data = tojson_char(request->data, "loveChannel", mympd_state->love_channel, true);
+    request->data = tojson_char(request->data, "loveMessage", mympd_state->love_message, true);
+    request->data = tojson_char(request->data, "taglist", mympd_state->taglist, true);
+    request->data = tojson_char(request->data, "searchtaglist", mympd_state->searchtaglist, true);
+    request->data = tojson_char(request->data, "browsetaglist", mympd_state->browsetaglist, true);
+    request->data = tojson_bool(request->data, "stickers", mympd_state->stickers, true);
+    request->data = tojson_bool(request->data, "smartpls", mympd_state->smartpls, true);
+    request->data = tojson_char(request->data, "mpdHost", mympd_state->mpd_host, true);
+    request->data = tojson_char(request->data, "mpdPass", mympd_state->mpd_pass, true);
+    request->data = tojson_long(request->data, "mpdPort", mympd_state->mpd_port, true);
+    request->data = tojson_long(request->data, "lastPlayedCount", mympd_state->last_played_count, true);
+    request->data = tojson_long(request->data, "maxElementsPerPage", mympd_state->max_elements_per_page, true);
+    request->data = tojson_char(request->data, "musicDirectory", mympd_state->music_directory, false);
+    request->data = sdscat(request->data, "}}");
 
-    mpd_client_request->data = data;
-    tiny_queue_push(mpd_client_queue, mpd_client_request);
+    tiny_queue_push(mpd_client_queue, request);
 }
 
 void free_mympd_state(t_mympd_state *mympd_state) {

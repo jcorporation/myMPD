@@ -8,7 +8,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <signal.h>
-#include <assert.h>
 #include <mpd/client.h>
 
 #include "../../dist/src/sds/sds.h"
@@ -73,6 +72,7 @@ void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state) {
     data = tojson_bool(data, "featMpdAlbumart", mpd_state->feat_mpd_albumart, false);
     data = sdscat(data, "}");
     web_server_response->data = sdsreplace(web_server_response->data, data);
+    sdsfree(data);
     tiny_queue_push(web_server_queue, web_server_response);
 }
 

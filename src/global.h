@@ -36,6 +36,7 @@ typedef struct t_work_result {
 
 t_work_result *create_result(t_work_request *request);
 t_work_result *create_result_new(int conn_id, int request_id, int cmd_id, const char *method, struct http_message *hm);
+t_work_request *create_request(int conn_id, int request_id, int cmd_id, const char *method, struct http_message *hm, const char *data);
 
 void free_request(t_work_request *request);
 void free_result(t_work_result *result);

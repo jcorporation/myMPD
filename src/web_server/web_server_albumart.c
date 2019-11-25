@@ -7,7 +7,6 @@
 #include <limits.h>
 #include <stdbool.h>
 #include <signal.h>
-#include <assert.h>
 #include <string.h>
 #include <libgen.h>
 
@@ -156,19 +155,11 @@ bool handle_albumart(struct mg_connection *nc, struct http_message *hm, t_mg_use
     #ifdef EMBEDDED_LIBMPDCLIENT
     else if (mg_user_data->feat_library == false && mg_user_data->feat_mpd_albumart == true) {
         LOG_DEBUG("Sending getalbumart to mpd_client_queue");
-        t_work_request *request = (t_work_request*)malloc(sizeof(t_work_request));
-        assert(request);
-        request->conn_id = conn_id;
-        request->id = 0;
-        request->method = sdsnew("MPD_API_ALBUMART");
-        request->cmd_id = MPD_API_ALBUMART;
-        request->hm = hm;
-        
-        sds data = sdscat(sdsempty(), "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPD_API_ALBUMART\",\"params\":{");
-        data = tojson_char(data, "uri", uri_decoded, false);
-        data = sdscat(data, "}}");
-        
-        request->data = data;
+        t_work_request *request = create_request(conn_id, 0, MPD_API_ALBUMART, "MPD_API_ALBUMART", hm, "");
+        request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPD_API_ALBUMART\",\"params\":{");
+        request->data = tojson_char(request->data, "uri", uri_decoded, false);
+        request->data = sdscat(request->data, "}}");
+
         tiny_queue_push(mpd_client_queue, request);
         sdsfree(mediafile);
         sdsfree(uri_decoded);

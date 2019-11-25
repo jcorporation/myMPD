@@ -10,7 +10,6 @@
 #include <string.h>
 #include <inttypes.h>
 #include <signal.h>
-#include <assert.h>
 #include <unistd.h>
 #include <mpd/client.h>
 

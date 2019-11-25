@@ -384,14 +384,9 @@ static bool handle_api(int conn_id, struct http_message *hm) {
         return false;
     }
     
-    t_work_request *request = (t_work_request*)malloc(sizeof(t_work_request));
-    assert(request);
-    request->conn_id = conn_id;
-    request->cmd_id = cmd_id;
-    request->id = id;
-    request->method = sdscat(sdsempty(), cmd);
-    request->data = sdscatlen(sdsempty(), hm->body.p, hm->body.len);
-    request->hm = hm;
+    sds data = sdscatlen(sdsempty(), hm->body.p, hm->body.len);
+    t_work_request *request = create_request(conn_id, id, cmd_id, cmd, hm, data);
+    sdsfree(data);
     
     if (strncmp(cmd, "MYMPD_API_", 10) == 0) {
         tiny_queue_push(mympd_api_queue, request);
