@@ -17,8 +17,8 @@ BuildRequires:  cmake
 BuildRequires:  unzip
 BuildRequires:  pkgconfig
 BuildRequires:  openssl-devel
-BuildRequires:  libmediainfo-devel
-BuildRequires:	libmagic-dev
+BuildRequires:  libid3tag-devel
+BuildRequires:	file-devel
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
 %global debug_package %{nil}

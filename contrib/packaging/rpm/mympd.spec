@@ -17,8 +17,8 @@ BuildRequires:  cmake
 BuildRequires:  unzip
 BuildRequires:  pkgconfig
 BuildRequires:  openssl-devel
-BuildRequires:  libmediainfo-devel
-BuildRequires:	libmagic-dev
+BuildRequires:  libid3tag-devel
+BuildRequires:	file-devel
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
 %global debug_package %{nil}
@@ -60,5 +60,5 @@ fi
 %config(noreplace) /etc/mympd.conf
 
 %changelog
-* Mon Nov 25 2019 Juergen Mang <mail@jcgames.de> 5.8.0-0
+* Tue Nov 26 2019 Juergen Mang <mail@jcgames.de> 5.8.0-0
 - Version from master
