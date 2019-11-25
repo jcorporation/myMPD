@@ -209,6 +209,7 @@ set(LIBMPDCLIENT_SOURCES
     dist/src/libmpdclient/src/playlist.c
     dist/src/libmpdclient/src/queue.c
     dist/src/libmpdclient/src/quote.c
+    dist/src/libmpdclient/src/readpicture.c
     dist/src/libmpdclient/src/rdirectory.c
     dist/src/libmpdclient/src/recv.c
     dist/src/libmpdclient/src/resolver.c

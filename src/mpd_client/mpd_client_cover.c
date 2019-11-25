@@ -27,7 +27,6 @@ sds mpd_client_getcover(t_config *config, t_mpd_state *mpd_state, sds buffer, sd
                         const char *uri, sds *binary)
 {
     unsigned offset = 0;
-    unsigned size = 0;
     FILE *fp = NULL;
     sds filename = sdsnew(uri);
     uri_to_filename(filename);
@@ -56,17 +55,28 @@ sds mpd_client_getcover(t_config *config, t_mpd_state *mpd_state, sds buffer, sd
                 *binary = sdscatlen(*binary, albumart->data, albumart->data_length);
             }
             offset += albumart->data_length;
-            size = albumart->size;
         }
     }
-    if (size == 0 && mpd_state->feat_mpd_readpicture == true) {
-        //todo: implement readpicture command
+    if (offset == 0 && mpd_state->feat_mpd_readpicture == true) {
+        struct mpd_readpicture readpicture_buffer;
+        struct mpd_readpicture *readpicture;
+        while ((readpicture = mpd_run_readpicture(mpd_state->conn, uri, offset, &readpicture_buffer)) != NULL) {
+            if (config->covercache == true) {
+                fwrite(readpicture->data, 1, readpicture->data_length, fp);
+            }
+            if (readpicture->size < config->covercache_avoid || config->covercache == false) {
+                // smaller than covercacheavoid (default 2 MB), or disabled covercache
+                *binary = sdscatlen(*binary, readpicture->data, readpicture->data_length);
+            }
+            offset += readpicture->data_length;
+            mpd_free_readpicture(&readpicture_buffer);
+        }
     }
 #endif
     if (config->covercache == true) {
         fclose(fp);
     }
-    if (size > 0) {
+    if (offset > 0) {
         sds mime_type;
         if (sdslen(*binary) > 0) {
             mime_type = get_mime_type_by_magic_stream(*binary);
