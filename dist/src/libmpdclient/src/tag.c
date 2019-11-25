@@ -63,7 +63,7 @@ static const char *const mpd_tag_type_names[MPD_TAG_COUNT] =
 	[MPD_TAG_MUSICBRAINZ_WORKID] = "MUSICBRAINZ_WORKID",
 
 	[MPD_TAG_ORIGINAL_DATE] = "OriginalDate",
-	
+
 	[MPD_TAG_GROUPING] = "Grouping",
 	[MPD_TAG_WORK] = "Work",
 	[MPD_TAG_CONDUCTOR] = "Conductor",

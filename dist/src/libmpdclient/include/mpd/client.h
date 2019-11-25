@@ -76,6 +76,7 @@
 #include "sticker.h"
 #include "version.h"
 #include "albumart.h"
+#include "readpicture.h"
 #include "libmympdclient_version.h"
 
 // IWYU pragma: end_exports

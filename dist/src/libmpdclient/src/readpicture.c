@@ -35,7 +35,7 @@
 #include <mpd/pair.h>
 #include <mpd/response.h>
 #include <mpd/connection.h>
-#include <mpd/albumart.h>
+#include <mpd/readpicture.h>
 #include "run.h"
 #include "internal.h"
 #include "sync.h"
@@ -44,25 +44,39 @@
 #include <string.h>
 #include <stdlib.h>
 
-bool
-mpd_send_albumart(struct mpd_connection *connection, const char *uri, const unsigned offset)
+void
+mpd_free_readpicture(struct mpd_readpicture *buffer)
 {
-	return mpd_send_s_u_command(connection, "albumart", uri, offset);
+        if (buffer->mime_type != NULL) {
+                free(buffer->mime_type);
+                buffer->mime_type = NULL;
+        }
 }
 
-struct mpd_albumart *
-mpd_recv_albumart(struct mpd_connection *connection, struct mpd_albumart *buffer)
+bool
+mpd_send_readpicture(struct mpd_connection *connection, const char *uri, const unsigned offset)
 {
-        struct mpd_albumart *result = NULL;
+	return mpd_send_s_u_command(connection, "readpicture", uri, offset);
+}
 
-        buffer->data_length = 0;
+struct mpd_readpicture *
+mpd_recv_readpicture(struct mpd_connection *connection, struct mpd_readpicture *buffer)
+{
+        struct mpd_readpicture *result = NULL;
+
         buffer->size = 0;
-        
+        buffer->data_length = 0;
+        buffer->mime_type = NULL;
+
         struct mpd_pair *pair;
         bool last = false;
+
         while ((pair = mpd_recv_pair(connection)) != NULL) {
                 if (strcmp(pair->name, "size") == 0) {
                         buffer->size = atoi(pair->value);
+                }
+                else if (strcmp(pair->name, "type") == 0) {
+                        buffer->mime_type = strdup(pair->value);
                 }
                 else if (strcmp(pair->name, "binary") == 0) {
                         buffer->data_length = atoi(pair->value);
@@ -70,11 +84,12 @@ mpd_recv_albumart(struct mpd_connection *connection, struct mpd_albumart *buffer
                 }
                 mpd_return_pair(connection, pair);
                 if (last == true) {
-                       break;
+                        break;
                 }
         }
 
         if (last != true) {
+                mpd_free_readpicture(buffer);
                 return NULL;
         }
 
@@ -91,15 +106,15 @@ mpd_recv_albumart(struct mpd_connection *connection, struct mpd_albumart *buffer
 	return result;
 }
 
-struct mpd_albumart *
-mpd_run_albumart(struct mpd_connection *connection, const char *uri, const unsigned offset, struct mpd_albumart *buffer)
+struct mpd_readpicture *
+mpd_run_readpicture(struct mpd_connection *connection, const char *uri, const unsigned offset, struct mpd_readpicture *buffer)
 {
 	if (!mpd_run_check(connection) ||
-	    !mpd_send_albumart(connection, uri, offset)) {
+	    !mpd_send_readpicture(connection, uri, offset)) {
 		return NULL;
         }
         
-        struct mpd_albumart *result = mpd_recv_albumart(connection, buffer);
+        struct mpd_readpicture *result = mpd_recv_readpicture(connection, buffer);
         if (result == NULL) {
                 if (mpd_connection_get_error(connection) != MPD_ERROR_SUCCESS) {
                        mpd_connection_clear_error(connection);

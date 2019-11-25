@@ -36,6 +36,8 @@
 #ifndef MPD_PROTOCOL_H
 #define MPD_PROTOCOL_H
 
+#define MPD_BINARY_CHUNK_SIZE 8192
+
 enum mpd_server_error {
 	MPD_SERVER_ERROR_UNK = -1,
 

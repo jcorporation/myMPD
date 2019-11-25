@@ -36,8 +36,8 @@
  * Do not include this header directly.  Use mpd/client.h instead.
  */
 
-#ifndef MPD_ALBUMART_H
-#define MPD_ALBUMART_H
+#ifndef MPD_READPICTURE_H
+#define MPD_READPICTURE_H
 
 #include "compiler.h"
 
@@ -46,15 +46,18 @@
 
 struct mpd_connection;
 
-struct mpd_albumart {
+struct mpd_readpicture {
         /** fixed size binary data buffer*/
         unsigned char data[MPD_BINARY_CHUNK_SIZE];
 
-        /** the size of the albumart */
+        /** the size of the picture */
         unsigned size;
         
         /** bytes in the data buffer*/
         unsigned data_length;
+        
+        /** optional mime_type*/
+        char *mime_type;
 };
 
 
@@ -63,7 +66,15 @@ extern "C" {
 #endif
 
 /**
- * Sends the "albumart" command to MPD.  Call mpd_recv_albumart() to
+ * Frees the "readpicture" struct
+ *
+ * @param buffer a allocated struct mpd_readpicture
+ */
+void
+mpd_free_readpicture(struct mpd_readpicture *buffer);
+
+/**
+ * Sends the "readpicture" command to MPD.  Call mpd_recv_readpicture() to
  * read response lines. 
  *
  * @param connection a valid and connected #mpd_connection
@@ -72,36 +83,36 @@ extern "C" {
  * @return true on success
  */
 bool
-mpd_send_albumart(struct mpd_connection *connection, 
+mpd_send_readpicture(struct mpd_connection *connection, 
                                    const char *uri, 
                                    const unsigned offset);
 
 /**
- * Receives the "albumart" response
+ * Receives the "readpicture" response
  *
  * @param connection a valid and connected #mpd_connection
- * @param buffer a allocated struct mpd_albumart
- * @return a pointer to the struct mpd_albumart on success, otherwise NULL
+ * @param buffer a allocated struct mpd_readpicture
+ * @return a pointer to the struct mpd_readpicture on success, otherwise NULL
  */
-struct mpd_albumart *
-mpd_recv_albumart(struct mpd_connection *connection, struct mpd_albumart *buffer);
+struct mpd_readpicture *
+mpd_recv_readpicture(struct mpd_connection *connection, struct mpd_readpicture *buffer);
 
 /**
- * Shortcut for mpd_send_albumart(), mpd_recv_albumart() and
+ * Shortcut for mpd_send_readpicture(), mpd_recv_readpicture() and
  * mpd_response_finish().
  *
  * @param connection a valid and connected #mpd_connection
  * @param uri the URI of the song
  * @param offset to read from
- * @param buffer a allocated struct mpd_albumart
- * @return a pointer to the struct mpd_albumart on success,
+ * @param buffer a allocated struct mpd_readpicture
+ * @return a pointer to the struct mpd_readpicture on success,
  *         NULL if a error has occured or response is finished
  */
-struct mpd_albumart *
-mpd_run_albumart(struct mpd_connection *connection,
+struct mpd_readpicture *
+mpd_run_readpicture(struct mpd_connection *connection,
 				   const char *uri,
 				   const unsigned offset,
-				   struct mpd_albumart *buffer);
+				   struct mpd_readpicture *buffer);
 
 #ifdef __cplusplus
 }

@@ -288,7 +288,7 @@ int main(int argc, char ** argv) {
 	} else if (argc == 3 && strcmp(argv[1], "albumart") == 0) {
 		unsigned offset = 0;
 		unsigned size = 0;
-		FILE *fp = fopen("/tmp/test", "w");
+		FILE *fp = fopen("/tmp/albumart", "w");
 		if (fp == NULL) {
 			return 1;
 		}
@@ -300,7 +300,28 @@ int main(int argc, char ** argv) {
 			size = albumart->size;
 		}
 		fclose(fp);
-		printf("Wrote file: /tmp/test, size: %u bytes, retrieved: %u bytes\n", size, offset);
+		printf("Wrote file: /tmp/albumart, size: %u bytes, retrieved: %u bytes\n", size, offset);
+	} else if (argc == 3 && strcmp(argv[1], "readpicture") == 0) {
+		unsigned offset = 0;
+		unsigned size = 0;
+		char *mime_type = NULL;
+		FILE *fp = fopen("/tmp/readpicture", "w");
+		if (fp == NULL) {
+			return 1;
+		}
+		struct mpd_readpicture buffer;
+		struct mpd_readpicture *readpicture;
+		while ((readpicture = mpd_run_readpicture(conn, argv[2], offset, &buffer)) != NULL) {
+			fwrite(readpicture->data, 1, readpicture->data_length, fp);
+			offset += readpicture->data_length;
+			size = readpicture->size;
+			if (readpicture->mime_type != NULL && mime_type == NULL) {
+				mime_type = strdup(readpicture->mime_type);
+			}
+			mpd_free_readpicture(&buffer);
+		}
+		fclose(fp);
+		printf("Wrote file: /tmp/readpicture, size: %u bytes, retrieved: %u bytes, mime_type: %s\n", size, offset, mime_type);
 	}
 
 	mpd_connection_free(conn);
