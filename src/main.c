@@ -182,6 +182,7 @@ static bool check_ssl_certs(t_config *config, uid_t startup_uid) {
             }
         }
         else {
+            sdsfree(testdirname);
             return false;
         }
     }
