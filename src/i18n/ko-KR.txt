@@ -72,6 +72,18 @@ Any Tag
 Filename
 파일 이름
 
+Filetype
+파일 형식
+
+Fileformat
+파일 포맷
+
+bits
+비트
+
+kHz
+kHz
+
 Search queue
 순서 찾기
 
@@ -503,6 +515,15 @@ Invalid message
 
 Reset
 다시 설정
+
+Reset settings
+다시 설정 하기
+
+Clear cache and reload
+캐시를 지우고 다시 읽기
+
+Reload
+다시 읽기
 
 Shortcuts
 단축키
@@ -965,3 +986,6 @@ myMPD is in readonly mode
 
 Consume must be enabled
 소비를 선택해야 함
+
+Advanced
+고급

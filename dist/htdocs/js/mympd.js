@@ -3033,11 +3033,7 @@ function parseSettings() {
 
     document.getElementById('inputCoverimageSize').value = settings.coverimageSize;
 
-    let albumcover = document.querySelectorAll('.albumcover');
-    for (let i = 0; i < albumcover.length; i++) {
-	albumcover[i].style.width = settings.coverimageSize;
-	albumcover[i].style.height = settings.coverimageSize;
-    }
+    document.documentElement.style.setProperty('--mympd-coverimagesize', settings.coverimageSize + "px");
     
     document.getElementById('inputBgColor').value = settings.bgColor;
     document.getElementsByTagName('body')[0].style.backgroundColor = settings.bgColor;
