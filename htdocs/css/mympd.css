@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+:root {
+  --mympd-coverimagesize: 250px;
+}
+
 #splashScreen {
   background: linear-gradient(0deg, rgba(0,0,0,1) 0%, rgba(52,58,64,1) 100%);
   width: 100vw;
@@ -190,14 +194,25 @@ small {
   border-radius: 5px;
   overflow: hidden;
   max-width:100%;
-  width: 250px;
-  height: 250px;
+  width: var(--mympd-coverimagesize, 250px);
+  height: var(--mympd-coverimagesize, 250px);
   background-color: #eee;
   float: left;
   margin-bottom: 1.25rem;
   margin-right: 1.25rem;
   position: relative;
   z-index: 1;
+}
+
+a.card-img-left {
+  overflow: hidden;
+  display: block;
+  border-radius: 5px;
+  background-size: cover;
+  margin-bottom: 5px;
+  cursor: pointer;
+  width: var(--mympd-coverimagesize, 250px);
+  height: var(--mympd-coverimagesize, 250px);
 }
 
 .album-cover-loading {
@@ -340,16 +355,7 @@ small {
   
 }
 
-a.card-img-left {
-  overflow: hidden;
-  display: block;
-  width: 250px;
-  height: 250px;
-  border-radius: 5px;
-  background-size: cover;
-  margin-bottom: 5px;
-  cursor: pointer;
-}
+
 
 button.active {
   color: #fff;
