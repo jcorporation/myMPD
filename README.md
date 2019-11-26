@@ -27,7 +27,7 @@ This fork provides a reworked ui based on Bootstrap 4, a modernized backend and 
  - Smart playlists and saved searches
  - Play statistics and song voting (requires mpd stickers)
  - Local coverart support (Albums and Streams)
- - Support for embedded albumart (requires libmediainfo)
+ - Support for embedded albumart (requires libid3tag)
  - HTTP stream support
  - Local playback of mpd http stream (html5 audio api)
  - Progressiv Web App enabled
@@ -60,7 +60,7 @@ Backend
 
 Dependencies
 ------------
- - libmagic
+ - libmagic (file)
  - OpenSSL
  - libid3tag
 
@@ -73,7 +73,7 @@ Build Dependencies
 
 Unix Build Instructions
 -----------------------
-1. Install dependencies: cmake, libmagic (dev), OpenSSL (dev), libid3tag (dev), Java and Perl
+1. Install dependencies: cmake, libmagic / file (dev), OpenSSL (dev), libid3tag (dev), Java and Perl
 2. Extract myMPD tarball and change path to this directory
 3. Build and install myMPD: ```./build.sh releaseinstall```
 
