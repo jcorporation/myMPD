@@ -21,13 +21,13 @@ This fork provides a reworked ui based on Bootstrap 4, a modernized backend and 
  - Bookmarks for directories
  - Queue management
  - Playlist management
- - Advanced search (requires mpd >= 0.21.x and libmpdclient >= 2.17)
+ - Advanced search (requires mpd >= 0.21)
  - Jukebox mode (add's random songs / albums from database or playlists to queue)
  - AutoPlay - add song to (empty) queue and mpd starts playing
  - Smart playlists and saved searches
  - Play statistics and song voting (requires mpd stickers)
- - Local coverart support (Albums and Streams)
- - Support for embedded albumart (requires libid3tag)
+ - Local coverart support (requires access to music directory or mpd >= 0.21)
+ - Support for embedded albumart in mp3 files (requires libid3tag or mpd >= 0.22)
  - HTTP stream support
  - Local playback of mpd http stream (html5 audio api)
  - Progressiv Web App enabled
@@ -60,16 +60,16 @@ Backend
 
 Dependencies
 ------------
- - libmagic (file)
  - OpenSSL
- - libid3tag
+ - libmagic (file)
+ - libid3tag (optional)
 
 Build Dependencies
 ------------------
  - cmake 2.6
  - libasan3: for debug builds only
  - Java: to minify files
- - Perl: to create i18n.json
+ - Perl: to create translation files
 
 Unix Build Instructions
 -----------------------
