@@ -122,6 +122,7 @@ bool handle_albumart(struct mg_connection *nc, struct http_message *hm, t_mg_use
             return true;
         }
         else {
+            LOG_DEBUG("No covercache file found");
             sdsfree(covercachefile);
         }
     }
@@ -142,8 +143,8 @@ bool handle_albumart(struct mg_connection *nc, struct http_message *hm, t_mg_use
             return true;
         }
         sdsfree(coverfile);
+        LOG_DEBUG("No cover file found in music directory");
         //try coverextract plugin
-        
         bool rc = handle_coverextract_id3(nc, config, uri_decoded, mediafile);
         if (rc == true) {
             sdsfree(uri_decoded);
@@ -214,6 +215,7 @@ static bool handle_coverextract_id3(struct mg_connection *nc, t_config *config, 
             if (rename(tmp_file, cover_file) == -1) {
                 LOG_ERROR("Rename file from %s to %s failed", tmp_file, cover_file);
                 sdsfree(ext);
+                sdsfree(tmp_file);
                 sdsfree(cover_file);
                 sdsfree(filename);
                 return false;
@@ -229,6 +231,9 @@ static bool handle_coverextract_id3(struct mg_connection *nc, t_config *config, 
         sdsfree(header);
         LOG_DEBUG("Coverimage successfully extracted");
         rc = true;        
+    }
+    else {
+        LOG_DEBUG("No embedded picture detected");
     }
     id3_file_close(file_struct);
     return rc;
