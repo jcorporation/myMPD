@@ -224,7 +224,6 @@ int uri_to_filename(char *str) {
     return n;
 }
 
-
 const struct mime_type_entry image_files[] = {
     {"png",  "image/png"},
     {"jpg",  "image/jpeg"},
@@ -254,16 +253,36 @@ sds find_image_file(sds basefilename) {
     return basefilename;
 }
 
+const struct mime_type_entry media_files[] = {
+    {"mp3",  "audio/mpeg"},
+    {NULL,   "application/octet-stream"}
+};
+
 sds get_mime_type_by_ext(const char *filename) {
     const char *ext = strrchr(filename, '.');
     if (ext == NULL) {
         return sdsempty();
+    }
+    else if (strlen(ext) > 1) {
+        //trim starting dot
+        ext++;
+    }
+    else {
+        return sdsempty();        
     }
 
     const struct mime_type_entry *p = NULL;
     for (p = image_files; p->extension != NULL; p++) {
         if (strcmp(ext, p->extension) == 0) {
             break;
+        }
+    }
+    if (p->extension == NULL) {
+        p = NULL;
+        for (p = media_files; p->extension != NULL; p++) {
+            if (strcmp(ext, p->extension) == 0) {
+                break;
+            }
         }
     }
     sds mime_type = sdsnew(p->mime_type);
