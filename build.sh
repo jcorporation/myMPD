@@ -341,6 +341,7 @@ cleanupdist() {
   rm -f dist/htdocs/sw.min.js
   rm -f dist/htdocs/sw.js.gz
   rm -f dist/htdocs/mympd.webmanifest.gz
+  rm -f dist/htdocs/index.html
   rm -f dist/htdocs/index.html.gz
   rm -f dist/htdocs/assets/*.gz
 }
