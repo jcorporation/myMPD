@@ -66,7 +66,14 @@ endif()
 find_package(Threads REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(LibMagic REQUIRED)
-find_package(LibId3Tag REQUIRED)
+
+find_package(LibId3Tag)
+if(LIBID3TAG_FOUND)
+  set(LIBID3TAG "ON")
+else()
+  set(LIBID3TAG "OFF")
+endif()
+
 
 configure_file(src/config_defs.h.in ${PROJECT_BINARY_DIR}/config_defs.h)
 configure_file(cmake/CopyConfig.cmake.in cmake/CopyConfig.cmake @ONLY)
@@ -96,7 +103,6 @@ else()
 	-fsanitize=alignment -fsanitize=object-size -fsanitize=float-divide-by-zero -fsanitize=float-cast-overflow \
 	-fsanitize=nonnull-attribute -fsanitize=returns-nonnull-attribute -fsanitize=bool -fsanitize=enum -fsanitize=vptr -static-libasan")
 endif()
-
 
 #compiler flags for mympd src
 file(GLOB MYMPD_SRC_FILES1 "src/*.c")

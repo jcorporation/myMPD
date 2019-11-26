@@ -31,6 +31,9 @@
 //Embedded libmpdclient
 #cmakedefine EMBEDDED_LIBMPDCLIENT
 
+//libid3tag
+#cmakedefine LIBID3TAG
+
 //myMPD version from cmake
 #define MYMPD_VERSION_MAJOR ${CPACK_PACKAGE_VERSION_MAJOR}
 #define MYMPD_VERSION_MINOR ${CPACK_PACKAGE_VERSION_MINOR}

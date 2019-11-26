@@ -9,7 +9,6 @@
 #include <signal.h>
 #include <string.h>
 #include <libgen.h>
-#include <id3tag.h>
 
 #include "../dist/src/sds/sds.h"
 #include "../dist/src/mongoose/mongoose.h"
@@ -25,7 +24,13 @@
 #include "web_server_utility.h"
 #include "web_server_albumart.h"
 
+//optional includes
+#ifdef LIBID3TAG
+    #include <id3tag.h>
+#endif
+
 //privat definitions
+static bool handle_coverextract(struct mg_connection *nc, t_config *config, const char *uri, const char *media_file);
 static bool handle_coverextract_id3(struct mg_connection *nc, t_config *config, const char *uri, const char *media_file);
 
 //public functions
@@ -144,8 +149,8 @@ bool handle_albumart(struct mg_connection *nc, struct http_message *hm, t_mg_use
         }
         sdsfree(coverfile);
         LOG_DEBUG("No cover file found in music directory");
-        //try coverextract plugin
-        bool rc = handle_coverextract_id3(nc, config, uri_decoded, mediafile);
+        //try to extract cover from media file
+        bool rc = handle_coverextract(nc, config, uri_decoded, mediafile);
         if (rc == true) {
             sdsfree(uri_decoded);
             sdsfree(mediafile);
@@ -178,9 +183,22 @@ bool handle_albumart(struct mg_connection *nc, struct http_message *hm, t_mg_use
 }
 
 //privat functions
-static bool handle_coverextract_id3(struct mg_connection *nc, t_config *config, const char *uri, const char *media_file) {
-    LOG_DEBUG("Exctracting coverimage from %s", media_file);
+static bool handle_coverextract(struct mg_connection *nc, t_config *config, const char *uri, const char *media_file) {
     bool rc = false;
+    sds mime_type = get_mime_type_by_ext(media_file);
+    LOG_DEBUG("Mimetype of %s is %s", media_file, mime_type);
+    if (strcmp(mime_type, "audio/mpeg") == 0) {
+        rc = handle_coverextract_id3(nc, config, uri, media_file);
+    }
+    sdsfree(mime_type);
+    return rc;
+}
+
+
+static bool handle_coverextract_id3(struct mg_connection *nc, t_config *config, const char *uri, const char *media_file) {
+    bool rc = false;
+    #ifdef LIBID3TAG
+    LOG_DEBUG("Exctracting coverimage from %s", media_file);
     struct id3_file *file_struct = id3_file_open(media_file, ID3_FILE_MODE_READONLY);
     if (file_struct == NULL) {
         LOG_ERROR("Can't parse id3_file: %s", media_file);
@@ -236,5 +254,11 @@ static bool handle_coverextract_id3(struct mg_connection *nc, t_config *config, 
         LOG_DEBUG("No embedded picture detected");
     }
     id3_file_close(file_struct);
+    #else
+    (void) nc;
+    (void) config;
+    (void) uri;
+    (void) media_file;
+    #endif
     return rc;
 }
