@@ -549,7 +549,7 @@ function saveSettings() {
     }
     
     let inputCoverimageName = document.getElementById('inputCoverimageName');
-    if (!validateFilename(inputCoverimageName)) {
+    if (!validateFilenameList(inputCoverimageName)) {
         formOK = false;
     }
     

@@ -5,19 +5,40 @@
  https://github.com/jcorporation/mympd
 */
 
-function validateFilename(el) {
-    if (el.value == '') {
-        el.classList.add('is-invalid');
+function validateFilenameString(str) {
+    if (str === '') {
         return false;
     }
-    else if (el.value.match(/^[\w-]+\.\w+$/) !== null) {
-        el.classList.remove('is-invalid');
+    else if (str.match(/^[\w-]+\.\w+$/) !== null) {
         return true;
     }
     else {
+        return false;
+    }
+}
+
+function validateFilename(el) {
+    if (validateFilenameString(el.value) === false) {
         el.classList.add('is-invalid');
         return false;
     }
+    else {
+        el.classList.remove('is-invalid');
+        return true;
+    }
+}
+
+function validateFilenameList(el) {
+    el.classList.remove('is-invalid');
+    
+    let filenames = el.value.split(',');
+    for (let i = 0; i < filenames.length; i++) {
+        if (validateFilenameString(filenames[i].trim()) === false) {
+            el.classList.add('is-invalid');
+            return false;
+        }
+    }
+    return true;
 }
 
 function validatePath(el) {
