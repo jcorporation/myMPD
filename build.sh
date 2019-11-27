@@ -108,20 +108,21 @@ minify() {
   if [ "$TYPE" = "html" ] && [ "$PERLBIN" != "" ]
   then
     # shellcheck disable=SC2016
-    $PERLBIN -pe 's/^<!--debug-->.*\n//gm; s/<!--release\s+(.+)-->/$1/g; s/<!--(.+)-->//g; s/^\s*//gm; s/\s*$//gm' "$SRC" > "$DST"
+    $PERLBIN -pe 's/^<!--debug-->.*\n//gm; s/<!--release\s+(.+)-->/$1/g; s/<!--(.+)-->//g; s/^\s*//gm; s/\s*$//gm' "$SRC" > "${DST}.tmp"
     ERROR="$?"
     if [ "$ERROR" = "1" ]
     then
+      rm -f "${DST}.tmp"
       echo "Error minifying $SRC"
       exit 1
     fi
   elif [ "$TYPE" = "js" ] && [ "$JAVABIN" != "" ]
   then
-    $JAVABIN -jar dist/buildtools/closure-compiler.jar "$SRC" > "$DST"
+    $JAVABIN -jar dist/buildtools/closure-compiler.jar "$SRC" > "${DST}.tmp"
     ERROR="$?"
   elif [ "$TYPE" = "css" ] && [ "$JAVABIN" != "" ]
   then
-    $JAVABIN -jar dist/buildtools/closure-stylesheets.jar --allow-unrecognized-properties "$SRC" > "$DST"
+    $JAVABIN -jar dist/buildtools/closure-stylesheets.jar --allow-unrecognized-properties "$SRC" > "${DST}.tmp"
     ERROR="$?"
   else
     ERROR="1"
@@ -135,7 +136,10 @@ minify() {
     else
       echo "Error minifying $SRC, copy $SRC to $DST"
     fi
+    rm -f "${DST}.tmp"
     cp "$SRC" "$DST"
+  else
+    mv "${DST}.tmp" "$DST"
   fi
   #successfull minified or copied file
   return 0
