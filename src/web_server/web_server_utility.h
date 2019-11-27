@@ -23,6 +23,8 @@
                       "X-XSS-Protection: 1; mode=block\r\n"\
                       "X-Frame-Options: deny"
 
+#define EXTRA_HEADERS_CACHE "Cache-Control: max-age=604800"
+
 typedef struct t_mg_user_data {
     void *config; //pointer to mympd config
     sds music_directory;

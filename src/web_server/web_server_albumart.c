@@ -31,7 +31,7 @@
 
 //privat definitions
 static bool handle_coverextract(struct mg_connection *nc, t_config *config, const char *uri, const char *media_file);
-static bool handle_coverextract_id3(struct mg_connection *nc, t_config *config, const char *uri, const char *media_file);
+static bool handle_coverextract_id3(t_config *config, const char *uri, const char *media_file, sds *binary);
 
 //public functions
 void send_albumart(struct mg_connection *nc, struct http_message *hm, sds data, sds binary) {
@@ -42,13 +42,14 @@ void send_albumart(struct mg_connection *nc, struct http_message *hm, sds data, 
         &p_charbuf1, &p_charbuf2, &p_charbuf3);
     if (je == 3) {
         if (strcmp(p_charbuf1, "binary") == 0) {
-            sds header = sdscatfmt(sdsempty(), "Content-Type: %s", p_charbuf3);
+            sds header = sdscatfmt(sdsempty(), "Content-Type: %s\r\n", p_charbuf3);
+            header = sdscat(header, EXTRA_HEADERS_CACHE);
             mg_send_head(nc, 200, sdslen(binary), header);
             mg_send(nc, binary, sdslen(binary));
             sdsfree(header);
         }
         else {
-            mg_http_serve_file(nc, hm, p_charbuf2, mg_mk_str(p_charbuf3), mg_mk_str(""));
+            mg_http_serve_file(nc, hm, p_charbuf2, mg_mk_str(p_charbuf3), mg_mk_str(EXTRA_HEADERS_CACHE));
         }
     }
     else {
@@ -94,7 +95,7 @@ bool handle_albumart(struct mg_connection *nc, struct http_message *hm, t_mg_use
         if (sdslen(coverfile) > 0) {
             sds mime_type = get_mime_type_by_ext(coverfile);
             LOG_DEBUG("Serving file %s (%s)", coverfile, mime_type);
-            mg_http_serve_file(nc, hm, coverfile, mg_mk_str(mime_type), mg_mk_str(""));
+            mg_http_serve_file(nc, hm, coverfile, mg_mk_str(mime_type), mg_mk_str(EXTRA_HEADERS_CACHE));
             sdsfree(mime_type);
         }
         else {
@@ -119,7 +120,7 @@ bool handle_albumart(struct mg_connection *nc, struct http_message *hm, t_mg_use
         if (sdslen(covercachefile) > 0) {
             sds mime_type = get_mime_type_by_ext(covercachefile);
             LOG_DEBUG("Serving file %s (%s)", covercachefile, mime_type);
-            mg_http_serve_file(nc, hm, covercachefile, mg_mk_str(mime_type), mg_mk_str(""));
+            mg_http_serve_file(nc, hm, covercachefile, mg_mk_str(mime_type), mg_mk_str(EXTRA_HEADERS_CACHE));
             sdsfree(uri_decoded);
             sdsfree(covercachefile);
             sdsfree(mediafile);
@@ -141,7 +142,7 @@ bool handle_albumart(struct mg_connection *nc, struct http_message *hm, t_mg_use
         if (access(coverfile, F_OK ) == 0) { /* Flawfinder: ignore */
             //todo: get mime_type
             LOG_DEBUG("Serving file %s (%s)", coverfile, "image/jpeg");
-            mg_http_serve_file(nc, hm, coverfile, mg_mk_str("image/jpeg"), mg_mk_str(""));
+            mg_http_serve_file(nc, hm, coverfile, mg_mk_str("image/jpeg"), mg_mk_str(EXTRA_HEADERS_CACHE));
             sdsfree(uri_decoded);
             sdsfree(coverfile);
             sdsfree(mediafile);
@@ -185,17 +186,26 @@ bool handle_albumart(struct mg_connection *nc, struct http_message *hm, t_mg_use
 //privat functions
 static bool handle_coverextract(struct mg_connection *nc, t_config *config, const char *uri, const char *media_file) {
     bool rc = false;
-    sds mime_type = get_mime_type_by_ext(media_file);
-    LOG_DEBUG("Mimetype of %s is %s", media_file, mime_type);
-    if (strcmp(mime_type, "audio/mpeg") == 0) {
-        rc = handle_coverextract_id3(nc, config, uri, media_file);
+    sds mime_type_media_file = get_mime_type_by_ext(media_file);
+    LOG_DEBUG("Mimetype of %s is %s", media_file, mime_type_media_file);
+    sds binary = sdsempty();
+    if (strcmp(mime_type_media_file, "audio/mpeg") == 0) {
+        rc = handle_coverextract_id3(config, uri, media_file, &binary);
     }
-    sdsfree(mime_type);
+    sdsfree(mime_type_media_file);
+    if (rc == true) {
+        sds mime_type = get_mime_type_by_magic_stream(binary);
+        sds header = sdscatfmt(sdsempty(), "Content-Type: %s", mime_type);
+        header = sdscat(header, EXTRA_HEADERS_CACHE);
+        mg_send_head(nc, 200, sdslen(binary), header);
+        mg_send(nc, binary, sdslen(binary));
+        sdsfree(header);    
+    }
+    sdsfree(binary);
     return rc;
 }
 
-
-static bool handle_coverextract_id3(struct mg_connection *nc, t_config *config, const char *uri, const char *media_file) {
+static bool handle_coverextract_id3(t_config *config, const char *uri, const char *media_file, sds *binary) {
     bool rc = false;
     #ifdef LIBID3TAG
     LOG_DEBUG("Exctracting coverimage from %s", media_file);
@@ -243,10 +253,7 @@ static bool handle_coverextract_id3(struct mg_connection *nc, t_config *config, 
             sdsfree(tmp_file);
             sdsfree(filename);
         }
-        sds header = sdscatfmt(sdsempty(), "Content-Type: %s", id3_field_getlatin1(id3_frame_field(frame, 1)));
-        mg_send_head(nc, 200, length, header);
-        mg_send(nc, pic, length);
-        sdsfree(header);
+        *binary = sdscatlen(*binary, pic, length);
         LOG_DEBUG("Coverimage successfully extracted");
         rc = true;        
     }
