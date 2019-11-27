@@ -22,6 +22,7 @@
 #include "mpd_client_utility.h"
 #include "mpd_client_cover.h"
 
+#ifdef EMBEDDED_LIBMPDCLIENT
 sds mpd_client_getcover(t_config *config, t_mpd_state *mpd_state, sds buffer, sds method, int request_id,
                         const char *uri, sds *binary)
 {
@@ -41,7 +42,6 @@ sds mpd_client_getcover(t_config *config, t_mpd_state *mpd_state, sds buffer, sd
         }
         fp = fdopen(fd, "w");
     }
-#ifdef EMBEDDED_LIBMPDCLIENT
     if (mpd_state->feat_mpd_albumart == true) {
         struct mpd_albumart albumart_buffer;
         struct mpd_albumart *albumart;
@@ -71,7 +71,6 @@ sds mpd_client_getcover(t_config *config, t_mpd_state *mpd_state, sds buffer, sd
             mpd_free_readpicture(&readpicture_buffer);
         }
     }
-#endif
     if (config->covercache == true) {
         fclose(fp);
     }
@@ -113,7 +112,7 @@ sds mpd_client_getcover(t_config *config, t_mpd_state *mpd_state, sds buffer, sd
         sdsfree(cover_file);
     }
     else {
-        buffer = jsonrpc_respond_message(buffer, method, request_id, "No albumart found by mpd", true);    
+        buffer = jsonrpc_respond_message(buffer, method, request_id, "No albumart found by mpd", true);
         if (config->readonly == false) {
             unlink(tmp_file);
         }
@@ -122,3 +121,15 @@ sds mpd_client_getcover(t_config *config, t_mpd_state *mpd_state, sds buffer, sd
     sdsfree(filename);
     return buffer;
 }
+#else
+sds mpd_client_getcover(t_config *config, t_mpd_state *mpd_state, sds buffer, sds method, int request_id,
+                        const char *uri, sds *binary)
+{
+    (void) config;
+    (void) mpd_state;
+    (void) uri;
+    (void) binary;
+    buffer = jsonrpc_respond_message(buffer, method, request_id, "No albumart found by mpd", true);
+    return buffer;
+}
+#endif
