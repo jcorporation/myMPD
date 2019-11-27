@@ -91,20 +91,20 @@ function toggleUI() {
     if (websocketConnected == true && settings.mpdConnected == true) {
         state = 'enabled';
     }
-    let enabled = state == 'disabled' ? false : true;
-    if (enabled != uiEnabled) {
+    let enabled = state === 'disabled' ? false : true;
+    if (enabled !== uiEnabled) {
         setElsState('a', state);
         setElsState('input', state);
         setElsState('button', state);
         uiEnabled = enabled;
     }
-    if (settings.mpdConnected == true) {
+    if (settings.mpdConnected === true) {
         toggleAlert('alertMpdState', false, '');
     }
     else {
         toggleAlert('alertMpdState', true, t('MPD disconnected'));
     }
-    if (websocketConnected == true) {
+    if (websocketConnected === true) {
         toggleAlert('alertMympdState', false, '');
     }
     else {
