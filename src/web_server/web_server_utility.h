@@ -29,7 +29,8 @@ typedef struct t_mg_user_data {
     void *config; //pointer to mympd config
     sds music_directory;
     sds rewrite_patterns;
-    sds coverimage_name;
+    sds *coverimage_names;
+    int coverimage_names_len;
     bool feat_library;
     bool feat_mpd_albumart;
     int conn_id;
@@ -38,6 +39,7 @@ typedef struct t_mg_user_data {
 #ifndef DEBUG
 bool serve_embedded_files(struct mg_connection *nc, sds uri, struct http_message *hm);
 #endif
+sds *split_coverimage_names(const char *coverimage_name, sds *coverimage_names, int *count);
 void send_error(struct mg_connection *nc, int code, const char *msg);
 void serve_na_image(struct mg_connection *nc, struct http_message *hm);
 void serve_stream_image(struct mg_connection *nc, struct http_message *hm);

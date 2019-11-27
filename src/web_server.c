@@ -52,7 +52,7 @@ bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_da
     mg_user_data->config = config;
     mg_user_data->music_directory = sdsempty();
     mg_user_data->rewrite_patterns = sdsempty();
-    mg_user_data->coverimage_name = sdsdup(config->coverimage_name);
+    mg_user_data->coverimage_names= split_coverimage_names(config->coverimage_name, mg_user_data->coverimage_names, &mg_user_data->coverimage_names_len);
     mg_user_data->conn_id = 1;
     mg_user_data->feat_library = false;
     mg_user_data->feat_mpd_albumart = false;
@@ -141,7 +141,8 @@ static bool parse_internal_message(t_work_result *response, t_mg_user_data *mg_u
         &p_charbuf1, &p_charbuf2, &feat_library, &feat_mpd_albumart);
     if (je == 4) {
         mg_user_data->music_directory = sdsreplace(mg_user_data->music_directory, p_charbuf1);
-        mg_user_data->coverimage_name = sdsreplace(mg_user_data->coverimage_name, p_charbuf2);
+        sdsfreesplitres(mg_user_data->coverimage_names, mg_user_data->coverimage_names_len);
+        mg_user_data->coverimage_names = split_coverimage_names(p_charbuf2, mg_user_data->coverimage_names, &mg_user_data->coverimage_names_len);
         mg_user_data->feat_library = feat_library;
         mg_user_data->feat_mpd_albumart = feat_mpd_albumart;
         mg_user_data->rewrite_patterns = sdscrop(mg_user_data->rewrite_patterns);

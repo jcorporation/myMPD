@@ -137,18 +137,21 @@ bool handle_albumart(struct mg_connection *nc, struct http_message *hm, t_mg_use
         //try image in folder under music_directory
         char *path = uri_decoded;
         dirname(path);
-        sds coverfile = sdscatfmt(sdsempty(), "%s/%s/%s", mg_user_data->music_directory, path, mg_user_data->coverimage_name);
-        LOG_DEBUG("Check for cover %s", coverfile);
-        if (access(coverfile, F_OK ) == 0) { /* Flawfinder: ignore */
-            //todo: get mime_type
-            LOG_DEBUG("Serving file %s (%s)", coverfile, "image/jpeg");
-            mg_http_serve_file(nc, hm, coverfile, mg_mk_str("image/jpeg"), mg_mk_str(EXTRA_HEADERS_CACHE));
-            sdsfree(uri_decoded);
+        for (int j = 0; j < mg_user_data->coverimage_names_len; j++) {
+            sds coverfile = sdscatfmt(sdsempty(), "%s/%s/%s", mg_user_data->music_directory, path, mg_user_data->coverimage_names[j]);
+            LOG_DEBUG("Check for cover %s", coverfile);
+            if (access(coverfile, F_OK ) == 0) { /* Flawfinder: ignore */
+                sds mime_type = get_mime_type_by_ext(coverfile);
+                LOG_DEBUG("Serving file %s (%s)", coverfile, mime_type);
+                mg_http_serve_file(nc, hm, coverfile, mg_mk_str(mime_type), mg_mk_str(EXTRA_HEADERS_CACHE));
+                sdsfree(uri_decoded);
+                sdsfree(coverfile);
+                sdsfree(mediafile);
+                sdsfree(mime_type);
+                return true;
+            }
             sdsfree(coverfile);
-            sdsfree(mediafile);
-            return true;
         }
-        sdsfree(coverfile);
         LOG_DEBUG("No cover file found in music directory");
         //try to extract cover from media file
         bool rc = handle_coverextract(nc, config, uri_decoded, mediafile);

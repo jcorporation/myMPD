@@ -17,6 +17,15 @@
 #include "web_server_embedded_files.c"
 #endif
 
+sds *split_coverimage_names(const char *coverimage_name, sds *coverimage_names, int *count) {
+    int j;
+    coverimage_names = sdssplitlen(coverimage_name, strlen(coverimage_name), ",", 1, count);
+    for (j = 0; j < *count; j++) {
+        sdstrim(coverimage_names[j], " ");
+    }
+    return coverimage_names;
+}
+
 void send_error(struct mg_connection *nc, int code, const char *msg) {
     sds errorpage = sdscatfmt(sdsempty(), "<html><head><title>myMPD error</title></head><body>"
         "<h1>myMPD error</h1>"
