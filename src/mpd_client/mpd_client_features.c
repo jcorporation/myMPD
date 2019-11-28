@@ -112,7 +112,7 @@ static void mpd_client_feature_commands(t_mpd_state *mpd_state) {
                 mpd_state->feat_playlists = true;
             }
             else if (strcmp(pair->value, "getfingerprint") == 0) {
-                LOG_DEBUG("MPD supports fingerprint command");
+                LOG_DEBUG("MPD supports fingerprint");
                 if (LIBMPDCLIENT_CHECK_VERSION(2, 17, 0)) {
                     mpd_state->feat_fingerprint = true;
                 }
@@ -121,22 +121,21 @@ static void mpd_client_feature_commands(t_mpd_state *mpd_state) {
                 }
             }
             else if (strcmp(pair->value, "albumart") == 0) {
-                LOG_DEBUG("MPD supports albumart command");
-                if (LIBMPDCLIENT_CHECK_VERSION(2, 17, 0)) {
+                LOG_DEBUG("MPD supports albumart");
+                #ifdef EMBEDDED_LIBMPDCLIENT
                     mpd_state->feat_mpd_albumart = true;
-                }
-                else {
+                #else
                     LOG_DEBUG("libmpdclient don't support albumart command");
-                }
+                #endif
+
             }
             else if (strcmp(pair->value, "readpicture") == 0) {
-                LOG_DEBUG("MPD supports readpicture command");
-                if (LIBMPDCLIENT_CHECK_VERSION(2, 17, 0)) {
+                LOG_DEBUG("MPD supports readpicture");
+                #ifdef EMBEDDED_LIBMPDCLIENT
                     mpd_state->feat_mpd_readpicture = true;
-                }
-                else {
+                #else
                     LOG_DEBUG("libmpdclient don't support readpicture command");
-                }
+                #endif
             }
             mpd_return_pair(mpd_state->conn, pair);
         }
