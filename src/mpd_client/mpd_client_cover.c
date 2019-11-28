@@ -70,6 +70,7 @@ sds mpd_client_getcover(t_config *config, t_mpd_state *mpd_state, sds buffer, sd
             offset += readpicture->data_length;
             mpd_free_readpicture(&readpicture_buffer);
         }
+        mpd_free_readpicture(&readpicture_buffer);
     }
     if (config->covercache == true) {
         fclose(fp);

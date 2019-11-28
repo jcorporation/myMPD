@@ -23,7 +23,7 @@
 #include "mympd_api_utility.h"
 
 void mympd_api_push_to_mpd_client(t_mympd_state *mympd_state) {
-    t_work_request *request = create_request(-1, 0, MYMPD_API_SETTINGS_SET, "MYMPD_API_SETTINGS_SET", NULL, "");
+    t_work_request *request = create_request(-1, 0, MYMPD_API_SETTINGS_SET, "MYMPD_API_SETTINGS_SET", "");
 
     request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_SETTINGS_SET\",\"params\":{");
     request->data = tojson_long(request->data, "jukeboxMode", mympd_state->jukebox_mode, true);

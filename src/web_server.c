@@ -192,7 +192,7 @@ static void send_api_response(struct mg_mgr *mgr, t_work_result *response) {
             if ((intptr_t)nc->user_data == response->conn_id) {
                 LOG_DEBUG("Sending response to conn_id %d: %s", (intptr_t)nc->user_data, response->data);
                 if (response->cmd_id == MPD_API_ALBUMART) {
-                    send_albumart(nc, response->hm, response->data, response->binary);
+                    send_albumart(nc, response->data, response->binary);
                 }
                 else {
                     mg_send_head(nc, 200, sdslen(response->data), "Content-Type: application/json");
@@ -386,7 +386,7 @@ static bool handle_api(int conn_id, struct http_message *hm) {
     }
     
     sds data = sdscatlen(sdsempty(), hm->body.p, hm->body.len);
-    t_work_request *request = create_request(conn_id, id, cmd_id, cmd, hm, data);
+    t_work_request *request = create_request(conn_id, id, cmd_id, cmd, data);
     sdsfree(data);
     
     if (strncmp(cmd, "MYMPD_API_", 10) == 0) {

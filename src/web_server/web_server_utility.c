@@ -17,6 +17,19 @@
 #include "web_server_embedded_files.c"
 #endif
 
+void populate_dummy_hm(struct http_message *hm) {
+    hm->message = mg_mk_str("");
+    hm->body = mg_mk_str("");
+    hm->method = mg_mk_str("GET");
+    hm->uri = mg_mk_str("");
+    hm->proto = mg_mk_str("HTTP/1.1");
+    hm->resp_code = 200;
+    hm->resp_status_msg = mg_mk_str("OK");
+    hm->query_string = mg_mk_str("");
+    hm->header_names[0] = mg_mk_str("");
+    hm->header_values[0] = mg_mk_str("");
+}
+
 sds *split_coverimage_names(const char *coverimage_name, sds *coverimage_names, int *count) {
     int j;
     coverimage_names = sdssplitlen(coverimage_name, strlen(coverimage_name), ",", 1, count);

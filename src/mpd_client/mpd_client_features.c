@@ -64,7 +64,7 @@ void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state) {
     }
     
     //push settings to web_server_queue
-    t_work_result *web_server_response = create_result_new(-1, 0, 0, "", NULL);
+    t_work_result *web_server_response = create_result_new(-1, 0, 0, "");
     sds data = sdsnew("{");
     data = tojson_char(data, "musicDirectory", mpd_state->music_directory_value, true);
     data = tojson_char(data, "coverimageName", mpd_state->coverimage_name, true);

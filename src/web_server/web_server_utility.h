@@ -44,4 +44,5 @@ void send_error(struct mg_connection *nc, int code, const char *msg);
 void serve_na_image(struct mg_connection *nc, struct http_message *hm);
 void serve_stream_image(struct mg_connection *nc, struct http_message *hm);
 void serve_asset_image(struct mg_connection *nc, struct http_message *hm, const char *name);
+void populate_dummy_hm(struct http_message *hm);
 #endif

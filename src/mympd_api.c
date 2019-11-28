@@ -123,7 +123,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             }
             if (rc == true) {
                 //forward request to mpd_client queue            
-                t_work_request *mpd_client_request = create_request(-1, request->id, request->cmd_id, request->method, NULL, request->data);
+                t_work_request *mpd_client_request = create_request(-1, request->id, request->cmd_id, request->method, request->data);
                 tiny_queue_push(mpd_client_queue, mpd_client_request);
                 response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
             }

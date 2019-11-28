@@ -34,10 +34,15 @@ static bool handle_coverextract(struct mg_connection *nc, t_config *config, cons
 static bool handle_coverextract_id3(t_config *config, const char *uri, const char *media_file, sds *binary);
 
 //public functions
-void send_albumart(struct mg_connection *nc, struct http_message *hm, sds data, sds binary) {
+void send_albumart(struct mg_connection *nc, sds data, sds binary) {
     char *p_charbuf1 = NULL;
     char *p_charbuf2 = NULL;
     char *p_charbuf3 = NULL;
+
+    //create dummy http message
+    struct http_message hm;
+    populate_dummy_hm(&hm);
+
     int je = json_scanf(data, sdslen(data), "{result: {coverfile:%Q, coverfile_name:%Q, mime_type:%Q}}", 
         &p_charbuf1, &p_charbuf2, &p_charbuf3);
     if (je == 3) {
@@ -49,11 +54,12 @@ void send_albumart(struct mg_connection *nc, struct http_message *hm, sds data, 
             sdsfree(header);
         }
         else {
-            mg_http_serve_file(nc, hm, p_charbuf2, mg_mk_str(p_charbuf3), mg_mk_str(EXTRA_HEADERS_CACHE));
+            LOG_DEBUG("Serving file %s (%s)", p_charbuf2, p_charbuf3);
+            mg_http_serve_file(nc, &hm, p_charbuf2, mg_mk_str(p_charbuf3), mg_mk_str(EXTRA_HEADERS_CACHE));
         }
     }
     else {
-        serve_na_image(nc, hm);
+        serve_na_image(nc, &hm);
     }
     FREE_PTR(p_charbuf1);
     FREE_PTR(p_charbuf2);
@@ -165,7 +171,7 @@ bool handle_albumart(struct mg_connection *nc, struct http_message *hm, t_mg_use
     #ifdef EMBEDDED_LIBMPDCLIENT
     else if (mg_user_data->feat_library == false && mg_user_data->feat_mpd_albumart == true) {
         LOG_DEBUG("Sending getalbumart to mpd_client_queue");
-        t_work_request *request = create_request(conn_id, 0, MPD_API_ALBUMART, "MPD_API_ALBUMART", hm, "");
+        t_work_request *request = create_request(conn_id, 0, MPD_API_ALBUMART, "MPD_API_ALBUMART", "");
         request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPD_API_ALBUMART\",\"params\":{");
         request->data = tojson_char(request->data, "uri", uri_decoded, false);
         request->data = sdscat(request->data, "}}");
