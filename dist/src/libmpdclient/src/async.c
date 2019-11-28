@@ -382,7 +382,7 @@ mpd_async_recv_line(struct mpd_async *async)
 }
 
 struct mpd_binary *
-mpd_async_recv_binary(struct mpd_async *async, struct mpd_binary *buffer, const unsigned length)
+mpd_async_recv_binary(struct mpd_async *async, struct mpd_binary *buffer, size_t length)
 {
 	assert(async != NULL);
 

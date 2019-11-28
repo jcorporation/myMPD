@@ -54,7 +54,7 @@ mpd_free_readpicture(struct mpd_readpicture *buffer)
 }
 
 bool
-mpd_send_readpicture(struct mpd_connection *connection, const char *uri, const unsigned offset)
+mpd_send_readpicture(struct mpd_connection *connection, const char *uri, unsigned offset)
 {
 	return mpd_send_s_u_command(connection, "readpicture", uri, offset);
 }
@@ -107,7 +107,7 @@ mpd_recv_readpicture(struct mpd_connection *connection, struct mpd_readpicture *
 }
 
 struct mpd_readpicture *
-mpd_run_readpicture(struct mpd_connection *connection, const char *uri, const unsigned offset, struct mpd_readpicture *buffer)
+mpd_run_readpicture(struct mpd_connection *connection, const char *uri, unsigned offset, struct mpd_readpicture *buffer)
 {
 	if (!mpd_run_check(connection) ||
 	    !mpd_send_readpicture(connection, uri, offset)) {

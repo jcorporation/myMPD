@@ -51,10 +51,10 @@ struct mpd_readpicture {
         unsigned char data[MPD_BINARY_CHUNK_SIZE];
 
         /** the size of the picture */
-        unsigned size;
+        size_t size;
         
         /** bytes in the data buffer*/
-        unsigned data_length;
+        size_t data_length;
         
         /** optional mime_type*/
         char *mime_type;
@@ -85,7 +85,7 @@ mpd_free_readpicture(struct mpd_readpicture *buffer);
 bool
 mpd_send_readpicture(struct mpd_connection *connection, 
                                    const char *uri, 
-                                   const unsigned offset);
+                                   unsigned offset);
 
 /**
  * Receives the "readpicture" response
@@ -111,7 +111,7 @@ mpd_recv_readpicture(struct mpd_connection *connection, struct mpd_readpicture *
 struct mpd_readpicture *
 mpd_run_readpicture(struct mpd_connection *connection,
 				   const char *uri,
-				   const unsigned offset,
+				   unsigned offset,
 				   struct mpd_readpicture *buffer);
 
 #ifdef __cplusplus

@@ -46,6 +46,7 @@
 
 #include <stdbool.h>
 #include <stdarg.h>
+#include <stddef.h>
 
 /**
  * Event bit mask for polling.
@@ -223,7 +224,7 @@ mpd_async_recv_line(struct mpd_async *async);
  * @return a pointer to struct mpd_binary, NULL on error or end of buffer.
  */
 struct mpd_binary *
-mpd_async_recv_binary(struct mpd_async *async, struct mpd_binary *buffer, const unsigned length);
+mpd_async_recv_binary(struct mpd_async *async, struct mpd_binary *buffer, size_t length);
 
 #ifdef __cplusplus
 }

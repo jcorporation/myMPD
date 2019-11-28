@@ -39,6 +39,8 @@
 
 #include "compiler.h"
 
+#include <stddef.h>
+
 struct mpd_pair;
 struct mpd_connection;
 
@@ -53,8 +55,8 @@ extern "C" {
  *
  * The caller must allocate length bytes of memory for data.
  */
-unsigned
-mpd_recv_binary(struct mpd_connection *connection, unsigned char *data, unsigned length);
+size_t
+mpd_recv_binary(struct mpd_connection *connection, void *data, size_t length);
 
 /**
  * Reads the next #mpd_pair from the server.  Returns NULL if there

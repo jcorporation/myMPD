@@ -51,10 +51,10 @@ struct mpd_albumart {
         unsigned char data[MPD_BINARY_CHUNK_SIZE];
 
         /** the size of the albumart */
-        unsigned size;
+        size_t size;
         
         /** bytes in the data buffer*/
-        unsigned data_length;
+        size_t data_length;
 };
 
 
@@ -74,7 +74,7 @@ extern "C" {
 bool
 mpd_send_albumart(struct mpd_connection *connection, 
                                    const char *uri, 
-                                   const unsigned offset);
+                                   unsigned offset);
 
 /**
  * Receives the "albumart" response
@@ -100,7 +100,7 @@ mpd_recv_albumart(struct mpd_connection *connection, struct mpd_albumart *buffer
 struct mpd_albumart *
 mpd_run_albumart(struct mpd_connection *connection,
 				   const char *uri,
-				   const unsigned offset,
+				   unsigned offset,
 				   struct mpd_albumart *buffer);
 
 #ifdef __cplusplus

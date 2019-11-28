@@ -39,7 +39,7 @@
 #ifndef MPD_BINARY_H
 #define MPD_BINARY_H
 
-#include <stdlib.h>
+#include <stddef.h>
 
 struct mpd_binary {
         /** the binary data */

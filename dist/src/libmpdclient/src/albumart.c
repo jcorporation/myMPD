@@ -45,7 +45,7 @@
 #include <stdlib.h>
 
 bool
-mpd_send_albumart(struct mpd_connection *connection, const char *uri, const unsigned offset)
+mpd_send_albumart(struct mpd_connection *connection, const char *uri, unsigned offset)
 {
 	return mpd_send_s_u_command(connection, "albumart", uri, offset);
 }
@@ -92,7 +92,7 @@ mpd_recv_albumart(struct mpd_connection *connection, struct mpd_albumart *buffer
 }
 
 struct mpd_albumart *
-mpd_run_albumart(struct mpd_connection *connection, const char *uri, const unsigned offset, struct mpd_albumart *buffer)
+mpd_run_albumart(struct mpd_connection *connection, const char *uri, unsigned offset, struct mpd_albumart *buffer)
 {
 	if (!mpd_run_check(connection) ||
 	    !mpd_send_albumart(connection, uri, offset)) {
