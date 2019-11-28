@@ -3,6 +3,7 @@
 # myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
 # https://github.com/jcorporation/mympd
 #
+# Maintainer: Juergen Mang <mail@jcgames.de>
 pkgname=myMPD
 pkgver=5.8.0
 pkgrel=0
@@ -10,8 +11,8 @@ pkgdesc="myMPD is a standalone and mobile friendly web mpdclient"
 url="https://github.com/jcorporation/myMPD"
 arch="all"
 license="GPL-2.0-or-later"
-depends="libid3tag0 openssl libmagic1"
-makedepends="cmake libid3tag0-dev openssl-dev linux-headers libmagic-dev"
+depends="libid3tag openssl libmagic"
+makedepends="cmake libid3tag-dev openssl-dev linux-headers file-dev"
 install="$pkgname.pre-install"
 source="mympd_$pkgver.orig.tar.gz"
 builddir="$srcdir"
