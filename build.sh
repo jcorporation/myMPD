@@ -645,7 +645,7 @@ case "$1" in
 	  echo "                  following environment variables are respected"
 	  echo "                    - SIGN=\"FALSE\""
 	  echo "                    - GPGKEYID=\"\""
-	  echo "  pkgdocker:      creates the docker image (debian based with libmpdclient from git master branch)"
+	  echo "  pkgdocker:      creates the docker image (debian based)"
 	  echo "  pkgrpm:         creates the rpm package"
 	  echo "  pkgosc:         updates the open build service repository"
 	  echo "                  following environment variables are respected"
