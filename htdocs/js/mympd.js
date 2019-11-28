@@ -55,7 +55,8 @@ app.apps = { "Playback":   { "state": "0/-/-/", "scrollPos": 0 },
                                     "active": "AlbumArtist",
                                     "views": { 
                                      }
-                             }
+                             },
+                             "Covergrid":  { "state": "0/-/-/", "scrollPos": 0 }
                   }
              },
              "Search": { "state": "0/any/-/", "scrollPos": 0 }
@@ -134,7 +135,8 @@ function appPrepare(scrollPos) {
         document.getElementById('cardQueueLastPlayed').classList.add('hide');
         document.getElementById('cardBrowsePlaylists').classList.add('hide');
         document.getElementById('cardBrowseDatabase').classList.add('hide');
-        document.getElementById('cardBrowseFilesystem').classList.add('hide');        
+        document.getElementById('cardBrowseFilesystem').classList.add('hide');
+        document.getElementById('cardBrowseCovergrid').classList.add('hide');
         //show active card + nav
         document.getElementById('card' + app.current.app).classList.remove('hide');
         if (document.getElementById('nav' + app.current.app)) {
@@ -286,6 +288,9 @@ function appRoute() {
         }
         document.getElementById('BrowseBreadcrumb').innerHTML = breadcrumbs;
         doSetFilterLetter('BrowseFilesystemFilter');
+    }
+    else if (app.current.app === 'Browse' && app.current.tab === 'Covergrid') {
+        sendAPI("MPD_API_DATABASE_GET_ALBUMS", {"offset": app.current.page}, parseCovergrid);
     }
     else if (app.current.app === 'Search') {
         domCache.searchstr.focus();

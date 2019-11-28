@@ -321,3 +321,57 @@ sds mpd_client_put_songs_in_album(t_mpd_state *mpd_state, sds buffer, sds method
     }
     return buffer;    
 }
+
+sds mpd_client_put_firstsong_in_albums(t_mpd_state *mpd_state, sds buffer, sds method, int request_id, 
+                                       const unsigned int offset)
+{
+    buffer = jsonrpc_start_result(buffer, method, request_id);
+    buffer = sdscat(buffer, ",\"data\":[");
+
+    if (mpd_search_db_songs(mpd_state->conn, true) == false) {
+        buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
+        return buffer;
+    }    
+    if (mpd_search_add_tag_constraint(mpd_state->conn, MPD_OPERATOR_DEFAULT, MPD_TAG_TRACK, "1") == false) {
+        buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
+        return buffer;
+    }
+    if (mpd_search_add_sort_name(mpd_state->conn, "AlbumArtist" , false) == false) {
+        buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
+        return buffer;
+    }
+    if (mpd_search_add_window(mpd_state->conn, offset, offset + mpd_state->max_elements_per_page) == false) {
+        buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
+        return buffer;
+    }
+    if (mpd_search_commit(mpd_state->conn) == false) {
+        buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
+        return buffer;
+    }
+
+    struct mpd_song *song;
+    int entity_count = 0;
+    int entities_returned = 0;
+
+    while ((song = mpd_recv_song(mpd_state->conn)) != NULL) {
+        entity_count++;
+        if (entities_returned++) {
+            buffer = sdscat(buffer, ",");
+        }
+        buffer = sdscat(buffer, "{\"Type\": \"album\",");
+        buffer = tojson_char(buffer, "Album", mpd_client_get_tag(song, MPD_TAG_ALBUM), true);
+        buffer = tojson_char(buffer, "AlbumArtist", mpd_client_get_tag(song, MPD_TAG_ALBUM_ARTIST), true);
+        buffer = tojson_char(buffer, "FirstSongUri", mpd_song_get_uri(song), false);
+        buffer = sdscat(buffer, "}");
+
+        mpd_song_free(song);
+    }
+    mpd_response_finish(mpd_state->conn);
+
+    buffer = sdscat(buffer, "],");
+    buffer = tojson_long(buffer, "totalEntities", -1, true);
+    buffer = tojson_long(buffer, "returnedEntities", entities_returned, false);
+    buffer = jsonrpc_end_result(buffer);
+        
+    return buffer;    
+}

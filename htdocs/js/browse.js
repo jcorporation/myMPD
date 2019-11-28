@@ -332,3 +332,65 @@ function saveBookmark() {
         document.getElementById('saveBookmarkName').classList.add('is-invalid');
     }
 }
+
+function parseCovergrid(obj) {
+    let nrItems = obj.result.returnedEntities;
+
+    let cardContainer = document.getElementById('BrowseCovergridList');
+    let cards = cardContainer.getElementsByClassName('card');
+    for (let i = 0; i < nrItems; i++) {
+        let card = document.createElement('div');
+        card.classList.add('card', 'card-grid', 'mr-3', 'mb-3');
+        card.setAttribute('data-uri', encodeURI(obj.result.data[i].FirstSongUri));
+        let html = '<div class="card-body album-cover-loading album-cover-grid"></div>' +
+                    '<div class="card-footer card-footer-grid">' +
+                    obj.result.data[i].Album +
+                    '<br/><small>' + obj.result.data[i].AlbumArtist + '</small>' +
+                    '</div>';
+        card.innerHTML = html;
+        let replaced = false;
+        if (i < cards.length) {
+            if (cards[i].getAttribute('data-uri') !== card.getAttribute('data-uri')) {
+                cards[i].replaceWith(card);
+                replaced = true;
+            }
+        }
+        else {
+            cardContainer.append(card);
+            replaced = true;
+        }
+        if ('IntersectionObserver' in window && replaced === true) {
+            let options = {
+                root: null,
+                rootMargin: "0px",
+            };
+            let observer = new IntersectionObserver(setGridImage, options);
+            observer.observe(card);
+        }
+        else if (replaced === true) {
+            card.style.backgroundImage = 'url("/albumart/' + obj.result.data[i].uri + '")';
+        }
+    }
+    let cardsLen = cards.length - 1;
+    for (let i = cardsLen; i >= nrItems; i --) {
+        cards[i].remove();
+    }
+    
+    setPagination(obj.result.totalEntities, obj.result.returnedEntities);
+                    
+    if (nrItems === 0) {
+        cardContainer.innerHTML = t('Empty list');
+    }
+    document.getElementById(app.current.app + (app.current.tab === undefined ? '' : app.current.tab) + 'List').classList.remove('opacity05');
+    document.getElementById('cardFooterBrowse').innerText = '';
+}
+
+function setGridImage(changes, observer) {
+    changes.forEach(change => {
+        if (change.intersectionRatio > 0) {
+            observer.unobserve(change.target);
+            let uri = decodeURI(change.target.getAttribute('data-uri'));
+            change.target.firstChild.style.backgroundImage = 'url("/albumart/' + uri + '")';
+        }
+    });
+}

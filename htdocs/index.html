@@ -292,6 +292,9 @@
           <li class="nav-item">
             <a data-phrase="Filesystem" data-href='{"cmd": "appGoto", "options": ["Browse", "Filesystem"]}' class="nav-link text-dark" href="#" id="cardBrowseNavFilesystem"></a>
           </li>
+          <li class="nav-item">
+            <a data-phrase="Covergrid" data-href='{"cmd": "appGoto", "options": ["Browse", "Covergrid"]}' class="nav-link text-dark" href="#" id="cardBrowseNavCovergrid"></a>
+          </li>
         </ul>
       </div>
       
@@ -521,6 +524,45 @@
           </div>
         </div>
       </div>
+      
+      <div class="card-body hide" id="cardBrowseCovergrid">
+        <div class="btn-toolbar card-toolbar" id="BrowseCovergridButtons">
+          <form id="searchcovergrid" class="flex-grow-1">
+            <div class="input-group mr-2">
+              <div class="input-group-prepend">
+                <div class="input-group-text material-icons">search</div>
+              </div>
+              <input data-placeholder-phrase="Search" type="text" class="form-control" id="searchCovergridStr"/>
+            </div>
+          </form>
+          <div id="BrowseCovergridPaginationTop" class="btn-group mr-2 hide">
+            <button data-title-phrase="Previous page" data-href='{"cmd": "gotoPage", "options": ["prev"]}' id="BrowseCovergridPaginationTopPrev" type="button" class="btn btn-group-prepend btn-secondary">&laquo;</button>
+              <div class="btn-group">
+                <button id="BrowseCovergridPaginationTopPage" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"></button>
+                <div class="dropdown-menu bg-dark px-2 pages" id="BrowseCovergridPaginationTopPages">
+                </div>
+              </div>            
+            <button data-title-phrase="Next page" data-href='{"cmd": "gotoPage", "options": ["next"]}' id="BrowseCovergridPaginationTopNext" type="button" class="btn btn-secondary btn-group-append">&raquo;</button>
+          </div>
+        </div>
+        <div id="BrowseCovergridList" class="clearfix">
+        </div>
+        <div class="btn-toolbar hide" id="BrowseCovergridButtonsBottom">
+          <div class="btn-group mr-2">
+            <button data-title-phrase="To top" type="button" class="btn btn-secondary material-icons" data-href='{"cmd": "scrollTo", "options": [0]}'>keyboard_arrow_up</button>
+          </div>        
+          <div id="BrowseCovergridPaginationBottom" class="btn-group mr-2 dropup">
+            <button data-title-phrase="Previous page" data-href='{"cmd": "gotoPage", "options": ["prev"]}' id="BrowseCovergridPaginationBottomPrev" type="button" class="btn btn-group-prepend btn-secondary">&laquo;</button>
+              <div class="btn-group">
+                <button id="BrowseCovergridPaginationBottomPage" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"></button>
+                <div class="dropdown-menu bg-dark px-2 pages" id="BrowseCovergridPaginationBottomPages">
+                </div>
+              </div>            
+            <button data-title-phrase="Next page" data-href='{"cmd": "gotoPage", "options": ["next"]}' id="BrowseCovergridPaginationBottomNext" type="button" class="btn btn-secondary btn-group-append">&raquo;</button>
+          </div>
+        </div>
+      </div>
+
       <div class="card-footer" id="cardFooterBrowse">
       </div>      
     </div>        
