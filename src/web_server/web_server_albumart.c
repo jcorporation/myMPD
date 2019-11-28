@@ -47,6 +47,7 @@ void send_albumart(struct mg_connection *nc, sds data, sds binary) {
         &p_charbuf1, &p_charbuf2, &p_charbuf3);
     if (je == 3) {
         if (strcmp(p_charbuf1, "binary") == 0) {
+            LOG_DEBUG("Serving file from memory (%s)", p_charbuf3);
             sds header = sdscatfmt(sdsempty(), "Content-Type: %s\r\n", p_charbuf3);
             header = sdscat(header, EXTRA_HEADERS_CACHE);
             mg_send_head(nc, 200, sdslen(binary), header);
