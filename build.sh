@@ -552,16 +552,16 @@ installdeps() {
     #debian
     apt-get update
     apt-get install -y --no-install-recommends \
-	gcc cmake pkgconfig perl libssl-dev libid3tag0-dev libmagic-dev \
+	gcc cmake perl libssl-dev libid3tag0-dev libmagic-dev \
 	default-jre-headless build-essential
   elif [ -f /etc/arch-release ]
   then
     #arch
-    pacman -S gcc cmake pkgconfig perl openssl libid3tag file jre-openjdk-headless
+    pacman -S gcc cmake perl openssl libid3tag file jre-openjdk-headless
   elif [ -f /etc/alpine-release ]
   then
     #alpine
-    apk add gcc cmake pkgconfig perl openssl-dev libid3tag-dev file-dev \
+    apk add gcc cmake perl openssl-dev libid3tag-dev file-dev \
     	openjdk11-jre-headlesslinux-headers
   elif [ -f /etc/SuSE-release ]
   then
