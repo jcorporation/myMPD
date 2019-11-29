@@ -4,7 +4,6 @@
 
 | Version | Supported          |
 | ------- | ------------------ |
-| Master  | :white_check_mark: |
 | Latest Release   | :white_check_mark:                |
 
 
