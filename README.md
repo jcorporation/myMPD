@@ -73,17 +73,19 @@ Build Dependencies
 
 Unix Build Instructions
 -----------------------
-1. Install dependencies: cmake, libmagic / file (dev), OpenSSL (dev), libid3tag (dev), Java and Perl
+1. Get myMPD tarball from https://github.com/jcorporation/myMPD/releases/latest
 2. Extract myMPD tarball and change path to this directory
-3. Build and install myMPD: ```./build.sh releaseinstall```
+3. Install dependencies (as root): ``./build.sh installdeps``
+4. Build myMPD: ``./build.sh release``
+5. Install myMPD (as root): ``./build.sh install``
 
 Run
----------
-Adapt the configuration file ```/etc/mympd.conf``` to your needs.
-```
+---
+Adapt the configuration file ``/etc/mympd.conf`` to your needs.
+``
 Usage: ./mympd [/etc/mympd.conf]
-```
-The ```./build.sh``` script installs a startup script for systemd, openrc (Alpine Linux) or sysVinit.
+``
+The ``./build.sh`` script installs a startup script for systemd, openrc (Alpine Linux) or sysVinit.
 
 Copyright
 ---------

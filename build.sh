@@ -8,7 +8,6 @@
 if [ "${EMBEDDED_LIBMPDCLIENT}" = "" ]
 then
   export EMBEDDED_LIBMPDCLIENT="ON"
-  echo "Setting EMBEDDED_LIBMPDCLIENT=ON"
 fi
 
 STARTPATH=$(pwd)
@@ -547,6 +546,37 @@ pkgosc() {
   osc commit
 }
 
+installdeps() {
+  if [ -f /etc/debian_version ]
+  then
+    #debian
+    apt-get update
+    apt-get install -y --no-install-recommends \
+	gcc cmake pkgconfig perl libssl-dev libid3tag0-dev libmagic-dev \
+	default-jre-headless build-essential
+  elif [ -f /etc/arch-release ]
+  then
+    #arch
+    pacman -S gcc cmake pkgconfig perl openssl libid3tag file
+  elif [ -f /etc/alpine-release ]
+  then
+    #alpine
+    apk install gcc cmake pkgconfig perl openssl-dev libid3tag-dev file-dev linux-headers
+  elif [ -f /etc/SuSE-release ]
+  then
+    #suse
+    zypper install gcc cmake pkgconfig perl openssl-devel libid3tag-devel \
+	file-devel unzip
+  elif [ -f /etc/redhat-release ]
+  then  
+    #fedora 	
+    yum install gcc cmake pkgconfig perl openssl-devel libid3tag-devel \
+	file-devel unzip
+  else 
+    echo "No supported distribution detected."
+  fi
+}
+
 case "$1" in
 	release)
 	  buildrelease
@@ -569,6 +599,9 @@ case "$1" in
 	;;
 	memcheck)
 	  builddebug "TRUE"
+	;;
+	installdeps)
+	  installdeps
 	;;
 	cleanup)
 	  cleanup
@@ -629,6 +662,7 @@ case "$1" in
 	  echo "                  following environment variables are respected"
 	  echo "                    - CPPCHECKOPTS=\"--enable=warning\""
 	  echo "                    - FLAWFINDEROPTS=\"-m3\""
+	  echo "  installdeps:    installs build and run dependencies"
 	  echo ""
 	  echo "Cleanup options:"
 	  echo "  cleanup:        cleanup source tree"

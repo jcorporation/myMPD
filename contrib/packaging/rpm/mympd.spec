@@ -12,7 +12,6 @@ Summary:        Standalone web mpd client
 Url:            https://github.com/jcorporation/myMPD
 Source:         mympd-%{version}.tar.gz
 BuildRequires:  gcc
-BuildRequires:  gcc-c++
 BuildRequires:  cmake
 BuildRequires:  unzip
 BuildRequires:  pkgconfig
