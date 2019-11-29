@@ -557,21 +557,22 @@ installdeps() {
   elif [ -f /etc/arch-release ]
   then
     #arch
-    pacman -S gcc cmake pkgconfig perl openssl libid3tag file
+    pacman -S gcc cmake pkgconfig perl openssl libid3tag file jre-openjdk-headless
   elif [ -f /etc/alpine-release ]
   then
     #alpine
-    apk install gcc cmake pkgconfig perl openssl-dev libid3tag-dev file-dev linux-headers
+    apk add gcc cmake pkgconfig perl openssl-dev libid3tag-dev file-dev \
+    	openjdk11-jre-headlesslinux-headers
   elif [ -f /etc/SuSE-release ]
   then
     #suse
     zypper install gcc cmake pkgconfig perl openssl-devel libid3tag-devel \
-	file-devel unzip
+	file-devel java-11-openjdk-headless unzip
   elif [ -f /etc/redhat-release ]
   then  
     #fedora 	
     yum install gcc cmake pkgconfig perl openssl-devel libid3tag-devel \
-	file-devel unzip
+	file-devel java-11-openjdk-headless unzip
   else 
     echo "No supported distribution detected."
   fi
