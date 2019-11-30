@@ -63,27 +63,17 @@ MESSAGE("ASSETS_PATH: ${ASSETS_PATH}")
 if(NOT ${EMBEDDED_LIBMPDCLIENT} MATCHES "ON")
   find_package(LibMPDClient REQUIRED)
 endif()
-
 find_package(Threads REQUIRED)
+find_package(OpenSSL REQUIRED)
 find_package(LibMagic REQUIRED)
 
-if(NOT ${ENABLE_SSL} MATCHES "OFF")
-  find_package(OpenSSL)
-endif()
-if(OPENSSL_FOUND)
-  set(ENABLE_SSL "ON")
-else()
-  set(ENABLE_SSL "OFF")
-endif()
-
-if(NOT ${LIBID3TAG} MATCHES "OFF")
-  find_package(LibId3Tag)
-endif()
+find_package(LibId3Tag)
 if(LIBID3TAG_FOUND)
   set(LIBID3TAG "ON")
 else()
   set(LIBID3TAG "OFF")
 endif()
+
 
 configure_file(src/config_defs.h.in ${PROJECT_BINARY_DIR}/config_defs.h)
 configure_file(cmake/CopyConfig.cmake.in cmake/CopyConfig.cmake @ONLY)
@@ -92,32 +82,26 @@ configure_file(contrib/initscripts/mympd.service.in contrib/initscripts/mympd.se
 configure_file(contrib/initscripts/mympd.sysVinit.in contrib/initscripts/mympd.sysVinit @ONLY)
 configure_file(contrib/initscripts/mympd.openrc.in contrib/initscripts/mympd.openrc @ONLY)
 
-include_directories(${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR} ${LIBMPDCLIENT_INCLUDE_DIR} ${OPENSSL_INCLUDE_DIR} ${LIBID3TAG_INCLUDE_DIRS})
-
 if(${EMBEDDED_LIBMPDCLIENT} MATCHES "ON")
-  include_directories(dist/src/libmpdclient/include)
+  include_directories(${PROJECT_BINARY_DIR} dist/src/libmpdclient/include ${PROJECT_SOURCE_DIR} ${OPENSSL_INCLUDE_DIR} ${LIBID3TAG_INCLUDE_DIRS})
 else()
-  include_directories(${LIBMPDCLIENT_INCLUDE_DIR})
+  include_directories(${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR} ${LIBMPDCLIENT_INCLUDE_DIR} ${OPENSSL_INCLUDE_DIR} ${LIBID3TAG_INCLUDE_DIRS})
 endif()
 
 include(CheckCSourceCompiles)
 
 if(${MEMCHECK} MATCHES "TRUE")
   #for use with valgrind
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -Wall -Werror")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -Wall -Werror -DMG_ENABLE_SSL")
   set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -ggdb")
 else()
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -O1 -Wall -Werror -fstack-protector -D_FORTIFY_SOURCE=2 -pie -fPIE")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -O1 -Wall -Werror -fstack-protector -D_FORTIFY_SOURCE=2 -pie -fPIE -DMG_ENABLE_SSL")
   set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -s")
   set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -ggdb -fsanitize=address \
 	-fsanitize=undefined -fsanitize=shift -fsanitize=integer-divide-by-zero -fsanitize=unreachable -fsanitize=vla-bound \
 	-fsanitize=null -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=bounds -fsanitize=bounds-strict \
 	-fsanitize=alignment -fsanitize=object-size -fsanitize=float-divide-by-zero -fsanitize=float-cast-overflow \
 	-fsanitize=nonnull-attribute -fsanitize=returns-nonnull-attribute -fsanitize=bool -fsanitize=enum -fsanitize=vptr -static-libasan")
-endif()
-
-if(OPENSSL_FOUND)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DMG_ENABLE_SSL")
 endif()
 
 #compiler flags for mympd src
@@ -154,6 +138,7 @@ set(SOURCES
     src/global.c
     src/list.c
     src/tiny_queue.c
+    src/cert.c
     src/log.c
     src/config.c
     src/handle_options.c
@@ -186,12 +171,6 @@ set(SOURCES
     dist/src/inih/ini.c
     dist/src/sds/sds.c
 )
-
-if(OPENSSL_FOUND)
-  set(CERT_SOURCES
-      src/cert.c
-  )
-endif()
 
 set(LIBMPDCLIENT_SOURCES
     dist/src/libmpdclient/src/albumart.c
@@ -246,10 +225,10 @@ set(LIBMPDCLIENT_SOURCES
 )
 
 if(${EMBEDDED_LIBMPDCLIENT} MATCHES "ON")
-  add_executable(mympd ${SOURCES} ${LIBMPDCLIENT_SOURCES} ${CERT_SOURCES})
+  add_executable(mympd ${SOURCES} ${LIBMPDCLIENT_SOURCES})
   target_link_libraries(mympd ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${LIBMAGIC_LIBRARIES} ${LIBID3TAG_LIBRARIES})
 else()
-  add_executable(mympd ${SOURCES} ${CERT_SOURCES})
+  add_executable(mympd ${SOURCES})
   target_link_libraries(mympd ${LIBMPDCLIENT_LIBRARY} ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${LIBMAGIC_LIBRARIES} ${LIBID3TAG_LIBRARIES})
 endif()
 

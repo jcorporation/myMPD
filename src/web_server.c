@@ -33,9 +33,7 @@
 static bool parse_internal_message(t_work_result *response, t_mg_user_data *mg_user_data);
 static int is_websocket(const struct mg_connection *nc);
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data);
-#ifdef ENABLE_SSL
-  static void ev_handler_redirect(struct mg_connection *nc_http, int ev, void *ev_data);
-#endif
+static void ev_handler_redirect(struct mg_connection *nc_http, int ev, void *ev_data);
 static void send_ws_notify(struct mg_mgr *mgr, t_work_result *response);
 static void send_api_response(struct mg_mgr *mgr, t_work_result *response);
 static bool handle_api(int conn_id, struct http_message *hm);
@@ -43,6 +41,12 @@ static bool handle_api(int conn_id, struct http_message *hm);
 //public functions
 bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_data) {
     struct mg_mgr *mgr = (struct mg_mgr *) arg_mgr;
+    struct mg_connection *nc_https;
+    struct mg_connection *nc_http;
+    struct mg_bind_opts bind_opts_https;
+    struct mg_bind_opts bind_opts_http;
+    const char *err_https;
+    const char *err_http;
 
     //initialize mgr user_data, malloced in main.c
     mg_user_data->config = config;
@@ -57,21 +61,14 @@ bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_da
     mg_mgr_init(mgr, mg_user_data);
     
     //bind to webport
-    struct mg_connection *nc_http;
-    struct mg_bind_opts bind_opts_http;
-    const char *err_http;
     memset(&bind_opts_http, 0, sizeof(bind_opts_http));
     bind_opts_http.error_string = &err_http;
-    #ifdef ENABLE_SSL
     if (config->ssl == true) {
         nc_http = mg_bind_opt(mgr, config->webport, ev_handler_redirect, bind_opts_http);
     }
     else {
-    #endif
         nc_http = mg_bind_opt(mgr, config->webport, ev_handler, bind_opts_http);
-    #ifdef ENABLE_SSL
     }
-    #endif
     if (nc_http == NULL) {
         LOG_ERROR("Can't bind to port %s: %s", config->webport, err_http);
         mg_mgr_free(mgr);
@@ -81,10 +78,6 @@ bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_da
     LOG_INFO("Listening on http port %s", config->webport);
 
     //bind to sslport
-    #ifdef ENABLE_SSL
-    const char *err_https;
-    struct mg_connection *nc_https;
-    struct mg_bind_opts bind_opts_https;
     if (config->ssl == true) {
         memset(&bind_opts_https, 0, sizeof(bind_opts_https));
         bind_opts_https.error_string = &err_https;
@@ -101,7 +94,6 @@ bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_da
         LOG_DEBUG("Using private key: %s", config->ssl_key);
         mg_set_protocol_http_websocket(nc_https);
     }
-    #endif
     return mgr;
 }
 
@@ -270,7 +262,6 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                     sdsfree(method);
                 }
             }
-            #ifdef ENABLE_SSL
             else if (mg_vcmp(&hm->uri, "/ca.crt") == 0) { 
                 if (config->custom_cert == false) {
                     //deliver ca certificate
@@ -282,7 +273,6 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                     send_error(nc, 404, "Custom cert enabled, don't deliver myMPD ca");
                 }
             }
-            #endif
             else if (mg_str_starts_with(hm->uri, albumart_prefix) == 1) {
                 handle_albumart(nc, hm, mg_user_data, config, (intptr_t)nc->user_data);
             }
@@ -340,7 +330,6 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
     }
 }
 
-#ifdef ENABLE_SSL
 static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data) {
     switch(ev) {
         case MG_EV_HTTP_REQUEST: {
@@ -371,7 +360,6 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data)
         }
     }
 }
-#endif
 
 static bool handle_api(int conn_id, struct http_message *hm) {
     if (hm->body.len > 1000) {

@@ -22,9 +22,7 @@
 #include "config_defs.h"
 #include "mympd_api/mympd_api_utility.h"
 #include "mympd_api/mympd_api_settings.h"
-#ifdef ENABLE_SSL
-  #include "cert.h"
-#endif
+#include "cert.h"
 #include "utility.h"
 #include "maintenance.h"
 #include "handle_options.h"
@@ -54,28 +52,8 @@ bool smartpls_default(t_config *config) {
 
 bool handle_option(t_config *config, char *cmd, sds option) {
     #define MATCH_OPTION(o) strcasecmp(option, o) == 0
-    
-    if (MATCH_OPTION("reset_state")) {
-        mympd_api_settings_delete(config);
-        return true;
-    }
-    else if (MATCH_OPTION("reset_smartpls")) {
-        return smartpls_default(config);
-    }
-    else if (MATCH_OPTION("reset_lastplayed")) {
-        sds lpfile = sdscatfmt(sdsempty(), "%s/state/last_played", config->varlibdir);
-        int rc = unlink(lpfile);
-        sdsfree(lpfile);
-        if (rc == 0) {
-            return true;
-        }
-        else {
-            LOG_ERROR("last_played file does not exist");
-            return false;
-        }
-    }
-    #ifdef ENABLE_SSL
-    else if (MATCH_OPTION("cert_remove")) {
+
+    if (MATCH_OPTION("cert_remove")) {
         sds ssldir = sdscatfmt(sdsempty(), "%s/ssl", config->varlibdir);
         bool rc = cleanup_certificates(ssldir, "server");
         sdsfree(ssldir);
@@ -96,7 +74,6 @@ bool handle_option(t_config *config, char *cmd, sds option) {
         }
         return true;
     }
-    #endif
     else if (MATCH_OPTION("reset_state")) {
         mympd_api_settings_delete(config);
         return true;
@@ -130,11 +107,9 @@ bool handle_option(t_config *config, char *cmd, sds option) {
                "https://github.com/jcorporation/myMPD\n\n"
                "Usage: %s [/etc/mympd.conf] <command>\n"
                "Commands (you should stop mympd before):\n"
-             #ifdef ENABLE_SSL
                "  certs_create:     create ssl certificates\n"
                "  cert_remove:      remove server certificates\n"
                "  ca_remove:        remove ca certificates\n"
-             #endif
                "  reset_state:      delete all myMPD settings\n"
                "  reset_smartpls:   create default smart playlists\n"
                "  reset_lastplayed: truncates last played list\n"

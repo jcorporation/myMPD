@@ -447,11 +447,7 @@ sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buf
     buffer = tojson_long(buffer, "mpdPort", mympd_state->mpd_port, true);
     buffer = tojson_char(buffer, "mpdPass", "dontsetpassword", true);
     buffer = tojson_bool(buffer, "featSyscmds", config->syscmds, true);
-#ifdef ENABLE_SSL
     buffer = tojson_bool(buffer, "featCacert", (config->custom_cert == false && config->ssl == true ? true : false), true);
-#else
-    buffer = tojson_bool(buffer, "featCacert", false, true);
-#endif
     buffer = tojson_bool(buffer, "featLocalplayer", mympd_state->localplayer, true);
     buffer = tojson_long(buffer, "streamPort", mympd_state->stream_port, true);
     buffer = tojson_char(buffer, "streamUrl", mympd_state->stream_url, true);

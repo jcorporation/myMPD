@@ -34,9 +34,6 @@
 //libid3tag
 #cmakedefine LIBID3TAG
 
-//openssl
-#cmakedefine ENABLE_SSL
-
 //myMPD version from cmake
 #define MYMPD_VERSION_MAJOR ${CPACK_PACKAGE_VERSION_MAJOR}
 #define MYMPD_VERSION_MINOR ${CPACK_PACKAGE_VERSION_MINOR}
@@ -61,14 +58,12 @@ typedef struct t_config {
     int mpd_port;
     sds mpd_pass;
     sds webport;
-#ifdef ENABLE_SSL
     bool ssl;
     sds ssl_port;
     sds ssl_cert;
     sds ssl_key;
     bool custom_cert;
     sds ssl_san;
-#endif
     sds user;
     bool stickers;
     bool mixramp;
