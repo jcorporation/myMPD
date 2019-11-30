@@ -39,7 +39,9 @@
 #include "web_server/web_server_utility.h"
 #include "web_server.h"
 #include "mympd_api.h"
-#include "cert.h"
+#ifdef ENABLE_SSL
+  #include "cert.h"
+#endif
 #include "handle_options.h"
 #include "maintenance.h"
 
@@ -87,6 +89,7 @@ static bool do_chroot(struct t_config *config) {
     return false;
 }
 
+#ifdef ENABLE_SSL
 static bool chown_certs(t_config *config) {
     sds filename = sdscatfmt(sdsempty(), "%s/ssl/ca.pem", config->varlibdir);
     if (do_chown(filename, config->user) == false) {
@@ -114,6 +117,7 @@ static bool chown_certs(t_config *config) {
     sdsfree(filename);
     return true;
 }
+#endif
 
 static bool drop_privileges(t_config *config, uid_t startup_uid) {
     if (startup_uid == 0) {
@@ -154,6 +158,7 @@ static bool drop_privileges(t_config *config, uid_t startup_uid) {
     return true;
 }
 
+#ifdef ENABLE_SSL
 static bool check_ssl_certs(t_config *config, uid_t startup_uid) {
     if (config->ssl == true && config->custom_cert == false) {
         sds testdirname = sdscatfmt(sdsempty(), "%s/ssl", config->varlibdir);
@@ -188,6 +193,7 @@ static bool check_ssl_certs(t_config *config, uid_t startup_uid) {
     }
     return true;
 }
+#endif
 
 static bool check_dirs(t_config *config) {
     int testdir_rc;
@@ -372,11 +378,13 @@ int main(int argc, char **argv) {
     setvbuf(stderr, NULL, _IOLBF, 0);
 
     //check for ssl certificates
+    #ifdef ENABLE_SSL
     if (config->readonly == false) {
         if (check_ssl_certs(config, startup_uid) == false) {
             goto cleanup;
         }
     }
+    #endif
 
     //init webserver    
     struct mg_mgr mgr;

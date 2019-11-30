@@ -272,10 +272,10 @@ static bool handle_coverextract_id3(t_config *config, const char *uri, const cha
     }
     id3_file_close(file_struct);
     #else
-    (void) nc;
     (void) config;
     (void) uri;
     (void) media_file;
+    (void) binary;
     #endif
     return rc;
 }
