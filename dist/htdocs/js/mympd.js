@@ -60,9 +60,13 @@ function sendAPI(method, params, callback, onerror) {
 }
 
 function webSocketConnect() {
-    if (socket !== null) {
+    if (socket !== null && socket.readyState === WebSocket.OPEN) {
         logInfo("Socket already connected");
+        websocketConnected = true;
         return;
+    }
+    else {
+        websocketConnected = false;
     }
     let wsUrl = getWsUrl();
     socket = new WebSocket(wsUrl);
@@ -534,6 +538,68 @@ function saveBookmark() {
         document.getElementById('saveBookmarkName').classList.add('is-invalid');
     }
 }
+
+function parseCovergrid(obj) {
+    let nrItems = obj.result.returnedEntities;
+
+    let cardContainer = document.getElementById('BrowseCovergridList');
+    let cards = cardContainer.getElementsByClassName('card');
+    for (let i = 0; i < nrItems; i++) {
+        let card = document.createElement('div');
+        card.classList.add('card', 'card-grid', 'mr-3', 'mb-3');
+        card.setAttribute('data-uri', encodeURI(obj.result.data[i].FirstSongUri));
+        let html = '<div class="card-body album-cover-loading album-cover-grid"></div>' +
+                    '<div class="card-footer card-footer-grid">' +
+                    obj.result.data[i].Album +
+                    '<br/><small>' + obj.result.data[i].AlbumArtist + '</small>' +
+                    '</div>';
+        card.innerHTML = html;
+        let replaced = false;
+        if (i < cards.length) {
+            if (cards[i].getAttribute('data-uri') !== card.getAttribute('data-uri')) {
+                cards[i].replaceWith(card);
+                replaced = true;
+            }
+        }
+        else {
+            cardContainer.append(card);
+            replaced = true;
+        }
+        if ('IntersectionObserver' in window && replaced === true) {
+            let options = {
+                root: null,
+                rootMargin: "0px",
+            };
+            let observer = new IntersectionObserver(setGridImage, options);
+            observer.observe(card);
+        }
+        else if (replaced === true) {
+            card.style.backgroundImage = 'url("/albumart/' + obj.result.data[i].uri + '")';
+        }
+    }
+    let cardsLen = cards.length - 1;
+    for (let i = cardsLen; i >= nrItems; i --) {
+        cards[i].remove();
+    }
+    
+    setPagination(obj.result.totalEntities, obj.result.returnedEntities);
+                    
+    if (nrItems === 0) {
+        cardContainer.innerHTML = t('Empty list');
+    }
+    document.getElementById(app.current.app + (app.current.tab === undefined ? '' : app.current.tab) + 'List').classList.remove('opacity05');
+    document.getElementById('cardFooterBrowse').innerText = '';
+}
+
+function setGridImage(changes, observer) {
+    changes.forEach(change => {
+        if (change.intersectionRatio > 0) {
+            observer.unobserve(change.target);
+            let uri = decodeURI(change.target.getAttribute('data-uri'));
+            change.target.firstChild.style.backgroundImage = 'url("/albumart/' + uri + '")';
+        }
+    });
+}
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
  myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
@@ -858,7 +924,8 @@ app.apps = { "Playback":   { "state": "0/-/-/", "scrollPos": 0 },
                                     "active": "AlbumArtist",
                                     "views": { 
                                      }
-                             }
+                             },
+                             "Covergrid":  { "state": "0/-/-/", "scrollPos": 0 }
                   }
              },
              "Search": { "state": "0/any/-/", "scrollPos": 0 }
@@ -937,7 +1004,8 @@ function appPrepare(scrollPos) {
         document.getElementById('cardQueueLastPlayed').classList.add('hide');
         document.getElementById('cardBrowsePlaylists').classList.add('hide');
         document.getElementById('cardBrowseDatabase').classList.add('hide');
-        document.getElementById('cardBrowseFilesystem').classList.add('hide');        
+        document.getElementById('cardBrowseFilesystem').classList.add('hide');
+        document.getElementById('cardBrowseCovergrid').classList.add('hide');
         //show active card + nav
         document.getElementById('card' + app.current.app).classList.remove('hide');
         if (document.getElementById('nav' + app.current.app)) {
@@ -1089,6 +1157,9 @@ function appRoute() {
         }
         document.getElementById('BrowseBreadcrumb').innerHTML = breadcrumbs;
         doSetFilterLetter('BrowseFilesystemFilter');
+    }
+    else if (app.current.app === 'Browse' && app.current.tab === 'Covergrid') {
+        sendAPI("MPD_API_DATABASE_GET_ALBUMS", {"offset": app.current.page}, parseCovergrid);
     }
     else if (app.current.app === 'Search') {
         domCache.searchstr.focus();
@@ -1945,20 +2016,20 @@ function toggleUI() {
     if (websocketConnected == true && settings.mpdConnected == true) {
         state = 'enabled';
     }
-    let enabled = state == 'disabled' ? false : true;
-    if (enabled != uiEnabled) {
+    let enabled = state === 'disabled' ? false : true;
+    if (enabled !== uiEnabled) {
         setElsState('a', state);
         setElsState('input', state);
         setElsState('button', state);
         uiEnabled = enabled;
     }
-    if (settings.mpdConnected == true) {
+    if (settings.mpdConnected === true) {
         toggleAlert('alertMpdState', false, '');
     }
     else {
         toggleAlert('alertMpdState', true, t('MPD disconnected'));
     }
-    if (websocketConnected == true) {
+    if (websocketConnected === true) {
         toggleAlert('alertMympdState', false, '');
     }
     else {
@@ -3043,11 +3114,7 @@ function parseSettings() {
 
     document.getElementById('inputCoverimageSize').value = settings.coverimageSize;
 
-    let albumcover = document.querySelectorAll('.albumcover');
-    for (let i = 0; i < albumcover.length; i++) {
-	albumcover[i].style.width = settings.coverimageSize;
-	albumcover[i].style.height = settings.coverimageSize;
-    }
+    document.documentElement.style.setProperty('--mympd-coverimagesize', settings.coverimageSize + "px");
     
     document.getElementById('inputBgColor').value = settings.bgColor;
     document.getElementsByTagName('body')[0].style.backgroundColor = settings.bgColor;
@@ -3437,7 +3504,7 @@ function saveSettings() {
     }
     
     let inputCoverimageName = document.getElementById('inputCoverimageName');
-    if (!validateFilename(inputCoverimageName)) {
+    if (!validateFilenameList(inputCoverimageName)) {
         formOK = false;
     }
     
@@ -4860,19 +4927,40 @@ function gotoPage(x) {
  https://github.com/jcorporation/mympd
 */
 
-function validateFilename(el) {
-    if (el.value == '') {
-        el.classList.add('is-invalid');
+function validateFilenameString(str) {
+    if (str === '') {
         return false;
     }
-    else if (el.value.match(/^[\w-]+\.\w+$/) !== null) {
-        el.classList.remove('is-invalid');
+    else if (str.match(/^[\w-]+\.\w+$/) !== null) {
         return true;
     }
     else {
+        return false;
+    }
+}
+
+function validateFilename(el) {
+    if (validateFilenameString(el.value) === false) {
         el.classList.add('is-invalid');
         return false;
     }
+    else {
+        el.classList.remove('is-invalid');
+        return true;
+    }
+}
+
+function validateFilenameList(el) {
+    el.classList.remove('is-invalid');
+    
+    let filenames = el.value.split(',');
+    for (let i = 0; i < filenames.length; i++) {
+        if (validateFilenameString(filenames[i].trim()) === false) {
+            el.classList.add('is-invalid');
+            return false;
+        }
+    }
+    return true;
 }
 
 function validatePath(el) {

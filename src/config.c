@@ -49,6 +49,7 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("webserver", "webport")) {
         p_config->webport = sdsreplace(p_config->webport, value);
     }
+#ifdef ENABLE_SSL
     else if (MATCH("webserver", "ssl")) {
         p_config->ssl = strcmp(value, "true") == 0 ? true : false;
     }
@@ -70,6 +71,7 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("webserver", "sslsan")) {
         p_config->ssl_san = sdsreplace(p_config->ssl_san, value);
     }
+#endif
     else if (MATCH("webserver", "publishlibrary")) {
         p_config->publish_library = strcmp(value, "true") == 0 ? true : false;
     }
@@ -248,8 +250,11 @@ static void mympd_parse_env(struct t_config *config, const char *envvar) {
 
 static void mympd_get_env(struct t_config *config) {
     const char *env_vars[]={"MPD_HOST", "MPD_PORT", "MPD_PASS", "MPD_MUSICDIRECTORY",
-        "WEBSERVER_WEBPORT", "WEBSERVER_SSL", "WEBSERVER_SSLPORT", "WEBSERVER_SSLCERT", "WEBSERVER_SSLKEY",
-        "WEBSERVER_SSLSAN", "WEBSERVER_PUBLISHLIBRARY",
+        "WEBSERVER_WEBPORT", "WEBSERVER_PUBLISHLIBRARY",
+      #ifdef ENABLE_SSL
+        "WEBSERVER_SSL", "WEBSERVER_SSLPORT", "WEBSERVER_SSLCERT", "WEBSERVER_SSLKEY",
+        "WEBSERVER_SSLSAN", 
+      #endif
         "MYMPD_LOGLEVEL", "MYMPD_USER", "MYMPD_VARLIBDIR", "MYMPD_MIXRAMP", "MYMPD_STICKERS", "MYMPD_TAGLIST", 
         "MYMPD_SEARCHTAGLIST", "MYMPD_BROWSETAGLIST", "MYMPD_SMARTPLS", "MYMPD_SYSCMDS", 
         "MYMPD_PAGINATION", "MYMPD_LASTPLAYEDCOUNT", "MYMPD_LOVE", "MYMPD_LOVECHANNEL", "MYMPD_LOVEMESSAGE",
@@ -276,10 +281,12 @@ void mympd_free_config(t_config *config) {
     sdsfree(config->mpd_host);
     sdsfree(config->mpd_pass);
     sdsfree(config->webport);
+#ifdef ENABLE_SSL
     sdsfree(config->ssl_port);
     sdsfree(config->ssl_cert);
     sdsfree(config->ssl_key);
     sdsfree(config->ssl_san);
+#endif
     sdsfree(config->user);
     sdsfree(config->taglist);
     sdsfree(config->searchtaglist);
@@ -310,12 +317,14 @@ void mympd_config_defaults(t_config *config) {
     config->mpd_port = 6600;
     config->mpd_pass = sdsempty();
     config->webport = sdsnew("80");
+#ifdef ENABLE_SSL
     config->ssl = true;
     config->ssl_port = sdsnew("443");
     config->ssl_cert = sdsnew(VARLIB_PATH"/ssl/server.pem");
     config->ssl_key = sdsnew(VARLIB_PATH"/ssl/server.key");
     config->ssl_san = sdsempty();
     config->custom_cert = false;
+#endif
     config->user = sdsnew("mympd");
     config->chroot = false;
     config->varlibdir = sdsnew(VARLIB_PATH);
@@ -377,12 +386,14 @@ bool mympd_read_config(t_config *config, sds configfile) {
     mympd_get_env(config);
 
     //set correct path to certificate/key, if varlibdir is non default and cert paths are default
+    #ifdef ENABLE_SSL
     if (strcmp(config->varlibdir, VARLIB_PATH) != 0 && config->custom_cert == false) {
         config->ssl_cert = sdscrop(config->ssl_cert);
         config->ssl_cert = sdscatfmt(config->ssl_cert, "%s/ssl/server.pem", config->varlibdir);
         config->ssl_key = sdscrop(config->ssl_key);
         config->ssl_key = sdscatfmt(config->ssl_key, "%s/ssl/server.key", config->varlibdir);
     }
+    #endif
     if (config->readonly == true) {
         mympd_set_readonly(config);
     }

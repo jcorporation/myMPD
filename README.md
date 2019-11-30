@@ -60,8 +60,8 @@ Backend
 
 Dependencies
 ------------
- - OpenSSL
  - libmagic (file)
+ - OpenSSL (optional)
  - libid3tag (optional)
 
 Build Dependencies
