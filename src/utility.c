@@ -13,7 +13,6 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <ctype.h>
-#include <magic.h>
 
 #include "../dist/src/sds/sds.h"
 #include "sds_extras.h"
@@ -300,32 +299,47 @@ sds get_ext_by_mime_type(const char *mime_type) {
     return ext;
 }
 
+const struct magic_byte_entry magic_bytes[] = {
+    {"89504E470D0A1A0A",  "image/png"},
+    {"FFD8FFDB",  "image/jpeg"},
+    {"FFD8FFE0",  "image/jpeg"},
+    {"FFD8FFEE", "image/jpeg"},
+    {"FFD8FFE1", "image/jpeg"},
+    {"49492A00", "image/tiff"},
+    {"4D4D002A", "image/tiff"},
+    {"424D",  "image/x-ms-bmp"},
+    {NULL,   "application/octet-stream"}
+};
+
 sds get_mime_type_by_magic(const char *filename) {
-    const char *mimetype;
-    magic_t magic_cookie;
-    magic_cookie = magic_open(MAGIC_MIME_TYPE);
-    if (magic_cookie  == NULL){
-        LOG_ERROR("Error creating magic cookie");
+    FILE *fp = fopen(filename, "rb");
+    if (fp == NULL) {
+        LOG_ERROR("Can't open %s", filename);
         return sdsempty();
     }
-    magic_load(magic_cookie, NULL);
-    mimetype = magic_file(magic_cookie, filename);
-    sds mime_type = sdsnew(mimetype);
-    magic_close(magic_cookie);
+    unsigned char binary_buffer[8];
+    size_t read = fread(binary_buffer, sizeof(binary_buffer), 1, fp);
+    fclose(fp);
+    sds stream = sdsnewlen(binary_buffer, read);
+    sds mime_type = get_mime_type_by_magic_stream(stream);
+    sdsfree(stream);
     return mime_type;
 }
 
 sds get_mime_type_by_magic_stream(sds stream) {
-    const char *mimetype;
-    magic_t magic_cookie;
-    magic_cookie = magic_open(MAGIC_MIME_TYPE);
-    if (magic_cookie  == NULL){
-        LOG_ERROR("Error creating magic cookie");
-        return sdsempty();
+    sds hex_buffer = sdsempty();
+    for (int i = 0; i < 8; i++) {
+        hex_buffer = sdscatprintf(hex_buffer, "%02X", stream[i]);
     }
-    magic_load(magic_cookie, NULL);
-    mimetype = magic_buffer(magic_cookie, stream, sdslen(stream));
-    sds mime_type = sdsnew(mimetype);
-    magic_close(magic_cookie);
+    LOG_DEBUG("First bytes in file: %s", hex_buffer);
+    const struct magic_byte_entry *p = NULL;
+    for (p = magic_bytes; p->magic_bytes != NULL; p++) {
+        if (strncmp(hex_buffer, p->magic_bytes, strlen(p->magic_bytes)) == 0) {
+            LOG_DEBUG("Matched magic bytes for mime_type: %s", p->mime_type);
+            break;
+        }
+    }
+    sdsfree(hex_buffer);
+    sds mime_type = sdsnew(p->mime_type);
     return mime_type;
 }

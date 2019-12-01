@@ -566,27 +566,27 @@ installdeps() {
     #debian
     apt-get update
     apt-get install -y --no-install-recommends \
-	gcc cmake perl libssl-dev libid3tag0-dev libmagic-dev \
+	gcc cmake perl libssl-dev libid3tag0-dev \
 	default-jre-headless build-essential
   elif [ -f /etc/arch-release ]
   then
     #arch
-    pacman -S gcc cmake perl openssl libid3tag file jre-openjdk-headless
+    pacman -S gcc cmake perl openssl libid3tag jre-openjdk-headless
   elif [ -f /etc/alpine-release ]
   then
     #alpine
-    apk add gcc cmake perl openssl-dev libid3tag-dev file-dev \
+    apk add gcc cmake perl openssl-dev libid3tag-dev \
     	openjdk11-jre-headlesslinux-headers
   elif [ -f /etc/SuSE-release ]
   then
     #suse
     zypper install gcc cmake pkgconfig perl openssl-devel libid3tag-devel \
-	file-devel java-11-openjdk-headless unzip
+	java-11-openjdk-headless unzip
   elif [ -f /etc/redhat-release ]
   then  
     #fedora 	
     yum install gcc cmake pkgconfig perl openssl-devel libid3tag-devel \
-	file-devel java-11-openjdk-headless unzip
+	java-11-openjdk-headless unzip
   else 
     echo "No supported distribution detected."
   fi

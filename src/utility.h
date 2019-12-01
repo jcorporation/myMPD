@@ -44,4 +44,9 @@ struct mime_type_entry {
     const char *mime_type;
 };
 
+struct magic_byte_entry {
+    const char *magic_bytes;
+    const char *mime_type;
+};
+
 #endif
