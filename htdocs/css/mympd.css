@@ -207,7 +207,6 @@ small {
 
 .card-grid {
   width: var(--mympd-covergridsize, 190px);
-  float: left;
   min-height: 0 !important;
   margin-bottom: 1.25rem;
   overflow: hidden;
