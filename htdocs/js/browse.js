@@ -210,7 +210,7 @@ function parseListDBtags(obj) {
 function createListTitleObserver(ele) {
   let options = {
     root: null,
-    rootMargin: "0px",
+    rootMargin: '0px',
   };
 
   let observer = new IntersectionObserver(getListTitles, options);
@@ -362,7 +362,7 @@ function parseCovergrid(obj) {
         if ('IntersectionObserver' in window && replaced === true) {
             let options = {
                 root: null,
-                rootMargin: "0px",
+                rootMargin: '0px',
             };
             let observer = new IntersectionObserver(setGridImage, options);
             observer.observe(col);
