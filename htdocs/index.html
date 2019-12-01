@@ -535,7 +535,7 @@
               <input data-placeholder-phrase="Search" type="text" class="form-control" id="searchCovergridStr"/>
             </div>
           </form>
-          <div id="BrowseCovergridPaginationTop" class="btn-group mr-2 hide">
+          <div id="BrowseCovergridPaginationTop" class="btn-group hide">
             <button data-title-phrase="Previous page" data-href='{"cmd": "gotoPage", "options": ["prev"]}' id="BrowseCovergridPaginationTopPrev" type="button" class="btn btn-group-prepend btn-secondary">&laquo;</button>
               <div class="btn-group">
                 <button id="BrowseCovergridPaginationTopPage" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"></button>
@@ -545,13 +545,15 @@
             <button data-title-phrase="Next page" data-href='{"cmd": "gotoPage", "options": ["next"]}' id="BrowseCovergridPaginationTopNext" type="button" class="btn btn-secondary btn-group-append">&raquo;</button>
           </div>
         </div>
-        <div id="BrowseCovergridList" class="clearfix">
+        <div class="container justify-content-between">
+          <div id="BrowseCovergridList" class="row justify-content-between">
+          </div>
         </div>
         <div class="btn-toolbar hide" id="BrowseCovergridButtonsBottom">
           <div class="btn-group mr-2">
             <button data-title-phrase="To top" type="button" class="btn btn-secondary material-icons" data-href='{"cmd": "scrollTo", "options": [0]}'>keyboard_arrow_up</button>
           </div>        
-          <div id="BrowseCovergridPaginationBottom" class="btn-group mr-2 dropup">
+          <div id="BrowseCovergridPaginationBottom" class="btn-group dropup">
             <button data-title-phrase="Previous page" data-href='{"cmd": "gotoPage", "options": ["prev"]}' id="BrowseCovergridPaginationBottomPrev" type="button" class="btn btn-group-prepend btn-secondary">&laquo;</button>
               <div class="btn-group">
                 <button id="BrowseCovergridPaginationBottomPage" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"></button>

@@ -337,26 +337,26 @@ function parseCovergrid(obj) {
     let nrItems = obj.result.returnedEntities;
 
     let cardContainer = document.getElementById('BrowseCovergridList');
-    let cards = cardContainer.getElementsByClassName('card');
+    let cols = cardContainer.getElementsByClassName('col');
     for (let i = 0; i < nrItems; i++) {
-        let card = document.createElement('div');
-        card.classList.add('card', 'card-grid', 'mr-3', 'mb-3');
-        card.setAttribute('data-uri', encodeURI(obj.result.data[i].FirstSongUri));
-        let html = '<div class="card-body album-cover-loading album-cover-grid"></div>' +
-                    '<div class="card-footer card-footer-grid">' +
-                    obj.result.data[i].Album +
-                    '<br/><small>' + obj.result.data[i].AlbumArtist + '</small>' +
-                    '</div>';
-        card.innerHTML = html;
+        let col = document.createElement('div');
+        col.classList.add('col', 'px-0', 'flex-grow-0');
+        let html = '<div class="card card-grid" data-uri="' + encodeURI(obj.result.data[i].FirstSongUri) + '">' + 
+                   '<div class="card-body album-cover-loading album-cover-grid"></div>' +
+                   '<div class="card-footer card-footer-grid p-2">' +
+                   obj.result.data[i].Album +
+                   '<br/><small>' + obj.result.data[i].AlbumArtist + '</small>' +
+                   '</div></div>';
+        col.innerHTML = html;
         let replaced = false;
-        if (i < cards.length) {
-            if (cards[i].getAttribute('data-uri') !== card.getAttribute('data-uri')) {
-                cards[i].replaceWith(card);
+        if (i < cols.length) {
+            if (cols[i].firstChild.getAttribute('data-uri') !== col.firstChild.getAttribute('data-uri')) {
+                cols[i].replaceWith(col);
                 replaced = true;
             }
         }
         else {
-            cardContainer.append(card);
+            cardContainer.append(col);
             replaced = true;
         }
         if ('IntersectionObserver' in window && replaced === true) {
@@ -365,15 +365,15 @@ function parseCovergrid(obj) {
                 rootMargin: "0px",
             };
             let observer = new IntersectionObserver(setGridImage, options);
-            observer.observe(card);
+            observer.observe(col);
         }
         else if (replaced === true) {
-            card.style.backgroundImage = 'url("/albumart/' + obj.result.data[i].uri + '")';
+            col.firstChild.style.backgroundImage = 'url("/albumart/' + obj.result.data[i].uri + '")';
         }
     }
-    let cardsLen = cards.length - 1;
-    for (let i = cardsLen; i >= nrItems; i --) {
-        cards[i].remove();
+    let colsLen = cols.length - 1;
+    for (let i = colsLen; i >= nrItems; i --) {
+        cols[i].remove();
     }
     
     setPagination(obj.result.totalEntities, obj.result.returnedEntities);
@@ -389,8 +389,8 @@ function setGridImage(changes, observer) {
     changes.forEach(change => {
         if (change.intersectionRatio > 0) {
             observer.unobserve(change.target);
-            let uri = decodeURI(change.target.getAttribute('data-uri'));
-            change.target.firstChild.style.backgroundImage = 'url("/albumart/' + uri + '")';
+            let uri = decodeURI(change.target.firstChild.getAttribute('data-uri'));
+            change.target.firstChild.firstChild.style.backgroundImage = 'url("/albumart/' + uri + '")';
         }
     });
 }

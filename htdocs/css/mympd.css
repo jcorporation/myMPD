@@ -6,7 +6,7 @@
 
 :root {
   --mympd-coverimagesize: 250px;
-  --mympd-covergridsize: 185px;
+  --mympd-covergridsize: 190px;
 }
 
 #splashScreen {
@@ -206,9 +206,11 @@ small {
 }
 
 .card-grid {
-  width: var(--mympd-covergridsize, 185px);
+  width: var(--mympd-covergridsize, 190px);
   float: left;
-  min-height: 200px !important;
+  min-height: 0 !important;
+  margin-bottom: 1.25rem;
+  overflow: hidden;
 }
 
 .card-footer-grid {
@@ -221,8 +223,8 @@ small {
   background-size: cover;
   overflow: hidden;
   background-color: #eee;
-  width: var(--mympd-covergridsize, 185px);
-  height: var(--mympd-covergridsize, 185px);
+  width: var(--mympd-covergridsize, 190px);
+  height: var(--mympd-covergridsize, 190px);
 }
 
 a.card-img-left {
