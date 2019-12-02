@@ -42,9 +42,6 @@ MESSAGE("ETC_PATH: ${ETC_PATH}")
 
 MESSAGE("BIN_PATH: ${CMAKE_INSTALL_FULL_BINDIR}")
 
-set(PLUGIN_PATH "${CMAKE_INSTALL_FULL_LIBDIR}${SUBDIR}")
-MESSAGE("PLUGIN_PATH: ${PLUGIN_PATH}")
-
 set(VARLIB_PATH "${CMAKE_INSTALL_FULL_LOCALSTATEDIR}${SUBDIRLIB}${SUBDIR}")
 if("${CMAKE_INSTALL_PREFIX}" MATCHES "/usr/local")
   set(VARLIB_PATH "/${CMAKE_INSTALL_LOCALSTATEDIR}${SUBDIRLIB}${SUBDIR}")
@@ -75,13 +72,22 @@ else()
   set(ENABLE_SSL "OFF")
 endif()
 
-if(NOT ${LIBID3TAG} MATCHES "OFF")
+if(NOT ${ENABLE_LIBID3TAG} MATCHES "OFF")
   find_package(LibId3Tag)
 endif()
 if(LIBID3TAG_FOUND)
-  set(LIBID3TAG "ON")
+  set(ENABLE_LIBID3TAG "ON")
 else()
-  set(LIBID3TAG "OFF")
+  set(ENABLE_LIBID3TAG "OFF")
+endif()
+
+if(NOT ${ENABLE_FLAC} MATCHES "OFF")
+  find_package(FLAC)
+endif()
+if(FLAC_FOUND)
+  set(ENABLE_FLAC "ON")
+else()
+  set(ENABLE_FLAC "OFF")
 endif()
 
 configure_file(src/config_defs.h.in ${PROJECT_BINARY_DIR}/config_defs.h)
@@ -91,7 +97,7 @@ configure_file(contrib/initscripts/mympd.service.in contrib/initscripts/mympd.se
 configure_file(contrib/initscripts/mympd.sysVinit.in contrib/initscripts/mympd.sysVinit @ONLY)
 configure_file(contrib/initscripts/mympd.openrc.in contrib/initscripts/mympd.openrc @ONLY)
 
-include_directories(${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR} ${LIBMPDCLIENT_INCLUDE_DIR} ${OPENSSL_INCLUDE_DIR} ${LIBID3TAG_INCLUDE_DIRS})
+include_directories(${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR} ${LIBMPDCLIENT_INCLUDE_DIR} ${OPENSSL_INCLUDE_DIR} ${LIBID3TAG_INCLUDE_DIRS} ${FLAC_INCLUDE_DIRS})
 
 if(${EMBEDDED_LIBMPDCLIENT} MATCHES "ON")
   include_directories(dist/src/libmpdclient/include)
@@ -246,10 +252,10 @@ set(LIBMPDCLIENT_SOURCES
 
 if(${EMBEDDED_LIBMPDCLIENT} MATCHES "ON")
   add_executable(mympd ${SOURCES} ${LIBMPDCLIENT_SOURCES} ${CERT_SOURCES})
-  target_link_libraries(mympd ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${LIBID3TAG_LIBRARIES})
+  target_link_libraries(mympd ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${LIBID3TAG_LIBRARIES} ${FLAC_LIBRARIES})
 else()
   add_executable(mympd ${SOURCES} ${CERT_SOURCES})
-  target_link_libraries(mympd ${LIBMPDCLIENT_LIBRARY} ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${LIBID3TAG_LIBRARIES})
+  target_link_libraries(mympd ${LIBMPDCLIENT_LIBRARY} ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${LIBID3TAG_LIBRARIES} ${FLAC_LIBRARIES})
 endif()
 
 install(TARGETS mympd DESTINATION ${CMAKE_INSTALL_FULL_BINDIR})

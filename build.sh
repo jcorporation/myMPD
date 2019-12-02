@@ -15,9 +15,14 @@ then
   export ENABLE_SSL="ON"
 fi
 
-if [ "${LIBID3TAG}" = "" ]
+if [ "${ENABLE_LIBID3TAG}" = "" ]
 then
-  export LIBID3TAG="ON"
+  export ENABLE_LIBID3TAG="ON"
+fi
+
+if [ "${ENABLE_FLAC}" = "" ]
+then
+  export ENABLE_FLAC="ON"
 fi
 
 STARTPATH=$(pwd)
@@ -283,7 +288,7 @@ buildrelease() {
   export INSTALL_PREFIX="${MYMPD_INSTALL_PREFIX:-/usr}"
   cmake -DCMAKE_INSTALL_PREFIX:PATH="$INSTALL_PREFIX" -DCMAKE_BUILD_TYPE=RELEASE \
   	-DEMBEDDED_LIBMPDCLIENT="$EMBEDDED_LIBMPDCLIENT" -DENABLE_SSL="$ENABLE_SSL" \
-  	-DLIBID3TAG="$LIBID3TAG" ..
+  	-DENABLE_LIBID3TAG="$ENABLE_LIBID3TAG" -DENABLE_FLAC="$ENABLE_FLAC" ..
   make
 }
 
@@ -314,7 +319,7 @@ builddebug() {
   cd debug || exit 1
   cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=DEBUG -DMEMCHECK="$MEMCHECK" \
   	-DEMBEDDED_LIBMPDCLIENT="$EMBEDDED_LIBMPDCLIENT" -DENABLE_SSL="$ENABLE_SSL" \
-  	-DLIBID3TAG="$LIBID3TAG" ..
+  	-DENABLE_LIBID3TAG="$ENABLE_LIBID3TAG" -DENABLE_FLAC="$ENABLE_FLAC" ..
   make VERBOSE=1
 }
 
@@ -701,7 +706,8 @@ case "$1" in
 	  echo "  - MYMPD_INSTALL_PREFIX=\"/usr\""
 	  echo "  - EMBEDDED_LIBMPDCLIENT=\"ON\""
 	  echo "  - ENABLE_SSL=\"ON\""
-	  echo "  - LIBID3TAG=\"ON\""
+	  echo "  - ENABLE_LIBID3TAG=\"ON\""
+	  echo "  - ENABLE_FLAC=\"ON\""
 	  echo ""
 	;;
 esac

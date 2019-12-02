@@ -21,13 +21,11 @@ This fork provides a reworked ui based on Bootstrap 4, a modernized backend and 
  - Bookmarks for directories
  - Queue management
  - Playlist management
- - Advanced search (requires mpd >= 0.21)
+ - Advanced search
  - Jukebox mode (add's random songs / albums from database or playlists to queue)
- - AutoPlay - add song to (empty) queue and mpd starts playing
  - Smart playlists and saved searches
- - Play statistics and song voting (requires mpd stickers)
- - Local coverart support (requires access to music directory or mpd >= 0.21)
- - Support for embedded albumart in mp3 files (requires libid3tag or mpd >= 0.22)
+ - Play statistics and song voting
+ - Local albumart support embedded in media files and coverfiles in folders
  - HTTP stream support
  - Local playback of mpd http stream (html5 audio api)
  - Progressiv Web App enabled

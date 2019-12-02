@@ -25,13 +25,19 @@
 #include "web_server_albumart.h"
 
 //optional includes
-#ifdef LIBID3TAG
+#ifdef ENABLE_LIBID3TAG
     #include <id3tag.h>
+#endif
+
+#ifdef ENABLE_FLAC
+    #include <FLAC/metadata.h>
 #endif
 
 //privat definitions
 static bool handle_coverextract(struct mg_connection *nc, t_config *config, const char *uri, const char *media_file);
+static bool write_covercache_file(t_config *config, const char *uri, const char *mime_type, sds binary);
 static bool handle_coverextract_id3(t_config *config, const char *uri, const char *media_file, sds *binary);
+static bool handle_coverextract_flac(t_config *config, const char *uri, const char *media_file, sds *binary, bool is_ogg);
 
 //public functions
 void send_albumart(struct mg_connection *nc, sds data, sds binary) {
@@ -202,6 +208,12 @@ static bool handle_coverextract(struct mg_connection *nc, t_config *config, cons
     if (strcmp(mime_type_media_file, "audio/mpeg") == 0) {
         rc = handle_coverextract_id3(config, uri, media_file, &binary);
     }
+    else if (strcmp(mime_type_media_file, "audio/ogg") == 0) {
+        rc = handle_coverextract_flac(config, uri, media_file, &binary, true);
+    }
+    else if (strcmp(mime_type_media_file, "audio/flac") == 0) {
+        rc = handle_coverextract_flac(config, uri, media_file, &binary, false);
+    }
     sdsfree(mime_type_media_file);
     if (rc == true) {
         sds mime_type = get_mime_type_by_magic_stream(binary);
@@ -209,7 +221,8 @@ static bool handle_coverextract(struct mg_connection *nc, t_config *config, cons
         header = sdscat(header, EXTRA_HEADERS_CACHE);
         mg_send_head(nc, 200, sdslen(binary), header);
         mg_send(nc, binary, sdslen(binary));
-        sdsfree(header);    
+        sdsfree(header);
+        sdsfree(mime_type);
     }
     sdsfree(binary);
     return rc;
@@ -217,7 +230,7 @@ static bool handle_coverextract(struct mg_connection *nc, t_config *config, cons
 
 static bool handle_coverextract_id3(t_config *config, const char *uri, const char *media_file, sds *binary) {
     bool rc = false;
-    #ifdef LIBID3TAG
+    #ifdef ENABLE_LIBID3TAG
     LOG_DEBUG("Exctracting coverimage from %s", media_file);
     struct id3_file *file_struct = id3_file_open(media_file, ID3_FILE_MODE_READONLY);
     if (file_struct == NULL) {
@@ -233,37 +246,10 @@ static bool handle_coverextract_id3(t_config *config, const char *uri, const cha
     if (frame != NULL) {
         id3_length_t length;
         const id3_byte_t *pic = id3_field_getbinarydata(id3_frame_field(frame, 4), &length);
-        if (config->covercache == true) {
-            sds filename = sdsnew(uri);
-            uri_to_filename(filename);
-            sds tmp_file = sdscatfmt(sdsempty(), "%s/covercache/%s.XXXXXX", config->varlibdir, filename);
-            FILE *fp = fopen(tmp_file, "w");
-            if (fp != NULL) {
-                fwrite(pic, 1, length, fp);
-                fclose(fp);
-            }
-            else {
-                LOG_ERROR("Can't write covercachefile: %s", tmp_file);
-                sdsfree(tmp_file);
-                sdsfree(filename);
-                return false;
-            }
-            sds ext = get_ext_by_mime_type((char *)id3_field_getlatin1(id3_frame_field(frame, 1)));
-            sds cover_file = sdscatfmt(sdsempty(), "%s/covercache/%s.%s", config->varlibdir, filename, ext);
-            if (rename(tmp_file, cover_file) == -1) {
-                LOG_ERROR("Rename file from %s to %s failed", tmp_file, cover_file);
-                sdsfree(ext);
-                sdsfree(tmp_file);
-                sdsfree(cover_file);
-                sdsfree(filename);
-                return false;
-            }
-            sdsfree(ext);
-            sdsfree(cover_file);
-            sdsfree(tmp_file);
-            sdsfree(filename);
-        }
         *binary = sdscatlen(*binary, pic, length);
+        if (config->covercache == true) {
+            write_covercache_file(config, uri, (char *)id3_field_getlatin1(id3_frame_field(frame, 1)), *binary);
+        }
         LOG_DEBUG("Coverimage successfully extracted");
         rc = true;        
     }
@@ -277,5 +263,78 @@ static bool handle_coverextract_id3(t_config *config, const char *uri, const cha
     (void) media_file;
     (void) binary;
     #endif
+    return rc;
+}
+
+static bool handle_coverextract_flac(t_config *config, const char *uri, const char *media_file, sds *binary, bool is_ogg) {
+    bool rc = false;
+    #ifdef ENABLE_FLAC
+    LOG_DEBUG("Exctracting coverimage from %s", media_file);
+    FLAC__StreamMetadata *metadata = NULL;
+
+    FLAC__Metadata_Chain *chain = FLAC__metadata_chain_new();
+    
+    if(! (is_ogg? FLAC__metadata_chain_read_ogg(chain, media_file) : FLAC__metadata_chain_read(chain, media_file)) ) {
+        LOG_DEBUG("%s: ERROR: reading metadata", media_file);
+        FLAC__metadata_chain_delete(chain);
+        return false;
+    }
+
+    FLAC__Metadata_Iterator *iterator = FLAC__metadata_iterator_new();
+    FLAC__metadata_iterator_init(iterator, chain);
+    assert(iterator);
+    
+    do {
+        FLAC__StreamMetadata *block = FLAC__metadata_iterator_get_block(iterator);
+        if (block->type == FLAC__METADATA_TYPE_PICTURE) {
+            metadata = block;
+        }
+    } while (FLAC__metadata_iterator_next(iterator) && metadata == NULL);
+    
+    if (metadata == NULL) {
+        LOG_DEBUG("No embedded picture detected");
+    }
+    else {
+        *binary = sdscatlen(*binary, metadata->data.picture.data, metadata->data.picture.data_length);
+        if (config->covercache == true) {
+            write_covercache_file(config, uri, metadata->data.picture.mime_type, *binary);
+        }
+        LOG_DEBUG("Coverimage successfully extracted");
+        rc = true;
+    }
+    FLAC__metadata_iterator_delete(iterator);
+    FLAC__metadata_chain_delete(chain);
+    #else
+    (void) config;
+    (void) uri;
+    (void) media_file;
+    (void) binary;
+    #endif
+    return rc;
+}
+
+static bool write_covercache_file(t_config *config, const char *uri, const char *mime_type, sds binary) {
+    bool rc = false;
+    sds filename = sdsnew(uri);
+    uri_to_filename(filename);
+    sds tmp_file = sdscatfmt(sdsempty(), "%s/covercache/%s.XXXXXX", config->varlibdir, filename);
+    FILE *fp = fopen(tmp_file, "w");
+    if (fp != NULL) {
+        fwrite(binary, 1, sdslen(binary), fp);
+        fclose(fp);
+        sds ext = get_ext_by_mime_type(mime_type);
+        sds cover_file = sdscatfmt(sdsempty(), "%s/covercache/%s.%s", config->varlibdir, filename, ext);
+        if (rename(tmp_file, cover_file) == -1) {
+            LOG_ERROR("Rename file from %s to %s failed", tmp_file, cover_file);
+        }
+        sdsfree(ext);
+        sdsfree(cover_file);
+        rc = true;
+    }
+    else {
+        LOG_ERROR("Can't write covercachefile: %s", tmp_file);
+    }
+    sdsfree(tmp_file);
+    sdsfree(filename);
     return rc;
 }

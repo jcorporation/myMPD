@@ -32,7 +32,10 @@
 #cmakedefine EMBEDDED_LIBMPDCLIENT
 
 //libid3tag
-#cmakedefine LIBID3TAG
+#cmakedefine ENABLE_LIBID3TAG
+
+//flac
+#cmakedefine ENABLE_FLAC
 
 //openssl
 #cmakedefine ENABLE_SSL

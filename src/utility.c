@@ -254,6 +254,11 @@ sds find_image_file(sds basefilename) {
 
 const struct mime_type_entry media_files[] = {
     {"mp3",  "audio/mpeg"},
+    {"flac", "audio/flac"},
+    {"oga",  "audio/ogg"},
+    {"ogg",  "audio/ogg"},
+    {"opus",  "audio/ogg"},
+    {"spx",  "audio/ogg"},
     {NULL,   "application/octet-stream"}
 };
 
@@ -318,7 +323,8 @@ sds get_mime_type_by_magic(const char *filename) {
         return sdsempty();
     }
     unsigned char binary_buffer[8];
-    size_t read = fread(binary_buffer, sizeof(binary_buffer), 1, fp);
+    size_t read = fread(binary_buffer, 1, sizeof(binary_buffer), fp);
+    LOG_DEBUG("Read %u bytes from file %s", read, filename);
     fclose(fp);
     sds stream = sdsnewlen(binary_buffer, read);
     sds mime_type = get_mime_type_by_magic_stream(stream);
@@ -328,7 +334,8 @@ sds get_mime_type_by_magic(const char *filename) {
 
 sds get_mime_type_by_magic_stream(sds stream) {
     sds hex_buffer = sdsempty();
-    for (int i = 0; i < 8; i++) {
+    int len = sdslen(stream) < 8 ? sdslen(stream) : 8;
+    for (int i = 0; i < len; i++) {
         hex_buffer = sdscatprintf(hex_buffer, "%02X", stream[i]);
     }
     LOG_DEBUG("First bytes in file: %s", hex_buffer);
