@@ -17,6 +17,7 @@ This fork provides a reworked ui based on Bootstrap 4, a modernized backend and 
  - Control mpd functions (play, pause, etc.)
  - Set mpd settings (repeat, random, etc.)
  - Browse mpd database by tags
+ - Albumart grid
  - Browse filesystem and playlists
  - Bookmarks for directories
  - Queue management
@@ -25,7 +26,7 @@ This fork provides a reworked ui based on Bootstrap 4, a modernized backend and 
  - Jukebox mode (add's random songs / albums from database or playlists to queue)
  - Smart playlists and saved searches
  - Play statistics and song voting
- - Local albumart support embedded in media files and coverfiles in folders
+ - Local albumart support: embedded and image per folder
  - HTTP stream support
  - Local playback of mpd http stream (html5 audio api)
  - Progressiv Web App enabled
@@ -60,6 +61,7 @@ Dependencies
 ------------
  - OpenSSL (optional)
  - libid3tag (optional)
+ - libflac (optional)
 
 Build Dependencies
 ------------------
