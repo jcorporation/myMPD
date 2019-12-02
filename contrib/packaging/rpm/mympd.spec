@@ -17,7 +17,7 @@ BuildRequires:  unzip
 BuildRequires:  pkgconfig
 BuildRequires:  openssl-devel
 BuildRequires:  libid3tag-devel
-BuildRequires:	file-devel
+BuildRequires:	libflac-devel
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
 %global debug_package %{nil}
@@ -58,5 +58,5 @@ fi
 %config(noreplace) /etc/mympd.conf
 
 %changelog
-* Sun Dec 01 2019 Juergen Mang <mail@jcgames.de> 6.0.0-0
+* Mon Dec 02 2019 Juergen Mang <mail@jcgames.de> 6.0.0-0
 - Version from master
