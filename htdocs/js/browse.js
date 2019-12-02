@@ -335,9 +335,11 @@ function saveBookmark() {
 
 function parseCovergrid(obj) {
     let nrItems = obj.result.returnedEntities;
-
     let cardContainer = document.getElementById('BrowseCovergridList');
     let cols = cardContainer.getElementsByClassName('col');
+    if (cols.length === 0) {
+        cardContainer.innerHTML = '';
+    }
     for (let i = 0; i < nrItems; i++) {
         let col = document.createElement('div');
         col.classList.add('col', 'px-0', 'flex-grow-0');
@@ -382,7 +384,7 @@ function parseCovergrid(obj) {
         cardContainer.innerHTML = t('Empty list');
     }
     document.getElementById(app.current.app + (app.current.tab === undefined ? '' : app.current.tab) + 'List').classList.remove('opacity05');
-    document.getElementById('cardFooterBrowse').innerText = '';
+    document.getElementById('cardFooterBrowse').innerText = gtPage('Num entries', obj.result.returnedEntities, obj.result.totalEntities);
 }
 
 function setGridImage(changes, observer) {

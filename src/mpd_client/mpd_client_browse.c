@@ -323,19 +323,26 @@ sds mpd_client_put_songs_in_album(t_mpd_state *mpd_state, sds buffer, sds method
 }
 
 sds mpd_client_put_firstsong_in_albums(t_mpd_state *mpd_state, sds buffer, sds method, int request_id, 
-                                       const unsigned int offset)
+                                       const char *searchstr, const char *tag, const unsigned int offset)
 {
     buffer = jsonrpc_start_result(buffer, method, request_id);
     buffer = sdscat(buffer, ",\"data\":[");
 
-    if (mpd_search_db_songs(mpd_state->conn, true) == false) {
-        buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
-        return buffer;
-    }    
-    if (mpd_search_add_tag_constraint(mpd_state->conn, MPD_OPERATOR_DEFAULT, MPD_TAG_TRACK, "1") == false) {
+    if (mpd_search_db_songs(mpd_state->conn, false) == false) {
         buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
         return buffer;
     }
+    sds expression = sdsnew("((Track == '1')");
+    if (strlen(searchstr) > 0) {
+        expression = sdscatfmt(expression, " AND (%s contains '%s')", tag, searchstr);
+    }
+    expression = sdscat(expression, ")");
+    LOG_DEBUG("Expression: %s", expression);
+    if (mpd_search_add_expression(mpd_state->conn, expression) == false) {
+        buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
+        return buffer;
+    }
+    sdsfree(expression);
     if (mpd_search_add_sort_name(mpd_state->conn, "AlbumArtist" , false) == false) {
         buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
         return buffer;

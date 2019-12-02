@@ -100,6 +100,7 @@ function selectTag(btnsEl, desc, setTo) {
     if (aBtn) {
         aBtn.classList.add('active');
         document.getElementById(desc).innerText = aBtn.innerText;
+        document.getElementById(desc).setAttribute('data-phrase', aBtn.innerText);
     }
 }
 

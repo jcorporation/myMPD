@@ -542,9 +542,9 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
             }
             break;
         case MPD_API_DATABASE_GET_ALBUMS:
-            je = json_scanf(request->data, sdslen(request->data), "{params: {offset:%u}}", &uint_buf1);
-            if (je == 1) {
-                response->data = mpd_client_put_firstsong_in_albums(mpd_state, response->data, request->method, request->id, uint_buf1);
+            je = json_scanf(request->data, sdslen(request->data), "{params: {offset:%u, searchstr:%Q, tag:%Q}}", &uint_buf1, &p_charbuf1, &p_charbuf2);
+            if (je == 3) {
+                response->data = mpd_client_put_firstsong_in_albums(mpd_state, response->data, request->method, request->id, p_charbuf1, p_charbuf2, uint_buf1);
             }
             break;
         default:

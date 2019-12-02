@@ -56,7 +56,7 @@ app.apps = { "Playback":   { "state": "0/-/-/", "scrollPos": 0 },
                                     "views": { 
                                      }
                              },
-                             "Covergrid":  { "state": "0/-/-/", "scrollPos": 0 }
+                             "Covergrid":  { "state": "0/AlbumArtist/-/", "scrollPos": 0 }
                   }
              },
              "Search": { "state": "0/any/-/", "scrollPos": 0 }
@@ -290,7 +290,9 @@ function appRoute() {
         doSetFilterLetter('BrowseFilesystemFilter');
     }
     else if (app.current.app === 'Browse' && app.current.tab === 'Covergrid') {
-        sendAPI("MPD_API_DATABASE_GET_ALBUMS", {"offset": app.current.page}, parseCovergrid);
+        document.getElementById('searchCovergridStr').value = app.current.search;
+        sendAPI("MPD_API_DATABASE_GET_ALBUMS", {"offset": app.current.page, "searchstr": app.current.search, "tag": app.current.filter}, parseCovergrid);
+        selectTag('searchCovergridTags', 'searchCovergridTagsDesc', app.current.filter);
     }
     else if (app.current.app === 'Search') {
         domCache.searchstr.focus();
@@ -831,6 +833,22 @@ function appInit() {
             search(domCache.searchstr.value);
         }
     }, false);
+    
+    document.getElementById('searchCovergridTags').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'BUTTON') {
+            app.current.filter = event.target.getAttribute('data-tag');
+            appGoto(app.current.app, app.current.tab, app.current.view, '0/' + app.current.filter + '/' + app.current.sort + '/' + app.current.search);
+        }
+    }, false);
+    
+    document.getElementById('searchCovergridStr').addEventListener('keyup', function(event) {
+        if (event.key === 'Escape') {
+            this.blur();
+        }
+        else {
+            appGoto(app.current.app, app.current.tab, app.current.view, '0/' + app.current.filter + '/' + app.current.sort + '/' + this.value);
+        }
+    }, false);
 
     document.getElementById('searchqueuestr').addEventListener('keyup', function(event) {
         if (event.key === 'Escape') {
@@ -860,6 +878,10 @@ function appInit() {
     }, false);
 
     document.getElementById('searchqueue').addEventListener('submit', function() {
+        return false;
+    }, false);
+    
+    document.getElementById('searchcovergrid').addEventListener('submit', function() {
         return false;
     }, false);
 

@@ -528,14 +528,21 @@
       <div class="card-body hide" id="cardBrowseCovergrid">
         <div class="btn-toolbar card-toolbar" id="BrowseCovergridButtons">
           <form id="searchcovergrid" class="flex-grow-1">
-            <div class="input-group mr-2">
+            <div class="input-group">
               <div class="input-group-prepend">
-                <div class="input-group-text material-icons">search</div>
-              </div>
+                <button data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                  <span class="material-icons">search</span>
+                  <span data-phrase="AlbumArtist" id="searchCovergridTagsDesc"></span>
+                </button>
+                <div class="dropdown-menu bg-dark px-2" id="searchCovergridTags">
+                  <button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="AlbumArtist" data-phrase="AlbumArtist"></button>
+                  <button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="Album" data-phrase="Album"></button>
+                </div>
+              </div>            
               <input data-placeholder-phrase="Search" type="text" class="form-control" id="searchCovergridStr"/>
             </div>
           </form>
-          <div id="BrowseCovergridPaginationTop" class="btn-group hide">
+          <div id="BrowseCovergridPaginationTop" class="btn-group hide ml-2">
             <button data-title-phrase="Previous page" data-href='{"cmd": "gotoPage", "options": ["prev"]}' id="BrowseCovergridPaginationTopPrev" type="button" class="btn btn-group-prepend btn-secondary">&laquo;</button>
               <div class="btn-group">
                 <button id="BrowseCovergridPaginationTopPage" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"></button>
