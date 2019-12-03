@@ -503,7 +503,7 @@ ol#searchCrumb {
 }
 
 .nodropdown::after {
-  content: none;
+  content: none !important;
 }
 
 .dropdown-header-lx {

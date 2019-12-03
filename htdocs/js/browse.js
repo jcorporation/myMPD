@@ -345,7 +345,7 @@ function parseCovergrid(obj) {
         col.classList.add('col', 'px-0', 'flex-grow-0');
         let html = '<div class="card card-grid" data-uri="' + encodeURI(obj.result.data[i].FirstSongUri) + '">' + 
                    '<div class="card-body album-cover-loading album-cover-grid"></div>' +
-                   '<div class="card-footer card-footer-grid p-2">' +
+                   '<div class="card-footer card-footer-grid p-2" title="' + obj.result.data[i].AlbumArtist + ': ' + obj.result.data[i].Album + '">' +
                    obj.result.data[i].Album +
                    '<br/><small>' + obj.result.data[i].AlbumArtist + '</small>' +
                    '</div></div>';
