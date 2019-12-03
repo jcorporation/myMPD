@@ -402,9 +402,6 @@ Albumcover
 Can't access music directory
 Musik Verzeichnis ist nicht verfügbar
 
-Size
-Größe
-
 Invalid size
 Ungültige Größe
 
@@ -689,6 +686,9 @@ Gehe zu Wiedergabelisten
 
 Goto browse filesystem
 Gehe zu Dateisystem
+
+Goto browse covergrid
+Gehe zu Albumcover
 
 Goto search
 Gehe zur Suche
@@ -1022,3 +1022,9 @@ Albumcover
 
 Sort by
 Sortieren
+
+Size normal
+Normale Größe
+
+Size small
+Kleine Größe

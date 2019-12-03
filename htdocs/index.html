@@ -292,7 +292,7 @@
           <li class="nav-item">
             <a data-phrase="Filesystem" data-href='{"cmd": "appGoto", "options": ["Browse", "Filesystem"]}' class="nav-link text-dark" href="#" id="cardBrowseNavFilesystem"></a>
           </li>
-          <li class="nav-item">
+          <li class="nav-item featCovergrid">
             <a data-phrase="Covergrid" data-href='{"cmd": "appGoto", "options": ["Browse", "Covergrid"]}' class="nav-link text-dark" href="#" id="cardBrowseNavCovergrid"></a>
           </li>
         </ul>
@@ -1042,9 +1042,16 @@
                   </div>
                 </div>
                 <div class="form-group row">
-                  <label class="col-sm-4 col-form-label" for="inputCoverimageSize" data-phrase="Size"></label>
+                  <label class="col-sm-4 col-form-label" for="inputCoverimageSize" data-phrase="Size normal"></label>
                   <div class="col-sm-8 ">
-                    <input id="inputCoverimageSize" type="text" class="form-control border-secondary" value="240" data-placeholder-phrase="Size in px">
+                    <input id="inputCoverimageSize" type="text" class="form-control border-secondary" value="250" data-placeholder-phrase="Size in px">
+                    <div class="invalid-feedback" data-phrase="Invalid size"></div>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="inputCovergridSize" data-phrase="Size small"></label>
+                  <div class="col-sm-8 ">
+                    <input id="inputCovergridSize" type="text" class="form-control border-secondary" value="190" data-placeholder-phrase="Size in px">
                     <div class="invalid-feedback" data-phrase="Invalid size"></div>
                   </div>
                 </div>

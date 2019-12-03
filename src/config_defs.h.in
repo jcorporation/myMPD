@@ -112,6 +112,7 @@ typedef struct t_config {
     bool coverimage;
     sds coverimage_name;
     int coverimage_size;
+    int covergrid_size;
     sds locale;
     time_t startup_time;
     bool readonly;

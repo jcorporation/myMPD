@@ -218,6 +218,9 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("theme", "coverimagesize")) {
         p_config->coverimage_size = strtoimax(value, &crap, 10);
     }
+    else if (MATCH("theme", "covergridsize")) {
+        p_config->covergrid_size = strtoimax(value, &crap, 10);
+    }
     else if (MATCH("theme", "locale")) {
         p_config->locale = sdsreplace(p_config->locale, value);
     }
@@ -266,7 +269,7 @@ static void mympd_get_env(struct t_config *config) {
         "MYMPD_LOCALPLAYER", "MYMPD_LOCALPLAYERAUTOPLAY", "MYMPD_STREAMPORT",
         "MYMPD_STREAMURL", "MYMPD_VOLUMESTEP", "MYMPD_COVERCACHEKEEPDAYS", "MYMPD_COVERCACHE",
         "MYMPD_COVERCACHEAVOID",
-        "THEME_BGCOVER", "THEME_BGCOLOR", "THEME_BGCSSFILTER",
+        "THEME_BGCOVER", "THEME_BGCOLOR", "THEME_BGCSSFILTER", "THEME_COVERGRIDSIZE",
         "THEME_COVERIMAGE", "THEME_COVERIMAGENAME", "THEME_COVERIMAGESIZE",
         "THEME_LOCALE", 0};
     const char** ptr = env_vars;
@@ -365,6 +368,7 @@ void mympd_config_defaults(t_config *config) {
     config->coverimage = true;
     config->coverimage_name = sdsnew("folder.jpg, folder.png, cover.jpg, cover.png");
     config->coverimage_size = 250;
+    config->covergrid_size = 190;
     config->locale = sdsnew("default");
     config->startup_time = time(NULL);
     config->readonly = false;
