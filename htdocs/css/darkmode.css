@@ -1,0 +1,53 @@
+.card {
+  background-color: #343A40;
+  color: #f8f9fa;
+}
+
+.btn {
+  background-color: #343A40;
+  color: #f8f9fa;
+}
+
+.btn-light {
+  border-color: #343a40;
+}
+
+.btn-success {
+  background-color: #28A745
+}
+
+.btn-secondary {
+  background-color: #6C757D;
+  border-color: #6C757D;
+}
+
+.form-control {
+  background-color: #32383E;
+  border-color: #6C757D;
+  color: #f8f9fa;
+}
+
+.form-control:focus {
+  background-color: #32383E;
+  color: #f8f9fa;
+  border-color: #28A745;
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+}
+
+.nav-link.active {
+  background-color: #2C3136 !important;
+  border-color: #2C3136 !important;
+}
+
+.nav-link {
+  color: #f8f9fa !important;
+}
+
+.text-dark:hover {
+  color: #f8f9fa !important;
+}
+
+.table {
+  color: #f8f9fa;
+}
