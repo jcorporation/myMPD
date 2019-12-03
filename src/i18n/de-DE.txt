@@ -1013,3 +1013,12 @@ Konnte Covercache Datei nicht schreiben
 
 No albumart found by mpd
 MPD konnte keine Cover finden
+
+Descending
+Absteigend
+
+Covergrid
+Albumcover
+
+Sort by
+Sortieren
