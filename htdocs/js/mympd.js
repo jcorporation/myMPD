@@ -56,7 +56,7 @@ app.apps = { "Playback":   { "state": "0/-/-/", "scrollPos": 0 },
                                     "views": { 
                                      }
                              },
-                             "Covergrid":  { "state": "0/AlbumArtist/-/", "scrollPos": 0 }
+                             "Covergrid":  { "state": "0/AlbumArtist/AlbumArtist/", "scrollPos": 0 }
                   }
              },
              "Search": { "state": "0/any/-/", "scrollPos": 0 }
@@ -291,8 +291,20 @@ function appRoute() {
     }
     else if (app.current.app === 'Browse' && app.current.tab === 'Covergrid') {
         document.getElementById('searchCovergridStr').value = app.current.search;
-        sendAPI("MPD_API_DATABASE_GET_ALBUMS", {"offset": app.current.page, "searchstr": app.current.search, "tag": app.current.filter}, parseCovergrid);
         selectTag('searchCovergridTags', 'searchCovergridTagsDesc', app.current.filter);
+        selectTag('searchCovergridSortTags', undefined, app.current.sort);
+        let sort = app.current.sort;
+        let sortdesc = false;
+        if (app.current.sort.charAt(0) === '-') {
+            sortdesc = true;
+            sort = app.current.sort.substr(1);
+            document.getElementById('searchCovergridSortDesc').checked = true;
+        }
+        else {
+            document.getElementById('searchCovergridSortDesc').checked = false;
+        }
+        sendAPI("MPD_API_DATABASE_GET_ALBUMS", {"offset": app.current.page, "searchstr": app.current.search, 
+            "tag": app.current.filter, "sort": sort, "sortdesc": sortdesc}, parseCovergrid);
     }
     else if (app.current.app === 'Search') {
         domCache.searchstr.focus();
@@ -837,6 +849,23 @@ function appInit() {
     document.getElementById('searchCovergridTags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
             app.current.filter = event.target.getAttribute('data-tag');
+            appGoto(app.current.app, app.current.tab, app.current.view, '0/' + app.current.filter + '/' + app.current.sort + '/' + app.current.search);
+        }
+    }, false);
+    
+    document.getElementById('searchCovergridSortDesc').addEventListener('click', function(event) {
+        if (app.current.sort.charAt(0) === '-') {
+            app.current.sort = app.current.sort.substr(1);
+        }
+        else {
+            app.current.sort = '-' + app.current.sort;
+        }
+        appGoto(app.current.app, app.current.tab, app.current.view, '0/' + app.current.filter + '/' + app.current.sort + '/' + app.current.search);
+    }, false);
+
+    document.getElementById('searchCovergridSortTags').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'BUTTON') {
+            app.current.sort = event.target.getAttribute('data-tag');
             appGoto(app.current.app, app.current.tab, app.current.view, '0/' + app.current.filter + '/' + app.current.sort + '/' + app.current.search);
         }
     }, false);

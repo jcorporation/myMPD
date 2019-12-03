@@ -323,7 +323,7 @@ sds mpd_client_put_songs_in_album(t_mpd_state *mpd_state, sds buffer, sds method
 }
 
 sds mpd_client_put_firstsong_in_albums(t_mpd_state *mpd_state, sds buffer, sds method, int request_id, 
-                                       const char *searchstr, const char *tag, const unsigned int offset)
+                                       const char *searchstr, const char *tag, const char *sort, bool sortdesc, const unsigned int offset)
 {
     buffer = jsonrpc_start_result(buffer, method, request_id);
     buffer = sdscat(buffer, ",\"data\":[");
@@ -333,19 +333,20 @@ sds mpd_client_put_firstsong_in_albums(t_mpd_state *mpd_state, sds buffer, sds m
         return buffer;
     }
     sds expression = sdsnew("((Track == '1')");
-    if (strlen(searchstr) > 0) {
+    if (strlen(searchstr) > 0 && strlen(tag) > 0) {
         expression = sdscatfmt(expression, " AND (%s contains '%s')", tag, searchstr);
     }
     expression = sdscat(expression, ")");
-    LOG_DEBUG("Expression: %s", expression);
     if (mpd_search_add_expression(mpd_state->conn, expression) == false) {
         buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
         return buffer;
     }
     sdsfree(expression);
-    if (mpd_search_add_sort_name(mpd_state->conn, "AlbumArtist" , false) == false) {
-        buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
-        return buffer;
+    if (strlen(sort) > 0) {
+        if (mpd_search_add_sort_name(mpd_state->conn, sort, sortdesc) == false) {
+            buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
+            return buffer;
+        }
     }
     if (mpd_search_add_window(mpd_state->conn, offset, offset + mpd_state->max_elements_per_page) == false) {
         buffer = check_error_and_recover(mpd_state, buffer, method, request_id);

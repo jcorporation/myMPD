@@ -17,5 +17,5 @@ sds mpd_client_put_db_tag(t_mpd_state *mpd_state, sds buffer, sds method, int re
 sds mpd_client_put_songs_in_album(t_mpd_state *mpd_state, sds buffer, sds method, int request_id,
                                   const char *album, const char *search, const char *tag, const t_tags *tagcols);
 sds mpd_client_put_firstsong_in_albums(t_mpd_state *mpd_state, sds buffer, sds method, int request_id,
-                                       const char *searchstr, const char *tag, const unsigned int offset);
+                                       const char *searchstr, const char *tag, const char *sort, bool sortdesc, const unsigned int offset);
 #endif

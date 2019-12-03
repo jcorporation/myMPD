@@ -99,8 +99,10 @@ function selectTag(btnsEl, desc, setTo) {
     aBtn = btns.querySelector('[data-tag=' + setTo + ']');
     if (aBtn) {
         aBtn.classList.add('active');
-        document.getElementById(desc).innerText = aBtn.innerText;
-        document.getElementById(desc).setAttribute('data-phrase', aBtn.innerText);
+        if (desc !== undefined) {
+            document.getElementById(desc).innerText = aBtn.innerText;
+            document.getElementById(desc).setAttribute('data-phrase', aBtn.innerText);
+        }
     }
 }
 
