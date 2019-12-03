@@ -309,6 +309,7 @@ static bool handle_coverextract_flac(t_config *config, const char *uri, const ch
     (void) uri;
     (void) media_file;
     (void) binary;
+    (void) is_ogg;
     #endif
     return rc;
 }
@@ -318,8 +319,9 @@ static bool write_covercache_file(t_config *config, const char *uri, const char 
     sds filename = sdsnew(uri);
     uri_to_filename(filename);
     sds tmp_file = sdscatfmt(sdsempty(), "%s/covercache/%s.XXXXXX", config->varlibdir, filename);
-    FILE *fp = fopen(tmp_file, "w");
-    if (fp != NULL) {
+    int fd = mkstemp(tmp_file);
+    if (fd < 0) {
+        FILE *fp = fdopen(fd, "w");
         fwrite(binary, 1, sdslen(binary), fp);
         fclose(fp);
         sds ext = get_ext_by_mime_type(mime_type);
