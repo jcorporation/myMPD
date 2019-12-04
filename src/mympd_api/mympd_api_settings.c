@@ -291,7 +291,7 @@ bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state, struct
         settingname = sdscat(settingname, "bookmarks");
     }
     else if (strncmp(key->ptr, "theme", key->len) == 0) {
-        mympd_state->love_message = sdsreplacelen(mympd_state->theme, settingvalue, sdslen(settingvalue));
+        mympd_state->theme = sdsreplacelen(mympd_state->theme, settingvalue, sdslen(settingvalue));
         settingname = sdscat(settingname, "theme");
     }
     else {
