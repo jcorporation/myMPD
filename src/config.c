@@ -200,6 +200,9 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("mympd", "bookmarks")) {
         p_config->bookmarks = strcmp(value, "true") == 0 ? true : false;
     }
+    else if (MATCH("theme", "theme")) {
+        p_config->theme = sdsreplace(p_config->theme, value);
+    }
     else if (MATCH("theme", "bgcover")) {
         p_config->bg_cover = strcmp(value, "true") == 0 ? true : false;
     }
@@ -268,7 +271,7 @@ static void mympd_get_env(struct t_config *config) {
         "MYMPD_COLSBROWSEFILESYSTEM", "MYMPD_COLSPLAYBACK", "MYMPD_COLSQUEUELASTPLAYED",
         "MYMPD_LOCALPLAYER", "MYMPD_LOCALPLAYERAUTOPLAY", "MYMPD_STREAMPORT",
         "MYMPD_STREAMURL", "MYMPD_VOLUMESTEP", "MYMPD_COVERCACHEKEEPDAYS", "MYMPD_COVERCACHE",
-        "MYMPD_COVERCACHEAVOID",
+        "MYMPD_COVERCACHEAVOID", "THEME_THEME",
         "THEME_BGCOVER", "THEME_BGCOLOR", "THEME_BGCSSFILTER", "THEME_COVERGRIDSIZE",
         "THEME_COVERIMAGE", "THEME_COVERIMAGENAME", "THEME_COVERIMAGESIZE",
         "THEME_LOCALE", 0};
@@ -311,6 +314,7 @@ void mympd_free_config(t_config *config) {
     sdsfree(config->bg_css_filter);
     sdsfree(config->coverimage_name);
     sdsfree(config->locale);
+    sdsfree(config->theme);
     list_free(&config->syscmd_list);
     FREE_PTR(config);
 }
@@ -378,6 +382,7 @@ void mympd_config_defaults(t_config *config) {
     config->covercache_keep_days = 7;
     config->covercache = true;
     config->covercache_avoid = 2097152;
+    config->theme = sdsnew("theme-default");
     list_init(&config->syscmd_list);
 }
 

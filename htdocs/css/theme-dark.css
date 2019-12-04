@@ -1,0 +1,113 @@
+body.theme-dark .card, body.theme-dark .modal-content, body.theme-dark .modal-header {
+  background-color: #343A40;
+  color: #f8f9fa;
+}
+
+body.theme-dark .btn {
+  background-color: #343A40;
+  color: #f8f9fa;
+}
+
+body.theme-dark .btn-light {
+  border-color: #343a40;
+}
+
+body.theme-dark .btn-success {
+  background-color: #28A745;
+}
+
+body.theme-dark .btn-danger {
+  background-color: #DC3545;
+}
+
+body.theme-dark .btn-secondary {
+  background-color: #6C757D;
+  border-color: #6C757D;
+}
+
+body.theme-dark .form-control {
+  background-color: #32383E;
+  border-color: #6C757D;
+  color: #f8f9fa;
+}
+
+body.theme-dark .form-control:focus {
+  background-color: #32383E;
+  color: #f8f9fa;
+}
+
+body.theme-dark .card-header, body.theme-dark .modal-header {
+  border-color: #1d2124;
+}
+
+body.theme-dark .card-footer, body.theme-dark .modal-footer {
+  border-color: #1d2124;
+}
+
+body.theme-dark .nav-link.active {
+  background-color: #1d2124 !important;
+  border-color: #1d2124 !important;
+}
+
+body.theme-dark .nav-link {
+  color: #f8f9fa !important;
+}
+
+body.theme-dark .text-dark:hover {
+  color: #f8f9fa !important;
+}
+
+body.theme-dark .nav-link:hover {
+  border-color: #1d2124 !important;
+}
+
+body.theme-dark .table {
+  color: #f8f9fa;
+}
+
+body.theme-dark tr:hover {
+  color: #f8f9fa;
+}
+
+body.theme-dark tr.selected {
+  background-color: #1d2124;
+}
+
+body.theme-dark .breadcrumb {
+  background-color: #6C757D;
+  color: #f8f9fa;
+}
+
+body.theme-dark .breadcrumb-item.active {
+  color: #f8f9fa;
+}
+
+body.theme-dark .breadcrumb-item::before {
+  color: #f8f9fa;
+}
+
+body.theme-dark .popover {
+  background-color: #32383E;
+  color: #f8f9fa;
+}
+
+body.theme-dark .dropdown-menu {
+  background-color: #32383E;
+  color: #f8f9fa;
+}
+
+body.theme-dark .dropdown-item {
+  color: #f8f9fa;
+}
+
+body.theme-dark .dropdown-item:hover {
+  background-color: #1d2124;
+}
+
+body.theme-dark .dropdown-item:focus {
+  background-color: #1d2124;
+}
+
+boody.theme-dark .arrow {
+  border-top-color: #1d2124 !important;
+}

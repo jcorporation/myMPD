@@ -15,6 +15,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="theme-color" content="#343a40">
 <!--debug-->  <link href="css/bootstrap.css" rel="stylesheet">
+<!--debug-->  <link href="css/theme-dark.css" rel="stylesheet">
   <link href="assets/MaterialIcons-Regular.woff2" rel="preload" as="font" type="font/woff2" crossorigin="anonymous">
 <!--debug-->  <link href="css/mympd.css" rel="stylesheet">
 <!--release   <link href="css/combined.css" rel="stylesheet">-->
@@ -717,7 +718,7 @@
   <div class="modal fade" id="modalUpdateDB" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
-        <div class="modal-header bg-light">
+        <div class="modal-header">
           <h5 class="modal-title"><span class="material-icons title-icon">update</span> <span data-phrase="Updating MPD database"></span></h5>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
@@ -739,7 +740,7 @@
   <div class="modal fade" id="modalAddToPlaylist" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
-        <div class="modal-header bg-light">
+        <div class="modal-header">
           <h5 class="modal-title"><span class="material-icons title-icon">playlist_add</span> <span id="addToPlaylistCaption" data-phrase="Add to playlist"></span></h5>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
@@ -788,7 +789,7 @@
   <div class="modal fade" id="modalRenamePlaylist" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
-        <div class="modal-header bg-light">
+        <div class="modal-header">
           <h5 class="modal-title"><span class="material-icons title-icon">playlist_add</span> <span data-phrase="Rename playlist"></span></h5>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
@@ -816,7 +817,7 @@
   <div class="modal fade" id="modalDeletePlaylist" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
-        <div class="modal-header bg-light">
+        <div class="modal-header">
           <h5 class="modal-title"><span class="material-icons title-icon">delete</span> <span data-phrase="Delete playlist"></span></h5>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
@@ -839,7 +840,7 @@
   <div class="modal fade" id="modalSaveSmartPlaylist" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
-        <div class="modal-header bg-light">
+        <div class="modal-header">
           <h5 class="modal-title"><span class="material-icons title-icon">queue_music</span> <span data-phrase="Save smart playlist"></span></h5>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
@@ -902,13 +903,13 @@
   <div class="modal fade" id="modalSettings" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
-        <div class="modal-header pb-0 bg-light">
+        <div class="modal-header pb-0">
           <ul class="nav nav-tabs border-bottom-0">
             <li class="nav-item">
               <a class="nav-link active text-dark" href="#tabPlaybackSettings" data-toggle="tab" data-height="true" data-phrase="Playback"></a>
             </li>
             <li class="nav-item">
-              <a class="nav-link text-dark" href="#tabThemeSettings" data-toggle="tab" data-height="true" data-phrase="Theme"></a>
+              <a class="nav-link text-dark" href="#tabInterfaceSettings" data-toggle="tab" data-height="true" data-phrase="Interface"></a>
             </li>
             <li class="nav-item">
               <a class="nav-link text-dark" href="#tabGeneralSettings" data-toggle="tab" data-height="true" data-phrase="General"></a>
@@ -1024,8 +1025,18 @@
                 </div>
               </form>
             </div>
-            <div class="tab-pane" id="tabThemeSettings">
-              <form id="ThemeSettingsFrm">
+            <div class="tab-pane" id="tabInterfaceSettings">
+              <form id="InterfaceSettingsFrm">
+                <h4 data-phrase="Theme"></h4>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="selectTheme" data-phrase="Theme"></label>
+                  <div class="col-sm-8 ">
+                    <select id="selectTheme" class="form-control custom-select border-secondary">
+                      <option value="theme-default" data-phrase="Default"></option>
+                      <option value="theme-dark" data-phrase="Dark"></option>
+                    </select>
+                  </div>
+                </div>                
                 <h4 data-phrase="Albumart"></h4>
                 <div id="warnAlbumart" class="alert alert-warning hide" data-phrase="Can't access music directory"></div>
                 <div class="form-group row">
@@ -1291,7 +1302,7 @@
   <div class="modal fade" id="modalAbout" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
-        <div class="modal-header pb-0 bg-light">
+        <div class="modal-header pb-0">
           <ul class="nav nav-tabs border-bottom-0">
             <li class="nav-item">
               <a class="nav-link active text-dark" href="#tabAbout" data-toggle="tab" data-height="true" data-phrase="About"></a>
@@ -1356,7 +1367,7 @@
   <div class="modal fade" id="modalConnection" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
-        <div class="modal-header bg-light">
+        <div class="modal-header">
           <h5 class="modal-title"><span class="material-icons title-icon">play_circle_outline</span> <span data-phrase="MPD connection"></span></h5>
           <button type="button" class="close" data-dismiss="modal">&times;</button>          
         </div>
@@ -1409,7 +1420,7 @@
   <div class="modal fade" id="modalSaveQueue" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
-        <div class="modal-header bg-light">
+        <div class="modal-header">
           <h5 class="modal-title"><span class="material-icons title-icon">save</span> <span data-phrase="Save queue"></span></h5>
           <button type="button" class="close" data-dismiss="modal">&times;</button>          
         </div>
@@ -1435,7 +1446,7 @@
   <div class="modal fade" id="modalAddToQueue" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
-        <div class="modal-header bg-light">
+        <div class="modal-header">
           <h5 class="modal-title"><span class="material-icons title-icon">add_to_queue</span> <span data-phrase="Add to queue"></span></h5>
           <button type="button" class="close" data-dismiss="modal">&times;</button>          
         </div>
@@ -1475,7 +1486,7 @@
   <div class="modal fade" id="modalSaveBookmark" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
-        <div class="modal-header bg-light">
+        <div class="modal-header">
           <h5 class="modal-title"><span class="material-icons title-icon">save</span> <span data-phrase="Save bookmark"></span></h5>
           <button type="button" class="close" data-dismiss="modal">&times;</button>          
         </div>
@@ -1507,7 +1518,7 @@
   <div class="modal fade" id="modalSongDetails" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
-        <div class="modal-header bg-light">
+        <div class="modal-header">
           <h5 class="modal-title"><span class="material-icons title-icon">music_note</span> <span data-phrase="Song details"></span></h5>
           <button type="button" class="close" data-dismiss="modal">&times;</button>          
         </div>

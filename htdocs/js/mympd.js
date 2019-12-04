@@ -91,6 +91,7 @@ domCache.btnVoteDown = document.getElementById('btnVoteDown');
 domCache.badgeQueueItems = document.getElementById('badgeQueueItems');
 domCache.searchstr = document.getElementById('searchstr');
 domCache.searchCrumb = document.getElementById('searchCrumb');
+domCache.body = document.getElementsByTagName('body')[0];
 
 /* eslint-disable no-unused-vars */
 var modalConnection = new Modal(document.getElementById('modalConnection'));

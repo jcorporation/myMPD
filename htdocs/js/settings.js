@@ -282,7 +282,15 @@ function parseSettings() {
             localPlayer.load();
         }
     }
-    
+
+    if (domCache.body.classList.contains(settings.theme) === false) {
+        let themes = ['theme-default', 'theme-dark'];
+        for (let i = 0; i < themes.length; i++) {
+            domCache.body.classList.remove(themes[i]);
+        }
+        domCache.body.classList.add(settings.theme);
+    }
+    document.getElementById('selectTheme').value = settings.theme;
     
     if (settings.musicDirectory === 'auto') {
         document.getElementById('selectMusicDirectory').value = settings.musicDirectory;
@@ -611,6 +619,7 @@ function saveSettings() {
         let selectJukeboxPlaylist = document.getElementById('selectJukeboxPlaylist');
         let selectJukeboxMode = document.getElementById('selectJukeboxMode');
         let selectLocale = document.getElementById('selectLocale');
+        let selectTheme = document.getElementById('selectTheme');
         sendAPI("MYMPD_API_SETTINGS_SET", {
             "consume": (document.getElementById('btnConsume').classList.contains('active') ? 1 : 0),
             "random": (document.getElementById('btnRandom').classList.contains('active') ? 1 : 0),
@@ -648,7 +657,8 @@ function saveSettings() {
             "smartpls": (document.getElementById('btnSmartpls').classList.contains('active') ? true : false),
             "taglist": getTagMultiSelectValues('listEnabledTags'),
             "searchtaglist": getTagMultiSelectValues('listSearchTags'),
-            "browsetaglist": getTagMultiSelectValues('listBrowseTags')
+            "browsetaglist": getTagMultiSelectValues('listBrowseTags'),
+            "theme": selectTheme.options[selectTheme.selectedIndex].value,
         }, getSettings);
         modalSettings.hide();
     }

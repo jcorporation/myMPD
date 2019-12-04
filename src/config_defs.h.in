@@ -121,6 +121,7 @@ typedef struct t_config {
     bool publish_library;
     int covercache_keep_days;
     bool covercache;
+    sds theme;
     unsigned covercache_avoid;
     //system commands
     struct list syscmd_list;

@@ -238,9 +238,10 @@ buildrelease() {
  
   echo "Minifying stylesheets"
   minify css htdocs/css/mympd.css dist/htdocs/css/mympd.min.css
+  minify css htdocs/css/theme-dark.css dist/htdocs/css/theme-dark.min.css
   
   echo "Combining and compressing stylesheets"
-  CSSFILES="dist/htdocs/css/bootstrap.min.css dist/htdocs/css/mympd.min.css"
+  CSSFILES="dist/htdocs/css/bootstrap.min.css dist/htdocs/css/mympd.min.css dist/htdocs/css/theme-dark.min.css"
   # shellcheck disable=SC2086
   if older_s dist/htdocs/css/combined.css.gz $CSSFILES
   then
@@ -366,6 +367,7 @@ cleanupdist() {
   rm -f dist/htdocs/js/mympd.min.js
   rm -f dist/htdocs/js/combined.js.gz
   rm -f dist/htdocs/css/mympd.min.css
+  rm -f dist/htdocs/css/theme-dark.min.css
   rm -f dist/htdocs/css/combined.css.gz
   rm -f dist/htdocs/sw.min.js
   rm -f dist/htdocs/sw.js.gz

@@ -46,6 +46,7 @@ typedef struct t_mympd_state {
     int covergrid_size;
     sds locale;
     sds music_directory;
+    sds theme;
     bool bookmarks;
 } t_mympd_state;
 

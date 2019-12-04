@@ -73,6 +73,7 @@ void free_mympd_state(t_mympd_state *mympd_state) {
     sdsfree(mympd_state->coverimage_name);
     sdsfree(mympd_state->locale);
     sdsfree(mympd_state->music_directory);
+    sdsfree(mympd_state->theme);
     FREE_PTR(mympd_state);
 }
 

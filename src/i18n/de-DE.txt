@@ -1028,3 +1028,12 @@ Normale Größe
 
 Size small
 Kleine Größe
+
+Dark
+Dunkel
+
+Default
+Standard
+
+Interface
+Oberfläche
