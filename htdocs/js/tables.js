@@ -49,7 +49,7 @@ function focusTable(rownr, table) {
         //insert goto parent row
         if (table.id === 'BrowseFilesystemList') {
             let tbody = table.getElementsByTagName('tbody')[0];
-            if (tbody.rows[0].getAttribute('data-type') !== 'parentDir' && app.current.search !== '') {
+            if (tbody.rows.length > 0 && tbody.rows[0].getAttribute('data-type') !== 'parentDir' && app.current.search !== '') {
                 let nrCells = table.getElementsByTagName('thead')[0].rows[0].cells.length;
                 let uri = app.current.search.replace(/\/?([^/]+)$/,'');
                 let row = tbody.insertRow(0);
