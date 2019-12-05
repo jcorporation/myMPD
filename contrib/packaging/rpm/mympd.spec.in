@@ -17,7 +17,7 @@ BuildRequires:  unzip
 BuildRequires:  pkgconfig
 BuildRequires:  openssl-devel
 BuildRequires:  libid3tag-devel
-BuildRequires:	libflac-devel
+BuildRequires:	flac-devel
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
 %global debug_package %{nil}

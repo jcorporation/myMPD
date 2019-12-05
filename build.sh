@@ -579,7 +579,7 @@ installdeps() {
   elif [ -f /etc/arch-release ]
   then
     #arch
-    pacman -S gcc cmake perl openssl libid3tag libflac jre-openjdk-headless
+    pacman -S gcc cmake perl openssl libid3tag flac jre-openjdk-headless
   elif [ -f /etc/alpine-release ]
   then
     #alpine
@@ -588,12 +588,12 @@ installdeps() {
   elif [ -f /etc/SuSE-release ]
   then
     #suse
-    zypper install gcc cmake pkgconfig perl openssl-devel libid3tag-devel libflac-devel \
+    zypper install gcc cmake pkgconfig perl openssl-devel libid3tag-devel flac-devel \
 	java-11-openjdk-headless unzip
   elif [ -f /etc/redhat-release ]
   then  
     #fedora 	
-    yum install gcc cmake pkgconfig perl openssl-devel libid3tag-devel libflac-devel \
+    yum install gcc cmake pkgconfig perl openssl-devel libid3tag-devel flac-devel \
 	java-11-openjdk-headless unzip
   else 
     echo "No supported distribution detected."
