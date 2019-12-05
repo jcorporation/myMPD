@@ -158,8 +158,10 @@ function parseSettings() {
     document.getElementById('inputCoverimageName').value = settings.coverimageName;
 
     document.getElementById('inputCoverimageSize').value = settings.coverimageSize;
+    document.getElementById('inputCovergridSize').value = settings.covergridSize;
 
     document.documentElement.style.setProperty('--mympd-coverimagesize', settings.coverimageSize + "px");
+    document.documentElement.style.setProperty('--mympd-covergridsize', settings.covergridSize + "px");
     
     document.getElementById('inputBgColor').value = settings.bgColor;
     document.getElementsByTagName('body')[0].style.backgroundColor = settings.bgColor;
@@ -280,7 +282,15 @@ function parseSettings() {
             localPlayer.load();
         }
     }
-    
+
+    if (domCache.body.classList.contains(settings.theme) === false) {
+        let themes = ['theme-default', 'theme-dark'];
+        for (let i = 0; i < themes.length; i++) {
+            domCache.body.classList.remove(themes[i]);
+        }
+        domCache.body.classList.add(settings.theme);
+    }
+    document.getElementById('selectTheme').value = settings.theme;
     
     if (settings.musicDirectory === 'auto') {
         document.getElementById('selectMusicDirectory').value = settings.musicDirectory;
@@ -367,6 +377,13 @@ function parseMPDSettings() {
         for (let i = 0; i < ElsLen; i++) {
             Els[i].style.display = displayEl;
         }
+    }
+    
+    if (settings.coverimage === false || settings.featTags === false) {
+        document.getElementsByClassName('featCovergrid')[0].classList.add('hide'); 
+    }
+    else {
+        document.getElementsByClassName('featCovergrid')[0].classList.remove('hide');
     }
     
     if (settings.featPlaylists === false && settings.smartpls === true) {
@@ -543,6 +560,11 @@ function saveSettings() {
         }
     }
 
+    let inputCovergridSize = document.getElementById('inputCovergridSize');
+    if (!validateInt(inputCovergridSize)) {
+        formOK = false;
+    }
+
     let inputCoverimageSize = document.getElementById('inputCoverimageSize');
     if (!validateInt(inputCoverimageSize)) {
         formOK = false;
@@ -597,6 +619,7 @@ function saveSettings() {
         let selectJukeboxPlaylist = document.getElementById('selectJukeboxPlaylist');
         let selectJukeboxMode = document.getElementById('selectJukeboxMode');
         let selectLocale = document.getElementById('selectLocale');
+        let selectTheme = document.getElementById('selectTheme');
         sendAPI("MYMPD_API_SETTINGS_SET", {
             "consume": (document.getElementById('btnConsume').classList.contains('active') ? 1 : 0),
             "random": (document.getElementById('btnRandom').classList.contains('active') ? 1 : 0),
@@ -622,6 +645,7 @@ function saveSettings() {
             "coverimage": (document.getElementById('btnCoverimage').classList.contains('active') ? true : false),
             "coverimageName": document.getElementById('inputCoverimageName').value,
             "coverimageSize": document.getElementById('inputCoverimageSize').value,
+            "covergridSize": document.getElementById('inputCovergridSize').value,
             "locale": selectLocale.options[selectLocale.selectedIndex].value,
             "love": (document.getElementById('btnLoveEnable').classList.contains('active') ? true : false),
             "loveChannel": document.getElementById('inputLoveChannel').value,
@@ -633,7 +657,8 @@ function saveSettings() {
             "smartpls": (document.getElementById('btnSmartpls').classList.contains('active') ? true : false),
             "taglist": getTagMultiSelectValues('listEnabledTags'),
             "searchtaglist": getTagMultiSelectValues('listSearchTags'),
-            "browsetaglist": getTagMultiSelectValues('listBrowseTags')
+            "browsetaglist": getTagMultiSelectValues('listBrowseTags'),
+            "theme": selectTheme.options[selectTheme.selectedIndex].value,
         }, getSettings);
         modalSettings.hide();
     }

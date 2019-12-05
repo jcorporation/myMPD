@@ -16,6 +16,8 @@
 
 #include "../dist/src/sds/sds.h"
 #include "sds_extras.h"
+#include "list.h"
+#include "config_defs.h"
 #include "log.h"
 #include "utility.h"
 
@@ -349,4 +351,31 @@ sds get_mime_type_by_magic_stream(sds stream) {
     sdsfree(hex_buffer);
     sds mime_type = sdsnew(p->mime_type);
     return mime_type;
+}
+
+bool write_covercache_file(t_config *config, const char *uri, const char *mime_type, sds binary) {
+    bool rc = false;
+    sds filename = sdsnew(uri);
+    uri_to_filename(filename);
+    sds tmp_file = sdscatfmt(sdsempty(), "%s/covercache/%s.XXXXXX", config->varlibdir, filename);
+    int fd = mkstemp(tmp_file);
+    if (fd < 0) {
+        FILE *fp = fdopen(fd, "w");
+        fwrite(binary, 1, sdslen(binary), fp);
+        fclose(fp);
+        sds ext = get_ext_by_mime_type(mime_type);
+        sds cover_file = sdscatfmt(sdsempty(), "%s/covercache/%s.%s", config->varlibdir, filename, ext);
+        if (rename(tmp_file, cover_file) == -1) {
+            LOG_ERROR("Rename file from %s to %s failed", tmp_file, cover_file);
+        }
+        sdsfree(ext);
+        sdsfree(cover_file);
+        rc = true;
+    }
+    else {
+        LOG_ERROR("Can't write covercachefile: %s", tmp_file);
+    }
+    sdsfree(tmp_file);
+    sdsfree(filename);
+    return rc;
 }

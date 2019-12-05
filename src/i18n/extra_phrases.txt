@@ -26,3 +26,5 @@ Type
 LastPlayed
 Pos
 Fileformat
+Dark
+Default

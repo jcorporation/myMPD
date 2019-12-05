@@ -91,6 +91,7 @@ domCache.btnVoteDown = document.getElementById('btnVoteDown');
 domCache.badgeQueueItems = document.getElementById('badgeQueueItems');
 domCache.searchstr = document.getElementById('searchstr');
 domCache.searchCrumb = document.getElementById('searchCrumb');
+domCache.body = document.getElementsByTagName('body')[0];
 
 /* eslint-disable no-unused-vars */
 var modalConnection = new Modal(document.getElementById('modalConnection'));
@@ -1046,6 +1047,13 @@ function appInit() {
             navigateTable(this, event.key);
         }, false);
     }
+
+    let selectThemeHtml = '';
+    Object.keys(themes).forEach(function(key, index) {
+        selectThemeHtml += '<option value="' + key + '">' + t(themes[key]) + '</option>';
+    });
+    document.getElementById('selectTheme').innerHTML = selectThemeHtml;
+
     
     window.addEventListener('beforeinstallprompt', function(event) {
         // Prevent Chrome 67 and earlier from automatically showing the prompt

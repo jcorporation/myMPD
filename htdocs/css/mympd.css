@@ -527,3 +527,8 @@ textarea.small {
   align-self: baseline;
 }
 
+.form-control:focus {
+  border-color: #28A745;
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+}

@@ -15,11 +15,11 @@
 #include "../dist/src/frozen/frozen.h"
 #include "../sds_extras.h"
 #include "../api.h"
+#include "../list.h"
+#include "config_defs.h"
 #include "../utility.h"
 #include "../log.h"
-#include "../list.h"
 #include "../tiny_queue.h"
-#include "config_defs.h"
 #include "../global.h"
 #include "web_server_utility.h"
 #include "web_server_albumart.h"
@@ -35,42 +35,29 @@
 
 //privat definitions
 static bool handle_coverextract(struct mg_connection *nc, t_config *config, const char *uri, const char *media_file);
-static bool write_covercache_file(t_config *config, const char *uri, const char *mime_type, sds binary);
 static bool handle_coverextract_id3(t_config *config, const char *uri, const char *media_file, sds *binary);
 static bool handle_coverextract_flac(t_config *config, const char *uri, const char *media_file, sds *binary, bool is_ogg);
 
 //public functions
 void send_albumart(struct mg_connection *nc, sds data, sds binary) {
     char *p_charbuf1 = NULL;
-    char *p_charbuf2 = NULL;
-    char *p_charbuf3 = NULL;
 
-    //create dummy http message
-    struct http_message hm;
-    populate_dummy_hm(&hm);
-
-    int je = json_scanf(data, sdslen(data), "{result: {coverfile:%Q, coverfile_name:%Q, mime_type:%Q}}", 
-        &p_charbuf1, &p_charbuf2, &p_charbuf3);
-    if (je == 3) {
-        if (strcmp(p_charbuf1, "binary") == 0) {
-            LOG_DEBUG("Serving file from memory (%s)", p_charbuf3);
-            sds header = sdscatfmt(sdsempty(), "Content-Type: %s\r\n", p_charbuf3);
-            header = sdscat(header, EXTRA_HEADERS_CACHE);
-            mg_send_head(nc, 200, sdslen(binary), header);
-            mg_send(nc, binary, sdslen(binary));
-            sdsfree(header);
-        }
-        else {
-            LOG_DEBUG("Serving file %s (%s)", p_charbuf2, p_charbuf3);
-            mg_http_serve_file(nc, &hm, p_charbuf2, mg_mk_str(p_charbuf3), mg_mk_str(EXTRA_HEADERS_CACHE));
-        }
+    int je = json_scanf(data, sdslen(data), "{result: {mime_type:%Q}}", &p_charbuf1);
+    if (je == 1) {
+        LOG_DEBUG("Serving file from memory (%s - %u bytes)", p_charbuf1, sdslen(binary));
+        sds header = sdscatfmt(sdsempty(), "Content-Type: %s\r\n", p_charbuf1);
+        header = sdscat(header, EXTRA_HEADERS_CACHE);
+        mg_send_head(nc, 200, sdslen(binary), header);
+        mg_send(nc, binary, sdslen(binary));
+        sdsfree(header);
     }
     else {
+        //create dummy http message and serve not available image
+        struct http_message hm;
+        populate_dummy_hm(&hm);
         serve_na_image(nc, &hm);
     }
     FREE_PTR(p_charbuf1);
-    FREE_PTR(p_charbuf2);
-    FREE_PTR(p_charbuf3);
 }
 
 //returns true if an image is served
@@ -309,32 +296,7 @@ static bool handle_coverextract_flac(t_config *config, const char *uri, const ch
     (void) uri;
     (void) media_file;
     (void) binary;
+    (void) is_ogg;
     #endif
-    return rc;
-}
-
-static bool write_covercache_file(t_config *config, const char *uri, const char *mime_type, sds binary) {
-    bool rc = false;
-    sds filename = sdsnew(uri);
-    uri_to_filename(filename);
-    sds tmp_file = sdscatfmt(sdsempty(), "%s/covercache/%s.XXXXXX", config->varlibdir, filename);
-    FILE *fp = fopen(tmp_file, "w");
-    if (fp != NULL) {
-        fwrite(binary, 1, sdslen(binary), fp);
-        fclose(fp);
-        sds ext = get_ext_by_mime_type(mime_type);
-        sds cover_file = sdscatfmt(sdsempty(), "%s/covercache/%s.%s", config->varlibdir, filename, ext);
-        if (rename(tmp_file, cover_file) == -1) {
-            LOG_ERROR("Rename file from %s to %s failed", tmp_file, cover_file);
-        }
-        sdsfree(ext);
-        sdsfree(cover_file);
-        rc = true;
-    }
-    else {
-        LOG_ERROR("Can't write covercachefile: %s", tmp_file);
-    }
-    sdsfree(tmp_file);
-    sdsfree(filename);
     return rc;
 }

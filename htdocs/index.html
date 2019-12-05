@@ -15,6 +15,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="theme-color" content="#343a40">
 <!--debug-->  <link href="css/bootstrap.css" rel="stylesheet">
+<!--debug-->  <link href="css/theme-dark.css" rel="stylesheet">
   <link href="assets/MaterialIcons-Regular.woff2" rel="preload" as="font" type="font/woff2" crossorigin="anonymous">
 <!--debug-->  <link href="css/mympd.css" rel="stylesheet">
 <!--release   <link href="css/combined.css" rel="stylesheet">-->
@@ -100,18 +101,20 @@
     
     <div class="card" id="cardPlayback">
       <div class="card-header"><span data-phrase="Playback"></span>
-        <div class="btn-group mr-0 featTags pull-right">
-          <button id="PlaybackColsBtn" class="btn btn-sm btn-light dropdown-toggle material-icons material-icons-small" type="button" data-toggle="dropdown">settings</button>
-          <div class="dropdown-menu dropdown-menu-right bg-dark px-2" id="PlaybackColsDropdown"><form></form>
-            <button data-phrase="Apply" data-href='{"cmd": "saveColsPlayback", "options": ["Playback"]}' class="btn btn-success btn-block btn-sm mt-2"></button>
-          </div>          
-        </div>
-        <div class="btn-group btn-group-sm featLove pull-right">
-          <button data-title-phrase="Love song" id="btnLove" data-href='{"cmd": "loveSong", "options": []}' class="btn btn-sm btn-light material-icons">favorite</button>
-        </div>      
-        <div class="btn-group btn-group-sm featStickers pull-right">
-          <button data-title-phrase="Dislike song" id="btnVoteDown" data-href='{"cmd": "voteSong", "options": [0]}' class="btn btn-sm btn-light material-icons">thumb_down</button>
-          <button data-title-phrase="Like song" id="btnVoteUp" data-href='{"cmd": "voteSong", "options": [2]}' class="btn btn-sm btn-light material-icons">thumb_up</button>
+        <div class="btn-toolbar pull-right">
+          <div class="btn-group btn-group-sm featStickers">
+            <button data-title-phrase="Dislike song" id="btnVoteDown" data-href='{"cmd": "voteSong", "options": [0]}' class="btn btn-sm btn-light material-icons">thumb_down</button>
+            <button data-title-phrase="Like song" id="btnVoteUp" data-href='{"cmd": "voteSong", "options": [2]}' class="btn btn-sm btn-light material-icons">thumb_up</button>
+          </div>
+          <div class="btn-group btn-group-sm ml-2 featLove">
+            <button data-title-phrase="Love song" id="btnLove" data-href='{"cmd": "loveSong", "options": []}' class="btn btn-sm btn-light material-icons">favorite</button>
+          </div>       
+          <div class="btn-group ml-2 featTags">
+            <button id="PlaybackColsBtn" class="btn btn-sm btn-light dropdown-toggle material-icons material-icons-small" type="button" data-toggle="dropdown">settings</button>
+            <div class="dropdown-menu dropdown-menu-right bg-dark px-2" id="PlaybackColsDropdown"><form></form>
+              <button data-phrase="Apply" data-href='{"cmd": "saveColsPlayback", "options": ["Playback"]}' class="btn btn-success btn-block btn-sm mt-2"></button>
+            </div>          
+          </div>
         </div>
       </div>
       <div class="card-body cardBodyPlayback">
@@ -292,7 +295,7 @@
           <li class="nav-item">
             <a data-phrase="Filesystem" data-href='{"cmd": "appGoto", "options": ["Browse", "Filesystem"]}' class="nav-link text-dark" href="#" id="cardBrowseNavFilesystem"></a>
           </li>
-          <li class="nav-item">
+          <li class="nav-item featCovergrid">
             <a data-phrase="Covergrid" data-href='{"cmd": "appGoto", "options": ["Browse", "Covergrid"]}' class="nav-link text-dark" href="#" id="cardBrowseNavCovergrid"></a>
           </li>
         </ul>
@@ -715,7 +718,7 @@
   <div class="modal fade" id="modalUpdateDB" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
-        <div class="modal-header bg-light">
+        <div class="modal-header">
           <h5 class="modal-title"><span class="material-icons title-icon">update</span> <span data-phrase="Updating MPD database"></span></h5>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
@@ -737,7 +740,7 @@
   <div class="modal fade" id="modalAddToPlaylist" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
-        <div class="modal-header bg-light">
+        <div class="modal-header">
           <h5 class="modal-title"><span class="material-icons title-icon">playlist_add</span> <span id="addToPlaylistCaption" data-phrase="Add to playlist"></span></h5>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
@@ -786,7 +789,7 @@
   <div class="modal fade" id="modalRenamePlaylist" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
-        <div class="modal-header bg-light">
+        <div class="modal-header">
           <h5 class="modal-title"><span class="material-icons title-icon">playlist_add</span> <span data-phrase="Rename playlist"></span></h5>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
@@ -814,7 +817,7 @@
   <div class="modal fade" id="modalDeletePlaylist" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
-        <div class="modal-header bg-light">
+        <div class="modal-header">
           <h5 class="modal-title"><span class="material-icons title-icon">delete</span> <span data-phrase="Delete playlist"></span></h5>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
@@ -837,7 +840,7 @@
   <div class="modal fade" id="modalSaveSmartPlaylist" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
-        <div class="modal-header bg-light">
+        <div class="modal-header">
           <h5 class="modal-title"><span class="material-icons title-icon">queue_music</span> <span data-phrase="Save smart playlist"></span></h5>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
@@ -900,13 +903,13 @@
   <div class="modal fade" id="modalSettings" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
-        <div class="modal-header pb-0 bg-light">
+        <div class="modal-header pb-0">
           <ul class="nav nav-tabs border-bottom-0">
             <li class="nav-item">
               <a class="nav-link active text-dark" href="#tabPlaybackSettings" data-toggle="tab" data-height="true" data-phrase="Playback"></a>
             </li>
             <li class="nav-item">
-              <a class="nav-link text-dark" href="#tabThemeSettings" data-toggle="tab" data-height="true" data-phrase="Theme"></a>
+              <a class="nav-link text-dark" href="#tabInterfaceSettings" data-toggle="tab" data-height="true" data-phrase="Interface"></a>
             </li>
             <li class="nav-item">
               <a class="nav-link text-dark" href="#tabGeneralSettings" data-toggle="tab" data-height="true" data-phrase="General"></a>
@@ -1022,8 +1025,16 @@
                 </div>
               </form>
             </div>
-            <div class="tab-pane" id="tabThemeSettings">
-              <form id="ThemeSettingsFrm">
+            <div class="tab-pane" id="tabInterfaceSettings">
+              <form id="InterfaceSettingsFrm">
+                <h4 data-phrase="Theme"></h4>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="selectTheme" data-phrase="Theme"></label>
+                  <div class="col-sm-8 ">
+                    <select id="selectTheme" class="form-control custom-select border-secondary">
+                    </select>
+                  </div>
+                </div>                
                 <h4 data-phrase="Albumart"></h4>
                 <div id="warnAlbumart" class="alert alert-warning hide" data-phrase="Can't access music directory"></div>
                 <div class="form-group row">
@@ -1042,9 +1053,16 @@
                   </div>
                 </div>
                 <div class="form-group row">
-                  <label class="col-sm-4 col-form-label" for="inputCoverimageSize" data-phrase="Size"></label>
+                  <label class="col-sm-4 col-form-label" for="inputCoverimageSize" data-phrase="Size normal"></label>
                   <div class="col-sm-8 ">
-                    <input id="inputCoverimageSize" type="text" class="form-control border-secondary" value="240" data-placeholder-phrase="Size in px">
+                    <input id="inputCoverimageSize" type="text" class="form-control border-secondary" value="250" data-placeholder-phrase="Size in px">
+                    <div class="invalid-feedback" data-phrase="Invalid size"></div>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="inputCovergridSize" data-phrase="Size small"></label>
+                  <div class="col-sm-8 ">
+                    <input id="inputCovergridSize" type="text" class="form-control border-secondary" value="190" data-placeholder-phrase="Size in px">
                     <div class="invalid-feedback" data-phrase="Invalid size"></div>
                   </div>
                 </div>
@@ -1282,7 +1300,7 @@
   <div class="modal fade" id="modalAbout" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
-        <div class="modal-header pb-0 bg-light">
+        <div class="modal-header pb-0">
           <ul class="nav nav-tabs border-bottom-0">
             <li class="nav-item">
               <a class="nav-link active text-dark" href="#tabAbout" data-toggle="tab" data-height="true" data-phrase="About"></a>
@@ -1347,7 +1365,7 @@
   <div class="modal fade" id="modalConnection" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
-        <div class="modal-header bg-light">
+        <div class="modal-header">
           <h5 class="modal-title"><span class="material-icons title-icon">play_circle_outline</span> <span data-phrase="MPD connection"></span></h5>
           <button type="button" class="close" data-dismiss="modal">&times;</button>          
         </div>
@@ -1400,7 +1418,7 @@
   <div class="modal fade" id="modalSaveQueue" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
-        <div class="modal-header bg-light">
+        <div class="modal-header">
           <h5 class="modal-title"><span class="material-icons title-icon">save</span> <span data-phrase="Save queue"></span></h5>
           <button type="button" class="close" data-dismiss="modal">&times;</button>          
         </div>
@@ -1426,7 +1444,7 @@
   <div class="modal fade" id="modalAddToQueue" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
-        <div class="modal-header bg-light">
+        <div class="modal-header">
           <h5 class="modal-title"><span class="material-icons title-icon">add_to_queue</span> <span data-phrase="Add to queue"></span></h5>
           <button type="button" class="close" data-dismiss="modal">&times;</button>          
         </div>
@@ -1466,7 +1484,7 @@
   <div class="modal fade" id="modalSaveBookmark" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
-        <div class="modal-header bg-light">
+        <div class="modal-header">
           <h5 class="modal-title"><span class="material-icons title-icon">save</span> <span data-phrase="Save bookmark"></span></h5>
           <button type="button" class="close" data-dismiss="modal">&times;</button>          
         </div>
@@ -1498,7 +1516,7 @@
   <div class="modal fade" id="modalSongDetails" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
-        <div class="modal-header bg-light">
+        <div class="modal-header">
           <h5 class="modal-title"><span class="material-icons title-icon">music_note</span> <span data-phrase="Song details"></span></h5>
           <button type="button" class="close" data-dismiss="modal">&times;</button>          
         </div>
@@ -1524,6 +1542,7 @@
   </div>
 <!--debug-->  <script src="js/i18n.js"></script>
 <!--debug-->  <script src="js/keymap.js"></script>
+<!--debug-->  <script src="js/themes.js"></script>
 <!--debug-->  <script src="js/bootstrap-native-v4.js"></script>
 <!--debug-->  <script src="js/utility.js"></script>
 <!--debug-->  <script src="js/locale.js"></script>

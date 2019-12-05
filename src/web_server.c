@@ -19,11 +19,11 @@
 
 #include "sds_extras.h"
 #include "api.h"
-#include "utility.h"
 #include "log.h"
 #include "list.h"
-#include "tiny_queue.h"
 #include "config_defs.h"
+#include "utility.h"
+#include "tiny_queue.h"
 #include "global.h"
 #include "web_server/web_server_utility.h"
 #include "web_server/web_server_albumart.h"
