@@ -360,6 +360,9 @@ bool write_covercache_file(t_config *config, const char *uri, const char *mime_t
     sds tmp_file = sdscatfmt(sdsempty(), "%s/covercache/%s.XXXXXX", config->varlibdir, filename);
     int fd = mkstemp(tmp_file);
     if (fd < 0) {
+        LOG_ERROR("Can't write covercachefile: %s", tmp_file);
+    }
+    else {
         FILE *fp = fdopen(fd, "w");
         fwrite(binary, 1, sdslen(binary), fp);
         fclose(fp);
@@ -367,13 +370,11 @@ bool write_covercache_file(t_config *config, const char *uri, const char *mime_t
         sds cover_file = sdscatfmt(sdsempty(), "%s/covercache/%s.%s", config->varlibdir, filename, ext);
         if (rename(tmp_file, cover_file) == -1) {
             LOG_ERROR("Rename file from %s to %s failed", tmp_file, cover_file);
+            unlink(tmp_file);
         }
         sdsfree(ext);
         sdsfree(cover_file);
         rc = true;
-    }
-    else {
-        LOG_ERROR("Can't write covercachefile: %s", tmp_file);
     }
     sdsfree(tmp_file);
     sdsfree(filename);
