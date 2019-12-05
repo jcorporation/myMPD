@@ -26,61 +26,48 @@
    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/*! \file
- * \brief Synchronous MPD connections
- *
- * This library provides synchronous access to a mpd_async object.
- * For all operations, you may provide a timeout.
- */
+#include <mpd/neighbor.h>
+#include <mpd/send.h>
+#include <mpd/recv.h>
+#include <mpd/response.h>
+#include "internal.h"
 
-#ifndef MPD_SYNC_H
-#define MPD_SYNC_H
-
-#include <mpd/compiler.h>
-
-#include <stdbool.h>
-#include <stdarg.h>
 #include <stddef.h>
 
-struct timeval;
-struct mpd_async;
-
-/**
- * Synchronous wrapper for mpd_async_send_command_v().
- */
 bool
-mpd_sync_send_command_v(struct mpd_async *async, const struct timeval *tv,
-			const char *command, va_list args);
+mpd_send_list_neighbors(struct mpd_connection *connection)
+{
+	return mpd_send_command(connection, "listneighbors", NULL);
+}
 
-/**
- * Synchronous wrapper for mpd_async_send_command().
- */
-mpd_sentinel
-bool
-mpd_sync_send_command(struct mpd_async *async, const struct timeval *tv,
-		      const char *command, ...);
+struct mpd_neighbor *
+mpd_recv_neighbor(struct mpd_connection *connection)
+{
+	struct mpd_neighbor *neighbor;
+	struct mpd_pair *pair;
 
-/**
- * Sends all pending data from the output buffer to MPD.
- */
-bool
-mpd_sync_flush(struct mpd_async *async, const struct timeval *tv);
+	pair = mpd_recv_pair_named(connection, "neighbor");
+	if (pair == NULL)
+		return NULL;
 
-/**
- * Synchronous wrapper for mpd_async_recv_line().
- */
-char *
-mpd_sync_recv_line(struct mpd_async *async, const struct timeval *tv);
+	neighbor = mpd_neighbor_begin(pair);
+	mpd_return_pair(connection, pair);
+	if (neighbor == NULL) {
+		mpd_error_code(&connection->error, MPD_ERROR_OOM);
+		return NULL;
+	}
 
-/**
- * Synchronous wrapper for mpd_async_recv_raw() which waits until at
- * least one byte was received (or an error has occurred).
- *
- * @return the number of bytes copied to the destination buffer or 0
- * on error
- */
-size_t
-mpd_sync_recv_raw(struct mpd_async *async, const struct timeval *tv,
-		  void *dest, size_t length);
+	while ((pair = mpd_recv_pair(connection)) != NULL &&
+	       mpd_neighbor_feed(neighbor, pair))
+		mpd_return_pair(connection, pair);
 
-#endif
+	if (mpd_error_is_defined(&connection->error)) {
+		assert(pair == NULL);
+
+		mpd_neighbor_free(neighbor);
+		return NULL;
+	}
+
+	mpd_enqueue_pair(connection, pair);
+	return neighbor;
+}

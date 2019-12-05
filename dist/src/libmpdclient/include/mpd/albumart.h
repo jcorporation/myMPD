@@ -47,13 +47,13 @@
 struct mpd_connection;
 
 struct mpd_albumart {
-        /** fixed size binary data buffer*/
+        /** fixed size binary data buffer */
         unsigned char data[MPD_BINARY_CHUNK_SIZE];
 
         /** the size of the albumart */
         size_t size;
         
-        /** bytes in the data buffer*/
+        /** bytes in the binary data buffer */
         size_t data_length;
 };
 
@@ -81,9 +81,9 @@ mpd_send_albumart(struct mpd_connection *connection,
  *
  * @param connection a valid and connected #mpd_connection
  * @param buffer a allocated struct mpd_albumart
- * @return a pointer to the struct mpd_albumart on success, otherwise NULL
+ * @return true success
  */
-struct mpd_albumart *
+bool
 mpd_recv_albumart(struct mpd_connection *connection, struct mpd_albumart *buffer);
 
 /**
@@ -94,10 +94,9 @@ mpd_recv_albumart(struct mpd_connection *connection, struct mpd_albumart *buffer
  * @param uri the URI of the song
  * @param offset to read from
  * @param buffer a allocated struct mpd_albumart
- * @return a pointer to the struct mpd_albumart on success,
- *         NULL if a error has occured or response is finished
+ * @return true on success
  */
-struct mpd_albumart *
+bool
 mpd_run_albumart(struct mpd_connection *connection,
 				   const char *uri,
 				   unsigned offset,

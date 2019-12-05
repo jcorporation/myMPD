@@ -59,8 +59,10 @@
 #include "message.h"
 #include "mixer.h"
 #include "mount.h"
+#include "neighbor.h"
 #include "output.h"
 #include "pair.h"
+#include "partition.h"
 #include "password.h"
 #include "player.h"
 #include "playlist.h"
@@ -75,8 +77,8 @@
 #include "status.h"
 #include "sticker.h"
 #include "version.h"
-#include "albumart.h"
 #include "readpicture.h"
+#include "albumart.h"
 #include "libmympdclient_version.h"
 
 // IWYU pragma: end_exports

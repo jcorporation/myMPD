@@ -37,32 +37,46 @@
 #include <string.h>
 #include <stdlib.h>
 
-size_t
+bool
 mpd_recv_binary(struct mpd_connection *connection, void *data, size_t length)
 {
 	assert(connection != NULL);
 
 	if (mpd_error_is_defined(&connection->error))
-		return 0;
+		return false;
 
 	/* check if the caller has returned the previous pair */
 	assert(connection->pair_state != PAIR_STATE_FLOATING);
 
-        unsigned consumed = 0;
-	struct mpd_binary buffer;
-	struct mpd_binary *binary;
+	while (length > 0) {
+		size_t nbytes = mpd_sync_recv_raw(connection->async,
+						  mpd_connection_timeout(connection),
+						  data, length);
+		if (nbytes == 0) {
+			mpd_connection_sync_error(connection);
+			return false;
+		}
 
-        while ((binary = mpd_sync_recv_binary(connection->async,
-					      mpd_connection_timeout(connection),
-					      &buffer,
-					      length - consumed)
-		) != NULL)
-	{
-		memcpy(((unsigned char *)data) + consumed, binary->data, binary->size);
-		consumed += binary->size;
-        }
+		data = ((char *)data) + nbytes;
+		length -= nbytes;
+	}
 
-        return consumed;
+	char newline;
+	if (mpd_sync_recv_raw(connection->async,
+			      mpd_connection_timeout(connection),
+			      &newline, sizeof(newline)) == 0) {
+		mpd_connection_sync_error(connection);
+		return false;
+	}
+
+	if (newline != '\n') {
+		mpd_error_code(&connection->error, MPD_ERROR_MALFORMED);
+		mpd_error_message(&connection->error,
+				  "Malformed binary response");
+		return false;
+	}
+
+	return true;
 }
 
 struct mpd_pair *

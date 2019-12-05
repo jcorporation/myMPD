@@ -39,6 +39,7 @@
 
 #include "compiler.h"
 
+#include <stdbool.h>
 #include <stddef.h>
 
 struct mpd_pair;
@@ -49,13 +50,14 @@ extern "C" {
 #endif
 
 /**
- * Reads the binary data response from the server.  Returns the length
- * of consumed bytes.
+ * Reads the binary data response from the server.
  * The size and binary pair must be already read from the input buffer.
  *
  * The caller must allocate length bytes of memory for data.
+ *
+ * @return true on success
  */
-size_t
+bool
 mpd_recv_binary(struct mpd_connection *connection, void *data, size_t length);
 
 /**

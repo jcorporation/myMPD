@@ -80,7 +80,8 @@ bool
 mpd_output_feed(struct mpd_output *output, const struct mpd_pair *pair);
 
 /**
- * Frees a mpd_output object returned from mpd_recv_output().
+ * Frees a mpd_output object returned from mpd_recv_output() or
+ * mpd_output_begin().
  */
 void
 mpd_output_free(struct mpd_output *output);
@@ -153,8 +154,8 @@ const struct mpd_pair *
 mpd_output_next_attribute(struct mpd_output *output);
 
 /**
- * Sends the "outputs" command to MPD.  Call mpd_recv_output() to
- * read the response.
+ * Sends the "outputs" command to MPD: fetch information about all outputs.
+ * Call mpd_recv_output() to read the response.
  *
  * @param connection A valid and connected mpd_connection.
  * @return true on success
@@ -244,7 +245,8 @@ bool
 mpd_run_toggle_output(struct mpd_connection *connection, unsigned output_id);
 
 /**
- * Sends the "outputset" command to MPD.
+ * Sends the "outputset" command to MPD: set a runtime attribute for the
+ * specified output_id.
  *
  * @param connection a valid and connected mpd_connection
  * @param output_id an identifier for the output device (see

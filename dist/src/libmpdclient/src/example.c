@@ -63,6 +63,67 @@ print_tag(const struct mpd_song *song, enum mpd_tag_type type,
 		printf("%s: %s\n", label, value);
 }
 
+static int
+readpicture(struct mpd_connection *c, const char *uri)
+{
+	unsigned long long offset = 0;
+	unsigned long long total_size;
+
+	do {
+		char offset_s[32];
+		snprintf(offset_s, sizeof(offset_s), "%lu", (unsigned long)offset);
+
+		if (!mpd_send_command(c, "readpicture", uri, offset_s, NULL))
+			return handle_error(c);
+
+		struct mpd_pair *pair = mpd_recv_pair_named(c, "size");
+		if (pair == NULL) {
+			if (mpd_connection_get_error(c) != MPD_ERROR_SUCCESS)
+				return handle_error(c);
+			fprintf(stderr, "No 'size'\n");
+			return EXIT_FAILURE;
+		}
+
+		total_size = strtoull(pair->value, NULL, 10);
+
+		mpd_return_pair(c, pair);
+
+		pair = mpd_recv_pair_named(c, "binary");
+		if (pair == NULL) {
+			if (mpd_connection_get_error(c) != MPD_ERROR_SUCCESS)
+				return handle_error(c);
+			fprintf(stderr, "No 'binary'\n");
+			return EXIT_FAILURE;
+		}
+
+		const unsigned long long chunk_size =
+			strtoull(pair->value, NULL, 10);
+		mpd_return_pair(c, pair);
+
+		if (chunk_size == 0)
+			break;
+
+		char *p = malloc(chunk_size);
+		if (p == NULL)
+			abort();
+
+		if (!mpd_recv_binary(c, p, chunk_size))
+			return handle_error(c);
+
+		if (!mpd_response_finish(c))
+			return handle_error(c);
+
+		if (fwrite(p, chunk_size, 1, stdout) != 1)
+			exit(EXIT_FAILURE);
+
+		free(p);
+
+		offset += chunk_size;
+	} while (offset < total_size);
+
+	return EXIT_SUCCESS;
+}
+
 int main(int argc, char ** argv) {
 	struct mpd_connection *conn;
 
@@ -71,15 +132,12 @@ int main(int argc, char ** argv) {
 	if (mpd_connection_get_error(conn) != MPD_ERROR_SUCCESS)
 		return handle_error(conn);
 
-	{
-		int i;
-		for(i=0;i<3;i++) {
+	if(argc==1) {
+		for(int i=0;i<3;i++) {
 			printf("version[%i]: %i\n",i,
 			       mpd_connection_get_server_version(conn)[i]);
 		}
-	}
 
-	if(argc==1) {
 		struct mpd_status * status;
 		struct mpd_song *song;
 		const struct mpd_audio_format *audio_format;
@@ -187,8 +245,11 @@ int main(int argc, char ** argv) {
 		if (mpd_connection_get_error(conn) != MPD_ERROR_SUCCESS ||
 		    !mpd_response_finish(conn))
 			return handle_error(conn);
-	}
-	else if(argc==2 && strcmp(argv[1],"artists")==0) {
+	} else if (argc == 3 && strcmp(argv[1], "readpicture") == 0) {
+		int result = readpicture(conn, argv[2]);
+		if (result != EXIT_SUCCESS)
+			return result;
+	} else if(argc==2 && strcmp(argv[1],"artists")==0) {
 		struct mpd_pair *pair;
 
 		if (!mpd_search_db_tags(conn, MPD_TAG_ARTIST) ||
@@ -285,23 +346,72 @@ int main(int argc, char ** argv) {
 			return handle_error(conn);
 
 		printf("%s\n", fingerprint);
-	} else if (argc == 3 && strcmp(argv[1], "albumart") == 0) {
-		unsigned offset = 0;
-		unsigned size = 0;
-		FILE *fp = fopen("/tmp/albumart", "w");
-		if (fp == NULL) {
-			return 1;
+	} else if (argc == 2 && strcmp(argv[1], "listneighbors") == 0) {
+		struct mpd_neighbor *neighbor;
+
+		if (!mpd_send_list_neighbors(conn))
+			return handle_error(conn);
+
+		while ((neighbor = mpd_recv_neighbor(conn)) != NULL) {
+			printf("uri: %s\n display name: %s\n",
+				mpd_neighbor_get_uri(neighbor),
+				mpd_neighbor_get_display_name(neighbor));
+			mpd_neighbor_free(neighbor);
 		}
-		struct mpd_albumart buffer;
-		struct mpd_albumart *albumart;
-		while ((albumart = mpd_run_albumart(conn, argv[2], offset, &buffer)) != NULL) {
-			fwrite(albumart->data, 1, albumart->data_length, fp);
-			offset += albumart->data_length;
-			size = albumart->size;
+
+		if (mpd_connection_get_error(conn) != MPD_ERROR_SUCCESS ||
+		    !mpd_response_finish(conn))
+			return handle_error(conn);
+	} else if (argc == 3 && strcmp(argv[1], "newpartition") == 0) {
+		if (!mpd_run_newpartition(conn, argv[2]))
+			return handle_error(conn);
+	} else if (argc == 2 && strcmp(argv[1], "listpartitions") == 0) {
+		struct mpd_pair *pair;
+		struct mpd_partition *part;
+
+		if (!mpd_send_listpartitions(conn))
+			return handle_error(conn);
+
+		while ((pair = mpd_recv_partition_pair(conn)) != NULL) {
+			part = mpd_partition_new(pair);
+			if (part == NULL)
+				return handle_error(conn);
+			mpd_return_pair(conn, pair);
+
+			printf("partition name: %s\n",
+					mpd_partition_get_name(part));
+			mpd_partition_free(part);
 		}
-		fclose(fp);
-		printf("Wrote file: /tmp/albumart, size: %u bytes, retrieved: %u bytes\n", size, offset);
-	} else if (argc == 3 && strcmp(argv[1], "readpicture") == 0) {
+		if (mpd_connection_get_error(conn) != MPD_ERROR_SUCCESS)
+			handle_error(conn);
+	} else if (argc == 2 && strcmp(argv[1], "idle_partition") == 0) {
+		while (mpd_run_idle_mask(conn, MPD_IDLE_PARTITION) != 0) {
+			struct mpd_pair *pair;
+			struct mpd_partition *part;
+
+			if (!mpd_send_listpartitions(conn))
+				return handle_error(conn);
+
+			while ((pair = mpd_recv_partition_pair(conn)) != NULL) {
+				part = mpd_partition_new(pair);
+				if (part == NULL)
+					return handle_error(conn);
+				mpd_return_pair(conn, pair);
+
+				printf("partition name: %s\n",
+					mpd_partition_get_name(part));
+				mpd_partition_free(part);
+			}
+			if (mpd_connection_get_error(conn) != MPD_ERROR_SUCCESS)
+				handle_error(conn);
+		}
+		if (mpd_connection_get_error(conn) != MPD_ERROR_SUCCESS)
+			handle_error(conn);
+	} else if (argc == 3 && strcmp(argv[1], "switchpartition") == 0) {
+		if (!mpd_run_switch_partition(conn, argv[2]))
+			return handle_error(conn);
+		printf("switched to partition %s\n", argv[2]);
+	} else if (argc == 3 && strcmp(argv[1], "readpicture2") == 0) {
 		unsigned offset = 0;
 		unsigned size = 0;
 		char *mime_type = NULL;
@@ -310,20 +420,41 @@ int main(int argc, char ** argv) {
 			return 1;
 		}
 		struct mpd_readpicture buffer;
-		struct mpd_readpicture *readpicture;
-		while ((readpicture = mpd_run_readpicture(conn, argv[2], offset, &buffer)) != NULL) {
-			fwrite(readpicture->data, 1, readpicture->data_length, fp);
-			offset += readpicture->data_length;
-			size = readpicture->size;
-			if (readpicture->mime_type != NULL && mime_type == NULL) {
-				mime_type = strdup(readpicture->mime_type);
+		while (mpd_run_readpicture(conn, argv[2], offset, &buffer) == true) {
+			fwrite(buffer.data, 1, buffer.data_length, fp);
+			offset += buffer.data_length;
+			size = buffer.size;
+			if (buffer.mime_type != NULL && mime_type == NULL) {
+				mime_type = strdup(buffer.mime_type);
 			}
 			mpd_free_readpicture(&buffer);
+			if (buffer.data_length == 0) {
+				break;
+			}
+
 		}
 		fclose(fp);
 		printf("Wrote file: /tmp/readpicture, size: %u bytes, retrieved: %u bytes, mime_type: %s\n", size, offset, mime_type);
+	} else if (argc == 3 && strcmp(argv[1], "albumart") == 0) {
+		unsigned offset = 0;
+		unsigned size = 0;
+		FILE *fp = fopen("/tmp/albumart", "w");
+		if (fp == NULL) {
+			return 1;
+		}
+		struct mpd_albumart buffer;
+		while (mpd_run_albumart(conn, argv[2], offset, &buffer) == true) {
+			fwrite(buffer.data, 1, buffer.data_length, fp);
+			offset += buffer.data_length;
+			size = buffer.size;
+			if (buffer.data_length == 0) {
+				break;
+			}
+		}
+		fclose(fp);
+		printf("Wrote file: /tmp/albumart, size: %u bytes, retrieved: %u bytes\n", size, offset);
 	}
-
+	
 	mpd_connection_free(conn);
 
 	return 0;

@@ -80,7 +80,7 @@ bool
 mpd_mount_feed(struct mpd_mount *mnt, const struct mpd_pair *pair);
 
 /**
- * Frees a mpd_mount object returned from mpd_recv_mount().
+ * Frees a mpd_mount object returned from mpd_recv_mount() or mpd_mount_begin().
  *
  * @since libmpdclient 2.16
  */

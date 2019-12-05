@@ -51,9 +51,10 @@ struct mpd_connection;
  *
  * @since libmpdclient 2.5 added support for #MPD_IDLE_STICKER,
  * #MPD_IDLE_SUBSCRIPTION and #MPD_IDLE_MESSAGE.
+ * @since libmpdclient 2.17 added support for #MPD_IDLE_PARTITION.
  */
 enum mpd_idle {
-	/** song database has been updated*/
+	/** song database has been updated */
 	MPD_IDLE_DATABASE = 0x1,
 
 	/** a stored playlist has been modified, created, deleted or
@@ -89,6 +90,9 @@ enum mpd_idle {
 
 	/** a message on a subscribed channel was received */
 	MPD_IDLE_MESSAGE = 0x400,
+
+	/** a partition was added or changed */
+	MPD_IDLE_PARTITION = 0x800,
 };
 
 #ifdef __cplusplus
@@ -120,6 +124,9 @@ mpd_idle_name_parse(const char *name);
  * occurred.  Call mpd_send_noidle() to abort the idle mode, or
  * mpd_recv_idle() to read the event mask (or synchronously wait for
  * events).
+ *
+ * @param connection the connection to MPD
+ * @return true on success
  */
 bool
 mpd_send_idle(struct mpd_connection *connection);
@@ -129,7 +136,7 @@ mpd_send_idle(struct mpd_connection *connection);
  *
  * @param connection the connection to MPD
  * @param mask a bit mask of idle events; must not be 0
- * @return a positive job id on success, 0 on error
+ * @return true on success
  */
 bool
 mpd_send_idle_mask(struct mpd_connection *connection, enum mpd_idle mask);
@@ -138,6 +145,9 @@ mpd_send_idle_mask(struct mpd_connection *connection, enum mpd_idle mask);
  * Tells MPD to leave the "idle" mode.  MPD will then respond with a
  * list of events which have occurred (which may be empty).  Call
  * mpd_recv_idle() after that.
+ *
+ * @param connection the connection to MPD
+ * @return true on success
  */
 bool
 mpd_send_noidle(struct mpd_connection *connection);
@@ -146,6 +156,7 @@ mpd_send_noidle(struct mpd_connection *connection);
  * Parses a "changed" pair, which is part of MPD's response to the
  * "idle" command.
  *
+ * @param pair the "changed" pair
  * @return an idle code, or 0 if the pair was not understood
  */
 mpd_pure
@@ -157,7 +168,7 @@ mpd_idle_parse_pair(const struct mpd_pair *pair);
  * bit mask.
  *
  * @param connection the connection to MPD
- * @param disable_timeout if true, then libmpdclients temporarily
+ * @param disable_timeout if true, then libmpdclient temporarily
  * disables the configured timeout (see mpd_connection_set_timeout()):
  * this function blocks forever, until either MPD sends a response, or
  * an error occurs.

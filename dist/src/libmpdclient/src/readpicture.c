@@ -43,6 +43,7 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <inttypes.h>
 
 void
 mpd_free_readpicture(struct mpd_readpicture *buffer)
@@ -59,71 +60,59 @@ mpd_send_readpicture(struct mpd_connection *connection, const char *uri, unsigne
 	return mpd_send_s_u_command(connection, "readpicture", uri, offset);
 }
 
-struct mpd_readpicture *
+bool
 mpd_recv_readpicture(struct mpd_connection *connection, struct mpd_readpicture *buffer)
 {
-        struct mpd_readpicture *result = NULL;
-
         buffer->size = 0;
         buffer->data_length = 0;
         buffer->mime_type = NULL;
 
-        struct mpd_pair *pair;
-        bool last = false;
-
-        while ((pair = mpd_recv_pair(connection)) != NULL) {
-                if (strcmp(pair->name, "size") == 0) {
-                        buffer->size = atoi(pair->value);
-                }
-                else if (strcmp(pair->name, "type") == 0) {
-                        buffer->mime_type = strdup(pair->value);
-                }
-                else if (strcmp(pair->name, "binary") == 0) {
-                        buffer->data_length = atoi(pair->value);
-                        last = true;
-                }
+        struct mpd_pair *pair = mpd_recv_pair_named(connection, "size");
+        if (pair == NULL) {
+                return false;
+        }
+        buffer->size = strtoumax(pair->value, NULL, 10);
+        mpd_return_pair(connection, pair);
+        
+        pair = mpd_recv_pair_named(connection, "type");
+        if (pair != NULL) {
+                buffer->mime_type = strdup(pair->value);
                 mpd_return_pair(connection, pair);
-                if (last == true) {
-                        break;
-                }
         }
 
-        if (last != true) {
-                mpd_free_readpicture(buffer);
-                return NULL;
+        pair = mpd_recv_pair_named(connection, "binary");
+        if (pair == NULL) {
+               return false;
         }
+        buffer->data_length = strtoumax(pair->value, NULL, 10);
+        mpd_return_pair(connection, pair);
 
         //binary data
         buffer->data_length = buffer->data_length < MPD_BINARY_CHUNK_SIZE ? buffer->data_length : MPD_BINARY_CHUNK_SIZE;
-        if (mpd_recv_binary(connection, buffer->data, buffer->data_length) != buffer->data_length) {
-                mpd_error_code(&connection->error, MPD_ERROR_STATE);
-                mpd_error_message(&connection->error,
-                                  "Error reading binary data");
-                return NULL;
+        if (mpd_recv_binary(connection, buffer->data, buffer->data_length) == false) {
+                return false;
         }
         
-        result = buffer;
-	return result;
+	return true;
 }
 
-struct mpd_readpicture *
+bool
 mpd_run_readpicture(struct mpd_connection *connection, const char *uri, unsigned offset, struct mpd_readpicture *buffer)
 {
 	if (!mpd_run_check(connection) ||
 	    !mpd_send_readpicture(connection, uri, offset)) {
-		return NULL;
+		return false;
         }
         
-        struct mpd_readpicture *result = mpd_recv_readpicture(connection, buffer);
-        if (result == NULL) {
+        if (mpd_recv_readpicture(connection, buffer) == false) {
                 if (mpd_connection_get_error(connection) != MPD_ERROR_SUCCESS) {
                        mpd_connection_clear_error(connection);
                 }
                 mpd_response_finish(connection);
+                return false;
         }
-        else if (!mpd_response_finish(connection) || 
-                 result->data_length == 0) {
-                return NULL;
+        else if (!mpd_response_finish(connection)) {
+                return false;
         }
-	return result;
+	return true;
 }

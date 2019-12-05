@@ -90,9 +90,9 @@ mpd_run_play_pos(struct mpd_connection *connection, unsigned song_pos)
 }
 
 bool
-mpd_send_play_id(struct mpd_connection *connection, unsigned id)
+mpd_send_play_id(struct mpd_connection *connection, unsigned song_id)
 {
-	return mpd_send_int_command(connection, "playid", id);
+	return mpd_send_int_command(connection, "playid", song_id);
 }
 
 bool
@@ -186,9 +186,10 @@ mpd_run_seek_pos(struct mpd_connection *connection,
 }
 
 bool
-mpd_send_seek_id(struct mpd_connection *connection, unsigned id, unsigned t)
+mpd_send_seek_id(struct mpd_connection *connection,
+		 unsigned song_id, unsigned t)
 {
-	return mpd_send_int2_command(connection, "seekid", id, t);
+	return mpd_send_int2_command(connection, "seekid", song_id, t);
 }
 
 bool
@@ -202,9 +203,9 @@ mpd_run_seek_id(struct mpd_connection *connection,
 
 bool
 mpd_send_seek_id_float(struct mpd_connection *connection,
-		       unsigned id, float t)
+		       unsigned song_id, float t)
 {
-	return mpd_send_u_f_command(connection, "seekid", id, t);
+	return mpd_send_u_f_command(connection, "seekid", song_id, t);
 }
 
 bool

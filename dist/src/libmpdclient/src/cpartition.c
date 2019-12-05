@@ -26,61 +26,47 @@
    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/*! \file
- * \brief Synchronous MPD connections
- *
- * This library provides synchronous access to a mpd_async object.
- * For all operations, you may provide a timeout.
- */
+#include <mpd/partition.h>
+#include <mpd/send.h>
+#include <mpd/response.h>
+#include "internal.h"
+#include "run.h"
 
-#ifndef MPD_SYNC_H
-#define MPD_SYNC_H
-
-#include <mpd/compiler.h>
-
-#include <stdbool.h>
-#include <stdarg.h>
+#include <assert.h>
 #include <stddef.h>
 
-struct timeval;
-struct mpd_async;
-
-/**
- * Synchronous wrapper for mpd_async_send_command_v().
- */
 bool
-mpd_sync_send_command_v(struct mpd_async *async, const struct timeval *tv,
-			const char *command, va_list args);
+mpd_send_newpartition(struct mpd_connection *connection, const char *partition)
+{
+	return mpd_send_command(connection, "newpartition", partition, NULL);
+}
 
-/**
- * Synchronous wrapper for mpd_async_send_command().
- */
-mpd_sentinel
 bool
-mpd_sync_send_command(struct mpd_async *async, const struct timeval *tv,
-		      const char *command, ...);
+mpd_run_newpartition(struct mpd_connection *connection, const char *partition)
+{
+	return mpd_run_check(connection) &&
+		mpd_send_newpartition(connection, partition) &&
+		mpd_response_finish(connection);
+}
 
-/**
- * Sends all pending data from the output buffer to MPD.
- */
 bool
-mpd_sync_flush(struct mpd_async *async, const struct timeval *tv);
+mpd_send_switch_partition(struct mpd_connection *connection,
+			  const char *partition)
+{
+	return mpd_send_command(connection, "partition", partition, NULL);
+}
 
-/**
- * Synchronous wrapper for mpd_async_recv_line().
- */
-char *
-mpd_sync_recv_line(struct mpd_async *async, const struct timeval *tv);
+bool
+mpd_run_switch_partition(struct mpd_connection *connection,
+			 const char *partition)
+{
+	return mpd_run_check(connection) &&
+		mpd_send_switch_partition(connection, partition) &&
+		mpd_response_finish(connection);
+}
 
-/**
- * Synchronous wrapper for mpd_async_recv_raw() which waits until at
- * least one byte was received (or an error has occurred).
- *
- * @return the number of bytes copied to the destination buffer or 0
- * on error
- */
-size_t
-mpd_sync_recv_raw(struct mpd_async *async, const struct timeval *tv,
-		  void *dest, size_t length);
-
-#endif
+bool
+mpd_send_listpartitions(struct mpd_connection *connection)
+{
+	return mpd_send_command(connection, "listpartitions", NULL);
+}

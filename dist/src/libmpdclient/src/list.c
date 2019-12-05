@@ -82,6 +82,8 @@ mpd_command_list_end(struct mpd_connection *connection)
 
 	connection->sending_command_list = false;
 	success = mpd_send_command(connection, "command_list_end", NULL);
+	/* sending_command_list will be cleared when the user requests the
+	   command list response (a function that calls mpd_recv_pair()) */
 	connection->sending_command_list = true;
 	if (!success)
 		return false;

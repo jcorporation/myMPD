@@ -206,6 +206,8 @@ mpd_async_send_command(struct mpd_async *async, const char *command, ...);
  * null-terminated, without the newline character.  The pointer is
  * only valid until the next async function is called.
  *
+ * You can use mpd_parser_new() and mpd_parser_feed() for parsing the line.
+ *
  * @param async the connection
  * @return a line on success, NULL otherwise
  */
@@ -214,17 +216,17 @@ char *
 mpd_async_recv_line(struct mpd_async *async);
 
 /**
- * Receives length raw bytes from the input buffer. The result will be
- * without the newline character. The pointer is only valid until the 
- * next async function is called. Call this function till it returns NULL.
+ * Copy raw data from the input buffer.  This can be used to receive
+ * binary data from MPD, such as album art.
  *
  * @param async the connection
- * @param buffer pointer to allocated struct mpd_binary
+ * @param dest a buffer where this function will copy the data
  * @param length of bytes to consume
- * @return a pointer to struct mpd_binary, NULL on error or end of buffer.
+ * @return the number of bytes copied to the destination buffer (may
+ * be 0 if the input buffer was empty)
  */
-struct mpd_binary *
-mpd_async_recv_binary(struct mpd_async *async, struct mpd_binary *buffer, size_t length);
+size_t
+mpd_async_recv_raw(struct mpd_async *async, void *dest, size_t length);
 
 #ifdef __cplusplus
 }

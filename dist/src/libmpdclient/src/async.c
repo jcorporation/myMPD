@@ -381,38 +381,17 @@ mpd_async_recv_line(struct mpd_async *async)
 	return src;
 }
 
-struct mpd_binary *
-mpd_async_recv_binary(struct mpd_async *async, struct mpd_binary *buffer, size_t length)
+size_t
+mpd_async_recv_raw(struct mpd_async *async, void *dest, size_t length)
 {
-	assert(async != NULL);
+	size_t max_size = mpd_buffer_size(&async->input);
+	if (max_size == 0)
+		return 0;
 
-	buffer->size = mpd_buffer_size(&async->input);
-	if (buffer->size == 0)
-		return buffer;
+	if (length > max_size)
+		length = max_size;
 
-	buffer->data = mpd_buffer_read(&async->input);
-	assert(buffer->data != NULL);
-	
-	struct mpd_binary *result = buffer;
-
-	if (length == 0) {
-		if (memcmp(result->data, "\n", 1) != 0) {
-			/* response is not finished yet */
-			if (mpd_buffer_full(&async->input)) {
-				/* .. but the buffer is full - response is too
-				long, abort connection and bail out */
-				mpd_error_code(&async->error, MPD_ERROR_MALFORMED);
-				mpd_error_message(&async->error,
-						  "Response line too large");
-			}
-			return NULL;
-		}
-		//consume the final newline character
-		mpd_buffer_consume(&async->input, 1);
-		return NULL;
-	}
-
-	result->size = length < result->size ? length : result->size;
-	mpd_buffer_consume(&async->input, buffer->size);
-	return result;
+	memcpy(dest, mpd_buffer_read(&async->input), length);
+	mpd_buffer_consume(&async->input, length);
+	return length;
 }

@@ -26,61 +26,76 @@
    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/*! \file
- * \brief Synchronous MPD connections
- *
- * This library provides synchronous access to a mpd_async object.
- * For all operations, you may provide a timeout.
- */
+#include <mpd/neighbor.h>
+#include <mpd/pair.h>
 
-#ifndef MPD_SYNC_H
-#define MPD_SYNC_H
+#include <assert.h>
+#include <string.h>
+#include <stdlib.h>
 
-#include <mpd/compiler.h>
+struct mpd_neighbor {
+	char *uri;
+	char *display_name;
+};
 
-#include <stdbool.h>
-#include <stdarg.h>
-#include <stddef.h>
+struct mpd_neighbor *
+mpd_neighbor_begin(const struct mpd_pair *pair)
+{
+	assert(pair != NULL);
 
-struct timeval;
-struct mpd_async;
+	if (strcmp(pair->name, "neighbor") != 0)
+		return NULL;
 
-/**
- * Synchronous wrapper for mpd_async_send_command_v().
- */
+	struct mpd_neighbor *neighbor = malloc(sizeof(*neighbor));
+	if (neighbor == NULL)
+		return NULL;
+
+	neighbor->uri = strdup(pair->value);
+	if (neighbor->uri == NULL) {
+		free(neighbor);
+		return NULL;
+	}
+
+	neighbor->display_name = NULL;
+	return neighbor;
+}
+
 bool
-mpd_sync_send_command_v(struct mpd_async *async, const struct timeval *tv,
-			const char *command, va_list args);
+mpd_neighbor_feed(struct mpd_neighbor *neighbor, const struct mpd_pair *pair)
+{
+	if (strcmp(pair->name, "neighbor") == 0)
+		return false;
 
-/**
- * Synchronous wrapper for mpd_async_send_command().
- */
-mpd_sentinel
-bool
-mpd_sync_send_command(struct mpd_async *async, const struct timeval *tv,
-		      const char *command, ...);
+	if (strcmp(pair->name, "name") == 0) {
+		free(neighbor->display_name);
+		neighbor->display_name = strdup(pair->value);
+	}
 
-/**
- * Sends all pending data from the output buffer to MPD.
- */
-bool
-mpd_sync_flush(struct mpd_async *async, const struct timeval *tv);
+	return true;
+}
 
-/**
- * Synchronous wrapper for mpd_async_recv_line().
- */
-char *
-mpd_sync_recv_line(struct mpd_async *async, const struct timeval *tv);
+void
+mpd_neighbor_free(struct mpd_neighbor *neighbor)
+{
+	assert(neighbor != NULL);
 
-/**
- * Synchronous wrapper for mpd_async_recv_raw() which waits until at
- * least one byte was received (or an error has occurred).
- *
- * @return the number of bytes copied to the destination buffer or 0
- * on error
- */
-size_t
-mpd_sync_recv_raw(struct mpd_async *async, const struct timeval *tv,
-		  void *dest, size_t length);
+	free(neighbor->uri);
+	free(neighbor->display_name);
+	free(neighbor);
+}
 
-#endif
+const char *
+mpd_neighbor_get_uri(const struct mpd_neighbor *neighbor)
+{
+	assert(neighbor != NULL);
+
+	return neighbor->uri;
+}
+
+const char *
+mpd_neighbor_get_display_name(const struct mpd_neighbor *neighbor)
+{
+	assert(neighbor != NULL);
+
+	return neighbor->display_name;
+}
