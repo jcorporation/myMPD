@@ -27,11 +27,11 @@
 #include "../dist/src/mongoose/mongoose.h"
 
 #include "sds_extras.h"
-#include "utility.h"
 #include "log.h"
 #include "list.h"
 #include "tiny_queue.h"
 #include "config_defs.h"
+#include "utility.h"
 #include "config.h"
 #include "api.h"
 #include "global.h"

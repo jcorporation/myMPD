@@ -32,6 +32,7 @@ sds get_mime_type_by_ext(const char *filename);
 sds get_ext_by_mime_type(const char *mime_type);
 sds get_mime_type_by_magic(const char *filename);
 sds get_mime_type_by_magic_stream(sds stream);
+bool write_covercache_file(t_config *config, const char *uri, const char *mime_type, sds binary);
 
 #define FREE_PTR(PTR) do { \
     if (PTR != NULL) \

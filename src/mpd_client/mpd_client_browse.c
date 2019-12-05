@@ -13,11 +13,11 @@
 
 #include "../../dist/src/sds/sds.h"
 #include "../sds_extras.h"
+#include "../list.h"
+#include "config_defs.h"
 #include "../utility.h"
 #include "../api.h"
 #include "../log.h"
-#include "../list.h"
-#include "config_defs.h"
 #include "../tiny_queue.h"
 #include "mpd_client_utility.h"
 #include "mpd_client_cover.h"

@@ -16,10 +16,10 @@
 
 #include "../dist/src/sds/sds.h"
 #include "sds_extras.h"
-#include "utility.h"
-#include "log.h"
 #include "list.h"
 #include "config_defs.h"
+#include "utility.h"
+#include "log.h"
 #include "config.h"
 #include "../dist/src/inih/ini.h"
 

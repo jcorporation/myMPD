@@ -11,10 +11,10 @@
 
 #include "../../dist/src/sds/sds.h"
 #include "../sds_extras.h"
-#include "../utility.h"
 #include "../log.h"
 #include "../list.h"
 #include "config_defs.h"
+#include "../utility.h"
 #include "mpd_client_utility.h"
 #include "mpd_client_queue.h"
 #include "../dist/src/frozen/frozen.h"
