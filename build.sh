@@ -179,12 +179,10 @@ buildrelease() {
   createi18n ../../dist/htdocs/js/i18n.min.js
   
   echo "Minifying javascript"
-  JSSRCFILES="htdocs/js/api.js htdocs/js/browse.js htdocs/js/locale.js htdocs/js/log.js htdocs/js/misc.js htdocs/js/mympd.js"
-  JSSRCFILES="$JSSRCFILES htdocs/js/notification.js htdocs/js/playlists.js htdocs/js/popover.js htdocs/js/queue.js"
-  JSSRCFILES="$JSSRCFILES htdocs/js/search.js htdocs/js/settings.js htdocs/js/song.js htdocs/js/state.js htdocs/js/tables.js"
-  JSSRCFILES="$JSSRCFILES htdocs/js/utility.js htdocs/js/validate.js"
-  for F in $JSSRCFILES
+  JSSRCFILES=""
+  for F in htdocs/js/*.js
   do
+    [ -L "$F" ] || JSSRCFILES="$JSSRCFILES $F"
     if tail -1 "$F" | perl -npe 'exit 1 if m/\n/; exit 0'
     then
       echo "ERROR: $F don't end with newline character"
@@ -207,7 +205,7 @@ buildrelease() {
   minify js dist/htdocs/js/mympd.js dist/htdocs/js/mympd.min.js
   
   echo "Combining and compressing javascript"
-  JSFILES="dist/htdocs/js/i18n.min.js dist/htdocs/js/keymap.min.js dist/htdocs/js/bootstrap-native-v4.min.js dist/htdocs/js/mympd.min.js"
+  JSFILES=dist/htdocs/js/*.min.js
   for F in $JSFILES
   do
     if tail -1 "$F" | perl -npe 'exit 1 if m/\n/; exit 0'
@@ -237,11 +235,14 @@ buildrelease() {
   fi
  
   echo "Minifying stylesheets"
-  minify css htdocs/css/mympd.css dist/htdocs/css/mympd.min.css
-  minify css htdocs/css/theme-dark.css dist/htdocs/css/theme-dark.min.css
+  for F in htdocs/css/*.css
+  do
+    DST=$(basename "$F" .css)
+    [ -L "$F" ] || minify css "$F" "dist/htdocs/css/${DST}.min.css"
+  done
   
   echo "Combining and compressing stylesheets"
-  CSSFILES="dist/htdocs/css/bootstrap.min.css dist/htdocs/css/mympd.min.css dist/htdocs/css/theme-dark.min.css"
+  CSSFILES=dist/htdocs/css/*.min.css
   # shellcheck disable=SC2086
   if older_s dist/htdocs/css/combined.css.gz $CSSFILES
   then
@@ -367,7 +368,7 @@ cleanupdist() {
   rm -f dist/htdocs/js/mympd.min.js
   rm -f dist/htdocs/js/combined.js.gz
   rm -f dist/htdocs/css/mympd.min.css
-  rm -f dist/htdocs/css/theme-dark.min.css
+  rm -f dist/htdocs/css/theme-*.min.css
   rm -f dist/htdocs/css/combined.css.gz
   rm -f dist/htdocs/sw.min.js
   rm -f dist/htdocs/sw.js.gz
