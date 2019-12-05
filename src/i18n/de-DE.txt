@@ -1008,9 +1008,6 @@ Löschen
 Crop
 Abschneiden
 
-Can't write covercache file
-Konnte Covercache Datei nicht schreiben
-
 No albumart found by mpd
 MPD konnte keine Cover finden
 
