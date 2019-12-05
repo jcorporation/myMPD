@@ -12,6 +12,21 @@ body.theme-dark .btn-light {
   border-color: #343a40;
 }
 
+.btn-light:not(:disabled):not(.disabled):active, .btn-light:not(:disabled):not(.disabled).active,
+.show > .btn-light.dropdown-toggle {
+  background-color: #6C757D;
+  border-color: #6C757D;
+  color: #f8f9fa;
+}
+
+.btn-light:focus, .btn-light.focus {
+  box-shadow: none;
+}
+
+.show {
+  box-shadow: none;
+}
+
 body.theme-dark .btn-success {
   background-color: #28A745;
 }
@@ -26,7 +41,7 @@ body.theme-dark .btn-secondary {
 }
 
 body.theme-dark .form-control {
-  background-color: #32383E;
+  background-color: #343A40;
   border-color: #6C757D;
   color: #f8f9fa;
 }
@@ -108,6 +123,31 @@ body.theme-dark .dropdown-item:focus {
   background-color: #1d2124;
 }
 
-boody.theme-dark .arrow {
+body.theme-dark .arrow::after {
   border-top-color: #1d2124 !important;
+}
+
+body.theme-dark .custom-select {
+  background: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='4' height='5' viewBox='0 0 4 5'%3e%3cpath fill='%23f8f9fa' d='M2 0L0 2h4zm0 5L0 3h4z'/%3e%3c/svg%3e") no-repeat right 0.75rem center/8px 10px;
+}
+
+body.theme-dark .close {
+  color: white;
+  text-shadow: 0 1px 0 #000;
+}
+
+body.theme-dark div.key {
+  background-color: #6C757D;
+}
+
+body.theme-dark #BrowseDatabaseAlbumList > .card {
+  border-color: #1d2124;
+}
+
+body.theme-dark #BrowseDatabaseAlbumList .card-header {
+  background-color: #2f353a;
+}
+
+body.theme-dark #BrowseDatabaseAlbumList .card-footer {
+  background-color: #2f353a;
 }
