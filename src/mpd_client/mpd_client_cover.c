@@ -28,19 +28,23 @@ sds mpd_client_getcover(t_config *config, t_mpd_state *mpd_state, sds buffer, sd
     unsigned offset = 0;
     if (mpd_state->feat_mpd_albumart == true) {
         struct mpd_albumart albumart_buffer;
-        struct mpd_albumart *albumart;
-        while ((albumart = mpd_run_albumart(mpd_state->conn, uri, offset, &albumart_buffer)) != NULL) {
-            *binary = sdscatlen(*binary, albumart->data, albumart->data_length);
-            offset += albumart->data_length;
+        while (mpd_run_albumart(mpd_state->conn, uri, offset, &albumart_buffer) == true) {
+            *binary = sdscatlen(*binary, albumart_buffer.data, albumart_buffer.data_length);
+            offset += albumart_buffer.data_length;
+            if (albumart_buffer.data_length == 0) {
+                break;
+            }
         }
     }
     if (offset == 0 && mpd_state->feat_mpd_readpicture == true) {
         struct mpd_readpicture readpicture_buffer;
-        struct mpd_readpicture *readpicture;
-        while ((readpicture = mpd_run_readpicture(mpd_state->conn, uri, offset, &readpicture_buffer)) != NULL) {
-            *binary = sdscatlen(*binary, readpicture->data, readpicture->data_length);
-            offset += readpicture->data_length;
+        while (mpd_run_readpicture(mpd_state->conn, uri, offset, &readpicture_buffer) == true) {
+            *binary = sdscatlen(*binary, readpicture_buffer.data, readpicture_buffer.data_length);
+            offset += readpicture_buffer.data_length;
             mpd_free_readpicture(&readpicture_buffer);
+            if (readpicture_buffer.data_length == 0) {
+                break;
+            }
         }
         mpd_free_readpicture(&readpicture_buffer);
     }
