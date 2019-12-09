@@ -230,9 +230,9 @@ const struct mime_type_entry image_files[] = {
     {"jpg",  "image/jpeg"},
     {"jpeg", "image/jpeg"},
     {"svg",  "image/svg+xml"},
+    {"webp", "image/webp"},
     {"tiff", "image/tiff"},
     {"bmp",  "image/x-ms-bmp"},
-    {"webp", "image/webp"},
     {NULL,   "application/octet-stream"}
 };
 

@@ -10,6 +10,7 @@
 #include "../log.h"
 #include "../list.h"
 #include "config_defs.h"
+#include "../utility.h"
 #include "web_server_utility.h"
 
 #ifndef DEBUG
@@ -54,23 +55,38 @@ void send_error(struct mg_connection *nc, int code, const char *msg) {
 }
 
 void serve_na_image(struct mg_connection *nc, struct http_message *hm) {
-    serve_asset_image(nc, hm, "coverimage-notavailable.svg");
+    serve_asset_image(nc, hm, "coverimage-notavailable");
 }
 
 void serve_stream_image(struct mg_connection *nc, struct http_message *hm) {
-    serve_asset_image(nc, hm, "coverimage-stream.svg");
+    serve_asset_image(nc, hm, "coverimage-stream");
 }
 
 void serve_asset_image(struct mg_connection *nc, struct http_message *hm, const char *name) {
-    #ifdef DEBUG
-    sds na_image = sdscatfmt(sdsempty(), "%s/assets/%s", DOC_ROOT, name);
-    mg_http_serve_file(nc, hm, na_image, mg_mk_str("image/svg+xml"), mg_mk_str(""));
-    #else
-    sds na_image = sdscatfmt(sdsempty(), "/assets/%s", name);
-    serve_embedded_files(nc, na_image, hm);
-    #endif
-    LOG_DEBUG("Serving file %s (%s)", na_image, "image/svg+xml");
+    t_mg_user_data *mg_user_data = (t_mg_user_data *) nc->mgr->user_data;
+    t_config *config = (t_config *) mg_user_data->config;
+    
+    sds na_image = sdscatfmt(sdsempty(), "%s/pics/%s", config->varlibdir, name);
+    na_image = find_image_file(na_image);
+    sds mime_type;
+    if (sdslen(na_image) > 0) {
+        mime_type = get_mime_type_by_ext(na_image);
+        mg_http_serve_file(nc, hm, na_image, mg_mk_str(mime_type), mg_mk_str(""));
+    }
+    else {
+        #ifdef DEBUG
+        na_image = sdscatfmt(sdsempty(), "%s/assets/%s.svg", DOC_ROOT, name);
+        mime_type = get_mime_type_by_ext(na_image);
+        mg_http_serve_file(nc, hm, na_image, mg_mk_str("image/svg+xml"), mg_mk_str(""));
+        #else
+        na_image = sdscatfmt(sdsempty(), "/assets/%s.svg", name);
+        mime_type = sdsempty();
+        serve_embedded_files(nc, na_image, hm);
+        #endif
+    }
+    LOG_DEBUG("Serving file %s (%s)", na_image, mime_type);
     sdsfree(na_image);
+    sdsfree(mime_type);
 }
 
 #ifndef DEBUG
