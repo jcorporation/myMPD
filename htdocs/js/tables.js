@@ -309,9 +309,8 @@ function dragAndDropTableHeader(table) {
     }, false);
 }
 
-function setCols(table, className) {
-    let tagChks = '';
-    var tags = settings.tags.slice();
+function setColTags(table) {
+    let tags = settings.tags.slice();
     if (settings.featTags === false) {
         tags.push('Title');
     }
@@ -331,6 +330,12 @@ function setCols(table, className) {
     }
     
     tags.sort();
+    return tags;
+}
+
+function setColsChecklist(table) {
+    let tagChks = '';
+    let tags = setColTags(table);
     
     for (let i = 0; i < tags.length; i++) {
         if (table === 'Playback' && tags[i] === 'Title') {
@@ -345,8 +350,15 @@ function setCols(table, className) {
             '<label class="form-check-label text-light" for="' + tags[i] + '">&nbsp;&nbsp;' + t(tags[i]) + '</label>' +
             '</div>';
     }
-    document.getElementById(table + 'ColsDropdown').firstChild.innerHTML = tagChks;
+    return tagChks;
+}
 
+function setCols(table, className) {
+    let colsChkList = document.getElementById(table + 'ColsDropdown');
+    if (colsChkList) {
+        colsChkList.firstChild.innerHTML = setColsChecklist(table);
+    }
+    let tags = setColTags(table);
     let sort = app.current.sort;
     
     if (table === 'Search') {
@@ -382,8 +394,13 @@ function setCols(table, className) {
             }
             heading += '</th>';
         }
-        heading += '<th></th>';
-        
+        if (settings.featTags === true && table !== 'BrowseDatabase') {
+            heading += '<th><a href="#" class="text-light align-middle material-icons material-icons-small">settings</a></th>';
+        }
+        else {
+            heading += '<th></th>';
+        }
+
         if (className === undefined) {
             document.getElementById(table + 'List').getElementsByTagName('tr')[0].innerHTML = heading;
         }
@@ -397,10 +414,10 @@ function setCols(table, className) {
 }
 
 function saveCols(table, tableEl) {
-    let colInputs = document.getElementById(table + 'ColsDropdown').firstChild.getElementsByTagName('input');
-    var header;
+    let colsDropdown = document.getElementById(table + 'ColsDropdown');
+    let header;
     if (tableEl === undefined) {
-         header = document.getElementById(table + 'List').getElementsByTagName('tr')[0];
+        header = document.getElementById(table + 'List').getElementsByTagName('tr')[0];
     }
     else if (typeof(tableEl) === 'string') {
         header = document.querySelector(tableEl).getElementsByTagName('tr')[0];
@@ -408,19 +425,21 @@ function saveCols(table, tableEl) {
     else {
         header = tableEl.getElementsByTagName('tr')[0];
     }
-    
-    for (let i = 0; i < colInputs.length; i++) {
-        let th = header.querySelector('[data-col=' + colInputs[i].name + ']');
-        if (colInputs[i].checked === false) {
-            if (th) {
-                th.remove();
+    if (colsDropdown) {
+        let colInputs = colsDropdown.firstChild.getElementsByTagName('input');
+        for (let i = 0; i < colInputs.length; i++) {
+            let th = header.querySelector('[data-col=' + colInputs[i].name + ']');
+            if (colInputs[i].checked === false) {
+                if (th) {
+                    th.remove();
+                }
+            } 
+            else if (!th) {
+                th = document.createElement('th');
+                th.innerText = colInputs[i].name;
+                th.setAttribute('data-col', colInputs[i].name);
+                header.appendChild(th);
             }
-        } 
-        else if (!th) {
-            th = document.createElement('th');
-            th.innerText = colInputs[i].name;
-            th.setAttribute('data-col', colInputs[i].name);
-            header.appendChild(th);
         }
     }
     

@@ -894,8 +894,7 @@ function appInit() {
             appGoto(app.current.app, app.current.tab, app.current.view, app.current.page + '/' + event.target.getAttribute('data-tag') + '/' + app.current.sort  + '/' + app.current.search);
     }, false);
 
-    let dropdowns = ['QueueCurrentColsDropdown', 'BrowseFilesystemColsDropdown', 'SearchColsDropdown', 'BrowsePlaylistsDetailColsDropdown', 
-        'BrowseDatabaseColsDropdown', 'PlaybackColsDropdown', 'QueueLastPlayedColsDropdown'];
+    let dropdowns = ['BrowseDatabaseColsDropdown', 'PlaybackColsDropdown'];
     for (let i = 0; i < dropdowns.length; i++) {
         document.getElementById(dropdowns[i]).addEventListener('click', function(event) {
             if (event.target.nodeName === 'INPUT')

@@ -11,7 +11,6 @@ function parsePlaylists(obj) {
         document.getElementById('BrowsePlaylistsDetailList').classList.add('hide');
         document.getElementById('btnBrowsePlaylistsAll').parentNode.classList.add('hide');
         document.getElementById('btnPlaylistClear').parentNode.classList.add('hide');
-        document.getElementById('BrowsePlaylistsDetailColsBtn').parentNode.classList.add('hide');
     } else {
         if (obj.result.uri.indexOf('.') > -1 || obj.result.smartpls === true) {
             document.getElementById('BrowsePlaylistsDetailList').setAttribute('data-ro', 'true')
@@ -27,9 +26,6 @@ function parsePlaylists(obj) {
         document.getElementById('BrowsePlaylistsDetailList').classList.remove('hide');
         document.getElementById('BrowsePlaylistsAllList').classList.add('hide');
         document.getElementById('btnBrowsePlaylistsAll').parentNode.classList.remove('hide');
-        if (settings.featTags) {
-            document.getElementById('BrowsePlaylistsDetailColsBtn').parentNode.classList.remove('hide');
-        }
     }
             
     let nrItems = obj.result.returnedEntities;

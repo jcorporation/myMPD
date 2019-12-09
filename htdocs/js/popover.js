@@ -41,7 +41,43 @@ function showMenu(el, event) {
     if (el.getAttribute('data-init')) {
         return;
     }
+    if (el.parentNode.nodeName === 'TH') {
+        showMenuTh(el, event);
+    }
+    else {
+        showMenuTd(el, event);
+    }
+}
 
+function showMenuTh(el, event) {
+    let table = app.current.app + (app.current.tab !== undefined ? app.current.tab : '') + (app.current.view !== undefined ? app.current.view : '');
+    let menu = '<form class="p-2" id="colChecklist' + table + '">';
+    menu += setColsChecklist(table);
+    menu += '<button class="btn btn-success btn-block btn-sm mt-2">' + t('Apply') + '</button>';
+    menu += '</form>';
+    new Popover(el, { trigger: 'click', delay: 0, dismissible: true, template: '<div class="popover" role="tooltip">' +
+        '<div class="arrow"></div>' +
+        '<div class="popover-content" id="' + table + 'ColsDropdown' + '">' + menu + '</div>' +
+        '</div>', content: ' '});
+    let popoverInit = el.Popover;
+    el.setAttribute('data-init', 'true');
+    el.addEventListener('shown.bs.popover', function(event) {
+        event.target.setAttribute('data-popover', 'true');
+        let table = app.current.app + (app.current.tab !== undefined ? app.current.tab : '') + (app.current.view !== undefined ? app.current.view : '');
+        document.getElementById('colChecklist' + table).addEventListener('click', function(event) {
+            if (event.target.nodeName === 'BUTTON') {
+                event.preventDefault();
+                saveCols(table);
+            }
+            else if (event.target.nodeName === 'INPUT') {
+                event.stopPropagation();
+            }
+        }, false);
+    }, false);
+    popoverInit.show();
+}
+
+function showMenuTd(el, event) {
     let type = el.getAttribute('data-type');
     let uri = decodeURI(el.getAttribute('data-uri'));
     let name = el.getAttribute('data-name');
