@@ -232,6 +232,7 @@ const struct mime_type_entry image_files[] = {
     {"svg",  "image/svg+xml"},
     {"tiff", "image/tiff"},
     {"bmp",  "image/x-ms-bmp"},
+    {"webp", "image/webp"},
     {NULL,   "application/octet-stream"}
 };
 
@@ -315,6 +316,7 @@ const struct magic_byte_entry magic_bytes[] = {
     {"49492A00", "image/tiff"},
     {"4D4D002A", "image/tiff"},
     {"424D",  "image/x-ms-bmp"},
+    {"52494646", "image/webp"},
     {NULL,   "application/octet-stream"}
 };
 
