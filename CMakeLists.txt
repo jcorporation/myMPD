@@ -223,7 +223,6 @@ set(LIBMPDCLIENT_SOURCES
     dist/src/libmpdclient/src/directory.c
     dist/src/libmpdclient/src/entity.c
     dist/src/libmpdclient/src/error.c
-    dist/src/libmpdclient/src/example.c
     dist/src/libmpdclient/src/fd_util.c
     dist/src/libmpdclient/src/fingerprint.c
     dist/src/libmpdclient/src/idle.c
