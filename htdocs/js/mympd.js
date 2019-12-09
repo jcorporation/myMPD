@@ -965,6 +965,9 @@ function appInit() {
     document.getElementById('SearchList').getElementsByTagName('tr')[0].addEventListener('click', function(event) {
         if (settings.featAdvsearch) {
             if (event.target.nodeName === 'TH') {
+                if (event.target.innerHTML === '') {
+                    return;
+                }
                 let col = event.target.getAttribute('data-col');
                 if (col === 'Duration') {
                     return;
