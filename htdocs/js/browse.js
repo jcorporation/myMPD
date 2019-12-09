@@ -370,7 +370,7 @@ function parseCovergrid(obj) {
             observer.observe(col);
         }
         else if (replaced === true) {
-            col.firstChild.style.backgroundImage = 'url("/albumart/' + obj.result.data[i].uri + '")';
+            col.firstChild.style.backgroundImage = 'url("' + subdir + '/albumart/' + obj.result.data[i].uri + '")';
         }
     }
     let colsLen = cols.length - 1;
@@ -392,7 +392,7 @@ function setGridImage(changes, observer) {
         if (change.intersectionRatio > 0) {
             observer.unobserve(change.target);
             let uri = decodeURI(change.target.firstChild.getAttribute('data-uri'));
-            change.target.firstChild.firstChild.style.backgroundImage = 'url("/albumart/' + uri + '")';
+            change.target.firstChild.firstChild.style.backgroundImage = 'url("' + subdir + '/albumart/' + uri + '")';
         }
     });
 }
