@@ -108,12 +108,24 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
             break;
         }
         case MPD_API_DATABASE_UPDATE:
-            mpd_run_update(mpd_state->conn, NULL);
-            response->data = respond_with_mpd_error_or_ok(mpd_state, response->data, request->method, request->id);
+            je = json_scanf(request->data, sdslen(request->data), "{params: {uri: %Q}}", &p_charbuf1);
+            if (je == 1) {
+                if (strcmp(p_charbuf1, "") == 0) {
+                    FREE_PTR(p_charbuf1);
+                }
+                mpd_run_update(mpd_state->conn, NULL);
+                response->data = respond_with_mpd_error_or_ok(mpd_state, response->data, request->method, request->id);
+            }
             break;
         case MPD_API_DATABASE_RESCAN:
-            mpd_run_rescan(mpd_state->conn, NULL);
-            response->data = respond_with_mpd_error_or_ok(mpd_state, response->data, request->method, request->id);
+            je = json_scanf(request->data, sdslen(request->data), "{params: {uri: %Q}}", &p_charbuf1);
+            if (je == 1) {
+                if (strcmp(p_charbuf1, "") == 0) {
+                    FREE_PTR(p_charbuf1);
+                }
+                mpd_run_rescan(mpd_state->conn, NULL);
+                response->data = respond_with_mpd_error_or_ok(mpd_state, response->data, request->method, request->id);
+            }
             break;
         case MPD_API_SMARTPLS_UPDATE_ALL:
             rc = mpd_client_smartpls_update_all(config, mpd_state);
