@@ -15,6 +15,12 @@ Datenbank aktualisieren
 Rescan database
 Datenbank neu einlesen
 
+Update directory
+Verzeichnis aktualisieren
+
+Rescan directory
+Verzeichnis neu einlesen
+
 Update smart playlists
 Intelligente Wiedergabelisten aktualisieren
 
