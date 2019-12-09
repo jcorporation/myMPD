@@ -147,6 +147,9 @@ Herausgeber
 Grouping
 Grupierung
 
+Conductor
+Dirigent
+
 Pos
 Pos
 
@@ -1028,6 +1031,9 @@ Kleine Größe
 
 Dark
 Dunkel
+
+Light
+Hell
 
 Default
 Standard

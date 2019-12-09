@@ -16,6 +16,7 @@ Grouping
 Comment
 Disc
 Label
+Conductor
 MUSICBRAINZ_ALBUMARTISTID
 MUSICBRAINZ_ALBUMID
 MUSICBRAINZ_ARTISTID
@@ -28,3 +29,4 @@ Pos
 Fileformat
 Dark
 Default
+Light
