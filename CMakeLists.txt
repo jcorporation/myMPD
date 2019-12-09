@@ -212,8 +212,10 @@ set(LIBMPDCLIENT_SOURCES
     dist/src/libmpdclient/src/capabilities.c
     dist/src/libmpdclient/src/cmessage.c
     dist/src/libmpdclient/src/cmount.c
+    dist/src/libmpdclient/src/cneighbor.c
     dist/src/libmpdclient/src/connection.c
     dist/src/libmpdclient/src/coutput.c
+    dist/src/libmpdclient/src/cpartition.c
     dist/src/libmpdclient/src/cplaylist.c
     dist/src/libmpdclient/src/cstats.c
     dist/src/libmpdclient/src/cstatus.c
@@ -221,6 +223,7 @@ set(LIBMPDCLIENT_SOURCES
     dist/src/libmpdclient/src/directory.c
     dist/src/libmpdclient/src/entity.c
     dist/src/libmpdclient/src/error.c
+    dist/src/libmpdclient/src/example.c
     dist/src/libmpdclient/src/fd_util.c
     dist/src/libmpdclient/src/fingerprint.c
     dist/src/libmpdclient/src/idle.c
@@ -231,15 +234,17 @@ set(LIBMPDCLIENT_SOURCES
     dist/src/libmpdclient/src/message.c
     dist/src/libmpdclient/src/mixer.c
     dist/src/libmpdclient/src/mount.c
+    dist/src/libmpdclient/src/neighbor.c
     dist/src/libmpdclient/src/output.c
     dist/src/libmpdclient/src/parser.c
+    dist/src/libmpdclient/src/partition.c
     dist/src/libmpdclient/src/password.c
     dist/src/libmpdclient/src/player.c
     dist/src/libmpdclient/src/playlist.c
     dist/src/libmpdclient/src/queue.c
     dist/src/libmpdclient/src/quote.c
-    dist/src/libmpdclient/src/readpicture.c
     dist/src/libmpdclient/src/rdirectory.c
+    dist/src/libmpdclient/src/readpicture.c
     dist/src/libmpdclient/src/recv.c
     dist/src/libmpdclient/src/resolver.c
     dist/src/libmpdclient/src/response.c
