@@ -828,9 +828,6 @@ var phrases={
 		"de-DE":"%{setting} konnte nicht gespeichert werden",
 		"ko-KR":"%{setting} 설정 저장할 수 없음"
 	},
-	"Can't write covercache file":{
-		"de-DE":"Konnte Covercache Datei nicht schreiben"
-	},
 	"Cancel":{
 		"de-DE":"Abbrechen",
 		"ko-KR":"취소"
@@ -872,6 +869,9 @@ var phrases={
 	"Composer":{
 		"de-DE":"Komponist",
 		"ko-KR":"작곡가"
+	},
+	"Conductor":{
+		"de-DE":"Dirigent"
 	},
 	"Connect to websocket":{
 		"de-DE":"Websocketverbindung wird hergestellt",
@@ -1247,6 +1247,9 @@ var phrases={
 	"Libmympdclient version":{
 		"de-DE":"Libmympdclient Version"
 	},
+	"Light":{
+		"de-DE":"Hell"
+	},
 	"Like":{
 		"de-DE":"Wertung",
 		"ko-KR":"좋아요"
@@ -1598,6 +1601,9 @@ var phrases={
 		"de-DE":"Datenbank neu einlesen",
 		"ko-KR":"데이터베이스 다시 검색"
 	},
+	"Rescan directory":{
+		"de-DE":"Verzeichnis neu einlesen"
+	},
 	"Reset":{
 		"de-DE":"Zurücksetzen",
 		"ko-KR":"다시 설정"
@@ -1869,6 +1875,9 @@ var phrases={
 	"Update database":{
 		"de-DE":"Datenbank aktualisieren",
 		"ko-KR":"데이터베이스 업데이트"
+	},
+	"Update directory":{
+		"de-DE":"Verzeichnis aktualisieren"
 	},
 	"Update smart playlist":{
 		"de-DE":"Intelligente Wiedergabeliste aktualisieren",
@@ -2232,14 +2241,14 @@ function cropCovercache() {
 }
 
 //eslint-disable-next-line no-unused-vars
-function updateDB() {
-    sendAPI("MPD_API_DATABASE_UPDATE", {});
+function updateDB(uri) {
+    sendAPI("MPD_API_DATABASE_UPDATE", {"uri": uri});
     updateDBstarted(true);
 }
 
 //eslint-disable-next-line no-unused-vars
 function rescanDB() {
-    sendAPI("MPD_API_DATABASE_RESCAN", {});
+    sendAPI("MPD_API_DATABASE_RESCAN", {"uri": uri});
     updateDBstarted(true);
 }
 
@@ -3176,8 +3185,7 @@ function appInit() {
             appGoto(app.current.app, app.current.tab, app.current.view, app.current.page + '/' + event.target.getAttribute('data-tag') + '/' + app.current.sort  + '/' + app.current.search);
     }, false);
 
-    let dropdowns = ['QueueCurrentColsDropdown', 'BrowseFilesystemColsDropdown', 'SearchColsDropdown', 'BrowsePlaylistsDetailColsDropdown', 
-        'BrowseDatabaseColsDropdown', 'PlaybackColsDropdown', 'QueueLastPlayedColsDropdown'];
+    let dropdowns = ['BrowseDatabaseColsDropdown', 'PlaybackColsDropdown'];
     for (let i = 0; i < dropdowns.length; i++) {
         document.getElementById(dropdowns[i]).addEventListener('click', function(event) {
             if (event.target.nodeName === 'INPUT')
@@ -3247,6 +3255,9 @@ function appInit() {
     document.getElementById('SearchList').getElementsByTagName('tr')[0].addEventListener('click', function(event) {
         if (settings.featAdvsearch) {
             if (event.target.nodeName === 'TH') {
+                if (event.target.innerHTML === '') {
+                    return;
+                }
                 let col = event.target.getAttribute('data-col');
                 if (col === 'Duration') {
                     return;
@@ -3520,7 +3531,6 @@ function parsePlaylists(obj) {
         document.getElementById('BrowsePlaylistsDetailList').classList.add('hide');
         document.getElementById('btnBrowsePlaylistsAll').parentNode.classList.add('hide');
         document.getElementById('btnPlaylistClear').parentNode.classList.add('hide');
-        document.getElementById('BrowsePlaylistsDetailColsBtn').parentNode.classList.add('hide');
     } else {
         if (obj.result.uri.indexOf('.') > -1 || obj.result.smartpls === true) {
             document.getElementById('BrowsePlaylistsDetailList').setAttribute('data-ro', 'true')
@@ -3536,9 +3546,6 @@ function parsePlaylists(obj) {
         document.getElementById('BrowsePlaylistsDetailList').classList.remove('hide');
         document.getElementById('BrowsePlaylistsAllList').classList.add('hide');
         document.getElementById('btnBrowsePlaylistsAll').parentNode.classList.remove('hide');
-        if (settings.featTags) {
-            document.getElementById('BrowsePlaylistsDetailColsBtn').parentNode.classList.remove('hide');
-        }
     }
             
     let nrItems = obj.result.returnedEntities;
@@ -3951,7 +3958,43 @@ function showMenu(el, event) {
     if (el.getAttribute('data-init')) {
         return;
     }
+    if (el.parentNode.nodeName === 'TH') {
+        showMenuTh(el, event);
+    }
+    else {
+        showMenuTd(el, event);
+    }
+}
 
+function showMenuTh(el, event) {
+    let table = app.current.app + (app.current.tab !== undefined ? app.current.tab : '') + (app.current.view !== undefined ? app.current.view : '');
+    let menu = '<form class="p-2" id="colChecklist' + table + '">';
+    menu += setColsChecklist(table);
+    menu += '<button class="btn btn-success btn-block btn-sm mt-2">' + t('Apply') + '</button>';
+    menu += '</form>';
+    new Popover(el, { trigger: 'click', delay: 0, dismissible: true, template: '<div class="popover" role="tooltip">' +
+        '<div class="arrow"></div>' +
+        '<div class="popover-content" id="' + table + 'ColsDropdown' + '">' + menu + '</div>' +
+        '</div>', content: ' '});
+    let popoverInit = el.Popover;
+    el.setAttribute('data-init', 'true');
+    el.addEventListener('shown.bs.popover', function(event) {
+        event.target.setAttribute('data-popover', 'true');
+        let table = app.current.app + (app.current.tab !== undefined ? app.current.tab : '') + (app.current.view !== undefined ? app.current.view : '');
+        document.getElementById('colChecklist' + table).addEventListener('click', function(event) {
+            if (event.target.nodeName === 'BUTTON') {
+                event.preventDefault();
+                saveCols(table);
+            }
+            else if (event.target.nodeName === 'INPUT') {
+                event.stopPropagation();
+            }
+        }, false);
+    }, false);
+    popoverInit.show();
+}
+
+function showMenuTd(el, event) {
     let type = el.getAttribute('data-type');
     let uri = decodeURI(el.getAttribute('data-uri'));
     let name = el.getAttribute('data-name');
@@ -3974,7 +4017,9 @@ function showMenu(el, event) {
             (type !== 'plist' && type !== 'smartpls' && settings.featPlaylists ? addMenuItem({"cmd": "showAddToPlaylist", "options": [uri]}, t('Add to playlist')) : '') +
             (type === 'song' ? addMenuItem({"cmd": "songDetails", "options": [uri]}, t('Song details')) : '') +
             (type === 'plist' || type === 'smartpls' ? addMenuItem({"cmd": "playlistDetails", "options": [uri]}, t('View playlist')) : '') +
-            (type === 'dir' && settings.featBookmarks ? addMenuItem({"cmd": "showBookmarkSave", "options": [-1, name, uri, type]}, t('Add bookmark')) : '');
+            (type === 'dir' && settings.featBookmarks ? addMenuItem({"cmd": "showBookmarkSave", "options": [-1, name, uri, type]}, t('Add bookmark')) : '') +
+            (type === 'dir' ? addMenuItem({"cmd": "updateDB", "options": [dirname(uri)]}, t('Update directory')) : '') +
+            (type === 'dir' ? addMenuItem({"cmd": "rescanDB", "options": [dirname(uri)]}, t('Rescan directory')) : '');
         
         if (app.current.app === 'Search') {
             let baseuri = dirname(uri);
@@ -4526,6 +4571,22 @@ function parseSettings() {
         locale = settings.locale;
     }
 
+    let setTheme = settings.theme;
+    if (settings.theme === 'theme-autodetect') {
+        setTheme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'theme-dark' : 'theme-default';
+    }    
+
+    Object.keys(themes).forEach(function(key, index) {
+        if (key === setTheme) {
+            domCache.body.classList.add(key);
+        }
+        else {
+            domCache.body.classList.remove(key);
+        }
+    });
+    
+    document.getElementById('selectTheme').value = settings.theme;
+    
     if (settings.mpdConnected === true) {
         parseMPDSettings();
     }
@@ -4710,14 +4771,7 @@ function parseSettings() {
         }
     }
 
-    if (domCache.body.classList.contains(settings.theme) === false) {
-        let themes = ['theme-default', 'theme-dark'];
-        for (let i = 0; i < themes.length; i++) {
-            domCache.body.classList.remove(themes[i]);
-        }
-        domCache.body.classList.add(settings.theme);
-    }
-    document.getElementById('selectTheme').value = settings.theme;
+
     
     if (settings.musicDirectory === 'auto') {
         document.getElementById('selectMusicDirectory').value = settings.musicDirectory;
@@ -5710,7 +5764,7 @@ function focusTable(rownr, table) {
         //insert goto parent row
         if (table.id === 'BrowseFilesystemList') {
             let tbody = table.getElementsByTagName('tbody')[0];
-            if (tbody.rows[0].getAttribute('data-type') !== 'parentDir' && app.current.search !== '') {
+            if (tbody.rows.length > 0 && tbody.rows[0].getAttribute('data-type') !== 'parentDir' && app.current.search !== '') {
                 let nrCells = table.getElementsByTagName('thead')[0].rows[0].cells.length;
                 let uri = app.current.search.replace(/\/?([^/]+)$/,'');
                 let row = tbody.insertRow(0);
@@ -5970,9 +6024,8 @@ function dragAndDropTableHeader(table) {
     }, false);
 }
 
-function setCols(table, className) {
-    let tagChks = '';
-    var tags = settings.tags.slice();
+function setColTags(table) {
+    let tags = settings.tags.slice();
     if (settings.featTags === false) {
         tags.push('Title');
     }
@@ -5992,6 +6045,12 @@ function setCols(table, className) {
     }
     
     tags.sort();
+    return tags;
+}
+
+function setColsChecklist(table) {
+    let tagChks = '';
+    let tags = setColTags(table);
     
     for (let i = 0; i < tags.length; i++) {
         if (table === 'Playback' && tags[i] === 'Title') {
@@ -6003,11 +6062,18 @@ function setCols(table, className) {
             tagChks += 'checked';
         }
         tagChks += '>' +
-            '<label class="form-check-label text-light" for="' + tags[i] + '">&nbsp;&nbsp;' + t(tags[i]) + '</label>' +
+            '<label class="form-check-label" for="' + tags[i] + '">&nbsp;&nbsp;' + t(tags[i]) + '</label>' +
             '</div>';
     }
-    document.getElementById(table + 'ColsDropdown').firstChild.innerHTML = tagChks;
+    return tagChks;
+}
 
+function setCols(table, className) {
+    let colsChkList = document.getElementById(table + 'ColsDropdown');
+    if (colsChkList) {
+        colsChkList.firstChild.innerHTML = setColsChecklist(table);
+    }
+    let tags = setColTags(table);
     let sort = app.current.sort;
     
     if (table === 'Search') {
@@ -6043,8 +6109,13 @@ function setCols(table, className) {
             }
             heading += '</th>';
         }
-        heading += '<th></th>';
-        
+        if (settings.featTags === true && table !== 'BrowseDatabase') {
+            heading += '<th data-col="Action"><a href="#" class="text-secondary align-middle material-icons material-icons-small">settings</a></th>';
+        }
+        else {
+            heading += '<th></th>';
+        }
+
         if (className === undefined) {
             document.getElementById(table + 'List').getElementsByTagName('tr')[0].innerHTML = heading;
         }
@@ -6058,10 +6129,10 @@ function setCols(table, className) {
 }
 
 function saveCols(table, tableEl) {
-    let colInputs = document.getElementById(table + 'ColsDropdown').firstChild.getElementsByTagName('input');
-    var header;
+    let colsDropdown = document.getElementById(table + 'ColsDropdown');
+    let header;
     if (tableEl === undefined) {
-         header = document.getElementById(table + 'List').getElementsByTagName('tr')[0];
+        header = document.getElementById(table + 'List').getElementsByTagName('tr')[0];
     }
     else if (typeof(tableEl) === 'string') {
         header = document.querySelector(tableEl).getElementsByTagName('tr')[0];
@@ -6069,19 +6140,21 @@ function saveCols(table, tableEl) {
     else {
         header = tableEl.getElementsByTagName('tr')[0];
     }
-    
-    for (let i = 0; i < colInputs.length; i++) {
-        let th = header.querySelector('[data-col=' + colInputs[i].name + ']');
-        if (colInputs[i].checked === false) {
-            if (th) {
-                th.remove();
+    if (colsDropdown) {
+        let colInputs = colsDropdown.firstChild.getElementsByTagName('input');
+        for (let i = 0; i < colInputs.length; i++) {
+            let th = header.querySelector('[data-col=' + colInputs[i].name + ']');
+            if (colInputs[i].checked === false) {
+                if (th) {
+                    th.remove();
+                }
+            } 
+            else if (!th) {
+                th = document.createElement('th');
+                th.innerText = colInputs[i].name;
+                th.setAttribute('data-col', colInputs[i].name);
+                header.appendChild(th);
             }
-        } 
-        else if (!th) {
-            th = document.createElement('th');
-            th.innerText = colInputs[i].name;
-            th.setAttribute('data-col', colInputs[i].name);
-            header.appendChild(th);
         }
     }
     
@@ -6150,8 +6223,10 @@ function replaceTblRow(row, el) {
 
 //eslint-disable-next-line no-unused-vars
 var themes = {
+    "theme-autodetect": "Autodetect",
     "theme-default": "Default",
-    "theme-dark": "Dark"
+    "theme-dark": "Dark",
+    "theme-light": "Light"
 };
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
@@ -6442,7 +6517,7 @@ function validateFilenameString(str) {
     if (str === '') {
         return false;
     }
-    else if (str.match(/^[\w-]+\.\w+$/) !== null) {
+    else if (str.match(/^[\w-.]+$/) !== null) {
         return true;
     }
     else {
