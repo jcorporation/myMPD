@@ -9,7 +9,7 @@ function validateFilenameString(str) {
     if (str === '') {
         return false;
     }
-    else if (str.match(/^[\w-]+\.\w+$/) !== null) {
+    else if (str.match(/^[\w-.]+$/) !== null) {
         return true;
     }
     else {
