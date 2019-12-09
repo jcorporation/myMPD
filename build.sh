@@ -205,7 +205,7 @@ buildrelease() {
   minify js dist/htdocs/js/mympd.js dist/htdocs/js/mympd.min.js
   
   echo "Combining and compressing javascript"
-  JSFILES=dist/htdocs/js/*.min.js
+  JSFILES="dist/htdocs/js/*.min.js"
   for F in $JSFILES
   do
     if tail -1 "$F" | perl -npe 'exit 1 if m/\n/; exit 0'
@@ -242,7 +242,7 @@ buildrelease() {
   done
   
   echo "Combining and compressing stylesheets"
-  CSSFILES=dist/htdocs/css/*.min.css
+  CSSFILES="dist/htdocs/css/*.min.css"
   # shellcheck disable=SC2086
   if older_s dist/htdocs/css/combined.css.gz $CSSFILES
   then
@@ -600,6 +600,45 @@ installdeps() {
   fi
 }
 
+updatelibmympdclient() {
+  GITBIN=$(command -v git)
+  if [ "$GITBIN" = "" ]
+  then
+    echo "ERROR: git not found"
+    exit 1
+  fi
+  MESONBIN=$(command -v meson)
+  if [ "$MESONBIN" = "" ]
+  then
+    echo "ERROR: meson not found"
+    exit 1
+  fi
+
+  cd dist/src/libmpdclient || exit 1
+  STARTDIR=$(pwd)
+
+  TMPDIR=$(mktemp -d)
+  cd "$TMPDIR" || exit 1
+  $GITBIN clone -b libmympdclient https://github.com/jcorporation/libmpdclient.git
+  cd libmpdclient || exit 1
+  $MESONBIN . output
+
+  cd "$STARTDIR" || exit 1
+  install -d src
+  install -d include/mpd/
+
+  rsync -av --delete "$TMPDIR/libmpdclient/src/" ./src/
+  rsync -av --delete "$TMPDIR/libmpdclient/include/mpd/" ./include/mpd/
+
+  rsync -av "$TMPDIR/libmpdclient/output/version.h" include/mpd/version.h
+  rsync -av "$TMPDIR/libmpdclient/output/config.h" include/config.h
+
+  rsync -av "$TMPDIR/libmpdclient/COPYING" COPYING
+  rsync -av "$TMPDIR/libmpdclient/AUTHORS" AUTHORS
+
+  rm -rf "$TMPDIR"
+}
+
 case "$1" in
 	release)
 	  buildrelease
@@ -660,6 +699,9 @@ case "$1" in
 	addmympduser)
 	  addmympduser
 	;;
+	libmympdclient)
+	  updatelibmympdclient
+	;;
 	*)
 	  echo "Usage: $0 <option>"
 	  echo "Version: ${VERSION}"
@@ -704,6 +746,7 @@ case "$1" in
 	  echo "Misc options:"
 	  echo "  setversion:     sets version and date in packaging files from CMakeLists.txt"
 	  echo "  addmympduser:   adds mympd group and user"
+	  echo "  libmympdclient: updates libmpdclient"
 	  echo ""
 	  echo "Environment variables for building"
 	  echo "  - MYMPD_INSTALL_PREFIX=\"/usr\""
