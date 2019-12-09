@@ -64,6 +64,10 @@ body {
   min-width: 6rem;
 }
 
+td[data-col=Action] {
+  text-align: right;
+}
+
 .albumartbg {
     position: fixed;
     width: 100%;

@@ -395,7 +395,7 @@ function setCols(table, className) {
             heading += '</th>';
         }
         if (settings.featTags === true && table !== 'BrowseDatabase') {
-            heading += '<th><a href="#" class="text-secondary align-middle material-icons material-icons-small">settings</a></th>';
+            heading += '<th data-col="Action"><a href="#" class="text-secondary align-middle material-icons material-icons-small">settings</a></th>';
         }
         else {
             heading += '<th></th>';
