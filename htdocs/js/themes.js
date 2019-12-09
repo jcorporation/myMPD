@@ -6,6 +6,7 @@
 
 //eslint-disable-next-line no-unused-vars
 var themes = {
+    "theme-autodetect": "Autodetect",
     "theme-default": "Default",
     "theme-dark": "Dark",
     "theme-light": "Light"

@@ -99,6 +99,22 @@ function parseSettings() {
         locale = settings.locale;
     }
 
+    let setTheme = settings.theme;
+    if (settings.theme === 'theme-autodetect') {
+        setTheme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'theme-dark' : 'theme-default';
+    }    
+
+    Object.keys(themes).forEach(function(key, index) {
+        if (key === setTheme) {
+            domCache.body.classList.add(key);
+        }
+        else {
+            domCache.body.classList.remove(key);
+        }
+    });
+    
+    document.getElementById('selectTheme').value = settings.theme;
+    
     if (settings.mpdConnected === true) {
         parseMPDSettings();
     }
@@ -283,14 +299,7 @@ function parseSettings() {
         }
     }
 
-    if (domCache.body.classList.contains(settings.theme) === false) {
-        let themes = ['theme-default', 'theme-dark'];
-        for (let i = 0; i < themes.length; i++) {
-            domCache.body.classList.remove(themes[i]);
-        }
-        domCache.body.classList.add(settings.theme);
-    }
-    document.getElementById('selectTheme').value = settings.theme;
+
     
     if (settings.musicDirectory === 'auto') {
         document.getElementById('selectMusicDirectory').value = settings.musicDirectory;
