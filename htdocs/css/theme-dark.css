@@ -155,3 +155,7 @@ body.theme-dark #BrowseDatabaseAlbumList .card-footer {
 body.theme-dark caption {
   color: #f8f9fa;
 }
+
+body.theme-dark .text-secondary {
+  color: #f8f9fa !important;
+}

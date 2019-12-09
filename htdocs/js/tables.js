@@ -347,7 +347,7 @@ function setColsChecklist(table) {
             tagChks += 'checked';
         }
         tagChks += '>' +
-            '<label class="form-check-label text-light" for="' + tags[i] + '">&nbsp;&nbsp;' + t(tags[i]) + '</label>' +
+            '<label class="form-check-label" for="' + tags[i] + '">&nbsp;&nbsp;' + t(tags[i]) + '</label>' +
             '</div>';
     }
     return tagChks;
@@ -395,7 +395,7 @@ function setCols(table, className) {
             heading += '</th>';
         }
         if (settings.featTags === true && table !== 'BrowseDatabase') {
-            heading += '<th><a href="#" class="text-light align-middle material-icons material-icons-small">settings</a></th>';
+            heading += '<th><a href="#" class="text-secondary align-middle material-icons material-icons-small">settings</a></th>';
         }
         else {
             heading += '<th></th>';
