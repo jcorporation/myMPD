@@ -370,7 +370,7 @@ void mympd_config_defaults(t_config *config) {
     config->bg_color = sdsnew("#888");
     config->bg_css_filter = sdsnew("blur(5px)");
     config->coverimage = true;
-    config->coverimage_name = sdsnew("folder.jpg, folder.png, cover.jpg, cover.png");
+    config->coverimage_name = sdsnew("folder, cover");
     config->coverimage_size = 250;
     config->covergrid_size = 190;
     config->locale = sdsnew("default");
