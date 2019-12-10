@@ -75,11 +75,11 @@ void serve_asset_image(struct mg_connection *nc, struct http_message *hm, const 
     }
     else {
         #ifdef DEBUG
-        na_image = sdscatfmt(sdsempty(), "%s/assets/%s.svg", DOC_ROOT, name);
+        na_image = sdscatfmt(na_image, "%s/assets/%s.svg", DOC_ROOT, name);
         mime_type = get_mime_type_by_ext(na_image);
         mg_http_serve_file(nc, hm, na_image, mg_mk_str("image/svg+xml"), mg_mk_str(""));
         #else
-        na_image = sdscatfmt(sdsempty(), "/assets/%s.svg", name);
+        na_image = sdscatfmt(na_image, "/assets/%s.svg", name);
         mime_type = sdsempty();
         serve_embedded_files(nc, na_image, hm);
         #endif
