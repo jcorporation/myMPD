@@ -118,9 +118,6 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("mympd", "covercache")) {
         p_config->covercache = strcmp(value, "true") == 0 ? true : false;
     }
-    else if (MATCH("mympd", "covercacheavoid")) {
-        p_config->covercache_avoid = strtoumax(value, &crap, 10);
-    }    
     else if (MATCH("mympd", "syscmds")) {
         p_config->syscmds = strcmp(value, "true") == 0 ? true : false;
     }
@@ -227,6 +224,9 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("theme", "locale")) {
         p_config->locale = sdsreplace(p_config->locale, value);
     }
+    else if (MATCH("theme", "custom_placeholder_images")) {
+        p_config->custom_placeholder_images = strcmp(value, "true") == 0 ? true : false;
+    }
     else if (strcasecmp(section, "syscmds") == 0) {
         LOG_DEBUG("Adding syscmd %s: %s", name, value);
         list_push(&p_config->syscmd_list, name, 0, value);
@@ -271,7 +271,7 @@ static void mympd_get_env(struct t_config *config) {
         "MYMPD_COLSBROWSEFILESYSTEM", "MYMPD_COLSPLAYBACK", "MYMPD_COLSQUEUELASTPLAYED",
         "MYMPD_LOCALPLAYER", "MYMPD_LOCALPLAYERAUTOPLAY", "MYMPD_STREAMPORT",
         "MYMPD_STREAMURL", "MYMPD_VOLUMESTEP", "MYMPD_COVERCACHEKEEPDAYS", "MYMPD_COVERCACHE",
-        "MYMPD_COVERCACHEAVOID", "THEME_THEME",
+        "MYMPD_COVERCACHEAVOID", "THEME_THEME", "THEME_CUSTOMPLACEHOLDERIMAGES",
         "THEME_BGCOVER", "THEME_BGCOLOR", "THEME_BGCSSFILTER", "THEME_COVERGRIDSIZE",
         "THEME_COVERIMAGE", "THEME_COVERIMAGENAME", "THEME_COVERIMAGESIZE",
         "THEME_LOCALE", 0};
@@ -381,8 +381,8 @@ void mympd_config_defaults(t_config *config) {
     config->publish_library = true;
     config->covercache_keep_days = 7;
     config->covercache = true;
-    config->covercache_avoid = 2097152;
     config->theme = sdsnew("theme-default");
+    config->custom_placeholder_images = false;
     list_init(&config->syscmd_list);
 }
 

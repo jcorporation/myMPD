@@ -67,9 +67,11 @@ void serve_asset_image(struct mg_connection *nc, struct http_message *hm, const 
     t_config *config = (t_config *) mg_user_data->config;
     
     sds na_image = sdscatfmt(sdsempty(), "%s/pics/%s", config->varlibdir, name);
-    na_image = find_image_file(na_image);
     sds mime_type;
-    if (sdslen(na_image) > 0) {
+    if (config->custom_placeholder_images == true) {
+        na_image = find_image_file(na_image);
+    }
+    if (config->custom_placeholder_images == true && sdslen(na_image) > 0) {
         mime_type = get_mime_type_by_ext(na_image);
         mg_http_serve_file(nc, hm, na_image, mg_mk_str(mime_type), mg_mk_str(""));
     }
