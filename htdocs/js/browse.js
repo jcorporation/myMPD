@@ -343,6 +343,12 @@ function parseCovergrid(obj) {
     for (let i = 0; i < nrItems; i++) {
         let col = document.createElement('div');
         col.classList.add('col', 'px-0', 'flex-grow-0');
+        if (obj.result.data[i].AlbumArtist === '') {
+            obj.result.data[i].AlbumArtist = t('Unknown artist');
+        }
+        if (obj.result.data[i].Album === '') {
+            obj.result.data[i].Album = t('Unknown album');
+        }
         let html = '<div class="card card-grid" data-uri="' + encodeURI(obj.result.data[i].FirstSongUri) + '">' + 
                    '<div class="card-body album-cover-loading album-cover-grid"></div>' +
                    '<div class="card-footer card-footer-grid p-2" title="' + obj.result.data[i].AlbumArtist + ': ' + obj.result.data[i].Album + '">' +

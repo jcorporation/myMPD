@@ -1046,3 +1046,9 @@ Standard
 
 Interface
 Oberfläche
+
+Unknown artist
+Unbekannter Künstler
+
+Unknown album
+Unbekanntes Album
