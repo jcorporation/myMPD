@@ -349,8 +349,11 @@ function parseCovergrid(obj) {
         if (obj.result.data[i].Album === '') {
             obj.result.data[i].Album = t('Unknown album');
         }
-        let html = '<div class="card card-grid" data-uri="' + encodeURI(obj.result.data[i].FirstSongUri) + '">' + 
-                   '<div class="card-body album-cover-loading album-cover-grid"></div>' +
+        let id = genId('covergrid' + obj.result.data[i].Album + obj.result.data[i].AlbumArtist);
+        let html = '<div class="card card-grid" data-uri="' + encodeURI(obj.result.data[i].FirstSongUri) + '" ' + 
+                       'data-album="' + encodeURI(obj.result.data[i].Album) + '" ' +
+                       'data-albumartist="' + encodeURI(obj.result.data[i].AlbumArtist) + '">' +
+                   '<div class="card-body album-cover-loading album-cover-grid bg-white" id="' + id + '"></div>' +
                    '<div class="card-footer card-footer-grid p-2" title="' + obj.result.data[i].AlbumArtist + ': ' + obj.result.data[i].Album + '">' +
                    obj.result.data[i].Album +
                    '<br/><small>' + obj.result.data[i].AlbumArtist + '</small>' +
@@ -376,7 +379,12 @@ function parseCovergrid(obj) {
             observer.observe(col);
         }
         else if (replaced === true) {
-            col.firstChild.style.backgroundImage = 'url("' + subdir + '/albumart/' + obj.result.data[i].uri + '")';
+            col.firstChild.firstChild.style.backgroundImage = 'url("' + subdir + '/albumart/' + obj.result.data[i].uri + '")';
+        }
+        if (replaced === true) {
+            col.firstChild.addEventListener('click', function() {
+                getCovergridTitleList(this);
+            }, false);
         }
     }
     let colsLen = cols.length - 1;
@@ -391,6 +399,53 @@ function parseCovergrid(obj) {
     }
     document.getElementById(app.current.app + (app.current.tab === undefined ? '' : app.current.tab) + 'List').classList.remove('opacity05');
     document.getElementById('cardFooterBrowse').innerText = gtPage('Num entries', obj.result.returnedEntities, obj.result.totalEntities);
+}
+
+function getCovergridTitleList(card) {
+    card.classList.add('opacity05');
+    let album = card.getAttribut
+    sendAPI("MPD_API_DATABASE_TAG_ALBUM_TITLE_LIST", {"album": decodeURI(card.getAttribute('data-album')),
+        "search": decodeURI(card.getAttribute('data-albumartist')),
+        "tag": "AlbumArtist", "cols": settings.colsBrowseDatabase}, parseCovergridTitleList);
+}
+
+function parseCovergridTitleList(obj) {
+    let id = genId('covergrid' + obj.result.Album + obj.result.AlbumArtist);
+    let cardBody = document.getElementById(id);
+    
+    let titleList = '<table class="table table-hover table-sm"><thead>';
+    for (let i = 0; i < settings.colsBrowseDatabase.length; i++) {
+        titleList += '<th class="border-top-0">' + t(settings.colsBrowseDatabase[i]) + '</th>';
+    }
+    titleList += '<th class="border-top-0"><button class="close" type="button">&times;</button></th></thead><tbody>';
+    let nrItems = obj.result.returnedEntities;
+    for (let i = 0; i < nrItems; i++) {
+        if (obj.result.data[i].Duration) {
+            obj.result.data[i].Duration = beautifySongDuration(obj.result.data[i].Duration);
+        }
+        titleList += '<tr tabindex="0" data-type="song" data-name="' + obj.result.data[i].Title + '" data-uri="' + encodeURI(obj.result.data[i].uri) + '">';
+        for (let c = 0; c < settings.colsBrowseDatabase.length; c++) {
+            titleList += '<td data-col="' + settings.colsBrowseDatabase[c] + '">' + e(obj.result.data[i][settings.colsBrowseDatabase[c]]) + '</td>';
+        }
+        titleList += '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">' + ligatureMore + '</a></td></tr>';
+    }
+    titleList += '</tbody></table>';
+    cardBody.innerHTML = titleList;
+    cardBody.style.backgroundImage = '';
+    cardBody.style.height = 'auto';
+    cardBody.style.width = '420px';
+    cardBody.parentNode.style.width = '420px';
+    cardBody.classList.remove('album-cover-loading');
+    cardBody.parentNode.classList.remove('opacity05');
+    cardBody.getElementsByClassName('close')[0].addEventListener('click', function(event) {
+        event.stopPropagation();
+        cardBody.innerHTML = '';
+        let uri = decodeURI(cardBody.parentNode.getAttribute('data-uri'));
+        cardBody.style.backgroundImage = 'url("' + subdir + '/albumart/' + uri + '")';
+        cardBody.style.width =  'var(--mympd-covergridsize, 200px';
+        cardBody.style.height =  'var(--mympd-covergridsize, 200px';
+        cardBody.parentNode.style.width =  'var(--mympd-covergridsize, 200px';
+    }, false);
 }
 
 function setGridImage(changes, observer) {

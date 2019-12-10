@@ -372,7 +372,7 @@ void mympd_config_defaults(t_config *config) {
     config->coverimage = true;
     config->coverimage_name = sdsnew("folder, cover");
     config->coverimage_size = 250;
-    config->covergrid_size = 190;
+    config->covergrid_size = 200;
     config->locale = sdsnew("default");
     config->startup_time = time(NULL);
     config->readonly = false;
