@@ -66,28 +66,29 @@ void serve_asset_image(struct mg_connection *nc, struct http_message *hm, const 
     t_mg_user_data *mg_user_data = (t_mg_user_data *) nc->mgr->user_data;
     t_config *config = (t_config *) mg_user_data->config;
     
-    sds na_image = sdscatfmt(sdsempty(), "%s/pics/%s", config->varlibdir, name);
+    sds asset_image = sdscatfmt(sdsempty(), "%s/pics/%s", config->varlibdir, name);
     sds mime_type;
     if (config->custom_placeholder_images == true) {
-        na_image = find_image_file(na_image);
+        asset_image = find_image_file(asset_image);
     }
-    if (config->custom_placeholder_images == true && sdslen(na_image) > 0) {
-        mime_type = get_mime_type_by_ext(na_image);
-        mg_http_serve_file(nc, hm, na_image, mg_mk_str(mime_type), mg_mk_str(""));
+    if (config->custom_placeholder_images == true && sdslen(asset_image) > 0) {
+        mime_type = get_mime_type_by_ext(asset_image);
+        mg_http_serve_file(nc, hm, asset_image, mg_mk_str(mime_type), mg_mk_str(""));
     }
     else {
+        asset_image = sdscrop(asset_image);
         #ifdef DEBUG
-        na_image = sdscatfmt(na_image, "%s/assets/%s.svg", DOC_ROOT, name);
-        mime_type = get_mime_type_by_ext(na_image);
-        mg_http_serve_file(nc, hm, na_image, mg_mk_str("image/svg+xml"), mg_mk_str(""));
+        asset_image = sdscatfmt(asset_image, "%s/assets/%s.svg", DOC_ROOT, name);
+        mime_type = get_mime_type_by_ext(asset_image);
+        mg_http_serve_file(nc, hm, asset_image, mg_mk_str("image/svg+xml"), mg_mk_str(""));
         #else
-        na_image = sdscatfmt(na_image, "/assets/%s.svg", name);
+        asset_image = sdscatfmt(asset_image, "/assets/%s.svg", name);
         mime_type = sdsempty();
-        serve_embedded_files(nc, na_image, hm);
+        serve_embedded_files(nc, asset_image, hm);
         #endif
     }
-    LOG_DEBUG("Serving file %s (%s)", na_image, mime_type);
-    sdsfree(na_image);
+    LOG_DEBUG("Serving file %s (%s)", asset_image, mime_type);
+    sdsfree(asset_image);
     sdsfree(mime_type);
 }
 
