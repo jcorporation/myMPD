@@ -9,7 +9,7 @@ jobs:
     
     steps:
     - uses: actions/checkout@v1
-    - name: build
+    - name: installdeps
       run: ./build.sh installdeps
     - name: build
       run: ./build.sh memcheck
