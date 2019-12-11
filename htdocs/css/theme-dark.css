@@ -159,3 +159,7 @@ body.theme-dark caption {
 body.theme-dark .text-secondary {
   color: #f8f9fa !important;
 }
+
+.bg-white {
+  background-color: #2f353a !important;
+}

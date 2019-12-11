@@ -382,8 +382,14 @@ function parseCovergrid(obj) {
             col.firstChild.firstChild.style.backgroundImage = 'url("' + subdir + '/albumart/' + obj.result.data[i].uri + '")';
         }
         if (replaced === true) {
-            col.firstChild.addEventListener('click', function() {
-                getCovergridTitleList(this);
+            col.firstChild.addEventListener('click', function(event) {
+                event.stopPropagation();
+                if (event.target.classList.contains('card-body')) {
+                    getCovergridTitleList(event.target);
+                }
+                else {
+                
+                }
             }, false);
         }
     }
@@ -401,9 +407,9 @@ function parseCovergrid(obj) {
     document.getElementById('cardFooterBrowse').innerText = gtPage('Num entries', obj.result.returnedEntities, obj.result.totalEntities);
 }
 
-function getCovergridTitleList(card) {
+function getCovergridTitleList(cardImage) {
+    let card = cardImage.parentNode;
     card.classList.add('opacity05');
-    let album = card.getAttribut
     sendAPI("MPD_API_DATABASE_TAG_ALBUM_TITLE_LIST", {"album": decodeURI(card.getAttribute('data-album')),
         "search": decodeURI(card.getAttribute('data-albumartist')),
         "tag": "AlbumArtist", "cols": settings.colsBrowseDatabase}, parseCovergridTitleList);
@@ -433,8 +439,9 @@ function parseCovergridTitleList(obj) {
     cardBody.innerHTML = titleList;
     cardBody.style.backgroundImage = '';
     cardBody.style.height = 'auto';
-    cardBody.style.width = '420px';
-    cardBody.parentNode.style.width = '420px';
+    let width = settings.covergridSize * 2 + 20;
+    cardBody.style.width = width + 'px';
+    cardBody.parentNode.style.width = width + 'px';
     cardBody.classList.remove('album-cover-loading');
     cardBody.parentNode.classList.remove('opacity05');
     cardBody.getElementsByClassName('close')[0].addEventListener('click', function(event) {
@@ -442,9 +449,9 @@ function parseCovergridTitleList(obj) {
         cardBody.innerHTML = '';
         let uri = decodeURI(cardBody.parentNode.getAttribute('data-uri'));
         cardBody.style.backgroundImage = 'url("' + subdir + '/albumart/' + uri + '")';
-        cardBody.style.width =  'var(--mympd-covergridsize, 200px';
-        cardBody.style.height =  'var(--mympd-covergridsize, 200px';
-        cardBody.parentNode.style.width =  'var(--mympd-covergridsize, 200px';
+        cardBody.style.width =  'var(--mympd-covergridsize, 200px)';
+        cardBody.style.height =  'var(--mympd-covergridsize, 200px)';
+        cardBody.parentNode.style.width =  'var(--mympd-covergridsize, 200px)';
     }, false);
 }
 
