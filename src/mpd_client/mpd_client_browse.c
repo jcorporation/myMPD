@@ -333,7 +333,11 @@ sds mpd_client_put_firstsong_in_albums(t_mpd_state *mpd_state, sds buffer, sds m
         return buffer;
     }
     sds expression = sdsnew("((Track == '1')");
-    if (strlen(searchstr) > 0 && strlen(tag) > 0) {
+    int searchstr_len = strlen(searchstr);
+    if (searchstr_len > 0 && searchstr_len <= 2 && strlen(tag) > 0) {
+        expression = sdscatfmt(expression, " AND (%s =~ '^%s')", tag, searchstr);
+    }
+    else if (strlen(searchstr) > 0 && strlen(tag) > 0) {
         expression = sdscatfmt(expression, " AND (%s contains '%s')", tag, searchstr);
     }
     expression = sdscat(expression, ")");
