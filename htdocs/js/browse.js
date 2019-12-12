@@ -437,8 +437,9 @@ function parseCovergridTitleList(obj) {
         titleList += '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">' + ligatureMore + '</a></td></tr>';
     }
     titleList += '</tbody></table>';
-    cardBody.innerHTML = titleList;
+    
     cardBody.style.backgroundImage = '';
+    cardBody.classList.remove('album-cover-loading');
     cardBody.style.height = 'auto';
     
     let s = document.getElementById('BrowseCovergridList').childNodes[1];
@@ -450,19 +451,26 @@ function parseCovergridTitleList(obj) {
     else {
         width = settings.covergridSize * 2 + 20;
     }
+    
+    cardBody.parentNode.addEventListener('transitionend', function() {
+        if (cardBody.style.backgroundImage !== '') {
+            return;
+        }
+        cardBody.innerHTML = titleList;
+        cardBody.parentNode.classList.remove('opacity05');
+        cardBody.getElementsByClassName('close')[0].addEventListener('click', function(event) {
+            event.stopPropagation();
+            cardBody.innerHTML = '';
+            let uri = decodeURI(cardBody.parentNode.getAttribute('data-uri'));
+            cardBody.style.backgroundImage = 'url("' + subdir + '/albumart/' + uri + '")';
+            cardBody.style.width =  'var(--mympd-covergridsize, 200px)';
+            cardBody.style.height =  'var(--mympd-covergridsize, 200px)';
+            cardBody.parentNode.style.width =  'var(--mympd-covergridsize, 200px)';
+        }, false);
+    }, false);
+    
     cardBody.style.width = width + 'px';
     cardBody.parentNode.style.width = width + 'px';
-    cardBody.classList.remove('album-cover-loading');
-    cardBody.parentNode.classList.remove('opacity05');
-    cardBody.getElementsByClassName('close')[0].addEventListener('click', function(event) {
-        event.stopPropagation();
-        cardBody.innerHTML = '';
-        let uri = decodeURI(cardBody.parentNode.getAttribute('data-uri'));
-        cardBody.style.backgroundImage = 'url("' + subdir + '/albumart/' + uri + '")';
-        cardBody.style.width =  'var(--mympd-covergridsize, 200px)';
-        cardBody.style.height =  'var(--mympd-covergridsize, 200px)';
-        cardBody.parentNode.style.width =  'var(--mympd-covergridsize, 200px)';
-    }, false);
 }
 
 function setGridImage(changes, observer) {
