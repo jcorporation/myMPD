@@ -450,9 +450,6 @@ function parseCovergridTitleList(obj) {
     else {
         width = settings.covergridSize * 2 + 20;
     }
-    console.log(width);
-    console.log(s.offsetParent);
-    console.log(window.getComputedStyle(document.getElementById('cardBrowseCovergrid'), null).getPropertyValue('padding-left'));
     cardBody.style.width = width + 'px';
     cardBody.parentNode.style.width = width + 'px';
     cardBody.classList.remove('album-cover-loading');
