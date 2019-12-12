@@ -166,7 +166,10 @@ function toggleBtn(btn, state) {
 }
 
 function toggleBtnChk(btn, state) {
-    let b = document.getElementById(btn);
+    let b = btn;
+    if (typeof btn === 'string') {
+        b = document.getElementById(btn);
+    }
     if (!b) {
         return;
     }

@@ -65,12 +65,14 @@ function showMenuTh(el, event) {
         event.target.setAttribute('data-popover', 'true');
         let table = app.current.app + (app.current.tab !== undefined ? app.current.tab : '') + (app.current.view !== undefined ? app.current.view : '');
         document.getElementById('colChecklist' + table).addEventListener('click', function(event) {
-            if (event.target.nodeName === 'BUTTON') {
+            if (event.target.nodeName === 'BUTTON' && event.target.classList.contains('material-icons')) {
+                toggleBtnChk(event.target);
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            else if (event.target.nodeName === 'BUTTON') {
                 event.preventDefault();
                 saveCols(table);
-            }
-            else if (event.target.nodeName === 'INPUT') {
-                event.stopPropagation();
             }
         }, false);
     }, false);
@@ -80,7 +82,7 @@ function showMenuTh(el, event) {
 function showMenuTd(el, event) {
     let type = el.getAttribute('data-type');
     let uri = decodeURI(el.getAttribute('data-uri'));
-    let name = el.getAttribute('data-name');
+    let name = decodeURI(el.getAttribute('data-name'));
     let nextsongpos = 0;
     if (type === null || uri === '') {
         type = el.parentNode.parentNode.getAttribute('data-type');
@@ -145,6 +147,11 @@ function showMenuTd(el, event) {
             addMenuItem({"cmd": "replaceQueue", "options": [type, uri, name]}, t('Replace queue')) +
             addMenuItem({"cmd": "showAddToPlaylist", "options": [uri]}, t('Add to playlist')) +
             (uri.indexOf('http') === -1 ? addMenuItem({"cmd": "songDetails", "options": [uri]}, t('Song details')) : '');
+    }
+    else if (app.current.app === 'Browse' && app.current.tab === 'Covergrid') {
+        menu += addMenuItem({"cmd": "appendQueue", "options": [type, uri, name]}, t('Append to queue')) +
+            addMenuItem({"cmd": "replaceQueue", "options": [type, uri, name]}, t('Replace queue')) +
+            addMenuItem({"cmd": "showAddToPlaylist", "options": [uri]}, t('Add to playlist'));
     }
 
     new Popover(el, { trigger: 'click', delay: 0, dismissible: true, template: '<div class="popover" role="tooltip">' +

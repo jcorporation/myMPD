@@ -668,22 +668,30 @@ function saveSettings() {
             "stickers": (document.getElementById('btnStickers').classList.contains('active') ? true : false),
             "lastPlayedCount": document.getElementById('inputLastPlayedCount').value,
             "smartpls": (document.getElementById('btnSmartpls').classList.contains('active') ? true : false),
-            "taglist": getTagMultiSelectValues('listEnabledTags'),
-            "searchtaglist": getTagMultiSelectValues('listSearchTags'),
-            "browsetaglist": getTagMultiSelectValues('listBrowseTags'),
+            "taglist": getTagMultiSelectValues(document.getElementById('listEnabledTags'), false),
+            "searchtaglist": getTagMultiSelectValues(document.getElementById('listSearchTags'), false),
+            "browsetaglist": getTagMultiSelectValues(document.getElementById('listBrowseTags'), false),
             "theme": selectTheme.options[selectTheme.selectedIndex].value,
         }, getSettings);
         modalSettings.hide();
     }
 }
 
-function getTagMultiSelectValues(taglist) {
+function getTagMultiSelectValues(taglist, translated) {
     let values = [];
-    let chkBoxes = document.getElementById(taglist).getElementsByTagName('input');
+    let chkBoxes = taglist.getElementsByTagName('button');
     for (let i = 0; i < chkBoxes.length; i++) {
-        if (chkBoxes[i].checked === true) {
-            values.push(chkBoxes[i].name);
+        if (chkBoxes[i].classList.contains('active')) {
+            if (translated === true) {
+                values.push(t(chkBoxes[i].name));
+            }
+            else {
+                values.push(chkBoxes[i].name);
+            }
         }
+    }
+    if (translated === true) {
+        return values.join(', ');
     }
     return values.join(',');
 }
@@ -696,8 +704,9 @@ function initTagMultiSelect(inputId, listId, allTags, enabledTags) {
             values.push(t(allTags[i]));
         }
         list += '<div class="form-check">' +
-            '<input class="form-check-input" type="checkbox" value="1" name="' + allTags[i] + '" ' + 
-            (enabledTags.includes(allTags[i]) ? 'checked="checked"' : '' )+ '>' +
+            '<button class="btn btn-secondary btn-xs clickable material-icons material-icons-small' + 
+            (enabledTags.includes(allTags[i]) ? ' active' : '') + '" name="' + allTags[i] + '">' +
+            (enabledTags.includes(allTags[i]) ? 'check' : 'radio_button_unchecked') + '</button>' +
             '<label class="form-check-label" for="' + allTags[i] + '">&nbsp;&nbsp;' + t(allTags[i]) + '</label>' +
             '</div>';
     }
@@ -706,15 +715,10 @@ function initTagMultiSelect(inputId, listId, allTags, enabledTags) {
 
     document.getElementById(listId).addEventListener('click', function(event) {
         event.stopPropagation();
-        if (event.target.nodeName === 'INPUT') {
-            let chkBoxes = event.target.parentNode.parentNode.getElementsByTagName('input');
-            let values = [];
-            for (let i = 0; i < chkBoxes.length; i++) {
-                if (chkBoxes[i].checked === true) {
-                    values.push(t(chkBoxes[i].name));
-                }
-            }
-            event.target.parentNode.parentNode.parentNode.previousElementSibling.value = values.join(', ');
+        event.preventDefault();
+        if (event.target.nodeName === 'BUTTON') {
+            toggleBtnChk(event.target);
+            event.target.parentNode.parentNode.parentNode.previousElementSibling.value = getTagMultiSelectValues(event.target.parentNode.parentNode, true);
         }
     });
 }

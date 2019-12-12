@@ -350,13 +350,15 @@ function parseCovergrid(obj) {
             obj.result.data[i].Album = t('Unknown album');
         }
         let id = genId('covergrid' + obj.result.data[i].Album + obj.result.data[i].AlbumArtist);
+        let path = dirname(obj.result.data[i].FirstSongUri);
         let html = '<div class="card card-grid" data-uri="' + encodeURI(obj.result.data[i].FirstSongUri) + '" ' + 
                        'data-album="' + encodeURI(obj.result.data[i].Album) + '" ' +
                        'data-albumartist="' + encodeURI(obj.result.data[i].AlbumArtist) + '">' +
                    '<div class="card-body album-cover-loading album-cover-grid bg-white" id="' + id + '"></div>' +
-                   '<div class="card-footer card-footer-grid p-2" title="' + obj.result.data[i].AlbumArtist + ': ' + obj.result.data[i].Album + '">' +
-                   obj.result.data[i].Album +
-                   '<br/><small>' + obj.result.data[i].AlbumArtist + '</small>' +
+                   '<div class="card-footer card-footer-grid p-2" data-type="album" data-uri="' + encodeURI(path) + '" ' +
+                   'data-name="' + encodeURI(obj.result.data[i].Album) + '"' +
+                   'title="' + obj.result.data[i].AlbumArtist + ': ' + obj.result.data[i].Album + '">' +
+                   obj.result.data[i].Album + '<br/><small>' + obj.result.data[i].AlbumArtist + '</small>' +
                    '</div></div>';
         col.innerHTML = html;
         let replaced = false;
@@ -383,12 +385,11 @@ function parseCovergrid(obj) {
         }
         if (replaced === true) {
             col.firstChild.addEventListener('click', function(event) {
-                event.stopPropagation();
                 if (event.target.classList.contains('card-body')) {
                     getCovergridTitleList(event.target);
                 }
-                else {
-                
+                else if (event.target.classList.contains('card-footer')){
+                    showMenu(event.target, event);                
                 }
             }, false);
         }

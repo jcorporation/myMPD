@@ -341,12 +341,10 @@ function setColsChecklist(table) {
         if (table === 'Playback' && tags[i] === 'Title') {
             continue;
         }
-        tagChks += '<div class="form-check">' +
-            '<input class="form-check-input" type="checkbox" value="1" name="' + tags[i] + '"';
-        if (settings['cols' + table].includes(tags[i])) {
-            tagChks += 'checked';
-        }
-        tagChks += '>' +
+        tagChks += '<div>' +
+            '<button class="btn btn-secondary btn-xs clickable material-icons material-icons-small' +
+            (settings['cols' + table].includes(tags[i]) ? ' active' : '') + '" name="' + tags[i] + '">' +
+            (settings['cols' + table].includes(tags[i]) ? 'check' : 'radio_button_unchecked') + '</button>' +
             '<label class="form-check-label" for="' + tags[i] + '">&nbsp;&nbsp;' + t(tags[i]) + '</label>' +
             '</div>';
     }
@@ -426,10 +424,13 @@ function saveCols(table, tableEl) {
         header = tableEl.getElementsByTagName('tr')[0];
     }
     if (colsDropdown) {
-        let colInputs = colsDropdown.firstChild.getElementsByTagName('input');
+        let colInputs = colsDropdown.firstChild.getElementsByTagName('button');
         for (let i = 0; i < colInputs.length; i++) {
+            if (colInputs[i].getAttribute('name') == undefined) {
+                continue;
+            }
             let th = header.querySelector('[data-col=' + colInputs[i].name + ']');
-            if (colInputs[i].checked === false) {
+            if (colInputs[i].classList.contains('active') === false) {
                 if (th) {
                     th.remove();
                 }
@@ -438,7 +439,7 @@ function saveCols(table, tableEl) {
                 th = document.createElement('th');
                 th.innerText = colInputs[i].name;
                 th.setAttribute('data-col', colInputs[i].name);
-                header.appendChild(th);
+                header.insertBefore(th, header.lastChild);
             }
         }
     }
@@ -447,7 +448,7 @@ function saveCols(table, tableEl) {
     let ths = header.getElementsByTagName('th');
     for (let i = 0; i < ths.length; i++) {
         let name = ths[i].getAttribute('data-col');
-        if (name) {
+        if (name !== 'Action' && name !== null) {
             params.cols.push(name);
         }
     }
@@ -456,12 +457,12 @@ function saveCols(table, tableEl) {
 
 //eslint-disable-next-line no-unused-vars
 function saveColsPlayback(table) {
-    let colInputs = document.getElementById(table + 'ColsDropdown').firstChild.getElementsByTagName('input');
+    let colInputs = document.getElementById(table + 'ColsDropdown').firstChild.getElementsByTagName('button');
     let header = document.getElementById('cardPlaybackTags');
 
-    for (let i = 0; i < colInputs.length; i++) {
+    for (let i = 0; i < colInputs.length -1; i++) {
         let th = document.getElementById('current' + colInputs[i].name);
-        if (colInputs[i].checked === false) {
+        if (colInputs[i].classList.contains('active') === false) {
             if (th) {
                 th.remove();
             }
