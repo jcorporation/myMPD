@@ -214,7 +214,7 @@ small {
   min-height: 0 !important;
   margin-bottom: 1.25rem;
   overflow: hidden;
-  transition: width 0.5s;
+  transition: width 0.5s, height 0.5s;
 }
 
 .card-footer-grid {
