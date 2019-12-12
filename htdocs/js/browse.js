@@ -386,17 +386,18 @@ function parseCovergrid(obj) {
         if (replaced === true) {
             col.firstChild.addEventListener('click', function(event) {
                 if (event.target.classList.contains('card-body')) {
-                    event.target.parentNode.addEventListener('transitionend', function() {
-                        if (event.target.style.backgroundImage !== '') {
-                            return;
-                        }
-                        event.target.getElementsByTagName('table')[0].classList.remove('unvisible');
-                    }, false);
+                    
                     getCovergridTitleList(event.target, id);
                 }
                 else if (event.target.classList.contains('card-footer')){
                     showMenu(event.target, event);                
                 }
+            }, false);
+            col.firstChild.addEventListener('transitionend', function(event) {
+                if (event.target.firstChild.style.backgroundImage !== '') {
+                    return;
+                }
+                event.target.getElementsByTagName('table')[0].classList.remove('unvisible');
             }, false);
         }
     }
