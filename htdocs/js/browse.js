@@ -440,7 +440,19 @@ function parseCovergridTitleList(obj) {
     cardBody.innerHTML = titleList;
     cardBody.style.backgroundImage = '';
     cardBody.style.height = 'auto';
-    let width = settings.covergridSize * 2 + 20;
+    
+    let s = document.getElementById('BrowseCovergridList').childNodes[1];
+    let width;
+    if (s) {
+        let p = parseInt(window.getComputedStyle(document.getElementById('cardBrowseCovergrid'), null).getPropertyValue('padding-left'));
+        width = s.offsetLeft + settings.covergridSize - p;
+    }
+    else {
+        width = settings.covergridSize * 2 + 20;
+    }
+    console.log(width);
+    console.log(s.offsetParent);
+    console.log(window.getComputedStyle(document.getElementById('cardBrowseCovergrid'), null).getPropertyValue('padding-left'));
     cardBody.style.width = width + 'px';
     cardBody.parentNode.style.width = width + 'px';
     cardBody.classList.remove('album-cover-loading');
