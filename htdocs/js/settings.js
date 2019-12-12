@@ -199,9 +199,9 @@ function parseSettings() {
     toggleBtnChk('btnSmartpls', settings.smartpls);
     
     
-    settings.featDate = settings.tags.includes('featDate') ? true : false;
+    settings.featDate = settings.tags.includes('Date') ? true : false;
     
-    let features = ["featLocalplayer", "featSyscmds", "featMixramp", "featCacert", "featBookmarks", "featDate"];
+    let features = ["featLocalplayer", "featSyscmds", "featMixramp", "featCacert", "featBookmarks", "featDate", "featRegex"];
     for (let j = 0; j < features.length; j++) {
         let Els = document.getElementsByClassName(features[j]);
         let ElsLen = Els.length;

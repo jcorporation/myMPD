@@ -123,6 +123,7 @@ typedef struct t_config {
     bool covercache;
     sds theme;
     bool custom_placeholder_images;
+    bool regex;
     //system commands
     struct list syscmd_list;
 } t_config;

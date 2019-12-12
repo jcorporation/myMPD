@@ -322,7 +322,7 @@ sds mpd_client_put_songs_in_album(t_mpd_state *mpd_state, sds buffer, sds method
     return buffer;    
 }
 
-sds mpd_client_put_firstsong_in_albums(t_mpd_state *mpd_state, sds buffer, sds method, int request_id, 
+sds mpd_client_put_firstsong_in_albums(t_config *config, t_mpd_state *mpd_state, sds buffer, sds method, int request_id, 
                                        const char *searchstr, const char *tag, const char *sort, bool sortdesc, const unsigned int offset)
 {
     buffer = jsonrpc_start_result(buffer, method, request_id);
@@ -334,7 +334,7 @@ sds mpd_client_put_firstsong_in_albums(t_mpd_state *mpd_state, sds buffer, sds m
     }
     sds expression = sdsnew("((Track == '1')");
     int searchstr_len = strlen(searchstr);
-    if (searchstr_len > 0 && searchstr_len <= 2 && strlen(tag) > 0) {
+    if (config->regex == true && searchstr_len > 0 && searchstr_len <= 2 && strlen(tag) > 0) {
         expression = sdscatfmt(expression, " AND (%s =~ '^%s')", tag, searchstr);
     }
     else if (strlen(searchstr) > 0 && strlen(tag) > 0) {

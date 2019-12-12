@@ -46,6 +46,9 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("mpd", "musicdirectory")) {
         p_config->music_directory = sdsreplace(p_config->music_directory, value);
     }
+    else if (MATCH("mpd", "regex")) {
+        p_config->regex = strcmp(value, "true") == 0 ? true : false;
+    }
     else if (MATCH("webserver", "webport")) {
         p_config->webport = sdsreplace(p_config->webport, value);
     }
@@ -256,7 +259,7 @@ static void mympd_parse_env(struct t_config *config, const char *envvar) {
 
 static void mympd_get_env(struct t_config *config) {
     const char *env_vars[]={"MPD_HOST", "MPD_PORT", "MPD_PASS", "MPD_MUSICDIRECTORY",
-        "WEBSERVER_WEBPORT", "WEBSERVER_PUBLISHLIBRARY",
+        "MPD_REGEX", "WEBSERVER_WEBPORT", "WEBSERVER_PUBLISHLIBRARY",
       #ifdef ENABLE_SSL
         "WEBSERVER_SSL", "WEBSERVER_SSLPORT", "WEBSERVER_SSLCERT", "WEBSERVER_SSLKEY",
         "WEBSERVER_SSLSAN", 
@@ -383,6 +386,7 @@ void mympd_config_defaults(t_config *config) {
     config->covercache = true;
     config->theme = sdsnew("theme-default");
     config->custom_placeholder_images = false;
+    config->regex = true;
     list_init(&config->syscmd_list);
 }
 

@@ -457,6 +457,7 @@ sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buf
     buffer = tojson_char(buffer, "mpdHost", mympd_state->mpd_host, true);
     buffer = tojson_long(buffer, "mpdPort", mympd_state->mpd_port, true);
     buffer = tojson_char(buffer, "mpdPass", "dontsetpassword", true);
+    buffer = tojson_bool(buffer, "featRegex", config->regex, true);
     buffer = tojson_bool(buffer, "featSyscmds", config->syscmds, true);
 #ifdef ENABLE_SSL
     buffer = tojson_bool(buffer, "featCacert", (config->custom_cert == false && config->ssl == true ? true : false), true);

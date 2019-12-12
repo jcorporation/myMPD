@@ -557,7 +557,7 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
             je = json_scanf(request->data, sdslen(request->data), "{params: {offset:%u, searchstr:%Q, tag:%Q, sort:%Q, sortdesc:%B}}", 
                 &uint_buf1, &p_charbuf1, &p_charbuf2, &p_charbuf3, &bool_buf);
             if (je == 5) {
-                response->data = mpd_client_put_firstsong_in_albums(mpd_state, response->data, request->method, request->id, 
+                response->data = mpd_client_put_firstsong_in_albums(config, mpd_state, response->data, request->method, request->id, 
                     p_charbuf1, p_charbuf2, p_charbuf3, bool_buf, uint_buf1);
             }
             break;
