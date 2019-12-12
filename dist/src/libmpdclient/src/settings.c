@@ -45,58 +45,81 @@ struct mpd_settings {
  * Parses the password from the host specification in the form
  * "password@hostname".
  *
- * @param host_p a pointer to the "host" variable, which may be
- * modified by this function
- * @return an allocated password string, or NULL if there was no
- * password
+ * @param settings a settings object. both settings->host and
+ * 	  settings->password may be modified by this function
+ * @return true on success, false on out of memory
+ *
  */
-static const char *
-mpd_parse_host_password(const char *host, char **password_r)
+static bool
+mpd_parse_host_password(struct mpd_settings *settings)
 {
-	const char *at;
-	char *password;
+	char *at, *oldhost;
+	size_t host_len, at_pos;
 
-	assert(password_r != NULL);
-	assert(*password_r == NULL);
+	assert(settings->password == NULL);
 
-	if (host == NULL ||
+	if (settings->host == NULL ||
 	    /* if the MPD_HOST begins with a '@' then it's not an
 	       empty password but an abstract socket */
-	    *host == '@')
-		return host;
+	    *settings->host == '@')
+		return true;
 
-	at = strchr(host, '@');
+	at = strchr(settings->host, '@');
 	if (at == NULL)
-		return host;
+		return true;
 
-	password = malloc(at - host + 1);
-	if (password != NULL) {
-		/* silently ignoring out-of-memory */
-		memcpy(password, host, at - host);
-		password[at - host] = 0;
-		*password_r = password;
+	at_pos = at - settings->host;
+	settings->password = malloc(at_pos + 1);
+	if (settings->password == NULL)
+		return false;
+
+	memcpy(settings->password, settings->host, at_pos);
+	(settings->password)[at_pos] = 0;
+
+	/* reallocate host, otherwise free() would not work properly */
+	host_len = strlen(settings->host) - at_pos;
+	oldhost = settings->host;
+	settings->host = malloc(host_len);
+	if (settings->host == NULL) {
+		settings->host = oldhost;
+		return false;
 	}
 
-	return at + 1;
+	memcpy(settings->host, &oldhost[at_pos + 1], host_len - 1);
+	settings->host[host_len] = 0;
+	free(oldhost);
+	return true;
 }
 
 /**
  * Parses the host specification.  If not specified, it attempts to
  * load it from the environment variable MPD_HOST.
+ *
+ * @param settings a settings object. both settings->host and
+ * settings->password may be modified by this function
+ * @return true on success, false on out of memory
  */
-static const char *
-mpd_check_host(const char *host, char **password_r)
+static bool
+mpd_check_host(struct mpd_settings *settings)
 {
-	assert(password_r != NULL);
-	assert(*password_r == NULL);
+	const char *host_getenv = getenv("MPD_HOST");
 
-	if (host == NULL)
-		host = getenv("MPD_HOST");
+	assert(settings->password == NULL);
 
-	if (host != NULL)
-		host = mpd_parse_host_password(host, password_r);
+	if (settings->host == NULL && host_getenv != NULL) {
+		/* getent should not be freed (mpd_settings_free()); hence we
+		 * allocate a new string */
+		settings->host = strdup(host_getenv);
+		if (settings->host == NULL)
+			return false;
+	}
 
-	return host;
+	if (settings->host != NULL) {
+		if (!mpd_parse_host_password(settings))
+			return false;
+	}
+
+	return true;
 }
 
 /**
@@ -120,7 +143,7 @@ mpd_default_timeout_ms(void)
 {
 	const char *timeout_string = getenv("MPD_TIMEOUT");
 	if (timeout_string != NULL) {
-		int timeout_s = atoi(timeout_string);
+		const int timeout_s = atoi(timeout_string);
 		if (timeout_s > 0)
 			return timeout_s * 1000;
 	}
@@ -139,32 +162,56 @@ mpd_settings_new(const char *host, unsigned port, unsigned timeout_ms,
 	if (settings == NULL)
 		return settings;
 
+	if (host != NULL) {
+		settings->host = strdup(host);
+		if (settings->host == NULL) {
+			free(settings);
+			return NULL;
+		}
+	} else
+		settings->host = NULL;
+
 	settings->password = NULL;
 
 	port = mpd_check_port(port);
 
-	host = mpd_check_host(host, &settings->password);
-	if (settings->password == NULL && password != NULL)
-		settings->password = strdup(password);
+	if (!mpd_check_host(settings)) {
+		mpd_settings_free(settings);
+		return NULL;
+	}
 
-	if (host == NULL) {
+	if (settings->password == NULL && password != NULL) {
+		settings->password = strdup(password);
+		if (settings->password == NULL) {
+			free(settings->host);
+			free(settings);
+			return NULL;
+		}
+	}
+
+	if (settings->host == NULL) {
 #ifdef DEFAULT_SOCKET
 		if (port == 0)
 			/* default to local socket only if no port was
 			   explicitly configured */
-			host = DEFAULT_SOCKET;
+			settings->host = strdup(DEFAULT_SOCKET);
 		else
 #endif
-			host = DEFAULT_HOST;
-	}
+			settings->host = strdup(DEFAULT_HOST);
 
-	settings->host = strdup(host);
+		if (settings->host == NULL) {
+			free(settings->password);
+			free(settings);
+			return NULL;
+		}
+	}
 
 	settings->timeout_ms = timeout_ms != 0
 		? timeout_ms
 		: mpd_default_timeout_ms();
 
-	settings->port = host[0] == '/' || host[0] == '@'
+	settings->port = settings->host[0] == '/' ||
+		 settings->host[0] == '@'
 		? 0 /* no port for local socket */
 		: (port != 0 ? port : DEFAULT_PORT);
 

@@ -130,8 +130,7 @@ mpd_song_get_start(const struct mpd_song *song);
 
 /**
  * Returns the end of the virtual song within the physical file in
- * seconds.  Zero means that the physical song file is played to the
- * end.
+ * seconds. 0 means that the physical song file is played to the end.
  *
  * @since libmpdclient 2.3
  */

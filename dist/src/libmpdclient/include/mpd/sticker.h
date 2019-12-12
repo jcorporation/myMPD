@@ -49,6 +49,24 @@ extern "C" {
 #endif
 
 /**
+ * Stickers are pieces of information attached to existing MPD objects (e.g.
+ * song files, directories, albums; but currently, they are only implemented
+ * for song). Clients can create arbitrary name/value pairs. MPD itself does
+ * not assume any special meaning in them.
+ *
+ * The goal is to allow clients to share additional (possibly dynamic)
+ * information about songs, which is neither stored on the client (not
+ * available to other clients), nor stored in the song files (MPD has no write
+ * access).
+ *
+ * Client developers should create a standard for common sticker names, to
+ * ensure interoperability.
+ *
+ * Objects which may have stickers are addressed by their object type ("song"
+ * for song objects) and their URI (the path within the database for songs).
+ */
+
+/**
  * Adds or replaces a sticker value.
  *
  * @param connection the connection to MPD
@@ -141,7 +159,8 @@ mpd_send_sticker_list(struct mpd_connection *connection, const char *type,
 		      const char *uri);
 
 /**
- * Searches for stickers with the specified name.
+ * Searches for stickers with the specified name. Call mpd_recv_sticker() to
+ * receive each response item.
  *
  * @param connection the connection to MPD
  * @param type the object type, e.g. "song"

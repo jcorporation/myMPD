@@ -142,6 +142,11 @@ mpd_connection_new(const char *host, unsigned port, unsigned timeout_ms)
 			mpd_settings_free(settings);
 			settings = mpd_settings_new(DEFAULT_HOST, DEFAULT_PORT,
 						    timeout_ms, NULL, NULL);
+			if (settings == NULL) {
+				mpd_error_code(&connection->error,
+					       MPD_ERROR_OOM);
+				return connection;
+			}
 			connection->settings = settings;
 
 			mpd_error_clear(&connection->error);

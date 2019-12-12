@@ -224,6 +224,8 @@ mpd_async_recv_line(struct mpd_async *async);
  * @param length of bytes to consume
  * @return the number of bytes copied to the destination buffer (may
  * be 0 if the input buffer was empty)
+ *
+ * @since libmpdclient 2.17
  */
 size_t
 mpd_async_recv_raw(struct mpd_async *async, void *dest, size_t length);

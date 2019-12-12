@@ -35,6 +35,7 @@
 #include <mpd/audio_format.h>
 #include "iaf.h"
 
+#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -196,6 +197,9 @@ parse_mpd_state(const char *p)
 void
 mpd_status_feed(struct mpd_status *status, const struct mpd_pair *pair)
 {
+	assert(status != NULL);
+	assert(pair != NULL);
+
 	if (strcmp(pair->name, "volume") == 0)
 		status->volume = atoi(pair->value);
 	else if (strcmp(pair->name, "repeat") == 0)
@@ -255,91 +259,122 @@ mpd_status_feed(struct mpd_status *status, const struct mpd_pair *pair)
 		mpd_parse_audio_format(&status->audio_format, pair->value);
 }
 
-void mpd_status_free(struct mpd_status * status) {
+void mpd_status_free(struct mpd_status * status)
+{
+	assert(status != NULL);
+
 	free(status->error);
 	free(status);
 }
 
 int mpd_status_get_volume(const struct mpd_status *status)
 {
+	assert(status != NULL);
+
 	return status->volume;
 }
 
 bool
 mpd_status_get_repeat(const struct mpd_status *status)
 {
+	assert(status != NULL);
+
 	return status->repeat;
 }
 
 bool
 mpd_status_get_random(const struct mpd_status *status)
 {
+	assert(status != NULL);
+
 	return status->random;
 }
 
 bool
 mpd_status_get_single(const struct mpd_status *status)
 {
+	assert(status != NULL);
+
 	return status->single;
 }
 
 bool
 mpd_status_get_consume(const struct mpd_status *status)
 {
+	assert(status != NULL);
+
 	return status->consume;
 }
 
 unsigned
 mpd_status_get_queue_length(const struct mpd_status *status)
 {
+	assert(status != NULL);
+
 	return status->queue_length;
 }
 
 unsigned
 mpd_status_get_queue_version(const struct mpd_status *status)
 {
+	assert(status != NULL);
+
 	return status->queue_version;
 }
 
 enum mpd_state
 mpd_status_get_state(const struct mpd_status *status)
 {
+	assert(status != NULL);
+
 	return status->state;
 }
 
 unsigned
 mpd_status_get_crossfade(const struct mpd_status *status)
 {
+	assert(status != NULL);
+
 	return status->crossfade;
 }
 
 float
 mpd_status_get_mixrampdb(const struct mpd_status *status)
 {
+	assert(status != NULL);
+
 	return status->mixrampdb;
 }
 
 float
 mpd_status_get_mixrampdelay(const struct mpd_status *status)
 {
+	assert(status != NULL);
+
 	return status->mixrampdelay;
 }
 
 int
 mpd_status_get_song_pos(const struct mpd_status *status)
 {
+	assert(status != NULL);
+
 	return status->song_pos;
 }
 
 int
 mpd_status_get_song_id(const struct mpd_status *status)
 {
+	assert(status != NULL);
+
 	return status->song_id;
 }
 
 int
 mpd_status_get_next_song_pos(const struct mpd_status *status)
 {
+	assert(status != NULL);
+
 	return status->next_song_pos;
 }
 
@@ -352,30 +387,40 @@ mpd_status_get_next_song_id(const struct mpd_status *status)
 unsigned
 mpd_status_get_elapsed_time(const struct mpd_status *status)
 {
+	assert(status != NULL);
+
 	return status->elapsed_time;
 }
 
 unsigned
 mpd_status_get_elapsed_ms(const struct mpd_status *status)
 {
+	assert(status != NULL);
+
 	return status->elapsed_ms;
 }
 
 unsigned
 mpd_status_get_total_time(const struct mpd_status *status)
 {
+	assert(status != NULL);
+
 	return status->total_time;
 }
 
 unsigned
 mpd_status_get_kbit_rate(const struct mpd_status *status)
 {
+	assert(status != NULL);
+
 	return status->kbit_rate;
 }
 
 const struct mpd_audio_format *
 mpd_status_get_audio_format(const struct mpd_status *status)
 {
+	assert(status != NULL);
+
 	return !mpd_audio_format_is_empty(&status->audio_format)
 		? &status->audio_format
 		: NULL;
@@ -384,11 +429,15 @@ mpd_status_get_audio_format(const struct mpd_status *status)
 unsigned
 mpd_status_get_update_id(const struct mpd_status *status)
 {
+	assert(status != NULL);
+
 	return status->update_id;
 }
 
 const char *
 mpd_status_get_error(const struct mpd_status *status)
 {
+	assert(status != NULL);
+
 	return status->error;
 }

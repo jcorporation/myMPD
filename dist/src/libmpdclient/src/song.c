@@ -235,6 +235,8 @@ mpd_song_dup(const struct mpd_song *song)
 const char *
 mpd_song_get_uri(const struct mpd_song *song)
 {
+	assert(song != NULL);
+
 	return song->uri;
 }
 
@@ -338,6 +340,8 @@ mpd_song_set_duration(struct mpd_song *song, unsigned duration)
 unsigned
 mpd_song_get_duration(const struct mpd_song *song)
 {
+	assert(song != NULL);
+
 	return song->duration > 0
 		? song->duration
 		: (song->duration_ms + 500u) / 1000u;
@@ -352,6 +356,8 @@ mpd_song_set_duration_ms(struct mpd_song *song, unsigned duration_ms)
 unsigned
 mpd_song_get_duration_ms(const struct mpd_song *song)
 {
+	assert(song != NULL);
+
 	return song->duration_ms > 0
 		? song->duration_ms
 		: (song->duration * 1000u);
@@ -360,12 +366,16 @@ mpd_song_get_duration_ms(const struct mpd_song *song)
 unsigned
 mpd_song_get_start(const struct mpd_song *song)
 {
+	assert(song != NULL);
+
 	return song->start;
 }
 
 unsigned
 mpd_song_get_end(const struct mpd_song *song)
 {
+	assert(song != NULL);
+
 	return song->end;
 }
 
@@ -378,18 +388,24 @@ mpd_song_set_last_modified(struct mpd_song *song, time_t mtime)
 time_t
 mpd_song_get_last_modified(const struct mpd_song *song)
 {
+	assert(song != NULL);
+
 	return song->last_modified;
 }
 
 void
 mpd_song_set_pos(struct mpd_song *song, unsigned pos)
 {
+	assert(song != NULL);
+
 	song->pos = pos;
 }
 
 unsigned
 mpd_song_get_pos(const struct mpd_song *song)
 {
+	assert(song != NULL);
+
 	return song->pos;
 }
 
@@ -402,6 +418,8 @@ mpd_song_set_id(struct mpd_song *song, unsigned id)
 unsigned
 mpd_song_get_id(const struct mpd_song *song)
 {
+	assert(song != NULL);
+
 	return song->id;
 }
 
@@ -414,12 +432,16 @@ mpd_song_set_prio(struct mpd_song *song, unsigned prio)
 unsigned
 mpd_song_get_prio(const struct mpd_song *song)
 {
+	assert(song != NULL);
+
 	return song->prio;
 }
 
 const struct mpd_audio_format *
 mpd_song_get_audio_format(const struct mpd_song *song)
 {
+	assert(song != NULL);
+
 	return !mpd_audio_format_is_empty(&song->audio_format)
 		? &song->audio_format
 		: NULL;

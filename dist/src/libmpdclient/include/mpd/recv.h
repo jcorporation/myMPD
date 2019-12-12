@@ -56,6 +56,8 @@ extern "C" {
  * The caller must allocate length bytes of memory for data.
  *
  * @return true on success
+ *
+ * @since libmpdclient 2.17
  */
 bool
 mpd_recv_binary(struct mpd_connection *connection, void *data, size_t length);
