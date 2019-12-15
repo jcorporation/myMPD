@@ -441,7 +441,11 @@ function parseCovergridTitleList(obj) {
     
     let titleList = '<table class="table table-hover table-sm unvisible"><thead>';
     for (let i = 0; i < settings.colsBrowseDatabase.length; i++) {
-        titleList += '<th class="border-top-0">' + t(settings.colsBrowseDatabase[i]) + '</th>';
+        let h = settings.colsBrowseDatabase[i];
+        if (h === 'Track') {
+            h = '#';
+        }
+        titleList += '<th class="border-top-0">' + t(h) + '</th>';
     }
     titleList += '<th class="border-top-0"><button class="close" type="button">&times;</button></th></thead><tbody>';
     let nrItems = obj.result.returnedEntities;
