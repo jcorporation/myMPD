@@ -46,11 +46,14 @@ function saveSearchAsSmartPlaylist() {
     parseSmartPlaylist({"type": "smartpls", "data": {"playlist": "", "type": "search", "tag": app.current.filter, "searchstr": app.current.search}});
 }
 
-function addAllFromSearchPlist(plist) {
+function addAllFromSearchPlist(plist, search, replace) {
+    if (search === null) {
+        search = app.current.search;    
+    }
     if (settings.featAdvsearch) {
-        sendAPI("MPD_API_DATABASE_SEARCH_ADV", {"plist": plist, "sort": "", "sortdesc": false, "expression": app.current.search, "offset": 0, "cols": settings.colsSearch});
+        sendAPI("MPD_API_DATABASE_SEARCH_ADV", {"plist": plist, "sort": "", "sortdesc": false, "expression": search, "offset": 0, "cols": settings.colsSearch, "replace": replace});
     }
     else {
-        sendAPI("MPD_API_DATABASE_SEARCH", {"plist": plist, "filter": app.current.filter, "searchstr": app.current.search, "offset": 0, "cols": settings.colsSearch});
+        sendAPI("MPD_API_DATABASE_SEARCH", {"plist": plist, "filter": app.current.filter, "searchstr": search, "offset": 0, "cols": settings.colsSearch, "replace": replace});
     }
 }

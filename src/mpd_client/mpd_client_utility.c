@@ -55,7 +55,7 @@ sds check_error_and_recover(t_mpd_state *mpd_state, sds buffer, sds method, int 
             buffer = jsonrpc_respond_message(buffer, method, request_id, mpd_connection_get_error_message(mpd_state->conn), true);
         }
         if (!mpd_connection_clear_error(mpd_state->conn)) {
-            mpd_state->conn_state = MPD_FAILURE;
+//            mpd_state->conn_state = MPD_FAILURE;
         }
     }
     return buffer;
@@ -70,7 +70,7 @@ sds check_error_and_recover_notify(t_mpd_state *mpd_state, sds buffer) {
             buffer = jsonrpc_end_notify(buffer);
         }
         if (!mpd_connection_clear_error(mpd_state->conn)) {
-            mpd_state->conn_state = MPD_FAILURE;
+//            mpd_state->conn_state = MPD_FAILURE;
         }
     }
     return buffer;

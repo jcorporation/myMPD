@@ -269,8 +269,9 @@ function saveSmartPlaylist() {
     }
 }
 
-function showAddToPlaylist(uri) {
+function showAddToPlaylist(uri, search) {
     document.getElementById('addToPlaylistUri').value = uri;
+    document.getElementById('addToPlaylistSearch').value = search;
     document.getElementById('addToPlaylistPlaylist').innerHTML = '';
     document.getElementById('addToPlaylistNewPlaylist').value = '';
     document.getElementById('addToPlaylistNewPlaylistDiv').classList.add('hide');
@@ -323,7 +324,11 @@ function addToPlaylist() {
     }
     if (plist !== '') {
         if (uri === 'SEARCH') {
-            addAllFromSearchPlist(plist);
+            addAllFromSearchPlist(plist, null, false);
+        }
+        if (uri === 'ALBUM') {
+            let expression = document.getElementById('addToPlaylistSearch').value;
+            addAllFromSearchPlist(plist, expression, false);
         }
         else if (uri === 'DATABASE') {
             addAllFromBrowseDatabasePlist(plist);
@@ -393,6 +398,6 @@ function addSelectedItemToPlaylist() {
         if (item.parentNode.parentNode.id === 'BrowsePlaylistsAllList') {
             return;
         }
-        showAddToPlaylist(item.getAttribute('data-uri'));
+        showAddToPlaylist(item.getAttribute('data-uri'), '');
     }
 }

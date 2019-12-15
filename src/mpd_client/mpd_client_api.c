@@ -512,9 +512,13 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
         case MPD_API_DATABASE_SEARCH: {
             t_tags *tagcols = (t_tags *)malloc(sizeof(t_tags));
             assert(tagcols);
-            je = json_scanf(request->data, sdslen(request->data), "{params: {searchstr:%Q, filter:%Q, plist:%Q, offset:%u, cols: %M}}", 
-                &p_charbuf1, &p_charbuf2, &p_charbuf3, &uint_buf1, json_to_tags, tagcols);
-            if (je == 5) {
+            je = json_scanf(request->data, sdslen(request->data), "{params: {searchstr:%Q, filter:%Q, plist:%Q, offset:%u, cols: %M, replace:%B}}", 
+                &p_charbuf1, &p_charbuf2, &p_charbuf3, &uint_buf1, json_to_tags, tagcols, &bool_buf);
+            if (je == 6) {
+                if (bool_buf == true) {
+                    mpd_run_clear(mpd_state->conn);
+                    check_error_and_recover(mpd_state, NULL, NULL, 0);
+                }
                 response->data = mpd_client_search(mpd_state, response->data, request->method, request->id, p_charbuf1, p_charbuf2, p_charbuf3, uint_buf1, tagcols);
             }
             free(tagcols);
@@ -523,9 +527,13 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
         case MPD_API_DATABASE_SEARCH_ADV: {
             t_tags *tagcols = (t_tags *)malloc(sizeof(t_tags));
             assert(tagcols);
-            je = json_scanf(request->data, sdslen(request->data), "{params: {expression:%Q, sort:%Q, sortdesc:%B, plist:%Q, offset:%u, cols: %M}}", 
-                &p_charbuf1, &p_charbuf2, &bool_buf, &p_charbuf3, &uint_buf1, json_to_tags, tagcols);
-            if (je == 6) {
+            je = json_scanf(request->data, sdslen(request->data), "{params: {expression:%Q, sort:%Q, sortdesc:%B, plist:%Q, offset:%u, cols: %M, replace:%B}}", 
+                &p_charbuf1, &p_charbuf2, &bool_buf, &p_charbuf3, &uint_buf1, json_to_tags, tagcols, &bool_buf);
+            if (je == 7) {
+                if (bool_buf == true) {
+                    mpd_run_clear(mpd_state->conn);
+                    check_error_and_recover(mpd_state, NULL, NULL, 0);
+                }
                 response->data = mpd_client_search_adv(mpd_state, response->data, request->method, request->id, p_charbuf1, p_charbuf2, bool_buf, NULL, p_charbuf3, uint_buf1, tagcols);
             }
             free(tagcols);

@@ -16,7 +16,7 @@ var keymap = {
     "u": {"cmd": "updateDB", "options": [], "desc": "Update database"},
     "r": {"cmd": "rescanDB", "options": [], "desc": "Rescan database"},
     "p": {"cmd": "updateSmartPlaylists", "options": [], "desc": "Update smart playlists", "req": "featSmartpls"},
-    "a": {"cmd": "showAddToPlaylist", "options": ["stream"], "desc": "Add stream"},
+    "a": {"cmd": "showAddToPlaylist", "options": ["stream", ""], "desc": "Add stream"},
     "t": {"cmd": "openModal", "options": ["modalSettings"], "desc": "Open settings"},
     "i": {"cmd": "clickTitle", "options": [], "desc": "Open song details"},
     "l": {"cmd": "openDropdown", "options": ["dropdownLocalPlayer"], "desc": "Open local player"},

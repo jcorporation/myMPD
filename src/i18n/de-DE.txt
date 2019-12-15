@@ -1052,3 +1052,6 @@ Unbekannter Künstler
 
 Unknown album
 Unbekanntes Album
+
+Show songs
+Lieder anzeigen

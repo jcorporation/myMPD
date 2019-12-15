@@ -810,7 +810,7 @@ function appInit() {
                 addAllFromBrowseFilesystem();
             }
             else if (event.target.getAttribute('data-phrase') === 'Add all to playlist') {
-                showAddToPlaylist(app.current.search);                
+                showAddToPlaylist(app.current.search, '');
             }
         }
     }, false);
@@ -818,10 +818,10 @@ function appInit() {
     document.getElementById('searchAddAllSongsDropdown').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
             if (event.target.getAttribute('data-phrase') === 'Add all to queue') {
-                addAllFromSearchPlist('queue');
+                addAllFromSearchPlist('queue', null, false);
             }
             else if (event.target.getAttribute('data-phrase') === 'Add all to playlist') {
-                showAddToPlaylist('SEARCH');                
+                showAddToPlaylist('SEARCH', '');
             }
             else if (event.target.getAttribute('data-phrase') === 'Save as smart playlist') {
                 saveSearchAsSmartPlaylist();
@@ -835,7 +835,7 @@ function appInit() {
                 addAllFromBrowseDatabasePlist('queue');
             }
             else if (event.target.getAttribute('data-phrase') === 'Add all to playlist') {
-                showAddToPlaylist('DATABASE');
+                showAddToPlaylist('DATABASE', '');
             }
         }
     }, false);

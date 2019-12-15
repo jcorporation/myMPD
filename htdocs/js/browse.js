@@ -386,8 +386,7 @@ function parseCovergrid(obj) {
         if (replaced === true) {
             col.firstChild.addEventListener('click', function(event) {
                 if (event.target.classList.contains('card-body')) {
-                    
-                    getCovergridTitleList(event.target, id);
+                    getCovergridTitleList(id);
                 }
                 else if (event.target.classList.contains('card-footer')){
                     showMenu(event.target, event);                
@@ -415,8 +414,9 @@ function parseCovergrid(obj) {
     document.getElementById('cardFooterBrowse').innerText = gtPage('Num entries', obj.result.returnedEntities, obj.result.totalEntities);
 }
 
-function getCovergridTitleList(cardImage, id) {
-    let card = cardImage.parentNode;
+function getCovergridTitleList(id) {
+    let cardBody = document.getElementById(id);
+    let card = cardBody.parentNode;
     card.classList.add('opacity05');
     let s = document.getElementById('BrowseCovergridList').childNodes[1];
     let width;
@@ -427,7 +427,6 @@ function getCovergridTitleList(cardImage, id) {
     else {
         width = settings.covergridSize * 2 + 20;
     }
-    let cardBody = document.getElementById(id);
     cardBody.style.width = width + 'px';
     cardBody.parentNode.style.width = width + 'px';
     sendAPI("MPD_API_DATABASE_TAG_ALBUM_TITLE_LIST", {"album": decodeURI(card.getAttribute('data-album')),
