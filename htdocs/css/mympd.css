@@ -569,4 +569,5 @@ textarea.small {
 
 .popover {
   font-size: 1rem;
+  max-width: none;
 }
