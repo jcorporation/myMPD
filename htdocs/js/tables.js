@@ -9,7 +9,7 @@ function focusTable(rownr, table) {
     if (table === undefined) {
         table = document.getElementById(app.current.app + (app.current.tab !== undefined ? app.current.tab : '') + (app.current.view !== undefined ? app.current.view : '') + 'List');
         //support for BrowseDatabaseAlbum list
-        if (table === undefined) {
+        if (table === null) {
             table = document.getElementById(app.current.app + app.current.tab + 'TagList');
         }
         //support for BrowseDatabaseAlbum cards
