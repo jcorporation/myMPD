@@ -391,7 +391,8 @@ function parseMPDSettings() {
     }
     
     if (settings.coverimage === false || settings.featTags === false || 
-        settings.tags.includes('AlbumArtist') == false || settings.tags.includes('Album') == false) 
+        settings.tags.includes('AlbumArtist') == false || settings.tags.includes('Album') == false
+        || settings.tags.includes('Track') == false) 
     {
         document.getElementsByClassName('featCovergrid')[0].classList.add('hide'); 
     }
