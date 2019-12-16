@@ -1122,9 +1122,9 @@ function appInit() {
 
 //Init app
 window.onerror = function(msg, url, line) {
-    logError('JavaScript error: ' + msg + 'at line ' + line);
+    logError('JavaScript error: ' + msg + ' at line ' + line);
     if (appInited === true) {
-        showNotification(t('JavaScript error'), msg + 'at line ' + line, '', 'danger');
+        showNotification(t('JavaScript error'), msg + ' at line ' + line, '', 'danger');
     }
     else {
         showAppInitAlert(t('JavaScript error') + ': ' + msg + ' at line ' + line);
