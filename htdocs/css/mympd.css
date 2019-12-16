@@ -231,7 +231,7 @@ small {
   width: var(--mympd-covergridsize, 200px);
   height: var(--mympd-covergridsize, 200px);
   max-width: 100%;
-  padding: 0rem 0.5rem;
+  padding: 0 0.5rem;
 }
 
 a.card-img-left {
