@@ -12,7 +12,7 @@ async function localplayerPlay() {
             await localPlayer.play();
         } 
         catch(err) {
-            showNotification(t('Local playback'), t('Can not start playing'), '', 'error');
+            showNotification(t('Local playback'), t('Can not start playing'), '', 'danger');
         }
     }
 }
