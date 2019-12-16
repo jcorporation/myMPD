@@ -199,6 +199,7 @@ sds mpd_client_put_settings(t_mpd_state *mpd_state, sds buffer, sds method, int 
     buffer = tojson_long(buffer, "single", mpd_status_get_single(status), true);
     buffer = tojson_long(buffer, "crossfade", mpd_status_get_crossfade(status), true);
     buffer = tojson_long(buffer, "random", mpd_status_get_random(status), true);
+    buffer = tojson_long(buffer, "consume", mpd_status_get_consume(status), true);
     buffer = tojson_float(buffer, "mixrampdb", mpd_status_get_mixrampdb(status), true);
     buffer = tojson_float(buffer, "mixrampdelay", mpd_status_get_mixrampdelay(status), true);
     buffer = tojson_char(buffer, "replaygain", replaygain == NULL ? "" : replaygain, true);
