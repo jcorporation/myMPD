@@ -215,6 +215,7 @@ small {
   margin-bottom: 1.25rem;
   overflow: hidden;
   transition: width 0.5s, height 0.5s;
+  max-width: 100%;
 }
 
 .card-footer-grid {
@@ -570,4 +571,12 @@ textarea.small {
 .popover {
   font-size: 1rem;
   max-width: none;
+}
+
+img.covergrid-header {
+  width: 50px;
+  height: 50px;
+  display: block;
+  float: left;
+  margin-right: 1rem;
 }
