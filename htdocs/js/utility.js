@@ -152,12 +152,8 @@ function toggleBtn(btn, state) {
         //toggle state
         state = b.classList.contains('active') ? false : true;
     }
-    else if (state === 0 || state === 1) {
-        //1 = true, 0 = false
-        state = state === 1 ? true : false;
-    }
 
-    if (state === true) {
+    if (state === true || state === 1) {
         b.classList.add('active');
     }
     else {
@@ -177,12 +173,8 @@ function toggleBtnChk(btn, state) {
         //toggle state
         state = b.classList.contains('active') ? false : true;
     }
-    else if (state === 0 || state === 1) {
-        //1 = true, 0 = false
-        state = state === 1 ? true : false;
-    }
 
-    if (state === true) {
+    if (state === true || state === 1) {
         b.classList.add('active');
         b.innerText = 'check';
     }

@@ -593,7 +593,9 @@ function appInit() {
     });
     
     document.getElementById('btnConsume').addEventListener('mouseup', function() {
-        setTimeout(function() { checkConsume(); }, 100);
+        setTimeout(function() { 
+            checkConsume(); 
+        }, 100);
     });
     
     document.getElementById('selectAddToQueueMode').addEventListener('change', function () {
