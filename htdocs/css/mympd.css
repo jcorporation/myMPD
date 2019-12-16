@@ -580,3 +580,7 @@ img.covergrid-header {
   float: left;
   margin-right: 1rem;
 }
+
+div.covergrid-header {
+  padding: 0.37rem 0.75rem !important;
+}
