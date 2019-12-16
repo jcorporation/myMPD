@@ -37,7 +37,7 @@ This fork provides a reworked ui based on Bootstrap 4, a modernized backend and 
  - Localized user interface
  - Themeing
 
-myMPD is work in progress. Feedback, bug reportes and feature requests are very welcome.
+myMPD is work in active development. Feedback, bug reportes and feature requests are very welcome.
  - https://github.com/jcorporation/myMPD/issues
 
 Screenshots
