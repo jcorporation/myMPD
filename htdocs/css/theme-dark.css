@@ -84,7 +84,7 @@ body.theme-dark tr:hover {
   color: #f8f9fa;
 }
 
-body.theme-dark tr.selected {
+body.theme-dark tr.selected, body.theme-dark tr:focus {
   background-color: #1d2124;
 }
 

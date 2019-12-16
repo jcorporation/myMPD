@@ -522,7 +522,7 @@ ol#searchCrumb {
 }
 
 tr:focus {
-  background-color: #ccc;
+  background-color: rgba(0, 0, 0, 0.075);
 }
 
 textarea.small {
