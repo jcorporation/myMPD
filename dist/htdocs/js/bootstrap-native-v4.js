@@ -1,4 +1,4 @@
-// Native Javascript for Bootstrap 4 v2.0.27 | © dnp_theme | MIT-License
+// Native JavaScript for Bootstrap 4 v2.0.28 | © dnp_theme | MIT-License
 (function (root, factory) {
   if (typeof define === 'function' && define.amd) {
     // AMD support:
@@ -19,7 +19,7 @@
   }
 }(this, function () {
   
-  /* Native Javascript for Bootstrap 4 | Internal Utility Functions
+  /* Native JavaScript for Bootstrap 4 | Internal Utility Functions
   ----------------------------------------------------------------*/
   "use strict";
   
@@ -27,7 +27,7 @@
   var globalObject = typeof global !== 'undefined' ? global : this||window,
     DOC = document, HTML = DOC.documentElement, body = 'body', // allow the library to be used in <head>
   
-    // Native Javascript for Bootstrap Global Object
+    // Native JavaScript for Bootstrap Global Object
     BSN = globalObject.BSN = {},
     supports = BSN.supports = [],
   
@@ -108,6 +108,8 @@
     slidEvent     = 'slid',
     slideEvent    = 'slide',
     changeEvent   = 'change',
+    // custom events related
+    defaultPrevented = 'defaultPrevented',  
   
     // other
     getAttribute           = 'getAttribute',
@@ -149,7 +151,6 @@
     tipPositions = /\b(top|bottom|left|right)+/,
   
     // modal
-    modalOverlay = 0,
     fixedTop = 'fixed-top',
     fixedBottom = 'fixed-bottom',
   
@@ -208,8 +209,10 @@
     },
     one = function (element, event, handler, options) { // one since 2.0.4
       on(element, event, function handlerWrapper(e){
-        handler(e);
-        off(element, event, handlerWrapper, options);
+        if (e[target] === element) {
+          handler(e);
+          off(element, event, handlerWrapper, options);
+        }
       }, options);
     },
     // determine support for passive events
@@ -222,7 +225,7 @@
             result = true;
           }
         });
-        one(globalObject, 'testPassive', null, opts);
+        one(globalObject, null, null, opts);
       } catch (e) {}
   
       return result;
@@ -243,9 +246,12 @@
                : setTimeout(function() { !called && handler(), called = 1; }, 17);
     },
     bootstrapCustomEvent = function (eventName, componentName, related) {
-      var OriginalCustomEvent = new CustomEvent( eventName + '.bs.' + componentName);
+      var OriginalCustomEvent = new CustomEvent( eventName + '.bs.' + componentName, {cancelable: true});
       OriginalCustomEvent.relatedTarget = related;
-      this.dispatchEvent(OriginalCustomEvent);
+      return OriginalCustomEvent;
+    },
+    dispatchCustomEvent = function(customEvent){
+      this.dispatchEvent(customEvent);
     },
   
     // tooltip / popover stuff
@@ -324,7 +330,7 @@
           arrowLeft = elementDimensions.w - ( windowWidth - rect[left] ) + linkDimensions.w/2 - arrowWidth/2;
         } else {
           leftPosition = rect[left] + scroll.x - elementDimensions.w/2 + linkDimensions.w/2;
-          arrowLeft = elementDimensions.w/2 - arrowWidth/2;
+          arrowLeft = elementDimensions.w/2 - ( isPopover ? arrowWidth : arrowWidth/2 );
         }
       }
   
@@ -336,9 +342,9 @@
       arrowLeft && (arrow[style][left] = arrowLeft + 'px');
     };
   
-  BSN.version = '2.0.27';
+  BSN.version = '2.0.28';
   
-  /* Native Javascript for Bootstrap 4 | Alert
+  /* Native JavaScript for Bootstrap 4 | Alert
   -------------------------------------------*/
   
   // ALERT DEFINITION
@@ -350,6 +356,9 @@
   
     // bind, target alert, duration and stuff
     var self = this, component = 'alert',
+      // custom events
+      closeCustomEvent = bootstrapCustomEvent(closeEvent, component),
+      closedCustomEvent = bootstrapCustomEvent(closedEvent, component),
       alert = getClosest(element,'.'+component),
       triggerHandler = function(){ hasClass(alert,'fade') ? emulateTransitionEnd(alert,transitionEndHandler) : transitionEndHandler(); },
       // handlers
@@ -359,15 +368,16 @@
         element && alert && (element === e[target] || element[contains](e[target])) && self.close();
       },
       transitionEndHandler = function(){
-        bootstrapCustomEvent.call(alert, closedEvent, component);
         off(element, clickEvent, clickHandler); // detach it's listener
         alert[parentNode].removeChild(alert);
+        dispatchCustomEvent.call(alert,closedCustomEvent);
       };
     
     // public method
     this.close = function() {
       if ( alert && element && hasClass(alert,showClass) ) {
-        bootstrapCustomEvent.call(alert, closeEvent, component);
+        dispatchCustomEvent.call(alert,closeCustomEvent);
+        if ( closeCustomEvent[defaultPrevented] ) return;
         removeClass(alert,showClass);
         alert && triggerHandler();
       }
@@ -385,7 +395,7 @@
   supports[push]([stringAlert, Alert, '['+dataDismiss+'="alert"]']);
   
   
-  /* Native Javascript for Bootstrap 4 | Button
+  /* Native JavaScript for Bootstrap 4 | Button
   ---------------------------------------------*/
   
   // BUTTON DEFINITION
@@ -401,9 +411,11 @@
         // strings
         component = 'button',
         checked = 'checked',
-        reset = 'reset',
         LABEL = 'LABEL',
         INPUT = 'INPUT',
+  
+        // changeEvent
+        changeCustomEvent = bootstrapCustomEvent(changeEvent, component),
   
       // private methods
       keyHandler = function(e){ 
@@ -419,14 +431,18 @@
         
         if ( !label ) return; //react if a label or its immediate child is clicked
   
-        var eventTarget = e[target], // the button itself, the target of the handler function
-          labels = getElementsByClassName(eventTarget[parentNode],'btn'), // all the button group buttons
+        var labels = getElementsByClassName(label[parentNode],'btn'), // all the button group buttons
           input = label[getElementsByTagName](INPUT)[0];
   
-        if ( !input ) return; //return if no input found
+        if ( !input ) return; // return if no input found
+  
+        dispatchCustomEvent.call(input, changeCustomEvent); // trigger the change for the input
+        dispatchCustomEvent.call(element, changeCustomEvent); // trigger the change for the btn-group
   
         // manage the dom manipulation
         if ( input.type === 'checkbox' ) { //checkboxes
+          if ( changeCustomEvent[defaultPrevented] ) return; // discontinue when defaultPrevented is true
+  
           if ( !input[checked] ) {
             addClass(label,active);
             input[getAttribute](checked);
@@ -441,39 +457,49 @@
   
           if (!toggled) { // prevent triggering the event twice
             toggled = true;
-            bootstrapCustomEvent.call(input, changeEvent, component); //trigger the change for the input
-            bootstrapCustomEvent.call(element, changeEvent, component); //trigger the change for the btn-group
           }
         }
   
         if ( input.type === 'radio' && !toggled ) { // radio buttons
-          if ( !input[checked] ) { // don't trigger if already active
+          if ( changeCustomEvent[defaultPrevented] ) return;
+          // don't trigger if already active (the OR condition is a hack to check if the buttons were selected with key press and NOT mouse click)
+          if ( !input[checked] || (e.screenX === 0 && e.screenY == 0) ) {
             addClass(label,active);
+            addClass(label,focusEvent);
             input[setAttribute](checked,checked);
             input[checked] = true;
-            bootstrapCustomEvent.call(input, changeEvent, component); //trigger the change for the input
-            bootstrapCustomEvent.call(element, changeEvent, component); //trigger the change for the btn-group
   
             toggled = true;
             for (var i = 0, ll = labels[length]; i<ll; i++) {
               var otherLabel = labels[i], otherInput = otherLabel[getElementsByTagName](INPUT)[0];
               if ( otherLabel !== label && hasClass(otherLabel,active) )  {
+                dispatchCustomEvent.call(otherInput, changeCustomEvent); // trigger the change
                 removeClass(otherLabel,active);
                 otherInput.removeAttribute(checked);
                 otherInput[checked] = false;
-                bootstrapCustomEvent.call(otherInput, changeEvent, component); // trigger the change
               }
             }
           }
         }
         setTimeout( function() { toggled = false; }, 50 );
+      },
+      focusHandler = function(e) {
+        addClass(e[target][parentNode],focusEvent);
+      },
+      blurHandler = function(e) {
+        removeClass(e[target][parentNode],focusEvent);
       };
   
     // init
     if ( !( stringButton in element ) ) { // prevent adding event handlers twice
       on( element, clickEvent, toggle );
-      queryElement('['+tabindex+']',element) && on( element, keyupEvent, keyHandler ), 
-                                                on( element, keydownEvent, preventScroll );    
+      on( element, keyupEvent, keyHandler ), on( element, keydownEvent, preventScroll );
+  
+      var allBtns = getElementsByClassName(element, 'btn');
+      for (var i=0; i<allBtns.length; i++) {
+        var input = allBtns[i][getElementsByTagName](INPUT)[0];
+        on( input, focusEvent, focusHandler), on( input, 'blur', blurHandler);
+      }    
     }
   
     // activate items on load
@@ -490,7 +516,7 @@
   supports[push]( [ stringButton, Button, '['+dataToggle+'="buttons"]' ] );
   
   
-  /* Native Javascript for Bootstrap 4 | Collapse
+  /* Native JavaScript for Bootstrap 4 | Collapse
   -----------------------------------------------*/
   
   // COLLAPSE DEFINITION
@@ -513,9 +539,16 @@
       collapsed = 'collapsed',
       isAnimating = 'isAnimating',
   
+      // custom events
+      showCustomEvent = bootstrapCustomEvent(showEvent, component),
+      shownCustomEvent = bootstrapCustomEvent(shownEvent, component),
+      hideCustomEvent = bootstrapCustomEvent(hideEvent, component),
+      hiddenCustomEvent = bootstrapCustomEvent(hiddenEvent, component),
+      
       // private methods
       openAction = function(collapseElement,toggle) {
-        bootstrapCustomEvent.call(collapseElement, showEvent, component);
+        dispatchCustomEvent.call(collapseElement, showCustomEvent);
+        if ( showCustomEvent[defaultPrevented] ) return;
         collapseElement[isAnimating] = true;
         addClass(collapseElement,collapsing);
         removeClass(collapseElement,component);
@@ -529,11 +562,12 @@
           addClass(collapseElement, component);
           addClass(collapseElement,showClass);
           collapseElement[style][height] = '';
-          bootstrapCustomEvent.call(collapseElement, shownEvent, component);
+          dispatchCustomEvent.call(collapseElement, shownCustomEvent);
         });
       },
       closeAction = function(collapseElement,toggle) {
-        bootstrapCustomEvent.call(collapseElement, hideEvent, component);
+        dispatchCustomEvent.call(collapseElement, hideCustomEvent);
+        if ( hideCustomEvent[defaultPrevented] ) return;
         collapseElement[isAnimating] = true;
         collapseElement[style][height] = collapseElement[scrollHeight] + 'px'; // set height first
         removeClass(collapseElement,component);
@@ -549,7 +583,7 @@
           removeClass(collapseElement,collapsing);
           addClass(collapseElement,component);
           collapseElement[style][height] = '';
-          bootstrapCustomEvent.call(collapseElement, hiddenEvent, component);
+          dispatchCustomEvent.call(collapseElement, hiddenCustomEvent);
         });
       },
       getTarget = function() {
@@ -602,7 +636,7 @@
   supports[push]( [ stringCollapse, Collapse, '['+dataToggle+'="collapse"]' ] );
   
   
-  /* Native Javascript for Bootstrap 4 | Dropdown
+  /* Native JavaScript for Bootstrap 4 | Dropdown
   ----------------------------------------------*/
   
   // DROPDOWN DEFINITION
@@ -616,10 +650,17 @@
     this.persist = option === true || element[getAttribute]('data-persist') === 'true' || false;
   
     // constants, event targets, strings
-    var self = this, children = 'children',
+    var self = this,
       parent = element[parentNode],
-      component = 'dropdown', open = 'open',
       relatedTarget = null,
+  
+      // strings
+      children = 'children',
+      component = 'dropdown', open = 'open',
+  
+      // custom events
+      showCustomEvent, shownCustomEvent, hideCustomEvent, hiddenCustomEvent,
+      
       menu = queryElement('.dropdown-menu', parent),
       menuItems = (function(){
         var set = menu[children], newSet = [];
@@ -703,28 +744,37 @@
   
       // private methods
       show = function() {
-        bootstrapCustomEvent.call(parent, showEvent, component, relatedTarget);
+        showCustomEvent = bootstrapCustomEvent(showEvent, component, relatedTarget);
+        dispatchCustomEvent.call(parent, showCustomEvent);
+        if ( showCustomEvent[defaultPrevented] ) return;
+  
         addClass(menu,showClass);
         addClass(parent,showClass);
         element[setAttribute](ariaExpanded,true);
-        bootstrapCustomEvent.call(parent, shownEvent, component, relatedTarget);
         element[open] = true;
         off(element, clickEvent, clickHandler);
         setTimeout(function(){
           setFocus( menu[getElementsByTagName]('INPUT')[0] || element ); // focus the first input item | element
           toggleDismiss();
+          shownCustomEvent = bootstrapCustomEvent( shownEvent, component, relatedTarget);
+          dispatchCustomEvent.call(parent, shownCustomEvent);        
         },1);
       },
       hide = function() {
-        bootstrapCustomEvent.call(parent, hideEvent, component, relatedTarget);
+        hideCustomEvent = bootstrapCustomEvent(hideEvent, component, relatedTarget);
+        dispatchCustomEvent.call(parent, hideCustomEvent);
+        if ( hideCustomEvent[defaultPrevented] ) return;
+  
         removeClass(menu,showClass);
         removeClass(parent,showClass);
         element[setAttribute](ariaExpanded,false);
-        bootstrapCustomEvent.call(parent, hiddenEvent, component, relatedTarget);
         element[open] = false;
         toggleDismiss();
         setFocus(element);
         setTimeout(function(){ on(element, clickEvent, clickHandler); },1);
+  
+        hiddenCustomEvent = bootstrapCustomEvent(hiddenEvent, component, relatedTarget);
+        dispatchCustomEvent.call(parent, hiddenCustomEvent);
       };
   
     // set initial state to closed
@@ -750,7 +800,7 @@
   supports[push]( [stringDropdown, Dropdown, '['+dataToggle+'="dropdown"]'] );
   
   
-  /* Native Javascript for Bootstrap 4 | Modal
+  /* Native JavaScript for Bootstrap 4 | Modal
   -------------------------------------------*/
   
   // MODAL DEFINITION
@@ -767,6 +817,8 @@
         paddingRight = 'paddingRight',
         modalBackdropString = 'modal-backdrop',
         isAnimating = 'isAnimating',
+        // custom events
+        showCustomEvent, shownCustomEvent, hideCustomEvent, hiddenCustomEvent,
         // determine modal, triggering element
         btnCheck = element[getAttribute](dataTarget)||element[getAttribute]('href'),
         checkModal = queryElement( btnCheck ),
@@ -790,27 +842,23 @@
     
     // bind, constants, event targets and other vars
     var self = this, relatedTarget = null,
-      bodyIsOverflowing, scrollBarWidth, overlay, overlayDelay, modalTimer,
+      scrollBarWidth, overlay, overlayDelay,
   
       // also find fixed-top / fixed-bottom items
       fixedItems = getElementsByClassName(HTML,fixedTop).concat(getElementsByClassName(HTML,fixedBottom)),
   
       // private methods
-      getWindowWidth = function() {
-        var htmlRect = HTML[getBoundingClientRect]();
-        return globalObject[innerWidth] || (htmlRect[right] - Math.abs(htmlRect[left]));
-      },
       setScrollbar = function () {
-        var bodyStyle = globalObject[getComputedStyle](DOC[body]),
-            bodyPad = parseInt((bodyStyle[paddingRight]), 10), itemPad;
-        if (bodyIsOverflowing) {
-          DOC[body][style][paddingRight] = (bodyPad + scrollBarWidth) + 'px';
-          modal[style][paddingRight] = scrollBarWidth+'px';
-          if (fixedItems[length]){
-            for (var i = 0; i < fixedItems[length]; i++) {
-              itemPad = globalObject[getComputedStyle](fixedItems[i])[paddingRight];
-              fixedItems[i][style][paddingRight] = ( parseInt(itemPad) + scrollBarWidth) + 'px';
-            }
+        var openModal = hasClass(DOC[body],component+'-open'),
+          bodyStyle = globalObject[getComputedStyle](DOC[body]),
+          bodyPad = parseInt((bodyStyle[paddingRight]), 10), itemPad;
+  
+        DOC[body][style][paddingRight] = (bodyPad + (openModal?0:scrollBarWidth)) + 'px';
+        modal[style][paddingRight] = (scrollBarWidth?scrollBarWidth+'px':'');
+        if (fixedItems[length]){
+          for (var i = 0; i < fixedItems[length]; i++) {
+            itemPad = globalObject[getComputedStyle](fixedItems[i])[paddingRight];
+            fixedItems[i][style][paddingRight] = ( parseInt(itemPad) + (openModal?0:scrollBarWidth) ) + 'px';
           }
         }
       },
@@ -832,7 +880,6 @@
         return widthValue;
       },
       checkScrollbar = function () {
-        bodyIsOverflowing = DOC[body][clientWidth] < getWindowWidth();
         scrollBarWidth = measureScrollbar();
       },
       createOverlay = function() {
@@ -844,43 +891,61 @@
           overlay = newOverlay;
           DOC[body][appendChild](overlay);
         }
-        modalOverlay = 1;
+        return overlay;
       },
       removeOverlay = function() {
         overlay = queryElement('.'+modalBackdropString);
-        if ( overlay && overlay !== null && typeof overlay === 'object' ) {
-          modalOverlay = 0;
-          DOC[body].removeChild(overlay); overlay = null;
+        if ( overlay && !getElementsByClassName(DOC,component+' '+showClass)[0] ) {
+          DOC[body].removeChild(overlay); overlay = null;       
         }
+        overlay === null && (removeClass(DOC[body],component+'-open'), resetScrollbar());
+      },
+      toggleEvents = function(action){
+        action(globalObject, resizeEvent, self.update, passiveHandler);
+        action(modal, clickEvent, dismissHandler);
+        action(DOC, keydownEvent, keyHandler);
       },
       // triggers
+      beforeShow = function(){
+        modal[style].display = 'block'; 
+  
+        checkScrollbar();
+        setScrollbar();
+        !getElementsByClassName(DOC,component+' '+showClass)[0] && addClass(DOC[body],component+'-open');
+  
+        addClass(modal,showClass);
+        modal[setAttribute](ariaHidden, false);
+  
+        hasClass(modal,'fade') ? emulateTransitionEnd(modal, triggerShow) : triggerShow();
+      },    
       triggerShow = function() {
         setFocus(modal);
         modal[isAnimating] = false;
-        bootstrapCustomEvent.call(modal, shownEvent, component, relatedTarget);
   
-        on(globalObject, resizeEvent, self.update, passiveHandler);
-        on(modal, clickEvent, dismissHandler);
-        on(DOC, keydownEvent, keyHandler);      
+        toggleEvents(on);
+  
+        shownCustomEvent = bootstrapCustomEvent(shownEvent, component, relatedTarget);
+        dispatchCustomEvent.call(modal, shownCustomEvent);
       },
       triggerHide = function() {
         modal[style].display = '';
         element && (setFocus(element));
-        bootstrapCustomEvent.call(modal, hiddenEvent, component);
   
-        (function(){
-          if (!getElementsByClassName(DOC,component+' '+showClass)[0]) {
-            resetScrollbar();
-            removeClass(DOC[body],component+'-open');
-            overlay && hasClass(overlay,'fade') ? (removeClass(overlay,showClass), emulateTransitionEnd(overlay,removeOverlay))
-            : removeOverlay();
+        overlay = queryElement('.'+modalBackdropString);
   
-            off(globalObject, resizeEvent, self.update, passiveHandler);
-            off(modal, clickEvent, dismissHandler);
-            off(DOC, keydownEvent, keyHandler);
-          }
-        }());
+        if (overlay && hasClass(overlay,showClass) && !getElementsByClassName(DOC,component+' '+showClass)[0]) {
+          removeClass(overlay,showClass);
+          emulateTransitionEnd(overlay,removeOverlay);
+        } else {
+          removeOverlay();
+        }
+  
+        toggleEvents(off);
+  
         modal[isAnimating] = false;
+  
+        hiddenCustomEvent = bootstrapCustomEvent(hiddenEvent, component);
+        dispatchCustomEvent.call(modal, hiddenCustomEvent);
       },
       // handlers
       clickHandler = function(e) {
@@ -919,61 +984,47 @@
       if ( hasClass(modal,showClass) ) {this.hide();} else {this.show();}
     };
     this.show = function() {
-      if ( hasClass(modal,showClass) || modal[isAnimating] ) {return}
+      if ( hasClass(modal,showClass) ) {return}
   
-      clearTimeout(modalTimer);
-      modalTimer = setTimeout(function(){
-        modal[isAnimating] = true;
-        bootstrapCustomEvent.call(modal, showEvent, component, relatedTarget);
+      showCustomEvent = bootstrapCustomEvent(showEvent, component, relatedTarget);
+      dispatchCustomEvent.call(modal, showCustomEvent);
   
-        // we elegantly hide any opened modal
-        var currentOpen = getElementsByClassName(DOC,component+' '+showClass)[0];
-        if (currentOpen && currentOpen !== modal) {
-          modalTrigger in currentOpen && currentOpen[modalTrigger][stringModal].hide();
-          stringModal in currentOpen && currentOpen[stringModal].hide();
-        }
+      if ( showCustomEvent[defaultPrevented] ) return;
   
-        if ( self[backdrop] ) {
-          !modalOverlay && !overlay && createOverlay();
-        }
+      modal[isAnimating] = true;
   
-        if ( overlay && !hasClass(overlay,showClass) ) {
-          overlay[offsetWidth]; // force reflow to enable trasition
-          overlayDelay = getTransitionDurationFromElement(overlay);
-          addClass(overlay, showClass);
-        }
+      // we elegantly hide any opened modal
+      var currentOpen = getElementsByClassName(DOC,component+' '+showClass)[0];
+      if (currentOpen && currentOpen !== modal) {
+        modalTrigger in currentOpen && currentOpen[modalTrigger][stringModal].hide();
+        stringModal in currentOpen && currentOpen[stringModal].hide();
+      }
   
-        setTimeout( function() {
-          modal[style].display = 'block';
+      if ( self[backdrop] ) {
+        overlay = createOverlay();
+      }
   
-          checkScrollbar();
-          setScrollbar();
+      if ( overlay && !currentOpen && !hasClass(overlay,showClass) ) {
+        overlay[offsetWidth]; // force reflow to enable trasition
+        overlayDelay = getTransitionDurationFromElement(overlay);
+        addClass(overlay, showClass);
+      }
   
-          addClass(DOC[body],component+'-open');
-          addClass(modal,showClass);
-          modal[setAttribute](ariaHidden, false);
-  
-          hasClass(modal,'fade') ? emulateTransitionEnd(modal, triggerShow) : triggerShow();
-        }, supportTransitions && overlay && overlayDelay ? overlayDelay : 1);
-      },1);
+      !currentOpen ? setTimeout( beforeShow, overlay && overlayDelay ? overlayDelay:0 ) : beforeShow();
     };
     this.hide = function() {
-      if ( modal[isAnimating] || !hasClass(modal,showClass) ) {return}
+      if ( !hasClass(modal,showClass) ) {return}
   
-      clearTimeout(modalTimer);
-      modalTimer = setTimeout(function(){
-        modal[isAnimating] = true;    
-        bootstrapCustomEvent.call(modal, hideEvent, component);
-        overlay = queryElement('.'+modalBackdropString);
-        overlayDelay = overlay && getTransitionDurationFromElement(overlay);
+      hideCustomEvent = bootstrapCustomEvent( hideEvent, component);
+      dispatchCustomEvent.call(modal, hideCustomEvent);
+      if ( hideCustomEvent[defaultPrevented] ) return;
   
-        removeClass(modal,showClass);
-        modal[setAttribute](ariaHidden, true);
+      modal[isAnimating] = true;    
   
-        setTimeout(function(){
-          hasClass(modal,'fade') ? emulateTransitionEnd(modal, triggerHide) : triggerHide();
-        }, supportTransitions && overlay && overlayDelay ? overlayDelay : 2);
-      },2)
+      removeClass(modal,showClass);
+      modal[setAttribute](ariaHidden, true);
+  
+      hasClass(modal,'fade') ? emulateTransitionEnd(modal, triggerHide) : triggerHide();
     };
     this.setContent = function( content ) {
       queryElement('.'+component+'-content',modal)[innerHTML] = content;
@@ -999,7 +1050,7 @@
   // DATA API
   supports[push]( [ stringModal, Modal, '['+dataToggle+'="modal"]' ] );
   
-  /* Native Javascript for Bootstrap 4 | Popover
+  /* Native JavaScript for Bootstrap 4 | Popover
   ----------------------------------------------*/
   
   // POPOVER DEFINITION
@@ -1030,6 +1081,11 @@
         dataContent = 'data-content',
         dismissible = 'dismissible',
         closeBtn = '<button type="button" class="close">×</button>',
+        // custom events
+        showCustomEvent = bootstrapCustomEvent(showEvent, component),
+        shownCustomEvent = bootstrapCustomEvent(shownEvent, component),
+        hideCustomEvent = bootstrapCustomEvent(hideEvent, component),
+        hiddenCustomEvent = bootstrapCustomEvent(hiddenEvent, component),
   
         // check container
         containerElement = queryElement(options[container]),
@@ -1092,7 +1148,7 @@
   
         if ( contentString !== null && self[template] === null ) { //create the popover from data attributes
   
-          popover[setAttribute]('role','tooltip');
+          popover[setAttribute]('role','tooltip');     
   
           if (titleString !== null) {
             var popoverTitle = DOC[createElement]('h3');
@@ -1124,7 +1180,7 @@
         !hasClass(popover,showClass) && ( addClass(popover,showClass) );
       },
       updatePopover = function() {
-        styleTip(element,popover,placementSetting,self[container]);
+        styleTip(element, popover, placementSetting, self[container]);
       },
   
       // event toggle
@@ -1139,12 +1195,12 @@
       // triggers
       showTrigger = function() {
         dismissHandlerToggle(on);
-        bootstrapCustomEvent.call(element, shownEvent, component);
+        dispatchCustomEvent.call(element, shownCustomEvent);
       },
       hideTrigger = function() {
         dismissHandlerToggle(off);
         removePopover();
-        bootstrapCustomEvent.call(element, hiddenEvent, component);
+        dispatchCustomEvent.call(element, hiddenCustomEvent);
       };
   
     // public methods / handlers
@@ -1156,11 +1212,13 @@
       clearTimeout(timer);
       timer = setTimeout( function() {
         if (popover === null) {
+          dispatchCustomEvent.call(element, showCustomEvent);
+          if ( showCustomEvent[defaultPrevented] ) return;
+  
           placementSetting = self[placement]; // we reset placement in all cases
           createPopover();
           updatePopover();
           showPopover();
-          bootstrapCustomEvent.call(element, showEvent, component);
           !!self[animation] ? emulateTransitionEnd(popover, showTrigger) : showTrigger();
         }
       }, 20 );
@@ -1169,7 +1227,8 @@
       clearTimeout(timer);
       timer = setTimeout( function() {
         if (popover && popover !== null && hasClass(popover,showClass)) {
-          bootstrapCustomEvent.call(element, hideEvent, component);
+          dispatchCustomEvent.call(element, hideCustomEvent);
+          if ( hideCustomEvent[defaultPrevented] ) return;
           removeClass(popover,showClass);
           !!self[animation] ? emulateTransitionEnd(popover, hideTrigger) : hideTrigger();
         }
@@ -1193,7 +1252,7 @@
   supports[push]( [ stringPopover, Popover, '['+dataToggle+'="popover"]' ] );
   
   
-  /* Native Javascript for Bootstrap 4 | Tab
+  /* Native JavaScript for Bootstrap 4 | Tab
   -----------------------------------------*/
   
   // TAB DEFINITION
@@ -1207,7 +1266,9 @@
     var heightData = element[getAttribute](dataHeight),
       
         // strings
-        component = 'tab', height = 'height', float = 'float', isAnimating = 'isAnimating';
+        component = 'tab', height = 'height', float = 'float', isAnimating = 'isAnimating',
+        // custom events
+        showCustomEvent, shownCustomEvent, hideCustomEvent, hiddenCustomEvent;
         
     // set options
     options = options || {};
@@ -1240,7 +1301,8 @@
         } else {
           tabs[isAnimating] = false; 
         }
-        bootstrapCustomEvent.call(next, shownEvent, component, activeTab);
+        shownCustomEvent = bootstrapCustomEvent(shownEvent, component, activeTab);
+        dispatchCustomEvent.call(next, shownCustomEvent);
       },
       triggerHide = function() {
         if (tabsContentContainer) {
@@ -1248,13 +1310,17 @@
           nextContent[style][float] = left;        
           containerHeight = activeContent[scrollHeight];
         }
+  
+        showCustomEvent = bootstrapCustomEvent(showEvent, component, activeTab);
+        hiddenCustomEvent = bootstrapCustomEvent(hiddenEvent, component, next);
+  
+        dispatchCustomEvent.call(next, showCustomEvent);
+        if ( showCustomEvent[defaultPrevented] ) return;
           
         addClass(nextContent,active);
-        bootstrapCustomEvent.call(next, showEvent, component, activeTab);
   
         removeClass(activeContent,active);
-        bootstrapCustomEvent.call(activeTab, hiddenEvent, component, next);
-        
+  
         if (tabsContentContainer) {
           nextHeight = nextContent[scrollHeight];
           equalContents = nextHeight === containerHeight;
@@ -1270,7 +1336,9 @@
             addClass(nextContent,showClass);
             emulateTransitionEnd(nextContent,triggerShow);
           },20);
-        } else { triggerShow(); }        
+        } else { triggerShow(); }
+  
+        dispatchCustomEvent.call(activeTab, hiddenCustomEvent);
       };
   
     if (!tabs) return; // invalidate
@@ -1304,7 +1372,11 @@
       nextContent = queryElement(next[getAttribute]('href')); //this is the actual object, the next tab content to activate
       activeTab = getActiveTab(); 
       activeContent = getActiveContent();
-      
+  
+      hideCustomEvent = bootstrapCustomEvent( hideEvent, component, next);
+      dispatchCustomEvent.call(activeTab, hideCustomEvent);
+      if (hideCustomEvent[defaultPrevented]) return;    
+  
       tabs[isAnimating] = true;
       removeClass(activeTab,active);
       activeTab[setAttribute](ariaSelected,'false');
@@ -1318,8 +1390,6 @@
           if (!hasClass(dropdown,active)) addClass(dropdown,active);
         }
       }
-      
-      bootstrapCustomEvent.call(activeTab, hideEvent, component, next);
   
       if (hasClass(activeContent, 'fade')) {
         removeClass(activeContent,showClass);
@@ -1341,7 +1411,7 @@
   
   
   
-  /* Native Javascript for Bootstrap | Initialize Data API
+  /* Native JavaScript for Bootstrap | Initialize Data API
   --------------------------------------------------------*/
   var initializeDataAPI = function( constructor, collection ){
       for (var i=0, l=collection[length]; i<l; i++) {
