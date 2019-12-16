@@ -10,7 +10,6 @@
 #include <string.h>
 #include <inttypes.h>
 #include <signal.h>
-#include <assert.h>
 #include <unistd.h>
 #include <mpd/client.h>
 
@@ -28,10 +27,8 @@
 
 void mpd_client_notify(sds message) {
     LOG_DEBUG("Push websocket notify to queue: %s", message);
-    t_work_result *response = (t_work_result *)malloc(sizeof(t_work_result));
-    assert(response);
-    response->conn_id = 0;
-    response->data = sdsdup(message);
+    t_work_result *response = create_result_new(0, 0, 0, "");
+    response->data = sdsreplace(response->data, message);
     tiny_queue_push(web_server_queue, response);
 }
 
@@ -58,7 +55,7 @@ sds check_error_and_recover(t_mpd_state *mpd_state, sds buffer, sds method, int 
             buffer = jsonrpc_respond_message(buffer, method, request_id, mpd_connection_get_error_message(mpd_state->conn), true);
         }
         if (!mpd_connection_clear_error(mpd_state->conn)) {
-            mpd_state->conn_state = MPD_FAILURE;
+//            mpd_state->conn_state = MPD_FAILURE;
         }
     }
     return buffer;
@@ -73,7 +70,7 @@ sds check_error_and_recover_notify(t_mpd_state *mpd_state, sds buffer) {
             buffer = jsonrpc_end_notify(buffer);
         }
         if (!mpd_connection_clear_error(mpd_state->conn)) {
-            mpd_state->conn_state = MPD_FAILURE;
+//            mpd_state->conn_state = MPD_FAILURE;
         }
     }
     return buffer;

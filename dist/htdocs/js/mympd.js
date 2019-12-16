@@ -60,9 +60,13 @@ function sendAPI(method, params, callback, onerror) {
 }
 
 function webSocketConnect() {
-    if (socket !== null) {
+    if (socket !== null && socket.readyState === WebSocket.OPEN) {
         logInfo("Socket already connected");
+        websocketConnected = true;
         return;
+    }
+    else {
+        websocketConnected = false;
     }
     let wsUrl = getWsUrl();
     socket = new WebSocket(wsUrl);
@@ -412,7 +416,7 @@ function parseListDBtags(obj) {
 function createListTitleObserver(ele) {
   let options = {
     root: null,
-    rootMargin: "0px",
+    rootMargin: '0px',
   };
 
   let observer = new IntersectionObserver(getListTitles, options);
@@ -447,8 +451,8 @@ function parseListTitles(obj) {
         navigateTable(this, event.key);
     }, false);
     let img = card.getElementsByTagName('a')[0];
-    if (img) {
-        img.style.backgroundImage = 'url("' + subdir + obj.result.cover + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
+    if (img && obj.result.data.length > 0) {
+        img.style.backgroundImage = 'url("' + subdir + '/albumart/' + obj.result.data[0].uri + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
         img.setAttribute('data-uri', encodeURI(obj.result.data[0].uri.replace(/\/[^/]+$/, '')));
         img.setAttribute('data-name', obj.result.Album);
         img.setAttribute('data-type', 'dir');
@@ -534,6 +538,1490 @@ function saveBookmark() {
         document.getElementById('saveBookmarkName').classList.add('is-invalid');
     }
 }
+
+function parseCovergrid(obj) {
+    let nrItems = obj.result.returnedEntities;
+    let cardContainer = document.getElementById('BrowseCovergridList');
+    let cols = cardContainer.getElementsByClassName('col');
+    if (cols.length === 0) {
+        cardContainer.innerHTML = '';
+    }
+    for (let i = 0; i < nrItems; i++) {
+        let col = document.createElement('div');
+        col.classList.add('col', 'px-0', 'flex-grow-0');
+        let html = '<div class="card card-grid" data-uri="' + encodeURI(obj.result.data[i].FirstSongUri) + '">' + 
+                   '<div class="card-body album-cover-loading album-cover-grid"></div>' +
+                   '<div class="card-footer card-footer-grid p-2" title="' + obj.result.data[i].AlbumArtist + ': ' + obj.result.data[i].Album + '">' +
+                   obj.result.data[i].Album +
+                   '<br/><small>' + obj.result.data[i].AlbumArtist + '</small>' +
+                   '</div></div>';
+        col.innerHTML = html;
+        let replaced = false;
+        if (i < cols.length) {
+            if (cols[i].firstChild.getAttribute('data-uri') !== col.firstChild.getAttribute('data-uri')) {
+                cols[i].replaceWith(col);
+                replaced = true;
+            }
+        }
+        else {
+            cardContainer.append(col);
+            replaced = true;
+        }
+        if ('IntersectionObserver' in window && replaced === true) {
+            let options = {
+                root: null,
+                rootMargin: '0px',
+            };
+            let observer = new IntersectionObserver(setGridImage, options);
+            observer.observe(col);
+        }
+        else if (replaced === true) {
+            col.firstChild.style.backgroundImage = 'url("/albumart/' + obj.result.data[i].uri + '")';
+        }
+    }
+    let colsLen = cols.length - 1;
+    for (let i = colsLen; i >= nrItems; i --) {
+        cols[i].remove();
+    }
+    
+    setPagination(obj.result.totalEntities, obj.result.returnedEntities);
+                    
+    if (nrItems === 0) {
+        cardContainer.innerHTML = t('Empty list');
+    }
+    document.getElementById(app.current.app + (app.current.tab === undefined ? '' : app.current.tab) + 'List').classList.remove('opacity05');
+    document.getElementById('cardFooterBrowse').innerText = gtPage('Num entries', obj.result.returnedEntities, obj.result.totalEntities);
+}
+
+function setGridImage(changes, observer) {
+    changes.forEach(change => {
+        if (change.intersectionRatio > 0) {
+            observer.unobserve(change.target);
+            let uri = decodeURI(change.target.firstChild.getAttribute('data-uri'));
+            change.target.firstChild.firstChild.style.backgroundImage = 'url("/albumart/' + uri + '")';
+        }
+    });
+}
+var locales=[
+	{"code":"de-DE","desc":"Deutsch"},
+	{"code":"en-US","desc":"English"},
+	{"code":"ko-KR","desc":"한국어"}
+];
+var phrases={
+	"%{name} added to queue":{
+		"de-DE":"%{name} hinzugefügt",
+		"ko-KR":"순서에 %{name} 추가함"
+	},
+	"%{name} added to queue position %{to}":{
+		"de-DE":"%{name} an Warteschlangenposition %{to} hinzugefügt",
+		"ko-KR":"%{to} 순서 위치에 %{name} 추가함"
+	},
+	"A queue longer than 1 song in length is required to crop":{
+		"de-DE":"Die Warteschlange muss länger als 1 Lied sein um sie abzuschneiden",
+		"ko-KR":"남기려면 순서에 한 곡이상이어야 함"
+	},
+	"About":{
+		"de-DE":"Über myMPD",
+		"ko-KR":"myMPD에 대하여"
+	},
+	"Action":{
+		"de-DE":"Aktion",
+		"ko-KR":"기능"
+	},
+	"Add":{
+		"de-DE":"Hinzufügen",
+		"ko-KR":"추가"
+	},
+	"Add after current playing song":{
+		"de-DE":"Nach aktuellem Lied hinzufügen",
+		"ko-KR":"지금 연주 중인 곡 다음에 추가"
+	},
+	"Add all to playlist":{
+		"de-DE":"Alles zu einer Wiedergabeliste hinzufügen",
+		"ko-KR":"연주목록에 모두 추가"
+	},
+	"Add all to queue":{
+		"de-DE":"Alles zur Warteschlange hinzufügen",
+		"ko-KR":"순서에 모두 추가"
+	},
+	"Add bookmark":{
+		"de-DE":"Lesezeichen hinzufügen",
+		"ko-KR":"즐겨찾기 추가"
+	},
+	"Add random":{
+		"de-DE":"Zufällig hinzufügen",
+		"ko-KR":"무작위 추가"
+	},
+	"Add stream":{
+		"de-DE":"Stream hinzufügen",
+		"ko-KR":"스트림 추가"
+	},
+	"Add to home screen":{
+		"de-DE":"Zum Startbildschirm hinzufügen",
+		"ko-KR":"홈 화면에 추가"
+	},
+	"Add to playlist":{
+		"de-DE":"Zu einer Wiedergabeliste hinzufügen",
+		"ko-KR":"연주목록에 추가"
+	},
+	"Add to queue":{
+		"de-DE":"Zu Warteschlange hinzufügen",
+		"ko-KR":"순서에 추가"
+	},
+	"Added %{uri} to playlist %{playlist}":{
+		"de-DE":"%{uri} zu Wiedergabeliste %{playlist} hinzugefügt",
+		"ko-KR":"%{uri}의 %{playlist} 연주목록 추가에 실패함"
+	},
+	"Added all songs":{
+		"de-DE":"Alle Lieder hinzugefügt",
+		"ko-KR":"모든 곡을 추가함"
+	},
+	"Added songs to %{playlist}":{
+		"de-DE":"Lieder zur Wiedergabeliste %{playlist} hinzugefügt",
+		"ko-KR":"%{playlist}에 곡 추가함"
+	},
+	"Added songs to queue":{
+		"de-DE":"Lieder zur Warteschlange hinzugefügt",
+		"ko-KR":"순서에 곡 추가함"
+	},
+	"Added stream %{streamUri} to queue":{
+		"de-DE":"Stream %{streamUri} zu Warteschlange hinzugefügt",
+		"ko-KR":"%{streamUri} 스트림을 순서에 추가함"
+	},
+	"Adding random songs to queue failed":{
+		"de-DE":"Zufällige Lieder konnten nicht zur Warteschlange hinzugefügt werden",
+		"ko-KR":"순서에 무작위 곡 추가 안 됨"
+	},
+	"Advanced":{
+		"de-DE":"Erweitert",
+		"ko-KR":"고급"
+	},
+	"Advanced search is disabled":{
+		"de-DE":"Erweiterte Suche ist deaktiviert",
+		"ko-KR":"상세 찾기 사용 안 함"
+	},
+	"Album":{
+		"de-DE":"Album",
+		"ko-KR":"음반"
+	},
+	"AlbumArtist":{
+		"de-DE":"Album Interpret",
+		"ko-KR":"음반 연주가"
+	},
+	"AlbumArtistSort":{
+		"de-DE":"Album Interpret",
+		"ko-KR":"음반 연주가 정렬"
+	},
+	"AlbumSort":{
+		"de-DE":"Album",
+		"ko-KR":"음반 정렬"
+	},
+	"Albumart":{
+		"de-DE":"Albumcover",
+		"ko-KR":"음반표지"
+	},
+	"Albums":{
+		"de-DE":"Alben",
+		"ko-KR":"음반"
+	},
+	"Any Tag":{
+		"de-DE":"Alle Tags",
+		"ko-KR":"모든 태그"
+	},
+	"Append item to playlist":{
+		"de-DE":"Ausgewähltes Element zu einer Wiedergabeliste hinzufügen",
+		"ko-KR":"연주목록에 항목 추가"
+	},
+	"Append item to queue":{
+		"de-DE":"Ausgewähltes Element an Warteschlange anhängen",
+		"ko-KR":"순서에 항목 추가"
+	},
+	"Append to queue":{
+		"de-DE":"An Warteschlange anhängen",
+		"ko-KR":"순서에 추가"
+	},
+	"Apply":{
+		"de-DE":"Anwenden",
+		"ko-KR":"적용"
+	},
+	"Applying settings":{
+		"de-DE":"Einstellungen werden angewendet",
+		"ko-KR":"설정 적용"
+	},
+	"Artist":{
+		"de-DE":"Künstler",
+		"ko-KR":"연주가"
+	},
+	"ArtistSort":{
+		"de-DE":"Künstler",
+		"ko-KR":"연주가 정렬"
+	},
+	"Artists":{
+		"de-DE":"Interpreten",
+		"ko-KR":"연주가"
+	},
+	"Author":{
+		"de-DE":"Autor",
+		"ko-KR":"저자"
+	},
+	"Autodetect":{
+		"de-DE":"Automatisch",
+		"ko-KR":"자동 감지"
+	},
+	"Autoplay":{
+		"de-DE":"Automatische Wiedergabe",
+		"ko-KR":"자동 연주"
+	},
+	"Background":{
+		"de-DE":"Hintergrund",
+		"ko-KR":"배경"
+	},
+	"Bookmark URI":{
+		"de-DE":"Lesezeichen URL",
+		"ko-KR":"즐겨찾기 주소"
+	},
+	"Bookmark name":{
+		"de-DE":"Name",
+		"ko-KR":"즐겨찾기 이름"
+	},
+	"Bookmarks":{
+		"de-DE":"Lesezeichen",
+		"ko-KR":"즐겨찾기"
+	},
+	"Browse":{
+		"de-DE":"Durchsuchen",
+		"ko-KR":"열기"
+	},
+	"Browser default":{
+		"de-DE":"Browsereinstellung",
+		"ko-KR":"기본 열기"
+	},
+	"CSS filter":{
+		"de-DE":"CSS Filter",
+		"ko-KR":"CSS 필터"
+	},
+	"Calculate":{
+		"de-DE":"Berechne Fingerabdruck",
+		"ko-KR":"계산"
+	},
+	"Can not parse settings":{
+		"de-DE":"Einstellungen können nicht geladen werden",
+		"ko-KR":"설정을 분석할 수 없음"
+	},
+	"Can not parse smart playlist file":{
+		"de-DE":"Intelligente Wiedergabeliste konnte nicht geparsed werden",
+		"ko-KR":"스마트 연주목록 파일을 분석할 수 없음"
+	},
+	"Can not read smart playlist file":{
+		"de-DE":"Intelligente Wiedergabeliste konnte nicht eingelesen werden",
+		"ko-KR":"스마트 연주목록 파일을 읽을 수 없음"
+	},
+	"Can not start playing":{
+		"de-DE":"Wiedergabe kann nicht gestartet werden",
+		"ko-KR":"연주를 시작할 수 없음"
+	},
+	"Can't access music directory":{
+		"de-DE":"Musik Verzeichnis ist nicht verfügbar",
+		"ko-KR":"음원 디렉터리에 접근할 수 없음"
+	},
+	"Can't save setting %{setting}":{
+		"de-DE":"%{setting} konnte nicht gespeichert werden",
+		"ko-KR":"%{setting} 설정 저장할 수 없음"
+	},
+	"Cancel":{
+		"de-DE":"Abbrechen",
+		"ko-KR":"취소"
+	},
+	"Certificate":{
+		"de-DE":"Zertifikat",
+		"ko-KR":"인증"
+	},
+	"Clear":{
+		"de-DE":"Löschen"
+	},
+	"Clear app cache and reload":{
+		"de-DE":"Browser Cache löschen und neu laden",
+		"ko-KR":"캐시를 지우고 다시 읽기"
+	},
+	"Clear covercache":{
+		"de-DE":"Covercache löschen"
+	},
+	"Clear playlist":{
+		"de-DE":"Playlist leeren",
+		"ko-KR":"연주목록 비우기"
+	},
+	"Clear queue":{
+		"de-DE":"Warteschlange leeren",
+		"ko-KR":"순서 비우기"
+	},
+	"Clearing bookmarks failed":{
+		"de-DE":"Löschen aller Lesezeichen fehlgeschlagen",
+		"ko-KR":"즐겨찾기 지우기 안 됨"
+	},
+	"Close":{
+		"de-DE":"Schließen",
+		"ko-KR":"닫기"
+	},
+	"Comment":{
+		"de-DE":"Kommentar",
+		"ko-KR":"설명"
+	},
+	"Composer":{
+		"de-DE":"Komponist",
+		"ko-KR":"작곡가"
+	},
+	"Conductor":{
+		"de-DE":"Dirigent"
+	},
+	"Connect to websocket":{
+		"de-DE":"Websocketverbindung wird hergestellt",
+		"ko-KR":"웹소켓에 연결"
+	},
+	"Connected to MPD":{
+		"de-DE":"Verbindung zu MPD hergestellt",
+		"ko-KR":"MPD로 연결됨"
+	},
+	"Connected to myMPD":{
+		"de-DE":"Verbindung zu myMPD hergestellt",
+		"ko-KR":"myMPD로 연결됨"
+	},
+	"Connecting to stream...":{
+		"de-DE":"Verbinde...",
+		"ko-KR":"스트림에 연결 중..."
+	},
+	"Connection":{
+		"de-DE":"Verbindung",
+		"ko-KR":"연결"
+	},
+	"Consume":{
+		"de-DE":"Konsumieren",
+		"ko-KR":"써버리기"
+	},
+	"Consume must be enabled":{
+		"de-DE":"Konsumieren muss aktiviert sein",
+		"ko-KR":"소비를 선택해야 함"
+	},
+	"Covergrid":{
+		"de-DE":"Albumcover"
+	},
+	"Create Playlist":{
+		"de-DE":"Neue Wiedergabeliste erstellen",
+		"ko-KR":"연주목록 만들기"
+	},
+	"Crop":{
+		"de-DE":"Abschneiden"
+	},
+	"Crop queue":{
+		"de-DE":"Warteschlange abschneiden",
+		"ko-KR":"순서 남기기"
+	},
+	"Crossfade":{
+		"de-DE":"Crossfade",
+		"ko-KR":"크로스페이드"
+	},
+	"DB play time":{
+		"de-DE":"Datenbank Wiedergabedauer",
+		"ko-KR":"DB 연주 시간"
+	},
+	"DB updated":{
+		"de-DE":"Datenbank zuletzt aktualisiert",
+		"ko-KR":"DB 업데이트됨"
+	},
+	"Dark":{
+		"de-DE":"Dunkel"
+	},
+	"Database":{
+		"de-DE":"Datenbank",
+		"ko-KR":"데이터 베이스"
+	},
+	"Database statistics":{
+		"de-DE":"Datenbank Statistiken",
+		"ko-KR":"데이터베이스 통계"
+	},
+	"Database successfully updated":{
+		"de-DE":"Datenbank erfolgreich aktualisiert",
+		"ko-KR":"데이터베이스 업데이트됨"
+	},
+	"Database update finished":{
+		"de-DE":"Datenbankaktualisierung beendet",
+		"ko-KR":"데이터베이스 업데이트 마침"
+	},
+	"Database update started":{
+		"de-DE":"Datenbankaktualisierung gestartet",
+		"ko-KR":"데이터베이스 업데이트 시작됨"
+	},
+	"Date":{
+		"de-DE":"Datum",
+		"ko-KR":"날짜"
+	},
+	"Days":{
+		"de-DE":"Tage",
+		"en-US":"Days",
+		"ko-KR":"일"
+	},
+	"Default":{
+		"de-DE":"Standard"
+	},
+	"Delete":{
+		"de-DE":"Löschen",
+		"ko-KR":"지우기"
+	},
+	"Delete playlist":{
+		"de-DE":"Wiedergabeliste löschen",
+		"ko-KR":"연주목록 지우기"
+	},
+	"Deleting bookmark failed":{
+		"de-DE":"Lesezeichen konnte nicht gelöscht werden",
+		"ko-KR":"즐겨찾기 지우기 안 됨"
+	},
+	"Deleting smart playlist failed":{
+		"de-DE":"Intelligente Wiedergabeliste konnte nicht gelöscht werden",
+		"ko-KR":"스마트 연주목록 지우기 안 됨"
+	},
+	"Dependent on the size of your music collection this can take a while":{
+		"de-DE":"Der Aktualisierungsvorgang kann einige Zeit in Anspruch nehmen",
+		"ko-KR":"음원 크기에 따라 시간이 걸릴 수 있습니다"
+	},
+	"Descending":{
+		"de-DE":"Absteigend"
+	},
+	"Disc":{
+		"de-DE":"CD",
+		"ko-KR":"디스크"
+	},
+	"Dislike song":{
+		"de-DE":"Schlechtes Lied",
+		"ko-KR":"곡 좋아하지 않음"
+	},
+	"Download":{
+		"de-DE":"Herunterladen",
+		"ko-KR":"내려받기"
+	},
+	"Duration":{
+		"de-DE":"Länge",
+		"ko-KR":"길이"
+	},
+	"Edit playlist":{
+		"de-DE":"Wiegergabeliste bearbeiten",
+		"ko-KR":"연주목록 편집"
+	},
+	"Edit smart playlist":{
+		"de-DE":"Intelligente Wiedergabeliste bearbeiten",
+		"ko-KR":"스마트 연주목록 편집"
+	},
+	"Empty list":{
+		"de-DE":"Leere Liste",
+		"ko-KR":"목록 비우기"
+	},
+	"Empty playlist":{
+		"de-DE":"Leere Wiedergabeliste",
+		"ko-KR":"연주목록 비우기"
+	},
+	"Empty queue":{
+		"de-DE":"Leere Warteschlange",
+		"ko-KR":"순서 비우기"
+	},
+	"Failed to execute cmd %{cmd}":{
+		"de-DE":"Fehler beim Ausführen des Systembefehls %{cmd}",
+		"ko-KR":"%{cmd} 명령어 실행 안 됨"
+	},
+	"Failed to open bookmarks file":{
+		"de-DE":"Lesezeichen Datei konnte nicht geöffnet werden",
+		"ko-KR":"즐겨찾기 파일 열기 안 됨"
+	},
+	"Failed to save playlist":{
+		"de-DE":"Wiedergabeliste konnte nicht gespeichert werden",
+		"ko-KR":"연주목록 저장 안 됨"
+	},
+	"Failed to send love message to channel":{
+		"de-DE":"Lieblingslied Nachricht konnte nicht gesendet werden",
+		"ko-KR":"채널에 애청곡 메시지 보내기 안 됨"
+	},
+	"Failed to set like, invalid like value":{
+		"de-DE":"Wertung konnte nicht gesetzt werden, ungültiger Wert",
+		"ko-KR":"잘못된 값으로 좋아요 설정 안 됨"
+	},
+	"Failed to set like, invalid song uri":{
+		"de-DE":"Wertung konnte nicht gesetzt werden, ungültige Lied URL",
+		"ko-KR":"잘못된 곡 주소로 좋아요 설정 안 됨"
+	},
+	"Fetch MPD settings":{
+		"de-DE":"Lade MPD Einstellungen",
+		"ko-KR":"MPD 설정 가져오기"
+	},
+	"Fetch myMPD settings":{
+		"de-DE":"Lade myMPD Einstellungen",
+		"ko-KR":"myMPD 설정 가져오기"
+	},
+	"Fileformat":{
+		"de-DE":"Dateiformat",
+		"ko-KR":"파일 포맷"
+	},
+	"Filename":{
+		"de-DE":"Dateiname",
+		"ko-KR":"파일 이름"
+	},
+	"Filesystem":{
+		"de-DE":"Dateisystem",
+		"ko-KR":"파일 시스템"
+	},
+	"Filetype":{
+		"de-DE":"Dateityp",
+		"ko-KR":"파일 형식"
+	},
+	"Fingerprint":{
+		"de-DE":"Fingerabdruck",
+		"ko-KR":"지문"
+	},
+	"Fingerprint command not supported":{
+		"de-DE":"Fingerprint Befehl ist nicht unterstützt",
+		"ko-KR":"지문 명령어 지원 안 됨"
+	},
+	"Focus search":{
+		"de-DE":"Gehe zur Suche",
+		"ko-KR":"찾기로 가기"
+	},
+	"Focus table":{
+		"de-DE":"In Tabelle navigieren",
+		"ko-KR":"목록에서 찾기"
+	},
+	"From":{
+		"de-DE":"Von",
+		"ko-KR":"원래"
+	},
+	"General":{
+		"de-DE":"Allgemein",
+		"ko-KR":"일반"
+	},
+	"Genre":{
+		"de-DE":"Genre",
+		"ko-KR":"장르"
+	},
+	"Goto browse covergrid":{
+		"de-DE":"Gehe zu Albumcover"
+	},
+	"Goto browse database":{
+		"de-DE":"Gehe zu Datenbank durchsuchen",
+		"ko-KR":"데이터베이스 열기로 가기"
+	},
+	"Goto browse filesystem":{
+		"de-DE":"Gehe zu Dateisystem",
+		"ko-KR":"파일 시스템 열기로 가기"
+	},
+	"Goto browse playlists":{
+		"de-DE":"Gehe zu Wiedergabelisten",
+		"ko-KR":"연주목록 열기로 가기"
+	},
+	"Goto last played":{
+		"de-DE":"Gehe zu Zuletzt gespielt",
+		"ko-KR":"앞선 연주로 가기"
+	},
+	"Goto playback":{
+		"de-DE":"Gehe zu Wiedergabe",
+		"ko-KR":"연주로 가기"
+	},
+	"Goto queue":{
+		"de-DE":"Gehe zu Warteschlange",
+		"ko-KR":"순서로 가기"
+	},
+	"Goto search":{
+		"de-DE":"Gehe zur Suche",
+		"ko-KR":"찾기로 가기"
+	},
+	"Grouping":{
+		"de-DE":"Grupierung",
+		"ko-KR":"묶음"
+	},
+	"Homepage":{
+		"de-DE":"Homepage",
+		"ko-KR":"홈페이지"
+	},
+	"Hours":{
+		"de-DE":"Std",
+		"en-US":"Hrs",
+		"ko-KR":"시간"
+	},
+	"Initializing myMPD":{
+		"de-DE":"Initialisiere myMPD",
+		"ko-KR":"myMPD 초기화"
+	},
+	"Interface":{
+		"de-DE":"Oberfläche"
+	},
+	"Invalid API request":{
+		"de-DE":"Ungültiger API Befehl",
+		"ko-KR":"잘못된 API 요구"
+	},
+	"Invalid CSS filter":{
+		"de-DE":"Ungültiger CSS Filter",
+		"ko-KR":"잘못된 CSS 필터"
+	},
+	"Invalid MPD host":{
+		"de-DE":"Ungültiger MPD Host",
+		"ko-KR":"잘못된 MPD 호스트"
+	},
+	"Invalid MPD password":{
+		"de-DE":"Ungültiges MPD Passwort",
+		"ko-KR":"잘못된 MPD 비밀번호"
+	},
+	"Invalid MPD port":{
+		"de-DE":"Ungültiger MPD Port",
+		"ko-KR":"잘못된 MPD 포트"
+	},
+	"Invalid URI":{
+		"de-DE":"Ungültige URL",
+		"ko-KR":"잘못된 주소"
+	},
+	"Invalid channel name":{
+		"de-DE":"Ungültiger Channel name",
+		"ko-KR":"잘못된 채널 이름"
+	},
+	"Invalid color":{
+		"de-DE":"Ungültige Farbe",
+		"ko-KR":"잘못된 색상"
+	},
+	"Invalid filename":{
+		"de-DE":"Ungültiger Dateiname",
+		"ko-KR":"잘못된 파일 이름"
+	},
+	"Invalid message":{
+		"de-DE":"Ungültige Zeichen in Nachricht",
+		"ko-KR":"잘못된 메시지"
+	},
+	"Invalid music directory":{
+		"de-DE":"Ungültiges Musikverzeichnis",
+		"ko-KR":"잘못된 음원 디렉터리"
+	},
+	"Invalid size":{
+		"de-DE":"Ungültige Größe",
+		"ko-KR":"잘못된 크기"
+	},
+	"Invalid type":{
+		"de-DE":"Ungültiger Typ",
+		"ko-KR":"잘못된 형식"
+	},
+	"JavaScript is disabled":{
+		"de-DE":"JavaScript ist deaktiviert",
+		"ko-KR":"자바스크립트 사용 안 함"
+	},
+	"Jukebox":{
+		"de-DE":"Jukebox",
+		"ko-KR":"뮤직박스"
+	},
+	"Jukebox mode":{
+		"de-DE":"Jukebox Modus",
+		"ko-KR":"뮤직박스 모드"
+	},
+	"Keep queue length":{
+		"de-DE":"Warteschlangenlänge",
+		"ko-KR":"순서 길이 유지"
+	},
+	"Label":{
+		"de-DE":"Herausgeber",
+		"ko-KR":"음반사"
+	},
+	"Last modified":{
+		"de-DE":"Zuletzt geändert",
+		"ko-KR":"앞서 수정함"
+	},
+	"Last played":{
+		"de-DE":"Zuletzt gespielt",
+		"ko-KR":"앞서 연주함"
+	},
+	"Last played list count":{
+		"de-DE":"Anzahl zuletzt gespielte Lieder",
+		"ko-KR":"앞선 연주 목록 개수"
+	},
+	"Last skipped":{
+		"de-DE":"Zuletzt übersprungen",
+		"ko-KR":"앞서 건너뜀"
+	},
+	"LastPlayed":{
+		"de-DE":"Zuletzt gespielt",
+		"ko-KR":"앞서 연주함"
+	},
+	"Libmpdclient version":{
+		"de-DE":"Libmpdclient Version",
+		"ko-KR":"Libmpdclient 버전"
+	},
+	"Libmympdclient version":{
+		"de-DE":"Libmympdclient Version"
+	},
+	"Light":{
+		"de-DE":"Hell"
+	},
+	"Like":{
+		"de-DE":"Wertung",
+		"ko-KR":"좋아요"
+	},
+	"Like song":{
+		"de-DE":"Gutes Lied",
+		"ko-KR":"곡 좋아요"
+	},
+	"Local playback":{
+		"de-DE":"Lokale Wiedergabe",
+		"ko-KR":"로컬 연주"
+	},
+	"Locale":{
+		"de-DE":"Sprache",
+		"ko-KR":"언어"
+	},
+	"Love song":{
+		"de-DE":"Lieblingslied",
+		"ko-KR":"애청곡"
+	},
+	"MPD channel":{
+		"de-DE":"MPD Channel",
+		"ko-KR":"MPD 채널"
+	},
+	"MPD channel not found":{
+		"de-DE":"MPD Channel nicht gefunden",
+		"ko-KR":"MPD 채널 없음"
+	},
+	"MPD connection":{
+		"de-DE":"MPD Verbindung",
+		"ko-KR":"MPD 연결"
+	},
+	"MPD connection error: %{error}":{
+		"de-DE":"MPD Verbindungsfehler: %{error}",
+		"ko-KR":"MPD 연결 오류: %{error}"
+	},
+	"MPD disconnected":{
+		"de-DE":"MPD nicht verbunden",
+		"ko-KR":"MPD 연결 끊어짐"
+	},
+	"MPD host":{
+		"de-DE":"MPD Host",
+		"ko-KR":"MPD 호스트"
+	},
+	"MPD password":{
+		"de-DE":"MPD Passwort",
+		"ko-KR":"MPD 비밀번호"
+	},
+	"MPD port":{
+		"de-DE":"MPD Port",
+		"ko-KR":"MPD 포트"
+	},
+	"MPD stickers are disabled":{
+		"de-DE":"MPD Sticker sind deaktiviert",
+		"ko-KR":"MPD 스티커 사용 안 함"
+	},
+	"MPD uptime":{
+		"de-DE":"MPD Uptime",
+		"ko-KR":"MPD 가동 시간"
+	},
+	"MUSICBRAINZ_ALBUMARTISTID":{
+		"de-DE":"Musicbrainz AlbumArtist ID",
+		"ko-KR":"뮤직브레인즈 음반 연주자 ID"
+	},
+	"MUSICBRAINZ_ALBUMID":{
+		"de-DE":"Musicbrainz Album ID",
+		"ko-KR":"뮤직브레인즈 음반 ID"
+	},
+	"MUSICBRAINZ_ARTISTID":{
+		"de-DE":"Musicbrainz Künstler ID",
+		"ko-KR":"뮤직브레인즈 연주자 ID"
+	},
+	"MUSICBRAINZ_RELEASETRACKID":{
+		"de-DE":"Musicbrainz Release Track ID",
+		"ko-KR":"뮤직브레인즈 발표 곡 ID"
+	},
+	"MUSICBRAINZ_TRACKID":{
+		"de-DE":"Musicbrainz Track ID",
+		"ko-KR":"뮤직브레인즈 곡 ID"
+	},
+	"MUSICBRAINZ_WORKID":{
+		"de-DE":"Musicbrainz Werk ID",
+		"ko-KR":"뮤직브레인즈 작품 ID"
+	},
+	"Max. songs":{
+		"de-DE":"Max. Lieder",
+		"ko-KR":"최대 곡"
+	},
+	"Message":{
+		"de-DE":"Nachricht",
+		"ko-KR":"메시지"
+	},
+	"Minutes":{
+		"de-DE":"Min",
+		"en-US":"Min",
+		"ko-KR":"분"
+	},
+	"Mixramp DB":{
+		"de-DE":"Mixramp DB",
+		"ko-KR":"Mixramp DB"
+	},
+	"Mixramp delay":{
+		"de-DE":"Mixramp Verzögerung",
+		"ko-KR":"Mixramp 지연"
+	},
+	"Music directory":{
+		"de-DE":"Musikverzeichnis",
+		"ko-KR":"음원 디렉터리"
+	},
+	"Music directory not found":{
+		"de-DE":"Musikverzeichnis nicht gefunden",
+		"ko-KR":"음원 디렉터리 없음"
+	},
+	"Must be a number":{
+		"de-DE":"Muss eine Zahl sein",
+		"ko-KR":"숫자여야 함"
+	},
+	"Must be a number and greater than zero":{
+		"de-DE":"Muss eine Zahl größer als 0 sein",
+		"ko-KR":"0보다 큰 숫자여야 함"
+	},
+	"Must be a number smaller or equal 200":{
+		"de-DE":"Muss eine Zahl kleinergleich 200 sein",
+		"ko-KR":"200이하의 숫자여야 함"
+	},
+	"Name":{
+		"de-DE":"Name",
+		"ko-KR":"이름"
+	},
+	"New playlist":{
+		"de-DE":"Neue Wiedergabeliste",
+		"ko-KR":"새 연주목록"
+	},
+	"Next page":{
+		"de-DE":"Nächste Seite",
+		"ko-KR":"다음 페이지"
+	},
+	"Next song":{
+		"de-DE":"Nächstes Lied",
+		"ko-KR":"다음 곡"
+	},
+	"No albumart found by mpd":{
+		"de-DE":"MPD konnte keine Cover finden"
+	},
+	"No bookmarks found":{
+		"de-DE":"Keine Lesezeichen gefunden",
+		"ko-KR":"즐겨찾기를 찾을 수 없음"
+	},
+	"No current song":{
+		"de-DE":"Kein Lied ausgwählt",
+		"ko-KR":"지금 곡 없음"
+	},
+	"No playlists found":{
+		"de-DE":"Keine Wiedergabelisten gefunden",
+		"ko-KR":"연주목록 찾을 수 없음"
+	},
+	"No response for method %{method}":{
+		"de-DE":"Keine Rückmeldung für Aufruf %{method}",
+		"ko-KR":"%{method} 응답 없음"
+	},
+	"No results, please refine your search":{
+		"de-DE":"Keine Ergebnisse, bitte passe die Suche an",
+		"ko-KR":"결과가 없으므로, 맞게 찾아야 함"
+	},
+	"No search expression defined":{
+		"de-DE":"Kein Suchausdruck angegeben",
+		"ko-KR":"찾을 문구 없음"
+	},
+	"None":{
+		"de-DE":"Keines",
+		"ko-KR":"없음"
+	},
+	"Notifications":{
+		"de-DE":"Hinweise",
+		"ko-KR":"알림"
+	},
+	"Num entries":{
+		"de-DE":"%{smart_count} Eintrag |||| %{smart_count} Einträge",
+		"en-US":"%{smart_count} Entry |||| %{smart_count} Entries",
+		"ko-KR":"%{smart_count} 항목 |||| %{smart_count} 항목"
+	},
+	"Num playlists":{
+		"de-DE":"%{smart_count} Wiedergabeliste |||| %{smart_count} Wiedergabelisten",
+		"en-US":"%{smart_count} Playlist |||| %{smart_count} Playlists",
+		"ko-KR":"%{smart_count} 연주목록 |||| %{smart_count} 연주목록"
+	},
+	"Num songs":{
+		"de-DE":"%{smart_count} Lied |||| %{smart_count} Lieder",
+		"en-US":"%{smart_count} Song |||| %{smart_count} Songs",
+		"ko-KR":"%{smart_count} 곡 |||| %{smart_count} 곡"
+	},
+	"Off":{
+		"de-DE":"deaktiviert",
+		"ko-KR":"끄기"
+	},
+	"On page notifications":{
+		"de-DE":"Integrierte Hinweise",
+		"ko-KR":"페이지에 알림"
+	},
+	"Open about":{
+		"de-DE":"Öffne Über myMPD",
+		"ko-KR":"myMPD에 대하여 열기"
+	},
+	"Open local player":{
+		"de-DE":"Lokale Wiedergabe",
+		"ko-KR":"로컬 연주기 열기"
+	},
+	"Open main menu":{
+		"de-DE":"Öffne Hauptmenü",
+		"ko-KR":"주 메뉴로 가기"
+	},
+	"Open settings":{
+		"de-DE":"Einstellungen",
+		"ko-KR":"설정 열기"
+	},
+	"Open song details":{
+		"de-DE":"Lieddetails",
+		"ko-KR":"곡 정보 열기"
+	},
+	"Open volume menu":{
+		"de-DE":"Öffne Lautstärkemenü",
+		"ko-KR":"음량 메뉴 열기"
+	},
+	"Pagination":{
+		"de-DE":"Seitenumbruch",
+		"ko-KR":"페이지 매기기"
+	},
+	"Performer":{
+		"de-DE":"Aufführender",
+		"ko-KR":"연주자"
+	},
+	"Play count":{
+		"de-DE":"Wie oft gespielt",
+		"ko-KR":"연주 횟수"
+	},
+	"Play time":{
+		"de-DE":"Wiedergabedauer",
+		"ko-KR":"연주 시간"
+	},
+	"Playback":{
+		"de-DE":"Wiedergabe",
+		"ko-KR":"연주"
+	},
+	"Playback statistics":{
+		"de-DE":"Wiedergabestatistiken",
+		"ko-KR":"연주 통계"
+	},
+	"Playlist":{
+		"de-DE":"Wiedergabeliste",
+		"ko-KR":"연주목록"
+	},
+	"Playlist name":{
+		"de-DE":"Wiedergabelistenname",
+		"ko-KR":"연주목록 이름"
+	},
+	"Playlists":{
+		"de-DE":"Wiedergabelisten",
+		"ko-KR":"연주목록"
+	},
+	"Playlists are disabled":{
+		"de-DE":"Wiedergabelisten sind deaktiviert",
+		"ko-KR":"연주목록 사용 안 함"
+	},
+	"Please choose playlist":{
+		"de-DE":"Bitte Wiedergabeliste auswählen",
+		"ko-KR":"연주목록을 선택합니다"
+	},
+	"Port":{
+		"de-DE":"Port",
+		"ko-KR":"포트"
+	},
+	"Pos":{
+		"de-DE":"Pos",
+		"ko-KR":"위치"
+	},
+	"Previous page":{
+		"de-DE":"Vorige Seite",
+		"ko-KR":"이전 페이지"
+	},
+	"Previous song":{
+		"de-DE":"Voriges Lied",
+		"ko-KR":"이전 곡"
+	},
+	"Protocol version":{
+		"de-DE":"Protokoll Version",
+		"ko-KR":"프로토콜 버전"
+	},
+	"Quantity":{
+		"de-DE":"Anzahl",
+		"ko-KR":"갯수"
+	},
+	"Queue":{
+		"de-DE":"Warteschlange",
+		"ko-KR":"순서"
+	},
+	"Queue replaced with %{name}":{
+		"de-DE":"Warteschlange mit %{name} ersetzt",
+		"ko-KR":"%{name} 순서 바꿈"
+	},
+	"Random":{
+		"de-DE":"Zufall",
+		"ko-KR":"무작위"
+	},
+	"Reload":{
+		"de-DE":"Neu laden",
+		"ko-KR":"다시 읽기"
+	},
+	"Remove":{
+		"de-DE":"Entfernen",
+		"ko-KR":"지우기"
+	},
+	"Remove all downwards":{
+		"de-DE":"Aller Lieder darunter entfernen",
+		"ko-KR":"아래로 지우기"
+	},
+	"Remove all upwards":{
+		"de-DE":"Alle Lieder darüber entfernen",
+		"ko-KR":"위로 지우기"
+	},
+	"Remove item from queue":{
+		"de-DE":"Ausgewähltes Element aus Warteschlange entfernen",
+		"ko-KR":"순서에서 항목 지우기"
+	},
+	"Rename playlist":{
+		"de-DE":"Wiedergabeliste umbenennen",
+		"ko-KR":"연주목록 이름 바꾸기"
+	},
+	"Renaming playlist failed":{
+		"de-DE":"Wiedergabeliste konnte nicht umbenannt werden",
+		"ko-KR":"연주목록 이름 바꾸기 안 됨"
+	},
+	"Repeat":{
+		"de-DE":"Wiederholen",
+		"ko-KR":"다시"
+	},
+	"Replace queue":{
+		"de-DE":"Warteschlange ersetzen",
+		"ko-KR":"순서 바꾸기"
+	},
+	"Replace queue with item":{
+		"de-DE":"Warteschlange mit ausgewähltem Element ersetzen",
+		"ko-KR":"순서에 항목 대체"
+	},
+	"Replaygain":{
+		"de-DE":"Lautstärkeanpassung",
+		"ko-KR":"리플레이게인"
+	},
+	"Rescan database":{
+		"de-DE":"Datenbank neu einlesen",
+		"ko-KR":"데이터베이스 다시 검색"
+	},
+	"Rescan directory":{
+		"de-DE":"Verzeichnis neu einlesen"
+	},
+	"Reset":{
+		"de-DE":"Zurücksetzen",
+		"ko-KR":"다시 설정"
+	},
+	"Reset settings":{
+		"de-DE":"Einstellungen zurücksetzen",
+		"ko-KR":"다시 설정 하기"
+	},
+	"Save":{
+		"de-DE":"Speichern",
+		"ko-KR":"저장"
+	},
+	"Save as smart playlist":{
+		"de-DE":"Als intelligente Wiedergabeliste speichern",
+		"ko-KR":"스마트 연주목록 저장"
+	},
+	"Save bookmark":{
+		"de-DE":"Lesezeichen speichern",
+		"ko-KR":"즐겨찾기 저장"
+	},
+	"Save queue":{
+		"de-DE":"Warteschlange speichern",
+		"ko-KR":"순서 저장"
+	},
+	"Save smart playlist":{
+		"de-DE":"Intelligente Wiedergabeliste sichern",
+		"ko-KR":"스마트 연주목록 저장"
+	},
+	"Saved smart playlist %{name}":{
+		"de-DE":"Intelligente Wiedergabeliste %{name} gespeichert",
+		"ko-KR":"%{name} 스마트 연주목록 저장함"
+	},
+	"Saving bookmark failed":{
+		"de-DE":"Lesezeichen konnte nicht gespeichert werden",
+		"ko-KR":"즐겨찾기 저장 안 됨"
+	},
+	"Scrobbled love":{
+		"de-DE":"Lieblingslied wurde gescrobbelt",
+		"ko-KR":"애청곡 추천"
+	},
+	"Scrobbler integration":{
+		"de-DE":"Scrobbler Integration",
+		"ko-KR":"추천 통합"
+	},
+	"Search":{
+		"de-DE":"Suchen",
+		"ko-KR":"찾기"
+	},
+	"Search queue":{
+		"de-DE":"Warteschlange durchsuchen",
+		"ko-KR":"순서 찾기"
+	},
+	"Searching...":{
+		"de-DE":"Suche...",
+		"ko-KR":"찾는 중..."
+	},
+	"Seconds":{
+		"de-DE":"Sek",
+		"en-US":"Sec",
+		"ko-KR":"초"
+	},
+	"Select tag to search":{
+		"de-DE":"Tag zum Suchen auswählen",
+		"ko-KR":"찾을 태그 선택"
+	},
+	"Send love message":{
+		"de-DE":"Sende Lieblingslied",
+		"ko-KR":"애청 메시지 보내기"
+	},
+	"Settings":{
+		"de-DE":"Einstellungen",
+		"ko-KR":"설정"
+	},
+	"Shortcut":{
+		"de-DE":"Tastenkürzel",
+		"ko-KR":"단축키"
+	},
+	"Shortcuts":{
+		"de-DE":"Tastenkombinationen",
+		"ko-KR":"단축키"
+	},
+	"Shuffle queue":{
+		"de-DE":"Warteschlange mischen",
+		"ko-KR":"순서 뒤섞기"
+	},
+	"Single":{
+		"de-DE":"Nur ein Lied",
+		"ko-KR":"한 곡만"
+	},
+	"Size in px":{
+		"de-DE":"Größe in PX",
+		"ko-KR":"픽셀 크기"
+	},
+	"Size normal":{
+		"de-DE":"Normale Größe"
+	},
+	"Size small":{
+		"de-DE":"Kleine Größe"
+	},
+	"Skip count":{
+		"de-DE":"Wie oft übersprungen",
+		"ko-KR":"건너뛴 횟수"
+	},
+	"Smart playlist":{
+		"de-DE":"Intelligente Wiedergabeliste",
+		"ko-KR":"스마트 연주목록"
+	},
+	"Smart playlist %{playlist} updated":{
+		"de-DE":"Intelligente Wiedergabeliste %{playlist} aktualisiert",
+		"ko-KR":"%{playlist} 스마트 연주목록 업데이트함"
+	},
+	"Smart playlists":{
+		"de-DE":"Intelligente Wiedergabelisten",
+		"ko-KR":"스마트 연주목록"
+	},
+	"Smart playlists update failed":{
+		"de-DE":"Intelligente Wiedergabelisten konnten nicht aktualisiert werden",
+		"ko-KR":"스마트 연주목록 업데이트 안 됨"
+	},
+	"Smart playlists updated":{
+		"de-DE":"Intelligente Wiedergabelisten wurden aktualisiert",
+		"ko-KR":"스마트 연주목록 업데이트됨"
+	},
+	"Solid color":{
+		"de-DE":"Farbe",
+		"ko-KR":"꽉 찬 색상"
+	},
+	"Song":{
+		"de-DE":"Lied",
+		"ko-KR":"곡"
+	},
+	"Song details":{
+		"de-DE":"Lieddetails",
+		"ko-KR":"곡 정보"
+	},
+	"Songs":{
+		"de-DE":"Lieder",
+		"ko-KR":"곡"
+	},
+	"Sort by":{
+		"de-DE":"Sortieren"
+	},
+	"Specify":{
+		"de-DE":"Manuell",
+		"ko-KR":"지정"
+	},
+	"Statistics":{
+		"de-DE":"Statistiken",
+		"ko-KR":"통계"
+	},
+	"Sticker":{
+		"de-DE":"Sticker",
+		"ko-KR":"스티커"
+	},
+	"Stickers are disabled":{
+		"de-DE":"Sticker sind deaktiviert",
+		"ko-KR":"스티커 사용 안 함"
+	},
+	"Stop playing":{
+		"de-DE":"Stop",
+		"ko-KR":"정지"
+	},
+	"Stream URI":{
+		"de-DE":"Stream URL",
+		"ko-KR":"스트림 주소"
+	},
+	"Successfully cleared covercache":{
+		"de-DE":"Covercache erfolgreich geleert"
+	},
+	"Successfully croped covercache":{
+		"de-DE":"Covercache erfolgreich bereinigt"
+	},
+	"Successfully execute cmd %{cmd}":{
+		"de-DE":"Systembefehl %{cmd} erfolgreich ausgeführt",
+		"ko-KR":"%{cmd} 명령어 실행함"
+	},
+	"Sucessfully added random songs to queue":{
+		"de-DE":"Zufällige Lieder wurden zur Warteschlange hinzugefügt",
+		"ko-KR":"무작위 곡을 순서에 추가함"
+	},
+	"Sucessfully renamed playlist":{
+		"de-DE":"Wiedergabeliste erfolgreich umbenannt",
+		"ko-KR":"연주목록 이름 바꿈"
+	},
+	"System command not defined":{
+		"de-DE":"Systembefehl nicht definiert",
+		"ko-KR":"시스템 명령어 정의 안됨"
+	},
+	"System commands":{
+		"de-DE":"Systembefehle",
+		"ko-KR":"시스템 명령어"
+	},
+	"System commands are disabled":{
+		"de-DE":"Systembefehle sind deaktiviert",
+		"ko-KR":"시스템 명령어 사용 안 함"
+	},
+	"Tag":{
+		"de-DE":"Tag",
+		"ko-KR":"태그"
+	},
+	"Tags":{
+		"de-DE":"Tags",
+		"ko-KR":"태그"
+	},
+	"Tags to browse":{
+		"de-DE":"Tags für die Datenbankanzeige",
+		"ko-KR":"열 태그"
+	},
+	"Tags to search":{
+		"de-DE":"Tags für die Suche",
+		"ko-KR":"찾을 태그"
+	},
+	"Tags to use":{
+		"de-DE":"Genutzte Tags",
+		"ko-KR":"쓸 태그"
+	},
+	"Theme":{
+		"de-DE":"Design",
+		"ko-KR":"테마"
+	},
+	"Timerange (days)":{
+		"de-DE":"Tage",
+		"ko-KR":"시간 범위 (날짜)"
+	},
+	"Title":{
+		"de-DE":"Titel",
+		"ko-KR":"제목"
+	},
+	"To":{
+		"de-DE":"Zu",
+		"ko-KR":"바꿈"
+	},
+	"To top":{
+		"de-DE":"Nach oben",
+		"ko-KR":"위로"
+	},
+	"Toggle play / pause":{
+		"de-DE":"Play / Pause",
+		"ko-KR":"연주 / 잠시 멈춤"
+	},
+	"Track":{
+		"de-DE":"Liednummer",
+		"ko-KR":"트랙"
+	},
+	"Type":{
+		"de-DE":"Typ",
+		"ko-KR":"형식"
+	},
+	"URI":{
+		"de-DE":"URL",
+		"ko-KR":"주소"
+	},
+	"Unknown request":{
+		"de-DE":"Unbekannter Befehl",
+		"ko-KR":"알 수 없는 요구"
+	},
+	"Unknown smart playlist type":{
+		"de-DE":"Unbekannter intelligenter Wiedergabenlisten Typ",
+		"ko-KR":"스마트 연주목록 형식을 알 수 없음"
+	},
+	"Unknown table %{table}":{
+		"de-DE":"Unbekannte Tabelle %{table}",
+		"ko-KR":"%{table} 테이블 알 수 없음"
+	},
+	"Update":{
+		"de-DE":"Aktualisieren",
+		"ko-KR":"업데이트"
+	},
+	"Update database":{
+		"de-DE":"Datenbank aktualisieren",
+		"ko-KR":"데이터베이스 업데이트"
+	},
+	"Update directory":{
+		"de-DE":"Verzeichnis aktualisieren"
+	},
+	"Update smart playlist":{
+		"de-DE":"Intelligente Wiedergabeliste aktualisieren",
+		"ko-KR":"스마트 연주목록 업데이트"
+	},
+	"Update smart playlists":{
+		"de-DE":"Intelligente Wiedergabelisten aktualisieren",
+		"ko-KR":"스마트 연주목록 업데이트"
+	},
+	"Updating MPD database":{
+		"de-DE":"MPD Datenbank wird aktualisiert",
+		"ko-KR":"MPD 데이터베이스 업데이트 중"
+	},
+	"Updating of smart playlist %{playlist} failed":{
+		"de-DE":"Intelligente Wiedergabeliste %{playlist} konnte nicht aktualisiert werden",
+		"ko-KR":"%{playlist} 스마트 연주목록 업데이트 안 됨"
+	},
+	"Version":{
+		"de-DE":"Version",
+		"ko-KR":"버전"
+	},
+	"View playlist":{
+		"de-DE":"Wiedergabeliste anzeigen",
+		"ko-KR":"연주목록 보기"
+	},
+	"Volume":{
+		"de-DE":"Lautstärke",
+		"ko-KR":"음량"
+	},
+	"Volume down":{
+		"de-DE":"Lauter",
+		"ko-KR":"소리 작게"
+	},
+	"Volume up":{
+		"de-DE":"Leiser",
+		"ko-KR":"소리 크게"
+	},
+	"Volumecontrol disabled":{
+		"de-DE":"Lautstärkeregelung deaktiviert",
+		"ko-KR":"음량 조절 안 함"
+	},
+	"Web notifications":{
+		"de-DE":"Systemhinweise",
+		"ko-KR":"웹 알림"
+	},
+	"Websocket connection failed":{
+		"de-DE":"Websocket Verbindung fehlgeschlagen",
+		"ko-KR":"웹소켓 연결 안 됨"
+	},
+	"Websocket connection failed, trying to reconnect":{
+		"de-DE":"Websocket Verbindung fehlgeschlagen, versuche neue Verbindung",
+		"ko-KR":"웹소켓 연결이 안 되어, 다시 시도하는 중"
+	},
+	"Work":{
+		"de-DE":"Werk",
+		"ko-KR":"작품"
+	},
+	"You need to be playing to crop the playlist":{
+		"de-DE":"Wiedergabe muss gestartet sein um die Warteschlange abzuschneiden",
+		"ko-KR":"연주목록에 남기려면 연주 중이어야 함"
+	},
+	"bits":{
+		"de-DE":"Bits",
+		"ko-KR":"비트"
+	},
+	"contains":{
+		"de-DE":"enthält",
+		"ko-KR":"내용"
+	},
+	"folder.jpg":{
+		"de-DE":"folder.jpg",
+		"ko-KR":"folder.jpg"
+	},
+	"http://uri.to/stream.mp3":{
+		"de-DE":"http://url.zum/stream.mp3",
+		"ko-KR":"http://주소/stream.mp3"
+	},
+	"kHz":{
+		"de-DE":"kHz",
+		"ko-KR":"kHz"
+	},
+	"myMPD CA":{
+		"de-DE":"myMPD Stammzertifikat",
+		"ko-KR":"myMPD 인증서"
+	},
+	"myMPD installed as app":{
+		"de-DE":"myMPD wurde als App installiert",
+		"ko-KR":"myMPD가 앱으로 설치됨"
+	},
+	"myMPD is in readonly mode":{
+		"de-DE":"myMPD ist im Readonly Modus",
+		"ko-KR":"읽기 전용 모드임"
+	},
+	"myMPD uptime":{
+		"de-DE":"myMPD Uptime",
+		"ko-KR":"myMPD 가동 시간"
+	},
+	"never":{
+		"de-DE":"noch nie",
+		"ko-KR":"안 함"
+	}
+};
+/*
+ SPDX-License-Identifier: GPL-2.0-or-later
+ myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+ https://github.com/jcorporation/mympd
+*/
+
+//eslint-disable-next-line no-unused-vars
+var keymap = {
+    "ArrowLeft": {"cmd": "clickPrev", "options": [], "desc": "Previous song", "key": "keyboard_arrow_left"},
+    "ArrowRight": {"cmd": "clickNext", "options": [], "desc": "Next song", "key": "keyboard_arrow_right"},
+    " ": {"cmd": "clickPlay", "options": [], "desc": "Toggle play / pause", "key": "space_bar"},
+    "s": {"cmd": "clickStop", "options": [], "desc": "Stop playing"},
+    "-": {"cmd": "volumeStep", "options": ["down"], "desc": "Volume down"},
+    "+": {"cmd": "VolumeStep", "options": ["up"], "desc": "Volume up"},
+    "c": {"cmd": "sendAPI", "options": [{"cmd": "MPD_API_QUEUE_CLEAR"}], "desc": "Clear queue"},
+    "u": {"cmd": "updateDB", "options": [], "desc": "Update database"},
+    "r": {"cmd": "rescanDB", "options": [], "desc": "Rescan database"},
+    "p": {"cmd": "updateSmartPlaylists", "options": [], "desc": "Update smart playlists", "req": "featSmartpls"},
+    "a": {"cmd": "showAddToPlaylist", "options": ["stream"], "desc": "Add stream"},
+    "t": {"cmd": "openModal", "options": ["modalSettings"], "desc": "Open settings"},
+    "i": {"cmd": "clickTitle", "options": [], "desc": "Open song details"},
+    "l": {"cmd": "openDropdown", "options": ["dropdownLocalPlayer"], "desc": "Open local player"},
+    "0": {"cmd": "appGoto", "options": ["Playback"], "desc": "Goto playback"},
+    "1": {"cmd": "appGoto", "options": ["Queue", "Current"], "desc": "Goto queue"},
+    "2": {"cmd": "appGoto", "options": ["Queue", "LastPlayed"], "desc": "Goto last played"},
+    "3": {"cmd": "appGoto", "options": ["Browse", "Database"], "desc": "Goto browse database", "req": "featTags"},
+    "4": {"cmd": "appGoto", "options": ["Browse", "Playlists"], "desc": "Goto browse playlists", "req": "featPlaylists"},
+    "5": {"cmd": "appGoto", "options": ["Browse", "Filesystem"], "desc": "Goto browse filesystem"},
+    "6": {"cmd": "appGoto", "options": ["Browse", "Covergrid"], "desc": "Goto browse covergrid", "req": "featTags"},
+    "7": {"cmd": "appGoto", "options": ["Search"], "desc": "Goto search"},
+    "m": {"cmd": "openDropdown", "options": ["dropdownMainMenu"], "desc": "Open main menu"},
+    "v": {"cmd": "openDropdown", "options": ["dropdownVolumeMenu"], "desc": "Open volume menu"},
+    "S": {"cmd": "sendAPI", "options": [{"cmd": "MPD_API_QUEUE_SHUFFLE"}], "desc": "Shuffle queue"},
+    "C": {"cmd": "sendAPI", "options": [{"cmd": "MPD_API_QUEUE_CROP"}], "desc": "Crop queue"},
+    "?": {"cmd": "openModal", "options": ["modalAbout"], "desc": "Open about"},
+    "/": {"cmd": "focusSearch", "options": [], "desc": "Focus search"},
+    "n": {"cmd": "focusTable", "options": [], "desc": "Focus table"},
+    "q": {"cmd": "queueSelectedItem", "options": [true], "desc": "Append item to queue"},
+    "Q": {"cmd": "queueSelectedItem", "options": [false], "desc": "Replace queue with item"},
+    "d": {"cmd": "dequeueSelectedItem", "options": [], "desc": "Remove item from queue"},
+    "x": {"cmd": "addSelectedItemToPlaylist", "options": [], "desc": "Append item to playlist"}
+};
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
  myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
@@ -743,14 +2231,24 @@ function execSyscmd(cmd) {
 }
 
 //eslint-disable-next-line no-unused-vars
-function updateDB() {
-    sendAPI("MPD_API_DATABASE_UPDATE", {});
+function clearCovercache() {
+    sendAPI("MYMPD_API_COVERCACHE_CLEAR", {});
+}
+
+//eslint-disable-next-line no-unused-vars
+function cropCovercache() {
+    sendAPI("MYMPD_API_COVERCACHE_CROP", {});
+}
+
+//eslint-disable-next-line no-unused-vars
+function updateDB(uri) {
+    sendAPI("MPD_API_DATABASE_UPDATE", {"uri": uri});
     updateDBstarted(true);
 }
 
 //eslint-disable-next-line no-unused-vars
 function rescanDB() {
-    sendAPI("MPD_API_DATABASE_RESCAN", {});
+    sendAPI("MPD_API_DATABASE_RESCAN", {"uri": uri});
     updateDBstarted(true);
 }
 
@@ -848,7 +2346,8 @@ app.apps = { "Playback":   { "state": "0/-/-/", "scrollPos": 0 },
                                     "active": "AlbumArtist",
                                     "views": { 
                                      }
-                             }
+                             },
+                             "Covergrid":  { "state": "0/AlbumArtist/AlbumArtist/", "scrollPos": 0 }
                   }
              },
              "Search": { "state": "0/any/-/", "scrollPos": 0 }
@@ -883,6 +2382,7 @@ domCache.btnVoteDown = document.getElementById('btnVoteDown');
 domCache.badgeQueueItems = document.getElementById('badgeQueueItems');
 domCache.searchstr = document.getElementById('searchstr');
 domCache.searchCrumb = document.getElementById('searchCrumb');
+domCache.body = document.getElementsByTagName('body')[0];
 
 /* eslint-disable no-unused-vars */
 var modalConnection = new Modal(document.getElementById('modalConnection'));
@@ -927,7 +2427,8 @@ function appPrepare(scrollPos) {
         document.getElementById('cardQueueLastPlayed').classList.add('hide');
         document.getElementById('cardBrowsePlaylists').classList.add('hide');
         document.getElementById('cardBrowseDatabase').classList.add('hide');
-        document.getElementById('cardBrowseFilesystem').classList.add('hide');        
+        document.getElementById('cardBrowseFilesystem').classList.add('hide');
+        document.getElementById('cardBrowseCovergrid').classList.add('hide');
         //show active card + nav
         document.getElementById('card' + app.current.app).classList.remove('hide');
         if (document.getElementById('nav' + app.current.app)) {
@@ -1079,6 +2580,23 @@ function appRoute() {
         }
         document.getElementById('BrowseBreadcrumb').innerHTML = breadcrumbs;
         doSetFilterLetter('BrowseFilesystemFilter');
+    }
+    else if (app.current.app === 'Browse' && app.current.tab === 'Covergrid') {
+        document.getElementById('searchCovergridStr').value = app.current.search;
+        selectTag('searchCovergridTags', 'searchCovergridTagsDesc', app.current.filter);
+        selectTag('searchCovergridSortTags', undefined, app.current.sort);
+        let sort = app.current.sort;
+        let sortdesc = false;
+        if (app.current.sort.charAt(0) === '-') {
+            sortdesc = true;
+            sort = app.current.sort.substr(1);
+            document.getElementById('searchCovergridSortDesc').checked = true;
+        }
+        else {
+            document.getElementById('searchCovergridSortDesc').checked = false;
+        }
+        sendAPI("MPD_API_DATABASE_GET_ALBUMS", {"offset": app.current.page, "searchstr": app.current.search, 
+            "tag": app.current.filter, "sort": sort, "sortdesc": sortdesc}, parseCovergrid);
     }
     else if (app.current.app === 'Search') {
         domCache.searchstr.focus();
@@ -1619,6 +3137,39 @@ function appInit() {
             search(domCache.searchstr.value);
         }
     }, false);
+    
+    document.getElementById('searchCovergridTags').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'BUTTON') {
+            app.current.filter = event.target.getAttribute('data-tag');
+            appGoto(app.current.app, app.current.tab, app.current.view, '0/' + app.current.filter + '/' + app.current.sort + '/' + app.current.search);
+        }
+    }, false);
+    
+    document.getElementById('searchCovergridSortDesc').addEventListener('click', function(event) {
+        if (app.current.sort.charAt(0) === '-') {
+            app.current.sort = app.current.sort.substr(1);
+        }
+        else {
+            app.current.sort = '-' + app.current.sort;
+        }
+        appGoto(app.current.app, app.current.tab, app.current.view, '0/' + app.current.filter + '/' + app.current.sort + '/' + app.current.search);
+    }, false);
+
+    document.getElementById('searchCovergridSortTags').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'BUTTON') {
+            app.current.sort = event.target.getAttribute('data-tag');
+            appGoto(app.current.app, app.current.tab, app.current.view, '0/' + app.current.filter + '/' + app.current.sort + '/' + app.current.search);
+        }
+    }, false);
+    
+    document.getElementById('searchCovergridStr').addEventListener('keyup', function(event) {
+        if (event.key === 'Escape') {
+            this.blur();
+        }
+        else {
+            appGoto(app.current.app, app.current.tab, app.current.view, '0/' + app.current.filter + '/' + app.current.sort + '/' + this.value);
+        }
+    }, false);
 
     document.getElementById('searchqueuestr').addEventListener('keyup', function(event) {
         if (event.key === 'Escape') {
@@ -1634,8 +3185,7 @@ function appInit() {
             appGoto(app.current.app, app.current.tab, app.current.view, app.current.page + '/' + event.target.getAttribute('data-tag') + '/' + app.current.sort  + '/' + app.current.search);
     }, false);
 
-    let dropdowns = ['QueueCurrentColsDropdown', 'BrowseFilesystemColsDropdown', 'SearchColsDropdown', 'BrowsePlaylistsDetailColsDropdown', 
-        'BrowseDatabaseColsDropdown', 'PlaybackColsDropdown', 'QueueLastPlayedColsDropdown'];
+    let dropdowns = ['BrowseDatabaseColsDropdown', 'PlaybackColsDropdown'];
     for (let i = 0; i < dropdowns.length; i++) {
         document.getElementById(dropdowns[i]).addEventListener('click', function(event) {
             if (event.target.nodeName === 'INPUT')
@@ -1648,6 +3198,10 @@ function appInit() {
     }, false);
 
     document.getElementById('searchqueue').addEventListener('submit', function() {
+        return false;
+    }, false);
+    
+    document.getElementById('searchcovergrid').addEventListener('submit', function() {
         return false;
     }, false);
 
@@ -1701,6 +3255,9 @@ function appInit() {
     document.getElementById('SearchList').getElementsByTagName('tr')[0].addEventListener('click', function(event) {
         if (settings.featAdvsearch) {
             if (event.target.nodeName === 'TH') {
+                if (event.target.innerHTML === '') {
+                    return;
+                }
                 let col = event.target.getAttribute('data-col');
                 if (col === 'Duration') {
                     return;
@@ -1783,6 +3340,13 @@ function appInit() {
             navigateTable(this, event.key);
         }, false);
     }
+
+    let selectThemeHtml = '';
+    Object.keys(themes).forEach(function(key, index) {
+        selectThemeHtml += '<option value="' + key + '">' + t(themes[key]) + '</option>';
+    });
+    document.getElementById('selectTheme').innerHTML = selectThemeHtml;
+
     
     window.addEventListener('beforeinstallprompt', function(event) {
         // Prevent Chrome 67 and earlier from automatically showing the prompt
@@ -1935,20 +3499,20 @@ function toggleUI() {
     if (websocketConnected == true && settings.mpdConnected == true) {
         state = 'enabled';
     }
-    let enabled = state == 'disabled' ? false : true;
-    if (enabled != uiEnabled) {
+    let enabled = state === 'disabled' ? false : true;
+    if (enabled !== uiEnabled) {
         setElsState('a', state);
         setElsState('input', state);
         setElsState('button', state);
         uiEnabled = enabled;
     }
-    if (settings.mpdConnected == true) {
+    if (settings.mpdConnected === true) {
         toggleAlert('alertMpdState', false, '');
     }
     else {
         toggleAlert('alertMpdState', true, t('MPD disconnected'));
     }
-    if (websocketConnected == true) {
+    if (websocketConnected === true) {
         toggleAlert('alertMympdState', false, '');
     }
     else {
@@ -1967,7 +3531,6 @@ function parsePlaylists(obj) {
         document.getElementById('BrowsePlaylistsDetailList').classList.add('hide');
         document.getElementById('btnBrowsePlaylistsAll').parentNode.classList.add('hide');
         document.getElementById('btnPlaylistClear').parentNode.classList.add('hide');
-        document.getElementById('BrowsePlaylistsDetailColsBtn').parentNode.classList.add('hide');
     } else {
         if (obj.result.uri.indexOf('.') > -1 || obj.result.smartpls === true) {
             document.getElementById('BrowsePlaylistsDetailList').setAttribute('data-ro', 'true')
@@ -1983,9 +3546,6 @@ function parsePlaylists(obj) {
         document.getElementById('BrowsePlaylistsDetailList').classList.remove('hide');
         document.getElementById('BrowsePlaylistsAllList').classList.add('hide');
         document.getElementById('btnBrowsePlaylistsAll').parentNode.classList.remove('hide');
-        if (settings.featTags) {
-            document.getElementById('BrowsePlaylistsDetailColsBtn').parentNode.classList.remove('hide');
-        }
     }
             
     let nrItems = obj.result.returnedEntities;
@@ -2398,7 +3958,43 @@ function showMenu(el, event) {
     if (el.getAttribute('data-init')) {
         return;
     }
+    if (el.parentNode.nodeName === 'TH') {
+        showMenuTh(el, event);
+    }
+    else {
+        showMenuTd(el, event);
+    }
+}
 
+function showMenuTh(el, event) {
+    let table = app.current.app + (app.current.tab !== undefined ? app.current.tab : '') + (app.current.view !== undefined ? app.current.view : '');
+    let menu = '<form class="p-2" id="colChecklist' + table + '">';
+    menu += setColsChecklist(table);
+    menu += '<button class="btn btn-success btn-block btn-sm mt-2">' + t('Apply') + '</button>';
+    menu += '</form>';
+    new Popover(el, { trigger: 'click', delay: 0, dismissible: true, template: '<div class="popover" role="tooltip">' +
+        '<div class="arrow"></div>' +
+        '<div class="popover-content" id="' + table + 'ColsDropdown' + '">' + menu + '</div>' +
+        '</div>', content: ' '});
+    let popoverInit = el.Popover;
+    el.setAttribute('data-init', 'true');
+    el.addEventListener('shown.bs.popover', function(event) {
+        event.target.setAttribute('data-popover', 'true');
+        let table = app.current.app + (app.current.tab !== undefined ? app.current.tab : '') + (app.current.view !== undefined ? app.current.view : '');
+        document.getElementById('colChecklist' + table).addEventListener('click', function(event) {
+            if (event.target.nodeName === 'BUTTON') {
+                event.preventDefault();
+                saveCols(table);
+            }
+            else if (event.target.nodeName === 'INPUT') {
+                event.stopPropagation();
+            }
+        }, false);
+    }, false);
+    popoverInit.show();
+}
+
+function showMenuTd(el, event) {
     let type = el.getAttribute('data-type');
     let uri = decodeURI(el.getAttribute('data-uri'));
     let name = el.getAttribute('data-name');
@@ -2421,7 +4017,9 @@ function showMenu(el, event) {
             (type !== 'plist' && type !== 'smartpls' && settings.featPlaylists ? addMenuItem({"cmd": "showAddToPlaylist", "options": [uri]}, t('Add to playlist')) : '') +
             (type === 'song' ? addMenuItem({"cmd": "songDetails", "options": [uri]}, t('Song details')) : '') +
             (type === 'plist' || type === 'smartpls' ? addMenuItem({"cmd": "playlistDetails", "options": [uri]}, t('View playlist')) : '') +
-            (type === 'dir' && settings.featBookmarks ? addMenuItem({"cmd": "showBookmarkSave", "options": [-1, name, uri, type]}, t('Add bookmark')) : '');
+            (type === 'dir' && settings.featBookmarks ? addMenuItem({"cmd": "showBookmarkSave", "options": [-1, name, uri, type]}, t('Add bookmark')) : '') +
+            (type === 'dir' ? addMenuItem({"cmd": "updateDB", "options": [dirname(uri)]}, t('Update directory')) : '') +
+            (type === 'dir' ? addMenuItem({"cmd": "rescanDB", "options": [dirname(uri)]}, t('Rescan directory')) : '');
         
         if (app.current.app === 'Search') {
             let baseuri = dirname(uri);
@@ -2973,6 +4571,22 @@ function parseSettings() {
         locale = settings.locale;
     }
 
+    let setTheme = settings.theme;
+    if (settings.theme === 'theme-autodetect') {
+        setTheme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'theme-dark' : 'theme-default';
+    }    
+
+    Object.keys(themes).forEach(function(key, index) {
+        if (key === setTheme) {
+            domCache.body.classList.add(key);
+        }
+        else {
+            domCache.body.classList.remove(key);
+        }
+    });
+    
+    document.getElementById('selectTheme').value = settings.theme;
+    
     if (settings.mpdConnected === true) {
         parseMPDSettings();
     }
@@ -3032,8 +4646,10 @@ function parseSettings() {
     document.getElementById('inputCoverimageName').value = settings.coverimageName;
 
     document.getElementById('inputCoverimageSize').value = settings.coverimageSize;
+    document.getElementById('inputCovergridSize').value = settings.covergridSize;
 
     document.documentElement.style.setProperty('--mympd-coverimagesize', settings.coverimageSize + "px");
+    document.documentElement.style.setProperty('--mympd-covergridsize', settings.covergridSize + "px");
     
     document.getElementById('inputBgColor').value = settings.bgColor;
     document.getElementsByTagName('body')[0].style.backgroundColor = settings.bgColor;
@@ -3074,11 +4690,13 @@ function parseSettings() {
             readonlyEls[i].classList.remove('hide');
         }
     }
-    if (settings.readonly == true) {
+    if (settings.readonly === true) {
         document.getElementById('btnBookmarks').setAttribute('disabled', 'disabled');
+        document.getElementsByClassName('groupClearCovercache')[0].classList.add('hide');
     }
     else {
         document.getElementById('btnBookmarks').removeAttribute('disabled');
+        document.getElementsByClassName('groupClearCovercache')[0].classList.remove('hide');
     }
 
     if (settings.featSyscmds) {
@@ -3152,7 +4770,8 @@ function parseSettings() {
             localPlayer.load();
         }
     }
-    
+
+
     
     if (settings.musicDirectory === 'auto') {
         document.getElementById('selectMusicDirectory').value = settings.musicDirectory;
@@ -3241,6 +4860,13 @@ function parseMPDSettings() {
         }
     }
     
+    if (settings.coverimage === false || settings.featTags === false) {
+        document.getElementsByClassName('featCovergrid')[0].classList.add('hide'); 
+    }
+    else {
+        document.getElementsByClassName('featCovergrid')[0].classList.remove('hide');
+    }
+    
     if (settings.featPlaylists === false && settings.smartpls === true) {
         document.getElementById('warnSmartpls').classList.remove('hide');
     }
@@ -3283,15 +4909,7 @@ function parseMPDSettings() {
     }
 
     if (settings.bgCover === true && settings.featCoverimage === true && settings.coverimage === true) {
-        if (lastSongObj.cover && lastSongObj.cover.indexOf('coverimage-') > -1 ) {
-            clearBackgroundImage();
-        }
-        else if (lastSongObj.cover) {
-             setBackgroundImage(lastSongObj.cover);
-        }
-        else {
-            clearBackgroundImage();
-        }
+        setBackgroundImage(lastSongObj.uri);
     }
     else {
         clearBackgroundImage();
@@ -3423,13 +5041,18 @@ function saveSettings() {
         }
     }
 
+    let inputCovergridSize = document.getElementById('inputCovergridSize');
+    if (!validateInt(inputCovergridSize)) {
+        formOK = false;
+    }
+
     let inputCoverimageSize = document.getElementById('inputCoverimageSize');
     if (!validateInt(inputCoverimageSize)) {
         formOK = false;
     }
     
     let inputCoverimageName = document.getElementById('inputCoverimageName');
-    if (!validateFilename(inputCoverimageName)) {
+    if (!validateFilenameList(inputCoverimageName)) {
         formOK = false;
     }
     
@@ -3477,6 +5100,7 @@ function saveSettings() {
         let selectJukeboxPlaylist = document.getElementById('selectJukeboxPlaylist');
         let selectJukeboxMode = document.getElementById('selectJukeboxMode');
         let selectLocale = document.getElementById('selectLocale');
+        let selectTheme = document.getElementById('selectTheme');
         sendAPI("MYMPD_API_SETTINGS_SET", {
             "consume": (document.getElementById('btnConsume').classList.contains('active') ? 1 : 0),
             "random": (document.getElementById('btnRandom').classList.contains('active') ? 1 : 0),
@@ -3502,6 +5126,7 @@ function saveSettings() {
             "coverimage": (document.getElementById('btnCoverimage').classList.contains('active') ? true : false),
             "coverimageName": document.getElementById('inputCoverimageName').value,
             "coverimageSize": document.getElementById('inputCoverimageSize').value,
+            "covergridSize": document.getElementById('inputCovergridSize').value,
             "locale": selectLocale.options[selectLocale.selectedIndex].value,
             "love": (document.getElementById('btnLoveEnable').classList.contains('active') ? true : false),
             "loveChannel": document.getElementById('inputLoveChannel').value,
@@ -3513,7 +5138,8 @@ function saveSettings() {
             "smartpls": (document.getElementById('btnSmartpls').classList.contains('active') ? true : false),
             "taglist": getTagMultiSelectValues('listEnabledTags'),
             "searchtaglist": getTagMultiSelectValues('listSearchTags'),
-            "browsetaglist": getTagMultiSelectValues('listBrowseTags')
+            "browsetaglist": getTagMultiSelectValues('listBrowseTags'),
+            "theme": selectTheme.options[selectTheme.selectedIndex].value,
         }, getSettings);
         modalSettings.hide();
     }
@@ -3610,7 +5236,7 @@ function parseFingerprint(obj) {
 
 function parseSongDetails(obj) {
     let modal = document.getElementById('modalSongDetails');
-    modal.getElementsByClassName('album-cover')[0].style.backgroundImage = 'url("' + subdir + obj.result.cover + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
+    modal.getElementsByClassName('album-cover')[0].style.backgroundImage = 'url("' + subdir + '/albumart/' + obj.result.uri + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
     modal.getElementsByTagName('h1')[0].innerText = obj.result.Title;
     
     let songDetails = '';
@@ -3628,7 +5254,7 @@ function parseSongDetails(obj) {
         songDetails += '</td></tr>';
     }
     songDetails += '<tr><th>' + t('Duration') + '</th><td>' + beautifyDuration(obj.result.Duration) + '</td></tr>';
-    if (settings.featLibrary) {
+    if (settings.featLibrary === true && settings.publishLibrary === true) {
         songDetails += '<tr><th>' + t('Filename') + '</th><td><a class="breakAll text-success" href="/library/' + 
             encodeURI(obj.result.uri) + '" download title="' + e(obj.result.uri) + '">' + 
             e(basename(obj.result.uri)) + '</a></td></tr>';
@@ -3743,6 +5369,13 @@ function parseStats(obj) {
     document.getElementById('mympdVersion').innerText = obj.result.mympdVersion;
     document.getElementById('mpdInfo_version').innerText = obj.result.mpdVersion;
     document.getElementById('mpdInfo_libmpdclientVersion').innerText = obj.result.libmpdclientVersion;
+    if (obj.result.libmympdclientVersion !== undefined) {
+        document.getElementById('mpdInfo_libmympdclientVersion').innerText = obj.result.libmympdclientVersion;
+        document.getElementById('mpdInfo_libmympdclientVersion').parentNode.classList.remove('hide');
+    }
+    else {
+        document.getElementById('mpdInfo_libmympdclientVersion').parentNode.classList.add('hide');    
+    }
 }
 
 function parseOutputs(obj) {
@@ -3885,7 +5518,11 @@ function parseVolume(obj) {
     domCache.volumeBar.value = obj.result.volume;
 }
 
-function setBackgroundImage(imageUrl) {
+function setBackgroundImage(url) {
+    if (url === undefined) {
+        clearBackgroundImage();
+        return;
+    }
     let old = document.querySelectorAll('.albumartbg');
     for (let i = 0; i < old.length; i++) {
         if (old[i].style.zIndex === '-10') {
@@ -3898,7 +5535,7 @@ function setBackgroundImage(imageUrl) {
     let div = document.createElement('div');
     div.classList.add('albumartbg');
     div.style.filter = settings.bgCssFilter;
-    div.style.backgroundImage = 'url("' + subdir + imageUrl + '")';
+    div.style.backgroundImage = 'url("' + subdir + '/albumart/' + url + '")';
     div.style.opacity = 0;
     let body = document.getElementsByTagName('body')[0];
     body.insertBefore(div, body.firstChild);
@@ -3907,7 +5544,7 @@ function setBackgroundImage(imageUrl) {
     img.onload = function() {
         document.querySelector('.albumartbg').style.opacity = 1;
     };
-    img.src = imageUrl;
+    img.src = subdir + '/albumart/' + url;
 }
 
 function clearBackgroundImage() {
@@ -3923,7 +5560,11 @@ function clearBackgroundImage() {
     }
 }
 
-function setCurrentCover(imageUrl) {
+function setCurrentCover(url) {
+    if (url === undefined) {
+        clearCurrentCover();
+        return;
+    }
     let old = domCache.currentCover.querySelectorAll('.coverbg');
     for (let i = 0; i < old.length; i++) {
         if (old[i].style.zIndex === '2') {
@@ -3936,7 +5577,7 @@ function setCurrentCover(imageUrl) {
 
     let div = document.createElement('div');
     div.classList.add('coverbg');
-    div.style.backgroundImage = 'url("' + subdir + imageUrl + '")';
+    div.style.backgroundImage = 'url("' + subdir + '/albumart/' + url + '")';
     div.style.opacity = 0;
     domCache.currentCover.insertBefore(div, domCache.currentCover.firstChild);
 
@@ -3944,7 +5585,7 @@ function setCurrentCover(imageUrl) {
     img.onload = function() {
         domCache.currentCover.querySelector('.coverbg').style.opacity = 1;
     };
-    img.src = imageUrl;
+    img.src = subdir + '/albumart/' + url;
 }
 
 function clearCurrentCover() {
@@ -3969,19 +5610,9 @@ function songChange(obj) {
     let htmlNotification = '';
     let pageTitle = '';
 
-    if (obj.result.cover !== undefined) {
-        setCurrentCover(obj.result.cover);
-    }
-    else {
-        setCurrentCover('/assets/coverimage-notavailable.svg');
-    }
+    setCurrentCover(obj.result.uri);
     if (settings.bgCover === true && settings.featCoverimage === true) {
-        if (obj.result.cover === undefined || obj.result.cover.indexOf('coverimage-') > -1 ) {
-            clearBackgroundImage();
-        }
-        else {
-            setBackgroundImage(obj.result.cover);
-        }
+        setBackgroundImage(obj.result.uri);
     }
 
     if (obj.result.Artist !== undefined && obj.result.Artist.length > 0 && obj.result.Artist !== '-') {
@@ -4133,7 +5764,7 @@ function focusTable(rownr, table) {
         //insert goto parent row
         if (table.id === 'BrowseFilesystemList') {
             let tbody = table.getElementsByTagName('tbody')[0];
-            if (tbody.rows[0].getAttribute('data-type') !== 'parentDir' && app.current.search !== '') {
+            if (tbody.rows.length > 0 && tbody.rows[0].getAttribute('data-type') !== 'parentDir' && app.current.search !== '') {
                 let nrCells = table.getElementsByTagName('thead')[0].rows[0].cells.length;
                 let uri = app.current.search.replace(/\/?([^/]+)$/,'');
                 let row = tbody.insertRow(0);
@@ -4393,9 +6024,8 @@ function dragAndDropTableHeader(table) {
     }, false);
 }
 
-function setCols(table, className) {
-    let tagChks = '';
-    var tags = settings.tags.slice();
+function setColTags(table) {
+    let tags = settings.tags.slice();
     if (settings.featTags === false) {
         tags.push('Title');
     }
@@ -4415,6 +6045,12 @@ function setCols(table, className) {
     }
     
     tags.sort();
+    return tags;
+}
+
+function setColsChecklist(table) {
+    let tagChks = '';
+    let tags = setColTags(table);
     
     for (let i = 0; i < tags.length; i++) {
         if (table === 'Playback' && tags[i] === 'Title') {
@@ -4426,11 +6062,18 @@ function setCols(table, className) {
             tagChks += 'checked';
         }
         tagChks += '>' +
-            '<label class="form-check-label text-light" for="' + tags[i] + '">&nbsp;&nbsp;' + t(tags[i]) + '</label>' +
+            '<label class="form-check-label" for="' + tags[i] + '">&nbsp;&nbsp;' + t(tags[i]) + '</label>' +
             '</div>';
     }
-    document.getElementById(table + 'ColsDropdown').firstChild.innerHTML = tagChks;
+    return tagChks;
+}
 
+function setCols(table, className) {
+    let colsChkList = document.getElementById(table + 'ColsDropdown');
+    if (colsChkList) {
+        colsChkList.firstChild.innerHTML = setColsChecklist(table);
+    }
+    let tags = setColTags(table);
     let sort = app.current.sort;
     
     if (table === 'Search') {
@@ -4466,8 +6109,13 @@ function setCols(table, className) {
             }
             heading += '</th>';
         }
-        heading += '<th></th>';
-        
+        if (settings.featTags === true && table !== 'BrowseDatabase') {
+            heading += '<th data-col="Action"><a href="#" class="text-secondary align-middle material-icons material-icons-small">settings</a></th>';
+        }
+        else {
+            heading += '<th></th>';
+        }
+
         if (className === undefined) {
             document.getElementById(table + 'List').getElementsByTagName('tr')[0].innerHTML = heading;
         }
@@ -4481,10 +6129,10 @@ function setCols(table, className) {
 }
 
 function saveCols(table, tableEl) {
-    let colInputs = document.getElementById(table + 'ColsDropdown').firstChild.getElementsByTagName('input');
-    var header;
+    let colsDropdown = document.getElementById(table + 'ColsDropdown');
+    let header;
     if (tableEl === undefined) {
-         header = document.getElementById(table + 'List').getElementsByTagName('tr')[0];
+        header = document.getElementById(table + 'List').getElementsByTagName('tr')[0];
     }
     else if (typeof(tableEl) === 'string') {
         header = document.querySelector(tableEl).getElementsByTagName('tr')[0];
@@ -4492,19 +6140,21 @@ function saveCols(table, tableEl) {
     else {
         header = tableEl.getElementsByTagName('tr')[0];
     }
-    
-    for (let i = 0; i < colInputs.length; i++) {
-        let th = header.querySelector('[data-col=' + colInputs[i].name + ']');
-        if (colInputs[i].checked === false) {
-            if (th) {
-                th.remove();
+    if (colsDropdown) {
+        let colInputs = colsDropdown.firstChild.getElementsByTagName('input');
+        for (let i = 0; i < colInputs.length; i++) {
+            let th = header.querySelector('[data-col=' + colInputs[i].name + ']');
+            if (colInputs[i].checked === false) {
+                if (th) {
+                    th.remove();
+                }
+            } 
+            else if (!th) {
+                th = document.createElement('th');
+                th.innerText = colInputs[i].name;
+                th.setAttribute('data-col', colInputs[i].name);
+                header.appendChild(th);
             }
-        } 
-        else if (!th) {
-            th = document.createElement('th');
-            th.innerText = colInputs[i].name;
-            th.setAttribute('data-col', colInputs[i].name);
-            header.appendChild(th);
         }
     }
     
@@ -4565,6 +6215,19 @@ function replaceTblRow(row, el) {
     row.replaceWith(el);
     return result;
 }
+/*
+ SPDX-License-Identifier: GPL-2.0-or-later
+ myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+ https://github.com/jcorporation/mympd
+*/
+
+//eslint-disable-next-line no-unused-vars
+var themes = {
+    "theme-autodetect": "Autodetect",
+    "theme-default": "Default",
+    "theme-dark": "Dark",
+    "theme-light": "Light"
+};
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
  myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
@@ -4665,7 +6328,10 @@ function selectTag(btnsEl, desc, setTo) {
     aBtn = btns.querySelector('[data-tag=' + setTo + ']');
     if (aBtn) {
         aBtn.classList.add('active');
-        document.getElementById(desc).innerText = aBtn.innerText;
+        if (desc !== undefined) {
+            document.getElementById(desc).innerText = aBtn.innerText;
+            document.getElementById(desc).setAttribute('data-phrase', aBtn.innerText);
+        }
     }
 }
 
@@ -4847,19 +6513,40 @@ function gotoPage(x) {
  https://github.com/jcorporation/mympd
 */
 
-function validateFilename(el) {
-    if (el.value == '') {
-        el.classList.add('is-invalid');
+function validateFilenameString(str) {
+    if (str === '') {
         return false;
     }
-    else if (el.value.match(/^[\w-]+\.\w+$/) !== null) {
-        el.classList.remove('is-invalid');
+    else if (str.match(/^[\w-.]+$/) !== null) {
         return true;
     }
     else {
+        return false;
+    }
+}
+
+function validateFilename(el) {
+    if (validateFilenameString(el.value) === false) {
         el.classList.add('is-invalid');
         return false;
     }
+    else {
+        el.classList.remove('is-invalid');
+        return true;
+    }
+}
+
+function validateFilenameList(el) {
+    el.classList.remove('is-invalid');
+    
+    let filenames = el.value.split(',');
+    for (let i = 0; i < filenames.length; i++) {
+        if (validateFilenameString(filenames[i].trim()) === false) {
+            el.classList.add('is-invalid');
+            return false;
+        }
+    }
+    return true;
 }
 
 function validatePath(el) {

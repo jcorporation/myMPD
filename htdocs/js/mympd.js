@@ -55,7 +55,8 @@ app.apps = { "Playback":   { "state": "0/-/-/", "scrollPos": 0 },
                                     "active": "AlbumArtist",
                                     "views": { 
                                      }
-                             }
+                             },
+                             "Covergrid":  { "state": "0/AlbumArtist/AlbumArtist/", "scrollPos": 0 }
                   }
              },
              "Search": { "state": "0/any/-/", "scrollPos": 0 }
@@ -90,6 +91,7 @@ domCache.btnVoteDown = document.getElementById('btnVoteDown');
 domCache.badgeQueueItems = document.getElementById('badgeQueueItems');
 domCache.searchstr = document.getElementById('searchstr');
 domCache.searchCrumb = document.getElementById('searchCrumb');
+domCache.body = document.getElementsByTagName('body')[0];
 
 /* eslint-disable no-unused-vars */
 var modalConnection = new Modal(document.getElementById('modalConnection'));
@@ -134,7 +136,8 @@ function appPrepare(scrollPos) {
         document.getElementById('cardQueueLastPlayed').classList.add('hide');
         document.getElementById('cardBrowsePlaylists').classList.add('hide');
         document.getElementById('cardBrowseDatabase').classList.add('hide');
-        document.getElementById('cardBrowseFilesystem').classList.add('hide');        
+        document.getElementById('cardBrowseFilesystem').classList.add('hide');
+        document.getElementById('cardBrowseCovergrid').classList.add('hide');
         //show active card + nav
         document.getElementById('card' + app.current.app).classList.remove('hide');
         if (document.getElementById('nav' + app.current.app)) {
@@ -286,6 +289,23 @@ function appRoute() {
         }
         document.getElementById('BrowseBreadcrumb').innerHTML = breadcrumbs;
         doSetFilterLetter('BrowseFilesystemFilter');
+    }
+    else if (app.current.app === 'Browse' && app.current.tab === 'Covergrid') {
+        document.getElementById('searchCovergridStr').value = app.current.search;
+        selectTag('searchCovergridTags', 'searchCovergridTagsDesc', app.current.filter);
+        selectTag('searchCovergridSortTags', undefined, app.current.sort);
+        let sort = app.current.sort;
+        let sortdesc = false;
+        if (app.current.sort.charAt(0) === '-') {
+            sortdesc = true;
+            sort = app.current.sort.substr(1);
+            document.getElementById('searchCovergridSortDesc').checked = true;
+        }
+        else {
+            document.getElementById('searchCovergridSortDesc').checked = false;
+        }
+        sendAPI("MPD_API_DATABASE_GET_ALBUMS", {"offset": app.current.page, "searchstr": app.current.search, 
+            "tag": app.current.filter, "sort": sort, "sortdesc": sortdesc}, parseCovergrid);
     }
     else if (app.current.app === 'Search') {
         domCache.searchstr.focus();
@@ -790,7 +810,7 @@ function appInit() {
                 addAllFromBrowseFilesystem();
             }
             else if (event.target.getAttribute('data-phrase') === 'Add all to playlist') {
-                showAddToPlaylist(app.current.search);                
+                showAddToPlaylist(app.current.search, '');
             }
         }
     }, false);
@@ -798,10 +818,10 @@ function appInit() {
     document.getElementById('searchAddAllSongsDropdown').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
             if (event.target.getAttribute('data-phrase') === 'Add all to queue') {
-                addAllFromSearchPlist('queue');
+                addAllFromSearchPlist('queue', null, false);
             }
             else if (event.target.getAttribute('data-phrase') === 'Add all to playlist') {
-                showAddToPlaylist('SEARCH');                
+                showAddToPlaylist('SEARCH', '');
             }
             else if (event.target.getAttribute('data-phrase') === 'Save as smart playlist') {
                 saveSearchAsSmartPlaylist();
@@ -815,7 +835,7 @@ function appInit() {
                 addAllFromBrowseDatabasePlist('queue');
             }
             else if (event.target.getAttribute('data-phrase') === 'Add all to playlist') {
-                showAddToPlaylist('DATABASE');
+                showAddToPlaylist('DATABASE', '');
             }
         }
     }, false);
@@ -824,6 +844,39 @@ function appInit() {
         if (event.target.nodeName === 'BUTTON') {
             app.current.filter = event.target.getAttribute('data-tag');
             search(domCache.searchstr.value);
+        }
+    }, false);
+    
+    document.getElementById('searchCovergridTags').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'BUTTON') {
+            app.current.filter = event.target.getAttribute('data-tag');
+            appGoto(app.current.app, app.current.tab, app.current.view, '0/' + app.current.filter + '/' + app.current.sort + '/' + app.current.search);
+        }
+    }, false);
+    
+    document.getElementById('searchCovergridSortDesc').addEventListener('click', function(event) {
+        if (app.current.sort.charAt(0) === '-') {
+            app.current.sort = app.current.sort.substr(1);
+        }
+        else {
+            app.current.sort = '-' + app.current.sort;
+        }
+        appGoto(app.current.app, app.current.tab, app.current.view, '0/' + app.current.filter + '/' + app.current.sort + '/' + app.current.search);
+    }, false);
+
+    document.getElementById('searchCovergridSortTags').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'BUTTON') {
+            app.current.sort = event.target.getAttribute('data-tag');
+            appGoto(app.current.app, app.current.tab, app.current.view, '0/' + app.current.filter + '/' + app.current.sort + '/' + app.current.search);
+        }
+    }, false);
+    
+    document.getElementById('searchCovergridStr').addEventListener('keyup', function(event) {
+        if (event.key === 'Escape') {
+            this.blur();
+        }
+        else {
+            appGoto(app.current.app, app.current.tab, app.current.view, '0/' + app.current.filter + '/' + app.current.sort + '/' + this.value);
         }
     }, false);
 
@@ -837,16 +890,19 @@ function appInit() {
     }, false);
 
     document.getElementById('searchqueuetags').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'BUTTON')
+        if (event.target.nodeName === 'BUTTON') {
             appGoto(app.current.app, app.current.tab, app.current.view, app.current.page + '/' + event.target.getAttribute('data-tag') + '/' + app.current.sort  + '/' + app.current.search);
+        }
     }, false);
 
-    let dropdowns = ['QueueCurrentColsDropdown', 'BrowseFilesystemColsDropdown', 'SearchColsDropdown', 'BrowsePlaylistsDetailColsDropdown', 
-        'BrowseDatabaseColsDropdown', 'PlaybackColsDropdown', 'QueueLastPlayedColsDropdown'];
+    let dropdowns = ['BrowseDatabaseColsDropdown', 'PlaybackColsDropdown'];
     for (let i = 0; i < dropdowns.length; i++) {
         document.getElementById(dropdowns[i]).addEventListener('click', function(event) {
-            if (event.target.nodeName === 'INPUT')
+            if (event.target.nodeName === 'BUTTON' && event.target.classList.contains('material-icons')) {
                 event.stopPropagation();
+                event.preventDefault();
+                toggleBtnChk(event.target);
+            }
         }, false);
     }
     
@@ -855,6 +911,10 @@ function appInit() {
     }, false);
 
     document.getElementById('searchqueue').addEventListener('submit', function() {
+        return false;
+    }, false);
+    
+    document.getElementById('searchcovergrid').addEventListener('submit', function() {
         return false;
     }, false);
 
@@ -908,6 +968,9 @@ function appInit() {
     document.getElementById('SearchList').getElementsByTagName('tr')[0].addEventListener('click', function(event) {
         if (settings.featAdvsearch) {
             if (event.target.nodeName === 'TH') {
+                if (event.target.innerHTML === '') {
+                    return;
+                }
                 let col = event.target.getAttribute('data-col');
                 if (col === 'Duration') {
                     return;
@@ -990,6 +1053,13 @@ function appInit() {
             navigateTable(this, event.key);
         }, false);
     }
+
+    let selectThemeHtml = '';
+    Object.keys(themes).forEach(function(key, index) {
+        selectThemeHtml += '<option value="' + key + '">' + t(themes[key]) + '</option>';
+    });
+    document.getElementById('selectTheme').innerHTML = selectThemeHtml;
+
     
     window.addEventListener('beforeinstallprompt', function(event) {
         // Prevent Chrome 67 and earlier from automatically showing the prompt

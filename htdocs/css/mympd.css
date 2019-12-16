@@ -6,6 +6,7 @@
 
 :root {
   --mympd-coverimagesize: 250px;
+  --mympd-covergridsize: 200px;
 }
 
 #splashScreen {
@@ -61,6 +62,10 @@ body {
 .breakAll, td[data-col=Title] {
   word-break: break-all;
   min-width: 6rem;
+}
+
+td[data-col=Action] {
+  text-align: right;
 }
 
 .albumartbg {
@@ -204,6 +209,31 @@ small {
   z-index: 1;
 }
 
+.card-grid {
+  width: var(--mympd-covergridsize, 200px);
+  min-height: 0 !important;
+  margin-bottom: 1.25rem;
+  overflow: hidden;
+  transition: width 0.5s, height 0.5s;
+  max-width: 100%;
+}
+
+.card-footer-grid {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.album-cover-grid {
+  background-size: cover;
+  overflow: hidden;
+  background-color: #eee;
+  width: var(--mympd-covergridsize, 200px);
+  height: var(--mympd-covergridsize, 200px);
+  max-width: 100%;
+  padding: 0rem 0.5rem;
+}
+
 a.card-img-left {
   overflow: hidden;
   display: block;
@@ -313,6 +343,10 @@ a.card-img-left {
 
 #btn-outputs-block > button:last-child {
   margin-bottom: 0;
+}
+
+.btnCleanup {
+  min-width: 8rem;
 }
 
 .progressBarPlay {
@@ -475,7 +509,7 @@ ol#searchCrumb {
 }
 
 .nodropdown::after {
-  content: none;
+  content: none !important;
 }
 
 .dropdown-header-lx {
@@ -499,3 +533,54 @@ textarea.small {
   align-self: baseline;
 }
 
+.form-control:focus {
+  border-color: #28A745 !important;
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25) !important;
+}
+
+.btn-light:not(:disabled):not(.disabled):active, .btn-light:not(:disabled):not(.disabled).active,
+.show > .btn-light.dropdown-toggle,
+.btn-secondary:not(:disabled):not(.disabled):active, .btn-secondary:not(:disabled):not(.disabled).active,
+.show > .btn-secondary.dropdown-toggle {
+  color: #fff;
+  background-color: #28a745 !important;
+  border-color: #28a745 !important;
+}
+
+.btn-light:focus, .btn-light.focus,
+.btn-secondary:focus, .btn-secondary.focus {
+  color: #fff;
+  background-color: #218838 !important;
+  border-color: #1e7e34 !important;
+  box-shadow: 0 0 0 0.2rem rgba(72, 180, 97, 0.5) !important;
+}
+
+.btn-light:not(:disabled):not(.disabled):active:focus, .btn-light:not(:disabled):not(.disabled).active:focus,
+.show > .btn-light.dropdown-toggle:focus,
+.btn-secondary:not(:disabled):not(.disabled):active:focus, .btn-secondary:not(:disabled):not(.disabled).active:focus,
+.show > .btn-secondary.dropdown-toggle:focus {
+  box-shadow: 0 0 0 0.2rem rgba(72, 180, 97, 0.5) !important;
+}
+
+.btn-xs, .btn-group-xs > .btn {
+  padding: 0.12rem;
+  border-radius: 0.2rem;
+}
+
+.popover {
+  font-size: 1rem;
+  max-width: none;
+}
+
+img.covergrid-header {
+  width: 50px;
+  height: 50px;
+  display: block;
+  float: left;
+  margin-right: 1rem;
+}
+
+div.covergrid-header {
+  padding: 0.37rem 0.75rem !important;
+}

@@ -13,10 +13,10 @@
 
 #include "../dist/src/sds/sds.h"
 #include "../sds_extras.h"
-#include "../utility.h"
 #include "../log.h"
 #include "../list.h"
 #include "config_defs.h"
+#include "../utility.h"
 #include "mympd_api_utility.h"
 #include "mympd_api_syscmds.h"
 

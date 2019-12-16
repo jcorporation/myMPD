@@ -61,9 +61,13 @@ function sendAPI(method, params, callback, onerror) {
 }
 
 function webSocketConnect() {
-    if (socket !== null) {
+    if (socket !== null && socket.readyState === WebSocket.OPEN) {
         logInfo("Socket already connected");
+        websocketConnected = true;
         return;
+    }
+    else {
+        websocketConnected = false;
     }
     let wsUrl = getWsUrl();
     socket = new WebSocket(wsUrl);

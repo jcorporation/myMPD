@@ -43,8 +43,10 @@ typedef struct t_mympd_state {
     bool coverimage;
     sds coverimage_name;
     int coverimage_size;
+    int covergrid_size;
     sds locale;
     sds music_directory;
+    sds theme;
     bool bookmarks;
 } t_mympd_state;
 

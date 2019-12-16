@@ -402,9 +402,6 @@ Albumart
 Can't access music directory
 음원 디렉터리에 접근할 수 없음
 
-Size
-크기
-
 Invalid size
 잘못된 크기
 
@@ -519,7 +516,7 @@ Reset
 Reset settings
 다시 설정 하기
 
-Clear cache and reload
+Clear app cache and reload
 캐시를 지우고 다시 읽기
 
 Reload

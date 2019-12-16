@@ -9,9 +9,9 @@
 #include <poll.h>
 #include <pthread.h>
 #include <string.h>
-#include <mpd/client.h>
 #include <signal.h>
 #include <assert.h>
+#include <mpd/client.h>
 
 #include "../dist/src/sds/sds.h"
 #include "sds_extras.h"
@@ -55,12 +55,10 @@ void *mpd_client_loop(void *arg_config) {
                 break;
             }
             else {
-               //create response struct
-               if (request->conn_id > -1) {
-                    t_work_result *response = (t_work_result*)malloc(sizeof(t_work_result));
-                    assert(response);
-                    response->conn_id = request->conn_id;
-                    response->data = jsonrpc_respond_message(sdsempty(), request->method, request->id, "MPD disconnected", true);
+                //create response struct
+                if (request->conn_id > -1) {
+                    t_work_result *response = create_result(request);
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "MPD disconnected", true);
                     LOG_DEBUG("Send http response to connection %lu: %s", request->conn_id, response->data);
                     tiny_queue_push(web_server_queue, response);
                 }
@@ -196,10 +194,8 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
                 if (request != NULL) {
                     //create response struct
                     if (request->conn_id > -1) {
-                        t_work_result *response = (t_work_result*)malloc(sizeof(t_work_result));
-                        assert(response);
-                        response->conn_id = request->conn_id;
-                        response->data = jsonrpc_respond_message(sdsempty(), request->method, request->id, "MPD disconnected", true);
+                        t_work_result *response = create_result(request);
+                        response->data = jsonrpc_respond_message(response->data, request->method, request->id, "MPD disconnected", true);
                         LOG_DEBUG("Send http response to connection %lu: %s", request->conn_id, response->data);
                         tiny_queue_push(web_server_queue, response);
                     }

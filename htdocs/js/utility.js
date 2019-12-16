@@ -99,7 +99,10 @@ function selectTag(btnsEl, desc, setTo) {
     aBtn = btns.querySelector('[data-tag=' + setTo + ']');
     if (aBtn) {
         aBtn.classList.add('active');
-        document.getElementById(desc).innerText = aBtn.innerText;
+        if (desc !== undefined) {
+            document.getElementById(desc).innerText = aBtn.innerText;
+            document.getElementById(desc).setAttribute('data-phrase', aBtn.innerText);
+        }
     }
 }
 
@@ -163,7 +166,10 @@ function toggleBtn(btn, state) {
 }
 
 function toggleBtnChk(btn, state) {
-    let b = document.getElementById(btn);
+    let b = btn;
+    if (typeof btn === 'string') {
+        b = document.getElementById(btn);
+    }
     if (!b) {
         return;
     }

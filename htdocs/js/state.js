@@ -17,6 +17,13 @@ function parseStats(obj) {
     document.getElementById('mympdVersion').innerText = obj.result.mympdVersion;
     document.getElementById('mpdInfo_version').innerText = obj.result.mpdVersion;
     document.getElementById('mpdInfo_libmpdclientVersion').innerText = obj.result.libmpdclientVersion;
+    if (obj.result.libmympdclientVersion !== undefined) {
+        document.getElementById('mpdInfo_libmympdclientVersion').innerText = obj.result.libmympdclientVersion;
+        document.getElementById('mpdInfo_libmympdclientVersion').parentNode.classList.remove('hide');
+    }
+    else {
+        document.getElementById('mpdInfo_libmympdclientVersion').parentNode.classList.add('hide');    
+    }
 }
 
 function parseOutputs(obj) {
@@ -159,7 +166,11 @@ function parseVolume(obj) {
     domCache.volumeBar.value = obj.result.volume;
 }
 
-function setBackgroundImage(imageUrl) {
+function setBackgroundImage(url) {
+    if (url === undefined) {
+        clearBackgroundImage();
+        return;
+    }
     let old = document.querySelectorAll('.albumartbg');
     for (let i = 0; i < old.length; i++) {
         if (old[i].style.zIndex === '-10') {
@@ -172,7 +183,7 @@ function setBackgroundImage(imageUrl) {
     let div = document.createElement('div');
     div.classList.add('albumartbg');
     div.style.filter = settings.bgCssFilter;
-    div.style.backgroundImage = 'url("' + subdir + imageUrl + '")';
+    div.style.backgroundImage = 'url("' + subdir + '/albumart/' + url + '")';
     div.style.opacity = 0;
     let body = document.getElementsByTagName('body')[0];
     body.insertBefore(div, body.firstChild);
@@ -181,7 +192,7 @@ function setBackgroundImage(imageUrl) {
     img.onload = function() {
         document.querySelector('.albumartbg').style.opacity = 1;
     };
-    img.src = imageUrl;
+    img.src = subdir + '/albumart/' + url;
 }
 
 function clearBackgroundImage() {
@@ -197,7 +208,11 @@ function clearBackgroundImage() {
     }
 }
 
-function setCurrentCover(imageUrl) {
+function setCurrentCover(url) {
+    if (url === undefined) {
+        clearCurrentCover();
+        return;
+    }
     let old = domCache.currentCover.querySelectorAll('.coverbg');
     for (let i = 0; i < old.length; i++) {
         if (old[i].style.zIndex === '2') {
@@ -210,7 +225,7 @@ function setCurrentCover(imageUrl) {
 
     let div = document.createElement('div');
     div.classList.add('coverbg');
-    div.style.backgroundImage = 'url("' + subdir + imageUrl + '")';
+    div.style.backgroundImage = 'url("' + subdir + '/albumart/' + url + '")';
     div.style.opacity = 0;
     domCache.currentCover.insertBefore(div, domCache.currentCover.firstChild);
 
@@ -218,7 +233,7 @@ function setCurrentCover(imageUrl) {
     img.onload = function() {
         domCache.currentCover.querySelector('.coverbg').style.opacity = 1;
     };
-    img.src = imageUrl;
+    img.src = subdir + '/albumart/' + url;
 }
 
 function clearCurrentCover() {
@@ -243,19 +258,9 @@ function songChange(obj) {
     let htmlNotification = '';
     let pageTitle = '';
 
-    if (obj.result.cover !== undefined) {
-        setCurrentCover(obj.result.cover);
-    }
-    else {
-        setCurrentCover('/assets/coverimage-notavailable.svg');
-    }
+    setCurrentCover(obj.result.uri);
     if (settings.bgCover === true && settings.featCoverimage === true) {
-        if (obj.result.cover === undefined || obj.result.cover.indexOf('coverimage-') > -1 ) {
-            clearBackgroundImage();
-        }
-        else {
-            setBackgroundImage(obj.result.cover);
-        }
+        setBackgroundImage(obj.result.uri);
     }
 
     if (obj.result.Artist !== undefined && obj.result.Artist.length > 0 && obj.result.Artist !== '-') {

@@ -10,11 +10,14 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <dirent.h>
+#include <unistd.h>
 #include <sys/stat.h>
 #include <ctype.h>
 
 #include "../dist/src/sds/sds.h"
 #include "sds_extras.h"
+#include "list.h"
+#include "config_defs.h"
 #include "log.h"
 #include "utility.h"
 
@@ -198,6 +201,13 @@ bool validate_string(const char *data) {
     return true;
 }
 
+bool validate_uri(const char *data) {
+    if (strstr(data, "/../") != NULL) {
+        return false;
+    }
+    return true;
+}
+
 int replacechar(char *str, const char orig, const char rep) {
     char *ix = str;
     int n = 0;
@@ -206,4 +216,169 @@ int replacechar(char *str, const char orig, const char rep) {
         n++;
     }
     return n;
+}
+
+int uri_to_filename(char *str) {
+    int n = replacechar(str, '/', '_');
+    n+= replacechar(str, '.', '_');
+    n+= replacechar(str, ':', '_');
+    return n;
+}
+
+const struct mime_type_entry image_files[] = {
+    {"png",  "image/png"},
+    {"jpg",  "image/jpeg"},
+    {"jpeg", "image/jpeg"},
+    {"svg",  "image/svg+xml"},
+    {"webp", "image/webp"},
+    {"tiff", "image/tiff"},
+    {"bmp",  "image/x-ms-bmp"},
+    {NULL,   "application/octet-stream"}
+};
+
+sds find_image_file(sds basefilename) {
+    const struct mime_type_entry *p = NULL;
+    for (p = image_files; p->extension != NULL; p++) {
+        sds testfilename = sdscatfmt(sdsempty(), "%s.%s", basefilename, p->extension);
+        if (access(testfilename, F_OK) == 0) { /* Flawfinder: ignore */
+            sdsfree(testfilename);
+            break;
+        }
+        sdsfree(testfilename);
+    }
+    if (p->extension != NULL) {
+        basefilename = sdscatfmt(basefilename, ".%s", p->extension);
+    }
+    else {
+        basefilename = sdscrop(basefilename);
+    }
+    return basefilename;
+}
+
+const struct mime_type_entry media_files[] = {
+    {"mp3",  "audio/mpeg"},
+    {"flac", "audio/flac"},
+    {"oga",  "audio/ogg"},
+    {"ogg",  "audio/ogg"},
+    {"opus",  "audio/ogg"},
+    {"spx",  "audio/ogg"},
+    {NULL,   "application/octet-stream"}
+};
+
+sds get_mime_type_by_ext(const char *filename) {
+    const char *ext = strrchr(filename, '.');
+    if (ext == NULL) {
+        return sdsempty();
+    }
+    else if (strlen(ext) > 1) {
+        //trim starting dot
+        ext++;
+    }
+    else {
+        return sdsempty();        
+    }
+
+    const struct mime_type_entry *p = NULL;
+    for (p = image_files; p->extension != NULL; p++) {
+        if (strcmp(ext, p->extension) == 0) {
+            break;
+        }
+    }
+    if (p->extension == NULL) {
+        p = NULL;
+        for (p = media_files; p->extension != NULL; p++) {
+            if (strcmp(ext, p->extension) == 0) {
+                break;
+            }
+        }
+    }
+    sds mime_type = sdsnew(p->mime_type);
+    return mime_type;
+}
+
+sds get_ext_by_mime_type(const char *mime_type) {
+    const struct mime_type_entry *p = NULL;
+    for (p = image_files; p->extension != NULL; p++) {
+        if (strcmp(mime_type, p->mime_type) == 0) {
+            break;
+        }
+    }
+    sds ext = sdsnew(p->extension);
+    return ext;
+}
+
+const struct magic_byte_entry magic_bytes[] = {
+    {"89504E470D0A1A0A",  "image/png"},
+    {"FFD8FFDB",  "image/jpeg"},
+    {"FFD8FFE0",  "image/jpeg"},
+    {"FFD8FFEE", "image/jpeg"},
+    {"FFD8FFE1", "image/jpeg"},
+    {"49492A00", "image/tiff"},
+    {"4D4D002A", "image/tiff"},
+    {"424D",  "image/x-ms-bmp"},
+    {"52494646", "image/webp"},
+    {NULL,   "application/octet-stream"}
+};
+
+sds get_mime_type_by_magic(const char *filename) {
+    FILE *fp = fopen(filename, "rb");
+    if (fp == NULL) {
+        LOG_ERROR("Can't open %s", filename);
+        return sdsempty();
+    }
+    unsigned char binary_buffer[8];
+    size_t read = fread(binary_buffer, 1, sizeof(binary_buffer), fp);
+    LOG_DEBUG("Read %u bytes from file %s", read, filename);
+    fclose(fp);
+    sds stream = sdsnewlen(binary_buffer, read);
+    sds mime_type = get_mime_type_by_magic_stream(stream);
+    sdsfree(stream);
+    return mime_type;
+}
+
+sds get_mime_type_by_magic_stream(sds stream) {
+    sds hex_buffer = sdsempty();
+    int len = sdslen(stream) < 8 ? sdslen(stream) : 8;
+    for (int i = 0; i < len; i++) {
+        hex_buffer = sdscatprintf(hex_buffer, "%02X", stream[i]);
+    }
+    LOG_DEBUG("First bytes in file: %s", hex_buffer);
+    const struct magic_byte_entry *p = NULL;
+    for (p = magic_bytes; p->magic_bytes != NULL; p++) {
+        if (strncmp(hex_buffer, p->magic_bytes, strlen(p->magic_bytes)) == 0) {
+            LOG_DEBUG("Matched magic bytes for mime_type: %s", p->mime_type);
+            break;
+        }
+    }
+    sdsfree(hex_buffer);
+    sds mime_type = sdsnew(p->mime_type);
+    return mime_type;
+}
+
+bool write_covercache_file(t_config *config, const char *uri, const char *mime_type, sds binary) {
+    bool rc = false;
+    sds filename = sdsnew(uri);
+    uri_to_filename(filename);
+    sds tmp_file = sdscatfmt(sdsempty(), "%s/covercache/%s.XXXXXX", config->varlibdir, filename);
+    int fd = mkstemp(tmp_file);
+    if (fd < 0) {
+        LOG_ERROR("Can't write covercachefile: %s", tmp_file);
+    }
+    else {
+        FILE *fp = fdopen(fd, "w");
+        fwrite(binary, 1, sdslen(binary), fp);
+        fclose(fp);
+        sds ext = get_ext_by_mime_type(mime_type);
+        sds cover_file = sdscatfmt(sdsempty(), "%s/covercache/%s.%s", config->varlibdir, filename, ext);
+        if (rename(tmp_file, cover_file) == -1) {
+            LOG_ERROR("Rename file from %s to %s failed", tmp_file, cover_file);
+            unlink(tmp_file);
+        }
+        sdsfree(ext);
+        sdsfree(cover_file);
+        rc = true;
+    }
+    sdsfree(tmp_file);
+    sdsfree(filename);
+    return rc;
 }

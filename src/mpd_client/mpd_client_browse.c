@@ -13,11 +13,11 @@
 
 #include "../../dist/src/sds/sds.h"
 #include "../sds_extras.h"
+#include "../list.h"
+#include "config_defs.h"
 #include "../utility.h"
 #include "../api.h"
 #include "../log.h"
-#include "../list.h"
-#include "config_defs.h"
 #include "../tiny_queue.h"
 #include "mpd_client_utility.h"
 #include "mpd_client_cover.h"
@@ -46,7 +46,7 @@ sds mpd_client_put_fingerprint(t_mpd_state *mpd_state, sds buffer, sds method, i
     return buffer;
 }
 
-sds mpd_client_put_songdetails(t_config *config, t_mpd_state *mpd_state, sds buffer, sds method, int request_id, 
+sds mpd_client_put_songdetails(t_mpd_state *mpd_state, sds buffer, sds method, int request_id, 
                                const char *uri)
 {
     buffer = jsonrpc_start_result(buffer, method, request_id);
@@ -68,12 +68,6 @@ sds mpd_client_put_songdetails(t_config *config, t_mpd_state *mpd_state, sds buf
     }
     mpd_response_finish(mpd_state->conn);
     
-    sds cover = sdsempty();
-    cover = mpd_client_get_cover(config, mpd_state, uri, cover);
-    buffer = sdscat(buffer, ",");
-    buffer = tojson_char(buffer, "cover", cover, false);
-    sdsfree(cover);
-
     if (mpd_state->feat_sticker) {
         t_sticker *sticker = (t_sticker *) malloc(sizeof(t_sticker));
         assert(sticker);
@@ -261,7 +255,7 @@ sds mpd_client_put_db_tag(t_mpd_state *mpd_state, sds buffer, sds method, int re
     return buffer;
 }
 
-sds mpd_client_put_songs_in_album(t_config *config, t_mpd_state *mpd_state, sds buffer, sds method, int request_id,
+sds mpd_client_put_songs_in_album(t_mpd_state *mpd_state, sds buffer, sds method, int request_id,
                                   const char *album, const char *search, const char *tag, const t_tags *tagcols)
 {
     buffer = jsonrpc_start_result(buffer, method, request_id);
@@ -307,14 +301,9 @@ sds mpd_client_put_songs_in_album(t_config *config, t_mpd_state *mpd_state, sds 
     }
     mpd_response_finish(mpd_state->conn);
 
-    sds cover = sdsempty();
     char *albumartist = NULL;
     if (first_song != NULL) {
-        cover = mpd_client_get_cover(config, mpd_state, mpd_song_get_uri(first_song), cover);
         albumartist = mpd_client_get_tag(first_song, MPD_TAG_ALBUM_ARTIST);
-    }
-    else {
-        cover = sdscat(cover, "/assets/coverimage-notavailable.svg");
     }
 
     buffer = sdscat(buffer, "],");
@@ -323,14 +312,78 @@ sds mpd_client_put_songs_in_album(t_config *config, t_mpd_state *mpd_state, sds 
     buffer = tojson_char(buffer, "Album", album, true);
     buffer = tojson_char(buffer, "search", search, true);
     buffer = tojson_char(buffer, "tag", tag, true);
-    buffer = tojson_char(buffer, "cover", cover, true);
     buffer = tojson_char(buffer, "AlbumArtist", (albumartist != NULL ? albumartist : "-"), true);
     buffer = tojson_long(buffer, "totalTime", totalTime, false);
     buffer = jsonrpc_end_result(buffer);
         
-    sdsfree(cover);
     if (first_song != NULL) {
         mpd_song_free(first_song);
     }
+    return buffer;    
+}
+
+sds mpd_client_put_firstsong_in_albums(t_config *config, t_mpd_state *mpd_state, sds buffer, sds method, int request_id, 
+                                       const char *searchstr, const char *tag, const char *sort, bool sortdesc, const unsigned int offset)
+{
+    buffer = jsonrpc_start_result(buffer, method, request_id);
+    buffer = sdscat(buffer, ",\"data\":[");
+
+    if (mpd_search_db_songs(mpd_state->conn, false) == false) {
+        buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
+        return buffer;
+    }
+    sds expression = sdsnew("((Track == '1')");
+    int searchstr_len = strlen(searchstr);
+    if (config->regex == true && searchstr_len > 0 && searchstr_len <= 2 && strlen(tag) > 0) {
+        expression = sdscatfmt(expression, " AND (%s =~ '^%s')", tag, searchstr);
+    }
+    else if (strlen(searchstr) > 0 && strlen(tag) > 0) {
+        expression = sdscatfmt(expression, " AND (%s contains '%s')", tag, searchstr);
+    }
+    expression = sdscat(expression, ")");
+    if (mpd_search_add_expression(mpd_state->conn, expression) == false) {
+        buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
+        return buffer;
+    }
+    sdsfree(expression);
+    if (strlen(sort) > 0) {
+        if (mpd_search_add_sort_name(mpd_state->conn, sort, sortdesc) == false) {
+            buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
+            return buffer;
+        }
+    }
+    if (mpd_search_add_window(mpd_state->conn, offset, offset + mpd_state->max_elements_per_page) == false) {
+        buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
+        return buffer;
+    }
+    if (mpd_search_commit(mpd_state->conn) == false) {
+        buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
+        return buffer;
+    }
+
+    struct mpd_song *song;
+    int entity_count = 0;
+    int entities_returned = 0;
+
+    while ((song = mpd_recv_song(mpd_state->conn)) != NULL) {
+        entity_count++;
+        if (entities_returned++) {
+            buffer = sdscat(buffer, ",");
+        }
+        buffer = sdscat(buffer, "{\"Type\": \"album\",");
+        buffer = tojson_char(buffer, "Album", mpd_client_get_tag(song, MPD_TAG_ALBUM), true);
+        buffer = tojson_char(buffer, "AlbumArtist", mpd_client_get_tag(song, MPD_TAG_ALBUM_ARTIST), true);
+        buffer = tojson_char(buffer, "FirstSongUri", mpd_song_get_uri(song), false);
+        buffer = sdscat(buffer, "}");
+
+        mpd_song_free(song);
+    }
+    mpd_response_finish(mpd_state->conn);
+
+    buffer = sdscat(buffer, "],");
+    buffer = tojson_long(buffer, "totalEntities", -1, true);
+    buffer = tojson_long(buffer, "returnedEntities", entities_returned, false);
+    buffer = jsonrpc_end_result(buffer);
+        
     return buffer;    
 }

@@ -5,6 +5,26 @@
 # https://github.com/jcorporation/mympd
 #
 
+if [ "${EMBEDDED_LIBMPDCLIENT}" = "" ]
+then
+  export EMBEDDED_LIBMPDCLIENT="ON"
+fi
+
+if [ "${ENABLE_SSL}" = "" ]
+then
+  export ENABLE_SSL="ON"
+fi
+
+if [ "${ENABLE_LIBID3TAG}" = "" ]
+then
+  export ENABLE_LIBID3TAG="ON"
+fi
+
+if [ "${ENABLE_FLAC}" = "" ]
+then
+  export ENABLE_FLAC="ON"
+fi
+
 STARTPATH=$(pwd)
 
 #set umask
@@ -102,20 +122,21 @@ minify() {
   if [ "$TYPE" = "html" ] && [ "$PERLBIN" != "" ]
   then
     # shellcheck disable=SC2016
-    $PERLBIN -pe 's/^<!--debug-->.*\n//gm; s/<!--release\s+(.+)-->/$1/g; s/<!--(.+)-->//g; s/^\s*//gm; s/\s*$//gm' "$SRC" > "$DST"
+    $PERLBIN -pe 's/^<!--debug-->.*\n//gm; s/<!--release\s+(.+)-->/$1/g; s/<!--(.+)-->//g; s/^\s*//gm; s/\s*$//gm' "$SRC" > "${DST}.tmp"
     ERROR="$?"
     if [ "$ERROR" = "1" ]
     then
+      rm -f "${DST}.tmp"
       echo "Error minifying $SRC"
       exit 1
     fi
   elif [ "$TYPE" = "js" ] && [ "$JAVABIN" != "" ]
   then
-    $JAVABIN -jar dist/buildtools/closure-compiler.jar "$SRC" > "$DST"
+    $JAVABIN -jar dist/buildtools/closure-compiler.jar "$SRC" > "${DST}.tmp"
     ERROR="$?"
   elif [ "$TYPE" = "css" ] && [ "$JAVABIN" != "" ]
   then
-    $JAVABIN -jar dist/buildtools/closure-stylesheets.jar --allow-unrecognized-properties "$SRC" > "$DST"
+    $JAVABIN -jar dist/buildtools/closure-stylesheets.jar --allow-unrecognized-properties "$SRC" > "${DST}.tmp"
     ERROR="$?"
   else
     ERROR="1"
@@ -129,7 +150,10 @@ minify() {
     else
       echo "Error minifying $SRC, copy $SRC to $DST"
     fi
+    rm -f "${DST}.tmp"
     cp "$SRC" "$DST"
+  else
+    mv "${DST}.tmp" "$DST"
   fi
   #successfull minified or copied file
   return 0
@@ -155,12 +179,10 @@ buildrelease() {
   createi18n ../../dist/htdocs/js/i18n.min.js
   
   echo "Minifying javascript"
-  JSSRCFILES="htdocs/js/api.js htdocs/js/browse.js htdocs/js/locale.js htdocs/js/log.js htdocs/js/misc.js htdocs/js/mympd.js"
-  JSSRCFILES="$JSSRCFILES htdocs/js/notification.js htdocs/js/playlists.js htdocs/js/popover.js htdocs/js/queue.js"
-  JSSRCFILES="$JSSRCFILES htdocs/js/search.js htdocs/js/settings.js htdocs/js/song.js htdocs/js/state.js htdocs/js/tables.js"
-  JSSRCFILES="$JSSRCFILES htdocs/js/utility.js htdocs/js/validate.js"
-  for F in $JSSRCFILES
+  JSSRCFILES=""
+  for F in htdocs/js/*.js
   do
+    [ -L "$F" ] || JSSRCFILES="$JSSRCFILES $F"
     if tail -1 "$F" | perl -npe 'exit 1 if m/\n/; exit 0'
     then
       echo "ERROR: $F don't end with newline character"
@@ -183,7 +205,7 @@ buildrelease() {
   minify js dist/htdocs/js/mympd.js dist/htdocs/js/mympd.min.js
   
   echo "Combining and compressing javascript"
-  JSFILES="dist/htdocs/js/i18n.min.js dist/htdocs/js/keymap.min.js dist/htdocs/js/bootstrap-native-v4.min.js dist/htdocs/js/mympd.min.js"
+  JSFILES="dist/htdocs/js/*.min.js"
   for F in $JSFILES
   do
     if tail -1 "$F" | perl -npe 'exit 1 if m/\n/; exit 0'
@@ -213,10 +235,14 @@ buildrelease() {
   fi
  
   echo "Minifying stylesheets"
-  minify css htdocs/css/mympd.css dist/htdocs/css/mympd.min.css
+  for F in htdocs/css/*.css
+  do
+    DST=$(basename "$F" .css)
+    [ -L "$F" ] || minify css "$F" "dist/htdocs/css/${DST}.min.css"
+  done
   
   echo "Combining and compressing stylesheets"
-  CSSFILES="dist/htdocs/css/bootstrap.min.css dist/htdocs/css/mympd.min.css"
+  CSSFILES="dist/htdocs/css/*.min.css"
   # shellcheck disable=SC2086
   if older_s dist/htdocs/css/combined.css.gz $CSSFILES
   then
@@ -256,13 +282,15 @@ buildrelease() {
   then
     echo "Assets changed"
     #force rebuild of web_server.c with embedded assets
-    rm -vf CMakeFiles/mympd.dir/src/web_server.c.o
+    rm -vf CMakeFiles/mympd.dir/src/web_server/web_server_utility.c.o
   else
     echo "Assets not changed"
   fi
   #set INSTALL_PREFIX and build myMPD
   export INSTALL_PREFIX="${MYMPD_INSTALL_PREFIX:-/usr}"
-  cmake -DCMAKE_INSTALL_PREFIX:PATH="$INSTALL_PREFIX" -DCMAKE_BUILD_TYPE=RELEASE ..
+  cmake -DCMAKE_INSTALL_PREFIX:PATH="$INSTALL_PREFIX" -DCMAKE_BUILD_TYPE=RELEASE \
+  	-DEMBEDDED_LIBMPDCLIENT="$EMBEDDED_LIBMPDCLIENT" -DENABLE_SSL="$ENABLE_SSL" \
+  	-DENABLE_LIBID3TAG="$ENABLE_LIBID3TAG" -DENABLE_FLAC="$ENABLE_FLAC" ..
   make
 }
 
@@ -291,20 +319,23 @@ builddebug() {
   echo "Compiling myMPD"
   install -d debug
   cd debug || exit 1
-  cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=DEBUG -DMEMCHECK="$MEMCHECK" ..
+  cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=DEBUG -DMEMCHECK="$MEMCHECK" \
+  	-DEMBEDDED_LIBMPDCLIENT="$EMBEDDED_LIBMPDCLIENT" -DENABLE_SSL="$ENABLE_SSL" \
+  	-DENABLE_LIBID3TAG="$ENABLE_LIBID3TAG" -DENABLE_FLAC="$ENABLE_FLAC" ..
   make VERBOSE=1
 }
 
 cleanupoldinstall() {
-  if [ -d /usr/share/mympd ]
+  if [ -d /usr/share/mympd ] || [ -d /usr/lib/mympd ]
   then
-    echo "Previous myMPD installation found"
+    echo "Cleaning up previous myMPD installation"
     rm -rf /usr/share/mympd
     rm -rf /var/lib/mympd/tmp
     [ -f /etc/mympd/mympd.conf ] && mv /etc/mympd/mympd.conf /etc/mympd.conf
     rm -rf /etc/mympd
     rm -f /usr/lib/systemd/system/mympd.service
-    rmdir --ignore-fail-on-non-empty /usr/lib/systemd/system
+    [ -d /usr/lib/systemd/system ] && rmdir --ignore-fail-on-non-empty /usr/lib/systemd/system
+    rm -rf /usr/lib/mympd
   else
     echo "No old myMPD installation found"
   fi
@@ -337,6 +368,7 @@ cleanupdist() {
   rm -f dist/htdocs/js/mympd.min.js
   rm -f dist/htdocs/js/combined.js.gz
   rm -f dist/htdocs/css/mympd.min.css
+  rm -f dist/htdocs/css/theme-*.min.css
   rm -f dist/htdocs/css/combined.css.gz
   rm -f dist/htdocs/sw.min.js
   rm -f dist/htdocs/sw.js.gz
@@ -536,6 +568,77 @@ pkgosc() {
   osc commit
 }
 
+installdeps() {
+  if [ -f /etc/debian_version ]
+  then
+    #debian
+    apt-get update
+    apt-get install -y --no-install-recommends \
+	gcc cmake perl libssl-dev libid3tag0-dev libflac-dev \
+	default-jre-headless build-essential
+  elif [ -f /etc/arch-release ]
+  then
+    #arch
+    pacman -S gcc cmake perl openssl libid3tag flac jre-openjdk-headless
+  elif [ -f /etc/alpine-release ]
+  then
+    #alpine
+    apk add gcc cmake perl openssl-dev libid3tag-dev libflac-dev \
+    	openjdk11-jre-headlesslinux-headers
+  elif [ -f /etc/SuSE-release ]
+  then
+    #suse
+    zypper install gcc cmake pkgconfig perl openssl-devel libid3tag-devel flac-devel \
+	java-11-openjdk-headless unzip
+  elif [ -f /etc/redhat-release ]
+  then  
+    #fedora 	
+    yum install gcc cmake pkgconfig perl openssl-devel libid3tag-devel flac-devel \
+	java-11-openjdk-headless unzip
+  else 
+    echo "No supported distribution detected."
+  fi
+}
+
+updatelibmympdclient() {
+  GITBIN=$(command -v git)
+  if [ "$GITBIN" = "" ]
+  then
+    echo "ERROR: git not found"
+    exit 1
+  fi
+  MESONBIN=$(command -v meson)
+  if [ "$MESONBIN" = "" ]
+  then
+    echo "ERROR: meson not found"
+    exit 1
+  fi
+
+  cd dist/src/libmpdclient || exit 1
+  STARTDIR=$(pwd)
+
+  TMPDIR=$(mktemp -d)
+  cd "$TMPDIR" || exit 1
+  $GITBIN clone -b libmympdclient https://github.com/jcorporation/libmpdclient.git
+  cd libmpdclient || exit 1
+  $MESONBIN . output
+
+  cd "$STARTDIR" || exit 1
+  install -d src
+  install -d include/mpd/
+
+  rsync -av --delete "$TMPDIR/libmpdclient/src/" ./src/
+  rsync -av --delete "$TMPDIR/libmpdclient/include/mpd/" ./include/mpd/
+
+  rsync -av "$TMPDIR/libmpdclient/output/version.h" include/mpd/version.h
+  rsync -av "$TMPDIR/libmpdclient/output/config.h" include/config.h
+
+  rsync -av "$TMPDIR/libmpdclient/COPYING" COPYING
+  rsync -av "$TMPDIR/libmpdclient/AUTHORS" AUTHORS
+
+  rm -rf "$TMPDIR"
+}
+
 case "$1" in
 	release)
 	  buildrelease
@@ -558,6 +661,9 @@ case "$1" in
 	;;
 	memcheck)
 	  builddebug "TRUE"
+	;;
+	installdeps)
+	  installdeps
 	;;
 	cleanup)
 	  cleanup
@@ -593,19 +699,20 @@ case "$1" in
 	addmympduser)
 	  addmympduser
 	;;
+	libmympdclient)
+	  updatelibmympdclient
+	;;
 	*)
 	  echo "Usage: $0 <option>"
 	  echo "Version: ${VERSION}"
 	  echo ""
 	  echo "Build options:"
 	  echo "  release:        build release files in directory release"
-	  echo "                  following environment variables are respected"
-	  echo "                    - MYMPD_INSTALL_PREFIX=\"/usr\""
 	  echo "  install:        installs release files from directory release"
 	  echo "                  following environment variables are respected"
 	  echo "                    - DESTDIR=\"\""
 	  echo "  releaseinstall: calls release and install afterwards"
-	  echo "  debug:          builds debug files in directory debug"
+	  echo "  debug:          builds debug files in directory debug,"
 	  echo "                  linked with libasan3, uses assets in htdocs"
 	  echo "  memcheck:       builds debug files in directory debug"
 	  echo "                  for use with valgrind, uses assets in htdocs/"
@@ -613,6 +720,7 @@ case "$1" in
 	  echo "                  following environment variables are respected"
 	  echo "                    - CPPCHECKOPTS=\"--enable=warning\""
 	  echo "                    - FLAWFINDEROPTS=\"-m3\""
+	  echo "  installdeps:    installs build and run dependencies"
 	  echo ""
 	  echo "Cleanup options:"
 	  echo "  cleanup:        cleanup source tree"
@@ -629,7 +737,7 @@ case "$1" in
 	  echo "                  following environment variables are respected"
 	  echo "                    - SIGN=\"FALSE\""
 	  echo "                    - GPGKEYID=\"\""
-	  echo "  pkgdocker:      creates the docker image (debian based with libmpdclient from git master branch)"
+	  echo "  pkgdocker:      creates the docker image (debian based)"
 	  echo "  pkgrpm:         creates the rpm package"
 	  echo "  pkgosc:         updates the open build service repository"
 	  echo "                  following environment variables are respected"
@@ -638,6 +746,14 @@ case "$1" in
 	  echo "Misc options:"
 	  echo "  setversion:     sets version and date in packaging files from CMakeLists.txt"
 	  echo "  addmympduser:   adds mympd group and user"
+	  echo "  libmympdclient: updates libmpdclient"
+	  echo ""
+	  echo "Environment variables for building"
+	  echo "  - MYMPD_INSTALL_PREFIX=\"/usr\""
+	  echo "  - EMBEDDED_LIBMPDCLIENT=\"ON\""
+	  echo "  - ENABLE_SSL=\"ON\""
+	  echo "  - ENABLE_LIBID3TAG=\"ON\""
+	  echo "  - ENABLE_FLAC=\"ON\""
 	  echo ""
 	;;
 esac

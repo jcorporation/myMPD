@@ -44,11 +44,6 @@ user = mympd
 #Enable system commands defined in syscmds section
 syscmds = false
 
-
-[plugins]
-coverextract = @COVEREXTRACT@
-
-
 [syscmds]
 Shutdown = sudo /sbin/halt
 #To use this command add following lines to /etc/sudoers (without #)

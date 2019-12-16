@@ -19,27 +19,31 @@
 #include <stdbool.h>
 #include <signal.h>
 #include <dlfcn.h>
-#include <mpd/client.h>
 #include <assert.h>
 #include <inttypes.h>
+#include <mpd/client.h>
 
 #include "../dist/src/sds/sds.h"
+#include "../dist/src/mongoose/mongoose.h"
+
 #include "sds_extras.h"
-#include "utility.h"
 #include "log.h"
 #include "list.h"
 #include "tiny_queue.h"
 #include "config_defs.h"
+#include "utility.h"
 #include "config.h"
 #include "api.h"
 #include "global.h"
 #include "mpd_client.h"
-#include "../dist/src/mongoose/mongoose.h"
+#include "web_server/web_server_utility.h"
 #include "web_server.h"
 #include "mympd_api.h"
-#include "cert.h"
+#ifdef ENABLE_SSL
+  #include "cert.h"
+#endif
 #include "handle_options.h"
-#include "plugins.h"
+#include "maintenance.h"
 
 static void mympd_signal_handler(int sig_num) {
     signal(sig_num, mympd_signal_handler);  // Reinstantiate signal handler
@@ -80,15 +84,12 @@ static bool do_chroot(struct t_config *config) {
             LOG_INFO("Disabling syscmds");
             config->syscmds = false;
         }
-        if (config->plugins_coverextract == true) {
-            LOG_INFO("Disabling plugin coverextract");
-            config->plugins_coverextract = false;
-        }
         return true;
     }
     return false;
 }
 
+#ifdef ENABLE_SSL
 static bool chown_certs(t_config *config) {
     sds filename = sdscatfmt(sdsempty(), "%s/ssl/ca.pem", config->varlibdir);
     if (do_chown(filename, config->user) == false) {
@@ -116,6 +117,7 @@ static bool chown_certs(t_config *config) {
     sdsfree(filename);
     return true;
 }
+#endif
 
 static bool drop_privileges(t_config *config, uid_t startup_uid) {
     if (startup_uid == 0) {
@@ -156,6 +158,7 @@ static bool drop_privileges(t_config *config, uid_t startup_uid) {
     return true;
 }
 
+#ifdef ENABLE_SSL
 static bool check_ssl_certs(t_config *config, uid_t startup_uid) {
     if (config->ssl == true && config->custom_cert == false) {
         sds testdirname = sdscatfmt(sdsempty(), "%s/ssl", config->varlibdir);
@@ -184,11 +187,13 @@ static bool check_ssl_certs(t_config *config, uid_t startup_uid) {
             }
         }
         else {
+            sdsfree(testdirname);
             return false;
         }
     }
     return true;
 }
+#endif
 
 static bool check_dirs(t_config *config) {
     int testdir_rc;
@@ -200,6 +205,7 @@ static bool check_dirs(t_config *config) {
     }
     #endif
 
+    //smart playlists
     sds testdirname = sdscatfmt(sdsempty(), "%s/smartpls", config->varlibdir);
     testdir_rc = testdir("Smartpls dir", testdirname, true);
     if (testdir_rc == 1) {
@@ -211,6 +217,7 @@ static bool check_dirs(t_config *config) {
         return false;
     }
 
+    //state directory
     testdirname = sdscrop(testdirname);
     testdirname = sdscatfmt(testdirname, "%s/state", config->varlibdir);
     testdir_rc = testdir("State dir", testdirname, true);
@@ -219,6 +226,7 @@ static bool check_dirs(t_config *config) {
         return false;
     }
     
+    //for stream images
     testdirname = sdscrop(testdirname);
     testdirname = sdscatfmt(testdirname, "%s/pics", config->varlibdir);
     testdir_rc = testdir("Pics dir", testdirname, true);
@@ -235,14 +243,20 @@ static bool check_dirs(t_config *config) {
         sdsfree(testdirname);
         return false;
     }
-    
-    if (config->plugins_coverextract == true) {
+
+    //covercache for coverextract and mpd coverhandling
+    if (config->covercache == true) {
         testdirname = sdscrop(testdirname);
         testdirname = sdscatfmt(testdirname, "%s/covercache", config->varlibdir);
         testdir_rc = testdir("Covercache dir", testdirname, true);
         if (testdir_rc > 1) {
             sdsfree(testdirname);
             return false;
+        }
+        else if (testdir_rc == 0) {
+            //crop covercache
+            clear_covercache(config, -1);
+            
         }
     }
     sdsfree(testdirname);
@@ -279,7 +293,6 @@ int main(int argc, char **argv) {
     //create mg_user_data struct for web_server
     t_mg_user_data *mg_user_data = (t_mg_user_data *)malloc(sizeof(t_mg_user_data));
     assert(mg_user_data);
-    init_mg_user_data = true;
 
     //initialize random number generator
     srand((unsigned int)time(NULL)); /* Flawfinder: ignore */
@@ -308,7 +321,14 @@ int main(int argc, char **argv) {
     }
 
     LOG_INFO("Starting myMPD %s", MYMPD_VERSION);
+    #ifdef EMBEDDED_LIBMPDCLIENT
+        LOG_INFO("Compiled with embedded libmpdclient");
+        LOG_INFO("Libmympdclient %i.%i.%i based on libmpdclient %i.%i.%i", 
+            LIBMYMPDCLIENT_MAJOR_VERSION, LIBMYMPDCLIENT_MINOR_VERSION, LIBMYMPDCLIENT_PATCH_VERSION,
+            LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION);
+    #else
     LOG_INFO("Libmpdclient %i.%i.%i", LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION);
+    #endif
     LOG_INFO("Mongoose %s", MG_VERSION);
     
     if (mympd_read_config(config, configfile) == false) {
@@ -317,9 +337,9 @@ int main(int argc, char **argv) {
 
     //set loglevel
     #ifdef DEBUG
-    set_loglevel(4);
+        set_loglevel(4);
     #else
-    set_loglevel(config->loglevel);
+        set_loglevel(config->loglevel);
     #endif
 
     //check varlibdir
@@ -351,11 +371,6 @@ int main(int argc, char **argv) {
         goto cleanup;
     }
     
-    //init plugins
-    if (init_plugins(config) == false) {
-        goto cleanup;
-    }
-
     //set signal handler
     signal(SIGTERM, mympd_signal_handler);
     signal(SIGINT, mympd_signal_handler);
@@ -363,11 +378,13 @@ int main(int argc, char **argv) {
     setvbuf(stderr, NULL, _IOLBF, 0);
 
     //check for ssl certificates
+    #ifdef ENABLE_SSL
     if (config->readonly == false) {
         if (check_ssl_certs(config, startup_uid) == false) {
             goto cleanup;
         }
     }
+    #endif
 
     //init webserver    
     struct mg_mgr mgr;
@@ -448,13 +465,12 @@ int main(int argc, char **argv) {
     tiny_queue_free(web_server_queue);
     tiny_queue_free(mpd_client_queue);
     tiny_queue_free(mympd_api_queue);
-    close_plugins(config);
     mympd_free_config(config);
     sdsfree(configfile);
     sdsfree(option);
     if (init_mg_user_data == true) {
         sdsfree(mg_user_data->music_directory);
-        sdsfree(mg_user_data->pics_directory);
+        sdsfreesplitres(mg_user_data->coverimage_names, mg_user_data->coverimage_names_len);
         sdsfree(mg_user_data->rewrite_patterns);
     }
     FREE_PTR(mg_user_data);

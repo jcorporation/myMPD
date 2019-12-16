@@ -16,10 +16,10 @@
 
 #include "../dist/src/sds/sds.h"
 #include "sds_extras.h"
-#include "utility.h"
-#include "log.h"
 #include "list.h"
 #include "config_defs.h"
+#include "utility.h"
+#include "log.h"
 #include "config.h"
 #include "../dist/src/inih/ini.h"
 
@@ -46,9 +46,13 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("mpd", "musicdirectory")) {
         p_config->music_directory = sdsreplace(p_config->music_directory, value);
     }
+    else if (MATCH("mpd", "regex")) {
+        p_config->regex = strcmp(value, "true") == 0 ? true : false;
+    }
     else if (MATCH("webserver", "webport")) {
         p_config->webport = sdsreplace(p_config->webport, value);
     }
+#ifdef ENABLE_SSL
     else if (MATCH("webserver", "ssl")) {
         p_config->ssl = strcmp(value, "true") == 0 ? true : false;
     }
@@ -69,6 +73,10 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     }
     else if (MATCH("webserver", "sslsan")) {
         p_config->ssl_san = sdsreplace(p_config->ssl_san, value);
+    }
+#endif
+    else if (MATCH("webserver", "publishlibrary")) {
+        p_config->publish_library = strcmp(value, "true") == 0 ? true : false;
     }
     else if (MATCH("mympd", "user")) {
         p_config->user = sdsreplace(p_config->user, value);
@@ -107,6 +115,12 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("mympd", "volumestep")) {
         p_config->volume_step = strtoimax(value, &crap, 10);
     }
+    else if (MATCH("mympd", "covercachekeepdays")) {
+        p_config->covercache_keep_days = strtoimax(value, &crap, 10);
+    }
+    else if (MATCH("mympd", "covercache")) {
+        p_config->covercache = strcmp(value, "true") == 0 ? true : false;
+    }
     else if (MATCH("mympd", "syscmds")) {
         p_config->syscmds = strcmp(value, "true") == 0 ? true : false;
     }
@@ -124,9 +138,6 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     }
     else if (MATCH("mympd", "lovemessage")) {
         p_config->love_message = sdsreplace(p_config->love_message, value);
-    }
-    else if (MATCH("plugins", "coverextract")) {
-        p_config->plugins_coverextract = strcmp(value, "true") == 0 ? true : false;
     }
     else if (MATCH("mympd", "notificationweb")) {
         p_config->notification_web = strcmp(value, "true") == 0 ? true : false;
@@ -189,6 +200,9 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("mympd", "bookmarks")) {
         p_config->bookmarks = strcmp(value, "true") == 0 ? true : false;
     }
+    else if (MATCH("theme", "theme")) {
+        p_config->theme = sdsreplace(p_config->theme, value);
+    }
     else if (MATCH("theme", "bgcover")) {
         p_config->bg_cover = strcmp(value, "true") == 0 ? true : false;
     }
@@ -207,8 +221,14 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("theme", "coverimagesize")) {
         p_config->coverimage_size = strtoimax(value, &crap, 10);
     }
+    else if (MATCH("theme", "covergridsize")) {
+        p_config->covergrid_size = strtoimax(value, &crap, 10);
+    }
     else if (MATCH("theme", "locale")) {
         p_config->locale = sdsreplace(p_config->locale, value);
+    }
+    else if (MATCH("theme", "custom_placeholder_images")) {
+        p_config->custom_placeholder_images = strcmp(value, "true") == 0 ? true : false;
     }
     else if (strcasecmp(section, "syscmds") == 0) {
         LOG_DEBUG("Adding syscmd %s: %s", name, value);
@@ -239,19 +259,23 @@ static void mympd_parse_env(struct t_config *config, const char *envvar) {
 
 static void mympd_get_env(struct t_config *config) {
     const char *env_vars[]={"MPD_HOST", "MPD_PORT", "MPD_PASS", "MPD_MUSICDIRECTORY",
-        "WEBSERVER_WEBPORT", "WEBSERVER_SSL", "WEBSERVER_SSLPORT", "WEBSERVER_SSLCERT", "WEBSERVER_SSLKEY",
-        "WEBSERVER_SSLSAN",
+        "MPD_REGEX", "WEBSERVER_WEBPORT", "WEBSERVER_PUBLISHLIBRARY",
+      #ifdef ENABLE_SSL
+        "WEBSERVER_SSL", "WEBSERVER_SSLPORT", "WEBSERVER_SSLCERT", "WEBSERVER_SSLKEY",
+        "WEBSERVER_SSLSAN", 
+      #endif
         "MYMPD_LOGLEVEL", "MYMPD_USER", "MYMPD_VARLIBDIR", "MYMPD_MIXRAMP", "MYMPD_STICKERS", "MYMPD_TAGLIST", 
         "MYMPD_SEARCHTAGLIST", "MYMPD_BROWSETAGLIST", "MYMPD_SMARTPLS", "MYMPD_SYSCMDS", 
         "MYMPD_PAGINATION", "MYMPD_LASTPLAYEDCOUNT", "MYMPD_LOVE", "MYMPD_LOVECHANNEL", "MYMPD_LOVEMESSAGE",
-        "PLUGINS_COVEREXTRACT", "MYMPD_NOTIFICATIONWEB", "MYMPD_CHROOT", "MYMPD_READONLY",
+        "MYMPD_NOTIFICATIONWEB", "MYMPD_CHROOT", "MYMPD_READONLY",
         "MYMPD_NOTIFICATIONPAGE", "MYMPD_AUTOPLAY", "MYMPD_JUKEBOXMODE", "MYMPD_BOOKMARKS",
         "MYMPD_JUKEBOXPLAYLIST", "MYMPD_JUKEBOXQUEUELENGTH", "MYMPD_COLSQUEUECURRENT",
         "MYMPD_COLSSEARCH", "MYMPD_COLSBROWSEDATABASE", "MYMPD_COLSBROWSEPLAYLISTDETAIL",
         "MYMPD_COLSBROWSEFILESYSTEM", "MYMPD_COLSPLAYBACK", "MYMPD_COLSQUEUELASTPLAYED",
         "MYMPD_LOCALPLAYER", "MYMPD_LOCALPLAYERAUTOPLAY", "MYMPD_STREAMPORT",
-        "MYMPD_STREAMURL", "MYMPD_VOLUMESTEP",
-        "THEME_BGCOVER", "THEME_BGCOLOR", "THEME_BGCSSFILTER",
+        "MYMPD_STREAMURL", "MYMPD_VOLUMESTEP", "MYMPD_COVERCACHEKEEPDAYS", "MYMPD_COVERCACHE",
+        "MYMPD_COVERCACHEAVOID", "THEME_THEME", "THEME_CUSTOMPLACEHOLDERIMAGES",
+        "THEME_BGCOVER", "THEME_BGCOLOR", "THEME_BGCSSFILTER", "THEME_COVERGRIDSIZE",
         "THEME_COVERIMAGE", "THEME_COVERIMAGENAME", "THEME_COVERIMAGESIZE",
         "THEME_LOCALE", 0};
     const char** ptr = env_vars;
@@ -266,10 +290,12 @@ void mympd_free_config(t_config *config) {
     sdsfree(config->mpd_host);
     sdsfree(config->mpd_pass);
     sdsfree(config->webport);
+#ifdef ENABLE_SSL
     sdsfree(config->ssl_port);
     sdsfree(config->ssl_cert);
     sdsfree(config->ssl_key);
     sdsfree(config->ssl_san);
+#endif
     sdsfree(config->user);
     sdsfree(config->taglist);
     sdsfree(config->searchtaglist);
@@ -291,6 +317,7 @@ void mympd_free_config(t_config *config) {
     sdsfree(config->bg_css_filter);
     sdsfree(config->coverimage_name);
     sdsfree(config->locale);
+    sdsfree(config->theme);
     list_free(&config->syscmd_list);
     FREE_PTR(config);
 }
@@ -300,12 +327,14 @@ void mympd_config_defaults(t_config *config) {
     config->mpd_port = 6600;
     config->mpd_pass = sdsempty();
     config->webport = sdsnew("80");
+#ifdef ENABLE_SSL
     config->ssl = true;
     config->ssl_port = sdsnew("443");
     config->ssl_cert = sdsnew(VARLIB_PATH"/ssl/server.pem");
     config->ssl_key = sdsnew(VARLIB_PATH"/ssl/server.key");
     config->ssl_san = sdsempty();
     config->custom_cert = false;
+#endif
     config->user = sdsnew("mympd");
     config->chroot = false;
     config->varlibdir = sdsnew(VARLIB_PATH);
@@ -322,7 +351,6 @@ void mympd_config_defaults(t_config *config) {
     config->love = false;
     config->love_channel = sdsempty();
     config->love_message = sdsnew("love");
-    config->plugins_coverextract = false;
     config->music_directory = sdsnew("auto");
     config->notification_web = false;
     config->notification_page = true;
@@ -345,13 +373,20 @@ void mympd_config_defaults(t_config *config) {
     config->bg_color = sdsnew("#888");
     config->bg_css_filter = sdsnew("blur(5px)");
     config->coverimage = true;
-    config->coverimage_name = sdsnew("folder.jpg");
+    config->coverimage_name = sdsnew("folder, cover");
     config->coverimage_size = 250;
+    config->covergrid_size = 200;
     config->locale = sdsnew("default");
     config->startup_time = time(NULL);
     config->readonly = false;
     config->bookmarks = true;
     config->volume_step = 5;
+    config->publish_library = true;
+    config->covercache_keep_days = 7;
+    config->covercache = true;
+    config->theme = sdsnew("theme-default");
+    config->custom_placeholder_images = false;
+    config->regex = true;
     list_init(&config->syscmd_list);
 }
 
@@ -364,12 +399,14 @@ bool mympd_read_config(t_config *config, sds configfile) {
     mympd_get_env(config);
 
     //set correct path to certificate/key, if varlibdir is non default and cert paths are default
+    #ifdef ENABLE_SSL
     if (strcmp(config->varlibdir, VARLIB_PATH) != 0 && config->custom_cert == false) {
         config->ssl_cert = sdscrop(config->ssl_cert);
         config->ssl_cert = sdscatfmt(config->ssl_cert, "%s/ssl/server.pem", config->varlibdir);
         config->ssl_key = sdscrop(config->ssl_key);
         config->ssl_key = sdscatfmt(config->ssl_key, "%s/ssl/server.key", config->varlibdir);
     }
+    #endif
     if (config->readonly == true) {
         mympd_set_readonly(config);
     }
@@ -380,10 +417,6 @@ bool mympd_read_config(t_config *config, sds configfile) {
 void mympd_set_readonly(t_config *config) {
     LOG_INFO("Entering readonly mode");
     config->readonly = true;
-    if (config->plugins_coverextract == true) {
-        LOG_INFO("Disabling plugin coverextract");
-        config->plugins_coverextract = false;
-    }
     if (config->bookmarks == true) {
         LOG_INFO("Disabling bookmarks");
         config->bookmarks = false;
@@ -391,5 +424,9 @@ void mympd_set_readonly(t_config *config) {
     if (config->smartpls == true) {
         LOG_INFO("Disabling smart playlists");
         config->smartpls = false;
+    }
+    if (config->covercache == true) {
+        LOG_INFO("Disabling covercache");
+        config->covercache = false;
     }
 }

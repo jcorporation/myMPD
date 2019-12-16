@@ -99,6 +99,22 @@ function parseSettings() {
         locale = settings.locale;
     }
 
+    let setTheme = settings.theme;
+    if (settings.theme === 'theme-autodetect') {
+        setTheme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'theme-dark' : 'theme-default';
+    }    
+
+    Object.keys(themes).forEach(function(key, index) {
+        if (key === setTheme) {
+            domCache.body.classList.add(key);
+        }
+        else {
+            domCache.body.classList.remove(key);
+        }
+    });
+    
+    document.getElementById('selectTheme').value = settings.theme;
+    
     if (settings.mpdConnected === true) {
         parseMPDSettings();
     }
@@ -158,8 +174,10 @@ function parseSettings() {
     document.getElementById('inputCoverimageName').value = settings.coverimageName;
 
     document.getElementById('inputCoverimageSize').value = settings.coverimageSize;
+    document.getElementById('inputCovergridSize').value = settings.covergridSize;
 
     document.documentElement.style.setProperty('--mympd-coverimagesize', settings.coverimageSize + "px");
+    document.documentElement.style.setProperty('--mympd-covergridsize', settings.covergridSize + "px");
     
     document.getElementById('inputBgColor').value = settings.bgColor;
     document.getElementsByTagName('body')[0].style.backgroundColor = settings.bgColor;
@@ -181,7 +199,9 @@ function parseSettings() {
     toggleBtnChk('btnSmartpls', settings.smartpls);
     
     
-    let features = ["featLocalplayer", "featSyscmds", "featMixramp", "featCacert", "featBookmarks"];
+    settings.featDate = settings.tags.includes('Date') ? true : false;
+    
+    let features = ["featLocalplayer", "featSyscmds", "featMixramp", "featCacert", "featBookmarks", "featDate", "featRegex"];
     for (let j = 0; j < features.length; j++) {
         let Els = document.getElementsByClassName(features[j]);
         let ElsLen = Els.length;
@@ -200,11 +220,13 @@ function parseSettings() {
             readonlyEls[i].classList.remove('hide');
         }
     }
-    if (settings.readonly == true) {
+    if (settings.readonly === true) {
         document.getElementById('btnBookmarks').setAttribute('disabled', 'disabled');
+        document.getElementsByClassName('groupClearCovercache')[0].classList.add('hide');
     }
     else {
         document.getElementById('btnBookmarks').removeAttribute('disabled');
+        document.getElementsByClassName('groupClearCovercache')[0].classList.remove('hide');
     }
 
     if (settings.featSyscmds) {
@@ -278,7 +300,8 @@ function parseSettings() {
             localPlayer.load();
         }
     }
-    
+
+
     
     if (settings.musicDirectory === 'auto') {
         document.getElementById('selectMusicDirectory').value = settings.musicDirectory;
@@ -367,6 +390,16 @@ function parseMPDSettings() {
         }
     }
     
+    if (settings.coverimage === false || settings.featTags === false || 
+        settings.tags.includes('AlbumArtist') == false || settings.tags.includes('Album') == false
+        || settings.tags.includes('Track') == false) 
+    {
+        document.getElementsByClassName('featCovergrid')[0].classList.add('hide'); 
+    }
+    else {
+        document.getElementsByClassName('featCovergrid')[0].classList.remove('hide');
+    }
+    
     if (settings.featPlaylists === false && settings.smartpls === true) {
         document.getElementById('warnSmartpls').classList.remove('hide');
     }
@@ -409,15 +442,7 @@ function parseMPDSettings() {
     }
 
     if (settings.bgCover === true && settings.featCoverimage === true && settings.coverimage === true) {
-        if (lastSongObj.cover && lastSongObj.cover.indexOf('coverimage-') > -1 ) {
-            clearBackgroundImage();
-        }
-        else if (lastSongObj.cover) {
-             setBackgroundImage(lastSongObj.cover);
-        }
-        else {
-            clearBackgroundImage();
-        }
+        setBackgroundImage(lastSongObj.uri);
     }
     else {
         clearBackgroundImage();
@@ -549,13 +574,18 @@ function saveSettings() {
         }
     }
 
+    let inputCovergridSize = document.getElementById('inputCovergridSize');
+    if (!validateInt(inputCovergridSize)) {
+        formOK = false;
+    }
+
     let inputCoverimageSize = document.getElementById('inputCoverimageSize');
     if (!validateInt(inputCoverimageSize)) {
         formOK = false;
     }
     
     let inputCoverimageName = document.getElementById('inputCoverimageName');
-    if (!validateFilename(inputCoverimageName)) {
+    if (!validateFilenameList(inputCoverimageName)) {
         formOK = false;
     }
     
@@ -603,6 +633,7 @@ function saveSettings() {
         let selectJukeboxPlaylist = document.getElementById('selectJukeboxPlaylist');
         let selectJukeboxMode = document.getElementById('selectJukeboxMode');
         let selectLocale = document.getElementById('selectLocale');
+        let selectTheme = document.getElementById('selectTheme');
         sendAPI("MYMPD_API_SETTINGS_SET", {
             "consume": (document.getElementById('btnConsume').classList.contains('active') ? 1 : 0),
             "random": (document.getElementById('btnRandom').classList.contains('active') ? 1 : 0),
@@ -628,6 +659,7 @@ function saveSettings() {
             "coverimage": (document.getElementById('btnCoverimage').classList.contains('active') ? true : false),
             "coverimageName": document.getElementById('inputCoverimageName').value,
             "coverimageSize": document.getElementById('inputCoverimageSize').value,
+            "covergridSize": document.getElementById('inputCovergridSize').value,
             "locale": selectLocale.options[selectLocale.selectedIndex].value,
             "love": (document.getElementById('btnLoveEnable').classList.contains('active') ? true : false),
             "loveChannel": document.getElementById('inputLoveChannel').value,
@@ -637,21 +669,30 @@ function saveSettings() {
             "stickers": (document.getElementById('btnStickers').classList.contains('active') ? true : false),
             "lastPlayedCount": document.getElementById('inputLastPlayedCount').value,
             "smartpls": (document.getElementById('btnSmartpls').classList.contains('active') ? true : false),
-            "taglist": getTagMultiSelectValues('listEnabledTags'),
-            "searchtaglist": getTagMultiSelectValues('listSearchTags'),
-            "browsetaglist": getTagMultiSelectValues('listBrowseTags')
+            "taglist": getTagMultiSelectValues(document.getElementById('listEnabledTags'), false),
+            "searchtaglist": getTagMultiSelectValues(document.getElementById('listSearchTags'), false),
+            "browsetaglist": getTagMultiSelectValues(document.getElementById('listBrowseTags'), false),
+            "theme": selectTheme.options[selectTheme.selectedIndex].value,
         }, getSettings);
         modalSettings.hide();
     }
 }
 
-function getTagMultiSelectValues(taglist) {
+function getTagMultiSelectValues(taglist, translated) {
     let values = [];
-    let chkBoxes = document.getElementById(taglist).getElementsByTagName('input');
+    let chkBoxes = taglist.getElementsByTagName('button');
     for (let i = 0; i < chkBoxes.length; i++) {
-        if (chkBoxes[i].checked === true) {
-            values.push(chkBoxes[i].name);
+        if (chkBoxes[i].classList.contains('active')) {
+            if (translated === true) {
+                values.push(t(chkBoxes[i].name));
+            }
+            else {
+                values.push(chkBoxes[i].name);
+            }
         }
+    }
+    if (translated === true) {
+        return values.join(', ');
     }
     return values.join(',');
 }
@@ -664,8 +705,9 @@ function initTagMultiSelect(inputId, listId, allTags, enabledTags) {
             values.push(t(allTags[i]));
         }
         list += '<div class="form-check">' +
-            '<input class="form-check-input" type="checkbox" value="1" name="' + allTags[i] + '" ' + 
-            (enabledTags.includes(allTags[i]) ? 'checked="checked"' : '' )+ '>' +
+            '<button class="btn btn-secondary btn-xs clickable material-icons material-icons-small' + 
+            (enabledTags.includes(allTags[i]) ? ' active' : '') + '" name="' + allTags[i] + '">' +
+            (enabledTags.includes(allTags[i]) ? 'check' : 'radio_button_unchecked') + '</button>' +
             '<label class="form-check-label" for="' + allTags[i] + '">&nbsp;&nbsp;' + t(allTags[i]) + '</label>' +
             '</div>';
     }
@@ -674,15 +716,10 @@ function initTagMultiSelect(inputId, listId, allTags, enabledTags) {
 
     document.getElementById(listId).addEventListener('click', function(event) {
         event.stopPropagation();
-        if (event.target.nodeName === 'INPUT') {
-            let chkBoxes = event.target.parentNode.parentNode.getElementsByTagName('input');
-            let values = [];
-            for (let i = 0; i < chkBoxes.length; i++) {
-                if (chkBoxes[i].checked === true) {
-                    values.push(t(chkBoxes[i].name));
-                }
-            }
-            event.target.parentNode.parentNode.parentNode.previousElementSibling.value = values.join(', ');
+        event.preventDefault();
+        if (event.target.nodeName === 'BUTTON') {
+            toggleBtnChk(event.target);
+            event.target.parentNode.parentNode.parentNode.previousElementSibling.value = getTagMultiSelectValues(event.target.parentNode.parentNode, true);
         }
     });
 }

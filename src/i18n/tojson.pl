@@ -22,7 +22,7 @@ while (my $line = <$file>) {
 close $file;
 
 #phrases from src
-my @dirs = ("../", "../mpd_client/", "../mympd_api/", "../../htdocs/js/");
+my @dirs = ("../", "../mpd_client/", "../mympd_api/", "../web_server/", "../../htdocs/js/");
 my @files = ("../../htdocs/index.html");
 for my $dirname (@dirs) {
     opendir my $dir, $dirname or die "Can't open directory \"$dirname\": $!";
@@ -38,7 +38,7 @@ for my $filename (@files) {
     open my $file, $filename or die "Can't open file \"$filename\": $!";
     while (my $line = <$file>) {
         if ($filename =~ /\.c$/) {
-            while ($line =~ /(jsonrpc_respond_message|jsonrpc_start_phrase)\([\w\-()]+\s*,\s*[\w\->]+\s*,\s*[\w\->]+,\s*"([^"]+)"/g) {
+            while ($line =~ /(jsonrpc_respond_message|jsonrpc_start_phrase)\([\w\->()]+\s*,\s*[\w\->]+\s*,\s*[\w\->]+,\s*"([^"]+)"/g) {
                 $phrases->{$2} = 1;
             }
             while ($line =~ /(jsonrpc_start_phrase_notify)\([\w\-()]+\s*,\s*"([^"]+)"/g) {

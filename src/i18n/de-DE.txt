@@ -15,6 +15,12 @@ Datenbank aktualisieren
 Rescan database
 Datenbank neu einlesen
 
+Update directory
+Verzeichnis aktualisieren
+
+Rescan directory
+Verzeichnis neu einlesen
+
 Update smart playlists
 Intelligente Wiedergabelisten aktualisieren
 
@@ -146,6 +152,9 @@ Herausgeber
 
 Grouping
 Grupierung
+
+Conductor
+Dirigent
 
 Pos
 Pos
@@ -402,9 +411,6 @@ Albumcover
 Can't access music directory
 Musik Verzeichnis ist nicht verfügbar
 
-Size
-Größe
-
 Invalid size
 Ungültige Größe
 
@@ -519,8 +525,8 @@ Zurücksetzen
 Reset settings
 Einstellungen zurücksetzen
 
-Clear cache and reload
-Cache löschen und neu laden
+Clear app cache and reload
+Browser Cache löschen und neu laden
 
 Reload
 Neu laden
@@ -572,6 +578,9 @@ Protokoll Version
 
 Libmpdclient version
 Libmpdclient Version
+
+Libmympdclient version
+Libmympdclient Version
 
 Shortcut
 Tastenkürzel
@@ -686,6 +695,9 @@ Gehe zu Wiedergabelisten
 
 Goto browse filesystem
 Gehe zu Dateisystem
+
+Goto browse covergrid
+Gehe zu Albumcover
 
 Goto search
 Gehe zur Suche
@@ -989,3 +1001,57 @@ Konsumieren muss aktiviert sein
 
 Advanced
 Erweitert
+
+Successfully croped covercache
+Covercache erfolgreich bereinigt
+
+Successfully cleared covercache
+Covercache erfolgreich geleert
+
+Clear covercache
+Covercache löschen
+
+Clear
+Löschen
+
+Crop
+Abschneiden
+
+No albumart found by mpd
+MPD konnte keine Cover finden
+
+Descending
+Absteigend
+
+Covergrid
+Albumcover
+
+Sort by
+Sortieren
+
+Size normal
+Normale Größe
+
+Size small
+Kleine Größe
+
+Dark
+Dunkel
+
+Light
+Hell
+
+Default
+Standard
+
+Interface
+Oberfläche
+
+Unknown artist
+Unbekannter Künstler
+
+Unknown album
+Unbekanntes Album
+
+Show songs
+Lieder anzeigen

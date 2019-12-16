@@ -12,13 +12,12 @@ Summary:        Standalone web mpd client
 Url:            https://github.com/jcorporation/myMPD
 Source:         mympd-%{version}.tar.gz
 BuildRequires:  gcc
-BuildRequires:  gcc-c++
 BuildRequires:  cmake
 BuildRequires:  unzip
-BuildRequires:  libmpdclient-devel
 BuildRequires:  pkgconfig
 BuildRequires:  openssl-devel
-BuildRequires:  libmediainfo-devel
+BuildRequires:  libid3tag-devel
+BuildRequires:	flac-devel
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
 %global debug_package %{nil}
@@ -55,7 +54,6 @@ fi
 %defattr(-,root,root,-)
 %doc README.md LICENSE
 /usr/bin/mympd
-/usr/lib/mympd
 /usr/lib/systemd/system/mympd.service
 %config(noreplace) /etc/mympd.conf
 

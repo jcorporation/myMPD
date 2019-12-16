@@ -10,17 +10,17 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <dirent.h>
-#include <mpd/client.h>
 #include <inttypes.h>
 #include <ctype.h>
+#include <mpd/client.h>
 
 #include "../../dist/src/sds/sds.h"
 #include "../sds_extras.h"
 #include "../../dist/src/frozen/frozen.h"
-#include "../utility.h"
-#include "../log.h"
 #include "../list.h"
 #include "config_defs.h"
+#include "../utility.h"
+#include "../log.h"
 #include "mpd_client_utility.h"
 #include "mpd_client_search.h"
 #include "mpd_client_playlists.h"

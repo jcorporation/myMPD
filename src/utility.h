@@ -25,11 +25,29 @@ int testdir(const char *name, const char *dirname, bool create);
 int randrange(int n);
 bool validate_string(const char *data);
 int replacechar(char *str, const char orig, const char rep);
+int uri_to_filename(char *str);
+bool validate_uri(const char *data);
+sds find_image_file(sds basefilename);
+sds get_mime_type_by_ext(const char *filename);
+sds get_ext_by_mime_type(const char *mime_type);
+sds get_mime_type_by_magic(const char *filename);
+sds get_mime_type_by_magic_stream(sds stream);
+bool write_covercache_file(t_config *config, const char *uri, const char *mime_type, sds binary);
 
 #define FREE_PTR(PTR) do { \
     if (PTR != NULL) \
         free(PTR); \
     PTR = NULL; \
 } while (0)
+
+struct mime_type_entry {
+    const char *extension;
+    const char *mime_type;
+};
+
+struct magic_byte_entry {
+    const char *magic_bytes;
+    const char *mime_type;
+};
 
 #endif

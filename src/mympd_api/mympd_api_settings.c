@@ -18,10 +18,10 @@
 #include "../../dist/src/sds/sds.h"
 #include "../sds_extras.h"
 #include "../dist/src/frozen/frozen.h"
-#include "../utility.h"
 #include "../log.h"
 #include "../list.h"
 #include "config_defs.h"
+#include "../utility.h"
 #include "mympd_api_utility.h"
 #include "mympd_api_settings.h"
 
@@ -34,7 +34,8 @@ void mympd_api_settings_delete(t_config *config) {
         "cols_search", "coverimage", "coverimage_name", "coverimage_size", "jukebox_mode", "jukebox_playlist", "jukebox_queue_length",
         "last_played", "last_played_count", "locale", "localplayer", "localplayer_autoplay", "love", "love_channel", "love_message",
         "max_elements_per_page",  "mpd_host", "mpd_pass", "mpd_port", "notification_page", "notification_web", "searchtaglist",
-        "smartpls", "stickers", "stream_port", "stream_url", "taglist", "music_directory", "bookmarks", 0};
+        "smartpls", "stickers", "stream_port", "stream_url", "taglist", "music_directory", "bookmarks", "covergrid_size", 
+        "theme", 0};
     const char** ptr = state_files;
     while (*ptr != 0) {
         sds filename = sdscatfmt(sdsempty(), "%s/state/%s", config->varlibdir, *ptr);
@@ -167,6 +168,10 @@ bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state, struct
         mympd_state->coverimage_size = strtoimax(settingvalue, &crap, 10);
         settingname = sdscat(settingname, "coverimage_size");
     }
+    else if (strncmp(key->ptr, "covergridSize", key->len) == 0) {
+        mympd_state->covergrid_size = strtoimax(settingvalue, &crap, 10);
+        settingname = sdscat(settingname, "covergrid_size");
+    }
     else if (strncmp(key->ptr, "featLocalplayer", key->len) == 0) {
         mympd_state->localplayer = val->type == JSON_TYPE_TRUE ? true : false;
         settingname = sdscat(settingname, "localplayer");
@@ -285,6 +290,10 @@ bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state, struct
         }
         settingname = sdscat(settingname, "bookmarks");
     }
+    else if (strncmp(key->ptr, "theme", key->len) == 0) {
+        mympd_state->theme = sdsreplacelen(mympd_state->theme, settingvalue, sdslen(settingvalue));
+        settingname = sdscat(settingname, "theme");
+    }
     else {
         sdsfree(settingname);
         sdsfree(settingvalue);
@@ -340,9 +349,11 @@ void mympd_api_read_statefiles(t_config *config, t_mympd_state *mympd_state) {
     mympd_state->coverimage = state_file_rw_bool(config, "coverimage", config->coverimage, false);
     mympd_state->coverimage_name = state_file_rw_string(config, "coverimage_name", config->coverimage_name, false);
     mympd_state->coverimage_size = state_file_rw_int(config, "coverimage_size", config->coverimage_size, false);
+    mympd_state->covergrid_size = state_file_rw_int(config, "covergrid_size", config->covergrid_size, false);
     mympd_state->locale = state_file_rw_string(config, "locale", config->locale, false);
     mympd_state->music_directory = state_file_rw_string(config, "music_directory", config->music_directory, false);
     mympd_state->bookmarks = state_file_rw_bool(config, "bookmarks", config->bookmarks, false);
+    mympd_state->theme = state_file_rw_string(config, "theme", config->theme, false);
     if (config->readonly == true) {
         mympd_state->bookmarks = false;
         mympd_state->smartpls = false;
@@ -446,14 +457,20 @@ sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buf
     buffer = tojson_char(buffer, "mpdHost", mympd_state->mpd_host, true);
     buffer = tojson_long(buffer, "mpdPort", mympd_state->mpd_port, true);
     buffer = tojson_char(buffer, "mpdPass", "dontsetpassword", true);
+    buffer = tojson_bool(buffer, "featRegex", config->regex, true);
     buffer = tojson_bool(buffer, "featSyscmds", config->syscmds, true);
+#ifdef ENABLE_SSL
     buffer = tojson_bool(buffer, "featCacert", (config->custom_cert == false && config->ssl == true ? true : false), true);
+#else
+    buffer = tojson_bool(buffer, "featCacert", false, true);
+#endif
     buffer = tojson_bool(buffer, "featLocalplayer", mympd_state->localplayer, true);
     buffer = tojson_long(buffer, "streamPort", mympd_state->stream_port, true);
     buffer = tojson_char(buffer, "streamUrl", mympd_state->stream_url, true);
     buffer = tojson_bool(buffer, "coverimage", mympd_state->coverimage, true);
     buffer = tojson_char(buffer, "coverimageName", mympd_state->coverimage_name, true);
     buffer = tojson_long(buffer, "coverimageSize", mympd_state->coverimage_size, true);
+    buffer = tojson_long(buffer, "covergridSize", mympd_state->covergrid_size, true);
     buffer = tojson_bool(buffer, "featMixramp", config->mixramp, true);
     buffer = tojson_long(buffer, "maxElementsPerPage", mympd_state->max_elements_per_page, true);
     buffer = tojson_bool(buffer, "notificationWeb", mympd_state->notification_web, true);
@@ -478,6 +495,8 @@ sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buf
     buffer = tojson_bool(buffer, "readonly", config->readonly, true);
     buffer = tojson_bool(buffer, "featBookmarks", mympd_state->bookmarks, true);
     buffer = tojson_long(buffer, "volumeStep", config->volume_step, true);
+    buffer = tojson_bool(buffer, "publishLibrary", config->publish_library, true);
+    buffer = tojson_char(buffer, "theme", mympd_state->theme, true);
     buffer = sdscatfmt(buffer, "\"colsQueueCurrent\":%s,", mympd_state->cols_queue_current);
     buffer = sdscatfmt(buffer, "\"colsSearch\":%s,", mympd_state->cols_search);
     buffer = sdscatfmt(buffer, "\"colsBrowseDatabase\":%s,", mympd_state->cols_browse_database);

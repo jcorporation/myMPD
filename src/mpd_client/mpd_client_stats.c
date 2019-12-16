@@ -13,10 +13,10 @@
 
 #include "../dist/src/sds/sds.h"
 #include "../sds_extras.h"
-#include "../utility.h"
 #include "../log.h"
 #include "../list.h"
 #include "config_defs.h"
+#include "../utility.h"
 #include "mpd_client_utility.h"
 #include "mpd_client_stats.h"
 
@@ -294,6 +294,11 @@ sds mpd_client_put_stats(t_config *config, t_mpd_state *mpd_state, sds buffer, s
     buffer = tojson_long(buffer, "dbPlaytime", mpd_stats_get_db_play_time(stats), true);
     buffer = tojson_char(buffer, "mympdVersion", MYMPD_VERSION, true);
     buffer = tojson_char(buffer, "mpdVersion", mpd_version, true);
+    #ifdef EMBEDDED_LIBMPDCLIENT
+        sds libmympdclient_version = sdscatfmt(sdsempty(), "%i.%i.%i", LIBMYMPDCLIENT_MAJOR_VERSION, LIBMYMPDCLIENT_MINOR_VERSION, LIBMYMPDCLIENT_PATCH_VERSION);
+        buffer = tojson_char(buffer, "libmympdclientVersion", libmympdclient_version, true);
+        sdsfree(libmympdclient_version);
+    #endif
     buffer = tojson_char(buffer, "libmpdclientVersion", libmpdclient_version, false);
     buffer = jsonrpc_end_result(buffer);
 
