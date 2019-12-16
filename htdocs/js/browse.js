@@ -353,7 +353,7 @@ function parseCovergrid(obj) {
         let html = '<div class="card card-grid clickable" data-uri="' + encodeURI(obj.result.data[i].FirstSongUri) + '" ' + 
                        'data-album="' + encodeURI(obj.result.data[i].Album) + '" ' +
                        'data-albumartist="' + encodeURI(obj.result.data[i].AlbumArtist) + '" tabindex="0">' +
-                   '<div class="card-header covergrid-header hide"></div>' +
+                   '<div class="card-header covergrid-header hide unvisible"></div>' +
                    '<div class="card-body album-cover-loading album-cover-grid bg-white" id="' + id + '"></div>' +
                    '<div class="card-footer card-footer-grid p-2" title="' + obj.result.data[i].AlbumArtist + ': ' + obj.result.data[i].Album + '">' +
                    obj.result.data[i].Album + '<br/><small>' + obj.result.data[i].AlbumArtist + '</small>' +
@@ -395,6 +395,7 @@ function parseCovergrid(obj) {
                     return;
                 }
                 event.target.getElementsByTagName('table')[0].classList.remove('unvisible');
+                event.target.getElementsByClassName('card-header')[0].classList.remove('unvisible');
             }, false);
             col.firstChild.addEventListener('keydown', function(event) {
                 if (event.key === 'Escape') {
@@ -513,6 +514,7 @@ function parseCovergridTitleList(obj) {
     //fallback if transitionEnd is not fired
     setTimeout(function() {
         cardBody.getElementsByTagName('table')[0].classList.remove('unvisible');
+        cardBody.parentNode.getElementsByClassName('card-header')[0].classList.remove('unvisible');
         scrollFocusIntoView();
     }, 500);
 }
@@ -524,7 +526,7 @@ function showGridImage(cardBody, uri) {
     cardBody.style.height =  'var(--mympd-covergridsize, 200px)';
     cardBody.parentNode.style.width =  'var(--mympd-covergridsize, 200px)';
     cardBody.parentNode.getElementsByClassName('card-footer')[0].classList.remove('hide');
-    cardBody.parentNode.getElementsByClassName('card-header')[0].classList.add('hide');
+    cardBody.parentNode.getElementsByClassName('card-header')[0].classList.add('hide', 'unvisible');
 }
 
 function setGridImage(changes, observer) {
