@@ -31,6 +31,9 @@ function hideMenu() {
         if (menuEl.parentNode.parentNode.classList.contains('selected')) {
             focusTable(undefined, menuEl.parentNode.parentNode.parentNode.parentNode);
         }
+        else if (app.current.app === 'Browse' && app.current.tab === 'Covergrid') {
+            focusTable(undefined, menuEl.parentNode.parentNode.parentNode.parentNode);
+        }
     }
 }
 

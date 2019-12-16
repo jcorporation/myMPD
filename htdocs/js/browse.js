@@ -350,10 +350,9 @@ function parseCovergrid(obj) {
             obj.result.data[i].Album = t('Unknown album');
         }
         let id = genId('covergrid' + obj.result.data[i].Album + obj.result.data[i].AlbumArtist);
-        let path = dirname(obj.result.data[i].FirstSongUri);
         let html = '<div class="card card-grid" data-uri="' + encodeURI(obj.result.data[i].FirstSongUri) + '" ' + 
                        'data-album="' + encodeURI(obj.result.data[i].Album) + '" ' +
-                       'data-albumartist="' + encodeURI(obj.result.data[i].AlbumArtist) + '">' +
+                       'data-albumartist="' + encodeURI(obj.result.data[i].AlbumArtist) + '" tabindex="0">' +
                    '<div class="card-header covergrid-header hide"></div>' +
                    '<div class="card-body album-cover-loading album-cover-grid bg-white" id="' + id + '"></div>' +
                    '<div class="card-footer card-footer-grid p-2" title="' + obj.result.data[i].AlbumArtist + ': ' + obj.result.data[i].Album + '">' +
@@ -397,6 +396,23 @@ function parseCovergrid(obj) {
                 }
                 event.target.getElementsByTagName('table')[0].classList.remove('unvisible');
             }, false);
+            col.firstChild.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape') {
+                    let cardBody = event.target.getElementsByClassName('card-body')[0];
+                    let uri = decodeURI(cardBody.parentNode.getAttribute('data-uri'));
+                    showGridImage(cardBody, uri);
+                }
+                else if (event.key === 'Enter') {
+                    getCovergridTitleList(id);
+                    event.stopPropagation();
+                    event.preventDefault();
+                }
+                else if (event.key === ' ') {
+                    showMenu(event.target.getElementsByClassName('card-footer')[0], event);
+                    event.stopPropagation();
+                    event.preventDefault();
+                }
+            }, false);
         }
     }
     let colsLen = cols.length - 1;
@@ -437,7 +453,7 @@ function parseCovergridTitleList(obj) {
     let id = genId('covergrid' + obj.result.Album + obj.result.AlbumArtist);
     let cardBody = document.getElementById(id);
     
-    let titleList = '<table class="table table-hover table-sm unvisible" tabindex="0""><thead>';
+    let titleList = '<table class="table table-hover table-sm unvisible" tabindex="0"><thead>';
     for (let i = 0; i < settings.colsBrowseDatabase.length; i++) {
         let h = settings.colsBrowseDatabase[i];
         if (h === 'Track') {
@@ -475,16 +491,11 @@ function parseCovergridTitleList(obj) {
     cardBody.parentNode.classList.remove('opacity05');
     cardHeader.getElementsByClassName('close')[0].addEventListener('click', function(event) {
         event.stopPropagation();
-        cardBody.innerHTML = '';
-        cardBody.style.backgroundImage = 'url("' + subdir + '/albumart/' + uri + '")';
-        cardBody.style.width =  'var(--mympd-covergridsize, 200px)';
-        cardBody.style.height =  'var(--mympd-covergridsize, 200px)';
-        cardBody.parentNode.style.width =  'var(--mympd-covergridsize, 200px)';
-        cardBody.parentNode.getElementsByClassName('card-footer')[0].classList.remove('hide');
-        cardBody.parentNode.getElementsByClassName('card-header')[0].classList.add('hide');
+        showGridImage(cardBody, uri);
     }, false);
 
-    cardBody.getElementsByTagName('table')[0].addEventListener('click', function(event) {
+    let table = cardBody.getElementsByTagName('table')[0];
+    table.addEventListener('click', function(event) {
         if (event.target.nodeName === 'TD') {
             appendQueue('song', decodeURI(event.target.parentNode.getAttribute('data-uri')), event.target.parentNode.getAttribute('data-name'));
         }
@@ -492,11 +503,28 @@ function parseCovergridTitleList(obj) {
             showMenu(event.target, event);
         }
     }, false);
+    table.addEventListener('keydown', function(event) {
+        navigateTable(this, event.key);
+        if (event.key === 'Escape') {
+            event.target.parentNode.parentNode.parentNode.parentNode.focus();
+        }
+    }, false);
 
     //fallback if transitionEnd is not fired
     setTimeout(function() {
-        cardBody.getElementsByTagName('table')[0].classList.remove('unvisible');        
+        cardBody.getElementsByTagName('table')[0].classList.remove('unvisible');
+        scrollFocusIntoView();
     }, 500);
+}
+
+function showGridImage(cardBody, uri) {
+    cardBody.innerHTML = '';
+    cardBody.style.backgroundImage = 'url("' + subdir + '/albumart/' + uri + '")';
+    cardBody.style.width =  'var(--mympd-covergridsize, 200px)';
+    cardBody.style.height =  'var(--mympd-covergridsize, 200px)';
+    cardBody.parentNode.style.width =  'var(--mympd-covergridsize, 200px)';
+    cardBody.parentNode.getElementsByClassName('card-footer')[0].classList.remove('hide');
+    cardBody.parentNode.getElementsByClassName('card-header')[0].classList.add('hide');
 }
 
 function setGridImage(changes, observer) {

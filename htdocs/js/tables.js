@@ -20,7 +20,15 @@ function focusTable(rownr, table) {
         }
     }
 
-    if (table !== undefined) {
+    if (app.current.app === 'Browse' && app.current.tab === 'Covergrid' &&
+            table.getElementsByTagName('tbody').length === 0) 
+    {
+        table = document.getElementsByClassName('card-grid')[0];
+        table.focus();        
+        return;
+    }
+
+    if (table !== null) {
         let sel = table.getElementsByClassName('selected');
         if (rownr === undefined) {
             if (sel.length === 0) {
@@ -356,20 +364,17 @@ function setCols(table, className) {
     if (colsChkList) {
         colsChkList.firstChild.innerHTML = setColsChecklist(table);
     }
-    let tags = setColTags(table);
     let sort = app.current.sort;
     
-    if (table === 'Search') {
-        if (app.apps.Search.state === '0/any/Title/') {
-            if (settings.tags.includes('Title')) {
-                sort = 'Title';
-            }
-            else if (settings.featTags === false) {
-                sort = 'Filename';
-            }
-            else {
-                sort = '-';
-            }
+    if (table === 'Search' && app.apps.Search.state === '0/any/Title/') {
+        if (settings.tags.includes('Title')) {
+            sort = 'Title';
+        }
+        else if (settings.featTags === false) {
+            sort = 'Filename';
+        }
+        else {
+            sort = '-';
         }
     }
     
