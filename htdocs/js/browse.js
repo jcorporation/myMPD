@@ -350,7 +350,7 @@ function parseCovergrid(obj) {
             obj.result.data[i].Album = t('Unknown album');
         }
         let id = genId('covergrid' + obj.result.data[i].Album + obj.result.data[i].AlbumArtist);
-        let html = '<div class="card card-grid" data-uri="' + encodeURI(obj.result.data[i].FirstSongUri) + '" ' + 
+        let html = '<div class="card card-grid clickable" data-uri="' + encodeURI(obj.result.data[i].FirstSongUri) + '" ' + 
                        'data-album="' + encodeURI(obj.result.data[i].Album) + '" ' +
                        'data-albumartist="' + encodeURI(obj.result.data[i].AlbumArtist) + '" tabindex="0">' +
                    '<div class="card-header covergrid-header hide"></div>' +
