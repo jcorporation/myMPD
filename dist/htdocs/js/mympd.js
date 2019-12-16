@@ -559,7 +559,7 @@ function parseCovergrid(obj) {
         let html = '<div class="card card-grid clickable" data-uri="' + encodeURI(obj.result.data[i].FirstSongUri) + '" ' + 
                        'data-album="' + encodeURI(obj.result.data[i].Album) + '" ' +
                        'data-albumartist="' + encodeURI(obj.result.data[i].AlbumArtist) + '" tabindex="0">' +
-                   '<div class="card-header covergrid-header hide"></div>' +
+                   '<div class="card-header covergrid-header hide unvisible"></div>' +
                    '<div class="card-body album-cover-loading album-cover-grid bg-white" id="' + id + '"></div>' +
                    '<div class="card-footer card-footer-grid p-2" title="' + obj.result.data[i].AlbumArtist + ': ' + obj.result.data[i].Album + '">' +
                    obj.result.data[i].Album + '<br/><small>' + obj.result.data[i].AlbumArtist + '</small>' +
@@ -601,6 +601,7 @@ function parseCovergrid(obj) {
                     return;
                 }
                 event.target.getElementsByTagName('table')[0].classList.remove('unvisible');
+                event.target.getElementsByClassName('card-header')[0].classList.remove('unvisible');
             }, false);
             col.firstChild.addEventListener('keydown', function(event) {
                 if (event.key === 'Escape') {
@@ -719,6 +720,7 @@ function parseCovergridTitleList(obj) {
     //fallback if transitionEnd is not fired
     setTimeout(function() {
         cardBody.getElementsByTagName('table')[0].classList.remove('unvisible');
+        cardBody.parentNode.getElementsByClassName('card-header')[0].classList.remove('unvisible');
         scrollFocusIntoView();
     }, 500);
 }
@@ -730,7 +732,7 @@ function showGridImage(cardBody, uri) {
     cardBody.style.height =  'var(--mympd-covergridsize, 200px)';
     cardBody.parentNode.style.width =  'var(--mympd-covergridsize, 200px)';
     cardBody.parentNode.getElementsByClassName('card-footer')[0].classList.remove('hide');
-    cardBody.parentNode.getElementsByClassName('card-header')[0].classList.add('hide');
+    cardBody.parentNode.getElementsByClassName('card-header')[0].classList.add('hide', 'unvisible');
 }
 
 function setGridImage(changes, observer) {
@@ -3036,7 +3038,9 @@ function appInit() {
     });
     
     document.getElementById('btnConsume').addEventListener('mouseup', function() {
-        setTimeout(function() { checkConsume(); }, 100);
+        setTimeout(function() { 
+            checkConsume(); 
+        }, 100);
     });
     
     document.getElementById('selectAddToQueueMode').addEventListener('change', function () {
@@ -3563,9 +3567,9 @@ function appInit() {
 
 //Init app
 window.onerror = function(msg, url, line) {
-    logError('JavaScript error: ' + msg + 'at line ' + line);
+    logError('JavaScript error: ' + msg + ' at line ' + line);
     if (appInited === true) {
-        showNotification(t('JavaScript error'), msg + 'at line ' + line, '', 'danger');
+        showNotification(t('JavaScript error'), msg + ' at line ' + line, '', 'danger');
     }
     else {
         showAppInitAlert(t('JavaScript error') + ': ' + msg + ' at line ' + line);
@@ -6590,12 +6594,8 @@ function toggleBtn(btn, state) {
         //toggle state
         state = b.classList.contains('active') ? false : true;
     }
-    else if (state === 0 || state === 1) {
-        //1 = true, 0 = false
-        state = state === 1 ? true : false;
-    }
 
-    if (state === true) {
+    if (state === true || state === 1) {
         b.classList.add('active');
     }
     else {
@@ -6615,12 +6615,8 @@ function toggleBtnChk(btn, state) {
         //toggle state
         state = b.classList.contains('active') ? false : true;
     }
-    else if (state === 0 || state === 1) {
-        //1 = true, 0 = false
-        state = state === 1 ? true : false;
-    }
 
-    if (state === true) {
+    if (state === true || state === 1) {
         b.classList.add('active');
         b.innerText = 'check';
     }
