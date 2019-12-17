@@ -97,25 +97,6 @@ bool handle_option(t_config *config, char *cmd, sds option) {
         return true;
     }
     #endif
-    else if (MATCH_OPTION("reset_state")) {
-        mympd_api_settings_delete(config);
-        return true;
-    }
-    else if (MATCH_OPTION("reset_smartpls")) {
-        return smartpls_default(config);
-    }
-    else if (MATCH_OPTION("reset_lastplayed")) {
-        sds lpfile = sdscatfmt(sdsempty(), "%s/state/last_played", config->varlibdir);
-        int rc = unlink(lpfile);
-        sdsfree(lpfile);
-        if (rc == 0) {
-            return true;
-        }
-        else {
-            LOG_ERROR("last_played file does not exist");
-            return false;
-        }
-    }
     else if (MATCH_OPTION("crop_covercache")) {
         clear_covercache(config, -1);
         return true;
