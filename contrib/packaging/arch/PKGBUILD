@@ -16,15 +16,13 @@ optdepends=('libmediainfo')
 provides=()
 conflicts=()
 replaces=()
-backup=('etc/webapps/mympd.conf')
+backup=('etc/webapps/mympd/mympd.conf')
 install=archlinux.install
-source=("mympd_${pkgver}.orig.tar.gz"
-	"archlinux.install")
-sha256sums=('SKIP'
-	    'SKIP')
+source=("https://github.com/jcorporation/${_pkgname}/archive/v.${pkgver}.tar.gz")
+sha256sums=('1335ba7356b4c9ae92b96b9f7f668120b1104f6384011962ffb92f9b3705b1ba')
 
 build() {
-  cd "${srcdir}" || exit 1
+  cd "${srcdir}/${_pkgname}-v.${pkgver}" || exit 1
   install -d release
   cd release || exit 1
   cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=RELEASE ..
@@ -32,6 +30,6 @@ build() {
 }
 
 package() {
-  cd "${srcdir}/release"
+  cd "${srcdir}/${_pkgname}-v.${pkgver}/release"
   make DESTDIR="$pkgdir/" install
 }
