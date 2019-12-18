@@ -115,3 +115,9 @@ body.theme-light a.badge-secondary:focus, body.theme-light a.badge-secondary.foc
   outline: 0;
   box-shadow: 0 0 0 0.2rem rgba(248, 249, 250, 0.5);
 }
+
+body.theme-light .input-group-append > .dropdown-toggle {
+  border-color: #6c757d !important;
+  border-left-color: #CED4DA !important;
+}
+
