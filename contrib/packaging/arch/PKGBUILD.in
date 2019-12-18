@@ -18,10 +18,8 @@ conflicts=()
 replaces=()
 backup=('etc/webapps/mympd/mympd.conf')
 install=archlinux.install
-source=("mympd_${pkgver}.orig.tar.gz"
-	"archlinux.install")
-sha256sums=('SKIP'
-	    'SKIP')
+source=("mympd_${pkgver}.orig.tar.gz")
+sha256sums=('SKIP')
 
 build() {
   cd "${srcdir}" || exit 1
