@@ -43,7 +43,7 @@ myMPD is work in active development. Feedback, bug reportes and feature requests
 Screenshots
 -----------
 
-![image](https://jcgames.de/stuff/myMPD/screenshots-2019-02-23.gif)
+![image](https://jcorporation.github.io/myMPD/assets/myMDPv6.0.0.gif)
 
 UI Components
 -------------
