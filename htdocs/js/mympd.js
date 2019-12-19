@@ -421,6 +421,9 @@ function appInitStart() {
     
     //register serviceworker
     let script = document.getElementsByTagName("script")[0].src.replace(/^.*[/]/, '');
+    if (script !== 'combined.js') {
+        settings.loglevel = 4;
+    }
     if ('serviceWorker' in navigator && document.URL.substring(0, 5) === 'https' 
         && window.location.hostname !== 'localhost' && script === 'combined.js')
     {
@@ -1123,11 +1126,13 @@ function appInit() {
 //Init app
 window.onerror = function(msg, url, line) {
     logError('JavaScript error: ' + msg + ' (' + url + ': ' + line + ')');
-    if (appInited === true) {
-        showNotification(t('JavaScript error'), msg + ' (' + url + ': ' + line + ')', '', 'danger');
-    }
-    else {
-        showAppInitAlert(t('JavaScript error') + ': ' + msg + ' (' + url + ': ' + line + ')');
+    if (settings.loglevel >= 4) {
+        if (appInited === true) {
+            showNotification(t('JavaScript error'), msg + ' (' + url + ': ' + line + ')', '', 'danger');
+        }
+        else {
+            showAppInitAlert(t('JavaScript error') + ': ' + msg + ' (' + url + ': ' + line + ')');
+        }
     }
     return true;
 };
