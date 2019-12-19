@@ -403,7 +403,7 @@ bool state_file_rw_bool(t_config *config, const char *name, const bool def_value
     bool value = def_value;
     sds line = state_file_rw_string(config, name, def_value == true ? "true" : "false", warn);
     if (sdslen(line) > 0) {
-        value = strcmp(line, "true") == 0 ? true : false;
+        value = strtobool(line);
         sdsfree(line);
     }
     return value;

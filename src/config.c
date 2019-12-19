@@ -47,14 +47,14 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
         p_config->music_directory = sdsreplace(p_config->music_directory, value);
     }
     else if (MATCH("mpd", "regex")) {
-        p_config->regex = strcmp(value, "true") == 0 ? true : false;
+        p_config->regex = strtobool(value);
     }
     else if (MATCH("webserver", "webport")) {
         p_config->webport = sdsreplace(p_config->webport, value);
     }
 #ifdef ENABLE_SSL
     else if (MATCH("webserver", "ssl")) {
-        p_config->ssl = strcmp(value, "true") == 0 ? true : false;
+        p_config->ssl = strtobool(value);
     }
     else if (MATCH("webserver", "sslport")) {
         p_config->ssl_port = sdsreplace(p_config->ssl_port, value);
@@ -76,25 +76,25 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     }
 #endif
     else if (MATCH("webserver", "publishlibrary")) {
-        p_config->publish_library = strcmp(value, "true") == 0 ? true : false;
+        p_config->publish_library = strtobool(value);
     }
     else if (MATCH("mympd", "user")) {
         p_config->user = sdsreplace(p_config->user, value);
     }
     else if (MATCH("mympd", "chroot")) {
-        p_config->chroot = strcmp(value, "true") == 0 ? true : false;
+        p_config->chroot = strtobool(value);
     }
     else if (MATCH("mympd", "varlibdir")) {
         p_config->varlibdir = sdsreplace(p_config->varlibdir, value);
     }
     else if (MATCH("mympd", "stickers")) {
-        p_config->stickers = strcmp(value, "true") == 0 ? true : false;
+        p_config->stickers = strtobool(value);
     }
     else if (MATCH("mympd", "smartpls")) {
-        p_config->smartpls =  strcmp(value, "true") == 0 ? true : false;
+        p_config->smartpls =  strtobool(value);
     }
     else if (MATCH("mympd", "mixramp")) {
-        p_config->mixramp = strcmp(value, "true") == 0 ? true : false;
+        p_config->mixramp = strtobool(value);
     }
     else if (MATCH("mympd", "taglist")) {
         p_config->taglist = sdsreplace(p_config->taglist, value);
@@ -119,10 +119,10 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
         p_config->covercache_keep_days = strtoimax(value, &crap, 10);
     }
     else if (MATCH("mympd", "covercache")) {
-        p_config->covercache = strcmp(value, "true") == 0 ? true : false;
+        p_config->covercache = strtobool(value);
     }
     else if (MATCH("mympd", "syscmds")) {
-        p_config->syscmds = strcmp(value, "true") == 0 ? true : false;
+        p_config->syscmds = strtobool(value);
     }
     else if (MATCH("mympd", "lastplayedcount")) {
         p_config->last_played_count = strtoimax(value, &crap, 10);
@@ -131,7 +131,7 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
         p_config->loglevel = strtoimax(value, &crap, 10);
     }
     else if (MATCH("mympd", "love")) {
-        p_config->love = strcmp(value, "true") == 0 ? true : false;
+        p_config->love = strtobool(value);
     }
     else if (MATCH("mympd", "lovechannel")) {
         p_config->love_channel = sdsreplace(p_config->love_channel, value);
@@ -140,13 +140,13 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
         p_config->love_message = sdsreplace(p_config->love_message, value);
     }
     else if (MATCH("mympd", "notificationweb")) {
-        p_config->notification_web = strcmp(value, "true") == 0 ? true : false;
+        p_config->notification_web = strtobool(value);
     }
     else if (MATCH("mympd", "notificationpage")) {
-        p_config->notification_page = strcmp(value, "true") == 0 ? true : false;
+        p_config->notification_page = strtobool(value);
     }
     else if (MATCH("mympd", "autoplay")) {
-        p_config->auto_play = strcmp(value, "true") == 0 ? true : false;
+        p_config->auto_play = strtobool(value);
     }
     else if (MATCH("mympd", "jukeboxmode")) {
         p_config->jukebox_mode = strtoimax(value, &crap, 10);
@@ -183,10 +183,10 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
         p_config->cols_queue_last_played = sdsreplace(p_config->cols_queue_last_played, value);
     }
     else if (MATCH("mympd", "localplayer")) {
-        p_config->localplayer = strcmp(value, "true") == 0 ? true : false;
+        p_config->localplayer = strtobool(value);
     }
     else if (MATCH("mympd", "localplayerautoplay")) {
-        p_config->localplayer_autoplay = strcmp(value, "true") == 0 ? true : false;
+        p_config->localplayer_autoplay = strtobool(value);
     }
     else if (MATCH("mympd", "streamport")) {
         p_config->stream_port = strtoimax(value, &crap, 10);
@@ -195,16 +195,16 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
         p_config->stream_url = sdsreplace(p_config->stream_url, value);
     }
     else if (MATCH("mympd", "readonly")) {
-        p_config->readonly = strcmp(value, "true") == 0 ? true : false;
+        p_config->readonly = strtobool(value);
     }
     else if (MATCH("mympd", "bookmarks")) {
-        p_config->bookmarks = strcmp(value, "true") == 0 ? true : false;
+        p_config->bookmarks = strtobool(value);
     }
     else if (MATCH("theme", "theme")) {
         p_config->theme = sdsreplace(p_config->theme, value);
     }
     else if (MATCH("theme", "bgcover")) {
-        p_config->bg_cover = strcmp(value, "true") == 0 ? true : false;
+        p_config->bg_cover = strtobool(value);
     }
     else if (MATCH("theme", "bgcolor")) {
         p_config->bg_color = sdsreplace(p_config->bg_color, value);
@@ -213,7 +213,7 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
         p_config->bg_css_filter = sdsreplace(p_config->bg_css_filter, value);
     }
     else if (MATCH("theme", "coverimage")) {
-        p_config->coverimage = strcmp(value, "true") == 0 ? true : false;
+        p_config->coverimage = strtobool(value);
     }
     else if (MATCH("theme", "coverimagename")) {
         p_config->coverimage_name = sdsreplace(p_config->coverimage_name, value);
@@ -228,7 +228,7 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
         p_config->locale = sdsreplace(p_config->locale, value);
     }
     else if (MATCH("theme", "custom_placeholder_images")) {
-        p_config->custom_placeholder_images = strcmp(value, "true") == 0 ? true : false;
+        p_config->custom_placeholder_images = strtobool(value);
     }
     else if (strcasecmp(section, "syscmds") == 0) {
         LOG_DEBUG("Adding syscmd %s: %s", name, value);
