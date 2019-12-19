@@ -373,10 +373,13 @@ function parseMPDSettings() {
 
     document.getElementById('selectReplaygain').value = settings.replaygain;
     
-    settings.featDate = settings.tags.includes('Date') ? true : false;
-
     let features = ['featStickers', 'featSmartpls', 'featPlaylists', 'featTags', 'featCoverimage', 'featAdvsearch',
-        'featLove', 'featDate'];
+        'featLove', 'featDate', 'featGenre'];
+    var featTags = ['Date', 'Genre' ];
+    for (let i = 0; i < featTags.length; i++) {
+        settings['feat' + featTags[i]] = settings.tags.includes(featTags[i]) ? true : false;
+        features.push('feat' + featTags[i]);
+    }
     for (let j = 0; j < features.length; j++) {
         let Els = document.getElementsByClassName(features[j]);
         let ElsLen = Els.length;
