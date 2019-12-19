@@ -1122,12 +1122,12 @@ function appInit() {
 
 //Init app
 window.onerror = function(msg, url, line) {
-    logError('JavaScript error: ' + msg + ' (' + uri + ': ' + line + ')');
+    logError('JavaScript error: ' + msg + ' (' + url + ': ' + line + ')');
     if (appInited === true) {
-        showNotification(t('JavaScript error'), msg + ' (' + uri + ': ' + line + ')', '', 'danger');
+        showNotification(t('JavaScript error'), msg + ' (' + url + ': ' + line + ')', '', 'danger');
     }
     else {
-        showAppInitAlert(t('JavaScript error') + ': ' + msg + ' (' + uri + ': ' + line + ')');
+        showAppInitAlert(t('JavaScript error') + ': ' + msg + ' (' + url + ': ' + line + ')');
     }
     return true;
 };
