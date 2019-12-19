@@ -1,0 +1,14 @@
+name: release
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: installdeps
+      run: ./build.sh installdeps
+    - name: build
+      run: ./build.sh releaseinstall
