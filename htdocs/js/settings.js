@@ -697,10 +697,6 @@ function getTagMultiSelectValues(taglist, translated) {
 }
 
 function initTagMultiSelect(inputId, listId, allTags, enabledTags) {
-    let inputEl = document.getElementById(inputId);
-    if (inputEl.getAttribute('data-init') === 'true') {
-        return;
-    }
     let values = [];
     let list = '';
     for (let i = 0; i < allTags.length; i++) {
@@ -714,10 +710,14 @@ function initTagMultiSelect(inputId, listId, allTags, enabledTags) {
             '<label class="form-check-label" for="' + allTags[i] + '">&nbsp;&nbsp;' + t(allTags[i]) + '</label>' +
             '</div>';
     }
-    inputEl.value = values.join(', ');
-    inputEl.setAttribute('data-init', 'true');
     document.getElementById(listId).innerHTML = list;
 
+    let inputEl = document.getElementById(inputId);
+    inputEl.value = values.join(', ');
+    if (inputEl.getAttribute('data-init') === 'true') {
+        return;
+    }
+    inputEl.setAttribute('data-init', 'true');
     document.getElementById(listId).addEventListener('click', function(event) {
         event.stopPropagation();
         event.preventDefault();
