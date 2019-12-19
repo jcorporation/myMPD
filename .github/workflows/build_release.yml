@@ -9,6 +9,6 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: installdeps
-      run: ./build.sh installdeps
+      run: sudo ./build.sh installdeps
     - name: build
-      run: ./build.sh releaseinstall
+      run: sudo ./build.sh releaseinstall
