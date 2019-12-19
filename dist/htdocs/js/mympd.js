@@ -16,12 +16,6 @@ function sendAPI(method, params, callback, onerror) {
                 if (obj.error) {
                     showNotification(t(obj.error.message, obj.error.data), '', '', 'danger');
                     logError(JSON.stringify(obj.error));
-                    if (onerror === true) {
-                        if (callback !== undefined && typeof(callback) === 'function') {
-                            logDebug('Got API response of type error calling ' + callback.name);
-                            callback(obj);
-                        }
-                    }
                 }
                 else if (obj.result && obj.result.message && obj.result.message !== 'ok') {
                     logDebug('Got API response: ' + JSON.stringify(obj.result));
@@ -40,8 +34,13 @@ function sendAPI(method, params, callback, onerror) {
                     }
                 }
                 if (callback !== undefined && typeof(callback) === 'function') {
-                    logDebug('Calling ' + callback.name);
-                    callback(obj);
+                    if (obj.result !== undefined || onerror === true) {
+                        logDebug('Calling ' + callback.name);
+                        callback(obj);
+                    }
+                    else {
+                        logDebug('Undefined resultset, skip calling ' + callback.name);
+                    }
                 }
             }
             else {
@@ -2866,6 +2865,9 @@ function appInitStart() {
     
     //register serviceworker
     let script = document.getElementsByTagName("script")[0].src.replace(/^.*[/]/, '');
+    if (script !== 'combined.js') {
+        settings.loglevel = 4;
+    }
     if ('serviceWorker' in navigator && document.URL.substring(0, 5) === 'https' 
         && window.location.hostname !== 'localhost' && script === 'combined.js')
     {
@@ -3567,12 +3569,14 @@ function appInit() {
 
 //Init app
 window.onerror = function(msg, url, line) {
-    logError('JavaScript error: ' + msg + ' at line ' + line);
-    if (appInited === true) {
-        showNotification(t('JavaScript error'), msg + ' at line ' + line, '', 'danger');
-    }
-    else {
-        showAppInitAlert(t('JavaScript error') + ': ' + msg + ' at line ' + line);
+    logError('JavaScript error: ' + msg + ' (' + url + ': ' + line + ')');
+    if (settings.loglevel >= 4) {
+        if (appInited === true) {
+            showNotification(t('JavaScript error'), msg + ' (' + url + ': ' + line + ')', '', 'danger');
+        }
+        else {
+            showAppInitAlert(t('JavaScript error') + ': ' + msg + ' (' + url + ': ' + line + ')');
+        }
     }
     return true;
 };
@@ -4868,10 +4872,7 @@ function parseSettings() {
     document.getElementById('inputLastPlayedCount').value = settings.lastPlayedCount;
     toggleBtnChk('btnSmartpls', settings.smartpls);
     
-    
-    settings.featDate = settings.tags.includes('Date') ? true : false;
-    
-    let features = ["featLocalplayer", "featSyscmds", "featMixramp", "featCacert", "featBookmarks", "featDate", "featRegex"];
+    let features = ["featLocalplayer", "featSyscmds", "featMixramp", "featCacert", "featBookmarks", "featRegex"];
     for (let j = 0; j < features.length; j++) {
         let Els = document.getElementsByClassName(features[j]);
         let ElsLen = Els.length;
@@ -5045,9 +5046,14 @@ function parseMPDSettings() {
     }
 
     document.getElementById('selectReplaygain').value = settings.replaygain;
-
+    
     let features = ['featStickers', 'featSmartpls', 'featPlaylists', 'featTags', 'featCoverimage', 'featAdvsearch',
-        'featLove'];
+        'featLove', 'featDate', 'featGenre'];
+    var featTags = ['Date', 'Genre' ];
+    for (let i = 0; i < featTags.length; i++) {
+        settings['feat' + featTags[i]] = settings.tags.includes(featTags[i]) ? true : false;
+        features.push('feat' + featTags[i]);
+    }
     for (let j = 0; j < features.length; j++) {
         let Els = document.getElementsByClassName(features[j]);
         let ElsLen = Els.length;
@@ -5381,9 +5387,14 @@ function initTagMultiSelect(inputId, listId, allTags, enabledTags) {
             '<label class="form-check-label" for="' + allTags[i] + '">&nbsp;&nbsp;' + t(allTags[i]) + '</label>' +
             '</div>';
     }
-    document.getElementById(inputId).value = values.join(', ');
     document.getElementById(listId).innerHTML = list;
 
+    let inputEl = document.getElementById(inputId);
+    inputEl.value = values.join(', ');
+    if (inputEl.getAttribute('data-init') === 'true') {
+        return;
+    }
+    inputEl.setAttribute('data-init', 'true');
     document.getElementById(listId).addEventListener('click', function(event) {
         event.stopPropagation();
         event.preventDefault();
@@ -6456,7 +6467,7 @@ function basename(uri) {
 }
 
 function filetype(uri) {
-    if (uri == undefined) {
+    if (uri === undefined) {
         return '';
     }
     let ext = uri.split('.').pop().toUpperCase();
@@ -6470,6 +6481,8 @@ function filetype(uri) {
         case 'AAC':  return ext + ' - Advancded Audio Coding';
         case 'MPC':  return ext + ' - Musepack';
         case 'MP4':  return ext + ' - MPEG-4';
+        case 'APE':  return ext + ' - Monkey Audio ';
+        case 'WMA':  return ext + ' - Windows Media Audio';
         default:     return ext;
     }
 }
@@ -6629,8 +6642,9 @@ function toggleBtnChk(btn, state) {
 function setPagination(total, returned) {
     let cat = app.current.app + (app.current.tab === undefined ? '': app.current.tab);
     let totalPages = Math.ceil(total / settings.maxElementsPerPage);
-    if (totalPages === 0) 
+    if (totalPages === 0) {
         totalPages = 1;
+    }
     let p = ['PaginationTop', 'PaginationBottom'];
     for (let i = 0; i < 2; i++) {
         document.getElementById(cat + p[i] + 'Page').innerText = (app.current.page / settings.maxElementsPerPage + 1) + ' / ' + totalPages;
@@ -6707,8 +6721,9 @@ function gotoPage(x) {
             break;
         case 'prev':
             app.current.page -= settings.maxElementsPerPage;
-            if (app.current.page < 0)
+            if (app.current.page < 0) {
                 app.current.page = 0;
+            }
             break;
         default:
             app.current.page = x;
