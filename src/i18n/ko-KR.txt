@@ -15,6 +15,12 @@ Update database
 Rescan database
 데이터베이스 다시 검색
 
+Update directory
+디렉터리 업데이트
+
+Rescan directory
+디렉터리 다시 검색
+
 Update smart playlists
 스마트 연주목록 업데이트
 
@@ -146,6 +152,9 @@ Label
 
 Grouping
 묶음
+
+Conductor
+지휘자
 
 Pos
 위치
@@ -397,7 +406,7 @@ Must be a number and greater than zero
 0보다 큰 숫자여야 함
 
 Albumart
-음반표지
+음반 표지
 
 Can't access music directory
 음원 디렉터리에 접근할 수 없음
@@ -517,7 +526,7 @@ Reset settings
 다시 설정 하기
 
 Clear app cache and reload
-캐시를 지우고 다시 읽기
+앱 캐시를 지우고 다시 읽기
 
 Reload
 다시 읽기
@@ -569,6 +578,9 @@ Protocol version
 
 Libmpdclient version
 Libmpdclient 버전
+
+Libmympdclient version
+Libmympdclient 버전
 
 Shortcut
 단축키
@@ -683,6 +695,9 @@ Goto browse playlists
 
 Goto browse filesystem
 파일 시스템 열기로 가기
+
+Goto browse covergrid
+음반 표지 격자 보기로 가기
 
 Goto search
 찾기로 가기
@@ -986,3 +1001,60 @@ Consume must be enabled
 
 Advanced
 고급
+
+Successfully croped covercache
+표지 캐시 잘라내기 완료
+
+Successfully cleared covercache
+표지 캐시 지우기 완료
+
+Clear covercache
+표지 캐시 지우기
+
+Clear
+지우기
+
+Crop
+잘라내기
+
+No albumart found by mpd
+MPD가 음반 표지를 찾을 수 없음
+
+Descending
+내림차순
+
+Covergrid
+음반 표지 격자
+
+Sort by
+정렬
+
+Size normal
+일반 크기
+
+Size small
+작은 크기
+
+Dark
+어둠
+
+Light
+밝음
+
+Default
+기본
+
+Interface
+인터페이스
+
+Unknown artist
+모르는 연주자
+
+Unknown album
+모르는 음반
+
+Show songs
+곡 보기
+
+JavaScript error
+자바스크립트 오류
