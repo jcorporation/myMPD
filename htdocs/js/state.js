@@ -284,8 +284,16 @@ function songChange(obj) {
         domCache.currentTitle.setAttribute('data-uri', '');
     }
     document.title = 'myMPD: ' + pageTitle;
-    document.getElementById('headerTitle').innerText = pageTitle;
-    document.getElementById('headerTitle').title = pageTitle;
+    let headerTitle = document.getElementById('headerTitle');
+    headerTitle.innerText = pageTitle;
+    headerTitle.title = pageTitle;
+    
+    if (obj.result.uri !== '' || obj.result.uri.indexOf('://') === -1) {
+        headerTitle.classList.add('clickable');
+    }
+    else {
+        headerTitle.classList.remove('clickable');
+    }
 
     if (obj.result.uri !== undefined) {
         if (settings.featStickers === true) {
@@ -358,7 +366,7 @@ function chVolume(increment) {
 //eslint-disable-next-line no-unused-vars
 function clickTitle() {
     let uri = decodeURI(domCache.currentTitle.getAttribute('data-uri'));
-    if (uri !== '') {
+    if (uri !== '' || uri.indexOf('://') === -1) {
         songDetails(uri);
     }
 }
