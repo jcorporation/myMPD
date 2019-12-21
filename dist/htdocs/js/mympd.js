@@ -859,7 +859,7 @@ var phrases={
 	},
 	"Albumart":{
 		"de-DE":"Albumcover",
-		"ko-KR":"음반표지"
+		"ko-KR":"음반 표지"
 	},
 	"Albums":{
 		"de-DE":"Alben",
@@ -978,14 +978,16 @@ var phrases={
 		"ko-KR":"인증"
 	},
 	"Clear":{
-		"de-DE":"Löschen"
+		"de-DE":"Löschen",
+		"ko-KR":"지우기"
 	},
 	"Clear app cache and reload":{
 		"de-DE":"Browser Cache löschen und neu laden",
-		"ko-KR":"캐시를 지우고 다시 읽기"
+		"ko-KR":"앱 캐시를 지우고 다시 읽기"
 	},
 	"Clear covercache":{
-		"de-DE":"Covercache löschen"
+		"de-DE":"Covercache löschen",
+		"ko-KR":"표지 캐시 지우기"
 	},
 	"Clear playlist":{
 		"de-DE":"Playlist leeren",
@@ -1012,7 +1014,8 @@ var phrases={
 		"ko-KR":"작곡가"
 	},
 	"Conductor":{
-		"de-DE":"Dirigent"
+		"de-DE":"Dirigent",
+		"ko-KR":"지휘자"
 	},
 	"Connect to websocket":{
 		"de-DE":"Websocketverbindung wird hergestellt",
@@ -1043,14 +1046,16 @@ var phrases={
 		"ko-KR":"소비를 선택해야 함"
 	},
 	"Covergrid":{
-		"de-DE":"Albumcover"
+		"de-DE":"Albumcover",
+		"ko-KR":"음반 표지 격자"
 	},
 	"Create Playlist":{
 		"de-DE":"Neue Wiedergabeliste erstellen",
 		"ko-KR":"연주목록 만들기"
 	},
 	"Crop":{
-		"de-DE":"Abschneiden"
+		"de-DE":"Abschneiden",
+		"ko-KR":"잘라내기"
 	},
 	"Crop queue":{
 		"de-DE":"Warteschlange abschneiden",
@@ -1069,7 +1074,8 @@ var phrases={
 		"ko-KR":"DB 업데이트됨"
 	},
 	"Dark":{
-		"de-DE":"Dunkel"
+		"de-DE":"Dunkel",
+		"ko-KR":"어둠"
 	},
 	"Database":{
 		"de-DE":"Datenbank",
@@ -1101,7 +1107,8 @@ var phrases={
 		"ko-KR":"일"
 	},
 	"Default":{
-		"de-DE":"Standard"
+		"de-DE":"Standard",
+		"ko-KR":"기본"
 	},
 	"Delete":{
 		"de-DE":"Löschen",
@@ -1124,7 +1131,8 @@ var phrases={
 		"ko-KR":"음원 크기에 따라 시간이 걸릴 수 있습니다"
 	},
 	"Descending":{
-		"de-DE":"Absteigend"
+		"de-DE":"Absteigend",
+		"ko-KR":"내림차순"
 	},
 	"Disc":{
 		"de-DE":"CD",
@@ -1239,7 +1247,8 @@ var phrases={
 		"ko-KR":"장르"
 	},
 	"Goto browse covergrid":{
-		"de-DE":"Gehe zu Albumcover"
+		"de-DE":"Gehe zu Albumcover",
+		"ko-KR":"음반 표지 격자 보기로 가기"
 	},
 	"Goto browse database":{
 		"de-DE":"Gehe zu Datenbank durchsuchen",
@@ -1287,7 +1296,8 @@ var phrases={
 		"ko-KR":"myMPD 초기화"
 	},
 	"Interface":{
-		"de-DE":"Oberfläche"
+		"de-DE":"Oberfläche",
+		"ko-KR":"인터페이스"
 	},
 	"Invalid API request":{
 		"de-DE":"Ungültiger API Befehl",
@@ -1342,7 +1352,8 @@ var phrases={
 		"ko-KR":"잘못된 형식"
 	},
 	"JavaScript error":{
-		"de-DE":"JavaScript Fehler"
+		"de-DE":"JavaScript Fehler",
+		"ko-KR":"자바스크립트 오류"
 	},
 	"JavaScript is disabled":{
 		"de-DE":"JavaScript ist deaktiviert",
@@ -1389,10 +1400,12 @@ var phrases={
 		"ko-KR":"Libmpdclient 버전"
 	},
 	"Libmympdclient version":{
-		"de-DE":"Libmympdclient Version"
+		"de-DE":"Libmympdclient Version",
+		"ko-KR":"Libmympdclient 버전"
 	},
 	"Light":{
-		"de-DE":"Hell"
+		"de-DE":"Hell",
+		"ko-KR":"밝음"
 	},
 	"Like":{
 		"de-DE":"Wertung",
@@ -1536,7 +1549,8 @@ var phrases={
 		"ko-KR":"다음 곡"
 	},
 	"No albumart found by mpd":{
-		"de-DE":"MPD konnte keine Cover finden"
+		"de-DE":"MPD konnte keine Cover finden",
+		"ko-KR":"MPD가 음반 표지를 찾을 수 없음"
 	},
 	"No bookmarks found":{
 		"de-DE":"Keine Lesezeichen gefunden",
@@ -1746,7 +1760,8 @@ var phrases={
 		"ko-KR":"데이터베이스 다시 검색"
 	},
 	"Rescan directory":{
-		"de-DE":"Verzeichnis neu einlesen"
+		"de-DE":"Verzeichnis neu einlesen",
+		"ko-KR":"디렉터리 다시 검색"
 	},
 	"Reset":{
 		"de-DE":"Zurücksetzen",
@@ -1830,7 +1845,8 @@ var phrases={
 		"ko-KR":"단축키"
 	},
 	"Show songs":{
-		"de-DE":"Lieder anzeigen"
+		"de-DE":"Lieder anzeigen",
+		"ko-KR":"곡 보기"
 	},
 	"Shuffle queue":{
 		"de-DE":"Warteschlange mischen",
@@ -1845,10 +1861,12 @@ var phrases={
 		"ko-KR":"픽셀 크기"
 	},
 	"Size normal":{
-		"de-DE":"Normale Größe"
+		"de-DE":"Normale Größe",
+		"ko-KR":"일반 크기"
 	},
 	"Size small":{
-		"de-DE":"Kleine Größe"
+		"de-DE":"Kleine Größe",
+		"ko-KR":"작은 크기"
 	},
 	"Skip count":{
 		"de-DE":"Wie oft übersprungen",
@@ -1891,7 +1909,8 @@ var phrases={
 		"ko-KR":"곡"
 	},
 	"Sort by":{
-		"de-DE":"Sortieren"
+		"de-DE":"Sortieren",
+		"ko-KR":"정렬"
 	},
 	"Specify":{
 		"de-DE":"Manuell",
@@ -1918,10 +1937,12 @@ var phrases={
 		"ko-KR":"스트림 주소"
 	},
 	"Successfully cleared covercache":{
-		"de-DE":"Covercache erfolgreich geleert"
+		"de-DE":"Covercache erfolgreich geleert",
+		"ko-KR":"표지 캐시 지우기 완료"
 	},
 	"Successfully croped covercache":{
-		"de-DE":"Covercache erfolgreich bereinigt"
+		"de-DE":"Covercache erfolgreich bereinigt",
+		"ko-KR":"표지 캐시 잘라내기 완료"
 	},
 	"Successfully execute cmd %{cmd}":{
 		"de-DE":"Systembefehl %{cmd} erfolgreich ausgeführt",
@@ -2004,10 +2025,12 @@ var phrases={
 		"ko-KR":"주소"
 	},
 	"Unknown album":{
-		"de-DE":"Unbekanntes Album"
+		"de-DE":"Unbekanntes Album",
+		"ko-KR":"모르는 음반"
 	},
 	"Unknown artist":{
-		"de-DE":"Unbekannter Künstler"
+		"de-DE":"Unbekannter Künstler",
+		"ko-KR":"모르는 연주자"
 	},
 	"Unknown request":{
 		"de-DE":"Unbekannter Befehl",
@@ -2030,7 +2053,8 @@ var phrases={
 		"ko-KR":"데이터베이스 업데이트"
 	},
 	"Update directory":{
-		"de-DE":"Verzeichnis aktualisieren"
+		"de-DE":"Verzeichnis aktualisieren",
+		"ko-KR":"디렉터리 업데이트"
 	},
 	"Update smart playlist":{
 		"de-DE":"Intelligente Wiedergabeliste aktualisieren",
@@ -3096,7 +3120,9 @@ function appInit() {
     let hrefs = document.querySelectorAll('[data-href]');
     let hrefsLen = hrefs.length;
     for (let i = 0; i < hrefsLen; i++) {
-        hrefs[i].classList.add('clickable');
+        if (hrefs[i].classList.contains('notclickable') === false) {
+            hrefs[i].classList.add('clickable');
+        }
         let parentInit = hrefs[i].parentNode.classList.contains('noInitChilds') ? true : false;
         if (parentInit === true) {
             //handler on parentnode
@@ -5047,8 +5073,18 @@ function parseMPDSettings() {
 
     document.getElementById('selectReplaygain').value = settings.replaygain;
     
+    if (settings.coverimage === false || settings.featTags === false || 
+        settings.tags.includes('AlbumArtist') === false || settings.tags.includes('Album') === false
+        || settings.tags.includes('Track') === false || settings.featAdvsearch === false) 
+    {
+        settings.featCovergrid = false;
+    }
+    else {
+        settings.featCovergrid = true;
+    }
+    
     let features = ['featStickers', 'featSmartpls', 'featPlaylists', 'featTags', 'featCoverimage', 'featAdvsearch',
-        'featLove', 'featDate', 'featGenre'];
+        'featLove', 'featDate', 'featGenre', 'featCovergrid'];
     var featTags = ['Date', 'Genre' ];
     for (let i = 0; i < featTags.length; i++) {
         settings['feat' + featTags[i]] = settings.tags.includes(featTags[i]) ? true : false;
@@ -5064,16 +5100,6 @@ function parseMPDSettings() {
         for (let i = 0; i < ElsLen; i++) {
             Els[i].style.display = displayEl;
         }
-    }
-    
-    if (settings.coverimage === false || settings.featTags === false || 
-        settings.tags.includes('AlbumArtist') == false || settings.tags.includes('Album') == false
-        || settings.tags.includes('Track') == false) 
-    {
-        document.getElementsByClassName('featCovergrid')[0].classList.add('hide'); 
-    }
-    else {
-        document.getElementsByClassName('featCovergrid')[0].classList.remove('hide');
     }
     
     if (settings.featPlaylists === false && settings.smartpls === true) {
@@ -5624,8 +5650,9 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
             let tr = document.getElementById('queueTrackId' + lastState.currentSongId);
             if (tr) {
                 let durationTd = tr.querySelector('[data-col=Duration]');
-                if (durationTd)
+                if (durationTd) {
                     durationTd.innerText = tr.getAttribute('data-duration');
+                }
                 let posTd = tr.querySelector('[data-col=Pos]');
                 if (posTd) {
                     posTd.classList.remove('material-icons');
@@ -5689,8 +5716,10 @@ function parseState(obj) {
     if (obj.result.songPos === '-1') {
         domCache.currentTitle.innerText = 'Not playing';
         document.title = 'myMPD';
-        document.getElementById('headerTitle').innerText = '';
-        document.getElementById('headerTitle').removeAttribute('title');
+        let headerTitle = document.getElementById('headerTitle');
+        headerTitle.innerText = '';
+        headerTitle.removeAttribute('title');
+        headerTitle.classList.remove('clickable');
         clearCurrentCover();
         if (settings.bgCover === true) {
             clearBackgroundImage();
@@ -5854,8 +5883,16 @@ function songChange(obj) {
         domCache.currentTitle.setAttribute('data-uri', '');
     }
     document.title = 'myMPD: ' + pageTitle;
-    document.getElementById('headerTitle').innerText = pageTitle;
-    document.getElementById('headerTitle').title = pageTitle;
+    let headerTitle = document.getElementById('headerTitle');
+    headerTitle.innerText = pageTitle;
+    headerTitle.title = pageTitle;
+    
+    if (obj.result.uri !== undefined && obj.result.uri !== '' && obj.result.uri.indexOf('://') === -1) {
+        headerTitle.classList.add('clickable');
+    }
+    else {
+        headerTitle.classList.remove('clickable');
+    }
 
     if (obj.result.uri !== undefined) {
         if (settings.featStickers === true) {
@@ -5928,7 +5965,7 @@ function chVolume(increment) {
 //eslint-disable-next-line no-unused-vars
 function clickTitle() {
     let uri = decodeURI(domCache.currentTitle.getAttribute('data-uri'));
-    if (uri !== '') {
+    if (uri !== '' && uri.indexOf('://') === -1) {
         songDetails(uri);
     }
 }
