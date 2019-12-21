@@ -54,8 +54,9 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
             let tr = document.getElementById('queueTrackId' + lastState.currentSongId);
             if (tr) {
                 let durationTd = tr.querySelector('[data-col=Duration]');
-                if (durationTd)
+                if (durationTd) {
                     durationTd.innerText = tr.getAttribute('data-duration');
+                }
                 let posTd = tr.querySelector('[data-col=Pos]');
                 if (posTd) {
                     posTd.classList.remove('material-icons');
@@ -119,8 +120,10 @@ function parseState(obj) {
     if (obj.result.songPos === '-1') {
         domCache.currentTitle.innerText = 'Not playing';
         document.title = 'myMPD';
-        document.getElementById('headerTitle').innerText = '';
-        document.getElementById('headerTitle').removeAttribute('title');
+        let headerTitle = document.getElementById('headerTitle');
+        headerTitle.innerText = '';
+        headerTitle.removeAttribute('title');
+        headerTitle.classList.remove('clickable');
         clearCurrentCover();
         if (settings.bgCover === true) {
             clearBackgroundImage();
@@ -288,7 +291,7 @@ function songChange(obj) {
     headerTitle.innerText = pageTitle;
     headerTitle.title = pageTitle;
     
-    if (obj.result.uri !== '' || obj.result.uri.indexOf('://') === -1) {
+    if (obj.result.uri !== undefined && obj.result.uri !== '' && obj.result.uri.indexOf('://') === -1) {
         headerTitle.classList.add('clickable');
     }
     else {
@@ -366,7 +369,7 @@ function chVolume(increment) {
 //eslint-disable-next-line no-unused-vars
 function clickTitle() {
     let uri = decodeURI(domCache.currentTitle.getAttribute('data-uri'));
-    if (uri !== '' || uri.indexOf('://') === -1) {
+    if (uri !== '' && uri.indexOf('://') === -1) {
         songDetails(uri);
     }
 }
