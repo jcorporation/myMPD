@@ -652,7 +652,9 @@ function appInit() {
     let hrefs = document.querySelectorAll('[data-href]');
     let hrefsLen = hrefs.length;
     for (let i = 0; i < hrefsLen; i++) {
-        hrefs[i].classList.add('clickable');
+        if (hrefs[i].classList.contains('notclickable') === false) {
+            hrefs[i].classList.add('clickable');
+        }
         let parentInit = hrefs[i].parentNode.classList.contains('noInitChilds') ? true : false;
         if (parentInit === true) {
             //handler on parentnode
