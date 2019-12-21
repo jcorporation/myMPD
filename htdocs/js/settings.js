@@ -373,8 +373,18 @@ function parseMPDSettings() {
 
     document.getElementById('selectReplaygain').value = settings.replaygain;
     
+    if (settings.coverimage === false || settings.featTags === false || 
+        settings.tags.includes('AlbumArtist') === false || settings.tags.includes('Album') === false
+        || settings.tags.includes('Track') === false || settings.featAdvsearch === false) 
+    {
+        settings.featCovergrid = false;
+    }
+    else {
+        settings.featCovergrid = true;
+    }
+    
     let features = ['featStickers', 'featSmartpls', 'featPlaylists', 'featTags', 'featCoverimage', 'featAdvsearch',
-        'featLove', 'featDate', 'featGenre'];
+        'featLove', 'featDate', 'featGenre', 'featCovergrid'];
     var featTags = ['Date', 'Genre' ];
     for (let i = 0; i < featTags.length; i++) {
         settings['feat' + featTags[i]] = settings.tags.includes(featTags[i]) ? true : false;
@@ -390,16 +400,6 @@ function parseMPDSettings() {
         for (let i = 0; i < ElsLen; i++) {
             Els[i].style.display = displayEl;
         }
-    }
-    
-    if (settings.coverimage === false || settings.featTags === false || 
-        settings.tags.includes('AlbumArtist') == false || settings.tags.includes('Album') == false
-        || settings.tags.includes('Track') == false) 
-    {
-        document.getElementsByClassName('featCovergrid')[0].classList.add('hide'); 
-    }
-    else {
-        document.getElementsByClassName('featCovergrid')[0].classList.remove('hide');
     }
     
     if (settings.featPlaylists === false && settings.smartpls === true) {
