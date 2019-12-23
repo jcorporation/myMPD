@@ -174,6 +174,7 @@ set(SOURCES
   src/utility.c
   src/sds_extras.c
   src/mpd_client.c
+  src/mytimer.c
   src/mpd_client/mpd_client_api.c
   src/mpd_client/mpd_client_cover.c
   src/mpd_client/mpd_client_browse.c
