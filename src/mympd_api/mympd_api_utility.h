@@ -48,6 +48,7 @@ typedef struct t_mympd_state {
     sds music_directory;
     sds theme;
     bool bookmarks;
+    struct t_timer_list timer_list;
 } t_mympd_state;
 
 void free_mympd_state(t_mympd_state *mympd_state);

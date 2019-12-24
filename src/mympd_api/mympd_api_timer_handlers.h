@@ -6,6 +6,6 @@
 
 #ifndef MYMPD_API_TIMER_HANDLERS_H
 #define MYMPD_API_TIMER_HANDLERS_H
-
-void timer_handler_covercache(void *user_data);
+void timer_handler_covercache(void *user_data); //timer_id 1
+void timer_handler_smartpls_update(void *user_data); //timer_id 2
 #endif

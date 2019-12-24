@@ -145,6 +145,7 @@ static bool parse_internal_message(t_work_result *response, t_mg_user_data *mg_u
     char *p_charbuf2 = NULL;
     bool feat_library;
     bool feat_mpd_albumart;
+    bool rc = false;
     int je = json_scanf(response->data, sdslen(response->data), "{musicDirectory: %Q, coverimageName: %Q, featLibrary: %B, featMpdAlbumart: %B}", 
         &p_charbuf1, &p_charbuf2, &feat_library, &feat_mpd_albumart);
     if (je == 4) {
@@ -159,15 +160,16 @@ static bool parse_internal_message(t_work_result *response, t_mg_user_data *mg_u
             LOG_DEBUG("Setting music_directory to %s", mg_user_data->music_directory);
         }
         LOG_DEBUG("Setting rewrite_patterns to %s", mg_user_data->rewrite_patterns);
+        rc = true;
     }
     else {
         LOG_WARN("Unknown internal message: %s", response->data);
-        return false;
+        rc = false;
     }
     FREE_PTR(p_charbuf1);
     FREE_PTR(p_charbuf2);
     free_result(response);
-    return true;
+    return rc;
 }
 
 static int is_websocket(const struct mg_connection *nc) {

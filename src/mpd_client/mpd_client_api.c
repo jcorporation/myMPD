@@ -584,7 +584,7 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
         response->data = jsonrpc_end_phrase(response->data);
         LOG_ERROR("No response for cmd_id %u", request->cmd_id);
     }
-    if (response->conn_id > -1) {
+    if (request->conn_id > -1) {
         LOG_DEBUG("Push response to queue for connection %lu: %s", request->conn_id, response->data);
         tiny_queue_push(web_server_queue, response);
     }

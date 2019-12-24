@@ -7,19 +7,14 @@
 #ifndef MYMPD_API_TIMER_H
 #define MYMPD_API_TIMER_H
 
-typedef enum {
-    TIMER_SINGLE_SHOT = 0, /*Periodic Timer*/
-    TIMER_PERIODIC         /*Single Shot Timer*/
-} t_timer;
-
 typedef void (*time_handler)(void *user_data);
 
 struct t_timer_node {
     int fd;
     time_handler callback;
     void *user_data;
+    unsigned int timeout;
     unsigned int interval;
-    t_timer type;
     int timer_id;
     struct t_timer_node *next;
 };
@@ -33,7 +28,8 @@ struct t_timer_list {
 void init_timerlist(struct t_timer_list *l);
 void truncate_timerlist(struct t_timer_list *l);
 void check_timer(struct t_timer_list *l);
-bool add_timer(struct t_timer_list *l, unsigned int interval, time_handler handler, t_timer type, int timer_id, void *user_data);
+bool add_timer(struct t_timer_list *l, unsigned int timeout, unsigned int interval, time_handler handler, int timer_id, void *user_data);
+bool replace_timer(struct t_timer_list *l, unsigned int timeout, unsigned int interval, time_handler handler, int timer_id, void *user_data);
 void remove_timer(struct t_timer_list *l, int timer_id);
 
 #endif

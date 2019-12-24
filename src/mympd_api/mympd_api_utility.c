@@ -20,6 +20,7 @@
 #include "../tiny_queue.h"
 #include "../global.h"
 #include "../utility.h"
+#include "mympd_api_timer.h"
 #include "mympd_api_utility.h"
 
 void mympd_api_push_to_mpd_client(t_mympd_state *mympd_state) {
@@ -74,6 +75,7 @@ void free_mympd_state(t_mympd_state *mympd_state) {
     sdsfree(mympd_state->locale);
     sdsfree(mympd_state->music_directory);
     sdsfree(mympd_state->theme);
+    truncate_timerlist(&mympd_state->timer_list);
     FREE_PTR(mympd_state);
 }
 

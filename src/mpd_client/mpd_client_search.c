@@ -12,6 +12,7 @@
 
 #include "../dist/src/sds/sds.h"
 #include "../sds_extras.h"
+#include "../api.h"
 #include "../log.h"
 #include "../list.h"
 #include "config_defs.h"

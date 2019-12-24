@@ -109,4 +109,5 @@ void free_mpd_state(t_mpd_state *mpd_state);
 void default_mpd_state(t_mpd_state *mpd_state);
 void mpd_client_notify(sds message);
 bool is_smartpls(t_config *config, t_mpd_state *mpd_state, const char *plpath);
+void mpd_client_set_timer(enum mympd_cmd_ids cmd_id, const char *cmd, int timeout, int interval, const char *handler);
 #endif

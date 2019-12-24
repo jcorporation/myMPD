@@ -17,6 +17,7 @@
 #include "../list.h"
 #include "config_defs.h"
 #include "../utility.h"
+#include "mympd_api_timer.h"
 #include "mympd_api_utility.h"
 #include "mympd_api_syscmds.h"
 

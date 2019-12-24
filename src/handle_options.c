@@ -20,6 +20,7 @@
 #include "log.h"
 #include "list.h"
 #include "config_defs.h"
+#include "mympd_api/mympd_api_timer.h"
 #include "mympd_api/mympd_api_utility.h"
 #include "mympd_api/mympd_api_settings.h"
 #ifdef ENABLE_SSL

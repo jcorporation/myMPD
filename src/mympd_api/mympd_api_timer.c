@@ -64,7 +64,7 @@ void check_timer(struct t_timer_list *l) {
                 if (current->callback) {
                     current->callback(current->user_data);
                 }
-                if (current->type == TIMER_SINGLE_SHOT) {
+                if (current->interval == 0) {
                     remove_timer(l, current->timer_id);
                 }
             }
@@ -73,7 +73,12 @@ void check_timer(struct t_timer_list *l) {
     return;
 }
 
-bool add_timer(struct t_timer_list *l, unsigned int interval, time_handler handler, t_timer type, int timer_id, void *user_data) {
+bool replace_timer(struct t_timer_list *l, unsigned int timeout, unsigned int interval, time_handler handler, int timer_id, void *user_data) {
+    remove_timer(l, timer_id);
+    return add_timer(l, timeout, interval, handler, timer_id, user_data);
+}
+
+bool add_timer(struct t_timer_list *l, unsigned int timeout, unsigned int interval, time_handler handler, int timer_id, void *user_data) {
     struct t_timer_node *new_node = (struct t_timer_node *)malloc(sizeof(struct t_timer_node));
     if (new_node == NULL) {
         return false;
@@ -81,8 +86,8 @@ bool add_timer(struct t_timer_list *l, unsigned int interval, time_handler handl
  
     new_node->callback  = handler;
     new_node->user_data = user_data;
+    new_node->timeout   = timeout;
     new_node->interval  = interval;
-    new_node->type      = type;
     new_node->timer_id  = timer_id;
  
     new_node->fd = timerfd_create(CLOCK_REALTIME, 0);
@@ -93,20 +98,16 @@ bool add_timer(struct t_timer_list *l, unsigned int interval, time_handler handl
     }
  
     struct itimerspec new_value;
-    new_value.it_value.tv_sec = interval;
+    //timeout
+    new_value.it_value.tv_sec = timeout;
     new_value.it_value.tv_nsec = 0;
- 
-    if (type == TIMER_PERIODIC) {
-        new_value.it_interval.tv_sec = interval;
-    }
-    else {
-        new_value.it_interval.tv_sec = 0;
-    }
+    //interval, 0 = single shot timer
+    new_value.it_interval.tv_sec = interval;
     new_value.it_interval.tv_nsec = 0;
 
     timerfd_settime(new_node->fd, 0, &new_value, NULL);
  
-    /*Inserting the timer node into the list*/
+    //Inserting the timer node into the list
     new_node->next = l->list;
     l->list = new_node;
     l->length++;
@@ -115,20 +116,20 @@ bool add_timer(struct t_timer_list *l, unsigned int interval, time_handler handl
 }
  
 void remove_timer(struct t_timer_list *l, int timer_id) {
-    struct t_timer_node *current;
-    struct t_timer_node *previous;
+    struct t_timer_node *current = NULL;
+    struct t_timer_node *previous = NULL;
     
     for (current = l->list; current != NULL; previous = current, current = current->next) {
         if (current->timer_id == timer_id) {
             LOG_DEBUG("Removing timer with id %d", timer_id);
             if (previous == NULL) {
-                // Fix beginning pointer
+                //Fix beginning pointer
                 l->list = current->next;
             } else {
-                // Fix previous node's next to skip over the removed node.
+                //Fix previous nodes next to skip over the removed node.
                 previous->next = current->next;
             }
-            // Deallocate the node
+            //Deallocate the node
             close(current->fd);
             free(current);
             return;

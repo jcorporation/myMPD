@@ -29,6 +29,7 @@
 #include "global.h"
 #include "mpd_client.h"
 #include "maintenance.h"
+#include "mympd_api/mympd_api_timer.h"
 #include "mympd_api/mympd_api_utility.h"
 #include "mympd_api/mympd_api_settings.h"
 #include "mympd_api/mympd_api_syscmds.h"
@@ -49,13 +50,12 @@ void *mympd_api_loop(void *arg_config) {
     mympd_api_read_statefiles(config, mympd_state);
 
     //myMPD timer
-    struct t_timer_list *timer_list = (struct t_timer_list *)malloc(sizeof(struct t_timer_list));
-    init_timerlist(timer_list);
+    init_timerlist(&mympd_state->timer_list);
     
     //set timers
     if (config->readonly == false && config->covercache == true) {
         LOG_DEBUG("Setting timer action \"clear covercache\" to periodic each 3600s");
-        add_timer(timer_list, 3600, timer_handler_covercache, TIMER_PERIODIC, 2, (void *)mympd_state);
+        add_timer(&mympd_state->timer_list, 3600, 3600, timer_handler_covercache, 1, (void *)mympd_state);
     }
 
     //push settings to mpd_client queue
@@ -68,14 +68,11 @@ void *mympd_api_loop(void *arg_config) {
             mympd_api(config, mympd_state, request);
         }
         //poll timer
-        check_timer(timer_list);
+        check_timer(&mympd_state->timer_list);
     }
 
+    //cleanup
     free_mympd_state(mympd_state);
-    
-    //cleanup timers
-    truncate_timerlist(timer_list);
-    free(timer_list);
 
     return NULL;
 }
@@ -87,7 +84,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
     char *p_charbuf2 = NULL;
     char *p_charbuf3 = NULL;
     unsigned int uint_buf1;
-    int int_buf1;
+    int int_buf1, int_buf2;
     LOG_VERBOSE("MYMPD API request (%d): %s", request->conn_id, request->data);
     
     //create response struct
@@ -223,6 +220,19 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             clear_covercache(config, 0);
             response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Successfully cleared covercache", false);
             break;
+        case MYMPD_API_TIMER_SET:
+            je = json_scanf(request->data, sdslen(request->data), "{params: {timeout:%d, interval:%d, handler:%Q", &int_buf1, &int_buf2, &p_charbuf1);
+            if (je == 3) {
+                bool handled = false;
+                if (strcmp(p_charbuf1, "timer_handler_smartpls_update") == 0) {
+                    replace_timer(&mympd_state->timer_list, int_buf1, int_buf2, timer_handler_smartpls_update, 2, NULL);
+                    handled = true;
+                }
+                if (handled == true) {
+                    response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+                }
+            }
+            break;
         default:
             response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Unknown request", true);
             LOG_ERROR("Unknown API request: %.*s", sdslen(request->data), request->data);
@@ -238,7 +248,12 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
         response->data = jsonrpc_end_phrase(response->data);
         LOG_ERROR("No response for cmd_id %u", request->cmd_id);
     }
-    LOG_DEBUG("Push response to queue for connection %lu: %s", request->conn_id, response->data);
-    tiny_queue_push(web_server_queue, response);
+    if (request->conn_id > -1) {
+        LOG_DEBUG("Push response to queue for connection %lu: %s", request->conn_id, response->data);
+        tiny_queue_push(web_server_queue, response);
+    }
+    else {
+        free_result(response);
+    }
     free_request(request);
 }

@@ -17,6 +17,7 @@
 #include "../list.h"
 #include "config_defs.h"
 #include "../utility.h"
+#include "../api.h"
 #include "../log.h"
 #include "mpd_client_utility.h"
 #include "mpd_client_settings.h"
