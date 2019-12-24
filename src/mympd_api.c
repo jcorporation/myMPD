@@ -53,9 +53,9 @@ void *mympd_api_loop(void *arg_config) {
     init_timerlist(&mympd_state->timer_list);
     
     //set timers
-    if (config->readonly == false && config->covercache == true) {
-        LOG_DEBUG("Setting timer action \"clear covercache\" to periodic each 3600s");
-        add_timer(&mympd_state->timer_list, 3600, 3600, timer_handler_covercache, 1, (void *)mympd_state);
+    if (config->covercache == true) {
+        LOG_DEBUG("Setting timer action \"clear covercache\" to periodic each 7200s");
+        add_timer(&mympd_state->timer_list, 60, 7200, timer_handler_covercache, 1, (void *)config);
     }
 
     //push settings to mpd_client queue

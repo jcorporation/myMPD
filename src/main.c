@@ -253,11 +253,6 @@ static bool check_dirs(t_config *config) {
             sdsfree(testdirname);
             return false;
         }
-        else if (testdir_rc == 0) {
-            //crop covercache
-            clear_covercache(config, -1);
-            
-        }
     }
     sdsfree(testdirname);
     return true;
