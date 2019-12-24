@@ -254,8 +254,12 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
             mpd_state->reconnect_time = 0;
             //reset list of supported tags
             reset_t_tags(&mpd_state->mpd_tag_types);
+            //get mpd features
             mpd_client_mpd_features(config, mpd_state);
-            mpd_client_smartpls_update_all(config, mpd_state);
+            //set timer for smart playlist update
+            mpd_client_set_timer(MYMPD_API_TIMER_SET, "MYMPD_API_TIMER_SET", 10, 0, "timer_handler_smartpls_update");
+            //mpd_client_smartpls_update_all(config, mpd_state);
+            //jukebox
             if (mpd_state->jukebox_mode != JUKEBOX_OFF) {
                 mpd_client_jukebox(mpd_state);
             }
