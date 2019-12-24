@@ -33,6 +33,8 @@
 #include "mympd_api/mympd_api_settings.h"
 #include "mympd_api/mympd_api_syscmds.h"
 #include "mympd_api/mympd_api_bookmarks.h"
+#include "mympd_api/mympd_api_timer.h"
+#include "mympd_api/mympd_api_timer_handlers.h"
 #include "mympd_api.h"
 
 //private definitions
@@ -44,20 +46,37 @@ void *mympd_api_loop(void *arg_config) {
     
     //read myMPD states under config.varlibdir
     t_mympd_state *mympd_state = (t_mympd_state *)malloc(sizeof(t_mympd_state));
-    
     mympd_api_read_statefiles(config, mympd_state);
+
+    //myMPD timer
+    struct t_timer_list *timer_list = (struct t_timer_list *)malloc(sizeof(struct t_timer_list));
+    init_timerlist(timer_list);
+    
+    //set timers
+    if (config->readonly == false && config->covercache == true) {
+        LOG_DEBUG("Setting timer action \"clear covercache\" to periodic each 3600s");
+        add_timer(timer_list, 3600, timer_handler_covercache, TIMER_PERIODIC, 2, (void *)mympd_state);
+    }
 
     //push settings to mpd_client queue
     mympd_api_push_to_mpd_client(mympd_state);
 
     while (s_signal_received == 0) {
-        struct t_work_request *request = tiny_queue_shift(mympd_api_queue, 0);
+        //poll message queue
+        struct t_work_request *request = tiny_queue_shift(mympd_api_queue, 100);
         if (request != NULL) {
             mympd_api(config, mympd_state, request);
         }
+        //poll timer
+        check_timer(timer_list);
     }
 
     free_mympd_state(mympd_state);
+    
+    //cleanup timers
+    truncate_timerlist(timer_list);
+    free(timer_list);
+
     return NULL;
 }
 

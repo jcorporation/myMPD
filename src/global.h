@@ -14,7 +14,6 @@ sig_atomic_t s_signal_received;
 tiny_queue_t *web_server_queue;
 tiny_queue_t *mpd_client_queue;
 tiny_queue_t *mympd_api_queue;
-tiny_queue_t *timer_queue;
 
 typedef struct t_work_request {
     int conn_id; // needed to identify the connection where to send the reply

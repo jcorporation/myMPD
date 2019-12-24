@@ -44,7 +44,6 @@
 #endif
 #include "handle_options.h"
 #include "maintenance.h"
-#include "mytimer.h"
 
 static void mympd_signal_handler(int sig_num) {
     signal(sig_num, mympd_signal_handler);  // Reinstantiate signal handler
@@ -271,7 +270,6 @@ int main(int argc, char **argv) {
     bool init_thread_webserver = false;
     bool init_thread_mpdclient = false;
     bool init_thread_mympdapi = false;
-    bool init_thread_timer = false;
     int rc = EXIT_FAILURE;
     #ifdef DEBUG
     set_loglevel(4);
@@ -291,7 +289,6 @@ int main(int argc, char **argv) {
     mpd_client_queue = tiny_queue_create();
     mympd_api_queue = tiny_queue_create();
     web_server_queue = tiny_queue_create();
-    timer_queue = tiny_queue_create();
 
     //create mg_user_data struct for web_server
     t_mg_user_data *mg_user_data = (t_mg_user_data *)malloc(sizeof(t_mg_user_data));
@@ -412,22 +409,12 @@ int main(int argc, char **argv) {
     }
 
     //Create working threads
-    pthread_t mpd_client_thread, web_server_thread, mympd_api_thread, timer_thread;
+    pthread_t mpd_client_thread, web_server_thread, mympd_api_thread;
     //mympd api
     LOG_INFO("Starting mympd api thread");
     if (pthread_create(&mympd_api_thread, NULL, mympd_api_loop, config) == 0) {
         pthread_setname_np(mympd_api_thread, "mympd_mympdapi");
         init_thread_mympdapi = true;
-    }
-    else {
-        LOG_ERROR("Can't create mympd_mympdapi thread");
-        s_signal_received = SIGTERM;
-    }
-    //timer
-    LOG_INFO("Starting mympd timer thread");
-    if (pthread_create(&timer_thread, NULL, timer_loop, config) == 0) {
-        pthread_setname_np(timer_thread, "mympd_timer");
-        init_thread_timer = true;
     }
     else {
         LOG_ERROR("Can't create mympd_mympdapi thread");
@@ -472,17 +459,12 @@ int main(int argc, char **argv) {
         pthread_join(mympd_api_thread, NULL);
         LOG_INFO("Stopping mympd api thread");
     }
-    if (init_thread_timer == true) {
-        pthread_join(timer_thread, NULL);
-        LOG_INFO("Stopping mympd timer thread");
-    }
     if (init_webserver == true) {
         web_server_free(&mgr);
     }
     tiny_queue_free(web_server_queue);
     tiny_queue_free(mpd_client_queue);
     tiny_queue_free(mympd_api_queue);
-    tiny_queue_free(timer_queue);
     mympd_free_config(config);
     sdsfree(configfile);
     sdsfree(option);

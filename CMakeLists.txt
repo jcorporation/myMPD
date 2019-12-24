@@ -174,7 +174,6 @@ set(SOURCES
   src/utility.c
   src/sds_extras.c
   src/mpd_client.c
-  src/mytimer.c
   src/mpd_client/mpd_client_api.c
   src/mpd_client/mpd_client_cover.c
   src/mpd_client/mpd_client_browse.c
@@ -192,6 +191,8 @@ set(SOURCES
   src/mympd_api/mympd_api_utility.c
   src/mympd_api/mympd_api_settings.c
   src/mympd_api/mympd_api_syscmds.c
+  src/mympd_api/mympd_api_timer.c
+  src/mympd_api/mympd_api_timer_handlers.c
   src/web_server.c
   src/web_server/web_server_utility.c
   src/web_server/web_server_albumart.c
