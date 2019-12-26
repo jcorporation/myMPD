@@ -194,7 +194,7 @@ void reset_t_tags(t_tags *tags) {
 void default_mpd_state(t_mpd_state *mpd_state) {
     mpd_state->conn_state = MPD_DISCONNECTED;
     mpd_state->reconnect_time = 0;
-    mpd_state->reconnect_intervall = 0;
+    mpd_state->reconnect_interval = 0;
     mpd_state->timeout = 10000;
     mpd_state->state = MPD_STATE_UNKNOWN;
     mpd_state->song_id = -1;

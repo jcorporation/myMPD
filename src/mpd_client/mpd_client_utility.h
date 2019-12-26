@@ -26,7 +26,7 @@ typedef struct t_mpd_state {
     enum mpd_conn_states conn_state;
     int timeout;
     time_t reconnect_time;
-    unsigned reconnect_intervall;
+    unsigned reconnect_interval;
     // States
     enum mpd_state state;
     int song_id;

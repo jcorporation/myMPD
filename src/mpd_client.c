@@ -105,7 +105,7 @@ static void mpd_client_parse_idle(t_config *config, t_mpd_state *mpd_state, int 
                 case MPD_IDLE_QUEUE:
                     buffer = mpd_client_get_queue_state(mpd_state, buffer);
                     //jukebox enabled
-                    if (mpd_state->jukebox_mode != JUKEBOX_OFF && mpd_state->queue_length < 1) {
+                    if (mpd_state->jukebox_mode != JUKEBOX_OFF && mpd_state->queue_length < mpd_state->jukebox_queue_length) {
                         mpd_client_jukebox(mpd_state);
                     }
                     //autoPlay enabled
@@ -122,7 +122,9 @@ static void mpd_client_parse_idle(t_config *config, t_mpd_state *mpd_state, int 
                     //get and put mpd state                
                     buffer = mpd_client_put_state(config, mpd_state, buffer, NULL, 0);
                     //song has changed
-                    if (mpd_state->song_id != mpd_state->last_song_id && mpd_state->last_skipped_id != mpd_state->last_song_id  && mpd_state->last_song_uri != NULL) {
+                    if (mpd_state->song_id != mpd_state->last_song_id && mpd_state->last_skipped_id != mpd_state->last_song_id 
+                        && mpd_state->last_song_uri != NULL)
+                    {
                         time_t now = time(NULL);
                         if (mpd_state->feat_sticker && mpd_state->last_song_end_time > now) {
                             //last song skipped
@@ -250,7 +252,7 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
             buffer = jsonrpc_notify(buffer, "mpd_connected");
             mpd_client_notify(buffer);
             mpd_state->conn_state = MPD_CONNECTED;
-            mpd_state->reconnect_intervall = 0;
+            mpd_state->reconnect_interval = 0;
             mpd_state->reconnect_time = 0;
             //reset list of supported tags
             reset_t_tags(&mpd_state->mpd_tag_types);
@@ -281,11 +283,11 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
             }
             mpd_state->conn = NULL;
             mpd_state->conn_state = MPD_WAIT;
-            if (mpd_state->reconnect_intervall <= 20) {
-                mpd_state->reconnect_intervall += 2;
+            if (mpd_state->reconnect_interval <= 20) {
+                mpd_state->reconnect_interval += 2;
             }
-            mpd_state->reconnect_time = time(NULL) + mpd_state->reconnect_intervall;
-            LOG_DEBUG("Waiting %u seconds before reconnection", mpd_state->reconnect_intervall);
+            mpd_state->reconnect_time = time(NULL) + mpd_state->reconnect_interval;
+            LOG_DEBUG("Waiting %u seconds before reconnection", mpd_state->reconnect_interval);
             break;
 
         case MPD_CONNECTED:
