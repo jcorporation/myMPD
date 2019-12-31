@@ -50,6 +50,7 @@
             <a data-phrase="Update smart playlists" class="dropdown-item text-light bg-dark featSmartpls" href="#" data-href='{"cmd": "updateSmartPlaylists", "options": []}'></a>
           </div>
           <a data-phrase="Settings" class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#modalSettings"></a>
+          <a data-phrase="Timer" class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#modalTimer"></a>
           <a data-phrase="About" class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#modalAbout"></a>
           <a data-phrase="Add to home screen" id="nav-add2homescreen" class="dropdown-item text-light bg-dark hide" href="#"></a>
           <a id="navSyscmds" class="subMenu featSyscmds dropdown-item text-light bg-dark" data-toggle="collapse" href="#syscmds"><span class="material-icons material-icons-left">keyboard_arrow_right</span><span data-phrase="System commands"></span></a>
@@ -1505,6 +1506,77 @@
                 </tbody>
               </table>
             </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Close"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="modal fade" id="modalTimer" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><span class="material-icons title-icon">timer</span> <span data-phrase="Timer"></span></h5>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>          
+        </div>
+        <div class="modal-body">
+          <p>
+            <button class="btn btn-secondary" data-phrase="New timer" data-toggle="collapse" data-target="#editTimer"></button>
+          </p>
+          <div id="editTimer" class="collapse">
+            <form id="editTimerForm">
+              <div class="form-group row">
+                <label class="col-sm-4 col-form-label" for="inputTimerName" data-phrase="Name"></label>
+                <div class="col-sm-8">
+                  <input id="inputTimerName" class="form-control border-secondary" type="text"/>
+                </div>
+              </div>
+              <div class="form-group row">
+                <label class="col-sm-4 col-form-label" for="" data-phrase="Enabled"></label>
+                <div class="col-sm-8">
+                  <button data-href='{"cmd":"toggleBtnChk","options":["btnTimerEnabled"]}' id="btnTimerEnabled" type="button" class="btn btn-secondary btn-sm material-icons clickable active">check</button>
+                </div>
+              </div>
+              <div class="form-group row">
+                <label class="col-sm-4 col-form-label" for="inputTimerStartDate" data-phrase="Start"></label>
+                <div class="col-sm-8">
+                  <input type="date" id="inputTimerStartDate" class="form-control border-secondary"/>
+                  <input type="time" id="inputTimerStartTime" class="form-control border-secondary"/>
+                </div>
+              </div>
+              <div class="form-group row">
+                <label class="col-sm-4 col-form-label" for="selectTimerReccuring" data-phrase="Reccuring"></label>
+                <div class="col-sm-8">
+                  <select id="selectTimerReccuring" class="custom-select">
+                    <option value="once" data-phrase="Once"></option>
+                    <option value="each" data-phrase="Each"></option>
+                  </select>
+                  <input type="text" id="inputTimerReccuring" class="form-control border-secondary"/>
+                  <select id="selectTimerInterval" class="custom-select">
+                    <option value="hour" data-phrase="hour"></option>
+                    <option value="day" data-phrase="day"></option>
+                    <option value="week" data-phrase="week"></option>
+                    <option value="month" data-phrase="month"></option>
+                  </select>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="col table-responsive-md pl-0 pr-0">
+            <table class="table table-sm">
+              <thead>
+                <tr>
+                  <th data-phrase="Name"></th>
+                  <th data-phrase="Enabled"></th>
+                  <th data-phrase="Definition"></th>
+                </tr>
+              </thead>
+              <tbody>
+              </tbody>
+            </table>
           </div>
         </div>
         <div class="modal-footer">
