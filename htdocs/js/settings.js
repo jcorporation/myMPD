@@ -225,6 +225,9 @@ function parseSettings() {
         document.getElementById('btnBookmarks').removeAttribute('disabled');
         document.getElementsByClassName('groupClearCovercache')[0].classList.remove('hide');
     }
+    
+    let timerActions = '<option value="startplay">' + t('Start playback') + '</option>' +
+        '<option value="stopplay">' + t('Stop playback') + '</option>';
 
     if (settings.featSyscmds) {
         let syscmdsMaxListLen = 4;
@@ -239,10 +242,12 @@ function parseSettings() {
                 else {
                     syscmdsList += '<a class="dropdown-item text-light bg-dark alwaysEnabled" href="#" data-href=\'{"cmd": "execSyscmd", "options": ["' + 
                         e(settings.syscmdList[i]) + '"]}\'>' + e(settings.syscmdList[i]) + '</a>';
+                    timerActions += '<option value="' + e(settings.syscmdList[i]) + '">' + e(settings.syscmdList[i]) + '</option>';
                 }
             }
         }
         document.getElementById('syscmds').innerHTML = syscmdsList;
+        document.getElementById('selectTimerAction').innerHTML = timerActions;
         if (syscmdsListLen > syscmdsMaxListLen) {
             document.getElementById('navSyscmds').classList.remove('hide');
             document.getElementById('syscmds').classList.add('collapse', 'menu-indent');

@@ -130,7 +130,10 @@ function getAllPlaylists(obj) {
         if (playlistEl === 'addToPlaylistPlaylist') {
             playlists = '<option value=""></option><option value="new">' + t('New playlist') + '</option>';
         }
-        else if (playlistEl === 'selectJukeboxPlaylist' || playlistEl === 'selectAddToQueuePlaylist') {
+        else if (playlistEl === 'selectJukeboxPlaylist' || 
+                 playlistEl === 'selectAddToQueuePlaylist' ||
+                 playlistEl === 'selectTimerPlaylist'
+        ) {
             playlists = '<option value="Database">' + t('Database') + '</option>';
         }
     }

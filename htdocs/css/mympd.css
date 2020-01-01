@@ -563,6 +563,11 @@ textarea.small {
   box-shadow: 0 0 0 0.2rem rgba(72, 180, 97, 0.5) !important;
 }
 
+.custom-select:focus {
+  border-color: #218838;
+  box-shadow: 0 0 0 0.2rem rgba(72, 180, 97, 0.5);
+}
+
 .btn-xs, .btn-group-xs > .btn {
   padding: 0.12rem;
   border-radius: 0.2rem;
