@@ -16,8 +16,8 @@
 #include "../global.h"
 #include "config_defs.h"
 #include "../maintenance.h"
-#include "mympd_api_timer.h"
 #include "mympd_api_utility.h"
+#include "mympd_api_timer.h"
 #include "mympd_api_timer_handlers.h"
 
 //timer_id 1
@@ -35,4 +35,8 @@ void timer_handler_smartpls_update(void *user_data) {
     request->data = sdscatfmt(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"%s\",\"params\":{", "MPD_API_SMARTPLS_UPDATE_ALL");
     request->data = sdscat(request->data, "}}");
     tiny_queue_push(mpd_client_queue, request);
+}
+
+void timer_handler_select(void *user_data) {
+    (void) user_data;
 }

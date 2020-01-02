@@ -18,15 +18,15 @@ function saveTimer() {
         let selectTimerPlaylist = document.getElementById('selectTimerPlaylist');
         let selectTimerHour = document.getElementById('selectTimerHour');
         let selectTimerMinute = document.getElementById('selectTimerMinute');
-        sendAPI("MYMPD_API_TIMER_SET", {
-            "timerid": document.getElementById('inputTimerId').value,
+        sendAPI("MYMPD_API_TIMER_SAVE", {
+            "timerid": parseInt(document.getElementById('inputTimerId').value),
             "name": document.getElementById('inputTimerName').value,
             "enabled": (document.getElementById('btnTimerEnabled').classList.contains('active') ? true : false),
-            "startHour": selectTimerHour.options[selectTimerHour.selectedIndex].value,
-            "startMinute": selectTimerMinute.options[selectTimerMinute.selectedIndex].value,
+            "startHour": parseInt(selectTimerHour.options[selectTimerHour.selectedIndex].value),
+            "startMinute": parseInt(selectTimerMinute.options[selectTimerMinute.selectedIndex].value),
             "weekdays": weekdays,
             "action": selectTimerAction.options[selectTimerAction.selectedIndex].value,
-            "volume": document.getElementById('inputTimerVolume').value, 
+            "volume": parseInt(document.getElementById('inputTimerVolume').value), 
             "playlist": selectTimerPlaylist.options[selectTimerPlaylist.selectedIndex].value
             }, showListTimer);
     }
@@ -46,4 +46,9 @@ function showListTimer() {
     document.getElementById('editTimer').classList.remove('active');
     document.getElementById('listTimerFooter').classList.remove('hide');
     document.getElementById('editTimerFooter').classList.add('hide');
+    sendAPI("MYMPD_API_TIMER_LIST", {}, parseListTimer);
+}
+
+function parseListTimer(obj) {
+    console.log(JSON.stringify(obj));
 }

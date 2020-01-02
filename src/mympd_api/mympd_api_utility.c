@@ -20,8 +20,8 @@
 #include "../tiny_queue.h"
 #include "../global.h"
 #include "../utility.h"
-#include "mympd_api_timer.h"
 #include "mympd_api_utility.h"
+#include "mympd_api_timer.h"
 
 void mympd_api_push_to_mpd_client(t_mympd_state *mympd_state) {
     t_work_request *request = create_request(-1, 0, MYMPD_API_SETTINGS_SET, "MYMPD_API_SETTINGS_SET", "");

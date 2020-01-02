@@ -14,8 +14,15 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <errno.h>
+#include <time.h>
 
+#include "../../dist/src/frozen/frozen.h"
+#include "../../dist/src/sds/sds.h"
 #include "../log.h"
+#include "../list.h"
+#include "config_defs.h"
+#include "../utility.h"
+#include "mympd_api_utility.h"
 #include "mympd_api_timer.h"
 
 //private definitions
@@ -149,6 +156,67 @@ void truncate_timerlist(struct t_timer_list *l) {
         free(tmp);
     }
     init_timerlist(l);
+}
+
+struct t_timer_definition *parse_timer(struct t_timer_definition *timer_def, const char *str, size_t len) {
+    char *name = NULL;
+    char *action = NULL;
+    char *playlist = NULL;
+    int je = json_scanf(str, len, "{params: {name: %Q, enabled: %B, startHour: %d, startMinute: %d, action: %Q, volume: %d, playlist: %Q}}",
+        &name, &timer_def->enabled, &timer_def->start_hour, &timer_def->start_minute, &action, &timer_def->volume, &playlist);
+    if (je == 7) {
+        timer_def->name = sdsnew(name);
+        timer_def->action = sdsnew(action);
+        timer_def->playlist = sdsnew(playlist);
+    }
+    FREE_PTR(name);
+    FREE_PTR(action);
+    FREE_PTR(playlist);
+    if (je != 7) {
+        return NULL;
+    }
+    struct json_token t;
+    for (int i = 0; json_scanf_array_elem(str, len, ".params.weekdays", i, &t) > 0 && i < 7; i++) {
+        timer_def->weekdays[i] = t.type == JSON_TYPE_TRUE ? true : false;
+    }
+    return timer_def;
+}
+
+time_t timer_calc_starttime(int start_hour, int start_minute) {
+    time_t now = time(NULL);
+    struct tm tms;
+    localtime_r(&now, &tms);
+    tms.tm_hour = start_hour;
+    tms.tm_min = start_minute;
+    tms.tm_sec = 0;
+    return mktime(&tms);
+}
+
+sds timer_list(t_mympd_state *mympd_state, sds buffer, sds method, int request_id) {
+    buffer = jsonrpc_start_result(buffer, method, request_id);
+    buffer = sdscat(buffer, ", \"data\": [");
+    int entities_returned = 0;
+    struct t_timer_node *current = mympd_state->timer_list.list;
+    while (current != NULL) {
+        if (current->timer_id > 99) {
+            if (entities_returned++) {
+                buffer = sdscat(buffer, ",");
+            }
+            buffer = sdscatlen(buffer, "{", 1);
+            buffer = tojson_long(buffer, "timerid", current->timer_id, true);
+            struct t_timer_definition *timer_def = (struct t_timer_definition *)current->user_data;
+            buffer = tojson_char(buffer, "name", timer_def->name, true);
+            buffer = tojson_bool(buffer, "enabled", timer_def->enabled, true);
+            buffer = tojson_char(buffer, "action", timer_def->action, false);
+            buffer = sdscatlen(buffer, "}", 1);
+        }
+        current = current->next;
+    }
+    
+    buffer = sdscat(buffer, "],");
+    buffer = tojson_long(buffer, "returnedEntities", entities_returned, false);
+    buffer = jsonrpc_end_result(buffer);
+    return buffer;
 }
 
 //private functions 

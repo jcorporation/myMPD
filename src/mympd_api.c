@@ -29,8 +29,8 @@
 #include "global.h"
 #include "mpd_client.h"
 #include "maintenance.h"
-#include "mympd_api/mympd_api_timer.h"
 #include "mympd_api/mympd_api_utility.h"
+#include "mympd_api/mympd_api_timer.h"
 #include "mympd_api/mympd_api_settings.h"
 #include "mympd_api/mympd_api_syscmds.h"
 #include "mympd_api/mympd_api_bookmarks.h"
@@ -221,7 +221,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Successfully cleared covercache", false);
             break;
         case MYMPD_API_TIMER_SET:
-            je = json_scanf(request->data, sdslen(request->data), "{params: {timeout:%d, interval:%d, handler:%Q", &int_buf1, &int_buf2, &p_charbuf1);
+            je = json_scanf(request->data, sdslen(request->data), "{params: {timeout: %d, interval: %d, handler: %Q}}", &int_buf1, &int_buf2, &p_charbuf1);
             if (je == 3) {
                 bool handled = false;
                 if (strcmp(p_charbuf1, "timer_handler_smartpls_update") == 0) {
@@ -232,6 +232,26 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                     response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
                 }
             }
+            break;
+        case MYMPD_API_TIMER_SAVE: {
+            struct t_timer_definition *timer_def = malloc(sizeof(struct t_timer_definition));
+            timer_def = parse_timer(timer_def, request->data, sdslen(request->data));
+            je = json_scanf(request->data, sdslen(request->data), "{params: {timerid: %d}}", &int_buf1);
+            if (je == 1 && timer_def != NULL) {
+                if (int_buf1 == 0) {
+                    int_buf1 = 100 + mympd_state->timer_list.length;
+                }
+                time_t start = timer_calc_starttime(timer_def->start_hour, timer_def->start_minute);
+                replace_timer(&mympd_state->timer_list, start, 86400, timer_handler_select, int_buf1, timer_def);
+                response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+            }
+            else {
+                FREE_PTR(timer_def);
+            }
+            break;
+        }
+        case MYMPD_API_TIMER_LIST:
+            response->data = timer_list(mympd_state, response->data, request->method, request->id);        
             break;
         default:
             response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Unknown request", true);

@@ -6,6 +6,34 @@
 
 #ifndef __MYMPD_API_UTILITY_H
 #define __MYMPD_API_UTILITY_H
+struct t_timer_definition {
+    sds name;
+    bool enabled;
+    int start_hour;
+    int start_minute;
+    sds action;
+    int volume;
+    sds playlist;
+    bool weekdays[7];
+};
+
+typedef void (*time_handler)(void *user_data);
+
+struct t_timer_node {
+    int fd;
+    time_handler callback;
+    void *user_data;
+    unsigned int timeout;
+    unsigned int interval;
+    int timer_id;
+    struct t_timer_node *next;
+};
+
+struct t_timer_list {
+    int length;
+    struct t_timer_node *list;
+};
+
 typedef struct t_mympd_state {
     sds mpd_host;
     int mpd_port;

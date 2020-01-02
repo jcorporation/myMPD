@@ -6,30 +6,13 @@
 
 #ifndef MYMPD_API_TIMER_H
 #define MYMPD_API_TIMER_H
-
-typedef void (*time_handler)(void *user_data);
-
-struct t_timer_node {
-    int fd;
-    time_handler callback;
-    void *user_data;
-    unsigned int timeout;
-    unsigned int interval;
-    int timer_id;
-    struct t_timer_node *next;
-};
-
-struct t_timer_list {
-    int length;
-    struct t_timer_node *list;
-};
-
-
 void init_timerlist(struct t_timer_list *l);
 void truncate_timerlist(struct t_timer_list *l);
 void check_timer(struct t_timer_list *l);
 bool add_timer(struct t_timer_list *l, unsigned int timeout, unsigned int interval, time_handler handler, int timer_id, void *user_data);
 bool replace_timer(struct t_timer_list *l, unsigned int timeout, unsigned int interval, time_handler handler, int timer_id, void *user_data);
 void remove_timer(struct t_timer_list *l, int timer_id);
-
+struct t_timer_definition *parse_timer(struct t_timer_definition *timer_def, const char *str, size_t len);
+time_t timer_calc_starttime(int start_hour, int start_minute);
+sds timer_list(t_mympd_state *mympd_state, sds buffer, sds method, int request_id);
 #endif
