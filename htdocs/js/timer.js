@@ -59,7 +59,7 @@ function showEditTimer(timerid) {
     }
     else {
         document.getElementById('inputTimerName').value = '';
-        document.getElementById('btnTimerEnabled').classList.add('active');
+        toggleBtnChk('btnTimerEnabled', true);
         document.getElementById('selectTimerHour').value = '12';
         document.getElementById('selectTimerMinute').value = '0';
         document.getElementById('selectTimerAction').value = 'startplay';
@@ -67,7 +67,7 @@ function showEditTimer(timerid) {
         document.getElementById('selectTimerPlaylist').value = 'Database';
         let weekdayBtns = ['btnTimerMon', 'btnTimerTue', 'btnTimerWed', 'btnTimerThu', 'btnTimerFri', 'btnTimerSat', 'btnTimerSun'];
         for (let i = 0; i < weekdayBtns.length; i++) {
-            document.getElementById(weekdayBtns[i]).classList.remove('active');
+            toggleBtnChk(weekdayBtns[i], false);
         }
     }
     document.getElementById('inputTimerName').focus();
@@ -75,12 +75,7 @@ function showEditTimer(timerid) {
 
 function parseEditTimer(obj) {
     document.getElementById('inputTimerName').value = obj.result.name;
-    if (obj.result.active === true) {
-        document.getElementById('btnTimerEnabled').classList.add('active');
-    }
-    else {
-        document.getElementById('btnTimerEnabled').classList.remove('active');
-    }
+    toggleBtnChk('btnTimerEnabled', obj.result.enabled);
     document.getElementById('selectTimerHour').value = obj.result.startHour;
     document.getElementById('selectTimerMinute').value = obj.result.startMinute;
     document.getElementById('selectTimerAction').value = obj.result.action;
@@ -88,12 +83,7 @@ function parseEditTimer(obj) {
     document.getElementById('selectTimerPlaylist').value = obj.result.playlist;
     let weekdayBtns = ['btnTimerMon', 'btnTimerTue', 'btnTimerWed', 'btnTimerThu', 'btnTimerFri', 'btnTimerSat', 'btnTimerSun'];
     for (let i = 0; i < weekdayBtns.length; i++) {
-        if (obj.result.weekdays[i] === true) {
-            document.getElementById(weekdayBtns[i]).classList.add('active');
-        }
-        else {
-            document.getElementById(weekdayBtns[i]).classList.remove('active');
-        }
+        toggleBtnChk(obj.result.weekdays[i], false);
     }
 }
 
