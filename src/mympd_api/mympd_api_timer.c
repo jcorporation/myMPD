@@ -297,21 +297,28 @@ bool timerfile_read(t_config *config, t_mympd_state *mympd_state) {
     if (fp != NULL) {
         while ((read = getline(&line, &n, fp)) > 0) {
             struct t_timer_definition *timer_def = malloc(sizeof(struct t_timer_definition));
-            timer_def = parse_timer(timer_def, line, read);
+            sds param = sdscatfmt(sdsempty(), "{params: %s}", line);
+            timer_def = parse_timer(timer_def, param, sdslen(param));
             int timerid;
-            int je = json_scanf(line, read, "{params: {timerid: %d}}", &timerid);
+            int je = json_scanf(param, sdslen(param), "{params: {timerid: %d}}", &timerid);
+            sdsfree(param);
             if (je == 1 && timer_def != NULL) {
                 time_t start = timer_calc_starttime(timer_def->start_hour, timer_def->start_minute);
                 add_timer(&mympd_state->timer_list, start, 86400, timer_handler_select, timerid, timer_def, NULL);
+            }
+            else {
+                LOG_ERROR("Invalid timer line");
             }
         }
         FREE_PTR(line);
         fclose(fp);
     }
+    LOG_VERBOSE("Read %d timer(s) from disc", mympd_state->timer_list.length);
     return true;
 }
 
 bool timerfile_save(t_config *config, t_mympd_state *mympd_state) {
+    LOG_VERBOSE("Saving timers to disc");
     sds tmp_file = sdscatfmt(sdsempty(), "%s/state/timer.XXXXXX", config->varlibdir);
     int fd = mkstemp(tmp_file);
     if (fd < 0) {
@@ -340,10 +347,10 @@ bool timerfile_save(t_config *config, t_mympd_state *mympd_state) {
                 }
                 buffer = sdscat(buffer, current->definition->weekdays[i] == true ? "true" : "false");
             }
-            buffer = sdscatlen(buffer, "]}", 2);
+            buffer = sdscatlen(buffer, "]}\n", 3);
+            fputs(buffer, fp);
         }
         current = current->next;
-        fputs(buffer, fp);
     }
     fclose(fp);
     sdsfree(buffer);
