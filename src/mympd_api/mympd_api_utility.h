@@ -17,11 +17,12 @@ struct t_timer_definition {
     bool weekdays[7];
 };
 
-typedef void (*time_handler)(void *user_data);
+typedef void (*time_handler)(struct t_timer_definition *definition, void *user_data);
 
 struct t_timer_node {
     int fd;
     time_handler callback;
+    struct t_timer_definition *definition;
     void *user_data;
     unsigned int timeout;
     unsigned int interval;
@@ -31,6 +32,7 @@ struct t_timer_node {
 
 struct t_timer_list {
     int length;
+    int last_id;
     struct t_timer_node *list;
 };
 

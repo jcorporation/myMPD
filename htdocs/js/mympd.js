@@ -738,6 +738,20 @@ function appInit() {
         }
     }, false);
     
+    document.getElementById('listTimerList').addEventListener('click', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        if (event.target.nodeName === 'TD') {
+            showEditTimer(event.target.parentNode.getAttribute('data-id'));
+        }
+        else if (event.target.nodeName === 'A') {
+            deleteTimer(event.target.parentNode.parentNode.getAttribute('data-id'));
+        }
+        else if (event.target.nodeName === 'BUTTON') {
+            toggleTimer(event.target, event.target.parentNode.parentNode.getAttribute('data-id'));
+        }
+    }, false);
+    
     document.getElementById('QueueCurrentList').addEventListener('click', function(event) {
         if (event.target.nodeName === 'TD') {
             sendAPI("MPD_API_PLAYER_PLAY_TRACK", {"track": event.target.parentNode.getAttribute('data-trackid')});

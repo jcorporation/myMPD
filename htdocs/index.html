@@ -1608,16 +1608,17 @@
           </div>
           <div class="tab-pane active" id="listTimer">
             <div class="table-responsive-md">
-              <table class="table table-sm">
+              <table class="table table-hover table-sm">
                 <thead>
                   <tr>
                     <th data-phrase="Name"></th>
                     <th data-phrase="Enabled"></th>
                     <th data-phrase="Definition"></th>
                     <th data-phrase="Action"></th>
+                    <th>&nbsp;</td>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody class="clickable" id="listTimerList">
                 </tbody>
               </table>
             </div>
@@ -1625,7 +1626,7 @@
         </div>
         </div>
         <div class="modal-footer justify-content-between" id="listTimerFooter">
-          <button data-href='{"cmd":"showEditTimer","options":[]}' class="btn btn-secondary justify-content-start" data-phrase="New timer"></button>
+          <button data-href='{"cmd":"showEditTimer","options":[0]}' class="btn btn-secondary justify-content-start" data-phrase="New timer"></button>
           <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Close"></button>
         </div>
         <div id="editTimerFooter" class="modal-footer hide">

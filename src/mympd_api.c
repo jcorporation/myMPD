@@ -51,11 +51,12 @@ void *mympd_api_loop(void *arg_config) {
 
     //myMPD timer
     init_timerlist(&mympd_state->timer_list);
+    timerfile_read(config, mympd_state);
     
     //set timers
     if (config->covercache == true) {
         LOG_DEBUG("Setting timer action \"clear covercache\" to periodic each 7200s");
-        add_timer(&mympd_state->timer_list, 60, 7200, timer_handler_covercache, 1, (void *)config);
+        add_timer(&mympd_state->timer_list, 60, 7200, timer_handler_covercache, 1, NULL, (void *)config);
     }
 
     //push settings to mpd_client queue
@@ -72,6 +73,7 @@ void *mympd_api_loop(void *arg_config) {
     }
 
     //cleanup
+    timerfile_save(config, mympd_state);
     free_mympd_state(mympd_state);
 
     return NULL;
@@ -225,7 +227,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             if (je == 3) {
                 bool handled = false;
                 if (strcmp(p_charbuf1, "timer_handler_smartpls_update") == 0) {
-                    replace_timer(&mympd_state->timer_list, int_buf1, int_buf2, timer_handler_smartpls_update, 2, NULL);
+                    replace_timer(&mympd_state->timer_list, int_buf1, int_buf2, timer_handler_smartpls_update, 2, NULL, NULL);
                     handled = true;
                 }
                 if (handled == true) {
@@ -239,10 +241,11 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             je = json_scanf(request->data, sdslen(request->data), "{params: {timerid: %d}}", &int_buf1);
             if (je == 1 && timer_def != NULL) {
                 if (int_buf1 == 0) {
-                    int_buf1 = 100 + mympd_state->timer_list.length;
+                    mympd_state->timer_list.last_id++;
+                    int_buf1 = mympd_state->timer_list.last_id;
                 }
                 time_t start = timer_calc_starttime(timer_def->start_hour, timer_def->start_minute);
-                replace_timer(&mympd_state->timer_list, start, 86400, timer_handler_select, int_buf1, timer_def);
+                replace_timer(&mympd_state->timer_list, start, 86400, timer_handler_select, int_buf1, timer_def, NULL);
                 response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
             }
             else {
@@ -251,7 +254,27 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             break;
         }
         case MYMPD_API_TIMER_LIST:
-            response->data = timer_list(mympd_state, response->data, request->method, request->id);        
+            response->data = timer_list(mympd_state, response->data, request->method, request->id);
+            break;
+        case MYMPD_API_TIMER_GET:
+            je = json_scanf(request->data, sdslen(request->data), "{params: {timerid: %d}}", &int_buf1);
+            if (je == 1) {
+                response->data = timer_get(mympd_state, response->data, request->method, request->id, int_buf1);
+            }
+            break;
+        case MYMPD_API_TIMER_RM:
+            je = json_scanf(request->data, sdslen(request->data), "{params: {timerid: %d}}", &int_buf1);
+            if (je == 1) {
+                remove_timer(&mympd_state->timer_list, int_buf1);
+                response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+            }
+            break;
+        case MYMPD_API_TIMER_TOGGLE:
+            je = json_scanf(request->data, sdslen(request->data), "{params: {timerid: %d}}", &int_buf1);
+            if (je == 1) {
+                toggle_timer(&mympd_state->timer_list, int_buf1);
+                response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+            }
             break;
         default:
             response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Unknown request", true);

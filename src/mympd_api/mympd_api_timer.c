@@ -18,12 +18,14 @@
 
 #include "../../dist/src/frozen/frozen.h"
 #include "../../dist/src/sds/sds.h"
+#include "../sds_extras.h"
 #include "../log.h"
 #include "../list.h"
 #include "config_defs.h"
 #include "../utility.h"
 #include "mympd_api_utility.h"
 #include "mympd_api_timer.h"
+#include "mympd_api_timer_handlers.h"
 
 //private definitions
 #define MAX_TIMER_COUNT 100
@@ -33,6 +35,7 @@ static struct t_timer_node *get_timer_from_fd(struct t_timer_list *l, int fd);
 //public functions
 void init_timerlist(struct t_timer_list *l) {
     l->length = 0;
+    l->last_id = 100;
     l->list = NULL;
 }
 
@@ -69,7 +72,7 @@ void check_timer(struct t_timer_list *l) {
             if (current) {
                 LOG_DEBUG("Timer with id %d triggered", current->timer_id);
                 if (current->callback) {
-                    current->callback(current->user_data);
+                    current->callback(current->definition, current->user_data);
                 }
                 if (current->interval == 0) {
                     remove_timer(l, current->timer_id);
@@ -80,22 +83,27 @@ void check_timer(struct t_timer_list *l) {
     return;
 }
 
-bool replace_timer(struct t_timer_list *l, unsigned int timeout, unsigned int interval, time_handler handler, int timer_id, void *user_data) {
+bool replace_timer(struct t_timer_list *l, unsigned int timeout, unsigned int interval, time_handler handler, 
+                   int timer_id, struct t_timer_definition *definition, void *user_data)
+{
     remove_timer(l, timer_id);
-    return add_timer(l, timeout, interval, handler, timer_id, user_data);
+    return add_timer(l, timeout, interval, handler, timer_id, definition, user_data);
 }
 
-bool add_timer(struct t_timer_list *l, unsigned int timeout, unsigned int interval, time_handler handler, int timer_id, void *user_data) {
+bool add_timer(struct t_timer_list *l, unsigned int timeout, unsigned int interval, time_handler handler, 
+               int timer_id, struct t_timer_definition *definition, void *user_data) 
+{
     struct t_timer_node *new_node = (struct t_timer_node *)malloc(sizeof(struct t_timer_node));
     if (new_node == NULL) {
         return false;
     }
  
-    new_node->callback  = handler;
+    new_node->callback = handler;
+    new_node->definition = definition;
     new_node->user_data = user_data;
-    new_node->timeout   = timeout;
-    new_node->interval  = interval;
-    new_node->timer_id  = timer_id;
+    new_node->timeout = timeout;
+    new_node->interval = interval;
+    new_node->timer_id = timer_id;
  
     new_node->fd = timerfd_create(CLOCK_REALTIME, 0);
     if (new_node->fd == -1) {
@@ -137,8 +145,17 @@ void remove_timer(struct t_timer_list *l, int timer_id) {
                 previous->next = current->next;
             }
             //Deallocate the node
-            close(current->fd);
-            free(current);
+            free_timer_node(current);
+            return;
+        }
+    }
+}
+
+void toggle_timer(struct t_timer_list *l, int timer_id) {
+    struct t_timer_node *current = NULL;
+    for (current = l->list; current != NULL; current = current->next) {
+        if (current->timer_id == timer_id) {
+            current->definition->enabled = current->definition->enabled == true ? false : true;
             return;
         }
     }
@@ -152,10 +169,20 @@ void truncate_timerlist(struct t_timer_list *l) {
         LOG_DEBUG("Removing timer with id %d", current->timer_id);
         tmp = current;
         current = current->next;
-        close(tmp->fd);
-        free(tmp);
+        free_timer_node(tmp);
     }
     init_timerlist(l);
+}
+
+void free_timer_node(struct t_timer_node *node) {
+    close(node->fd);
+    if (node->definition != NULL) {
+        sdsfree(node->definition->name);
+        sdsfree(node->definition->action);
+        sdsfree(node->definition->playlist);
+        free(node->definition);
+    }
+    free(node);
 }
 
 struct t_timer_definition *parse_timer(struct t_timer_definition *timer_def, const char *str, size_t len) {
@@ -194,21 +221,31 @@ time_t timer_calc_starttime(int start_hour, int start_minute) {
 
 sds timer_list(t_mympd_state *mympd_state, sds buffer, sds method, int request_id) {
     buffer = jsonrpc_start_result(buffer, method, request_id);
-    buffer = sdscat(buffer, ", \"data\": [");
+    buffer = sdscat(buffer, ",\"data\":[");
     int entities_returned = 0;
     struct t_timer_node *current = mympd_state->timer_list.list;
     while (current != NULL) {
         if (current->timer_id > 99) {
             if (entities_returned++) {
-                buffer = sdscat(buffer, ",");
+                buffer = sdscatlen(buffer, ",", 1);
             }
             buffer = sdscatlen(buffer, "{", 1);
             buffer = tojson_long(buffer, "timerid", current->timer_id, true);
-            struct t_timer_definition *timer_def = (struct t_timer_definition *)current->user_data;
-            buffer = tojson_char(buffer, "name", timer_def->name, true);
-            buffer = tojson_bool(buffer, "enabled", timer_def->enabled, true);
-            buffer = tojson_char(buffer, "action", timer_def->action, false);
-            buffer = sdscatlen(buffer, "}", 1);
+            buffer = tojson_char(buffer, "name", current->definition->name, true);
+            buffer = tojson_bool(buffer, "enabled", current->definition->enabled, true);
+            buffer = tojson_long(buffer, "startHour", current->definition->start_hour, true);
+            buffer = tojson_long(buffer, "startMinute", current->definition->start_minute, true);
+            buffer = tojson_char(buffer, "action", current->definition->action, true);
+            buffer = tojson_char(buffer, "playlist", current->definition->playlist, true);
+            buffer = tojson_long(buffer, "volume", current->definition->volume, true);
+            buffer = sdscat(buffer, "\"weekdays\":[");
+            for (int i = 0; i < 7; i++) {
+                if (i > 0) {
+                    buffer = sdscatlen(buffer, ",", 1);
+                }
+                buffer = sdscat(buffer, current->definition->weekdays[i] == true ? "true" : "false");
+            }
+            buffer = sdscatlen(buffer, "]}", 2);
         }
         current = current->next;
     }
@@ -217,6 +254,109 @@ sds timer_list(t_mympd_state *mympd_state, sds buffer, sds method, int request_i
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, false);
     buffer = jsonrpc_end_result(buffer);
     return buffer;
+}
+
+sds timer_get(t_mympd_state *mympd_state, sds buffer, sds method, int request_id, int timer_id) {
+    buffer = jsonrpc_start_result(buffer, method, request_id);
+    buffer = sdscat(buffer, ",");
+    struct t_timer_node *current = mympd_state->timer_list.list;
+    while (current != NULL) {
+        if (current->timer_id == timer_id) {
+            buffer = tojson_long(buffer, "timerid", current->timer_id, true);
+            buffer = tojson_char(buffer, "name", current->definition->name, true);
+            buffer = tojson_bool(buffer, "enabled", current->definition->enabled, true);
+            buffer = tojson_long(buffer, "startHour", current->definition->start_hour, true);
+            buffer = tojson_long(buffer, "startMinute", current->definition->start_minute, true);
+            buffer = tojson_char(buffer, "action", current->definition->action, true);
+            buffer = tojson_char(buffer, "playlist", current->definition->playlist, true);
+            buffer = tojson_long(buffer, "volume", current->definition->volume, true);
+            buffer = sdscat(buffer, "\"weekdays\":[");
+            for (int i = 0; i < 7; i++) {
+                if (i > 0) {
+                    buffer = sdscatlen(buffer, ",", 1);
+                }
+                buffer = sdscat(buffer, current->definition->weekdays[i] == true ? "true" : "false");
+            }
+            buffer = sdscatlen(buffer, "]", 1);
+            break;
+        }
+        current = current->next;
+    }
+    
+    buffer = jsonrpc_end_result(buffer);
+    return buffer;
+}
+
+bool timerfile_read(t_config *config, t_mympd_state *mympd_state) {
+    sds timer_file = sdscatfmt(sdsempty(), "%s/state/timer", config->varlibdir);
+    char *line = NULL;
+    size_t n = 0;
+    ssize_t read = 0;
+    FILE *fp = fopen(timer_file, "r");
+    sdsfree(timer_file);
+    if (fp != NULL) {
+        while ((read = getline(&line, &n, fp)) > 0) {
+            struct t_timer_definition *timer_def = malloc(sizeof(struct t_timer_definition));
+            timer_def = parse_timer(timer_def, line, read);
+            int timerid;
+            int je = json_scanf(line, read, "{params: {timerid: %d}}", &timerid);
+            if (je == 1 && timer_def != NULL) {
+                time_t start = timer_calc_starttime(timer_def->start_hour, timer_def->start_minute);
+                add_timer(&mympd_state->timer_list, start, 86400, timer_handler_select, timerid, timer_def, NULL);
+            }
+        }
+        FREE_PTR(line);
+        fclose(fp);
+    }
+    return true;
+}
+
+bool timerfile_save(t_config *config, t_mympd_state *mympd_state) {
+    sds tmp_file = sdscatfmt(sdsempty(), "%s/state/timer.XXXXXX", config->varlibdir);
+    int fd = mkstemp(tmp_file);
+    if (fd < 0) {
+        LOG_ERROR("Can't open %s for write", tmp_file);
+        sdsfree(tmp_file);
+        return false;
+    }
+    FILE *fp = fdopen(fd, "w");
+    struct t_timer_node *current = mympd_state->timer_list.list;
+    sds buffer = sdsempty();
+    while (current != NULL) {
+        if (current->timer_id > 99) {
+            buffer = sdsreplace(buffer, "{");
+            buffer = tojson_long(buffer, "timerid", current->timer_id, true);
+            buffer = tojson_char(buffer, "name", current->definition->name, true);
+            buffer = tojson_bool(buffer, "enabled", current->definition->enabled, true);
+            buffer = tojson_long(buffer, "startHour", current->definition->start_hour, true);
+            buffer = tojson_long(buffer, "startMinute", current->definition->start_minute, true);
+            buffer = tojson_char(buffer, "action", current->definition->action, true);
+            buffer = tojson_char(buffer, "playlist", current->definition->playlist, true);
+            buffer = tojson_long(buffer, "volume", current->definition->volume, true);
+            buffer = sdscat(buffer, "\"weekdays\":[");
+            for (int i = 0; i < 7; i++) {
+                if (i > 0) {
+                    buffer = sdscatlen(buffer, ",", 1);
+                }
+                buffer = sdscat(buffer, current->definition->weekdays[i] == true ? "true" : "false");
+            }
+            buffer = sdscatlen(buffer, "]}", 2);
+        }
+        current = current->next;
+        fputs(buffer, fp);
+    }
+    fclose(fp);
+    sdsfree(buffer);
+    sds timer_file = sdscatfmt(sdsempty(), "%s/state/timer", config->varlibdir);
+    if (rename(tmp_file, timer_file) == -1) {
+        LOG_ERROR("Renaming file from %s to %s failed", tmp_file, timer_file);
+        sdsfree(tmp_file);
+        sdsfree(timer_file);
+        return false;
+    }
+    sdsfree(tmp_file);
+    sdsfree(timer_file);
+    return true;    
 }
 
 //private functions 
