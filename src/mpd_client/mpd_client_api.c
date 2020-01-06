@@ -32,6 +32,7 @@
 #include "mpd_client_state.h"
 #include "mpd_client_stats.h"
 #include "mpd_client_settings.h"
+#include "mpd_client_timer.h"
 #include "mpd_client_api.h"
 
 void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request) {
@@ -567,6 +568,12 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
             if (je == 5) {
                 response->data = mpd_client_put_firstsong_in_albums(config, mpd_state, response->data, request->method, request->id, 
                     p_charbuf1, p_charbuf2, p_charbuf3, bool_buf, uint_buf1);
+            }
+            break;
+        case MPD_API_TIMER_STARTPLAY:
+            je = json_scanf(request->data, sdslen(request->data), "{params: {volume:%u, playlist:%Q, jukeboxMode:%u}}", &uint_buf1, &p_charbuf1, &uint_buf2);
+            if (je == 3) {
+                response->data = mpd_client_timer_startplay(mpd_state, response->data, request->method, request->id, uint_buf1, p_charbuf1, uint_buf2);
             }
             break;
         default:

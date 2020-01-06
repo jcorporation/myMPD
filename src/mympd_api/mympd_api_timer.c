@@ -203,9 +203,9 @@ struct t_timer_definition *parse_timer(struct t_timer_definition *timer_def, con
     char *name = NULL;
     char *action = NULL;
     char *playlist = NULL;
-    int je = json_scanf(str, len, "{params: {name: %Q, enabled: %B, startHour: %d, startMinute: %d, action: %Q, volume: %d, playlist: %Q}}",
-        &name, &timer_def->enabled, &timer_def->start_hour, &timer_def->start_minute, &action, &timer_def->volume, &playlist);
-    if (je == 7) {
+    int je = json_scanf(str, len, "{params: {name: %Q, enabled: %B, startHour: %d, startMinute: %d, action: %Q, volume: %d, playlist: %Q, jukeboxMode: %u}}",
+        &name, &timer_def->enabled, &timer_def->start_hour, &timer_def->start_minute, &action, &timer_def->volume, &playlist, &timer_def->jukebox_mode);
+    if (je == 8) {
         timer_def->name = sdsnew(name);
         timer_def->action = sdsnew(action);
         timer_def->playlist = sdsnew(playlist);
@@ -213,7 +213,7 @@ struct t_timer_definition *parse_timer(struct t_timer_definition *timer_def, con
     FREE_PTR(name);
     FREE_PTR(action);
     FREE_PTR(playlist);
-    if (je != 7) {
+    if (je != 8) {
         return NULL;
     }
     struct json_token t;
@@ -230,7 +230,13 @@ time_t timer_calc_starttime(int start_hour, int start_minute) {
     tms.tm_hour = start_hour;
     tms.tm_min = start_minute;
     tms.tm_sec = 0;
-    return mktime(&tms);
+    time_t start = mktime(&tms);
+    if (start > now) {
+        return start - now;
+    }
+    else {
+        return 86400 + start - now;
+    }
 }
 
 sds timer_list(t_mympd_state *mympd_state, sds buffer, sds method, int request_id) {
@@ -252,6 +258,7 @@ sds timer_list(t_mympd_state *mympd_state, sds buffer, sds method, int request_i
             buffer = tojson_char(buffer, "action", current->definition->action, true);
             buffer = tojson_char(buffer, "playlist", current->definition->playlist, true);
             buffer = tojson_long(buffer, "volume", current->definition->volume, true);
+            buffer = tojson_long(buffer, "jukeboxMode", current->definition->jukebox_mode, true);
             buffer = sdscat(buffer, "\"weekdays\":[");
             for (int i = 0; i < 7; i++) {
                 if (i > 0) {
@@ -284,6 +291,7 @@ sds timer_get(t_mympd_state *mympd_state, sds buffer, sds method, int request_id
             buffer = tojson_char(buffer, "action", current->definition->action, true);
             buffer = tojson_char(buffer, "playlist", current->definition->playlist, true);
             buffer = tojson_long(buffer, "volume", current->definition->volume, true);
+            buffer = tojson_long(buffer, "jukeboxMode", current->definition->jukebox_mode, true);
             buffer = sdscat(buffer, "\"weekdays\":[");
             for (int i = 0; i < 7; i++) {
                 if (i > 0) {
@@ -357,6 +365,7 @@ bool timerfile_save(t_config *config, t_mympd_state *mympd_state) {
             buffer = tojson_char(buffer, "action", current->definition->action, true);
             buffer = tojson_char(buffer, "playlist", current->definition->playlist, true);
             buffer = tojson_long(buffer, "volume", current->definition->volume, true);
+            buffer = tojson_long(buffer, "jukeboxMode", current->definition->jukebox_mode, true);
             buffer = sdscat(buffer, "\"weekdays\":[");
             for (int i = 0; i < 7; i++) {
                 if (i > 0) {

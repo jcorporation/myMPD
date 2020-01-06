@@ -186,6 +186,7 @@ set(SOURCES
   src/mpd_client/mpd_client_settings.c
   src/mpd_client/mpd_client_state.c
   src/mpd_client/mpd_client_stats.c
+  src/mpd_client/mpd_client_timer.c
   src/mympd_api.c
   src/mympd_api/mympd_api_bookmarks.c
   src/mympd_api/mympd_api_utility.c

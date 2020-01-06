@@ -1550,8 +1550,8 @@
                 <label class="col-sm-4 col-form-label" for="inputTimerStart" data-phrase="Start"></label>
                 <div class="col-sm-8">
                   <div class="input-group">
-                    <select class="custom-select" id="selectTimerHour"></select>
-                    <select class="custom-select" id="selectTimerMinute"></select>
+                    <select class="form-control custom-select border-secondary" id="selectTimerHour"></select>
+                    <select class="form-control custom-select border-secondary" id="selectTimerMinute"></select>
                   </div>
                 </div>
               </div>
@@ -1592,10 +1592,11 @@
               <div class="form-group row">
                 <label class="col-sm-4 col-form-label" for="selectTimerAction" data-phrase="Action"></label>
                 <div class="col-sm-8">
-                  <select id="selectTimerAction" class="custom-select">
+                  <select id="selectTimerAction" class="form-control custom-select border-secondary">
                   </select>
                 </div>
               </div>
+              <div id="timerActionPlay">
               <div class="form-group row">
                 <label class="col-sm-4 col-form-label" for="inputTimerVolume" data-phrase="Volume"></label>
                 <div class="col-sm-7 mt-2">
@@ -1606,11 +1607,23 @@
                 </div>
               </div>
               <div class="form-group row">
+                <label class="col-sm-4 col-form-label" for="selectJukeboxMode" data-phrase="Jukebox mode"></label>
+                <div class="col-sm-8">
+                  <select id="selectTimerJukeboxMode" class="form-control custom-select border-secondary">
+                    <option value="0" data-phrase="Off"></option>
+                    <option value="1" data-phrase="Song"></option>
+                    <option value="2" data-phrase="Album"></option>
+                  </select>
+                  <div class="invalid-feedback" data-phrase="Enable jukebox if playlist is database"></div>
+                </div>
+              </div>
+              <div class="form-group row">
                 <label class="col-sm-4 col-form-label" for="selectTimerPlaylist" data-phrase="Playlist"></label>
                 <div class="col-sm-8">
-                  <select id="selectTimerPlaylist" class="custom-select">
+                  <select id="selectTimerPlaylist" class="form-control custom-select border-secondary">
                   </select>
                 </div>
+              </div>
               </div>
             </form>
           </div>

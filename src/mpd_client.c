@@ -31,6 +31,7 @@
 #include "mpd_client/mpd_client_features.h"
 #include "mpd_client/mpd_client_queue.h"
 #include "mpd_client/mpd_client_features.h"
+#include "mpd_client/mpd_client_timer.h"
 #include "mpd_client.h"
 
 //private definitions

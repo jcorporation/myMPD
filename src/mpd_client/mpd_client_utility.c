@@ -25,16 +25,6 @@
 #include "../log.h"
 #include "mpd_client_utility.h"
 
-void mpd_client_set_timer(enum mympd_cmd_ids cmd_id, const char *cmd, int timeout, int interval, const char *handler) {
-    t_work_request *request = create_request(-1, 0, cmd_id, cmd, "");
-    request->data = sdscatfmt(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"%s\",\"params\":{", cmd);
-    request->data = tojson_long(request->data, "timeout", timeout, true);
-    request->data = tojson_long(request->data, "interval", interval, true);
-    request->data = tojson_char(request->data, "handler", handler, false);
-    request->data = sdscat(request->data, "}}");
-    tiny_queue_push(mympd_api_queue, request);
-}
-
 void mpd_client_notify(sds message) {
     LOG_DEBUG("Push websocket notify to queue: %s", message);
     t_work_result *response = create_result_new(0, 0, 0, "");

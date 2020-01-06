@@ -550,6 +550,15 @@ function appInit() {
         document.getElementById('textTimerVolume').innerHTML = this.value + '&nbsp;%';
     }, false);
     
+    document.getElementById('selectTimerAction').addEventListener('change', function() {
+        if (this.options[this.selectedIndex].value === 'startplay') {
+            document.getElementById('timerActionPlay').classList.remove('hide');
+        }
+        else {
+            document.getElementById('timerActionPlay').classList.add('hide');
+        }
+    }, false);
+    
     let selectTimerHour = ''; 
     for (let i = 0; i < 24; i++) {
         selectTimerHour += '<option value="' + i + '">' + zeroPad(i, 2) + '</option>';

@@ -40,11 +40,22 @@ function saveTimer() {
         formOK = false;
         document.getElementById('invalidTimerWeekdays').style.display = 'block';
     }
+    else {
+        document.getElementById('invalidTimerWeekdays').style.display = 'none';
+    }
+    let selectTimerAction = document.getElementById('selectTimerAction');
+    let selectTimerPlaylist = document.getElementById('selectTimerPlaylist');
+    let selectTimerHour = document.getElementById('selectTimerHour');
+    let selectTimerMinute = document.getElementById('selectTimerMinute');
+    let selectTimerJukeboxMode = document.getElementById('selectTimerJukeboxMode');
+    if (selectTimerJukeboxMode.options[selectTimerJukeboxMode.selectedIndex].value === '0' &&
+        selectTimerPlaylist.options[selectTimerPlaylist.selectedIndex].value === 'Database'&&
+        selectTimerAction.options[selectTimerAction.selectedIndex].value === 'startplay')
+    {
+        formOK = false;
+        selectTimerJukeboxMode.classList.add('is-invalid');
+    }
     if (formOK === true) {
-        let selectTimerAction = document.getElementById('selectTimerAction');
-        let selectTimerPlaylist = document.getElementById('selectTimerPlaylist');
-        let selectTimerHour = document.getElementById('selectTimerHour');
-        let selectTimerMinute = document.getElementById('selectTimerMinute');
         sendAPI("MYMPD_API_TIMER_SAVE", {
             "timerid": parseInt(document.getElementById('inputTimerId').value),
             "name": nameEl.value,
@@ -54,12 +65,14 @@ function saveTimer() {
             "weekdays": weekdays,
             "action": selectTimerAction.options[selectTimerAction.selectedIndex].value,
             "volume": parseInt(document.getElementById('inputTimerVolume').value), 
-            "playlist": selectTimerPlaylist.options[selectTimerPlaylist.selectedIndex].value
+            "playlist": selectTimerPlaylist.options[selectTimerPlaylist.selectedIndex].value,
+            "jukeboxMode": parseInt(selectTimerJukeboxMode.options[selectTimerJukeboxMode.selectedIndex].value),
             }, showListTimer);
     }
 }
 
 function showEditTimer(timerid) {
+    document.getElementById('timerActionPlay').classList.add('hide');
     document.getElementById('listTimer').classList.remove('active');
     document.getElementById('editTimer').classList.add('active');
     document.getElementById('listTimerFooter').classList.add('hide');
@@ -78,17 +91,26 @@ function showEditTimer(timerid) {
         document.getElementById('selectTimerAction').value = 'startplay';
         document.getElementById('inputTimerVolume').value = '50';
         document.getElementById('selectTimerPlaylist').value = 'Database';
+        document.getElementById('selectTimerJukeboxMode').value = '0';
         let weekdayBtns = ['btnTimerMon', 'btnTimerTue', 'btnTimerWed', 'btnTimerThu', 'btnTimerFri', 'btnTimerSat', 'btnTimerSun'];
         for (let i = 0; i < weekdayBtns.length; i++) {
             toggleBtnChk(weekdayBtns[i], false);
         }
+        document.getElementById('timerActionPlay').classList.remove('hide');
     }
     document.getElementById('inputTimerName').focus();
     document.getElementById('inputTimerName').classList.remove('is-invalid');
+    document.getElementById('selectTimerJukeboxMode').classList.remove('is-invalid');
     document.getElementById('invalidTimerWeekdays').style.display = 'none';
 }
 
 function parseEditTimer(obj) {
+    if (obj.result.action === 'startplay') {
+        document.getElementById('timerActionPlay').classList.remove('hide');
+    }
+    else {
+        document.getElementById('timerActionPlay').classList.add('hide');
+    }
     document.getElementById('inputTimerId').value = obj.result.timerid;
     document.getElementById('inputTimerName').value = obj.result.name;
     toggleBtnChk('btnTimerEnabled', obj.result.enabled);
@@ -97,6 +119,7 @@ function parseEditTimer(obj) {
     document.getElementById('selectTimerAction').value = obj.result.action;
     document.getElementById('inputTimerVolume').value = obj.result.volume;
     document.getElementById('selectTimerPlaylist').value = obj.result.playlist;
+    document.getElementById('selectTimerJukeboxMode').value = obj.result.jukeboxMode;
     let weekdayBtns = ['btnTimerMon', 'btnTimerTue', 'btnTimerWed', 'btnTimerThu', 'btnTimerFri', 'btnTimerSat', 'btnTimerSun'];
     for (let i = 0; i < weekdayBtns.length; i++) {
         toggleBtnChk(weekdayBtns[i], obj.result.weekdays[i]);

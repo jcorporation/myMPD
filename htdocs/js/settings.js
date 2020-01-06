@@ -228,7 +228,8 @@ function parseSettings() {
     }
     
     let timerActions = '<option value="startplay">' + t('Start playback') + '</option>' +
-        '<option value="stopplay">' + t('Stop playback') + '</option>';
+        '<option value="stopplay">' + t('Stop playback') + '</option>' +
+        '<optgroup label="' + t('System command') + '">';
 
     if (settings.featSyscmds) {
         let syscmdsMaxListLen = 4;
@@ -248,6 +249,7 @@ function parseSettings() {
             }
         }
         document.getElementById('syscmds').innerHTML = syscmdsList;
+        timerActions += '</optgroup>';
         document.getElementById('selectTimerAction').innerHTML = timerActions;
         if (syscmdsListLen > syscmdsMaxListLen) {
             document.getElementById('navSyscmds').classList.remove('hide');
