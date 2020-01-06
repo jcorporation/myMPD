@@ -65,6 +65,11 @@ function webSocketConnect() {
         websocketConnected = true;
         return;
     }
+    else if (socket !== null && socket.readyState === WebSocket.CONNECTING) {
+        logInfo("Socket connection in progress");
+        websocketConnected = false;
+        return;
+    }
     else {
         websocketConnected = false;
     }
