@@ -40,7 +40,7 @@ void init_timerlist(struct t_timer_list *l) {
     l->list = NULL;
 }
 
-void check_timer(struct t_timer_list *l) {
+void check_timer(struct t_timer_list *l, bool gui) {
     int iMaxCount = 0;
     struct t_timer_node *current = l->list;
     uint64_t exp;
@@ -48,7 +48,7 @@ void check_timer(struct t_timer_list *l) {
     struct pollfd ufds[MAX_TIMER_COUNT] = {{0}};
     memset(ufds, 0, sizeof(struct pollfd) * MAX_TIMER_COUNT);
     while (current != NULL) {
-        if (current->fd > -1) {
+        if (current->fd > -1 && (current->timer_id < 100 || gui == true)) {
             ufds[iMaxCount].fd = current->fd;
             ufds[iMaxCount].events = POLLIN;
             iMaxCount++;
@@ -302,7 +302,7 @@ sds timer_get(t_mympd_state *mympd_state, sds buffer, sds method, int request_id
 }
 
 bool timerfile_read(t_config *config, t_mympd_state *mympd_state) {
-    sds timer_file = sdscatfmt(sdsempty(), "%s/state/timer", config->varlibdir);
+    sds timer_file = sdscatfmt(sdsempty(), "%s/state/timer_list", config->varlibdir);
     char *line = NULL;
     size_t n = 0;
     ssize_t read = 0;
@@ -336,7 +336,7 @@ bool timerfile_save(t_config *config, t_mympd_state *mympd_state) {
         return true;
     }
     LOG_VERBOSE("Saving timers to disc");
-    sds tmp_file = sdscatfmt(sdsempty(), "%s/state/timer.XXXXXX", config->varlibdir);
+    sds tmp_file = sdscatfmt(sdsempty(), "%s/state/timer_list.XXXXXX", config->varlibdir);
     int fd = mkstemp(tmp_file);
     if (fd < 0) {
         LOG_ERROR("Can't open %s for write", tmp_file);
@@ -371,7 +371,7 @@ bool timerfile_save(t_config *config, t_mympd_state *mympd_state) {
     }
     fclose(fp);
     sdsfree(buffer);
-    sds timer_file = sdscatfmt(sdsempty(), "%s/state/timer", config->varlibdir);
+    sds timer_file = sdscatfmt(sdsempty(), "%s/state/timer_list", config->varlibdir);
     if (rename(tmp_file, timer_file) == -1) {
         LOG_ERROR("Renaming file from %s to %s failed", tmp_file, timer_file);
         sdsfree(tmp_file);

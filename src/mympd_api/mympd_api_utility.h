@@ -79,6 +79,7 @@ typedef struct t_mympd_state {
     sds music_directory;
     sds theme;
     bool bookmarks;
+    bool timer;
     struct t_timer_list timer_list;
 } t_mympd_state;
 

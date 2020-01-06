@@ -35,7 +35,7 @@ void mympd_api_settings_delete(t_config *config) {
         "last_played", "last_played_count", "locale", "localplayer", "localplayer_autoplay", "love", "love_channel", "love_message",
         "max_elements_per_page",  "mpd_host", "mpd_pass", "mpd_port", "notification_page", "notification_web", "searchtaglist",
         "smartpls", "stickers", "stream_port", "stream_url", "taglist", "music_directory", "bookmarks", "covergrid_size", 
-        "theme", 0};
+        "theme", "timer", 0};
     const char** ptr = state_files;
     while (*ptr != 0) {
         sds filename = sdscatfmt(sdsempty(), "%s/state/%s", config->varlibdir, *ptr);
@@ -294,6 +294,10 @@ bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state, struct
         mympd_state->theme = sdsreplacelen(mympd_state->theme, settingvalue, sdslen(settingvalue));
         settingname = sdscat(settingname, "theme");
     }
+    else if (strncmp(key->ptr, "timer", key->len) == 0) {
+        mympd_state->timer = val->type == JSON_TYPE_TRUE ? true : false;
+        settingname = sdscat(settingname, "timer");
+    }
     else {
         sdsfree(settingname);
         sdsfree(settingvalue);
@@ -354,6 +358,7 @@ void mympd_api_read_statefiles(t_config *config, t_mympd_state *mympd_state) {
     mympd_state->music_directory = state_file_rw_string(config, "music_directory", config->music_directory, false);
     mympd_state->bookmarks = state_file_rw_bool(config, "bookmarks", config->bookmarks, false);
     mympd_state->theme = state_file_rw_string(config, "theme", config->theme, false);
+    mympd_state->timer = state_file_rw_bool(config, "timer", config->timer, false);
     if (config->readonly == true) {
         mympd_state->bookmarks = false;
         mympd_state->smartpls = false;
@@ -497,6 +502,7 @@ sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buf
     buffer = tojson_long(buffer, "volumeStep", config->volume_step, true);
     buffer = tojson_bool(buffer, "publishLibrary", config->publish_library, true);
     buffer = tojson_char(buffer, "theme", mympd_state->theme, true);
+    buffer = tojson_bool(buffer, "featTimer", mympd_state->timer, true);
     buffer = sdscatfmt(buffer, "\"colsQueueCurrent\":%s,", mympd_state->cols_queue_current);
     buffer = sdscatfmt(buffer, "\"colsSearch\":%s,", mympd_state->cols_search);
     buffer = sdscatfmt(buffer, "\"colsBrowseDatabase\":%s,", mympd_state->cols_browse_database);

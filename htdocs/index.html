@@ -50,7 +50,7 @@
             <a data-phrase="Update smart playlists" class="dropdown-item text-light bg-dark featSmartpls" href="#" data-href='{"cmd": "updateSmartPlaylists", "options": []}'></a>
           </div>
           <a data-phrase="Settings" class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#modalSettings"></a>
-          <a data-phrase="Timer" class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#modalTimer"></a>
+          <a data-phrase="Timer" class="dropdown-item text-light bg-dark featTimer" href="#" data-toggle="modal" data-target="#modalTimer"></a>
           <a data-phrase="About" class="dropdown-item text-light bg-dark" href="#" data-toggle="modal" data-target="#modalAbout"></a>
           <a data-phrase="Add to home screen" id="nav-add2homescreen" class="dropdown-item text-light bg-dark hide" href="#"></a>
           <a id="navSyscmds" class="subMenu featSyscmds dropdown-item text-light bg-dark" data-toggle="collapse" href="#syscmds"><span class="material-icons material-icons-left">keyboard_arrow_right</span><span data-phrase="System commands"></span></a>
@@ -1187,29 +1187,6 @@
                   </div>
                 </div>
                 <hr/>
-                <h4 data-phrase="Smart playlists"></h4>
-                <div id="warnSmartpls" class="alert alert-warning hide" data-phrase="Playlists are disabled"></div>
-                <div class="warnReadonly alert alert-warning hide" data-phrase="myMPD is in readonly mode"></div>
-                <div class="form-group row">
-                  <label class="col-sm-4 col-form-label" for="btnSmartpls" data-phrase="Smart playlists"></label>
-                  <div class="col-sm-8 ">
-                    <button data-href='{"cmd": "toggleBtnChk", "options": ["btnSmartpls"]}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnSmartpls">
-                      radio_button_unchecked
-                    </button>
-                  </div>
-                </div>
-                <hr/>
-                <h4 data-phrase="Bookmarks"></h4>
-                <div class="warnReadonly alert alert-warning hide" data-phrase="myMPD is in readonly mode"></div>
-                <div class="form-group row">
-                  <label class="col-sm-4 col-form-label" for="btnBookmarks" data-phrase="Bookmarks"></label>
-                  <div class="col-sm-8 ">
-                    <button data-href='{"cmd": "toggleBtnChk", "options": ["btnBookmarks"]}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnBookmarks">
-                      radio_button_unchecked
-                    </button>
-                  </div>
-                </div>
-                <hr/>
                 <h4 data-phrase="Scrobbler integration"></h4>
                 <div id="warnScrobbler" class="alert alert-warning hide" data-phrase="MPD channel not found"></div>
                 <div class="form-group row">
@@ -1232,6 +1209,35 @@
                   <div class="col-sm-8">
                     <input id="inputLoveMessage" type="text" class="form-control border-secondary" value="">
                     <div class="invalid-feedback" data-phrase="Invalid message"></div>
+                  </div>
+                </div>
+                <hr/>
+                <h4 data-phrase="Other features"></h4>
+                <div id="warnSmartpls" class="alert alert-warning hide" data-phrase="Playlists are disabled"></div>
+                <div class="warnReadonly alert alert-warning hide" data-phrase="myMPD is in readonly mode"></div>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="btnSmartpls" data-phrase="Smart playlists"></label>
+                  <div class="col-sm-8 ">
+                    <button data-href='{"cmd": "toggleBtnChk", "options": ["btnSmartpls"]}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnSmartpls">
+                      radio_button_unchecked
+                    </button>
+                  </div>
+                </div>
+                <div class="warnReadonly alert alert-warning hide" data-phrase="myMPD is in readonly mode"></div>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="btnBookmarks" data-phrase="Bookmarks"></label>
+                  <div class="col-sm-8 ">
+                    <button data-href='{"cmd": "toggleBtnChk", "options": ["btnBookmarks"]}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnBookmarks">
+                      radio_button_unchecked
+                    </button>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="btnFeatTimer" data-phrase="Timer"></label>
+                  <div class="col-sm-8 ">
+                    <button data-href='{"cmd": "toggleBtnChk", "options": ["btnFeatTimer"]}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnFeatTimer">
+                      radio_button_unchecked
+                    </button>
                   </div>
                 </div>
               </form>

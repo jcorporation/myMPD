@@ -160,6 +160,7 @@ function parseSettings() {
     toggleBtnChk('btnBgCover', settings.bgCover);
     toggleBtnChk('btnFeatLocalplayer', settings.featLocalplayer);
     toggleBtnChk('btnLocalplayerAutoplay', settings.localplayerAutoplay);
+    toggleBtnChk('btnFeatTimer', settings.featTimer);
     toggleBtnChk('btnBookmarks', settings.featBookmarks);
     if (settings.streamUrl === '') {
         document.getElementById('selectStreamMode').value = 'port';
@@ -198,7 +199,7 @@ function parseSettings() {
     document.getElementById('inputLastPlayedCount').value = settings.lastPlayedCount;
     toggleBtnChk('btnSmartpls', settings.smartpls);
     
-    let features = ["featLocalplayer", "featSyscmds", "featMixramp", "featCacert", "featBookmarks", "featRegex"];
+    let features = ["featLocalplayer", "featSyscmds", "featMixramp", "featCacert", "featBookmarks", "featRegex", "featTimer"];
     for (let j = 0; j < features.length; j++) {
         let Els = document.getElementsByClassName(features[j]);
         let ElsLen = Els.length;
@@ -680,6 +681,7 @@ function saveSettings() {
             "searchtaglist": getTagMultiSelectValues(document.getElementById('listSearchTags'), false),
             "browsetaglist": getTagMultiSelectValues(document.getElementById('listBrowseTags'), false),
             "theme": selectTheme.options[selectTheme.selectedIndex].value,
+            "timer": (document.getElementById('btnFeatTimer').classList.contains('active') ? true : false)
         }, getSettings);
         modalSettings.hide();
     }

@@ -51,7 +51,9 @@ void *mympd_api_loop(void *arg_config) {
 
     //myMPD timer
     init_timerlist(&mympd_state->timer_list);
-    timerfile_read(config, mympd_state);
+    if (mympd_state->timer == true) {
+        timerfile_read(config, mympd_state);
+    }
     
     //set timers
     if (config->covercache == true) {
@@ -70,12 +72,14 @@ void *mympd_api_loop(void *arg_config) {
         }
         //poll timer
         if (mympd_state->timer_list.active > 0) {
-            check_timer(&mympd_state->timer_list);
+            check_timer(&mympd_state->timer_list, mympd_state->timer);
         }
     }
 
     //cleanup
-    timerfile_save(config, mympd_state);
+    if (mympd_state->timer == true) {
+        timerfile_save(config, mympd_state);
+    }
     free_mympd_state(mympd_state);
 
     return NULL;
