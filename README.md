@@ -93,6 +93,6 @@ The ``./build.sh`` script installs a startup script for systemd, openrc (Alpine 
 Copyright
 ---------
 
-myMPD: 2018-2019 <mail@jcgames.de>
+myMPD: 2018-2020 <mail@jcgames.de>
 
 ympd: 2013-2014 <andy@ndyk.de>
