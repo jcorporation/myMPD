@@ -149,7 +149,8 @@ void remove_timer(struct t_timer_list *l, int timer_id) {
             if (previous == NULL) {
                 //Fix beginning pointer
                 l->list = current->next;
-            } else {
+            }
+            else {
                 //Fix previous nodes next to skip over the removed node.
                 previous->next = current->next;
             }
@@ -245,7 +246,7 @@ sds timer_list(t_mympd_state *mympd_state, sds buffer, sds method, int request_i
     int entities_returned = 0;
     struct t_timer_node *current = mympd_state->timer_list.list;
     while (current != NULL) {
-        if (current->timer_id > 99) {
+        if (current->timer_id > 99 && current->definition != NULL) {
             if (entities_returned++) {
                 buffer = sdscatlen(buffer, ",", 1);
             }
@@ -282,7 +283,7 @@ sds timer_get(t_mympd_state *mympd_state, sds buffer, sds method, int request_id
     buffer = sdscat(buffer, ",");
     struct t_timer_node *current = mympd_state->timer_list.list;
     while (current != NULL) {
-        if (current->timer_id == timer_id) {
+        if (current->timer_id == timer_id && current->definition != NULL) {
             buffer = tojson_long(buffer, "timerid", current->timer_id, true);
             buffer = tojson_char(buffer, "name", current->definition->name, true);
             buffer = tojson_bool(buffer, "enabled", current->definition->enabled, true);
@@ -355,7 +356,7 @@ bool timerfile_save(t_config *config, t_mympd_state *mympd_state) {
     struct t_timer_node *current = mympd_state->timer_list.list;
     sds buffer = sdsempty();
     while (current != NULL) {
-        if (current->timer_id > 99) {
+        if (current->timer_id > 99 && current->definition != NULL) {
             buffer = sdsreplace(buffer, "{");
             buffer = tojson_long(buffer, "timerid", current->timer_id, true);
             buffer = tojson_char(buffer, "name", current->definition->name, true);
