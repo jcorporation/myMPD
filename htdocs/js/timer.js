@@ -5,10 +5,12 @@
  https://github.com/jcorporation/mympd
 */
 
+//eslint-disable-next-line no-unused-vars
 function deleteTimer(timerid) {
     sendAPI("MYMPD_API_TIMER_RM", {"timerid": timerid}, showListTimer);
 }
 
+//eslint-disable-next-line no-unused-vars
 function toggleTimer(target, timerid) {
     if (target.classList.contains('active')) {
         target.classList.remove('active');
@@ -20,6 +22,7 @@ function toggleTimer(target, timerid) {
     }
 }
 
+//eslint-disable-next-line no-unused-vars
 function saveTimer() {
     let formOK = true;
     let nameEl = document.getElementById('inputTimerName');
@@ -71,6 +74,7 @@ function saveTimer() {
     }
 }
 
+//eslint-disable-next-line no-unused-vars
 function showEditTimer(timerid) {
     document.getElementById('timerActionPlay').classList.add('hide');
     document.getElementById('listTimer').classList.remove('active');
