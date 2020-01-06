@@ -133,7 +133,9 @@ bool handle_albumart(struct mg_connection *nc, struct http_message *hm, t_mg_use
         }
     }
     //check music_directory folder
-    if (mg_user_data->feat_library == true && access(mediafile, F_OK) == 0 && mg_user_data->coverimage_names_len > 0) {
+    if (mg_user_data->feat_library == true && mg_user_data->coverimage_names_len > 0 &&
+        access(mediafile, F_OK) == 0) /* Flawfinder: ignore */
+    {
         //try image in folder under music_directory
         char *path = uri_decoded;
         dirname(path);
