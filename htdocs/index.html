@@ -1531,6 +1531,7 @@
                 <label class="col-sm-4 col-form-label" for="inputTimerName" data-phrase="Name"></label>
                 <div class="col-sm-8">
                   <input id="inputTimerName" class="form-control border-secondary" type="text"/>
+                  <div class="invalid-feedback" data-phrase="Invalid name"></div>
                 </div>
               </div>
               <div class="form-group row">
@@ -1579,6 +1580,7 @@
                     <button data-href='{"cmd":"toggleBtnChk","options":["btnTimerSun"]}'  class="btn btn-secondary btn-xs clickable material-icons material-icons-small" id="btnTimerSun">radio_button_unchecked</button>
                     &nbsp;<label class="form-check-label" for="btnTimerSun" data-phrase="Sun"></label>
                   </div>
+                  <div id="invalidTimerWeekdays" class="invalid-feedback" data-phrase="Minimum one weekday must be selected"></div>
                 </div>
               </div>
               <div class="form-group row">

@@ -22,20 +22,32 @@ function toggleTimer(target, timerid) {
 
 function saveTimer() {
     let formOK = true;
-    
-    if (formOK === true) {
-        let weekdayBtns = ['btnTimerMon', 'btnTimerTue', 'btnTimerWed', 'btnTimerThu', 'btnTimerFri', 'btnTimerSat', 'btnTimerSun'];
-        let weekdays = [];
-        for (let i = 0; i < weekdayBtns.length; i++) {
-            weekdays.push(document.getElementById(weekdayBtns[i]).classList.contains('active') ? true : false);
+    let nameEl = document.getElementById('inputTimerName');
+    if (!validateNotBlank(nameEl)) {
+        formOK = false;
+    }
+    let minOneDay = false;
+    let weekdayBtns = ['btnTimerMon', 'btnTimerTue', 'btnTimerWed', 'btnTimerThu', 'btnTimerFri', 'btnTimerSat', 'btnTimerSun'];
+    let weekdays = [];
+    for (let i = 0; i < weekdayBtns.length; i++) {
+        let checked = document.getElementById(weekdayBtns[i]).classList.contains('active') ? true : false;
+        weekdays.push(checked);
+        if (checked === true) {
+            minOneDay = true;
         }
+    }
+    if (minOneDay === false) {
+        formOK = false;
+        document.getElementById('invalidTimerWeekdays').style.display = 'block';
+    }
+    if (formOK === true) {
         let selectTimerAction = document.getElementById('selectTimerAction');
         let selectTimerPlaylist = document.getElementById('selectTimerPlaylist');
         let selectTimerHour = document.getElementById('selectTimerHour');
         let selectTimerMinute = document.getElementById('selectTimerMinute');
         sendAPI("MYMPD_API_TIMER_SAVE", {
             "timerid": parseInt(document.getElementById('inputTimerId').value),
-            "name": document.getElementById('inputTimerName').value,
+            "name": nameEl.value,
             "enabled": (document.getElementById('btnTimerEnabled').classList.contains('active') ? true : false),
             "startHour": parseInt(selectTimerHour.options[selectTimerHour.selectedIndex].value),
             "startMinute": parseInt(selectTimerMinute.options[selectTimerMinute.selectedIndex].value),
@@ -58,6 +70,7 @@ function showEditTimer(timerid) {
         sendAPI("MYMPD_API_TIMER_GET", {"timerid": timerid}, parseEditTimer);
     }
     else {
+        document.getElementById('inputTimerId').value = '0';
         document.getElementById('inputTimerName').value = '';
         toggleBtnChk('btnTimerEnabled', true);
         document.getElementById('selectTimerHour').value = '12';
@@ -71,9 +84,12 @@ function showEditTimer(timerid) {
         }
     }
     document.getElementById('inputTimerName').focus();
+    document.getElementById('inputTimerName').classList.remove('is-invalid');
+    document.getElementById('invalidTimerWeekdays').style.display = 'none';
 }
 
 function parseEditTimer(obj) {
+    document.getElementById('inputTimerId').value = obj.result.timerid;
     document.getElementById('inputTimerName').value = obj.result.name;
     toggleBtnChk('btnTimerEnabled', obj.result.enabled);
     document.getElementById('selectTimerHour').value = obj.result.startHour;
@@ -83,7 +99,7 @@ function parseEditTimer(obj) {
     document.getElementById('selectTimerPlaylist').value = obj.result.playlist;
     let weekdayBtns = ['btnTimerMon', 'btnTimerTue', 'btnTimerWed', 'btnTimerThu', 'btnTimerFri', 'btnTimerSat', 'btnTimerSun'];
     for (let i = 0; i < weekdayBtns.length; i++) {
-        toggleBtnChk(obj.result.weekdays[i], false);
+        toggleBtnChk(weekdayBtns[i], obj.result.weekdays[i]);
     }
 }
 
@@ -108,7 +124,7 @@ function parseListTimer(obj) {
                   '<td><button name="enabled" class="btn btn-secondary btn-xs clickable material-icons material-icons-small' +
                   (obj.result.data[i].enabled === true ? ' active' : '') + '">' +
                   (obj.result.data[i].enabled === true ? 'check' : 'radio_button_unchecked') + '</button></td>' +
-                  '<td>' + obj.result.data[i].startHour + ':' + obj.result.data[i].startMinute + ' ' + t('on') + ' ';
+                  '<td>' + zeroPad(obj.result.data[i].startHour, 2) + ':' + zeroPad(obj.result.data[i].startMinute,2) + ' ' + t('on') + ' ';
         let days = [];
         for (let j = 0; j < 7; j++) {
             if (obj.result.data[i].weekdays[j] === true) {
