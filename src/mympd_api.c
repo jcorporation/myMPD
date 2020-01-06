@@ -69,7 +69,9 @@ void *mympd_api_loop(void *arg_config) {
             mympd_api(config, mympd_state, request);
         }
         //poll timer
-        check_timer(&mympd_state->timer_list);
+        if (mympd_state->timer_list.active > 0) {
+            check_timer(&mympd_state->timer_list);
+        }
     }
 
     //cleanup

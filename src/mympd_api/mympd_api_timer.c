@@ -35,6 +35,7 @@ static struct t_timer_node *get_timer_from_fd(struct t_timer_list *l, int fd);
 //public functions
 void init_timerlist(struct t_timer_list *l) {
     l->length = 0;
+    l->active = 0;
     l->last_id = 100;
     l->list = NULL;
 }
@@ -47,9 +48,11 @@ void check_timer(struct t_timer_list *l) {
     struct pollfd ufds[MAX_TIMER_COUNT] = {{0}};
     memset(ufds, 0, sizeof(struct pollfd) * MAX_TIMER_COUNT);
     while (current != NULL) {
-        ufds[iMaxCount].fd = current->fd;
-        ufds[iMaxCount].events = POLLIN;
-        iMaxCount++;
+        if (current->fd > -1) {
+            ufds[iMaxCount].fd = current->fd;
+            ufds[iMaxCount].events = POLLIN;
+            iMaxCount++;
+        }
         current = current->next;
     }
 
@@ -105,28 +108,34 @@ bool add_timer(struct t_timer_list *l, unsigned int timeout, unsigned int interv
     new_node->interval = interval;
     new_node->timer_id = timer_id;
  
-    new_node->fd = timerfd_create(CLOCK_REALTIME, 0);
-    if (new_node->fd == -1) {
-        free(new_node);
-        LOG_ERROR("Can't create timerfd");
-        return false;
-    }
+    if (definition == NULL || definition->enabled == true) {
+        new_node->fd = timerfd_create(CLOCK_REALTIME, 0);
+        if (new_node->fd == -1) {
+            free(new_node);
+            LOG_ERROR("Can't create timerfd");
+            return false;
+        }
  
-    struct itimerspec new_value;
-    //timeout
-    new_value.it_value.tv_sec = timeout;
-    new_value.it_value.tv_nsec = 0;
-    //interval, 0 = single shot timer
-    new_value.it_interval.tv_sec = interval;
-    new_value.it_interval.tv_nsec = 0;
+        struct itimerspec new_value;
+        //timeout
+        new_value.it_value.tv_sec = timeout;
+        new_value.it_value.tv_nsec = 0;
+        //interval, 0 = single shot timer
+        new_value.it_interval.tv_sec = interval;
+        new_value.it_interval.tv_nsec = 0;
 
-    timerfd_settime(new_node->fd, 0, &new_value, NULL);
- 
+        timerfd_settime(new_node->fd, 0, &new_value, NULL);
+    }
+    else {
+        new_node->fd = -1;
+    }
     //Inserting the timer node into the list
     new_node->next = l->list;
     l->list = new_node;
     l->length++;
-
+    if (definition == NULL || definition->enabled == true) {
+        l->active++;
+    }
     return true;
 }
  
@@ -145,6 +154,9 @@ void remove_timer(struct t_timer_list *l, int timer_id) {
                 previous->next = current->next;
             }
             //Deallocate the node
+            if (current->definition == NULL || current->definition->enabled == true) {
+                l->active--;
+            }
             free_timer_node(current);
             return;
         }
@@ -175,7 +187,9 @@ void truncate_timerlist(struct t_timer_list *l) {
 }
 
 void free_timer_node(struct t_timer_node *node) {
-    close(node->fd);
+    if (node->fd > -1) {
+        close(node->fd);
+    }
     if (node->definition != NULL) {
         sdsfree(node->definition->name);
         sdsfree(node->definition->action);

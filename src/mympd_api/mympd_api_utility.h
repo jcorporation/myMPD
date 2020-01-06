@@ -33,6 +33,7 @@ struct t_timer_node {
 struct t_timer_list {
     int length;
     int last_id;
+    int active;
     struct t_timer_node *list;
 };
 
