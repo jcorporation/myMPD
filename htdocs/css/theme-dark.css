@@ -1,4 +1,6 @@
-body.theme-dark .card, body.theme-dark .modal-content, body.theme-dark .modal-header {
+body.theme-dark .card,
+body.theme-dark .modal-content,
+body.theme-dark .modal-header {
   background-color: #343A40;
   color: #f8f9fa;
 }
@@ -12,18 +14,20 @@ body.theme-dark .btn-light {
   border-color: #343a40;
 }
 
-.btn-light:not(:disabled):not(.disabled):active, .btn-light:not(:disabled):not(.disabled).active,
-.show > .btn-light.dropdown-toggle {
+body.theme-dark .btn-light:not(:disabled):not(.disabled):active,
+body.theme-dark .btn-light:not(:disabled):not(.disabled).active,
+body.theme-dark .show > .btn-light.dropdown-toggle {
   background-color: #6C757D;
   border-color: #6C757D;
   color: #f8f9fa;
 }
 
-.btn-light:focus, .btn-light.focus {
+body.theme-dark .btn-light:focus,
+body.theme-dark .btn-light.focus {
   box-shadow: none;
 }
 
-.show {
+body.theme-dark .show {
   box-shadow: none;
 }
 
@@ -51,11 +55,13 @@ body.theme-dark .form-control:focus {
   color: #f8f9fa;
 }
 
-body.theme-dark .card-header, body.theme-dark .modal-header {
+body.theme-dark .card-header,
+body.theme-dark .modal-header {
   border-color: #1d2124;
 }
 
-body.theme-dark .card-footer, body.theme-dark .modal-footer {
+body.theme-dark .card-footer,
+body.theme-dark .modal-footer {
   border-color: #1d2124;
 }
 
@@ -84,7 +90,8 @@ body.theme-dark tr:hover {
   color: #f8f9fa;
 }
 
-body.theme-dark tr.selected, body.theme-dark tr:focus {
+body.theme-dark tr.selected,
+body.theme-dark tr:focus {
   background-color: #1d2124;
 }
 
@@ -164,6 +171,6 @@ body.theme-dark .text-secondary {
   color: #f8f9fa !important;
 }
 
-.bg-white {
+body.theme-dark .bg-white {
   background-color: #2f353a !important;
 }
