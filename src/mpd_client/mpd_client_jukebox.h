@@ -8,5 +8,4 @@
 #define __JUKEBOX_H__
 bool mpd_client_jukebox(t_mpd_state *mpd_state);
 bool mpd_client_jukebox_add_to_queue(t_mpd_state *mpd_state, int addSongs, enum jukebox_modes jukebox_mode, const char *playlist, bool manual);
-bool mpd_client_jukebox_fill_jukebox_queue(t_mpd_state *mpd_state, int addSongs, enum jukebox_modes jukebox_mode, const char *playlist, bool manual);
 #endif

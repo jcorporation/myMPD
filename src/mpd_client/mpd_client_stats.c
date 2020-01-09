@@ -206,8 +206,6 @@ bool mpd_client_last_skipped_song_uri(t_mpd_state *mpd_state, const char *uri) {
     return true;
 }
 
-
-
 sds mpd_client_put_last_played_songs(t_config *config, t_mpd_state *mpd_state, sds buffer, sds method, int request_id, 
                                      unsigned int offset, const t_tags *tagcols)
 {

@@ -235,5 +235,6 @@ void free_mpd_state(t_mpd_state *mpd_state) {
     sdsfree(mpd_state->mpd_host);
     sdsfree(mpd_state->mpd_pass);
     list_free(&mpd_state->jukebox_queue);
+    list_free(&mpd_state->jukebox_queue_tmp);
     free(mpd_state);
 }

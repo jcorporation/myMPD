@@ -62,6 +62,7 @@ typedef struct t_mpd_state {
     sds jukebox_playlist;
     size_t jukebox_queue_length;
     struct list jukebox_queue;
+    struct list jukebox_queue_tmp;
     bool auto_play;
     bool coverimage;
     sds coverimage_name;

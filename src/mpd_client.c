@@ -46,6 +46,12 @@ void *mpd_client_loop(void *arg_config) {
     t_mpd_state *mpd_state = (t_mpd_state *)malloc(sizeof(t_mpd_state));
     default_mpd_state(mpd_state);
 
+    //init last played songs list
+    list_init(&mpd_state->last_played);
+    //jukebox queue
+    list_init(&mpd_state->jukebox_queue);
+    list_init(&mpd_state->jukebox_queue_tmp);
+
     //wait for initial settings
     while (s_signal_received == 0) {
         t_work_request *request = tiny_queue_shift(mpd_client_queue, 50);
@@ -68,10 +74,6 @@ void *mpd_client_loop(void *arg_config) {
             }
         }
     }
-    //init last played songs list
-    list_init(&mpd_state->last_played);
-    //jukebox queue
-    list_init(&mpd_state->jukebox_queue);
 
     LOG_INFO("Starting mpd_client");
     //On startup connect instantly

@@ -19,6 +19,12 @@
 #include "mpd_client_utility.h"
 #include "mpd_client_jukebox.h"
 
+//private definitions
+static bool mpd_client_jukebox_fill_jukebox_queue(t_mpd_state *mpd_state, int addSongs, enum jukebox_modes jukebox_mode, const char *playlist, bool manual);
+static bool mpd_client_jukebox_enforce_constraints(t_mpd_state *mpd_state);
+
+//public functions
+
 bool mpd_client_jukebox(t_mpd_state *mpd_state) {
     struct mpd_status *status = mpd_run_status(mpd_state->conn);
     if (status == NULL) {
@@ -66,17 +72,24 @@ bool mpd_client_jukebox(t_mpd_state *mpd_state) {
 }
 
 bool mpd_client_jukebox_add_to_queue(t_mpd_state *mpd_state, int addSongs, enum jukebox_modes jukebox_mode, const char *playlist, bool manual) {
-    if ((jukebox_mode == JUKEBOX_ADD_SONG && mpd_state->jukebox_queue.length < 50) ||
-        (jukebox_mode == JUKEBOX_ADD_ALBUM && mpd_state->jukebox_queue.length < 5) ||
-        addSongs > mpd_state->jukebox_queue.length)
-    {
+    if (manual == false) {
+        LOG_DEBUG("Jukebox queue length: %d", mpd_state->jukebox_queue.length);
+    }
+    if (addSongs > mpd_state->jukebox_queue.length) {
+        LOG_DEBUG("Jukebox queue to small, adding entities");
         if (!mpd_client_jukebox_fill_jukebox_queue(mpd_state, addSongs, jukebox_mode, playlist, manual)) {
             return false;
         }
     }
     int added = 0;
-    struct node *current = mpd_state->jukebox_queue.list;
-    while (current != NULL) {
+    struct node *current;
+    if (manual == false) {
+        current = mpd_state->jukebox_queue.list;
+    }
+    else {
+        current = mpd_state->jukebox_queue_tmp.list;
+    }
+    while (current != NULL && added < addSongs) {
         if (jukebox_mode == JUKEBOX_ADD_SONG) {
 	    LOG_INFO("Jukebox adding song: %s", current->data);
 	    if (!mpd_run_add(mpd_state->conn, current->data)) {
@@ -97,8 +110,14 @@ bool mpd_client_jukebox_add_to_queue(t_mpd_state *mpd_state, int addSongs, enum 
             }
             mpd_response_finish(mpd_state->conn);
         }
-        list_shift(&mpd_state->jukebox_queue, 0);
-        current = mpd_state->jukebox_queue.list;
+        if (manual == false) {
+            list_shift(&mpd_state->jukebox_queue, 0);
+            current = mpd_state->jukebox_queue.list;
+        }
+        else {
+            list_shift(&mpd_state->jukebox_queue_tmp, 0);
+            current = mpd_state->jukebox_queue_tmp.list;
+        }
     }
     if (added > 0) {
         if (!mpd_run_play(mpd_state->conn)) {
@@ -109,21 +128,39 @@ bool mpd_client_jukebox_add_to_queue(t_mpd_state *mpd_state, int addSongs, enum 
         LOG_ERROR("Error adding song(s)");
         return false;
     }
+    if (manual == false) {
+        if ((jukebox_mode == JUKEBOX_ADD_SONG && mpd_state->jukebox_queue.length < 50) ||
+            (jukebox_mode == JUKEBOX_ADD_ALBUM && mpd_state->jukebox_queue.length < 5))
+        {
+            LOG_DEBUG("Jukebox queue to small, adding entities");
+            if (!mpd_client_jukebox_fill_jukebox_queue(mpd_state, addSongs, jukebox_mode, playlist, manual)) {
+                return false;
+            }
+        }
+        LOG_DEBUG("Jukebox queue length: %d", mpd_state->jukebox_queue.length);
+    }
     return true;
 }
 
-bool mpd_client_jukebox_fill_jukebox_queue(t_mpd_state *mpd_state, int addSongs, enum jukebox_modes jukebox_mode, const char *playlist, bool manual) {
+
+//private functions
+static bool mpd_client_jukebox_fill_jukebox_queue(t_mpd_state *mpd_state, int addSongs, enum jukebox_modes jukebox_mode, const char *playlist, bool manual) {
     int i;
     struct mpd_entity *entity;
     const struct mpd_song *song;
     struct mpd_pair *pair;
     int lineno = 1;
     int nkeep = 0;
-    (void) manual;
+    
+    if (manual == true) {
+        list_free(&mpd_state->jukebox_queue_tmp);
+    }
     
     if (jukebox_mode == JUKEBOX_ADD_SONG) {
         //add songs
-        nkeep = 100 - mpd_state->jukebox_queue.length;
+        if (manual == false) {
+            addSongs = 100 - mpd_state->jukebox_queue.length;
+        }
         if (strcmp(playlist, "Database") == 0) {
             if (!mpd_send_list_all(mpd_state->conn, "/")) {
                 check_error_and_recover(mpd_state, NULL, NULL, 0);
@@ -141,13 +178,23 @@ bool mpd_client_jukebox_fill_jukebox_queue(t_mpd_state *mpd_state, int addSongs,
                 if (randrange(lineno) < addSongs) {
 		    if (nkeep < addSongs) {
 		        song = mpd_entity_get_song(entity);
-		        list_push(&mpd_state->jukebox_queue, mpd_song_get_uri(song), lineno, NULL);
+		        if (manual == false) {
+		            list_push(&mpd_state->jukebox_queue, mpd_song_get_uri(song), lineno, NULL);
+                        }
+                        else {
+                            list_push(&mpd_state->jukebox_queue_tmp, mpd_song_get_uri(song), lineno, NULL);
+                        }
 		        nkeep++;
                     }
                     else {
                         i = addSongs > 1 ? randrange(addSongs) : 0;
                         song = mpd_entity_get_song(entity);
-                        list_replace(&mpd_state->jukebox_queue, i, mpd_song_get_uri(song), lineno, NULL);
+                        if (manual == false) {
+                            list_replace(&mpd_state->jukebox_queue, i, mpd_song_get_uri(song), lineno, NULL);
+                        }
+                        else {
+                            list_replace(&mpd_state->jukebox_queue_tmp, i, mpd_song_get_uri(song), lineno, NULL);
+                        }
                     }
                 }
                 lineno++;
@@ -157,7 +204,9 @@ bool mpd_client_jukebox_fill_jukebox_queue(t_mpd_state *mpd_state, int addSongs,
     }
     else if (jukebox_mode == JUKEBOX_ADD_ALBUM) {
         //add album
-        nkeep = 10 - mpd_state->jukebox_queue.length;
+        if (manual == false) {
+            addSongs = 10 - mpd_state->jukebox_queue.length;
+        }
         if (!mpd_search_db_tags(mpd_state->conn, MPD_TAG_ALBUM)) {
             check_error_and_recover(mpd_state, NULL, NULL, 0);
             return false;
@@ -169,12 +218,22 @@ bool mpd_client_jukebox_fill_jukebox_queue(t_mpd_state *mpd_state, int addSongs,
         while ((pair = mpd_recv_pair_tag(mpd_state->conn, MPD_TAG_ALBUM )) != NULL)  {
             if (randrange(lineno) < addSongs) {
 		if (nkeep < addSongs) {
-                    list_push(&mpd_state->jukebox_queue, pair->value, lineno, NULL);
+		    if (manual == false) {
+                        list_push(&mpd_state->jukebox_queue, pair->value, lineno, NULL);
+                    }
+                    else {
+                        list_push(&mpd_state->jukebox_queue_tmp, pair->value, lineno, NULL);
+                    }
                     nkeep++;
                 }
 		else {
                     i = addSongs > 1 ? randrange(addSongs) : 0;
-                    list_replace(&mpd_state->jukebox_queue, i, pair->value, lineno, NULL);
+                    if (manual == false) {
+                        list_replace(&mpd_state->jukebox_queue, i, pair->value, lineno, NULL);
+                    }
+                    else {
+                        list_replace(&mpd_state->jukebox_queue_tmp, i, pair->value, lineno, NULL);
+                    }
                 }
             }
             lineno++;
@@ -183,10 +242,28 @@ bool mpd_client_jukebox_fill_jukebox_queue(t_mpd_state *mpd_state, int addSongs,
     }
 
     if (nkeep < addSongs) {
-        LOG_WARN("Input didn't contain %d entries", addSongs);
+        LOG_WARN("Jukebox queue didn't contain %d entries", addSongs);
     }
 
     //finally shuffle the list
-    list_shuffle(&mpd_state->jukebox_queue);
+    if (manual == false) {
+        mpd_client_jukebox_enforce_constraints(mpd_state);
+        list_shuffle(&mpd_state->jukebox_queue);
+    }
+    else {
+        list_shuffle(&mpd_state->jukebox_queue_tmp);
+    }
+    return true;
+}
+
+static bool mpd_client_jukebox_enforce_constraints(t_mpd_state *mpd_state) {
+    struct node *current = mpd_state->jukebox_queue.list;
+
+    while (current != NULL) {
+        if (mpd_state->jukebox_mode == JUKEBOX_ADD_SONG) {
+        
+        }
+        current = current->next;
+    }
     return true;
 }
