@@ -60,12 +60,15 @@ bool mpd_api_settings_set(t_config *config, t_mpd_state *mpd_state, struct json_
         mpd_state->music_directory = sdsreplacelen(mpd_state->music_directory, settingvalue, sdslen(settingvalue));
     }
     else if (strncmp(key->ptr, "jukeboxMode", key->len) == 0) {
-        int jukebox_mode = strtoimax(settingvalue, &crap, 10);
-        if (jukebox_mode < 0 || jukebox_mode > 2) {
+        unsigned jukebox_mode = strtoumax(settingvalue, &crap, 10);
+        if (jukebox_mode > 2) {
             sdsfree(settingvalue);
             return false;
         }
-        mpd_state->jukebox_mode = jukebox_mode;
+        if (mpd_state->jukebox_mode != jukebox_mode) {
+            mpd_state->jukebox_mode = jukebox_mode;
+            list_free(&mpd_state->jukebox_queue);
+        }
     }
     else if (strncmp(key->ptr, "jukeboxPlaylist", key->len) == 0) {
         mpd_state->jukebox_playlist = sdsreplacelen(mpd_state->jukebox_playlist, settingvalue, sdslen(settingvalue));

@@ -70,6 +70,8 @@ void *mpd_client_loop(void *arg_config) {
     }
     //init last played songs list
     list_init(&mpd_state->last_played);
+    //jukebox queue
+    list_init(&mpd_state->jukebox_queue);
 
     LOG_INFO("Starting mpd_client");
     //On startup connect instantly

@@ -200,7 +200,9 @@ int list_insert(struct list *l, const char *data, int value, const char *extra) 
 }
 
 struct node *list_node_extract(struct list *l, unsigned idx) {
-    if (l->list == NULL) { return NULL; }
+    if (l->list == NULL) { 
+        return NULL; 
+    }
     struct node *current = l->list, **previous = &l->list;
     for (; idx > 0; idx--) {
         if (current->next == NULL) {
@@ -221,8 +223,9 @@ struct node *list_node_extract(struct list *l, unsigned idx) {
 
 int list_shift(struct list *l, unsigned idx) {
     struct node * extracted = list_node_extract(l, idx);
-    if (extracted == NULL) 
+    if (extracted == NULL) {
         return -1;
+    }
     sdsfree(extracted->data);
     sdsfree(extracted->extra);
     free(extracted);
