@@ -138,6 +138,9 @@ int list_sort_by_value(struct list *l, bool order) {
 }
 
 int list_replace(struct list *l, int pos, const char *data, int value, const char *extra) {
+    if (pos >= l->length) {
+        return 1;
+    }
     int i = 0;
     struct node *current = l->list;
     while (current->next != NULL) {
