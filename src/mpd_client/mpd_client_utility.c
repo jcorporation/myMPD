@@ -204,6 +204,7 @@ void default_mpd_state(t_mpd_state *mpd_state) {
     mpd_state->set_song_played_time = 0;
     mpd_state->music_directory = sdsempty();
     mpd_state->music_directory_value = sdsempty();
+    mpd_state->jukebox_mode = JUKEBOX_OFF;
     mpd_state->jukebox_playlist = sdsempty();
     mpd_state->coverimage_name = sdsempty();
     mpd_state->love_channel = sdsempty();
@@ -218,6 +219,11 @@ void default_mpd_state(t_mpd_state *mpd_state) {
     reset_t_tags(&mpd_state->mympd_tag_types);
     reset_t_tags(&mpd_state->search_tag_types);
     reset_t_tags(&mpd_state->browse_tag_types);
+    //init last played songs list
+    list_init(&mpd_state->last_played);
+    //jukebox queue
+    list_init(&mpd_state->jukebox_queue);
+    list_init(&mpd_state->jukebox_queue_tmp);
 }
 
 void free_mpd_state(t_mpd_state *mpd_state) {

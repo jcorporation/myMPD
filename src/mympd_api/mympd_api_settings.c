@@ -201,8 +201,8 @@ bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state, struct
         settingname = sdscat(settingname, "bg_css_filter");
     }
     else if (strncmp(key->ptr, "jukeboxMode", key->len) == 0) {
-        int jukebox_mode = strtoimax(settingvalue, &crap, 10);
-        if (jukebox_mode < 0 || jukebox_mode > 2) {
+        unsigned jukebox_mode = strtoumax(settingvalue, &crap, 10);
+        if (jukebox_mode > 2) {
             sdsfree(settingname);
             sdsfree(settingvalue);
             return false;
@@ -514,12 +514,12 @@ sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buf
     if (config->syscmds == true) {
         buffer = sdscat(buffer, ",\"syscmdList\":[");
         int nr = 0;
-        struct node *current = config->syscmd_list.list;
+        struct node *current = config->syscmd_list.head;
         while (current != NULL) {
             if (nr++) {
                 buffer = sdscat(buffer, ",");
             }
-            buffer = sdscatjson(buffer, current->data, sdslen(current->data));
+            buffer = sdscatjson(buffer, current->key, sdslen(current->key));
             current = current->next;
         }
         buffer = sdscat(buffer, "]");

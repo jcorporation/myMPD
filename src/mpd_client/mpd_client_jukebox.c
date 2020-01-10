@@ -84,15 +84,15 @@ bool mpd_client_jukebox_add_to_queue(t_mpd_state *mpd_state, int addSongs, enum 
     int added = 0;
     struct node *current;
     if (manual == false) {
-        current = mpd_state->jukebox_queue.list;
+        current = mpd_state->jukebox_queue.head;
     }
     else {
-        current = mpd_state->jukebox_queue_tmp.list;
+        current = mpd_state->jukebox_queue_tmp.head;
     }
     while (current != NULL && added < addSongs) {
         if (jukebox_mode == JUKEBOX_ADD_SONG) {
-	    LOG_INFO("Jukebox adding song: %s", current->data);
-	    if (!mpd_run_add(mpd_state->conn, current->data)) {
+	    LOG_INFO("Jukebox adding song: %s", current->key);
+	    if (!mpd_run_add(mpd_state->conn, current->key)) {
                 check_error_and_recover(mpd_state, NULL, NULL, 0);
             }
             else {
@@ -100,8 +100,8 @@ bool mpd_client_jukebox_add_to_queue(t_mpd_state *mpd_state, int addSongs, enum 
             }
         }
         else {
-            LOG_INFO("Jukebox adding album: %s", current->data);
-            if (!mpd_send_command(mpd_state->conn, "searchadd", "Album", current->data, NULL)) {
+            LOG_INFO("Jukebox adding album: %s", current->key);
+            if (!mpd_send_command(mpd_state->conn, "searchadd", "Album", current->key, NULL)) {
                 check_error_and_recover(mpd_state, NULL, NULL, 0);
                 return false;
             }
@@ -112,11 +112,11 @@ bool mpd_client_jukebox_add_to_queue(t_mpd_state *mpd_state, int addSongs, enum 
         }
         if (manual == false) {
             list_shift(&mpd_state->jukebox_queue, 0);
-            current = mpd_state->jukebox_queue.list;
+            current = mpd_state->jukebox_queue.head;
         }
         else {
             list_shift(&mpd_state->jukebox_queue_tmp, 0);
-            current = mpd_state->jukebox_queue_tmp.list;
+            current = mpd_state->jukebox_queue_tmp.head;
         }
     }
     if (added > 0) {
@@ -179,10 +179,10 @@ static bool mpd_client_jukebox_fill_jukebox_queue(t_mpd_state *mpd_state, int ad
 		    if (nkeep < addSongs) {
 		        song = mpd_entity_get_song(entity);
 		        if (manual == false) {
-		            list_push(&mpd_state->jukebox_queue, mpd_song_get_uri(song), lineno, NULL);
+		            list_push(&mpd_state->jukebox_queue, mpd_song_get_uri(song), lineno, NULL, NULL);
                         }
                         else {
-                            list_push(&mpd_state->jukebox_queue_tmp, mpd_song_get_uri(song), lineno, NULL);
+                            list_push(&mpd_state->jukebox_queue_tmp, mpd_song_get_uri(song), lineno, NULL, NULL);
                         }
 		        nkeep++;
                     }
@@ -190,10 +190,10 @@ static bool mpd_client_jukebox_fill_jukebox_queue(t_mpd_state *mpd_state, int ad
                         i = addSongs > 1 ? randrange(addSongs) : 0;
                         song = mpd_entity_get_song(entity);
                         if (manual == false) {
-                            list_replace(&mpd_state->jukebox_queue, i, mpd_song_get_uri(song), lineno, NULL);
+                            list_replace(&mpd_state->jukebox_queue, i, mpd_song_get_uri(song), lineno, NULL, NULL);
                         }
                         else {
-                            list_replace(&mpd_state->jukebox_queue_tmp, i, mpd_song_get_uri(song), lineno, NULL);
+                            list_replace(&mpd_state->jukebox_queue_tmp, i, mpd_song_get_uri(song), lineno, NULL, NULL);
                         }
                     }
                 }
@@ -219,20 +219,20 @@ static bool mpd_client_jukebox_fill_jukebox_queue(t_mpd_state *mpd_state, int ad
             if (randrange(lineno) < addSongs) {
 		if (nkeep < addSongs) {
 		    if (manual == false) {
-                        list_push(&mpd_state->jukebox_queue, pair->value, lineno, NULL);
+                        list_push(&mpd_state->jukebox_queue, pair->value, lineno, NULL, NULL);
                     }
                     else {
-                        list_push(&mpd_state->jukebox_queue_tmp, pair->value, lineno, NULL);
+                        list_push(&mpd_state->jukebox_queue_tmp, pair->value, lineno, NULL, NULL);
                     }
                     nkeep++;
                 }
 		else {
                     i = addSongs > 1 ? randrange(addSongs) : 0;
                     if (manual == false) {
-                        list_replace(&mpd_state->jukebox_queue, i, pair->value, lineno, NULL);
+                        list_replace(&mpd_state->jukebox_queue, i, pair->value, lineno, NULL, NULL);
                     }
                     else {
-                        list_replace(&mpd_state->jukebox_queue_tmp, i, pair->value, lineno, NULL);
+                        list_replace(&mpd_state->jukebox_queue_tmp, i, pair->value, lineno, NULL, NULL);
                     }
                 }
             }
@@ -257,7 +257,7 @@ static bool mpd_client_jukebox_fill_jukebox_queue(t_mpd_state *mpd_state, int ad
 }
 
 static bool mpd_client_jukebox_enforce_constraints(t_mpd_state *mpd_state) {
-    struct node *current = mpd_state->jukebox_queue.list;
+    struct node *current = mpd_state->jukebox_queue.head;
 
     while (current != NULL) {
         if (mpd_state->jukebox_mode == JUKEBOX_ADD_SONG) {

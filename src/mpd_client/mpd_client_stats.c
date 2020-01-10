@@ -102,9 +102,9 @@ bool mpd_client_last_played_list_save(t_config *config, t_mpd_state *mpd_state) 
     FILE *fp = fdopen(fd, "w");
     //first write last_played list to tmp file
     int i = 0;
-    struct node *current = mpd_state->last_played.list;
+    struct node *current = mpd_state->last_played.head;
     while (current != NULL && i < mpd_state->last_played_count) {
-        fprintf(fp, "%d::%s\n", current->value, current->data);
+        fprintf(fp, "%ld::%s\n", current->value_i, current->key);
         current = current->next;
         i++;
     }
@@ -149,7 +149,7 @@ bool mpd_client_last_played_list(t_config *config, t_mpd_state *mpd_state, const
                 return true;
             }
             else {
-                list_insert(&mpd_state->last_played, uri, time(NULL), NULL);
+                list_insert(&mpd_state->last_played, uri, time(NULL), NULL, NULL);
             }
             mpd_state->last_last_played_id = song_id;
             mpd_song_free(song);
@@ -216,14 +216,14 @@ sds mpd_client_put_last_played_songs(t_config *config, t_mpd_state *mpd_state, s
     buffer = sdscat(buffer, ",\"data\":[");
     
     if (mpd_state->last_played.length > 0) {
-        struct node *current = mpd_state->last_played.list;
+        struct node *current = mpd_state->last_played.head;
         while (current != NULL) {
             entity_count++;
             if (entity_count > offset && entity_count <= offset + mpd_state->max_elements_per_page) {
                 if (entities_returned++) {
                     buffer = sdscat(buffer, ",");
                 }
-                buffer = mpd_client_put_last_played_obj(mpd_state, buffer, entity_count, current->value, current->data, tagcols);
+                buffer = mpd_client_put_last_played_obj(mpd_state, buffer, entity_count, current->value_i, current->key, tagcols);
             }
             current = current->next;
         }

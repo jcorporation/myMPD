@@ -46,12 +46,6 @@ void *mpd_client_loop(void *arg_config) {
     t_mpd_state *mpd_state = (t_mpd_state *)malloc(sizeof(t_mpd_state));
     default_mpd_state(mpd_state);
 
-    //init last played songs list
-    list_init(&mpd_state->last_played);
-    //jukebox queue
-    list_init(&mpd_state->jukebox_queue);
-    list_init(&mpd_state->jukebox_queue_tmp);
-
     //wait for initial settings
     while (s_signal_received == 0) {
         t_work_request *request = tiny_queue_shift(mpd_client_queue, 50);
@@ -265,7 +259,6 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
             mpd_client_mpd_features(config, mpd_state);
             //set timer for smart playlist update
             mpd_client_set_timer(MYMPD_API_TIMER_SET, "MYMPD_API_TIMER_SET", 10, 0, "timer_handler_smartpls_update");
-            //mpd_client_smartpls_update_all(config, mpd_state);
             //jukebox
             if (mpd_state->jukebox_mode != JUKEBOX_OFF) {
                 mpd_client_jukebox(mpd_state);

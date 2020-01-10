@@ -235,7 +235,7 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     }
     else if (strcasecmp(section, "syscmds") == 0) {
         LOG_DEBUG("Adding syscmd %s: %s", name, value);
-        list_push(&p_config->syscmd_list, name, 0, value);
+        list_push(&p_config->syscmd_list, name, 0, value, NULL);
     }
     else {
         LOG_WARN("Unkown config option: %s - %s", section, name);

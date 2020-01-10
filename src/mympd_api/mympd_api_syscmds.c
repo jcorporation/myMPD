@@ -23,7 +23,7 @@
 sds mympd_api_syscmd(t_config *config, sds buffer, sds method, int request_id, 
                      const char *cmd)
 {
-    sds cmdline = list_get_extra(&config->syscmd_list, cmd);
+    sds cmdline = list_get_value_p(&config->syscmd_list, cmd);
     if (cmdline == NULL) {
         LOG_ERROR("Syscmd not defined: %s", cmd);
         buffer = jsonrpc_respond_message(buffer, method, request_id, "System command not defined", true);
