@@ -43,6 +43,7 @@ void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state) {
     mpd_state->feat_coverimage = true;
     mpd_state->feat_mpd_albumart = false;
     mpd_state->feat_mpd_readpicture = false;
+    mpd_state->feat_single_oneshot = false;
     
     //get features
     mpd_client_feature_commands(mpd_state);
@@ -61,6 +62,14 @@ void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state) {
     } 
     else {
         LOG_WARN("Disabling advanced search, depends on mpd >= 0.21.0 and libmpdclient >= 2.17.0.");
+    }
+    
+    if (LIBMPDCLIENT_CHECK_VERSION(2, 18, 0) && mpd_connection_cmp_server_version(mpd_state->conn, 0, 21, 0) >= 0) {
+        mpd_state->feat_single_oneshot = true;
+        LOG_INFO("Enabling single oneshot feature");
+    } 
+    else {
+        LOG_WARN("Disabling single oneshot feature, depends on mpd >= 0.21.0 and libmpdclient >= 2.18.0.");
     }
     
     //push settings to web_server_queue

@@ -150,7 +150,19 @@ bool mpd_api_settings_set(t_config *config, t_mpd_state *mpd_state, struct json_
     }
     else if (strncmp(key->ptr, "single", key->len) == 0) {
         unsigned uint_buf = strtoumax(settingvalue, &crap, 10);
-        rc = mpd_run_single(mpd_state->conn, uint_buf);
+        if (mpd_state->feat_single_oneshot == true) {
+            #if LIBMPDCLIENT_CHECK_VERSION(2,18,0)
+            enum mpd_single_state state;
+            if (uint_buf == 0) { state = MPD_SINGLE_OFF; }
+            else if (uint_buf == 1) { state = MPD_SINGLE_ON; }
+            else if (uint_buf == 2) { state = MPD_SINGLE_ONESHOT; }
+            else { state = MPD_SINGLE_UNKNOWN; }
+            rc = mpd_run_single_state(mpd_state->conn, state);
+            #endif
+        }
+        else {
+            rc = mpd_run_single(mpd_state->conn, uint_buf);
+        }
     }
     else if (strncmp(key->ptr, "crossfade", key->len) == 0) {
         unsigned uint_buf = strtoumax(settingvalue, &crap, 10);
@@ -200,7 +212,14 @@ sds mpd_client_put_settings(t_mpd_state *mpd_state, sds buffer, sds method, int 
     buffer = jsonrpc_start_result(buffer, method, request_id);
     buffer = sdscat(buffer, ",");
     buffer = tojson_long(buffer, "repeat", mpd_status_get_repeat(status), true);
-    buffer = tojson_long(buffer, "single", mpd_status_get_single(status), true);
+    if (mpd_state->feat_single_oneshot == true) {
+        #if LIBMPDCLIENT_CHECK_VERSION(2,18,0)
+        buffer = tojson_long(buffer, "single", mpd_status_get_single_state(status), true);
+        #endif
+    }
+    else {
+        buffer = tojson_long(buffer, "single", mpd_status_get_single(status), true);
+    }
     buffer = tojson_long(buffer, "crossfade", mpd_status_get_crossfade(status), true);
     buffer = tojson_long(buffer, "random", mpd_status_get_random(status), true);
     buffer = tojson_long(buffer, "consume", mpd_status_get_consume(status), true);
@@ -216,6 +235,7 @@ sds mpd_client_put_settings(t_mpd_state *mpd_state, sds buffer, sds method, int 
     buffer = tojson_bool(buffer, "featLove", mpd_state->feat_love, true);
     buffer = tojson_bool(buffer, "featCoverimage", mpd_state->feat_coverimage, true);
     buffer = tojson_bool(buffer, "featFingerprint", mpd_state->feat_fingerprint, true);
+    buffer = tojson_bool(buffer, "featSingleOneshot", mpd_state->feat_single_oneshot, true);
     buffer = tojson_char(buffer, "musicDirectoryValue", mpd_state->music_directory_value, true);
     buffer = tojson_bool(buffer, "mpdConnected", true, true);
     mpd_status_free(status);
