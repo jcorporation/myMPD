@@ -53,7 +53,7 @@ struct mpd_status {
 	bool random;
 
 	/** Single song mode enabled? */
-	bool single;
+	enum mpd_single_state single;
 
 	/** Song consume mode enabled? */
 	bool consume;
@@ -133,7 +133,7 @@ mpd_status_begin(void)
 	status->volume = -1;
 	status->repeat = false;
 	status->random = false;
-	status->single = false;
+	status->single = MPD_SINGLE_OFF;
 	status->consume = false;
 	status->queue_version = 0;
 	status->queue_length = 0;
@@ -194,6 +194,19 @@ parse_mpd_state(const char *p)
 		return MPD_STATE_UNKNOWN;
 }
 
+static enum mpd_single_state
+parse_mpd_single_state(const char *p)
+{
+	if (strcmp(p, "0") == 0)
+		return MPD_SINGLE_OFF;
+	else if (strcmp(p, "1") == 0)
+		return MPD_SINGLE_ON;
+	else if (strcmp(p, "oneshot") == 0)
+		return MPD_SINGLE_ONESHOT;
+	else
+		return MPD_SINGLE_UNKNOWN;
+}
+
 void
 mpd_status_feed(struct mpd_status *status, const struct mpd_pair *pair)
 {
@@ -207,7 +220,7 @@ mpd_status_feed(struct mpd_status *status, const struct mpd_pair *pair)
 	else if (strcmp(pair->name, "random") == 0)
 		status->random = !!atoi(pair->value);
 	else if (strcmp(pair->name, "single") == 0)
-		status->single = !!atoi(pair->value);
+		status->single = parse_mpd_single_state(pair->value);
 	else if (strcmp(pair->name, "consume") == 0)
 		status->consume = !!atoi(pair->value);
 	else if (strcmp(pair->name, "playlist") == 0)
@@ -290,12 +303,21 @@ mpd_status_get_random(const struct mpd_status *status)
 	return status->random;
 }
 
+enum mpd_single_state
+mpd_status_get_single_state(const struct mpd_status *status)
+{
+	assert(status != NULL);
+
+	return status->single;
+}
+
 bool
 mpd_status_get_single(const struct mpd_status *status)
 {
 	assert(status != NULL);
 
-	return status->single;
+	return status->single == MPD_SINGLE_ONESHOT ||
+	       status->single == MPD_SINGLE_ON;
 }
 
 bool
