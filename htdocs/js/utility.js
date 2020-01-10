@@ -150,6 +150,18 @@ function focusSearch() {
     }
 }
 
+function toggleBtnGroup(btnGroup, btn) {
+    var btns = document.getElementById(btnGroup).getElementsByTagName('button');
+    for (let i = 0; i < btns.length; i++) {
+        if (btns[i].id === btn) {
+            btns[i].classList.add('active');
+        }
+        else {
+            btns[i].classList.remove('active');
+        }
+    }
+}
+
 function toggleBtn(btn, state) {
     let b = document.getElementById(btn);
     if (!b) {

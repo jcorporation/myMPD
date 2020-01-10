@@ -918,9 +918,11 @@
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnSingle" data-phrase="Single"></label>
                   <div class="col-sm-8">
-                    <button data-href='{"cmd": "toggleBtnChk", "options": ["btnSingle"]}' id="btnSingle" type="button" class="btn btn-secondary btn-sm material-icons">
-                      Single
-                    </button>
+                    <div class="btn-group" id="btnSingleGroup">
+                      <button data-value="1" class="btn btn-secondary" id="btnSingleOn" data-href='{"cmd": "toggleBtnGroup", "options": ["btnSingleGroup", "btnSingleOn"]}' type="button" data-phrase="On"></button>
+                      <button data-value="0" class="btn btn-secondary" id="btnSingleOff" data-href='{"cmd": "toggleBtnGroup", "options": ["btnSingleGroup", "btnSingleOff"]}' type="button" data-phrase="Off"></button>
+                      <button data-value="2" class="btn btn-secondary featSingleOneshot" id="btnSingleOneshot" data-href='{"cmd": "toggleBtnGroup", "options": ["btnSingleGroup", "btnSingleOneshot"]}' type="button" data-phrase="Oneshot"></button>
+                    </div>
                   </div>
                 </div>
                 <div class="form-group row">

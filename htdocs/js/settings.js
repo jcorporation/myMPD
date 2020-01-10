@@ -353,9 +353,13 @@ function parseSettings() {
 function parseMPDSettings() {
     toggleBtnChk('btnRandom', settings.random);
     toggleBtnChk('btnConsume', settings.consume);
-    toggleBtnChk('btnSingle', settings.single);
     toggleBtnChk('btnRepeat', settings.repeat);
     toggleBtnChk('btnAutoPlay', settings.autoPlay);
+    
+    let btnSingle = 'btnSingleOff';
+    if (settings.single === 1) { btnSingle = 'btnSingleOn'; }
+    else if (settings.single === 2) { btnSingle = 'btnSingleOneshot'; }
+    toggleBtnGroup('btnSingleGroup', btnSingle);
     
     if (settings.crossfade !== undefined) {
         document.getElementById('inputCrossfade').removeAttribute('disabled');
@@ -382,7 +386,7 @@ function parseMPDSettings() {
     document.getElementById('selectReplaygain').value = settings.replaygain;
     
     let features = ['featStickers', 'featSmartpls', 'featPlaylists', 'featTags', 'featCoverimage', 'featAdvsearch',
-        'featLove', 'featDate', 'featGenre'];
+        'featLove', 'featDate', 'featGenre', 'featSingleOneshot'];
     var featTags = ['Date', 'Genre' ];
     for (let i = 0; i < featTags.length; i++) {
         settings['feat' + featTags[i]] = settings.tags.includes(featTags[i]) ? true : false;
@@ -637,7 +641,8 @@ function saveSettings() {
             }
         }
     }
-    
+
+    let singleState = document.getElementById('btnSingleGroup').getElementsByClassName('active')[0].getAttribute('data-value');
     if (formOK === true) {
         let selectReplaygain = document.getElementById('selectReplaygain');
         let selectJukeboxPlaylist = document.getElementById('selectJukeboxPlaylist');
@@ -647,7 +652,7 @@ function saveSettings() {
         sendAPI("MYMPD_API_SETTINGS_SET", {
             "consume": (document.getElementById('btnConsume').classList.contains('active') ? 1 : 0),
             "random": (document.getElementById('btnRandom').classList.contains('active') ? 1 : 0),
-            "single": (document.getElementById('btnSingle').classList.contains('active') ? 1 : 0),
+            "single": parseInt(singleState),
             "repeat": (document.getElementById('btnRepeat').classList.contains('active') ? 1 : 0),
             "replaygain": selectReplaygain.options[selectReplaygain.selectedIndex].value,
             "crossfade": document.getElementById('inputCrossfade').value,
