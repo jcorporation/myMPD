@@ -613,3 +613,9 @@ div.covergrid-header {
     max-width: 1140px;
   }
 }
+
+div#playDropdown .row {
+  word-wrap: normal;
+  flex-wrap: nowrap;
+  margin-right: 10px;
+}

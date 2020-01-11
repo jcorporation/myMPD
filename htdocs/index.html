@@ -128,7 +128,58 @@
       </div>
       <div class="card-footer cardFooterPlayback">
         <div class="d-flex align-items-center">
-          <button data-href='{"cmd": "clickPlay", "options": []}' class="mr-1 ml-1 btn btn-light material-icons btnPlay progressBarPlay">pause</button>
+          <div class="btn-group dropup">
+            <button data-href='{"cmd": "clickPlay", "options": []}' class="ml-1 btn btn-light material-icons btnPlay progressBarPlay">pause</button>
+            <button id="btnPlayDropdown" class="btn btn-light dropdown-toggle dropdown-toggle-split" type="button" data-toggle="dropdown"></button>
+            <div class="dropdown-menu bg-dark px-2" id="playDropdown">
+              <form>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="playDropdownBtnRandom" data-phrase="Random"></label>
+                  <div class="col-sm-9">
+                    <button data-href='{"cmd":"toggleBtnChk", "options":[]}' id="playDropdownBtnRandom" type="button" class="btn btn-secondary btn-sm material-icons"></button>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="playDropdownBtnConsume" data-phrase="Consume"></label>
+                  <div class="col-sm-9">          
+                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' id="playDropdownBtnConsume" type="button" class="btn btn-secondary btn-sm material-icons"></button>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="playDropdownBtnSingleGroup" data-phrase="Single"></label>
+                  <div class="col-sm-9">
+                    <div class="btn-group btn-block" id="playDropdownBtnSingleGroup">
+                      <button data-value="1" class="btn btn-secondary" id="playDropdownBtnSingleOn" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="On"></button>
+                      <button data-value="0" class="btn btn-secondary" id="playDropdownBtnSingleOff" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Off"></button>
+                      <button data-value="2" class="btn btn-secondary featSingleOneshot" id="playDropdownBtnSingleOneshot" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Oneshot"></button>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="btnRepeat" data-phrase="Repeat"></label>
+                  <div class="col-sm-9">
+                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' id="playDropdownBtnRepeat" type="button" class="btn btn-secondary btn-sm material-icons"></button>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="selectJukeboxMode" data-phrase="Jukebox mode"></label>
+                  <div class="col-sm-9">
+                    <select id="playDropdownSelectJukeboxMode" class="form-control custom-select border-secondary">
+                      <option value="0" data-phrase="Off"></option>
+                      <option value="1" data-phrase="Song"></option>
+                      <option value="2" data-phrase="Album"></option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <div class="col-sm-4">&nbsp;</div>
+                  <div class="col-sm-9">
+                    <button data-href='{"cmd": "savePlaySettings", "options": []}' type="button" class="btn btn-success btn-block" data-phrase="Apply"></button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
           <input type="range" min="0" max="1000" step="1" class="mr-1 ml-1 form-control-range flex-grow-1" id="progressBar">
           <div class="btn ml-1 mr-1" id="counter">&nbsp;&nbsp;</div>
         </div>
@@ -158,14 +209,12 @@
           <div class="btn-group mr-2">
             <button data-title-phrase="Add to queue" type="button" class="btn btn-secondary material-icons" data-toggle="modal" data-target="#modalAddToQueue">add_to_queue</button>
           </div>
-          <div class="input-group mr-2">
-            <div class="input-group-prepend">
-              <button data-title-phrase="Clear queue" type="button" class="btn btn-secondary material-icons" data-href='{"cmd": "sendAPI", "options": [{"cmd": "MPD_API_QUEUE_CLEAR"}]}'>clear_all</button>
-              <button id="clearQueueBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-right" type="button" data-toggle="dropdown"></button>
-              <div class="dropdown-menu bg-dark px-2" id="clearQueueDropdown">
-                  <button data-phrase="Clear queue" type="button" class="btn btn-secondary btn-sm btn-block" data-href='{"cmd": "sendAPI", "options": [{"cmd": "MPD_API_QUEUE_CLEAR"}]}' ></button>
-                  <button data-phrase="Crop queue" type="button" class="btn btn-secondary btn-sm btn-block" data-href='{"cmd": "sendAPI", "options": [{"cmd": "MPD_API_QUEUE_CROP"}]}' ></button>
-              </div>
+          <div class="btn-group mr-2">
+            <button data-title-phrase="Clear queue" type="button" class="btn btn-secondary material-icons" data-href='{"cmd": "sendAPI", "options": [{"cmd": "MPD_API_QUEUE_CLEAR"}]}'>clear_all</button>
+            <button id="clearQueueBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-right" type="button" data-toggle="dropdown"></button>
+            <div class="dropdown-menu bg-dark px-2" id="clearQueueDropdown">
+              <button data-phrase="Clear queue" type="button" class="btn btn-secondary btn-sm btn-block" data-href='{"cmd": "sendAPI", "options": [{"cmd": "MPD_API_QUEUE_CLEAR"}]}' ></button>
+              <button data-phrase="Crop queue" type="button" class="btn btn-secondary btn-sm btn-block" data-href='{"cmd": "sendAPI", "options": [{"cmd": "MPD_API_QUEUE_CROP"}]}' ></button>
             </div>
           </div>
           <form id="searchqueue" class="flex-grow-1">
@@ -902,21 +951,17 @@
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnRandom" data-phrase="Random"></label>
                   <div class="col-sm-8">
-                    <button data-href='{"cmd":"toggleBtnChk", "options":["btnRandom"]}' id="btnRandom" type="button" class="btn btn-secondary btn-sm material-icons">
-                      Random
-                    </button>
+                    <button data-href='{"cmd":"toggleBtnChk", "options":[]}' id="btnRandom" type="button" class="btn btn-secondary btn-sm material-icons"></button>
                   </div>
                 </div>
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnConsume" data-phrase="Consume"></label>
                   <div class="col-sm-8">          
-                    <button data-href='{"cmd": "toggleBtnChk", "options": ["btnConsume"]}' id="btnConsume" type="button" class="btn btn-secondary btn-sm material-icons">
-                      Consume
-                    </button>
+                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' id="btnConsume" type="button" class="btn btn-secondary btn-sm material-icons"></button>
                   </div>
                 </div>
                 <div class="form-group row">
-                  <label class="col-sm-4 col-form-label" for="btnSingle" data-phrase="Single"></label>
+                  <label class="col-sm-4 col-form-label" for="btnSingleGroup" data-phrase="Single"></label>
                   <div class="col-sm-8">
                     <div class="btn-group" id="btnSingleGroup">
                       <button data-value="1" class="btn btn-secondary" id="btnSingleOn" data-href='{"cmd": "toggleBtnGroup", "options": ["btnSingleGroup", "btnSingleOn"]}' type="button" data-phrase="On"></button>
@@ -928,9 +973,7 @@
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnRepeat" data-phrase="Repeat"></label>
                   <div class="col-sm-8">
-                    <button data-href='{"cmd": "toggleBtnChk", "options": ["btnRepeat"]}' id="btnRepeat" type="button" class="btn btn-secondary btn-sm material-icons">
-                      Repeat
-                    </button>
+                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' id="btnRepeat" type="button" class="btn btn-secondary btn-sm material-icons"></button>
                   </div>
                 </div>
                 <div class="form-group row">
@@ -967,9 +1010,7 @@
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnAutoPlay" data-phrase="Autoplay"></label>
                   <div class="col-sm-8">          
-                    <button data-href='{"cmd": "toggleBtnChk", "options": ["btnAutoPlay"]}' id="btnAutoPlay" type="button" class="btn btn-secondary btn-sm material-icons">
-                      radio_button_unchecked
-                    </button>
+                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' id="btnAutoPlay" type="button" class="btn btn-secondary btn-sm material-icons"></button>
                   </div>
                 </div>
                 <hr/>
@@ -1016,9 +1057,7 @@
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnCoverimage" data-phrase="Albumart"></label>
                   <div class="col-sm-8 ">
-                    <button data-href='{"cmd": "toggleBtnChk", "options": ["btnCoverimage"]}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnCoverimage">
-                      radio_button_unchecked
-                    </button>
+                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnCoverimage"></button>
                   </div>
                 </div>
                 <div class="form-group row">
@@ -1047,9 +1086,7 @@
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnBgCover" data-phrase="Albumart"></label>
                   <div class="col-sm-8 ">
-                    <button data-href='{"cmd": "toggleBtnChk", "options": ["btnBgCover"]}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnBgCover">
-                      radio_button_unchecked
-                    </button>
+                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnBgCover"></button>
                   </div>
                 </div>
                 <div class="form-group row">
@@ -1093,17 +1130,13 @@
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnNotifyPage" data-phrase="On page notifications"></label>
                   <div class="col-sm-8">
-                    <button data-href='{"cmd": "toggleBtnChk", "options": ["btnNotifyPage"]}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnNotifyPage">
-                      radio_button_unchecked
-                    </button>
+                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnNotifyPage"></button>
                   </div>
                 </div>
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnNotifyWeb" data-phrase="Web notifications"></label>
                   <div class="col-sm-8">
-                    <button data-href='{"cmd": "toggleBtnChk", "options": ["btnNotifyWeb"]}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnNotifyWeb">
-                      radio_button_unchecked
-                    </button>
+                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnNotifyWeb"></button>
                   </div>
                 </div>
                 <div class="featTags">
@@ -1145,9 +1178,7 @@
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnFeatLocalplayer" data-phrase="Local playback"></label>
                   <div class="col-sm-8 ">
-                    <button data-href='{"cmd": "toggleBtnChk", "options": ["btnFeatLocalplayer"]}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnFeatLocalplayer">
-                      radio_button_unchecked
-                    </button>
+                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnFeatLocalplayer"></button>
                   </div>
                 </div>
                 <div class="form-group row">
@@ -1165,9 +1196,7 @@
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnLocalplayerAutoplay" data-phrase="Autoplay"></label>
                   <div class="col-sm-8 ">
-                    <button data-href='{"cmd": "toggleBtnChk", "options": ["btnLocalplayerAutoplay"]}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnLocalplayerAutoplay">
-                      radio_button_unchecked
-                    </button>
+                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnLocalplayerAutoplay"></button>
                   </div>
                 </div>
                 <hr/>
@@ -1176,9 +1205,7 @@
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnStickers" data-phrase="Playback statistics"></label>
                   <div class="col-sm-8 ">
-                    <button data-href='{"cmd": "toggleBtnChk", "options": ["btnStickers"]}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnStickers">
-                      radio_button_unchecked
-                    </button>
+                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnStickers"></button>
                   </div>
                 </div>
                 <div class="form-group row">
@@ -1194,9 +1221,7 @@
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnLoveEnable" data-phrase="Send love message"></label>
                   <div class="col-sm-8 ">
-                    <button data-href='{"cmd": "toggleBtnChk", "options": ["btnLoveEnable"]}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnLoveEnable">
-                      radio_button_unchecked
-                    </button>
+                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnLoveEnable"></button>
                   </div>
                 </div>
                 <div class="form-group row">
@@ -1220,26 +1245,20 @@
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnSmartpls" data-phrase="Smart playlists"></label>
                   <div class="col-sm-8 ">
-                    <button data-href='{"cmd": "toggleBtnChk", "options": ["btnSmartpls"]}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnSmartpls">
-                      radio_button_unchecked
-                    </button>
+                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnSmartpls"></button>
                   </div>
                 </div>
                 <div class="warnReadonly alert alert-warning hide" data-phrase="myMPD is in readonly mode"></div>
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnBookmarks" data-phrase="Bookmarks"></label>
                   <div class="col-sm-8 ">
-                    <button data-href='{"cmd": "toggleBtnChk", "options": ["btnBookmarks"]}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnBookmarks">
-                      radio_button_unchecked
-                    </button>
+                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnBookmarks"></button>
                   </div>
                 </div>
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnFeatTimer" data-phrase="Timer"></label>
                   <div class="col-sm-8 ">
-                    <button data-href='{"cmd": "toggleBtnChk", "options": ["btnFeatTimer"]}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnFeatTimer">
-                      radio_button_unchecked
-                    </button>
+                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnFeatTimer"></button>
                   </div>
                 </div>
               </form>
@@ -1545,7 +1564,7 @@
               <div class="form-group row">
                 <label class="col-sm-4 col-form-label" for="" data-phrase="Enabled"></label>
                 <div class="col-sm-8">
-                  <button data-href='{"cmd":"toggleBtnChk","options":["btnTimerEnabled"]}' id="btnTimerEnabled" type="button" class="btn btn-secondary btn-sm material-icons clickable active">check</button>
+                  <button data-href='{"cmd":"toggleBtnChk","options":[]}' id="btnTimerEnabled" type="button" class="btn btn-secondary btn-sm material-icons clickable active">check</button>
                 </div>
               </div>
               <div class="form-group row">
@@ -1561,31 +1580,31 @@
                 <label class="col-sm-4 col-form-label" for="TimerWeekdays" data-phrase="Weekdays"></label>
                 <div class="col-sm-8 mt-3">
                   <div class="form-check form-check-inline">
-                    <button data-href='{"cmd":"toggleBtnChk","options":["btnTimerMon"]}' class="btn btn-secondary btn-xs clickable material-icons material-icons-small" id="btnTimerMon">radio_button_unchecked</button>
+                    <button data-href='{"cmd":"toggleBtnChk","options":[]}' class="btn btn-secondary btn-xs clickable material-icons material-icons-small" id="btnTimerMon">radio_button_unchecked</button>
                     &nbsp;<label class="form-check-label" for="btnTimerMon" data-phrase="Mon"></label>
                   </div>
                   <div class="form-check form-check-inline">
-                    <button data-href='{"cmd":"toggleBtnChk","options":["btnTimerTue"]}' class="btn btn-secondary btn-xs clickable material-icons material-icons-small" id="btnTimerTue">radio_button_unchecked</button>
+                    <button data-href='{"cmd":"toggleBtnChk","options":[]}' class="btn btn-secondary btn-xs clickable material-icons material-icons-small" id="btnTimerTue">radio_button_unchecked</button>
                     &nbsp;<label class="form-check-label" for="btnTimerTue" data-phrase="Tue"></label>
                   </div>
                   <div class="form-check form-check-inline">
-                    <button data-href='{"cmd":"toggleBtnChk","options":["btnTimerWed"]}' class="btn btn-secondary btn-xs clickable material-icons material-icons-small" id="btnTimerWed">radio_button_unchecked</button>
+                    <button data-href='{"cmd":"toggleBtnChk","options":[]}' class="btn btn-secondary btn-xs clickable material-icons material-icons-small" id="btnTimerWed">radio_button_unchecked</button>
                     &nbsp;<label class="form-check-label" for="btnTimerWed" data-phrase="Wed"></label>
                   </div>
                   <div class="form-check form-check-inline">
-                    <button data-href='{"cmd":"toggleBtnChk","options":["btnTimerThu"]}'  class="btn btn-secondary btn-xs clickable material-icons material-icons-small" id="btnTimerThu">radio_button_unchecked</button>
+                    <button data-href='{"cmd":"toggleBtnChk","options":[]}'  class="btn btn-secondary btn-xs clickable material-icons material-icons-small" id="btnTimerThu">radio_button_unchecked</button>
                     &nbsp;<label class="form-check-label" for="btnTimerThu" data-phrase="Thu"></label>
                   </div>
                   <div class="form-check form-check-inline">
-                    <button data-href='{"cmd":"toggleBtnChk","options":["btnTimerFri"]}'  class="btn btn-secondary btn-xs clickable material-icons material-icons-small" id="btnTimerFri">radio_button_unchecked</button>
+                    <button data-href='{"cmd":"toggleBtnChk","options":[]}'  class="btn btn-secondary btn-xs clickable material-icons material-icons-small" id="btnTimerFri">radio_button_unchecked</button>
                     &nbsp;<label class="form-check-label" for="btnTimerFri" data-phrase="Fri"></label>
                   </div>
                   <div class="form-check form-check-inline">
-                    <button data-href='{"cmd":"toggleBtnChk","options":["btnTimerSat"]}'  class="btn btn-secondary btn-xs clickable material-icons material-icons-small" id="btnTimerSat">radio_button_unchecked</button>
+                    <button data-href='{"cmd":"toggleBtnChk","options":[]}'  class="btn btn-secondary btn-xs clickable material-icons material-icons-small" id="btnTimerSat">radio_button_unchecked</button>
                     &nbsp;<label class="form-check-label" for="btnTimerSat" data-phrase="Sat"></label>
                   </div>
                   <div class="form-check form-check-inline">
-                    <button data-href='{"cmd":"toggleBtnChk","options":["btnTimerSun"]}'  class="btn btn-secondary btn-xs clickable material-icons material-icons-small" id="btnTimerSun">radio_button_unchecked</button>
+                    <button data-href='{"cmd":"toggleBtnChk","options":[]}'  class="btn btn-secondary btn-xs clickable material-icons material-icons-small" id="btnTimerSun">radio_button_unchecked</button>
                     &nbsp;<label class="form-check-label" for="btnTimerSun" data-phrase="Sun"></label>
                   </div>
                   <div id="invalidTimerWeekdays" class="invalid-feedback" data-phrase="Minimum one weekday must be selected"></div>

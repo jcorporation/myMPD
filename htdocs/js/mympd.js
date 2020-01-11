@@ -112,6 +112,7 @@ var dropdownMainMenu;
 var dropdownVolumeMenu = new Dropdown(document.getElementById('volumeMenu'));
 var dropdownBookmarks = new Dropdown(document.getElementById('BrowseFilesystemBookmark'));
 var dropdownLocalPlayer = new Dropdown(document.getElementById('localPlaybackMenu'));
+var dropdownPlay = new Dropdown(document.getElementById('btnPlayDropdown'));
 
 var collapseDBupdate = new Collapse(document.getElementById('navDBupdate'));
 var collapseSyscmds = new Collapse(document.getElementById('navSyscmds'));
@@ -520,6 +521,15 @@ function appInit() {
         sendAPI("MYMPD_API_BOOKMARK_LIST", {"offset": 0}, parseBookmarks);
     });
     
+    document.getElementById('btnPlayDropdown').parentNode.addEventListener('show.bs.dropdown', function () {
+        showPlayDropdown();
+    });
+
+    document.getElementById('playDropdown').addEventListener('click', function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    });
+    
     document.getElementById('modalTimer').addEventListener('shown.bs.modal', function () {
         showListTimer();
     });
@@ -623,6 +633,21 @@ function appInit() {
             toggleBtnChk('btnConsume', true);            
         }
         checkConsume();
+    });
+    
+    document.getElementById('playDropdownSelectJukeboxMode').addEventListener('change', function () {
+        let value = this.options[this.selectedIndex].value;
+        if (value !== '0') {
+            toggleBtnChk('playDropdownBtnConsume', true);            
+        }
+    });
+    
+    document.getElementById('playDropdownBtnConsume').addEventListener('mouseup', function () {
+        setTimeout(function() {
+            if (document.getElementById('playDropdownBtnConsume').classList.contains('active') == false) {
+                document.getElementById('playDropdownSelectJukeboxMode').value = 0;
+            }
+        }, 100);
     });
     
     document.getElementById('btnConsume').addEventListener('mouseup', function() {

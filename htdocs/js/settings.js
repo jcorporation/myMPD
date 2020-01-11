@@ -359,7 +359,7 @@ function parseMPDSettings() {
     let btnSingle = 'btnSingleOff';
     if (settings.single === 1) { btnSingle = 'btnSingleOn'; }
     else if (settings.single === 2) { btnSingle = 'btnSingleOneshot'; }
-    toggleBtnGroup('btnSingleGroup', btnSingle);
+    toggleBtnGroup(btnSingle);
     
     if (settings.crossfade !== undefined) {
         document.getElementById('inputCrossfade').removeAttribute('disabled');
@@ -771,4 +771,31 @@ function filterCols(x) {
         }
     }
     settings[x] = cols;
+}
+
+function showPlayDropdown() {
+    toggleBtnChk(document.getElementById('playDropdownBtnRandom'), settings.random);
+    toggleBtnChk(document.getElementById('playDropdownBtnConsume'), settings.consume);
+    toggleBtnChk(document.getElementById('playDropdownBtnRepeat'), settings.repeat);
+    toggleBtnChk(document.getElementById('playDropdownBtnRandom'), settings.random);
+
+    let btnSingle = 'playDropdownBtnSingleOff';
+    if (settings.single === 1) { btnSingle = 'playDropdownBtnSingleOn'; }
+    else if (settings.single === 2) { btnSingle = 'playDropdownBtnSingleOneshot'; }
+    toggleBtnGroup(btnSingle);
+
+    document.getElementById('playDropdownSelectJukeboxMode').value = settings.jukeboxMode;
+}
+
+function savePlaySettings() {
+    let singleState = document.getElementById('playDropdownBtnSingleGroup').getElementsByClassName('active')[0].getAttribute('data-value');
+    let selectJukeboxMode = document.getElementById('playDropdownSelectJukeboxMode');
+    sendAPI("MYMPD_API_SETTINGS_SET", {
+        "consume": (document.getElementById('playDropdownBtnConsume').classList.contains('active') ? 1 : 0),
+        "random": (document.getElementById('playDropdownBtnRandom').classList.contains('active') ? 1 : 0),
+        "single": parseInt(singleState),
+        "repeat": (document.getElementById('playDropdownBtnRepeat').classList.contains('active') ? 1 : 0),
+        "jukeboxMode": parseInt(selectJukeboxMode.options[selectJukeboxMode.selectedIndex].value)
+    }, getSettings);
+    dropdownPlay.toggle();
 }
