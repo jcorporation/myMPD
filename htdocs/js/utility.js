@@ -150,10 +150,14 @@ function focusSearch() {
     }
 }
 
-function toggleBtnGroup(btnGroup, btn) {
-    var btns = document.getElementById(btnGroup).getElementsByTagName('button');
+function toggleBtnGroup(btn) {
+    let b = btn;
+    if (typeof btn === 'string') {
+        b = document.getElementById(btn);
+    }
+    var btns = b.parentNode.getElementsByTagName('button');
     for (let i = 0; i < btns.length; i++) {
-        if (btns[i].id === btn) {
+        if (btns[i].id === b.id) {
             btns[i].classList.add('active');
         }
         else {
@@ -163,7 +167,10 @@ function toggleBtnGroup(btnGroup, btn) {
 }
 
 function toggleBtn(btn, state) {
-    let b = document.getElementById(btn);
+    let b = btn;
+    if (typeof btn === 'string') {
+        b = document.getElementById(btn);
+    }
     if (!b) {
         return;
     }
@@ -268,6 +275,11 @@ function parseCmd(event, href) {
         switch(cmd.cmd) {
             case 'sendAPI':
                 sendAPI(cmd.options[0].cmd, {}); 
+                break;
+            case 'toggleBtn':
+            case 'toggleBtnChk':
+            case 'toggleBtnGroup':
+                window[cmd.cmd](event.target);
                 break;
             default:
                 window[cmd.cmd](... cmd.options);
