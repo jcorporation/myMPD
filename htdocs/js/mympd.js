@@ -614,38 +614,42 @@ function appInit() {
         document.getElementById('inputMpdPass').classList.remove('is-invalid');
     });
 
-    document.getElementById('selectJukeboxMode').addEventListener('change', function () {
-        let value = this.options[this.selectedIndex].value;
-        if (value === '0') {
-            document.getElementById('inputJukeboxQueueLength').setAttribute('disabled', 'disabled');
-            document.getElementById('selectJukeboxPlaylist').setAttribute('disabled', 'disabled');
-        }
-        else if (value === '2') {
-            document.getElementById('inputJukeboxQueueLength').setAttribute('disabled', 'disabled');
-            document.getElementById('selectJukeboxPlaylist').setAttribute('disabled', 'disabled');
-            document.getElementById('selectJukeboxPlaylist').value = 'Database';
-        }
-        else if (value === '1') {
-            document.getElementById('inputJukeboxQueueLength').removeAttribute('disabled');
-            document.getElementById('selectJukeboxPlaylist').removeAttribute('disabled');
-        }
-        if (value !== '0') {
-            toggleBtnChk('btnConsume', true);            
-        }
-        checkConsume();
+    document.getElementById('btnJukeboxModeGroup').addEventListener('mouseup', function () {
+        setTimeout(function() {
+            let value = document.getElementById('btnJukeboxModeGroup').getElementsByClassName('active')[0].getAttribute('data-value');
+            if (value === '0') {
+                document.getElementById('inputJukeboxQueueLength').setAttribute('disabled', 'disabled');
+                document.getElementById('selectJukeboxPlaylist').setAttribute('disabled', 'disabled');
+            }
+            else if (value === '2') {
+                document.getElementById('inputJukeboxQueueLength').setAttribute('disabled', 'disabled');
+                document.getElementById('selectJukeboxPlaylist').setAttribute('disabled', 'disabled');
+                document.getElementById('selectJukeboxPlaylist').value = 'Database';
+            }
+            else if (value === '1') {
+                document.getElementById('inputJukeboxQueueLength').removeAttribute('disabled');
+                document.getElementById('selectJukeboxPlaylist').removeAttribute('disabled');
+            }
+            if (value !== '0') {
+                toggleBtnChk('btnConsume', true);            
+            }
+            checkConsume();
+        }, 100);
     });
     
-    document.getElementById('playDropdownSelectJukeboxMode').addEventListener('change', function () {
-        let value = this.options[this.selectedIndex].value;
-        if (value !== '0') {
-            toggleBtnChk('playDropdownBtnConsume', true);            
-        }
+    document.getElementById('playDropdownBtnJukeboxModeGroup').addEventListener('mouseup', function () {
+        setTimeout(function() {
+            let jukeboxMode = document.getElementById('playDropdownBtnJukeboxModeGroup').getElementsByClassName('active')[0].getAttribute('data-value');
+            if (jukeboxMode !== '0') {
+                toggleBtnChk('playDropdownBtnConsume', true);            
+            }
+        }, 100);
     });
     
     document.getElementById('playDropdownBtnConsume').addEventListener('mouseup', function () {
         setTimeout(function() {
             if (document.getElementById('playDropdownBtnConsume').classList.contains('active') == false) {
-                document.getElementById('playDropdownSelectJukeboxMode').value = 0;
+                toggleBtnGroupValue(document.getElementById('playDropdownBtnJukeboxModeGroup'), 0);
             }
         }, 100);
     });

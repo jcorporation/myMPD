@@ -82,8 +82,8 @@ function joinSettings(obj) {
 
 function checkConsume() {
     let stateConsume = document.getElementById('btnConsume').classList.contains('active') ? true : false;
-    let stateJukeboxMode = document.getElementById('selectJukeboxMode').value === '0' ? false : true;
-    if (stateJukeboxMode === true && stateConsume === false) {
+    let stateJukeboxMode = document.getElementById('btnJukeboxModeGroup').getElementsByClassName('active')[0].getAttribute('data-value');
+    if (stateJukeboxMode > 0 && stateConsume === false) {
         document.getElementById('warnConsume').classList.remove('hide');
     }
     else {
@@ -266,7 +266,7 @@ function parseSettings() {
 
     dropdownMainMenu = new Dropdown(document.getElementById('mainMenu'));
     
-    document.getElementById('selectJukeboxMode').value = settings.jukeboxMode;
+    toggleBtnGroupValue(document.getElementById('btnJukeboxModeGroup'), settings.jukeboxMode);
     document.getElementById('inputJukeboxQueueLength').value = settings.jukeboxQueueLength;
     
     if (settings.jukeboxMode === 0) {
@@ -355,11 +355,9 @@ function parseMPDSettings() {
     toggleBtnChk('btnConsume', settings.consume);
     toggleBtnChk('btnRepeat', settings.repeat);
     toggleBtnChk('btnAutoPlay', settings.autoPlay);
-    
-    let btnSingle = 'btnSingleOff';
-    if (settings.single === 1) { btnSingle = 'btnSingleOn'; }
-    else if (settings.single === 2) { btnSingle = 'btnSingleOneshot'; }
-    toggleBtnGroup(btnSingle);
+
+    toggleBtnGroupValue(document.getElementById('btnSingleGroup'), settings.single);
+    toggleBtnGroupValue(document.getElementById('btnReplaygainGroup'), settings.replaygain);
     
     if (settings.crossfade !== undefined) {
         document.getElementById('inputCrossfade').removeAttribute('disabled');
@@ -383,8 +381,6 @@ function parseMPDSettings() {
         document.getElementById('inputMixrampdelay').setAttribute('disabled', 'disabled');
     }
 
-    document.getElementById('selectReplaygain').value = settings.replaygain;
-    
     let features = ['featStickers', 'featSmartpls', 'featPlaylists', 'featTags', 'featCoverimage', 'featAdvsearch',
         'featLove', 'featDate', 'featGenre', 'featSingleOneshot'];
     var featTags = ['Date', 'Genre' ];
@@ -643,6 +639,8 @@ function saveSettings() {
     }
 
     let singleState = document.getElementById('btnSingleGroup').getElementsByClassName('active')[0].getAttribute('data-value');
+    let jukeboxMode = document.getElementById('btnJukeboxModeGroup').getElementsByClassName('active')[0].getAttribute('data-value');
+    let replaygain = document.getElementById('btnReplaygainGroup').getElementsByClassName('active')[0].getAttribute('data-value');
     if (formOK === true) {
         let selectReplaygain = document.getElementById('selectReplaygain');
         let selectJukeboxPlaylist = document.getElementById('selectJukeboxPlaylist');
@@ -654,13 +652,13 @@ function saveSettings() {
             "random": (document.getElementById('btnRandom').classList.contains('active') ? 1 : 0),
             "single": parseInt(singleState),
             "repeat": (document.getElementById('btnRepeat').classList.contains('active') ? 1 : 0),
-            "replaygain": selectReplaygain.options[selectReplaygain.selectedIndex].value,
+            "replaygain": replaygain,
             "crossfade": document.getElementById('inputCrossfade').value,
             "mixrampdb": (settings.featMixramp === true ? document.getElementById('inputMixrampdb').value : settings.mixrampdb),
             "mixrampdelay": (settings.featMixramp === true ? document.getElementById('inputMixrampdelay').value : settings.mixrampdelay),
             "notificationWeb": (document.getElementById('btnNotifyWeb').classList.contains('active') ? true : false),
             "notificationPage": (document.getElementById('btnNotifyPage').classList.contains('active') ? true : false),
-            "jukeboxMode": parseInt(selectJukeboxMode.options[selectJukeboxMode.selectedIndex].value),
+            "jukeboxMode": parseInt(jukeboxMode),
             "jukeboxPlaylist": selectJukeboxPlaylist.options[selectJukeboxPlaylist.selectedIndex].value,
             "jukeboxQueueLength": parseInt(document.getElementById('inputJukeboxQueueLength').value),
             "autoPlay": (document.getElementById('btnAutoPlay').classList.contains('active') ? true : false),
@@ -778,24 +776,19 @@ function showPlayDropdown() {
     toggleBtnChk(document.getElementById('playDropdownBtnConsume'), settings.consume);
     toggleBtnChk(document.getElementById('playDropdownBtnRepeat'), settings.repeat);
     toggleBtnChk(document.getElementById('playDropdownBtnRandom'), settings.random);
-
-    let btnSingle = 'playDropdownBtnSingleOff';
-    if (settings.single === 1) { btnSingle = 'playDropdownBtnSingleOn'; }
-    else if (settings.single === 2) { btnSingle = 'playDropdownBtnSingleOneshot'; }
-    toggleBtnGroup(btnSingle);
-
-    document.getElementById('playDropdownSelectJukeboxMode').value = settings.jukeboxMode;
+    toggleBtnGroupValue(document.getElementById('playDropdownBtnSingleGroup'), settings.single);
+    toggleBtnGroupValue(document.getElementById('playDropdownBtnJukeboxModeGroup'), settings.jukeboxMode);
 }
 
 function savePlaySettings() {
     let singleState = document.getElementById('playDropdownBtnSingleGroup').getElementsByClassName('active')[0].getAttribute('data-value');
-    let selectJukeboxMode = document.getElementById('playDropdownSelectJukeboxMode');
+    let jukeboxMode = document.getElementById('playDropdownBtnJukeboxModeGroup').getElementsByClassName('active')[0].getAttribute('data-value');
     sendAPI("MYMPD_API_SETTINGS_SET", {
         "consume": (document.getElementById('playDropdownBtnConsume').classList.contains('active') ? 1 : 0),
         "random": (document.getElementById('playDropdownBtnRandom').classList.contains('active') ? 1 : 0),
         "single": parseInt(singleState),
         "repeat": (document.getElementById('playDropdownBtnRepeat').classList.contains('active') ? 1 : 0),
-        "jukeboxMode": parseInt(selectJukeboxMode.options[selectJukeboxMode.selectedIndex].value)
+        "jukeboxMode": parseInt(jukeboxMode)
     }, getSettings);
     dropdownPlay.toggle();
 }

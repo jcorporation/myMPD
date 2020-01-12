@@ -149,9 +149,9 @@
                   <label class="col-sm-4 col-form-label" for="playDropdownBtnSingleGroup" data-phrase="Single"></label>
                   <div class="col-sm-9">
                     <div class="btn-group btn-block" id="playDropdownBtnSingleGroup">
-                      <button data-value="1" class="btn btn-secondary" id="playDropdownBtnSingleOn" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="On"></button>
-                      <button data-value="0" class="btn btn-secondary" id="playDropdownBtnSingleOff" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Off"></button>
-                      <button data-value="2" class="btn btn-secondary featSingleOneshot" id="playDropdownBtnSingleOneshot" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Oneshot"></button>
+                      <button data-value="1" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="On"></button>
+                      <button data-value="0" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Off"></button>
+                      <button data-value="2" class="btn btn-secondary featSingleOneshot" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Oneshot"></button>
                     </div>
                   </div>
                 </div>
@@ -162,13 +162,13 @@
                   </div>
                 </div>
                 <div class="form-group row">
-                  <label class="col-sm-4 col-form-label" for="selectJukeboxMode" data-phrase="Jukebox mode"></label>
+                  <label class="col-sm-4 col-form-label" for="playDropdownBtnJukeboxModeGroup" data-phrase="Jukebox mode"></label>
                   <div class="col-sm-9">
-                    <select id="playDropdownSelectJukeboxMode" class="form-control custom-select border-secondary">
-                      <option value="0" data-phrase="Off"></option>
-                      <option value="1" data-phrase="Song"></option>
-                      <option value="2" data-phrase="Album"></option>
-                    </select>
+                    <div class="btn-group btn-block" id="playDropdownBtnJukeboxModeGroup">
+                      <button data-value="0" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Off"></button>
+                      <button data-value="1" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Song"></button>
+                      <button data-value="2" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Album"></button>
+                    </div>
                   </div>
                 </div>
                 <div class="form-group row">
@@ -964,9 +964,9 @@
                   <label class="col-sm-4 col-form-label" for="btnSingleGroup" data-phrase="Single"></label>
                   <div class="col-sm-8">
                     <div class="btn-group" id="btnSingleGroup">
-                      <button data-value="1" class="btn btn-secondary" id="btnSingleOn" data-href='{"cmd": "toggleBtnGroup", "options": ["btnSingleGroup", "btnSingleOn"]}' type="button" data-phrase="On"></button>
-                      <button data-value="0" class="btn btn-secondary" id="btnSingleOff" data-href='{"cmd": "toggleBtnGroup", "options": ["btnSingleGroup", "btnSingleOff"]}' type="button" data-phrase="Off"></button>
-                      <button data-value="2" class="btn btn-secondary featSingleOneshot" id="btnSingleOneshot" data-href='{"cmd": "toggleBtnGroup", "options": ["btnSingleGroup", "btnSingleOneshot"]}' type="button" data-phrase="Oneshot"></button>
+                      <button data-value="1" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="On"></button>
+                      <button data-value="0" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Off"></button>
+                      <button data-value="2" class="btn btn-secondary featSingleOneshot" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Oneshot"></button>
                     </div>
                   </div>
                 </div>
@@ -984,13 +984,13 @@
                   </div>
                 </div>
                 <div class="form-group row">
-                  <label class="col-sm-4 col-form-label" for="selectReplaygain" data-phrase="Replaygain"></label>
+                  <label class="col-sm-4 col-form-label" for="btnReplaygainGroup" data-phrase="Replaygain"></label>
                   <div class="col-sm-8">
-                    <select id="selectReplaygain" class="form-control custom-select border-secondary">
-                      <option value="off" data-phrase="Off"></option>
-                      <option value="track" data-phrase="Song"></option>
-                      <option value="album" data-phrase="Album"></option>
-                    </select>
+                    <div class="btn-group" id="btnReplaygainGroup">
+                      <button data-value="off" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Off"></button>
+                      <button data-value="track" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Song"></button>
+                      <button data-value="album" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Album"></button>
+                    </div>
                   </div>
                 </div>
                 <div class="form-group row mixramp">
@@ -1017,13 +1017,13 @@
                 <h4 data-phrase="Jukebox"></h4>
                 <div id="warnConsume" class="alert alert-warning hide" data-phrase="Consume must be enabled"></div>
                 <div class="form-group row">
-                  <label class="col-sm-4 col-form-label" for="selectJukeboxMode" data-phrase="Jukebox mode"></label>
+                  <label class="col-sm-4 col-form-label" for="btnJukeboxModeGroup" data-phrase="Jukebox mode"></label>
                   <div class="col-sm-8">
-                    <select id="selectJukeboxMode" class="form-control custom-select border-secondary">
-                      <option value="0" data-phrase="Off"></option>
-                      <option value="1" data-phrase="Song"></option>
-                      <option value="2" data-phrase="Album"></option>
-                    </select>
+                    <div class="btn-group" id="btnJukeboxModeGroup">
+                      <button data-value="0" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Off"></button>
+                      <button data-value="1" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Song"></button>
+                      <button data-value="2" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Album"></button>
+                    </div>
                   </div>
                 </div>
                 <div class="form-group row">

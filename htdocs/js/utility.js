@@ -150,14 +150,26 @@ function focusSearch() {
     }
 }
 
+function toggleBtnGroupValue(btngrp, value) {
+    let btns = btngrp.getElementsByTagName('button');
+    for (let i = 0; i < btns.length; i++) {
+        if (btns[i].getAttribute('data-value') == value) {
+            btns[i].classList.add('active');
+        }
+        else {
+            btns[i].classList.remove('active');
+        }
+    }
+}
+
 function toggleBtnGroup(btn) {
     let b = btn;
     if (typeof btn === 'string') {
         b = document.getElementById(btn);
     }
-    var btns = b.parentNode.getElementsByTagName('button');
+    let btns = b.parentNode.getElementsByTagName('button');
     for (let i = 0; i < btns.length; i++) {
-        if (btns[i].id === b.id) {
+        if (btns[i] === b) {
             btns[i].classList.add('active');
         }
         else {
