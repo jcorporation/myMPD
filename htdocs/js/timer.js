@@ -50,13 +50,14 @@ function saveTimer() {
     let selectTimerPlaylist = document.getElementById('selectTimerPlaylist');
     let selectTimerHour = document.getElementById('selectTimerHour');
     let selectTimerMinute = document.getElementById('selectTimerMinute');
-    let selectTimerJukeboxMode = document.getElementById('selectTimerJukeboxMode');
-    if (selectTimerJukeboxMode.options[selectTimerJukeboxMode.selectedIndex].value === '0' &&
+    let jukeboxMode = document.getElementById('btnTimerJukeboxModeGroup').getElementsByClassName('active')[0].getAttribute('data-value');
+
+    if (jukeboxMode === '0' &&
         selectTimerPlaylist.options[selectTimerPlaylist.selectedIndex].value === 'Database'&&
         selectTimerAction.options[selectTimerAction.selectedIndex].value === 'startplay')
     {
         formOK = false;
-        selectTimerJukeboxMode.classList.add('is-invalid');
+        document.getElementById('btnTimerJukeboxModeGroup').classList.add('is-invalid');
     }
     if (formOK === true) {
         sendAPI("MYMPD_API_TIMER_SAVE", {
@@ -69,7 +70,7 @@ function saveTimer() {
             "action": selectTimerAction.options[selectTimerAction.selectedIndex].value,
             "volume": parseInt(document.getElementById('inputTimerVolume').value), 
             "playlist": selectTimerPlaylist.options[selectTimerPlaylist.selectedIndex].value,
-            "jukeboxMode": parseInt(selectTimerJukeboxMode.options[selectTimerJukeboxMode.selectedIndex].value),
+            "jukeboxMode": parseInt(jukeboxMode),
             }, showListTimer);
     }
 }
@@ -95,7 +96,7 @@ function showEditTimer(timerid) {
         document.getElementById('selectTimerAction').value = 'startplay';
         document.getElementById('inputTimerVolume').value = '50';
         document.getElementById('selectTimerPlaylist').value = 'Database';
-        document.getElementById('selectTimerJukeboxMode').value = '0';
+        toggleBtnGroupValue(document.getElementById('btnTimerJukeboxModeGroup'), 1);
         let weekdayBtns = ['btnTimerMon', 'btnTimerTue', 'btnTimerWed', 'btnTimerThu', 'btnTimerFri', 'btnTimerSat', 'btnTimerSun'];
         for (let i = 0; i < weekdayBtns.length; i++) {
             toggleBtnChk(weekdayBtns[i], false);
@@ -104,7 +105,7 @@ function showEditTimer(timerid) {
     }
     document.getElementById('inputTimerName').focus();
     document.getElementById('inputTimerName').classList.remove('is-invalid');
-    document.getElementById('selectTimerJukeboxMode').classList.remove('is-invalid');
+    document.getElementById('btnTimerJukeboxModeGroup').classList.remove('is-invalid');
     document.getElementById('invalidTimerWeekdays').style.display = 'none';
 }
 
@@ -123,7 +124,7 @@ function parseEditTimer(obj) {
     document.getElementById('selectTimerAction').value = obj.result.action;
     document.getElementById('inputTimerVolume').value = obj.result.volume;
     document.getElementById('selectTimerPlaylist').value = obj.result.playlist;
-    document.getElementById('selectTimerJukeboxMode').value = obj.result.jukeboxMode;
+    toggleBtnGroupValue(document.getElementById('btnTimerJukeboxModeGroup'), obj.result.jukeboxMode);
     let weekdayBtns = ['btnTimerMon', 'btnTimerTue', 'btnTimerWed', 'btnTimerThu', 'btnTimerFri', 'btnTimerSat', 'btnTimerSun'];
     for (let i = 0; i < weekdayBtns.length; i++) {
         toggleBtnChk(weekdayBtns[i], obj.result.weekdays[i]);

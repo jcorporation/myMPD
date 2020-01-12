@@ -1628,13 +1628,13 @@
                 </div>
               </div>
               <div class="form-group row">
-                <label class="col-sm-4 col-form-label" for="selectJukeboxMode" data-phrase="Jukebox mode"></label>
+                <label class="col-sm-4 col-form-label" for="btnTimerJukeboxModeGroup" data-phrase="Jukebox mode"></label>
                 <div class="col-sm-8">
-                  <select id="selectTimerJukeboxMode" class="form-control custom-select border-secondary">
-                    <option value="0" data-phrase="Off"></option>
-                    <option value="1" data-phrase="Song"></option>
-                    <option value="2" data-phrase="Album"></option>
-                  </select>
+                  <div class="btn-group" id="btnTimerJukeboxModeGroup">
+                    <button data-value="0" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Off"></button>
+                    <button data-value="1" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Song"></button>
+                    <button data-value="2" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Album"></button>
+                  </div>
                   <div class="invalid-feedback" data-phrase="Enable jukebox if playlist is database"></div>
                 </div>
               </div>
