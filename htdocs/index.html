@@ -149,8 +149,8 @@
                   <label class="col-sm-4 col-form-label" for="playDropdownBtnSingleGroup" data-phrase="Single"></label>
                   <div class="col-sm-9">
                     <div class="btn-group btn-block" id="playDropdownBtnSingleGroup">
-                      <button data-value="1" class="btn btn-secondary" data-href='{"cmd": "setPlaySettings", "options": []}' type="button" data-phrase="On"></button>
                       <button data-value="0" class="btn btn-secondary" data-href='{"cmd": "setPlaySettings", "options": []}' type="button" data-phrase="Off"></button>
+                      <button data-value="1" class="btn btn-secondary" data-href='{"cmd": "setPlaySettings", "options": []}' type="button" data-phrase="On"></button>
                       <button data-value="2" class="btn btn-secondary featSingleOneshot" data-href='{"cmd": "setPlaySettings", "options": []}' type="button" data-phrase="Oneshot"></button>
                     </div>
                   </div>
@@ -632,7 +632,7 @@
                 </div>
               </div>
               <div class="input-group-prepend featAdvsearch">
-                <select class="form-control" id="searchMatch">
+                <select class="form-control custom-select rounded-0" id="searchMatch">
                   <option data-phrase="contains" value="contains"></option>
                   <option value="==">==</option>
                   <option class="featRegex" value="=~">=~</option>
@@ -643,7 +643,7 @@
               <input data-placeholder-phrase="Search" type="text" class="form-control" id="searchstr"/>
             </div>
           </form>
-          <div class="input-group mr-2">
+          <div class="input-group">
             <div class="input-group-prepend">
               <button id="searchAddAllSongs" class="btn btn-secondary material-icons" data-href='{"cmd": "addAllFromSearchPlist", "options": ["queue"]}'>library_add</button>
               <button id="searchAddAllSongsBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-right" type="button" data-toggle="dropdown"></button>
@@ -654,7 +654,7 @@
               </div>
             </div>
           </div>
-          <div id="SearchPaginationTop" class="btn-group mr-2 hide">
+          <div id="SearchPaginationTop" class="btn-group ml-2 hide">
             <button data-title-phrase="Previous page" data-href='{"cmd": "gotoPage", "options": ["prev"]}' id="SearchPaginationTopPrev" type="button" class="btn btn-group-prepend btn-secondary">&laquo;</button>
               <div class="btn-group">
                 <button id="SearchPaginationTopPage" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"></button>
@@ -958,8 +958,8 @@
                   <label class="col-sm-4 col-form-label" for="btnSingleGroup" data-phrase="Single"></label>
                   <div class="col-sm-8">
                     <div class="btn-group" id="btnSingleGroup">
-                      <button data-value="1" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="On"></button>
                       <button data-value="0" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Off"></button>
+                      <button data-value="1" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="On"></button>
                       <button data-value="2" class="btn btn-secondary featSingleOneshot" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Oneshot"></button>
                     </div>
                   </div>
