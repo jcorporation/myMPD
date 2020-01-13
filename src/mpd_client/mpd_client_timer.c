@@ -52,6 +52,10 @@ sds mpd_client_timer_startplay(t_mpd_state *mpd_state, sds buffer, sds method, i
         if (jukebox_mode == JUKEBOX_OFF) {
             mpd_send_load(mpd_state->conn, playlist);
         }
+        else {
+            mpd_send_consume(mpd_state->conn, true);
+        }
+        mpd_send_single(mpd_state->conn, false);
         mpd_send_play(mpd_state->conn);
         if (mpd_command_list_end(mpd_state->conn)) {
             mpd_response_finish(mpd_state->conn);
