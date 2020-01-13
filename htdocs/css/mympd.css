@@ -536,7 +536,7 @@ textarea.small {
 .form-control:focus {
   border-color: #28A745 !important;
   outline: 0;
-  box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25) !important;
+  box-shadow: none !important;
 }
 
 .btn-light:not(:disabled):not(.disabled):active, .btn-light:not(:disabled):not(.disabled).active,
@@ -551,21 +551,19 @@ textarea.small {
 .btn-light:focus, .btn-light.focus,
 .btn-secondary:focus, .btn-secondary.focus {
   color: #fff;
-  background-color: #218838 !important;
-  border-color: #1e7e34 !important;
-  box-shadow: 0 0 0 0.2rem rgba(72, 180, 97, 0.5) !important;
+  box-shadow: none;
 }
 
 .btn-light:not(:disabled):not(.disabled):active:focus, .btn-light:not(:disabled):not(.disabled).active:focus,
 .show > .btn-light.dropdown-toggle:focus,
 .btn-secondary:not(:disabled):not(.disabled):active:focus, .btn-secondary:not(:disabled):not(.disabled).active:focus,
 .show > .btn-secondary.dropdown-toggle:focus {
-  box-shadow: 0 0 0 0.2rem rgba(72, 180, 97, 0.5) !important;
+  box-shadow: none !important;
 }
 
 .custom-select:focus {
   border-color: #218838;
-  box-shadow: 0 0 0 0.2rem rgba(72, 180, 97, 0.5);
+  box-shadow: none;
 }
 
 .btn-xs, .btn-group-xs > .btn {
@@ -618,4 +616,16 @@ div#playDropdown .row {
   word-wrap: normal;
   flex-wrap: nowrap;
   margin-right: 10px;
+}
+
+.bg-lite-dark {
+  background-color: #494f56 !important;
+}
+
+.btn:focus, .btn.focus {
+  box-shadow: none;
+}
+
+.form-check {
+  padding-left: 0;
 }

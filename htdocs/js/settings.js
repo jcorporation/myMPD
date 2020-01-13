@@ -242,7 +242,7 @@ function parseSettings() {
                     syscmdsList += '<div class="dropdown-divider"></div>';
                 }
                 else {
-                    syscmdsList += '<a class="dropdown-item text-light bg-dark alwaysEnabled" href="#" data-href=\'{"cmd": "execSyscmd", "options": ["' + 
+                    syscmdsList += '<a class="dropdown-item text-light bg-lite-dark alwaysEnabled" href="#" data-href=\'{"cmd": "execSyscmd", "options": ["' + 
                         e(settings.syscmdList[i]) + '"]}\'>' + e(settings.syscmdList[i]) + '</a>';
                     timerActions += '<option value="' + e(settings.syscmdList[i]) + '">' + e(settings.syscmdList[i]) + '</option>';
                 }

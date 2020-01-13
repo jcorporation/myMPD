@@ -109,12 +109,12 @@ body.theme-dark .breadcrumb-item::before {
 }
 
 body.theme-dark .popover {
-  background-color: #32383E;
+  background-color: #494f56;
   color: #f8f9fa;
 }
 
 body.theme-dark .dropdown-menu {
-  background-color: #32383E;
+  background-color: #494f56;
   color: #f8f9fa;
 }
 
@@ -123,11 +123,11 @@ body.theme-dark .dropdown-item {
 }
 
 body.theme-dark .dropdown-item:hover {
-  background-color: #1d2124;
+  background-color: #3c4248;
 }
 
 body.theme-dark .dropdown-item:focus {
-  background-color: #1d2124;
+  background-color: #3c4248;
 }
 
 body.theme-dark .arrow::after {
