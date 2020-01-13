@@ -136,45 +136,39 @@
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="playDropdownBtnRandom" data-phrase="Random"></label>
                   <div class="col-sm-9">
-                    <button data-href='{"cmd":"toggleBtnChk", "options":[]}' id="playDropdownBtnRandom" type="button" class="btn btn-secondary btn-sm material-icons"></button>
+                    <button data-href='{"cmd":"setPlaySettings", "options":[]}' id="playDropdownBtnRandom" type="button" class="btn btn-secondary btn-sm material-icons"></button>
                   </div>
                 </div>
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="playDropdownBtnConsume" data-phrase="Consume"></label>
                   <div class="col-sm-9">          
-                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' id="playDropdownBtnConsume" type="button" class="btn btn-secondary btn-sm material-icons"></button>
+                    <button data-href='{"cmd": "setPlaySettings", "options": []}' id="playDropdownBtnConsume" type="button" class="btn btn-secondary btn-sm material-icons"></button>
                   </div>
                 </div>
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="playDropdownBtnSingleGroup" data-phrase="Single"></label>
                   <div class="col-sm-9">
                     <div class="btn-group btn-block" id="playDropdownBtnSingleGroup">
-                      <button data-value="1" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="On"></button>
-                      <button data-value="0" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Off"></button>
-                      <button data-value="2" class="btn btn-secondary featSingleOneshot" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Oneshot"></button>
+                      <button data-value="1" class="btn btn-secondary" data-href='{"cmd": "setPlaySettings", "options": []}' type="button" data-phrase="On"></button>
+                      <button data-value="0" class="btn btn-secondary" data-href='{"cmd": "setPlaySettings", "options": []}' type="button" data-phrase="Off"></button>
+                      <button data-value="2" class="btn btn-secondary featSingleOneshot" data-href='{"cmd": "setPlaySettings", "options": []}' type="button" data-phrase="Oneshot"></button>
                     </div>
                   </div>
                 </div>
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnRepeat" data-phrase="Repeat"></label>
                   <div class="col-sm-9">
-                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' id="playDropdownBtnRepeat" type="button" class="btn btn-secondary btn-sm material-icons"></button>
+                    <button data-href='{"cmd": "setPlaySettings", "options": []}' id="playDropdownBtnRepeat" type="button" class="btn btn-secondary btn-sm material-icons"></button>
                   </div>
                 </div>
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="playDropdownBtnJukeboxModeGroup" data-phrase="Jukebox mode"></label>
                   <div class="col-sm-9">
                     <div class="btn-group btn-block" id="playDropdownBtnJukeboxModeGroup">
-                      <button data-value="0" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Off"></button>
-                      <button data-value="1" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Song"></button>
-                      <button data-value="2" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Album"></button>
+                      <button data-value="0" class="btn btn-secondary" data-href='{"cmd": "setPlaySettings", "options": []}' type="button" data-phrase="Off"></button>
+                      <button data-value="1" class="btn btn-secondary" data-href='{"cmd": "setPlaySettings", "options": []}' type="button" data-phrase="Song"></button>
+                      <button data-value="2" class="btn btn-secondary" data-href='{"cmd": "setPlaySettings", "options": []}' type="button" data-phrase="Album"></button>
                     </div>
-                  </div>
-                </div>
-                <div class="form-group row">
-                  <div class="col-sm-4">&nbsp;</div>
-                  <div class="col-sm-9">
-                    <button data-href='{"cmd": "savePlaySettings", "options": []}' type="button" class="btn btn-success btn-block" data-phrase="Apply"></button>
                   </div>
                 </div>
               </form>

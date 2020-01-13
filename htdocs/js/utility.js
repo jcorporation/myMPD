@@ -291,7 +291,8 @@ function parseCmd(event, href) {
             case 'toggleBtn':
             case 'toggleBtnChk':
             case 'toggleBtnGroup':
-                window[cmd.cmd](event.target);
+            case 'setPlaySettings':
+                window[cmd.cmd](event.target, ... cmd.options);
                 break;
             default:
                 window[cmd.cmd](... cmd.options);

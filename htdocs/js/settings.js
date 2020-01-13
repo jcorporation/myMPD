@@ -771,6 +771,27 @@ function filterCols(x) {
     settings[x] = cols;
 }
 
+function setPlaySettings(el) {
+    if (el.parentNode.classList.contains('btn-group')) {
+        toggleBtnGroup(el);
+    }
+    else {
+        toggleBtnChk(el);
+    }
+    if (el.parentNode.id === 'playDropdownBtnJukeboxModeGroup') {
+        if (el.parentNode.getElementsByClassName('active')[0].getAttribute('data-value') !== '0') {
+            toggleBtnChk('playDropdownBtnConsume', true);            
+        }
+    }
+    else if (el.id === 'playDropdownBtnConsume') {
+        if (el.classList.contains('active') == false) {
+            toggleBtnGroupValue(document.getElementById('playDropdownBtnJukeboxModeGroup'), 0);
+        }
+    }
+
+    savePlaySettings();
+}
+
 function showPlayDropdown() {
     toggleBtnChk(document.getElementById('playDropdownBtnRandom'), settings.random);
     toggleBtnChk(document.getElementById('playDropdownBtnConsume'), settings.consume);
@@ -789,6 +810,5 @@ function savePlaySettings() {
         "single": parseInt(singleState),
         "repeat": (document.getElementById('playDropdownBtnRepeat').classList.contains('active') ? 1 : 0),
         "jukeboxMode": parseInt(jukeboxMode)
-    }, getSettings);
-    dropdownPlay.toggle();
+        }, getSettings);
 }

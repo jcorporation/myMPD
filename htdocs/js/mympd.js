@@ -637,23 +637,6 @@ function appInit() {
         }, 100);
     });
     
-    document.getElementById('playDropdownBtnJukeboxModeGroup').addEventListener('mouseup', function () {
-        setTimeout(function() {
-            let jukeboxMode = document.getElementById('playDropdownBtnJukeboxModeGroup').getElementsByClassName('active')[0].getAttribute('data-value');
-            if (jukeboxMode !== '0') {
-                toggleBtnChk('playDropdownBtnConsume', true);            
-            }
-        }, 100);
-    });
-    
-    document.getElementById('playDropdownBtnConsume').addEventListener('mouseup', function () {
-        setTimeout(function() {
-            if (document.getElementById('playDropdownBtnConsume').classList.contains('active') == false) {
-                toggleBtnGroupValue(document.getElementById('playDropdownBtnJukeboxModeGroup'), 0);
-            }
-        }, 100);
-    });
-    
     document.getElementById('btnConsume').addEventListener('mouseup', function() {
         setTimeout(function() { 
             checkConsume(); 
