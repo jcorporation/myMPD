@@ -267,7 +267,9 @@ function parseSettings() {
     dropdownMainMenu = new Dropdown(document.getElementById('mainMenu'));
     
     toggleBtnGroupValue(document.getElementById('btnJukeboxModeGroup'), settings.jukeboxMode);
+    toggleBtnGroupValue(document.getElementById('btnJukeboxUniqueTagGroup'), settings.jukeboxUniqueTag);
     document.getElementById('inputJukeboxQueueLength').value = settings.jukeboxQueueLength;
+    document.getElementById('inputJukeboxLastPlayed').value = settings.jukeboxLastPlayed;
     
     if (settings.jukeboxMode === 0) {
         document.getElementById('inputJukeboxQueueLength').setAttribute('disabled', 'disabled');
@@ -305,8 +307,6 @@ function parseSettings() {
             localPlayer.load();
         }
     }
-
-
     
     if (settings.musicDirectory === 'auto') {
         document.getElementById('selectMusicDirectory').value = settings.musicDirectory;
@@ -566,6 +566,11 @@ function saveSettings() {
     if (!validateInt(inputJukeboxQueueLength)) {
         formOK = false;
     }
+
+    let inputJukeboxLastPlayed = document.getElementById('inputJukeboxLastPlayed');
+    if (!validateInt(inputJukeboxLastPlayed)) {
+        formOK = false;
+    }
     
     let selectStreamModeEl = document.getElementById('selectStreamMode');
     let streamUrl = '';
@@ -641,6 +646,12 @@ function saveSettings() {
     let singleState = document.getElementById('btnSingleGroup').getElementsByClassName('active')[0].getAttribute('data-value');
     let jukeboxMode = document.getElementById('btnJukeboxModeGroup').getElementsByClassName('active')[0].getAttribute('data-value');
     let replaygain = document.getElementById('btnReplaygainGroup').getElementsByClassName('active')[0].getAttribute('data-value');
+    let jukeboxUniqueTag = document.getElementById('btnJukeboxUniqueTagGroup').getElementsByClassName('active')[0].getAttribute('data-value');
+    
+    if (jukeboxMode === '2') {
+        jukeboxUniqueTag = 'MPD_TAG_ALBUM';
+    }
+    
     if (formOK === true) {
         let selectReplaygain = document.getElementById('selectReplaygain');
         let selectJukeboxPlaylist = document.getElementById('selectJukeboxPlaylist');
@@ -661,6 +672,8 @@ function saveSettings() {
             "jukeboxMode": parseInt(jukeboxMode),
             "jukeboxPlaylist": selectJukeboxPlaylist.options[selectJukeboxPlaylist.selectedIndex].value,
             "jukeboxQueueLength": parseInt(document.getElementById('inputJukeboxQueueLength').value),
+            "jukeboxLastPlayed": parseInt(document.getElementById('inputJukeboxLastPlayed').value),
+            "jukeboxUniqueTag": jukeboxUniqueTag,
             "autoPlay": (document.getElementById('btnAutoPlay').classList.contains('active') ? true : false),
             "bgCover": (document.getElementById('btnBgCover').classList.contains('active') ? true : false),
             "bgColor": document.getElementById('inputBgColor').value,

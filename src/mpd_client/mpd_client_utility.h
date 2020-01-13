@@ -64,6 +64,8 @@ typedef struct t_mpd_state {
     size_t jukebox_queue_length;
     struct list jukebox_queue;
     struct list jukebox_queue_tmp;
+    t_tags jukebox_unique_tag;
+    int jukebox_last_played;
     bool auto_play;
     bool coverimage;
     sds coverimage_name;
@@ -99,6 +101,7 @@ typedef struct t_sticker {
     int like;
 } t_sticker;
 
+void enable_mpd_tags(t_mpd_state *mpd_state, t_tags enable_tags);
 sds put_song_tags(sds buffer, t_mpd_state *mpd_state, const t_tags *tagcols, const struct mpd_song *song);
 sds check_error_and_recover(t_mpd_state *mpd_state, sds buffer, sds method, int request_id);
 sds check_error_and_recover_notify(t_mpd_state *mpd_state, sds buffer);

@@ -58,6 +58,8 @@ typedef struct t_mympd_state {
     enum jukebox_modes jukebox_mode;
     sds jukebox_playlist;
     int jukebox_queue_length;
+    int jukebox_last_played;
+    sds jukebox_unique_tag;
     sds cols_queue_current;
     sds cols_search;
     sds cols_browse_database;

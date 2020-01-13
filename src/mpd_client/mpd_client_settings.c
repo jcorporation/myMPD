@@ -27,7 +27,7 @@ static sds print_tags_array(sds buffer, const char *tagsname, t_tags tags);
 
 //public functions
 bool mpd_api_settings_set(t_config *config, t_mpd_state *mpd_state, struct json_token *key, 
-                          struct json_token *val, bool *mpd_host_changed)
+                          struct json_token *val, bool *mpd_host_changed, bool *jukebox_changed)
 {
     bool rc = true;
     char *crap;
@@ -67,11 +67,14 @@ bool mpd_api_settings_set(t_config *config, t_mpd_state *mpd_state, struct json_
         }
         if (mpd_state->jukebox_mode != jukebox_mode) {
             mpd_state->jukebox_mode = jukebox_mode;
-            list_free(&mpd_state->jukebox_queue);
+            *jukebox_changed = true;
         }
     }
     else if (strncmp(key->ptr, "jukeboxPlaylist", key->len) == 0) {
-        mpd_state->jukebox_playlist = sdsreplacelen(mpd_state->jukebox_playlist, settingvalue, sdslen(settingvalue));
+        if (strcmp(mpd_state->jukebox_playlist, settingvalue) != 0) {
+            mpd_state->jukebox_playlist = sdsreplacelen(mpd_state->jukebox_playlist, settingvalue, sdslen(settingvalue));
+            *jukebox_changed = true;
+        }
     }
     else if (strncmp(key->ptr, "jukeboxQueueLength", key->len) == 0) {
         int jukebox_queue_length = strtoimax(settingvalue, &crap, 10);
@@ -80,6 +83,33 @@ bool mpd_api_settings_set(t_config *config, t_mpd_state *mpd_state, struct json_
             return false;
         }
         mpd_state->jukebox_queue_length = jukebox_queue_length;
+    }
+    else if (strncmp(key->ptr, "jukeboxLastPlayed", key->len) == 0) {
+        int jukebox_last_played = strtoimax(settingvalue, &crap, 10);
+        if (jukebox_last_played != mpd_state->jukebox_last_played) {
+            mpd_state->jukebox_last_played = jukebox_last_played;
+            *jukebox_changed = true;
+        }
+    }
+    else if (strncmp(key->ptr, "jukeboxUniqueTag", key->len) == 0) {
+        if (strncmp(key->ptr, "MPD_TAG_ARTIST", val->len) == 0) {
+            if (mpd_state->jukebox_unique_tag.tags[0] != MPD_TAG_ARTIST) {
+                mpd_state->jukebox_unique_tag.tags[0] = MPD_TAG_ARTIST;
+                *jukebox_changed = true;
+            }
+        }
+        else if (strncmp(key->ptr, "MPD_TAG_ALBUM", val->len) == 0) {
+            if (mpd_state->jukebox_unique_tag.tags[0] != MPD_TAG_ALBUM) {
+                mpd_state->jukebox_unique_tag.tags[0] = MPD_TAG_ALBUM;
+                *jukebox_changed = true;
+            }
+        }
+        else {
+            if (mpd_state->jukebox_unique_tag.tags[0] != MPD_TAG_TITLE) {
+                mpd_state->jukebox_unique_tag.tags[0] = MPD_TAG_TITLE;
+                *jukebox_changed = true;
+            }
+        }
     }
     else if (strncmp(key->ptr, "autoPlay", key->len) == 0) {
         mpd_state->auto_play = val->type == JSON_TYPE_TRUE ? true : false;

@@ -79,8 +79,9 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
             struct json_token val;
             rc = true;
             bool mpd_host_changed = false;
+            bool jukebox_changed = false;
             while ((h = json_next_key(request->data, sdslen(request->data), h, ".params", &key, &val)) != NULL) {
-                rc = mpd_api_settings_set(config, mpd_state, &key, &val, &mpd_host_changed);
+                rc = mpd_api_settings_set(config, mpd_state, &key, &val, &mpd_host_changed, &jukebox_changed);
                 if (rc == false) {
                     break;
                 }
@@ -94,6 +95,9 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
                     //feature detection
                     mpd_client_mpd_features(config, mpd_state);
                     
+                    if (jukebox_changed == true) {
+                        list_free(&mpd_state->jukebox_queue);
+                    }
                     if (mpd_state->jukebox_mode != JUKEBOX_OFF) {
                         //enable jukebox
                         mpd_client_jukebox(mpd_state);

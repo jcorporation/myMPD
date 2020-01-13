@@ -32,6 +32,7 @@ void mympd_api_settings_delete(t_config *config) {
     const char* state_files[]={"auto_play", "bg_color", "bg_cover", "bg_css_filter", "browsetaglist", "cols_browse_database",
         "cols_browse_filesystem", "cols_browse_playlists_detail", "cols_playback", "cols_queue_current", "cols_queue_last_played",
         "cols_search", "coverimage", "coverimage_name", "coverimage_size", "jukebox_mode", "jukebox_playlist", "jukebox_queue_length",
+        "jukebox_unique_tag", "jukebox_last_played",
         "last_played", "last_played_count", "locale", "localplayer", "localplayer_autoplay", "love", "love_channel", "love_message",
         "max_elements_per_page",  "mpd_host", "mpd_pass", "mpd_port", "notification_page", "notification_web", "searchtaglist",
         "smartpls", "stickers", "stream_port", "stream_url", "taglist", "music_directory", "bookmarks", "covergrid_size", 
@@ -224,6 +225,14 @@ bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state, struct
         mympd_state->jukebox_queue_length = jukebox_queue_length;
         settingname = sdscat(settingname, "jukebox_queue_length");
     }
+    else if (strncmp(key->ptr, "jukeboxUniqueTag", key->len) == 0) {
+        mympd_state->jukebox_unique_tag = sdsreplacelen(mympd_state->jukebox_unique_tag, settingvalue, sdslen(settingvalue));
+        settingname = sdscat(settingname, "jukebox_unique_tag");
+    }
+    else if (strncmp(key->ptr, "jukeboxLastPlayed", key->len) == 0) {
+        mympd_state->jukebox_last_played = strtoimax(settingvalue, &crap, 10);
+        settingname = sdscat(settingname, "jukebox_last_played");
+    }
     else if (strncmp(key->ptr, "stickers", key->len) == 0) {
         mympd_state->stickers = val->type == JSON_TYPE_TRUE ? true : false;
         settingname = sdscat(settingname, "stickers");
@@ -336,6 +345,8 @@ void mympd_api_read_statefiles(t_config *config, t_mympd_state *mympd_state) {
     mympd_state->jukebox_mode = state_file_rw_int(config, "jukebox_mode", config->jukebox_mode, false);
     mympd_state->jukebox_playlist = state_file_rw_string(config, "jukebox_playlist", config->jukebox_playlist, false);
     mympd_state->jukebox_queue_length = state_file_rw_int(config, "jukebox_queue_length", config->jukebox_queue_length, false);
+    mympd_state->jukebox_last_played = state_file_rw_int(config, "jukebox_last_played", config->jukebox_last_played, false);
+    mympd_state->jukebox_unique_tag = state_file_rw_string(config, "jukebox_unique_tag", config->jukebox_unique_tag, false);
     mympd_state->cols_queue_current = state_file_rw_string(config, "cols_queue_current", config->cols_queue_current, false);
     mympd_state->cols_search = state_file_rw_string(config, "cols_search", config->cols_search, false);
     mympd_state->cols_browse_database = state_file_rw_string(config, "cols_browse_database", config->cols_browse_database, false);
@@ -483,6 +494,8 @@ sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buf
     buffer = tojson_long(buffer, "jukeboxMode", mympd_state->jukebox_mode, true);
     buffer = tojson_char(buffer, "jukeboxPlaylist", mympd_state->jukebox_playlist, true);
     buffer = tojson_long(buffer, "jukeboxQueueLength", mympd_state->jukebox_queue_length, true);
+    buffer = tojson_char(buffer, "jukeboxUniqueTag", mympd_state->jukebox_unique_tag, true);
+    buffer = tojson_long(buffer, "jukeboxLastPlayed", mympd_state->jukebox_last_played, true);
     buffer = tojson_bool(buffer, "autoPlay", mympd_state->auto_play, true);
     buffer = tojson_char(buffer, "bgColor", mympd_state->bg_color, true);
     buffer = tojson_bool(buffer, "bgCover", mympd_state->bg_cover, true);

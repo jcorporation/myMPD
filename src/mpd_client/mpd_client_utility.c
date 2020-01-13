@@ -25,6 +25,22 @@
 #include "../log.h"
 #include "mpd_client_utility.h"
 
+void enable_mpd_tags(t_mpd_state *mpd_state, t_tags enable_tags) {
+    #if LIBMPDCLIENT_CHECK_VERSION(2,12,0)
+    if (mpd_connection_cmp_server_version(mpd_state->conn, 0, 21, 0) >= 0) {
+        LOG_VERBOSE("Enabling mpd tag types");
+        if (mpd_command_list_begin(mpd_state->conn, false)) {
+            mpd_send_clear_tag_types(mpd_state->conn);
+            mpd_send_enable_tag_types(mpd_state->conn, enable_tags.tags, enable_tags.len);
+            if (mpd_command_list_end(mpd_state->conn)) {
+                mpd_response_finish(mpd_state->conn);
+            }
+        }
+        check_error_and_recover(mpd_state, NULL, NULL, 0);
+    }
+    #endif
+}
+
 void mpd_client_notify(sds message) {
     LOG_DEBUG("Push websocket notify to queue: %s", message);
     t_work_result *response = create_result_new(0, 0, 0, "");
@@ -206,6 +222,10 @@ void default_mpd_state(t_mpd_state *mpd_state) {
     mpd_state->music_directory_value = sdsempty();
     mpd_state->jukebox_mode = JUKEBOX_OFF;
     mpd_state->jukebox_playlist = sdsempty();
+    mpd_state->jukebox_unique_tag.len = 1;
+    mpd_state->jukebox_unique_tag.tags[0] = MPD_TAG_ARTIST;
+    mpd_state->jukebox_last_played = 24;
+    mpd_state->jukebox_queue_length = 1;
     mpd_state->coverimage_name = sdsempty();
     mpd_state->love_channel = sdsempty();
     mpd_state->love_message = sdsempty();

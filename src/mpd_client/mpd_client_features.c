@@ -237,19 +237,8 @@ static void mpd_client_feature_tags(t_mpd_state *mpd_state) {
         sdsfreesplitres(tokens, tokens_count);
         LOG_INFO(logline);
         
-        #if LIBMPDCLIENT_CHECK_VERSION(2,12,0)
-        if (mpd_connection_cmp_server_version(mpd_state->conn, 0, 21, 0) >= 0) {
-            LOG_VERBOSE("Enabling mpd tag types");
-            if (mpd_command_list_begin(mpd_state->conn, false)) {
-                mpd_send_clear_tag_types(mpd_state->conn);
-                mpd_send_enable_tag_types(mpd_state->conn, mpd_state->mympd_tag_types.tags, mpd_state->mympd_tag_types.len);
-                if (mpd_command_list_end(mpd_state->conn)) {
-                    mpd_response_finish(mpd_state->conn);
-                }
-            }
-            check_error_and_recover(mpd_state, NULL, NULL, 0);
-        }
-        #endif
+        enable_mpd_tags(mpd_state, mpd_state->mympd_tag_types);
+        
         logline = sdsreplace(logline, "myMPD enabled searchtags: ");
         tokens = sdssplitlen(searchtaglist, sdslen(searchtaglist), ",", 1, &tokens_count);
         for (int i = 0; i < tokens_count; i++) {
