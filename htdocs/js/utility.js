@@ -228,46 +228,53 @@ function setPagination(total, returned) {
     if (totalPages === 0) {
         totalPages = 1;
     }
-    let p = ['PaginationTop', 'PaginationBottom'];
-    for (let i = 0; i < 2; i++) {
-        document.getElementById(cat + p[i] + 'Page').innerText = (app.current.page / settings.maxElementsPerPage + 1) + ' / ' + totalPages;
+    let p = [ document.getElementById(cat + 'PaginationTop'), document.getElementById(cat + 'PaginationBottom') ];
+    
+    for (let i = 0; i < p.length; i++) {
+        let prev = p[i].children[0];
+        let page = p[i].children[1].children[1];
+        let pages = p[i].children[1].children[2];
+        let next = p[i].children[2];
+    
+        page.innerText = (app.current.page / settings.maxElementsPerPage + 1) + ' / ' + totalPages;
         if (totalPages > 1) {
-            document.getElementById(cat + p[i] + 'Page').removeAttribute('disabled');
+            page.removeAttribute('disabled');
             let pl = '';
             for (let j = 0; j < totalPages; j++) {
                 pl += '<button data-page="' + (j * settings.maxElementsPerPage) + '" type="button" class="mr-1 mb-1 btn-sm btn btn-secondary">' +
-                    ( j + 1) + '</button>';
+                      ( j + 1) + '</button>';
             }
-            document.getElementById(cat + p[i] + 'Pages').innerHTML = pl;
-            document.getElementById(cat + p[i] + 'Page').classList.remove('nodropdown');
+            pages.innerHTML = pl;
+            page.classList.remove('nodropdown');
         }
         else if (total === -1) {
-            document.getElementById(cat + p[i] + 'Page').setAttribute('disabled', 'disabled');
-            document.getElementById(cat + p[i] + 'Page').innerText = (app.current.page / settings.maxElementsPerPage + 1);
-            document.getElementById(cat + p[i] + 'Page').classList.add('nodropdown');
+            page.setAttribute('disabled', 'disabled');
+            page.innerText = (app.current.page / settings.maxElementsPerPage + 1);
+            page.classList.add('nodropdown');
         }
         else {
-            document.getElementById(cat + p[i] + 'Page').setAttribute('disabled', 'disabled');
-            document.getElementById(cat + p[i] + 'Page').classList.add('nodropdown');
+            page.setAttribute('disabled', 'disabled');
+            page.classList.add('nodropdown');
         }
-    
+        
         if (total > app.current.page + settings.maxElementsPerPage || total === -1 && returned >= settings.maxElementsPerPage) {
-            document.getElementById(cat + p[i] + 'Next').removeAttribute('disabled');
-            document.getElementById(cat + p[i]).classList.remove('hide');
+            next.removeAttribute('disabled');
+            p[i].classList.remove('hide');
             document.getElementById(cat + 'ButtonsBottom').classList.remove('hide');
         }
         else {
-            document.getElementById(cat + p[i] + 'Next').setAttribute('disabled', 'disabled');
-            document.getElementById(cat + p[i]).classList.add('hide');
+            next.setAttribute('disabled', 'disabled');
+            p[i].classList.add('hide');
             document.getElementById(cat + 'ButtonsBottom').classList.add('hide');
         }
     
         if (app.current.page > 0) {
-            document.getElementById(cat + p[i] + 'Prev').removeAttribute('disabled');
-            document.getElementById(cat + p[i]).classList.remove('hide');
+            prev.removeAttribute('disabled');
+            p[i].classList.remove('hide');
             document.getElementById(cat + 'ButtonsBottom').classList.remove('hide');
-        } else {
-            document.getElementById(cat + p[i] + 'Prev').setAttribute('disabled', 'disabled');
+        }
+        else {
+            prev.setAttribute('disabled', 'disabled');
         }
     }
 }
