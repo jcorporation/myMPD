@@ -256,7 +256,7 @@ a.card-img-left {
 .album-desc {
   min-width: 240px;
   float: left;
-  padding-bottom:1.25rem;
+  padding-bottom: 1.25rem;
 }
 
 .hide {
@@ -277,11 +277,12 @@ a.card-img-left {
 }
 
 .card-toolbar {
-  margin-bottom: 10px;
+  margin-bottom: 0.8rem;
+  margin-right: -0.5rem
 }
 
 .card-toolbar > div, .card-toolbar > form {
-  margin-bottom: 5px;
+  margin-bottom: 0.2rem;
 }
 
 @font-face {

@@ -211,7 +211,7 @@
               <button data-phrase="Crop queue" type="button" class="btn btn-secondary btn-sm btn-block" data-href='{"cmd": "sendAPI", "options": [{"cmd": "MPD_API_QUEUE_CROP"}]}' ></button>
             </div>
           </div>
-          <form id="searchqueue" class="flex-grow-1">
+          <form id="searchqueue" class="flex-grow-1 mr-2">
             <div class="input-group">
               <div class="input-group-prepend">
                 <button data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
@@ -552,7 +552,7 @@
       <div class="card-body hide" id="cardBrowseCovergrid">
         <div class="btn-toolbar card-toolbar" id="BrowseCovergridButtons">
           <form id="searchcovergrid" class="flex-grow-1">
-            <div class="input-group">
+            <div class="input-group mr-2">
               <div class="input-group-prepend">
                 <button data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
                   <span class="material-icons">search</span>
@@ -567,7 +567,7 @@
               <input data-placeholder-phrase="Search" type="text" class="form-control" id="searchCovergridStr"/>
             </div>
           </form>
-          <div class="btn-group ml-2">
+          <div class="btn-group mr-2">
             <button data-title-phrase="Sort by" class="btn btn-secondary dropdown-toggle material-icons" type="button" data-toggle="dropdown">sort</button>
             <div class="dropdown-menu bg-lite-dark px-2" id="searchCovergridSortTags">
                 <button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="AlbumArtist" data-phrase="AlbumArtist"></button>
@@ -580,7 +580,7 @@
                 </div>
             </div>
           </div>
-          <div id="BrowseCovergridPaginationTop" class="btn-group hide ml-2">
+          <div id="BrowseCovergridPaginationTop" class="btn-group hide mr-2">
             <button data-title-phrase="Previous page" data-href='{"cmd": "gotoPage", "options": ["prev"]}' id="BrowseCovergridPaginationTopPrev" type="button" class="btn btn-group-prepend btn-secondary">&laquo;</button>
               <div class="btn-group">
                 <button id="BrowseCovergridPaginationTopPage" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"></button>
@@ -643,7 +643,7 @@
               <input data-placeholder-phrase="Search" type="text" class="form-control" id="searchstr"/>
             </div>
           </form>
-          <div class="input-group">
+          <div class="input-group mr-2">
             <div class="input-group-prepend">
               <button id="searchAddAllSongs" class="btn btn-secondary material-icons" data-href='{"cmd": "addAllFromSearchPlist", "options": ["queue"]}'>library_add</button>
               <button id="searchAddAllSongsBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-right" type="button" data-toggle="dropdown"></button>
@@ -654,7 +654,7 @@
               </div>
             </div>
           </div>
-          <div id="SearchPaginationTop" class="btn-group ml-2 hide">
+          <div id="SearchPaginationTop" class="btn-group mr-2 hide">
             <button data-title-phrase="Previous page" data-href='{"cmd": "gotoPage", "options": ["prev"]}' id="SearchPaginationTopPrev" type="button" class="btn btn-group-prepend btn-secondary">&laquo;</button>
               <div class="btn-group">
                 <button id="SearchPaginationTopPage" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"></button>
