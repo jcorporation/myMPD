@@ -267,7 +267,7 @@ function parseSettings() {
     dropdownMainMenu = new Dropdown(document.getElementById('mainMenu'));
     
     toggleBtnGroupValue(document.getElementById('btnJukeboxModeGroup'), settings.jukeboxMode);
-    toggleBtnGroupValue(document.getElementById('btnJukeboxUniqueTagGroup'), settings.jukeboxUniqueTag);
+    document.getElementById('selectJukeboxUniqueTag').value = settings.jukeboxUniqueTag;
     document.getElementById('inputJukeboxQueueLength').value = settings.jukeboxQueueLength;
     document.getElementById('inputJukeboxLastPlayed').value = settings.jukeboxLastPlayed;
     
@@ -536,6 +536,15 @@ function parseMPDSettings() {
     addTagList('BrowseDatabaseByTagDropdown', 'browsetags');
     addTagList('searchqueuetags', 'searchtags');
     addTagList('searchtags', 'searchtags');
+
+    let list = '';
+    if (settings.browsetags.includes('Title') === false) {
+        list = '<option value="Title">' + t('Song') + '</option>';
+    }
+    for (let i = 0; i < settings.browsetags.length; i++) {
+        list += '<option value="' + settings.browsetags[i] + '">' + t(settings.browsetags[i]) + '</option>';
+    }
+    document.getElementById('selectJukeboxUniqueTag').innerHTML = list;
     
     for (let i = 0; i < settings.tags.length; i++) {
         app.apps.Browse.tabs.Database.views[settings.tags[i]] = { "state": "0/-/-/", "scrollPos": 0 };
@@ -646,10 +655,11 @@ function saveSettings() {
     let singleState = document.getElementById('btnSingleGroup').getElementsByClassName('active')[0].getAttribute('data-value');
     let jukeboxMode = document.getElementById('btnJukeboxModeGroup').getElementsByClassName('active')[0].getAttribute('data-value');
     let replaygain = document.getElementById('btnReplaygainGroup').getElementsByClassName('active')[0].getAttribute('data-value');
-    let jukeboxUniqueTag = document.getElementById('btnJukeboxUniqueTagGroup').getElementsByClassName('active')[0].getAttribute('data-value');
+    let jukeboxUniqueTag = document.getElementById('selectJukeboxUniqueTag');
+    let jukeboxUniqueTagValue = jukeboxUniqueTag.options[jukeboxUniqueTag.selectedIndex].value;
     
     if (jukeboxMode === '2') {
-        jukeboxUniqueTag = 'MPD_TAG_ALBUM';
+        jukeboxUniqueTagValue = 'Album';
     }
     
     if (formOK === true) {
@@ -673,7 +683,7 @@ function saveSettings() {
             "jukeboxPlaylist": selectJukeboxPlaylist.options[selectJukeboxPlaylist.selectedIndex].value,
             "jukeboxQueueLength": parseInt(document.getElementById('inputJukeboxQueueLength').value),
             "jukeboxLastPlayed": parseInt(document.getElementById('inputJukeboxLastPlayed').value),
-            "jukeboxUniqueTag": jukeboxUniqueTag,
+            "jukeboxUniqueTag": jukeboxUniqueTagValue,
             "autoPlay": (document.getElementById('btnAutoPlay').classList.contains('active') ? true : false),
             "bgCover": (document.getElementById('btnBgCover').classList.contains('active') ? true : false),
             "bgColor": document.getElementById('inputBgColor').value,

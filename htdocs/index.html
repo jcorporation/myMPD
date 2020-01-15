@@ -632,7 +632,7 @@
                 </div>
               </div>
               <div class="input-group-prepend featAdvsearch">
-                <select class="form-control custom-select rounded-0" id="searchMatch">
+                <select class="form-control custom-select border-secondary rounded-0" id="searchMatch">
                   <option data-phrase="contains" value="contains"></option>
                   <option value="==">==</option>
                   <option class="featRegex" value="=~">=~</option>
@@ -781,7 +781,7 @@
             <input type="hidden" id="addToPlaylistSearch"/>
             <div class="form-group">
               <label for="addToPlaylistPlaylist" data-phrase="Playlist"></label>
-              <select id="addToPlaylistPlaylist" class="form-control custom-select"></select>
+              <select id="addToPlaylistPlaylist" class="form-control custom-select border-secondary"></select>
               <div class="invalid-feedback" data-phrase="Please choose playlist"></div>
             </div>
             <div class="form-group hide" id="addToPlaylistNewPlaylistDiv">
@@ -879,7 +879,7 @@
             <div class="row hide" id="saveSmartPlaylistSearch">
               <div class="form-group col-md-6">          
                 <label for="selectSaveSmartPlaylistTag" data-phrase="Tag"></label>
-                <select id="selectSaveSmartPlaylistTag" class="form-control custom-select"></select>
+                <select id="selectSaveSmartPlaylistTag" class="form-control custom-select border-secondary"></select>
               </div>            
               <div class="form-group col-md-6">
                 <label for="inputSaveSmartPlaylistSearchstr" data-phrase="Search"></label>
@@ -889,7 +889,7 @@
             <div class="row hide" id="saveSmartPlaylistSticker">
               <div class="form-group col-md-6">          
                 <label for="selectSaveSmartPlaylistSticker" data-phrase="Sticker"></label>
-                <select id="selectSaveSmartPlaylistSticker" class="form-control custom-select">
+                <select id="selectSaveSmartPlaylistSticker" class="form-control custom-select border-secondary">
                   <option value="like" data-phrase="Like"></option>
                   <option value="playCount" data-phrase="Play count"></option>
                 </select>
@@ -1035,13 +1035,10 @@
                   </div>
                 </div>
                 <div class="form-group row featTags">
-                  <label class="col-sm-4 col-form-label" for="btnJukeboxUniqueTagGroup" data-phrase="Enforce uniqueness"></label>
+                  <label class="col-sm-4 col-form-label" for="selectJukeboxUniqueTag" data-phrase="Enforce uniqueness"></label>
                   <div class="col-sm-8">
-                    <div class="btn-group" id="btnJukeboxUniqueTagGroup">
-                      <button data-value="Title" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Song"></button>
-                      <button data-value="Artist" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Artist"></button>
-                      <button data-value="Album" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Album"></button>
-                    </div>
+                    <select id="selectJukeboxUniqueTag" class="form-control custom-select border-secondary">
+                    </select>
                   </div>
                 </div>
                 <div class="form-group row">
