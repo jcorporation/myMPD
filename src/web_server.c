@@ -377,7 +377,7 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data)
 
 static bool handle_api(int conn_id, struct http_message *hm) {
     if (hm->body.len > 2048) {
-        LOG_ERROR("Request length is %d, max request size is 1000, discarding)", hm->body.len);
+        LOG_ERROR("Request length of %d exceeds max request size, discarding request)", hm->body.len);
         return false;
     }
     
