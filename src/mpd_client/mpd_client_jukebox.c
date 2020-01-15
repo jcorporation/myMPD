@@ -191,6 +191,7 @@ static bool mpd_client_jukebox_fill_jukebox_queue(t_mpd_state *mpd_state, int ad
         
     if (mpd_send_list_queue_meta(mpd_state->conn) == false) {
         list_free(queue_list);
+        FREE_PTR(queue_list);
         return false;
     }
     while ((song = mpd_recv_song(mpd_state->conn)) != NULL) {
@@ -206,40 +207,29 @@ static bool mpd_client_jukebox_fill_jukebox_queue(t_mpd_state *mpd_state, int ad
         //add songs
         unsigned start = 0;
         unsigned end = start + 1000;
+        bool error = false;
         do {
             LOG_DEBUG("Jukebox: iterating through source, start: %u", start);
             if (manual == false) {
                 addSongs = 50 - mpd_state->jukebox_queue.length;
             }
             if (strcmp(playlist, "Database") == 0) {
-                if (mpd_search_db_songs(mpd_state->conn, false) == false) {
-                    check_error_and_recover(mpd_state, NULL, NULL, 0);
-                    list_free(queue_list);
-                    return false;
-                }
-                else if (mpd_search_add_uri_constraint(mpd_state->conn, MPD_OPERATOR_DEFAULT, "") == false) {
-                    check_error_and_recover(mpd_state, NULL, NULL, 0);
-                    list_free(queue_list);
-                    return false;
-                }
-                else if (mpd_search_add_window(mpd_state->conn, start, end) == false) {
-                    check_error_and_recover(mpd_state, NULL, NULL, 0);
-                    list_free(queue_list);
-                    return false;
-                }
-                else if (mpd_search_commit(mpd_state->conn) == false) {
-                    check_error_and_recover(mpd_state, NULL, NULL, 0);
-                    list_free(queue_list);
-                    return false;
-                }
+                if (mpd_search_db_songs(mpd_state->conn, false) == false) { error = true; }
+                else if (mpd_search_add_uri_constraint(mpd_state->conn, MPD_OPERATOR_DEFAULT, "") == false) { error = true; }
+                else if (mpd_search_add_window(mpd_state->conn, start, end) == false) { error = true; }
+                else if (mpd_search_commit(mpd_state->conn) == false) { error = true; }
             }
             else {
-                if (!mpd_send_list_playlist(mpd_state->conn, playlist)) {
-                    check_error_and_recover(mpd_state, NULL, NULL, 0);
-                    list_free(queue_list);
-                    return false;
-                }
+                if (mpd_send_list_playlist(mpd_state->conn, playlist) == false) { error = true; }
             }
+            
+            if (error == true) {
+                check_error_and_recover(mpd_state, NULL, NULL, 0);
+                list_free(queue_list);
+                FREE_PTR(queue_list);
+                return false;
+            }
+            
             while ((song = mpd_recv_song(mpd_state->conn)) != NULL) {
                 if (randrange(lineno) < addSongs) {
                     const char *tag_value = NULL;
@@ -278,17 +268,18 @@ static bool mpd_client_jukebox_fill_jukebox_queue(t_mpd_state *mpd_state, int ad
     }
     else if (jukebox_mode == JUKEBOX_ADD_ALBUM) {
         //add album
+        bool error = false;
         if (manual == false) {
             addSongs = 10 - mpd_state->jukebox_queue.length;
         }
-        if (!mpd_search_db_tags(mpd_state->conn, MPD_TAG_ALBUM)) {
+        
+        if (mpd_search_db_tags(mpd_state->conn, MPD_TAG_ALBUM) == false) { error = true; }
+        else if (mpd_search_commit(mpd_state->conn) == false) { error = true; }
+        
+        if (error == true) {
             check_error_and_recover(mpd_state, NULL, NULL, 0);
             list_free(queue_list);
-            return false;
-        }
-        if (!mpd_search_commit(mpd_state->conn)) {
-            check_error_and_recover(mpd_state, NULL, NULL, 0);
-            list_free(queue_list);
+            FREE_PTR(queue_list);
             return false;
         }
         while ((pair = mpd_recv_pair_tag(mpd_state->conn, MPD_TAG_ALBUM )) != NULL)  {
@@ -334,6 +325,7 @@ static bool mpd_client_jukebox_fill_jukebox_queue(t_mpd_state *mpd_state, int ad
         list_shuffle(&mpd_state->jukebox_queue_tmp);
     }
     list_free(queue_list);
+    FREE_PTR(queue_list);
     return true;
 }
 
