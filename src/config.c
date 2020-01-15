@@ -369,7 +369,7 @@ void mympd_config_defaults(t_config *config) {
     config->jukebox_mode = JUKEBOX_OFF;
     config->jukebox_playlist = sdsnew("Database");
     config->jukebox_queue_length = 1;
-    config->jukebox_unique_tag = sdsnew("MPD_TAG_ARTIST");
+    config->jukebox_unique_tag = sdsnew("Artist");
     config->jukebox_last_played = 24;
     config->cols_queue_current = sdsnew("[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]");
     config->cols_queue_last_played = sdsnew("[\"Pos\",\"Title\",\"Artist\",\"Album\",\"LastPlayed\"]");

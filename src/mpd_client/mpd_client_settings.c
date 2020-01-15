@@ -92,23 +92,13 @@ bool mpd_api_settings_set(t_config *config, t_mpd_state *mpd_state, struct json_
         }
     }
     else if (strncmp(key->ptr, "jukeboxUniqueTag", key->len) == 0) {
-        if (strncmp(key->ptr, "MPD_TAG_ARTIST", val->len) == 0) {
-            if (mpd_state->jukebox_unique_tag.tags[0] != MPD_TAG_ARTIST) {
-                mpd_state->jukebox_unique_tag.tags[0] = MPD_TAG_ARTIST;
-                *jukebox_changed = true;
-            }
+        enum mpd_tag_type unique_tag = mpd_tag_name_parse(settingvalue);
+        if (unique_tag == MPD_TAG_UNKNOWN) {
+            unique_tag = MPD_TAG_TITLE;
         }
-        else if (strncmp(key->ptr, "MPD_TAG_ALBUM", val->len) == 0) {
-            if (mpd_state->jukebox_unique_tag.tags[0] != MPD_TAG_ALBUM) {
-                mpd_state->jukebox_unique_tag.tags[0] = MPD_TAG_ALBUM;
-                *jukebox_changed = true;
-            }
-        }
-        else {
-            if (mpd_state->jukebox_unique_tag.tags[0] != MPD_TAG_TITLE) {
-                mpd_state->jukebox_unique_tag.tags[0] = MPD_TAG_TITLE;
-                *jukebox_changed = true;
-            }
+        if (mpd_state->jukebox_unique_tag.tags[0] != unique_tag) {
+            mpd_state->jukebox_unique_tag.tags[0] = unique_tag;
+            *jukebox_changed = true;
         }
     }
     else if (strncmp(key->ptr, "autoPlay", key->len) == 0) {
