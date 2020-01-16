@@ -9,6 +9,7 @@
 #include <string.h>
 #include <assert.h>
 #include <time.h>
+#include <inttypes.h>
 #include <mpd/client.h>
 
 #include "../../dist/src/sds/sds.h"
@@ -22,14 +23,15 @@
 #include "mpd_client_jukebox.h"
 
 //private definitions
-static bool mpd_client_jukebox_fill_jukebox_queue(t_mpd_state *mpd_state, int addSongs, enum jukebox_modes jukebox_mode, const char *playlist, bool manual);
+static struct list *mpd_client_jukebox_get_last_played(t_config *config, t_mpd_state *mpd_state);
+static bool mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_state *mpd_state, int addSongs, enum jukebox_modes jukebox_mode, const char *playlist, bool manual);
 static bool mpd_client_jukebox_unique_tag(t_mpd_state *mpd_state, const char *uri, const char *value, bool manual, struct list *queue_list);
 static bool mpd_client_jukebox_unique_album(t_mpd_state *mpd_state, const char *album, bool manual, struct list *queue_list);
 static void mpd_client_jukebox_enforce_last_played(t_mpd_state *mpd_state);
 
 //public functions
 
-bool mpd_client_jukebox(t_mpd_state *mpd_state) {
+bool mpd_client_jukebox(t_config *config, t_mpd_state *mpd_state) {
     struct mpd_status *status = mpd_run_status(mpd_state->conn);
     if (status == NULL) {
         check_error_and_recover(mpd_state, NULL, NULL, 0);
@@ -61,7 +63,7 @@ bool mpd_client_jukebox(t_mpd_state *mpd_state) {
         return true;
     }
 
-    bool rc = mpd_client_jukebox_add_to_queue(mpd_state, addSongs, mpd_state->jukebox_mode, mpd_state->jukebox_playlist, false);
+    bool rc = mpd_client_jukebox_add_to_queue(config, mpd_state, addSongs, mpd_state->jukebox_mode, mpd_state->jukebox_playlist, false);
     
     if (rc == true) {
         if (!mpd_run_play(mpd_state->conn)) {
@@ -70,12 +72,12 @@ bool mpd_client_jukebox(t_mpd_state *mpd_state) {
     }
     else {
         LOG_ERROR("Error adding song(s), trying again");
-        mpd_client_jukebox(mpd_state);
+        mpd_client_jukebox(config, mpd_state);
     }
     return rc;
 }
 
-bool mpd_client_jukebox_add_to_queue(t_mpd_state *mpd_state, int addSongs, enum jukebox_modes jukebox_mode, const char *playlist, bool manual) {
+bool mpd_client_jukebox_add_to_queue(t_config *config, t_mpd_state *mpd_state, int addSongs, enum jukebox_modes jukebox_mode, const char *playlist, bool manual) {
     if (manual == false) {
         LOG_DEBUG("Jukebox queue length: %d", mpd_state->jukebox_queue.length);
     }
@@ -91,7 +93,7 @@ bool mpd_client_jukebox_add_to_queue(t_mpd_state *mpd_state, int addSongs, enum 
                 mpd_run_clear_tag_types(mpd_state->conn);
             }
         }
-        bool rc =mpd_client_jukebox_fill_jukebox_queue(mpd_state, addSongs, jukebox_mode, playlist, manual);
+        bool rc =mpd_client_jukebox_fill_jukebox_queue(config, mpd_state, addSongs, jukebox_mode, playlist, manual);
         if (mpd_state->feat_tags == true) {
             enable_mpd_tags(mpd_state, mpd_state->mympd_tag_types);
         }
@@ -159,7 +161,7 @@ bool mpd_client_jukebox_add_to_queue(t_mpd_state *mpd_state, int addSongs, enum 
                     mpd_run_clear_tag_types(mpd_state->conn);
                 }
             }
-            bool rc = mpd_client_jukebox_fill_jukebox_queue(mpd_state, addSongs, jukebox_mode, playlist, manual);
+            bool rc = mpd_client_jukebox_fill_jukebox_queue(config, mpd_state, addSongs, jukebox_mode, playlist, manual);
             if (mpd_state->feat_tags == true) {
                 enable_mpd_tags(mpd_state, mpd_state->mympd_tag_types);
             }
@@ -174,17 +176,8 @@ bool mpd_client_jukebox_add_to_queue(t_mpd_state *mpd_state, int addSongs, enum 
 
 
 //private functions
-static bool mpd_client_jukebox_fill_jukebox_queue(t_mpd_state *mpd_state, int addSongs, enum jukebox_modes jukebox_mode, const char *playlist, bool manual) {
+static struct list *mpd_client_jukebox_get_last_played(t_config *config, t_mpd_state *mpd_state) {
     struct mpd_song *song;
-    struct mpd_pair *pair;
-    unsigned lineno = 1;
-    int nkeep = 0;
-    
-    if (manual == true) {
-        list_free(&mpd_state->jukebox_queue_tmp);
-    }
-    
-    //get queue
     struct list *queue_list = (struct list *) malloc(sizeof(struct list));
     assert(queue_list);
     list_init(queue_list);
@@ -192,7 +185,7 @@ static bool mpd_client_jukebox_fill_jukebox_queue(t_mpd_state *mpd_state, int ad
     if (mpd_send_list_queue_meta(mpd_state->conn) == false) {
         list_free(queue_list);
         FREE_PTR(queue_list);
-        return false;
+        return NULL;
     }
     while ((song = mpd_recv_song(mpd_state->conn)) != NULL) {
         const char *tag_value = NULL;
@@ -216,6 +209,68 @@ static bool mpd_client_jukebox_fill_jukebox_queue(t_mpd_state *mpd_state, int ad
         }
         current = current->next;
     }
+    //get last_played from disc
+    if (queue_list->length < 20 && config->readonly == false) {
+        char *line = NULL;
+        char *data = NULL;
+        char *crap = NULL;
+        size_t n = 0;
+        ssize_t read;
+        sds lp_file = sdscatfmt(sdsempty(), "%s/state/last_played", config->varlibdir);
+        FILE *fp = fopen(lp_file, "r");
+        sdsfree(lp_file);
+        if (fp != NULL) {
+            while ((read = getline(&line, &n, fp)) > 0 && queue_list->length < 20) {
+                int value = strtoimax(line, &data, 10);
+                if (value > 0 && strlen(data) > 2) {
+                    data = data + 2;
+                    strtok_r(data, "\n", &crap);
+                    if (mpd_send_list_all_meta(mpd_state->conn, data) == false) {
+                        check_error_and_recover(mpd_state, NULL, NULL, 0);
+                    }
+                    else {
+                        song = mpd_recv_song(mpd_state->conn);
+                        list_push(queue_list, data, 0, mpd_song_get_tag(song, mpd_state->jukebox_unique_tag.tags[0], 0), NULL);
+                        mpd_song_free(song);
+                        mpd_response_finish(mpd_state->conn);
+                    }
+                }
+                else {
+                    LOG_ERROR("Reading last_played line failed");
+                }
+            }
+            fclose(fp);
+            FREE_PTR(line);
+        }
+    }
+    LOG_DEBUG("Jukebox last_played list length: %d", queue_list->length);
+/*
+    if (loglevel == 4) {
+        current = queue_list->head;
+        while (current != NULL) {
+            printf("Jukebox last_played list: %s:%s\n", current->key, current->value_p);
+            current = current->next;
+        }
+    }
+*/
+    return queue_list;
+}
+
+static bool mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_state *mpd_state, int addSongs, enum jukebox_modes jukebox_mode, const char *playlist, bool manual) {
+    struct mpd_song *song;
+    struct mpd_pair *pair;
+    unsigned lineno = 1;
+    int nkeep = 0;
+    
+    if (manual == true) {
+        list_free(&mpd_state->jukebox_queue_tmp);
+    }
+    
+    //get last_played and current queue
+    struct list *queue_list = mpd_client_jukebox_get_last_played(config, mpd_state);
+    if (queue_list == NULL) {
+        return false;
+    }
     
     if (jukebox_mode == JUKEBOX_ADD_SONG) {
         //add songs
@@ -234,7 +289,7 @@ static bool mpd_client_jukebox_fill_jukebox_queue(t_mpd_state *mpd_state, int ad
                 else if (mpd_search_commit(mpd_state->conn) == false) { error = true; }
             }
             else {
-                if (mpd_send_list_playlist(mpd_state->conn, playlist) == false) { error = true; }
+                if (mpd_send_list_playlist_meta(mpd_state->conn, playlist) == false) { error = true; }
             }
             
             if (error == true) {
@@ -246,10 +301,7 @@ static bool mpd_client_jukebox_fill_jukebox_queue(t_mpd_state *mpd_state, int ad
             
             while ((song = mpd_recv_song(mpd_state->conn)) != NULL) {
                 if (randrange(lineno) < addSongs) {
-                    const char *tag_value = NULL;
-                    if (mpd_state->jukebox_unique_tag.tags[0] != MPD_TAG_TITLE) {
-                        tag_value = mpd_song_get_tag(song, mpd_state->jukebox_unique_tag.tags[0], 0);
-                    }
+                    const char *tag_value = mpd_song_get_tag(song, mpd_state->jukebox_unique_tag.tags[0], 0);
                     if (mpd_client_jukebox_unique_tag(mpd_state, mpd_song_get_uri(song), tag_value, manual, queue_list) == true) {
 		        if (nkeep < addSongs) {
 		            if (manual == false) {
@@ -328,7 +380,6 @@ static bool mpd_client_jukebox_fill_jukebox_queue(t_mpd_state *mpd_state, int ad
         LOG_WARN("Jukebox queue didn't contain %d entries", addSongs);
     }
 
-    //finally shuffle the list
     if (manual == false) {
         if (jukebox_mode == JUKEBOX_ADD_SONG) {
             mpd_client_jukebox_enforce_last_played(mpd_state);
@@ -336,6 +387,15 @@ static bool mpd_client_jukebox_fill_jukebox_queue(t_mpd_state *mpd_state, int ad
     }
     list_free(queue_list);
     FREE_PTR(queue_list);
+/*
+    if (loglevel == 4) {
+        struct node *current = mpd_state->jukebox_queue.head;
+        while (current != NULL) {
+            printf("Jukebox queue list: %s:%s\n", current->key, current->value_p);
+            current = current->next;
+        }
+    }
+*/
     return true;
 }
 

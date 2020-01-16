@@ -105,7 +105,7 @@ static void mpd_client_parse_idle(t_config *config, t_mpd_state *mpd_state, int 
                     buffer = mpd_client_get_queue_state(mpd_state, buffer);
                     //jukebox enabled
                     if (mpd_state->jukebox_mode != JUKEBOX_OFF && mpd_state->queue_length < mpd_state->jukebox_queue_length) {
-                        mpd_client_jukebox(mpd_state);
+                        mpd_client_jukebox(config, mpd_state);
                     }
                     //autoPlay enabled
                     if (mpd_state->auto_play == true && mpd_state->queue_length > 1) {
@@ -261,7 +261,7 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
             mpd_client_set_timer(MYMPD_API_TIMER_SET, "MYMPD_API_TIMER_SET", 10, 0, "timer_handler_smartpls_update");
             //jukebox
             if (mpd_state->jukebox_mode != JUKEBOX_OFF) {
-                mpd_client_jukebox(mpd_state);
+                mpd_client_jukebox(config, mpd_state);
             }
             if (!mpd_send_idle_mask(mpd_state->conn, set_idle_mask)) {
                 LOG_ERROR("Entering idle mode failed");
@@ -331,7 +331,7 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
                 }
                 
                 if (jukebox_add_song == true) {
-                    mpd_client_jukebox(mpd_state);
+                    mpd_client_jukebox(config, mpd_state);
                 }
                 
                 if (mpd_client_queue_length > 0) {

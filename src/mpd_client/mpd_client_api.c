@@ -100,7 +100,7 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
                     }
                     if (mpd_state->jukebox_mode != JUKEBOX_OFF) {
                         //enable jukebox
-                        mpd_client_jukebox(mpd_state);
+                        mpd_client_jukebox(config, mpd_state);
                     }
                 }
                 response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
@@ -480,7 +480,7 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
         case MPD_API_QUEUE_ADD_RANDOM:
             je = json_scanf(request->data, sdslen(request->data), "{params: {mode:%u, playlist:%Q, quantity:%d}}", &uint_buf1, &p_charbuf1, &int_buf1);
             if (je == 3) {
-                rc = mpd_client_jukebox_add_to_queue(mpd_state, int_buf1, uint_buf1, p_charbuf1, true);
+                rc = mpd_client_jukebox_add_to_queue(config, mpd_state, int_buf1, uint_buf1, p_charbuf1, true);
                 if (rc == true) {
                     response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Sucessfully added random songs to queue", false);
                 }
