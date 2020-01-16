@@ -295,17 +295,17 @@ function appRoute() {
     else if (app.current.app === 'Browse' && app.current.tab === 'Covergrid') {
         document.getElementById('searchCovergridStr').value = app.current.search;
         selectTag('searchCovergridTags', 'searchCovergridTagsDesc', app.current.filter);
-        selectTag('searchCovergridSortTags', undefined, app.current.sort);
         let sort = app.current.sort;
         let sortdesc = false;
         if (app.current.sort.charAt(0) === '-') {
             sortdesc = true;
             sort = app.current.sort.substr(1);
-            document.getElementById('searchCovergridSortDesc').checked = true;
+            toggleBtnChk('searchCovergridSortDesc', true);
         }
         else {
-            document.getElementById('searchCovergridSortDesc').checked = false;
+            toggleBtnChk('searchCovergridSortDesc', false);
         }
+        selectTag('searchCovergridSortTags', undefined, sort);
         sendAPI("MPD_API_DATABASE_GET_ALBUMS", {"offset": app.current.page, "searchstr": app.current.search, 
             "tag": app.current.filter, "sort": sort, "sortdesc": sortdesc}, parseCovergrid);
     }
@@ -929,6 +929,9 @@ function appInit() {
     }, false);
     
     document.getElementById('searchCovergridSortDesc').addEventListener('click', function(event) {
+        toggleBtnChk(this);
+        event.stopPropagation();
+        event.preventDefault();
         if (app.current.sort.charAt(0) === '-') {
             app.current.sort = app.current.sort.substr(1);
         }
@@ -940,6 +943,8 @@ function appInit() {
 
     document.getElementById('searchCovergridSortTags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
+            event.preventDefault();
+            event.stopPropagation();
             app.current.sort = event.target.getAttribute('data-tag');
             appGoto(app.current.app, app.current.tab, app.current.view, '0/' + app.current.filter + '/' + app.current.sort + '/' + app.current.search);
         }
