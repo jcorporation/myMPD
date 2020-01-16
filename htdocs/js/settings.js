@@ -382,12 +382,7 @@ function parseMPDSettings() {
     }
 
     let features = ['featStickers', 'featSmartpls', 'featPlaylists', 'featTags', 'featCoverimage', 'featAdvsearch',
-        'featLove', 'featDate', 'featGenre', 'featSingleOneshot'];
-    var featTags = ['Date', 'Genre' ];
-    for (let i = 0; i < featTags.length; i++) {
-        settings['feat' + featTags[i]] = settings.tags.includes(featTags[i]) ? true : false;
-        features.push('feat' + featTags[i]);
-    }
+        'featLove', 'featSingleOneshot'];
     for (let j = 0; j < features.length; j++) {
         let Els = document.getElementsByClassName(features[j]);
         let ElsLen = Els.length;
@@ -545,6 +540,8 @@ function parseMPDSettings() {
     addTagList('BrowseDatabaseByTagDropdown', 'browsetags');
     addTagList('searchqueuetags', 'searchtags');
     addTagList('searchtags', 'searchtags');
+    addTagList('searchCovergridTags', 'browsetags');
+    addTagList('searchCovergridSortTagsList', 'browsetags');
 
     let list = '';
     if (settings.browsetags.includes('Title') === false) {
