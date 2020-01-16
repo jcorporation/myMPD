@@ -235,8 +235,8 @@ function setPagination(total, returned) {
     
     for (let i = 0; i < p.length; i++) {
         let prev = p[i].children[0];
-        let page = p[i].children[1].children[1];
-        let pages = p[i].children[1].children[2];
+        let page = p[i].children[1].children[0];
+        let pages = p[i].children[1].children[1];
         let next = p[i].children[2];
     
         page.innerText = (app.current.page / settings.maxElementsPerPage + 1) + ' / ' + totalPages;
