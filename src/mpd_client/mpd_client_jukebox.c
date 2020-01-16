@@ -384,7 +384,7 @@ static bool mpd_client_jukebox_unique_album(t_mpd_state *mpd_state, const char *
 }
 
 static void mpd_client_jukebox_enforce_last_played(t_mpd_state *mpd_state) {
-    if (mpd_state->jukebox_last_played == 0) {
+    if (mpd_state->jukebox_last_played == 0 || mpd_state->feat_sticker == false) {
         return;
     }
     t_sticker *sticker = (t_sticker *) malloc(sizeof(t_sticker));

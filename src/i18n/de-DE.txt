@@ -474,6 +474,9 @@ Sticker sind deaktiviert
 Playback statistics
 Wiedergabestatistiken
 
+Playback statistics are disabled
+Wiedergabestatistiken sind deaktiviert
+
 Last played list count
 Anzahl zuletzt gespielte Lieder
 

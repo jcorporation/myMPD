@@ -431,6 +431,15 @@ function parseMPDSettings() {
         document.getElementById('warnStickers').classList.add('hide');
     }
     
+    if (settings.featStickers === false || settings.stickers === false) {
+        document.getElementById('warnPlaybackStatistics').classList.remove('hide');
+        document.getElementById('inputJukeboxLastPlayed').setAttribute('disabled', 'disabled');
+    }
+    else {
+        document.getElementById('warnPlaybackStatistics').classList.add('hide');
+        document.getElementById('inputJukeboxLastPlayed').removeAttribute('disabled');
+    }
+    
     if (settings.featLove === false && settings.love === true) {
         document.getElementById('warnScrobbler').classList.remove('hide');
     }
