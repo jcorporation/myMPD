@@ -29,7 +29,7 @@ static bool write_bookmarks_line(FILE *fp, int id, const char *name,
 bool mympd_api_bookmark_update(t_config *config, const int id, const char *name, 
                                const char *uri, const char *type)
 {
-    sds tmp_file = sdscatfmt(sdsempty(), "%s/state/bookmarks.XXXXXX", config->varlibdir);
+    sds tmp_file = sdscatfmt(sdsempty(), "%s/state/bookmark_list.XXXXXX", config->varlibdir);
     int fd = mkstemp(tmp_file);
     if (fd < 0 ) {
         LOG_ERROR("Can't open %s for write", tmp_file);
@@ -42,7 +42,7 @@ bool mympd_api_bookmark_update(t_config *config, const int id, const char *name,
     size_t n = 0;
     ssize_t read;
     bool inserted = false;
-    sds b_file = sdscatfmt(sdsempty(), "%s/state/bookmarks", config->varlibdir);
+    sds b_file = sdscatfmt(sdsempty(), "%s/state/bookmark_list", config->varlibdir);
     FILE *fi = fopen(b_file, "r");
     if (fi != NULL) {
         while ((read = getline(&line, &n, fi)) > 0) {
@@ -94,7 +94,7 @@ bool mympd_api_bookmark_update(t_config *config, const int id, const char *name,
 }
 
 bool mympd_api_bookmark_clear(t_config *config) {
-    sds b_file = sdscatfmt(sdsempty(), "%s/state/bookmarks", config->varlibdir);
+    sds b_file = sdscatfmt(sdsempty(), "%s/state/bookmark_list", config->varlibdir);
     int rc = unlink(b_file);
     sdsfree(b_file);
     if (rc == -1 && errno != ENOENT) {
@@ -113,7 +113,7 @@ sds mympd_api_bookmark_list(t_config *config, sds buffer, sds method, int reques
     unsigned entity_count = 0;
     unsigned entities_returned = 0;
     
-    sds b_file = sdscatfmt(sdsempty(), "%s/state/bookmarks", config->varlibdir);
+    sds b_file = sdscatfmt(sdsempty(), "%s/state/bookmark_list", config->varlibdir);
     FILE *fi = fopen(b_file, "r");
 
     buffer = jsonrpc_start_result(buffer, method, request_id);

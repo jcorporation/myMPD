@@ -35,7 +35,7 @@ void mympd_api_settings_delete(t_config *config) {
         "jukebox_unique_tag", "jukebox_last_played",
         "last_played", "last_played_count", "locale", "localplayer", "localplayer_autoplay", "love", "love_channel", "love_message",
         "max_elements_per_page",  "mpd_host", "mpd_pass", "mpd_port", "notification_page", "notification_web", "searchtaglist",
-        "smartpls", "stickers", "stream_port", "stream_url", "taglist", "music_directory", "bookmarks", "covergrid_size", 
+        "smartpls", "stickers", "stream_port", "stream_url", "taglist", "music_directory", "bookmarks", "bookmark_list", "covergrid_size", 
         "theme", "timer", 0};
     const char** ptr = state_files;
     while (*ptr != 0) {
