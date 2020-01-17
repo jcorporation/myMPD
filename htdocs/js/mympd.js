@@ -113,6 +113,7 @@ var dropdownVolumeMenu = new Dropdown(document.getElementById('volumeMenu'));
 var dropdownBookmarks = new Dropdown(document.getElementById('BrowseFilesystemBookmark'));
 var dropdownLocalPlayer = new Dropdown(document.getElementById('localPlaybackMenu'));
 var dropdownPlay = new Dropdown(document.getElementById('btnPlayDropdown'));
+var dropdownCovergridSort = new Dropdown(document.getElementById('btnCovergridSortDropdown'));
 
 var collapseDBupdate = new Collapse(document.getElementById('navDBupdate'));
 var collapseSyscmds = new Collapse(document.getElementById('navSyscmds'));
@@ -300,12 +301,12 @@ function appRoute() {
         if (app.current.sort.charAt(0) === '-') {
             sortdesc = true;
             sort = app.current.sort.substr(1);
-            toggleBtnChk('searchCovergridSortDesc', true);
+            toggleBtnChk('covergridSortDesc', true);
         }
         else {
-            toggleBtnChk('searchCovergridSortDesc', false);
+            toggleBtnChk('covergridSortDesc', false);
         }
-        selectTag('searchCovergridSortTags', undefined, sort);
+        selectTag('covergridSortTags', undefined, sort);
         sendAPI("MPD_API_DATABASE_GET_ALBUMS", {"offset": app.current.page, "searchstr": app.current.search, 
             "tag": app.current.filter, "sort": sort, "sortdesc": sortdesc}, parseCovergrid);
     }
@@ -521,7 +522,7 @@ function appInit() {
         sendAPI("MYMPD_API_BOOKMARK_LIST", {"offset": 0}, parseBookmarks);
     });
     
-    document.getElementById('btnPlayDropdown').parentNode.addEventListener('show.bs.dropdown', function () {
+    document.getElementById('playDropdown').parentNode.addEventListener('show.bs.dropdown', function () {
         showPlayDropdown();
     });
 
@@ -529,6 +530,13 @@ function appInit() {
         event.preventDefault();
         event.stopPropagation();
     });
+    
+    let dropdowns = document.querySelectorAll('.dropdown-toggle');
+    for (let i = 0; i < dropdowns.length; i++) {
+        dropdowns[i].parentNode.addEventListener('show.bs.dropdown', function () {
+            alignDropdown(this);
+        });
+    }
     
     document.getElementById('modalTimer').addEventListener('shown.bs.modal', function () {
         showListTimer();
@@ -928,7 +936,7 @@ function appInit() {
         }
     }, false);
     
-    document.getElementById('searchCovergridSortDesc').addEventListener('click', function(event) {
+    document.getElementById('covergridSortDesc').addEventListener('click', function(event) {
         toggleBtnChk(this);
         event.stopPropagation();
         event.preventDefault();
@@ -941,7 +949,7 @@ function appInit() {
         appGoto(app.current.app, app.current.tab, app.current.view, '0/' + app.current.filter + '/' + app.current.sort + '/' + app.current.search);
     }, false);
 
-    document.getElementById('searchCovergridSortTags').addEventListener('click', function(event) {
+    document.getElementById('covergridSortTags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
             event.preventDefault();
             event.stopPropagation();
@@ -974,9 +982,9 @@ function appInit() {
         }
     }, false);
 
-    let dropdowns = ['BrowseDatabaseColsDropdown', 'PlaybackColsDropdown'];
-    for (let i = 0; i < dropdowns.length; i++) {
-        document.getElementById(dropdowns[i]).addEventListener('click', function(event) {
+    let colDropdowns = ['BrowseDatabaseColsDropdown', 'PlaybackColsDropdown'];
+    for (let i = 0; i < colDropdowns.length; i++) {
+        document.getElementById(colDropdowns[i]).addEventListener('click', function(event) {
             if (event.target.nodeName === 'BUTTON' && event.target.classList.contains('material-icons')) {
                 event.stopPropagation();
                 event.preventDefault();

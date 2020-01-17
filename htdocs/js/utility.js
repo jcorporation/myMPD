@@ -5,6 +5,24 @@
  https://github.com/jcorporation/mympd
 */
 
+function alignDropdown(el) {
+    if (getXpos(el.children[0]) > domCache.body.offsetWidth * 0.66) {
+        el.children[1].classList.add('dropdown-menu-right');
+    }
+    else {
+        el.children[1].classList.remove('dropdown-menu-right');
+    }
+}
+
+function getXpos(el) {
+    var xPos = 0;
+    while (el) {
+        xPos += (el.offsetLeft - el.scrollLeft + el.clientLeft);
+        el = el.offsetParent;
+    }
+    return xPos;
+}
+
 function zeroPad(num, places) {
   var zero = places - num.toString().length + 1;
   return Array(+(zero > 0 && zero)).join("0") + num;
@@ -124,7 +142,7 @@ function addTagList(el, list) {
     for (let i = 0; i < settings[list].length; i++) {
         tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="' + settings[list][i] + '">' + t(settings[list][i]) + '</button>';
     }
-    if (el === 'searchCovergridSortTagsList' && settings.tags.includes('Date')) {
+    if (el === 'covergridSortTagsList' && settings.tags.includes('Date')) {
         tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="Date">' + t('Date') + '</button>';
     }
     document.getElementById(el).innerHTML = tagList;

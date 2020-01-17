@@ -541,7 +541,7 @@ function parseMPDSettings() {
     addTagList('searchqueuetags', 'searchtags');
     addTagList('searchtags', 'searchtags');
     addTagList('searchCovergridTags', 'browsetags');
-    addTagList('searchCovergridSortTagsList', 'browsetags');
+    addTagList('covergridSortTagsList', 'browsetags');
 
     let list = '';
     if (settings.browsetags.includes('Title') === false) {

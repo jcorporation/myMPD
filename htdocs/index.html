@@ -67,7 +67,7 @@
         </div>
         <div class="btn-group dropdown">
           <button id="volumeMenu" class="btn btn-secondary dropdown-toggle pl-2 pr-2 material-icons" type="button" data-toggle="dropdown">volume_up</button>
-          <div class="dropdown-menu dropdown-menu-right bg-lite-dark">
+          <div class="dropdown-menu bg-lite-dark">
             <h2 class="dropdown-header text-light"><span data-phrase="Volume">Volume</span>: <span id="volumePrct"></span></h2>
             <form class="px-4 py-0 pb-3" id="volumeControl">
               <div class="btn-group">
@@ -84,7 +84,7 @@
         </div>
         <div class="btn-group dropdown featLocalplayer ml-2">
           <button id="localPlaybackMenu" class="btn btn-secondary dropdown-toggle pl-2 pr-2 material-icons" type="button" data-toggle="dropdown">airplay</button>
-          <div class="dropdown-menu dropdown-menu-right bg-lite-dark">
+          <div class="dropdown-menu bg-lite-dark">
             <h2 data-phrase="Local playback" class="dropdown-header dropdown-header-lx text-light"></h2>
             <div data-phrase="Connecting to stream..." id="alertLocalPlayback" class="alert alert-warning mx-4"></div>
             <audio class="mx-4" id="localPlayer" preload="none" controls=""></audio>
@@ -113,7 +113,7 @@
           </div>       
           <div class="btn-group ml-2 featTags">
             <button id="PlaybackColsBtn" class="btn btn-sm btn-light dropdown-toggle material-icons material-icons-small" type="button" data-toggle="dropdown">settings</button>
-            <div class="dropdown-menu dropdown-menu-right text-light bg-lite-dark px-2" id="PlaybackColsDropdown"><form></form>
+            <div class="dropdown-menu text-light bg-lite-dark px-2" id="PlaybackColsDropdown"><form></form>
               <button data-phrase="Apply" data-href='{"cmd": "saveColsPlayback", "options": ["Playback"]}' class="btn btn-success btn-block btn-sm mt-2"></button>
             </div>          
           </div>
@@ -565,14 +565,14 @@
             </div>
           </form>
           <div class="btn-group mr-2">
-            <button data-title-phrase="Sort by" class="btn btn-secondary dropdown-toggle material-icons" type="button" data-toggle="dropdown">sort</button>
-            <div class="dropdown-menu dropdown-menu-right bg-lite-dark px-2" id="searchCovergridSortTags">
-                <div id="searchCovergridSortTagsList">
+            <button  id="btnCovergridSortDropdown" data-title-phrase="Sort by" class="btn btn-secondary dropdown-toggle material-icons" type="button" data-toggle="dropdown">sort</button>
+            <div class="dropdown-menu bg-lite-dark px-2" id="covergridSortTags">
+                <div id="covergridSortTagsList">
                 </div>
                 <div class="dropdown-divider"></div>
                 <div class="form-check">
-                  <button class="btn btn-secondary btn-xs clickable material-icons material-icons-small" id="searchCovergridSortDesc">radio_button_unchecked</button>
-                  <label class="form-check-label text-light" for="searchCovergridSortDesc" data-phrase="Descending"></label>
+                  <button class="btn btn-secondary btn-xs clickable material-icons material-icons-small" id="covergridSortDesc">radio_button_unchecked</button>
+                  <label class="form-check-label text-light" for="covergridSortDesc" data-phrase="Descending"></label>
                 </div>
             </div>
           </div>
@@ -643,7 +643,7 @@
             <div class="input-group-prepend">
               <button id="searchAddAllSongs" class="btn btn-secondary material-icons" data-href='{"cmd": "addAllFromSearchPlist", "options": ["queue"]}'>library_add</button>
               <button id="searchAddAllSongsBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-right" type="button" data-toggle="dropdown"></button>
-              <div class="dropdown-menu bg-lite-dark dropdown-menu-right px-2" id="searchAddAllSongsDropdown">
+              <div class="dropdown-menu bg-lite-dark px-2" id="searchAddAllSongsDropdown">
                   <button data-phrase="Add all to queue" type="button" class="btn btn-secondary btn-sm btn-block"></button>
                   <button data-phrase="Add all to playlist" type="button" class="btn btn-secondary btn-sm btn-block featPlaylists"></button>
                   <button data-phrase="Save as smart playlist" type="button" class="btn btn-secondary btn-sm btn-block featSmartpls"></button>
@@ -1153,7 +1153,7 @@
                       <input type="text" class="form-control border-secondary" id="inputEnabledTags" readonly/>
                       <div class="input-group-append">
                         <button id="btnEnabledTags" type="button" data-toggle="dropdown" class="text-left btn btn-secondary dropdown-toggle"></button>
-                        <div id="listEnabledTags" class="dropdown-menu dropdown-menu-right px-2 mr-3"></div>
+                        <div id="listEnabledTags" class="dropdown-menu px-2 mr-3"></div>
                       </div>
                     </div>
                   </div>
@@ -1163,7 +1163,7 @@
                       <input type="text" class="form-control border-secondary" id="inputSearchTags" readonly/>
                       <div class="input-group-append">
                         <button id="btnSearchTags" type="button" data-toggle="dropdown" class="text-left btn btn-secondary dropdown-toggle"></button>
-                        <div id="listSearchTags" class="dropdown-menu dropdown-menu-right px-2 mr-3"></div>
+                        <div id="listSearchTags" class="dropdown-menu px-2 mr-3"></div>
                       </div>
                     </div>
                   </div>
@@ -1173,7 +1173,7 @@
                       <input type="text" class="form-control border-secondary" id="inputBrowseTags" readonly/>
                       <div class="input-group-append">
                         <button id="btnBrowseTags" type="button" data-toggle="dropdown" class="text-left btn btn-secondary dropdown-toggle"></button>
-                        <div id="listBrowseTags" class="dropdown-menu dropdown-menu-right px-2 mr-3"></div>
+                        <div id="listBrowseTags" class="dropdown-menu px-2 mr-3"></div>
                       </div>
                     </div>
                   </div>
