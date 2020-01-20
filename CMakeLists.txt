@@ -272,6 +272,7 @@ endif()
 add_executable(mympd ${SOURCES} ${LIBMPDCLIENT_SOURCES} ${CERT_SOURCES})
 
 target_link_libraries(mympd ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(mympd m)
 if (OPENSSL_FOUND)
   target_link_libraries(mympd ${OPENSSL_LIBRARIES})
 endif()
