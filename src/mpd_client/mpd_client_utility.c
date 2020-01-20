@@ -64,6 +64,26 @@ sds put_song_tags(sds buffer, t_mpd_state *mpd_state, const t_tags *tagcols, con
     return buffer;
 }
 
+sds put_empty_song_tags(sds buffer, t_mpd_state *mpd_state, const t_tags *tagcols, const char *uri) {
+    if (mpd_state->feat_tags == true) {
+        for (size_t tagnr = 0; tagnr < tagcols->len; ++tagnr) {
+            if (tagcols->tags[tagnr] == MPD_TAG_TITLE) {
+                buffer = tojson_char(buffer, "Title", basename((char *)uri), true);
+            }
+            else {
+                buffer = tojson_char(buffer, mpd_tag_name(tagcols->tags[tagnr]), "-", true);
+            }
+        }
+    }
+    else {
+        buffer = tojson_char(buffer, "Title", basename((char *)uri), true);
+    }
+    buffer = tojson_long(buffer, "Duration", 0, true);
+    buffer = tojson_char(buffer, "uri", uri, false);
+    return buffer;
+}
+
+
 sds check_error_and_recover(t_mpd_state *mpd_state, sds buffer, sds method, int request_id) {
     if (mpd_connection_get_error(mpd_state->conn) != MPD_ERROR_SUCCESS) {
         LOG_ERROR("MPD error: %s", mpd_connection_get_error_message(mpd_state->conn));

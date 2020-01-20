@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <inttypes.h>
 #include <time.h>
+#include <libgen.h>
 #include <mpd/client.h>
 
 #include "../dist/src/sds/sds.h"
@@ -228,7 +229,7 @@ static sds mpd_client_put_last_played_obj(t_mpd_state *mpd_state, sds buffer,
     buffer = tojson_long(buffer, "LastPlayed", last_played, true);
     if (!mpd_send_list_all_meta(mpd_state->conn, uri)) {
         check_error_and_recover(mpd_state, NULL, NULL, 0);
-        return sdsempty();
+        buffer = put_empty_song_tags(buffer, mpd_state, tagcols, uri);
     }
     else {
         struct mpd_entity *entity;
@@ -237,6 +238,9 @@ static sds mpd_client_put_last_played_obj(t_mpd_state *mpd_state, sds buffer,
             buffer = put_song_tags(buffer, mpd_state, tagcols, song);
             mpd_entity_free(entity);
             mpd_response_finish(mpd_state->conn);
+        }
+        else {
+            buffer = put_empty_song_tags(buffer, mpd_state, tagcols, uri);
         }
     }
     buffer = sdscat(buffer, "}");
