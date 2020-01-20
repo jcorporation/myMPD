@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
- myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -21,6 +21,7 @@
 #include "../global.h"
 #include "../utility.h"
 #include "mympd_api_utility.h"
+#include "mympd_api_timer.h"
 
 void mympd_api_push_to_mpd_client(t_mympd_state *mympd_state) {
     t_work_request *request = create_request(-1, 0, MYMPD_API_SETTINGS_SET, "MYMPD_API_SETTINGS_SET", "");
@@ -29,6 +30,8 @@ void mympd_api_push_to_mpd_client(t_mympd_state *mympd_state) {
     request->data = tojson_long(request->data, "jukeboxMode", mympd_state->jukebox_mode, true);
     request->data = tojson_char(request->data, "jukeboxPlaylist", mympd_state->jukebox_playlist, true);
     request->data = tojson_long(request->data, "jukeboxQueueLength", mympd_state->jukebox_queue_length, true);
+    request->data = tojson_long(request->data, "jukeboxLastPlayed", mympd_state->jukebox_last_played, true);
+    request->data = tojson_char(request->data, "jukeboxUniqueTag", mympd_state->jukebox_unique_tag, true);
     request->data = tojson_bool(request->data, "autoPlay", mympd_state->auto_play, true);
     request->data = tojson_bool(request->data, "coverimage", mympd_state->coverimage, true);
     request->data = tojson_char(request->data, "coverimageName", mympd_state->coverimage_name, true);
@@ -60,6 +63,7 @@ void free_mympd_state(t_mympd_state *mympd_state) {
     sdsfree(mympd_state->love_channel);
     sdsfree(mympd_state->love_message);
     sdsfree(mympd_state->jukebox_playlist);
+    sdsfree(mympd_state->jukebox_unique_tag);
     sdsfree(mympd_state->cols_queue_current);
     sdsfree(mympd_state->cols_search);
     sdsfree(mympd_state->cols_browse_database);
@@ -74,6 +78,7 @@ void free_mympd_state(t_mympd_state *mympd_state) {
     sdsfree(mympd_state->locale);
     sdsfree(mympd_state->music_directory);
     sdsfree(mympd_state->theme);
+    truncate_timerlist(&mympd_state->timer_list);
     FREE_PTR(mympd_state);
 }
 

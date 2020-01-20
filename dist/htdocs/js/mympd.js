@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
- myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -62,6 +62,11 @@ function webSocketConnect() {
     if (socket !== null && socket.readyState === WebSocket.OPEN) {
         logInfo("Socket already connected");
         websocketConnected = true;
+        return;
+    }
+    else if (socket !== null && socket.readyState === WebSocket.CONNECTING) {
+        logInfo("Socket connection in progress");
+        websocketConnected = false;
         return;
     }
     else {
@@ -206,7 +211,7 @@ function getWsUrl() {
 }
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
- myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -859,7 +864,7 @@ var phrases={
 	},
 	"Albumart":{
 		"de-DE":"Albumcover",
-		"ko-KR":"음반표지"
+		"ko-KR":"음반 표지"
 	},
 	"Albums":{
 		"de-DE":"Alben",
@@ -978,14 +983,16 @@ var phrases={
 		"ko-KR":"인증"
 	},
 	"Clear":{
-		"de-DE":"Löschen"
+		"de-DE":"Löschen",
+		"ko-KR":"지우기"
 	},
 	"Clear app cache and reload":{
 		"de-DE":"Browser Cache löschen und neu laden",
-		"ko-KR":"캐시를 지우고 다시 읽기"
+		"ko-KR":"앱 캐시를 지우고 다시 읽기"
 	},
 	"Clear covercache":{
-		"de-DE":"Covercache löschen"
+		"de-DE":"Covercache löschen",
+		"ko-KR":"표지 캐시 지우기"
 	},
 	"Clear playlist":{
 		"de-DE":"Playlist leeren",
@@ -1012,7 +1019,8 @@ var phrases={
 		"ko-KR":"작곡가"
 	},
 	"Conductor":{
-		"de-DE":"Dirigent"
+		"de-DE":"Dirigent",
+		"ko-KR":"지휘자"
 	},
 	"Connect to websocket":{
 		"de-DE":"Websocketverbindung wird hergestellt",
@@ -1043,14 +1051,16 @@ var phrases={
 		"ko-KR":"소비를 선택해야 함"
 	},
 	"Covergrid":{
-		"de-DE":"Albumcover"
+		"de-DE":"Albumcover",
+		"ko-KR":"음반 표지 격자"
 	},
 	"Create Playlist":{
 		"de-DE":"Neue Wiedergabeliste erstellen",
 		"ko-KR":"연주목록 만들기"
 	},
 	"Crop":{
-		"de-DE":"Abschneiden"
+		"de-DE":"Abschneiden",
+		"ko-KR":"잘라내기"
 	},
 	"Crop queue":{
 		"de-DE":"Warteschlange abschneiden",
@@ -1069,7 +1079,8 @@ var phrases={
 		"ko-KR":"DB 업데이트됨"
 	},
 	"Dark":{
-		"de-DE":"Dunkel"
+		"de-DE":"Dunkel",
+		"ko-KR":"어둠"
 	},
 	"Database":{
 		"de-DE":"Datenbank",
@@ -1101,7 +1112,11 @@ var phrases={
 		"ko-KR":"일"
 	},
 	"Default":{
-		"de-DE":"Standard"
+		"de-DE":"Standard",
+		"ko-KR":"기본"
+	},
+	"Definition":{
+		"de-DE":"Definition"
 	},
 	"Delete":{
 		"de-DE":"Löschen",
@@ -1124,7 +1139,8 @@ var phrases={
 		"ko-KR":"음원 크기에 따라 시간이 걸릴 수 있습니다"
 	},
 	"Descending":{
-		"de-DE":"Absteigend"
+		"de-DE":"Absteigend",
+		"ko-KR":"내림차순"
 	},
 	"Disc":{
 		"de-DE":"CD",
@@ -1161,6 +1177,15 @@ var phrases={
 	"Empty queue":{
 		"de-DE":"Leere Warteschlange",
 		"ko-KR":"순서 비우기"
+	},
+	"Enable jukebox if playlist is database":{
+		"de-DE":"Jukebox muss aktiviert sein, wenn als Wiedergabeliste die Datenbank ausgewählt ist."
+	},
+	"Enabled":{
+		"de-DE":"Aktiv"
+	},
+	"Enforce uniqueness":{
+		"de-DE":"Erzwinge Eindeutigkeit"
 	},
 	"Failed to execute cmd %{cmd}":{
 		"de-DE":"Fehler beim Ausführen des Systembefehls %{cmd}",
@@ -1226,6 +1251,9 @@ var phrases={
 		"de-DE":"In Tabelle navigieren",
 		"ko-KR":"목록에서 찾기"
 	},
+	"Fri":{
+		"de-DE":"Fr"
+	},
 	"From":{
 		"de-DE":"Von",
 		"ko-KR":"원래"
@@ -1239,7 +1267,8 @@ var phrases={
 		"ko-KR":"장르"
 	},
 	"Goto browse covergrid":{
-		"de-DE":"Gehe zu Albumcover"
+		"de-DE":"Gehe zu Albumcover",
+		"ko-KR":"음반 표지 격자 보기로 가기"
 	},
 	"Goto browse database":{
 		"de-DE":"Gehe zu Datenbank durchsuchen",
@@ -1287,7 +1316,8 @@ var phrases={
 		"ko-KR":"myMPD 초기화"
 	},
 	"Interface":{
-		"de-DE":"Oberfläche"
+		"de-DE":"Oberfläche",
+		"ko-KR":"인터페이스"
 	},
 	"Invalid API request":{
 		"de-DE":"Ungültiger API Befehl",
@@ -1333,6 +1363,9 @@ var phrases={
 		"de-DE":"Ungültiges Musikverzeichnis",
 		"ko-KR":"잘못된 음원 디렉터리"
 	},
+	"Invalid name":{
+		"de-DE":"Ungültiger Name"
+	},
 	"Invalid size":{
 		"de-DE":"Ungültige Größe",
 		"ko-KR":"잘못된 크기"
@@ -1342,7 +1375,8 @@ var phrases={
 		"ko-KR":"잘못된 형식"
 	},
 	"JavaScript error":{
-		"de-DE":"JavaScript Fehler"
+		"de-DE":"JavaScript Fehler",
+		"ko-KR":"자바스크립트 오류"
 	},
 	"JavaScript is disabled":{
 		"de-DE":"JavaScript ist deaktiviert",
@@ -1376,6 +1410,9 @@ var phrases={
 		"de-DE":"Anzahl zuletzt gespielte Lieder",
 		"ko-KR":"앞선 연주 목록 개수"
 	},
+	"Last played older than (hours)":{
+		"de-DE":"Zuletzte gespielt, vor mehr als (Stunden)"
+	},
 	"Last skipped":{
 		"de-DE":"Zuletzt übersprungen",
 		"ko-KR":"앞서 건너뜀"
@@ -1389,10 +1426,12 @@ var phrases={
 		"ko-KR":"Libmpdclient 버전"
 	},
 	"Libmympdclient version":{
-		"de-DE":"Libmympdclient Version"
+		"de-DE":"Libmympdclient Version",
+		"ko-KR":"Libmympdclient 버전"
 	},
 	"Light":{
-		"de-DE":"Hell"
+		"de-DE":"Hell",
+		"ko-KR":"밝음"
 	},
 	"Like":{
 		"de-DE":"Wertung",
@@ -1486,6 +1525,9 @@ var phrases={
 		"de-DE":"Nachricht",
 		"ko-KR":"메시지"
 	},
+	"Minimum one weekday must be selected":{
+		"de-DE":"Es muss mindestens ein Wochentag ausgewählt sein."
+	},
 	"Minutes":{
 		"de-DE":"Min",
 		"en-US":"Min",
@@ -1499,6 +1541,9 @@ var phrases={
 		"de-DE":"Mixramp Verzögerung",
 		"ko-KR":"Mixramp 지연"
 	},
+	"Mon":{
+		"de-DE":"Mo"
+	},
 	"Music directory":{
 		"de-DE":"Musikverzeichnis",
 		"ko-KR":"음원 디렉터리"
@@ -1510,6 +1555,9 @@ var phrases={
 	"Must be a number":{
 		"de-DE":"Muss eine Zahl sein",
 		"ko-KR":"숫자여야 함"
+	},
+	"Must be a number and equal or greater than zero":{
+		"de-DE":"Muss eine Zahl größergleich 0 sein"
 	},
 	"Must be a number and greater than zero":{
 		"de-DE":"Muss eine Zahl größer als 0 sein",
@@ -1527,6 +1575,9 @@ var phrases={
 		"de-DE":"Neue Wiedergabeliste",
 		"ko-KR":"새 연주목록"
 	},
+	"New timer":{
+		"de-DE":"Neuer Timer"
+	},
 	"Next page":{
 		"de-DE":"Nächste Seite",
 		"ko-KR":"다음 페이지"
@@ -1536,7 +1587,8 @@ var phrases={
 		"ko-KR":"다음 곡"
 	},
 	"No albumart found by mpd":{
-		"de-DE":"MPD konnte keine Cover finden"
+		"de-DE":"MPD konnte keine Cover finden",
+		"ko-KR":"MPD가 음반 표지를 찾을 수 없음"
 	},
 	"No bookmarks found":{
 		"de-DE":"Keine Lesezeichen gefunden",
@@ -1586,12 +1638,18 @@ var phrases={
 		"ko-KR":"%{smart_count} 곡 |||| %{smart_count} 곡"
 	},
 	"Off":{
-		"de-DE":"deaktiviert",
+		"de-DE":"Deaktiviert",
 		"ko-KR":"끄기"
+	},
+	"On":{
+		"de-DE":"Aktiv"
 	},
 	"On page notifications":{
 		"de-DE":"Integrierte Hinweise",
 		"ko-KR":"페이지에 알림"
+	},
+	"Oneshot":{
+		"de-DE":"Oneshot"
 	},
 	"Open about":{
 		"de-DE":"Öffne Über myMPD",
@@ -1617,6 +1675,9 @@ var phrases={
 		"de-DE":"Öffne Lautstärkemenü",
 		"ko-KR":"음량 메뉴 열기"
 	},
+	"Other features":{
+		"de-DE":"Weitere Features"
+	},
 	"Pagination":{
 		"de-DE":"Seitenumbruch",
 		"ko-KR":"페이지 매기기"
@@ -1640,6 +1701,9 @@ var phrases={
 	"Playback statistics":{
 		"de-DE":"Wiedergabestatistiken",
 		"ko-KR":"연주 통계"
+	},
+	"Playback statistics are disabled":{
+		"de-DE":"Wiedergabestatistiken sind deaktiviert"
 	},
 	"Playlist":{
 		"de-DE":"Wiedergabeliste",
@@ -1746,7 +1810,8 @@ var phrases={
 		"ko-KR":"데이터베이스 다시 검색"
 	},
 	"Rescan directory":{
-		"de-DE":"Verzeichnis neu einlesen"
+		"de-DE":"Verzeichnis neu einlesen",
+		"ko-KR":"디렉터리 다시 검색"
 	},
 	"Reset":{
 		"de-DE":"Zurücksetzen",
@@ -1755,6 +1820,9 @@ var phrases={
 	"Reset settings":{
 		"de-DE":"Einstellungen zurücksetzen",
 		"ko-KR":"다시 설정 하기"
+	},
+	"Sat":{
+		"de-DE":"Sa"
 	},
 	"Save":{
 		"de-DE":"Speichern",
@@ -1830,7 +1898,8 @@ var phrases={
 		"ko-KR":"단축키"
 	},
 	"Show songs":{
-		"de-DE":"Lieder anzeigen"
+		"de-DE":"Lieder anzeigen",
+		"ko-KR":"곡 보기"
 	},
 	"Shuffle queue":{
 		"de-DE":"Warteschlange mischen",
@@ -1845,10 +1914,12 @@ var phrases={
 		"ko-KR":"픽셀 크기"
 	},
 	"Size normal":{
-		"de-DE":"Normale Größe"
+		"de-DE":"Normale Größe",
+		"ko-KR":"일반 크기"
 	},
 	"Size small":{
-		"de-DE":"Kleine Größe"
+		"de-DE":"Kleine Größe",
+		"ko-KR":"작은 크기"
 	},
 	"Skip count":{
 		"de-DE":"Wie oft übersprungen",
@@ -1891,11 +1962,18 @@ var phrases={
 		"ko-KR":"곡"
 	},
 	"Sort by":{
-		"de-DE":"Sortieren"
+		"de-DE":"Sortieren",
+		"ko-KR":"정렬"
 	},
 	"Specify":{
 		"de-DE":"Manuell",
 		"ko-KR":"지정"
+	},
+	"Start":{
+		"de-DE":"Start"
+	},
+	"Start playback":{
+		"de-DE":"Wiedergabe starten"
 	},
 	"Statistics":{
 		"de-DE":"Statistiken",
@@ -1909,6 +1987,9 @@ var phrases={
 		"de-DE":"Sticker sind deaktiviert",
 		"ko-KR":"스티커 사용 안 함"
 	},
+	"Stop playback":{
+		"de-DE":"Wiedergabe anhalten"
+	},
 	"Stop playing":{
 		"de-DE":"Stop",
 		"ko-KR":"정지"
@@ -1918,10 +1999,12 @@ var phrases={
 		"ko-KR":"스트림 주소"
 	},
 	"Successfully cleared covercache":{
-		"de-DE":"Covercache erfolgreich geleert"
+		"de-DE":"Covercache erfolgreich geleert",
+		"ko-KR":"표지 캐시 지우기 완료"
 	},
 	"Successfully croped covercache":{
-		"de-DE":"Covercache erfolgreich bereinigt"
+		"de-DE":"Covercache erfolgreich bereinigt",
+		"ko-KR":"표지 캐시 잘라내기 완료"
 	},
 	"Successfully execute cmd %{cmd}":{
 		"de-DE":"Systembefehl %{cmd} erfolgreich ausgeführt",
@@ -1934,6 +2017,12 @@ var phrases={
 	"Sucessfully renamed playlist":{
 		"de-DE":"Wiedergabeliste erfolgreich umbenannt",
 		"ko-KR":"연주목록 이름 바꿈"
+	},
+	"Sun":{
+		"de-DE":"So"
+	},
+	"System command":{
+
 	},
 	"System command not defined":{
 		"de-DE":"Systembefehl nicht definiert",
@@ -1971,6 +2060,12 @@ var phrases={
 		"de-DE":"Design",
 		"ko-KR":"테마"
 	},
+	"Thu":{
+		"de-DE":"Do"
+	},
+	"Timer":{
+
+	},
 	"Timerange (days)":{
 		"de-DE":"Tage",
 		"ko-KR":"시간 범위 (날짜)"
@@ -1995,6 +2090,9 @@ var phrases={
 		"de-DE":"Liednummer",
 		"ko-KR":"트랙"
 	},
+	"Tue":{
+		"de-DE":"Di"
+	},
 	"Type":{
 		"de-DE":"Typ",
 		"ko-KR":"형식"
@@ -2004,10 +2102,12 @@ var phrases={
 		"ko-KR":"주소"
 	},
 	"Unknown album":{
-		"de-DE":"Unbekanntes Album"
+		"de-DE":"Unbekanntes Album",
+		"ko-KR":"모르는 음반"
 	},
 	"Unknown artist":{
-		"de-DE":"Unbekannter Künstler"
+		"de-DE":"Unbekannter Künstler",
+		"ko-KR":"모르는 연주자"
 	},
 	"Unknown request":{
 		"de-DE":"Unbekannter Befehl",
@@ -2030,7 +2130,8 @@ var phrases={
 		"ko-KR":"데이터베이스 업데이트"
 	},
 	"Update directory":{
-		"de-DE":"Verzeichnis aktualisieren"
+		"de-DE":"Verzeichnis aktualisieren",
+		"ko-KR":"디렉터리 업데이트"
 	},
 	"Update smart playlist":{
 		"de-DE":"Intelligente Wiedergabeliste aktualisieren",
@@ -2084,6 +2185,12 @@ var phrases={
 		"de-DE":"Websocket Verbindung fehlgeschlagen, versuche neue Verbindung",
 		"ko-KR":"웹소켓 연결이 안 되어, 다시 시도하는 중"
 	},
+	"Wed":{
+		"de-DE":"Mit"
+	},
+	"Weekdays":{
+		"de-DE":"Wochentage"
+	},
 	"Work":{
 		"de-DE":"Werk",
 		"ko-KR":"작품"
@@ -2131,11 +2238,14 @@ var phrases={
 	"never":{
 		"de-DE":"noch nie",
 		"ko-KR":"안 함"
+	},
+	"on":{
+		"de-DE":"an"
 	}
 };
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
- myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -2177,7 +2287,7 @@ var keymap = {
 };
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
- myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -2285,7 +2395,7 @@ function i18nHtml(root) {
 }
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
- myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -2327,7 +2437,7 @@ function logLog(loglevel, line) {
 }
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
- myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -2445,7 +2555,7 @@ function updateDBfinished(idleEvent) {
 }
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
- myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -2550,11 +2660,14 @@ var modalUpdateDB = new Modal(document.getElementById('modalUpdateDB'));
 var modalSaveSmartPlaylist = new Modal(document.getElementById('modalSaveSmartPlaylist'));
 var modalDeletePlaylist = new Modal(document.getElementById('modalDeletePlaylist'));
 var modalSaveBookmark = new Modal(document.getElementById('modalSaveBookmark'));
+var modalTimer = new Modal(document.getElementById('modalTimer'));
 
 var dropdownMainMenu; 
 var dropdownVolumeMenu = new Dropdown(document.getElementById('volumeMenu'));
 var dropdownBookmarks = new Dropdown(document.getElementById('BrowseFilesystemBookmark'));
 var dropdownLocalPlayer = new Dropdown(document.getElementById('localPlaybackMenu'));
+var dropdownPlay = new Dropdown(document.getElementById('btnPlayDropdown'));
+var dropdownCovergridSort = new Dropdown(document.getElementById('btnCovergridSortDropdown'));
 
 var collapseDBupdate = new Collapse(document.getElementById('navDBupdate'));
 var collapseSyscmds = new Collapse(document.getElementById('navSyscmds'));
@@ -2737,17 +2850,17 @@ function appRoute() {
     else if (app.current.app === 'Browse' && app.current.tab === 'Covergrid') {
         document.getElementById('searchCovergridStr').value = app.current.search;
         selectTag('searchCovergridTags', 'searchCovergridTagsDesc', app.current.filter);
-        selectTag('searchCovergridSortTags', undefined, app.current.sort);
         let sort = app.current.sort;
         let sortdesc = false;
         if (app.current.sort.charAt(0) === '-') {
             sortdesc = true;
             sort = app.current.sort.substr(1);
-            document.getElementById('searchCovergridSortDesc').checked = true;
+            toggleBtnChk('covergridSortDesc', true);
         }
         else {
-            document.getElementById('searchCovergridSortDesc').checked = false;
+            toggleBtnChk('covergridSortDesc', false);
         }
+        selectTag('covergridSortTags', undefined, sort);
         sendAPI("MPD_API_DATABASE_GET_ALBUMS", {"offset": app.current.page, "searchstr": app.current.search, 
             "tag": app.current.filter, "sort": sort, "sortdesc": sortdesc}, parseCovergrid);
     }
@@ -2963,6 +3076,26 @@ function appInit() {
         sendAPI("MYMPD_API_BOOKMARK_LIST", {"offset": 0}, parseBookmarks);
     });
     
+    document.getElementById('playDropdown').parentNode.addEventListener('show.bs.dropdown', function () {
+        showPlayDropdown();
+    });
+
+    document.getElementById('playDropdown').addEventListener('click', function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    });
+    
+    let dropdowns = document.querySelectorAll('.dropdown-toggle');
+    for (let i = 0; i < dropdowns.length; i++) {
+        dropdowns[i].parentNode.addEventListener('show.bs.dropdown', function () {
+            alignDropdown(this);
+        });
+    }
+    
+    document.getElementById('modalTimer').addEventListener('shown.bs.modal', function () {
+        showListTimer();
+    });
+    
     document.getElementById('modalAbout').addEventListener('shown.bs.modal', function () {
         sendAPI("MPD_API_DATABASE_STATS", {}, parseStats);
         let trs = '';
@@ -2984,6 +3117,31 @@ function appInit() {
             document.getElementById('addToPlaylistPlaylist').focus();
         }
     });
+    
+    document.getElementById('inputTimerVolume').addEventListener('change', function() {
+        document.getElementById('textTimerVolume').innerHTML = this.value + '&nbsp;%';
+    }, false);
+    
+    document.getElementById('selectTimerAction').addEventListener('change', function() {
+        if (this.options[this.selectedIndex].value === 'startplay') {
+            document.getElementById('timerActionPlay').classList.remove('hide');
+        }
+        else {
+            document.getElementById('timerActionPlay').classList.add('hide');
+        }
+    }, false);
+    
+    let selectTimerHour = ''; 
+    for (let i = 0; i < 24; i++) {
+        selectTimerHour += '<option value="' + i + '">' + zeroPad(i, 2) + '</option>';
+    }
+    document.getElementById('selectTimerHour').innerHTML = selectTimerHour;
+    
+    let selectTimerMinute = ''; 
+    for (let i = 0; i < 60; i = i + 5) {
+        selectTimerMinute += '<option value="' + i + '">' + zeroPad(i, 2) + '</option>';
+    }
+    document.getElementById('selectTimerMinute').innerHTML = selectTimerMinute;
     
     document.getElementById('modalAddToQueue').addEventListener('shown.bs.modal', function () {
         document.getElementById('inputAddToQueueQuantity').classList.remove('is-invalid');
@@ -3018,30 +3176,45 @@ function appInit() {
         document.getElementById('inputMpdPass').classList.remove('is-invalid');
     });
 
-    document.getElementById('selectJukeboxMode').addEventListener('change', function () {
-        let value = this.options[this.selectedIndex].value;
-        if (value === '0') {
-            document.getElementById('inputJukeboxQueueLength').setAttribute('disabled', 'disabled');
-            document.getElementById('selectJukeboxPlaylist').setAttribute('disabled', 'disabled');
-        }
-        else if (value === '2') {
-            document.getElementById('inputJukeboxQueueLength').setAttribute('disabled', 'disabled');
-            document.getElementById('selectJukeboxPlaylist').setAttribute('disabled', 'disabled');
-            document.getElementById('selectJukeboxPlaylist').value = 'Database';
-        }
-        else if (value === '1') {
-            document.getElementById('inputJukeboxQueueLength').removeAttribute('disabled');
-            document.getElementById('selectJukeboxPlaylist').removeAttribute('disabled');
-        }
-        if (value !== '0') {
-            toggleBtnChk('btnConsume', true);            
-        }
-        checkConsume();
+    document.getElementById('btnJukeboxModeGroup').addEventListener('mouseup', function () {
+        setTimeout(function() {
+            let value = document.getElementById('btnJukeboxModeGroup').getElementsByClassName('active')[0].getAttribute('data-value');
+            if (value === '0') {
+                document.getElementById('inputJukeboxQueueLength').setAttribute('disabled', 'disabled');
+                document.getElementById('selectJukeboxPlaylist').setAttribute('disabled', 'disabled');
+            }
+            else if (value === '2') {
+                document.getElementById('inputJukeboxQueueLength').setAttribute('disabled', 'disabled');
+                document.getElementById('selectJukeboxPlaylist').setAttribute('disabled', 'disabled');
+                document.getElementById('selectJukeboxPlaylist').value = 'Database';
+            }
+            else if (value === '1') {
+                document.getElementById('inputJukeboxQueueLength').removeAttribute('disabled');
+                document.getElementById('selectJukeboxPlaylist').removeAttribute('disabled');
+            }
+            if (value !== '0') {
+                toggleBtnChk('btnConsume', true);            
+            }
+            checkConsume();
+        }, 100);
     });
     
     document.getElementById('btnConsume').addEventListener('mouseup', function() {
         setTimeout(function() { 
             checkConsume(); 
+        }, 100);
+    });
+    
+    document.getElementById('btnStickers').addEventListener('mouseup', function() {
+        setTimeout(function() {
+            if (document.getElementById('btnStickers').classList.contains('active')) {
+                document.getElementById('warnPlaybackStatistics').classList.add('hide');
+                document.getElementById('inputJukeboxLastPlayed').removeAttribute('disabled');
+            }
+            else {
+                document.getElementById('warnPlaybackStatistics').classList.remove('hide');
+                document.getElementById('inputJukeboxLastPlayed').setAttribute('disabled', 'disabled');
+            }
         }, 100);
     });
     
@@ -3158,6 +3331,20 @@ function appInit() {
             event.stopPropagation();
             sendAPI("MPD_API_PLAYER_TOGGLE_OUTPUT", {"output": event.target.getAttribute('data-output-id'), "state": (event.target.classList.contains('active') ? 0 : 1)});
             toggleBtn(event.target.id);
+        }
+    }, false);
+    
+    document.getElementById('listTimerList').addEventListener('click', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        if (event.target.nodeName === 'TD') {
+            showEditTimer(event.target.parentNode.getAttribute('data-id'));
+        }
+        else if (event.target.nodeName === 'A') {
+            deleteTimer(event.target.parentNode.parentNode.getAttribute('data-id'));
+        }
+        else if (event.target.nodeName === 'BUTTON') {
+            toggleTimer(event.target, event.target.parentNode.parentNode.getAttribute('data-id'));
         }
     }, false);
     
@@ -3303,7 +3490,10 @@ function appInit() {
         }
     }, false);
     
-    document.getElementById('searchCovergridSortDesc').addEventListener('click', function(event) {
+    document.getElementById('covergridSortDesc').addEventListener('click', function(event) {
+        toggleBtnChk(this);
+        event.stopPropagation();
+        event.preventDefault();
         if (app.current.sort.charAt(0) === '-') {
             app.current.sort = app.current.sort.substr(1);
         }
@@ -3313,8 +3503,10 @@ function appInit() {
         appGoto(app.current.app, app.current.tab, app.current.view, '0/' + app.current.filter + '/' + app.current.sort + '/' + app.current.search);
     }, false);
 
-    document.getElementById('searchCovergridSortTags').addEventListener('click', function(event) {
+    document.getElementById('covergridSortTags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
+            event.preventDefault();
+            event.stopPropagation();
             app.current.sort = event.target.getAttribute('data-tag');
             appGoto(app.current.app, app.current.tab, app.current.view, '0/' + app.current.filter + '/' + app.current.sort + '/' + app.current.search);
         }
@@ -3344,9 +3536,9 @@ function appInit() {
         }
     }, false);
 
-    let dropdowns = ['BrowseDatabaseColsDropdown', 'PlaybackColsDropdown'];
-    for (let i = 0; i < dropdowns.length; i++) {
-        document.getElementById(dropdowns[i]).addEventListener('click', function(event) {
+    let colDropdowns = ['BrowseDatabaseColsDropdown', 'PlaybackColsDropdown'];
+    for (let i = 0; i < colDropdowns.length; i++) {
+        document.getElementById(colDropdowns[i]).addEventListener('click', function(event) {
             if (event.target.nodeName === 'BUTTON' && event.target.classList.contains('material-icons')) {
                 event.stopPropagation();
                 event.preventDefault();
@@ -3584,7 +3776,7 @@ window.onerror = function(msg, url, line) {
 appInitStart();
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
- myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -3696,7 +3888,7 @@ function toggleUI() {
 }
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
- myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -3794,7 +3986,7 @@ function parsePlaylists(obj) {
     if (nrItems === 0) {
         if (app.current.view === 'All') {
             tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
-                              '<td colspan="3>' + t('No playlists found') + '</td></tr>';
+                              '<td colspan="3">' + t('No playlists found') + '</td></tr>';
         }
         else {
             tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
@@ -3825,7 +4017,10 @@ function getAllPlaylists(obj) {
         if (playlistEl === 'addToPlaylistPlaylist') {
             playlists = '<option value=""></option><option value="new">' + t('New playlist') + '</option>';
         }
-        else if (playlistEl === 'selectJukeboxPlaylist' || playlistEl === 'selectAddToQueuePlaylist') {
+        else if (playlistEl === 'selectJukeboxPlaylist' || 
+                 playlistEl === 'selectAddToQueuePlaylist' ||
+                 playlistEl === 'selectTimerPlaylist'
+        ) {
             playlists = '<option value="Database">' + t('Database') + '</option>';
         }
     }
@@ -4098,7 +4293,7 @@ function addSelectedItemToPlaylist() {
 }
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
- myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -4326,7 +4521,7 @@ function showMenuTd(el, event) {
 }
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
- myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -4617,7 +4812,7 @@ function delQueueSong(mode, start, end) {
 }
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
- myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -4675,7 +4870,7 @@ function addAllFromSearchPlist(plist, search, replace) {
 }
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
- myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -4756,8 +4951,8 @@ function joinSettings(obj) {
 
 function checkConsume() {
     let stateConsume = document.getElementById('btnConsume').classList.contains('active') ? true : false;
-    let stateJukeboxMode = document.getElementById('selectJukeboxMode').value === '0' ? false : true;
-    if (stateJukeboxMode === true && stateConsume === false) {
+    let stateJukeboxMode = document.getElementById('btnJukeboxModeGroup').getElementsByClassName('active')[0].getAttribute('data-value');
+    if (stateJukeboxMode > 0 && stateConsume === false) {
         document.getElementById('warnConsume').classList.remove('hide');
     }
     else {
@@ -4834,6 +5029,7 @@ function parseSettings() {
     toggleBtnChk('btnBgCover', settings.bgCover);
     toggleBtnChk('btnFeatLocalplayer', settings.featLocalplayer);
     toggleBtnChk('btnLocalplayerAutoplay', settings.localplayerAutoplay);
+    toggleBtnChk('btnFeatTimer', settings.featTimer);
     toggleBtnChk('btnBookmarks', settings.featBookmarks);
     if (settings.streamUrl === '') {
         document.getElementById('selectStreamMode').value = 'port';
@@ -4872,7 +5068,7 @@ function parseSettings() {
     document.getElementById('inputLastPlayedCount').value = settings.lastPlayedCount;
     toggleBtnChk('btnSmartpls', settings.smartpls);
     
-    let features = ["featLocalplayer", "featSyscmds", "featMixramp", "featCacert", "featBookmarks", "featRegex"];
+    let features = ["featLocalplayer", "featSyscmds", "featMixramp", "featCacert", "featBookmarks", "featRegex", "featTimer"];
     for (let j = 0; j < features.length; j++) {
         let Els = document.getElementsByClassName(features[j]);
         let ElsLen = Els.length;
@@ -4899,6 +5095,10 @@ function parseSettings() {
         document.getElementById('btnBookmarks').removeAttribute('disabled');
         document.getElementsByClassName('groupClearCovercache')[0].classList.remove('hide');
     }
+    
+    let timerActions = '<option value="startplay">' + t('Start playback') + '</option>' +
+        '<option value="stopplay">' + t('Stop playback') + '</option>' +
+        '<optgroup label="' + t('System command') + '">';
 
     if (settings.featSyscmds) {
         let syscmdsMaxListLen = 4;
@@ -4911,12 +5111,15 @@ function parseSettings() {
                     syscmdsList += '<div class="dropdown-divider"></div>';
                 }
                 else {
-                    syscmdsList += '<a class="dropdown-item text-light bg-dark alwaysEnabled" href="#" data-href=\'{"cmd": "execSyscmd", "options": ["' + 
+                    syscmdsList += '<a class="dropdown-item text-light alwaysEnabled" href="#" data-href=\'{"cmd": "execSyscmd", "options": ["' + 
                         e(settings.syscmdList[i]) + '"]}\'>' + e(settings.syscmdList[i]) + '</a>';
+                    timerActions += '<option value="' + e(settings.syscmdList[i]) + '">' + e(settings.syscmdList[i]) + '</option>';
                 }
             }
         }
         document.getElementById('syscmds').innerHTML = syscmdsList;
+        timerActions += '</optgroup>';
+        document.getElementById('selectTimerAction').innerHTML = timerActions;
         if (syscmdsListLen > syscmdsMaxListLen) {
             document.getElementById('navSyscmds').classList.remove('hide');
             document.getElementById('syscmds').classList.add('collapse', 'menu-indent');
@@ -4932,8 +5135,10 @@ function parseSettings() {
 
     dropdownMainMenu = new Dropdown(document.getElementById('mainMenu'));
     
-    document.getElementById('selectJukeboxMode').value = settings.jukeboxMode;
+    toggleBtnGroupValue(document.getElementById('btnJukeboxModeGroup'), settings.jukeboxMode);
+    document.getElementById('selectJukeboxUniqueTag').value = settings.jukeboxUniqueTag;
     document.getElementById('inputJukeboxQueueLength').value = settings.jukeboxQueueLength;
+    document.getElementById('inputJukeboxLastPlayed').value = settings.jukeboxLastPlayed;
     
     if (settings.jukeboxMode === 0) {
         document.getElementById('inputJukeboxQueueLength').setAttribute('disabled', 'disabled');
@@ -4971,8 +5176,6 @@ function parseSettings() {
             localPlayer.load();
         }
     }
-
-
     
     if (settings.musicDirectory === 'auto') {
         document.getElementById('selectMusicDirectory').value = settings.musicDirectory;
@@ -5019,9 +5222,11 @@ function parseSettings() {
 function parseMPDSettings() {
     toggleBtnChk('btnRandom', settings.random);
     toggleBtnChk('btnConsume', settings.consume);
-    toggleBtnChk('btnSingle', settings.single);
     toggleBtnChk('btnRepeat', settings.repeat);
     toggleBtnChk('btnAutoPlay', settings.autoPlay);
+
+    toggleBtnGroupValue(document.getElementById('btnSingleGroup'), settings.single);
+    toggleBtnGroupValue(document.getElementById('btnReplaygainGroup'), settings.replaygain);
     
     if (settings.crossfade !== undefined) {
         document.getElementById('inputCrossfade').removeAttribute('disabled');
@@ -5045,15 +5250,8 @@ function parseMPDSettings() {
         document.getElementById('inputMixrampdelay').setAttribute('disabled', 'disabled');
     }
 
-    document.getElementById('selectReplaygain').value = settings.replaygain;
-    
     let features = ['featStickers', 'featSmartpls', 'featPlaylists', 'featTags', 'featCoverimage', 'featAdvsearch',
-        'featLove', 'featDate', 'featGenre'];
-    var featTags = ['Date', 'Genre' ];
-    for (let i = 0; i < featTags.length; i++) {
-        settings['feat' + featTags[i]] = settings.tags.includes(featTags[i]) ? true : false;
-        features.push('feat' + featTags[i]);
-    }
+        'featLove', 'featSingleOneshot'];
     for (let j = 0; j < features.length; j++) {
         let Els = document.getElementsByClassName(features[j]);
         let ElsLen = Els.length;
@@ -5095,6 +5293,15 @@ function parseMPDSettings() {
     }
     else {
         document.getElementById('warnStickers').classList.add('hide');
+    }
+    
+    if (settings.featStickers === false || settings.stickers === false) {
+        document.getElementById('warnPlaybackStatistics').classList.remove('hide');
+        document.getElementById('inputJukeboxLastPlayed').setAttribute('disabled', 'disabled');
+    }
+    else {
+        document.getElementById('warnPlaybackStatistics').classList.add('hide');
+        document.getElementById('inputJukeboxLastPlayed').removeAttribute('disabled');
     }
     
     if (settings.featLove === false && settings.love === true) {
@@ -5202,6 +5409,17 @@ function parseMPDSettings() {
     addTagList('BrowseDatabaseByTagDropdown', 'browsetags');
     addTagList('searchqueuetags', 'searchtags');
     addTagList('searchtags', 'searchtags');
+    addTagList('searchCovergridTags', 'browsetags');
+    addTagList('covergridSortTagsList', 'browsetags');
+
+    let list = '';
+    if (settings.browsetags.includes('Title') === false) {
+        list = '<option value="Title">' + t('Song') + '</option>';
+    }
+    for (let i = 0; i < settings.browsetags.length; i++) {
+        list += '<option value="' + settings.browsetags[i] + '">' + t(settings.browsetags[i]) + '</option>';
+    }
+    document.getElementById('selectJukeboxUniqueTag').innerHTML = list;
     
     for (let i = 0; i < settings.tags.length; i++) {
         app.apps.Browse.tabs.Database.views[settings.tags[i]] = { "state": "0/-/-/", "scrollPos": 0 };
@@ -5230,6 +5448,11 @@ function saveSettings() {
 
     let inputJukeboxQueueLength = document.getElementById('inputJukeboxQueueLength');
     if (!validateInt(inputJukeboxQueueLength)) {
+        formOK = false;
+    }
+
+    let inputJukeboxLastPlayed = document.getElementById('inputJukeboxLastPlayed');
+    if (!validateInt(inputJukeboxLastPlayed)) {
         formOK = false;
     }
     
@@ -5303,6 +5526,16 @@ function saveSettings() {
             }
         }
     }
+
+    let singleState = document.getElementById('btnSingleGroup').getElementsByClassName('active')[0].getAttribute('data-value');
+    let jukeboxMode = document.getElementById('btnJukeboxModeGroup').getElementsByClassName('active')[0].getAttribute('data-value');
+    let replaygain = document.getElementById('btnReplaygainGroup').getElementsByClassName('active')[0].getAttribute('data-value');
+    let jukeboxUniqueTag = document.getElementById('selectJukeboxUniqueTag');
+    let jukeboxUniqueTagValue = jukeboxUniqueTag.options[jukeboxUniqueTag.selectedIndex].value;
+    
+    if (jukeboxMode === '2') {
+        jukeboxUniqueTagValue = 'Album';
+    }
     
     if (formOK === true) {
         let selectReplaygain = document.getElementById('selectReplaygain');
@@ -5313,17 +5546,19 @@ function saveSettings() {
         sendAPI("MYMPD_API_SETTINGS_SET", {
             "consume": (document.getElementById('btnConsume').classList.contains('active') ? 1 : 0),
             "random": (document.getElementById('btnRandom').classList.contains('active') ? 1 : 0),
-            "single": (document.getElementById('btnSingle').classList.contains('active') ? 1 : 0),
+            "single": parseInt(singleState),
             "repeat": (document.getElementById('btnRepeat').classList.contains('active') ? 1 : 0),
-            "replaygain": selectReplaygain.options[selectReplaygain.selectedIndex].value,
+            "replaygain": replaygain,
             "crossfade": document.getElementById('inputCrossfade').value,
             "mixrampdb": (settings.featMixramp === true ? document.getElementById('inputMixrampdb').value : settings.mixrampdb),
             "mixrampdelay": (settings.featMixramp === true ? document.getElementById('inputMixrampdelay').value : settings.mixrampdelay),
             "notificationWeb": (document.getElementById('btnNotifyWeb').classList.contains('active') ? true : false),
             "notificationPage": (document.getElementById('btnNotifyPage').classList.contains('active') ? true : false),
-            "jukeboxMode": parseInt(selectJukeboxMode.options[selectJukeboxMode.selectedIndex].value),
+            "jukeboxMode": parseInt(jukeboxMode),
             "jukeboxPlaylist": selectJukeboxPlaylist.options[selectJukeboxPlaylist.selectedIndex].value,
             "jukeboxQueueLength": parseInt(document.getElementById('inputJukeboxQueueLength').value),
+            "jukeboxLastPlayed": parseInt(document.getElementById('inputJukeboxLastPlayed').value),
+            "jukeboxUniqueTag": jukeboxUniqueTagValue,
             "autoPlay": (document.getElementById('btnAutoPlay').classList.contains('active') ? true : false),
             "bgCover": (document.getElementById('btnBgCover').classList.contains('active') ? true : false),
             "bgColor": document.getElementById('inputBgColor').value,
@@ -5349,6 +5584,7 @@ function saveSettings() {
             "searchtaglist": getTagMultiSelectValues(document.getElementById('listSearchTags'), false),
             "browsetaglist": getTagMultiSelectValues(document.getElementById('listBrowseTags'), false),
             "theme": selectTheme.options[selectTheme.selectedIndex].value,
+            "timer": (document.getElementById('btnFeatTimer').classList.contains('active') ? true : false)
         }, getSettings);
         modalSettings.hide();
     }
@@ -5432,9 +5668,51 @@ function filterCols(x) {
     }
     settings[x] = cols;
 }
+
+function setPlaySettings(el) {
+    if (el.parentNode.classList.contains('btn-group')) {
+        toggleBtnGroup(el);
+    }
+    else {
+        toggleBtnChk(el);
+    }
+    if (el.parentNode.id === 'playDropdownBtnJukeboxModeGroup') {
+        if (el.parentNode.getElementsByClassName('active')[0].getAttribute('data-value') !== '0') {
+            toggleBtnChk('playDropdownBtnConsume', true);            
+        }
+    }
+    else if (el.id === 'playDropdownBtnConsume') {
+        if (el.classList.contains('active') == false) {
+            toggleBtnGroupValue(document.getElementById('playDropdownBtnJukeboxModeGroup'), 0);
+        }
+    }
+
+    savePlaySettings();
+}
+
+function showPlayDropdown() {
+    toggleBtnChk(document.getElementById('playDropdownBtnRandom'), settings.random);
+    toggleBtnChk(document.getElementById('playDropdownBtnConsume'), settings.consume);
+    toggleBtnChk(document.getElementById('playDropdownBtnRepeat'), settings.repeat);
+    toggleBtnChk(document.getElementById('playDropdownBtnRandom'), settings.random);
+    toggleBtnGroupValue(document.getElementById('playDropdownBtnSingleGroup'), settings.single);
+    toggleBtnGroupValue(document.getElementById('playDropdownBtnJukeboxModeGroup'), settings.jukeboxMode);
+}
+
+function savePlaySettings() {
+    let singleState = document.getElementById('playDropdownBtnSingleGroup').getElementsByClassName('active')[0].getAttribute('data-value');
+    let jukeboxMode = document.getElementById('playDropdownBtnJukeboxModeGroup').getElementsByClassName('active')[0].getAttribute('data-value');
+    sendAPI("MYMPD_API_SETTINGS_SET", {
+        "consume": (document.getElementById('playDropdownBtnConsume').classList.contains('active') ? 1 : 0),
+        "random": (document.getElementById('playDropdownBtnRandom').classList.contains('active') ? 1 : 0),
+        "single": parseInt(singleState),
+        "repeat": (document.getElementById('playDropdownBtnRepeat').classList.contains('active') ? 1 : 0),
+        "jukeboxMode": parseInt(jukeboxMode)
+        }, getSettings);
+}
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
- myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -5571,7 +5849,7 @@ function setVoteSongBtns(vote, uri) {
 }
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
- myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -5934,7 +6212,7 @@ function clickTitle() {
 }
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
- myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -6441,7 +6719,7 @@ function replaceTblRow(row, el) {
 }
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
- myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -6454,9 +6732,212 @@ var themes = {
 };
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
- myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
+
+//eslint-disable-next-line no-unused-vars
+function deleteTimer(timerid) {
+    sendAPI("MYMPD_API_TIMER_RM", {"timerid": timerid}, showListTimer);
+}
+
+//eslint-disable-next-line no-unused-vars
+function toggleTimer(target, timerid) {
+    if (target.classList.contains('active')) {
+        target.classList.remove('active');
+        sendAPI("MYMPD_API_TIMER_TOGGLE", {"timerid": timerid, "enabled": false}, showListTimer);
+    }
+    else {
+        target.classList.add('active');
+        sendAPI("MYMPD_API_TIMER_TOGGLE", {"timerid": timerid, "enabled": true}, showListTimer);
+    }
+}
+
+//eslint-disable-next-line no-unused-vars
+function saveTimer() {
+    let formOK = true;
+    let nameEl = document.getElementById('inputTimerName');
+    if (!validateNotBlank(nameEl)) {
+        formOK = false;
+    }
+    let minOneDay = false;
+    let weekdayBtns = ['btnTimerMon', 'btnTimerTue', 'btnTimerWed', 'btnTimerThu', 'btnTimerFri', 'btnTimerSat', 'btnTimerSun'];
+    let weekdays = [];
+    for (let i = 0; i < weekdayBtns.length; i++) {
+        let checked = document.getElementById(weekdayBtns[i]).classList.contains('active') ? true : false;
+        weekdays.push(checked);
+        if (checked === true) {
+            minOneDay = true;
+        }
+    }
+    if (minOneDay === false) {
+        formOK = false;
+        document.getElementById('invalidTimerWeekdays').style.display = 'block';
+    }
+    else {
+        document.getElementById('invalidTimerWeekdays').style.display = 'none';
+    }
+    let selectTimerAction = document.getElementById('selectTimerAction');
+    let selectTimerPlaylist = document.getElementById('selectTimerPlaylist');
+    let selectTimerHour = document.getElementById('selectTimerHour');
+    let selectTimerMinute = document.getElementById('selectTimerMinute');
+    let jukeboxMode = document.getElementById('btnTimerJukeboxModeGroup').getElementsByClassName('active')[0].getAttribute('data-value');
+
+    if (jukeboxMode === '0' &&
+        selectTimerPlaylist.options[selectTimerPlaylist.selectedIndex].value === 'Database'&&
+        selectTimerAction.options[selectTimerAction.selectedIndex].value === 'startplay')
+    {
+        formOK = false;
+        document.getElementById('btnTimerJukeboxModeGroup').classList.add('is-invalid');
+    }
+    if (formOK === true) {
+        sendAPI("MYMPD_API_TIMER_SAVE", {
+            "timerid": parseInt(document.getElementById('inputTimerId').value),
+            "name": nameEl.value,
+            "enabled": (document.getElementById('btnTimerEnabled').classList.contains('active') ? true : false),
+            "startHour": parseInt(selectTimerHour.options[selectTimerHour.selectedIndex].value),
+            "startMinute": parseInt(selectTimerMinute.options[selectTimerMinute.selectedIndex].value),
+            "weekdays": weekdays,
+            "action": selectTimerAction.options[selectTimerAction.selectedIndex].value,
+            "volume": parseInt(document.getElementById('inputTimerVolume').value), 
+            "playlist": selectTimerPlaylist.options[selectTimerPlaylist.selectedIndex].value,
+            "jukeboxMode": parseInt(jukeboxMode),
+            }, showListTimer);
+    }
+}
+
+//eslint-disable-next-line no-unused-vars
+function showEditTimer(timerid) {
+    document.getElementById('timerActionPlay').classList.add('hide');
+    document.getElementById('listTimer').classList.remove('active');
+    document.getElementById('editTimer').classList.add('active');
+    document.getElementById('listTimerFooter').classList.add('hide');
+    document.getElementById('editTimerFooter').classList.remove('hide');
+    playlistEl = 'selectTimerPlaylist';
+    sendAPI("MPD_API_PLAYLIST_LIST", {"offset": 0, "filter": "-"}, getAllPlaylists);
+    if (timerid !== 0) {
+        sendAPI("MYMPD_API_TIMER_GET", {"timerid": timerid}, parseEditTimer);
+    }
+    else {
+        document.getElementById('inputTimerId').value = '0';
+        document.getElementById('inputTimerName').value = '';
+        toggleBtnChk('btnTimerEnabled', true);
+        document.getElementById('selectTimerHour').value = '12';
+        document.getElementById('selectTimerMinute').value = '0';
+        document.getElementById('selectTimerAction').value = 'startplay';
+        document.getElementById('inputTimerVolume').value = '50';
+        document.getElementById('selectTimerPlaylist').value = 'Database';
+        toggleBtnGroupValue(document.getElementById('btnTimerJukeboxModeGroup'), 1);
+        let weekdayBtns = ['btnTimerMon', 'btnTimerTue', 'btnTimerWed', 'btnTimerThu', 'btnTimerFri', 'btnTimerSat', 'btnTimerSun'];
+        for (let i = 0; i < weekdayBtns.length; i++) {
+            toggleBtnChk(weekdayBtns[i], false);
+        }
+        document.getElementById('timerActionPlay').classList.remove('hide');
+    }
+    document.getElementById('inputTimerName').focus();
+    document.getElementById('inputTimerName').classList.remove('is-invalid');
+    document.getElementById('btnTimerJukeboxModeGroup').classList.remove('is-invalid');
+    document.getElementById('invalidTimerWeekdays').style.display = 'none';
+}
+
+function parseEditTimer(obj) {
+    if (obj.result.action === 'startplay') {
+        document.getElementById('timerActionPlay').classList.remove('hide');
+    }
+    else {
+        document.getElementById('timerActionPlay').classList.add('hide');
+    }
+    document.getElementById('inputTimerId').value = obj.result.timerid;
+    document.getElementById('inputTimerName').value = obj.result.name;
+    toggleBtnChk('btnTimerEnabled', obj.result.enabled);
+    document.getElementById('selectTimerHour').value = obj.result.startHour;
+    document.getElementById('selectTimerMinute').value = obj.result.startMinute;
+    document.getElementById('selectTimerAction').value = obj.result.action;
+    document.getElementById('inputTimerVolume').value = obj.result.volume;
+    document.getElementById('selectTimerPlaylist').value = obj.result.playlist;
+    toggleBtnGroupValue(document.getElementById('btnTimerJukeboxModeGroup'), obj.result.jukeboxMode);
+    let weekdayBtns = ['btnTimerMon', 'btnTimerTue', 'btnTimerWed', 'btnTimerThu', 'btnTimerFri', 'btnTimerSat', 'btnTimerSun'];
+    for (let i = 0; i < weekdayBtns.length; i++) {
+        toggleBtnChk(weekdayBtns[i], obj.result.weekdays[i]);
+    }
+}
+
+function showListTimer() {
+    document.getElementById('listTimer').classList.add('active');
+    document.getElementById('editTimer').classList.remove('active');
+    document.getElementById('listTimerFooter').classList.remove('hide');
+    document.getElementById('editTimerFooter').classList.add('hide');
+    sendAPI("MYMPD_API_TIMER_LIST", {}, parseListTimer);
+}
+
+function parseListTimer(obj) {
+    let tbody = document.getElementById('listTimer').getElementsByTagName('tbody')[0];
+    let tr = tbody.getElementsByTagName('tr');
+    
+    let activeRow = 0;
+    let weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    for (let i = 0; i < obj.result.returnedEntities; i++) {
+        let row = document.createElement('tr');
+        row.setAttribute('data-id', obj.result.data[i].timerid);
+        let tds = '<td>' + obj.result.data[i].name + '</td>' +
+                  '<td><button name="enabled" class="btn btn-secondary btn-xs clickable material-icons material-icons-small' +
+                  (obj.result.data[i].enabled === true ? ' active' : '') + '">' +
+                  (obj.result.data[i].enabled === true ? 'check' : 'radio_button_unchecked') + '</button></td>' +
+                  '<td>' + zeroPad(obj.result.data[i].startHour, 2) + ':' + zeroPad(obj.result.data[i].startMinute,2) + ' ' + t('on') + ' ';
+        let days = [];
+        for (let j = 0; j < 7; j++) {
+            if (obj.result.data[i].weekdays[j] === true) {
+                days.push(t(weekdays[j]))
+            }
+        }
+        tds += days.join(', ')  + '</td><td>' + t(obj.result.data[i].action) + '</td>' +
+               '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">delete</a></td>';
+        row.innerHTML = tds;
+        if (i < tr.length) {
+            activeRow = replaceTblRow(tr[i], row) === true ? i : activeRow;
+        }
+        else {
+            tbody.append(row);
+        }
+    }
+    let trLen = tr.length - 1;
+    for (let i = trLen; i >= obj.result.returnedEntities; i --) {
+        tr[i].remove();
+    }
+
+    if (obj.result.returnedEntities === 0) {
+        tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
+                          '<td colspan="4">' + t('Empty list') + '</td></tr>';
+    }     
+}
+/*
+ SPDX-License-Identifier: GPL-2.0-or-later
+ myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
+ https://github.com/jcorporation/mympd
+*/
+
+function alignDropdown(el) {
+    if (getXpos(el.children[0]) > domCache.body.offsetWidth * 0.66) {
+        el.children[1].classList.add('dropdown-menu-right');
+    }
+    else {
+        el.children[1].classList.remove('dropdown-menu-right');
+    }
+}
+
+function getXpos(el) {
+    var xPos = 0;
+    while (el) {
+        xPos += (el.offsetLeft - el.scrollLeft + el.clientLeft);
+        el = el.offsetParent;
+    }
+    return xPos;
+}
+
+function zeroPad(num, places) {
+  var zero = places - num.toString().length + 1;
+  return Array(+(zero > 0 && zero)).join("0") + num;
+}
 
 function dirname(uri) {
     return uri.replace(/\/[^/]*$/, '');
@@ -6572,6 +7053,9 @@ function addTagList(el, list) {
     for (let i = 0; i < settings[list].length; i++) {
         tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="' + settings[list][i] + '">' + t(settings[list][i]) + '</button>';
     }
+    if (el === 'covergridSortTagsList' && settings.tags.includes('Date')) {
+        tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="Date">' + t('Date') + '</button>';
+    }
     document.getElementById(el).innerHTML = tagList;
 }
 
@@ -6598,8 +7082,39 @@ function focusSearch() {
     }
 }
 
+function toggleBtnGroupValue(btngrp, value) {
+    let btns = btngrp.getElementsByTagName('button');
+    for (let i = 0; i < btns.length; i++) {
+        if (btns[i].getAttribute('data-value') == value) {
+            btns[i].classList.add('active');
+        }
+        else {
+            btns[i].classList.remove('active');
+        }
+    }
+}
+
+function toggleBtnGroup(btn) {
+    let b = btn;
+    if (typeof btn === 'string') {
+        b = document.getElementById(btn);
+    }
+    let btns = b.parentNode.getElementsByTagName('button');
+    for (let i = 0; i < btns.length; i++) {
+        if (btns[i] === b) {
+            btns[i].classList.add('active');
+        }
+        else {
+            btns[i].classList.remove('active');
+        }
+    }
+}
+
 function toggleBtn(btn, state) {
-    let b = document.getElementById(btn);
+    let b = btn;
+    if (typeof btn === 'string') {
+        b = document.getElementById(btn);
+    }
     if (!b) {
         return;
     }
@@ -6645,46 +7160,53 @@ function setPagination(total, returned) {
     if (totalPages === 0) {
         totalPages = 1;
     }
-    let p = ['PaginationTop', 'PaginationBottom'];
-    for (let i = 0; i < 2; i++) {
-        document.getElementById(cat + p[i] + 'Page').innerText = (app.current.page / settings.maxElementsPerPage + 1) + ' / ' + totalPages;
+    let p = [ document.getElementById(cat + 'PaginationTop'), document.getElementById(cat + 'PaginationBottom') ];
+    
+    for (let i = 0; i < p.length; i++) {
+        let prev = p[i].children[0];
+        let page = p[i].children[1].children[0];
+        let pages = p[i].children[1].children[1];
+        let next = p[i].children[2];
+    
+        page.innerText = (app.current.page / settings.maxElementsPerPage + 1) + ' / ' + totalPages;
         if (totalPages > 1) {
-            document.getElementById(cat + p[i] + 'Page').removeAttribute('disabled');
+            page.removeAttribute('disabled');
             let pl = '';
             for (let j = 0; j < totalPages; j++) {
                 pl += '<button data-page="' + (j * settings.maxElementsPerPage) + '" type="button" class="mr-1 mb-1 btn-sm btn btn-secondary">' +
-                    ( j + 1) + '</button>';
+                      ( j + 1) + '</button>';
             }
-            document.getElementById(cat + p[i] + 'Pages').innerHTML = pl;
-            document.getElementById(cat + p[i] + 'Page').classList.remove('nodropdown');
+            pages.innerHTML = pl;
+            page.classList.remove('nodropdown');
         }
         else if (total === -1) {
-            document.getElementById(cat + p[i] + 'Page').setAttribute('disabled', 'disabled');
-            document.getElementById(cat + p[i] + 'Page').innerText = (app.current.page / settings.maxElementsPerPage + 1);
-            document.getElementById(cat + p[i] + 'Page').classList.add('nodropdown');
+            page.setAttribute('disabled', 'disabled');
+            page.innerText = (app.current.page / settings.maxElementsPerPage + 1);
+            page.classList.add('nodropdown');
         }
         else {
-            document.getElementById(cat + p[i] + 'Page').setAttribute('disabled', 'disabled');
-            document.getElementById(cat + p[i] + 'Page').classList.add('nodropdown');
+            page.setAttribute('disabled', 'disabled');
+            page.classList.add('nodropdown');
         }
-    
+        
         if (total > app.current.page + settings.maxElementsPerPage || total === -1 && returned >= settings.maxElementsPerPage) {
-            document.getElementById(cat + p[i] + 'Next').removeAttribute('disabled');
-            document.getElementById(cat + p[i]).classList.remove('hide');
+            next.removeAttribute('disabled');
+            p[i].classList.remove('hide');
             document.getElementById(cat + 'ButtonsBottom').classList.remove('hide');
         }
         else {
-            document.getElementById(cat + p[i] + 'Next').setAttribute('disabled', 'disabled');
-            document.getElementById(cat + p[i]).classList.add('hide');
+            next.setAttribute('disabled', 'disabled');
+            p[i].classList.add('hide');
             document.getElementById(cat + 'ButtonsBottom').classList.add('hide');
         }
     
         if (app.current.page > 0) {
-            document.getElementById(cat + p[i] + 'Prev').removeAttribute('disabled');
-            document.getElementById(cat + p[i]).classList.remove('hide');
+            prev.removeAttribute('disabled');
+            p[i].classList.remove('hide');
             document.getElementById(cat + 'ButtonsBottom').classList.remove('hide');
-        } else {
-            document.getElementById(cat + p[i] + 'Prev').setAttribute('disabled', 'disabled');
+        }
+        else {
+            prev.setAttribute('disabled', 'disabled');
         }
     }
 }
@@ -6704,6 +7226,12 @@ function parseCmd(event, href) {
         switch(cmd.cmd) {
             case 'sendAPI':
                 sendAPI(cmd.options[0].cmd, {}); 
+                break;
+            case 'toggleBtn':
+            case 'toggleBtnChk':
+            case 'toggleBtnGroup':
+            case 'setPlaySettings':
+                window[cmd.cmd](event.target, ... cmd.options);
                 break;
             default:
                 window[cmd.cmd](... cmd.options);
@@ -6732,7 +7260,7 @@ function gotoPage(x) {
 }
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
- myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 

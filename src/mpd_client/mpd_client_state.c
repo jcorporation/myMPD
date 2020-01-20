@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
- myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -14,6 +14,7 @@
 
 #include "../dist/src/sds/sds.h"
 #include "../sds_extras.h"
+#include "../api.h"
 #include "../log.h"
 #include "../list.h"
 #include "config_defs.h"
@@ -21,6 +22,7 @@
 #include "mpd_client_utility.h"
 #include "mpd_client_cover.h"
 #include "mpd_client_api.h"
+#include "mpd_client_sticker.h"
 #include "mpd_client_state.h"
 
 sds mpd_client_get_updatedb_state(t_mpd_state *mpd_state, sds buffer) {

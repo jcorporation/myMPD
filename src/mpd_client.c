@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
- myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -31,6 +31,8 @@
 #include "mpd_client/mpd_client_features.h"
 #include "mpd_client/mpd_client_queue.h"
 #include "mpd_client/mpd_client_features.h"
+#include "mpd_client/mpd_client_sticker.h"
+#include "mpd_client/mpd_client_timer.h"
 #include "mpd_client.h"
 
 //private definitions
@@ -67,8 +69,6 @@ void *mpd_client_loop(void *arg_config) {
             }
         }
     }
-    //init last played songs list
-    list_init(&mpd_state->last_played);
 
     LOG_INFO("Starting mpd_client");
     //On startup connect instantly
@@ -79,6 +79,7 @@ void *mpd_client_loop(void *arg_config) {
     //Cleanup
     mpd_client_disconnect(mpd_state);
     mpd_client_last_played_list_save(config, mpd_state);
+    sticker_cache_free(mpd_state);
     free_mpd_state(mpd_state);
     return NULL;
 }
@@ -98,6 +99,10 @@ static void mpd_client_parse_idle(t_config *config, t_mpd_state *mpd_state, int 
                 case MPD_IDLE_DATABASE:
                     buffer = jsonrpc_notify(buffer, "update_database");
                     mpd_client_smartpls_update_all(config, mpd_state);
+                    if (mpd_state->feat_sticker == true) {
+                        sticker_cache_free(mpd_state);
+                        sticker_cache_init(mpd_state);
+                    }
                     break;
                 case MPD_IDLE_STORED_PLAYLIST:
                     buffer = jsonrpc_notify(buffer, "update_stored_playlist");
@@ -105,8 +110,8 @@ static void mpd_client_parse_idle(t_config *config, t_mpd_state *mpd_state, int 
                 case MPD_IDLE_QUEUE:
                     buffer = mpd_client_get_queue_state(mpd_state, buffer);
                     //jukebox enabled
-                    if (mpd_state->jukebox_mode != JUKEBOX_OFF && mpd_state->queue_length < 1) {
-                        mpd_client_jukebox(mpd_state);
+                    if (mpd_state->jukebox_mode != JUKEBOX_OFF && mpd_state->queue_length < mpd_state->jukebox_queue_length) {
+                        mpd_client_jukebox(config, mpd_state);
                     }
                     //autoPlay enabled
                     if (mpd_state->auto_play == true && mpd_state->queue_length > 1) {
@@ -122,7 +127,9 @@ static void mpd_client_parse_idle(t_config *config, t_mpd_state *mpd_state, int 
                     //get and put mpd state                
                     buffer = mpd_client_put_state(config, mpd_state, buffer, NULL, 0);
                     //song has changed
-                    if (mpd_state->song_id != mpd_state->last_song_id && mpd_state->last_skipped_id != mpd_state->last_song_id  && mpd_state->last_song_uri != NULL) {
+                    if (mpd_state->song_id != mpd_state->last_song_id && mpd_state->last_skipped_id != mpd_state->last_song_id 
+                        && mpd_state->last_song_uri != NULL)
+                    {
                         time_t now = time(NULL);
                         if (mpd_state->feat_sticker && mpd_state->last_song_end_time > now) {
                             //last song skipped
@@ -250,14 +257,22 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
             buffer = jsonrpc_notify(buffer, "mpd_connected");
             mpd_client_notify(buffer);
             mpd_state->conn_state = MPD_CONNECTED;
-            mpd_state->reconnect_intervall = 0;
+            mpd_state->reconnect_interval = 0;
             mpd_state->reconnect_time = 0;
             //reset list of supported tags
             reset_t_tags(&mpd_state->mpd_tag_types);
+            //get mpd features
             mpd_client_mpd_features(config, mpd_state);
-            mpd_client_smartpls_update_all(config, mpd_state);
+            //update sticker cache
+            if (mpd_state->feat_sticker == true) {
+                sticker_cache_free(mpd_state);
+                sticker_cache_init(mpd_state);
+            }
+            //set timer for smart playlist update
+            mpd_client_set_timer(MYMPD_API_TIMER_SET, "MYMPD_API_TIMER_SET", 10, 0, "timer_handler_smartpls_update");
+            //jukebox
             if (mpd_state->jukebox_mode != JUKEBOX_OFF) {
-                mpd_client_jukebox(mpd_state);
+                mpd_client_jukebox(config, mpd_state);
             }
             if (!mpd_send_idle_mask(mpd_state->conn, set_idle_mask)) {
                 LOG_ERROR("Entering idle mode failed");
@@ -277,11 +292,11 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
             }
             mpd_state->conn = NULL;
             mpd_state->conn_state = MPD_WAIT;
-            if (mpd_state->reconnect_intervall <= 20) {
-                mpd_state->reconnect_intervall += 2;
+            if (mpd_state->reconnect_interval <= 20) {
+                mpd_state->reconnect_interval += 2;
             }
-            mpd_state->reconnect_time = time(NULL) + mpd_state->reconnect_intervall;
-            LOG_DEBUG("Waiting %u seconds before reconnection", mpd_state->reconnect_intervall);
+            mpd_state->reconnect_time = time(NULL) + mpd_state->reconnect_interval;
+            LOG_DEBUG("Waiting %u seconds before reconnection", mpd_state->reconnect_interval);
             break;
 
         case MPD_CONNECTED:
@@ -327,7 +342,7 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
                 }
                 
                 if (jukebox_add_song == true) {
-                    mpd_client_jukebox(mpd_state);
+                    mpd_client_jukebox(config, mpd_state);
                 }
                 
                 if (mpd_client_queue_length > 0) {

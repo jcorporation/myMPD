@@ -60,6 +60,31 @@ enum mpd_state {
 	MPD_STATE_PAUSE = 3,
 };
 
+/**
+ * MPD's single state.
+ *
+ * @since libmpdclient 2.18, MPD 0.21.
+ */
+enum mpd_single_state {
+	/** disabled */
+	MPD_SINGLE_OFF = 0,
+
+	/** enabled */
+	MPD_SINGLE_ON,
+
+	/**
+	 * enables single state (#MPD_SINGLE_ONESHOT) for a single song, then
+	 * MPD disables single state (#MPD_SINGLE_OFF) if the current song
+	 * has played and there is another song in the current playlist
+	 *
+	 * @since MPD 0.21
+	 **/
+	MPD_SINGLE_ONESHOT,
+
+	/** Unknown state */
+	MPD_SINGLE_UNKNOWN,
+};
+
 struct mpd_connection;
 struct mpd_pair;
 struct mpd_audio_format;
@@ -148,7 +173,25 @@ bool
 mpd_status_get_random(const struct mpd_status *status);
 
 /**
- * Returns true if single mode is on.
+ * Returns the current state of single mode on MPD.
+ *
+ * If the state is #MPD_SINGLE_ONESHOT, MPD will transition to #MPD_SINGLE_OFF
+ * after a song is played and if there is another song in the queue. The
+ * #mpd_status object will not be updated accordingly. In this case, you need
+ * to call mpd_send_status() and mpd_recv_status() again.
+ *
+ * @since MPD 0.21, libmpdclient 2.18.
+ */
+mpd_pure
+enum mpd_single_state
+mpd_status_get_single_state(const struct mpd_status *status);
+
+/**
+ * This function is deprecated as it does not distinguish the states of
+ * the single mode (added to MPD 0.21). Call mpd_status_get_single_state() in
+ * its place.
+ *
+ * Returns true if single mode is either on or in oneshot.
  */
 mpd_pure
 bool

@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
- myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -21,6 +21,7 @@
 #include "../tiny_queue.h"
 #include "mpd_client_utility.h"
 #include "mpd_client_cover.h"
+#include "mpd_client_sticker.h"
 #include "mpd_client_browse.h"
 
 sds mpd_client_put_fingerprint(t_mpd_state *mpd_state, sds buffer, sds method, int request_id,

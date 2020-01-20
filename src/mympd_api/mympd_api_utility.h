@@ -1,11 +1,43 @@
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
- myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
 #ifndef __MYMPD_API_UTILITY_H
 #define __MYMPD_API_UTILITY_H
+struct t_timer_definition {
+    sds name;
+    bool enabled;
+    int start_hour;
+    int start_minute;
+    sds action;
+    int volume;
+    sds playlist;
+    bool weekdays[7];
+    unsigned jukebox_mode;
+};
+
+typedef void (*time_handler)(struct t_timer_definition *definition, void *user_data);
+
+struct t_timer_node {
+    int fd;
+    time_handler callback;
+    struct t_timer_definition *definition;
+    void *user_data;
+    unsigned int timeout;
+    unsigned int interval;
+    int timer_id;
+    struct t_timer_node *next;
+};
+
+struct t_timer_list {
+    int length;
+    int last_id;
+    int active;
+    struct t_timer_node *list;
+};
+
 typedef struct t_mympd_state {
     sds mpd_host;
     int mpd_port;
@@ -26,6 +58,8 @@ typedef struct t_mympd_state {
     enum jukebox_modes jukebox_mode;
     sds jukebox_playlist;
     int jukebox_queue_length;
+    int jukebox_last_played;
+    sds jukebox_unique_tag;
     sds cols_queue_current;
     sds cols_search;
     sds cols_browse_database;
@@ -48,6 +82,8 @@ typedef struct t_mympd_state {
     sds music_directory;
     sds theme;
     bool bookmarks;
+    bool timer;
+    struct t_timer_list timer_list;
 } t_mympd_state;
 
 void free_mympd_state(t_mympd_state *mympd_state);

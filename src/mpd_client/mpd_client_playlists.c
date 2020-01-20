@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
- myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -17,6 +17,7 @@
 #include "../../dist/src/sds/sds.h"
 #include "../sds_extras.h"
 #include "../../dist/src/frozen/frozen.h"
+#include "../api.h"
 #include "../list.h"
 #include "config_defs.h"
 #include "../utility.h"
@@ -492,7 +493,7 @@ bool mpd_client_smartpls_update_sticker(t_mpd_state *mpd_state, const char *play
                 char *crap;
                 int value = strtoimax(p_value, &crap, 10);
                 if (value >= 1) {
-                    list_push(&add_list, uri, value, NULL);
+                    list_push(&add_list, uri, value, NULL, NULL);
                 }
                 if (value > value_max) {
                     value_max = value;
@@ -510,20 +511,21 @@ bool mpd_client_smartpls_update_sticker(t_mpd_state *mpd_state, const char *play
         value_max = value_max / 2;
     }
 
-    list_sort_by_value(&add_list, false);
+    list_sort_by_value_i(&add_list, false);
 
-    struct node *current = add_list.list;
+    struct node *current = add_list.head;
     int i = 0;
     while (current != NULL) {
-        if (current->value >= value_max) {
-            if (mpd_run_playlist_add(mpd_state->conn, playlist, current->data) == false) {
+        if (current->value_i >= value_max) {
+            if (mpd_run_playlist_add(mpd_state->conn, playlist, current->key) == false) {
                 check_error_and_recover(mpd_state, NULL, NULL, 0);
                 list_free(&add_list);
-                return 1;        
+                return false;
             }
             i++;
-            if (i >= maxentries)
+            if (i >= maxentries) {
                 break;
+            }
         }
         current = current->next;
     }

@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
- myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -124,6 +124,9 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("mympd", "syscmds")) {
         p_config->syscmds = strtobool(value);
     }
+    else if (MATCH("mympd", "timer")) {
+        p_config->timer = strtobool(value);
+    }
     else if (MATCH("mympd", "lastplayedcount")) {
         p_config->last_played_count = strtoimax(value, &crap, 10);
     }
@@ -160,6 +163,12 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     }
     else if (MATCH("mympd", "jukeboxqueuelength")) {
         p_config->jukebox_queue_length = strtoimax(value, &crap, 10);
+    }
+    else if (MATCH("mympd", "jukeboxlastplayed")) {
+        p_config->jukebox_last_played = strtoimax(value, &crap, 10);
+    }
+    else if (MATCH("mympd", "jukeboxuniquetag")) {
+        p_config->jukebox_unique_tag = sdsreplace(p_config->jukebox_unique_tag, value);
     }
     else if (MATCH("mympd", "colsqueuecurrent")) {
         p_config->cols_queue_current = sdsreplace(p_config->cols_queue_current, value);
@@ -232,7 +241,7 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     }
     else if (strcasecmp(section, "syscmds") == 0) {
         LOG_DEBUG("Adding syscmd %s: %s", name, value);
-        list_push(&p_config->syscmd_list, name, 0, value);
+        list_push(&p_config->syscmd_list, name, 0, value, NULL);
     }
     else {
         LOG_WARN("Unkown config option: %s - %s", section, name);
@@ -267,9 +276,10 @@ static void mympd_get_env(struct t_config *config) {
         "MYMPD_LOGLEVEL", "MYMPD_USER", "MYMPD_VARLIBDIR", "MYMPD_MIXRAMP", "MYMPD_STICKERS", "MYMPD_TAGLIST", 
         "MYMPD_SEARCHTAGLIST", "MYMPD_BROWSETAGLIST", "MYMPD_SMARTPLS", "MYMPD_SYSCMDS", 
         "MYMPD_PAGINATION", "MYMPD_LASTPLAYEDCOUNT", "MYMPD_LOVE", "MYMPD_LOVECHANNEL", "MYMPD_LOVEMESSAGE",
-        "MYMPD_NOTIFICATIONWEB", "MYMPD_CHROOT", "MYMPD_READONLY",
+        "MYMPD_NOTIFICATIONWEB", "MYMPD_CHROOT", "MYMPD_READONLY", "MYMPD_TIMER",
         "MYMPD_NOTIFICATIONPAGE", "MYMPD_AUTOPLAY", "MYMPD_JUKEBOXMODE", "MYMPD_BOOKMARKS",
-        "MYMPD_JUKEBOXPLAYLIST", "MYMPD_JUKEBOXQUEUELENGTH", "MYMPD_COLSQUEUECURRENT",
+        "MYMPD_JUKEBOXPLAYLIST", "MYMPD_JUKEBOXQUEUELENGTH", "MYMPD_JUKEBOXLASTPLAYED",
+        "MYMPD_JUKEBOXUNIQUETAG", "MYMPD_COLSQUEUECURRENT",
         "MYMPD_COLSSEARCH", "MYMPD_COLSBROWSEDATABASE", "MYMPD_COLSBROWSEPLAYLISTDETAIL",
         "MYMPD_COLSBROWSEFILESYSTEM", "MYMPD_COLSPLAYBACK", "MYMPD_COLSQUEUELASTPLAYED",
         "MYMPD_LOCALPLAYER", "MYMPD_LOCALPLAYERAUTOPLAY", "MYMPD_STREAMPORT",
@@ -305,6 +315,7 @@ void mympd_free_config(t_config *config) {
     sdsfree(config->love_message);
     sdsfree(config->music_directory);
     sdsfree(config->jukebox_playlist);
+    sdsfree(config->jukebox_unique_tag);
     sdsfree(config->cols_queue_current);
     sdsfree(config->cols_queue_last_played);
     sdsfree(config->cols_search);
@@ -358,6 +369,8 @@ void mympd_config_defaults(t_config *config) {
     config->jukebox_mode = JUKEBOX_OFF;
     config->jukebox_playlist = sdsnew("Database");
     config->jukebox_queue_length = 1;
+    config->jukebox_unique_tag = sdsnew("Artist");
+    config->jukebox_last_played = 24;
     config->cols_queue_current = sdsnew("[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]");
     config->cols_queue_last_played = sdsnew("[\"Pos\",\"Title\",\"Artist\",\"Album\",\"LastPlayed\"]");
     config->cols_search = sdsnew("[\"Title\",\"Artist\",\"Album\",\"Duration\"]");
@@ -387,6 +400,7 @@ void mympd_config_defaults(t_config *config) {
     config->theme = sdsnew("theme-default");
     config->custom_placeholder_images = false;
     config->regex = true;
+    config->timer = true;
     list_init(&config->syscmd_list);
 }
 

@@ -454,7 +454,6 @@ int main(int argc, char ** argv) {
 		fclose(fp);
 		printf("Wrote file: /tmp/albumart, size: %u bytes, retrieved: %u bytes\n", size, offset);
 	}
-	
 	mpd_connection_free(conn);
 
 	return 0;

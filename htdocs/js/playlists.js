@@ -1,7 +1,7 @@
 "use strict";
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
- myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -99,7 +99,7 @@ function parsePlaylists(obj) {
     if (nrItems === 0) {
         if (app.current.view === 'All') {
             tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
-                              '<td colspan="3>' + t('No playlists found') + '</td></tr>';
+                              '<td colspan="3">' + t('No playlists found') + '</td></tr>';
         }
         else {
             tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
@@ -130,7 +130,10 @@ function getAllPlaylists(obj) {
         if (playlistEl === 'addToPlaylistPlaylist') {
             playlists = '<option value=""></option><option value="new">' + t('New playlist') + '</option>';
         }
-        else if (playlistEl === 'selectJukeboxPlaylist' || playlistEl === 'selectAddToQueuePlaylist') {
+        else if (playlistEl === 'selectJukeboxPlaylist' || 
+                 playlistEl === 'selectAddToQueuePlaylist' ||
+                 playlistEl === 'selectTimerPlaylist'
+        ) {
             playlists = '<option value="Database">' + t('Database') + '</option>';
         }
     }

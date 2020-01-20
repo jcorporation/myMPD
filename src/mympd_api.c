@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
- myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -30,9 +30,12 @@
 #include "mpd_client.h"
 #include "maintenance.h"
 #include "mympd_api/mympd_api_utility.h"
+#include "mympd_api/mympd_api_timer.h"
 #include "mympd_api/mympd_api_settings.h"
 #include "mympd_api/mympd_api_syscmds.h"
 #include "mympd_api/mympd_api_bookmarks.h"
+#include "mympd_api/mympd_api_timer.h"
+#include "mympd_api/mympd_api_timer_handlers.h"
 #include "mympd_api.h"
 
 //private definitions
@@ -44,20 +47,41 @@ void *mympd_api_loop(void *arg_config) {
     
     //read myMPD states under config.varlibdir
     t_mympd_state *mympd_state = (t_mympd_state *)malloc(sizeof(t_mympd_state));
-    
     mympd_api_read_statefiles(config, mympd_state);
+
+    //myMPD timer
+    init_timerlist(&mympd_state->timer_list);
+    if (mympd_state->timer == true) {
+        timerfile_read(config, mympd_state);
+    }
+    
+    //set timers
+    if (config->covercache == true) {
+        LOG_DEBUG("Setting timer action \"clear covercache\" to periodic each 7200s");
+        add_timer(&mympd_state->timer_list, 60, 7200, timer_handler_covercache, 1, NULL, (void *)config);
+    }
 
     //push settings to mpd_client queue
     mympd_api_push_to_mpd_client(mympd_state);
 
     while (s_signal_received == 0) {
-        struct t_work_request *request = tiny_queue_shift(mympd_api_queue, 0);
+        //poll message queue
+        struct t_work_request *request = tiny_queue_shift(mympd_api_queue, 100);
         if (request != NULL) {
             mympd_api(config, mympd_state, request);
         }
+        //poll timer
+        if (mympd_state->timer_list.active > 0) {
+            check_timer(&mympd_state->timer_list, mympd_state->timer);
+        }
     }
 
+    //cleanup
+    if (mympd_state->timer == true) {
+        timerfile_save(config, mympd_state);
+    }
     free_mympd_state(mympd_state);
+
     return NULL;
 }
 
@@ -68,7 +92,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
     char *p_charbuf2 = NULL;
     char *p_charbuf3 = NULL;
     unsigned int uint_buf1;
-    int int_buf1;
+    int int_buf1, int_buf2;
     LOG_VERBOSE("MYMPD API request (%d): %s", request->conn_id, request->data);
     
     //create response struct
@@ -204,6 +228,60 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             clear_covercache(config, 0);
             response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Successfully cleared covercache", false);
             break;
+        case MYMPD_API_TIMER_SET:
+            je = json_scanf(request->data, sdslen(request->data), "{params: {timeout: %d, interval: %d, handler: %Q}}", &int_buf1, &int_buf2, &p_charbuf1);
+            if (je == 3) {
+                bool handled = false;
+                if (strcmp(p_charbuf1, "timer_handler_smartpls_update") == 0) {
+                    replace_timer(&mympd_state->timer_list, int_buf1, int_buf2, timer_handler_smartpls_update, 2, NULL, NULL);
+                    handled = true;
+                }
+                if (handled == true) {
+                    response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+                }
+            }
+            break;
+        case MYMPD_API_TIMER_SAVE: {
+            struct t_timer_definition *timer_def = malloc(sizeof(struct t_timer_definition));
+            timer_def = parse_timer(timer_def, request->data, sdslen(request->data));
+            je = json_scanf(request->data, sdslen(request->data), "{params: {timerid: %d}}", &int_buf1);
+            if (je == 1 && timer_def != NULL) {
+                if (int_buf1 == 0) {
+                    mympd_state->timer_list.last_id++;
+                    int_buf1 = mympd_state->timer_list.last_id;
+                }
+                time_t start = timer_calc_starttime(timer_def->start_hour, timer_def->start_minute);
+                replace_timer(&mympd_state->timer_list, start, 86400, timer_handler_select, int_buf1, timer_def, NULL);
+                response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+            }
+            else {
+                FREE_PTR(timer_def);
+            }
+            break;
+        }
+        case MYMPD_API_TIMER_LIST:
+            response->data = timer_list(mympd_state, response->data, request->method, request->id);
+            break;
+        case MYMPD_API_TIMER_GET:
+            je = json_scanf(request->data, sdslen(request->data), "{params: {timerid: %d}}", &int_buf1);
+            if (je == 1) {
+                response->data = timer_get(mympd_state, response->data, request->method, request->id, int_buf1);
+            }
+            break;
+        case MYMPD_API_TIMER_RM:
+            je = json_scanf(request->data, sdslen(request->data), "{params: {timerid: %d}}", &int_buf1);
+            if (je == 1) {
+                remove_timer(&mympd_state->timer_list, int_buf1);
+                response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+            }
+            break;
+        case MYMPD_API_TIMER_TOGGLE:
+            je = json_scanf(request->data, sdslen(request->data), "{params: {timerid: %d}}", &int_buf1);
+            if (je == 1) {
+                toggle_timer(&mympd_state->timer_list, int_buf1);
+                response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+            }
+            break;
         default:
             response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Unknown request", true);
             LOG_ERROR("Unknown API request: %.*s", sdslen(request->data), request->data);
@@ -219,7 +297,12 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
         response->data = jsonrpc_end_phrase(response->data);
         LOG_ERROR("No response for cmd_id %u", request->cmd_id);
     }
-    LOG_DEBUG("Push response to queue for connection %lu: %s", request->conn_id, response->data);
-    tiny_queue_push(web_server_queue, response);
+    if (request->conn_id > -1) {
+        LOG_DEBUG("Push response to queue for connection %lu: %s", request->conn_id, response->data);
+        tiny_queue_push(web_server_queue, response);
+    }
+    else {
+        free_result(response);
+    }
     free_request(request);
 }

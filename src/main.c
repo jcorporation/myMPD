@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
- myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -252,11 +252,6 @@ static bool check_dirs(t_config *config) {
         if (testdir_rc > 1) {
             sdsfree(testdirname);
             return false;
-        }
-        else if (testdir_rc == 0) {
-            //crop covercache
-            clear_covercache(config, -1);
-            
         }
     }
     sdsfree(testdirname);
