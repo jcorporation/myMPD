@@ -597,7 +597,7 @@ div.covergrid-header {
 
 @media (min-width: 768px) {
   .container {
-    max-width: 960;
+    max-width: 960px;
   }
 }
 
@@ -629,4 +629,9 @@ div#playDropdown .row {
 
 .form-check {
   padding-left: 0;
+}
+
+.dropdown-item:hover, 
+.dropdown-item:focus {
+  background-color: transparent !important;
 }

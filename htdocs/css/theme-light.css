@@ -131,3 +131,12 @@ body.theme-light .input-group-append > .dropdown-toggle {
   border-color: #6c757d !important;
   border-left-color: #CED4DA !important;
 }
+
+body.theme-light .dropdown-item:hover, 
+body.theme-light .dropdown-item:focus {
+  background-color: transparent !important;
+}
+
+body.theme-light .bg-lite-dark {
+  background-color: #f8f9fa !important;
+}
