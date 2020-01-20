@@ -31,6 +31,7 @@
 #include "mpd_client/mpd_client_features.h"
 #include "mpd_client/mpd_client_queue.h"
 #include "mpd_client/mpd_client_features.h"
+#include "mpd_client/mpd_client_sticker.h"
 #include "mpd_client/mpd_client_timer.h"
 #include "mpd_client.h"
 
@@ -78,6 +79,7 @@ void *mpd_client_loop(void *arg_config) {
     //Cleanup
     mpd_client_disconnect(mpd_state);
     mpd_client_last_played_list_save(config, mpd_state);
+    sticker_cache_free(mpd_state);
     free_mpd_state(mpd_state);
     return NULL;
 }
@@ -97,6 +99,10 @@ static void mpd_client_parse_idle(t_config *config, t_mpd_state *mpd_state, int 
                 case MPD_IDLE_DATABASE:
                     buffer = jsonrpc_notify(buffer, "update_database");
                     mpd_client_smartpls_update_all(config, mpd_state);
+                    if (mpd_state->feat_sticker == true) {
+                        sticker_cache_free(mpd_state);
+                        sticker_cache_init(mpd_state);
+                    }
                     break;
                 case MPD_IDLE_STORED_PLAYLIST:
                     buffer = jsonrpc_notify(buffer, "update_stored_playlist");
@@ -257,6 +263,11 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
             reset_t_tags(&mpd_state->mpd_tag_types);
             //get mpd features
             mpd_client_mpd_features(config, mpd_state);
+            //update sticker cache
+            if (mpd_state->feat_sticker == true) {
+                sticker_cache_free(mpd_state);
+                sticker_cache_init(mpd_state);
+            }
             //set timer for smart playlist update
             mpd_client_set_timer(MYMPD_API_TIMER_SET, "MYMPD_API_TIMER_SET", 10, 0, "timer_handler_smartpls_update");
             //jukebox

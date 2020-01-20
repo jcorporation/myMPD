@@ -26,65 +26,6 @@ static sds mpd_client_put_last_played_obj(t_mpd_state *mpd_state, sds buffer,
                                           unsigned entity_count, int last_played, const char *uri, const t_tags *tagcols);
 
 //public functions
-bool mpd_client_count_song_uri(t_mpd_state *mpd_state, const char *uri, const char *name, const int value) {
-    if (uri == NULL || strstr(uri, "://") != NULL) {
-        return false;
-    }
-    struct mpd_pair *pair;
-    char *crap = NULL;
-    int old_value = 0;
-    
-    if (mpd_send_sticker_list(mpd_state->conn, "song", uri)) {
-        while ((pair = mpd_recv_sticker(mpd_state->conn)) != NULL) {
-            if (strcmp(pair->name, name) == 0) {
-                old_value = strtoimax(pair->value, &crap, 10);
-            }
-            mpd_return_sticker(mpd_state->conn, pair);
-        }
-    } else {
-        check_error_and_recover(mpd_state, NULL, NULL, 0);
-        return false;
-    }
-    old_value += value;
-    if (old_value > 999999999) {
-        old_value = 999999999;
-    }
-    else if (old_value < 0) {
-        old_value = 0;
-    }
-    sds value_str = sdsfromlonglong(old_value);
-    LOG_VERBOSE("Setting sticker: \"%s\" -> %s: %s", uri, name, value_str);
-    bool rc = mpd_run_sticker_set(mpd_state->conn, "song", uri, name, value_str);
-    sdsfree(value_str);
-    if (rc == false) {
-        check_error_and_recover(mpd_state, NULL, NULL, 0);
-    }
-    return rc;
-}
-
-sds mpd_client_like_song_uri(t_mpd_state *mpd_state, sds buffer, sds method, int request_id,
-                             const char *uri, int value)
-{
-    if (uri == NULL || strstr(uri, "://") != NULL) {
-        buffer = jsonrpc_respond_message(buffer, method, request_id, "Failed to set like, invalid song uri", true);
-        return buffer;
-    }
-    if (value > 2 || value < 0) {
-        buffer = jsonrpc_respond_message(buffer, method, request_id, "Failed to set like, invalid like value", true);
-        return buffer;
-    }
-    sds value_str = sdsfromlonglong(value);
-    LOG_VERBOSE("Setting sticker: \"%s\" -> like: %s", uri, value_str);
-    bool rc = mpd_run_sticker_set(mpd_state->conn, "song", uri, "like", value_str);
-    sdsfree(value_str);
-    if (rc == false) {
-        buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
-        return buffer;
-    }
-    buffer = jsonrpc_respond_ok(buffer, method, request_id);
-    return buffer;        
-}
-
 bool mpd_client_last_played_list_save(t_config *config, t_mpd_state *mpd_state) {
     if (config->readonly == true) {
         LOG_VERBOSE("Skip saving last_played list to disc");
@@ -172,37 +113,6 @@ bool mpd_client_last_played_list(t_config *config, t_mpd_state *mpd_state, const
             return false;
         }
     }
-    return true;
-}
-
-bool mpd_client_last_played_song_uri(t_mpd_state *mpd_state, const char *uri) {
-    if (uri == NULL || strstr(uri, "://") != NULL) {
-        return false;
-    }
-    sds value_str = sdsfromlonglong(mpd_state->song_start_time);
-    LOG_VERBOSE("Setting sticker: \"%s\" -> lastPlayed: %s", uri, value_str);
-    if (!mpd_run_sticker_set(mpd_state->conn, "song", uri, "lastPlayed", value_str)) {
-        check_error_and_recover(mpd_state, NULL, NULL, 0);
-        sdsfree(value_str);
-        return false;
-    }
-    sdsfree(value_str);
-    return true;
-}
-
-bool mpd_client_last_skipped_song_uri(t_mpd_state *mpd_state, const char *uri) {
-    if (uri == NULL || strstr(uri, "://") != NULL) {
-        return false;
-    }
-    time_t now = time(NULL);
-    sds value_str = sdsfromlonglong(now);
-    LOG_VERBOSE("Setting sticker: \"%s\" -> lastSkipped: %s", uri, value_str);
-    if (!mpd_run_sticker_set(mpd_state->conn, "song", uri, "lastSkipped", value_str)) {
-        check_error_and_recover(mpd_state, NULL, NULL, 0);
-        sdsfree(value_str);
-        return false;
-    }
-    sdsfree(value_str);
     return true;
 }
 

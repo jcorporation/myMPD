@@ -32,6 +32,7 @@
 #include "mpd_client_state.h"
 #include "mpd_client_stats.h"
 #include "mpd_client_settings.h"
+#include "mpd_client_sticker.h"
 #include "mpd_client_timer.h"
 #include "mpd_client_api.h"
 

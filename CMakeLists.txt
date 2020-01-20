@@ -186,6 +186,7 @@ set(SOURCES
   src/mpd_client/mpd_client_settings.c
   src/mpd_client/mpd_client_state.c
   src/mpd_client/mpd_client_stats.c
+  src/mpd_client/mpd_client_sticker.c
   src/mpd_client/mpd_client_timer.c
   src/mympd_api.c
   src/mympd_api/mympd_api_bookmarks.c
@@ -201,6 +202,7 @@ set(SOURCES
   dist/src/frozen/frozen.c
   dist/src/inih/ini.c
   dist/src/sds/sds.c
+  dist/src/rax/rax.c
 )
 
 if(OPENSSL_FOUND)

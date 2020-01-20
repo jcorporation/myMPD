@@ -6,6 +6,9 @@
 
 #ifndef __MPD_CLIENT_UTILITY_H__
 #define __MPD_CLIENT_UTILITY_H__
+
+#include "dist/src/rax/rax.h"
+
 enum mpd_conn_states {
     MPD_DISCONNECTED,
     MPD_FAILURE,
@@ -91,6 +94,8 @@ typedef struct t_mpd_state {
     t_tags browse_tag_types;
     //last played list
     struct list last_played;
+    //sticker cache
+    rax *sticker_cache;
 } t_mpd_state;
 
 typedef struct t_sticker {
@@ -106,7 +111,6 @@ sds put_song_tags(sds buffer, t_mpd_state *mpd_state, const t_tags *tagcols, con
 sds check_error_and_recover(t_mpd_state *mpd_state, sds buffer, sds method, int request_id);
 sds check_error_and_recover_notify(t_mpd_state *mpd_state, sds buffer);
 sds respond_with_mpd_error_or_ok(t_mpd_state *mpd_state, sds buffer, sds method, int request_id);
-bool mpd_client_get_sticker(t_mpd_state *mpd_state, const char *uri, t_sticker *sticker);
 char *mpd_client_get_tag(struct mpd_song const *song, const enum mpd_tag_type tag);
 bool mpd_client_tag_exists(const enum mpd_tag_type tag_types[64], const size_t tag_types_len, const enum mpd_tag_type tag);
 void json_to_tags(const char *str, int len, void *user_data);

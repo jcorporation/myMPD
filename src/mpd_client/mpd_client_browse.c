@@ -21,6 +21,7 @@
 #include "../tiny_queue.h"
 #include "mpd_client_utility.h"
 #include "mpd_client_cover.h"
+#include "mpd_client_sticker.h"
 #include "mpd_client_browse.h"
 
 sds mpd_client_put_fingerprint(t_mpd_state *mpd_state, sds buffer, sds method, int request_id,

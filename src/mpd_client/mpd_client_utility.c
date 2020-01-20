@@ -143,46 +143,6 @@ bool is_smartpls(t_config *config, t_mpd_state *mpd_state, const char *plpath) {
     return smartpls;
 }
 
-bool mpd_client_get_sticker(t_mpd_state *mpd_state, const char *uri, t_sticker *sticker) {
-    struct mpd_pair *pair;
-    char *crap = NULL;
-    sticker->playCount = 0;
-    sticker->skipCount = 0;
-    sticker->lastPlayed = 0;
-    sticker->lastSkipped = 0;
-    sticker->like = 1;
-
-    if (uri == NULL || strstr(uri, "://") != NULL) {
-        return false;
-    }
-
-    if (mpd_send_sticker_list(mpd_state->conn, "song", uri)) {
-        while ((pair = mpd_recv_sticker(mpd_state->conn)) != NULL) {
-            if (strcmp(pair->name, "playCount") == 0) {
-                sticker->playCount = strtoimax(pair->value, &crap, 10);
-            }
-            else if (strcmp(pair->name, "skipCount") == 0) {
-                sticker->skipCount = strtoimax(pair->value, &crap, 10);
-            }
-            else if (strcmp(pair->name, "lastPlayed") == 0) {
-                sticker->lastPlayed = strtoimax(pair->value, &crap, 10);
-            }
-            else if (strcmp(pair->name, "lastSkipped") == 0) {
-                sticker->lastSkipped = strtoimax(pair->value, &crap, 10);
-            }
-            else if (strcmp(pair->name, "like") == 0) {
-                sticker->like = strtoimax(pair->value, &crap, 10);
-            }
-            mpd_return_sticker(mpd_state->conn, pair);
-        }
-    }
-    else {
-        check_error_and_recover(mpd_state, NULL, NULL, 0);
-        return false;
-    }
-    return true;
-}
-
 bool mpd_client_tag_exists(const enum mpd_tag_type tag_types[64], const size_t tag_types_len, const enum mpd_tag_type tag) {
     for (size_t i = 0; i < tag_types_len; i++) {
         if (tag_types[i] == tag) {
@@ -244,6 +204,8 @@ void default_mpd_state(t_mpd_state *mpd_state) {
     //jukebox queue
     list_init(&mpd_state->jukebox_queue);
     list_init(&mpd_state->jukebox_queue_tmp);
+    //sticker cache
+    mpd_state->sticker_cache = raxNew();
 }
 
 void free_mpd_state(t_mpd_state *mpd_state) {
@@ -262,5 +224,6 @@ void free_mpd_state(t_mpd_state *mpd_state) {
     sdsfree(mpd_state->mpd_pass);
     list_free(&mpd_state->jukebox_queue);
     list_free(&mpd_state->jukebox_queue_tmp);
+    raxFree(mpd_state->sticker_cache);
     free(mpd_state);
 }
