@@ -238,16 +238,12 @@ bool _sticker_cache_init(t_mpd_state *mpd_state) {
     raxIterator iter;
     raxStart(&iter, mpd_state->sticker_cache);
     raxSeek(&iter, "^", NULL, 0);
+    sds uri = sdsempty();
     while (raxNext(&iter)) {
-        mpd_client_get_sticker(mpd_state, (char *)iter.key, (t_sticker *)iter.data);
+        uri = sdsreplacelen(uri, (char *)iter.key, iter.key_len);
+        mpd_client_get_sticker(mpd_state, uri, (t_sticker *)iter.data);
     }
-    
-    raxSeek(&iter, "^", NULL, 0);
-    while (raxNext(&iter)) {
-        t_sticker *sticker = (t_sticker *)iter.data;
-        printf("Sticker lastPlayed: %d\n", sticker->lastPlayed);
-    }
-    
+    sdsfree(uri);
     raxStop(&iter);
     return true;
 }

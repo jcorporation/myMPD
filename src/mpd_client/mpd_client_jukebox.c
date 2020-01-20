@@ -260,6 +260,7 @@ static bool mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_state 
     struct mpd_song *song;
     struct mpd_pair *pair;
     unsigned lineno = 1;
+    unsigned skipno = 0;
     int nkeep = 0;
     
     if (manual == true) {
@@ -302,21 +303,20 @@ static bool mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_state 
             }
             
             while ((song = mpd_recv_song(mpd_state->conn)) != NULL) {
-                if (randrange(lineno) < addSongs) {
-                    const char *tag_value = mpd_song_get_tag(song, mpd_state->jukebox_unique_tag.tags[0], 0);
-                    const char *uri = mpd_song_get_uri(song);
-                    int last_played = 0;
-                    if (mpd_state->feat_sticker == true) {
-                        void *data = raxFind(mpd_state->sticker_cache, (unsigned char*)uri, strlen(uri));
-                        if (data != raxNotFound) {
-                            t_sticker *sticker = (t_sticker *) data;
-                            last_played = sticker->lastPlayed;
-                        }
+                const char *tag_value = mpd_song_get_tag(song, mpd_state->jukebox_unique_tag.tags[0], 0);
+                const char *uri = mpd_song_get_uri(song);
+                int last_played = 0;
+                if (mpd_state->feat_sticker == true) {
+                    t_sticker *sticker = get_sticker_from_cache(mpd_state, uri);
+                    if (sticker != NULL) {
+                        last_played = sticker->lastPlayed;
                     }
+                }
                     
-                    if ((last_played == 0 || last_played < now) && 
-                        mpd_client_jukebox_unique_tag(mpd_state, uri, tag_value, manual, queue_list) == true) 
-                    {
+                if ((last_played == 0 || last_played < now) && 
+                    mpd_client_jukebox_unique_tag(mpd_state, uri, tag_value, manual, queue_list) == true) 
+                {
+                    if (randrange(lineno) < addSongs) {
 		        if (nkeep < addSongs) {
 		            if (manual == false) {
 		                list_push(&mpd_state->jukebox_queue, uri, lineno, tag_value, NULL);
@@ -336,15 +336,18 @@ static bool mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_state 
                             }
                         }
                     }
+                    lineno++;
                 }
-                lineno++;
+                else {
+                    skipno++;
+                }
                 mpd_song_free(song);
             }
             mpd_response_finish(mpd_state->conn);
             start = end;
             end = end + 1000;
         } while (strcmp(playlist, "Database") == 0 && lineno > start);
-        LOG_DEBUG("Jukebox iterated through %d songs", lineno);
+        LOG_DEBUG("Jukebox iterated through %u songs, skipped %u", lineno, skipno);
     }
     else if (jukebox_mode == JUKEBOX_ADD_ALBUM) {
         //add album
@@ -363,8 +366,8 @@ static bool mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_state 
             return false;
         }
         while ((pair = mpd_recv_pair_tag(mpd_state->conn, MPD_TAG_ALBUM )) != NULL)  {
-            if (randrange(lineno) < addSongs) {
-                if (mpd_client_jukebox_unique_album(mpd_state, pair->value, manual, queue_list) == true) {
+            if (mpd_client_jukebox_unique_album(mpd_state, pair->value, manual, queue_list) == true) {
+                if (randrange(lineno) < addSongs) {
 		    if (nkeep < addSongs) {
 		        if (manual == false) {
                             list_push(&mpd_state->jukebox_queue, pair->value, lineno, NULL, NULL);
@@ -384,10 +387,11 @@ static bool mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_state 
                         }
                     }
                 }
+                lineno++;
             }
-            lineno++;
             mpd_return_pair(mpd_state->conn, pair);
         }
+        LOG_DEBUG("Jukebox iterated through %u songs, skipped %u", lineno, skipno);
     }
 
     if (nkeep < addSongs) {
