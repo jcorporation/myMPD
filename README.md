@@ -59,6 +59,7 @@ Backend
  - inih: https://github.com/benhoyt/inih (config file parsing)
  - incbin: https://github.com/graphitemaster/incbin (embedding assets)
  - sds: https://github.com/antirez/sds (safe string handling)
+ - rax: https://github.com/antirez/rax (radix tree implementation)
  - libmpdclient2: https://github.com/jcorporation/libmpdclient/tree/libmympdclient
 
 Dependencies
