@@ -122,12 +122,9 @@ body.theme-dark .dropdown-item {
   color: #f8f9fa;
 }
 
-body.theme-dark .dropdown-item:hover {
-  background-color: #3c4248;
-}
-
+body.theme-dark .dropdown-item:hover,
 body.theme-dark .dropdown-item:focus {
-  background-color: #3c4248;
+  background-color: #3c4248 !important;
 }
 
 body.theme-dark .arrow::after {
