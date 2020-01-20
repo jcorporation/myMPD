@@ -639,6 +639,26 @@ updatelibmympdclient() {
   rm -rf "$TMPDIR"
 }
 
+uninstall() {
+  rm -f "$DESTDIR/usr/bin/mympd"
+  rm -rf "$DESTDIR/opt/mympd"
+  rm -f "$DESTDIR/usr/lib/systemd/system/mympd.service"
+  rm -f "$DESTDIR/lib/systemd/system/mympd.service"
+  rm -f "$DESTDIR/etc/init.d/mympd"
+}
+
+purge() {
+  rm -rf "$DESTDIR/var/lib/mympd"
+  rm -f "$DESTDIR/etc/mympd.conf"
+  rm -f "$DESTDIR/etc/mympd.conf.dist"
+
+  rm -r "$DESTDIR/var/opt/mympd"
+  rm -f "$DESTDIR/etc/opt/mympd.conf"
+  rm -f "$DESTDIR/etc/opt/mympd.conf.dist"
+
+  rm -rf "$DESTDIR/etc/webapps/mympd"
+}
+
 case "$1" in
 	release)
 	  buildrelease
@@ -702,6 +722,13 @@ case "$1" in
 	libmympdclient)
 	  updatelibmympdclient
 	;;
+	uninstall)
+	  uninstall
+	;;
+	purge)
+	  uninstall
+	  purge
+	;;
 	*)
 	  echo "Usage: $0 <option>"
 	  echo "Version: ${VERSION}"
@@ -726,6 +753,13 @@ case "$1" in
 	  echo "  cleanup:        cleanup source tree"
 	  echo "  cleanupdist:    cleanup dist directory, forces release to build new assets"
 	  echo "  cleanupoldinst: removes deprecated files"
+	  echo "  uninstall:      removes myMPD files, leaves configuration and "
+	  echo "                  state files in place"
+	  echo "                  following environment variables are respected"
+	  echo "                    - DESTDIR=\"\""
+	  echo "  purge:          removes all myMPD files"
+	  echo "                  following environment variables are respected"
+	  echo "                    - DESTDIR=\"\""
 	  echo ""
 	  echo "Packaging options:"
 	  echo "  pkgalpine:      creates the alpine package"
