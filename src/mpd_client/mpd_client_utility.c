@@ -204,8 +204,7 @@ void default_mpd_state(t_mpd_state *mpd_state) {
     //jukebox queue
     list_init(&mpd_state->jukebox_queue);
     list_init(&mpd_state->jukebox_queue_tmp);
-    //sticker cache
-    mpd_state->sticker_cache = raxNew();
+    mpd_state->sticker_cache = NULL;
 }
 
 void free_mpd_state(t_mpd_state *mpd_state) {
@@ -224,6 +223,5 @@ void free_mpd_state(t_mpd_state *mpd_state) {
     sdsfree(mpd_state->mpd_pass);
     list_free(&mpd_state->jukebox_queue);
     list_free(&mpd_state->jukebox_queue_tmp);
-    raxFree(mpd_state->sticker_cache);
     free(mpd_state);
 }

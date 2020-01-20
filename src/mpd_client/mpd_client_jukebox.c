@@ -230,8 +230,10 @@ static struct list *mpd_client_jukebox_get_last_played(t_config *config, t_mpd_s
                     }
                     else {
                         song = mpd_recv_song(mpd_state->conn);
-                        list_push(queue_list, data, 0, mpd_song_get_tag(song, mpd_state->jukebox_unique_tag.tags[0], 0), NULL);
-                        mpd_song_free(song);
+                        if (song != NULL) {
+                            list_push(queue_list, data, 0, mpd_song_get_tag(song, mpd_state->jukebox_unique_tag.tags[0], 0), NULL);
+                            mpd_song_free(song);
+                        }
                         mpd_response_finish(mpd_state->conn);
                     }
                 }

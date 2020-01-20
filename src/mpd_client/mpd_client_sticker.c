@@ -199,6 +199,9 @@ bool mpd_client_get_sticker(t_mpd_state *mpd_state, const char *uri, t_sticker *
 }
 
 void sticker_cache_free(t_mpd_state *mpd_state) {
+    if (mpd_state->sticker_cache == NULL) {
+        return;
+    }
     raxIterator iter;
     raxStart(&iter, mpd_state->sticker_cache);
     raxSeek(&iter, "^", NULL, 0);
@@ -206,6 +209,8 @@ void sticker_cache_free(t_mpd_state *mpd_state) {
         FREE_PTR(iter.data);
     }
     raxStop(&iter);
+    raxFree(mpd_state->sticker_cache);
+    mpd_state->sticker_cache = NULL;
 }
 
 //private functions
@@ -215,6 +220,7 @@ bool _sticker_cache_init(t_mpd_state *mpd_state) {
     unsigned end = start + 1000;
     unsigned i = 0;
     struct mpd_song *song;
+    mpd_state->sticker_cache = raxNew();
     //get all songs from database
     do {
         if (mpd_search_db_songs(mpd_state->conn, false) == false) { return false; }
@@ -245,6 +251,7 @@ bool _sticker_cache_init(t_mpd_state *mpd_state) {
     }
     sdsfree(uri);
     raxStop(&iter);
+    LOG_VERBOSE("Sticker cache updated successfully");
     return true;
 }
 
