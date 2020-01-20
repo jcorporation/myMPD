@@ -6,7 +6,7 @@
 
 #ifndef __MPD_CLIENT_STICKER_H__
 #define __MPD_CLIENT_STICKER_H__
-bool sticker_cache_init(t_mpd_state *mpd_state);
+bool sticker_cache_init(t_config *config, t_mpd_state *mpd_state);
 void sticker_cache_free(t_mpd_state *mpd_state);
 struct t_sticker *get_sticker_from_cache(t_mpd_state *mpd_state, const char *uri);
 

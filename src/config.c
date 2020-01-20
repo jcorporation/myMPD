@@ -90,6 +90,9 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("mympd", "stickers")) {
         p_config->stickers = strtobool(value);
     }
+    else if (MATCH("mympd", "stickercache")) {
+        p_config->sticker_cache = strtobool(value);
+    }
     else if (MATCH("mympd", "smartpls")) {
         p_config->smartpls =  strtobool(value);
     }
@@ -273,7 +276,8 @@ static void mympd_get_env(struct t_config *config) {
         "WEBSERVER_SSL", "WEBSERVER_SSLPORT", "WEBSERVER_SSLCERT", "WEBSERVER_SSLKEY",
         "WEBSERVER_SSLSAN", 
       #endif
-        "MYMPD_LOGLEVEL", "MYMPD_USER", "MYMPD_VARLIBDIR", "MYMPD_MIXRAMP", "MYMPD_STICKERS", "MYMPD_TAGLIST", 
+        "MYMPD_LOGLEVEL", "MYMPD_USER", "MYMPD_VARLIBDIR", "MYMPD_MIXRAMP", "MYMPD_STICKERS", 
+        "MYMPD_STICKERCACHE", "MYMPD_TAGLIST", 
         "MYMPD_SEARCHTAGLIST", "MYMPD_BROWSETAGLIST", "MYMPD_SMARTPLS", "MYMPD_SYSCMDS", 
         "MYMPD_PAGINATION", "MYMPD_LASTPLAYEDCOUNT", "MYMPD_LOVE", "MYMPD_LOVECHANNEL", "MYMPD_LOVEMESSAGE",
         "MYMPD_NOTIFICATIONWEB", "MYMPD_CHROOT", "MYMPD_READONLY", "MYMPD_TIMER",
@@ -369,7 +373,7 @@ void mympd_config_defaults(t_config *config) {
     config->jukebox_mode = JUKEBOX_OFF;
     config->jukebox_playlist = sdsnew("Database");
     config->jukebox_queue_length = 1;
-    config->jukebox_unique_tag = sdsnew("Artist");
+    config->jukebox_unique_tag = sdsnew("Title");
     config->jukebox_last_played = 24;
     config->cols_queue_current = sdsnew("[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]");
     config->cols_queue_last_played = sdsnew("[\"Pos\",\"Title\",\"Artist\",\"Album\",\"LastPlayed\"]");
@@ -401,6 +405,7 @@ void mympd_config_defaults(t_config *config) {
     config->custom_placeholder_images = false;
     config->regex = true;
     config->timer = true;
+    config->sticker_cache = true;
     list_init(&config->syscmd_list);
 }
 
@@ -423,6 +428,10 @@ bool mympd_read_config(t_config *config, sds configfile) {
     #endif
     if (config->readonly == true) {
         mympd_set_readonly(config);
+    }
+    if (config->stickers == false) {
+        LOG_INFO("Stickers are disabled, disabling sticker cache");
+        config->sticker_cache = false;
     }
 
     return true;

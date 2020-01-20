@@ -416,7 +416,7 @@ function parseMPDSettings() {
         document.getElementById('warnStickers').classList.add('hide');
     }
     
-    if (settings.featStickers === false || settings.stickers === false) {
+    if (settings.featStickers === false || settings.stickers === false || settings.featStickerCache == false) {
         document.getElementById('warnPlaybackStatistics').classList.remove('hide');
         document.getElementById('inputJukeboxLastPlayed').setAttribute('disabled', 'disabled');
     }

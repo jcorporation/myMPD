@@ -246,15 +246,6 @@ static struct list *mpd_client_jukebox_get_last_played(t_config *config, t_mpd_s
         }
     }
     LOG_DEBUG("Jukebox last_played list length: %d", queue_list->length);
-/*
-    if (loglevel == 4) {
-        current = queue_list->head;
-        while (current != NULL) {
-            printf("Jukebox last_played list: %s:%s\n", current->key, current->value_p);
-            current = current->next;
-        }
-    }
-*/
     return queue_list;
 }
 
@@ -308,7 +299,7 @@ static bool mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_state 
                 const char *tag_value = mpd_song_get_tag(song, mpd_state->jukebox_unique_tag.tags[0], 0);
                 const char *uri = mpd_song_get_uri(song);
                 int last_played = 0;
-                if (mpd_state->feat_sticker == true) {
+                if (mpd_state->sticker_cache != NULL) {
                     t_sticker *sticker = get_sticker_from_cache(mpd_state, uri);
                     if (sticker != NULL) {
                         last_played = sticker->lastPlayed;
@@ -402,13 +393,6 @@ static bool mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_state 
 
     list_free(queue_list);
     FREE_PTR(queue_list);
-/*
-    struct node *current = mpd_state->jukebox_queue.head;
-    while (current != NULL) {
-        printf("Jukebox queue list: %s:%s\n", current->key, current->value_p);
-        current = current->next;
-    }
-*/
     return true;
 }
 

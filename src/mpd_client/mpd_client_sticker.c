@@ -24,12 +24,12 @@
 #include "mpd_client_sticker.h"
 
 //privat definitions
-bool _sticker_cache_init(t_mpd_state *mpd_state);
+bool _sticker_cache_init(t_config *config, t_mpd_state *mpd_state);
 
 //public functions
-bool sticker_cache_init(t_mpd_state *mpd_state) {
+bool sticker_cache_init(t_config *config, t_mpd_state *mpd_state) {
     mpd_run_clear_tag_types(mpd_state->conn);
-    bool rc = _sticker_cache_init(mpd_state);
+    bool rc = _sticker_cache_init(config, mpd_state);
     enable_mpd_tags(mpd_state, mpd_state->mympd_tag_types);
     return rc;
 }
@@ -39,14 +39,31 @@ bool mpd_client_count_song_uri(t_mpd_state *mpd_state, const char *uri, const ch
         return false;
     }
     int old_value = 0;
-
-    t_sticker *sticker = get_sticker_from_cache(mpd_state, uri);
-    if (sticker != NULL) {
-        if (strcmp(name, "playCount") == 0) {
-            old_value = sticker->playCount;
+    t_sticker *sticker = NULL;
+    if (mpd_state->sticker_cache != NULL) {
+        sticker = get_sticker_from_cache(mpd_state, uri);
+        if (sticker != NULL) {
+            if (strcmp(name, "playCount") == 0) {
+                old_value = sticker->playCount;
+            }
+            else if (strcmp(name, "skipCount") == 0) {
+                old_value = sticker->skipCount;
+            }
         }
-        else if (strcmp(name, "skipCount") == 0) {
-            old_value = sticker->skipCount;
+    }
+    else {
+        struct mpd_pair *pair;
+        char *crap = NULL;
+        if (mpd_send_sticker_list(mpd_state->conn, "song", uri)) {
+            while ((pair = mpd_recv_sticker(mpd_state->conn)) != NULL) {
+                if (strcmp(pair->name, name) == 0) {
+                    old_value = strtoimax(pair->value, &crap, 10);
+                }
+                mpd_return_sticker(mpd_state->conn, pair);
+            }
+        } else {
+            check_error_and_recover(mpd_state, NULL, NULL, 0);
+            return false;
         }
     }
 
@@ -96,7 +113,7 @@ sds mpd_client_like_song_uri(t_mpd_state *mpd_state, sds buffer, sds method, int
         buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
         return buffer;
     }
-    else {
+    else if (mpd_state->sticker_cache != NULL) {
         t_sticker *sticker = get_sticker_from_cache(mpd_state, uri);
         if (sticker != NULL) {
             sticker->like = value;
@@ -117,7 +134,7 @@ bool mpd_client_last_played_song_uri(t_mpd_state *mpd_state, const char *uri) {
         sdsfree(value_str);
         return false;
     } 
-    else {
+    else if (mpd_state->sticker_cache != NULL) {
         t_sticker *sticker = get_sticker_from_cache(mpd_state, uri);
         if (sticker != NULL) {
             sticker->lastPlayed = mpd_state->song_start_time;
@@ -139,7 +156,7 @@ bool mpd_client_last_skipped_song_uri(t_mpd_state *mpd_state, const char *uri) {
         sdsfree(value_str);
         return false;
     }
-    else {
+    else if (mpd_state->sticker_cache != NULL) {
         t_sticker *sticker = get_sticker_from_cache(mpd_state, uri);
         if (sticker != NULL) {
             sticker->lastSkipped = now;
@@ -214,7 +231,10 @@ void sticker_cache_free(t_mpd_state *mpd_state) {
 }
 
 //private functions
-bool _sticker_cache_init(t_mpd_state *mpd_state) {
+bool _sticker_cache_init(t_config *config, t_mpd_state *mpd_state) {
+    if (config->sticker_cache == false || mpd_state->feat_sticker == false) {
+        return false;
+    }
     LOG_VERBOSE("Updating sticker cache");
     unsigned start = 0;
     unsigned end = start + 1000;

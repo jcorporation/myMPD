@@ -127,6 +127,7 @@ typedef struct t_config {
     bool custom_placeholder_images;
     bool regex;
     bool timer;
+    bool sticker_cache;
     //system commands
     struct list syscmd_list;
 } t_config;

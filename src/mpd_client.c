@@ -99,9 +99,9 @@ static void mpd_client_parse_idle(t_config *config, t_mpd_state *mpd_state, int 
                 case MPD_IDLE_DATABASE:
                     buffer = jsonrpc_notify(buffer, "update_database");
                     mpd_client_smartpls_update_all(config, mpd_state);
-                    if (mpd_state->feat_sticker == true) {
+                    if (mpd_state->feat_sticker == true && config->sticker_cache == true) {
                         sticker_cache_free(mpd_state);
-                        sticker_cache_init(mpd_state);
+                        sticker_cache_init(config, mpd_state);
                     }
                     break;
                 case MPD_IDLE_STORED_PLAYLIST:
@@ -264,9 +264,9 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
             //get mpd features
             mpd_client_mpd_features(config, mpd_state);
             //update sticker cache
-            if (mpd_state->feat_sticker == true) {
+            if (mpd_state->feat_sticker == true && config->sticker_cache == true) {
                 sticker_cache_free(mpd_state);
-                sticker_cache_init(mpd_state);
+                sticker_cache_init(config, mpd_state);
             }
             //set timer for smart playlist update
             mpd_client_set_timer(MYMPD_API_TIMER_SET, "MYMPD_API_TIMER_SET", 10, 0, "timer_handler_smartpls_update");
