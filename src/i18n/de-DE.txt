@@ -1086,6 +1086,9 @@ Es muss mindestens ein Wochentag ausgewählt sein.
 Must be a number and equal or greater than zero
 Muss eine Zahl größergleich 0 sein
 
+Timer
+Timer
+
 New timer
 Neuer Timer
 
@@ -1133,3 +1136,6 @@ Sa
 
 Sun
 So
+
+System command
+Systembefehl
