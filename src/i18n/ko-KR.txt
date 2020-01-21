@@ -1086,6 +1086,9 @@ Minimum one weekday must be selected
 Must be a number and equal or greater than zero
 숫자이고 0과 같거나 커야 함
 
+Timer
+시간 조절
+
 New timer
 새로운 시간 조절
 
@@ -1133,3 +1136,6 @@ Sat
 
 Sun
 일
+
+System command
+시스템 명령어
