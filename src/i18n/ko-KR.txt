@@ -474,6 +474,9 @@ Stickers are disabled
 Playback statistics
 연주 통계
 
+Playback statistics are disabled
+연주 통계 사용 안 함
+
 Last played list count
 앞선 연주 목록 개수
 
@@ -1058,3 +1061,75 @@ Show songs
 
 JavaScript error
 자바스크립트 오류
+
+Definition
+결정
+
+Enable jukebox if playlist is database
+연주목록이 데이터베이스이면 뮤직박스 사용함
+
+Enabled
+사용함
+
+Enforce uniqueness
+유일성 강제
+
+Invalid name
+잘못된 이름
+
+Last played older than (hours)
+이전에 연주됨 (시간)
+
+Minimum one weekday must be selected
+최소 일주일 선택해야 함
+
+Must be a number and equal or greater than zero
+숫자이고 0과 같거나 커야 함
+
+New timer
+새로운 시간 조절
+
+On
+켜기
+
+on
+켜기
+
+Oneshot
+1회
+
+Other features
+다른 기능
+
+Start
+시작
+
+Start playback
+연주 시작
+
+Stop playback
+연주 정지
+
+Weekdays
+주일
+
+Mon
+월
+
+Tue
+화
+
+Wed
+수
+
+Thu
+목
+
+Fri
+금
+
+Sat
+토
+
+Sun
+일
