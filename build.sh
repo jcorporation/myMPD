@@ -640,22 +640,32 @@ updatelibmympdclient() {
 }
 
 uninstall() {
+  #MYMPD_INSTALL_PREFIX="/usr"
   rm -f "$DESTDIR/usr/bin/mympd"
+  #MYMPD_INSTALL_PREFIX="/usr/local"
+  rm -f "$DESTDIR/usr/local/bin/mympd"
+  #MYMPD_INSTALL_PREFIX="/opt/mympd/"
   rm -rf "$DESTDIR/opt/mympd"
+  #systemd
   rm -f "$DESTDIR/usr/lib/systemd/system/mympd.service"
   rm -f "$DESTDIR/lib/systemd/system/mympd.service"
+  #sysVinit, open-rc
   rm -f "$DESTDIR/etc/init.d/mympd"
 }
 
 purge() {
+  #MYMPD_INSTALL_PREFIX="/usr"
   rm -rf "$DESTDIR/var/lib/mympd"
   rm -f "$DESTDIR/etc/mympd.conf"
   rm -f "$DESTDIR/etc/mympd.conf.dist"
-
-  rm -r "$DESTDIR/var/opt/mympd"
-  rm -f "$DESTDIR/etc/opt/mympd.conf"
-  rm -f "$DESTDIR/etc/opt/mympd.conf.dist"
-
+  #MYMPD_INSTALL_PREFIX="/usr/local"
+  rm -rf "$DESTDIR/var/lib/mympd"
+  rm -f "$DESTDIR/usr/local/etc/mympd.conf"
+  rm -f "$DESTDIR/usr/local/etc/mympd.conf.dist"
+  #MYMPD_INSTALL_PREFIX="/opt/mympd/"
+  rm -rf "$DESTDIR/var/opt/mympd"
+  rm -rf "$DESTDIR/etc/opt/mympd"
+  #arch
   rm -rf "$DESTDIR/etc/webapps/mympd"
 }
 
