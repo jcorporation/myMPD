@@ -15,6 +15,7 @@ bool replace_timer(struct t_timer_list *l, unsigned int timeout, unsigned int in
                    struct t_timer_definition *definition, void *user_data);
 void remove_timer(struct t_timer_list *l, int timer_id);
 void toggle_timer(struct t_timer_list *l, int timer_id);
+void free_timer_definition(struct t_timer_definition *timer_def);
 void free_timer_node(struct t_timer_node *node);
 struct t_timer_definition *parse_timer(struct t_timer_definition *timer_def, const char *str, size_t len);
 time_t timer_calc_starttime(int start_hour, int start_minute);

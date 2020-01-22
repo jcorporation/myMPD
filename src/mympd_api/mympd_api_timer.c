@@ -187,15 +187,19 @@ void truncate_timerlist(struct t_timer_list *l) {
     init_timerlist(l);
 }
 
+void free_timer_definition(struct t_timer_definition *timer_def) {
+    sdsfree(timer_def->name);
+    sdsfree(timer_def->action);
+    sdsfree(timer_def->playlist);
+    FREE_PTR(timer_def);
+}
+
 void free_timer_node(struct t_timer_node *node) {
     if (node->fd > -1) {
         close(node->fd);
     }
     if (node->definition != NULL) {
-        sdsfree(node->definition->name);
-        sdsfree(node->definition->action);
-        sdsfree(node->definition->playlist);
-        free(node->definition);
+        free_timer_definition(node->definition);
     }
     free(node);
 }
@@ -216,6 +220,9 @@ struct t_timer_definition *parse_timer(struct t_timer_definition *timer_def, con
     FREE_PTR(playlist);
     if (je != 8) {
         return NULL;
+    }
+    for (int i = 0; i < 7; i++) {
+        timer_def->weekdays[i] = false;
     }
     struct json_token t;
     for (int i = 0; json_scanf_array_elem(str, len, ".params.weekdays", i, &t) > 0 && i < 7; i++) {

@@ -251,8 +251,11 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                 replace_timer(&mympd_state->timer_list, start, 86400, timer_handler_select, int_buf1, timer_def, NULL);
                 response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
             }
+            else if (timer_def != NULL) {
+                free_timer_definition(timer_def);
+            }
             else {
-                FREE_PTR(timer_def);
+                free(timer_def);
             }
             break;
         }
