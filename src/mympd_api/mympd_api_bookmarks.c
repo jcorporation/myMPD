@@ -126,6 +126,8 @@ sds mympd_api_bookmark_list(t_config *config, sds buffer, sds method, int reques
             LOG_ERROR("Can't open %s for write", b_file);
             buffer = sdscrop(buffer);
             buffer = jsonrpc_respond_message(buffer, method, request_id, "Failed to open bookmarks file", true);
+            sdsfree(b_file);
+            return buffer;
         }
         else {
             fclose(fi);
