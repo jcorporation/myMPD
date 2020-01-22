@@ -57,11 +57,10 @@ sds mpd_client_put_songdetails(t_mpd_state *mpd_state, sds buffer, sds method, i
         buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
         return buffer;
     }
-    struct mpd_entity *entity;
-    if ((entity = mpd_recv_entity(mpd_state->conn)) != NULL) {
-        const struct mpd_song *song = mpd_entity_get_song(entity);
+    struct mpd_song *song;
+    if ((song = mpd_recv_song(mpd_state->conn)) != NULL) {
         buffer = put_song_tags(buffer, mpd_state, &mpd_state->mympd_tag_types, song);
-        mpd_entity_free(entity);
+        mpd_song_free(song);
     }
     else {
         buffer = check_error_and_recover(mpd_state, buffer, method, request_id);

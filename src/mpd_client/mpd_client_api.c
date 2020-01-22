@@ -325,8 +325,11 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
         }
         case MPD_API_DATABASE_SONGDETAILS:
             je = json_scanf(request->data, sdslen(request->data), "{params: { uri: %Q}}", &p_charbuf1);
-            if (je == 1) {
+            if (je == 1 && strlen(p_charbuf1) > 0) {
                 response->data = mpd_client_put_songdetails(mpd_state, response->data, request->method, request->id, p_charbuf1);
+            }
+            else {
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Invalid API request", true);
             }
             break;
         case MPD_API_DATABASE_FINGERPRINT:
