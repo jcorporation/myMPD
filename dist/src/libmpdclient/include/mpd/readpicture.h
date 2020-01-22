@@ -44,6 +44,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#include <mpd/binary.h>
+
 struct mpd_connection;
 
 struct mpd_readpicture {

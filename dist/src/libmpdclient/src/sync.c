@@ -28,7 +28,6 @@
 
 #include "sync.h"
 #include "socket.h"
-#include "binary.h"
 
 #include <mpd/async.h>
 

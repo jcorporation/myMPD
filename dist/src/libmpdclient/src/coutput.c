@@ -131,3 +131,19 @@ mpd_run_output_set(struct mpd_connection *connection, unsigned output_id,
 				    attribute_name, attribute_value) &&
 		mpd_response_finish(connection);
 }
+
+bool
+mpd_send_move_output(struct mpd_connection *connection,
+		     const char *output_name)
+{
+	return mpd_send_command(connection, "moveoutput", output_name, NULL);
+}
+
+bool
+mpd_run_move_output(struct mpd_connection *connection, const char *
+		    output_name)
+{
+	return mpd_run_check(connection) &&
+		mpd_send_move_output(connection, output_name) &&
+		mpd_response_finish(connection);
+}

@@ -119,6 +119,9 @@ struct mpd_status {
 	/** non-zero if MPD is updating, 0 otherwise */
 	unsigned update_id;
 
+	/** the name of the current partition */
+	char *partition;
+
 	/** error message */
 	char *error;
 };
@@ -150,6 +153,7 @@ mpd_status_begin(void)
 	status->crossfade = 0;
 	status->mixrampdb = 100.0;
 	status->mixrampdelay = -1.0;
+	status->partition = NULL;
 	status->error = NULL;
 	status->update_id = 0;
 
@@ -257,6 +261,9 @@ mpd_status_feed(struct mpd_status *status, const struct mpd_pair *pair)
 
 		if (status->elapsed_time == 0)
 			status->elapsed_time = status->elapsed_ms / 1000;
+	} else if (strcmp(pair->name, "partition") == 0) {
+		free(status->partition);
+		status->partition = strdup(pair->value);
 	} else if (strcmp(pair->name, "error") == 0) {
 		free(status->error);
 		status->error = strdup(pair->value);
@@ -276,6 +283,7 @@ void mpd_status_free(struct mpd_status * status)
 {
 	assert(status != NULL);
 
+	free(status->partition);
 	free(status->error);
 	free(status);
 }
@@ -454,6 +462,14 @@ mpd_status_get_update_id(const struct mpd_status *status)
 	assert(status != NULL);
 
 	return status->update_id;
+}
+
+const char *
+mpd_status_get_partition(const struct mpd_status *status)
+{
+	assert(status != NULL);
+
+	return status->partition;
 }
 
 const char *

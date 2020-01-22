@@ -31,7 +31,6 @@
 #include "ierror.h"
 #include "quote.h"
 #include "socket.h"
-#include "binary.h"
 
 #include <mpd/socket.h>
 

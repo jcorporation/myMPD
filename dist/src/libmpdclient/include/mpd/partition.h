@@ -108,6 +108,32 @@ bool
 mpd_run_newpartition(struct mpd_connection *connection, const char *partition);
 
 /**
+ * Delete a partition.
+ *
+ * @param connection the connection to MPD
+ * @param partition the partition name
+ * @return true on success
+ *
+ * @since libmpdclient 2.18
+ */
+bool
+mpd_send_delete_partition(struct mpd_connection *connection,
+			  const char *partition);
+
+/**
+ * Shortcut for mpd_send_delete_partition() and mpd_response_finish().
+ *
+ * @param connection the connection to MPD
+ * @param partition the partition name
+ * @return true on success
+ *
+ * @since libmpdclient 2.18
+ */
+bool
+mpd_run_delete_partition(struct mpd_connection *connection,
+			 const char *partition);
+
+/**
  * Switch the client to a different partition.
  *
  * @param connection the connection to MPD
@@ -135,6 +161,7 @@ mpd_run_switch_partition(struct mpd_connection *connection,
 
 /**
  * Sends the "listpartitions" command: request the list of partitions.
+ * Call mpd_recv_partition() repeatedly to read the response.
  *
  * @param connection the connection to MPD
  * @return true on success
@@ -162,6 +189,19 @@ mpd_recv_partition_pair(struct mpd_connection *connection)
 {
 	return mpd_recv_pair_named(connection, "partition");
 }
+
+/**
+ * Reads the next #mpd_partition from the MPD response.  Free the
+ * return value with mpd_partition_free().
+ *
+ * @return a mpd_partition object on success, NULL on error or
+ * end-of-response
+ *
+ * @since libmpdclient 2.18
+ */
+mpd_malloc
+struct mpd_partition *
+mpd_recv_partition(struct mpd_connection *connection);
 
 #ifdef __cplusplus
 }

@@ -344,6 +344,14 @@ unsigned
 mpd_status_get_update_id(const struct mpd_status *status);
 
 /**
+ * Returns the name of the current partition or NULL if the server did
+ * not send a name.
+ */
+mpd_pure
+const char *
+mpd_status_get_partition(const struct mpd_status *status);
+
+/**
  * Returns the error message
  */
 mpd_pure
