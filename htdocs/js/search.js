@@ -43,7 +43,7 @@ function parseSearch(obj) {
 }
 
 function saveSearchAsSmartPlaylist() {
-    parseSmartPlaylist({"type": "smartpls", "data": {"playlist": "", "type": "search", "tag": app.current.filter, "searchstr": app.current.search}});
+    parseSmartPlaylist({"jsonrpc":"2.0","id":0,"result":{"method":"MPD_API_SMARTPLS_GET","playlist":"","type":"search","tag": app.current.filter,"searchstr": app.current.search}});
 }
 
 function addAllFromSearchPlist(plist, search, replace) {
