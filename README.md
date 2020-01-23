@@ -94,7 +94,7 @@ The ``./build.sh`` script installs a startup script for systemd, openrc (Alpine 
 
 Wiki
 ----
-For further information on installation and configurations, see the myMPD wiki: https://github.com/jcorporation/myMPD/wiki
+For further information on installation and configuration, see the myMPD wiki: https://github.com/jcorporation/myMPD/wiki
 
 Copyright
 ---------
