@@ -83,9 +83,9 @@ Unix Build Instructions
 
 Run
 ---
-Adapt the configuration file ``/etc/mympd.conf`` to your needs.
+Adapt the configuration file ``/etc/webapps/mympd/mympd.conf`` to your needs.
 ``
-Usage: ./mympd [/etc/mympd.conf]
+Usage: ./mympd [/etc/webapps/mympd/mympd.conf]
 ``
 The ``./build.sh`` script installs a startup script for systemd, openrc (Alpine Linux) or sysVinit.
 
