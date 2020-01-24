@@ -28,10 +28,12 @@
 void enable_mpd_tags(t_mpd_state *mpd_state, t_tags enable_tags) {
     #if LIBMPDCLIENT_CHECK_VERSION(2,12,0)
     if (mpd_connection_cmp_server_version(mpd_state->conn, 0, 21, 0) >= 0) {
-        LOG_VERBOSE("Enabling mpd tag types");
+        LOG_VERBOSE("Setting interesting mpd tag types");
         if (mpd_command_list_begin(mpd_state->conn, false)) {
             mpd_send_clear_tag_types(mpd_state->conn);
-            mpd_send_enable_tag_types(mpd_state->conn, enable_tags.tags, enable_tags.len);
+            if (enable_tags.len > 0) {
+                mpd_send_enable_tag_types(mpd_state->conn, enable_tags.tags, enable_tags.len);
+            }
             if (mpd_command_list_end(mpd_state->conn)) {
                 mpd_response_finish(mpd_state->conn);
             }
