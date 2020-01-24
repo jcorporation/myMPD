@@ -411,7 +411,26 @@ int main(int argc, char ** argv) {
 		if (!mpd_run_switch_partition(conn, argv[2]))
 			return handle_error(conn);
 		printf("switched to partition %s\n", argv[2]);
-	}else if (argc == 3 && strcmp(argv[1], "readpicture2") == 0) {
+	} else if (argc == 2 && strcmp(argv[1], "replay_gain_status") == 0) {
+		const enum mpd_replay_gain_mode mode =
+			mpd_run_replay_gain_status(conn);
+
+		if (mode == MPD_REPLAY_UNKNOWN)
+			return handle_error(conn);
+
+		printf("replay gain status: %d\n", mode);
+	} else if (argc == 3 && strcmp(argv[1], "replay_gain_mode") == 0) {
+		const enum mpd_replay_gain_mode mode =
+			mpd_parse_replay_gain_name(argv[2]);
+
+		if (mode == MPD_REPLAY_UNKNOWN) {
+			printf("Unknown replay mode %s\n", argv[2]);
+			return EXIT_FAILURE;
+		}
+
+		if (!mpd_run_replay_gain_mode(conn, mode))
+			return handle_error(conn);
+	} else if (argc == 3 && strcmp(argv[1], "readpicture2") == 0) {
                 unsigned offset = 0;
                 unsigned size = 0;
                 char *mime_type = NULL;
@@ -454,7 +473,6 @@ int main(int argc, char ** argv) {
                 fclose(fp);
                 printf("Wrote file: /tmp/albumart, size: %u bytes, retrieved: %u bytes\n", size, offset);
         }
-
 	mpd_connection_free(conn);
 
 	return 0;
