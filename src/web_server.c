@@ -319,6 +319,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 s_http_server_opts.document_root = DOC_ROOT;
                 s_http_server_opts.enable_directory_listing = "no";
                 s_http_server_opts.extra_headers = EXTRA_HEADERS;
+                s_http_server_opts.custom_mime_types = CUSTOM_MIME_TYPES;
                 mg_serve_http(nc, hm, s_http_server_opts);
                 #else
                 //serve embedded files

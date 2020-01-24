@@ -25,6 +25,8 @@
 
 #define EXTRA_HEADERS_CACHE "Cache-Control: max-age=604800"
 
+#define CUSTOM_MIME_TYPES ".html=text/html; charset=utf-8,.manifest=application/manifest+json"
+
 typedef struct t_mg_user_data {
     void *config; //pointer to mympd config
     sds music_directory;
