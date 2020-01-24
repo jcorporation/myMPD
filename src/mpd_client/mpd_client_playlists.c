@@ -110,7 +110,13 @@ sds mpd_client_put_playlist_list(t_config *config, t_mpd_state *mpd_state, sds b
         }
         mpd_entity_free(entity);
     }
-    mpd_response_finish(mpd_state->conn);
+    if (mpd_connection_get_error(mpd_state->conn) != MPD_ERROR_SUCCESS) {
+        buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
+        return buffer;
+    }
+    else {
+        mpd_response_finish(mpd_state->conn);
+    }
     
     bool smartpls = is_smartpls(config, mpd_state, uri);
 
