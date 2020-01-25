@@ -659,9 +659,7 @@ function saveSettings() {
     }
     
     if (formOK === true) {
-        let selectReplaygain = document.getElementById('selectReplaygain');
         let selectJukeboxPlaylist = document.getElementById('selectJukeboxPlaylist');
-        let selectJukeboxMode = document.getElementById('selectJukeboxMode');
         let selectLocale = document.getElementById('selectLocale');
         let selectTheme = document.getElementById('selectTheme');
         sendAPI("MYMPD_API_SETTINGS_SET", {
