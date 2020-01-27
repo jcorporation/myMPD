@@ -380,9 +380,19 @@ function parseMPDSettings() {
     else {
         document.getElementById('inputMixrampdelay').setAttribute('disabled', 'disabled');
     }
+    
+    if (settings.coverimage === false || settings.featTags === false || 
+        settings.tags.includes('AlbumArtist') === false || settings.tags.includes('Album') === false
+        || settings.tags.includes('Track') === false || settings.featAdvsearch === false) 
+    {
+        settings.featCovergrid = false;
+    }
+    else {
+        settings.featCovergrid = true;
+    }
 
     let features = ['featStickers', 'featSmartpls', 'featPlaylists', 'featTags', 'featCoverimage', 'featAdvsearch',
-        'featLove', 'featSingleOneshot'];
+        'featLove', 'featSingleOneshot', 'featCovergrid'];
     for (let j = 0; j < features.length; j++) {
         let Els = document.getElementsByClassName(features[j]);
         let ElsLen = Els.length;
