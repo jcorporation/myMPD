@@ -75,6 +75,10 @@ body.theme-light .btn-secondary {
   border-color: #CED4DA;
 }
 
+body.theme-light .border-secondary {
+  border-color: #CED4DA !important;
+}
+
 body.theme-light .btn-secondary:hover {
   color: #212529;
   background-color: #e2e6ea;
