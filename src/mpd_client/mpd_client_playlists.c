@@ -76,21 +76,20 @@ sds mpd_client_put_playlists(t_config *config, t_mpd_state *mpd_state, sds buffe
 sds mpd_client_put_playlist_list(t_config *config, t_mpd_state *mpd_state, sds buffer, sds method, int request_id,
                                  const char *uri, const unsigned int offset, const char *filter, const t_tags *tagcols)
 {
+    mpd_send_list_playlist_meta(mpd_state->conn, uri);
+    if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
+        return buffer;
+    }
+    
     buffer = jsonrpc_start_result(buffer, method, request_id);
     buffer = sdscat(buffer,",\"data\":[");
 
-    if (mpd_send_list_playlist_meta(mpd_state->conn, uri) == false) {
-        buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
-        return buffer;
-    }
-
-    struct mpd_entity *entity;
+    struct mpd_song *song;
     unsigned entities_returned = 0;
     unsigned entity_count = 0;
-    while ((entity = mpd_recv_entity(mpd_state->conn)) != NULL) {
+    while ((song = mpd_recv_song(mpd_state->conn)) != NULL) {
         entity_count++;
         if (entity_count > offset && entity_count <= offset + mpd_state->max_elements_per_page) {
-            const struct mpd_song *song = mpd_entity_get_song(entity);
             const char *entityName = mpd_client_get_tag(song, MPD_TAG_TITLE);
             if (strncmp(filter, "-", 1) == 0 || strncasecmp(filter, entityName, 1) == 0 ||
                (strncmp(filter, "0", 1) == 0 && isalpha(*entityName) == 0))
@@ -108,14 +107,11 @@ sds mpd_client_put_playlist_list(t_config *config, t_mpd_state *mpd_state, sds b
                 entity_count--;
             }
         }
-        mpd_entity_free(entity);
+        mpd_song_free(song);
     }
-    if (mpd_connection_get_error(mpd_state->conn) != MPD_ERROR_SUCCESS) {
-        buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
+
+    if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
         return buffer;
-    }
-    else {
-        mpd_response_finish(mpd_state->conn);
     }
     
     bool smartpls = is_smartpls(config, mpd_state, uri);
