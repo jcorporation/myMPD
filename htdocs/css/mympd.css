@@ -633,5 +633,10 @@ div#playDropdown .row {
 
 .dropdown-item:hover, 
 .dropdown-item:focus {
-  background-color: transparent !important;
+  background-color: #3c4248;
+}
+
+.popover-content .dropdown-item:hover, 
+.popover-content .dropdown-item:focus {
+  background-color: #e9ecef;
 }

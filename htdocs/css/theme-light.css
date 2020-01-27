@@ -138,7 +138,7 @@ body.theme-light .input-group-append > .dropdown-toggle {
 
 body.theme-light .dropdown-item:hover, 
 body.theme-light .dropdown-item:focus {
-  background-color: transparent !important;
+  background-color: #e9ecef !important;
 }
 
 body.theme-light .bg-lite-dark {
