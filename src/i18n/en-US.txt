@@ -20,3 +20,9 @@ Min
 
 Seconds
 Sec
+
+LastModified
+Last modified
+
+AlbumArtist
+Albumartist

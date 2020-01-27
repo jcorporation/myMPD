@@ -335,6 +335,7 @@ function setColTags(table) {
     if (table === 'Playback') {
         tags.push('Filetype');
         tags.push('Fileformat');
+        tags.push('LastModified');
     }
     
     tags.sort();

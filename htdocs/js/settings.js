@@ -487,6 +487,9 @@ function parseMPDSettings() {
             if (settings.colsPlayback[i] === 'Duration') {
                 pbtl += (lastSongObj[settings.colsPlayback[i]] ? beautifySongDuration(lastSongObj[settings.colsPlayback[i]]) : '');
             }
+            else if (settings.colsPlayback[i] === 'LastModified') {
+                pbtl += (lastSongObj[settings.colsPlayback[i]] ? localeDate(lastSongObj[settings.colsPlayback[i]]) : '');
+            }
             else if (settings.colsPlayback[i] === 'Fileformat') {
                 pbtl += (lastState ? fileformat(lastState.audioFormat) : '');
             }
@@ -788,6 +791,7 @@ function filterCols(x) {
     if (x === 'colsPlayback') {
         tags.push('Filetype');
         tags.push('Fileformat');
+        tags.push('LastModified');
     }
     let cols = [];
     for (let i = 0; i < settings[x].length; i++) {

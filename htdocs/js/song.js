@@ -49,6 +49,7 @@ function parseSongDetails(obj) {
             e(basename(obj.result.uri)) + '</span></td></tr>';
     }
     songDetails += '<tr><th>' + t('Filetype') + '</th><td>' + filetype(obj.result.uri) + '</td></tr>';
+    songDetails += '<tr><th>' + t('LastModified') + '</th><td>' + localeDate(obj.result.LastModified) + '</td></tr>';
     if (settings.featFingerprint === true) {
         songDetails += '<tr><th>' + t('Fingerprint') + '</th><td class="breakAll" id="fingerprint"><a class="text-success" data-uri="' + 
             encodeURI(obj.result.uri) + '" id="calcFingerprint" href="#">' + t('Calculate') + '</a></td></tr>';

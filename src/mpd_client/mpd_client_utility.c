@@ -62,6 +62,7 @@ sds put_song_tags(sds buffer, t_mpd_state *mpd_state, const t_tags *tagcols, con
         buffer = tojson_char(buffer, "Title", tag_value == NULL ? "-" : tag_value, true);
     }
     buffer = tojson_long(buffer, "Duration", mpd_song_get_duration(song), true);
+    buffer = tojson_long(buffer, "LastModified", mpd_song_get_last_modified(song), true);
     buffer = tojson_char(buffer, "uri", mpd_song_get_uri(song), false);
     return buffer;
 }

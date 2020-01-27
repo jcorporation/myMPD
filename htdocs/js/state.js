@@ -322,8 +322,11 @@ function songChange(obj) {
             if (value === undefined) {
                 value = '';
             }
-            if (settings.colsPlayback[i] == 'Duration') {
+            if (settings.colsPlayback[i] === 'Duration') {
                 value = beautifySongDuration(value);
+            }
+            else if (settings.colsPlayback[i] === 'LastModified') {
+                value = localeDate(value);
             }
             c.getElementsByTagName('p')[0].innerText = value;
             c.setAttribute('data-name', encodeURI(value));
