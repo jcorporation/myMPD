@@ -86,38 +86,39 @@ sds put_empty_song_tags(sds buffer, t_mpd_state *mpd_state, const t_tags *tagcol
 }
 
 
-sds check_error_and_recover(t_mpd_state *mpd_state, sds buffer, sds method, int request_id) {
+bool check_error_and_recover2(t_mpd_state *mpd_state, sds *buffer, sds method, int request_id, bool notify) {
     if (mpd_connection_get_error(mpd_state->conn) != MPD_ERROR_SUCCESS) {
         LOG_ERROR("MPD error: %s", mpd_connection_get_error_message(mpd_state->conn));
-        if (buffer != NULL) {
-            buffer = jsonrpc_respond_message(buffer, method, request_id, mpd_connection_get_error_message(mpd_state->conn), true);
+        if (*buffer != NULL) {
+            if (notify == false) {
+                *buffer = jsonrpc_respond_message(*buffer, method, request_id, mpd_connection_get_error_message(mpd_state->conn), true);
+            }
+            else {
+                *buffer = jsonrpc_start_notify(*buffer, "error");
+                *buffer = tojson_char(*buffer, "message", mpd_connection_get_error_message(mpd_state->conn), false);
+                *buffer = jsonrpc_end_notify(*buffer);
+            }
         }
-        if (!mpd_connection_clear_error(mpd_state->conn)) {
-//            mpd_state->conn_state = MPD_FAILURE;
-        }
+        mpd_connection_clear_error(mpd_state->conn);
+        mpd_response_finish(mpd_state->conn);
+        return false;
     }
+    return true;
+}
+
+sds check_error_and_recover(t_mpd_state *mpd_state, sds buffer, sds method, int request_id) {
+    check_error_and_recover2(mpd_state, &buffer, method, request_id, false);
     return buffer;
 }
 
 sds check_error_and_recover_notify(t_mpd_state *mpd_state, sds buffer) {
-    if (mpd_connection_get_error(mpd_state->conn) != MPD_ERROR_SUCCESS) {
-        LOG_ERROR("MPD error: %s", mpd_connection_get_error_message(mpd_state->conn));
-        if (buffer != NULL) {
-            buffer = jsonrpc_start_notify(buffer, "error");
-            buffer = tojson_char(buffer, "message", mpd_connection_get_error_message(mpd_state->conn), false);
-            buffer = jsonrpc_end_notify(buffer);
-        }
-        if (!mpd_connection_clear_error(mpd_state->conn)) {
-//            mpd_state->conn_state = MPD_FAILURE;
-        }
-    }
+    check_error_and_recover2(mpd_state, &buffer, NULL, 0, true);
     return buffer;
 }
 
 sds respond_with_mpd_error_or_ok(t_mpd_state *mpd_state, sds buffer, sds method, int request_id) {
     buffer = sdscrop(buffer);
-    buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
-    if (sdslen(buffer) == 0) {
+    if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == true) {
         buffer = jsonrpc_respond_ok(buffer, method, request_id);
     }
     return buffer;

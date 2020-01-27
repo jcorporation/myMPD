@@ -109,6 +109,7 @@ typedef struct t_sticker {
 void enable_mpd_tags(t_mpd_state *mpd_state, t_tags enable_tags);
 sds put_song_tags(sds buffer, t_mpd_state *mpd_state, const t_tags *tagcols, const struct mpd_song *song);
 sds put_empty_song_tags(sds buffer, t_mpd_state *mpd_state, const t_tags *tagcols, const char *uri);
+bool check_error_and_recover2(t_mpd_state *mpd_state, sds *buffer, sds method, int request_id, bool notify);
 sds check_error_and_recover(t_mpd_state *mpd_state, sds buffer, sds method, int request_id);
 sds check_error_and_recover_notify(t_mpd_state *mpd_state, sds buffer);
 sds respond_with_mpd_error_or_ok(t_mpd_state *mpd_state, sds buffer, sds method, int request_id);
