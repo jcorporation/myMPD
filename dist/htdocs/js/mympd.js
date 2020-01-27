@@ -1114,13 +1114,10 @@ var phrases={
 	"Default":{
 		"de-DE":"Standard",
 		"ko-KR":"기본"
-<<<<<<< HEAD
-=======
 	},
 	"Definition":{
 		"de-DE":"Definition",
 		"ko-KR":"결정"
->>>>>>> devel
 	},
 	"Delete":{
 		"de-DE":"Löschen",
@@ -5305,17 +5302,6 @@ function parseMPDSettings() {
     }
     else {
         settings.featCovergrid = true;
-<<<<<<< HEAD
-    }
-    
-    let features = ['featStickers', 'featSmartpls', 'featPlaylists', 'featTags', 'featCoverimage', 'featAdvsearch',
-        'featLove', 'featDate', 'featGenre', 'featCovergrid'];
-    var featTags = ['Date', 'Genre' ];
-    for (let i = 0; i < featTags.length; i++) {
-        settings['feat' + featTags[i]] = settings.tags.includes(featTags[i]) ? true : false;
-        features.push('feat' + featTags[i]);
-=======
->>>>>>> devel
     }
 
     let features = ['featStickers', 'featSmartpls', 'featPlaylists', 'featTags', 'featCoverimage', 'featAdvsearch',
