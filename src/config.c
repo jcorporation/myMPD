@@ -239,7 +239,7 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("theme", "locale")) {
         p_config->locale = sdsreplace(p_config->locale, value);
     }
-    else if (MATCH("theme", "custom_placeholder_images")) {
+    else if (MATCH("theme", "customplaceholderimages")) {
         p_config->custom_placeholder_images = strtobool(value);
     }
     else if (strcasecmp(section, "syscmds") == 0) {
@@ -407,6 +407,180 @@ void mympd_config_defaults(t_config *config) {
     config->timer = true;
     config->sticker_cache = true;
     list_init(&config->syscmd_list);
+}
+
+bool mympd_dump_config(void) {
+    t_config *p_config = (t_config *)malloc(sizeof(t_config));
+    assert(p_config);
+    mympd_config_defaults(p_config);
+
+    sds tmp_file = sdscatfmt(sdsempty(), "%s/mympd.conf.XXXXXX", ETC_PATH);
+    int fd = mkstemp(tmp_file);
+    if (fd < 0) {
+        LOG_ERROR("Can't open %s for write", tmp_file);
+        sdsfree(tmp_file);
+        return false;
+    }
+    FILE *fp = fdopen(fd, "w");
+    
+    fprintf(fp, "[mpd]\n"
+        "host = %s\n"
+        "port = %d\n"
+        "#pass = \n"
+        "musicdirectory = %s\n"
+        "regex = %s\n\n",
+        p_config->mpd_host,
+        p_config->mpd_port,
+        p_config->music_directory,
+        (p_config->regex == true ? "true" : "false")
+    );
+    
+    fprintf(fp, "[webserver]\n"
+        "webport = %s\n"
+    #ifdef ENABLE_SSL
+        "ssl = %s\n"
+        "sslport = %s\n"
+        "sslcert = %s\n"
+        "sslkey = %s\n"
+        "sslsan = %s\n"
+    #endif
+        "publishlibrary = %s\n\n",
+        p_config->webport,
+    #ifdef ENABLE_SSL
+        (p_config->ssl == true ? "true" : "false"),
+        p_config->ssl_port,
+        p_config->ssl_cert,
+        p_config->ssl_key,
+        p_config->ssl_san,
+    #endif
+        (p_config->publish_library == true ? "true" : "false")
+    );
+
+    fprintf(fp, "[mympd]\n"
+        "user = %s\n"
+        "chroot = %s\n"
+        "varlibdir = %s\n"
+        "stickers = %s\n"
+        "stickercache = %s\n"
+        "smartpls = %s\n"
+        "mixramp = %s\n"
+        "taglist = %s\n"
+        "searchtaglist = %s\n"
+        "browsetaglist = %s\n"
+        "pagination = %d\n"
+        "volumestep = %d\n"
+        "covercachekeepdays = %d\n"
+        "covercache = %s\n"
+        "syscmds = %s\n"
+        "timer = %s\n"
+        "lastplayedcount = %d\n"
+        "loglevel = %d\n"
+        "love = %s\n"
+        "lovechannel = %s\n"
+        "lovemessage = %s\n"
+        "notificationweb = %s\n"
+        "notificationpage = %s\n"
+        "autoplay = %s\n"
+        "jukeboxmode = %d\n"
+        "jukeboxplaylist = %s\n"
+        "jukeboxqueuelength = %d\n"
+        "jukeboxlastplayed = %d\n"
+        "jukeboxuniquetag = %s\n"
+        "colsqueuecurrent = %s\n"
+        "colsqueuelastplayed = %s\n"
+        "colssearch = %s\n"
+        "colsbrowsedatabase = %s\n"
+        "colsbrowseplaylistsdetail = %s\n"
+        "colsbrowsefilesystem = %s\n"
+        "colsplayback = %s\n"
+        "localplayer = %s\n"
+        "localplayerautoplay = %s\n"
+        "streamport = %d\n"
+        "#streamuri = %s\n"
+        "readonly = %s\n"
+        "bookmarks = %s\n\n",
+        p_config->user,
+        (p_config->chroot == true ? "true" : "false"),
+        p_config->varlibdir,
+        (p_config->stickers == true ? "true" : "false"),
+        (p_config->sticker_cache == true ? "true" : "false"),
+        (p_config->smartpls == true ? "true" : "false"),
+        (p_config->mixramp == true ? "true" : "false"),
+        p_config->taglist,
+        p_config->searchtaglist,
+        p_config->browsetaglist,
+        p_config->max_elements_per_page,
+        p_config->volume_step,
+        p_config->covercache_keep_days,
+        (p_config->covercache == true ? "true" : "false"),
+        (p_config->syscmds == true ? "true" : "false"),
+        (p_config->timer == true ? "true" : "false"),
+        p_config->last_played_count,
+        p_config->loglevel,
+        (p_config->love == true ? "true" : "false"),
+        p_config->love_channel,
+        p_config->love_message,
+        (p_config->notification_web == true ? "true" : "false"),
+        (p_config->notification_page == true ? "true" : "false"),
+        (p_config->auto_play == true ? "true" : "false"),
+        p_config->jukebox_mode,
+        p_config->jukebox_playlist,
+        p_config->jukebox_queue_length,
+        p_config->jukebox_last_played,
+        p_config->jukebox_unique_tag,
+        p_config->cols_queue_current,
+        p_config->cols_queue_last_played,
+        p_config->cols_search,
+        p_config->cols_browse_database,
+        p_config->cols_browse_playlists_detail,
+        p_config->cols_browse_filesystem,
+        p_config->cols_playback,
+        (p_config->localplayer == true ? "true" : "false"),
+        (p_config->localplayer_autoplay == true ? "true" : "false"),
+        p_config->stream_port,
+        p_config->stream_url,
+        (p_config->readonly == true ? "true" : "false"),
+        (p_config->bookmarks == true ? "true" : "false")
+    );
+
+    fprintf(fp, "[theme]\n"
+        "theme = %s\n"
+        "bgcover = %s\n"
+        "bgcolor = %s\n"
+        "bgcssfilter = %s\n"
+        "coverimage = %s\n"
+        "coverimagename = %s\n"
+        "coverimagesize = %d\n"
+        "covergridsize = %d\n"
+        "locale = %s\n"
+        "customplaceholderimages = %s\n\n",
+        p_config->theme,
+        (p_config->bg_cover == true ? "true" : "false"),
+        p_config->bg_color,
+        p_config->bg_css_filter,
+        (p_config->coverimage == true ? "true" : "false"),
+        p_config->coverimage_name,
+        p_config->coverimage_size,
+        p_config->covergrid_size,
+        p_config->locale,
+        (p_config->custom_placeholder_images == true ? "true" : "false")
+    );
+
+    fprintf(fp, "[syscmds]\n");
+
+    fclose(fp);
+    sds conf_file = sdscatfmt(sdsempty(), "%s/mympd.conf", ETC_PATH);
+    int rc = rename(tmp_file, conf_file);
+    if (rc == -1) {
+        LOG_ERROR("Renaming file from %s to %s failed", tmp_file, conf_file);
+    }
+    sdsfree(tmp_file);
+    sdsfree(conf_file);
+    mympd_free_config(p_config);
+    if (rc == -1) {
+        return false;
+    }
+    return true;    
 }
 
 bool mympd_read_config(t_config *config, sds configfile) {

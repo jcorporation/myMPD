@@ -20,6 +20,7 @@
 #include "log.h"
 #include "list.h"
 #include "config_defs.h"
+#include "config.h"
 #include "mympd_api/mympd_api_utility.h"
 #include "mympd_api/mympd_api_timer.h"
 #include "mympd_api/mympd_api_settings.h"
@@ -106,6 +107,9 @@ bool handle_option(t_config *config, char *cmd, sds option) {
         clear_covercache(config, 0);
         return true;
     }
+    else if (MATCH_OPTION("dump_config")) {
+        return mympd_dump_config();
+    }
     else {
         printf("myMPD %s\n"
                "Copyright (C) 2018-2020 Juergen Mang <mail@jcgames.de>\n"
@@ -122,6 +126,7 @@ bool handle_option(t_config *config, char *cmd, sds option) {
                "  reset_lastplayed: truncates last played list\n"
                "  crop_covercache:  crops the covercache directory\n"
                "  clear_covercache: empties the covercache directory\n"
+               "  dump_config:      writes default mympd.conf\n"
                "  help:             display this help\n",
                MYMPD_VERSION,
                cmd
