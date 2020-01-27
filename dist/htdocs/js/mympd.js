@@ -1116,7 +1116,8 @@ var phrases={
 		"ko-KR":"기본"
 	},
 	"Definition":{
-		"de-DE":"Definition"
+		"de-DE":"Definition",
+		"ko-KR":"결정"
 	},
 	"Delete":{
 		"de-DE":"Löschen",
@@ -1179,13 +1180,16 @@ var phrases={
 		"ko-KR":"순서 비우기"
 	},
 	"Enable jukebox if playlist is database":{
-		"de-DE":"Jukebox muss aktiviert sein, wenn als Wiedergabeliste die Datenbank ausgewählt ist."
+		"de-DE":"Jukebox muss aktiviert sein, wenn als Wiedergabeliste die Datenbank ausgewählt ist.",
+		"ko-KR":"연주목록이 데이터베이스이면 뮤직박스 사용함"
 	},
 	"Enabled":{
-		"de-DE":"Aktiv"
+		"de-DE":"Aktiv",
+		"ko-KR":"사용함"
 	},
 	"Enforce uniqueness":{
-		"de-DE":"Erzwinge Eindeutigkeit"
+		"de-DE":"Erzwinge Eindeutigkeit",
+		"ko-KR":"유일성 강제"
 	},
 	"Failed to execute cmd %{cmd}":{
 		"de-DE":"Fehler beim Ausführen des Systembefehls %{cmd}",
@@ -1252,7 +1256,8 @@ var phrases={
 		"ko-KR":"목록에서 찾기"
 	},
 	"Fri":{
-		"de-DE":"Fr"
+		"de-DE":"Fr",
+		"ko-KR":"금"
 	},
 	"From":{
 		"de-DE":"Von",
@@ -1364,7 +1369,8 @@ var phrases={
 		"ko-KR":"잘못된 음원 디렉터리"
 	},
 	"Invalid name":{
-		"de-DE":"Ungültiger Name"
+		"de-DE":"Ungültiger Name",
+		"ko-KR":"잘못된 이름"
 	},
 	"Invalid size":{
 		"de-DE":"Ungültige Größe",
@@ -1411,7 +1417,8 @@ var phrases={
 		"ko-KR":"앞선 연주 목록 개수"
 	},
 	"Last played older than (hours)":{
-		"de-DE":"Zuletzte gespielt, vor mehr als (Stunden)"
+		"de-DE":"Zuletzte gespielt, vor mehr als (Stunden)",
+		"ko-KR":"이전에 연주됨 (시간)"
 	},
 	"Last skipped":{
 		"de-DE":"Zuletzt übersprungen",
@@ -1526,7 +1533,8 @@ var phrases={
 		"ko-KR":"메시지"
 	},
 	"Minimum one weekday must be selected":{
-		"de-DE":"Es muss mindestens ein Wochentag ausgewählt sein."
+		"de-DE":"Es muss mindestens ein Wochentag ausgewählt sein.",
+		"ko-KR":"최소 일주일 선택해야 함"
 	},
 	"Minutes":{
 		"de-DE":"Min",
@@ -1542,7 +1550,8 @@ var phrases={
 		"ko-KR":"Mixramp 지연"
 	},
 	"Mon":{
-		"de-DE":"Mo"
+		"de-DE":"Mo",
+		"ko-KR":"월"
 	},
 	"Music directory":{
 		"de-DE":"Musikverzeichnis",
@@ -1557,7 +1566,8 @@ var phrases={
 		"ko-KR":"숫자여야 함"
 	},
 	"Must be a number and equal or greater than zero":{
-		"de-DE":"Muss eine Zahl größergleich 0 sein"
+		"de-DE":"Muss eine Zahl größergleich 0 sein",
+		"ko-KR":"숫자이고 0과 같거나 커야 함"
 	},
 	"Must be a number and greater than zero":{
 		"de-DE":"Muss eine Zahl größer als 0 sein",
@@ -1576,7 +1586,8 @@ var phrases={
 		"ko-KR":"새 연주목록"
 	},
 	"New timer":{
-		"de-DE":"Neuer Timer"
+		"de-DE":"Neuer Timer",
+		"ko-KR":"새로운 시간 조절"
 	},
 	"Next page":{
 		"de-DE":"Nächste Seite",
@@ -1642,14 +1653,16 @@ var phrases={
 		"ko-KR":"끄기"
 	},
 	"On":{
-		"de-DE":"Aktiv"
+		"de-DE":"Aktiv",
+		"ko-KR":"켜기"
 	},
 	"On page notifications":{
 		"de-DE":"Integrierte Hinweise",
 		"ko-KR":"페이지에 알림"
 	},
 	"Oneshot":{
-		"de-DE":"Oneshot"
+		"de-DE":"Oneshot",
+		"ko-KR":"1회"
 	},
 	"Open about":{
 		"de-DE":"Öffne Über myMPD",
@@ -1676,7 +1689,8 @@ var phrases={
 		"ko-KR":"음량 메뉴 열기"
 	},
 	"Other features":{
-		"de-DE":"Weitere Features"
+		"de-DE":"Weitere Features",
+		"ko-KR":"다른 기능"
 	},
 	"Pagination":{
 		"de-DE":"Seitenumbruch",
@@ -1703,7 +1717,8 @@ var phrases={
 		"ko-KR":"연주 통계"
 	},
 	"Playback statistics are disabled":{
-		"de-DE":"Wiedergabestatistiken sind deaktiviert"
+		"de-DE":"Wiedergabestatistiken sind deaktiviert",
+		"ko-KR":"연주 통계 사용 안 함"
 	},
 	"Playlist":{
 		"de-DE":"Wiedergabeliste",
@@ -1822,7 +1837,8 @@ var phrases={
 		"ko-KR":"다시 설정 하기"
 	},
 	"Sat":{
-		"de-DE":"Sa"
+		"de-DE":"Sa",
+		"ko-KR":"토"
 	},
 	"Save":{
 		"de-DE":"Speichern",
@@ -1970,10 +1986,12 @@ var phrases={
 		"ko-KR":"지정"
 	},
 	"Start":{
-		"de-DE":"Start"
+		"de-DE":"Start",
+		"ko-KR":"시작"
 	},
 	"Start playback":{
-		"de-DE":"Wiedergabe starten"
+		"de-DE":"Wiedergabe starten",
+		"ko-KR":"연주 시작"
 	},
 	"Statistics":{
 		"de-DE":"Statistiken",
@@ -1988,7 +2006,8 @@ var phrases={
 		"ko-KR":"스티커 사용 안 함"
 	},
 	"Stop playback":{
-		"de-DE":"Wiedergabe anhalten"
+		"de-DE":"Wiedergabe anhalten",
+		"ko-KR":"연주 정지"
 	},
 	"Stop playing":{
 		"de-DE":"Stop",
@@ -2019,10 +2038,12 @@ var phrases={
 		"ko-KR":"연주목록 이름 바꿈"
 	},
 	"Sun":{
-		"de-DE":"So"
+		"de-DE":"So",
+		"ko-KR":"일"
 	},
 	"System command":{
-
+		"de-DE":"Systembefehl",
+		"ko-KR":"시스템 명령어"
 	},
 	"System command not defined":{
 		"de-DE":"Systembefehl nicht definiert",
@@ -2061,10 +2082,12 @@ var phrases={
 		"ko-KR":"테마"
 	},
 	"Thu":{
-		"de-DE":"Do"
+		"de-DE":"Do",
+		"ko-KR":"목"
 	},
 	"Timer":{
-
+		"de-DE":"Timer",
+		"ko-KR":"시간 조절"
 	},
 	"Timerange (days)":{
 		"de-DE":"Tage",
@@ -2091,7 +2114,8 @@ var phrases={
 		"ko-KR":"트랙"
 	},
 	"Tue":{
-		"de-DE":"Di"
+		"de-DE":"Di",
+		"ko-KR":"화"
 	},
 	"Type":{
 		"de-DE":"Typ",
@@ -2186,10 +2210,12 @@ var phrases={
 		"ko-KR":"웹소켓 연결이 안 되어, 다시 시도하는 중"
 	},
 	"Wed":{
-		"de-DE":"Mit"
+		"de-DE":"Mit",
+		"ko-KR":"수"
 	},
 	"Weekdays":{
-		"de-DE":"Wochentage"
+		"de-DE":"Wochentage",
+		"ko-KR":"주일"
 	},
 	"Work":{
 		"de-DE":"Werk",
@@ -2240,7 +2266,8 @@ var phrases={
 		"ko-KR":"안 함"
 	},
 	"on":{
-		"de-DE":"an"
+		"de-DE":"an",
+		"ko-KR":"켜기"
 	}
 };
 /*
@@ -3269,7 +3296,9 @@ function appInit() {
     let hrefs = document.querySelectorAll('[data-href]');
     let hrefsLen = hrefs.length;
     for (let i = 0; i < hrefsLen; i++) {
-        hrefs[i].classList.add('clickable');
+        if (hrefs[i].classList.contains('notclickable') === false) {
+            hrefs[i].classList.add('clickable');
+        }
         let parentInit = hrefs[i].parentNode.classList.contains('noInitChilds') ? true : false;
         if (parentInit === true) {
             //handler on parentnode
@@ -4854,7 +4883,11 @@ function parseSearch(obj) {
 }
 
 function saveSearchAsSmartPlaylist() {
-    parseSmartPlaylist({"type": "smartpls", "data": {"playlist": "", "type": "search", "tag": app.current.filter, "searchstr": app.current.search}});
+    parseSmartPlaylist({"jsonrpc":"2.0","id":0,"result":{"method":"MPD_API_SMARTPLS_GET", 
+        "playlist":"",
+        "type":"search",
+        "tag": app.current.filter,
+        "searchstr": app.current.search}});
 }
 
 function addAllFromSearchPlist(plist, search, replace) {
@@ -4862,10 +4895,21 @@ function addAllFromSearchPlist(plist, search, replace) {
         search = app.current.search;    
     }
     if (settings.featAdvsearch) {
-        sendAPI("MPD_API_DATABASE_SEARCH_ADV", {"plist": plist, "sort": "", "sortdesc": false, "expression": search, "offset": 0, "cols": settings.colsSearch, "replace": replace});
+        sendAPI("MPD_API_DATABASE_SEARCH_ADV", {"plist": plist, 
+            "sort": "", 
+            "sortdesc": false, 
+            "expression": search, 
+            "offset": 0, 
+            "cols": settings.colsSearch, 
+            "replace": replace});
     }
     else {
-        sendAPI("MPD_API_DATABASE_SEARCH", {"plist": plist, "filter": app.current.filter, "searchstr": search, "offset": 0, "cols": settings.colsSearch, "replace": replace});
+        sendAPI("MPD_API_DATABASE_SEARCH", {"plist": plist, 
+            "filter": app.current.filter, 
+            "searchstr": search, 
+            "offset": 0, 
+            "cols": settings.colsSearch, 
+            "replace": replace});
     }
 }
 /*
@@ -5249,9 +5293,19 @@ function parseMPDSettings() {
     else {
         document.getElementById('inputMixrampdelay').setAttribute('disabled', 'disabled');
     }
+    
+    if (settings.coverimage === false || settings.featTags === false || 
+        settings.tags.includes('AlbumArtist') === false || settings.tags.includes('Album') === false
+        || settings.tags.includes('Track') === false || settings.featAdvsearch === false) 
+    {
+        settings.featCovergrid = false;
+    }
+    else {
+        settings.featCovergrid = true;
+    }
 
     let features = ['featStickers', 'featSmartpls', 'featPlaylists', 'featTags', 'featCoverimage', 'featAdvsearch',
-        'featLove', 'featSingleOneshot'];
+        'featLove', 'featSingleOneshot', 'featCovergrid'];
     for (let j = 0; j < features.length; j++) {
         let Els = document.getElementsByClassName(features[j]);
         let ElsLen = Els.length;
@@ -5262,16 +5316,6 @@ function parseMPDSettings() {
         for (let i = 0; i < ElsLen; i++) {
             Els[i].style.display = displayEl;
         }
-    }
-    
-    if (settings.coverimage === false || settings.featTags === false || 
-        settings.tags.includes('AlbumArtist') == false || settings.tags.includes('Album') == false
-        || settings.tags.includes('Track') == false) 
-    {
-        document.getElementsByClassName('featCovergrid')[0].classList.add('hide'); 
-    }
-    else {
-        document.getElementsByClassName('featCovergrid')[0].classList.remove('hide');
     }
     
     if (settings.featPlaylists === false && settings.smartpls === true) {
@@ -5295,7 +5339,7 @@ function parseMPDSettings() {
         document.getElementById('warnStickers').classList.add('hide');
     }
     
-    if (settings.featStickers === false || settings.stickers === false) {
+    if (settings.featStickers === false || settings.stickers === false || settings.featStickerCache == false) {
         document.getElementById('warnPlaybackStatistics').classList.remove('hide');
         document.getElementById('inputJukeboxLastPlayed').setAttribute('disabled', 'disabled');
     }
@@ -5538,9 +5582,7 @@ function saveSettings() {
     }
     
     if (formOK === true) {
-        let selectReplaygain = document.getElementById('selectReplaygain');
         let selectJukeboxPlaylist = document.getElementById('selectJukeboxPlaylist');
-        let selectJukeboxMode = document.getElementById('selectJukeboxMode');
         let selectLocale = document.getElementById('selectLocale');
         let selectTheme = document.getElementById('selectTheme');
         sendAPI("MYMPD_API_SETTINGS_SET", {
@@ -5902,8 +5944,9 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
             let tr = document.getElementById('queueTrackId' + lastState.currentSongId);
             if (tr) {
                 let durationTd = tr.querySelector('[data-col=Duration]');
-                if (durationTd)
+                if (durationTd) {
                     durationTd.innerText = tr.getAttribute('data-duration');
+                }
                 let posTd = tr.querySelector('[data-col=Pos]');
                 if (posTd) {
                     posTd.classList.remove('material-icons');
@@ -5967,8 +6010,10 @@ function parseState(obj) {
     if (obj.result.songPos === '-1') {
         domCache.currentTitle.innerText = 'Not playing';
         document.title = 'myMPD';
-        document.getElementById('headerTitle').innerText = '';
-        document.getElementById('headerTitle').removeAttribute('title');
+        let headerTitle = document.getElementById('headerTitle');
+        headerTitle.innerText = '';
+        headerTitle.removeAttribute('title');
+        headerTitle.classList.remove('clickable');
         clearCurrentCover();
         if (settings.bgCover === true) {
             clearBackgroundImage();
@@ -6132,8 +6177,16 @@ function songChange(obj) {
         domCache.currentTitle.setAttribute('data-uri', '');
     }
     document.title = 'myMPD: ' + pageTitle;
-    document.getElementById('headerTitle').innerText = pageTitle;
-    document.getElementById('headerTitle').title = pageTitle;
+    let headerTitle = document.getElementById('headerTitle');
+    headerTitle.innerText = pageTitle;
+    headerTitle.title = pageTitle;
+    
+    if (obj.result.uri !== undefined && obj.result.uri !== '' && obj.result.uri.indexOf('://') === -1) {
+        headerTitle.classList.add('clickable');
+    }
+    else {
+        headerTitle.classList.remove('clickable');
+    }
 
     if (obj.result.uri !== undefined) {
         if (settings.featStickers === true) {
@@ -6206,7 +6259,7 @@ function chVolume(increment) {
 //eslint-disable-next-line no-unused-vars
 function clickTitle() {
     let uri = decodeURI(domCache.currentTitle.getAttribute('data-uri'));
-    if (uri !== '') {
+    if (uri !== '' && uri.indexOf('://') === -1) {
         songDetails(uri);
     }
 }
@@ -6918,10 +6971,10 @@ function parseListTimer(obj) {
 
 function alignDropdown(el) {
     if (getXpos(el.children[0]) > domCache.body.offsetWidth * 0.66) {
-        el.children[1].classList.add('dropdown-menu-right');
+        el.getElementsByClassName('dropdown-menu')[0].classList.add('dropdown-menu-right');
     }
     else {
-        el.children[1].classList.remove('dropdown-menu-right');
+        el.getElementsByClassName('dropdown-menu')[0].classList.remove('dropdown-menu-right');
     }
 }
 
