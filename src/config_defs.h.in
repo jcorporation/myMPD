@@ -1,5 +1,5 @@
 /* myMPD
-   (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+   (c) 2018-2020 Juergen Mang <mail@jcgames.de>
    This project's homepage is: https://github.com/jcorporation/mympd
    
    myMPD ist fork of:
@@ -95,6 +95,8 @@ typedef struct t_config {
     int jukebox_mode;
     sds jukebox_playlist;
     int jukebox_queue_length;
+    int jukebox_last_played;
+    sds jukebox_unique_tag;
     sds cols_queue_current;
     sds cols_search;
     sds cols_browse_database;
@@ -124,6 +126,8 @@ typedef struct t_config {
     sds theme;
     bool custom_placeholder_images;
     bool regex;
+    bool timer;
+    bool sticker_cache;
     //system commands
     struct list syscmd_list;
 } t_config;

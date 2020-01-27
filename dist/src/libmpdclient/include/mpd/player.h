@@ -38,6 +38,7 @@
 #define MPD_PLAYER_H
 
 #include "compiler.h"
+#include "status.h"
 
 #include <stdbool.h>
 
@@ -384,7 +385,45 @@ bool
 mpd_run_random(struct mpd_connection *connection, bool mode);
 
 /**
+ * Sets single state for the playlist.
+ * If state is #MPD_SINGLE_ON, MPD enables single mode: playback is stopped
+ * after current song, or song is repeated if the repeat mode is enabled.
+ *
+ * If state is #MPD_SINGLE_OFF, MPD disables single mode: if random mode is
+ * enabled, the playlist order is shuffled after it is played completely.
+ *
+ * If state is #MPD_SINGLE_ONESHOT, MPD enables single mode temporarily: single
+ * mode is disabled (#MPD_SINGLE_OFF) after a song has been played and there is
+ * another song in the current playlist.
+ *
+ * @param connection the connection to MPD
+ * @param state the desired single mode state
+ * @return true on success, false on error or state is #MPD_SINGLE_UNKNOWN
+ *
+ * @since MPD 0.21, libmpdclient 2.18.
+ */
+bool
+mpd_send_single_state(struct mpd_connection *connection,
+		      enum mpd_single_state state);
+
+/**
+ * Shortcut for mpd_send_single_state() and mpd_response_finish().
+ *
+ * @param connection the connection to MPD
+ * @param state the desired single mode state
+ * @return true on success, false on error or state is #MPD_SINGLE_UNKNOWN
+ *
+ * @since MPD 0.21, libmpdclient 2.18.
+ */
+bool
+mpd_run_single_state(struct mpd_connection *connection,
+		      enum mpd_single_state state);
+
+/**
  * Sets single mode on/off for the playlist.
+ * This function does not support the 'oneshot' state for single mode: use
+ * mpd_send_single_state() instead.
+ *
  * If mode is true, MPD enables single mode: playback is stopped after current
  * song, or song is repeated if the repeat mode is enabled.
  *

@@ -17,7 +17,7 @@ This fork provides a reworked ui based on Bootstrap 4, a modernized backend and 
 
 **Features**
  - Control mpd functions (play, pause, etc.)
- - Set mpd settings (repeat, random, etc.)
+ - Set mpd options (repeat, random, etc.)
  - Browse mpd database by tags
  - Albumart grid
  - Browse filesystem and playlists
@@ -25,19 +25,20 @@ This fork provides a reworked ui based on Bootstrap 4, a modernized backend and 
  - Queue management
  - Playlist management
  - Advanced search
- - Jukebox mode (add's random songs / albums from database or playlists to queue)
+ - Jukebox mode (add's random songs to queue)
  - Smart playlists and saved searches
  - Play statistics and song voting
  - Local albumart support: embedded and image per folder
  - HTTP stream support
  - Local playback of mpd http stream (html5 audio api)
+ - Timers
  - Progressiv Web App enabled
  - Embedded Webserver (mongoose)
  - Love message for scrobbling clients
  - Localized user interface
  - Themeing
 
-myMPD is work in active development. Feedback, bug reportes and feature requests are very welcome.
+myMPD is in active development. Feedback, bug reportes and feature requests are very welcome.
  - https://github.com/jcorporation/myMPD/issues
 
 Screenshots
@@ -58,6 +59,7 @@ Backend
  - inih: https://github.com/benhoyt/inih (config file parsing)
  - incbin: https://github.com/graphitemaster/incbin (embedding assets)
  - sds: https://github.com/antirez/sds (safe string handling)
+ - rax: https://github.com/antirez/rax (radix tree implementation)
  - libmpdclient2: https://github.com/jcorporation/libmpdclient/tree/libmympdclient
 
 Dependencies
@@ -99,6 +101,6 @@ For further information on installation and configuration, see the myMPD wiki: h
 Copyright
 ---------
 
-myMPD: 2018-2019 <mail@jcgames.de>
+myMPD: 2018-2020 <mail@jcgames.de>
 
 ympd: 2013-2014 <andy@ndyk.de>

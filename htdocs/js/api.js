@@ -1,7 +1,7 @@
 "use strict";
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
- myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -63,6 +63,11 @@ function webSocketConnect() {
     if (socket !== null && socket.readyState === WebSocket.OPEN) {
         logInfo("Socket already connected");
         websocketConnected = true;
+        return;
+    }
+    else if (socket !== null && socket.readyState === WebSocket.CONNECTING) {
+        logInfo("Socket connection in progress");
+        websocketConnected = false;
         return;
     }
     else {

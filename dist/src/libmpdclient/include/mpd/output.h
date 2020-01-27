@@ -270,6 +270,32 @@ bool
 mpd_run_output_set(struct mpd_connection *connection, unsigned output_id,
 		   const char *attribute_name, const char *attribute_value);
 
+/**
+ * Move an output to the current partition.
+ *
+ * @param connection the connection to MPD
+ * @param output_name the name of the output to be moved
+ * @return true on success
+ *
+ * @since libmpdclient 2.18
+ */
+bool
+mpd_send_move_output(struct mpd_connection *connection,
+		     const char *output_name);
+
+/**
+ * Shortcut for mpd_send_move_output() and mpd_response_finish().
+ *
+ * @param connection the connection to MPD
+ * @param output_name the name of the output to be moved
+ * @return true on success
+ *
+ * @since libmpdclient 2.18
+ */
+bool
+mpd_run_move_output(struct mpd_connection *connection,
+		    const char *output_name);
+
 #ifdef __cplusplus
 }
 #endif

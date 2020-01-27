@@ -1,6 +1,6 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
-# myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+# myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
 # https://github.com/jcorporation/mympd
 #
 
@@ -11,8 +11,8 @@ include(GNUInstallDirs)
 project (mympd C)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/")
 set(CPACK_PACKAGE_VERSION_MAJOR "6")
-set(CPACK_PACKAGE_VERSION_MINOR "0")
-set(CPACK_PACKAGE_VERSION_PATCH "1")
+set(CPACK_PACKAGE_VERSION_MINOR "1")
+set(CPACK_PACKAGE_VERSION_PATCH "0")
 
 if(EXISTS "/etc/arch-release")
   set(WEBAPPS "/webapps/${PROJECT_NAME}")
@@ -186,11 +186,15 @@ set(SOURCES
   src/mpd_client/mpd_client_settings.c
   src/mpd_client/mpd_client_state.c
   src/mpd_client/mpd_client_stats.c
+  src/mpd_client/mpd_client_sticker.c
+  src/mpd_client/mpd_client_timer.c
   src/mympd_api.c
   src/mympd_api/mympd_api_bookmarks.c
   src/mympd_api/mympd_api_utility.c
   src/mympd_api/mympd_api_settings.c
   src/mympd_api/mympd_api_syscmds.c
+  src/mympd_api/mympd_api_timer.c
+  src/mympd_api/mympd_api_timer_handlers.c
   src/web_server.c
   src/web_server/web_server_utility.c
   src/web_server/web_server_albumart.c
@@ -198,6 +202,7 @@ set(SOURCES
   dist/src/frozen/frozen.c
   dist/src/inih/ini.c
   dist/src/sds/sds.c
+  dist/src/rax/rax.c
 )
 
 if(OPENSSL_FOUND)
@@ -247,6 +252,7 @@ if(${EMBEDDED_LIBMPDCLIENT} MATCHES "ON")
     dist/src/libmpdclient/src/rdirectory.c
     dist/src/libmpdclient/src/readpicture.c
     dist/src/libmpdclient/src/recv.c
+    dist/src/libmpdclient/src/replay_gain.c
     dist/src/libmpdclient/src/resolver.c
     dist/src/libmpdclient/src/response.c
     dist/src/libmpdclient/src/rplaylist.c
@@ -267,6 +273,7 @@ endif()
 add_executable(mympd ${SOURCES} ${LIBMPDCLIENT_SOURCES} ${CERT_SOURCES})
 
 target_link_libraries(mympd ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(mympd m)
 if (OPENSSL_FOUND)
   target_link_libraries(mympd ${OPENSSL_LIBRARIES})
 endif()

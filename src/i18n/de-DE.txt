@@ -382,7 +382,7 @@ Replaygain
 Lautstärkeanpassung
 
 Off
-deaktiviert
+Deaktiviert
 
 Mixramp DB
 Mixramp DB
@@ -473,6 +473,9 @@ Sticker sind deaktiviert
 
 Playback statistics
 Wiedergabestatistiken
+
+Playback statistics are disabled
+Wiedergabestatistiken sind deaktiviert
 
 Last played list count
 Anzahl zuletzt gespielte Lieder
@@ -1058,3 +1061,81 @@ Lieder anzeigen
 
 JavaScript error
 JavaScript Fehler
+
+Definition
+Definition
+
+Enable jukebox if playlist is database
+Jukebox muss aktiviert sein, wenn als Wiedergabeliste die Datenbank ausgewählt ist.
+
+Enabled
+Aktiv
+
+Enforce uniqueness
+Erzwinge Eindeutigkeit
+
+Invalid name
+Ungültiger Name
+
+Last played older than (hours)
+Zuletzte gespielt, vor mehr als (Stunden)
+
+Minimum one weekday must be selected
+Es muss mindestens ein Wochentag ausgewählt sein.
+
+Must be a number and equal or greater than zero
+Muss eine Zahl größergleich 0 sein
+
+Timer
+Timer
+
+New timer
+Neuer Timer
+
+On
+Aktiv
+
+on
+an
+
+Oneshot
+Oneshot
+
+Other features
+Weitere Features
+
+Start
+Start
+
+Start playback
+Wiedergabe starten
+
+Stop playback
+Wiedergabe anhalten
+
+Weekdays
+Wochentage
+
+Mon
+Mo
+
+Tue
+Di
+
+Wed
+Mit
+
+Thu
+Do
+
+Fri
+Fr
+
+Sat
+Sa
+
+Sun
+So
+
+System command
+Systembefehl

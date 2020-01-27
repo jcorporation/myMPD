@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
- myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -145,6 +145,7 @@ static bool parse_internal_message(t_work_result *response, t_mg_user_data *mg_u
     char *p_charbuf2 = NULL;
     bool feat_library;
     bool feat_mpd_albumart;
+    bool rc = false;
     int je = json_scanf(response->data, sdslen(response->data), "{musicDirectory: %Q, coverimageName: %Q, featLibrary: %B, featMpdAlbumart: %B}", 
         &p_charbuf1, &p_charbuf2, &feat_library, &feat_mpd_albumart);
     if (je == 4) {
@@ -159,15 +160,16 @@ static bool parse_internal_message(t_work_result *response, t_mg_user_data *mg_u
             LOG_DEBUG("Setting music_directory to %s", mg_user_data->music_directory);
         }
         LOG_DEBUG("Setting rewrite_patterns to %s", mg_user_data->rewrite_patterns);
+        rc = true;
     }
     else {
         LOG_WARN("Unknown internal message: %s", response->data);
-        return false;
+        rc = false;
     }
     FREE_PTR(p_charbuf1);
     FREE_PTR(p_charbuf2);
     free_result(response);
-    return true;
+    return rc;
 }
 
 static int is_websocket(const struct mg_connection *nc) {
@@ -317,6 +319,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 s_http_server_opts.document_root = DOC_ROOT;
                 s_http_server_opts.enable_directory_listing = "no";
                 s_http_server_opts.extra_headers = EXTRA_HEADERS;
+                s_http_server_opts.custom_mime_types = CUSTOM_MIME_TYPES;
                 mg_serve_http(nc, hm, s_http_server_opts);
                 #else
                 //serve embedded files
@@ -374,8 +377,8 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data)
 #endif
 
 static bool handle_api(int conn_id, struct http_message *hm) {
-    if (hm->body.len > 1000) {
-        LOG_ERROR("Request to long, discarding)");
+    if (hm->body.len > 2048) {
+        LOG_ERROR("Request length of %d exceeds max request size, discarding request)", hm->body.len);
         return false;
     }
     

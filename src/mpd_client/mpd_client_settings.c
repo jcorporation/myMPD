@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
- myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -17,6 +17,7 @@
 #include "../list.h"
 #include "config_defs.h"
 #include "../utility.h"
+#include "../api.h"
 #include "../log.h"
 #include "mpd_client_utility.h"
 #include "mpd_client_settings.h"
@@ -26,7 +27,7 @@ static sds print_tags_array(sds buffer, const char *tagsname, t_tags tags);
 
 //public functions
 bool mpd_api_settings_set(t_config *config, t_mpd_state *mpd_state, struct json_token *key, 
-                          struct json_token *val, bool *mpd_host_changed)
+                          struct json_token *val, bool *mpd_host_changed, bool *jukebox_changed)
 {
     bool rc = true;
     char *crap;
@@ -59,15 +60,21 @@ bool mpd_api_settings_set(t_config *config, t_mpd_state *mpd_state, struct json_
         mpd_state->music_directory = sdsreplacelen(mpd_state->music_directory, settingvalue, sdslen(settingvalue));
     }
     else if (strncmp(key->ptr, "jukeboxMode", key->len) == 0) {
-        int jukebox_mode = strtoimax(settingvalue, &crap, 10);
-        if (jukebox_mode < 0 || jukebox_mode > 2) {
+        unsigned jukebox_mode = strtoumax(settingvalue, &crap, 10);
+        if (jukebox_mode > 2) {
             sdsfree(settingvalue);
             return false;
         }
-        mpd_state->jukebox_mode = jukebox_mode;
+        if (mpd_state->jukebox_mode != jukebox_mode) {
+            mpd_state->jukebox_mode = jukebox_mode;
+            *jukebox_changed = true;
+        }
     }
     else if (strncmp(key->ptr, "jukeboxPlaylist", key->len) == 0) {
-        mpd_state->jukebox_playlist = sdsreplacelen(mpd_state->jukebox_playlist, settingvalue, sdslen(settingvalue));
+        if (strcmp(mpd_state->jukebox_playlist, settingvalue) != 0) {
+            mpd_state->jukebox_playlist = sdsreplacelen(mpd_state->jukebox_playlist, settingvalue, sdslen(settingvalue));
+            *jukebox_changed = true;
+        }
     }
     else if (strncmp(key->ptr, "jukeboxQueueLength", key->len) == 0) {
         int jukebox_queue_length = strtoimax(settingvalue, &crap, 10);
@@ -76,6 +83,23 @@ bool mpd_api_settings_set(t_config *config, t_mpd_state *mpd_state, struct json_
             return false;
         }
         mpd_state->jukebox_queue_length = jukebox_queue_length;
+    }
+    else if (strncmp(key->ptr, "jukeboxLastPlayed", key->len) == 0) {
+        int jukebox_last_played = strtoimax(settingvalue, &crap, 10);
+        if (jukebox_last_played != mpd_state->jukebox_last_played) {
+            mpd_state->jukebox_last_played = jukebox_last_played;
+            *jukebox_changed = true;
+        }
+    }
+    else if (strncmp(key->ptr, "jukeboxUniqueTag", key->len) == 0) {
+        enum mpd_tag_type unique_tag = mpd_tag_name_parse(settingvalue);
+        if (unique_tag == MPD_TAG_UNKNOWN) {
+            unique_tag = MPD_TAG_TITLE;
+        }
+        if (mpd_state->jukebox_unique_tag.tags[0] != unique_tag) {
+            mpd_state->jukebox_unique_tag.tags[0] = unique_tag;
+            *jukebox_changed = true;
+        }
     }
     else if (strncmp(key->ptr, "autoPlay", key->len) == 0) {
         mpd_state->auto_play = val->type == JSON_TYPE_TRUE ? true : false;
@@ -146,7 +170,19 @@ bool mpd_api_settings_set(t_config *config, t_mpd_state *mpd_state, struct json_
     }
     else if (strncmp(key->ptr, "single", key->len) == 0) {
         unsigned uint_buf = strtoumax(settingvalue, &crap, 10);
-        rc = mpd_run_single(mpd_state->conn, uint_buf);
+        if (mpd_state->feat_single_oneshot == true) {
+            #if LIBMPDCLIENT_CHECK_VERSION(2,18,0)
+            enum mpd_single_state state;
+            if (uint_buf == 0) { state = MPD_SINGLE_OFF; }
+            else if (uint_buf == 1) { state = MPD_SINGLE_ON; }
+            else if (uint_buf == 2) { state = MPD_SINGLE_ONESHOT; }
+            else { state = MPD_SINGLE_UNKNOWN; }
+            rc = mpd_run_single_state(mpd_state->conn, state);
+            #endif
+        }
+        else {
+            rc = mpd_run_single(mpd_state->conn, uint_buf);
+        }
     }
     else if (strncmp(key->ptr, "crossfade", key->len) == 0) {
         unsigned uint_buf = strtoumax(settingvalue, &crap, 10);
@@ -196,7 +232,14 @@ sds mpd_client_put_settings(t_mpd_state *mpd_state, sds buffer, sds method, int 
     buffer = jsonrpc_start_result(buffer, method, request_id);
     buffer = sdscat(buffer, ",");
     buffer = tojson_long(buffer, "repeat", mpd_status_get_repeat(status), true);
-    buffer = tojson_long(buffer, "single", mpd_status_get_single(status), true);
+    if (mpd_state->feat_single_oneshot == true) {
+        #if LIBMPDCLIENT_CHECK_VERSION(2,18,0)
+        buffer = tojson_long(buffer, "single", mpd_status_get_single_state(status), true);
+        #endif
+    }
+    else {
+        buffer = tojson_long(buffer, "single", mpd_status_get_single(status), true);
+    }
     buffer = tojson_long(buffer, "crossfade", mpd_status_get_crossfade(status), true);
     buffer = tojson_long(buffer, "random", mpd_status_get_random(status), true);
     buffer = tojson_long(buffer, "consume", mpd_status_get_consume(status), true);
@@ -212,6 +255,7 @@ sds mpd_client_put_settings(t_mpd_state *mpd_state, sds buffer, sds method, int 
     buffer = tojson_bool(buffer, "featLove", mpd_state->feat_love, true);
     buffer = tojson_bool(buffer, "featCoverimage", mpd_state->feat_coverimage, true);
     buffer = tojson_bool(buffer, "featFingerprint", mpd_state->feat_fingerprint, true);
+    buffer = tojson_bool(buffer, "featSingleOneshot", mpd_state->feat_single_oneshot, true);
     buffer = tojson_char(buffer, "musicDirectoryValue", mpd_state->music_directory_value, true);
     buffer = tojson_bool(buffer, "mpdConnected", true, true);
     mpd_status_free(status);

@@ -39,13 +39,6 @@
 #ifndef MPD_BINARY_H
 #define MPD_BINARY_H
 
-#include <stddef.h>
-
-struct mpd_binary {
-        /** the binary data */
-        void *data;
-        /** the size of the binary data */
-        size_t size;
-};
+#define MPD_BINARY_CHUNK_SIZE 8192
 
 #endif

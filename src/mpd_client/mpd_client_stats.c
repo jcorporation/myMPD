@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
- myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -9,10 +9,12 @@
 #include <stdlib.h>
 #include <inttypes.h>
 #include <time.h>
+#include <libgen.h>
 #include <mpd/client.h>
 
 #include "../dist/src/sds/sds.h"
 #include "../sds_extras.h"
+#include "../api.h"
 #include "../log.h"
 #include "../list.h"
 #include "config_defs.h"
@@ -25,65 +27,6 @@ static sds mpd_client_put_last_played_obj(t_mpd_state *mpd_state, sds buffer,
                                           unsigned entity_count, int last_played, const char *uri, const t_tags *tagcols);
 
 //public functions
-bool mpd_client_count_song_uri(t_mpd_state *mpd_state, const char *uri, const char *name, const int value) {
-    if (uri == NULL || strstr(uri, "://") != NULL) {
-        return false;
-    }
-    struct mpd_pair *pair;
-    char *crap = NULL;
-    int old_value = 0;
-    
-    if (mpd_send_sticker_list(mpd_state->conn, "song", uri)) {
-        while ((pair = mpd_recv_sticker(mpd_state->conn)) != NULL) {
-            if (strcmp(pair->name, name) == 0) {
-                old_value = strtoimax(pair->value, &crap, 10);
-            }
-            mpd_return_sticker(mpd_state->conn, pair);
-        }
-    } else {
-        check_error_and_recover(mpd_state, NULL, NULL, 0);
-        return false;
-    }
-    old_value += value;
-    if (old_value > 999999999) {
-        old_value = 999999999;
-    }
-    else if (old_value < 0) {
-        old_value = 0;
-    }
-    sds value_str = sdsfromlonglong(old_value);
-    LOG_VERBOSE("Setting sticker: \"%s\" -> %s: %s", uri, name, value_str);
-    bool rc = mpd_run_sticker_set(mpd_state->conn, "song", uri, name, value_str);
-    sdsfree(value_str);
-    if (rc == false) {
-        check_error_and_recover(mpd_state, NULL, NULL, 0);
-    }
-    return rc;
-}
-
-sds mpd_client_like_song_uri(t_mpd_state *mpd_state, sds buffer, sds method, int request_id,
-                             const char *uri, int value)
-{
-    if (uri == NULL || strstr(uri, "://") != NULL) {
-        buffer = jsonrpc_respond_message(buffer, method, request_id, "Failed to set like, invalid song uri", true);
-        return buffer;
-    }
-    if (value > 2 || value < 0) {
-        buffer = jsonrpc_respond_message(buffer, method, request_id, "Failed to set like, invalid like value", true);
-        return buffer;
-    }
-    sds value_str = sdsfromlonglong(value);
-    LOG_VERBOSE("Setting sticker: \"%s\" -> like: %s", uri, value_str);
-    bool rc = mpd_run_sticker_set(mpd_state->conn, "song", uri, "like", value_str);
-    sdsfree(value_str);
-    if (rc == false) {
-        buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
-        return buffer;
-    }
-    buffer = jsonrpc_respond_ok(buffer, method, request_id);
-    return buffer;        
-}
-
 bool mpd_client_last_played_list_save(t_config *config, t_mpd_state *mpd_state) {
     if (config->readonly == true) {
         LOG_VERBOSE("Skip saving last_played list to disc");
@@ -101,9 +44,9 @@ bool mpd_client_last_played_list_save(t_config *config, t_mpd_state *mpd_state) 
     FILE *fp = fdopen(fd, "w");
     //first write last_played list to tmp file
     int i = 0;
-    struct node *current = mpd_state->last_played.list;
+    struct node *current = mpd_state->last_played.head;
     while (current != NULL && i < mpd_state->last_played_count) {
-        fprintf(fp, "%d::%s\n", current->value, current->data);
+        fprintf(fp, "%ld::%s\n", current->value_i, current->key);
         current = current->next;
         i++;
     }
@@ -148,7 +91,7 @@ bool mpd_client_last_played_list(t_config *config, t_mpd_state *mpd_state, const
                 return true;
             }
             else {
-                list_insert(&mpd_state->last_played, uri, time(NULL), NULL);
+                list_insert(&mpd_state->last_played, uri, time(NULL), NULL, NULL);
             }
             mpd_state->last_last_played_id = song_id;
             mpd_song_free(song);
@@ -174,39 +117,6 @@ bool mpd_client_last_played_list(t_config *config, t_mpd_state *mpd_state, const
     return true;
 }
 
-bool mpd_client_last_played_song_uri(t_mpd_state *mpd_state, const char *uri) {
-    if (uri == NULL || strstr(uri, "://") != NULL) {
-        return false;
-    }
-    sds value_str = sdsfromlonglong(mpd_state->song_start_time);
-    LOG_VERBOSE("Setting sticker: \"%s\" -> lastPlayed: %s", uri, value_str);
-    if (!mpd_run_sticker_set(mpd_state->conn, "song", uri, "lastPlayed", value_str)) {
-        check_error_and_recover(mpd_state, NULL, NULL, 0);
-        sdsfree(value_str);
-        return false;
-    }
-    sdsfree(value_str);
-    return true;
-}
-
-bool mpd_client_last_skipped_song_uri(t_mpd_state *mpd_state, const char *uri) {
-    if (uri == NULL || strstr(uri, "://") != NULL) {
-        return false;
-    }
-    time_t now = time(NULL);
-    sds value_str = sdsfromlonglong(now);
-    LOG_VERBOSE("Setting sticker: \"%s\" -> lastSkipped: %s", uri, value_str);
-    if (!mpd_run_sticker_set(mpd_state->conn, "song", uri, "lastSkipped", value_str)) {
-        check_error_and_recover(mpd_state, NULL, NULL, 0);
-        sdsfree(value_str);
-        return false;
-    }
-    sdsfree(value_str);
-    return true;
-}
-
-
-
 sds mpd_client_put_last_played_songs(t_config *config, t_mpd_state *mpd_state, sds buffer, sds method, int request_id, 
                                      unsigned int offset, const t_tags *tagcols)
 {
@@ -217,14 +127,14 @@ sds mpd_client_put_last_played_songs(t_config *config, t_mpd_state *mpd_state, s
     buffer = sdscat(buffer, ",\"data\":[");
     
     if (mpd_state->last_played.length > 0) {
-        struct node *current = mpd_state->last_played.list;
+        struct node *current = mpd_state->last_played.head;
         while (current != NULL) {
             entity_count++;
             if (entity_count > offset && entity_count <= offset + mpd_state->max_elements_per_page) {
                 if (entities_returned++) {
                     buffer = sdscat(buffer, ",");
                 }
-                buffer = mpd_client_put_last_played_obj(mpd_state, buffer, entity_count, current->value, current->data, tagcols);
+                buffer = mpd_client_put_last_played_obj(mpd_state, buffer, entity_count, current->value_i, current->key, tagcols);
             }
             current = current->next;
         }
@@ -319,7 +229,7 @@ static sds mpd_client_put_last_played_obj(t_mpd_state *mpd_state, sds buffer,
     buffer = tojson_long(buffer, "LastPlayed", last_played, true);
     if (!mpd_send_list_all_meta(mpd_state->conn, uri)) {
         check_error_and_recover(mpd_state, NULL, NULL, 0);
-        return sdsempty();
+        buffer = put_empty_song_tags(buffer, mpd_state, tagcols, uri);
     }
     else {
         struct mpd_entity *entity;
@@ -328,6 +238,9 @@ static sds mpd_client_put_last_played_obj(t_mpd_state *mpd_state, sds buffer,
             buffer = put_song_tags(buffer, mpd_state, tagcols, song);
             mpd_entity_free(entity);
             mpd_response_finish(mpd_state->conn);
+        }
+        else {
+            buffer = put_empty_song_tags(buffer, mpd_state, tagcols, uri);
         }
     }
     buffer = sdscat(buffer, "}");

@@ -1,7 +1,7 @@
 "use strict";
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
- myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -12,21 +12,26 @@ var blns_len = blns.length;
 var cmds;
 
 function defineCmds() {
+    var int0 = getRandomInt();
     var int1 = getRandomInt();
     var int2 = getRandomInt();
+    var int3 = getRandomInt();
+    var int4 = getRandomInt();
     var string1 = blns[j];
     var string2 = blns[getRandomUint(blns_len)];
     var string3 = blns[getRandomUint(blns_len)];
     var string4 = blns[getRandomUint(blns_len)];
     var string5 = blns[getRandomUint(blns_len)];
+    var bool0 = Math.random() >= 0.5;
     return [
         {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_BOOKMARK_SAVE","params":{"id": int1, "name":string1, "uri":string2, "type":string3}},
         {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_BOOKMARK_LIST","params":{"offset":int1}},
         {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_BOOKMARK_RM","params":{"id":int1}},
         {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_BOOKMARK_CLEAR"},
-        {"jsonrpc":"2.0","id":0,"method":"MPD_API_DATABASE_SEARCH","params":{"offset":int1,"filter":string1,"searchstr":string2,"plist":string3,"cols":[string4,string5]}},
+        {"jsonrpc":"2.0","id":0,"method":"MPD_API_DATABASE_UPDATE","params":{"uri":string1}},
+        {"jsonrpc":"2.0","id":0,"method":"MPD_API_DATABASE_SEARCH","params":{"offset":int1,"filter":string1,"searchstr":string2,"plist":string3,"cols":[string4,string5],"replace":bool0}},
         {"jsonrpc":"2.0","id":0,"method":"MPD_API_QUEUE_ADD_TRACK","params":{"uri":string1}},
-        {"jsonrpc":"2.0","id":0,"method":"MPD_API_DATABASE_SEARCH","params":{"offset":int1,"filter":string1,"searchstr":string2,"plist":string3,"cols":[string4,string5]}},
+        {"jsonrpc":"2.0","id":0,"method":"MPD_API_DATABASE_SEARCH","params":{"offset":int1,"filter":string1,"searchstr":string2,"plist":string3,"cols":[string4,string5],"replace":bool0}},
         {"jsonrpc":"2.0","id":0,"method":"MPD_API_QUEUE_LIST","params":{"offset":int1,"cols":[string1,string2]}},
         {"jsonrpc":"2.0","id":0,"method":"MPD_API_QUEUE_MOVE_TRACK","params":{"from":int1,"to":int2}},
         {"jsonrpc":"2.0","id":0,"method":"MPD_API_QUEUE_ADD_RANDOM","params":{"playlist":"Database","quantity":int1, "mode":int2}},
@@ -46,7 +51,7 @@ function defineCmds() {
         {"jsonrpc":"2.0","id":0,"method":"MPD_API_QUEUE_REPLACE_PLAYLIST","params":{"plist":string1}},
         {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYLIST_LIST","params":{"offset":int1,"filter":string1}},
         {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYLIST_CLEAR","params":{"uri":string1}},
-        {"jsonrpc":"2.0","id":0,"method":"MPD_API_DATABASE_SEARCH","params":{"offset":int1,"filter":string1,"searchstr":string2,"plist":string3,"cols":[string4,string5]}},
+        {"jsonrpc":"2.0","id":0,"method":"MPD_API_DATABASE_SEARCH","params":{"offset":int1,"filter":string1,"searchstr":string2,"plist":string3,"cols":[string4,string5],"replace":bool0}},
         {"jsonrpc":"2.0","id":0,"method":"MPD_API_QUEUE_ADD_TRACK","params":{"uri":string1}},
         {"jsonrpc":"2.0","id":0,"method":"MPD_API_QUEUE_ADD_TRACK","params":{"uri":string1}},
         {"jsonrpc":"2.0","id":0,"method":"MPD_API_QUEUE_LAST_PLAYED","params":{"offset":int1,"cols":[string1,string2,string3]}},
@@ -54,9 +59,9 @@ function defineCmds() {
         {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYLIST_MOVE_TRACK","params":{"plist":string1,"from":int1,"to":int2}},
         {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYLIST_RM_TRACK","params":{"uri":string1,"track":int1}},
         {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYLIST_RM","params":{"uri":string1}},
-        {"jsonrpc":"2.0","id":0,"method":"MPD_API_DATABASE_SEARCH_ADV","params":{"offset":int1,"expression":"(any contains '"+string1+"')","sort":string2, "sortdesc":false,"plist":string3,"cols":[string4]}},
-        {"jsonrpc":"2.0","id":0,"method":"MPD_API_DATABASE_SEARCH_ADV","params":{"offset":int1,"expression":string1,"sort":string2, "sortdesc":true,"plist":string3,"cols":[string4]}},
-        {"jsonrpc":"2.0","id":0,"method":"MPD_API_DATABASE_SEARCH_ADV","params":{"offset":int1,"expression":string1,"sort":string2, "sortdesc":string3,"plist":string4,"cols":[string5]}},
+        {"jsonrpc":"2.0","id":0,"method":"MPD_API_DATABASE_SEARCH_ADV","params":{"offset":int1,"expression":"(any contains '"+string1+"')","sort":string2, "sortdesc":false,"plist":string3,"cols":[string4],"replace":bool0}},
+        {"jsonrpc":"2.0","id":0,"method":"MPD_API_DATABASE_SEARCH_ADV","params":{"offset":int1,"expression":string1,"sort":string2, "sortdesc":true,"plist":string3,"cols":[string4],"replace":bool0}},
+        {"jsonrpc":"2.0","id":0,"method":"MPD_API_DATABASE_SEARCH_ADV","params":{"offset":int1,"expression":string1,"sort":string2, "sortdesc":string3,"plist":string4,"cols":[string5],"replace":bool0}},
         {"jsonrpc":"2.0","id":0,"method":"MPD_API_DATABASE_FILESYSTEM_LIST","params":{"offset":int1,"filter":string1,"path":string2,"cols":[string3,string4]}},
         {"jsonrpc":"2.0","id":0,"method":"MPD_API_DATABASE_TAG_LIST","params":{"offset":int1,"filter":string1,"tag":string2}},
         {"jsonrpc":"2.0","id":0,"method":"MPD_API_DATABASE_TAG_ALBUM_LIST","params":{"offset":int1,"filter":string1,"search":string3,"tag":string4}},
@@ -69,7 +74,11 @@ function defineCmds() {
         {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SYSCMD","params":{"cmd": string1}},
         {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_COLS_SAVE","params":{"table":string1,"cols":[string2,string3,string4]}},
         {"jsonrpc":"2.0","id":0,"method":"MPD_API_SMARTPLS_SAVE","params":{"type":string1,"playlist":string2,"timerange":int1}},
-        {"jsonrpc":"2.0","id":0,"method":"MPD_API_SMARTPLS_GET","params":{"playlist":string1}}
+        {"jsonrpc":"2.0","id":0,"method":"MPD_API_SMARTPLS_GET","params":{"playlist":string1}},
+        {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_TIMER_SAVE","params":{"timerid": 0, "name": string1, "enabled": bool0, "startHour": int1, "startMinute": int2, "action": string2, "volume": int3, "playlist": string3, "jukeboxMode": int4, "weekdays":[bool0,bool0,bool0,bool0,bool0,bool0,bool0]}},
+        {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_TIMER_SAVE","params":{"timerid": int0, "name": string1, "enabled": bool0, "startHour": int1, "startMinute": int2, "action": string2, "volume": int3, "playlist": string3, "jukeboxMode": int4, "weekdays":[bool0,bool0,bool0,bool0,bool0,bool0,bool0]}},
+        {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_TIMER_TOGGLE","params":{"timerid": int0}},
+        {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_TIMER_RM","params":{"timerid": int0}}
     ];
 }
 

@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
- myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -68,6 +68,7 @@
     X(MPD_API_LIKE) \
     X(MPD_API_LOVE) \
     X(MPD_API_ALBUMART) \
+    X(MPD_API_TIMER_STARTPLAY) \
     X(MYMPD_API_COLS_SAVE) \
     X(MYMPD_API_SYSCMD) \
     X(MYMPD_API_SETTINGS_GET) \
@@ -79,7 +80,13 @@
     X(MYMPD_API_BOOKMARK_RM) \
     X(MYMPD_API_BOOKMARK_CLEAR) \
     X(MYMPD_API_COVERCACHE_CROP) \
-    X(MYMPD_API_COVERCACHE_CLEAR)
+    X(MYMPD_API_COVERCACHE_CLEAR) \
+    X(MYMPD_API_TIMER_SET) \
+    X(MYMPD_API_TIMER_SAVE) \
+    X(MYMPD_API_TIMER_LIST) \
+    X(MYMPD_API_TIMER_GET) \
+    X(MYMPD_API_TIMER_RM) \
+    X(MYMPD_API_TIMER_TOGGLE)
 
 #define GEN_ENUM(X) X,
 #define GEN_STR(X) #X,

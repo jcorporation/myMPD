@@ -31,7 +31,6 @@
 #include <mpd/parser.h>
 #include "internal.h"
 #include "iasync.h"
-#include "binary.h"
 #include "sync.h"
 
 #include <string.h>

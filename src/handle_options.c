@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
- myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -21,6 +21,7 @@
 #include "list.h"
 #include "config_defs.h"
 #include "mympd_api/mympd_api_utility.h"
+#include "mympd_api/mympd_api_timer.h"
 #include "mympd_api/mympd_api_settings.h"
 #ifdef ENABLE_SSL
   #include "cert.h"
@@ -107,7 +108,7 @@ bool handle_option(t_config *config, char *cmd, sds option) {
     }
     else {
         printf("myMPD %s\n"
-               "Copyright (C) 2018-2019 Juergen Mang <mail@jcgames.de>\n"
+               "Copyright (C) 2018-2020 Juergen Mang <mail@jcgames.de>\n"
                "https://github.com/jcorporation/myMPD\n\n"
                "Usage: %s [/etc/mympd.conf] <command>\n"
                "Commands (you should stop mympd before):\n"

@@ -1,7 +1,7 @@
 "use strict";
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
- myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -106,11 +106,14 @@ var modalUpdateDB = new Modal(document.getElementById('modalUpdateDB'));
 var modalSaveSmartPlaylist = new Modal(document.getElementById('modalSaveSmartPlaylist'));
 var modalDeletePlaylist = new Modal(document.getElementById('modalDeletePlaylist'));
 var modalSaveBookmark = new Modal(document.getElementById('modalSaveBookmark'));
+var modalTimer = new Modal(document.getElementById('modalTimer'));
 
 var dropdownMainMenu; 
 var dropdownVolumeMenu = new Dropdown(document.getElementById('volumeMenu'));
 var dropdownBookmarks = new Dropdown(document.getElementById('BrowseFilesystemBookmark'));
 var dropdownLocalPlayer = new Dropdown(document.getElementById('localPlaybackMenu'));
+var dropdownPlay = new Dropdown(document.getElementById('btnPlayDropdown'));
+var dropdownCovergridSort = new Dropdown(document.getElementById('btnCovergridSortDropdown'));
 
 var collapseDBupdate = new Collapse(document.getElementById('navDBupdate'));
 var collapseSyscmds = new Collapse(document.getElementById('navSyscmds'));
@@ -293,17 +296,17 @@ function appRoute() {
     else if (app.current.app === 'Browse' && app.current.tab === 'Covergrid') {
         document.getElementById('searchCovergridStr').value = app.current.search;
         selectTag('searchCovergridTags', 'searchCovergridTagsDesc', app.current.filter);
-        selectTag('searchCovergridSortTags', undefined, app.current.sort);
         let sort = app.current.sort;
         let sortdesc = false;
         if (app.current.sort.charAt(0) === '-') {
             sortdesc = true;
             sort = app.current.sort.substr(1);
-            document.getElementById('searchCovergridSortDesc').checked = true;
+            toggleBtnChk('covergridSortDesc', true);
         }
         else {
-            document.getElementById('searchCovergridSortDesc').checked = false;
+            toggleBtnChk('covergridSortDesc', false);
         }
+        selectTag('covergridSortTags', undefined, sort);
         sendAPI("MPD_API_DATABASE_GET_ALBUMS", {"offset": app.current.page, "searchstr": app.current.search, 
             "tag": app.current.filter, "sort": sort, "sortdesc": sortdesc}, parseCovergrid);
     }
@@ -519,6 +522,26 @@ function appInit() {
         sendAPI("MYMPD_API_BOOKMARK_LIST", {"offset": 0}, parseBookmarks);
     });
     
+    document.getElementById('playDropdown').parentNode.addEventListener('show.bs.dropdown', function () {
+        showPlayDropdown();
+    });
+
+    document.getElementById('playDropdown').addEventListener('click', function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    });
+    
+    let dropdowns = document.querySelectorAll('.dropdown-toggle');
+    for (let i = 0; i < dropdowns.length; i++) {
+        dropdowns[i].parentNode.addEventListener('show.bs.dropdown', function () {
+            alignDropdown(this);
+        });
+    }
+    
+    document.getElementById('modalTimer').addEventListener('shown.bs.modal', function () {
+        showListTimer();
+    });
+    
     document.getElementById('modalAbout').addEventListener('shown.bs.modal', function () {
         sendAPI("MPD_API_DATABASE_STATS", {}, parseStats);
         let trs = '';
@@ -540,6 +563,31 @@ function appInit() {
             document.getElementById('addToPlaylistPlaylist').focus();
         }
     });
+    
+    document.getElementById('inputTimerVolume').addEventListener('change', function() {
+        document.getElementById('textTimerVolume').innerHTML = this.value + '&nbsp;%';
+    }, false);
+    
+    document.getElementById('selectTimerAction').addEventListener('change', function() {
+        if (this.options[this.selectedIndex].value === 'startplay') {
+            document.getElementById('timerActionPlay').classList.remove('hide');
+        }
+        else {
+            document.getElementById('timerActionPlay').classList.add('hide');
+        }
+    }, false);
+    
+    let selectTimerHour = ''; 
+    for (let i = 0; i < 24; i++) {
+        selectTimerHour += '<option value="' + i + '">' + zeroPad(i, 2) + '</option>';
+    }
+    document.getElementById('selectTimerHour').innerHTML = selectTimerHour;
+    
+    let selectTimerMinute = ''; 
+    for (let i = 0; i < 60; i = i + 5) {
+        selectTimerMinute += '<option value="' + i + '">' + zeroPad(i, 2) + '</option>';
+    }
+    document.getElementById('selectTimerMinute').innerHTML = selectTimerMinute;
     
     document.getElementById('modalAddToQueue').addEventListener('shown.bs.modal', function () {
         document.getElementById('inputAddToQueueQuantity').classList.remove('is-invalid');
@@ -574,30 +622,45 @@ function appInit() {
         document.getElementById('inputMpdPass').classList.remove('is-invalid');
     });
 
-    document.getElementById('selectJukeboxMode').addEventListener('change', function () {
-        let value = this.options[this.selectedIndex].value;
-        if (value === '0') {
-            document.getElementById('inputJukeboxQueueLength').setAttribute('disabled', 'disabled');
-            document.getElementById('selectJukeboxPlaylist').setAttribute('disabled', 'disabled');
-        }
-        else if (value === '2') {
-            document.getElementById('inputJukeboxQueueLength').setAttribute('disabled', 'disabled');
-            document.getElementById('selectJukeboxPlaylist').setAttribute('disabled', 'disabled');
-            document.getElementById('selectJukeboxPlaylist').value = 'Database';
-        }
-        else if (value === '1') {
-            document.getElementById('inputJukeboxQueueLength').removeAttribute('disabled');
-            document.getElementById('selectJukeboxPlaylist').removeAttribute('disabled');
-        }
-        if (value !== '0') {
-            toggleBtnChk('btnConsume', true);            
-        }
-        checkConsume();
+    document.getElementById('btnJukeboxModeGroup').addEventListener('mouseup', function () {
+        setTimeout(function() {
+            let value = document.getElementById('btnJukeboxModeGroup').getElementsByClassName('active')[0].getAttribute('data-value');
+            if (value === '0') {
+                document.getElementById('inputJukeboxQueueLength').setAttribute('disabled', 'disabled');
+                document.getElementById('selectJukeboxPlaylist').setAttribute('disabled', 'disabled');
+            }
+            else if (value === '2') {
+                document.getElementById('inputJukeboxQueueLength').setAttribute('disabled', 'disabled');
+                document.getElementById('selectJukeboxPlaylist').setAttribute('disabled', 'disabled');
+                document.getElementById('selectJukeboxPlaylist').value = 'Database';
+            }
+            else if (value === '1') {
+                document.getElementById('inputJukeboxQueueLength').removeAttribute('disabled');
+                document.getElementById('selectJukeboxPlaylist').removeAttribute('disabled');
+            }
+            if (value !== '0') {
+                toggleBtnChk('btnConsume', true);            
+            }
+            checkConsume();
+        }, 100);
     });
     
     document.getElementById('btnConsume').addEventListener('mouseup', function() {
         setTimeout(function() { 
             checkConsume(); 
+        }, 100);
+    });
+    
+    document.getElementById('btnStickers').addEventListener('mouseup', function() {
+        setTimeout(function() {
+            if (document.getElementById('btnStickers').classList.contains('active')) {
+                document.getElementById('warnPlaybackStatistics').classList.add('hide');
+                document.getElementById('inputJukeboxLastPlayed').removeAttribute('disabled');
+            }
+            else {
+                document.getElementById('warnPlaybackStatistics').classList.remove('hide');
+                document.getElementById('inputJukeboxLastPlayed').setAttribute('disabled', 'disabled');
+            }
         }, 100);
     });
     
@@ -716,6 +779,20 @@ function appInit() {
             event.stopPropagation();
             sendAPI("MPD_API_PLAYER_TOGGLE_OUTPUT", {"output": event.target.getAttribute('data-output-id'), "state": (event.target.classList.contains('active') ? 0 : 1)});
             toggleBtn(event.target.id);
+        }
+    }, false);
+    
+    document.getElementById('listTimerList').addEventListener('click', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        if (event.target.nodeName === 'TD') {
+            showEditTimer(event.target.parentNode.getAttribute('data-id'));
+        }
+        else if (event.target.nodeName === 'A') {
+            deleteTimer(event.target.parentNode.parentNode.getAttribute('data-id'));
+        }
+        else if (event.target.nodeName === 'BUTTON') {
+            toggleTimer(event.target, event.target.parentNode.parentNode.getAttribute('data-id'));
         }
     }, false);
     
@@ -861,7 +938,10 @@ function appInit() {
         }
     }, false);
     
-    document.getElementById('searchCovergridSortDesc').addEventListener('click', function(event) {
+    document.getElementById('covergridSortDesc').addEventListener('click', function(event) {
+        toggleBtnChk(this);
+        event.stopPropagation();
+        event.preventDefault();
         if (app.current.sort.charAt(0) === '-') {
             app.current.sort = app.current.sort.substr(1);
         }
@@ -871,8 +951,10 @@ function appInit() {
         appGoto(app.current.app, app.current.tab, app.current.view, '0/' + app.current.filter + '/' + app.current.sort + '/' + app.current.search);
     }, false);
 
-    document.getElementById('searchCovergridSortTags').addEventListener('click', function(event) {
+    document.getElementById('covergridSortTags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
+            event.preventDefault();
+            event.stopPropagation();
             app.current.sort = event.target.getAttribute('data-tag');
             appGoto(app.current.app, app.current.tab, app.current.view, '0/' + app.current.filter + '/' + app.current.sort + '/' + app.current.search);
         }
@@ -902,9 +984,9 @@ function appInit() {
         }
     }, false);
 
-    let dropdowns = ['BrowseDatabaseColsDropdown', 'PlaybackColsDropdown'];
-    for (let i = 0; i < dropdowns.length; i++) {
-        document.getElementById(dropdowns[i]).addEventListener('click', function(event) {
+    let colDropdowns = ['BrowseDatabaseColsDropdown', 'PlaybackColsDropdown'];
+    for (let i = 0; i < colDropdowns.length; i++) {
+        document.getElementById(colDropdowns[i]).addEventListener('click', function(event) {
             if (event.target.nodeName === 'BUTTON' && event.target.classList.contains('material-icons')) {
                 event.stopPropagation();
                 event.preventDefault();

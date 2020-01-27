@@ -1,7 +1,7 @@
 "use strict";
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
- myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -10,6 +10,7 @@ var failed = 0;
 var ok = 0;
 var trackId = 0;
 var outputId = 0;
+var timerId = 0;
 var uri1 = '';
 var album1 = '';
 var artist1 = '';
@@ -23,9 +24,9 @@ var time_all = 0;
 
 var cmds = [
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_QUEUE_CLEAR"},
-    {"jsonrpc":"2.0","id":0,"method":"MPD_API_DATABASE_SEARCH","params":{"offset":0,"filter":"any","searchstr":searchstr,"plist":"","cols":["Title","Album"]}},
+    {"jsonrpc":"2.0","id":0,"method":"MPD_API_DATABASE_SEARCH","params":{"offset":0,"filter":"any","searchstr":searchstr,"plist":"","cols":["Title","Album"],"replace":false}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_QUEUE_ADD_TRACK","params":{"uri":"uri1"}},
-    {"jsonrpc":"2.0","id":0,"method":"MPD_API_DATABASE_SEARCH","params":{"offset":0,"filter":"any","searchstr":searchstr,"plist":"queue","cols":["Title","Album"]}},
+    {"jsonrpc":"2.0","id":0,"method":"MPD_API_DATABASE_SEARCH","params":{"offset":0,"filter":"any","searchstr":searchstr,"plist":"queue","cols":["Title","Album"],"replace":false}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_QUEUE_LIST","params":{"offset":0,"cols":["Title","Album"]}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_QUEUE_MOVE_TRACK","params":{"from":1,"to":2}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_QUEUE_ADD_RANDOM","params":{"playlist":"Database","quantity":2, "mode":1}},
@@ -35,7 +36,7 @@ var cmds = [
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYER_SEEK","params":{"songid":trackId,"seek":10}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_QUEUE_RM_TRACK","params":{"track":trackId}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_QUEUE_SAVE","params":{"plist":"test"}},
-    {"jsonrpc":"2.0","id":0,"method":"MPD_API_QUEUE_SEARCH","params":{"offset":0,"filter":"any","searchstr":searchstr,"cols":["Title","Album"]}},
+    {"jsonrpc":"2.0","id":0,"method":"MPD_API_QUEUE_SEARCH","params":{"offset":0,"filter":"any","searchstr":searchstr,"cols":["Title","Album"],"replace":false}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_QUEUE_ADD_PLAY_TRACK","params":{"uri":"uri2"}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_QUEUE_SHUFFLE"},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_QUEUE_REPLACE_TRACK","params":{"uri":"uri1"}},
@@ -46,7 +47,7 @@ var cmds = [
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_QUEUE_REPLACE_PLAYLIST","params":{"plist":"test2"}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYLIST_LIST","params":{"offset":0,"filter":""}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYLIST_CLEAR","params":{"uri":"test2"}},
-    {"jsonrpc":"2.0","id":0,"method":"MPD_API_DATABASE_SEARCH","params":{"offset":0,"filter":"any","searchstr":searchstr,"plist":"test2","cols":["Title","Album","Artist"]}},
+    {"jsonrpc":"2.0","id":0,"method":"MPD_API_DATABASE_SEARCH","params":{"offset":0,"filter":"any","searchstr":searchstr,"plist":"test2","cols":["Title","Album","Artist"],"replace":false}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_QUEUE_ADD_TRACK","params":{"uri":"uri1"}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_QUEUE_ADD_TRACK","params":{"uri":"uri2"}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYER_PLAY"},
@@ -57,9 +58,9 @@ var cmds = [
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYLIST_MOVE_TRACK","params":{"plist":"test2","from":1,"to":2}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYLIST_RM_TRACK","params":{"uri":"test2","track":1}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYLIST_RM","params":{"uri":"test2"}},
-    {"jsonrpc":"2.0","id":0,"method":"MPD_API_DATABASE_SEARCH_ADV","params":{"offset":0,"expression":"(any contains '"+searchstr+"')","sort":"Title", "sortdesc":false,"plist":"","cols":["Title","Album","Artist"]}},
-    {"jsonrpc":"2.0","id":0,"method":"MPD_API_DATABASE_UPDATE"},
-//    {"jsonrpc":"2.0","id":0,"method":"MPD_API_DATABASE_RESCAN"},
+    {"jsonrpc":"2.0","id":0,"method":"MPD_API_DATABASE_SEARCH_ADV","params":{"offset":0,"expression":"(any contains '"+searchstr+"')","sort":"Title", "sortdesc":false,"plist":"","cols":["Title","Album","Artist"],"replace":false}},
+    {"jsonrpc":"2.0","id":0,"method":"MPD_API_DATABASE_UPDATE","params":{"uri":""}},
+//    {"jsonrpc":"2.0","id":0,"method":"MPD_API_DATABASE_RESCAN","params":{"uri":""}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_DATABASE_FILESYSTEM_LIST","params":{"offset":0,"filter":"","path":"","cols":["Title","Album"]}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_DATABASE_TAG_LIST","params":{"offset":0,"filter":"","tag":"Artist"}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_DATABASE_TAG_ALBUM_LIST","params":{"offset":0,"filter":"","search":"artist1","tag":"Artist"}},
@@ -90,7 +91,11 @@ var cmds = [
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_BOOKMARK_SAVE","params":{"id": 2, "name":"testdir2id2", "uri":"parent1/child1/child2", "type": "dir"}},
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_BOOKMARK_LIST","params":{"offset":0}},
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_BOOKMARK_RM","params":{"id":1}},
-    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_BOOKMARK_CLEAR"}
+    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_BOOKMARK_CLEAR"},
+    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_TIMER_SAVE","params":{"timerid": 0, "name": "test", "enabled": true, "startHour": 10, "startMinute": 15, "action": "startPlay", "volume": 40, "playlist": "Database", "jukeboxMode": 1, "weekdays":[false,false,true,true,false,false,false]}},
+    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_TIMER_LIST"},
+    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_TIMER_TOGGLE","params":{"timerid":timerId}},
+    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_TIMER_RM","params":{"timerid":timerId}}
 ];
 
 function setTest(cmd, state, response) {
@@ -156,6 +161,9 @@ function sendAPI(request) {
                             }
                             else if (obj.result.method === 'MPD_API_PLAYER_OUTPUT_LIST' && obj.result.data.length > 0) {
                                 outputId = obj.result.data[0].id;
+                            }
+                            else if (obj.result.method === 'MPD_API_TIMER_LIST' && obj.result.data.length > 0) {
+                                timerId = obj.result.data[0].timerid;
                             }
                             setTest(request, 'ok', ajaxRequest.responseText);
                         } 

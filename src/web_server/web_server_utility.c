@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
- myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -104,10 +104,10 @@ struct embedded_file {
 
 bool serve_embedded_files(struct mg_connection *nc, sds uri, struct http_message *hm) {
     const struct embedded_file embedded_files[] = {
-        {"/", 1, "text/html", true, index_html_data, index_html_size},
-        {"/css/combined.css", 17, "text/css", true, combined_css_data, combined_css_size},
-        {"/js/combined.js", 15, "application/javascript", true, combined_js_data, combined_js_size},
-        {"/sw.js", 6, "application/javascript", true, sw_js_data, sw_js_size},
+        {"/", 1, "text/html; charset=utf-8", true, index_html_data, index_html_size},
+        {"/css/combined.css", 17, "text/css; charset=utf-8", true, combined_css_data, combined_css_size},
+        {"/js/combined.js", 15, "application/javascript; charset=utf-8", true, combined_js_data, combined_js_size},
+        {"/sw.js", 6, "application/javascript; charset=utf-8", true, sw_js_data, sw_js_size},
         {"/mympd.webmanifest", 18, "application/manifest+json", true, mympd_webmanifest_data, mympd_webmanifest_size},
         {"/assets/coverimage-notavailable.svg", 35, "image/svg+xml", true, coverimage_notavailable_svg_data, coverimage_notavailable_svg_size},
         {"/assets/MaterialIcons-Regular.woff2", 35, "font/woff2", false, MaterialIcons_Regular_woff2_data, MaterialIcons_Regular_woff2_size},

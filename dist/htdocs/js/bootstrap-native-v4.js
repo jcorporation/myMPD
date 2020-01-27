@@ -692,6 +692,8 @@
   
       // handlers
       dismissHandler = function(e) {
+        if (e[target][getAttribute] === undefined) { return; }
+        
         var eventTarget = e[target], hasData = eventTarget && (eventTarget[getAttribute](dataToggle) 
                               || eventTarget[parentNode] && getAttribute in eventTarget[parentNode] 
                               && eventTarget[parentNode][getAttribute](dataToggle));

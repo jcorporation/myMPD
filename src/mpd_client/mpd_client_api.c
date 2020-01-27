@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
- myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -32,6 +32,8 @@
 #include "mpd_client_state.h"
 #include "mpd_client_stats.h"
 #include "mpd_client_settings.h"
+#include "mpd_client_sticker.h"
+#include "mpd_client_timer.h"
 #include "mpd_client_api.h"
 
 void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request) {
@@ -78,8 +80,9 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
             struct json_token val;
             rc = true;
             bool mpd_host_changed = false;
+            bool jukebox_changed = false;
             while ((h = json_next_key(request->data, sdslen(request->data), h, ".params", &key, &val)) != NULL) {
-                rc = mpd_api_settings_set(config, mpd_state, &key, &val, &mpd_host_changed);
+                rc = mpd_api_settings_set(config, mpd_state, &key, &val, &mpd_host_changed, &jukebox_changed);
                 if (rc == false) {
                     break;
                 }
@@ -93,9 +96,12 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
                     //feature detection
                     mpd_client_mpd_features(config, mpd_state);
                     
+                    if (jukebox_changed == true) {
+                        list_free(&mpd_state->jukebox_queue);
+                    }
                     if (mpd_state->jukebox_mode != JUKEBOX_OFF) {
                         //enable jukebox
-                        mpd_client_jukebox(mpd_state);
+                        mpd_client_jukebox(config, mpd_state);
                     }
                 }
                 response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
@@ -319,8 +325,11 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
         }
         case MPD_API_DATABASE_SONGDETAILS:
             je = json_scanf(request->data, sdslen(request->data), "{params: { uri: %Q}}", &p_charbuf1);
-            if (je == 1) {
+            if (je == 1 && strlen(p_charbuf1) > 0) {
                 response->data = mpd_client_put_songdetails(mpd_state, response->data, request->method, request->id, p_charbuf1);
+            }
+            else {
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Invalid API request", true);
             }
             break;
         case MPD_API_DATABASE_FINGERPRINT:
@@ -475,7 +484,7 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
         case MPD_API_QUEUE_ADD_RANDOM:
             je = json_scanf(request->data, sdslen(request->data), "{params: {mode:%u, playlist:%Q, quantity:%d}}", &uint_buf1, &p_charbuf1, &int_buf1);
             if (je == 3) {
-                rc = mpd_client_jukebox_add(mpd_state, int_buf1, uint_buf1, p_charbuf1);
+                rc = mpd_client_jukebox_add_to_queue(config, mpd_state, int_buf1, uint_buf1, p_charbuf1, true);
                 if (rc == true) {
                     response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Sucessfully added random songs to queue", false);
                 }
@@ -569,6 +578,12 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
                     p_charbuf1, p_charbuf2, p_charbuf3, bool_buf, uint_buf1);
             }
             break;
+        case MPD_API_TIMER_STARTPLAY:
+            je = json_scanf(request->data, sdslen(request->data), "{params: {volume:%u, playlist:%Q, jukeboxMode:%u}}", &uint_buf1, &p_charbuf1, &uint_buf2);
+            if (je == 3) {
+                response->data = mpd_client_timer_startplay(mpd_state, response->data, request->method, request->id, uint_buf1, p_charbuf1, uint_buf2);
+            }
+            break;
         default:
             response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Unknown request", true);
             LOG_ERROR("Unknown API request: %.*s", sdslen(request->data), request->data);
@@ -584,7 +599,7 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
         response->data = jsonrpc_end_phrase(response->data);
         LOG_ERROR("No response for cmd_id %u", request->cmd_id);
     }
-    if (response->conn_id > -1) {
+    if (request->conn_id > -1) {
         LOG_DEBUG("Push response to queue for connection %lu: %s", request->conn_id, response->data);
         tiny_queue_push(web_server_queue, response);
     }

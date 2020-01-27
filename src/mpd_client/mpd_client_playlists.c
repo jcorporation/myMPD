@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
- myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -17,6 +17,7 @@
 #include "../../dist/src/sds/sds.h"
 #include "../sds_extras.h"
 #include "../../dist/src/frozen/frozen.h"
+#include "../api.h"
 #include "../list.h"
 #include "config_defs.h"
 #include "../utility.h"
@@ -75,21 +76,20 @@ sds mpd_client_put_playlists(t_config *config, t_mpd_state *mpd_state, sds buffe
 sds mpd_client_put_playlist_list(t_config *config, t_mpd_state *mpd_state, sds buffer, sds method, int request_id,
                                  const char *uri, const unsigned int offset, const char *filter, const t_tags *tagcols)
 {
+    mpd_send_list_playlist_meta(mpd_state->conn, uri);
+    if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
+        return buffer;
+    }
+    
     buffer = jsonrpc_start_result(buffer, method, request_id);
     buffer = sdscat(buffer,",\"data\":[");
 
-    if (mpd_send_list_playlist_meta(mpd_state->conn, uri) == false) {
-        buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
-        return buffer;
-    }
-
-    struct mpd_entity *entity;
+    struct mpd_song *song;
     unsigned entities_returned = 0;
     unsigned entity_count = 0;
-    while ((entity = mpd_recv_entity(mpd_state->conn)) != NULL) {
+    while ((song = mpd_recv_song(mpd_state->conn)) != NULL) {
         entity_count++;
         if (entity_count > offset && entity_count <= offset + mpd_state->max_elements_per_page) {
-            const struct mpd_song *song = mpd_entity_get_song(entity);
             const char *entityName = mpd_client_get_tag(song, MPD_TAG_TITLE);
             if (strncmp(filter, "-", 1) == 0 || strncasecmp(filter, entityName, 1) == 0 ||
                (strncmp(filter, "0", 1) == 0 && isalpha(*entityName) == 0))
@@ -107,9 +107,12 @@ sds mpd_client_put_playlist_list(t_config *config, t_mpd_state *mpd_state, sds b
                 entity_count--;
             }
         }
-        mpd_entity_free(entity);
+        mpd_song_free(song);
     }
-    mpd_response_finish(mpd_state->conn);
+
+    if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
+        return buffer;
+    }
     
     bool smartpls = is_smartpls(config, mpd_state, uri);
 
@@ -492,7 +495,7 @@ bool mpd_client_smartpls_update_sticker(t_mpd_state *mpd_state, const char *play
                 char *crap;
                 int value = strtoimax(p_value, &crap, 10);
                 if (value >= 1) {
-                    list_push(&add_list, uri, value, NULL);
+                    list_push(&add_list, uri, value, NULL, NULL);
                 }
                 if (value > value_max) {
                     value_max = value;
@@ -510,20 +513,21 @@ bool mpd_client_smartpls_update_sticker(t_mpd_state *mpd_state, const char *play
         value_max = value_max / 2;
     }
 
-    list_sort_by_value(&add_list, false);
+    list_sort_by_value_i(&add_list, false);
 
-    struct node *current = add_list.list;
+    struct node *current = add_list.head;
     int i = 0;
     while (current != NULL) {
-        if (current->value >= value_max) {
-            if (mpd_run_playlist_add(mpd_state->conn, playlist, current->data) == false) {
+        if (current->value_i >= value_max) {
+            if (mpd_run_playlist_add(mpd_state->conn, playlist, current->key) == false) {
                 check_error_and_recover(mpd_state, NULL, NULL, 0);
                 list_free(&add_list);
-                return 1;        
+                return false;
             }
             i++;
-            if (i >= maxentries)
+            if (i >= maxentries) {
                 break;
+            }
         }
         current = current->next;
     }

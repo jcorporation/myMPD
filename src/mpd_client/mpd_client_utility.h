@@ -1,11 +1,14 @@
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
- myMPD (c) 2018-2019 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
 #ifndef __MPD_CLIENT_UTILITY_H__
 #define __MPD_CLIENT_UTILITY_H__
+
+#include "dist/src/rax/rax.h"
+
 enum mpd_conn_states {
     MPD_DISCONNECTED,
     MPD_FAILURE,
@@ -26,7 +29,7 @@ typedef struct t_mpd_state {
     enum mpd_conn_states conn_state;
     int timeout;
     time_t reconnect_time;
-    unsigned reconnect_intervall;
+    unsigned reconnect_interval;
     // States
     enum mpd_state state;
     int song_id;
@@ -57,10 +60,15 @@ typedef struct t_mpd_state {
     bool feat_fingerprint;
     bool feat_mpd_albumart;
     bool feat_mpd_readpicture;
+    bool feat_single_oneshot;
     //mympd states
     enum jukebox_modes jukebox_mode;
     sds jukebox_playlist;
     size_t jukebox_queue_length;
+    struct list jukebox_queue;
+    struct list jukebox_queue_tmp;
+    t_tags jukebox_unique_tag;
+    int jukebox_last_played;
     bool auto_play;
     bool coverimage;
     sds coverimage_name;
@@ -86,6 +94,8 @@ typedef struct t_mpd_state {
     t_tags browse_tag_types;
     //last played list
     struct list last_played;
+    //sticker cache
+    rax *sticker_cache;
 } t_mpd_state;
 
 typedef struct t_sticker {
@@ -96,11 +106,13 @@ typedef struct t_sticker {
     int like;
 } t_sticker;
 
+void enable_mpd_tags(t_mpd_state *mpd_state, t_tags enable_tags);
 sds put_song_tags(sds buffer, t_mpd_state *mpd_state, const t_tags *tagcols, const struct mpd_song *song);
+sds put_empty_song_tags(sds buffer, t_mpd_state *mpd_state, const t_tags *tagcols, const char *uri);
+bool check_error_and_recover2(t_mpd_state *mpd_state, sds *buffer, sds method, int request_id, bool notify);
 sds check_error_and_recover(t_mpd_state *mpd_state, sds buffer, sds method, int request_id);
 sds check_error_and_recover_notify(t_mpd_state *mpd_state, sds buffer);
 sds respond_with_mpd_error_or_ok(t_mpd_state *mpd_state, sds buffer, sds method, int request_id);
-bool mpd_client_get_sticker(t_mpd_state *mpd_state, const char *uri, t_sticker *sticker);
 char *mpd_client_get_tag(struct mpd_song const *song, const enum mpd_tag_type tag);
 bool mpd_client_tag_exists(const enum mpd_tag_type tag_types[64], const size_t tag_types_len, const enum mpd_tag_type tag);
 void json_to_tags(const char *str, int len, void *user_data);
