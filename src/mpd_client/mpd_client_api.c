@@ -183,6 +183,7 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
             }
             if (rc == true) {
                 response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+                mpd_client_smartpls_update(config, mpd_state, p_charbuf2);
             }
             else {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Failed to save playlist", true);

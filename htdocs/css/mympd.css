@@ -649,3 +649,7 @@ div#playDropdown .row {
 .text-success, a.text-success:hover, a.text-success:focus {
   color: var(--mympd-highlightcolor, #28a745) !important;
 }
+
+#dropdownAddSmartpls {
+  white-space: nowrap;
+}

@@ -11,6 +11,7 @@ function parsePlaylists(obj) {
         document.getElementById('BrowsePlaylistsDetailList').classList.add('hide');
         document.getElementById('btnBrowsePlaylistsAll').parentNode.classList.add('hide');
         document.getElementById('btnPlaylistClear').parentNode.classList.add('hide');
+        document.getElementById('btnAddSmartpls').parentNode.classList.remove('hide');
     } else {
         if (obj.result.uri.indexOf('.') > -1 || obj.result.smartpls === true) {
             document.getElementById('BrowsePlaylistsDetailList').setAttribute('data-ro', 'true')
@@ -26,6 +27,7 @@ function parsePlaylists(obj) {
         document.getElementById('BrowsePlaylistsDetailList').classList.remove('hide');
         document.getElementById('BrowsePlaylistsAllList').classList.add('hide');
         document.getElementById('btnBrowsePlaylistsAll').parentNode.classList.remove('hide');
+        document.getElementById('btnAddSmartpls').parentNode.classList.add('hide');
     }
             
     let nrItems = obj.result.returnedEntities;
@@ -244,7 +246,8 @@ function saveSmartPlaylist() {
             }
             let searchstr = document.getElementById('inputSaveSmartPlaylistSearchstr').value;
             sendAPI("MPD_API_SMARTPLS_SAVE", {"type": type, "playlist": name, "tag": tag, "searchstr": searchstr});
-        } else if (type === 'sticker') {
+        }
+        else if (type === 'sticker') {
             let stickerEl = document.getElementById('selectSaveSmartPlaylistSticker');
             let sticker = stickerEl.options[stickerEl.selectedIndex].value;
             let maxentriesEl = document.getElementById('inputSaveSmartPlaylistStickerMaxentries');
@@ -256,7 +259,8 @@ function saveSmartPlaylist() {
                 return;
             }
             sendAPI("MPD_API_SMARTPLS_SAVE", {"type": type, "playlist": name, "sticker": sticker, "maxentries": parseInt(maxentriesEl.value), "minvalue": parseInt(minvalueEl.value)});
-        } else if (type === 'newest') {
+        }
+        else if (type === 'newest') {
             let timerangeEl = document.getElementById('inputSaveSmartPlaylistNewestTimerange');
             if (!validateInt(timerangeEl)) {
                 return;
@@ -274,6 +278,30 @@ function saveSmartPlaylist() {
     else {
         document.getElementById('saveSmartPlaylistName').classList.add('is-invalid');
     }
+}
+
+function addSmartpls(type) {
+    var obj = {"jsonrpc":"2.0", "id":0, "result": {"method":"MPD_API_SMARTPLS_GET"}};
+    if (type === 'mostPlayed') {
+        obj.result.playlist = "myMPDsmart-mostPlayed";
+        obj.result.type = "sticker";
+        obj.result.sticker = "playCount";
+        obj.result.maxentries = 200;
+        obj.result.minvalue = 10;
+    }
+    else if (type === 'newest') {
+        obj.result.playlist = "myMPDsmart-newestSongs";
+        obj.result.type = "newest";
+        obj.result.timerange = 14 * 24 * 60 * 60;
+    }
+    else if (type === 'bestRated') {
+        obj.result.playlist = "myMPDsmart-bestRated";
+        obj.result.type = "sticker";
+        obj.result.sticker = "like";
+        obj.result.maxentries = 200;
+        obj.result.minvalue = 2;
+    }
+    parseSmartPlaylist(obj);
 }
 
 function showAddToPlaylist(uri, search) {
