@@ -81,6 +81,7 @@ typedef struct t_mympd_state {
     sds locale;
     sds music_directory;
     sds theme;
+    sds highlight_color;
     bool bookmarks;
     bool timer;
     struct t_timer_list timer_list;

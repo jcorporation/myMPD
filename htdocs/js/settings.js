@@ -179,7 +179,9 @@ function parseSettings() {
 
     document.documentElement.style.setProperty('--mympd-coverimagesize', settings.coverimageSize + "px");
     document.documentElement.style.setProperty('--mympd-covergridsize', settings.covergridSize + "px");
+    document.documentElement.style.setProperty('--mympd-highlightcolor', settings.highlightColor);
     
+    document.getElementById('inputHighlightColor').value = settings.highlightColor;
     document.getElementById('inputBgColor').value = settings.bgColor;
     document.getElementsByTagName('body')[0].style.backgroundColor = settings.bgColor;
 
@@ -716,6 +718,7 @@ function saveSettings() {
             "searchtaglist": getTagMultiSelectValues(document.getElementById('listSearchTags'), false),
             "browsetaglist": getTagMultiSelectValues(document.getElementById('listBrowseTags'), false),
             "theme": selectTheme.options[selectTheme.selectedIndex].value,
+            "highlightColor": document.getElementById('inputHighlightColor').value,
             "timer": (document.getElementById('btnFeatTimer').classList.contains('active') ? true : false)
         }, getSettings);
         modalSettings.hide();

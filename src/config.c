@@ -215,6 +215,9 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("theme", "theme")) {
         p_config->theme = sdsreplace(p_config->theme, value);
     }
+    else if (MATCH("theme", "highlightcolor")) {
+        p_config->highlight_color = sdsreplace(p_config->highlight_color, value);
+    }
     else if (MATCH("theme", "bgcover")) {
         p_config->bg_cover = strtobool(value);
     }
@@ -291,7 +294,7 @@ static void mympd_get_env(struct t_config *config) {
         "MYMPD_COVERCACHEAVOID", "THEME_THEME", "THEME_CUSTOMPLACEHOLDERIMAGES",
         "THEME_BGCOVER", "THEME_BGCOLOR", "THEME_BGCSSFILTER", "THEME_COVERGRIDSIZE",
         "THEME_COVERIMAGE", "THEME_COVERIMAGENAME", "THEME_COVERIMAGESIZE",
-        "THEME_LOCALE", 0};
+        "THEME_LOCALE", "THEME_HIGHLIGHTCOLOR", 0};
     const char** ptr = env_vars;
     while (*ptr != 0) {
         mympd_parse_env(config, *ptr);
@@ -333,6 +336,7 @@ void mympd_free_config(t_config *config) {
     sdsfree(config->coverimage_name);
     sdsfree(config->locale);
     sdsfree(config->theme);
+    sdsfree(config->highlight_color);
     list_free(&config->syscmd_list);
     FREE_PTR(config);
 }
@@ -402,6 +406,7 @@ void mympd_config_defaults(t_config *config) {
     config->covercache_keep_days = 7;
     config->covercache = true;
     config->theme = sdsnew("theme-default");
+    config->highlight_color = sdsnew("#28a745");
     config->custom_placeholder_images = false;
     config->regex = true;
     config->timer = true;
@@ -553,7 +558,8 @@ bool mympd_dump_config(void) {
         "coverimagesize = %d\n"
         "covergridsize = %d\n"
         "locale = %s\n"
-        "customplaceholderimages = %s\n\n",
+        "customplaceholderimages = %s\n"
+        "highlightcolor = %s\n\n",
         p_config->theme,
         (p_config->bg_cover == true ? "true" : "false"),
         p_config->bg_color,
@@ -563,7 +569,8 @@ bool mympd_dump_config(void) {
         p_config->coverimage_size,
         p_config->covergrid_size,
         p_config->locale,
-        (p_config->custom_placeholder_images == true ? "true" : "false")
+        (p_config->custom_placeholder_images == true ? "true" : "false"),
+        p_config->highlight_color
     );
 
     fprintf(fp, "[syscmds]\n");

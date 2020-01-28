@@ -78,6 +78,7 @@ void free_mympd_state(t_mympd_state *mympd_state) {
     sdsfree(mympd_state->locale);
     sdsfree(mympd_state->music_directory);
     sdsfree(mympd_state->theme);
+    sdsfree(mympd_state->highlight_color);
     truncate_timerlist(&mympd_state->timer_list);
     FREE_PTR(mympd_state);
 }

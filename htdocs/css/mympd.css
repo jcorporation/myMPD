@@ -7,6 +7,7 @@
 :root {
   --mympd-coverimagesize: 250px;
   --mympd-covergridsize: 200px;
+  --mympd-highlightcolor: #28a745;
 }
 
 #splashScreen {
@@ -388,12 +389,12 @@ a.card-img-left {
 
 button.active {
   color: #fff;
-  background-color: #28a745 !important;
-  border-color: #28a745 !important;
+  background-color: var(--mympd-highlightcolor, #28a745) !important;
+  border-color: var(--mympd-highlightcolor, #28a745) !important;
 }
 
 button.active-fg-green {
-  color: #28a745 !important;
+  color: var(--mympd-highlightcolor, #28a745) !important;
 }
 
 button.active-fg-red {
@@ -435,11 +436,11 @@ caption {
 }
 
 .dragover > td {
-  border-top:2px solid #28a745;
+  border-top:2px solid var(--mympd-highlightcolor, #28a745);
 }
 
 .dragover-th {
-  border-left:2px solid #28a745;
+  border-left:2px solid var(--mympd-highlightcolor, #28a745);
 }
 
 [draggable] {
@@ -535,7 +536,7 @@ textarea.small {
 }
 
 .form-control:focus {
-  border-color: #28A745 !important;
+  border-color: var(--mympd-highlightcolor, #28a745) !important;
   outline: 0;
   box-shadow: none !important;
 }
@@ -545,8 +546,8 @@ textarea.small {
 .btn-secondary:not(:disabled):not(.disabled):active, .btn-secondary:not(:disabled):not(.disabled).active,
 .show > .btn-secondary.dropdown-toggle {
   color: #fff;
-  background-color: #28a745 !important;
-  border-color: #28a745 !important;
+  background-color: var(--mympd-highlightcolor, #28a745) !important;
+  border-color: var(--mympd-highlightcolor, #28a745) !important;
 }
 
 .btn-light:focus, .btn-light.focus,
@@ -638,4 +639,13 @@ div#playDropdown .row {
 .popover-content .dropdown-item:hover, 
 .popover-content .dropdown-item:focus {
   background-color: #e9ecef;
+}
+
+.btn-success {
+  background-color: var(--mympd-highlightcolor, #28a745) !important;
+  border-color: var(--mympd-highlightcolor, #28a745) !important;
+}
+
+.text-success, a.text-success:hover, a.text-success:focus {
+  color: var(--mympd-highlightcolor, #28a745) !important;
 }

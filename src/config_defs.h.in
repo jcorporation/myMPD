@@ -124,6 +124,7 @@ typedef struct t_config {
     int covercache_keep_days;
     bool covercache;
     sds theme;
+    sds highlight_color;
     bool custom_placeholder_images;
     bool regex;
     bool timer;

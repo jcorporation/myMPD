@@ -414,8 +414,11 @@ Musik Verzeichnis ist nicht verfügbar
 Invalid size
 Ungültige Größe
 
-Solid color
-Farbe
+Background color
+Hintergrundfarbe
+
+Highlight color
+Highlight Farbe
 
 Invalid color
 Ungültige Farbe
