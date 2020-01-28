@@ -30,7 +30,7 @@ function parseSongDetails(obj) {
             continue;
         }
         songDetails += '<tr><th>' + t(settings.tags[i]) + '</th><td data-tag="' + settings.tags[i] + '" data-name="' + encodeURI(obj.result[settings.tags[i]]) + '">';
-        if (settings.browsetags.includes(settings.tags[i])) {
+        if (settings.browsetags.includes(settings.tags[i]) && obj.result[settings.tags[i]] !== '-') {
             songDetails += '<a class="text-success" href="#">' + e(obj.result[settings.tags[i]]) + '</a>';
         }
         else {
