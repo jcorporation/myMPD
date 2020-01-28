@@ -24,6 +24,6 @@ bool mpd_client_smartpls_update_all(t_config *config, t_mpd_state *mpd_state);
 bool mpd_client_smartpls_update(t_config *config, t_mpd_state *mpd_state, const char *playlist);
 bool mpd_client_smartpls_clear(t_mpd_state *mpd_state, const char *playlist);
 bool mpd_client_smartpls_update_search(t_mpd_state *mpd_state, const char *playlist, const char *tag, const char *searchstr);
-bool mpd_client_smartpls_update_sticker(t_mpd_state *mpd_state, const char *playlist, const char *sticker, const int maxentries);
+bool mpd_client_smartpls_update_sticker(t_mpd_state *mpd_state, const char *playlist, const char *sticker, const int maxentries, const int minvalue);
 bool mpd_client_smartpls_update_newest(t_mpd_state *mpd_state, const char *playlist, const int timerange);
 #endif

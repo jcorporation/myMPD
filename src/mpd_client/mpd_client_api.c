@@ -39,7 +39,7 @@
 void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request) {
     t_work_request *request = (t_work_request*) arg_request;
     unsigned int uint_buf1, uint_buf2;
-    int je, int_buf1; 
+    int je, int_buf1, int_buf2; 
     bool bool_buf, rc;
     char *p_charbuf1 = NULL;
     char *p_charbuf2 = NULL;
@@ -163,9 +163,9 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
             rc = false;
             if (je == 1) {
                 if (strcmp(p_charbuf1, "sticker") == 0) {
-                    je = json_scanf(request->data, sdslen(request->data), "{params: {playlist: %Q, sticker: %Q, maxentries: %d}}", &p_charbuf2, &p_charbuf3, &int_buf1);
-                    if (je == 3) {
-                        rc = mpd_client_smartpls_save(config, mpd_state, p_charbuf1, p_charbuf2, p_charbuf3, NULL, int_buf1, 0);
+                    je = json_scanf(request->data, sdslen(request->data), "{params: {playlist: %Q, sticker: %Q, maxentries: %d, minvalue: %d}}", &p_charbuf2, &p_charbuf3, &int_buf1, &int_buf2);
+                    if (je == 4) {
+                        rc = mpd_client_smartpls_save(config, mpd_state, p_charbuf1, p_charbuf2, p_charbuf3, NULL, int_buf1, int_buf2);
                     }
                 }
                 else if (strcmp(p_charbuf1, "newest") == 0) {

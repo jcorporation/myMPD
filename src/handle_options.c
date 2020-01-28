@@ -39,12 +39,12 @@ bool smartpls_default(t_config *config) {
     bool rc = true;
     
     rc = smartpls_init(config, "myMPDsmart-bestRated", 
-        "{\"type\": \"sticker\", \"sticker\": \"like\", \"maxentries\": 200}\n");
+        "{\"type\": \"sticker\", \"sticker\": \"like\", \"maxentries\": 200, \"minvalue\": 2}\n");
     if (rc == false) {
         return rc;
     }
     rc = smartpls_init(config, "myMPDsmart-mostPlayed", 
-        "{\"type\": \"sticker\", \"sticker\": \"playCount\", \"maxentries\": 200}\n");
+        "{\"type\": \"sticker\", \"sticker\": \"playCount\", \"maxentries\": 200, \"minvalue\": 0}\n");
     if (rc == false) {
         return rc;
     }

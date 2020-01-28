@@ -859,48 +859,67 @@
         </div>
         <div class="modal-body">
           <form id="saveSmartPlaylistFrm">
-            <div class="row">
-              <div class="form-group col-md-6">          
-                <label for="saveSmartPlaylistName" data-phrase="Name"></label>
+            <div class="form-group row">
+              <label class="col-sm-4 col-form-label" for="saveSmartPlaylistName" data-phrase="Name"></label>
+              <div class="col-sm-8">
                 <input type="text" class="form-control" id="saveSmartPlaylistName"/>
                 <div class="invalid-feedback" data-phrase="Invalid filename"></div>
-              </div>            
-              <div class="form-group col-md-6">
-                <label for="saveSmartPlaylistType">Type</label>
+              </div>
+            </div>            
+            <div class="form-group row">
+              <label class="col-sm-4 col-form-label" for="saveSmartPlaylistType" data-phrase="Type"></label>
+              <div class="col-sm-8">
                 <input type="text" class="form-control" id="saveSmartPlaylistType" readonly/>
                 <div class="invalid-feedback" data-phrase="Invalid type"></div>
               </div>
             </div>
             <hr/>
-            <div class="row hide" id="saveSmartPlaylistSearch">
-              <div class="form-group col-md-6">          
-                <label for="selectSaveSmartPlaylistTag" data-phrase="Tag"></label>
-                <select id="selectSaveSmartPlaylistTag" class="form-control custom-select border-secondary"></select>
+            <div class="hide" id="saveSmartPlaylistSearch">
+              <div class="form-group row">
+                <label class="col-sm-4 col-form-label" for="selectSaveSmartPlaylistTag" data-phrase="Tag"></label>
+                <div class="col-sm-8">
+                  <select id="selectSaveSmartPlaylistTag" class="form-control custom-select border-secondary"></select>
+                </div>
               </div>            
-              <div class="form-group col-md-6">
-                <label for="inputSaveSmartPlaylistSearchstr" data-phrase="Search"></label>
-                <input type="text" class="form-control" id="inputSaveSmartPlaylistSearchstr"/>
+              <div class="form-group row">
+                <label class="col-sm-4 col-form-label" for="inputSaveSmartPlaylistSearchstr" data-phrase="Search"></label>
+                <div class="col-sm-8">
+                  <input type="text" class="form-control" id="inputSaveSmartPlaylistSearchstr"/>
+                </div>
               </div>
             </div>
-            <div class="row hide" id="saveSmartPlaylistSticker">
-              <div class="form-group col-md-6">          
-                <label for="selectSaveSmartPlaylistSticker" data-phrase="Sticker"></label>
-                <select id="selectSaveSmartPlaylistSticker" class="form-control custom-select border-secondary">
-                  <option value="like" data-phrase="Like"></option>
-                  <option value="playCount" data-phrase="Play count"></option>
-                </select>
-              </div>            
-              <div class="form-group col-md-6">
-                <label for="inputSaveSmartPlaylistStickerMaxentries" data-phrase="Max. songs"></label>
-                <input type="text" class="form-control" id="inputSaveSmartPlaylistStickerMaxentries"/>
-                <div class="invalid-feedback" data-phrase="Must be a number"></div>
+            <div class="hide" id="saveSmartPlaylistSticker">
+              <div class="form-group row">
+                <label class="col-sm-4 col-form-label" for="selectSaveSmartPlaylistSticker" data-phrase="Sticker"></label>
+                <div class="col-sm-8">
+                  <select id="selectSaveSmartPlaylistSticker" class="form-control custom-select border-secondary">
+                    <option value="like" data-phrase="Like"></option>
+                    <option value="playCount" data-phrase="Play count"></option>
+                  </select>
+                </div>
+              </div> 
+              <div class="form-group row">
+                <label class="col-sm-4 col-form-label" for="inputSaveSmartPlaylistStickerMinvalue" data-phrase="Min. value"></label>
+                <div class="col-sm-8">
+                  <input type="text" class="form-control" id="inputSaveSmartPlaylistStickerMinvalue"/>
+                  <div class="invalid-feedback" data-phrase="Must be a number"></div>
+                </div>
+              </div>           
+              <div class="form-group row">
+                <label class="col-sm-4 col-form-label" for="inputSaveSmartPlaylistStickerMaxentries" data-phrase="Max. songs"></label>
+                <div class="col-sm-8">
+                  <input type="text" class="form-control" id="inputSaveSmartPlaylistStickerMaxentries"/>
+                  <div class="invalid-feedback" data-phrase="Must be a number"></div>
+                </div>
               </div>
             </div>
-            <div class="row hide" id="saveSmartPlaylistNewest">
-              <div class="form-group col-md-6">
-                <label for="inputSaveSmartPlaylistNewestTimerange" data-phrase="Timerange (days)"></label>
-                <input type="text" class="form-control" id="inputSaveSmartPlaylistNewestTimerange"/>
-                <div class="invalid-feedback" data-phrase="Must be a number"></div>
+            <div class="hide" id="saveSmartPlaylistNewest">
+              <div class="form-group row">
+                <label class="col-sm-4 col-form-label" for="inputSaveSmartPlaylistNewestTimerange" data-phrase="Timerange (days)"></label>
+                <div class="col-sm-8">
+                  <input type="text" class="form-control" id="inputSaveSmartPlaylistNewestTimerange"/>
+                  <div class="invalid-feedback" data-phrase="Must be a number"></div>
+                </div>
               </div>            
             </div>            
           </form>
