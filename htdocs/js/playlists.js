@@ -198,8 +198,9 @@ function parseSmartPlaylist(obj) {
     document.getElementById('saveSmartPlaylistSticker').classList.add('hide');
     document.getElementById('saveSmartPlaylistNewest').classList.add('hide');
     let tagList;
-    if (settings.featTags)
+    if (settings.featTags) {
         tagList = '<option value="any">' + t('Any Tag') + '</option>';
+    }
     tagList += '<option value="filename">' + t('Filename') + '</option>';
     for (let i = 0; i < settings.searchtags.length; i++) {
         tagList += '<option value="' + settings.searchtags[i] + '">' + t(settings.searchtags[i]) + '</option>';
@@ -209,13 +210,11 @@ function parseSmartPlaylist(obj) {
         document.getElementById('saveSmartPlaylistSearch').classList.remove('hide');
         document.getElementById('selectSaveSmartPlaylistTag').value = obj.result.tag;
         document.getElementById('inputSaveSmartPlaylistSearchstr').value = obj.result.searchstr;
-        if (settings.featAdvsearch) {
-            document.getElementById('selectSaveSmartPlaylistTag').parentNode.classList.add('hide');
-            document.getElementById('inputSaveSmartPlaylistSearchstr').parentNode.classList.replace('col-md-6','col-md-12');
+        if (settings.featAdvsearch && obj.result.tag === 'expression') {
+            document.getElementById('selectSaveSmartPlaylistTag').parentNode.parentNode.classList.add('hide');
         }
         else {
-            document.getElementById('selectSaveSmartPlaylistTag').parentNode.classList.remove('hide');
-            document.getElementById('inputSaveSmartPlaylistSearchstr').parentNode.classList.replace('col-md-12','col-md-6');
+            document.getElementById('selectSaveSmartPlaylistTag').parentNode.parentNode.classList.remove('hide');
         }
     }
     else if (obj.result.type === 'sticker') {
