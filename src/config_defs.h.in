@@ -129,6 +129,7 @@ typedef struct t_config {
     bool regex;
     bool timer;
     bool sticker_cache;
+    sds generate_pls_tags;
     //system commands
     struct list syscmd_list;
 } t_config;

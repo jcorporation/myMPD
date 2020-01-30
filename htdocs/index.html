@@ -347,7 +347,7 @@
             <div class="dropdown-menu bg-lite-dark px-2 letters" id="BrowsePlaylistsFilterLetters">
             </div>
           </div>
-          <div class="btn-group mr-2">
+          <div class="btn-group mr-2 featSmartpls">
             <button data-title-phrase="Add smart playlist" id="btnAddSmartpls" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="material-icons">playlist_add</span></button>
             <div class="dropdown-menu bg-lite-dark px-2" id="dropdownAddSmartpls">
               <button data-phrase="Add best rated" data-href='{"cmd": "addSmartpls", "options": ["bestRated"]}' type="button" class="btn btn-secondary btn-block"></button>
@@ -1153,18 +1153,6 @@
                   </div>
                 </div>
                 <hr/>
-                <h4 data-phrase="Pagination"></h4>
-                <div class="form-group row">
-                  <label class="col-sm-4 col-form-label" for="inputMaxElementsPerPage" data-phrase="Pagination"></label>
-                  <div class="col-sm-8 ">
-                    <input id="inputMaxElementsPerPage" type="text" class="form-control border-secondary" value="">
-                    <div class="invalid-feedback" data-phrase="Must be a number smaller or equal 200"></div>
-                  </div>
-                </div>
-              </form>
-            </div>
-            <div class="tab-pane" id="tabGeneralSettings">
-              <form id="GeneralSettingsFrm">
                 <h4 data-phrase="Notifications"></h4>
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnNotifyPage" data-phrase="On page notifications"></label>
@@ -1178,8 +1166,20 @@
                     <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnNotifyWeb"></button>
                   </div>
                 </div>
+                <hr/>
+                <h4 data-phrase="Pagination"></h4>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="inputMaxElementsPerPage" data-phrase="Pagination"></label>
+                  <div class="col-sm-8 ">
+                    <input id="inputMaxElementsPerPage" type="text" class="form-control border-secondary" value="">
+                    <div class="invalid-feedback" data-phrase="Must be a number smaller or equal 200"></div>
+                  </div>
+                </div>
+              </form>
+            </div>
+            <div class="tab-pane" id="tabGeneralSettings">
+              <form id="GeneralSettingsFrm">
                 <div class="featTags">
-                  <hr/>
                   <h4 data-phrase="Tags"></h4>
                   <div class="form-group row">
                     <label class="col-sm-4 col-form-label" for="btnEnabledTags" data-phrase="Tags to use"></label>
@@ -1213,6 +1213,42 @@
                   </div>
                 </div>  
                 <hr/>
+                <h4 data-phrase="Statistics"></h4>
+                <div id="warnStickers" class="alert alert-warning hide" data-phrase="Stickers are disabled"></div>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="btnStickers" data-phrase="Playback statistics"></label>
+                  <div class="col-sm-8 ">
+                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnStickers"></button>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="inputLastPlayedCount" data-phrase="Last played list count"></label>
+                  <div class="col-sm-8">
+                    <input id="inputLastPlayedCount" type="text" class="form-control border-secondary" value="">
+                    <div class="invalid-feedback" data-phrase="Must be a number and greater than zero"></div>
+                  </div>
+                </div>
+                <hr/>
+                <h4 data-phrase="Smart playlists"></h4>
+                <div id="warnSmartpls" class="alert alert-warning hide" data-phrase="Playlists are disabled"></div>
+                <div class="warnReadonly alert alert-warning hide" data-phrase="myMPD is in readonly mode"></div>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="btnSmartpls" data-phrase="Smart playlists"></label>
+                  <div class="col-sm-8 ">
+                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnSmartpls"></button>
+                  </div>
+                </div>
+                <div class="form-group row featTags">
+                  <label class="col-sm-4 col-form-label" for="btnGeneratePlsTags" data-phrase="Generate playlist per"></label>
+                  <div class="col-sm-8 input-group">
+                    <input type="text" class="form-control border-secondary" id="inputGeneratePlsTags" readonly/>
+                    <div class="input-group-append">
+                      <button id="btnGeneratePlsTags" type="button" data-toggle="dropdown" class="text-left btn btn-secondary dropdown-toggle"></button>
+                      <div id="listGeneratePlsTags" class="dropdown-menu px-2 mr-3"></div>
+                    </div>
+                  </div>
+                </div>
+                <hr/>
                 <h4 data-phrase="Local playback"></h4>
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnFeatLocalplayer" data-phrase="Local playback"></label>
@@ -1236,22 +1272,6 @@
                   <label class="col-sm-4 col-form-label" for="btnLocalplayerAutoplay" data-phrase="Autoplay"></label>
                   <div class="col-sm-8 ">
                     <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnLocalplayerAutoplay"></button>
-                  </div>
-                </div>
-                <hr/>
-                <h4 data-phrase="Statistics"></h4>
-                <div id="warnStickers" class="alert alert-warning hide" data-phrase="Stickers are disabled"></div>
-                <div class="form-group row">
-                  <label class="col-sm-4 col-form-label" for="btnStickers" data-phrase="Playback statistics"></label>
-                  <div class="col-sm-8 ">
-                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnStickers"></button>
-                  </div>
-                </div>
-                <div class="form-group row">
-                  <label class="col-sm-4 col-form-label" for="inputLastPlayedCount" data-phrase="Last played list count"></label>
-                  <div class="col-sm-8">
-                    <input id="inputLastPlayedCount" type="text" class="form-control border-secondary" value="">
-                    <div class="invalid-feedback" data-phrase="Must be a number and greater than zero"></div>
                   </div>
                 </div>
                 <hr/>
@@ -1279,14 +1299,6 @@
                 </div>
                 <hr/>
                 <h4 data-phrase="Other features"></h4>
-                <div id="warnSmartpls" class="alert alert-warning hide" data-phrase="Playlists are disabled"></div>
-                <div class="warnReadonly alert alert-warning hide" data-phrase="myMPD is in readonly mode"></div>
-                <div class="form-group row">
-                  <label class="col-sm-4 col-form-label" for="btnSmartpls" data-phrase="Smart playlists"></label>
-                  <div class="col-sm-8 ">
-                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnSmartpls"></button>
-                  </div>
-                </div>
                 <div class="warnReadonly alert alert-warning hide" data-phrase="myMPD is in readonly mode"></div>
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnBookmarks" data-phrase="Bookmarks"></label>

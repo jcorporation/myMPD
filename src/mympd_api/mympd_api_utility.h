@@ -47,6 +47,7 @@ typedef struct t_mympd_state {
     sds searchtaglist;
     sds browsetaglist;
     bool smartpls;
+    sds generate_pls_tags;
     int max_elements_per_page;
     int last_played_count;
     bool love;

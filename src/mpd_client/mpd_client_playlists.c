@@ -26,6 +26,13 @@
 #include "mpd_client_search.h"
 #include "mpd_client_playlists.h"
 
+//private definitions
+static bool mpd_client_smartpls_clear(t_mpd_state *mpd_state, const char *playlist);
+static bool mpd_client_smartpls_update_search(t_mpd_state *mpd_state, const char *playlist, const char *tag, const char *searchstr);
+static bool mpd_client_smartpls_update_sticker(t_mpd_state *mpd_state, const char *playlist, const char *sticker, const int maxentries, const int minvalue);
+static bool mpd_client_smartpls_update_newest(t_mpd_state *mpd_state, const char *playlist, const int timerange);
+
+//public functions
 sds mpd_client_put_playlists(t_config *config, t_mpd_state *mpd_state, sds buffer, sds method, int request_id,
                              const unsigned int offset, const char *filter) 
 {
@@ -360,6 +367,7 @@ bool mpd_client_smartpls_update_all(t_config *config, t_mpd_state *mpd_state) {
         return false;
     }
     sdsfree(dirname);
+    mpd_client_smartpls_per_tag(mpd_state);
     return true;
 }
 
@@ -443,7 +451,46 @@ bool mpd_client_smartpls_update(t_config *config, t_mpd_state *mpd_state, const 
     return rc;
 }
 
-bool mpd_client_smartpls_clear(t_mpd_state *mpd_state, const char *playlist) {
+bool mpd_client_smartpls_per_tag(t_mpd_state *mpd_state) {
+    for (size_t i = 0; i < mpd_state->generate_pls_tag_types.len; i++) {
+        enum mpd_tag_type tag = mpd_state->generate_pls_tag_types.tags[i];
+        if (mpd_search_db_tags(mpd_state->conn, tag) == false) {
+            check_error_and_recover2(mpd_state, NULL, NULL, 0, false);
+            return false;
+        }
+        if (mpd_search_commit(mpd_state->conn) == false) {
+            check_error_and_recover2(mpd_state, NULL, NULL, 0, false);
+            return false;
+        }
+        struct mpd_pair *pair;
+        struct list tag_list;
+        list_init(&tag_list);
+        while ((pair = mpd_recv_pair_tag(mpd_state->conn, tag)) != NULL) {
+            if (strlen(pair->value) > 0) {
+                list_push(&tag_list, pair->value, 0, NULL, NULL);
+            }
+            mpd_return_pair(mpd_state->conn, pair);
+        }
+        mpd_response_finish(mpd_state->conn);
+        if (check_error_and_recover2(mpd_state, NULL, NULL, 0, false) == false) {
+            list_free(&tag_list);
+            return false;
+        }
+        struct node *current = tag_list.head;
+        while (current != NULL) {
+            const char *tagstr = mpd_tag_name(tag);
+            sds playlist = sdscatfmt(sdsempty(), "myMPDsmart-%s-%s", tagstr, current->key);
+            mpd_client_smartpls_update_search(mpd_state, playlist, tagstr, current->key);
+            sdsfree(playlist);
+            current = current->next;
+        }
+        list_free(&tag_list);
+    }
+    return true;
+}
+
+//privat functions
+static bool mpd_client_smartpls_clear(t_mpd_state *mpd_state, const char *playlist) {
     struct mpd_playlist *pl;
     const char *plpath;
     bool exists = false;
@@ -472,7 +519,7 @@ bool mpd_client_smartpls_clear(t_mpd_state *mpd_state, const char *playlist) {
     return true;
 }
 
-bool mpd_client_smartpls_update_search(t_mpd_state *mpd_state, const char *playlist, const char *tag, const char *searchstr) {
+static bool mpd_client_smartpls_update_search(t_mpd_state *mpd_state, const char *playlist, const char *tag, const char *searchstr) {
     sds buffer = sdsempty();
     sds method = sdsempty();
     mpd_client_smartpls_clear(mpd_state, playlist);
@@ -488,7 +535,7 @@ bool mpd_client_smartpls_update_search(t_mpd_state *mpd_state, const char *playl
     return true;
 }
 
-bool mpd_client_smartpls_update_sticker(t_mpd_state *mpd_state, const char *playlist, const char *sticker, const int maxentries, const int minvalue) {
+static bool mpd_client_smartpls_update_sticker(t_mpd_state *mpd_state, const char *playlist, const char *sticker, const int maxentries, const int minvalue) {
 
     if (mpd_send_sticker_find(mpd_state->conn, "song", "", sticker) == false) {
         check_error_and_recover(mpd_state, NULL, NULL, 0);
@@ -558,7 +605,7 @@ bool mpd_client_smartpls_update_sticker(t_mpd_state *mpd_state, const char *play
     return true;
 }
 
-bool mpd_client_smartpls_update_newest(t_mpd_state *mpd_state, const char *playlist, const int timerange) {
+static bool mpd_client_smartpls_update_newest(t_mpd_state *mpd_state, const char *playlist, const int timerange) {
     int value_max = 0;
     
     struct mpd_stats *stats = mpd_run_stats(mpd_state->conn);
@@ -592,3 +639,4 @@ bool mpd_client_smartpls_update_newest(t_mpd_state *mpd_state, const char *playl
     sdsfree(method);
     return true;
 }
+

@@ -25,6 +25,17 @@
 #include "../log.h"
 #include "mpd_client_utility.h"
 
+void enable_all_mpd_tags(t_mpd_state *mpd_state) {
+    #if LIBMPDCLIENT_CHECK_VERSION(2,12,0)
+    if (mpd_connection_cmp_server_version(mpd_state->conn, 0, 21, 0) >= 0) {
+        LOG_VERBOSE("Enabling all mpd tag types");
+        mpd_send_command(mpd_state->conn, "tagtypes", "all", NULL);
+        mpd_response_finish(mpd_state->conn);
+        check_error_and_recover2(mpd_state, NULL, NULL, 0, false);
+    }
+    #endif
+}
+
 void enable_mpd_tags(t_mpd_state *mpd_state, t_tags enable_tags) {
     #if LIBMPDCLIENT_CHECK_VERSION(2,12,0)
     if (mpd_connection_cmp_server_version(mpd_state->conn, 0, 21, 0) >= 0) {
@@ -90,14 +101,16 @@ sds put_empty_song_tags(sds buffer, t_mpd_state *mpd_state, const t_tags *tagcol
 bool check_error_and_recover2(t_mpd_state *mpd_state, sds *buffer, sds method, int request_id, bool notify) {
     if (mpd_connection_get_error(mpd_state->conn) != MPD_ERROR_SUCCESS) {
         LOG_ERROR("MPD error: %s", mpd_connection_get_error_message(mpd_state->conn));
-        if (*buffer != NULL) {
-            if (notify == false) {
-                *buffer = jsonrpc_respond_message(*buffer, method, request_id, mpd_connection_get_error_message(mpd_state->conn), true);
-            }
-            else {
-                *buffer = jsonrpc_start_notify(*buffer, "error");
-                *buffer = tojson_char(*buffer, "message", mpd_connection_get_error_message(mpd_state->conn), false);
-                *buffer = jsonrpc_end_notify(*buffer);
+        if (buffer != NULL) {
+            if (*buffer != NULL) {
+                if (notify == false) {
+                    *buffer = jsonrpc_respond_message(*buffer, method, request_id, mpd_connection_get_error_message(mpd_state->conn), true);
+                }
+                else {
+                    *buffer = jsonrpc_start_notify(*buffer, "error");
+                    *buffer = tojson_char(*buffer, "message", mpd_connection_get_error_message(mpd_state->conn), false);
+                    *buffer = jsonrpc_end_notify(*buffer);
+                }
             }
         }
         mpd_connection_clear_error(mpd_state->conn);
@@ -216,6 +229,7 @@ void default_mpd_state(t_mpd_state *mpd_state) {
     mpd_state->taglist = sdsempty();
     mpd_state->searchtaglist = sdsempty();
     mpd_state->browsetaglist = sdsempty();
+    mpd_state->generate_pls_tags = sdsempty();
     mpd_state->mpd_host = sdsempty();
     mpd_state->mpd_port = 0;
     mpd_state->mpd_pass = sdsempty();
@@ -223,6 +237,7 @@ void default_mpd_state(t_mpd_state *mpd_state) {
     reset_t_tags(&mpd_state->mympd_tag_types);
     reset_t_tags(&mpd_state->search_tag_types);
     reset_t_tags(&mpd_state->browse_tag_types);
+    reset_t_tags(&mpd_state->generate_pls_tag_types);
     //init last played songs list
     list_init(&mpd_state->last_played);
     //jukebox queue
@@ -243,6 +258,7 @@ void free_mpd_state(t_mpd_state *mpd_state) {
     sdsfree(mpd_state->taglist);
     sdsfree(mpd_state->searchtaglist);
     sdsfree(mpd_state->browsetaglist);
+    sdsfree(mpd_state->generate_pls_tags);
     sdsfree(mpd_state->mpd_host);
     sdsfree(mpd_state->mpd_pass);
     list_free(&mpd_state->jukebox_queue);

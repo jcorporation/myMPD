@@ -140,6 +140,9 @@ bool mpd_api_settings_set(t_config *config, t_mpd_state *mpd_state, struct json_
     else if (strncmp(key->ptr, "smartpls", key->len) == 0) {
         mpd_state->smartpls = val->type == JSON_TYPE_TRUE ? true : false;
     }
+    else if (strncmp(key->ptr, "generatePlsTags", key->len) == 0) {
+        mpd_state->generate_pls_tags = sdsreplacelen(mpd_state->generate_pls_tags, settingvalue, sdslen(settingvalue));
+    }
     else if (strncmp(key->ptr, "maxElementsPerPage", key->len) == 0) {
         int max_elements_per_page = strtoimax(settingvalue, &crap, 10);
         if (max_elements_per_page <= 0 || max_elements_per_page > 999) {
@@ -268,6 +271,8 @@ sds mpd_client_put_settings(t_mpd_state *mpd_state, sds buffer, sds method, int 
     buffer = print_tags_array(buffer, "browsetags", mpd_state->browse_tag_types);
     buffer = sdscat(buffer, ",");
     buffer = print_tags_array(buffer, "allmpdtags", mpd_state->mpd_tag_types);
+    buffer = sdscat(buffer, ",");
+    buffer = print_tags_array(buffer, "generatePlsTags", mpd_state->generate_pls_tag_types);
 
     buffer = jsonrpc_end_result(buffer);
     
