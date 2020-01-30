@@ -179,7 +179,7 @@ sds mpd_client_playlist_delete(t_config *config, t_mpd_state *mpd_state, sds buf
         return buffer;
     }
     //remove smart playlist
-    if (mpd_state->feat_smartpls == false) {
+    if (mpd_state->feat_smartpls == true) {
         sds pl_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->varlibdir, playlist);
         int rc = unlink(pl_file);
         sdsfree(pl_file);
