@@ -1145,3 +1145,21 @@ Systembefehl
 
 LastModified
 Zuletzt geändert
+
+Best rated
+Am besten bewertet
+
+Most played
+Am öftesten gespielt
+
+Newest songs
+Neueste Lieder
+
+Add smart playlist
+Neue intelligente Wiedergabeliste
+
+Generate smart playlist per
+Erstelle intelligente Wiergabeliste für
+
+Min. value
+Min. Wert

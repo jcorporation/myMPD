@@ -414,9 +414,6 @@ Can't access music directory
 Invalid size
 잘못된 크기
 
-Solid color
-꽉 찬 색상
-
 Invalid color
 잘못된 색상
 
