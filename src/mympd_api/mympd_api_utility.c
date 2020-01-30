@@ -43,6 +43,7 @@ void mympd_api_push_to_mpd_client(t_mympd_state *mympd_state) {
     request->data = tojson_char(request->data, "browsetaglist", mympd_state->browsetaglist, true);
     request->data = tojson_bool(request->data, "stickers", mympd_state->stickers, true);
     request->data = tojson_bool(request->data, "smartpls", mympd_state->smartpls, true);
+    request->data = tojson_char(request->data, "generatePlsTags", mympd_state->generate_pls_tags, true);
     request->data = tojson_char(request->data, "mpdHost", mympd_state->mpd_host, true);
     request->data = tojson_char(request->data, "mpdPass", mympd_state->mpd_pass, true);
     request->data = tojson_long(request->data, "mpdPort", mympd_state->mpd_port, true);
@@ -60,6 +61,7 @@ void free_mympd_state(t_mympd_state *mympd_state) {
     sdsfree(mympd_state->taglist);
     sdsfree(mympd_state->searchtaglist);
     sdsfree(mympd_state->browsetaglist);
+    sdsfree(mympd_state->generate_pls_tags);
     sdsfree(mympd_state->love_channel);
     sdsfree(mympd_state->love_message);
     sdsfree(mympd_state->jukebox_playlist);
