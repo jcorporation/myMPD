@@ -22,5 +22,4 @@ bool mpd_client_smartpls_save(t_config *config, t_mpd_state *mpd_state, const ch
 
 bool mpd_client_smartpls_update_all(t_config *config, t_mpd_state *mpd_state);
 bool mpd_client_smartpls_update(t_config *config, t_mpd_state *mpd_state, const char *playlist);
-bool mpd_client_smartpls_per_tag(t_mpd_state *mpd_state);
 #endif

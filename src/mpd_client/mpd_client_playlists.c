@@ -27,6 +27,7 @@
 #include "mpd_client_playlists.h"
 
 //private definitions
+static bool mpd_client_smartpls_per_tag(t_config *mpd_config, t_mpd_state *mpd_state);
 static bool mpd_client_smartpls_clear(t_mpd_state *mpd_state, const char *playlist);
 static bool mpd_client_smartpls_update_search(t_mpd_state *mpd_state, const char *playlist, const char *tag, const char *searchstr);
 static bool mpd_client_smartpls_update_sticker(t_mpd_state *mpd_state, const char *playlist, const char *sticker, const int maxentries, const int minvalue);
@@ -348,6 +349,8 @@ bool mpd_client_smartpls_update_all(t_config *config, t_mpd_state *mpd_state) {
         return true;
     }
     
+    mpd_client_smartpls_per_tag(config, mpd_state);
+    
     sds dirname = sdscatfmt(sdsempty(), "%s/smartpls", config->varlibdir);
     DIR *dir = opendir (dirname);
     if (dir != NULL) {
@@ -367,7 +370,6 @@ bool mpd_client_smartpls_update_all(t_config *config, t_mpd_state *mpd_state) {
         return false;
     }
     sdsfree(dirname);
-    mpd_client_smartpls_per_tag(mpd_state);
     return true;
 }
 
@@ -451,7 +453,8 @@ bool mpd_client_smartpls_update(t_config *config, t_mpd_state *mpd_state, const 
     return rc;
 }
 
-bool mpd_client_smartpls_per_tag(t_mpd_state *mpd_state) {
+//private functions
+static bool mpd_client_smartpls_per_tag(t_config *config, t_mpd_state *mpd_state) {
     for (size_t i = 0; i < mpd_state->generate_pls_tag_types.len; i++) {
         enum mpd_tag_type tag = mpd_state->generate_pls_tag_types.tags[i];
         if (mpd_search_db_tags(mpd_state->conn, tag) == false) {
@@ -480,8 +483,13 @@ bool mpd_client_smartpls_per_tag(t_mpd_state *mpd_state) {
         while (current != NULL) {
             const char *tagstr = mpd_tag_name(tag);
             sds playlist = sdscatfmt(sdsempty(), "myMPDsmart-%s-%s", tagstr, current->key);
-            mpd_client_smartpls_update_search(mpd_state, playlist, tagstr, current->key);
+            sds plpath = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->varlibdir, playlist);
+            if (access(plpath, F_OK) == -1) {
+                LOG_VERBOSE("Created smart playlist %s", playlist);
+                mpd_client_smartpls_save(config, mpd_state, "search", playlist, tagstr, current->key, 0, 0);
+            }
             sdsfree(playlist);
+            sdsfree(plpath);
             current = current->next;
         }
         list_free(&tag_list);
@@ -489,7 +497,6 @@ bool mpd_client_smartpls_per_tag(t_mpd_state *mpd_state) {
     return true;
 }
 
-//privat functions
 static bool mpd_client_smartpls_clear(t_mpd_state *mpd_state, const char *playlist) {
     struct mpd_playlist *pl;
     const char *plpath;
