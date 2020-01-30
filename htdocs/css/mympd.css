@@ -335,6 +335,11 @@ a.card-img-left {
   margin-left: -1em;
 }
 
+.btn-sm-big-icon {
+  font-size: 1.4rem !important;
+  padding: 0.05rem 0.25rem !important;
+}
+
 .color-darkgrey, .color-darkgrey:hover {
   color: #6c757d !important;
 }
@@ -652,4 +657,8 @@ div#playDropdown .row {
 
 #dropdownAddSmartpls {
   white-space: nowrap;
+}
+
+.playback-toolbar {
+  margin-top: -0.25rem;
 }

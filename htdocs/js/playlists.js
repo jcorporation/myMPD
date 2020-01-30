@@ -304,6 +304,13 @@ function addSmartpls(type) {
     parseSmartPlaylist(obj);
 }
 
+function showAddToPlaylistCurrentSong() {
+    let uri = document.getElementById('currentTitle').getAttribute('data-uri');
+    if (uri !== '') {
+        showAddToPlaylist(uri, '');
+    }
+}
+
 function showAddToPlaylist(uri, search) {
     document.getElementById('addToPlaylistUri').value = uri;
     document.getElementById('addToPlaylistSearch').value = search;
@@ -322,7 +329,8 @@ function showAddToPlaylist(uri, search) {
         document.getElementById('addToPlaylistFooter').classList.remove('hide');
         document.getElementById('addToPlaylistFrm').classList.remove('hide');
         document.getElementById('addToPlaylistCaption').innerText = t('Add to playlist');
-    } else {
+    }
+    else {
         document.getElementById('addStreamFooter').classList.remove('hide');
         document.getElementById('addStreamFrm').classList.remove('hide');
         document.getElementById('addToPlaylistFooter').classList.add('hide');
