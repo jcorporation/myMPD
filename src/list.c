@@ -166,6 +166,35 @@ bool list_sort_by_value_i(struct list *l, bool order) {
     return true;
 }
 
+bool list_sort_by_key(struct list *l, bool order) {
+    int swapped; 
+    struct node *ptr1; 
+    struct node *lptr = NULL; 
+  
+    if (l->head == NULL) 
+        return false;
+  
+    do { 
+        swapped = 0; 
+        ptr1 = l->head;
+  
+        while (ptr1->next != lptr)  { 
+            if (order == true && strcmp(ptr1->key,ptr1->next->key) > 0) {  
+                list_swap_item(ptr1, ptr1->next); 
+                swapped = 1; 
+            } 
+            else if (order == false && strcmp(ptr1->key, ptr1->next->key) < 0) {  
+                list_swap_item(ptr1, ptr1->next); 
+                swapped = 1; 
+            } 
+            ptr1 = ptr1->next; 
+        } 
+        lptr = ptr1; 
+    } 
+    while (swapped);
+    return true;
+}
+
 bool list_replace(struct list *l, int pos, const char *key, long value_i, const char *value_p, void *user_data) {
     if (pos >= l->length) {
         return false;
