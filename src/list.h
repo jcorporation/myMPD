@@ -33,6 +33,7 @@ void *list_get_user_data(const struct list *l, const char *key);
 struct node *list_get_node(const struct list *l, const char *key);
 bool list_shuffle(struct list *l);
 bool list_sort_by_value_i(struct list *l, bool order);
+bool list_sort_by_value_p(struct list *l, bool order);
 bool list_sort_by_key(struct list *l, bool order);
 bool list_swap_item(struct node *n1, struct node *n2);
 struct node *list_node_at(const struct list * l, unsigned index);
