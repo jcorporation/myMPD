@@ -344,7 +344,12 @@ sds mpd_client_smartpls_put(t_config *config, sds buffer, sds method, int reques
         }
         if (rc == true) {
             je = json_scanf(content, strlen(content), "{sort: %Q}", &p_charbuf1);
-            buffer = tojson_char(buffer, "sort", p_charbuf1, true);
+            if (je == 1) {
+                buffer = tojson_char(buffer, "sort", p_charbuf1, true);
+            }
+            else {
+                buffer = tojson_char(buffer, "sort", "", true);
+            }
             FREE_PTR(p_charbuf1);            
             buffer = jsonrpc_end_result(buffer);
         }
