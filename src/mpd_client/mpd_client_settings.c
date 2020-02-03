@@ -146,6 +146,9 @@ bool mpd_api_settings_set(t_config *config, t_mpd_state *mpd_state, struct json_
     else if (strncmp(key->ptr, "smartplsPrefix", key->len) == 0) {
         mpd_state->smartpls_prefix = sdsreplacelen(mpd_state->smartpls_prefix, settingvalue, sdslen(settingvalue));
     }
+    else if (strncmp(key->ptr, "smartplsInterval", key->len) == 0) {
+        mpd_state->smartpls_interval = strtoumax(settingvalue, &crap, 10);
+    }
     else if (strncmp(key->ptr, "generatePlsTags", key->len) == 0) {
         mpd_state->generate_pls_tags = sdsreplacelen(mpd_state->generate_pls_tags, settingvalue, sdslen(settingvalue));
     }

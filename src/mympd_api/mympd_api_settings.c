@@ -23,6 +23,8 @@
 #include "config_defs.h"
 #include "../utility.h"
 #include "mympd_api_utility.h"
+#include "mympd_api_timer.h"
+#include "mympd_api_timer_handlers.h"
 #include "mympd_api_settings.h"
 
 void mympd_api_settings_delete(t_config *config) {
@@ -277,7 +279,11 @@ bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state, struct
         settingname = sdscat(settingname, "smartpls_prefix");
     }
     else if (strncmp(key->ptr, "smartplsInterval", key->len) == 0) {
-        mympd_state->smartpls_interval = strtoumax(settingvalue, &crap, 10);
+        time_t interval = strtoumax(settingvalue, &crap, 10);
+        if (interval != mympd_state->smartpls_interval) {
+            mympd_state->smartpls_interval = interval;
+            replace_timer(&mympd_state->timer_list, interval, interval, timer_handler_smartpls_update, 2, NULL, NULL);
+        }
         settingname = sdscat(settingname, "smartpls_interval");
     }
     else if (strncmp(key->ptr, "generatePlsTags", key->len) == 0) {

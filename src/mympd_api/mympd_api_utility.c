@@ -45,6 +45,7 @@ void mympd_api_push_to_mpd_client(t_mympd_state *mympd_state) {
     request->data = tojson_bool(request->data, "smartpls", mympd_state->smartpls, true);
     request->data = tojson_char(request->data, "smartplsSort", mympd_state->smartpls_sort, true);
     request->data = tojson_char(request->data, "smartplsPrefix", mympd_state->smartpls_prefix, true);
+    request->data = tojson_long(request->data, "smartplsInterval", mympd_state->smartpls_interval, true);
     request->data = tojson_char(request->data, "generatePlsTags", mympd_state->generate_pls_tags, true);
     request->data = tojson_char(request->data, "mpdHost", mympd_state->mpd_host, true);
     request->data = tojson_char(request->data, "mpdPass", mympd_state->mpd_pass, true);

@@ -269,7 +269,7 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
                 sticker_cache_init(config, mpd_state);
             }
             //set timer for smart playlist update
-            mpd_client_set_timer(MYMPD_API_TIMER_SET, "MYMPD_API_TIMER_SET", 10, 0, "timer_handler_smartpls_update");
+            mpd_client_set_timer(MYMPD_API_TIMER_SET, "MYMPD_API_TIMER_SET", 10, mpd_state->smartpls_interval, "timer_handler_smartpls_update");
             //jukebox
             if (mpd_state->jukebox_mode != JUKEBOX_OFF) {
                 mpd_client_jukebox(config, mpd_state);

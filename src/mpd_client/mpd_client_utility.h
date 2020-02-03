@@ -83,6 +83,7 @@ typedef struct t_mpd_state {
     bool smartpls;
     sds smartpls_sort;
     sds smartpls_prefix;
+    time_t smartpls_interval;
     sds mpd_host;
     int mpd_port;
     sds mpd_pass;

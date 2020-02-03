@@ -237,6 +237,7 @@ void default_mpd_state(t_mpd_state *mpd_state) {
     mpd_state->mpd_pass = sdsempty();
     mpd_state->smartpls_sort = sdsempty();
     mpd_state->smartpls_prefix = sdsempty();
+    mpd_state->smartpls_interval = 14400;
     reset_t_tags(&mpd_state->mpd_tag_types);
     reset_t_tags(&mpd_state->mympd_tag_types);
     reset_t_tags(&mpd_state->search_tag_types);
