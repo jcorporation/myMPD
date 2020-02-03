@@ -37,20 +37,52 @@ static bool smartpls_init(t_config *config, const char *name, const char *value)
 //global functions
 bool smartpls_default(t_config *config) {
     bool rc = true;
+    char *line = NULL;
+    size_t n = 0;
+    ssize_t read;
+
+    sds prefix = sdsempty();
+    sds prefix_file = sdscatfmt(sdsempty(), "%s/state/smartpls_prefix", config->varlibdir);
+    FILE *fp = fopen(prefix_file, "r");
+    sdsfree(prefix_file);
+    if (fp != NULL) {
+        read = getline(&line, &n, fp);
+        if (read > 0) {
+            prefix = sdscat(prefix, line);
+            FREE_PTR(line);
+        }
+        fclose(fp);
+    }
+    else {
+        prefix = sdscat(prefix, "myMPDsmart");
+    }
     
-    rc = smartpls_init(config, "myMPDsmart-bestRated", 
+    sds smartpls_file = sdscatfmt(sdsempty(), "%s%sbestRated", prefix, (sdslen(prefix) > 0 ? "-" : ""));
+    rc = smartpls_init(config, smartpls_file, 
         "{\"type\": \"sticker\", \"sticker\": \"like\", \"maxentries\": 200, \"minvalue\": 2, \"sort\": \"\"}\n");
     if (rc == false) {
+        sdsfree(smartpls_file);
+        sdsfree(prefix);
         return rc;
     }
-    rc = smartpls_init(config, "myMPDsmart-mostPlayed", 
+    
+    sdscrop(smartpls_file);
+    smartpls_file = sdscatfmt(smartpls_file, "%s%smostPlayed", prefix, (sdslen(prefix) > 0 ? "-" : ""));
+    rc = smartpls_init(config, smartpls_file, 
         "{\"type\": \"sticker\", \"sticker\": \"playCount\", \"maxentries\": 200, \"minvalue\": 0, \"sort\": \"\"}\n");
     if (rc == false) {
+        sdsfree(smartpls_file);
+        sdsfree(prefix);
         return rc;
     }
-    rc = smartpls_init(config, "myMPDsmart-newestSongs", 
+    
+    sdscrop(smartpls_file);
+    smartpls_file = sdscatfmt(smartpls_file, "%s%snewestSongs", prefix, (sdslen(prefix) > 0 ? "-" : ""));
+    rc = smartpls_init(config, smartpls_file, 
         "{\"type\": \"newest\", \"timerange\": 604800, \"sort\": \"\"}\n");
-
+    sdsfree(smartpls_file);
+    sdsfree(prefix);
+    
     return rc;
 }
 
