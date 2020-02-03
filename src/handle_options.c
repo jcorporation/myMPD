@@ -59,7 +59,7 @@ bool smartpls_default(t_config *config) {
     
     sds smartpls_file = sdscatfmt(sdsempty(), "%s%sbestRated", prefix, (sdslen(prefix) > 0 ? "-" : ""));
     rc = smartpls_init(config, smartpls_file, 
-        "{\"type\": \"sticker\", \"sticker\": \"like\", \"maxentries\": 200, \"minvalue\": 2, \"sort\": \"\"}\n");
+        "{\"type\": \"sticker\", \"sticker\": \"like\", \"maxentries\": 200, \"minvalue\": 2, \"sort\": \"\"}");
     if (rc == false) {
         sdsfree(smartpls_file);
         sdsfree(prefix);
@@ -69,7 +69,7 @@ bool smartpls_default(t_config *config) {
     sdscrop(smartpls_file);
     smartpls_file = sdscatfmt(smartpls_file, "%s%smostPlayed", prefix, (sdslen(prefix) > 0 ? "-" : ""));
     rc = smartpls_init(config, smartpls_file, 
-        "{\"type\": \"sticker\", \"sticker\": \"playCount\", \"maxentries\": 200, \"minvalue\": 0, \"sort\": \"\"}\n");
+        "{\"type\": \"sticker\", \"sticker\": \"playCount\", \"maxentries\": 200, \"minvalue\": 0, \"sort\": \"\"}");
     if (rc == false) {
         sdsfree(smartpls_file);
         sdsfree(prefix);
@@ -79,7 +79,7 @@ bool smartpls_default(t_config *config) {
     sdscrop(smartpls_file);
     smartpls_file = sdscatfmt(smartpls_file, "%s%snewestSongs", prefix, (sdslen(prefix) > 0 ? "-" : ""));
     rc = smartpls_init(config, smartpls_file, 
-        "{\"type\": \"newest\", \"timerange\": 604800, \"sort\": \"\"}\n");
+        "{\"type\": \"newest\", \"timerange\": 604800, \"sort\": \"\"}");
     sdsfree(smartpls_file);
     sdsfree(prefix);
     
