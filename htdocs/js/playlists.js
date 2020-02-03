@@ -293,7 +293,7 @@ function saveSmartPlaylist() {
 }
 
 function addSmartpls(type) {
-    var obj = {"jsonrpc":"2.0", "id":0, "result": {"method":"MPD_API_SMARTPLS_GET"}};
+    let obj = {"jsonrpc":"2.0", "id":0, "result": {"method":"MPD_API_SMARTPLS_GET"}};
     if (type === 'mostPlayed') {
         obj.result.playlist = settings.smartplsPrefix + (settings.smartplsPrefix !== '' ? '-' : '') + 'mostPlayed';
         obj.result.type = 'sticker';
@@ -314,6 +314,16 @@ function addSmartpls(type) {
         obj.result.minvalue = 2;
     }
     parseSmartPlaylist(obj);
+}
+
+function deletePlaylists() {
+    let selectDeletePlaylists = document.getElementById('selectDeletePlaylists');
+    let btnDeltePlaylists = document.getElementById('btnDeletePlaylists');
+    btnWaiting(btnDeletePlaylists, true);
+    sendAPI("MPD_API_PLAYLIST_RM_ALL", {"type": selectDeletePlaylists.options[selectDeletePlaylists.selectedIndex].value}, function() {
+        let btnDeltePlaylists = document.getElementById('btnDeletePlaylists');
+        btnWaiting(btnDeletePlaylists, false);
+    });
 }
 
 function showAddToPlaylistCurrentSong() {

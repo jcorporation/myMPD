@@ -192,6 +192,21 @@ function focusSearch() {
     }
 }
 
+function btnWaiting(btn, waiting) {
+    if (waiting == true) {
+        let spinner = document.createElement('span');
+        spinner.classList.add('spinner-border', 'spinner-border-sm', 'mr-2');
+        btn.insertBefore(spinner, btn.firstChild);
+        btn.setAttribute('disabled', 'disabled');
+    }
+    else {
+        btn.removeAttribute('disabled');
+        if (btn.firstChild.nodeName === 'SPAN') {
+            btn.firstChild.remove();
+        }
+    }
+}
+
 function toggleBtnGroupValue(btngrp, value) {
     let btns = btngrp.getElementsByTagName('button');
     for (let i = 0; i < btns.length; i++) {
