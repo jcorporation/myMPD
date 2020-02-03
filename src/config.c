@@ -96,6 +96,15 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("mympd", "smartpls")) {
         p_config->smartpls =  strtobool(value);
     }
+    else if (MATCH("mympd", "smartplssort")) {
+        p_config->smartpls_sort =  sdsreplace(p_config->smartpls_sort, value);
+    }
+    else if (MATCH("mympd", "smartplsprefix")) {
+        p_config->smartpls_prefix =  sdsreplace(p_config->smartpls_prefix, value);
+    }
+    else if (MATCH("mympd", "smartplsinterval")) {
+        p_config->smartpls_interval =  strtoumax(value, &crap, 10);
+    }
     else if (MATCH("mympd", "generateplstags")) {
         p_config->generate_pls_tags =  sdsreplace(p_config->generate_pls_tags, value);
     }
@@ -284,6 +293,7 @@ static void mympd_get_env(struct t_config *config) {
       #endif
         "MYMPD_LOGLEVEL", "MYMPD_USER", "MYMPD_VARLIBDIR", "MYMPD_MIXRAMP", "MYMPD_STICKERS", 
         "MYMPD_STICKERCACHE", "MYMPD_TAGLIST", "MYMPD_GENERATE_PLS_TAGS",
+        "MYMPD_SMARTPLSSORT", "MYMPD_SMARTPLSPREFIX", "MYMPD_SMARTPLSINTERVAL",
         "MYMPD_SEARCHTAGLIST", "MYMPD_BROWSETAGLIST", "MYMPD_SMARTPLS", "MYMPD_SYSCMDS", 
         "MYMPD_PAGINATION", "MYMPD_LASTPLAYEDCOUNT", "MYMPD_LOVE", "MYMPD_LOVECHANNEL", "MYMPD_LOVEMESSAGE",
         "MYMPD_NOTIFICATIONWEB", "MYMPD_CHROOT", "MYMPD_READONLY", "MYMPD_TIMER",
@@ -341,6 +351,8 @@ void mympd_free_config(t_config *config) {
     sdsfree(config->theme);
     sdsfree(config->highlight_color);
     sdsfree(config->generate_pls_tags);
+    sdsfree(config->smartpls_sort);
+    sdsfree(config->smartpls_prefix);
     list_free(&config->syscmd_list);
     FREE_PTR(config);
 }
@@ -367,6 +379,9 @@ void mympd_config_defaults(t_config *config) {
     config->searchtaglist = sdsnew("Artist,Album,AlbumArtist,Title,Genre,Composer,Performer");
     config->browsetaglist = sdsnew("Artist,Album,AlbumArtist,Genre,Composer,Performer");
     config->smartpls = true;
+    config->smartpls_sort = sdsempty();
+    config->smartpls_prefix = sdsnew("myMPDsmart");
+    config->smartpls_interval = 1440;
     config->generate_pls_tags = sdsnew("Genre");
     config->max_elements_per_page = 100;
     config->last_played_count = 20;
@@ -473,6 +488,9 @@ bool mympd_dump_config(void) {
         "stickers = %s\n"
         "stickercache = %s\n"
         "smartpls = %s\n"
+        "smartplssort = %s\n"
+        "smartplsprefix = %s\n"
+        "smartplsinterval = %ld\n"
         "generateplstags = %s\n"
         "mixramp = %s\n"
         "taglist = %s\n"
@@ -516,6 +534,9 @@ bool mympd_dump_config(void) {
         (p_config->stickers == true ? "true" : "false"),
         (p_config->sticker_cache == true ? "true" : "false"),
         (p_config->smartpls == true ? "true" : "false"),
+        p_config->smartpls_sort,
+        p_config->smartpls_prefix,
+        p_config->smartpls_interval,
         p_config->generate_pls_tags,
         (p_config->mixramp == true ? "true" : "false"),
         p_config->taglist,

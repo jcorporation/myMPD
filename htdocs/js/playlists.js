@@ -10,16 +10,16 @@ function parsePlaylists(obj) {
         document.getElementById('BrowsePlaylistsAllList').classList.remove('hide');
         document.getElementById('BrowsePlaylistsDetailList').classList.add('hide');
         document.getElementById('btnBrowsePlaylistsAll').parentNode.classList.add('hide');
-        document.getElementById('btnPlaylistClear').parentNode.classList.add('hide');
+        document.getElementById('playlistContentBtns').classList.add('hide');
         document.getElementById('btnAddSmartpls').parentNode.classList.remove('hide');
     } else {
         if (obj.result.uri.indexOf('.') > -1 || obj.result.smartpls === true) {
             document.getElementById('BrowsePlaylistsDetailList').setAttribute('data-ro', 'true')
-            document.getElementById('btnPlaylistClear').parentNode.classList.add('hide');
+            document.getElementById('playlistContentBtns').classList.add('hide');
         }
         else {
             document.getElementById('BrowsePlaylistsDetailList').setAttribute('data-ro', 'false');
-            document.getElementById('btnPlaylistClear').parentNode.classList.remove('hide');
+            document.getElementById('playlistContentBtns').classList.remove('hide');
         }
         document.getElementById('BrowsePlaylistsDetailList').setAttribute('data-uri', obj.result.uri);
         document.getElementById('BrowsePlaylistsDetailList').getElementsByTagName('caption')[0].innerHTML = 
@@ -122,6 +122,18 @@ function playlistDetails(uri) {
 function playlistClear() {
     let uri = document.getElementById('BrowsePlaylistsDetailList').getAttribute('data-uri');
     sendAPI("MPD_API_PLAYLIST_CLEAR", {"uri": uri});
+    document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
+}
+
+function playlistShuffle() {
+    let uri = document.getElementById('BrowsePlaylistsDetailList').getAttribute('data-uri');
+    sendAPI("MPD_API_PLAYLIST_SHUFFLE", {"uri": uri});
+    document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
+}
+
+function playlistSort(tag) {
+    let uri = document.getElementById('BrowsePlaylistsDetailList').getAttribute('data-uri');
+    sendAPI("MPD_API_PLAYLIST_SORT", {"uri": uri, "tag": tag});
     document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
 }
 

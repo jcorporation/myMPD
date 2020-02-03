@@ -969,6 +969,14 @@ function appInit() {
         }
     }, false);
 
+    document.getElementById('dropdownSortPlaylistTags').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'BUTTON') {
+            event.preventDefault();
+            event.stopPropagation();
+            playlistSort(event.target.getAttribute('data-tag'));
+        }
+    }, false);
+
     document.getElementById('searchqueuestr').addEventListener('keyup', function(event) {
         if (event.key === 'Escape') {
             this.blur();

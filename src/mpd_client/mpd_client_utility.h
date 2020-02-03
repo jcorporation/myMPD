@@ -81,6 +81,8 @@ typedef struct t_mpd_state {
     sds generate_pls_tags;
     bool stickers;
     bool smartpls;
+    sds smartpls_sort;
+    sds smartpls_prefix;
     sds mpd_host;
     int mpd_port;
     sds mpd_pass;

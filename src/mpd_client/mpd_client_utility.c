@@ -115,6 +115,8 @@ bool check_error_and_recover2(t_mpd_state *mpd_state, sds *buffer, sds method, i
         }
         mpd_connection_clear_error(mpd_state->conn);
         mpd_response_finish(mpd_state->conn);
+        //enable default mpd tags after cleaning error
+        enable_mpd_tags(mpd_state, mpd_state->mympd_tag_types);
         return false;
     }
     return true;
@@ -233,6 +235,8 @@ void default_mpd_state(t_mpd_state *mpd_state) {
     mpd_state->mpd_host = sdsempty();
     mpd_state->mpd_port = 0;
     mpd_state->mpd_pass = sdsempty();
+    mpd_state->smartpls_sort = sdsempty();
+    mpd_state->smartpls_prefix = sdsempty();
     reset_t_tags(&mpd_state->mpd_tag_types);
     reset_t_tags(&mpd_state->mympd_tag_types);
     reset_t_tags(&mpd_state->search_tag_types);
@@ -261,6 +265,8 @@ void free_mpd_state(t_mpd_state *mpd_state) {
     sdsfree(mpd_state->generate_pls_tags);
     sdsfree(mpd_state->mpd_host);
     sdsfree(mpd_state->mpd_pass);
+    sdsfree(mpd_state->smartpls_sort);
+    sdsfree(mpd_state->smartpls_prefix);
     list_free(&mpd_state->jukebox_queue);
     list_free(&mpd_state->jukebox_queue_tmp);
     free(mpd_state);

@@ -32,7 +32,7 @@ void mympd_api_settings_delete(t_config *config) {
     const char* state_files[]={"auto_play", "bg_color", "bg_cover", "bg_css_filter", "browsetaglist", "cols_browse_database",
         "cols_browse_filesystem", "cols_browse_playlists_detail", "cols_playback", "cols_queue_current", "cols_queue_last_played",
         "cols_search", "coverimage", "coverimage_name", "coverimage_size", "jukebox_mode", "jukebox_playlist", "jukebox_queue_length",
-        "jukebox_unique_tag", "jukebox_last_played", "generate_pls_tags",
+        "jukebox_unique_tag", "jukebox_last_played", "generate_pls_tags", "smartpls_sort", "smartpls_prefix", "smartpls_interval",
         "last_played", "last_played_count", "locale", "localplayer", "localplayer_autoplay", "love", "love_channel", "love_message",
         "max_elements_per_page",  "mpd_host", "mpd_pass", "mpd_port", "notification_page", "notification_web", "searchtaglist",
         "smartpls", "stickers", "stream_port", "stream_url", "taglist", "music_directory", "bookmarks", "bookmark_list", "covergrid_size", 
@@ -268,6 +268,18 @@ bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state, struct
         }
         settingname = sdscat(settingname, "smartpls");
     }
+    else if (strncmp(key->ptr, "smartplsSort", key->len) == 0) {
+        mympd_state->smartpls_sort = sdsreplacelen(mympd_state->smartpls_sort, settingvalue, sdslen(settingvalue));
+        settingname = sdscat(settingname, "smartpls_sort");
+    }
+    else if (strncmp(key->ptr, "smartplsPrefix", key->len) == 0) {
+        mympd_state->smartpls_prefix = sdsreplacelen(mympd_state->smartpls_prefix, settingvalue, sdslen(settingvalue));
+        settingname = sdscat(settingname, "smartpls_prefix");
+    }
+    else if (strncmp(key->ptr, "smartplsInterval", key->len) == 0) {
+        mympd_state->smartpls_interval = strtoumax(settingvalue, &crap, 10);
+        settingname = sdscat(settingname, "smartpls_interval");
+    }
     else if (strncmp(key->ptr, "generatePlsTags", key->len) == 0) {
         mympd_state->generate_pls_tags = sdsreplacelen(mympd_state->generate_pls_tags, settingvalue, sdslen(settingvalue));
         settingname = sdscat(settingname, "generate_pls_tags");
@@ -342,6 +354,9 @@ void mympd_api_read_statefiles(t_config *config, t_mympd_state *mympd_state) {
     mympd_state->searchtaglist = state_file_rw_string(config, "searchtaglist", config->searchtaglist, false);
     mympd_state->browsetaglist = state_file_rw_string(config, "browsetaglist", config->browsetaglist, false);
     mympd_state->smartpls = state_file_rw_bool(config, "smartpls", config->smartpls, false);
+    mympd_state->smartpls_sort = state_file_rw_string(config, "smartpls_sort", config->smartpls_sort, false);
+    mympd_state->smartpls_prefix = state_file_rw_string(config, "smartpls_prefix", config->smartpls_prefix, false);
+    mympd_state->smartpls_interval = state_file_rw_int(config, "smartpls_interval", config->smartpls_interval, false);
     mympd_state->generate_pls_tags = state_file_rw_string(config, "generate_pls_tags", config->generate_pls_tags, false);
     mympd_state->max_elements_per_page = state_file_rw_int(config, "max_elements_per_page", config->max_elements_per_page, false);
     mympd_state->last_played_count = state_file_rw_int(config, "last_played_count", config->last_played_count, false);
@@ -515,6 +530,9 @@ sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buf
     buffer = tojson_bool(buffer, "localplayerAutoplay", mympd_state->localplayer_autoplay, true);
     buffer = tojson_bool(buffer, "stickers", mympd_state->stickers, true);
     buffer = tojson_bool(buffer, "smartpls", mympd_state->smartpls, true);
+    buffer = tojson_char(buffer, "smartplsSort", mympd_state->smartpls_sort, true);
+    buffer = tojson_char(buffer, "smartplsPrefix", mympd_state->smartpls_prefix, true);
+    buffer = tojson_long(buffer, "smartplsInterval", mympd_state->smartpls_interval, true);
     buffer = tojson_long(buffer, "lastPlayedCount", mympd_state->last_played_count, true);
     buffer = tojson_bool(buffer, "love", mympd_state->love, true);
     buffer = tojson_char(buffer, "loveChannel", mympd_state->love_channel, true);

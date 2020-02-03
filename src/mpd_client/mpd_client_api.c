@@ -45,6 +45,7 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
     char *p_charbuf2 = NULL;
     char *p_charbuf3 = NULL;
     char *p_charbuf4 = NULL;
+    char *p_charbuf5 = NULL;
 
     LOG_VERBOSE("MPD CLIENT API request (%d)(%d) %s: %s", request->conn_id, request->id, request->method, request->data);
     //create response struct
@@ -163,21 +164,21 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
             rc = false;
             if (je == 1) {
                 if (strcmp(p_charbuf1, "sticker") == 0) {
-                    je = json_scanf(request->data, sdslen(request->data), "{params: {playlist: %Q, sticker: %Q, maxentries: %d, minvalue: %d}}", &p_charbuf2, &p_charbuf3, &int_buf1, &int_buf2);
+                    je = json_scanf(request->data, sdslen(request->data), "{params: {playlist: %Q, sticker: %Q, maxentries: %d, minvalue: %d, sort: %Q}}", &p_charbuf2, &p_charbuf3, &int_buf1, &int_buf2, &p_charbuf5);
                     if (je == 4) {
-                        rc = mpd_client_smartpls_save(config, mpd_state, p_charbuf1, p_charbuf2, p_charbuf3, NULL, int_buf1, int_buf2);
+                        rc = mpd_client_smartpls_save(config, mpd_state, p_charbuf1, p_charbuf2, p_charbuf3, NULL, int_buf1, int_buf2, p_charbuf5);
                     }
                 }
                 else if (strcmp(p_charbuf1, "newest") == 0) {
-                    je = json_scanf(request->data, sdslen(request->data), "{params: {playlist: %Q, timerange: %d}}", &p_charbuf2, &int_buf1);
+                    je = json_scanf(request->data, sdslen(request->data), "{params: {playlist: %Q, timerange: %d, sort: %Q}}", &p_charbuf2, &int_buf1, &p_charbuf5);
                     if (je == 2) {
-                        rc = mpd_client_smartpls_save(config, mpd_state, p_charbuf1, p_charbuf2, NULL, NULL, 0, int_buf1);
+                        rc = mpd_client_smartpls_save(config, mpd_state, p_charbuf1, p_charbuf2, NULL, NULL, 0, int_buf1, p_charbuf5);
                     }
                 }            
                 else if (strcmp(p_charbuf1, "search") == 0) {
-                    je = json_scanf(request->data, sdslen(request->data), "{params: {playlist: %Q, tag: %Q, searchstr: %Q}}", &p_charbuf2, &p_charbuf3, &p_charbuf4);
+                    je = json_scanf(request->data, sdslen(request->data), "{params: {playlist: %Q, tag: %Q, searchstr: %Q, sort: %Q}}", &p_charbuf2, &p_charbuf3, &p_charbuf4, &p_charbuf5);
                     if (je == 3) {
-                        rc = mpd_client_smartpls_save(config, mpd_state, p_charbuf1, p_charbuf2, p_charbuf3, p_charbuf4, 0, 0);
+                        rc = mpd_client_smartpls_save(config, mpd_state, p_charbuf1, p_charbuf2, p_charbuf3, p_charbuf4, 0, 0, p_charbuf5);
                     }
                 }
             }
@@ -419,6 +420,18 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
                 response->data = respond_with_mpd_error_or_ok(mpd_state, response->data, request->method, request->id);
             }
             break;
+        case MPD_API_PLAYLIST_SHUFFLE:
+            je = json_scanf(request->data, sdslen(request->data), "{params: {uri: %Q}}", &p_charbuf1);
+            if (je == 1) {
+                response->data = mpd_client_playlist_shuffle_sort(mpd_state, response->data, request->method, request->id, p_charbuf1, "shuffle");
+            }
+            break;
+        case MPD_API_PLAYLIST_SORT:
+            je = json_scanf(request->data, sdslen(request->data), "{params: {uri: %Q, tag:%Q}}", &p_charbuf1, &p_charbuf2);
+            if (je == 2) {
+                response->data = mpd_client_playlist_shuffle_sort(mpd_state, response->data, request->method, request->id, p_charbuf1, p_charbuf2);
+            }
+            break;
         case MPD_API_DATABASE_FILESYSTEM_LIST: {
             t_tags *tagcols = (t_tags *)malloc(sizeof(t_tags));
             assert(tagcols);
@@ -593,6 +606,7 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
     FREE_PTR(p_charbuf2);
     FREE_PTR(p_charbuf3);                    
     FREE_PTR(p_charbuf4);
+    FREE_PTR(p_charbuf5);
 
     if (sdslen(response->data) == 0) {
         response->data = jsonrpc_start_phrase(response->data, request->method, request->id, "No response for method %{method}", true);

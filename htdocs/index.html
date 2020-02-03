@@ -342,12 +342,22 @@
           <div class="btn-group mr-2 hide">
             <button data-href='{"cmd": "appGoto", "options": ["Browse", "Playlists", "All"]}' id="btnBrowsePlaylistsAll" type="button" class="btn btn-secondary">&laquo; <span data-phrase="Playlists"></span></button>
           </div>
-          <div class="btn-group mr-2 hide">          
-            <button data-title-phrase="Clear playlist" id="btnPlaylistClear" type="button" class="btn btn-secondary material-icons" data-href='{"cmd": "playlistClear", "options": []}'>clear_all</button>          
-          </div>
+          
           <div class="btn-group mr-2">
             <button id="BrowsePlaylistsFilter" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="material-icons">filter_list</span></button>
             <div class="dropdown-menu bg-lite-dark px-2 letters" id="BrowsePlaylistsFilterLetters">
+            </div>
+          </div>
+          <div class="hide btn-group mr-2" id="playlistContentBtns">
+            <button data-title-phrase="Clear playlist" type="button" class="btn btn-secondary material-icons rounded-right mr-2" data-href='{"cmd": "playlistClear", "options": []}'>clear_all</button>
+            <button data-href='{"cmd": "playlistShuffle", "options": []}' class="btn btn-secondary material-icons rounded mr-2" type="button" data-title-phrase="Shuffle playlist">shuffle</button>
+            <div class="btn-group mr-2">
+              <button data-title-phrase="Sort playlist" id="btnSortPlaylist" class="btn btn-secondary dropdown-toggle rounded-left" type="button" data-toggle="dropdown"><span class="material-icons">sort</span></button>
+              <div class="dropdown-menu bg-lite-dark px-2" id="dropdownSortPlaylist">
+                <h2 class="dropdown-header text-light" data-phrase="Sort playlist"></h2>
+                <div id="dropdownSortPlaylistTags">
+                </div>
+              </div>
             </div>
           </div>
           <div class="btn-group mr-2 featSmartpls">
