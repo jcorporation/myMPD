@@ -639,7 +639,8 @@ sds mpd_client_playlist_delete_all(t_config *config, t_mpd_state *mpd_state, sds
     else if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
         list_free(&playlists);
         return buffer;
-    }    
+    }
+    list_free(&playlists);
     buffer = jsonrpc_respond_message(buffer, method, request_id, "Playlists deleted", false);
     return buffer;
 }
