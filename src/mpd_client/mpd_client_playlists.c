@@ -32,6 +32,7 @@ static bool mpd_client_smartpls_clear(t_mpd_state *mpd_state, const char *playli
 static bool mpd_client_smartpls_update_search(t_mpd_state *mpd_state, const char *playlist, const char *tag, const char *searchstr);
 static bool mpd_client_smartpls_update_sticker(t_mpd_state *mpd_state, const char *playlist, const char *sticker, const int maxentries, const int minvalue);
 static bool mpd_client_smartpls_update_newest(t_mpd_state *mpd_state, const char *playlist, const int timerange);
+static int mpd_client_enum_playlist(t_mpd_state *mpd_state, const char *playlist);
 
 //public functions
 sds mpd_client_put_playlists(t_config *config, t_mpd_state *mpd_state, sds buffer, sds method, int request_id,
@@ -579,6 +580,70 @@ bool mpd_client_smartpls_update(t_config *config, t_mpd_state *mpd_state, const 
     return rc;
 }
 
+sds mpd_client_playlist_delete_all(t_config *config, t_mpd_state *mpd_state, sds buffer, sds method, int request_id,
+                                   const char *type)
+{
+    mpd_send_list_playlists(mpd_state->conn);
+    if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
+        return buffer;
+    }
+    
+    struct list playlists;
+    list_init(&playlists);
+    struct mpd_playlist *pl;
+    while ((pl = mpd_recv_playlist(mpd_state->conn)) != NULL) {
+        const char *plpath = mpd_playlist_get_path(pl);
+        list_push(&playlists, plpath, 1, NULL, NULL);
+        mpd_playlist_free(pl);
+    }
+    if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
+        list_free(&playlists);
+        return buffer;
+    }
+    
+    if (strcmp(type, "deleteEmptyPlaylists") == 0) {
+        struct node *current = playlists.head;
+        while (current != NULL) {
+            current->value_i = mpd_client_enum_playlist(mpd_state, current->key);
+            current = current->next;
+        }
+    }
+
+    if (mpd_command_list_begin(mpd_state->conn, false)) {
+        struct node *current = playlists.head;
+        while (current != NULL) {
+            bool smartpls = false;
+            if (strcmp(type, "deleteSmartPlaylists") == 0) {
+                sds smartpls_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->varlibdir, current->key);
+                if (unlink(smartpls_file) == 0) {
+                    smartpls = true;
+                }
+                sdsfree(smartpls_file);
+            }
+            if (strcmp(type, "deleteAllPlaylists") == 0 ||
+                (strcmp(type, "deleteSmartPlaylists") == 0 && smartpls == true) ||
+                (strcmp(type, "deleteEmptyPlaylists") == 0 && current->value_i == 0))
+            {
+                mpd_send_rm(mpd_state->conn, current->key);
+            }
+            current = current->next;        
+        }
+        if (mpd_command_list_end(mpd_state->conn)) {
+            mpd_response_finish(mpd_state->conn);
+        }
+        if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
+            list_free(&playlists);
+            return buffer;
+        }
+    }
+    else if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
+        list_free(&playlists);
+        return buffer;
+    }    
+    buffer = jsonrpc_respond_message(buffer, method, request_id, "Playlists deleted", false);
+    return buffer;
+}
+
 //private functions
 static bool mpd_client_smartpls_per_tag(t_config *config, t_mpd_state *mpd_state) {
     for (size_t i = 0; i < mpd_state->generate_pls_tag_types.len; i++) {
@@ -773,3 +838,21 @@ static bool mpd_client_smartpls_update_newest(t_mpd_state *mpd_state, const char
     return true;
 }
 
+static int mpd_client_enum_playlist(t_mpd_state *mpd_state, const char *playlist) {
+    mpd_send_list_playlist(mpd_state->conn, playlist);
+    if (check_error_and_recover2(mpd_state, NULL, NULL, 0, false) == false) {
+        return -1;
+    }
+    
+    struct mpd_song *song;
+    int entity_count = 0;
+    while ((song = mpd_recv_song(mpd_state->conn)) != NULL) {
+        entity_count++;
+        mpd_song_free(song);
+    }
+    if (check_error_and_recover2(mpd_state, NULL, NULL, 0, false) == false) {
+        return -1;
+    }
+    LOG_DEBUG("Playlist %s has %d entries", playlist, entity_count);    
+    return entity_count;
+}

@@ -393,7 +393,7 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
             break;
         }
         case MPD_API_PLAYLIST_ADD_TRACK:
-            je = json_scanf(request->data, sdslen(request->data), "{params: {plist:%Q, uri:%Q}}", &p_charbuf1, &p_charbuf2);
+            je = json_scanf(request->data, sdslen(request->data), "{params: {plist: %Q, uri: %Q}}", &p_charbuf1, &p_charbuf2);
             if (je == 2) {
                 if (mpd_run_playlist_add(mpd_state->conn, p_charbuf1, p_charbuf2)) {
                     response->data = jsonrpc_start_phrase(response->data, request->method, request->id, "Added %{uri} to playlist %{playlist}", false);
@@ -407,10 +407,16 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
             }
             break;
         case MPD_API_PLAYLIST_CLEAR:
-            je = json_scanf(request->data, sdslen(request->data), "{params: {uri:%Q}}", &p_charbuf1);
+            je = json_scanf(request->data, sdslen(request->data), "{params: {uri: %Q}}", &p_charbuf1);
             if (je == 1) {
                 mpd_run_playlist_clear(mpd_state->conn, p_charbuf1);
                 response->data = respond_with_mpd_error_or_ok(mpd_state, response->data, request->method, request->id);
+            }
+            break;
+        case MPD_API_PLAYLIST_RM_ALL:
+            je = json_scanf(request->data, sdslen(request->data), "{params: {type: %Q}}", &p_charbuf1);
+            if (je == 1) {
+                response->data = mpd_client_playlist_delete_all(config, mpd_state, response->data, request->method, request->id, p_charbuf1);
             }
             break;
         case MPD_API_PLAYLIST_RM_TRACK:
