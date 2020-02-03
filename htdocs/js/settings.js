@@ -199,6 +199,7 @@ function parseSettings() {
     document.getElementById('inputMaxElementsPerPage').value = settings.maxElementsPerPage;
     toggleBtnChk('btnStickers', settings.stickers);
     document.getElementById('inputLastPlayedCount').value = settings.lastPlayedCount;
+    
     toggleBtnChk('btnSmartpls', settings.smartpls);
     
     let features = ["featLocalplayer", "featSyscmds", "featMixramp", "featCacert", "featBookmarks", "featRegex", "featTimer"];
@@ -286,6 +287,10 @@ function parseSettings() {
         document.getElementById('inputJukeboxQueueLength').removeAttribute('disabled');
         document.getElementById('selectJukeboxPlaylist').removeAttribute('disabled');
     }
+
+    document.getElementById('inputSmartplsPrefix').value = settings.smartplsPrefix;
+    document.getElementById('inputSmartplsInterval').value = settings.smartplsInterval / 60 / 60;
+    document.getElementById('selectSmartplsSort').value = settings.smartplsSort;
 
     if (settings.featLocalplayer === true) {
         if (settings.streamUrl === '') {
@@ -548,15 +553,11 @@ function parseMPDSettings() {
     addTagList('searchCovergridTags', 'browsetags');
     addTagList('covergridSortTagsList', 'browsetags');
     addTagList('dropdownSortPlaylistTags', 'tags');
-
-    let list = '';
-    if (settings.browsetags.includes('Title') === false) {
-        list = '<option value="Title">' + t('Song') + '</option>';
-    }
-    for (let i = 0; i < settings.browsetags.length; i++) {
-        list += '<option value="' + settings.browsetags[i] + '">' + t(settings.browsetags[i]) + '</option>';
-    }
-    document.getElementById('selectJukeboxUniqueTag').innerHTML = list;
+    addTagList('saveSmartPlaylistSort', 'tags');
+    
+    addTagListSelect('selectSmartplsSort', 'tags');
+    addTagListSelect('saveSmartPlaylistSort', 'tags');
+    addTagListSelect('selectJukeboxUniqueTag', 'browsetags');
     
     for (let i = 0; i < settings.tags.length; i++) {
         app.apps.Browse.tabs.Database.views[settings.tags[i]] = { "state": "0/-/-/", "scrollPos": 0 };
@@ -664,6 +665,12 @@ function saveSettings() {
             }
         }
     }
+    
+    let inputSmartplsInterval = document.getElementById('inputSmartplsInterval');
+    if (!validateInt(inputSmartplsInterval)) {
+        formOK = false;
+    }
+    let smartplsInterval = document.getElementById('inputSmartplsInterval').value * 60 * 60;
 
     let singleState = document.getElementById('btnSingleGroup').getElementsByClassName('active')[0].getAttribute('data-value');
     let jukeboxMode = document.getElementById('btnJukeboxModeGroup').getElementsByClassName('active')[0].getAttribute('data-value');
@@ -716,6 +723,9 @@ function saveSettings() {
             "stickers": (document.getElementById('btnStickers').classList.contains('active') ? true : false),
             "lastPlayedCount": document.getElementById('inputLastPlayedCount').value,
             "smartpls": (document.getElementById('btnSmartpls').classList.contains('active') ? true : false),
+            "smartplsPrefix": document.getElementById('inputSmartplsPrefix').value,
+            "smartplsInterval": smartplsInterval,
+            "smartplsSort": document.getElementById('selectSmartplsSort').value,
             "taglist": getTagMultiSelectValues(document.getElementById('listEnabledTags'), false),
             "searchtaglist": getTagMultiSelectValues(document.getElementById('listSearchTags'), false),
             "browsetaglist": getTagMultiSelectValues(document.getElementById('listBrowseTags'), false),

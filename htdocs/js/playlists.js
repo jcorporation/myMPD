@@ -205,7 +205,8 @@ function parseSmartPlaylist(obj) {
     let nameEl = document.getElementById('saveSmartPlaylistName');
     nameEl.value = obj.result.playlist;
     nameEl.classList.remove('is-invalid');
-    document.getElementById('saveSmartPlaylistType').value = obj.result.type;
+    document.getElementById('saveSmartPlaylistType').value = t(obj.result.type);
+    document.getElementById('saveSmartPlaylistType').setAttribute('data-value', obj.result.type);
     document.getElementById('saveSmartPlaylistSearch').classList.add('hide');
     document.getElementById('saveSmartPlaylistSticker').classList.add('hide');
     document.getElementById('saveSmartPlaylistNewest').classList.add('hide');
@@ -247,7 +248,7 @@ function parseSmartPlaylist(obj) {
 //eslint-disable-next-line no-unused-vars
 function saveSmartPlaylist() {
     let name = document.getElementById('saveSmartPlaylistName').value;
-    let type = document.getElementById('saveSmartPlaylistType').value;
+    let type = document.getElementById('saveSmartPlaylistType').getAttribute('data-value');
     if (validatePlname(name) === true) {
         if (type === 'search') {
             let tagEl = document.getElementById('selectSaveSmartPlaylistTag');
@@ -294,21 +295,21 @@ function saveSmartPlaylist() {
 function addSmartpls(type) {
     var obj = {"jsonrpc":"2.0", "id":0, "result": {"method":"MPD_API_SMARTPLS_GET"}};
     if (type === 'mostPlayed') {
-        obj.result.playlist = "myMPDsmart-mostPlayed";
-        obj.result.type = "sticker";
-        obj.result.sticker = "playCount";
+        obj.result.playlist = settings.smartplsPrefix + (settings.smartplsPrefix !== '' ? '-' : '') + 'mostPlayed';
+        obj.result.type = 'sticker';
+        obj.result.sticker = 'playCount';
         obj.result.maxentries = 200;
         obj.result.minvalue = 10;
     }
     else if (type === 'newest') {
-        obj.result.playlist = "myMPDsmart-newestSongs";
-        obj.result.type = "newest";
+        obj.result.playlist = settings.smartplsPrefix + (settings.smartplsPrefix !== '' ? '-' : '') + 'newestSongs';
+        obj.result.type = 'newest';
         obj.result.timerange = 14 * 24 * 60 * 60;
     }
     else if (type === 'bestRated') {
-        obj.result.playlist = "myMPDsmart-bestRated";
-        obj.result.type = "sticker";
-        obj.result.sticker = "like";
+        obj.result.playlist = settings.smartplsPrefix + (settings.smartplsPrefix !== '' ? '-' : '') + 'bestRated';
+        obj.result.type = 'sticker';
+        obj.result.sticker = 'like';
         obj.result.maxentries = 200;
         obj.result.minvalue = 2;
     }

@@ -1159,7 +1159,61 @@ Add smart playlist
 Neue intelligente Wiedergabeliste
 
 Generate smart playlist per
-Erstelle intelligente Wiergabeliste für
+Erstelle intelligente Wiedergabelisten für
 
 Min. value
 Min. Wert
+
+Disabled
+Deaktiviert
+
+Shuffle
+Mischen
+
+Playlist is too small to shuffle
+Wiedergabeliste ist zu klein um sie zu mischen
+
+Playlist is too small to sort
+Wiedergabeliste ist zu klein um sie zu sortieren
+
+Shuffle playlist
+Wiedergabeliste mischen
+
+Shuffled playlist succesfully
+Wiedergabeliste erfolgreich gemischt
+
+Sort playlist
+Wiedergabeliste sortieren
+
+Sorted playlist succesfully
+Wiedergabeliste erfolgreich sortiert
+
+search
+Suche
+
+newest
+Neueste Lieder
+
+sticker
+Sticker
+
+Order
+Reihenfolge
+
+Sort by tag
+Sortiere nach Tag
+
+Update smart playlists (hours)
+Intelligente Wiedergabelisten aktualisieren (Stunden)
+
+Smart playlists prefix
+Prefix von Intelligenten Wiedergabelisten
+
+Invalid prefix
+Ungültiger Prefix
+
+Invalid number
+Ungültige Zahl
+
+Leaving playlist as it is
+Wiedergabeliste wird nicht verändert

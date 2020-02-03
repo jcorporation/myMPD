@@ -501,7 +501,6 @@
             <button data-title-phrase="Next page" data-href='{"cmd": "gotoPage", "options": ["next"]}' type="button" class="btn btn-secondary btn-group-append">&raquo;</button>
           </div>
         </div>
-
       </div>
 
       <div class="card-body hide" id="cardBrowseFilesystem">
@@ -895,6 +894,12 @@
                 <div class="invalid-feedback" data-phrase="Invalid type"></div>
               </div>
             </div>
+            <div class="form-group row">
+              <label class="col-sm-4 col-form-label" for="saveSmartPlaylistSort" data-phrase="Order"></label>
+              <div class="col-sm-8">
+                <select id="saveSmartPlaylistSort" class="form-control custom-select border-secondary"></select>
+              </div>
+            </div>
             <hr/>
             <div class="hide" id="saveSmartPlaylistSearch">
               <div class="form-group row">
@@ -1112,6 +1117,7 @@
                     <div class="invalid-feedback" data-phrase="Invalid color"></div>
                   </div>
                 </div>
+                <hr/>
                 <h4 data-phrase="Albumart"></h4>
                 <div id="warnAlbumart" class="alert alert-warning hide" data-phrase="Can't access music directory"></div>
                 <div class="form-group row">
@@ -1252,13 +1258,35 @@
                     <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnSmartpls"></button>
                   </div>
                 </div>
-                <div class="form-group row featTags">
-                  <label class="col-sm-4 col-form-label" for="btnGeneratePlsTags" data-phrase="Generate smart playlist per"></label>
-                  <div class="col-sm-8 input-group">
-                    <input type="text" class="form-control border-secondary" id="inputGeneratePlsTags" readonly/>
-                    <div class="input-group-append">
-                      <button id="btnGeneratePlsTags" type="button" data-toggle="dropdown" class="text-left btn btn-secondary dropdown-toggle"></button>
-                      <div id="listGeneratePlsTags" class="dropdown-menu px-2 mr-3"></div>
+                <div class="featSmartpls">
+                  <div class="form-group row featTags">
+                    <label class="col-sm-4 col-form-label" for="btnGeneratePlsTags" data-phrase="Generate smart playlist per"></label>
+                    <div class="col-sm-8 input-group">
+                      <input type="text" class="form-control border-secondary" id="inputGeneratePlsTags" readonly/>
+                      <div class="input-group-append">
+                        <button id="btnGeneratePlsTags" type="button" data-toggle="dropdown" class="text-left btn btn-secondary dropdown-toggle"></button>
+                        <div id="listGeneratePlsTags" class="dropdown-menu px-2 mr-3"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group row">
+                    <label class="col-sm-4 col-form-label" for="inputSmartplsPrefix" data-phrase="Smart playlists prefix"></label>
+                    <div class="col-sm-8">
+                      <input type="text" class="form-control border-secondary" id="inputSmartplsPrefix"/>
+                      <div class="invalid-feedback" data-phrase="Invalid prefix"></div>
+                    </div>
+                  </div>
+                  <div class="form-group row">
+                    <label class="col-sm-4 col-form-label" for="selectSmartplsSort" data-phrase="Order"></label>
+                    <div class="col-sm-8">
+                      <select id="selectSmartplsSort" class="form-control custom-select border-secondary"></select>
+                    </div>
+                  </div>
+                  <div class="form-group row">
+                    <label class="col-sm-4 col-form-label" for="inputSmartplsInterval" data-phrase="Update smart playlists (hours)"></label>
+                    <div class="col-sm-8">
+                      <input type="text" class="form-control border-secondary" id="inputSmartplsInterval"/>
+                      <div class="invalid-feedback" data-phrase="Invalid number"></div>
                     </div>
                   </div>
                 </div>

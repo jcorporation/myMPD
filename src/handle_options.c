@@ -39,17 +39,17 @@ bool smartpls_default(t_config *config) {
     bool rc = true;
     
     rc = smartpls_init(config, "myMPDsmart-bestRated", 
-        "{\"type\": \"sticker\", \"sticker\": \"like\", \"maxentries\": 200, \"minvalue\": 2}\n");
+        "{\"type\": \"sticker\", \"sticker\": \"like\", \"maxentries\": 200, \"minvalue\": 2, \"sort\": \"\"}\n");
     if (rc == false) {
         return rc;
     }
     rc = smartpls_init(config, "myMPDsmart-mostPlayed", 
-        "{\"type\": \"sticker\", \"sticker\": \"playCount\", \"maxentries\": 200, \"minvalue\": 0}\n");
+        "{\"type\": \"sticker\", \"sticker\": \"playCount\", \"maxentries\": 200, \"minvalue\": 0, \"sort\": \"\"}\n");
     if (rc == false) {
         return rc;
     }
     rc = smartpls_init(config, "myMPDsmart-newestSongs", 
-        "{\"type\": \"newest\", \"timerange\": 604800}\n");
+        "{\"type\": \"newest\", \"timerange\": 604800, \"sort\": \"\"}\n");
 
     return rc;
 }

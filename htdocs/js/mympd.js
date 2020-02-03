@@ -972,7 +972,6 @@ function appInit() {
     document.getElementById('dropdownSortPlaylistTags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
             event.preventDefault();
-            event.stopPropagation();
             playlistSort(event.target.getAttribute('data-tag'));
         }
     }, false);

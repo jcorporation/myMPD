@@ -138,15 +138,28 @@ sds mpd_client_put_playlist_list(t_config *config, t_mpd_state *mpd_state, sds b
 
 sds mpd_client_playlist_shuffle_sort(t_mpd_state *mpd_state, sds buffer, sds method, int request_id, const char *uri, const char *tagstr) {
     t_tags sort_tags;
+    
     sort_tags.len = 1;
     sort_tags.tags[0] = mpd_tag_name_parse(tagstr);
 
-    if (sort_tags.tags[0] == MPD_TAG_UNKNOWN) {
+    if (strcmp(tagstr, "shuffle") == 0) {
+        LOG_VERBOSE("Shuffling playlist %s", uri);
         mpd_send_list_playlist(mpd_state->conn, uri);
     }
-    else {
+    else if (strcmp(tagstr, "filename") == 0) {
+        LOG_VERBOSE("Sorting playlist %s by filename", uri);
+        mpd_send_list_playlist(mpd_state->conn, uri);
+    } 
+    else if (sort_tags.tags[0] != MPD_TAG_UNKNOWN) {
+        LOG_VERBOSE("Sorting playlist %s by tag %s", uri, tagstr);
         enable_mpd_tags(mpd_state, sort_tags);
         mpd_send_list_playlist_meta(mpd_state->conn, uri);
+    }
+    else {
+        if (buffer != NULL) {
+            buffer = jsonrpc_respond_message(buffer, method, request_id, "Leaving playlist as it is", true);
+        }
+        return buffer;
     }
     if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
         return buffer;
@@ -156,7 +169,8 @@ sds mpd_client_playlist_shuffle_sort(t_mpd_state *mpd_state, sds buffer, sds met
     list_init(&plist);
     struct mpd_song *song;
     while ((song = mpd_recv_song(mpd_state->conn)) != NULL) {
-        list_push(&plist, mpd_song_get_uri(song), 0, NULL, NULL);
+        const char *tag_value = mpd_song_get_tag(song, sort_tags.tags[0], 0);
+        list_push(&plist, mpd_song_get_uri(song), 0, tag_value, NULL);
         mpd_song_free(song);
     }
     if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
@@ -165,19 +179,35 @@ sds mpd_client_playlist_shuffle_sort(t_mpd_state *mpd_state, sds buffer, sds met
     }
     if (sort_tags.tags[0] == MPD_TAG_UNKNOWN) {
         if (list_shuffle(&plist) == false) {
-            buffer = jsonrpc_respond_message(buffer, method, request_id, "Playlist is too small to shuffle", true);
+            if (buffer != NULL) {
+                buffer = jsonrpc_respond_message(buffer, method, request_id, "Playlist is too small to shuffle", true);
+            }
             list_free(&plist);
             enable_mpd_tags(mpd_state, mpd_state->mympd_tag_types);
             return buffer;
         }
     }
     else {
-        if (list_sort_by_key(&plist, true) == false) {
-            buffer = jsonrpc_respond_message(buffer, method, request_id, "Playlist is too small to sort", true);
-            list_free(&plist);
-            enable_mpd_tags(mpd_state, mpd_state->mympd_tag_types);
-            return buffer;
-        }    
+        if (mpd_state->feat_tags == false || strcmp(tagstr, "filename") == 0) {
+            if (list_sort_by_key(&plist, true) == false) {
+                if (buffer != NULL) {
+                    buffer = jsonrpc_respond_message(buffer, method, request_id, "Playlist is too small to sort", true);
+                }
+                list_free(&plist);
+                enable_mpd_tags(mpd_state, mpd_state->mympd_tag_types);
+                return buffer;
+            }
+        }
+        else {
+            if (list_sort_by_value_p(&plist, true) == false) {
+                if (buffer != NULL) {
+                    buffer = jsonrpc_respond_message(buffer, method, request_id, "Playlist is too small to sort", true);
+                }
+                list_free(&plist);
+                enable_mpd_tags(mpd_state, mpd_state->mympd_tag_types);
+                return buffer;
+            }
+        }
     }
     
     if (mpd_command_list_begin(mpd_state->conn, false)) {
@@ -205,7 +235,14 @@ sds mpd_client_playlist_shuffle_sort(t_mpd_state *mpd_state, sds buffer, sds met
     if (sort_tags.tags[0] != MPD_TAG_UNKNOWN) {
         enable_mpd_tags(mpd_state, mpd_state->mympd_tag_types);
     }
-    buffer = jsonrpc_respond_message(buffer, method, request_id, "Shuffled playlist succesfully", false);
+    if (buffer != NULL) {
+        if (strcmp(tagstr, "shuffle") == 0) {
+            buffer = jsonrpc_respond_message(buffer, method, request_id, "Shuffled playlist succesfully", false);
+        }
+        else {
+            buffer = jsonrpc_respond_message(buffer, method, request_id, "Sorted playlist succesfully", false);
+        }
+    }
     return buffer;
 }
 
@@ -305,13 +342,13 @@ sds mpd_client_smartpls_put(t_config *config, sds buffer, sds method, int reques
             if (je == 3) {
                 buffer = tojson_char(buffer, "sticker", p_charbuf1, true);
                 buffer = tojson_long(buffer, "maxentries", int_buf1, true);
-                buffer = tojson_long(buffer, "minvalue", int_buf2, false);
+                buffer = tojson_long(buffer, "minvalue", int_buf2, true);
             }
             else if (je == 2) {
                 //only for backward compatibility
                 buffer = tojson_char(buffer, "sticker", p_charbuf1, true);
                 buffer = tojson_long(buffer, "maxentries", int_buf1, true);
-                buffer = tojson_long(buffer, "minvalue", 1, false);
+                buffer = tojson_long(buffer, "minvalue", 1, true);
             }
             else {
                 rc = false;
@@ -321,7 +358,7 @@ sds mpd_client_smartpls_put(t_config *config, sds buffer, sds method, int reques
         else if (strcmp(smartpltype, "newest") == 0) {
             je = json_scanf(content, strlen(content), "{timerange: %d}", &int_buf1);
             if (je == 1) {
-                buffer = tojson_long(buffer, "timerange", int_buf1, false);
+                buffer = tojson_long(buffer, "timerange", int_buf1, true);
             }
             else {
                 rc = false;
@@ -331,7 +368,7 @@ sds mpd_client_smartpls_put(t_config *config, sds buffer, sds method, int reques
             je = json_scanf(content, strlen(content), "{tag: %Q, searchstr: %Q}", &p_charbuf1, &p_charbuf2);
             if (je == 2) {
                 buffer = tojson_char(buffer, "tag", p_charbuf1, true);
-                buffer = tojson_char(buffer, "searchstr", p_charbuf2, false);
+                buffer = tojson_char(buffer, "searchstr", p_charbuf2, true);
             }
             else {
                 rc = false;    
@@ -345,10 +382,10 @@ sds mpd_client_smartpls_put(t_config *config, sds buffer, sds method, int reques
         if (rc == true) {
             je = json_scanf(content, strlen(content), "{sort: %Q}", &p_charbuf1);
             if (je == 1) {
-                buffer = tojson_char(buffer, "sort", p_charbuf1, true);
+                buffer = tojson_char(buffer, "sort", p_charbuf1, false);
             }
             else {
-                buffer = tojson_char(buffer, "sort", "", true);
+                buffer = tojson_char(buffer, "sort", "", false);
             }
             FREE_PTR(p_charbuf1);            
             buffer = jsonrpc_end_result(buffer);
@@ -571,7 +608,7 @@ static bool mpd_client_smartpls_per_tag(t_config *config, t_mpd_state *mpd_state
         struct node *current = tag_list.head;
         while (current != NULL) {
             const char *tagstr = mpd_tag_name(tag);
-            sds playlist = sdscatfmt(sdsempty(), "myMPDsmart-%s-%s", tagstr, current->key);
+            sds playlist = sdscatfmt(sdsempty(), "%s%s%s-%s", mpd_state->smartpls_prefix, (sdslen(mpd_state->smartpls_prefix) > 0 ? "-" : ""), tagstr, current->key);
             sds plpath = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->varlibdir, playlist);
             if (access(plpath, F_OK) == -1) {
                 LOG_VERBOSE("Created smart playlist %s", playlist);

@@ -148,6 +148,27 @@ function addTagList(el, list) {
     document.getElementById(el).innerHTML = tagList;
 }
 
+function addTagListSelect(el, list) {
+    let tagList = '';
+    if (el === 'saveSmartPlaylistSort' || el === 'selectSmartplsSort') {
+        tagList += '<option value="">' + t('Disabled') + '</option>';
+        tagList += '<option value="shuffle">' + t('Shuffle') + '</option>';
+        tagList += '<optgroup label="' + t('Sort by tag') + '">';
+        tagList += '<option value="filename">' + t('Filename') + '</option>';
+    }
+    else if (el === 'selectJukeboxUniqueTag' && settings.browsetags.includes('Title') === false) {
+        //Title tag should be always in the list
+        tagList = '<option value="Title">' + t('Song') + '</option>';
+    }
+    for (let i = 0; i < settings[list].length; i++) {
+        tagList += '<option value="' + settings[list][i] + '">' + t(settings[list][i]) + '</option>';
+    }
+    if (el === 'saveSmartPlaylistSort' || el === 'selectSmartplsSort') {
+        tagList += '</optgroup>';
+    }
+    document.getElementById(el).innerHTML = tagList;
+}
+
 //eslint-disable-next-line no-unused-vars
 function openModal(modal) {
     window[modal].show();
@@ -236,10 +257,12 @@ function toggleBtnChk(btn, state) {
     if (state === true || state === 1) {
         b.classList.add('active');
         b.innerText = 'check';
+        return true;
     }
     else {
         b.classList.remove('active');
         b.innerText = 'radio_button_unchecked';
+        return false;
     }
 }
 
@@ -321,6 +344,9 @@ function parseCmd(event, href) {
             case 'toggleBtnGroup':
             case 'setPlaySettings':
                 window[cmd.cmd](event.target, ... cmd.options);
+                break;
+            case 'toggleBtnChkCollapse':
+                window[cmd.cmd](event.target, undefined, ... cmd.options);
                 break;
             default:
                 window[cmd.cmd](... cmd.options);
