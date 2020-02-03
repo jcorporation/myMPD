@@ -99,8 +99,10 @@ sds put_empty_song_tags(sds buffer, t_mpd_state *mpd_state, const t_tags *tagcol
 
 
 bool check_error_and_recover2(t_mpd_state *mpd_state, sds *buffer, sds method, int request_id, bool notify) {
-    if (mpd_connection_get_error(mpd_state->conn) != MPD_ERROR_SUCCESS) {
-        LOG_ERROR("MPD error: %s", mpd_connection_get_error_message(mpd_state->conn));
+    enum mpd_error error = mpd_connection_get_error(mpd_state->conn);
+    if (error  != MPD_ERROR_SUCCESS) {
+        const char *error_msg = mpd_connection_get_error_message(mpd_state->conn);
+        LOG_ERROR("MPD error: %s (%d)", error_msg , error);
         if (buffer != NULL) {
             if (*buffer != NULL) {
                 if (notify == false) {
@@ -113,10 +115,16 @@ bool check_error_and_recover2(t_mpd_state *mpd_state, sds *buffer, sds method, i
                 }
             }
         }
+
+        if (strcmp(error_msg, "Broken pipe") == 0) {
+            mpd_state->conn_state = MPD_FAILURE;
+        }
         mpd_connection_clear_error(mpd_state->conn);
-        mpd_response_finish(mpd_state->conn);
-        //enable default mpd tags after cleaning error
-        enable_mpd_tags(mpd_state, mpd_state->mympd_tag_types);
+        if (mpd_state->conn_state != MPD_FAILURE) {
+            mpd_response_finish(mpd_state->conn);
+            //enable default mpd tags after cleaning error
+            enable_mpd_tags(mpd_state, mpd_state->mympd_tag_types);
+        }
         return false;
     }
     return true;
