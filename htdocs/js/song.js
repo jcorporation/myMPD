@@ -115,25 +115,25 @@ function setVoteSongBtns(vote, uri) {
     }
     
     if (vote === 0) {
-        domCache.btnVoteUp.classList.remove('active-fg-green');
-        domCache.btnVoteDown.classList.add('active-fg-red');
+        domCache.btnVoteUp.classList.remove('highlight');
+        domCache.btnVoteDown.classList.add('highlight');
         if (domCache.btnVoteUp2) {
-            domCache.btnVoteUp2.classList.remove('active-fg-green');
-            domCache.btnVoteDown2.classList.add('active-fg-red');
+            domCache.btnVoteUp2.classList.remove('highlight');
+            domCache.btnVoteDown2.classList.add('highlight');
         }
     } else if (vote === 1) {
-        domCache.btnVoteUp.classList.remove('active-fg-green');
-        domCache.btnVoteDown.classList.remove('active-fg-red');
+        domCache.btnVoteUp.classList.remove('highlight');
+        domCache.btnVoteDown.classList.remove('highlight');
         if (domCache.btnVoteUp2) {
-            domCache.btnVoteUp2.classList.remove('active-fg-green');
-            domCache.btnVoteDown2.classList.remove('active-fg-red');
+            domCache.btnVoteUp2.classList.remove('highlight');
+            domCache.btnVoteDown2.classList.remove('highlight');
         }
     } else if (vote === 2) {
-        domCache.btnVoteUp.classList.add('active-fg-green');
-        domCache.btnVoteDown.classList.remove('active-fg-red');
+        domCache.btnVoteUp.classList.add('highlight');
+        domCache.btnVoteDown.classList.remove('highlight');
         if (domCache.btnVoteUp2) {
-            domCache.btnVoteUp2.classList.add('active-fg-green');
-            domCache.btnVoteDown2.classList.remove('active-fg-red');
+            domCache.btnVoteUp2.classList.add('highlight');
+            domCache.btnVoteDown2.classList.remove('highlight');
         }
     }
 }

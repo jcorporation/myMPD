@@ -10,6 +10,10 @@
   --mympd-highlightcolor: #28a745;
 }
 
+.highlight {
+  color: var(--mympd-highlightcolor, #28a745) !important;
+}
+
 #splashScreen {
   background: linear-gradient(0deg, rgba(0,0,0,1) 0%, rgba(52,58,64,1) 100%);
   width: 100vw;
