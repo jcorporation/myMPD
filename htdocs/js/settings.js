@@ -78,6 +78,7 @@ function joinSettings(obj) {
     settingsLock = false;
     parseSettings();
     toggleUI();
+    btnWaiting(document.getElementById('btnApplySettings'), false);
 }
 
 function checkConsume() {
@@ -575,7 +576,7 @@ function resetSettings() {
 }
 
 //eslint-disable-next-line no-unused-vars
-function saveSettings() {
+function saveSettings(closeModal) {
     let formOK = true;
 
     let inputCrossfade = document.getElementById('inputCrossfade');
@@ -734,7 +735,12 @@ function saveSettings() {
             "highlightColor": document.getElementById('inputHighlightColor').value,
             "timer": (document.getElementById('btnFeatTimer').classList.contains('active') ? true : false)
         }, getSettings);
-        modalSettings.hide();
+        if (closeModal === true) {
+            modalSettings.hide();
+        }
+        else {
+            btnWaiting(document.getElementById('btnApplySettings'), true);
+        }
     }
 }
 
