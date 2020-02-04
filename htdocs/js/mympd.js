@@ -589,6 +589,15 @@ function appInit() {
     }
     document.getElementById('selectTimerMinute').innerHTML = selectTimerMinute;
     
+
+    document.getElementById('inputHighlightColor').addEventListener('change', function() {
+        document.getElementById('highlightColorPreview').style.backgroundColor = this.value;
+    }, false);
+    
+    document.getElementById('inputBgColor').addEventListener('change', function() {
+        document.getElementById('bgColorPreview').style.backgroundColor = this.value;
+    }, false);
+    
     document.getElementById('modalAddToQueue').addEventListener('shown.bs.modal', function () {
         document.getElementById('inputAddToQueueQuantity').classList.remove('is-invalid');
         if (settings.featPlaylists) {

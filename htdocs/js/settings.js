@@ -185,6 +185,9 @@ function parseSettings() {
     document.getElementById('inputHighlightColor').value = settings.highlightColor;
     document.getElementById('inputBgColor').value = settings.bgColor;
     document.getElementsByTagName('body')[0].style.backgroundColor = settings.bgColor;
+    
+    document.getElementById('highlightColorPreview').style.backgroundColor = settings.highlightColor;
+    document.getElementById('bgColorPreview').style.backgroundColor = settings.bgColor;
 
     document.getElementById('inputBgCssFilter').value = settings.bgCssFilter;    
 
