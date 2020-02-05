@@ -163,6 +163,9 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("mympd", "notificationpage")) {
         p_config->notification_page = strtobool(value);
     }
+    else if (MATCH("mympd", "mediasession")) {
+        p_config->media_session = strtobool(value);
+    }
     else if (MATCH("mympd", "autoplay")) {
         p_config->auto_play = strtobool(value);
     }
@@ -298,9 +301,10 @@ static void mympd_get_env(struct t_config *config) {
         "MYMPD_PAGINATION", "MYMPD_LASTPLAYEDCOUNT", "MYMPD_LOVE", "MYMPD_LOVECHANNEL", "MYMPD_LOVEMESSAGE",
         "MYMPD_NOTIFICATIONWEB", "MYMPD_CHROOT", "MYMPD_READONLY", "MYMPD_TIMER",
         "MYMPD_NOTIFICATIONPAGE", "MYMPD_AUTOPLAY", "MYMPD_JUKEBOXMODE", "MYMPD_BOOKMARKS",
+        "MYMPD_MEDIASESSION",
         "MYMPD_JUKEBOXPLAYLIST", "MYMPD_JUKEBOXQUEUELENGTH", "MYMPD_JUKEBOXLASTPLAYED",
-        "MYMPD_JUKEBOXUNIQUETAG", "MYMPD_COLSQUEUECURRENT",
-        "MYMPD_COLSSEARCH", "MYMPD_COLSBROWSEDATABASE", "MYMPD_COLSBROWSEPLAYLISTDETAIL",
+        "MYMPD_JUKEBOXUNIQUETAG", "MYMPD_COLSQUEUECURRENT","MYMPD_COLSSEARCH", 
+        "MYMPD_COLSBROWSEDATABASE", "MYMPD_COLSBROWSEPLAYLISTDETAIL",
         "MYMPD_COLSBROWSEFILESYSTEM", "MYMPD_COLSPLAYBACK", "MYMPD_COLSQUEUELASTPLAYED",
         "MYMPD_LOCALPLAYER", "MYMPD_LOCALPLAYERAUTOPLAY", "MYMPD_STREAMPORT",
         "MYMPD_STREAMURL", "MYMPD_VOLUMESTEP", "MYMPD_COVERCACHEKEEPDAYS", "MYMPD_COVERCACHE",
@@ -375,9 +379,9 @@ void mympd_config_defaults(t_config *config) {
     config->varlibdir = sdsnew(VARLIB_PATH);
     config->stickers = true;
     config->mixramp = false;
-    config->taglist = sdsnew("Artist,Album,AlbumArtist,Title,Track,Genre,Date,Composer,Performer");
-    config->searchtaglist = sdsnew("Artist,Album,AlbumArtist,Title,Genre,Composer,Performer");
-    config->browsetaglist = sdsnew("Artist,Album,AlbumArtist,Genre,Composer,Performer");
+    config->taglist = sdsnew("Artist, Album, AlbumArtist, Title, Track, Genre, Date");
+    config->searchtaglist = sdsnew("Artist, Album, AlbumArtist, Title, Genre");
+    config->browsetaglist = sdsnew("Artist, Album, AlbumArtist, Genre");
     config->smartpls = true;
     config->smartpls_sort = sdsempty();
     config->smartpls_prefix = sdsnew("myMPDsmart");
@@ -393,6 +397,7 @@ void mympd_config_defaults(t_config *config) {
     config->music_directory = sdsnew("auto");
     config->notification_web = false;
     config->notification_page = true;
+    config->media_session = true;
     config->auto_play = false;
     config->jukebox_mode = JUKEBOX_OFF;
     config->jukebox_playlist = sdsnew("Database");
@@ -509,6 +514,7 @@ bool mympd_dump_config(void) {
         "lovemessage = %s\n"
         "notificationweb = %s\n"
         "notificationpage = %s\n"
+        "mediasession = %s\n"
         "autoplay = %s\n"
         "jukeboxmode = %d\n"
         "jukeboxplaylist = %s\n"
@@ -555,6 +561,7 @@ bool mympd_dump_config(void) {
         p_config->love_message,
         (p_config->notification_web == true ? "true" : "false"),
         (p_config->notification_page == true ? "true" : "false"),
+        (p_config->media_session == true ? "true" : "false"),
         (p_config->auto_play == true ? "true" : "false"),
         p_config->jukebox_mode,
         p_config->jukebox_playlist,

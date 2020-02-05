@@ -116,7 +116,7 @@ function parseState(obj) {
     {
         sendAPI("MPD_API_PLAYER_CURRENT_SONG", {}, songChange);
     }
-    //clear playback card if not playing
+    //clear playback card if no current song
     if (obj.result.songPos === '-1') {
         domCache.currentTitle.innerText = 'Not playing';
         document.title = 'myMPD';
@@ -139,7 +139,6 @@ function parseState(obj) {
             cff.getElementsByTagName('p')[0].innerText = fileformat(obj.result.audioFormat);
         }
     }
-
 
     lastState = obj.result;                    
     
@@ -261,6 +260,8 @@ function songChange(obj) {
     let htmlNotification = '';
     let pageTitle = '';
 
+    mediaSessionSetMetadata(obj.result.Title, obj.result.Artist, obj.result.Album, obj.result.uri);
+    
     setCurrentCover(obj.result.uri);
     if (settings.bgCover === true && settings.featCoverimage === true) {
         setBackgroundImage(obj.result.uri);
@@ -342,6 +343,7 @@ function songChange(obj) {
     if (playstate === 'play') {
         showNotification(obj.result.Title, textNotification, htmlNotification, 'success');
     }
+    
     lastSong = curSong;
     lastSongObj = obj.result;
 }
@@ -374,5 +376,50 @@ function clickTitle() {
     let uri = decodeURI(domCache.currentTitle.getAttribute('data-uri'));
     if (uri !== '' && uri.indexOf('://') === -1) {
         songDetails(uri);
+    }
+}
+
+function mediaSessionSetPositionState(duration, position) {
+    if (settings.mediaSession === true && 'mediaSession' in navigator && navigator.mediaSession.setPositionState) {
+        navigator.mediaSession.setPositionState({
+            duration: duration,
+            position: position
+        });
+    }
+}
+
+function mediaSessionSetState() {
+    if (settings.mediaSession === true && 'mediaSession' in navigator) {
+        if (playstate === 'play') {
+            navigator.mediaSession.playbackState = 'playing';
+        }
+        else {
+            navigator.mediaSession.playbackState = 'paused';
+        }
+    }
+}
+
+function mediaSessionSetMetadata(title, artist, album, url) {
+    if (settings.mediaSession === true && 'mediaSession' in navigator) {
+        let hostname = window.location.hostname;
+        let protocol = window.location.protocol;
+        let port = window.location.port;
+        let artwork = protocol + '//' + hostname + (port !== '' ? ':' + port : '') + subdir + '/albumart/' + url;
+
+        if (settings.coverimage === true) {
+            navigator.mediaSession.metadata = new MediaMetadata({
+                title: title,
+                artist: artist,
+                album: album,
+                artwork: [{src: artwork}]
+            });
+        }
+        else {
+            navigator.mediaSession.metadata = new MediaMetadata({
+                title: title,
+                artist: artist,
+                album: album
+            });
+        }
     }
 }

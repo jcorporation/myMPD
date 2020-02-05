@@ -58,6 +58,7 @@ typedef struct t_mympd_state {
     sds love_message;
     bool notification_web;
     bool notification_page;
+    bool media_session;
     bool auto_play;
     enum jukebox_modes jukebox_mode;
     sds jukebox_playlist;

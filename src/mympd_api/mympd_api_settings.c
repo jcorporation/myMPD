@@ -38,7 +38,7 @@ void mympd_api_settings_delete(t_config *config) {
         "last_played", "last_played_count", "locale", "localplayer", "localplayer_autoplay", "love", "love_channel", "love_message",
         "max_elements_per_page",  "mpd_host", "mpd_pass", "mpd_port", "notification_page", "notification_web", "searchtaglist",
         "smartpls", "stickers", "stream_port", "stream_url", "taglist", "music_directory", "bookmarks", "bookmark_list", "covergrid_size", 
-        "theme", "timer", "highlight_color", 0};
+        "theme", "timer", "highlight_color", "media_session", 0};
     const char** ptr = state_files;
     while (*ptr != 0) {
         sds filename = sdscatfmt(sdsempty(), "%s/state/%s", config->varlibdir, *ptr);
@@ -143,6 +143,10 @@ bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state, struct
     else if (strncmp(key->ptr, "notificationPage", key->len) == 0) {
         mympd_state->notification_page = val->type == JSON_TYPE_TRUE ? true : false;
         settingname = sdscat(settingname, "notification_page");
+    }
+    else if (strncmp(key->ptr, "mediaSession", key->len) == 0) {
+        mympd_state->media_session = val->type == JSON_TYPE_TRUE ? true : false;
+        settingname = sdscat(settingname, "media_session");
     }
     else if (strncmp(key->ptr, "autoPlay", key->len) == 0) {
         mympd_state->auto_play = val->type == JSON_TYPE_TRUE ? true : false;
@@ -371,6 +375,7 @@ void mympd_api_read_statefiles(t_config *config, t_mympd_state *mympd_state) {
     mympd_state->love_message = state_file_rw_string(config, "love_message", config->love_message, false);
     mympd_state->notification_web = state_file_rw_bool(config, "notification_web", config->notification_web, false);
     mympd_state->notification_page = state_file_rw_bool(config, "notification_page", config->notification_page, false);
+    mympd_state->media_session = state_file_rw_bool(config, "media_session", config->media_session, false);
     mympd_state->auto_play = state_file_rw_bool(config, "auto_play", config->auto_play, false);
     mympd_state->jukebox_mode = state_file_rw_int(config, "jukebox_mode", config->jukebox_mode, false);
     mympd_state->jukebox_playlist = state_file_rw_string(config, "jukebox_playlist", config->jukebox_playlist, false);
@@ -522,6 +527,7 @@ sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buf
     buffer = tojson_long(buffer, "maxElementsPerPage", mympd_state->max_elements_per_page, true);
     buffer = tojson_bool(buffer, "notificationWeb", mympd_state->notification_web, true);
     buffer = tojson_bool(buffer, "notificationPage", mympd_state->notification_page, true);
+    buffer = tojson_bool(buffer, "mediaSession", mympd_state->media_session, true);
     buffer = tojson_long(buffer, "jukeboxMode", mympd_state->jukebox_mode, true);
     buffer = tojson_char(buffer, "jukeboxPlaylist", mympd_state->jukebox_playlist, true);
     buffer = tojson_long(buffer, "jukeboxQueueLength", mympd_state->jukebox_queue_length, true);

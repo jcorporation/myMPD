@@ -94,6 +94,7 @@ typedef struct t_config {
     sds music_directory;
     bool notification_web;
     bool notification_page;
+    bool media_session;
     bool auto_play;
     int jukebox_mode;
     sds jukebox_playlist;

@@ -158,7 +158,7 @@ function parseSettings() {
     }
     
     toggleBtnChk('btnNotifyPage', settings.notificationPage);
-    
+    toggleBtnChk('btnMediaSession', settings.mediaSession);
     toggleBtnChkCollapse('btnFeatLocalplayer', 'collapseLocalplayer', settings.featLocalplayer);
     toggleBtnChk('btnLocalplayerAutoplay', settings.localplayerAutoplay);
     toggleBtnChk('btnFeatTimer', settings.featTimer);
@@ -359,6 +359,23 @@ function parseSettings() {
     i18nHtml(document.getElementsByTagName('body')[0]);
 
     checkConsume();
+
+    if (settings.mediaSession === true && 'mediaSession' in navigator) {
+        navigator.mediaSession.setActionHandler('play', clickPlay);
+        navigator.mediaSession.setActionHandler('pause', clickPlay);
+        navigator.mediaSession.setActionHandler('stop', clickStop);
+        navigator.mediaSession.setActionHandler('seekbackward', seekRelativeBackward);
+        navigator.mediaSession.setActionHandler('seekforward', seekRelativeForward);
+        navigator.mediaSession.setActionHandler('previoustrack', clickPrev);
+        navigator.mediaSession.setActionHandler('nexttrack', clickNext);
+        
+        if (!navigator.mediaSession.setPositionState) {
+            logDebug('mediaSession.setPositionState not supported by browser');
+        }
+    }
+    else {
+        logDebug('mediaSession not supported by browser');
+    }
 
     settingsParsed = 'true';
 }
@@ -703,6 +720,7 @@ function saveSettings(closeModal) {
             "mixrampdelay": (settings.featMixramp === true ? document.getElementById('inputMixrampdelay').value : settings.mixrampdelay),
             "notificationWeb": (document.getElementById('btnNotifyWeb').classList.contains('active') ? true : false),
             "notificationPage": (document.getElementById('btnNotifyPage').classList.contains('active') ? true : false),
+            "mediaSession": (document.getElementById('btnMediaSession').classList.contains('active') ? true : false),
             "jukeboxMode": parseInt(jukeboxMode),
             "jukeboxPlaylist": selectJukeboxPlaylist.options[selectJukeboxPlaylist.selectedIndex].value,
             "jukeboxQueueLength": parseInt(document.getElementById('inputJukeboxQueueLength').value),
