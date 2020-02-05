@@ -1217,3 +1217,24 @@ Ungültige Zahl
 
 Leaving playlist as it is
 Wiedergabeliste wird nicht verändert
+
+Delete all playlists
+Alle Wiedergabelisten löschen
+
+Delete all smart playlists
+Alle Intelligenten Wiedergabelisten löschen
+
+Delete empty playlists
+Alle leere Wiedergabelisten löschen
+
+Delete playlists
+Wiedergabelisten löschen
+
+Media session support
+Media Session Unterstützung
+
+Not supported by libmpdclient
+Funktion ist nicht von libmpclient unterstützt
+
+Playlists deleted
+Wiedergabeliste wurde gelöscht
