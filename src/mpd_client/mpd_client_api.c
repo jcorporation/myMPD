@@ -166,19 +166,19 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
             if (je == 1) {
                 if (strcmp(p_charbuf1, "sticker") == 0) {
                     je = json_scanf(request->data, sdslen(request->data), "{params: {playlist: %Q, sticker: %Q, maxentries: %d, minvalue: %d, sort: %Q}}", &p_charbuf2, &p_charbuf3, &int_buf1, &int_buf2, &p_charbuf5);
-                    if (je == 4) {
+                    if (je == 5) {
                         rc = mpd_client_smartpls_save(config, mpd_state, p_charbuf1, p_charbuf2, p_charbuf3, NULL, int_buf1, int_buf2, p_charbuf5);
                     }
                 }
                 else if (strcmp(p_charbuf1, "newest") == 0) {
                     je = json_scanf(request->data, sdslen(request->data), "{params: {playlist: %Q, timerange: %d, sort: %Q}}", &p_charbuf2, &int_buf1, &p_charbuf5);
-                    if (je == 2) {
+                    if (je == 3) {
                         rc = mpd_client_smartpls_save(config, mpd_state, p_charbuf1, p_charbuf2, NULL, NULL, 0, int_buf1, p_charbuf5);
                     }
                 }            
                 else if (strcmp(p_charbuf1, "search") == 0) {
                     je = json_scanf(request->data, sdslen(request->data), "{params: {playlist: %Q, tag: %Q, searchstr: %Q, sort: %Q}}", &p_charbuf2, &p_charbuf3, &p_charbuf4, &p_charbuf5);
-                    if (je == 3) {
+                    if (je == 4) {
                         rc = mpd_client_smartpls_save(config, mpd_state, p_charbuf1, p_charbuf2, p_charbuf3, p_charbuf4, 0, 0, p_charbuf5);
                     }
                 }

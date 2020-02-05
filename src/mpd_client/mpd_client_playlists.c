@@ -170,7 +170,10 @@ sds mpd_client_playlist_shuffle_sort(t_mpd_state *mpd_state, sds buffer, sds met
     list_init(&plist);
     struct mpd_song *song;
     while ((song = mpd_recv_song(mpd_state->conn)) != NULL) {
-        const char *tag_value = mpd_song_get_tag(song, sort_tags.tags[0], 0);
+        const char *tag_value = NULL;
+        if (sort_tags.tags[0] != MPD_TAG_UNKNOWN) {
+            tag_value = mpd_song_get_tag(song, sort_tags.tags[0], 0);
+        }
         list_push(&plist, mpd_song_get_uri(song), 0, tag_value, NULL);
         mpd_song_free(song);
     }
