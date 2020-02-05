@@ -41,6 +41,7 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
     unsigned int uint_buf1, uint_buf2;
     int je, int_buf1, int_buf2; 
     bool bool_buf, rc;
+    float float_buf;
     char *p_charbuf1 = NULL;
     char *p_charbuf2 = NULL;
     char *p_charbuf3 = NULL;
@@ -299,6 +300,17 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
             if (je == 2) {
                 mpd_run_seek_id(mpd_state->conn, uint_buf1, uint_buf2);
                 response->data = respond_with_mpd_error_or_ok(mpd_state, response->data, request->method, request->id);
+            }
+            break;
+        case MPD_API_PLAYER_SEEK_CURRENT:
+            je = json_scanf(request->data, sdslen(request->data), "{params: {seek: %f, relative: %B}}", &float_buf, &bool_buf);
+            if (je == 2) {
+                #if LIBMPDCLIENT_CHECK_VERSION(2,15,0)
+                    mpd_run_seek_current(mpd_state->conn, float_buf, bool_buf);
+                    response->data = respond_with_mpd_error_or_ok(mpd_state, response->data, request->method, request->id);
+                #else
+                    respond->data = jsonrpc_respond_message(response->data, request->method, request->id, "Not supported by libmpdclient", true)
+                #endif
             }
             break;
         case MPD_API_QUEUE_LIST: {
