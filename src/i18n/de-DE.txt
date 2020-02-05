@@ -1238,3 +1238,6 @@ Funktion ist nicht von libmpclient unterstützt
 
 Playlists deleted
 Wiedergabeliste wurde gelöscht
+
+Preview
+Vorschau
