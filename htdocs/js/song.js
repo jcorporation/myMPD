@@ -84,10 +84,10 @@ function voteSong(vote) {
         return;
     }
         
-    if (vote === 2 && domCache.btnVoteUp.classList.contains('active-fg-green')) {
+    if (vote === 2 && domCache.btnVoteUp.classList.contains('highlight')) {
         vote = 1;
     }
-    else if (vote === 0 && domCache.btnVoteDown.classList.contains('active-fg-red')) {
+    else if (vote === 0 && domCache.btnVoteDown.classList.contains('highlight')) {
         vote = 1;
     }
     sendAPI("MPD_API_LIKE", {"uri": uri, "like": vote});
