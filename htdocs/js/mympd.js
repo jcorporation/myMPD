@@ -117,6 +117,7 @@ var dropdownCovergridSort = new Dropdown(document.getElementById('btnCovergridSo
 
 var collapseDBupdate = new Collapse(document.getElementById('navDBupdate'));
 var collapseSyscmds = new Collapse(document.getElementById('navSyscmds'));
+var collapseJukeboxMode = new Collapse(document.getElementById('labelJukeboxMode'));
 /* eslint-enable no-unused-vars */
 
 function appPrepare(scrollPos) {

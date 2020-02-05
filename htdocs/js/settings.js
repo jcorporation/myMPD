@@ -158,8 +158,8 @@ function parseSettings() {
     }
     
     toggleBtnChk('btnNotifyPage', settings.notificationPage);
-    toggleBtnChk('btnBgCover', settings.bgCover);
-    toggleBtnChk('btnFeatLocalplayer', settings.featLocalplayer);
+    
+    toggleBtnChkCollapse('btnFeatLocalplayer', 'collapseLocalplayer', settings.featLocalplayer);
     toggleBtnChk('btnLocalplayerAutoplay', settings.localplayerAutoplay);
     toggleBtnChk('btnFeatTimer', settings.featTimer);
     toggleBtnChk('btnBookmarks', settings.featBookmarks);
@@ -171,7 +171,8 @@ function parseSettings() {
         document.getElementById('selectStreamMode').value = 'url';
         document.getElementById('inputStreamUrl').value = settings.streamUrl;
     }
-    toggleBtnChk('btnCoverimage', settings.coverimage);
+    toggleBtnChkCollapse('btnCoverimage', 'collapseAlbumart', settings.coverimage);
+    
     document.getElementById('selectLocale').value = settings.locale;
     document.getElementById('inputCoverimageName').value = settings.coverimageName;
 
@@ -189,6 +190,7 @@ function parseSettings() {
     document.getElementById('highlightColorPreview').style.backgroundColor = settings.highlightColor;
     document.getElementById('bgColorPreview').style.backgroundColor = settings.bgColor;
 
+    toggleBtnChkCollapse('btnBgCover', 'collapseBackground', settings.bgCover);
     document.getElementById('inputBgCssFilter').value = settings.bgCssFilter;    
 
     let albumartbg = document.querySelectorAll('.albumartbg');
@@ -196,15 +198,15 @@ function parseSettings() {
 	albumartbg[i].style.filter = settings.bgCssFilter;
     }
 
-    toggleBtnChk('btnLoveEnable', settings.love);
+    toggleBtnChkCollapse('btnLoveEnable', 'collapseLove', settings.love);
     document.getElementById('inputLoveChannel').value = settings.loveChannel;
     document.getElementById('inputLoveMessage').value = settings.loveMessage;
     
     document.getElementById('inputMaxElementsPerPage').value = settings.maxElementsPerPage;
-    toggleBtnChk('btnStickers', settings.stickers);
+    toggleBtnChkCollapse('btnStickers', 'collapseStatistics', settings.stickers);
     document.getElementById('inputLastPlayedCount').value = settings.lastPlayedCount;
     
-    toggleBtnChk('btnSmartpls', settings.smartpls);
+    toggleBtnChkCollapse('btnSmartpls', 'collapseSmartpls', settings.smartpls);
     
     let features = ["featLocalplayer", "featSyscmds", "featMixramp", "featCacert", "featBookmarks", "featRegex", "featTimer"];
     for (let j = 0; j < features.length; j++) {
@@ -273,7 +275,7 @@ function parseSettings() {
 
     dropdownMainMenu = new Dropdown(document.getElementById('mainMenu'));
     
-    toggleBtnGroupValue(document.getElementById('btnJukeboxModeGroup'), settings.jukeboxMode);
+    toggleBtnGroupValueCollapse(document.getElementById('btnJukeboxModeGroup'), 'collapseJukeboxMode', settings.jukeboxMode);
     document.getElementById('selectJukeboxUniqueTag').value = settings.jukeboxUniqueTag;
     document.getElementById('inputJukeboxQueueLength').value = settings.jukeboxQueueLength;
     document.getElementById('inputJukeboxLastPlayed').value = settings.jukeboxLastPlayed;

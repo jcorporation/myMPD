@@ -209,13 +209,26 @@ function btnWaiting(btn, waiting) {
 
 function toggleBtnGroupValue(btngrp, value) {
     let btns = btngrp.getElementsByTagName('button');
+    let b = btns[0];
     for (let i = 0; i < btns.length; i++) {
         if (btns[i].getAttribute('data-value') == value) {
             btns[i].classList.add('active');
+            b = btns[i];
         }
         else {
             btns[i].classList.remove('active');
         }
+    }
+    return b;
+}
+
+function toggleBtnGroupValueCollapse(btngrp, collapse, value) {
+    let activeBtn = toggleBtnGroupValue(btngrp, value);
+    if (activeBtn.getAttribute('data-collapse') === 'show') {
+        document.getElementById(collapse).classList.add('show');
+    }
+    else {
+        document.getElementById(collapse).classList.remove('show');
     }
 }
 
@@ -232,6 +245,19 @@ function toggleBtnGroup(btn) {
         else {
             btns[i].classList.remove('active');
         }
+    }
+    return b;
+}
+
+function toggleBtnGroupCollapse(btn, collapse) {
+    let activeBtn = toggleBtnGroup(btn);
+    if (activeBtn.getAttribute('data-collapse') === 'show') {
+        if (document.getElementById(collapse).classList.contains('show') === false) {
+            window[collapse].show();
+        }
+    }
+    else {
+        window[collapse].hide();
     }
 }
 
@@ -278,6 +304,16 @@ function toggleBtnChk(btn, state) {
         b.classList.remove('active');
         b.innerText = 'radio_button_unchecked';
         return false;
+    }
+}
+
+function toggleBtnChkCollapse(btn, collapse, state) {
+    let checked = toggleBtnChk(btn, state);
+    if (checked === true) {
+        document.getElementById(collapse).classList.add('show');
+    }
+    else{
+        document.getElementById(collapse).classList.remove('show');
     }
 }
 
@@ -357,6 +393,7 @@ function parseCmd(event, href) {
             case 'toggleBtn':
             case 'toggleBtnChk':
             case 'toggleBtnGroup':
+            case 'toggleBtnGroupCollapse':
             case 'setPlaySettings':
                 window[cmd.cmd](event.target, ... cmd.options);
                 break;

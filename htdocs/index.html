@@ -968,10 +968,10 @@
               <a class="nav-link active text-dark" href="#tabPlaybackSettings" data-toggle="tab" data-height="true" data-phrase="Playback"></a>
             </li>
             <li class="nav-item">
-              <a class="nav-link text-dark" href="#tabInterfaceSettings" data-toggle="tab" data-height="true" data-phrase="Interface"></a>
+              <a class="nav-link text-dark" href="#tabGeneralSettings" data-toggle="tab" data-height="true" data-phrase="General"></a>
             </li>
             <li class="nav-item">
-              <a class="nav-link text-dark" href="#tabGeneralSettings" data-toggle="tab" data-height="true" data-phrase="General"></a>
+              <a class="nav-link text-dark" href="#tabInterfaceSettings" data-toggle="tab" data-height="true" data-phrase="Interface"></a>
             </li>
             <li class="nav-item">
               <a class="nav-link text-dark" href="#tabAdvancedSettings" data-toggle="tab" data-height="true" data-phrase="Advanced"></a>
@@ -1053,44 +1053,46 @@
                 <h4 data-phrase="Jukebox"></h4>
                 <div id="warnConsume" class="alert alert-warning hide" data-phrase="Consume must be enabled"></div>
                 <div class="form-group row">
-                  <label class="col-sm-4 col-form-label" for="btnJukeboxModeGroup" data-phrase="Jukebox mode"></label>
+                  <label id="labelJukeboxMode" class="col-sm-4 col-form-label" for="btnJukeboxModeGroup" data-phrase="Jukebox mode" data-toggle="collapse" data-target="#collapseJukeboxMode"></label>
                   <div class="col-sm-8">
                     <div class="btn-group" id="btnJukeboxModeGroup">
-                      <button data-value="0" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Off"></button>
-                      <button data-value="1" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Song"></button>
-                      <button data-value="2" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Album"></button>
+                      <button data-collapse="hide" data-value="0" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroupCollapse", "options": ["collapseJukeboxMode"]}' type="button" data-phrase="Off"></button>
+                      <button data-collapse="show" data-value="1" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroupCollapse", "options": ["collapseJukeboxMode"]}' type="button" data-phrase="Song"></button>
+                      <button data-collapse="show" data-value="2" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroupCollapse", "options": ["collapseJukeboxMode"]}' type="button" data-phrase="Album"></button>
                     </div>
                   </div>
                 </div>
-                <div class="form-group row">
-                  <label class="col-sm-4 col-form-label" for="selectJukeboxPlaylist" data-phrase="Playlist"></label>
-                  <div class="col-sm-8">
-                    <select id="selectJukeboxPlaylist" class="form-control custom-select border-secondary">
-                    </select>
+                <div class="collapse" id="collapseJukeboxMode">
+                  <div class="form-group row">
+                    <label class="col-sm-4 col-form-label" for="selectJukeboxPlaylist" data-phrase="Playlist"></label>
+                    <div class="col-sm-8">
+                      <select id="selectJukeboxPlaylist" class="form-control custom-select border-secondary">
+                      </select>
+                    </div>
                   </div>
-                </div>
-                <div class="form-group row">
-                  <label class="col-sm-4 col-form-label" for="inputJukeboxQueueLength" data-phrase="Keep queue length"></label>
-                  <div class="col-sm-8">
-                    <input id="inputJukeboxQueueLength" type="text" class="form-control border-secondary" value="1">
-                    <div class="invalid-feedback" data-phrase="Must be a number and greater than zero"></div>
+                  <div class="form-group row">
+                    <label class="col-sm-4 col-form-label" for="inputJukeboxQueueLength" data-phrase="Keep queue length"></label>
+                    <div class="col-sm-8">
+                      <input id="inputJukeboxQueueLength" type="text" class="form-control border-secondary" value="1">
+                      <div class="invalid-feedback" data-phrase="Must be a number and greater than zero"></div>
+                    </div>
                   </div>
-                </div>
-                <div class="form-group row featTags">
-                  <label class="col-sm-4 col-form-label" for="selectJukeboxUniqueTag" data-phrase="Enforce uniqueness"></label>
-                  <div class="col-sm-8">
-                    <select id="selectJukeboxUniqueTag" class="form-control custom-select border-secondary">
-                    </select>
+                  <div class="form-group row featTags">
+                    <label class="col-sm-4 col-form-label" for="selectJukeboxUniqueTag" data-phrase="Enforce uniqueness"></label>
+                    <div class="col-sm-8">
+                      <select id="selectJukeboxUniqueTag" class="form-control custom-select border-secondary">
+                      </select>
+                    </div>
                   </div>
-                </div>
-                <div class="form-group row">
-                  <label class="col-sm-4 col-form-label" for="inputJukeboxLastPlayed" data-phrase="Last played older than (hours)"></label>
-                  <div class="col-sm-8">
-                    <input id="inputJukeboxLastPlayed" type="text" class="form-control border-secondary" value="24">
-                    <div class="invalid-feedback" data-phrase="Must be a number and equal or greater than zero"></div>
+                  <div class="form-group row">
+                    <label class="col-sm-4 col-form-label" for="inputJukeboxLastPlayed" data-phrase="Last played older than (hours)"></label>
+                    <div class="col-sm-8">
+                      <input id="inputJukeboxLastPlayed" type="text" class="form-control border-secondary" value="24">
+                      <div class="invalid-feedback" data-phrase="Must be a number and equal or greater than zero"></div>
+                    </div>
                   </div>
+                  <div id="warnPlaybackStatistics" class="alert alert-warning hide" data-phrase="Playback statistics are disabled"></div>
                 </div>
-                <div id="warnPlaybackStatistics" class="alert alert-warning hide" data-phrase="Playback statistics are disabled"></div>
               </form>
             </div>
             <div class="tab-pane" id="tabInterfaceSettings">
@@ -1129,28 +1131,30 @@
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnCoverimage" data-phrase="Albumart"></label>
                   <div class="col-sm-8 ">
-                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnCoverimage"></button>
+                    <button data-toggle="collapse" data-target="#collapseAlbumart" data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnCoverimage"></button>
                   </div>
                 </div>
-                <div class="form-group row">
-                  <label class="col-sm-4 col-form-label" for="inputCoverimageName" data-phrase="Name"></label>
-                  <div class="col-sm-8 ">
-                    <input id="inputCoverimageName" type="text" class="form-control border-secondary" value="folder.jpg" data-placeholder-phrase="folder.jpg">
-                    <div class="invalid-feedback" data-phrase="Invalid filename"></div>
+                <div class="collapse" id="collapseAlbumart">
+                  <div class="form-group row">
+                    <label class="col-sm-4 col-form-label" for="inputCoverimageName" data-phrase="Name"></label>
+                    <div class="col-sm-8 ">
+                      <input id="inputCoverimageName" type="text" class="form-control border-secondary" value="folder.jpg" data-placeholder-phrase="folder.jpg">
+                      <div class="invalid-feedback" data-phrase="Invalid filename"></div>
+                    </div>
                   </div>
-                </div>
-                <div class="form-group row">
-                  <label class="col-sm-4 col-form-label" for="inputCoverimageSize" data-phrase="Size normal"></label>
-                  <div class="col-sm-8 ">
-                    <input id="inputCoverimageSize" type="text" class="form-control border-secondary" value="250" data-placeholder-phrase="Size in px">
-                    <div class="invalid-feedback" data-phrase="Invalid size"></div>
+                  <div class="form-group row">
+                    <label class="col-sm-4 col-form-label" for="inputCoverimageSize" data-phrase="Size normal"></label>
+                    <div class="col-sm-8 ">
+                      <input id="inputCoverimageSize" type="text" class="form-control border-secondary" value="250" data-placeholder-phrase="Size in px">
+                      <div class="invalid-feedback" data-phrase="Invalid size"></div>
+                    </div>
                   </div>
-                </div>
-                <div class="form-group row">
-                  <label class="col-sm-4 col-form-label" for="inputCovergridSize" data-phrase="Size small"></label>
-                  <div class="col-sm-8 ">
-                    <input id="inputCovergridSize" type="text" class="form-control border-secondary" value="190" data-placeholder-phrase="Size in px">
-                    <div class="invalid-feedback" data-phrase="Invalid size"></div>
+                  <div class="form-group row">
+                    <label class="col-sm-4 col-form-label" for="inputCovergridSize" data-phrase="Size small"></label>
+                    <div class="col-sm-8 ">
+                      <input id="inputCovergridSize" type="text" class="form-control border-secondary" value="190" data-placeholder-phrase="Size in px">
+                      <div class="invalid-feedback" data-phrase="Invalid size"></div>
+                    </div>
                   </div>
                 </div>
                 <hr/>
@@ -1158,16 +1162,18 @@
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnBgCover" data-phrase="Albumart"></label>
                   <div class="col-sm-8 ">
-                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnBgCover"></button>
+                    <button data-toggle="collapse" data-target="#collapseBackground" data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnBgCover"></button>
                   </div>
                 </div>
-                <div class="form-group row">
-                  <label class="col-sm-4 col-form-label" for="inputBgCssFilter" data-phrase="CSS filter"></label>
-                  <div class="col-sm-8 ">
-                    <input id="inputBgCssFilter" type="text" class="form-control border-secondary" value="blur(5px)" placeholder="blur(5px)">
-                    <div class="invalid-feedback" data-phrase="Invalid CSS filter"></div>
+                <div class="collapse" id="collapseBackground">
+                  <div class="form-group row">
+                    <label class="col-sm-4 col-form-label" for="inputBgCssFilter" data-phrase="CSS filter"></label>
+                    <div class="col-sm-8 ">
+                      <input id="inputBgCssFilter" type="text" class="form-control border-secondary" value="blur(5px)" placeholder="blur(5px)">
+                      <div class="invalid-feedback" data-phrase="Invalid CSS filter"></div>
+                    </div>
                   </div>
-                </div>
+                </div>  
                 <hr/>
                 <h4 data-phrase="Locale"></h4>
                 <div class="form-group row">
@@ -1244,14 +1250,16 @@
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnStickers" data-phrase="Playback statistics"></label>
                   <div class="col-sm-8 ">
-                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnStickers"></button>
+                    <button data-toggle="collapse" data-target="#collapseStatistics" data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnStickers"></button>
                   </div>
                 </div>
-                <div class="form-group row">
-                  <label class="col-sm-4 col-form-label" for="inputLastPlayedCount" data-phrase="Last played list count"></label>
-                  <div class="col-sm-8">
-                    <input id="inputLastPlayedCount" type="text" class="form-control border-secondary" value="">
-                    <div class="invalid-feedback" data-phrase="Must be a number and greater than zero"></div>
+                <div class="collapse" id="collapseStatistics">
+                  <div class="form-group row">
+                    <label class="col-sm-4 col-form-label" for="inputLastPlayedCount" data-phrase="Last played list count"></label>
+                    <div class="col-sm-8">
+                      <input id="inputLastPlayedCount" type="text" class="form-control border-secondary" value="">
+                      <div class="invalid-feedback" data-phrase="Must be a number and greater than zero"></div>
+                    </div>
                   </div>
                 </div>
                 <hr/>
@@ -1261,10 +1269,10 @@
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnSmartpls" data-phrase="Smart playlists"></label>
                   <div class="col-sm-8 ">
-                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnSmartpls"></button>
+                    <button data-toggle="collapse" data-target="#collapseSmartpls" data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnSmartpls"></button>
                   </div>
                 </div>
-                <div class="featSmartpls">
+                <div class="featSmartpls collapse" id="collapseSmartpls">
                   <div class="form-group row featTags">
                     <label class="col-sm-4 col-form-label" for="btnGeneratePlsTags" data-phrase="Generate smart playlist per"></label>
                     <div class="col-sm-8 input-group">
@@ -1301,25 +1309,27 @@
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnFeatLocalplayer" data-phrase="Local playback"></label>
                   <div class="col-sm-8 ">
-                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnFeatLocalplayer"></button>
+                    <button data-toggle="collapse" data-target="#collapseLocalplayer" data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnFeatLocalplayer"></button>
                   </div>
                 </div>
-                <div class="form-group row">
-                  <div class="col-sm-4">
-                    <select id="selectStreamMode" class="form-control custom-select border-secondary">
-                      <option value="port" data-phrase="Port"></option>
-                      <option value="url" data-phrase="URI"></option>
-                    </select>
-                  </div>                  
-                  <div class="col-sm-8">
-                    <input id="inputStreamUrl" type="text" class="form-control border-secondary" value="">
-                    <div class="invalid-feedback" data-phrase="Invalid URI"></div>
+                <div class="collapse" id="collapseLocalplayer">
+                  <div class="form-group row">
+                    <div class="col-sm-4">
+                      <select id="selectStreamMode" class="form-control custom-select border-secondary">
+                        <option value="port" data-phrase="Port"></option>
+                        <option value="url" data-phrase="URI"></option>
+                      </select>
+                    </div>                  
+                    <div class="col-sm-8">
+                      <input id="inputStreamUrl" type="text" class="form-control border-secondary" value="">
+                      <div class="invalid-feedback" data-phrase="Invalid URI"></div>
+                    </div>
                   </div>
-                </div>
-                <div class="form-group row">
-                  <label class="col-sm-4 col-form-label" for="btnLocalplayerAutoplay" data-phrase="Autoplay"></label>
-                  <div class="col-sm-8 ">
-                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnLocalplayerAutoplay"></button>
+                  <div class="form-group row">
+                    <label class="col-sm-4 col-form-label" for="btnLocalplayerAutoplay" data-phrase="Autoplay"></label>
+                    <div class="col-sm-8 ">
+                      <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnLocalplayerAutoplay"></button>
+                    </div>
                   </div>
                 </div>
                 <hr/>
@@ -1328,21 +1338,23 @@
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnLoveEnable" data-phrase="Send love message"></label>
                   <div class="col-sm-8 ">
-                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnLoveEnable"></button>
+                    <button data-toggle="collapse" data-target="#collapseLove" data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnLoveEnable"></button>
                   </div>
                 </div>
-                <div class="form-group row">
-                  <label class="col-sm-4 col-form-label" for="inputLoveChannel" data-phrase="MPD channel"></label>
-                  <div class="col-sm-8">
-                    <input id="inputLoveChannel" type="text" class="form-control border-secondary" value="">
-                    <div class="invalid-feedback" data-phrase="Invalid channel name"></div>
+                <div class="collapse" id="collapseLove">
+                  <div class="form-group row">
+                    <label class="col-sm-4 col-form-label" for="inputLoveChannel" data-phrase="MPD channel"></label>
+                    <div class="col-sm-8">
+                      <input id="inputLoveChannel" type="text" class="form-control border-secondary" value="">
+                      <div class="invalid-feedback" data-phrase="Invalid channel name"></div>
+                    </div>
                   </div>
-                </div>
-                <div class="form-group row">
-                  <label class="col-sm-4 col-form-label" for="inputLoveMessage" data-phrase="Message"></label>
-                  <div class="col-sm-8">
-                    <input id="inputLoveMessage" type="text" class="form-control border-secondary" value="">
-                    <div class="invalid-feedback" data-phrase="Invalid message"></div>
+                  <div class="form-group row">
+                    <label class="col-sm-4 col-form-label" for="inputLoveMessage" data-phrase="Message"></label>
+                    <div class="col-sm-8">
+                      <input id="inputLoveMessage" type="text" class="form-control border-secondary" value="">
+                      <div class="invalid-feedback" data-phrase="Invalid message"></div>
+                    </div>
                   </div>
                 </div>
                 <hr/>
@@ -1368,24 +1380,24 @@
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnResetSettings" data-phrase="Reset settings"></label>
                   <div class="col-sm-8">
-                    <button type="button" id="btnResetSettings" class="btn btn-danger btnCleanup" data-href='{"cmd": "resetSettings", "options": []}' data-phrase="Reset"></button>
+                    <button type="button" id="btnResetSettings" class="btn btn-secondary btnCleanup" data-href='{"cmd": "resetSettings", "options": []}' data-phrase="Reset"></button>
                   </div>
                 </div>
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnClearAndReload" data-phrase="Clear app cache and reload"></label>
                   <div class="col-sm-8">
-                    <button type="button" id="btnClearAndReload" class="btn btn-danger btnCleanup" data-href='{"cmd": "clearAndReload", "options": []}' data-phrase="Reload"></button>
+                    <button type="button" id="btnClearAndReload" class="btn btn-secondary btnCleanup" data-href='{"cmd": "clearAndReload", "options": []}' data-phrase="Reload"></button>
                   </div>
                 </div>
                 <div class="form-group row groupClearCovercache">
                   <label class="col-sm-4 col-form-label" for="btnClearCovercache" data-phrase="Clear covercache"></label>
                   <div class="col-sm-8">
-                    <button type="button" id="btnClearCovercache" class="btn btn-danger btnCleanup" data-href='{"cmd": "clearCovercache", "options": []}' data-phrase="Clear"></button>
+                    <button type="button" id="btnClearCovercache" class="btn btn-secondary btnCleanup" data-href='{"cmd": "clearCovercache", "options": []}' data-phrase="Clear"></button>
                     &nbsp;
-                    <button type="button" id="btnCropCovercache" class="btn btn-danger btnCleanup" data-href='{"cmd": "cropCovercache", "options": []}' data-phrase="Crop"></button>
+                    <button type="button" id="btnCropCovercache" class="btn btn-secondary btnCleanup" data-href='{"cmd": "cropCovercache", "options": []}' data-phrase="Crop"></button>
                   </div>
                 </div>
-                <div class="form-group row">
+                <div class="form-group row featPlaylists">
                   <label class="col-sm-4 col-form-label" for="tbnDeletePlaylists" data-phrase="Delete playlists"></label>
                   <div class="col-sm-8">
                     <div class="input-group">
@@ -1395,7 +1407,7 @@
                         <option valie="deleteAllPlaylists" data-phrase="Delete all playlists"></option>
                       </select>
                       <div class="input-group-append">
-                        <button id="btnDeletePlaylists" data-href='{"cmd": "deletePlaylists", "options": []}' type="button" class="btn btn-danger" data-phrase="Delete"></button>
+                        <button id="btnDeletePlaylists" data-href='{"cmd": "deletePlaylists", "options": []}' type="button" class="btn btn-secondary" data-phrase="Delete"></button>
                       </div>
                     </div>
                   </div>
