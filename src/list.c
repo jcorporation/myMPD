@@ -120,7 +120,7 @@ bool list_swap_item(struct list_node *n1, struct list_node *n2) {
 }
 
 bool list_shuffle(struct list *l) {
-    int pos;
+    unsigned int pos;
     int n = 0;
 
     if (l->length < 2) {
@@ -129,7 +129,7 @@ bool list_shuffle(struct list *l) {
 
     struct list_node *current = l->head;
     while (current != NULL) {
-        pos = rand() / (RAND_MAX / (l->length - n + 1) + 1);
+        pos = rand() % l->length;
         list_swap_item(current, list_node_at(l, pos));
         n++;
         current = current->next;
