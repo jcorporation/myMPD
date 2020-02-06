@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include <asm/errno.h>
+#include <errno.h>
 #include <assert.h>
 #include <pthread.h>
 

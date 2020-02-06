@@ -12,6 +12,7 @@
 #include <inttypes.h>
 #include <libgen.h>
 #include <string.h>
+#include <errno.h>
 
 #include "../dist/src/sds/sds.h"
 #include "../dist/src/mongoose/mongoose.h"
@@ -30,6 +31,7 @@
 #include "web_server.h"
 
 //private definitions
+static void manage_emptydir(sds varlibdir, bool pics, bool smartplaylists, bool music, bool playlists);
 static bool parse_internal_message(t_work_result *response, t_mg_user_data *mg_user_data);
 static int is_websocket(const struct mg_connection *nc);
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data);
@@ -142,6 +144,39 @@ void *web_server_loop(void *arg_mgr) {
 }
 
 //private functions
+static void rm_mk_dir(sds dir_name, bool create) {
+    if (create == true) { 
+        int rc = mkdir(dir_name, 0700);
+        if (rc != 0 && errno != EEXIST) {
+            LOG_ERROR("Can not create directory %s: %s", dir_name, strerror(errno));
+        }
+    }
+    else { 
+        int rc = rmdir(dir_name);
+        if (rc != 0 && errno != ENOENT) {
+            LOG_ERROR("Can not remove directory %s: %s", dir_name, strerror(errno));
+        }
+    }
+}
+
+static void manage_emptydir(sds varlibdir, bool pics, bool smartplaylists, bool music, bool playlists) {
+    sds dir_name = sdscatfmt(sdsempty(), "%s/empty/pics", varlibdir);
+    rm_mk_dir(dir_name, pics);
+    
+    dir_name = sdscrop(dir_name);
+    dir_name = sdscatfmt(dir_name, "%s/empty/smartplaylists", varlibdir);
+    rm_mk_dir(dir_name, smartplaylists);
+    
+    dir_name = sdscrop(dir_name);
+    dir_name = sdscatfmt(dir_name, "%s/empty/music", varlibdir);
+    rm_mk_dir(dir_name, music);
+    
+    dir_name = sdscrop(dir_name);
+    dir_name = sdscatfmt(dir_name, "%s/empty/playlists", varlibdir);
+    rm_mk_dir(dir_name, playlists);
+    sdsfree(dir_name);
+}
+
 static bool parse_internal_message(t_work_result *response, t_mg_user_data *mg_user_data) {
     char *p_charbuf1 = NULL;
     char *p_charbuf2 = NULL;
@@ -163,16 +198,20 @@ static bool parse_internal_message(t_work_result *response, t_mg_user_data *mg_u
         
         mg_user_data->rewrite_patterns = sdscrop(mg_user_data->rewrite_patterns);
         if (config->publish == true) {
-            mg_user_data->rewrite_patterns = sdscatfmt(mg_user_data->rewrite_patterns, "/browse=%s/empty", config->varlibdir);
-            mg_user_data->rewrite_patterns = sdscatfmt(mg_user_data->rewrite_patterns, ",/browse/pics=%s/pics", config->varlibdir);
+            mg_user_data->rewrite_patterns = sdscatfmt(mg_user_data->rewrite_patterns, "/browse/pics=%s/pics", config->varlibdir);
             if (config->smartpls == true) {
                 mg_user_data->rewrite_patterns = sdscatfmt(mg_user_data->rewrite_patterns, ",/browse/smartplaylists=%s/smartpls", config->varlibdir);
             }
             if (feat_library == true) {
-                mg_user_data->rewrite_patterns = sdscatfmt(mg_user_data->rewrite_patterns, ",/browse/library=%s", mg_user_data->music_directory);
+                mg_user_data->rewrite_patterns = sdscatfmt(mg_user_data->rewrite_patterns, ",/browse/music=%s", mg_user_data->music_directory);
             }
             if (sdslen(mg_user_data->playlist_directory) > 0) {
                 mg_user_data->rewrite_patterns = sdscatfmt(mg_user_data->rewrite_patterns, ",/browse/playlists=%s", mg_user_data->playlist_directory);
+            }
+            mg_user_data->rewrite_patterns = sdscatfmt(mg_user_data->rewrite_patterns, ",/browse=%s/empty", config->varlibdir);
+            if (config->readonly == false) {
+                //maintain directory structure in empty directory
+                manage_emptydir(config->varlibdir, true, config->smartpls, feat_library, (sdslen(mg_user_data->playlist_directory) > 0 ? true : false));
             }
         }
         LOG_DEBUG("Setting rewrite_patterns to %s", mg_user_data->rewrite_patterns);
