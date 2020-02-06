@@ -92,6 +92,7 @@ typedef struct t_config {
     sds love_channel;
     sds love_message;
     sds music_directory;
+    sds playlist_directory;
     bool notification_web;
     bool notification_page;
     bool media_session;
@@ -124,7 +125,8 @@ typedef struct t_config {
     bool readonly;
     bool bookmarks;
     int volume_step;
-    bool publish_library;
+    bool publish;
+    bool webdav;
     int covercache_keep_days;
     bool covercache;
     sds theme;

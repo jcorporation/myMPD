@@ -39,8 +39,8 @@ function parseSongDetails(obj) {
         songDetails += '</td></tr>';
     }
     songDetails += '<tr><th>' + t('Duration') + '</th><td>' + beautifyDuration(obj.result.Duration) + '</td></tr>';
-    if (settings.featLibrary === true && settings.publishLibrary === true) {
-        songDetails += '<tr><th>' + t('Filename') + '</th><td><a class="breakAll text-success" href="/library/' + 
+    if (settings.featLibrary === true && settings.publish === true) {
+        songDetails += '<tr><th>' + t('Filename') + '</th><td><a class="breakAll text-success" href="/browse/library/' + 
             encodeURI(obj.result.uri) + '" download title="' + e(obj.result.uri) + '">' + 
             e(basename(obj.result.uri)) + '</a></td></tr>';
     }

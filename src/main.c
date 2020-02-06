@@ -80,10 +80,6 @@ static bool do_chroot(struct t_config *config) {
         putenv(env_pwd);
         //set mympd config
         config->varlibdir = sdscrop(config->varlibdir);
-        if (config->syscmds == true) {
-            LOG_INFO("Disabling syscmds");
-            config->syscmds = false;
-        }
         return true;
     }
     return false;
@@ -252,6 +248,14 @@ static bool check_dirs(t_config *config) {
         if (testdir_rc > 1) {
             sdsfree(testdirname);
             return false;
+        }
+    }
+    
+    //mpd playlist directory
+    if (sdslen(config->playlist_directory) > 0) {
+        testdir_rc = testdir("MPD playlists dir", config->playlist_directory, false);
+        if (testdir_rc > 0) {
+            config->playlist_directory = sdscrop(config->playlist_directory);
         }
     }
     sdsfree(testdirname);
@@ -467,7 +471,9 @@ int main(int argc, char **argv) {
     sdsfree(configfile);
     sdsfree(option);
     if (init_mg_user_data == true) {
+        sdsfree(mg_user_data->browse_document_root);
         sdsfree(mg_user_data->music_directory);
+        sdsfree(mg_user_data->playlist_directory);
         sdsfreesplitres(mg_user_data->coverimage_names, mg_user_data->coverimage_names_len);
         sdsfree(mg_user_data->rewrite_patterns);
     }

@@ -29,7 +29,9 @@
 
 typedef struct t_mg_user_data {
     void *config; //pointer to mympd config
+    sds browse_document_root;
     sds music_directory;
+    sds playlist_directory;
     sds rewrite_patterns;
     sds *coverimage_names;
     int coverimage_names_len;

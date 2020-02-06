@@ -46,6 +46,9 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("mpd", "musicdirectory")) {
         p_config->music_directory = sdsreplace(p_config->music_directory, value);
     }
+    else if (MATCH("mpd", "playlistdirectory")) {
+        p_config->playlist_directory = sdsreplace(p_config->playlist_directory, value);
+    }
     else if (MATCH("mpd", "regex")) {
         p_config->regex = strtobool(value);
     }
@@ -75,8 +78,11 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
         p_config->ssl_san = sdsreplace(p_config->ssl_san, value);
     }
 #endif
-    else if (MATCH("webserver", "publishlibrary")) {
-        p_config->publish_library = strtobool(value);
+    else if (MATCH("webserver", "publish")) {
+        p_config->publish = strtobool(value);
+    }
+    else if (MATCH("webserver", "webdav")) {
+        p_config->webdav = strtobool(value);
     }
     else if (MATCH("mympd", "user")) {
         p_config->user = sdsreplace(p_config->user, value);
@@ -289,7 +295,8 @@ static void mympd_parse_env(struct t_config *config, const char *envvar) {
 
 static void mympd_get_env(struct t_config *config) {
     const char *env_vars[]={"MPD_HOST", "MPD_PORT", "MPD_PASS", "MPD_MUSICDIRECTORY",
-        "MPD_REGEX", "WEBSERVER_WEBPORT", "WEBSERVER_PUBLISHLIBRARY",
+        "MPD_PLAYLISTDIRECTORY", "MPD_REGEX", "WEBSERVER_WEBPORT", "WEBSERVER_PUBLISH",
+        "WEBSERVER_WEBDAV",
       #ifdef ENABLE_SSL
         "WEBSERVER_SSL", "WEBSERVER_SSLPORT", "WEBSERVER_SSLCERT", "WEBSERVER_SSLKEY",
         "WEBSERVER_SSLSAN", 
@@ -338,6 +345,7 @@ void mympd_free_config(t_config *config) {
     sdsfree(config->love_channel);
     sdsfree(config->love_message);
     sdsfree(config->music_directory);
+    sdsfree(config->playlist_directory);
     sdsfree(config->jukebox_playlist);
     sdsfree(config->jukebox_unique_tag);
     sdsfree(config->cols_queue_current);
@@ -362,9 +370,11 @@ void mympd_free_config(t_config *config) {
 }
 
 void mympd_config_defaults(t_config *config) {
-    config->mpd_host = sdsnew("127.0.0.1");
+    config->mpd_host = sdsnew("/var/run/mpd/socket");
     config->mpd_port = 6600;
     config->mpd_pass = sdsempty();
+    config->music_directory = sdsnew("auto");
+    config->playlist_directory = sdsnew("/var/lib/mpd/playlists");
     config->webport = sdsnew("80");
 #ifdef ENABLE_SSL
     config->ssl = true;
@@ -394,7 +404,6 @@ void mympd_config_defaults(t_config *config) {
     config->love = false;
     config->love_channel = sdsempty();
     config->love_message = sdsnew("love");
-    config->music_directory = sdsnew("auto");
     config->notification_web = false;
     config->notification_page = true;
     config->media_session = true;
@@ -427,7 +436,8 @@ void mympd_config_defaults(t_config *config) {
     config->readonly = false;
     config->bookmarks = true;
     config->volume_step = 5;
-    config->publish_library = true;
+    config->publish = false;
+    config->webdav = false;
     config->covercache_keep_days = 7;
     config->covercache = true;
     config->theme = sdsnew("theme-default");
@@ -458,10 +468,12 @@ bool mympd_dump_config(void) {
         "port = %d\n"
         "#pass = \n"
         "musicdirectory = %s\n"
+        "playlistdirectory = %s\n"
         "regex = %s\n\n",
         p_config->mpd_host,
         p_config->mpd_port,
         p_config->music_directory,
+        p_config->playlist_directory,
         (p_config->regex == true ? "true" : "false")
     );
     
@@ -474,7 +486,8 @@ bool mympd_dump_config(void) {
         "sslkey = %s\n"
         "sslsan = %s\n"
     #endif
-        "publishlibrary = %s\n\n",
+        "publish = %s\n"
+        "webdav = %s\n\n",
         p_config->webport,
     #ifdef ENABLE_SSL
         (p_config->ssl == true ? "true" : "false"),
@@ -483,7 +496,8 @@ bool mympd_dump_config(void) {
         p_config->ssl_key,
         p_config->ssl_san,
     #endif
-        (p_config->publish_library == true ? "true" : "false")
+        (p_config->publish == true ? "true" : "false"),
+        (p_config->webdav == true ? "true" : "false")
     );
 
     fprintf(fp, "[mympd]\n"
@@ -646,11 +660,19 @@ bool mympd_read_config(t_config *config, sds configfile) {
     if (config->readonly == true) {
         mympd_set_readonly(config);
     }
-    if (config->stickers == false) {
+    if (config->stickers == false && config->sticker_cache == true) {
         LOG_INFO("Stickers are disabled, disabling sticker cache");
         config->sticker_cache = false;
     }
+    if (config->publish == false && config->webdav == true) {
+        LOG_INFO("Publish is disabled, disabling webdav");
+        config->webdav = false;
+    }
 
+    if (config->chroot == ture && config->syscmds == true) {
+        LOG_INFO("Chroot enabled, disabling syscmds");
+        config->syscmds = false;
+    }
     return true;
 }
 

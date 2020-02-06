@@ -553,7 +553,7 @@ sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buf
     buffer = tojson_bool(buffer, "readonly", config->readonly, true);
     buffer = tojson_bool(buffer, "featBookmarks", mympd_state->bookmarks, true);
     buffer = tojson_long(buffer, "volumeStep", config->volume_step, true);
-    buffer = tojson_bool(buffer, "publishLibrary", config->publish_library, true);
+    buffer = tojson_bool(buffer, "publish", config->publish, true);
     buffer = tojson_char(buffer, "theme", mympd_state->theme, true);
     buffer = tojson_char(buffer, "highlightColor", mympd_state->highlight_color, true);
     buffer = tojson_bool(buffer, "featTimer", mympd_state->timer, true);
