@@ -669,7 +669,7 @@ bool mympd_read_config(t_config *config, sds configfile) {
         config->webdav = false;
     }
 
-    if (config->chroot == ture && config->syscmds == true) {
+    if (config->chroot == true && config->syscmds == true) {
         LOG_INFO("Chroot enabled, disabling syscmds");
         config->syscmds = false;
     }
