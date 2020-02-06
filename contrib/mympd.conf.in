@@ -27,6 +27,11 @@ webport = 80
 ssl = true
 sslport = 443
 
+#Publishes some mpd and myMPD directories
+publish = false
+
+#Webdav support, publish must be set to true
+webdav = false
 
 [mympd]
 #Loglevel
