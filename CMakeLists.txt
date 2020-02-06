@@ -75,6 +75,7 @@ if(NOT "${ENABLE_SSL}" MATCHES "OFF")
 endif()
 if(OPENSSL_FOUND)
   set(ENABLE_SSL "ON")
+  set(MONGOOSE_SSL "-DMG_ENABLE_SSL")
   include_directories(${OPENSSL_INCLUDE_DIR})
 else()
   message("Openssl is disabled")
@@ -132,7 +133,7 @@ endif()
 #compiler flags for mympd src
 file(GLOB MYMPD_SRC_FILES1 "src/*.c")
 set_property(SOURCE ${MYMPD_SRC_FILES1} PROPERTY COMPILE_FLAGS "-Wextra -pedantic -Wformat=2 -Wunused-parameter -Wshadow -Wwrite-strings \
-	-Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs -Wmissing-include-dirs")
+	-Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs -Wmissing-include-dirs ${MONGOOSE_SSL}")
 
 file(GLOB MYMPD_SRC_FILES2 "src/mpd_client/*.c")
 set_property(SOURCE ${MYMPD_SRC_FILES2} PROPERTY COMPILE_FLAGS "-Wextra -pedantic -Wformat=2 -Wunused-parameter -Wshadow -Wwrite-strings \
@@ -153,10 +154,8 @@ set_property(SOURCE dist/src/inih/ini.c PROPERTY COMPILE_FLAGS "-Wno-stringop-tr
 set_property(SOURCE dist/src/frozen/frozen.c PROPERTY COMPILE_FLAGS "-Wno-stringop-overflow")
 
 #compiler flags for mongoose.c
-if(OPENSSL_FOUND)
-  set(MG_ENABLE_SSL "-DMG_ENABLE_SSL")
-endif()
-set_property(SOURCE dist/src/mongoose/mongoose.c PROPERTY COMPILE_FLAGS "-Wno-format-truncation ${MG_ENABLE_SSL} \
+
+set_property(SOURCE dist/src/mongoose/mongoose.c PROPERTY COMPILE_FLAGS "-Wno-format-truncation ${MONGOOSE_SSL} \
 	-DMG_ENABLE_HTTP_WEBDAV -DMG_ENABLE_FAKE_DAVLOCK -DMG_DISABLE_MQTT -DMG_DISABLE_MQTT_BROKER \
 	-DMG_DISABLE_DNS_SERVER -DMG_DISABLE_COAP -DMG_DISABLE_HTTP_CGI -DMG_DISABLE_HTTP_SSI -DMG_DISABLE_SSI_EXEC \
 	-DMG_DISABLE_BROADCAST -DMG_DISABLE_THREADS")
