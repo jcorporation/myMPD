@@ -214,7 +214,7 @@ sds mpd_client_playlist_shuffle_sort(t_mpd_state *mpd_state, sds buffer, sds met
     if (mpd_command_list_begin(mpd_state->conn, false)) {
         mpd_send_playlist_clear(mpd_state->conn, uri);    
 
-        struct node *current = plist.head;
+        struct list_node *current = plist.head;
         while (current != NULL) {
             mpd_send_playlist_add(mpd_state->conn, uri, current->key);
             current = current->next;
@@ -602,7 +602,7 @@ sds mpd_client_playlist_delete_all(t_config *config, t_mpd_state *mpd_state, sds
     }
     
     if (strcmp(type, "deleteEmptyPlaylists") == 0) {
-        struct node *current = playlists.head;
+        struct list_node *current = playlists.head;
         while (current != NULL) {
             current->value_i = mpd_client_enum_playlist(mpd_state, current->key);
             current = current->next;
@@ -610,7 +610,7 @@ sds mpd_client_playlist_delete_all(t_config *config, t_mpd_state *mpd_state, sds
     }
 
     if (mpd_command_list_begin(mpd_state->conn, false)) {
-        struct node *current = playlists.head;
+        struct list_node *current = playlists.head;
         while (current != NULL) {
             bool smartpls = false;
             if (strcmp(type, "deleteSmartPlaylists") == 0) {
@@ -671,7 +671,7 @@ static bool mpd_client_smartpls_per_tag(t_config *config, t_mpd_state *mpd_state
             list_free(&tag_list);
             return false;
         }
-        struct node *current = tag_list.head;
+        struct list_node *current = tag_list.head;
         while (current != NULL) {
             const char *tagstr = mpd_tag_name(tag);
             sds playlist = sdscatfmt(sdsempty(), "%s%s%s-%s", mpd_state->smartpls_prefix, (sdslen(mpd_state->smartpls_prefix) > 0 ? "-" : ""), tagstr, current->key);
@@ -783,7 +783,7 @@ static bool mpd_client_smartpls_update_sticker(t_mpd_state *mpd_state, const cha
 
     list_sort_by_value_i(&add_list, false);
 
-    struct node *current = add_list.head;
+    struct list_node *current = add_list.head;
     int i = 0;
     while (current != NULL) {
         if (current->value_i >= value_max) {

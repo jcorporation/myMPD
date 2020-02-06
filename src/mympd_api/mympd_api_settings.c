@@ -569,7 +569,7 @@ sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buf
     if (config->syscmds == true) {
         buffer = sdscat(buffer, ",\"syscmdList\":[");
         int nr = 0;
-        struct node *current = config->syscmd_list.head;
+        struct list_node *current = config->syscmd_list.head;
         while (current != NULL) {
             if (nr++) {
                 buffer = sdscat(buffer, ",");
