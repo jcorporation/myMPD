@@ -268,7 +268,7 @@ static void send_api_response(struct mg_mgr *mgr, t_work_result *response) {
             }
         }
         else {
-            LOG_DEBUG("Unknown connection");
+            LOG_WARN("Unknown connection");
         }
     }
     free_result(response);
@@ -442,7 +442,7 @@ static bool handle_api(int conn_id, struct http_message *hm) {
         return false;
     }
     
-    LOG_VERBOSE("API request (%d): %.*s", conn_id, hm->body.len, hm->body.p);
+    LOG_DEBUG("API request (%d): %.*s", conn_id, hm->body.len, hm->body.p);
     char *cmd = NULL;
     char *jsonrpc = NULL;
     int id = 0;
@@ -452,6 +452,7 @@ static bool handle_api(int conn_id, struct http_message *hm) {
         FREE_PTR(jsonrpc);
         return false;
     }
+    LOG_VERBOSE("API request (%d): %s", conn_id, cmd);
 
     enum mympd_cmd_ids cmd_id = get_cmd_id(cmd);
     if (cmd_id == 0 || strncmp(jsonrpc, "2.0", 3) != 0) {

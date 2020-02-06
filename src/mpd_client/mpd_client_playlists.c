@@ -733,7 +733,7 @@ static bool mpd_client_smartpls_update_search(t_mpd_state *mpd_state, const char
     }
     sdsfree(buffer);
     sdsfree(method);
-    LOG_INFO("Updated smart playlist %s", playlist);
+    LOG_VERBOSE("Updated smart playlist %s", playlist);
     return true;
 }
 
@@ -803,7 +803,7 @@ static bool mpd_client_smartpls_update_sticker(t_mpd_state *mpd_state, const cha
         current = current->next;
     }
     list_free(&add_list);
-    LOG_INFO("Updated smart playlist %s with %d songs, minValue: %d", playlist, i, value_max);
+    LOG_VERBOSE("Updated smart playlist %s with %d songs, minValue: %d", playlist, i, value_max);
     return true;
 }
 
@@ -835,7 +835,7 @@ static bool mpd_client_smartpls_update_newest(t_mpd_state *mpd_state, const char
             buffer = mpd_client_search(mpd_state, buffer, method, 0, searchstr, "modified-since", playlist, 0, NULL);
             sdsfree(searchstr);
         }
-        LOG_INFO("Updated smart playlist %s", playlist);
+        LOG_VERBOSE("Updated smart playlist %s", playlist);
     }
     sdsfree(buffer);
     sdsfree(method);
