@@ -129,10 +129,6 @@ else()
 	-fsanitize=nonnull-attribute -fsanitize=returns-nonnull-attribute -fsanitize=bool -fsanitize=enum -fsanitize=vptr -static-libasan")
 endif()
 
-if(OPENSSL_FOUND)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DMG_ENABLE_SSL")
-endif()
-
 #compiler flags for mympd src
 file(GLOB MYMPD_SRC_FILES1 "src/*.c")
 set_property(SOURCE ${MYMPD_SRC_FILES1} PROPERTY COMPILE_FLAGS "-Wextra -pedantic -Wformat=2 -Wunused-parameter -Wshadow -Wwrite-strings \
@@ -157,8 +153,15 @@ set_property(SOURCE dist/src/inih/ini.c PROPERTY COMPILE_FLAGS "-Wno-stringop-tr
 set_property(SOURCE dist/src/frozen/frozen.c PROPERTY COMPILE_FLAGS "-Wno-stringop-overflow")
 
 #compiler flags for mongoose.c
-set_property(SOURCE dist/src/mongoose/mongoose.c PROPERTY COMPILE_FLAGS "-Wno-format-truncation")
+if(OPENSSL_FOUND)
+  set(MG_ENABLE_SSL "-DMG_ENABLE_SSL")
+endif()
+set_property(SOURCE dist/src/mongoose/mongoose.c PROPERTY COMPILE_FLAGS "-Wno-format-truncation ${MG_ENABLE_SSL} \
+	-DMG_ENABLE_IPV6 -DMG_ENABLE_HTTP_WEBDAV -DMG_ENABLE_FAKE_DAVLOCK -DMG_DISABLE_MQTT -DMG_DISABLE_MQTT_BROKER \
+	-DMG_DISABLE_DNS_SERVER -DMG_DISABLE_COAP -DMG_DISABLE_HTTP_CGI -DMG_DISABLE_HTTP_SSI -DMG_DISABLE_SSI_EXEC \
+	-DMG_DISABLE_BROADCAST -DMG_DISABLE_THREADS -DMG_DISABLE_HTTP_DIGEST_AUTH -DCS_DISABLE_MD5")
 
+#linker flags
 set (CMAKE_EXE_LINKER_FLAGS "-Wl,-z,relro -Wl,-z,now")
 
 set(SOURCES
