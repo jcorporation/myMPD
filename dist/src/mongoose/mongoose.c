@@ -7907,7 +7907,7 @@ static void mg_print_dir_entry(struct mg_connection *nc, const char *file_name,
   href = mg_url_encode(mg_mk_str(file_name));
   mg_printf_http_chunk(nc,
                        "<tr><td><a href=\"%s%s\">%s%s</a></td>"
-                       "<td>%s</td><td name=%" INT64_FMT ">%s</td></tr>\n",
+                       "<td>%s</td><td name=\"%" INT64_FMT "\">%s</td></tr>",
                        href.p, slash, path, slash, mod, is_dir ? -1 : fsize,
                        size);
   free((void *) href.p);
@@ -7966,6 +7966,17 @@ static void mg_send_directory_listing(struct mg_connection *nc, const char *dir,
       "srt(tb, sc, so, true);"
       "}"
       "</script>";
+      
+  static const char *css_code =
+      "h1{top:0;font-size:inherit;font-weight:inherit}address{bottom:0;font-style:normal}"
+      "h1,address{background-color:#343a40;color:#f8f9fa;padding:1rem;position:fixed;"
+      "box-sizing:border-box;width:100%;margin-top:0}body{margin:5rem 0;background-color:#f7f7f7;"
+      "color:#212529;font-family:sans-serif;font-size:1rem;font-weight:400;line-height:1.5}"
+      "table{border-collapse:collapse;margin:1rem}th{border-bottom:2px solid #dee2e6;"
+      "border-top:1px solid #dee2e6;text-align:left;padding:.3rem;font-family:inherit}"
+      "td{text-align:left;padding:.3rem;font-family:inherit;border-bottom:1px solid #dee2e6}"
+      "td:last-child{text-align:right}a,a:visited,a:active{color:#212529;text-decoration:none}"
+      "a:hover{text-decoration:underline}";
 
   mg_send_response_line(nc, 200, opts->extra_headers);
   mg_printf(nc, "%s: %s\r\n%s: %s\r\n\r\n", "Transfer-Encoding", "chunked",
@@ -7973,25 +7984,22 @@ static void mg_send_directory_listing(struct mg_connection *nc, const char *dir,
 
   mg_printf_http_chunk(
       nc,
-      "<html><head><title>Index of %.*s</title>%s%s"
-      "<style>th,td {text-align: left; padding-right: 1em; "
-      "font-family: monospace; }</style></head>\n"
-      "<body><h1>Index of %.*s</h1>\n<table cellpadding=0><thead>"
-      "<tr><th><a href=# rel=0>Name</a></th><th>"
-      "<a href=# rel=1>Modified</a</th>"
-      "<th><a href=# rel=2>Size</a></th></tr>"
-      "<tr><td colspan=3><hr></td></tr>\n"
-      "</thead>\n"
-      "<tbody id=tb>",
+      "<!DOCTYPE html><html><head><title>Index of %.*s</title>%s%s"
+      "<style>%s</style></head>"
+      "<body><h1>Index of %.*s</h1><table><thead>"
+      "<tr><th><a href=\"#\" rel=\"0\">Name</a></th><th>"
+      "<a href=\"#\" rel=\"1\">Modified</a></th>"
+      "<th><a href=\"#\" rel=\"2\">Size</a></th></tr>"
+      "</thead>"
+      "<tbody id=\"tb\">",
       (int) hm->uri.len, hm->uri.p, sort_js_code, sort_js_code2,
-      (int) hm->uri.len, hm->uri.p);
+      css_code, (int) hm->uri.len, hm->uri.p);
   mg_scan_directory(nc, dir, opts, mg_print_dir_entry);
   mg_printf_http_chunk(nc,
-                       "</tbody><tr><td colspan=3><hr></td></tr>\n"
-                       "</table>\n"
-                       "<address>%s</address>\n"
-                       "</body></html>",
-                       mg_version_header);
+                       "</tbody>"
+                       "</table>"
+                       "<address>myMPD</address>"
+                       "</body></html>");
   mg_send_http_chunk(nc, "", 0);
   /* TODO(rojer): Remove when cesanta/dev/issues/197 is fixed. */
   nc->flags |= MG_F_SEND_AND_CLOSE;
