@@ -18,6 +18,42 @@
 #include "web_server_embedded_files.c"
 #endif
 
+bool rm_mk_dir(sds dir_name, bool create) {
+    if (create == true) { 
+        int rc = mkdir(dir_name, 0700);
+        if (rc != 0 && errno != EEXIST) {
+            LOG_ERROR("Can not create directory %s: %s", dir_name, strerror(errno));
+            return false;
+        }
+    }
+    else { 
+        int rc = rmdir(dir_name);
+        if (rc != 0 && errno != ENOENT) {
+            LOG_ERROR("Can not remove directory %s: %s", dir_name, strerror(errno));
+            return false;
+        }
+    }
+    return true;
+}
+
+void manage_emptydir(sds varlibdir, bool pics, bool smartplaylists, bool music, bool playlists) {
+    sds dir_name = sdscatfmt(sdsempty(), "%s/empty/pics", varlibdir);
+    rm_mk_dir(dir_name, pics);
+    
+    dir_name = sdscrop(dir_name);
+    dir_name = sdscatfmt(dir_name, "%s/empty/smartplaylists", varlibdir);
+    rm_mk_dir(dir_name, smartplaylists);
+    
+    dir_name = sdscrop(dir_name);
+    dir_name = sdscatfmt(dir_name, "%s/empty/music", varlibdir);
+    rm_mk_dir(dir_name, music);
+    
+    dir_name = sdscrop(dir_name);
+    dir_name = sdscatfmt(dir_name, "%s/empty/playlists", varlibdir);
+    rm_mk_dir(dir_name, playlists);
+    sdsfree(dir_name);
+}
+
 void populate_dummy_hm(struct http_message *hm) {
     hm->message = mg_mk_str("");
     hm->body = mg_mk_str("");
