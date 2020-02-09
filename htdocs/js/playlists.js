@@ -324,10 +324,10 @@ function addSmartpls(type) {
 
 function deletePlaylists() {
     let selectDeletePlaylists = document.getElementById('selectDeletePlaylists');
-    let btnDeltePlaylists = document.getElementById('btnDeletePlaylists');
+    let btnDeletePlaylists = document.getElementById('btnDeletePlaylists');
     btnWaiting(btnDeletePlaylists, true);
     sendAPI("MPD_API_PLAYLIST_RM_ALL", {"type": selectDeletePlaylists.options[selectDeletePlaylists.selectedIndex].value}, function() {
-        let btnDeltePlaylists = document.getElementById('btnDeletePlaylists');
+        let btnDeletePlaylists = document.getElementById('btnDeletePlaylists');
         btnWaiting(btnDeletePlaylists, false);
     });
 }
