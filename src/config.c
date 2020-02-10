@@ -405,7 +405,7 @@ void mympd_config_defaults(t_config *config) {
     config->love_channel = sdsempty();
     config->love_message = sdsnew("love");
     config->notification_web = false;
-    config->notification_page = true;
+    config->notification_page = false;
     config->media_session = true;
     config->auto_play = false;
     config->jukebox_mode = JUKEBOX_OFF;

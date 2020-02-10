@@ -670,3 +670,30 @@ div#playDropdown .row {
 .playback-toolbar {
   margin-top: -0.25rem;
 }
+
+#navState > a::after {
+  display: none;
+}
+
+#stateDropup {
+  min-width: 20rem;
+}
+
+#logOverview {
+  max-height: 70vH;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+#logOverview > div {
+  font-size: 0.8rem;
+}
+
+.top-alert {
+  border-radius: 0;
+  border-left: none;
+  border-right: none;
+  padding-top: 0;
+  padding-bottom: 0.1rem;
+  margin-top: -0.3rem;
+}

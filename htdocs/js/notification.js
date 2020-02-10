@@ -5,6 +5,51 @@
  https://github.com/jcorporation/mympd
 */
 
+function setStateIcon(state) {
+    let stateIcon = document.getElementById('navState').children[0];
+    let websocketStateIcon = document.getElementById('websocketState').children[0];
+    let mpdStateIcon = document.getElementById('mpdState').children[0];
+    let websocketStateText = document.getElementById('websocketState').getElementsByTagName('small')[0];
+    let mpdStateText = document.getElementById('mpdState').getElementsByTagName('small')[0];
+    
+    if (websocketConnected === false) {
+        stateIcon.innerText = 'cloud_off';
+    }
+    else if (settings.mpdConnected === false) {
+        stateIcon.innerText = 'cloud_off';
+    }
+    else {
+        if (state === 'newMessage') {
+            stateIcon.innerText = 'chat';
+        }
+        else if (state === 'noMessage') {
+            stateIcon.innerText = 'chat_bubble_outline';
+        }
+    }
+    
+    if (websocketConnected === false) {
+        websocketStateIcon.innerText = 'cloud_off';
+        websocketStateIcon.classList.remove('text-success');
+        websocketStateText.innerText = t('Websocket disconnected');
+    }
+    else { 
+        websocketStateIcon.innerText = 'cloud_done';
+        websocketStateIcon.classList.add('text-success');
+        websocketStateText.innerText = t('Websocket connected');
+    }
+
+    if (websocketConnected === false) { 
+        mpdStateIcon.innerText = 'cloud_off';
+        mpdStateIcon.classList.remove('text-success');
+        mpdStateText.innerText = t('MPD disconnected');
+    }
+    else {
+        mpdStateIcon.innerText = 'cloud_done';
+        mpdStateIcon.classList.add('text-success');
+        mpdStateText.innerText = t('MPD connected');
+    }
+}
+
 function toggleAlert(alertBox, state, msg) {
     let mpdState = document.getElementById(alertBox);
     if (state === false) {
@@ -38,7 +83,7 @@ function showNotification(notificationTitle, notificationText, notificationHtml,
         }
         alertBox.classList.remove('alert-success', 'alert-danger');
         alertBox.classList.add('alert','alert-' + notificationType);
-        alertBox.innerHTML = '<div><strong>' + e(notificationTitle) + '</strong><br/>' + (notificationHtml == '' ? e(notificationText) : notificationHtml) + '</div>';
+        alertBox.innerHTML = '<strong>' + e(notificationTitle) + '</strong><br/>' + (notificationHtml === '' ? e(notificationText) : notificationHtml);
         document.getElementsByTagName('main')[0].append(alertBox);
         document.getElementById('alertBox').classList.add('alertBoxActive');
         if (alertTimeout) {
@@ -48,6 +93,63 @@ function showNotification(notificationTitle, notificationText, notificationHtml,
             hideNotification();
         }, 3000);
     }
+    setStateIcon('newMessage');
+    logMessage(notificationTitle, notificationText, notificationHtml, notificationType);
+}
+
+function logMessage(notificationTitle, notificationText, notificationHtml, notificationType) {
+    if (notificationType === 'success') { notificationType = 'Info'; }
+    else if (notificationType === 'danger') { notificationType = 'Error'; }
+    
+    let overview = document.getElementById('logOverview');
+
+    let append = true;
+    let lastEntry = overview.firstElementChild;
+    if (lastEntry) {
+        if (lastEntry.getAttribute('data-title') === notificationTitle) {
+            append = false;        
+        }
+    }
+
+    let entry = document.createElement('div');
+    entry.classList.add('text-light');
+    entry.setAttribute('data-title', notificationTitle);
+    let occurence = 1;
+    if (append === false) {
+        occurence += parseInt(lastEntry.getAttribute('data-occurence'));
+    }
+    entry.setAttribute('data-occurence', occurence);
+    entry.innerHTML = '<small>' + localeDate() + '&nbsp;&ndash;&nbsp;' + t(notificationType) +
+        (occurence > 1 ? '&nbsp;(' + occurence + ')' : '') + '</small>' +
+        '<p>' + e(notificationTitle) +
+        (notificationHtml === '' && notificationText == '' ? '' :
+        '<br/>' + (notificationHtml === '' ? e(notificationText) : notificationHtml)) +
+        '</p>';
+
+    if (append === true) {
+        overview.insertBefore(entry, overview.firstElementChild);
+    }
+    else {
+        overview.replaceChild(entry, lastEntry);
+    }
+   
+    let overviewEls = overview.getElementsByTagName('div');
+    if (overviewEls.length > 10) {
+        overviewEls[10].remove();
+    }
+
+    document.getElementById('navState').children[0].classList.add('text-success');
+    setTimeout(function() {
+        document.getElementById('navState').children[0].classList.remove('text-success');
+    }, 250);
+}
+
+function clearLogOverview() {
+    let overviewEls = document.getElementById('logOverview').getElementsByTagName('div');
+    for (let i = overviewEls.length - 1; i >= 0; i--) {
+        overviewEls[i].remove();
+    }
+    setStateIcon('noMessage');
 }
 
 function hideNotification() {
@@ -98,16 +200,21 @@ function toggleUI() {
         setElsState('button', state);
         uiEnabled = enabled;
     }
+
     if (settings.mpdConnected === true) {
         toggleAlert('alertMpdState', false, '');
     }
     else {
         toggleAlert('alertMpdState', true, t('MPD disconnected'));
+        logMessage(t('MPD disconnected'), '', '', 'danger');
     }
+
     if (websocketConnected === true) {
         toggleAlert('alertMympdState', false, '');
     }
     else {
         toggleAlert('alertMympdState', true, t('Websocket connection failed'));
+        logMessage(t('Websocket connection failed'), '', '', 'danger');
     }
+    setStateIcon();
 }

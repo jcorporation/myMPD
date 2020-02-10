@@ -93,14 +93,14 @@
       </div>
     </nav>
   </header>
+<!-- Alerts -->
+  <noscript>
+    <div data-phrase="JavaScript is disabled" class="alert alert-danger top-alert"></div>
+  </noscript>
+  <div id="alertMpdState" class="alert alert-danger top-alert"></div>
+  <div id="alertMympdState" class="alert alert-danger top-alert"></div>
   <!-- Main content -->
   <main class="container">
-    <noscript>
-      <div data-phrase="JavaScript is disabled" class="alert alert-danger"></div>
-    </noscript>
-    <div id="alertMpdState" class="alert alert-danger hide"></div>
-    <div id="alertMympdState" class="alert alert-danger hide"></div>
-    
     <div class="card" id="cardPlayback">
       <div class="card-header"><span data-phrase="Playback"></span>
         <div class="btn-toolbar pull-right playback-toolbar">
@@ -745,6 +745,27 @@
           <a data-title-phrase="Search" data-href='{"cmd": "appGoto", "options": ["Search"]}' class="nav-link" href="#">
             <span class="material-icons">search</span><span class="footerText" data-phrase="Search"></span>
           </a>
+        </div>
+        <div id="navState" class="nav-item dropup">
+          <a data-title-phrase="Connection state" class="dropdown-toggle material-icons nav-link" data-toggle="dropdown" href="#">chat_bubble_outline</a>
+          <div id="stateDropup" class="dropdown-menu bg-lite-dark px-2">
+            <div class="btn-toolbar">
+              <button data-href='{"cmd": "clearLogOverview", "options": []}' data-title-phrase="Clear" class="btn btn-sm btn-secondary material-icons material-icons-small">clear_all</button>
+            </div>
+            <div class="dropdown-divider"></div>
+            <div id="logOverview"></div>
+            <div class="dropdown-divider"></div>
+            <div class="d-flex">
+              <div id="mpdState" class="flex-fill text-center bg-dark p-2 mr-1">
+                <span class="material-icons text-light">cloud_done</span><br/>
+                <small data-phrase="MPD connection"></small>
+              </div>
+              <div id="websocketState" class="flex-fill text-center bg-dark p-2">
+                <span class="material-icons text-light">cloud_done</span><br/>
+                <small data-phrase="Websocket connection"></small>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </nav>
