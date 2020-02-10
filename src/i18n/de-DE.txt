@@ -1256,3 +1256,6 @@ Websocket verbunden
 
 Websocket disconnected
 Websocket nicht verbunden
+
+Websocket connection
+Websocket Verbindung
