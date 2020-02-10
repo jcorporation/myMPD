@@ -1253,3 +1253,6 @@ MPD verbunden
 
 Websocket connected
 Websocket verbunden
+
+Websocket disconnected
+Websocket nicht verbunden
