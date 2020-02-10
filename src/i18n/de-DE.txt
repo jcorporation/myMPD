@@ -1241,3 +1241,15 @@ Wiedergabeliste wurde gelöscht
 
 Preview
 Vorschau
+
+Info
+Hinweis
+
+Error
+Fehler
+
+MPD connected
+MPD verbunden
+
+Websocket connected
+Websocket verbunden

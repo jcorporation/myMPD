@@ -33,3 +33,5 @@ Light
 search
 newest
 sticker
+Info
+Error
