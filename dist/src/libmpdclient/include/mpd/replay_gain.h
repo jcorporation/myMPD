@@ -82,6 +82,14 @@ enum mpd_replay_gain_mode
 mpd_parse_replay_gain_name(const char *name);
 
 /**
+ * Looks up the name of the specified replay gain mode.
+ *
+ * @return the name, or NULL if the replay gain mode is not valid
+ */
+const char *
+mpd_parse_replay_gain_mode(enum mpd_replay_gain_mode mode);
+
+/**
  * Queries the current state of replay gain mode on MPD.
  *
  * Sends the "replay_gain_status" command to MPD. Call mpd_recv_pair() to

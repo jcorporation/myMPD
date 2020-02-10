@@ -253,6 +253,7 @@ if(${EMBEDDED_LIBMPDCLIENT} MATCHES "ON")
     dist/src/libmpdclient/src/playlist.c
     dist/src/libmpdclient/src/queue.c
     dist/src/libmpdclient/src/quote.c
+    dist/src/libmpdclient/src/replay_gain.c
     dist/src/libmpdclient/src/rdirectory.c
     dist/src/libmpdclient/src/readpicture.c
     dist/src/libmpdclient/src/recv.c

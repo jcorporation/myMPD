@@ -61,7 +61,7 @@ mpd_send_replay_gain_status(struct mpd_connection *connection)
 	return mpd_send_command(connection, "replay_gain_status", NULL);
 }
 
-static const char *
+const char *
 mpd_parse_replay_gain_mode(enum mpd_replay_gain_mode mode)
 {
 	switch (mode) {
