@@ -213,10 +213,10 @@ static sds get_san(sds buffer) {
     buffer = sdscatfmt(buffer, ", DNS:%s", hostbuffer);
 
     //Retrieve fqdn and ips
-    struct addrinfo hints={0};
-    hints.ai_family=AF_UNSPEC;
-    hints.ai_flags=AI_CANONNAME;
-    struct addrinfo* res = 0;
+    struct addrinfo hints = {0};
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_flags = AI_CANONNAME;
+    struct addrinfo *res, *rp;
     if (getaddrinfo(hostbuffer, 0, &hints, &res) == 0) {
         // The hostname was successfully resolved.
         if (strcmp(hostbuffer, res->ai_canonname) != 0) {
@@ -225,7 +225,8 @@ static sds get_san(sds buffer) {
         char addrstr[100];
         sds old_addrstr = sdsempty();
         void *ptr = NULL;
-        while (res) {
+        
+        for (rp = res; rp != NULL; rp = rp->ai_next) {
             inet_ntop(res->ai_family, res->ai_addr->sa_data, addrstr, 100);
 
             switch (res->ai_family) {
@@ -243,7 +244,6 @@ static sds get_san(sds buffer) {
                     old_addrstr = sdsreplace(old_addrstr, addrstr);
                 }
             }
-            res = res->ai_next;
             ptr = NULL;
         }
         freeaddrinfo(res);
@@ -280,10 +280,15 @@ static X509_REQ *generate_request(EVP_PKEY *pkey) {
     X509_REQ_set_pubkey(req, pkey);
 
     /* Set the DN */
+    time_t now = time(NULL);
+    sds cn = sdscatprintf(sdsempty(), "myMPD Server Certificate %ld", now);
+
     X509_NAME *name = X509_REQ_get_subject_name(req);
     X509_NAME_add_entry_by_txt(name, "C",  MBSTRING_ASC, (unsigned char *)"DE", -1, -1, 0);
     X509_NAME_add_entry_by_txt(name, "O",  MBSTRING_ASC, (unsigned char *)"myMPD", -1, -1, 0);
-    X509_NAME_add_entry_by_txt(name, "CN", MBSTRING_ASC, (unsigned char *)"myMPD Server Certificate", -1, -1, 0);
+    X509_NAME_add_entry_by_txt(name, "CN", MBSTRING_ASC, (unsigned char *)cn, -1, -1, 0);
+    
+    sdsfree(cn);
     
     if (!X509_REQ_sign(req, pkey, EVP_sha256())) {
         LOG_ERROR("Error signing request");
