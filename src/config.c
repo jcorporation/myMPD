@@ -233,6 +233,9 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("mympd", "bookmarks")) {
         p_config->bookmarks = strtobool(value);
     }
+    else if (MATCH("mympd", "covergridminsongs")) {
+        p_config->covergridminsongs = strtoimax(value, &crap, 10);
+    }
     else if (MATCH("theme", "theme")) {
         p_config->theme = sdsreplace(p_config->theme, value);
     }
@@ -308,7 +311,7 @@ static void mympd_get_env(struct t_config *config) {
         "MYMPD_PAGINATION", "MYMPD_LASTPLAYEDCOUNT", "MYMPD_LOVE", "MYMPD_LOVECHANNEL", "MYMPD_LOVEMESSAGE",
         "MYMPD_NOTIFICATIONWEB", "MYMPD_CHROOT", "MYMPD_READONLY", "MYMPD_TIMER",
         "MYMPD_NOTIFICATIONPAGE", "MYMPD_AUTOPLAY", "MYMPD_JUKEBOXMODE", "MYMPD_BOOKMARKS",
-        "MYMPD_MEDIASESSION",
+        "MYMPD_MEDIASESSION", "MYMPD_COVERGRIDMINSONGS",
         "MYMPD_JUKEBOXPLAYLIST", "MYMPD_JUKEBOXQUEUELENGTH", "MYMPD_JUKEBOXLASTPLAYED",
         "MYMPD_JUKEBOXUNIQUETAG", "MYMPD_COLSQUEUECURRENT","MYMPD_COLSSEARCH", 
         "MYMPD_COLSBROWSEDATABASE", "MYMPD_COLSBROWSEPLAYLISTDETAIL",
@@ -446,6 +449,7 @@ void mympd_config_defaults(t_config *config) {
     config->regex = true;
     config->timer = true;
     config->sticker_cache = true;
+    config->covergridminsongs = 1;
     list_init(&config->syscmd_list);
 }
 
@@ -547,7 +551,8 @@ bool mympd_dump_config(void) {
         "streamport = %d\n"
         "#streamuri = %s\n"
         "readonly = %s\n"
-        "bookmarks = %s\n\n",
+        "bookmarks = %s\n"
+        "covergridminsongs = %d\n\n",
         p_config->user,
         (p_config->chroot == true ? "true" : "false"),
         p_config->varlibdir,
@@ -594,7 +599,8 @@ bool mympd_dump_config(void) {
         p_config->stream_port,
         p_config->stream_url,
         (p_config->readonly == true ? "true" : "false"),
-        (p_config->bookmarks == true ? "true" : "false")
+        (p_config->bookmarks == true ? "true" : "false"),
+        p_config->covergridminsongs
     );
 
     fprintf(fp, "[theme]\n"

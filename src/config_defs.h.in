@@ -136,6 +136,7 @@ typedef struct t_config {
     bool timer;
     bool sticker_cache;
     sds generate_pls_tags;
+    int covergridminsongs;
     //system commands
     struct list syscmd_list;
 } t_config;
