@@ -190,7 +190,7 @@ function setElsState(tag, state) {
 
 function toggleUI() {
     let state = 'disabled';
-    if (websocketConnected == true && settings.mpdConnected == true) {
+    if (websocketConnected === true && settings.mpdConnected === true) {
         state = 'enabled';
     }
     let enabled = state === 'disabled' ? false : true;
@@ -213,8 +213,8 @@ function toggleUI() {
         toggleAlert('alertMympdState', false, '');
     }
     else {
-        toggleAlert('alertMympdState', true, t('Websocket connection failed'));
-        logMessage(t('Websocket connection failed'), '', '', 'danger');
+        toggleAlert('alertMympdState', true, t('Websocket is disconnected'));
+        logMessage(t('Websocket is disconnected'), '', '', 'danger');
     }
     setStateIcon();
 }

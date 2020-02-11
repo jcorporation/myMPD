@@ -1257,5 +1257,14 @@ Websocket verbunden
 Websocket disconnected
 Websocket nicht verbunden
 
+Websocket is disconnected
+Websocket ist nicht verbunden
+
 Websocket connection
 Websocket Verbindung
+
+Auto
+Auto
+
+Connection state
+Verbindungsstatus
