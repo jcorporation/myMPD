@@ -18,7 +18,6 @@ This fork provides a reworked ui based on Bootstrap 4, a modernized backend and 
 **Features**
  - Control mpd functions (play, pause, etc.)
  - Set mpd options (repeat, random, etc.)
- - Output and Partition management
  - Browse mpd database by tags
  - Albumart grid
  - Browse filesystem
@@ -33,11 +32,12 @@ This fork provides a reworked ui based on Bootstrap 4, a modernized backend and 
  - Local playback of mpd http stream (html5 audio api)
  - Timers
  - Scrobbler integration
- - Progressiv Web App enabled
  - Embedded Webserver (mongoose)
  - Localized user interface
  - Themeing
  - Publishing of mpd and myMPD directories via http and webdav
+ - Progressiv Web App enabled
+ - Support of Media Session API
 
 myMPD is in active development. Feedback, bug reportes and feature requests are very welcome.
  - https://github.com/jcorporation/myMPD/issues
