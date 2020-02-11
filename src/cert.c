@@ -404,9 +404,12 @@ static X509 *generate_selfsigned_cert(EVP_PKEY *pkey) {
     X509_NAME *name = X509_get_subject_name(cert);
     
     /* Set the DN */
+    time_t now = time(NULL);
+    sds cn = sdscatprintf(sdsempty(), "myMPD CA %ld", now);
+    
     X509_NAME_add_entry_by_txt(name, "C",  MBSTRING_ASC, (unsigned char *)"DE", -1, -1, 0);
     X509_NAME_add_entry_by_txt(name, "O",  MBSTRING_ASC, (unsigned char *)"myMPD", -1, -1, 0);
-    X509_NAME_add_entry_by_txt(name, "CN", MBSTRING_ASC, (unsigned char *)"myMPD CA", -1, -1, 0);
+    X509_NAME_add_entry_by_txt(name, "CN", MBSTRING_ASC, (unsigned char *)cn, -1, -1, 0);
     
     /* Now set the issuer name. */
     X509_set_issuer_name(cert, name);
@@ -418,6 +421,8 @@ static X509 *generate_selfsigned_cert(EVP_PKEY *pkey) {
     X509_EXTENSION *ex = X509V3_EXT_conf_nid(NULL, &ctx, NID_basic_constraints, "CA:true");
     X509_add_ext(cert, ex, -1);
     X509_EXTENSION_free(ex);
+    
+    sdsfree(cn);
     
     /* Self sign the certificate with our key. */
     if (!X509_sign(cert, pkey, EVP_sha256())) {
