@@ -117,6 +117,7 @@ var dropdownCovergridSort = new Dropdown(document.getElementById('btnCovergridSo
 
 var collapseDBupdate = new Collapse(document.getElementById('navDBupdate'));
 var collapseSyscmds = new Collapse(document.getElementById('navSyscmds'));
+var collapseJukeboxMode = new Collapse(document.getElementById('labelJukeboxMode'));
 /* eslint-enable no-unused-vars */
 
 function appPrepare(scrollPos) {
@@ -589,6 +590,15 @@ function appInit() {
     }
     document.getElementById('selectTimerMinute').innerHTML = selectTimerMinute;
     
+
+    document.getElementById('inputHighlightColor').addEventListener('change', function() {
+        document.getElementById('highlightColorPreview').style.backgroundColor = this.value;
+    }, false);
+    
+    document.getElementById('inputBgColor').addEventListener('change', function() {
+        document.getElementById('bgColorPreview').style.backgroundColor = this.value;
+    }, false);
+    
     document.getElementById('modalAddToQueue').addEventListener('shown.bs.modal', function () {
         document.getElementById('inputAddToQueueQuantity').classList.remove('is-invalid');
         if (settings.featPlaylists) {
@@ -966,6 +976,13 @@ function appInit() {
         }
         else {
             appGoto(app.current.app, app.current.tab, app.current.view, '0/' + app.current.filter + '/' + app.current.sort + '/' + this.value);
+        }
+    }, false);
+
+    document.getElementById('dropdownSortPlaylistTags').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'BUTTON') {
+            event.preventDefault();
+            playlistSort(event.target.getAttribute('data-tag'));
         }
     }, false);
 

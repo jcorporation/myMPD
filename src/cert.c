@@ -152,15 +152,11 @@ bool cleanup_certificates(sds dir, const char *name) {
     sds cert_file = sdscatfmt(sdsempty(), "%s/%s.pem", dir, name);
     if (unlink(cert_file) != 0) {
         LOG_ERROR("Error removing file %s", cert_file);
-        sdsfree(cert_file);
-        return false;
     }
     sdsfree(cert_file);
     sds key_file = sdscatfmt(sdsempty(), "%s/%s.key", dir, name);
-    if (unlink(cert_file) != 0) {
+    if (unlink(key_file) != 0) {
         LOG_ERROR("Error removing file %s", key_file);
-        sdsfree(key_file);
-        return false;
     }
     sdsfree(key_file);
     

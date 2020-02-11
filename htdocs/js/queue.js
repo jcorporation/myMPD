@@ -37,6 +37,9 @@ function parseUpdateQueue(obj) {
         }
     }
 
+    mediaSessionSetState();
+    mediaSessionSetPositionState(obj.result.totalTime, obj.result.elapsedTime);
+
     domCache.badgeQueueItems.innerText = obj.result.queueLength;
     
     if (obj.result.nextSongPos === -1 && settings.jukeboxMode === false) {

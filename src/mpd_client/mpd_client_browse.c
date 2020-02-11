@@ -332,7 +332,7 @@ sds mpd_client_put_firstsong_in_albums(t_config *config, t_mpd_state *mpd_state,
         buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
         return buffer;
     }
-    sds expression = sdsnew("((Track == '1')");
+    sds expression = sdscatprintf(sdsempty(), "((Track == '%d')", config->covergridminsongs);
     int searchstr_len = strlen(searchstr);
     if (config->regex == true && searchstr_len > 0 && searchstr_len <= 2 && strlen(tag) > 0) {
         expression = sdscatfmt(expression, " AND (%s =~ '^%s')", tag, searchstr);

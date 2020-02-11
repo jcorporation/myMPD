@@ -25,10 +25,21 @@
 #include "../log.h"
 #include "mpd_client_utility.h"
 
+void enable_all_mpd_tags(t_mpd_state *mpd_state) {
+    #if LIBMPDCLIENT_CHECK_VERSION(2,12,0)
+    if (mpd_connection_cmp_server_version(mpd_state->conn, 0, 21, 0) >= 0) {
+        LOG_DEBUG("Enabling all mpd tag types");
+        mpd_send_command(mpd_state->conn, "tagtypes", "all", NULL);
+        mpd_response_finish(mpd_state->conn);
+        check_error_and_recover2(mpd_state, NULL, NULL, 0, false);
+    }
+    #endif
+}
+
 void enable_mpd_tags(t_mpd_state *mpd_state, t_tags enable_tags) {
     #if LIBMPDCLIENT_CHECK_VERSION(2,12,0)
     if (mpd_connection_cmp_server_version(mpd_state->conn, 0, 21, 0) >= 0) {
-        LOG_VERBOSE("Setting interesting mpd tag types");
+        LOG_DEBUG("Setting interesting mpd tag types");
         if (mpd_command_list_begin(mpd_state->conn, false)) {
             mpd_send_clear_tag_types(mpd_state->conn);
             if (enable_tags.len > 0) {
@@ -88,20 +99,33 @@ sds put_empty_song_tags(sds buffer, t_mpd_state *mpd_state, const t_tags *tagcol
 
 
 bool check_error_and_recover2(t_mpd_state *mpd_state, sds *buffer, sds method, int request_id, bool notify) {
-    if (mpd_connection_get_error(mpd_state->conn) != MPD_ERROR_SUCCESS) {
-        LOG_ERROR("MPD error: %s", mpd_connection_get_error_message(mpd_state->conn));
-        if (*buffer != NULL) {
-            if (notify == false) {
-                *buffer = jsonrpc_respond_message(*buffer, method, request_id, mpd_connection_get_error_message(mpd_state->conn), true);
-            }
-            else {
-                *buffer = jsonrpc_start_notify(*buffer, "error");
-                *buffer = tojson_char(*buffer, "message", mpd_connection_get_error_message(mpd_state->conn), false);
-                *buffer = jsonrpc_end_notify(*buffer);
+    enum mpd_error error = mpd_connection_get_error(mpd_state->conn);
+    if (error  != MPD_ERROR_SUCCESS) {
+        const char *error_msg = mpd_connection_get_error_message(mpd_state->conn);
+        LOG_ERROR("MPD error: %s (%d)", error_msg , error);
+        if (buffer != NULL) {
+            if (*buffer != NULL) {
+                if (notify == false) {
+                    *buffer = jsonrpc_respond_message(*buffer, method, request_id, mpd_connection_get_error_message(mpd_state->conn), true);
+                }
+                else {
+                    *buffer = jsonrpc_start_notify(*buffer, "error");
+                    *buffer = tojson_char(*buffer, "message", mpd_connection_get_error_message(mpd_state->conn), false);
+                    *buffer = jsonrpc_end_notify(*buffer);
+                }
             }
         }
+
+        if (strcmp(error_msg, "Broken pipe") == 0 ||
+            error == 8) { //Connection closed by the server
+            mpd_state->conn_state = MPD_FAILURE;
+        }
         mpd_connection_clear_error(mpd_state->conn);
-        mpd_response_finish(mpd_state->conn);
+        if (mpd_state->conn_state != MPD_FAILURE) {
+            mpd_response_finish(mpd_state->conn);
+            //enable default mpd tags after cleaning error
+            enable_mpd_tags(mpd_state, mpd_state->mympd_tag_types);
+        }
         return false;
     }
     return true;
@@ -216,13 +240,18 @@ void default_mpd_state(t_mpd_state *mpd_state) {
     mpd_state->taglist = sdsempty();
     mpd_state->searchtaglist = sdsempty();
     mpd_state->browsetaglist = sdsempty();
+    mpd_state->generate_pls_tags = sdsempty();
     mpd_state->mpd_host = sdsempty();
     mpd_state->mpd_port = 0;
     mpd_state->mpd_pass = sdsempty();
+    mpd_state->smartpls_sort = sdsempty();
+    mpd_state->smartpls_prefix = sdsempty();
+    mpd_state->smartpls_interval = 14400;
     reset_t_tags(&mpd_state->mpd_tag_types);
     reset_t_tags(&mpd_state->mympd_tag_types);
     reset_t_tags(&mpd_state->search_tag_types);
     reset_t_tags(&mpd_state->browse_tag_types);
+    reset_t_tags(&mpd_state->generate_pls_tag_types);
     //init last played songs list
     list_init(&mpd_state->last_played);
     //jukebox queue
@@ -243,8 +272,11 @@ void free_mpd_state(t_mpd_state *mpd_state) {
     sdsfree(mpd_state->taglist);
     sdsfree(mpd_state->searchtaglist);
     sdsfree(mpd_state->browsetaglist);
+    sdsfree(mpd_state->generate_pls_tags);
     sdsfree(mpd_state->mpd_host);
     sdsfree(mpd_state->mpd_pass);
+    sdsfree(mpd_state->smartpls_sort);
+    sdsfree(mpd_state->smartpls_prefix);
     list_free(&mpd_state->jukebox_queue);
     list_free(&mpd_state->jukebox_queue_tmp);
     free(mpd_state);

@@ -46,6 +46,9 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("mpd", "musicdirectory")) {
         p_config->music_directory = sdsreplace(p_config->music_directory, value);
     }
+    else if (MATCH("mpd", "playlistdirectory")) {
+        p_config->playlist_directory = sdsreplace(p_config->playlist_directory, value);
+    }
     else if (MATCH("mpd", "regex")) {
         p_config->regex = strtobool(value);
     }
@@ -75,8 +78,11 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
         p_config->ssl_san = sdsreplace(p_config->ssl_san, value);
     }
 #endif
-    else if (MATCH("webserver", "publishlibrary")) {
-        p_config->publish_library = strtobool(value);
+    else if (MATCH("webserver", "publish")) {
+        p_config->publish = strtobool(value);
+    }
+    else if (MATCH("webserver", "webdav")) {
+        p_config->webdav = strtobool(value);
     }
     else if (MATCH("mympd", "user")) {
         p_config->user = sdsreplace(p_config->user, value);
@@ -95,6 +101,18 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     }
     else if (MATCH("mympd", "smartpls")) {
         p_config->smartpls =  strtobool(value);
+    }
+    else if (MATCH("mympd", "smartplssort")) {
+        p_config->smartpls_sort =  sdsreplace(p_config->smartpls_sort, value);
+    }
+    else if (MATCH("mympd", "smartplsprefix")) {
+        p_config->smartpls_prefix =  sdsreplace(p_config->smartpls_prefix, value);
+    }
+    else if (MATCH("mympd", "smartplsinterval")) {
+        p_config->smartpls_interval =  strtoumax(value, &crap, 10);
+    }
+    else if (MATCH("mympd", "generateplstags")) {
+        p_config->generate_pls_tags =  sdsreplace(p_config->generate_pls_tags, value);
     }
     else if (MATCH("mympd", "mixramp")) {
         p_config->mixramp = strtobool(value);
@@ -150,6 +168,9 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     }
     else if (MATCH("mympd", "notificationpage")) {
         p_config->notification_page = strtobool(value);
+    }
+    else if (MATCH("mympd", "mediasession")) {
+        p_config->media_session = strtobool(value);
     }
     else if (MATCH("mympd", "autoplay")) {
         p_config->auto_play = strtobool(value);
@@ -212,8 +233,14 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("mympd", "bookmarks")) {
         p_config->bookmarks = strtobool(value);
     }
+    else if (MATCH("mympd", "covergridminsongs")) {
+        p_config->covergridminsongs = strtoimax(value, &crap, 10);
+    }
     else if (MATCH("theme", "theme")) {
         p_config->theme = sdsreplace(p_config->theme, value);
+    }
+    else if (MATCH("theme", "highlightcolor")) {
+        p_config->highlight_color = sdsreplace(p_config->highlight_color, value);
     }
     else if (MATCH("theme", "bgcover")) {
         p_config->bg_cover = strtobool(value);
@@ -271,27 +298,30 @@ static void mympd_parse_env(struct t_config *config, const char *envvar) {
 
 static void mympd_get_env(struct t_config *config) {
     const char *env_vars[]={"MPD_HOST", "MPD_PORT", "MPD_PASS", "MPD_MUSICDIRECTORY",
-        "MPD_REGEX", "WEBSERVER_WEBPORT", "WEBSERVER_PUBLISHLIBRARY",
+        "MPD_PLAYLISTDIRECTORY", "MPD_REGEX", "WEBSERVER_WEBPORT", "WEBSERVER_PUBLISH",
+        "WEBSERVER_WEBDAV",
       #ifdef ENABLE_SSL
         "WEBSERVER_SSL", "WEBSERVER_SSLPORT", "WEBSERVER_SSLCERT", "WEBSERVER_SSLKEY",
         "WEBSERVER_SSLSAN", 
       #endif
         "MYMPD_LOGLEVEL", "MYMPD_USER", "MYMPD_VARLIBDIR", "MYMPD_MIXRAMP", "MYMPD_STICKERS", 
-        "MYMPD_STICKERCACHE", "MYMPD_TAGLIST", 
+        "MYMPD_STICKERCACHE", "MYMPD_TAGLIST", "MYMPD_GENERATE_PLS_TAGS",
+        "MYMPD_SMARTPLSSORT", "MYMPD_SMARTPLSPREFIX", "MYMPD_SMARTPLSINTERVAL",
         "MYMPD_SEARCHTAGLIST", "MYMPD_BROWSETAGLIST", "MYMPD_SMARTPLS", "MYMPD_SYSCMDS", 
         "MYMPD_PAGINATION", "MYMPD_LASTPLAYEDCOUNT", "MYMPD_LOVE", "MYMPD_LOVECHANNEL", "MYMPD_LOVEMESSAGE",
         "MYMPD_NOTIFICATIONWEB", "MYMPD_CHROOT", "MYMPD_READONLY", "MYMPD_TIMER",
         "MYMPD_NOTIFICATIONPAGE", "MYMPD_AUTOPLAY", "MYMPD_JUKEBOXMODE", "MYMPD_BOOKMARKS",
+        "MYMPD_MEDIASESSION", "MYMPD_COVERGRIDMINSONGS",
         "MYMPD_JUKEBOXPLAYLIST", "MYMPD_JUKEBOXQUEUELENGTH", "MYMPD_JUKEBOXLASTPLAYED",
-        "MYMPD_JUKEBOXUNIQUETAG", "MYMPD_COLSQUEUECURRENT",
-        "MYMPD_COLSSEARCH", "MYMPD_COLSBROWSEDATABASE", "MYMPD_COLSBROWSEPLAYLISTDETAIL",
+        "MYMPD_JUKEBOXUNIQUETAG", "MYMPD_COLSQUEUECURRENT","MYMPD_COLSSEARCH", 
+        "MYMPD_COLSBROWSEDATABASE", "MYMPD_COLSBROWSEPLAYLISTDETAIL",
         "MYMPD_COLSBROWSEFILESYSTEM", "MYMPD_COLSPLAYBACK", "MYMPD_COLSQUEUELASTPLAYED",
         "MYMPD_LOCALPLAYER", "MYMPD_LOCALPLAYERAUTOPLAY", "MYMPD_STREAMPORT",
         "MYMPD_STREAMURL", "MYMPD_VOLUMESTEP", "MYMPD_COVERCACHEKEEPDAYS", "MYMPD_COVERCACHE",
         "MYMPD_COVERCACHEAVOID", "THEME_THEME", "THEME_CUSTOMPLACEHOLDERIMAGES",
         "THEME_BGCOVER", "THEME_BGCOLOR", "THEME_BGCSSFILTER", "THEME_COVERGRIDSIZE",
         "THEME_COVERIMAGE", "THEME_COVERIMAGENAME", "THEME_COVERIMAGESIZE",
-        "THEME_LOCALE", 0};
+        "THEME_LOCALE", "THEME_HIGHLIGHTCOLOR", 0};
     const char** ptr = env_vars;
     while (*ptr != 0) {
         mympd_parse_env(config, *ptr);
@@ -318,6 +348,7 @@ void mympd_free_config(t_config *config) {
     sdsfree(config->love_channel);
     sdsfree(config->love_message);
     sdsfree(config->music_directory);
+    sdsfree(config->playlist_directory);
     sdsfree(config->jukebox_playlist);
     sdsfree(config->jukebox_unique_tag);
     sdsfree(config->cols_queue_current);
@@ -333,14 +364,20 @@ void mympd_free_config(t_config *config) {
     sdsfree(config->coverimage_name);
     sdsfree(config->locale);
     sdsfree(config->theme);
+    sdsfree(config->highlight_color);
+    sdsfree(config->generate_pls_tags);
+    sdsfree(config->smartpls_sort);
+    sdsfree(config->smartpls_prefix);
     list_free(&config->syscmd_list);
     FREE_PTR(config);
 }
 
 void mympd_config_defaults(t_config *config) {
-    config->mpd_host = sdsnew("127.0.0.1");
+    config->mpd_host = sdsnew("/var/run/mpd/socket");
     config->mpd_port = 6600;
     config->mpd_pass = sdsempty();
+    config->music_directory = sdsnew("auto");
+    config->playlist_directory = sdsnew("/var/lib/mpd/playlists");
     config->webport = sdsnew("80");
 #ifdef ENABLE_SSL
     config->ssl = true;
@@ -355,10 +392,14 @@ void mympd_config_defaults(t_config *config) {
     config->varlibdir = sdsnew(VARLIB_PATH);
     config->stickers = true;
     config->mixramp = false;
-    config->taglist = sdsnew("Artist,Album,AlbumArtist,Title,Track,Genre,Date,Composer,Performer");
-    config->searchtaglist = sdsnew("Artist,Album,AlbumArtist,Title,Genre,Composer,Performer");
-    config->browsetaglist = sdsnew("Artist,Album,AlbumArtist,Genre,Composer,Performer");
+    config->taglist = sdsnew("Artist, Album, AlbumArtist, Title, Track, Genre, Date");
+    config->searchtaglist = sdsnew("Artist, Album, AlbumArtist, Title, Genre");
+    config->browsetaglist = sdsnew("Artist, Album, AlbumArtist, Genre");
     config->smartpls = true;
+    config->smartpls_sort = sdsempty();
+    config->smartpls_prefix = sdsnew("myMPDsmart");
+    config->smartpls_interval = 14400;
+    config->generate_pls_tags = sdsnew("Genre");
     config->max_elements_per_page = 100;
     config->last_played_count = 20;
     config->syscmds = false;
@@ -366,9 +407,9 @@ void mympd_config_defaults(t_config *config) {
     config->love = false;
     config->love_channel = sdsempty();
     config->love_message = sdsnew("love");
-    config->music_directory = sdsnew("auto");
     config->notification_web = false;
-    config->notification_page = true;
+    config->notification_page = false;
+    config->media_session = true;
     config->auto_play = false;
     config->jukebox_mode = JUKEBOX_OFF;
     config->jukebox_playlist = sdsnew("Database");
@@ -398,14 +439,17 @@ void mympd_config_defaults(t_config *config) {
     config->readonly = false;
     config->bookmarks = true;
     config->volume_step = 5;
-    config->publish_library = true;
+    config->publish = false;
+    config->webdav = false;
     config->covercache_keep_days = 7;
     config->covercache = true;
     config->theme = sdsnew("theme-default");
+    config->highlight_color = sdsnew("#28a745");
     config->custom_placeholder_images = false;
     config->regex = true;
     config->timer = true;
     config->sticker_cache = true;
+    config->covergridminsongs = 1;
     list_init(&config->syscmd_list);
 }
 
@@ -414,7 +458,7 @@ bool mympd_dump_config(void) {
     assert(p_config);
     mympd_config_defaults(p_config);
 
-    sds tmp_file = sdscatfmt(sdsempty(), "%s/mympd.conf.XXXXXX", ETC_PATH);
+    sds tmp_file = sdscatfmt(sdsempty(), "/tmp/mympd.conf.XXXXXX");
     int fd = mkstemp(tmp_file);
     if (fd < 0) {
         LOG_ERROR("Can't open %s for write", tmp_file);
@@ -428,10 +472,12 @@ bool mympd_dump_config(void) {
         "port = %d\n"
         "#pass = \n"
         "musicdirectory = %s\n"
+        "playlistdirectory = %s\n"
         "regex = %s\n\n",
         p_config->mpd_host,
         p_config->mpd_port,
         p_config->music_directory,
+        p_config->playlist_directory,
         (p_config->regex == true ? "true" : "false")
     );
     
@@ -444,7 +490,8 @@ bool mympd_dump_config(void) {
         "sslkey = %s\n"
         "sslsan = %s\n"
     #endif
-        "publishlibrary = %s\n\n",
+        "publish = %s\n"
+        "webdav = %s\n\n",
         p_config->webport,
     #ifdef ENABLE_SSL
         (p_config->ssl == true ? "true" : "false"),
@@ -453,7 +500,8 @@ bool mympd_dump_config(void) {
         p_config->ssl_key,
         p_config->ssl_san,
     #endif
-        (p_config->publish_library == true ? "true" : "false")
+        (p_config->publish == true ? "true" : "false"),
+        (p_config->webdav == true ? "true" : "false")
     );
 
     fprintf(fp, "[mympd]\n"
@@ -463,6 +511,10 @@ bool mympd_dump_config(void) {
         "stickers = %s\n"
         "stickercache = %s\n"
         "smartpls = %s\n"
+        "smartplssort = %s\n"
+        "smartplsprefix = %s\n"
+        "smartplsinterval = %ld\n"
+        "generateplstags = %s\n"
         "mixramp = %s\n"
         "taglist = %s\n"
         "searchtaglist = %s\n"
@@ -480,6 +532,7 @@ bool mympd_dump_config(void) {
         "lovemessage = %s\n"
         "notificationweb = %s\n"
         "notificationpage = %s\n"
+        "mediasession = %s\n"
         "autoplay = %s\n"
         "jukeboxmode = %d\n"
         "jukeboxplaylist = %s\n"
@@ -498,13 +551,18 @@ bool mympd_dump_config(void) {
         "streamport = %d\n"
         "#streamuri = %s\n"
         "readonly = %s\n"
-        "bookmarks = %s\n\n",
+        "bookmarks = %s\n"
+        "covergridminsongs = %d\n\n",
         p_config->user,
         (p_config->chroot == true ? "true" : "false"),
         p_config->varlibdir,
         (p_config->stickers == true ? "true" : "false"),
         (p_config->sticker_cache == true ? "true" : "false"),
         (p_config->smartpls == true ? "true" : "false"),
+        p_config->smartpls_sort,
+        p_config->smartpls_prefix,
+        p_config->smartpls_interval,
+        p_config->generate_pls_tags,
         (p_config->mixramp == true ? "true" : "false"),
         p_config->taglist,
         p_config->searchtaglist,
@@ -522,6 +580,7 @@ bool mympd_dump_config(void) {
         p_config->love_message,
         (p_config->notification_web == true ? "true" : "false"),
         (p_config->notification_page == true ? "true" : "false"),
+        (p_config->media_session == true ? "true" : "false"),
         (p_config->auto_play == true ? "true" : "false"),
         p_config->jukebox_mode,
         p_config->jukebox_playlist,
@@ -540,7 +599,8 @@ bool mympd_dump_config(void) {
         p_config->stream_port,
         p_config->stream_url,
         (p_config->readonly == true ? "true" : "false"),
-        (p_config->bookmarks == true ? "true" : "false")
+        (p_config->bookmarks == true ? "true" : "false"),
+        p_config->covergridminsongs
     );
 
     fprintf(fp, "[theme]\n"
@@ -553,7 +613,8 @@ bool mympd_dump_config(void) {
         "coverimagesize = %d\n"
         "covergridsize = %d\n"
         "locale = %s\n"
-        "customplaceholderimages = %s\n\n",
+        "customplaceholderimages = %s\n"
+        "highlightcolor = %s\n\n",
         p_config->theme,
         (p_config->bg_cover == true ? "true" : "false"),
         p_config->bg_color,
@@ -563,13 +624,14 @@ bool mympd_dump_config(void) {
         p_config->coverimage_size,
         p_config->covergrid_size,
         p_config->locale,
-        (p_config->custom_placeholder_images == true ? "true" : "false")
+        (p_config->custom_placeholder_images == true ? "true" : "false"),
+        p_config->highlight_color
     );
 
     fprintf(fp, "[syscmds]\n");
 
     fclose(fp);
-    sds conf_file = sdscatfmt(sdsempty(), "%s/mympd.conf", ETC_PATH);
+    sds conf_file = sdscatfmt(sdsempty(), "/tmp/mympd.conf");
     int rc = rename(tmp_file, conf_file);
     if (rc == -1) {
         LOG_ERROR("Renaming file from %s to %s failed", tmp_file, conf_file);
@@ -580,6 +642,7 @@ bool mympd_dump_config(void) {
     if (rc == -1) {
         return false;
     }
+    printf("Default configuration dumped to /tmp/mympd.conf");
     return true;    
 }
 
@@ -603,11 +666,19 @@ bool mympd_read_config(t_config *config, sds configfile) {
     if (config->readonly == true) {
         mympd_set_readonly(config);
     }
-    if (config->stickers == false) {
+    if (config->stickers == false && config->sticker_cache == true) {
         LOG_INFO("Stickers are disabled, disabling sticker cache");
         config->sticker_cache = false;
     }
+    if (config->publish == false && config->webdav == true) {
+        LOG_INFO("Publish is disabled, disabling webdav");
+        config->webdav = false;
+    }
 
+    if (config->chroot == true && config->syscmds == true) {
+        LOG_INFO("Chroot enabled, disabling syscmds");
+        config->syscmds = false;
+    }
     return true;
 }
 

@@ -78,6 +78,7 @@ function joinSettings(obj) {
     settingsLock = false;
     parseSettings();
     toggleUI();
+    btnWaiting(document.getElementById('btnApplySettings'), false);
 }
 
 function checkConsume() {
@@ -157,8 +158,8 @@ function parseSettings() {
     }
     
     toggleBtnChk('btnNotifyPage', settings.notificationPage);
-    toggleBtnChk('btnBgCover', settings.bgCover);
-    toggleBtnChk('btnFeatLocalplayer', settings.featLocalplayer);
+    toggleBtnChk('btnMediaSession', settings.mediaSession);
+    toggleBtnChkCollapse('btnFeatLocalplayer', 'collapseLocalplayer', settings.featLocalplayer);
     toggleBtnChk('btnLocalplayerAutoplay', settings.localplayerAutoplay);
     toggleBtnChk('btnFeatTimer', settings.featTimer);
     toggleBtnChk('btnBookmarks', settings.featBookmarks);
@@ -170,7 +171,8 @@ function parseSettings() {
         document.getElementById('selectStreamMode').value = 'url';
         document.getElementById('inputStreamUrl').value = settings.streamUrl;
     }
-    toggleBtnChk('btnCoverimage', settings.coverimage);
+    toggleBtnChkCollapse('btnCoverimage', 'collapseAlbumart', settings.coverimage);
+    
     document.getElementById('selectLocale').value = settings.locale;
     document.getElementById('inputCoverimageName').value = settings.coverimageName;
 
@@ -179,10 +181,16 @@ function parseSettings() {
 
     document.documentElement.style.setProperty('--mympd-coverimagesize', settings.coverimageSize + "px");
     document.documentElement.style.setProperty('--mympd-covergridsize', settings.covergridSize + "px");
+    document.documentElement.style.setProperty('--mympd-highlightcolor', settings.highlightColor);
     
+    document.getElementById('inputHighlightColor').value = settings.highlightColor;
     document.getElementById('inputBgColor').value = settings.bgColor;
     document.getElementsByTagName('body')[0].style.backgroundColor = settings.bgColor;
+    
+    document.getElementById('highlightColorPreview').style.backgroundColor = settings.highlightColor;
+    document.getElementById('bgColorPreview').style.backgroundColor = settings.bgColor;
 
+    toggleBtnChkCollapse('btnBgCover', 'collapseBackground', settings.bgCover);
     document.getElementById('inputBgCssFilter').value = settings.bgCssFilter;    
 
     let albumartbg = document.querySelectorAll('.albumartbg');
@@ -190,14 +198,15 @@ function parseSettings() {
 	albumartbg[i].style.filter = settings.bgCssFilter;
     }
 
-    toggleBtnChk('btnLoveEnable', settings.love);
+    toggleBtnChkCollapse('btnLoveEnable', 'collapseLove', settings.love);
     document.getElementById('inputLoveChannel').value = settings.loveChannel;
     document.getElementById('inputLoveMessage').value = settings.loveMessage;
     
     document.getElementById('inputMaxElementsPerPage').value = settings.maxElementsPerPage;
-    toggleBtnChk('btnStickers', settings.stickers);
+    toggleBtnChkCollapse('btnStickers', 'collapseStatistics', settings.stickers);
     document.getElementById('inputLastPlayedCount').value = settings.lastPlayedCount;
-    toggleBtnChk('btnSmartpls', settings.smartpls);
+    
+    toggleBtnChkCollapse('btnSmartpls', 'collapseSmartpls', settings.smartpls);
     
     let features = ["featLocalplayer", "featSyscmds", "featMixramp", "featCacert", "featBookmarks", "featRegex", "featTimer"];
     for (let j = 0; j < features.length; j++) {
@@ -266,7 +275,7 @@ function parseSettings() {
 
     dropdownMainMenu = new Dropdown(document.getElementById('mainMenu'));
     
-    toggleBtnGroupValue(document.getElementById('btnJukeboxModeGroup'), settings.jukeboxMode);
+    toggleBtnGroupValueCollapse(document.getElementById('btnJukeboxModeGroup'), 'collapseJukeboxMode', settings.jukeboxMode);
     document.getElementById('selectJukeboxUniqueTag').value = settings.jukeboxUniqueTag;
     document.getElementById('inputJukeboxQueueLength').value = settings.jukeboxQueueLength;
     document.getElementById('inputJukeboxLastPlayed').value = settings.jukeboxLastPlayed;
@@ -284,6 +293,10 @@ function parseSettings() {
         document.getElementById('inputJukeboxQueueLength').removeAttribute('disabled');
         document.getElementById('selectJukeboxPlaylist').removeAttribute('disabled');
     }
+
+    document.getElementById('inputSmartplsPrefix').value = settings.smartplsPrefix;
+    document.getElementById('inputSmartplsInterval').value = settings.smartplsInterval / 60 / 60;
+    document.getElementById('selectSmartplsSort').value = settings.smartplsSort;
 
     if (settings.featLocalplayer === true) {
         if (settings.streamUrl === '') {
@@ -346,6 +359,23 @@ function parseSettings() {
     i18nHtml(document.getElementsByTagName('body')[0]);
 
     checkConsume();
+
+    if (settings.mediaSession === true && 'mediaSession' in navigator) {
+        navigator.mediaSession.setActionHandler('play', clickPlay);
+        navigator.mediaSession.setActionHandler('pause', clickPlay);
+        navigator.mediaSession.setActionHandler('stop', clickStop);
+        navigator.mediaSession.setActionHandler('seekbackward', seekRelativeBackward);
+        navigator.mediaSession.setActionHandler('seekforward', seekRelativeForward);
+        navigator.mediaSession.setActionHandler('previoustrack', clickPrev);
+        navigator.mediaSession.setActionHandler('nexttrack', clickNext);
+        
+        if (!navigator.mediaSession.setPositionState) {
+            logDebug('mediaSession.setPositionState not supported by browser');
+        }
+    }
+    else {
+        logDebug('mediaSession not supported by browser');
+    }
 
     settingsParsed = 'true';
 }
@@ -545,15 +575,12 @@ function parseMPDSettings() {
     addTagList('searchtags', 'searchtags');
     addTagList('searchCovergridTags', 'browsetags');
     addTagList('covergridSortTagsList', 'browsetags');
-
-    let list = '';
-    if (settings.browsetags.includes('Title') === false) {
-        list = '<option value="Title">' + t('Song') + '</option>';
-    }
-    for (let i = 0; i < settings.browsetags.length; i++) {
-        list += '<option value="' + settings.browsetags[i] + '">' + t(settings.browsetags[i]) + '</option>';
-    }
-    document.getElementById('selectJukeboxUniqueTag').innerHTML = list;
+    addTagList('dropdownSortPlaylistTags', 'tags');
+    addTagList('saveSmartPlaylistSort', 'tags');
+    
+    addTagListSelect('selectSmartplsSort', 'tags');
+    addTagListSelect('saveSmartPlaylistSort', 'tags');
+    addTagListSelect('selectJukeboxUniqueTag', 'browsetags');
     
     for (let i = 0; i < settings.tags.length; i++) {
         app.apps.Browse.tabs.Database.views[settings.tags[i]] = { "state": "0/-/-/", "scrollPos": 0 };
@@ -562,6 +589,7 @@ function parseMPDSettings() {
     initTagMultiSelect('inputEnabledTags', 'listEnabledTags', settings.allmpdtags, settings.tags);
     initTagMultiSelect('inputSearchTags', 'listSearchTags', settings.tags, settings.searchtags);
     initTagMultiSelect('inputBrowseTags', 'listBrowseTags', settings.tags, settings.browsetags);
+    initTagMultiSelect('inputGeneratePlsTags', 'listGeneratePlsTags', settings.browsetags, settings.generatePlsTags);
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -570,7 +598,7 @@ function resetSettings() {
 }
 
 //eslint-disable-next-line no-unused-vars
-function saveSettings() {
+function saveSettings(closeModal) {
     let formOK = true;
 
     let inputCrossfade = document.getElementById('inputCrossfade');
@@ -660,6 +688,12 @@ function saveSettings() {
             }
         }
     }
+    
+    let inputSmartplsInterval = document.getElementById('inputSmartplsInterval');
+    if (!validateInt(inputSmartplsInterval)) {
+        formOK = false;
+    }
+    let smartplsInterval = document.getElementById('inputSmartplsInterval').value * 60 * 60;
 
     let singleState = document.getElementById('btnSingleGroup').getElementsByClassName('active')[0].getAttribute('data-value');
     let jukeboxMode = document.getElementById('btnJukeboxModeGroup').getElementsByClassName('active')[0].getAttribute('data-value');
@@ -686,6 +720,7 @@ function saveSettings() {
             "mixrampdelay": (settings.featMixramp === true ? document.getElementById('inputMixrampdelay').value : settings.mixrampdelay),
             "notificationWeb": (document.getElementById('btnNotifyWeb').classList.contains('active') ? true : false),
             "notificationPage": (document.getElementById('btnNotifyPage').classList.contains('active') ? true : false),
+            "mediaSession": (document.getElementById('btnMediaSession').classList.contains('active') ? true : false),
             "jukeboxMode": parseInt(jukeboxMode),
             "jukeboxPlaylist": selectJukeboxPlaylist.options[selectJukeboxPlaylist.selectedIndex].value,
             "jukeboxQueueLength": parseInt(document.getElementById('inputJukeboxQueueLength').value),
@@ -712,13 +747,23 @@ function saveSettings() {
             "stickers": (document.getElementById('btnStickers').classList.contains('active') ? true : false),
             "lastPlayedCount": document.getElementById('inputLastPlayedCount').value,
             "smartpls": (document.getElementById('btnSmartpls').classList.contains('active') ? true : false),
+            "smartplsPrefix": document.getElementById('inputSmartplsPrefix').value,
+            "smartplsInterval": smartplsInterval,
+            "smartplsSort": document.getElementById('selectSmartplsSort').value,
             "taglist": getTagMultiSelectValues(document.getElementById('listEnabledTags'), false),
             "searchtaglist": getTagMultiSelectValues(document.getElementById('listSearchTags'), false),
             "browsetaglist": getTagMultiSelectValues(document.getElementById('listBrowseTags'), false),
+            "generatePlsTags": getTagMultiSelectValues(document.getElementById('listGeneratePlsTags'), false),
             "theme": selectTheme.options[selectTheme.selectedIndex].value,
+            "highlightColor": document.getElementById('inputHighlightColor').value,
             "timer": (document.getElementById('btnFeatTimer').classList.contains('active') ? true : false)
         }, getSettings);
-        modalSettings.hide();
+        if (closeModal === true) {
+            modalSettings.hide();
+        }
+        else {
+            btnWaiting(document.getElementById('btnApplySettings'), true);
+        }
     }
 }
 

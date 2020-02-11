@@ -43,6 +43,10 @@ void mympd_api_push_to_mpd_client(t_mympd_state *mympd_state) {
     request->data = tojson_char(request->data, "browsetaglist", mympd_state->browsetaglist, true);
     request->data = tojson_bool(request->data, "stickers", mympd_state->stickers, true);
     request->data = tojson_bool(request->data, "smartpls", mympd_state->smartpls, true);
+    request->data = tojson_char(request->data, "smartplsSort", mympd_state->smartpls_sort, true);
+    request->data = tojson_char(request->data, "smartplsPrefix", mympd_state->smartpls_prefix, true);
+    request->data = tojson_long(request->data, "smartplsInterval", mympd_state->smartpls_interval, true);
+    request->data = tojson_char(request->data, "generatePlsTags", mympd_state->generate_pls_tags, true);
     request->data = tojson_char(request->data, "mpdHost", mympd_state->mpd_host, true);
     request->data = tojson_char(request->data, "mpdPass", mympd_state->mpd_pass, true);
     request->data = tojson_long(request->data, "mpdPort", mympd_state->mpd_port, true);
@@ -60,6 +64,7 @@ void free_mympd_state(t_mympd_state *mympd_state) {
     sdsfree(mympd_state->taglist);
     sdsfree(mympd_state->searchtaglist);
     sdsfree(mympd_state->browsetaglist);
+    sdsfree(mympd_state->generate_pls_tags);
     sdsfree(mympd_state->love_channel);
     sdsfree(mympd_state->love_message);
     sdsfree(mympd_state->jukebox_playlist);
@@ -78,6 +83,9 @@ void free_mympd_state(t_mympd_state *mympd_state) {
     sdsfree(mympd_state->locale);
     sdsfree(mympd_state->music_directory);
     sdsfree(mympd_state->theme);
+    sdsfree(mympd_state->highlight_color);
+    sdsfree(mympd_state->smartpls_sort);
+    sdsfree(mympd_state->smartpls_prefix);
     truncate_timerlist(&mympd_state->timer_list);
     FREE_PTR(mympd_state);
 }

@@ -10,15 +10,19 @@ function parsePlaylists(obj) {
         document.getElementById('BrowsePlaylistsAllList').classList.remove('hide');
         document.getElementById('BrowsePlaylistsDetailList').classList.add('hide');
         document.getElementById('btnBrowsePlaylistsAll').parentNode.classList.add('hide');
-        document.getElementById('btnPlaylistClear').parentNode.classList.add('hide');
+        document.getElementById('playlistContentBtns').classList.add('hide');
+        document.getElementById('smartPlaylistContentBtns').classList.add('hide');
+        document.getElementById('btnAddSmartpls').parentNode.classList.remove('hide');
     } else {
         if (obj.result.uri.indexOf('.') > -1 || obj.result.smartpls === true) {
             document.getElementById('BrowsePlaylistsDetailList').setAttribute('data-ro', 'true')
-            document.getElementById('btnPlaylistClear').parentNode.classList.add('hide');
+            document.getElementById('playlistContentBtns').classList.add('hide');
+            document.getElementById('smartPlaylistContentBtns').classList.remove('hide');
         }
         else {
             document.getElementById('BrowsePlaylistsDetailList').setAttribute('data-ro', 'false');
-            document.getElementById('btnPlaylistClear').parentNode.classList.remove('hide');
+            document.getElementById('playlistContentBtns').classList.remove('hide');
+            document.getElementById('smartPlaylistContentBtns').classList.add('hide');
         }
         document.getElementById('BrowsePlaylistsDetailList').setAttribute('data-uri', obj.result.uri);
         document.getElementById('BrowsePlaylistsDetailList').getElementsByTagName('caption')[0].innerHTML = 
@@ -26,6 +30,7 @@ function parsePlaylists(obj) {
         document.getElementById('BrowsePlaylistsDetailList').classList.remove('hide');
         document.getElementById('BrowsePlaylistsAllList').classList.add('hide');
         document.getElementById('btnBrowsePlaylistsAll').parentNode.classList.remove('hide');
+        document.getElementById('btnAddSmartpls').parentNode.classList.add('hide');
     }
             
     let nrItems = obj.result.returnedEntities;
@@ -123,6 +128,18 @@ function playlistClear() {
     document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
 }
 
+function playlistShuffle() {
+    let uri = document.getElementById('BrowsePlaylistsDetailList').getAttribute('data-uri');
+    sendAPI("MPD_API_PLAYLIST_SHUFFLE", {"uri": uri});
+    document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
+}
+
+function playlistSort(tag) {
+    let uri = document.getElementById('BrowsePlaylistsDetailList').getAttribute('data-uri');
+    sendAPI("MPD_API_PLAYLIST_SORT", {"uri": uri, "tag": tag});
+    document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
+}
+
 function getAllPlaylists(obj) {
     let nrItems = obj.result.returnedEntities;
     let playlists = '';
@@ -191,35 +208,39 @@ function parseSmartPlaylist(obj) {
     let nameEl = document.getElementById('saveSmartPlaylistName');
     nameEl.value = obj.result.playlist;
     nameEl.classList.remove('is-invalid');
-    document.getElementById('saveSmartPlaylistType').value = obj.result.type;
+    document.getElementById('saveSmartPlaylistType').value = t(obj.result.type);
+    document.getElementById('saveSmartPlaylistType').setAttribute('data-value', obj.result.type);
     document.getElementById('saveSmartPlaylistSearch').classList.add('hide');
     document.getElementById('saveSmartPlaylistSticker').classList.add('hide');
     document.getElementById('saveSmartPlaylistNewest').classList.add('hide');
     let tagList;
-    if (settings.featTags)
+    if (settings.featTags) {
         tagList = '<option value="any">' + t('Any Tag') + '</option>';
+    }
     tagList += '<option value="filename">' + t('Filename') + '</option>';
     for (let i = 0; i < settings.searchtags.length; i++) {
         tagList += '<option value="' + settings.searchtags[i] + '">' + t(settings.searchtags[i]) + '</option>';
     }
-    document.getElementById('selectSaveSmartPlaylistTag').innerHTML = tagList;
+    let elSelectSaveSmartPlaylistTag = document.getElementById('selectSaveSmartPlaylistTag');
+    elSelectSaveSmartPlaylistTag.innerHTML = tagList;
     if (obj.result.type === 'search') {
         document.getElementById('saveSmartPlaylistSearch').classList.remove('hide');
         document.getElementById('selectSaveSmartPlaylistTag').value = obj.result.tag;
         document.getElementById('inputSaveSmartPlaylistSearchstr').value = obj.result.searchstr;
-        if (settings.featAdvsearch) {
-            document.getElementById('selectSaveSmartPlaylistTag').parentNode.classList.add('hide');
-            document.getElementById('inputSaveSmartPlaylistSearchstr').parentNode.classList.replace('col-md-6','col-md-12');
+        if (settings.featAdvsearch && obj.result.tag === 'expression') {
+            elSelectSaveSmartPlaylistTag.parentNode.parentNode.classList.add('hide');
+            elSelectSaveSmartPlaylistTag.innerHTML = '<option value="expression">expression</option>';
+            elSelectSaveSmartPlaylistTag.value = 'expression';
         }
         else {
-            document.getElementById('selectSaveSmartPlaylistTag').parentNode.classList.remove('hide');
-            document.getElementById('inputSaveSmartPlaylistSearchstr').parentNode.classList.replace('col-md-12','col-md-6');
+            document.getElementById('selectSaveSmartPlaylistTag').parentNode.parentNode.classList.remove('hide');
         }
     }
     else if (obj.result.type === 'sticker') {
         document.getElementById('saveSmartPlaylistSticker').classList.remove('hide');
         document.getElementById('selectSaveSmartPlaylistSticker').value = obj.result.sticker;
         document.getElementById('inputSaveSmartPlaylistStickerMaxentries').value = obj.result.maxentries;
+        document.getElementById('inputSaveSmartPlaylistStickerMinvalue').value = obj.result.minvalue;
     }
     else if (obj.result.type === 'newest') {
         document.getElementById('saveSmartPlaylistNewest').classList.remove('hide');
@@ -233,32 +254,37 @@ function parseSmartPlaylist(obj) {
 //eslint-disable-next-line no-unused-vars
 function saveSmartPlaylist() {
     let name = document.getElementById('saveSmartPlaylistName').value;
-    let type = document.getElementById('saveSmartPlaylistType').value;
+    let type = document.getElementById('saveSmartPlaylistType').getAttribute('data-value');
+    let sortEl = document.getElementById('saveSmartPlaylistSort');
+    let sort = sortEl.options[sortEl.selectedIndex].value;
     if (validatePlname(name) === true) {
         if (type === 'search') {
             let tagEl = document.getElementById('selectSaveSmartPlaylistTag');
             let tag = tagEl.options[tagEl.selectedIndex].value;
-            if (settings.featAdvsearch) {
-                tag = 'expression';
-            }
             let searchstr = document.getElementById('inputSaveSmartPlaylistSearchstr').value;
-            sendAPI("MPD_API_SMARTPLS_SAVE", {"type": type, "playlist": name, "tag": tag, "searchstr": searchstr});
-        } else if (type === 'sticker') {
+            sendAPI("MPD_API_SMARTPLS_SAVE", {"type": type, "playlist": name, "tag": tag, "searchstr": searchstr, "sort": sort});
+        }
+        else if (type === 'sticker') {
             let stickerEl = document.getElementById('selectSaveSmartPlaylistSticker');
             let sticker = stickerEl.options[stickerEl.selectedIndex].value;
             let maxentriesEl = document.getElementById('inputSaveSmartPlaylistStickerMaxentries');
             if (!validateInt(maxentriesEl)) {
                 return;
             }
-            let maxentries = maxentriesEl.value;
-            sendAPI("MPD_API_SMARTPLS_SAVE", {"type": type, "playlist": name, "sticker": sticker, "maxentries": maxentries});
-        } else if (type === 'newest') {
+            let minvalueEl = document.getElementById('inputSaveSmartPlaylistStickerMinvalue');
+            if (!validateInt(minvalueEl)) {
+                return;
+            }
+            sendAPI("MPD_API_SMARTPLS_SAVE", {"type": type, "playlist": name, "sticker": sticker, "maxentries": parseInt(maxentriesEl.value), 
+                "minvalue": parseInt(minvalueEl.value), "sort": sort});
+        }
+        else if (type === 'newest') {
             let timerangeEl = document.getElementById('inputSaveSmartPlaylistNewestTimerange');
             if (!validateInt(timerangeEl)) {
                 return;
             }
             let timerange = parseInt(timerangeEl.value) * 60 * 60 * 24;
-            sendAPI("MPD_API_SMARTPLS_SAVE", {"type": type, "playlist": name, "timerange": timerange});
+            sendAPI("MPD_API_SMARTPLS_SAVE", {"type": type, "playlist": name, "timerange": timerange, "sort": sort});
         }
         else {
             document.getElementById('saveSmartPlaylistType').classList.add('is-invalid');
@@ -269,6 +295,47 @@ function saveSmartPlaylist() {
     }
     else {
         document.getElementById('saveSmartPlaylistName').classList.add('is-invalid');
+    }
+}
+
+function addSmartpls(type) {
+    let obj = {"jsonrpc":"2.0", "id":0, "result": {"method":"MPD_API_SMARTPLS_GET"}};
+    if (type === 'mostPlayed') {
+        obj.result.playlist = settings.smartplsPrefix + (settings.smartplsPrefix !== '' ? '-' : '') + 'mostPlayed';
+        obj.result.type = 'sticker';
+        obj.result.sticker = 'playCount';
+        obj.result.maxentries = 200;
+        obj.result.minvalue = 10;
+    }
+    else if (type === 'newest') {
+        obj.result.playlist = settings.smartplsPrefix + (settings.smartplsPrefix !== '' ? '-' : '') + 'newestSongs';
+        obj.result.type = 'newest';
+        obj.result.timerange = 14 * 24 * 60 * 60;
+    }
+    else if (type === 'bestRated') {
+        obj.result.playlist = settings.smartplsPrefix + (settings.smartplsPrefix !== '' ? '-' : '') + 'bestRated';
+        obj.result.type = 'sticker';
+        obj.result.sticker = 'like';
+        obj.result.maxentries = 200;
+        obj.result.minvalue = 2;
+    }
+    parseSmartPlaylist(obj);
+}
+
+function deletePlaylists() {
+    let selectDeletePlaylists = document.getElementById('selectDeletePlaylists');
+    let btnDeletePlaylists = document.getElementById('btnDeletePlaylists');
+    btnWaiting(btnDeletePlaylists, true);
+    sendAPI("MPD_API_PLAYLIST_RM_ALL", {"type": selectDeletePlaylists.options[selectDeletePlaylists.selectedIndex].value}, function() {
+        let btnDeletePlaylists = document.getElementById('btnDeletePlaylists');
+        btnWaiting(btnDeletePlaylists, false);
+    });
+}
+
+function showAddToPlaylistCurrentSong() {
+    let uri = document.getElementById('currentTitle').getAttribute('data-uri');
+    if (uri !== '') {
+        showAddToPlaylist(uri, '');
     }
 }
 
@@ -290,7 +357,8 @@ function showAddToPlaylist(uri, search) {
         document.getElementById('addToPlaylistFooter').classList.remove('hide');
         document.getElementById('addToPlaylistFrm').classList.remove('hide');
         document.getElementById('addToPlaylistCaption').innerText = t('Add to playlist');
-    } else {
+    }
+    else {
         document.getElementById('addStreamFooter').classList.remove('hide');
         document.getElementById('addStreamFrm').classList.remove('hide');
         document.getElementById('addToPlaylistFooter').classList.add('hide');
@@ -374,7 +442,13 @@ function showSmartPlaylist(playlist) {
 
 //eslint-disable-next-line no-unused-vars
 function updateSmartPlaylist(playlist) {
-    sendAPI("MPD_API_SMARTPLS_UPDATE", {"playlist": playlist}, parseSmartPlaylist);
+    sendAPI("MPD_API_SMARTPLS_UPDATE", {"playlist": playlist});
+}
+
+function updateSmartPlaylistClick() {
+    let uri = document.getElementById('BrowsePlaylistsDetailList').getAttribute('data-uri');
+    sendAPI("MPD_API_SMARTPLS_UPDATE", {"playlist": uri});
+    document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
 }
 
 //eslint-disable-next-line no-unused-vars

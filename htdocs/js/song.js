@@ -39,8 +39,8 @@ function parseSongDetails(obj) {
         songDetails += '</td></tr>';
     }
     songDetails += '<tr><th>' + t('Duration') + '</th><td>' + beautifyDuration(obj.result.Duration) + '</td></tr>';
-    if (settings.featLibrary === true && settings.publishLibrary === true) {
-        songDetails += '<tr><th>' + t('Filename') + '</th><td><a class="breakAll text-success" href="/library/' + 
+    if (settings.featLibrary === true && settings.publish === true) {
+        songDetails += '<tr><th>' + t('Filename') + '</th><td><a class="breakAll text-success" href="/browse/music/' + 
             encodeURI(obj.result.uri) + '" download title="' + e(obj.result.uri) + '">' + 
             e(basename(obj.result.uri)) + '</a></td></tr>';
     }
@@ -84,10 +84,10 @@ function voteSong(vote) {
         return;
     }
         
-    if (vote === 2 && domCache.btnVoteUp.classList.contains('active-fg-green')) {
+    if (vote === 2 && domCache.btnVoteUp.classList.contains('highlight')) {
         vote = 1;
     }
-    else if (vote === 0 && domCache.btnVoteDown.classList.contains('active-fg-red')) {
+    else if (vote === 0 && domCache.btnVoteDown.classList.contains('highlight')) {
         vote = 1;
     }
     sendAPI("MPD_API_LIKE", {"uri": uri, "like": vote});
@@ -115,25 +115,25 @@ function setVoteSongBtns(vote, uri) {
     }
     
     if (vote === 0) {
-        domCache.btnVoteUp.classList.remove('active-fg-green');
-        domCache.btnVoteDown.classList.add('active-fg-red');
+        domCache.btnVoteUp.classList.remove('highlight');
+        domCache.btnVoteDown.classList.add('highlight');
         if (domCache.btnVoteUp2) {
-            domCache.btnVoteUp2.classList.remove('active-fg-green');
-            domCache.btnVoteDown2.classList.add('active-fg-red');
+            domCache.btnVoteUp2.classList.remove('highlight');
+            domCache.btnVoteDown2.classList.add('highlight');
         }
     } else if (vote === 1) {
-        domCache.btnVoteUp.classList.remove('active-fg-green');
-        domCache.btnVoteDown.classList.remove('active-fg-red');
+        domCache.btnVoteUp.classList.remove('highlight');
+        domCache.btnVoteDown.classList.remove('highlight');
         if (domCache.btnVoteUp2) {
-            domCache.btnVoteUp2.classList.remove('active-fg-green');
-            domCache.btnVoteDown2.classList.remove('active-fg-red');
+            domCache.btnVoteUp2.classList.remove('highlight');
+            domCache.btnVoteDown2.classList.remove('highlight');
         }
     } else if (vote === 2) {
-        domCache.btnVoteUp.classList.add('active-fg-green');
-        domCache.btnVoteDown.classList.remove('active-fg-red');
+        domCache.btnVoteUp.classList.add('highlight');
+        domCache.btnVoteDown.classList.remove('highlight');
         if (domCache.btnVoteUp2) {
-            domCache.btnVoteUp2.classList.add('active-fg-green');
-            domCache.btnVoteDown2.classList.remove('active-fg-red');
+            domCache.btnVoteUp2.classList.add('highlight');
+            domCache.btnVoteDown2.classList.remove('highlight');
         }
     }
 }

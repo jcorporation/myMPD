@@ -102,7 +102,7 @@ bool mpd_client_jukebox_add_to_queue(t_config *config, t_mpd_state *mpd_state, i
         }
     }
     int added = 0;
-    struct node *current;
+    struct list_node *current;
     if (manual == false) {
         current = mpd_state->jukebox_queue.head;
     }
@@ -196,7 +196,7 @@ static struct list *mpd_client_jukebox_get_last_played(t_config *config, t_mpd_s
         mpd_song_free(song);
     }
     //put last_played to queue list
-    struct node *current = mpd_state->last_played.head;
+    struct list_node *current = mpd_state->last_played.head;
     while (current != NULL) {
         if (mpd_send_list_all_meta(mpd_state->conn, current->key) == false) {
             check_error_and_recover(mpd_state, NULL, NULL, 0);
@@ -397,7 +397,7 @@ static bool mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_state 
 }
 
 static bool mpd_client_jukebox_unique_tag(t_mpd_state *mpd_state, const char *uri, const char *value, bool manual, struct list *queue_list) {
-    struct node *current = queue_list->head;
+    struct list_node *current = queue_list->head;
     while(current != NULL) {
         if (strcmp(current->key, uri) == 0) {
             return false;
@@ -427,7 +427,7 @@ static bool mpd_client_jukebox_unique_tag(t_mpd_state *mpd_state, const char *ur
 }
 
 static bool mpd_client_jukebox_unique_album(t_mpd_state *mpd_state, const char *album, bool manual, struct list *queue_list) {
-    struct node *current = queue_list->head;
+    struct list_node *current = queue_list->head;
     while (current != NULL) {
         if (strcmp(current->value_p, album) == 0) {
             return false;

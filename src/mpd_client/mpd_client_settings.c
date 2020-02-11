@@ -140,6 +140,18 @@ bool mpd_api_settings_set(t_config *config, t_mpd_state *mpd_state, struct json_
     else if (strncmp(key->ptr, "smartpls", key->len) == 0) {
         mpd_state->smartpls = val->type == JSON_TYPE_TRUE ? true : false;
     }
+    else if (strncmp(key->ptr, "smartplsSort", key->len) == 0) {
+        mpd_state->smartpls_sort = sdsreplacelen(mpd_state->smartpls_sort, settingvalue, sdslen(settingvalue));
+    }
+    else if (strncmp(key->ptr, "smartplsPrefix", key->len) == 0) {
+        mpd_state->smartpls_prefix = sdsreplacelen(mpd_state->smartpls_prefix, settingvalue, sdslen(settingvalue));
+    }
+    else if (strncmp(key->ptr, "smartplsInterval", key->len) == 0) {
+        mpd_state->smartpls_interval = strtoumax(settingvalue, &crap, 10);
+    }
+    else if (strncmp(key->ptr, "generatePlsTags", key->len) == 0) {
+        mpd_state->generate_pls_tags = sdsreplacelen(mpd_state->generate_pls_tags, settingvalue, sdslen(settingvalue));
+    }
     else if (strncmp(key->ptr, "maxElementsPerPage", key->len) == 0) {
         int max_elements_per_page = strtoimax(settingvalue, &crap, 10);
         if (max_elements_per_page <= 0 || max_elements_per_page > 999) {
@@ -201,8 +213,18 @@ bool mpd_api_settings_set(t_config *config, t_mpd_state *mpd_state, struct json_
         }
     }
     else if (strncmp(key->ptr, "replaygain", key->len) == 0) {
-        rc = mpd_send_command(mpd_state->conn, "replay_gain_mode", settingvalue, NULL);
-        mpd_response_finish(mpd_state->conn);
+        #if LIBMPDCLIENT_CHECK_VERSION(2,18,0)
+            enum mpd_replay_gain_mode mode = mpd_parse_replay_gain_name(settingvalue);
+            if (mode == MPD_REPLAY_UNKNOWN) {
+                LOG_ERROR("Unknown replay gain mode: %s", settingvalue);
+            }
+            else {
+                rc = mpd_run_replay_gain_mode(mpd_state->conn, mode);
+            }
+        #else
+            rc = mpd_send_command(mpd_state->conn, "replay_gain_mode", settingvalue, NULL);
+            mpd_response_finish(mpd_state->conn);
+        #endif
     }    
 
     sdsfree(settingvalue);
@@ -216,18 +238,28 @@ sds mpd_client_put_settings(t_mpd_state *mpd_state, sds buffer, sds method, int 
         return buffer;
     }
 
-    if (!mpd_send_command(mpd_state->conn, "replay_gain_status", NULL)) {
-        buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
-        return buffer;
-    }
-    struct mpd_pair *pair = mpd_recv_pair(mpd_state->conn);
-    if (pair == NULL) {
-        buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
-        return buffer;
-    }
-    char *replaygain = strdup(pair->value);
-    mpd_return_pair(mpd_state->conn, pair);
-    mpd_response_finish(mpd_state->conn);
+    #ifdef LIBMYMPDCLIENT
+        enum mpd_replay_gain_mode replay_gain_mode = mpd_run_replay_gain_status(mpd_state->conn);
+        if (replay_gain_mode == MPD_REPLAY_UNKNOWN) {
+            if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
+            return buffer;
+        }
+        const char *replaygain = mpd_parse_replay_gain_mode(replay_gain_mode);
+        }
+    #else
+        mpd_send_command(mpd_state->conn, "replay_gain_status", NULL);
+        if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
+            return buffer;
+        }
+        struct mpd_pair *pair = mpd_recv_pair(mpd_state->conn);
+        if (pair == NULL) {
+            buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
+            return buffer;
+        }
+        char *replaygain = strdup(pair->value);
+        mpd_return_pair(mpd_state->conn, pair);
+        mpd_response_finish(mpd_state->conn);
+    #endif
     
     buffer = jsonrpc_start_result(buffer, method, request_id);
     buffer = sdscat(buffer, ",");
@@ -259,7 +291,11 @@ sds mpd_client_put_settings(t_mpd_state *mpd_state, sds buffer, sds method, int 
     buffer = tojson_char(buffer, "musicDirectoryValue", mpd_state->music_directory_value, true);
     buffer = tojson_bool(buffer, "mpdConnected", true, true);
     mpd_status_free(status);
-    FREE_PTR(replaygain);
+    #ifdef LIBMYMPDCLIENT
+        //replaygain is a stack variable
+    #else
+        FREE_PTR(replaygain);
+    #endif
 
     buffer = print_tags_array(buffer, "tags", mpd_state->mympd_tag_types);
     buffer = sdscat(buffer, ",");
@@ -268,6 +304,8 @@ sds mpd_client_put_settings(t_mpd_state *mpd_state, sds buffer, sds method, int 
     buffer = print_tags_array(buffer, "browsetags", mpd_state->browse_tag_types);
     buffer = sdscat(buffer, ",");
     buffer = print_tags_array(buffer, "allmpdtags", mpd_state->mpd_tag_types);
+    buffer = sdscat(buffer, ",");
+    buffer = print_tags_array(buffer, "generatePlsTags", mpd_state->generate_pls_tag_types);
 
     buffer = jsonrpc_end_result(buffer);
     

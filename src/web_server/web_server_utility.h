@@ -29,7 +29,9 @@
 
 typedef struct t_mg_user_data {
     void *config; //pointer to mympd config
+    sds browse_document_root;
     sds music_directory;
+    sds playlist_directory;
     sds rewrite_patterns;
     sds *coverimage_names;
     int coverimage_names_len;
@@ -41,6 +43,8 @@ typedef struct t_mg_user_data {
 #ifndef DEBUG
 bool serve_embedded_files(struct mg_connection *nc, sds uri, struct http_message *hm);
 #endif
+bool rm_mk_dir(sds dir_name, bool create);
+void manage_emptydir(sds varlibdir, bool pics, bool smartplaylists, bool music, bool playlists);
 sds *split_coverimage_names(const char *coverimage_name, sds *coverimage_names, int *count);
 void send_error(struct mg_connection *nc, int code, const char *msg);
 void serve_na_image(struct mg_connection *nc, struct http_message *hm);

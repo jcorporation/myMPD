@@ -23,6 +23,8 @@
 #include "config_defs.h"
 #include "../utility.h"
 #include "mympd_api_utility.h"
+#include "mympd_api_timer.h"
+#include "mympd_api_timer_handlers.h"
 #include "mympd_api_settings.h"
 
 void mympd_api_settings_delete(t_config *config) {
@@ -32,11 +34,11 @@ void mympd_api_settings_delete(t_config *config) {
     const char* state_files[]={"auto_play", "bg_color", "bg_cover", "bg_css_filter", "browsetaglist", "cols_browse_database",
         "cols_browse_filesystem", "cols_browse_playlists_detail", "cols_playback", "cols_queue_current", "cols_queue_last_played",
         "cols_search", "coverimage", "coverimage_name", "coverimage_size", "jukebox_mode", "jukebox_playlist", "jukebox_queue_length",
-        "jukebox_unique_tag", "jukebox_last_played",
+        "jukebox_unique_tag", "jukebox_last_played", "generate_pls_tags", "smartpls_sort", "smartpls_prefix", "smartpls_interval",
         "last_played", "last_played_count", "locale", "localplayer", "localplayer_autoplay", "love", "love_channel", "love_message",
         "max_elements_per_page",  "mpd_host", "mpd_pass", "mpd_port", "notification_page", "notification_web", "searchtaglist",
         "smartpls", "stickers", "stream_port", "stream_url", "taglist", "music_directory", "bookmarks", "bookmark_list", "covergrid_size", 
-        "theme", "timer", 0};
+        "theme", "timer", "highlight_color", "media_session", 0};
     const char** ptr = state_files;
     while (*ptr != 0) {
         sds filename = sdscatfmt(sdsempty(), "%s/state/%s", config->varlibdir, *ptr);
@@ -141,6 +143,10 @@ bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state, struct
     else if (strncmp(key->ptr, "notificationPage", key->len) == 0) {
         mympd_state->notification_page = val->type == JSON_TYPE_TRUE ? true : false;
         settingname = sdscat(settingname, "notification_page");
+    }
+    else if (strncmp(key->ptr, "mediaSession", key->len) == 0) {
+        mympd_state->media_session = val->type == JSON_TYPE_TRUE ? true : false;
+        settingname = sdscat(settingname, "media_session");
     }
     else if (strncmp(key->ptr, "autoPlay", key->len) == 0) {
         mympd_state->auto_play = val->type == JSON_TYPE_TRUE ? true : false;
@@ -268,6 +274,26 @@ bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state, struct
         }
         settingname = sdscat(settingname, "smartpls");
     }
+    else if (strncmp(key->ptr, "smartplsSort", key->len) == 0) {
+        mympd_state->smartpls_sort = sdsreplacelen(mympd_state->smartpls_sort, settingvalue, sdslen(settingvalue));
+        settingname = sdscat(settingname, "smartpls_sort");
+    }
+    else if (strncmp(key->ptr, "smartplsPrefix", key->len) == 0) {
+        mympd_state->smartpls_prefix = sdsreplacelen(mympd_state->smartpls_prefix, settingvalue, sdslen(settingvalue));
+        settingname = sdscat(settingname, "smartpls_prefix");
+    }
+    else if (strncmp(key->ptr, "smartplsInterval", key->len) == 0) {
+        time_t interval = strtoumax(settingvalue, &crap, 10);
+        if (interval != mympd_state->smartpls_interval) {
+            mympd_state->smartpls_interval = interval;
+            replace_timer(&mympd_state->timer_list, interval, interval, timer_handler_smartpls_update, 2, NULL, NULL);
+        }
+        settingname = sdscat(settingname, "smartpls_interval");
+    }
+    else if (strncmp(key->ptr, "generatePlsTags", key->len) == 0) {
+        mympd_state->generate_pls_tags = sdsreplacelen(mympd_state->generate_pls_tags, settingvalue, sdslen(settingvalue));
+        settingname = sdscat(settingname, "generate_pls_tags");
+    }
     else if (strncmp(key->ptr, "maxElementsPerPage", key->len) == 0) {
         int max_elements_per_page = strtoimax(settingvalue, &crap, 10);
         if (max_elements_per_page <= 0 || max_elements_per_page > 999) {
@@ -307,6 +333,10 @@ bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state, struct
         mympd_state->timer = val->type == JSON_TYPE_TRUE ? true : false;
         settingname = sdscat(settingname, "timer");
     }
+    else if (strncmp(key->ptr, "highlightColor", key->len) == 0) {
+        mympd_state->highlight_color = sdsreplacelen(mympd_state->highlight_color, settingvalue, sdslen(settingvalue));
+        settingname = sdscat(settingname, "highlight_color");
+    }
     else {
         sdsfree(settingname);
         sdsfree(settingvalue);
@@ -334,6 +364,10 @@ void mympd_api_read_statefiles(t_config *config, t_mympd_state *mympd_state) {
     mympd_state->searchtaglist = state_file_rw_string(config, "searchtaglist", config->searchtaglist, false);
     mympd_state->browsetaglist = state_file_rw_string(config, "browsetaglist", config->browsetaglist, false);
     mympd_state->smartpls = state_file_rw_bool(config, "smartpls", config->smartpls, false);
+    mympd_state->smartpls_sort = state_file_rw_string(config, "smartpls_sort", config->smartpls_sort, false);
+    mympd_state->smartpls_prefix = state_file_rw_string(config, "smartpls_prefix", config->smartpls_prefix, false);
+    mympd_state->smartpls_interval = state_file_rw_int(config, "smartpls_interval", config->smartpls_interval, false);
+    mympd_state->generate_pls_tags = state_file_rw_string(config, "generate_pls_tags", config->generate_pls_tags, false);
     mympd_state->max_elements_per_page = state_file_rw_int(config, "max_elements_per_page", config->max_elements_per_page, false);
     mympd_state->last_played_count = state_file_rw_int(config, "last_played_count", config->last_played_count, false);
     mympd_state->love = state_file_rw_bool(config, "love", config->love, false);
@@ -341,6 +375,7 @@ void mympd_api_read_statefiles(t_config *config, t_mympd_state *mympd_state) {
     mympd_state->love_message = state_file_rw_string(config, "love_message", config->love_message, false);
     mympd_state->notification_web = state_file_rw_bool(config, "notification_web", config->notification_web, false);
     mympd_state->notification_page = state_file_rw_bool(config, "notification_page", config->notification_page, false);
+    mympd_state->media_session = state_file_rw_bool(config, "media_session", config->media_session, false);
     mympd_state->auto_play = state_file_rw_bool(config, "auto_play", config->auto_play, false);
     mympd_state->jukebox_mode = state_file_rw_int(config, "jukebox_mode", config->jukebox_mode, false);
     mympd_state->jukebox_playlist = state_file_rw_string(config, "jukebox_playlist", config->jukebox_playlist, false);
@@ -370,6 +405,7 @@ void mympd_api_read_statefiles(t_config *config, t_mympd_state *mympd_state) {
     mympd_state->bookmarks = state_file_rw_bool(config, "bookmarks", config->bookmarks, false);
     mympd_state->theme = state_file_rw_string(config, "theme", config->theme, false);
     mympd_state->timer = state_file_rw_bool(config, "timer", config->timer, false);
+    mympd_state->highlight_color = state_file_rw_string(config, "highlight_color", config->highlight_color, false);
     if (config->readonly == true) {
         mympd_state->bookmarks = false;
         mympd_state->smartpls = false;
@@ -491,6 +527,7 @@ sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buf
     buffer = tojson_long(buffer, "maxElementsPerPage", mympd_state->max_elements_per_page, true);
     buffer = tojson_bool(buffer, "notificationWeb", mympd_state->notification_web, true);
     buffer = tojson_bool(buffer, "notificationPage", mympd_state->notification_page, true);
+    buffer = tojson_bool(buffer, "mediaSession", mympd_state->media_session, true);
     buffer = tojson_long(buffer, "jukeboxMode", mympd_state->jukebox_mode, true);
     buffer = tojson_char(buffer, "jukeboxPlaylist", mympd_state->jukebox_playlist, true);
     buffer = tojson_long(buffer, "jukeboxQueueLength", mympd_state->jukebox_queue_length, true);
@@ -505,6 +542,9 @@ sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buf
     buffer = tojson_bool(buffer, "localplayerAutoplay", mympd_state->localplayer_autoplay, true);
     buffer = tojson_bool(buffer, "stickers", mympd_state->stickers, true);
     buffer = tojson_bool(buffer, "smartpls", mympd_state->smartpls, true);
+    buffer = tojson_char(buffer, "smartplsSort", mympd_state->smartpls_sort, true);
+    buffer = tojson_char(buffer, "smartplsPrefix", mympd_state->smartpls_prefix, true);
+    buffer = tojson_long(buffer, "smartplsInterval", mympd_state->smartpls_interval, true);
     buffer = tojson_long(buffer, "lastPlayedCount", mympd_state->last_played_count, true);
     buffer = tojson_bool(buffer, "love", mympd_state->love, true);
     buffer = tojson_char(buffer, "loveChannel", mympd_state->love_channel, true);
@@ -513,8 +553,9 @@ sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buf
     buffer = tojson_bool(buffer, "readonly", config->readonly, true);
     buffer = tojson_bool(buffer, "featBookmarks", mympd_state->bookmarks, true);
     buffer = tojson_long(buffer, "volumeStep", config->volume_step, true);
-    buffer = tojson_bool(buffer, "publishLibrary", config->publish_library, true);
+    buffer = tojson_bool(buffer, "publish", config->publish, true);
     buffer = tojson_char(buffer, "theme", mympd_state->theme, true);
+    buffer = tojson_char(buffer, "highlightColor", mympd_state->highlight_color, true);
     buffer = tojson_bool(buffer, "featTimer", mympd_state->timer, true);
     buffer = tojson_bool(buffer, "featStickerCache", config->sticker_cache, true);
     buffer = sdscatfmt(buffer, "\"colsQueueCurrent\":%s,", mympd_state->cols_queue_current);
@@ -528,7 +569,7 @@ sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buf
     if (config->syscmds == true) {
         buffer = sdscat(buffer, ",\"syscmdList\":[");
         int nr = 0;
-        struct node *current = config->syscmd_list.head;
+        struct list_node *current = config->syscmd_list.head;
         while (current != NULL) {
             if (nr++) {
                 buffer = sdscat(buffer, ",");

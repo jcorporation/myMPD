@@ -39,12 +39,14 @@
 void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request) {
     t_work_request *request = (t_work_request*) arg_request;
     unsigned int uint_buf1, uint_buf2;
-    int je, int_buf1; 
+    int je, int_buf1, int_buf2; 
     bool bool_buf, rc;
+    float float_buf;
     char *p_charbuf1 = NULL;
     char *p_charbuf2 = NULL;
     char *p_charbuf3 = NULL;
     char *p_charbuf4 = NULL;
+    char *p_charbuf5 = NULL;
 
     LOG_VERBOSE("MPD CLIENT API request (%d)(%d) %s: %s", request->conn_id, request->id, request->method, request->data);
     //create response struct
@@ -163,26 +165,27 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
             rc = false;
             if (je == 1) {
                 if (strcmp(p_charbuf1, "sticker") == 0) {
-                    je = json_scanf(request->data, sdslen(request->data), "{params: {playlist: %Q, sticker: %Q, maxentries: %d}}", &p_charbuf2, &p_charbuf3, &int_buf1);
-                    if (je == 3) {
-                        rc = mpd_client_smartpls_save(config, mpd_state, p_charbuf1, p_charbuf2, p_charbuf3, NULL, int_buf1, 0);
+                    je = json_scanf(request->data, sdslen(request->data), "{params: {playlist: %Q, sticker: %Q, maxentries: %d, minvalue: %d, sort: %Q}}", &p_charbuf2, &p_charbuf3, &int_buf1, &int_buf2, &p_charbuf5);
+                    if (je == 5) {
+                        rc = mpd_client_smartpls_save(config, mpd_state, p_charbuf1, p_charbuf2, p_charbuf3, NULL, int_buf1, int_buf2, p_charbuf5);
                     }
                 }
                 else if (strcmp(p_charbuf1, "newest") == 0) {
-                    je = json_scanf(request->data, sdslen(request->data), "{params: {playlist: %Q, timerange: %d}}", &p_charbuf2, &int_buf1);
-                    if (je == 2) {
-                        rc = mpd_client_smartpls_save(config, mpd_state, p_charbuf1, p_charbuf2, NULL, NULL, 0, int_buf1);
+                    je = json_scanf(request->data, sdslen(request->data), "{params: {playlist: %Q, timerange: %d, sort: %Q}}", &p_charbuf2, &int_buf1, &p_charbuf5);
+                    if (je == 3) {
+                        rc = mpd_client_smartpls_save(config, mpd_state, p_charbuf1, p_charbuf2, NULL, NULL, 0, int_buf1, p_charbuf5);
                     }
                 }            
                 else if (strcmp(p_charbuf1, "search") == 0) {
-                    je = json_scanf(request->data, sdslen(request->data), "{params: {playlist: %Q, tag: %Q, searchstr: %Q}}", &p_charbuf2, &p_charbuf3, &p_charbuf4);
-                    if (je == 3) {
-                        rc = mpd_client_smartpls_save(config, mpd_state, p_charbuf1, p_charbuf2, p_charbuf3, p_charbuf4, 0, 0);
+                    je = json_scanf(request->data, sdslen(request->data), "{params: {playlist: %Q, tag: %Q, searchstr: %Q, sort: %Q}}", &p_charbuf2, &p_charbuf3, &p_charbuf4, &p_charbuf5);
+                    if (je == 4) {
+                        rc = mpd_client_smartpls_save(config, mpd_state, p_charbuf1, p_charbuf2, p_charbuf3, p_charbuf4, 0, 0, p_charbuf5);
                     }
                 }
             }
             if (rc == true) {
                 response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+                mpd_client_smartpls_update(config, mpd_state, p_charbuf2);
             }
             else {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Failed to save playlist", true);
@@ -299,6 +302,17 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
                 response->data = respond_with_mpd_error_or_ok(mpd_state, response->data, request->method, request->id);
             }
             break;
+        case MPD_API_PLAYER_SEEK_CURRENT:
+            je = json_scanf(request->data, sdslen(request->data), "{params: {seek: %f, relative: %B}}", &float_buf, &bool_buf);
+            if (je == 2) {
+                #if LIBMPDCLIENT_CHECK_VERSION(2,15,0)
+                    mpd_run_seek_current(mpd_state->conn, float_buf, bool_buf);
+                    response->data = respond_with_mpd_error_or_ok(mpd_state, response->data, request->method, request->id);
+                #else
+                    respond->data = jsonrpc_respond_message(response->data, request->method, request->id, "Not supported by libmpdclient", true)
+                #endif
+            }
+            break;
         case MPD_API_QUEUE_LIST: {
             t_tags *tagcols = (t_tags *)malloc(sizeof(t_tags));
             assert(tagcols);
@@ -391,7 +405,7 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
             break;
         }
         case MPD_API_PLAYLIST_ADD_TRACK:
-            je = json_scanf(request->data, sdslen(request->data), "{params: {plist:%Q, uri:%Q}}", &p_charbuf1, &p_charbuf2);
+            je = json_scanf(request->data, sdslen(request->data), "{params: {plist: %Q, uri: %Q}}", &p_charbuf1, &p_charbuf2);
             if (je == 2) {
                 if (mpd_run_playlist_add(mpd_state->conn, p_charbuf1, p_charbuf2)) {
                     response->data = jsonrpc_start_phrase(response->data, request->method, request->id, "Added %{uri} to playlist %{playlist}", false);
@@ -405,10 +419,16 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
             }
             break;
         case MPD_API_PLAYLIST_CLEAR:
-            je = json_scanf(request->data, sdslen(request->data), "{params: {uri:%Q}}", &p_charbuf1);
+            je = json_scanf(request->data, sdslen(request->data), "{params: {uri: %Q}}", &p_charbuf1);
             if (je == 1) {
                 mpd_run_playlist_clear(mpd_state->conn, p_charbuf1);
                 response->data = respond_with_mpd_error_or_ok(mpd_state, response->data, request->method, request->id);
+            }
+            break;
+        case MPD_API_PLAYLIST_RM_ALL:
+            je = json_scanf(request->data, sdslen(request->data), "{params: {type: %Q}}", &p_charbuf1);
+            if (je == 1) {
+                response->data = mpd_client_playlist_delete_all(config, mpd_state, response->data, request->method, request->id, p_charbuf1);
             }
             break;
         case MPD_API_PLAYLIST_RM_TRACK:
@@ -416,6 +436,18 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
             if (je == 2) {
                 mpd_run_playlist_delete(mpd_state->conn, p_charbuf1, uint_buf1);
                 response->data = respond_with_mpd_error_or_ok(mpd_state, response->data, request->method, request->id);
+            }
+            break;
+        case MPD_API_PLAYLIST_SHUFFLE:
+            je = json_scanf(request->data, sdslen(request->data), "{params: {uri: %Q}}", &p_charbuf1);
+            if (je == 1) {
+                response->data = mpd_client_playlist_shuffle_sort(mpd_state, response->data, request->method, request->id, p_charbuf1, "shuffle");
+            }
+            break;
+        case MPD_API_PLAYLIST_SORT:
+            je = json_scanf(request->data, sdslen(request->data), "{params: {uri: %Q, tag:%Q}}", &p_charbuf1, &p_charbuf2);
+            if (je == 2) {
+                response->data = mpd_client_playlist_shuffle_sort(mpd_state, response->data, request->method, request->id, p_charbuf1, p_charbuf2);
             }
             break;
         case MPD_API_DATABASE_FILESYSTEM_LIST: {
@@ -592,6 +624,7 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
     FREE_PTR(p_charbuf2);
     FREE_PTR(p_charbuf3);                    
     FREE_PTR(p_charbuf4);
+    FREE_PTR(p_charbuf5);
 
     if (sdslen(response->data) == 0) {
         response->data = jsonrpc_start_phrase(response->data, request->method, request->id, "No response for method %{method}", true);

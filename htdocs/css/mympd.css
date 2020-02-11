@@ -7,6 +7,15 @@
 :root {
   --mympd-coverimagesize: 250px;
   --mympd-covergridsize: 200px;
+  --mympd-highlightcolor: #28a745;
+}
+
+.highlight {
+  color: var(--mympd-highlightcolor, #28a745) !important;
+}
+
+#highlightColorPreview, #bgColorPreview {
+  cursor: default;
 }
 
 #splashScreen {
@@ -334,6 +343,11 @@ a.card-img-left {
   margin-left: -1em;
 }
 
+.btn-sm-big-icon {
+  font-size: 1.4rem !important;
+  padding: 0.05rem 0.25rem !important;
+}
+
 .color-darkgrey, .color-darkgrey:hover {
   color: #6c757d !important;
 }
@@ -388,12 +402,12 @@ a.card-img-left {
 
 button.active {
   color: #fff;
-  background-color: #28a745 !important;
-  border-color: #28a745 !important;
+  background-color: var(--mympd-highlightcolor, #28a745) !important;
+  border-color: var(--mympd-highlightcolor, #28a745) !important;
 }
 
 button.active-fg-green {
-  color: #28a745 !important;
+  color: var(--mympd-highlightcolor, #28a745) !important;
 }
 
 button.active-fg-red {
@@ -435,11 +449,11 @@ caption {
 }
 
 .dragover > td {
-  border-top:2px solid #28a745;
+  border-top:2px solid var(--mympd-highlightcolor, #28a745);
 }
 
 .dragover-th {
-  border-left:2px solid #28a745;
+  border-left:2px solid var(--mympd-highlightcolor, #28a745);
 }
 
 [draggable] {
@@ -535,7 +549,7 @@ textarea.small {
 }
 
 .form-control:focus {
-  border-color: #28A745 !important;
+  border-color: var(--mympd-highlightcolor, #28a745) !important;
   outline: 0;
   box-shadow: none !important;
 }
@@ -545,8 +559,8 @@ textarea.small {
 .btn-secondary:not(:disabled):not(.disabled):active, .btn-secondary:not(:disabled):not(.disabled).active,
 .show > .btn-secondary.dropdown-toggle {
   color: #fff;
-  background-color: #28a745 !important;
-  border-color: #28a745 !important;
+  background-color: var(--mympd-highlightcolor, #28a745) !important;
+  border-color: var(--mympd-highlightcolor, #28a745) !important;
 }
 
 .btn-light:focus, .btn-light.focus,
@@ -638,4 +652,48 @@ div#playDropdown .row {
 .popover-content .dropdown-item:hover, 
 .popover-content .dropdown-item:focus {
   background-color: #e9ecef;
+}
+
+.btn-success {
+  background-color: var(--mympd-highlightcolor, #28a745) !important;
+  border-color: var(--mympd-highlightcolor, #28a745) !important;
+}
+
+.text-success, a.text-success:hover, a.text-success:focus {
+  color: var(--mympd-highlightcolor, #28a745) !important;
+}
+
+#dropdownAddSmartpls {
+  white-space: nowrap;
+}
+
+.playback-toolbar {
+  margin-top: -0.25rem;
+}
+
+#navState > a::after {
+  display: none;
+}
+
+#stateDropup {
+  min-width: 20rem;
+}
+
+#logOverview {
+  max-height: 70vH;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+#logOverview > div {
+  font-size: 0.8rem;
+}
+
+.top-alert {
+  border-radius: 0;
+  border-left: none;
+  border-right: none;
+  padding-top: 0;
+  padding-bottom: 0.1rem;
+  margin-top: -0.3rem;
 }

@@ -75,6 +75,7 @@ if(NOT "${ENABLE_SSL}" MATCHES "OFF")
 endif()
 if(OPENSSL_FOUND)
   set(ENABLE_SSL "ON")
+  set(MONGOOSE_SSL "-DMG_ENABLE_SSL")
   include_directories(${OPENSSL_INCLUDE_DIR})
 else()
   message("Openssl is disabled")
@@ -129,14 +130,10 @@ else()
 	-fsanitize=nonnull-attribute -fsanitize=returns-nonnull-attribute -fsanitize=bool -fsanitize=enum -fsanitize=vptr -static-libasan")
 endif()
 
-if(OPENSSL_FOUND)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DMG_ENABLE_SSL")
-endif()
-
 #compiler flags for mympd src
 file(GLOB MYMPD_SRC_FILES1 "src/*.c")
 set_property(SOURCE ${MYMPD_SRC_FILES1} PROPERTY COMPILE_FLAGS "-Wextra -pedantic -Wformat=2 -Wunused-parameter -Wshadow -Wwrite-strings \
-	-Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs -Wmissing-include-dirs")
+	-Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs -Wmissing-include-dirs ${MONGOOSE_SSL}")
 
 file(GLOB MYMPD_SRC_FILES2 "src/mpd_client/*.c")
 set_property(SOURCE ${MYMPD_SRC_FILES2} PROPERTY COMPILE_FLAGS "-Wextra -pedantic -Wformat=2 -Wunused-parameter -Wshadow -Wwrite-strings \
@@ -157,8 +154,15 @@ set_property(SOURCE dist/src/inih/ini.c PROPERTY COMPILE_FLAGS "-Wno-stringop-tr
 set_property(SOURCE dist/src/frozen/frozen.c PROPERTY COMPILE_FLAGS "-Wno-stringop-overflow")
 
 #compiler flags for mongoose.c
-set_property(SOURCE dist/src/mongoose/mongoose.c PROPERTY COMPILE_FLAGS "-Wno-format-truncation")
 
+set_property(SOURCE dist/src/mongoose/mongoose.c PROPERTY COMPILE_FLAGS "-Wno-format-truncation ${MONGOOSE_SSL} \
+	-DMG_ENABLE_HTTP_WEBDAV -DMG_ENABLE_FAKE_DAVLOCK -DMG_DISABLE_MQTT -DMG_DISABLE_MQTT_BROKER \
+	-DMG_DISABLE_DNS_SERVER -DMG_DISABLE_COAP -DMG_DISABLE_HTTP_CGI -DMG_DISABLE_HTTP_SSI -DMG_DISABLE_SSI_EXEC \
+	-DMG_DISABLE_BROADCAST -DMG_DISABLE_THREADS -DMG_DISABLE_HTTP_DIGEST_AUTH -D CS_DISABLE_MD5")
+
+#-DMG_ENABLE_IPV6 breaks nc->user_data functionality in mongoose
+
+#linker flags
 set (CMAKE_EXE_LINKER_FLAGS "-Wl,-z,relro -Wl,-z,now")
 
 set(SOURCES
@@ -249,6 +253,7 @@ if(${EMBEDDED_LIBMPDCLIENT} MATCHES "ON")
     dist/src/libmpdclient/src/playlist.c
     dist/src/libmpdclient/src/queue.c
     dist/src/libmpdclient/src/quote.c
+    dist/src/libmpdclient/src/replay_gain.c
     dist/src/libmpdclient/src/rdirectory.c
     dist/src/libmpdclient/src/readpicture.c
     dist/src/libmpdclient/src/recv.c

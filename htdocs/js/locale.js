@@ -60,7 +60,13 @@ function smartCount(number) {
 }
 
 function localeDate(secs) {
-    let d = new Date(secs * 1000);
+    let d;
+    if (secs === undefined) {
+       d  = new Date();
+    }
+    else {
+        d = new Date(secs * 1000);
+    }
     return d.toLocaleString(locale);
 }
 

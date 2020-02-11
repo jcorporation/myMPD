@@ -14,16 +14,14 @@ sds mpd_client_playlist_delete(t_config *config, t_mpd_state *mpd_state, sds buf
                                const char *playlist);
 sds mpd_client_playlist_rename(t_config *config, t_mpd_state *mpd_state, sds buffer, sds method, int request_id,
                                 const char *old_playlist, const char *new_playlist);
+sds mpd_client_playlist_shuffle_sort(t_mpd_state *mpd_state, sds buffer, sds method, int request_id, const char *uri, const char *tagstr);
 sds mpd_client_smartpls_put(t_config *config, sds buffer, sds method, int request_id,
                             const char *playlist);
 bool mpd_client_smartpls_save(t_config *config, t_mpd_state *mpd_state, const char *smartpltype, 
                               const char *playlist, const char *tag, const char *searchstr, const int maxentries, 
-                              const int timerange);
-
+                              const int timerange, const char *sort);
 bool mpd_client_smartpls_update_all(t_config *config, t_mpd_state *mpd_state);
 bool mpd_client_smartpls_update(t_config *config, t_mpd_state *mpd_state, const char *playlist);
-bool mpd_client_smartpls_clear(t_mpd_state *mpd_state, const char *playlist);
-bool mpd_client_smartpls_update_search(t_mpd_state *mpd_state, const char *playlist, const char *tag, const char *searchstr);
-bool mpd_client_smartpls_update_sticker(t_mpd_state *mpd_state, const char *playlist, const char *sticker, const int maxentries);
-bool mpd_client_smartpls_update_newest(t_mpd_state *mpd_state, const char *playlist, const int timerange);
+sds mpd_client_playlist_delete_all(t_config *config, t_mpd_state *mpd_state, sds buffer, sds method, int request_id,
+                                   const char *type);
 #endif
