@@ -147,20 +147,21 @@ file(GLOB MYMPD_SRC_FILES4 "src/web_server/*.c")
 set_property(SOURCE ${MYMPD_SRC_FILES4} PROPERTY COMPILE_FLAGS "-Wextra -pedantic -Wformat=2 -Wunused-parameter -Wshadow -Wwrite-strings \
 	-Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs -Wmissing-include-dirs")
 
-#compiler flags for inih, issue#188
+#compiler flags for inih
 set_property(SOURCE dist/src/inih/ini.c PROPERTY COMPILE_FLAGS "-Wno-stringop-truncation")
+
+#Workarround for bug in gcc9 (https://github.com/jcorporation/myMPD/issues/188)
 
 #compiler flags for frozen
 set_property(SOURCE dist/src/frozen/frozen.c PROPERTY COMPILE_FLAGS "-Wno-stringop-overflow")
 
-#compiler flags for mongoose.c
-
+#compiler flags for mongoose
 set_property(SOURCE dist/src/mongoose/mongoose.c PROPERTY COMPILE_FLAGS "-Wno-format-truncation ${MONGOOSE_SSL} \
 	-DMG_ENABLE_HTTP_WEBDAV -DMG_ENABLE_FAKE_DAVLOCK -DMG_DISABLE_MQTT -DMG_DISABLE_MQTT_BROKER \
 	-DMG_DISABLE_DNS_SERVER -DMG_DISABLE_COAP -DMG_DISABLE_HTTP_CGI -DMG_DISABLE_HTTP_SSI -DMG_DISABLE_SSI_EXEC \
 	-DMG_DISABLE_BROADCAST -DMG_DISABLE_THREADS -DMG_DISABLE_HTTP_DIGEST_AUTH -D CS_DISABLE_MD5")
 
-#-DMG_ENABLE_IPV6 breaks nc->user_data functionality in mongoose
+#-DMG_ENABLE_IPV6 breaks nc->user_data functionality in mongoose (https://github.com/cesanta/mongoose/issues/1097)
 
 #linker flags
 set (CMAKE_EXE_LINKER_FLAGS "-Wl,-z,relro -Wl,-z,now")
