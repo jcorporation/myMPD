@@ -26,6 +26,7 @@
 //private definitions
 static struct list *mpd_client_jukebox_get_last_played(t_config *config, t_mpd_state *mpd_state);
 static bool mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_state *mpd_state, int addSongs, enum jukebox_modes jukebox_mode, const char *playlist, bool manual);
+static bool _mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_state *mpd_state, int addSongs, enum jukebox_modes jukebox_mode, const char *playlist, bool manual);
 static bool mpd_client_jukebox_unique_tag(t_mpd_state *mpd_state, const char *uri, const char *value, bool manual, struct list *queue_list);
 static bool mpd_client_jukebox_unique_album(t_mpd_state *mpd_state, const char *album, bool manual, struct list *queue_list);
 
@@ -84,19 +85,7 @@ bool mpd_client_jukebox_add_to_queue(t_config *config, t_mpd_state *mpd_state, i
     if ((manual == false && addSongs > mpd_state->jukebox_queue.length) ||
         (manual == true)) 
     {
-        LOG_DEBUG("Jukebox queue to small, adding entities");
-        if (mpd_state->feat_tags == true) {
-            if (mpd_state->jukebox_unique_tag.tags[0] != MPD_TAG_TITLE) {
-                enable_mpd_tags(mpd_state, mpd_state->jukebox_unique_tag);
-            }
-            else {
-                mpd_run_clear_tag_types(mpd_state->conn);
-            }
-        }
-        bool rc =mpd_client_jukebox_fill_jukebox_queue(config, mpd_state, addSongs, jukebox_mode, playlist, manual);
-        if (mpd_state->feat_tags == true) {
-            enable_mpd_tags(mpd_state, mpd_state->mympd_tag_types);
-        }
+        bool rc = mpd_client_jukebox_fill_jukebox_queue(config, mpd_state, addSongs, jukebox_mode, playlist, manual);
         if (rc == false) {
             return false;
         }
@@ -152,19 +141,7 @@ bool mpd_client_jukebox_add_to_queue(t_config *config, t_mpd_state *mpd_state, i
         if ((jukebox_mode == JUKEBOX_ADD_SONG && mpd_state->jukebox_queue.length < 25) ||
             (jukebox_mode == JUKEBOX_ADD_ALBUM && mpd_state->jukebox_queue.length < 5))
         {
-            LOG_DEBUG("Jukebox queue to small, adding entities");
-            if (mpd_state->feat_tags == true) {
-                if (mpd_state->jukebox_unique_tag.tags[0] != MPD_TAG_TITLE) {
-                    enable_mpd_tags(mpd_state, mpd_state->jukebox_unique_tag);
-                }
-                else {
-                    mpd_run_clear_tag_types(mpd_state->conn);
-                }
-            }
             bool rc = mpd_client_jukebox_fill_jukebox_queue(config, mpd_state, addSongs, jukebox_mode, playlist, manual);
-            if (mpd_state->feat_tags == true) {
-                enable_mpd_tags(mpd_state, mpd_state->mympd_tag_types);
-            }
             if (rc == false) {
                 return false;
             }
@@ -250,6 +227,27 @@ static struct list *mpd_client_jukebox_get_last_played(t_config *config, t_mpd_s
 }
 
 static bool mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_state *mpd_state, int addSongs, enum jukebox_modes jukebox_mode, const char *playlist, bool manual) {
+    LOG_DEBUG("Jukebox queue to small, adding entities");
+    if (mpd_state->feat_tags == true) {
+        if (mpd_state->jukebox_unique_tag.tags[0] != MPD_TAG_TITLE) {
+            enable_mpd_tags(mpd_state, mpd_state->jukebox_unique_tag);
+        }
+        else {
+            mpd_run_clear_tag_types(mpd_state->conn);
+        }
+    }
+    bool rc = _mpd_client_jukebox_fill_jukebox_queue(config, mpd_state, addSongs, jukebox_mode, playlist, manual);
+    if (mpd_state->feat_tags == true) {
+        enable_mpd_tags(mpd_state, mpd_state->mympd_tag_types);
+    }
+    
+    if (rc == false) {
+        return false;
+    }
+    return true;
+}
+
+static bool _mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_state *mpd_state, int addSongs, enum jukebox_modes jukebox_mode, const char *playlist, bool manual) {
     struct mpd_song *song;
     struct mpd_pair *pair;
     unsigned lineno = 1;
