@@ -11,6 +11,7 @@
 #include <inttypes.h>
 #include <signal.h>
 #include <unistd.h>
+#include <dirent.h>
 #include <mpd/client.h>
 
 #include "../../dist/src/sds/sds.h"
@@ -24,6 +25,67 @@
 #include "../utility.h"
 #include "../log.h"
 #include "mpd_client_utility.h"
+
+sds put_extra_files(t_mpd_state *mpd_state, sds buffer, const char *uri) {
+    bool lyrics = false;
+    bool booklet = false;
+    struct list images;
+    list_init(&images);
+    detect_extra_files(mpd_state, uri, &booklet, &lyrics, &images);
+    buffer = tojson_bool(buffer, "booklet", booklet, true);
+    buffer = tojson_bool(buffer, "lyricsfile", lyrics, true);
+    buffer = sdscat(buffer, "\"images\": [");
+    struct list_node *current = images.head;
+    while (current != NULL) {
+        if (current != images.head) {
+            buffer = sdscatlen(buffer, ",", 1);
+        }
+        buffer = sdscatjson(buffer, current->key, sdslen(current->key));
+        current = current->next;
+    }
+    buffer = sdscat(buffer, "]");
+    list_free(&images);
+    return buffer;
+}
+
+void detect_extra_files(t_mpd_state *mpd_state, const char *uri, bool *booklet, bool *lyrics, struct list *images) {
+    *booklet = false;
+    *lyrics = false;
+    sds lyricsfile = sdscatfmt(sdsempty(), "%s.txt", uri);
+    
+    char *path = strdup(uri);
+    dirname(path);
+    sds albumpath = sdscatfmt(sdsempty(), "%s/%s", mpd_state->music_directory_value, path);
+    FREE_PTR(path);
+    
+    DIR *album_dir = opendir(albumpath);
+    if (album_dir != NULL) {
+        struct dirent *next_file;
+        while ((next_file = readdir(album_dir)) != NULL) {
+            const char *ext = strrchr(next_file->d_name, '.');
+            if (strcmp(next_file->d_name, "booklet.pdf") == 0) {
+                *booklet = true;
+            }
+            else if (strcmp(next_file->d_name, lyricsfile) == 0) {
+                *lyrics = true;
+            }
+            else if (ext != NULL) {
+                if (strcmp(ext, ".webp") == 0 || strcmp(ext, ".jpg") == 0 ||
+                    strcmp(ext, ".jpeg") == 0 || strcmp(ext, ".png") == 0 ||
+                    strcmp(ext, ".tiff") == 0 || strcmp(ext, ".svg") == 0 ||
+                    strcmp(ext, ".bmp") == 0) 
+                {
+                    sds fullpath = sdscatfmt(sdsempty(), "%s/%s", albumpath, next_file->d_name);
+                    list_push(images, fullpath, 0, NULL, NULL);
+                    sdsfree(fullpath);
+                }
+            }
+        }
+        closedir(album_dir);
+    }
+    sdsfree(albumpath);
+    sdsfree(lyricsfile);
+}
 
 void enable_all_mpd_tags(t_mpd_state *mpd_state) {
     #if LIBMPDCLIENT_CHECK_VERSION(2,12,0)

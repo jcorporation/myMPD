@@ -80,6 +80,11 @@ sds mpd_client_put_songdetails(t_mpd_state *mpd_state, sds buffer, sds method, i
         buffer = tojson_long(buffer, "lastSkipped", sticker->lastSkipped, false);
         FREE_PTR(sticker);
     }
+    
+    //waits for further implementation in 7.1.0 release
+    //buffer = sdscat(buffer, ",");
+    //buffer = put_extra_files(mpd_state, buffer, uri);
+    
     buffer = jsonrpc_end_result(buffer);
     return buffer;
 }
