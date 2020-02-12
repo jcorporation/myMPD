@@ -116,6 +116,9 @@ bool mpd_api_settings_set(t_config *config, t_mpd_state *mpd_state, struct json_
             return false;
         }
     }
+    else if (strncmp(key->ptr, "bookletName", key->len) == 0) {
+        mpd_state->booklet_name = sdsreplacelen(mpd_state->booklet_name, settingvalue, sdslen(settingvalue));
+    }
     else if (strncmp(key->ptr, "love", key->len) == 0) {
         mpd_state->love = val->type == JSON_TYPE_TRUE ? true : false;
     }

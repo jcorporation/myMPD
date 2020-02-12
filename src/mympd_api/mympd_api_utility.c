@@ -35,6 +35,7 @@ void mympd_api_push_to_mpd_client(t_mympd_state *mympd_state) {
     request->data = tojson_bool(request->data, "autoPlay", mympd_state->auto_play, true);
     request->data = tojson_bool(request->data, "coverimage", mympd_state->coverimage, true);
     request->data = tojson_char(request->data, "coverimageName", mympd_state->coverimage_name, true);
+    request->data = tojson_char(request->data, "bookletName", mympd_state->booklet_name, true);
     request->data = tojson_bool(request->data, "love", mympd_state->love, true);
     request->data = tojson_char(request->data, "loveChannel", mympd_state->love_channel, true);
     request->data = tojson_char(request->data, "loveMessage", mympd_state->love_message, true);
@@ -86,6 +87,7 @@ void free_mympd_state(t_mympd_state *mympd_state) {
     sdsfree(mympd_state->highlight_color);
     sdsfree(mympd_state->smartpls_sort);
     sdsfree(mympd_state->smartpls_prefix);
+    sdsfree(mympd_state->booklet_name);
     truncate_timerlist(&mympd_state->timer_list);
     FREE_PTR(mympd_state);
 }

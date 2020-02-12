@@ -101,6 +101,7 @@ typedef struct t_mpd_state {
     struct list last_played;
     //sticker cache
     rax *sticker_cache;
+    sds booklet_name;
 } t_mpd_state;
 
 typedef struct t_sticker {

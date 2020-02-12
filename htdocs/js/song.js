@@ -22,7 +22,11 @@ function parseFingerprint(obj) {
 function parseSongDetails(obj) {
     let modal = document.getElementById('modalSongDetails');
     modal.getElementsByClassName('album-cover')[0].style.backgroundImage = 'url("' + subdir + '/albumart/' + obj.result.uri + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
-    modal.getElementsByTagName('h1')[0].innerText = obj.result.Title;
+    
+    let elH1s = modal.getElementsByTagName('h1');
+    for (let i = 0; i < elH1s.length; i++) {
+        elH1s[i].innerText = obj.result.Title;
+    }
     
     let songDetails = '';
     for (let i = 0; i < settings.tags.length; i++) {
@@ -41,7 +45,7 @@ function parseSongDetails(obj) {
     songDetails += '<tr><th>' + t('Duration') + '</th><td>' + beautifyDuration(obj.result.Duration) + '</td></tr>';
     if (settings.featLibrary === true && settings.publish === true) {
         songDetails += '<tr><th>' + t('Filename') + '</th><td><a class="breakAll text-success" href="/browse/music/' + 
-            encodeURI(obj.result.uri) + '" download title="' + e(obj.result.uri) + '">' + 
+            encodeURI(obj.result.uri) + '" target="_blank" title="' + e(obj.result.uri) + '">' + 
             e(basename(obj.result.uri)) + '</a></td></tr>';
     }
     else {
@@ -53,6 +57,9 @@ function parseSongDetails(obj) {
     if (settings.featFingerprint === true) {
         songDetails += '<tr><th>' + t('Fingerprint') + '</th><td class="breakAll" id="fingerprint"><a class="text-success" data-uri="' + 
             encodeURI(obj.result.uri) + '" id="calcFingerprint" href="#">' + t('Calculate') + '</a></td></tr>';
+    }
+    if (obj.result.booklet === true && settings.featLibrary === true) {
+        songDetails += '<tr><th>' + t('Booklet') + '</th><td><a class="text-success" href="/browse/music/' + dirname(obj.result.uri) + '/' + settings.bookletName + '" target="_blank">' + t('Download') + '</a></td></tr>';
     }
     if (settings.featStickers === true) {
         songDetails += '<tr><th colspan="2" class="pt-3"><h5>' + t('Statistics') + '</h5></th></tr>' +
@@ -68,8 +75,88 @@ function parseSongDetails(obj) {
             '</td></tr>';
     }
     
-    modal.getElementsByTagName('tbody')[0].innerHTML = songDetails;
+    document.getElementById('tbodySongDetails').innerHTML = songDetails;
     setVoteSongBtns(obj.result.like, obj.result.uri);
+    
+    let lyricsEls = document.getElementsByClassName('featLyrics');
+    for (let i = 0; i < lyricsEls.length; i++) {
+        if (obj.result.lyricsfile === true && settings.featLibrary === true) {
+            lyricsEls[i].classList.remove('hide');
+        }
+        else {
+            lyricsEls[i].classList.add('hide');
+        }
+    }
+    
+    if (obj.result.lyricsfile === true) {
+        getLyrics(obj.result.uri);
+    }
+    else {
+        document.getElementById('lyricsText').innerText = '';
+    }
+    
+    let pictureEls = document.getElementsByClassName('featPictures');
+    for (let i = 0; i < lyricsEls.length; i++) {
+        if (obj.result.images.length > 0 && settings.featLibrary === true) {
+            pictureEls[i].classList.remove('hide');
+        }
+        else {
+            pictureEls[i].classList.add('hide');
+        }
+    }
+    
+    let carousel = '<div id="songPicsCarousel" class="carousel slide" data-ride="carousel">' +
+        '<ol class="carousel-indicators">';
+    for (let i = 0; i < obj.result.images.length; i++) {
+        carousel += '<li data-target="#songPicsCarousel" data-slide-to="' + i + '"';
+        if (i === 0) {
+            carousel += ' class="active"';
+        }
+        carousel += '></li>';
+    }    
+    carousel += '</ol>' +
+        '<div class="carousel-inner" role="listbox">';
+    for (let i = 0; i < obj.result.images.length; i++) {
+        carousel += '<div class="carousel-item';
+        if (i === 0) {
+            carousel += ' active';
+        }
+        carousel +='">' +
+            '<img src="' + subdir + '/browse/music/' + obj.result.images[i] + '">' +
+            '</div>';
+    }
+    carousel += '</div>' +
+            '<a class="carousel-control-prev" href="#songPicsCarousel" data-slide="prev">' +
+                '<span class="carousel-control-prev-icon"></span>' +
+            '</a>' +
+            '<a class="carousel-control-next" href="#songPicsCarousel" data-slide="next">' +
+                '<span class="carousel-control-next-icon"></span>' +
+            '</a>' +
+            '</div>';
+            
+    document.getElementById('tabSongPics').innerHTML = carousel;
+    var myCarousel = document.getElementById('songPicsCarousel');
+    var myCarouselInit = new Carousel(myCarousel, {
+        interval: false,
+        pause: false
+    });
+
+}
+
+function getLyrics(uri) {
+    document.getElementById('lyricsText').classList.add('opacity05');
+    let ajaxRequest=new XMLHttpRequest();
+    
+    let lyricsfile = uri.replace(/\.\w+$/, ".txt");
+    ajaxRequest.open('GET', subdir + '/browse/music/' + lyricsfile, true);
+    ajaxRequest.onreadystatechange = function() {
+        if (ajaxRequest.readyState === 4) {
+            let elLyricsText = document.getElementById('lyricsText');
+            elLyricsText.innerText = ajaxRequest.responseText;
+            elLyricsText.classList.remove('opacity05');
+        }
+    };
+    ajaxRequest.send();
 }
 
 //eslint-disable-next-line no-unused-vars

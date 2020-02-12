@@ -189,6 +189,21 @@ int testdir(const char *name, const char *dirname, bool create) {
     }
 }
 
+
+
+int strip_extension(char *s) {
+    for (ssize_t i = strlen(s) - 1 ; i > 0; i--) {
+        if (s[i] == '.') {
+            s[i] = '\0';
+            return i;
+        }
+        else if (s[i] == '/') {
+            return -1;
+        }
+    }
+    return -1;
+}
+
 int randrange(int n) {
     return rand() / (RAND_MAX / (n + 1) + 1);
 }

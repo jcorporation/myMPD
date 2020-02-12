@@ -236,6 +236,9 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("mympd", "covergridminsongs")) {
         p_config->covergridminsongs = strtoimax(value, &crap, 10);
     }
+    else if (MATCH("mympd", "bookletname")) {
+        p_config->booklet_name = sdsreplace(p_config->booklet_name, value);
+    }
     else if (MATCH("theme", "theme")) {
         p_config->theme = sdsreplace(p_config->theme, value);
     }
@@ -311,7 +314,7 @@ static void mympd_get_env(struct t_config *config) {
         "MYMPD_PAGINATION", "MYMPD_LASTPLAYEDCOUNT", "MYMPD_LOVE", "MYMPD_LOVECHANNEL", "MYMPD_LOVEMESSAGE",
         "MYMPD_NOTIFICATIONWEB", "MYMPD_CHROOT", "MYMPD_READONLY", "MYMPD_TIMER",
         "MYMPD_NOTIFICATIONPAGE", "MYMPD_AUTOPLAY", "MYMPD_JUKEBOXMODE", "MYMPD_BOOKMARKS",
-        "MYMPD_MEDIASESSION", "MYMPD_COVERGRIDMINSONGS",
+        "MYMPD_MEDIASESSION", "MYMPD_COVERGRIDMINSONGS", "MYMPD_BOOKLETNAME",
         "MYMPD_JUKEBOXPLAYLIST", "MYMPD_JUKEBOXQUEUELENGTH", "MYMPD_JUKEBOXLASTPLAYED",
         "MYMPD_JUKEBOXUNIQUETAG", "MYMPD_COLSQUEUECURRENT","MYMPD_COLSSEARCH", 
         "MYMPD_COLSBROWSEDATABASE", "MYMPD_COLSBROWSEPLAYLISTDETAIL",
@@ -368,6 +371,7 @@ void mympd_free_config(t_config *config) {
     sdsfree(config->generate_pls_tags);
     sdsfree(config->smartpls_sort);
     sdsfree(config->smartpls_prefix);
+    sdsfree(config->booklet_name);
     list_free(&config->syscmd_list);
     FREE_PTR(config);
 }
@@ -450,6 +454,7 @@ void mympd_config_defaults(t_config *config) {
     config->timer = true;
     config->sticker_cache = true;
     config->covergridminsongs = 1;
+    config->booklet_name = sdsnew("booklet.pdf");
     list_init(&config->syscmd_list);
 }
 
@@ -552,7 +557,8 @@ bool mympd_dump_config(void) {
         "#streamuri = %s\n"
         "readonly = %s\n"
         "bookmarks = %s\n"
-        "covergridminsongs = %d\n\n",
+        "covergridminsongs = %d\n"
+        "bookletname = %s\n\n",
         p_config->user,
         (p_config->chroot == true ? "true" : "false"),
         p_config->varlibdir,
@@ -600,7 +606,8 @@ bool mympd_dump_config(void) {
         p_config->stream_url,
         (p_config->readonly == true ? "true" : "false"),
         (p_config->bookmarks == true ? "true" : "false"),
-        p_config->covergridminsongs
+        p_config->covergridminsongs,
+        p_config->booklet_name
     );
 
     fprintf(fp, "[theme]\n"

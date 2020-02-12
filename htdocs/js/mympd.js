@@ -760,7 +760,7 @@ function appInit() {
         }
     }, false);
     
-    document.getElementById('modalSongDetails').getElementsByTagName('tbody')[0].addEventListener('click', function(event) {
+    document.getElementById('tbodySongDetails').addEventListener('click', function(event) {
         if (event.target.nodeName === 'A') {
             if (event.target.id === 'calcFingerprint') {
                 sendAPI("MPD_API_DATABASE_FINGERPRINT", {"uri": decodeURI(event.target.getAttribute('data-uri'))}, parseFingerprint);
@@ -771,7 +771,7 @@ function appInit() {
                 event.target.classList.add('hide');
                 parent.appendChild(spinner);
             }
-            else if (event.target.parentNode.getAttribute('data-tag') !== undefined) {
+            else if (event.target.parentNode.getAttribute('data-tag') !== null) {
                 modalSongDetails.hide();
                 event.preventDefault();
                 gotoBrowse(event.target);

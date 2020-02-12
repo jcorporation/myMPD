@@ -51,22 +51,27 @@ sds put_extra_files(t_mpd_state *mpd_state, sds buffer, const char *uri) {
 void detect_extra_files(t_mpd_state *mpd_state, const char *uri, bool *booklet, bool *lyrics, struct list *images) {
     *booklet = false;
     *lyrics = false;
-    sds lyricsfile = sdscatfmt(sdsempty(), "%s.txt", uri);
+  
+    char *uricpy = strdup(uri);
     
-    char *path = strdup(uri);
-    dirname(path);
+    char *filename = basename(uricpy);
+    strip_extension(filename);
+    sds lyricsfile = sdscatfmt(sdsempty(), "%s.txt", filename);
+    
+    char *path = dirname(uricpy);
     sds albumpath = sdscatfmt(sdsempty(), "%s/%s", mpd_state->music_directory_value, path);
-    FREE_PTR(path);
     
     DIR *album_dir = opendir(albumpath);
     if (album_dir != NULL) {
         struct dirent *next_file;
         while ((next_file = readdir(album_dir)) != NULL) {
             const char *ext = strrchr(next_file->d_name, '.');
-            if (strcmp(next_file->d_name, "booklet.pdf") == 0) {
+            if (strcmp(next_file->d_name, mpd_state->booklet_name) == 0) {
+                LOG_DEBUG("Found booklet for uri %s", uri);
                 *booklet = true;
             }
             else if (strcmp(next_file->d_name, lyricsfile) == 0) {
+                LOG_DEBUG("Found lyrics %s", next_file->d_name);
                 *lyrics = true;
             }
             else if (ext != NULL) {
@@ -75,7 +80,7 @@ void detect_extra_files(t_mpd_state *mpd_state, const char *uri, bool *booklet, 
                     strcmp(ext, ".tiff") == 0 || strcmp(ext, ".svg") == 0 ||
                     strcmp(ext, ".bmp") == 0) 
                 {
-                    sds fullpath = sdscatfmt(sdsempty(), "%s/%s", albumpath, next_file->d_name);
+                    sds fullpath = sdscatfmt(sdsempty(), "%s/%s", path, next_file->d_name);
                     list_push(images, fullpath, 0, NULL, NULL);
                     sdsfree(fullpath);
                 }
@@ -83,6 +88,7 @@ void detect_extra_files(t_mpd_state *mpd_state, const char *uri, bool *booklet, 
         }
         closedir(album_dir);
     }
+    FREE_PTR(uricpy);
     sdsfree(albumpath);
     sdsfree(lyricsfile);
 }
@@ -308,6 +314,7 @@ void default_mpd_state(t_mpd_state *mpd_state) {
     mpd_state->smartpls_sort = sdsempty();
     mpd_state->smartpls_prefix = sdsempty();
     mpd_state->smartpls_interval = 14400;
+    mpd_state->booklet_name = sdsnew("booklet.pdf");
     reset_t_tags(&mpd_state->mpd_tag_types);
     reset_t_tags(&mpd_state->mympd_tag_types);
     reset_t_tags(&mpd_state->search_tag_types);
@@ -338,6 +345,7 @@ void free_mpd_state(t_mpd_state *mpd_state) {
     sdsfree(mpd_state->mpd_pass);
     sdsfree(mpd_state->smartpls_sort);
     sdsfree(mpd_state->smartpls_prefix);
+    sdsfree(mpd_state->booklet_name);
     list_free(&mpd_state->jukebox_queue);
     list_free(&mpd_state->jukebox_queue_tmp);
     free(mpd_state);

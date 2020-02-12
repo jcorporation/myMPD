@@ -1680,26 +1680,45 @@
   </div>
 
   <div class="modal fade" id="modalSongDetails" tabindex="-1">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
       <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title"><span class="material-icons title-icon">music_note</span> <span data-phrase="Song details"></span></h5>
-          <button type="button" class="close" data-dismiss="modal">&times;</button>          
+        <div class="modal-header pb-0">
+          <ul class="nav nav-tabs border-bottom-0">
+            <li class="nav-item">
+              <a class="nav-link active text-dark" href="#tabSongDetails" data-toggle="tab" data-height="true" data-phrase="Song details"></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link text-dark featPictures" href="#tabSongPics" data-toggle="tab" data-height="true" data-phrase="Pictures"></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link text-dark featLyrics" href="#tabSongLyrics" data-toggle="tab" data-height="true" data-phrase="Lyrics"></a>
+            </li>
+          </ul>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
         <div class="modal-body">
-          <h1 class="breakAll"></h1>
-          <div class="row">
-            <div class="col-md-auto">
-              <div class="album-cover album-cover-loading album-cover-songdetails featCoverimage"></div>
+          <div class="tab-content">
+            <div class="tab-pane active" id="tabSongDetails">
+              <h1 class="breakAll"></h1>
+              <div class="row">
+                <div class="col-md-auto">
+                  <div class="album-cover album-cover-loading album-cover-songdetails featCoverimage"></div>
+                </div>
+                <div class="col table-responsive-md">
+                  <table class="table table-sm">
+                    <tbody id="tbodySongDetails">
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
-            <div class="col table-responsive-md">
-              <table class="table table-sm">
-                <tbody>
-                </tbody>
-              </table>
+            <div class="tab-pane pb-3" id="tabSongPics">
+            </div>
+            <div class="tab-pane" id="tabSongLyrics">
+              <h1 class="breakAll"></h1>
+              <div id="lyricsText"></div>
             </div>
           </div>
-        </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Close"></button>
         </div>

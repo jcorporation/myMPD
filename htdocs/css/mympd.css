@@ -698,3 +698,9 @@ div#playDropdown .row {
   padding-bottom: 0.1rem;
   margin-top: -0.3rem;
 }
+
+
+#lyricsText {
+  padding-bottom: 1rem;
+  padding-left: 0.2rem;
+}
