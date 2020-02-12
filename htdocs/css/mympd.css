@@ -252,6 +252,7 @@ a.card-img-left {
   cursor: pointer;
   width: var(--mympd-coverimagesize, 250px);
   height: var(--mympd-coverimagesize, 250px);
+  max-width: 100%;
 }
 
 .album-cover-loading {

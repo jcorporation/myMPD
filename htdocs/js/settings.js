@@ -172,6 +172,8 @@ function parseSettings() {
         document.getElementById('inputStreamUrl').value = settings.streamUrl;
     }
     toggleBtnChkCollapse('btnCoverimage', 'collapseAlbumart', settings.coverimage);
+
+    document.getElementById('inputBookletName').value = settings.bookletName;
     
     document.getElementById('selectLocale').value = settings.locale;
     document.getElementById('inputCoverimageName').value = settings.coverimageName;
@@ -650,6 +652,11 @@ function saveSettings(closeModal) {
         formOK = false;
     }
     
+    let inputBookletName = document.getElementById('inputBookletName');
+    if (!validateFilename(inputBookletName)) {
+        formOK = false;
+    }
+    
     let inputMaxElementsPerPage = document.getElementById('inputMaxElementsPerPage');
     if (!validateInt(inputMaxElementsPerPage)) {
         formOK = false;
@@ -756,7 +763,8 @@ function saveSettings(closeModal) {
             "generatePlsTags": getTagMultiSelectValues(document.getElementById('listGeneratePlsTags'), false),
             "theme": selectTheme.options[selectTheme.selectedIndex].value,
             "highlightColor": document.getElementById('inputHighlightColor').value,
-            "timer": (document.getElementById('btnFeatTimer').classList.contains('active') ? true : false)
+            "timer": (document.getElementById('btnFeatTimer').classList.contains('active') ? true : false),
+            "bookletName": document.getElementById('inputBookletName').value
         }, getSettings);
         if (closeModal === true) {
             modalSettings.hide();
