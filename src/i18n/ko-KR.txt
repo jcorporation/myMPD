@@ -414,6 +414,12 @@ Can't access music directory
 Invalid size
 잘못된 크기
 
+Background color
+배경색
+
+Highlight color
+강조색
+
 Invalid color
 잘못된 색상
 
@@ -1136,3 +1142,129 @@ Sun
 
 System command
 시스템 명령어
+
+LastModified
+마지막 수정
+
+Best rated
+최고 평점
+
+Most played
+자주 연주
+
+Newest songs
+새 곡
+
+Add smart playlist
+스마트 연주목록 추가
+
+Generate smart playlist per
+스마트 연주목록 생성
+
+Min. value
+최소 값
+
+Disabled
+사용 안 함
+
+Shuffle
+뒤섞기
+
+Playlist is too small to shuffle
+연주목록이 너무 작아 뒤섞을 수 없음
+
+Playlist is too small to sort
+연주목록이 너무 작아 정렬할 수 없음
+
+Shuffle playlist
+연주목록 뒤섞기
+
+Shuffled playlist succesfully
+연주목록을 뒤섞음
+
+Sort playlist
+연주목록 정렬
+
+Sorted playlist succesfully
+연주목록 정렬함
+
+search
+찾기
+
+newest
+최신
+
+sticker
+스티커
+
+Order
+순서
+
+Sort by tag
+태그로 정렬
+
+Update smart playlists (hours)
+스마트 연주목록 업데이트 (시간)
+
+Smart playlists prefix
+스마트 연주목록 덧붙임
+
+Invalid prefix
+잘못된 덧붙임
+
+Invalid number
+잘못된 숫자
+
+Leaving playlist as it is
+연주목록을 그대로 둠
+
+Delete all playlists
+모든 연주목록 지움
+
+Delete all smart playlists
+모든 스마트 연주목록 지움
+
+Delete empty playlists
+빈 연주목록 지움
+
+Delete playlists
+연주목록 지움
+
+Media session support
+미디어 세션 지원
+
+Not supported by libmpdclient
+libmpclient 지원 안 함
+
+Playlists deleted
+연주목록 지워짐
+
+Preview
+미리 보기
+
+Info
+정보
+
+Error
+오류
+
+MPD connected
+MPD 연결됨
+
+Websocket connected
+웹소켓 연결됨
+
+Websocket disconnected
+웹소켓 연결 안 됨
+
+Websocket is disconnected
+웹소켓 연결 안 됨
+
+Websocket connection
+웹소켓 연결
+
+Auto
+자동
+
+Connection state
+연결 상태
