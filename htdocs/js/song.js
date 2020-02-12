@@ -26,7 +26,7 @@ function parseSongDetails(obj) {
     
     let songDetails = '';
     for (let i = 0; i < settings.tags.length; i++) {
-        if (settings.tags[i] === 'Title') {
+        if (settings.tags[i] === 'Title' || obj.result[settings.tags[i]] === '-') {
             continue;
         }
         songDetails += '<tr><th>' + t(settings.tags[i]) + '</th><td data-tag="' + settings.tags[i] + '" data-name="' + encodeURI(obj.result[settings.tags[i]]) + '">';
