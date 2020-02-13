@@ -407,6 +407,7 @@ function mediaSessionSetMetadata(title, artist, album, url) {
         let artwork = protocol + '//' + hostname + (port !== '' ? ':' + port : '') + subdir + '/albumart/' + url;
 
         if (settings.coverimage === true) {
+            //eslint-disable-next-line no-undef
             navigator.mediaSession.metadata = new MediaMetadata({
                 title: title,
                 artist: artist,
@@ -415,6 +416,7 @@ function mediaSessionSetMetadata(title, artist, album, url) {
             });
         }
         else {
+            //eslint-disable-next-line no-undef
             navigator.mediaSession.metadata = new MediaMetadata({
                 title: title,
                 artist: artist,

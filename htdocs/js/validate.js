@@ -60,7 +60,7 @@ function validatePlname(x) {
     if (x === '') {
         return false;
     }
-    else if (x.match(/\/|\r|\n|"|'/) == null) {
+    else if (x.match(/\/|\r|\n|"|'/) === null) {
         return true;
     }
     else {
@@ -116,7 +116,7 @@ function validateStream(el) {
 }
 
 function validateHost(el) {
-    if (el.value.match(/^([\w-.]+)$/) != null) {
+    if (el.value.match(/^([\w-.]+)$/) !== null) {
         el.classList.remove('is-invalid');
         return true;
     }

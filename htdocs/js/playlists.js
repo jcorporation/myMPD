@@ -128,12 +128,14 @@ function playlistClear() {
     document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
 }
 
+//eslint-disable-next-line no-unused-vars
 function playlistShuffle() {
     let uri = document.getElementById('BrowsePlaylistsDetailList').getAttribute('data-uri');
     sendAPI("MPD_API_PLAYLIST_SHUFFLE", {"uri": uri});
     document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
 }
 
+//eslint-disable-next-line no-unused-vars
 function playlistSort(tag) {
     let uri = document.getElementById('BrowsePlaylistsDetailList').getAttribute('data-uri');
     sendAPI("MPD_API_PLAYLIST_SORT", {"uri": uri, "tag": tag});
@@ -298,6 +300,7 @@ function saveSmartPlaylist() {
     }
 }
 
+//eslint-disable-next-line no-unused-vars
 function addSmartpls(type) {
     let obj = {"jsonrpc":"2.0", "id":0, "result": {"method":"MPD_API_SMARTPLS_GET"}};
     if (type === 'mostPlayed') {
@@ -322,6 +325,7 @@ function addSmartpls(type) {
     parseSmartPlaylist(obj);
 }
 
+//eslint-disable-next-line no-unused-vars
 function deletePlaylists() {
     let selectDeletePlaylists = document.getElementById('selectDeletePlaylists');
     let btnDeletePlaylists = document.getElementById('btnDeletePlaylists');
@@ -332,6 +336,7 @@ function deletePlaylists() {
     });
 }
 
+//eslint-disable-next-line no-unused-vars
 function showAddToPlaylistCurrentSong() {
     let uri = document.getElementById('currentTitle').getAttribute('data-uri');
     if (uri !== '') {
@@ -339,9 +344,9 @@ function showAddToPlaylistCurrentSong() {
     }
 }
 
-function showAddToPlaylist(uri, search) {
+function showAddToPlaylist(uri, searchstr) {
     document.getElementById('addToPlaylistUri').value = uri;
-    document.getElementById('addToPlaylistSearch').value = search;
+    document.getElementById('addToPlaylistSearch').value = searchstr;
     document.getElementById('addToPlaylistPlaylist').innerHTML = '';
     document.getElementById('addToPlaylistNewPlaylist').value = '';
     document.getElementById('addToPlaylistNewPlaylistDiv').classList.add('hide');
@@ -445,6 +450,7 @@ function updateSmartPlaylist(playlist) {
     sendAPI("MPD_API_SMARTPLS_UPDATE", {"playlist": playlist});
 }
 
+//eslint-disable-next-line no-unused-vars
 function updateSmartPlaylistClick() {
     let uri = document.getElementById('BrowsePlaylistsDetailList').getAttribute('data-uri');
     sendAPI("MPD_API_SMARTPLS_UPDATE", {"playlist": uri});

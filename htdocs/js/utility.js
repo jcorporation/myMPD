@@ -193,7 +193,7 @@ function focusSearch() {
 }
 
 function btnWaiting(btn, waiting) {
-    if (waiting == true) {
+    if (waiting === true) {
         let spinner = document.createElement('span');
         spinner.classList.add('spinner-border', 'spinner-border-sm', 'mr-2');
         btn.insertBefore(spinner, btn.firstChild);
@@ -211,7 +211,7 @@ function toggleBtnGroupValue(btngrp, value) {
     let btns = btngrp.getElementsByTagName('button');
     let b = btns[0];
     for (let i = 0; i < btns.length; i++) {
-        if (btns[i].getAttribute('data-value') == value) {
+        if (btns[i].getAttribute('data-value') === value) {
             btns[i].classList.add('active');
             b = btns[i];
         }
@@ -249,6 +249,7 @@ function toggleBtnGroup(btn) {
     return b;
 }
 
+//eslint-disable-next-line no-unused-vars
 function toggleBtnGroupCollapse(btn, collapse) {
     let activeBtn = toggleBtnGroup(btn);
     if (activeBtn.getAttribute('data-collapse') === 'show') {

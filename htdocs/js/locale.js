@@ -44,7 +44,7 @@ function t(phrase, number, data) {
         result = result.replace('%{smart_count}', number);
     }
     
-    if (data != null) {
+    if (data !== null) {
         result = result.replace(/%\{(\w+)\}/g, function(m0, m1) {
             return data[m1];
         });

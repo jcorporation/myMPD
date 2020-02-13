@@ -1161,7 +1161,7 @@ function appInit() {
     }
 
     let selectThemeHtml = '';
-    Object.keys(themes).forEach(function(key, index) {
+    Object.keys(themes).forEach(function(key) {
         selectThemeHtml += '<option value="' + key + '">' + t(themes[key]) + '</option>';
     });
     document.getElementById('selectTheme').innerHTML = selectThemeHtml;
@@ -1218,7 +1218,7 @@ function appInit() {
     
     document.getElementById('localPlayer').addEventListener('canplay', function() {
         document.getElementById('alertLocalPlayback').classList.add('hide');
-        if (settings.featLocalplayer == true && settings.localplayerAutoplay == true) {
+        if (settings.featLocalplayer === true && settings.localplayerAutoplay === true) {
             localplayerPlay();
         }
     });

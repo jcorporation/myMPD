@@ -63,11 +63,9 @@ function toggleAlert(alertBox, state, msg) {
 }
 
 function showNotification(notificationTitle, notificationText, notificationHtml, notificationType) {
-    if (settings.notificationWeb == true) {
+    if (settings.notificationWeb === true) {
         let notification = new Notification(notificationTitle, {icon: 'assets/favicon.ico', body: notificationText});
-        setTimeout(function(notification) {
-            notification.close();
-        }, 3000, notification);
+        setTimeout(notification.close.bind(notification), 3000);
     } 
     if (settings.notificationPage === true) {
         let alertBox;
@@ -122,7 +120,7 @@ function logMessage(notificationTitle, notificationText, notificationHtml, notif
     entry.innerHTML = '<small>' + localeDate() + '&nbsp;&ndash;&nbsp;' + t(notificationType) +
         (occurence > 1 ? '&nbsp;(' + occurence + ')' : '') + '</small>' +
         '<p>' + e(notificationTitle) +
-        (notificationHtml === '' && notificationText == '' ? '' :
+        (notificationHtml === '' && notificationText === '' ? '' :
         '<br/>' + (notificationHtml === '' ? e(notificationText) : notificationHtml)) +
         '</p>';
 
@@ -144,6 +142,7 @@ function logMessage(notificationTitle, notificationText, notificationHtml, notif
     }, 250);
 }
 
+//eslint-disable-next-line no-unused-vars
 function clearLogOverview() {
     let overviewEls = document.getElementById('logOverview').getElementsByTagName('div');
     for (let i = overviewEls.length - 1; i >= 0; i--) {
@@ -171,7 +170,7 @@ function setElsState(tag, state) {
     let els = document.getElementsByTagName(tag);
     let elsLen = els.length;
     for (let i = 0; i< elsLen; i++) {
-        if (state == 'disabled') {
+        if (state === 'disabled') {
             if (!els[i].classList.contains('alwaysEnabled')) {
                 if (els[i].getAttribute('disabled')) {
                     els[i].setAttribute('disabled', 'disabled');

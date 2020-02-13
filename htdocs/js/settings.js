@@ -105,7 +105,7 @@ function parseSettings() {
         setTheme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'theme-dark' : 'theme-default';
     }    
 
-    Object.keys(themes).forEach(function(key, index) {
+    Object.keys(themes).forEach(function(key) {
         if (key === setTheme) {
             domCache.body.classList.add(key);
         }
@@ -458,7 +458,7 @@ function parseMPDSettings() {
         document.getElementById('warnStickers').classList.add('hide');
     }
     
-    if (settings.featStickers === false || settings.stickers === false || settings.featStickerCache == false) {
+    if (settings.featStickers === false || settings.stickers === false || settings.featStickerCache === false) {
         document.getElementById('warnPlaybackStatistics').classList.remove('hide');
         document.getElementById('inputJukeboxLastPlayed').setAttribute('disabled', 'disabled');
     }
@@ -855,6 +855,7 @@ function filterCols(x) {
     settings[x] = cols;
 }
 
+//eslint-disable-next-line no-unused-vars
 function setPlaySettings(el) {
     if (el.parentNode.classList.contains('btn-group')) {
         toggleBtnGroup(el);
@@ -868,7 +869,7 @@ function setPlaySettings(el) {
         }
     }
     else if (el.id === 'playDropdownBtnConsume') {
-        if (el.classList.contains('active') == false) {
+        if (el.classList.contains('active') === false) {
             toggleBtnGroupValue(document.getElementById('playDropdownBtnJukeboxModeGroup'), 0);
         }
     }

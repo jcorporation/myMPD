@@ -45,14 +45,14 @@ function showMenu(el, event) {
         return;
     }
     if (el.parentNode.nodeName === 'TH') {
-        showMenuTh(el, event);
+        showMenuTh(el);
     }
     else {
-        showMenuTd(el, event);
+        showMenuTd(el);
     }
 }
 
-function showMenuTh(el, event) {
+function showMenuTh(el) {
     let table = app.current.app + (app.current.tab !== undefined ? app.current.tab : '') + (app.current.view !== undefined ? app.current.view : '');
     let menu = '<form class="p-2" id="colChecklist' + table + '">';
     menu += setColsChecklist(table);
@@ -82,7 +82,7 @@ function showMenuTh(el, event) {
     popoverInit.show();
 }
 
-function showMenuTd(el, event) {
+function showMenuTd(el) {
     let type = el.getAttribute('data-type');
     let uri = decodeURI(el.getAttribute('data-uri'));
     let name = decodeURI(el.getAttribute('data-name'));
@@ -155,7 +155,7 @@ function showMenuTd(el, event) {
             (settings.featPlaylists ? addMenuItem({"cmd": "showAddToPlaylist", "options": [uri, ""]}, t('Add to playlist')) : '') +
             (uri.indexOf('http') === -1 ? addMenuItem({"cmd": "songDetails", "options": [uri]}, t('Song details')) : '');
     }
-    else if (app.current.app === 'Browse' && app.current.tab === 'Covergrid' && el.nodeName == 'DIV') {
+    else if (app.current.app === 'Browse' && app.current.tab === 'Covergrid' && el.nodeName === 'DIV') {
         let album = decodeURI(el.parentNode.getAttribute('data-album'));
         let albumArtist = decodeURI(el.parentNode.getAttribute('data-albumartist'));
         let expression = '((Album == \'' + album + '\') AND (AlbumArtist == \'' + albumArtist + '\'))';
