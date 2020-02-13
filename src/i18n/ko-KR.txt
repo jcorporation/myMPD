@@ -1050,7 +1050,7 @@ Light
 Default
 기본
 
-Interface
+Appearance
 인터페이스
 
 Unknown artist

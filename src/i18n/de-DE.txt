@@ -1050,8 +1050,8 @@ Hell
 Default
 Standard
 
-Interface
-Oberfläche
+Appearance
+Design
 
 Unknown artist
 Unbekannter Künstler
@@ -1268,3 +1268,15 @@ Auto
 
 Connection state
 Verbindungsstatus
+
+Booklet
+Booklet
+
+Booklet filename
+Booklet Dateiname
+
+Lyrics
+Liedtext
+
+Pictures
+Bilder
