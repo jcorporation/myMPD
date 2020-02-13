@@ -108,22 +108,13 @@ function parseSongDetails(obj) {
     let carousel = '<div id="songPicsCarousel" class="carousel slide" data-ride="carousel">' +
         '<ol class="carousel-indicators">';
     for (let i = 0; i < obj.result.images.length; i++) {
-        carousel += '<li data-target="#songPicsCarousel" data-slide-to="' + i + '"';
-        if (i === 0) {
-            carousel += ' class="active"';
-        }
-        carousel += '></li>';
+        carousel += '<li data-target="#songPicsCarousel" data-slide-to="' + i + '"' +
+            (i === 0 ? ' class="active"' : '') + '></li>';
     }    
     carousel += '</ol>' +
         '<div class="carousel-inner" role="listbox">';
     for (let i = 0; i < obj.result.images.length; i++) {
-        carousel += '<div class="carousel-item';
-        if (i === 0) {
-            carousel += ' active';
-        }
-        carousel +='">' +
-            '<img src="' + subdir + '/browse/music/' + obj.result.images[i] + '">' +
-            '</div>';
+        carousel += '<div class="carousel-item' + (i === 0 ? ' active' : '') + '"><div></div></div>';
     }
     carousel += '</div>' +
             '<a class="carousel-control-prev" href="#songPicsCarousel" data-slide="prev">' +
@@ -133,14 +124,17 @@ function parseSongDetails(obj) {
                 '<span class="carousel-control-next-icon"></span>' +
             '</a>' +
             '</div>';
-            
+    
     document.getElementById('tabSongPics').innerHTML = carousel;
-    var myCarousel = document.getElementById('songPicsCarousel');
-    var myCarouselInit = new Carousel(myCarousel, {
+    let carouselItems = document.getElementById('tabSongPics').getElementsByClassName('carousel-item');
+    for (let i = 0; i < carouselItems.length; i++) {
+        carouselItems[i].children[0].style.backgroundImage = 'url(' + subdir + '/browse/music/' + encodeURI(obj.result.images[i]) + ')';
+    }
+    let myCarousel = document.getElementById('songPicsCarousel');
+    let myCarouselInit = new Carousel(myCarousel, {
         interval: false,
         pause: false
     });
-
 }
 
 function getLyrics(uri) {

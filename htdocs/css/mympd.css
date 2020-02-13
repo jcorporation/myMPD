@@ -7,6 +7,7 @@
 :root {
   --mympd-coverimagesize: 250px;
   --mympd-covergridsize: 200px;
+  --mympd-coverbigsize: 400px;
   --mympd-highlightcolor: #28a745;
 }
 
@@ -699,8 +700,13 @@ div#playDropdown .row {
   margin-top: -0.3rem;
 }
 
-
 #lyricsText {
   padding-bottom: 1rem;
   padding-left: 0.2rem;
+}
+
+.carousel-item > div {
+  background-position: center center;
+  background-size: cover;
+  padding-top: 100%;
 }
