@@ -121,7 +121,7 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
                 if (strcmp(p_charbuf1, "") == 0) {
                     FREE_PTR(p_charbuf1);
                 }
-                mpd_run_update(mpd_state->conn, NULL);
+                mpd_run_update(mpd_state->conn, p_charbuf1);
                 response->data = respond_with_mpd_error_or_ok(mpd_state, response->data, request->method, request->id);
             }
             break;
@@ -131,7 +131,7 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
                 if (strcmp(p_charbuf1, "") == 0) {
                     FREE_PTR(p_charbuf1);
                 }
-                mpd_run_rescan(mpd_state->conn, NULL);
+                mpd_run_rescan(mpd_state->conn, p_charbuf1);
                 response->data = respond_with_mpd_error_or_ok(mpd_state, response->data, request->method, request->id);
             }
             break;

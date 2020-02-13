@@ -86,7 +86,7 @@ function updateDB(uri) {
 }
 
 //eslint-disable-next-line no-unused-vars
-function rescanDB() {
+function rescanDB(uri) {
     sendAPI("MPD_API_DATABASE_RESCAN", {"uri": uri});
     updateDBstarted(true);
 }
