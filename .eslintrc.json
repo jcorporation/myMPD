@@ -13,6 +13,7 @@
     },
     "rules": {
         "no-console": "off",
-        "no-eval": "error"
+        "no-eval": "error",
+        "eqeqeq": ["error", "always", { "null": "ignore" }]
     }
 }
