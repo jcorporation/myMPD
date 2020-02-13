@@ -13,7 +13,7 @@
     },
     "rules": {
         "no-console": "off",
-        "eqeqeq": "always",
+        "eqeqeq": ["error", "always", {"null": "ignore"}],
         "block-scoped-var": "on",
         "no-eval": "on",
         "no-shadow": "on",
