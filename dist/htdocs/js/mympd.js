@@ -4003,7 +4003,7 @@ function appInit() {
     
     document.getElementById('localPlayer').addEventListener('canplay', function() {
         document.getElementById('alertLocalPlayback').classList.add('hide');
-        if (settings.featLocalplayer == true && settings.localplayerAutoplay == true) {
+        if (settings.featLocalplayer === true && settings.localplayerAutoplay === true) {
             localplayerPlay();
         }
     });
@@ -4088,7 +4088,7 @@ function toggleAlert(alertBox, state, msg) {
 }
 
 function showNotification(notificationTitle, notificationText, notificationHtml, notificationType) {
-    if (settings.notificationWeb == true) {
+    if (settings.notificationWeb === true) {
         let notification = new Notification(notificationTitle, {icon: 'assets/favicon.ico', body: notificationText});
         setTimeout(function(notification) {
             notification.close();
@@ -4147,7 +4147,7 @@ function logMessage(notificationTitle, notificationText, notificationHtml, notif
     entry.innerHTML = '<small>' + localeDate() + '&nbsp;&ndash;&nbsp;' + t(notificationType) +
         (occurence > 1 ? '&nbsp;(' + occurence + ')' : '') + '</small>' +
         '<p>' + e(notificationTitle) +
-        (notificationHtml === '' && notificationText == '' ? '' :
+        (notificationHtml === '' && notificationText === '' ? '' :
         '<br/>' + (notificationHtml === '' ? e(notificationText) : notificationHtml)) +
         '</p>';
 
@@ -4197,7 +4197,7 @@ function setElsState(tag, state) {
     let els = document.getElementsByTagName(tag);
     let elsLen = els.length;
     for (let i = 0; i< elsLen; i++) {
-        if (state == 'disabled') {
+        if (state === 'disabled') {
             if (!els[i].classList.contains('alwaysEnabled')) {
                 if (els[i].getAttribute('disabled')) {
                     els[i].setAttribute('disabled', 'disabled');
@@ -4885,7 +4885,7 @@ function showMenuTd(el) {
             (settings.featPlaylists ? addMenuItem({"cmd": "showAddToPlaylist", "options": [uri, ""]}, t('Add to playlist')) : '') +
             (uri.indexOf('http') === -1 ? addMenuItem({"cmd": "songDetails", "options": [uri]}, t('Song details')) : '');
     }
-    else if (app.current.app === 'Browse' && app.current.tab === 'Covergrid' && el.nodeName == 'DIV') {
+    else if (app.current.app === 'Browse' && app.current.tab === 'Covergrid' && el.nodeName === 'DIV') {
         let album = decodeURI(el.parentNode.getAttribute('data-album'));
         let albumArtist = decodeURI(el.parentNode.getAttribute('data-albumartist'));
         let expression = '((Album == \'' + album + '\') AND (AlbumArtist == \'' + albumArtist + '\'))';
@@ -5783,7 +5783,7 @@ function parseMPDSettings() {
         document.getElementById('warnStickers').classList.add('hide');
     }
     
-    if (settings.featStickers === false || settings.stickers === false || settings.featStickerCache == false) {
+    if (settings.featStickers === false || settings.stickers === false || settings.featStickerCache === false) {
         document.getElementById('warnPlaybackStatistics').classList.remove('hide');
         document.getElementById('inputJukeboxLastPlayed').setAttribute('disabled', 'disabled');
     }
@@ -6194,7 +6194,7 @@ function setPlaySettings(el) {
         }
     }
     else if (el.id === 'playDropdownBtnConsume') {
-        if (el.classList.contains('active') == false) {
+        if (el.classList.contains('active') === false) {
             toggleBtnGroupValue(document.getElementById('playDropdownBtnJukeboxModeGroup'), 0);
         }
     }
@@ -7301,7 +7301,7 @@ function saveCols(table, tableEl) {
     if (colsDropdown) {
         let colInputs = colsDropdown.firstChild.getElementsByTagName('button');
         for (let i = 0; i < colInputs.length; i++) {
-            if (colInputs[i].getAttribute('name') == undefined) {
+            if (colInputs[i].getAttribute('name') === null) {
                 continue;
             }
             let th = header.querySelector('[data-col=' + colInputs[i].name + ']');
@@ -7763,7 +7763,7 @@ function focusSearch() {
 }
 
 function btnWaiting(btn, waiting) {
-    if (waiting == true) {
+    if (waiting === true) {
         let spinner = document.createElement('span');
         spinner.classList.add('spinner-border', 'spinner-border-sm', 'mr-2');
         btn.insertBefore(spinner, btn.firstChild);
@@ -7781,7 +7781,7 @@ function toggleBtnGroupValue(btngrp, value) {
     let btns = btngrp.getElementsByTagName('button');
     let b = btns[0];
     for (let i = 0; i < btns.length; i++) {
-        if (btns[i].getAttribute('data-value') == value) {
+        if (btns[i].getAttribute('data-value') === value) {
             btns[i].classList.add('active');
             b = btns[i];
         }
@@ -8057,7 +8057,7 @@ function validatePlname(x) {
     if (x === '') {
         return false;
     }
-    else if (x.match(/\/|\r|\n|"|'/) == null) {
+    else if (x.match(/\/|\r|\n|"|'/) === null) {
         return true;
     }
     else {
