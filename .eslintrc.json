@@ -20,7 +20,6 @@
         "no-alert": "error",
         "no-eq-null": "error",
         "no-implied-eval": "error",
-        "no-shadow": "error",
-        "no-undefined": "error"
+        "no-shadow": "error"
     }
 }
