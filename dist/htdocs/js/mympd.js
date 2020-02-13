@@ -4093,9 +4093,7 @@ function toggleAlert(alertBox, state, msg) {
 function showNotification(notificationTitle, notificationText, notificationHtml, notificationType) {
     if (settings.notificationWeb === true) {
         let notification = new Notification(notificationTitle, {icon: 'assets/favicon.ico', body: notificationText});
-        setTimeout(function(notification) {
-            notification.close();
-        }, 3000, notification);
+        setTimeout(notification.close.bind(notification), 3000);
     } 
     if (settings.notificationPage === true) {
         let alertBox;
@@ -4592,9 +4590,9 @@ function showAddToPlaylistCurrentSong() {
     }
 }
 
-function showAddToPlaylist(uri, search) {
+function showAddToPlaylist(uri, searchstr) {
     document.getElementById('addToPlaylistUri').value = uri;
-    document.getElementById('addToPlaylistSearch').value = search;
+    document.getElementById('addToPlaylistSearch').value = searchstr;
     document.getElementById('addToPlaylistPlaylist').innerHTML = '';
     document.getElementById('addToPlaylistNewPlaylist').value = '';
     document.getElementById('addToPlaylistNewPlaylistDiv').classList.add('hide');
@@ -5305,15 +5303,15 @@ function saveSearchAsSmartPlaylist() {
         "searchstr": app.current.search}});
 }
 
-function addAllFromSearchPlist(plist, search, replace) {
-    if (search === null) {
-        search = app.current.search;    
+function addAllFromSearchPlist(plist, searchstr, replace) {
+    if (searchstr === null) {
+        searchstr = app.current.search;    
     }
     if (settings.featAdvsearch) {
         sendAPI("MPD_API_DATABASE_SEARCH_ADV", {"plist": plist, 
             "sort": "", 
             "sortdesc": false, 
-            "expression": search, 
+            "expression": searchstr,
             "offset": 0, 
             "cols": settings.colsSearch, 
             "replace": replace});
@@ -5321,7 +5319,7 @@ function addAllFromSearchPlist(plist, search, replace) {
     else {
         sendAPI("MPD_API_DATABASE_SEARCH", {"plist": plist, 
             "filter": app.current.filter, 
-            "searchstr": search, 
+            "searchstr": searchstr,
             "offset": 0, 
             "cols": settings.colsSearch, 
             "replace": replace});
@@ -6254,41 +6252,41 @@ function parseSongDetails(obj) {
         elH1s[i].innerText = obj.result.Title;
     }
     
-    let songDetails = '';
+    let songDetailsHTML = '';
     for (let i = 0; i < settings.tags.length; i++) {
         if (settings.tags[i] === 'Title' || obj.result[settings.tags[i]] === '-') {
             continue;
         }
-        songDetails += '<tr><th>' + t(settings.tags[i]) + '</th><td data-tag="' + settings.tags[i] + '" data-name="' + encodeURI(obj.result[settings.tags[i]]) + '">';
+        songDetailsHTML += '<tr><th>' + t(settings.tags[i]) + '</th><td data-tag="' + settings.tags[i] + '" data-name="' + encodeURI(obj.result[settings.tags[i]]) + '">';
         if (settings.browsetags.includes(settings.tags[i]) && obj.result[settings.tags[i]] !== '-') {
-            songDetails += '<a class="text-success" href="#">' + e(obj.result[settings.tags[i]]) + '</a>';
+            songDetailsHTML += '<a class="text-success" href="#">' + e(obj.result[settings.tags[i]]) + '</a>';
         }
         else {
-            songDetails += obj.result[settings.tags[i]];
+            songDetailsHTML += obj.result[settings.tags[i]];
         }
-        songDetails += '</td></tr>';
+        songDetailsHTML += '</td></tr>';
     }
-    songDetails += '<tr><th>' + t('Duration') + '</th><td>' + beautifyDuration(obj.result.Duration) + '</td></tr>';
+    songDetailsHTML += '<tr><th>' + t('Duration') + '</th><td>' + beautifyDuration(obj.result.Duration) + '</td></tr>';
     if (settings.featLibrary === true && settings.publish === true) {
-        songDetails += '<tr><th>' + t('Filename') + '</th><td><a class="breakAll text-success" href="/browse/music/' + 
+        songDetailsHTML += '<tr><th>' + t('Filename') + '</th><td><a class="breakAll text-success" href="/browse/music/' + 
             encodeURI(obj.result.uri) + '" target="_blank" title="' + e(obj.result.uri) + '">' + 
             e(basename(obj.result.uri)) + '</a></td></tr>';
     }
     else {
-        songDetails += '<tr><th>' + t('Filename') + '</th><td class="breakAll"><span title="' + e(obj.result.uri) + '">' + 
+        songDetailsHTML += '<tr><th>' + t('Filename') + '</th><td class="breakAll"><span title="' + e(obj.result.uri) + '">' + 
             e(basename(obj.result.uri)) + '</span></td></tr>';
     }
-    songDetails += '<tr><th>' + t('Filetype') + '</th><td>' + filetype(obj.result.uri) + '</td></tr>';
-    songDetails += '<tr><th>' + t('LastModified') + '</th><td>' + localeDate(obj.result.LastModified) + '</td></tr>';
+    songDetailsHTML += '<tr><th>' + t('Filetype') + '</th><td>' + filetype(obj.result.uri) + '</td></tr>';
+    songDetailsHTML += '<tr><th>' + t('LastModified') + '</th><td>' + localeDate(obj.result.LastModified) + '</td></tr>';
     if (settings.featFingerprint === true) {
-        songDetails += '<tr><th>' + t('Fingerprint') + '</th><td class="breakAll" id="fingerprint"><a class="text-success" data-uri="' + 
+        songDetailsHTML += '<tr><th>' + t('Fingerprint') + '</th><td class="breakAll" id="fingerprint"><a class="text-success" data-uri="' + 
             encodeURI(obj.result.uri) + '" id="calcFingerprint" href="#">' + t('Calculate') + '</a></td></tr>';
     }
     if (obj.result.booklet === true && settings.featLibrary === true) {
-        songDetails += '<tr><th>' + t('Booklet') + '</th><td><a class="text-success" href="/browse/music/' + dirname(obj.result.uri) + '/' + settings.bookletName + '" target="_blank">' + t('Download') + '</a></td></tr>';
+        songDetailsHTML += '<tr><th>' + t('Booklet') + '</th><td><a class="text-success" href="/browse/music/' + dirname(obj.result.uri) + '/' + settings.bookletName + '" target="_blank">' + t('Download') + '</a></td></tr>';
     }
     if (settings.featStickers === true) {
-        songDetails += '<tr><th colspan="2" class="pt-3"><h5>' + t('Statistics') + '</h5></th></tr>' +
+        songDetailsHTML += '<tr><th colspan="2" class="pt-3"><h5>' + t('Statistics') + '</h5></th></tr>' +
             '<tr><th>' + t('Play count') + '</th><td>' + obj.result.playCount + '</td></tr>' +
             '<tr><th>' + t('Skip count') + '</th><td>' + obj.result.skipCount + '</td></tr>' +
             '<tr><th>' + t('Last played') + '</th><td>' + (obj.result.lastPlayed === 0 ? t('never') : localeDate(obj.result.lastPlayed)) + '</td></tr>' +
@@ -6301,7 +6299,7 @@ function parseSongDetails(obj) {
             '</td></tr>';
     }
     
-    document.getElementById('tbodySongDetails').innerHTML = songDetails;
+    document.getElementById('tbodySongDetails').innerHTML = songDetailsHTML;
     setVoteSongBtns(obj.result.like, obj.result.uri);
     
     let lyricsEls = document.getElementsByClassName('featLyrics');
