@@ -4169,6 +4169,7 @@ function logMessage(notificationTitle, notificationText, notificationHtml, notif
     }, 250);
 }
 
+//eslint-disable-next-line no-unused-vars
 function clearLogOverview() {
     let overviewEls = document.getElementById('logOverview').getElementsByTagName('div');
     for (let i = overviewEls.length - 1; i >= 0; i--) {
@@ -4372,12 +4373,14 @@ function playlistClear() {
     document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
 }
 
+//eslint-disable-next-line no-unused-vars
 function playlistShuffle() {
     let uri = document.getElementById('BrowsePlaylistsDetailList').getAttribute('data-uri');
     sendAPI("MPD_API_PLAYLIST_SHUFFLE", {"uri": uri});
     document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
 }
 
+//eslint-disable-next-line no-unused-vars
 function playlistSort(tag) {
     let uri = document.getElementById('BrowsePlaylistsDetailList').getAttribute('data-uri');
     sendAPI("MPD_API_PLAYLIST_SORT", {"uri": uri, "tag": tag});
@@ -4542,6 +4545,7 @@ function saveSmartPlaylist() {
     }
 }
 
+//eslint-disable-next-line no-unused-vars
 function addSmartpls(type) {
     let obj = {"jsonrpc":"2.0", "id":0, "result": {"method":"MPD_API_SMARTPLS_GET"}};
     if (type === 'mostPlayed') {
@@ -4566,6 +4570,7 @@ function addSmartpls(type) {
     parseSmartPlaylist(obj);
 }
 
+//eslint-disable-next-line no-unused-vars
 function deletePlaylists() {
     let selectDeletePlaylists = document.getElementById('selectDeletePlaylists');
     let btnDeletePlaylists = document.getElementById('btnDeletePlaylists');
@@ -4576,6 +4581,7 @@ function deletePlaylists() {
     });
 }
 
+//eslint-disable-next-line no-unused-vars
 function showAddToPlaylistCurrentSong() {
     let uri = document.getElementById('currentTitle').getAttribute('data-uri');
     if (uri !== '') {
@@ -4689,6 +4695,7 @@ function updateSmartPlaylist(playlist) {
     sendAPI("MPD_API_SMARTPLS_UPDATE", {"playlist": playlist});
 }
 
+//eslint-disable-next-line no-unused-vars
 function updateSmartPlaylistClick() {
     let uri = document.getElementById('BrowsePlaylistsDetailList').getAttribute('data-uri');
     sendAPI("MPD_API_SMARTPLS_UPDATE", {"playlist": uri});
@@ -6348,6 +6355,7 @@ function parseSongDetails(obj) {
     }
     let myCarousel = document.getElementById('songPicsCarousel');
     //eslint-disable-next-line no-unused-vars
+    //eslint-disable-next-line no-undef
     let myCarouselInit = new Carousel(myCarousel, {
         interval: false,
         pause: false
@@ -6843,6 +6851,7 @@ function mediaSessionSetMetadata(title, artist, album, url) {
         let artwork = protocol + '//' + hostname + (port !== '' ? ':' + port : '') + subdir + '/albumart/' + url;
 
         if (settings.coverimage === true) {
+            //eslint-disable-next-line no-undef
             navigator.mediaSession.metadata = new MediaMetadata({
                 title: title,
                 artist: artist,
@@ -6851,6 +6860,7 @@ function mediaSessionSetMetadata(title, artist, album, url) {
             });
         }
         else {
+            //eslint-disable-next-line no-undef
             navigator.mediaSession.metadata = new MediaMetadata({
                 title: title,
                 artist: artist,
@@ -7810,6 +7820,7 @@ function toggleBtnGroup(btn) {
     return b;
 }
 
+//eslint-disable-next-line no-unused-vars
 function toggleBtnGroupCollapse(btn, collapse) {
     let activeBtn = toggleBtnGroup(btn);
     if (activeBtn.getAttribute('data-collapse') === 'show') {
