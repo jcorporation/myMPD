@@ -14,6 +14,8 @@
     "rules": {
         "no-console": "off",
         "no-eval": "error",
-        "eqeqeq": ["error", "always", { "null": "ignore" }]
+        "eqeqeq": ["error", "always", { "null": "ignore" }],
+        "no-shadow-restricted-names": "error",
+        "block-scoped-var": "error"
     }
 }
