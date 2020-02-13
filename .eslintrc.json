@@ -12,6 +12,11 @@
         "ecmaVersion": 2018
     },
     "rules": {
-        "no-console": off
+        "no-console": "off",
+        "eqeqeq": "always",
+        "block-scoped-var": "on",
+        "no-eval": "on",
+        "no-shadow": "on",
+        "no-use-before-define": "on"
     }
 }
