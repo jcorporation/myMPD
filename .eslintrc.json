@@ -12,6 +12,8 @@
         "ecmaVersion": 2018
     },
     "rules": {
-        "no-console": "off"
+        "no-console": "off",
+        "no-eval": "error",
+        "eqeqeq": ["error", "always", { "null": "ignore" }]
     }
 }
