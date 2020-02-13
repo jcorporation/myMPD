@@ -21,7 +21,6 @@
         "no-eq-null": "error",
         "no-implied-eval": "error",
         "no-shadow": "error",
-        "no-undefined": "error",
-        "no-use-before-define": "error"
+        "no-undefined": "error"
     }
 }
