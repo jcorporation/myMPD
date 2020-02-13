@@ -2546,7 +2546,7 @@ function t(phrase, number, data) {
         result = result.replace('%{smart_count}', number);
     }
     
-    if (data != null) {
+    if (data !== null) {
         result = result.replace(/%\{(\w+)\}/g, function(m0, m1) {
             return data[m1];
         });
@@ -8116,7 +8116,7 @@ function validateStream(el) {
 }
 
 function validateHost(el) {
-    if (el.value.match(/^([\w-.]+)$/) != null) {
+    if (el.value.match(/^([\w-.]+)$/) !== null) {
         el.classList.remove('is-invalid');
         return true;
     }
