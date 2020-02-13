@@ -334,7 +334,9 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
                 }
                 
                 if (set_played == true) {
-                    mpd_client_last_played_list(config, mpd_state, mpd_state->song_id);
+                    if (mpd_state->last_played.length > 0) {
+                        mpd_client_last_played_list(config, mpd_state, mpd_state->song_id);
+                    }
                     if (mpd_state->feat_sticker == true) {
                         mpd_client_count_song_uri(mpd_state, mpd_state->song_uri, "playCount", 1);
                         mpd_client_last_played_song_uri(mpd_state, mpd_state->song_uri);

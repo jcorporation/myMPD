@@ -102,8 +102,8 @@ bool mpd_client_last_played_list(t_config *config, t_mpd_state *mpd_state, const
                 }
             }
             else if (mpd_state->last_played.length > mpd_state->last_played_count) {
-                //remove first entry
-                list_shift(&mpd_state->last_played, 0);
+                //remove last entry
+                list_shift(&mpd_state->last_played, mpd_state->last_played.length - 1);
             }
             //notify clients
             sds buffer = jsonrpc_notify(sdsempty(), "update_lastplayed");
