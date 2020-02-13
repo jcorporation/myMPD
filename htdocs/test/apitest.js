@@ -103,7 +103,7 @@ var cmds = [
 ];
 
 function setTest(cmd, state, response) {
-    if (state == "ok") {
+    if (state === 'ok') {
         ok++;
     }
     else {
@@ -115,21 +115,21 @@ function setTest(cmd, state, response) {
         ok + ' ok, ' + failed + ' failed, duration: ' + time_all + ' ms';
     var tr = document.createElement('tr');
     tr.innerHTML = '<td>' + (i + 1) + '</td><td>' + JSON.stringify(cmd) + '</td><td>' + duration + ' ms</td><td>' + response + '</td>';
-    tr.childNodes[2].style.backgroundColor = (state == 'ok' ? 'green' : 'red');
+    tr.childNodes[2].style.backgroundColor = (state === 'ok' ? 'green' : 'red');
     document.getElementsByTagName('tbody')[0].appendChild(tr);
 }
 
 function sendAPI(request) {
     if (request.params !== undefined) {
-        if (request.params.uri != undefined) { 
+        if (request.params.uri !== undefined) { 
             if (request.params.uri === 'uri1') { request.params.uri = uri1; }
             if (request.params.uri === 'uri2') { request.params.uri = uri2; }
         }
-        if (request.params.album != undefined) { 
+        if (request.params.album !== undefined) { 
             if (request.params.album === 'album1') { request.params.album = album1; }
             if (request.params.album === 'album2') { request.params.uri = album2; }
         }
-        if (request.params.search != undefined) { 
+        if (request.params.search !== undefined) { 
             if (request.params.search === 'artist1') { request.params.search = artist1; }
             if (request.params.search === 'artist2') { request.params.search = artist2; }
         }
