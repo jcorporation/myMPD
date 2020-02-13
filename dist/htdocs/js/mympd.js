@@ -6354,8 +6354,7 @@ function parseSongDetails(obj) {
         carouselItems[i].children[0].style.backgroundImage = 'url(' + subdir + '/browse/music/' + encodeURI(obj.result.images[i]) + ')';
     }
     let myCarousel = document.getElementById('songPicsCarousel');
-    //eslint-disable-next-line no-unused-vars
-    //eslint-disable-next-line no-undef
+    //eslint-disable-next-line no-undef, no-unused-vars
     let myCarouselInit = new Carousel(myCarousel, {
         interval: false,
         pause: false
