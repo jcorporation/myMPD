@@ -199,7 +199,7 @@ function parseSettings() {
     document.getElementById('inputLoveMessage').value = settings.loveMessage;
     
     document.getElementById('inputMaxElementsPerPage').value = settings.maxElementsPerPage;
-    toggleBtnChkCollapse('btnStickers', 'collapseStatistics', settings.stickers);
+    toggleBtnChk('btnStickers', settings.stickers);
     document.getElementById('inputLastPlayedCount').value = settings.lastPlayedCount;
     
     toggleBtnChkCollapse('btnSmartpls', 'collapseSmartpls', settings.smartpls);

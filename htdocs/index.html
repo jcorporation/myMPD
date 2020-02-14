@@ -1282,16 +1282,14 @@
                 <div class="form-group row">
                   <label class="col-sm-4 col-form-label" for="btnStickers" data-phrase="Playback statistics"></label>
                   <div class="col-sm-8 ">
-                    <button data-toggle="collapse" data-target="#collapseStatistics" data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnStickers"></button>
+                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnStickers"></button>
                   </div>
                 </div>
-                <div class="collapse" id="collapseStatistics">
-                  <div class="form-group row">
-                    <label class="col-sm-4 col-form-label" for="inputLastPlayedCount" data-phrase="Last played list count"></label>
-                    <div class="col-sm-8">
-                      <input id="inputLastPlayedCount" type="text" class="form-control border-secondary" value="">
-                      <div class="invalid-feedback" data-phrase="Must be a number and greater than zero"></div>
-                    </div>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="inputLastPlayedCount" data-phrase="Last played list count"></label>
+                  <div class="col-sm-8">
+                    <input id="inputLastPlayedCount" type="text" class="form-control border-secondary" value="">
+                    <div class="invalid-feedback" data-phrase="Must be a number and greater than zero"></div>
                   </div>
                 </div>
                 <hr/>
@@ -1304,7 +1302,7 @@
                     <button data-toggle="collapse" data-target="#collapseSmartpls" data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnSmartpls"></button>
                   </div>
                 </div>
-                <div class="featSmartpls collapse" id="collapseSmartpls">
+                <div class="collapse" id="collapseSmartpls">
                   <div class="form-group row featTags">
                     <label class="col-sm-4 col-form-label" for="btnGeneratePlsTags" data-phrase="Generate smart playlist per"></label>
                     <div class="col-sm-8 input-group">
