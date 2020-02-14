@@ -25,7 +25,7 @@
 
 #define EXTRA_HEADERS_CACHE "Cache-Control: max-age=604800"
 
-#define CUSTOM_MIME_TYPES ".html=text/html; charset=utf-8,.manifest=application/manifest+json"
+#define CUSTOM_MIME_TYPES ".html=text/html; charset=utf-8,.manifest=application/manifest+json,.woff2=application/font-woff"
 
 typedef struct t_mg_user_data {
     void *config; //pointer to mympd config
