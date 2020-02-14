@@ -211,7 +211,7 @@ function toggleBtnGroupValue(btngrp, value) {
     let btns = btngrp.getElementsByTagName('button');
     let b = btns[0];
     let valuestr = value;
-    if (isNaN(value) == false) {
+    if (isNaN(value) === false) {
         valuestr = value.toString();
     }
     for (let i = 0; i < btns.length; i++) {
