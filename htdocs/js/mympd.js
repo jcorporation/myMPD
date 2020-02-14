@@ -161,7 +161,7 @@ function appPrepare(scrollPos) {
     }
 }
 
-function appGoto(a,t,v,s) {
+function appGoto(card, tab, view, state) {
     let scrollPos = 0;
     if (document.body.scrollTop) {
         scrollPos = document.body.scrollTop
@@ -181,20 +181,22 @@ function appGoto(a,t,v,s) {
     }
 
     let hash = '';
-    if (app.apps[a].tabs) {
-        if (t === undefined) {
-            t = app.apps[a].active;
+    if (app.apps[card].tabs) {
+        if (tab === undefined) {
+            tab = app.apps[card].active;
         }
-        if (app.apps[a].tabs[t].views) {
-            if (v === undefined) {
-                v = app.apps[a].tabs[t].active;
+        if (app.apps[card].tabs[tab].views) {
+            if (view === undefined) {
+                view = app.apps[card].tabs[tab].active;
             }
-            hash = '/' + a + '/' + t +'/'+v + '!' + (s === undefined ? app.apps[a].tabs[t].views[v].state : s);
-        } else {
-            hash = '/'+a+'/'+t+'!'+ (s === undefined ? app.apps[a].tabs[t].state : s);
+            hash = '/' + card + '/' + tab +'/' + view + '!' + (state === undefined ? app.apps[card].tabs[tab].views[view].state : state);
         }
-    } else {
-        hash = '/' + a + '!'+ (s === undefined ? app.apps[a].state : s);
+        else {
+            hash = '/' + card +'/' + tab + '!' + (state === undefined ? app.apps[card].tabs[tab].state : state);
+        }
+    }
+    else {
+        hash = '/' + card + '!'+ (state === undefined ? app.apps[card].state : state);
     }
     location.hash = hash;
 }

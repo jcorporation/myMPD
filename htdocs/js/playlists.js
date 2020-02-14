@@ -331,7 +331,6 @@ function deletePlaylists() {
     let btnDeletePlaylists = document.getElementById('btnDeletePlaylists');
     btnWaiting(btnDeletePlaylists, true);
     sendAPI("MPD_API_PLAYLIST_RM_ALL", {"type": selectDeletePlaylists.options[selectDeletePlaylists.selectedIndex].value}, function() {
-        let btnDeletePlaylists = document.getElementById('btnDeletePlaylists');
         btnWaiting(btnDeletePlaylists, false);
     });
 }

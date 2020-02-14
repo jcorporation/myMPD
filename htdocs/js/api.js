@@ -93,7 +93,7 @@ function webSocketConnect() {
                 obj = JSON.parse(msg.data);
                 logDebug('Websocket notification: ' + JSON.stringify(obj));
             }
-            catch(e) {
+            catch(error) {
                 logError('Invalid JSON data received: ' + msg.data);
                 return;
             }
@@ -193,8 +193,8 @@ function webSocketConnect() {
             socket = null;
         }
 
-    } catch(exception) {
-        logError(exception);
+    } catch(error) {
+        logError(error);
     }
 }
 

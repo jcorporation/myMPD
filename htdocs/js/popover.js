@@ -66,7 +66,6 @@ function showMenuTh(el) {
     el.setAttribute('data-init', 'true');
     el.addEventListener('shown.bs.popover', function(event) {
         event.target.setAttribute('data-popover', 'true');
-        let table = app.current.app + (app.current.tab !== undefined ? app.current.tab : '') + (app.current.view !== undefined ? app.current.view : '');
         document.getElementById('colChecklist' + table).addEventListener('click', function(event) {
             if (event.target.nodeName === 'BUTTON' && event.target.classList.contains('material-icons')) {
                 toggleBtnChk(event.target);
