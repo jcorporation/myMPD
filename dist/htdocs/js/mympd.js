@@ -2793,6 +2793,9 @@ function updateDBfinished(idleEvent) {
  https://github.com/jcorporation/mympd
 */
 
+/* Disable eslint warnings */
+/* global Modal, Dropdown, Collapse, Popover, Carousel */
+
 var socket = null;
 var lastSong = '';
 var lastSongObj = {};
