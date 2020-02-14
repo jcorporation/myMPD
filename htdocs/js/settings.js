@@ -132,25 +132,19 @@ function parseSettings() {
     document.getElementById('inputMpdPass').value = settings.mpdPass;
 
     let btnNotifyWeb = document.getElementById('btnNotifyWeb');
+    document.getElementById('warnNotifyWeb').classList.add('hide');
     if (notificationsSupported()) {
-        if (settings.notificationWeb) {
-            toggleBtnChk('btnNotifyWeb', settings.notificationWeb);
-            Notification.requestPermission(function (permission) {
-                if (!('permission' in Notification)) {
-                    Notification.permission = permission;
-                }
-                if (permission === 'granted') {
-                    toggleBtnChk('btnNotifyWeb', true);
-                } 
-                else {
-                    toggleBtnChk('btnNotifyWeb', false);
-                    settings.notificationWeb = true;
-                }
-            });         
+        if (Notification.permission !== 'granted') {
+            if (settings.notificationWeb === true) {
+                document.getElementById('warnNotifyWeb').classList.remove('hide');
+            }
+            settings.notificationWeb = false;
         }
-        else {
-            toggleBtnChk('btnNotifyWeb', false);
+        if (Notification.permission == 'denied') {
+            document.getElementById('warnNotifyWeb').classList.remove('hide');
         }
+        toggleBtnChk('btnNotifyWeb', settings.notificationWeb);
+        btnNotifyWeb.removeAttribute('disabled');
     }
     else {
         btnNotifyWeb.setAttribute('disabled', 'disabled');
@@ -391,27 +385,9 @@ function parseMPDSettings() {
     toggleBtnGroupValue(document.getElementById('btnSingleGroup'), settings.single);
     toggleBtnGroupValue(document.getElementById('btnReplaygainGroup'), settings.replaygain);
     
-    if (settings.crossfade !== undefined) {
-        document.getElementById('inputCrossfade').removeAttribute('disabled');
-        document.getElementById('inputCrossfade').value = settings.crossfade;
-    }
-    else {
-        document.getElementById('inputCrossfade').setAttribute('disabled', 'disabled');
-    }
-    if (settings.mixrampdb !== undefined) {
-        document.getElementById('inputMixrampdb').removeAttribute('disabled');
-        document.getElementById('inputMixrampdb').value = settings.mixrampdb;
-    }
-    else {
-        document.getElementById('inputMixrampdb').setAttribute('disabled', 'disabled');
-    }
-    if (settings.mixrampdelay !== undefined) {
-        document.getElementById('inputMixrampdelay').removeAttribute('disabled');
-        document.getElementById('inputMixrampdelay').value = settings.mixrampdelay;
-    }
-    else {
-        document.getElementById('inputMixrampdelay').setAttribute('disabled', 'disabled');
-    }
+    document.getElementById('inputCrossfade').value = settings.crossfade;
+    document.getElementById('inputMixrampdb').value = settings.mixrampdb;
+    document.getElementById('inputMixrampdelay').value = settings.mixrampdelay;
     
     if (settings.coverimage === false || settings.featTags === false || 
         settings.tags.includes('AlbumArtist') === false || settings.tags.includes('Album') === false
@@ -853,6 +829,39 @@ function filterCols(x) {
         }
     }
     settings[x] = cols;
+}
+
+function toggleBtnNotifyWeb() {
+    let btnNotifyWeb = document.getElementById('btnNotifyWeb');
+    let notifyWebState = btnNotifyWeb.classList.contains('active') ? true : false;
+    if (notificationsSupported()) {
+        if (notifyWebState === false) {
+            Notification.requestPermission(function (permission) {
+                if (!('permission' in Notification)) {
+                    Notification.permission = permission;
+                }
+                if (permission === 'granted') {
+                    toggleBtnChk('btnNotifyWeb', true);
+                    settings.notificationWeb = true;
+                    document.getElementById('warnNotifyWeb').classList.add('hide');
+                } 
+                else {
+                    toggleBtnChk('btnNotifyWeb', false);
+                    settings.notificationWeb = false;
+                    document.getElementById('warnNotifyWeb').classList.remove('hide');
+                }
+            });
+        }
+        else {
+            toggleBtnChk('btnNotifyWeb', false);
+            settings.notificationWeb = false;
+            document.getElementById('warnNotifyWeb').classList.add('hide');
+        }
+    }
+    else {
+        toggleBtnChk('btnNotifyWeb', false);
+        settings.notificationWeb = false;
+    }
 }
 
 //eslint-disable-next-line no-unused-vars

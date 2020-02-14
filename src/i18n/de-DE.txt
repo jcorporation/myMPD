@@ -1280,3 +1280,6 @@ Liedtext
 
 Pictures
 Bilder
+
+Notifications are blocked
+Benachrichtungen sind nicht erlaubt
