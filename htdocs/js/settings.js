@@ -83,7 +83,7 @@ function joinSettings(obj) {
 
 function checkConsume() {
     let stateConsume = document.getElementById('btnConsume').classList.contains('active') ? true : false;
-    let stateJukeboxMode = document.getElementById('btnJukeboxModeGroup').getElementsByClassName('active')[0].getAttribute('data-value');
+    let stateJukeboxMode = getBtnGroupValue('btnJukeboxModeGroup');
     if (stateJukeboxMode > 0 && stateConsume === false) {
         document.getElementById('warnConsume').classList.remove('hide');
     }
@@ -702,9 +702,9 @@ function saveSettings(closeModal) {
     }
     let smartplsInterval = document.getElementById('inputSmartplsInterval').value * 60 * 60;
 
-    let singleState = document.getElementById('btnSingleGroup').getElementsByClassName('active')[0].getAttribute('data-value');
-    let jukeboxMode = document.getElementById('btnJukeboxModeGroup').getElementsByClassName('active')[0].getAttribute('data-value');
-    let replaygain = document.getElementById('btnReplaygainGroup').getElementsByClassName('active')[0].getAttribute('data-value');
+    let singleState = getBtnGroupValue('btnSingleGroup');
+    let jukeboxMode = getBtnGroupValue('btnJukeboxModeGroup');
+    let replaygain = getBtnGroupValue('btnReplaygainGroup');
     let jukeboxUniqueTag = document.getElementById('selectJukeboxUniqueTag');
     let jukeboxUniqueTagValue = jukeboxUniqueTag.options[jukeboxUniqueTag.selectedIndex].value;
     

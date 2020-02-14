@@ -210,8 +210,12 @@ function btnWaiting(btn, waiting) {
 function toggleBtnGroupValue(btngrp, value) {
     let btns = btngrp.getElementsByTagName('button');
     let b = btns[0];
+    let valuestr = value;
+    if (isNaN(value) == false) {
+        valuestr = value.toString();
+    }
     for (let i = 0; i < btns.length; i++) {
-        if (btns[i].getAttribute('data-value') === value) {
+        if (btns[i].getAttribute('data-value') === valuestr) {
             btns[i].classList.add('active');
             b = btns[i];
         }
@@ -247,6 +251,14 @@ function toggleBtnGroup(btn) {
         }
     }
     return b;
+}
+
+function getBtnGroupValue(btnGroup) {
+    let activeBtn = document.getElementById(btnGroup).getElementsByClassName('active');
+    if (activeBtn.length === 0) {
+        activeBtn = document.getElementById(btnGroup).getElementsByTagName('button');    
+    }
+    return activeBtn[0].getAttribute('data-value');
 }
 
 //eslint-disable-next-line no-unused-vars
