@@ -957,11 +957,17 @@ Fingerabdruck
 Calculate
 Berechne Fingerabdruck
 
-Certificate
-Zertifikat
-
 myMPD CA
 myMPD Stammzertifikat
+
+IP-Address
+IP-Adresse
+
+Mongoose version
+Mongoose Version
+
+Webserver
+Webserver
 
 Download
 Herunterladen

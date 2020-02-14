@@ -546,6 +546,7 @@ function appInit() {
     
     document.getElementById('modalAbout').addEventListener('shown.bs.modal', function () {
         sendAPI("MPD_API_DATABASE_STATS", {}, parseStats);
+        getServerinfo();
         let trs = '';
         for (let key in keymap) {
             if (keymap[key].req === undefined || settings[keymap[key].req] === true) {

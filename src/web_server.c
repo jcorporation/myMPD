@@ -256,6 +256,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             //set conn_id
             nc->user_data = (void *)(intptr_t)mg_user_data->conn_id;
             LOG_DEBUG("New connection id %d", (intptr_t)nc->user_data);
+
             break;
         }
         case MG_EV_WEBSOCKET_HANDSHAKE_REQUEST: {
@@ -281,6 +282,22 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             static const struct mg_str browse_prefix = MG_MK_STR("/browse");
             static const struct mg_str albumart_prefix = MG_MK_STR("/albumart");
             LOG_VERBOSE("HTTP request (%d): %.*s", (intptr_t)nc->user_data, (int)hm->uri.len, hm->uri.p);
+            if (mg_vcmp(&hm->uri, "/api/serverinfo") == 0) {
+                struct sockaddr_in localip;
+                socklen_t len = sizeof(localip);
+                if (getsockname(nc->sock, (struct sockaddr *)&localip, &len) == 0) {
+                    sds method = sdsempty();
+                    sds response = jsonrpc_start_result(sdsempty(), method, 0);
+                    response = sdscat(response, ",");
+                    response = tojson_char(response, "version", MG_VERSION, true);
+                    response = tojson_char(response, "ip", inet_ntoa(localip.sin_addr), false);
+                    response = jsonrpc_end_result(response);
+                    mg_send_head(nc, 200, sdslen(response), "Content-Type: application/json");
+                    mg_send(nc, response, sdslen(response));
+                    sdsfree(response);
+                    sdsfree(method);
+                }
+            }
             if (mg_vcmp(&hm->uri, "/api") == 0) {
                 //api request
                 bool rc = handle_api((intptr_t)nc->user_data, hm);

@@ -26,6 +26,19 @@ function parseStats(obj) {
     }
 }
 
+function getServerinfo() {
+    let ajaxRequest=new XMLHttpRequest();
+    ajaxRequest.open('GET', subdir + '/api/serverinfo', true);
+    ajaxRequest.onreadystatechange = function() {
+        if (ajaxRequest.readyState === 4) {
+            let obj = JSON.parse(ajaxRequest.responseText);
+            document.getElementById('wsIP').innerText = obj.result.ip;
+            document.getElementById('wsMongooseVersion').innerText = obj.result.version;
+        }
+    };
+    ajaxRequest.send();
+}
+
 function parseOutputs(obj) {
     let btns = '';
     for (let i = 0; i < obj.result.numOutputs; i++) {
