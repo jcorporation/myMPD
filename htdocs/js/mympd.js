@@ -5,10 +5,6 @@
  https://github.com/jcorporation/mympd
 */
 
-/* Disable eslint warnings */
-/* global Modal, Dropdown, Collapse, Popover */
-/* global keymap, phrases, locales */
-
 var socket = null;
 var lastSong = '';
 var lastSongObj = {};
