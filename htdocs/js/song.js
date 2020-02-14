@@ -58,7 +58,7 @@ function parseSongDetails(obj) {
         songDetailsHTML += '<tr><th>' + t('Fingerprint') + '</th><td class="breakAll" id="fingerprint"><a class="text-success" data-uri="' + 
             encodeURI(obj.result.uri) + '" id="calcFingerprint" href="#">' + t('Calculate') + '</a></td></tr>';
     }
-    if (obj.result.booklet === true && settings.featLibrary === true) {
+    if (obj.result.booklet === true && settings.publish === true) {
         songDetailsHTML += '<tr><th>' + t('Booklet') + '</th><td><a class="text-success" href="/browse/music/' + dirname(obj.result.uri) + '/' + settings.bookletName + '" target="_blank">' + t('Download') + '</a></td></tr>';
     }
     if (settings.featStickers === true) {
@@ -80,7 +80,7 @@ function parseSongDetails(obj) {
     
     let lyricsEls = document.getElementsByClassName('featLyrics');
     for (let i = 0; i < lyricsEls.length; i++) {
-        if (obj.result.lyricsfile === true && settings.featLibrary === true) {
+        if (obj.result.lyricsfile === true && settings.featLibrary === true && settings.publish === true) {
             lyricsEls[i].classList.remove('hide');
         }
         else {
@@ -88,7 +88,7 @@ function parseSongDetails(obj) {
         }
     }
     
-    if (obj.result.lyricsfile === true) {
+    if (obj.result.lyricsfile === true && settings.publish === true) {
         getLyrics(obj.result.uri);
     }
     else {
@@ -97,7 +97,7 @@ function parseSongDetails(obj) {
     
     let pictureEls = document.getElementsByClassName('featPictures');
     for (let i = 0; i < lyricsEls.length; i++) {
-        if (obj.result.images.length > 0 && settings.featLibrary === true) {
+        if (obj.result.images.length > 0 && settings.featLibrary === true && settings.publish === true) {
             pictureEls[i].classList.remove('hide');
         }
         else {
