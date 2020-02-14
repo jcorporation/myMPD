@@ -5465,7 +5465,7 @@ function parseSettings() {
             }
             settings.notificationWeb = false;
         }
-        if (Notification.permission == 'denied') {
+        if (Notification.permission === 'denied') {
             document.getElementById('warnNotifyWeb').classList.remove('hide');
         }
         toggleBtnChk('btnNotifyWeb', settings.notificationWeb);
@@ -6156,6 +6156,7 @@ function filterCols(x) {
     settings[x] = cols;
 }
 
+//eslint-disable-next-line no-unused-vars
 function toggleBtnNotifyWeb() {
     let btnNotifyWeb = document.getElementById('btnNotifyWeb');
     let notifyWebState = btnNotifyWeb.classList.contains('active') ? true : false;
