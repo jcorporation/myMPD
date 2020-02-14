@@ -92,7 +92,7 @@ function webSocketConnect() {
                 obj = JSON.parse(msg.data);
                 logDebug('Websocket notification: ' + JSON.stringify(obj));
             }
-            catch(e) {
+            catch(error) {
                 logError('Invalid JSON data received: ' + msg.data);
                 return;
             }
@@ -192,8 +192,8 @@ function webSocketConnect() {
             socket = null;
         }
 
-    } catch(exception) {
-        logError(exception);
+    } catch(error) {
+        logError(error);
     }
 }
 
@@ -2949,7 +2949,7 @@ function appPrepare(scrollPos) {
     }
 }
 
-function appGoto(a,t,v,s) {
+function appGoto(card, tab, view, state) {
     let scrollPos = 0;
     if (document.body.scrollTop) {
         scrollPos = document.body.scrollTop
@@ -2969,20 +2969,22 @@ function appGoto(a,t,v,s) {
     }
 
     let hash = '';
-    if (app.apps[a].tabs) {
-        if (t === undefined) {
-            t = app.apps[a].active;
+    if (app.apps[card].tabs) {
+        if (tab === undefined) {
+            tab = app.apps[card].active;
         }
-        if (app.apps[a].tabs[t].views) {
-            if (v === undefined) {
-                v = app.apps[a].tabs[t].active;
+        if (app.apps[card].tabs[tab].views) {
+            if (view === undefined) {
+                view = app.apps[card].tabs[tab].active;
             }
-            hash = '/' + a + '/' + t +'/'+v + '!' + (s === undefined ? app.apps[a].tabs[t].views[v].state : s);
-        } else {
-            hash = '/'+a+'/'+t+'!'+ (s === undefined ? app.apps[a].tabs[t].state : s);
+            hash = '/' + card + '/' + tab +'/' + view + '!' + (state === undefined ? app.apps[card].tabs[tab].views[view].state : state);
         }
-    } else {
-        hash = '/' + a + '!'+ (s === undefined ? app.apps[a].state : s);
+        else {
+            hash = '/' + card +'/' + tab + '!' + (state === undefined ? app.apps[card].tabs[tab].state : state);
+        }
+    }
+    else {
+        hash = '/' + card + '!'+ (state === undefined ? app.apps[card].state : state);
     }
     location.hash = hash;
 }
@@ -4577,7 +4579,6 @@ function deletePlaylists() {
     let btnDeletePlaylists = document.getElementById('btnDeletePlaylists');
     btnWaiting(btnDeletePlaylists, true);
     sendAPI("MPD_API_PLAYLIST_RM_ALL", {"type": selectDeletePlaylists.options[selectDeletePlaylists.selectedIndex].value}, function() {
-        let btnDeletePlaylists = document.getElementById('btnDeletePlaylists');
         btnWaiting(btnDeletePlaylists, false);
     });
 }
@@ -4797,7 +4798,6 @@ function showMenuTh(el) {
     el.setAttribute('data-init', 'true');
     el.addEventListener('shown.bs.popover', function(event) {
         event.target.setAttribute('data-popover', 'true');
-        let table = app.current.app + (app.current.tab !== undefined ? app.current.tab : '') + (app.current.view !== undefined ? app.current.view : '');
         document.getElementById('colChecklist' + table).addEventListener('click', function(event) {
             if (event.target.nodeName === 'BUTTON' && event.target.classList.contains('material-icons')) {
                 toggleBtnChk(event.target);
@@ -5409,7 +5409,7 @@ function joinSettings(obj) {
 
 function checkConsume() {
     let stateConsume = document.getElementById('btnConsume').classList.contains('active') ? true : false;
-    let stateJukeboxMode = document.getElementById('btnJukeboxModeGroup').getElementsByClassName('active')[0].getAttribute('data-value');
+    let stateJukeboxMode = getBtnGroupValue('btnJukeboxModeGroup');
     if (stateJukeboxMode > 0 && stateConsume === false) {
         document.getElementById('warnConsume').classList.remove('hide');
     }
@@ -6028,9 +6028,9 @@ function saveSettings(closeModal) {
     }
     let smartplsInterval = document.getElementById('inputSmartplsInterval').value * 60 * 60;
 
-    let singleState = document.getElementById('btnSingleGroup').getElementsByClassName('active')[0].getAttribute('data-value');
-    let jukeboxMode = document.getElementById('btnJukeboxModeGroup').getElementsByClassName('active')[0].getAttribute('data-value');
-    let replaygain = document.getElementById('btnReplaygainGroup').getElementsByClassName('active')[0].getAttribute('data-value');
+    let singleState = getBtnGroupValue('btnSingleGroup');
+    let jukeboxMode = getBtnGroupValue('btnJukeboxModeGroup');
+    let replaygain = getBtnGroupValue('btnReplaygainGroup');
     let jukeboxUniqueTag = document.getElementById('selectJukeboxUniqueTag');
     let jukeboxUniqueTagValue = jukeboxUniqueTag.options[jukeboxUniqueTag.selectedIndex].value;
     
@@ -7781,8 +7781,12 @@ function btnWaiting(btn, waiting) {
 function toggleBtnGroupValue(btngrp, value) {
     let btns = btngrp.getElementsByTagName('button');
     let b = btns[0];
+    let valuestr = value;
+    if (isNaN(value) == false) {
+        valuestr = value.toString();
+    }
     for (let i = 0; i < btns.length; i++) {
-        if (btns[i].getAttribute('data-value') === value) {
+        if (btns[i].getAttribute('data-value') === valuestr) {
             btns[i].classList.add('active');
             b = btns[i];
         }
@@ -7818,6 +7822,14 @@ function toggleBtnGroup(btn) {
         }
     }
     return b;
+}
+
+function getBtnGroupValue(btnGroup) {
+    let activeBtn = document.getElementById(btnGroup).getElementsByClassName('active');
+    if (activeBtn.length === 0) {
+        activeBtn = document.getElementById(btnGroup).getElementsByTagName('button');    
+    }
+    return activeBtn[0].getAttribute('data-value');
 }
 
 //eslint-disable-next-line no-unused-vars
