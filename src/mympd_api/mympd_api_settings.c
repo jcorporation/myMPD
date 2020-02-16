@@ -446,6 +446,7 @@ sds state_file_rw_string(t_config *config, const char *name, const char *def_val
     fclose(fp);
     if (read > 0) {
         result = sdscat(result, line);
+        sdstrim(result, " \n\r");
         FREE_PTR(line);
         return result;
     }
