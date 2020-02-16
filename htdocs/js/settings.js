@@ -319,7 +319,7 @@ function parseSettings() {
     
     if (settings.musicDirectory === 'auto') {
         document.getElementById('selectMusicDirectory').value = settings.musicDirectory;
-        document.getElementById('inputMusicDirectory').value = settings.musicDirectoryValue;
+        document.getElementById('inputMusicDirectory').value = settings.musicDirectoryValue !== undefined ? settings.musicDirectoryValue : '';
         document.getElementById('inputMusicDirectory').setAttribute('readonly', 'readonly');
     }
     else if (settings.musicDirectory === 'none') {

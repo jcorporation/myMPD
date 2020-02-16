@@ -169,10 +169,10 @@ function notificationsSupported() {
 function setElsState(tag, state) {
     let els = document.getElementsByTagName(tag);
     let elsLen = els.length;
-    for (let i = 0; i< elsLen; i++) {
+    for (let i = 0; i < elsLen; i++) {
         if (state === 'disabled') {
-            if (!els[i].classList.contains('alwaysEnabled')) {
-                if (els[i].getAttribute('disabled')) {
+            if (els[i].classList.contains('alwaysEnabled') === false) {
+                if (els[i].getAttribute('disabled') === null) {
                     els[i].setAttribute('disabled', 'disabled');
                     els[i].classList.add('disabled');
                 }
@@ -194,6 +194,7 @@ function toggleUI() {
     }
     let enabled = state === 'disabled' ? false : true;
     if (enabled !== uiEnabled) {
+        logDebug('Setting ui state to ' + state);
         setElsState('a', state);
         setElsState('input', state);
         setElsState('button', state);
