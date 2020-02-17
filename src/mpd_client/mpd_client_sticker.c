@@ -28,10 +28,15 @@ bool _sticker_cache_init(t_config *config, t_mpd_state *mpd_state);
 
 //public functions
 bool sticker_cache_init(t_config *config, t_mpd_state *mpd_state) {
-    disable_all_mpd_tags(mpd_state);
-    bool rc = _sticker_cache_init(config, mpd_state);
-    enable_mpd_tags(mpd_state, mpd_state->mympd_tag_types);
-    return rc;
+    if (LIBMPDCLIENT_CHECK_VERSION(2, 11, 0) && mpd_connection_cmp_server_version(mpd_state->conn, 0, 20, 0) >= 0) {
+        disable_all_mpd_tags(mpd_state);
+        bool rc = _sticker_cache_init(config, mpd_state);
+        enable_mpd_tags(mpd_state, mpd_state->mympd_tag_types);
+        return rc;
+    }
+    else {
+        return false;
+    }
 }
 
 bool mpd_client_count_song_uri(t_mpd_state *mpd_state, const char *uri, const char *name, const int value) {
