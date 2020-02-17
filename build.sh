@@ -31,7 +31,7 @@ STARTPATH=$(pwd)
 umask 0022
 
 #get myMPD version
-VERSION=$(grep VERSION_ CMakeLists.txt | cut -d\" -f2 | tr '\n' '.' | sed 's/\.$//')
+VERSION=$(grep CPACK_PACKAGE_VERSION_ CMakeLists.txt | cut -d\" -f2 | tr '\n' '.' | sed 's/\.$//')
 
 #gzip is needed to compress assets for release
 GZIPBIN=$(command -v gzip)
