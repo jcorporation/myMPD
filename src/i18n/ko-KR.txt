@@ -957,11 +957,17 @@ Fingerprint
 Calculate
 계산
 
-Certificate
-인증
-
 myMPD CA
 myMPD 인증서
+
+IP-Address
+IP 주소
+
+Mongoose version
+Mongoose 버전
+
+Webserver
+웹서버
 
 Download
 내려받기
@@ -1051,7 +1057,7 @@ Default
 기본
 
 Appearance
-인터페이스
+외관
 
 Unknown artist
 모르는 연주자
@@ -1268,3 +1274,18 @@ Auto
 
 Connection state
 연결 상태
+
+Booklet
+책자
+
+Booklet filename
+책자 파일 이름
+
+Lyrics
+가사
+
+Pictures
+그림
+
+Notifications are blocked
+알림 차단됨
