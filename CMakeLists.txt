@@ -210,7 +210,7 @@ set(SOURCES
   dist/src/rax/rax.c
 )
 
-if(OPENSSL_FOUND)
+if("${ENABLE_SSL}" MATCHES "ON")
   set(CERT_SOURCES
       src/cert.c
   )
