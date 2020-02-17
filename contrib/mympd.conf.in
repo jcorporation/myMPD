@@ -17,6 +17,8 @@ host = /var/run/mpd/socket
 #auto = get music_directory from mpd (only supported, if connected to mpd socket)
 musicdirectory = auto
 
+#absolut path of mpd playlist_directory
+playlistdirectory = /var/lib/mpd/playlists
 
 [webserver]
 #Webserver options

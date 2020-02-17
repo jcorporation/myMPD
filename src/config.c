@@ -463,7 +463,7 @@ bool mympd_dump_config(void) {
     assert(p_config);
     mympd_config_defaults(p_config);
 
-    sds tmp_file = sdscatfmt(sdsempty(), "/tmp/mympd.conf.XXXXXX");
+    sds tmp_file = sdscat(sdsempty(), "/tmp/mympd.conf.XXXXXX");
     int fd = mkstemp(tmp_file);
     if (fd < 0) {
         LOG_ERROR("Can't open %s for write", tmp_file);
@@ -638,7 +638,7 @@ bool mympd_dump_config(void) {
     fprintf(fp, "[syscmds]\n");
 
     fclose(fp);
-    sds conf_file = sdscatfmt(sdsempty(), "/tmp/mympd.conf");
+    sds conf_file = sdscat(sdsempty(), "/tmp/mympd.conf");
     int rc = rename(tmp_file, conf_file);
     if (rc == -1) {
         LOG_ERROR("Renaming file from %s to %s failed", tmp_file, conf_file);
