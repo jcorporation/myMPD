@@ -642,8 +642,10 @@ updatelibmympdclient() {
 uninstall() {
   #MYMPD_INSTALL_PREFIX="/usr"
   rm -f "$DESTDIR/usr/bin/mympd"
+  rm -f "$DESTDIR/usr/bin/mympd-config"
   #MYMPD_INSTALL_PREFIX="/usr/local"
   rm -f "$DESTDIR/usr/local/bin/mympd"
+  rm -f "$DESTDIR/usr/local/bin/mympd-config"
   #MYMPD_INSTALL_PREFIX="/opt/mympd/"
   rm -rf "$DESTDIR/opt/mympd"
   #systemd

@@ -14,6 +14,8 @@ set(CPACK_PACKAGE_VERSION_MAJOR "6")
 set(CPACK_PACKAGE_VERSION_MINOR "2")
 set(CPACK_PACKAGE_VERSION_PATCH "0")
 
+add_subdirectory("cli_tools")
+
 if(EXISTS "/etc/arch-release")
   set(WEBAPPS "/webapps/${PROJECT_NAME}")
 else()
