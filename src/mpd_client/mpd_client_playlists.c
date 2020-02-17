@@ -468,7 +468,7 @@ bool mpd_client_smartpls_save(t_config *config, t_mpd_state *mpd_state, const ch
 
 bool mpd_client_smartpls_update_all(t_config *config, t_mpd_state *mpd_state) {
     if (mpd_state->feat_smartpls == false) {
-        LOG_WARN("Smart playlists are disabled");
+        LOG_DEBUG("Smart playlists are disabled");
         return true;
     }
     

@@ -247,6 +247,11 @@ bool _sticker_cache_init(t_config *config, t_mpd_state *mpd_state) {
         else if (mpd_search_add_uri_constraint(mpd_state->conn, MPD_OPERATOR_DEFAULT, "") == false) { return false; }
         else if (mpd_search_add_window(mpd_state->conn, start, end) == false) { return false; }
         else if (mpd_search_commit(mpd_state->conn) == false) { return false; }
+        
+        if (check_error_and_recover2(mpd_state, NULL, NULL, 0, false) == false) {
+            LOG_VERBOSE("Sticker cache update failed");
+            return false;        
+        }
                     
         while ((song = mpd_recv_song(mpd_state->conn)) != NULL) {
             const char *uri = mpd_song_get_uri(song);
@@ -257,6 +262,11 @@ bool _sticker_cache_init(t_config *config, t_mpd_state *mpd_state) {
             mpd_song_free(song);
         }
         mpd_response_finish(mpd_state->conn);
+        if (check_error_and_recover2(mpd_state, NULL, NULL, 0, false) == false) {
+            sticker_cache_free(mpd_state);
+            LOG_VERBOSE("Sticker cache update failed");
+            return false;        
+        }
         start = end;
         end = end + 1000;
     } while (i > start);
@@ -274,4 +284,3 @@ bool _sticker_cache_init(t_config *config, t_mpd_state *mpd_state) {
     LOG_VERBOSE("Sticker cache updated successfully");
     return true;
 }
-
