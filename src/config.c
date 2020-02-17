@@ -649,7 +649,7 @@ bool mympd_dump_config(void) {
     if (rc == -1) {
         return false;
     }
-    printf("Default configuration dumped to /tmp/mympd.conf");
+    printf("Default configuration dumped to /tmp/mympd.conf\n");
     return true;    
 }
 
