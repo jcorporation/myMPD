@@ -10,11 +10,13 @@
 #include <string.h>
 #include <ctype.h>
 #include <inttypes.h>
+#include <getopt.h>
 
 #include "../dist/src/sds/sds.h"
 #include "../src/sds_extras.h"
 
 struct t_config {
+    //parsed values
     sds host;
     int port;
     sds pass;
@@ -22,6 +24,19 @@ struct t_config {
     sds playlist_directory;
     bool stickers;
     bool regex;
+    //options
+    sds mpd_conf;
+    sds mpd_exe;
+    sds mympd_conf;
+    sds webport;
+    sds sslport;
+    sds user;
+    int loglevel;
+    bool ssl;
+    bool mixramp;
+    bool publish;
+    bool webdav;
+    bool syscmds;
 };
 
 int sdssplit_whitespace(sds line, sds *name, sds *value) {
@@ -67,21 +82,13 @@ int sdssplit_whitespace(sds line, sds *name, sds *value) {
     return tokens;
 }
 
-bool parse_mpd_conf(const char *mpd_conf, struct t_config *pconfig) {
-    pconfig->host = sdsempty();
-    pconfig->port = 6600;
-    pconfig->pass = sdsempty();
-    pconfig->music_directory = sdsempty();
-    pconfig->playlist_directory = sdsempty();
-    pconfig->stickers = false;
-    pconfig->regex = true;
-    
-    FILE *fp = fopen(mpd_conf, "r");
+bool parse_mpd_conf(struct t_config *pconfig) {
+    FILE *fp = fopen(pconfig->mpd_conf, "r");
     if (fp == NULL) {
-        printf("Error parsing %s\n", mpd_conf);
+        printf("Error parsing %s\n", pconfig->mpd_conf);
         return false;
     }
-    printf("Parsing %s\n", mpd_conf);
+    printf("Parsing %s\n", pconfig->mpd_conf);
     char *line = NULL;
     size_t n = 0;
     sds sds_line = sdsempty();
@@ -114,45 +121,267 @@ bool parse_mpd_conf(const char *mpd_conf, struct t_config *pconfig) {
                     }
                 }
                 else if (strcasecmp(name, "password") == 0) {
-                    //todo: get account with highest privileges
-                    pconfig->pass = sdsreplace(pconfig->pass, value);
+                    sds *tokens;
+                    int count;
+                    tokens = sdssplitlen(value, strlen(value), "@", 1, &count);
+                    if (count == 2) {
+                        if (sdslen(pconfig->pass) == 0 || strstr(tokens[1], "admin") != NULL) {
+                            //use prefered the entry with admin privileges or as fallback the first entry
+                            pconfig->pass = sdsreplace(pconfig->pass, tokens[0]);
+                        }
+                    }
+                    sdsfreesplitres(tokens, count);
                 }
             }
             sdsfree(name);
             sdsfree(value);
         }
     }
+    if (line != NULL) {
+        free(line);
+    }
     fclose(fp);
     sdsfree(sds_line);
     return true;
 }
 
-int main(int argc, char **argv) {
-    (void) argc;
-    (void) argv;
-    int rc = EXIT_SUCCESS;
-    //todo: get mpd.conf from parameter or check some locations
-    sds mpd_conf = sdsnew("/etc/mpd.conf");
-
-    struct t_config mpd_config;
-    if (parse_mpd_conf(mpd_conf, &mpd_config) == false) {
-        printf("Error parsing %s\n", mpd_conf);
-        rc = EXIT_FAILURE;
+bool check_ldd(struct t_config *pconfig) {
+    printf("Getting mpd linked libraries %s\n", pconfig->mpd_exe);
+    sds ldd = sdsnew("/usr/bin/ldd ");
+    ldd = sdscatprintf(ldd, "%s", pconfig->mpd_exe);
+    FILE *fp = popen(ldd, "r");
+    sdsfree(ldd);
+    if (fp == NULL) {
+        return false;
     }
-    
-    printf("\tHost: %s\n", mpd_config.host);
-    printf("\tPort: %d\n", mpd_config.port);
-    printf("\tPassword: %s\n", mpd_config.pass);
-    printf("\tMusic directory: %s\n", mpd_config.music_directory);
-    printf("\tPlaylist directory: %s\n", mpd_config.playlist_directory);
-    printf("\tStickers: %s\n", (mpd_config.stickers == true ? "true" : "false"));
-    //todo: check ldd state?
-    //printf("\tRegex: %s\n", (mpd_config.regex == true ? "true" : "false"));
+    char *line = NULL;
+    size_t n = 0;
+    while (getline(&line, &n, fp) > 0) {
+        if (strstr(line, "libpcre") != NULL) {
+            pconfig->regex = true;
+            break;
+        }
+    }
+    if (line != NULL) {
+        free(line);
+    }
+    pclose(fp);
+    return true;
+}
 
+bool parse_options(struct t_config *pconfig, int argc, char **argv) {
+    int n, option_index = 0;
+    
+    static struct option long_options[] = {
+        {"mpdconf",   required_argument, 0, 'c'},
+        {"mpdexe",    required_argument, 0, 'e'},
+        {"mympdconf", required_argument, 0, 'm'},
+        {"webport",   required_argument, 0, 'w'},
+        {"sslport",   required_argument, 0, 's'},
+        {"loglevel",  required_argument, 0, 'l'},
+        {"user",      required_argument, 0, 'u'},
+        {"mixramp",   no_argument,       0, 'r'},
+        {"publish",   no_argument,       0, 'p'},
+        {"webdav",    no_argument,       0, 'd'},
+        {"syscmds",   no_argument,       0, 'y'},
+        {"help",      no_argument,       0, 'h'},
+        {0,           0,                 0,  0 }
+    };
+
+    while((n = getopt_long(argc, argv, "c:m:w:s:l:u:rpdhy", long_options, &option_index)) != -1) {
+        switch (n) {
+            case 'c':
+                pconfig->mpd_conf = sdsreplace(pconfig->mpd_conf, optarg);
+                break;
+            case 'e':
+                pconfig->mpd_exe = sdsreplace(pconfig->mpd_exe, optarg);
+                break;
+            case 'm':
+                pconfig->mympd_conf = sdsreplace(pconfig->mympd_conf, optarg);
+                break;
+            case 'w':
+                pconfig->webport = sdsreplace(pconfig->webport, optarg);
+                break;
+            case 'u':
+                pconfig->user = sdsreplace(pconfig->user, optarg);
+                break;
+            case 'l':
+                pconfig->loglevel = strtoimax(optarg, NULL, 10);
+                break;
+            case 's':
+                pconfig->sslport = sdsreplace(pconfig->sslport, optarg);
+                pconfig->ssl = strcmp(optarg, "0") == 0 ? false : true;
+                break;
+            case 'r':
+                pconfig->mixramp = true;
+                break;
+            case 'p':
+                pconfig->publish = true;
+                break;
+            case 'd':
+                pconfig->webdav = true;
+                pconfig->publish = true;
+                break;
+            case 'y':
+                pconfig->syscmds = true;
+                break;
+            default:
+                fprintf(stderr, "Usage: %s [OPTION]...\n"
+                    "myMPD configuration utility, for details look at https://github.com/jcorporation/myMPD\n"
+                    "WARNING: this tool overwrites your mympd.conf\n\n"
+                    "-c, --mpdconf <path>     path to mpd.conf (default: /etc/mpd.conf)\n"
+                    "-e  --mpdexe <path>      path to mpd executable (default: /usr/bin/mpd)\n"
+                    "-m, --mympdconf <path>   path to mympd.conf (default: /etc/mympd.conf)\n"
+                    "-w, --webport <port>     http port (default: 80)\n"
+                    "-s, --sslport <port>     ssl port (default: 443, 0 to disable ssl)\n"
+                    "-u, --user <username>    username (default: mympd)\n"
+                    "-l, --loglevel <number>  loglevel (default: 2)\n"
+                    "-r, --mixramp            enable mixramp settings (default: disabled)\n"
+                    "-p, --publish            enable publishing feature (default: disabled)\n"
+                    "-d, --webdav             enable webdav support (default: disabled)\n"
+                    "-y, --syscmds            enable syscmds (default: disabled)\n"
+                    "-h, --help               this help\n\n"
+                    , argv[0]);
+                return false;
+        }
+    }
+    return true;
+}
+
+void set_defaults(struct t_config *pconfig) {
+    pconfig->host = sdsempty();
+    pconfig->port = 6600;
+    pconfig->pass = sdsempty();
+    pconfig->music_directory = sdsempty();
+    pconfig->playlist_directory = sdsempty();
+    pconfig->stickers = false;
+    pconfig->regex = false;
+    pconfig->mpd_conf = sdsnew("/etc/mpd.conf");
+    pconfig->mpd_exe = sdsnew("/usr/bin/mpd");
+    pconfig->mympd_conf = sdsnew("/etc/mympd.conf");
+    pconfig->webport = sdsnew("80");
+    pconfig->sslport = sdsnew("443");
+    pconfig->user = sdsnew("mympd");
+    pconfig->loglevel = 2;
+    pconfig->ssl = true;
+    pconfig->mixramp = false;
+    pconfig->publish = false;
+    pconfig->webdav = false;
+    pconfig->syscmds = false;
+}
+
+bool write_mympd_conf(struct t_config *pconfig) {
+    printf("Writing %s\n", pconfig->mympd_conf);
+    sds tmp_file = sdscatfmt(sdsempty(), "%s.XXXXXX", pconfig->mympd_conf);
+    int fd = mkstemp(tmp_file);
+    if (fd < 0) {
+        fprintf(stderr, "Can't open %s for write\n", tmp_file);
+        sdsfree(tmp_file);
+        return false;
+    }
+    FILE *fp = fdopen(fd, "w");
+    fprintf(fp, "# myMPD configuration file\n"
+        "#\n"
+        "# SPDX-License-Identifier: GPL-2.0-or-later\n"
+        "# myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>\n"
+        "# https://github.com/jcorporation/mympd\n"
+        "#\n\n"
+        "[mpd]\n"
+        "host = %s\n",
+        pconfig->host);
+    if (strncmp(pconfig->host, "/", 1) != 0) {
+        fprintf(fp, "port = %d\n", pconfig->port);
+    }
+    if (sdslen(pconfig->pass) > 0) {
+        fprintf(fp, "pass = %s\n", pconfig->pass);
+    }
+    if (strncmp(pconfig->host, "/", 1) == 0) {
+        fprintf(fp, "musicdirectory = auto\n");
+    }
+    else {
+        fprintf(fp, "musicdirectory = %s\n", pconfig->music_directory);
+    }
+    if (sdslen(pconfig->playlist_directory) > 0) {
+        fprintf(fp, "playlistdirectory = %s\n", pconfig->playlist_directory);
+    }
+
+    fprintf(fp, "\n[webserver]\n"
+        "webport = %s\n"
+        "ssl = %s\n",
+        pconfig->webport,
+        (pconfig->ssl == true ? "true" : "false"));
+    if (pconfig->ssl == true) {
+        fprintf(fp, "sslport = %s\n", pconfig->sslport);
+    }
+    fprintf(fp, "publish = %s\n"
+        "webdav = %s\n",
+        (pconfig->publish == true ? "true" : "false"),
+        (pconfig->webdav == true ? "true" : "false"));
+
+    fprintf(fp, "\n[mympd]\n"
+        "loglevel = %d\n"
+        "user = %s\n"
+        "stickers = %s\n"
+        "mixramp = %s\n"
+        "syscmds = %s\n",
+        pconfig->loglevel,
+        pconfig->user,
+        (pconfig->stickers == true ? "true" : "false"),
+        (pconfig->mixramp == true ? "true" : "false"),
+        (pconfig->syscmds == true ? "true" : "false"));
+    
+    fprintf(fp, "\n[syscmds]\n"
+        "Shutdown = sudo /sbin/halt\n"
+        "#To use this command add following lines to /etc/sudoers (without #)\n"
+        "#Cmnd_Alias MYMPD_CMDS = /sbin/halt\n"
+        "#mympd ALL=NOPASSWD: MYMPD_CMDS\n");
+    
+    fclose(fp);
+    sds conf_file = sdscatfmt(sdsempty(), "%s", pconfig->mympd_conf);
+    int rc = rename(tmp_file, conf_file);
+    if (rc == -1) {
+        fprintf(stderr, "Renaming file from %s to %s failed\n", tmp_file, conf_file);
+    }
+    sdsfree(tmp_file);
+    sdsfree(conf_file);
+    return true;
+}
+
+int main(int argc, char **argv) {
+    int rc = EXIT_SUCCESS;
+    
+    struct t_config mpd_config;
+    set_defaults(&mpd_config);
+
+    if (parse_options(&mpd_config, argc, argv) == false) {
+        rc = EXIT_FAILURE;
+        goto cleanup;
+    }
+
+    if (parse_mpd_conf(&mpd_config) == false) {
+        fprintf(stderr, "Error parsing %s\n", mpd_config.mpd_conf);
+        rc = EXIT_FAILURE;
+        goto cleanup;
+    }
+ 
+    if (check_ldd(&mpd_config) == false) {
+        fprintf(stderr, "Error executing ldd\n");
+        rc = EXIT_FAILURE;
+        goto cleanup;
+    }
+
+    write_mympd_conf(&mpd_config);
+
+    cleanup:
     sdsfree(mpd_config.host);
     sdsfree(mpd_config.pass);
     sdsfree(mpd_config.music_directory);
     sdsfree(mpd_config.playlist_directory);
-    sdsfree(mpd_conf);
+    sdsfree(mpd_config.webport);
+    sdsfree(mpd_config.sslport);
+    sdsfree(mpd_config.user);
+    sdsfree(mpd_config.mpd_conf);
+    sdsfree(mpd_config.mpd_exe);
+    sdsfree(mpd_config.mympd_conf);
     return rc;
 }
