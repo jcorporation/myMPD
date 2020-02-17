@@ -233,7 +233,7 @@ static bool mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_state 
             enable_mpd_tags(mpd_state, mpd_state->jukebox_unique_tag);
         }
         else {
-            mpd_run_clear_tag_types(mpd_state->conn);
+            disable_all_mpd_tags(mpd_state);
         }
     }
     bool rc = _mpd_client_jukebox_fill_jukebox_queue(config, mpd_state, addSongs, jukebox_mode, playlist, manual);

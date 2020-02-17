@@ -93,6 +93,16 @@ void detect_extra_files(t_mpd_state *mpd_state, const char *uri, bool *booklet, 
     sdsfree(lyricsfile);
 }
 
+void disable_all_mpd_tags(t_mpd_state *mpd_state) {
+    #if LIBMPDCLIENT_CHECK_VERSION(2,12,0)
+    if (mpd_connection_cmp_server_version(mpd_state->conn, 0, 21, 0) >= 0) {
+        LOG_DEBUG("Disabling all mpd tag types");
+        mpd_run_clear_tag_types(mpd_state->conn);
+        check_error_and_recover2(mpd_state, NULL, NULL, 0, false);
+    }
+    #endif
+}
+
 void enable_all_mpd_tags(t_mpd_state *mpd_state) {
     #if LIBMPDCLIENT_CHECK_VERSION(2,12,0)
     if (mpd_connection_cmp_server_version(mpd_state->conn, 0, 21, 0) >= 0) {

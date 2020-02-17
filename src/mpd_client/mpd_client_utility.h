@@ -112,6 +112,7 @@ typedef struct t_sticker {
     int like;
 } t_sticker;
 
+void disable_all_mpd_tags(t_mpd_state *mpd_state);
 void enable_all_mpd_tags(t_mpd_state *mpd_state);
 void enable_mpd_tags(t_mpd_state *mpd_state, t_tags enable_tags);
 sds put_song_tags(sds buffer, t_mpd_state *mpd_state, const t_tags *tagcols, const struct mpd_song *song);

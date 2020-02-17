@@ -28,7 +28,7 @@ bool _sticker_cache_init(t_config *config, t_mpd_state *mpd_state);
 
 //public functions
 bool sticker_cache_init(t_config *config, t_mpd_state *mpd_state) {
-    mpd_run_clear_tag_types(mpd_state->conn);
+    disable_all_mpd_tags(mpd_state);
     bool rc = _sticker_cache_init(config, mpd_state);
     enable_mpd_tags(mpd_state, mpd_state->mympd_tag_types);
     return rc;
