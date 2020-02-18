@@ -679,7 +679,7 @@ static bool mpd_client_smartpls_per_tag(t_config *config, t_mpd_state *mpd_state
             const char *tagstr = mpd_tag_name(tag);
             sds playlist = sdscatfmt(sdsempty(), "%s%s%s-%s", mpd_state->smartpls_prefix, (sdslen(mpd_state->smartpls_prefix) > 0 ? "-" : ""), tagstr, current->key);
             sds plpath = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->varlibdir, playlist);
-            if (access(plpath, F_OK) == -1) {
+            if (access(plpath, F_OK) == -1) { /* Flawfinder: ignore */
                 LOG_VERBOSE("Created smart playlist %s", playlist);
                 mpd_client_smartpls_save(config, mpd_state, "search", playlist, tagstr, current->key, 0, 0, mpd_state->smartpls_sort);
             }

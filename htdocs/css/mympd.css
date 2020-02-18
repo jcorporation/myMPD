@@ -416,14 +416,14 @@ button.active-fg-red {
 
 div#alertBox {
   position:fixed;
-  top: 4rem; 
+  top: 4rem;
   right: 1rem;
-  width: 80%; 
+  width: 80%;
   max-width: 400px;
   z-index: 1000;
   opacity: 0;
   visibility: visible;
-  transition: opacity 0.5s ease-in; 
+  transition: opacity 0.5s ease-in;
 }
 
 div.alertBoxActive {
@@ -644,12 +644,12 @@ div#playDropdown .row {
   padding-left: 0;
 }
 
-.dropdown-item:hover, 
+.dropdown-item:hover,
 .dropdown-item:focus {
   background-color: #3c4248;
 }
 
-.popover-content .dropdown-item:hover, 
+.popover-content .dropdown-item:hover,
 .popover-content .dropdown-item:focus {
   background-color: #e9ecef;
 }

@@ -100,7 +100,7 @@ body.theme-light .btn-secondary:disabled {
   border-color: #CED4DA;
 }
 
-body.theme-light .btn-secondary:not(:disabled):not(.disabled):active, 
+body.theme-light .btn-secondary:not(:disabled):not(.disabled):active,
 body.theme-light .btn-secondary:not(:disabled):not(.disabled).active,
 body.theme-light .show > .btn-secondary.dropdown-toggle {
   color: #212529;
@@ -136,7 +136,7 @@ body.theme-light .input-group-append > .dropdown-toggle {
   border-left-color: #CED4DA !important;
 }
 
-body.theme-light .dropdown-item:hover, 
+body.theme-light .dropdown-item:hover,
 body.theme-light .dropdown-item:focus {
   background-color: #e9ecef !important;
 }
