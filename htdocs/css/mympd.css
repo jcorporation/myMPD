@@ -63,6 +63,7 @@ html {
 }
 
 body {
+  min-height: 100vH;
   padding-top: 4rem;
   padding-bottom: 4rem;
   background-color: #888;
