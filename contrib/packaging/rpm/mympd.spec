@@ -54,6 +54,7 @@ fi
 %defattr(-,root,root,-)
 %doc README.md LICENSE
 /usr/bin/mympd
+/usr/bin/mympd-config
 /usr/lib/systemd/system/mympd.service
 %config(noreplace) /etc/mympd.conf
 
