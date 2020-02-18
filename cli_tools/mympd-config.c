@@ -249,7 +249,7 @@ bool parse_options(struct t_config *pconfig, int argc, char **argv) {
 }
 
 void set_defaults(struct t_config *pconfig) {
-    pconfig->host = sdsempty();
+    pconfig->host = sdsnew("/run/mpd/socket");
     pconfig->port = 6600;
     pconfig->pass = sdsempty();
     pconfig->music_directory = sdsempty();
@@ -287,6 +287,11 @@ bool write_mympd_conf(struct t_config *pconfig) {
         "# https://github.com/jcorporation/mympd\n"
         "#\n\n"
         "[mpd]\n"
+        "#Connection to mpd, unix socket or host/port, socket preferred\n"
+        "#host = /run/mpd/socket\n"
+        "#host = 127.0.0.1\n"
+        "#port = 6600\n"
+        "#pass = \n"
         "host = %s\n",
         pconfig->host);
     if (strncmp(pconfig->host, "/", 1) != 0) {
@@ -295,34 +300,57 @@ bool write_mympd_conf(struct t_config *pconfig) {
     if (sdslen(pconfig->pass) > 0) {
         fprintf(fp, "pass = %s\n", pconfig->pass);
     }
+    fprintf(fp, "\n#absolut path of music_directory of mpd\n"
+        "#none = no local music_directory\n"
+        "#auto = get music_directory from mpd (only supported, if connected to mpd socket)\n");
     if (strncmp(pconfig->host, "/", 1) == 0) {
         fprintf(fp, "musicdirectory = auto\n");
     }
     else {
         fprintf(fp, "musicdirectory = %s\n", pconfig->music_directory);
     }
-    if (sdslen(pconfig->playlist_directory) > 0) {
-        fprintf(fp, "playlistdirectory = %s\n", pconfig->playlist_directory);
-    }
+    fprintf(fp, "\n#absolut path of mpd playlist_directory\n"
+        "playlistdirectory = %s\n\n", pconfig->playlist_directory);
+    fprintf(fp, "#MPD compiled with regex support\n"
+        "regex = %s\n", (pconfig->regex == true ? "true" : "false"));
 
-    fprintf(fp, "\n[webserver]\n"
-        "webport = %s\n"
+    fprintf(fp, "\n\n[webserver]\n"
+        "#Webserver options\n"
+        "webport = %s\n\n"
+        "#Enable ssl\n"
+        "#Certificates are generated under /var/lib/mympd/ssl/\n"
         "ssl = %s\n",
         pconfig->webport,
         (pconfig->ssl == true ? "true" : "false"));
     if (pconfig->ssl == true) {
         fprintf(fp, "sslport = %s\n", pconfig->sslport);
     }
-    fprintf(fp, "publish = %s\n"
+    else {
+        fprintf(fp, "#sslport = 443\n");
+    }
+    fprintf(fp, "\n#Publishes some mpd and myMPD directories\n"
+        "publish = %s\n\n"
+        "#Webdav support, publish must be set to true\n"
         "webdav = %s\n",
         (pconfig->publish == true ? "true" : "false"),
         (pconfig->webdav == true ? "true" : "false"));
 
-    fprintf(fp, "\n[mympd]\n"
-        "loglevel = %d\n"
-        "user = %s\n"
-        "stickers = %s\n"
-        "mixramp = %s\n"
+    fprintf(fp, "\n\n[mympd]\n"
+        "Loglevel\n"
+        "#0 = error\n"
+        "#1 = warn\n"
+        "#2 = info\n"
+        "#3 = verbose\n"
+        "#4 = debug\n"
+        "loglevel = %d\n\n"
+        "#myMPD user\n"
+        "#group is the primary group of this user\n"
+        "user = %s\n\n"
+        "#Usage of stickers for play statistics\n"
+        "stickers = %s\n\n"
+        "#Mixrampdb settings in gui\n"
+        "mixramp = %s\n\n"
+        "#Enable system commands defined in syscmds section\n"
         "syscmds = %s\n",
         pconfig->loglevel,
         pconfig->user,
@@ -330,7 +358,7 @@ bool write_mympd_conf(struct t_config *pconfig) {
         (pconfig->mixramp == true ? "true" : "false"),
         (pconfig->syscmds == true ? "true" : "false"));
     
-    fprintf(fp, "\n[syscmds]\n"
+    fprintf(fp, "\n\n[syscmds]\n"
         "Shutdown = sudo /sbin/halt\n"
         "#To use this command add following lines to /etc/sudoers (without #)\n"
         "#Cmnd_Alias MYMPD_CMDS = /sbin/halt\n"

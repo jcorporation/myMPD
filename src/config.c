@@ -377,7 +377,7 @@ void mympd_free_config(t_config *config) {
 }
 
 void mympd_config_defaults(t_config *config) {
-    config->mpd_host = sdsnew("/var/run/mpd/socket");
+    config->mpd_host = sdsnew("/run/mpd/socket");
     config->mpd_port = 6600;
     config->mpd_pass = sdsempty();
     config->music_directory = sdsnew("auto");

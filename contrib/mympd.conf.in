@@ -7,7 +7,7 @@
 
 [mpd]
 #Connection to mpd, unix socket or host/port, socket preferred
-host = /var/run/mpd/socket
+host = /run/mpd/socket
 #host = 127.0.0.1
 #port = 6600
 #pass = 
@@ -19,6 +19,9 @@ musicdirectory = auto
 
 #absolut path of mpd playlist_directory
 playlistdirectory = /var/lib/mpd/playlists
+
+#MPD compiled with regex support
+regex = true
 
 [webserver]
 #Webserver options
@@ -47,6 +50,12 @@ loglevel = 2
 #myMPD user
 #group is the primary group of this user
 user = mympd
+
+#Usage of stickers for play statistics
+stickers = true
+
+#Mixrampdb settings in gui
+mixramp = false
 
 #Enable system commands defined in syscmds section
 syscmds = false
