@@ -394,8 +394,8 @@ int main(int argc, char **argv) {
  
     if (check_ldd(&mpd_config) == false) {
         fprintf(stderr, "Error executing ldd\n");
-        rc = EXIT_FAILURE;
-        goto cleanup;
+        //Expect that mpd is compiled with regex support
+        mpd_config.regex = true;
     }
 
     write_mympd_conf(&mpd_config);
