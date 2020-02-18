@@ -188,7 +188,7 @@ bool parse_options(struct t_config *pconfig, int argc, char **argv) {
         {0,           0,                 0,  0 }
     };
 
-    while((n = getopt_long(argc, argv, "c:m:w:s:l:u:rpdhy", long_options, &option_index)) != -1) {
+    while((n = getopt_long(argc, argv, "c:m:w:s:l:u:e:rpdhy", long_options, &option_index)) != -1) {
         switch (n) {
             case 'c':
                 pconfig->mpd_conf = sdsreplace(pconfig->mpd_conf, optarg);
