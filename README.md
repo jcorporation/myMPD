@@ -78,7 +78,7 @@ Build Dependencies
  - Java: to minify files
  - Perl: to create translation files
 
-Unix Build Instructions
+Quick Build Instructions
 -----------------------
 1. Get myMPD tarball from https://github.com/jcorporation/myMPD/releases/latest
 2. Extract myMPD tarball and change path to this directory
