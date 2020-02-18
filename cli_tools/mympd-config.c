@@ -149,7 +149,7 @@ bool check_ldd(struct t_config *pconfig) {
     printf("Getting mpd linked libraries %s\n", pconfig->mpd_exe);
     sds ldd = sdsnew("/usr/bin/ldd ");
     ldd = sdscatprintf(ldd, "%s", pconfig->mpd_exe);
-    FILE *fp = popen(ldd, "r");
+    FILE *fp = popen(ldd, "r"); /* Flawfinder: ignore */
     sdsfree(ldd);
     if (fp == NULL) {
         return false;
@@ -188,7 +188,7 @@ bool parse_options(struct t_config *pconfig, int argc, char **argv) {
         {0,           0,                 0,  0 }
     };
 
-    while((n = getopt_long(argc, argv, "c:m:w:s:l:u:e:rpdhy", long_options, &option_index)) != -1) {
+    while((n = getopt_long(argc, argv, "c:m:w:s:l:u:e:rpdhy", long_options, &option_index)) != -1) { /* Flawfinder: ignore */
         switch (n) {
             case 'c':
                 pconfig->mpd_conf = sdsreplace(pconfig->mpd_conf, optarg);
