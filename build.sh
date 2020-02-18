@@ -669,6 +669,9 @@ purge() {
   rm -rf "$DESTDIR/etc/opt/mympd"
   #arch
   rm -rf "$DESTDIR/etc/webapps/mympd"
+  #remove user
+  getent passwd mympd > /dev/null && userdel mympd
+  getent group mympd > /dev/null && groupdel -f mympd
 }
 
 case "$1" in
