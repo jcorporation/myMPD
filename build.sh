@@ -387,7 +387,8 @@ check () {
     $CPPCHECKBIN $CPPCHECKOPTS src/*.c src/*.h
     $CPPCHECKBIN $CPPCHECKOPTS src/mpd_client/*.c src/mpd_client/*.h
     $CPPCHECKBIN $CPPCHECKOPTS src/mympd_api/*.c src/mympd_api/*.h
-    $CPPCHECKBIN $CPPCHECKOPTS src/plugins/*.c src/plugins/*.h src/plugins/*.cpp
+    $CPPCHECKBIN $CPPCHECKOPTS src/web_server/*.c src/web_server/*.h
+    $CPPCHECKBIN $CPPCHECKOPTS cli_tools/*.c
   else
     echo "cppcheck not found"
   fi
@@ -398,6 +399,7 @@ check () {
   then
     echo "Running flawfinder"
     $FLAWFINDERBIN $FLAWFINDEROPTS src
+    $FLAWFINDERBIN $FLAWFINDEROPTS cli_tools
   else
     echo "flawfinder not found"
   fi  
