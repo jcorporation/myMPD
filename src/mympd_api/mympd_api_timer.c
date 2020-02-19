@@ -47,7 +47,7 @@ void check_timer(struct t_timer_list *l, bool gui) {
 
     struct pollfd ufds[MAX_TIMER_COUNT] = {{0}};
     memset(ufds, 0, sizeof(struct pollfd) * MAX_TIMER_COUNT);
-    while (current != NULL) {
+    while (current != NULL && iMaxCount <= 100) {
         if (current->fd > -1 && (current->timer_id < 100 || gui == true)) {
             ufds[iMaxCount].fd = current->fd;
             ufds[iMaxCount].events = POLLIN;
@@ -96,6 +96,12 @@ bool replace_timer(struct t_timer_list *l, unsigned int timeout, unsigned int in
 bool add_timer(struct t_timer_list *l, unsigned int timeout, unsigned int interval, time_handler handler, 
                int timer_id, struct t_timer_definition *definition, void *user_data) 
 {
+
+    if (l->length == 100) {
+        LOG_ERROR("Maximum number of timers (100) reached");
+        return false;
+    }
+
     struct t_timer_node *new_node = (struct t_timer_node *)malloc(sizeof(struct t_timer_node));
     if (new_node == NULL) {
         return false;
