@@ -227,19 +227,18 @@ bool parse_options(struct t_config *pconfig, int argc, char **argv) {
                 break;
             default:
                 fprintf(stderr, "Usage: %s [OPTION]...\n"
-                    "myMPD configuration utility, for details look at https://github.com/jcorporation/myMPD\n"
-                    "WARNING: this tool overwrites your mympd.conf\n\n"
+                    "myMPD configuration utility, for details look at https://github.com/jcorporation/myMPD\n\n"
                     "-c, --mpdconf <path>     path to mpd.conf (default: /etc/mpd.conf)\n"
-                    "-e  --mpdexe <path>      path to mpd executable (default: /usr/bin/mpd)\n"
+                    "-e, --mpdexe <path>      path to mpd executable (default: /usr/bin/mpd)\n"
                     "-m, --mympdconf <path>   path to mympd.conf (default: /etc/mympd.conf)\n"
                     "-w, --webport <port>     http port (default: 80)\n"
                     "-s, --sslport <port>     ssl port (default: 443, 0 to disable ssl)\n"
-                    "-u, --user <username>    username (default: mympd)\n"
-                    "-l, --loglevel <number>  loglevel (default: 2)\n"
-                    "-r, --mixramp            enable mixramp settings (default: disabled)\n"
+                    "-u, --user <username>    username to drop privileges to (default: mympd)\n"
+                    "-l, --loglevel <number>  loglevel (default: 2 - info)\n"
+                    "-r, --mixramp            enable mixramp settings in the gui (default: disabled)\n"
                     "-p, --publish            enable publishing feature (default: disabled)\n"
                     "-d, --webdav             enable webdav support (default: disabled)\n"
-                    "-y, --syscmds            enable syscmds (default: disabled)\n"
+                    "-y, --syscmds            enable system commands (default: disabled)\n"
                     "-h, --help               this help\n\n"
                     , argv[0]);
                 return false;
