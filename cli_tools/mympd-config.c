@@ -37,6 +37,8 @@ struct t_config {
     bool publish;
     bool webdav;
     bool syscmds;
+    bool readonly;
+    bool chroot;
 };
 
 int sdssplit_whitespace(sds line, sds *name, sds *value) {
@@ -184,11 +186,13 @@ bool parse_options(struct t_config *pconfig, int argc, char **argv) {
         {"publish",   no_argument,       0, 'p'},
         {"webdav",    no_argument,       0, 'd'},
         {"syscmds",   no_argument,       0, 'y'},
+        {"chroot",    no_argument,       0, 'o'},
+        {"readonly",  no_argument,       0, 'n'},
         {"help",      no_argument,       0, 'h'},
         {0,           0,                 0,  0 }
     };
 
-    while((n = getopt_long(argc, argv, "c:m:w:s:l:u:e:rpdhy", long_options, &option_index)) != -1) { /* Flawfinder: ignore */
+    while((n = getopt_long(argc, argv, "c:m:w:s:l:u:e:rpdhyo", long_options, &option_index)) != -1) { /* Flawfinder: ignore */
         switch (n) {
             case 'c':
                 pconfig->mpd_conf = sdsreplace(pconfig->mpd_conf, optarg);
@@ -225,6 +229,12 @@ bool parse_options(struct t_config *pconfig, int argc, char **argv) {
             case 'y':
                 pconfig->syscmds = true;
                 break;
+            case 'o':
+                pconfig->chroot = true;
+                break;
+            case 'n':
+                pconfig->readonly = true;
+                break;
             default:
                 fprintf(stderr, "Usage: %s [OPTION]...\n"
                     "myMPD configuration utility, for details look at https://github.com/jcorporation/myMPD\n\n"
@@ -239,6 +249,8 @@ bool parse_options(struct t_config *pconfig, int argc, char **argv) {
                     "-p, --publish            enable publishing feature (default: disabled)\n"
                     "-d, --webdav             enable webdav support (default: disabled)\n"
                     "-y, --syscmds            enable system commands (default: disabled)\n"
+                    "-o, --chroot             enable chroot to /var/lib/mympd\n"
+                    "-n, --readonly           enable readonly\n"
                     "-h, --help               this help\n\n"
                     , argv[0]);
                 return false;
@@ -267,6 +279,8 @@ void set_defaults(struct t_config *pconfig) {
     pconfig->publish = false;
     pconfig->webdav = false;
     pconfig->syscmds = false;
+    pconfig->readonly = false;
+    pconfig->chroot = false;
 }
 
 bool write_mympd_conf(struct t_config *pconfig) {
@@ -350,12 +364,16 @@ bool write_mympd_conf(struct t_config *pconfig) {
         "#Mixrampdb settings in gui\n"
         "mixramp = %s\n\n"
         "#Enable system commands defined in syscmds section\n"
-        "syscmds = %s\n",
+        "syscmds = %s\n\n"
+        "chroot = %s\n"
+        "readonly = %s\n",
         pconfig->loglevel,
         pconfig->user,
         (pconfig->stickers == true ? "true" : "false"),
         (pconfig->mixramp == true ? "true" : "false"),
-        (pconfig->syscmds == true ? "true" : "false"));
+        (pconfig->syscmds == true ? "true" : "false"),
+        (pconfig->chroot == true ? "true" : "false"),
+        (pconfig->readonly == true ? "true" : "false"));
     
     fprintf(fp, "\n\n[syscmds]\n"
         "Shutdown = sudo /sbin/halt\n"
