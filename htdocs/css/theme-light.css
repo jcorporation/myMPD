@@ -57,7 +57,7 @@ body.theme-light a.bg-dark:hover,
 body.theme-light a.bg-dark:focus,
 body.theme-light button.bg-dark:hover,
 body.theme-light button.bg-dark:focus {
-  background-color: #dae0e5 !important;
+  background-color: #cfd4da !important;
 }
 
 body.theme-light .text-light {
@@ -71,40 +71,40 @@ body.theme-light a.text-light:focus {
 
 body.theme-light .btn-secondary {
   color: #212529;
-  background-color: #CED4DA;
-  border-color: #CED4DA;
+  background-color: #e8eaea;
+  border-color: #e8eaea;
 }
 
 body.theme-light .border-secondary {
-  border-color: #CED4DA !important;
+  border-color: #e8eaea !important;
 }
 
 body.theme-light .btn-secondary:hover {
   color: #212529;
   background-color: #e2e6ea;
-  border-color: #dae0e5;
+  border-color: #e2e6ea;
 }
 
 body.theme-light .btn-secondary:focus,
 body.theme-light .btn-secondary.focus {
   color: #212529;
   background-color: #e2e6ea;
-  border-color: #dae0e5;
+  border-color: #e2e6ea;
   box-shadow: none;
 }
 
 body.theme-light .btn-secondary.disabled,
 body.theme-light .btn-secondary:disabled {
   color: #212529;
-  background-color: #CED4DA;
-  border-color: #CED4DA;
+  background-color: #e8eaea;
+  border-color: #e8eaea;
 }
 
 body.theme-light .btn-secondary:not(:disabled):not(.disabled):active,
 body.theme-light .btn-secondary:not(:disabled):not(.disabled).active,
 body.theme-light .show > .btn-secondary.dropdown-toggle {
   color: #212529;
-  background-color: #dae0e5;
+  background-color: #cfd4da;
   border-color: #d3d9df;
 }
 
@@ -116,13 +116,13 @@ body.theme-light .show > .btn-secondary.dropdown-toggle:focus {
 
 body.theme-light .badge-secondary {
   color: #212529;
-  background-color: #CED4DA;
+  background-color: #e8eaea;
 }
 
 body.theme-light a.badge-secondary:hover,
 body.theme-light a.badge-secondary:focus {
   color: #212529;
-  background-color: #CED4DA;
+  background-color: #e8eaea;
 }
 
 body.theme-light a.badge-secondary:focus,
@@ -132,8 +132,8 @@ body.theme-light a.badge-secondary.focus {
 }
 
 body.theme-light .input-group-append > .dropdown-toggle {
-  border-color: #6c757d !important;
-  border-left-color: #CED4DA !important;
+  border-left-color: #6c757d !important;
+  border-color: #e9ecef !important;
 }
 
 body.theme-light .dropdown-item:hover,
@@ -143,4 +143,8 @@ body.theme-light .dropdown-item:focus {
 
 body.theme-light .bg-lite-dark {
   background-color: #f8f9fa !important;
+}
+
+body.theme-light .form-control[readonly] {
+  background-color: #fff;
 }
