@@ -248,8 +248,14 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                     int_buf1 = mympd_state->timer_list.last_id;
                 }
                 time_t start = timer_calc_starttime(timer_def->start_hour, timer_def->start_minute);
-                replace_timer(&mympd_state->timer_list, start, 86400, timer_handler_select, int_buf1, timer_def, NULL);
-                response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+                bool rc = replace_timer(&mympd_state->timer_list, start, 86400, timer_handler_select, int_buf1, timer_def, NULL);
+                if (rc == true) {
+                    response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+                }
+                else {
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Adding timer failed", true);
+                    free_timer_definition(timer_def);
+                }
             }
             else if (timer_def != NULL) {
                 free_timer_definition(timer_def);
