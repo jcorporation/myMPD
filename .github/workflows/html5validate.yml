@@ -13,3 +13,5 @@ jobs:
       uses: Cyb3r-Jak3/html5validator-action@v0.3
       with:
         root: htdocs/
+        css: true 
+        extra: --ignore 'Element "option" without attribute "label" must not be empty.' --ignore 'The value of the "for" attribute of the "label" element must be the ID of a non-hidden form control.'
