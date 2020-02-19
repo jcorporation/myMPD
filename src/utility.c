@@ -210,6 +210,7 @@ int randrange(int n) {
 
 bool validate_string(const char *data) {
     if (strchr(data, '/') != NULL || strchr(data, '\n') != NULL || strchr(data, '\r') != NULL ||
+        strchr(data, '\t') != NULL ||
         strchr(data, '"') != NULL || strchr(data, '\'') != NULL || strchr(data, '\\') != NULL) {
         return false;
     }
@@ -228,10 +229,37 @@ bool validate_string_not_empty(const char *data) {
     }
 }
 
+bool validate_string_not_dir(const char *data) {
+    bool rc = validate_string_not_empty(data);
+    if (rc == true) {
+        if (strcmp(data, ".") == 0 || strcmp(data, "..") == 0) {
+            rc = false;
+        }    
+    }
+    return rc;
+}
+
 bool validate_uri(const char *data) {
     if (strstr(data, "/../") != NULL) {
         return false;
     }
+    return true;
+}
+
+bool validate_songuri(const char *data) {
+    if (data == NULL) {
+        return false;
+    }
+    else if (strlen(data) == 0) {
+        return false;
+    }
+    else if (strcmp(data, "/") == 0) {
+        return false;
+    }
+    else if (strchr(data, '.') == NULL) {
+        return false;
+    }
+    
     return true;
 }
 

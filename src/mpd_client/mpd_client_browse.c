@@ -27,6 +27,11 @@
 sds mpd_client_put_fingerprint(t_mpd_state *mpd_state, sds buffer, sds method, int request_id,
                                const char *uri)
 {
+    if (validate_songuri(uri) == false) {
+        buffer = jsonrpc_respond_message(buffer, method, request_id, "Invalid uri", true);
+        return buffer;
+    }
+
     buffer = jsonrpc_start_result(buffer, method, request_id);
     
     #if LIBMPDCLIENT_CHECK_VERSION(2,17,0)
@@ -50,6 +55,11 @@ sds mpd_client_put_fingerprint(t_mpd_state *mpd_state, sds buffer, sds method, i
 sds mpd_client_put_songdetails(t_mpd_state *mpd_state, sds buffer, sds method, int request_id, 
                                const char *uri)
 {
+    if (validate_songuri(uri) == false) {
+        buffer = jsonrpc_respond_message(buffer, method, request_id, "Invalid uri", true);
+        return buffer;
+    }
+
     buffer = jsonrpc_start_result(buffer, method, request_id);
     buffer = sdscat(buffer,",");
 
@@ -57,6 +67,7 @@ sds mpd_client_put_songdetails(t_mpd_state *mpd_state, sds buffer, sds method, i
         buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
         return buffer;
     }
+
     struct mpd_song *song;
     if ((song = mpd_recv_song(mpd_state->conn)) != NULL) {
         buffer = put_song_tags(buffer, mpd_state, &mpd_state->mympd_tag_types, song);
@@ -67,6 +78,10 @@ sds mpd_client_put_songdetails(t_mpd_state *mpd_state, sds buffer, sds method, i
         return buffer;
     }
     mpd_response_finish(mpd_state->conn);
+
+    if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
+        return buffer;
+    }
     
     if (mpd_state->feat_sticker) {
         t_sticker *sticker = (t_sticker *) malloc(sizeof(t_sticker));
@@ -83,7 +98,6 @@ sds mpd_client_put_songdetails(t_mpd_state *mpd_state, sds buffer, sds method, i
     
     buffer = sdscat(buffer, ",");
     buffer = put_extra_files(mpd_state, buffer, uri);
-    
     buffer = jsonrpc_end_result(buffer);
     return buffer;
 }
@@ -189,6 +203,10 @@ sds mpd_client_put_filesystem(t_config *config, t_mpd_state *mpd_state, sds buff
     }
 
     mpd_response_finish(mpd_state->conn);
+    
+    if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
+        return buffer;
+    }
 
     buffer = sdscat(buffer, "],");
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);

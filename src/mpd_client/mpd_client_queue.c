@@ -97,6 +97,10 @@ sds mpd_client_put_queue(t_mpd_state *mpd_state, sds buffer, sds method, int req
     mpd_state->queue_version = mpd_status_get_queue_version(status);
     mpd_state->queue_length = mpd_status_get_queue_length(status);
     mpd_status_free(status);
+
+    if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
+        return buffer;
+    }
     
     return buffer;
 }
@@ -151,9 +155,8 @@ sds mpd_client_search_queue(t_mpd_state *mpd_state, sds buffer, sds method, int 
         }
     }
 
-    if (mpd_search_commit(mpd_state->conn) == false) {
-        buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
-        return buffer;
+    if (mpd_search_commit(mpd_state->conn) == false || check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
+            return buffer;
     }
 
     buffer = jsonrpc_start_result(buffer, method, request_id);
@@ -182,5 +185,10 @@ sds mpd_client_search_queue(t_mpd_state *mpd_state, sds buffer, sds method, int 
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
     buffer = tojson_char(buffer, "mpdtagtype", mpdtagtype, false);
     buffer = jsonrpc_end_result(buffer);
+    
+    if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
+        return buffer;
+    }
+    
     return buffer;
 }

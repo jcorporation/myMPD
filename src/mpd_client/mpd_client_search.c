@@ -44,6 +44,10 @@ sds mpd_client_search(t_mpd_state *mpd_state, sds buffer, sds method, int reques
             return buffer;
         }
     }
+    
+    if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
+        return buffer;
+    }
 
     if (strcmp(plist, "") == 0) {
         struct mpd_song *song;
@@ -68,6 +72,8 @@ sds mpd_client_search(t_mpd_state *mpd_state, sds buffer, sds method, int reques
         buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
         buffer = tojson_char(buffer, "searchstr", searchstr, false);
         buffer = jsonrpc_end_result(buffer);
+        
+
     }
     else {
         mpd_response_finish(mpd_state->conn);
@@ -79,6 +85,10 @@ sds mpd_client_search(t_mpd_state *mpd_state, sds buffer, sds method, int reques
             buffer = tojson_char(buffer, "playlist", plist, false);
             buffer = jsonrpc_end_phrase(buffer);
         }
+    }
+
+    if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
+        return buffer;
     }
 
     return buffer;
@@ -140,11 +150,10 @@ sds mpd_client_search_adv(t_mpd_state *mpd_state, sds buffer, sds method, int re
         }
     }
     
-    if (mpd_search_commit(mpd_state->conn) == false) {
-        buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
+    if (mpd_search_commit(mpd_state->conn) == false || check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
         return buffer;
     }
-
+    
     if (strcmp(plist, "") == 0) {
         struct mpd_song *song;
         unsigned entities_returned = 0;
@@ -166,7 +175,9 @@ sds mpd_client_search_adv(t_mpd_state *mpd_state, sds buffer, sds method, int re
         buffer = tojson_char(buffer, "sort", sort, true);
         buffer = tojson_bool(buffer, "sortdesc", sortdesc, true);
         buffer = tojson_char(buffer, "grouptag", grouptag, false);
-        buffer = jsonrpc_end_result(buffer);        
+        buffer = jsonrpc_end_result(buffer);
+        
+
     }
     else {
         mpd_response_finish(mpd_state->conn);
@@ -178,6 +189,10 @@ sds mpd_client_search_adv(t_mpd_state *mpd_state, sds buffer, sds method, int re
             buffer = tojson_char(buffer, "playlist", plist, false);
             buffer = jsonrpc_end_phrase(buffer);
         }
+    }
+    
+    if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
+       return buffer;
     }
 #else
     //prevent unused warnings

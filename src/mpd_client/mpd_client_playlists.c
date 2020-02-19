@@ -253,7 +253,7 @@ sds mpd_client_playlist_shuffle_sort(t_mpd_state *mpd_state, sds buffer, sds met
 sds mpd_client_playlist_rename(t_config *config, t_mpd_state *mpd_state, sds buffer, sds method, int request_id,
                                 const char *old_playlist, const char *new_playlist)
 {
-    if (validate_string_not_empty(old_playlist) == false || validate_string_not_empty(new_playlist) == false) {
+    if (validate_string_not_dir(old_playlist) == false || validate_string_not_dir(new_playlist) == false) {
         buffer = jsonrpc_respond_message(buffer, method, request_id, "Invalid filename", true);
         return buffer;
     }
@@ -288,7 +288,7 @@ sds mpd_client_playlist_rename(t_config *config, t_mpd_state *mpd_state, sds buf
 
 sds mpd_client_playlist_delete(t_config *config, t_mpd_state *mpd_state, sds buffer, sds method, int request_id,
                                const char *playlist) {
-    if (validate_string_not_empty(playlist) == false) {
+    if (validate_string_not_dir(playlist) == false) {
         buffer = jsonrpc_respond_message(buffer, method, request_id, "Invalid filename", true);
         return buffer;
     }
@@ -316,7 +316,7 @@ sds mpd_client_playlist_delete(t_config *config, t_mpd_state *mpd_state, sds buf
 sds mpd_client_smartpls_put(t_config *config, sds buffer, sds method, int request_id,
                             const char *playlist)
 {
-    if (validate_string_not_empty(playlist) == false) {
+    if (validate_string_not_dir(playlist) == false) {
         buffer = jsonrpc_respond_message(buffer, method, request_id, "Can not read smart playlist file", true);
         return buffer;
     }
@@ -414,7 +414,7 @@ bool mpd_client_smartpls_save(t_config *config, t_mpd_state *mpd_state, const ch
     if (mpd_state->feat_smartpls == false) {
         return false;
     }
-    else if (validate_string_not_empty(playlist) == false) {
+    else if (validate_string_not_dir(playlist) == false) {
         return false;
     }
     
@@ -508,7 +508,7 @@ bool mpd_client_smartpls_update(t_config *config, t_mpd_state *mpd_state, const 
         LOG_WARN("Smart playlists are disabled");
         return true;
     }
-    if (validate_string_not_empty(playlist) == false) {
+    if (validate_string_not_dir(playlist) == false) {
         LOG_ERROR("Invalid smart playlist name");
         return false;
     }
