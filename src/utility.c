@@ -216,6 +216,18 @@ bool validate_string(const char *data) {
     return true;
 }
 
+bool validate_string_not_empty(const char *data) {
+    if (data == NULL) { 
+        return false;
+    }
+    else if (strlen(data) == 0) {
+        return false;
+    }
+    else {
+        return validate_string(data);
+    }
+}
+
 bool validate_uri(const char *data) {
     if (strstr(data, "/../") != NULL) {
         return false;

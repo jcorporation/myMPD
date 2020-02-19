@@ -24,6 +24,7 @@ sds tojson_float(sds buffer, const char *key, float value, bool comma);
 int testdir(const char *name, const char *dirname, bool create);
 int randrange(int n);
 bool validate_string(const char *data);
+bool validate_string_not_empty(const char *data);
 int replacechar(char *str, const char orig, const char rep);
 int uri_to_filename(char *str);
 bool validate_uri(const char *data);
