@@ -92,9 +92,13 @@ function defineCmds() {
 function setTest(cmd, response) {
     var tr = document.createElement('tr');
     tr.innerHTML = '<td>' + (i + 1) + '</td><td>' + e(JSON.stringify(cmd)) + '</td><td>' + response + '</td>';
-    document.getElementsByTagName('tbody')[0].appendChild(tr);
+    var tbody = document.getElementsByTagName('tbody')[0];
+    tbody.appendChild(tr);
     t++;
     document.getElementById('testCount').innerText = t + '/' + i + '/' + j;
+    if (t > 10) {
+        tbody.deleteRow(0);
+    }
 }
 
 function getRandomUint(max) {
