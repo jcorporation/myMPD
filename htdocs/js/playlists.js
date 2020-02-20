@@ -173,9 +173,7 @@ function getAllPlaylists(obj) {
         document.getElementById(playlistEl).innerHTML += playlists;
     }
     
-    let options = document.getElementById(playlistEl).options.length;
-    options = options - 1;
-    if (obj.result.totalEntities > options && obj.result.returnedEntities > 0) {
+    if (obj.result.totalEntities > obj.result.returnedEntities + obj.result.offset && obj.result.returnedEntities > 0) {
         obj.result.offset += settings.maxElementsPerPage;
         sendAPI("MPD_API_PLAYLIST_LIST", {"offset": obj.result.offset, "filter": "-"}, getAllPlaylists);
     }
