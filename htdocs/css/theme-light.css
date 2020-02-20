@@ -132,7 +132,6 @@ body.theme-light a.badge-secondary.focus {
 }
 
 body.theme-light .input-group-append > .dropdown-toggle {
-  border-left-color: #6c757d !important;
   border-color: #e9ecef !important;
 }
 
