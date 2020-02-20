@@ -172,7 +172,10 @@ function getAllPlaylists(obj) {
     else {
         document.getElementById(playlistEl).innerHTML += playlists;
     }
-    if (obj.result.totalEntities > obj.result.returnedEntities) {
+    
+    let options = document.getElementById(playlistEl).options.length;
+    options = options - 1;
+    if (obj.result.totalEntities > options && obj.result.returnedEntities > 0) {
         obj.result.offset += settings.maxElementsPerPage;
         sendAPI("MPD_API_PLAYLIST_LIST", {"offset": obj.result.offset, "filter": "-"}, getAllPlaylists);
     }
