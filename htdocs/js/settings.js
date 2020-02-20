@@ -233,14 +233,14 @@ function parseSettings() {
     }
     
     let timerActions = '<option value="startplay">' + t('Start playback') + '</option>' +
-        '<option value="stopplay">' + t('Stop playback') + '</option>' +
-        '<optgroup label="' + t('System command') + '">';
+        '<option value="stopplay">' + t('Stop playback') + '</option>';
 
     if (settings.featSyscmds) {
         let syscmdsMaxListLen = 4;
         let syscmdsList = '';
         let syscmdsListLen = settings.syscmdList.length;
         if (syscmdsListLen > 0) {
+            timerActions += '<optgroup label="' + t('System command') + '">';
             syscmdsList = syscmdsListLen > syscmdsMaxListLen ? '' : '<div class="dropdown-divider"></div>';
             for (let i = 0; i < syscmdsListLen; i++) {
                 if (settings.syscmdList[i] === 'HR') {
@@ -255,7 +255,7 @@ function parseSettings() {
         }
         document.getElementById('syscmds').innerHTML = syscmdsList;
         timerActions += '</optgroup>';
-        document.getElementById('selectTimerAction').innerHTML = timerActions;
+        
         if (syscmdsListLen > syscmdsMaxListLen) {
             document.getElementById('navSyscmds').classList.remove('hide');
             document.getElementById('syscmds').classList.add('collapse', 'menu-indent');
@@ -268,6 +268,9 @@ function parseSettings() {
     else {
         document.getElementById('syscmds').innerHTML = '';
     }
+    
+    document.getElementById('selectTimerAction').innerHTML = timerActions;
+    
 
     dropdownMainMenu = new Dropdown(document.getElementById('mainMenu'));
     
