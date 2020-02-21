@@ -18,7 +18,7 @@
 <body>
   <header>
     <nav class="navbar navbar-expand navbar-dark fixed-top bg-dark">
-      <a class="navbar-brand" href="#">
+      <a class="navbar-brand" href="index.html">
         <span class="material-icons header-logo">play_circle_outline</span>myMPD
       </a>
     </nav>
@@ -41,8 +41,10 @@
           <div id="params"></div>
         </form>
         <div class="card">
-          <div class="card-header">Result</div>
-          <div class="card-body text-monospace"><small class="text-dark" id="result"></small></div>
+          <div class="card-header" id="resultState">Result</div>
+          <div class="card-body text-monospace">
+            <small class="text-dark text-monospace" id="resultText"></small>
+          </div>
         </div>
       </div>
     </div>

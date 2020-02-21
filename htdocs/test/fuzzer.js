@@ -40,6 +40,7 @@ function defineCmds() {
         {"jsonrpc":"2.0","id":0,"method":"MPD_API_QUEUE_RM_RANGE","params":{"start":int1,"end":int2}},
         {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYER_PLAY_TRACK","params":{"track":int1}},
         {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYER_SEEK","params":{"songid":int1,"seek":int2}},
+        {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYER_SEEK_CURRENT","params":{"seek":int1,"realtive":bool0}},
         {"jsonrpc":"2.0","id":0,"method":"MPD_API_QUEUE_RM_TRACK","params":{"track":int1}},
         {"jsonrpc":"2.0","id":0,"method":"MPD_API_QUEUE_SAVE","params":{"plist":string1}},
         {"jsonrpc":"2.0","id":0,"method":"MPD_API_QUEUE_SEARCH","params":{"offset":int1,"filter":string1,"searchstr":string2,"cols":[string3,string4]}},
@@ -84,6 +85,7 @@ function defineCmds() {
         {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYLIST_SHUFFLE", "params":{"uri":string1}},
         {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_TIMER_SAVE","params":{"timerid": 0, "name": string1, "enabled": bool0, "startHour": int1, "startMinute": int2, "action": string2, "volume": int3, "playlist": string3, "jukeboxMode": int4, "weekdays":[bool0,bool0,bool0,bool0,bool0,bool0,bool0]}},
         {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_TIMER_SAVE","params":{"timerid": int0, "name": string1, "enabled": bool0, "startHour": int1, "startMinute": int2, "action": string2, "volume": int3, "playlist": string3, "jukeboxMode": int4, "weekdays":[bool0,bool0,bool0,bool0,bool0,bool0,bool0]}},
+        {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_TIMER_GET","params":{"timerid": int0}},
         {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_TIMER_TOGGLE","params":{"timerid": int0}},
         {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_TIMER_RM","params":{"timerid": int0}}
     ];
