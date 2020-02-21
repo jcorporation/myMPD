@@ -1101,6 +1101,9 @@ Timer
 New timer
 Neuer Timer
 
+Timer with given id not found
+Timer nicht gefunden
+
 On
 Aktiv
 

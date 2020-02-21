@@ -305,6 +305,7 @@ sds timer_list(t_mympd_state *mympd_state, sds buffer, sds method, int request_i
 sds timer_get(t_mympd_state *mympd_state, sds buffer, sds method, int request_id, int timer_id) {
     buffer = jsonrpc_start_result(buffer, method, request_id);
     buffer = sdscat(buffer, ",");
+    bool found = false;
     struct t_timer_node *current = mympd_state->timer_list.list;
     while (current != NULL) {
         if (current->timer_id == timer_id && current->definition != NULL) {
@@ -325,12 +326,17 @@ sds timer_get(t_mympd_state *mympd_state, sds buffer, sds method, int request_id
                 buffer = sdscat(buffer, current->definition->weekdays[i] == true ? "true" : "false");
             }
             buffer = sdscatlen(buffer, "]", 1);
+            found = true;
             break;
         }
         current = current->next;
     }
     
     buffer = jsonrpc_end_result(buffer);
+    
+    if (found == false) {
+        buffer = jsonrpc_respond_message(buffer, method, request_id, "Timer with given id not found", true);
+    }
     return buffer;
 }
 
