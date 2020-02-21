@@ -38,7 +38,7 @@ struct t_config {
     bool webdav;
     bool syscmds;
     bool readonly;
-    bool chroot;
+    bool chroot; /* Flawfinder: ignore */
 };
 
 int sdssplit_whitespace(sds line, sds *name, sds *value) {
