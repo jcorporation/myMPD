@@ -338,6 +338,9 @@ bool timerfile_read(t_config *config, t_mympd_state *mympd_state) {
             int timerid;
             int je = json_scanf(param, sdslen(param), "{params: {timerid: %d}}", &timerid);
             sdsfree(param);
+            if (timerid > mympd_state->timer_list.last_id) {
+                mympd_state->timer_list.last_id = timerid;
+            }
             if (je == 1 && timer_def != NULL) {
                 time_t start = timer_calc_starttime(timer_def->start_hour, timer_def->start_minute);
                 add_timer(&mympd_state->timer_list, start, 86400, timer_handler_select, timerid, timer_def, NULL);
