@@ -89,6 +89,7 @@ function init() {
                 '</div>';
         }
         document.getElementById('params').innerHTML = form;
+        document.getElementById('result').innerText = '';
     }, false);
     document.getElementById('btnSubmit').addEventListener('click', function(event) {
         event.preventDefault();
