@@ -249,12 +249,14 @@ bool _sticker_cache_init(t_config *config, t_mpd_state *mpd_state) {
     mpd_state->sticker_cache = raxNew();
     //get all songs from database
     do {
-        if (mpd_search_db_songs(mpd_state->conn, false) == false) { return false; }
-        else if (mpd_search_add_uri_constraint(mpd_state->conn, MPD_OPERATOR_DEFAULT, "") == false) { return false; }
-        else if (mpd_search_add_window(mpd_state->conn, start, end) == false) { return false; }
-        else if (mpd_search_commit(mpd_state->conn) == false) { return false; }
-        
-        if (check_error_and_recover2(mpd_state, NULL, NULL, 0, false) == false) {
+        bool rc = true;
+        if (mpd_search_db_songs(mpd_state->conn, false) == false) { rc = false; }
+        else if (mpd_search_add_uri_constraint(mpd_state->conn, MPD_OPERATOR_DEFAULT, "") == false) { rc = false; }
+        else if (mpd_search_add_window(mpd_state->conn, start, end) == false) { rc = false; }
+        if (rc == false) {
+            mpd_search_cancel(mpd_state->conn);
+        }
+        if (rc == false || mpd_search_commit(mpd_state->conn) == false || check_error_and_recover2(mpd_state, NULL, NULL, 0, false) == false) {
             LOG_VERBOSE("Sticker cache update failed");
             return false;        
         }

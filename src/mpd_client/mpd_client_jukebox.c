@@ -287,6 +287,7 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_state
             }
             
             if (error == true) {
+                mpd_search_cancel(mpd_state->conn);
                 check_error_and_recover(mpd_state, NULL, NULL, 0);
                 list_free(queue_list);
                 FREE_PTR(queue_list);
@@ -351,6 +352,7 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_state
         else if (mpd_search_commit(mpd_state->conn) == false) { error = true; }
         
         if (error == true) {
+            mpd_search_cancel(mpd_state->conn);
             check_error_and_recover(mpd_state, NULL, NULL, 0);
             list_free(queue_list);
             FREE_PTR(queue_list);

@@ -225,16 +225,17 @@ sds mpd_client_put_db_tag(t_mpd_state *mpd_state, sds buffer, sds method, int re
     
     if (mpd_search_db_tags(mpd_state->conn, mpd_tag_name_parse(mpdtagtype)) == false) {
         buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
+        mpd_search_cancel(mpd_state->conn);
         return buffer;
     }
     if (mpd_tag_name_parse(mpdsearchtagtype) != MPD_TAG_UNKNOWN) {
         if (mpd_search_add_tag_constraint(mpd_state->conn, MPD_OPERATOR_DEFAULT, mpd_tag_name_parse(mpdsearchtagtype), searchstr) == false) {
             buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
+            mpd_search_cancel(mpd_state->conn);
             return buffer;
         }
     }
-    if (mpd_search_commit(mpd_state->conn) == false) {
-        buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
+    if (mpd_search_commit(mpd_state->conn) == false || check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
         return buffer;
     }
 
@@ -265,6 +266,10 @@ sds mpd_client_put_db_tag(t_mpd_state *mpd_state, sds buffer, sds method, int re
         mpd_return_pair(mpd_state->conn, pair);
     }
 
+    if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
+        return buffer;
+    }
+
     buffer = sdscat(buffer, "],");
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
@@ -285,17 +290,20 @@ sds mpd_client_put_songs_in_album(t_mpd_state *mpd_state, sds buffer, sds method
 
     if (mpd_search_db_songs(mpd_state->conn, true) == false) {
         buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
+        mpd_search_cancel(mpd_state->conn);
         return buffer;
     }    
     if (mpd_search_add_tag_constraint(mpd_state->conn, MPD_OPERATOR_DEFAULT, mpd_tag_name_parse(tag), search) == false) {
         buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
+        mpd_search_cancel(mpd_state->conn);
         return buffer;
     }
     if (mpd_search_add_tag_constraint(mpd_state->conn, MPD_OPERATOR_DEFAULT, MPD_TAG_ALBUM, album) == false) {
         buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
+        mpd_search_cancel(mpd_state->conn);
         return buffer;
     }
-    if (mpd_search_commit(mpd_state->conn) == false) {
+    if (mpd_search_commit(mpd_state->conn) == false || check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
         buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
         return buffer;
     }
@@ -341,6 +349,11 @@ sds mpd_client_put_songs_in_album(t_mpd_state *mpd_state, sds buffer, sds method
     if (first_song != NULL) {
         mpd_song_free(first_song);
     }
+    
+    if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
+        return buffer;
+    }
+    
     return buffer;    
 }
 
@@ -352,6 +365,7 @@ sds mpd_client_put_firstsong_in_albums(t_config *config, t_mpd_state *mpd_state,
 
     if (mpd_search_db_songs(mpd_state->conn, false) == false) {
         buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
+        mpd_search_cancel(mpd_state->conn);
         return buffer;
     }
     sds expression = sdscatprintf(sdsempty(), "((Track == '%d')", config->covergridminsongs);
@@ -365,21 +379,23 @@ sds mpd_client_put_firstsong_in_albums(t_config *config, t_mpd_state *mpd_state,
     expression = sdscat(expression, ")");
     if (mpd_search_add_expression(mpd_state->conn, expression) == false) {
         buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
+        mpd_search_cancel(mpd_state->conn);
         return buffer;
     }
     sdsfree(expression);
     if (strlen(sort) > 0) {
         if (mpd_search_add_sort_name(mpd_state->conn, sort, sortdesc) == false) {
             buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
+            mpd_search_cancel(mpd_state->conn);
             return buffer;
         }
     }
     if (mpd_search_add_window(mpd_state->conn, offset, offset + mpd_state->max_elements_per_page) == false) {
         buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
+        mpd_search_cancel(mpd_state->conn);
         return buffer;
     }
-    if (mpd_search_commit(mpd_state->conn) == false) {
-        buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
+    if (mpd_search_commit(mpd_state->conn) == false || check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
         return buffer;
     }
 
@@ -401,6 +417,10 @@ sds mpd_client_put_firstsong_in_albums(t_config *config, t_mpd_state *mpd_state,
         mpd_song_free(song);
     }
     mpd_response_finish(mpd_state->conn);
+
+    if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
+        return buffer;
+    }
 
     buffer = sdscat(buffer, "],");
     buffer = tojson_long(buffer, "totalEntities", -1, true);

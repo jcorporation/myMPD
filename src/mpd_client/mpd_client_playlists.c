@@ -657,6 +657,7 @@ static bool mpd_client_smartpls_per_tag(t_config *config, t_mpd_state *mpd_state
     for (size_t i = 0; i < mpd_state->generate_pls_tag_types.len; i++) {
         enum mpd_tag_type tag = mpd_state->generate_pls_tag_types.tags[i];
         if (mpd_search_db_tags(mpd_state->conn, tag) == false) {
+            mpd_search_cancel(mpd_state->conn);
             check_error_and_recover2(mpd_state, NULL, NULL, 0, false);
             return false;
         }
