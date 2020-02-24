@@ -61,6 +61,9 @@ jobs:
 
           # Use Docker `latest` tag convention
           [ "$VERSION" == "master" ] && VERSION=latest
+          
+          # Use Docker `latest` tag convention
+          [ "$VERSION" == "devel" ] && IMAGE_ID="${IMAGE_ID}-devel"
 
           echo IMAGE_ID=$IMAGE_ID
           echo VERSION=$VERSION
