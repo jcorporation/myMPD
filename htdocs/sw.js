@@ -4,7 +4,7 @@
  https://github.com/jcorporation/mympd
 */
 
-var CACHE = 'myMPD-cache-v6.2.0';
+var CACHE = 'myMPD-cache-v6.2.1';
 var subdir = self.location.pathname.replace('/sw.js', '').replace(/\/$/, '');
 var urlsToCache = [
     subdir + '/',
@@ -62,7 +62,7 @@ self.addEventListener('activate', function(event) {
         caches.keys().then(function(cacheNames) {
             return Promise.all(
                 cacheNames.map(function(cacheName) {
-                    if (cacheName !== CACHE) {
+                    if (cacheName != CACHE) {
                         return caches.delete(cacheName);
                     }
                 })
