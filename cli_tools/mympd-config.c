@@ -11,9 +11,12 @@
 #include <ctype.h>
 #include <inttypes.h>
 #include <getopt.h>
+#include <unistd.h>
 
 #include "../dist/src/sds/sds.h"
 #include "../src/sds_extras.h"
+
+bool verbose = false;
 
 struct t_config {
     //parsed values
@@ -87,7 +90,7 @@ int sdssplit_whitespace(sds line, sds *name, sds *value) {
 bool parse_mpd_conf(struct t_config *pconfig) {
     FILE *fp = fopen(pconfig->mpd_conf, "r");
     if (fp == NULL) {
-        printf("Error parsing %s\n", pconfig->mpd_conf);
+        printf("Error parsing MPD configuration file: %s\n", pconfig->mpd_conf);
         return false;
     }
     printf("Parsing %s\n", pconfig->mpd_conf);
@@ -104,22 +107,27 @@ bool parse_mpd_conf(struct t_config *pconfig) {
             if (tokens == 2) {
                 if (strcasecmp(name, "music_directory") == 0) {
                     pconfig->music_directory = sdsreplace(pconfig->music_directory, value);
+                    if (verbose) { printf("\tSetting music directory to %s\n", pconfig->music_directory); }
                 }
                 else if (strcasecmp(name, "playlist_directory") == 0) {
                     pconfig->playlist_directory = sdsreplace(pconfig->playlist_directory, value);
+                    if (verbose) { printf("\tSetting playlist directory to %s\n", pconfig->playlist_directory); }
                 }
                 else if (strcasecmp(name, "sticker_file") == 0) {
                     if (sdslen(value) > 0) {
                         pconfig->stickers = true;
+                        if (verbose) { printf("\tEnabling stickers\n"); }
                     }
                 }
                 else if (strcasecmp(name, "port") == 0) {
                     pconfig->port = strtoimax(value, NULL, 10);
+                    if (verbose) { printf("\tSetting mpd port to %d\n", pconfig->port); }
                 }
                 else if (strcasecmp(name, "bind_to_address") == 0) {
                     if (sdslen(pconfig->host) == 0 || strncmp(value, "/", 1) == 0) {
                         //prefer socket connection
                         pconfig->host = sdsreplace(pconfig->host, value);
+                        if (verbose) { printf("\tSetting mpd host to %s\n", pconfig->host); }
                     }
                 }
                 else if (strcasecmp(name, "password") == 0) {
@@ -130,6 +138,7 @@ bool parse_mpd_conf(struct t_config *pconfig) {
                         if (sdslen(pconfig->pass) == 0 || strstr(tokens[1], "admin") != NULL) {
                             //use prefered the entry with admin privileges or as fallback the first entry
                             pconfig->pass = sdsreplace(pconfig->pass, tokens[0]);
+                            if (verbose) { printf("\tSetting mpd password\n"); }
                         }
                     }
                     sdsfreesplitres(tokens, count);
@@ -149,6 +158,8 @@ bool parse_mpd_conf(struct t_config *pconfig) {
 
 bool check_ldd(struct t_config *pconfig) {
     printf("Getting mpd linked libraries %s\n", pconfig->mpd_exe);
+    pconfig->regex = false;
+    
     sds ldd = sdsnew("/usr/bin/ldd ");
     ldd = sdscatprintf(ldd, "%s", pconfig->mpd_exe);
     FILE *fp = popen(ldd, "r"); /* Flawfinder: ignore */
@@ -160,6 +171,7 @@ bool check_ldd(struct t_config *pconfig) {
     size_t n = 0;
     while (getline(&line, &n, fp) > 0) {
         if (strstr(line, "libpcre") != NULL) {
+            if (verbose) { printf("\tlibpcre found, enabling regex support\n"); }
             pconfig->regex = true;
             break;
         }
@@ -188,11 +200,12 @@ bool parse_options(struct t_config *pconfig, int argc, char **argv) {
         {"syscmds",   no_argument,       0, 'y'},
         {"chroot",    no_argument,       0, 'o'},
         {"readonly",  no_argument,       0, 'n'},
+        {"verbose",   no_argument,       0, 'v'},
         {"help",      no_argument,       0, 'h'},
         {0,           0,                 0,  0 }
     };
 
-    while((n = getopt_long(argc, argv, "c:m:w:s:l:u:e:rpdhyo", long_options, &option_index)) != -1) { /* Flawfinder: ignore */
+    while((n = getopt_long(argc, argv, "c:m:w:s:l:u:e:rpdhyov", long_options, &option_index)) != -1) { /* Flawfinder: ignore */
         switch (n) {
             case 'c':
                 pconfig->mpd_conf = sdsreplace(pconfig->mpd_conf, optarg);
@@ -235,6 +248,9 @@ bool parse_options(struct t_config *pconfig, int argc, char **argv) {
             case 'n':
                 pconfig->readonly = true;
                 break;
+            case 'v':
+                verbose = true;
+                break;
             default:
                 fprintf(stderr, "Usage: %s [OPTION]...\n"
                     "myMPD configuration utility, for details look at https://github.com/jcorporation/myMPD\n\n"
@@ -251,6 +267,7 @@ bool parse_options(struct t_config *pconfig, int argc, char **argv) {
                     "-y, --syscmds            enable system commands (default: disabled)\n"
                     "-o, --chroot             enable chroot to /var/lib/mympd\n"
                     "-n, --readonly           enable readonly\n"
+                    "-v, --verbose            enable verbose output\n"
                     "-h, --help               this help\n\n"
                     , argv[0]);
                 return false;
@@ -259,16 +276,61 @@ bool parse_options(struct t_config *pconfig, int argc, char **argv) {
     return true;
 }
 
+sds find_mpd_conf() {
+    const char *filenames[] = { 
+        "/etc/mpd.conf",
+        "/usr/local/etc/mpd.conf",
+        "/etc/opt/mpd/mpd.conf",
+        "/etc/opt/mpd.conf",
+        NULL
+    };
+
+    sds filename = sdsempty();
+    for (const char **p = filenames; *p != NULL; p++) {
+        filename = sdsreplace(filename, *p);
+        if (access(filename, F_OK) == 0) {
+            printf("\tFound %s\n", filename);
+            return filename;
+        }
+    }
+    printf("\tNo mpd.conf found\n");
+    filename = sdscrop(filename);
+    return filename;
+}
+
+sds find_mpd_exe() {
+    const char *filenames[] = { 
+        "/usr/bin/mpd",
+        "/usr/local/bin/mpd",
+        "/opt/mpd/bin/mpd",
+        NULL
+    };
+
+    sds filename = sdsempty();
+    for (const char **p = filenames; *p != NULL; p++) {
+        filename = sdsreplace(filename, *p);
+        if (access(filename, F_OK) == 0) {
+            printf("\tFound %s\n", filename);
+            return filename;
+        }
+    }
+    printf("\tNo mpd binary found\n");
+    filename = sdscrop(filename);
+    return filename;
+}
+
 void set_defaults(struct t_config *pconfig) {
+    printf("Searching for mpd\n");
+    
     pconfig->host = sdsnew("/run/mpd/socket");
     pconfig->port = 6600;
     pconfig->pass = sdsempty();
     pconfig->music_directory = sdsempty();
     pconfig->playlist_directory = sdsempty();
     pconfig->stickers = false;
-    pconfig->regex = false;
-    pconfig->mpd_conf = sdsnew("/etc/mpd.conf");
-    pconfig->mpd_exe = sdsnew("/usr/bin/mpd");
+    pconfig->regex = true;
+    pconfig->mpd_conf = find_mpd_conf();
+    pconfig->mpd_exe = find_mpd_exe();
     pconfig->mympd_conf = sdsnew("/etc/mympd.conf");
     pconfig->webport = sdsnew("80");
     pconfig->sslport = sdsnew("443");
@@ -403,16 +465,12 @@ int main(int argc, char **argv) {
         goto cleanup;
     }
 
-    if (parse_mpd_conf(&mpd_config) == false) {
-        fprintf(stderr, "Error parsing %s\n", mpd_config.mpd_conf);
-        rc = EXIT_FAILURE;
-        goto cleanup;
+    if (sdslen(mpd_config.mpd_conf) > 0) {
+        parse_mpd_conf(&mpd_config);
     }
  
-    if (check_ldd(&mpd_config) == false) {
-        fprintf(stderr, "Error executing ldd\n");
-        //Expect that mpd is compiled with regex support
-        mpd_config.regex = true;
+    if (sdslen(mpd_config.mpd_exe) > 0) {
+        check_ldd(&mpd_config);
     }
 
     write_mympd_conf(&mpd_config);
