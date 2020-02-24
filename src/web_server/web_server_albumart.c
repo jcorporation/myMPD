@@ -72,7 +72,7 @@ bool handle_albumart(struct mg_connection *nc, struct http_message *hm, t_mg_use
         return true;
     }
     if (validate_uri(uri_decoded) == false) {
-        LOG_ERROR("Invalid uri: %s", uri_decoded);
+        LOG_ERROR("Invalid URI: %s", uri_decoded);
         serve_na_image(nc, hm);
         sdsfree(uri_decoded);
         return true;

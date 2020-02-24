@@ -28,7 +28,7 @@ sds mpd_client_put_fingerprint(t_mpd_state *mpd_state, sds buffer, sds method, i
                                const char *uri)
 {
     if (validate_songuri(uri) == false) {
-        buffer = jsonrpc_respond_message(buffer, method, request_id, "Invalid uri", true);
+        buffer = jsonrpc_respond_message(buffer, method, request_id, "Invalid URI", true);
         return buffer;
     }
 
@@ -56,7 +56,7 @@ sds mpd_client_put_songdetails(t_mpd_state *mpd_state, sds buffer, sds method, i
                                const char *uri)
 {
     if (validate_songuri(uri) == false) {
-        buffer = jsonrpc_respond_message(buffer, method, request_id, "Invalid uri", true);
+        buffer = jsonrpc_respond_message(buffer, method, request_id, "Invalid URI", true);
         return buffer;
     }
 
