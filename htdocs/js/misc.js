@@ -27,6 +27,18 @@ function addStream() {
     }
 }
 
+function seekRelativeForward() {
+    seekRelative(5);
+}
+
+function seekRelativeBackward() {
+    seekRelative(-5);
+}
+
+function seekRelative(offset) {
+    sendAPI("MPD_API_SEEK_CURRENT", {"seek": offset, "relative": true});
+}
+
 //eslint-disable-next-line no-unused-vars
 function clickPlay() {
     if (playstate !== 'play') {
@@ -74,7 +86,7 @@ function updateDB(uri) {
 }
 
 //eslint-disable-next-line no-unused-vars
-function rescanDB() {
+function rescanDB(uri) {
     sendAPI("MPD_API_DATABASE_RESCAN", {"uri": uri});
     updateDBstarted(true);
 }

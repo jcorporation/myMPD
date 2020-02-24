@@ -12,6 +12,7 @@
 #include <inttypes.h>
 #include <libgen.h>
 #include <string.h>
+#include <errno.h>
 
 #include "../dist/src/sds/sds.h"
 #include "../dist/src/mongoose/mongoose.h"
@@ -46,7 +47,9 @@ bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_da
 
     //initialize mgr user_data, malloced in main.c
     mg_user_data->config = config;
+    mg_user_data->browse_document_root = sdscatfmt(sdsempty(), "%s/empty", config->varlibdir);
     mg_user_data->music_directory = sdsempty();
+    mg_user_data->playlist_directory = sdsempty();
     mg_user_data->rewrite_patterns = sdsempty();
     mg_user_data->coverimage_names= split_coverimage_names(config->coverimage_name, mg_user_data->coverimage_names, &mg_user_data->coverimage_names_len);
     mg_user_data->conn_id = 1;
@@ -143,21 +146,39 @@ void *web_server_loop(void *arg_mgr) {
 static bool parse_internal_message(t_work_result *response, t_mg_user_data *mg_user_data) {
     char *p_charbuf1 = NULL;
     char *p_charbuf2 = NULL;
+    char *p_charbuf3 = NULL;
     bool feat_library;
     bool feat_mpd_albumart;
     bool rc = false;
-    int je = json_scanf(response->data, sdslen(response->data), "{musicDirectory: %Q, coverimageName: %Q, featLibrary: %B, featMpdAlbumart: %B}", 
-        &p_charbuf1, &p_charbuf2, &feat_library, &feat_mpd_albumart);
-    if (je == 4) {
+    t_config *config = (t_config *) mg_user_data->config;
+    
+    int je = json_scanf(response->data, sdslen(response->data), "{playlistDirectory: %Q, musicDirectory: %Q, coverimageName: %Q, featLibrary: %B, featMpdAlbumart: %B}", 
+        &p_charbuf3, &p_charbuf1, &p_charbuf2, &feat_library, &feat_mpd_albumart);
+    if (je == 5) {
         mg_user_data->music_directory = sdsreplace(mg_user_data->music_directory, p_charbuf1);
+        mg_user_data->playlist_directory = sdsreplace(mg_user_data->playlist_directory, p_charbuf3);
         sdsfreesplitres(mg_user_data->coverimage_names, mg_user_data->coverimage_names_len);
         mg_user_data->coverimage_names = split_coverimage_names(p_charbuf2, mg_user_data->coverimage_names, &mg_user_data->coverimage_names_len);
         mg_user_data->feat_library = feat_library;
         mg_user_data->feat_mpd_albumart = feat_mpd_albumart;
+        
         mg_user_data->rewrite_patterns = sdscrop(mg_user_data->rewrite_patterns);
-        if (feat_library == true) {
-            mg_user_data->rewrite_patterns = sdscatfmt(mg_user_data->rewrite_patterns, "/library/=%s", mg_user_data->music_directory);
-            LOG_DEBUG("Setting music_directory to %s", mg_user_data->music_directory);
+        if (config->publish == true) {
+            mg_user_data->rewrite_patterns = sdscatfmt(mg_user_data->rewrite_patterns, "/browse/pics=%s/pics", config->varlibdir);
+            if (config->smartpls == true) {
+                mg_user_data->rewrite_patterns = sdscatfmt(mg_user_data->rewrite_patterns, ",/browse/smartplaylists=%s/smartpls", config->varlibdir);
+            }
+            if (feat_library == true) {
+                mg_user_data->rewrite_patterns = sdscatfmt(mg_user_data->rewrite_patterns, ",/browse/music=%s", mg_user_data->music_directory);
+            }
+            if (sdslen(mg_user_data->playlist_directory) > 0) {
+                mg_user_data->rewrite_patterns = sdscatfmt(mg_user_data->rewrite_patterns, ",/browse/playlists=%s", mg_user_data->playlist_directory);
+            }
+            mg_user_data->rewrite_patterns = sdscatfmt(mg_user_data->rewrite_patterns, ",/browse=%s/empty", config->varlibdir);
+            if (config->readonly == false) {
+                //maintain directory structure in empty directory
+                manage_emptydir(config->varlibdir, true, config->smartpls, feat_library, (sdslen(mg_user_data->playlist_directory) > 0 ? true : false));
+            }
         }
         LOG_DEBUG("Setting rewrite_patterns to %s", mg_user_data->rewrite_patterns);
         rc = true;
@@ -168,6 +189,7 @@ static bool parse_internal_message(t_work_result *response, t_mg_user_data *mg_u
     }
     FREE_PTR(p_charbuf1);
     FREE_PTR(p_charbuf2);
+    FREE_PTR(p_charbuf3);
     free_result(response);
     return rc;
 }
@@ -212,7 +234,7 @@ static void send_api_response(struct mg_mgr *mgr, t_work_result *response) {
             }
         }
         else {
-            LOG_DEBUG("Unknown connection");
+            LOG_WARN("Unknown connection");
         }
     }
     free_result(response);
@@ -234,6 +256,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             //set conn_id
             nc->user_data = (void *)(intptr_t)mg_user_data->conn_id;
             LOG_DEBUG("New connection id %d", (intptr_t)nc->user_data);
+
             break;
         }
         case MG_EV_WEBSOCKET_HANDSHAKE_REQUEST: {
@@ -256,9 +279,25 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
         }
         case MG_EV_HTTP_REQUEST: {
             struct http_message *hm = (struct http_message *) ev_data;
-            static const struct mg_str library_prefix = MG_MK_STR("/library");
+            static const struct mg_str browse_prefix = MG_MK_STR("/browse");
             static const struct mg_str albumart_prefix = MG_MK_STR("/albumart");
             LOG_VERBOSE("HTTP request (%d): %.*s", (intptr_t)nc->user_data, (int)hm->uri.len, hm->uri.p);
+            if (mg_vcmp(&hm->uri, "/api/serverinfo") == 0) {
+                struct sockaddr_in localip;
+                socklen_t len = sizeof(localip);
+                if (getsockname(nc->sock, (struct sockaddr *)&localip, &len) == 0) {
+                    sds method = sdsempty();
+                    sds response = jsonrpc_start_result(sdsempty(), method, 0);
+                    response = sdscat(response, ",");
+                    response = tojson_char(response, "version", MG_VERSION, true);
+                    response = tojson_char(response, "ip", inet_ntoa(localip.sin_addr), false);
+                    response = jsonrpc_end_result(response);
+                    mg_send_head(nc, 200, sdslen(response), "Content-Type: application/json");
+                    mg_send(nc, response, sdslen(response));
+                    sdsfree(response);
+                    sdsfree(method);
+                }
+            }
             if (mg_vcmp(&hm->uri, "/api") == 0) {
                 //api request
                 bool rc = handle_api((intptr_t)nc->user_data, hm);
@@ -288,21 +327,25 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             else if (mg_str_starts_with(hm->uri, albumart_prefix) == 1) {
                 handle_albumart(nc, hm, mg_user_data, config, (intptr_t)nc->user_data);
             }
-            else if (mg_str_starts_with(hm->uri, library_prefix) == 1) {
-                if (config->publish_library == false) {
-                    send_error(nc, 403, "Publishing of music directory is disabled");
+            else if (mg_str_starts_with(hm->uri, browse_prefix) == 1) {
+                if (config->publish == false) {
+                    send_error(nc, 403, "Publishing of directories is disabled");
                 }
-                else if (mg_user_data->feat_library == true) {
+                if (config->webdav == false && mg_vcmp(&hm->method, "GET") == 1) {
+                    send_error(nc, 405, "Method not allowed (webdav is disabled)");
+                }
+                else {
                     //serve directory
                     static struct mg_serve_http_opts s_http_server_opts;
-                    s_http_server_opts.document_root = DOC_ROOT;
+                    s_http_server_opts.document_root = mg_user_data->browse_document_root;
+                    if (config->webdav == true) {
+                        s_http_server_opts.dav_document_root = mg_user_data->browse_document_root;
+                        s_http_server_opts.dav_auth_file = "-";
+                    }
                     s_http_server_opts.url_rewrites = mg_user_data->rewrite_patterns;
                     s_http_server_opts.enable_directory_listing = "yes";
                     s_http_server_opts.extra_headers = EXTRA_HEADERS_DIR;
                     mg_serve_http(nc, hm, s_http_server_opts);
-                }
-                else {
-                    send_error(nc, 404, "Unknown music_directory");
                 }
             }
             else if (mg_vcmp(&hm->uri, "/index.html") == 0) {
@@ -382,7 +425,7 @@ static bool handle_api(int conn_id, struct http_message *hm) {
         return false;
     }
     
-    LOG_VERBOSE("API request (%d): %.*s", conn_id, hm->body.len, hm->body.p);
+    LOG_DEBUG("API request (%d): %.*s", conn_id, hm->body.len, hm->body.p);
     char *cmd = NULL;
     char *jsonrpc = NULL;
     int id = 0;
@@ -392,6 +435,7 @@ static bool handle_api(int conn_id, struct http_message *hm) {
         FREE_PTR(jsonrpc);
         return false;
     }
+    LOG_VERBOSE("API request (%d): %s", conn_id, cmd);
 
     enum mympd_cmd_ids cmd_id = get_cmd_id(cmd);
     if (cmd_id == 0 || strncmp(jsonrpc, "2.0", 3) != 0) {

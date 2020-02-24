@@ -127,7 +127,7 @@ function parseListDBtags(obj) {
             if (settings.featCoverimage === true && settings.coverimage === true) {
                 html += '<div class="col-md-auto"><a class="card-img-left album-cover-loading"></a></div>';
             }
-            html += '<div class="col"><table class="tblAlbumTitles table table-sm table-hover" tabindex="0" id="tbl' + id + '"><thead><tr></tr></thead><tbody></tbody>' +
+            html += '<div class="col table-responsive-md"><table class="tblAlbumTitles table table-sm table-hover" tabindex="0" id="tbl' + id + '"><thead><tr></tr></thead><tbody class="clickable"></tbody>' +
                     '<tfoot class="bg-light border-bottom"></tfoot></table></div>' + 
                     '</div></div>' +
                     '</div><div class="card-footer"></div>';

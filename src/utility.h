@@ -24,6 +24,9 @@ sds tojson_float(sds buffer, const char *key, float value, bool comma);
 int testdir(const char *name, const char *dirname, bool create);
 int randrange(int n);
 bool validate_string(const char *data);
+bool validate_string_not_empty(const char *data);
+bool validate_string_not_dir(const char *data);
+bool validate_songuri(const char *data);
 int replacechar(char *str, const char orig, const char rep);
 int uri_to_filename(char *str);
 bool validate_uri(const char *data);
@@ -34,6 +37,7 @@ sds get_mime_type_by_magic(const char *filename);
 sds get_mime_type_by_magic_stream(sds stream);
 bool write_covercache_file(t_config *config, const char *uri, const char *mime_type, sds binary);
 bool strtobool(const char *value);
+int strip_extension(char *s);
 
 #define FREE_PTR(PTR) do { \
     if (PTR != NULL) \

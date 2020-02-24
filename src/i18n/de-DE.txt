@@ -414,8 +414,11 @@ Musik Verzeichnis ist nicht verfügbar
 Invalid size
 Ungültige Größe
 
-Solid color
-Farbe
+Background color
+Hintergrundfarbe
+
+Highlight color
+Highlight Farbe
 
 Invalid color
 Ungültige Farbe
@@ -954,11 +957,17 @@ Fingerabdruck
 Calculate
 Berechne Fingerabdruck
 
-Certificate
-Zertifikat
-
 myMPD CA
 myMPD Stammzertifikat
+
+IP-Address
+IP-Adresse
+
+Mongoose version
+Mongoose Version
+
+Webserver
+Webserver
 
 Download
 Herunterladen
@@ -1047,8 +1056,8 @@ Hell
 Default
 Standard
 
-Interface
-Oberfläche
+Appearance
+Design
 
 Unknown artist
 Unbekannter Künstler
@@ -1091,6 +1100,9 @@ Timer
 
 New timer
 Neuer Timer
+
+Timer with given id not found
+Timer nicht gefunden
 
 On
 Aktiv
@@ -1139,3 +1151,144 @@ So
 
 System command
 Systembefehl
+
+LastModified
+Zuletzt geändert
+
+Best rated
+Am Besten bewertet
+
+Most played
+Am Öftesten gespielt
+
+Newest songs
+Neueste Lieder
+
+Add smart playlist
+Neue intelligente Wiedergabeliste
+
+Generate smart playlist per
+Erstelle intelligente Wiedergabelisten für
+
+Min. value
+Min. Wert
+
+Disabled
+Deaktiviert
+
+Shuffle
+Mischen
+
+Playlist is too small to shuffle
+Wiedergabeliste ist zu klein um sie zu mischen
+
+Playlist is too small to sort
+Wiedergabeliste ist zu klein um sie zu sortieren
+
+Shuffle playlist
+Wiedergabeliste mischen
+
+Shuffled playlist succesfully
+Wiedergabeliste erfolgreich gemischt
+
+Sort playlist
+Wiedergabeliste sortieren
+
+Sorted playlist succesfully
+Wiedergabeliste erfolgreich sortiert
+
+search
+Suche
+
+newest
+Neueste Lieder
+
+sticker
+Sticker
+
+Order
+Reihenfolge
+
+Sort by tag
+Sortiere nach Tag
+
+Update smart playlists (hours)
+Intelligente Wiedergabelisten aktualisieren (Stunden)
+
+Smart playlists prefix
+Prefix von Intelligenten Wiedergabelisten
+
+Invalid prefix
+Ungültiger Prefix
+
+Invalid number
+Ungültige Zahl
+
+Leaving playlist as it is
+Wiedergabeliste wird nicht verändert
+
+Delete all playlists
+Alle Wiedergabelisten löschen
+
+Delete all smart playlists
+Alle Intelligenten Wiedergabelisten löschen
+
+Delete empty playlists
+Alle leere Wiedergabelisten löschen
+
+Delete playlists
+Wiedergabelisten löschen
+
+Media session support
+Media Session Unterstützung
+
+Not supported by libmpdclient
+Funktion ist nicht von libmpclient unterstützt
+
+Playlists deleted
+Wiedergabeliste wurde gelöscht
+
+Preview
+Vorschau
+
+Info
+Hinweis
+
+Error
+Fehler
+
+MPD connected
+MPD verbunden
+
+Websocket connected
+Websocket verbunden
+
+Websocket disconnected
+Websocket nicht verbunden
+
+Websocket is disconnected
+Websocket ist nicht verbunden
+
+Websocket connection
+Websocket Verbindung
+
+Auto
+Auto
+
+Connection state
+Verbindungsstatus
+
+Booklet
+Booklet
+
+Booklet filename
+Booklet Dateiname
+
+Lyrics
+Liedtext
+
+Pictures
+Bilder
+
+Notifications are blocked
+Benachrichtungen sind nicht erlaubt

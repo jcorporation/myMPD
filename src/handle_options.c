@@ -20,6 +20,7 @@
 #include "log.h"
 #include "list.h"
 #include "config_defs.h"
+#include "config.h"
 #include "mympd_api/mympd_api_utility.h"
 #include "mympd_api/mympd_api_timer.h"
 #include "mympd_api/mympd_api_settings.h"
@@ -36,20 +37,52 @@ static bool smartpls_init(t_config *config, const char *name, const char *value)
 //global functions
 bool smartpls_default(t_config *config) {
     bool rc = true;
-    
-    rc = smartpls_init(config, "myMPDsmart-bestRated", 
-        "{\"type\": \"sticker\", \"sticker\": \"like\", \"maxentries\": 200}\n");
-    if (rc == false) {
-        return rc;
-    }
-    rc = smartpls_init(config, "myMPDsmart-mostPlayed", 
-        "{\"type\": \"sticker\", \"sticker\": \"playCount\", \"maxentries\": 200}\n");
-    if (rc == false) {
-        return rc;
-    }
-    rc = smartpls_init(config, "myMPDsmart-newestSongs", 
-        "{\"type\": \"newest\", \"timerange\": 604800}\n");
+    char *line = NULL;
+    size_t n = 0;
+    ssize_t read;
 
+    sds prefix = sdsempty();
+    sds prefix_file = sdscatfmt(sdsempty(), "%s/state/smartpls_prefix", config->varlibdir);
+    FILE *fp = fopen(prefix_file, "r");
+    sdsfree(prefix_file);
+    if (fp != NULL) {
+        read = getline(&line, &n, fp);
+        if (read > 0) {
+            prefix = sdscat(prefix, line);
+            FREE_PTR(line);
+        }
+        fclose(fp);
+    }
+    else {
+        prefix = sdscat(prefix, "myMPDsmart");
+    }
+    
+    sds smartpls_file = sdscatfmt(sdsempty(), "%s%sbestRated", prefix, (sdslen(prefix) > 0 ? "-" : ""));
+    rc = smartpls_init(config, smartpls_file, 
+        "{\"type\": \"sticker\", \"sticker\": \"like\", \"maxentries\": 200, \"minvalue\": 2, \"sort\": \"\"}");
+    if (rc == false) {
+        sdsfree(smartpls_file);
+        sdsfree(prefix);
+        return rc;
+    }
+    
+    sdscrop(smartpls_file);
+    smartpls_file = sdscatfmt(smartpls_file, "%s%smostPlayed", prefix, (sdslen(prefix) > 0 ? "-" : ""));
+    rc = smartpls_init(config, smartpls_file, 
+        "{\"type\": \"sticker\", \"sticker\": \"playCount\", \"maxentries\": 200, \"minvalue\": 0, \"sort\": \"\"}");
+    if (rc == false) {
+        sdsfree(smartpls_file);
+        sdsfree(prefix);
+        return rc;
+    }
+    
+    sdscrop(smartpls_file);
+    smartpls_file = sdscatfmt(smartpls_file, "%s%snewestSongs", prefix, (sdslen(prefix) > 0 ? "-" : ""));
+    rc = smartpls_init(config, smartpls_file, 
+        "{\"type\": \"newest\", \"timerange\": 604800, \"sort\": \"\"}");
+    sdsfree(smartpls_file);
+    sdsfree(prefix);
+    
     return rc;
 }
 
@@ -106,6 +139,9 @@ bool handle_option(t_config *config, char *cmd, sds option) {
         clear_covercache(config, 0);
         return true;
     }
+    else if (MATCH_OPTION("dump_config")) {
+        return mympd_dump_config();
+    }
     else {
         printf("myMPD %s\n"
                "Copyright (C) 2018-2020 Juergen Mang <mail@jcgames.de>\n"
@@ -122,6 +158,7 @@ bool handle_option(t_config *config, char *cmd, sds option) {
                "  reset_lastplayed: truncates last played list\n"
                "  crop_covercache:  crops the covercache directory\n"
                "  clear_covercache: empties the covercache directory\n"
+               "  dump_config:      writes default mympd.conf\n"
                "  help:             display this help\n",
                MYMPD_VERSION,
                cmd

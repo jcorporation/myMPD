@@ -16,6 +16,10 @@ static const char *loglevel_names[] = {
   "ERROR", "WARN", "INFO", "VERBOSE", "DEBUG"
 };
 
+static const char *loglevel_colors[] = {
+  "\033[0;31m", "\033[0;33m", "", "", "\033[0;34m"
+};
+
 void set_loglevel(int level) {
     if (level > 4) {
         level = 4;
@@ -31,7 +35,8 @@ void mympd_log(int level, const char *file, int line, const char *fmt, ...) {
     if (level > loglevel) {
         return;
     }
-    sds logline = sdscatprintf(sdsempty(), "%-8s ", loglevel_names[level]);
+    sds logline = sdsnew(loglevel_colors[level]);
+    logline = sdscatprintf(logline, "%-8s ", loglevel_names[level]);
 
     if (loglevel == 4) {
         logline = sdscatprintf(logline, "%s:%d: ", file, line);
@@ -49,6 +54,7 @@ void mympd_log(int level, const char *file, int line, const char *fmt, ...) {
     else {
         logline = sdscatlen(logline, "\n", 1);
     }
+    logline = sdscat(logline, "\033[0m");
     
     fputs(logline, stderr);
     fflush(stderr);

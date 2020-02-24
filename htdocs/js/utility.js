@@ -148,6 +148,27 @@ function addTagList(el, list) {
     document.getElementById(el).innerHTML = tagList;
 }
 
+function addTagListSelect(el, list) {
+    let tagList = '';
+    if (el === 'saveSmartPlaylistSort' || el === 'selectSmartplsSort') {
+        tagList += '<option value="">' + t('Disabled') + '</option>';
+        tagList += '<option value="shuffle">' + t('Shuffle') + '</option>';
+        tagList += '<optgroup label="' + t('Sort by tag') + '">';
+        tagList += '<option value="filename">' + t('Filename') + '</option>';
+    }
+    else if (el === 'selectJukeboxUniqueTag' && settings.browsetags.includes('Title') === false) {
+        //Title tag should be always in the list
+        tagList = '<option value="Title">' + t('Song') + '</option>';
+    }
+    for (let i = 0; i < settings[list].length; i++) {
+        tagList += '<option value="' + settings[list][i] + '">' + t(settings[list][i]) + '</option>';
+    }
+    if (el === 'saveSmartPlaylistSort' || el === 'selectSmartplsSort') {
+        tagList += '</optgroup>';
+    }
+    document.getElementById(el).innerHTML = tagList;
+}
+
 //eslint-disable-next-line no-unused-vars
 function openModal(modal) {
     window[modal].show();
@@ -171,15 +192,47 @@ function focusSearch() {
     }
 }
 
+function btnWaiting(btn, waiting) {
+    if (waiting === true) {
+        let spinner = document.createElement('span');
+        spinner.classList.add('spinner-border', 'spinner-border-sm', 'mr-2');
+        btn.insertBefore(spinner, btn.firstChild);
+        btn.setAttribute('disabled', 'disabled');
+    }
+    else {
+        btn.removeAttribute('disabled');
+        if (btn.firstChild.nodeName === 'SPAN') {
+            btn.firstChild.remove();
+        }
+    }
+}
+
 function toggleBtnGroupValue(btngrp, value) {
     let btns = btngrp.getElementsByTagName('button');
+    let b = btns[0];
+    let valuestr = value;
+    if (isNaN(value) === false) {
+        valuestr = value.toString();
+    }
     for (let i = 0; i < btns.length; i++) {
-        if (btns[i].getAttribute('data-value') == value) {
+        if (btns[i].getAttribute('data-value') === valuestr) {
             btns[i].classList.add('active');
+            b = btns[i];
         }
         else {
             btns[i].classList.remove('active');
         }
+    }
+    return b;
+}
+
+function toggleBtnGroupValueCollapse(btngrp, collapse, value) {
+    let activeBtn = toggleBtnGroupValue(btngrp, value);
+    if (activeBtn.getAttribute('data-collapse') === 'show') {
+        document.getElementById(collapse).classList.add('show');
+    }
+    else {
+        document.getElementById(collapse).classList.remove('show');
     }
 }
 
@@ -196,6 +249,28 @@ function toggleBtnGroup(btn) {
         else {
             btns[i].classList.remove('active');
         }
+    }
+    return b;
+}
+
+function getBtnGroupValue(btnGroup) {
+    let activeBtn = document.getElementById(btnGroup).getElementsByClassName('active');
+    if (activeBtn.length === 0) {
+        activeBtn = document.getElementById(btnGroup).getElementsByTagName('button');    
+    }
+    return activeBtn[0].getAttribute('data-value');
+}
+
+//eslint-disable-next-line no-unused-vars
+function toggleBtnGroupCollapse(btn, collapse) {
+    let activeBtn = toggleBtnGroup(btn);
+    if (activeBtn.getAttribute('data-collapse') === 'show') {
+        if (document.getElementById(collapse).classList.contains('show') === false) {
+            window[collapse].show();
+        }
+    }
+    else {
+        window[collapse].hide();
     }
 }
 
@@ -236,10 +311,22 @@ function toggleBtnChk(btn, state) {
     if (state === true || state === 1) {
         b.classList.add('active');
         b.innerText = 'check';
+        return true;
     }
     else {
         b.classList.remove('active');
         b.innerText = 'radio_button_unchecked';
+        return false;
+    }
+}
+
+function toggleBtnChkCollapse(btn, collapse, state) {
+    let checked = toggleBtnChk(btn, state);
+    if (checked === true) {
+        document.getElementById(collapse).classList.add('show');
+    }
+    else{
+        document.getElementById(collapse).classList.remove('show');
     }
 }
 
@@ -319,8 +406,12 @@ function parseCmd(event, href) {
             case 'toggleBtn':
             case 'toggleBtnChk':
             case 'toggleBtnGroup':
+            case 'toggleBtnGroupCollapse':
             case 'setPlaySettings':
                 window[cmd.cmd](event.target, ... cmd.options);
+                break;
+            case 'toggleBtnChkCollapse':
+                window[cmd.cmd](event.target, undefined, ... cmd.options);
                 break;
             default:
                 window[cmd.cmd](... cmd.options);

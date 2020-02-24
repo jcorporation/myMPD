@@ -47,7 +47,7 @@ void check_timer(struct t_timer_list *l, bool gui) {
 
     struct pollfd ufds[MAX_TIMER_COUNT] = {{0}};
     memset(ufds, 0, sizeof(struct pollfd) * MAX_TIMER_COUNT);
-    while (current != NULL) {
+    while (current != NULL && iMaxCount <= 100) {
         if (current->fd > -1 && (current->timer_id < 100 || gui == true)) {
             ufds[iMaxCount].fd = current->fd;
             ufds[iMaxCount].events = POLLIN;
@@ -96,6 +96,12 @@ bool replace_timer(struct t_timer_list *l, unsigned int timeout, unsigned int in
 bool add_timer(struct t_timer_list *l, unsigned int timeout, unsigned int interval, time_handler handler, 
                int timer_id, struct t_timer_definition *definition, void *user_data) 
 {
+
+    if (l->length == 100) {
+        LOG_ERROR("Maximum number of timers (100) reached");
+        return false;
+    }
+
     struct t_timer_node *new_node = (struct t_timer_node *)malloc(sizeof(struct t_timer_node));
     if (new_node == NULL) {
         return false;
@@ -206,19 +212,30 @@ void free_timer_node(struct t_timer_node *node) {
 
 struct t_timer_definition *parse_timer(struct t_timer_definition *timer_def, const char *str, size_t len) {
     char *name = NULL;
+    bool enabled;
+    int start_hour, start_minute, volume;
+    unsigned jukebox_mode;
     char *action = NULL;
     char *playlist = NULL;
     int je = json_scanf(str, len, "{params: {name: %Q, enabled: %B, startHour: %d, startMinute: %d, action: %Q, volume: %d, playlist: %Q, jukeboxMode: %u}}",
-        &name, &timer_def->enabled, &timer_def->start_hour, &timer_def->start_minute, &action, &timer_def->volume, &playlist, &timer_def->jukebox_mode);
+        &name, &enabled, &start_hour, &start_minute, &action, &volume, &playlist, &jukebox_mode);
     if (je == 8) {
+        LOG_DEBUG("Successfully parsed timer definition");
         timer_def->name = sdsnew(name);
+        timer_def->enabled = enabled;
+        timer_def->start_hour = start_hour;
+        timer_def->start_minute = start_minute;
         timer_def->action = sdsnew(action);
+        timer_def->volume = volume;
         timer_def->playlist = sdsnew(playlist);
+        timer_def->jukebox_mode = jukebox_mode;
     }
     FREE_PTR(name);
     FREE_PTR(action);
     FREE_PTR(playlist);
     if (je != 8) {
+        LOG_ERROR("Error parsing timer definition");
+        free(timer_def);
         return NULL;
     }
     for (int i = 0; i < 7; i++) {
@@ -288,6 +305,7 @@ sds timer_list(t_mympd_state *mympd_state, sds buffer, sds method, int request_i
 sds timer_get(t_mympd_state *mympd_state, sds buffer, sds method, int request_id, int timer_id) {
     buffer = jsonrpc_start_result(buffer, method, request_id);
     buffer = sdscat(buffer, ",");
+    bool found = false;
     struct t_timer_node *current = mympd_state->timer_list.list;
     while (current != NULL) {
         if (current->timer_id == timer_id && current->definition != NULL) {
@@ -308,12 +326,17 @@ sds timer_get(t_mympd_state *mympd_state, sds buffer, sds method, int request_id
                 buffer = sdscat(buffer, current->definition->weekdays[i] == true ? "true" : "false");
             }
             buffer = sdscatlen(buffer, "]", 1);
+            found = true;
             break;
         }
         current = current->next;
     }
     
     buffer = jsonrpc_end_result(buffer);
+    
+    if (found == false) {
+        buffer = jsonrpc_respond_message(buffer, method, request_id, "Timer with given id not found", true);
+    }
     return buffer;
 }
 
@@ -332,6 +355,9 @@ bool timerfile_read(t_config *config, t_mympd_state *mympd_state) {
             int timerid;
             int je = json_scanf(param, sdslen(param), "{params: {timerid: %d}}", &timerid);
             sdsfree(param);
+            if (timerid > mympd_state->timer_list.last_id) {
+                mympd_state->timer_list.last_id = timerid;
+            }
             if (je == 1 && timer_def != NULL) {
                 time_t start = timer_calc_starttime(timer_def->start_hour, timer_def->start_minute);
                 add_timer(&mympd_state->timer_list, start, 86400, timer_handler_select, timerid, timer_def, NULL);

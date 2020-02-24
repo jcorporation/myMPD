@@ -7,9 +7,10 @@
 
 function e(x) {
     if (isNaN(x)) {
-        return x.replace(/([<>])/g, function(m0, m1) {
+        return x.replace(/([<>"])/g, function(m0, m1) {
             if (m1 === '<') return '&lt;';
             else if (m1 === '>') return '&gt;';
+            else if (m1 === '"') return '&quot;';
         });
     }
     else {
@@ -44,7 +45,7 @@ function t(phrase, number, data) {
         result = result.replace('%{smart_count}', number);
     }
     
-    if (data != null) {
+    if (data !== null) {
         result = result.replace(/%\{(\w+)\}/g, function(m0, m1) {
             return data[m1];
         });
@@ -60,7 +61,13 @@ function smartCount(number) {
 }
 
 function localeDate(secs) {
-    let d = new Date(secs * 1000);
+    let d;
+    if (secs === undefined) {
+       d  = new Date();
+    }
+    else {
+        d = new Date(secs * 1000);
+    }
     return d.toLocaleString(locale);
 }
 

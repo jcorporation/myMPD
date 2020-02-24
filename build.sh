@@ -31,7 +31,7 @@ STARTPATH=$(pwd)
 umask 0022
 
 #get myMPD version
-VERSION=$(grep VERSION_ CMakeLists.txt | cut -d\" -f2 | tr '\n' '.' | sed 's/\.$//')
+VERSION=$(grep CPACK_PACKAGE_VERSION_ CMakeLists.txt | cut -d\" -f2 | tr '\n' '.' | sed 's/\.$//')
 
 #gzip is needed to compress assets for release
 GZIPBIN=$(command -v gzip)
@@ -387,7 +387,8 @@ check () {
     $CPPCHECKBIN $CPPCHECKOPTS src/*.c src/*.h
     $CPPCHECKBIN $CPPCHECKOPTS src/mpd_client/*.c src/mpd_client/*.h
     $CPPCHECKBIN $CPPCHECKOPTS src/mympd_api/*.c src/mympd_api/*.h
-    $CPPCHECKBIN $CPPCHECKOPTS src/plugins/*.c src/plugins/*.h src/plugins/*.cpp
+    $CPPCHECKBIN $CPPCHECKOPTS src/web_server/*.c src/web_server/*.h
+    $CPPCHECKBIN $CPPCHECKOPTS cli_tools/*.c
   else
     echo "cppcheck not found"
   fi
@@ -398,6 +399,7 @@ check () {
   then
     echo "Running flawfinder"
     $FLAWFINDERBIN $FLAWFINDEROPTS src
+    $FLAWFINDERBIN $FLAWFINDEROPTS cli_tools
   else
     echo "flawfinder not found"
   fi  
@@ -642,8 +644,10 @@ updatelibmympdclient() {
 uninstall() {
   #MYMPD_INSTALL_PREFIX="/usr"
   rm -f "$DESTDIR/usr/bin/mympd"
+  rm -f "$DESTDIR/usr/bin/mympd-config"
   #MYMPD_INSTALL_PREFIX="/usr/local"
   rm -f "$DESTDIR/usr/local/bin/mympd"
+  rm -f "$DESTDIR/usr/local/bin/mympd-config"
   #MYMPD_INSTALL_PREFIX="/opt/mympd/"
   rm -rf "$DESTDIR/opt/mympd"
   #systemd
@@ -667,6 +671,9 @@ purge() {
   rm -rf "$DESTDIR/etc/opt/mympd"
   #arch
   rm -rf "$DESTDIR/etc/webapps/mympd"
+  #remove user
+  getent passwd mympd > /dev/null && userdel mympd
+  getent group mympd > /dev/null && groupdel -f mympd
 }
 
 case "$1" in

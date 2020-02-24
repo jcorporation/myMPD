@@ -26,6 +26,7 @@
 //private definitions
 static struct list *mpd_client_jukebox_get_last_played(t_config *config, t_mpd_state *mpd_state);
 static bool mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_state *mpd_state, int addSongs, enum jukebox_modes jukebox_mode, const char *playlist, bool manual);
+static bool _mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_state *mpd_state, int addSongs, enum jukebox_modes jukebox_mode, const char *playlist, bool manual);
 static bool mpd_client_jukebox_unique_tag(t_mpd_state *mpd_state, const char *uri, const char *value, bool manual, struct list *queue_list);
 static bool mpd_client_jukebox_unique_album(t_mpd_state *mpd_state, const char *album, bool manual, struct list *queue_list);
 
@@ -84,25 +85,13 @@ bool mpd_client_jukebox_add_to_queue(t_config *config, t_mpd_state *mpd_state, i
     if ((manual == false && addSongs > mpd_state->jukebox_queue.length) ||
         (manual == true)) 
     {
-        LOG_DEBUG("Jukebox queue to small, adding entities");
-        if (mpd_state->feat_tags == true) {
-            if (mpd_state->jukebox_unique_tag.tags[0] != MPD_TAG_TITLE) {
-                enable_mpd_tags(mpd_state, mpd_state->jukebox_unique_tag);
-            }
-            else {
-                mpd_run_clear_tag_types(mpd_state->conn);
-            }
-        }
-        bool rc =mpd_client_jukebox_fill_jukebox_queue(config, mpd_state, addSongs, jukebox_mode, playlist, manual);
-        if (mpd_state->feat_tags == true) {
-            enable_mpd_tags(mpd_state, mpd_state->mympd_tag_types);
-        }
+        bool rc = mpd_client_jukebox_fill_jukebox_queue(config, mpd_state, addSongs, jukebox_mode, playlist, manual);
         if (rc == false) {
             return false;
         }
     }
     int added = 0;
-    struct node *current;
+    struct list_node *current;
     if (manual == false) {
         current = mpd_state->jukebox_queue.head;
     }
@@ -152,19 +141,7 @@ bool mpd_client_jukebox_add_to_queue(t_config *config, t_mpd_state *mpd_state, i
         if ((jukebox_mode == JUKEBOX_ADD_SONG && mpd_state->jukebox_queue.length < 25) ||
             (jukebox_mode == JUKEBOX_ADD_ALBUM && mpd_state->jukebox_queue.length < 5))
         {
-            LOG_DEBUG("Jukebox queue to small, adding entities");
-            if (mpd_state->feat_tags == true) {
-                if (mpd_state->jukebox_unique_tag.tags[0] != MPD_TAG_TITLE) {
-                    enable_mpd_tags(mpd_state, mpd_state->jukebox_unique_tag);
-                }
-                else {
-                    mpd_run_clear_tag_types(mpd_state->conn);
-                }
-            }
             bool rc = mpd_client_jukebox_fill_jukebox_queue(config, mpd_state, addSongs, jukebox_mode, playlist, manual);
-            if (mpd_state->feat_tags == true) {
-                enable_mpd_tags(mpd_state, mpd_state->mympd_tag_types);
-            }
             if (rc == false) {
                 return false;
             }
@@ -196,7 +173,7 @@ static struct list *mpd_client_jukebox_get_last_played(t_config *config, t_mpd_s
         mpd_song_free(song);
     }
     //put last_played to queue list
-    struct node *current = mpd_state->last_played.head;
+    struct list_node *current = mpd_state->last_played.head;
     while (current != NULL) {
         if (mpd_send_list_all_meta(mpd_state->conn, current->key) == false) {
             check_error_and_recover(mpd_state, NULL, NULL, 0);
@@ -250,6 +227,27 @@ static struct list *mpd_client_jukebox_get_last_played(t_config *config, t_mpd_s
 }
 
 static bool mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_state *mpd_state, int addSongs, enum jukebox_modes jukebox_mode, const char *playlist, bool manual) {
+    LOG_DEBUG("Jukebox queue to small, adding entities");
+    if (mpd_state->feat_tags == true) {
+        if (mpd_state->jukebox_unique_tag.tags[0] != MPD_TAG_TITLE) {
+            enable_mpd_tags(mpd_state, mpd_state->jukebox_unique_tag);
+        }
+        else {
+            disable_all_mpd_tags(mpd_state);
+        }
+    }
+    bool rc = _mpd_client_jukebox_fill_jukebox_queue(config, mpd_state, addSongs, jukebox_mode, playlist, manual);
+    if (mpd_state->feat_tags == true) {
+        enable_mpd_tags(mpd_state, mpd_state->mympd_tag_types);
+    }
+    
+    if (rc == false) {
+        return false;
+    }
+    return true;
+}
+
+static bool _mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_state *mpd_state, int addSongs, enum jukebox_modes jukebox_mode, const char *playlist, bool manual) {
     struct mpd_song *song;
     struct mpd_pair *pair;
     unsigned lineno = 1;
@@ -289,6 +287,7 @@ static bool mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_state 
             }
             
             if (error == true) {
+                mpd_search_cancel(mpd_state->conn);
                 check_error_and_recover(mpd_state, NULL, NULL, 0);
                 list_free(queue_list);
                 FREE_PTR(queue_list);
@@ -353,6 +352,7 @@ static bool mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_state 
         else if (mpd_search_commit(mpd_state->conn) == false) { error = true; }
         
         if (error == true) {
+            mpd_search_cancel(mpd_state->conn);
             check_error_and_recover(mpd_state, NULL, NULL, 0);
             list_free(queue_list);
             FREE_PTR(queue_list);
@@ -397,7 +397,7 @@ static bool mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_state 
 }
 
 static bool mpd_client_jukebox_unique_tag(t_mpd_state *mpd_state, const char *uri, const char *value, bool manual, struct list *queue_list) {
-    struct node *current = queue_list->head;
+    struct list_node *current = queue_list->head;
     while(current != NULL) {
         if (strcmp(current->key, uri) == 0) {
             return false;
@@ -427,7 +427,7 @@ static bool mpd_client_jukebox_unique_tag(t_mpd_state *mpd_state, const char *ur
 }
 
 static bool mpd_client_jukebox_unique_album(t_mpd_state *mpd_state, const char *album, bool manual, struct list *queue_list) {
-    struct node *current = queue_list->head;
+    struct list_node *current = queue_list->head;
     while (current != NULL) {
         if (strcmp(current->value_p, album) == 0) {
             return false;

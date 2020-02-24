@@ -26,6 +26,19 @@ function parseStats(obj) {
     }
 }
 
+function getServerinfo() {
+    let ajaxRequest=new XMLHttpRequest();
+    ajaxRequest.open('GET', subdir + '/api/serverinfo', true);
+    ajaxRequest.onreadystatechange = function() {
+        if (ajaxRequest.readyState === 4) {
+            let obj = JSON.parse(ajaxRequest.responseText);
+            document.getElementById('wsIP').innerText = obj.result.ip;
+            document.getElementById('wsMongooseVersion').innerText = obj.result.version;
+        }
+    };
+    ajaxRequest.send();
+}
+
 function parseOutputs(obj) {
     let btns = '';
     for (let i = 0; i < obj.result.numOutputs; i++) {
@@ -116,7 +129,7 @@ function parseState(obj) {
     {
         sendAPI("MPD_API_PLAYER_CURRENT_SONG", {}, songChange);
     }
-    //clear playback card if not playing
+    //clear playback card if no current song
     if (obj.result.songPos === '-1') {
         domCache.currentTitle.innerText = 'Not playing';
         document.title = 'myMPD';
@@ -139,7 +152,6 @@ function parseState(obj) {
             cff.getElementsByTagName('p')[0].innerText = fileformat(obj.result.audioFormat);
         }
     }
-
 
     lastState = obj.result;                    
     
@@ -261,6 +273,8 @@ function songChange(obj) {
     let htmlNotification = '';
     let pageTitle = '';
 
+    mediaSessionSetMetadata(obj.result.Title, obj.result.Artist, obj.result.Album, obj.result.uri);
+    
     setCurrentCover(obj.result.uri);
     if (settings.bgCover === true && settings.featCoverimage === true) {
         setBackgroundImage(obj.result.uri);
@@ -322,8 +336,11 @@ function songChange(obj) {
             if (value === undefined) {
                 value = '';
             }
-            if (settings.colsPlayback[i] == 'Duration') {
+            if (settings.colsPlayback[i] === 'Duration') {
                 value = beautifySongDuration(value);
+            }
+            else if (settings.colsPlayback[i] === 'LastModified') {
+                value = localeDate(value);
             }
             c.getElementsByTagName('p')[0].innerText = value;
             c.setAttribute('data-name', encodeURI(value));
@@ -339,6 +356,7 @@ function songChange(obj) {
     if (playstate === 'play') {
         showNotification(obj.result.Title, textNotification, htmlNotification, 'success');
     }
+    
     lastSong = curSong;
     lastSongObj = obj.result;
 }
@@ -371,5 +389,52 @@ function clickTitle() {
     let uri = decodeURI(domCache.currentTitle.getAttribute('data-uri'));
     if (uri !== '' && uri.indexOf('://') === -1) {
         songDetails(uri);
+    }
+}
+
+function mediaSessionSetPositionState(duration, position) {
+    if (settings.mediaSession === true && 'mediaSession' in navigator && navigator.mediaSession.setPositionState) {
+        navigator.mediaSession.setPositionState({
+            duration: duration,
+            position: position
+        });
+    }
+}
+
+function mediaSessionSetState() {
+    if (settings.mediaSession === true && 'mediaSession' in navigator) {
+        if (playstate === 'play') {
+            navigator.mediaSession.playbackState = 'playing';
+        }
+        else {
+            navigator.mediaSession.playbackState = 'paused';
+        }
+    }
+}
+
+function mediaSessionSetMetadata(title, artist, album, url) {
+    if (settings.mediaSession === true && 'mediaSession' in navigator) {
+        let hostname = window.location.hostname;
+        let protocol = window.location.protocol;
+        let port = window.location.port;
+        let artwork = protocol + '//' + hostname + (port !== '' ? ':' + port : '') + subdir + '/albumart/' + url;
+
+        if (settings.coverimage === true) {
+            //eslint-disable-next-line no-undef
+            navigator.mediaSession.metadata = new MediaMetadata({
+                title: title,
+                artist: artist,
+                album: album,
+                artwork: [{src: artwork}]
+            });
+        }
+        else {
+            //eslint-disable-next-line no-undef
+            navigator.mediaSession.metadata = new MediaMetadata({
+                title: title,
+                artist: artist,
+                album: album
+            });
+        }
     }
 }

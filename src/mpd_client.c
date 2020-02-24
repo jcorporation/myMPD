@@ -269,7 +269,7 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
                 sticker_cache_init(config, mpd_state);
             }
             //set timer for smart playlist update
-            mpd_client_set_timer(MYMPD_API_TIMER_SET, "MYMPD_API_TIMER_SET", 10, 0, "timer_handler_smartpls_update");
+            mpd_client_set_timer(MYMPD_API_TIMER_SET, "MYMPD_API_TIMER_SET", 10, mpd_state->smartpls_interval, "timer_handler_smartpls_update");
             //jukebox
             if (mpd_state->jukebox_mode != JUKEBOX_OFF) {
                 mpd_client_jukebox(config, mpd_state);
@@ -307,13 +307,16 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
             bool set_played = false;
             mpd_client_queue_length = tiny_queue_length(mpd_client_queue, 50);
             time_t now = time(NULL);
-            if (now > mpd_state->set_song_played_time && mpd_state->set_song_played_time > 0 && mpd_state->last_last_played_id != mpd_state->song_id) {
-                set_played = true;
-            }
-            if (mpd_state->jukebox_mode != JUKEBOX_OFF) {
-                time_t add_time = mpd_state->crossfade < mpd_state->song_end_time ? mpd_state->song_end_time - mpd_state->crossfade : mpd_state->song_end_time;
-                if (now > add_time && add_time > 0 && mpd_state->queue_length <= mpd_state->jukebox_queue_length) {
-                    jukebox_add_song = true;
+            if (mpd_state->state == MPD_STATE_PLAY) {
+                //handle jukebox and last played only in mpd play state
+                if (now > mpd_state->set_song_played_time && mpd_state->set_song_played_time > 0 && mpd_state->last_last_played_id != mpd_state->song_id) {
+                    set_played = true;
+                }
+                if (mpd_state->jukebox_mode != JUKEBOX_OFF) {
+                    time_t add_time = mpd_state->crossfade < mpd_state->song_end_time ? mpd_state->song_end_time - mpd_state->crossfade : mpd_state->song_end_time;
+                    if (now > add_time && add_time > 0 && mpd_state->queue_length <= mpd_state->jukebox_queue_length) {
+                        jukebox_add_song = true;
+                    }
                 }
             }
             if (pollrc > 0 || mpd_client_queue_length > 0 || jukebox_add_song == true || set_played == true) {
@@ -334,7 +337,9 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
                 }
                 
                 if (set_played == true) {
-                    mpd_client_last_played_list(config, mpd_state, mpd_state->song_id);
+                    if (mpd_state->last_played.length > 0) {
+                        mpd_client_last_played_list(config, mpd_state, mpd_state->song_id);
+                    }
                     if (mpd_state->feat_sticker == true) {
                         mpd_client_count_song_uri(mpd_state, mpd_state->song_uri, "playCount", 1);
                         mpd_client_last_played_song_uri(mpd_state, mpd_state->song_uri);

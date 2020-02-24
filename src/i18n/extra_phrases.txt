@@ -30,3 +30,8 @@ Fileformat
 Dark
 Default
 Light
+search
+newest
+sticker
+Info
+Error

@@ -204,6 +204,8 @@ sds mpd_client_put_current_song(t_mpd_state *mpd_state, sds buffer, sds method, 
         buffer = jsonrpc_respond_message(buffer, method, request_id, "No current song", false);
         return buffer;
     }
+    
+    const char *uri = mpd_song_get_uri(song);
 
     buffer = jsonrpc_start_result(buffer, method, request_id);
     buffer = sdscat(buffer, ",");
@@ -216,7 +218,7 @@ sds mpd_client_put_current_song(t_mpd_state *mpd_state, sds buffer, sds method, 
     if (mpd_state->feat_sticker) {
         t_sticker *sticker = (t_sticker *) malloc(sizeof(t_sticker));
         assert(sticker);
-        mpd_client_get_sticker(mpd_state, mpd_song_get_uri(song), sticker);
+        mpd_client_get_sticker(mpd_state, uri, sticker);
         buffer = sdscat(buffer, ",");
         buffer = tojson_long(buffer, "playCount", sticker->playCount, true);
         buffer = tojson_long(buffer, "skipCount", sticker->skipCount, true);
@@ -225,8 +227,12 @@ sds mpd_client_put_current_song(t_mpd_state *mpd_state, sds buffer, sds method, 
         buffer = tojson_long(buffer, "lastSkipped", sticker->lastSkipped, false);
         FREE_PTR(sticker);
     }
-    mpd_song_free(song);
 
+    //waits for further implementation in 7.1.0 release
+    //buffer = sdscat(buffer, ",");
+    //buffer = put_extra_files(mpd_state, buffer, uri);
+    
+    mpd_song_free(song);
     buffer = jsonrpc_end_result(buffer);
     return buffer;
 }

@@ -20,8 +20,7 @@ This fork provides a reworked ui based on Bootstrap 4, a modernized backend and 
  - Set mpd options (repeat, random, etc.)
  - Browse mpd database by tags
  - Albumart grid
- - Browse filesystem and playlists
- - Bookmarks for directories
+ - Browse filesystem
  - Queue management
  - Playlist management
  - Advanced search
@@ -29,17 +28,21 @@ This fork provides a reworked ui based on Bootstrap 4, a modernized backend and 
  - Smart playlists and saved searches
  - Play statistics and song voting
  - Local albumart support: embedded and image per folder
+ - Local lyrics (textfile per song file)
+ - Local booklet support (per album folder)
  - HTTP stream support
  - Local playback of mpd http stream (html5 audio api)
  - Timers
- - Progressiv Web App enabled
+ - Scrobbler integration
  - Embedded Webserver (mongoose)
- - Love message for scrobbling clients
  - Localized user interface
  - Themeing
+ - Publishing of mpd and myMPD directories via http and webdav
+ - Progressiv Web App enabled
+ - Support of Media Session API
 
-myMPD is in active development. Feedback, bug reportes and feature requests are very welcome.
- - https://github.com/jcorporation/myMPD/issues
+myMPD is in active development. If you like myMPD, you can help to improve it (no programming skills are required).
+  - <a href="https://github.com/jcorporation/myMPD/issues/167">Help to improve myMPD</a>
 
 Screenshots
 -----------
@@ -64,9 +67,9 @@ Backend
 
 Dependencies
 ------------
- - OpenSSL (optional)
- - libid3tag (optional)
- - libflac (optional)
+ - OpenSSL >= 1.1.0 (optional): for https support
+ - libid3tag (optional): to extract embedded albumart
+ - libflac (optional): to extract embedded albumart
 
 Build Dependencies
 ------------------
@@ -75,7 +78,7 @@ Build Dependencies
  - Java: to minify files
  - Perl: to create translation files
 
-Unix Build Instructions
+Quick Build Instructions
 -----------------------
 1. Get myMPD tarball from https://github.com/jcorporation/myMPD/releases/latest
 2. Extract myMPD tarball and change path to this directory
@@ -85,7 +88,7 @@ Unix Build Instructions
 
 Run
 ---
-Adapt the configuration file ``/etc/mympd.conf`` to your needs (``/etc/webapps/mympd/mympd.conf`` for Archlinux).
+Adapt the configuration file ``/etc/mympd.conf`` to your needs (``/etc/webapps/mympd/mympd.conf`` for Archlinux) or use the <a href="https://github.com/jcorporation/myMPD/wiki/mympd-config">mympd-config</a> tool to generate automatically a valid mympd.conf
 
 ``
 Usage: ./mympd [/etc/mympd.conf]

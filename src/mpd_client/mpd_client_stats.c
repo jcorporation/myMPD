@@ -44,7 +44,7 @@ bool mpd_client_last_played_list_save(t_config *config, t_mpd_state *mpd_state) 
     FILE *fp = fdopen(fd, "w");
     //first write last_played list to tmp file
     int i = 0;
-    struct node *current = mpd_state->last_played.head;
+    struct list_node *current = mpd_state->last_played.head;
     while (current != NULL && i < mpd_state->last_played_count) {
         fprintf(fp, "%ld::%s\n", current->value_i, current->key);
         current = current->next;
@@ -102,8 +102,8 @@ bool mpd_client_last_played_list(t_config *config, t_mpd_state *mpd_state, const
                 }
             }
             else if (mpd_state->last_played.length > mpd_state->last_played_count) {
-                //remove first entry
-                list_shift(&mpd_state->last_played, 0);
+                //remove last entry
+                list_shift(&mpd_state->last_played, mpd_state->last_played.length - 1);
             }
             //notify clients
             sds buffer = jsonrpc_notify(sdsempty(), "update_lastplayed");
@@ -127,7 +127,7 @@ sds mpd_client_put_last_played_songs(t_config *config, t_mpd_state *mpd_state, s
     buffer = sdscat(buffer, ",\"data\":[");
     
     if (mpd_state->last_played.length > 0) {
-        struct node *current = mpd_state->last_played.head;
+        struct list_node *current = mpd_state->last_played.head;
         while (current != NULL) {
             entity_count++;
             if (entity_count > offset && entity_count <= offset + mpd_state->max_elements_per_page) {

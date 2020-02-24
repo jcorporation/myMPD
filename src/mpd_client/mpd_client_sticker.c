@@ -28,10 +28,16 @@ bool _sticker_cache_init(t_config *config, t_mpd_state *mpd_state);
 
 //public functions
 bool sticker_cache_init(t_config *config, t_mpd_state *mpd_state) {
-    mpd_run_clear_tag_types(mpd_state->conn);
-    bool rc = _sticker_cache_init(config, mpd_state);
-    enable_mpd_tags(mpd_state, mpd_state->mympd_tag_types);
-    return rc;
+    if (LIBMPDCLIENT_CHECK_VERSION(2, 11, 0) && mpd_connection_cmp_server_version(mpd_state->conn, 0, 20, 0) >= 0) {
+        disable_all_mpd_tags(mpd_state);
+        bool rc = _sticker_cache_init(config, mpd_state);
+        enable_mpd_tags(mpd_state, mpd_state->mympd_tag_types);
+        return rc;
+    }
+    else {
+        LOG_WARN("Sticker cache disabled, mpd version < 0.20.0 or libmpdclient < 2.11.0");
+        return false;
+    }
 }
 
 bool mpd_client_count_song_uri(t_mpd_state *mpd_state, const char *uri, const char *name, const int value) {
@@ -243,10 +249,17 @@ bool _sticker_cache_init(t_config *config, t_mpd_state *mpd_state) {
     mpd_state->sticker_cache = raxNew();
     //get all songs from database
     do {
-        if (mpd_search_db_songs(mpd_state->conn, false) == false) { return false; }
-        else if (mpd_search_add_uri_constraint(mpd_state->conn, MPD_OPERATOR_DEFAULT, "") == false) { return false; }
-        else if (mpd_search_add_window(mpd_state->conn, start, end) == false) { return false; }
-        else if (mpd_search_commit(mpd_state->conn) == false) { return false; }
+        bool rc = true;
+        if (mpd_search_db_songs(mpd_state->conn, false) == false) { rc = false; }
+        else if (mpd_search_add_uri_constraint(mpd_state->conn, MPD_OPERATOR_DEFAULT, "") == false) { rc = false; }
+        else if (mpd_search_add_window(mpd_state->conn, start, end) == false) { rc = false; }
+        if (rc == false) {
+            mpd_search_cancel(mpd_state->conn);
+        }
+        if (rc == false || mpd_search_commit(mpd_state->conn) == false || check_error_and_recover2(mpd_state, NULL, NULL, 0, false) == false) {
+            LOG_VERBOSE("Sticker cache update failed");
+            return false;        
+        }
                     
         while ((song = mpd_recv_song(mpd_state->conn)) != NULL) {
             const char *uri = mpd_song_get_uri(song);
@@ -257,6 +270,11 @@ bool _sticker_cache_init(t_config *config, t_mpd_state *mpd_state) {
             mpd_song_free(song);
         }
         mpd_response_finish(mpd_state->conn);
+        if (check_error_and_recover2(mpd_state, NULL, NULL, 0, false) == false) {
+            sticker_cache_free(mpd_state);
+            LOG_VERBOSE("Sticker cache update failed");
+            return false;        
+        }
         start = end;
         end = end + 1000;
     } while (i > start);
@@ -274,4 +292,3 @@ bool _sticker_cache_init(t_config *config, t_mpd_state *mpd_state) {
     LOG_VERBOSE("Sticker cache updated successfully");
     return true;
 }
-

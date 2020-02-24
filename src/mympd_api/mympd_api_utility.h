@@ -47,6 +47,10 @@ typedef struct t_mympd_state {
     sds searchtaglist;
     sds browsetaglist;
     bool smartpls;
+    sds smartpls_sort;
+    sds smartpls_prefix;
+    time_t smartpls_interval;
+    sds generate_pls_tags;
     int max_elements_per_page;
     int last_played_count;
     bool love;
@@ -54,6 +58,7 @@ typedef struct t_mympd_state {
     sds love_message;
     bool notification_web;
     bool notification_page;
+    bool media_session;
     bool auto_play;
     enum jukebox_modes jukebox_mode;
     sds jukebox_playlist;
@@ -81,8 +86,10 @@ typedef struct t_mympd_state {
     sds locale;
     sds music_directory;
     sds theme;
+    sds highlight_color;
     bool bookmarks;
     bool timer;
+    sds booklet_name;
     struct t_timer_list timer_list;
 } t_mympd_state;
 

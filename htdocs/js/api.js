@@ -88,11 +88,14 @@ function webSocketConnect() {
         }
 
         socket.onmessage = function got_packet(msg) {
+            var obj;
             try {
-                var obj = JSON.parse(msg.data);
+                obj = JSON.parse(msg.data);
                 logDebug('Websocket notification: ' + JSON.stringify(obj));
-            } catch(e) {
+            }
+            catch(error) {
                 logError('Invalid JSON data received: ' + msg.data);
+                return;
             }
 
             switch (obj.method) {
@@ -190,8 +193,8 @@ function webSocketConnect() {
             socket = null;
         }
 
-    } catch(exception) {
-        logError(exception);
+    } catch(error) {
+        logError(error);
     }
 }
 

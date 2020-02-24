@@ -11,6 +11,7 @@
 #include <inttypes.h>
 #include <signal.h>
 #include <unistd.h>
+#include <dirent.h>
 #include <mpd/client.h>
 
 #include "../../dist/src/sds/sds.h"
@@ -25,10 +26,98 @@
 #include "../log.h"
 #include "mpd_client_utility.h"
 
+sds put_extra_files(t_mpd_state *mpd_state, sds buffer, const char *uri) {
+    bool lyrics = false;
+    bool booklet = false;
+    struct list images;
+    list_init(&images);
+    detect_extra_files(mpd_state, uri, &booklet, &lyrics, &images);
+    buffer = tojson_bool(buffer, "booklet", booklet, true);
+    buffer = tojson_bool(buffer, "lyricsfile", lyrics, true);
+    buffer = sdscat(buffer, "\"images\": [");
+    struct list_node *current = images.head;
+    while (current != NULL) {
+        if (current != images.head) {
+            buffer = sdscatlen(buffer, ",", 1);
+        }
+        buffer = sdscatjson(buffer, current->key, sdslen(current->key));
+        current = current->next;
+    }
+    buffer = sdscat(buffer, "]");
+    list_free(&images);
+    return buffer;
+}
+
+void detect_extra_files(t_mpd_state *mpd_state, const char *uri, bool *booklet, bool *lyrics, struct list *images) {
+    *booklet = false;
+    *lyrics = false;
+  
+    char *uricpy = strdup(uri);
+    
+    char *filename = basename(uricpy);
+    strip_extension(filename);
+    sds lyricsfile = sdscatfmt(sdsempty(), "%s.txt", filename);
+    
+    char *path = dirname(uricpy);
+    sds albumpath = sdscatfmt(sdsempty(), "%s/%s", mpd_state->music_directory_value, path);
+    
+    DIR *album_dir = opendir(albumpath);
+    if (album_dir != NULL) {
+        struct dirent *next_file;
+        while ((next_file = readdir(album_dir)) != NULL) {
+            const char *ext = strrchr(next_file->d_name, '.');
+            if (strcmp(next_file->d_name, mpd_state->booklet_name) == 0) {
+                LOG_DEBUG("Found booklet for uri %s", uri);
+                *booklet = true;
+            }
+            else if (strcmp(next_file->d_name, lyricsfile) == 0) {
+                LOG_DEBUG("Found lyrics %s", next_file->d_name);
+                *lyrics = true;
+            }
+            else if (ext != NULL) {
+                if (strcmp(ext, ".webp") == 0 || strcmp(ext, ".jpg") == 0 ||
+                    strcmp(ext, ".jpeg") == 0 || strcmp(ext, ".png") == 0 ||
+                    strcmp(ext, ".tiff") == 0 || strcmp(ext, ".svg") == 0 ||
+                    strcmp(ext, ".bmp") == 0) 
+                {
+                    sds fullpath = sdscatfmt(sdsempty(), "%s/%s", path, next_file->d_name);
+                    list_push(images, fullpath, 0, NULL, NULL);
+                    sdsfree(fullpath);
+                }
+            }
+        }
+        closedir(album_dir);
+    }
+    FREE_PTR(uricpy);
+    sdsfree(albumpath);
+    sdsfree(lyricsfile);
+}
+
+void disable_all_mpd_tags(t_mpd_state *mpd_state) {
+    #if LIBMPDCLIENT_CHECK_VERSION(2,12,0)
+    if (mpd_connection_cmp_server_version(mpd_state->conn, 0, 21, 0) >= 0) {
+        LOG_DEBUG("Disabling all mpd tag types");
+        mpd_run_clear_tag_types(mpd_state->conn);
+        check_error_and_recover2(mpd_state, NULL, NULL, 0, false);
+    }
+    #endif
+}
+
+void enable_all_mpd_tags(t_mpd_state *mpd_state) {
+    #if LIBMPDCLIENT_CHECK_VERSION(2,12,0)
+    if (mpd_connection_cmp_server_version(mpd_state->conn, 0, 21, 0) >= 0) {
+        LOG_DEBUG("Enabling all mpd tag types");
+        mpd_send_command(mpd_state->conn, "tagtypes", "all", NULL);
+        mpd_response_finish(mpd_state->conn);
+        check_error_and_recover2(mpd_state, NULL, NULL, 0, false);
+    }
+    #endif
+}
+
 void enable_mpd_tags(t_mpd_state *mpd_state, t_tags enable_tags) {
     #if LIBMPDCLIENT_CHECK_VERSION(2,12,0)
     if (mpd_connection_cmp_server_version(mpd_state->conn, 0, 21, 0) >= 0) {
-        LOG_VERBOSE("Setting interesting mpd tag types");
+        LOG_DEBUG("Setting interesting mpd tag types");
         if (mpd_command_list_begin(mpd_state->conn, false)) {
             mpd_send_clear_tag_types(mpd_state->conn);
             if (enable_tags.len > 0) {
@@ -62,6 +151,7 @@ sds put_song_tags(sds buffer, t_mpd_state *mpd_state, const t_tags *tagcols, con
         buffer = tojson_char(buffer, "Title", tag_value == NULL ? "-" : tag_value, true);
     }
     buffer = tojson_long(buffer, "Duration", mpd_song_get_duration(song), true);
+    buffer = tojson_long(buffer, "LastModified", mpd_song_get_last_modified(song), true);
     buffer = tojson_char(buffer, "uri", mpd_song_get_uri(song), false);
     return buffer;
 }
@@ -87,20 +177,32 @@ sds put_empty_song_tags(sds buffer, t_mpd_state *mpd_state, const t_tags *tagcol
 
 
 bool check_error_and_recover2(t_mpd_state *mpd_state, sds *buffer, sds method, int request_id, bool notify) {
-    if (mpd_connection_get_error(mpd_state->conn) != MPD_ERROR_SUCCESS) {
-        LOG_ERROR("MPD error: %s", mpd_connection_get_error_message(mpd_state->conn));
-        if (*buffer != NULL) {
-            if (notify == false) {
-                *buffer = jsonrpc_respond_message(*buffer, method, request_id, mpd_connection_get_error_message(mpd_state->conn), true);
-            }
-            else {
-                *buffer = jsonrpc_start_notify(*buffer, "error");
-                *buffer = tojson_char(*buffer, "message", mpd_connection_get_error_message(mpd_state->conn), false);
-                *buffer = jsonrpc_end_notify(*buffer);
+    enum mpd_error error = mpd_connection_get_error(mpd_state->conn);
+    if (error  != MPD_ERROR_SUCCESS) {
+        const char *error_msg = mpd_connection_get_error_message(mpd_state->conn);
+        LOG_ERROR("MPD error: %s (%d)", error_msg , error);
+        if (buffer != NULL) {
+            if (*buffer != NULL) {
+                if (notify == false) {
+                    *buffer = jsonrpc_respond_message(*buffer, method, request_id, mpd_connection_get_error_message(mpd_state->conn), true);
+                }
+                else {
+                    *buffer = jsonrpc_start_notify(*buffer, "error");
+                    *buffer = tojson_char(*buffer, "message", mpd_connection_get_error_message(mpd_state->conn), false);
+                    *buffer = jsonrpc_end_notify(*buffer);
+                }
             }
         }
+
+        if (error == 8) { //Connection closed by the server
+            mpd_state->conn_state = MPD_FAILURE;
+        }
         mpd_connection_clear_error(mpd_state->conn);
-        mpd_response_finish(mpd_state->conn);
+        if (mpd_state->conn_state != MPD_FAILURE) {
+            mpd_response_finish(mpd_state->conn);
+            //enable default mpd tags after cleaning error
+            enable_mpd_tags(mpd_state, mpd_state->mympd_tag_types);
+        }
         return false;
     }
     return true;
@@ -215,13 +317,19 @@ void default_mpd_state(t_mpd_state *mpd_state) {
     mpd_state->taglist = sdsempty();
     mpd_state->searchtaglist = sdsempty();
     mpd_state->browsetaglist = sdsempty();
+    mpd_state->generate_pls_tags = sdsempty();
     mpd_state->mpd_host = sdsempty();
     mpd_state->mpd_port = 0;
     mpd_state->mpd_pass = sdsempty();
+    mpd_state->smartpls_sort = sdsempty();
+    mpd_state->smartpls_prefix = sdsempty();
+    mpd_state->smartpls_interval = 14400;
+    mpd_state->booklet_name = sdsnew("booklet.pdf");
     reset_t_tags(&mpd_state->mpd_tag_types);
     reset_t_tags(&mpd_state->mympd_tag_types);
     reset_t_tags(&mpd_state->search_tag_types);
     reset_t_tags(&mpd_state->browse_tag_types);
+    reset_t_tags(&mpd_state->generate_pls_tag_types);
     //init last played songs list
     list_init(&mpd_state->last_played);
     //jukebox queue
@@ -242,8 +350,12 @@ void free_mpd_state(t_mpd_state *mpd_state) {
     sdsfree(mpd_state->taglist);
     sdsfree(mpd_state->searchtaglist);
     sdsfree(mpd_state->browsetaglist);
+    sdsfree(mpd_state->generate_pls_tags);
     sdsfree(mpd_state->mpd_host);
     sdsfree(mpd_state->mpd_pass);
+    sdsfree(mpd_state->smartpls_sort);
+    sdsfree(mpd_state->smartpls_prefix);
+    sdsfree(mpd_state->booklet_name);
     list_free(&mpd_state->jukebox_queue);
     list_free(&mpd_state->jukebox_queue_tmp);
     free(mpd_state);

@@ -189,22 +189,77 @@ int testdir(const char *name, const char *dirname, bool create) {
     }
 }
 
+
+
+int strip_extension(char *s) {
+    for (ssize_t i = strlen(s) - 1 ; i > 0; i--) {
+        if (s[i] == '.') {
+            s[i] = '\0';
+            return i;
+        }
+        else if (s[i] == '/') {
+            return -1;
+        }
+    }
+    return -1;
+}
+
 int randrange(int n) {
     return rand() / (RAND_MAX / (n + 1) + 1);
 }
 
 bool validate_string(const char *data) {
     if (strchr(data, '/') != NULL || strchr(data, '\n') != NULL || strchr(data, '\r') != NULL ||
+        strchr(data, '\t') != NULL ||
         strchr(data, '"') != NULL || strchr(data, '\'') != NULL || strchr(data, '\\') != NULL) {
         return false;
     }
     return true;
 }
 
+bool validate_string_not_empty(const char *data) {
+    if (data == NULL) { 
+        return false;
+    }
+    else if (strlen(data) == 0) {
+        return false;
+    }
+    else {
+        return validate_string(data);
+    }
+}
+
+bool validate_string_not_dir(const char *data) {
+    bool rc = validate_string_not_empty(data);
+    if (rc == true) {
+        if (strcmp(data, ".") == 0 || strcmp(data, "..") == 0) {
+            rc = false;
+        }    
+    }
+    return rc;
+}
+
 bool validate_uri(const char *data) {
     if (strstr(data, "/../") != NULL) {
         return false;
     }
+    return true;
+}
+
+bool validate_songuri(const char *data) {
+    if (data == NULL) {
+        return false;
+    }
+    else if (strlen(data) == 0) {
+        return false;
+    }
+    else if (strcmp(data, "/") == 0) {
+        return false;
+    }
+    else if (strchr(data, '.') == NULL) {
+        return false;
+    }
+    
     return true;
 }
 
