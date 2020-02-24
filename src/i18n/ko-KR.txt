@@ -1096,10 +1096,13 @@ Must be a number and equal or greater than zero
 숫자이고 0과 같거나 커야 함
 
 Timer
-시간 조절
+타이머
 
 New timer
-새로운 시간 조절
+새로운 타이머
+
+Timer with given id not found
+타이머를 찾을 수 없음
 
 On
 켜기
@@ -1289,3 +1292,6 @@ Pictures
 
 Notifications are blocked
 알림 차단됨
+
+Adding timer failed
+타이머를 추가할 수 없음
