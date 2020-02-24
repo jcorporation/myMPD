@@ -49,7 +49,6 @@
 //default paths
 #define DOC_ROOT "${ASSETS_PATH}"
 #define ETC_PATH "${ETC_PATH}"
-#define PLUGIN_PATH "${PLUGIN_PATH}"
 #define VARLIB_PATH "${VARLIB_PATH}"
 
 enum jukebox_modes {
