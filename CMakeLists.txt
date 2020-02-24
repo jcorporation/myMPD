@@ -110,7 +110,6 @@ endif()
 
 configure_file(src/config_defs.h.in ${PROJECT_BINARY_DIR}/config_defs.h)
 configure_file(cmake/CopyConfig.cmake.in cmake/CopyConfig.cmake @ONLY)
-configure_file(contrib/mympd.conf.in contrib/mympd.conf @ONLY)
 configure_file(contrib/initscripts/mympd.service.in contrib/initscripts/mympd.service @ONLY)
 configure_file(contrib/initscripts/mympd.sysVinit.in contrib/initscripts/mympd.sysVinit @ONLY)
 configure_file(contrib/initscripts/mympd.openrc.in contrib/initscripts/mympd.openrc @ONLY)

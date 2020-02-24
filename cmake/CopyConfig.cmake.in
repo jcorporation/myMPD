@@ -1,10 +1,10 @@
 #Install mympd.conf
 IF(NOT EXISTS "$ENV{DESTDIR}@ETC_PATH@/mympd.conf")
   MESSAGE("-- Installing: $ENV{DESTDIR}@ETC_PATH@/mympd.conf")
-  EXECUTE_PROCESS (COMMAND @CMAKE_COMMAND@ -E copy "@CMAKE_CURRENT_BINARY_DIR@/contrib/mympd.conf" "$ENV{DESTDIR}@ETC_PATH@/mympd.conf")
+  EXECUTE_PROCESS (COMMAND @CMAKE_CURRENT_BINARY_DIR@/cli_tools/mympd-config -m $ENV{DESTDIR}@ETC_PATH@/mympd.conf)
 ELSE()
   MESSAGE("-- Installing: $ENV{DESTDIR}@ETC_PATH@/mympd.conf.dist")
-  EXECUTE_PROCESS (COMMAND @CMAKE_COMMAND@ -E copy "@CMAKE_CURRENT_BINARY_DIR@/contrib/mympd.conf" "$ENV{DESTDIR}@ETC_PATH@/mympd.conf.dist")
+  EXECUTE_PROCESS (COMMAND @CMAKE_CURRENT_BINARY_DIR@/cli_tools/mympd-config -m $ENV{DESTDIR}@ETC_PATH@/mympd.conf.dist)
 ENDIF()
 
 #Install startup script
