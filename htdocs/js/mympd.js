@@ -6,7 +6,7 @@
 */
 
 /* Disable eslint warnings */
-/* global Modal, Dropdown, Collapse, Popover, Carousel */
+/* global Modal, Dropdown, Collapse, Popover, Carousel, phrases, locales */
 
 var socket = null;
 var lastSong = '';
