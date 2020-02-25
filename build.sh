@@ -182,6 +182,7 @@ buildrelease() {
   JSSRCFILES=""
   for F in htdocs/js/*.js
   do
+    [ "$F" = "htdocs/js/i18n.js" ] && continue
     [ -L "$F" ] || JSSRCFILES="$JSSRCFILES $F"
     if tail -1 "$F" | perl -npe 'exit 1 if m/\n/; exit 0'
     then
