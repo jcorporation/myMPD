@@ -66,7 +66,7 @@ for my $filename (@files) {
 }
 
 #print i18n.js
-print "var locales=[";
+print "let locales=[";
 print "\n\t" if $pretty eq 1;
 my $i = 0;
 for my $lang (sort @langs) {
@@ -94,7 +94,7 @@ for my $lang (sort @langs) {
 print "\n" if $pretty eq 1;
 print "];";
 print "\n" if $pretty eq 1;
-print "var phrases={";
+print "let phrases={";
 
 $i = 0;
 for my $key (sort keys %$phrases) {
