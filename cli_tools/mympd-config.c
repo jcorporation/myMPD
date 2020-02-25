@@ -288,7 +288,7 @@ sds find_mpd_conf() {
     sds filename = sdsempty();
     for (const char **p = filenames; *p != NULL; p++) {
         filename = sdsreplace(filename, *p);
-        if (access(filename, F_OK) == 0) {
+        if (access(filename, F_OK) == 0) { /* Flawfinder: ignore */
             printf("\tFound %s\n", filename);
             return filename;
         }
@@ -309,7 +309,7 @@ sds find_mpd_exe() {
     sds filename = sdsempty();
     for (const char **p = filenames; *p != NULL; p++) {
         filename = sdsreplace(filename, *p);
-        if (access(filename, F_OK) == 0) {
+        if (access(filename, F_OK) == 0) { /* Flawfinder: ignore */
             printf("\tFound %s\n", filename);
             return filename;
         }
