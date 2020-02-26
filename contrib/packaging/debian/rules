@@ -13,7 +13,7 @@ binary: binary-indep binary-arch
 binary-indep:
 
 binary-arch:
-	cd $(BUILDDIR); make install DESTDIR=../debian/tmp
+	cd $(BUILDDIR); mkdir -p ../debian/tmp/etc/; make install DESTDIR=../debian/tmp
 	mkdir -p debian/tmp/DEBIAN
 	cp debian/postinst debian/tmp/DEBIAN
 	cp debian/postrm debian/tmp/DEBIAN
