@@ -1,6 +1,8 @@
 #Install mympd.conf
+
 IF(NOT EXISTS "$ENV{DESTDIR}@ETC_PATH@/mympd.conf")
   MESSAGE("-- Installing: $ENV{DESTDIR}@ETC_PATH@/mympd.conf")
+  EXECUTE_PROCESS (COMMAND @CMAKE_COMMAND@ -E make_directory "$ENV{DESTDIR}@ETC_PATH@")
   EXECUTE_PROCESS (COMMAND @CMAKE_CURRENT_BINARY_DIR@/cli_tools/mympd-config -m $ENV{DESTDIR}@ETC_PATH@/mympd.conf)
 ELSE()
   MESSAGE("-- Installing: $ENV{DESTDIR}@ETC_PATH@/mympd.conf.dist")
