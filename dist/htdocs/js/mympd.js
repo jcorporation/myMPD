@@ -4094,6 +4094,17 @@ function parseMPDSettings() {
         clearBackgroundImage();
     }
     
+    settings.tags.sort();
+    settings.searchtags.sort();
+    settings.browsetags.sort();
+    filterCols('colsSearch');
+    filterCols('colsQueueCurrent');
+    filterCols('colsQueueLastPlayed');
+    filterCols('colsBrowsePlaylistsDetail');
+    filterCols('colsBrowseFilesystem');
+    filterCols('colsBrowseDatabase');
+    filterCols('colsPlayback');
+    
     if (settings.featTags === false) {
         app.apps.Browse.active = 'Filesystem';
         app.apps.Search.state = '0/filename/-/';
@@ -4153,17 +4164,6 @@ function parseMPDSettings() {
         document.getElementById('selectJukeboxPlaylist').innerHTML = '<option value="Database">' + t('Database') + '</option>';
     }
 
-    settings.tags.sort();
-    settings.searchtags.sort();
-    settings.browsetags.sort();
-    filterCols('colsSearch');
-    filterCols('colsQueueCurrent');
-    filterCols('colsQueueLastPlayed');
-    filterCols('colsBrowsePlaylistsDetail');
-    filterCols('colsBrowseFilesystem');
-    filterCols('colsBrowseDatabase');
-    filterCols('colsPlayback');
-    
     setCols('QueueCurrent');
     setCols('Search');
     setCols('QueueLastPlayed');
@@ -4453,6 +4453,7 @@ function filterCols(x) {
         }
     }
     settings[x] = cols;
+    logDebug('Columns for ' + x + ': ' + cols);
 }
 
 //eslint-disable-next-line no-unused-vars
