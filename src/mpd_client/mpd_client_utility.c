@@ -194,7 +194,8 @@ bool check_error_and_recover2(t_mpd_state *mpd_state, sds *buffer, sds method, i
             }
         }
 
-        if (error == 8) { //Connection closed by the server
+        if (error == 8 || //Connection closed by the server
+            error == 5) { //Broken pipe
             mpd_state->conn_state = MPD_FAILURE;
         }
         mpd_connection_clear_error(mpd_state->conn);
