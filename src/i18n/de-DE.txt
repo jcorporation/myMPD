@@ -1295,3 +1295,6 @@ Benachrichtungen sind nicht erlaubt
 
 Adding timer failed
 Timers konnte nicht hinzugefügt werden
+
+Browse directories
+Verzeichnisse anzeigen

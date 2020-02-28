@@ -204,7 +204,8 @@ function parseSettings() {
     
     toggleBtnChkCollapse('btnSmartpls', 'collapseSmartpls', settings.smartpls);
     
-    let features = ["featLocalplayer", "featSyscmds", "featMixramp", "featCacert", "featBookmarks", "featRegex", "featTimer"];
+    let features = ["featLocalplayer", "featSyscmds", "featMixramp", "featCacert", "featBookmarks", 
+        "featRegex", "featTimer"];
     for (let j = 0; j < features.length; j++) {
         let Els = document.getElementsByClassName(features[j]);
         let ElsLen = Els.length;
@@ -401,9 +402,17 @@ function parseMPDSettings() {
     else {
         settings.featCovergrid = true;
     }
+    
+        
+    if (settings.featLibrary === true && settings.publish === true) {
+        settings['featBrowse'] = true;    
+    }
+    else {
+        settings['featBrowse'] = false;
+    }
 
     let features = ['featStickers', 'featSmartpls', 'featPlaylists', 'featTags', 'featCoverimage', 'featAdvsearch',
-        'featLove', 'featSingleOneshot', 'featCovergrid'];
+        'featLove', 'featSingleOneshot', 'featCovergrid', 'featBrowse'];
     for (let j = 0; j < features.length; j++) {
         let Els = document.getElementsByClassName(features[j]);
         let ElsLen = Els.length;
