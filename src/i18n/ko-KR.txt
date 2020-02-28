@@ -1295,3 +1295,6 @@ Notifications are blocked
 
 Adding timer failed
 타이머를 추가할 수 없음
+
+Browse directories
+디렉터리 열기
