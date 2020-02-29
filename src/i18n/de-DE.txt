@@ -670,10 +670,10 @@ Stop playing
 Stop
 
 Volume down
-Lauter
+Leiser
 
 Volume up
-Leiser
+Lauter
 
 Open settings
 Einstellungen
