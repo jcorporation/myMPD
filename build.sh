@@ -575,16 +575,12 @@ installdeps() {
   if [ -f /etc/debian_version ]
   then
     #debian
+    JAVADEB="default-jre-headless"
+    #issue 234
+    [ "$(uname -m)" = "armv6l" ] && JAVADEB="openjdk-8-jre-headless"
     apt-get update
     apt-get install -y --no-install-recommends \
-	gcc cmake perl libssl-dev libid3tag0-dev libflac-dev build-essential
-    if [ "$(uname -m)" = "armv6l" ]
-    then
-      #debian on ARMv6 (raspberry 1 or zeros)
-      apt-get install openjdk-8-jre-headless
-    else
-      apt-get install default-jre-headless
-    fi
+	gcc cmake perl libssl-dev libid3tag0-dev libflac-dev build-essential $JAVADEB
   elif [ -f /etc/arch-release ]
   then
     #arch
