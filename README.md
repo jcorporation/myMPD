@@ -44,6 +44,8 @@ This fork provides a reworked ui based on Bootstrap 4, a modernized backend and 
 myMPD is in active development. If you like myMPD, you can help to improve it (no programming skills are required).
   - <a href="https://github.com/jcorporation/myMPD/issues/167">Help to improve myMPD</a>
 
+To use all myMPD functions you should use the latest stable MPD version (0.21.x). myMPD already supports function of MPD 0.22.x (e.g. the readpicture command).
+
 Screenshots
 -----------
 
