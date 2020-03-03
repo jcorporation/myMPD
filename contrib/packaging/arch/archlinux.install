@@ -14,7 +14,7 @@ post_upgrade() {
   getent passwd mympd > /dev/null || useradd -r -g mympd -s /bin/false -d /var/lib/mympd mympd
 
   # installation complete
-  echo "Edit /etc/webapps/mympd/mympd.conf before starting myMPD"
+  echo "Edit /etc/webapps/mympd/mympd.conf or run \"mympd-config -m/etc/webapps/mympd/mympd.conf\" before starting myMPD"
   exit 0
 }
 

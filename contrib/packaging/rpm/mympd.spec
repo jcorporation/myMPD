@@ -42,6 +42,7 @@ make install DESTDIR=%{buildroot}
 echo "Checking status of mympd system user and group"
 getent group mympd > /dev/null || groupadd -r mympd
 getent passwd mympd > /dev/null || useradd -r -g mympd -s /bin/false -d /var/lib/mympd mympd
+echo "Edit /etc/mympd.conf or run mympd-config before starting myMPD"
 true
 
 %postun
