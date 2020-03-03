@@ -697,6 +697,8 @@ function saveSettings(closeModal) {
     let replaygain = getBtnGroupValue('btnReplaygainGroup');
     let jukeboxUniqueTag = document.getElementById('selectJukeboxUniqueTag');
     let jukeboxUniqueTagValue = jukeboxUniqueTag.options[jukeboxUniqueTag.selectedIndex].value;
+
+    let selectJukeboxPlaylist = document.getElementById('selectJukeboxPlaylist');
     let jukeboxPlaylist = selectJukeboxPlaylist.options[selectJukeboxPlaylist.selectedIndex].value;
     
     if (jukeboxMode === '2') {
@@ -709,7 +711,6 @@ function saveSettings(closeModal) {
     }
     
     if (formOK === true) {
-        let selectJukeboxPlaylist = document.getElementById('selectJukeboxPlaylist');
         let selectLocale = document.getElementById('selectLocale');
         let selectTheme = document.getElementById('selectTheme');
         sendAPI("MYMPD_API_SETTINGS_SET", {

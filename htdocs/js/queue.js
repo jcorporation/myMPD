@@ -261,7 +261,10 @@ function addToQueue() {
         formOK = false;
     }
     
+    let selectAddToQueueMode = document.getElementById('selectAddToQueueMode');
     let jukeboxMode = selectAddToQueueMode.options[selectAddToQueueMode.selectedIndex].value
+
+    let selectAddToQueuePlaylist = document.getElementById('selectAddToQueuePlaylist');
     let jukeboxPlaylist = selectAddToQueuePlaylist.options[selectAddToQueuePlaylist.selectedIndex].value;
     
     if (jukeboxMode === '1' && settings.featSearchwindow === false && jukeboxPlaylist === 'Database') {
@@ -270,8 +273,6 @@ function addToQueue() {
     }
     
     if (formOK === true) {
-        let selectAddToQueueMode = document.getElementById('selectAddToQueueMode');
-        let selectAddToQueuePlaylist = document.getElementById('selectAddToQueuePlaylist');
         sendAPI("MPD_API_QUEUE_ADD_RANDOM", {
             "mode": jukeboxMode,
             "playlist": jukeboxPlaylist,
