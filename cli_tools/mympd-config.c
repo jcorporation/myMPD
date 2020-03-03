@@ -12,6 +12,8 @@
 #include <inttypes.h>
 #include <getopt.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #include "../dist/src/sds/sds.h"
 #include "../src/sds_extras.h"
@@ -347,6 +349,7 @@ void set_defaults(struct t_config *pconfig) {
 
 bool write_mympd_conf(struct t_config *pconfig) {
     printf("Writing %s\n", pconfig->mympd_conf);
+    umask(0022);
     sds tmp_file = sdscatfmt(sdsempty(), "%s.XXXXXX", pconfig->mympd_conf);
     int fd = mkstemp(tmp_file);
     if (fd < 0) {
@@ -354,6 +357,7 @@ bool write_mympd_conf(struct t_config *pconfig) {
         sdsfree(tmp_file);
         return false;
     }
+    fchmod(fd, 0644);
     FILE *fp = fdopen(fd, "w");
     fprintf(fp, "# myMPD configuration file\n"
         "#\n"
