@@ -1096,6 +1096,7 @@
                       </select>
                     </div>
                   </div>
+                  <div id="warnJukeboxPlaylist" class="alert alert-warning hide" data-phrase="Sorry, your MPD version is to old"></div>
                   <div class="form-group row">
                     <label class="col-sm-4 col-form-label" for="inputJukeboxQueueLength" data-phrase="Keep queue length"></label>
                     <div class="col-sm-8">
@@ -1618,28 +1619,29 @@
         </div>
         <div class="modal-body">
           <form id="addToQueueFrm">
-          <div class="row">
-            <div class="form-group col-md-6">
-              <label class="control-label" for="selectAddToQueueMode" data-phrase="Add random"></label>
-              <select id="selectAddToQueueMode" class="form-control custom-select border-secondary">
-                <option value="1" data-phrase="Song"></option>
-                <option value="2" data-phrase="Album"></option>
-              </select>
+            <div class="row">
+              <div class="form-group col-md-6">
+                <label class="control-label" for="selectAddToQueueMode" data-phrase="Add random"></label>
+                <select id="selectAddToQueueMode" class="form-control custom-select border-secondary">
+                  <option value="1" data-phrase="Song"></option>
+                  <option value="2" data-phrase="Album"></option>
+                </select>
+              </div>
+              <div class="form-group col-md-6">
+                <label class="control-label" for="selectAddToQueuePlaylist" data-phrase="From"></label>
+                <select id="selectAddToQueuePlaylist" class="form-control custom-select border-secondary">
+                </select>
+              </div>
             </div>
-            <div class="form-group col-md-6">
-              <label class="control-label" for="selectAddToQueuePlaylist" data-phrase="From"></label>
-              <select id="selectAddToQueuePlaylist" class="form-control custom-select border-secondary">
-              </select>
+            <div class="row">
+              <div class="form-group col-md-6">
+                <label class="control-label" for="inputAddToQueueQuantity" data-phrase="Quantity"></label>
+                <input id="inputAddToQueueQuantity" type="text" class="form-control border-secondary" value="1">
+                <div class="invalid-feedback" data-phrase="Must be a number and greater than zero"></div>
+              </div>
             </div>
-          </div>
-          <div class="row">
-            <div class="form-group col-md-6">
-              <label class="control-label" for="inputAddToQueueQuantity" data-phrase="Quantity"></label>
-              <input id="inputAddToQueueQuantity" type="text" class="form-control border-secondary" value="1">
-              <div class="invalid-feedback" data-phrase="Must be a number and greater than zero"></div>
-            </div>
-          </div>
           </form>
+          <div id="warnJukeboxPlaylist2" class="alert alert-warning hide" data-phrase="Sorry, your MPD version is to old"></div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Cancel"></button>

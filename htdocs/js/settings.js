@@ -475,6 +475,8 @@ function parseMPDSettings() {
         document.getElementById('warnMusicDirectory').classList.add('hide');
     }
 
+    document.getElementById('warnJukeboxPlaylist').classList.add('hide');
+
     if (settings.bgCover === true && settings.featCoverimage === true && settings.coverimage === true) {
         setBackgroundImage(lastSongObj.uri);
     }
@@ -695,9 +697,15 @@ function saveSettings(closeModal) {
     let replaygain = getBtnGroupValue('btnReplaygainGroup');
     let jukeboxUniqueTag = document.getElementById('selectJukeboxUniqueTag');
     let jukeboxUniqueTagValue = jukeboxUniqueTag.options[jukeboxUniqueTag.selectedIndex].value;
+    let jukeboxPlaylist = selectJukeboxPlaylist.options[selectJukeboxPlaylist.selectedIndex].value;
     
     if (jukeboxMode === '2') {
         jukeboxUniqueTagValue = 'Album';
+    }
+    
+    if (jukeboxMode === '1' && settings.featSearchwindow === false && jukeboxPlaylist === 'Database') {
+        formOK = false;
+        document.getElementById('warnJukeboxPlaylist').classList.remove('hide');
     }
     
     if (formOK === true) {
@@ -717,7 +725,7 @@ function saveSettings(closeModal) {
             "notificationPage": (document.getElementById('btnNotifyPage').classList.contains('active') ? true : false),
             "mediaSession": (document.getElementById('btnMediaSession').classList.contains('active') ? true : false),
             "jukeboxMode": parseInt(jukeboxMode),
-            "jukeboxPlaylist": selectJukeboxPlaylist.options[selectJukeboxPlaylist.selectedIndex].value,
+            "jukeboxPlaylist": jukeboxPlaylist,
             "jukeboxQueueLength": parseInt(document.getElementById('inputJukeboxQueueLength').value),
             "jukeboxLastPlayed": parseInt(document.getElementById('inputJukeboxLastPlayed').value),
             "jukeboxUniqueTag": jukeboxUniqueTagValue,

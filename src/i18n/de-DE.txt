@@ -1298,3 +1298,6 @@ Timers konnte nicht hinzugefügt werden
 
 Browse directories
 Verzeichnisse anzeigen
+
+Sorry, your MPD version is to old
+Entschuldige, deine MPD version ist zu alt

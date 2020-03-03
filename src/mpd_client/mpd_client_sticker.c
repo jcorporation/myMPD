@@ -238,7 +238,7 @@ void sticker_cache_free(t_mpd_state *mpd_state) {
 
 //private functions
 bool _sticker_cache_init(t_config *config, t_mpd_state *mpd_state) {
-    if (config->sticker_cache == false || mpd_state->feat_sticker == false) {
+    if (config->sticker_cache == false || mpd_state->feat_sticker == false || mpd_state->feat_mpd_searchwindow == false) {
         return false;
     }
     LOG_VERBOSE("Updating sticker cache");

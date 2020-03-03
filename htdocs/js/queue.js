@@ -261,12 +261,20 @@ function addToQueue() {
         formOK = false;
     }
     
+    let jukeboxMode = selectAddToQueueMode.options[selectAddToQueueMode.selectedIndex].value
+    let jukeboxPlaylist = selectAddToQueuePlaylist.options[selectAddToQueuePlaylist.selectedIndex].value;
+    
+    if (jukeboxMode === '1' && settings.featSearchwindow === false && jukeboxPlaylist === 'Database') {
+        document.getElementById('warnJukeboxPlaylist2').classList.remove('hide');
+        formOK = false;
+    }
+    
     if (formOK === true) {
         let selectAddToQueueMode = document.getElementById('selectAddToQueueMode');
         let selectAddToQueuePlaylist = document.getElementById('selectAddToQueuePlaylist');
         sendAPI("MPD_API_QUEUE_ADD_RANDOM", {
-            "mode": selectAddToQueueMode.options[selectAddToQueueMode.selectedIndex].value,
-            "playlist": selectAddToQueuePlaylist.options[selectAddToQueuePlaylist.selectedIndex].value,
+            "mode": jukeboxMode,
+            "playlist": jukeboxPlaylist,
             "quantity": document.getElementById('inputAddToQueueQuantity').value
         });
         modalAddToQueue.hide();

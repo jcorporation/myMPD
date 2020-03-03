@@ -61,6 +61,7 @@ typedef struct t_mpd_state {
     bool feat_mpd_albumart;
     bool feat_mpd_readpicture;
     bool feat_single_oneshot;
+    bool feat_mpd_searchwindow;
     //mympd states
     enum jukebox_modes jukebox_mode;
     sds jukebox_playlist;

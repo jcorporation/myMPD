@@ -603,6 +603,7 @@ function appInit() {
     
     document.getElementById('modalAddToQueue').addEventListener('shown.bs.modal', function () {
         document.getElementById('inputAddToQueueQuantity').classList.remove('is-invalid');
+        document.getElementById('warnJukeboxPlaylist2').classList.add('hide');
         if (settings.featPlaylists) {
             playlistEl = 'selectAddToQueuePlaylist';
             sendAPI("MPD_API_PLAYLIST_LIST", {"offset": 0, "filter": "-"}, getAllPlaylists);

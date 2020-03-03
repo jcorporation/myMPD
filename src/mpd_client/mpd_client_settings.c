@@ -291,6 +291,7 @@ sds mpd_client_put_settings(t_mpd_state *mpd_state, sds buffer, sds method, int 
     buffer = tojson_bool(buffer, "featCoverimage", mpd_state->feat_coverimage, true);
     buffer = tojson_bool(buffer, "featFingerprint", mpd_state->feat_fingerprint, true);
     buffer = tojson_bool(buffer, "featSingleOneshot", mpd_state->feat_single_oneshot, true);
+    buffer = tojson_bool(buffer, "featSearchwindow", mpd_state->feat_mpd_searchwindow, true);
     buffer = tojson_char(buffer, "musicDirectoryValue", mpd_state->music_directory_value, true);
     buffer = tojson_bool(buffer, "mpdConnected", true, true);
     mpd_status_free(status);
