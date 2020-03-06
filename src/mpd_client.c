@@ -337,7 +337,9 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
                 }
                 
                 if (set_played == true) {
-                    if (mpd_state->last_played.length > 0) {
+                    mpd_state->last_last_played_id = mpd_state->song_id;
+                    
+                    if (mpd_state->last_played_count > 0) {
                         mpd_client_last_played_list(config, mpd_state, mpd_state->song_id);
                     }
                     if (mpd_state->feat_sticker == true) {
