@@ -1242,9 +1242,6 @@ Delete playlists
 Media session support
 미디어 세션 지원
 
-Not supported by libmpdclient
-libmpclient 지원 안 함
-
 Playlists deleted
 연주목록 지워짐
 

@@ -1239,9 +1239,6 @@ Verwijder afspeellijsten
 Media session support
 Mediasessie ondersteuning
 
-Not supported by libmpdclient
-Niet ondersteund door libmpdclient
-
 Playlists deleted
 Afspeellijsten verwijderd
 
