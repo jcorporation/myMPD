@@ -4,7 +4,7 @@
 # (c) 2018-2020 Juergen Mang <mail@jcgames.de>
 
 Name:           mympd
-Version:        6.2.2
+Version:        6.3.0
 Release:        0 
 License:        GPL-2.0-or-later
 Group:          Productivity/Multimedia/Sound/Players
@@ -42,7 +42,6 @@ make install DESTDIR=%{buildroot}
 echo "Checking status of mympd system user and group"
 getent group mympd > /dev/null || groupadd -r mympd
 getent passwd mympd > /dev/null || useradd -r -g mympd -s /bin/false -d /var/lib/mympd mympd
-echo "Edit /etc/mympd.conf or run mympd-config before starting myMPD"
 true
 
 %postun
@@ -60,5 +59,5 @@ fi
 %config(noreplace) /etc/mympd.conf
 
 %changelog
-* Fri Feb 28 2020 Juergen Mang <mail@jcgames.de> 6.2.2-0
+* Fri Mar 06 2020 Juergen Mang <mail@jcgames.de> 6.3.0-0
 - Version from master
