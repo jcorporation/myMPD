@@ -106,7 +106,9 @@ var cmds = [
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_TIMER_LIST"},
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_TIMER_GET","params":{"timerid":timerId}},
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_TIMER_TOGGLE","params":{"timerid":timerId}},
-    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_TIMER_RM","params":{"timerid":timerId}}
+    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_TIMER_RM","params":{"timerid":timerId}},
+    {"jsonrpc":"2.0","id":0,"method":"MPD_API_MOUNT_LIST"},
+    {"jsonrpc":"2.0","id":0,"method":"MPD_API_MOUNT_NEIGHBOR_LIST"}
 ];
 
 function setTest(cmd, state, response) {
