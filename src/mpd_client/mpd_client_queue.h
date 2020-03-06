@@ -4,8 +4,8 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __QUEUE_H__
-#define __QUEUE_H__
+#ifndef __MPD_CLIENT_QUEUE_H__
+#define __MPD_CLIENT_QUEUE_H__
 sds mpd_client_get_queue_state(t_mpd_state *mpd_state, sds buffer);
 sds mpd_client_put_queue_state(struct mpd_status *status, sds buffer);
 sds mpd_client_put_queue(t_mpd_state *mpd_state, sds buffer, sds method, int request_id,
