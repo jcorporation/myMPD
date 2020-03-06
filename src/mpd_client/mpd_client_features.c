@@ -272,8 +272,8 @@ static void mpd_client_feature_music_directory(t_mpd_state *mpd_state) {
             }
             mpd_response_finish(mpd_state->conn);
         }
-        else {
-            check_error_and_recover(mpd_state, NULL, NULL, 0);
+        if (check_error_and_recover2(mpd_state, NULL, NULL, 0, false) == false) {
+            LOG_ERROR("Can't get music_directory value from mpd");
         }
     }
     else if (strncmp(mpd_state->music_directory, "/", 1) == 0) {
