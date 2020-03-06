@@ -306,12 +306,8 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
         case MPD_API_PLAYER_SEEK_CURRENT:
             je = json_scanf(request->data, sdslen(request->data), "{params: {seek: %f, relative: %B}}", &float_buf, &bool_buf);
             if (je == 2) {
-                #if LIBMPDCLIENT_CHECK_VERSION(2,15,0)
-                    mpd_run_seek_current(mpd_state->conn, float_buf, bool_buf);
-                    response->data = respond_with_mpd_error_or_ok(mpd_state, response->data, request->method, request->id);
-                #else
-                    respond->data = jsonrpc_respond_message(response->data, request->method, request->id, "Not supported by libmpdclient", true)
-                #endif
+                mpd_run_seek_current(mpd_state->conn, float_buf, bool_buf);
+                response->data = respond_with_mpd_error_or_ok(mpd_state, response->data, request->method, request->id);
             }
             break;
         case MPD_API_QUEUE_LIST: {

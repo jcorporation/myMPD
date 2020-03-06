@@ -94,28 +94,23 @@ void detect_extra_files(t_mpd_state *mpd_state, const char *uri, bool *booklet, 
 }
 
 void disable_all_mpd_tags(t_mpd_state *mpd_state) {
-    #if LIBMPDCLIENT_CHECK_VERSION(2,12,0)
     if (mpd_connection_cmp_server_version(mpd_state->conn, 0, 21, 0) >= 0) {
         LOG_DEBUG("Disabling all mpd tag types");
         mpd_run_clear_tag_types(mpd_state->conn);
         check_error_and_recover2(mpd_state, NULL, NULL, 0, false);
     }
-    #endif
 }
 
 void enable_all_mpd_tags(t_mpd_state *mpd_state) {
-    #if LIBMPDCLIENT_CHECK_VERSION(2,12,0)
     if (mpd_connection_cmp_server_version(mpd_state->conn, 0, 21, 0) >= 0) {
         LOG_DEBUG("Enabling all mpd tag types");
         mpd_send_command(mpd_state->conn, "tagtypes", "all", NULL);
         mpd_response_finish(mpd_state->conn);
         check_error_and_recover2(mpd_state, NULL, NULL, 0, false);
     }
-    #endif
 }
 
 void enable_mpd_tags(t_mpd_state *mpd_state, t_tags enable_tags) {
-    #if LIBMPDCLIENT_CHECK_VERSION(2,12,0)
     if (mpd_connection_cmp_server_version(mpd_state->conn, 0, 21, 0) >= 0) {
         LOG_DEBUG("Setting interesting mpd tag types");
         if (mpd_command_list_begin(mpd_state->conn, false)) {
@@ -129,7 +124,6 @@ void enable_mpd_tags(t_mpd_state *mpd_state, t_tags enable_tags) {
         }
         check_error_and_recover(mpd_state, NULL, NULL, 0);
     }
-    #endif
 }
 
 void mpd_client_notify(sds message) {

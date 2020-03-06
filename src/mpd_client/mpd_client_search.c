@@ -100,11 +100,17 @@ sds mpd_client_search_adv(t_mpd_state *mpd_state, sds buffer, sds method, int re
                           const char *grouptag, const char *plist, const unsigned int offset,
                           const t_tags *tagcols)
 {
+    if (mpd_state->feat_advsearch == false) {
+        LOG_ERROR("Advanced search is disabled");
+        buffer = jsonrpc_respond_message(buffer, method, request_id, "Advanced search is disabled", true);
+        return buffer;
+    }
+
     if (strcmp(expression, "") == 0) {
+        LOG_ERROR("No search expression defined");
         buffer = jsonrpc_respond_message(buffer, method, request_id, "No search expression defined", true);
         return buffer;
     }
-#if LIBMPDCLIENT_CHECK_VERSION(2, 17, 0)
     if (strcmp(plist, "") == 0) {
         if (mpd_search_db_songs(mpd_state->conn, false) == false) {
             mpd_search_cancel(mpd_state->conn);
@@ -201,17 +207,5 @@ sds mpd_client_search_adv(t_mpd_state *mpd_state, sds buffer, sds method, int re
     if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
        return buffer;
     }
-#else
-    //prevent unused warnings
-    (void)(mpd_state);
-    (void)(expression);
-    (void)(sort);
-    (void)(sortdesc);
-    (void)(grouptag);
-    (void)(plist);
-    (void)(offset);
-    (void)(tagcols);
-    buffer = jsonrpc_respond_message(buffer, method, request_id, "Advanced search is disabled", true);
-#endif
     return buffer;
 }
