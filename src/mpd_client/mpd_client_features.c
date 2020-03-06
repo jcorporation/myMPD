@@ -200,7 +200,7 @@ static void mpd_client_feature_tags(t_mpd_state *mpd_state) {
             mpd_state->mpd_tag_types.tags[mpd_state->mpd_tag_types.len++] = tag;
         }
         else {
-            LOG_WARN("Unknown tag %s (libmpdclient to old)", pair->value);
+            LOG_WARN("Unknown tag %s (libmpdclient too old)", pair->value);
         }
         mpd_return_pair(mpd_state->conn, pair);
     }
