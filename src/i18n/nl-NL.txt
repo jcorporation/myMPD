@@ -67,7 +67,7 @@ Add to queue
 Toevoegen aan wachtrij
 
 Clear queue
-Wis wachtrij
+Wachtrij wissen
 
 Crop queue
 Wachtrij inkorten
@@ -106,13 +106,13 @@ Artist
 Artiest
 
 ArtistSort
-Artiest
+ArtiestSort
 
 Album
 Album
 
 AlbumSort
-Album
+AlbumSort
 
 Duration
 Duur
@@ -121,7 +121,7 @@ AlbumArtist
 Albumartiest
 
 AlbumArtistSort
-Albumartiest
+AlbumartiestSort
 
 Composer
 Componist
@@ -589,7 +589,7 @@ Shortcut
 Sneltoets
 
 Action
-Aktie
+Actie
 
 MPD host
 MPD host
@@ -655,13 +655,13 @@ Searching...
 Zoek...
 
 Previous song
-Vorig nummer
+Vorige nummer
 
 Next song
 Volgende nummer
 
 Toggle play / pause
-Play / Pause
+Afspelen / Pause
 
 Stop playing
 Stop
@@ -709,13 +709,13 @@ Open main menu
 Hoofdmenu openen
 
 Open volume menu
-Volumeregeing openen
+Volumeregeling openen
 
 Open about
 Over myMPD openen
 
 Focus search
-Naar Zoeken
+Zoeken
 
 myMPD installed as app
 myMPD werd als app geïnstalleerd 
@@ -934,7 +934,7 @@ Focus table
 In tabel navigeren
 
 Append item to queue
-Selectie aan wachtrij toevoegen
+Voeg selectie toe aan wachtrij
 
 Replace queue with item
 Vervang wachtrij met selectie
@@ -946,7 +946,7 @@ Remove item from queue
 Verwijder selectie uit wachtrij
 
 Append item to playlist
-Selectie aan afspeellijst toevoegen
+Voeg selectie toe aan afspeellijst
 
 Fingerprint
 Fingerprint
