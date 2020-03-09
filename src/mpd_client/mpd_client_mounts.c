@@ -38,8 +38,8 @@ sds mpd_client_put_mounts(t_mpd_state *mpd_state, sds buffer, sds method, int re
                 buffer = sdscat(buffer, ",");
             }
             buffer = sdscat(buffer, "{");
-            buffer = tojson_char(buffer, "uri", uri, true);
-            buffer = tojson_char(buffer, "storage", storage, false);
+            buffer = tojson_char(buffer, "mountPoint", uri, true);
+            buffer = tojson_char(buffer, "mountUrl", storage, false);
             buffer = sdscat(buffer, "}");
         }
         mpd_mount_free(mount);

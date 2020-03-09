@@ -17,8 +17,8 @@ function mountMount() {
     
     if (formOK === true) {
         sendAPI("MPD_API_MOUNT_MOUNT", {
-            "uri": getSelectValue('selectMountUrlhandler') + document.getElementById('inputMountUri'),
-            "storage": document.getElementById('inputMountStorage'),
+            "mountUrl": getSelectValue('selectMountUrlhandler') + document.getElementById('inputMountUrl').value,
+            "mountPoint": document.getElementById('inputMountPoint').value,
             }, showListMounts, true);
     }
 }
@@ -34,16 +34,16 @@ function showEditMount(uri, storage) {
     let c = uri.match(/^(\w+:\/\/)(.+)$/);
     if (c !== null && c.length > 2) {
         document.getElementById('selectMountUrlhandler').value = c[1];
-        document.getElementById('inputMountUri').value = c[2];
-        document.getElementById('inputMountStorage').value = storage;
+        document.getElementById('inputMountUrl').value = c[2];
+        document.getElementById('inputMountPoint').value = storage;
     }
     else {
-        document.getElementById('inputMountUri').value = '';
-        document.getElementById('inputMountStorage').value = '';
+        document.getElementById('inputMountUrl').value = '';
+        document.getElementById('inputMountPoint').value = '';
     }
-    document.getElementById('inputMountUri').focus();
-    document.getElementById('inputMountUri').classList.remove('is-invalid');
-    document.getElementById('inputMountStorage').classList.remove('is-invalid');
+    document.getElementById('inputMountUrl').focus();
+    document.getElementById('inputMountUrl').classList.remove('is-invalid');
+    document.getElementById('inputMountPoint').classList.remove('is-invalid');
 }
 
 function showListMounts(obj) {
@@ -67,11 +67,19 @@ function parseListMounts(obj) {
     let activeRow = 0;
     for (let i = 0; i < obj.result.returnedEntities; i++) {
         let row = document.createElement('tr');
-        row.setAttribute('data-uri', encodeURI(obj.result.data[i].uri));
-        row.setAttribute('data-storage', encodeURI(obj.result.data[i].storage));
-        let tds = '<td>' + e(obj.result.data[i].uri) + '</td>' +
-                  '<td>' + e(obj.result.data[i].storage) + '</td>' +
-                 '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">delete</a></td>';
+        row.setAttribute('data-url', encodeURI(obj.result.data[i].mountUrl));
+        row.setAttribute('data-point', encodeURI(obj.result.data[i].mountPoint));
+        if (obj.result.data[i].mountPoint === '') {
+            row.classList.add('not-clickable');
+        }
+        let tds = '<td>' + (obj.result.data[i].mountPoint === '' ? '<span class="material-icons">home</span>' : e(obj.result.data[i].mountPoint)) + '</td>' +
+                  '<td>' + e(obj.result.data[i].mountUrl) + '</td>';
+        if (obj.result.data[i].mountPoint !== '') {
+            tds += '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">delete</a></td>';
+        }
+        else {
+            tds += '<td>&nbsp;</td>';
+        }
         row.innerHTML = tds;
         if (i < tr.length) {
             activeRow = replaceTblRow(tr[i], row) === true ? i : activeRow;

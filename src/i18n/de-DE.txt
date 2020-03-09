@@ -1291,10 +1291,28 @@ Notifications are blocked
 Benachrichtungen sind nicht erlaubt
 
 Adding timer failed
-Timers konnte nicht hinzugefügt werden
+Timer konnte nicht hinzugefügt werden
 
 Browse directories
 Verzeichnisse anzeigen
 
 Sorry, your MPD version is too old
 Entschuldige, deine MPD version ist zu alt
+
+Mounts
+Einhängepunkte
+
+New mount
+Neuer Einhängepunkt
+
+Backend uri
+Einzuhängende URL
+
+Invalid backend uri
+Ungültige einzuhängende URL
+
+Invalid mount point
+Ungültiger Einhängepunkt
+
+Mount point
+Einhängepunkt

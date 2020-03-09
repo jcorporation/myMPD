@@ -532,7 +532,7 @@ function appInit() {
         if (event.target.nodeName === 'A') {
             let c = event.target.getAttribute('data-value').match(/^(\w+:\/\/)(.+)$/);
             document.getElementById('selectMountUrlhandler').value = c[1];
-            document.getElementById('inputMountUri').value = c[2];
+            document.getElementById('inputMountUrl').value = c[2];
         }
     });
     
@@ -833,10 +833,13 @@ function appInit() {
         event.stopPropagation();
         event.preventDefault();
         if (event.target.nodeName === 'TD') {
-            showEditMount(decodeURI(event.target.parentNode.getAttribute('data-uri')),decodeURI(event.target.parentNode.getAttribute('data-storage')));
+            if (event.target.parentNode.getAttribute('data-point') === '') {
+                return false;
+            }
+            showEditMount(decodeURI(event.target.parentNode.getAttribute('data-url')),decodeURI(event.target.parentNode.getAttribute('data-point')));
         }
         else if (event.target.nodeName === 'A') {
-            unmountMount(decodeURI(event.target.parentNode.parentNode.getAttribute('data-uri')));
+            unmountMount(decodeURI(event.target.parentNode.parentNode.getAttribute('data-point')));
         }
     }, false);
     

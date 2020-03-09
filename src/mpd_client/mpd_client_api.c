@@ -623,9 +623,9 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
             response->data = mpd_client_put_neighbors(mpd_state, response->data, request->method, request->id);
             break;
         case MPD_API_MOUNT_MOUNT:
-            je = json_scanf(request->data, sdslen(request->data), "{params: {uri: %Q, storage: %Q}}", &p_charbuf1, &p_charbuf2);
+            je = json_scanf(request->data, sdslen(request->data), "{params: {mountUrl: %Q, mountPoint: %Q}}", &p_charbuf1, &p_charbuf2);
             if (je == 2) {
-                mpd_run_mount(mpd_state->conn, p_charbuf1, p_charbuf2);
+                mpd_run_mount(mpd_state->conn, p_charbuf2, p_charbuf1);
                 response->data = respond_with_mpd_error_or_ok(mpd_state, response->data, request->method, request->id);
             }
             break;

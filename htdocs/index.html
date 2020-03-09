@@ -1881,13 +1881,20 @@
           <div id="editMount" class="tab-pane">
             <form id="editMountForm">
               <div class="form-group row">
-                <label class="col-sm-4 col-form-label" for="inputMountUri" data-phrase="Uri"></label>
+                <label class="col-sm-4 col-form-label" for="inputMountPoint" data-phrase="Mount point"></label>
+                <div class="col-sm-8">
+                  <input id="inputMountPoint" class="form-control border-secondary" type="text"/>
+                  <div class="invalid-feedback" data-phrase="Invalid mount point"></div>
+                </div>
+              </div>
+              <div class="form-group row">
+                <label class="col-sm-4 col-form-label" for="inputMountUrl" data-phrase="Backend uri"></label>
                 <div class="col-sm-8">
                   <div class="input-group">
                     <div class="input-group-prepend">
                       <select id="selectMountUrlhandler" class="form-control custom-select border-secondary rounded-right-0"></select>
                     </div>
-                    <input id="inputMountUri" class="form-control border-secondary" type="text"/>
+                    <input id="inputMountUrl" class="form-control border-secondary" type="text"/>
                     <div class="input-group-append">
                       <button id="btnDropdownNeighbors" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-right" type="button" data-toggle="dropdown"></button>
                       <div id="dropdownNeighbors" class="dropdown-menu border-0 p-0 dropdown-menu-right">
@@ -1895,14 +1902,7 @@
                       </div>
                     </div>
                   </div>
-                  <div class="invalid-feedback" data-phrase="Invalid uri"></div>
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-sm-4 col-form-label" for="inputMountStorage" data-phrase="Path"></label>
-                <div class="col-sm-8">
-                  <input id="inputMountStorage" class="form-control border-secondary" type="text"/>
-                  <div class="invalid-feedback" data-phrase="Invalid path"></div>
+                  <div class="invalid-feedback" data-phrase="Invalid backend uri"></div>
                 </div>
               </div>
             </form>
@@ -1913,8 +1913,8 @@
               <table class="table table-hover table-sm">
                 <thead>
                   <tr>
-                    <th data-phrase="Uri"></th>
-                    <th data-phrase="Path"></th>
+                    <th data-phrase="Mount point"></th>
+                    <th data-phrase="Backend uri"></th>
                     <th>&nbsp;</th>
                   </tr>
                 </thead>
@@ -1926,7 +1926,7 @@
         </div>
         </div>
         <div class="modal-footer justify-content-between" id="listMountsFooter">
-          <button data-href='{"cmd":"showEditMount","options":["",""]}' class="btn btn-success justify-content-start" data-phrase="New Mount"></button>
+          <button data-href='{"cmd":"showEditMount","options":["",""]}' class="btn btn-success justify-content-start" data-phrase="New mount"></button>
           <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Close"></button>
         </div>
         <div id="editMountFooter" class="modal-footer hide">
