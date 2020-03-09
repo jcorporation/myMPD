@@ -148,7 +148,7 @@ function parseListTimer(obj) {
     for (let i = 0; i < obj.result.returnedEntities; i++) {
         let row = document.createElement('tr');
         row.setAttribute('data-id', obj.result.data[i].timerid);
-        let tds = '<td>' + obj.result.data[i].name + '</td>' +
+        let tds = '<td>' + e(obj.result.data[i].name) + '</td>' +
                   '<td><button name="enabled" class="btn btn-secondary btn-xs clickable material-icons material-icons-small' +
                   (obj.result.data[i].enabled === true ? ' active' : '') + '">' +
                   (obj.result.data[i].enabled === true ? 'check' : 'radio_button_unchecked') + '</button></td>' +

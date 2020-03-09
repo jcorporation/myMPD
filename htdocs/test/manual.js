@@ -66,6 +66,11 @@ var cmds = [
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYER_STATE"},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_LIKE","params":{"uri":"","like":0}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_SETTINGS_GET"},
+    {"jsonrpc":"2.0","id":0,"method":"MPD_API_MOUNT_LIST"},
+    {"jsonrpc":"2.0","id":0,"method":"MPD_API_MOUNT_NEIGHBOR_LIST"},
+    {"jsonrpc":"2.0","id":0,"method":"MPD_API_MOUNT_MOUNT","params":{"uri":"", "storage":""}},
+    {"jsonrpc":"2.0","id":0,"method":"MPD_API_MOUNT_UNMOUNT","params":{"uri":""}},
+    {"jsonrpc":"2.0","id":0,"method":"MPD_API_URLHANDLERS"},
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SETTINGS_GET"},
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SETTINGS_SET","params":{"random":0}},
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SETTINGS_RESET"},
@@ -119,7 +124,10 @@ function sendAPI() {
         let params = Object.keys(cmds[id].params);
         for (let key of params) {
             let value = document.getElementById('input-' + key).value;
-            if (value === 'true') {
+            if (value === '') {
+                //do nothing
+            }
+            else if (value === 'true') {
                 value = true;
             }
             else if (value === 'false') {

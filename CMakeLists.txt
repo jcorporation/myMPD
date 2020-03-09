@@ -11,8 +11,8 @@ include(GNUInstallDirs)
 project (mympd C)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/")
 set(CPACK_PACKAGE_VERSION_MAJOR "6")
-set(CPACK_PACKAGE_VERSION_MINOR "2")
-set(CPACK_PACKAGE_VERSION_PATCH "3")
+set(CPACK_PACKAGE_VERSION_MINOR "3")
+set(CPACK_PACKAGE_VERSION_PATCH "0")
 
 add_subdirectory("cli_tools")
 
@@ -30,13 +30,6 @@ else()
   set(SUBDIR_ETC "")
   set(SUBDIR "")
   set(SUBDIRLIB "")
-endif()
-
-if(${EMBEDDED_LIBMPDCLIENT} MATCHES "OFF")
-   message("Compiling with libmpdclient from system")
-else()
-  set(EMBEDDED_LIBMPDCLIENT "ON")
-  message("Compiling with embedded libmpdclient")
 endif()
 
 set(ETC_PATH "${CMAKE_INSTALL_FULL_SYSCONFDIR}${SUBDIR_ETC}")
@@ -61,15 +54,8 @@ message("ASSETS_PATH: ${ASSETS_PATH}")
 
 find_package(Threads REQUIRED)
 
-if(NOT "${EMBEDDED_LIBMPDCLIENT}" MATCHES "ON")
-  message("Searching for libmpdclinet")
-  find_package(LibMPDClient REQUIRED)
-endif()
-if(${EMBEDDED_LIBMPDCLIENT} MATCHES "ON")
-  include_directories(dist/src/libmpdclient/include)
-else()
-  include_directories(${LIBMPDCLIENT_INCLUDE_DIR})
-endif()
+#embedded libmpdclient
+include_directories(dist/src/libmpdclient/include)
 
 if(NOT "${ENABLE_SSL}" MATCHES "OFF")
   message("Searching for openssl")
@@ -194,6 +180,7 @@ set(SOURCES
   src/mpd_client/mpd_client_stats.c
   src/mpd_client/mpd_client_sticker.c
   src/mpd_client/mpd_client_timer.c
+  src/mpd_client/mpd_client_mounts.c
   src/mympd_api.c
   src/mympd_api/mympd_api_bookmarks.c
   src/mympd_api/mympd_api_utility.c
@@ -217,65 +204,63 @@ if("${ENABLE_SSL}" MATCHES "ON")
   )
 endif()
 
-if(${EMBEDDED_LIBMPDCLIENT} MATCHES "ON")
-  set(LIBMPDCLIENT_SOURCES
-    dist/src/libmpdclient/src/albumart.c
-    dist/src/libmpdclient/src/async.c
-    dist/src/libmpdclient/src/audio_format.c
-    dist/src/libmpdclient/src/capabilities.c
-    dist/src/libmpdclient/src/cmessage.c
-    dist/src/libmpdclient/src/cmount.c
-    dist/src/libmpdclient/src/cneighbor.c
-    dist/src/libmpdclient/src/connection.c
-    dist/src/libmpdclient/src/coutput.c
-    dist/src/libmpdclient/src/cpartition.c
-    dist/src/libmpdclient/src/cplaylist.c
-    dist/src/libmpdclient/src/cstats.c
-    dist/src/libmpdclient/src/cstatus.c
-    dist/src/libmpdclient/src/database.c
-    dist/src/libmpdclient/src/directory.c
-    dist/src/libmpdclient/src/entity.c
-    dist/src/libmpdclient/src/error.c
-    dist/src/libmpdclient/src/fd_util.c
-    dist/src/libmpdclient/src/fingerprint.c
-    dist/src/libmpdclient/src/idle.c
-    dist/src/libmpdclient/src/ierror.c
-    dist/src/libmpdclient/src/iso8601.c
-    dist/src/libmpdclient/src/kvlist.c
-    dist/src/libmpdclient/src/list.c
-    dist/src/libmpdclient/src/message.c
-    dist/src/libmpdclient/src/mixer.c
-    dist/src/libmpdclient/src/mount.c
-    dist/src/libmpdclient/src/neighbor.c
-    dist/src/libmpdclient/src/output.c
-    dist/src/libmpdclient/src/parser.c
-    dist/src/libmpdclient/src/partition.c
-    dist/src/libmpdclient/src/password.c
-    dist/src/libmpdclient/src/player.c
-    dist/src/libmpdclient/src/playlist.c
-    dist/src/libmpdclient/src/queue.c
-    dist/src/libmpdclient/src/quote.c
-    dist/src/libmpdclient/src/replay_gain.c
-    dist/src/libmpdclient/src/rdirectory.c
-    dist/src/libmpdclient/src/readpicture.c
-    dist/src/libmpdclient/src/recv.c
-    dist/src/libmpdclient/src/replay_gain.c
-    dist/src/libmpdclient/src/resolver.c
-    dist/src/libmpdclient/src/response.c
-    dist/src/libmpdclient/src/rplaylist.c
-    dist/src/libmpdclient/src/run.c
-    dist/src/libmpdclient/src/search.c
-    dist/src/libmpdclient/src/send.c
-    dist/src/libmpdclient/src/settings.c
-    dist/src/libmpdclient/src/socket.c
-    dist/src/libmpdclient/src/song.c
-    dist/src/libmpdclient/src/stats.c
-    dist/src/libmpdclient/src/status.c
-    dist/src/libmpdclient/src/sticker.c
-    dist/src/libmpdclient/src/sync.c
-    dist/src/libmpdclient/src/tag.c
-  )
-endif()
+set(LIBMPDCLIENT_SOURCES
+  dist/src/libmpdclient/src/albumart.c
+  dist/src/libmpdclient/src/async.c
+  dist/src/libmpdclient/src/audio_format.c
+  dist/src/libmpdclient/src/capabilities.c
+  dist/src/libmpdclient/src/cmessage.c
+  dist/src/libmpdclient/src/cmount.c
+  dist/src/libmpdclient/src/cneighbor.c
+  dist/src/libmpdclient/src/connection.c
+  dist/src/libmpdclient/src/coutput.c
+  dist/src/libmpdclient/src/cpartition.c
+  dist/src/libmpdclient/src/cplaylist.c
+  dist/src/libmpdclient/src/cstats.c
+  dist/src/libmpdclient/src/cstatus.c
+  dist/src/libmpdclient/src/database.c
+  dist/src/libmpdclient/src/directory.c
+  dist/src/libmpdclient/src/entity.c
+  dist/src/libmpdclient/src/error.c
+  dist/src/libmpdclient/src/fd_util.c
+  dist/src/libmpdclient/src/fingerprint.c
+  dist/src/libmpdclient/src/idle.c
+  dist/src/libmpdclient/src/ierror.c
+  dist/src/libmpdclient/src/iso8601.c
+  dist/src/libmpdclient/src/kvlist.c
+  dist/src/libmpdclient/src/list.c
+  dist/src/libmpdclient/src/message.c
+  dist/src/libmpdclient/src/mixer.c
+  dist/src/libmpdclient/src/mount.c
+  dist/src/libmpdclient/src/neighbor.c
+  dist/src/libmpdclient/src/output.c
+  dist/src/libmpdclient/src/parser.c
+  dist/src/libmpdclient/src/partition.c
+  dist/src/libmpdclient/src/password.c
+  dist/src/libmpdclient/src/player.c
+  dist/src/libmpdclient/src/playlist.c
+  dist/src/libmpdclient/src/queue.c
+  dist/src/libmpdclient/src/quote.c
+  dist/src/libmpdclient/src/replay_gain.c
+  dist/src/libmpdclient/src/rdirectory.c
+  dist/src/libmpdclient/src/readpicture.c
+  dist/src/libmpdclient/src/recv.c
+  dist/src/libmpdclient/src/replay_gain.c
+  dist/src/libmpdclient/src/resolver.c
+  dist/src/libmpdclient/src/response.c
+  dist/src/libmpdclient/src/rplaylist.c
+  dist/src/libmpdclient/src/run.c
+  dist/src/libmpdclient/src/search.c
+  dist/src/libmpdclient/src/send.c
+  dist/src/libmpdclient/src/settings.c
+  dist/src/libmpdclient/src/socket.c
+  dist/src/libmpdclient/src/song.c
+  dist/src/libmpdclient/src/stats.c
+  dist/src/libmpdclient/src/status.c
+  dist/src/libmpdclient/src/sticker.c
+  dist/src/libmpdclient/src/sync.c
+  dist/src/libmpdclient/src/tag.c
+)
 
 add_executable(mympd ${SOURCES} ${LIBMPDCLIENT_SOURCES} ${CERT_SOURCES})
 
@@ -289,9 +274,6 @@ if (LIBID3TAG_FOUND)
 endif()
 if (FLAC_FOUND)
   target_link_libraries(mympd ${FLAC_LIBRARIES})
-endif()
-if(NOT ${EMBEDDED_LIBMPDCLIENT} MATCHES "ON")
-  target_link_libraries(mympd ${LIBMPDCLIENT_LIBRARY})
 endif()
 
 install(TARGETS mympd DESTINATION ${CMAKE_INSTALL_FULL_BINDIR})

@@ -5,11 +5,6 @@
 # https://github.com/jcorporation/mympd
 #
 
-if [ "${EMBEDDED_LIBMPDCLIENT}" = "" ]
-then
-  export EMBEDDED_LIBMPDCLIENT="ON"
-fi
-
 if [ "${ENABLE_SSL}" = "" ]
 then
   export ENABLE_SSL="ON"
@@ -290,8 +285,8 @@ buildrelease() {
   #set INSTALL_PREFIX and build myMPD
   export INSTALL_PREFIX="${MYMPD_INSTALL_PREFIX:-/usr}"
   cmake -DCMAKE_INSTALL_PREFIX:PATH="$INSTALL_PREFIX" -DCMAKE_BUILD_TYPE=RELEASE \
-  	-DEMBEDDED_LIBMPDCLIENT="$EMBEDDED_LIBMPDCLIENT" -DENABLE_SSL="$ENABLE_SSL" \
-  	-DENABLE_LIBID3TAG="$ENABLE_LIBID3TAG" -DENABLE_FLAC="$ENABLE_FLAC" ..
+  	-DENABLE_SSL="$ENABLE_SSL" -DENABLE_LIBID3TAG="$ENABLE_LIBID3TAG" \
+  	-DENABLE_FLAC="$ENABLE_FLAC" ..
   make
 }
 
@@ -321,8 +316,7 @@ builddebug() {
   install -d debug
   cd debug || exit 1
   cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=DEBUG -DMEMCHECK="$MEMCHECK" \
-  	-DEMBEDDED_LIBMPDCLIENT="$EMBEDDED_LIBMPDCLIENT" -DENABLE_SSL="$ENABLE_SSL" \
-  	-DENABLE_LIBID3TAG="$ENABLE_LIBID3TAG" -DENABLE_FLAC="$ENABLE_FLAC" ..
+  	-DENABLE_SSL="$ENABLE_SSL" -DENABLE_LIBID3TAG="$ENABLE_LIBID3TAG" -DENABLE_FLAC="$ENABLE_FLAC" ..
   make VERBOSE=1
 }
 
@@ -804,7 +798,6 @@ case "$1" in
 	  echo ""
 	  echo "Environment variables for building"
 	  echo "  - MYMPD_INSTALL_PREFIX=\"/usr\""
-	  echo "  - EMBEDDED_LIBMPDCLIENT=\"ON\""
 	  echo "  - ENABLE_SSL=\"ON\""
 	  echo "  - ENABLE_LIBID3TAG=\"ON\""
 	  echo "  - ENABLE_FLAC=\"ON\""

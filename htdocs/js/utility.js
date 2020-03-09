@@ -5,6 +5,11 @@
  https://github.com/jcorporation/mympd
 */
 
+function getSelectValue(selectId) {
+    let el = document.getElementById(selectId);
+    return el.options[el.selectedIndex].value;
+}
+
 function alignDropdown(el) {
     if (getXpos(el.children[0]) > domCache.body.offsetWidth * 0.66) {
         el.getElementsByClassName('dropdown-menu')[0].classList.add('dropdown-menu-right');

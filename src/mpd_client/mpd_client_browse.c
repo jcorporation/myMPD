@@ -34,7 +34,6 @@ sds mpd_client_put_fingerprint(t_mpd_state *mpd_state, sds buffer, sds method, i
 
     buffer = jsonrpc_start_result(buffer, method, request_id);
     
-    #if LIBMPDCLIENT_CHECK_VERSION(2,17,0)
     char fp_buffer[8192];
     const char *fingerprint = mpd_run_getfingerprint_chromaprint(mpd_state->conn, uri, fp_buffer, sizeof(fp_buffer));
     if (fingerprint == NULL) {
@@ -44,10 +43,6 @@ sds mpd_client_put_fingerprint(t_mpd_state *mpd_state, sds buffer, sds method, i
     buffer = sdscat(buffer, ",");
     buffer = tojson_char(buffer, "fingerprint", fingerprint, false);
     mpd_response_finish(mpd_state->conn);
-    #else
-    (void)(mpd_state);
-    (void)(uri);
-    #endif
     buffer = jsonrpc_end_result(buffer);
     return buffer;
 }

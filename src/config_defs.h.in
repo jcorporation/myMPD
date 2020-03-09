@@ -28,9 +28,6 @@
 //Debug build
 #cmakedefine DEBUG
 
-//Embedded libmpdclient
-#cmakedefine EMBEDDED_LIBMPDCLIENT
-
 //libid3tag
 #cmakedefine ENABLE_LIBID3TAG
 
@@ -137,6 +134,7 @@ typedef struct t_config {
     sds generate_pls_tags;
     int covergridminsongs;
     sds booklet_name;
+    bool mounts;
     //system commands
     struct list syscmd_list;
 } t_config;

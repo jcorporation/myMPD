@@ -18,7 +18,6 @@
 #include "../utility.h"
 #include "mpd_client_utility.h"
 #include "mpd_client_queue.h"
-#include "../dist/src/frozen/frozen.h"
 
 sds mpd_client_get_queue_state(t_mpd_state *mpd_state, sds buffer) {
     struct mpd_status *status = mpd_run_status(mpd_state->conn);
@@ -58,7 +57,7 @@ sds mpd_client_put_queue(t_mpd_state *mpd_state, sds buffer, sds method, int req
         buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
     }
         
-    if (!mpd_send_list_queue_range_meta(mpd_state->conn, offset, offset + mpd_state->max_elements_per_page)) {
+    if (mpd_send_list_queue_range_meta(mpd_state->conn, offset, offset + mpd_state->max_elements_per_page) == false) {
         buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
         return buffer;
     }
@@ -68,22 +67,19 @@ sds mpd_client_put_queue(t_mpd_state *mpd_state, sds buffer, sds method, int req
     int totalTime = 0;
     unsigned entity_count = 0;
     unsigned entities_returned = 0;
-    struct mpd_entity *entity;
-    while ((entity = mpd_recv_entity(mpd_state->conn)) != NULL) {
-        if (mpd_entity_get_type(entity) == MPD_ENTITY_TYPE_SONG) {
-            const struct mpd_song *song = mpd_entity_get_song(entity);
-            totalTime += mpd_song_get_duration(song);
-            entity_count++;
-            if (entities_returned++) {
-                buffer = sdscat(buffer, ",");
-            }
-            buffer = sdscat(buffer, "{");
-            buffer = tojson_long(buffer, "id", mpd_song_get_id(song), true);
-            buffer = tojson_long(buffer, "Pos", mpd_song_get_pos(song), true);
-            buffer = put_song_tags(buffer, mpd_state, tagcols, song);
-            buffer = sdscat(buffer, "}");
+    struct mpd_song *song;
+    while ((song = mpd_recv_song(mpd_state->conn)) != NULL) {
+        totalTime += mpd_song_get_duration(song);
+        entity_count++;
+        if (entities_returned++) {
+            buffer = sdscat(buffer, ",");
         }
-        mpd_entity_free(entity);
+        buffer = sdscat(buffer, "{");
+        buffer = tojson_long(buffer, "id", mpd_song_get_id(song), true);
+        buffer = tojson_long(buffer, "Pos", mpd_song_get_pos(song), true);
+        buffer = put_song_tags(buffer, mpd_state, tagcols, song);
+        buffer = sdscat(buffer, "}");
+        mpd_song_free(song);
     }
 
     buffer = sdscat(buffer, "],");

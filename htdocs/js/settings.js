@@ -78,7 +78,24 @@ function joinSettings(obj) {
     settingsLock = false;
     parseSettings();
     toggleUI();
+    sendAPI("MPD_API_URLHANDLERS", {}, parseUrlhandlers,false);
     btnWaiting(document.getElementById('btnApplySettings'), false);
+}
+
+function parseUrlhandlers(obj) {
+    let storagePlugins = '';
+    for (let i = 0; i < obj.result.data.length; i++) {
+        switch(obj.result.data[i]) {
+            case 'http://':
+            case 'https://':
+            case 'nfs://':
+            case 'smb://':
+                storagePlugins += '<option value="' + obj.result.data[i] + '">' + obj.result.data[i] + '</option>';
+                break;
+        }
+    }
+    storagePlugins += '<option value="udisks://">udisks://</option>';
+    document.getElementById('selectMountUrlhandler').innerHTML = storagePlugins;
 }
 
 function checkConsume() {
@@ -205,7 +222,7 @@ function parseSettings() {
     toggleBtnChkCollapse('btnSmartpls', 'collapseSmartpls', settings.smartpls);
     
     let features = ["featLocalplayer", "featSyscmds", "featMixramp", "featCacert", "featBookmarks", 
-        "featRegex", "featTimer"];
+        "featRegex", "featTimer", "featMounts"];
     for (let j = 0; j < features.length; j++) {
         let Els = document.getElementsByClassName(features[j]);
         let ElsLen = Els.length;

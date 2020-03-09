@@ -168,7 +168,6 @@ bool handle_albumart(struct mg_connection *nc, struct http_message *hm, t_mg_use
         }
     }
     //ask mpd
-    #ifdef EMBEDDED_LIBMPDCLIENT
     else if (mg_user_data->feat_library == false && mg_user_data->feat_mpd_albumart == true) {
         LOG_DEBUG("Sending getalbumart to mpd_client_queue");
         t_work_request *request = create_request(conn_id, 0, MPD_API_ALBUMART, "MPD_API_ALBUMART", "");
@@ -181,9 +180,6 @@ bool handle_albumart(struct mg_connection *nc, struct http_message *hm, t_mg_use
         sdsfree(uri_decoded);
         return false;
     }
-    #else
-    (void) conn_id;
-    #endif
 
     LOG_VERBOSE("No coverimage found for %s", mediafile);
     sdsfree(mediafile);

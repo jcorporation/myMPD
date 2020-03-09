@@ -171,6 +171,11 @@ button {
   cursor: pointer;
 }
 
+.not-clickable {
+  cursor: default !important;
+  background-color: inherit !important;
+}
+
 [data-col=Pos], [data-col=Type], [data-col=Track] {
   width: 2rem;
   min-width: min-content;
@@ -484,10 +489,6 @@ caption {
   animation-iteration-count: infinite;
 }
 
-.modal-body {
-  overflow-x: hidden;
-}
-
 .modal-body .album-cover {
   float:none;
 }
@@ -708,4 +709,9 @@ div#playDropdown .row {
   background-position: center center;
   background-size: cover;
   padding-top: 100%;
+}
+
+.rounded-right-0 {
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
 }

@@ -34,6 +34,7 @@
 #include "mpd_client_settings.h"
 #include "mpd_client_sticker.h"
 #include "mpd_client_timer.h"
+#include "mpd_client_mounts.h"
 #include "mpd_client_api.h"
 
 void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request) {
@@ -305,12 +306,8 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
         case MPD_API_PLAYER_SEEK_CURRENT:
             je = json_scanf(request->data, sdslen(request->data), "{params: {seek: %f, relative: %B}}", &float_buf, &bool_buf);
             if (je == 2) {
-                #if LIBMPDCLIENT_CHECK_VERSION(2,15,0)
-                    mpd_run_seek_current(mpd_state->conn, float_buf, bool_buf);
-                    response->data = respond_with_mpd_error_or_ok(mpd_state, response->data, request->method, request->id);
-                #else
-                    respond->data = jsonrpc_respond_message(response->data, request->method, request->id, "Not supported by libmpdclient", true)
-                #endif
+                mpd_run_seek_current(mpd_state->conn, float_buf, bool_buf);
+                response->data = respond_with_mpd_error_or_ok(mpd_state, response->data, request->method, request->id);
             }
             break;
         case MPD_API_QUEUE_LIST: {
@@ -614,6 +611,29 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
             je = json_scanf(request->data, sdslen(request->data), "{params: {volume:%u, playlist:%Q, jukeboxMode:%u}}", &uint_buf1, &p_charbuf1, &uint_buf2);
             if (je == 3) {
                 response->data = mpd_client_timer_startplay(mpd_state, response->data, request->method, request->id, uint_buf1, p_charbuf1, uint_buf2);
+            }
+            break;
+        case MPD_API_URLHANDLERS:
+            response->data = mpd_client_put_urlhandlers(mpd_state, response->data, request->method, request->id);
+            break;
+        case MPD_API_MOUNT_LIST:
+            response->data = mpd_client_put_mounts(mpd_state, response->data, request->method, request->id);
+            break;
+        case MPD_API_MOUNT_NEIGHBOR_LIST:
+            response->data = mpd_client_put_neighbors(mpd_state, response->data, request->method, request->id);
+            break;
+        case MPD_API_MOUNT_MOUNT:
+            je = json_scanf(request->data, sdslen(request->data), "{params: {mountUrl: %Q, mountPoint: %Q}}", &p_charbuf1, &p_charbuf2);
+            if (je == 2) {
+                mpd_run_mount(mpd_state->conn, p_charbuf2, p_charbuf1);
+                response->data = respond_with_mpd_error_or_ok(mpd_state, response->data, request->method, request->id);
+            }
+            break;
+        case MPD_API_MOUNT_UNMOUNT:
+            je = json_scanf(request->data, sdslen(request->data), "{params: {uri: %Q}}", &p_charbuf1);
+            if (je == 1) {
+                mpd_run_unmount(mpd_state->conn, p_charbuf1);
+                response->data = respond_with_mpd_error_or_ok(mpd_state, response->data, request->method, request->id);
             }
             break;
         default:

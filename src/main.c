@@ -320,14 +320,9 @@ int main(int argc, char **argv) {
     }
 
     LOG_INFO("Starting myMPD %s", MYMPD_VERSION);
-    #ifdef EMBEDDED_LIBMPDCLIENT
-        LOG_INFO("Compiled with embedded libmpdclient");
-        LOG_INFO("Libmympdclient %i.%i.%i based on libmpdclient %i.%i.%i", 
+    LOG_INFO("Libmympdclient %i.%i.%i based on libmpdclient %i.%i.%i", 
             LIBMYMPDCLIENT_MAJOR_VERSION, LIBMYMPDCLIENT_MINOR_VERSION, LIBMYMPDCLIENT_PATCH_VERSION,
             LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION);
-    #else
-    LOG_INFO("Libmpdclient %i.%i.%i", LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION);
-    #endif
     LOG_INFO("Mongoose %s", MG_VERSION);
     
     if (mympd_read_config(config, configfile) == false) {
