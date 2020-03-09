@@ -28,7 +28,7 @@ Settings
 설정
 
 About
-myMPD에 대하여
+정보
 
 Add to home screen
 홈 화면에 추가
@@ -715,7 +715,7 @@ Open volume menu
 음량 메뉴 열기
 
 Open about
-myMPD에 대하여 열기
+정보 열기
 
 Focus search
 찾기로 가기
@@ -1295,3 +1295,24 @@ Adding timer failed
 
 Browse directories
 디렉터리 열기
+
+Sorry, your MPD version is too old
+MPD 버전이 낮음
+
+Mounts
+마운트
+
+New mount
+새로운 마운트
+
+Backend uri
+백엔드 URL
+
+Invalid backend uri
+잘못된 백엔드 URL
+
+Invalid mount point
+잘못된 마운트 위치
+
+Mount point
+마운트 위치
