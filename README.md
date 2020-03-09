@@ -18,6 +18,7 @@ This fork provides a reworked ui based on Bootstrap 4, a modernized backend and 
 **Features**
  - Control mpd functions (play, pause, etc.)
  - Set mpd options (repeat, random, etc.)
+ - MPD mount and neighbors support
  - Browse mpd database by tags
  - Albumart grid
  - Browse filesystem

@@ -28,9 +28,6 @@
 //Debug build
 #cmakedefine DEBUG
 
-//Embedded libmpdclient
-#cmakedefine EMBEDDED_LIBMPDCLIENT
-
 //libid3tag
 #cmakedefine ENABLE_LIBID3TAG
 

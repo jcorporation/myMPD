@@ -1242,9 +1242,6 @@ Wiedergabelisten löschen
 Media session support
 Media Session Unterstützung
 
-Not supported by libmpdclient
-Funktion ist nicht von libmpclient unterstützt
-
 Playlists deleted
 Wiedergabeliste wurde gelöscht
 
@@ -1299,5 +1296,5 @@ Timers konnte nicht hinzugefügt werden
 Browse directories
 Verzeichnisse anzeigen
 
-Sorry, your MPD version is to old
+Sorry, your MPD version is too old
 Entschuldige, deine MPD version ist zu alt

@@ -58,14 +58,14 @@ void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state) {
     buffer = mpd_client_put_state(config, mpd_state, buffer, NULL, 0);
     sdsfree(buffer);
 
-    if (LIBMPDCLIENT_CHECK_VERSION(2, 10, 0) && mpd_connection_cmp_server_version(mpd_state->conn, 0, 20, 0) >= 0) {
+    if (mpd_connection_cmp_server_version(mpd_state->conn, 0, 20, 0) >= 0) {
         mpd_state->feat_mpd_searchwindow = true;
     }
     else {
         LOG_WARN("Disabling searchwindow support, depends on mpd >= 0.20.0 and libmpdclient >= 2.10.0.");
     }
     
-    if (LIBMPDCLIENT_CHECK_VERSION(2, 17, 0) && mpd_connection_cmp_server_version(mpd_state->conn, 0, 21, 0) >= 0) {
+    if (mpd_connection_cmp_server_version(mpd_state->conn, 0, 21, 0) >= 0) {
         mpd_state->feat_advsearch = true;
         LOG_INFO("Enabling advanced search");
     }
@@ -73,7 +73,7 @@ void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state) {
         LOG_WARN("Disabling advanced search, depends on mpd >= 0.21.0 and libmpdclient >= 2.17.0.");
     }
     
-    if (LIBMPDCLIENT_CHECK_VERSION(2, 18, 0) && mpd_connection_cmp_server_version(mpd_state->conn, 0, 21, 0) >= 0) {
+    if (mpd_connection_cmp_server_version(mpd_state->conn, 0, 21, 0) >= 0) {
         mpd_state->feat_single_oneshot = true;
         LOG_INFO("Enabling single oneshot feature");
     } 
@@ -132,29 +132,16 @@ static void mpd_client_feature_commands(t_mpd_state *mpd_state) {
             }
             else if (strcmp(pair->value, "getfingerprint") == 0) {
                 LOG_DEBUG("MPD supports fingerprint");
-                if (LIBMPDCLIENT_CHECK_VERSION(2, 17, 0)) {
-                    mpd_state->feat_fingerprint = true;
-                }
-                else {
-                    LOG_DEBUG("libmpdclient don't support fingerprint command");
-                }
+                mpd_state->feat_fingerprint = true;
             }
             else if (strcmp(pair->value, "albumart") == 0) {
                 LOG_DEBUG("MPD supports albumart");
-                #ifdef EMBEDDED_LIBMPDCLIENT
-                    mpd_state->feat_mpd_albumart = true;
-                #else
-                    LOG_DEBUG("libmpdclient don't support albumart command");
-                #endif
+                mpd_state->feat_mpd_albumart = true;
 
             }
             else if (strcmp(pair->value, "readpicture") == 0) {
                 LOG_DEBUG("MPD supports readpicture");
-                #ifdef EMBEDDED_LIBMPDCLIENT
-                    mpd_state->feat_mpd_readpicture = true;
-                #else
-                    LOG_DEBUG("libmpdclient don't support readpicture command");
-                #endif
+                mpd_state->feat_mpd_readpicture = true;
             }
             mpd_return_pair(mpd_state->conn, pair);
         }
@@ -200,7 +187,7 @@ static void mpd_client_feature_tags(t_mpd_state *mpd_state) {
             mpd_state->mpd_tag_types.tags[mpd_state->mpd_tag_types.len++] = tag;
         }
         else {
-            LOG_WARN("Unknown tag %s (libmpdclient to old)", pair->value);
+            LOG_WARN("Unknown tag %s (libmpdclient too old)", pair->value);
         }
         mpd_return_pair(mpd_state->conn, pair);
     }
@@ -299,14 +286,9 @@ static void mpd_client_feature_music_directory(t_mpd_state *mpd_state) {
     }
     
     if (mpd_state->feat_library == false) {
-        #ifdef EMBEDDED_LIBMPDCLIENT
         if (mpd_connection_cmp_server_version(mpd_state->conn, 0, 21, 0) < 0) {
             LOG_WARN("Disabling coverimage support");
             mpd_state->feat_coverimage = false;
         }
-        #else
-        LOG_WARN("Disabling coverimage support");
-        mpd_state->feat_coverimage = false;
-        #endif
     }
 }

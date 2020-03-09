@@ -298,7 +298,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                     sdsfree(method);
                 }
             }
-            if (mg_vcmp(&hm->uri, "/api") == 0) {
+            else if (mg_vcmp(&hm->uri, "/api") == 0) {
                 //api request
                 bool rc = handle_api((intptr_t)nc->user_data, hm);
                 if (rc == false) {
