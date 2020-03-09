@@ -168,3 +168,15 @@ body.theme-dark .text-secondary {
 body.theme-dark .bg-white {
   background-color: #2f353a !important;
 }
+
+body.theme-dark .list-group-item {
+  background-color: inherit;
+}
+
+body.theme-dark .list-group-item-action {
+  color: inherit;
+}
+
+body.theme-dark .list-group-item-action:hover {
+  background-color: #3c4248 !important;
+}
