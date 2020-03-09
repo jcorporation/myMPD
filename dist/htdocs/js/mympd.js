@@ -1086,6 +1086,114 @@ function updateDBfinished(idleEvent) {
  https://github.com/jcorporation/mympd
 */
 
+//eslint-disable-next-line no-unused-vars
+function unmountMount(uri) {
+    sendAPI("MPD_API_MOUNT_UNMOUNT", {"uri": uri}, showListMounts);
+}
+
+//eslint-disable-next-line no-unused-vars
+function mountMount() {
+    let formOK = true;
+    document.getElementById('errorMount').classList.add('hide');
+    
+    if (formOK === true) {
+        sendAPI("MPD_API_MOUNT_MOUNT", {
+            "mountUrl": getSelectValue('selectMountUrlhandler') + document.getElementById('inputMountUrl').value,
+            "mountPoint": document.getElementById('inputMountPoint').value,
+            }, showListMounts, true);
+    }
+}
+
+//eslint-disable-next-line no-unused-vars
+function showEditMount(uri, storage) {
+    document.getElementById('listMounts').classList.remove('active');
+    document.getElementById('editMount').classList.add('active');
+    document.getElementById('listMountsFooter').classList.add('hide');
+    document.getElementById('editMountFooter').classList.remove('hide');
+    document.getElementById('errorMount').classList.add('hide');
+
+    let c = uri.match(/^(\w+:\/\/)(.+)$/);
+    if (c !== null && c.length > 2) {
+        document.getElementById('selectMountUrlhandler').value = c[1];
+        document.getElementById('inputMountUrl').value = c[2];
+        document.getElementById('inputMountPoint').value = storage;
+    }
+    else {
+        document.getElementById('inputMountUrl').value = '';
+        document.getElementById('inputMountPoint').value = '';
+    }
+    document.getElementById('inputMountUrl').focus();
+    document.getElementById('inputMountUrl').classList.remove('is-invalid');
+    document.getElementById('inputMountPoint').classList.remove('is-invalid');
+}
+
+function showListMounts(obj) {
+    if (obj && obj.error && obj.error.message) {
+        let emEl = document.getElementById('errorMount');
+        emEl.innerText = obj.error.message;
+        emEl.classList.remove('hide');
+        return;
+    }
+    document.getElementById('listMounts').classList.add('active');
+    document.getElementById('editMount').classList.remove('active');
+    document.getElementById('listMountsFooter').classList.remove('hide');
+    document.getElementById('editMountFooter').classList.add('hide');
+    sendAPI("MPD_API_MOUNT_LIST", {}, parseListMounts);
+}
+
+function parseListMounts(obj) {
+    let tbody = document.getElementById('listMounts').getElementsByTagName('tbody')[0];
+    let tr = tbody.getElementsByTagName('tr');
+    
+    let activeRow = 0;
+    for (let i = 0; i < obj.result.returnedEntities; i++) {
+        let row = document.createElement('tr');
+        row.setAttribute('data-url', encodeURI(obj.result.data[i].mountUrl));
+        row.setAttribute('data-point', encodeURI(obj.result.data[i].mountPoint));
+        if (obj.result.data[i].mountPoint === '') {
+            row.classList.add('not-clickable');
+        }
+        let tds = '<td>' + (obj.result.data[i].mountPoint === '' ? '<span class="material-icons">home</span>' : e(obj.result.data[i].mountPoint)) + '</td>' +
+                  '<td>' + e(obj.result.data[i].mountUrl) + '</td>';
+        if (obj.result.data[i].mountPoint !== '') {
+            tds += '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">delete</a></td>';
+        }
+        else {
+            tds += '<td>&nbsp;</td>';
+        }
+        row.innerHTML = tds;
+        if (i < tr.length) {
+            activeRow = replaceTblRow(tr[i], row) === true ? i : activeRow;
+        }
+        else {
+            tbody.append(row);
+        }
+    }
+    let trLen = tr.length - 1;
+    for (let i = trLen; i >= obj.result.returnedEntities; i --) {
+        tr[i].remove();
+    }
+
+    if (obj.result.returnedEntities === 0) {
+        tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
+                          '<td colspan="4">' + t('Empty list') + '</td></tr>';
+    }     
+}
+
+function parseNeighbors(obj) {
+    let list = '';
+    for (let i = 0; i < obj.result.returnedEntities; i++) {
+        list += '<a href="#" class="list-group-item list-group-item-action" data-value="' + obj.result.data[i].uri + '">' + 
+                obj.result.data[i].uri + '<br/><small>' + obj.result.data[i].displayName + '</small></a>';
+    }    
+    document.getElementById('dropdownNeighbors').children[0].innerHTML = list;
+}
+/*
+ SPDX-License-Identifier: GPL-2.0-or-later
+ myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
+ https://github.com/jcorporation/mympd
+*/
+
 /* Disable eslint warnings */
 /* global Modal, Dropdown, Collapse, Popover, Carousel, phrases, locales */
 
@@ -1093,7 +1201,7 @@ var socket = null;
 var lastSong = '';
 var lastSongObj = {};
 var lastState;
-var currentSong = new Object();
+var currentSong = {};
 var playstate = '';
 var settingsLock = false;
 var settingsParsed = false;
@@ -1111,6 +1219,7 @@ var appInited = false;
 var subdir = '';
 var uiEnabled = true;
 var locale = navigator.language || navigator.userLanguage;
+var urlhandlers = [];
 
 var ligatureMore = 'menu';
 
@@ -1187,6 +1296,7 @@ var modalSaveSmartPlaylist = new Modal(document.getElementById('modalSaveSmartPl
 var modalDeletePlaylist = new Modal(document.getElementById('modalDeletePlaylist'));
 var modalSaveBookmark = new Modal(document.getElementById('modalSaveBookmark'));
 var modalTimer = new Modal(document.getElementById('modalTimer'));
+var modalMounts = new Modal(document.getElementById('modalMounts'));
 
 var dropdownMainMenu; 
 var dropdownVolumeMenu = new Dropdown(document.getElementById('volumeMenu'));
@@ -1194,6 +1304,7 @@ var dropdownBookmarks = new Dropdown(document.getElementById('BrowseFilesystemBo
 var dropdownLocalPlayer = new Dropdown(document.getElementById('localPlaybackMenu'));
 var dropdownPlay = new Dropdown(document.getElementById('btnPlayDropdown'));
 var dropdownCovergridSort = new Dropdown(document.getElementById('btnCovergridSortDropdown'));
+var dropdownNeighbors = new Dropdown(document.getElementById('btnDropdownNeighbors'));
 
 var collapseDBupdate = new Collapse(document.getElementById('navDBupdate'));
 var collapseSyscmds = new Collapse(document.getElementById('navSyscmds'));
@@ -1601,6 +1712,19 @@ function appInit() {
         sendAPI("MPD_API_PLAYER_OUTPUT_LIST", {}, parseOutputs);
     });
     
+    document.getElementById('btnDropdownNeighbors').parentNode.addEventListener('show.bs.dropdown', function () {
+        sendAPI("MPD_API_MOUNT_NEIGHBOR_LIST", {}, parseNeighbors);
+    });
+    
+    document.getElementById('dropdownNeighbors').children[0].addEventListener('click', function (event) {
+        event.preventDefault();
+        if (event.target.nodeName === 'A') {
+            let c = event.target.getAttribute('data-value').match(/^(\w+:\/\/)(.+)$/);
+            document.getElementById('selectMountUrlhandler').value = c[1];
+            document.getElementById('inputMountUrl').value = c[2];
+        }
+    });
+    
     document.getElementById('BrowseFilesystemBookmark').parentNode.addEventListener('show.bs.dropdown', function () {
         sendAPI("MYMPD_API_BOOKMARK_LIST", {"offset": 0}, parseBookmarks);
     });
@@ -1623,6 +1747,10 @@ function appInit() {
     
     document.getElementById('modalTimer').addEventListener('shown.bs.modal', function () {
         showListTimer();
+    });
+
+    document.getElementById('modalMounts').addEventListener('shown.bs.modal', function () {
+        showListMounts();
     });
     
     document.getElementById('modalAbout').addEventListener('shown.bs.modal', function () {
@@ -1887,6 +2015,20 @@ function appInit() {
         }
         else if (event.target.nodeName === 'BUTTON') {
             toggleTimer(event.target, event.target.parentNode.parentNode.getAttribute('data-id'));
+        }
+    }, false);
+
+    document.getElementById('listMountsList').addEventListener('click', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        if (event.target.nodeName === 'TD') {
+            if (event.target.parentNode.getAttribute('data-point') === '') {
+                return false;
+            }
+            showEditMount(decodeURI(event.target.parentNode.getAttribute('data-url')),decodeURI(event.target.parentNode.getAttribute('data-point')));
+        }
+        else if (event.target.nodeName === 'A') {
+            unmountMount(decodeURI(event.target.parentNode.parentNode.getAttribute('data-point')));
         }
     }, false);
     
@@ -3709,7 +3851,24 @@ function joinSettings(obj) {
     settingsLock = false;
     parseSettings();
     toggleUI();
+    sendAPI("MPD_API_URLHANDLERS", {}, parseUrlhandlers,false);
     btnWaiting(document.getElementById('btnApplySettings'), false);
+}
+
+function parseUrlhandlers(obj) {
+    let storagePlugins = '';
+    for (let i = 0; i < obj.result.data.length; i++) {
+        switch(obj.result.data[i]) {
+            case 'http://':
+            case 'https://':
+            case 'nfs://':
+            case 'smb://':
+                storagePlugins += '<option value="' + obj.result.data[i] + '">' + obj.result.data[i] + '</option>';
+                break;
+        }
+    }
+    storagePlugins += '<option value="udisks://">udisks://</option>';
+    document.getElementById('selectMountUrlhandler').innerHTML = storagePlugins;
 }
 
 function checkConsume() {
@@ -3836,7 +3995,7 @@ function parseSettings() {
     toggleBtnChkCollapse('btnSmartpls', 'collapseSmartpls', settings.smartpls);
     
     let features = ["featLocalplayer", "featSyscmds", "featMixramp", "featCacert", "featBookmarks", 
-        "featRegex", "featTimer"];
+        "featRegex", "featTimer", "featMounts"];
     for (let j = 0; j < features.length; j++) {
         let Els = document.getElementsByClassName(features[j]);
         let ElsLen = Els.length;
@@ -4798,13 +4957,7 @@ function parseStats(obj) {
     document.getElementById('mympdVersion').innerText = obj.result.mympdVersion;
     document.getElementById('mpdInfo_version').innerText = obj.result.mpdVersion;
     document.getElementById('mpdInfo_libmpdclientVersion').innerText = obj.result.libmpdclientVersion;
-    if (obj.result.libmympdclientVersion !== undefined) {
-        document.getElementById('mpdInfo_libmympdclientVersion').innerText = obj.result.libmympdclientVersion;
-        document.getElementById('mpdInfo_libmympdclientVersion').parentNode.classList.remove('hide');
-    }
-    else {
-        document.getElementById('mpdInfo_libmympdclientVersion').parentNode.classList.add('hide');    
-    }
+    document.getElementById('mpdInfo_libmympdclientVersion').innerText = obj.result.libmympdclientVersion;
 }
 
 function getServerinfo() {
@@ -5889,7 +6042,7 @@ function parseListTimer(obj) {
     for (let i = 0; i < obj.result.returnedEntities; i++) {
         let row = document.createElement('tr');
         row.setAttribute('data-id', obj.result.data[i].timerid);
-        let tds = '<td>' + obj.result.data[i].name + '</td>' +
+        let tds = '<td>' + e(obj.result.data[i].name) + '</td>' +
                   '<td><button name="enabled" class="btn btn-secondary btn-xs clickable material-icons material-icons-small' +
                   (obj.result.data[i].enabled === true ? ' active' : '') + '">' +
                   (obj.result.data[i].enabled === true ? 'check' : 'radio_button_unchecked') + '</button></td>' +
@@ -5925,6 +6078,11 @@ function parseListTimer(obj) {
  myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
+
+function getSelectValue(selectId) {
+    let el = document.getElementById(selectId);
+    return el.options[el.selectedIndex].value;
+}
 
 function alignDropdown(el) {
     if (getXpos(el.children[0]) > domCache.body.offsetWidth * 0.66) {
