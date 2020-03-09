@@ -30,7 +30,6 @@ var appInited = false;
 var subdir = '';
 var uiEnabled = true;
 var locale = navigator.language || navigator.userLanguage;
-var urlhandlers = [];
 
 var ligatureMore = 'menu';
 
