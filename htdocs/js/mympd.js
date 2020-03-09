@@ -12,7 +12,7 @@ var socket = null;
 var lastSong = '';
 var lastSongObj = {};
 var lastState;
-var currentSong = new Object();
+var currentSong = {};
 var playstate = '';
 var settingsLock = false;
 var settingsParsed = false;
@@ -30,6 +30,7 @@ var appInited = false;
 var subdir = '';
 var uiEnabled = true;
 var locale = navigator.language || navigator.userLanguage;
+var urlhandlers = [];
 
 var ligatureMore = 'menu';
 
@@ -106,6 +107,7 @@ var modalSaveSmartPlaylist = new Modal(document.getElementById('modalSaveSmartPl
 var modalDeletePlaylist = new Modal(document.getElementById('modalDeletePlaylist'));
 var modalSaveBookmark = new Modal(document.getElementById('modalSaveBookmark'));
 var modalTimer = new Modal(document.getElementById('modalTimer'));
+var modalMounts = new Modal(document.getElementById('modalMounts'));
 
 var dropdownMainMenu; 
 var dropdownVolumeMenu = new Dropdown(document.getElementById('volumeMenu'));
@@ -113,6 +115,7 @@ var dropdownBookmarks = new Dropdown(document.getElementById('BrowseFilesystemBo
 var dropdownLocalPlayer = new Dropdown(document.getElementById('localPlaybackMenu'));
 var dropdownPlay = new Dropdown(document.getElementById('btnPlayDropdown'));
 var dropdownCovergridSort = new Dropdown(document.getElementById('btnCovergridSortDropdown'));
+var dropdownNeighbors = new Dropdown(document.getElementById('btnDropdownNeighbors'));
 
 var collapseDBupdate = new Collapse(document.getElementById('navDBupdate'));
 var collapseSyscmds = new Collapse(document.getElementById('navSyscmds'));
@@ -520,6 +523,19 @@ function appInit() {
         sendAPI("MPD_API_PLAYER_OUTPUT_LIST", {}, parseOutputs);
     });
     
+    document.getElementById('btnDropdownNeighbors').parentNode.addEventListener('show.bs.dropdown', function () {
+        sendAPI("MPD_API_MOUNT_NEIGHBOR_LIST", {}, parseNeighbors);
+    });
+    
+    document.getElementById('dropdownNeighbors').children[0].addEventListener('click', function (event) {
+        event.preventDefault();
+        if (event.target.nodeName === 'A') {
+            let c = event.target.getAttribute('data-value').match(/^(\w+:\/\/)(.+)$/);
+            document.getElementById('selectMountUrlhandler').value = c[1];
+            document.getElementById('inputMountUri').value = c[2];
+        }
+    });
+    
     document.getElementById('BrowseFilesystemBookmark').parentNode.addEventListener('show.bs.dropdown', function () {
         sendAPI("MYMPD_API_BOOKMARK_LIST", {"offset": 0}, parseBookmarks);
     });
@@ -542,6 +558,10 @@ function appInit() {
     
     document.getElementById('modalTimer').addEventListener('shown.bs.modal', function () {
         showListTimer();
+    });
+
+    document.getElementById('modalMounts').addEventListener('shown.bs.modal', function () {
+        showListMounts();
     });
     
     document.getElementById('modalAbout').addEventListener('shown.bs.modal', function () {
@@ -806,6 +826,17 @@ function appInit() {
         }
         else if (event.target.nodeName === 'BUTTON') {
             toggleTimer(event.target, event.target.parentNode.parentNode.getAttribute('data-id'));
+        }
+    }, false);
+
+    document.getElementById('listMountsList').addEventListener('click', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        if (event.target.nodeName === 'TD') {
+            showEditMount(decodeURI(event.target.parentNode.getAttribute('data-uri')),decodeURI(event.target.parentNode.getAttribute('data-storage')));
+        }
+        else if (event.target.nodeName === 'A') {
+            unmountMount(decodeURI(event.target.parentNode.parentNode.getAttribute('data-uri')));
         }
     }, false);
     

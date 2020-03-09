@@ -8,4 +8,5 @@
 #define __MPD_CLIENT_MOUNTS_H__
 sds mpd_client_put_mounts(t_mpd_state *mpd_state, sds buffer, sds method, int request_id);
 sds mpd_client_put_neighbors(t_mpd_state *mpd_state, sds buffer, sds method, int request_id);
+sds mpd_client_put_urlhandlers(t_mpd_state *mpd_state, sds buffer, sds method, int request_id);
 #endif

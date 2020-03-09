@@ -51,6 +51,7 @@
           </div>
           <a data-phrase="Settings" class="dropdown-item text-light" href="#" data-toggle="modal" data-target="#modalSettings"></a>
           <a data-phrase="Timer" class="dropdown-item text-light featTimer" href="#" data-toggle="modal" data-target="#modalTimer"></a>
+          <a data-phrase="Mounts" class="dropdown-item text-light featMounts" href="#" data-toggle="modal" data-target="#modalMounts"></a>
           <a data-phrase="Browse directories" class="dropdown-item text-light featBrowse" href="browse/" target="_blank"></a>
           <a data-phrase="About" class="dropdown-item text-light " href="#" data-toggle="modal" data-target="#modalAbout"></a>
           <a data-phrase="Add to home screen" id="nav-add2homescreen" class="dropdown-item text-light bg-lite-dark hide" href="#"></a>
@@ -1867,6 +1868,76 @@
       </div>
     </div>
   </div>
+
+  <div class="modal fade" id="modalMounts" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><span class="material-icons title-icon">dns</span> <span data-phrase="Mounts"></span></h5>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>          
+        </div>
+        <div class="modal-body">
+        <div class="tab-content">
+          <div id="editMount" class="tab-pane">
+            <form id="editMountForm">
+              <div class="form-group row">
+                <label class="col-sm-4 col-form-label" for="inputMountUri" data-phrase="Uri"></label>
+                <div class="col-sm-8">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <select id="selectMountUrlhandler" class="form-control custom-select border-secondary rounded-right-0"></select>
+                    </div>
+                    <input id="inputMountUri" class="form-control border-secondary" type="text"/>
+                    <div class="input-group-append">
+                      <button id="btnDropdownNeighbors" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-right" type="button" data-toggle="dropdown"></button>
+                      <div id="dropdownNeighbors" class="dropdown-menu border-0 p-0 dropdown-menu-right">
+                        <div class="list-group"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="invalid-feedback" data-phrase="Invalid uri"></div>
+                </div>
+              </div>
+              <div class="form-group row">
+                <label class="col-sm-4 col-form-label" for="inputMountStorage" data-phrase="Path"></label>
+                <div class="col-sm-8">
+                  <input id="inputMountStorage" class="form-control border-secondary" type="text"/>
+                  <div class="invalid-feedback" data-phrase="Invalid path"></div>
+                </div>
+              </div>
+            </form>
+            <div id="errorMount" class="alert alert-danger hide"></div>
+          </div>
+          <div class="tab-pane active" id="listMounts">
+            <div class="table-responsive-md overflow-auto">
+              <table class="table table-hover table-sm">
+                <thead>
+                  <tr>
+                    <th data-phrase="Uri"></th>
+                    <th data-phrase="Path"></th>
+                    <th>&nbsp;</th>
+                  </tr>
+                </thead>
+                <tbody class="clickable" id="listMountsList">
+                </tbody>
+              </table>
+            </div>
+          </div>  
+        </div>
+        </div>
+        <div class="modal-footer justify-content-between" id="listMountsFooter">
+          <button data-href='{"cmd":"showEditMount","options":["",""]}' class="btn btn-success justify-content-start" data-phrase="New Mount"></button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Close"></button>
+        </div>
+        <div id="editMountFooter" class="modal-footer hide">
+          <button data-href='{"cmd":"showListMounts","options":[]}' type="button" class="btn btn-secondary" data-phrase="Cancel"></button>
+          <button data-href='{"cmd":"mountMount","options":[]}' type="button" class="btn btn-success" data-phrase="Save"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+ 
+  
 <!--debug-->  <script src="js/i18n.js"></script>
 <!--debug-->  <script src="js/keymap.js"></script>
 <!--debug-->  <script src="js/themes.js"></script>
@@ -1878,6 +1949,7 @@
 <!--debug-->  <script src="js/notification.js"></script>
 <!--debug-->  <script src="js/settings.js"></script>
 <!--debug-->  <script src="js/timer.js"></script>
+<!--debug-->  <script src="js/mounts.js"></script>
 <!--debug-->  <script src="js/api.js"></script>
 <!--debug-->  <script src="js/tables.js"></script>
 <!--debug-->  <script src="js/search.js"></script>

@@ -617,6 +617,9 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
                 response->data = mpd_client_timer_startplay(mpd_state, response->data, request->method, request->id, uint_buf1, p_charbuf1, uint_buf2);
             }
             break;
+        case MPD_API_URLHANDLERS:
+            response->data = mpd_client_put_urlhandlers(mpd_state, response->data, request->method, request->id);
+            break;
         case MPD_API_MOUNT_LIST:
             response->data = mpd_client_put_mounts(mpd_state, response->data, request->method, request->id);
             break;

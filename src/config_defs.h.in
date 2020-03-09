@@ -137,6 +137,7 @@ typedef struct t_config {
     sds generate_pls_tags;
     int covergridminsongs;
     sds booklet_name;
+    bool mounts;
     //system commands
     struct list syscmd_list;
 } t_config;
