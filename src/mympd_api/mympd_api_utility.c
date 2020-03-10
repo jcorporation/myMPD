@@ -60,6 +60,12 @@ void mympd_api_push_to_mpd_client(t_mympd_state *mympd_state) {
 }
 
 void free_mympd_state(t_mympd_state *mympd_state) {
+    free_mympd_state_sds(mympd_state);
+    truncate_timerlist(&mympd_state->timer_list);
+    FREE_PTR(mympd_state);
+}
+
+void free_mympd_state_sds(t_mympd_state *mympd_state) {
     sdsfree(mympd_state->mpd_host);
     sdsfree(mympd_state->mpd_pass);
     sdsfree(mympd_state->taglist);
@@ -88,8 +94,6 @@ void free_mympd_state(t_mympd_state *mympd_state) {
     sdsfree(mympd_state->smartpls_sort);
     sdsfree(mympd_state->smartpls_prefix);
     sdsfree(mympd_state->booklet_name);
-    truncate_timerlist(&mympd_state->timer_list);
-    FREE_PTR(mympd_state);
 }
 
 static const char *mympd_cols[]={"Pos", "Duration", "Type", "LastPlayed", "Filename", "Filetype", "Fileformat", "LastModified", 0};
