@@ -6,8 +6,8 @@
 */
 
 //eslint-disable-next-line no-unused-vars
-function unmountMount(uri) {
-    sendAPI("MPD_API_MOUNT_UNMOUNT", {"uri": uri}, showListMounts);
+function unmountMount(mountPoint) {
+    sendAPI("MPD_API_MOUNT_UNMOUNT", {"mountPoint": mountPoint}, showListMounts);
 }
 
 //eslint-disable-next-line no-unused-vars

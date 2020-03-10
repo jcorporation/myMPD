@@ -65,7 +65,7 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
         case MPD_API_LIKE:
             if (mpd_state->feat_sticker) {
                 je = json_scanf(request->data, sdslen(request->data), "{params: {uri: %Q, like: %d}}", &p_charbuf1, &uint_buf1);
-                if (je == 2) {        
+                if (je == 2 && strlen(p_charbuf1) > 0) {        
                     response->data = mpd_client_like_song_uri(mpd_state, response->data, request->method, request->id, p_charbuf1, uint_buf1);
                 }
             } 
@@ -630,7 +630,7 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
             }
             break;
         case MPD_API_MOUNT_UNMOUNT:
-            je = json_scanf(request->data, sdslen(request->data), "{params: {uri: %Q}}", &p_charbuf1);
+            je = json_scanf(request->data, sdslen(request->data), "{params: {mountPoint: %Q}}", &p_charbuf1);
             if (je == 1) {
                 mpd_run_unmount(mpd_state->conn, p_charbuf1);
                 response->data = respond_with_mpd_error_or_ok(mpd_state, response->data, request->method, request->id);
