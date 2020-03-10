@@ -209,6 +209,26 @@ mpd_send_clear_tag_types(struct mpd_connection *connection);
 bool
 mpd_run_clear_tag_types(struct mpd_connection *connection);
 
+/**
+ * Add all tags to the list of tag types this client is interested in.
+ * This means that MPD will send all tags to this client.
+ *
+ * @param connection the connection to MPD
+ * @return true on success, false on error
+ *
+ * @since libmpdclient 2.19, MPD 0.21
+ */
+bool
+mpd_send_all_tag_types(struct mpd_connection *connection);
+
+/**
+ * Shortcut for mpd_send_all_tag_types() and mpd_response_finish().
+ *
+ * @since libmpdclient 2.19, MPD 0.21
+ */
+bool
+mpd_run_all_tag_types(struct mpd_connection *connection);
+
 #ifdef __cplusplus
 }
 #endif

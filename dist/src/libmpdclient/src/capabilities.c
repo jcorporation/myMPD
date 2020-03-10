@@ -140,3 +140,16 @@ mpd_run_clear_tag_types(struct mpd_connection *connection)
 	return mpd_send_clear_tag_types(connection) &&
 		mpd_response_finish(connection);
 }
+
+bool
+mpd_send_all_tag_types(struct mpd_connection *connection)
+{
+	return mpd_send_command(connection, "tagtypes", "all", NULL);
+}
+
+bool
+mpd_run_all_tag_types(struct mpd_connection *connection)
+{
+	return mpd_send_all_tag_types(connection) &&
+		mpd_response_finish(connection);
+}
