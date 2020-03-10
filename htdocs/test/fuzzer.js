@@ -87,7 +87,9 @@ function defineCmds() {
         {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_TIMER_SAVE","params":{"timerid": int0, "name": string1, "enabled": bool0, "startHour": int1, "startMinute": int2, "action": string2, "volume": int3, "playlist": string3, "jukeboxMode": int4, "weekdays":[bool0,bool0,bool0,bool0,bool0,bool0,bool0]}},
         {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_TIMER_GET","params":{"timerid": int0}},
         {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_TIMER_TOGGLE","params":{"timerid": int0}},
-        {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_TIMER_RM","params":{"timerid": int0}}
+        {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_TIMER_RM","params":{"timerid": int0}},
+        {"jsonrpc":"2.0","id":0,"method":"MPD_API_MOUNT_MOUNT","params":{"mountUrl":string1,"mountPoint":string2}},
+        {"jsonrpc":"2.0","id":0,"method":"MPD_API_MOUNT_UNMOUNT","params":{"mountPoint":string1}},
     ];
 }
 
