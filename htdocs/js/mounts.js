@@ -75,7 +75,10 @@ function parseListMounts(obj) {
         let tds = '<td>' + (obj.result.data[i].mountPoint === '' ? '<span class="material-icons">home</span>' : e(obj.result.data[i].mountPoint)) + '</td>' +
                   '<td>' + e(obj.result.data[i].mountUrl) + '</td>';
         if (obj.result.data[i].mountPoint !== '') {
-            tds += '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">delete</a></td>';
+            tds += '<td data-col="Action">' + 
+                   '<a href="#" title="' + t('Unmount') + '" data-action="unmount" class="material-icons color-darkgrey">delete</a>' +
+                   '<a href="#" title="' + t('Update') + '" data-action="update"class="material-icons color-darkgrey">refresh</a>' +
+                   '</td>';
         }
         else {
             tds += '<td>&nbsp;</td>';

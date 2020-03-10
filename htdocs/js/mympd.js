@@ -838,7 +838,14 @@ function appInit() {
             showEditMount(decodeURI(event.target.parentNode.getAttribute('data-url')),decodeURI(event.target.parentNode.getAttribute('data-point')));
         }
         else if (event.target.nodeName === 'A') {
-            unmountMount(decodeURI(event.target.parentNode.parentNode.getAttribute('data-point')));
+            let action = event.target.getAttribute('data-action');
+            let mountPoint = decodeURI(event.target.parentNode.parentNode.getAttribute('data-point'));
+            if (action === 'unmount') {
+                unmountMount(mountPoint);
+            }
+            else if (action === 'update') {
+                updateDB(mountPoint);
+            }
         }
     }, false);
     
