@@ -104,8 +104,7 @@ void disable_all_mpd_tags(t_mpd_state *mpd_state) {
 void enable_all_mpd_tags(t_mpd_state *mpd_state) {
     if (mpd_connection_cmp_server_version(mpd_state->conn, 0, 21, 0) >= 0) {
         LOG_DEBUG("Enabling all mpd tag types");
-        mpd_send_command(mpd_state->conn, "tagtypes", "all", NULL);
-        mpd_response_finish(mpd_state->conn);
+        mpd_run_all_tag_types(mpd_state->conn);
         check_error_and_recover2(mpd_state, NULL, NULL, 0, false);
     }
 }
