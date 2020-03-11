@@ -422,7 +422,7 @@ button.active-fg-red {
 
 div#alertBox {
   position:fixed;
-  top: 4rem;
+  bottom: 4rem;
   right: 1rem;
   width: 80%;
   max-width: 400px;

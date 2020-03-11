@@ -72,18 +72,33 @@ function showNotification(notificationTitle, notificationText, notificationHtml,
         if (!document.getElementById('alertBox')) {
             alertBox = document.createElement('div');
             alertBox.setAttribute('id', 'alertBox');
-            alertBox.addEventListener('click', function() {
-                hideNotification();
-            }, false);
+            alertBox.classList.add('toast');
+//            alertBox.addEventListener('click', function() {
+//                hideNotification();
+//            }, false);
         }
         else {
             alertBox = document.getElementById('alertBox');
         }
-        alertBox.classList.remove('alert-success', 'alert-danger');
-        alertBox.classList.add('alert','alert-' + notificationType);
-        alertBox.innerHTML = '<strong>' + e(notificationTitle) + '</strong><br/>' + (notificationHtml === '' ? e(notificationText) : notificationHtml);
-        document.getElementsByTagName('main')[0].append(alertBox);
-        document.getElementById('alertBox').classList.add('alertBoxActive');
+        let toast = '<div class="toast-header">';
+        if (notificationType === 'success' ) {
+            toast += '<span class="material-icons text-success mr-2">info</span>';
+        }
+        else {
+            toast += '<span class="material-icons text-danger mr-2">warning</span>';
+        }
+        toast += '<strong class="mr-auto">' + e(notificationTitle) + '</strong>' +
+            '<button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">&times;</button></div>';
+        if (notificationHtml !== '' && notificationText !== '') {
+            toast += '<div class="toast-body">' + (notificationHtml === '' ? e(notificationText) : notificationHtml) + '</div>';
+        }
+        toast += '</div>';
+        alertBox.innerHTML = toast;
+        
+        if (!document.getElementById('alertBox')) {
+            document.getElementsByTagName('main')[0].append(alertBox);
+            document.getElementById('alertBox').classList.add('alertBoxActive');
+        }
         if (alertTimeout) {
             clearTimeout(alertTimeout);
         }
@@ -153,11 +168,12 @@ function clearLogOverview() {
 
 function hideNotification() {
     if (document.getElementById('alertBox')) {
-        document.getElementById('alertBox').classList.remove('alertBoxActive');
+        //document.getElementById('alertBox').classList.remove('alertBoxActive');
         setTimeout(function() {
             let alertBox = document.getElementById('alertBox');
-            if (alertBox)
-                alertBox.remove();
+            if (alertBox) {
+                //alertBox.remove();
+            }
         }, 600);
     }
 }
