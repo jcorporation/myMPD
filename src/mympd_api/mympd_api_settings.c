@@ -354,14 +354,13 @@ bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state, struct
 
 void mympd_api_settings_reset(t_config *config, t_mympd_state *mympd_state) {
     mympd_api_settings_delete(config);
+    free_mympd_state_sds(mympd_state);
     mympd_api_read_statefiles(config, mympd_state);
     mympd_api_push_to_mpd_client(mympd_state);
 }
 
 void mympd_api_read_statefiles(t_config *config, t_mympd_state *mympd_state) {
     LOG_INFO("Reading states");
-    free_mympd_state_sds(mympd_state);
-    
     mympd_state->mpd_host = state_file_rw_string(config, "mpd_host", config->mpd_host, false);
     mympd_state->mpd_port = state_file_rw_int(config, "mpd_port", config->mpd_port, false);
     mympd_state->mpd_pass = state_file_rw_string(config, "mpd_pass", config->mpd_pass, false);
