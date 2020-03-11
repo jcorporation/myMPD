@@ -24,6 +24,19 @@ function mountMount() {
 }
 
 //eslint-disable-next-line no-unused-vars
+function updateMount(el, uri) {
+    let parent = el.parentNode;
+    for (let i = 0; i < parent.children.length; i++) {
+        parent.children[i].classList.add('hide');
+    }
+    let spinner = document.createElement('div');
+    spinner.setAttribute('id', 'spinnerUpdateProgress');
+    spinner.classList.add('spinner-border', 'spinner-border-sm');
+    el.parentNode.insertBefore(spinner, el);
+    updateDB(uri, false);    
+}
+
+//eslint-disable-next-line no-unused-vars
 function showEditMount(uri, storage) {
     document.getElementById('listMounts').classList.remove('active');
     document.getElementById('editMount').classList.add('active');

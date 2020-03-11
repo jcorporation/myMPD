@@ -844,7 +844,7 @@ function appInit() {
                 unmountMount(mountPoint);
             }
             else if (action === 'update') {
-                updateDB(mountPoint);
+                updateMount(event.target, mountPoint);
             }
         }
     }, false);
