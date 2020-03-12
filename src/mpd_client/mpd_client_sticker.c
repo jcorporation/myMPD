@@ -35,7 +35,7 @@ bool sticker_cache_init(t_config *config, t_mpd_state *mpd_state) {
         return rc;
     }
     else {
-        LOG_WARN("Sticker cache disabled, mpd version < 0.20.0 or libmpdclient < 2.11.0");
+        LOG_WARN("Sticker cache disabled, mpd version < 0.20.0");
         return false;
     }
 }
