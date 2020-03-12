@@ -180,3 +180,10 @@ body.theme-dark .list-group-item-action {
 body.theme-dark .list-group-item-action:hover {
   background-color: #3c4248 !important;
 }
+
+body.theme-dark .toast,
+body.theme-dark .toast-header,
+body.theme-dark .toast-body {
+  background-color: #494f56;
+  color: #f8f9fa;
+}
