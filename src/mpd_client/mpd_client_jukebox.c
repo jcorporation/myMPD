@@ -276,11 +276,17 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_state
         bool error = false;
         time_t now = time(NULL);
         now = now - mpd_state->jukebox_last_played * 60 * 60;
+        int start_length;
+        if (manual == false) {
+            start_length = mpd_state->jukebox_queue.length;
+            addSongs = 50 - start_length;
+        }
+        else {
+            start_length = 0;
+        }
         do {
             LOG_DEBUG("Jukebox: iterating through source, start: %u", start);
-            if (manual == false) {
-                addSongs = 50 - mpd_state->jukebox_queue.length;
-            }
+
             if (strcmp(playlist, "Database") == 0) {
                 if (mpd_search_db_songs(mpd_state->conn, false) == false) { error = true; }
                 else if (mpd_search_add_uri_constraint(mpd_state->conn, MPD_OPERATOR_DEFAULT, "") == false) { error = true; }
@@ -316,20 +322,28 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_state
                     if (randrange(lineno) < addSongs) {
 		        if (nkeep < addSongs) {
 		            if (manual == false) {
-		                list_push(&mpd_state->jukebox_queue, uri, lineno, tag_value, NULL);
+		                if (list_push(&mpd_state->jukebox_queue, uri, lineno, tag_value, NULL) == false) {
+		                    LOG_ERROR("Can't push jukebox_queue element");
+		                }
                             }
                             else {
-                                list_push(&mpd_state->jukebox_queue_tmp, uri, lineno, tag_value, NULL);
+                                if (list_push(&mpd_state->jukebox_queue_tmp, uri, lineno, tag_value, NULL) == false) {
+                                    LOG_ERROR("Can't push jukebox_queue_tmp element");
+                                }
                             }
                             nkeep++;
                         }
                         else {
-                            int i = addSongs > 1 ? randrange(addSongs) : 0;
+                            int i = addSongs > 1 ? start_length + randrange(addSongs) - 1 : 0;
                             if (manual == false) {
-                                list_replace(&mpd_state->jukebox_queue, i, uri, lineno, tag_value, NULL);
+                                if (list_replace(&mpd_state->jukebox_queue, i, uri, lineno, tag_value, NULL) == false) {
+                                    LOG_ERROR("Can't replace jukebox_queue element pos %d", i);
+                                }
                             }
                             else {
-                                list_replace(&mpd_state->jukebox_queue_tmp, i, uri, lineno, tag_value, NULL);
+                                if (list_replace(&mpd_state->jukebox_queue_tmp, i, uri, lineno, tag_value, NULL) == false) {
+                                    LOG_ERROR("Can't replace jukebox_queue_tmp element pos %d", i);
+                                }
                             }
                         }
                     }
@@ -368,20 +382,28 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_state
                 if (randrange(lineno) < addSongs) {
 		    if (nkeep < addSongs) {
 		        if (manual == false) {
-                            list_push(&mpd_state->jukebox_queue, pair->value, lineno, NULL, NULL);
+                            if (list_push(&mpd_state->jukebox_queue, pair->value, lineno, NULL, NULL) == false) {
+                                LOG_ERROR("Can't push jukebox_queue_tmp element");
+                            }
                         }
                         else {
-                            list_push(&mpd_state->jukebox_queue_tmp, pair->value, lineno, NULL, NULL);
+                            if (list_push(&mpd_state->jukebox_queue_tmp, pair->value, lineno, NULL, NULL) == false) {
+                                LOG_ERROR("Can't push jukebox_queue_tmp element");
+                            }
                         }
                         nkeep++;
                     }
                     else {
                         int i = addSongs > 1 ? randrange(addSongs) : 0;
                         if (manual == false) {
-                            list_replace(&mpd_state->jukebox_queue, i, pair->value, lineno, NULL, NULL);
+                            if (list_replace(&mpd_state->jukebox_queue, i, pair->value, lineno, NULL, NULL) == false) {
+                                LOG_ERROR("Can't replace jukebox_queue element pos %d", i);
+                            }
                         }
                         else {
-                            list_replace(&mpd_state->jukebox_queue_tmp, i, pair->value, lineno, NULL, NULL);
+                            if (list_replace(&mpd_state->jukebox_queue_tmp, i, pair->value, lineno, NULL, NULL) == false) {
+                                LOG_ERROR("Can't replace jukebox_queue_tmp element pos %d", i);
+                            }
                         }
                     }
                 }
