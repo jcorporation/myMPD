@@ -277,7 +277,7 @@ bool _sticker_cache_init(t_config *config, t_mpd_state *mpd_state) {
         }
         start = end;
         end = end + 1000;
-    } while (i > start);
+    } while (i >= start);
     //get sticker values
     raxIterator iter;
     raxStart(&iter, mpd_state->sticker_cache);

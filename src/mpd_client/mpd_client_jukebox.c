@@ -343,7 +343,7 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_state
             mpd_response_finish(mpd_state->conn);
             start = end;
             end = end + 1000;
-        } while (strcmp(playlist, "Database") == 0 && lineno > start);
+        } while (strcmp(playlist, "Database") == 0 && lineno + skipno > start);
         LOG_DEBUG("Jukebox iterated through %u songs, skipped %u", lineno, skipno);
     }
     else if (jukebox_mode == JUKEBOX_ADD_ALBUM) {
