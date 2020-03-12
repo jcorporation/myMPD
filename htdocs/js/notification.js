@@ -73,9 +73,6 @@ function showNotification(notificationTitle, notificationText, notificationHtml,
             alertBox = document.createElement('div');
             alertBox.setAttribute('id', 'alertBox');
             alertBox.classList.add('toast');
-//            alertBox.addEventListener('click', function() {
-//                hideNotification();
-//            }, false);
         }
         else {
             alertBox = document.getElementById('alertBox');
@@ -88,7 +85,7 @@ function showNotification(notificationTitle, notificationText, notificationHtml,
             toast += '<span class="material-icons text-danger mr-2">warning</span>';
         }
         toast += '<strong class="mr-auto">' + e(notificationTitle) + '</strong>' +
-            '<button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">&times;</button></div>';
+            '<button type="button" class="ml-2 mb-1 close">&times;</button></div>';
         if (notificationHtml !== '' && notificationText !== '') {
             toast += '<div class="toast-body">' + (notificationHtml === '' ? e(notificationText) : notificationHtml) + '</div>';
         }
@@ -97,8 +94,14 @@ function showNotification(notificationTitle, notificationText, notificationHtml,
         
         if (!document.getElementById('alertBox')) {
             document.getElementsByTagName('main')[0].append(alertBox);
-            document.getElementById('alertBox').classList.add('alertBoxActive');
+            requestAnimationFrame(function() {
+                document.getElementById('alertBox').classList.add('alertBoxActive');
+            });
         }
+        alertBox.getElementsByTagName('button')[0].addEventListener('click', function() {
+            hideNotification();
+        }, false);
+
         if (alertTimeout) {
             clearTimeout(alertTimeout);
         }
@@ -167,14 +170,18 @@ function clearLogOverview() {
 }
 
 function hideNotification() {
+    if (alertTimeout) {
+        clearTimeout(alertTimeout);
+    }
+
     if (document.getElementById('alertBox')) {
-        //document.getElementById('alertBox').classList.remove('alertBoxActive');
+        document.getElementById('alertBox').classList.remove('alertBoxActive');
         setTimeout(function() {
             let alertBox = document.getElementById('alertBox');
             if (alertBox) {
-                //alertBox.remove();
+                alertBox.remove();
             }
-        }, 600);
+        }, 750);
     }
 }
 
