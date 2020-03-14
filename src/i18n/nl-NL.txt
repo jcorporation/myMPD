@@ -67,7 +67,7 @@ Add to queue
 Toevoegen aan wachtrij
 
 Clear queue
-Wachtrij wissen
+Wis wachtrij
 
 Crop queue
 Wachtrij inkorten
@@ -106,13 +106,13 @@ Artist
 Artiest
 
 ArtistSort
-ArtiestSort
+Artiest
 
 Album
 Album
 
 AlbumSort
-AlbumSort
+Album
 
 Duration
 Duur
@@ -121,7 +121,7 @@ AlbumArtist
 Albumartiest
 
 AlbumArtistSort
-AlbumartiestSort
+Albumartiest
 
 Composer
 Componist
@@ -589,7 +589,7 @@ Shortcut
 Sneltoets
 
 Action
-Actie
+Aktie
 
 MPD host
 MPD host
@@ -655,13 +655,13 @@ Searching...
 Zoek...
 
 Previous song
-Vorige nummer
+Vorig nummer
 
 Next song
 Volgende nummer
 
 Toggle play / pause
-Afspelen / Pause
+Play / Pause
 
 Stop playing
 Stop
@@ -709,13 +709,13 @@ Open main menu
 Hoofdmenu openen
 
 Open volume menu
-Volumeregeling openen
+Volumeregeing openen
 
 Open about
 Over myMPD openen
 
 Focus search
-Zoeken
+Naar Zoeken
 
 myMPD installed as app
 myMPD werd als app geïnstalleerd 
@@ -934,7 +934,7 @@ Focus table
 In tabel navigeren
 
 Append item to queue
-Voeg selectie toe aan wachtrij
+Selectie aan wachtrij toevoegen
 
 Replace queue with item
 Vervang wachtrij met selectie
@@ -946,7 +946,7 @@ Remove item from queue
 Verwijder selectie uit wachtrij
 
 Append item to playlist
-Voeg selectie toe aan afspeellijst
+Selectie aan afspeellijst toevoegen
 
 Fingerprint
 Fingerprint
@@ -1239,6 +1239,9 @@ Verwijder afspeellijsten
 Media session support
 Mediasessie ondersteuning
 
+Not supported by libmpdclient
+Niet ondersteund door libmpdclient
+
 Playlists deleted
 Afspeellijsten verwijderd
 
@@ -1289,3 +1292,30 @@ Meldingen zijn geblokkeerd
 
 Adding timer failed
 Toevoegen timer mislukt
+
+Browse directories
+Browse bestanden
+
+Sorry, your MPD version is too old
+Sorry, je MPD-versie is te oud
+
+Mounts
+Aankoppelpunten
+
+New mount
+Nieuw aankoppelpunt
+
+Backend uri
+Backend-url
+
+Invalid backend uri
+Ongeldige backend-url
+
+Invalid mount point
+Ongeldig aankoppelpunt
+
+Mount point
+Aankoppelpunt
+
+Unmount
+Ontkoppelen
