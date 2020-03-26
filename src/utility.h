@@ -6,6 +6,7 @@
 
 #ifndef __UTILITY_H__
 #define __UTILITY_H__
+void send_jsonrpc_notify_error(const char *message);
 sds jsonrpc_start_notify(sds buffer, const char *method);
 sds jsonrpc_end_notify(sds buffer);
 sds jsonrpc_notify(sds buffer, const char *method);
@@ -38,6 +39,7 @@ sds get_mime_type_by_magic_stream(sds stream);
 bool write_covercache_file(t_config *config, const char *uri, const char *mime_type, sds binary);
 bool strtobool(const char *value);
 int strip_extension(char *s);
+void ws_notify(sds message);
 
 #define FREE_PTR(PTR) do { \
     if (PTR != NULL) \

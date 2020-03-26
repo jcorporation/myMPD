@@ -125,13 +125,6 @@ void enable_mpd_tags(t_mpd_state *mpd_state, t_tags enable_tags) {
     }
 }
 
-void mpd_client_notify(sds message) {
-    LOG_DEBUG("Push websocket notify to queue: %s", message);
-    t_work_result *response = create_result_new(0, 0, 0, "");
-    response->data = sdsreplace(response->data, message);
-    tiny_queue_push(web_server_queue, response);
-}
-
 sds put_song_tags(sds buffer, t_mpd_state *mpd_state, const t_tags *tagcols, const struct mpd_song *song) {
     if (mpd_state->feat_tags == true) {
         for (size_t tagnr = 0; tagnr < tagcols->len; ++tagnr) {

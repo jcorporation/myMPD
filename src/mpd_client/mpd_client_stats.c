@@ -105,7 +105,7 @@ bool mpd_client_last_played_list(t_config *config, t_mpd_state *mpd_state, const
             }
             //notify clients
             sds buffer = jsonrpc_notify(sdsempty(), "update_lastplayed");
-            mpd_client_notify(buffer);
+            ws_notify(buffer);
             sdsfree(buffer);
         } else {
             LOG_ERROR("Can't get song from id %d", song_id);

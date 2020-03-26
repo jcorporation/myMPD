@@ -128,7 +128,6 @@ void json_to_tags(const char *str, int len, void *user_data);
 void reset_t_tags(t_tags *tags);
 void free_mpd_state(t_mpd_state *mpd_state);
 void default_mpd_state(t_mpd_state *mpd_state);
-void mpd_client_notify(sds message);
 bool is_smartpls(t_config *config, t_mpd_state *mpd_state, const char *plpath);
 void detect_extra_files(t_mpd_state *mpd_state, const char *uri, bool *booklet, bool *lyrics, struct list *images);
 sds put_extra_files(t_mpd_state *mpd_state, sds buffer, const char *uri);

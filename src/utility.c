@@ -13,13 +13,32 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <ctype.h>
+#include <signal.h>
 
 #include "../dist/src/sds/sds.h"
 #include "sds_extras.h"
 #include "list.h"
 #include "config_defs.h"
 #include "log.h"
+#include "tiny_queue.h"
+#include "api.h"
+#include "global.h"
 #include "utility.h"
+
+void send_jsonrpc_notify_error(const char *message) {
+    sds buffer = jsonrpc_start_notify(sdsempty(), "error");
+    buffer = tojson_char(buffer, "message", message, false);
+    buffer = jsonrpc_end_notify(buffer);
+    ws_notify(buffer);
+}
+
+void ws_notify(sds message) {
+    LOG_DEBUG("Push websocket notify to queue: %s", message);
+    t_work_result *response = create_result_new(0, 0, 0, "");
+    response->data = sdsreplace(response->data, message);
+    tiny_queue_push(web_server_queue, response);
+}
+
 
 sds jsonrpc_start_notify(sds buffer, const char *method) {
     buffer = sdscrop(buffer);
