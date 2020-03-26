@@ -35,3 +35,4 @@ newest
 sticker
 Info
 Error
+No such directory
