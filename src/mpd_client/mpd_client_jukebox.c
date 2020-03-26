@@ -242,6 +242,9 @@ static bool mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_state 
     }
     
     if (rc == false) {
+        LOG_ERROR("Filling jukebox queue failed, disabling jukebox");
+        send_jsonrpc_notify_error("Filling jukebox queue failed, disabling jukebox");
+        mpd_state->jukebox_mode = JUKEBOX_OFF;
         return false;
     }
     return true;
@@ -288,18 +291,34 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_state
             LOG_DEBUG("Jukebox: iterating through source, start: %u", start);
 
             if (strcmp(playlist, "Database") == 0) {
-                if (mpd_search_db_songs(mpd_state->conn, false) == false) { error = true; }
-                else if (mpd_search_add_uri_constraint(mpd_state->conn, MPD_OPERATOR_DEFAULT, "") == false) { error = true; }
-                else if (mpd_search_add_window(mpd_state->conn, start, end) == false) { error = true; }
-                else if (mpd_search_commit(mpd_state->conn) == false) { error = true; }
+                if (mpd_search_db_songs(mpd_state->conn, false) == false) { 
+                    LOG_ERROR("Error in response to command: mpd_search_db_songs");
+                    error = true;
+                }
+                else if (mpd_search_add_uri_constraint(mpd_state->conn, MPD_OPERATOR_DEFAULT, "") == false) { 
+                    LOG_ERROR("Error in response to command: mpd_search_add_uri");
+                    error = true;
+                }
+                else if (mpd_search_add_window(mpd_state->conn, start, end) == false) { 
+                    LOG_ERROR("Error in response to command: mpd_search_add_window");
+                    error = true;
+                }
+                else if (mpd_search_commit(mpd_state->conn) == false) {
+                    LOG_ERROR("Error in response to command: mpd_search_commit");
+                    error = true;
+                }
+                
+                if (error == true) {
+                    mpd_search_cancel(mpd_state->conn);
+                }
             }
             else {
-                if (mpd_send_list_playlist_meta(mpd_state->conn, playlist) == false) { error = true; }
+                if (mpd_send_list_playlist_meta(mpd_state->conn, playlist) == false) {
+                    LOG_ERROR("Error in response to command: mpd_send_list_playlist_meta");
+                }
             }
             
-            if (error == true) {
-                mpd_search_cancel(mpd_state->conn);
-                check_error_and_recover(mpd_state, NULL, NULL, 0);
+            if (check_error_and_recover2(mpd_state, NULL, NULL, 0, false) == false) {
                 list_free(queue_list);
                 FREE_PTR(queue_list);
                 return false;
@@ -367,12 +386,19 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_state
             addSongs = 10 - mpd_state->jukebox_queue.length;
         }
         
-        if (mpd_search_db_tags(mpd_state->conn, MPD_TAG_ALBUM) == false) { error = true; }
-        else if (mpd_search_commit(mpd_state->conn) == false) { error = true; }
+        if (mpd_search_db_tags(mpd_state->conn, MPD_TAG_ALBUM) == false) {
+            LOG_ERROR("Error in response to command: mpd_search_db_tags");
+            error = true;
+        }
+        else if (mpd_search_commit(mpd_state->conn) == false) { 
+            LOG_ERROR("Error in response to command: mpd_search_commit");
+            error = true;
+        }
         
         if (error == true) {
             mpd_search_cancel(mpd_state->conn);
-            check_error_and_recover(mpd_state, NULL, NULL, 0);
+        }
+        if (check_error_and_recover2(mpd_state, NULL, NULL, 0, false) == false) {
             list_free(queue_list);
             FREE_PTR(queue_list);
             return false;
