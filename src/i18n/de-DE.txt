@@ -1319,3 +1319,6 @@ Einhängepunkt
 
 Unmount
 Aushängen
+
+No such directory
+Verzeichnis nicht gefunden
