@@ -1316,3 +1316,9 @@ Invalid mount point
 
 Mount point
 마운트 위치
+
+Unmount
+언마운트
+
+No such directory
+그런 디렉터리가 없음
