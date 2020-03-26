@@ -4,9 +4,9 @@
  https://github.com/jcorporation/mympd
 */
 
-#include "../dist/src/sds/sds.h"
+#include "../../dist/src/sds/sds.h"
 #include "../sds_extras.h"
-#include "../dist/src/mongoose/mongoose.h"
+#include "../../dist/src/mongoose/mongoose.h"
 #include "../log.h"
 #include "../list.h"
 #include "config_defs.h"

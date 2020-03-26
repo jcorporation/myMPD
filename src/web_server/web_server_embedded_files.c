@@ -6,7 +6,7 @@
 
 #define INCBIN_PREFIX 
 #define INCBIN_STYLE INCBIN_STYLE_SNAKE
-#include "../dist/src/incbin/incbin.h"
+#include "../../dist/src/incbin/incbin.h"
 
 //compressed assets
 INCBIN(sw_js, "../dist/htdocs/sw.js.gz");

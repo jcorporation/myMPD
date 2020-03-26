@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include <mpd/client.h>
 
-#include "../dist/src/sds/sds.h"
+#include "../../dist/src/sds/sds.h"
 #include "../sds_extras.h"
 #include "../api.h"
 #include "../log.h"

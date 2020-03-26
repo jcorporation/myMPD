@@ -10,9 +10,9 @@
 #include <string.h>
 #include <libgen.h>
 
-#include "../dist/src/sds/sds.h"
-#include "../dist/src/mongoose/mongoose.h"
-#include "../dist/src/frozen/frozen.h"
+#include "../../dist/src/sds/sds.h"
+#include "../../dist/src/mongoose/mongoose.h"
+#include "../../dist/src/frozen/frozen.h"
 #include "../sds_extras.h"
 #include "../api.h"
 #include "../list.h"

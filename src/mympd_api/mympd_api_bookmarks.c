@@ -13,7 +13,7 @@
 
 #include "../../dist/src/sds/sds.h"
 #include "../sds_extras.h"
-#include "../dist/src/frozen/frozen.h"
+#include "../../dist/src/frozen/frozen.h"
 #include "../log.h"
 #include "../list.h"
 #include "config_defs.h"

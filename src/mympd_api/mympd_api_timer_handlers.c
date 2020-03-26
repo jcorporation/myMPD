@@ -10,7 +10,7 @@
 #include <time.h>
 #include <string.h>
 
-#include "../dist/src/sds/sds.h"
+#include "../../dist/src/sds/sds.h"
 #include "../log.h"
 #include "../list.h"
 #include "../tiny_queue.h"
