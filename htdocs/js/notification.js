@@ -67,7 +67,7 @@ function showNotification(notificationTitle, notificationText, notificationHtml,
         let notification = new Notification(notificationTitle, {icon: 'assets/favicon.ico', body: notificationText});
         setTimeout(notification.close.bind(notification), 3000);
     } 
-    if (settings.notificationPage === true) {
+    if (settings.notificationPage === true || notificationType === 'danger') {
         let alertBox;
         if (!document.getElementById('alertBox')) {
             alertBox = document.createElement('div');
