@@ -219,6 +219,19 @@ mpd_send_playlist_move(struct mpd_connection *connection, const char *name,
 		       unsigned from, unsigned to);
 
 /**
+ * Shortcut for mpd_send_playlist_move() and mpd_response_finish().
+ *
+ * @param connection the connection to MPD
+ * @param name the name of the playlist
+ * @param from previous song place in the playlist
+ * @param to next song position in the playlist
+ * @return true on success, false on error
+ */
+bool
+mpd_run_playlist_move(struct mpd_connection *connection, const char *name,
+		      unsigned from, unsigned to);
+
+/**
  * Delete a position from a playlist.
  *
  * @param connection the connection to MPD

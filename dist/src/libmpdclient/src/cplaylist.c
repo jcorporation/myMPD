@@ -102,6 +102,15 @@ mpd_send_playlist_move(struct mpd_connection *connection, const char *name,
 }
 
 bool
+mpd_run_playlist_move(struct mpd_connection *connection, const char *name,
+		       unsigned from, unsigned to)
+{
+	return mpd_run_check(connection) &&
+		mpd_send_playlist_move(connection, name, from, to) &&
+		mpd_response_finish(connection);
+}
+
+bool
 mpd_send_playlist_delete(struct mpd_connection *connection, const char *name,
 			 unsigned pos)
 {
