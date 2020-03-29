@@ -29,9 +29,9 @@ static bool mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_state 
 static bool _mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_state *mpd_state, int addSongs, enum jukebox_modes jukebox_mode, const char *playlist, bool manual);
 static bool mpd_client_jukebox_unique_tag(t_mpd_state *mpd_state, const char *uri, const char *value, bool manual, struct list *queue_list);
 static bool mpd_client_jukebox_unique_album(t_mpd_state *mpd_state, const char *album, bool manual, struct list *queue_list);
+static bool add_album_to_queue(t_mpd_state *mpd_state, const char *album);
 
 //public functions
-
 bool mpd_client_jukebox(t_config *config, t_mpd_state *mpd_state) {
     struct mpd_status *status = mpd_run_status(mpd_state->conn);
     if (status == NULL) {
@@ -99,23 +99,24 @@ bool mpd_client_jukebox_add_to_queue(t_config *config, t_mpd_state *mpd_state, i
     }
     while (current != NULL && added < addSongs) {
         if (jukebox_mode == JUKEBOX_ADD_SONG) {
-	    LOG_INFO("Jukebox adding song: %s", current->key);
 	    bool rc = mpd_run_add(mpd_state->conn, current->key);
 	    if (check_rc_error_and_recover(mpd_state, NULL, NULL, 0, false, rc, "mpd_run_add") == true) {
+	        LOG_INFO("Jukebox adding song: %s", current->key);
                 added++;
+            }
+            else {
+                LOG_ERROR("Jukebox adding song %s failed", current->key);
             }
         }
         else {
-            LOG_INFO("Jukebox adding album: %s", current->key);
-            //todo: use libmpdclient api
-            if (!mpd_send_command(mpd_state->conn, "searchadd", "Album", current->key, NULL)) {
-                check_error_and_recover(mpd_state, NULL, NULL, 0);
-                return false;
-            }
-            else {
+            bool rc = add_album_to_queue(mpd_state, current->key);
+            if (rc == true) {
+                LOG_INFO("Jukebox adding album: %s", current->key);
                 added++;
             }
-            mpd_response_finish(mpd_state->conn);
+            else {
+                LOG_ERROR("Jukebox adding album %s failed", current->key);
+            }
         }
         if (manual == false) {
             list_shift(&mpd_state->jukebox_queue, 0);
@@ -150,6 +151,21 @@ bool mpd_client_jukebox_add_to_queue(t_config *config, t_mpd_state *mpd_state, i
 
 
 //private functions
+static bool add_album_to_queue(t_mpd_state *mpd_state, const char *album) {
+    bool rc = mpd_search_add_db_songs(mpd_state->conn, true);
+    if (check_rc_error_and_recover(mpd_state, NULL, NULL, 0, false, rc, "mpd_search_add_db_songs") == false) {
+        mpd_search_cancel(mpd_state->conn);
+        return false;
+    }
+    rc = mpd_search_add_tag_constraint(mpd_state->conn, MPD_OPERATOR_DEFAULT, MPD_TAG_ALBUM, album);
+    if (check_rc_error_and_recover(mpd_state, NULL, NULL, 0, false, rc, "mpd_search_add_tag_constraint") == false) {
+        mpd_search_cancel(mpd_state->conn);
+        return false;
+    }
+    rc = mpd_search_commit(mpd_state->conn);
+    return check_rc_error_and_recover(mpd_state, NULL, NULL, 0, false, rc, "mpd_search_commit");
+}
+
 static struct list *mpd_client_jukebox_get_last_played(t_config *config, t_mpd_state *mpd_state) {
     struct mpd_song *song;
     struct list *queue_list = (struct list *) malloc(sizeof(struct list));

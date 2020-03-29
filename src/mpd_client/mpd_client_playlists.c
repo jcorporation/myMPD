@@ -41,8 +41,8 @@ sds mpd_client_put_playlists(t_config *config, t_mpd_state *mpd_state, sds buffe
     buffer = jsonrpc_start_result(buffer, method, request_id);
     buffer = sdscat(buffer,",\"data\":[");
 
-    if (mpd_send_list_playlists(mpd_state->conn) == false) {
-        buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
+    bool rc = mpd_send_list_playlists(mpd_state->conn);
+    if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, "mpd_send_list_playlists") == false) {
         return buffer;
     }
 
@@ -72,6 +72,10 @@ sds mpd_client_put_playlists(t_config *config, t_mpd_state *mpd_state, sds buffe
         }
         mpd_playlist_free(pl);
     }
+    mpd_response_finish(mpd_state->conn);
+    if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
+        return buffer;
+    }
 
     buffer = sdscat(buffer, "],");
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);
@@ -85,8 +89,8 @@ sds mpd_client_put_playlists(t_config *config, t_mpd_state *mpd_state, sds buffe
 sds mpd_client_put_playlist_list(t_config *config, t_mpd_state *mpd_state, sds buffer, sds method, int request_id,
                                  const char *uri, const unsigned int offset, const char *filter, const t_tags *tagcols)
 {
-    mpd_send_list_playlist_meta(mpd_state->conn, uri);
-    if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
+    bool rc = mpd_send_list_playlist_meta(mpd_state->conn, uri);
+    if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, "mpd_send_list_playlist_meta") == false) {
         return buffer;
     }
     
@@ -119,6 +123,7 @@ sds mpd_client_put_playlist_list(t_config *config, t_mpd_state *mpd_state, sds b
         mpd_song_free(song);
     }
 
+    mpd_response_finish(mpd_state->conn);
     if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
         return buffer;
     }
@@ -143,18 +148,20 @@ sds mpd_client_playlist_shuffle_sort(t_mpd_state *mpd_state, sds buffer, sds met
     sort_tags.len = 1;
     sort_tags.tags[0] = mpd_tag_name_parse(tagstr);
 
+    bool rc = false;
+    
     if (strcmp(tagstr, "shuffle") == 0) {
         LOG_VERBOSE("Shuffling playlist %s", uri);
-        mpd_send_list_playlist(mpd_state->conn, uri);
+        rc = mpd_send_list_playlist(mpd_state->conn, uri);
     }
     else if (strcmp(tagstr, "filename") == 0) {
         LOG_VERBOSE("Sorting playlist %s by filename", uri);
-        mpd_send_list_playlist(mpd_state->conn, uri);
+        rc = mpd_send_list_playlist(mpd_state->conn, uri);
     } 
     else if (sort_tags.tags[0] != MPD_TAG_UNKNOWN) {
         LOG_VERBOSE("Sorting playlist %s by tag %s", uri, tagstr);
         enable_mpd_tags(mpd_state, sort_tags);
-        mpd_send_list_playlist_meta(mpd_state->conn, uri);
+        rc = mpd_send_list_playlist_meta(mpd_state->conn, uri);
     }
     else {
         if (buffer != NULL) {
@@ -162,7 +169,7 @@ sds mpd_client_playlist_shuffle_sort(t_mpd_state *mpd_state, sds buffer, sds met
         }
         return buffer;
     }
-    if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
+    if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc "mpd_send_list_playlist") == false) {
         return buffer;
     }
 
@@ -177,6 +184,7 @@ sds mpd_client_playlist_shuffle_sort(t_mpd_state *mpd_state, sds buffer, sds met
         list_push(&plist, mpd_song_get_uri(song), 0, tag_value, NULL);
         mpd_song_free(song);
     }
+    mpd_response_finish(mpd_state->conn);
     if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
         list_free(&plist);
         return buffer;
@@ -214,7 +222,7 @@ sds mpd_client_playlist_shuffle_sort(t_mpd_state *mpd_state, sds buffer, sds met
         }
     }
     
-    if (mpd_command_list_begin(mpd_state->conn, false)) {
+    if (mpd_command_list_begin(mpd_state->conn, false) == true) {
         mpd_send_playlist_clear(mpd_state->conn, uri);    
 
         struct list_node *current = plist.head;
@@ -225,17 +233,12 @@ sds mpd_client_playlist_shuffle_sort(t_mpd_state *mpd_state, sds buffer, sds met
         if (mpd_command_list_end(mpd_state->conn)) {
             mpd_response_finish(mpd_state->conn);
         }
-        if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
-            list_free(&plist);
-            return buffer;
-        }
     }
-    else if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
-        list_free(&plist);
+    list_free(&plist);
+    if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
         return buffer;
     }
     
-    list_free(&plist);
     if (sort_tags.tags[0] != MPD_TAG_UNKNOWN) {
         enable_mpd_tags(mpd_state, mpd_state->mympd_tag_types);
     }

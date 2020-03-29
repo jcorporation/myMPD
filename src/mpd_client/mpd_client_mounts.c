@@ -21,8 +21,8 @@
 
 //public functions
 sds mpd_client_put_mounts(t_mpd_state *mpd_state, sds buffer, sds method, int request_id) {
-    if (mpd_send_list_mounts(mpd_state->conn) == false) {
-        buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
+    bool rc = mpd_send_list_mounts(mpd_state->conn);
+    if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, "mpd_send_list_mounts") == false) {
         return buffer;
     }
         
@@ -50,6 +50,7 @@ sds mpd_client_put_mounts(t_mpd_state *mpd_state, sds buffer, sds method, int re
     buffer = tojson_long(buffer, "returnedEntities", entity_count, false);
     buffer = jsonrpc_end_result(buffer);
     
+    mpd_response_finish(mpd_state->conn);
     if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
         return buffer;
     }
@@ -58,8 +59,8 @@ sds mpd_client_put_mounts(t_mpd_state *mpd_state, sds buffer, sds method, int re
 }
 
 sds mpd_client_put_urlhandlers(t_mpd_state *mpd_state, sds buffer, sds method, int request_id) {
-    if (mpd_send_command(mpd_state->conn, "urlhandlers", NULL) == false) {
-        buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
+    bool rc = mpd_send_command(mpd_state->conn, "urlhandlers", NULL);
+    if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, "urlhandlers") == false) {
         return buffer;
     }
         
@@ -80,6 +81,7 @@ sds mpd_client_put_urlhandlers(t_mpd_state *mpd_state, sds buffer, sds method, i
     buffer = tojson_long(buffer, "returnedEntities", entity_count, false);
     buffer = jsonrpc_end_result(buffer);
     
+    mpd_response_finish(mpd_state->conn);
     if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
         return buffer;
     }
@@ -88,8 +90,8 @@ sds mpd_client_put_urlhandlers(t_mpd_state *mpd_state, sds buffer, sds method, i
 }
 
 sds mpd_client_put_neighbors(t_mpd_state *mpd_state, sds buffer, sds method, int request_id) {
-    if (mpd_send_list_neighbors(mpd_state->conn) == false) {
-        buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
+    bool rc = mpd_send_list_neighbors(mpd_state->conn);
+    if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, "mpd_send_list_neighbors") == false) {
         return buffer;
     }
         
@@ -113,6 +115,7 @@ sds mpd_client_put_neighbors(t_mpd_state *mpd_state, sds buffer, sds method, int
     buffer = tojson_long(buffer, "returnedEntities", entity_count, false);
     buffer = jsonrpc_end_result(buffer);
     
+    mpd_response_finish(mpd_state->conn);
     if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
         return buffer;
     }

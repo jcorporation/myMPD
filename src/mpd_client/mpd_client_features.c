@@ -263,11 +263,11 @@ static void mpd_client_feature_music_directory(t_mpd_state *mpd_state) {
                 }
                 mpd_return_pair(mpd_state->conn, pair);
             }
-            mpd_response_finish(mpd_state->conn);
         }
         else {
             LOG_ERROR("Error in response to command: config");
         }
+        mpd_response_finish(mpd_state->conn);
         if (check_error_and_recover2(mpd_state, NULL, NULL, 0, false) == false) {
             LOG_ERROR("Can't get music_directory value from mpd");
         }
