@@ -46,6 +46,8 @@ sds mpd_client_timer_startplay(t_mpd_state *mpd_state, sds buffer, sds method, i
         request->data = sdscat(request->data, "}}");
         tiny_queue_push(mympd_api_queue, request);
     }
+    
+    bool rc = false;
     if (mpd_command_list_begin(mpd_state->conn, false)) {
         mpd_send_set_volume(mpd_state->conn, volume);
         mpd_send_clear(mpd_state->conn);
@@ -57,10 +59,10 @@ sds mpd_client_timer_startplay(t_mpd_state *mpd_state, sds buffer, sds method, i
         }
         mpd_send_single(mpd_state->conn, false);
         mpd_send_play(mpd_state->conn);
-        if (mpd_command_list_end(mpd_state->conn)) {
-            mpd_response_finish(mpd_state->conn);
+        if (mpd_command_list_end(mpd_state->conn) == true) {
+            rc = mpd_response_finish(mpd_state->conn);
         }
     }
-    buffer = respond_with_mpd_error_or_ok(mpd_state, buffer, method, request_id);
+    buffer = respond_with_mpd_error_or_ok(mpd_state, buffer, method, request_id, rc, "mpd_client_timer_startplay");
     return buffer;
 }

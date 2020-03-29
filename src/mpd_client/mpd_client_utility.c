@@ -161,6 +161,17 @@ sds put_empty_song_tags(sds buffer, t_mpd_state *mpd_state, const t_tags *tagcol
     return buffer;
 }
 
+bool check_rc_error_and_recover(t_mpd_state *mpd_state, sds *buffer, sds method, int request_id, bool notify, bool rc, const char *command) {
+    if (check_error_and_recover2(mpd_state, buffer, method, request_id, notify) == false) {
+        return false;
+    }
+    else if (rc == false) {
+        //todo: implement notify jsonrpc message on demand
+        *buffer = respond_with_command_error(*buffer, method, request_id, command);
+        return false;
+    }
+    return true;
+}
 
 bool check_error_and_recover2(t_mpd_state *mpd_state, sds *buffer, sds method, int request_id, bool notify) {
     enum mpd_error error = mpd_connection_get_error(mpd_state->conn);
@@ -205,12 +216,26 @@ sds check_error_and_recover_notify(t_mpd_state *mpd_state, sds buffer) {
     return buffer;
 }
 
-sds respond_with_mpd_error_or_ok(t_mpd_state *mpd_state, sds buffer, sds method, int request_id) {
+sds respond_with_command_error(sds buffer, sds method, int request_id, const char *command) {
     buffer = sdscrop(buffer);
-    if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == true) {
-        buffer = jsonrpc_respond_ok(buffer, method, request_id);
-    }
+    buffer = jsonrpc_start_phrase(buffer, method, request_id, "Error in response to command: %{command}", true);
+    buffer = tojson_char(buffer, "command", command, false);
+    buffer = jsonrpc_end_phrase(buffer);
     return buffer;
+}
+
+sds respond_with_mpd_error_or_ok(t_mpd_state *mpd_state, sds buffer, sds method, int request_id, bool rc, const char *command) {
+    buffer = sdscrop(buffer);
+    if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
+        return buffer;
+    }
+    else if (rc == false) {
+        LOG_ERROR("Error in response to command: %s", command);
+        return respond_with_command_error(buffer, method, request_id, command);
+    }
+    else {
+        return jsonrpc_respond_ok(buffer, method, request_id);
+    }
 }
 
 void json_to_tags(const char *str, int len, void *user_data) {

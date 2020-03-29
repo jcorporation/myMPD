@@ -19,6 +19,43 @@
 #include "mpd_client_utility.h"
 #include "mpd_client_queue.h"
 
+bool mpd_client_queue_replace_with_song(t_mpd_state *mpd_state, const char *uri) {
+    if (mpd_command_list_begin(mpd_state->conn, false)) {
+        mpd_send_clear(mpd_state->conn);
+        mpd_send_add(mpd_state->conn, uri);
+        mpd_send_play(mpd_state->conn);
+        if (mpd_command_list_end(mpd_state->conn) == true) {
+            return mpd_response_finish(mpd_state->conn);
+        }
+        else {
+            return false;
+        }
+    }
+    else {
+        return false;
+    }
+    return true;
+}
+
+bool mpd_client_queue_replace_with_playlist(t_mpd_state *mpd_state, const char *plist) {
+    if (mpd_command_list_begin(mpd_state->conn, false)) {
+        mpd_send_clear(mpd_state->conn);
+        mpd_send_load(mpd_state->conn, plist);
+        mpd_send_play(mpd_state->conn);
+        if (mpd_command_list_end(mpd_state->conn) == true) {
+            return mpd_response_finish(mpd_state->conn);
+        }
+        else {
+            return false;
+        }
+    }
+    else {
+        return false;
+    }
+    return true;
+}
+
+
 sds mpd_client_get_queue_state(t_mpd_state *mpd_state, sds buffer) {
     struct mpd_status *status = mpd_run_status(mpd_state->conn);
     if (status == NULL) {

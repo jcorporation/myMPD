@@ -67,9 +67,8 @@ bool mpd_client_jukebox(t_config *config, t_mpd_state *mpd_state) {
     bool rc = mpd_client_jukebox_add_to_queue(config, mpd_state, addSongs, mpd_state->jukebox_mode, mpd_state->jukebox_playlist, false);
     
     if (rc == true) {
-        if (!mpd_run_play(mpd_state->conn)) {
-            check_error_and_recover(mpd_state, NULL, NULL, 0);
-        }
+        bool rc2 = mpd_run_play(mpd_state->conn);
+        check_rc_error_and_recover(mpd_state, NULL, NULL, 0, false, rc2, "mpd_run_play");
     }
     else {
         LOG_ERROR("Error adding song(s), trying again");
@@ -101,15 +100,14 @@ bool mpd_client_jukebox_add_to_queue(t_config *config, t_mpd_state *mpd_state, i
     while (current != NULL && added < addSongs) {
         if (jukebox_mode == JUKEBOX_ADD_SONG) {
 	    LOG_INFO("Jukebox adding song: %s", current->key);
-	    if (!mpd_run_add(mpd_state->conn, current->key)) {
-                check_error_and_recover(mpd_state, NULL, NULL, 0);
-            }
-            else {
+	    bool rc = mpd_run_add(mpd_state->conn, current->key);
+	    if (check_rc_error_and_recover(mpd_state, NULL, NULL, 0, false, rc, "mpd_run_add") == true) {
                 added++;
             }
         }
         else {
             LOG_INFO("Jukebox adding album: %s", current->key);
+            //todo: use libmpdclient api
             if (!mpd_send_command(mpd_state->conn, "searchadd", "Album", current->key, NULL)) {
                 check_error_and_recover(mpd_state, NULL, NULL, 0);
                 return false;
@@ -129,9 +127,8 @@ bool mpd_client_jukebox_add_to_queue(t_config *config, t_mpd_state *mpd_state, i
         }
     }
     if (added > 0) {
-        if (!mpd_run_play(mpd_state->conn)) {
-            check_error_and_recover(mpd_state, NULL, NULL, 0);
-        }
+        bool rc = mpd_run_play(mpd_state->conn);
+        check_rc_error_and_recover(mpd_state, NULL, NULL, 0, false, rc, "mpd_run_play");
     }
     else {
         LOG_ERROR("Error adding song(s)");
@@ -159,7 +156,8 @@ static struct list *mpd_client_jukebox_get_last_played(t_config *config, t_mpd_s
     assert(queue_list);
     list_init(queue_list);
         
-    if (mpd_send_list_queue_meta(mpd_state->conn) == false) {
+    bool rc = mpd_send_list_queue_meta(mpd_state->conn);
+    if (check_rc_error_and_recover(mpd_state, NULL, NULL, 0, false, rc, "mpd_send_list_queue_meta") == false) {
         list_free(queue_list);
         FREE_PTR(queue_list);
         return NULL;
@@ -172,18 +170,22 @@ static struct list *mpd_client_jukebox_get_last_played(t_config *config, t_mpd_s
         list_push(queue_list, mpd_song_get_uri(song), 0, tag_value, NULL);
         mpd_song_free(song);
     }
+    mpd_response_finish(mpd_state->conn);
+    check_error_and_recover2(mpd_state, NULL, NULL, 0, false);
+    
     //put last_played to queue list
     struct list_node *current = mpd_state->last_played.head;
     while (current != NULL) {
-        if (mpd_send_list_all_meta(mpd_state->conn, current->key) == false) {
-            check_error_and_recover(mpd_state, NULL, NULL, 0);
-        }
-        else {
+        bool rc2 = mpd_send_list_meta(mpd_state->conn, current->key);
+        if (check_rc_error_and_recover(mpd_state, NULL, NULL, 0, false, rc2, "mpd_send_list_meta") == true) {
             song = mpd_recv_song(mpd_state->conn);
-            list_push(queue_list, current->key, 0, mpd_song_get_tag(song, mpd_state->jukebox_unique_tag.tags[0], 0), NULL);
-            mpd_song_free(song);
-            mpd_response_finish(mpd_state->conn);
+            if (song != NULL) {
+                list_push(queue_list, current->key, 0, mpd_song_get_tag(song, mpd_state->jukebox_unique_tag.tags[0], 0), NULL);
+                mpd_song_free(song);
+            }
         }
+        mpd_response_finish(mpd_state->conn);
+        check_error_and_recover2(mpd_state, NULL, NULL, 0, false);
         current = current->next;
     }
     //get last_played from disc
@@ -202,17 +204,16 @@ static struct list *mpd_client_jukebox_get_last_played(t_config *config, t_mpd_s
                 if (value > 0 && strlen(data) > 2) {
                     data = data + 2;
                     strtok_r(data, "\n", &crap);
-                    if (mpd_send_list_all_meta(mpd_state->conn, data) == false) {
-                        check_error_and_recover(mpd_state, NULL, NULL, 0);
-                    }
-                    else {
+                    bool rc2 = mpd_send_list_meta(mpd_state->conn, data);
+                    if (check_rc_error_and_recover(mpd_state, NULL, NULL, 0, false, rc2, "mpd_send_list_meta") == true) {
                         song = mpd_recv_song(mpd_state->conn);
                         if (song != NULL) {
                             list_push(queue_list, data, 0, mpd_song_get_tag(song, mpd_state->jukebox_unique_tag.tags[0], 0), NULL);
                             mpd_song_free(song);
                         }
-                        mpd_response_finish(mpd_state->conn);
                     }
+                    mpd_response_finish(mpd_state->conn);
+                    check_error_and_recover2(mpd_state, NULL, NULL, 0, false);
                 }
                 else {
                     LOG_ERROR("Reading last_played line failed");
@@ -374,6 +375,11 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_state
                 mpd_song_free(song);
             }
             mpd_response_finish(mpd_state->conn);
+            if (check_error_and_recover2(mpd_state, NULL, NULL, 0, false) == false) {
+                list_free(queue_list);
+                FREE_PTR(queue_list);
+                return false;
+            }
             start = end;
             end = end + 1000;
         } while (strcmp(playlist, "Database") == 0 && lineno + skipno > start);
@@ -392,7 +398,6 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_state
         }
         else if (mpd_search_commit(mpd_state->conn) == false) { 
             LOG_ERROR("Error in response to command: mpd_search_commit");
-            error = true;
         }
         
         if (error == true) {
@@ -437,7 +442,13 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_state
             }
             mpd_return_pair(mpd_state->conn, pair);
         }
-        LOG_DEBUG("Jukebox iterated through %u songs, skipped %u", lineno, skipno);
+        mpd_response_finish(mpd_state->conn);
+        if (check_error_and_recover2(mpd_state, NULL, NULL, 0, false) == false) {
+            list_free(queue_list);
+            FREE_PTR(queue_list);
+            return false;
+        }
+        LOG_DEBUG("Jukebox iterated through %u albums, skipped %u", lineno, skipno);
     }
 
     if (nkeep < addSongs) {

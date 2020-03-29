@@ -14,4 +14,6 @@ sds mpd_client_crop_queue(t_mpd_state *mpd_state, sds buffer, sds method, int re
 sds mpd_client_search_queue(t_mpd_state *mpd_state, sds buffer, sds method, int request_id,
                             const char *mpdtagtype, const unsigned int offset, 
                             const char *searchstr, const t_tags *tagcols);
+bool mpd_client_queue_replace_with_song(t_mpd_state *mpd_state, const char *uri);
+bool mpd_client_queue_replace_with_playlist(t_mpd_state *mpd_state, const char *plist);
 #endif
