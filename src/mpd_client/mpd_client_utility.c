@@ -163,11 +163,13 @@ sds put_empty_song_tags(sds buffer, t_mpd_state *mpd_state, const t_tags *tagcol
 
 bool check_rc_error_and_recover(t_mpd_state *mpd_state, sds *buffer, sds method, int request_id, bool notify, bool rc, const char *command) {
     if (check_error_and_recover2(mpd_state, buffer, method, request_id, notify) == false) {
+        LOG_ERROR("Error in response to command %s", command);
         return false;
     }
     else if (rc == false) {
         //todo: implement notify jsonrpc message on demand
         *buffer = respond_with_command_error(*buffer, method, request_id, command);
+        LOG_ERROR("Error in response to command %s", command);
         return false;
     }
     return true;
