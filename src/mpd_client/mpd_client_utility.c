@@ -96,16 +96,16 @@ void detect_extra_files(t_mpd_state *mpd_state, const char *uri, bool *booklet, 
 void disable_all_mpd_tags(t_mpd_state *mpd_state) {
     if (mpd_connection_cmp_server_version(mpd_state->conn, 0, 21, 0) >= 0) {
         LOG_DEBUG("Disabling all mpd tag types");
-        mpd_run_clear_tag_types(mpd_state->conn);
-        check_error_and_recover2(mpd_state, NULL, NULL, 0, false);
+        bool rc = mpd_run_clear_tag_types(mpd_state->conn);
+        check_rc_error_and_recover(mpd_state, NULL, NULL, 0, false, rc, "mpd_run_clear_tag_types");
     }
 }
 
 void enable_all_mpd_tags(t_mpd_state *mpd_state) {
     if (mpd_connection_cmp_server_version(mpd_state->conn, 0, 21, 0) >= 0) {
         LOG_DEBUG("Enabling all mpd tag types");
-        mpd_run_all_tag_types(mpd_state->conn);
-        check_error_and_recover2(mpd_state, NULL, NULL, 0, false);
+        bool rc = mpd_run_all_tag_types(mpd_state->conn);
+        check_rc_error_and_recover(mpd_state, NULL, NULL, 0, false, rc, "mpd_run_all_tag_types");
     }
 }
 
@@ -113,9 +113,15 @@ void enable_mpd_tags(t_mpd_state *mpd_state, t_tags enable_tags) {
     if (mpd_connection_cmp_server_version(mpd_state->conn, 0, 21, 0) >= 0) {
         LOG_DEBUG("Setting interesting mpd tag types");
         if (mpd_command_list_begin(mpd_state->conn, false)) {
-            mpd_send_clear_tag_types(mpd_state->conn);
+            bool rc = mpd_send_clear_tag_types(mpd_state->conn);
+            if (rc == false) {
+                LOG_ERROR("Error adding command to command list mpd_send_clear_tag_types");
+            }
             if (enable_tags.len > 0) {
-                mpd_send_enable_tag_types(mpd_state->conn, enable_tags.tags, enable_tags.len);
+                rc = mpd_send_enable_tag_types(mpd_state->conn, enable_tags.tags, enable_tags.len);
+                if (rc == false) {
+                    LOG_ERROR("Error adding command to command list mpd_send_enable_tag_types");
+                }
             }
             if (mpd_command_list_end(mpd_state->conn)) {
                 mpd_response_finish(mpd_state->conn);
@@ -229,6 +235,7 @@ sds respond_with_command_error(sds buffer, sds method, int request_id, const cha
 sds respond_with_mpd_error_or_ok(t_mpd_state *mpd_state, sds buffer, sds method, int request_id, bool rc, const char *command) {
     buffer = sdscrop(buffer);
     if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
+        LOG_ERROR("Error in response to command: %s", command);
         return buffer;
     }
     else if (rc == false) {

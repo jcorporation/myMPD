@@ -94,7 +94,6 @@ sds mpd_client_search(t_mpd_state *mpd_state, sds buffer, sds method, int reques
     return buffer;
 }
 
-
 sds mpd_client_search_adv(t_mpd_state *mpd_state, sds buffer, sds method, int request_id,
                           const char *expression, const char *sort, const bool sortdesc, 
                           const char *grouptag, const char *plist, const unsigned int offset,

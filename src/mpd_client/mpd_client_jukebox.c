@@ -293,7 +293,6 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_state
         //add songs
         unsigned start = 0;
         unsigned end = start + 1000;
-        bool error = false;
         time_t now = time(NULL);
         now = now - mpd_state->jukebox_last_played * 60 * 60;
         int start_length;
@@ -310,22 +309,17 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_state
             if (strcmp(playlist, "Database") == 0) {
                 if (mpd_search_db_songs(mpd_state->conn, false) == false) { 
                     LOG_ERROR("Error in response to command: mpd_search_db_songs");
-                    error = true;
                 }
                 else if (mpd_search_add_uri_constraint(mpd_state->conn, MPD_OPERATOR_DEFAULT, "") == false) { 
                     LOG_ERROR("Error in response to command: mpd_search_add_uri");
-                    error = true;
+                    mpd_search_cancel(mpd_state->conn);
                 }
                 else if (mpd_search_add_window(mpd_state->conn, start, end) == false) { 
                     LOG_ERROR("Error in response to command: mpd_search_add_window");
-                    error = true;
+                    mpd_search_cancel(mpd_state->conn);
                 }
                 else if (mpd_search_commit(mpd_state->conn) == false) {
                     LOG_ERROR("Error in response to command: mpd_search_commit");
-                    error = true;
-                }
-                
-                if (error == true) {
                     mpd_search_cancel(mpd_state->conn);
                 }
             }
@@ -403,22 +397,18 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_state
     }
     else if (jukebox_mode == JUKEBOX_ADD_ALBUM) {
         //add album
-        bool error = false;
         if (manual == false) {
             addSongs = 10 - mpd_state->jukebox_queue.length;
         }
         
         if (mpd_search_db_tags(mpd_state->conn, MPD_TAG_ALBUM) == false) {
             LOG_ERROR("Error in response to command: mpd_search_db_tags");
-            error = true;
+            mpd_search_cancel(mpd_state->conn);
         }
         else if (mpd_search_commit(mpd_state->conn) == false) { 
             LOG_ERROR("Error in response to command: mpd_search_commit");
         }
         
-        if (error == true) {
-            mpd_search_cancel(mpd_state->conn);
-        }
         if (check_error_and_recover2(mpd_state, NULL, NULL, 0, false) == false) {
             list_free(queue_list);
             FREE_PTR(queue_list);
