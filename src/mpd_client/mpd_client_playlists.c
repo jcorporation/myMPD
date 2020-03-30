@@ -223,12 +223,20 @@ sds mpd_client_playlist_shuffle_sort(t_mpd_state *mpd_state, sds buffer, sds met
     }
     
     if (mpd_command_list_begin(mpd_state->conn, false) == true) {
-        mpd_send_playlist_clear(mpd_state->conn, uri);    
-
-        struct list_node *current = plist.head;
-        while (current != NULL) {
-            mpd_send_playlist_add(mpd_state->conn, uri, current->key);
-            current = current->next;
+        rc = mpd_send_playlist_clear(mpd_state->conn, uri);
+        if (rc == false) {
+            LOG_ERROR("Error adding command to command list mpd_send_playlist_clear");
+        }
+        else {
+            struct list_node *current = plist.head;
+            while (current != NULL) {
+                rc = mpd_send_playlist_add(mpd_state->conn, uri, current->key);
+                if (rc == false) {
+                    LOG_ERROR("Error adding command to command list mpd_send_playlist_add");
+                    break;
+                }
+                current = current->next;
+            }
         }
         if (mpd_command_list_end(mpd_state->conn)) {
             mpd_response_finish(mpd_state->conn);
@@ -631,7 +639,11 @@ sds mpd_client_playlist_delete_all(t_config *config, t_mpd_state *mpd_state, sds
                 (strcmp(type, "deleteSmartPlaylists") == 0 && smartpls == true) ||
                 (strcmp(type, "deleteEmptyPlaylists") == 0 && current->value_i == 0))
             {
-                mpd_send_rm(mpd_state->conn, current->key);
+                rc = mpd_send_rm(mpd_state->conn, current->key);
+                if (rc == false) {
+                    LOG_ERROR("Error adding command to command list mpd_send_rm");
+                    break;
+                }
             }
             current = current->next;        
         }
@@ -807,7 +819,11 @@ static bool mpd_client_smartpls_update_sticker(t_mpd_state *mpd_state, const cha
 
         while (current != NULL) {
             if (current->value_i >= value_max) {
-                mpd_send_playlist_add(mpd_state->conn, playlist, current->key);
+                rc = mpd_send_playlist_add(mpd_state->conn, playlist, current->key);
+                if (rc == false) {
+                    LOG_ERROR("Error adding command to command list mpd_send_playlist_add");
+                    break;
+                }
                 i++;
                 if (i >= maxentries) {
                     break;
