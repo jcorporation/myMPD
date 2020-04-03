@@ -98,7 +98,7 @@ sds mpd_client_put_queue(t_mpd_state *mpd_state, sds buffer, sds method, int req
     }
         
     bool rc = mpd_send_list_queue_range_meta(mpd_state->conn, offset, offset + mpd_state->max_elements_per_page);
-    if (check_rc_error_and_recover(mpd_state, buffer, method, request_id, false, rc, "mpd_send_list_queue_range_meta");
+    if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, "mpd_send_list_queue_range_meta") == false) {
         return buffer;
     }
         
