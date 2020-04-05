@@ -858,9 +858,6 @@ Wiedergabeliste konnte nicht umbenannt werden
 Sucessfully renamed playlist
 Wiedergabeliste erfolgreich umbenannt
 
-Advanced search is disabled
-Erweiterte Suche ist deaktiviert
-
 A queue longer than 1 song in length is required to crop
 Die Warteschlange muss länger als 1 Lied sein um sie abzuschneiden
 
@@ -1322,3 +1319,6 @@ Aushängen
 
 No such directory
 Verzeichnis nicht gefunden
+
+Error in response to command: %{command}
+Fehler beim Ausführen von %{command}
