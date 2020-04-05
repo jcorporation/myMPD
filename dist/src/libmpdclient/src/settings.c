@@ -86,7 +86,7 @@ mpd_parse_host_password(struct mpd_settings *settings)
 	}
 
 	memcpy(settings->host, &oldhost[at_pos + 1], host_len - 1);
-	settings->host[host_len] = 0;
+	settings->host[host_len - 1] = 0;
 	free(oldhost);
 	return true;
 }

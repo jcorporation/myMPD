@@ -277,7 +277,7 @@ mpd_run_output_set(struct mpd_connection *connection, unsigned output_id,
  * @param output_name the name of the output to be moved
  * @return true on success
  *
- * @since libmpdclient 2.18
+ * @since libmpdclient 2.18, MPD 0.22.
  */
 bool
 mpd_send_move_output(struct mpd_connection *connection,
@@ -290,7 +290,7 @@ mpd_send_move_output(struct mpd_connection *connection,
  * @param output_name the name of the output to be moved
  * @return true on success
  *
- * @since libmpdclient 2.18
+ * @since libmpdclient 2.18, MPD 0.22.
  */
 bool
 mpd_run_move_output(struct mpd_connection *connection,

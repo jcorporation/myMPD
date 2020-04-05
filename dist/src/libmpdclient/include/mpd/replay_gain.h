@@ -48,7 +48,7 @@ struct mpd_connection;
 /**
  * MPD's replay gain mode.
  *
- * @since libmpdclient 2.18, MPD 0.16.
+ * @since libmpdclient 2.19, MPD 0.16.
  */
 enum mpd_replay_gain_mode {
 	/** ignore ReplayGain tag values */
@@ -99,7 +99,7 @@ mpd_parse_replay_gain_mode(enum mpd_replay_gain_mode mode);
  * @param connection the connection to MPD
  * @return true on success, false on error
  *
- * @since MPD 0.16, libmpdclient 2.18.
+ * @since MPD 0.16, libmpdclient 2.19.
  */
 bool
 mpd_send_replay_gain_status(struct mpd_connection *connection);
@@ -112,7 +112,7 @@ mpd_send_replay_gain_status(struct mpd_connection *connection);
  * @return #mpd_replay_gain_mode object: #MPD_REPLAY_UNKNOWN on error (or
  * unknown ReplayGain mode); other modes on success.
  *
- * @since MPD 0.16, libmpdclient 2.18.
+ * @since MPD 0.16, libmpdclient 2.19.
  */
 enum mpd_replay_gain_mode
 mpd_run_replay_gain_status(struct mpd_connection *connection);
@@ -124,7 +124,7 @@ mpd_run_replay_gain_status(struct mpd_connection *connection);
  * @param mode the desired replay gain mode
  * @return true on success, false on error
  *
- * @since MPD 0.16, libmpdclient 2.18.
+ * @since MPD 0.16, libmpdclient 2.19.
  */
 bool
 mpd_send_replay_gain_mode(struct mpd_connection *connection,
@@ -137,7 +137,7 @@ mpd_send_replay_gain_mode(struct mpd_connection *connection,
  * @mode mode the desired replay gain mode
  * @return true on success, false on error
  *
- * @since MPD 0.16, libmpdclient 2.18.
+ * @since MPD 0.16, libmpdclient 2.19.
  */
 bool
 mpd_run_replay_gain_mode(struct mpd_connection *connection,
