@@ -98,7 +98,7 @@ setversion() {
   DATE=$(date +"%a, %d %b %Y %H:%m:%S %z")
   sed -e "s/__VERSION__/${VERSION}/g" -e "s/__DATE__/$DATE/g" \
   	contrib/packaging/debian/changelog.in > contrib/packaging/debian/changelog
-  mv contrib/packaging/gentoo/mympd-*.ebuild contrib/packaging/gentoo/mympd-${VERSION}.ebuild
+  mv contrib/packaging/gentoo/mympd-*.ebuild "contrib/packaging/gentoo/mympd-${VERSION}.ebuild"
 }
 
 minify() {
