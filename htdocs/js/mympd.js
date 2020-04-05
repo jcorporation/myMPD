@@ -523,7 +523,7 @@ function appInit() {
     });
     
     document.getElementById('btnDropdownNeighbors').parentNode.addEventListener('show.bs.dropdown', function () {
-        sendAPI("MPD_API_MOUNT_NEIGHBOR_LIST", {}, parseNeighbors);
+        sendAPI("MPD_API_MOUNT_NEIGHBOR_LIST", {}, parseNeighbors, true);
     });
     
     document.getElementById('dropdownNeighbors').children[0].addEventListener('click', function (event) {
