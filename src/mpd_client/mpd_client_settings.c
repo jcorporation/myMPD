@@ -27,11 +27,14 @@ static sds print_tags_array(sds buffer, const char *tagsname, t_tags tags);
 
 //public functions
 bool mpd_api_settings_set(t_config *config, t_mpd_state *mpd_state, struct json_token *key, 
-                          struct json_token *val, bool *mpd_host_changed, bool *jukebox_changed)
+                          struct json_token *val, bool *mpd_host_changed, bool *jukebox_changed,
+                          bool *check_mpd_error)
 {
     bool rc = true;
     char *crap;
     sds settingvalue = sdscatlen(sdsempty(), val->ptr, val->len);
+
+    *check_mpd_error = false;
     LOG_DEBUG("Parse setting \"%.*s\" with value \"%.*s\"", key->len, key->ptr, val->len, val->ptr);
     if (strncmp(key->ptr, "mpdPass", key->len) == 0) {
         if (strncmp(val->ptr, "dontsetpassword", val->len) != 0) {
@@ -174,14 +177,17 @@ bool mpd_api_settings_set(t_config *config, t_mpd_state *mpd_state, struct json_
     else if (strncmp(key->ptr, "random", key->len) == 0) {
         unsigned uint_buf = strtoumax(settingvalue, &crap, 10);
         rc = mpd_run_random(mpd_state->conn, uint_buf);
+        *check_mpd_error = true;
     }
     else if (strncmp(key->ptr, "repeat", key->len) == 0) {
         unsigned uint_buf = strtoumax(settingvalue, &crap, 10);
         rc = mpd_run_repeat(mpd_state->conn, uint_buf);
+        *check_mpd_error = true;
     }
     else if (strncmp(key->ptr, "consume", key->len) == 0) {
         unsigned uint_buf = strtoumax(settingvalue, &crap, 10);
         rc = mpd_run_consume(mpd_state->conn, uint_buf);
+        *check_mpd_error = true;
     }
     else if (strncmp(key->ptr, "single", key->len) == 0) {
         unsigned uint_buf = strtoumax(settingvalue, &crap, 10);
@@ -196,21 +202,25 @@ bool mpd_api_settings_set(t_config *config, t_mpd_state *mpd_state, struct json_
         else {
             rc = mpd_run_single(mpd_state->conn, uint_buf);
         }
+        *check_mpd_error = true;
     }
     else if (strncmp(key->ptr, "crossfade", key->len) == 0) {
         unsigned uint_buf = strtoumax(settingvalue, &crap, 10);
         rc = mpd_run_crossfade(mpd_state->conn, uint_buf);
+        *check_mpd_error = true;
     }
     else if (strncmp(key->ptr, "mixrampdb", key->len) == 0) {
         if (config->mixramp == true) {
             float float_buf = strtof(settingvalue, &crap);
             rc = mpd_run_mixrampdb(mpd_state->conn, float_buf);
+            *check_mpd_error = true;
         }
     }
     else if (strncmp(key->ptr, "mixrampdelay", key->len) == 0) {
         if (config->mixramp == true) {
             float float_buf = strtof(settingvalue, &crap);
             rc = mpd_run_mixrampdelay(mpd_state->conn, float_buf);
+            *check_mpd_error = true;
         }
     }
     else if (strncmp(key->ptr, "replaygain", key->len) == 0) {
@@ -220,9 +230,9 @@ bool mpd_api_settings_set(t_config *config, t_mpd_state *mpd_state, struct json_
         }
         else {
             rc = mpd_run_replay_gain_mode(mpd_state->conn, mode);
+            *check_mpd_error = true;
         }
     }    
-
     sdsfree(settingvalue);
     return rc;
 }
@@ -237,6 +247,7 @@ sds mpd_client_put_settings(t_mpd_state *mpd_state, sds buffer, sds method, int 
     enum mpd_replay_gain_mode replay_gain_mode = mpd_run_replay_gain_status(mpd_state->conn);
     if (replay_gain_mode == MPD_REPLAY_UNKNOWN) {
         if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
+            mpd_status_free(status);
             return buffer;
         }
     }

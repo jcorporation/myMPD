@@ -79,7 +79,7 @@ bool mpd_client_last_played_list_save(t_config *config, t_mpd_state *mpd_state) 
     return true;
 }
 
-bool mpd_client_last_played_list(t_config *config, t_mpd_state *mpd_state, const int song_id) {
+bool mpd_client_add_song_to_last_played_list(t_config *config, t_mpd_state *mpd_state, const int song_id) {
     if (song_id > -1) {
         struct mpd_song *song = mpd_run_get_queue_song_id(mpd_state->conn, song_id);
         if (song) {
@@ -107,8 +107,12 @@ bool mpd_client_last_played_list(t_config *config, t_mpd_state *mpd_state, const
             sds buffer = jsonrpc_notify(sdsempty(), "update_lastplayed");
             ws_notify(buffer);
             sdsfree(buffer);
-        } else {
+        }
+        else {
             LOG_ERROR("Can't get song from id %d", song_id);
+            return false;
+        }
+        if (check_error_and_recover2(mpd_state, NULL, NULL, 0, false) == false) {
             return false;
         }
     }
@@ -223,8 +227,8 @@ static sds mpd_client_put_last_played_obj(t_mpd_state *mpd_state, sds buffer,
     buffer = sdscat(buffer, "{");
     buffer = tojson_long(buffer, "Pos", entity_count, true);
     buffer = tojson_long(buffer, "LastPlayed", last_played, true);
-    if (!mpd_send_list_all_meta(mpd_state->conn, uri)) {
-        check_error_and_recover(mpd_state, NULL, NULL, 0);
+    bool rc = mpd_send_list_meta(mpd_state->conn, uri);
+    if (check_rc_error_and_recover(mpd_state, NULL, NULL, 0, false, rc, "mpd_send_list_meta") == false) {
         buffer = put_empty_song_tags(buffer, mpd_state, tagcols, uri);
     }
     else {

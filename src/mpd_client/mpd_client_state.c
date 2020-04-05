@@ -170,8 +170,8 @@ sds mpd_client_put_volume(t_mpd_state *mpd_state, sds buffer, sds method, int re
 }
 
 sds mpd_client_put_outputs(t_mpd_state *mpd_state, sds buffer, sds method, int request_id) {
-    if (!mpd_send_outputs(mpd_state->conn)) {
-        buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
+    bool rc = mpd_send_outputs(mpd_state->conn);
+    if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, "mpd_send_outputs") == false) {
         return buffer;
     }
 
@@ -190,6 +190,10 @@ sds mpd_client_put_outputs(t_mpd_state *mpd_state, sds buffer, sds method, int r
         buffer = sdscat(buffer, "}");
         mpd_output_free(output);
     }
+    mpd_response_finish(mpd_state->conn);
+    if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
+        return buffer;
+    }
 
     buffer = sdscat(buffer, "],");
     buffer = tojson_long(buffer, "numOutputs", nr, false);
@@ -201,7 +205,12 @@ sds mpd_client_put_outputs(t_mpd_state *mpd_state, sds buffer, sds method, int r
 sds mpd_client_put_current_song(t_mpd_state *mpd_state, sds buffer, sds method, int request_id) {
     struct mpd_song *song = mpd_run_current_song(mpd_state->conn);
     if (song == NULL) {
-        buffer = jsonrpc_respond_message(buffer, method, request_id, "No current song", false);
+        if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
+            return buffer;
+        }
+        else {
+            buffer = jsonrpc_respond_message(buffer, method, request_id, "No current song", false);
+        }
         return buffer;
     }
     
@@ -212,8 +221,6 @@ sds mpd_client_put_current_song(t_mpd_state *mpd_state, sds buffer, sds method, 
     buffer = tojson_long(buffer, "pos", mpd_song_get_pos(song), true);
     buffer = tojson_long(buffer, "currentSongId", mpd_state->song_id, true);
     buffer = put_song_tags(buffer, mpd_state, &mpd_state->mympd_tag_types, song);
-
-    mpd_response_finish(mpd_state->conn);
 
     if (mpd_state->feat_sticker) {
         t_sticker *sticker = (t_sticker *) malloc(sizeof(t_sticker));
