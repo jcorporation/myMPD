@@ -584,7 +584,7 @@ installdeps() {
   then
     #alpine
     apk add gcc cmake perl openssl-dev libid3tag-dev libflac-dev \
-    	openjdk11-jre-headlesslinux-headers
+    	openjdk11-jre-headless linux-headers
   elif [ -f /etc/SuSE-release ]
   then
     #suse
@@ -596,7 +596,15 @@ installdeps() {
     yum install gcc cmake pkgconfig perl openssl-devel libid3tag-devel flac-devel \
 	java-11-openjdk-headless unzip
   else 
-    echo "No supported distribution detected."
+    echo "Unsupported distribution detected."
+    echo "You should manually install:"
+    echo " - gcc"
+    echo " - cmake"
+    echo " - perl"
+    echo " - java"
+    echo " - openssl (devel)"
+    echo " - flac (devel)"
+    echo " - libid3tag (devel)"
   fi
 }
 
