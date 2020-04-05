@@ -167,7 +167,7 @@ static sds _mpd_client_search(t_mpd_state *mpd_state, sds buffer, sds method, in
             buffer = tojson_char(buffer, "grouptag", grouptag, false);
         }
         else {
-            buffer = tojson_char(buffer, "searchstr", expression, false);
+            buffer = tojson_char(buffer, "searchstr", expression, true);
             buffer = tojson_char(buffer, "searchtag", searchtag, false);
         }
         buffer = jsonrpc_end_result(buffer);
