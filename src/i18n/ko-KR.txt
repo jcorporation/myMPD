@@ -858,9 +858,6 @@ Renaming playlist failed
 Sucessfully renamed playlist
 연주목록 이름 바꿈
 
-Advanced search is disabled
-상세 찾기 사용 안 함
-
 A queue longer than 1 song in length is required to crop
 남기려면 순서에 한 곡이상이어야 함
 

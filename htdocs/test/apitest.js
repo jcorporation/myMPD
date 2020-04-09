@@ -25,9 +25,9 @@ var time_all = 0;
 
 var cmds = [
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_QUEUE_CLEAR"},
-    {"jsonrpc":"2.0","id":0,"method":"MPD_API_DATABASE_SEARCH","params":{"offset":0,"filter":"any","searchstr":searchstr,"plist":"","cols":["Title","Album"],"replace":false}},
+    {"jsonrpc":"2.0","id":0,"method":"MPD_API_DATABASE_SEARCH","params":{"offset":0,"filter":"any","searchstr":searchstr,"plist":"","cols":["Title","Album","Artist"],"replace":false}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_QUEUE_ADD_TRACK","params":{"uri":"uri1"}},
-    {"jsonrpc":"2.0","id":0,"method":"MPD_API_DATABASE_SEARCH","params":{"offset":0,"filter":"any","searchstr":searchstr,"plist":"queue","cols":["Title","Album"],"replace":false}},
+    {"jsonrpc":"2.0","id":0,"method":"MPD_API_DATABASE_SEARCH","params":{"offset":0,"filter":"any","searchstr":searchstr,"plist":"queue","cols":["Title","Album","Artist"],"replace":false}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_QUEUE_LIST","params":{"offset":0,"cols":["Title","Album"]}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_QUEUE_MOVE_TRACK","params":{"from":1,"to":2}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_QUEUE_ADD_RANDOM","params":{"playlist":"Database","quantity":2, "mode":1}},
@@ -35,8 +35,8 @@ var cmds = [
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_QUEUE_RM_RANGE","params":{"start":1,"end":-1}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYER_PLAY_TRACK","params":{"track":trackId}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYER_SEEK","params":{"songid":trackId,"seek":10}},
-    {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYER_SEEK_CURRENT","params":{"seek":10,"realtive":true}},
-    {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYER_SEEK_CURRENT","params":{"seek":10,"realtive":false}},
+    {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYER_SEEK_CURRENT","params":{"seek":10,"relative":true}},
+    {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYER_SEEK_CURRENT","params":{"seek":10,"relative":false}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_QUEUE_RM_TRACK","params":{"track":trackId}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_QUEUE_SAVE","params":{"plist":"test"}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_QUEUE_SEARCH","params":{"offset":0,"filter":"any","searchstr":searchstr,"cols":["Title","Album"],"replace":false}},
@@ -147,6 +147,9 @@ function sendAPI(request) {
         if (request.params.search !== undefined) { 
             if (request.params.search === 'artist1') { request.params.search = artist1; }
             if (request.params.search === 'artist2') { request.params.search = artist2; }
+        }
+        if (request.params.searchstr !== undefined) { 
+            if (request.params.searchstr === 'artist1') { request.params.searchstr = artist1; }
         }
         if (request.params.trackId !== undefined) { request.params.trackId = trackId; }
         if (request.params.outputId !== undefined) { request.params.outputId = outputId; }

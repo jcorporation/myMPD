@@ -20,44 +20,129 @@
 #include "mpd_client_utility.h"
 #include "mpd_client_search.h"
 
+//private definitions
+static sds _mpd_client_search(t_mpd_state *mpd_state, sds buffer, sds method, int request_id,
+                      const char *expression, const char *sort, const bool sortdesc, 
+                      const char *grouptag, const char *plist, const unsigned int offset,
+                      const t_tags *tagcols, bool adv, const char *searchtag);
+//public functions
 sds mpd_client_search(t_mpd_state *mpd_state, sds buffer, sds method, int request_id,
-                      const char *searchstr, const char *filter, const char *plist, 
+                      const char *searchstr, const char *searchtag, const char *plist, 
                       const unsigned int offset, const t_tags *tagcols)
 {
+    return _mpd_client_search(mpd_state, buffer, method, request_id, 
+                              searchstr, NULL, false,
+                              NULL, plist, offset,
+                              tagcols, false, searchtag);
+}
+
+sds mpd_client_search_adv(t_mpd_state *mpd_state, sds buffer, sds method, int request_id,
+                          const char *expression, const char *sort, const bool sortdesc, 
+                          const char *grouptag, const char *plist, const unsigned int offset,
+                          const t_tags *tagcols)
+{
+    return _mpd_client_search(mpd_state, buffer, method, request_id, 
+                              expression, sort, sortdesc,
+                              grouptag, plist, offset,
+                              tagcols, true, NULL);
+}
+
+//private functions
+static sds _mpd_client_search(t_mpd_state *mpd_state, sds buffer, sds method, int request_id,
+                      const char *expression, const char *sort, const bool sortdesc, 
+                      const char *grouptag, const char *plist, const unsigned int offset,
+                      const t_tags *tagcols, bool adv, const char *searchtag)
+{
+    if (strcmp(expression, "") == 0) {
+        LOG_ERROR("No search expression defined");
+        buffer = jsonrpc_respond_message(buffer, method, request_id, "No search expression defined", true);
+        return buffer;
+    }
+
     if (strcmp(plist, "") == 0) {
-        if (mpd_send_command(mpd_state->conn, "search", filter, searchstr, NULL) == false) {
-            buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
+        bool rc = mpd_search_db_songs(mpd_state->conn, false);
+        if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, "mpd_search_db_songs") == false) {
+            mpd_search_cancel(mpd_state->conn);
             return buffer;
         }
         buffer = jsonrpc_start_result(buffer, method, request_id);
         buffer = sdscat(buffer, ",\"data\":[");
     }
     else if (strcmp(plist, "queue") == 0) {
-        if (mpd_send_command(mpd_state->conn, "searchadd", filter, searchstr, NULL) == false) {
-            buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
+        bool rc = mpd_search_add_db_songs(mpd_state->conn, false);
+        if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_db_songs") == false) {
+            mpd_search_cancel(mpd_state->conn);
             return buffer;
         }
     }
     else {
-        if (mpd_send_command(mpd_state->conn, "searchaddpl", plist, filter, searchstr, NULL) == false) {
-            buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
+        bool rc = mpd_search_add_db_songs_to_playlist(mpd_state->conn, plist);
+        if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_db_songs_to_playlist") == false) {
+            mpd_search_cancel(mpd_state->conn);
             return buffer;
         }
     }
     
-    if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
-        return buffer;
+    if (adv == true) {
+        bool rc = mpd_search_add_expression(mpd_state->conn, expression);
+        if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_expression") == false) {
+            mpd_search_cancel(mpd_state->conn);
+            return buffer;
+        }
+    }
+    else if (strcmp(searchtag, "any") == 0) {
+        bool rc = mpd_search_add_any_tag_constraint(mpd_state->conn, MPD_OPERATOR_DEFAULT, expression);
+        if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_any_tag_constraint") == false) {
+            mpd_search_cancel(mpd_state->conn);
+            return buffer;
+        }
+    }
+    else {
+        bool rc = mpd_search_add_tag_constraint(mpd_state->conn, MPD_OPERATOR_DEFAULT, mpd_tag_name_parse(searchtag), expression);
+        if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_tag_constraint") == false) {
+            mpd_search_cancel(mpd_state->conn);
+            return buffer;
+        }
     }
 
     if (strcmp(plist, "") == 0) {
+        if (sort != NULL && strcmp(sort, "") != 0 && strcmp(sort, "-") != 0 && mpd_state->feat_tags == true) {
+            bool rc = mpd_search_add_sort_name(mpd_state->conn, sort, sortdesc);
+            if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_sort_name") == false) {
+                mpd_search_cancel(mpd_state->conn);
+                return buffer;
+            }
+        }
+        if (grouptag != NULL && strcmp(grouptag, "") != 0 && mpd_state->feat_tags == true) {
+            bool rc = mpd_search_add_group_tag(mpd_state->conn, mpd_tag_name_parse(grouptag));
+            if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_group_tag") == false) {
+                mpd_search_cancel(mpd_state->conn);
+                return buffer;
+            }
+        }
+        if (mpd_state->feat_mpd_searchwindow == true) {
+            bool rc = mpd_search_add_window(mpd_state->conn, offset, offset + mpd_state->max_elements_per_page);
+            if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_window") == false) {
+                mpd_search_cancel(mpd_state->conn);
+                return buffer;
+            }
+        }
+    }
+    
+    bool rc = mpd_search_commit(mpd_state->conn);
+    if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, "mpd_search_commit") == false) {
+        return buffer;
+    }
+    
+    if (strcmp(plist, "") == 0) {
         struct mpd_song *song;
-        unsigned entity_count = 0;
         unsigned entities_returned = 0;
+        unsigned entity_count = 0;
         while ((song = mpd_recv_song(mpd_state->conn)) != NULL) {
             entity_count++;
-            if (entity_count > offset && entity_count <= offset + mpd_state->max_elements_per_page) {
+            if (mpd_state->feat_mpd_searchwindow == true || (entity_count > offset && entity_count <= offset + mpd_state->max_elements_per_page)) {
                 if (entities_returned++) {
-                    buffer = sdscat(buffer, ",");
+                    buffer = sdscat(buffer,",");
                 }
                 buffer = sdscat(buffer, "{");
                 buffer = tojson_char(buffer, "Type", "song", true);
@@ -67,142 +152,36 @@ sds mpd_client_search(t_mpd_state *mpd_state, sds buffer, sds method, int reques
             mpd_song_free(song);
         }
         buffer = sdscat(buffer, "],");
-        buffer = tojson_long(buffer, "totalEntities", entity_count, true);
-        buffer = tojson_long(buffer, "offset", offset, true);
-        buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
-        buffer = tojson_char(buffer, "searchstr", searchstr, false);
-        buffer = jsonrpc_end_result(buffer);
-        
-
-    }
-    else {
-        mpd_response_finish(mpd_state->conn);
-        if (strcmp(plist, "queue") == 0) {
-            buffer = jsonrpc_respond_message(buffer, method, request_id, "Added songs to queue", false);
+        if (mpd_state->feat_mpd_searchwindow == true) {
+            buffer = tojson_long(buffer, "totalEntities", -1, true);
         }
         else {
-            buffer = jsonrpc_start_phrase(buffer, method, request_id, "Added songs to %{playlist}", false);
-            buffer = tojson_char(buffer, "playlist", plist, false);
-            buffer = jsonrpc_end_phrase(buffer);
+            buffer = tojson_long(buffer, "totalEntities", entity_count, true);
         }
-    }
-
-    if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
-        return buffer;
-    }
-
-    return buffer;
-}
-
-sds mpd_client_search_adv(t_mpd_state *mpd_state, sds buffer, sds method, int request_id,
-                          const char *expression, const char *sort, const bool sortdesc, 
-                          const char *grouptag, const char *plist, const unsigned int offset,
-                          const t_tags *tagcols)
-{
-    if (mpd_state->feat_advsearch == false) {
-        LOG_ERROR("Advanced search is disabled");
-        buffer = jsonrpc_respond_message(buffer, method, request_id, "Advanced search is disabled", true);
-        return buffer;
-    }
-
-    if (strcmp(expression, "") == 0) {
-        LOG_ERROR("No search expression defined");
-        buffer = jsonrpc_respond_message(buffer, method, request_id, "No search expression defined", true);
-        return buffer;
-    }
-    if (strcmp(plist, "") == 0) {
-        if (mpd_search_db_songs(mpd_state->conn, false) == false) {
-            mpd_search_cancel(mpd_state->conn);
-            buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
-            return buffer;
+        buffer = tojson_long(buffer, "offset", offset, true);
+        buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
+        if (adv == true) {
+            buffer = tojson_char(buffer, "expression", expression, true);
+            buffer = tojson_char(buffer, "sort", sort, true);
+            buffer = tojson_bool(buffer, "sortdesc", sortdesc, true);
+            buffer = tojson_char(buffer, "grouptag", grouptag, false);
         }
-        buffer = jsonrpc_start_result(buffer, method, request_id);
-        buffer = sdscat(buffer, ",\"data\":[");
+        else {
+            buffer = tojson_char(buffer, "searchstr", expression, true);
+            buffer = tojson_char(buffer, "searchtag", searchtag, false);
+        }
+        buffer = jsonrpc_end_result(buffer);
     }
     else if (strcmp(plist, "queue") == 0) {
-        if (mpd_search_add_db_songs(mpd_state->conn, false) == false) {
-            mpd_search_cancel(mpd_state->conn);
-            buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
-            return buffer;
-        }
+        buffer = jsonrpc_respond_message(buffer, method, request_id, "Added songs to queue", false);
     }
     else {
-        if (mpd_search_add_db_songs_to_playlist(mpd_state->conn, plist) == false) {
-            mpd_search_cancel(mpd_state->conn);
-            buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
-            return buffer;
-        }
+        buffer = jsonrpc_start_phrase(buffer, method, request_id, "Added songs to %{playlist}", false);
+        buffer = tojson_char(buffer, "playlist", plist, false);
+        buffer = jsonrpc_end_phrase(buffer);
     }
     
-    if (mpd_search_add_expression(mpd_state->conn, expression) == false) {
-            mpd_search_cancel(mpd_state->conn);
-            buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
-            return buffer;
-    }
-
-    if (strcmp(plist, "") == 0) {
-        if (sort != NULL && strcmp(sort, "") != 0 && strcmp(sort, "-") != 0 && mpd_state->feat_tags == true) {
-            if (mpd_search_add_sort_name(mpd_state->conn, sort, sortdesc) == false) {
-                mpd_search_cancel(mpd_state->conn);
-                buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
-                return buffer;
-            }
-        }
-        if (grouptag != NULL && strcmp(grouptag, "") != 0 && mpd_state->feat_tags == true) {
-            if (mpd_search_add_group_tag(mpd_state->conn, mpd_tag_name_parse(grouptag)) == false) {
-                mpd_search_cancel(mpd_state->conn);
-                buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
-                return buffer;
-            }
-        }
-        if (mpd_search_add_window(mpd_state->conn, offset, offset + mpd_state->max_elements_per_page) == false) {
-            mpd_search_cancel(mpd_state->conn);
-            buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
-            return buffer;
-        }
-    }
-    
-    if (mpd_search_commit(mpd_state->conn) == false || check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
-        return buffer;
-    }
-    
-    if (strcmp(plist, "") == 0) {
-        struct mpd_song *song;
-        unsigned entities_returned = 0;
-        while ((song = mpd_recv_song(mpd_state->conn)) != NULL) {
-            if (entities_returned++) {
-                buffer = sdscat(buffer,",");
-            }
-            buffer = sdscat(buffer, "{");
-            buffer = tojson_char(buffer, "Type", "song", true);
-            buffer = put_song_tags(buffer, mpd_state, tagcols, song);
-            buffer = sdscat(buffer, "}");
-            mpd_song_free(song);
-        }
-        buffer = sdscat(buffer, "],");
-        buffer = tojson_long(buffer, "totalEntities", -1, true);
-        buffer = tojson_long(buffer, "offset", offset, true);
-        buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
-        buffer = tojson_char(buffer, "expression", expression, true);
-        buffer = tojson_char(buffer, "sort", sort, true);
-        buffer = tojson_bool(buffer, "sortdesc", sortdesc, true);
-        buffer = tojson_char(buffer, "grouptag", grouptag, false);
-        buffer = jsonrpc_end_result(buffer);
-        
-
-    }
-    else {
-        mpd_response_finish(mpd_state->conn);
-        if (strcmp(plist, "queue") == 0) {
-            buffer = jsonrpc_respond_message(buffer, method, request_id, "Added songs to queue", false);
-        }
-        else {
-            buffer = jsonrpc_start_phrase(buffer, method, request_id, "Added songs to %{playlist}", false);
-            buffer = tojson_char(buffer, "playlist", plist, false);
-            buffer = jsonrpc_end_phrase(buffer);
-        }
-    }
-    
+    mpd_response_finish(mpd_state->conn);
     if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
        return buffer;
     }

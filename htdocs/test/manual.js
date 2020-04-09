@@ -56,7 +56,7 @@ var cmds = [
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYER_PAUSE"},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYER_PLAY"},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYER_STOP"},
-    {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYER_SEEK_CURRENT","params":{"seek":0,"realtive":false}},
+    {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYER_SEEK_CURRENT","params":{"seek":0,"relative":false}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYER_SEEK","params":{"songid":0,"seek":0}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYER_NEXT"},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYER_PREV"},

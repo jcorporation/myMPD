@@ -855,9 +855,6 @@ Hernoemen afspeellijst mislukt
 Sucessfully renamed playlist
 Afspeellijst is hernoemd
 
-Advanced search is disabled
-Geavanceerd zoeken uitgeschakeld
-
 A queue longer than 1 song in length is required to crop
 Wachtrij moet langer zijn dan 1 nummer
 

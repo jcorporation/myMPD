@@ -60,15 +60,18 @@ bool mpd_client_count_song_uri(t_mpd_state *mpd_state, const char *uri, const ch
     else {
         struct mpd_pair *pair;
         char *crap = NULL;
-        if (mpd_send_sticker_list(mpd_state->conn, "song", uri)) {
-            while ((pair = mpd_recv_sticker(mpd_state->conn)) != NULL) {
-                if (strcmp(pair->name, name) == 0) {
-                    old_value = strtoimax(pair->value, &crap, 10);
-                }
-                mpd_return_sticker(mpd_state->conn, pair);
+        bool rc = mpd_send_sticker_list(mpd_state->conn, "song", uri);
+        if (check_rc_error_and_recover(mpd_state, NULL, NULL, 0, false, rc, "mpd_send_sticker_list") == false) {
+            return false;
+        }
+        while ((pair = mpd_recv_sticker(mpd_state->conn)) != NULL) {
+            if (strcmp(pair->name, name) == 0) {
+                old_value = strtoimax(pair->value, &crap, 10);
             }
-        } else {
-            check_error_and_recover(mpd_state, NULL, NULL, 0);
+            mpd_return_sticker(mpd_state->conn, pair);
+        }
+        mpd_response_finish(mpd_state->conn);
+        if (check_error_and_recover2(mpd_state, NULL, NULL, 0, true) == false) {
             return false;
         }
     }
@@ -115,11 +118,10 @@ sds mpd_client_like_song_uri(t_mpd_state *mpd_state, sds buffer, sds method, int
     LOG_VERBOSE("Setting sticker: \"%s\" -> like: %s", uri, value_str);
     bool rc = mpd_run_sticker_set(mpd_state->conn, "song", uri, "like", value_str);
     sdsfree(value_str);
-    if (rc == false) {
-        buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
+    if (check_rc_error_and_recover(mpd_state, NULL, NULL, 0, false, rc, "mpd_run_sticker_set") == false) {
         return buffer;
     }
-    else if (mpd_state->sticker_cache != NULL) {
+    if (mpd_state->sticker_cache != NULL) {
         t_sticker *sticker = get_sticker_from_cache(mpd_state, uri);
         if (sticker != NULL) {
             sticker->like = value;
@@ -135,18 +137,17 @@ bool mpd_client_last_played_song_uri(t_mpd_state *mpd_state, const char *uri) {
     }
     sds value_str = sdsfromlonglong(mpd_state->song_start_time);
     LOG_VERBOSE("Setting sticker: \"%s\" -> lastPlayed: %s", uri, value_str);
-    if (!mpd_run_sticker_set(mpd_state->conn, "song", uri, "lastPlayed", value_str)) {
-        check_error_and_recover(mpd_state, NULL, NULL, 0);
-        sdsfree(value_str);
+    bool rc = mpd_run_sticker_set(mpd_state->conn, "song", uri, "lastPlayed", value_str);
+    sdsfree(value_str);
+    if (check_rc_error_and_recover(mpd_state, NULL, NULL, 0, false, rc, "mpd_run_sticker_set") == false) {
         return false;
     } 
-    else if (mpd_state->sticker_cache != NULL) {
+    if (mpd_state->sticker_cache != NULL) {
         t_sticker *sticker = get_sticker_from_cache(mpd_state, uri);
         if (sticker != NULL) {
             sticker->lastPlayed = mpd_state->song_start_time;
         }
     }
-    sdsfree(value_str);
     return true;
 }
 
@@ -157,18 +158,17 @@ bool mpd_client_last_skipped_song_uri(t_mpd_state *mpd_state, const char *uri) {
     time_t now = time(NULL);
     sds value_str = sdsfromlonglong(now);
     LOG_VERBOSE("Setting sticker: \"%s\" -> lastSkipped: %s", uri, value_str);
-    if (!mpd_run_sticker_set(mpd_state->conn, "song", uri, "lastSkipped", value_str)) {
-        check_error_and_recover(mpd_state, NULL, NULL, 0);
-        sdsfree(value_str);
+    sdsfree(value_str);
+    bool rc = mpd_run_sticker_set(mpd_state->conn, "song", uri, "lastSkipped", value_str);
+    if (check_rc_error_and_recover(mpd_state, NULL, NULL, 0, false, rc, "mpd_run_sticker_set") == false) {
         return false;
     }
-    else if (mpd_state->sticker_cache != NULL) {
+    if (mpd_state->sticker_cache != NULL) {
         t_sticker *sticker = get_sticker_from_cache(mpd_state, uri);
         if (sticker != NULL) {
             sticker->lastSkipped = now;
         }
     }
-    sdsfree(value_str);
     return true;
 }
 
@@ -194,30 +194,34 @@ bool mpd_client_get_sticker(t_mpd_state *mpd_state, const char *uri, t_sticker *
         return false;
     }
 
-    if (mpd_send_sticker_list(mpd_state->conn, "song", uri)) {
-        while ((pair = mpd_recv_sticker(mpd_state->conn)) != NULL) {
-            if (strcmp(pair->name, "playCount") == 0) {
-                sticker->playCount = strtoimax(pair->value, &crap, 10);
-            }
-            else if (strcmp(pair->name, "skipCount") == 0) {
-                sticker->skipCount = strtoimax(pair->value, &crap, 10);
-            }
-            else if (strcmp(pair->name, "lastPlayed") == 0) {
-                sticker->lastPlayed = strtoimax(pair->value, &crap, 10);
-            }
-            else if (strcmp(pair->name, "lastSkipped") == 0) {
-                sticker->lastSkipped = strtoimax(pair->value, &crap, 10);
-            }
-            else if (strcmp(pair->name, "like") == 0) {
-                sticker->like = strtoimax(pair->value, &crap, 10);
-            }
-            mpd_return_sticker(mpd_state->conn, pair);
-        }
-    }
-    else {
-        check_error_and_recover(mpd_state, NULL, NULL, 0);
+    bool rc = mpd_send_sticker_list(mpd_state->conn, "song", uri);
+    if (check_rc_error_and_recover(mpd_state, NULL, NULL, 0, false, rc, "mpd_send_sticker_list") == false) {
         return false;
     }
+
+    while ((pair = mpd_recv_sticker(mpd_state->conn)) != NULL) {
+        if (strcmp(pair->name, "playCount") == 0) {
+            sticker->playCount = strtoimax(pair->value, &crap, 10);
+        }
+        else if (strcmp(pair->name, "skipCount") == 0) {
+            sticker->skipCount = strtoimax(pair->value, &crap, 10);
+        }
+        else if (strcmp(pair->name, "lastPlayed") == 0) {
+            sticker->lastPlayed = strtoimax(pair->value, &crap, 10);
+        }
+        else if (strcmp(pair->name, "lastSkipped") == 0) {
+            sticker->lastSkipped = strtoimax(pair->value, &crap, 10);
+        }
+        else if (strcmp(pair->name, "like") == 0) {
+            sticker->like = strtoimax(pair->value, &crap, 10);
+        }
+        mpd_return_sticker(mpd_state->conn, pair);
+    }
+    mpd_response_finish(mpd_state->conn);
+    if (check_error_and_recover2(mpd_state, NULL, NULL, 0, false) == false) {
+        return false;
+    }
+
     return true;
 }
 
@@ -249,18 +253,30 @@ bool _sticker_cache_init(t_config *config, t_mpd_state *mpd_state) {
     mpd_state->sticker_cache = raxNew();
     //get all songs from database
     do {
-        bool rc = true;
-        if (mpd_search_db_songs(mpd_state->conn, false) == false) { rc = false; }
-        else if (mpd_search_add_uri_constraint(mpd_state->conn, MPD_OPERATOR_DEFAULT, "") == false) { rc = false; }
-        else if (mpd_search_add_window(mpd_state->conn, start, end) == false) { rc = false; }
-        if (rc == false) {
+        bool rc = mpd_search_db_songs(mpd_state->conn, false);
+        if (check_rc_error_and_recover(mpd_state, NULL, NULL, 0, false, rc, "mpd_search_db_songs") == false) {
+            LOG_ERROR("Sticker cache update failed");
             mpd_search_cancel(mpd_state->conn);
+            return false;
         }
-        if (rc == false || mpd_search_commit(mpd_state->conn) == false || check_error_and_recover2(mpd_state, NULL, NULL, 0, false) == false) {
-            LOG_VERBOSE("Sticker cache update failed");
-            return false;        
+        rc = mpd_search_add_uri_constraint(mpd_state->conn, MPD_OPERATOR_DEFAULT, "");
+        if (check_rc_error_and_recover(mpd_state, NULL, NULL, 0, false, rc, "mpd_search_add_uri_constraint") == false) {
+            LOG_ERROR("Sticker cache update failed");
+            mpd_search_cancel(mpd_state->conn);
+            return false;
         }
-                    
+        rc = mpd_search_add_window(mpd_state->conn, start, end);
+        if (check_rc_error_and_recover(mpd_state, NULL, NULL, 0, false, rc, "mpd_search_add_window") == false) {
+            LOG_ERROR("Sticker cache update failed");
+            mpd_search_cancel(mpd_state->conn);
+            return false;
+        }
+        rc = mpd_search_commit(mpd_state->conn);
+        if (check_rc_error_and_recover(mpd_state, NULL, NULL, 0, false, rc, "mpd_search_commit") == false) {
+            LOG_ERROR("Sticker cache update failed");
+            return false;
+        }
+        
         while ((song = mpd_recv_song(mpd_state->conn)) != NULL) {
             const char *uri = mpd_song_get_uri(song);
             t_sticker *sticker = (t_sticker *) malloc(sizeof(t_sticker));
@@ -272,7 +288,7 @@ bool _sticker_cache_init(t_config *config, t_mpd_state *mpd_state) {
         mpd_response_finish(mpd_state->conn);
         if (check_error_and_recover2(mpd_state, NULL, NULL, 0, false) == false) {
             sticker_cache_free(mpd_state);
-            LOG_VERBOSE("Sticker cache update failed");
+            LOG_ERROR("Sticker cache update failed");
             return false;        
         }
         start = end;

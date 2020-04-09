@@ -114,7 +114,7 @@ mpd_run_newpartition(struct mpd_connection *connection, const char *partition);
  * @param partition the partition name
  * @return true on success
  *
- * @since libmpdclient 2.18
+ * @since libmpdclient 2.18, MPD 0.22
  */
 bool
 mpd_send_delete_partition(struct mpd_connection *connection,
@@ -127,7 +127,7 @@ mpd_send_delete_partition(struct mpd_connection *connection,
  * @param partition the partition name
  * @return true on success
  *
- * @since libmpdclient 2.18
+ * @since libmpdclient 2.18, MPD 0.22
  */
 bool
 mpd_run_delete_partition(struct mpd_connection *connection,
