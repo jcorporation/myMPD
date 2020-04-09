@@ -674,6 +674,11 @@ purge() {
   getent group mympd > /dev/null && groupdel -f mympd
 }
 
+translate() {
+  cd src/i18n || exit 1
+  $PERLBIN ./tojson.pl pretty > ../../htdocs/js/i18n.js
+}
+
 case "$1" in
 	release)
 	  buildrelease
@@ -744,6 +749,9 @@ case "$1" in
 	  uninstall
 	  purge
 	;;
+	translate)
+	  translate
+	;;
 	*)
 	  echo "Usage: $0 <option>"
 	  echo "Version: ${VERSION}"
@@ -763,6 +771,7 @@ case "$1" in
 	  echo "                    - CPPCHECKOPTS=\"--enable=warning\""
 	  echo "                    - FLAWFINDEROPTS=\"-m3\""
 	  echo "  installdeps:    installs build and run dependencies"
+	  echo "  translate:      builds the translation file for debug builds"
 	  echo ""
 	  echo "Cleanup options:"
 	  echo "  cleanup:        cleanup source tree"
