@@ -379,7 +379,7 @@ function showAddToPlaylist(uri, searchstr) {
 
 //eslint-disable-next-line no-unused-vars
 function addToPlaylist() {
-    let uri = document.getElementById('addToPlaylistUri').value;
+    let uri = decodeURI(document.getElementById('addToPlaylistUri').value);
     if (uri === 'stream') {
         uri = document.getElementById('streamUrl').value;
         if (uri === '' || uri.indexOf('http') === -1) {
