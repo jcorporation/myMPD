@@ -228,11 +228,20 @@ function gotoBrowse(x) {
 
 function parseFilesystem(obj) {
     let list = app.current.app + (app.current.tab === 'Filesystem' ? app.current.tab : '');
-    let colspan = settings['cols' + list].length;
-    colspan--;
-    let nrItems = obj.result.returnedEntities;
     let table = document.getElementById(app.current.app + (app.current.tab === undefined ? '' : app.current.tab) + 'List');
     let tbody = table.getElementsByTagName('tbody')[0];
+    let colspan = settings['cols' + list].length;
+    colspan--;
+
+    if (obj.error) {
+        tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
+                          '<td colspan="' + colspan + '">' + t(obj.error.message) + '</td></tr>';
+        document.getElementById(app.current.app + (app.current.tab === undefined ? '' : app.current.tab) + 'List').classList.remove('opacity05');
+        document.getElementById('cardFooterBrowse').innerText = '';
+        return;
+    }
+
+    let nrItems = obj.result.returnedEntities;
     let tr = tbody.getElementsByTagName('tr');
     let navigate = document.activeElement.parentNode.parentNode === table ? true : false;
     let activeRow = 0;
@@ -306,9 +315,10 @@ function parseFilesystem(obj) {
 
     setPagination(obj.result.totalEntities, obj.result.returnedEntities);
                     
-    if (nrItems === 0)
+    if (nrItems === 0) {
         tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
                           '<td colspan="' + colspan + '">' + t('Empty list') + '</td></tr>';
+    }
     document.getElementById(app.current.app + (app.current.tab === undefined ? '' : app.current.tab) + 'List').classList.remove('opacity05');
     document.getElementById('cardFooterBrowse').innerText = t('Num entries', obj.result.totalEntities);
 }
@@ -1031,15 +1041,15 @@ function cropCovercache() {
 }
 
 //eslint-disable-next-line no-unused-vars
-function updateDB(uri) {
+function updateDB(uri, showModal) {
     sendAPI("MPD_API_DATABASE_UPDATE", {"uri": uri});
-    updateDBstarted(true);
+    updateDBstarted(showModal);
 }
 
 //eslint-disable-next-line no-unused-vars
-function rescanDB(uri) {
+function rescanDB(uri, showModal) {
     sendAPI("MPD_API_DATABASE_RESCAN", {"uri": uri});
-    updateDBstarted(true);
+    updateDBstarted(showModal);
 }
 
 function updateDBstarted(showModal) {
@@ -1052,12 +1062,34 @@ function updateDBstarted(showModal) {
         modalUpdateDB.show();
         updateDBprogress.classList.add('updateDBprogressAnimate');
     }
-    else {
-        showNotification(t('Database update started'), '', '', 'success');
-    }
+
+    showNotification(t('Database update started'), '', '', 'success');
 }
 
 function updateDBfinished(idleEvent) {
+    if (document.getElementById('modalUpdateDB').classList.contains('show')) {
+        _updateDBfinished(idleEvent);
+    }
+    else {
+        //on small databases the modal opens after the finish event
+        setTimeout(function() {
+            _updateDBfinished(idleEvent);
+        }, 100);
+    }
+}
+
+function _updateDBfinished(idleEvent) {
+    //spinner in mounts modal
+    let el = document.getElementById('spinnerUpdateProgress');
+    if (el) {
+        let parent = el.parentNode;
+        el.remove();
+        for (let i = 0; i < parent.children.length; i++) {
+            parent.children[i].classList.remove('hide');
+        }
+    }
+
+    //update database modal
     if (document.getElementById('modalUpdateDB').classList.contains('show')) {
         if (idleEvent === 'update_database') {
             document.getElementById('updateDBfinished').innerText = t('Database successfully updated');
@@ -1071,13 +1103,13 @@ function updateDBfinished(idleEvent) {
         updateDBprogress.style.marginLeft = '0px';
         document.getElementById('updateDBfooter').classList.remove('hide');
     }
-    else {
-        if (idleEvent === 'update_database') {
-            showNotification(t('Database successfully updated'), '', '', 'success');
-        }
-        else if (idleEvent === 'update_finished') {
-            showNotification(t('Database update finished'), '', '', 'success');
-        }
+
+    //general notification
+    if (idleEvent === 'update_database') {
+        showNotification(t('Database successfully updated'), '', '', 'success');
+    }
+    else if (idleEvent === 'update_finished') {
+        showNotification(t('Database update finished'), '', '', 'success');
     }
 }
 /*
@@ -1087,8 +1119,8 @@ function updateDBfinished(idleEvent) {
 */
 
 //eslint-disable-next-line no-unused-vars
-function unmountMount(uri) {
-    sendAPI("MPD_API_MOUNT_UNMOUNT", {"uri": uri}, showListMounts);
+function unmountMount(mountPoint) {
+    sendAPI("MPD_API_MOUNT_UNMOUNT", {"mountPoint": mountPoint}, showListMounts);
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -1102,6 +1134,19 @@ function mountMount() {
             "mountPoint": document.getElementById('inputMountPoint').value,
             }, showListMounts, true);
     }
+}
+
+//eslint-disable-next-line no-unused-vars
+function updateMount(el, uri) {
+    let parent = el.parentNode;
+    for (let i = 0; i < parent.children.length; i++) {
+        parent.children[i].classList.add('hide');
+    }
+    let spinner = document.createElement('div');
+    spinner.setAttribute('id', 'spinnerUpdateProgress');
+    spinner.classList.add('spinner-border', 'spinner-border-sm');
+    el.parentNode.insertBefore(spinner, el);
+    updateDB(uri, false);    
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -1156,7 +1201,10 @@ function parseListMounts(obj) {
         let tds = '<td>' + (obj.result.data[i].mountPoint === '' ? '<span class="material-icons">home</span>' : e(obj.result.data[i].mountPoint)) + '</td>' +
                   '<td>' + e(obj.result.data[i].mountUrl) + '</td>';
         if (obj.result.data[i].mountPoint !== '') {
-            tds += '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">delete</a></td>';
+            tds += '<td data-col="Action">' + 
+                   '<a href="#" title="' + t('Unmount') + '" data-action="unmount" class="material-icons color-darkgrey">delete</a>' +
+                   '<a href="#" title="' + t('Update') + '" data-action="update"class="material-icons color-darkgrey">refresh</a>' +
+                   '</td>';
         }
         else {
             tds += '<td>&nbsp;</td>';
@@ -1182,10 +1230,15 @@ function parseListMounts(obj) {
 
 function parseNeighbors(obj) {
     let list = '';
-    for (let i = 0; i < obj.result.returnedEntities; i++) {
-        list += '<a href="#" class="list-group-item list-group-item-action" data-value="' + obj.result.data[i].uri + '">' + 
-                obj.result.data[i].uri + '<br/><small>' + obj.result.data[i].displayName + '</small></a>';
-    }    
+    if (obj.error) {
+        list = '<div class="list-group-item"><span class="material-icons">error_outline</span> ' + t(obj.error.message) + '</div>';
+    }
+    else {
+        for (let i = 0; i < obj.result.returnedEntities; i++) {
+            list += '<a href="#" class="list-group-item list-group-item-action" data-value="' + obj.result.data[i].uri + '">' + 
+                    obj.result.data[i].uri + '<br/><small>' + obj.result.data[i].displayName + '</small></a>';
+        }    
+    }
     document.getElementById('dropdownNeighbors').children[0].innerHTML = list;
 }
 /*
@@ -1459,7 +1512,7 @@ function appRoute() {
         }
     }    
     else if (app.current.app === 'Browse' && app.current.tab === 'Filesystem') {
-        sendAPI("MPD_API_DATABASE_FILESYSTEM_LIST", {"offset": app.current.page, "path": (app.current.search ? app.current.search : "/"), "filter": app.current.filter, "cols": settings.colsBrowseFilesystem}, parseFilesystem);
+        sendAPI("MPD_API_DATABASE_FILESYSTEM_LIST", {"offset": app.current.page, "path": (app.current.search ? app.current.search : "/"), "filter": app.current.filter, "cols": settings.colsBrowseFilesystem}, parseFilesystem, true);
         // Don't add all songs from root
         if (app.current.search) {
             document.getElementById('BrowseFilesystemAddAllSongs').removeAttribute('disabled');
@@ -1712,7 +1765,7 @@ function appInit() {
     });
     
     document.getElementById('btnDropdownNeighbors').parentNode.addEventListener('show.bs.dropdown', function () {
-        sendAPI("MPD_API_MOUNT_NEIGHBOR_LIST", {}, parseNeighbors);
+        sendAPI("MPD_API_MOUNT_NEIGHBOR_LIST", {}, parseNeighbors, true);
     });
     
     document.getElementById('dropdownNeighbors').children[0].addEventListener('click', function (event) {
@@ -2027,7 +2080,14 @@ function appInit() {
             showEditMount(decodeURI(event.target.parentNode.getAttribute('data-url')),decodeURI(event.target.parentNode.getAttribute('data-point')));
         }
         else if (event.target.nodeName === 'A') {
-            unmountMount(decodeURI(event.target.parentNode.parentNode.getAttribute('data-point')));
+            let action = event.target.getAttribute('data-action');
+            let mountPoint = decodeURI(event.target.parentNode.parentNode.getAttribute('data-point'));
+            if (action === 'unmount') {
+                unmountMount(mountPoint);
+            }
+            else if (action === 'update') {
+                updateMount(event.target, mountPoint);
+            }
         }
     }, false);
     
@@ -2532,23 +2592,41 @@ function showNotification(notificationTitle, notificationText, notificationHtml,
         let notification = new Notification(notificationTitle, {icon: 'assets/favicon.ico', body: notificationText});
         setTimeout(notification.close.bind(notification), 3000);
     } 
-    if (settings.notificationPage === true) {
+    if (settings.notificationPage === true || notificationType === 'danger') {
         let alertBox;
         if (!document.getElementById('alertBox')) {
             alertBox = document.createElement('div');
             alertBox.setAttribute('id', 'alertBox');
-            alertBox.addEventListener('click', function() {
-                hideNotification();
-            }, false);
+            alertBox.classList.add('toast');
         }
         else {
             alertBox = document.getElementById('alertBox');
         }
-        alertBox.classList.remove('alert-success', 'alert-danger');
-        alertBox.classList.add('alert','alert-' + notificationType);
-        alertBox.innerHTML = '<strong>' + e(notificationTitle) + '</strong><br/>' + (notificationHtml === '' ? e(notificationText) : notificationHtml);
-        document.getElementsByTagName('main')[0].append(alertBox);
-        document.getElementById('alertBox').classList.add('alertBoxActive');
+        let toast = '<div class="toast-header">';
+        if (notificationType === 'success' ) {
+            toast += '<span class="material-icons text-success mr-2">info</span>';
+        }
+        else {
+            toast += '<span class="material-icons text-danger mr-2">warning</span>';
+        }
+        toast += '<strong class="mr-auto">' + e(notificationTitle) + '</strong>' +
+            '<button type="button" class="ml-2 mb-1 close">&times;</button></div>';
+        if (notificationHtml !== '' && notificationText !== '') {
+            toast += '<div class="toast-body">' + (notificationHtml === '' ? e(notificationText) : notificationHtml) + '</div>';
+        }
+        toast += '</div>';
+        alertBox.innerHTML = toast;
+        
+        if (!document.getElementById('alertBox')) {
+            document.getElementsByTagName('main')[0].append(alertBox);
+            requestAnimationFrame(function() {
+                document.getElementById('alertBox').classList.add('alertBoxActive');
+            });
+        }
+        alertBox.getElementsByTagName('button')[0].addEventListener('click', function() {
+            hideNotification();
+        }, false);
+
         if (alertTimeout) {
             clearTimeout(alertTimeout);
         }
@@ -2617,13 +2695,18 @@ function clearLogOverview() {
 }
 
 function hideNotification() {
+    if (alertTimeout) {
+        clearTimeout(alertTimeout);
+    }
+
     if (document.getElementById('alertBox')) {
         document.getElementById('alertBox').classList.remove('alertBoxActive');
         setTimeout(function() {
             let alertBox = document.getElementById('alertBox');
-            if (alertBox)
+            if (alertBox) {
                 alertBox.remove();
-        }, 600);
+            }
+        }, 750);
     }
 }
 
@@ -3063,7 +3146,7 @@ function showAddToPlaylist(uri, searchstr) {
 
 //eslint-disable-next-line no-unused-vars
 function addToPlaylist() {
-    let uri = document.getElementById('addToPlaylistUri').value;
+    let uri = decodeURI(document.getElementById('addToPlaylistUri').value);
     if (uri === 'stream') {
         uri = document.getElementById('streamUrl').value;
         if (uri === '' || uri.indexOf('http') === -1) {
@@ -3277,8 +3360,8 @@ function showMenuTd(el) {
             (type === 'plist' || type === 'smartpls' ? addMenuItem({"cmd": "playlistDetails", "options": [uri]}, t('View playlist')) : '') +
             (type === 'dir' && settings.featBookmarks ? addMenuItem({"cmd": "showBookmarkSave", "options": [-1, name, uri, type]}, t('Add bookmark')) : '');
         if (app.current.tab === 'Filesystem') {
-            menu += (type === 'dir' ? addMenuItem({"cmd": "updateDB", "options": [dirname(uri)]}, t('Update directory')) : '') +
-                (type === 'dir' ? addMenuItem({"cmd": "rescanDB", "options": [dirname(uri)]}, t('Rescan directory')) : '');
+            menu += (type === 'dir' ? addMenuItem({"cmd": "updateDB", "options": [dirname(uri), true]}, t('Update directory')) : '') +
+                (type === 'dir' ? addMenuItem({"cmd": "rescanDB", "options": [dirname(uri), true]}, t('Rescan directory')) : '');
         }
         if (app.current.app === 'Search') {
             //songs must be arragend in one album per folder
