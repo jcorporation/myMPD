@@ -222,7 +222,7 @@ function parseSettings() {
     toggleBtnChkCollapse('btnSmartpls', 'collapseSmartpls', settings.smartpls);
     
     let features = ["featLocalplayer", "featSyscmds", "featMixramp", "featCacert", "featBookmarks", 
-        "featRegex", "featTimer", "featMounts"];
+        "featRegex", "featTimer"];
     for (let j = 0; j < features.length; j++) {
         let Els = document.getElementsByClassName(features[j]);
         let ElsLen = Els.length;
@@ -429,7 +429,7 @@ function parseMPDSettings() {
     }
 
     let features = ['featStickers', 'featSmartpls', 'featPlaylists', 'featTags', 'featCoverimage', 'featAdvsearch',
-        'featLove', 'featSingleOneshot', 'featCovergrid', 'featBrowse'];
+        'featLove', 'featSingleOneshot', 'featCovergrid', 'featBrowse', "featMounts", "featNeighbors"];
     for (let j = 0; j < features.length; j++) {
         let Els = document.getElementsByClassName(features[j]);
         let ElsLen = Els.length;

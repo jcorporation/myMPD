@@ -81,6 +81,10 @@ void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state) {
     if (config->mounts == false) {
         mpd_state->feat_mpd_mount = false;
     }
+    else if (config->mounts == true && mpd_state->feat_mpd_mount == false) {
+        LOG_WARN("Disabling mount and neighbor support");
+        mpd_state->feat_mpd_neighbor = false;
+    }
     
     //push settings to web_server_queue
     t_work_result *web_server_response = create_result_new(-1, 0, 0, "");
