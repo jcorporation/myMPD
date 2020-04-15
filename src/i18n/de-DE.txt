@@ -1322,3 +1322,6 @@ Verzeichnis nicht gefunden
 
 Error in response to command: %{command}
 Fehler beim Ausführen von %{command}
+
+Neighbors are disabled
+Kein Neighbor Plugin aktiviert

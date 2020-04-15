@@ -281,6 +281,8 @@ sds mpd_client_put_settings(t_mpd_state *mpd_state, sds buffer, sds method, int 
     buffer = tojson_bool(buffer, "featSearchwindow", mpd_state->feat_mpd_searchwindow, true);
     buffer = tojson_char(buffer, "musicDirectoryValue", mpd_state->music_directory_value, true);
     buffer = tojson_bool(buffer, "mpdConnected", true, true);
+    buffer = tojson_bool(buffer, "featMounts", mpd_state->feat_mpd_mount, true);
+    buffer = tojson_bool(buffer, "featNeighbors", mpd_state->feat_mpd_neighbor, true);
     mpd_status_free(status);
 
     buffer = print_tags_array(buffer, "tags", mpd_state->mympd_tag_types);
