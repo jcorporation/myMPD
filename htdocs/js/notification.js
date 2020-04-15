@@ -86,7 +86,7 @@ function showNotification(notificationTitle, notificationText, notificationHtml,
         }
         toast += '<strong class="mr-auto">' + e(notificationTitle) + '</strong>' +
             '<button type="button" class="ml-2 mb-1 close">&times;</button></div>';
-        if (notificationHtml !== '' && notificationText !== '') {
+        if (notificationHtml !== '' || notificationText !== '') {
             toast += '<div class="toast-body">' + (notificationHtml === '' ? e(notificationText) : notificationHtml) + '</div>';
         }
         toast += '</div>';
