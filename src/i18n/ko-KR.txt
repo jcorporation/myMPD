@@ -1319,3 +1319,6 @@ Unmount
 
 No such directory
 그런 디렉터리가 없음
+
+Error in response to command: %{command}
+명령어 오류: %{command}
