@@ -317,8 +317,11 @@ builddebug() {
   install -d debug
   cd debug || exit 1
   cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=DEBUG -DMEMCHECK="$MEMCHECK" \
-  	-DENABLE_SSL="$ENABLE_SSL" -DENABLE_LIBID3TAG="$ENABLE_LIBID3TAG" -DENABLE_FLAC="$ENABLE_FLAC" ..
+  	-DENABLE_SSL="$ENABLE_SSL" -DENABLE_LIBID3TAG="$ENABLE_LIBID3TAG" -DENABLE_FLAC="$ENABLE_FLAC" \
+  	-DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
   make VERBOSE=1
+  echo "Linking compilation database"
+  sed -e 's/\t/ /g' -e 's/-fsanitize=bounds-strict//g' -e 's/-static-libasan//g' compile_commands.json > ../src/compile_commands.json
 }
 
 cleanupoldinstall() {
@@ -350,6 +353,9 @@ cleanup() {
 
   #tmp files
   find ./ -name \*~ -delete
+  
+  #compilation database
+  rm -f src/compile_commands.json
 }
 
 cleanuposc() {
@@ -374,7 +380,7 @@ cleanupdist() {
   rm -f dist/htdocs/assets/*.gz
 }
 
-check () {
+check() {
   CPPCHECKBIN=$(command -v cppcheck)
   [ "$CPPCHECKOPTS" = "" ] && CPPCHECKOPTS="--enable=warning"
   if [ "$CPPCHECKBIN" != "" ]
@@ -398,7 +404,20 @@ check () {
     $FLAWFINDERBIN $FLAWFINDEROPTS cli_tools
   else
     echo "flawfinder not found"
-  fi  
+  fi
+  
+  CLANGTIDYBIN=$(command -v clang-tidy)
+  if [ "$CLANGTIDYBIN" != "" ]
+  then
+    echo "Running clang-tidy, output goes to clang-tidy.out"
+    rm -f clang-tidy.out
+    cd src || exit 1
+    find ./ -name '*.c' -exec clang-tidy \
+    	--checks="*,-hicpp-no-assembler,-android*,-cert-env33-c,-cert-msc50-cpp,-bugprone-branch-clone,-misc-misplaced-const,-readability-non-const-parameter,-cert-msc30-c,-hicpp-signed-bitwise,-readability-magic-numbers,-readability-avoid-const-params-in-decls,-llvm-include-order,-bugprone-macro-parentheses,-modernize*,-cppcoreguidelines*,-llvm-header-guard,-clang-analyzer-optin.performance.Padding,-clang-diagnostic-embedded-directive" \
+    	-header-filter='.*' {}  \; >> ../clang-tidy.out
+  else
+    echo "clang-tidy not found"  
+  fi
 }
 
 prepare() {
