@@ -451,11 +451,10 @@ sds state_file_rw_string(t_config *config, const char *name, const char *def_val
         FREE_PTR(line);
         return result;
     }
-    else {
-        FREE_PTR(line);
-        result = sdscat(result, def_value);
-        return result;
-    }
+    
+    FREE_PTR(line);
+    result = sdscat(result, def_value);
+    return result;
 }
 
 bool state_file_rw_bool(t_config *config, const char *name, const bool def_value, bool warn) {
@@ -485,7 +484,7 @@ bool state_file_write(t_config *config, const char *name, const char *value) {
     if (config->readonly == true) {
         return true;
     }
-    else if (!validate_string(name)) {
+    if (!validate_string(name)) {
         return false;
     }
     sds tmp_file = sdscatfmt(sdsempty(), "%s/state/%s.XXXXXX", config->varlibdir, name);
