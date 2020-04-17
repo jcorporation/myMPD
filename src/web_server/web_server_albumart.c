@@ -127,10 +127,9 @@ bool handle_albumart(struct mg_connection *nc, struct http_message *hm, t_mg_use
             sdsfree(mime_type);
             return true;
         }
-        else {
-            LOG_DEBUG("No covercache file found");
-            sdsfree(covercachefile);
-        }
+
+        LOG_DEBUG("No covercache file found");
+        sdsfree(covercachefile);
     }
     //check music_directory folder
     if (mg_user_data->feat_library == true && mg_user_data->coverimage_names_len > 0 &&

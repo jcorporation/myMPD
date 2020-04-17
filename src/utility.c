@@ -216,7 +216,7 @@ int strip_extension(char *s) {
             s[i] = '\0';
             return i;
         }
-        else if (s[i] == '/') {
+        if (s[i] == '/') {
             return -1;
         }
     }

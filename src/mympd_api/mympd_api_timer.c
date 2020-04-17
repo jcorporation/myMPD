@@ -61,7 +61,7 @@ void check_timer(struct t_timer_list *l, bool gui) {
         LOG_ERROR("Error polling timerfd: %s", strerror(errno));
         return;
     }
-    else if (read_fds == 0) {
+    if (read_fds == 0) {
         return;
     }
 
@@ -83,7 +83,6 @@ void check_timer(struct t_timer_list *l, bool gui) {
             }
         }
     }
-    return;
 }
 
 bool replace_timer(struct t_timer_list *l, unsigned int timeout, unsigned int interval, time_handler handler, 
@@ -213,7 +212,9 @@ void free_timer_node(struct t_timer_node *node) {
 struct t_timer_definition *parse_timer(struct t_timer_definition *timer_def, const char *str, size_t len) {
     char *name = NULL;
     bool enabled;
-    int start_hour, start_minute, volume;
+    int start_hour;
+    int start_minute;
+    int volume;
     unsigned jukebox_mode;
     char *action = NULL;
     char *playlist = NULL;
@@ -259,9 +260,8 @@ time_t timer_calc_starttime(int start_hour, int start_minute) {
     if (start > now) {
         return start - now;
     }
-    else {
-        return 86400 + start - now;
-    }
+
+    return 86400 + start - now;
 }
 
 sds timer_list(t_mympd_state *mympd_state, sds buffer, sds method, int request_id) {
