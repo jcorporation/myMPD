@@ -108,11 +108,11 @@ typedef struct t_mpd_state {
 } t_mpd_state;
 
 typedef struct t_sticker {
-    int playCount;
-    int skipCount;
-    int lastPlayed;
-    int lastSkipped;
-    int like;
+    unsigned int playCount;
+    unsigned int skipCount;
+    unsigned int lastPlayed;
+    unsigned int lastSkipped;
+    unsigned int like;
 } t_sticker;
 
 void disable_all_mpd_tags(t_mpd_state *mpd_state);

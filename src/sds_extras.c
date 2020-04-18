@@ -13,15 +13,18 @@
 #include "sds_extras.h"
 
 static int json_get_utf8_char_len(unsigned char ch) {
-  if ((ch & 0x80) == 0) return 1;
-  switch (ch & 0xf0) {
-    case 0xf0:
-      return 4;
-    case 0xe0:
-      return 3;
-    default:
-      return 2;
-  }
+    if ((ch & 0x80) == 0) {
+        return 1;
+    }
+
+    switch (ch & 0xf0) {
+        case 0xf0:
+            return 4;
+        case 0xe0:
+            return 3;
+        default:
+            return 2;
+    }
 }
 
 sds sdscatjson(sds s, const char *p, size_t len) {
@@ -64,7 +67,8 @@ sds sdscatjson(sds s, const char *p, size_t len) {
 
 sds sdsurldecode(sds s, const char *p, size_t len, int is_form_url_encoded) {
     size_t i;
-    int a, b;
+    int a;
+    int b;
 #define HEXTOI(x) (isdigit(x) ? x - '0' : x - 'W')
 
     for (i = 0; i < len; i++) {

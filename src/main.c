@@ -124,11 +124,11 @@ static bool drop_privileges(t_config *config, uid_t startup_uid) {
                 LOG_ERROR("getpwnam() failed, unknown user");
                 return false;
             }
-            else if (setgroups(0, NULL) != 0) { 
+            if (setgroups(0, NULL) != 0) { 
                 LOG_ERROR("setgroups() failed");
                 return false;
             }
-            else if (setgid(pw->pw_gid) != 0) {
+            if (setgid(pw->pw_gid) != 0) {
                 LOG_ERROR("setgid() failed");
                 return false;
             }
@@ -406,7 +406,9 @@ int main(int argc, char **argv) {
     }
 
     //Create working threads
-    pthread_t mpd_client_thread, web_server_thread, mympd_api_thread;
+    pthread_t mpd_client_thread;
+    pthread_t web_server_thread;
+    pthread_t mympd_api_thread;
     //mympd api
     LOG_INFO("Starting mympd api thread");
     if (pthread_create(&mympd_api_thread, NULL, mympd_api_loop, config) == 0) {

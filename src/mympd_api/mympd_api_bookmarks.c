@@ -129,9 +129,7 @@ sds mympd_api_bookmark_list(t_config *config, sds buffer, sds method, int reques
             sdsfree(b_file);
             return buffer;
         }
-        else {
-            fclose(fi);
-        }
+        fclose(fi);
     }
     else {
         while ((read = getline(&line, &n, fi)) > 0) {

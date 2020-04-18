@@ -216,7 +216,8 @@ static sds get_san(sds buffer) {
     struct addrinfo hints = {0};
     hints.ai_family = AF_UNSPEC;
     hints.ai_flags = AI_CANONNAME;
-    struct addrinfo *res, *rp;
+    struct addrinfo *res;
+    struct addrinfo *rp;
     if (getaddrinfo(hostbuffer, 0, &hints, &res) == 0) {
         // The hostname was successfully resolved.
         if (strcmp(hostbuffer, res->ai_canonname) != 0) {

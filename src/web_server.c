@@ -32,7 +32,7 @@
 
 //private definitions
 static bool parse_internal_message(t_work_result *response, t_mg_user_data *mg_user_data);
-static int is_websocket(const struct mg_connection *nc);
+static unsigned long is_websocket(const struct mg_connection *nc);
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data);
 #ifdef ENABLE_SSL
   static void ev_handler_redirect(struct mg_connection *nc_http, int ev, void *ev_data);
@@ -194,7 +194,7 @@ static bool parse_internal_message(t_work_result *response, t_mg_user_data *mg_u
     return rc;
 }
 
-static int is_websocket(const struct mg_connection *nc) {
+static unsigned long is_websocket(const struct mg_connection *nc) {
     return nc->flags & MG_F_IS_WEBSOCKET;
 }
 
@@ -389,33 +389,27 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
 
 #ifdef ENABLE_SSL
 static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data) {
-    switch(ev) {
-        case MG_EV_HTTP_REQUEST: {
-            struct http_message *hm = (struct http_message *) ev_data;
-            struct mg_str *host_hdr = mg_get_http_header(hm, "Host");
-            t_mg_user_data *mg_user_data = (t_mg_user_data *) nc->mgr->user_data;
-            t_config *config = (t_config *) mg_user_data->config;
+    if (ev == MG_EV_HTTP_REQUEST) {
+        struct http_message *hm = (struct http_message *) ev_data;
+        struct mg_str *host_hdr = mg_get_http_header(hm, "Host");
+        t_mg_user_data *mg_user_data = (t_mg_user_data *) nc->mgr->user_data;
+        t_config *config = (t_config *) mg_user_data->config;
             
-            sds host_header = sdscatlen(sdsempty(), host_hdr->p, (int)host_hdr->len);
+        sds host_header = sdscatlen(sdsempty(), host_hdr->p, (int)host_hdr->len);
             
-            int count;
-            sds *tokens = sdssplitlen(host_header, sdslen(host_header), ":", 1, &count);
+        int count;
+        sds *tokens = sdssplitlen(host_header, sdslen(host_header), ":", 1, &count);
             
-            sds s_redirect = sdscatfmt(sdsempty(), "https://%s", tokens[0]);
-            if (strcmp(config->ssl_port, "443") != 0) {
-                s_redirect = sdscatfmt(s_redirect, ":%s", config->ssl_port);
-            }
-            s_redirect = sdscat(s_redirect, "/");
-            LOG_VERBOSE("Redirecting to %s", s_redirect);
-            mg_http_send_redirect(nc, 301, mg_mk_str(s_redirect), mg_mk_str(NULL));
-            sdsfreesplitres(tokens, count);
-            sdsfree(host_header);
-            sdsfree(s_redirect);
-            break;
+        sds s_redirect = sdscatfmt(sdsempty(), "https://%s", tokens[0]);
+        if (strcmp(config->ssl_port, "443") != 0) {
+            s_redirect = sdscatfmt(s_redirect, ":%s", config->ssl_port);
         }
-        default: {
-            break;
-        }
+        s_redirect = sdscat(s_redirect, "/");
+        LOG_VERBOSE("Redirecting to %s", s_redirect);
+        mg_http_send_redirect(nc, 301, mg_mk_str(s_redirect), mg_mk_str(NULL));
+        sdsfreesplitres(tokens, count);
+        sdsfree(host_header);
+        sdsfree(s_redirect);
     }
 }
 #endif

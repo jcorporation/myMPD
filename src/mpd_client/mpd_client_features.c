@@ -25,7 +25,7 @@
 
 //private definitions
 static void mpd_client_feature_commands(t_mpd_state *mpd_state);
-static void check_tags(sds taglist, const char *taglistname, t_tags *tagtypes, t_tags allowed_tagtypes);
+static void check_tags(sds taglist, const char *taglistname, t_tags *tagtypes, t_tags allowed_tag_types);
 static void mpd_client_feature_tags(t_mpd_state *mpd_state);
 static void mpd_client_feature_music_directory(t_mpd_state *mpd_state);
 

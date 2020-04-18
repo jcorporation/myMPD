@@ -89,7 +89,8 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
     char *p_charbuf2 = NULL;
     char *p_charbuf3 = NULL;
     unsigned int uint_buf1;
-    int int_buf1, int_buf2;
+    int int_buf1;
+    int int_buf2;
     LOG_VERBOSE("MYMPD API request (%d): %s", request->conn_id, request->data);
     
     //create response struct

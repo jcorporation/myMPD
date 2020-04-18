@@ -34,17 +34,15 @@ bool sticker_cache_init(t_config *config, t_mpd_state *mpd_state) {
         enable_mpd_tags(mpd_state, mpd_state->mympd_tag_types);
         return rc;
     }
-    else {
-        LOG_WARN("Sticker cache disabled, mpd version < 0.20.0");
-        return false;
-    }
+    LOG_WARN("Sticker cache disabled, mpd version < 0.20.0");
+    return false;
 }
 
 bool mpd_client_count_song_uri(t_mpd_state *mpd_state, const char *uri, const char *name, const int value) {
     if (uri == NULL || strstr(uri, "://") != NULL) {
         return false;
     }
-    int old_value = 0;
+    unsigned old_value = 0;
     t_sticker *sticker = NULL;
     if (mpd_state->sticker_cache != NULL) {
         sticker = get_sticker_from_cache(mpd_state, uri);
@@ -80,9 +78,7 @@ bool mpd_client_count_song_uri(t_mpd_state *mpd_state, const char *uri, const ch
     if (old_value > INT_MAX / 2) {
         old_value = INT_MAX / 2;
     }
-    else if (old_value < 0) {
-        old_value = 0;
-    }
+
     sds value_str = sdsfromlonglong(old_value);
     LOG_VERBOSE("Setting sticker: \"%s\" -> %s: %s", uri, name, value_str);
     bool rc = mpd_run_sticker_set(mpd_state->conn, "song", uri, name, value_str);
@@ -104,13 +100,13 @@ bool mpd_client_count_song_uri(t_mpd_state *mpd_state, const char *uri, const ch
 }
 
 sds mpd_client_like_song_uri(t_mpd_state *mpd_state, sds buffer, sds method, int request_id,
-                             const char *uri, int value)
+                             const char *uri, unsigned int value)
 {
     if (uri == NULL || strstr(uri, "://") != NULL) {
         buffer = jsonrpc_respond_message(buffer, method, request_id, "Failed to set like, invalid song uri", true);
         return buffer;
     }
-    if (value > 2 || value < 0) {
+    if (value > 2) {
         buffer = jsonrpc_respond_message(buffer, method, request_id, "Failed to set like, invalid like value", true);
         return buffer;
     }

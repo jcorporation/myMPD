@@ -310,7 +310,7 @@ sds mpd_client_put_songs_in_album(t_mpd_state *mpd_state, sds buffer, sds method
     struct mpd_song *first_song = NULL;
     int entity_count = 0;
     int entities_returned = 0;
-    int totalTime = 0;
+    unsigned int totalTime = 0;
 
     while ((song = mpd_recv_song(mpd_state->conn)) != NULL) {
         entity_count++;
@@ -368,7 +368,7 @@ sds mpd_client_put_firstsong_in_albums(t_config *config, t_mpd_state *mpd_state,
     }
     
     sds expression = sdscatprintf(sdsempty(), "((Track == '%d')", config->covergridminsongs);
-    int searchstr_len = strlen(searchstr);
+    unsigned long searchstr_len = strlen(searchstr);
     if (config->regex == true && searchstr_len > 0 && searchstr_len <= 2 && strlen(tag) > 0) {
         expression = sdscatfmt(expression, " AND (%s =~ '^%s')", tag, searchstr);
     }

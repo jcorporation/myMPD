@@ -56,17 +56,15 @@ void *mpd_client_loop(void *arg_config) {
                 mpd_client_api(config, mpd_state, request);
                 break;
             }
-            else {
-                //create response struct
-                if (request->conn_id > -1) {
-                    t_work_result *response = create_result(request);
-                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "MPD disconnected", true);
-                    LOG_DEBUG("Send http response to connection %lu: %s", request->conn_id, response->data);
-                    tiny_queue_push(web_server_queue, response);
-                }
-                LOG_DEBUG("mpd_client not initialized, discarding message");
-                free_request(request);
+            //create response struct
+            if (request->conn_id > -1) {
+                t_work_result *response = create_result(request);
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, "MPD disconnected", true);
+                LOG_DEBUG("Send http response to connection %lu: %s", request->conn_id, response->data);
+                tiny_queue_push(web_server_queue, response);
             }
+            LOG_DEBUG("mpd_client not initialized, discarding message");
+            free_request(request);
         }
     }
 

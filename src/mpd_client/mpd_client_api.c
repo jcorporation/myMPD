@@ -39,9 +39,13 @@
 
 void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request) {
     t_work_request *request = (t_work_request*) arg_request;
-    unsigned int uint_buf1, uint_buf2;
-    int je, int_buf1, int_buf2; 
-    bool bool_buf, rc;
+    unsigned int uint_buf1;
+    unsigned int uint_buf2;
+    int je;
+    int int_buf1;
+    int int_buf2; 
+    bool bool_buf;
+    bool rc;
     float float_buf;
     char *p_charbuf1 = NULL;
     char *p_charbuf2 = NULL;

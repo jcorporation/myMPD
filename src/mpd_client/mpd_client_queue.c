@@ -104,7 +104,7 @@ sds mpd_client_put_queue(t_mpd_state *mpd_state, sds buffer, sds method, int req
         
     buffer = jsonrpc_start_result(buffer, method, request_id);
     buffer = sdscat(buffer, ",\"data\":[");
-    int totalTime = 0;
+    unsigned totalTime = 0;
     unsigned entity_count = 0;
     unsigned entities_returned = 0;
     struct mpd_song *song;
@@ -148,8 +148,8 @@ sds mpd_client_crop_queue(t_mpd_state *mpd_state, sds buffer, sds method, int re
         buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
         return buffer;
     }
-    const int length = mpd_status_get_queue_length(status) - 1;
-    int playing_song_pos = mpd_status_get_song_pos(status);
+    const unsigned length = mpd_status_get_queue_length(status) - 1;
+    unsigned playing_song_pos = mpd_status_get_song_pos(status);
 
     if (length < 1) {
         buffer = jsonrpc_respond_message(buffer, method, request_id, "A queue longer than 1 song in length is required to crop", true);

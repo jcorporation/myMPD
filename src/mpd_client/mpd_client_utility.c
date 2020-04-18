@@ -172,7 +172,7 @@ bool check_rc_error_and_recover(t_mpd_state *mpd_state, sds *buffer, sds method,
         LOG_ERROR("Error in response to command %s", command);
         return false;
     }
-    else if (rc == false) {
+    if (rc == false) {
         //todo: implement notify jsonrpc message on demand
         if (buffer != NULL && *buffer != NULL) {
             *buffer = respond_with_command_error(*buffer, method, request_id, command);
@@ -240,13 +240,11 @@ sds respond_with_mpd_error_or_ok(t_mpd_state *mpd_state, sds buffer, sds method,
         LOG_ERROR("Error in response to command: %s", command);
         return buffer;
     }
-    else if (rc == false) {
+    if (rc == false) {
         LOG_ERROR("Error in response to command: %s", command);
         return respond_with_command_error(buffer, method, request_id, command);
     }
-    else {
-        return jsonrpc_respond_ok(buffer, method, request_id);
-    }
+    return jsonrpc_respond_ok(buffer, method, request_id);
 }
 
 void json_to_tags(const char *str, int len, void *user_data) {

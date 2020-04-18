@@ -24,7 +24,7 @@
 
 //private definitions
 static sds mpd_client_put_last_played_obj(t_mpd_state *mpd_state, sds buffer, 
-                                          unsigned entity_count, int last_played, const char *uri, const t_tags *tagcols);
+                                          unsigned entity_count, long last_played, const char *uri, const t_tags *tagcols);
 
 //public functions
 bool mpd_client_last_played_list_save(t_config *config, t_mpd_state *mpd_state) {
@@ -89,9 +89,7 @@ bool mpd_client_add_song_to_last_played_list(t_config *config, t_mpd_state *mpd_
                 mpd_song_free(song);
                 return true;
             }
-            else {
-                list_insert(&mpd_state->last_played, uri, time(NULL), NULL, NULL);
-            }
+            list_insert(&mpd_state->last_played, uri, time(NULL), NULL, NULL);
             mpd_song_free(song);
             //write last_played list to disc
             if (config->readonly == false) {
@@ -199,11 +197,11 @@ sds mpd_client_put_stats(t_config *config, t_mpd_state *mpd_state, sds buffer, s
     buffer = tojson_long(buffer, "artists", mpd_stats_get_number_of_artists(stats), true);
     buffer = tojson_long(buffer, "albums", mpd_stats_get_number_of_albums(stats), true);
     buffer = tojson_long(buffer, "songs", mpd_stats_get_number_of_songs(stats), true);
-    buffer = tojson_long(buffer, "playtime", mpd_stats_get_play_time(stats), true);
-    buffer = tojson_long(buffer, "uptime", mpd_stats_get_uptime(stats), true);
+    buffer = tojson_ulong(buffer, "playtime", mpd_stats_get_play_time(stats), true);
+    buffer = tojson_ulong(buffer, "uptime", mpd_stats_get_uptime(stats), true);
     buffer = tojson_long(buffer, "myMPDuptime", time(NULL) - config->startup_time, true);
-    buffer = tojson_long(buffer, "dbUpdated", mpd_stats_get_db_update_time(stats), true);
-    buffer = tojson_long(buffer, "dbPlaytime", mpd_stats_get_db_play_time(stats), true);
+    buffer = tojson_ulong(buffer, "dbUpdated", mpd_stats_get_db_update_time(stats), true);
+    buffer = tojson_ulong(buffer, "dbPlaytime", mpd_stats_get_db_play_time(stats), true);
     buffer = tojson_char(buffer, "mympdVersion", MYMPD_VERSION, true);
     buffer = tojson_char(buffer, "mpdVersion", mpd_version, true);
     sds libmympdclient_version = sdscatfmt(sdsempty(), "%i.%i.%i", LIBMYMPDCLIENT_MAJOR_VERSION, LIBMYMPDCLIENT_MINOR_VERSION, LIBMYMPDCLIENT_PATCH_VERSION);
@@ -222,7 +220,7 @@ sds mpd_client_put_stats(t_config *config, t_mpd_state *mpd_state, sds buffer, s
 
 //private functions
 static sds mpd_client_put_last_played_obj(t_mpd_state *mpd_state, sds buffer, 
-                                          unsigned entity_count, int last_played, const char *uri, const t_tags *tagcols)
+                                          unsigned entity_count, long last_played, const char *uri, const t_tags *tagcols)
 {
     buffer = sdscat(buffer, "{");
     buffer = tojson_long(buffer, "Pos", entity_count, true);
