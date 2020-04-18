@@ -83,7 +83,7 @@ sds mpd_client_put_state(t_config *config, t_mpd_state *mpd_state, sds buffer, s
 
     const unsigned total_time = mpd_status_get_total_time(status);
     const unsigned elapsed_time =  mpd_status_get_elapsed_time(status);
-    time_t uptime = time(NULL) - config->startup_time;
+    unsigned uptime = time(NULL) - config->startup_time;
     if (total_time > 10 && uptime > elapsed_time) {
         time_t now = time(NULL);
         mpd_state->song_end_time = now + total_time - elapsed_time - 10;
@@ -94,7 +94,7 @@ sds mpd_client_put_state(t_config *config, t_mpd_state *mpd_state, sds buffer, s
             mpd_state->set_song_played_time = now - elapsed_time + 240;
         }
         else {
-            mpd_state->set_song_played_time = elapsed_time < half_time ? now - elapsed_time + half_time : now;
+            mpd_state->set_song_played_time = elapsed_time < half_time ? now - (long)elapsed_time + (long)half_time : now;
         }
     }
     else {

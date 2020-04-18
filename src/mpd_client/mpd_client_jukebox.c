@@ -343,7 +343,7 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_state
             while ((song = mpd_recv_song(mpd_state->conn)) != NULL) {
                 const char *tag_value = mpd_song_get_tag(song, mpd_state->jukebox_unique_tag.tags[0], 0);
                 const char *uri = mpd_song_get_uri(song);
-                unsigned last_played = 0;
+                time_t last_played = 0;
                 if (mpd_state->sticker_cache != NULL) {
                     t_sticker *sticker = get_sticker_from_cache(mpd_state, uri);
                     if (sticker != NULL) {
