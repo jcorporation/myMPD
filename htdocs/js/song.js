@@ -96,7 +96,7 @@ function parseSongDetails(obj) {
     }
     
     let pictureEls = document.getElementsByClassName('featPictures');
-    for (let i = 0; i < lyricsEls.length; i++) {
+    for (let i = 0; i < pictureEls.length; i++) {
         if (obj.result.images.length > 0 && settings.featLibrary === true && settings.publish === true) {
             pictureEls[i].classList.remove('hide');
         }
@@ -128,7 +128,7 @@ function parseSongDetails(obj) {
     document.getElementById('tabSongPics').innerHTML = carousel;
     let carouselItems = document.getElementById('tabSongPics').getElementsByClassName('carousel-item');
     for (let i = 0; i < carouselItems.length; i++) {
-        carouselItems[i].children[0].style.backgroundImage = 'url(' + subdir + '/browse/music/' + encodeURI(obj.result.images[i]) + ')';
+        carouselItems[i].children[0].style.backgroundImage = 'url("' + subdir + '/browse/music/' + encodeURI(obj.result.images[i]) + '")';
     }
     let myCarousel = document.getElementById('songPicsCarousel');
     //eslint-disable-next-line no-undef, no-unused-vars
