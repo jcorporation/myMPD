@@ -158,8 +158,8 @@ bool mpd_client_last_skipped_song_uri(t_mpd_state *mpd_state, const char *uri) {
     time_t now = time(NULL);
     sds value_str = sdsfromlonglong(now);
     LOG_VERBOSE("Setting sticker: \"%s\" -> lastSkipped: %s", uri, value_str);
-    sdsfree(value_str);
     bool rc = mpd_run_sticker_set(mpd_state->conn, "song", uri, "lastSkipped", value_str);
+    sdsfree(value_str);
     if (check_rc_error_and_recover(mpd_state, NULL, NULL, 0, false, rc, "mpd_run_sticker_set") == false) {
         return false;
     }
