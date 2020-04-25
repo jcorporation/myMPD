@@ -9,9 +9,7 @@
 #include "random.h"
 
 int randrange(int lower, int upper) {
-    unsigned rand = tinymt32_generate_uint32(&tinymt);
-    
-    return lower + rand / (UINT_MAX / (upper - lower + 1) + 1);
-    
-//    return (rand % (upper - lower + 1)) + lower;
+    unsigned r = tinymt32_generate_uint32(&tinymt);
+    unsigned rand = lower + r / (UINT_MAX / (upper - lower + 1) + 1);
+    return (int) rand;
 }
