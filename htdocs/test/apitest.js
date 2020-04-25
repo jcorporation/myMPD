@@ -111,7 +111,9 @@ var cmds = [
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_MOUNT_LIST"},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_MOUNT_UNMOUNT","params":{"mountPoint":"apitest"}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_MOUNT_NEIGHBOR_LIST"},
-    {"jsonrpc":"2.0","id":0,"method":"MPD_API_URLHANDLERS"}
+    {"jsonrpc":"2.0","id":0,"method":"MPD_API_URLHANDLERS"},
+    {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYER_STOP"},
+    {"jsonrpc":"2.0","id":0,"method":"MPD_API_QUEUE_CROP_OR_CLEAR"}
 ];
 
 function setTest(cmd, state, response) {
