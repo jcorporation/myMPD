@@ -13,6 +13,7 @@
 
 #include "../dist/src/sds/sds.h"
 #include "sds_extras.h"
+#include "random.h"
 #include "list.h"
 
 //private definitions
@@ -129,7 +130,8 @@ bool list_shuffle(struct list *l) {
 
     struct list_node *current = l->head;
     while (current != NULL) {
-        pos = rand() % l->length;
+        //pos = rand() % l->length;
+        pos = randrange(0, l->length);
         list_swap_item(current, list_node_at(l, pos));
         n++;
         current = current->next;

@@ -227,10 +227,6 @@ int strip_extension(char *s) {
     return -1;
 }
 
-int randrange(int n) {
-    return rand() / (RAND_MAX / (n + 1) + 1);
-}
-
 bool validate_string(const char *data) {
     if (strchr(data, '/') != NULL || strchr(data, '\n') != NULL || strchr(data, '\r') != NULL ||
         strchr(data, '\t') != NULL ||

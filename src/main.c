@@ -44,6 +44,7 @@
 #endif
 #include "handle_options.h"
 #include "maintenance.h"
+#include "random.h"
 
 static void mympd_signal_handler(int sig_num) {
     signal(sig_num, mympd_signal_handler);  // Reinstantiate signal handler
@@ -294,7 +295,9 @@ int main(int argc, char **argv) {
     assert(mg_user_data);
 
     //initialize random number generator
-    srand((unsigned int)time(NULL)); /* Flawfinder: ignore */
+    //srand((unsigned int)time(NULL)); /* Flawfinder: ignore */
+    
+    tinymt32_init(&tinymt, (unsigned int)time(NULL));
     
     //mympd config defaults
     t_config *config = (t_config *)malloc(sizeof(t_config));

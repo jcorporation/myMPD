@@ -164,6 +164,7 @@ set(SOURCES
   src/handle_options.c
   src/maintenance.c
   src/utility.c
+  src/random.c
   src/sds_extras.c
   src/mpd_client.c
   src/mpd_client/mpd_client_api.c
@@ -196,6 +197,7 @@ set(SOURCES
   dist/src/inih/ini.c
   dist/src/sds/sds.c
   dist/src/rax/rax.c
+  dist/src/tinymt/tinymt32.c
 )
 
 if("${ENABLE_SSL}" MATCHES "ON")

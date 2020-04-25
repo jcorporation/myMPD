@@ -18,6 +18,7 @@
 #include "../api.h"
 #include "../log.h"
 #include "../list.h"
+#include "../random.h"
 #include "config_defs.h"
 #include "../utility.h"
 #include "mpd_client_utility.h"
@@ -354,7 +355,7 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_state
                 if ((last_played == 0 || last_played < now) && 
                     mpd_client_jukebox_unique_tag(mpd_state, uri, tag_value, manual, queue_list) == true) 
                 {
-                    if (randrange(lineno) < addSongs) {
+                    if (randrange(0, lineno) < addSongs) {
                         if (nkeep < addSongs) {
                             if (manual == false) {
 		                if (list_push(&mpd_state->jukebox_queue, uri, lineno, tag_value, NULL) == false) {
@@ -369,7 +370,7 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_state
                             nkeep++;
                         }
                         else {
-                            int i = addSongs > 1 ? start_length + randrange(addSongs) - 1 : 0;
+                            int i = addSongs > 1 ? start_length + randrange(0, addSongs) - 1 : 0;
                             if (manual == false) {
                                 if (list_replace(&mpd_state->jukebox_queue, i, uri, lineno, tag_value, NULL) == false) {
                                     LOG_ERROR("Can't replace jukebox_queue element pos %d", i);
@@ -421,7 +422,7 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_state
         }
         while ((pair = mpd_recv_pair_tag(mpd_state->conn, MPD_TAG_ALBUM )) != NULL)  {
             if (mpd_client_jukebox_unique_album(mpd_state, pair->value, manual, queue_list) == true) {
-                if (randrange(lineno) < addSongs) {
+                if (randrange(0, lineno) < addSongs) {
                     if (nkeep < addSongs) {
                         if (manual == false) {
                             if (list_push(&mpd_state->jukebox_queue, pair->value, lineno, NULL, NULL) == false) {
@@ -436,7 +437,7 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_state
                         nkeep++;
                     }
                     else {
-                        int i = addSongs > 1 ? randrange(addSongs) : 0;
+                        int i = addSongs > 1 ? randrange(0, addSongs) : 0;
                         if (manual == false) {
                             if (list_replace(&mpd_state->jukebox_queue, i, pair->value, lineno, NULL, NULL) == false) {
                                 LOG_ERROR("Can't replace jukebox_queue element pos %d", i);
