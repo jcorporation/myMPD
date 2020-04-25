@@ -142,7 +142,7 @@ sds mpd_client_put_queue(t_mpd_state *mpd_state, sds buffer, sds method, int req
     return buffer;
 }
 
-sds mpd_client_crop_queue(t_mpd_state *mpd_state, sds buffer, sds method, int request_id) {
+sds mpd_client_crop_queue(t_mpd_state *mpd_state, sds buffer, sds method, int request_id, bool or_clear) {
     struct mpd_status *status = mpd_run_status(mpd_state->conn);
     if (status == NULL) {
         buffer = check_error_and_recover(mpd_state, buffer, method, request_id);
@@ -150,12 +150,9 @@ sds mpd_client_crop_queue(t_mpd_state *mpd_state, sds buffer, sds method, int re
     }
     const unsigned length = mpd_status_get_queue_length(status) - 1;
     unsigned playing_song_pos = mpd_status_get_song_pos(status);
+    enum mpd_state state = mpd_status_get_state(status);
 
-    if (length < 1) {
-        buffer = jsonrpc_respond_message(buffer, method, request_id, "A queue longer than 1 song in length is required to crop", true);
-        LOG_ERROR("A playlist longer than 1 song in length is required to crop");
-    }
-    else if (mpd_status_get_state(status) == MPD_STATE_PLAY || mpd_status_get_state(status) == MPD_STATE_PAUSE) {
+    if ((state == MPD_STATE_PLAY || state == MPD_STATE_PAUSE) && length > 0) {
         playing_song_pos++;
         if (playing_song_pos < length) {
             bool rc = mpd_run_delete_range(mpd_state->conn, playing_song_pos, -1);
@@ -171,9 +168,16 @@ sds mpd_client_crop_queue(t_mpd_state *mpd_state, sds buffer, sds method, int re
             }
         }
         buffer = jsonrpc_respond_ok(buffer, method, request_id);
-    } else {
-        buffer = jsonrpc_respond_message(buffer, method, request_id, "You need to be playing to crop the playlist", true);
-        LOG_ERROR("You need to be playing to crop the playlist");
+    }
+    else if (or_clear == true && state == MPD_STATE_STOP) {
+        bool rc = mpd_run_clear(mpd_state->conn);
+        if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, "mpd_run_clear") == true) {
+            buffer = jsonrpc_respond_ok(buffer, method, request_id);
+        }
+    }
+    else {
+        buffer = jsonrpc_respond_message(buffer, method, request_id, "Can not crop the queue", true);
+        LOG_ERROR("Can not crop the queue");
     }
     
     mpd_status_free(status);
