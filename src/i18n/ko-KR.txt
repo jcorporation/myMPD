@@ -858,12 +858,6 @@ Renaming playlist failed
 Sucessfully renamed playlist
 연주목록 이름 바꿈
 
-A queue longer than 1 song in length is required to crop
-남기려면 순서에 한 곡이상이어야 함
-
-You need to be playing to crop the playlist
-연주목록에 남기려면 연주 중이어야 함
-
 Can not read smart playlist file
 스마트 연주목록 파일을 읽을 수 없음
 

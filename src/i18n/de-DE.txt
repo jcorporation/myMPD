@@ -858,11 +858,8 @@ Wiedergabeliste konnte nicht umbenannt werden
 Sucessfully renamed playlist
 Wiedergabeliste erfolgreich umbenannt
 
-A queue longer than 1 song in length is required to crop
-Die Warteschlange muss länger als 1 Lied sein um sie abzuschneiden
-
-You need to be playing to crop the playlist
-Wiedergabe muss gestartet sein um die Warteschlange abzuschneiden
+Can not crop the queue
+Die Warteschlange konnte nicht abgeschnitten werden
 
 Can not read smart playlist file
 Intelligente Wiedergabeliste konnte nicht eingelesen werden
