@@ -247,6 +247,20 @@ sds respond_with_mpd_error_or_ok(t_mpd_state *mpd_state, sds buffer, sds method,
     return jsonrpc_respond_ok(buffer, method, request_id);
 }
 
+enum mpd_tag_type get_sort_tag(enum mpd_tag_type tag) {
+    if (tag == MPD_TAG_ARTIST) {
+        return MPD_TAG_ARTIST_SORT;
+    }
+    if (tag == MPD_TAG_ALBUM_ARTIST) {
+        return MPD_TAG_ALBUM_ARTIST_SORT;
+    }
+    if (tag == MPD_TAG_ALBUM) {
+        return MPD_TAG_ALBUM_SORT;
+    }
+    
+    return tag;
+}
+
 void json_to_tags(const char *str, int len, void *user_data) {
     struct json_token t;
     int i;

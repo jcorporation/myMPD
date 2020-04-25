@@ -384,10 +384,17 @@ sds mpd_client_put_firstsong_in_albums(t_config *config, t_mpd_state *mpd_state,
         return buffer;
     }
     if (strlen(sort) > 0) {
-        rc = mpd_search_add_sort_name(mpd_state->conn, sort, sortdesc);
-        if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_sort_name") == false) {
-            mpd_search_cancel(mpd_state->conn);
-            return buffer;
+        enum mpd_tag_type sort_tag = mpd_tag_name_parse(sort);
+        if (sort_tag != MPD_TAG_UNKNOWN) {
+            sort_tag = get_sort_tag(sort_tag);
+            rc = mpd_search_add_sort_tag(mpd_state->conn, sort_tag, sortdesc);
+            if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_sort_tag") == false) {
+                mpd_search_cancel(mpd_state->conn);
+                return buffer;
+            }
+        }
+        else {
+            LOG_WARN("Unknown sort tag: %s", sort);
         }
     }
     
