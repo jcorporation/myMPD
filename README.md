@@ -62,7 +62,7 @@ Backend
 -------
  - <a href="https://github.com/cesanta/mongoose">Mongoose</a> (web server)
  - <a href="https://github.com/cesanta/frozen">Frozen</a> (json parsing)
- - <a href="https://github.com/benhoyt/inih"inih</a> (config file parsing)
+ - <a href="https://github.com/benhoyt/inih">inih</a> (config file parsing)
  - <a href="https://github.com/graphitemaster/incbin">incbin</a> (embedding assets)
  - <a href="https://github.com/antirez/sds">sds</a> (safe string handling)
  - <a href="https://github.com/antirez/rax">rax</a> (radix tree implementation)
