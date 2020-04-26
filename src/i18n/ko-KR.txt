@@ -858,6 +858,9 @@ Renaming playlist failed
 Sucessfully renamed playlist
 연주목록 이름 바꿈
 
+Can not crop the queue
+순서에 남길 수 없음
+
 Can not read smart playlist file
 스마트 연주목록 파일을 읽을 수 없음
 
