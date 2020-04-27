@@ -31,7 +31,6 @@ If applicable, add screenshots to help explain your problem.
  - OS version [e.g. 6.26]
  - Plattform: [e.g. x86_64]
  - MPD version: [e.g. 0.21.16]
- - Libmpdclient Version: [e.g. 2.16]
 
 **Client plattform (please complete the following information):**
  - Device: [e.g. iPhone6, Laptop]
