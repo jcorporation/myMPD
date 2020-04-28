@@ -858,12 +858,6 @@ Error al renombrar lista de reproducción
 Sucessfully renamed playlist
 Lista de reproducción renombrada exitosamente
 
-A queue longer than 1 song in length is required to crop
-Se requiere una cola de más de 1 canción de longitud para recortar
-
-You need to be playing to crop the playlist
-Debe estar reproduciendo para recortar la lista de reproducción
-
 Can not read smart playlist file
 No se puede leer el archivo de lista de reproducción inteligente
 
