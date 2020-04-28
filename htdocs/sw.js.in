@@ -24,7 +24,8 @@ var ignoreRequests = new RegExp('(' + [
   subdir + '/ca.crt',
   subdir + '/ws',
   subdir + '/library/(.*)',
-  subdir + '/albumart/(.*)'].join('(/?)|\\') + ')$')
+  subdir + '/albumart/(.*)',
+  subdir + '/lyrics/(.*)'].join('(/?)|\\') + ')$')
 
 self.addEventListener('install', function(event) {
     event.waitUntil(
