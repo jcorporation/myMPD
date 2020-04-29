@@ -36,7 +36,7 @@
 //privat definitions
 static bool handle_lyricsextract(struct mg_connection *nc, const char *media_file);
 static bool handle_lyricsextract_id3(const char *media_file, sds *text);
-//static bool handle_lyricsextract_flac(const char *media_file, sds *text, bool is_ogg);
+static bool handle_lyricsextract_flac(const char *media_file, sds *text, bool is_ogg);
 
 //public functions
 
@@ -108,14 +108,12 @@ static bool handle_lyricsextract(struct mg_connection *nc, const char *media_fil
     if (strcmp(mime_type_media_file, "audio/mpeg") == 0) {
         rc = handle_lyricsextract_id3(media_file, &text);
     }
-    /*
     else if (strcmp(mime_type_media_file, "audio/ogg") == 0) {
         rc = handle_lyricsextract_flac(media_file, &text, true);
     }
     else if (strcmp(mime_type_media_file, "audio/flac") == 0) {
         rc = handle_lyricsextract_flac(media_file, &text, false);
     }
-    */
     sdsfree(mime_type_media_file);
     if (rc == true) {
         sds header = sdscatfmt(sdsempty(), "Content-Type: text/plain\r\n");
@@ -167,7 +165,6 @@ static bool handle_lyricsextract_id3(const char *media_file, sds *text) {
     return rc;
 }
 
-/*
 static bool handle_lyricsextract_flac(const char *media_file, sds *text, bool is_ogg) {
     bool rc = false;
     #ifdef ENABLE_FLAC
@@ -186,10 +183,17 @@ static bool handle_lyricsextract_flac(const char *media_file, sds *text, bool is
     FLAC__metadata_iterator_init(iterator, chain);
     assert(iterator);
     
+    int field_num = 0;
     do {
         FLAC__StreamMetadata *block = FLAC__metadata_iterator_get_block(iterator);
-        if (block->type == FLAC__METADATA_TYPE_PICTURE) {
-            metadata = block;
+        if (block->type == FLAC__METADATA_TYPE_VORBIS_COMMENT) {
+            field_num = FLAC__metadata_object_vorbiscomment_find_entry_from(block, 0, "LYRICS");
+            if (field_num == -1) {
+                field_num = FLAC__metadata_object_vorbiscomment_find_entry_from(block, 0, "UNSYNCEDLYRICS");
+            }
+            if (field_num > -1) {
+                metadata = block;
+            }
         }
     } while (FLAC__metadata_iterator_next(iterator) && metadata == NULL);
     
@@ -197,9 +201,25 @@ static bool handle_lyricsextract_flac(const char *media_file, sds *text, bool is
         LOG_DEBUG("No embedded lyrics detected");
     }
     else {
-        *text = sdscatlen(*text, metadata->data.picture.data, metadata->data.picture.data_length);
-        LOG_DEBUG("Lyrics successfully extracted");
-        rc = true;
+        FLAC__StreamMetadata_VorbisComment *vc = &metadata->data.vorbis_comment;
+        FLAC__StreamMetadata_VorbisComment_Entry *field = &vc->comments[field_num++];
+
+        char *field_value = memchr(field->entry, '=', field->length);
+        if (field_value != NULL) {
+            if (strlen(field_value) > 1) {
+                field_value++;
+                *text = sdscat(*text, field_value);
+                LOG_DEBUG("Lyrics successfully extracted");
+                rc = true;
+            }
+            else {
+                LOG_DEBUG("Empty lyrics");
+                rc = true;
+            }
+        }
+        else {
+            LOG_DEBUG("Invalid vorbis comment");
+        }
     }
     FLAC__metadata_iterator_delete(iterator);
     FLAC__metadata_chain_delete(chain);
@@ -210,4 +230,3 @@ static bool handle_lyricsextract_flac(const char *media_file, sds *text, bool is
     #endif
     return rc;
 }
-*/
