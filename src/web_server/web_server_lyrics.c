@@ -118,7 +118,7 @@ static bool handle_lyricsextract(struct mg_connection *nc, const char *media_fil
     */
     sdsfree(mime_type_media_file);
     if (rc == true) {
-        sds header = sdscatfmt(sdsempty(), "Content-Type: text/plain");
+        sds header = sdscatfmt(sdsempty(), "Content-Type: text/plain\r\n");
         header = sdscat(header, EXTRA_HEADERS_CACHE);
         mg_send_head(nc, 200, sdslen(text), header);
         mg_send(nc, text, sdslen(text));
@@ -144,7 +144,7 @@ static bool handle_lyricsextract_id3(const char *media_file, sds *text) {
     }
     struct id3_frame *frame = id3_tag_findframe(tags, "USLT", 0);
     if (frame != NULL) {
-        const id3_ucs4_t *ulst_u = id3_field_getstring(&frame->fields[2]);
+        const id3_ucs4_t *ulst_u = id3_field_getfullstring(&frame->fields[3]);
         if (ulst_u != NULL) {
             id3_utf8_t *ulst = id3_ucs4_utf8duplicate(ulst_u);
             *text = sdscat(*text, (char *)ulst);
