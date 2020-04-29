@@ -73,6 +73,16 @@ void check_timer(struct t_timer_list *l, bool gui) {
             }
             current = get_timer_from_fd(l, ufds[i].fd);
             if (current) {
+                if (current->definition != NULL) {
+                    time_t t = time(NULL);
+                    struct tm *now = localtime(&t);
+                    int wday = now->tm_wday;
+                    wday = wday > 0 ? wday - 1 : 6;
+                    if (current->definition->weekdays[wday] == false) {
+                        LOG_DEBUG("Skipping timer with id %d, not enabled on this weekday", current->timer_id);
+                        continue;
+                    }
+                }
                 LOG_DEBUG("Timer with id %d triggered", current->timer_id);
                 if (current->callback) {
                     current->callback(current->definition, current->user_data);
@@ -141,6 +151,9 @@ bool add_timer(struct t_timer_list *l, unsigned int timeout, unsigned int interv
     if (definition == NULL || definition->enabled == true) {
         l->active++;
     }
+    
+    LOG_DEBUG("Added timer with id %d, start time in %ds", timer_id, timeout);
+    
     return true;
 }
  
