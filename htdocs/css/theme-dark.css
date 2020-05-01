@@ -187,3 +187,7 @@ body.theme-dark .toast-body {
   background-color: #494f56;
   color: #f8f9fa;
 }
+
+body.theme-dark .text-body {
+  color: #f8f9fa !important;
+}
