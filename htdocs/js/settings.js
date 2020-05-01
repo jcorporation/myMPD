@@ -528,8 +528,9 @@ function parseMPDSettings() {
     else {
         let pbtl = '';
         for (let i = 0; i < settings.colsPlayback.length; i++) {
-            pbtl += '<div id="current' + settings.colsPlayback[i]  + '" data-tag="' + settings.colsPlayback[i] + '" '+
-                    'data-name="' + (lastSongObj[settings.colsPlayback[i]] ? encodeURI(lastSongObj[settings.colsPlayback[i]]) : '') + '">' +
+            pbtl += '<div id="current' + settings.colsPlayback[i]  + '" data-tag="' + settings.colsPlayback[i] + '" ' +
+                    (settings.colsPlayback[i] === 'Lyrics' ? '' : 'data-name="' + (lastSongObj[settings.colsPlayback[i]] ? encodeURI(lastSongObj[settings.colsPlayback[i]]) : '') + '"') +
+                    '>' +
                     '<small>' + t(settings.colsPlayback[i]) + '</small>' +
                     '<p';
             if (settings.browsetags.includes(settings.colsPlayback[i])) {
@@ -551,6 +552,15 @@ function parseMPDSettings() {
             pbtl += '</p></div>';
         }
         document.getElementById('cardPlaybackTags').innerHTML = pbtl;
+        let cl = document.getElementById('currentLyrics');
+        if (cl && lastSongObj.uri) {
+            let el = cl.getElementsByTagName('small')[0];
+            el.classList.add('clickable');
+            el.addEventListener('click', function(event) {
+                event.target.parentNode.children[1].classList.toggle('expanded');
+            }, false);
+            getLyrics(lastSongObj.uri, cl.getElementsByTagName('p')[0]);
+        }
     }
 
     if (!settings.tags.includes('AlbumArtist') && settings.featTags) {
@@ -862,6 +872,9 @@ function filterCols(x) {
         tags.push('Filetype');
         tags.push('Fileformat');
         tags.push('LastModified');
+        if (settings.featLyrics === true) {
+            tags.push('Lyrics');
+        }
     }
     let cols = [];
     for (let i = 0; i < settings[x].length; i++) {

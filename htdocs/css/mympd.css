@@ -712,3 +712,12 @@ div#playDropdown .row {
   border-top-right-radius: 0 !important;
   border-bottom-right-radius: 0 !important;
 }
+
+#currentLyrics > p {
+  overflow-y: auto;
+  max-height: 12rem;
+}
+
+#currentLyrics > p.expanded {
+  max-height: none;
+}

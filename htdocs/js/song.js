@@ -79,7 +79,7 @@ function parseSongDetails(obj) {
     setVoteSongBtns(obj.result.like, obj.result.uri);
     
     if (settings.featLyrics === true) {
-        getLyrics(obj.result.uri);
+        getLyrics(obj.result.uri, document.getElementById('lyricsText'));
     }
 
     let showPictures = false;
@@ -167,16 +167,15 @@ function isCoverfile(uri) {
     return false;
 }
 
-function getLyrics(uri) {
-    document.getElementById('lyricsText').classList.add('opacity05');
+function getLyrics(uri, el) {
+    el.classList.add('opacity05');
     let ajaxRequest=new XMLHttpRequest();
     
     ajaxRequest.open('GET', subdir + '/lyrics/' + uri, true);
     ajaxRequest.onreadystatechange = function() {
         if (ajaxRequest.readyState === 4) {
-            let elLyricsText = document.getElementById('lyricsText');
-            elLyricsText.innerText = ajaxRequest.responseText === 'No lyrics found' ? t(ajaxRequest.responseText) : ajaxRequest.responseText;
-            elLyricsText.classList.remove('opacity05');
+            el.innerText = ajaxRequest.responseText === 'No lyrics found' ? t(ajaxRequest.responseText) : ajaxRequest.responseText;
+            el.classList.remove('opacity05');
         }
     };
     ajaxRequest.send();
