@@ -36,3 +36,4 @@ sticker
 Info
 Error
 No such directory
+No lyrics found

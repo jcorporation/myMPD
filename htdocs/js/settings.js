@@ -174,6 +174,8 @@ function parseSettings() {
     toggleBtnChk('btnLocalplayerAutoplay', settings.localplayerAutoplay);
     toggleBtnChk('btnFeatTimer', settings.featTimer);
     toggleBtnChk('btnBookmarks', settings.featBookmarks);
+    toggleBtnChk('btnFeatLyrics', settings.featLyrics);
+
     if (settings.streamUrl === '') {
         document.getElementById('selectStreamMode').value = 'port';
         document.getElementById('inputStreamUrl').value = settings.streamPort;
@@ -222,7 +224,7 @@ function parseSettings() {
     toggleBtnChkCollapse('btnSmartpls', 'collapseSmartpls', settings.smartpls);
     
     let features = ["featLocalplayer", "featSyscmds", "featMixramp", "featCacert", "featBookmarks", 
-        "featRegex", "featTimer"];
+        "featRegex", "featTimer", "featLyrics"];
     for (let j = 0; j < features.length; j++) {
         let Els = document.getElementsByClassName(features[j]);
         let ElsLen = Els.length;
@@ -778,7 +780,8 @@ function saveSettings(closeModal) {
             "theme": selectTheme.options[selectTheme.selectedIndex].value,
             "highlightColor": document.getElementById('inputHighlightColor').value,
             "timer": (document.getElementById('btnFeatTimer').classList.contains('active') ? true : false),
-            "bookletName": document.getElementById('inputBookletName').value
+            "bookletName": document.getElementById('inputBookletName').value,
+            "lyrics": (document.getElementById('btnFeatLyrics').classList.contains('active') ? true : false)
         }, getSettings);
         if (closeModal === true) {
             modalSettings.hide();

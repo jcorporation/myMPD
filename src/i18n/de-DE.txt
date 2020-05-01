@@ -1322,3 +1322,6 @@ Fehler beim Ausführen von %{command}
 
 Neighbors are disabled
 Kein Neighbor Plugin aktiviert
+
+No lyrics found
+Kein Songtext gefunden

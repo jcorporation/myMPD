@@ -91,6 +91,7 @@ typedef struct t_mympd_state {
     bool timer;
     sds booklet_name;
     struct t_timer_list timer_list;
+    bool lyrics;
 } t_mympd_state;
 
 void free_mympd_state(t_mympd_state *mympd_state);

@@ -38,7 +38,7 @@ void mympd_api_settings_delete(t_config *config) {
         "last_played", "last_played_count", "locale", "localplayer", "localplayer_autoplay", "love", "love_channel", "love_message",
         "max_elements_per_page",  "mpd_host", "mpd_pass", "mpd_port", "notification_page", "notification_web", "searchtaglist",
         "smartpls", "stickers", "stream_port", "stream_url", "taglist", "music_directory", "bookmarks", "bookmark_list", "covergrid_size", 
-        "theme", "timer", "highlight_color", "media_session", "booklet_name", 0};
+        "theme", "timer", "highlight_color", "media_session", "booklet_name", "lyrics", 0};
     const char** ptr = state_files;
     while (*ptr != 0) {
         sds filename = sdscatfmt(sdsempty(), "%s/state/%s", config->varlibdir, *ptr);
@@ -341,6 +341,10 @@ bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state, struct
         mympd_state->highlight_color = sdsreplacelen(mympd_state->highlight_color, settingvalue, sdslen(settingvalue));
         settingname = sdscat(settingname, "highlight_color");
     }
+    else if (strncmp(key->ptr, "lyrics", key->len) == 0) {
+        mympd_state->lyrics = val->type == JSON_TYPE_TRUE ? true : false;
+        settingname = sdscat(settingname, "lyrics");
+    }
     else {
         sdsfree(settingname);
         sdsfree(settingvalue);
@@ -412,6 +416,7 @@ void mympd_api_read_statefiles(t_config *config, t_mympd_state *mympd_state) {
     mympd_state->timer = state_file_rw_bool(config, "timer", config->timer, false);
     mympd_state->highlight_color = state_file_rw_string(config, "highlight_color", config->highlight_color, false);
     mympd_state->booklet_name = state_file_rw_string(config, "booklet_name", config->booklet_name, false);
+    mympd_state->lyrics = state_file_rw_bool(config, "lyrics", config->lyrics, false);
     if (config->readonly == true) {
         mympd_state->bookmarks = false;
         mympd_state->smartpls = false;
@@ -565,6 +570,7 @@ sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buf
     buffer = tojson_bool(buffer, "featTimer", mympd_state->timer, true);
     buffer = tojson_bool(buffer, "featStickerCache", config->sticker_cache, true);
     buffer = tojson_char(buffer, "bookletName", mympd_state->booklet_name, true);
+    buffer = tojson_bool(buffer, "featLyrics", mympd_state->lyrics, true);
     buffer = sdscatfmt(buffer, "\"colsQueueCurrent\":%s,", mympd_state->cols_queue_current);
     buffer = sdscatfmt(buffer, "\"colsSearch\":%s,", mympd_state->cols_search);
     buffer = sdscatfmt(buffer, "\"colsBrowseDatabase\":%s,", mympd_state->cols_browse_database);

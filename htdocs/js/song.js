@@ -78,26 +78,21 @@ function parseSongDetails(obj) {
     document.getElementById('tbodySongDetails').innerHTML = songDetailsHTML;
     setVoteSongBtns(obj.result.like, obj.result.uri);
     
-    let lyricsEls = document.getElementsByClassName('featLyrics');
-    for (let i = 0; i < lyricsEls.length; i++) {
-        if (obj.result.lyricsfile === true && settings.featLibrary === true && settings.publish === true) {
-            lyricsEls[i].classList.remove('hide');
-        }
-        else {
-            lyricsEls[i].classList.add('hide');
-        }
-    }
-    
-    if (obj.result.lyricsfile === true && settings.publish === true) {
+    if (settings.featLyrics === true) {
         getLyrics(obj.result.uri);
     }
-    else {
-        document.getElementById('lyricsText').innerText = '';
+
+    let showPictures = false;
+    if (obj.result.images.length > 0 && settings.featLibrary === true && settings.publish === true) {
+        showPictures = true;
+    }
+    else if (settings.coverimage === true) {
+        showPictures = true;
     }
     
     let pictureEls = document.getElementsByClassName('featPictures');
     for (let i = 0; i < pictureEls.length; i++) {
-        if (obj.result.images.length > 0 && settings.featLibrary === true && settings.publish === true) {
+        if (showPictures === true) {
             pictureEls[i].classList.remove('hide');
         }
         else {
@@ -105,18 +100,28 @@ function parseSongDetails(obj) {
         }
     }
     
-    let carousel = '<div id="songPicsCarousel" class="carousel slide" data-ride="carousel">' +
-        '<ol class="carousel-indicators">';
-    for (let i = 0; i < obj.result.images.length; i++) {
-        carousel += '<li data-target="#songPicsCarousel" data-slide-to="' + i + '"' +
-            (i === 0 ? ' class="active"' : '') + '></li>';
-    }    
-    carousel += '</ol>' +
-        '<div class="carousel-inner" role="listbox">';
-    for (let i = 0; i < obj.result.images.length; i++) {
-        carousel += '<div class="carousel-item' + (i === 0 ? ' active' : '') + '"><div></div></div>';
-    }
-    carousel += '</div>' +
+    if (showPictures === true) {
+        //add uri to image list to get embedded albumart
+        let images = [ subdir + '/albumart/' + obj.result.uri ];
+        //add all but coverfiles to image list
+        for (let i = 0; i < obj.result.images.length; i++) {
+            if (isCoverfile(obj.result.images[i]) === false) {
+                images.push(subdir + '/browse/music/' + obj.result.images[i]);
+            }
+        }
+    
+        let carousel = '<div id="songPicsCarousel" class="carousel slide" data-ride="carousel">' +
+            '<ol class="carousel-indicators">';
+        for (let i = 0; i < images.length; i++) {
+            carousel += '<li data-target="#songPicsCarousel" data-slide-to="' + i + '"' +
+                (i === 0 ? ' class="active"' : '') + '></li>';
+        }    
+        carousel += '</ol>' +
+            '<div class="carousel-inner" role="listbox">';
+        for (let i = 0; i < images.length; i++) {
+            carousel += '<div class="carousel-item' + (i === 0 ? ' active' : '') + '"><div></div></div>';
+        }
+        carousel += '</div>' +
             '<a class="carousel-control-prev" href="#songPicsCarousel" data-slide="prev">' +
                 '<span class="carousel-control-prev-icon"></span>' +
             '</a>' +
@@ -125,29 +130,52 @@ function parseSongDetails(obj) {
             '</a>' +
             '</div>';
     
-    document.getElementById('tabSongPics').innerHTML = carousel;
-    let carouselItems = document.getElementById('tabSongPics').getElementsByClassName('carousel-item');
-    for (let i = 0; i < carouselItems.length; i++) {
-        carouselItems[i].children[0].style.backgroundImage = 'url("' + subdir + '/browse/music/' + encodeURI(obj.result.images[i]) + '")';
+        document.getElementById('tabSongPics').innerHTML = carousel;
+        let carouselItems = document.getElementById('tabSongPics').getElementsByClassName('carousel-item');
+        for (let i = 0; i < carouselItems.length; i++) {
+            carouselItems[i].children[0].style.backgroundImage = 'url("' + encodeURI(images[i]) + '")';
+        }
+        let myCarousel = document.getElementById('songPicsCarousel');
+        //eslint-disable-next-line no-undef, no-unused-vars
+        let myCarouselInit = new Carousel(myCarousel, {
+            interval: false,
+            pause: false
+        });
     }
-    let myCarousel = document.getElementById('songPicsCarousel');
-    //eslint-disable-next-line no-undef, no-unused-vars
-    let myCarouselInit = new Carousel(myCarousel, {
-        interval: false,
-        pause: false
-    });
+    else {
+        document.getElementById('tabSongPics').innerText = '';
+    }
+}
+
+function isCoverfile(uri) {
+    let filename = basename(uri).toLowerCase();
+    let fileparts = filename.split('.');
+    
+    let extensions = ['png', 'jpg', 'jpeg', 'svg', 'webp', 'tiff', 'bmp'];
+    let coverimageNames = settings.coverimageName.split(',');
+    for (let i = 0; i < coverimageNames.length; i++) {
+        let name = coverimageNames[i].trim();
+        if (filename === name) {
+            return true;
+        }
+        if (fileparts[1]) {
+            if (name === fileparts[0] && extensions.includes(fileparts[1])) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 function getLyrics(uri) {
     document.getElementById('lyricsText').classList.add('opacity05');
     let ajaxRequest=new XMLHttpRequest();
     
-    let lyricsfile = uri.replace(/\.\w+$/, ".txt");
-    ajaxRequest.open('GET', subdir + '/browse/music/' + lyricsfile, true);
+    ajaxRequest.open('GET', subdir + '/lyrics/' + uri, true);
     ajaxRequest.onreadystatechange = function() {
         if (ajaxRequest.readyState === 4) {
             let elLyricsText = document.getElementById('lyricsText');
-            elLyricsText.innerText = ajaxRequest.responseText;
+            elLyricsText.innerText = ajaxRequest.responseText === 'No lyrics found' ? t(ajaxRequest.responseText) : ajaxRequest.responseText;
             elLyricsText.classList.remove('opacity05');
         }
     };
