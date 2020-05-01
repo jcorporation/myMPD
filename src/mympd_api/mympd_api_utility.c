@@ -96,7 +96,7 @@ void free_mympd_state_sds(t_mympd_state *mympd_state) {
     sdsfree(mympd_state->booklet_name);
 }
 
-static const char *mympd_cols[]={"Pos", "Duration", "Type", "LastPlayed", "Filename", "Filetype", "Fileformat", "LastModified", 0};
+static const char *mympd_cols[]={"Pos", "Duration", "Type", "LastPlayed", "Filename", "Filetype", "Fileformat", "LastModified", "Lyrics", 0};
 
 static bool is_mympd_col(sds token) {
     const char** ptr = mympd_cols;
@@ -109,20 +109,22 @@ static bool is_mympd_col(sds token) {
     return false;
 }
 
-sds json_to_cols(sds cols, char *str, size_t len) {
+sds json_to_cols(sds cols, char *str, size_t len, bool *error) {
     struct json_token t;
     int j = 0;
+    *error = false;
     for (int i = 0; json_scanf_array_elem(str, len, ".params.cols", i, &t) > 0; i++) {
-        if (j > 0) {
-            cols = sdscatlen(cols, ",", 1);
-        }
         sds token = sdscatlen(sdsempty(), t.ptr, t.len);
         if (mpd_tag_name_iparse(token) != MPD_TAG_UNKNOWN || is_mympd_col(token) == true) {
+            if (j > 0) {
+                cols = sdscatlen(cols, ",", 1);
+            }
             cols = sdscatjson(cols, t.ptr, t.len);
             j++;
         }
         else {
             LOG_WARN("Unknown column: %s", token);
+            *error = true;
         }
         sdsfree(token);
     }
