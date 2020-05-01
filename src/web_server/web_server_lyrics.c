@@ -40,7 +40,7 @@ static bool handle_lyricsextract_flac(const char *media_file, sds *text, bool is
 
 //public functions
 
-//returns true if an image is served
+//returns true if lyrics are served
 //returns false if waiting for mpd_client to handle request - not implemented yet
 bool handle_lyrics(struct mg_connection *nc, struct http_message *hm, t_mg_user_data *mg_user_data, t_config *config, int conn_id) {
     //decode uri
