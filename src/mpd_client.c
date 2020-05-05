@@ -11,6 +11,8 @@
 #include <string.h>
 #include <signal.h>
 #include <assert.h>
+#include <unistd.h>
+
 #include <mpd/client.h>
 
 #include "../dist/src/sds/sds.h"
@@ -206,7 +208,11 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
                     }
                     free_request(request);
                 }
-            }            
+            }
+            if (now < mpd_state->reconnect_time) {
+                //pause 100ms to prevent high cpu usage
+                usleep(100000);
+            }
             break;
         }
         case MPD_DISCONNECTED:
@@ -294,7 +300,7 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
                 mpd_state->reconnect_interval += 2;
             }
             mpd_state->reconnect_time = time(NULL) + mpd_state->reconnect_interval;
-            LOG_DEBUG("Waiting %u seconds before reconnection", mpd_state->reconnect_interval);
+            LOG_VERBOSE("Waiting %u seconds before reconnection", mpd_state->reconnect_interval);
             break;
 
         case MPD_CONNECTED:
