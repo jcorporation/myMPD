@@ -1327,4 +1327,4 @@ No lyrics found
 Kein Songtext gefunden
 
 Invalid column
-Ungültige Spalte
+Ungültiger Spaltenname
