@@ -512,7 +512,7 @@ function addAllFromBrowseFilesystem() {
 
 function addAllFromBrowseDatabasePlist(plist) {
     if (app.current.search.length >= 2) {
-        sendAPI("MPD_API_DATABASE_SEARCH", {"plist": plist, "filter": app.current.view, "searchstr": app.current.search, "offset": 0, "cols": settings.colsSearch});
+        sendAPI("MPD_API_DATABASE_SEARCH", {"plist": plist, "filter": app.current.view, "searchstr": app.current.search, "offset": 0, "cols": settings.colsSearch, "replace": false});
     }
 }
 
@@ -1765,7 +1765,13 @@ function appInit() {
     });
     
     document.getElementById('btnDropdownNeighbors').parentNode.addEventListener('show.bs.dropdown', function () {
-        sendAPI("MPD_API_MOUNT_NEIGHBOR_LIST", {}, parseNeighbors, true);
+        if (settings.featNeighbors === true) {
+            sendAPI("MPD_API_MOUNT_NEIGHBOR_LIST", {}, parseNeighbors, true);
+        }
+        else {
+            document.getElementById('dropdownNeighbors').children[0].innerHTML = 
+                '<div class="list-group-item"><span class="material-icons">warning</span> ' + t('Neighbors are disabled') + '</div>';
+        }
     });
     
     document.getElementById('dropdownNeighbors').children[0].addEventListener('click', function (event) {
@@ -2611,7 +2617,7 @@ function showNotification(notificationTitle, notificationText, notificationHtml,
         }
         toast += '<strong class="mr-auto">' + e(notificationTitle) + '</strong>' +
             '<button type="button" class="ml-2 mb-1 close">&times;</button></div>';
-        if (notificationHtml !== '' && notificationText !== '') {
+        if (notificationHtml !== '' || notificationText !== '') {
             toast += '<div class="toast-body">' + (notificationHtml === '' ? e(notificationText) : notificationHtml) + '</div>';
         }
         toast += '</div>';
@@ -3324,7 +3330,7 @@ function showMenuTh(el) {
                 eventClick.preventDefault();
                 eventClick.stopPropagation();
             }
-            else if (event.target.nodeName === 'BUTTON') {
+            else if (eventClick.target.nodeName === 'BUTTON') {
                 eventClick.preventDefault();
                 saveCols(table);
             }
@@ -4029,6 +4035,8 @@ function parseSettings() {
     toggleBtnChk('btnLocalplayerAutoplay', settings.localplayerAutoplay);
     toggleBtnChk('btnFeatTimer', settings.featTimer);
     toggleBtnChk('btnBookmarks', settings.featBookmarks);
+    toggleBtnChk('btnFeatLyrics', settings.featLyrics);
+
     if (settings.streamUrl === '') {
         document.getElementById('selectStreamMode').value = 'port';
         document.getElementById('inputStreamUrl').value = settings.streamPort;
@@ -4077,7 +4085,7 @@ function parseSettings() {
     toggleBtnChkCollapse('btnSmartpls', 'collapseSmartpls', settings.smartpls);
     
     let features = ["featLocalplayer", "featSyscmds", "featMixramp", "featCacert", "featBookmarks", 
-        "featRegex", "featTimer", "featMounts"];
+        "featRegex", "featTimer", "featLyrics"];
     for (let j = 0; j < features.length; j++) {
         let Els = document.getElementsByClassName(features[j]);
         let ElsLen = Els.length;
@@ -4284,7 +4292,7 @@ function parseMPDSettings() {
     }
 
     let features = ['featStickers', 'featSmartpls', 'featPlaylists', 'featTags', 'featCoverimage', 'featAdvsearch',
-        'featLove', 'featSingleOneshot', 'featCovergrid', 'featBrowse'];
+        'featLove', 'featSingleOneshot', 'featCovergrid', 'featBrowse', "featMounts", "featNeighbors"];
     for (let j = 0; j < features.length; j++) {
         let Els = document.getElementsByClassName(features[j]);
         let ElsLen = Els.length;
@@ -4381,8 +4389,9 @@ function parseMPDSettings() {
     else {
         let pbtl = '';
         for (let i = 0; i < settings.colsPlayback.length; i++) {
-            pbtl += '<div id="current' + settings.colsPlayback[i]  + '" data-tag="' + settings.colsPlayback[i] + '" '+
-                    'data-name="' + (lastSongObj[settings.colsPlayback[i]] ? encodeURI(lastSongObj[settings.colsPlayback[i]]) : '') + '">' +
+            pbtl += '<div id="current' + settings.colsPlayback[i]  + '" data-tag="' + settings.colsPlayback[i] + '" ' +
+                    (settings.colsPlayback[i] === 'Lyrics' ? '' : 'data-name="' + (lastSongObj[settings.colsPlayback[i]] ? encodeURI(lastSongObj[settings.colsPlayback[i]]) : '') + '"') +
+                    '>' +
                     '<small>' + t(settings.colsPlayback[i]) + '</small>' +
                     '<p';
             if (settings.browsetags.includes(settings.colsPlayback[i])) {
@@ -4404,6 +4413,15 @@ function parseMPDSettings() {
             pbtl += '</p></div>';
         }
         document.getElementById('cardPlaybackTags').innerHTML = pbtl;
+        let cl = document.getElementById('currentLyrics');
+        if (cl && lastSongObj.uri) {
+            let el = cl.getElementsByTagName('small')[0];
+            el.classList.add('clickable');
+            el.addEventListener('click', function(event) {
+                event.target.parentNode.children[1].classList.toggle('expanded');
+            }, false);
+            getLyrics(lastSongObj.uri, cl.getElementsByTagName('p')[0]);
+        }
     }
 
     if (!settings.tags.includes('AlbumArtist') && settings.featTags) {
@@ -4633,7 +4651,8 @@ function saveSettings(closeModal) {
             "theme": selectTheme.options[selectTheme.selectedIndex].value,
             "highlightColor": document.getElementById('inputHighlightColor').value,
             "timer": (document.getElementById('btnFeatTimer').classList.contains('active') ? true : false),
-            "bookletName": document.getElementById('inputBookletName').value
+            "bookletName": document.getElementById('inputBookletName').value,
+            "lyrics": (document.getElementById('btnFeatLyrics').classList.contains('active') ? true : false)
         }, getSettings);
         if (closeModal === true) {
             modalSettings.hide();
@@ -4714,6 +4733,9 @@ function filterCols(x) {
         tags.push('Filetype');
         tags.push('Fileformat');
         tags.push('LastModified');
+        if (settings.featLyrics === true) {
+            tags.push('Lyrics');
+        }
     }
     let cols = [];
     for (let i = 0; i < settings[x].length; i++) {
@@ -4880,26 +4902,21 @@ function parseSongDetails(obj) {
     document.getElementById('tbodySongDetails').innerHTML = songDetailsHTML;
     setVoteSongBtns(obj.result.like, obj.result.uri);
     
-    let lyricsEls = document.getElementsByClassName('featLyrics');
-    for (let i = 0; i < lyricsEls.length; i++) {
-        if (obj.result.lyricsfile === true && settings.featLibrary === true && settings.publish === true) {
-            lyricsEls[i].classList.remove('hide');
-        }
-        else {
-            lyricsEls[i].classList.add('hide');
-        }
+    if (settings.featLyrics === true) {
+        getLyrics(obj.result.uri, document.getElementById('lyricsText'));
     }
-    
-    if (obj.result.lyricsfile === true && settings.publish === true) {
-        getLyrics(obj.result.uri);
+
+    let showPictures = false;
+    if (obj.result.images.length > 0 && settings.featLibrary === true && settings.publish === true) {
+        showPictures = true;
     }
-    else {
-        document.getElementById('lyricsText').innerText = '';
+    else if (settings.coverimage === true) {
+        showPictures = true;
     }
     
     let pictureEls = document.getElementsByClassName('featPictures');
-    for (let i = 0; i < lyricsEls.length; i++) {
-        if (obj.result.images.length > 0 && settings.featLibrary === true && settings.publish === true) {
+    for (let i = 0; i < pictureEls.length; i++) {
+        if (showPictures === true) {
             pictureEls[i].classList.remove('hide');
         }
         else {
@@ -4907,18 +4924,28 @@ function parseSongDetails(obj) {
         }
     }
     
-    let carousel = '<div id="songPicsCarousel" class="carousel slide" data-ride="carousel">' +
-        '<ol class="carousel-indicators">';
-    for (let i = 0; i < obj.result.images.length; i++) {
-        carousel += '<li data-target="#songPicsCarousel" data-slide-to="' + i + '"' +
-            (i === 0 ? ' class="active"' : '') + '></li>';
-    }    
-    carousel += '</ol>' +
-        '<div class="carousel-inner" role="listbox">';
-    for (let i = 0; i < obj.result.images.length; i++) {
-        carousel += '<div class="carousel-item' + (i === 0 ? ' active' : '') + '"><div></div></div>';
-    }
-    carousel += '</div>' +
+    if (showPictures === true) {
+        //add uri to image list to get embedded albumart
+        let images = [ subdir + '/albumart/' + obj.result.uri ];
+        //add all but coverfiles to image list
+        for (let i = 0; i < obj.result.images.length; i++) {
+            if (isCoverfile(obj.result.images[i]) === false) {
+                images.push(subdir + '/browse/music/' + obj.result.images[i]);
+            }
+        }
+    
+        let carousel = '<div id="songPicsCarousel" class="carousel slide" data-ride="carousel">' +
+            '<ol class="carousel-indicators">';
+        for (let i = 0; i < images.length; i++) {
+            carousel += '<li data-target="#songPicsCarousel" data-slide-to="' + i + '"' +
+                (i === 0 ? ' class="active"' : '') + '></li>';
+        }    
+        carousel += '</ol>' +
+            '<div class="carousel-inner" role="listbox">';
+        for (let i = 0; i < images.length; i++) {
+            carousel += '<div class="carousel-item' + (i === 0 ? ' active' : '') + '"><div></div></div>';
+        }
+        carousel += '</div>' +
             '<a class="carousel-control-prev" href="#songPicsCarousel" data-slide="prev">' +
                 '<span class="carousel-control-prev-icon"></span>' +
             '</a>' +
@@ -4927,30 +4954,52 @@ function parseSongDetails(obj) {
             '</a>' +
             '</div>';
     
-    document.getElementById('tabSongPics').innerHTML = carousel;
-    let carouselItems = document.getElementById('tabSongPics').getElementsByClassName('carousel-item');
-    for (let i = 0; i < carouselItems.length; i++) {
-        carouselItems[i].children[0].style.backgroundImage = 'url(' + subdir + '/browse/music/' + encodeURI(obj.result.images[i]) + ')';
+        document.getElementById('tabSongPics').innerHTML = carousel;
+        let carouselItems = document.getElementById('tabSongPics').getElementsByClassName('carousel-item');
+        for (let i = 0; i < carouselItems.length; i++) {
+            carouselItems[i].children[0].style.backgroundImage = 'url("' + encodeURI(images[i]) + '")';
+        }
+        let myCarousel = document.getElementById('songPicsCarousel');
+        //eslint-disable-next-line no-undef, no-unused-vars
+        let myCarouselInit = new Carousel(myCarousel, {
+            interval: false,
+            pause: false
+        });
     }
-    let myCarousel = document.getElementById('songPicsCarousel');
-    //eslint-disable-next-line no-undef, no-unused-vars
-    let myCarouselInit = new Carousel(myCarousel, {
-        interval: false,
-        pause: false
-    });
+    else {
+        document.getElementById('tabSongPics').innerText = '';
+    }
 }
 
-function getLyrics(uri) {
-    document.getElementById('lyricsText').classList.add('opacity05');
+function isCoverfile(uri) {
+    let filename = basename(uri).toLowerCase();
+    let fileparts = filename.split('.');
+    
+    let extensions = ['png', 'jpg', 'jpeg', 'svg', 'webp', 'tiff', 'bmp'];
+    let coverimageNames = settings.coverimageName.split(',');
+    for (let i = 0; i < coverimageNames.length; i++) {
+        let name = coverimageNames[i].trim();
+        if (filename === name) {
+            return true;
+        }
+        if (fileparts[1]) {
+            if (name === fileparts[0] && extensions.includes(fileparts[1])) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+function getLyrics(uri, el) {
+    el.classList.add('opacity05');
     let ajaxRequest=new XMLHttpRequest();
     
-    let lyricsfile = uri.replace(/\.\w+$/, ".txt");
-    ajaxRequest.open('GET', subdir + '/browse/music/' + lyricsfile, true);
+    ajaxRequest.open('GET', subdir + '/lyrics/' + uri, true);
     ajaxRequest.onreadystatechange = function() {
         if (ajaxRequest.readyState === 4) {
-            let elLyricsText = document.getElementById('lyricsText');
-            elLyricsText.innerText = ajaxRequest.responseText;
-            elLyricsText.classList.remove('opacity05');
+            el.innerText = ajaxRequest.responseText === 'No lyrics found' ? t(ajaxRequest.responseText) : ajaxRequest.responseText;
+            el.classList.remove('opacity05');
         }
     };
     ajaxRequest.send();
@@ -5347,7 +5396,10 @@ function songChange(obj) {
 
     for (let i = 0; i < settings.colsPlayback.length; i++) {
         let c = document.getElementById('current' + settings.colsPlayback[i]);
-        if (c) {
+        if (c && settings.colsPlayback[i] === 'Lyrics') {
+            getLyrics(obj.result.uri, c.getElementsByTagName('p')[0]);
+        }
+        else if (c) {
             let value = obj.result[settings.colsPlayback[i]];
             if (value === undefined) {
                 value = '';
@@ -5791,6 +5843,9 @@ function setColTags(table) {
         tags.push('Filetype');
         tags.push('Fileformat');
         tags.push('LastModified');
+        if (settings.featLyrics === true) {
+            tags.push('Lyrics');
+        }
     }
     
     tags.sort();
@@ -6303,8 +6358,11 @@ function addTagList(el, list) {
     for (let i = 0; i < settings[list].length; i++) {
         tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="' + settings[list][i] + '">' + t(settings[list][i]) + '</button>';
     }
-    if (el === 'covergridSortTagsList' && settings.tags.includes('Date')) {
-        tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="Date">' + t('Date') + '</button>';
+    if (el === 'covergridSortTagsList') {
+        if (settings.tags.includes('Date')) {
+            tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="Date">' + t('Date') + '</button>';
+        }
+        tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="Last-Modified">' + t('Last modified') + '</button>';
     }
     document.getElementById(el).innerHTML = tagList;
 }
