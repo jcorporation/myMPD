@@ -81,8 +81,10 @@ inline static void tinymt32_next_state(tinymt32_t * random) {
     random->status[1] = random->status[2];
     random->status[2] = x ^ (y << TINYMT32_SH1);
     random->status[3] = y;
-    random->status[1] ^= -((int32_t)(y & 1)) & random->mat1;
-    random->status[2] ^= -((int32_t)(y & 1)) & random->mat2;
+    int32_t const a = -((int32_t)(y & 1)) & (int32_t)random->mat1;
+    int32_t const b = -((int32_t)(y & 1)) & (int32_t)random->mat2;
+    random->status[1] ^= (uint32_t)a;
+    random->status[2] ^= (uint32_t)b;
 }
 
 /**
@@ -102,7 +104,9 @@ inline static uint32_t tinymt32_temper(tinymt32_t * random) {
         + (random->status[2] >> TINYMT32_SH8);
 #endif
     t0 ^= t1;
-    t0 ^= -((int32_t)(t1 & 1)) & random->tmat;
+    if ((t1 & 1) != 0) {
+        t0 ^= random->tmat;
+    }
     return t0;
 }
 
@@ -128,8 +132,11 @@ inline static float tinymt32_temper_conv(tinymt32_t * random) {
         + (random->status[2] >> TINYMT32_SH8);
 #endif
     t0 ^= t1;
-    conv.u = ((t0 ^ (-((int32_t)(t1 & 1)) & random->tmat)) >> 9)
-              | UINT32_C(0x3f800000);
+    if ((t1 & 1) != 0) {
+        conv.u  = ((t0 ^ random->tmat) >> 9) | UINT32_C(0x3f800000);
+    } else {
+        conv.u  = (t0 >> 9) | UINT32_C(0x3f800000);
+    }
     return conv.f;
 }
 
@@ -155,8 +162,11 @@ inline static float tinymt32_temper_conv_open(tinymt32_t * random) {
         + (random->status[2] >> TINYMT32_SH8);
 #endif
     t0 ^= t1;
-    conv.u = ((t0 ^ (-((int32_t)(t1 & 1)) & random->tmat)) >> 9)
-              | UINT32_C(0x3f800001);
+        if ((t1 & 1) != 0) {
+        conv.u  = ((t0 ^ random->tmat) >> 9) | UINT32_C(0x3f800001);
+    } else {
+        conv.u  = (t0 >> 9) | UINT32_C(0x3f800001);
+    }
     return conv.f;
 }
 
@@ -180,7 +190,7 @@ inline static uint32_t tinymt32_generate_uint32(tinymt32_t * random) {
  */
 inline static float tinymt32_generate_float(tinymt32_t * random) {
     tinymt32_next_state(random);
-    return (tinymt32_temper(random) >> 8) * TINYMT32_MUL;
+    return (float)(tinymt32_temper(random) >> 8) * TINYMT32_MUL;
 }
 
 /**
