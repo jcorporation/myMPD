@@ -15,7 +15,7 @@ enum { LOGLEVEL_ERROR, LOGLEVEL_WARN, LOGLEVEL_INFO, LOGLEVEL_VERBOSE, LOGLEVEL_
 #define LOG_VERBOSE(...) mympd_log(LOGLEVEL_VERBOSE, __FILE__, __LINE__, __VA_ARGS__)
 #define LOG_DEBUG(...) mympd_log(LOGLEVEL_DEBUG, __FILE__, __LINE__, __VA_ARGS__)
 
-int loglevel;
+extern int loglevel;
 
 void mympd_log(int level, const char *file, int line, const char *fmt, ...);
 void set_loglevel(int level);

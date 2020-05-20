@@ -9,7 +9,7 @@
 
 #include "../dist/src/tinymt/tinymt32.h"
 
-tinymt32_t tinymt;
+extern tinymt32_t tinymt;
 
 int randrange(int lower, int upper);
 #endif

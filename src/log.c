@@ -12,6 +12,8 @@
 #include "../dist/src/sds/sds.h"
 #include "log.h"
 
+int loglevel;
+
 static const char *loglevel_names[] = {
   "ERROR", "WARN", "INFO", "VERBOSE", "DEBUG"
 };

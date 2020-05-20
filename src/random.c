@@ -8,6 +8,8 @@
 
 #include "random.h"
 
+tinymt32_t tinymt;
+
 int randrange(int lower, int upper) {
     unsigned r = tinymt32_generate_uint32(&tinymt);
     unsigned rand = lower + r / (UINT_MAX / (upper - lower + 1) + 1);
