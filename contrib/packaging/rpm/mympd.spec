@@ -59,9 +59,5 @@ fi
 %config(noreplace) /etc/mympd.conf
 
 %changelog
-<<<<<<< HEAD
-* Sun Apr 26 2020 Juergen Mang <mail@jcgames.de> 6.3.1-0
-=======
 * Sat Apr 25 2020 Juergen Mang <mail@jcgames.de> 6.4.0-0
->>>>>>> devel
 - Version from master
