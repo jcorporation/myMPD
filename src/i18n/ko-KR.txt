@@ -4,7 +4,7 @@ MPD connection
 MPD 연결
 
 Add stream
-스트림 추가
+스트리밍 서비스 추가
 
 Update
 업데이트
@@ -37,7 +37,7 @@ Local playback
 로컬 연주
 
 Connecting to stream...
-스트림에 연결 중...
+스트리밍에 연결 중...
 
 JavaScript is disabled
 자바스크립트 사용 안 함
@@ -256,7 +256,7 @@ Add to playlist
 연주목록에 추가
 
 Stream URI
-스트림 주소
+스트리밍 주소
 
 http://uri.to/stream.mp3
 http://주소/stream.mp3
@@ -766,7 +766,7 @@ No playlists found
 연주목록 찾을 수 없음
 
 Added stream %{streamUri} to queue
-%{streamUri} 스트림을 순서에 추가함
+%{streamUri} 스트리밍을 순서에 추가함
 
 Append to queue
 순서에 추가
@@ -858,11 +858,8 @@ Renaming playlist failed
 Sucessfully renamed playlist
 연주목록 이름 바꿈
 
-A queue longer than 1 song in length is required to crop
-남기려면 순서에 한 곡이상이어야 함
-
-You need to be playing to crop the playlist
-연주목록에 남기려면 연주 중이어야 함
+Can not crop the queue
+순서에 남길 수 없음
 
 Can not read smart playlist file
 스마트 연주목록 파일을 읽을 수 없음
@@ -1319,3 +1316,16 @@ Unmount
 
 No such directory
 그런 디렉터리가 없음
+
+Error in response to command: %{command}
+명령어 오류: %{command}
+
+Neighbors are disabled
+Neighbors 사용 안 함
+
+No lyrics found
+가사 없음
+
+Invalid column
+잘못된 열
+

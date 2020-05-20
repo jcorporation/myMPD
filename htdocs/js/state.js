@@ -325,7 +325,10 @@ function songChange(obj) {
 
     for (let i = 0; i < settings.colsPlayback.length; i++) {
         let c = document.getElementById('current' + settings.colsPlayback[i]);
-        if (c) {
+        if (c && settings.colsPlayback[i] === 'Lyrics') {
+            getLyrics(obj.result.uri, c.getElementsByTagName('p')[0]);
+        }
+        else if (c) {
             let value = obj.result[settings.colsPlayback[i]];
             if (value === undefined) {
                 value = '';

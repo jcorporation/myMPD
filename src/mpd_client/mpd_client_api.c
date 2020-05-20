@@ -39,9 +39,13 @@
 
 void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request) {
     t_work_request *request = (t_work_request*) arg_request;
-    unsigned int uint_buf1, uint_buf2;
-    int je, int_buf1, int_buf2; 
-    bool bool_buf, rc;
+    unsigned int uint_buf1;
+    unsigned int uint_buf2;
+    int je;
+    int int_buf1;
+    int int_buf2; 
+    bool bool_buf;
+    bool rc;
     float float_buf;
     char *p_charbuf1 = NULL;
     char *p_charbuf2 = NULL;
@@ -232,7 +236,10 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
             response->data = respond_with_mpd_error_or_ok(mpd_state, response->data, request->method, request->id, rc, "mpd_run_clear");
             break;
         case MPD_API_QUEUE_CROP:
-            response->data = mpd_client_crop_queue(mpd_state, response->data, request->method, request->id);
+            response->data = mpd_client_crop_queue(mpd_state, response->data, request->method, request->id, false);
+            break;
+        case MPD_API_QUEUE_CROP_OR_CLEAR:
+            response->data = mpd_client_crop_queue(mpd_state, response->data, request->method, request->id, true);
             break;
         case MPD_API_QUEUE_RM_TRACK:
             je = json_scanf(request->data, sdslen(request->data), "{params: {track:%u}}", &uint_buf1);

@@ -209,7 +209,7 @@
             <button data-title-phrase="Add to queue" type="button" class="btn btn-secondary material-icons" data-toggle="modal" data-target="#modalAddToQueue">add_to_queue</button>
           </div>
           <div class="btn-group mr-2">
-            <button data-title-phrase="Clear queue" type="button" class="btn btn-secondary material-icons" data-href='{"cmd": "sendAPI", "options": [{"cmd": "MPD_API_QUEUE_CLEAR"}]}'>clear_all</button>
+            <button data-title-phrase="Crop queue" type="button" class="btn btn-secondary material-icons" data-href='{"cmd": "sendAPI", "options": [{"cmd": "MPD_API_QUEUE_CROP_OR_CLEAR"}]}'>clear_all</button>
             <button id="clearQueueBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-right" type="button" data-toggle="dropdown"></button>
             <div class="dropdown-menu bg-lite-dark px-2" id="clearQueueDropdown">
               <button data-phrase="Clear queue" type="button" class="btn btn-secondary btn-sm btn-block" data-href='{"cmd": "sendAPI", "options": [{"cmd": "MPD_API_QUEUE_CLEAR"}]}' ></button>
@@ -597,7 +597,7 @@
                 </div>
                 <div class="dropdown-divider"></div>
                 <div class="form-check">
-                  <button class="btn btn-secondary btn-xs clickable material-icons material-icons-small" id="covergridSortDesc">radio_button_unchecked</button>
+                  <button class="btn btn-secondary btn-xs clickable material-icons material-icons-small" id="covergridSortDesc">radio_button_unchecked</button>&nbsp;
                   <label class="form-check-label text-light" for="covergridSortDesc" data-phrase="Descending"></label>
                 </div>
             </div>
@@ -1403,6 +1403,12 @@
                   <label class="col-sm-4 col-form-label" for="btnFeatTimer" data-phrase="Timer"></label>
                   <div class="col-sm-8 ">
                     <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnFeatTimer"></button>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="btnFeatLyrics" data-phrase="Lyrics"></label>
+                  <div class="col-sm-8 ">
+                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnFeatLyrics"></button>
                   </div>
                 </div>
                 <div class="form-group row">

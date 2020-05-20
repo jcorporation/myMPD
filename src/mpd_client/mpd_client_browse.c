@@ -310,7 +310,7 @@ sds mpd_client_put_songs_in_album(t_mpd_state *mpd_state, sds buffer, sds method
     struct mpd_song *first_song = NULL;
     int entity_count = 0;
     int entities_returned = 0;
-    int totalTime = 0;
+    unsigned int totalTime = 0;
 
     while ((song = mpd_recv_song(mpd_state->conn)) != NULL) {
         entity_count++;
@@ -368,7 +368,7 @@ sds mpd_client_put_firstsong_in_albums(t_config *config, t_mpd_state *mpd_state,
     }
     
     sds expression = sdscatprintf(sdsempty(), "((Track == '%d')", config->covergridminsongs);
-    int searchstr_len = strlen(searchstr);
+    unsigned long searchstr_len = strlen(searchstr);
     if (config->regex == true && searchstr_len > 0 && searchstr_len <= 2 && strlen(tag) > 0) {
         expression = sdscatfmt(expression, " AND (%s =~ '^%s')", tag, searchstr);
     }
@@ -384,10 +384,17 @@ sds mpd_client_put_firstsong_in_albums(t_config *config, t_mpd_state *mpd_state,
         return buffer;
     }
     if (strlen(sort) > 0) {
-        rc = mpd_search_add_sort_name(mpd_state->conn, sort, sortdesc);
-        if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_sort_name") == false) {
-            mpd_search_cancel(mpd_state->conn);
-            return buffer;
+        enum mpd_tag_type sort_tag = mpd_tag_name_parse(sort);
+        if (sort_tag != MPD_TAG_UNKNOWN) {
+            sort_tag = get_sort_tag(sort_tag);
+            rc = mpd_search_add_sort_tag(mpd_state->conn, sort_tag, sortdesc);
+            if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_sort_tag") == false) {
+                mpd_search_cancel(mpd_state->conn);
+                return buffer;
+            }
+        }
+        else {
+            LOG_WARN("Unknown sort tag: %s", sort);
         }
     }
     

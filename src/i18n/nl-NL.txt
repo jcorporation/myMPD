@@ -855,12 +855,6 @@ Hernoemen afspeellijst mislukt
 Sucessfully renamed playlist
 Afspeellijst is hernoemd
 
-A queue longer than 1 song in length is required to crop
-Wachtrij moet langer zijn dan 1 nummer
-
-You need to be playing to crop the playlist
-Inkorten alleen mogelijk tijdens afspelen
-
 Can not read smart playlist file
 Slimme afspeellijst kon niet worden gelezen
 

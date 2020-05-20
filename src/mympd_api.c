@@ -89,7 +89,8 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
     char *p_charbuf2 = NULL;
     char *p_charbuf3 = NULL;
     unsigned int uint_buf1;
-    int int_buf1, int_buf2;
+    int int_buf1;
+    int int_buf2;
     LOG_VERBOSE("MYMPD API request (%d): %s", request->conn_id, request->data);
     
     //create response struct
@@ -111,17 +112,23 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             sds cols = sdsnewlen("[", 1);
             je = json_scanf(request->data, sdslen(request->data), "{params: {table: %Q}}", &p_charbuf1);
             if (je == 1) {
-                cols = json_to_cols(cols, request->data, sdslen(request->data));
-                cols = sdscatlen(cols, "]", 1);
-                if (mympd_api_cols_save(config, mympd_state, p_charbuf1, cols)) {
-                    response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+                bool error = false;
+                cols = json_to_cols(cols, request->data, sdslen(request->data), &error);
+                if (error == false) {
+                    cols = sdscatlen(cols, "]", 1);
+                    if (mympd_api_cols_save(config, mympd_state, p_charbuf1, cols)) {
+                        response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+                    }
+                    else {
+                        response->data = jsonrpc_start_phrase(response->data, request->method, request->id, "Unknown table %{table}", true);
+                        response->data = tojson_char(response->data, "table", p_charbuf1, false);
+                        response->data = jsonrpc_end_phrase(response->data);
+                        LOG_ERROR("MYMPD_API_COLS_SAVE: Unknown table %s", p_charbuf1);
+                    }
                 }
                 else {
-                    response->data = jsonrpc_start_phrase(response->data, request->method, request->id, "Unknown table %{table}", true);
-                    response->data = tojson_char(response->data, "table", p_charbuf1, false);
-                    response->data = jsonrpc_end_phrase(response->data);
-                    LOG_ERROR("MYMPD_API_COLS_SAVE: Unknown table %s", p_charbuf1);
-                }            
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Invalid column", true);
+                }
             }
             sdsfree(cols);
             break;

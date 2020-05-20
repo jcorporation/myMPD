@@ -163,8 +163,16 @@ sds tojson_bool(sds buffer, const char *key, bool value, bool comma) {
     return buffer;
 }
 
-sds tojson_long(sds buffer, const char *key, long value, bool comma) {
-    buffer = sdscatprintf(buffer, "\"%s\":%ld", key, value);
+sds tojson_long(sds buffer, const char *key, long long value, bool comma) {
+    buffer = sdscatprintf(buffer, "\"%s\":%lld", key, value);
+    if (comma) {
+        buffer = sdscat(buffer, ",");
+    }
+    return buffer;
+}
+
+sds tojson_ulong(sds buffer, const char *key, unsigned long value, bool comma) {
+    buffer = sdscatprintf(buffer, "\"%s\":%lu", key, value);
     if (comma) {
         buffer = sdscat(buffer, ",");
     }
@@ -187,25 +195,21 @@ int testdir(const char *name, const char *dirname, bool create) {
         //directory exists
         return 0;
     }
-    else {
-        if (create == true) {
-            if (mkdir(dirname, 0700) != 0) {
-                LOG_ERROR("%s: creating \"%s\" failed", name, dirname);
-                //directory not exists and creating it failed
-                return 2;
-            }
-            else {
-                LOG_INFO("%s: \"%s\" created", name, dirname);
-                //directory successfully created
-                return 1;
-            }
+
+    if (create == true) {
+        if (mkdir(dirname, 0700) != 0) {
+            LOG_ERROR("%s: creating \"%s\" failed", name, dirname);
+            //directory not exists and creating it failed
+            return 2;
         }
-        else {
-            LOG_ERROR("%s: \"%s\" don't exists", name, dirname);
-            //directory not exists
-            return 3;
-        }
+        LOG_INFO("%s: \"%s\" created", name, dirname);
+        //directory successfully created
+        return 1;
     }
+
+    LOG_ERROR("%s: \"%s\" don't exists", name, dirname);
+    //directory not exists
+    return 3;
 }
 
 
@@ -216,15 +220,11 @@ int strip_extension(char *s) {
             s[i] = '\0';
             return i;
         }
-        else if (s[i] == '/') {
+        if (s[i] == '/') {
             return -1;
         }
     }
     return -1;
-}
-
-int randrange(int n) {
-    return rand() / (RAND_MAX / (n + 1) + 1);
 }
 
 bool validate_string(const char *data) {
@@ -240,12 +240,10 @@ bool validate_string_not_empty(const char *data) {
     if (data == NULL) { 
         return false;
     }
-    else if (strlen(data) == 0) {
+    if (strlen(data) == 0) {
         return false;
     }
-    else {
-        return validate_string(data);
-    }
+    return validate_string(data);
 }
 
 bool validate_string_not_dir(const char *data) {
@@ -269,16 +267,15 @@ bool validate_songuri(const char *data) {
     if (data == NULL) {
         return false;
     }
-    else if (strlen(data) == 0) {
+    if (strlen(data) == 0) {
         return false;
     }
-    else if (strcmp(data, "/") == 0) {
+    if (strcmp(data, "/") == 0) {
         return false;
     }
-    else if (strchr(data, '.') == NULL) {
+    if (strchr(data, '.') == NULL) {
         return false;
     }
-    
     return true;
 }
 
@@ -348,7 +345,7 @@ sds get_mime_type_by_ext(const char *filename) {
     if (ext == NULL) {
         return sdsempty();
     }
-    else if (strlen(ext) > 1) {
+    if (strlen(ext) > 1) {
         //trim starting dot
         ext++;
     }
@@ -416,8 +413,8 @@ sds get_mime_type_by_magic(const char *filename) {
 
 sds get_mime_type_by_magic_stream(sds stream) {
     sds hex_buffer = sdsempty();
-    int len = sdslen(stream) < 8 ? sdslen(stream) : 8;
-    for (int i = 0; i < len; i++) {
+    size_t len = sdslen(stream) < 8 ? sdslen(stream) : 8;
+    for (size_t i = 0; i < len; i++) {
         hex_buffer = sdscatprintf(hex_buffer, "%02X", stream[i]);
     }
     LOG_DEBUG("First bytes in file: %s", hex_buffer);

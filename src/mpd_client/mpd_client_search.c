@@ -107,10 +107,17 @@ static sds _mpd_client_search(t_mpd_state *mpd_state, sds buffer, sds method, in
 
     if (strcmp(plist, "") == 0) {
         if (sort != NULL && strcmp(sort, "") != 0 && strcmp(sort, "-") != 0 && mpd_state->feat_tags == true) {
-            bool rc = mpd_search_add_sort_name(mpd_state->conn, sort, sortdesc);
-            if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_sort_name") == false) {
-                mpd_search_cancel(mpd_state->conn);
-                return buffer;
+            enum mpd_tag_type sort_tag = mpd_tag_name_parse(sort);
+            if (sort_tag != MPD_TAG_UNKNOWN) {
+                sort_tag = get_sort_tag(sort_tag);
+                bool rc = mpd_search_add_sort_tag(mpd_state->conn, sort_tag, sortdesc);
+                if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_sort_tag") == false) {
+                    mpd_search_cancel(mpd_state->conn);
+                    return buffer;
+                }
+            }
+            else {
+                LOG_WARN("Unknown sort tag: %s", sort);
             }
         }
         if (grouptag != NULL && strcmp(grouptag, "") != 0 && mpd_state->feat_tags == true) {

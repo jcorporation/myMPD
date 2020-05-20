@@ -11,8 +11,8 @@ include(GNUInstallDirs)
 project (mympd C)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/")
 set(CPACK_PACKAGE_VERSION_MAJOR "6")
-set(CPACK_PACKAGE_VERSION_MINOR "3")
-set(CPACK_PACKAGE_VERSION_PATCH "1")
+set(CPACK_PACKAGE_VERSION_MINOR "4")
+set(CPACK_PACKAGE_VERSION_PATCH "0")
 
 add_subdirectory("cli_tools")
 
@@ -164,6 +164,7 @@ set(SOURCES
   src/handle_options.c
   src/maintenance.c
   src/utility.c
+  src/random.c
   src/sds_extras.c
   src/mpd_client.c
   src/mpd_client/mpd_client_api.c
@@ -191,11 +192,13 @@ set(SOURCES
   src/web_server.c
   src/web_server/web_server_utility.c
   src/web_server/web_server_albumart.c
+  src/web_server/web_server_lyrics.c
   dist/src/mongoose/mongoose.c
   dist/src/frozen/frozen.c
   dist/src/inih/ini.c
   dist/src/sds/sds.c
   dist/src/rax/rax.c
+  dist/src/tinymt/tinymt32.c
 )
 
 if("${ENABLE_SSL}" MATCHES "ON")

@@ -29,7 +29,7 @@ This fork provides a reworked ui based on Bootstrap 4, a modernized backend and 
  - Smart playlists and saved searches
  - Play statistics and song voting
  - Local albumart support: embedded and image per folder
- - Local lyrics (textfile per song file)
+ - Local lyrics (textfile per song or embedded)
  - Local booklet support (per album folder)
  - HTTP stream support
  - Local playback of mpd http stream (html5 audio api)
@@ -54,19 +54,20 @@ Screenshots
 
 UI Components
 -------------
- - Bootstrap 4: https://getbootstrap.com/
- - Material Design Icons: https://material.io/tools/icons/
- - Bootstrap Native: http://thednp.github.io/bootstrap.native/
+ - <a href="https://getbootstrap.com/">Bootstrap 4</a>
+ - <a href="https://material.io/tools/icons/">Material Design Icons</a>
+ - <a href="http://thednp.github.io/bootstrap.native/">Bootstrap Native</a>
 
 Backend
 -------
- - Mongoose: https://github.com/cesanta/mongoose (web server)
- - Frozen: https://github.com/cesanta/frozen (json parsing)
- - inih: https://github.com/benhoyt/inih (config file parsing)
- - incbin: https://github.com/graphitemaster/incbin (embedding assets)
- - sds: https://github.com/antirez/sds (safe string handling)
- - rax: https://github.com/antirez/rax (radix tree implementation)
- - libmpdclient2: https://github.com/jcorporation/libmpdclient/tree/libmympdclient
+ - <a href="https://github.com/cesanta/mongoose">Mongoose</a> (web server)
+ - <a href="https://github.com/cesanta/frozen">Frozen</a> (json parsing)
+ - <a href="https://github.com/benhoyt/inih">inih</a> (config file parsing)
+ - <a href="https://github.com/graphitemaster/incbin">incbin</a> (embedding assets)
+ - <a href="https://github.com/antirez/sds">sds</a> (safe string handling)
+ - <a href="https://github.com/antirez/rax">rax</a> (radix tree implementation)
+ - <a href="https://github.com/MersenneTwister-Lab/TinyMT">TinyMT</a> (prng)
+ - <a href="https://github.com/jcorporation/libmpdclient/tree/libmympdclient">libmpdclient2</a> (mpd communication)
 
 Dependencies
 ------------
@@ -108,5 +109,3 @@ Copyright
 ---------
 
 myMPD: 2018-2020 <mail@jcgames.de>
-
-ympd: 2013-2014 <andy@ndyk.de>

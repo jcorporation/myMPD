@@ -8,6 +8,7 @@
 var cmds = [
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_QUEUE_CLEAR"},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_QUEUE_CROP"},
+    {"jsonrpc":"2.0","id":0,"method":"MPD_API_QUEUE_CROP_OR_CLEAR"},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_QUEUE_SAVE","params":{"plist":""}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_QUEUE_LIST","params":{"offset":0,"cols":["",""]}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_QUEUE_SEARCH","params":{"offset":0,"filter":"","searchstr":"","cols":["",""]}},

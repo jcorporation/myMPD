@@ -46,15 +46,15 @@ void timer_handler_select(struct t_timer_definition *definition, void *user_data
         //timer not enabled
         return;
     }
-    else {
-        time_t now = time(NULL);
-        struct tm tms;
-        localtime_r(&now, &tms);
-        tms.tm_wday++;
-        if (definition->weekdays[tms.tm_wday] == false) {
-            return;
-        }
+    
+    time_t now = time(NULL);
+    struct tm tms;
+    localtime_r(&now, &tms);
+    tms.tm_wday++;
+    if (definition->weekdays[tms.tm_wday] == false) {
+        return;
     }
+
     LOG_VERBOSE("Start timer_handler_select for timer \"%s\"", definition->name);
     if (strcmp(definition->action, "stopplay") == 0) {
         t_work_request *request = create_request(-1, 0, MPD_API_PLAYER_STOP, "MPD_API_PLAYER_STOP", "");

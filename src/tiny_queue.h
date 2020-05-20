@@ -24,5 +24,5 @@ tiny_queue_t *tiny_queue_create(void);
 void tiny_queue_free(tiny_queue_t *queue);
 int tiny_queue_push(struct tiny_queue_t *queue, void *data);
 void *tiny_queue_shift(struct tiny_queue_t *queue, int timeout);
-int tiny_queue_length(struct tiny_queue_t *queue, int timeout);
+unsigned tiny_queue_length(struct tiny_queue_t *queue, int timeout);
 #endif

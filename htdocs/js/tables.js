@@ -336,6 +336,9 @@ function setColTags(table) {
         tags.push('Filetype');
         tags.push('Fileformat');
         tags.push('LastModified');
+        if (settings.featLyrics === true) {
+            tags.push('Lyrics');
+        }
     }
     
     tags.sort();

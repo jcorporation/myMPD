@@ -61,7 +61,7 @@ void check_timer(struct t_timer_list *l, bool gui) {
         LOG_ERROR("Error polling timerfd: %s", strerror(errno));
         return;
     }
-    else if (read_fds == 0) {
+    if (read_fds == 0) {
         return;
     }
 
@@ -73,6 +73,16 @@ void check_timer(struct t_timer_list *l, bool gui) {
             }
             current = get_timer_from_fd(l, ufds[i].fd);
             if (current) {
+                if (current->definition != NULL) {
+                    time_t t = time(NULL);
+                    struct tm *now = localtime(&t);
+                    int wday = now->tm_wday;
+                    wday = wday > 0 ? wday - 1 : 6;
+                    if (current->definition->weekdays[wday] == false) {
+                        LOG_DEBUG("Skipping timer with id %d, not enabled on this weekday", current->timer_id);
+                        continue;
+                    }
+                }
                 LOG_DEBUG("Timer with id %d triggered", current->timer_id);
                 if (current->callback) {
                     current->callback(current->definition, current->user_data);
@@ -83,7 +93,6 @@ void check_timer(struct t_timer_list *l, bool gui) {
             }
         }
     }
-    return;
 }
 
 bool replace_timer(struct t_timer_list *l, unsigned int timeout, unsigned int interval, time_handler handler, 
@@ -142,6 +151,9 @@ bool add_timer(struct t_timer_list *l, unsigned int timeout, unsigned int interv
     if (definition == NULL || definition->enabled == true) {
         l->active++;
     }
+    
+    LOG_DEBUG("Added timer with id %d, start time in %ds", timer_id, timeout);
+    
     return true;
 }
  
@@ -213,7 +225,9 @@ void free_timer_node(struct t_timer_node *node) {
 struct t_timer_definition *parse_timer(struct t_timer_definition *timer_def, const char *str, size_t len) {
     char *name = NULL;
     bool enabled;
-    int start_hour, start_minute, volume;
+    int start_hour;
+    int start_minute;
+    int volume;
     unsigned jukebox_mode;
     char *action = NULL;
     char *playlist = NULL;
@@ -259,9 +273,8 @@ time_t timer_calc_starttime(int start_hour, int start_minute) {
     if (start > now) {
         return start - now;
     }
-    else {
-        return 86400 + start - now;
-    }
+
+    return 86400 + start - now;
 }
 
 sds timer_list(t_mympd_state *mympd_state, sds buffer, sds method, int request_id) {

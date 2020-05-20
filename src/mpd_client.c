@@ -11,6 +11,8 @@
 #include <string.h>
 #include <signal.h>
 #include <assert.h>
+#include <unistd.h>
+
 #include <mpd/client.h>
 
 #include "../dist/src/sds/sds.h"
@@ -56,17 +58,15 @@ void *mpd_client_loop(void *arg_config) {
                 mpd_client_api(config, mpd_state, request);
                 break;
             }
-            else {
-                //create response struct
-                if (request->conn_id > -1) {
-                    t_work_result *response = create_result(request);
-                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "MPD disconnected", true);
-                    LOG_DEBUG("Send http response to connection %lu: %s", request->conn_id, response->data);
-                    tiny_queue_push(web_server_queue, response);
-                }
-                LOG_DEBUG("mpd_client not initialized, discarding message");
-                free_request(request);
+            //create response struct
+            if (request->conn_id > -1) {
+                t_work_result *response = create_result(request);
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, "MPD disconnected", true);
+                LOG_DEBUG("Send http response to connection %lu: %s", request->conn_id, response->data);
+                tiny_queue_push(web_server_queue, response);
             }
+            LOG_DEBUG("mpd_client not initialized, discarding message");
+            free_request(request);
         }
     }
 
@@ -208,7 +208,11 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
                     }
                     free_request(request);
                 }
-            }            
+            }
+            if (now < mpd_state->reconnect_time) {
+                //pause 100ms to prevent high cpu usage
+                usleep(100000);
+            }
             break;
         }
         case MPD_DISCONNECTED:
@@ -296,7 +300,7 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
                 mpd_state->reconnect_interval += 2;
             }
             mpd_state->reconnect_time = time(NULL) + mpd_state->reconnect_interval;
-            LOG_DEBUG("Waiting %u seconds before reconnection", mpd_state->reconnect_interval);
+            LOG_VERBOSE("Waiting %u seconds before reconnection", mpd_state->reconnect_interval);
             break;
 
         case MPD_CONNECTED:

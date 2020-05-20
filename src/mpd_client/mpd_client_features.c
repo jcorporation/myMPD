@@ -25,7 +25,7 @@
 
 //private definitions
 static void mpd_client_feature_commands(t_mpd_state *mpd_state);
-static void check_tags(sds taglist, const char *taglistname, t_tags *tagtypes, t_tags allowed_tagtypes);
+static void check_tags(sds taglist, const char *taglistname, t_tags *tagtypes, t_tags allowed_tag_types);
 static void mpd_client_feature_tags(t_mpd_state *mpd_state);
 static void mpd_client_feature_music_directory(t_mpd_state *mpd_state);
 
@@ -46,6 +46,8 @@ void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state) {
     mpd_state->feat_mpd_readpicture = false;
     mpd_state->feat_mpd_searchwindow = false;
     mpd_state->feat_single_oneshot = false;
+    mpd_state->feat_mpd_mount = false;
+    mpd_state->feat_mpd_neighbor = false;
     
     //get features
     mpd_client_feature_commands(mpd_state);
@@ -74,6 +76,14 @@ void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state) {
     else {
         LOG_WARN("Disabling advanced search, depends on mpd >= 0.21.0");
         LOG_WARN("Disabling single oneshot feature, depends on mpd >= 0.21.0");
+    }
+    
+    if (config->mounts == false) {
+        mpd_state->feat_mpd_mount = false;
+    }
+    else if (config->mounts == true && mpd_state->feat_mpd_mount == false) {
+        LOG_WARN("Disabling mount and neighbor support");
+        mpd_state->feat_mpd_neighbor = false;
     }
     
     //push settings to web_server_queue
@@ -142,6 +152,14 @@ static void mpd_client_feature_commands(t_mpd_state *mpd_state) {
             else if (strcmp(pair->value, "readpicture") == 0) {
                 LOG_DEBUG("MPD supports readpicture");
                 mpd_state->feat_mpd_readpicture = true;
+            }
+            else if (strcmp(pair->value, "mount") == 0) {
+                LOG_DEBUG("MPD supports mounts");
+                mpd_state->feat_mpd_mount = true;
+            }
+            else if (strcmp(pair->value, "listneighbors") == 0) {
+                LOG_DEBUG("MPD supports neighbors");
+                mpd_state->feat_mpd_neighbor = true;
             }
             mpd_return_pair(mpd_state->conn, pair);
         }

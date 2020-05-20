@@ -28,11 +28,12 @@
 #include "global.h"
 #include "web_server/web_server_utility.h"
 #include "web_server/web_server_albumart.h"
+#include "web_server/web_server_lyrics.h"
 #include "web_server.h"
 
 //private definitions
 static bool parse_internal_message(t_work_result *response, t_mg_user_data *mg_user_data);
-static int is_websocket(const struct mg_connection *nc);
+static unsigned long is_websocket(const struct mg_connection *nc);
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data);
 #ifdef ENABLE_SSL
   static void ev_handler_redirect(struct mg_connection *nc_http, int ev, void *ev_data);
@@ -194,15 +195,16 @@ static bool parse_internal_message(t_work_result *response, t_mg_user_data *mg_u
     return rc;
 }
 
-static int is_websocket(const struct mg_connection *nc) {
+static unsigned long is_websocket(const struct mg_connection *nc) {
     return nc->flags & MG_F_IS_WEBSOCKET;
 }
 
 static void send_ws_notify(struct mg_mgr *mgr, t_work_result *response) {
     struct mg_connection *nc;
     for (nc = mg_next(mgr, NULL); nc != NULL; nc = mg_next(mgr, nc)) {
-        if (!is_websocket(nc))
+        if (!is_websocket(nc)) {
             continue;
+        }
         if (nc->user_data != NULL) {
             LOG_DEBUG("Sending notify to conn_id %d: %s", (intptr_t)nc->user_data, response->data);
         }
@@ -281,6 +283,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             struct http_message *hm = (struct http_message *) ev_data;
             static const struct mg_str browse_prefix = MG_MK_STR("/browse");
             static const struct mg_str albumart_prefix = MG_MK_STR("/albumart");
+            static const struct mg_str lyrics_prefix = MG_MK_STR("/lyrics");
             LOG_VERBOSE("HTTP request (%d): %.*s", (intptr_t)nc->user_data, (int)hm->uri.len, hm->uri.p);
             if (mg_vcmp(&hm->uri, "/api/serverinfo") == 0) {
                 struct sockaddr_in localip;
@@ -326,6 +329,9 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             #endif
             else if (mg_str_starts_with(hm->uri, albumart_prefix) == 1) {
                 handle_albumart(nc, hm, mg_user_data, config, (intptr_t)nc->user_data);
+            }
+            else if (mg_str_starts_with(hm->uri, lyrics_prefix) == 1) {
+                handle_lyrics(nc, hm, mg_user_data, config, (intptr_t)nc->user_data);
             }
             else if (mg_str_starts_with(hm->uri, browse_prefix) == 1) {
                 if (config->publish == false) {
@@ -388,33 +394,27 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
 
 #ifdef ENABLE_SSL
 static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data) {
-    switch(ev) {
-        case MG_EV_HTTP_REQUEST: {
-            struct http_message *hm = (struct http_message *) ev_data;
-            struct mg_str *host_hdr = mg_get_http_header(hm, "Host");
-            t_mg_user_data *mg_user_data = (t_mg_user_data *) nc->mgr->user_data;
-            t_config *config = (t_config *) mg_user_data->config;
+    if (ev == MG_EV_HTTP_REQUEST) {
+        struct http_message *hm = (struct http_message *) ev_data;
+        struct mg_str *host_hdr = mg_get_http_header(hm, "Host");
+        t_mg_user_data *mg_user_data = (t_mg_user_data *) nc->mgr->user_data;
+        t_config *config = (t_config *) mg_user_data->config;
             
-            sds host_header = sdscatlen(sdsempty(), host_hdr->p, (int)host_hdr->len);
+        sds host_header = sdscatlen(sdsempty(), host_hdr->p, (int)host_hdr->len);
             
-            int count;
-            sds *tokens = sdssplitlen(host_header, sdslen(host_header), ":", 1, &count);
+        int count;
+        sds *tokens = sdssplitlen(host_header, sdslen(host_header), ":", 1, &count);
             
-            sds s_redirect = sdscatfmt(sdsempty(), "https://%s", tokens[0]);
-            if (strcmp(config->ssl_port, "443") != 0) {
-                s_redirect = sdscatfmt(s_redirect, ":%s", config->ssl_port);
-            }
-            s_redirect = sdscat(s_redirect, "/");
-            LOG_VERBOSE("Redirecting to %s", s_redirect);
-            mg_http_send_redirect(nc, 301, mg_mk_str(s_redirect), mg_mk_str(NULL));
-            sdsfreesplitres(tokens, count);
-            sdsfree(host_header);
-            sdsfree(s_redirect);
-            break;
+        sds s_redirect = sdscatfmt(sdsempty(), "https://%s", tokens[0]);
+        if (strcmp(config->ssl_port, "443") != 0) {
+            s_redirect = sdscatfmt(s_redirect, ":%s", config->ssl_port);
         }
-        default: {
-            break;
-        }
+        s_redirect = sdscat(s_redirect, "/");
+        LOG_VERBOSE("Redirecting to %s", s_redirect);
+        mg_http_send_redirect(nc, 301, mg_mk_str(s_redirect), mg_mk_str(NULL));
+        sdsfreesplitres(tokens, count);
+        sdsfree(host_header);
+        sdsfree(s_redirect);
     }
 }
 #endif

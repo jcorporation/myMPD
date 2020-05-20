@@ -174,6 +174,8 @@ function parseSettings() {
     toggleBtnChk('btnLocalplayerAutoplay', settings.localplayerAutoplay);
     toggleBtnChk('btnFeatTimer', settings.featTimer);
     toggleBtnChk('btnBookmarks', settings.featBookmarks);
+    toggleBtnChk('btnFeatLyrics', settings.featLyrics);
+
     if (settings.streamUrl === '') {
         document.getElementById('selectStreamMode').value = 'port';
         document.getElementById('inputStreamUrl').value = settings.streamPort;
@@ -222,7 +224,7 @@ function parseSettings() {
     toggleBtnChkCollapse('btnSmartpls', 'collapseSmartpls', settings.smartpls);
     
     let features = ["featLocalplayer", "featSyscmds", "featMixramp", "featCacert", "featBookmarks", 
-        "featRegex", "featTimer", "featMounts"];
+        "featRegex", "featTimer", "featLyrics"];
     for (let j = 0; j < features.length; j++) {
         let Els = document.getElementsByClassName(features[j]);
         let ElsLen = Els.length;
@@ -429,7 +431,7 @@ function parseMPDSettings() {
     }
 
     let features = ['featStickers', 'featSmartpls', 'featPlaylists', 'featTags', 'featCoverimage', 'featAdvsearch',
-        'featLove', 'featSingleOneshot', 'featCovergrid', 'featBrowse'];
+        'featLove', 'featSingleOneshot', 'featCovergrid', 'featBrowse', "featMounts", "featNeighbors"];
     for (let j = 0; j < features.length; j++) {
         let Els = document.getElementsByClassName(features[j]);
         let ElsLen = Els.length;
@@ -526,8 +528,9 @@ function parseMPDSettings() {
     else {
         let pbtl = '';
         for (let i = 0; i < settings.colsPlayback.length; i++) {
-            pbtl += '<div id="current' + settings.colsPlayback[i]  + '" data-tag="' + settings.colsPlayback[i] + '" '+
-                    'data-name="' + (lastSongObj[settings.colsPlayback[i]] ? encodeURI(lastSongObj[settings.colsPlayback[i]]) : '') + '">' +
+            pbtl += '<div id="current' + settings.colsPlayback[i]  + '" data-tag="' + settings.colsPlayback[i] + '" ' +
+                    (settings.colsPlayback[i] === 'Lyrics' ? '' : 'data-name="' + (lastSongObj[settings.colsPlayback[i]] ? encodeURI(lastSongObj[settings.colsPlayback[i]]) : '') + '"') +
+                    '>' +
                     '<small>' + t(settings.colsPlayback[i]) + '</small>' +
                     '<p';
             if (settings.browsetags.includes(settings.colsPlayback[i])) {
@@ -549,6 +552,15 @@ function parseMPDSettings() {
             pbtl += '</p></div>';
         }
         document.getElementById('cardPlaybackTags').innerHTML = pbtl;
+        let cl = document.getElementById('currentLyrics');
+        if (cl && lastSongObj.uri) {
+            let el = cl.getElementsByTagName('small')[0];
+            el.classList.add('clickable');
+            el.addEventListener('click', function(event) {
+                event.target.parentNode.children[1].classList.toggle('expanded');
+            }, false);
+            getLyrics(lastSongObj.uri, cl.getElementsByTagName('p')[0]);
+        }
     }
 
     if (!settings.tags.includes('AlbumArtist') && settings.featTags) {
@@ -778,7 +790,8 @@ function saveSettings(closeModal) {
             "theme": selectTheme.options[selectTheme.selectedIndex].value,
             "highlightColor": document.getElementById('inputHighlightColor').value,
             "timer": (document.getElementById('btnFeatTimer').classList.contains('active') ? true : false),
-            "bookletName": document.getElementById('inputBookletName').value
+            "bookletName": document.getElementById('inputBookletName').value,
+            "lyrics": (document.getElementById('btnFeatLyrics').classList.contains('active') ? true : false)
         }, getSettings);
         if (closeModal === true) {
             modalSettings.hide();
@@ -859,6 +872,9 @@ function filterCols(x) {
         tags.push('Filetype');
         tags.push('Fileformat');
         tags.push('LastModified');
+        if (settings.featLyrics === true) {
+            tags.push('Lyrics');
+        }
     }
     let cols = [];
     for (let i = 0; i < settings[x].length; i++) {

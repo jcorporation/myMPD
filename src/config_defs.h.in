@@ -135,6 +135,7 @@ typedef struct t_config {
     int covergridminsongs;
     sds booklet_name;
     bool mounts;
+    bool lyrics;
     //system commands
     struct list syscmd_list;
 } t_config;

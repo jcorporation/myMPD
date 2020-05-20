@@ -10,6 +10,7 @@
 #include <assert.h>
 #include <time.h>
 #include <inttypes.h>
+#include <limits.h>
 #include <mpd/client.h>
 
 #include "../../dist/src/sds/sds.h"
@@ -17,6 +18,7 @@
 #include "../api.h"
 #include "../log.h"
 #include "../list.h"
+#include "../random.h"
 #include "config_defs.h"
 #include "../utility.h"
 #include "mpd_client_utility.h"
@@ -50,7 +52,7 @@ bool mpd_client_jukebox(t_config *config, t_mpd_state *mpd_state) {
     }
 
     //add song if add_time is reached or queue is empty
-    int addSongs = mpd_state->jukebox_queue_length - queue_length;
+    unsigned long addSongs = mpd_state->jukebox_queue_length - queue_length;
     if (now > add_time && add_time > 0) {
         addSongs++;
     }
@@ -63,8 +65,12 @@ bool mpd_client_jukebox(t_config *config, t_mpd_state *mpd_state) {
         LOG_WARN("Jukebox: Playlists are disabled");
         return true;
     }
+    
+    if (addSongs > INT_MAX) {
+        addSongs = INT_MAX;
+    }
 
-    bool rc = mpd_client_jukebox_add_to_queue(config, mpd_state, addSongs, mpd_state->jukebox_mode, mpd_state->jukebox_playlist, false);
+    bool rc = mpd_client_jukebox_add_to_queue(config, mpd_state, (int)addSongs, mpd_state->jukebox_mode, mpd_state->jukebox_playlist, false);
     
     if (rc == true) {
         bool rc2 = mpd_run_play(mpd_state->conn);
@@ -100,7 +106,7 @@ bool mpd_client_jukebox_add_to_queue(t_config *config, t_mpd_state *mpd_state, i
     while (current != NULL && added < addSongs) {
         if (jukebox_mode == JUKEBOX_ADD_SONG) {
 	    bool rc = mpd_run_add(mpd_state->conn, current->key);
-	    if (check_rc_error_and_recover(mpd_state, NULL, NULL, 0, false, rc, "mpd_run_add") == true) {
+            if (check_rc_error_and_recover(mpd_state, NULL, NULL, 0, false, rc, "mpd_run_add") == true) {
 	        LOG_INFO("Jukebox adding song: %s", current->key);
                 added++;
             }
@@ -270,8 +276,8 @@ static bool mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_state 
 static bool _mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_state *mpd_state, int addSongs, enum jukebox_modes jukebox_mode, const char *playlist, bool manual) {
     struct mpd_song *song;
     struct mpd_pair *pair;
-    unsigned lineno = 1;
-    unsigned skipno = 0;
+    int lineno = 1;
+    int skipno = 0;
     int nkeep = 0;
     
     if (manual == true) {
@@ -291,8 +297,8 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_state
     
     if (jukebox_mode == JUKEBOX_ADD_SONG) {
         //add songs
-        unsigned start = 0;
-        unsigned end = start + 1000;
+        int start = 0;
+        int end = start + 1000;
         time_t now = time(NULL);
         now = now - mpd_state->jukebox_last_played * 60 * 60;
         int start_length;
@@ -338,7 +344,7 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_state
             while ((song = mpd_recv_song(mpd_state->conn)) != NULL) {
                 const char *tag_value = mpd_song_get_tag(song, mpd_state->jukebox_unique_tag.tags[0], 0);
                 const char *uri = mpd_song_get_uri(song);
-                int last_played = 0;
+                time_t last_played = 0;
                 if (mpd_state->sticker_cache != NULL) {
                     t_sticker *sticker = get_sticker_from_cache(mpd_state, uri);
                     if (sticker != NULL) {
@@ -349,9 +355,9 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_state
                 if ((last_played == 0 || last_played < now) && 
                     mpd_client_jukebox_unique_tag(mpd_state, uri, tag_value, manual, queue_list) == true) 
                 {
-                    if (randrange(lineno) < addSongs) {
-		        if (nkeep < addSongs) {
-		            if (manual == false) {
+                    if (randrange(0, lineno) < addSongs) {
+                        if (nkeep < addSongs) {
+                            if (manual == false) {
 		                if (list_push(&mpd_state->jukebox_queue, uri, lineno, tag_value, NULL) == false) {
 		                    LOG_ERROR("Can't push jukebox_queue element");
 		                }
@@ -364,7 +370,7 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_state
                             nkeep++;
                         }
                         else {
-                            int i = addSongs > 1 ? start_length + randrange(addSongs) - 1 : 0;
+                            int i = addSongs > 1 ? start_length + randrange(0, addSongs) - 1 : 0;
                             if (manual == false) {
                                 if (list_replace(&mpd_state->jukebox_queue, i, uri, lineno, tag_value, NULL) == false) {
                                     LOG_ERROR("Can't replace jukebox_queue element pos %d", i);
@@ -416,9 +422,9 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_state
         }
         while ((pair = mpd_recv_pair_tag(mpd_state->conn, MPD_TAG_ALBUM )) != NULL)  {
             if (mpd_client_jukebox_unique_album(mpd_state, pair->value, manual, queue_list) == true) {
-                if (randrange(lineno) < addSongs) {
-		    if (nkeep < addSongs) {
-		        if (manual == false) {
+                if (randrange(0, lineno) < addSongs) {
+                    if (nkeep < addSongs) {
+                        if (manual == false) {
                             if (list_push(&mpd_state->jukebox_queue, pair->value, lineno, NULL, NULL) == false) {
                                 LOG_ERROR("Can't push jukebox_queue_tmp element");
                             }
@@ -431,7 +437,7 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_state
                         nkeep++;
                     }
                     else {
-                        int i = addSongs > 1 ? randrange(addSongs) : 0;
+                        int i = addSongs > 1 ? randrange(0, addSongs) : 0;
                         if (manual == false) {
                             if (list_replace(&mpd_state->jukebox_queue, i, pair->value, lineno, NULL, NULL) == false) {
                                 LOG_ERROR("Can't replace jukebox_queue element pos %d", i);
@@ -472,7 +478,7 @@ static bool mpd_client_jukebox_unique_tag(t_mpd_state *mpd_state, const char *ur
         if (strcmp(current->key, uri) == 0) {
             return false;
         }
-        else if (value != NULL && strcmp(current->value_p, value) == 0) {
+        if (value != NULL && strcmp(current->value_p, value) == 0) {
             return false;
         }
         current = current->next;
@@ -488,7 +494,7 @@ static bool mpd_client_jukebox_unique_tag(t_mpd_state *mpd_state, const char *ur
         if (strcmp(current->key, uri) == 0) {
             return false;
         }
-        else if (value != NULL && strcmp(current->value_p, value) == 0) {
+        if (value != NULL && strcmp(current->value_p, value) == 0) {
             return false;
         }
         current = current->next;

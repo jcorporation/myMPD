@@ -91,10 +91,11 @@ typedef struct t_mympd_state {
     bool timer;
     sds booklet_name;
     struct t_timer_list timer_list;
+    bool lyrics;
 } t_mympd_state;
 
 void free_mympd_state(t_mympd_state *mympd_state);
 void free_mympd_state_sds(t_mympd_state *mympd_state);
 void mympd_api_push_to_mpd_client(t_mympd_state *mympd_state);
-sds json_to_cols(sds cols, char *str, size_t len);
+sds json_to_cols(sds cols, char *str, size_t len, bool *error);
 #endif

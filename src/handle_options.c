@@ -93,35 +93,33 @@ bool handle_option(t_config *config, char *cmd, sds option) {
         mympd_api_settings_delete(config);
         return true;
     }
-    else if (MATCH_OPTION("reset_smartpls")) {
+    if (MATCH_OPTION("reset_smartpls")) {
         return smartpls_default(config);
     }
-    else if (MATCH_OPTION("reset_lastplayed")) {
+    if (MATCH_OPTION("reset_lastplayed")) {
         sds lpfile = sdscatfmt(sdsempty(), "%s/state/last_played", config->varlibdir);
         int rc = unlink(lpfile);
         sdsfree(lpfile);
         if (rc == 0) {
             return true;
         }
-        else {
-            LOG_ERROR("last_played file does not exist");
-            return false;
-        }
+        LOG_ERROR("last_played file does not exist");
+        return false;
     }
     #ifdef ENABLE_SSL
-    else if (MATCH_OPTION("cert_remove")) {
+    if (MATCH_OPTION("cert_remove")) {
         sds ssldir = sdscatfmt(sdsempty(), "%s/ssl", config->varlibdir);
         bool rc = cleanup_certificates(ssldir, "server");
         sdsfree(ssldir);
         return rc;
     }
-    else if (MATCH_OPTION("ca_remove")) {
+    if (MATCH_OPTION("ca_remove")) {
         sds ssldir = sdscatfmt(sdsempty(), "%s/ssl", config->varlibdir);
         bool rc = cleanup_certificates(ssldir, "ca");
         sdsfree(ssldir);
         return rc;
     }
-    else if (MATCH_OPTION("certs_create")) {
+    if (MATCH_OPTION("certs_create")) {
         sds ssldir = sdscatfmt(sdsempty(), "%s/ssl", config->varlibdir);
         int testdir_rc = testdir("SSL certificates", ssldir, true);
         sdsfree(ssldir);
@@ -131,39 +129,38 @@ bool handle_option(t_config *config, char *cmd, sds option) {
         return true;
     }
     #endif
-    else if (MATCH_OPTION("crop_covercache")) {
+    if (MATCH_OPTION("crop_covercache")) {
         clear_covercache(config, -1);
         return true;
     }
-    else if (MATCH_OPTION("clear_covercache")) {
+    if (MATCH_OPTION("clear_covercache")) {
         clear_covercache(config, 0);
         return true;
     }
-    else if (MATCH_OPTION("dump_config")) {
+    if (MATCH_OPTION("dump_config")) {
         return mympd_dump_config();
     }
-    else {
-        printf("myMPD %s\n"
-               "Copyright (C) 2018-2020 Juergen Mang <mail@jcgames.de>\n"
-               "https://github.com/jcorporation/myMPD\n\n"
-               "Usage: %s [/etc/mympd.conf] <command>\n"
-               "Commands (you should stop mympd before):\n"
-             #ifdef ENABLE_SSL
-               "  certs_create:     create ssl certificates\n"
-               "  cert_remove:      remove server certificates\n"
-               "  ca_remove:        remove ca certificates\n"
-             #endif
-               "  reset_state:      delete all myMPD settings\n"
-               "  reset_smartpls:   create default smart playlists\n"
-               "  reset_lastplayed: truncates last played list\n"
-               "  crop_covercache:  crops the covercache directory\n"
-               "  clear_covercache: empties the covercache directory\n"
-               "  dump_config:      writes default mympd.conf\n"
-               "  help:             display this help\n",
-               MYMPD_VERSION,
-               cmd
-        );
-    }
+
+    printf("myMPD %s\n"
+           "Copyright (C) 2018-2020 Juergen Mang <mail@jcgames.de>\n"
+           "https://github.com/jcorporation/myMPD\n\n"
+           "Usage: %s [/etc/mympd.conf] <command>\n"
+           "Commands (you should stop mympd before):\n"
+         #ifdef ENABLE_SSL
+           "  certs_create:     create ssl certificates\n"
+           "  cert_remove:      remove server certificates\n"
+           "  ca_remove:        remove ca certificates\n"
+         #endif
+           "  reset_state:      delete all myMPD settings\n"
+           "  reset_smartpls:   create default smart playlists\n"
+           "  reset_lastplayed: truncates last played list\n"
+           "  crop_covercache:  crops the covercache directory\n"
+           "  clear_covercache: empties the covercache directory\n"
+           "  dump_config:      writes default mympd.conf\n"
+           "  help:             display this help\n",
+           MYMPD_VERSION,
+           cmd
+    );
     
     return false;
 }

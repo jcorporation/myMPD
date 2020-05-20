@@ -128,6 +128,12 @@ void serve_asset_image(struct mg_connection *nc, struct http_message *hm, const 
     sdsfree(mime_type);
 }
 
+void serve_plaintext(struct mg_connection *nc, const char *text) {
+    size_t len = strlen(text);
+    mg_send_head(nc, 200, len, "Content-Type: text/plain");
+    mg_send(nc, text, len);
+}
+
 #ifndef DEBUG
 struct embedded_file {
   const char *uri;

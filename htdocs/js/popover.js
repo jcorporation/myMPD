@@ -72,7 +72,7 @@ function showMenuTh(el) {
                 eventClick.preventDefault();
                 eventClick.stopPropagation();
             }
-            else if (event.target.nodeName === 'BUTTON') {
+            else if (eventClick.target.nodeName === 'BUTTON') {
                 eventClick.preventDefault();
                 saveCols(table);
             }
