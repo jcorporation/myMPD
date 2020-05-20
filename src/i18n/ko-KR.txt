@@ -1322,3 +1322,10 @@ Error in response to command: %{command}
 
 Neighbors are disabled
 Neighbors 사용 안 함
+
+No lyrics found
+가사 없음
+
+Invalid column
+잘못된 열
+
