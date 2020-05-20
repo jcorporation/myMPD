@@ -393,6 +393,13 @@ sds mpd_client_put_firstsong_in_albums(t_config *config, t_mpd_state *mpd_state,
                 return buffer;
             }
         }
+        else if (strcmp(sort, "Last-Modified") == 0) {
+            rc = mpd_search_add_sort_name(mpd_state->conn, sort, sortdesc);
+            if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_sort_name") == false) {
+                mpd_search_cancel(mpd_state->conn);
+                return buffer;
+            }
+        }
         else {
             LOG_WARN("Unknown sort tag: %s", sort);
         }
