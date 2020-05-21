@@ -3,8 +3,6 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 # myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
 # https://github.com/jcorporation/mympd
-#
-# myMPD open-rc file for alpine linux.
 
 name=mympd
 command="@CMAKE_INSTALL_FULL_BINDIR@/mympd"
