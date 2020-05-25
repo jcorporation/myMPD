@@ -418,7 +418,7 @@ Background color
 Achtergrondkleur
 
 Highlight color
-Markeerkleur
+Accentkleur
 
 Invalid color
 Ongeldige kleur
@@ -1307,3 +1307,21 @@ Aankoppelpunt
 
 Unmount
 Ontkoppelen
+
+Can not crop the queue
+Kan wachtrij niet inkorten
+
+No such directory
+Map niet gevonden
+
+No lyrics found
+Geen songteksten gevonden
+
+Invalid column
+Onjuiste kolom
+
+Neighbors are disabled
+Neighbor-plugin uitgeschakeld
+
+Error in response to command: %{command}
+Uitvoerfout in: %{command}
