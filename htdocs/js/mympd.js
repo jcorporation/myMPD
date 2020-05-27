@@ -777,7 +777,7 @@ function appInit() {
     }
 
     document.getElementById('cardPlaybackTags').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'H4') 
+        if (event.target.nodeName === 'P') 
             gotoBrowse(event.target);
     }, false);
 
