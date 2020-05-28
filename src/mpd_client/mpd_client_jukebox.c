@@ -34,7 +34,7 @@ static bool mpd_client_jukebox_unique_album(t_mpd_state *mpd_state, const char *
 static bool add_album_to_queue(t_mpd_state *mpd_state, const char *album);
 
 //public functions
-bool mpd_client_jukebox(t_config *config, t_mpd_state *mpd_state) {
+bool mpd_client_jukebox(t_config *config, t_mpd_state *mpd_state, unsigned attempt) {
     struct mpd_status *status = mpd_run_status(mpd_state->conn);
     if (status == NULL) {
         check_error_and_recover(mpd_state, NULL, NULL, 0);
@@ -77,8 +77,13 @@ bool mpd_client_jukebox(t_config *config, t_mpd_state *mpd_state) {
         check_rc_error_and_recover(mpd_state, NULL, NULL, 0, false, rc2, "mpd_run_play");
     }
     else {
-        LOG_ERROR("Error adding song(s), trying again");
-        mpd_client_jukebox(config, mpd_state);
+        LOG_DEBUG("Jukebox mode: %d", mpd_state->jukebox_mode);
+        LOG_ERROR("Jukebox: Error adding song(s)");
+        if (mpd_state->jukebox_mode != JUKEBOX_OFF && attempt == 0) {
+            LOG_ERROR("Jukebox: trying again");
+            //retry it only one time
+            mpd_client_jukebox(config, mpd_state, 1);
+        }
     }
     return rc;
 }

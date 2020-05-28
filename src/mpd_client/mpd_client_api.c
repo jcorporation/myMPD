@@ -117,7 +117,7 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
                     }
                     if (mpd_state->jukebox_mode != JUKEBOX_OFF) {
                         //enable jukebox
-                        mpd_client_jukebox(config, mpd_state);
+                        mpd_client_jukebox(config, mpd_state, 0);
                     }
                 }
                 response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
