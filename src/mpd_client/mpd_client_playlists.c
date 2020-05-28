@@ -36,7 +36,7 @@ static int mpd_client_enum_playlist(t_mpd_state *mpd_state, const char *playlist
 
 //public functions
 sds mpd_client_put_playlists(t_config *config, t_mpd_state *mpd_state, sds buffer, sds method, int request_id,
-                             const unsigned int offset, const char *filter) 
+                             const unsigned int offset, const char *filter, bool paginated) 
 {
     buffer = jsonrpc_start_result(buffer, method, request_id);
     buffer = sdscat(buffer,",\"data\":[");
@@ -51,7 +51,9 @@ sds mpd_client_put_playlists(t_config *config, t_mpd_state *mpd_state, sds buffe
     unsigned entities_returned = 0;
     while ((pl = mpd_recv_playlist(mpd_state->conn)) != NULL) {
         entity_count++;
-        if (entity_count > offset && entity_count <= offset + mpd_state->max_elements_per_page) {
+        if ((entity_count > offset && entity_count <= offset + mpd_state->max_elements_per_page) ||
+            paginated == false) 
+        {
             const char *plpath = mpd_playlist_get_path(pl);
             if (strncmp(filter, "-", 1) == 0 || strncasecmp(filter, plpath, 1) == 0 ||
                (strncmp(filter, "0", 1) == 0 && isalpha(*plpath) == 0 )) 

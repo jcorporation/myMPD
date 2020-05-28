@@ -82,12 +82,12 @@ function showEditTimer(timerid) {
     document.getElementById('editTimer').classList.add('active');
     document.getElementById('listTimerFooter').classList.add('hide');
     document.getElementById('editTimerFooter').classList.remove('hide');
-    playlistEl = 'selectTimerPlaylist';
-    sendAPI("MPD_API_PLAYLIST_LIST", {"offset": 0, "filter": "-"}, getAllPlaylists);
+        
     if (timerid !== 0) {
         sendAPI("MYMPD_API_TIMER_GET", {"timerid": timerid}, parseEditTimer);
     }
     else {
+        getAllPlaylists(obj, 'selectTimerPlaylist');
         document.getElementById('inputTimerId').value = '0';
         document.getElementById('inputTimerName').value = '';
         toggleBtnChk('btnTimerEnabled', true);
@@ -110,6 +110,11 @@ function showEditTimer(timerid) {
 }
 
 function parseEditTimer(obj) {
+    let playlistValue = obj.result.playlist;
+    sendAPI("MPD_API_PLAYLIST_LIST_ALL", {}, function(obj) { 
+        getAllPlaylists(obj, 'selectTimerPlaylist', playlistValue);
+    });
+    
     if (obj.result.action === 'startplay') {
         document.getElementById('timerActionPlay').classList.remove('hide');
     }
@@ -123,7 +128,7 @@ function parseEditTimer(obj) {
     document.getElementById('selectTimerMinute').value = obj.result.startMinute;
     document.getElementById('selectTimerAction').value = obj.result.action;
     document.getElementById('inputTimerVolume').value = obj.result.volume;
-    document.getElementById('selectTimerPlaylist').value = obj.result.playlist;
+    //document.getElementById('selectTimerPlaylist').value = obj.result.playlist;
     toggleBtnGroupValue(document.getElementById('btnTimerJukeboxModeGroup'), obj.result.jukeboxMode);
     let weekdayBtns = ['btnTimerMon', 'btnTimerTue', 'btnTimerWed', 'btnTimerThu', 'btnTimerFri', 'btnTimerSat', 'btnTimerSun'];
     for (let i = 0; i < weekdayBtns.length; i++) {
