@@ -230,7 +230,7 @@ function parseSmartPlaylist(obj) {
         document.getElementById('saveSmartPlaylistSearch').classList.remove('hide');
         document.getElementById('selectSaveSmartPlaylistTag').value = obj.result.tag;
         document.getElementById('inputSaveSmartPlaylistSearchstr').value = obj.result.searchstr;
-        if (settings.featAdvsearch && obj.result.tag === 'expression') {
+        if (settings.featAdvsearch === true && obj.result.tag === 'expression') {
             elSelectSaveSmartPlaylistTag.parentNode.parentNode.classList.add('hide');
             elSelectSaveSmartPlaylistTag.innerHTML = '<option value="expression">expression</option>';
             elSelectSaveSmartPlaylistTag.value = 'expression';

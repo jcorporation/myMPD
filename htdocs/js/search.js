@@ -46,7 +46,7 @@ function saveSearchAsSmartPlaylist() {
     parseSmartPlaylist({"jsonrpc":"2.0","id":0,"result":{"method":"MPD_API_SMARTPLS_GET", 
         "playlist":"",
         "type":"search",
-        "tag": app.current.filter,
+        "tag": settings.featAdvsearch === true ? 'expression' : app.current.filter,
         "searchstr": app.current.search}});
 }
 
