@@ -82,6 +82,10 @@ void check_timer(struct t_timer_list *l, bool gui) {
                         LOG_DEBUG("Skipping timer with id %d, not enabled on this weekday", current->timer_id);
                         continue;
                     }
+                    if (current->definition->enabled == false) {
+                        LOG_DEBUG("Skipping timer with id %d, not enabled", current->timer_id);
+                        continue;
+                    }
                 }
                 LOG_DEBUG("Timer with id %d triggered", current->timer_id);
                 if (current->callback) {

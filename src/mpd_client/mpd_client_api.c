@@ -113,6 +113,7 @@ void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request)
                     mpd_client_mpd_features(config, mpd_state);
                     
                     if (jukebox_changed == true) {
+                        LOG_DEBUG("Jukebox options changed, clearing jukebox queue");
                         list_free(&mpd_state->jukebox_queue);
                     }
                     if (mpd_state->jukebox_mode != JUKEBOX_OFF) {
