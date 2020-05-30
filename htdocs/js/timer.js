@@ -87,7 +87,9 @@ function showEditTimer(timerid) {
         sendAPI("MYMPD_API_TIMER_GET", {"timerid": timerid}, parseEditTimer);
     }
     else {
-        getAllPlaylists(obj, 'selectTimerPlaylist');
+        sendAPI("MPD_API_PLAYLIST_LIST_ALL", {}, function(obj) { 
+            getAllPlaylists(obj, 'selectTimerPlaylist', 'Database');
+        });
         document.getElementById('inputTimerId').value = '0';
         document.getElementById('inputTimerName').value = '';
         toggleBtnChk('btnTimerEnabled', true);
