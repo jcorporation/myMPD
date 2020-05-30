@@ -391,10 +391,13 @@ function clickTitle() {
 
 function mediaSessionSetPositionState(duration, position) {
     if (settings.mediaSession === true && 'mediaSession' in navigator && navigator.mediaSession.setPositionState) {
-        navigator.mediaSession.setPositionState({
-            duration: duration,
-            position: position
-        });
+        if (position < duration) {
+            //streams have position > duration
+            navigator.mediaSession.setPositionState({
+                duration: duration,
+                position: position
+            });
+        }
     }
 }
 
