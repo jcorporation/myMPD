@@ -113,8 +113,8 @@ function showEditTimer(timerid) {
 
 function parseEditTimer(obj) {
     let playlistValue = obj.result.playlist;
-    sendAPI("MPD_API_PLAYLIST_LIST_ALL", {}, function(obj) { 
-        getAllPlaylists(obj, 'selectTimerPlaylist', playlistValue);
+    sendAPI("MPD_API_PLAYLIST_LIST_ALL", {}, function(obj2) { 
+        getAllPlaylists(obj2, 'selectTimerPlaylist', playlistValue);
     });
     
     if (obj.result.action === 'startplay') {
