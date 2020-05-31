@@ -5454,10 +5454,13 @@ function clickTitle() {
 
 function mediaSessionSetPositionState(duration, position) {
     if (settings.mediaSession === true && 'mediaSession' in navigator && navigator.mediaSession.setPositionState) {
-        navigator.mediaSession.setPositionState({
-            duration: duration,
-            position: position
-        });
+        if (position < duration) {
+            //streams have position > duration
+            navigator.mediaSession.setPositionState({
+                duration: duration,
+                position: position
+            });
+        }
     }
 }
 
@@ -6110,7 +6113,9 @@ function showEditTimer(timerid) {
         sendAPI("MYMPD_API_TIMER_GET", {"timerid": timerid}, parseEditTimer);
     }
     else {
-        getAllPlaylists(obj, 'selectTimerPlaylist');
+        sendAPI("MPD_API_PLAYLIST_LIST_ALL", {}, function(obj) { 
+            getAllPlaylists(obj, 'selectTimerPlaylist', 'Database');
+        });
         document.getElementById('inputTimerId').value = '0';
         document.getElementById('inputTimerName').value = '';
         toggleBtnChk('btnTimerEnabled', true);
