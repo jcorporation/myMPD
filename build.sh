@@ -198,7 +198,7 @@ buildrelease() {
   fi
   minify js htdocs/sw.js dist/htdocs/sw.min.js
   minify js htdocs/js/keymap.js dist/htdocs/js/keymap.min.js
-  minify js dist/htdocs/js/bootstrap-native-v4.js dist/htdocs/js/bootstrap-native-v4.min.js
+  minify js dist/htdocs/js/bootstrap-native.js dist/htdocs/js/bootstrap-native.min.js
   minify js dist/htdocs/js/mympd.js dist/htdocs/js/mympd.min.js
   
   echo "Combining and compressing javascript"
@@ -309,7 +309,7 @@ builddebug() {
 
   echo "Linking bootstrap css and js"
   [ -e "$PWD/htdocs/css/bootstrap.css" ] || ln -s "$PWD/dist/htdocs/css/bootstrap.css" "$PWD/htdocs/css/bootstrap.css"
-  [ -e "$PWD/htdocs/js/bootstrap-native-v4.js" ] || ln -s "$PWD/dist/htdocs/js/bootstrap-native-v4.js" "$PWD/htdocs/js/bootstrap-native-v4.js"
+  [ -e "$PWD/htdocs/js/bootstrap-native.js" ] || ln -s "$PWD/dist/htdocs/js/bootstrap-native.js" "$PWD/htdocs/js/bootstrap-native.js"
 
   createi18n ../../htdocs/js/i18n.js pretty
   
@@ -348,6 +348,7 @@ cleanup() {
   
   #htdocs
   rm -f htdocs/js/bootstrap-native-v4.js
+  rm -f htdocs/js/bootstrap-native.js
   rm -f htdocs/js/i18n.js
   rm -f htdocs/css/bootstrap.css
 
@@ -366,6 +367,7 @@ cleanupdist() {
   rm -f dist/htdocs/js/i18n.min.js
   rm -f dist/htdocs/js/keymap.min.js 
   rm -f dist/htdocs/js/bootstrap-native-v4.min.js 
+  rm -f dist/htdocs/js/bootstrap-native.min.js 
   rm -f dist/htdocs/js/mympd.js
   rm -f dist/htdocs/js/mympd.min.js
   rm -f dist/htdocs/js/combined.js.gz

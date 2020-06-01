@@ -92,32 +92,32 @@ domCache.searchCrumb = document.getElementById('searchCrumb');
 domCache.body = document.getElementsByTagName('body')[0];
 
 /* eslint-disable no-unused-vars */
-var modalConnection = new Modal(document.getElementById('modalConnection'));
-var modalSettings = new Modal(document.getElementById('modalSettings'));
-var modalAbout = new Modal(document.getElementById('modalAbout')); 
-var modalSaveQueue = new Modal(document.getElementById('modalSaveQueue'));
-var modalAddToQueue = new Modal(document.getElementById('modalAddToQueue'));
-var modalSongDetails = new Modal(document.getElementById('modalSongDetails'));
-var modalAddToPlaylist = new Modal(document.getElementById('modalAddToPlaylist'));
-var modalRenamePlaylist = new Modal(document.getElementById('modalRenamePlaylist'));
-var modalUpdateDB = new Modal(document.getElementById('modalUpdateDB'));
-var modalSaveSmartPlaylist = new Modal(document.getElementById('modalSaveSmartPlaylist'));
-var modalDeletePlaylist = new Modal(document.getElementById('modalDeletePlaylist'));
-var modalSaveBookmark = new Modal(document.getElementById('modalSaveBookmark'));
-var modalTimer = new Modal(document.getElementById('modalTimer'));
-var modalMounts = new Modal(document.getElementById('modalMounts'));
+var modalConnection = new BSN.Modal(document.getElementById('modalConnection'));
+var modalSettings = new BSN.Modal(document.getElementById('modalSettings'));
+var modalAbout = new BSN.Modal(document.getElementById('modalAbout')); 
+var modalSaveQueue = new BSN.Modal(document.getElementById('modalSaveQueue'));
+var modalAddToQueue = new BSN.Modal(document.getElementById('modalAddToQueue'));
+var modalSongDetails = new BSN.Modal(document.getElementById('modalSongDetails'));
+var modalAddToPlaylist = new BSN.Modal(document.getElementById('modalAddToPlaylist'));
+var modalRenamePlaylist = new BSN.Modal(document.getElementById('modalRenamePlaylist'));
+var modalUpdateDB = new BSN.Modal(document.getElementById('modalUpdateDB'));
+var modalSaveSmartPlaylist = new BSN.Modal(document.getElementById('modalSaveSmartPlaylist'));
+var modalDeletePlaylist = new BSN.Modal(document.getElementById('modalDeletePlaylist'));
+var modalSaveBookmark = new BSN.Modal(document.getElementById('modalSaveBookmark'));
+var modalTimer = new BSN.Modal(document.getElementById('modalTimer'));
+var modalMounts = new BSN.Modal(document.getElementById('modalMounts'));
 
-var dropdownMainMenu; 
-var dropdownVolumeMenu = new Dropdown(document.getElementById('volumeMenu'));
-var dropdownBookmarks = new Dropdown(document.getElementById('BrowseFilesystemBookmark'));
-var dropdownLocalPlayer = new Dropdown(document.getElementById('localPlaybackMenu'));
-var dropdownPlay = new Dropdown(document.getElementById('btnPlayDropdown'));
-var dropdownCovergridSort = new Dropdown(document.getElementById('btnCovergridSortDropdown'));
-var dropdownNeighbors = new Dropdown(document.getElementById('btnDropdownNeighbors'));
+var dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
+var dropdownVolumeMenu = new BSN.Dropdown(document.getElementById('volumeMenu'));
+var dropdownBookmarks = new BSN.Dropdown(document.getElementById('BrowseFilesystemBookmark'));
+var dropdownLocalPlayer = new BSN.Dropdown(document.getElementById('localPlaybackMenu'));
+var dropdownPlay = new BSN.Dropdown(document.getElementById('btnPlayDropdown'));
+var dropdownCovergridSort = new BSN.Dropdown(document.getElementById('btnCovergridSortDropdown'));
+var dropdownNeighbors = new BSN.Dropdown(document.getElementById('btnDropdownNeighbors'));
 
-var collapseDBupdate = new Collapse(document.getElementById('navDBupdate'));
-var collapseSyscmds = new Collapse(document.getElementById('navSyscmds'));
-var collapseJukeboxMode = new Collapse(document.getElementById('labelJukeboxMode'));
+var collapseDBupdate = new BSN.Collapse(document.getElementById('navDBupdate'));
+var collapseSyscmds = new BSN.Collapse(document.getElementById('navSyscmds'));
+var collapseJukeboxMode = new BSN.Collapse(document.getElementById('labelJukeboxMode'));
 /* eslint-enable no-unused-vars */
 
 function appPrepare(scrollPos) {

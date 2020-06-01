@@ -291,8 +291,7 @@ function parseSettings() {
     
     document.getElementById('selectTimerAction').innerHTML = timerActions;
     
-
-    dropdownMainMenu = new Dropdown(document.getElementById('mainMenu'));
+    //dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
     
     toggleBtnGroupValueCollapse(document.getElementById('btnJukeboxModeGroup'), 'collapseJukeboxMode', settings.jukeboxMode);
     document.getElementById('selectJukeboxUniqueTag').value = settings.jukeboxUniqueTag;
