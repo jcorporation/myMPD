@@ -1334,32 +1334,32 @@ domCache.searchCrumb = document.getElementById('searchCrumb');
 domCache.body = document.getElementsByTagName('body')[0];
 
 /* eslint-disable no-unused-vars */
-var modalConnection = new Modal(document.getElementById('modalConnection'));
-var modalSettings = new Modal(document.getElementById('modalSettings'));
-var modalAbout = new Modal(document.getElementById('modalAbout')); 
-var modalSaveQueue = new Modal(document.getElementById('modalSaveQueue'));
-var modalAddToQueue = new Modal(document.getElementById('modalAddToQueue'));
-var modalSongDetails = new Modal(document.getElementById('modalSongDetails'));
-var modalAddToPlaylist = new Modal(document.getElementById('modalAddToPlaylist'));
-var modalRenamePlaylist = new Modal(document.getElementById('modalRenamePlaylist'));
-var modalUpdateDB = new Modal(document.getElementById('modalUpdateDB'));
-var modalSaveSmartPlaylist = new Modal(document.getElementById('modalSaveSmartPlaylist'));
-var modalDeletePlaylist = new Modal(document.getElementById('modalDeletePlaylist'));
-var modalSaveBookmark = new Modal(document.getElementById('modalSaveBookmark'));
-var modalTimer = new Modal(document.getElementById('modalTimer'));
-var modalMounts = new Modal(document.getElementById('modalMounts'));
+var modalConnection = new BSN.Modal(document.getElementById('modalConnection'));
+var modalSettings = new BSN.Modal(document.getElementById('modalSettings'));
+var modalAbout = new BSN.Modal(document.getElementById('modalAbout')); 
+var modalSaveQueue = new BSN.Modal(document.getElementById('modalSaveQueue'));
+var modalAddToQueue = new BSN.Modal(document.getElementById('modalAddToQueue'));
+var modalSongDetails = new BSN.Modal(document.getElementById('modalSongDetails'));
+var modalAddToPlaylist = new BSN.Modal(document.getElementById('modalAddToPlaylist'));
+var modalRenamePlaylist = new BSN.Modal(document.getElementById('modalRenamePlaylist'));
+var modalUpdateDB = new BSN.Modal(document.getElementById('modalUpdateDB'));
+var modalSaveSmartPlaylist = new BSN.Modal(document.getElementById('modalSaveSmartPlaylist'));
+var modalDeletePlaylist = new BSN.Modal(document.getElementById('modalDeletePlaylist'));
+var modalSaveBookmark = new BSN.Modal(document.getElementById('modalSaveBookmark'));
+var modalTimer = new BSN.Modal(document.getElementById('modalTimer'));
+var modalMounts = new BSN.Modal(document.getElementById('modalMounts'));
 
-var dropdownMainMenu; 
-var dropdownVolumeMenu = new Dropdown(document.getElementById('volumeMenu'));
-var dropdownBookmarks = new Dropdown(document.getElementById('BrowseFilesystemBookmark'));
-var dropdownLocalPlayer = new Dropdown(document.getElementById('localPlaybackMenu'));
-var dropdownPlay = new Dropdown(document.getElementById('btnPlayDropdown'));
-var dropdownCovergridSort = new Dropdown(document.getElementById('btnCovergridSortDropdown'));
-var dropdownNeighbors = new Dropdown(document.getElementById('btnDropdownNeighbors'));
+var dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
+var dropdownVolumeMenu = new BSN.Dropdown(document.getElementById('volumeMenu'));
+var dropdownBookmarks = new BSN.Dropdown(document.getElementById('BrowseFilesystemBookmark'));
+var dropdownLocalPlayer = new BSN.Dropdown(document.getElementById('localPlaybackMenu'));
+var dropdownPlay = new BSN.Dropdown(document.getElementById('btnPlayDropdown'));
+var dropdownCovergridSort = new BSN.Dropdown(document.getElementById('btnCovergridSortDropdown'));
+var dropdownNeighbors = new BSN.Dropdown(document.getElementById('btnDropdownNeighbors'));
 
-var collapseDBupdate = new Collapse(document.getElementById('navDBupdate'));
-var collapseSyscmds = new Collapse(document.getElementById('navSyscmds'));
-var collapseJukeboxMode = new Collapse(document.getElementById('labelJukeboxMode'));
+var collapseDBupdate = new BSN.Collapse(document.getElementById('navDBupdate'));
+var collapseSyscmds = new BSN.Collapse(document.getElementById('navSyscmds'));
+var collapseJukeboxMode = new BSN.Collapse(document.getElementById('labelJukeboxMode'));
 /* eslint-enable no-unused-vars */
 
 function appPrepare(scrollPos) {
@@ -3274,8 +3274,8 @@ function addMenuItem(href, text) {
 function hideMenu() {
     let menuEl = document.querySelector('[data-popover]');
     if (menuEl) {
-        new Popover(menuEl, {});
-        menuEl.Popover.hide();
+        let m = new BSN.Popover(menuEl, {});
+        m.hide();
         menuEl.removeAttribute('data-popover');
         if (menuEl.parentNode.parentNode.classList.contains('selected')) {
             focusTable(undefined, menuEl.parentNode.parentNode.parentNode.parentNode);
@@ -3290,9 +3290,9 @@ function showMenu(el, event) {
     event.preventDefault();
     event.stopPropagation();
     hideMenu();
-    if (el.getAttribute('data-init')) {
-        return;
-    }
+    //if (el.getAttribute('data-init')) {
+    //    return;
+    //}
     if (el.parentNode.nodeName === 'TH') {
         showMenuTh(el);
     }
@@ -3307,26 +3307,28 @@ function showMenuTh(el) {
     menu += setColsChecklist(table);
     menu += '<button class="btn btn-success btn-block btn-sm mt-2">' + t('Apply') + '</button>';
     menu += '</form>';
-    new Popover(el, { trigger: 'click', delay: 0, dismissible: true, template: '<div class="popover" role="tooltip">' +
+    new BSN.Popover(el, { trigger: 'click', delay: 0, dismissible: true, template: '<div class="popover" role="tooltip">' +
         '<div class="arrow"></div>' +
         '<div class="popover-content" id="' + table + 'ColsDropdown' + '">' + menu + '</div>' +
         '</div>', content: ' '});
     let popoverInit = el.Popover;
-    el.setAttribute('data-init', 'true');
-    el.addEventListener('shown.bs.popover', function(event) {
-        event.target.setAttribute('data-popover', 'true');
-        document.getElementById('colChecklist' + table).addEventListener('click', function(eventClick) {
-            if (eventClick.target.nodeName === 'BUTTON' && eventClick.target.classList.contains('material-icons')) {
-                toggleBtnChk(eventClick.target);
-                eventClick.preventDefault();
-                eventClick.stopPropagation();
-            }
-            else if (eventClick.target.nodeName === 'BUTTON') {
-                eventClick.preventDefault();
-                saveCols(table);
-            }
+    if (el.getAttribute('data-init') === null) {
+        el.setAttribute('data-init', 'true');
+        el.addEventListener('shown.bs.popover', function(event) {
+            event.target.setAttribute('data-popover', 'true');
+            document.getElementById('colChecklist' + table).addEventListener('click', function(eventClick) {
+                if (eventClick.target.nodeName === 'BUTTON' && eventClick.target.classList.contains('material-icons')) {
+                    toggleBtnChk(eventClick.target);
+                    eventClick.preventDefault();
+                    eventClick.stopPropagation();
+                }
+                else if (eventClick.target.nodeName === 'BUTTON') {
+                    eventClick.preventDefault();
+                    saveCols(table);
+                }
+            }, false);
         }, false);
-    }, false);
+    }
     popoverInit.show();
 }
 
@@ -3414,65 +3416,67 @@ function showMenuTd(el) {
             (settings.featPlaylists ? addMenuItem({"cmd": "showAddToPlaylist", "options": ["ALBUM", expression]}, t('Add to playlist')) : '');
     }
 
-    new Popover(el, { trigger: 'click', delay: 0, dismissible: true, template: '<div class="popover" role="tooltip">' +
+    new BSN.Popover(el, { trigger: 'click', delay: 0, dismissible: true, template: '<div class="popover" role="tooltip">' +
         '<div class="arrow"></div>' +
         '<div class="popover-content">' + menu + '</div>' +
         '</div>', content: ' '});
     let popoverInit = el.Popover;
-    el.setAttribute('data-init', 'true');
-    el.addEventListener('shown.bs.popover', function(event) {
-        event.target.setAttribute('data-popover', 'true');
-        document.getElementsByClassName('popover-content')[0].addEventListener('click', function(eventClick) {
-            eventClick.preventDefault();
-            eventClick.stopPropagation();
-            if (eventClick.target.nodeName === 'A') {
-                let dh = eventClick.target.getAttribute('data-href');
-                if (dh) {
-                    let cmd = JSON.parse(b64DecodeUnicode(dh));
-                    parseCmd(event, cmd);
-                    hideMenu();
-                }
-            }
-        }, false);
-        document.getElementsByClassName('popover-content')[0].addEventListener('keydown', function(eventKey) {
-            eventKey.preventDefault();
-            eventKey.stopPropagation();
-            if (eventKey.key === 'ArrowDown' || eventKey.key === 'ArrowUp') {
-                let menuItemsHtml = this.getElementsByTagName('a');
-                let menuItems = Array.prototype.slice.call(menuItemsHtml);
-                let idx = menuItems.indexOf(document.activeElement);
-                do {
-                    idx = eventKey.key === 'ArrowUp' ? (idx > 1 ? idx - 1 : 0)
-                                                 : eventKey.key === 'ArrowDown' ? ( idx < menuItems.length - 1 ? idx + 1 : idx)
-                                                                            : idx;
-                    if ( idx === 0 || idx === menuItems.length -1 ) {
-                        break;
+    if (el.getAttribute('data-init') === null) {
+        el.setAttribute('data-init', 'true');
+        el.addEventListener('shown.bs.popover', function(event) {
+            event.target.setAttribute('data-popover', 'true');
+            document.getElementsByClassName('popover-content')[0].addEventListener('click', function(eventClick) {
+                eventClick.preventDefault();
+                eventClick.stopPropagation();
+                if (eventClick.target.nodeName === 'A') {
+                    let dh = eventClick.target.getAttribute('data-href');
+                    if (dh) {
+                        let cmd = JSON.parse(b64DecodeUnicode(dh));
+                        parseCmd(event, cmd);
+                        hideMenu();
                     }
-                } while ( !menuItems[idx].offsetHeight )
-                menuItems[idx] && menuItems[idx].focus();
-            }
-            else if (eventKey.key === 'Enter') {
-                eventKey.target.click();
-            }
-            else if (eventKey.key === 'Escape') {
-                hideMenu();
-            }
-        }, false);
-        let collapseLink = document.getElementById('advancedMenuLink');
-        if (collapseLink) {
-            collapseLink.addEventListener('click', function() {
-                let icon = this.getElementsByTagName('span')[0];
-                if (icon.innerText === 'keyboard_arrow_right') {
-                    icon.innerText = 'keyboard_arrow_down';
-                }
-                else {
-                    icon.innerText = 'keyboard_arrow_right';
                 }
             }, false);
-            new Collapse(collapseLink);
-        }
-        document.getElementsByClassName('popover-content')[0].firstChild.focus();
-    }, false);
+            document.getElementsByClassName('popover-content')[0].addEventListener('keydown', function(eventKey) {
+                eventKey.preventDefault();
+                eventKey.stopPropagation();
+                if (eventKey.key === 'ArrowDown' || eventKey.key === 'ArrowUp') {
+                    let menuItemsHtml = this.getElementsByTagName('a');
+                    let menuItems = Array.prototype.slice.call(menuItemsHtml);
+                    let idx = menuItems.indexOf(document.activeElement);
+                    do {
+                        idx = eventKey.key === 'ArrowUp' ? (idx > 1 ? idx - 1 : 0)
+                                                 : eventKey.key === 'ArrowDown' ? ( idx < menuItems.length - 1 ? idx + 1 : idx)
+                                                                            : idx;
+                        if ( idx === 0 || idx === menuItems.length -1 ) {
+                            break;
+                        }
+                    } while ( !menuItems[idx].offsetHeight )
+                    menuItems[idx] && menuItems[idx].focus();
+                }
+                else if (eventKey.key === 'Enter') {
+                    eventKey.target.click();
+                }
+                else if (eventKey.key === 'Escape') {
+                    hideMenu();
+                }
+            }, false);
+            let collapseLink = document.getElementById('advancedMenuLink');
+            if (collapseLink) {
+                collapseLink.addEventListener('click', function() {
+                    let icon = this.getElementsByTagName('span')[0];
+                    if (icon.innerText === 'keyboard_arrow_right') {
+                        icon.innerText = 'keyboard_arrow_down';
+                    }
+                    else {
+                        icon.innerText = 'keyboard_arrow_right';
+                    }
+                }, false);
+                new BSN.Collapse(collapseLink);
+            }
+            document.getElementsByClassName('popover-content')[0].firstChild.focus();
+        }, false);
+    }
     popoverInit.show();
 }
 /*
@@ -4143,8 +4147,7 @@ function parseSettings() {
     
     document.getElementById('selectTimerAction').innerHTML = timerActions;
     
-
-    dropdownMainMenu = new Dropdown(document.getElementById('mainMenu'));
+    //dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
     
     toggleBtnGroupValueCollapse(document.getElementById('btnJukeboxModeGroup'), 'collapseJukeboxMode', settings.jukeboxMode);
     document.getElementById('selectJukeboxUniqueTag').value = settings.jukeboxUniqueTag;
@@ -6139,8 +6142,8 @@ function showEditTimer(timerid) {
 
 function parseEditTimer(obj) {
     let playlistValue = obj.result.playlist;
-    sendAPI("MPD_API_PLAYLIST_LIST_ALL", {}, function(obj) { 
-        getAllPlaylists(obj, 'selectTimerPlaylist', playlistValue);
+    sendAPI("MPD_API_PLAYLIST_LIST_ALL", {}, function(obj2) { 
+        getAllPlaylists(obj2, 'selectTimerPlaylist', playlistValue);
     });
     
     if (obj.result.action === 'startplay') {
