@@ -1,5 +1,5 @@
 /*!
-  * Native JavaScript for Bootstrap v3.0.2 (https://thednp.github.io/bootstrap.native/)
+  * Native JavaScript for Bootstrap v3.0.3 (https://thednp.github.io/bootstrap.native/)
   * Copyright 2015-2020 © dnp_theme
   * Licensed under MIT (https://github.com/thednp/bootstrap.native/blob/master/LICENSE)
   */
@@ -7,7 +7,7 @@
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
   typeof define === 'function' && define.amd ? define(factory) :
   (global = global || self, global.BSN = factory());
-}(this, (function () { 'use strict';
+}(this, function () { 'use strict';
 
   function hasClass(element,classNAME) {
     return element.classList.contains(classNAME)
@@ -265,7 +265,7 @@
       if (vars.isSliding) { return; }
       var eventTarget = e.target;
       if ( eventTarget && !hasClass(eventTarget,'active') && eventTarget.getAttribute('data-slide-to') ) {
-        vars.index = parseInt( eventTarget.getAttribute('data-slide-to'), 10 );
+        vars.index = parseInt( eventTarget.getAttribute('data-slide-to'));
       } else { return false; }
       self.slideTo( vars.index );
     }
@@ -687,8 +687,7 @@
     }
     function dismissHandler(e) {
       if (e.target.getAttribute === undefined)
-        return;
-      
+          { return; }
       var eventTarget = e.target,
             hasData = eventTarget && (eventTarget.getAttribute('data-toggle')
                                   || eventTarget.parentNode && eventTarget.parentNode.getAttribute
@@ -722,14 +721,14 @@
           isMenuItem = activeItem.parentNode === menu || activeItem.parentNode.parentNode === menu;
       var idx = menuItems.indexOf(activeItem);
       if ( isMenuItem ) {
-        do {
-          idx = isSameElement ? 0
-                              : key === 38 ? (idx>1?idx-1:0)
-                              : key === 40 ? (idx<menuItems.length-1?idx+1:idx) : idx;
-          if ( idx === 0 || idx === menuItems[length]-1)
-            break;
-        } while ( !menuItems[idx].offsetHeight )
-        menuItems[idx] && setFocus(menuItems[idx]);
+          do {
+            idx = isSameElement ? 0
+                                : key === 38 ? (idx>1?idx-1:0)
+                                : key === 40 ? (idx<menuItems.length-1?idx+1:idx) : idx;
+            if ( idx === 0 || idx === menuItems[length]-1)
+              { break; }
+          } while ( !menuItems[idx].offsetHeight )
+          menuItems[idx] && setFocus(menuItems[idx]);
       }
       if ( (menuItems.length && isMenuItem
             || !menuItems.length && (isInsideMenu || isSameElement)
@@ -787,7 +786,6 @@
       parent = element.parentNode;
       menu = queryElement('.dropdown-menu', parent);
       Array.from(menu.children).map(function (child){
-        //child.children.length && (child.children[0].tagName === 'A' && menuItems.push(child.children[0]));
         Array.from(child.children).map(function(child2){
           child2.tagName === 'A' && menuItems.push(child2);
         });
@@ -1202,99 +1200,6 @@
     },"BSN.Popover");
   }
 
-  function ScrollSpy(element,options) {
-    options = options || {};
-    var self = this,
-      vars,
-      targetData,
-      offsetData,
-      spyTarget,
-      scrollTarget,
-      ops = {};
-    function updateTargets(){
-      var links = spyTarget.getElementsByTagName('A');
-      if (vars.length !== links.length) {
-        vars.items = [];
-        vars.targets = [];
-        Array.from(links).map(function (link){
-          var href = link.getAttribute('href'),
-            targetItem = href && href.charAt(0) === '#' && href.slice(-1) !== '#' && queryElement(href);
-          if ( targetItem ) {
-            vars.items.push(link);
-            vars.targets.push(targetItem);
-          }
-        });
-        vars.length = links.length;
-      }
-    }
-    function updateItem(index) {
-      var item = vars.items[index],
-        targetItem = vars.targets[index],
-        dropmenu = hasClass(item,'dropdown-item') && item.closest('.dropdown-menu'),
-        dropLink = dropmenu && dropmenu.previousElementSibling,
-        nextSibling = item.nextElementSibling,
-        activeSibling = nextSibling && nextSibling.getElementsByClassName('active').length,
-        targetRect = vars.isWindow && targetItem.getBoundingClientRect(),
-        isActive = hasClass(item,'active') || false,
-        topEdge = (vars.isWindow ? targetRect.top + vars.scrollOffset : targetItem.offsetTop) - ops.offset,
-        bottomEdge = vars.isWindow ? targetRect.bottom + vars.scrollOffset - ops.offset
-                   : vars.targets[index+1] ? vars.targets[index+1].offsetTop - ops.offset
-                   : element.scrollHeight,
-        inside = activeSibling || vars.scrollOffset >= topEdge && bottomEdge > vars.scrollOffset;
-       if ( !isActive && inside ) {
-        addClass(item,'active');
-        if (dropLink && !hasClass(dropLink,'active') ) {
-          addClass(dropLink,'active');
-        }
-        dispatchCustomEvent.call(element, bootstrapCustomEvent( 'activate', 'scrollspy', vars.items[index]));
-      } else if ( isActive && !inside ) {
-        removeClass(item,'active');
-        if (dropLink && hasClass(dropLink,'active') && !item.parentNode.getElementsByClassName('active').length ) {
-          removeClass(dropLink,'active');
-        }
-      } else if ( isActive && inside || !inside && !isActive ) {
-        return;
-      }
-    }
-    function updateItems() {
-      updateTargets();
-      vars.scrollOffset = vars.isWindow ? getScroll().y : element.scrollTop;
-      vars.items.map(function (l,idx){ return updateItem(idx); });
-    }
-    function toggleEvents(action) {
-      action( scrollTarget, 'scroll', self.refresh, passiveHandler );
-      action( window, 'resize', self.refresh, passiveHandler );
-    }
-    self.refresh = function () {
-      updateItems();
-    };
-    self.dispose = function () {
-      toggleEvents(off);
-      delete element.ScrollSpy;
-    };
-    tryWrapper(function (){
-      element = queryElement(element);
-      element.ScrollSpy && element.ScrollSpy.dispose();
-      targetData = element.getAttribute('data-target');
-      offsetData = element.getAttribute('data-offset');
-      spyTarget = queryElement(options.target || targetData);
-      scrollTarget = element.offsetHeight < element.scrollHeight ? element : window;
-      if (!spyTarget) { return }
-      ops.target = spyTarget;
-      ops.offset = parseInt(options.offset || offsetData) || 10;
-      vars = {};
-      vars.length = 0;
-      vars.items = [];
-      vars.targets = [];
-      vars.isWindow = scrollTarget === window;
-      if ( !element.ScrollSpy ) {
-        toggleEvents(on);
-      }
-      self.refresh();
-      element.ScrollSpy = self;
-    },"BSN.ScrollSpy");
-  }
-
   function Tab(element,options) {
     options = options || {};
     var self = this,
@@ -1499,6 +1404,120 @@
     },'BSN.Toast');
   }
 
+  var componentsInit = {};
+
+  var initCallback = function (lookUp){
+    lookUp = lookUp || document;
+    var initializeDataAPI = function( Constructor, collection ){
+      Array.from(collection).map(function (x){ return new Constructor(x); });
+    };
+    for (var component in componentsInit) {
+      initializeDataAPI( componentsInit[component][0], lookUp.querySelectorAll (componentsInit[component][1]) );
+    }
+  };
+  var removeDataAPI = function (lookUp) {
+    lookUp = lookUp || document;
+    var removeElementDataAPI = function( ConstructorName, collection ){
+      Array.from(collection).map(function (x){ return x[ConstructorName].dispose(); });
+    };
+    for (var component in componentsInit) {
+      removeElementDataAPI( component, lookUp.querySelectorAll (componentsInit[component][1]) );
+    }
+  };
+
+  function ScrollSpy(element,options) {
+    options = options || {};
+    var self = this,
+      vars,
+      targetData,
+      offsetData,
+      spyTarget,
+      scrollTarget,
+      ops = {};
+    function updateTargets(){
+      var links = spyTarget.getElementsByTagName('A');
+      if (vars.length !== links.length) {
+        vars.items = [];
+        vars.targets = [];
+        Array.from(links).map(function (link){
+          var href = link.getAttribute('href'),
+            targetItem = href && href.charAt(0) === '#' && href.slice(-1) !== '#' && queryElement(href);
+          if ( targetItem ) {
+            vars.items.push(link);
+            vars.targets.push(targetItem);
+          }
+        });
+        vars.length = links.length;
+      }
+    }
+    function updateItem(index) {
+      var item = vars.items[index],
+        targetItem = vars.targets[index],
+        dropmenu = hasClass(item,'dropdown-item') && item.closest('.dropdown-menu'),
+        dropLink = dropmenu && dropmenu.previousElementSibling,
+        nextSibling = item.nextElementSibling,
+        activeSibling = nextSibling && nextSibling.getElementsByClassName('active').length,
+        targetRect = vars.isWindow && targetItem.getBoundingClientRect(),
+        isActive = hasClass(item,'active') || false,
+        topEdge = (vars.isWindow ? targetRect.top + vars.scrollOffset : targetItem.offsetTop) - ops.offset,
+        bottomEdge = vars.isWindow ? targetRect.bottom + vars.scrollOffset - ops.offset
+                   : vars.targets[index+1] ? vars.targets[index+1].offsetTop - ops.offset
+                   : element.scrollHeight,
+        inside = activeSibling || vars.scrollOffset >= topEdge && bottomEdge > vars.scrollOffset;
+       if ( !isActive && inside ) {
+        addClass(item,'active');
+        if (dropLink && !hasClass(dropLink,'active') ) {
+          addClass(dropLink,'active');
+        }
+        dispatchCustomEvent.call(element, bootstrapCustomEvent( 'activate', 'scrollspy', vars.items[index]));
+      } else if ( isActive && !inside ) {
+        removeClass(item,'active');
+        if (dropLink && hasClass(dropLink,'active') && !item.parentNode.getElementsByClassName('active').length ) {
+          removeClass(dropLink,'active');
+        }
+      } else if ( isActive && inside || !inside && !isActive ) {
+        return;
+      }
+    }
+    function updateItems() {
+      updateTargets();
+      vars.scrollOffset = vars.isWindow ? getScroll().y : element.scrollTop;
+      vars.items.map(function (l,idx){ return updateItem(idx); });
+    }
+    function toggleEvents(action) {
+      action( scrollTarget, 'scroll', self.refresh, passiveHandler );
+      action( window, 'resize', self.refresh, passiveHandler );
+    }
+    self.refresh = function () {
+      updateItems();
+    };
+    self.dispose = function () {
+      toggleEvents(off);
+      delete element.ScrollSpy;
+    };
+    tryWrapper(function (){
+      element = queryElement(element);
+      element.ScrollSpy && element.ScrollSpy.dispose();
+      targetData = element.getAttribute('data-target');
+      offsetData = element.getAttribute('data-offset');
+      spyTarget = queryElement(options.target || targetData);
+      scrollTarget = element.offsetHeight < element.scrollHeight ? element : window;
+      if (!spyTarget) { return }
+      ops.target = spyTarget;
+      ops.offset = parseInt(options.offset || offsetData) || 10;
+      vars = {};
+      vars.length = 0;
+      vars.items = [];
+      vars.targets = [];
+      vars.isWindow = scrollTarget === window;
+      if ( !element.ScrollSpy ) {
+        toggleEvents(on);
+      }
+      self.refresh();
+      element.ScrollSpy = self;
+    },"BSN.ScrollSpy");
+  }
+
   function Tooltip(element,options) {
     options = options || {};
     var self = this,
@@ -1655,27 +1674,6 @@
     },'BSN.Tooltip');
   }
 
-  var componentsInit = {};
-
-  var initCallback = function (lookUp){
-    lookUp = lookUp || document;
-    var initializeDataAPI = function( Constructor, collection ){
-      Array.from(collection).map(function (x){ return new Constructor(x); });
-    };
-    for (var component in componentsInit) {
-      initializeDataAPI( componentsInit[component][0], lookUp.querySelectorAll (componentsInit[component][1]) );
-    }
-  };
-  var removeDataAPI = function (lookUp) {
-    lookUp = lookUp || document;
-    var removeElementDataAPI = function( ConstructorName, collection ){
-      Array.from(collection).map(function (x){ return x[ConstructorName].dispose(); });
-    };
-    for (var component in componentsInit) {
-      removeElementDataAPI( component, lookUp.querySelectorAll (componentsInit[component][1]) );
-    }
-  };
-
   componentsInit.Alert = [ Alert, '[data-dismiss="alert"]'];
   componentsInit.Button = [ Button, '[data-toggle="buttons"]' ];
   componentsInit.Carousel = [ Carousel, '[data-ride="carousel"]' ];
@@ -1689,9 +1687,9 @@
   componentsInit.Tooltip = [ Tooltip, '[data-toggle="tooltip"],[data-tip="tooltip"]' ];
   document.body ? initCallback() : one( document, 'DOMContentLoaded', initCallback );
 
-  var version = "3.0.2";
+  var version = "3.0.3";
 
-  var index = {
+  var indexMympd = {
     Alert: Alert,
     Button: Button,
     Carousel: Carousel,
@@ -1699,16 +1697,14 @@
     Dropdown: Dropdown,
     Modal: Modal,
     Popover: Popover,
-    ScrollSpy: ScrollSpy,
     Tab: Tab,
     Toast: Toast,
-    Tooltip: Tooltip,
     initCallback: initCallback,
     removeDataAPI: removeDataAPI,
     componentsInit: componentsInit,
     Version: version
   };
 
-  return index;
+  return indexMympd;
 
-})));
+}));
