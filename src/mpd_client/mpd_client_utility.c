@@ -18,6 +18,7 @@
 #include "../sds_extras.h"
 #include "../../dist/src/frozen/frozen.h"
 #include "../list.h"
+#include "../mpd_shared.h"
 #include "config_defs.h"
 #include "../tiny_queue.h"
 #include "../api.h"

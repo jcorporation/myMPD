@@ -30,8 +30,8 @@
 #include "mpd_worker.h"
 
 //private definitions
-static void mpd_worker_idle(t_config *config, t_mpd_state *mpd_state);
-static void mpd_worker_disconnect(t_mpd_state *mpd_state);
+static void mpd_worker_idle(t_config *config, t_mpd_worker_state *mpd_worker_state);
+static void mpd_worker_disconnect(t_mpd_worker_state *mpd_worker_state);
 
 //public functions
 void *mpd_worker_loop(void *arg_config) {
@@ -56,9 +56,9 @@ void *mpd_worker_loop(void *arg_config) {
 
     LOG_INFO("Starting mpd_worker");
     //On startup connect instantly
-    mpd_state->conn_state = MPD_DISCONNECTED;
+    mpd_worker_state->conn_state = MPD_DISCONNECTED;
     while (s_signal_received == 0) {
-        mpd_worker_idle(config, mpd_state);
+        mpd_worker_idle(config, mpd_worker_state);
     }
     //Cleanup
     mpd_worker_disconnect(mpd_worker_state);
@@ -67,8 +67,6 @@ void *mpd_worker_loop(void *arg_config) {
 }
 
 static void mpd_worker_idle(t_config *config, t_mpd_worker_state *mpd_worker_state) {
-    struct pollfd fds[1];
-    int pollrc;
     sds buffer = sdsempty();
     unsigned mpd_worker_queue_length = 0;
     
@@ -117,8 +115,7 @@ static void mpd_worker_idle(t_config *config, t_mpd_worker_state *mpd_worker_sta
             mpd_worker_state->conn_state = MPD_CONNECTED;
             mpd_worker_state->reconnect_interval = 0;
             mpd_worker_state->reconnect_time = 0;
-            }
-            if (!mpd_send_idle(mpd_worker_state->conn,)) {
+            if (!mpd_send_idle(mpd_worker_state->conn)) {
                 LOG_ERROR("MPD worker entering idle mode failed");
                 mpd_worker_state->conn_state = MPD_FAILURE;
             }

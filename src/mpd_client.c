@@ -377,10 +377,3 @@ static void mpd_client_idle(t_config *config, t_mpd_state *mpd_state) {
     }
     sdsfree(buffer);
 }
-
-static void mpd_client_disconnect(t_mpd_state *mpd_state) {
-    mpd_state->conn_state = MPD_DISCONNECT;
-    if (mpd_state->conn != NULL) {
-        mpd_connection_free(mpd_state->conn);
-    }
-}

@@ -16,4 +16,21 @@ enum mpd_conn_states {
     MPD_WAIT
 };
 
+typedef struct t_mpd_state {
+    // Connection
+    struct mpd_connection *conn;
+    enum mpd_conn_states conn_state;
+    int timeout;
+    time_t reconnect_time;
+    unsigned reconnect_interval;
+    // States
+    enum mpd_state state;
+    sds mpd_host;
+    int mpd_port;
+    sds mpd_pass;
+} t_mpd__state;
+
+void free_mpd_state(t_mpd_state *mpd_state);
+void default_mpd_state(t_mpd_state *mpd_state);
+void mpd_client_disconnect(t_mpd_state *mpd_state);
 #endif

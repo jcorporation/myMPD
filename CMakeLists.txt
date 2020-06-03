@@ -166,6 +166,7 @@ set(SOURCES
   src/utility.c
   src/random.c
   src/sds_extras.c
+  src/mpd_shared.c
   src/mpd_client.c
   src/mpd_client/mpd_client_api.c
   src/mpd_client/mpd_client_cover.c
@@ -183,7 +184,6 @@ set(SOURCES
   src/mpd_client/mpd_client_timer.c
   src/mpd_client/mpd_client_mounts.c
   src/mpd_worker.c
-  src/mpd_worker/mpd_worker_utility.c
   src/mpd_worker/mpd_worker_api.c
   src/mympd_api.c
   src/mympd_api/mympd_api_bookmarks.c
