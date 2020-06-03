@@ -36,6 +36,7 @@
 #include "api.h"
 #include "global.h"
 #include "mpd_client.h"
+#include "mpd_worker.h"
 #include "web_server/web_server_utility.h"
 #include "web_server.h"
 #include "mympd_api.h"
@@ -269,6 +270,7 @@ int main(int argc, char **argv) {
     bool init_mg_user_data = false;
     bool init_thread_webserver = false;
     bool init_thread_mpdclient = false;
+    bool init_thread_mpdworker = false;
     bool init_thread_mympdapi = false;
     int rc = EXIT_FAILURE;
     #ifdef DEBUG
@@ -287,6 +289,7 @@ int main(int argc, char **argv) {
     uid_t startup_uid = getuid();
     
     mpd_client_queue = tiny_queue_create();
+    mpd_worker_queue = tiny_queue_create();
     mympd_api_queue = tiny_queue_create();
     web_server_queue = tiny_queue_create();
 
@@ -410,6 +413,7 @@ int main(int argc, char **argv) {
 
     //Create working threads
     pthread_t mpd_client_thread;
+    pthread_t mpd_worker_thread;
     pthread_t web_server_thread;
     pthread_t mympd_api_thread;
     //mympd api
@@ -423,6 +427,15 @@ int main(int argc, char **argv) {
         s_signal_received = SIGTERM;
     }
     //mpd connection
+    LOG_INFO("Starting mpd worker thread");
+    if (pthread_create(&mpd_worker_thread, NULL, mpd_worker_loop, config) == 0) {
+        pthread_setname_np(mpd_worker_thread, "mympd_mpdworker");
+        init_thread_mpdworker = true;
+    }
+    else {
+        LOG_ERROR("Can't create mympd_worker thread");
+        s_signal_received = SIGTERM;
+    }
     LOG_INFO("Starting mpd client thread");
     if (pthread_create(&mpd_client_thread, NULL, mpd_client_loop, config) == 0) {
         pthread_setname_np(mpd_client_thread, "mympd_mpdclient");
@@ -452,6 +465,10 @@ int main(int argc, char **argv) {
     if (init_thread_mpdclient == true) {
         pthread_join(mpd_client_thread, NULL);
         LOG_INFO("Stopping mpd client thread");
+    }
+    if (init_thread_mpdworker == true) {
+        pthread_join(mpd_worker_thread, NULL);
+        LOG_INFO("Stopping mpd worker thread");
     }
     if (init_thread_webserver == true) {
         pthread_join(web_server_thread, NULL);

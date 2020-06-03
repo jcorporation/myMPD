@@ -9,15 +9,6 @@
 
 #include "dist/src/rax/rax.h"
 
-enum mpd_conn_states {
-    MPD_DISCONNECTED,
-    MPD_FAILURE,
-    MPD_CONNECTED,
-    MPD_RECONNECT,
-    MPD_DISCONNECT,
-    MPD_WAIT
-};
-
 typedef struct t_tags {
     size_t len;
     enum mpd_tag_type tags[64];

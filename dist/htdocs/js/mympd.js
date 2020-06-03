@@ -4956,7 +4956,7 @@ function parseSongDetails(obj) {
         }
         let myCarousel = document.getElementById('songPicsCarousel');
         //eslint-disable-next-line no-undef, no-unused-vars
-        let myCarouselInit = new Carousel(myCarousel, {
+        let myCarouselInit = new BSN.Carousel(myCarousel, {
             interval: false,
             pause: false
         });
