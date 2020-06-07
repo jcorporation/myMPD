@@ -122,10 +122,12 @@ bool handle_option(t_config *config, char *cmd, sds option) {
     if (MATCH_OPTION("certs_create")) {
         sds ssldir = sdscatfmt(sdsempty(), "%s/ssl", config->varlibdir);
         int testdir_rc = testdir("SSL certificates", ssldir, true);
-        sdsfree(ssldir);
         if (testdir_rc < 2) {
-            return create_certificates(ssldir, config->ssl_san);
+            bool rc = create_certificates(ssldir, config->ssl_san);
+            sdsfree(ssldir);
+            return rc;
         }
+        sdsfree(ssldir);
         return true;
     }
     #endif
