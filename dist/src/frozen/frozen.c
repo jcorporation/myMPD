@@ -41,7 +41,7 @@
 #define vsnprintf cs_win_vsnprintf
 int cs_win_snprintf(char *str, size_t size, const char *format, ...);
 int cs_win_vsnprintf(char *str, size_t size, const char *format, va_list ap);
-#if _MSC_VER >= 1700
+#if _MSC_VER >= 1700 || (defined(__GNUC__))
 #include <stdint.h>
 #else
 typedef _int64 int64_t;
@@ -689,8 +689,10 @@ int json_vprintf(struct json_out *out, const char *fmt, va_list xap) {
          * inherit the advancement made by vprintf.
          * 32-bit (linux or windows) passes va_list by value.
          */
-        if ((n + 1 == strlen("%" PRId64) && strcmp(fmt2, "%" PRId64) == 0) ||
-            (n + 1 == strlen("%" PRIu64) && strcmp(fmt2, "%" PRIu64) == 0)) {
+        if ((n + 1 == (int) strlen("%" PRId64) &&
+             strcmp(fmt2, "%" PRId64) == 0) ||
+            (n + 1 == (int) strlen("%" PRIu64) &&
+             strcmp(fmt2, "%" PRIu64) == 0)) {
           (void) va_arg(ap, int64_t);
         } else if (strcmp(fmt2, "%.*s") == 0) {
           (void) va_arg(ap, int);
@@ -1064,7 +1066,8 @@ int json_vscanf(const char *s, int len, const char *fmt, va_list ap) {
           memcpy(fmtbuf, fmt + i, conv_len);
           fmtbuf[conv_len] = '\0';
           i += conv_len;
-          i += strspn(fmt + i, delims);
+          if (fmt[i] != '}')
+            i += strspn(fmt + i, delims);
           break;
         }
       }
