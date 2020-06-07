@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <signal.h>
 #include <assert.h>
+#include <inttypes.h>
 #include <mpd/client.h>
 
 #include "../../dist/src/sds/sds.h"
@@ -21,19 +22,18 @@
 #include "../log.h"
 #include "../tiny_queue.h"
 #include "../global.h"
+#include "../mpd_shared.h"
 #include "mpd_worker_utility.h"
 #include "mpd_worker_api.h"
 
+//private definitions
+static bool mpd_worker_api_settings_set(t_config *config, t_mpd_worker_state *mpd_worker_state, struct json_token *key, 
+                          struct json_token *val, bool *mpd_host_changed, bool *check_mpd_error);
+
+//public functions
 void mpd_worker_api(t_config *config, t_mpd_worker_state *mpd_worker_state, void *arg_request) {
     t_work_request *request = (t_work_request*) arg_request;
-    unsigned int uint_buf1;
-    unsigned int uint_buf2;
-    int je;
-    int int_buf1;
-    int int_buf2; 
-    bool bool_buf;
     bool rc;
-    float float_buf;
     char *p_charbuf1 = NULL;
     char *p_charbuf2 = NULL;
     char *p_charbuf3 = NULL;
@@ -54,8 +54,8 @@ void mpd_worker_api(t_config *config, t_mpd_worker_state *mpd_worker_state, void
             bool check_mpd_error = false;
             sds notify_buffer = sdsempty();
             while ((h = json_next_key(request->data, sdslen(request->data), h, ".params", &key, &val)) != NULL) {
-                rc = mpd_api_settings_set(config, mpd_state, &key, &val, &mpd_host_changed, &jukebox_changed, &check_mpd_error);
-                if ((check_mpd_error == true && check_error_and_recover2(mpd_state, &notify_buffer, request->method, request->id, true) == false)
+                rc = mpd_worker_api_settings_set(config, mpd_worker_state, &key, &val, &mpd_host_changed, &check_mpd_error);
+                if ((check_mpd_error == true && check_error_and_recover2(mpd_worker_state->mpd_state, &notify_buffer, request->method, request->id, true) == false)
                     || rc == false)
                 {
                     if (sdslen(notify_buffer) > 0) {
@@ -68,7 +68,7 @@ void mpd_worker_api(t_config *config, t_mpd_worker_state *mpd_worker_state, void
             if (rc == true) {
                 if (mpd_host_changed == true) {
                     //reconnect with new settings
-                    mpd_state->conn_state = MPD_DISCONNECT;
+                    mpd_worker_state->mpd_state->conn_state = MPD_DISCONNECT;
                 }
                 response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
             }
@@ -103,4 +103,41 @@ void mpd_worker_api(t_config *config, t_mpd_worker_state *mpd_worker_state, void
         free_result(response);
     }
     free_request(request);
+}
+
+//private functions
+static bool mpd_worker_api_settings_set(t_config *config, t_mpd_worker_state *mpd_worker_state, struct json_token *key, 
+                          struct json_token *val, bool *mpd_host_changed, bool *check_mpd_error)
+{
+    bool rc = true;
+    char *crap;
+    sds settingvalue = sdscatlen(sdsempty(), val->ptr, val->len);
+
+    *check_mpd_error = false;
+    LOG_DEBUG("Parse setting \"%.*s\" with value \"%.*s\"", key->len, key->ptr, val->len, val->ptr);
+    if (strncmp(key->ptr, "mpdPass", key->len) == 0) {
+        if (strncmp(val->ptr, "dontsetpassword", val->len) != 0) {
+            *mpd_host_changed = true;
+            mpd_worker_state->mpd_state->mpd_pass = sdsreplacelen(mpd_worker_state->mpd_state->mpd_pass, settingvalue, sdslen(settingvalue));
+        }
+        else {
+            sdsfree(settingvalue);
+            return true;
+        }
+    }
+    else if (strncmp(key->ptr, "mpdHost", key->len) == 0) {
+        if (strncmp(val->ptr, mpd_worker_state->mpd_state->mpd_host, val->len) != 0) {
+            *mpd_host_changed = true;
+            mpd_worker_state->mpd_state->mpd_host = sdsreplacelen(mpd_worker_state->mpd_state->mpd_host, settingvalue, sdslen(settingvalue));
+        }
+    }
+    else if (strncmp(key->ptr, "mpdPort", key->len) == 0) {
+        int mpd_port = strtoimax(settingvalue, &crap, 10);
+        if (mpd_worker_state->mpd_state->mpd_port != mpd_port) {
+            *mpd_host_changed = true;
+            mpd_worker_state->mpd_state->mpd_port = mpd_port;
+        }
+    }
+    sdsfree(settingvalue);
+    return rc;
 }

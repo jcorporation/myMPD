@@ -6,5 +6,5 @@
 
 #ifndef __MPD_CLIENT_API_H__
 #define __MPD_CLIENT_API_H__
-void mpd_client_api(t_config *config, t_mpd_state *mpd_state, void *arg_request);
+void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void *arg_request);
 #endif

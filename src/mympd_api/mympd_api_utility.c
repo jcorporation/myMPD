@@ -25,7 +25,6 @@
 
 void mympd_api_push_to_mpd_client(t_mympd_state *mympd_state) {
     t_work_request *request = create_request(-1, 0, MYMPD_API_SETTINGS_SET, "MYMPD_API_SETTINGS_SET", "");
-
     request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_SETTINGS_SET\",\"params\":{");
     request->data = tojson_long(request->data, "jukeboxMode", mympd_state->jukebox_mode, true);
     request->data = tojson_char(request->data, "jukeboxPlaylist", mympd_state->jukebox_playlist, true);
@@ -55,8 +54,15 @@ void mympd_api_push_to_mpd_client(t_mympd_state *mympd_state) {
     request->data = tojson_long(request->data, "maxElementsPerPage", mympd_state->max_elements_per_page, true);
     request->data = tojson_char(request->data, "musicDirectory", mympd_state->music_directory, false);
     request->data = sdscat(request->data, "}}");
-
     tiny_queue_push(mpd_client_queue, request);
+
+    t_work_request *request2 = create_request(-1, 0, MYMPD_API_SETTINGS_SET, "MYMPD_API_SETTINGS_SET", "");
+    request2->data = sdscat(request2->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_SETTINGS_SET\",\"params\":{");
+    request2->data = tojson_char(request2->data, "mpdHost", mympd_state->mpd_host, true);
+    request2->data = tojson_char(request2->data, "mpdPass", mympd_state->mpd_pass, true);
+    request2->data = tojson_long(request2->data, "mpdPort", mympd_state->mpd_port, true);
+    request2->data = sdscat(request2->data, "}}");
+    tiny_queue_push(mpd_worker_queue, request2);
 }
 
 void free_mympd_state(t_mympd_state *mympd_state) {

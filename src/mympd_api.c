@@ -153,6 +153,10 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                 //forward request to mpd_client queue            
                 t_work_request *mpd_client_request = create_request(-1, request->id, request->cmd_id, request->method, request->data);
                 tiny_queue_push(mpd_client_queue, mpd_client_request);
+                //forward request to mpd_worker queue            
+                t_work_request *mpd_client_request2 = create_request(-1, request->id, request->cmd_id, request->method, request->data);
+                tiny_queue_push(mpd_worker_queue, mpd_client_request2);
+                //respond with ok
                 response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
             }
             else {
