@@ -68,6 +68,9 @@ void *mpd_worker_loop(void *arg_config) {
 static void mpd_worker_idle(t_config *config, t_mpd_worker_state *mpd_worker_state) {
     sds buffer = sdsempty();
     unsigned mpd_worker_queue_length = 0;
+    struct pollfd fds[1];
+    int pollrc;
+    enum mpd_idle set_idle_mask = MPD_IDLE_DATABASE;
     
     switch (mpd_worker_state->mpd_state->conn_state) {
         case MPD_WAIT: {
@@ -114,7 +117,7 @@ static void mpd_worker_idle(t_config *config, t_mpd_worker_state *mpd_worker_sta
             mpd_worker_state->mpd_state->conn_state = MPD_CONNECTED;
             mpd_worker_state->mpd_state->reconnect_interval = 0;
             mpd_worker_state->mpd_state->reconnect_time = 0;
-            if (!mpd_send_idle(mpd_worker_state->mpd_state->conn)) {
+            if (!mpd_send_idle_mask(mpd_worker_state->mpd_state->conn, set_idle_mask)) {
                 LOG_ERROR("MPD worker entering idle mode failed");
                 mpd_worker_state->mpd_state->conn_state = MPD_FAILURE;
             }
@@ -138,22 +141,31 @@ static void mpd_worker_idle(t_config *config, t_mpd_worker_state *mpd_worker_sta
             break;
 
         case MPD_CONNECTED:
+            fds[0].fd = mpd_connection_get_fd(mpd_worker_state->mpd_state->conn);
+            fds[0].events = POLLIN;
+            pollrc = poll(fds, 1, 50);
+
             mpd_worker_queue_length = tiny_queue_length(mpd_worker_queue, 50);
-            if (mpd_worker_queue_length > 0) {
+            if (pollrc > 0 || mpd_worker_queue_length > 0) {
                 LOG_DEBUG("Leaving mpd worker idle mode");
                 if (!mpd_send_noidle(mpd_worker_state->mpd_state->conn)) {
                     check_error_and_recover(mpd_worker_state->mpd_state, NULL, NULL, 0);
                     mpd_worker_state->mpd_state->conn_state = MPD_FAILURE;
                     break;
                 }
-                //Handle request
-                LOG_DEBUG("Handle request");
-                t_work_request *request = tiny_queue_shift(mpd_worker_queue, 50);
-                if (request != NULL) {
-                    mpd_worker_api(config, mpd_worker_state, request);
+                if (pollrc > 0) {
+                    //Update smart playlists after database was updated by mpd
+                }
+                if (mpd_worker_queue_length > 0) {
+                    //Handle request
+                    LOG_DEBUG("MPD worker handle request");
+                    t_work_request *request = tiny_queue_shift(mpd_worker_queue, 50);
+                    if (request != NULL) {
+                        mpd_worker_api(config, mpd_worker_state, request);
+                    }
                 }
                 LOG_DEBUG("Entering mpd worker idle mode");
-                if (!mpd_send_idle(mpd_worker_state->mpd_state->conn)) {
+                if (!mpd_send_idle_mask(mpd_worker_state->mpd_state->conn, set_idle_mask)) {
                     check_error_and_recover(mpd_worker_state->mpd_state, NULL, NULL, 0);
                     mpd_worker_state->mpd_state->conn_state = MPD_FAILURE;
                 }
