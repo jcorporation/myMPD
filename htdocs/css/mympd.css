@@ -70,8 +70,7 @@ body {
 }
 
 .breakAll, td[data-col=Title] {
-  word-break: break-all;
-  min-width: 6rem;
+  word-break: break-word;
 }
 
 td[data-col=Action] {
