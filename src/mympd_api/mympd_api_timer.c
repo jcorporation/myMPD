@@ -361,11 +361,10 @@ bool timerfile_read(t_config *config, t_mympd_state *mympd_state) {
     sds timer_file = sdscatfmt(sdsempty(), "%s/state/timer_list", config->varlibdir);
     char *line = NULL;
     size_t n = 0;
-    ssize_t read = 0;
     FILE *fp = fopen(timer_file, "r");
     sdsfree(timer_file);
     if (fp != NULL) {
-        while ((read = getline(&line, &n, fp)) > 0) {
+        while (getline(&line, &n, fp) > 0) {
             struct t_timer_definition *timer_def = malloc(sizeof(struct t_timer_definition));
             sds param = sdscatfmt(sdsempty(), "{params: %s}", line);
             timer_def = parse_timer(timer_def, param, sdslen(param));

@@ -109,7 +109,6 @@ sds mympd_api_bookmark_list(t_config *config, sds buffer, sds method, int reques
     char *line = NULL;
     char *crap = NULL;
     size_t n = 0;
-    ssize_t read;
     unsigned entity_count = 0;
     unsigned entities_returned = 0;
     
@@ -132,7 +131,7 @@ sds mympd_api_bookmark_list(t_config *config, sds buffer, sds method, int reques
         fclose(fi);
     }
     else {
-        while ((read = getline(&line, &n, fi)) > 0) {
+        while (getline(&line, &n, fi) > 0) {
             entity_count++;
             if (entity_count > offset && entity_count <= offset + config->max_elements_per_page) {
                 if (entities_returned++) {

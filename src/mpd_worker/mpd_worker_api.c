@@ -27,7 +27,7 @@
 #include "mpd_worker_api.h"
 
 //private definitions
-static bool mpd_worker_api_settings_set(t_config *config, t_mpd_worker_state *mpd_worker_state, struct json_token *key, 
+static bool mpd_worker_api_settings_set(t_mpd_worker_state *mpd_worker_state, struct json_token *key, 
                           struct json_token *val, bool *mpd_host_changed, bool *check_mpd_error);
 
 //public functions
@@ -54,7 +54,7 @@ void mpd_worker_api(t_config *config, t_mpd_worker_state *mpd_worker_state, void
             bool check_mpd_error = false;
             sds notify_buffer = sdsempty();
             while ((h = json_next_key(request->data, sdslen(request->data), h, ".params", &key, &val)) != NULL) {
-                rc = mpd_worker_api_settings_set(config, mpd_worker_state, &key, &val, &mpd_host_changed, &check_mpd_error);
+                rc = mpd_worker_api_settings_set(mpd_worker_state, &key, &val, &mpd_host_changed, &check_mpd_error);
                 if ((check_mpd_error == true && check_error_and_recover2(mpd_worker_state->mpd_state, &notify_buffer, request->method, request->id, true) == false)
                     || rc == false)
                 {
@@ -103,10 +103,12 @@ void mpd_worker_api(t_config *config, t_mpd_worker_state *mpd_worker_state, void
         free_result(response);
     }
     free_request(request);
+    //prevent unused paramter warning
+    (void) config;
 }
 
 //private functions
-static bool mpd_worker_api_settings_set(t_config *config, t_mpd_worker_state *mpd_worker_state, struct json_token *key, 
+static bool mpd_worker_api_settings_set(t_mpd_worker_state *mpd_worker_state, struct json_token *key, 
                           struct json_token *val, bool *mpd_host_changed, bool *check_mpd_error)
 {
     bool rc = true;

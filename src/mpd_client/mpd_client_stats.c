@@ -54,11 +54,10 @@ bool mpd_client_last_played_list_save(t_config *config, t_mpd_client_state *mpd_
     //append current last_played file to tmp file
     char *line = NULL;
     size_t n = 0;
-    ssize_t read;
     sds cfg_file = sdscatfmt(sdsempty(), "%s/state/last_played", config->varlibdir);
     FILE *fi = fopen(cfg_file, "r");
     if (fi != NULL) {
-        while ((read = getline(&line, &n, fi)) > 0 && i < mpd_client_state->last_played_count) {
+        while (getline(&line, &n, fi) > 0 && i < mpd_client_state->last_played_count) {
             fputs(line, fp);
             i++;
         }
@@ -146,12 +145,11 @@ sds mpd_client_put_last_played_songs(t_config *config, t_mpd_client_state *mpd_c
         char *data = NULL;
         char *crap = NULL;
         size_t n = 0;
-        ssize_t read;
         sds lp_file = sdscatfmt(sdsempty(), "%s/state/last_played", config->varlibdir);
         FILE *fp = fopen(lp_file, "r");
         sdsfree(lp_file);
         if (fp != NULL) {
-            while ((read = getline(&line, &n, fp)) > 0) {
+            while (getline(&line, &n, fp) > 0) {
                 entity_count++;
                 if (entity_count > offset && entity_count <= offset + mpd_client_state->max_elements_per_page) {
                     int value = strtoimax(line, &data, 10);

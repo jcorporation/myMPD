@@ -222,12 +222,11 @@ static struct list *mpd_client_jukebox_get_last_played(t_config *config, t_mpd_c
         char *data = NULL;
         char *crap = NULL;
         size_t n = 0;
-        ssize_t read;
         sds lp_file = sdscatfmt(sdsempty(), "%s/state/last_played", config->varlibdir);
         FILE *fp = fopen(lp_file, "r");
         sdsfree(lp_file);
         if (fp != NULL) {
-            while ((read = getline(&line, &n, fp)) > 0 && queue_list->length < 20) {
+            while (getline(&line, &n, fp) > 0 && queue_list->length < 20) {
                 int value = strtoimax(line, &data, 10);
                 if (value > 0 && strlen(data) > 2) {
                     data = data + 2;

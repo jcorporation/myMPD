@@ -29,7 +29,6 @@ static int json_get_utf8_char_len(unsigned char ch) {
 
 sds sdscatjson(sds s, const char *p, size_t len) {
     const char *hex_digits = "0123456789abcdef";
-    size_t cl = 0;
     s = sdscatlen(s, "\"", 1);
     while (len--) {
         switch(*p) {
@@ -52,7 +51,7 @@ sds sdscatjson(sds s, const char *p, size_t len) {
             if (isprint(*p)) {
                 s = sdscatprintf(s, "%c", *p);
             }
-            else if ((cl = json_get_utf8_char_len(*p)) == 1) {
+            else if (json_get_utf8_char_len(*p) == 1) {
                 s = sdscatprintf(s, "\\u00%s%s", &hex_digits[(*p >> 4) % 0xf], &hex_digits[*p % 0xf]);
             } 
             else {
