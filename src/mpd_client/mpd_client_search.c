@@ -91,19 +91,24 @@ static sds _mpd_client_search(t_mpd_client_state *mpd_client_state, sds buffer, 
             return buffer;
         }
     }
-    else if (strcmp(searchtag, "any") == 0) {
+    else if (searchtag != NULL && strcmp(searchtag, "any") == 0) {
         bool rc = mpd_search_add_any_tag_constraint(mpd_client_state->mpd_state->conn, MPD_OPERATOR_DEFAULT, expression);
         if (check_rc_error_and_recover(mpd_client_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_any_tag_constraint") == false) {
             mpd_search_cancel(mpd_client_state->mpd_state->conn);
             return buffer;
         }
     }
-    else {
+    else if (searchtag != NULL) {
         bool rc = mpd_search_add_tag_constraint(mpd_client_state->mpd_state->conn, MPD_OPERATOR_DEFAULT, mpd_tag_name_parse(searchtag), expression);
         if (check_rc_error_and_recover(mpd_client_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_tag_constraint") == false) {
             mpd_search_cancel(mpd_client_state->mpd_state->conn);
             return buffer;
         }
+    }
+    else {
+        mpd_search_cancel(mpd_client_state->mpd_state->conn);
+        buffer = jsonrpc_respond_message(buffer, method, request_id, "No search tag defined and advanced search is disabled", true);
+        return buffer;
     }
 
     if (strcmp(plist, "") == 0) {
