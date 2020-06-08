@@ -340,7 +340,7 @@ const struct mime_type_entry media_files[] = {
     {NULL,   "application/octet-stream"}
 };
 
-sds get_mime_type_by_ext(const char *filename) {
+sds get_extension_from_filename(const char *filename) {
     const char *ext = strrchr(filename, '.');
     if (ext == NULL) {
         return sdsempty();
@@ -352,6 +352,13 @@ sds get_mime_type_by_ext(const char *filename) {
     else {
         return sdsempty();        
     }
+    sds extension = sdsnew(ext);
+    sdstolower(extension);
+    return extension;
+}
+
+sds get_mime_type_by_ext(const char *filename) {
+    sds ext = get_extension_from_filename(filename);
 
     const struct mime_type_entry *p = NULL;
     for (p = image_files; p->extension != NULL; p++) {
@@ -368,6 +375,7 @@ sds get_mime_type_by_ext(const char *filename) {
         }
     }
     sds mime_type = sdsnew(p->mime_type);
+    sdsfree(ext);
     return mime_type;
 }
 

@@ -6116,8 +6116,8 @@ function showEditTimer(timerid) {
         sendAPI("MYMPD_API_TIMER_GET", {"timerid": timerid}, parseEditTimer);
     }
     else {
-        sendAPI("MPD_API_PLAYLIST_LIST_ALL", {}, function(obj) { 
-            getAllPlaylists(obj, 'selectTimerPlaylist', 'Database');
+        sendAPI("MPD_API_PLAYLIST_LIST_ALL", {}, function(obj2) { 
+            getAllPlaylists(obj2, 'selectTimerPlaylist', 'Database');
         });
         document.getElementById('inputTimerId').value = '0';
         document.getElementById('inputTimerName').value = '';
