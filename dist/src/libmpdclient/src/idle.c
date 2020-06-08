@@ -55,6 +55,8 @@ static const char *const idle_names[] = {
 	"subscription",
 	"message",
 	"partition",
+	"neighbor",
+	"mount",
 	NULL
 };
 

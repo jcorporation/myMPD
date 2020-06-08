@@ -47,7 +47,6 @@
 
 // IWYU pragma: begin_exports
 
-#include "albumart.h"
 #include "audio_format.h"
 #include "capabilities.h"
 #include "connection.h"
@@ -68,7 +67,6 @@
 #include "player.h"
 #include "playlist.h"
 #include "queue.h"
-#include "readpicture.h"
 #include "recv.h"
 #include "replay_gain.h"
 #include "response.h"
@@ -80,6 +78,9 @@
 #include "status.h"
 #include "sticker.h"
 #include "version.h"
+#include "binary.h"
+#include "albumart.h"
+#include "readpicture.h"
 #include "libmympdclient_version.h"
 
 // IWYU pragma: end_exports
