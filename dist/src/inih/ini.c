@@ -2,7 +2,7 @@
 
 SPDX-License-Identifier: BSD-3-Clause
 
-Copyright (C) 2009-2019, Ben Hoyt
+Copyright (C) 2009-2020, Ben Hoyt
 
 inih is released under the New BSD license (see LICENSE.txt). Go to the project
 home page for more info:
@@ -74,7 +74,8 @@ static char* find_chars_or_comment(const char* s, const char* chars)
 /* Version of strncpy that ensures dest (size bytes) is null-terminated. */
 static char* strncpy0(char* dest, const char* src, size_t size)
 {
-    strncpy(dest, src, size - 1);
+    /* Use memcpy instead of strncpy to avoid gcc warnings (see issue #91) */
+    memcpy(dest, src, size - 1);
     dest[size - 1] = '\0';
     return dest;
 }
