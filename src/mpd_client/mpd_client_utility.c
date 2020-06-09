@@ -53,7 +53,7 @@ sds put_extra_files(t_mpd_client_state *mpd_client_state, sds buffer, const char
 }
 
 sds put_song_tags(sds buffer, t_mpd_client_state *mpd_client_state, const t_tags *tagcols, const struct mpd_song *song) {
-    if (mpd_client_state->feat_tags == true) {
+    if (mpd_client_state->mpd_state->feat_tags == true) {
         for (size_t tagnr = 0; tagnr < tagcols->len; ++tagnr) {
             char *tag_value = mpd_client_get_tag(song, tagcols->tags[tagnr]);
             buffer = tojson_char(buffer, mpd_tag_name(tagcols->tags[tagnr]), tag_value == NULL ? "-" : tag_value, true);
@@ -70,7 +70,7 @@ sds put_song_tags(sds buffer, t_mpd_client_state *mpd_client_state, const t_tags
 }
 
 sds put_empty_song_tags(sds buffer, t_mpd_client_state *mpd_client_state, const t_tags *tagcols, const char *uri) {
-    if (mpd_client_state->feat_tags == true) {
+    if (mpd_client_state->mpd_state->feat_tags == true) {
         for (size_t tagnr = 0; tagnr < tagcols->len; ++tagnr) {
             if (tagcols->tags[tagnr] == MPD_TAG_TITLE) {
                 buffer = tojson_char(buffer, "Title", basename((char *)uri), true);

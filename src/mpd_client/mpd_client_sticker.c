@@ -239,7 +239,7 @@ void sticker_cache_free(t_mpd_client_state *mpd_client_state) {
 
 //private functions
 bool _sticker_cache_init(t_config *config, t_mpd_client_state *mpd_client_state) {
-    if (config->sticker_cache == false || mpd_client_state->feat_sticker == false || mpd_client_state->feat_mpd_searchwindow == false) {
+    if (config->sticker_cache == false || mpd_client_state->feat_sticker == false || mpd_client_state->mpd_state->feat_mpd_searchwindow == false) {
         return false;
     }
     LOG_VERBOSE("Updating sticker cache");

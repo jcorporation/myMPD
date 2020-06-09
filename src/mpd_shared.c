@@ -51,6 +51,34 @@ void mpd_shared_mpd_disconnect(t_mpd_state *mpd_state) {
     }
 }
 
+bool mpd_shared_feat_mpd_searchwindow(t_mpd_state *mpd_state) {
+    if (mpd_connection_cmp_server_version(mpd_state->conn, 0, 20, 0) >= 0) {
+        return true;
+    }
+
+    LOG_WARN("Disabling searchwindow support, depends on mpd >= 0.20.0");
+    return false;
+}
+
+bool mpd_shared_feat_tags(t_mpd_state *mpd_state) {
+    bool feat_tags = false;
+    
+    if (mpd_send_list_tag_types(mpd_state->conn) == true) {
+        struct mpd_pair *pair;
+        while ((pair = mpd_recv_tag_type_pair(mpd_state->conn)) != NULL) {
+            mpd_return_pair(mpd_state->conn, pair);
+            feat_tags = true;
+            break;
+        }
+    }
+    else {
+        LOG_ERROR("Error in response to command: mpd_send_list_tag_types");
+    }
+    mpd_response_finish(mpd_state->conn);
+    check_error_and_recover2(mpd_state, NULL, NULL, 0, false);
+    return feat_tags;
+}
+
 bool check_rc_error_and_recover(t_mpd_state *mpd_state, sds *buffer, 
                                 sds method, int request_id, bool notify, bool rc, const char *command)
 {

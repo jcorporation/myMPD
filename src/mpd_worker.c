@@ -31,6 +31,7 @@
 
 //private definitions
 static void mpd_worker_idle(t_config *config, t_mpd_worker_state *mpd_worker_state);
+static void mpd_worker_features(t_mpd_worker_state *mpd_worker_state);
 
 //public functions
 void *mpd_worker_loop(void *arg_config) {
@@ -117,6 +118,9 @@ static void mpd_worker_idle(t_config *config, t_mpd_worker_state *mpd_worker_sta
             mpd_worker_state->mpd_state->conn_state = MPD_CONNECTED;
             mpd_worker_state->mpd_state->reconnect_interval = 0;
             mpd_worker_state->mpd_state->reconnect_time = 0;
+            
+            mpd_worker_features(mpd_worker_state);
+            
             if (!mpd_send_idle_mask(mpd_worker_state->mpd_state->conn, set_idle_mask)) {
                 LOG_ERROR("MPD worker entering idle mode failed");
                 mpd_worker_state->mpd_state->conn_state = MPD_FAILURE;
@@ -175,4 +179,9 @@ static void mpd_worker_idle(t_config *config, t_mpd_worker_state *mpd_worker_sta
             LOG_ERROR("Invalid mpd worker connection state");
     }
     sdsfree(buffer);
+}
+
+static void mpd_worker_features(t_mpd_worker_state *mpd_worker_state) {
+    mpd_worker_state->mpd_state->feat_tags = mpd_shared_feat_tags(mpd_worker_state->mpd_state);
+    mpd_worker_state->mpd_state->feat_mpd_searchwindow = mpd_shared_feat_mpd_searchwindow(mpd_worker_state->mpd_state);
 }

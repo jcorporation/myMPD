@@ -22,18 +22,21 @@ typedef struct t_tags {
 } t_tags;
 
 typedef struct t_mpd_state {
-    // Connection
+    //Connection
     struct mpd_connection *conn;
     enum mpd_conn_states conn_state;
     int timeout;
     time_t reconnect_time;
     unsigned reconnect_interval;
-    // States
+    //States
     enum mpd_state state;
     sds mpd_host;
     int mpd_port;
     sds mpd_pass;
     t_tags mympd_tag_types;
+    //Feats
+    bool feat_mpd_searchwindow;
+    bool feat_tags;
 } t_mpd_state;
 
 void mpd_shared_free_mpd_state(t_mpd_state *mpd_state);
@@ -50,4 +53,6 @@ void reset_t_tags(t_tags *tags);
 void disable_all_mpd_tags(t_mpd_state *mpd_state);
 void enable_all_mpd_tags(t_mpd_state *mpd_state);
 void enable_mpd_tags(t_mpd_state *mpd_state, t_tags enable_tags);
+bool mpd_shared_feat_mpd_searchwindow(t_mpd_state *mpd_state);
+bool mpd_shared_feat_tags(t_mpd_state *mpd_state);
 #endif

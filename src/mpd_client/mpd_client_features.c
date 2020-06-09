@@ -38,14 +38,14 @@ void mpd_client_mpd_features(t_config *config, t_mpd_client_state *mpd_client_st
     // Defaults
     mpd_client_state->feat_sticker = false;
     mpd_client_state->feat_playlists = false;
-    mpd_client_state->feat_tags = false;
+    mpd_client_state->mpd_state->feat_tags = false;
     mpd_client_state->feat_advsearch = false;
     mpd_client_state->feat_fingerprint = false;
     mpd_client_state->feat_smartpls = mpd_client_state->smartpls;;
     mpd_client_state->feat_coverimage = true;
     mpd_client_state->feat_mpd_albumart = false;
     mpd_client_state->feat_mpd_readpicture = false;
-    mpd_client_state->feat_mpd_searchwindow = false;
+    mpd_client_state->mpd_state->feat_mpd_searchwindow = false;
     mpd_client_state->feat_single_oneshot = false;
     mpd_client_state->feat_mpd_mount = false;
     mpd_client_state->feat_mpd_neighbor = false;
@@ -61,13 +61,8 @@ void mpd_client_mpd_features(t_config *config, t_mpd_client_state *mpd_client_st
     buffer = mpd_client_put_state(config, mpd_client_state, buffer, NULL, 0);
     sdsfree(buffer);
 
-    if (mpd_connection_cmp_server_version(mpd_client_state->mpd_state->conn, 0, 20, 0) >= 0) {
-        mpd_client_state->feat_mpd_searchwindow = true;
-    }
-    else {
-        LOG_WARN("Disabling searchwindow support, depends on mpd >= 0.20.0");
-    }
-    
+    mpd_client_state->mpd_state->feat_mpd_searchwindow = mpd_shared_feat_mpd_searchwindow(mpd_client_state->mpd_state);
+
     if (mpd_connection_cmp_server_version(mpd_client_state->mpd_state->conn, 0, 21, 0) >= 0) {
         mpd_client_state->feat_advsearch = true;
         mpd_client_state->feat_single_oneshot = true;
@@ -223,10 +218,10 @@ static void mpd_client_feature_tags(t_mpd_client_state *mpd_client_state) {
         logline = sdscat(logline, "none");
         LOG_INFO(logline);
         LOG_INFO("Tags are disabled");
-        mpd_client_state->feat_tags = false;
+        mpd_client_state->mpd_state->feat_tags = false;
     }
     else {
-        mpd_client_state->feat_tags = true;
+        mpd_client_state->mpd_state->feat_tags = true;
         LOG_INFO(logline);
         
         check_tags(mpd_client_state->taglist, "mympdtags", &mpd_client_state->mpd_state->mympd_tag_types, mpd_client_state->mpd_tag_types);

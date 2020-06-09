@@ -112,7 +112,7 @@ static sds _mpd_client_search(t_mpd_client_state *mpd_client_state, sds buffer, 
     }
 
     if (strcmp(plist, "") == 0) {
-        if (sort != NULL && strcmp(sort, "") != 0 && strcmp(sort, "-") != 0 && mpd_client_state->feat_tags == true) {
+        if (sort != NULL && strcmp(sort, "") != 0 && strcmp(sort, "-") != 0 && mpd_client_state->mpd_state->feat_tags == true) {
             enum mpd_tag_type sort_tag = mpd_tag_name_parse(sort);
             if (sort_tag != MPD_TAG_UNKNOWN) {
                 sort_tag = get_sort_tag(sort_tag);
@@ -126,14 +126,14 @@ static sds _mpd_client_search(t_mpd_client_state *mpd_client_state, sds buffer, 
                 LOG_WARN("Unknown sort tag: %s", sort);
             }
         }
-        if (grouptag != NULL && strcmp(grouptag, "") != 0 && mpd_client_state->feat_tags == true) {
+        if (grouptag != NULL && strcmp(grouptag, "") != 0 && mpd_client_state->mpd_state->feat_tags == true) {
             bool rc = mpd_search_add_group_tag(mpd_client_state->mpd_state->conn, mpd_tag_name_parse(grouptag));
             if (check_rc_error_and_recover(mpd_client_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_group_tag") == false) {
                 mpd_search_cancel(mpd_client_state->mpd_state->conn);
                 return buffer;
             }
         }
-        if (mpd_client_state->feat_mpd_searchwindow == true) {
+        if (mpd_client_state->mpd_state->feat_mpd_searchwindow == true) {
             bool rc = mpd_search_add_window(mpd_client_state->mpd_state->conn, offset, offset + mpd_client_state->max_elements_per_page);
             if (check_rc_error_and_recover(mpd_client_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_window") == false) {
                 mpd_search_cancel(mpd_client_state->mpd_state->conn);
@@ -153,7 +153,7 @@ static sds _mpd_client_search(t_mpd_client_state *mpd_client_state, sds buffer, 
         unsigned entity_count = 0;
         while ((song = mpd_recv_song(mpd_client_state->mpd_state->conn)) != NULL) {
             entity_count++;
-            if (mpd_client_state->feat_mpd_searchwindow == true || (entity_count > offset && entity_count <= offset + mpd_client_state->max_elements_per_page)) {
+            if (mpd_client_state->mpd_state->feat_mpd_searchwindow == true || (entity_count > offset && entity_count <= offset + mpd_client_state->max_elements_per_page)) {
                 if (entities_returned++) {
                     buffer = sdscat(buffer,",");
                 }
@@ -165,7 +165,7 @@ static sds _mpd_client_search(t_mpd_client_state *mpd_client_state, sds buffer, 
             mpd_song_free(song);
         }
         buffer = sdscat(buffer, "],");
-        if (mpd_client_state->feat_mpd_searchwindow == true) {
+        if (mpd_client_state->mpd_state->feat_mpd_searchwindow == true) {
             buffer = tojson_long(buffer, "totalEntities", -1, true);
         }
         else {

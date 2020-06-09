@@ -256,7 +256,7 @@ static struct list *mpd_client_jukebox_get_last_played(t_config *config, t_mpd_c
 
 static bool mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_client_state *mpd_client_state, int addSongs, enum jukebox_modes jukebox_mode, const char *playlist, bool manual) {
     LOG_DEBUG("Jukebox queue to small, adding entities");
-    if (mpd_client_state->feat_tags == true) {
+    if (mpd_client_state->mpd_state->feat_tags == true) {
         if (mpd_client_state->jukebox_unique_tag.tags[0] != MPD_TAG_TITLE) {
             enable_mpd_tags(mpd_client_state->mpd_state, mpd_client_state->jukebox_unique_tag);
         }
@@ -265,7 +265,7 @@ static bool mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_client
         }
     }
     bool rc = _mpd_client_jukebox_fill_jukebox_queue(config, mpd_client_state, addSongs, jukebox_mode, playlist, manual);
-    if (mpd_client_state->feat_tags == true) {
+    if (mpd_client_state->mpd_state->feat_tags == true) {
         enable_mpd_tags(mpd_client_state->mpd_state, mpd_client_state->mpd_state->mympd_tag_types);
     }
     
@@ -289,7 +289,7 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_clien
         list_free(&mpd_client_state->jukebox_queue_tmp);
     }
     
-    if (jukebox_mode == JUKEBOX_ADD_SONG && strcmp(playlist, "Database") == 0 && mpd_client_state->feat_mpd_searchwindow == false) {
+    if (jukebox_mode == JUKEBOX_ADD_SONG && strcmp(playlist, "Database") == 0 && mpd_client_state->mpd_state->feat_mpd_searchwindow == false) {
         LOG_ERROR("Jukebox mode song and playlist database depends on mpd version >= 0.20.0");
         return false;
     }

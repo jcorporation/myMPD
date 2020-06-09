@@ -270,7 +270,7 @@ sds mpd_client_put_settings(t_mpd_client_state *mpd_client_state, sds buffer, sd
     buffer = tojson_float(buffer, "mixrampdelay", mpd_status_get_mixrampdelay(status), true);
     buffer = tojson_char(buffer, "replaygain", replaygain == NULL ? "" : replaygain, true);
     buffer = tojson_bool(buffer, "featPlaylists", mpd_client_state->feat_playlists, true);
-    buffer = tojson_bool(buffer, "featTags", mpd_client_state->feat_tags, true);
+    buffer = tojson_bool(buffer, "featTags", mpd_client_state->mpd_state->feat_tags, true);
     buffer = tojson_bool(buffer, "featLibrary", mpd_client_state->feat_library, true);
     buffer = tojson_bool(buffer, "featAdvsearch", mpd_client_state->feat_advsearch, true);
     buffer = tojson_bool(buffer, "featStickers", mpd_client_state->feat_sticker, true);
@@ -279,7 +279,7 @@ sds mpd_client_put_settings(t_mpd_client_state *mpd_client_state, sds buffer, sd
     buffer = tojson_bool(buffer, "featCoverimage", mpd_client_state->feat_coverimage, true);
     buffer = tojson_bool(buffer, "featFingerprint", mpd_client_state->feat_fingerprint, true);
     buffer = tojson_bool(buffer, "featSingleOneshot", mpd_client_state->feat_single_oneshot, true);
-    buffer = tojson_bool(buffer, "featSearchwindow", mpd_client_state->feat_mpd_searchwindow, true);
+    buffer = tojson_bool(buffer, "featSearchwindow", mpd_client_state->mpd_state->feat_mpd_searchwindow, true);
     buffer = tojson_char(buffer, "musicDirectoryValue", mpd_client_state->music_directory_value, true);
     buffer = tojson_bool(buffer, "mpdConnected", true, true);
     buffer = tojson_bool(buffer, "featMounts", mpd_client_state->feat_mpd_mount, true);

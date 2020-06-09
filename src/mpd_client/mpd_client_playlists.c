@@ -203,7 +203,7 @@ sds mpd_client_playlist_shuffle_sort(t_mpd_client_state *mpd_client_state, sds b
         }
     }
     else {
-        if (mpd_client_state->feat_tags == false || strcmp(tagstr, "filename") == 0) {
+        if (mpd_client_state->mpd_state->feat_tags == false || strcmp(tagstr, "filename") == 0) {
             if (list_sort_by_key(&plist, true) == false) {
                 if (buffer != NULL) {
                     buffer = jsonrpc_respond_message(buffer, method, request_id, "Playlist is too small to sort", true);

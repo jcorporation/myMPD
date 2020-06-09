@@ -30,7 +30,6 @@ typedef struct t_mpd_client_state {
     const unsigned* protocol;
     bool feat_sticker;
     bool feat_playlists;
-    bool feat_tags;
     bool feat_library;
     bool feat_advsearch;
     bool feat_smartpls;
@@ -40,7 +39,6 @@ typedef struct t_mpd_client_state {
     bool feat_mpd_albumart;
     bool feat_mpd_readpicture;
     bool feat_single_oneshot;
-    bool feat_mpd_searchwindow;
     bool feat_mpd_mount;
     bool feat_mpd_neighbor;
     //mympd states
