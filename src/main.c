@@ -484,6 +484,7 @@ int main(int argc, char **argv) {
     tiny_queue_free(web_server_queue);
     tiny_queue_free(mpd_client_queue);
     tiny_queue_free(mympd_api_queue);
+    tiny_queue_free(mpd_worker_queue);
     mympd_free_config(config);
     sdsfree(configfile);
     sdsfree(option);

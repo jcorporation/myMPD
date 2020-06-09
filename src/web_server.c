@@ -201,10 +201,12 @@ static unsigned long is_websocket(const struct mg_connection *nc) {
 
 static void send_ws_notify(struct mg_mgr *mgr, t_work_result *response) {
     struct mg_connection *nc;
+    int i = 0;
     for (nc = mg_next(mgr, NULL); nc != NULL; nc = mg_next(mgr, nc)) {
         if (!is_websocket(nc)) {
             continue;
         }
+        i++;
         if (nc->user_data != NULL) {
             LOG_DEBUG("Sending notify to conn_id %d: %s", (intptr_t)nc->user_data, response->data);
         }
@@ -212,6 +214,9 @@ static void send_ws_notify(struct mg_mgr *mgr, t_work_result *response) {
             LOG_WARN("Sending notify to unknown connection: %s", response->data);
         }
         mg_send_websocket_frame(nc, WEBSOCKET_OP_TEXT, response->data, sdslen(response->data));
+    }
+    if (i == 0) {
+        LOG_DEBUG("No websocket client connected, discarding message");
     }
     free_result(response);
 }
