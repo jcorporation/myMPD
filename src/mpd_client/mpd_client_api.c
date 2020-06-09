@@ -14,6 +14,7 @@
 #include "../../dist/src/sds/sds.h"
 #include "../sds_extras.h"
 #include "../../dist/src/frozen/frozen.h"
+#include "../mpd_shared/mpd_shared_typedefs.h"
 #include "../mpd_shared.h"
 #include "../list.h"
 #include "config_defs.h"
@@ -22,6 +23,7 @@
 #include "../log.h"
 #include "../tiny_queue.h"
 #include "../global.h"
+#include "../mpd_shared/mpd_shared_search.h"
 #include "mpd_client_utility.h"
 #include "mpd_client_browse.h"
 #include "mpd_client_cover.h" 
@@ -29,7 +31,6 @@
 #include "mpd_client_jukebox.h"
 #include "mpd_client_playlists.h"
 #include "mpd_client_queue.h"
-#include "mpd_client_search.h"
 #include "mpd_client_state.h"
 #include "mpd_client_stats.h"
 #include "mpd_client_settings.h"
@@ -571,7 +572,8 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
                     }
                     check_error_and_recover(mpd_client_state->mpd_state, NULL, NULL, 0);
                 }
-                response->data = mpd_client_search(mpd_client_state, response->data, request->method, request->id, p_charbuf1, p_charbuf2, p_charbuf3, uint_buf1, tagcols);
+                response->data = mpd_shared_search(mpd_client_state->mpd_state, response->data, request->method, request->id, 
+                    p_charbuf1, p_charbuf2, p_charbuf3, uint_buf1, tagcols, mpd_client_state->max_elements_per_page);
             }
             free(tagcols);
             break;
@@ -589,7 +591,8 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
                     }
                     check_error_and_recover(mpd_client_state->mpd_state, NULL, NULL, 0);
                 }
-                response->data = mpd_client_search_adv(mpd_client_state, response->data, request->method, request->id, p_charbuf1, p_charbuf2, bool_buf, NULL, p_charbuf3, uint_buf1, tagcols);
+                response->data = mpd_shared_search_adv(mpd_client_state->mpd_state, response->data, request->method, request->id, 
+                    p_charbuf1, p_charbuf2, bool_buf, NULL, p_charbuf3, uint_buf1, tagcols, mpd_client_state->max_elements_per_page);
             }
             free(tagcols);
             break;

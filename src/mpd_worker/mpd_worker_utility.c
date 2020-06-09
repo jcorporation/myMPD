@@ -18,13 +18,15 @@
 #include "../sds_extras.h"
 #include "../../dist/src/frozen/frozen.h"
 #include "../list.h"
-#include "../mpd_shared.h"
 #include "config_defs.h"
 #include "../tiny_queue.h"
 #include "../api.h"
 #include "../global.h"
 #include "../utility.h"
 #include "../log.h"
+#include "../mpd_shared/mpd_shared_typedefs.h"
+#include "../mpd_shared/mpd_shared_tags.h"
+#include "../mpd_shared.h"
 #include "mpd_worker_utility.h"
 
 void default_mpd_worker_state(t_mpd_worker_state *mpd_worker_state) {

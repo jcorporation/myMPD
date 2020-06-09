@@ -14,12 +14,14 @@
 #include "../../dist/src/sds/sds.h"
 #include "../sds_extras.h"
 #include "../../dist/src/frozen/frozen.h"
-#include "../mpd_shared.h"
 #include "../list.h"
 #include "config_defs.h"
 #include "../utility.h"
 #include "../api.h"
 #include "../log.h"
+#include "../mpd_shared/mpd_shared_typedefs.h"
+#include "../mpd_shared/mpd_shared_tags.h"
+#include "../mpd_shared.h"
 #include "mpd_client_utility.h"
 #include "mpd_client_settings.h"
 
@@ -272,7 +274,7 @@ sds mpd_client_put_settings(t_mpd_client_state *mpd_client_state, sds buffer, sd
     buffer = tojson_bool(buffer, "featPlaylists", mpd_client_state->feat_playlists, true);
     buffer = tojson_bool(buffer, "featTags", mpd_client_state->mpd_state->feat_tags, true);
     buffer = tojson_bool(buffer, "featLibrary", mpd_client_state->feat_library, true);
-    buffer = tojson_bool(buffer, "featAdvsearch", mpd_client_state->feat_advsearch, true);
+    buffer = tojson_bool(buffer, "featAdvsearch", mpd_client_state->mpd_state->feat_advsearch, true);
     buffer = tojson_bool(buffer, "featStickers", mpd_client_state->feat_sticker, true);
     buffer = tojson_bool(buffer, "featSmartpls", mpd_client_state->feat_smartpls, true);
     buffer = tojson_bool(buffer, "featLove", mpd_client_state->feat_love, true);

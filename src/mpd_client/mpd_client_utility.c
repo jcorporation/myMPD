@@ -18,13 +18,15 @@
 #include "../sds_extras.h"
 #include "../../dist/src/frozen/frozen.h"
 #include "../list.h"
-#include "../mpd_shared.h"
 #include "config_defs.h"
 #include "../tiny_queue.h"
 #include "../api.h"
 #include "../global.h"
 #include "../utility.h"
 #include "../log.h"
+#include "../mpd_shared/mpd_shared_typedefs.h"
+#include "../mpd_shared/mpd_shared_tags.h"
+#include "../mpd_shared.h"
 #include "mpd_client_utility.h"
 
 //private definitons
@@ -52,56 +54,6 @@ sds put_extra_files(t_mpd_client_state *mpd_client_state, sds buffer, const char
     return buffer;
 }
 
-sds put_song_tags(sds buffer, t_mpd_client_state *mpd_client_state, const t_tags *tagcols, const struct mpd_song *song) {
-    if (mpd_client_state->mpd_state->feat_tags == true) {
-        for (size_t tagnr = 0; tagnr < tagcols->len; ++tagnr) {
-            char *tag_value = mpd_client_get_tag(song, tagcols->tags[tagnr]);
-            buffer = tojson_char(buffer, mpd_tag_name(tagcols->tags[tagnr]), tag_value == NULL ? "-" : tag_value, true);
-        }
-    }
-    else {
-        char *tag_value = mpd_client_get_tag(song, MPD_TAG_TITLE);
-        buffer = tojson_char(buffer, "Title", tag_value == NULL ? "-" : tag_value, true);
-    }
-    buffer = tojson_long(buffer, "Duration", mpd_song_get_duration(song), true);
-    buffer = tojson_long(buffer, "LastModified", mpd_song_get_last_modified(song), true);
-    buffer = tojson_char(buffer, "uri", mpd_song_get_uri(song), false);
-    return buffer;
-}
-
-sds put_empty_song_tags(sds buffer, t_mpd_client_state *mpd_client_state, const t_tags *tagcols, const char *uri) {
-    if (mpd_client_state->mpd_state->feat_tags == true) {
-        for (size_t tagnr = 0; tagnr < tagcols->len; ++tagnr) {
-            if (tagcols->tags[tagnr] == MPD_TAG_TITLE) {
-                buffer = tojson_char(buffer, "Title", basename((char *)uri), true);
-            }
-            else {
-                buffer = tojson_char(buffer, mpd_tag_name(tagcols->tags[tagnr]), "-", true);
-            }
-        }
-    }
-    else {
-        buffer = tojson_char(buffer, "Title", basename((char *)uri), true);
-    }
-    buffer = tojson_long(buffer, "Duration", 0, true);
-    buffer = tojson_char(buffer, "uri", uri, false);
-    return buffer;
-}
-
-enum mpd_tag_type get_sort_tag(enum mpd_tag_type tag) {
-    if (tag == MPD_TAG_ARTIST) {
-        return MPD_TAG_ARTIST_SORT;
-    }
-    if (tag == MPD_TAG_ALBUM_ARTIST) {
-        return MPD_TAG_ALBUM_ARTIST_SORT;
-    }
-    if (tag == MPD_TAG_ALBUM) {
-        return MPD_TAG_ALBUM_SORT;
-    }
-    
-    return tag;
-}
-
 void json_to_tags(const char *str, int len, void *user_data) {
     struct json_token t;
     int i;
@@ -115,19 +67,6 @@ void json_to_tags(const char *str, int len, void *user_data) {
             tags->tags[tags->len++] = tag;
         }
     }
-}
-
-char *mpd_client_get_tag(struct mpd_song const *song, const enum mpd_tag_type tag) {
-    char *str = (char *)mpd_song_get_tag(song, tag, 0);
-    if (str == NULL) {
-        if (tag == MPD_TAG_TITLE) {
-            str = basename((char *)mpd_song_get_uri(song));
-        }
-        else if (tag == MPD_TAG_ALBUM_ARTIST) {
-            str = (char *)mpd_song_get_tag(song, MPD_TAG_ARTIST, 0);
-        }
-    }
-    return str;
 }
 
 bool is_smartpls(t_config *config, t_mpd_client_state *mpd_client_state, const char *plpath) {

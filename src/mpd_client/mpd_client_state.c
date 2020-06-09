@@ -16,10 +16,12 @@
 #include "../sds_extras.h"
 #include "../api.h"
 #include "../log.h"
-#include "../mpd_shared.h"
 #include "../list.h"
 #include "config_defs.h"
 #include "../utility.h"
+#include "../mpd_shared/mpd_shared_typedefs.h"
+#include "../mpd_shared/mpd_shared_tags.h"
+#include "../mpd_shared.h"
 #include "mpd_client_utility.h"
 #include "mpd_client_cover.h"
 #include "mpd_client_api.h"
@@ -219,7 +221,7 @@ sds mpd_client_put_current_song(t_mpd_client_state *mpd_client_state, sds buffer
     buffer = sdscat(buffer, ",");
     buffer = tojson_long(buffer, "pos", mpd_song_get_pos(song), true);
     buffer = tojson_long(buffer, "currentSongId", mpd_client_state->song_id, true);
-    buffer = put_song_tags(buffer, mpd_client_state, &mpd_client_state->mpd_state->mympd_tag_types, song);
+    buffer = put_song_tags(buffer, mpd_client_state->mpd_state, &mpd_client_state->mpd_state->mympd_tag_types, song);
 
     if (mpd_client_state->feat_sticker) {
         t_sticker *sticker = (t_sticker *) malloc(sizeof(t_sticker));

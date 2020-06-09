@@ -13,10 +13,12 @@
 #include "../sds_extras.h"
 #include "../api.h"
 #include "../log.h"
-#include "../mpd_shared.h"
 #include "../list.h"
 #include "config_defs.h"
 #include "../utility.h"
+#include "../mpd_shared/mpd_shared_typedefs.h"
+#include "../mpd_shared/mpd_shared_tags.h"
+#include "../mpd_shared.h"
 #include "mpd_client_utility.h"
 #include "mpd_client_queue.h"
 
@@ -118,7 +120,7 @@ sds mpd_client_put_queue(t_mpd_client_state *mpd_client_state, sds buffer, sds m
         buffer = sdscat(buffer, "{");
         buffer = tojson_long(buffer, "id", mpd_song_get_id(song), true);
         buffer = tojson_long(buffer, "Pos", mpd_song_get_pos(song), true);
-        buffer = put_song_tags(buffer, mpd_client_state, tagcols, song);
+        buffer = put_song_tags(buffer, mpd_client_state->mpd_state, tagcols, song);
         buffer = sdscat(buffer, "}");
         mpd_song_free(song);
     }
@@ -228,7 +230,7 @@ sds mpd_client_search_queue(t_mpd_client_state *mpd_client_state, sds buffer, sd
             buffer = sdscat(buffer, "{");
             buffer = tojson_long(buffer, "id", mpd_song_get_id(song), true);
             buffer = tojson_long(buffer, "Pos", mpd_song_get_pos(song), true);
-            buffer = put_song_tags(buffer, mpd_client_state, tagcols, song);
+            buffer = put_song_tags(buffer, mpd_client_state->mpd_state, tagcols, song);
             buffer = sdscat(buffer, "}");
         }
         mpd_song_free(song);

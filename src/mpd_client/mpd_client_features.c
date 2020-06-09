@@ -13,13 +13,15 @@
 #include "../../dist/src/sds/sds.h"
 #include "../sds_extras.h"
 #include "../log.h"
-#include "../mpd_shared.h"
 #include "../list.h"
 #include "config_defs.h"
 #include "../utility.h"
 #include "../api.h"
 #include "../tiny_queue.h"
 #include "../global.h"
+#include "../mpd_shared/mpd_shared_typedefs.h"
+#include "../mpd_shared/mpd_shared_tags.h"
+#include "../mpd_shared.h"
 #include "mpd_client_utility.h"
 #include "mpd_client_state.h"
 #include "mpd_client_features.h"
@@ -39,7 +41,7 @@ void mpd_client_mpd_features(t_config *config, t_mpd_client_state *mpd_client_st
     mpd_client_state->feat_sticker = false;
     mpd_client_state->feat_playlists = false;
     mpd_client_state->mpd_state->feat_tags = false;
-    mpd_client_state->feat_advsearch = false;
+    mpd_client_state->mpd_state->feat_advsearch = false;
     mpd_client_state->feat_fingerprint = false;
     mpd_client_state->feat_smartpls = mpd_client_state->smartpls;;
     mpd_client_state->feat_coverimage = true;
@@ -62,15 +64,13 @@ void mpd_client_mpd_features(t_config *config, t_mpd_client_state *mpd_client_st
     sdsfree(buffer);
 
     mpd_client_state->mpd_state->feat_mpd_searchwindow = mpd_shared_feat_mpd_searchwindow(mpd_client_state->mpd_state);
+    mpd_client_state->mpd_state->feat_advsearch = mpd_shared_feat_advsearch(mpd_client_state->mpd_state);
 
     if (mpd_connection_cmp_server_version(mpd_client_state->mpd_state->conn, 0, 21, 0) >= 0) {
-        mpd_client_state->feat_advsearch = true;
         mpd_client_state->feat_single_oneshot = true;
-        LOG_INFO("Enabling advanced search");
         LOG_INFO("Enabling single oneshot feature");
     }
     else {
-        LOG_WARN("Disabling advanced search, depends on mpd >= 0.21.0");
         LOG_WARN("Disabling single oneshot feature, depends on mpd >= 0.21.0");
     }
     

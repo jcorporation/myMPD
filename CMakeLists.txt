@@ -138,6 +138,10 @@ file(GLOB MYMPD_SRC_FILES5 "src/mpd_worker/*.c")
 set_property(SOURCE ${MYMPD_SRC_FILES5} PROPERTY COMPILE_FLAGS "-Wextra -pedantic -Wformat=2 -Wunused-parameter -Wshadow -Wwrite-strings \
 	-Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs -Wmissing-include-dirs")
 
+file(GLOB MYMPD_SRC_FILES6 "src/mpd_shared/*.c")
+set_property(SOURCE ${MYMPD_SRC_FILES6} PROPERTY COMPILE_FLAGS "-Wextra -pedantic -Wformat=2 -Wunused-parameter -Wshadow -Wwrite-strings \
+	-Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs -Wmissing-include-dirs")
+
 #compiler flags for frozen
 set_property(SOURCE dist/src/frozen/frozen.c PROPERTY COMPILE_FLAGS "-Wno-stringop-overflow")
 
@@ -166,6 +170,8 @@ set(SOURCES
   src/random.c
   src/sds_extras.c
   src/mpd_shared.c
+  src/mpd_shared/mpd_shared_search.c
+  src/mpd_shared/mpd_shared_tags.c
   src/mpd_client.c
   src/mpd_client/mpd_client_api.c
   src/mpd_client/mpd_client_cover.c
@@ -175,7 +181,6 @@ set(SOURCES
   src/mpd_client/mpd_client_utility.c
   src/mpd_client/mpd_client_playlists.c
   src/mpd_client/mpd_client_queue.c
-  src/mpd_client/mpd_client_search.c
   src/mpd_client/mpd_client_settings.c
   src/mpd_client/mpd_client_state.c
   src/mpd_client/mpd_client_stats.c

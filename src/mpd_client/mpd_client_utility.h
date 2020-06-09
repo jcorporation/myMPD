@@ -31,7 +31,6 @@ typedef struct t_mpd_client_state {
     bool feat_sticker;
     bool feat_playlists;
     bool feat_library;
-    bool feat_advsearch;
     bool feat_smartpls;
     bool feat_love;
     bool feat_coverimage;
@@ -89,14 +88,10 @@ typedef struct t_sticker {
     unsigned int like;
 } t_sticker;
 
-sds put_song_tags(sds buffer, t_mpd_client_state *mpd_client_state, const t_tags *tagcols, const struct mpd_song *song);
-sds put_empty_song_tags(sds buffer, t_mpd_client_state *mpd_client_state, const t_tags *tagcols, const char *uri);
-char *mpd_client_get_tag(struct mpd_song const *song, const enum mpd_tag_type tag);
 bool mpd_client_tag_exists(const enum mpd_tag_type tag_types[64], const size_t tag_types_len, const enum mpd_tag_type tag);
 void json_to_tags(const char *str, int len, void *user_data);
 void free_mpd_client_state(t_mpd_client_state *mpd_client_state);
 void default_mpd_client_state(t_mpd_client_state *mpd_client_state);
 bool is_smartpls(t_config *config, t_mpd_client_state *mpd_client_state, const char *plpath);
 sds put_extra_files(t_mpd_client_state *mpd_client_state, sds buffer, const char *uri);
-enum mpd_tag_type get_sort_tag(enum mpd_tag_type tag);
 #endif

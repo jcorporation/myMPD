@@ -18,13 +18,15 @@
 #include "../sds_extras.h"
 #include "../../dist/src/frozen/frozen.h"
 #include "../api.h"
-#include "../mpd_shared.h"
 #include "../list.h"
 #include "config_defs.h"
 #include "../utility.h"
 #include "../log.h"
+#include "../mpd_shared/mpd_shared_typedefs.h"
+#include "../mpd_shared/mpd_shared_tags.h"
+#include "../mpd_shared.h"
+#include "../mpd_shared/mpd_shared_search.h"
 #include "mpd_client_utility.h"
-#include "mpd_client_search.h"
 #include "mpd_client_playlists.h"
 
 //private definitions
@@ -106,7 +108,7 @@ sds mpd_client_put_playlist_list(t_config *config, t_mpd_client_state *mpd_clien
     while ((song = mpd_recv_song(mpd_client_state->mpd_state->conn)) != NULL) {
         entity_count++;
         if (entity_count > offset && entity_count <= offset + mpd_client_state->max_elements_per_page) {
-            const char *entityName = mpd_client_get_tag(song, MPD_TAG_TITLE);
+            const char *entityName = mpd_shared_get_tag(song, MPD_TAG_TITLE);
             if (strncmp(filter, "-", 1) == 0 || strncasecmp(filter, entityName, 1) == 0 ||
                (strncmp(filter, "0", 1) == 0 && isalpha(*entityName) == 0))
             {
@@ -116,7 +118,7 @@ sds mpd_client_put_playlist_list(t_config *config, t_mpd_client_state *mpd_clien
                 buffer = sdscat(buffer, "{");
                 buffer = tojson_char(buffer, "Type", "song", true);
                 buffer = tojson_long(buffer, "Pos", entity_count, true);
-                buffer = put_song_tags(buffer, mpd_client_state, tagcols, song);
+                buffer = put_song_tags(buffer, mpd_client_state->mpd_state, tagcols, song);
                 buffer = sdscat(buffer, "}");
             }
             else {
@@ -750,11 +752,11 @@ static bool mpd_client_smartpls_update_search(t_mpd_client_state *mpd_client_sta
     sds buffer = sdsempty();
     sds method = sdsempty();
     mpd_client_smartpls_clear(mpd_client_state, playlist);
-    if (mpd_client_state->feat_advsearch == true && strcmp(tag, "expression") == 0) {
-        buffer = mpd_client_search_adv(mpd_client_state, buffer, method, 0, searchstr, NULL, true, NULL, playlist, 0, NULL);
+    if (mpd_client_state->mpd_state->feat_advsearch == true && strcmp(tag, "expression") == 0) {
+        buffer = mpd_shared_search_adv(mpd_client_state->mpd_state, buffer, method, 0, searchstr, NULL, true, NULL, playlist, 0, NULL, mpd_client_state->max_elements_per_page);
     }
     else {
-        buffer = mpd_client_search(mpd_client_state, buffer, method, 0, searchstr, tag, playlist, 0, NULL);
+        buffer = mpd_shared_search(mpd_client_state->mpd_state, buffer, method, 0, searchstr, tag, playlist, 0, NULL, mpd_client_state->max_elements_per_page);
     }
     sdsfree(buffer);
     sdsfree(method);
@@ -863,14 +865,14 @@ static bool mpd_client_smartpls_update_newest(t_mpd_client_state *mpd_client_sta
     sds buffer = sdsempty();
     sds method = sdsempty();
     if (value_max > 0) {
-        if (mpd_client_state->feat_advsearch == true) {
+        if (mpd_client_state->mpd_state->feat_advsearch == true) {
             sds searchstr = sdscatprintf(sdsempty(), "(modified-since '%lu')", value_max);
-            buffer = mpd_client_search_adv(mpd_client_state, buffer, method, 0, searchstr, NULL, true, NULL, playlist, 0, NULL);
+            buffer = mpd_shared_search_adv(mpd_client_state->mpd_state, buffer, method, 0, searchstr, NULL, true, NULL, playlist, 0, NULL, mpd_client_state->max_elements_per_page);
             sdsfree(searchstr);
         }
         else {
             sds searchstr = sdscatprintf(sdsempty(), "%lu", value_max);
-            buffer = mpd_client_search(mpd_client_state, buffer, method, 0, searchstr, "modified-since", playlist, 0, NULL);
+            buffer = mpd_shared_search(mpd_client_state->mpd_state, buffer, method, 0, searchstr, "modified-since", playlist, 0, NULL, mpd_client_state->max_elements_per_page);
             sdsfree(searchstr);
         }
         LOG_VERBOSE("Updated smart playlist %s", playlist);

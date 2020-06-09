@@ -24,6 +24,7 @@
 #include "api.h"
 #include "global.h"
 #include "utility.h"
+#include "mpd_shared/mpd_shared_typedefs.h"
 #include "mpd_shared.h"
 #include "mpd_worker/mpd_worker_utility.h"
 #include "mpd_worker/mpd_worker_api.h"
@@ -184,4 +185,5 @@ static void mpd_worker_idle(t_config *config, t_mpd_worker_state *mpd_worker_sta
 static void mpd_worker_features(t_mpd_worker_state *mpd_worker_state) {
     mpd_worker_state->mpd_state->feat_tags = mpd_shared_feat_tags(mpd_worker_state->mpd_state);
     mpd_worker_state->mpd_state->feat_mpd_searchwindow = mpd_shared_feat_mpd_searchwindow(mpd_worker_state->mpd_state);
+    mpd_worker_state->mpd_state->feat_advsearch = mpd_shared_feat_advsearch(mpd_worker_state->mpd_state);
 }

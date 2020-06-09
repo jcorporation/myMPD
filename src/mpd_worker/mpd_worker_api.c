@@ -22,6 +22,7 @@
 #include "../log.h"
 #include "../tiny_queue.h"
 #include "../global.h"
+#include "../mpd_shared/mpd_shared_typedefs.h"
 #include "../mpd_shared.h"
 #include "mpd_worker_utility.h"
 #include "mpd_worker_api.h"

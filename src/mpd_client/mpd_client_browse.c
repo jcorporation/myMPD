@@ -13,13 +13,15 @@
 
 #include "../../dist/src/sds/sds.h"
 #include "../sds_extras.h"
-#include "../mpd_shared.h"
 #include "../list.h"
 #include "config_defs.h"
 #include "../utility.h"
 #include "../api.h"
 #include "../log.h"
 #include "../tiny_queue.h"
+#include "../mpd_shared/mpd_shared_typedefs.h"
+#include "../mpd_shared.h"
+#include "../mpd_shared/mpd_shared_tags.h"
 #include "mpd_client_utility.h"
 #include "mpd_client_cover.h"
 #include "mpd_client_sticker.h"
@@ -69,7 +71,7 @@ sds mpd_client_put_songdetails(t_mpd_client_state *mpd_client_state, sds buffer,
 
     struct mpd_song *song;
     if ((song = mpd_recv_song(mpd_client_state->mpd_state->conn)) != NULL) {
-        buffer = put_song_tags(buffer, mpd_client_state, &mpd_client_state->mpd_state->mympd_tag_types, song);
+        buffer = put_song_tags(buffer, mpd_client_state->mpd_state, &mpd_client_state->mpd_state->mympd_tag_types, song);
         mpd_song_free(song);
     }
 
@@ -121,7 +123,7 @@ sds mpd_client_put_filesystem(t_config *config, t_mpd_client_state *mpd_client_s
                 }
                 case MPD_ENTITY_TYPE_SONG: {
                     const struct mpd_song *song = mpd_entity_get_song(entity);
-                    const char *entityName = mpd_client_get_tag(song, MPD_TAG_TITLE);
+                    const char *entityName = mpd_shared_get_tag(song, MPD_TAG_TITLE);
                     if (strncmp(filter, "-", 1) == 0 || strncasecmp(filter, entityName, 1) == 0 ||
                         (strncmp(filter, "0", 1) == 0 && isalpha(*entityName) == 0 )) 
                     {
@@ -129,7 +131,7 @@ sds mpd_client_put_filesystem(t_config *config, t_mpd_client_state *mpd_client_s
                             buffer = sdscat(buffer, ",");
                         }
                         buffer = sdscat(buffer, "{\"Type\":\"song\",");
-                        buffer = put_song_tags(buffer, mpd_client_state, tagcols, song);
+                        buffer = put_song_tags(buffer, mpd_client_state->mpd_state, tagcols, song);
                         buffer = sdscat(buffer, "}");
                     }
                     else {
@@ -322,7 +324,7 @@ sds mpd_client_put_songs_in_album(t_mpd_client_state *mpd_client_state, sds buff
             first_song = mpd_song_dup(song);
         }
         buffer = sdscat(buffer, "{\"Type\": \"song\",");
-        buffer = put_song_tags(buffer, mpd_client_state, tagcols, song);
+        buffer = put_song_tags(buffer, mpd_client_state->mpd_state, tagcols, song);
         buffer = sdscat(buffer, "}");
 
         totalTime += mpd_song_get_duration(song);
@@ -331,7 +333,7 @@ sds mpd_client_put_songs_in_album(t_mpd_client_state *mpd_client_state, sds buff
 
     char *albumartist = NULL;
     if (first_song != NULL) {
-        albumartist = mpd_client_get_tag(first_song, MPD_TAG_ALBUM_ARTIST);
+        albumartist = mpd_shared_get_tag(first_song, MPD_TAG_ALBUM_ARTIST);
     }
 
     buffer = sdscat(buffer, "],");
@@ -427,8 +429,8 @@ sds mpd_client_put_firstsong_in_albums(t_config *config, t_mpd_client_state *mpd
             buffer = sdscat(buffer, ",");
         }
         buffer = sdscat(buffer, "{\"Type\": \"album\",");
-        buffer = tojson_char(buffer, "Album", mpd_client_get_tag(song, MPD_TAG_ALBUM), true);
-        buffer = tojson_char(buffer, "AlbumArtist", mpd_client_get_tag(song, MPD_TAG_ALBUM_ARTIST), true);
+        buffer = tojson_char(buffer, "Album", mpd_shared_get_tag(song, MPD_TAG_ALBUM), true);
+        buffer = tojson_char(buffer, "AlbumArtist", mpd_shared_get_tag(song, MPD_TAG_ALBUM_ARTIST), true);
         buffer = tojson_char(buffer, "FirstSongUri", mpd_song_get_uri(song), false);
         buffer = sdscat(buffer, "}");
 
