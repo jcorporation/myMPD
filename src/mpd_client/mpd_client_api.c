@@ -24,6 +24,7 @@
 #include "../tiny_queue.h"
 #include "../global.h"
 #include "../mpd_shared/mpd_shared_search.h"
+#include "../mpd_shared/mpd_shared_playlists.h"
 #include "mpd_client_utility.h"
 #include "mpd_client_browse.h"
 #include "mpd_client_cover.h" 
@@ -152,57 +153,36 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
                 response->data = respond_with_mpd_error_or_ok(mpd_client_state->mpd_state, response->data, request->method, request->id, (uint_buf1 == 0 ? false : true), "mpd_run_rescan");
             }
             break;
-        case MPD_API_SMARTPLS_UPDATE_ALL:
-            rc = mpd_client_smartpls_update_all(config, mpd_client_state);
-            if (rc == true) {
-                response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Smart playlists updated", false);
-            }
-            else {
-                response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Smart playlists update failed", true);
-            }
-            break;
-        case MPD_API_SMARTPLS_UPDATE:
-            je = json_scanf(request->data, sdslen(request->data), "{params: {playlist: %Q}}", &p_charbuf1);
-            if (je == 1) {
-                rc = mpd_client_smartpls_update(config, mpd_client_state, p_charbuf1);
-                if (rc == true) {
-                    response->data = jsonrpc_start_phrase(response->data, request->method, request->id, "Smart playlist %{playlist} updated", false);
-                    response->data = tojson_char(response->data, "playlist", p_charbuf1, false);
-                    response->data = jsonrpc_end_phrase(response->data);
-                }
-                else {
-                    response->data = jsonrpc_start_phrase(response->data, request->method, request->id, "Updating of smart playlist %{playlist} failed", true);
-                    response->data = tojson_char(response->data, "playlist", p_charbuf1, false);
-                    response->data = jsonrpc_end_phrase(response->data);
-                }
-            }
-            break;
         case MPD_API_SMARTPLS_SAVE:
+            if (mpd_client_state->feat_smartpls == false) {
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Smart playlists are disabled", true);
+                break;
+            }
             je = json_scanf(request->data, sdslen(request->data), "{params: {type: %Q}}", &p_charbuf1);
             rc = false;
             if (je == 1) {
                 if (strcmp(p_charbuf1, "sticker") == 0) {
                     je = json_scanf(request->data, sdslen(request->data), "{params: {playlist: %Q, sticker: %Q, maxentries: %d, minvalue: %d, sort: %Q}}", &p_charbuf2, &p_charbuf3, &int_buf1, &int_buf2, &p_charbuf5);
                     if (je == 5) {
-                        rc = mpd_client_smartpls_save(config, mpd_client_state, p_charbuf1, p_charbuf2, p_charbuf3, NULL, int_buf1, int_buf2, p_charbuf5);
+                        rc = mpd_shared_smartpls_save(config, p_charbuf1, p_charbuf2, p_charbuf3, NULL, int_buf1, int_buf2, p_charbuf5);
                     }
                 }
                 else if (strcmp(p_charbuf1, "newest") == 0) {
                     je = json_scanf(request->data, sdslen(request->data), "{params: {playlist: %Q, timerange: %d, sort: %Q}}", &p_charbuf2, &int_buf1, &p_charbuf5);
                     if (je == 3) {
-                        rc = mpd_client_smartpls_save(config, mpd_client_state, p_charbuf1, p_charbuf2, NULL, NULL, 0, int_buf1, p_charbuf5);
+                        rc = mpd_shared_smartpls_save(config, p_charbuf1, p_charbuf2, NULL, NULL, 0, int_buf1, p_charbuf5);
                     }
                 }            
                 else if (strcmp(p_charbuf1, "search") == 0) {
                     je = json_scanf(request->data, sdslen(request->data), "{params: {playlist: %Q, tag: %Q, searchstr: %Q, sort: %Q}}", &p_charbuf2, &p_charbuf3, &p_charbuf4, &p_charbuf5);
                     if (je == 4) {
-                        rc = mpd_client_smartpls_save(config, mpd_client_state, p_charbuf1, p_charbuf2, p_charbuf3, p_charbuf4, 0, 0, p_charbuf5);
+                        rc = mpd_shared_smartpls_save(config, p_charbuf1, p_charbuf2, p_charbuf3, p_charbuf4, 0, 0, p_charbuf5);
                     }
                 }
             }
             if (rc == true) {
                 response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
-                mpd_client_smartpls_update(config, mpd_client_state, p_charbuf2);
+                mpd_client_smartpls_update(p_charbuf2);
             }
             else {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Failed to save playlist", true);
@@ -461,13 +441,13 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
         case MPD_API_PLAYLIST_SHUFFLE:
             je = json_scanf(request->data, sdslen(request->data), "{params: {uri: %Q}}", &p_charbuf1);
             if (je == 1) {
-                response->data = mpd_client_playlist_shuffle_sort(mpd_client_state, response->data, request->method, request->id, p_charbuf1, "shuffle");
+                response->data = mpd_shared_playlist_shuffle_sort(mpd_client_state->mpd_state, response->data, request->method, request->id, p_charbuf1, "shuffle");
             }
             break;
         case MPD_API_PLAYLIST_SORT:
             je = json_scanf(request->data, sdslen(request->data), "{params: {uri: %Q, tag:%Q}}", &p_charbuf1, &p_charbuf2);
             if (je == 2) {
-                response->data = mpd_client_playlist_shuffle_sort(mpd_client_state, response->data, request->method, request->id, p_charbuf1, p_charbuf2);
+                response->data = mpd_shared_playlist_shuffle_sort(mpd_client_state->mpd_state, response->data, request->method, request->id, p_charbuf1, p_charbuf2);
             }
             break;
         case MPD_API_DATABASE_FILESYSTEM_LIST: {

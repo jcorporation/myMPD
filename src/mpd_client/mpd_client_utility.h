@@ -54,7 +54,6 @@ typedef struct t_mpd_client_state {
     bool love;
     sds love_channel;
     sds love_message;
-    sds taglist;
     sds searchtaglist;
     sds browsetaglist;
     sds generate_pls_tags;
@@ -68,7 +67,6 @@ typedef struct t_mpd_client_state {
     sds music_directory;
     sds music_directory_value;
     //taglists
-    t_tags mpd_tag_types;
     t_tags search_tag_types;
     t_tags browse_tag_types;
     t_tags generate_pls_tag_types;
@@ -88,7 +86,6 @@ typedef struct t_sticker {
     unsigned int like;
 } t_sticker;
 
-bool mpd_client_tag_exists(const enum mpd_tag_type tag_types[64], const size_t tag_types_len, const enum mpd_tag_type tag);
 void json_to_tags(const char *str, int len, void *user_data);
 void free_mpd_client_state(t_mpd_client_state *mpd_client_state);
 void default_mpd_client_state(t_mpd_client_state *mpd_client_state);

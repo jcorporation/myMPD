@@ -129,3 +129,37 @@ sds put_empty_song_tags(sds buffer, t_mpd_state *mpd_state, const t_tags *tagcol
     buffer = tojson_char(buffer, "uri", uri, false);
     return buffer;
 }
+
+void check_tags(sds taglist, const char *taglistname, t_tags *tagtypes, t_tags allowed_tag_types) {
+    sds logline = sdscatfmt(sdsempty(), "Enabled %s: ", taglistname);
+    int tokens_count;
+    sds *tokens = sdssplitlen(taglist, sdslen(taglist), ",", 1, &tokens_count);
+    for (int i = 0; i < tokens_count; i++) {
+        sdstrim(tokens[i], " ");
+        enum mpd_tag_type tag = mpd_tag_name_iparse(tokens[i]);
+        if (tag == MPD_TAG_UNKNOWN) {
+            LOG_WARN("Unknown tag %s", tokens[i]);
+        }
+        else {
+            if (mpd_shared_tag_exists(allowed_tag_types.tags, allowed_tag_types.len, tag) == true) {
+                logline = sdscatfmt(logline, "%s ", mpd_tag_name(tag));
+                tagtypes->tags[tagtypes->len++] = tag;
+            }
+            else {
+                LOG_DEBUG("Disabling tag %s", mpd_tag_name(tag));
+            }
+        }
+    }
+    sdsfreesplitres(tokens, tokens_count);
+    LOG_INFO(logline);
+    sdsfree(logline);
+}
+
+bool mpd_shared_tag_exists(const enum mpd_tag_type tag_types[64], const size_t tag_types_len, const enum mpd_tag_type tag) {
+    for (size_t i = 0; i < tag_types_len; i++) {
+        if (tag_types[i] == tag) {
+            return true;
+        }
+    }
+    return false;
+}

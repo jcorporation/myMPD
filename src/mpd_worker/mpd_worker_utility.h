@@ -8,9 +8,17 @@
 #define __MPD_WORKER_UTILITY_H__
 
 typedef struct t_mpd_worker_state {
+    bool smartpls;
+    bool feat_smartpls;
+    sds smartpls_sort;
+    sds smartpls_prefix;
+    sds generate_pls_tags;
+    t_tags generate_pls_tag_types;
+    //mpd state
     struct t_mpd_state *mpd_state;
 } t_mpd_worker_state;
 
 void free_mpd_worker_state(t_mpd_worker_state *mpd_worker_state);
 void default_mpd_worker_state(t_mpd_worker_state *mpd_worker_state);
+void mpd_worker_features(t_mpd_worker_state *mpd_worker_state);
 #endif

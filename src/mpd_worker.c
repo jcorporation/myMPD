@@ -28,11 +28,12 @@
 #include "mpd_shared.h"
 #include "mpd_worker/mpd_worker_utility.h"
 #include "mpd_worker/mpd_worker_api.h"
+#include "mpd_worker/mpd_worker_smartpls.h"
 #include "mpd_worker.h"
 
 //private definitions
 static void mpd_worker_idle(t_config *config, t_mpd_worker_state *mpd_worker_state);
-static void mpd_worker_features(t_mpd_worker_state *mpd_worker_state);
+static void mpd_worker_parse_idle(t_config *config, t_mpd_worker_state *mpd_worker_state, int idle_bitmask);
 
 //public functions
 void *mpd_worker_loop(void *arg_config) {
@@ -159,7 +160,14 @@ static void mpd_worker_idle(t_config *config, t_mpd_worker_state *mpd_worker_sta
                     break;
                 }
                 if (pollrc > 0) {
-                    //Update smart playlists after database was updated by mpd
+                    //Handle idle events
+                    LOG_DEBUG("Checking for idle events");
+                    enum mpd_idle idle_bitmask = mpd_recv_idle(mpd_worker_state->mpd_state->conn, false);
+                    mpd_worker_parse_idle(config, mpd_worker_state, idle_bitmask);
+
+                }
+                else {
+                    mpd_response_finish(mpd_worker_state->mpd_state->conn);
                 }
                 if (mpd_worker_queue_length > 0) {
                     //Handle request
@@ -182,8 +190,23 @@ static void mpd_worker_idle(t_config *config, t_mpd_worker_state *mpd_worker_sta
     sdsfree(buffer);
 }
 
-static void mpd_worker_features(t_mpd_worker_state *mpd_worker_state) {
-    mpd_worker_state->mpd_state->feat_tags = mpd_shared_feat_tags(mpd_worker_state->mpd_state);
-    mpd_worker_state->mpd_state->feat_mpd_searchwindow = mpd_shared_feat_mpd_searchwindow(mpd_worker_state->mpd_state);
-    mpd_worker_state->mpd_state->feat_advsearch = mpd_shared_feat_advsearch(mpd_worker_state->mpd_state);
+static void mpd_worker_parse_idle(t_config *config, t_mpd_worker_state *mpd_worker_state, int idle_bitmask) {
+    for (unsigned j = 0;; j++) {
+        enum mpd_idle idle_event = 1 << j;
+        const char *idle_name = mpd_idle_name(idle_event);
+        if (idle_name == NULL) {
+            break;
+        }
+        if (idle_bitmask & idle_event) {
+            LOG_VERBOSE("MPD idle event: %s", idle_name);
+            switch(idle_event) {
+                case MPD_IDLE_DATABASE:
+                    mpd_worker_smartpls_update_all(config, mpd_worker_state);
+                    break;
+                default: {
+                    //other idle events not used
+                }
+            }
+        }
+    }
 }

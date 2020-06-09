@@ -172,6 +172,8 @@ set(SOURCES
   src/mpd_shared.c
   src/mpd_shared/mpd_shared_search.c
   src/mpd_shared/mpd_shared_tags.c
+  src/mpd_shared/mpd_shared_playlists.c
+  src/mpd_shared/mpd_shared_features.c
   src/mpd_client.c
   src/mpd_client/mpd_client_api.c
   src/mpd_client/mpd_client_cover.c
@@ -190,6 +192,7 @@ set(SOURCES
   src/mpd_worker.c
   src/mpd_worker/mpd_worker_api.c
   src/mpd_worker/mpd_worker_utility.c
+  src/mpd_worker/mpd_worker_smartpls.c
   src/mympd_api.c
   src/mympd_api/mympd_api_bookmarks.c
   src/mympd_api/mympd_api_utility.c

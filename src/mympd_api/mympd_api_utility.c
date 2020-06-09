@@ -58,9 +58,15 @@ void mympd_api_push_to_mpd_client(t_mympd_state *mympd_state) {
 
     t_work_request *request2 = create_request(-1, 0, MYMPD_API_SETTINGS_SET, "MYMPD_API_SETTINGS_SET", "");
     request2->data = sdscat(request2->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_SETTINGS_SET\",\"params\":{");
+    request2->data = tojson_char(request2->data, "taglist", mympd_state->taglist, true);
+    request2->data = tojson_bool(request2->data, "smartpls", mympd_state->smartpls, true);
+    request2->data = tojson_char(request2->data, "smartplsSort", mympd_state->smartpls_sort, true);
+    request2->data = tojson_char(request2->data, "smartplsPrefix", mympd_state->smartpls_prefix, true);
+    request2->data = tojson_long(request2->data, "smartplsInterval", mympd_state->smartpls_interval, true);
+    request2->data = tojson_char(request2->data, "generatePlsTags", mympd_state->generate_pls_tags, true);
     request2->data = tojson_char(request2->data, "mpdHost", mympd_state->mpd_host, true);
     request2->data = tojson_char(request2->data, "mpdPass", mympd_state->mpd_pass, true);
-    request2->data = tojson_long(request2->data, "mpdPort", mympd_state->mpd_port, true);
+    request2->data = tojson_long(request2->data, "mpdPort", mympd_state->mpd_port, false);
     request2->data = sdscat(request2->data, "}}");
     tiny_queue_push(mpd_worker_queue, request2);
 }

@@ -83,15 +83,6 @@ bool is_smartpls(t_config *config, t_mpd_client_state *mpd_client_state, const c
     return smartpls;
 }
 
-bool mpd_client_tag_exists(const enum mpd_tag_type tag_types[64], const size_t tag_types_len, const enum mpd_tag_type tag) {
-    for (size_t i = 0; i < tag_types_len; i++) {
-        if (tag_types[i] == tag) {
-            return true;
-        }
-    }
-    return false;
-}
-
 void default_mpd_client_state(t_mpd_client_state *mpd_client_state) {
     mpd_client_state->song_id = -1;
     mpd_client_state->song_uri = sdsempty();
@@ -119,7 +110,6 @@ void default_mpd_client_state(t_mpd_client_state *mpd_client_state) {
     mpd_client_state->coverimage_name = sdsempty();
     mpd_client_state->love_channel = sdsempty();
     mpd_client_state->love_message = sdsempty();
-    mpd_client_state->taglist = sdsempty();
     mpd_client_state->searchtaglist = sdsempty();
     mpd_client_state->browsetaglist = sdsempty();
     mpd_client_state->generate_pls_tags = sdsempty();
@@ -127,7 +117,6 @@ void default_mpd_client_state(t_mpd_client_state *mpd_client_state) {
     mpd_client_state->smartpls_prefix = sdsempty();
     mpd_client_state->smartpls_interval = 14400;
     mpd_client_state->booklet_name = sdsnew("booklet.pdf");
-    reset_t_tags(&mpd_client_state->mpd_tag_types);
     reset_t_tags(&mpd_client_state->search_tag_types);
     reset_t_tags(&mpd_client_state->browse_tag_types);
     reset_t_tags(&mpd_client_state->generate_pls_tag_types);
@@ -151,7 +140,6 @@ void free_mpd_client_state(t_mpd_client_state *mpd_client_state) {
     sdsfree(mpd_client_state->coverimage_name);
     sdsfree(mpd_client_state->love_channel);
     sdsfree(mpd_client_state->love_message);
-    sdsfree(mpd_client_state->taglist);
     sdsfree(mpd_client_state->searchtaglist);
     sdsfree(mpd_client_state->browsetaglist);
     sdsfree(mpd_client_state->generate_pls_tags);

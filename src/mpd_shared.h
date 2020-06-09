@@ -17,7 +17,4 @@ sds check_error_and_recover(t_mpd_state *mpd_state, sds buffer, sds method, int 
 sds check_error_and_recover_notify(t_mpd_state *mpd_state, sds buffer);
 sds respond_with_command_error(sds buffer, sds method, int request_id, const char *command);
 sds respond_with_mpd_error_or_ok(t_mpd_state *mpd_state, sds buffer, sds method, int request_id, bool rc, const char *command);
-bool mpd_shared_feat_mpd_searchwindow(t_mpd_state *mpd_state);
-bool mpd_shared_feat_tags(t_mpd_state *mpd_state);
-bool mpd_shared_feat_advsearch(t_mpd_state *mpd_state);
 #endif

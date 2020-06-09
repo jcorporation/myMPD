@@ -36,9 +36,9 @@ void timer_handler_smartpls_update(struct t_timer_definition *definition, void *
     LOG_VERBOSE("Start timer_handler_smartpls_update");
     (void) definition;
     (void) user_data;
-    t_work_request *request = create_request(-1, 0, MPD_API_SMARTPLS_UPDATE_ALL, "MPD_API_SMARTPLS_UPDATE_ALL", "");
-    request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPD_API_SMARTPLS_UPDATE_ALL\",\"params\":{}}");
-    tiny_queue_push(mpd_client_queue, request);
+    t_work_request *request = create_request(-1, 0, MPDWORKER_API_SMARTPLS_UPDATE_ALL, "MPDWORKER_API_SMARTPLS_UPDATE_ALL", "");
+    request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPDWORKER_API_SMARTPLS_UPDATE_ALL\",\"params\":{}}");
+    tiny_queue_push(mpd_worker_queue, request);
 }
 
 void timer_handler_select(struct t_timer_definition *definition, void *user_data) {

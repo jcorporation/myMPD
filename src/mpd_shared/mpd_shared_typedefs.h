@@ -33,7 +33,10 @@ typedef struct t_mpd_state {
     sds mpd_host;
     int mpd_port;
     sds mpd_pass;
+    //tags
+    sds taglist;
     t_tags mympd_tag_types;
+    t_tags mpd_tag_types;
     //Feats
     bool feat_mpd_searchwindow;
     bool feat_tags;

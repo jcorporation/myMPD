@@ -36,12 +36,15 @@ void mpd_shared_default_mpd_state(t_mpd_state *mpd_state) {
     mpd_state->mpd_host = sdsempty();
     mpd_state->mpd_port = 0;
     mpd_state->mpd_pass = sdsempty();
+    mpd_state->taglist = sdsempty();
     reset_t_tags(&mpd_state->mympd_tag_types);
+    reset_t_tags(&mpd_state->mpd_tag_types);
 }
 
 void mpd_shared_free_mpd_state(t_mpd_state *mpd_state) {
     sdsfree(mpd_state->mpd_host);
     sdsfree(mpd_state->mpd_pass);
+    sdsfree(mpd_state->taglist);
     free(mpd_state);
     mpd_state = NULL;
 }
@@ -51,44 +54,6 @@ void mpd_shared_mpd_disconnect(t_mpd_state *mpd_state) {
     if (mpd_state->conn != NULL) {
         mpd_connection_free(mpd_state->conn);
     }
-}
-
-bool mpd_shared_feat_mpd_searchwindow(t_mpd_state *mpd_state) {
-    if (mpd_connection_cmp_server_version(mpd_state->conn, 0, 20, 0) >= 0) {
-        return true;
-    }
-
-    LOG_WARN("Disabling searchwindow support, depends on mpd >= 0.20.0");
-    return false;
-}
-
-bool mpd_shared_feat_advsearch(t_mpd_state *mpd_state) {
-    if (mpd_connection_cmp_server_version(mpd_state->conn, 0, 21, 0) >= 0) {
-        LOG_VERBOSE("Enabling advanced search");
-        return true;
-    }
-
-    LOG_WARN("Disabling advanced search, depends on mpd >= 0.21.0");
-    return false;
-}
-
-bool mpd_shared_feat_tags(t_mpd_state *mpd_state) {
-    bool feat_tags = false;
-    
-    if (mpd_send_list_tag_types(mpd_state->conn) == true) {
-        struct mpd_pair *pair;
-        while ((pair = mpd_recv_tag_type_pair(mpd_state->conn)) != NULL) {
-            mpd_return_pair(mpd_state->conn, pair);
-            feat_tags = true;
-            break;
-        }
-    }
-    else {
-        LOG_ERROR("Error in response to command: mpd_send_list_tag_types");
-    }
-    mpd_response_finish(mpd_state->conn);
-    check_error_and_recover2(mpd_state, NULL, NULL, 0, false);
-    return feat_tags;
 }
 
 bool check_rc_error_and_recover(t_mpd_state *mpd_state, sds *buffer, 

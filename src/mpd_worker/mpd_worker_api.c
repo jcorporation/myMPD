@@ -25,6 +25,7 @@
 #include "../mpd_shared/mpd_shared_typedefs.h"
 #include "../mpd_shared.h"
 #include "mpd_worker_utility.h"
+#include "mpd_worker_smartpls.h"
 #include "mpd_worker_api.h"
 
 //private definitions
@@ -35,6 +36,7 @@ static bool mpd_worker_api_settings_set(t_mpd_worker_state *mpd_worker_state, st
 void mpd_worker_api(t_config *config, t_mpd_worker_state *mpd_worker_state, void *arg_request) {
     t_work_request *request = (t_work_request*) arg_request;
     bool rc;
+    int je;
     char *p_charbuf1 = NULL;
     char *p_charbuf2 = NULL;
     char *p_charbuf3 = NULL;
@@ -71,6 +73,10 @@ void mpd_worker_api(t_config *config, t_mpd_worker_state *mpd_worker_state, void
                     //reconnect with new settings
                     mpd_worker_state->mpd_state->conn_state = MPD_DISCONNECT;
                 }
+                if (mpd_worker_state->mpd_state->conn_state == MPD_CONNECTED) {
+                    //feature detection
+                    mpd_worker_features(mpd_worker_state);
+                }
                 response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
             }
             else {
@@ -80,6 +86,31 @@ void mpd_worker_api(t_config *config, t_mpd_worker_state *mpd_worker_state, void
             }
             break;
         }
+        case MPDWORKER_API_SMARTPLS_UPDATE_ALL:
+            rc = mpd_worker_smartpls_update_all(config, mpd_worker_state);
+            if (rc == true) {
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Smart playlists updated", false);
+            }
+            else {
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Smart playlists update failed", true);
+            }
+            break;
+        case MPDWORKER_API_SMARTPLS_UPDATE:
+            je = json_scanf(request->data, sdslen(request->data), "{params: {playlist: %Q}}", &p_charbuf1);
+            if (je == 1) {
+                rc = mpd_worker_smartpls_update(config, mpd_worker_state, p_charbuf1);
+                if (rc == true) {
+                    response->data = jsonrpc_start_phrase(response->data, request->method, request->id, "Smart playlist %{playlist} updated", false);
+                    response->data = tojson_char(response->data, "playlist", p_charbuf1, false);
+                    response->data = jsonrpc_end_phrase(response->data);
+                }
+                else {
+                    response->data = jsonrpc_start_phrase(response->data, request->method, request->id, "Updating of smart playlist %{playlist} failed", true);
+                    response->data = tojson_char(response->data, "playlist", p_charbuf1, false);
+                    response->data = jsonrpc_end_phrase(response->data);
+                }
+            }
+            break;
         default:
             response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Unknown request", true);
             LOG_ERROR("Unknown API request: %.*s", sdslen(request->data), request->data);
@@ -140,6 +171,21 @@ static bool mpd_worker_api_settings_set(t_mpd_worker_state *mpd_worker_state, st
             *mpd_host_changed = true;
             mpd_worker_state->mpd_state->mpd_port = mpd_port;
         }
+    }
+    else if (strncmp(key->ptr, "smartpls", key->len) == 0) {
+        mpd_worker_state->smartpls = val->type == JSON_TYPE_TRUE ? true : false;
+    }
+    else if (strncmp(key->ptr, "smartplsSort", key->len) == 0) {
+        mpd_worker_state->smartpls_sort = sdsreplacelen(mpd_worker_state->smartpls_sort, settingvalue, sdslen(settingvalue));
+    }
+    else if (strncmp(key->ptr, "smartplsPrefix", key->len) == 0) {
+        mpd_worker_state->smartpls_prefix = sdsreplacelen(mpd_worker_state->smartpls_prefix, settingvalue, sdslen(settingvalue));
+    }
+    else if (strncmp(key->ptr, "generatePlsTags", key->len) == 0) {
+        mpd_worker_state->generate_pls_tags = sdsreplacelen(mpd_worker_state->generate_pls_tags, settingvalue, sdslen(settingvalue));
+    }
+    else if (strncmp(key->ptr, "taglist", key->len) == 0) {
+        mpd_worker_state->mpd_state->taglist = sdsreplacelen(mpd_worker_state->mpd_state->taglist, settingvalue, sdslen(settingvalue));
     }
     sdsfree(settingvalue);
     return rc;

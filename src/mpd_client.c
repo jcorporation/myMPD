@@ -100,7 +100,6 @@ static void mpd_client_parse_idle(t_config *config, t_mpd_client_state *mpd_clie
             switch(idle_event) {
                 case MPD_IDLE_DATABASE:
                     buffer = jsonrpc_notify(buffer, "update_database");
-                    mpd_client_smartpls_update_all(config, mpd_client_state);
                     if (mpd_client_state->feat_sticker == true && config->sticker_cache == true) {
                         sticker_cache_free(mpd_client_state);
                         sticker_cache_init(config, mpd_client_state);
@@ -177,7 +176,6 @@ static void mpd_client_parse_idle(t_config *config, t_mpd_client_state *mpd_clie
             sdsfree(buffer);
         }
     }
-
 }
 
 static void mpd_client_idle(t_config *config, t_mpd_client_state *mpd_client_state) {
@@ -266,7 +264,7 @@ static void mpd_client_idle(t_config *config, t_mpd_client_state *mpd_client_sta
             mpd_client_state->mpd_state->reconnect_interval = 0;
             mpd_client_state->mpd_state->reconnect_time = 0;
             //reset list of supported tags
-            reset_t_tags(&mpd_client_state->mpd_tag_types);
+            reset_t_tags(&mpd_client_state->mpd_state->mpd_tag_types);
             //get mpd features
             mpd_client_mpd_features(config, mpd_client_state);
             //update sticker cache

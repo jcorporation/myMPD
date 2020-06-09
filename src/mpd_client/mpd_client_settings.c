@@ -135,7 +135,7 @@ bool mpd_api_settings_set(t_config *config, t_mpd_client_state *mpd_client_state
         mpd_client_state->love_message = sdsreplacelen(mpd_client_state->love_message, settingvalue, sdslen(settingvalue));
     }
     else if (strncmp(key->ptr, "taglist", key->len) == 0) {
-        mpd_client_state->taglist = sdsreplacelen(mpd_client_state->taglist, settingvalue, sdslen(settingvalue));
+        mpd_client_state->mpd_state->taglist = sdsreplacelen(mpd_client_state->mpd_state->taglist, settingvalue, sdslen(settingvalue));
     }
     else if (strncmp(key->ptr, "searchtaglist", key->len) == 0) {
         mpd_client_state->searchtaglist = sdsreplacelen(mpd_client_state->searchtaglist, settingvalue, sdslen(settingvalue));
@@ -294,7 +294,7 @@ sds mpd_client_put_settings(t_mpd_client_state *mpd_client_state, sds buffer, sd
     buffer = sdscat(buffer, ",");
     buffer = print_tags_array(buffer, "browsetags", mpd_client_state->browse_tag_types);
     buffer = sdscat(buffer, ",");
-    buffer = print_tags_array(buffer, "allmpdtags", mpd_client_state->mpd_tag_types);
+    buffer = print_tags_array(buffer, "allmpdtags", mpd_client_state->mpd_state->mpd_tag_types);
     buffer = sdscat(buffer, ",");
     buffer = print_tags_array(buffer, "generatePlsTags", mpd_client_state->generate_pls_tag_types);
 
