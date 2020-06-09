@@ -163,6 +163,11 @@ function webSocketConnect() {
                         showNotification(t(obj.params.message), '', '', 'danger');
                     }
                     break;
+                case 'info':
+                    if (document.getElementById('alertMpdState').classList.contains('hide')) {
+                        showNotification(t(obj.params.message), '', '', 'success');
+                    }
+                    break;
                 default:
                     break;
             }

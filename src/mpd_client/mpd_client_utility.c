@@ -151,7 +151,6 @@ void free_mpd_client_state(t_mpd_client_state *mpd_client_state) {
     //mpd state
     mpd_shared_free_mpd_state(mpd_client_state->mpd_state);
     free(mpd_client_state);
-    mpd_client_state = NULL;
 }
 
 

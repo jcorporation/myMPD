@@ -6,6 +6,7 @@
 
 #ifndef __UTILITY_H__
 #define __UTILITY_H__
+void send_jsonrpc_notify_info(const char *message);
 void send_jsonrpc_notify_error(const char *message);
 sds jsonrpc_start_notify(sds buffer, const char *method);
 sds jsonrpc_end_notify(sds buffer);

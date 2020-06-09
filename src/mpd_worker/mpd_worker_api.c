@@ -36,6 +36,7 @@ static bool mpd_worker_api_settings_set(t_mpd_worker_state *mpd_worker_state, st
 void mpd_worker_api(t_config *config, t_mpd_worker_state *mpd_worker_state, void *arg_request) {
     t_work_request *request = (t_work_request*) arg_request;
     bool rc;
+    bool async = false;
     int je;
     char *p_charbuf1 = NULL;
     char *p_charbuf2 = NULL;
@@ -87,13 +88,23 @@ void mpd_worker_api(t_config *config, t_mpd_worker_state *mpd_worker_state, void
             break;
         }
         case MPDWORKER_API_SMARTPLS_UPDATE_ALL:
-            rc = mpd_worker_smartpls_update_all(config, mpd_worker_state);
-            if (rc == true) {
-                response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Smart playlists updated", false);
+            response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Smart playlists update started", false);
+            if (request->conn_id > -1) {
+                LOG_DEBUG("Push response to queue for connection %lu: %s", request->conn_id, response->data);
+                tiny_queue_push(web_server_queue, response);
             }
             else {
-                response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Smart playlists update failed", true);
+                free_result(response);
             }
+            free_request(request);
+            rc = mpd_worker_smartpls_update_all(config, mpd_worker_state);
+            if (rc == true) {
+                send_jsonrpc_notify_info("Smart playlists updated");
+            }
+            else {
+                send_jsonrpc_notify_error("Smart playlists update failed");
+            }
+            async = true;
             break;
         case MPDWORKER_API_SMARTPLS_UPDATE:
             je = json_scanf(request->data, sdslen(request->data), "{params: {playlist: %Q}}", &p_charbuf1);
@@ -121,21 +132,23 @@ void mpd_worker_api(t_config *config, t_mpd_worker_state *mpd_worker_state, void
     FREE_PTR(p_charbuf4);
     FREE_PTR(p_charbuf5);
 
-    if (sdslen(response->data) == 0) {
-        response->data = jsonrpc_start_phrase(response->data, request->method, request->id, "No response for method %{method}", true);
-        response->data = tojson_char(response->data, "method", request->method, false);
-        response->data = jsonrpc_end_phrase(response->data);
-        LOG_ERROR("No response for cmd_id %u", request->cmd_id);
+    if (async == false) {
+        if (sdslen(response->data) == 0) {
+            response->data = jsonrpc_start_phrase(response->data, request->method, request->id, "No response for method %{method}", true);
+            response->data = tojson_char(response->data, "method", request->method, false);
+            response->data = jsonrpc_end_phrase(response->data);
+            LOG_ERROR("No response for cmd_id %u", request->cmd_id);
+        }
+        if (request->conn_id > -1) {
+            LOG_DEBUG("Push response to queue for connection %lu: %s", request->conn_id, response->data);
+            tiny_queue_push(web_server_queue, response);
+        }
+        else {
+            free_result(response);
+        }
+        free_request(request);
     }
-    if (request->conn_id > -1) {
-        LOG_DEBUG("Push response to queue for connection %lu: %s", request->conn_id, response->data);
-        tiny_queue_push(web_server_queue, response);
-    }
-    else {
-        free_result(response);
-    }
-    free_request(request);
-    //prevent unused paramter warning
+    //prevent unused parameter warning
     (void) config;
 }
 

@@ -4,10 +4,13 @@
  https://github.com/jcorporation/mympd
 */
 
+#define _GNU_SOURCE
+
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <pthread.h>
 
 #include "../dist/src/sds/sds.h"
 #include "log.h"
@@ -39,6 +42,15 @@ void mympd_log(int level, const char *file, int line, const char *fmt, ...) {
     }
     sds logline = sdsnew(loglevel_colors[level]);
     logline = sdscatprintf(logline, "%-8s ", loglevel_names[level]);
+
+    char thread_name[16];
+    pthread_t thread = pthread_self();
+    pthread_getname_np(thread, thread_name, 16);
+    char *thread_ptr = thread_name;
+    if (strlen(thread_name) > 6) {
+        thread_ptr = thread_ptr + 6;
+    }
+    logline = sdscatprintf(logline, "%-10s ", thread_ptr);
 
     if (loglevel == 4) {
         logline = sdscatprintf(logline, "%s:%d: ", file, line);

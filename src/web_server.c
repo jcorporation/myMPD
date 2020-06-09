@@ -451,6 +451,10 @@ static bool handle_api(int conn_id, struct http_message *hm) {
     if (strncmp(cmd, "MYMPD_API_", 10) == 0) {
         tiny_queue_push(mympd_api_queue, request);
     }
+    else if (strncmp(cmd, "MPDWORKER_API_", 14) == 0) {
+        tiny_queue_push(mpd_worker_queue, request);
+        
+    }
     else {
         tiny_queue_push(mpd_client_queue, request);
     }
