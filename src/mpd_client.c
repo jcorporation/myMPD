@@ -46,7 +46,7 @@ static void mpd_client_parse_idle(t_config *config, t_mpd_client_state *mpd_clie
 
 //public functions
 void *mpd_client_loop(void *arg_config) {
-    strncpy(thread_logname, "mpdclient", 20);
+    thread_logname = sdsreplace(thread_logname, "mpdclient");
     t_config *config = (t_config *) arg_config;
     //State of mpd connection
     t_mpd_client_state *mpd_client_state = (t_mpd_client_state *)malloc(sizeof(t_mpd_client_state));
@@ -84,6 +84,7 @@ void *mpd_client_loop(void *arg_config) {
     mpd_client_last_played_list_save(config, mpd_client_state);
     sticker_cache_free(mpd_client_state);
     free_mpd_client_state(mpd_client_state);
+    sdsfree(thread_logname);
     return NULL;
 }
 

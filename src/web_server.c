@@ -116,7 +116,7 @@ void web_server_free(void *arg_mgr) {
 }
 
 void *web_server_loop(void *arg_mgr) {
-    strncpy(thread_logname, "webserver", 20);
+    thread_logname = sdsreplace(thread_logname, "webserver");
 
     struct mg_mgr *mgr = (struct mg_mgr *) arg_mgr;
     t_mg_user_data *mg_user_data = (t_mg_user_data *) mgr->user_data;
@@ -142,6 +142,7 @@ void *web_server_loop(void *arg_mgr) {
         //webserver polling
         mg_mgr_poll(mgr, 50);
     }
+    sdsfree(thread_logname);
     return NULL;
 }
 

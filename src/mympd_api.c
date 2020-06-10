@@ -43,7 +43,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
 
 //public functions
 void *mympd_api_loop(void *arg_config) {
-    strncpy(thread_logname, "mympdapi", 20);
+    thread_logname = sdsreplace(thread_logname, "mympdapi");
     
     t_config *config = (t_config *) arg_config;
     
@@ -80,7 +80,7 @@ void *mympd_api_loop(void *arg_config) {
         timerfile_save(config, mympd_state);
     }
     free_mympd_state(mympd_state);
-
+    sdsfree(thread_logname);
     return NULL;
 }
 
