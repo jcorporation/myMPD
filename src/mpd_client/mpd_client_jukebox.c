@@ -359,8 +359,9 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_clien
                     }
                 }
                     
-                if ((last_played == 0 || last_played < now) && 
-                    mpd_client_jukebox_unique_tag(mpd_client_state, uri, tag_value, manual, queue_list) == true) 
+                if (mpd_client_state->jukebox_enforce_unique == false || (
+                    (last_played == 0 || last_played < now) && 
+                    mpd_client_jukebox_unique_tag(mpd_client_state, uri, tag_value, manual, queue_list) == true)) 
                 {
                     if (randrange(0, lineno) < addSongs) {
                         if (nkeep < addSongs) {
@@ -428,7 +429,7 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_clien
             return false;
         }
         while ((pair = mpd_recv_pair_tag(mpd_client_state->mpd_state->conn, MPD_TAG_ALBUM )) != NULL)  {
-            if (mpd_client_jukebox_unique_album(mpd_client_state, pair->value, manual, queue_list) == true) {
+            if (mpd_client_state->jukebox_enforce_unique == false || mpd_client_jukebox_unique_album(mpd_client_state, pair->value, manual, queue_list) == true) {
                 if (randrange(0, lineno) < addSongs) {
                     if (nkeep < addSongs) {
                         if (manual == false) {
@@ -472,6 +473,8 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_clien
 
     if (nkeep < addSongs) {
         LOG_WARN("Jukebox queue didn't contain %d entries", addSongs);
+        LOG_WARN("Disabling unique constraints");
+        mpd_client_state->jukebox_enforce_unique = false;
     }
 
     list_free(queue_list);

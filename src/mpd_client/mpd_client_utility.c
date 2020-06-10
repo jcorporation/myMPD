@@ -107,6 +107,7 @@ void default_mpd_client_state(t_mpd_client_state *mpd_client_state) {
     mpd_client_state->jukebox_unique_tag.tags[0] = MPD_TAG_ARTIST;
     mpd_client_state->jukebox_last_played = 24;
     mpd_client_state->jukebox_queue_length = 1;
+    mpd_client_state->jukebox_enforce_unique = true;
     mpd_client_state->coverimage_name = sdsempty();
     mpd_client_state->love_channel = sdsempty();
     mpd_client_state->love_message = sdsempty();

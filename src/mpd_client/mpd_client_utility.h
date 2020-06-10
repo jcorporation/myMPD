@@ -48,6 +48,7 @@ typedef struct t_mpd_client_state {
     struct list jukebox_queue_tmp;
     t_tags jukebox_unique_tag;
     int jukebox_last_played;
+    bool jukebox_enforce_unique;
     bool auto_play;
     bool coverimage;
     sds coverimage_name;
