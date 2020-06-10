@@ -1328,3 +1328,24 @@ Kein Songtext gefunden
 
 Invalid column
 Ungültiger Spaltenname
+
+Force smart playlist update
+Aktualisierung der intelligenten Wiedergabelisten erzwingen
+
+Force update
+Erzwinge Aktualisierung
+
+No search tag defined and advanced search is disabled
+Kein Such-Tag definiert und erweiterte Suche ist deaktiviert.
+
+Smart playlists are disabled
+Intelligente Wiedergabelisten sind deaktiviert
+
+Smart playlists update started
+Aktualisierung der intelligenten Wiedergabelisten gestartet
+
+Filling jukebox queue failed, disabling jukebox
+Jukebox Warteschlange konnte nicht aufgefüllt werden, Jukebox wurde deaktiviert
+
+Playlist to small, disabling jukebox unique constraints temporarily
+Wiedergabeliste zu klein, deaktiviere Jukebox Regeln
