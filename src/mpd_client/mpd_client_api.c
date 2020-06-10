@@ -25,6 +25,8 @@
 #include "../global.h"
 #include "../mpd_shared/mpd_shared_search.h"
 #include "../mpd_shared/mpd_shared_playlists.h"
+#include "../mpd_shared.h"
+#include "../mpd_shared/mpd_shared_sticker.h"
 #include "mpd_client_utility.h"
 #include "mpd_client_browse.h"
 #include "mpd_client_cover.h" 
@@ -61,6 +63,14 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
     t_work_result *response = create_result(request);
     
     switch(request->cmd_id) {
+        case MPD_API_STICKERCACHE_CREATED:
+            sticker_cache_free(mpd_client_state->sticker_cache);
+            //get mutex lock for sticker_cache
+            mpd_client_state->sticker_cache = sticker_cache;
+            sticker_cache = NULL;
+            //release mutex lock for sticker_cache
+            mpd_client_state->sticker_cache_building = false;
+            break;
         case MPD_API_LOVE:
             if (mpd_run_send_message(mpd_client_state->mpd_state->conn, mpd_client_state->love_channel, mpd_client_state->love_message) == true) {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Scrobbled love", false);
@@ -69,17 +79,24 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Failed to send love message to channel", true);
             }
             check_error_and_recover2(mpd_client_state->mpd_state, &response->data, request->method, request->id, false);
-        break;
+            break;
         case MPD_API_LIKE:
-            if (mpd_client_state->feat_sticker) {
-                je = json_scanf(request->data, sdslen(request->data), "{params: {uri: %Q, like: %d}}", &p_charbuf1, &uint_buf1);
-                if (je == 2 && strlen(p_charbuf1) > 0) {        
-                    response->data = mpd_client_like_song_uri(mpd_client_state, response->data, request->method, request->id, p_charbuf1, uint_buf1);
-                }
-            } 
-            else {
+            if (mpd_client_state->feat_sticker == false) {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, "MPD stickers are disabled", true);
                 LOG_ERROR("MPD stickers are disabled");
+                break;
+            }
+            je = json_scanf(request->data, sdslen(request->data), "{params: {uri: %Q, like: %d}}", &p_charbuf1, &int_buf1);
+            if (je == 2 && strlen(p_charbuf1) > 0) {
+                if (int_buf1 < 0 || int_buf1 > 2) {
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Failed to set like, invalid like value", true);
+                    break;
+                }
+                if (strstr(p_charbuf1, "://") != NULL) {
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Failed to set like, invalid song uri", true);
+                    break;
+                }
+                mpd_client_sticker_like(mpd_client_state, p_charbuf1, int_buf1);
             }
             break;
         case MPD_API_PLAYER_STATE:

@@ -7,6 +7,10 @@
 #ifndef __MPD_SHARED_H__
 #define __MPD_SHARED_H__
 
+#include "dist/src/rax/rax.h"
+
+extern rax *sticker_cache;
+
 void mpd_shared_free_mpd_state(t_mpd_state *mpd_state);
 void mpd_shared_default_mpd_state(t_mpd_state *mpd_state);
 void mpd_shared_mpd_disconnect(t_mpd_state *mpd_state);

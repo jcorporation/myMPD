@@ -26,9 +26,11 @@
 #include "utility.h"
 #include "mpd_shared/mpd_shared_typedefs.h"
 #include "mpd_shared.h"
+#include "mpd_shared/mpd_shared_sticker.h"
 #include "mpd_worker/mpd_worker_utility.h"
 #include "mpd_worker/mpd_worker_api.h"
 #include "mpd_worker/mpd_worker_smartpls.h"
+#include "mpd_worker/mpd_worker_stickercache.h"
 #include "mpd_worker.h"
 
 //private definitions
@@ -66,6 +68,9 @@ void *mpd_worker_loop(void *arg_config) {
     //Cleanup
     mpd_shared_mpd_disconnect(mpd_worker_state->mpd_state);
     free_mpd_worker_state(mpd_worker_state);
+    //get mutex lock for sticker_cache
+    sticker_cache_free(sticker_cache);
+    //release mutex lock for sticker_cache
     sdsfree(thread_logname);
     return NULL;
 }

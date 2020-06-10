@@ -123,10 +123,13 @@ void default_mpd_client_state(t_mpd_client_state *mpd_client_state) {
     reset_t_tags(&mpd_client_state->generate_pls_tag_types);
     //init last played songs list
     list_init(&mpd_client_state->last_played);
+    //init sticker queue
+    list_init(&mpd_client_state->sticker_queue);
+    mpd_client_state->sticker_cache_building = false;
+    mpd_client_state->sticker_cache = NULL;
     //jukebox queue
     list_init(&mpd_client_state->jukebox_queue);
     list_init(&mpd_client_state->jukebox_queue_tmp);
-    mpd_client_state->sticker_cache = NULL;
     //mpd state
     mpd_client_state->mpd_state = (t_mpd_state *)malloc(sizeof(t_mpd_state));
     mpd_shared_default_mpd_state(mpd_client_state->mpd_state);
@@ -149,6 +152,7 @@ void free_mpd_client_state(t_mpd_client_state *mpd_client_state) {
     sdsfree(mpd_client_state->booklet_name);
     list_free(&mpd_client_state->jukebox_queue);
     list_free(&mpd_client_state->jukebox_queue_tmp);
+    list_free(&mpd_client_state->sticker_queue);
     //mpd state
     mpd_shared_free_mpd_state(mpd_client_state->mpd_state);
     free(mpd_client_state);

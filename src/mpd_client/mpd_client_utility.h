@@ -7,7 +7,7 @@
 #ifndef __MPD_CLIENT_UTILITY_H__
 #define __MPD_CLIENT_UTILITY_H__
 
-#include "dist/src/rax/rax.h"
+//#include "dist/src/rax/rax.h"
 
 typedef struct t_mpd_client_state {
     // States
@@ -67,6 +67,7 @@ typedef struct t_mpd_client_state {
     int max_elements_per_page;
     sds music_directory;
     sds music_directory_value;
+    sds booklet_name;
     //taglists
     t_tags search_tag_types;
     t_tags browse_tag_types;
@@ -75,17 +76,11 @@ typedef struct t_mpd_client_state {
     struct list last_played;
     //sticker cache
     rax *sticker_cache;
-    sds booklet_name;
+    struct list sticker_queue;
+    bool sticker_cache_building;
+    //mpd state
     struct t_mpd_state *mpd_state;
 } t_mpd_client_state;
-
-typedef struct t_sticker {
-    unsigned int playCount;
-    unsigned int skipCount;
-    unsigned int lastPlayed;
-    unsigned int lastSkipped;
-    unsigned int like;
-} t_sticker;
 
 void json_to_tags(const char *str, int len, void *user_data);
 void free_mpd_client_state(t_mpd_client_state *mpd_client_state);

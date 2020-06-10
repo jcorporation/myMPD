@@ -26,6 +26,7 @@
 #include "../mpd_shared.h"
 #include "mpd_worker_utility.h"
 #include "mpd_worker_smartpls.h"
+#include "mpd_worker_stickercache.h"
 #include "mpd_worker_api.h"
 
 //private definitions
@@ -125,6 +126,11 @@ void mpd_worker_api(t_config *config, t_mpd_worker_state *mpd_worker_state, void
                     response->data = jsonrpc_end_phrase(response->data);
                 }
             }
+            break;
+        case MPDWORKER_API_STICKERCACHE_CREATE:
+            mpd_worker_sticker_cache_init(mpd_worker_state);
+            async = true;
+            free_request(request);
             break;
         default:
             response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Unknown request", true);

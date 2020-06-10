@@ -27,6 +27,7 @@
 #include "mpd_shared/mpd_shared_typedefs.h"
 #include "mpd_shared/mpd_shared_tags.h"
 #include "mpd_shared.h"
+#include "mpd_shared/mpd_shared_sticker.h"
 #include "mpd_client/mpd_client_utility.h"
 #include "mpd_client/mpd_client_api.h"
 #include "mpd_client/mpd_client_jukebox.h"
@@ -82,7 +83,7 @@ void *mpd_client_loop(void *arg_config) {
     //Cleanup
     mpd_shared_mpd_disconnect(mpd_client_state->mpd_state);
     mpd_client_last_played_list_save(config, mpd_client_state);
-    sticker_cache_free(mpd_client_state);
+    sticker_cache_free(mpd_client_state->sticker_cache);
     free_mpd_client_state(mpd_client_state);
     sdsfree(thread_logname);
     return NULL;
@@ -102,10 +103,7 @@ static void mpd_client_parse_idle(t_config *config, t_mpd_client_state *mpd_clie
             switch(idle_event) {
                 case MPD_IDLE_DATABASE:
                     buffer = jsonrpc_notify(buffer, "update_database");
-                    if (mpd_client_state->feat_sticker == true && config->sticker_cache == true) {
-                        sticker_cache_free(mpd_client_state);
-                        sticker_cache_init(config, mpd_client_state);
-                    }
+                    sticker_cache_init(config, mpd_client_state);
                     break;
                 case MPD_IDLE_STORED_PLAYLIST:
                     buffer = jsonrpc_notify(buffer, "update_stored_playlist");
@@ -139,8 +137,8 @@ static void mpd_client_parse_idle(t_config *config, t_mpd_client_state *mpd_clie
                             time_t elapsed = now - mpd_client_state->last_song_start_time;
                             if (elapsed > 10 && mpd_client_state->last_song_start_time > 0) {
                                 LOG_DEBUG("Song %s skipped", mpd_client_state->last_song_uri);
-                                mpd_client_count_song_uri(mpd_client_state, mpd_client_state->last_song_uri, "skipCount", 1);
-                                mpd_client_last_skipped_song_uri(mpd_client_state, mpd_client_state->last_song_uri);
+                                mpd_client_sticker_inc_skip_count(mpd_client_state, mpd_client_state->last_song_uri);
+                                mpd_client_sticker_last_skipped(mpd_client_state, mpd_client_state->last_song_uri);
                                 mpd_client_state->last_skipped_id = mpd_client_state->last_song_id;
                             }
                         }
@@ -270,10 +268,7 @@ static void mpd_client_idle(t_config *config, t_mpd_client_state *mpd_client_sta
             //get mpd features
             mpd_client_mpd_features(config, mpd_client_state);
             //update sticker cache
-            if (mpd_client_state->feat_sticker == true && config->sticker_cache == true) {
-                sticker_cache_free(mpd_client_state);
-                sticker_cache_init(config, mpd_client_state);
-            }
+            sticker_cache_init(config, mpd_client_state);
             //set timer for smart playlist update
             mpd_client_set_timer(MYMPD_API_TIMER_SET, "MYMPD_API_TIMER_SET", 10, mpd_client_state->smartpls_interval, "timer_handler_smartpls_update");
             //jukebox
@@ -325,7 +320,9 @@ static void mpd_client_idle(t_config *config, t_mpd_client_state *mpd_client_sta
                     }
                 }
             }
-            if (pollrc > 0 || mpd_client_queue_length > 0 || jukebox_add_song == true || set_played == true) {
+            if (pollrc > 0 || mpd_client_queue_length > 0 || jukebox_add_song == true || set_played == true
+                || mpd_client_state->sticker_queue.length > 0) 
+            {
                 LOG_DEBUG("Leaving mpd idle mode");
                 if (!mpd_send_noidle(mpd_client_state->mpd_state->conn)) {
                     check_error_and_recover(mpd_client_state->mpd_state, NULL, NULL, 0);
@@ -349,8 +346,8 @@ static void mpd_client_idle(t_config *config, t_mpd_client_state *mpd_client_sta
                         mpd_client_add_song_to_last_played_list(config, mpd_client_state, mpd_client_state->song_id);
                     }
                     if (mpd_client_state->feat_sticker == true) {
-                        mpd_client_count_song_uri(mpd_client_state, mpd_client_state->song_uri, "playCount", 1);
-                        mpd_client_last_played_song_uri(mpd_client_state, mpd_client_state->song_uri);
+                        mpd_client_sticker_inc_play_count(mpd_client_state, mpd_client_state->song_uri);
+                        mpd_client_sticker_last_played(mpd_client_state, mpd_client_state->song_uri);
                     }
                 }
                 
@@ -366,6 +363,11 @@ static void mpd_client_idle(t_config *config, t_mpd_client_state *mpd_client_sta
                         mpd_client_api(config, mpd_client_state, request);
                     }
                 }
+                
+                if (mpd_client_state->sticker_queue.length > 0) {
+                    mpd_client_sticker_dequeue(mpd_client_state);
+                }
+                
                 LOG_DEBUG("Entering mpd idle mode");
                 if (!mpd_send_idle_mask(mpd_client_state->mpd_state->conn, set_idle_mask)) {
                     check_error_and_recover(mpd_client_state->mpd_state, NULL, NULL, 0);

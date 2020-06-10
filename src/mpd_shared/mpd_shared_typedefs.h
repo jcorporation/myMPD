@@ -16,6 +16,14 @@ enum mpd_conn_states {
     MPD_WAIT
 };
 
+typedef struct t_sticker {
+    unsigned int playCount;
+    unsigned int skipCount;
+    unsigned int lastPlayed;
+    unsigned int lastSkipped;
+    unsigned int like;
+} t_sticker;
+
 typedef struct t_tags {
     size_t len;
     enum mpd_tag_type tags[64];
