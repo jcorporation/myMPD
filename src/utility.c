@@ -433,7 +433,6 @@ sds get_mime_type_by_magic_stream(sds stream) {
     for (size_t i = 0; i < len; i++) {
         hex_buffer = sdscatprintf(hex_buffer, "%02X", stream[i]);
     }
-    LOG_DEBUG("First bytes in file: %s", hex_buffer);
     const struct magic_byte_entry *p = NULL;
     for (p = magic_bytes; p->magic_bytes != NULL; p++) {
         if (strncmp(hex_buffer, p->magic_bytes, strlen(p->magic_bytes)) == 0) {
