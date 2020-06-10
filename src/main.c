@@ -47,6 +47,8 @@
 #include "maintenance.h"
 #include "random.h"
 
+_Thread_local char thread_logname[20];
+
 static void mympd_signal_handler(int sig_num) {
     signal(sig_num, mympd_signal_handler);  // Reinstantiate signal handler
     s_signal_received = sig_num;
@@ -265,6 +267,7 @@ static bool check_dirs(t_config *config) {
 }
 
 int main(int argc, char **argv) {
+    strncpy(thread_logname, "mympd", 20);
     s_signal_received = 0;
     bool init_webserver = false;
     bool init_mg_user_data = false;

@@ -116,6 +116,8 @@ void web_server_free(void *arg_mgr) {
 }
 
 void *web_server_loop(void *arg_mgr) {
+    strncpy(thread_logname, "webserver", 20);
+
     struct mg_mgr *mgr = (struct mg_mgr *) arg_mgr;
     t_mg_user_data *mg_user_data = (t_mg_user_data *) mgr->user_data;
     while (s_signal_received == 0) {

@@ -37,6 +37,7 @@ static void mpd_worker_parse_idle(t_config *config, t_mpd_worker_state *mpd_work
 
 //public functions
 void *mpd_worker_loop(void *arg_config) {
+    strncpy(thread_logname, "mpdworker", 20);
     t_config *config = (t_config *) arg_config;
     //State of mpd connection
     t_mpd_worker_state *mpd_worker_state = (t_mpd_worker_state *)malloc(sizeof(t_mpd_worker_state));

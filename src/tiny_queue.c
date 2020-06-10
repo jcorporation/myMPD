@@ -10,6 +10,7 @@
 #include <errno.h>
 #include <assert.h>
 #include <pthread.h>
+#include <time.h>
 
 #include "tiny_queue.h"
 

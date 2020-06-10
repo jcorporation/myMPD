@@ -43,6 +43,8 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
 
 //public functions
 void *mympd_api_loop(void *arg_config) {
+    strncpy(thread_logname, "mympdapi", 20);
+    
     t_config *config = (t_config *) arg_config;
     
     //read myMPD states under config.varlibdir
