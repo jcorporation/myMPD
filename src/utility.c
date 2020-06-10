@@ -33,6 +33,14 @@ void send_jsonrpc_notify_info(const char *message) {
     sdsfree(buffer);
 }
 
+void send_jsonrpc_notify_warn(const char *message) {
+    sds buffer = jsonrpc_start_notify(sdsempty(), "warn");
+    buffer = tojson_char(buffer, "message", message, false);
+    buffer = jsonrpc_end_notify(buffer);
+    ws_notify(buffer);
+    sdsfree(buffer);
+}
+
 void send_jsonrpc_notify_error(const char *message) {
     sds buffer = jsonrpc_start_notify(sdsempty(), "error");
     buffer = tojson_char(buffer, "message", message, false);

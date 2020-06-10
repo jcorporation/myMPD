@@ -67,7 +67,7 @@ function showNotification(notificationTitle, notificationText, notificationHtml,
         let notification = new Notification(notificationTitle, {icon: 'assets/favicon.ico', body: notificationText});
         setTimeout(notification.close.bind(notification), 3000);
     } 
-    if (settings.notificationPage === true || notificationType === 'danger') {
+    if (settings.notificationPage === true || notificationType === 'danger' || notificationType === 'warning') {
         let alertBox;
         if (!document.getElementById('alertBox')) {
             alertBox = document.createElement('div');
@@ -81,8 +81,11 @@ function showNotification(notificationTitle, notificationText, notificationHtml,
         if (notificationType === 'success' ) {
             toast += '<span class="material-icons text-success mr-2">info</span>';
         }
+        else if (notificationType === 'warning' ) {
+            toast += '<span class="material-icons text-warning mr-2">warning</span>';
+        }
         else {
-            toast += '<span class="material-icons text-danger mr-2">warning</span>';
+            toast += '<span class="material-icons text-danger mr-2">error</span>';
         }
         toast += '<strong class="mr-auto">' + e(notificationTitle) + '</strong>' +
             '<button type="button" class="ml-2 mb-1 close">&times;</button></div>';
@@ -115,6 +118,7 @@ function showNotification(notificationTitle, notificationText, notificationHtml,
 
 function logMessage(notificationTitle, notificationText, notificationHtml, notificationType) {
     if (notificationType === 'success') { notificationType = 'Info'; }
+    else if (notificationType === 'warning') { notificationType = 'Warning'; }
     else if (notificationType === 'danger') { notificationType = 'Error'; }
     
     let overview = document.getElementById('logOverview');
