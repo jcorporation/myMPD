@@ -473,8 +473,10 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_clien
 
     if (nkeep < addSongs) {
         LOG_WARN("Jukebox queue didn't contain %d entries", addSongs);
-        LOG_WARN("Disabling unique constraints");
-        mpd_client_state->jukebox_enforce_unique = false;
+        if (mpd_client_state->jukebox_enforce_unique == true) {
+            LOG_WARN("Disabling unique constraints");
+            mpd_client_state->jukebox_enforce_unique = false;
+        }
     }
 
     list_free(queue_list);
