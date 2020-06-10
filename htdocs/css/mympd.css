@@ -720,3 +720,7 @@ div#playDropdown .row {
 #currentLyrics > p.expanded {
   max-height: none;
 }
+
+.col {
+  min-width: unset;
+}
