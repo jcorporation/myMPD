@@ -170,8 +170,8 @@ function getAllPlaylists(obj, playlistSelect, playlistValue) {
 }
 
 //eslint-disable-next-line no-unused-vars
-function updateSmartPlaylists() {
-    sendAPI("MPDWORKER_API_SMARTPLS_UPDATE_ALL", {});
+function updateSmartPlaylists(force) {
+    sendAPI("MPDWORKER_API_SMARTPLS_UPDATE_ALL", {"force":force});
 }
 
 //eslint-disable-next-line no-unused-vars

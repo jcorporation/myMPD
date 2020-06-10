@@ -202,7 +202,7 @@ static void mpd_worker_parse_idle(t_config *config, t_mpd_worker_state *mpd_work
             LOG_VERBOSE("MPD idle event: %s", idle_name);
             switch(idle_event) {
                 case MPD_IDLE_DATABASE:
-                    mpd_worker_smartpls_update_all(config, mpd_worker_state);
+                    mpd_worker_smartpls_update_all(config, mpd_worker_state, false);
                     break;
                 default: {
                     //other idle events not used

@@ -36,6 +36,7 @@ static bool mpd_worker_api_settings_set(t_mpd_worker_state *mpd_worker_state, st
 void mpd_worker_api(t_config *config, t_mpd_worker_state *mpd_worker_state, void *arg_request) {
     t_work_request *request = (t_work_request*) arg_request;
     bool rc;
+    bool bool_buf;
     bool async = false;
     int je;
     char *p_charbuf1 = NULL;
@@ -88,23 +89,26 @@ void mpd_worker_api(t_config *config, t_mpd_worker_state *mpd_worker_state, void
             break;
         }
         case MPDWORKER_API_SMARTPLS_UPDATE_ALL:
-            response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Smart playlists update started", false);
-            if (request->conn_id > -1) {
-                LOG_DEBUG("Push response to queue for connection %lu: %s", request->conn_id, response->data);
-                tiny_queue_push(web_server_queue, response);
+            je = json_scanf(request->data, sdslen(request->data), "{params: {force: %B}}", &bool_buf);
+            if (je == 1) {
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Smart playlists update started", false);
+                if (request->conn_id > -1) {
+                    LOG_DEBUG("Push response to queue for connection %lu: %s", request->conn_id, response->data);
+                    tiny_queue_push(web_server_queue, response);
+                }
+                else {
+                    free_result(response);
+                }
+                free_request(request);
+                rc = mpd_worker_smartpls_update_all(config, mpd_worker_state, bool_buf);
+                if (rc == true) {
+                    send_jsonrpc_notify_info("Smart playlists updated");
+                }
+                else {
+                    send_jsonrpc_notify_error("Smart playlists update failed");
+                }
+                async = true;
             }
-            else {
-                free_result(response);
-            }
-            free_request(request);
-            rc = mpd_worker_smartpls_update_all(config, mpd_worker_state);
-            if (rc == true) {
-                send_jsonrpc_notify_info("Smart playlists updated");
-            }
-            else {
-                send_jsonrpc_notify_error("Smart playlists update failed");
-            }
-            async = true;
             break;
         case MPDWORKER_API_SMARTPLS_UPDATE:
             je = json_scanf(request->data, sdslen(request->data), "{params: {playlist: %Q}}", &p_charbuf1);

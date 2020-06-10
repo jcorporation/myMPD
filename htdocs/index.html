@@ -47,7 +47,7 @@
           <div class="collapse" id="menu-dbupdate">
             <a data-phrase="Update database" class="dropdown-item text-light" href="#" data-href='{"cmd": "updateDB", "options": ["", true]}'></a>
             <a data-phrase="Rescan database" class="dropdown-item text-light" href="#" data-href='{"cmd": "rescanDB", "options": ["", true]}'></a>
-            <a data-phrase="Update smart playlists" class="dropdown-item text-light bg-lite-dark featSmartpls" href="#" data-href='{"cmd": "updateSmartPlaylists", "options": []}'></a>
+            <a data-phrase="Update smart playlists" class="dropdown-item text-light bg-lite-dark featSmartpls" href="#" data-href='{"cmd": "updateSmartPlaylists", "options": [false]}'></a>
           </div>
           <a data-phrase="Settings" class="dropdown-item text-light" href="#" data-toggle="modal" data-target="#modalSettings"></a>
           <a data-phrase="Timer" class="dropdown-item text-light featTimer" href="#" data-toggle="modal" data-target="#modalTimer"></a>
@@ -1456,6 +1456,12 @@
                         <button id="btnDeletePlaylists" data-href='{"cmd": "deletePlaylists", "options": []}' type="button" class="btn btn-secondary" data-phrase="Delete"></button>
                       </div>
                     </div>
+                  </div>
+                </div>
+                <div class="form-group row featPlaylists">
+                  <label class="col-sm-4 col-form-label" for="btnForceSmartplsUpdate" data-phrase="Force smart playlist update"></label>
+                  <div class="col-sm-8">
+                    <button type="button" id="btnForceSmartplsUpdate" class="btn btn-secondary btnCleanup" data-href='{"cmd": "updateSmartPlaylists", "options": [true]}' data-phrase="Force update"></button>
                   </div>
                 </div>
               </form>

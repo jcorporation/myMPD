@@ -80,6 +80,7 @@ function defineCmds() {
         {"jsonrpc":"2.0","id":0,"method":"MPD_API_SMARTPLS_SAVE","params":{"type":string1,"playlist":string2,"timerange":int1,"sort":string3}},
         {"jsonrpc":"2.0","id":0,"method":"MPD_API_SMARTPLS_GET","params":{"playlist":string1}},
         {"jsonrpc":"2.0","id":0,"method":"MPDWORKER_API_SMARTPLS_UPDATE", "params":{"playlist":string1}},
+        {"jsonrpc":"2.0","id":0,"method":"MPDWORKER_API_SMARTPLS_UPDATE_ALL", "params":{"force":bool0}},
         {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYLIST_RM_ALL", "params":{"type":string1}},
         {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYLIST_SORT", "params":{"uri":string1,"tag":string2}},
         {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYLIST_SHUFFLE", "params":{"uri":string1}},
