@@ -171,6 +171,10 @@ sds mpd_client_put_filesystem(t_config *config, t_mpd_client_state *mpd_client_s
                 case MPD_ENTITY_TYPE_PLAYLIST: {
                     const struct mpd_playlist *pl = mpd_entity_get_playlist(entity);
                     const char *entityName = mpd_playlist_get_path(pl);
+                    if (strchr(entityName, '.') == NULL) {
+                        entity_count--;
+                        break;
+                    }
                     char *plName = strrchr(entityName, '/');
                     if (plName != NULL) {
                         plName++;
