@@ -1349,3 +1349,6 @@ Jukebox Warteschlange konnte nicht aufgefüllt werden, Jukebox wurde deaktiviert
 
 Playlist to small, disabling jukebox unique constraints temporarily
 Wiedergabeliste zu klein, deaktiviere Jukebox Regeln
+
+Sticker cache is NULL
+Sticker Cache ist leer
