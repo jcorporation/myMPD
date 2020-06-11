@@ -230,6 +230,7 @@ static void mpd_client_feature_music_directory(t_mpd_client_state *mpd_client_st
     else {
         //none or garbage, empty music_directory_value
     }
+    strip_slash(mpd_client_state->music_directory_value);
     
     //set feat_library
     if (sdslen(mpd_client_state->music_directory_value) == 0) {

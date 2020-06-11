@@ -45,9 +45,11 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     }
     else if (MATCH("mpd", "musicdirectory")) {
         p_config->music_directory = sdsreplace(p_config->music_directory, value);
+        strip_slash(p_config->music_directory);
     }
     else if (MATCH("mpd", "playlistdirectory")) {
         p_config->playlist_directory = sdsreplace(p_config->playlist_directory, value);
+        strip_slash(p_config->playlist_directory);
     }
     else if (MATCH("mpd", "regex")) {
         p_config->regex = strtobool(value);

@@ -74,6 +74,7 @@ bool mympd_api_connection_save(t_config *config, t_mympd_state *mympd_state, str
     else if (strncmp(key->ptr, "musicDirectory", key->len) == 0) {
         mympd_state->music_directory = sdsreplacelen(mympd_state->music_directory, settingvalue, sdslen(settingvalue));
         settingname = sdscat(settingname, "music_directory");
+        strip_slash(mympd_state->music_directory);
     }
     else {
         sdsfree(settingname);
@@ -421,6 +422,7 @@ void mympd_api_read_statefiles(t_config *config, t_mympd_state *mympd_state) {
         mympd_state->bookmarks = false;
         mympd_state->smartpls = false;
     }
+    strip_slash(mympd_state->music_directory);
 }
 
 sds state_file_rw_string(t_config *config, const char *name, const char *def_value, bool warn) {

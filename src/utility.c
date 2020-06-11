@@ -228,7 +228,12 @@ int testdir(const char *name, const char *dirname, bool create) {
     return 3;
 }
 
-
+void strip_slash(sds s) {
+    int len = sdslen(s);
+    if (len > 1 && s[len - 1] == '/') {
+        sdsrange(s, 0, len - 2);
+    }
+}
 
 int strip_extension(char *s) {
     for (ssize_t i = strlen(s) - 1 ; i > 0; i--) {

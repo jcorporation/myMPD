@@ -42,6 +42,7 @@ sds get_mime_type_by_magic_stream(sds stream);
 bool write_covercache_file(t_config *config, const char *uri, const char *mime_type, sds binary);
 bool strtobool(const char *value);
 int strip_extension(char *s);
+void strip_slash(sds s);
 void ws_notify(sds message);
 
 #define FREE_PTR(PTR) do { \
