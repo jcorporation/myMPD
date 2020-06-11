@@ -68,9 +68,6 @@ void *mpd_worker_loop(void *arg_config) {
     //Cleanup
     mpd_shared_mpd_disconnect(mpd_worker_state->mpd_state);
     free_mpd_worker_state(mpd_worker_state);
-    //get mutex lock for sticker_cache
-    sticker_cache_free(sticker_cache);
-    //release mutex lock for sticker_cache
     sdsfree(thread_logname);
     return NULL;
 }

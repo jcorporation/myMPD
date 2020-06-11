@@ -83,7 +83,7 @@ void *mpd_client_loop(void *arg_config) {
     //Cleanup
     mpd_shared_mpd_disconnect(mpd_client_state->mpd_state);
     mpd_client_last_played_list_save(config, mpd_client_state);
-    sticker_cache_free(mpd_client_state->sticker_cache);
+    sticker_cache_free(&mpd_client_state->sticker_cache);
     free_mpd_client_state(mpd_client_state);
     sdsfree(thread_logname);
     return NULL;

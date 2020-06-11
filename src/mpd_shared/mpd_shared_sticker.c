@@ -13,6 +13,7 @@
 #include <assert.h>
 #include <mpd/client.h>
 
+#include "../../dist/src/rax/rax.h"
 #include "../../dist/src/sds/sds.h"
 #include "../sds_extras.h"
 #include "../api.h"
@@ -68,18 +69,17 @@ bool mpd_shared_get_sticker(t_mpd_state *mpd_state, const char *uri, t_sticker *
     return true;
 }
 
-void sticker_cache_free(rax *rdx) {
-    if (rdx == NULL) {
+void sticker_cache_free(rax **sticker_cache) {
+    if (*sticker_cache == NULL) {
         return;
     }
     raxIterator iter;
-    raxStart(&iter, rdx);
+    raxStart(&iter, *sticker_cache);
     raxSeek(&iter, "^", NULL, 0);
     while (raxNext(&iter)) {
         FREE_PTR(iter.data);
     }
     raxStop(&iter);
-    raxFree(sticker_cache);
-    rdx = NULL;
-
+    raxFree(*sticker_cache);
+    sticker_cache = NULL;
 }

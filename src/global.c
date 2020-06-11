@@ -34,6 +34,7 @@ t_work_result *create_result_new(int conn_id, int request_id, int cmd_id, const 
     response->method = sdsnew(method);
     response->data = sdsempty();
     response->binary = sdsempty();
+    response->extra = NULL;
     return response;
 }
 
@@ -45,6 +46,7 @@ t_work_request *create_request(int conn_id, int request_id, int cmd_id, const ch
     request->id = request_id;
     request->method = sdsnew(method);
     request->data = sdsnew(data);
+    request->extra = NULL;
     return request;
 }
 

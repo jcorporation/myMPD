@@ -131,6 +131,7 @@ void mpd_worker_api(t_config *config, t_mpd_worker_state *mpd_worker_state, void
             mpd_worker_sticker_cache_init(mpd_worker_state);
             async = true;
             free_request(request);
+            free_result(response);
             break;
         default:
             response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Unknown request", true);

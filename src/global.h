@@ -22,6 +22,7 @@ typedef struct t_work_request {
     sds method; //the jsonrpc method
     enum mympd_cmd_ids cmd_id;
     sds data;
+    void *extra;
 } t_work_request;
 
 typedef struct t_work_result {
@@ -31,6 +32,7 @@ typedef struct t_work_result {
     enum mympd_cmd_ids cmd_id;
     sds data;
     sds binary;
+    void *extra;
 } t_work_result;
 
 t_work_result *create_result(t_work_request *request);

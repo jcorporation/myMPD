@@ -7,7 +7,7 @@
 #ifndef __MPD_CLIENT_UTILITY_H__
 #define __MPD_CLIENT_UTILITY_H__
 
-//#include "dist/src/rax/rax.h"
+#include "../dist/src/rax/rax.h"
 
 typedef struct t_mpd_client_state {
     // States

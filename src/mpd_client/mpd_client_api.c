@@ -64,11 +64,16 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
     
     switch(request->cmd_id) {
         case MPD_API_STICKERCACHE_CREATED:
-            sticker_cache_free(mpd_client_state->sticker_cache);
-            //get mutex lock for sticker_cache
-            mpd_client_state->sticker_cache = sticker_cache;
-            sticker_cache = NULL;
-            //release mutex lock for sticker_cache
+            sticker_cache_free(&mpd_client_state->sticker_cache);
+            if (request->extra != NULL) {
+                mpd_client_state->sticker_cache = (rax *) request->extra;
+                response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+                LOG_VERBOSE("Sticker cache was replaced");
+            }
+            else {
+                LOG_ERROR("Sticker cache is NULL");
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Sticker cache is NULL", true);
+            }
             mpd_client_state->sticker_cache_building = false;
             break;
         case MPD_API_LOVE:

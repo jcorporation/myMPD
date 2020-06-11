@@ -31,33 +31,34 @@
 #include "mpd_worker_stickercache.h"
 
 //privat definitions
-static bool _sticker_cache_init(t_mpd_worker_state *mpd_worker_state);
+static bool _sticker_cache_init(t_mpd_worker_state *mpd_worker_state, rax *sticker_cache);
 
 //public functions
 bool mpd_worker_sticker_cache_init(t_mpd_worker_state *mpd_worker_state) {
     disable_all_mpd_tags(mpd_worker_state->mpd_state);
-    //get mutex lock for sticker_cache
-    bool rc = _sticker_cache_init(mpd_worker_state);
-    //release mutex lock for sticker_cache
+    rax *sticker_cache = raxNew();
+    bool rc = _sticker_cache_init(mpd_worker_state, sticker_cache);
     enable_mpd_tags(mpd_worker_state->mpd_state, mpd_worker_state->mpd_state->mympd_tag_types);
+    //push sticker cache building response to mpd_client thread
+    t_work_request *request = create_request(-1, 0, MPD_API_STICKERCACHE_CREATED, "MPD_API_STICKERCACHE_CREATED", "");
+    request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPD_API_STICKERCACHE_CREATED\",\"params\":{}}");
     if (rc == true) {
-        //push sticker cache building response to mpd_client thread
-        t_work_request *request = create_request(-1, 0, MPD_API_STICKERCACHE_CREATED, "MPD_API_STICKERCACHE_CREATED", "");
-        request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPD_API_STICKERCACHE_CREATED\",\"params\":{}}");
-        tiny_queue_push(mpd_client_queue, request);
+        request->extra = (void *) sticker_cache;
     }
+    else {
+        sticker_cache_free(&sticker_cache);
+    }
+    tiny_queue_push(mpd_client_queue, request);
     return rc;
 }
 
 //private functions
-static bool _sticker_cache_init(t_mpd_worker_state *mpd_worker_state) {
-    sticker_cache_free(sticker_cache);
+static bool _sticker_cache_init(t_mpd_worker_state *mpd_worker_state, rax *sticker_cache) {
     LOG_VERBOSE("Creating sticker cache");
     unsigned start = 0;
     unsigned end = start + 1000;
     unsigned i = 0;
     struct mpd_song *song;
-    sticker_cache = raxNew();
     //get all songs from database
     do {
         bool rc = mpd_search_db_songs(mpd_worker_state->mpd_state->conn, false);
@@ -94,7 +95,7 @@ static bool _sticker_cache_init(t_mpd_worker_state *mpd_worker_state) {
         }
         mpd_response_finish(mpd_worker_state->mpd_state->conn);
         if (check_error_and_recover2(mpd_worker_state->mpd_state, NULL, NULL, 0, false) == false) {
-            sticker_cache_free(sticker_cache);
+            sticker_cache_free(&sticker_cache);
             LOG_ERROR("Sticker cache update failed");
             return false;        
         }

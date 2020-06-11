@@ -27,9 +27,6 @@
 #include "mpd_shared/mpd_shared_tags.h"
 #include "mpd_shared.h"
 
-//sticker cached shared in mpd_client and mpd_worker thread
-rax *sticker_cache;
-
 //mpd state
 void mpd_shared_default_mpd_state(t_mpd_state *mpd_state) {
     mpd_state->conn_state = MPD_DISCONNECTED;
