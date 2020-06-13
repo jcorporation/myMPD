@@ -162,6 +162,16 @@ function webSocketConnect() {
                         showNotification(t(obj.params.message), '', '', 'danger');
                     }
                     break;
+                case 'warn':
+                    if (document.getElementById('alertMpdState').classList.contains('hide')) {
+                        showNotification(t(obj.params.message), '', '', 'warning');
+                    }
+                    break;
+                case 'info':
+                    if (document.getElementById('alertMpdState').classList.contains('hide')) {
+                        showNotification(t(obj.params.message), '', '', 'success');
+                    }
+                    break;
                 default:
                     break;
             }
@@ -2598,7 +2608,7 @@ function showNotification(notificationTitle, notificationText, notificationHtml,
         let notification = new Notification(notificationTitle, {icon: 'assets/favicon.ico', body: notificationText});
         setTimeout(notification.close.bind(notification), 3000);
     } 
-    if (settings.notificationPage === true || notificationType === 'danger') {
+    if (settings.notificationPage === true || notificationType === 'danger' || notificationType === 'warning') {
         let alertBox;
         if (!document.getElementById('alertBox')) {
             alertBox = document.createElement('div');
@@ -2612,8 +2622,11 @@ function showNotification(notificationTitle, notificationText, notificationHtml,
         if (notificationType === 'success' ) {
             toast += '<span class="material-icons text-success mr-2">info</span>';
         }
+        else if (notificationType === 'warning' ) {
+            toast += '<span class="material-icons text-warning mr-2">warning</span>';
+        }
         else {
-            toast += '<span class="material-icons text-danger mr-2">warning</span>';
+            toast += '<span class="material-icons text-danger mr-2">error</span>';
         }
         toast += '<strong class="mr-auto">' + e(notificationTitle) + '</strong>' +
             '<button type="button" class="ml-2 mb-1 close">&times;</button></div>';
@@ -2646,6 +2659,7 @@ function showNotification(notificationTitle, notificationText, notificationHtml,
 
 function logMessage(notificationTitle, notificationText, notificationHtml, notificationType) {
     if (notificationType === 'success') { notificationType = 'Info'; }
+    else if (notificationType === 'warning') { notificationType = 'Warning'; }
     else if (notificationType === 'danger') { notificationType = 'Error'; }
     
     let overview = document.getElementById('logOverview');
@@ -2943,8 +2957,8 @@ function getAllPlaylists(obj, playlistSelect, playlistValue) {
 }
 
 //eslint-disable-next-line no-unused-vars
-function updateSmartPlaylists() {
-    sendAPI("MPD_API_SMARTPLS_UPDATE_ALL", {});
+function updateSmartPlaylists(force) {
+    sendAPI("MPDWORKER_API_SMARTPLS_UPDATE_ALL", {"force":force});
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -3211,13 +3225,13 @@ function showSmartPlaylist(playlist) {
 
 //eslint-disable-next-line no-unused-vars
 function updateSmartPlaylist(playlist) {
-    sendAPI("MPD_API_SMARTPLS_UPDATE", {"playlist": playlist});
+    sendAPI("MPDWORKER_API_SMARTPLS_UPDATE", {"playlist": playlist});
 }
 
 //eslint-disable-next-line no-unused-vars
 function updateSmartPlaylistClick() {
     let uri = document.getElementById('BrowsePlaylistsDetailList').getAttribute('data-uri');
-    sendAPI("MPD_API_SMARTPLS_UPDATE", {"playlist": uri});
+    sendAPI("MPDWORKER_API_SMARTPLS_UPDATE", {"playlist": uri});
     document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
 }
 
