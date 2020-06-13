@@ -14,12 +14,13 @@
   color: var(--mympd-highlightcolor, #28a745) !important;
 }
 
-#highlightColorPreview, #bgColorPreview {
+#highlightColorPreview, 
+#bgColorPreview {
   cursor: default;
 }
 
 #splashScreen {
-  background: linear-gradient(0deg, rgba(0,0,0,1) 0%, rgba(52,58,64,1) 100%);
+  background: linear-gradient(0deg, rgba(0, 0, 0, 1) 0%, rgba(52, 58, 64, 1) 100%);
   width: 100vw;
   height: 100vh;
   z-index: 2000;
@@ -78,27 +79,27 @@ td[data-col=Action] {
 }
 
 .albumartbg {
-    position: fixed;
-    width: 100%;
-    height: 100%;
-    background-position: center center;
-    background-size: cover;
-    top: 3.5rem;
-    filter: blur(5px);
-    transition: opacity 1s;
-    z-index: -9;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background-position: center center;
+  background-size: cover;
+  top: 3.5rem;
+  filter: blur(5px);
+  transition: opacity 1s;
+  z-index: -9;
 }
 
 .coverbg {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background-position: center center;
-    background-size: cover;
-    top: 0;
-    left: 0;
-    transition: opacity 1s;
-    z-index: 3;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-position: center center;
+  background-size: cover;
+  top: 0;
+  left: 0;
+  transition: opacity 1s;
+  z-index: 3;
 }
 
 main {
@@ -163,7 +164,7 @@ button {
 }
 
 #headerTitle {
- text-overflow: ellipsis;
+  text-overflow: ellipsis;
 }
 
 .clickable {
@@ -383,9 +384,9 @@ a.card-img-left {
 }
 
 .title-icon {
-  float:left;
-  margin-right:5px;
-  font-size:1.8rem;
+  float: left;
+  margin-right: 5px;
+  font-size: 1.8rem;
 }
 
 .header-logo {
@@ -420,7 +421,7 @@ button.active-fg-red {
 }
 
 div#alertBox {
-  position:fixed;
+  position: fixed;
   bottom: 4rem;
   right: 1rem;
   width: 80%;
@@ -435,12 +436,12 @@ div.alertBoxActive {
 }
 
 .popover-content {
-  padding-top:4px;
-  padding-bottom:4px;
+  padding-top: 4px;
+  padding-bottom: 4px;
 }
 
 .opacity05 {
-  opacity:0.5;
+  opacity: 0.5;
 }
 
 caption {
@@ -451,11 +452,11 @@ caption {
 }
 
 .dragover > td {
-  border-top:2px solid var(--mympd-highlightcolor, #28a745);
+  border-top: 2px solid var(--mympd-highlightcolor, #28a745);
 }
 
 .dragover-th {
-  border-left:2px solid var(--mympd-highlightcolor, #28a745);
+  border-left: 2px solid var(--mympd-highlightcolor, #28a745);
 }
 
 [draggable] {
@@ -486,7 +487,7 @@ caption {
 }
 
 .modal-body .album-cover {
-  float:none;
+  float: none;
 }
 
 #BrowseDatabaseAlbumListCaption {
@@ -518,7 +519,7 @@ div.key {
 }
 
 ol#searchCrumb {
- padding: .5rem;
+  padding: 0.5rem;
 }
 
 .nodropdown::after {
@@ -552,9 +553,11 @@ textarea.small {
   box-shadow: none !important;
 }
 
-.btn-light:not(:disabled):not(.disabled):active, .btn-light:not(:disabled):not(.disabled).active,
+.btn-light:not(:disabled):not(.disabled):active,
+.btn-light:not(:disabled):not(.disabled).active,
 .show > .btn-light.dropdown-toggle,
-.btn-secondary:not(:disabled):not(.disabled):active, .btn-secondary:not(:disabled):not(.disabled).active,
+.btn-secondary:not(:disabled):not(.disabled):active, 
+.btn-secondary:not(:disabled):not(.disabled).active,
 .show > .btn-secondary.dropdown-toggle {
   color: #fff;
   background-color: var(--mympd-highlightcolor, #28a745) !important;

@@ -9,8 +9,9 @@ address {
   font-style: normal;
 }
 
-h1, address {
-  background-color: #343A40;
+h1,
+address {
+  background-color: 343a40;
   color: #f8f9fa;
   padding: 1rem;
   position:fixed;
@@ -21,7 +22,7 @@ h1, address {
 
 body {
   margin: 5rem 0;
-  background-color: #F7F7F7;
+  background-color: f7f7f7;
   color: #212529;
   font-family: sans-serif;
   font-size: 1rem;
@@ -39,21 +40,24 @@ th {
   border-top: 1px solid #dee2e6;
 }
 
-th, td {
-  text-align:left;
+th, 
+td {
+  text-align: left;
   padding: 0.3rem;
   font-family: inherit;
 }
 
 td {
-  border-bottom: 1px solid #dee2e6
+  border-bottom: 1px solid #dee2e6;
 }
 
 td:last-child {
   text-align: right;
 }
 
-a, a:visited, a:active {
+a,
+a:visited,
+a:active {
   color: #212529;
   text-decoration: none;
 }
