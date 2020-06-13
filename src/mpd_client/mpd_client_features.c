@@ -198,7 +198,6 @@ static void mpd_client_feature_tags(t_mpd_client_state *mpd_client_state) {
 }
 
 static void mpd_client_feature_music_directory(t_mpd_client_state *mpd_client_state) {
-    struct mpd_pair *pair;
     mpd_client_state->feat_library = false;
     mpd_client_state->feat_coverimage = mpd_client_state->coverimage;
     mpd_client_state->music_directory_value = sdscrop(mpd_client_state->music_directory_value);
@@ -206,6 +205,7 @@ static void mpd_client_feature_music_directory(t_mpd_client_state *mpd_client_st
     if (strncmp(mpd_client_state->mpd_state->mpd_host, "/", 1) == 0 && strncmp(mpd_client_state->music_directory, "auto", 4) == 0) {
         //get musicdirectory from mpd
         if (mpd_send_command(mpd_client_state->mpd_state->conn, "config", NULL) == true) {
+            struct mpd_pair *pair;
             while ((pair = mpd_recv_pair(mpd_client_state->mpd_state->conn)) != NULL) {
                 if (strcmp(pair->name, "music_directory") == 0) {
                     if (strncmp(pair->value, "smb://", 6) != 0 && strncmp(pair->value, "nfs://", 6) != 0) {
