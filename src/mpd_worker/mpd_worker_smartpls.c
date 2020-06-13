@@ -46,7 +46,7 @@ bool mpd_worker_smartpls_update_all(t_config *config, t_mpd_worker_state *mpd_wo
     
     mpd_worker_smartpls_per_tag(config, mpd_worker_state);
 
-    int db_mtime = mpd_shared_get_db_mtime(mpd_worker_state->mpd_state);
+    unsigned long db_mtime = mpd_shared_get_db_mtime(mpd_worker_state->mpd_state);
     LOG_DEBUG("Database mtime: %d", db_mtime);
     
     sds dirname = sdscatfmt(sdsempty(), "%s/smartpls", config->varlibdir);
@@ -57,8 +57,8 @@ bool mpd_worker_smartpls_update_all(t_config *config, t_mpd_worker_state *mpd_wo
             if (strncmp(ent->d_name, ".", 1) == 0) {
                 continue;
             }
-            int playlist_mtime = mpd_shared_get_playlist_mtime(mpd_worker_state->mpd_state, ent->d_name);
-            int smartpls_mtime = mpd_shared_get_smartpls_mtime(config, ent->d_name);
+            unsigned long playlist_mtime = mpd_shared_get_playlist_mtime(mpd_worker_state->mpd_state, ent->d_name);
+            unsigned long smartpls_mtime = mpd_shared_get_smartpls_mtime(config, ent->d_name);
             LOG_DEBUG("Playlist %s: playlist mtime %d, smartpls mtime %d", ent->d_name, playlist_mtime, smartpls_mtime);
             if (force == true || db_mtime > playlist_mtime || smartpls_mtime > playlist_mtime) {
                 mpd_worker_smartpls_update(config, mpd_worker_state, ent->d_name);

@@ -25,35 +25,35 @@
 #include "../mpd_shared.h"
 #include "mpd_shared_playlists.h"
 
-int mpd_shared_get_db_mtime(t_mpd_state *mpd_state) {
+unsigned long mpd_shared_get_db_mtime(t_mpd_state *mpd_state) {
     struct mpd_stats *stats = mpd_run_stats(mpd_state->conn);
     if (stats == NULL) {
         check_error_and_recover(mpd_state, NULL, NULL, 0);
-        return -1;
+        return 0;
     }
-    int mtime = mpd_stats_get_db_update_time(stats);
+    unsigned long mtime = mpd_stats_get_db_update_time(stats);
     mpd_stats_free(stats);
     return mtime;
 }
 
-int mpd_shared_get_smartpls_mtime(t_config *config, const char *playlist) {
+unsigned long mpd_shared_get_smartpls_mtime(t_config *config, const char *playlist) {
     sds plpath = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->varlibdir, playlist);
     struct stat attr;
     if (stat(plpath, &attr) != 0) {
         LOG_ERROR("Error getting mtime for %s: %s", plpath, strerror(errno));
         sdsfree(plpath);
-        return -1;
+        return 0;
     }
     sdsfree(plpath);
     return attr.st_mtime;
 }
 
-int mpd_shared_get_playlist_mtime(t_mpd_state *mpd_state, const char *playlist) {
+unsigned long mpd_shared_get_playlist_mtime(t_mpd_state *mpd_state, const char *playlist) {
     bool rc = mpd_send_list_playlists(mpd_state->conn);
     if (check_rc_error_and_recover(mpd_state, NULL, NULL, 0, false, rc, "mpd_send_list_playlists") == false) {
-        return -1;
+        return 0;
     }
-    int mtime = 0;
+    unsigned long mtime = 0;
     struct mpd_playlist *pl;
     while ((pl = mpd_recv_playlist(mpd_state->conn)) != NULL) {
         const char *plpath = mpd_playlist_get_path(pl);
@@ -66,7 +66,7 @@ int mpd_shared_get_playlist_mtime(t_mpd_state *mpd_state, const char *playlist) 
     }
     mpd_response_finish(mpd_state->conn);
     if (check_error_and_recover2(mpd_state, NULL, NULL, 0, false) == false) {
-        return -1;
+        return 0;
     }
 
     return mtime;

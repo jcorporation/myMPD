@@ -490,7 +490,7 @@ bool write_covercache_file(t_config *config, const char *uri, const char *mime_t
 void my_usleep(time_t usec) {
   struct timespec ts = {
     .tv_sec = (usec / 1000) / 1000,
-    .tv_nsec = (usec % 1000000000l) * 1000
+    .tv_nsec = (usec % 1000000000L) * 1000
   };
   nanosleep(&ts, NULL);
 }

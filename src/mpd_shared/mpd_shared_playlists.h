@@ -10,7 +10,7 @@ sds mpd_shared_playlist_shuffle_sort(t_mpd_state *mpd_state, sds buffer, sds met
 bool mpd_shared_smartpls_save(t_config *config, const char *smartpltype, 
                               const char *playlist, const char *tag, const char *searchstr, const int maxentries, 
                               const int timerange, const char *sort);
-int mpd_shared_get_playlist_mtime(t_mpd_state *mpd_state, const char *playlist);
-int mpd_shared_get_smartpls_mtime(t_config *config, const char *playlist);
-int mpd_shared_get_db_mtime(t_mpd_state *mpd_state);
+unsigned long mpd_shared_get_playlist_mtime(t_mpd_state *mpd_state, const char *playlist);
+unsigned long mpd_shared_get_smartpls_mtime(t_config *config, const char *playlist);
+unsigned long mpd_shared_get_db_mtime(t_mpd_state *mpd_state);
 #endif
