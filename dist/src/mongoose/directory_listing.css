@@ -11,7 +11,7 @@ address {
 
 h1,
 address {
-  background-color: 343a40;
+  background-color: #343a40;
   color: #f8f9fa;
   padding: 1rem;
   position:fixed;
@@ -40,7 +40,7 @@ th {
   border-top: 1px solid #dee2e6;
 }
 
-th, 
+th,
 td {
   text-align: left;
   padding: 0.3rem;
