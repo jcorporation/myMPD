@@ -148,6 +148,7 @@ button {
   .header-logo {
     display: none !important;
   }
+
   .footerText {
     display: none;
   }
@@ -178,7 +179,9 @@ button {
   background-color: inherit !important;
 }
 
-[data-col=Pos], [data-col=Type], [data-col=Track] {
+[data-col=Pos],
+[data-col=Type],
+[data-col=Track] {
   width: 2rem;
   min-width: min-content;
   /* @alternate */

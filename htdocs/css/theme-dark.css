@@ -32,11 +32,11 @@ body.theme-dark .show {
 }
 
 body.theme-dark .btn-success {
-  background-color: #28A745;
+  background-color: #28a745;
 }
 
 body.theme-dark .btn-danger {
-  background-color: #DC3545;
+  background-color: #dc3545;
 }
 
 body.theme-dark .btn-secondary {
@@ -51,7 +51,7 @@ body.theme-dark .form-control {
 }
 
 body.theme-dark .form-control:focus {
-  background-color: #32383E;
+  background-color: #32383e;
   color: #f8f9fa;
 }
 
