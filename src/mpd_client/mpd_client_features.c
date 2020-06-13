@@ -125,8 +125,8 @@ void mpd_client_feature_love(t_mpd_client_state *mpd_client_state) {
 
 //private functions
 static void mpd_client_feature_commands(t_mpd_client_state *mpd_client_state) {
-    struct mpd_pair *pair;
     if (mpd_send_allowed_commands(mpd_client_state->mpd_state->conn) == true) {
+        struct mpd_pair *pair;
         while ((pair = mpd_recv_command_pair(mpd_client_state->mpd_state->conn)) != NULL) {
             if (strcmp(pair->value, "sticker") == 0) {
                 LOG_DEBUG("MPD supports stickers");
@@ -159,7 +159,6 @@ static void mpd_client_feature_commands(t_mpd_client_state *mpd_client_state) {
             }
             mpd_return_pair(mpd_client_state->mpd_state->conn, pair);
         }
-        
     }
     else {
         LOG_ERROR("Error in response to command: mpd_send_allowed_commands");
