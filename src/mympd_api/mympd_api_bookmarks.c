@@ -38,13 +38,13 @@ bool mympd_api_bookmark_update(t_config *config, const int id, const char *name,
     }
     FILE *fo = fdopen(fd, "w");
     int line_nr = 0;
-    char *line = NULL;
-    size_t n = 0;
-    ssize_t read;
     bool inserted = false;
     sds b_file = sdscatfmt(sdsempty(), "%s/state/bookmark_list", config->varlibdir);
     FILE *fi = fopen(b_file, "r");
     if (fi != NULL) {
+        char *line = NULL;
+        size_t n = 0;
+        ssize_t read;
         while ((read = getline(&line, &n, fi)) > 0) {
             char *lname = NULL;
             char *luri = NULL;

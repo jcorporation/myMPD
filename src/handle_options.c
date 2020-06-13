@@ -37,16 +37,15 @@ static bool smartpls_init(t_config *config, const char *name, const char *value)
 //global functions
 bool smartpls_default(t_config *config) {
     bool rc = true;
-    char *line = NULL;
-    size_t n = 0;
-    ssize_t read;
 
     sds prefix = sdsempty();
     sds prefix_file = sdscatfmt(sdsempty(), "%s/state/smartpls_prefix", config->varlibdir);
     FILE *fp = fopen(prefix_file, "r");
     sdsfree(prefix_file);
     if (fp != NULL) {
-        read = getline(&line, &n, fp);
+        size_t n = 0;
+        char *line = NULL;
+        ssize_t read = getline(&line, &n, fp);
         if (read > 0) {
             prefix = sdscat(prefix, line);
             FREE_PTR(line);

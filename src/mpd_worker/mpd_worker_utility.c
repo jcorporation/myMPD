@@ -51,7 +51,6 @@ void free_mpd_worker_state(t_mpd_worker_state *mpd_worker_state) {
     //mpd state
     mpd_shared_free_mpd_state(mpd_worker_state->mpd_state);
     free(mpd_worker_state);
-    mpd_worker_state = NULL;
 }
 
 void mpd_worker_features(t_mpd_worker_state *mpd_worker_state) {
@@ -74,8 +73,8 @@ static void mpd_worker_feature_commands(t_mpd_worker_state *mpd_worker_state) {
     mpd_worker_state->feat_playlists = false;
     mpd_worker_state->feat_smartpls = mpd_worker_state->smartpls;
     
-    struct mpd_pair *pair;
     if (mpd_send_allowed_commands(mpd_worker_state->mpd_state->conn) == true) {
+        struct mpd_pair *pair;
         while ((pair = mpd_recv_command_pair(mpd_worker_state->mpd_state->conn)) != NULL) {
             if (strcmp(pair->value, "listplaylists") == 0) {
                 LOG_DEBUG("MPD supports playlists");

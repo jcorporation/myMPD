@@ -87,7 +87,7 @@ static void mpd_worker_idle(t_config *config, t_mpd_worker_state *mpd_worker_sta
             }
             if (now < mpd_worker_state->mpd_state->reconnect_time) {
                 //pause 100ms to prevent high cpu usage
-                usleep(100000);
+                my_usleep(100000);
             }
             break;
         }

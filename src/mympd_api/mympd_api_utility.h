@@ -14,8 +14,8 @@ struct t_timer_definition {
     sds action;
     int volume;
     sds playlist;
-    bool weekdays[7];
     unsigned jukebox_mode;
+    bool weekdays[7];
 };
 
 typedef void (*time_handler)(struct t_timer_definition *definition, void *user_data);

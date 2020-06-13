@@ -58,7 +58,6 @@ static bool _sticker_cache_init(t_mpd_worker_state *mpd_worker_state, rax *stick
     unsigned start = 0;
     unsigned end = start + 1000;
     unsigned i = 0;
-    struct mpd_song *song;
     //get all songs from database
     do {
         bool rc = mpd_search_db_songs(mpd_worker_state->mpd_state->conn, false);
@@ -84,7 +83,7 @@ static bool _sticker_cache_init(t_mpd_worker_state *mpd_worker_state, rax *stick
             LOG_ERROR("Sticker cache update failed");
             return false;
         }
-        
+        struct mpd_song *song;
         while ((song = mpd_recv_song(mpd_worker_state->mpd_state->conn)) != NULL) {
             const char *uri = mpd_song_get_uri(song);
             t_sticker *sticker = (t_sticker *) malloc(sizeof(t_sticker));

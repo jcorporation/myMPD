@@ -217,7 +217,6 @@ static bool mpd_worker_smartpls_per_tag(t_config *config, t_mpd_worker_state *mp
 
 static bool mpd_worker_smartpls_clear(t_mpd_worker_state *mpd_worker_state, const char *playlist) {
     struct mpd_playlist *pl;
-    const char *plpath;
     bool exists = false;
     
     //first check if playlist exists
@@ -226,7 +225,7 @@ static bool mpd_worker_smartpls_clear(t_mpd_worker_state *mpd_worker_state, cons
         return false;
     }
     while ((pl = mpd_recv_playlist(mpd_worker_state->mpd_state->conn)) != NULL) {
-        plpath = mpd_playlist_get_path(pl);
+        const char *plpath = mpd_playlist_get_path(pl);
         if (strcmp(playlist, plpath) == 0) {
             exists = true;
         }

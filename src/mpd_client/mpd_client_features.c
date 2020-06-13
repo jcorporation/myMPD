@@ -97,10 +97,10 @@ void mpd_client_mpd_features(t_config *config, t_mpd_client_state *mpd_client_st
 }
 
 void mpd_client_feature_love(t_mpd_client_state *mpd_client_state) {
-    struct mpd_pair *pair;
     mpd_client_state->feat_love = false;
     if (mpd_client_state->love == true) {
         if (mpd_send_channels(mpd_client_state->mpd_state->conn) == true) {
+            struct mpd_pair *pair;
             while ((pair = mpd_recv_channel_pair(mpd_client_state->mpd_state->conn)) != NULL) {
                 if (strcmp(pair->value, mpd_client_state->love_channel) == 0) {
                     mpd_client_state->feat_love = true;

@@ -281,7 +281,6 @@ static bool mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_client
 }
 
 static bool _mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_client_state *mpd_client_state, int addSongs, enum jukebox_modes jukebox_mode, const char *playlist, bool manual) {
-    struct mpd_song *song;
     struct mpd_pair *pair;
     int lineno = 1;
     int skipno = 0;
@@ -347,7 +346,7 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_clien
                 FREE_PTR(queue_list);
                 return false;
             }
-            
+            struct mpd_song *song;
             while ((song = mpd_recv_song(mpd_client_state->mpd_state->conn)) != NULL) {
                 const char *tag_value = mpd_song_get_tag(song, mpd_client_state->jukebox_unique_tag.tags[0], 0);
                 const char *uri = mpd_song_get_uri(song);

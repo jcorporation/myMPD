@@ -14,6 +14,7 @@
 #include <sys/stat.h>
 #include <ctype.h>
 #include <signal.h>
+#include <time.h>
 
 #include "../dist/src/sds/sds.h"
 #include "sds_extras.h"
@@ -484,4 +485,12 @@ bool write_covercache_file(t_config *config, const char *uri, const char *mime_t
     sdsfree(tmp_file);
     sdsfree(filename);
     return rc;
+}
+
+void my_usleep(time_t usec) {
+  struct timespec ts = {
+    .tv_sec = (usec / 1000) / 1000,
+    .tv_nsec = (usec % 1000000000l) * 1000
+  };
+  nanosleep(&ts, NULL);
 }

@@ -44,6 +44,7 @@ bool strtobool(const char *value);
 int strip_extension(char *s);
 void strip_slash(sds s);
 void ws_notify(sds message);
+void my_usleep(time_t usec);
 
 #define FREE_PTR(PTR) do { \
     if (PTR != NULL) \

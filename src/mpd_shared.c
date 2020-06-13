@@ -47,7 +47,6 @@ void mpd_shared_free_mpd_state(t_mpd_state *mpd_state) {
     sdsfree(mpd_state->mpd_pass);
     sdsfree(mpd_state->taglist);
     free(mpd_state);
-    mpd_state = NULL;
 }
 
 void mpd_shared_mpd_disconnect(t_mpd_state *mpd_state) {

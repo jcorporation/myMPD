@@ -81,5 +81,5 @@ void sticker_cache_free(rax **sticker_cache) {
     }
     raxStop(&iter);
     raxFree(*sticker_cache);
-    sticker_cache = NULL;
+    *sticker_cache = NULL;
 }

@@ -211,7 +211,7 @@ static void mpd_client_idle(t_config *config, t_mpd_client_state *mpd_client_sta
             }
             if (now < mpd_client_state->mpd_state->reconnect_time) {
                 //pause 100ms to prevent high cpu usage
-                usleep(100000);
+                my_usleep(100000);
             }
             break;
         }
