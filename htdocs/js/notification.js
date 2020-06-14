@@ -69,6 +69,9 @@ function showNotification(notificationTitle, notificationText, notificationHtml,
     } 
     if (settings.notificationPage === true || notificationType === 'danger' || notificationType === 'warning') {
         let alertBox;
+        if (alertTimeout) {
+            clearTimeout(alertTimeout);
+        }
         if (!document.getElementById('alertBox')) {
             alertBox = document.createElement('div');
             alertBox.setAttribute('id', 'alertBox');
@@ -77,6 +80,7 @@ function showNotification(notificationTitle, notificationText, notificationHtml,
         else {
             alertBox = document.getElementById('alertBox');
         }
+        
         let toast = '<div class="toast-header">';
         if (notificationType === 'success' ) {
             toast += '<span class="material-icons text-success mr-2">info</span>';
@@ -105,9 +109,6 @@ function showNotification(notificationTitle, notificationText, notificationHtml,
             hideNotification();
         }, false);
 
-        if (alertTimeout) {
-            clearTimeout(alertTimeout);
-        }
         alertTimeout = setTimeout(function() {
             hideNotification();
         }, 3000);
