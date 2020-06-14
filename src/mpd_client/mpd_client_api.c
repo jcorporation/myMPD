@@ -102,6 +102,7 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
                     break;
                 }
                 mpd_client_sticker_like(mpd_client_state, p_charbuf1, int_buf1);
+                response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
             }
             break;
         case MPD_API_PLAYER_STATE:
