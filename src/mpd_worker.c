@@ -73,7 +73,6 @@ void *mpd_worker_loop(void *arg_config) {
 }
 
 static void mpd_worker_idle(t_config *config, t_mpd_worker_state *mpd_worker_state) {
-    sds buffer = sdsempty();
     unsigned mpd_worker_queue_length = 0;
     struct pollfd fds[1];
     int pollrc;
@@ -191,7 +190,6 @@ static void mpd_worker_idle(t_config *config, t_mpd_worker_state *mpd_worker_sta
         default:
             LOG_ERROR("Invalid mpd worker connection state");
     }
-    sdsfree(buffer);
 }
 
 static void mpd_worker_parse_idle(t_config *config, t_mpd_worker_state *mpd_worker_state, int idle_bitmask) {
