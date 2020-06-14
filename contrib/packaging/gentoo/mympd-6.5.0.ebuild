@@ -14,7 +14,7 @@ SRC_URI="https://github.com/jcorporation/${MY_PN}/archive/v${PV}.tar.gz -> ${PN}
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~x86 ~arm ~arm64"
-IUSE="+flac +id3tag +ssl +java systemd"
+IUSE="+flac +id3tag +ssl +java +lua systemd"
 
 BDEPEND="
         dev-util/cmake
@@ -24,6 +24,7 @@ BDEPEND="
 RDEPEND="
         media-sound/mpd[flac?,id3tag?]
         ssl? ( dev-libs/openssl )
+        lua? ( dev-lang/lua )
         systemd? ( sys-apps/systemd )
 "
 
@@ -39,6 +40,7 @@ src_compile() {
     ENABLE_SSL=$(usex ssl "ON" "OFF")
     ENABLE_LIBID3TAG=$(usex id3tag "ON" "OFF")
     ENABLE_FLAC=$(usex flac "ON" "OFF")
+    ENABLE_FLAC=$(usex lua "ON" "OFF")
     ./build.sh release
 }
 

@@ -2,13 +2,13 @@ Source: mympd
 Section: sound
 Priority: optional
 Maintainer: Juergen Mang <mail@jcgames.de>
-Build-Depends: debhelper (>= 10), cmake, libssl-dev, libid3tag0-dev, libflac-dev
+Build-Depends: debhelper (>= 10), cmake, libssl-dev, libid3tag0-dev, libflac-dev, liblua50-dev
 Standards-Version: 4.1.2
 Homepage: https://github.com/jcorporation/myMPD
 
 Package: mympd
 Architecture: any
-Depends: libc6, openssl, libid3tag0, libflac8
+Depends: libc6, openssl, libid3tag0, libflac8, liblua50
 Description: Standalone and modern web mpd client.
  myMPD is a lightweight MPD web client that runs without a dedicated
  webserver or interpreter. It's tuned for minimal resource usage and

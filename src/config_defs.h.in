@@ -37,6 +37,9 @@
 //openssl
 #cmakedefine ENABLE_SSL
 
+//lua
+#cmakedefine ENABLE_LUA
+
 //myMPD version from cmake
 #define MYMPD_VERSION_MAJOR ${CPACK_PACKAGE_VERSION_MAJOR}
 #define MYMPD_VERSION_MINOR ${CPACK_PACKAGE_VERSION_MINOR}

@@ -20,6 +20,11 @@ then
   export ENABLE_FLAC="ON"
 fi
 
+if [ "${ENABLE_LUA}" = "" ]
+then
+  export ENABLE_LUA="ON"
+fi
+
 STARTPATH=$(pwd)
 
 #set umask
@@ -287,7 +292,7 @@ buildrelease() {
   export INSTALL_PREFIX="${MYMPD_INSTALL_PREFIX:-/usr}"
   cmake -DCMAKE_INSTALL_PREFIX:PATH="$INSTALL_PREFIX" -DCMAKE_BUILD_TYPE=RELEASE \
   	-DENABLE_SSL="$ENABLE_SSL" -DENABLE_LIBID3TAG="$ENABLE_LIBID3TAG" \
-  	-DENABLE_FLAC="$ENABLE_FLAC" ..
+  	-DENABLE_FLAC="$ENABLE_FLAC" -DENABLE_LUA="$ENABLE_LUA" ..
   make
 }
 
@@ -318,7 +323,7 @@ builddebug() {
   cd debug || exit 1
   cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=DEBUG -DMEMCHECK="$MEMCHECK" \
   	-DENABLE_SSL="$ENABLE_SSL" -DENABLE_LIBID3TAG="$ENABLE_LIBID3TAG" -DENABLE_FLAC="$ENABLE_FLAC" \
-  	-DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
+  	-DENABLE_LUA="$ENABLE_LUA" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
   make VERBOSE=1
   echo "Linking compilation database"
   sed -e 's/\\t/ /g' -e 's/-fsanitize=bounds-strict//g' -e 's/-static-libasan//g' compile_commands.json > ../src/compile_commands.json
@@ -596,26 +601,27 @@ installdeps() {
     [ "$(uname -m)" = "armv6l" ] && JAVADEB="openjdk-8-jre-headless"
     apt-get update
     apt-get install -y --no-install-recommends \
-	gcc cmake perl libssl-dev libid3tag0-dev libflac-dev build-essential $JAVADEB
+	gcc cmake perl libssl-dev libid3tag0-dev libflac-dev \
+	build-essential liblua50-dev $JAVADEB
   elif [ -f /etc/arch-release ]
   then
     #arch
-    pacman -S gcc cmake perl openssl libid3tag flac jre-openjdk-headless
+    pacman -S gcc cmake perl openssl libid3tag flac jre-openjdk-headless liblua50
   elif [ -f /etc/alpine-release ]
   then
     #alpine
-    apk add gcc cmake perl openssl-dev libid3tag-dev libflac-dev \
+    apk add gcc cmake perl openssl-dev libid3tag-dev libflac-dev liblua50-dev \
     	openjdk11-jre-headless linux-headers
   elif [ -f /etc/SuSE-release ]
   then
     #suse
     zypper install gcc cmake pkgconfig perl openssl-devel libid3tag-devel flac-devel \
-	java-11-openjdk-headless unzip
+	liblua50-devel java-11-openjdk-headless unzip
   elif [ -f /etc/redhat-release ]
   then  
     #fedora 	
     yum install gcc cmake pkgconfig perl openssl-devel libid3tag-devel flac-devel \
-	java-11-openjdk-headless unzip
+	liblua50-devel java-11-openjdk-headless unzip
   else 
     echo "Unsupported distribution detected."
     echo "You should manually install:"
@@ -626,6 +632,7 @@ installdeps() {
     echo " - openssl (devel)"
     echo " - flac (devel)"
     echo " - libid3tag (devel)"
+    echo " - liblua50 (devel)"
   fi
 }
 
@@ -840,6 +847,7 @@ case "$1" in
 	  echo "  - ENABLE_SSL=\"ON\""
 	  echo "  - ENABLE_LIBID3TAG=\"ON\""
 	  echo "  - ENABLE_FLAC=\"ON\""
+	  echo "  - ENABLE_LUA=\"ON\""
 	  echo ""
 	;;
 esac

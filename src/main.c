@@ -244,6 +244,17 @@ static bool check_dirs(t_config *config) {
         return false;
     }
 
+    //lua scripting
+    #ifdef ENABLE_LUA
+    testdirname = sdscrop(testdirname);
+    testdirname = sdscatfmt(testdirname, "%s/scripts", config->varlibdir);
+    testdir_rc = testdir("Scripts dir", testdirname, true);
+    if (testdir_rc > 1) {
+        sdsfree(testdirname);
+        return false;
+    }
+    #endif
+
     //covercache for coverextract and mpd coverhandling
     if (config->covercache == true) {
         testdirname = sdscrop(testdirname);

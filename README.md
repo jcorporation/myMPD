@@ -73,6 +73,7 @@ Dependencies
  - OpenSSL >= 1.1.0 (optional): for https support
  - libid3tag (optional): to extract embedded albumart
  - libflac (optional): to extract embedded albumart
+ - liblua (optional): for scripting myMPD
 
 Build Dependencies
 ------------------
