@@ -307,6 +307,11 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(t_config *config, t_mpd_clien
         int end = start + 1000;
         time_t now = time(NULL);
         now = now - mpd_client_state->jukebox_last_played * 60 * 60;
+        
+        if (mpd_client_state->sticker_cache == NULL) {
+            LOG_WARN("Sticker cache is null, jukebox doesn't respect last played constraint");
+        }
+        
         int start_length;
         if (manual == false) {
             start_length = mpd_client_state->jukebox_queue.length;
