@@ -742,3 +742,7 @@ a.text-success:focus {
 .col {
   min-width: unset;
 }
+
+.toast-header {
+  border-bottom-color: rgba(0, 0, 0, 0.125);
+}
