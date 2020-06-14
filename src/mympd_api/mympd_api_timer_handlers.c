@@ -43,12 +43,12 @@ void timer_handler_smartpls_update(struct t_timer_definition *definition, void *
 
 void timer_handler_select(struct t_timer_definition *definition, void *user_data) {
     LOG_VERBOSE("Start timer_handler_select for timer \"%s\"", definition->name);
-    if (strcmp(definition->action, "stopplay") == 0) {
+    if (strcmp(definition->action, "player") == 0 && strcmp(definition->subaction, "stop") == 0) {
         t_work_request *request = create_request(-1, 0, MPD_API_PLAYER_STOP, "MPD_API_PLAYER_STOP", "");
         request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPD_API_PLAYER_STOP\",\"params\":{}}");
         tiny_queue_push(mpd_client_queue, request);
     }
-    else if (strcmp(definition->action, "startplay") == 0) {
+    else if (strcmp(definition->action, "player") == 0 && strcmp(definition->action, "start") == 0) {
         t_work_request *request = create_request(-1, 0, MPD_API_TIMER_STARTPLAY, "MPD_API_TIMER_STARTPLAY", "");
         request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPD_API_TIMER_STARTPLAY\",\"params\":{");
         request->data = tojson_long(request->data, "volume", definition->volume, true);
@@ -57,12 +57,22 @@ void timer_handler_select(struct t_timer_definition *definition, void *user_data
         request->data = sdscat(request->data, "}}");
         tiny_queue_push(mpd_client_queue, request);        
     }
-    else {
+    else if (strcmp(definition->action, "syscmd") == 0) {
         t_work_request *request = create_request(-1, 0, MYMPD_API_SYSCMD, "MYMPD_API_SYSCMD", "");
         request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_SYSCMD\",\"params\":{");
-        request->data = tojson_char(request->data, "cmd", definition->action, false);
+        request->data = tojson_char(request->data, "cmd", definition->subaction, false);
         request->data = sdscat(request->data, "}}");
         tiny_queue_push(mympd_api_queue, request);
+    }
+    else if (strcmp(definition->action, "script") == 0) {
+        t_work_request *request = create_request(-1, 0, MYMPD_API_SCRIPT_EXECUTE, "MYMPD_API_SCRIPT_EXECUTE", "");
+        request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_SCRIPT_EXECUTE\",\"params\":{");
+        request->data = tojson_char(request->data, "script", definition->subaction, false);
+        request->data = sdscat(request->data, "}}");
+        tiny_queue_push(mympd_api_queue, request);
+    }
+    else {
+        LOG_ERROR("Unknown script action: %s", definition->action);
     }
     (void) user_data;
 }

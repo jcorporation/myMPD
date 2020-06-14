@@ -139,6 +139,7 @@ typedef struct t_config {
     sds booklet_name;
     bool mounts;
     bool lyrics;
+    bool scripting;
     //system commands
     struct list syscmd_list;
 } t_config;

@@ -117,6 +117,7 @@ var dropdownNeighbors = new BSN.Dropdown(document.getElementById('btnDropdownNei
 
 var collapseDBupdate = new BSN.Collapse(document.getElementById('navDBupdate'));
 var collapseSyscmds = new BSN.Collapse(document.getElementById('navSyscmds'));
+var collapseScripting = new BSN.Collapse(document.getElementById('navScripting'));
 var collapseJukeboxMode = new BSN.Collapse(document.getElementById('labelJukeboxMode'));
 /* eslint-enable no-unused-vars */
 
@@ -745,6 +746,12 @@ function appInit() {
     addFilterLetter('BrowsePlaylistsFilterLetters');
 
     document.getElementById('syscmds').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'A') {
+            parseCmd(event, event.target.getAttribute('data-href'));
+        }
+    }, false);
+    
+    document.getElementById('scripts').addEventListener('click', function(event) {
         if (event.target.nodeName === 'A') {
             parseCmd(event, event.target.getAttribute('data-href'));
         }

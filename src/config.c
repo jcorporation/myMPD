@@ -247,6 +247,11 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("mympd", "lyrics")) {
         p_config->lyrics = strtobool(value);
     }
+    #ifdef ENABLE_LUA
+    else if (MATCH("mympd", "scripting")) {
+        p_config->scripting = strtobool(value);
+    }
+    #endif
     else if (MATCH("theme", "theme")) {
         p_config->theme = sdsreplace(p_config->theme, value);
     }
@@ -329,7 +334,7 @@ static void mympd_get_env(struct t_config *config) {
         "MYMPD_COLSBROWSEFILESYSTEM", "MYMPD_COLSPLAYBACK", "MYMPD_COLSQUEUELASTPLAYED",
         "MYMPD_LOCALPLAYER", "MYMPD_LOCALPLAYERAUTOPLAY", "MYMPD_STREAMPORT",
         "MYMPD_STREAMURL", "MYMPD_VOLUMESTEP", "MYMPD_COVERCACHEKEEPDAYS", "MYMPD_COVERCACHE",
-        "MYMPD_COVERCACHEAVOID", "MYMPD_LYRICS",
+        "MYMPD_COVERCACHEAVOID", "MYMPD_LYRICS", "MYMPD_SCRIPTING",
         "THEME_THEME", "THEME_CUSTOMPLACEHOLDERIMAGES",
         "THEME_BGCOVER", "THEME_BGCOLOR", "THEME_BGCSSFILTER", "THEME_COVERGRIDSIZE",
         "THEME_COVERIMAGE", "THEME_COVERIMAGENAME", "THEME_COVERIMAGESIZE",
@@ -466,6 +471,7 @@ void mympd_config_defaults(t_config *config) {
     config->booklet_name = sdsnew("booklet.pdf");
     config->mounts = true;
     config->lyrics = true;
+    config->scripting = false;
     list_init(&config->syscmd_list);
 }
 
@@ -540,6 +546,9 @@ bool mympd_dump_config(void) {
         "covercachekeepdays = %d\n"
         "covercache = %s\n"
         "syscmds = %s\n"
+    #ifdef ENABLE_LUA
+        "scripting = %s\n"
+    #endif
         "timer = %s\n"
         "lastplayedcount = %d\n"
         "loglevel = %d\n"
@@ -571,7 +580,8 @@ bool mympd_dump_config(void) {
         "covergridminsongs = %d\n"
         "bookletname = %s\n"
         "mounts = %s\n"
-        "lyrics = %s\n\n",
+        "lyrics = %s\n"
+        "\n",
         p_config->user,
         (p_config->chroot == true ? "true" : "false"),
         p_config->varlibdir,
@@ -591,6 +601,7 @@ bool mympd_dump_config(void) {
         p_config->covercache_keep_days,
         (p_config->covercache == true ? "true" : "false"),
         (p_config->syscmds == true ? "true" : "false"),
+        (p_config->scripting == true ? "true" : "false"),
         (p_config->timer == true ? "true" : "false"),
         p_config->last_played_count,
         p_config->loglevel,

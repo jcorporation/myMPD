@@ -12,6 +12,7 @@ struct t_timer_definition {
     int start_hour;
     int start_minute;
     sds action;
+    sds subaction;
     int volume;
     sds playlist;
     unsigned jukebox_mode;

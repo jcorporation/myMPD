@@ -573,6 +573,7 @@ sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buf
     buffer = tojson_bool(buffer, "featStickerCache", config->sticker_cache, true);
     buffer = tojson_char(buffer, "bookletName", mympd_state->booklet_name, true);
     buffer = tojson_bool(buffer, "featLyrics", mympd_state->lyrics, true);
+    buffer = tojson_bool(buffer, "featScripting", config->scripting, true);
     buffer = sdscatfmt(buffer, "\"colsQueueCurrent\":%s,", mympd_state->cols_queue_current);
     buffer = sdscatfmt(buffer, "\"colsSearch\":%s,", mympd_state->cols_search);
     buffer = sdscatfmt(buffer, "\"colsBrowseDatabase\":%s,", mympd_state->cols_browse_database);
@@ -593,6 +594,28 @@ sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buf
             current = current->next;
         }
         buffer = sdscat(buffer, "]");
+    }
+    
+    if (config->scripting == true) {
+        buffer = sdscat(buffer, ",\"scriptList\":[");
+        int nr = 0;
+        sds scriptdirname = sdscatfmt(sdsempty(), "%s/scripts", config->varlibdir);
+        DIR *script_dir = opendir(scriptdirname);
+        if (script_dir != NULL) {
+            struct dirent *next_file;
+            while ((next_file = readdir(script_dir)) != NULL ) {
+                if (strstr(next_file->d_name, ".lua") != NULL) {
+                    if (nr++) {
+                        buffer = sdscat(buffer, ",");
+                    }
+                    strip_extension(next_file->d_name);
+                    buffer = sdscatjson(buffer, next_file->d_name, strlen(next_file->d_name));
+                }
+            }
+            closedir(script_dir);
+        }
+        sdsfree(scriptdirname);
+        buffer = sdscat(buffer, "]");        
     }
 
     buffer = jsonrpc_end_result(buffer);

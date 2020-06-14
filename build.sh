@@ -602,26 +602,26 @@ installdeps() {
     apt-get update
     apt-get install -y --no-install-recommends \
 	gcc cmake perl libssl-dev libid3tag0-dev libflac-dev \
-	build-essential liblua50-dev $JAVADEB
+	build-essential liblua5.3-dev $JAVADEB
   elif [ -f /etc/arch-release ]
   then
     #arch
-    pacman -S gcc cmake perl openssl libid3tag flac jre-openjdk-headless liblua50
+    pacman -S gcc cmake perl openssl libid3tag flac jre-openjdk-headless liblua5.3
   elif [ -f /etc/alpine-release ]
   then
     #alpine
-    apk add gcc cmake perl openssl-dev libid3tag-dev libflac-dev liblua50-dev \
+    apk add gcc cmake perl openssl-dev libid3tag-dev libflac-dev liblua5.3-dev \
     	openjdk11-jre-headless linux-headers
   elif [ -f /etc/SuSE-release ]
   then
     #suse
     zypper install gcc cmake pkgconfig perl openssl-devel libid3tag-devel flac-devel \
-	liblua50-devel java-11-openjdk-headless unzip
+	liblua5.3-devel java-11-openjdk-headless unzip
   elif [ -f /etc/redhat-release ]
   then  
     #fedora 	
     yum install gcc cmake pkgconfig perl openssl-devel libid3tag-devel flac-devel \
-	liblua50-devel java-11-openjdk-headless unzip
+	liblua5.3-devel java-11-openjdk-headless unzip
   else 
     echo "Unsupported distribution detected."
     echo "You should manually install:"

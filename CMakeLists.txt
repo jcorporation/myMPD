@@ -214,6 +214,7 @@ set(SOURCES
   src/mympd_api/mympd_api_syscmds.c
   src/mympd_api/mympd_api_timer.c
   src/mympd_api/mympd_api_timer_handlers.c
+  src/mympd_api/mympd_api_scripts.c
   src/web_server.c
   src/web_server/web_server_utility.c
   src/web_server/web_server_albumart.c

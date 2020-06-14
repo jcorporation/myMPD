@@ -18,7 +18,7 @@ BuildRequires:  pkgconfig
 BuildRequires:  openssl-devel
 BuildRequires:  libid3tag-devel
 BuildRequires:	flac-devel
-BuildRequires:  liblua50-devel
+BuildRequires:  liblua5.3-devel
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
 %global debug_package %{nil}

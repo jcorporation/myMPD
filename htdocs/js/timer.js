@@ -59,6 +59,7 @@ function saveTimer() {
         formOK = false;
         document.getElementById('btnTimerJukeboxModeGroup').classList.add('is-invalid');
     }
+    
     if (formOK === true) {
         sendAPI("MYMPD_API_TIMER_SAVE", {
             "timerid": parseInt(document.getElementById('inputTimerId').value),
@@ -67,7 +68,8 @@ function saveTimer() {
             "startHour": parseInt(selectTimerHour.options[selectTimerHour.selectedIndex].value),
             "startMinute": parseInt(selectTimerMinute.options[selectTimerMinute.selectedIndex].value),
             "weekdays": weekdays,
-            "action": selectTimerAction.options[selectTimerAction.selectedIndex].value,
+            "action": selectTimerAction.options[selectTimerAction.selectedIndex].parentNode.getAttribute('data-value'),
+            "subaction": selectTimerAction.options[selectTimerAction.selectedIndex].value,
             "volume": parseInt(document.getElementById('inputTimerVolume').value), 
             "playlist": selectTimerPlaylist.options[selectTimerPlaylist.selectedIndex].value,
             "jukeboxMode": parseInt(jukeboxMode),
@@ -128,7 +130,7 @@ function parseEditTimer(obj) {
     toggleBtnChk('btnTimerEnabled', obj.result.enabled);
     document.getElementById('selectTimerHour').value = obj.result.startHour;
     document.getElementById('selectTimerMinute').value = obj.result.startMinute;
-    document.getElementById('selectTimerAction').value = obj.result.action;
+    document.getElementById('selectTimerAction').value = obj.result.subaction;
     document.getElementById('inputTimerVolume').value = obj.result.volume;
     //document.getElementById('selectTimerPlaylist').value = obj.result.playlist;
     toggleBtnGroupValue(document.getElementById('btnTimerJukeboxModeGroup'), obj.result.jukeboxMode);
@@ -166,7 +168,7 @@ function parseListTimer(obj) {
                 days.push(t(weekdays[j]))
             }
         }
-        tds += days.join(', ')  + '</td><td>' + t(obj.result.data[i].action) + '</td>' +
+        tds += days.join(', ')  + '</td><td>' + prettyTimerAction(obj.result.data[i].action, obj.result.data[i].subaction) + '</td>' +
                '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">delete</a></td>';
         row.innerHTML = tds;
         if (i < tr.length) {
@@ -185,4 +187,20 @@ function parseListTimer(obj) {
         tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
                           '<td colspan="4">' + t('Empty list') + '</td></tr>';
     }     
+}
+
+function prettyTimerAction(action, subaction) {
+    if (action === 'player' && subaction === 'startplay') {
+        return t('Start playback');
+    }
+    if (action === 'player' && subaction === 'stopplay') {
+        return t('Stop playback');
+    }
+    if (action === 'syscmd') {
+        return t('System command') + ': ' + subaction;
+    }
+    if (action === 'script') {
+        return t('Script') + ': ' + subaction;
+    }
+    return action + ': ' + subaction;
 }

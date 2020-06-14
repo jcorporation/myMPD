@@ -36,6 +36,7 @@
 #include "mympd_api/mympd_api_bookmarks.h"
 #include "mympd_api/mympd_api_timer.h"
 #include "mympd_api/mympd_api_timer_handlers.h"
+#include "mympd_api/mympd_api_scripts.h"
 #include "mympd_api.h"
 
 //private definitions
@@ -99,6 +100,22 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
     t_work_result *response = create_result(request);
     
     switch(request->cmd_id) {
+        case MYMPD_API_SCRIPT_EXECUTE:
+            if (config->scripting == true) {
+                je = json_scanf(request->data, sdslen(request->data), "{params: {script: %Q}}", &p_charbuf1);
+                if (je == 1) {
+                    if (validate_string_not_empty(p_charbuf1) == true) {
+                        response->data = mympd_api_script_execute(config, response->data, request->method, request->id, p_charbuf1);
+                    }
+                    else {
+                        response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Invalid script name", true);
+                    }
+                }
+            } 
+            else {
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Scripting is disabled", true);
+            }
+            break;
         case MYMPD_API_SYSCMD:
             if (config->syscmds == true) {
                 je = json_scanf(request->data, sdslen(request->data), "{params: {cmd: %Q}}", &p_charbuf1);

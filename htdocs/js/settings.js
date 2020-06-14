@@ -224,7 +224,7 @@ function parseSettings() {
     toggleBtnChkCollapse('btnSmartpls', 'collapseSmartpls', settings.smartpls);
     
     let features = ["featLocalplayer", "featSyscmds", "featMixramp", "featCacert", "featBookmarks", 
-        "featRegex", "featTimer", "featLyrics"];
+        "featRegex", "featTimer", "featLyrics", "featScripting"];
     for (let j = 0; j < features.length; j++) {
         let Els = document.getElementsByClassName(features[j]);
         let ElsLen = Els.length;
@@ -252,15 +252,17 @@ function parseSettings() {
         document.getElementsByClassName('groupClearCovercache')[0].classList.remove('hide');
     }
     
-    let timerActions = '<option value="startplay">' + t('Start playback') + '</option>' +
-        '<option value="stopplay">' + t('Stop playback') + '</option>';
+    let timerActions = '<optgroup data-value="player" label="' + t('Playback') + '">' +
+        '<option value="startplay">' + t('Start playback') + '</option>' +
+        '<option value="stopplay">' + t('Stop playback') + '</option>' +
+        '</optgroup>';
 
-    if (settings.featSyscmds) {
+    if (settings.featSyscmds === true) {
         let syscmdsMaxListLen = 4;
         let syscmdsList = '';
         let syscmdsListLen = settings.syscmdList.length;
         if (syscmdsListLen > 0) {
-            timerActions += '<optgroup label="' + t('System command') + '">';
+            timerActions += '<optgroup data-value="syscmd" label="' + t('System command') + '">';
             syscmdsList = syscmdsListLen > syscmdsMaxListLen ? '' : '<div class="dropdown-divider"></div>';
             for (let i = 0; i < syscmdsListLen; i++) {
                 if (settings.syscmdList[i] === 'HR') {
@@ -288,7 +290,41 @@ function parseSettings() {
     else {
         document.getElementById('syscmds').innerHTML = '';
     }
-    
+
+    if (settings.featScripting === true) {
+        let scriptMaxListLen = 4;
+        let scriptList = '';
+        let scriptListLen = settings.scriptList.length;
+        if (scriptListLen > 0) {
+            timerActions += '<optgroup data-value="script" label="' + t('Script') + '">';
+            scriptList = scriptListLen > scriptMaxListLen ? '' : '<div class="dropdown-divider"></div>';
+            for (let i = 0; i < scriptListLen; i++) {
+                if (settings.scriptList[i] === 'HR') {
+                    scriptList += '<div class="dropdown-divider"></div>';
+                }
+                else {
+                    scriptList += '<a class="dropdown-item text-light alwaysEnabled" href="#" data-href=\'{"cmd": "execScript", "options": ["' + 
+                        e(settings.scriptList[i]) + '"]}\'>' + e(settings.scriptList[i]) + '</a>';
+                    timerActions += '<option value="' + e(settings.scriptList[i]) + '">' + e(settings.scriptList[i]) + '</option>';
+                }
+            }
+        }
+        document.getElementById('scripts').innerHTML = scriptList;
+        timerActions += '</optgroup>';
+        
+        if (scriptListLen > scriptMaxListLen) {
+            document.getElementById('navScripting').classList.remove('hide');
+            document.getElementById('scripts').classList.add('collapse', 'menu-indent');
+        }
+        else {
+            document.getElementById('navScripting').classList.add('hide');
+            document.getElementById('scripts').classList.remove('collapse', 'menu-indent');
+        }
+    }
+    else {
+        document.getElementById('scripts').innerHTML = '';
+    }
+
     document.getElementById('selectTimerAction').innerHTML = timerActions;
     
     //dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
