@@ -50,14 +50,13 @@ bool mympd_api_script_start(t_lua_mympd_state *lua_mympd_state) {
         LOG_ERROR("Can not set mympd_script thread to detached");
         return false;
     }
-    if (pthread_create(&mympd_script_thread, &attr, mympd_api_script_execute, lua_mympd_state) == 0) {
-        pthread_setname_np(mympd_script_thread, "mympd_script");
-        return true;
-    }
-    else {
+    if (pthread_create(&mympd_script_thread, &attr, mympd_api_script_execute, lua_mympd_state) != 0) {
         LOG_ERROR("Can not create mympd_script thread");
         return false;
     }
+    
+    pthread_setname_np(mympd_script_thread, "mympd_script");
+    return true;
 }
 
 //private functions
