@@ -24,20 +24,21 @@ myMPD is a fork of ympd (https://github.com/notandy/ympd).
  - Playlist management
  - Advanced search
  - Jukebox mode (add's random songs to queue)
- - Smart playlists and saved searches
+ - [Smart playlists and saved searches](https://github.com/jcorporation/myMPD/wiki/Smart-playlists)
  - Play statistics and song voting
- - Local albumart support: embedded and image per folder
- - Local lyrics (textfile per song or embedded)
+ - [Local albumart support: embedded and image per folder](https://github.com/jcorporation/myMPD/wiki/Albumart)
+ - [Local lyrics (textfile per song or embedded)](https://github.com/jcorporation/myMPD/wiki/Lyrics)
  - Local booklet support (per album folder)
  - HTTP stream support
  - Local playback of mpd http stream (html5 audio api)
  - Timers
- - Lua scripting
+ - [System commands](https://github.com/jcorporation/myMPD/wiki/System-Commands)
+ - [Lua scripting](https://github.com/jcorporation/myMPD/wiki/Scripting)
  - Scrobbler integration
  - Embedded Webserver (mongoose)
- - Localized user interface
+ - [Localized user interface](https://github.com/jcorporation/myMPD/wiki/Translating)
  - Themeing
- - Publishing of mpd and myMPD directories via http and webdav
+ - [Publishing of mpd and myMPD directories via http and webdav](https://github.com/jcorporation/myMPD/wiki/Publishing-directories)
  - Progressiv Web App enabled
  - Support of Media Session API
 
