@@ -19,6 +19,7 @@
 #include "../api.h"
 #include "../tiny_queue.h"
 #include "../global.h"
+#include "../lua_mympd_state.h"
 #include "../mpd_shared/mpd_shared_typedefs.h"
 #include "../mpd_shared/mpd_shared_tags.h"
 #include "../mpd_shared/mpd_shared_features.h"

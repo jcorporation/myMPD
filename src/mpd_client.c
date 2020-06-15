@@ -24,6 +24,7 @@
 #include "api.h"
 #include "global.h"
 #include "utility.h"
+#include "lua_mympd_state.h"
 #include "mpd_shared/mpd_shared_typedefs.h"
 #include "mpd_shared/mpd_shared_tags.h"
 #include "mpd_shared.h"

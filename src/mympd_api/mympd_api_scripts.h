@@ -6,5 +6,7 @@
 
 #ifndef __MYMPD_API_SCRIPTS_H
 #define __MYMPD_API_SCRIPTS_H
-sds mympd_api_script_execute(t_config *config, sds buffer, sds method, int request_id, const char *script);
+#ifdef ENABLE_LUA
+bool mympd_api_script_start(t_lua_mympd_state *lua_mympd_state);
+#endif
 #endif

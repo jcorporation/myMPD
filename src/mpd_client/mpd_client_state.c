@@ -18,6 +18,7 @@
 #include "../log.h"
 #include "../list.h"
 #include "config_defs.h"
+#include "../lua_mympd_state.h"
 #include "../utility.h"
 #include "../mpd_shared/mpd_shared_typedefs.h"
 #include "../mpd_shared/mpd_shared_tags.h"
@@ -140,6 +141,34 @@ sds mpd_client_put_state(t_config *config, t_mpd_client_state *mpd_client_state,
     }
     mpd_status_free(status);
     return buffer;
+}
+
+bool mpd_client_get_lua_mympd_state(t_config *config, t_mpd_client_state *mpd_client_state, t_lua_mympd_state *lua_mympd_state) {
+    struct mpd_status *status = mpd_run_status(mpd_client_state->mpd_state->conn);
+    if (status == NULL) {
+        return false;
+    }
+    lua_mympd_state->play_state = mpd_status_get_state(status);
+    lua_mympd_state->volume = mpd_status_get_volume(status);
+    lua_mympd_state->song_pos = mpd_status_get_song_pos(status);
+    lua_mympd_state->elapsed_time = mpd_status_get_elapsed_time(status);
+    lua_mympd_state->total_time = mpd_status_get_total_time(status);
+    lua_mympd_state->song_id = mpd_status_get_song_id(status);
+    lua_mympd_state->next_song_id = mpd_status_get_next_song_id(status);
+    lua_mympd_state->next_song_pos = mpd_status_get_next_song_pos(status);
+    lua_mympd_state->queue_length = mpd_status_get_queue_length(status);
+    lua_mympd_state->queue_version = mpd_status_get_queue_version(status);
+    lua_mympd_state->repeat = mpd_status_get_repeat(status);
+    lua_mympd_state->random = mpd_status_get_random(status);
+    lua_mympd_state->single_state = mpd_status_get_single_state(status);
+    lua_mympd_state->consume = mpd_status_get_consume(status);
+    lua_mympd_state->crossfade = mpd_status_get_crossfade(status);
+    lua_mympd_state->mixrampdb = mpd_status_get_mixrampdb(status);
+    lua_mympd_state->mixrampdelay = mpd_status_get_mixrampdelay(status);
+    lua_mympd_state->music_directory = sdsnew(mpd_client_state->music_directory_value);
+    lua_mympd_state->varlibdir = sdsdup(config->varlibdir);
+    mpd_status_free(status);
+    return true;
 }
 
 sds mpd_client_put_volume(t_mpd_client_state *mpd_client_state, sds buffer, sds method, int request_id) {

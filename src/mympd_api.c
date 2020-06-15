@@ -17,6 +17,8 @@
 #include <signal.h>
 #include <inttypes.h>
 
+#include <mpd/client.h>
+
 #include "../dist/src/sds/sds.h"
 #include "sds_extras.h"
 #include "../dist/src/frozen/frozen.h"
@@ -27,6 +29,7 @@
 #include "config_defs.h"
 #include "utility.h"
 #include "global.h"
+#include "lua_mympd_state.h"
 #include "mpd_client.h"
 #include "maintenance.h"
 #include "mympd_api/mympd_api_utility.h"
@@ -94,28 +97,34 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
     unsigned int uint_buf1;
     int int_buf1;
     int int_buf2;
+    bool rc;
     LOG_VERBOSE("MYMPD API request (%d): %s", request->conn_id, request->data);
     
     //create response struct
     t_work_result *response = create_result(request);
     
     switch(request->cmd_id) {
+        #ifdef ENABLE_LUA
         case MYMPD_API_SCRIPT_EXECUTE:
             if (config->scripting == true) {
-                je = json_scanf(request->data, sdslen(request->data), "{params: {script: %Q}}", &p_charbuf1);
-                if (je == 1) {
-                    if (validate_string_not_empty(p_charbuf1) == true) {
-                        response->data = mympd_api_script_execute(config, response->data, request->method, request->id, p_charbuf1);
+                if (request->extra != NULL) {
+                    rc = mympd_api_script_start((t_lua_mympd_state *)request->extra);
+                    if (rc == true) {
+                        response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
                     }
                     else {
-                        response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Invalid script name", true);
+                        response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Can't create mympd_script thread", true);
                     }
+                }
+                else {
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "No mpd state for script execution submitted", true);
                 }
             } 
             else {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Scripting is disabled", true);
             }
             break;
+        #endif
         case MYMPD_API_SYSCMD:
             if (config->syscmds == true) {
                 je = json_scanf(request->data, sdslen(request->data), "{params: {cmd: %Q}}", &p_charbuf1);
@@ -161,7 +170,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             void *h = NULL;
             struct json_token key;
             struct json_token val;
-            bool rc = true;
+            rc = true;
             while ((h = json_next_key(request->data, sdslen(request->data), h, ".params", &key, &val)) != NULL) {
                 rc = mympd_api_settings_set(config, mympd_state, &key, &val);
                 if (rc == false) {
@@ -192,7 +201,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             void *h = NULL;
             struct json_token key;
             struct json_token val;
-            bool rc = true;
+            rc = true;
             while ((h = json_next_key(request->data, sdslen(request->data), h, ".params", &key, &val)) != NULL) {
                 rc = mympd_api_connection_save(config, mympd_state, &key, &val);
                 if (rc == false) {
@@ -278,7 +287,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                     int_buf1 = mympd_state->timer_list.last_id;
                 }
                 time_t start = timer_calc_starttime(timer_def->start_hour, timer_def->start_minute);
-                bool rc = replace_timer(&mympd_state->timer_list, start, 86400, timer_handler_select, int_buf1, timer_def, NULL);
+                rc = replace_timer(&mympd_state->timer_list, start, 86400, timer_handler_select, int_buf1, timer_def, NULL);
                 if (rc == true) {
                     response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
                 }

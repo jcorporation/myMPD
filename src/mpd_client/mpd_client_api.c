@@ -27,6 +27,7 @@
 #include "../mpd_shared/mpd_shared_playlists.h"
 #include "../mpd_shared.h"
 #include "../mpd_shared/mpd_shared_sticker.h"
+#include "../lua_mympd_state.h"
 #include "mpd_client_utility.h"
 #include "mpd_client_browse.h"
 #include "mpd_client_cover.h" 
@@ -63,6 +64,35 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
     t_work_result *response = create_result(request);
     
     switch(request->cmd_id) {
+        case MPD_API_SCRIPT_EXECUTE:
+            if (config->scripting == true) {
+                je = json_scanf(request->data, sdslen(request->data), "{params: {script: %Q}}", &p_charbuf1);
+                if (je == 1) {
+                    if (validate_string_not_empty(p_charbuf1) == true) {
+                        t_lua_mympd_state *lua_mympd_state = (t_lua_mympd_state *)malloc(sizeof(t_lua_mympd_state));
+                        rc = mpd_client_get_lua_mympd_state(config, mpd_client_state, lua_mympd_state);
+                        if (rc == true) {
+                            lua_mympd_state->script = sdsnew(p_charbuf1);
+                            t_work_request *script_request = create_request(-1, 0, MYMPD_API_SCRIPT_EXECUTE, "MYMPD_API_SCRIPT_EXECUTE", "");
+                            script_request->data = sdscat(script_request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_SCRIPT_EXECUTE\",\"params\":{}}");
+                            script_request->extra = lua_mympd_state;
+                            tiny_queue_push(mympd_api_queue, script_request);
+                            response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+                        }
+                        else {
+                            response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Error getting mpd state for script execution", true);
+                            free(lua_mympd_state);
+                        }
+                    }
+                    else {
+                        response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Invalid script name", true);
+                    }
+                }
+            }
+            else {
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Scripting is disabled", true);
+            }    
+            break;
         case MPD_API_STICKERCACHE_CREATED:
             sticker_cache_free(&mpd_client_state->sticker_cache);
             if (request->extra != NULL) {
