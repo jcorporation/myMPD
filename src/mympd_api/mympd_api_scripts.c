@@ -41,12 +41,21 @@ static void populate_lua_table_field_b(lua_State *lua_vm, const char *key, bool 
 //public functions
 bool mympd_api_script_start(t_lua_mympd_state *lua_mympd_state) {
     pthread_t mympd_script_thread;
-    if (pthread_create(&mympd_script_thread, NULL, mympd_api_script_execute, lua_mympd_state) == 0) {
+    pthread_attr_t attr;
+    if (pthread_attr_init(&attr) != 0) {
+        LOG_ERROR("Can not init mympd_script thread attribute");
+        return false;
+    }
+    if (pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED) != 0) {
+        LOG_ERROR("Can not set mympd_script thread to detached");
+        return false;
+    }
+    if (pthread_create(&mympd_script_thread, &attr, mympd_api_script_execute, lua_mympd_state) == 0) {
         pthread_setname_np(mympd_script_thread, "mympd_script");
         return true;
     }
     else {
-        LOG_ERROR("Can't create mympd_script thread");
+        LOG_ERROR("Can not create mympd_script thread");
         return false;
     }
 }
@@ -61,7 +70,7 @@ static void *mympd_api_script_execute(void *lua_mympd_state_arg) {
     lua_setglobal(lua_vm, "mympd");
     if (lua_vm == NULL) {
         LOG_ERROR("Memory allocation error in luaL_newstate");
-        sds buffer = jsonrpc_start_phrase_notify(sdsempty(), "Error executing script \"%{script}\": Memory allocation error", false);
+        sds buffer = jsonrpc_start_phrase_notify(sdsempty(), "Error executing script %{script}: Memory allocation error", false);
         buffer = tojson_char(buffer, "script", lua_mympd_state->script, false);
         buffer = jsonrpc_end_phrase(buffer);
         ws_notify(buffer);
@@ -82,7 +91,7 @@ static void *mympd_api_script_execute(void *lua_mympd_state_arg) {
             script_return_text = lua_tostring(lua_vm, 1);
         }
         if (script_return_text == NULL) {
-            sds buffer = jsonrpc_start_phrase_notify(sdsempty(), "Script \"%{script}\" executed successfully", false);
+            sds buffer = jsonrpc_start_phrase_notify(sdsempty(), "Script %{script} executed successfully", false);
             buffer = tojson_char(buffer, "script", lua_mympd_state->script, false);
             buffer = jsonrpc_end_phrase(buffer);
             ws_notify(buffer);
@@ -110,25 +119,25 @@ static void *mympd_api_script_execute(void *lua_mympd_state_arg) {
 static sds lua_err_to_str(sds buffer, int rc) {
     switch(rc) {
         case LUA_ERRSYNTAX:
-            buffer = sdscat(buffer, "Error executing script \"%{script}}\": Syntax error during precompilation");
+            buffer = sdscat(buffer, "Error executing script %{script}: Syntax error during precompilation");
             break;
         case LUA_ERRMEM:
-            buffer = sdscat(buffer, "Error executing script \"%{script}}\": Memory allocation error");
+            buffer = sdscat(buffer, "Error executing script %{script}: Memory allocation error");
             break;
         case LUA_ERRGCMM:
-            buffer = sdscat(buffer, "Error executing script \"%{script}}\": Error in garbage collector");
+            buffer = sdscat(buffer, "Error executing script %{script}: Error in garbage collector");
             break;
         case LUA_ERRFILE:
-            buffer = sdscat(buffer, "Error executing script \"%{script}}\": Can not open or read script file");
+            buffer = sdscat(buffer, "Error executing script %{script}: Can not open or read script file");
             break;
         case LUA_ERRRUN:
-            buffer = sdscat(buffer, "Error executing script \"%{script}}\": Runtime error");
+            buffer = sdscat(buffer, "Error executing script %{script}: Runtime error");
             break;
         case LUA_ERRERR:
-            buffer = sdscat(buffer, "Error executing script \"%{script}}\": Error while running the message handler");
+            buffer = sdscat(buffer, "Error executing script %{script}: Error while running the message handler");
             break;
         default:
-            buffer = sdscat(buffer, "Error executing script \"%{script}}\"");
+            buffer = sdscat(buffer, "Error executing script %{script}");
     }
     return buffer;
 }
