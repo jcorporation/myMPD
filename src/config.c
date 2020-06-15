@@ -601,7 +601,9 @@ bool mympd_dump_config(void) {
         p_config->covercache_keep_days,
         (p_config->covercache == true ? "true" : "false"),
         (p_config->syscmds == true ? "true" : "false"),
+    #ifdef ENABLE_LUA
         (p_config->scripting == true ? "true" : "false"),
+    #endif
         (p_config->timer == true ? "true" : "false"),
         p_config->last_played_count,
         p_config->loglevel,
