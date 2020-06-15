@@ -18,6 +18,7 @@ BuildRequires:  pkgconfig
 BuildRequires:  openssl-devel
 BuildRequires:  libid3tag-devel
 BuildRequires:	flac-devel
+BuildRequires:  lua-devel
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
 %global debug_package %{nil}

@@ -18,7 +18,7 @@ BuildRequires:  pkgconfig
 BuildRequires:  openssl-devel
 BuildRequires:  libid3tag-devel
 BuildRequires:	flac-devel
-BuildRequires:  liblua5.3-devel
+BuildRequires:  lua-devel
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
 %global debug_package %{nil}
@@ -60,5 +60,5 @@ fi
 %config(noreplace) /etc/mympd.conf
 
 %changelog
-* Tue Jun 02 2020 Juergen Mang <mail@jcgames.de> 6.5.0-0
+* Mon Jun 15 2020 Juergen Mang <mail@jcgames.de> 6.5.0-0
 - Version from master
