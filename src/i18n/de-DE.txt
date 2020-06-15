@@ -1348,7 +1348,52 @@ Filling jukebox queue failed, disabling jukebox
 Jukebox Warteschlange konnte nicht aufgefüllt werden, Jukebox wurde deaktiviert
 
 Playlist to small, disabling jukebox unique constraints temporarily
-Wiedergabeliste zu klein, deaktiviere Jukebox Regeln
+Die Wiedergabeliste ist zu klein, die Jukebox Regeln werden deaktiviert
 
 Sticker cache is NULL
 Sticker Cache ist leer
+
+Can't create mympd_script thread
+Konnte mympd_script Thread nicht erstellen
+
+Error executing script %{script}: Memory allocation error
+Fehler beim Ausführen des Skripts %{script}: Speicherzuweisungsfehler
+
+Error executing script %{script}: Syntax error during precompilation
+Fehler beim Ausführen des Skripts %{script}: Syntax Fehler
+
+Error executing script %{script}: Error in garbage collector
+Fehler beim Ausführen des Skripts %{script}: Fehler im Garbage Collector
+
+Error executing script %{script}: Can not open or read script file
+Fehler beim Ausführen des Skripts %{script}: Skript Datei kann nicht geöffnet oder gelesen werden
+
+Error executing script %{script}: Runtime error
+Fehler beim Ausführen des Skripts %{script}: Laufzeitfehler
+
+Error executing script %{script}: Error while running the message handler
+Fehler beim Ausführen des Skripts %{script}: Fehler bei der Ausführung des Messagehandlers
+
+Error executing script %{script}
+Fehler beim Ausführen des Skripts %{script}
+
+Error getting mpd state for script execution
+MPD Status zur Skriptausführung konnte nicht ermittelt werden
+
+Invalid script name
+Ungültiger Skriptname
+
+No mpd state for script execution submitted
+Es wurde kein MPD Status für die Skriptausführung mitgeliefert
+
+Script
+Skript
+
+Script %{script} executed successfully
+Skript %{script} erfolgreich gestartet
+
+Scripting is disabled
+Skripte sind deaktiviert
+
+Scripts
+Skripte
