@@ -37,7 +37,7 @@
     #include "lauxlib.h"  
 
 //private definitions
-static void *mympd_api_script_execute(void *lua_mympd_state_arg);
+static void *mympd_api_script_execute(void *script_arg);
 static sds lua_err_to_str(sds buffer, int rc, bool phrase, const char *script);
 static void free_t_lua_mympd_state(t_lua_mympd_state *lua_mympd_state);
 static void populate_lua_table(lua_State *lua_vm, t_lua_mympd_state *lua_mympd_state);
@@ -120,7 +120,7 @@ static void *mympd_api_script_execute(void *script_arg) {
         ws_notify(buffer);
         sdsfree(buffer);
         err_str = sdscrop(err_str);
-        err_str = lua_err_to_str(sdsempty(), rc, false, script_file);
+        err_str = lua_err_to_str(err_str, rc, false, script_file);
         if (script_return_text != NULL) {
             err_str = sdscatfmt(err_str, ": %s", script_return_text);
         }
@@ -307,22 +307,19 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
                 free_result(response);
                 return 1;
             }
-            else {
-                je = json_scanf(response->data, sdslen(response->data), "{error: {message: %Q}}", &p_charbuf1);
-                if (je == 1 && p_charbuf1 != NULL) {
-                    int el = strlen(p_charbuf1);
-                    char es[el + 1];
-                    snprintf(es, el, "%s", p_charbuf1);
-                    FREE_PTR(p_charbuf1);
-                    free_result(response);
-                    return luaL_error(lua_vm, es);
-                }
-                else {
-                    
-                    free_result(response);
-                    return luaL_error(lua_vm, "Invalid API response");
-                }
+            
+            je = json_scanf(response->data, sdslen(response->data), "{error: {message: %Q}}", &p_charbuf1);
+            if (je == 1 && p_charbuf1 != NULL) {
+                size_t el = strlen(p_charbuf1);
+                char es[el + 1];
+                snprintf(es, el, "%s", p_charbuf1);
+                FREE_PTR(p_charbuf1);
+                free_result(response);
+                return luaL_error(lua_vm, es);
             }
+            
+            free_result(response);
+            return luaL_error(lua_vm, "Invalid API response");
         }
     }
     return 0;
