@@ -52,8 +52,9 @@ _Thread_local sds thread_logname;
 static void mympd_signal_handler(int sig_num) {
     signal(sig_num, mympd_signal_handler);  // Reinstantiate signal handler
     s_signal_received = sig_num;
-    //Wakeup mympd_api_loop
+    //Wakeup queue loops
     pthread_cond_signal(&mympd_api_queue->wakeup);
+    pthread_cond_signal(&mympd_script_queue->wakeup);
     LOG_INFO("Signal %d received, exiting", sig_num);
 }
 

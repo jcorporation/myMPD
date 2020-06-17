@@ -278,11 +278,13 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
         
     }
     else {
-        tiny_queue_push(mpd_client_queue, request, tid);
+        //tiny_queue_push(mpd_client_queue, request, tid);
     }
 
-    while (s_signal_received == 0) {
-        t_work_result *response = tiny_queue_shift(mympd_script_queue, 50, tid);
+    int i = 0;
+    while (s_signal_received == 0 && i < 10) {
+        i++;
+        t_work_result *response = tiny_queue_shift(mympd_script_queue, 1000000, tid);
         if (response != NULL) {
             LOG_DEBUG("Got result: %s", response->data);
             if (raw == true) {
@@ -290,6 +292,7 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
                 free_result(response);
                 return 1;
             }
+            
             char *p_charbuf1 = NULL;
             int je = json_scanf(response->data, sdslen(response->data), "{result: {message: %Q}}", &p_charbuf1);
             if (je == 1 && p_charbuf1 != NULL) {
@@ -322,7 +325,7 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
             return luaL_error(lua_vm, "Invalid API response");
         }
     }
-    return 0;
+    return luaL_error(lua_vm, "No API response, timeout after 10s");
 }
 
 #endif
