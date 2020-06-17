@@ -48,7 +48,7 @@ bool mpd_worker_sticker_cache_init(t_mpd_worker_state *mpd_worker_state) {
     else {
         sticker_cache_free(&sticker_cache);
     }
-    tiny_queue_push(mpd_client_queue, request);
+    tiny_queue_push(mpd_client_queue, request, 0);
     return rc;
 }
 

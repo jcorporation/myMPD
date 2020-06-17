@@ -34,7 +34,7 @@ void mpd_client_set_timer(enum mympd_cmd_ids cmd_id, const char *cmd, int timeou
     request->data = tojson_long(request->data, "interval", interval, true);
     request->data = tojson_char(request->data, "handler", handler, false);
     request->data = sdscat(request->data, "}}");
-    tiny_queue_push(mympd_api_queue, request);
+    tiny_queue_push(mympd_api_queue, request, 0);
 }
 
 sds mpd_client_timer_startplay(t_mpd_client_state *mpd_client_state, sds buffer, sds method, int request_id, 
@@ -92,7 +92,7 @@ sds mpd_client_timer_startplay(t_mpd_client_state *mpd_client_state, sds buffer,
         request->data = tojson_char(request->data, "jukeboxPlaylist", playlist, false);
     }
     request->data = sdscat(request->data, "}}");
-    tiny_queue_push(mympd_api_queue, request);
+    tiny_queue_push(mympd_api_queue, request, 0);
 
     buffer = respond_with_mpd_error_or_ok(mpd_client_state->mpd_state, buffer, method, request_id, rc, "mpd_client_timer_startplay");
     return buffer;

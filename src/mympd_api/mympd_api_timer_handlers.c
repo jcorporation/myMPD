@@ -38,7 +38,7 @@ void timer_handler_smartpls_update(struct t_timer_definition *definition, void *
     (void) user_data;
     t_work_request *request = create_request(-1, 0, MPDWORKER_API_SMARTPLS_UPDATE_ALL, "MPDWORKER_API_SMARTPLS_UPDATE_ALL", "");
     request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPDWORKER_API_SMARTPLS_UPDATE_ALL\",\"params\":{\"force\":false}}");
-    tiny_queue_push(mpd_worker_queue, request);
+    tiny_queue_push(mpd_worker_queue, request, 0);
 }
 
 void timer_handler_select(struct t_timer_definition *definition, void *user_data) {
@@ -46,7 +46,7 @@ void timer_handler_select(struct t_timer_definition *definition, void *user_data
     if (strcmp(definition->action, "player") == 0 && strcmp(definition->subaction, "stop") == 0) {
         t_work_request *request = create_request(-1, 0, MPD_API_PLAYER_STOP, "MPD_API_PLAYER_STOP", "");
         request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPD_API_PLAYER_STOP\",\"params\":{}}");
-        tiny_queue_push(mpd_client_queue, request);
+        tiny_queue_push(mpd_client_queue, request, 0);
     }
     else if (strcmp(definition->action, "player") == 0 && strcmp(definition->action, "start") == 0) {
         t_work_request *request = create_request(-1, 0, MPD_API_TIMER_STARTPLAY, "MPD_API_TIMER_STARTPLAY", "");
@@ -55,21 +55,21 @@ void timer_handler_select(struct t_timer_definition *definition, void *user_data
         request->data = tojson_char(request->data, "playlist", definition->playlist, true);
         request->data = tojson_long(request->data, "jukeboxMode", definition->jukebox_mode, true);
         request->data = sdscat(request->data, "}}");
-        tiny_queue_push(mpd_client_queue, request);        
+        tiny_queue_push(mpd_client_queue, request, 0);
     }
     else if (strcmp(definition->action, "syscmd") == 0) {
         t_work_request *request = create_request(-1, 0, MYMPD_API_SYSCMD, "MYMPD_API_SYSCMD", "");
         request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_SYSCMD\",\"params\":{");
         request->data = tojson_char(request->data, "cmd", definition->subaction, false);
         request->data = sdscat(request->data, "}}");
-        tiny_queue_push(mympd_api_queue, request);
+        tiny_queue_push(mympd_api_queue, request, 0);
     }
     else if (strcmp(definition->action, "script") == 0) {
         t_work_request *request = create_request(-1, 0, MYMPD_API_SCRIPT_EXECUTE, "MYMPD_API_SCRIPT_EXECUTE", "");
         request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_SCRIPT_EXECUTE\",\"params\":{");
         request->data = tojson_char(request->data, "script", definition->subaction, false);
         request->data = sdscat(request->data, "}}");
-        tiny_queue_push(mympd_api_queue, request);
+        tiny_queue_push(mympd_api_queue, request, 0);
     }
     else {
         LOG_ERROR("Unknown script action: %s", definition->action);

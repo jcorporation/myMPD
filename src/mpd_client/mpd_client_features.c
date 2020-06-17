@@ -94,7 +94,7 @@ void mpd_client_mpd_features(t_config *config, t_mpd_client_state *mpd_client_st
     data = sdscat(data, "}");
     web_server_response->data = sdsreplace(web_server_response->data, data);
     sdsfree(data);
-    tiny_queue_push(web_server_queue, web_server_response);
+    tiny_queue_push(web_server_queue, web_server_response, 0);
 }
 
 void mpd_client_feature_love(t_mpd_client_state *mpd_client_state) {

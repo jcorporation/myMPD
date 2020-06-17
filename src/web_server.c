@@ -123,7 +123,7 @@ void *web_server_loop(void *arg_mgr) {
     while (s_signal_received == 0) {
         unsigned web_server_queue_length = tiny_queue_length(web_server_queue, 50);
         if (web_server_queue_length > 0) {
-            t_work_result *response = tiny_queue_shift(web_server_queue, 50);
+            t_work_result *response = tiny_queue_shift(web_server_queue, 50, 0);
             if (response != NULL) {
                 if (response->conn_id == -1) {
                     //internal message
@@ -457,14 +457,14 @@ static bool handle_api(int conn_id, struct http_message *hm) {
     sdsfree(data);
     
     if (strncmp(cmd, "MYMPD_API_", 10) == 0) {
-        tiny_queue_push(mympd_api_queue, request);
+        tiny_queue_push(mympd_api_queue, request, 0);
     }
     else if (strncmp(cmd, "MPDWORKER_API_", 14) == 0) {
-        tiny_queue_push(mpd_worker_queue, request);
+        tiny_queue_push(mpd_worker_queue, request, 0);
         
     }
     else {
-        tiny_queue_push(mpd_client_queue, request);
+        tiny_queue_push(mpd_client_queue, request, 0);
     }
 
     FREE_PTR(cmd);

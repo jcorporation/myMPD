@@ -174,7 +174,7 @@ bool handle_albumart(struct mg_connection *nc, struct http_message *hm, t_mg_use
         request->data = tojson_char(request->data, "uri", uri_decoded, false);
         request->data = sdscat(request->data, "}}");
 
-        tiny_queue_push(mpd_client_queue, request);
+        tiny_queue_push(mpd_client_queue, request, 0);
         sdsfree(mediafile);
         sdsfree(uri_decoded);
         return false;

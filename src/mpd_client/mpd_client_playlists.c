@@ -41,13 +41,13 @@ void mpd_client_smartpls_update(const char *playlist) {
     request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPDWORKER_API_SMARTPLS_UPDATE\",\"params\":{");
     request->data = tojson_char(request->data, "playlist", playlist, false);
     request->data = sdscat(request->data, "}}");
-    tiny_queue_push(mpd_worker_queue, request);
+    tiny_queue_push(mpd_worker_queue, request, 0);
 }
 
 void mpd_client_smartpls_update_all(void) {
     t_work_request *request = create_request(-1, 0, MPDWORKER_API_SMARTPLS_UPDATE_ALL, "MPDWORKER_API_SMARTPLS_UPDATE_ALL", "");
     request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPDWORKER_API_SMARTPLS_UPDATE_ALL\",\"params\":{}}");
-    tiny_queue_push(mpd_worker_queue, request);
+    tiny_queue_push(mpd_worker_queue, request, 0);
 }
 
 sds mpd_client_put_playlists(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, int request_id,

@@ -24,7 +24,7 @@ sds tojson_char_len(sds buffer, const char *key, const char *value, size_t len, 
 sds tojson_bool(sds buffer, const char *key, bool value, bool comma);
 sds tojson_long(sds buffer, const char *key, long long value, bool comma);
 sds tojson_ulong(sds buffer, const char *key, unsigned long value, bool comma);
-sds tojson_float(sds buffer, const char *key, float value, bool comma);
+sds tojson_double(sds buffer, const char *key, double value, bool comma);
 int testdir(const char *name, const char *dirname, bool create);
 bool validate_string(const char *data);
 bool validate_string_not_empty(const char *data);

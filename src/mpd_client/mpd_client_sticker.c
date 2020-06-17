@@ -88,7 +88,7 @@ bool sticker_cache_init(t_config *config, t_mpd_client_state *mpd_client_state) 
     //push sticker cache building request to mpd_worker thread
     t_work_request *request = create_request(-1, 0, MPDWORKER_API_STICKERCACHE_CREATE, "MPDWORKER_API_STICKERCACHE_CREATE", "");
     request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPDWORKER_API_STICKERCACHE_CREATE\",\"params\":{}}");
-    tiny_queue_push(mpd_worker_queue, request);
+    tiny_queue_push(mpd_worker_queue, request, 0);
     mpd_client_state->sticker_cache_building = true;
     return true;
 }

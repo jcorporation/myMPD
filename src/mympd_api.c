@@ -72,7 +72,7 @@ void *mympd_api_loop(void *arg_config) {
 
     while (s_signal_received == 0) {
         //poll message queue
-        struct t_work_request *request = tiny_queue_shift(mympd_api_queue, 100);
+        struct t_work_request *request = tiny_queue_shift(mympd_api_queue, 100, 0);
         if (request != NULL) {
             mympd_api(config, mympd_state, request);
         }
@@ -105,10 +105,26 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
     
     switch(request->cmd_id) {
         #ifdef ENABLE_LUA
-        case MYMPD_API_SCRIPT_EXECUTE:
+        case MYMPD_API_SCRIPT_INIT:
             if (config->scripting == true) {
                 if (request->extra != NULL) {
-                    rc = mympd_api_script_start((t_lua_mympd_state *)request->extra);
+                    //todo: populate lua_mympd_state
+                    response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+                    response->extra = request->extra;
+                }
+                else {
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "No mpd state for script execution submitted", true);
+                }
+            } 
+            else {
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Scripting is disabled", true);
+            }
+            break;
+        case MYMPD_API_SCRIPT_EXECUTE:
+            if (config->scripting == true) {
+                je = json_scanf(request->data, sdslen(request->data), "{params: {script: %Q}}", &p_charbuf1);
+                if (je == 1 && validate_string_not_empty(p_charbuf1) == true) {
+                    rc = mympd_api_script_start(config, p_charbuf1);
                     if (rc == true) {
                         response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
                     }
@@ -117,7 +133,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                     }
                 }
                 else {
-                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "No mpd state for script execution submitted", true);
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Invalid scriptname", true);
                 }
             } 
             else {
@@ -180,10 +196,10 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             if (rc == true) {
                 //forward request to mpd_client queue            
                 t_work_request *mpd_client_request = create_request(-1, request->id, request->cmd_id, request->method, request->data);
-                tiny_queue_push(mpd_client_queue, mpd_client_request);
+                tiny_queue_push(mpd_client_queue, mpd_client_request, 0);
                 //forward request to mpd_worker queue            
                 t_work_request *mpd_client_request2 = create_request(-1, request->id, request->cmd_id, request->method, request->data);
-                tiny_queue_push(mpd_worker_queue, mpd_client_request2);
+                tiny_queue_push(mpd_worker_queue, mpd_client_request2, 0);
                 //respond with ok
                 response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
             }
@@ -340,9 +356,13 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
         response->data = jsonrpc_end_phrase(response->data);
         LOG_ERROR("No response for cmd_id %u", request->cmd_id);
     }
-    if (request->conn_id > -1) {
-        LOG_DEBUG("Push response to queue for connection %lu: %s", request->conn_id, response->data);
-        tiny_queue_push(web_server_queue, response);
+    if (request->conn_id == -2) {
+        LOG_DEBUG("Push response to mympd_script_queue for thread %d: %s", request->id, response->data);
+        tiny_queue_push(mympd_script_queue, response, request->id);
+    }
+    else if (request->conn_id > -1) {
+        LOG_DEBUG("Push response to web_server_queue for connection %lu: %s", request->conn_id, response->data);
+        tiny_queue_push(web_server_queue, response, 0);
     }
     else {
         free_result(response);

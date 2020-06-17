@@ -54,7 +54,7 @@ void ws_notify(sds message) {
     LOG_DEBUG("Push websocket notify to queue: %s", message);
     t_work_result *response = create_result_new(0, 0, 0, "");
     response->data = sdsreplace(response->data, message);
-    tiny_queue_push(web_server_queue, response);
+    tiny_queue_push(web_server_queue, response, 0);
 }
 
 sds jsonrpc_start_notify(sds buffer, const char *method) {
@@ -196,7 +196,7 @@ sds tojson_ulong(sds buffer, const char *key, unsigned long value, bool comma) {
     return buffer;
 }
 
-sds tojson_float(sds buffer, const char *key, float value, bool comma) {
+sds tojson_double(sds buffer, const char *key, double value, bool comma) {
     buffer = sdscatprintf(buffer, "\"%s\":%f", key, value);
     if (comma) {
         buffer = sdscat(buffer, ",");

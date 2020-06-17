@@ -56,7 +56,7 @@ void *mpd_client_loop(void *arg_config) {
 
     //wait for initial settings
     while (s_signal_received == 0) {
-        t_work_request *request = tiny_queue_shift(mpd_client_queue, 50);
+        t_work_request *request = tiny_queue_shift(mpd_client_queue, 50, 0);
         if (request != NULL) {
             if (request->cmd_id == MYMPD_API_SETTINGS_SET) {
                 LOG_DEBUG("Got initial settings from mympd_api");
@@ -68,7 +68,7 @@ void *mpd_client_loop(void *arg_config) {
                 t_work_result *response = create_result(request);
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, "MPD disconnected", true);
                 LOG_DEBUG("Send http response to connection %lu: %s", request->conn_id, response->data);
-                tiny_queue_push(web_server_queue, response);
+                tiny_queue_push(web_server_queue, response, 0);
             }
             LOG_DEBUG("mpd_client not initialized, discarding message");
             free_request(request);
@@ -198,14 +198,14 @@ static void mpd_client_idle(t_config *config, t_mpd_client_state *mpd_client_sta
             if (mpd_client_queue_length > 0) {
                 //Handle request
                 LOG_DEBUG("Handle request (mpd disconnected)");
-                t_work_request *request = tiny_queue_shift(mpd_client_queue, 50);
+                t_work_request *request = tiny_queue_shift(mpd_client_queue, 50, 0);
                 if (request != NULL) {
                     //create response struct
                     if (request->conn_id > -1) {
                         t_work_result *response = create_result(request);
                         response->data = jsonrpc_respond_message(response->data, request->method, request->id, "MPD disconnected", true);
                         LOG_DEBUG("Send http response to connection %lu: %s", request->conn_id, response->data);
-                        tiny_queue_push(web_server_queue, response);
+                        tiny_queue_push(web_server_queue, response, 0);
                     }
                     free_request(request);
                 }
@@ -359,7 +359,7 @@ static void mpd_client_idle(t_config *config, t_mpd_client_state *mpd_client_sta
                 if (mpd_client_queue_length > 0) {
                     //Handle request
                     LOG_DEBUG("Handle request");
-                    t_work_request *request = tiny_queue_shift(mpd_client_queue, 50);
+                    t_work_request *request = tiny_queue_shift(mpd_client_queue, 50, 0);
                     if (request != NULL) {
                         mpd_client_api(config, mpd_client_state, request);
                     }

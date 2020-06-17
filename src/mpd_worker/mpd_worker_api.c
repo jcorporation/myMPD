@@ -95,7 +95,7 @@ void mpd_worker_api(t_config *config, t_mpd_worker_state *mpd_worker_state, void
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Smart playlists update started", false);
                 if (request->conn_id > -1) {
                     LOG_DEBUG("Push response to queue for connection %lu: %s", request->conn_id, response->data);
-                    tiny_queue_push(web_server_queue, response);
+                    tiny_queue_push(web_server_queue, response, 0);
                 }
                 else {
                     free_result(response);
@@ -152,7 +152,7 @@ void mpd_worker_api(t_config *config, t_mpd_worker_state *mpd_worker_state, void
         }
         if (request->conn_id > -1) {
             LOG_DEBUG("Push response to queue for connection %lu: %s", request->conn_id, response->data);
-            tiny_queue_push(web_server_queue, response);
+            tiny_queue_push(web_server_queue, response, 0);
         }
         else {
             free_result(response);

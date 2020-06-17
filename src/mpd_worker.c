@@ -47,7 +47,7 @@ void *mpd_worker_loop(void *arg_config) {
 
     //wait for initial settings
     while (s_signal_received == 0) {
-        t_work_request *request = tiny_queue_shift(mpd_worker_queue, 50);
+        t_work_request *request = tiny_queue_shift(mpd_worker_queue, 50, 0);
         if (request != NULL) {
             if (request->cmd_id == MYMPD_API_SETTINGS_SET) {
                 LOG_DEBUG("Got initial settings from mympd_api");
@@ -175,7 +175,7 @@ static void mpd_worker_idle(t_config *config, t_mpd_worker_state *mpd_worker_sta
                 if (mpd_worker_queue_length > 0) {
                     //Handle request
                     LOG_DEBUG("MPD worker handle request");
-                    t_work_request *request = tiny_queue_shift(mpd_worker_queue, 50);
+                    t_work_request *request = tiny_queue_shift(mpd_worker_queue, 50, 0);
                     if (request != NULL) {
                         mpd_worker_api(config, mpd_worker_state, request);
                     }
