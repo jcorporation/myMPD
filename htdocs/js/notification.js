@@ -102,7 +102,10 @@ function showNotification(notificationTitle, notificationText, notificationHtml,
         if (!document.getElementById('alertBox')) {
             document.getElementsByTagName('main')[0].append(alertBox);
             requestAnimationFrame(function() {
-                document.getElementById('alertBox').classList.add('alertBoxActive');
+                let ab = document.getElementById('alertBox');
+                if (ab) {
+                    ab.classList.add('alertBoxActive');
+                }
             });
         }
         alertBox.getElementsByTagName('button')[0].addEventListener('click', function() {
