@@ -12,6 +12,8 @@
 #include <pthread.h>
 #include <time.h>
 
+#include "../dist/src/sds/sds.h"
+#include "log.h"
 #include "tiny_queue.h"
 
 tiny_queue_t *tiny_queue_create(void) {
@@ -42,7 +44,7 @@ void tiny_queue_free(tiny_queue_t *queue) {
 int tiny_queue_push(tiny_queue_t *queue, void *data, int id) {
     int rc = pthread_mutex_lock(&queue->mutex);
     if (rc != 0) {
-        printf("Error in pthread_mutex_lock: %d\n", rc);
+        LOG_ERROR("Error in pthread_mutex_lock: %d", rc);
         return 0;
     }
     struct tiny_msg_t* new_node = (struct tiny_msg_t*)malloc(sizeof(struct tiny_msg_t));
@@ -60,12 +62,12 @@ int tiny_queue_push(tiny_queue_t *queue, void *data, int id) {
     }
     rc = pthread_mutex_unlock(&queue->mutex);
     if (rc != 0) {
-        printf("Error in pthread_mutex_unlock: %d\n", rc);
+        LOG_ERROR("Error in pthread_mutex_unlock: %d", rc);
         return 0;
     }
     rc = pthread_cond_signal(&queue->wakeup);
     if (rc != 0) {
-        printf("Error in pthread_cond_signal: %d\n", rc);
+        LOG_ERROR("Error in pthread_cond_signal: %d", rc);
         return 0;
     }
     return 1;
@@ -75,7 +77,7 @@ unsigned tiny_queue_length(tiny_queue_t *queue, int timeout) {
     timeout = timeout * 1000;  
     int rc = pthread_mutex_lock(&queue->mutex);
     if (rc != 0) {
-        printf("Error in pthread_mutex_lock: %d\n", rc);
+        LOG_ERROR("Error in pthread_mutex_lock: %d", rc);
         return 0;
     }
     if (timeout > 0 && queue->length == 0) {
@@ -84,19 +86,20 @@ unsigned tiny_queue_length(tiny_queue_t *queue, int timeout) {
         //timeout in ms
         if (max_wait.tv_nsec <= (999999999 - timeout)) {
             max_wait.tv_nsec += timeout;
-        } else {
+        } 
+        else {
             max_wait.tv_sec += 1;
             max_wait.tv_nsec = timeout - (999999999 - max_wait.tv_nsec);
         }
         rc = pthread_cond_timedwait(&queue->wakeup, &queue->mutex, &max_wait);
         if (rc != 0 && rc != ETIMEDOUT) {
-            printf("Error in pthread_cond_timedwait: %d\n", rc);
+            LOG_ERROR("Error in pthread_cond_timedwait: %d", rc);
         }
     }
     unsigned len = queue->length;
     rc = pthread_mutex_unlock(&queue->mutex);
     if (rc != 0) {
-        printf("Error in pthread_mutex_unlock: %d\n", rc);
+        LOG_ERROR("Error in pthread_mutex_unlock: %d", rc);
     }
     return len;
 }
@@ -105,7 +108,7 @@ void *tiny_queue_shift(tiny_queue_t *queue, int timeout, int id) {
     timeout = timeout * 1000;
     int rc = pthread_mutex_lock(&queue->mutex);
     if (rc != 0) {
-        printf("Error in pthread_mutex_lock: %d\n", rc);
+        LOG_ERROR("Error in pthread_mutex_lock: %d", rc);
         return 0;
     }
     if (queue->length == 0) {
@@ -115,19 +118,20 @@ void *tiny_queue_shift(tiny_queue_t *queue, int timeout, int id) {
             //timeout in ms
             if (max_wait.tv_nsec <= (999999999 - timeout)) {
                 max_wait.tv_nsec += timeout;
-            } else {
+            }
+            else {
                 max_wait.tv_sec += 1;
                 max_wait.tv_nsec = timeout - (999999999 - max_wait.tv_nsec);
             }
             rc = pthread_cond_timedwait(&queue->wakeup, &queue->mutex, &max_wait);
             if (rc != 0) {
                 if (rc != ETIMEDOUT) {
-                    printf("Error in pthread_cond_timedwait: %d\n", rc);
-                    printf("nsec: %ld\n", max_wait.tv_nsec);
+                    LOG_ERROR("Error in pthread_cond_timedwait: %d", rc);
+                    LOG_ERROR("nsec: %ld", max_wait.tv_nsec);
                 }
                 rc = pthread_mutex_unlock(&queue->mutex);
                 if (rc != 0) {
-                    printf("Error in pthread_mutex_unlock: %d\n", rc);
+                    LOG_ERROR("Error in pthread_mutex_unlock: %d", rc);
                 }
                 return NULL;
             }
@@ -135,10 +139,10 @@ void *tiny_queue_shift(tiny_queue_t *queue, int timeout, int id) {
         else {
             rc = pthread_cond_wait(&queue->wakeup, &queue->mutex);
             if (rc != 0) {
-                printf("Error in pthread_cond_wait: %d\n", rc);
+                LOG_ERROR("Error in pthread_cond_wait: %d", rc);
                 rc = pthread_mutex_unlock(&queue->mutex);
                 if (rc != 0) {
-                    printf("Error in pthread_mutex_unlock: %d\n", rc);
+                    LOG_ERROR("Error in pthread_mutex_unlock: %d", rc);
                 }
                 return NULL;
             }
@@ -159,18 +163,18 @@ void *tiny_queue_shift(tiny_queue_t *queue, int timeout, int id) {
             queue->length--;
             rc = pthread_mutex_unlock(&queue->mutex);
             if (rc != 0) {
-                printf("Error in pthread_mutex_unlock: %d\n", rc);
+                LOG_ERROR("Error in pthread_mutex_unlock: %d", rc);
             }
             return data;
         }
         else {
-            printf("Skipping queue entry with id %d\n", current_head->id);
+            LOG_DEBUG("Skipping queue entry with id %d", current_head->id);
         }
     }
 
     rc = pthread_mutex_unlock(&queue->mutex);
     if (rc != 0) {
-        printf("Error in pthread_mutex_unlock: %d\n", rc);
+        LOG_ERROR("Error in pthread_mutex_unlock: %d", rc);
     }
     return NULL;
 }
