@@ -97,6 +97,11 @@ function webSocketConnect() {
                 logError('Invalid JSON data received: ' + msg.data);
                 return;
             }
+            
+            if (obj.error) {
+                showNotification(t(obj.error.message, obj.error.data), '', '', 'danger');
+                return;
+            }
 
             switch (obj.method) {
                 case 'welcome':
