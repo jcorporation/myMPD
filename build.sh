@@ -606,22 +606,22 @@ installdeps() {
   elif [ -f /etc/arch-release ]
   then
     #arch
-    pacman -S gcc cmake perl openssl libid3tag flac jre-openjdk-headless liblua5.3
+    pacman -S gcc cmake perl openssl libid3tag flac jre-openjdk-headless lua
   elif [ -f /etc/alpine-release ]
   then
     #alpine
-    apk add gcc cmake perl openssl-dev libid3tag-dev libflac-dev liblua5.3-dev \
+    apk add gcc cmake perl openssl-dev libid3tag-dev libflac-dev lua5.3-dev \
     	openjdk11-jre-headless linux-headers
   elif [ -f /etc/SuSE-release ]
   then
     #suse
     zypper install gcc cmake pkgconfig perl openssl-devel libid3tag-devel flac-devel \
-	liblua5.3-devel java-11-openjdk-headless unzip
+	lua-devel java-11-openjdk-headless unzip
   elif [ -f /etc/redhat-release ]
   then  
     #fedora 	
     yum install gcc cmake pkgconfig perl openssl-devel libid3tag-devel flac-devel \
-	liblua5.3-devel java-11-openjdk-headless unzip
+	lua-devel java-11-openjdk-headless unzip
   else 
     echo "Unsupported distribution detected."
     echo "You should manually install:"
@@ -632,7 +632,7 @@ installdeps() {
     echo " - openssl (devel)"
     echo " - flac (devel)"
     echo " - libid3tag (devel)"
-    echo " - liblua50 (devel)"
+    echo " - lua53 (devel)"
   fi
 }
 
