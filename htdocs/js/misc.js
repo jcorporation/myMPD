@@ -71,7 +71,7 @@ function execSyscmd(cmd) {
 
 //eslint-disable-next-line no-unused-vars
 function execScript(script) {
-    sendAPI("MPD_API_SCRIPT_EXECUTE", {"script": script});
+    sendAPI("MYMPD_API_SCRIPT_EXECUTE", {"script": script});
 }
 
 //eslint-disable-next-line no-unused-vars
