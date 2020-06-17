@@ -15,6 +15,7 @@ extern tiny_queue_t *web_server_queue;
 extern tiny_queue_t *mpd_client_queue;
 extern tiny_queue_t *mympd_api_queue;
 extern tiny_queue_t *mpd_worker_queue;
+extern tiny_queue_t *mympd_script_queue;
 
 typedef struct t_work_request {
     int conn_id; // needed to identify the connection where to send the reply

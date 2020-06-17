@@ -8,7 +8,6 @@
 #define __LUA_MYMPD_STATE_H__
 
 typedef struct t_lua_mympd_state {
-    sds script;
     enum mpd_state play_state;
     int volume;
     int song_pos;

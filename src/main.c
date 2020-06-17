@@ -307,6 +307,7 @@ int main(int argc, char **argv) {
     mpd_worker_queue = tiny_queue_create();
     mympd_api_queue = tiny_queue_create();
     web_server_queue = tiny_queue_create();
+    mympd_script_queue = tiny_queue_create();
 
     //create mg_user_data struct for web_server
     t_mg_user_data *mg_user_data = (t_mg_user_data *)malloc(sizeof(t_mg_user_data));
@@ -500,6 +501,7 @@ int main(int argc, char **argv) {
     tiny_queue_free(mpd_client_queue);
     tiny_queue_free(mympd_api_queue);
     tiny_queue_free(mpd_worker_queue);
+    tiny_queue_free(mympd_script_queue);
     mympd_free_config(config);
     sdsfree(configfile);
     sdsfree(option);
