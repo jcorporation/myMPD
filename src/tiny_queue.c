@@ -39,7 +39,7 @@ void tiny_queue_free(tiny_queue_t *queue) {
 }
 
 
-int tiny_queue_push(tiny_queue_t *queue, void *data) {
+int tiny_queue_push(tiny_queue_t *queue, void *data, int id) {
     int rc = pthread_mutex_lock(&queue->mutex);
     if (rc != 0) {
         printf("Error in pthread_mutex_lock: %d\n", rc);
@@ -48,6 +48,7 @@ int tiny_queue_push(tiny_queue_t *queue, void *data) {
     struct tiny_msg_t* new_node = (struct tiny_msg_t*)malloc(sizeof(struct tiny_msg_t));
     assert(new_node);
     new_node->data = data;
+    new_node->id = id;
     new_node->next = NULL;
     queue->length++;
     if (queue->head == NULL && queue->tail == NULL){
@@ -100,7 +101,7 @@ unsigned tiny_queue_length(tiny_queue_t *queue, int timeout) {
     return len;
 }
 
-void *tiny_queue_shift(tiny_queue_t *queue, int timeout) {
+void *tiny_queue_shift(tiny_queue_t *queue, int timeout, int id) {
     timeout = timeout * 1000;
     int rc = pthread_mutex_lock(&queue->mutex);
     if (rc != 0) {
@@ -146,20 +147,25 @@ void *tiny_queue_shift(tiny_queue_t *queue, int timeout) {
     //queue has entry
     if (queue->head != NULL) {
         struct tiny_msg_t* current_head = queue->head;
-        void *data = current_head->data;
-        if (queue->head == queue->tail) {
-            queue->head = queue->tail = NULL;
+        if (id == 0 || id == current_head->id) {
+            void *data = current_head->data;
+            if (queue->head == queue->tail) {
+                queue->head = queue->tail = NULL;
+            }
+            else {
+                queue->head = queue->head->next;
+            }
+            free(current_head);
+            queue->length--;
+            rc = pthread_mutex_unlock(&queue->mutex);
+            if (rc != 0) {
+                printf("Error in pthread_mutex_unlock: %d\n", rc);
+            }
+            return data;
         }
         else {
-            queue->head = queue->head->next;
+            printf("Skipping queue entry with id %d\n", current_head->id);
         }
-        free(current_head);
-        queue->length--;
-        rc = pthread_mutex_unlock(&queue->mutex);
-        if (rc != 0) {
-            printf("Error in pthread_mutex_unlock: %d\n", rc);
-        }
-        return data;
     }
 
     rc = pthread_mutex_unlock(&queue->mutex);
