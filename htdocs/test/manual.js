@@ -85,7 +85,8 @@ var cmds = [
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_TIMER_LIST","params":{}},
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_TIMER_GET","params":{"timerid":0}},
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_TIMER_RM","params":{"timerid":0}},
-    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_TIMER_TOGGLE","params":{"timerid":0}}
+    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_TIMER_TOGGLE","params":{"timerid":0}},
+    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SCRIPT_EXECUTE","params":{"script":""}}
 ];
 
 function init() {
@@ -109,6 +110,7 @@ function init() {
         }
         document.getElementById('params').innerHTML = form;
         document.getElementById('resultText').innerText = '';
+        document.getElementById('requestText').innerText = '';
         document.getElementById('resultState').innerText = 'Result';
     }, false);
     document.getElementById('btnSubmit').addEventListener('click', function(event) {
@@ -161,6 +163,7 @@ function sendAPI() {
         }
     };
     ajaxRequest.send(JSON.stringify(request));
+    document.getElementById('requestText').innerText = JSON.stringify(request);
 }
 
 init();
