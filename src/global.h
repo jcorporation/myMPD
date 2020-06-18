@@ -39,7 +39,8 @@ typedef struct t_work_result {
 t_work_result *create_result(t_work_request *request);
 t_work_result *create_result_new(int conn_id, int request_id, int cmd_id, const char *method);
 t_work_request *create_request(int conn_id, int request_id, int cmd_id, const char *method, const char *data);
-
+int expire_request_queue(tiny_queue_t *queue, time_t age);
+int expire_result_queue(tiny_queue_t *queue, time_t age);
 void free_request(t_work_request *request);
 void free_result(t_work_result *result);
 

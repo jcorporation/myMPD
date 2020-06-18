@@ -498,10 +498,15 @@ int main(int argc, char **argv) {
     if (init_webserver == true) {
         web_server_free(&mgr);
     }
+    expire_result_queue(web_server_queue, 0);
     tiny_queue_free(web_server_queue);
+    expire_request_queue(mpd_client_queue, 0);
     tiny_queue_free(mpd_client_queue);
+    expire_request_queue(mympd_api_queue, 0);
     tiny_queue_free(mympd_api_queue);
+    expire_request_queue(mpd_worker_queue, 0);
     tiny_queue_free(mpd_worker_queue);
+    expire_result_queue(mympd_script_queue, 0);
     tiny_queue_free(mympd_script_queue);
     mympd_free_config(config);
     sdsfree(configfile);

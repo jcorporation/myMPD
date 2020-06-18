@@ -39,7 +39,6 @@
 //private definitions
 static void *mympd_api_script_execute(void *script_arg);
 static sds lua_err_to_str(sds buffer, int rc, bool phrase, const char *script);
-static void free_t_lua_mympd_state(t_lua_mympd_state *lua_mympd_state);
 static void populate_lua_table(lua_State *lua_vm, t_lua_mympd_state *lua_mympd_state);
 static void populate_lua_table_field_p(lua_State *lua_vm, const char *key, const char *value);
 static void populate_lua_table_field_i(lua_State *lua_vm, const char *key, long value);
@@ -70,6 +69,7 @@ bool mympd_api_script_start(t_config *config, const char *script) {
         return false;
     }
     pthread_setname_np(mympd_script_thread, "mympd_script");
+    expire_result_queue(mympd_script_queue, 120);
     return true;
 }
 
@@ -86,6 +86,8 @@ static void *mympd_api_script_execute(void *script_arg) {
         buffer = jsonrpc_end_phrase(buffer);
         ws_notify(buffer);
         sdsfree(buffer);
+        sdsfree(thread_logname);
+        sdsfree(script_file);
         return NULL;
     }
     luaL_openlibs(lua_vm);
@@ -130,6 +132,7 @@ static void *mympd_api_script_execute(void *script_arg) {
     }
     lua_close(lua_vm);
     sdsfree(script_file);
+    sdsfree(thread_logname);
     return NULL;
 }
 
@@ -203,12 +206,6 @@ static void populate_lua_table(lua_State *lua_vm, t_lua_mympd_state *lua_mympd_s
     populate_lua_table_field_f(lua_vm, "mixrampdelay", lua_mympd_state->mixrampdelay);
     populate_lua_table_field_p(lua_vm, "music_directory", lua_mympd_state->music_directory);
     populate_lua_table_field_p(lua_vm, "varlibdir", lua_mympd_state->varlibdir);
-}
-
-static void free_t_lua_mympd_state(t_lua_mympd_state *lua_mympd_state) {
-    sdsfree(lua_mympd_state->music_directory);
-    sdsfree(lua_mympd_state->varlibdir);
-    free(lua_mympd_state);
 }
 
 static void register_lua_functions(lua_State *lua_vm) {

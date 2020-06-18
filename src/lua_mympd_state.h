@@ -29,4 +29,6 @@ typedef struct t_lua_mympd_state {
     sds varlibdir;
 } t_lua_mympd_state;
 
+void free_t_lua_mympd_state(t_lua_mympd_state *lua_mympd_state);
+
 #endif
