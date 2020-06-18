@@ -278,7 +278,7 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
         
     }
     else {
-        //tiny_queue_push(mpd_client_queue, request, tid);
+        tiny_queue_push(mpd_client_queue, request, tid);
     }
 
     int i = 0;
