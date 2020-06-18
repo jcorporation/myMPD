@@ -598,11 +598,11 @@ sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buf
     
     if (config->scripting == true) {
         buffer = sdscat(buffer, ",\"scriptList\":[");
-        int nr = 0;
         sds scriptdirname = sdscatfmt(sdsempty(), "%s/scripts", config->varlibdir);
         DIR *script_dir = opendir(scriptdirname);
         if (script_dir != NULL) {
             struct dirent *next_file;
+            int nr = 0;
             while ((next_file = readdir(script_dir)) != NULL ) {
                 if (strstr(next_file->d_name, ".lua") != NULL) {
                     if (nr++) {
