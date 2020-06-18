@@ -73,6 +73,7 @@ bool mympd_api_script_start(t_config *config, const char *script) {
     return true;
 }
 
+//private functions
 static void *mympd_api_script_execute(void *script_arg) {
     thread_logname = sdsreplace(thread_logname, "script");
     sds script_file = (sds) script_arg;
@@ -282,7 +283,7 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
     }
 
     int i = 0;
-    while (s_signal_received == 0 && i < 10) {
+    while (s_signal_received == 0 && i < 60) {
         i++;
         t_work_result *response = tiny_queue_shift(mympd_script_queue, 1000000, tid);
         if (response != NULL) {
