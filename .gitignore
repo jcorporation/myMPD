@@ -9,3 +9,4 @@
 /valgrind.out
 /src/compile_commands.json
 /clang-tidy.out
+/test/build/

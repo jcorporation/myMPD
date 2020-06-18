@@ -329,6 +329,13 @@ builddebug() {
   sed -e 's/\\t/ /g' -e 's/-fsanitize=bounds-strict//g' -e 's/-static-libasan//g' compile_commands.json > ../src/compile_commands.json
 }
 
+buildtest() {
+  install -d test/build
+  cd test/build || exit 1
+  cmake ..
+  make VERBOSE=1
+}
+
 cleanupoldinstall() {
   if [ -d /usr/share/mympd ] || [ -d /usr/lib/mympd ]
   then
@@ -738,6 +745,9 @@ case "$1" in
 	memcheck)
 	  builddebug "TRUE"
 	;;
+	test)
+	  buildtest
+	;;
 	installdeps)
 	  installdeps
 	;;
@@ -801,11 +811,12 @@ case "$1" in
 	  echo "  debug:          builds debug files in directory debug,"
 	  echo "                  linked with libasan3, uses assets in htdocs"
 	  echo "  memcheck:       builds debug files in directory debug"
-	  echo "                  for use with valgrind, uses assets in htdocs/"
+	  echo "                  for use with valgrind, uses assets in htdocs"
 	  echo "  check:          runs cppcheck and flawfinder on source files"
 	  echo "                  following environment variables are respected"
 	  echo "                    - CPPCHECKOPTS=\"--enable=warning\""
 	  echo "                    - FLAWFINDEROPTS=\"-m3\""
+	  echo "  test:           builds the unit testing files in test/build"
 	  echo "  installdeps:    installs build and run dependencies"
 	  echo "  translate:      builds the translation file for debug builds"
 	  echo ""
