@@ -96,11 +96,16 @@ function webSocketConnect() {
                 logError('Invalid JSON data received: ' + msg.data);
                 return;
             }
+            
+            if (obj.error) {
+                showNotification(t(obj.error.message, obj.error.data), '', '', 'danger');
+                return;
+            }
 
             switch (obj.method) {
                 case 'welcome':
                     websocketConnected = true;
-                    showNotification(t('Connected to myMPD') + ': ' + wsUrl, '', '', 'success');
+                    showNotification(t('Connected to myMPD'), wsUrl, '', 'success');
                     appRoute();
                     sendAPI("MPD_API_PLAYER_STATE", {}, parseState, true);
                     break;
@@ -1041,6 +1046,11 @@ function execSyscmd(cmd) {
 }
 
 //eslint-disable-next-line no-unused-vars
+function execScript(script) {
+    sendAPI("MYMPD_API_SCRIPT_EXECUTE", {"script": script});
+}
+
+//eslint-disable-next-line no-unused-vars
 function clearCovercache() {
     sendAPI("MYMPD_API_COVERCACHE_CLEAR", {});
 }
@@ -1369,6 +1379,7 @@ var dropdownNeighbors = new BSN.Dropdown(document.getElementById('btnDropdownNei
 
 var collapseDBupdate = new BSN.Collapse(document.getElementById('navDBupdate'));
 var collapseSyscmds = new BSN.Collapse(document.getElementById('navSyscmds'));
+var collapseScripting = new BSN.Collapse(document.getElementById('navScripting'));
 var collapseJukeboxMode = new BSN.Collapse(document.getElementById('labelJukeboxMode'));
 /* eslint-enable no-unused-vars */
 
@@ -2001,6 +2012,12 @@ function appInit() {
             parseCmd(event, event.target.getAttribute('data-href'));
         }
     }, false);
+    
+    document.getElementById('scripts').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'A') {
+            parseCmd(event, event.target.getAttribute('data-href'));
+        }
+    }, false);
 
     let hrefs = document.querySelectorAll('[data-href]');
     let hrefsLen = hrefs.length;
@@ -2610,6 +2627,9 @@ function showNotification(notificationTitle, notificationText, notificationHtml,
     } 
     if (settings.notificationPage === true || notificationType === 'danger' || notificationType === 'warning') {
         let alertBox;
+        if (alertTimeout) {
+            clearTimeout(alertTimeout);
+        }
         if (!document.getElementById('alertBox')) {
             alertBox = document.createElement('div');
             alertBox.setAttribute('id', 'alertBox');
@@ -2618,6 +2638,7 @@ function showNotification(notificationTitle, notificationText, notificationHtml,
         else {
             alertBox = document.getElementById('alertBox');
         }
+        
         let toast = '<div class="toast-header">';
         if (notificationType === 'success' ) {
             toast += '<span class="material-icons text-success mr-2">info</span>';
@@ -2639,16 +2660,16 @@ function showNotification(notificationTitle, notificationText, notificationHtml,
         if (!document.getElementById('alertBox')) {
             document.getElementsByTagName('main')[0].append(alertBox);
             requestAnimationFrame(function() {
-                document.getElementById('alertBox').classList.add('alertBoxActive');
+                let ab = document.getElementById('alertBox');
+                if (ab) {
+                    ab.classList.add('alertBoxActive');
+                }
             });
         }
         alertBox.getElementsByTagName('button')[0].addEventListener('click', function() {
             hideNotification();
         }, false);
 
-        if (alertTimeout) {
-            clearTimeout(alertTimeout);
-        }
         alertTimeout = setTimeout(function() {
             hideNotification();
         }, 3000);
@@ -4094,7 +4115,7 @@ function parseSettings() {
     toggleBtnChkCollapse('btnSmartpls', 'collapseSmartpls', settings.smartpls);
     
     let features = ["featLocalplayer", "featSyscmds", "featMixramp", "featCacert", "featBookmarks", 
-        "featRegex", "featTimer", "featLyrics"];
+        "featRegex", "featTimer", "featLyrics", "featScripting"];
     for (let j = 0; j < features.length; j++) {
         let Els = document.getElementsByClassName(features[j]);
         let ElsLen = Els.length;
@@ -4122,15 +4143,17 @@ function parseSettings() {
         document.getElementsByClassName('groupClearCovercache')[0].classList.remove('hide');
     }
     
-    let timerActions = '<option value="startplay">' + t('Start playback') + '</option>' +
-        '<option value="stopplay">' + t('Stop playback') + '</option>';
+    let timerActions = '<optgroup data-value="player" label="' + t('Playback') + '">' +
+        '<option value="startplay">' + t('Start playback') + '</option>' +
+        '<option value="stopplay">' + t('Stop playback') + '</option>' +
+        '</optgroup>';
 
-    if (settings.featSyscmds) {
+    if (settings.featSyscmds === true) {
         let syscmdsMaxListLen = 4;
         let syscmdsList = '';
         let syscmdsListLen = settings.syscmdList.length;
         if (syscmdsListLen > 0) {
-            timerActions += '<optgroup label="' + t('System command') + '">';
+            timerActions += '<optgroup data-value="syscmd" label="' + t('System command') + '">';
             syscmdsList = syscmdsListLen > syscmdsMaxListLen ? '' : '<div class="dropdown-divider"></div>';
             for (let i = 0; i < syscmdsListLen; i++) {
                 if (settings.syscmdList[i] === 'HR') {
@@ -4158,7 +4181,41 @@ function parseSettings() {
     else {
         document.getElementById('syscmds').innerHTML = '';
     }
-    
+
+    if (settings.featScripting === true) {
+        let scriptMaxListLen = 4;
+        let scriptList = '';
+        let scriptListLen = settings.scriptList.length;
+        if (scriptListLen > 0) {
+            timerActions += '<optgroup data-value="script" label="' + t('Script') + '">';
+            scriptList = scriptListLen > scriptMaxListLen ? '' : '<div class="dropdown-divider"></div>';
+            for (let i = 0; i < scriptListLen; i++) {
+                if (settings.scriptList[i] === 'HR') {
+                    scriptList += '<div class="dropdown-divider"></div>';
+                }
+                else {
+                    scriptList += '<a class="dropdown-item text-light alwaysEnabled" href="#" data-href=\'{"cmd": "execScript", "options": ["' + 
+                        e(settings.scriptList[i]) + '"]}\'>' + e(settings.scriptList[i]) + '</a>';
+                    timerActions += '<option value="' + e(settings.scriptList[i]) + '">' + e(settings.scriptList[i]) + '</option>';
+                }
+            }
+        }
+        document.getElementById('scripts').innerHTML = scriptList;
+        timerActions += '</optgroup>';
+        
+        if (scriptListLen > scriptMaxListLen) {
+            document.getElementById('navScripting').classList.remove('hide');
+            document.getElementById('scripts').classList.add('collapse', 'menu-indent');
+        }
+        else {
+            document.getElementById('navScripting').classList.add('hide');
+            document.getElementById('scripts').classList.remove('collapse', 'menu-indent');
+        }
+    }
+    else {
+        document.getElementById('scripts').innerHTML = '';
+    }
+
     document.getElementById('selectTimerAction').innerHTML = timerActions;
     
     //dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
@@ -6102,6 +6159,7 @@ function saveTimer() {
         formOK = false;
         document.getElementById('btnTimerJukeboxModeGroup').classList.add('is-invalid');
     }
+    
     if (formOK === true) {
         sendAPI("MYMPD_API_TIMER_SAVE", {
             "timerid": parseInt(document.getElementById('inputTimerId').value),
@@ -6110,7 +6168,8 @@ function saveTimer() {
             "startHour": parseInt(selectTimerHour.options[selectTimerHour.selectedIndex].value),
             "startMinute": parseInt(selectTimerMinute.options[selectTimerMinute.selectedIndex].value),
             "weekdays": weekdays,
-            "action": selectTimerAction.options[selectTimerAction.selectedIndex].value,
+            "action": selectTimerAction.options[selectTimerAction.selectedIndex].parentNode.getAttribute('data-value'),
+            "subaction": selectTimerAction.options[selectTimerAction.selectedIndex].value,
             "volume": parseInt(document.getElementById('inputTimerVolume').value), 
             "playlist": selectTimerPlaylist.options[selectTimerPlaylist.selectedIndex].value,
             "jukeboxMode": parseInt(jukeboxMode),
@@ -6171,7 +6230,7 @@ function parseEditTimer(obj) {
     toggleBtnChk('btnTimerEnabled', obj.result.enabled);
     document.getElementById('selectTimerHour').value = obj.result.startHour;
     document.getElementById('selectTimerMinute').value = obj.result.startMinute;
-    document.getElementById('selectTimerAction').value = obj.result.action;
+    document.getElementById('selectTimerAction').value = obj.result.subaction;
     document.getElementById('inputTimerVolume').value = obj.result.volume;
     //document.getElementById('selectTimerPlaylist').value = obj.result.playlist;
     toggleBtnGroupValue(document.getElementById('btnTimerJukeboxModeGroup'), obj.result.jukeboxMode);
@@ -6209,7 +6268,7 @@ function parseListTimer(obj) {
                 days.push(t(weekdays[j]))
             }
         }
-        tds += days.join(', ')  + '</td><td>' + t(obj.result.data[i].action) + '</td>' +
+        tds += days.join(', ')  + '</td><td>' + prettyTimerAction(obj.result.data[i].action, obj.result.data[i].subaction) + '</td>' +
                '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">delete</a></td>';
         row.innerHTML = tds;
         if (i < tr.length) {
@@ -6228,6 +6287,22 @@ function parseListTimer(obj) {
         tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
                           '<td colspan="4">' + t('Empty list') + '</td></tr>';
     }     
+}
+
+function prettyTimerAction(action, subaction) {
+    if (action === 'player' && subaction === 'startplay') {
+        return t('Start playback');
+    }
+    if (action === 'player' && subaction === 'stopplay') {
+        return t('Stop playback');
+    }
+    if (action === 'syscmd') {
+        return t('System command') + ': ' + subaction;
+    }
+    if (action === 'script') {
+        return t('Script') + ': ' + subaction;
+    }
+    return action + ': ' + subaction;
 }
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
