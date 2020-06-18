@@ -1377,10 +1377,7 @@ Fehler beim Ausführen des Skripts %{script}: Fehler bei der Ausführung des Mes
 Error executing script %{script}
 Fehler beim Ausführen des Skripts %{script}
 
-Error getting mpd state for script execution
-MPD Status zur Skriptausführung konnte nicht ermittelt werden
-
-Invalid script name
+Invalid scriptname
 Ungültiger Skriptname
 
 No mpd state for script execution submitted
