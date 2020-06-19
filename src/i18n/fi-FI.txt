@@ -1,0 +1,1330 @@
+Finnish
+
+MPD connection
+MPD Yhteys
+
+Add stream
+Lisää streami
+
+Update
+Päivitä
+
+Update database
+Päivitä tietokanta
+
+Rescan database
+Lue tietokanta uudelleen
+
+Update directory
+Päivitä kansio
+
+Rescan directory
+Lue kansio uudelleen
+
+Update smart playlists
+Päivitä älykkäät soittolistat
+
+Settings
+Asetukset
+
+About
+Tietoja
+
+Add to home screen
+Lisää aloitus näkymään
+
+Local playback
+Paikallinen toisto
+
+Connecting to stream...
+Yhdistetään...
+
+JavaScript is disabled
+JavaScript poistettu käytöstä
+
+Apply
+Käytä
+
+Playback
+Toisto
+
+Queue
+Jono
+
+Browse
+Selaa
+
+Search
+Etsi
+
+Save queue
+Tallenna Jono
+
+Shuffle queue
+Sekoita Jono
+
+Add to queue
+Lisää jonoon
+
+Clear queue
+Tyhjennä jono
+
+Crop queue
+Rajaa jono
+
+Any Tag
+Mikä tahansa tagi
+
+Filename
+Tiedostonimi
+
+Filetype
+Tiedostotyyppi
+
+Fileformat
+Tiedostomuoto
+
+bits
+bittiä
+
+kHz
+kHz
+
+Search queue
+Etsi jonosta
+
+Title
+Nimi
+
+Work
+Työ
+
+Artists
+Artistit
+
+Artist
+Artisti
+
+ArtistSort
+ArtistiJärjestely
+
+Album
+Albumi
+
+AlbumSort
+AlbumiJärjestely
+
+Duration
+Kesto
+
+AlbumArtist
+Albumi Esittäjä
+
+AlbumArtistSort
+AlbumiArtistiJärjestely
+
+Composer
+Säveltäjä
+
+Performer
+Esittäjä
+
+Genre
+Genre
+
+Date
+Päiväys
+
+Track
+Kappalenumero
+
+Song
+Kappale
+
+Comment
+Kommenttti
+
+Disc
+Levy
+
+Label
+Julkaisija
+
+Grouping
+Ryhmittely
+
+Conductor
+Kapelllimestari
+
+Pos
+Pos
+
+Invalid API request
+Virheellinen API pyyntö
+
+Failed to set like, invalid like value
+Tykkäystä ei voitu asettaa, virheellinen tykkäys arvo
+
+Failed to set like, invalid song uri
+Tykkäystä ei voitu asettaa, virheellinen kappaleen URI
+
+Last played
+Viimeksi soitettu
+
+LastPlayed
+ViimeksiSoitettu
+
+Last skipped
+Viimeksi ohitettu
+
+Database
+Tietokanta
+
+Filesystem
+Tiedostojärjestelmä
+
+Playlists
+Soittolistat
+
+Playlist
+Soittolista
+
+Clear playlist
+Tyhjää soittolista
+
+Last modified
+Viimeksi muokattu
+
+Previous page
+Edellinen sivu
+
+Next page
+Seuraava sivu
+
+Num songs
+%{smart_count} Kappale |||| %{smart_count} Kappaletta
+
+Num playlists
+%{smart_count} Soittolista |||| %{smart_count} Soittolistaa
+
+Num entries
+%{smart_count} Kohde |||| %{smart_count} Kohdetta
+
+Add all to queue
+Lisää kaikki jonoon
+
+Add all to playlist
+Lisää kaikki soittolistaan
+
+Save as smart playlist
+Tallenna älykkäänä soittolistana
+
+To top
+Huipulle
+
+Bookmarks
+Kirjanmerkit
+
+Select tag to search
+Valitse etsittävä tagi
+
+contains
+sisältää
+
+Initializing myMPD
+Käynnistetään myMPD
+
+Fetch myMPD settings
+Noudetaan myMPD asetukset
+
+Fetch MPD settings
+Haetaan MPD asetukset
+
+Connect to websocket
+Yhdistetään websockettiin
+
+Applying settings
+Asetuksia otetaan käyttöön
+
+Updating MPD database
+Päivitetään MPD tietokantaa
+
+Dependent on the size of your music collection this can take a while
+Riippuen musiikkikokoelman koosta, tässä voi mennä hetki
+
+Add to playlist
+Lisää soittolistaan
+
+Stream URI
+Stream URI
+
+http://uri.to/stream.mp3
+http://url.to/stream.mp3
+
+Invalid URI
+Epäkelpo URI
+
+Please choose playlist
+Valitse soittolista
+
+Create Playlist
+Luo soittolista
+
+Invalid filename
+Väärä tiedostonimi
+
+Invalid type
+Väärä tyyppi
+
+Add
+Lisää
+
+Rename playlist
+Nimeä soittolista uudelleen
+
+From
+Mistä
+
+To
+Mihin
+
+Cancel
+Peruuta
+
+Save
+Tallenna
+
+Delete playlist
+Poista soittolista
+
+Delete
+Poista
+
+Love song
+Rakkauslaulu
+
+Scrobbled love
+Scrobbled rakkaus
+
+Failed to send love message to channel
+Rakkausviestin lähetys kanavalle epäonnistui
+
+Dislike song
+Dissaa kappaletta
+
+Like song
+Tykkää kappaleesta
+
+MPD stickers are disabled
+MPD Stickerit pois käytöstä
+
+folder.jpg
+folder.jpg
+
+Size in px
+koko pikseleinä
+
+Save smart playlist
+Tallenna älykäs soittolista
+
+Name
+Nimi
+
+Tag
+Tag
+
+Tags
+Tagit
+
+Sticker
+Sticker
+
+Max. songs
+Max. kappaleet
+
+Must be a number
+Pitää olla numero
+
+Timerange (days)
+Aikaväli (päiviä)
+
+Like
+Tykkää
+
+Play count
+Soittokerrat
+
+Skip count
+Ohitus laskuri
+
+Theme
+Teema
+
+General
+Yleinen
+
+Random
+Satunnainen
+
+Consume
+Kuluta
+
+Single
+Yksittäistoisto
+
+Repeat
+Uudelleentoisto
+
+Crossfade
+Crossfade
+
+Replaygain
+Replaygain
+
+Off
+Pois
+
+Mixramp DB
+Mixramp DB
+
+Mixramp delay
+Mixramp viive
+
+Autoplay
+Automaattitoisto
+
+Jukebox
+Jukebox
+
+Jukebox mode
+Jukebox tila
+
+Keep queue length
+Pidä jonon pituus
+
+Must be a number and greater than zero
+Tarvii olla numero joka on suurempi kuin 0
+
+Albumart
+Albumcover
+
+Can't access music directory
+Musiikkikansiota ei pysty avaamaan
+
+Invalid size
+Virheellinen koko
+
+Background color
+Taustaväri
+
+Highlight color
+Valintaväri
+
+Invalid color
+Virheellinen väri
+
+CSS filter
+CSS suodatin
+
+Invalid CSS filter
+Virheellinen CSS suodatin
+
+Locale
+Kielivalinta
+
+Browser default
+Selaimen asetus
+
+Pagination
+Rivien määrä
+
+Must be a number smaller or equal 200
+Tarvii olla luku joka on pienempi tai yhtäsuuri kuin 200
+
+Notifications
+Ilmoitukset
+
+On page notifications
+Sivun ilmoitukset
+
+Web notifications
+Web ilmoitukset
+
+Tags to use
+Käytettävät tagit
+
+Tags to search
+Etsittävät tagit
+
+Tags to browse
+Selattavat tagit
+
+Local playback
+Paikallinen toisto
+
+URI
+URL
+
+Port
+Portti
+
+Statistics
+Tilastot
+
+Stickers are disabled
+Stickerit on poistettu käytöstä
+
+Playback statistics
+Toistotilastot
+
+Playback statistics are disabled
+Toistotilastot ovat pois päältä
+
+Last played list count
+Viimeksi soitettujen listan koko
+
+Smart playlists
+Älykkäät soittolistat
+
+Smart playlists updated
+Älykkäät soittolistat päivitetty
+
+Smart playlists update failed
+Älykkäiden soittolistojen päivitys epäonnistui
+
+Smart playlist %{playlist} updated
+Älykäs soittolista %{playlist} päivitetty
+
+Updating of smart playlist %{playlist} failed
+Älykkään soittolistan %{playlist} päivitys epäonnistui
+
+Smart playlist
+Älykäs soittolista
+
+Playlists are disabled
+Soittolistat ovat pois päältä
+
+Scrobbler integration
+Scrobbler Integration
+
+MPD channel not found
+MPD kanavaa ei löytynyt
+
+Send love message
+Lähetä rakkausviesti
+
+MPD channel
+MPD kanava
+
+Invalid channel name
+Virheellinen kanavanimi
+
+Message
+Viesti
+
+Invalid message
+Virheellinen viesti
+
+Reset
+Nollaa
+
+Reset settings
+Nollaa asetukset
+
+Clear app cache and reload
+Tyhjennä ohjelman välimuisti ja lataa uudelleen
+
+Reload
+Lataa uudelleen
+
+Shortcuts
+Pikalinkki
+
+Version
+Versio
+
+Homepage
+Kotisivu
+
+Author
+Luoja
+
+Database statistics
+Tietokanta tilastot
+
+Artists
+Artistit
+
+Albums
+Albumit
+
+Songs
+Kappaleet
+
+DB play time
+Tietokannan toistoaika
+
+DB updated
+Tietokanta päivitettty
+
+MPD uptime
+MPD Uptime
+
+myMPD uptime
+myMPD Uptime
+
+Play time
+Toisto aika
+
+Connection
+Yhteys
+
+Protocol version
+Protokolla Versio
+
+Libmpdclient version
+Libmpdclient Versio
+
+Libmympdclient version
+Libmympdclient Versio
+
+Shortcut
+Pikalinkki
+
+Action
+Toiminto
+
+MPD host
+MPD isäntä
+
+Invalid MPD host
+Virheellinen MPD isäntä
+
+MPD port
+MPD Portti
+
+Invalid MPD port
+Virheellinen MPD Portti
+
+MPD password
+MPD Salasana
+
+Invalid MPD password
+Virheellinen MPD salasana
+
+Music directory
+Musiikkikansio
+
+Autodetect
+Automaattinen tunnistus
+
+None
+Ei mitään
+
+Specify
+Määritä
+
+Invalid music directory
+Virheellinen musiikkikansio
+
+Music directory not found
+Musiikkikansiota ei löydy
+
+Playlist name
+Soittolistan nimi
+
+Quantity
+Määrä
+
+Save bookmark
+Tallenna kirjanmerkki
+
+Clearing bookmarks failed
+Kirjanmerkkien tyhjentäminen epäonnistui
+
+Bookmark name
+Kirjanmerkin nimi
+
+Bookmark URI
+Kirjanmerkin URL
+
+Song details
+Kappaleen tiedot
+
+Close
+Sulje
+
+Searching...
+Etsitään...
+
+Previous song
+Edellinen kappale
+
+Next song
+Seuraava kappale
+
+Toggle play / pause
+Play / Pause
+
+Stop playing
+Stop
+
+Volume down
+Pienemmälle
+
+Volume up
+Isommalle
+
+Open settings
+Avaa asetukset
+
+Open song details
+Avaa kappaleen tiedot
+
+Open local player
+Avaa paikallinen soitin
+
+Goto playback
+Siirry toistoon
+
+Goto queue
+Siirry jonoon
+
+Goto last played
+Siirry viimeksi soitettuun
+
+Goto browse database
+Siirry tietokannan selaamiseen
+
+Goto browse playlists
+Siirry soittolistojen selaukseen
+
+Goto browse filesystem
+Siirry tiedostojärjelmän selaukseen
+
+Goto browse covergrid
+Siirry selaamaan kansitaidetta
+
+Goto search
+Siirry hakuun
+
+Open main menu
+Avaa päävalikko
+
+Open volume menu
+Avaa äänenvoimakkuus valikko
+
+Open about
+Avaa tiedot
+
+Focus search
+Tarkenna haku
+
+myMPD installed as app
+myMPD asennettu sovelluksena
+
+Can not start playing
+Toistoa ei voi käynnistää
+
+MPD disconnected
+MPD yhteys katkaistu
+
+Websocket connection failed
+Websocket yhteys epäonnistui
+
+Connected to myMPD
+Yhdistetty myMPD:hen
+
+Connected to MPD
+Yhdistetty MPD:hen
+
+Websocket connection failed, trying to reconnect
+Websocket yhteys epäonnistui, yritetään uudelleen
+
+Can not parse settings
+Asetusten käsittely ei onnistu
+
+Volumecontrol disabled
+Äänenvoimakkuuden säätö pois käytöstä
+
+Volume
+Äänenvoimakkuus
+
+No results, please refine your search
+Ei tuloksia, tarkista hakuehdot
+
+Empty queue
+Tyhjä jono
+
+Empty list
+Tyhjä lista
+
+Empty playlist
+Tyhjä soittolista
+
+No playlists found
+Soittolistoja ei löydy
+
+Added stream %{streamUri} to queue
+Streami %{streamUri} lisätty jonoon
+
+Append to queue
+Lisää jonoon
+
+Add after current playing song
+Lisää soivan kappaleen jälkeen
+
+View playlist
+Näytä soittolista
+
+Add bookmark
+Lisää kirjanmerkki
+
+Replace queue
+Korvaa jono
+
+Edit smart playlist
+Muokkaa älykästä soittolistaa
+
+Edit playlist
+Muokkaa soittolistaa
+
+Update smart playlist
+Päivitä alykäs soittolista
+
+Delete playlist
+Poista soittolista
+
+Remove
+Poista
+
+Remove all upwards
+Poista kaikki ylempänä
+
+Remove all downwards
+Poista kaikki alempana
+
+Database update started
+Tietokannan päivitys aloitettu
+
+Database successfully updated
+Tietokannan päivitys onnistui
+
+Database update finished
+Tietokannan päivitys valmis
+
+Added songs to %{playlist}
+Kappaleet lisätty soittolistaan %{playlist}
+
+Added songs to queue
+Kappaleet lisätty jonoon
+
+Add random
+Lisää satunnainen
+
+New playlist
+Uusi soittolista
+
+never
+Ei koskaan
+
+Failed to save playlist
+Soittolistan tallennus epäonnistui
+
+Added %{uri} to playlist %{playlist}
+%{uri} lisätty soittolistaan %{playlist}
+
+Sucessfully added random songs to queue
+Satunnaisten kappaleiden lisääminen jonoon onnistui
+
+Adding random songs to queue failed
+Satunnaisten kappaleiden lisääminen jonoon epäonnistui
+
+Deleting smart playlist failed
+Älykkään soittolista poisto epäonnistui
+
+Unknown request
+Tuntematon pyyntö
+
+No response for method %{method}
+Ei vastausta metodiin %{method}
+
+MPD connection error: %{error}
+MPD yhteysvirhe: %{error}
+
+Renaming playlist failed
+Soittolistan nimeäminen epäonnistui
+
+Sucessfully renamed playlist
+Soittolista nimeäminen onnistui
+
+Can not crop the queue
+Ei voi rajata jonoa
+
+Can not read smart playlist file
+Älykkään soittolista tiedoston luku ei onnistu
+
+Can not parse smart playlist file
+Älykkään soittolista tiedoston käsittely ei onnistu
+
+Unknown smart playlist type
+Älykkään soittolistan tyyppi tuntematon
+
+System commands are disabled
+Järjestelmäkomennot on poistettu käytöstä
+
+Saving bookmark failed
+Kirjanmerkin tallennus epäonnistui
+
+Deleting bookmark failed
+Kirjanmerkin poisto epäonnistui
+
+System command not defined
+Järjestelmäkomentoa ei ole määritetty
+
+Successfully execute cmd %{cmd}
+Komennon  %{cmd} suorittaminen onnistui
+
+Failed to execute cmd %{cmd}
+Komennon %{cmd} suorittaminen epäonnistui
+
+Failed to open bookmarks file
+Kirjanmerkki tiedoston avaaminen epäonnistui
+
+No bookmarks found
+Kirjanmerkkejä ei löytynyt
+
+Background
+Tausta
+
+Days
+Päivää
+
+Hours
+Tuntia
+
+Minutes
+Min
+
+Seconds
+Sekuntia
+
+Added all songs
+Kaikki kappaleet lisätty
+
+%{name} added to queue
+%{name} lisätty jonoon
+
+%{name} added to queue position %{to}
+%{name} lisätty jonossa kohtaan %{to}
+
+Queue replaced with %{name}
+Jono korvattu %{name}:lla
+
+Saved smart playlist %{name}
+Älykäs soittolista %{name} tallennettu
+
+System commands
+Järjestelmäkomennot
+
+Focus table
+Tarkenna taulu
+
+Append item to queue
+Lisää kohde jonoon
+
+Replace queue with item
+Korvaa jono kohteella
+
+Type
+Tyyppi
+
+Remove item from queue
+Poista jonosta
+
+Append item to playlist
+Lisää kohde soittolistaan
+
+Fingerprint
+Sormenjälki
+
+Calculate
+Laske
+
+myMPD CA
+myMPD Sertifikaatti
+
+IP-Address
+IP-osoite
+
+Mongoose version
+Mongoose Versio
+
+Webserver
+Webserver
+
+Download
+Lataa
+
+Can't save setting %{setting}
+Ei voi tallentaa asetusta %{setting}
+
+No current song
+Ei toistettavaa kappaletta
+
+No search expression defined
+Hakutermiä ei määritetty
+
+Unknown table %{table}
+Tuntematon taulu %{table}
+
+Fingerprint command not supported
+Sormenjälki komento ei tuettu
+
+MUSICBRAINZ_ALBUMARTISTID
+Musicbrainz AlbumiArtisti ID
+
+MUSICBRAINZ_ALBUMID
+Musicbrainz Albumi ID
+
+MUSICBRAINZ_ARTISTID
+Musicbrainz artisti ID
+
+MUSICBRAINZ_RELEASETRACKID
+Musicbrainz Release Track ID
+
+MUSICBRAINZ_TRACKID
+Musicbrainz Track ID
+
+MUSICBRAINZ_WORKID
+Musicbrainz Työ ID
+
+myMPD is in readonly mode
+myMPD on vain luku tilassa
+
+Consume must be enabled
+Kulutuksen oltava päällä
+
+Advanced
+Lisäasetukset
+
+Successfully croped covercache
+Covercache rajattu onnistuneesti
+
+Successfully cleared covercache
+Covercache tyhjennetty onnistuneesti
+
+Clear covercache
+Tyhjennä Covercache
+
+Clear
+Tyhjennä
+
+Crop
+Rajaa
+
+No albumart found by mpd
+MPD ei löytäny albumi taidetta
+
+Descending
+Laskeva
+
+Covergrid
+Kansitaide
+
+Sort by
+Järjestä
+
+Size normal
+Normaali koko
+
+Size small
+Pieni koko
+
+Dark
+Tumma
+
+Light
+Vaalea
+
+Default
+Vakio
+
+Appearance
+Ulkoasu
+
+Unknown artist
+Tuntematon artisti
+
+Unknown album
+Tuntematon albumi
+
+Show songs
+Näytä kappaleet
+
+JavaScript error
+JavaScript virhe
+
+Definition
+Määritelmä
+
+Enable jukebox if playlist is database
+Salli jukeboksi jos soittolista tietokanta
+
+Enabled
+Päällä
+
+Enforce uniqueness
+Pakota yksilöllisyys
+
+Invalid name
+Virheellinen nimi
+
+Last played older than (hours)
+Viimeksi toistettu vanhempi kuin (Stunden)
+
+Minimum one weekday must be selected
+Vähintään yksi päivä pitää valita
+
+Must be a number and equal or greater than zero
+Pitää olla numero joka on nolla tai suurempi
+
+Timer
+Ajastin
+
+New timer
+Uusi ajastin
+
+Timer with given id not found
+Ajastinta annetulla tunnuksella ei löydy
+
+On
+Päällä
+
+on
+Päällä
+
+Oneshot
+Oneshot
+
+Other features
+Muut ominaisuudet
+
+Start
+Aloita
+
+Start playback
+Aloita toisto
+
+Stop playback
+Pysäytä toisto
+
+Weekdays
+Viikonpäivät
+
+Mon
+Ma
+
+Tue
+Ti
+
+Wed
+Ke
+
+Thu
+To
+
+Fri
+Pe
+
+Sat
+La
+
+Sun
+Sun
+
+System command
+Järjestelmä komento
+
+LastModified
+ViimeksiMuokattu
+
+Best rated
+Paras arvostelu
+
+Most played
+Eniten soitettu
+
+Newest songs
+Uusimmat kappaleet
+
+Add smart playlist
+Lisää älykäs soittolista
+
+Generate smart playlist per
+Luo älykäs soittolista perustuen
+
+Min. value
+Min. arvo
+
+Disabled
+Poistettu käytöstä
+
+Shuffle
+Sekoita
+
+Playlist is too small to shuffle
+Soittolista on liian pieni sekoitettavaksi
+
+Playlist is too small to sort
+Soittolista on liian pieni järjestettäväksi
+
+Shuffle playlist
+Sekoita soittolista
+
+Shuffled playlist succesfully
+Soittolista sekoitetttu onnistuneesti
+
+Sort playlist
+Järjestä soittolista
+
+Sorted playlist succesfully
+Soittolista järjestetty onnistuneesti
+
+search
+haku
+
+newest
+Uusin
+
+sticker
+Sticker
+
+Order
+Järjestys
+
+Sort by tag
+Lahittele tagin mukaan
+
+Update smart playlists (hours)
+Älykkäiden soittolistojen päivitys (tunteja)
+
+Smart playlists prefix
+Älykkäiden soittolistojen etuliite
+
+Invalid prefix
+Virheellinen etuliite
+
+Invalid number
+Virheellinen numero
+
+Leaving playlist as it is
+Soittolista jätetään entiselleen
+
+Delete all playlists
+Poista kaikki soittolistat
+
+Delete all smart playlists
+Poista kaikki älykkäät soittolistat
+
+Delete empty playlists
+Poista tyhjät soittolistat
+
+Delete playlists
+Poista soittolistat
+
+Media session support
+Media Session tuki
+
+Playlists deleted
+Soittolistat poistettu
+
+Preview
+Esikatselu
+
+Info
+Tietoa
+
+Error
+Virhe
+
+MPD connected
+MPD yhdistetty
+
+Websocket connected
+Websocket yhdistetty
+
+Websocket disconnected
+Websocket yhteys katkesi
+
+Websocket is disconnected
+Websocket yhteys on katkaistu
+
+Websocket connection
+Websocket yhteys
+
+Auto
+Auto
+
+Connection state
+Yhteyden tila
+
+Booklet
+Booklet
+
+Booklet filename
+Bookletin tiedostonimi
+
+Lyrics
+Sanoitukset
+
+Pictures
+Kuvat
+
+Notifications are blocked
+Ilmoitukset on estetty
+
+Adding timer failed
+Ajastimen lisäys epäonnistui
+
+Browse directories
+Selaa kansioita
+
+Sorry, your MPD version is too old
+Liian vanha MPD versio
+
+Mounts
+Liitokset
+
+New mount
+Uusi liitos
+
+Backend uri
+Järjestelmä uri
+
+Invalid backend uri
+Virheellinen järjestelmä uri
+
+Invalid mount point
+Virheellinen liityntäköhta
+
+Mount point
+Liityntäkohta
+
+Unmount
+Poista liityntä
+
+No such directory
+Kansiota ei ole
+
+Error in response to command: %{command}
+Virhe komennolla %{command}
+
+Neighbors are disabled
+Naapurit lisäosa poissa käytöstä
+
+No lyrics found
+Sanoituksia ei löydy
+
+Invalid column
+Väärä sarake
