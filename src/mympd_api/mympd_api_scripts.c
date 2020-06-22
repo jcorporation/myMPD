@@ -37,7 +37,14 @@
     #include "lauxlib.h"  
 
 //private definitions
-static void *mympd_api_script_execute(void *script_arg);
+struct t_script_thread_arg {
+    t_config *config;
+    bool localscript;
+    sds script_name;
+    sds script_content;
+};
+
+static void *mympd_api_script_execute(void *script_thread_arg);
 static sds lua_err_to_str(sds buffer, int rc, bool phrase, const char *script);
 static void populate_lua_table(lua_State *lua_vm, t_lua_mympd_state *lua_mympd_state);
 static void populate_lua_table_field_p(lua_State *lua_vm, const char *key, const char *value);
@@ -49,9 +56,10 @@ static int mympd_api(lua_State *lua_vm);
 static int mympd_api_raw(lua_State *lua_vm);
 static int _mympd_api(lua_State *lua_vm, bool raw);
 static int mympd_init(lua_State *lua_vm);
+static void free_t_script_thread_arg(struct t_script_thread_arg *script_thread_arg);
 
 //public functions
-bool mympd_api_script_start(t_config *config, const char *script) {
+bool mympd_api_script_start(t_config *config, const char *script, bool localscript) {
     pthread_t mympd_script_thread;
     pthread_attr_t attr;
     if (pthread_attr_init(&attr) != 0) {
@@ -62,10 +70,20 @@ bool mympd_api_script_start(t_config *config, const char *script) {
         LOG_ERROR("Can not set mympd_script thread to detached");
         return false;
     }
-    sds script_file = sdscatfmt(sdsempty(), "%s/scripts/%s.lua", config->varlibdir, script);
-    if (pthread_create(&mympd_script_thread, &attr, mympd_api_script_execute, script_file) != 0) {
+    struct t_script_thread_arg *script_thread_arg = (struct t_script_thread_arg *)malloc(sizeof(struct t_script_thread_arg));
+    script_thread_arg->config = config;
+    script_thread_arg->localscript = localscript;
+    if (localscript == true) {
+        script_thread_arg->script_name = sdscatfmt(sdsempty(), "%s/scripts/%s.lua", config->varlibdir, script);
+        script_thread_arg->script_content = sdsempty();
+    }
+    else {
+        script_thread_arg->script_name = sdsnew("user_defined");
+        script_thread_arg->script_content = sdsnew(script);
+    }
+    if (pthread_create(&mympd_script_thread, &attr, mympd_api_script_execute, script_thread_arg) != 0) {
         LOG_ERROR("Can not create mympd_script thread");
-        sdsfree(script_file);
+        free_t_script_thread_arg(script_thread_arg);
         return false;
     }
     pthread_setname_np(mympd_script_thread, "mympd_script");
@@ -74,25 +92,57 @@ bool mympd_api_script_start(t_config *config, const char *script) {
 }
 
 //private functions
-static void *mympd_api_script_execute(void *script_arg) {
+static void *mympd_api_script_execute(void *script_thread_arg) {
     thread_logname = sdsreplace(thread_logname, "script");
-    sds script_file = (sds) script_arg;
+    struct t_script_thread_arg *script_arg = (struct t_script_thread_arg *) script_thread_arg;
+    
     const char *script_return_text = NULL;
     lua_State *lua_vm = luaL_newstate();
     if (lua_vm == NULL) {
         LOG_ERROR("Memory allocation error in luaL_newstate");
         sds buffer = jsonrpc_start_phrase_notify(sdsempty(), "Error executing script %{script}: Memory allocation error", false);
-        buffer = tojson_char(buffer, "script", script_file, false);
+        buffer = tojson_char(buffer, "script", script_arg->script_name, false);
         buffer = jsonrpc_end_phrase(buffer);
         ws_notify(buffer);
         sdsfree(buffer);
         sdsfree(thread_logname);
-        sdsfree(script_file);
+        free_t_script_thread_arg(script_arg);
         return NULL;
     }
-    luaL_openlibs(lua_vm);
+    if (strcmp(script_arg->config->lualibs, "all") == 0) {
+        LOG_DEBUG("Open all standard lua libs");
+        luaL_openlibs(lua_vm);
+    }
+    else {
+        int count;
+        sds *tokens = sdssplitlen(script_arg->config->lualibs, sdslen(script_arg->config->lualibs), ",", 1, &count);
+        for (int i = 0; i < count; i++) {
+            sdstrim(tokens[i], " ");
+            LOG_DEBUG("Open lua library %s", tokens[i]);
+            if (strcmp(tokens[i], "base") == 0)           { luaopen_base(lua_vm); }
+            else if (strcmp(tokens[i], "package") == 0)   { luaopen_package(lua_vm); }
+            else if (strcmp(tokens[i], "coroutine") == 0) { luaopen_coroutine(lua_vm); }
+            else if (strcmp(tokens[i], "string") == 0)    { luaopen_string(lua_vm); }
+            else if (strcmp(tokens[i], "utf8") == 0)      { luaopen_utf8(lua_vm); }
+            else if (strcmp(tokens[i], "table") == 0)     { luaopen_table(lua_vm); }
+            else if (strcmp(tokens[i], "math") == 0)      { luaopen_math(lua_vm); }
+            else if (strcmp(tokens[i], "io") == 0)        { luaopen_io(lua_vm); }
+            else if (strcmp(tokens[i], "os") == 0)        { luaopen_os(lua_vm); }
+            else if (strcmp(tokens[i], "debug") == 0)     { luaopen_package(lua_vm); }
+            else {
+                LOG_ERROR("Can not open lua library %s", tokens[i]);
+            }
+        }
+        sdsfreesplitres(tokens,count);
+    }
     register_lua_functions(lua_vm);
-    int rc = luaL_loadfilex(lua_vm, script_file, "t");
+    int rc;
+    if (script_arg->localscript == true) {
+        rc = luaL_loadfilex(lua_vm, script_arg->script_name, "t");
+    }
+    else {
+        rc = luaL_loadstring(lua_vm, script_arg->script_content);
+    }
     if (rc == 0) {
         rc = lua_pcall(lua_vm, 0, 1, 0);
     }
@@ -103,7 +153,7 @@ static void *mympd_api_script_execute(void *script_arg) {
     if (rc == 0) {
         if (script_return_text == NULL) {
             sds buffer = jsonrpc_start_phrase_notify(sdsempty(), "Script %{script} executed successfully", false);
-            buffer = tojson_char(buffer, "script", script_file, false);
+            buffer = tojson_char(buffer, "script", script_arg->script_name, false);
             buffer = jsonrpc_end_phrase(buffer);
             ws_notify(buffer);
             sdsfree(buffer);
@@ -113,17 +163,17 @@ static void *mympd_api_script_execute(void *script_arg) {
         }
     }
     else {
-        sds err_str = lua_err_to_str(sdsempty(), rc, true, script_file);
+        sds err_str = lua_err_to_str(sdsempty(), rc, true, script_arg->script_name);
         if (script_return_text != NULL) {
             err_str = sdscatfmt(err_str, ": %s", script_return_text);
         }
         sds buffer = jsonrpc_start_phrase_notify(sdsempty(), err_str, true);
-        buffer = tojson_char(buffer, "script", script_file, false);
+        buffer = tojson_char(buffer, "script", script_arg->script_name, false);
         buffer = jsonrpc_end_phrase(buffer);
         ws_notify(buffer);
         sdsfree(buffer);
         err_str = sdscrop(err_str);
-        err_str = lua_err_to_str(err_str, rc, false, script_file);
+        err_str = lua_err_to_str(err_str, rc, false, script_arg->script_name);
         if (script_return_text != NULL) {
             err_str = sdscatfmt(err_str, ": %s", script_return_text);
         }
@@ -131,8 +181,8 @@ static void *mympd_api_script_execute(void *script_arg) {
         sdsfree(err_str);
     }
     lua_close(lua_vm);
-    sdsfree(script_file);
     sdsfree(thread_logname);
+    free_t_script_thread_arg(script_arg);
     return NULL;
 }
 
@@ -326,4 +376,9 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
     return luaL_error(lua_vm, "No API response, timeout after 10s");
 }
 
+static void free_t_script_thread_arg(struct t_script_thread_arg *script_thread_arg) {
+    sdsfree(script_thread_arg->script_name);
+    sdsfree(script_thread_arg->script_content);
+    free(script_thread_arg);
+}
 #endif

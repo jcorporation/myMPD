@@ -124,7 +124,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             if (config->scripting == true) {
                 je = json_scanf(request->data, sdslen(request->data), "{params: {script: %Q}}", &p_charbuf1);
                 if (je == 1 && validate_string_not_empty(p_charbuf1) == true) {
-                    rc = mympd_api_script_start(config, p_charbuf1);
+                    rc = mympd_api_script_start(config, p_charbuf1, true);
                     if (rc == true) {
                         response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
                     }
@@ -138,6 +138,21 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             } 
             else {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Scripting is disabled", true);
+            }
+            break;
+        case MYMPD_API_SCRIPT_POST_EXECUTE:
+            if (config->remotescripting == true) {
+                je = json_scanf(request->data, sdslen(request->data), "{params: {script: %Q}}", &p_charbuf1);
+                rc = mympd_api_script_start(config, p_charbuf1, false);
+                if (rc == true) {
+                    response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+                }
+                else {
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Can't create mympd_script thread", true);
+                }
+            } 
+            else {
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Remote scripting is disabled", true);
             }
             break;
         #endif

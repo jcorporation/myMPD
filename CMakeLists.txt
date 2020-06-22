@@ -14,8 +14,6 @@ set(CPACK_PACKAGE_VERSION_MAJOR "6")
 set(CPACK_PACKAGE_VERSION_MINOR "5")
 set(CPACK_PACKAGE_VERSION_PATCH "0")
 
-add_subdirectory("cli_tools")
-
 if(EXISTS "/etc/arch-release")
   set(WEBAPPS "/webapps/${PROJECT_NAME}")
 else()
@@ -105,6 +103,8 @@ else()
   message("Lua is disabled")
   set(ENABLE_LUA "OFF")
 endif()
+
+add_subdirectory("cli_tools")
 
 configure_file(src/config_defs.h.in ${PROJECT_BINARY_DIR}/config_defs.h)
 configure_file(cmake/CopyConfig.cmake.in cmake/CopyConfig.cmake @ONLY)

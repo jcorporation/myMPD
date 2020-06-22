@@ -56,6 +56,7 @@ fi
 %doc README.md LICENSE
 /usr/bin/mympd
 /usr/bin/mympd-config
+/usr/bin/mympd-script
 /usr/lib/systemd/system/mympd.service
 %config(noreplace) /etc/mympd.conf
 

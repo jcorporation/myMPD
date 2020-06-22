@@ -21,7 +21,7 @@ if(${MEMCHECK} MATCHES "TRUE")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -Wall -Werror")
   set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -ggdb")
 else()
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -O1 -Wall -Werror -fstack-protector -D_FORTIFY_SOURCE=2 -pie -fPIE")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -O1 -Wall -Werror -fstack-protector -D_FORTIFY_SOURCE=2 -pie -fPIE ${MONGOOSE_SSL}")
   set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -s")
   set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -ggdb -fsanitize=address \
         -fsanitize=undefined -fsanitize=shift -fsanitize=integer-divide-by-zero -fsanitize=unreachable -fsanitize=vla-bound \
@@ -33,7 +33,9 @@ endif()
 #compiler flags for non library files
 file(GLOB SRC_FILES "*.c")
 set_property(SOURCE ${SRC_FILES1} PROPERTY COMPILE_FLAGS "-Wextra -pedantic -Wformat=2 -Wunused-parameter -Wshadow -Wwrite-strings \
-        -Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs -Wmissing-include-dirs")
+        -Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs -Wmissing-include-dirs ${MONGOOSE_SSL}")
+
+set_property(SOURCE "../dist/src/mongoose/mongoose.c" PROPERTY COMPILE_FLAGS "-Wno-format-truncation ${MONGOOSE_SSL}")
 
 #linker flags
 set (CMAKE_EXE_LINKER_FLAGS "-Wl,-z,relro -Wl,-z,now")
@@ -47,3 +49,20 @@ set(MYMPD_CONFIG_SOURCES
 add_executable(mympd-config ${MYMPD_CONFIG_SOURCES})
 target_link_libraries(mympd-config)
 install(TARGETS mympd-config DESTINATION ${CMAKE_INSTALL_FULL_BINDIR})
+
+if (LUA_FOUND)
+  set(MYMPD_SCRIPT_SOURCES
+    mympd-script.c
+    ../dist/src/mongoose/mongoose.c
+    ../dist/src/sds/sds.c
+    ../src/sds_extras.c
+  )
+
+  add_executable(mympd-script ${MYMPD_SCRIPT_SOURCES})
+  target_link_libraries(mympd-script)
+  if (OPENSSL_FOUND)
+    target_link_libraries(mympd-script ${OPENSSL_LIBRARIES})
+  endif()
+
+  install(TARGETS mympd-script DESTINATION ${CMAKE_INSTALL_FULL_BINDIR})
+endif()

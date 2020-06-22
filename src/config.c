@@ -80,6 +80,14 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
         p_config->ssl_san = sdsreplace(p_config->ssl_san, value);
     }
 #endif
+    else if (MATCH("webserver", "acl")) {
+        p_config->acl = sdsreplace(p_config->acl, value);
+    }
+#ifdef ENABLE_LUA
+    else if (MATCH("webserver", "scriptacl")) {
+        p_config->scriptacl = sdsreplace(p_config->scriptacl, value);
+    }
+#endif
     else if (MATCH("webserver", "publish")) {
         p_config->publish = strtobool(value);
     }
@@ -251,6 +259,12 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("mympd", "scripting")) {
         p_config->scripting = strtobool(value);
     }
+    else if (MATCH("mympd", "remotescripting")) {
+        p_config->remotescripting = strtobool(value);
+    }
+    else if (MATCH("mympd", "lualibs")) {
+        p_config->lualibs = sdsreplace(p_config->lualibs, value);
+    }
     #endif
     else if (MATCH("theme", "theme")) {
         p_config->theme = sdsreplace(p_config->theme, value);
@@ -315,7 +329,10 @@ static void mympd_parse_env(struct t_config *config, const char *envvar) {
 static void mympd_get_env(struct t_config *config) {
     const char *env_vars[]={"MPD_HOST", "MPD_PORT", "MPD_PASS", "MPD_MUSICDIRECTORY",
         "MPD_PLAYLISTDIRECTORY", "MPD_REGEX", "WEBSERVER_WEBPORT", "WEBSERVER_PUBLISH",
-        "WEBSERVER_WEBDAV",
+        "WEBSERVER_WEBDAV", "WEBSERVER_ACL", 
+      #ifdef ENABLE_LUA
+        "WEBSERVER_SCRIPTACL",
+      #endif
       #ifdef ENABLE_SSL
         "WEBSERVER_SSL", "WEBSERVER_SSLPORT", "WEBSERVER_SSLCERT", "WEBSERVER_SSLKEY",
         "WEBSERVER_SSLSAN", 
@@ -334,7 +351,10 @@ static void mympd_get_env(struct t_config *config) {
         "MYMPD_COLSBROWSEFILESYSTEM", "MYMPD_COLSPLAYBACK", "MYMPD_COLSQUEUELASTPLAYED",
         "MYMPD_LOCALPLAYER", "MYMPD_LOCALPLAYERAUTOPLAY", "MYMPD_STREAMPORT",
         "MYMPD_STREAMURL", "MYMPD_VOLUMESTEP", "MYMPD_COVERCACHEKEEPDAYS", "MYMPD_COVERCACHE",
-        "MYMPD_COVERCACHEAVOID", "MYMPD_LYRICS", "MYMPD_SCRIPTING",
+        "MYMPD_COVERCACHEAVOID", "MYMPD_LYRICS", 
+      #ifdef ENABLE_LUA
+        "MYMPD_SCRIPTING", "MYMPD_REMOTESCRIPTING", "MYMPD_LUALIBS",
+      #endif
         "THEME_THEME", "THEME_CUSTOMPLACEHOLDERIMAGES",
         "THEME_BGCOVER", "THEME_BGCOLOR", "THEME_BGCSSFILTER", "THEME_COVERGRIDSIZE",
         "THEME_COVERIMAGE", "THEME_COVERIMAGENAME", "THEME_COVERIMAGESIZE",
@@ -386,6 +406,9 @@ void mympd_free_config(t_config *config) {
     sdsfree(config->smartpls_sort);
     sdsfree(config->smartpls_prefix);
     sdsfree(config->booklet_name);
+    sdsfree(config->acl);
+    sdsfree(config->scriptacl);
+    sdsfree(config->lualibs);
     list_free(&config->syscmd_list);
     FREE_PTR(config);
 }
@@ -472,6 +495,10 @@ void mympd_config_defaults(t_config *config) {
     config->mounts = true;
     config->lyrics = true;
     config->scripting = false;
+    config->remotescripting = false;
+    config->acl = sdsempty();
+    config->scriptacl = sdsnew("-0.0.0.0/0,+127.0.0.0/8");
+    config->lualibs = sdsnew("base, string, utf8, table, math");
     list_init(&config->syscmd_list);
 }
 
@@ -505,25 +532,35 @@ bool mympd_dump_config(void) {
     
     fprintf(fp, "[webserver]\n"
         "webport = %s\n"
-    #ifdef ENABLE_SSL
+      #ifdef ENABLE_SSL
         "ssl = %s\n"
         "sslport = %s\n"
         "sslcert = %s\n"
         "sslkey = %s\n"
         "sslsan = %s\n"
-    #endif
+      #endif
         "publish = %s\n"
-        "webdav = %s\n\n",
+        "webdav = %s\n"
+        "acl = %s\n"
+      #ifdef ENABLE_LUA
+        "scriptacl = %s\n"
+      #endif
+        "\n",
         p_config->webport,
-    #ifdef ENABLE_SSL
+      #ifdef ENABLE_SSL
         (p_config->ssl == true ? "true" : "false"),
         p_config->ssl_port,
         p_config->ssl_cert,
         p_config->ssl_key,
         p_config->ssl_san,
-    #endif
+      #endif
         (p_config->publish == true ? "true" : "false"),
-        (p_config->webdav == true ? "true" : "false")
+        (p_config->webdav == true ? "true" : "false"),
+        p_config->acl
+      #ifdef ENABLE_LUA
+        ,
+        p_config->scriptacl
+      #endif  
     );
 
     fprintf(fp, "[mympd]\n"
@@ -548,6 +585,8 @@ bool mympd_dump_config(void) {
         "syscmds = %s\n"
     #ifdef ENABLE_LUA
         "scripting = %s\n"
+        "remotescripting = %s\n"
+        "lualibs = %s\n"
     #endif
         "timer = %s\n"
         "lastplayedcount = %d\n"
@@ -603,6 +642,8 @@ bool mympd_dump_config(void) {
         (p_config->syscmds == true ? "true" : "false"),
     #ifdef ENABLE_LUA
         (p_config->scripting == true ? "true" : "false"),
+        (p_config->remotescripting == true ? "true" : "false"),
+        p_config->lualibs,
     #endif
         (p_config->timer == true ? "true" : "false"),
         p_config->last_played_count,
@@ -713,6 +754,11 @@ bool mympd_read_config(t_config *config, sds configfile) {
     if (config->chroot == true && config->syscmds == true) {
         LOG_INFO("Chroot enabled, disabling syscmds");
         config->syscmds = false;
+    }
+    
+    if (config->scripting == false && config->remotescripting == true) {
+        LOG_INFO("Scripting disabled, disabling remote scripting");
+        config->remotescripting = false;
     }
     return true;
 }

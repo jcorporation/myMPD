@@ -102,7 +102,8 @@
     X(MYMPD_API_TIMER_RM) \
     X(MYMPD_API_TIMER_TOGGLE) \
     X(MYMPD_API_SCRIPT_INIT) \
-    X(MYMPD_API_SCRIPT_EXECUTE)
+    X(MYMPD_API_SCRIPT_EXECUTE) \
+    X(MYMPD_API_SCRIPT_POST_EXECUTE)
 
 #define GEN_ENUM(X) X,
 #define GEN_STR(X) #X,
@@ -114,4 +115,5 @@ enum mympd_cmd_ids {
 
 //global functions
 enum mympd_cmd_ids get_cmd_id(const char *cmd);
+bool is_public_api_method(enum mympd_cmd_ids cmd_id);
 #endif
