@@ -1,0 +1,6 @@
+{
+  "extends": "stylelint-config-standard",
+  "ignoreFiles": [
+    "dist/htdocs/css/*.css"
+   ]
+}
