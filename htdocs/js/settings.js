@@ -297,15 +297,29 @@ function parseSettings() {
         let scriptListLen = settings.scriptList.length;
         if (scriptListLen > 0) {
             timerActions += '<optgroup data-value="script" label="' + t('Script') + '">';
-            scriptList = scriptListLen > scriptMaxListLen ? '' : '<div class="dropdown-divider"></div>';
+            settings.scriptList.sort();
+            let mi = 0;
             for (let i = 0; i < scriptListLen; i++) {
+                let scriptDisplayname = settings.scriptList[i];
+                let p = scriptDisplayname.match(/^(\d+)(.+)$/);
+                let inMainmenu = false;
+                if (p !== null) {
+                    scriptDisplayname = p[2];
+                    inMainmenu = true;
+                }
                 if (settings.scriptList[i] === 'HR') {
                     scriptList += '<div class="dropdown-divider"></div>';
                 }
                 else {
-                    scriptList += '<a class="dropdown-item text-light alwaysEnabled" href="#" data-href=\'{"cmd": "execScript", "options": ["' + 
-                        e(settings.scriptList[i]) + '"]}\'>' + e(settings.scriptList[i]) + '</a>';
-                    timerActions += '<option value="' + e(settings.scriptList[i]) + '">' + e(settings.scriptList[i]) + '</option>';
+                    if (inMainmenu === true) {
+                        if (mi === 0) {
+                            scriptList = scriptListLen > scriptMaxListLen ? '' : '<div class="dropdown-divider"></div>';
+                        }
+                        mi++;
+                        scriptList += '<a title="' + e(settings.scriptList[i]) + '" class="dropdown-item text-light alwaysEnabled" href="#" data-href=\'{"cmd": "execScript", "options": ["' + 
+                            e(settings.scriptList[i]) + '"]}\'>' + e(scriptDisplayname) + '</a>';
+                    }
+                    timerActions += '<option value="' + e(settings.scriptList[i]) + '">' + e(scriptDisplayname) + '</option>';
                 }
             }
         }
