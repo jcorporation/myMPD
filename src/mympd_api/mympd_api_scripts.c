@@ -40,6 +40,7 @@
 struct t_script_thread_arg {
     t_config *config;
     bool localscript;
+    sds script_fullpath;
     sds script_name;
     sds script_content;
 };
@@ -74,11 +75,13 @@ bool mympd_api_script_start(t_config *config, const char *script, bool localscri
     script_thread_arg->config = config;
     script_thread_arg->localscript = localscript;
     if (localscript == true) {
-        script_thread_arg->script_name = sdscatfmt(sdsempty(), "%s/scripts/%s.lua", config->varlibdir, script);
+        script_thread_arg->script_name = sdsnew(script);
+        script_thread_arg->script_fullpath = sdscatfmt(sdsempty(), "%s/scripts/%s.lua", config->varlibdir, script);
         script_thread_arg->script_content = sdsempty();
     }
     else {
         script_thread_arg->script_name = sdsnew("user_defined");
+        script_thread_arg->script_fullpath = sdsempty();
         script_thread_arg->script_content = sdsnew(script);
     }
     if (pthread_create(&mympd_script_thread, &attr, mympd_api_script_execute, script_thread_arg) != 0) {
@@ -129,26 +132,32 @@ static void *mympd_api_script_execute(void *script_thread_arg) {
             else if (strcmp(tokens[i], "io") == 0)        { luaopen_io(lua_vm); }
             else if (strcmp(tokens[i], "os") == 0)        { luaopen_os(lua_vm); }
             else if (strcmp(tokens[i], "debug") == 0)     { luaopen_package(lua_vm); }
+            else if (strcmp(tokens[i], "bit32") == 0)     { luaopen_bit32(lua_vm); }
             else {
                 LOG_ERROR("Can not open lua library %s", tokens[i]);
+                continue;
             }
+            lua_pop(lua_vm, 1);
         }
         sdsfreesplitres(tokens,count);
     }
     register_lua_functions(lua_vm);
     int rc;
     if (script_arg->localscript == true) {
-        rc = luaL_loadfilex(lua_vm, script_arg->script_name, "t");
+        rc = luaL_loadfilex(lua_vm, script_arg->script_fullpath, "t");
     }
     else {
         rc = luaL_loadstring(lua_vm, script_arg->script_content);
     }
     if (rc == 0) {
+        LOG_DEBUG("Start script");
         rc = lua_pcall(lua_vm, 0, 1, 0);
+        LOG_DEBUG("End script");
     }
     if (lua_gettop(lua_vm) == 1) {
         //return value on stack
         script_return_text = lua_tostring(lua_vm, 1);
+        LOG_DEBUG("Script return value: %s");
     }
     if (rc == 0) {
         if (script_return_text == NULL) {
@@ -294,9 +303,11 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
         return luaL_error(lua_vm, "Invalid method");
     }
 
-    pid_t tid = gettid();
+    //pid_t tid = gettid();
+    pthread_t tid = pthread_self();
+    
     t_work_request *request = create_request(-2, tid, method_id, method, "");
-    request->data = sdscatprintf(request->data, "{\"jsonrpc\":\"2.0\",\"id\":%d,\"method\":\"%s\",\"params\":{", tid, method);
+    request->data = sdscatprintf(request->data, "{\"jsonrpc\":\"2.0\",\"id\":%ld,\"method\":\"%s\",\"params\":{", tid, method);
     if (raw == false) {
         for (int i = 2; i < n; i = i + 2) {
             if (lua_isboolean(lua_vm, i + 1)) {
@@ -378,6 +389,7 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
 
 static void free_t_script_thread_arg(struct t_script_thread_arg *script_thread_arg) {
     sdsfree(script_thread_arg->script_name);
+    sdsfree(script_thread_arg->script_fullpath);
     sdsfree(script_thread_arg->script_content);
     free(script_thread_arg);
 }
