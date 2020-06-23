@@ -1394,3 +1394,9 @@ Skripte sind deaktiviert
 
 Scripts
 Skripte
+
+Invalid script API request
+Ungültiger Script-API Aufruf
+
+Remote scripting is disabled
+Remotescripting ist deaktiviert
