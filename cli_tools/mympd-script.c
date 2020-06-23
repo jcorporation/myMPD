@@ -62,7 +62,7 @@ int main(int argc, char **argv) {
     
     if (argc == 2) {
         uri = sdscat(uri, "/api/script");
-        char c;
+        int c;
         sds script_data = sdsempty();
         while ((c = getchar()) != EOF) {
             script_data = sdscatlen(script_data, &c, 1);
