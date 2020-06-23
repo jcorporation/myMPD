@@ -51,7 +51,7 @@ int sdssplit_whitespace(sds line, sds *name, sds *value) {
     *name = sdsempty();
     *value = sdsempty();
     int tokens = 0;
-    int i = 0;
+    unsigned i = 0;
     const char *p = line;
     
     if (*p == '#') {
@@ -134,17 +134,17 @@ bool parse_mpd_conf(struct t_config *pconfig) {
                     }
                 }
                 else if (strcasecmp(name, "password") == 0) {
-                    sds *tokens;
+                    sds *pwtokens;
                     int count;
-                    tokens = sdssplitlen(value, strlen(value), "@", 1, &count);
+                    pwtokens = sdssplitlen(value, strlen(value), "@", 1, &count);
                     if (count == 2) {
-                        if (sdslen(pconfig->pass) == 0 || strstr(tokens[1], "admin") != NULL) {
+                        if (sdslen(pconfig->pass) == 0 || strstr(pwtokens[1], "admin") != NULL) {
                             //use prefered the entry with admin privileges or as fallback the first entry
-                            pconfig->pass = sdsreplace(pconfig->pass, tokens[0]);
+                            pconfig->pass = sdsreplace(pconfig->pass, pwtokens[0]);
                             if (verbose) { printf("\tSetting mpd password\n"); }
                         }
                     }
-                    sdsfreesplitres(tokens, count);
+                    sdsfreesplitres(pwtokens, count);
                 }
             }
             sdsfree(name);
@@ -284,7 +284,7 @@ bool parse_options(struct t_config *pconfig, int argc, char **argv) {
     return true;
 }
 
-sds find_mpd_conf() {
+sds find_mpd_conf(void) {
     const char *filenames[] = { 
         "/etc/mpd.conf",
         "/usr/local/etc/mpd.conf",
@@ -306,7 +306,7 @@ sds find_mpd_conf() {
     return filename;
 }
 
-sds find_mpd_exe() {
+sds find_mpd_exe(void) {
     const char *filenames[] = { 
         "/usr/bin/mpd",
         "/usr/local/bin/mpd",

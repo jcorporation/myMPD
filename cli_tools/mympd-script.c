@@ -6,14 +6,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <stdbool.h>
-#include <string.h>
-#include <ctype.h>
 #include <inttypes.h>
-#include <getopt.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 
 #include "../dist/src/mongoose/mongoose.h"
 #include "../dist/src/sds/sds.h"
@@ -21,9 +14,11 @@
 
 static int s_exit_flag = 0;
 
-void print_usage(char **argv) {
-    fprintf(stderr, "Usage: %s <URL>\n"
-                    "myMPD script utility, for details look at https://github.com/jcorporation/myMPD\n\n",
+static void print_usage(char **argv) {
+    fprintf(stderr, "Usage: %s <URL> [scriptname]\n"
+                    "myMPD script utility\n"
+                    "If scriptname is omitted, the script is read from stdin.\n"
+                    "For further details look at https://github.com/jcorporation/myMPD/wiki/Scripting\n\n",
             argv[0]);
 }
 
