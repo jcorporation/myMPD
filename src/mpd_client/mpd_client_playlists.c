@@ -50,7 +50,7 @@ void mpd_client_smartpls_update_all(void) {
     tiny_queue_push(mpd_worker_queue, request, 0);
 }
 
-sds mpd_client_put_playlists(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, int request_id,
+sds mpd_client_put_playlists(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id,
                              const unsigned int offset, const char *filter, bool paginated) 
 {
     buffer = jsonrpc_start_result(buffer, method, request_id);
@@ -103,7 +103,7 @@ sds mpd_client_put_playlists(t_config *config, t_mpd_client_state *mpd_client_st
     return buffer;
 }
 
-sds mpd_client_put_playlist_list(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, int request_id,
+sds mpd_client_put_playlist_list(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id,
                                  const char *uri, const unsigned int offset, const char *filter, const t_tags *tagcols)
 {
     bool rc = mpd_send_list_playlist_meta(mpd_client_state->mpd_state->conn, uri);
@@ -159,7 +159,7 @@ sds mpd_client_put_playlist_list(t_config *config, t_mpd_client_state *mpd_clien
     return buffer;
 }
 
-sds mpd_client_playlist_rename(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, int request_id,
+sds mpd_client_playlist_rename(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id,
                                 const char *old_playlist, const char *new_playlist)
 {
     if (validate_string_not_dir(old_playlist) == false || validate_string_not_dir(new_playlist) == false) {
@@ -193,7 +193,7 @@ sds mpd_client_playlist_rename(t_config *config, t_mpd_client_state *mpd_client_
     return buffer;
 }
 
-sds mpd_client_playlist_delete(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, int request_id,
+sds mpd_client_playlist_delete(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id,
                                const char *playlist) {
     if (validate_string_not_dir(playlist) == false) {
         buffer = jsonrpc_respond_message(buffer, method, request_id, "Invalid filename", true);
@@ -218,7 +218,7 @@ sds mpd_client_playlist_delete(t_config *config, t_mpd_client_state *mpd_client_
     return buffer;
 }
 
-sds mpd_client_smartpls_put(t_config *config, sds buffer, sds method, int request_id,
+sds mpd_client_smartpls_put(t_config *config, sds buffer, sds method, long request_id,
                             const char *playlist)
 {
     if (validate_string_not_dir(playlist) == false) {
@@ -313,7 +313,7 @@ sds mpd_client_smartpls_put(t_config *config, sds buffer, sds method, int reques
     return buffer;
 }
 
-sds mpd_client_playlist_delete_all(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, int request_id,
+sds mpd_client_playlist_delete_all(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id,
                                    const char *type)
 {
     bool rc = mpd_send_list_playlists(mpd_client_state->mpd_state->conn);

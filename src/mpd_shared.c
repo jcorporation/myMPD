@@ -57,7 +57,7 @@ void mpd_shared_mpd_disconnect(t_mpd_state *mpd_state) {
 }
 
 bool check_rc_error_and_recover(t_mpd_state *mpd_state, sds *buffer, 
-                                sds method, int request_id, bool notify, bool rc, const char *command)
+                                sds method, long request_id, bool notify, bool rc, const char *command)
 {
     if (check_error_and_recover2(mpd_state, buffer, method, request_id, notify) == false) {
         LOG_ERROR("Error in response to command %s", command);
@@ -74,7 +74,7 @@ bool check_rc_error_and_recover(t_mpd_state *mpd_state, sds *buffer,
     return true;
 }
 
-bool check_error_and_recover2(t_mpd_state *mpd_state, sds *buffer, sds method, int request_id, bool notify) {
+bool check_error_and_recover2(t_mpd_state *mpd_state, sds *buffer, sds method, long request_id, bool notify) {
     enum mpd_error error = mpd_connection_get_error(mpd_state->conn);
     if (error  != MPD_ERROR_SUCCESS) {
         const char *error_msg = mpd_connection_get_error_message(mpd_state->conn);
@@ -107,7 +107,7 @@ bool check_error_and_recover2(t_mpd_state *mpd_state, sds *buffer, sds method, i
     return true;
 }
 
-sds check_error_and_recover(t_mpd_state *mpd_state, sds buffer, sds method, int request_id) {
+sds check_error_and_recover(t_mpd_state *mpd_state, sds buffer, sds method, long request_id) {
     check_error_and_recover2(mpd_state, &buffer, method, request_id, false);
     return buffer;
 }
@@ -117,7 +117,7 @@ sds check_error_and_recover_notify(t_mpd_state *mpd_state, sds buffer) {
     return buffer;
 }
 
-sds respond_with_command_error(sds buffer, sds method, int request_id, const char *command) {
+sds respond_with_command_error(sds buffer, sds method, long request_id, const char *command) {
     buffer = sdscrop(buffer);
     buffer = jsonrpc_start_phrase(buffer, method, request_id, "Error in response to command: %{command}", true);
     buffer = tojson_char(buffer, "command", command, false);
@@ -125,7 +125,7 @@ sds respond_with_command_error(sds buffer, sds method, int request_id, const cha
     return buffer;
 }
 
-sds respond_with_mpd_error_or_ok(t_mpd_state *mpd_state, sds buffer, sds method, int request_id, bool rc, const char *command) {
+sds respond_with_mpd_error_or_ok(t_mpd_state *mpd_state, sds buffer, sds method, long request_id, bool rc, const char *command) {
     buffer = sdscrop(buffer);
     if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
         LOG_ERROR("Error in response to command: %s", command);

@@ -91,7 +91,7 @@ sds mpd_client_put_queue_state(struct mpd_status *status, sds buffer) {
     return buffer;
 }
 
-sds mpd_client_put_queue(t_mpd_client_state *mpd_client_state, sds buffer, sds method, int request_id,
+sds mpd_client_put_queue(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id,
                          const unsigned int offset, const t_tags *tagcols)
 {
     struct mpd_status *status = mpd_run_status(mpd_client_state->mpd_state->conn);
@@ -145,7 +145,7 @@ sds mpd_client_put_queue(t_mpd_client_state *mpd_client_state, sds buffer, sds m
     return buffer;
 }
 
-sds mpd_client_crop_queue(t_mpd_client_state *mpd_client_state, sds buffer, sds method, int request_id, bool or_clear) {
+sds mpd_client_crop_queue(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, bool or_clear) {
     struct mpd_status *status = mpd_run_status(mpd_client_state->mpd_state->conn);
     if (status == NULL) {
         buffer = check_error_and_recover(mpd_client_state->mpd_state, buffer, method, request_id);
@@ -188,7 +188,7 @@ sds mpd_client_crop_queue(t_mpd_client_state *mpd_client_state, sds buffer, sds 
     return buffer;
 }
 
-sds mpd_client_search_queue(t_mpd_client_state *mpd_client_state, sds buffer, sds method, int request_id,
+sds mpd_client_search_queue(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id,
                             const char *mpdtagtype, const unsigned int offset, const char *searchstr, const t_tags *tagcols)
 {
     bool rc = mpd_search_queue_songs(mpd_client_state->mpd_state->conn, false);

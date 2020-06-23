@@ -49,7 +49,7 @@ sds mpd_client_get_updatedb_state(t_mpd_client_state *mpd_client_state, sds buff
     return buffer;    
 }
 
-sds mpd_client_put_state(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, int request_id) {
+sds mpd_client_put_state(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id) {
     struct mpd_status *status = mpd_run_status(mpd_client_state->mpd_state->conn);
     if (status == NULL) {
         if (method == NULL) {
@@ -171,7 +171,7 @@ bool mpd_client_get_lua_mympd_state(t_config *config, t_mpd_client_state *mpd_cl
     return true;
 }
 
-sds mpd_client_put_volume(t_mpd_client_state *mpd_client_state, sds buffer, sds method, int request_id) {
+sds mpd_client_put_volume(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id) {
     struct mpd_status *status = mpd_run_status(mpd_client_state->mpd_state->conn);
     if (status == NULL) {
         if (method == NULL) {
@@ -201,7 +201,7 @@ sds mpd_client_put_volume(t_mpd_client_state *mpd_client_state, sds buffer, sds 
     return buffer;
 }
 
-sds mpd_client_put_outputs(t_mpd_client_state *mpd_client_state, sds buffer, sds method, int request_id) {
+sds mpd_client_put_outputs(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id) {
     bool rc = mpd_send_outputs(mpd_client_state->mpd_state->conn);
     if (check_rc_error_and_recover(mpd_client_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_send_outputs") == false) {
         return buffer;
@@ -234,7 +234,7 @@ sds mpd_client_put_outputs(t_mpd_client_state *mpd_client_state, sds buffer, sds
     return buffer;
 }
 
-sds mpd_client_put_current_song(t_mpd_client_state *mpd_client_state, sds buffer, sds method, int request_id) {
+sds mpd_client_put_current_song(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id) {
     struct mpd_song *song = mpd_run_current_song(mpd_client_state->mpd_state->conn);
     if (song == NULL) {
         if (check_error_and_recover2(mpd_client_state->mpd_state, &buffer, method, request_id, false) == false) {

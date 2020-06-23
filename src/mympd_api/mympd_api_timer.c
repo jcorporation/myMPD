@@ -285,7 +285,7 @@ time_t timer_calc_starttime(int start_hour, int start_minute) {
     return 86400 + start - now;
 }
 
-sds timer_list(t_mympd_state *mympd_state, sds buffer, sds method, int request_id) {
+sds timer_list(t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
     buffer = jsonrpc_start_result(buffer, method, request_id);
     buffer = sdscat(buffer, ",\"data\":[");
     int entities_returned = 0;
@@ -324,7 +324,7 @@ sds timer_list(t_mympd_state *mympd_state, sds buffer, sds method, int request_i
     return buffer;
 }
 
-sds timer_get(t_mympd_state *mympd_state, sds buffer, sds method, int request_id, int timer_id) {
+sds timer_get(t_mympd_state *mympd_state, sds buffer, sds method, long request_id, int timer_id) {
     buffer = jsonrpc_start_result(buffer, method, request_id);
     buffer = sdscat(buffer, ",");
     bool found = false;

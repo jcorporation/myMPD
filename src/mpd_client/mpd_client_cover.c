@@ -24,7 +24,7 @@
 #include "mpd_client_utility.h"
 #include "mpd_client_cover.h"
 
-sds mpd_client_getcover(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, int request_id,
+sds mpd_client_getcover(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id,
                         const char *uri, sds *binary)
 {
     unsigned offset = 0;

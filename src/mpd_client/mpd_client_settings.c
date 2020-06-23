@@ -240,7 +240,7 @@ bool mpd_api_settings_set(t_config *config, t_mpd_client_state *mpd_client_state
     return rc;
 }
 
-sds mpd_client_put_settings(t_mpd_client_state *mpd_client_state, sds buffer, sds method, int request_id) {
+sds mpd_client_put_settings(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id) {
     struct mpd_status *status = mpd_run_status(mpd_client_state->mpd_state->conn);
     if (status == NULL) {
         buffer = check_error_and_recover(mpd_client_state->mpd_state, buffer, method, request_id);

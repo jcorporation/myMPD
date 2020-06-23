@@ -78,9 +78,9 @@ sds jsonrpc_notify(sds buffer, const char *method) {
     return buffer;
 }
 
-sds jsonrpc_start_result(sds buffer, const char *method, int id) {
+sds jsonrpc_start_result(sds buffer, const char *method, long id) {
     buffer = sdscrop(buffer);
-    buffer = sdscatprintf(buffer, "{\"jsonrpc\":\"2.0\",\"id\":%d,\"result\":{\"method\":", id);
+    buffer = sdscatprintf(buffer, "{\"jsonrpc\":\"2.0\",\"id\":%ld,\"result\":{\"method\":", id);
     buffer = sdscatjson(buffer, method, strlen(method)); /* Flawfinder: ignore */
     return buffer;
 }
@@ -90,17 +90,17 @@ sds jsonrpc_end_result(sds buffer) {
     return buffer;
 }
 
-sds jsonrpc_respond_ok(sds buffer, const char *method, int id) {
+sds jsonrpc_respond_ok(sds buffer, const char *method, long id) {
     buffer = sdscrop(buffer);
-    buffer = sdscatprintf(buffer, "{\"jsonrpc\":\"2.0\",\"id\":%d,\"result\":{\"method\":", id);
+    buffer = sdscatprintf(buffer, "{\"jsonrpc\":\"2.0\",\"id\":%ld,\"result\":{\"method\":", id);
     buffer = sdscatjson(buffer, method, strlen(method)); /* Flawfinder: ignore */
     buffer = sdscat(buffer, ",\"message\":\"ok\"}}");
     return buffer;
 }
 
-sds jsonrpc_respond_message(sds buffer, const char *method, int id, const char *message, bool error) {
+sds jsonrpc_respond_message(sds buffer, const char *method, long id, const char *message, bool error) {
     buffer = sdscrop(buffer);
-    buffer = sdscatprintf(buffer, "{\"jsonrpc\":\"2.0\",\"id\":%d,\"%s\":{\"method\":", 
+    buffer = sdscatprintf(buffer, "{\"jsonrpc\":\"2.0\",\"id\":%ld,\"%s\":{\"method\":", 
         id, (error == true ? "error" : "result"));
     buffer = sdscatjson(buffer, method, strlen(method)); /* Flawfinder: ignore */
     if (error == true) {
@@ -112,9 +112,9 @@ sds jsonrpc_respond_message(sds buffer, const char *method, int id, const char *
     return buffer;
 }
 
-sds jsonrpc_start_phrase(sds buffer, const char *method, int id, const char *message, bool error) {
+sds jsonrpc_start_phrase(sds buffer, const char *method, long id, const char *message, bool error) {
     buffer = sdscrop(buffer);
-    buffer = sdscatprintf(buffer, "{\"jsonrpc\":\"2.0\",\"id\":%d,\"%s\":{\"method\":", 
+    buffer = sdscatprintf(buffer, "{\"jsonrpc\":\"2.0\",\"id\":%ld,\"%s\":{\"method\":", 
         id, (error == true ? "error" : "result"));
     buffer = sdscatjson(buffer, method, strlen(method)); /* Flawfinder: ignore */
     if (error == true) {

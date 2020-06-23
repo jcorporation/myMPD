@@ -72,7 +72,7 @@ unsigned long mpd_shared_get_playlist_mtime(t_mpd_state *mpd_state, const char *
     return mtime;
 }
 
-sds mpd_shared_playlist_shuffle_sort(t_mpd_state *mpd_state, sds buffer, sds method, int request_id, const char *uri, const char *tagstr) {
+sds mpd_shared_playlist_shuffle_sort(t_mpd_state *mpd_state, sds buffer, sds method, long request_id, const char *uri, const char *tagstr) {
     t_tags sort_tags;
     
     sort_tags.len = 1;

@@ -37,7 +37,7 @@ void mpd_client_set_timer(enum mympd_cmd_ids cmd_id, const char *cmd, int timeou
     tiny_queue_push(mympd_api_queue, request, 0);
 }
 
-sds mpd_client_timer_startplay(t_mpd_client_state *mpd_client_state, sds buffer, sds method, int request_id, 
+sds mpd_client_timer_startplay(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, 
                                unsigned volume, const char *playlist, enum jukebox_modes jukebox_mode) 
 {
     //disable jukebox to prevent adding songs to queue from old jukebox queue list

@@ -103,7 +103,7 @@ bool mympd_api_bookmark_clear(t_config *config) {
     return true;
 }
 
-sds mympd_api_bookmark_list(t_config *config, sds buffer, sds method, int request_id,
+sds mympd_api_bookmark_list(t_config *config, sds buffer, sds method, long request_id,
                             unsigned int offset)
 {
     char *line = NULL;

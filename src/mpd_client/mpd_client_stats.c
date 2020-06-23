@@ -119,7 +119,7 @@ bool mpd_client_add_song_to_last_played_list(t_config *config, t_mpd_client_stat
     return true;
 }
 
-sds mpd_client_put_last_played_songs(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, int request_id, 
+sds mpd_client_put_last_played_songs(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, 
                                      unsigned int offset, const t_tags *tagcols)
 {
     unsigned entity_count = 0;
@@ -182,7 +182,7 @@ sds mpd_client_put_last_played_songs(t_config *config, t_mpd_client_state *mpd_c
     return buffer;
 }
 
-sds mpd_client_put_stats(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, int request_id) {
+sds mpd_client_put_stats(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id) {
     struct mpd_stats *stats = mpd_run_stats(mpd_client_state->mpd_state->conn);
     if (stats == NULL) {
         buffer = check_error_and_recover(mpd_client_state->mpd_state, buffer, method, request_id);

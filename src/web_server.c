@@ -531,8 +531,8 @@ static bool handle_script_api(int conn_id, struct http_message *hm) {
     LOG_DEBUG("Script API request (%d): %.*s", conn_id, hm->body.len, hm->body.p);
     char *cmd = NULL;
     char *jsonrpc = NULL;
-    int id = 0;
-    const int je = json_scanf(hm->body.p, hm->body.len, "{jsonrpc: %Q, method: %Q, id: %d}", &jsonrpc, &cmd, &id);
+    long id = 0;
+    const int je = json_scanf(hm->body.p, hm->body.len, "{jsonrpc: %Q, method: %Q, id: %ld}", &jsonrpc, &cmd, &id);
     if (je < 3) {
         FREE_PTR(cmd);
         FREE_PTR(jsonrpc);

@@ -41,7 +41,7 @@ void tiny_queue_free(tiny_queue_t *queue) {
 }
 
 
-int tiny_queue_push(tiny_queue_t *queue, void *data, int id) {
+int tiny_queue_push(tiny_queue_t *queue, void *data, long id) {
     int rc = pthread_mutex_lock(&queue->mutex);
     if (rc != 0) {
         LOG_ERROR("Error in pthread_mutex_lock: %d", rc);
@@ -105,7 +105,7 @@ unsigned tiny_queue_length(tiny_queue_t *queue, int timeout) {
     return len;
 }
 
-void *tiny_queue_shift(tiny_queue_t *queue, int timeout, int id) {
+void *tiny_queue_shift(tiny_queue_t *queue, int timeout, long id) {
     timeout = timeout * 1000;
     int rc = pthread_mutex_lock(&queue->mutex);
     if (rc != 0) {

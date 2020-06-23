@@ -59,7 +59,7 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
     char *p_charbuf4 = NULL;
     char *p_charbuf5 = NULL;
 
-    LOG_VERBOSE("MPD CLIENT API request (%d)(%d) %s: %s", request->conn_id, request->id, request->method, request->data);
+    LOG_VERBOSE("MPD CLIENT API request (%d)(%ld) %s: %s", request->conn_id, request->id, request->method, request->data);
     //create response struct
     t_work_result *response = create_result(request);
     
@@ -701,7 +701,7 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
         LOG_ERROR("No response for cmd_id %u", request->cmd_id);
     }
     if (request->conn_id == -2) {
-        LOG_DEBUG("Push response to mympd_script_queue for thread %d: %s", request->id, response->data);
+        LOG_DEBUG("Push response to mympd_script_queue for thread %ld: %s", request->id, response->data);
         tiny_queue_push(mympd_script_queue, response, request->id);
     }
     else if (request->conn_id > -1) {

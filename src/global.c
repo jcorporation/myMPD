@@ -29,7 +29,7 @@ t_work_result *create_result(t_work_request *request) {
     return response;
 }
 
-t_work_result *create_result_new(int conn_id, int request_id, int cmd_id, const char *method) {
+t_work_result *create_result_new(int conn_id, long request_id, int cmd_id, const char *method) {
     t_work_result *response = (t_work_result *)malloc(sizeof(t_work_result));
     assert(response);
     response->conn_id = conn_id;
@@ -42,7 +42,7 @@ t_work_result *create_result_new(int conn_id, int request_id, int cmd_id, const 
     return response;
 }
 
-t_work_request *create_request(int conn_id, int request_id, int cmd_id, const char *method, const char *data) {
+t_work_request *create_request(int conn_id, long request_id, int cmd_id, const char *method, const char *data) {
     t_work_request *request = (t_work_request *)malloc(sizeof(t_work_request));
     assert(request);
     request->conn_id = conn_id;

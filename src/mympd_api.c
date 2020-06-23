@@ -374,7 +374,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
         LOG_ERROR("No response for cmd_id %u", request->cmd_id);
     }
     if (request->conn_id == -2) {
-        LOG_DEBUG("Push response to mympd_script_queue for thread %d: %s", request->id, response->data);
+        LOG_DEBUG("Push response to mympd_script_queue for thread %ld: %s", request->id, response->data);
         tiny_queue_push(mympd_script_queue, response, request->id);
     }
     else if (request->conn_id > -1) {

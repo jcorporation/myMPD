@@ -516,7 +516,7 @@ bool state_file_write(t_config *config, const char *name, const char *value) {
     return true;
 }
 
-sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buffer, sds method, int request_id) {
+sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
     buffer = jsonrpc_start_result(buffer, method, request_id);
     buffer = sdscat(buffer, ",");
     buffer = tojson_char(buffer, "mpdHost", mympd_state->mpd_host, true);

@@ -27,7 +27,7 @@
 #include "mpd_client_sticker.h"
 #include "mpd_client_browse.h"
 
-sds mpd_client_put_fingerprint(t_mpd_client_state *mpd_client_state, sds buffer, sds method, int request_id,
+sds mpd_client_put_fingerprint(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id,
                                const char *uri)
 {
     if (validate_songuri(uri) == false) {
@@ -53,7 +53,7 @@ sds mpd_client_put_fingerprint(t_mpd_client_state *mpd_client_state, sds buffer,
     return buffer;
 }
 
-sds mpd_client_put_songdetails(t_mpd_client_state *mpd_client_state, sds buffer, sds method, int request_id, 
+sds mpd_client_put_songdetails(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, 
                                const char *uri)
 {
     if (validate_songuri(uri) == false) {
@@ -99,7 +99,7 @@ sds mpd_client_put_songdetails(t_mpd_client_state *mpd_client_state, sds buffer,
     return buffer;
 }
 
-sds mpd_client_put_filesystem(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, int request_id, 
+sds mpd_client_put_filesystem(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, 
                               const char *path, const unsigned int offset, const char *filter, const t_tags *tagcols)
 {
     bool rc = mpd_send_list_meta(mpd_client_state->mpd_state->conn, path);
@@ -217,7 +217,7 @@ sds mpd_client_put_filesystem(t_config *config, t_mpd_client_state *mpd_client_s
     return buffer;
 }
 
-sds mpd_client_put_db_tag(t_mpd_client_state *mpd_client_state, sds buffer, sds method, int request_id,
+sds mpd_client_put_db_tag(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id,
                           const unsigned int offset, const char *mpdtagtype, const char *mpdsearchtagtype, const char *searchstr, const char *filter)
 {
     buffer = jsonrpc_start_result(buffer, method, request_id);
@@ -286,7 +286,7 @@ sds mpd_client_put_db_tag(t_mpd_client_state *mpd_client_state, sds buffer, sds 
     return buffer;
 }
 
-sds mpd_client_put_songs_in_album(t_mpd_client_state *mpd_client_state, sds buffer, sds method, int request_id,
+sds mpd_client_put_songs_in_album(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id,
                                   const char *album, const char *search, const char *tag, const t_tags *tagcols)
 {
     buffer = jsonrpc_start_result(buffer, method, request_id);
@@ -362,7 +362,7 @@ sds mpd_client_put_songs_in_album(t_mpd_client_state *mpd_client_state, sds buff
     return buffer;    
 }
 
-sds mpd_client_put_firstsong_in_albums(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, int request_id, 
+sds mpd_client_put_firstsong_in_albums(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, 
                                        const char *searchstr, const char *tag, const char *sort, bool sortdesc, const unsigned int offset)
 {
     buffer = jsonrpc_start_result(buffer, method, request_id);

@@ -46,7 +46,7 @@ void mpd_worker_api(t_config *config, t_mpd_worker_state *mpd_worker_state, void
     char *p_charbuf4 = NULL;
     char *p_charbuf5 = NULL;
 
-    LOG_VERBOSE("MPD WORKER API request (%d)(%d) %s: %s", request->conn_id, request->id, request->method, request->data);
+    LOG_VERBOSE("MPD WORKER API request (%d)(%ld) %s: %s", request->conn_id, request->id, request->method, request->data);
     //create response struct
     t_work_result *response = create_result(request);
     
@@ -150,7 +150,11 @@ void mpd_worker_api(t_config *config, t_mpd_worker_state *mpd_worker_state, void
             response->data = jsonrpc_end_phrase(response->data);
             LOG_ERROR("No response for cmd_id %u", request->cmd_id);
         }
-        if (request->conn_id > -1) {
+        if (request->conn_id == -2) {
+            LOG_DEBUG("Push response to mympd_script_queue for thread %ld: %s", request->id, response->data);
+            tiny_queue_push(mympd_script_queue, response, request->id);
+        }
+        else if (request->conn_id > -1) {
             LOG_DEBUG("Push response to queue for connection %lu: %s", request->conn_id, response->data);
             tiny_queue_push(web_server_queue, response, 0);
         }

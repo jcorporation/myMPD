@@ -23,12 +23,12 @@
 #include "mpd_shared_search.h"
 
 //private definitions
-static sds _mpd_shared_search(t_mpd_state *mpd_state, sds buffer, sds method, int request_id,
+static sds _mpd_shared_search(t_mpd_state *mpd_state, sds buffer, sds method, long request_id,
                       const char *expression, const char *sort, const bool sortdesc, 
                       const char *grouptag, const char *plist, const unsigned int offset,
                       const t_tags *tagcols, bool adv, const char *searchtag, int max_elements_per_page);
 //public functions
-sds mpd_shared_search(t_mpd_state *mpd_state, sds buffer, sds method, int request_id,
+sds mpd_shared_search(t_mpd_state *mpd_state, sds buffer, sds method, long request_id,
                       const char *searchstr, const char *searchtag, const char *plist, 
                       const unsigned int offset, const t_tags *tagcols, int max_elements_per_page)
 {
@@ -39,7 +39,7 @@ sds mpd_shared_search(t_mpd_state *mpd_state, sds buffer, sds method, int reques
                               max_elements_per_page);
 }
 
-sds mpd_shared_search_adv(t_mpd_state *mpd_state, sds buffer, sds method, int request_id,
+sds mpd_shared_search_adv(t_mpd_state *mpd_state, sds buffer, sds method, long request_id,
                           const char *expression, const char *sort, const bool sortdesc, 
                           const char *grouptag, const char *plist, const unsigned int offset,
                           const t_tags *tagcols, int max_elements_per_page)
@@ -52,7 +52,7 @@ sds mpd_shared_search_adv(t_mpd_state *mpd_state, sds buffer, sds method, int re
 }
 
 //private functions
-static sds _mpd_shared_search(t_mpd_state *mpd_state, sds buffer, sds method, int request_id,
+static sds _mpd_shared_search(t_mpd_state *mpd_state, sds buffer, sds method, long request_id,
                       const char *expression, const char *sort, const bool sortdesc, 
                       const char *grouptag, const char *plist, const unsigned int offset,
                       const t_tags *tagcols, bool adv, const char *searchtag,
