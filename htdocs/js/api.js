@@ -102,6 +102,10 @@ function webSocketConnect() {
                 showNotification(t(obj.error.message, obj.error.data), '', '', 'danger');
                 return;
             }
+            else if (obj.result) {
+                showNotification(t(obj.result.message, obj.result.data), '', '', 'success');
+                return;
+            }
 
             switch (obj.method) {
                 case 'welcome':
