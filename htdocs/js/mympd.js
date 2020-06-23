@@ -116,6 +116,7 @@ var dropdownCovergridSort = new BSN.Dropdown(document.getElementById('btnCovergr
 var dropdownNeighbors = new BSN.Dropdown(document.getElementById('btnDropdownNeighbors'));
 
 var collapseDBupdate = new BSN.Collapse(document.getElementById('navDBupdate'));
+var collapseSettings = new BSN.Collapse(document.getElementById('navSettings'));
 var collapseSyscmds = new BSN.Collapse(document.getElementById('navSyscmds'));
 var collapseScripting = new BSN.Collapse(document.getElementById('navScripting'));
 var collapseJukeboxMode = new BSN.Collapse(document.getElementById('labelJukeboxMode'));

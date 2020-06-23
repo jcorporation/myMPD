@@ -41,17 +41,20 @@
           <span class="material-icons header-logo">play_circle_outline</span>myMPD
         </a>
         <div class="dropdown-menu bg-lite-dark" id="mainMenuDropdown">
-          <a data-phrase="MPD connection" class="dropdown-item text-light alwaysEnabled" href="#" data-toggle="modal" data-target="#modalConnection"></a>
           <a data-phrase="Add stream" class="dropdown-item text-light" href="#" data-href='{"cmd": "showAddToPlaylist", "options": ["stream"]}'></a>
           <a id="navDBupdate" class="subMenu dropdown-item text-light" data-toggle="collapse" href="#menu-dbupdate"><span class="material-icons material-icons-left">keyboard_arrow_right</span><span data-phrase="Update"></span></a>
-          <div class="collapse" id="menu-dbupdate">
+          <div class="collapse menu-indent" id="menu-dbupdate">
             <a data-phrase="Update database" class="dropdown-item text-light" href="#" data-href='{"cmd": "updateDB", "options": ["", true]}'></a>
             <a data-phrase="Rescan database" class="dropdown-item text-light" href="#" data-href='{"cmd": "rescanDB", "options": ["", true]}'></a>
             <a data-phrase="Update smart playlists" class="dropdown-item text-light bg-lite-dark featSmartpls" href="#" data-href='{"cmd": "updateSmartPlaylists", "options": [false]}'></a>
           </div>
-          <a data-phrase="Settings" class="dropdown-item text-light" href="#" data-toggle="modal" data-target="#modalSettings"></a>
-          <a data-phrase="Timer" class="dropdown-item text-light featTimer" href="#" data-toggle="modal" data-target="#modalTimer"></a>
-          <a data-phrase="Mounts" class="dropdown-item text-light featMounts" href="#" data-toggle="modal" data-target="#modalMounts"></a>
+          <a id="navSettings" class="subMenu dropdown-item text-light alwaysEnabled" data-toggle="collapse" href="#menu-settings"><span class="material-icons material-icons-left">keyboard_arrow_right</span><span data-phrase="Settings"></span></a>
+          <div id="menu-settings" class="collapse menu-indent">
+            <a data-phrase="MPD connection" class="dropdown-item text-light alwaysEnabled" href="#" data-toggle="modal" data-target="#modalConnection"></a>
+            <a data-phrase="Settings" class="dropdown-item text-light" href="#" data-toggle="modal" data-target="#modalSettings"></a>
+            <a data-phrase="Timer" class="dropdown-item text-light featTimer" href="#" data-toggle="modal" data-target="#modalTimer"></a>
+            <a data-phrase="Mounts" class="dropdown-item text-light featMounts" href="#" data-toggle="modal" data-target="#modalMounts"></a>
+          </div>
           <a data-phrase="Browse directories" class="dropdown-item text-light featBrowse" href="browse/" target="_blank"></a>
           <a data-phrase="About" class="dropdown-item text-light " href="#" data-toggle="modal" data-target="#modalAbout"></a>
           <a data-phrase="Add to home screen" id="nav-add2homescreen" class="dropdown-item text-light bg-lite-dark hide" href="#"></a>
