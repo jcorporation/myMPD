@@ -1268,7 +1268,7 @@ function parseNeighbors(obj) {
 */
 
 /* Disable eslint warnings */
-/* global Modal, Dropdown, Collapse, Popover, Carousel, phrases, locales */
+/* global BSN, phrases, locales */
 
 var socket = null;
 var lastSong = '';
@@ -1378,6 +1378,7 @@ var dropdownCovergridSort = new BSN.Dropdown(document.getElementById('btnCovergr
 var dropdownNeighbors = new BSN.Dropdown(document.getElementById('btnDropdownNeighbors'));
 
 var collapseDBupdate = new BSN.Collapse(document.getElementById('navDBupdate'));
+var collapseSettings = new BSN.Collapse(document.getElementById('navSettings'));
 var collapseSyscmds = new BSN.Collapse(document.getElementById('navSyscmds'));
 var collapseScripting = new BSN.Collapse(document.getElementById('navScripting'));
 var collapseJukeboxMode = new BSN.Collapse(document.getElementById('labelJukeboxMode'));
@@ -4188,15 +4189,29 @@ function parseSettings() {
         let scriptListLen = settings.scriptList.length;
         if (scriptListLen > 0) {
             timerActions += '<optgroup data-value="script" label="' + t('Script') + '">';
-            scriptList = scriptListLen > scriptMaxListLen ? '' : '<div class="dropdown-divider"></div>';
+            settings.scriptList.sort();
+            let mi = 0;
             for (let i = 0; i < scriptListLen; i++) {
+                let scriptDisplayname = settings.scriptList[i];
+                let p = scriptDisplayname.match(/^(\d+)(.+)$/);
+                let inMainmenu = false;
+                if (p !== null) {
+                    scriptDisplayname = p[2];
+                    inMainmenu = true;
+                }
                 if (settings.scriptList[i] === 'HR') {
                     scriptList += '<div class="dropdown-divider"></div>';
                 }
                 else {
-                    scriptList += '<a class="dropdown-item text-light alwaysEnabled" href="#" data-href=\'{"cmd": "execScript", "options": ["' + 
-                        e(settings.scriptList[i]) + '"]}\'>' + e(settings.scriptList[i]) + '</a>';
-                    timerActions += '<option value="' + e(settings.scriptList[i]) + '">' + e(settings.scriptList[i]) + '</option>';
+                    if (inMainmenu === true) {
+                        if (mi === 0) {
+                            scriptList = scriptListLen > scriptMaxListLen ? '' : '<div class="dropdown-divider"></div>';
+                        }
+                        mi++;
+                        scriptList += '<a title="' + e(settings.scriptList[i]) + '" class="dropdown-item text-light alwaysEnabled" href="#" data-href=\'{"cmd": "execScript", "options": ["' + 
+                            e(settings.scriptList[i]) + '"]}\'>' + e(scriptDisplayname) + '</a>';
+                    }
+                    timerActions += '<option value="' + e(settings.scriptList[i]) + '">' + e(scriptDisplayname) + '</option>';
                 }
             }
         }
