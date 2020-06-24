@@ -32,6 +32,7 @@
 #define DOC_ROOT "${ASSETS_PATH}"
 #define ETC_PATH "${ETC_PATH}"
 #define VARLIB_PATH "${VARLIB_PATH}"
+#define LUALIBS_PATH "${LUALIBS_PATH}"
 
 enum jukebox_modes {
     JUKEBOX_OFF,

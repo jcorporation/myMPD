@@ -36,6 +36,8 @@
     #include "lualib.h"
     #include "lauxlib.h"  
 
+    #include "mympd_api_scripts_lualibs.c"
+
 //private definitions
 struct t_script_thread_arg {
     t_config *config;
@@ -59,6 +61,7 @@ static int mympd_api_raw(lua_State *lua_vm);
 static int _mympd_api(lua_State *lua_vm, bool raw);
 static int mympd_init(lua_State *lua_vm);
 static void free_t_script_thread_arg(struct t_script_thread_arg *script_thread_arg);
+static bool mympd_luaopen(lua_State *lua_vm, const char *lualib);
 
 //public functions
 bool mympd_api_script_start(t_config *config, const char *script, struct list *arguments, bool localscript) {
@@ -117,6 +120,9 @@ static void *mympd_api_script_execute(void *script_thread_arg) {
     if (strcmp(script_arg->config->lualibs, "all") == 0) {
         LOG_DEBUG("Open all standard lua libs");
         luaL_openlibs(lua_vm);
+        
+        mympd_luaopen(lua_vm, "json");
+        lua_pop(lua_vm, 1);
     }
     else {
         int count;
@@ -135,6 +141,8 @@ static void *mympd_api_script_execute(void *script_thread_arg) {
             else if (strcmp(tokens[i], "os") == 0)        { luaopen_os(lua_vm); }
             else if (strcmp(tokens[i], "debug") == 0)     { luaopen_package(lua_vm); }
             else if (strcmp(tokens[i], "bit32") == 0)     { luaopen_bit32(lua_vm); }
+            //custom libs
+            else if (strcmp(tokens[i], "json") == 0)      { mympd_luaopen(lua_vm, tokens[i]); }
             else {
                 LOG_ERROR("Can not open lua library %s", tokens[i]);
                 continue;
@@ -168,7 +176,7 @@ static void *mympd_api_script_execute(void *script_thread_arg) {
     if (lua_gettop(lua_vm) == 1) {
         //return value on stack
         script_return_text = lua_tostring(lua_vm, 1);
-        LOG_DEBUG("Script return value: %s");
+        LOG_DEBUG("Script return value: %s", script_return_text);
     }
     if (rc == 0) {
         if (script_return_text == NULL) {
@@ -230,6 +238,24 @@ static sds lua_err_to_str(sds buffer, int rc, bool phrase, const char *script) {
             buffer = sdscatfmt(buffer, "Error executing script %s", (phrase == true ? "%{script}" : script));
     }
     return buffer;
+}
+
+static bool mympd_luaopen(lua_State *lua_vm, const char *lualib) {
+    #ifdef DEBUG
+        sds filename = sdscatfmt(sdsempty(), "%s/%s.lua", LUALIBS_PATH, lualib);
+        int rc = luaL_dofile(lua_vm, filename);
+        sdsfree(filename);
+    #else
+        int rc = luaL_dostring(lua_vm, (char *)json_lua_data);
+    #endif
+    LOG_DEBUG("Loading embedded lua library %s: %d", lualib, rc);
+    if (rc != 0) {
+        if (lua_gettop(lua_vm) == 1) {
+            //return value on stack
+            LOG_ERROR("Error loading library %s: %s", lualib, lua_tostring(lua_vm, 1));
+        }
+    }
+    return rc;
 }
 
 static void populate_lua_table_field_p(lua_State *lua_vm, const char *key, const char *value) {
