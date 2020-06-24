@@ -241,14 +241,22 @@ static sds lua_err_to_str(sds buffer, int rc, bool phrase, const char *script) {
 }
 
 static bool mympd_luaopen(lua_State *lua_vm, const char *lualib) {
+    LOG_DEBUG("Loading embedded lua library %s", lualib);
     #ifdef DEBUG
         sds filename = sdscatfmt(sdsempty(), "%s/%s.lua", LUALIBS_PATH, lualib);
         int rc = luaL_dofile(lua_vm, filename);
         sdsfree(filename);
     #else
-        int rc = luaL_dostring(lua_vm, (char *)json_lua_data);
+        sds lib_string;
+        if (strcmp(lualib, "json") == 0) {
+            lib_string = sdscatlen(sdsempty(), json_lua_data, json_lua_size);
+        }
+        else {
+            return false;
+        }
+        int rc = luaL_dostring(lua_vm, lib_string);
+        sdsfree(lib_string);
     #endif
-    LOG_DEBUG("Loading embedded lua library %s: %d", lualib, rc);
     if (rc != 0) {
         if (lua_gettop(lua_vm) == 1) {
             //return value on stack
