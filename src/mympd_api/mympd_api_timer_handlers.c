@@ -53,7 +53,7 @@ void timer_handler_select(struct t_timer_definition *definition, void *user_data
         request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPD_API_TIMER_STARTPLAY\",\"params\":{");
         request->data = tojson_long(request->data, "volume", definition->volume, true);
         request->data = tojson_char(request->data, "playlist", definition->playlist, true);
-        request->data = tojson_long(request->data, "jukeboxMode", definition->jukebox_mode, true);
+        request->data = tojson_long(request->data, "jukeboxMode", definition->jukebox_mode, false);
         request->data = sdscat(request->data, "}}");
         tiny_queue_push(mpd_client_queue, request, 0);
     }
@@ -67,7 +67,8 @@ void timer_handler_select(struct t_timer_definition *definition, void *user_data
     else if (strcmp(definition->action, "script") == 0) {
         t_work_request *request = create_request(-1, 0, MYMPD_API_SCRIPT_EXECUTE, "MYMPD_API_SCRIPT_EXECUTE", "");
         request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_SCRIPT_EXECUTE\",\"params\":{");
-        request->data = tojson_char(request->data, "script", definition->subaction, false);
+        request->data = tojson_char(request->data, "script", definition->subaction, true);
+        request->data = sdscat(request->data, "arguments: {}");
         request->data = sdscat(request->data, "}}");
         tiny_queue_push(mympd_api_queue, request, 0);
     }

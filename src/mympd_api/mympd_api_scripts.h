@@ -7,6 +7,6 @@
 #ifndef __MYMPD_API_SCRIPTS_H
 #define __MYMPD_API_SCRIPTS_H
 #ifdef ENABLE_LUA
-bool mympd_api_script_start(t_config *config, const char *script, bool localscript);
+bool mympd_api_script_start(t_config *config, const char *script, struct list *arguments, bool localscript);
 #endif
 #endif

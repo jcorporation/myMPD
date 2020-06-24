@@ -15,6 +15,7 @@
 #include <stdbool.h>
 #include <pthread.h>
 #include <signal.h>
+#include <assert.h>
 #include <inttypes.h>
 
 #include <mpd/client.h>
@@ -124,7 +125,16 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             if (config->scripting == true) {
                 je = json_scanf(request->data, sdslen(request->data), "{params: {script: %Q}}", &p_charbuf1);
                 if (je == 1 && validate_string_not_empty(p_charbuf1) == true) {
-                    rc = mympd_api_script_start(config, p_charbuf1, true);
+                    struct list *arguments = (struct list *) malloc(sizeof(struct list));
+                    assert(arguments);
+                    list_init(arguments);
+                    void *h = NULL;
+                    struct json_token key;
+                    struct json_token val;
+                    while ((h = json_next_key(request->data, sdslen(request->data), h, ".params.arguments", &key, &val)) != NULL) {
+                        list_push_len(arguments, key.ptr, key.len, 0, val.ptr, val.len, NULL);
+                    }
+                    rc = mympd_api_script_start(config, p_charbuf1, arguments, true);
                     if (rc == true) {
                         response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
                     }
@@ -144,7 +154,14 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             if (config->remotescripting == true) {
                 je = json_scanf(request->data, sdslen(request->data), "{params: {script: %Q}}", &p_charbuf1);
                 if (je == 1 && strlen(p_charbuf1) > 0) {
-                    rc = mympd_api_script_start(config, p_charbuf1, false);
+                    struct list *arguments = (struct list *) malloc(sizeof(struct list));
+                    void *h = NULL;
+                    struct json_token key;
+                    struct json_token val;
+                    while ((h = json_next_key(request->data, sdslen(request->data), h, ".params.arguments", &key, &val)) != NULL) {
+                        list_push_len(arguments, key.ptr, key.len, 0, val.ptr, val.len, NULL);
+                    }
+                    rc = mympd_api_script_start(config, p_charbuf1, arguments, false);
                     if (rc == true) {
                         response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
                     }

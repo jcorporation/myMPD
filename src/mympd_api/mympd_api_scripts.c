@@ -43,6 +43,7 @@ struct t_script_thread_arg {
     sds script_fullpath;
     sds script_name;
     sds script_content;
+    struct list *arguments;
 };
 
 static void *mympd_api_script_execute(void *script_thread_arg);
@@ -60,7 +61,7 @@ static int mympd_init(lua_State *lua_vm);
 static void free_t_script_thread_arg(struct t_script_thread_arg *script_thread_arg);
 
 //public functions
-bool mympd_api_script_start(t_config *config, const char *script, bool localscript) {
+bool mympd_api_script_start(t_config *config, const char *script, struct list *arguments, bool localscript) {
     pthread_t mympd_script_thread;
     pthread_attr_t attr;
     if (pthread_attr_init(&attr) != 0) {
@@ -74,6 +75,7 @@ bool mympd_api_script_start(t_config *config, const char *script, bool localscri
     struct t_script_thread_arg *script_thread_arg = (struct t_script_thread_arg *)malloc(sizeof(struct t_script_thread_arg));
     script_thread_arg->config = config;
     script_thread_arg->localscript = localscript;
+    script_thread_arg->arguments = arguments;
     if (localscript == true) {
         script_thread_arg->script_name = sdsnew(script);
         script_thread_arg->script_fullpath = sdscatfmt(sdsempty(), "%s/scripts/%s.lua", config->varlibdir, script);
@@ -150,6 +152,15 @@ static void *mympd_api_script_execute(void *script_thread_arg) {
         rc = luaL_loadstring(lua_vm, script_arg->script_content);
     }
     if (rc == 0) {
+        if (script_arg->arguments->length > 0) {
+            lua_newtable(lua_vm);
+            struct list_node *current = script_arg->arguments->head;
+            while (current != NULL) {
+                populate_lua_table_field_p(lua_vm, current->key, current->value_p);
+                current = current->next;
+            }
+            lua_setglobal(lua_vm, "arguments");
+        }
         LOG_DEBUG("Start script");
         rc = lua_pcall(lua_vm, 0, 1, 0);
         LOG_DEBUG("End script");
@@ -391,6 +402,8 @@ static void free_t_script_thread_arg(struct t_script_thread_arg *script_thread_a
     sdsfree(script_thread_arg->script_name);
     sdsfree(script_thread_arg->script_fullpath);
     sdsfree(script_thread_arg->script_content);
+    list_free(script_thread_arg->arguments);
+    free(script_thread_arg->arguments);
     free(script_thread_arg);
 }
 #endif
