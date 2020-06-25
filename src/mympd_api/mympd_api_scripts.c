@@ -99,6 +99,11 @@ bool mympd_api_script_start(t_config *config, const char *script, struct list *a
     return true;
 }
 
+bool mympd_api_get_lua_mympd_state(t_mympd_state *mympd_state, struct list *lua_mympd_state) {
+    set_lua_mympd_state_p(lua_mympd_state, "jukebox_unique_tag", mympd_state->jukebox_unique_tag);
+    return true;
+}
+
 //private functions
 static void *mympd_api_script_execute(void *script_thread_arg) {
     thread_logname = sdsreplace(thread_logname, "script");

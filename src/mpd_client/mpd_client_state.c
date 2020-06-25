@@ -31,12 +31,6 @@
 #include "mpd_client_sticker.h"
 #include "mpd_client_state.h"
 
-//private definitions
-static void set_lua_mympd_state_p(struct list *lua_mympd_state, const char *k, const char *v);
-static void set_lua_mympd_state_i(struct list *lua_mympd_state, const char *k, int v);
-static void set_lua_mympd_state_f(struct list *lua_mympd_state, const char *k, double v);
-static void set_lua_mympd_state_b(struct list *lua_mympd_state, const char *k, bool v);
-
 //public functions
 sds mpd_client_get_updatedb_state(t_mpd_client_state *mpd_client_state, sds buffer) {
     struct mpd_status *status = mpd_run_status(mpd_client_state->mpd_state->conn);
@@ -176,6 +170,10 @@ bool mpd_client_get_lua_mympd_state(t_config *config, t_mpd_client_state *mpd_cl
     set_lua_mympd_state_f(lua_mympd_state, "mixrampdelay", mpd_status_get_mixrampdelay(status));
     set_lua_mympd_state_p(lua_mympd_state, "music_directory", mpd_client_state->music_directory_value);
     set_lua_mympd_state_p(lua_mympd_state, "varlibdir", config->varlibdir);
+    set_lua_mympd_state_i(lua_mympd_state, "jukebox_mode", mpd_client_state->jukebox_mode);
+    set_lua_mympd_state_p(lua_mympd_state, "jukebox_playlist", mpd_client_state->jukebox_playlist);
+    set_lua_mympd_state_i(lua_mympd_state, "jukebox_queue_length", mpd_client_state->jukebox_queue_length);
+    set_lua_mympd_state_i(lua_mympd_state, "jukebox_last_played", mpd_client_state->jukebox_last_played);
     mpd_status_free(status);
     return true;
 }
@@ -281,30 +279,4 @@ sds mpd_client_put_current_song(t_mpd_client_state *mpd_client_state, sds buffer
     mpd_song_free(song);
     buffer = jsonrpc_end_result(buffer);
     return buffer;
-}
-
-
-//private functions
-static void set_lua_mympd_state_p(struct list *lua_mympd_state, const char *k, const char *v) {
-    struct t_lua_mympd_state_value *value = (struct t_lua_mympd_state_value *)malloc(sizeof(struct t_lua_mympd_state_value));
-    value->p = sdsnew(v);
-    list_push(lua_mympd_state, k, LUA_TYPE_STRING, NULL, value);
-}
-
-static void set_lua_mympd_state_i(struct list *lua_mympd_state, const char *k, int v) {
-    struct t_lua_mympd_state_value *value = (struct t_lua_mympd_state_value *)malloc(sizeof(struct t_lua_mympd_state_value));
-    value->i = v;
-    list_push(lua_mympd_state, k, LUA_TYPE_INTEGER, NULL, value);
-}
-
-static void set_lua_mympd_state_f(struct list *lua_mympd_state, const char *k, double v) {
-    struct t_lua_mympd_state_value *value = (struct t_lua_mympd_state_value *)malloc(sizeof(struct t_lua_mympd_state_value));
-    value->f = v;
-    list_push(lua_mympd_state, k, LUA_TYPE_NUMBER, NULL, value);
-}
-
-static void set_lua_mympd_state_b(struct list *lua_mympd_state, const char *k, bool v) {
-    struct t_lua_mympd_state_value *value = (struct t_lua_mympd_state_value *)malloc(sizeof(struct t_lua_mympd_state_value));
-    value->b = v;
-    list_push(lua_mympd_state, k, LUA_TYPE_BOOLEAN, NULL, value);
 }

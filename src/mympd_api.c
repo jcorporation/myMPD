@@ -109,8 +109,12 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
         case MYMPD_API_SCRIPT_INIT:
             if (config->scripting == true) {
                 if (request->extra != NULL) {
-                    //todo: populate lua_mympd_state
                     response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+                    struct list *lua_mympd_state = (struct list *)request->extra;
+                    rc = mympd_api_get_lua_mympd_state(mympd_state, lua_mympd_state);
+                    if (rc == false) {
+                        LOG_ERROR("Error getting mympd state for script execution");
+                    }
                     response->extra = request->extra;
                 }
                 else {
