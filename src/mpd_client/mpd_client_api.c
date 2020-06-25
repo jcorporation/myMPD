@@ -111,6 +111,13 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
             }
             check_error_and_recover2(mpd_client_state->mpd_state, &response->data, request->method, request->id, false);
             break;
+        case MPD_API_MESSAGE_SEND:
+            je = json_scanf(request->data, sdslen(request->data), "{params: {channel: %Q, message: %Q}}", &p_charbuf1, &p_charbuf2);
+            if (je == 2) {
+                uint_buf1 = mpd_run_send_message(mpd_client_state->mpd_state->conn, p_charbuf1, p_charbuf2);
+                response->data = respond_with_mpd_error_or_ok(mpd_client_state->mpd_state, response->data, request->method, request->id, (uint_buf1 == 0 ? false : true), "mpd_run_send_message");
+            }
+            break;
         case MPD_API_LIKE:
             if (mpd_client_state->feat_sticker == false) {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, "MPD stickers are disabled", true);

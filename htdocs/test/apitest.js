@@ -114,7 +114,8 @@ var cmds = [
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_URLHANDLERS"},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYER_STOP"},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_QUEUE_CROP_OR_CLEAR"},
-    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SCRIPT_EXECUTE","params":{"script":"test"}}
+    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SCRIPT_EXECUTE","params":{"script":"test"}},
+    {"jsonrpc":"2.0","id":0,"method":"MPD_API_MESSAGE_SEND","params":{"channel":"test", "message":"test"}}
 ];
 
 function setTest(cmd, state, response) {
