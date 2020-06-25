@@ -498,7 +498,7 @@ void mympd_config_defaults(t_config *config) {
     config->remotescripting = false;
     config->acl = sdsempty();
     config->scriptacl = sdsnew("-0.0.0.0/0,+127.0.0.0/8");
-    config->lualibs = sdsnew("base, string, utf8, table, math, bit32");
+    config->lualibs = sdsnew("base, string, utf8, table, math, bit32, mympd");
     list_init(&config->syscmd_list);
 }
 

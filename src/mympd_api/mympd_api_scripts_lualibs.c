@@ -9,3 +9,4 @@
 #include "../../dist/src/incbin/incbin.h"
 
 INCBIN(json_lua, "../contrib/lualibs/json.lua");
+INCBIN(mympd_lua, "../contrib/lualibs/mympd.lua");

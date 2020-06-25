@@ -59,7 +59,6 @@ static void register_lua_functions(lua_State *lua_vm);
 static int mympd_api(lua_State *lua_vm);
 static int mympd_api_raw(lua_State *lua_vm);
 static int _mympd_api(lua_State *lua_vm, bool raw);
-static int mympd_init(lua_State *lua_vm);
 static void free_t_script_thread_arg(struct t_script_thread_arg *script_thread_arg);
 static bool mympd_luaopen(lua_State *lua_vm, const char *lualib);
 
@@ -120,8 +119,11 @@ static void *mympd_api_script_execute(void *script_thread_arg) {
     if (strcmp(script_arg->config->lualibs, "all") == 0) {
         LOG_DEBUG("Open all standard lua libs");
         luaL_openlibs(lua_vm);
-        
+
         mympd_luaopen(lua_vm, "json");
+        lua_pop(lua_vm, 1);
+        
+        mympd_luaopen(lua_vm, "mympd");
         lua_pop(lua_vm, 1);
     }
     else {
@@ -142,7 +144,9 @@ static void *mympd_api_script_execute(void *script_thread_arg) {
             else if (strcmp(tokens[i], "debug") == 0)     { luaopen_package(lua_vm); }
             else if (strcmp(tokens[i], "bit32") == 0)     { luaopen_bit32(lua_vm); }
             //custom libs
-            else if (strcmp(tokens[i], "json") == 0)      { mympd_luaopen(lua_vm, tokens[i]); }
+            else if (strcmp(tokens[i], "json") == 0 ||
+                     strcmp(tokens[i], "mympd") == 0)     { mympd_luaopen(lua_vm, tokens[i]);
+            }
             else {
                 LOG_ERROR("Can not open lua library %s", tokens[i]);
                 continue;
@@ -251,6 +255,9 @@ static bool mympd_luaopen(lua_State *lua_vm, const char *lualib) {
         if (strcmp(lualib, "json") == 0) {
             lib_string = sdscatlen(sdsempty(), json_lua_data, json_lua_size);
         }
+        if (strcmp(lualib, "mympd") == 0) {
+            lib_string = sdscatlen(sdsempty(), mympd_lua_data, mympd_lua_size);
+        }
         else {
             return false;
         }
@@ -315,12 +322,6 @@ static void populate_lua_table(lua_State *lua_vm, t_lua_mympd_state *lua_mympd_s
 static void register_lua_functions(lua_State *lua_vm) {
     lua_register(lua_vm, "mympd_api", mympd_api);
     lua_register(lua_vm, "mympd_api_raw", mympd_api_raw);
-    lua_register(lua_vm, "mympd_init", mympd_init);
-}
-
-static int mympd_init(lua_State *lua_vm) {
-    lua_pushstring(lua_vm, "MPD_API_SCRIPT_INIT");
-    return mympd_api(lua_vm);
 }
 
 static int mympd_api(lua_State *lua_vm) {
@@ -405,7 +406,7 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
                     t_lua_mympd_state *lua_mympd_state = (t_lua_mympd_state *) response->extra;
                     lua_newtable(lua_vm);
                     populate_lua_table(lua_vm, lua_mympd_state);    
-                    lua_setglobal(lua_vm, "mympd");
+                    lua_setglobal(lua_vm, "mympd_state");
                     free_t_lua_mympd_state(lua_mympd_state);
                     lua_mympd_state = NULL;
                 }
