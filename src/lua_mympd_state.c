@@ -12,6 +12,30 @@
 #include "list.h"
 #include "lua_mympd_state.h"
 
+void set_lua_mympd_state_p(struct list *lua_mympd_state, const char *k, const char *v) {
+    struct t_lua_mympd_state_value *value = (struct t_lua_mympd_state_value *)malloc(sizeof(struct t_lua_mympd_state_value));
+    value->p = sdsnew(v);
+    list_push(lua_mympd_state, k, LUA_TYPE_STRING, NULL, value);
+}
+
+void set_lua_mympd_state_i(struct list *lua_mympd_state, const char *k, int v) {
+    struct t_lua_mympd_state_value *value = (struct t_lua_mympd_state_value *)malloc(sizeof(struct t_lua_mympd_state_value));
+    value->i = v;
+    list_push(lua_mympd_state, k, LUA_TYPE_INTEGER, NULL, value);
+}
+
+void set_lua_mympd_state_f(struct list *lua_mympd_state, const char *k, double v) {
+    struct t_lua_mympd_state_value *value = (struct t_lua_mympd_state_value *)malloc(sizeof(struct t_lua_mympd_state_value));
+    value->f = v;
+    list_push(lua_mympd_state, k, LUA_TYPE_NUMBER, NULL, value);
+}
+
+void set_lua_mympd_state_b(struct list *lua_mympd_state, const char *k, bool v) {
+    struct t_lua_mympd_state_value *value = (struct t_lua_mympd_state_value *)malloc(sizeof(struct t_lua_mympd_state_value));
+    value->b = v;
+    list_push(lua_mympd_state, k, LUA_TYPE_BOOLEAN, NULL, value);
+}
+
 void free_lua_mympd_state(struct list *lua_mympd_state) {
     struct list_node *current = lua_mympd_state->head;
     while (current != NULL) {
@@ -26,4 +50,3 @@ void free_lua_mympd_state(struct list *lua_mympd_state) {
     list_free(lua_mympd_state);
     free(lua_mympd_state);
 }
-
