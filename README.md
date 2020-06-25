@@ -78,7 +78,7 @@ Dependencies
 
 Build Dependencies
 ------------------
-- cmake 2.6
+- cmake >= 3.4
 - libasan3: for debug builds only
 - Java: to minify files
 - Perl: to create translation files
