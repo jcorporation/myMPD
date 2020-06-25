@@ -1227,12 +1227,7 @@ function appInit() {
     window.addEventListener('beforeinstallprompt', function(event) {
         // Prevent Chrome 67 and earlier from automatically showing the prompt
         event.preventDefault();
-        // Stash the event so it can be triggered later.
-        deferredPrompt = event;
-    });
-    
-    window.addEventListener('beforeinstallprompt', function(event) {
-        event.preventDefault();
+        // Stash the event so it can be triggered later
         deferredPrompt = event;
         // Update UI notify the user they can add to home screen
         domCache.btnAdd.classList.remove('hide');
