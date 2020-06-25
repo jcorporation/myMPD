@@ -7,28 +7,20 @@
 #ifndef __LUA_MYMPD_STATE_H__
 #define __LUA_MYMPD_STATE_H__
 
-typedef struct t_lua_mympd_state {
-    enum mpd_state play_state;
-    int volume;
-    int song_pos;
-    unsigned elapsed_time;
-    unsigned total_time;
-    int song_id;
-    int next_song_id;
-    int next_song_pos;
-    unsigned queue_length;
-    unsigned queue_version;
-    bool repeat;
-    bool random;
-    enum mpd_single_state single_state;
-    bool consume;
-    unsigned crossfade;
-    float mixrampdb;
-    float mixrampdelay;
-    sds music_directory;
-    sds varlibdir;
-} t_lua_mympd_state;
+enum lua_mympd_state_type {
+    LUA_TYPE_STRING,
+    LUA_TYPE_INTEGER,
+    LUA_TYPE_NUMBER,
+    LUA_TYPE_BOOLEAN
+};
 
-void free_t_lua_mympd_state(t_lua_mympd_state *lua_mympd_state);
+struct t_lua_mympd_state_value {
+    sds p;
+    long i;
+    double f;
+    bool b;
+};
+
+void free_lua_mympd_state(struct list *lua_mympd_state);
 
 #endif

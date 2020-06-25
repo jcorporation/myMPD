@@ -10,6 +10,8 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <assert.h>
+#include <stdint.h>
+
 #include <mpd/client.h>
 
 #include "../../dist/src/sds/sds.h"
@@ -29,6 +31,13 @@
 #include "mpd_client_sticker.h"
 #include "mpd_client_state.h"
 
+//private definitions
+static void set_lua_mympd_state_p(struct list *lua_mympd_state, const char *k, const char *v);
+static void set_lua_mympd_state_i(struct list *lua_mympd_state, const char *k, int v);
+static void set_lua_mympd_state_f(struct list *lua_mympd_state, const char *k, double v);
+static void set_lua_mympd_state_b(struct list *lua_mympd_state, const char *k, bool v);
+
+//public functions
 sds mpd_client_get_updatedb_state(t_mpd_client_state *mpd_client_state, sds buffer) {
     struct mpd_status *status = mpd_run_status(mpd_client_state->mpd_state->conn);
     if (status == NULL) {
@@ -143,30 +152,30 @@ sds mpd_client_put_state(t_config *config, t_mpd_client_state *mpd_client_state,
     return buffer;
 }
 
-bool mpd_client_get_lua_mympd_state(t_config *config, t_mpd_client_state *mpd_client_state, t_lua_mympd_state *lua_mympd_state) {
+bool mpd_client_get_lua_mympd_state(t_config *config, t_mpd_client_state *mpd_client_state, struct list *lua_mympd_state) {
     struct mpd_status *status = mpd_run_status(mpd_client_state->mpd_state->conn);
     if (status == NULL) {
         return false;
     }
-    lua_mympd_state->play_state = mpd_status_get_state(status);
-    lua_mympd_state->volume = mpd_status_get_volume(status);
-    lua_mympd_state->song_pos = mpd_status_get_song_pos(status);
-    lua_mympd_state->elapsed_time = mpd_status_get_elapsed_time(status);
-    lua_mympd_state->total_time = mpd_status_get_total_time(status);
-    lua_mympd_state->song_id = mpd_status_get_song_id(status);
-    lua_mympd_state->next_song_id = mpd_status_get_next_song_id(status);
-    lua_mympd_state->next_song_pos = mpd_status_get_next_song_pos(status);
-    lua_mympd_state->queue_length = mpd_status_get_queue_length(status);
-    lua_mympd_state->queue_version = mpd_status_get_queue_version(status);
-    lua_mympd_state->repeat = mpd_status_get_repeat(status);
-    lua_mympd_state->random = mpd_status_get_random(status);
-    lua_mympd_state->single_state = mpd_status_get_single_state(status);
-    lua_mympd_state->consume = mpd_status_get_consume(status);
-    lua_mympd_state->crossfade = mpd_status_get_crossfade(status);
-    lua_mympd_state->mixrampdb = mpd_status_get_mixrampdb(status);
-    lua_mympd_state->mixrampdelay = mpd_status_get_mixrampdelay(status);
-    lua_mympd_state->music_directory = sdsnew(mpd_client_state->music_directory_value);
-    lua_mympd_state->varlibdir = sdsdup(config->varlibdir);
+    set_lua_mympd_state_i(lua_mympd_state, "play_state", mpd_status_get_state(status));
+    set_lua_mympd_state_i(lua_mympd_state, "volume", mpd_status_get_volume(status));
+    set_lua_mympd_state_i(lua_mympd_state, "song_pos", mpd_status_get_song_pos(status));
+    set_lua_mympd_state_i(lua_mympd_state, "elapsed_time", mpd_status_get_elapsed_time(status));
+    set_lua_mympd_state_i(lua_mympd_state, "total_time", mpd_status_get_total_time(status));
+    set_lua_mympd_state_i(lua_mympd_state, "song_id", mpd_status_get_song_id(status));
+    set_lua_mympd_state_i(lua_mympd_state, "next_song_id", mpd_status_get_next_song_id(status));
+    set_lua_mympd_state_i(lua_mympd_state, "next_song_pos", mpd_status_get_next_song_pos(status));
+    set_lua_mympd_state_i(lua_mympd_state, "queue_length", mpd_status_get_queue_length(status));
+    set_lua_mympd_state_i(lua_mympd_state, "queue_version", mpd_status_get_queue_version(status));
+    set_lua_mympd_state_b(lua_mympd_state, "repeat", mpd_status_get_repeat(status));
+    set_lua_mympd_state_b(lua_mympd_state, "random", mpd_status_get_random(status));
+    set_lua_mympd_state_i(lua_mympd_state, "single_state", mpd_status_get_single_state(status));
+    set_lua_mympd_state_i(lua_mympd_state, "consume", mpd_status_get_consume(status));
+    set_lua_mympd_state_i(lua_mympd_state, "crossfade", mpd_status_get_crossfade(status));
+    set_lua_mympd_state_f(lua_mympd_state, "mixrampdb", mpd_status_get_mixrampdb(status));
+    set_lua_mympd_state_f(lua_mympd_state, "mixrampdelay", mpd_status_get_mixrampdelay(status));
+    set_lua_mympd_state_p(lua_mympd_state, "music_directory", mpd_client_state->music_directory_value);
+    set_lua_mympd_state_p(lua_mympd_state, "varlibdir", config->varlibdir);
     mpd_status_free(status);
     return true;
 }
@@ -272,4 +281,30 @@ sds mpd_client_put_current_song(t_mpd_client_state *mpd_client_state, sds buffer
     mpd_song_free(song);
     buffer = jsonrpc_end_result(buffer);
     return buffer;
+}
+
+
+//private functions
+static void set_lua_mympd_state_p(struct list *lua_mympd_state, const char *k, const char *v) {
+    struct t_lua_mympd_state_value *value = (struct t_lua_mympd_state_value *)malloc(sizeof(struct t_lua_mympd_state_value));
+    value->p = sdsnew(v);
+    list_push(lua_mympd_state, k, LUA_TYPE_STRING, NULL, value);
+}
+
+static void set_lua_mympd_state_i(struct list *lua_mympd_state, const char *k, int v) {
+    struct t_lua_mympd_state_value *value = (struct t_lua_mympd_state_value *)malloc(sizeof(struct t_lua_mympd_state_value));
+    value->i = v;
+    list_push(lua_mympd_state, k, LUA_TYPE_INTEGER, NULL, value);
+}
+
+static void set_lua_mympd_state_f(struct list *lua_mympd_state, const char *k, double v) {
+    struct t_lua_mympd_state_value *value = (struct t_lua_mympd_state_value *)malloc(sizeof(struct t_lua_mympd_state_value));
+    value->f = v;
+    list_push(lua_mympd_state, k, LUA_TYPE_NUMBER, NULL, value);
+}
+
+static void set_lua_mympd_state_b(struct list *lua_mympd_state, const char *k, bool v) {
+    struct t_lua_mympd_state_value *value = (struct t_lua_mympd_state_value *)malloc(sizeof(struct t_lua_mympd_state_value));
+    value->b = v;
+    list_push(lua_mympd_state, k, LUA_TYPE_BOOLEAN, NULL, value);
 }

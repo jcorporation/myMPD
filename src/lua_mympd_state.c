@@ -9,11 +9,21 @@
 #include <mpd/client.h>
 
 #include "../dist/src/sds/sds.h"
+#include "list.h"
 #include "lua_mympd_state.h"
 
-void free_t_lua_mympd_state(t_lua_mympd_state *lua_mympd_state) {
-    sdsfree(lua_mympd_state->music_directory);
-    sdsfree(lua_mympd_state->varlibdir);
+void free_lua_mympd_state(struct list *lua_mympd_state) {
+    struct list_node *current = lua_mympd_state->head;
+    while (current != NULL) {
+        if (current->value_i == LUA_TYPE_STRING) {
+            struct t_lua_mympd_state_value *u = (struct t_lua_mympd_state_value *)current->user_data;
+            sdsfree(u->p);
+            free(current->user_data);
+            current->user_data = NULL;
+        }
+        current = current->next;
+    }
+    list_free(lua_mympd_state);
     free(lua_mympd_state);
 }
 

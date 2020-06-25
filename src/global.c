@@ -12,6 +12,7 @@
 
 #include "../dist/src/sds/sds.h"
 #include "../dist/src/mongoose/mongoose.h"
+#include "list.h"
 #include "tiny_queue.h"
 #include "lua_mympd_state.h"
 #include "api.h"
@@ -77,7 +78,7 @@ int expire_result_queue(tiny_queue_t *queue, time_t age) {
     while ((response = tiny_queue_expire(queue, age)) != NULL) {
         if (response->extra != NULL) {
             if (strcmp(response->method, "MYMPD_API_SCRIPT_INIT") == 0) {
-                free_t_lua_mympd_state(response->extra);
+                free_lua_mympd_state(response->extra);
             }
             else {
                 free(response->extra);
@@ -96,7 +97,7 @@ int expire_request_queue(tiny_queue_t *queue, time_t age) {
     while ((request = tiny_queue_expire(queue, age)) != NULL) {
         if (request->extra != NULL) {
             if (strcmp(request->method, "MYMPD_API_SCRIPT_INIT") == 0) {
-                free_t_lua_mympd_state(request->extra);
+                free_lua_mympd_state(request->extra);
             }
             else {
                 free(request->extra);

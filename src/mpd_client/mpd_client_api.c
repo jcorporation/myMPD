@@ -67,7 +67,9 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
         #ifdef ENABLE_LUA
         case MPD_API_SCRIPT_INIT:
             if (config->scripting == true) {
-                t_lua_mympd_state *lua_mympd_state = (t_lua_mympd_state *)malloc(sizeof(t_lua_mympd_state));
+                struct list *lua_mympd_state = (struct list *) malloc(sizeof(struct list));
+                assert(lua_mympd_state);
+                list_init(lua_mympd_state);
                 rc = mpd_client_get_lua_mympd_state(config, mpd_client_state, lua_mympd_state);
                 if (rc == true) {
                     t_work_request *script_request = create_request(-2, request->id, MYMPD_API_SCRIPT_INIT, "MYMPD_API_SCRIPT_INIT", "");

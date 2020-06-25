@@ -14,6 +14,7 @@
 #include <signal.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <inttypes.h>
 
 #include <mpd/client.h>
 
@@ -50,7 +51,7 @@ struct t_script_thread_arg {
 
 static void *mympd_api_script_execute(void *script_thread_arg);
 static sds lua_err_to_str(sds buffer, int rc, bool phrase, const char *script);
-static void populate_lua_table(lua_State *lua_vm, t_lua_mympd_state *lua_mympd_state);
+static void populate_lua_table(lua_State *lua_vm, struct list *lua_mympd_state);
 static void populate_lua_table_field_p(lua_State *lua_vm, const char *key, const char *value);
 static void populate_lua_table_field_i(lua_State *lua_vm, const char *key, long value);
 static void populate_lua_table_field_f(lua_State *lua_vm, const char *key, float value);
@@ -297,26 +298,26 @@ static void populate_lua_table_field_b(lua_State *lua_vm, const char *key, bool 
     lua_settable(lua_vm, -3);
 }
 
-static void populate_lua_table(lua_State *lua_vm, t_lua_mympd_state *lua_mympd_state) {
-    populate_lua_table_field_i(lua_vm, "play_state", lua_mympd_state->play_state);
-    populate_lua_table_field_i(lua_vm, "volume", lua_mympd_state->volume);
-    populate_lua_table_field_i(lua_vm, "song_pos", lua_mympd_state->song_pos);
-    populate_lua_table_field_i(lua_vm, "elapsed_time", lua_mympd_state->elapsed_time);
-    populate_lua_table_field_i(lua_vm, "total_time", lua_mympd_state->total_time);
-    populate_lua_table_field_i(lua_vm, "song_id", lua_mympd_state->song_id);
-    populate_lua_table_field_i(lua_vm, "next_song_id", lua_mympd_state->next_song_id);
-    populate_lua_table_field_i(lua_vm, "next_song_pos", lua_mympd_state->next_song_pos);
-    populate_lua_table_field_i(lua_vm, "queue_length", lua_mympd_state->queue_length);
-    populate_lua_table_field_i(lua_vm, "queue_version", lua_mympd_state->queue_version);
-    populate_lua_table_field_b(lua_vm, "repeat", lua_mympd_state->repeat);
-    populate_lua_table_field_b(lua_vm, "random", lua_mympd_state->random);
-    populate_lua_table_field_i(lua_vm, "single_state", lua_mympd_state->single_state);
-    populate_lua_table_field_b(lua_vm, "consume", lua_mympd_state->consume);
-    populate_lua_table_field_i(lua_vm, "crossfade", lua_mympd_state->crossfade);
-    populate_lua_table_field_f(lua_vm, "mixrampdb", lua_mympd_state->mixrampdb);
-    populate_lua_table_field_f(lua_vm, "mixrampdelay", lua_mympd_state->mixrampdelay);
-    populate_lua_table_field_p(lua_vm, "music_directory", lua_mympd_state->music_directory);
-    populate_lua_table_field_p(lua_vm, "varlibdir", lua_mympd_state->varlibdir);
+static void populate_lua_table(lua_State *lua_vm, struct list *lua_mympd_state) {
+    struct list_node *current = lua_mympd_state->head;
+    while (current != NULL) {
+        struct t_lua_mympd_state_value *value = (struct t_lua_mympd_state_value *)current->user_data;
+        switch (current->value_i) {
+            case LUA_TYPE_STRING:
+                populate_lua_table_field_p(lua_vm, current->key, value->p);
+                break;
+            case LUA_TYPE_INTEGER:
+                populate_lua_table_field_i(lua_vm, current->key, value->i);
+                break;
+            case LUA_TYPE_NUMBER:
+                populate_lua_table_field_f(lua_vm, current->key, value->f);
+                break;
+            case LUA_TYPE_BOOLEAN:
+                populate_lua_table_field_b(lua_vm, current->key, value->b);
+                break;
+        }
+        current = current->next;
+    }
 }
 
 static void register_lua_functions(lua_State *lua_vm) {
@@ -403,11 +404,11 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
             if (je == 1 && p_charbuf1 != NULL) {
                 if (strcmp(response->method, "MYMPD_API_SCRIPT_INIT") == 0) {
                     LOG_DEBUG("Populating lua global state table mympd");
-                    t_lua_mympd_state *lua_mympd_state = (t_lua_mympd_state *) response->extra;
+                    struct list *lua_mympd_state = (struct list *) response->extra;
                     lua_newtable(lua_vm);
                     populate_lua_table(lua_vm, lua_mympd_state);    
                     lua_setglobal(lua_vm, "mympd_state");
-                    free_t_lua_mympd_state(lua_mympd_state);
+                    free_lua_mympd_state(lua_mympd_state);
                     lua_mympd_state = NULL;
                 }
                 lua_pushstring(lua_vm, p_charbuf1);
