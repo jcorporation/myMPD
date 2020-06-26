@@ -15,6 +15,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <inttypes.h>
+#include <dirent.h>
 
 #include <mpd/client.h>
 
@@ -64,6 +65,68 @@ static void free_t_script_thread_arg(struct t_script_thread_arg *script_thread_a
 static bool mympd_luaopen(lua_State *lua_vm, const char *lualib);
 
 //public functions
+sds mympd_api_script_list(t_config *config, sds buffer, sds method, long request_id, bool all) {
+    buffer = jsonrpc_start_result(buffer, method, request_id);
+    buffer = sdscat(buffer, ",\"data\":[");
+    sds scriptdirname = sdscatfmt(sdsempty(), "%s/scripts", config->varlibdir);
+    DIR *script_dir = opendir(scriptdirname);
+    if (script_dir != NULL) {
+        struct dirent *next_file;
+        int nr = 0;
+        sds entry = sdsempty();
+        while ((next_file = readdir(script_dir)) != NULL ) {
+            if (strstr(next_file->d_name, ".lua") != NULL) {
+                strip_extension(next_file->d_name);
+                entry = sdscatlen(entry, "{", 1);
+                entry = tojson_char(entry, "name", next_file->d_name, true);
+                sds scriptfilename = sdscatfmt(sdsempty(), "%s/%s.lua", scriptdirname, next_file->d_name);
+                FILE *fp = fopen(scriptfilename, "r");
+                int order = 0;
+                if (fp != NULL) {
+                    char *line = NULL;
+                    size_t n = 0;
+                    if (getline(&line, &n, fp) > 0) {
+                        if (strncmp(line, "-- ", 3) == 0) {
+                            sds metadata = sdsnew(line);
+                            sdsrange(metadata, 3, -2);
+                            entry = sdscat(entry, "\"metadata\":");
+                            entry = sdscat(entry, metadata);
+                            int je = json_scanf(metadata, sdslen(metadata), "{order: %d}", &order);
+                            if (je == 0) {
+                                LOG_WARN("Invalid metadata for script %s", scriptfilename);
+                            }
+                        }
+                        else {
+                            LOG_WARN("Invalid metadata for script %s", scriptfilename);
+                            entry = sdscat(entry, "\"metadata\":{}");
+                        }
+                    }
+                    fclose(fp);
+                }
+                else {
+                    LOG_ERROR("Can not open file %s", scriptfilename);
+                }
+                entry = sdscatlen(entry, "}", 1);
+                if (all == true || order > 0) {
+                    if (nr++) {
+                        buffer = sdscat(buffer, ",");
+                    }
+                    buffer = sdscat(buffer, entry);
+                }
+                entry = sdscrop(entry);
+            }
+        }
+        closedir(script_dir);
+    }
+    else {
+        LOG_ERROR("Can not open dir %s", scriptdirname);
+    }
+    sdsfree(scriptdirname);
+    buffer = sdscat(buffer, "]");        
+    buffer = jsonrpc_end_result(buffer);
+    return buffer;
+}
+
 bool mympd_api_script_start(t_config *config, const char *script, struct list *arguments, bool localscript) {
     pthread_t mympd_script_thread;
     pthread_attr_t attr;

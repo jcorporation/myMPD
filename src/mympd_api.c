@@ -99,6 +99,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
     int int_buf1;
     int int_buf2;
     bool rc;
+    bool bool_buf1;
     LOG_VERBOSE("MYMPD API request (%d): %s", request->conn_id, request->data);
     
     //create response struct
@@ -106,6 +107,12 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
     
     switch(request->cmd_id) {
         #ifdef ENABLE_LUA
+        case MYMPD_API_SCRIPT_LIST:
+            je = json_scanf(request->data, sdslen(request->data), "{params: {all: %B}}", &bool_buf1);
+            if (je == 1) {
+                response->data = mympd_api_script_list(config, response->data, request->method, request->id, bool_buf1);
+            }
+            break;
         case MYMPD_API_SCRIPT_INIT:
             if (config->scripting == true) {
                 if (request->extra != NULL) {

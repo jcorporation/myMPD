@@ -292,48 +292,7 @@ function parseSettings() {
     }
 
     if (settings.featScripting === true) {
-        let scriptMaxListLen = 4;
-        let scriptList = '';
-        let scriptListLen = settings.scriptList.length;
-        if (scriptListLen > 0) {
-            timerActions += '<optgroup data-value="script" label="' + t('Script') + '">';
-            settings.scriptList.sort();
-            let mi = 0;
-            for (let i = 0; i < scriptListLen; i++) {
-                let scriptDisplayname = settings.scriptList[i];
-                let p = scriptDisplayname.match(/^(\d+)(.+)$/);
-                let inMainmenu = false;
-                if (p !== null) {
-                    scriptDisplayname = p[2];
-                    inMainmenu = true;
-                }
-                if (settings.scriptList[i] === 'HR') {
-                    scriptList += '<div class="dropdown-divider"></div>';
-                }
-                else {
-                    if (inMainmenu === true) {
-                        if (mi === 0) {
-                            scriptList = scriptListLen > scriptMaxListLen ? '' : '<div class="dropdown-divider"></div>';
-                        }
-                        mi++;
-                        scriptList += '<a title="' + e(settings.scriptList[i]) + '" class="dropdown-item text-light alwaysEnabled" href="#" data-href=\'{"cmd": "execScript", "options": ["' + 
-                            e(settings.scriptList[i]) + '"]}\'>' + e(scriptDisplayname) + '</a>';
-                    }
-                    timerActions += '<option value="' + e(settings.scriptList[i]) + '">' + e(scriptDisplayname) + '</option>';
-                }
-            }
-        }
-        document.getElementById('scripts').innerHTML = scriptList;
-        timerActions += '</optgroup>';
-        
-        if (scriptListLen > scriptMaxListLen) {
-            document.getElementById('navScripting').classList.remove('hide');
-            document.getElementById('scripts').classList.add('collapse', 'menu-indent');
-        }
-        else {
-            document.getElementById('navScripting').classList.add('hide');
-            document.getElementById('scripts').classList.remove('collapse', 'menu-indent');
-        }
+        getScriptList(true);        
     }
     else {
         document.getElementById('scripts').innerHTML = '';

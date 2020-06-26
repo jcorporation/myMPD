@@ -596,28 +596,6 @@ sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buf
         buffer = sdscat(buffer, "]");
     }
     
-    if (config->scripting == true) {
-        buffer = sdscat(buffer, ",\"scriptList\":[");
-        sds scriptdirname = sdscatfmt(sdsempty(), "%s/scripts", config->varlibdir);
-        DIR *script_dir = opendir(scriptdirname);
-        if (script_dir != NULL) {
-            struct dirent *next_file;
-            int nr = 0;
-            while ((next_file = readdir(script_dir)) != NULL ) {
-                if (strstr(next_file->d_name, ".lua") != NULL) {
-                    if (nr++) {
-                        buffer = sdscat(buffer, ",");
-                    }
-                    strip_extension(next_file->d_name);
-                    buffer = sdscatjson(buffer, next_file->d_name, strlen(next_file->d_name));
-                }
-            }
-            closedir(script_dir);
-        }
-        sdsfree(scriptdirname);
-        buffer = sdscat(buffer, "]");        
-    }
-
     buffer = jsonrpc_end_result(buffer);
     return buffer;
 }

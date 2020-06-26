@@ -1954,6 +1954,33 @@
     </div>
   </div>
  
+  <div class="modal fade" id="modalExecScript" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><span class="material-icons title-icon">save</span> <span data-phrase="Execute script"></span></h5>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>          
+        </div>
+        <div class="modal-body">
+          <form id="execScriptFrm">
+            <div class="form-group row">
+              <label class="col-sm-4 col-form-label" for="modalExecScriptScriptname" data-phrase="Script"></label>
+              <div class="col-sm-8">
+                <input id="modalExecScriptScriptname" type="text" class="form-control border-secondary" value="" readonly>
+              </div>
+            </div>
+            <hr/>
+            <div id="execScriptArguments">
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Cancel"></button>
+          <button type="button" class="btn btn-success" data-href='{"cmd": "execScriptArgs", "options": []}' data-phrase="Execute"></button>
+        </div>
+      </div>
+    </div>
+  </div>
   
 <!--debug-->  <script src="js/i18n.js"></script>
 <!--debug-->  <script src="js/keymap.js"></script>
@@ -1976,6 +2003,7 @@
 <!--debug-->  <script src="js/state.js"></script>
 <!--debug-->  <script src="js/song.js"></script>
 <!--debug-->  <script src="js/misc.js"></script>
+<!--debug-->  <script src="js/scripts.js"></script>
 <!--debug-->  <script src="js/popover.js"></script>
 <!--debug-->  <script src="js/mympd.js"></script>
 <!--release   <script src="js/combined.js"></script>-->

@@ -106,6 +106,7 @@ var modalDeletePlaylist = new BSN.Modal(document.getElementById('modalDeletePlay
 var modalSaveBookmark = new BSN.Modal(document.getElementById('modalSaveBookmark'));
 var modalTimer = new BSN.Modal(document.getElementById('modalTimer'));
 var modalMounts = new BSN.Modal(document.getElementById('modalMounts'));
+var modalExecScript = new BSN.Modal(document.getElementById('modalExecScript'));
 
 var dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
 var dropdownVolumeMenu = new BSN.Dropdown(document.getElementById('volumeMenu'));
@@ -754,7 +755,7 @@ function appInit() {
     
     document.getElementById('scripts').addEventListener('click', function(event) {
         if (event.target.nodeName === 'A') {
-            parseCmd(event, event.target.getAttribute('data-href'));
+            execScript(event.target.getAttribute('data-href'));
         }
     }, false);
 
