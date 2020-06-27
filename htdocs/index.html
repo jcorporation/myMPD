@@ -54,6 +54,7 @@
             <a data-phrase="Settings" class="dropdown-item text-light" href="#" data-toggle="modal" data-target="#modalSettings"></a>
             <a data-phrase="Timer" class="dropdown-item text-light featTimer" href="#" data-toggle="modal" data-target="#modalTimer"></a>
             <a data-phrase="Mounts" class="dropdown-item text-light featMounts" href="#" data-toggle="modal" data-target="#modalMounts"></a>
+            <a data-phrase="Scripts" class="dropdown-item text-light featScripts" href="#" data-toggle="modal" data-target="#modalScripts"></a>
           </div>
           <a data-phrase="Browse directories" class="dropdown-item text-light featBrowse" href="browse/" target="_blank"></a>
           <a data-phrase="About" class="dropdown-item text-light " href="#" data-toggle="modal" data-target="#modalAbout"></a>
@@ -1977,6 +1978,78 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Cancel"></button>
           <button type="button" class="btn btn-success" data-href='{"cmd": "execScriptArgs", "options": []}' data-phrase="Execute"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="modalScripts" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><span class="material-icons title-icon">description</span> <span data-phrase="Scripts"></span></h5>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>          
+        </div>
+        <div class="modal-body">
+        <div class="tab-content">
+          <div id="editScript" class="tab-pane">
+            <form id="editScriptForm">
+              <div class="form-group row">
+                <label class="col-sm-4 col-form-label" for="inputScriptName" data-phrase="Scriptname"></label>
+                <div class="col-sm-8">
+                  <input id="inputScriptName" class="form-control border-secondary" type="text"/>
+                  <div class="invalid-feedback" data-phrase="Invalid scriptname"></div>
+                </div>
+              </div>
+              <div class="form-group row">
+                <label class="col-sm-4 col-form-label" for="inputScriptOrder" data-phrase="Order"></label>
+                <div class="col-sm-8">
+                  <input id="inputScriptOrder" class="form-control border-secondary" type="text"/>
+                  <div class="invalid-feedback" data-phrase="Invalid script order"></div>
+                </div>
+              </div>
+              <div class="form-group row">
+                <label class="col-sm-4 col-form-label" for="inputScriptArguments" data-phrase="Arguments"></label>
+                <div class="col-sm-8">
+                  <div class="input-group">
+                    <input id="inputScriptArgument" class="form-control border-secondary" type="text"/>
+                    <div class="input-group-append">
+                      <button class="btn btn-secondary" id="addScriptArgument" data-href='{"cmd": "addScriptArgument", "options": []}'>+</button>
+                    </div>
+                  </div>
+                  <select class="mt-2 form-control custom-select" id="selectScriptArguments" size="3">
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="textareaScriptContent" data-phrase="Script"></label>
+                <textarea class="form-control" id="textareaScriptContent" rows="10"></textarea>
+              </div>
+            </form>
+          </div>
+          <div class="tab-pane active" id="listScripts">
+            <div class="table-responsive-md overflow-auto">
+              <table class="table table-hover table-sm">
+                <thead>
+                  <tr>
+                    <th data-phrase="Script"></th>
+                    <th>&nbsp;</th>
+                  </tr>
+                </thead>
+                <tbody class="clickable" id="listScriptsList">
+                </tbody>
+              </table>
+            </div>
+          </div>  
+        </div>
+        </div>
+        <div class="modal-footer justify-content-between" id="listScriptsFooter">
+          <button data-href='{"cmd":"showEditScript","options":["",""]}' class="btn btn-success justify-content-start" data-phrase="New script"></button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Close"></button>
+        </div>
+        <div id="editScriptFooter" class="modal-footer hide">
+          <button data-href='{"cmd":"showListScripts","options":[]}' type="button" class="btn btn-secondary" data-phrase="Cancel"></button>
+          <button data-href='{"cmd":"saveScript","options":[]}' type="button" class="btn btn-success" data-phrase="Save"></button>
         </div>
       </div>
     </div>

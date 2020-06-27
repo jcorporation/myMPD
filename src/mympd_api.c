@@ -120,19 +120,39 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                     }
                     arguments = sdscatjson(arguments, val.ptr, val.len);
                 }
-                rc = mympd_api_script_save(config, p_charbuf1, int_buf1, p_charbuf2, arguments);
+                if (validate_string_not_empty(p_charbuf1) == true) {
+                    rc = mympd_api_script_save(config, p_charbuf1, int_buf1, p_charbuf2, arguments);
+                    if (rc == true) {
+                        response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+                    }
+                    else {
+                        response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Could not save script", true);
+                    }
+                }
+                else {
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Invalid scriptname", true);
+                }
                 sdsfree(arguments);
+            }
+            break;
+        case MYMPD_API_SCRIPT_DELETE:
+            je = json_scanf(request->data, sdslen(request->data), "{params: {script: %Q}}", &p_charbuf1);
+            if (je == 1 && validate_string_not_empty(p_charbuf1) == true) {
+                rc = mympd_api_script_delete(config, p_charbuf1);
                 if (rc == true) {
                     response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
                 }
                 else {
-                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Could not save script", true);
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Could not delete script", true);
                 }
+            }
+            else {
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Invalid scriptname", true);
             }
             break;
         case MYMPD_API_SCRIPT_GET:
             je = json_scanf(request->data, sdslen(request->data), "{params: {script: %Q}}", &p_charbuf1);
-            if (je == 1) {
+            if (je == 1 && validate_string_not_empty(p_charbuf1) == true) {
                 response->data = mympd_api_script_get(config, response->data, request->method, request->id, p_charbuf1);
             }
             break;

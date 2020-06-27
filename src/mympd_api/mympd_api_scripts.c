@@ -16,6 +16,7 @@
 #include <sys/types.h>
 #include <inttypes.h>
 #include <dirent.h>
+#include <errno.h>
 
 #include <mpd/client.h>
 
@@ -75,7 +76,8 @@ sds mympd_api_script_list(t_config *config, sds buffer, sds method, long request
         int nr = 0;
         sds entry = sdsempty();
         while ((next_file = readdir(script_dir)) != NULL ) {
-            if (strstr(next_file->d_name, ".lua") != NULL) {
+            sds extension = get_extension_from_filename(next_file->d_name);
+            if (strcmp(extension, "lua") == 0) {
                 strip_extension(next_file->d_name);
                 entry = sdscatlen(entry, "{", 1);
                 entry = tojson_char(entry, "name", next_file->d_name, true);
@@ -119,6 +121,7 @@ sds mympd_api_script_list(t_config *config, sds buffer, sds method, long request
                 }
                 entry = sdscrop(entry);
             }
+            sdsfree(extension);
         }
         closedir(script_dir);
     }
@@ -129,6 +132,17 @@ sds mympd_api_script_list(t_config *config, sds buffer, sds method, long request
     buffer = sdscat(buffer, "]");        
     buffer = jsonrpc_end_result(buffer);
     return buffer;
+}
+
+bool mympd_api_script_delete(t_config *config, const char *script) {
+    sds scriptfilename = sdscatfmt(sdsempty(), "%s/scripts/%s.lua", config->varlibdir, script);
+    if (unlink(scriptfilename) == -1) {
+        LOG_ERROR("Unlinking script file %s failed: %s", scriptfilename, strerror(errno));
+        sdsfree(scriptfilename);
+        return false;
+    }
+    sdsfree(scriptfilename);
+    return true;
 }
 
 bool mympd_api_script_save(t_config *config, const char *script, int order, const char *content, const char *arguments) {
@@ -195,7 +209,6 @@ sds mympd_api_script_get(t_config *config, sds buffer, sds method, long request_
     else {
         LOG_ERROR("Can not open file %s", scriptfilename);
         buffer = jsonrpc_respond_message(buffer, method, request_id, "Can not open scriptfile", true);
-        sdsfree(scriptfilename);        
     }
     sdsfree(scriptfilename);
     buffer = jsonrpc_end_result(buffer);

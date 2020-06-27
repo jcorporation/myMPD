@@ -107,6 +107,7 @@ var modalSaveBookmark = new BSN.Modal(document.getElementById('modalSaveBookmark
 var modalTimer = new BSN.Modal(document.getElementById('modalTimer'));
 var modalMounts = new BSN.Modal(document.getElementById('modalMounts'));
 var modalExecScript = new BSN.Modal(document.getElementById('modalExecScript'));
+var modalScripts = new BSN.Modal(document.getElementById('modalScripts'));
 
 var dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
 var dropdownVolumeMenu = new BSN.Dropdown(document.getElementById('volumeMenu'));
@@ -571,6 +572,10 @@ function appInit() {
         showListMounts();
     });
     
+    document.getElementById('modalScripts').addEventListener('shown.bs.modal', function () {
+        showListScripts();
+    });
+    
     document.getElementById('modalAbout').addEventListener('shown.bs.modal', function () {
         sendAPI("MPD_API_DATABASE_STATS", {}, parseStats);
         getServerinfo();
@@ -861,6 +866,27 @@ function appInit() {
             }
             else if (action === 'update') {
                 updateMount(event.target, mountPoint);
+            }
+        }
+    }, false);
+    
+    document.getElementById('listScriptsList').addEventListener('click', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        if (event.target.nodeName === 'TD') {
+            if (event.target.parentNode.getAttribute('data-script') === '') {
+                return false;
+            }
+            showEditScript(decodeURI(event.target.parentNode.getAttribute('data-script')));
+        }
+        else if (event.target.nodeName === 'A') {
+            let action = event.target.getAttribute('data-action');
+            let script = decodeURI(event.target.parentNode.parentNode.getAttribute('data-script'));
+            if (action === 'delete') {
+                deleteScript(script);
+            }
+            else if (action === 'execute') {
+                execScript(event.target.getAttribute('data-href'));
             }
         }
     }, false);
@@ -1175,6 +1201,20 @@ function appInit() {
     document.getElementById('BrowseDatabaseByTagDropdown').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
             appGoto(app.current.app, app.current.tab, event.target.getAttribute('data-tag') , '0/' + app.current.filter + '/' + app.current.sort + '/' + app.current.search);
+        }
+    }, false);
+
+    document.getElementById('inputScriptArgument').addEventListener('keyup', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            event.stopPropagation();
+            addScriptArgument();
+        }
+    }, false);
+    
+    document.getElementById('selectScriptArguments').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'OPTION') {
+            removeScriptArgument(event);
         }
     }, false);
 
