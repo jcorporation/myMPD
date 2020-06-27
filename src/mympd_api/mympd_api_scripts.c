@@ -98,8 +98,12 @@ sds mympd_api_script_list(t_config *config, sds buffer, sds method, long request
                         }
                         else {
                             LOG_WARN("Invalid metadata for script %s", scriptfilename);
-                            entry = sdscat(entry, "\"metadata\":{}");
+                            entry = sdscat(entry, "\"metadata\":{\"order\":0,\"arguments\":[]}");
                         }
+                    }
+                    else {
+                        LOG_WARN("Invalid metadata for script %s", scriptfilename);
+                        entry = sdscat(entry, "\"metadata\":{\"order\":0,\"arguments\":[]}");
                     }
                     fclose(fp);
                 }
@@ -123,6 +127,77 @@ sds mympd_api_script_list(t_config *config, sds buffer, sds method, long request
     }
     sdsfree(scriptdirname);
     buffer = sdscat(buffer, "]");        
+    buffer = jsonrpc_end_result(buffer);
+    return buffer;
+}
+
+bool mympd_api_script_save(t_config *config, const char *script, int order, const char *content, const char *arguments) {
+    sds tmp_file = sdscatfmt(sdsempty(), "%s/scripts/%.XXXXXX", config->varlibdir, script);
+    int fd = mkstemp(tmp_file);
+    if (fd < 0 ) {
+        LOG_ERROR("Can't open %s for write", tmp_file);
+        sdsfree(tmp_file);
+        return false;
+    }
+    FILE *fp = fdopen(fd, "w");
+    //write metadata line
+    fprintf(fp, "-- {\"order\":%d,\"arguments\":[%s]}\n", order, arguments);
+    //write script content
+    fputs(content, fp);
+    fclose(fp);
+    sds scriptfilename = sdscatfmt(sdsempty(), "%s/scripts/%s.lua", config->varlibdir, script);
+    if (rename(tmp_file, scriptfilename) == -1) {
+        LOG_ERROR("Rename file from %s to %s failed", tmp_file, scriptfilename);
+        sdsfree(tmp_file);
+        sdsfree(scriptfilename);
+        return false;
+    }
+    sdsfree(tmp_file);
+    sdsfree(scriptfilename);
+    return true;
+}
+
+sds mympd_api_script_get(t_config *config, sds buffer, sds method, long request_id, const char *script) {
+    buffer = jsonrpc_start_result(buffer, method, request_id);
+    buffer = sdscat(buffer, ",");
+    buffer = tojson_char(buffer, "script", script, true);
+ 
+    sds scriptfilename = sdscatfmt(sdsempty(), "%s/scripts/%s.lua", config->varlibdir, script);
+    FILE *fp = fopen(scriptfilename, "r");
+    if (fp != NULL) {
+        char *line = NULL;
+        size_t n = 0;
+        ssize_t read = 0;
+        if (getline(&line, &n, fp) > 0) {
+            if (strncmp(line, "-- ", 3) == 0) {
+                sds metadata = sdsnew(line);
+                sdsrange(metadata, 3, -2);
+                buffer = sdscat(buffer, "\"metadata\":");
+                buffer = sdscat(buffer, metadata);
+            }
+            else {
+                LOG_WARN("Invalid metadata for script %s", scriptfilename);
+                buffer = sdscat(buffer, "\"metadata\":{\"order\":0, \"arguments\":[]}");
+            }
+        }
+        else {
+            LOG_WARN("Invalid metadata for script %s", scriptfilename);
+            buffer = sdscat(buffer, "\"metadata\":{\"order\":0, \"arguments\":[]}");
+        }
+        buffer = sdscat(buffer, ",\"content\":");
+        sds content = sdsempty();
+        while ((read = getline(&line, &n, fp)) > 0) {
+            content = sdscatlen(content, line, read);
+        }
+        fclose(fp);
+        buffer = sdscatjson(buffer, content, sdslen(content));
+    }
+    else {
+        LOG_ERROR("Can not open file %s", scriptfilename);
+        buffer = jsonrpc_respond_message(buffer, method, request_id, "Can not open scriptfile", true);
+        sdsfree(scriptfilename);        
+    }
+    sdsfree(scriptfilename);
     buffer = jsonrpc_end_result(buffer);
     return buffer;
 }

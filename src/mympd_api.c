@@ -107,6 +107,35 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
     
     switch(request->cmd_id) {
         #ifdef ENABLE_LUA
+        case MYMPD_API_SCRIPT_SAVE:
+            je = json_scanf(request->data, sdslen(request->data), "{params: {script: %Q, order: %d, content: %Q}}", &p_charbuf1, &int_buf1, &p_charbuf2);
+            if (je == 3) {
+                struct json_token val;
+                int idx;
+                sds arguments = sdsempty();
+                void *h = NULL;
+                while ((h = json_next_elem(request->data, sdslen(request->data), h, ".params.arguments", &idx, &val)) != NULL) {
+                    if (idx > 0) {
+                        arguments = sdscat(arguments, ",");
+                    }
+                    arguments = sdscatjson(arguments, val.ptr, val.len);
+                }
+                rc = mympd_api_script_save(config, p_charbuf1, int_buf1, p_charbuf2, arguments);
+                sdsfree(arguments);
+                if (rc == true) {
+                    response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+                }
+                else {
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Could not save script", true);
+                }
+            }
+            break;
+        case MYMPD_API_SCRIPT_GET:
+            je = json_scanf(request->data, sdslen(request->data), "{params: {script: %Q}}", &p_charbuf1);
+            if (je == 1) {
+                response->data = mympd_api_script_get(config, response->data, request->method, request->id, p_charbuf1);
+            }
+            break;
         case MYMPD_API_SCRIPT_LIST:
             je = json_scanf(request->data, sdslen(request->data), "{params: {all: %B}}", &bool_buf1);
             if (je == 1) {
