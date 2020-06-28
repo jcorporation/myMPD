@@ -292,7 +292,7 @@ function parseSettings() {
     }
 
     if (settings.featScripting === true) {
-        getScriptList(true);        
+        getScriptList(true);
     }
     else {
         document.getElementById('scripts').innerHTML = '';
