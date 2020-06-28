@@ -1239,7 +1239,7 @@ function appInit() {
 
     document.addEventListener('keydown', function(event) {
         if (event.target.tagName === 'INPUT' || event.target.tagName === 'SELECT' ||
-            event.ctrlKey || event.altKey) {
+            event.target.tagName === 'TEXTAREA' || event.ctrlKey || event.altKey) {
             return;
         }
         let cmd = keymap[event.key];
