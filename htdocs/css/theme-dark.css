@@ -191,3 +191,7 @@ body.theme-dark .toast-body {
 body.theme-dark .text-body {
   color: #f8f9fa !important;
 }
+
+body.theme-dark td[data-col="Action"] a:hover {
+  color: #f8f9fa !important;
+}
