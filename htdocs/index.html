@@ -2016,8 +2016,9 @@
                   <div class="input-group">
                     <input id="inputScriptArgument" class="form-control border-secondary" type="text"/>
                     <div class="input-group-append">
-                      <button class="btn btn-secondary" id="addScriptArgument" data-href='{"cmd": "addScriptArgument", "options": []}'>+</button>
+                      <button class="btn btn-secondary rounded-right" id="addScriptArgument" data-href='{"cmd": "addScriptArgument", "options": []}'>+</button>
                     </div>
+                    <div class="invalid-feedback" data-phrase="Invalid script argument"></div>
                   </div>
                   <select class="mt-2 form-control custom-select" id="selectScriptArguments" size="3">
                   </select>
@@ -2025,7 +2026,7 @@
               </div>
               <div class="form-group">
                 <label for="textareaScriptContent" data-phrase="Script"></label>
-                <textarea class="form-control" id="textareaScriptContent" rows="10"></textarea>
+                <textarea class="form-control text-monospace" id="textareaScriptContent" rows="10"></textarea>
               </div>
             </form>
           </div>

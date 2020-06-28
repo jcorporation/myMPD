@@ -7,12 +7,36 @@
 
 //eslint-disable-next-line no-unused-vars
 function saveScript() {
-
+    let formOK = true;
+    
+    let nameEl = document.getElementById('inputScriptName');
+    if (!validatePlnameEl(nameEl)) {
+        formOK = false;
+    }
+    
+    let orderEl = document.getElementById('inputScriptOrder');
+    if (!validateInt(orderEl)) {
+        formOK = false;
+    }
+    
+    if (formOK === true) {
+        let args = [];
+        let argSel = document.getElementById('selectScriptArguments');
+        for (let i = 0; i < argSel.options.length; i++) {
+            args.push(argSel.options[i].text);
+        }
+        sendAPI("MYMPD_API_SCRIPT_SAVE", {
+            "script": nameEl.value,
+            "order": parseInt(orderEl.value),
+            "content": document.getElementById('textareaScriptContent').value,
+            "arguments": args
+            }, showListScripts, false);
+    }
 }
 
 function addScriptArgument() {
     let el = document.getElementById('inputScriptArgument');
-    if (el.value !== '') {
+    if (validatePlnameEl(el)) {
         let o = document.createElement('option');
         o.text = el.value;
         document.getElementById('selectScriptArguments').appendChild(o);
@@ -21,8 +45,10 @@ function addScriptArgument() {
 }
 
 function removeScriptArgument(e) {
-    document.getElementById('inputScriptArgument').value = e.target.text;
+    let el = document.getElementById('inputScriptArgument');
+    el.value = e.target.text;
     e.target.remove();
+    el.focus();  
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -31,6 +57,11 @@ function showEditScript(script) {
     document.getElementById('editScript').classList.add('active');
     document.getElementById('listScriptsFooter').classList.add('hide');
     document.getElementById('editScriptFooter').classList.remove('hide');
+    
+    document.getElementById('inputScriptName').classList.remove('is-invalid');
+    document.getElementById('inputScriptOrder').classList.remove('is-invalid');
+    document.getElementById('inputScriptArgument').classList.remove('is-invalid');
+    
     if (script !== '') {
         sendAPI("MYMPD_API_SCRIPT_GET", {"script": script}, parseEditScript, false);
     }
@@ -39,7 +70,7 @@ function showEditScript(script) {
         document.getElementById('inputScriptOrder').value = '1';
         document.getElementById('inputScriptArgument').value = '';
         document.getElementById('selectScriptArguments').innerText = '';
-        document.getElementById('textareaScriptContent').innerText = '';
+        document.getElementById('textareaScriptContent').value = '';
     }
 }
 
@@ -48,12 +79,13 @@ function parseEditScript(obj) {
     document.getElementById('inputScriptOrder').value = obj.result.metadata.order;
     document.getElementById('inputScriptArgument').value = '';
     let selSA = document.getElementById('selectScriptArguments');
+    selSA.innerText = '';
     for (let i = 0; i < obj.result.metadata.arguments.length; i++) {
         let o = document.createElement('option');
-        option.innerText = obj.result.metadata.arguments[i];
+        o.innerText = obj.result.metadata.arguments[i];
         selSA.appendChild(o);
     }
-    document.getElementById('textareaScriptContent').innerText = '';
+    document.getElementById('textareaScriptContent').value = obj.result.content;
 }
 
 function showListScripts() {
