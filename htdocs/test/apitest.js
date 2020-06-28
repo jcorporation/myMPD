@@ -114,8 +114,14 @@ var cmds = [
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_URLHANDLERS"},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYER_STOP"},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_QUEUE_CROP_OR_CLEAR"},
-    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SCRIPT_EXECUTE","params":{"script":"test"}},
-    {"jsonrpc":"2.0","id":0,"method":"MPD_API_MESSAGE_SEND","params":{"channel":"test", "message":"test"}}
+    {"jsonrpc":"2.0","id":0,"method":"MPD_API_MESSAGE_SEND","params":{"channel":"test", "message":"test"}},
+    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SCRIPT_SAVE","params":{"script":"test","order":0,"content":"return arguments[\"arg1\"]","arguments":["arg1","arg2"]}},
+    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SCRIPT_EXECUTE","params":{"script":"test","arguments":["test1","test2"]}},
+    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SCRIPT_POST_EXECUTE","params":{"script":"return arguments[\"arg1\"]","arguments":["test1","test2"]}},
+    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SCRIPT_LIST","params":{"all":true}},
+    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SCRIPT_GET","params":{"script":"test"}},
+    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SCRIPT_DELETE","params":{"script":"test"}}
+    
 ];
 
 function setTest(cmd, state, response) {
