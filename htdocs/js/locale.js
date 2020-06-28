@@ -105,7 +105,10 @@ function gtPage(phrase, returnedEntities, totalEntities) {
 }
 
 function i18nHtml(root) {
-    let attributes = [['data-phrase', 'innerText'], ['data-title-phrase', 'title'], ['data-placeholder-phrase', 'placeholder']];
+    let attributes = [['data-phrase', 'innerText'], 
+        ['data-title-phrase', 'title'], 
+        ['data-placeholder-phrase', 'placeholder']
+    ];
     for (let i = 0; i < attributes.length; i++) {
         let els = root.querySelectorAll('[' + attributes[i][0] + ']');
         let elsLen = els.length;
