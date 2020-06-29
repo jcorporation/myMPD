@@ -192,6 +192,7 @@ sds mympd_api_script_get(t_config *config, sds buffer, sds method, long request_
                 sdsrange(metadata, 3, -2);
                 buffer = sdscat(buffer, "\"metadata\":");
                 buffer = sdscat(buffer, metadata);
+                sdsfree(metadata);
             }
             else {
                 LOG_WARN("Invalid metadata for script %s", scriptfilename);
@@ -208,7 +209,9 @@ sds mympd_api_script_get(t_config *config, sds buffer, sds method, long request_
             content = sdscatlen(content, line, read);
         }
         fclose(fp);
+        FREE_PTR(line);
         buffer = sdscatjson(buffer, content, sdslen(content));
+        sdsfree(content);
     }
     else {
         LOG_ERROR("Can not open file %s", scriptfilename);
