@@ -255,7 +255,7 @@ struct t_timer_definition *parse_timer(struct t_timer_definition *timer_def, con
         void *h = NULL;
         struct json_token key;
         struct json_token val;
-        while ((h = json_next_key(str, strlen(str), h, ".params.arguments", &key, &val)) != NULL) {
+        while ((h = json_next_key(str, (int)strlen(str), h, ".params.arguments", &key, &val)) != NULL) {
             list_push_len(&timer_def->arguments, key.ptr, key.len, 0, val.ptr, val.len, NULL);
         }
     }

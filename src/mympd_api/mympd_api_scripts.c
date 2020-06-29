@@ -56,7 +56,7 @@ static sds lua_err_to_str(sds buffer, int rc, bool phrase, const char *script);
 static void populate_lua_table(lua_State *lua_vm, struct list *lua_mympd_state);
 static void populate_lua_table_field_p(lua_State *lua_vm, const char *key, const char *value);
 static void populate_lua_table_field_i(lua_State *lua_vm, const char *key, long value);
-static void populate_lua_table_field_f(lua_State *lua_vm, const char *key, float value);
+static void populate_lua_table_field_f(lua_State *lua_vm, const char *key, double value);
 static void populate_lua_table_field_b(lua_State *lua_vm, const char *key, bool value);
 static void register_lua_functions(lua_State *lua_vm);
 static int mympd_api(lua_State *lua_vm);
@@ -97,6 +97,7 @@ sds mympd_api_script_list(t_config *config, sds buffer, sds method, long request
                             if (je == 0) {
                                 LOG_WARN("Invalid metadata for script %s", scriptfilename);
                             }
+                            sdsfree(metadata);
                         }
                         else {
                             LOG_WARN("Invalid metadata for script %s", scriptfilename);
@@ -107,6 +108,7 @@ sds mympd_api_script_list(t_config *config, sds buffer, sds method, long request
                         LOG_WARN("Invalid metadata for script %s", scriptfilename);
                         entry = sdscat(entry, "\"metadata\":{\"order\":0,\"arguments\":[]}");
                     }
+                    FREE_PTR(line);
                     fclose(fp);
                 }
                 else {
@@ -120,10 +122,12 @@ sds mympd_api_script_list(t_config *config, sds buffer, sds method, long request
                     buffer = sdscat(buffer, entry);
                 }
                 entry = sdscrop(entry);
+                sdsfree(scriptfilename);
             }
             sdsfree(extension);
         }
         closedir(script_dir);
+        sdsfree(entry);
     }
     else {
         LOG_ERROR("Can not open dir %s", scriptdirname);
@@ -442,7 +446,7 @@ static void populate_lua_table_field_i(lua_State *lua_vm, const char *key, long 
     lua_settable(lua_vm, -3);
 }
 
-static void populate_lua_table_field_f(lua_State *lua_vm, const char *key, float value) {
+static void populate_lua_table_field_f(lua_State *lua_vm, const char *key, double value) {
     lua_pushstring(lua_vm, key);
     lua_pushnumber(lua_vm, value);
     lua_settable(lua_vm, -3);
