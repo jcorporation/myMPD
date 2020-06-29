@@ -8,7 +8,7 @@
 <head>
   <title>myMPD</title>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <meta name="description" content="myMPD - fast and lightweight MPD webclient">
   <meta name="author" content="mail@jcgames.de">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1157,6 +1157,13 @@
                   </div>
                   <div class="col-sm-4">
                     <button id="highlightColorPreview" type="button" class="btn border-secondary btn-block" data-phrase="Preview"></button>
+                  </div>
+                </div>
+                <div class="form-group row featMobile">
+                  <label class="col-sm-4 col-form-label" for="inputScaleRatio" data-phrase="Scale ratio"></label>
+                  <div class="col-sm-8 ">
+                    <input id="inputScaleRatio" type="text" class="form-control border-secondary" value="">
+                    <div class="invalid-feedback" data-phrase="Invalid scale ratio" placeholder="1.0"></div>
                   </div>
                 </div>
                 <hr/>

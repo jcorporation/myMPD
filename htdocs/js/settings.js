@@ -116,6 +116,10 @@ function parseSettings() {
     else {
         locale = settings.locale;
     }
+    
+    if (isMobile === true) {    
+        document.getElementById('inputScaleRatio').value = scale;
+    }
 
     let setTheme = settings.theme;
     if (settings.theme === 'theme-autodetect') {
@@ -689,6 +693,18 @@ function saveSettings(closeModal) {
     if (!validateInt(inputMaxElementsPerPage)) {
         formOK = false;
     }
+    
+    if (isMobile === true) {
+        let inputScaleRatio = document.getElementById('inputScaleRatio');
+        if (!validateFloat(inputScaleRatio)) {
+            formOK = false;
+        }
+        else {
+            scale = parseFloat(inputScaleRatio.value);
+            setViewport(true);
+        }
+    }
+
     if (parseInt(inputMaxElementsPerPage.value) > 200) {
         formOK = false;
     }

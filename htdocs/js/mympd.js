@@ -29,7 +29,8 @@ var appInited = false;
 var subdir = '';
 var uiEnabled = true;
 var locale = navigator.language || navigator.userLanguage;
-
+var scale = '1.0';
+var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 var ligatureMore = 'menu';
 
 var app = {};
@@ -420,6 +421,21 @@ function clearAndReload() {
 }
 
 function appInitStart() {
+    //set initial scale
+    if (isMobile === true) {
+        scale = localStorage.getItem('scale-ratio');
+        if (scale === null) {
+            scale = '1.0';
+        }
+        setViewport(false);
+    }
+    else {
+        let m = document.getElementsByClassName('featMobile');
+        for (let i = 0; i < m.length; i++) {
+            m[i].classList.add('hide');
+        }        
+    }
+
     subdir = window.location.pathname.replace('/index.html', '').replace(/\/$/, '');
     let localeList = '<option value="default" data-phrase="Browser default"></option>';
     for (let i = 0; i < locales.length; i++) {
@@ -659,6 +675,7 @@ function appInit() {
         document.getElementById('inputCrossfade').classList.remove('is-invalid');
         document.getElementById('inputMixrampdb').classList.remove('is-invalid');
         document.getElementById('inputMixrampdelay').classList.remove('is-invalid');
+        document.getElementById('inputScaleRatio').classList.remove('is-invalid');
     });
 
     document.getElementById('modalConnection').addEventListener('shown.bs.modal', function () {
