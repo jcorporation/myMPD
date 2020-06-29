@@ -17,12 +17,13 @@ KEYWORDS="~amd64 ~x86 ~arm ~arm64"
 IUSE="+flac +id3tag +ssl +java +lua systemd"
 
 BDEPEND="
-        dev-util/cmake
+        >=dev-util/cmake-3.4
         java? ( virtual/jre )
         dev-lang/perl
 "
 RDEPEND="
-        media-sound/mpd[flac?,id3tag?]
+        id3tag? (media-libs/libid3tag )
+	flac? (media-libs/flac )
         ssl? ( dev-libs/openssl )
         lua? ( dev-lang/lua )
         systemd? ( sys-apps/systemd )
@@ -40,7 +41,7 @@ src_compile() {
     ENABLE_SSL=$(usex ssl "ON" "OFF")
     ENABLE_LIBID3TAG=$(usex id3tag "ON" "OFF")
     ENABLE_FLAC=$(usex flac "ON" "OFF")
-    ENABLE_FLAC=$(usex lua "ON" "OFF")
+    ENABLE_LUA=$(usex lua "ON" "OFF")
     ./build.sh release
 }
 
