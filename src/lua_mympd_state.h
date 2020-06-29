@@ -22,7 +22,7 @@ struct t_lua_mympd_state_value {
 };
 
 void set_lua_mympd_state_p(struct list *lua_mympd_state, const char *k, const char *v);
-void set_lua_mympd_state_i(struct list *lua_mympd_state, const char *k, int v);
+void set_lua_mympd_state_i(struct list *lua_mympd_state, const char *k, long v);
 void set_lua_mympd_state_f(struct list *lua_mympd_state, const char *k, double v);
 void set_lua_mympd_state_b(struct list *lua_mympd_state, const char *k, bool v);
 void free_lua_mympd_state(struct list *lua_mympd_state);

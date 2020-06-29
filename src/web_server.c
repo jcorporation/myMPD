@@ -313,7 +313,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                     send_error(nc, 403, "Remote scripting is disabled");
                     break;
                 }
-                else if (sdslen(config->scriptacl) > 0) {
+                if (sdslen(config->scriptacl) > 0) {
                     uint32_t remote_ip = ntohl(*(uint32_t *) &nc->sa.sin.sin_addr);
                     int allowed = mg_check_ip_acl(config->scriptacl, remote_ip);
                     if (allowed == -1) {
