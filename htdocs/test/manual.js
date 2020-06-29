@@ -81,15 +81,15 @@ var cmds = [
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_BOOKMARK_LIST","params":{"offset":0}},
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_BOOKMARK_SAVE","params":{"id": 0, "name":"", "uri":"", "type":""}},
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_BOOKMARK_CLEAR"},
-    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_TIMER_SAVE","params":{"timerid": 0, "name": "", "enabled": false, "startHour": 0, "startMinute": 0, "action": "", "volume": 0, "playlist": "", "jukeboxMode": 0, "weekdays":[false,false,false,false,false,false,false]}},
+    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_TIMER_SAVE","params":{"timerid": 0, "name": "", "enabled": false, "startHour": 0, "startMinute": 0, "action": "", "subaction": "", "volume": 0, "playlist": "", "jukeboxMode": 0, "weekdays":[false,false,false,false,false,false,false], "arguments":{"arg1": ""}}},
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_TIMER_LIST","params":{}},
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_TIMER_GET","params":{"timerid":0}},
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_TIMER_RM","params":{"timerid":0}},
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_TIMER_TOGGLE","params":{"timerid":0}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_MESSAGE_SEND","params":{"channel":"", "message":""}},
-    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SCRIPT_SAVE","params":{"script":"","order":0,"content":"","arguments":["",""]}},
-    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SCRIPT_EXECUTE","params":{"script":"","arguments":["",""]}},
-    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SCRIPT_POST_EXECUTE","params":{"script":"","arguments":["",""]}},
+    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SCRIPT_SAVE","params":{"script":"","order":0,"content":"","arguments":["", ""]}},
+    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SCRIPT_EXECUTE","params":{"script":"","arguments":{"arg1": ""}}},
+    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SCRIPT_POST_EXECUTE","params":{"script":"","arguments":{"arg1": ""}}},
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SCRIPT_LIST","params":{"all":true}},
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SCRIPT_GET","params":{"script":""}},
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SCRIPT_DELETE","params":{"script":""}}
@@ -145,7 +145,12 @@ function sendAPI() {
             else if (!isNaN(value)) {
                 value = parseFloat(value);
             }
-            request.params[key] = value;
+            if (value.charAt(0) === '{' || value.charAt(0) === '[') {
+                request.params[key] = JSON.parse(value);
+            }
+            else {
+                request.params[key] = value;
+            }
         }
     }
     let ajaxRequest=new XMLHttpRequest();
