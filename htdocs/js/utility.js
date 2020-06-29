@@ -5,6 +5,13 @@
  https://github.com/jcorporation/mympd
 */
 
+function removeIsInvalid(el) {
+    let els = el.querySelectorAll('.is-invalid');
+    for (let i = 0; i < els.length; i++) {
+        els[i].classList.remove('is-invalid');
+    }
+}
+
 function getSelectValue(selectId) {
     let el = document.getElementById(selectId);
     return el.options[el.selectedIndex].value;

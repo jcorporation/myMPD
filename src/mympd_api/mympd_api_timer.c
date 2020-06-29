@@ -214,6 +214,7 @@ void free_timer_definition(struct t_timer_definition *timer_def) {
     sdsfree(timer_def->action);
     sdsfree(timer_def->subaction);
     sdsfree(timer_def->playlist);
+    list_free(&timer_def->arguments);
     FREE_PTR(timer_def);
 }
 
@@ -250,6 +251,13 @@ struct t_timer_definition *parse_timer(struct t_timer_definition *timer_def, con
         timer_def->volume = volume;
         timer_def->playlist = sdsnew(playlist);
         timer_def->jukebox_mode = jukebox_mode;
+        list_init(&timer_def->arguments);
+        void *h = NULL;
+        struct json_token key;
+        struct json_token val;
+        while ((h = json_next_key(str, strlen(str), h, ".params.arguments", &key, &val)) != NULL) {
+            list_push_len(&timer_def->arguments, key.ptr, key.len, 0, val.ptr, val.len, NULL);
+        }
     }
     FREE_PTR(name);
     FREE_PTR(action);
@@ -348,7 +356,17 @@ sds timer_get(t_mympd_state *mympd_state, sds buffer, sds method, long request_i
                 }
                 buffer = sdscat(buffer, current->definition->weekdays[i] == true ? "true" : "false");
             }
-            buffer = sdscatlen(buffer, "]", 1);
+            buffer = sdscat(buffer, "],\"arguments\": {");
+            struct list_node *argument = current->definition->arguments.head;
+            int i = 0;
+            while (argument != NULL) {
+                if (i++) {
+                    buffer = sdscatlen(buffer, ",", 1);
+                }
+                buffer = tojson_char(buffer, argument->key, argument->value_p, false);
+                argument = argument->next;            
+            }
+            buffer = sdscatlen(buffer, "}", 1);
             found = true;
             break;
         }
@@ -430,7 +448,17 @@ bool timerfile_save(t_config *config, t_mympd_state *mympd_state) {
                 }
                 buffer = sdscat(buffer, current->definition->weekdays[i] == true ? "true" : "false");
             }
-            buffer = sdscatlen(buffer, "]}\n", 3);
+            buffer = sdscat(buffer, "],\"arguments\": {");
+            struct list_node *argument = current->definition->arguments.head;
+            int i = 0;
+            while (argument != NULL) {
+                if (i++) {
+                    buffer = sdscatlen(buffer, ",", 1);
+                }
+                buffer = tojson_char(buffer, argument->key, argument->value_p, false);
+                argument = argument->next;            
+            }
+            buffer = sdscatlen(buffer, "}}\n", 3);
             fputs(buffer, fp);
         }
         current = current->next;

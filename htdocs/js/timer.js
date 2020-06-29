@@ -52,6 +52,11 @@ function saveTimer() {
     let selectTimerMinute = document.getElementById('selectTimerMinute');
     let jukeboxMode = document.getElementById('btnTimerJukeboxModeGroup').getElementsByClassName('active')[0].getAttribute('data-value');
 
+    if (selectTimerAction.selectedIndex === -1) {
+        formOK = false;
+        selectTimerAction.classList.add('is-invalid');
+    }
+
     if (jukeboxMode === '0' &&
         selectTimerPlaylist.options[selectTimerPlaylist.selectedIndex].value === 'Database'&&
         selectTimerAction.options[selectTimerAction.selectedIndex].value === 'startplay')
@@ -61,6 +66,11 @@ function saveTimer() {
     }
     
     if (formOK === true) {
+        let args = {};
+        let argEls = document.getElementById('timerActionScriptArguments').getElementsByTagName('input');
+        for (let i = 0; i < argEls.length; i ++) {
+            args[argEls[i].getAttribute('data-name')] = argEls[i].value;
+        }
         sendAPI("MYMPD_API_TIMER_SAVE", {
             "timerid": parseInt(document.getElementById('inputTimerId').value),
             "name": nameEl.value,
@@ -73,6 +83,7 @@ function saveTimer() {
             "volume": parseInt(document.getElementById('inputTimerVolume').value), 
             "playlist": selectTimerPlaylist.options[selectTimerPlaylist.selectedIndex].value,
             "jukeboxMode": parseInt(jukeboxMode),
+            "arguments": args
             }, showListTimer);
     }
 }
@@ -80,6 +91,7 @@ function saveTimer() {
 //eslint-disable-next-line no-unused-vars
 function showEditTimer(timerid) {
     document.getElementById('timerActionPlay').classList.add('hide');
+    document.getElementById('timerActionScript').classList.add('hide');
     document.getElementById('listTimer').classList.remove('active');
     document.getElementById('editTimer').classList.add('active');
     document.getElementById('listTimerFooter').classList.add('hide');
@@ -108,8 +120,7 @@ function showEditTimer(timerid) {
         document.getElementById('timerActionPlay').classList.remove('hide');
     }
     document.getElementById('inputTimerName').focus();
-    document.getElementById('inputTimerName').classList.remove('is-invalid');
-    document.getElementById('btnTimerJukeboxModeGroup').classList.remove('is-invalid');
+    removeIsInvalid(document.getElementById('editTimerForm'));    
     document.getElementById('invalidTimerWeekdays').style.display = 'none';
 }
 
@@ -118,26 +129,53 @@ function parseEditTimer(obj) {
     sendAPI("MPD_API_PLAYLIST_LIST_ALL", {}, function(obj2) { 
         getAllPlaylists(obj2, 'selectTimerPlaylist', playlistValue);
     });
-    
-    if (obj.result.action === 'startplay') {
-        document.getElementById('timerActionPlay').classList.remove('hide');
-    }
-    else {
-        document.getElementById('timerActionPlay').classList.add('hide');
-    }
     document.getElementById('inputTimerId').value = obj.result.timerid;
     document.getElementById('inputTimerName').value = obj.result.name;
     toggleBtnChk('btnTimerEnabled', obj.result.enabled);
     document.getElementById('selectTimerHour').value = obj.result.startHour;
     document.getElementById('selectTimerMinute').value = obj.result.startMinute;
     document.getElementById('selectTimerAction').value = obj.result.subaction;
+    selectTimerActionChange(obj.result.arguments);
     document.getElementById('inputTimerVolume').value = obj.result.volume;
-    //document.getElementById('selectTimerPlaylist').value = obj.result.playlist;
     toggleBtnGroupValue(document.getElementById('btnTimerJukeboxModeGroup'), obj.result.jukeboxMode);
     let weekdayBtns = ['btnTimerMon', 'btnTimerTue', 'btnTimerWed', 'btnTimerThu', 'btnTimerFri', 'btnTimerSat', 'btnTimerSun'];
     for (let i = 0; i < weekdayBtns.length; i++) {
         toggleBtnChk(weekdayBtns[i], obj.result.weekdays[i]);
     }
+}
+
+function selectTimerActionChange(values) {
+    let el = document.getElementById('selectTimerAction');
+    
+    if (el.options[el.selectedIndex].value === 'startplay') {
+        document.getElementById('timerActionPlay').classList.remove('hide');
+        document.getElementById('timerActionScript').classList.add('hide');
+    }
+    else if (el.options[el.selectedIndex].parentNode.getAttribute('data-value') === 'script') {
+        document.getElementById('timerActionScript').classList.remove('hide');
+        document.getElementById('timerActionPlay').classList.add('hide');
+        showTimerScriptArgs(el.options[el.selectedIndex], values);
+    }
+    else {
+        document.getElementById('timerActionPlay').classList.add('hide');
+        document.getElementById('timerActionScript').classList.add('hide');
+    }
+}
+
+function showTimerScriptArgs(option, values) {
+    let args = JSON.parse(option.getAttribute('data-arguments'));
+    let list = '';
+    for (let i = 0; i < args.arguments.length; i++) {
+        list = '<div class="form-group row">' +
+                  '<label class="col-sm-4 col-form-label" for="timerActionScriptArguments' + i + '">' + e(args.arguments[i]) + '</label>' +
+                  '<div class="col-sm-8">' +
+                    '<input name="timerActionScriptArguments' + i + '" class="form-control border-secondary" type="text" value="' +
+                    (values[args.arguments[i]] ? e(values[args.arguments[i]]) : '') + '"' +
+                    'data-name="' + args.arguments[i] + '">' +
+                  '</div>' +
+                '</div>';
+    }
+    document.getElementById('timerActionScriptArguments').innerHTML = list;
 }
 
 function showListTimer() {

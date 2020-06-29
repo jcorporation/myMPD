@@ -1830,36 +1830,42 @@
                 <div class="col-sm-8">
                   <select id="selectTimerAction" class="form-control custom-select border-secondary">
                   </select>
+                  <div class="invalid-feedback" data-phrase="No action selected"></div>
                 </div>
               </div>
               <div id="timerActionPlay">
-              <div class="form-group row">
-                <label class="col-sm-4 col-form-label" for="inputTimerVolume" data-phrase="Volume"></label>
-                <div class="col-sm-7 mt-2">
-                  <input type="range" min="0" max="100" step="1" class="form-control-range" id="inputTimerVolume">
-                </div>
-                <div class="col-sm-1 mt-2 pl-0 text-right" id="textTimerVolume">
-                  50&nbsp;%
-                </div>
-              </div>
-              <div class="form-group row">
-                <label class="col-sm-4 col-form-label" for="btnTimerJukeboxModeGroup" data-phrase="Jukebox mode"></label>
-                <div class="col-sm-8">
-                  <div class="btn-group" id="btnTimerJukeboxModeGroup">
-                    <button data-value="0" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Off"></button>
-                    <button data-value="1" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Song"></button>
-                    <button data-value="2" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Album"></button>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="inputTimerVolume" data-phrase="Volume"></label>
+                  <div class="col-sm-7 mt-2">
+                    <input type="range" min="0" max="100" step="1" class="form-control-range" id="inputTimerVolume">
                   </div>
-                  <div class="invalid-feedback" data-phrase="Enable jukebox if playlist is database"></div>
+                  <div class="col-sm-1 mt-2 pl-0 text-right" id="textTimerVolume">
+                    50&nbsp;%
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="btnTimerJukeboxModeGroup" data-phrase="Jukebox mode"></label>
+                  <div class="col-sm-8">
+                    <div class="btn-group" id="btnTimerJukeboxModeGroup">
+                      <button data-value="0" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Off"></button>
+                      <button data-value="1" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Song"></button>
+                      <button data-value="2" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Album"></button>
+                    </div>
+                    <div class="invalid-feedback" data-phrase="Enable jukebox if playlist is database"></div>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="col-sm-4 col-form-label" for="selectTimerPlaylist" data-phrase="Playlist"></label>
+                  <div class="col-sm-8">
+                    <select id="selectTimerPlaylist" class="form-control custom-select border-secondary">
+                    </select>
+                  </div>
                 </div>
               </div>
-              <div class="form-group row">
-                <label class="col-sm-4 col-form-label" for="selectTimerPlaylist" data-phrase="Playlist"></label>
-                <div class="col-sm-8">
-                  <select id="selectTimerPlaylist" class="form-control custom-select border-secondary">
-                  </select>
+              <div id="timerActionScript">
+                <h5 data-phrase="Script arguments"></h5>
+                <div id="timerActionScriptArguments">
                 </div>
-              </div>
               </div>
             </form>
           </div>

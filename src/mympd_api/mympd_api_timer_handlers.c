@@ -68,8 +68,17 @@ void timer_handler_select(struct t_timer_definition *definition, void *user_data
         t_work_request *request = create_request(-1, 0, MYMPD_API_SCRIPT_EXECUTE, "MYMPD_API_SCRIPT_EXECUTE", "");
         request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_SCRIPT_EXECUTE\",\"params\":{");
         request->data = tojson_char(request->data, "script", definition->subaction, true);
-        request->data = sdscat(request->data, "arguments: {}");
-        request->data = sdscat(request->data, "}}");
+        request->data = sdscat(request->data, "arguments: {");
+        struct list_node *argument = definition->arguments.head;
+        int i = 0;
+        while (argument != NULL) {
+            if (i++) {
+                request->data = sdscatlen(request->data, ",", 1);
+            }
+            request->data = tojson_char(request->data, argument->key, argument->value_p, false);
+            argument = argument->next;
+        }
+        request->data = sdscat(request->data, "}}}");
         tiny_queue_push(mympd_api_queue, request, 0);
     }
     else {

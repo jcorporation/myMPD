@@ -140,7 +140,8 @@ function parseScriptList(obj) {
                     '<a href="#" title="' + t('Execute') + '" data-action="execute" class="material-icons color-darkgrey" ' +
                     ' data-href=\'{"script": "' + e(obj.result.data[i].name) + '", "arguments": [' + arglist + ']}\'>play_arrow</a>' +
                 '</td></tr>';
-            timerActions.innerHTML += '<option value="' + e(obj.result.data[i].name) + '">' + e(obj.result.data[i].name) + '</option>';
+            timerActions.innerHTML += '<option data-arguments=\'{"arguments":[' + arglist + ']}\' value="' + 
+                e(obj.result.data[i].name) + '">' + e(obj.result.data[i].name) + '</option>';
         }
         document.getElementById('listScriptsList').innerHTML = scriptList;
     }

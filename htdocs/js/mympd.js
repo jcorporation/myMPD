@@ -620,12 +620,7 @@ function appInit() {
     }, false);
     
     document.getElementById('selectTimerAction').addEventListener('change', function() {
-        if (this.options[this.selectedIndex].value === 'startplay') {
-            document.getElementById('timerActionPlay').classList.remove('hide');
-        }
-        else {
-            document.getElementById('timerActionPlay').classList.add('hide');
-        }
+        selectTimerActionChange();
     }, false);
     
     let selectTimerHour = ''; 
