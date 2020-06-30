@@ -43,12 +43,12 @@ void timer_handler_smartpls_update(struct t_timer_definition *definition, void *
 
 void timer_handler_select(struct t_timer_definition *definition, void *user_data) {
     LOG_VERBOSE("Start timer_handler_select for timer \"%s\"", definition->name);
-    if (strcmp(definition->action, "player") == 0 && strcmp(definition->subaction, "stop") == 0) {
+    if (strcmp(definition->action, "player") == 0 && strcmp(definition->subaction, "stopplay") == 0) {
         t_work_request *request = create_request(-1, 0, MPD_API_PLAYER_STOP, "MPD_API_PLAYER_STOP", "");
         request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPD_API_PLAYER_STOP\",\"params\":{}}");
         tiny_queue_push(mpd_client_queue, request, 0);
     }
-    else if (strcmp(definition->action, "player") == 0 && strcmp(definition->action, "start") == 0) {
+    else if (strcmp(definition->action, "player") == 0 && strcmp(definition->subaction, "startplay") == 0) {
         t_work_request *request = create_request(-1, 0, MPD_API_TIMER_STARTPLAY, "MPD_API_TIMER_STARTPLAY", "");
         request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPD_API_TIMER_STARTPLAY\",\"params\":{");
         request->data = tojson_long(request->data, "volume", definition->volume, true);
