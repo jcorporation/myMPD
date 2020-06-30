@@ -131,10 +131,16 @@ else()
 	-fsanitize=nonnull-attribute -fsanitize=returns-nonnull-attribute -fsanitize=bool -fsanitize=enum -fsanitize=vptr -static-libasan")
 endif()
 
+set(MONGOOSE_FLAGS "${MONGOOSE_SSL} \
+	-DMG_ENABLE_HTTP_WEBDAV -DMG_ENABLE_FAKE_DAVLOCK -DMG_ENABLE_MQTT=0 -DMG_ENABLE_HTTP_CGI=0 -DMG_ENABLE_IPV6 \
+	-DMG_ENABLE_HTTP_SSI=0 -DMG_ENABLE_BROADCAST=0 -DMG_ENABLE_THREADS=0 -DMG_DISABLE_HTTP_DIGEST_AUTH -D CS_DISABLE_MD5")
+
+#-DMG_ENABLE_IPV6 breaks nc->user_data functionality in mongoose (https://github.com/cesanta/mongoose/issues/1097)
+
 #compiler flags for mympd src
 file(GLOB MYMPD_SRC_FILES1 "src/*.c")
 set_property(SOURCE ${MYMPD_SRC_FILES1} PROPERTY COMPILE_FLAGS "-Wextra -pedantic -Wformat=2 -Wunused-parameter -Wshadow -Wwrite-strings \
-	-Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs -Wmissing-include-dirs ${MONGOOSE_SSL}")
+	-Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs -Wmissing-include-dirs ${MONGOOSE_FLAGS}")
 
 file(GLOB MYMPD_SRC_FILES2 "src/mpd_client/*.c")
 set_property(SOURCE ${MYMPD_SRC_FILES2} PROPERTY COMPILE_FLAGS "-Wextra -pedantic -Wformat=2 -Wunused-parameter -Wshadow -Wwrite-strings \
@@ -146,7 +152,7 @@ set_property(SOURCE ${MYMPD_SRC_FILES3} PROPERTY COMPILE_FLAGS "-Wextra -pedanti
 
 file(GLOB MYMPD_SRC_FILES4 "src/web_server/*.c")
 set_property(SOURCE ${MYMPD_SRC_FILES4} PROPERTY COMPILE_FLAGS "-Wextra -pedantic -Wformat=2 -Wunused-parameter -Wshadow -Wwrite-strings \
-	-Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs -Wmissing-include-dirs")
+	-Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs -Wmissing-include-dirs ${MONGOOSE_FLAGS}")
 
 file(GLOB MYMPD_SRC_FILES5 "src/mpd_worker/*.c")
 set_property(SOURCE ${MYMPD_SRC_FILES5} PROPERTY COMPILE_FLAGS "-Wextra -pedantic -Wformat=2 -Wunused-parameter -Wshadow -Wwrite-strings \
@@ -160,11 +166,7 @@ set_property(SOURCE ${MYMPD_SRC_FILES6} PROPERTY COMPILE_FLAGS "-Wextra -pedanti
 set_property(SOURCE dist/src/frozen/frozen.c PROPERTY COMPILE_FLAGS "-Wno-stringop-overflow")
 
 #compiler flags for mongoose
-set_property(SOURCE dist/src/mongoose/mongoose.c PROPERTY COMPILE_FLAGS "-Wno-format-truncation ${MONGOOSE_SSL} \
-	-DMG_ENABLE_HTTP_WEBDAV -DMG_ENABLE_FAKE_DAVLOCK -DMG_ENABLE_MQTT=0 -DMG_ENABLE_HTTP_CGI=0 \
-	-DMG_ENABLE_HTTP_SSI=0 -DMG_ENABLE_BROADCAST=0 -DMG_ENABLE_THREADS=0 -DMG_DISABLE_HTTP_DIGEST_AUTH -D CS_DISABLE_MD5")
-
-#-DMG_ENABLE_IPV6 breaks nc->user_data functionality in mongoose (https://github.com/cesanta/mongoose/issues/1097)
+set_property(SOURCE dist/src/mongoose/mongoose.c PROPERTY COMPILE_FLAGS "-Wno-format-truncation ${MONGOOSE_FLAGS}")
 
 #linker flags
 set (CMAKE_EXE_LINKER_FLAGS "-Wl,-z,relro -Wl,-z,now")
