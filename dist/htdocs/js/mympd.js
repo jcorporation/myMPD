@@ -995,8 +995,8 @@ function setViewport(store) {
         try {
             localStorage.setItem('scale-ratio', scale);
         }
-        catch(e) {
-            log_error('Can not save scale-ratio in localStorage');
+        catch(err) {
+            logError('Can not save scale-ratio in localStorage: ' + err.message);
         }
     }
 }
@@ -3929,10 +3929,10 @@ function addScriptArgument() {
     }
 }
 
-function removeScriptArgument(e) {
+function removeScriptArgument(ev) {
     let el = document.getElementById('inputScriptArgument');
-    el.value = e.target.text;
-    e.target.remove();
+    el.value = ev.target.text;
+    ev.target.remove();
     el.focus();  
 }
 
@@ -4076,6 +4076,7 @@ function execScript(href) {
     }
 }
 
+//eslint-disable-next-line no-unused-vars
 function execScriptArgs() {
     let script = document.getElementById('modalExecScriptScriptname').value;
     let args = {};

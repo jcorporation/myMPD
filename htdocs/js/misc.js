@@ -12,8 +12,8 @@ function setViewport(store) {
         try {
             localStorage.setItem('scale-ratio', scale);
         }
-        catch(e) {
-            log_error('Can not save scale-ratio in localStorage');
+        catch(err) {
+            logError('Can not save scale-ratio in localStorage: ' + err.message);
         }
     }
 }

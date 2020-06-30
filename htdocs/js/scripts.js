@@ -44,10 +44,10 @@ function addScriptArgument() {
     }
 }
 
-function removeScriptArgument(e) {
+function removeScriptArgument(ev) {
     let el = document.getElementById('inputScriptArgument');
-    el.value = e.target.text;
-    e.target.remove();
+    el.value = ev.target.text;
+    ev.target.remove();
     el.focus();  
 }
 
@@ -191,6 +191,7 @@ function execScript(href) {
     }
 }
 
+//eslint-disable-next-line no-unused-vars
 function execScriptArgs() {
     let script = document.getElementById('modalExecScriptScriptname').value;
     let args = {};
