@@ -82,7 +82,7 @@ void timer_handler_select(struct t_timer_definition *definition, void *user_data
         tiny_queue_push(mympd_api_queue, request, 0);
     }
     else {
-        LOG_ERROR("Unknown script action: %s", definition->action);
+        LOG_ERROR("Unknown script action: %s - %s", definition->action, definition->subaction);
     }
     (void) user_data;
 }
