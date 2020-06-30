@@ -851,7 +851,9 @@ function appInit() {
         event.stopPropagation();
         event.preventDefault();
         if (event.target.nodeName === 'TD') {
-            showEditTimer(event.target.parentNode.getAttribute('data-id'));
+            if (!event.target.parentNode.classList.contains('not-clickable')) {
+                showEditTimer(event.target.parentNode.getAttribute('data-id'));
+            }
         }
         else if (event.target.nodeName === 'A') {
             deleteTimer(event.target.parentNode.parentNode.getAttribute('data-id'));

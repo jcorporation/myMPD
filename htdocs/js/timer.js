@@ -163,10 +163,13 @@ function selectTimerActionChange(values) {
 }
 
 function showTimerScriptArgs(option, values) {
+    if (values === undefined) {
+        values = {};
+    }
     let args = JSON.parse(option.getAttribute('data-arguments'));
     let list = '';
     for (let i = 0; i < args.arguments.length; i++) {
-        list = '<div class="form-group row">' +
+        list += '<div class="form-group row">' +
                   '<label class="col-sm-4 col-form-label" for="timerActionScriptArguments' + i + '">' + e(args.arguments[i]) + '</label>' +
                   '<div class="col-sm-8">' +
                     '<input name="timerActionScriptArguments' + i + '" class="form-control border-secondary" type="text" value="' +
@@ -222,7 +225,7 @@ function parseListTimer(obj) {
     }
 
     if (obj.result.returnedEntities === 0) {
-        tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
+        tbody.innerHTML = '<tr class="not-clickable"><td><span class="material-icons">error_outline</span></td>' +
                           '<td colspan="4">' + t('Empty list') + '</td></tr>';
     }     
 }

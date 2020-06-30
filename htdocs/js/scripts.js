@@ -146,7 +146,7 @@ function parseScriptList(obj) {
         document.getElementById('listScriptsList').innerHTML = scriptList;
     }
     else {
-        document.getElementById('listScriptsList').innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
+        document.getElementById('listScriptsList').innerHTML = '<tr class="not-clickable"><td><span class="material-icons">error_outline</span></td>' +
             '<td colspan="2">' + t('Empty list') + '</td></tr>';
     }
     document.getElementById('scripts').innerHTML = scriptListMain;
