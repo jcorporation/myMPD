@@ -369,6 +369,8 @@ cleanup() {
   
   #compilation database
   rm -f src/compile_commands.json
+  #clang tidy
+  rm -f clang-tidy.out
 }
 
 cleanuposc() {
