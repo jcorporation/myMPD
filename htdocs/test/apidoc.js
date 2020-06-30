@@ -39,7 +39,7 @@ for (let i = 0; i < cmds.length; i++) {
     let tr = document.createElement('tr');
     tr.innerHTML = '<td>' + cmds[i].method + '</td>' +
         '<td>' + paramsToString(cmds[i].params) + '</td>' +
-        '<td>' + desc[cmds[i].method] + '</td>';
+        '<td>' + (desc[cmds[i].method] !== undefined ? desc[cmds[i].method] : '') + '</td>';
     tbody.appendChild(tr);
 }
 
