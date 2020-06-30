@@ -1400,3 +1400,48 @@ Ungültiger Script-API Aufruf
 
 Remote scripting is disabled
 Remotescripting ist deaktiviert
+
+Arguments
+Parameter
+
+Can not open scriptfile
+Skript konnte nicht geöffnet werden
+
+Could not delete script
+Skript konnte nicht gelöscht werden
+
+Could not save script
+Skript konnte nicht gespeichert werden
+
+Execute
+Ausführen
+
+Execute script
+Skript ausführen
+
+Invalid scale ratio
+Ungültiger Skalierungswert
+
+Invalid script argument
+Ungültiger Skriptparameter
+
+Invalid script order
+Ungültige Skriptreihenfolge
+
+New script
+Neues Skript
+
+No action selected
+Keine Aktion ausgewählt
+
+Scale ratio
+Skalierungswert
+
+Script arguments
+Skriptparameter
+
+Scriptname
+Skriptname
+
+Sort order of the script, 0 disables listing in main menu
+Sortierreihenfolge der Skripts, 0 deaktiviert die Anzeige im Hauptmenü
