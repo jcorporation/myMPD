@@ -240,14 +240,31 @@ struct t_timer_definition *parse_timer(struct t_timer_definition *timer_def, con
     char *playlist = NULL;
     int je = json_scanf(str, len, "{params: {name: %Q, enabled: %B, startHour: %d, startMinute: %d, action: %Q, subaction: %Q, volume: %d, playlist: %Q, jukeboxMode: %u}}",
         &name, &enabled, &start_hour, &start_minute, &action, &subaction, &volume, &playlist, &jukebox_mode);
-    if (je == 9) {
+    if (je == 8 || je == 9) {
         LOG_DEBUG("Successfully parsed timer definition");
         timer_def->name = sdsnew(name);
         timer_def->enabled = enabled;
         timer_def->start_hour = start_hour;
         timer_def->start_minute = start_minute;
-        timer_def->action = sdsnew(action);
-        timer_def->subaction = sdsnew(subaction);
+        if (je == 8) {
+            //pre 6.5.0 timer definition
+            if (strcmp(action, "startplay") == 0) {
+                timer_def->action = sdsnew("player");
+                timer_der->subaction = sdsnew(action);
+            }
+            else if (strcmp(action, "stopplay") == 0) {
+                timer_def->action = sdsnew("player");
+                timer_der->subaction = sdsnew(action);
+            }
+            else {
+                timer_def->action = sdsnew("syscmd");
+                timer_der->subaction = sdsnew(action);
+            }
+        }
+        else {
+            timer_def->action = sdsnew(action);
+            timer_def->subaction = sdsnew(subaction);
+        }
         timer_def->volume = volume;
         timer_def->playlist = sdsnew(playlist);
         timer_def->jukebox_mode = jukebox_mode;
@@ -263,7 +280,7 @@ struct t_timer_definition *parse_timer(struct t_timer_definition *timer_def, con
     FREE_PTR(action);
     FREE_PTR(subaction);
     FREE_PTR(playlist);
-    if (je != 9) {
+    if (je != 8 && je != 9) {
         LOG_ERROR("Error parsing timer definition");
         free(timer_def);
         return NULL;
