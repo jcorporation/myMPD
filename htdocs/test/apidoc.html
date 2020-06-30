@@ -25,34 +25,19 @@
   </header>
   <main role="main" class="container-fluid text-break">
     <div class="card">
-      <div class="card-header">Manual API Test</div>
+      <div class="card-header">API Documentation</div>
       <div class="card-body">
-        <form>
-          <div class="form-group row">
-            <label class="col-sm-4 col-form-label" for="cmds">Command</label>
-            <div class="col-sm-6">
-              <select id="cmds" class="form-control custom-select"></select>
-            </div>
-            <div class="col-sm-2">
-              <button class="btn btn-success btn-block" id="btnSubmit">Post</button>
-            </div>
-          </div>
-          <hr/>
-          <div id="params"></div>
-        </form>
-        <div class="card">
-          <div class="card-header" id="resultState">Result</div>
-          <div class="card-body text-monospace">
-            <small class="text-dark text-monospace" id="resultText"></small>
-          </div>
-          <div class="card-footer">
-            <small class="text-dark text-monospace" id="requestText"></small>
-          </div>
-        </div>
+        <table class="table">
+          <thead>
+            <tr><th>Method</th><th>Parameters</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
       </div>
     </div>
   </main>
   <script src="api.js"></script>  
-  <script src="manual.js"></script>  
+  <script src="apidoc.js"></script>
 </body>
 </html>
