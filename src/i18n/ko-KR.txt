@@ -1329,3 +1329,119 @@ No lyrics found
 Invalid column
 잘못된 열
 
+Force smart playlist update
+스마트 연주목록 강제 업데이트
+
+Force update
+강제 업데이트
+
+No search tag defined and advanced search is disabled
+검색 태그가 없고 정의되지 않고 고급 검색을 사용 안 함
+
+Smart playlists are disabled
+스마트 연주목록 사용 안 함
+
+Smart playlists update started
+스마트 연주목록 업데이트 시작
+
+Filling jukebox queue failed, disabling jukebox
+뮤직박스 순서를 채울 수 없어 사용 안 함
+
+Playlist to small, disabling jukebox unique constraints temporarily
+연주목록이 작아서, 임시로 뮤직박스의 하나 제한 사용 안 함
+
+Sticker cache is NULL
+Sticker 캐시가 없음
+
+Can't create mympd_script thread
+mympd_script 스레드를 만들 수 없음
+
+Error executing script %{script}: Memory allocation error
+스크립트 %{script} 실행 오류: 메모리 할당 오류
+
+Error executing script %{script}: Syntax error during precompilation
+스크립트 %{script} 실행 오류: 전처리 컴파일 문법 오류
+
+Error executing script %{script}: Error in garbage collector
+스크립트 %{script} 실행 오류: 가비지 수집 오류
+
+Error executing script %{script}: Can not open or read script file
+스크립트 %{script} 실행 오류: 스크립트 파일을 열거나 읽을 수 없음
+
+Error executing script %{script}: Runtime error
+스크립트 %{script} 실행 오류: 런타임 오류
+
+Error executing script %{script}: Error while running the message handler
+스크립트 %{script} 실행 오류: 메시지 처리 실행 오류
+
+Error executing script %{script}
+스크립트 %{script} 실행 오류
+
+Invalid script name
+스크립트 이름 인식 안 됨
+
+No mpd state for script execution submitted
+스크립트 실행을 위한 MPD 상태 없음
+
+Script
+스크립트
+
+Script %{script} executed successfully
+스크립트 %{script} 실행 성공
+
+Scripting is disabled
+스크립트 사용 안 함
+
+Scripts
+스크립트
+
+Invalid script API request
+잘못된 스크립트 API 요청
+
+Remote scripting is disabled
+원격 스크립트 사용 안 함
+
+Arguments
+변수
+
+Can not open scriptfile
+스크립트 파일을 열 수 없음
+
+Could not delete script
+스크립트를 지울 수 없음
+
+Could not save script
+스크립트를 저장할 수 없음
+
+Execute
+실행
+
+Execute script
+스크립트 실행
+
+Invalid scale ratio
+잘못된 크기 비율
+
+Invalid script argument
+잘못된 스크립트 변수
+
+Invalid script order
+잘못된 스크립트 순서
+
+New script
+새 스크립트
+
+No action selected
+기능 선택 안 됨
+
+Scale ratio
+크기 비율
+
+Script arguments
+스크립트 변수
+
+Scriptname
+스크립트 이름
+
+Sort order of the script, 0 disables listing in main menu
+스크립트 분류 순서, 0은 주 메뉴에 안 보임
