@@ -43,22 +43,22 @@ function sendAPI() {
         let params = Object.keys(cmds[id].params);
         for (let key of params) {
             let value = document.getElementById('input-' + key).value;
-            if (value === '') {
-                //do nothing
-            }
-            else if (value === 'true') {
-                value = true;
-            }
-            else if (value === 'false') {
-                value = false;
-            }
-            else if (!isNaN(value)) {
-                value = parseFloat(value);
-            }
             if (value.charAt(0) === '{' || value.charAt(0) === '[') {
                 request.params[key] = JSON.parse(value);
             }
             else {
+                if (value === '') {
+                    //do nothing
+                }
+                else if (value === 'true') {
+                    value = true;
+                }
+                else if (value === 'false') {
+                    value = false;
+                }
+                else if (!isNaN(value)) {
+                    value = parseFloat(value);
+                }
                 request.params[key] = value;
             }
         }

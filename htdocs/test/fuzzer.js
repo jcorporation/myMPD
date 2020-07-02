@@ -22,7 +22,7 @@ function defineCmds() {
     var string3 = blns[getRandomUint(blns_len)];
     var string4 = blns[getRandomUint(blns_len)];
     var string5 = blns[getRandomUint(blns_len)];
-    var bool0 = Math.random() >= 0.5;
+    var bool0 = getRandomBool();
     return [
         {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_BOOKMARK_SAVE","params":{"id": int1, "name":string1, "uri":string2, "type":string3}},
         {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_BOOKMARK_LIST","params":{"offset":int1}},
@@ -125,6 +125,10 @@ function getRandomInt() {
     return int;
 }
 
+function getRandomBool() {
+    return Math.random() >= 0.5;
+}
+
 function sendAPI(id) {
     if (id === 0) {
         cmds = defineCmds();
@@ -153,6 +157,14 @@ function sendAPI(id) {
             }
             i++;
             if (i < cmds.length) {
+                if (getRandomBool() === true) {
+                    //delete random params
+                    for (const key in cmds[i].params) {
+                        if (getRandomBool() === true) {
+                            delete cmds[i].params[key];
+                        }
+                    }
+                }
                 setTimeout(function() { sendAPI(i); }, sleep);
             }
             else if (j < blns_len) {
