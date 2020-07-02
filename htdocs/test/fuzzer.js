@@ -185,14 +185,19 @@ function sendAPI(id) {
 
 function e(x) {
     if (isNaN(x)) {
-        return x.replace(/([<>])/g, function(m0, m1) {
+        return x.replace(/([<>"'])/g, function(m0, m1) {
             if (m1 === '<') return '&lt;';
             else if (m1 === '>') return '&gt;';
+            else if (m1 === '"') return '&quot;';
+            else if (m1 === '\'') return '&apos;';
+        }).replace(/\\u(003C|003E|0022|0027)/gi, function(m0, m1) {
+            if (m1 === '003C') return '&lt;';
+            else if (m1 === '003E') return '&gt;';
+            else if (m1 === '0022') return '&quot;';
+            else if (m1 === '0027') return '&apos;';
         });
     }
-    else {
-        return x;
-    }
+    return x;
 }
 
 sendAPI(0);

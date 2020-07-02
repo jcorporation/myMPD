@@ -19,9 +19,7 @@ function e(x) {
             else if (m1 === '0027') return '&apos;';
         });
     }
-    else {
-        return x;
-    }
+    return x;
 }
 
 function t(phrase, number, data) {
