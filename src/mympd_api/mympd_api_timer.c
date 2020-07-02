@@ -240,7 +240,7 @@ struct t_timer_definition *parse_timer(struct t_timer_definition *timer_def, con
     char *playlist = NULL;
     int je = json_scanf(str, len, "{params: {name: %Q, enabled: %B, startHour: %d, startMinute: %d, action: %Q, subaction: %Q, volume: %d, playlist: %Q, jukeboxMode: %u}}",
         &name, &enabled, &start_hour, &start_minute, &action, &subaction, &volume, &playlist, &jukebox_mode);
-    if (je == 8 || je == 9) {
+    if (je == 9 || (je == 8 && subaction == NULL)) {
         LOG_DEBUG("Successfully parsed timer definition");
         timer_def->name = sdsnew(name);
         timer_def->enabled = enabled;
@@ -270,23 +270,26 @@ struct t_timer_definition *parse_timer(struct t_timer_definition *timer_def, con
         while ((h = json_next_key(str, (int)strlen(str), h, ".params.arguments", &key, &val)) != NULL) {
             list_push_len(&timer_def->arguments, key.ptr, key.len, 0, val.ptr, val.len, NULL);
         }
+        
+        for (int i = 0; i < 7; i++) {
+            timer_def->weekdays[i] = false;
+        }
+        struct json_token t;
+        for (int i = 0; json_scanf_array_elem(str, len, ".params.weekdays", i, &t) > 0 && i < 7; i++) {
+            timer_def->weekdays[i] = t.type == JSON_TYPE_TRUE ? true : false;
+        }
     }
+    else {
+        LOG_ERROR("Error parsing timer definition");
+        free(timer_def);
+        timer_def = NULL;
+    }
+    
     FREE_PTR(name);
     FREE_PTR(action);
     FREE_PTR(subaction);
     FREE_PTR(playlist);
-    if (je != 8 && je != 9) {
-        LOG_ERROR("Error parsing timer definition");
-        free(timer_def);
-        return NULL;
-    }
-    for (int i = 0; i < 7; i++) {
-        timer_def->weekdays[i] = false;
-    }
-    struct json_token t;
-    for (int i = 0; json_scanf_array_elem(str, len, ".params.weekdays", i, &t) > 0 && i < 7; i++) {
-        timer_def->weekdays[i] = t.type == JSON_TYPE_TRUE ? true : false;
-    }
+    
     return timer_def;
 }
 
