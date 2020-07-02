@@ -205,7 +205,7 @@ void *tiny_queue_expire(tiny_queue_t *queue, time_t max_age) {
         time_t expire_time = time(NULL) - max_age;
         
         for (current = queue->head; current != NULL; previous = current, current = current->next) {
-            if (current->timestamp < expire_time) {
+            if (max_age == 0 || current->timestamp < expire_time) {
                 void *data = current->data;
                 
                 if (previous == NULL) {

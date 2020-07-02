@@ -498,16 +498,32 @@ int main(int argc, char **argv) {
     if (init_webserver == true) {
         web_server_free(&mgr);
     }
-    expire_result_queue(web_server_queue, 0);
+    
+    LOG_DEBUG("Expiring web_server_queue: %u", tiny_queue_length(web_server_queue, 10));
+    int expired = expire_result_queue(web_server_queue, 0);
     tiny_queue_free(web_server_queue);
-    expire_request_queue(mpd_client_queue, 0);
+    LOG_DEBUG("Expired %d entries", expired);
+
+    LOG_DEBUG("Expiring mpd_client_queue: %u", tiny_queue_length(mpd_client_queue, 10));
+    expired = expire_request_queue(mpd_client_queue, 0);
     tiny_queue_free(mpd_client_queue);
-    expire_request_queue(mympd_api_queue, 0);
+    LOG_DEBUG("Expired %d entries", expired);
+
+    LOG_DEBUG("Expiring mympd_api_queue: %u", tiny_queue_length(mympd_api_queue, 10));
+    expired = expire_request_queue(mympd_api_queue, 0);
     tiny_queue_free(mympd_api_queue);
-    expire_request_queue(mpd_worker_queue, 0);
+    LOG_DEBUG("Expired %d entries", expired);
+
+    LOG_DEBUG("Expiring mpd_worker_queue: %u", tiny_queue_length(mpd_worker_queue, 10));
+    expired = expire_request_queue(mpd_worker_queue, 0);
     tiny_queue_free(mpd_worker_queue);
-    expire_result_queue(mympd_script_queue, 0);
+    LOG_DEBUG("Expired %d entries", expired);
+
+    LOG_DEBUG("Expiring mympd_script_queue: %u", tiny_queue_length(mympd_script_queue, 10));
+    expired = expire_result_queue(mympd_script_queue, 0);
     tiny_queue_free(mympd_script_queue);
+    LOG_DEBUG("Expired %d entries", expired);
+
     mympd_free_config(config);
     sdsfree(configfile);
     sdsfree(option);
