@@ -5,6 +5,8 @@
  https://github.com/jcorporation/mympd
 */
 
+/* global cmds */
+
 function init() {
     let options = '<option></option>';
     for (let i = 0; i < cmds.length; i++) {

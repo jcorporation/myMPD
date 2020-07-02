@@ -5,6 +5,7 @@
  https://github.com/jcorporation/mympd
 */
 
+//eslint-disable-next-line no-unused-vars
 var cmds = [
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_QUEUE_CLEAR"},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_QUEUE_CROP"},

@@ -5,6 +5,8 @@
  https://github.com/jcorporation/mympd
 */
 
+/* global cmds */
+
 let strings = {};
 strings['cols'] = 'cols: array of columns to return';
 strings['offset'] = 'offset: Offset of the returned list';
