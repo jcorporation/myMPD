@@ -830,10 +830,16 @@ var keymap = {
 
 function e(x) {
     if (isNaN(x)) {
-        return x.replace(/([<>"])/g, function(m0, m1) {
+        return x.replace(/([<>"'])/g, function(m0, m1) {
             if (m1 === '<') return '&lt;';
             else if (m1 === '>') return '&gt;';
             else if (m1 === '"') return '&quot;';
+            else if (m1 === '\'') return '&apos;';
+        }).replace(/\\u(003C|003E|0022|0027)/gi, function(m0, m1) {
+            if (m1 === '003C') return '&lt;';
+            else if (m1 === '003E') return '&gt;';
+            else if (m1 === '0022') return '&quot;';
+            else if (m1 === '0027') return '&apos;';
         });
     }
     else {
@@ -4007,6 +4013,9 @@ function parseScriptList(obj) {
         for (let i = 0; i < scriptListLen; i++) {
             let arglist = '';
             if (obj.result.data[i].metadata.arguments.length > 0) {
+                for (let j = 0; j < obj.result.data[i].metadata.arguments.length; j++) {
+                    obj.result.data[i].metadata.arguments[j] = e(obj.result.data[i].metadata.arguments[j]);
+                }
                 arglist = '"' + obj.result.data[i].metadata.arguments.join('","') + '"';
             }
             if (obj.result.data[i].metadata.order > 0) {
