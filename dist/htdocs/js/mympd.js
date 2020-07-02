@@ -6604,12 +6604,12 @@ function prettyTimerAction(action, subaction) {
         return t('Stop playback');
     }
     if (action === 'syscmd') {
-        return t('System command') + ': ' + subaction;
+        return t('System command') + ': ' + e(subaction);
     }
     if (action === 'script') {
-        return t('Script') + ': ' + subaction;
+        return t('Script') + ': ' + e(subaction);
     }
-    return action + ': ' + subaction;
+    return e(action) + ': ' + e(subaction);
 }
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
