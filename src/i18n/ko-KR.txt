@@ -1377,7 +1377,7 @@ Error executing script %{script}: Error while running the message handler
 Error executing script %{script}
 스크립트 %{script} 실행 오류
 
-Invalid script name
+Invalid scriptname
 스크립트 이름 인식 안 됨
 
 No mpd state for script execution submitted
