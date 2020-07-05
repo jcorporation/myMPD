@@ -206,7 +206,7 @@ sds mpd_client_playlist_delete(t_config *config, t_mpd_client_state *mpd_client_
         sdsfree(pl_file);
         if (rc == -1 && errno != ENOENT) {
             buffer = jsonrpc_respond_message(buffer, method, request_id, "Deleting smart playlist failed", true);
-            LOG_ERROR("Deleting smart playlist \"%s\" failed", playlist);
+            LOG_ERROR("Deleting smart playlist \"%s\" failed: %s", playlist, strerror(errno));
             return buffer;
         }
     }
@@ -323,6 +323,7 @@ sds mpd_client_playlist_delete_all(t_config *config, t_mpd_client_state *mpd_cli
     
     struct list playlists;
     list_init(&playlists);
+    //get all mpd playlists
     struct mpd_playlist *pl;
     while ((pl = mpd_recv_playlist(mpd_client_state->mpd_state->conn)) != NULL) {
         const char *plpath = mpd_playlist_get_path(pl);
@@ -334,6 +335,31 @@ sds mpd_client_playlist_delete_all(t_config *config, t_mpd_client_state *mpd_cli
         list_free(&playlists);
         return buffer;
     }
+    //delete each smart playlist file that have no corresponding mpd playlist file
+    sds smartpls_path = sdscatfmt(sdsempty(), "%s/smartpls", config->varlibdir);
+    DIR *smartpls_dir = opendir(smartpls_path);
+    if (smartpls_dir != NULL) {
+        struct dirent *next_file;
+        while ((next_file = readdir(smartpls_dir)) != NULL ) {
+            if (strncmp(next_file->d_name, ".", 1) != 0) {
+                if (list_get_node(&playlists, next_file->d_name) == NULL) {
+                    sds smartpls_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->varlibdir, next_file->d_name);
+                    if (unlink(smartpls_file) == 0) {
+                        LOG_VERBOSE("Removed orphaned smartpls file \"%s\"", smartpls_file);
+                    }
+                    else {
+                        LOG_ERROR("Removing smartpls file \"%s\" failed: %s", smartpls_file, strerror(errno));
+                    }
+                    sdsfree(smartpls_file);
+                }
+            }
+        }
+        closedir(smartpls_dir);
+    }
+    else {
+        LOG_ERROR("Can not open smartpls dir \"%s\"", smartpls_path);
+    }
+    sdsfree(smartpls_path);
     
     if (strcmp(type, "deleteEmptyPlaylists") == 0) {
         struct list_node *current = playlists.head;
@@ -350,6 +376,7 @@ sds mpd_client_playlist_delete_all(t_config *config, t_mpd_client_state *mpd_cli
             if (strcmp(type, "deleteSmartPlaylists") == 0) {
                 sds smartpls_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->varlibdir, current->key);
                 if (unlink(smartpls_file) == 0) {
+                    LOG_VERBOSE("Smartpls file %s removed", smartpls_file);
                     smartpls = true;
                 }
                 sdsfree(smartpls_file);
@@ -362,6 +389,9 @@ sds mpd_client_playlist_delete_all(t_config *config, t_mpd_client_state *mpd_cli
                 if (rc == false) {
                     LOG_ERROR("Error adding command to command list mpd_send_rm");
                     break;
+                }
+                else {
+                    LOG_VERBOSE("Deleting mpd playlist %s", current->key);
                 }
             }
             current = current->next;        
