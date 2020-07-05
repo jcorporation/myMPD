@@ -99,7 +99,6 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
     int int_buf1;
     int int_buf2;
     bool rc;
-    bool bool_buf1;
     LOG_VERBOSE("MYMPD API request (%d): %s", request->conn_id, request->data);
     
     //create response struct
@@ -156,12 +155,14 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                 response->data = mympd_api_script_get(config, response->data, request->method, request->id, p_charbuf1);
             }
             break;
-        case MYMPD_API_SCRIPT_LIST:
+        case MYMPD_API_SCRIPT_LIST: {
+            bool bool_buf1;
             je = json_scanf(request->data, sdslen(request->data), "{params: {all: %B}}", &bool_buf1);
             if (je == 1) {
                 response->data = mympd_api_script_list(config, response->data, request->method, request->id, bool_buf1);
             }
             break;
+        }
         case MYMPD_API_SCRIPT_INIT:
             if (config->scripting == true) {
                 if (request->extra != NULL) {
