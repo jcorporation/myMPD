@@ -41,7 +41,6 @@
 
 #include "song.h"
 #include "directory.h"
-#include "client.h"
 #include "compiler.h"
 
 struct mpd_pair;

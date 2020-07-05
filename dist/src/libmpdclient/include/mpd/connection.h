@@ -52,9 +52,28 @@ struct mpd_async;
  *
  * This opaque object represents a connection to a MPD server.  Call
  * mpd_connection_new() to create a new instance.  To free an
- * instance, call mpd_connection_free().
+ * instance, call mpd_connection_free().  Example:
  *
- * Error handling: most functions return a "bool" indicating success
+ *     struct mpd_connection *conn = mpd_connection_new(NULL, 0, 0);
+ *
+ *     // error handling
+ *     if (conn == NULL) {
+ *         fprintf(stderr, "Out of memory\n");
+ *         return;
+ *     }
+ *     if (mpd_connection_get_error(conn) != MPD_ERROR_SUCCESS) {
+ *         fprintf(stderr, "%s\n", mpd_connection_get_error_message(c));
+ *         mpd_connection_free(c);
+ *         return;
+ *     }
+ *
+ *     // we can now use the connection
+ *     mpd_run_next(conn);
+ *
+ *     // close the connection and free memory
+ *     mpd_connection_free(conn);
+ *
+ * Error handling: most functions return a `bool` indicating success
  * or failure.  In this case, you may query the nature of the error
  * with the functions mpd_connection_get_error(),
  * mpd_connection_get_error_message(),
@@ -66,8 +85,11 @@ struct mpd_async;
  * mpd_connection_clear_error() returns false.
  *
  * Some functions like mpd_recv_pair() cannot differentiate between
- * "end of response" and "error".  If this function returns NULL, you
+ * "end of response" and "error".  If this function returns `NULL`, you
  * have to check mpd_connection_get_error().
+ *
+ * To integrate this object in a non-blocking event I/O loop, use
+ * mpd_connection_get_fd() to obtain the underlying socket descriptor.
  */
 struct mpd_connection;
 
@@ -77,27 +99,27 @@ extern "C" {
 
 /**
  * Opens a new connection to a MPD server.  Both the name server
- * lookup and the connect() call are done synchronously.  After this
+ * lookup and the `connect()` call are done synchronously.  After this
  * function has returned, you should check if the connection was
  * successful with mpd_connection_get_error().
  *
  * @param host the server's host name, IP address or Unix socket path.
  * If the resolver returns more than one IP address for a host name,
  * this functions tries all of them until one accepts the connection.
- * NULL is allowed here, which will connect to the default host
- * (using the MPD_HOST environment variable if present).
+ * `NULL` is allowed here, which will connect to the default host
+ * (using the `MPD_HOST` environment variable if present).
  * @param port the TCP port to connect to, 0 for default port (using
- * the MPD_PORT environment variable if present).  If "host" is a Unix
+ * the `MPD_PORT` environment variable if present).  If "host" is a Unix
  * socket path, this parameter is ignored.
  * @param timeout_ms the timeout in milliseconds, 0 for the default
- * timeout (the environment variable MPD_TIMEOUT may specify a timeout
+ * timeout (the environment variable `MPD_TIMEOUT` may specify a timeout
  * in seconds); you may modify it later with
  * mpd_connection_set_timeout()
  * @return a mpd_connection object (which may have failed to connect),
- * or NULL on out-of-memory
+ * or `NULL` on out-of-memory
  *
- * @since libmpdclient 2.3 added support for #MPD_HOST, #MPD_PORT and
- * #MPD_TIMEOUT.
+ * @since libmpdclient 2.3 added support for `MPD_HOST`, `MPD_PORT`
+ * and `MPD_TIMEOUT`.
  */
 mpd_malloc
 struct mpd_connection *
@@ -114,7 +136,7 @@ mpd_connection_new(const char *host, unsigned port, unsigned timeout_ms);
  *
  * @param async a #mpd_async instance
  * @param welcome the first line sent by MPD (the welcome message)
- * @return a mpd_connection object, or NULL on out-of-memory
+ * @return a mpd_connection object, or `NULL` on out-of-memory
  */
 mpd_malloc
 struct mpd_connection *
@@ -129,7 +151,7 @@ void mpd_connection_free(struct mpd_connection *connection);
 
 /**
  * Returns the settings which were used to connect to the server.  May
- * be NULL if the settings are not known.
+ * be `NULL` if the settings are not known.
  *
  * @since libmpdclient 2.4
  */
@@ -175,6 +197,22 @@ void mpd_connection_set_timeout(struct mpd_connection *connection,
  * Do not use the file descriptor for anything except polling!  The
  * file descriptor never changes during the lifetime of this
  * #mpd_connection object.
+ *
+ * To integrate this library in a non-blocking event I/O loop, use
+ * this function to obtain the underlying socket descriptor and
+ * register it in the event loop.  As soon as it becomes ready for
+ * reading, use this library's functions to receive responses from
+ * MPD.  Example:
+ *
+ *     if (!mpd_send_idle(conn))
+ *         return handle_error();
+ *     register_socket(mpd_connection_get_fd(conn));
+ *
+ * And in the event callback:
+ *
+ *     enum mpd_idle events = mpd_recv_idle(conn);
+ *     // handle the events
+ *     // .. and then call mpd_send_idle() again to keep listening
  */
 mpd_pure
 int

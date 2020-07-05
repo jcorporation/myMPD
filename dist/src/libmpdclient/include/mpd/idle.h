@@ -93,7 +93,7 @@ enum mpd_idle {
 
 	/** a partition was added or changed */
 	MPD_IDLE_PARTITION = 0x800,
-	
+
 	/** a neighbor was found or lost */
 	MPD_IDLE_NEIGHBOR = 0x1000,
 

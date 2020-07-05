@@ -254,7 +254,7 @@ sds mpd_client_put_settings(t_mpd_client_state *mpd_client_state, sds buffer, sd
             return buffer;
         }
     }
-    const char *replaygain = mpd_parse_replay_gain_mode(replay_gain_mode);
+    const char *replaygain = mpd_lookup_replay_gain_mode(replay_gain_mode);
     
     buffer = jsonrpc_start_result(buffer, method, request_id);
     buffer = sdscat(buffer, ",");

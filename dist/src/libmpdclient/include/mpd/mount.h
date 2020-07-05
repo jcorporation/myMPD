@@ -85,7 +85,7 @@ mpd_mount_feed(struct mpd_mount *mnt, const struct mpd_pair *pair);
  * @since libmpdclient 2.16
  */
 void
-mpd_mount_free(struct mpd_mount *mnt);
+mpd_mount_free(struct mpd_mount *mount);
 
 /**
  * @return the mount point URI of the specified #mpd_mount object

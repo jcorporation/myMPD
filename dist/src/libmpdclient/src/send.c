@@ -53,6 +53,16 @@ format_range(char *buffer, size_t size, unsigned start, unsigned end)
 		snprintf(buffer, size, "%u:%u", start, end);
 }
 
+static void
+format_frange(char *buffer, size_t size, float start, float end)
+{
+	/* the special value 0.0 means "open range" */
+	if (end >= 0)
+		snprintf(buffer, size, "%1.3f:%1.3f", start, end);
+	else
+		snprintf(buffer, size, "%1.3f:", start);
+}
+
 /**
  * Checks whether it is possible to send a command now.
  */
@@ -278,6 +288,22 @@ mpd_send_range_u_command(struct mpd_connection *connection,
 	snprintf(arg2_string, sizeof(arg2_string), "%i", arg2);
 	return mpd_send_command(connection, command,
 				arg1_string, arg2_string, NULL);
+}
+
+bool
+mpd_send_u_frange_command(struct mpd_connection *connection,
+			 const char *command, unsigned arg1,
+			 float start, float end)
+{
+	/* <start>:<end> */
+	char arg1_string[INTLEN + 1];
+	char range_string[FLOATLEN * 2 + 1 + 1];
+
+	snprintf(arg1_string, sizeof(arg1_string), "%u", arg1);
+	format_frange(range_string, sizeof(range_string), start, end);
+
+	return mpd_send_command(connection, command,
+				arg1_string, range_string, NULL);
 }
 
 bool

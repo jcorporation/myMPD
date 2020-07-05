@@ -128,6 +128,20 @@ mpd_async_copy_error(const struct mpd_async *async,
 	return mpd_error_copy(dest, &async->error);
 }
 
+bool
+mpd_async_set_error(struct mpd_async *async, enum mpd_error error,
+		    const char *error_message)
+{
+	assert(async != NULL);
+
+	if (mpd_error_is_defined(&async->error))
+		return false;
+
+	mpd_error_code(&async->error, error);
+	mpd_error_message(&async->error, error_message);
+	return true;
+}
+
 int
 mpd_async_get_fd(const struct mpd_async *async)
 {

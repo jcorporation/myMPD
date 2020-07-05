@@ -500,3 +500,19 @@ mpd_run_prio_id(struct mpd_connection *connection, int priority,
 		mpd_send_prio_id(connection, priority, id) &&
 		mpd_response_finish(connection);
 }
+
+bool
+mpd_send_range_id(struct mpd_connection *connection, unsigned id,
+		  float start, float end)
+{
+	return mpd_send_u_frange_command(connection, "rangeid", id, start, end);
+}
+
+bool
+mpd_run_range_id(struct mpd_connection *connection, unsigned id,
+		 float start, float end)
+{
+	return mpd_run_check(connection) &&
+		mpd_send_range_id(connection, id, start, end) &&
+		mpd_response_finish(connection);
+}

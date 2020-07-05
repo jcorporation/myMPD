@@ -44,4 +44,15 @@ bool
 mpd_async_copy_error(const struct mpd_async *async,
 		     struct mpd_error_info *dest);
 
+/**
+ * Sets the object's error condition.
+ *
+ * @return true if there was no error in #async, false if an error
+ * condition is stored in #async; the #error is only set if there was no error
+ * previously present
+ */
+bool
+mpd_async_set_error(struct mpd_async *async, enum mpd_error error,
+		    const char *error_message);
+
 #endif

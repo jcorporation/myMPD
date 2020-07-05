@@ -56,7 +56,7 @@ mpd_parse_welcome(struct mpd_connection *connection, const char *output)
 	const char *tmp;
 	char * test;
 
-	if (strncmp(output,MPD_WELCOME_MESSAGE,strlen(MPD_WELCOME_MESSAGE))) {
+	if (strncmp(output,MPD_WELCOME_MESSAGE,strlen(MPD_WELCOME_MESSAGE)) != 0) {
 		mpd_error_code(&connection->error, MPD_ERROR_MALFORMED);
 		mpd_error_message(&connection->error,
 				  "Malformed connect message received");
