@@ -91,11 +91,14 @@ sds mympd_api_script_list(t_config *config, sds buffer, sds method, long request
                         if (strncmp(line, "-- ", 3) == 0) {
                             sds metadata = sdsnew(line);
                             sdsrange(metadata, 3, -2);
-                            entry = sdscat(entry, "\"metadata\":");
-                            entry = sdscat(entry, metadata);
                             int je = json_scanf(metadata, sdslen(metadata), "{order: %d}", &order);
                             if (je == 0) {
                                 LOG_WARN("Invalid metadata for script %s", scriptfilename);
+                                entry = sdscat(entry, "\"metadata\":{\"order\":0,\"arguments\":[]}");
+                            }
+                            else {
+                                entry = sdscat(entry, "\"metadata\":");
+                                entry = sdscat(entry, metadata);
                             }
                             sdsfree(metadata);
                         }
@@ -190,8 +193,14 @@ sds mympd_api_script_get(t_config *config, sds buffer, sds method, long request_
             if (strncmp(line, "-- ", 3) == 0) {
                 sds metadata = sdsnew(line);
                 sdsrange(metadata, 3, -2);
-                buffer = sdscat(buffer, "\"metadata\":");
-                buffer = sdscat(buffer, metadata);
+                if (metadata[0] == '{' && metadata[sdslen(metadata) - 1] == '}') {
+                    buffer = sdscat(buffer, "\"metadata\":");
+                    buffer = sdscat(buffer, metadata);
+                }
+                else {
+                    LOG_WARN("Invalid metadata for script %s", scriptfilename);
+                    buffer = sdscat(buffer, "\"metadata\":{\"order\":0, \"arguments\":[]}");
+                }
                 sdsfree(metadata);
             }
             else {
