@@ -888,7 +888,7 @@ function appInit() {
         event.stopPropagation();
         event.preventDefault();
         if (event.target.nodeName === 'TD') {
-            if (event.target.parentNode.getAttribute('data-script') === '') {
+            if (settings.featScripteditor === false || event.target.parentNode.getAttribute('data-script') === '') {
                 return false;
             }
             showEditScript(decodeURI(event.target.parentNode.getAttribute('data-script')));

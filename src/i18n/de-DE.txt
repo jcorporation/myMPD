@@ -1445,3 +1445,6 @@ Skriptname
 
 Sort order of the script, 0 disables listing in main menu
 Sortierreihenfolge der Skripts, 0 deaktiviert die Anzeige im Hauptmenü
+
+Editing scripts is disabled
+Das Editieren von Skripts ist deaktiviert

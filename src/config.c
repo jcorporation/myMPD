@@ -265,6 +265,9 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("mympd", "lualibs")) {
         p_config->lualibs = sdsreplace(p_config->lualibs, value);
     }
+    else if (MATCH("mympd", "scripteditor")) {
+        p_config->scripteditor = strtobool(value);
+    }
     #endif
     else if (MATCH("theme", "theme")) {
         p_config->theme = sdsreplace(p_config->theme, value);
@@ -353,7 +356,7 @@ static void mympd_get_env(struct t_config *config) {
         "MYMPD_STREAMURL", "MYMPD_VOLUMESTEP", "MYMPD_COVERCACHEKEEPDAYS", "MYMPD_COVERCACHE",
         "MYMPD_COVERCACHEAVOID", "MYMPD_LYRICS", 
       #ifdef ENABLE_LUA
-        "MYMPD_SCRIPTING", "MYMPD_REMOTESCRIPTING", "MYMPD_LUALIBS",
+        "MYMPD_SCRIPTING", "MYMPD_REMOTESCRIPTING", "MYMPD_LUALIBS", "MYMPD_SCRIPTEDITOR",
       #endif
         "THEME_THEME", "THEME_CUSTOMPLACEHOLDERIMAGES",
         "THEME_BGCOVER", "THEME_BGCOLOR", "THEME_BGCSSFILTER", "THEME_COVERGRIDSIZE",
@@ -499,6 +502,7 @@ void mympd_config_defaults(t_config *config) {
     config->acl = sdsempty();
     config->scriptacl = sdsnew("-0.0.0.0/0,+127.0.0.0/8");
     config->lualibs = sdsnew("base, string, utf8, table, math, bit32, mympd");
+    config->scripteditor = false;
     list_init(&config->syscmd_list);
 }
 
@@ -587,6 +591,7 @@ bool mympd_dump_config(void) {
         "scripting = %s\n"
         "remotescripting = %s\n"
         "lualibs = %s\n"
+        "scripteditor = %s\n"
     #endif
         "timer = %s\n"
         "lastplayedcount = %d\n"
@@ -644,6 +649,7 @@ bool mympd_dump_config(void) {
         (p_config->scripting == true ? "true" : "false"),
         (p_config->remotescripting == true ? "true" : "false"),
         p_config->lualibs,
+        (p_config->scripteditor == true ? "true" : "false"),
     #endif
         (p_config->timer == true ? "true" : "false"),
         p_config->last_played_count,
@@ -759,6 +765,10 @@ bool mympd_read_config(t_config *config, sds configfile) {
     if (config->scripting == false && config->remotescripting == true) {
         LOG_INFO("Scripting disabled, disabling remote scripting");
         config->remotescripting = false;
+    }
+    if (config->scripting == false && config->scripteditor == true) {
+        LOG_INFO("Scripting disabled, disabling scripteditor");
+        config->scripteditor = false;
     }
     return true;
 }

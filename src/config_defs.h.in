@@ -127,6 +127,7 @@ typedef struct t_config {
     sds acl;
     sds scriptacl;
     sds lualibs;
+    bool scripteditor;
     //system commands
     struct list syscmd_list;
 } t_config;
