@@ -392,9 +392,7 @@ sds mpd_client_playlist_delete_all(t_config *config, t_mpd_client_state *mpd_cli
                     LOG_ERROR("Error adding command to command list mpd_send_rm");
                     break;
                 }
-                else {
-                    LOG_VERBOSE("Deleting mpd playlist %s", current->key);
-                }
+                LOG_VERBOSE("Deleting mpd playlist %s", current->key);
             }
             current = current->next;        
         }
