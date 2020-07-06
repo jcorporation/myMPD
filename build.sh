@@ -357,6 +357,7 @@ cleanup() {
   rm -rf release
   rm -rf debug
   rm -rf package
+  rm -rf test/build
   
   #htdocs
   rm -f htdocs/js/bootstrap-native-v4.js
