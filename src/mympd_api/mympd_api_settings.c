@@ -74,6 +74,7 @@ bool mympd_api_connection_save(t_config *config, t_mympd_state *mympd_state, str
     else if (strncmp(key->ptr, "musicDirectory", key->len) == 0) {
         mympd_state->music_directory = sdsreplacelen(mympd_state->music_directory, settingvalue, sdslen(settingvalue));
         settingname = sdscat(settingname, "music_directory");
+        strip_slash(mympd_state->music_directory);
     }
     else {
         sdsfree(settingname);
@@ -421,6 +422,7 @@ void mympd_api_read_statefiles(t_config *config, t_mympd_state *mympd_state) {
         mympd_state->bookmarks = false;
         mympd_state->smartpls = false;
     }
+    strip_slash(mympd_state->music_directory);
 }
 
 sds state_file_rw_string(t_config *config, const char *name, const char *def_value, bool warn) {
@@ -514,7 +516,7 @@ bool state_file_write(t_config *config, const char *name, const char *value) {
     return true;
 }
 
-sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buffer, sds method, int request_id) {
+sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
     buffer = jsonrpc_start_result(buffer, method, request_id);
     buffer = sdscat(buffer, ",");
     buffer = tojson_char(buffer, "mpdHost", mympd_state->mpd_host, true);
@@ -571,6 +573,8 @@ sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buf
     buffer = tojson_bool(buffer, "featStickerCache", config->sticker_cache, true);
     buffer = tojson_char(buffer, "bookletName", mympd_state->booklet_name, true);
     buffer = tojson_bool(buffer, "featLyrics", mympd_state->lyrics, true);
+    buffer = tojson_bool(buffer, "featScripting", config->scripting, true);
+    buffer = tojson_bool(buffer, "featScripteditor", config->scripteditor, true);
     buffer = sdscatfmt(buffer, "\"colsQueueCurrent\":%s,", mympd_state->cols_queue_current);
     buffer = sdscatfmt(buffer, "\"colsSearch\":%s,", mympd_state->cols_search);
     buffer = sdscatfmt(buffer, "\"colsBrowseDatabase\":%s,", mympd_state->cols_browse_database);
@@ -592,7 +596,7 @@ sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buf
         }
         buffer = sdscat(buffer, "]");
     }
-
+    
     buffer = jsonrpc_end_result(buffer);
     return buffer;
 }

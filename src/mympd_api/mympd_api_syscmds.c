@@ -20,7 +20,7 @@
 #include "mympd_api_utility.h"
 #include "mympd_api_syscmds.h"
 
-sds mympd_api_syscmd(t_config *config, sds buffer, sds method, int request_id, 
+sds mympd_api_syscmd(t_config *config, sds buffer, sds method, long request_id, 
                      const char *cmd)
 {
     sds cmdline = list_get_value_p(&config->syscmd_list, cmd);

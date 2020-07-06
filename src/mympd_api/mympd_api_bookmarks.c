@@ -38,13 +38,13 @@ bool mympd_api_bookmark_update(t_config *config, const int id, const char *name,
     }
     FILE *fo = fdopen(fd, "w");
     int line_nr = 0;
-    char *line = NULL;
-    size_t n = 0;
-    ssize_t read;
     bool inserted = false;
     sds b_file = sdscatfmt(sdsempty(), "%s/state/bookmark_list", config->varlibdir);
     FILE *fi = fopen(b_file, "r");
     if (fi != NULL) {
+        char *line = NULL;
+        size_t n = 0;
+        ssize_t read;
         while ((read = getline(&line, &n, fi)) > 0) {
             char *lname = NULL;
             char *luri = NULL;
@@ -103,13 +103,12 @@ bool mympd_api_bookmark_clear(t_config *config) {
     return true;
 }
 
-sds mympd_api_bookmark_list(t_config *config, sds buffer, sds method, int request_id,
+sds mympd_api_bookmark_list(t_config *config, sds buffer, sds method, long request_id,
                             unsigned int offset)
 {
     char *line = NULL;
     char *crap = NULL;
     size_t n = 0;
-    ssize_t read;
     unsigned entity_count = 0;
     unsigned entities_returned = 0;
     
@@ -132,7 +131,7 @@ sds mympd_api_bookmark_list(t_config *config, sds buffer, sds method, int reques
         fclose(fi);
     }
     else {
-        while ((read = getline(&line, &n, fi)) > 0) {
+        while (getline(&line, &n, fi) > 0) {
             entity_count++;
             if (entity_count > offset && entity_count <= offset + config->max_elements_per_page) {
                 if (entities_returned++) {

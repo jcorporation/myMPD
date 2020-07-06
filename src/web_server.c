@@ -41,6 +41,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data);
 static void send_ws_notify(struct mg_mgr *mgr, t_work_result *response);
 static void send_api_response(struct mg_mgr *mgr, t_work_result *response);
 static bool handle_api(int conn_id, struct http_message *hm);
+static bool handle_script_api(int conn_id, struct http_message *hm);
 
 //public functions
 bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_data) {
@@ -116,12 +117,14 @@ void web_server_free(void *arg_mgr) {
 }
 
 void *web_server_loop(void *arg_mgr) {
+    thread_logname = sdsreplace(thread_logname, "webserver");
+
     struct mg_mgr *mgr = (struct mg_mgr *) arg_mgr;
     t_mg_user_data *mg_user_data = (t_mg_user_data *) mgr->user_data;
     while (s_signal_received == 0) {
         unsigned web_server_queue_length = tiny_queue_length(web_server_queue, 50);
         if (web_server_queue_length > 0) {
-            t_work_result *response = tiny_queue_shift(web_server_queue, 50);
+            t_work_result *response = tiny_queue_shift(web_server_queue, 50, 0);
             if (response != NULL) {
                 if (response->conn_id == -1) {
                     //internal message
@@ -140,6 +143,7 @@ void *web_server_loop(void *arg_mgr) {
         //webserver polling
         mg_mgr_poll(mgr, 50);
     }
+    sdsfree(thread_logname);
     return NULL;
 }
 
@@ -201,10 +205,12 @@ static unsigned long is_websocket(const struct mg_connection *nc) {
 
 static void send_ws_notify(struct mg_mgr *mgr, t_work_result *response) {
     struct mg_connection *nc;
+    int i = 0;
     for (nc = mg_next(mgr, NULL); nc != NULL; nc = mg_next(mgr, nc)) {
         if (!is_websocket(nc)) {
             continue;
         }
+        i++;
         if (nc->user_data != NULL) {
             LOG_DEBUG("Sending notify to conn_id %d: %s", (intptr_t)nc->user_data, response->data);
         }
@@ -212,6 +218,9 @@ static void send_ws_notify(struct mg_mgr *mgr, t_work_result *response) {
             LOG_WARN("Sending notify to unknown connection: %s", response->data);
         }
         mg_send_websocket_frame(nc, WEBSOCKET_OP_TEXT, response->data, sdslen(response->data));
+    }
+    if (i == 0) {
+        LOG_DEBUG("No websocket client connected, discarding message");
     }
     free_result(response);
 }
@@ -248,6 +257,19 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
     
     switch(ev) {
         case MG_EV_ACCEPT: {
+            //check acl
+            if (sdslen(config->acl) > 0) {
+                uint32_t remote_ip = ntohl(*(uint32_t *) &nc->sa.sin.sin_addr);
+                int allowed = mg_check_ip_acl(config->acl, remote_ip);
+                if (allowed == -1) {
+                    LOG_ERROR("ACL malformed");
+                }
+                if (allowed != 1) {
+                    nc->flags |= MG_F_SEND_AND_CLOSE;
+                    send_error(nc, 403, "Request blocked by ACL");
+                    break;
+                }
+            }
             //increment conn_id
             if (mg_user_data->conn_id < INT_MAX) {
                 mg_user_data->conn_id++;
@@ -285,7 +307,36 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             static const struct mg_str albumart_prefix = MG_MK_STR("/albumart");
             static const struct mg_str lyrics_prefix = MG_MK_STR("/lyrics");
             LOG_VERBOSE("HTTP request (%d): %.*s", (intptr_t)nc->user_data, (int)hm->uri.len, hm->uri.p);
-            if (mg_vcmp(&hm->uri, "/api/serverinfo") == 0) {
+            if (mg_vcmp(&hm->uri, "/api/script") == 0) {
+                if (config->remotescripting == false) {
+                    nc->flags |= MG_F_SEND_AND_CLOSE;
+                    send_error(nc, 403, "Remote scripting is disabled");
+                    break;
+                }
+                if (sdslen(config->scriptacl) > 0) {
+                    uint32_t remote_ip = ntohl(*(uint32_t *) &nc->sa.sin.sin_addr);
+                    int allowed = mg_check_ip_acl(config->scriptacl, remote_ip);
+                    if (allowed == -1) {
+                        LOG_ERROR("ACL malformed");
+                    }
+                    if (allowed != 1) {
+                        nc->flags |= MG_F_SEND_AND_CLOSE;
+                        send_error(nc, 403, "Request blocked by ACL");
+                        break;
+                    }
+                }
+                bool rc = handle_script_api((intptr_t)nc->user_data, hm);
+                if (rc == false) {
+                    LOG_ERROR("Invalid script API request");
+                    sds method = sdsempty();
+                    sds response = jsonrpc_respond_message(sdsempty(), method, 0, "Invalid script API request", true);
+                    mg_send_head(nc, 200, sdslen(response), "Content-Type: application/json");
+                    mg_send(nc, response, sdslen(response));
+                    sdsfree(response);
+                    sdsfree(method);
+                }
+            }
+            else if (mg_vcmp(&hm->uri, "/api/serverinfo") == 0) {
                 struct sockaddr_in localip;
                 socklen_t len = sizeof(localip);
                 if (getsockname(nc->sock, (struct sockaddr *)&localip, &len) == 0) {
@@ -444,18 +495,71 @@ static bool handle_api(int conn_id, struct http_message *hm) {
         return false;
     }
     
+    if (is_public_api_method(cmd_id) == false) {
+        LOG_ERROR("API method %s is privat", cmd);
+        FREE_PTR(cmd);
+        FREE_PTR(jsonrpc);
+        return false;
+    }
+    
     sds data = sdscatlen(sdsempty(), hm->body.p, hm->body.len);
     t_work_request *request = create_request(conn_id, id, cmd_id, cmd, data);
     sdsfree(data);
     
     if (strncmp(cmd, "MYMPD_API_", 10) == 0) {
-        tiny_queue_push(mympd_api_queue, request);
+        tiny_queue_push(mympd_api_queue, request, 0);
+    }
+    else if (strncmp(cmd, "MPDWORKER_API_", 14) == 0) {
+        tiny_queue_push(mpd_worker_queue, request, 0);
+        
     }
     else {
-        tiny_queue_push(mpd_client_queue, request);
+        tiny_queue_push(mpd_client_queue, request, 0);
     }
 
     FREE_PTR(cmd);
-    FREE_PTR(jsonrpc);    
+    FREE_PTR(jsonrpc);
+    return true;
+}
+
+static bool handle_script_api(int conn_id, struct http_message *hm) {
+    if (hm->body.len > 4096) {
+        LOG_ERROR("Request length of %d exceeds max request size, discarding request)", hm->body.len);
+        return false;
+    }
+    
+    LOG_DEBUG("Script API request (%d): %.*s", conn_id, hm->body.len, hm->body.p);
+    char *cmd = NULL;
+    char *jsonrpc = NULL;
+    long id = 0;
+    const int je = json_scanf(hm->body.p, hm->body.len, "{jsonrpc: %Q, method: %Q, id: %ld}", &jsonrpc, &cmd, &id);
+    if (je < 3) {
+        FREE_PTR(cmd);
+        FREE_PTR(jsonrpc);
+        return false;
+    }
+    LOG_VERBOSE("Script API request (%d): %s", conn_id, cmd);
+
+    enum mympd_cmd_ids cmd_id = get_cmd_id(cmd);
+    if (cmd_id == 0 || strncmp(jsonrpc, "2.0", 3) != 0) {
+        FREE_PTR(cmd);
+        FREE_PTR(jsonrpc);
+        return false;
+    }
+    
+    if (cmd_id != MYMPD_API_SCRIPT_POST_EXECUTE) {
+        LOG_ERROR("API method %s is invalid for this uri", cmd);
+        FREE_PTR(cmd);
+        FREE_PTR(jsonrpc);
+        return false;
+    }
+    
+    sds data = sdscatlen(sdsempty(), hm->body.p, hm->body.len);
+    t_work_request *request = create_request(conn_id, id, cmd_id, cmd, data);
+    sdsfree(data);
+    tiny_queue_push(mympd_api_queue, request, 0);
+
+    FREE_PTR(cmd);
+    FREE_PTR(jsonrpc);
     return true;
 }

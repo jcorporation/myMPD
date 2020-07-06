@@ -14,6 +14,7 @@
 #include <sys/stat.h>
 #include <ctype.h>
 #include <signal.h>
+#include <time.h>
 
 #include "../dist/src/sds/sds.h"
 #include "sds_extras.h"
@@ -25,24 +26,40 @@
 #include "global.h"
 #include "utility.h"
 
+void send_jsonrpc_notify_info(const char *message) {
+    sds buffer = jsonrpc_start_notify(sdsempty(), "info");
+    buffer = tojson_char(buffer, "message", message, false);
+    buffer = jsonrpc_end_notify(buffer);
+    ws_notify(buffer);
+    sdsfree(buffer);
+}
+
+void send_jsonrpc_notify_warn(const char *message) {
+    sds buffer = jsonrpc_start_notify(sdsempty(), "warn");
+    buffer = tojson_char(buffer, "message", message, false);
+    buffer = jsonrpc_end_notify(buffer);
+    ws_notify(buffer);
+    sdsfree(buffer);
+}
+
 void send_jsonrpc_notify_error(const char *message) {
     sds buffer = jsonrpc_start_notify(sdsempty(), "error");
     buffer = tojson_char(buffer, "message", message, false);
     buffer = jsonrpc_end_notify(buffer);
     ws_notify(buffer);
+    sdsfree(buffer);
 }
 
 void ws_notify(sds message) {
     LOG_DEBUG("Push websocket notify to queue: %s", message);
     t_work_result *response = create_result_new(0, 0, 0, "");
     response->data = sdsreplace(response->data, message);
-    tiny_queue_push(web_server_queue, response);
+    tiny_queue_push(web_server_queue, response, 0);
 }
-
 
 sds jsonrpc_start_notify(sds buffer, const char *method) {
     buffer = sdscrop(buffer);
-    buffer = sdscatfmt(buffer, "{\"jsonrpc\":\"2.0\",\"method\":");
+    buffer = sdscat(buffer, "{\"jsonrpc\":\"2.0\",\"method\":");
     buffer = sdscatjson(buffer, method, strlen(method)); /* Flawfinder: ignore */
     buffer = sdscat(buffer, ",\"params\":{");
     return buffer;
@@ -55,35 +72,35 @@ sds jsonrpc_end_notify(sds buffer) {
 
 sds jsonrpc_notify(sds buffer, const char *method) {
     buffer = sdscrop(buffer);
-    buffer = sdscatfmt(buffer, "{\"jsonrpc\":\"2.0\",\"method\":");
+    buffer = sdscat(buffer, "{\"jsonrpc\":\"2.0\",\"method\":");
     buffer = sdscatjson(buffer, method, strlen(method)); /* Flawfinder: ignore */
     buffer = sdscat(buffer, ",\"params\":{}}");
     return buffer;
 }
 
-sds jsonrpc_start_result(sds buffer, const char *method, int id) {
+sds jsonrpc_start_result(sds buffer, const char *method, long id) {
     buffer = sdscrop(buffer);
-    buffer = sdscatprintf(buffer, "{\"jsonrpc\":\"2.0\",\"id\":%d,\"result\":{\"method\":", id);
+    buffer = sdscatprintf(buffer, "{\"jsonrpc\":\"2.0\",\"id\":%ld,\"result\":{\"method\":", id);
     buffer = sdscatjson(buffer, method, strlen(method)); /* Flawfinder: ignore */
     return buffer;
 }
 
 sds jsonrpc_end_result(sds buffer) {
-    buffer = sdscatfmt(buffer, "}}");
+    buffer = sdscat(buffer, "}}");
     return buffer;
 }
 
-sds jsonrpc_respond_ok(sds buffer, const char *method, int id) {
+sds jsonrpc_respond_ok(sds buffer, const char *method, long id) {
     buffer = sdscrop(buffer);
-    buffer = sdscatprintf(buffer, "{\"jsonrpc\":\"2.0\",\"id\":%d,\"result\":{\"method\":", id);
+    buffer = sdscatprintf(buffer, "{\"jsonrpc\":\"2.0\",\"id\":%ld,\"result\":{\"method\":", id);
     buffer = sdscatjson(buffer, method, strlen(method)); /* Flawfinder: ignore */
     buffer = sdscat(buffer, ",\"message\":\"ok\"}}");
     return buffer;
 }
 
-sds jsonrpc_respond_message(sds buffer, const char *method, int id, const char *message, bool error) {
+sds jsonrpc_respond_message(sds buffer, const char *method, long id, const char *message, bool error) {
     buffer = sdscrop(buffer);
-    buffer = sdscatprintf(buffer, "{\"jsonrpc\":\"2.0\",\"id\":%d,\"%s\":{\"method\":", 
+    buffer = sdscatprintf(buffer, "{\"jsonrpc\":\"2.0\",\"id\":%ld,\"%s\":{\"method\":", 
         id, (error == true ? "error" : "result"));
     buffer = sdscatjson(buffer, method, strlen(method)); /* Flawfinder: ignore */
     if (error == true) {
@@ -95,9 +112,9 @@ sds jsonrpc_respond_message(sds buffer, const char *method, int id, const char *
     return buffer;
 }
 
-sds jsonrpc_start_phrase(sds buffer, const char *method, int id, const char *message, bool error) {
+sds jsonrpc_start_phrase(sds buffer, const char *method, long id, const char *message, bool error) {
     buffer = sdscrop(buffer);
-    buffer = sdscatprintf(buffer, "{\"jsonrpc\":\"2.0\",\"id\":%d,\"%s\":{\"method\":", 
+    buffer = sdscatprintf(buffer, "{\"jsonrpc\":\"2.0\",\"id\":%ld,\"%s\":{\"method\":", 
         id, (error == true ? "error" : "result"));
     buffer = sdscatjson(buffer, method, strlen(method)); /* Flawfinder: ignore */
     if (error == true) {
@@ -179,7 +196,7 @@ sds tojson_ulong(sds buffer, const char *key, unsigned long value, bool comma) {
     return buffer;
 }
 
-sds tojson_float(sds buffer, const char *key, float value, bool comma) {
+sds tojson_double(sds buffer, const char *key, double value, bool comma) {
     buffer = sdscatprintf(buffer, "\"%s\":%f", key, value);
     if (comma) {
         buffer = sdscat(buffer, ",");
@@ -212,7 +229,12 @@ int testdir(const char *name, const char *dirname, bool create) {
     return 3;
 }
 
-
+void strip_slash(sds s) {
+    int len = sdslen(s);
+    if (len > 1 && s[len - 1] == '/') {
+        sdsrange(s, 0, len - 2);
+    }
+}
 
 int strip_extension(char *s) {
     for (ssize_t i = strlen(s) - 1 ; i > 0; i--) {
@@ -425,7 +447,6 @@ sds get_mime_type_by_magic_stream(sds stream) {
     for (size_t i = 0; i < len; i++) {
         hex_buffer = sdscatprintf(hex_buffer, "%02X", stream[i]);
     }
-    LOG_DEBUG("First bytes in file: %s", hex_buffer);
     const struct magic_byte_entry *p = NULL;
     for (p = magic_bytes; p->magic_bytes != NULL; p++) {
         if (strncmp(hex_buffer, p->magic_bytes, strlen(p->magic_bytes)) == 0) {
@@ -464,4 +485,12 @@ bool write_covercache_file(t_config *config, const char *uri, const char *mime_t
     sdsfree(tmp_file);
     sdsfree(filename);
     return rc;
+}
+
+void my_usleep(time_t usec) {
+    struct timespec ts = {
+        .tv_sec = (usec / 1000) / 1000,
+        .tv_nsec = (usec % 1000000000L) * 1000
+    };
+    nanosleep(&ts, NULL);
 }

@@ -89,10 +89,10 @@ var cmds = [
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SETTINGS_SET","params":{"random": 0}},
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SYSCMD","params":{"cmd": "Echo"}},
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_COLS_SAVE","params":{"table":"colsPlayback","cols":["Artist","Album","AlbumArtist"]}},
-    {"jsonrpc":"2.0","id":0,"method":"MPD_API_SMARTPLS_UPDATE_ALL"},
+    {"jsonrpc":"2.0","id":0,"method":"MPDWORKER_API_SMARTPLS_UPDATE_ALL", "params":{"force":false}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_SMARTPLS_SAVE","params":{"type":"newest","playlist":"myMPDsmart-newestSongs","timerange":2678400,"sort":""}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_SMARTPLS_GET","params":{"playlist":"myMPDsmart-newestSongs"}},
-    {"jsonrpc":"2.0","id":0,"method":"MPD_API_SMARTPLS_UPDATE", "params":{"playlist":"myMPDsmart-newestSongs"}},
+    {"jsonrpc":"2.0","id":0,"method":"MPDWORKER_API_SMARTPLS_UPDATE", "params":{"playlist":"myMPDsmart-newestSongs"}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYLIST_RM_ALL", "params":{"type":"deleteEmptyPlaylists"}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYLIST_SORT", "params":{"uri":"myMPDsmart-newestSongs","tag":"Artist"}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYLIST_SHUFFLE", "params":{"uri":"myMPDsmart-newestSongs"}},
@@ -102,7 +102,7 @@ var cmds = [
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_BOOKMARK_LIST","params":{"offset":0}},
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_BOOKMARK_RM","params":{"id":1}},
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_BOOKMARK_CLEAR"},
-    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_TIMER_SAVE","params":{"timerid": 0, "name": "test", "enabled": true, "startHour": 10, "startMinute": 15, "action": "startPlay", "volume": 40, "playlist": "Database", "jukeboxMode": 1, "weekdays":[false,false,true,true,false,false,false]}},
+    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_TIMER_SAVE","params":{"timerid": 0, "name": "test", "enabled": true, "startHour": 10, "startMinute": 15, "action": "player", "subaction": "start", "volume": 40, "playlist": "Database", "jukeboxMode": 1, "weekdays":[false,false,true,true,false,false,false], "arguments":{}}},
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_TIMER_LIST"},
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_TIMER_GET","params":{"timerid":timerId}},
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_TIMER_TOGGLE","params":{"timerid":timerId}},
@@ -113,7 +113,15 @@ var cmds = [
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_MOUNT_NEIGHBOR_LIST"},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_URLHANDLERS"},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYER_STOP"},
-    {"jsonrpc":"2.0","id":0,"method":"MPD_API_QUEUE_CROP_OR_CLEAR"}
+    {"jsonrpc":"2.0","id":0,"method":"MPD_API_QUEUE_CROP_OR_CLEAR"},
+    {"jsonrpc":"2.0","id":0,"method":"MPD_API_MESSAGE_SEND","params":{"channel":"test", "message":"test"}},
+    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SCRIPT_SAVE","params":{"script":"test","order":0,"content":"return arguments[\"arg1\"]","arguments":["arg1","arg2"]}},
+    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SCRIPT_EXECUTE","params":{"script":"test","arguments":{"arg1":"test1","arg2":"test2"}}},
+    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SCRIPT_POST_EXECUTE","params":{"script":"return arguments[\"arg1\"]","arguments":{"arg1":"test1","arg2":"test2"}}},
+    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SCRIPT_LIST","params":{"all":true}},
+    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SCRIPT_GET","params":{"script":"test"}},
+    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_TIMER_SAVE","params":{"timerid": 0, "name": "test", "enabled": true, "startHour": 10, "startMinute": 15, "action": "script", "subaction": "test", "volume": 40, "playlist": "Database", "jukeboxMode": 1, "weekdays":[false,false,true,true,false,false,false], "arguments":{"arg1":"test1","arg2":"test2"}}},
+    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SCRIPT_DELETE","params":{"script":"test"}}
 ];
 
 function setTest(cmd, state, response) {

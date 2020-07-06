@@ -121,17 +121,13 @@ bool list_swap_item(struct list_node *n1, struct list_node *n2) {
 }
 
 bool list_shuffle(struct list *l) {
-    unsigned int pos;
-    int n = 0;
-
     if (l->length < 2) {
         return false;
     }
-
+    int n = 0;
     struct list_node *current = l->head;
     while (current != NULL) {
-        //pos = rand() % l->length;
-        pos = randrange(0, l->length);
+        unsigned int pos = randrange(0, l->length);
         list_swap_item(current, list_node_at(l, pos));
         n++;
         current = current->next;
@@ -266,6 +262,38 @@ bool list_push(struct list *l, const char *key, long value_i, const char *value_
     n->value_i = value_i;
     if (value_p != NULL) {
         n->value_p = sdsnew(value_p);
+    }
+    else {
+        n->value_p = sdsempty();
+    }
+    n->user_data = user_data;
+    n->next = NULL;
+
+    if (l->head == NULL) {
+        l->head = n;
+    }
+    else if (l->tail != NULL) {
+        l->tail->next = n;
+    }
+    else {
+        sdsfree(n->value_p);
+        sdsfree(n->key);
+        free(n);
+        return false;
+    }
+
+    l->tail = n;
+    l->length++;
+    return true;
+}
+
+bool list_push_len(struct list *l, const char *key, int key_len, long value_i, const char *value_p, int value_len, void *user_data) {
+    struct list_node *n = malloc(sizeof(struct list_node));
+    assert(n);
+    n->key = sdsnewlen(key, key_len);
+    n->value_i = value_i;
+    if (value_p != NULL) {
+        n->value_p = sdsnewlen(value_p, value_len);
     }
     else {
         n->value_p = sdsempty();

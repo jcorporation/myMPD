@@ -43,6 +43,7 @@ struct t_config {
     bool webdav;
     bool syscmds;
     bool readonly;
+    bool scripting;
     bool chroot; /* Flawfinder: ignore */
 };
 
@@ -50,7 +51,7 @@ int sdssplit_whitespace(sds line, sds *name, sds *value) {
     *name = sdsempty();
     *value = sdsempty();
     int tokens = 0;
-    int i = 0;
+    unsigned i = 0;
     const char *p = line;
     
     if (*p == '#') {
@@ -133,17 +134,17 @@ bool parse_mpd_conf(struct t_config *pconfig) {
                     }
                 }
                 else if (strcasecmp(name, "password") == 0) {
-                    sds *tokens;
+                    sds *pwtokens;
                     int count;
-                    tokens = sdssplitlen(value, strlen(value), "@", 1, &count);
+                    pwtokens = sdssplitlen(value, strlen(value), "@", 1, &count);
                     if (count == 2) {
-                        if (sdslen(pconfig->pass) == 0 || strstr(tokens[1], "admin") != NULL) {
+                        if (sdslen(pconfig->pass) == 0 || strstr(pwtokens[1], "admin") != NULL) {
                             //use prefered the entry with admin privileges or as fallback the first entry
-                            pconfig->pass = sdsreplace(pconfig->pass, tokens[0]);
+                            pconfig->pass = sdsreplace(pconfig->pass, pwtokens[0]);
                             if (verbose) { printf("\tSetting mpd password\n"); }
                         }
                     }
-                    sdsfreesplitres(tokens, count);
+                    sdsfreesplitres(pwtokens, count);
                 }
             }
             sdsfree(name);
@@ -200,6 +201,7 @@ bool parse_options(struct t_config *pconfig, int argc, char **argv) {
         {"publish",   no_argument,       0, 'p'},
         {"webdav",    no_argument,       0, 'd'},
         {"syscmds",   no_argument,       0, 'y'},
+        {"scripting", no_argument,       0, 't'},
         {"chroot",    no_argument,       0, 'o'},
         {"readonly",  no_argument,       0, 'n'},
         {"verbose",   no_argument,       0, 'v'},
@@ -207,7 +209,7 @@ bool parse_options(struct t_config *pconfig, int argc, char **argv) {
         {0,           0,                 0,  0 }
     };
 
-    while((n = getopt_long(argc, argv, "c:m:w:s:l:u:e:rpdhyov", long_options, &option_index)) != -1) { /* Flawfinder: ignore */
+    while((n = getopt_long(argc, argv, "c:m:w:s:l:u:e:rpdhytov", long_options, &option_index)) != -1) { /* Flawfinder: ignore */
         switch (n) {
             case 'c':
                 pconfig->mpd_conf = sdsreplace(pconfig->mpd_conf, optarg);
@@ -244,6 +246,9 @@ bool parse_options(struct t_config *pconfig, int argc, char **argv) {
             case 'y':
                 pconfig->syscmds = true;
                 break;
+            case 't':
+                pconfig->scripting = true;
+                break;
             case 'o':
                 pconfig->chroot = true;
                 break;
@@ -267,6 +272,7 @@ bool parse_options(struct t_config *pconfig, int argc, char **argv) {
                     "-p, --publish            enable publishing feature (default: disabled)\n"
                     "-d, --webdav             enable webdav support (default: disabled)\n"
                     "-y, --syscmds            enable system commands (default: disabled)\n"
+                    "-t, --scripting          enable scripting with lua (default: disabled)\n"
                     "-o, --chroot             enable chroot to /var/lib/mympd\n"
                     "-n, --readonly           enable readonly\n"
                     "-v, --verbose            enable verbose output\n"
@@ -278,7 +284,7 @@ bool parse_options(struct t_config *pconfig, int argc, char **argv) {
     return true;
 }
 
-sds find_mpd_conf() {
+sds find_mpd_conf(void) {
     const char *filenames[] = { 
         "/etc/mpd.conf",
         "/usr/local/etc/mpd.conf",
@@ -300,7 +306,7 @@ sds find_mpd_conf() {
     return filename;
 }
 
-sds find_mpd_exe() {
+sds find_mpd_exe(void) {
     const char *filenames[] = { 
         "/usr/bin/mpd",
         "/usr/local/bin/mpd",
@@ -343,6 +349,7 @@ void set_defaults(struct t_config *pconfig) {
     pconfig->publish = false;
     pconfig->webdav = false;
     pconfig->syscmds = false;
+    pconfig->scripting = false;
     pconfig->readonly = false;
     pconfig->chroot = false;
 }
@@ -431,6 +438,9 @@ bool write_mympd_conf(struct t_config *pconfig) {
         "mixramp = %s\n\n"
         "#Enable system commands defined in syscmds section\n"
         "syscmds = %s\n\n"
+        "#Enable lua scripting\n"
+        "scripting = %s\n\n"
+        "#Chroot to /var/lib/mympd\n"
         "chroot = %s\n"
         "readonly = %s\n",
         pconfig->loglevel,
@@ -438,6 +448,7 @@ bool write_mympd_conf(struct t_config *pconfig) {
         (pconfig->stickers == true ? "true" : "false"),
         (pconfig->mixramp == true ? "true" : "false"),
         (pconfig->syscmds == true ? "true" : "false"),
+        (pconfig->scripting == true ? "true" : "false"),
         (pconfig->chroot == true ? "true" : "false"),
         (pconfig->readonly == true ? "true" : "false"));
     

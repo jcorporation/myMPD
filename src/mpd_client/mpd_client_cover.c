@@ -16,19 +16,21 @@
 #include "../sds_extras.h"
 #include "../api.h"
 #include "../log.h"
+#include "../mpd_shared/mpd_shared_typedefs.h"
+#include "../mpd_shared.h"
 #include "../list.h"
 #include "config_defs.h"
 #include "../utility.h"
 #include "mpd_client_utility.h"
 #include "mpd_client_cover.h"
 
-sds mpd_client_getcover(t_config *config, t_mpd_state *mpd_state, sds buffer, sds method, int request_id,
+sds mpd_client_getcover(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id,
                         const char *uri, sds *binary)
 {
     unsigned offset = 0;
-    if (mpd_state->feat_mpd_albumart == true) {
+    if (mpd_client_state->feat_mpd_albumart == true) {
         struct mpd_albumart albumart_buffer;
-        while (mpd_run_albumart(mpd_state->conn, uri, offset, &albumart_buffer) == true) {
+        while (mpd_run_albumart(mpd_client_state->mpd_state->conn, uri, offset, &albumart_buffer) == true) {
             *binary = sdscatlen(*binary, albumart_buffer.data, albumart_buffer.data_length);
             offset += albumart_buffer.data_length;
             if (albumart_buffer.data_length == 0) {
@@ -36,9 +38,9 @@ sds mpd_client_getcover(t_config *config, t_mpd_state *mpd_state, sds buffer, sd
             }
         }
     }
-    if (offset == 0 && mpd_state->feat_mpd_readpicture == true) {
+    if (offset == 0 && mpd_client_state->feat_mpd_readpicture == true) {
         struct mpd_readpicture readpicture_buffer;
-        while (mpd_run_readpicture(mpd_state->conn, uri, offset, &readpicture_buffer) == true) {
+        while (mpd_run_readpicture(mpd_client_state->mpd_state->conn, uri, offset, &readpicture_buffer) == true) {
             *binary = sdscatlen(*binary, readpicture_buffer.data, readpicture_buffer.data_length);
             offset += readpicture_buffer.data_length;
             mpd_free_readpicture(&readpicture_buffer);

@@ -170,8 +170,8 @@ function getAllPlaylists(obj, playlistSelect, playlistValue) {
 }
 
 //eslint-disable-next-line no-unused-vars
-function updateSmartPlaylists() {
-    sendAPI("MPD_API_SMARTPLS_UPDATE_ALL", {});
+function updateSmartPlaylists(force) {
+    sendAPI("MPDWORKER_API_SMARTPLS_UPDATE_ALL", {"force":force});
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -422,7 +422,7 @@ function showRenamePlaylist(from) {
 function renamePlaylist() {
     let from = document.getElementById('renamePlaylistFrom').value;
     let to = document.getElementById('renamePlaylistTo').value;
-    if (to !== from && validatePlname(to) === true && validatePlname(from) === true) {
+    if (to !== from && validatePlname(to) === true) {
         sendAPI("MPD_API_PLAYLIST_RENAME", {"from": from, "to": to});
         modalRenamePlaylist.hide();
     }
@@ -438,13 +438,13 @@ function showSmartPlaylist(playlist) {
 
 //eslint-disable-next-line no-unused-vars
 function updateSmartPlaylist(playlist) {
-    sendAPI("MPD_API_SMARTPLS_UPDATE", {"playlist": playlist});
+    sendAPI("MPDWORKER_API_SMARTPLS_UPDATE", {"playlist": playlist});
 }
 
 //eslint-disable-next-line no-unused-vars
 function updateSmartPlaylistClick() {
     let uri = document.getElementById('BrowsePlaylistsDetailList').getAttribute('data-uri');
-    sendAPI("MPD_API_SMARTPLS_UPDATE", {"playlist": uri});
+    sendAPI("MPDWORKER_API_SMARTPLS_UPDATE", {"playlist": uri});
     document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
 }
 

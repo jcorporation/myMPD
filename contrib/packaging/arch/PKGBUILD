@@ -4,13 +4,13 @@
 
 pkgname=mympd
 _pkgname=myMPD
-pkgver=6.4.2
+pkgver=6.5.0
 pkgrel=1
 pkgdesc="A standalone and mobile friendly web mpdclient."
 arch=('x86_64' 'armv7h' 'aarch64')
 url="http://github.org/jcorporation/myMPD"
 license=('GPL')
-depends=('openssl' 'libid3tag' 'flac')
+depends=('openssl' 'libid3tag' 'flac' 'lua')
 makedepends=('cmake')
 optdepends=()
 provides=()

@@ -4,7 +4,7 @@
 # (c) 2018-2020 Juergen Mang <mail@jcgames.de>
 
 Name:           mympd
-Version:        6.4.2
+Version:        6.5.0
 Release:        0 
 License:        GPL-2.0-or-later
 Group:          Productivity/Multimedia/Sound/Players
@@ -18,6 +18,7 @@ BuildRequires:  pkgconfig
 BuildRequires:  openssl-devel
 BuildRequires:  libid3tag-devel
 BuildRequires:	flac-devel
+BuildRequires:  lua-devel
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
 %global debug_package %{nil}
@@ -55,9 +56,10 @@ fi
 %doc README.md LICENSE
 /usr/bin/mympd
 /usr/bin/mympd-config
+/usr/bin/mympd-script
 /usr/lib/systemd/system/mympd.service
 %config(noreplace) /etc/mympd.conf
 
 %changelog
-* Wed Jun 03 2020 Juergen Mang <mail@jcgames.de> 6.4.2-0
+* Mon Jun 15 2020 Juergen Mang <mail@jcgames.de> 6.5.0-0
 - Version from master

@@ -4,10 +4,14 @@
  https://github.com/jcorporation/mympd
 */
 
+#define _GNU_SOURCE
+
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <pthread.h>
+#include <time.h>
 
 #include "../dist/src/sds/sds.h"
 #include "log.h"
@@ -37,9 +41,15 @@ void mympd_log(int level, const char *file, int line, const char *fmt, ...) {
     if (level > loglevel) {
         return;
     }
+    
     sds logline = sdsnew(loglevel_colors[level]);
-    logline = sdscatprintf(logline, "%-8s ", loglevel_names[level]);
-
+    
+    if (loglevel == 4) {
+        time_t now = time(NULL);
+        struct tm *timeinfo = localtime(&now);
+        logline = sdscatprintf(logline, "%02d:%02d:%02d ", timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec);
+    }
+    logline = sdscatprintf(logline, "%-8s %-10s", loglevel_names[level], thread_logname);
     if (loglevel == 4) {
         logline = sdscatprintf(logline, "%s:%d: ", file, line);
     }

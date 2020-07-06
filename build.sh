@@ -20,6 +20,11 @@ then
   export ENABLE_FLAC="ON"
 fi
 
+if [ "${ENABLE_LUA}" = "" ]
+then
+  export ENABLE_LUA="ON"
+fi
+
 STARTPATH=$(pwd)
 
 #set umask
@@ -198,7 +203,7 @@ buildrelease() {
   fi
   minify js htdocs/sw.js dist/htdocs/sw.min.js
   minify js htdocs/js/keymap.js dist/htdocs/js/keymap.min.js
-  minify js dist/htdocs/js/bootstrap-native-v4.js dist/htdocs/js/bootstrap-native-v4.min.js
+  minify js dist/htdocs/js/bootstrap-native.js dist/htdocs/js/bootstrap-native.min.js
   minify js dist/htdocs/js/mympd.js dist/htdocs/js/mympd.min.js
   
   echo "Combining and compressing javascript"
@@ -287,7 +292,7 @@ buildrelease() {
   export INSTALL_PREFIX="${MYMPD_INSTALL_PREFIX:-/usr}"
   cmake -DCMAKE_INSTALL_PREFIX:PATH="$INSTALL_PREFIX" -DCMAKE_BUILD_TYPE=RELEASE \
   	-DENABLE_SSL="$ENABLE_SSL" -DENABLE_LIBID3TAG="$ENABLE_LIBID3TAG" \
-  	-DENABLE_FLAC="$ENABLE_FLAC" ..
+  	-DENABLE_FLAC="$ENABLE_FLAC" -DENABLE_LUA="$ENABLE_LUA" ..
   make
 }
 
@@ -309,7 +314,7 @@ builddebug() {
 
   echo "Linking bootstrap css and js"
   [ -e "$PWD/htdocs/css/bootstrap.css" ] || ln -s "$PWD/dist/htdocs/css/bootstrap.css" "$PWD/htdocs/css/bootstrap.css"
-  [ -e "$PWD/htdocs/js/bootstrap-native-v4.js" ] || ln -s "$PWD/dist/htdocs/js/bootstrap-native-v4.js" "$PWD/htdocs/js/bootstrap-native-v4.js"
+  [ -e "$PWD/htdocs/js/bootstrap-native.js" ] || ln -s "$PWD/dist/htdocs/js/bootstrap-native.js" "$PWD/htdocs/js/bootstrap-native.js"
 
   createi18n ../../htdocs/js/i18n.js pretty
   
@@ -318,10 +323,17 @@ builddebug() {
   cd debug || exit 1
   cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=DEBUG -DMEMCHECK="$MEMCHECK" \
   	-DENABLE_SSL="$ENABLE_SSL" -DENABLE_LIBID3TAG="$ENABLE_LIBID3TAG" -DENABLE_FLAC="$ENABLE_FLAC" \
-  	-DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
+  	-DENABLE_LUA="$ENABLE_LUA" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
   make VERBOSE=1
   echo "Linking compilation database"
-  sed -e 's/\t/ /g' -e 's/-fsanitize=bounds-strict//g' -e 's/-static-libasan//g' compile_commands.json > ../src/compile_commands.json
+  sed -e 's/\\t/ /g' -e 's/-fsanitize=bounds-strict//g' -e 's/-static-libasan//g' compile_commands.json > ../src/compile_commands.json
+}
+
+buildtest() {
+  install -d test/build
+  cd test/build || exit 1
+  cmake ..
+  make VERBOSE=1
 }
 
 cleanupoldinstall() {
@@ -348,6 +360,7 @@ cleanup() {
   
   #htdocs
   rm -f htdocs/js/bootstrap-native-v4.js
+  rm -f htdocs/js/bootstrap-native.js
   rm -f htdocs/js/i18n.js
   rm -f htdocs/css/bootstrap.css
 
@@ -356,6 +369,8 @@ cleanup() {
   
   #compilation database
   rm -f src/compile_commands.json
+  #clang tidy
+  rm -f clang-tidy.out
 }
 
 cleanuposc() {
@@ -366,6 +381,7 @@ cleanupdist() {
   rm -f dist/htdocs/js/i18n.min.js
   rm -f dist/htdocs/js/keymap.min.js 
   rm -f dist/htdocs/js/bootstrap-native-v4.min.js 
+  rm -f dist/htdocs/js/bootstrap-native.min.js 
   rm -f dist/htdocs/js/mympd.js
   rm -f dist/htdocs/js/mympd.min.js
   rm -f dist/htdocs/js/combined.js.gz
@@ -413,7 +429,7 @@ check() {
     rm -f clang-tidy.out
     cd src || exit 1
     find ./ -name '*.c' -exec clang-tidy \
-    	--checks="*,-cert-msc51-cpp,-cert-msc32-c,-hicpp-no-assembler,-android*,-cert-env33-c,-cert-msc50-cpp,-bugprone-branch-clone,-misc-misplaced-const,-readability-non-const-parameter,-cert-msc30-c,-hicpp-signed-bitwise,-readability-magic-numbers,-readability-avoid-const-params-in-decls,-llvm-include-order,-bugprone-macro-parentheses,-modernize*,-cppcoreguidelines*,-llvm-header-guard,-clang-analyzer-optin.performance.Padding,-clang-diagnostic-embedded-directive" \
+    	--checks="*,-readability-isolate-declaration,-hicpp-multiway-paths-covered,-readability-uppercase-literal-suffix,-hicpp-uppercase-literal-suffix,-cert-msc51-cpp,-cert-msc32-c,-hicpp-no-assembler,-android*,-cert-env33-c,-cert-msc50-cpp,-bugprone-branch-clone,-misc-misplaced-const,-readability-non-const-parameter,-cert-msc30-c,-hicpp-signed-bitwise,-readability-magic-numbers,-readability-avoid-const-params-in-decls,-llvm-include-order,-bugprone-macro-parentheses,-modernize*,-cppcoreguidelines*,-llvm-header-guard,-clang-analyzer-optin.performance.Padding,-clang-diagnostic-embedded-directive" \
     	-header-filter='.*' {}  \; >> ../clang-tidy.out
   else
     echo "clang-tidy not found"  
@@ -594,26 +610,27 @@ installdeps() {
     [ "$(uname -m)" = "armv6l" ] && JAVADEB="openjdk-8-jre-headless"
     apt-get update
     apt-get install -y --no-install-recommends \
-	gcc cmake perl libssl-dev libid3tag0-dev libflac-dev build-essential $JAVADEB
+	gcc cmake perl libssl-dev libid3tag0-dev libflac-dev \
+	build-essential liblua5.3-dev $JAVADEB
   elif [ -f /etc/arch-release ]
   then
     #arch
-    pacman -S gcc cmake perl openssl libid3tag flac jre-openjdk-headless
+    pacman -S gcc cmake perl openssl libid3tag flac jre-openjdk-headless lua
   elif [ -f /etc/alpine-release ]
   then
     #alpine
-    apk add gcc cmake perl openssl-dev libid3tag-dev libflac-dev \
+    apk add gcc cmake perl openssl-dev libid3tag-dev libflac-dev lua5.3-dev \
     	openjdk11-jre-headless linux-headers
   elif [ -f /etc/SuSE-release ]
   then
     #suse
     zypper install gcc cmake pkgconfig perl openssl-devel libid3tag-devel flac-devel \
-	java-11-openjdk-headless unzip
+	lua-devel java-11-openjdk-headless unzip
   elif [ -f /etc/redhat-release ]
   then  
     #fedora 	
     yum install gcc cmake pkgconfig perl openssl-devel libid3tag-devel flac-devel \
-	java-11-openjdk-headless unzip
+	lua-devel java-11-openjdk-headless unzip
   else 
     echo "Unsupported distribution detected."
     echo "You should manually install:"
@@ -624,6 +641,7 @@ installdeps() {
     echo " - openssl (devel)"
     echo " - flac (devel)"
     echo " - libid3tag (devel)"
+    echo " - lua53 (devel)"
   fi
 }
 
@@ -670,9 +688,11 @@ uninstall() {
   #MYMPD_INSTALL_PREFIX="/usr"
   rm -f "$DESTDIR/usr/bin/mympd"
   rm -f "$DESTDIR/usr/bin/mympd-config"
+  rm -f "$DESTDIR/usr/bin/mympd-script"
   #MYMPD_INSTALL_PREFIX="/usr/local"
   rm -f "$DESTDIR/usr/local/bin/mympd"
   rm -f "$DESTDIR/usr/local/bin/mympd-config"
+  rm -f "$DESTDIR/usr/local/bin/mympd-script"
   #MYMPD_INSTALL_PREFIX="/opt/mympd/"
   rm -rf "$DESTDIR/opt/mympd"
   #systemd
@@ -728,6 +748,9 @@ case "$1" in
 	;;
 	memcheck)
 	  builddebug "TRUE"
+	;;
+	test)
+	  buildtest
 	;;
 	installdeps)
 	  installdeps
@@ -792,11 +815,12 @@ case "$1" in
 	  echo "  debug:          builds debug files in directory debug,"
 	  echo "                  linked with libasan3, uses assets in htdocs"
 	  echo "  memcheck:       builds debug files in directory debug"
-	  echo "                  for use with valgrind, uses assets in htdocs/"
+	  echo "                  for use with valgrind, uses assets in htdocs"
 	  echo "  check:          runs cppcheck and flawfinder on source files"
 	  echo "                  following environment variables are respected"
 	  echo "                    - CPPCHECKOPTS=\"--enable=warning\""
 	  echo "                    - FLAWFINDEROPTS=\"-m3\""
+	  echo "  test:           builds the unit testing files in test/build"
 	  echo "  installdeps:    installs build and run dependencies"
 	  echo "  translate:      builds the translation file for debug builds"
 	  echo ""
@@ -838,6 +862,7 @@ case "$1" in
 	  echo "  - ENABLE_SSL=\"ON\""
 	  echo "  - ENABLE_LIBID3TAG=\"ON\""
 	  echo "  - ENABLE_FLAC=\"ON\""
+	  echo "  - ENABLE_LUA=\"ON\""
 	  echo ""
 	;;
 esac

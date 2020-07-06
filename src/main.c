@@ -36,6 +36,7 @@
 #include "api.h"
 #include "global.h"
 #include "mpd_client.h"
+#include "mpd_worker.h"
 #include "web_server/web_server_utility.h"
 #include "web_server.h"
 #include "mympd_api.h"
@@ -46,11 +47,14 @@
 #include "maintenance.h"
 #include "random.h"
 
+_Thread_local sds thread_logname;
+
 static void mympd_signal_handler(int sig_num) {
     signal(sig_num, mympd_signal_handler);  // Reinstantiate signal handler
     s_signal_received = sig_num;
-    //Wakeup mympd_api_loop
+    //Wakeup queue loops
     pthread_cond_signal(&mympd_api_queue->wakeup);
+    pthread_cond_signal(&mympd_script_queue->wakeup);
     LOG_INFO("Signal %d received, exiting", sig_num);
 }
 
@@ -241,6 +245,17 @@ static bool check_dirs(t_config *config) {
         return false;
     }
 
+    //lua scripting
+    #ifdef ENABLE_LUA
+    testdirname = sdscrop(testdirname);
+    testdirname = sdscatfmt(testdirname, "%s/scripts", config->varlibdir);
+    testdir_rc = testdir("Scripts dir", testdirname, true);
+    if (testdir_rc > 1) {
+        sdsfree(testdirname);
+        return false;
+    }
+    #endif
+
     //covercache for coverextract and mpd coverhandling
     if (config->covercache == true) {
         testdirname = sdscrop(testdirname);
@@ -264,11 +279,14 @@ static bool check_dirs(t_config *config) {
 }
 
 int main(int argc, char **argv) {
+    thread_logname = sdsnew("mympd");
+ 
     s_signal_received = 0;
     bool init_webserver = false;
     bool init_mg_user_data = false;
     bool init_thread_webserver = false;
     bool init_thread_mpdclient = false;
+    bool init_thread_mpdworker = false;
     bool init_thread_mympdapi = false;
     int rc = EXIT_FAILURE;
     #ifdef DEBUG
@@ -287,8 +305,10 @@ int main(int argc, char **argv) {
     uid_t startup_uid = getuid();
     
     mpd_client_queue = tiny_queue_create();
+    mpd_worker_queue = tiny_queue_create();
     mympd_api_queue = tiny_queue_create();
     web_server_queue = tiny_queue_create();
+    mympd_script_queue = tiny_queue_create();
 
     //create mg_user_data struct for web_server
     t_mg_user_data *mg_user_data = (t_mg_user_data *)malloc(sizeof(t_mg_user_data));
@@ -410,6 +430,7 @@ int main(int argc, char **argv) {
 
     //Create working threads
     pthread_t mpd_client_thread;
+    pthread_t mpd_worker_thread;
     pthread_t web_server_thread;
     pthread_t mympd_api_thread;
     //mympd api
@@ -423,6 +444,15 @@ int main(int argc, char **argv) {
         s_signal_received = SIGTERM;
     }
     //mpd connection
+    LOG_INFO("Starting mpd worker thread");
+    if (pthread_create(&mpd_worker_thread, NULL, mpd_worker_loop, config) == 0) {
+        pthread_setname_np(mpd_worker_thread, "mympd_mpdworker");
+        init_thread_mpdworker = true;
+    }
+    else {
+        LOG_ERROR("Can't create mympd_worker thread");
+        s_signal_received = SIGTERM;
+    }
     LOG_INFO("Starting mpd client thread");
     if (pthread_create(&mpd_client_thread, NULL, mpd_client_loop, config) == 0) {
         pthread_setname_np(mpd_client_thread, "mympd_mpdclient");
@@ -453,6 +483,10 @@ int main(int argc, char **argv) {
         pthread_join(mpd_client_thread, NULL);
         LOG_INFO("Stopping mpd client thread");
     }
+    if (init_thread_mpdworker == true) {
+        pthread_join(mpd_worker_thread, NULL);
+        LOG_INFO("Stopping mpd worker thread");
+    }
     if (init_thread_webserver == true) {
         pthread_join(web_server_thread, NULL);
         LOG_INFO("Stopping web server thread");
@@ -464,9 +498,32 @@ int main(int argc, char **argv) {
     if (init_webserver == true) {
         web_server_free(&mgr);
     }
+    
+    LOG_DEBUG("Expiring web_server_queue: %u", tiny_queue_length(web_server_queue, 10));
+    int expired = expire_result_queue(web_server_queue, 0);
     tiny_queue_free(web_server_queue);
+    LOG_DEBUG("Expired %d entries", expired);
+
+    LOG_DEBUG("Expiring mpd_client_queue: %u", tiny_queue_length(mpd_client_queue, 10));
+    expired = expire_request_queue(mpd_client_queue, 0);
     tiny_queue_free(mpd_client_queue);
+    LOG_DEBUG("Expired %d entries", expired);
+
+    LOG_DEBUG("Expiring mympd_api_queue: %u", tiny_queue_length(mympd_api_queue, 10));
+    expired = expire_request_queue(mympd_api_queue, 0);
     tiny_queue_free(mympd_api_queue);
+    LOG_DEBUG("Expired %d entries", expired);
+
+    LOG_DEBUG("Expiring mpd_worker_queue: %u", tiny_queue_length(mpd_worker_queue, 10));
+    expired = expire_request_queue(mpd_worker_queue, 0);
+    tiny_queue_free(mpd_worker_queue);
+    LOG_DEBUG("Expired %d entries", expired);
+
+    LOG_DEBUG("Expiring mympd_script_queue: %u", tiny_queue_length(mympd_script_queue, 10));
+    expired = expire_result_queue(mympd_script_queue, 0);
+    tiny_queue_free(mympd_script_queue);
+    LOG_DEBUG("Expired %d entries", expired);
+
     mympd_free_config(config);
     sdsfree(configfile);
     sdsfree(option);
@@ -482,5 +539,6 @@ int main(int argc, char **argv) {
         printf("Exiting gracefully, thank you for using myMPD\n");
     }
     end:
+    sdsfree(thread_logname);
     return rc;
 }

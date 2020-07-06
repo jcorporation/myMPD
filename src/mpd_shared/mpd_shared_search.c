@@ -17,41 +17,46 @@
 #include "../list.h"
 #include "config_defs.h"
 #include "../utility.h"
-#include "mpd_client_utility.h"
-#include "mpd_client_search.h"
+#include "mpd_shared_typedefs.h"
+#include "../mpd_shared.h"
+#include "mpd_shared_tags.h"
+#include "mpd_shared_search.h"
 
 //private definitions
-static sds _mpd_client_search(t_mpd_state *mpd_state, sds buffer, sds method, int request_id,
+static sds _mpd_shared_search(t_mpd_state *mpd_state, sds buffer, sds method, long request_id,
                       const char *expression, const char *sort, const bool sortdesc, 
                       const char *grouptag, const char *plist, const unsigned int offset,
-                      const t_tags *tagcols, bool adv, const char *searchtag);
+                      const t_tags *tagcols, bool adv, const char *searchtag, int max_elements_per_page);
 //public functions
-sds mpd_client_search(t_mpd_state *mpd_state, sds buffer, sds method, int request_id,
+sds mpd_shared_search(t_mpd_state *mpd_state, sds buffer, sds method, long request_id,
                       const char *searchstr, const char *searchtag, const char *plist, 
-                      const unsigned int offset, const t_tags *tagcols)
+                      const unsigned int offset, const t_tags *tagcols, int max_elements_per_page)
 {
-    return _mpd_client_search(mpd_state, buffer, method, request_id, 
+    return _mpd_shared_search(mpd_state, buffer, method, request_id, 
                               searchstr, NULL, false,
                               NULL, plist, offset,
-                              tagcols, false, searchtag);
+                              tagcols, false, searchtag,
+                              max_elements_per_page);
 }
 
-sds mpd_client_search_adv(t_mpd_state *mpd_state, sds buffer, sds method, int request_id,
+sds mpd_shared_search_adv(t_mpd_state *mpd_state, sds buffer, sds method, long request_id,
                           const char *expression, const char *sort, const bool sortdesc, 
                           const char *grouptag, const char *plist, const unsigned int offset,
-                          const t_tags *tagcols)
+                          const t_tags *tagcols, int max_elements_per_page)
 {
-    return _mpd_client_search(mpd_state, buffer, method, request_id, 
+    return _mpd_shared_search(mpd_state, buffer, method, request_id, 
                               expression, sort, sortdesc,
                               grouptag, plist, offset,
-                              tagcols, true, NULL);
+                              tagcols, true, NULL,
+                              max_elements_per_page);
 }
 
 //private functions
-static sds _mpd_client_search(t_mpd_state *mpd_state, sds buffer, sds method, int request_id,
+static sds _mpd_shared_search(t_mpd_state *mpd_state, sds buffer, sds method, long request_id,
                       const char *expression, const char *sort, const bool sortdesc, 
                       const char *grouptag, const char *plist, const unsigned int offset,
-                      const t_tags *tagcols, bool adv, const char *searchtag)
+                      const t_tags *tagcols, bool adv, const char *searchtag,
+                      int max_elements_per_page)
 {
     if (strcmp(expression, "") == 0) {
         LOG_ERROR("No search expression defined");
@@ -90,19 +95,24 @@ static sds _mpd_client_search(t_mpd_state *mpd_state, sds buffer, sds method, in
             return buffer;
         }
     }
-    else if (strcmp(searchtag, "any") == 0) {
+    else if (searchtag != NULL && strcmp(searchtag, "any") == 0) {
         bool rc = mpd_search_add_any_tag_constraint(mpd_state->conn, MPD_OPERATOR_DEFAULT, expression);
         if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_any_tag_constraint") == false) {
             mpd_search_cancel(mpd_state->conn);
             return buffer;
         }
     }
-    else {
+    else if (searchtag != NULL) {
         bool rc = mpd_search_add_tag_constraint(mpd_state->conn, MPD_OPERATOR_DEFAULT, mpd_tag_name_parse(searchtag), expression);
         if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_tag_constraint") == false) {
             mpd_search_cancel(mpd_state->conn);
             return buffer;
         }
+    }
+    else {
+        mpd_search_cancel(mpd_state->conn);
+        buffer = jsonrpc_respond_message(buffer, method, request_id, "No search tag defined and advanced search is disabled", true);
+        return buffer;
     }
 
     if (strcmp(plist, "") == 0) {
@@ -128,7 +138,7 @@ static sds _mpd_client_search(t_mpd_state *mpd_state, sds buffer, sds method, in
             }
         }
         if (mpd_state->feat_mpd_searchwindow == true) {
-            bool rc = mpd_search_add_window(mpd_state->conn, offset, offset + mpd_state->max_elements_per_page);
+            bool rc = mpd_search_add_window(mpd_state->conn, offset, offset + max_elements_per_page);
             if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_window") == false) {
                 mpd_search_cancel(mpd_state->conn);
                 return buffer;
@@ -147,7 +157,7 @@ static sds _mpd_client_search(t_mpd_state *mpd_state, sds buffer, sds method, in
         unsigned entity_count = 0;
         while ((song = mpd_recv_song(mpd_state->conn)) != NULL) {
             entity_count++;
-            if (mpd_state->feat_mpd_searchwindow == true || (entity_count > offset && entity_count <= offset + mpd_state->max_elements_per_page)) {
+            if (mpd_state->feat_mpd_searchwindow == true || (entity_count > offset && entity_count <= offset + max_elements_per_page)) {
                 if (entities_returned++) {
                     buffer = sdscat(buffer,",");
                 }

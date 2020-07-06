@@ -5,6 +5,19 @@
  https://github.com/jcorporation/mympd
 */
 
+function setViewport(store) {
+    let viewport = document.querySelector("meta[name=viewport]");
+    viewport.setAttribute('content', 'width=device-width, initial-scale=' + scale + ', maximum-scale=' + scale);
+    if (store === true) {
+        try {
+            localStorage.setItem('scale-ratio', scale);
+        }
+        catch(err) {
+            logError('Can not save scale-ratio in localStorage: ' + err.message);
+        }
+    }
+}
+
 async function localplayerPlay() {
     let localPlayer = document.getElementById('localPlayer');
     if (localPlayer.paused) {

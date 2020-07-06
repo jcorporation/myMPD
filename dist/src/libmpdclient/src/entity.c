@@ -32,6 +32,7 @@
 
 #include <mpd/entity.h>
 #include <mpd/playlist.h>
+#include <mpd/recv.h>
 #include "internal.h"
 
 #include <stdlib.h>

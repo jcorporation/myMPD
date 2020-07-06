@@ -7,31 +7,10 @@
 #ifndef __MPD_CLIENT_UTILITY_H__
 #define __MPD_CLIENT_UTILITY_H__
 
-#include "dist/src/rax/rax.h"
+#include "../dist/src/rax/rax.h"
 
-enum mpd_conn_states {
-    MPD_DISCONNECTED,
-    MPD_FAILURE,
-    MPD_CONNECTED,
-    MPD_RECONNECT,
-    MPD_DISCONNECT,
-    MPD_WAIT
-};
-
-typedef struct t_tags {
-    size_t len;
-    enum mpd_tag_type tags[64];
-} t_tags;
-
-typedef struct t_mpd_state {
-    // Connection
-    struct mpd_connection *conn;
-    enum mpd_conn_states conn_state;
-    int timeout;
-    time_t reconnect_time;
-    unsigned reconnect_interval;
+typedef struct t_mpd_client_state {
     // States
-    enum mpd_state state;
     int song_id;
     int next_song_id;
     int last_song_id;
@@ -51,9 +30,7 @@ typedef struct t_mpd_state {
     const unsigned* protocol;
     bool feat_sticker;
     bool feat_playlists;
-    bool feat_tags;
     bool feat_library;
-    bool feat_advsearch;
     bool feat_smartpls;
     bool feat_love;
     bool feat_coverimage;
@@ -61,7 +38,6 @@ typedef struct t_mpd_state {
     bool feat_mpd_albumart;
     bool feat_mpd_readpicture;
     bool feat_single_oneshot;
-    bool feat_mpd_searchwindow;
     bool feat_mpd_mount;
     bool feat_mpd_neighbor;
     //mympd states
@@ -72,13 +48,13 @@ typedef struct t_mpd_state {
     struct list jukebox_queue_tmp;
     t_tags jukebox_unique_tag;
     int jukebox_last_played;
+    bool jukebox_enforce_unique;
     bool auto_play;
     bool coverimage;
     sds coverimage_name;
     bool love;
     sds love_channel;
     sds love_message;
-    sds taglist;
     sds searchtaglist;
     sds browsetaglist;
     sds generate_pls_tags;
@@ -87,16 +63,12 @@ typedef struct t_mpd_state {
     sds smartpls_sort;
     sds smartpls_prefix;
     time_t smartpls_interval;
-    sds mpd_host;
-    int mpd_port;
-    sds mpd_pass;
     int last_played_count;
     int max_elements_per_page;
     sds music_directory;
     sds music_directory_value;
+    sds booklet_name;
     //taglists
-    t_tags mpd_tag_types;
-    t_tags mympd_tag_types;
     t_tags search_tag_types;
     t_tags browse_tag_types;
     t_tags generate_pls_tag_types;
@@ -104,36 +76,15 @@ typedef struct t_mpd_state {
     struct list last_played;
     //sticker cache
     rax *sticker_cache;
-    sds booklet_name;
-} t_mpd_state;
+    struct list sticker_queue;
+    bool sticker_cache_building;
+    //mpd state
+    struct t_mpd_state *mpd_state;
+} t_mpd_client_state;
 
-typedef struct t_sticker {
-    unsigned int playCount;
-    unsigned int skipCount;
-    unsigned int lastPlayed;
-    unsigned int lastSkipped;
-    unsigned int like;
-} t_sticker;
-
-void disable_all_mpd_tags(t_mpd_state *mpd_state);
-void enable_all_mpd_tags(t_mpd_state *mpd_state);
-void enable_mpd_tags(t_mpd_state *mpd_state, t_tags enable_tags);
-sds put_song_tags(sds buffer, t_mpd_state *mpd_state, const t_tags *tagcols, const struct mpd_song *song);
-sds put_empty_song_tags(sds buffer, t_mpd_state *mpd_state, const t_tags *tagcols, const char *uri);
-sds log_mpd_command_error(const char *command, const char *usermessage, sds buffer, sds method, int request_id);
-bool check_error_and_recover2(t_mpd_state *mpd_state, sds *buffer, sds method, int request_id, bool notify);
-bool check_rc_error_and_recover(t_mpd_state *mpd_state, sds *buffer, sds method, int request_id, bool notify, bool rc, const char *command);
-sds check_error_and_recover(t_mpd_state *mpd_state, sds buffer, sds method, int request_id);
-sds check_error_and_recover_notify(t_mpd_state *mpd_state, sds buffer);
-sds respond_with_command_error(sds buffer, sds method, int request_id, const char *command);
-sds respond_with_mpd_error_or_ok(t_mpd_state *mpd_state, sds buffer, sds method, int request_id, bool rc, const char *command);
-char *mpd_client_get_tag(struct mpd_song const *song, const enum mpd_tag_type tag);
-bool mpd_client_tag_exists(const enum mpd_tag_type tag_types[64], const size_t tag_types_len, const enum mpd_tag_type tag);
 void json_to_tags(const char *str, int len, void *user_data);
-void reset_t_tags(t_tags *tags);
-void free_mpd_state(t_mpd_state *mpd_state);
-void default_mpd_state(t_mpd_state *mpd_state);
-bool is_smartpls(t_config *config, t_mpd_state *mpd_state, const char *plpath);
-sds put_extra_files(t_mpd_state *mpd_state, sds buffer, const char *uri);
-enum mpd_tag_type get_sort_tag(enum mpd_tag_type tag);
+void free_mpd_client_state(t_mpd_client_state *mpd_client_state);
+void default_mpd_client_state(t_mpd_client_state *mpd_client_state);
+bool is_smartpls(t_config *config, t_mpd_client_state *mpd_client_state, const char *plpath);
+sds put_extra_files(t_mpd_client_state *mpd_client_state, sds buffer, const char *uri);
 #endif

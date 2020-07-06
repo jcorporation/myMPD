@@ -6,6 +6,6 @@
 
 #ifndef __JUKEBOX_H__
 #define __JUKEBOX_H__
-bool mpd_client_jukebox(t_config *config, t_mpd_state *mpd_state, unsigned attempt);
-bool mpd_client_jukebox_add_to_queue(t_config *config, t_mpd_state *mpd_state, int addSongs, enum jukebox_modes jukebox_mode, const char *playlist, bool manual);
+bool mpd_client_jukebox(t_config *config, t_mpd_client_state *mpd_client_state, unsigned attempt);
+bool mpd_client_jukebox_add_to_queue(t_config *config, t_mpd_client_state *mpd_client_state, int addSongs, enum jukebox_modes jukebox_mode, const char *playlist, bool manual);
 #endif

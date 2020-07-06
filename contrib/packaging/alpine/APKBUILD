@@ -6,14 +6,14 @@
 # Maintainer: Juergen Mang <mail@jcgames.de>
 #
 pkgname=myMPD
-pkgver=6.4.2
+pkgver=6.5.0
 pkgrel=0
 pkgdesc="myMPD is a standalone and mobile friendly web mpdclient"
 url="https://github.com/jcorporation/myMPD"
 arch="all"
 license="GPL-2.0-or-later"
-depends="libid3tag flac openssl"
-makedepends="cmake libid3tag-dev flac-dev openssl-dev linux-headers"
+depends="libid3tag flac openssl lua5.3"
+makedepends="cmake libid3tag-dev flac-dev openssl-dev linux-headers lua5.3-dev"
 install="$pkgname.pre-install"
 source="mympd_$pkgver.orig.tar.gz"
 builddir="$srcdir"

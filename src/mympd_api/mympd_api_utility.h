@@ -12,10 +12,12 @@ struct t_timer_definition {
     int start_hour;
     int start_minute;
     sds action;
+    sds subaction;
     int volume;
     sds playlist;
-    bool weekdays[7];
     unsigned jukebox_mode;
+    bool weekdays[7];
+    struct list arguments;
 };
 
 typedef void (*time_handler)(struct t_timer_definition *definition, void *user_data);

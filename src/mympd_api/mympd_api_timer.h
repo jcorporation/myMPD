@@ -19,8 +19,8 @@ void free_timer_definition(struct t_timer_definition *timer_def);
 void free_timer_node(struct t_timer_node *node);
 struct t_timer_definition *parse_timer(struct t_timer_definition *timer_def, const char *str, size_t len);
 time_t timer_calc_starttime(int start_hour, int start_minute);
-sds timer_list(t_mympd_state *mympd_state, sds buffer, sds method, int request_id);
-sds timer_get(t_mympd_state *mympd_state, sds buffer, sds method, int request_id, int timer_id);
+sds timer_list(t_mympd_state *mympd_state, sds buffer, sds method, long request_id);
+sds timer_get(t_mympd_state *mympd_state, sds buffer, sds method, long request_id, int timer_id);
 bool timerfile_read(t_config *config, t_mympd_state *mympd_state);
 bool timerfile_save(t_config *config, t_mympd_state *mympd_state);
 #endif

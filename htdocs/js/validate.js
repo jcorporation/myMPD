@@ -56,6 +56,17 @@ function validatePath(el) {
     }
 }
 
+function validatePlnameEl(el) {
+    if (validatePlname(el.value) === false) {
+        el.classList.add('is-invalid');
+        return false;
+    }
+    else {
+        el.classList.remove('is-invalid');
+        return true;
+    }
+}
+
 function validatePlname(x) {
     if (x === '') {
         return false;

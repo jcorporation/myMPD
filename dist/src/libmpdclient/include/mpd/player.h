@@ -130,7 +130,7 @@ mpd_run_play_pos(struct mpd_connection *connection, unsigned song_pos);
  * Starts playing the specified song from the beginning.
  *
  * @param connection the connection to MPD
- * @param id the id of the song
+ * @param song_id the id of the song
  * @return true on success, false on error
  */
 bool
@@ -270,7 +270,7 @@ mpd_run_seek_pos(struct mpd_connection *connection,
  * Seeks to the position t (in seconds) of song id song_id.
  *
  * @param connection the connection to MPD
- * @param id the id of the song
+ * @param song_id the id of the song
  * @param t the position within the song, in seconds
  * @return true on success, false on error
  */
@@ -332,6 +332,9 @@ mpd_send_seek_current(struct mpd_connection *connection,
  * Shortcut for mpd_send_seek_current() and mpd_response_finish().
  *
  * @param connection the connection to MPD
+ * @param t the new position (in seconds)
+ * @param relative true to seek relative to the current position and
+ * false to seek to an absolute time stamp within the song
  * @return true on success, false on error
  *
  * @since MPD 0.17, libmpdclient 2.15

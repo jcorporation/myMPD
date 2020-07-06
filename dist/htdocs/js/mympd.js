@@ -96,11 +96,20 @@ function webSocketConnect() {
                 logError('Invalid JSON data received: ' + msg.data);
                 return;
             }
+            
+            if (obj.error) {
+                showNotification(t(obj.error.message, obj.error.data), '', '', 'danger');
+                return;
+            }
+            else if (obj.result) {
+                showNotification(t(obj.result.message, obj.result.data), '', '', 'success');
+                return;
+            }
 
             switch (obj.method) {
                 case 'welcome':
                     websocketConnected = true;
-                    showNotification(t('Connected to myMPD') + ': ' + wsUrl, '', '', 'success');
+                    showNotification(t('Connected to myMPD'), wsUrl, '', 'success');
                     appRoute();
                     sendAPI("MPD_API_PLAYER_STATE", {}, parseState, true);
                     break;
@@ -160,6 +169,16 @@ function webSocketConnect() {
                 case 'error':
                     if (document.getElementById('alertMpdState').classList.contains('hide')) {
                         showNotification(t(obj.params.message), '', '', 'danger');
+                    }
+                    break;
+                case 'warn':
+                    if (document.getElementById('alertMpdState').classList.contains('hide')) {
+                        showNotification(t(obj.params.message), '', '', 'warning');
+                    }
+                    break;
+                case 'info':
+                    if (document.getElementById('alertMpdState').classList.contains('hide')) {
+                        showNotification(t(obj.params.message), '', '', 'success');
                     }
                     break;
                 default:
@@ -776,9 +795,9 @@ var keymap = {
     "-": {"cmd": "volumeStep", "options": ["down"], "desc": "Volume down"},
     "+": {"cmd": "VolumeStep", "options": ["up"], "desc": "Volume up"},
     "c": {"cmd": "sendAPI", "options": [{"cmd": "MPD_API_QUEUE_CLEAR"}], "desc": "Clear queue"},
-    "u": {"cmd": "updateDB", "options": [], "desc": "Update database"},
-    "r": {"cmd": "rescanDB", "options": [], "desc": "Rescan database"},
-    "p": {"cmd": "updateSmartPlaylists", "options": [], "desc": "Update smart playlists", "req": "featSmartpls"},
+    "u": {"cmd": "updateDB", "options": ["", true], "desc": "Update database"},
+    "r": {"cmd": "rescanDB", "options": ["", true], "desc": "Rescan database"},
+    "p": {"cmd": "updateSmartPlaylists", "options": [false], "desc": "Update smart playlists", "req": "featSmartpls"},
     "a": {"cmd": "showAddToPlaylist", "options": ["stream", ""], "desc": "Add stream"},
     "t": {"cmd": "openModal", "options": ["modalSettings"], "desc": "Open settings"},
     "i": {"cmd": "clickTitle", "options": [], "desc": "Open song details"},
@@ -811,15 +830,19 @@ var keymap = {
 
 function e(x) {
     if (isNaN(x)) {
-        return x.replace(/([<>"])/g, function(m0, m1) {
+        return x.replace(/([<>"'])/g, function(m0, m1) {
             if (m1 === '<') return '&lt;';
             else if (m1 === '>') return '&gt;';
             else if (m1 === '"') return '&quot;';
+            else if (m1 === '\'') return '&apos;';
+        }).replace(/\\u(003C|003E|0022|0027)/gi, function(m0, m1) {
+            if (m1 === '003C') return '&lt;';
+            else if (m1 === '003E') return '&gt;';
+            else if (m1 === '0022') return '&quot;';
+            else if (m1 === '0027') return '&apos;';
         });
     }
-    else {
-        return x;
-    }
+    return x;
 }
 
 function t(phrase, number, data) {
@@ -909,7 +932,10 @@ function gtPage(phrase, returnedEntities, totalEntities) {
 }
 
 function i18nHtml(root) {
-    let attributes = [['data-phrase', 'innerText'], ['data-title-phrase', 'title'], ['data-placeholder-phrase', 'placeholder']];
+    let attributes = [['data-phrase', 'innerText'], 
+        ['data-title-phrase', 'title'], 
+        ['data-placeholder-phrase', 'placeholder']
+    ];
     for (let i = 0; i < attributes.length; i++) {
         let els = root.querySelectorAll('[' + attributes[i][0] + ']');
         let elsLen = els.length;
@@ -965,6 +991,19 @@ function logLog(loglevel, line) {
  myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
+
+function setViewport(store) {
+    let viewport = document.querySelector("meta[name=viewport]");
+    viewport.setAttribute('content', 'width=device-width, initial-scale=' + scale + ', maximum-scale=' + scale);
+    if (store === true) {
+        try {
+            localStorage.setItem('scale-ratio', scale);
+        }
+        catch(err) {
+            logError('Can not save scale-ratio in localStorage: ' + err.message);
+        }
+    }
+}
 
 async function localplayerPlay() {
     let localPlayer = document.getElementById('localPlayer');
@@ -1248,7 +1287,7 @@ function parseNeighbors(obj) {
 */
 
 /* Disable eslint warnings */
-/* global Modal, Dropdown, Collapse, Popover, Carousel, phrases, locales */
+/* global BSN, phrases, locales */
 
 var socket = null;
 var lastSong = '';
@@ -1271,7 +1310,8 @@ var appInited = false;
 var subdir = '';
 var uiEnabled = true;
 var locale = navigator.language || navigator.userLanguage;
-
+var scale = '1.0';
+var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 var ligatureMore = 'menu';
 
 var app = {};
@@ -1334,32 +1374,36 @@ domCache.searchCrumb = document.getElementById('searchCrumb');
 domCache.body = document.getElementsByTagName('body')[0];
 
 /* eslint-disable no-unused-vars */
-var modalConnection = new Modal(document.getElementById('modalConnection'));
-var modalSettings = new Modal(document.getElementById('modalSettings'));
-var modalAbout = new Modal(document.getElementById('modalAbout')); 
-var modalSaveQueue = new Modal(document.getElementById('modalSaveQueue'));
-var modalAddToQueue = new Modal(document.getElementById('modalAddToQueue'));
-var modalSongDetails = new Modal(document.getElementById('modalSongDetails'));
-var modalAddToPlaylist = new Modal(document.getElementById('modalAddToPlaylist'));
-var modalRenamePlaylist = new Modal(document.getElementById('modalRenamePlaylist'));
-var modalUpdateDB = new Modal(document.getElementById('modalUpdateDB'));
-var modalSaveSmartPlaylist = new Modal(document.getElementById('modalSaveSmartPlaylist'));
-var modalDeletePlaylist = new Modal(document.getElementById('modalDeletePlaylist'));
-var modalSaveBookmark = new Modal(document.getElementById('modalSaveBookmark'));
-var modalTimer = new Modal(document.getElementById('modalTimer'));
-var modalMounts = new Modal(document.getElementById('modalMounts'));
+var modalConnection = new BSN.Modal(document.getElementById('modalConnection'));
+var modalSettings = new BSN.Modal(document.getElementById('modalSettings'));
+var modalAbout = new BSN.Modal(document.getElementById('modalAbout')); 
+var modalSaveQueue = new BSN.Modal(document.getElementById('modalSaveQueue'));
+var modalAddToQueue = new BSN.Modal(document.getElementById('modalAddToQueue'));
+var modalSongDetails = new BSN.Modal(document.getElementById('modalSongDetails'));
+var modalAddToPlaylist = new BSN.Modal(document.getElementById('modalAddToPlaylist'));
+var modalRenamePlaylist = new BSN.Modal(document.getElementById('modalRenamePlaylist'));
+var modalUpdateDB = new BSN.Modal(document.getElementById('modalUpdateDB'));
+var modalSaveSmartPlaylist = new BSN.Modal(document.getElementById('modalSaveSmartPlaylist'));
+var modalDeletePlaylist = new BSN.Modal(document.getElementById('modalDeletePlaylist'));
+var modalSaveBookmark = new BSN.Modal(document.getElementById('modalSaveBookmark'));
+var modalTimer = new BSN.Modal(document.getElementById('modalTimer'));
+var modalMounts = new BSN.Modal(document.getElementById('modalMounts'));
+var modalExecScript = new BSN.Modal(document.getElementById('modalExecScript'));
+var modalScripts = new BSN.Modal(document.getElementById('modalScripts'));
 
-var dropdownMainMenu; 
-var dropdownVolumeMenu = new Dropdown(document.getElementById('volumeMenu'));
-var dropdownBookmarks = new Dropdown(document.getElementById('BrowseFilesystemBookmark'));
-var dropdownLocalPlayer = new Dropdown(document.getElementById('localPlaybackMenu'));
-var dropdownPlay = new Dropdown(document.getElementById('btnPlayDropdown'));
-var dropdownCovergridSort = new Dropdown(document.getElementById('btnCovergridSortDropdown'));
-var dropdownNeighbors = new Dropdown(document.getElementById('btnDropdownNeighbors'));
+var dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
+var dropdownVolumeMenu = new BSN.Dropdown(document.getElementById('volumeMenu'));
+var dropdownBookmarks = new BSN.Dropdown(document.getElementById('BrowseFilesystemBookmark'));
+var dropdownLocalPlayer = new BSN.Dropdown(document.getElementById('localPlaybackMenu'));
+var dropdownPlay = new BSN.Dropdown(document.getElementById('btnPlayDropdown'));
+var dropdownCovergridSort = new BSN.Dropdown(document.getElementById('btnCovergridSortDropdown'));
+var dropdownNeighbors = new BSN.Dropdown(document.getElementById('btnDropdownNeighbors'));
 
-var collapseDBupdate = new Collapse(document.getElementById('navDBupdate'));
-var collapseSyscmds = new Collapse(document.getElementById('navSyscmds'));
-var collapseJukeboxMode = new Collapse(document.getElementById('labelJukeboxMode'));
+var collapseDBupdate = new BSN.Collapse(document.getElementById('navDBupdate'));
+var collapseSettings = new BSN.Collapse(document.getElementById('navSettings'));
+var collapseSyscmds = new BSN.Collapse(document.getElementById('navSyscmds'));
+var collapseScripting = new BSN.Collapse(document.getElementById('navScripting'));
+var collapseJukeboxMode = new BSN.Collapse(document.getElementById('labelJukeboxMode'));
 /* eslint-enable no-unused-vars */
 
 function appPrepare(scrollPos) {
@@ -1658,6 +1702,21 @@ function clearAndReload() {
 }
 
 function appInitStart() {
+    //set initial scale
+    if (isMobile === true) {
+        scale = localStorage.getItem('scale-ratio');
+        if (scale === null) {
+            scale = '1.0';
+        }
+        setViewport(false);
+    }
+    else {
+        let m = document.getElementsByClassName('featMobile');
+        for (let i = 0; i < m.length; i++) {
+            m[i].classList.add('hide');
+        }        
+    }
+
     subdir = window.location.pathname.replace('/index.html', '').replace(/\/$/, '');
     let localeList = '<option value="default" data-phrase="Browser default"></option>';
     for (let i = 0; i < locales.length; i++) {
@@ -1810,6 +1869,10 @@ function appInit() {
         showListMounts();
     });
     
+    document.getElementById('modalScripts').addEventListener('shown.bs.modal', function () {
+        showListScripts();
+    });
+    
     document.getElementById('modalAbout').addEventListener('shown.bs.modal', function () {
         sendAPI("MPD_API_DATABASE_STATS", {}, parseStats);
         getServerinfo();
@@ -1838,12 +1901,7 @@ function appInit() {
     }, false);
     
     document.getElementById('selectTimerAction').addEventListener('change', function() {
-        if (this.options[this.selectedIndex].value === 'startplay') {
-            document.getElementById('timerActionPlay').classList.remove('hide');
-        }
-        else {
-            document.getElementById('timerActionPlay').classList.add('hide');
-        }
+        selectTimerActionChange();
     }, false);
     
     let selectTimerHour = ''; 
@@ -1893,6 +1951,7 @@ function appInit() {
         document.getElementById('inputCrossfade').classList.remove('is-invalid');
         document.getElementById('inputMixrampdb').classList.remove('is-invalid');
         document.getElementById('inputMixrampdelay').classList.remove('is-invalid');
+        document.getElementById('inputScaleRatio').classList.remove('is-invalid');
     });
 
     document.getElementById('modalConnection').addEventListener('shown.bs.modal', function () {
@@ -1991,6 +2050,12 @@ function appInit() {
             parseCmd(event, event.target.getAttribute('data-href'));
         }
     }, false);
+    
+    document.getElementById('scripts').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'A') {
+            execScript(event.target.getAttribute('data-href'));
+        }
+    }, false);
 
     let hrefs = document.querySelectorAll('[data-href]');
     let hrefsLen = hrefs.length;
@@ -2057,6 +2122,7 @@ function appInit() {
     document.getElementById('outputs').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
             event.stopPropagation();
+            event.preventDefault();
             sendAPI("MPD_API_PLAYER_TOGGLE_OUTPUT", {"output": event.target.getAttribute('data-output-id'), "state": (event.target.classList.contains('active') ? 0 : 1)});
             toggleBtn(event.target.id);
         }
@@ -2066,7 +2132,9 @@ function appInit() {
         event.stopPropagation();
         event.preventDefault();
         if (event.target.nodeName === 'TD') {
-            showEditTimer(event.target.parentNode.getAttribute('data-id'));
+            if (!event.target.parentNode.classList.contains('not-clickable')) {
+                showEditTimer(event.target.parentNode.getAttribute('data-id'));
+            }
         }
         else if (event.target.nodeName === 'A') {
             deleteTimer(event.target.parentNode.parentNode.getAttribute('data-id'));
@@ -2093,6 +2161,27 @@ function appInit() {
             }
             else if (action === 'update') {
                 updateMount(event.target, mountPoint);
+            }
+        }
+    }, false);
+    
+    document.getElementById('listScriptsList').addEventListener('click', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        if (event.target.nodeName === 'TD') {
+            if (settings.featScripteditor === false || event.target.parentNode.getAttribute('data-script') === '') {
+                return false;
+            }
+            showEditScript(decodeURI(event.target.parentNode.getAttribute('data-script')));
+        }
+        else if (event.target.nodeName === 'A') {
+            let action = event.target.getAttribute('data-action');
+            let script = decodeURI(event.target.parentNode.parentNode.getAttribute('data-script'));
+            if (action === 'delete') {
+                deleteScript(script);
+            }
+            else if (action === 'execute') {
+                execScript(event.target.getAttribute('data-href'));
             }
         }
     }, false);
@@ -2410,6 +2499,20 @@ function appInit() {
         }
     }, false);
 
+    document.getElementById('inputScriptArgument').addEventListener('keyup', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            event.stopPropagation();
+            addScriptArgument();
+        }
+    }, false);
+    
+    document.getElementById('selectScriptArguments').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'OPTION') {
+            removeScriptArgument(event);
+        }
+    }, false);
+
     document.getElementsByTagName('body')[0].addEventListener('click', function() {
         hideMenu();
     }, false);
@@ -2431,7 +2534,7 @@ function appInit() {
 
     document.addEventListener('keydown', function(event) {
         if (event.target.tagName === 'INPUT' || event.target.tagName === 'SELECT' ||
-            event.ctrlKey || event.altKey) {
+            event.target.tagName === 'TEXTAREA' || event.ctrlKey || event.altKey) {
             return;
         }
         let cmd = keymap[event.key];
@@ -2461,12 +2564,7 @@ function appInit() {
     window.addEventListener('beforeinstallprompt', function(event) {
         // Prevent Chrome 67 and earlier from automatically showing the prompt
         event.preventDefault();
-        // Stash the event so it can be triggered later.
-        deferredPrompt = event;
-    });
-    
-    window.addEventListener('beforeinstallprompt', function(event) {
-        event.preventDefault();
+        // Stash the event so it can be triggered later
         deferredPrompt = event;
         // Update UI notify the user they can add to home screen
         domCache.btnAdd.classList.remove('hide');
@@ -2598,8 +2696,11 @@ function showNotification(notificationTitle, notificationText, notificationHtml,
         let notification = new Notification(notificationTitle, {icon: 'assets/favicon.ico', body: notificationText});
         setTimeout(notification.close.bind(notification), 3000);
     } 
-    if (settings.notificationPage === true || notificationType === 'danger') {
+    if (settings.notificationPage === true || notificationType === 'danger' || notificationType === 'warning') {
         let alertBox;
+        if (alertTimeout) {
+            clearTimeout(alertTimeout);
+        }
         if (!document.getElementById('alertBox')) {
             alertBox = document.createElement('div');
             alertBox.setAttribute('id', 'alertBox');
@@ -2608,12 +2709,16 @@ function showNotification(notificationTitle, notificationText, notificationHtml,
         else {
             alertBox = document.getElementById('alertBox');
         }
+        
         let toast = '<div class="toast-header">';
         if (notificationType === 'success' ) {
             toast += '<span class="material-icons text-success mr-2">info</span>';
         }
+        else if (notificationType === 'warning' ) {
+            toast += '<span class="material-icons text-warning mr-2">warning</span>';
+        }
         else {
-            toast += '<span class="material-icons text-danger mr-2">warning</span>';
+            toast += '<span class="material-icons text-danger mr-2">error</span>';
         }
         toast += '<strong class="mr-auto">' + e(notificationTitle) + '</strong>' +
             '<button type="button" class="ml-2 mb-1 close">&times;</button></div>';
@@ -2626,16 +2731,16 @@ function showNotification(notificationTitle, notificationText, notificationHtml,
         if (!document.getElementById('alertBox')) {
             document.getElementsByTagName('main')[0].append(alertBox);
             requestAnimationFrame(function() {
-                document.getElementById('alertBox').classList.add('alertBoxActive');
+                let ab = document.getElementById('alertBox');
+                if (ab) {
+                    ab.classList.add('alertBoxActive');
+                }
             });
         }
         alertBox.getElementsByTagName('button')[0].addEventListener('click', function() {
             hideNotification();
         }, false);
 
-        if (alertTimeout) {
-            clearTimeout(alertTimeout);
-        }
         alertTimeout = setTimeout(function() {
             hideNotification();
         }, 3000);
@@ -2646,6 +2751,7 @@ function showNotification(notificationTitle, notificationText, notificationHtml,
 
 function logMessage(notificationTitle, notificationText, notificationHtml, notificationType) {
     if (notificationType === 'success') { notificationType = 'Info'; }
+    else if (notificationType === 'warning') { notificationType = 'Warning'; }
     else if (notificationType === 'danger') { notificationType = 'Error'; }
     
     let overview = document.getElementById('logOverview');
@@ -2943,8 +3049,8 @@ function getAllPlaylists(obj, playlistSelect, playlistValue) {
 }
 
 //eslint-disable-next-line no-unused-vars
-function updateSmartPlaylists() {
-    sendAPI("MPD_API_SMARTPLS_UPDATE_ALL", {});
+function updateSmartPlaylists(force) {
+    sendAPI("MPDWORKER_API_SMARTPLS_UPDATE_ALL", {"force":force});
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -3195,7 +3301,7 @@ function showRenamePlaylist(from) {
 function renamePlaylist() {
     let from = document.getElementById('renamePlaylistFrom').value;
     let to = document.getElementById('renamePlaylistTo').value;
-    if (to !== from && validatePlname(to) === true && validatePlname(from) === true) {
+    if (to !== from && validatePlname(to) === true) {
         sendAPI("MPD_API_PLAYLIST_RENAME", {"from": from, "to": to});
         modalRenamePlaylist.hide();
     }
@@ -3211,13 +3317,13 @@ function showSmartPlaylist(playlist) {
 
 //eslint-disable-next-line no-unused-vars
 function updateSmartPlaylist(playlist) {
-    sendAPI("MPD_API_SMARTPLS_UPDATE", {"playlist": playlist});
+    sendAPI("MPDWORKER_API_SMARTPLS_UPDATE", {"playlist": playlist});
 }
 
 //eslint-disable-next-line no-unused-vars
 function updateSmartPlaylistClick() {
     let uri = document.getElementById('BrowsePlaylistsDetailList').getAttribute('data-uri');
-    sendAPI("MPD_API_SMARTPLS_UPDATE", {"playlist": uri});
+    sendAPI("MPDWORKER_API_SMARTPLS_UPDATE", {"playlist": uri});
     document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');    
 }
 
@@ -3274,8 +3380,8 @@ function addMenuItem(href, text) {
 function hideMenu() {
     let menuEl = document.querySelector('[data-popover]');
     if (menuEl) {
-        new Popover(menuEl, {});
-        menuEl.Popover.hide();
+        let m = new BSN.Popover(menuEl, {});
+        m.hide();
         menuEl.removeAttribute('data-popover');
         if (menuEl.parentNode.parentNode.classList.contains('selected')) {
             focusTable(undefined, menuEl.parentNode.parentNode.parentNode.parentNode);
@@ -3290,9 +3396,9 @@ function showMenu(el, event) {
     event.preventDefault();
     event.stopPropagation();
     hideMenu();
-    if (el.getAttribute('data-init')) {
-        return;
-    }
+    //if (el.getAttribute('data-init')) {
+    //    return;
+    //}
     if (el.parentNode.nodeName === 'TH') {
         showMenuTh(el);
     }
@@ -3307,26 +3413,28 @@ function showMenuTh(el) {
     menu += setColsChecklist(table);
     menu += '<button class="btn btn-success btn-block btn-sm mt-2">' + t('Apply') + '</button>';
     menu += '</form>';
-    new Popover(el, { trigger: 'click', delay: 0, dismissible: true, template: '<div class="popover" role="tooltip">' +
+    new BSN.Popover(el, { trigger: 'click', delay: 0, dismissible: true, template: '<div class="popover" role="tooltip">' +
         '<div class="arrow"></div>' +
         '<div class="popover-content" id="' + table + 'ColsDropdown' + '">' + menu + '</div>' +
         '</div>', content: ' '});
     let popoverInit = el.Popover;
-    el.setAttribute('data-init', 'true');
-    el.addEventListener('shown.bs.popover', function(event) {
-        event.target.setAttribute('data-popover', 'true');
-        document.getElementById('colChecklist' + table).addEventListener('click', function(eventClick) {
-            if (eventClick.target.nodeName === 'BUTTON' && eventClick.target.classList.contains('material-icons')) {
-                toggleBtnChk(eventClick.target);
-                eventClick.preventDefault();
-                eventClick.stopPropagation();
-            }
-            else if (eventClick.target.nodeName === 'BUTTON') {
-                eventClick.preventDefault();
-                saveCols(table);
-            }
+    if (el.getAttribute('data-init') === null) {
+        el.setAttribute('data-init', 'true');
+        el.addEventListener('shown.bs.popover', function(event) {
+            event.target.setAttribute('data-popover', 'true');
+            document.getElementById('colChecklist' + table).addEventListener('click', function(eventClick) {
+                if (eventClick.target.nodeName === 'BUTTON' && eventClick.target.classList.contains('material-icons')) {
+                    toggleBtnChk(eventClick.target);
+                    eventClick.preventDefault();
+                    eventClick.stopPropagation();
+                }
+                else if (eventClick.target.nodeName === 'BUTTON') {
+                    eventClick.preventDefault();
+                    saveCols(table);
+                }
+            }, false);
         }, false);
-    }, false);
+    }
     popoverInit.show();
 }
 
@@ -3414,65 +3522,67 @@ function showMenuTd(el) {
             (settings.featPlaylists ? addMenuItem({"cmd": "showAddToPlaylist", "options": ["ALBUM", expression]}, t('Add to playlist')) : '');
     }
 
-    new Popover(el, { trigger: 'click', delay: 0, dismissible: true, template: '<div class="popover" role="tooltip">' +
+    new BSN.Popover(el, { trigger: 'click', delay: 0, dismissible: true, template: '<div class="popover" role="tooltip">' +
         '<div class="arrow"></div>' +
         '<div class="popover-content">' + menu + '</div>' +
         '</div>', content: ' '});
     let popoverInit = el.Popover;
-    el.setAttribute('data-init', 'true');
-    el.addEventListener('shown.bs.popover', function(event) {
-        event.target.setAttribute('data-popover', 'true');
-        document.getElementsByClassName('popover-content')[0].addEventListener('click', function(eventClick) {
-            eventClick.preventDefault();
-            eventClick.stopPropagation();
-            if (eventClick.target.nodeName === 'A') {
-                let dh = eventClick.target.getAttribute('data-href');
-                if (dh) {
-                    let cmd = JSON.parse(b64DecodeUnicode(dh));
-                    parseCmd(event, cmd);
-                    hideMenu();
-                }
-            }
-        }, false);
-        document.getElementsByClassName('popover-content')[0].addEventListener('keydown', function(eventKey) {
-            eventKey.preventDefault();
-            eventKey.stopPropagation();
-            if (eventKey.key === 'ArrowDown' || eventKey.key === 'ArrowUp') {
-                let menuItemsHtml = this.getElementsByTagName('a');
-                let menuItems = Array.prototype.slice.call(menuItemsHtml);
-                let idx = menuItems.indexOf(document.activeElement);
-                do {
-                    idx = eventKey.key === 'ArrowUp' ? (idx > 1 ? idx - 1 : 0)
-                                                 : eventKey.key === 'ArrowDown' ? ( idx < menuItems.length - 1 ? idx + 1 : idx)
-                                                                            : idx;
-                    if ( idx === 0 || idx === menuItems.length -1 ) {
-                        break;
+    if (el.getAttribute('data-init') === null) {
+        el.setAttribute('data-init', 'true');
+        el.addEventListener('shown.bs.popover', function(event) {
+            event.target.setAttribute('data-popover', 'true');
+            document.getElementsByClassName('popover-content')[0].addEventListener('click', function(eventClick) {
+                eventClick.preventDefault();
+                eventClick.stopPropagation();
+                if (eventClick.target.nodeName === 'A') {
+                    let dh = eventClick.target.getAttribute('data-href');
+                    if (dh) {
+                        let cmd = JSON.parse(b64DecodeUnicode(dh));
+                        parseCmd(event, cmd);
+                        hideMenu();
                     }
-                } while ( !menuItems[idx].offsetHeight )
-                menuItems[idx] && menuItems[idx].focus();
-            }
-            else if (eventKey.key === 'Enter') {
-                eventKey.target.click();
-            }
-            else if (eventKey.key === 'Escape') {
-                hideMenu();
-            }
-        }, false);
-        let collapseLink = document.getElementById('advancedMenuLink');
-        if (collapseLink) {
-            collapseLink.addEventListener('click', function() {
-                let icon = this.getElementsByTagName('span')[0];
-                if (icon.innerText === 'keyboard_arrow_right') {
-                    icon.innerText = 'keyboard_arrow_down';
-                }
-                else {
-                    icon.innerText = 'keyboard_arrow_right';
                 }
             }, false);
-            new Collapse(collapseLink);
-        }
-        document.getElementsByClassName('popover-content')[0].firstChild.focus();
-    }, false);
+            document.getElementsByClassName('popover-content')[0].addEventListener('keydown', function(eventKey) {
+                eventKey.preventDefault();
+                eventKey.stopPropagation();
+                if (eventKey.key === 'ArrowDown' || eventKey.key === 'ArrowUp') {
+                    let menuItemsHtml = this.getElementsByTagName('a');
+                    let menuItems = Array.prototype.slice.call(menuItemsHtml);
+                    let idx = menuItems.indexOf(document.activeElement);
+                    do {
+                        idx = eventKey.key === 'ArrowUp' ? (idx > 1 ? idx - 1 : 0)
+                                                 : eventKey.key === 'ArrowDown' ? ( idx < menuItems.length - 1 ? idx + 1 : idx)
+                                                                            : idx;
+                        if ( idx === 0 || idx === menuItems.length -1 ) {
+                            break;
+                        }
+                    } while ( !menuItems[idx].offsetHeight )
+                    menuItems[idx] && menuItems[idx].focus();
+                }
+                else if (eventKey.key === 'Enter') {
+                    eventKey.target.click();
+                }
+                else if (eventKey.key === 'Escape') {
+                    hideMenu();
+                }
+            }, false);
+            let collapseLink = document.getElementById('advancedMenuLink');
+            if (collapseLink) {
+                collapseLink.addEventListener('click', function() {
+                    let icon = this.getElementsByTagName('span')[0];
+                    if (icon.innerText === 'keyboard_arrow_right') {
+                        icon.innerText = 'keyboard_arrow_down';
+                    }
+                    else {
+                        icon.innerText = 'keyboard_arrow_right';
+                    }
+                }, false);
+                new BSN.Collapse(collapseLink);
+            }
+            document.getElementsByClassName('popover-content')[0].firstChild.focus();
+        }, false);
+    }
     popoverInit.show();
 }
 /*
@@ -3784,6 +3894,213 @@ function delQueueSong(mode, start, end) {
  https://github.com/jcorporation/mympd
 */
 
+//eslint-disable-next-line no-unused-vars
+function saveScript() {
+    let formOK = true;
+    
+    let nameEl = document.getElementById('inputScriptName');
+    if (!validatePlnameEl(nameEl)) {
+        formOK = false;
+    }
+    
+    let orderEl = document.getElementById('inputScriptOrder');
+    if (!validateInt(orderEl)) {
+        formOK = false;
+    }
+    
+    if (formOK === true) {
+        let args = [];
+        let argSel = document.getElementById('selectScriptArguments');
+        for (let i = 0; i < argSel.options.length; i++) {
+            args.push(argSel.options[i].text);
+        }
+        sendAPI("MYMPD_API_SCRIPT_SAVE", {
+            "script": nameEl.value,
+            "order": parseInt(orderEl.value),
+            "content": document.getElementById('textareaScriptContent').value,
+            "arguments": args
+            }, showListScripts, false);
+    }
+}
+
+function addScriptArgument() {
+    let el = document.getElementById('inputScriptArgument');
+    if (validatePlnameEl(el)) {
+        let o = document.createElement('option');
+        o.text = el.value;
+        document.getElementById('selectScriptArguments').appendChild(o);
+        el.value = '';
+    }
+}
+
+function removeScriptArgument(ev) {
+    let el = document.getElementById('inputScriptArgument');
+    el.value = ev.target.text;
+    ev.target.remove();
+    el.focus();  
+}
+
+//eslint-disable-next-line no-unused-vars
+function showEditScript(script) {
+    document.getElementById('listScripts').classList.remove('active');
+    document.getElementById('editScript').classList.add('active');
+    document.getElementById('listScriptsFooter').classList.add('hide');
+    document.getElementById('editScriptFooter').classList.remove('hide');
+    
+    document.getElementById('inputScriptName').classList.remove('is-invalid');
+    document.getElementById('inputScriptOrder').classList.remove('is-invalid');
+    document.getElementById('inputScriptArgument').classList.remove('is-invalid');
+    
+    if (script !== '') {
+        sendAPI("MYMPD_API_SCRIPT_GET", {"script": script}, parseEditScript, false);
+    }
+    else {
+        document.getElementById('inputScriptName').value = '';
+        document.getElementById('inputScriptOrder').value = '1';
+        document.getElementById('inputScriptArgument').value = '';
+        document.getElementById('selectScriptArguments').innerText = '';
+        document.getElementById('textareaScriptContent').value = '';
+    }
+}
+
+function parseEditScript(obj) {
+    document.getElementById('inputScriptName').value = obj.result.script;
+    document.getElementById('inputScriptOrder').value = obj.result.metadata.order;
+    document.getElementById('inputScriptArgument').value = '';
+    let selSA = document.getElementById('selectScriptArguments');
+    selSA.innerText = '';
+    for (let i = 0; i < obj.result.metadata.arguments.length; i++) {
+        let o = document.createElement('option');
+        o.innerText = obj.result.metadata.arguments[i];
+        selSA.appendChild(o);
+    }
+    document.getElementById('textareaScriptContent').value = obj.result.content;
+}
+
+function showListScripts() {
+    document.getElementById('listScripts').classList.add('active');
+    document.getElementById('editScript').classList.remove('active');
+    document.getElementById('listScriptsFooter').classList.remove('hide');
+    document.getElementById('editScriptFooter').classList.add('hide');
+    sendAPI("MYMPD_API_SCRIPT_LIST", {"all": true}, parseScriptList);
+}
+
+function deleteScript(script) {
+    sendAPI("MYMPD_API_SCRIPT_DELETE", {"script": script}, function() {
+        getScriptList(true);
+    }, false);
+}
+
+function getScriptList(all) {
+    sendAPI("MYMPD_API_SCRIPT_LIST", {"all": all}, parseScriptList, false);
+}
+
+function parseScriptList(obj) {
+    let timerActions = document.createElement('optgroup');
+    timerActions.setAttribute('data-value', 'script');
+    timerActions.setAttribute('label', t('Script'));
+    let scriptMaxListLen = 4;
+    let scriptListMain = ''; //list in main menu
+    let scriptList = ''; //list in scripts dialog
+    let scriptListLen = obj.result.data.length;
+    if (scriptListLen > 0) {
+        obj.result.data.sort(function(a, b) {
+            return a.metadata.order - b.metadata.order;
+        });
+        let mi = 0;
+        for (let i = 0; i < scriptListLen; i++) {
+            let arglist = '';
+            if (obj.result.data[i].metadata.arguments.length > 0) {
+                for (let j = 0; j < obj.result.data[i].metadata.arguments.length; j++) {
+                    obj.result.data[i].metadata.arguments[j] = e(obj.result.data[i].metadata.arguments[j]);
+                }
+                arglist = '"' + obj.result.data[i].metadata.arguments.join('","') + '"';
+            }
+            if (obj.result.data[i].metadata.order > 0) {
+                if (mi === 0) {
+                    scriptListMain = scriptListLen > scriptMaxListLen ? '' : '<div class="dropdown-divider"></div>';
+                }
+                mi++;
+                
+                scriptListMain += '<a class="dropdown-item text-light alwaysEnabled" href="#" data-href=\'{"script": "' + 
+                    e(obj.result.data[i].name) + '", "arguments": [' + arglist + ']}\'>' + e(obj.result.data[i].name) + '</a>';
+                
+            }
+            scriptList += '<tr data-script="' + encodeURI(obj.result.data[i].name) + '"><td>' + e(obj.result.data[i].name) + '</td>' +
+                '<td data-col="Action">' +
+                    (settings.featScripteditor === true ? 
+                        '<a href="#" title="' + t('Delete') + '" data-action="delete" class="material-icons color-darkgrey">delete</a>' : '') +
+                    '<a href="#" title="' + t('Execute') + '" data-action="execute" class="material-icons color-darkgrey" ' +
+                    ' data-href=\'{"script": "' + e(obj.result.data[i].name) + '", "arguments": [' + arglist + ']}\'>play_arrow</a>' +
+                '</td></tr>';
+            timerActions.innerHTML += '<option data-arguments=\'{"arguments":[' + arglist + ']}\' value="' + 
+                e(obj.result.data[i].name) + '">' + e(obj.result.data[i].name) + '</option>';
+        }
+        document.getElementById('listScriptsList').innerHTML = scriptList;
+    }
+    else {
+        document.getElementById('listScriptsList').innerHTML = '<tr class="not-clickable"><td><span class="material-icons">error_outline</span></td>' +
+            '<td colspan="2">' + t('Empty list') + '</td></tr>';
+    }
+    document.getElementById('scripts').innerHTML = scriptListMain;
+        
+    if (scriptListLen > scriptMaxListLen) {
+        document.getElementById('navScripting').classList.remove('hide');
+        document.getElementById('scripts').classList.add('collapse', 'menu-indent');
+    }
+    else {
+        document.getElementById('navScripting').classList.add('hide');
+        document.getElementById('scripts').classList.remove('collapse', 'menu-indent');
+    }
+    
+    let old = document.getElementById('selectTimerAction').querySelector('optgroup[data-value="script"]');
+    if (old) {
+        old.replaceWith(timerActions);
+    }
+    else {
+        document.getElementById('selectTimerAction').appendChild(timerActions);
+    }
+}
+
+function execScript(href) {
+    let cmd = JSON.parse(href);
+    if (cmd.arguments.length === 0) {
+        sendAPI("MYMPD_API_SCRIPT_EXECUTE", {"script": cmd.script, "arguments": {}});
+    }
+    else {
+        let arglist ='';
+        for (let i = 0; i < cmd.arguments.length; i++) {
+            arglist += '<div class="form-group row">' +
+                  '<label class="col-sm-4 col-form-label" for="inputScriptArg' + i + '">' + e(cmd.arguments[i]) +'</label>' +
+                  '<div class="col-sm-8">' +
+                     '<input name="' + e(cmd.arguments[i]) + '" id="inputScriptArg' + i + '" type="text" class="form-control border-secondary" value="">' +
+                  '</div>' +
+                '</div>';
+
+        }
+        document.getElementById('execScriptArguments').innerHTML = arglist;
+        document.getElementById('modalExecScriptScriptname').value = cmd.script;
+        modalExecScript.show();
+    }
+}
+
+//eslint-disable-next-line no-unused-vars
+function execScriptArgs() {
+    let script = document.getElementById('modalExecScriptScriptname').value;
+    let args = {};
+    let inputs = document.getElementById('execScriptArguments').getElementsByTagName('input');
+    for (let i = 0; i < inputs.length; i++) {
+        args[inputs[i].name] = inputs[i].value;
+    }
+    sendAPI("MYMPD_API_SCRIPT_EXECUTE", {"script": script, "arguments": args});
+    modalExecScript.hide();
+}
+/*
+ SPDX-License-Identifier: GPL-2.0-or-later
+ myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
+ https://github.com/jcorporation/mympd
+*/
+
 function search(x) {
     if (settings.featAdvsearch) {
         let expression = '(';
@@ -3968,6 +4285,10 @@ function parseSettings() {
     else {
         locale = settings.locale;
     }
+    
+    if (isMobile === true) {    
+        document.getElementById('inputScaleRatio').value = scale;
+    }
 
     let setTheme = settings.theme;
     if (settings.theme === 'theme-autodetect') {
@@ -4076,7 +4397,7 @@ function parseSettings() {
     toggleBtnChkCollapse('btnSmartpls', 'collapseSmartpls', settings.smartpls);
     
     let features = ["featLocalplayer", "featSyscmds", "featMixramp", "featCacert", "featBookmarks", 
-        "featRegex", "featTimer", "featLyrics"];
+        "featRegex", "featTimer", "featLyrics", "featScripting", "featScripteditor"];
     for (let j = 0; j < features.length; j++) {
         let Els = document.getElementsByClassName(features[j]);
         let ElsLen = Els.length;
@@ -4104,15 +4425,17 @@ function parseSettings() {
         document.getElementsByClassName('groupClearCovercache')[0].classList.remove('hide');
     }
     
-    let timerActions = '<option value="startplay">' + t('Start playback') + '</option>' +
-        '<option value="stopplay">' + t('Stop playback') + '</option>';
+    let timerActions = '<optgroup data-value="player" label="' + t('Playback') + '">' +
+        '<option value="startplay">' + t('Start playback') + '</option>' +
+        '<option value="stopplay">' + t('Stop playback') + '</option>' +
+        '</optgroup>';
 
-    if (settings.featSyscmds) {
+    if (settings.featSyscmds === true) {
         let syscmdsMaxListLen = 4;
         let syscmdsList = '';
         let syscmdsListLen = settings.syscmdList.length;
         if (syscmdsListLen > 0) {
-            timerActions += '<optgroup label="' + t('System command') + '">';
+            timerActions += '<optgroup data-value="syscmd" label="' + t('System command') + '">';
             syscmdsList = syscmdsListLen > syscmdsMaxListLen ? '' : '<div class="dropdown-divider"></div>';
             for (let i = 0; i < syscmdsListLen; i++) {
                 if (settings.syscmdList[i] === 'HR') {
@@ -4140,11 +4463,17 @@ function parseSettings() {
     else {
         document.getElementById('syscmds').innerHTML = '';
     }
-    
+
+    if (settings.featScripting === true) {
+        getScriptList(true);
+    }
+    else {
+        document.getElementById('scripts').innerHTML = '';
+    }
+
     document.getElementById('selectTimerAction').innerHTML = timerActions;
     
-
-    dropdownMainMenu = new Dropdown(document.getElementById('mainMenu'));
+    //dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
     
     toggleBtnGroupValueCollapse(document.getElementById('btnJukeboxModeGroup'), 'collapseJukeboxMode', settings.jukeboxMode);
     document.getElementById('selectJukeboxUniqueTag').value = settings.jukeboxUniqueTag;
@@ -4533,6 +4862,18 @@ function saveSettings(closeModal) {
     if (!validateInt(inputMaxElementsPerPage)) {
         formOK = false;
     }
+    
+    if (isMobile === true) {
+        let inputScaleRatio = document.getElementById('inputScaleRatio');
+        if (!validateFloat(inputScaleRatio)) {
+            formOK = false;
+        }
+        else {
+            scale = parseFloat(inputScaleRatio.value);
+            setViewport(true);
+        }
+    }
+
     if (parseInt(inputMaxElementsPerPage.value) > 200) {
         formOK = false;
     }
@@ -4953,7 +5294,7 @@ function parseSongDetails(obj) {
         }
         let myCarousel = document.getElementById('songPicsCarousel');
         //eslint-disable-next-line no-undef, no-unused-vars
-        let myCarouselInit = new Carousel(myCarousel, {
+        let myCarouselInit = new BSN.Carousel(myCarousel, {
             interval: false,
             pause: false
         });
@@ -6078,6 +6419,11 @@ function saveTimer() {
     let selectTimerMinute = document.getElementById('selectTimerMinute');
     let jukeboxMode = document.getElementById('btnTimerJukeboxModeGroup').getElementsByClassName('active')[0].getAttribute('data-value');
 
+    if (selectTimerAction.selectedIndex === -1) {
+        formOK = false;
+        selectTimerAction.classList.add('is-invalid');
+    }
+
     if (jukeboxMode === '0' &&
         selectTimerPlaylist.options[selectTimerPlaylist.selectedIndex].value === 'Database'&&
         selectTimerAction.options[selectTimerAction.selectedIndex].value === 'startplay')
@@ -6085,7 +6431,13 @@ function saveTimer() {
         formOK = false;
         document.getElementById('btnTimerJukeboxModeGroup').classList.add('is-invalid');
     }
+    
     if (formOK === true) {
+        let args = {};
+        let argEls = document.getElementById('timerActionScriptArguments').getElementsByTagName('input');
+        for (let i = 0; i < argEls.length; i ++) {
+            args[argEls[i].getAttribute('data-name')] = argEls[i].value;
+        }
         sendAPI("MYMPD_API_TIMER_SAVE", {
             "timerid": parseInt(document.getElementById('inputTimerId').value),
             "name": nameEl.value,
@@ -6093,10 +6445,12 @@ function saveTimer() {
             "startHour": parseInt(selectTimerHour.options[selectTimerHour.selectedIndex].value),
             "startMinute": parseInt(selectTimerMinute.options[selectTimerMinute.selectedIndex].value),
             "weekdays": weekdays,
-            "action": selectTimerAction.options[selectTimerAction.selectedIndex].value,
+            "action": selectTimerAction.options[selectTimerAction.selectedIndex].parentNode.getAttribute('data-value'),
+            "subaction": selectTimerAction.options[selectTimerAction.selectedIndex].value,
             "volume": parseInt(document.getElementById('inputTimerVolume').value), 
             "playlist": selectTimerPlaylist.options[selectTimerPlaylist.selectedIndex].value,
             "jukeboxMode": parseInt(jukeboxMode),
+            "arguments": args
             }, showListTimer);
     }
 }
@@ -6104,6 +6458,7 @@ function saveTimer() {
 //eslint-disable-next-line no-unused-vars
 function showEditTimer(timerid) {
     document.getElementById('timerActionPlay').classList.add('hide');
+    document.getElementById('timerActionScript').classList.add('hide');
     document.getElementById('listTimer').classList.remove('active');
     document.getElementById('editTimer').classList.add('active');
     document.getElementById('listTimerFooter').classList.add('hide');
@@ -6132,8 +6487,7 @@ function showEditTimer(timerid) {
         document.getElementById('timerActionPlay').classList.remove('hide');
     }
     document.getElementById('inputTimerName').focus();
-    document.getElementById('inputTimerName').classList.remove('is-invalid');
-    document.getElementById('btnTimerJukeboxModeGroup').classList.remove('is-invalid');
+    removeIsInvalid(document.getElementById('editTimerForm'));    
     document.getElementById('invalidTimerWeekdays').style.display = 'none';
 }
 
@@ -6142,26 +6496,56 @@ function parseEditTimer(obj) {
     sendAPI("MPD_API_PLAYLIST_LIST_ALL", {}, function(obj2) { 
         getAllPlaylists(obj2, 'selectTimerPlaylist', playlistValue);
     });
-    
-    if (obj.result.action === 'startplay') {
-        document.getElementById('timerActionPlay').classList.remove('hide');
-    }
-    else {
-        document.getElementById('timerActionPlay').classList.add('hide');
-    }
     document.getElementById('inputTimerId').value = obj.result.timerid;
     document.getElementById('inputTimerName').value = obj.result.name;
     toggleBtnChk('btnTimerEnabled', obj.result.enabled);
     document.getElementById('selectTimerHour').value = obj.result.startHour;
     document.getElementById('selectTimerMinute').value = obj.result.startMinute;
-    document.getElementById('selectTimerAction').value = obj.result.action;
+    document.getElementById('selectTimerAction').value = obj.result.subaction;
+    selectTimerActionChange(obj.result.arguments);
     document.getElementById('inputTimerVolume').value = obj.result.volume;
-    //document.getElementById('selectTimerPlaylist').value = obj.result.playlist;
     toggleBtnGroupValue(document.getElementById('btnTimerJukeboxModeGroup'), obj.result.jukeboxMode);
     let weekdayBtns = ['btnTimerMon', 'btnTimerTue', 'btnTimerWed', 'btnTimerThu', 'btnTimerFri', 'btnTimerSat', 'btnTimerSun'];
     for (let i = 0; i < weekdayBtns.length; i++) {
         toggleBtnChk(weekdayBtns[i], obj.result.weekdays[i]);
     }
+}
+
+function selectTimerActionChange(values) {
+    let el = document.getElementById('selectTimerAction');
+    
+    if (el.options[el.selectedIndex].value === 'startplay') {
+        document.getElementById('timerActionPlay').classList.remove('hide');
+        document.getElementById('timerActionScript').classList.add('hide');
+    }
+    else if (el.options[el.selectedIndex].parentNode.getAttribute('data-value') === 'script') {
+        document.getElementById('timerActionScript').classList.remove('hide');
+        document.getElementById('timerActionPlay').classList.add('hide');
+        showTimerScriptArgs(el.options[el.selectedIndex], values);
+    }
+    else {
+        document.getElementById('timerActionPlay').classList.add('hide');
+        document.getElementById('timerActionScript').classList.add('hide');
+    }
+}
+
+function showTimerScriptArgs(option, values) {
+    if (values === undefined) {
+        values = {};
+    }
+    let args = JSON.parse(option.getAttribute('data-arguments'));
+    let list = '';
+    for (let i = 0; i < args.arguments.length; i++) {
+        list += '<div class="form-group row">' +
+                  '<label class="col-sm-4 col-form-label" for="timerActionScriptArguments' + i + '">' + e(args.arguments[i]) + '</label>' +
+                  '<div class="col-sm-8">' +
+                    '<input name="timerActionScriptArguments' + i + '" class="form-control border-secondary" type="text" value="' +
+                    (values[args.arguments[i]] ? e(values[args.arguments[i]]) : '') + '"' +
+                    'data-name="' + args.arguments[i] + '">' +
+                  '</div>' +
+                '</div>';
+    }
+    document.getElementById('timerActionScriptArguments').innerHTML = list;
 }
 
 function showListTimer() {
@@ -6192,7 +6576,7 @@ function parseListTimer(obj) {
                 days.push(t(weekdays[j]))
             }
         }
-        tds += days.join(', ')  + '</td><td>' + t(obj.result.data[i].action) + '</td>' +
+        tds += days.join(', ')  + '</td><td>' + prettyTimerAction(obj.result.data[i].action, obj.result.data[i].subaction) + '</td>' +
                '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">delete</a></td>';
         row.innerHTML = tds;
         if (i < tr.length) {
@@ -6208,15 +6592,38 @@ function parseListTimer(obj) {
     }
 
     if (obj.result.returnedEntities === 0) {
-        tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
+        tbody.innerHTML = '<tr class="not-clickable"><td><span class="material-icons">error_outline</span></td>' +
                           '<td colspan="4">' + t('Empty list') + '</td></tr>';
     }     
+}
+
+function prettyTimerAction(action, subaction) {
+    if (action === 'player' && subaction === 'startplay') {
+        return t('Start playback');
+    }
+    if (action === 'player' && subaction === 'stopplay') {
+        return t('Stop playback');
+    }
+    if (action === 'syscmd') {
+        return t('System command') + ': ' + e(subaction);
+    }
+    if (action === 'script') {
+        return t('Script') + ': ' + e(subaction);
+    }
+    return e(action) + ': ' + e(subaction);
 }
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
  myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
+
+function removeIsInvalid(el) {
+    let els = el.querySelectorAll('.is-invalid');
+    for (let i = 0; i < els.length; i++) {
+        els[i].classList.remove('is-invalid');
+    }
+}
 
 function getSelectValue(selectId) {
     let el = document.getElementById(selectId);
@@ -6713,6 +7120,17 @@ function validatePath(el) {
     else {
         el.classList.add('is-invalid');
         return false;
+    }
+}
+
+function validatePlnameEl(el) {
+    if (validatePlname(el.value) === false) {
+        el.classList.add('is-invalid');
+        return false;
+    }
+    else {
+        el.classList.remove('is-invalid');
+        return true;
     }
 }
 

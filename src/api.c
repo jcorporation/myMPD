@@ -6,6 +6,7 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 #include "api.h"
 
@@ -18,4 +19,19 @@ enum mympd_cmd_ids get_cmd_id(const char *cmd) {
         }
     }
     return 0;
+}
+
+bool is_public_api_method(enum mympd_cmd_ids cmd_id) {
+    switch(cmd_id) {
+        case MPD_API_UNKNOWN:
+        case MPD_API_SCRIPT_INIT:
+        case MPD_API_TIMER_STARTPLAY:
+        case MPDWORKER_API_STICKERCACHE_CREATE:
+        case MYMPD_API_TIMER_SET:
+        case MYMPD_API_SCRIPT_INIT:
+        case MYMPD_API_SCRIPT_POST_EXECUTE:
+            return false;
+        default:
+            return true;
+    }
 }

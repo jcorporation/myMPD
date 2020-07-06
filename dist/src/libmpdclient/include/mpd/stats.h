@@ -82,7 +82,7 @@ mpd_stats_begin(void);
  * object.
  */
 void
-mpd_stats_feed(struct mpd_stats *status, const struct mpd_pair *pair);
+mpd_stats_feed(struct mpd_stats *stats, const struct mpd_pair *pair);
 
 /**
  * Reads the "stats" response from MPD.

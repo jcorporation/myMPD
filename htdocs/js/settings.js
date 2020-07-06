@@ -116,6 +116,10 @@ function parseSettings() {
     else {
         locale = settings.locale;
     }
+    
+    if (isMobile === true) {    
+        document.getElementById('inputScaleRatio').value = scale;
+    }
 
     let setTheme = settings.theme;
     if (settings.theme === 'theme-autodetect') {
@@ -224,7 +228,7 @@ function parseSettings() {
     toggleBtnChkCollapse('btnSmartpls', 'collapseSmartpls', settings.smartpls);
     
     let features = ["featLocalplayer", "featSyscmds", "featMixramp", "featCacert", "featBookmarks", 
-        "featRegex", "featTimer", "featLyrics"];
+        "featRegex", "featTimer", "featLyrics", "featScripting", "featScripteditor"];
     for (let j = 0; j < features.length; j++) {
         let Els = document.getElementsByClassName(features[j]);
         let ElsLen = Els.length;
@@ -252,15 +256,17 @@ function parseSettings() {
         document.getElementsByClassName('groupClearCovercache')[0].classList.remove('hide');
     }
     
-    let timerActions = '<option value="startplay">' + t('Start playback') + '</option>' +
-        '<option value="stopplay">' + t('Stop playback') + '</option>';
+    let timerActions = '<optgroup data-value="player" label="' + t('Playback') + '">' +
+        '<option value="startplay">' + t('Start playback') + '</option>' +
+        '<option value="stopplay">' + t('Stop playback') + '</option>' +
+        '</optgroup>';
 
-    if (settings.featSyscmds) {
+    if (settings.featSyscmds === true) {
         let syscmdsMaxListLen = 4;
         let syscmdsList = '';
         let syscmdsListLen = settings.syscmdList.length;
         if (syscmdsListLen > 0) {
-            timerActions += '<optgroup label="' + t('System command') + '">';
+            timerActions += '<optgroup data-value="syscmd" label="' + t('System command') + '">';
             syscmdsList = syscmdsListLen > syscmdsMaxListLen ? '' : '<div class="dropdown-divider"></div>';
             for (let i = 0; i < syscmdsListLen; i++) {
                 if (settings.syscmdList[i] === 'HR') {
@@ -288,11 +294,17 @@ function parseSettings() {
     else {
         document.getElementById('syscmds').innerHTML = '';
     }
-    
+
+    if (settings.featScripting === true) {
+        getScriptList(true);
+    }
+    else {
+        document.getElementById('scripts').innerHTML = '';
+    }
+
     document.getElementById('selectTimerAction').innerHTML = timerActions;
     
-
-    dropdownMainMenu = new Dropdown(document.getElementById('mainMenu'));
+    //dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
     
     toggleBtnGroupValueCollapse(document.getElementById('btnJukeboxModeGroup'), 'collapseJukeboxMode', settings.jukeboxMode);
     document.getElementById('selectJukeboxUniqueTag').value = settings.jukeboxUniqueTag;
@@ -681,6 +693,18 @@ function saveSettings(closeModal) {
     if (!validateInt(inputMaxElementsPerPage)) {
         formOK = false;
     }
+    
+    if (isMobile === true) {
+        let inputScaleRatio = document.getElementById('inputScaleRatio');
+        if (!validateFloat(inputScaleRatio)) {
+            formOK = false;
+        }
+        else {
+            scale = parseFloat(inputScaleRatio.value);
+            setViewport(true);
+        }
+    }
+
     if (parseInt(inputMaxElementsPerPage.value) > 200) {
         formOK = false;
     }

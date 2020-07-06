@@ -1328,3 +1328,123 @@ Kein Songtext gefunden
 
 Invalid column
 Ungültiger Spaltenname
+
+Force smart playlist update
+Aktualisierung der intelligenten Wiedergabelisten erzwingen
+
+Force update
+Erzwinge Aktualisierung
+
+No search tag defined and advanced search is disabled
+Kein Such-Tag definiert und erweiterte Suche ist deaktiviert.
+
+Smart playlists are disabled
+Intelligente Wiedergabelisten sind deaktiviert
+
+Smart playlists update started
+Aktualisierung der intelligenten Wiedergabelisten gestartet
+
+Filling jukebox queue failed, disabling jukebox
+Jukebox Warteschlange konnte nicht aufgefüllt werden, Jukebox wurde deaktiviert
+
+Playlist to small, disabling jukebox unique constraints temporarily
+Die Wiedergabeliste ist zu klein, die Jukebox Regeln werden deaktiviert
+
+Sticker cache is NULL
+Sticker Cache ist leer
+
+Can't create mympd_script thread
+Konnte mympd_script Thread nicht erstellen
+
+Error executing script %{script}: Memory allocation error
+Fehler beim Ausführen des Skripts %{script}: Speicherzuweisungsfehler
+
+Error executing script %{script}: Syntax error during precompilation
+Fehler beim Ausführen des Skripts %{script}: Syntax Fehler
+
+Error executing script %{script}: Error in garbage collector
+Fehler beim Ausführen des Skripts %{script}: Fehler im Garbage Collector
+
+Error executing script %{script}: Can not open or read script file
+Fehler beim Ausführen des Skripts %{script}: Skript Datei kann nicht geöffnet oder gelesen werden
+
+Error executing script %{script}: Runtime error
+Fehler beim Ausführen des Skripts %{script}: Laufzeitfehler
+
+Error executing script %{script}: Error while running the message handler
+Fehler beim Ausführen des Skripts %{script}: Fehler bei der Ausführung des Messagehandlers
+
+Error executing script %{script}
+Fehler beim Ausführen des Skripts %{script}
+
+Invalid scriptname
+Ungültiger Skriptname
+
+No mpd state for script execution submitted
+Es wurde kein MPD Status für die Skriptausführung mitgeliefert
+
+Script
+Skript
+
+Script %{script} executed successfully
+Skript %{script} erfolgreich gestartet
+
+Scripting is disabled
+Skripte sind deaktiviert
+
+Scripts
+Skripte
+
+Invalid script API request
+Ungültiger Script-API Aufruf
+
+Remote scripting is disabled
+Remotescripting ist deaktiviert
+
+Arguments
+Parameter
+
+Can not open scriptfile
+Skript konnte nicht geöffnet werden
+
+Could not delete script
+Skript konnte nicht gelöscht werden
+
+Could not save script
+Skript konnte nicht gespeichert werden
+
+Execute
+Ausführen
+
+Execute script
+Skript ausführen
+
+Invalid scale ratio
+Ungültiger Skalierungswert
+
+Invalid script argument
+Ungültiger Skriptparameter
+
+Invalid script order
+Ungültige Skriptreihenfolge
+
+New script
+Neues Skript
+
+No action selected
+Keine Aktion ausgewählt
+
+Scale ratio
+Skalierungswert
+
+Script arguments
+Skriptparameter
+
+Scriptname
+Skriptname
+
+Sort order of the script, 0 disables listing in main menu
+Sortierreihenfolge der Skripts, 0 deaktiviert die Anzeige im Hauptmenü
+
+Editing scripts is disabled
+Das Editieren von Skripts ist deaktiviert

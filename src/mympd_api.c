@@ -15,7 +15,10 @@
 #include <stdbool.h>
 #include <pthread.h>
 #include <signal.h>
+#include <assert.h>
 #include <inttypes.h>
+
+#include <mpd/client.h>
 
 #include "../dist/src/sds/sds.h"
 #include "sds_extras.h"
@@ -27,6 +30,7 @@
 #include "config_defs.h"
 #include "utility.h"
 #include "global.h"
+#include "lua_mympd_state.h"
 #include "mpd_client.h"
 #include "maintenance.h"
 #include "mympd_api/mympd_api_utility.h"
@@ -36,6 +40,7 @@
 #include "mympd_api/mympd_api_bookmarks.h"
 #include "mympd_api/mympd_api_timer.h"
 #include "mympd_api/mympd_api_timer_handlers.h"
+#include "mympd_api/mympd_api_scripts.h"
 #include "mympd_api.h"
 
 //private definitions
@@ -43,6 +48,8 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
 
 //public functions
 void *mympd_api_loop(void *arg_config) {
+    thread_logname = sdsreplace(thread_logname, "mympdapi");
+    
     t_config *config = (t_config *) arg_config;
     
     //read myMPD states under config.varlibdir
@@ -66,7 +73,7 @@ void *mympd_api_loop(void *arg_config) {
 
     while (s_signal_received == 0) {
         //poll message queue
-        struct t_work_request *request = tiny_queue_shift(mympd_api_queue, 100);
+        struct t_work_request *request = tiny_queue_shift(mympd_api_queue, 100, 0);
         if (request != NULL) {
             mympd_api(config, mympd_state, request);
         }
@@ -78,7 +85,7 @@ void *mympd_api_loop(void *arg_config) {
         timerfile_save(config, mympd_state);
     }
     free_mympd_state(mympd_state);
-
+    sdsfree(thread_logname);
     return NULL;
 }
 
@@ -91,12 +98,156 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
     unsigned int uint_buf1;
     int int_buf1;
     int int_buf2;
+    bool rc;
     LOG_VERBOSE("MYMPD API request (%d): %s", request->conn_id, request->data);
     
     //create response struct
     t_work_result *response = create_result(request);
     
     switch(request->cmd_id) {
+        #ifdef ENABLE_LUA
+        case MYMPD_API_SCRIPT_SAVE:
+            if (config->scripteditor == false) {
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Editing scripts is disabled", true);
+                break;
+            }
+            je = json_scanf(request->data, sdslen(request->data), "{params: {script: %Q, order: %d, content: %Q}}", &p_charbuf1, &int_buf1, &p_charbuf2);
+            if (je == 3) {
+                struct json_token val;
+                int idx;
+                sds arguments = sdsempty();
+                void *h = NULL;
+                while ((h = json_next_elem(request->data, sdslen(request->data), h, ".params.arguments", &idx, &val)) != NULL) {
+                    if (idx > 0) {
+                        arguments = sdscat(arguments, ",");
+                    }
+                    arguments = sdscatjson(arguments, val.ptr, val.len);
+                }
+                if (validate_string_not_empty(p_charbuf1) == true) {
+                    rc = mympd_api_script_save(config, p_charbuf1, int_buf1, p_charbuf2, arguments);
+                    if (rc == true) {
+                        response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+                    }
+                    else {
+                        response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Could not save script", true);
+                    }
+                }
+                else {
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Invalid scriptname", true);
+                }
+                sdsfree(arguments);
+            }
+            break;
+        case MYMPD_API_SCRIPT_DELETE:
+            if (config->scripteditor == false) {
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Editing scripts is disabled", true);
+                break;
+            }
+            je = json_scanf(request->data, sdslen(request->data), "{params: {script: %Q}}", &p_charbuf1);
+            if (je == 1 && validate_string_not_empty(p_charbuf1) == true) {
+                rc = mympd_api_script_delete(config, p_charbuf1);
+                if (rc == true) {
+                    response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+                }
+                else {
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Could not delete script", true);
+                }
+            }
+            else {
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Invalid scriptname", true);
+            }
+            break;
+        case MYMPD_API_SCRIPT_GET:
+            if (config->scripteditor == false) {
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Editing scripts is disabled", true);
+                break;
+            }
+            je = json_scanf(request->data, sdslen(request->data), "{params: {script: %Q}}", &p_charbuf1);
+            if (je == 1 && validate_string_not_empty(p_charbuf1) == true) {
+                response->data = mympd_api_script_get(config, response->data, request->method, request->id, p_charbuf1);
+            }
+            break;
+        case MYMPD_API_SCRIPT_LIST: {
+            bool bool_buf1;
+            je = json_scanf(request->data, sdslen(request->data), "{params: {all: %B}}", &bool_buf1);
+            if (je == 1) {
+                response->data = mympd_api_script_list(config, response->data, request->method, request->id, bool_buf1);
+            }
+            break;
+        }
+        case MYMPD_API_SCRIPT_INIT:
+            if (config->scripting == true) {
+                if (request->extra != NULL) {
+                    response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+                    struct list *lua_mympd_state = (struct list *)request->extra;
+                    rc = mympd_api_get_lua_mympd_state(mympd_state, lua_mympd_state);
+                    if (rc == false) {
+                        LOG_ERROR("Error getting mympd state for script execution");
+                    }
+                    response->extra = request->extra;
+                }
+                else {
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "No mpd state for script execution submitted", true);
+                }
+            } 
+            else {
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Scripting is disabled", true);
+            }
+            break;
+        case MYMPD_API_SCRIPT_EXECUTE:
+            if (config->scripting == true) {
+                je = json_scanf(request->data, sdslen(request->data), "{params: {script: %Q}}", &p_charbuf1);
+                if (je == 1 && validate_string_not_empty(p_charbuf1) == true) {
+                    struct list *arguments = (struct list *) malloc(sizeof(struct list));
+                    assert(arguments);
+                    list_init(arguments);
+                    void *h = NULL;
+                    struct json_token key;
+                    struct json_token val;
+                    while ((h = json_next_key(request->data, sdslen(request->data), h, ".params.arguments", &key, &val)) != NULL) {
+                        list_push_len(arguments, key.ptr, key.len, 0, val.ptr, val.len, NULL);
+                    }
+                    rc = mympd_api_script_start(config, p_charbuf1, arguments, true);
+                    if (rc == true) {
+                        response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+                    }
+                    else {
+                        response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Can't create mympd_script thread", true);
+                    }
+                }
+                else {
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Invalid scriptname", true);
+                }
+            } 
+            else {
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Scripting is disabled", true);
+            }
+            break;
+        case MYMPD_API_SCRIPT_POST_EXECUTE:
+            if (config->remotescripting == true) {
+                je = json_scanf(request->data, sdslen(request->data), "{params: {script: %Q}}", &p_charbuf1);
+                if (je == 1 && strlen(p_charbuf1) > 0) {
+                    struct list *arguments = (struct list *) malloc(sizeof(struct list));
+                    void *h = NULL;
+                    struct json_token key;
+                    struct json_token val;
+                    while ((h = json_next_key(request->data, sdslen(request->data), h, ".params.arguments", &key, &val)) != NULL) {
+                        list_push_len(arguments, key.ptr, key.len, 0, val.ptr, val.len, NULL);
+                    }
+                    rc = mympd_api_script_start(config, p_charbuf1, arguments, false);
+                    if (rc == true) {
+                        response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+                    }
+                    else {
+                        response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Can't create mympd_script thread", true);
+                    }
+                }
+            } 
+            else {
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Remote scripting is disabled", true);
+            }
+            break;
+        #endif
         case MYMPD_API_SYSCMD:
             if (config->syscmds == true) {
                 je = json_scanf(request->data, sdslen(request->data), "{params: {cmd: %Q}}", &p_charbuf1);
@@ -142,7 +293,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             void *h = NULL;
             struct json_token key;
             struct json_token val;
-            bool rc = true;
+            rc = true;
             while ((h = json_next_key(request->data, sdslen(request->data), h, ".params", &key, &val)) != NULL) {
                 rc = mympd_api_settings_set(config, mympd_state, &key, &val);
                 if (rc == false) {
@@ -152,7 +303,11 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             if (rc == true) {
                 //forward request to mpd_client queue            
                 t_work_request *mpd_client_request = create_request(-1, request->id, request->cmd_id, request->method, request->data);
-                tiny_queue_push(mpd_client_queue, mpd_client_request);
+                tiny_queue_push(mpd_client_queue, mpd_client_request, 0);
+                //forward request to mpd_worker queue            
+                t_work_request *mpd_client_request2 = create_request(-1, request->id, request->cmd_id, request->method, request->data);
+                tiny_queue_push(mpd_worker_queue, mpd_client_request2, 0);
+                //respond with ok
                 response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
             }
             else {
@@ -169,7 +324,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             void *h = NULL;
             struct json_token key;
             struct json_token val;
-            bool rc = true;
+            rc = true;
             while ((h = json_next_key(request->data, sdslen(request->data), h, ".params", &key, &val)) != NULL) {
                 rc = mympd_api_connection_save(config, mympd_state, &key, &val);
                 if (rc == false) {
@@ -255,7 +410,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                     int_buf1 = mympd_state->timer_list.last_id;
                 }
                 time_t start = timer_calc_starttime(timer_def->start_hour, timer_def->start_minute);
-                bool rc = replace_timer(&mympd_state->timer_list, start, 86400, timer_handler_select, int_buf1, timer_def, NULL);
+                rc = replace_timer(&mympd_state->timer_list, start, 86400, timer_handler_select, int_buf1, timer_def, NULL);
                 if (rc == true) {
                     response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
                 }
@@ -308,9 +463,13 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
         response->data = jsonrpc_end_phrase(response->data);
         LOG_ERROR("No response for cmd_id %u", request->cmd_id);
     }
-    if (request->conn_id > -1) {
-        LOG_DEBUG("Push response to queue for connection %lu: %s", request->conn_id, response->data);
-        tiny_queue_push(web_server_queue, response);
+    if (request->conn_id == -2) {
+        LOG_DEBUG("Push response to mympd_script_queue for thread %ld: %s", request->id, response->data);
+        tiny_queue_push(mympd_script_queue, response, request->id);
+    }
+    else if (request->conn_id > -1) {
+        LOG_DEBUG("Push response to web_server_queue for connection %lu: %s", request->conn_id, response->data);
+        tiny_queue_push(web_server_queue, response, 0);
     }
     else {
         free_result(response);

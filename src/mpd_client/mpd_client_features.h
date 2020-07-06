@@ -6,6 +6,6 @@
 
 #ifndef __MPD_CLIENT_FEATURES_H__
 #define __MPD_CLIENT_FEATURES_H__
-void mpd_client_mpd_features(t_config *config, t_mpd_state *mpd_state);
-void mpd_client_feature_love(t_mpd_state *mpd_state);
+void mpd_client_mpd_features(t_config *config, t_mpd_client_state *mpd_client_state);
+void mpd_client_feature_love(t_mpd_client_state *mpd_client_state);
 #endif

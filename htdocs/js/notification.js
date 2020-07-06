@@ -67,8 +67,11 @@ function showNotification(notificationTitle, notificationText, notificationHtml,
         let notification = new Notification(notificationTitle, {icon: 'assets/favicon.ico', body: notificationText});
         setTimeout(notification.close.bind(notification), 3000);
     } 
-    if (settings.notificationPage === true || notificationType === 'danger') {
+    if (settings.notificationPage === true || notificationType === 'danger' || notificationType === 'warning') {
         let alertBox;
+        if (alertTimeout) {
+            clearTimeout(alertTimeout);
+        }
         if (!document.getElementById('alertBox')) {
             alertBox = document.createElement('div');
             alertBox.setAttribute('id', 'alertBox');
@@ -77,12 +80,16 @@ function showNotification(notificationTitle, notificationText, notificationHtml,
         else {
             alertBox = document.getElementById('alertBox');
         }
+        
         let toast = '<div class="toast-header">';
         if (notificationType === 'success' ) {
             toast += '<span class="material-icons text-success mr-2">info</span>';
         }
+        else if (notificationType === 'warning' ) {
+            toast += '<span class="material-icons text-warning mr-2">warning</span>';
+        }
         else {
-            toast += '<span class="material-icons text-danger mr-2">warning</span>';
+            toast += '<span class="material-icons text-danger mr-2">error</span>';
         }
         toast += '<strong class="mr-auto">' + e(notificationTitle) + '</strong>' +
             '<button type="button" class="ml-2 mb-1 close">&times;</button></div>';
@@ -95,16 +102,16 @@ function showNotification(notificationTitle, notificationText, notificationHtml,
         if (!document.getElementById('alertBox')) {
             document.getElementsByTagName('main')[0].append(alertBox);
             requestAnimationFrame(function() {
-                document.getElementById('alertBox').classList.add('alertBoxActive');
+                let ab = document.getElementById('alertBox');
+                if (ab) {
+                    ab.classList.add('alertBoxActive');
+                }
             });
         }
         alertBox.getElementsByTagName('button')[0].addEventListener('click', function() {
             hideNotification();
         }, false);
 
-        if (alertTimeout) {
-            clearTimeout(alertTimeout);
-        }
         alertTimeout = setTimeout(function() {
             hideNotification();
         }, 3000);
@@ -115,6 +122,7 @@ function showNotification(notificationTitle, notificationText, notificationHtml,
 
 function logMessage(notificationTitle, notificationText, notificationHtml, notificationType) {
     if (notificationType === 'success') { notificationType = 'Info'; }
+    else if (notificationType === 'warning') { notificationType = 'Warning'; }
     else if (notificationType === 'danger') { notificationType = 'Error'; }
     
     let overview = document.getElementById('logOverview');
