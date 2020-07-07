@@ -54,9 +54,6 @@ message("ASSETS_PATH: ${ASSETS_PATH}")
 
 find_package(Threads REQUIRED)
 
-#embedded libmpdclient
-include_directories(dist/src/libmpdclient/include)
-
 if(NOT "${ENABLE_SSL}" MATCHES "OFF")
   message("Searching for openssl")
   find_package(OpenSSL)
@@ -114,7 +111,7 @@ configure_file(contrib/initscripts/mympd.service.in contrib/initscripts/mympd.se
 configure_file(contrib/initscripts/mympd.sysVinit.in contrib/initscripts/mympd.sysVinit @ONLY)
 configure_file(contrib/initscripts/mympd.openrc.in contrib/initscripts/mympd.openrc @ONLY)
 
-include_directories(${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR})
+include_directories(${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR} dist/src/libmpdclient/include)
 include(CheckCSourceCompiles)
 
 if(${MEMCHECK} MATCHES "TRUE")
