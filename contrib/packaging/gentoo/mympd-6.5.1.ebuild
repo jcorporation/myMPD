@@ -19,15 +19,15 @@ IUSE="+flac +id3tag +ssl +java +lua systemd"
 
 BDEPEND="
         >=dev-util/cmake-3.4
-        java? ( virtual/jre-1.7 )
+        java? ( >=virtual/jre-1.7 )
         dev-lang/perl
 "
 
 RDEPEND="
         id3tag? (media-libs/libid3tag )
 	flac? (media-libs/flac )
-        ssl? ( dev-libs/openssl-1.1 )
-        lua? ( dev-lang/lua-5.3 )
+        ssl? ( >=dev-libs/openssl-1.1 )
+        lua? ( >=dev-lang/lua-5.3 )
         systemd? ( sys-apps/systemd )
 "
 
