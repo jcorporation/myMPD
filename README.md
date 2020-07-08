@@ -80,7 +80,7 @@ Build Dependencies
 ------------------
 - cmake >= 3.4
 - libasan3: for debug builds only
-- Java: to minify files
+- Java: to minify files (optional)
 - Perl: to create translation files
 
 Quick Build Instructions
