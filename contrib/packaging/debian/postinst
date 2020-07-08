@@ -5,5 +5,6 @@ getent group mympd > /dev/null ||  groupadd -r mympd
 getent passwd mympd > /dev/null || useradd -r -g mympd -s /bin/false -d /var/lib/mympd mympd
 
 echo "myMPD installed"
-echo "Edit /etc/mympd.conf or run mympd-config before starting myMPD"
+echo "Modify /etc/mympd.conf to suit your needs or use the"
+echo "mympd-config tool to generate a valid mympd.conf automatically."
 exit 0

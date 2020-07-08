@@ -1,0 +1,5 @@
+#!/bin/sh
+echo "myMPD installed"
+echo "Modify /etc/mympd.conf to suit your needs or use the"
+echo "mympd-config tool to generate a valid mympd.conf automatically."
+exit 0

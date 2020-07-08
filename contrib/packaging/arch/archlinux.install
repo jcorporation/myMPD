@@ -13,8 +13,10 @@ post_upgrade() {
   getent group mympd > /dev/null || groupadd -r mympd
   getent passwd mympd > /dev/null || useradd -r -g mympd -s /bin/false -d /var/lib/mympd mympd
 
-  # installation complete
-  echo "Edit /etc/webapps/mympd/mympd.conf or run \"mympd-config -m/etc/webapps/mympd/mympd.conf\" before starting myMPD"
+  echo "myMPD installed"
+  echo "Modify /etc/webapps/mympd/mympd.conf to suit your needs or use the"
+  echo "mympd-config tool to generate a valid mympd.conf automatically."
+
   exit 0
 }
 
