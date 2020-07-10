@@ -71,6 +71,8 @@ Backend
 
 Dependencies
 ------------
+myMPD has no hard dependencies beside the standard c libraries. 
+Not installing the optional dependencies leads only to a smaller subset of myMPD functions.
 - OpenSSL >= 1.1.0 (optional): for https support
 - libid3tag (optional): to extract embedded albumart
 - libflac (optional): to extract embedded albumart
