@@ -228,6 +228,8 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                 je = json_scanf(request->data, sdslen(request->data), "{params: {script: %Q}}", &p_charbuf1);
                 if (je == 1 && strlen(p_charbuf1) > 0) {
                     struct list *arguments = (struct list *) malloc(sizeof(struct list));
+                    assert(arguments);
+                    list_init(arguments);
                     void *h = NULL;
                     struct json_token key;
                     struct json_token val;
