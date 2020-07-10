@@ -529,17 +529,18 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
     request->data = sdscatprintf(request->data, "{\"jsonrpc\":\"2.0\",\"id\":%ld,\"method\":\"%s\",\"params\":{", tid, method);
     if (raw == false) {
         for (int i = 2; i < n; i = i + 2) {
+            bool comma = i + 1 < n ? true : false;
             if (lua_isboolean(lua_vm, i + 1)) {
-                request->data = tojson_bool(request->data, lua_tostring(lua_vm, i), lua_toboolean(lua_vm, i + 1), true);
+                request->data = tojson_bool(request->data, lua_tostring(lua_vm, i), lua_toboolean(lua_vm, i + 1), comma);
             }
-            else if (lua_isinteger(lua_vm, i + 2)) {
-                request->data = tojson_long(request->data, lua_tostring(lua_vm, i), lua_tointeger(lua_vm, i + 1), true);
+            else if (lua_isinteger(lua_vm, i + 1)) {
+                request->data = tojson_long(request->data, lua_tostring(lua_vm, i), lua_tointeger(lua_vm, i + 1), comma);
             }
-            else if (lua_isnumber(lua_vm, i + 2)) {
-                request->data = tojson_double(request->data, lua_tostring(lua_vm, i), lua_tonumber(lua_vm, i + 1), true);
+            else if (lua_isnumber(lua_vm, i + 1)) {
+                request->data = tojson_double(request->data, lua_tostring(lua_vm, i), lua_tonumber(lua_vm, i + 1), comma);
             }
             else {
-                request->data = tojson_char(request->data, lua_tostring(lua_vm, i), lua_tostring(lua_vm, i + 1), true);
+                request->data = tojson_char(request->data, lua_tostring(lua_vm, i), lua_tostring(lua_vm, i + 1), comma);
             }
         }
     }
@@ -553,7 +554,6 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
     }
     else if (strncmp(method, "MPDWORKER_API_", 14) == 0) {
         tiny_queue_push(mpd_worker_queue, request, tid);
-        
     }
     else {
         tiny_queue_push(mpd_client_queue, request, tid);
