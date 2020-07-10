@@ -74,7 +74,7 @@ var cmds = [
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_MOUNT_UNMOUNT","params":{"mountPoint":""}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_URLHANDLERS"},
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SETTINGS_GET"},
-    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SETTINGS_SET","params":{"random":0}},
+    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SETTINGS_SET","params":{"consume":1,"random":0,"single":0,"repeat":0,"replaygain":"off","crossfade":"0","mixrampdb":0,"mixrampdelay":-1,"notificationWeb":false,"notificationPage":true,"mediaSession":true,"jukeboxMode":1,"jukeboxPlaylist":"Database","jukeboxQueueLength":1,"jukeboxLastPlayed":24,"jukeboxUniqueTag":"Album","autoPlay":false,"bgCover":false,"bgColor":"#888","bgCssFilter":"blur(5px)","featLocalplayer":false,"localplayerAutoplay":false,"streamUrl":"","streamPort":8000,"coverimage":true,"coverimageName":"folder, cover","coverimageSize":"250","covergridSize":"200","locale":"default","love":false,"loveChannel":"","loveMessage":"love","bookmarks":true,"maxElementsPerPage":"100","stickers":true,"lastPlayedCount":"20","smartpls":true,"smartplsPrefix":"myMPDsmart","smartplsInterval":14400,"smartplsSort":"","taglist":"Artist,Album,AlbumArtist,Title,Track,Genre,Date","searchtaglist":"Album,AlbumArtist,Artist,Genre,Title","browsetaglist":"Album,AlbumArtist,Artist,Genre","generatePlsTags":"Genre","theme":"theme-default","highlightColor":"#28a745","timer":true,"bookletName":"booklet.pdf","lyrics":true}},
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SETTINGS_RESET"},
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_COLS_SAVE","params":{"table":"","cols":["","",""]}},
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SYSCMD","params":{"cmd": ""}},
