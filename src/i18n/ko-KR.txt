@@ -1378,7 +1378,7 @@ Error executing script %{script}
 스크립트 %{script} 실행 오류
 
 Invalid scriptname
-스크립트 이름 인식 안 됨
+잘못된 스크립트 이름
 
 No mpd state for script execution submitted
 스크립트 실행을 위한 MPD 상태 없음
@@ -1445,3 +1445,6 @@ Scriptname
 
 Sort order of the script, 0 disables listing in main menu
 스크립트 분류 순서, 0은 주 메뉴에 안 보임
+
+Editing scripts is disabled
+스크립트 편집 사용 안 함
