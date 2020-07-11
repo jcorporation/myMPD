@@ -123,6 +123,7 @@ button {
 
 .cardBodyPlayback {
   padding-bottom: 0;
+  overflow-y: auto;
 }
 
 #BrowseBreadrumb {
@@ -744,4 +745,8 @@ a.text-success:focus {
 
 .toast-header {
   border-bottom-color: rgba(0, 0, 0, 0.125);
+}
+
+#cardPlayback {
+  max-height: calc(100vh - 10rem);
 }
