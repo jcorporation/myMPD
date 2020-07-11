@@ -750,3 +750,19 @@ a.text-success:focus {
 #cardPlayback {
   max-height: calc(100vh - 10rem);
 }
+
+
+/*resize coverimage in playback card*/
+@media only screen and (min-width: 768px) and (min-height: 35rem) {
+  #currentCover {
+    width: 20rem;
+    height: 20rem;
+  }
+}
+
+@media only screen and (min-width: 992px) and (min-height: 43rem) {
+  #currentCover {
+    width: 28rem;
+    height: 28rem;
+  }
+}
