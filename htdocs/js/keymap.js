@@ -38,5 +38,6 @@ var keymap = {
     "q": {"cmd": "queueSelectedItem", "options": [true], "desc": "Append item to queue"},
     "Q": {"cmd": "queueSelectedItem", "options": [false], "desc": "Replace queue with item"},
     "d": {"cmd": "dequeueSelectedItem", "options": [], "desc": "Remove item from queue"},
-    "x": {"cmd": "addSelectedItemToPlaylist", "options": [], "desc": "Append item to playlist"}
+    "x": {"cmd": "addSelectedItemToPlaylist", "options": [], "desc": "Append item to playlist"},
+    "F": {"cmd": "openFullscreen", "options": [], "desc": "Open fullscreen"}
 };
