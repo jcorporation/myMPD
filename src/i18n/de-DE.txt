@@ -1448,3 +1448,9 @@ Sortierreihenfolge der Skripts, 0 deaktiviert die Anzeige im Hauptmenü
 
 Editing scripts is disabled
 Das Editieren von Skripts ist deaktiviert
+
+Fullscreen
+Vollbild
+
+Open fullscreen
+Öffnet den Vollbildmodus
