@@ -5,6 +5,7 @@
  https://github.com/jcorporation/mympd
 */
 
+//eslint-disable-next-line no-unused-vars
 function openFullscreen() {
     let elem = document.documentElement;
     if (elem.requestFullscreen) {
