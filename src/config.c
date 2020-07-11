@@ -61,6 +61,9 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("webserver", "ssl")) {
         p_config->ssl = strtobool(value);
     }
+    else if (MATCH("webserver", "redirect")) {
+        p_config->redirect = strtobool(value);
+    }
     else if (MATCH("webserver", "sslport")) {
         p_config->ssl_port = sdsreplace(p_config->ssl_port, value);
     }
@@ -338,7 +341,7 @@ static void mympd_get_env(struct t_config *config) {
       #endif
       #ifdef ENABLE_SSL
         "WEBSERVER_SSL", "WEBSERVER_SSLPORT", "WEBSERVER_SSLCERT", "WEBSERVER_SSLKEY",
-        "WEBSERVER_SSLSAN", 
+        "WEBSERVER_SSLSAN", "WEBSERVER_REDIRECT", 
       #endif
         "MYMPD_LOGLEVEL", "MYMPD_USER", "MYMPD_VARLIBDIR", "MYMPD_MIXRAMP", "MYMPD_STICKERS", 
         "MYMPD_STICKERCACHE", "MYMPD_TAGLIST", "MYMPD_GENERATE_PLS_TAGS",
@@ -430,6 +433,7 @@ void mympd_config_defaults(t_config *config) {
     config->ssl_key = sdsnew(VARLIB_PATH"/ssl/server.key");
     config->ssl_san = sdsempty();
     config->custom_cert = false;
+    config->redirect = true;
 #endif
     config->user = sdsnew("mympd");
     config->chroot = false;
@@ -542,6 +546,7 @@ bool mympd_dump_config(void) {
         "sslcert = %s\n"
         "sslkey = %s\n"
         "sslsan = %s\n"
+        "redirect = %s\n"
       #endif
         "publish = %s\n"
         "webdav = %s\n"
@@ -557,6 +562,7 @@ bool mympd_dump_config(void) {
         p_config->ssl_cert,
         p_config->ssl_key,
         p_config->ssl_san,
+        (p_config->redirect == true ? "true" : "false" ),
       #endif
         (p_config->publish == true ? "true" : "false"),
         (p_config->webdav == true ? "true" : "false"),

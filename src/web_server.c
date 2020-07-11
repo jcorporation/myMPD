@@ -68,7 +68,7 @@ bool web_server_init(void *arg_mgr, t_config *config, t_mg_user_data *mg_user_da
     memset(&bind_opts_http, 0, sizeof(bind_opts_http));
     bind_opts_http.error_string = &err_http;
     #ifdef ENABLE_SSL
-    if (config->ssl == true) {
+    if (config->ssl == true && config->redirect == true) {
         nc_http = mg_bind_opt(mgr, config->webport, ev_handler_redirect, bind_opts_http);
     }
     else {

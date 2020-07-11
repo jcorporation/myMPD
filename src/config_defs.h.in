@@ -53,6 +53,7 @@ typedef struct t_config {
     sds ssl_key;
     bool custom_cert;
     sds ssl_san;
+    bool redirect;
 #endif
     sds user;
     bool stickers;
