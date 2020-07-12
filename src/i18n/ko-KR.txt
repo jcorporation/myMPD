@@ -1448,3 +1448,9 @@ Sort order of the script, 0 disables listing in main menu
 
 Editing scripts is disabled
 스크립트 편집 사용 안 함
+
+Fullscreen
+전체 화면
+
+Open fullscreen
+전체 화면 열기
