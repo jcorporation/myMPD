@@ -52,6 +52,7 @@ void mpd_client_mpd_features(t_config *config, t_mpd_client_state *mpd_client_st
     mpd_client_state->feat_single_oneshot = false;
     mpd_client_state->feat_mpd_mount = false;
     mpd_client_state->feat_mpd_neighbor = false;
+    mpd_client_state->feat_mpd_partitions = false;
     
     //get features
     mpd_client_feature_commands(mpd_client_state);
@@ -73,6 +74,15 @@ void mpd_client_mpd_features(t_config *config, t_mpd_client_state *mpd_client_st
     }
     else {
         LOG_WARN("Disabling single oneshot feature, depends on mpd >= 0.21.0");
+    }
+    
+    if (mpd_connection_cmp_server_version(mpd_client_state->mpd_state->conn, 0, 22, 0) >= 0 &&
+        config->partitions == true) {
+        mpd_client_state->feat_mpd_partitions = true;
+        LOG_INFO("Enabling partitions feature");
+    }
+    else if (config->partitions == true && mpd_connection_cmp_server_version(mpd_client_state->mpd_state->conn, 0, 22, 0) == -1) {
+        LOG_WARN("Disabling partitions support, depends on mpd >= 0.22.0");
     }
     
     if (config->mounts == false) {

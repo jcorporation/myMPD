@@ -109,6 +109,7 @@ var modalTimer = new BSN.Modal(document.getElementById('modalTimer'));
 var modalMounts = new BSN.Modal(document.getElementById('modalMounts'));
 var modalExecScript = new BSN.Modal(document.getElementById('modalExecScript'));
 var modalScripts = new BSN.Modal(document.getElementById('modalScripts'));
+var modalPartitions = new BSN.Modal(document.getElementById('modalPartitions'));
 
 var dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
 var dropdownVolumeMenu = new BSN.Dropdown(document.getElementById('volumeMenu'));
@@ -592,6 +593,10 @@ function appInit() {
         showListScripts();
     });
     
+    document.getElementById('modalPartitions').addEventListener('shown.bs.modal', function () {
+        showListPartitions();
+    });
+    
     document.getElementById('modalAbout').addEventListener('shown.bs.modal', function () {
         sendAPI("MPD_API_DATABASE_STATS", {}, parseStats);
         getServerinfo();
@@ -901,6 +906,21 @@ function appInit() {
             }
             else if (action === 'execute') {
                 execScript(event.target.getAttribute('data-href'));
+            }
+        }
+    }, false);
+    
+    document.getElementById('listPartitionsList').addEventListener('click', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        if (event.target.nodeName === 'A') {
+            let action = event.target.getAttribute('data-action');
+            let partition = decodeURI(event.target.parentNode.parentNode.getAttribute('data-partition'));
+            if (action === 'delete') {
+                deletePartition(partition);
+            }
+            else if (action === 'switch') {
+                switchPartition(partition);
             }
         }
     }, false);

@@ -443,7 +443,8 @@ function parseMPDSettings() {
     }
 
     let features = ['featStickers', 'featSmartpls', 'featPlaylists', 'featTags', 'featCoverimage', 'featAdvsearch',
-        'featLove', 'featSingleOneshot', 'featCovergrid', 'featBrowse', "featMounts", "featNeighbors"];
+        'featLove', 'featSingleOneshot', 'featCovergrid', 'featBrowse', 'featMounts', 'featNeighbors',
+        'featPartitions'];
     for (let j = 0; j < features.length; j++) {
         let Els = document.getElementsByClassName(features[j]);
         let ElsLen = Els.length;

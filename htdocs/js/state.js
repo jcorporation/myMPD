@@ -42,6 +42,9 @@ function parseOutputs(obj) {
         }
         btns += '"><span class="material-icons float-left">volume_up</span> ' + e(obj.result.data[i].name) + '</button>';
     }
+    if (obj.result.numOutputs === 0) {
+        btns = '<span class="material-icons">error_outline</span> ' + t('No outputs');
+    }
     domCache.outputs.innerHTML = btns;
 }
 
