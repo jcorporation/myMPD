@@ -131,6 +131,9 @@ sds mpd_client_put_state(t_config *config, t_mpd_client_state *mpd_client_state,
     buffer = tojson_long(buffer, "nextSongPos", mpd_status_get_next_song_pos(status), true);
     buffer = tojson_long(buffer, "nextSongId", mpd_status_get_next_song_id(status), true);
     buffer = tojson_long(buffer, "lastSongId", (mpd_client_state->last_song_id ? mpd_client_state->last_song_id : -1), true);
+    if (mpd_client_state->feat_mpd_partitions == true) {
+        buffer = tojson_char(buffer, "partition", mpd_status_get_partition(status), true);
+    }
     buffer = sdscat(buffer, "\"audioFormat\":{");
     buffer = tojson_long(buffer, "sampleRate", (audioformat ? audioformat->sample_rate : 0), true);
     buffer = tojson_long(buffer, "bits", (audioformat ? audioformat->bits : 0), true);
@@ -174,6 +177,9 @@ bool mpd_client_get_lua_mympd_state(t_config *config, t_mpd_client_state *mpd_cl
     set_lua_mympd_state_p(lua_mympd_state, "jukebox_playlist", mpd_client_state->jukebox_playlist);
     set_lua_mympd_state_i(lua_mympd_state, "jukebox_queue_length", mpd_client_state->jukebox_queue_length);
     set_lua_mympd_state_i(lua_mympd_state, "jukebox_last_played", mpd_client_state->jukebox_last_played);
+    if (mpd_client_state->feat_mpd_partitions == true) {
+        set_lua_mympd_state_p(lua_mympd_state, "partition", mpd_status_get_partition(status));
+    }
     mpd_status_free(status);
     return true;
 }

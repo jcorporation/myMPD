@@ -41,6 +41,7 @@
 #include "mpd_client_sticker.h"
 #include "mpd_client_timer.h"
 #include "mpd_client_mounts.h"
+#include "mpd_client_partitions.h"
 #include "mpd_client_api.h"
 
 void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void *arg_request) {
@@ -672,6 +673,37 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
             break;
         case MPD_API_URLHANDLERS:
             response->data = mpd_client_put_urlhandlers(mpd_client_state, response->data, request->method, request->id);
+            break;
+        case MPD_API_PARTITION_LIST:
+            response->data = mpd_client_put_partitions(mpd_client_state, response->data, request->method, request->id);
+            break;
+        case MPD_API_PARTITION_NEW:
+            je = json_scanf(request->data, sdslen(request->data), "{params: {name: %Q}}", &p_charbuf1);
+            if (je == 1) {
+                rc = mpd_run_newpartition(mpd_client_state->mpd_state->conn, p_charbuf1);
+                response->data = respond_with_mpd_error_or_ok(mpd_client_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_newpartition");
+            }
+            break;
+        case MPD_API_PARTITION_SWITCH:
+            je = json_scanf(request->data, sdslen(request->data), "{params: {name: %Q}}", &p_charbuf1);
+            if (je == 1) {
+                rc = mpd_run_switch_partition(mpd_client_state->mpd_state->conn, p_charbuf1);
+                response->data = respond_with_mpd_error_or_ok(mpd_client_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_switch_partition");
+            }
+            break;
+        case MPD_API_PARTITION_RM:
+            je = json_scanf(request->data, sdslen(request->data), "{params: {name: %Q}}", &p_charbuf1);
+            if (je == 1) {
+                rc = mpd_run_delete_partition(mpd_client_state->mpd_state->conn, p_charbuf1);
+                response->data = respond_with_mpd_error_or_ok(mpd_client_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_delete_partition");
+            }
+            break;
+        case MPD_API_PARTITION_OUTPUT_MOVE:
+            je = json_scanf(request->data, sdslen(request->data), "{params: {name: %Q}}", &p_charbuf1);
+            if (je == 1) {
+                rc = mpd_run_move_output(mpd_client_state->mpd_state->conn, p_charbuf1);
+                response->data = respond_with_mpd_error_or_ok(mpd_client_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_move_output");
+            }
             break;
         case MPD_API_MOUNT_LIST:
             response->data = mpd_client_put_mounts(mpd_client_state, response->data, request->method, request->id);

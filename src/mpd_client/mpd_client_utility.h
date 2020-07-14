@@ -40,6 +40,7 @@ typedef struct t_mpd_client_state {
     bool feat_single_oneshot;
     bool feat_mpd_mount;
     bool feat_mpd_neighbor;
+    bool feat_mpd_partitions;
     //mympd states
     enum jukebox_modes jukebox_mode;
     sds jukebox_playlist;
