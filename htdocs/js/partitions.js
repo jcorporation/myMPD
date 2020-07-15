@@ -5,6 +5,33 @@
  https://github.com/jcorporation/mympd
 */
 
+function moveOutput(output) {
+    sendAPI("MPD_API_PARTITION_OUTPUT_MOVE", {"name": output});
+}
+
+function parsePartitionOutputsList(obj) {
+    let outputs = document.getElementById('outputs').getElementsByTagName('button');
+    let outputIds = [];
+    for (let i = 0; i < outputs.length; i++) {
+        outputIds.push(parseInt(outputs[i].getAttribute('data-output-id')));
+    }
+
+    let outputList = '';
+    let nr = 0;
+    for (let i = 0; i < obj.result.data.length; i++) {
+        if (outputIds.includes(obj.result.data[i].id) === false) {
+            outputList += '<tr data-output="' + encodeURI(obj.result.data[i].name) + '"><td>' +
+                e(obj.result.data[i].name) + '</td></tr>';
+            nr++;
+        }
+    }
+    if (nr === 0) {
+        outputList = '<tr class="not-clickable"><td><span class="material-icons">error_outline</span>&nbsp;' +
+            t('Empty list') + '</td></tr>';
+    }
+    document.getElementById('partitionOutputsList').innerHTML = outputList;
+}
+
 //eslint-disable-next-line no-unused-vars
 function savePartition() {
     let formOK = true;

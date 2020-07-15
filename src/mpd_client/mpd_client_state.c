@@ -31,6 +31,9 @@
 #include "mpd_client_sticker.h"
 #include "mpd_client_state.h"
 
+//private definitions
+static sds _mpd_client_put_outputs(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id);
+
 //public functions
 sds mpd_client_get_updatedb_state(t_mpd_client_state *mpd_client_state, sds buffer) {
     struct mpd_status *status = mpd_run_status(mpd_client_state->mpd_state->conn);
@@ -214,37 +217,27 @@ sds mpd_client_put_volume(t_mpd_client_state *mpd_client_state, sds buffer, sds 
     return buffer;
 }
 
-sds mpd_client_put_outputs(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id) {
-    bool rc = mpd_send_outputs(mpd_client_state->mpd_state->conn);
-    if (check_rc_error_and_recover(mpd_client_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_send_outputs") == false) {
+sds mpd_client_put_partition_outputs(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id,
+                                     const char *partition)
+{
+    struct mpd_status *status = mpd_run_status(mpd_client_state->mpd_state->conn);
+    const char *oldpartition = mpd_status_get_partition(status);
+    bool rc = mpd_run_switch_partition(mpd_client_state->mpd_state->conn, partition);
+    if (check_rc_error_and_recover(mpd_client_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_run_switch_partition") == false) {
+        mpd_status_free(status);
         return buffer;
     }
 
-    buffer = jsonrpc_start_result(buffer, method, request_id);
-    buffer = sdscat(buffer, ",\"data\":[");
-    int nr = 0;
-    struct mpd_output *output;
-    while ((output = mpd_recv_output(mpd_client_state->mpd_state->conn)) != NULL) {
-        if (nr++) {
-            buffer = sdscat(buffer, ",");
-        }
-        buffer = sdscat(buffer, "{");
-        buffer = tojson_long(buffer, "id", mpd_output_get_id(output), true);
-        buffer = tojson_char(buffer, "name", mpd_output_get_name(output), true);
-        buffer = tojson_long(buffer, "state", mpd_output_get_enabled(output), false);
-        buffer = sdscat(buffer, "}");
-        mpd_output_free(output);
-    }
-    mpd_response_finish(mpd_client_state->mpd_state->conn);
-    if (check_error_and_recover2(mpd_client_state->mpd_state, &buffer, method, request_id, false) == false) {
-        return buffer;
-    }
-
-    buffer = sdscat(buffer, "],");
-    buffer = tojson_long(buffer, "numOutputs", nr, false);
-    buffer = jsonrpc_end_result(buffer);
+    buffer = _mpd_client_put_outputs(mpd_client_state, buffer, method, request_id);
     
+    rc = mpd_run_switch_partition(mpd_client_state->mpd_state->conn, oldpartition);
+    check_rc_error_and_recover(mpd_client_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_run_switch_partition");
+    mpd_status_free(status);
     return buffer;
+}
+
+sds mpd_client_put_outputs(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id) {
+    return _mpd_client_put_outputs(mpd_client_state, buffer, method, request_id);
 }
 
 sds mpd_client_put_current_song(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id) {
@@ -284,5 +277,49 @@ sds mpd_client_put_current_song(t_mpd_client_state *mpd_client_state, sds buffer
     
     mpd_song_free(song);
     buffer = jsonrpc_end_result(buffer);
+    return buffer;
+}
+
+//private functions
+static sds _mpd_client_put_outputs(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id) {
+    bool rc = mpd_send_outputs(mpd_client_state->mpd_state->conn);
+    if (check_rc_error_and_recover(mpd_client_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_send_outputs") == false) {
+        return buffer;
+    }
+
+    buffer = jsonrpc_start_result(buffer, method, request_id);
+    buffer = sdscat(buffer, ",\"data\":[");
+    int nr = 0;
+    struct mpd_output *output;
+    while ((output = mpd_recv_output(mpd_client_state->mpd_state->conn)) != NULL) {
+        if (nr++) {
+            buffer = sdscat(buffer, ",");
+        }
+        buffer = sdscat(buffer, "{");
+        buffer = tojson_long(buffer, "id", mpd_output_get_id(output), true);
+        buffer = tojson_char(buffer, "name", mpd_output_get_name(output), true);
+        buffer = tojson_long(buffer, "state", mpd_output_get_enabled(output), true);
+        buffer = tojson_char(buffer, "plugin", mpd_output_get_plugin(output), true);
+        buffer = sdscat(buffer,  "\"attributes\":{");
+        const struct mpd_pair *attributes = mpd_output_first_attribute(output);
+        if (attributes != NULL) {
+            buffer = tojson_char(buffer, attributes->name, attributes->value, false);
+            while ((attributes = mpd_output_next_attribute(output)) != NULL) {
+                buffer = sdscat(buffer, ",");
+                buffer = tojson_char(buffer, attributes->name, attributes->value, false);
+            }
+        }
+        buffer = sdscat(buffer, "}}");
+        mpd_output_free(output);
+    }
+    mpd_response_finish(mpd_client_state->mpd_state->conn);
+    if (check_error_and_recover2(mpd_client_state->mpd_state, &buffer, method, request_id, false) == false) {
+        return buffer;
+    }
+
+    buffer = sdscat(buffer, "],");
+    buffer = tojson_long(buffer, "numOutputs", nr, false);
+    buffer = jsonrpc_end_result(buffer);
+    
     return buffer;
 }

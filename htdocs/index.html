@@ -55,7 +55,6 @@
             <a data-phrase="Timer" class="dropdown-item text-light featTimer" href="#" data-toggle="modal" data-target="#modalTimer"></a>
             <a data-phrase="Scripts" class="dropdown-item text-light featScripting" href="#" data-toggle="modal" data-target="#modalScripts"></a>
             <a data-phrase="Mounts" class="dropdown-item text-light featMounts" href="#" data-toggle="modal" data-target="#modalMounts"></a>
-            <a data-phrase="Partitions" class="dropdown-item text-light featPartitions" href="#" data-toggle="modal" data-target="#modalPartitions"></a>
             <a data-phrase="Fullscreen" class="dropdown-item text-light" href="#" data-href='{"cmd": "openFullscreen", "options": []}'></a>
           </div>
           <a data-phrase="Browse directories" class="dropdown-item text-light featBrowse" href="browse/" target="_blank"></a>
@@ -78,7 +77,7 @@
         <div class="btn-group dropdown">
           <button id="volumeMenu" class="btn btn-secondary dropdown-toggle pl-2 pr-2 material-icons" type="button" data-toggle="dropdown">volume_up</button>
           <div class="dropdown-menu bg-lite-dark">
-            <h2 class="dropdown-header text-light"><span data-phrase="Volume">Volume</span>: <span id="volumePrct"></span></h2>
+            <h2 class="dropdown-header text-light"><span data-phrase="Volume"></span>: <span id="volumePrct"></span></h2>
             <form class="px-4 py-0 pb-3" id="volumeControl">
               <div class="btn-group">
                 <button id="btnChVolumeDown" data-href='{"cmd": "volumeStep", "options": ["down"]}' class="btn btn-secondary">&minus;</button>
@@ -89,7 +88,10 @@
               </div>
             </form>
             <div class="dropdown-divider"></div>
-            <form id="outputs" class="px-4 py-3"></form>              
+            <form id="outputs" class="px-4 py-3"></form>
+            <div class="dropdown-divider featPartitions"></div>
+            <a class="dropdown-item text-light featPartitions" href="#" data-toggle="modal" data-target="#modalPartitions"><span data-phrase="Current partition"></span>: <span id="partitionName"></span></a>
+            <a data-phrase="Move an output to this partition" class="dropdown-item text-light featPartitions" href="#" data-toggle="modal" data-target="#modalPartitionOutputs"></a>
           </div>
         </div>
         <div class="btn-group dropdown featLocalplayer ml-2">
@@ -2117,6 +2119,33 @@
         <div id="newPartitionFooter" class="modal-footer hide">
           <button data-href='{"cmd":"showListPartitions","options":[]}' type="button" class="btn btn-secondary" data-phrase="Cancel"></button>
           <button data-href='{"cmd":"savePartition","options":[]}' type="button" class="btn btn-success" data-phrase="Save"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="modalPartitionOutputs" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><span class="material-icons title-icon">volume_up</span> <span data-phrase="Move an output to this partition"></span></h5>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>          
+        </div>
+        <div class="modal-body">
+            <div class="table-responsive-md overflow-auto">
+              <table class="table table-hover table-sm">
+                <thead>
+                  <tr>
+                    <th data-phrase="Output"></th>
+                  </tr>
+                </thead>
+                <tbody id="partitionOutputsList" class="clickable">
+                </tbody>
+              </table>
+            </div>
+        </div>
+        <div class="modal-footer justify-content-between">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Close"></button>
         </div>
       </div>
     </div>

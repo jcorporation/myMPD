@@ -35,14 +35,18 @@ function getServerinfo() {
 
 function parseOutputs(obj) {
     let btns = '';
+    let nr = 0;
     for (let i = 0; i < obj.result.numOutputs; i++) {
-        btns += '<button id="btnOutput' + obj.result.data[i].id +'" data-output-id="' + obj.result.data[i].id + '" class="btn btn-secondary btn-block';
-        if (obj.result.data[i].state === 1) {
-            btns += ' active';
+        if (obj.result.data[i].plugin !== 'dummy') {
+            nr++;
+            btns += '<button id="btnOutput' + obj.result.data[i].id +'" data-output-id="' + obj.result.data[i].id + '" class="btn btn-secondary btn-block';
+            if (obj.result.data[i].state === 1) {
+                btns += ' active';
+            }
+            btns += '"><span class="material-icons float-left">volume_up</span> ' + e(obj.result.data[i].name) + '</button>';
         }
-        btns += '"><span class="material-icons float-left">volume_up</span> ' + e(obj.result.data[i].name) + '</button>';
     }
-    if (obj.result.numOutputs === 0) {
+    if (nr === 0) {
         btns = '<span class="material-icons">error_outline</span> ' + t('No outputs');
     }
     domCache.outputs.innerHTML = btns;
