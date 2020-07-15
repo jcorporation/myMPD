@@ -328,7 +328,13 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
             }
             break;
         case MPD_API_PLAYER_OUTPUT_LIST:
-            response->data = mpd_client_put_outputs(mpd_client_state, response->data, request->method, request->id);
+            je = json_scanf(request->data, sdslen(request->data), "{params: {partition: %Q}}", &p_charbuf1);
+            if (je == 1) {
+                response->data = mpd_client_put_partition_outputs(mpd_client_state, response->data, request->method, request->id, p_charbuf1);
+            }
+            else {
+                response->data = mpd_client_put_outputs(mpd_client_state, response->data, request->method, request->id);
+            }
             break;
         case MPD_API_PLAYER_TOGGLE_OUTPUT:
             je = json_scanf(request->data, sdslen(request->data), "{params: {output: %u, state: %u}}", &uint_buf1, &uint_buf2);
