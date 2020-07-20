@@ -49,13 +49,17 @@ bool mpd_client_jukebox(t_config *config, t_mpd_client_state *mpd_client_state, 
     time_t now = time(NULL);
     time_t add_time = mpd_client_state->crossfade < mpd_client_state->song_end_time ? mpd_client_state->song_end_time - mpd_client_state->crossfade : 0;
     
+    LOG_DEBUG("Queue length: %u", queue_length);
+    LOG_DEBUG("Min queue length: %u", mpd_client_state->jukebox_queue_length);
+    
     if (queue_length >= mpd_client_state->jukebox_queue_length && now < add_time) {
         LOG_DEBUG("Jukebox: Queue length >= %d and add_time not reached", mpd_client_state->jukebox_queue_length);
         return true;
     }
 
     //add song if add_time is reached or queue is empty
-    unsigned long addSongs = mpd_client_state->jukebox_queue_length - queue_length;
+    //addSongs must be signed type
+    long addSongs = mpd_client_state->jukebox_queue_length - queue_length;
     if (now > add_time && add_time > 0) {
         addSongs++;
     }
@@ -63,14 +67,14 @@ bool mpd_client_jukebox(t_config *config, t_mpd_client_state *mpd_client_state, 
     if (addSongs < 1) {
         return true;
     }
+    
+    if (addSongs > INT_MAX) {
+        addSongs = INT_MAX;
+    }
         
     if (mpd_client_state->feat_playlists == false && strcmp(mpd_client_state->jukebox_playlist, "Database") != 0) {
         LOG_WARN("Jukebox: Playlists are disabled");
         return true;
-    }
-    
-    if (addSongs > INT_MAX) {
-        addSongs = INT_MAX;
     }
 
     bool rc = mpd_client_jukebox_add_to_queue(config, mpd_client_state, (int)addSongs, mpd_client_state->jukebox_mode, mpd_client_state->jukebox_playlist, false);
