@@ -92,12 +92,16 @@ sds mpd_client_put_queue_state(struct mpd_status *status, sds buffer) {
 }
 
 sds mpd_client_put_queue(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id,
-                         const unsigned int offset, const t_tags *tagcols)
+                         unsigned int offset, const t_tags *tagcols)
 {
     struct mpd_status *status = mpd_run_status(mpd_client_state->mpd_state->conn);
     if (status == NULL) {
         buffer = check_error_and_recover(mpd_client_state->mpd_state, buffer, method, request_id);
         return buffer;
+    }
+
+    if (offset >= mpd_status_get_queue_length(status)) {
+        offset = 0;
     }
         
     bool rc = mpd_send_list_queue_range_meta(mpd_client_state->mpd_state->conn, offset, offset + mpd_client_state->max_elements_per_page);

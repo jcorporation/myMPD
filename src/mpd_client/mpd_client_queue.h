@@ -9,7 +9,7 @@
 sds mpd_client_get_queue_state(t_mpd_client_state *mpd_client_state, sds buffer);
 sds mpd_client_put_queue_state(struct mpd_status *status, sds buffer);
 sds mpd_client_put_queue(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id,
-                         const unsigned int offset, const t_tags *tagcols);
+                         unsigned int offset, const t_tags *tagcols);
 sds mpd_client_crop_queue(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, bool or_clear);
 sds mpd_client_search_queue(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id,
                             const char *mpdtagtype, const unsigned int offset, 
