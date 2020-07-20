@@ -58,8 +58,8 @@ bool mpd_client_jukebox(t_config *config, t_mpd_client_state *mpd_client_state, 
     }
 
     //add song if add_time is reached or queue is empty
-    //addSongs must be signed type
-    long addSongs = mpd_client_state->jukebox_queue_length - queue_length;
+    unsigned long addSongs = substractUnsigned(mpd_client_state->jukebox_queue_length, queue_length);
+    
     if (now > add_time && add_time > 0) {
         addSongs++;
     }
