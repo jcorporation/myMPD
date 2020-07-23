@@ -9,6 +9,24 @@
 
 #include "../dist/src/rax/rax.h"
 
+enum trigger_events {
+    TRIGGER_START,
+    TRIGGER_CONNECTED,
+    TRIGGER_PLAYER,
+    TRIGGER_OUTPUT,
+    TRIGGER_OPTIONS,
+    TRIGGER_MIXER,
+    TRIGGER_QUEUE,
+    TRIGGER_PLAYLISTS,
+    TRIGGER_SCROBBLE,
+    TRIGGER_DATABASE,
+    TRIGGER_PARTITION,
+    TRIGGER_MOUNT,
+    TRIGGER_NEIGHBOR,
+    TRIGGER_MESSAGE,
+    TRIGGER_SUBSCRIPTION
+};
+
 typedef struct t_mpd_client_state {
     // States
     int song_id;
@@ -81,6 +99,8 @@ typedef struct t_mpd_client_state {
     bool sticker_cache_building;
     //mpd state
     struct t_mpd_state *mpd_state;
+    //triggers
+    struct list triggers;
 } t_mpd_client_state;
 
 void json_to_tags(const char *str, int len, void *user_data);

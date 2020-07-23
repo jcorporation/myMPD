@@ -133,6 +133,8 @@ void default_mpd_client_state(t_mpd_client_state *mpd_client_state) {
     //mpd state
     mpd_client_state->mpd_state = (t_mpd_state *)malloc(sizeof(t_mpd_state));
     mpd_shared_default_mpd_state(mpd_client_state->mpd_state);
+    //init triggers;
+    list_init(&mpd_client_state->triggers);
 }
 
 void free_mpd_client_state(t_mpd_client_state *mpd_client_state) {
@@ -153,6 +155,7 @@ void free_mpd_client_state(t_mpd_client_state *mpd_client_state) {
     list_free(&mpd_client_state->jukebox_queue);
     list_free(&mpd_client_state->jukebox_queue_tmp);
     list_free(&mpd_client_state->sticker_queue);
+    list_free(&mpd_client_state->triggers);
     //mpd state
     mpd_shared_free_mpd_state(mpd_client_state->mpd_state);
     free(mpd_client_state);

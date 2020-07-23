@@ -42,6 +42,7 @@
 #include "mpd_client_timer.h"
 #include "mpd_client_mounts.h"
 #include "mpd_client_partitions.h"
+#include "mpd_client_trigger.h"
 #include "mpd_client_api.h"
 
 void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void *arg_request) {
@@ -65,6 +66,54 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
     t_work_result *response = create_result(request);
     
     switch(request->cmd_id) {
+        case MPD_API_TRIGGER_LIST:
+            response->data = trigger_list(mpd_client_state, response->data, request->method, request->id);
+            break;
+        case MPD_API_TRIGGER_SAVE:
+            je = json_scanf(request->data, sdslen(request->data), "{params: {id: %d, name: %Q, event: %u, script: %Q}}", 
+                &int_buf1, &p_charbuf1, &uint_buf1, &p_charbuf2);
+            if (je == 4 && validate_string_not_empty(p_charbuf2) == true) {
+                struct list *arguments = (struct list *) malloc(sizeof(struct list));
+                assert(arguments);
+                list_init(arguments);
+                void *h = NULL;
+                struct json_token key;
+                struct json_token val;
+                while ((h = json_next_key(request->data, sdslen(request->data), h, ".params.arguments", &key, &val)) != NULL) {
+                    list_push_len(arguments, key.ptr, key.len, 0, val.ptr, val.len, NULL);
+                }
+                //add new entry
+                rc = list_push(&mpd_client_state->triggers, p_charbuf1, uint_buf1, p_charbuf2, arguments);
+                if (rc == true) {
+                    if (int_buf1 >= 0) {
+                        //delete old entry
+                        rc = delete_trigger(mpd_client_state, uint_buf1);
+                    }
+                    if (rc == true) {
+                        response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+                    }
+                    else {
+                        response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Can't save trigger", true);
+                    }
+                }
+                else {
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Can't save trigger", true);
+                }
+            }
+            else {
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Invalid scriptname", true);
+            }
+            break;
+        case MPD_API_TRIGGER_DELETE:
+            je = json_scanf(request->data, sdslen(request->data), "{params: {id: %u}}", &uint_buf1);
+            rc = delete_trigger(mpd_client_state, uint_buf1);
+            if (rc == true) {
+                response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+            }
+            else {
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Could not delete trigger", true);
+            }
+            break;
         #ifdef ENABLE_LUA
         case MPD_API_SCRIPT_INIT:
             if (config->scripting == true) {

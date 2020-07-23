@@ -204,6 +204,7 @@ set(SOURCES
   src/mpd_client/mpd_client_timer.c
   src/mpd_client/mpd_client_mounts.c
   src/mpd_client/mpd_client_partitions.c
+  src/mpd_client/mpd_client_trigger.c
   src/mpd_worker.c
   src/mpd_worker/mpd_worker_api.c
   src/mpd_worker/mpd_worker_utility.c

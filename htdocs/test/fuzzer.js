@@ -97,7 +97,13 @@ function defineCmds() {
         {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SCRIPT_POST_EXECUTE","params":{"script":string1,"arguments":{string2:string3}}},
         {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SCRIPT_LIST","params":{"all":bool0}},
         {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SCRIPT_GET","params":{"script":string1}},
-        {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SCRIPT_DELETE","params":{"script":string1}}
+        {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SCRIPT_DELETE","params":{"script":string1}},
+        {"jsonrpc":"2.0","id":0,"method":"MPD_API_PARTITION_NEW","params":{"name":string1}},
+        {"jsonrpc":"2.0","id":0,"method":"MPD_API_PARTITION_SWITCH","params":{"name":string1}},
+        {"jsonrpc":"2.0","id":0,"method":"MPD_API_PARTITION_RM","params":{"name":string1}},
+        {"jsonrpc":"2.0","id":0,"method":"MPD_API_PARTITION_OUTPUT_MOVE","params":{"name":string1}},
+        {"jsonrpc":"2.0","id":0,"method":"MPD_API_TRIGGER_SAVE","params":{"id":int0,"name":string1,"event":int1,"script":string2}},
+        {"jsonrpc":"2.0","id":0,"method":"MPD_API_TRIGGER_DELETE","params":{"id":int0}}
     ];
 }
 
