@@ -17,6 +17,7 @@ myMPD is a fork of [ympd](https://github.com/notandy/ympd).
 - Control mpd functions (play, pause, etc.)
 - Set mpd options (repeat, random, etc.)
 - MPD mount and neighbors support
+- MPD partition support
 - Browse mpd database by tags
 - Albumart grid
 - Browse filesystem
@@ -31,7 +32,7 @@ myMPD is a fork of [ympd](https://github.com/notandy/ympd).
 - Local booklet support (per album folder)
 - HTTP stream support
 - Local playback of mpd http stream (html5 audio api)
-- Timers
+- Timers and Triggers
 - [System commands](https://github.com/jcorporation/myMPD/wiki/System-Commands)
 - [Lua scripting](https://github.com/jcorporation/myMPD/wiki/Scripting)
 - Scrobbler integration
