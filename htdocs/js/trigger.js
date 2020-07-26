@@ -15,11 +15,18 @@ function saveTrigger() {
     }
     
     if (formOK === true) {
+        let args = {};
+        let argEls = document.getElementById('triggerActionScriptArguments').getElementsByTagName('input');
+        for (let i = 0; i < argEls.length; i ++) {
+            args[argEls[i].getAttribute('data-name')] = argEls[i].value;
+        }
+
         sendAPI("MPD_API_TRIGGER_SAVE", {
             "id": parseInt(document.getElementById('inputTriggerId').value),
             "name": nameEl.value,
             "event": getSelectValue('selectTriggerEvent'),
-            "script": getSelectValue('selectTriggerScript')
+            "script": getSelectValue('selectTriggerScript'),
+            "arguments": args
             }, showListTrigger, false);
     }
 }
@@ -41,6 +48,9 @@ function showEditTrigger(id) {
     if (id > -1) {
         sendAPI("MPD_API_TRIGGER_GET", {"id": id}, parseTriggerEdit, false);
     }
+    else {
+        selectTriggerActionChange();
+    }
 }
 
 function parseTriggerEdit(obj) {
@@ -48,6 +58,34 @@ function parseTriggerEdit(obj) {
     document.getElementById('inputTriggerName').value = obj.result.name;
     document.getElementById('selectTriggerEvent').value = obj.result.event;
     document.getElementById('selectTriggerScript').value = obj.result.script;
+    selectTriggerActionChange(obj.result.arguments);
+}
+
+function selectTriggerActionChange(values) {
+    let el = document.getElementById('selectTriggerScript');
+    showTriggerScriptArgs(el.options[el.selectedIndex], values);
+}
+
+function showTriggerScriptArgs(option, values) {
+    if (values === undefined) {
+        values = {};
+    }
+    let args = JSON.parse(option.getAttribute('data-arguments'));
+    let list = '';
+    for (let i = 0; i < args.arguments.length; i++) {
+        list += '<div class="form-group row">' +
+                  '<label class="col-sm-4 col-form-label" for="triggerActionScriptArguments' + i + '">' + e(args.arguments[i]) + '</label>' +
+                  '<div class="col-sm-8">' +
+                    '<input name="triggerActionScriptArguments' + i + '" class="form-control border-secondary" type="text" value="' +
+                    (values[args.arguments[i]] ? e(values[args.arguments[i]]) : '') + '"' +
+                    'data-name="' + args.arguments[i] + '">' +
+                  '</div>' +
+                '</div>';
+    }
+    if (args.arguments.length == '') {
+        list = 'No arguments';
+    }
+    document.getElementById('triggerActionScriptArguments').innerHTML = list;
 }
 
 function showListTrigger() {

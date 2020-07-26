@@ -638,6 +638,10 @@ function appInit() {
         selectTimerActionChange();
     }, false);
     
+    document.getElementById('selectTriggerScript').addEventListener('change', function() {
+        selectTriggerActionChange();
+    }, false);
+    
     let selectTimerHour = ''; 
     for (let i = 0; i < 24; i++) {
         selectTimerHour += '<option value="' + i + '">' + zeroPad(i, 2) + '</option>';
@@ -923,12 +927,13 @@ function appInit() {
     document.getElementById('listTriggerList').addEventListener('click', function(event) {
         event.stopPropagation();
         event.preventDefault();
-        let id = decodeURI(event.target.parentNode.getAttribute('data-trigger-id'));
         if (event.target.nodeName === 'TD') {
+            let id = decodeURI(event.target.parentNode.getAttribute('data-trigger-id'));
             showEditTrigger(id);
         }
         else if (event.target.nodeName === 'A') {
             let action = event.target.getAttribute('data-action');
+            let id = decodeURI(event.target.parentNode.parentNode.getAttribute('data-trigger-id'));
             if (action === 'delete') {
                 deleteTrigger(id);
             }
