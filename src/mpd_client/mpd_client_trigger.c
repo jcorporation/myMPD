@@ -84,6 +84,20 @@ const char *trigger_name(int event) {
     }
 }
 
+sds print_trigger_list(sds buffer) {
+    for (int i = 0; mympd_trigger_names[i] != NULL; ++i) {
+        buffer = tojson_long(buffer, mympd_trigger_names[i], (-1 -i), true);
+    }
+
+    for (int i = 0; mpd_trigger_names[i] != NULL; ++i) {
+        if (i > 0) {
+            buffer = sdscatlen(buffer, ",", 1);
+        }
+        buffer = tojson_long(buffer, mpd_trigger_names[i], (int)(1 << i), false);
+    }
+    return buffer;
+}
+
 void trigger_execute(t_mpd_client_state *mpd_client_state, enum trigger_events event) {
     LOG_DEBUG("Trigger event: %s (%d)", trigger_name(event), event);
     struct list_node *current = mpd_client_state->triggers.head;
