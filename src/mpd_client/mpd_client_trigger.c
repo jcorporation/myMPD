@@ -124,8 +124,9 @@ sds trigger_list(t_mpd_client_state *mpd_client_state, sds buffer, sds method, l
         buffer = tojson_long(buffer, "id", j, true);
         buffer = tojson_char(buffer, "name", current->key, true);
         buffer = tojson_long(buffer, "event", current->value_i, true);
+        buffer = tojson_char(buffer, "eventName", trigger_name(current->value_i), true);
         buffer = tojson_char(buffer, "script", current->value_p, true);
-        buffer = sdscat(buffer, "arguments: {");
+        buffer = sdscat(buffer, "\"arguments\": {");
         struct list *arguments = (struct list *)current->user_data;
         struct list_node *argument = arguments->head;
         int i = 0;
@@ -144,6 +145,36 @@ sds trigger_list(t_mpd_client_state *mpd_client_state, sds buffer, sds method, l
     buffer = sdscat(buffer, "],");
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, false);
     buffer = jsonrpc_end_result(buffer);
+    return buffer;
+}
+
+sds trigger_get(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, int id) {
+    struct list_node *current = list_node_at(&mpd_client_state->triggers, id);
+    if (current != NULL) {
+        buffer = jsonrpc_start_result(buffer, method, request_id);
+        buffer = sdscatlen(buffer, ",", 1);
+        buffer = tojson_long(buffer, "id", id, true);
+        buffer = tojson_char(buffer, "name", current->key, true);
+        buffer = tojson_long(buffer, "event", current->value_i, true);
+        buffer = tojson_char(buffer, "script", current->value_p, true);
+        buffer = sdscat(buffer, "\"arguments\": {");
+        struct list *arguments = (struct list *)current->user_data;
+        struct list_node *argument = arguments->head;
+        int i = 0;
+        while (argument != NULL) {
+            if (i++) {
+                buffer = sdscatlen(buffer, ",", 1);
+            }
+            buffer = tojson_char(buffer, argument->key, argument->value_p, false);
+            argument = argument->next;
+        }
+        buffer = sdscatlen(buffer, "}", 1);
+        buffer = jsonrpc_end_result(buffer);
+    }
+    else {
+        buffer = jsonrpc_respond_message(buffer, method, request_id, "Trigger not found", false);
+    }
+    
     return buffer;
 }
 

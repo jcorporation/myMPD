@@ -163,6 +163,8 @@ function parseScriptList(obj) {
         document.getElementById('navScripting').classList.add('hide');
         document.getElementById('scripts').classList.remove('collapse', 'menu-indent');
     }
+
+    document.getElementById('selectTriggerScript').innerHTML = timerActions.innerHTML;
     
     let old = document.getElementById('selectTimerAction').querySelector('optgroup[data-value="script"]');
     if (old) {

@@ -517,6 +517,12 @@ function parseMPDSettings() {
     else {
         clearBackgroundImage();
     }
+
+    let triggerEventList = '';
+    Object.keys(settings.triggers).forEach(function(key) {
+        triggerEventList += '<option value=\"' + e(settings.triggers[key]) + '\">' + t(key) + '</option>';
+    });
+    document.getElementById('selectTriggerEvent').innerHTML = triggerEventList;
     
     settings.tags.sort();
     settings.searchtags.sort();

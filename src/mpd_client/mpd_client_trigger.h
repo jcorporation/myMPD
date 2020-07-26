@@ -7,6 +7,7 @@
 #ifndef MPD_CLIENT_TRIGGER_H
 #define MPD_CLIENT_TRIGGER_H
 sds trigger_list(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id);
+sds trigger_get(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, int id);
 bool triggerfile_read(t_config *config, t_mpd_client_state *mpd_client_state);
 bool triggerfile_save(t_config *config, t_mpd_client_state *mpd_client_state);
 void free_trigerlist_arguments(t_mpd_client_state *mpd_client_state);

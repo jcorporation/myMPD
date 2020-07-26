@@ -69,9 +69,15 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
         case MPD_API_TRIGGER_LIST:
             response->data = trigger_list(mpd_client_state, response->data, request->method, request->id);
             break;
+        case MPD_API_TRIGGER_GET:
+            je = json_scanf(request->data, sdslen(request->data), "{params: {id: %d}}", &int_buf1);
+            if (je == 1) {
+                response->data = trigger_get(mpd_client_state, response->data, request->method, request->id, int_buf1);
+            }
+            break;
         case MPD_API_TRIGGER_SAVE:
-            je = json_scanf(request->data, sdslen(request->data), "{params: {id: %d, name: %Q, event: %u, script: %Q}}", 
-                &int_buf1, &p_charbuf1, &uint_buf1, &p_charbuf2);
+            je = json_scanf(request->data, sdslen(request->data), "{params: {id: %d, name: %Q, event: %d, script: %Q}}", 
+                &int_buf1, &p_charbuf1, &int_buf2, &p_charbuf2);
             if (je == 4 && validate_string_not_empty(p_charbuf2) == true) {
                 struct list *arguments = (struct list *) malloc(sizeof(struct list));
                 assert(arguments);
@@ -83,35 +89,37 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
                     list_push_len(arguments, key.ptr, key.len, 0, val.ptr, val.len, NULL);
                 }
                 //add new entry
-                rc = list_push(&mpd_client_state->triggers, p_charbuf1, uint_buf1, p_charbuf2, arguments);
+                rc = list_push(&mpd_client_state->triggers, p_charbuf1, int_buf2, p_charbuf2, arguments);
                 if (rc == true) {
                     if (int_buf1 >= 0) {
                         //delete old entry
-                        rc = delete_trigger(mpd_client_state, uint_buf1);
+                        rc = delete_trigger(mpd_client_state, int_buf1);
                     }
                     if (rc == true) {
                         response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
                     }
                     else {
-                        response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Can't save trigger", true);
+                        response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Could not save trigger", true);
                     }
                 }
                 else {
-                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Can't save trigger", true);
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Could not save trigger", true);
                 }
             }
             else {
-                response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Invalid scriptname", true);
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Invalid trigger name", true);
             }
             break;
         case MPD_API_TRIGGER_DELETE:
             je = json_scanf(request->data, sdslen(request->data), "{params: {id: %u}}", &uint_buf1);
-            rc = delete_trigger(mpd_client_state, uint_buf1);
-            if (rc == true) {
-                response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
-            }
-            else {
-                response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Could not delete trigger", true);
+            if (je == 1) {
+                rc = delete_trigger(mpd_client_state, uint_buf1);
+                if (rc == true) {
+                    response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+                }
+                else {
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Could not delete trigger", true);
+                }
             }
             break;
         #ifdef ENABLE_LUA

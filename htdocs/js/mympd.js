@@ -111,6 +111,7 @@ var modalExecScript = new BSN.Modal(document.getElementById('modalExecScript'));
 var modalScripts = new BSN.Modal(document.getElementById('modalScripts'));
 var modalPartitions = new BSN.Modal(document.getElementById('modalPartitions'));
 var modalPartitionOutputs = new BSN.Modal(document.getElementById('modalPartitionOutputs'));
+var modalTrigger = new BSN.Modal(document.getElementById('modalTrigger'));
 
 var dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
 var dropdownVolumeMenu = new BSN.Dropdown(document.getElementById('volumeMenu'));
@@ -594,6 +595,10 @@ function appInit() {
         showListScripts();
     });
     
+    document.getElementById('modalTrigger').addEventListener('shown.bs.modal', function () {
+        showListTrigger();
+    });
+    
     document.getElementById('modalPartitions').addEventListener('shown.bs.modal', function () {
         showListPartitions();
     });
@@ -911,6 +916,21 @@ function appInit() {
             }
             else if (action === 'execute') {
                 execScript(event.target.getAttribute('data-href'));
+            }
+        }
+    }, false);
+    
+    document.getElementById('listTriggerList').addEventListener('click', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        let id = decodeURI(event.target.parentNode.getAttribute('data-trigger-id'));
+        if (event.target.nodeName === 'TD') {
+            showEditTrigger(id);
+        }
+        else if (event.target.nodeName === 'A') {
+            let action = event.target.getAttribute('data-action');
+            if (action === 'delete') {
+                deleteTrigger(id);
             }
         }
     }, false);
