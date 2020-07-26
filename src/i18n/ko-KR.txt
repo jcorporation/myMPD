@@ -1377,7 +1377,7 @@ Error executing script %{script}: Error while running the message handler
 Error executing script %{script}
 스크립트 %{script} 실행 오류
 
-Invalid scriptname
+Invalid script name
 잘못된 스크립트 이름
 
 No mpd state for script execution submitted
@@ -1440,7 +1440,7 @@ Scale ratio
 Script arguments
 스크립트 변수
 
-Scriptname
+Script name
 스크립트 이름
 
 Sort order of the script, 0 disables listing in main menu

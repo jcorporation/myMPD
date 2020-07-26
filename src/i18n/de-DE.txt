@@ -1377,7 +1377,7 @@ Fehler beim Ausführen des Skripts %{script}: Fehler bei der Ausführung des Mes
 Error executing script %{script}
 Fehler beim Ausführen des Skripts %{script}
 
-Invalid scriptname
+Invalid script name
 Ungültiger Skriptname
 
 No mpd state for script execution submitted
@@ -1440,7 +1440,7 @@ Skalierungswert
 Script arguments
 Skriptparameter
 
-Scriptname
+Script name
 Skriptname
 
 Sort order of the script, 0 disables listing in main menu
@@ -1454,3 +1454,60 @@ Vollbild
 
 Open fullscreen
 Öffnet den Vollbildmodus
+
+Could not save trigger
+Konnte Trigger nicht speichern
+
+Could not delete trigger
+Konnte Trigger nicht löschen
+
+Current partition
+Momentane Partition
+
+Event
+Ereignis
+
+Invalid partition name
+Ungültiger Partition Name
+
+Invalid trigger name
+Ungültiger Trigger Name
+
+Move an output to this partition
+Verschiebe ein Ausgabegerät zu dieser Partition
+
+New partition
+Neue Partition
+
+New trigger
+Neuer Trigger
+
+No outputs
+Keine Ausgabegeräte
+
+Output
+Ausgabegerät
+
+Partition
+Partition
+
+Partition name
+Partition Name
+
+Partitions
+Partitionen
+
+Switch to
+Wechsle zu
+
+Trigger
+Trigger
+
+Trigger name
+Trigger Name
+
+Trigger not found
+Trigger nicht gefunden
+
+current
+aktive
