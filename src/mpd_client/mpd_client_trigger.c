@@ -37,11 +37,59 @@
 //private definitions
 void _trigger_execute(const char *script, struct list *arguments);
 
+static const char *const mpd_trigger_names[] = {
+    "mpd_database",
+    "mpd_stored_playlist",
+    "mpd_playlist",
+    "mpd_player",
+    "mpd_mixer",
+    "mpd_output",
+    "mpd_options",
+    "mpd_update",
+    "mpd_sticker",
+    "mpd_subscription",
+    "mpd_message",
+    "mpd_partition",
+    "mpd_neighbor",
+    "mpd_mount",
+    NULL
+};
+
+static const char *const mympd_trigger_names[] = {
+    "mympd_scrobble",
+    "mympd_start",
+    "mympd_stop",
+    "mympd_connected",
+    "mympd_disconnected",
+    NULL
+};
+
 //public functions
+const char *trigger_name(int event) {
+    if (event < 0) {
+        for (int i = 0; mympd_trigger_names[i] != NULL; ++i) {
+            if (event == (-1 - i)) {
+                return mympd_trigger_names[i];
+            }
+        }
+        return NULL;
+    }
+    else {
+        for (int i = 0; mpd_trigger_names[i] != NULL; ++i) {
+            if (event == (int)(1 << i)) {
+                return mpd_trigger_names[i];
+            }
+        }
+        return NULL;
+    }
+}
+
 void trigger_execute(t_mpd_client_state *mpd_client_state, enum trigger_events event) {
+    LOG_DEBUG("Trigger event: %s (%d)", trigger_name(event), event);
     struct list_node *current = mpd_client_state->triggers.head;
     while (current != NULL) {
         if (current->value_i == event) {
+            LOG_INFO("Executing script %s for trigger %s (%d)", current->value_p, trigger_name(event), event);
             _trigger_execute(current->value_p, (struct list *)current->user_data);
         }
         current = current->next;

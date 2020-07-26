@@ -27,6 +27,7 @@
 
 //private defintions
 static sds print_tags_array(sds buffer, const char *tagsname, t_tags tags);
+static sds print_triggerlist(sds buffer);
 
 //public functions
 bool mpd_api_settings_set(t_config *config, t_mpd_client_state *mpd_client_state, struct json_token *key, 
@@ -301,13 +302,21 @@ sds mpd_client_put_settings(t_mpd_client_state *mpd_client_state, sds buffer, sd
     buffer = print_tags_array(buffer, "allmpdtags", mpd_client_state->mpd_state->mpd_tag_types);
     buffer = sdscat(buffer, ",");
     buffer = print_tags_array(buffer, "generatePlsTags", mpd_client_state->generate_pls_tag_types);
-
+    
+    buffer = sdscat(buffer, ",\"triggers\":{");
+    buffer = print_triggerlist(buffer);
+    buffer = sdscat(buffer, "}");
+    
     buffer = jsonrpc_end_result(buffer);
     
     return buffer;
 }
 
 //private functions
+static sds print_triggerlist(sds buffer) {
+    return buffer;
+}
+
 static sds print_tags_array(sds buffer, const char *tagsname, t_tags tags) {
     buffer = sdscatfmt(buffer, "\"%s\": [", tagsname);
     for (size_t i = 0; i < tags.len; i++) {
