@@ -100,6 +100,7 @@ var cmds = [
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_PARTITION_RM","params":{"name":""}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_PARTITION_OUTPUT_MOVE","params":{"name":""}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_TRIGGER_LIST","params":{}},
+    {"jsonrpc":"2.0","id":0,"method":"MPD_API_TRIGGER_GET","params":{"id":0}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_TRIGGER_SAVE","params":{"id":0,"name":"","event":0,"script":""}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_TRIGGER_DELETE","params":{"id":0}}
 ];
