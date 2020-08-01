@@ -1325,3 +1325,129 @@ Neighbor-plugin uitgeschakeld
 
 Error in response to command: %{command}
 Uitvoerfout in: %{command}
+
+Arguments
+Parameters
+
+Can not open scriptfile
+Kan script niet openen
+
+Can't create mympd_script thread
+Kan Mympd_script Thread niet maken
+
+Could not delete script
+Kan script niet verwijderen
+
+Could not save script
+Kan script niet opslaan
+
+Editing scripts is disabled
+Bewerken scripts is uitgeschakeld
+
+Error executing script %{script}
+Fout bij uitvoeren script %{script}
+
+Error executing script %{script}: Can not open or read script file
+Fout bij uitvoeren script %{script}: Kan script niet openen of lezen
+
+Error executing script %{script}: Error in garbage collector
+Fout bij uitvoeren script %{script}: Fout in garbage collector
+
+Error executing script %{script}: Error while running the message handler
+Fout bij uitvoeren script %{script}: Fout tijdens uitvoeren van message handler
+
+Error executing script %{script}: Memory allocation error
+Fout bij uitvoeren script %{script}: Geheugentoewijzingsfout
+
+Error executing script %{script}: Runtime error
+Fout bij uitvoeren script %{script}: Runtime-fout
+
+Error executing script %{script}: Syntax error during precompilation
+Fout bij uitvoeren script %{script}: syntaxisfout tijdens precompilatie
+
+Execute
+Uitvoeren
+
+Execute script
+Voer script uit
+
+Filling jukebox queue failed, disabling jukebox
+Vullen van de jukebox-wachtrij mislukt, jukebox wordt uitgeschakeld
+
+Force smart playlist update
+Forceer update smart playlist
+
+Force update
+Forceer update
+
+Fullscreen
+Schermvullend
+
+Invalid scale ratio
+Ongeldige schaalverhouding
+
+Invalid script API request
+Ongeldige script-API-verzoek
+
+Invalid script argument
+Ongeldige scriptparameter
+
+Invalid script order
+Ongeldige scriptvolgorde
+
+Invalid scriptname
+Ongeldige scriptnaam
+
+New script
+Nieuw script
+
+No action selected
+Geen actie geselecteerd
+
+No mpd state for script execution submitted
+Geen mpd-status voor uitvoering script gegeven
+
+No search tag defined and advanced search is disabled
+Geen zoektag gedefinieerd en geavanceerd zoeken is uitgeschakeld
+
+Open fullscreen
+Open schermvullend
+
+Playlist to small, disabling jukebox unique constraints temporarily
+Afspeellijst te klein, jukebox-voorwaarden worden tijdelijk uitgeschakeld
+
+Remote scripting is disabled
+Scripten op afstand uitgeschakeld
+
+Scale ratio
+Schaalverhouding
+
+Script
+Script
+
+Script %{script} executed successfully
+Script %{script} succesvol uitgevoerd
+
+Script arguments
+Scriptparameters
+
+Scripting is disabled
+Scripten is uitgeschakeld
+
+Scriptname
+Scriptnaam
+
+Scripts
+Scripts
+
+Smart playlists are disabled
+Smart playlists uitgeschakeld
+
+Smart playlists update started
+Smart playlists wordt geupdatet
+
+Sort order of the script, 0 disables listing in main menu
+Sorteervolgorde van het script, 0 schakelt lijst in hoofdmenu uit
+
+Sticker cache is NULL
+Sticker cache is leeg
