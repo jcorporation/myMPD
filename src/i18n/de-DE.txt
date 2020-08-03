@@ -1511,3 +1511,24 @@ Trigger nicht gefunden
 
 current
 aktive
+
+Edit attributes
+Eigenschaften editieren
+
+Output attributes
+Ausgabeeigenschaften
+
+Plugin
+Plugin
+
+Show attributes
+Eigenschaften anzeigen
+
+State
+Status
+
+disabled
+deaktiviert
+
+enabled
+aktiviert
