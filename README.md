@@ -18,13 +18,14 @@ myMPD is a fork of [ympd](https://github.com/notandy/ympd).
 - Set mpd options (repeat, random, etc.)
 - MPD mount and neighbors support
 - MPD partition support
+- MPD output attributes
 - Browse mpd database by tags
 - Albumart grid
 - Browse filesystem
 - Queue management
 - Playlist management
 - Advanced search
-- Jukebox mode (add's random songs to queue)
+- Jukebox mode
 - [Smart playlists and saved searches](https://github.com/jcorporation/myMPD/wiki/Smart-playlists)
 - Play statistics and song voting
 - [Local albumart support: embedded and image per folder](https://github.com/jcorporation/myMPD/wiki/Albumart)
