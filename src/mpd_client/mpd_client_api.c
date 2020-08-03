@@ -147,6 +147,25 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
             }
             break;
         #endif
+        case MPD_API_PLAYER_OUTPUT_ATTRIBUTS_SET:
+            je = json_scanf(request->data, sdslen(request->data), "{params: {outputId: %u}}", &uint_buf1);
+            if (je == 1) {
+                void *h = NULL;
+                struct json_token key;
+                struct json_token val;
+                while ((h = json_next_key(request->data, sdslen(request->data), h, ".params.attributes", &key, &val)) != NULL) {
+                    sds attribute = sdsnewlen(key.ptr, key.len);
+                    sds value = sdsnewlen(val.ptr, val.len);
+                    rc = mpd_run_output_set(mpd_client_state->mpd_state->conn, uint_buf1, attribute, value);
+                    sdsfree(attribute);
+                    sdsfree(value);
+                    response->data = respond_with_mpd_error_or_ok(mpd_client_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_output_set");
+                    if (rc == false) {
+                        break;
+                    }
+                }
+            }
+            break;
         case MPD_API_STICKERCACHE_CREATED:
             sticker_cache_free(&mpd_client_state->sticker_cache);
             if (request->extra != NULL) {

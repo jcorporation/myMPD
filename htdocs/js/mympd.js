@@ -112,6 +112,7 @@ var modalScripts = new BSN.Modal(document.getElementById('modalScripts'));
 var modalPartitions = new BSN.Modal(document.getElementById('modalPartitions'));
 var modalPartitionOutputs = new BSN.Modal(document.getElementById('modalPartitionOutputs'));
 var modalTrigger = new BSN.Modal(document.getElementById('modalTrigger'));
+var modalOutputAttributes = new BSN.Modal(document.getElementById('modalOutputAttributes'));
 
 var dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
 var dropdownVolumeMenu = new BSN.Dropdown(document.getElementById('volumeMenu'));
@@ -864,6 +865,10 @@ function appInit() {
             sendAPI("MPD_API_PLAYER_TOGGLE_OUTPUT", {"output": event.target.getAttribute('data-output-id'), "state": (event.target.classList.contains('active') ? 0 : 1)});
             toggleBtn(event.target.id);
         }
+        else if (event.target.nodeName === 'A') {
+            event.preventDefault();
+            showListOutputAttributes(decodeURI(event.target.parentNode.getAttribute('data-output-name')));
+        }
     }, false);
     
     document.getElementById('listTimerList').addEventListener('click', function(event) {
@@ -1335,7 +1340,7 @@ function appInit() {
 
     let selectThemeHtml = '';
     Object.keys(themes).forEach(function(key) {
-        selectThemeHtml += '<option value="' + key + '">' + t(themes[key]) + '</option>';
+        selectThemeHtml += '<option value="' + e(key) + '">' + t(themes[key]) + '</option>';
     });
     document.getElementById('selectTheme').innerHTML = selectThemeHtml;
 

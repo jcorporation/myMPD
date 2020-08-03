@@ -39,17 +39,58 @@ function parseOutputs(obj) {
     for (let i = 0; i < obj.result.numOutputs; i++) {
         if (obj.result.data[i].plugin !== 'dummy') {
             nr++;
-            btns += '<button id="btnOutput' + obj.result.data[i].id +'" data-output-id="' + obj.result.data[i].id + '" class="btn btn-secondary btn-block';
+            btns += '<button id="btnOutput' + obj.result.data[i].id +'" data-output-name="' + encodeURI(obj.result.data[i].name) + '" data-output-id="' + obj.result.data[i].id + '" class="btn btn-secondary btn-block';
             if (obj.result.data[i].state === 1) {
                 btns += ' active';
             }
-            btns += '"><span class="material-icons float-left">volume_up</span> ' + e(obj.result.data[i].name) + '</button>';
+            btns += '"><span class="material-icons float-left">volume_up</span> ' + e(obj.result.data[i].name);
+            if (Object.keys(obj.result.data[i].attributes).length > 0) {
+                btns += '<a class="material-icons float-right" title="' + t('Edit attributes') + '">settings</a>';
+            }
+            else {
+                btns += '<a class="material-icons float-right" title="' + t('Show attributes') + '">settings</a>';
+            }
+            btns += '</button>';
         }
     }
     if (nr === 0) {
         btns = '<span class="material-icons">error_outline</span> ' + t('No outputs');
     }
     domCache.outputs.innerHTML = btns;
+}
+
+function showListOutputAttributes(outputName) {
+    sendAPI("MPD_API_PLAYER_OUTPUT_LIST", {}, function(obj) {
+        modalOutputAttributes.show();
+        let output;
+        for (let i = 0; i < obj.result.data.length; i++) {
+            if (obj.result.data[i].name === outputName) {
+                output = obj.result.data[i];
+                break;
+            }
+        }
+        document.getElementById('modalOutputAttributesId').value = e(output.id);        
+        let list = '<tr><td>' + t('Name') + '</td><td>' + e(output.name) + '</td></tr>' +
+            '<tr><td>' + t('State') + '</td><td>' + (output.state === 1 ? t('enabled') : t('disabled')) + '</td></tr>' +
+            '<tr><td>' + t('Plugin') + '</td><td>' + e(output.plugin) + '</td></tr>';
+        Object.keys(output.attributes).forEach(function(key) {
+            list += '<tr><td>' + e(key) + '</td><td><input name="' + e(key) + '" class="form-control border-secondary" type="text" value="' + 
+                e(output.attributes[key]) + '"/></td></tr>';
+        });
+        document.getElementById('outputAttributesList').innerHTML = list;
+    });
+}
+
+function saveOutputAttributes() {
+    let params = {};
+    params.outputId =  parseInt(document.getElementById('modalOutputAttributesId').value);
+    params.attributes = {};
+    let el = document.getElementById('outputAttributesList').getElementsByTagName('input');
+    for (let i = 0; i < el.length; i++) {
+        params.attributes[el[i].name] = el[i].value;
+    }
+    sendAPI('MPD_API_PLAYER_OUTPUT_ATTRIBUTS_SET', params);
+    modalOutputAttributes.hide();
 }
 
 function setCounter(currentSongId, totalTime, elapsedTime) {

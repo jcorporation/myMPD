@@ -80,9 +80,9 @@ var cmds = [
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SYSCMD","params":{"cmd": ""}},
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_BOOKMARK_RM","params":{"id":0}},
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_BOOKMARK_LIST","params":{"offset":0}},
-    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_BOOKMARK_SAVE","params":{"id": 0, "name":"", "uri":"", "type":""}},
+    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_BOOKMARK_SAVE","params":{"id":0,"name":"","uri":"","type":""}},
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_BOOKMARK_CLEAR"},
-    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_TIMER_SAVE","params":{"timerid": 0, "name": "", "enabled": false, "startHour": 0, "startMinute": 0, "action": "", "subaction": "", "volume": 0, "playlist": "", "jukeboxMode": 0, "weekdays":[false,false,false,false,false,false,false], "arguments":{"arg1": ""}}},
+    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_TIMER_SAVE","params":{"timerid":0,"name":"","enabled":false,"startHour":0,"startMinute":0,"action":"","subaction":"","volume":0,"playlist":"","jukeboxMode":0,"weekdays":[false,false,false,false,false,false,false],"arguments":{"arg1":""}}},
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_TIMER_LIST"},
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_TIMER_GET","params":{"timerid":0}},
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_TIMER_RM","params":{"timerid":0}},
@@ -102,5 +102,6 @@ var cmds = [
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_TRIGGER_LIST","params":{}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_TRIGGER_GET","params":{"id":0}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_TRIGGER_SAVE","params":{"id":0,"name":"","event":0,"script":""}},
-    {"jsonrpc":"2.0","id":0,"method":"MPD_API_TRIGGER_DELETE","params":{"id":0}}
+    {"jsonrpc":"2.0","id":0,"method":"MPD_API_TRIGGER_DELETE","params":{"id":0}},
+    {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYER_OUTPUT_ATTRIBUTS_SET","params":{"outputId":0,"attributes":{"allowed_formats":""}}}
 ];

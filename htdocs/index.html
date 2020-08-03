@@ -2151,6 +2151,32 @@
       </div>
     </div>
   </div>
+  
+  <div class="modal fade" id="modalOutputAttributes" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><span class="material-icons title-icon">volume_up</span> <span data-phrase="Output attributes"></span></h5>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>          
+        </div>
+        <div class="modal-body">
+          <form>
+            <input type="hidden" id="modalOutputAttributesId"/>
+            <div class="table-responsive-md overflow-auto">
+              <table class="table table-sm">
+                <tbody id="outputAttributesList">
+                </tbody>
+              </table>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer justify-content-between">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Cancel"></button>
+          <button data-href='{"cmd":"saveOutputAttributes","options":[]}' type="button" class="btn btn-success" data-phrase="Save"></button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <div class="modal fade" id="modalTrigger" tabindex="-1">
     <div class="modal-dialog modal-lg">

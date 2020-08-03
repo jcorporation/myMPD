@@ -104,7 +104,8 @@ function defineCmds() {
         {"jsonrpc":"2.0","id":0,"method":"MPD_API_PARTITION_OUTPUT_MOVE","params":{"name":string1}},
         {"jsonrpc":"2.0","id":0,"method":"MPD_API_TRIGGER_SAVE","params":{"id":int0,"name":string1,"event":int1,"script":string2}},
         {"jsonrpc":"2.0","id":0,"method":"MPD_API_TRIGGER_GET","params":{"id":int0}},
-        {"jsonrpc":"2.0","id":0,"method":"MPD_API_TRIGGER_DELETE","params":{"id":int0}}
+        {"jsonrpc":"2.0","id":0,"method":"MPD_API_TRIGGER_DELETE","params":{"id":int0}},
+        {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYER_OUTPUT_ATTRIBUTS_SET","params":{"outputId":int0,"attributes":{string1:string2}}}
     ];
 }
 
