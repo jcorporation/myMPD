@@ -82,7 +82,7 @@ function showTriggerScriptArgs(option, values) {
                   '</div>' +
                 '</div>';
     }
-    if (args.arguments.length == '') {
+    if (args.arguments.length === 0) {
         list = 'No arguments';
     }
     document.getElementById('triggerActionScriptArguments').innerHTML = list;
@@ -97,7 +97,7 @@ function showListTrigger() {
 }
 
 function deleteTrigger(id) {
-    sendAPI("MPD_API_TRIGGER_DELETE", {"id": id}, function(obj) {
+    sendAPI("MPD_API_TRIGGER_DELETE", {"id": id}, function() {
         sendAPI("MPD_API_TRIGGER_LIST", {}, parseTriggerList, false);
     }, true);
 }

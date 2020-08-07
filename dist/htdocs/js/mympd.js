@@ -4892,7 +4892,7 @@ function parseMPDSettings() {
 
     let triggerEventList = '';
     Object.keys(settings.triggers).forEach(function(key) {
-        triggerEventList += '<option value=\"' + e(settings.triggers[key]) + '\">' + t(key) + '</option>';
+        triggerEventList += '<option value="' + e(settings.triggers[key]) + '">' + t(key) + '</option>';
     });
     document.getElementById('selectTriggerEvent').innerHTML = triggerEventList;
     
@@ -5697,6 +5697,7 @@ function showListOutputAttributes(outputName) {
     });
 }
 
+//eslint-disable-next-line no-unused-vars
 function saveOutputAttributes() {
     let params = {};
     params.outputId =  parseInt(document.getElementById('modalOutputAttributesId').value);
@@ -6958,7 +6959,7 @@ function showTriggerScriptArgs(option, values) {
                   '</div>' +
                 '</div>';
     }
-    if (args.arguments.length == '') {
+    if (args.arguments.length === 0) {
         list = 'No arguments';
     }
     document.getElementById('triggerActionScriptArguments').innerHTML = list;
@@ -6973,7 +6974,7 @@ function showListTrigger() {
 }
 
 function deleteTrigger(id) {
-    sendAPI("MPD_API_TRIGGER_DELETE", {"id": id}, function(obj) {
+    sendAPI("MPD_API_TRIGGER_DELETE", {"id": id}, function() {
         sendAPI("MPD_API_TRIGGER_LIST", {}, parseTriggerList, false);
     }, true);
 }

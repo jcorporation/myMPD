@@ -81,6 +81,7 @@ function showListOutputAttributes(outputName) {
     });
 }
 
+//eslint-disable-next-line no-unused-vars
 function saveOutputAttributes() {
     let params = {};
     params.outputId =  parseInt(document.getElementById('modalOutputAttributesId').value);
