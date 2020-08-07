@@ -60,7 +60,7 @@ bool mpd_client_jukebox(t_config *config, t_mpd_client_state *mpd_client_state, 
     //add song if add_time is reached or queue is empty
     unsigned long addSongs = substractUnsigned(mpd_client_state->jukebox_queue_length, queue_length);
     
-    if (now > add_time && add_time > 0) {
+    if (now > add_time && add_time > 0 && queue_length <= mpd_client_state->jukebox_queue_length) {
         addSongs++;
     }
 
@@ -68,8 +68,8 @@ bool mpd_client_jukebox(t_config *config, t_mpd_client_state *mpd_client_state, 
         return true;
     }
     
-    if (addSongs > INT_MAX) {
-        addSongs = INT_MAX;
+    if (addSongs > 99) {
+        addSongs = 99;
     }
         
     if (mpd_client_state->feat_playlists == false && strcmp(mpd_client_state->jukebox_playlist, "Database") != 0) {

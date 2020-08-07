@@ -178,6 +178,9 @@ function showTimerScriptArgs(option, values) {
                   '</div>' +
                 '</div>';
     }
+    if (args.arguments.length == '') {
+        list = 'No arguments';
+    }
     document.getElementById('timerActionScriptArguments').innerHTML = list;
 }
 
