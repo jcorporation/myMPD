@@ -7,7 +7,7 @@ The backend ist written in C and has no dependencies to external databases or we
 
 The frontend is mobile friendly, written as a PWA and offers on all devices the same functionality. It communicates over AJAX and websockets using the json-rpc 2 protocol.
 
-myMPD also integrates extended features like an advanced jukebox mode, timers and smart playlists. With the integrated lua interpreter myMPD functions can also be scripted.
+myMPD also integrates extended features like an advanced jukebox mode, timers, triggers and smart playlists. With the integrated lua interpreter myMPD functions can also be scripted.
 
 myMPD is a fork of [ympd](https://github.com/notandy/ympd).
 
@@ -88,7 +88,7 @@ Build Dependencies
 - Perl: to create translation files
 
 Quick Build Instructions
------------------------
+------------------------
 1. Get myMPD tarball from [GitHub](https://github.com/jcorporation/myMPD/releases/latest)
 2. Extract myMPD tarball and change path to this directory
 3. Install dependencies (as root): `./build.sh installdeps`
@@ -103,7 +103,7 @@ Adapt the configuration file `/etc/mympd.conf` to your needs (`/etc/webapps/mymp
 Usage: ./mympd [/etc/mympd.conf]
 ``
 
-The `./build.sh` script installs a startup script for systemd, openrc (Alpine Linux) or sysVinit.
+The `./build.sh` script installs a startup script for systemd, openrc or sysVinit.
 
 Wiki
 ----
