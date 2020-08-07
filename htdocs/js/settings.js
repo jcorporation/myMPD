@@ -419,6 +419,8 @@ function parseMPDSettings() {
 
     toggleBtnGroupValue(document.getElementById('btnSingleGroup'), settings.single);
     toggleBtnGroupValue(document.getElementById('btnReplaygainGroup'), settings.replaygain);
+
+    document.getElementById('partitionName').innerText = settings.partition;
     
     document.getElementById('inputCrossfade').value = settings.crossfade;
     document.getElementById('inputMixrampdb').value = settings.mixrampdb;
@@ -443,7 +445,8 @@ function parseMPDSettings() {
     }
 
     let features = ['featStickers', 'featSmartpls', 'featPlaylists', 'featTags', 'featCoverimage', 'featAdvsearch',
-        'featLove', 'featSingleOneshot', 'featCovergrid', 'featBrowse', "featMounts", "featNeighbors"];
+        'featLove', 'featSingleOneshot', 'featCovergrid', 'featBrowse', 'featMounts', 'featNeighbors',
+        'featPartitions'];
     for (let j = 0; j < features.length; j++) {
         let Els = document.getElementsByClassName(features[j]);
         let ElsLen = Els.length;
@@ -514,6 +517,12 @@ function parseMPDSettings() {
     else {
         clearBackgroundImage();
     }
+
+    let triggerEventList = '';
+    Object.keys(settings.triggers).forEach(function(key) {
+        triggerEventList += '<option value=\"' + e(settings.triggers[key]) + '\">' + t(key) + '</option>';
+    });
+    document.getElementById('selectTriggerEvent').innerHTML = triggerEventList;
     
     settings.tags.sort();
     settings.searchtags.sort();

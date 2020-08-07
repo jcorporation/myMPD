@@ -41,6 +41,8 @@
 #include "mpd_client_sticker.h"
 #include "mpd_client_timer.h"
 #include "mpd_client_mounts.h"
+#include "mpd_client_partitions.h"
+#include "mpd_client_trigger.h"
 #include "mpd_client_api.h"
 
 void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void *arg_request) {
@@ -64,6 +66,62 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
     t_work_result *response = create_result(request);
     
     switch(request->cmd_id) {
+        case MPD_API_TRIGGER_LIST:
+            response->data = trigger_list(mpd_client_state, response->data, request->method, request->id);
+            break;
+        case MPD_API_TRIGGER_GET:
+            je = json_scanf(request->data, sdslen(request->data), "{params: {id: %d}}", &int_buf1);
+            if (je == 1) {
+                response->data = trigger_get(mpd_client_state, response->data, request->method, request->id, int_buf1);
+            }
+            break;
+        case MPD_API_TRIGGER_SAVE:
+            je = json_scanf(request->data, sdslen(request->data), "{params: {id: %d, name: %Q, event: %d, script: %Q}}", 
+                &int_buf1, &p_charbuf1, &int_buf2, &p_charbuf2);
+            if (je == 4 && validate_string_not_empty(p_charbuf2) == true) {
+                struct list *arguments = (struct list *) malloc(sizeof(struct list));
+                assert(arguments);
+                list_init(arguments);
+                void *h = NULL;
+                struct json_token key;
+                struct json_token val;
+                while ((h = json_next_key(request->data, sdslen(request->data), h, ".params.arguments", &key, &val)) != NULL) {
+                    list_push_len(arguments, key.ptr, key.len, 0, val.ptr, val.len, NULL);
+                }
+                //add new entry
+                rc = list_push(&mpd_client_state->triggers, p_charbuf1, int_buf2, p_charbuf2, arguments);
+                if (rc == true) {
+                    if (int_buf1 >= 0) {
+                        //delete old entry
+                        rc = delete_trigger(mpd_client_state, int_buf1);
+                    }
+                    if (rc == true) {
+                        response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+                    }
+                    else {
+                        response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Could not save trigger", true);
+                    }
+                }
+                else {
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Could not save trigger", true);
+                }
+            }
+            else {
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Invalid trigger name", true);
+            }
+            break;
+        case MPD_API_TRIGGER_DELETE:
+            je = json_scanf(request->data, sdslen(request->data), "{params: {id: %u}}", &uint_buf1);
+            if (je == 1) {
+                rc = delete_trigger(mpd_client_state, uint_buf1);
+                if (rc == true) {
+                    response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+                }
+                else {
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Could not delete trigger", true);
+                }
+            }
+            break;
         #ifdef ENABLE_LUA
         case MPD_API_SCRIPT_INIT:
             if (config->scripting == true) {
@@ -89,6 +147,25 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
             }
             break;
         #endif
+        case MPD_API_PLAYER_OUTPUT_ATTRIBUTS_SET:
+            je = json_scanf(request->data, sdslen(request->data), "{params: {outputId: %u}}", &uint_buf1);
+            if (je == 1) {
+                void *h = NULL;
+                struct json_token key;
+                struct json_token val;
+                while ((h = json_next_key(request->data, sdslen(request->data), h, ".params.attributes", &key, &val)) != NULL) {
+                    sds attribute = sdsnewlen(key.ptr, key.len);
+                    sds value = sdsnewlen(val.ptr, val.len);
+                    rc = mpd_run_output_set(mpd_client_state->mpd_state->conn, uint_buf1, attribute, value);
+                    sdsfree(attribute);
+                    sdsfree(value);
+                    response->data = respond_with_mpd_error_or_ok(mpd_client_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_output_set");
+                    if (rc == false) {
+                        break;
+                    }
+                }
+            }
+            break;
         case MPD_API_STICKERCACHE_CREATED:
             sticker_cache_free(&mpd_client_state->sticker_cache);
             if (request->extra != NULL) {
@@ -327,7 +404,13 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
             }
             break;
         case MPD_API_PLAYER_OUTPUT_LIST:
-            response->data = mpd_client_put_outputs(mpd_client_state, response->data, request->method, request->id);
+            je = json_scanf(request->data, sdslen(request->data), "{params: {partition: %Q}}", &p_charbuf1);
+            if (je == 1) {
+                response->data = mpd_client_put_partition_outputs(mpd_client_state, response->data, request->method, request->id, p_charbuf1);
+            }
+            else {
+                response->data = mpd_client_put_outputs(mpd_client_state, response->data, request->method, request->id);
+            }
             break;
         case MPD_API_PLAYER_TOGGLE_OUTPUT:
             je = json_scanf(request->data, sdslen(request->data), "{params: {output: %u, state: %u}}", &uint_buf1, &uint_buf2);
@@ -672,6 +755,37 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
             break;
         case MPD_API_URLHANDLERS:
             response->data = mpd_client_put_urlhandlers(mpd_client_state, response->data, request->method, request->id);
+            break;
+        case MPD_API_PARTITION_LIST:
+            response->data = mpd_client_put_partitions(mpd_client_state, response->data, request->method, request->id);
+            break;
+        case MPD_API_PARTITION_NEW:
+            je = json_scanf(request->data, sdslen(request->data), "{params: {name: %Q}}", &p_charbuf1);
+            if (je == 1) {
+                rc = mpd_run_newpartition(mpd_client_state->mpd_state->conn, p_charbuf1);
+                response->data = respond_with_mpd_error_or_ok(mpd_client_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_newpartition");
+            }
+            break;
+        case MPD_API_PARTITION_SWITCH:
+            je = json_scanf(request->data, sdslen(request->data), "{params: {name: %Q}}", &p_charbuf1);
+            if (je == 1) {
+                rc = mpd_run_switch_partition(mpd_client_state->mpd_state->conn, p_charbuf1);
+                response->data = respond_with_mpd_error_or_ok(mpd_client_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_switch_partition");
+            }
+            break;
+        case MPD_API_PARTITION_RM:
+            je = json_scanf(request->data, sdslen(request->data), "{params: {name: %Q}}", &p_charbuf1);
+            if (je == 1) {
+                rc = mpd_run_delete_partition(mpd_client_state->mpd_state->conn, p_charbuf1);
+                response->data = respond_with_mpd_error_or_ok(mpd_client_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_delete_partition");
+            }
+            break;
+        case MPD_API_PARTITION_OUTPUT_MOVE:
+            je = json_scanf(request->data, sdslen(request->data), "{params: {name: %Q}}", &p_charbuf1);
+            if (je == 1) {
+                rc = mpd_run_move_output(mpd_client_state->mpd_state->conn, p_charbuf1);
+                response->data = respond_with_mpd_error_or_ok(mpd_client_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_move_output");
+            }
             break;
         case MPD_API_MOUNT_LIST:
             response->data = mpd_client_put_mounts(mpd_client_state, response->data, request->method, request->id);

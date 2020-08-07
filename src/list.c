@@ -341,7 +341,7 @@ bool list_insert(struct list *l, const char *key, long value_i, const char *valu
 bool list_shift(struct list *l, unsigned idx) {
     struct list_node * extracted = list_node_extract(l, idx);
     if (extracted == NULL) {
-        return -1;
+        return false;
     }
     sdsfree(extracted->key);
     sdsfree(extracted->value_p);
@@ -349,7 +349,7 @@ bool list_shift(struct list *l, unsigned idx) {
         free(extracted->user_data);
     }    
     free(extracted);
-    return 0;
+    return true;
 }
 
 bool list_free(struct list *l) {

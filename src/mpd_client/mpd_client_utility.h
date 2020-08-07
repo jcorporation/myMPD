@@ -9,6 +9,28 @@
 
 #include "../dist/src/rax/rax.h"
 
+enum trigger_events {
+    TRIGGER_MYMPD_SCROBBLE = -1,
+    TRIGGER_MYMPD_START = -2,
+    TRIGGER_MYMPD_STOP = -3,
+    TRIGGER_MYMPD_CONNECTED = -4,
+    TRIGGER_MYMPD_DISCONNECTED = -5,
+    TRIGGER_MPD_DATABASE = 0x1,
+    TRIGGER_MPD_STORED_PLAYLIST = 0x2,
+    TRIGGER_MPD_PLAYLIST = 0x4,
+    TRIGGER_MPD_PLAYER = 0x8,
+    TRIGGER_MPD_MIXER = 0x10,
+    TRIGGER_MPD_OUTPUT = 0x20,
+    TRIGGER_MPD_OPTIONS = 0x40,
+    TRIGGER_MPD_UPDATE = 0x80,
+    TRIGGER_MPD_STICKER = 0x100,
+    TRIGGER_MPD_SUBSCRIPTION = 0x200,
+    TRIGGER_MPD_MESSAGE = 0x400,
+    TRIGGER_MPD_PARTITION = 0x800,
+    TRIGGER_MPD_NEIGHBOR = 0x1000,
+    TRIGGER_MPD_MOUNT = 0x2000
+};
+
 typedef struct t_mpd_client_state {
     // States
     int song_id;
@@ -40,6 +62,7 @@ typedef struct t_mpd_client_state {
     bool feat_single_oneshot;
     bool feat_mpd_mount;
     bool feat_mpd_neighbor;
+    bool feat_mpd_partitions;
     //mympd states
     enum jukebox_modes jukebox_mode;
     sds jukebox_playlist;
@@ -80,6 +103,8 @@ typedef struct t_mpd_client_state {
     bool sticker_cache_building;
     //mpd state
     struct t_mpd_state *mpd_state;
+    //triggers
+    struct list triggers;
 } t_mpd_client_state;
 
 void json_to_tags(const char *str, int len, void *user_data);

@@ -23,6 +23,7 @@
 #include "../mpd_shared/mpd_shared_tags.h"
 #include "../mpd_shared.h"
 #include "mpd_client_utility.h"
+#include "mpd_client_trigger.h"
 #include "mpd_client_settings.h"
 
 //private defintions
@@ -265,6 +266,9 @@ sds mpd_client_put_settings(t_mpd_client_state *mpd_client_state, sds buffer, sd
     else {
         buffer = tojson_long(buffer, "single", mpd_status_get_single(status), true);
     }
+    if (mpd_client_state->feat_mpd_partitions == true) {
+        buffer = tojson_char(buffer, "partition", mpd_status_get_partition(status), true);
+    }
     buffer = tojson_long(buffer, "crossfade", mpd_status_get_crossfade(status), true);
     buffer = tojson_long(buffer, "random", mpd_status_get_random(status), true);
     buffer = tojson_long(buffer, "consume", mpd_status_get_consume(status), true);
@@ -282,6 +286,7 @@ sds mpd_client_put_settings(t_mpd_client_state *mpd_client_state, sds buffer, sd
     buffer = tojson_bool(buffer, "featFingerprint", mpd_client_state->feat_fingerprint, true);
     buffer = tojson_bool(buffer, "featSingleOneshot", mpd_client_state->feat_single_oneshot, true);
     buffer = tojson_bool(buffer, "featSearchwindow", mpd_client_state->mpd_state->feat_mpd_searchwindow, true);
+    buffer = tojson_bool(buffer, "featPartitions", mpd_client_state->feat_mpd_partitions, true);
     buffer = tojson_char(buffer, "musicDirectoryValue", mpd_client_state->music_directory_value, true);
     buffer = tojson_bool(buffer, "mpdConnected", true, true);
     buffer = tojson_bool(buffer, "featMounts", mpd_client_state->feat_mpd_mount, true);
@@ -297,7 +302,11 @@ sds mpd_client_put_settings(t_mpd_client_state *mpd_client_state, sds buffer, sd
     buffer = print_tags_array(buffer, "allmpdtags", mpd_client_state->mpd_state->mpd_tag_types);
     buffer = sdscat(buffer, ",");
     buffer = print_tags_array(buffer, "generatePlsTags", mpd_client_state->generate_pls_tag_types);
-
+    
+    buffer = sdscat(buffer, ",\"triggers\":{");
+    buffer = print_trigger_list(buffer);
+    buffer = sdscat(buffer, "}");
+    
     buffer = jsonrpc_end_result(buffer);
     
     return buffer;

@@ -109,6 +109,10 @@ var modalTimer = new BSN.Modal(document.getElementById('modalTimer'));
 var modalMounts = new BSN.Modal(document.getElementById('modalMounts'));
 var modalExecScript = new BSN.Modal(document.getElementById('modalExecScript'));
 var modalScripts = new BSN.Modal(document.getElementById('modalScripts'));
+var modalPartitions = new BSN.Modal(document.getElementById('modalPartitions'));
+var modalPartitionOutputs = new BSN.Modal(document.getElementById('modalPartitionOutputs'));
+var modalTrigger = new BSN.Modal(document.getElementById('modalTrigger'));
+var modalOutputAttributes = new BSN.Modal(document.getElementById('modalOutputAttributes'));
 
 var dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
 var dropdownVolumeMenu = new BSN.Dropdown(document.getElementById('volumeMenu'));
@@ -592,6 +596,18 @@ function appInit() {
         showListScripts();
     });
     
+    document.getElementById('modalTrigger').addEventListener('shown.bs.modal', function () {
+        showListTrigger();
+    });
+    
+    document.getElementById('modalPartitions').addEventListener('shown.bs.modal', function () {
+        showListPartitions();
+    });
+    
+    document.getElementById('modalPartitionOutputs').addEventListener('shown.bs.modal', function () {
+        sendAPI("MPD_API_PLAYER_OUTPUT_LIST", {"partition": "default"}, parsePartitionOutputsList, false);
+    });
+    
     document.getElementById('modalAbout').addEventListener('shown.bs.modal', function () {
         sendAPI("MPD_API_DATABASE_STATS", {}, parseStats);
         getServerinfo();
@@ -621,6 +637,10 @@ function appInit() {
     
     document.getElementById('selectTimerAction').addEventListener('change', function() {
         selectTimerActionChange();
+    }, false);
+    
+    document.getElementById('selectTriggerScript').addEventListener('change', function() {
+        selectTriggerActionChange();
     }, false);
     
     let selectTimerHour = ''; 
@@ -845,6 +865,10 @@ function appInit() {
             sendAPI("MPD_API_PLAYER_TOGGLE_OUTPUT", {"output": event.target.getAttribute('data-output-id'), "state": (event.target.classList.contains('active') ? 0 : 1)});
             toggleBtn(event.target.id);
         }
+        else if (event.target.nodeName === 'A') {
+            event.preventDefault();
+            showListOutputAttributes(decodeURI(event.target.parentNode.getAttribute('data-output-name')));
+        }
     }, false);
     
     document.getElementById('listTimerList').addEventListener('click', function(event) {
@@ -902,6 +926,47 @@ function appInit() {
             else if (action === 'execute') {
                 execScript(event.target.getAttribute('data-href'));
             }
+        }
+    }, false);
+    
+    document.getElementById('listTriggerList').addEventListener('click', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        if (event.target.nodeName === 'TD') {
+            let id = decodeURI(event.target.parentNode.getAttribute('data-trigger-id'));
+            showEditTrigger(id);
+        }
+        else if (event.target.nodeName === 'A') {
+            let action = event.target.getAttribute('data-action');
+            let id = decodeURI(event.target.parentNode.parentNode.getAttribute('data-trigger-id'));
+            if (action === 'delete') {
+                deleteTrigger(id);
+            }
+        }
+    }, false);
+    
+    document.getElementById('listPartitionsList').addEventListener('click', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        if (event.target.nodeName === 'A') {
+            let action = event.target.getAttribute('data-action');
+            let partition = decodeURI(event.target.parentNode.parentNode.getAttribute('data-partition'));
+            if (action === 'delete') {
+                deletePartition(partition);
+            }
+            else if (action === 'switch') {
+                switchPartition(partition);
+            }
+        }
+    }, false);
+    
+    document.getElementById('partitionOutputsList').addEventListener('click', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        if (event.target.nodeName === 'TD') {
+            let outputName = decodeURI(event.target.parentNode.getAttribute('data-output'));
+            moveOutput(outputName);
+            modalPartitionOutputs.hide();
         }
     }, false);
     
@@ -1275,7 +1340,7 @@ function appInit() {
 
     let selectThemeHtml = '';
     Object.keys(themes).forEach(function(key) {
-        selectThemeHtml += '<option value="' + key + '">' + t(themes[key]) + '</option>';
+        selectThemeHtml += '<option value="' + e(key) + '">' + t(themes[key]) + '</option>';
     });
     document.getElementById('selectTheme').innerHTML = selectThemeHtml;
 

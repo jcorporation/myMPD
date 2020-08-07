@@ -17,13 +17,15 @@ myMPD is a fork of [ympd](https://github.com/notandy/ympd).
 - Control mpd functions (play, pause, etc.)
 - Set mpd options (repeat, random, etc.)
 - MPD mount and neighbors support
+- MPD partition support
+- MPD output attributes
 - Browse mpd database by tags
 - Albumart grid
 - Browse filesystem
 - Queue management
 - Playlist management
 - Advanced search
-- Jukebox mode (add's random songs to queue)
+- Jukebox mode
 - [Smart playlists and saved searches](https://github.com/jcorporation/myMPD/wiki/Smart-playlists)
 - Play statistics and song voting
 - [Local albumart support: embedded and image per folder](https://github.com/jcorporation/myMPD/wiki/Albumart)
@@ -31,7 +33,7 @@ myMPD is a fork of [ympd](https://github.com/notandy/ympd).
 - Local booklet support (per album folder)
 - HTTP stream support
 - Local playback of mpd http stream (html5 audio api)
-- Timers
+- Timers and Triggers
 - [System commands](https://github.com/jcorporation/myMPD/wiki/System-Commands)
 - [Lua scripting](https://github.com/jcorporation/myMPD/wiki/Scripting)
 - Scrobbler integration

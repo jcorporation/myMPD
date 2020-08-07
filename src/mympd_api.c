@@ -133,7 +133,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                     }
                 }
                 else {
-                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Invalid scriptname", true);
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Invalid script name", true);
                 }
                 sdsfree(arguments);
             }
@@ -154,7 +154,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                 }
             }
             else {
-                response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Invalid scriptname", true);
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Invalid script name", true);
             }
             break;
         case MYMPD_API_SCRIPT_GET:
@@ -216,7 +216,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                     }
                 }
                 else {
-                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Invalid scriptname", true);
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Invalid script name", true);
                 }
             } 
             else {
