@@ -13,6 +13,6 @@ bool triggerfile_save(t_config *config, t_mpd_client_state *mpd_client_state);
 void free_trigerlist_arguments(t_mpd_client_state *mpd_client_state);
 void trigger_execute(t_mpd_client_state *mpd_client_state, enum trigger_events event);
 bool delete_trigger(t_mpd_client_state *mpd_client_state, unsigned idx);
-const char *trigger_name(int event);
+const char *trigger_name(long event);
 sds print_trigger_list(sds buffer);
 #endif

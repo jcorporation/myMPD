@@ -65,7 +65,7 @@ static const char *const mympd_trigger_names[] = {
 };
 
 //public functions
-const char *trigger_name(int event) {
+const char *trigger_name(long event) {
     if (event < 0) {
         for (int i = 0; mympd_trigger_names[i] != NULL; ++i) {
             if (event == (-1 - i)) {
@@ -74,14 +74,12 @@ const char *trigger_name(int event) {
         }
         return NULL;
     }
-    else {
-        for (int i = 0; mpd_trigger_names[i] != NULL; ++i) {
-            if (event == (int)(1 << i)) {
-                return mpd_trigger_names[i];
-            }
+    for (int i = 0; mpd_trigger_names[i] != NULL; ++i) {
+        if (event == (1 << i)) {
+            return mpd_trigger_names[i];
         }
-        return NULL;
     }
+    return NULL;
 }
 
 sds print_trigger_list(sds buffer) {
@@ -93,7 +91,7 @@ sds print_trigger_list(sds buffer) {
         if (i > 0) {
             buffer = sdscatlen(buffer, ",", 1);
         }
-        buffer = tojson_long(buffer, mpd_trigger_names[i], (int)(1 << i), false);
+        buffer = tojson_long(buffer, mpd_trigger_names[i], (1 << i), false);
     }
     return buffer;
 }
