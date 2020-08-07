@@ -226,6 +226,8 @@ mpd_send_playlist_move(struct mpd_connection *connection, const char *name,
  * @param from previous song place in the playlist
  * @param to next song position in the playlist
  * @return true on success, false on error
+ *
+ * @since libmpdclient 2.19
  */
 bool
 mpd_run_playlist_move(struct mpd_connection *connection, const char *name,
