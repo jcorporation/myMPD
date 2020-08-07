@@ -6806,7 +6806,7 @@ function showTimerScriptArgs(option, values) {
                   '</div>' +
                 '</div>';
     }
-    if (args.arguments.length == '') {
+    if (args.arguments.length === 0) {
         list = 'No arguments';
     }
     document.getElementById('timerActionScriptArguments').innerHTML = list;
