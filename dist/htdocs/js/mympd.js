@@ -1405,6 +1405,10 @@ var modalTimer = new BSN.Modal(document.getElementById('modalTimer'));
 var modalMounts = new BSN.Modal(document.getElementById('modalMounts'));
 var modalExecScript = new BSN.Modal(document.getElementById('modalExecScript'));
 var modalScripts = new BSN.Modal(document.getElementById('modalScripts'));
+var modalPartitions = new BSN.Modal(document.getElementById('modalPartitions'));
+var modalPartitionOutputs = new BSN.Modal(document.getElementById('modalPartitionOutputs'));
+var modalTrigger = new BSN.Modal(document.getElementById('modalTrigger'));
+var modalOutputAttributes = new BSN.Modal(document.getElementById('modalOutputAttributes'));
 
 var dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
 var dropdownVolumeMenu = new BSN.Dropdown(document.getElementById('volumeMenu'));
@@ -1888,6 +1892,18 @@ function appInit() {
         showListScripts();
     });
     
+    document.getElementById('modalTrigger').addEventListener('shown.bs.modal', function () {
+        showListTrigger();
+    });
+    
+    document.getElementById('modalPartitions').addEventListener('shown.bs.modal', function () {
+        showListPartitions();
+    });
+    
+    document.getElementById('modalPartitionOutputs').addEventListener('shown.bs.modal', function () {
+        sendAPI("MPD_API_PLAYER_OUTPUT_LIST", {"partition": "default"}, parsePartitionOutputsList, false);
+    });
+    
     document.getElementById('modalAbout').addEventListener('shown.bs.modal', function () {
         sendAPI("MPD_API_DATABASE_STATS", {}, parseStats);
         getServerinfo();
@@ -1917,6 +1933,10 @@ function appInit() {
     
     document.getElementById('selectTimerAction').addEventListener('change', function() {
         selectTimerActionChange();
+    }, false);
+    
+    document.getElementById('selectTriggerScript').addEventListener('change', function() {
+        selectTriggerActionChange();
     }, false);
     
     let selectTimerHour = ''; 
@@ -2141,6 +2161,10 @@ function appInit() {
             sendAPI("MPD_API_PLAYER_TOGGLE_OUTPUT", {"output": event.target.getAttribute('data-output-id'), "state": (event.target.classList.contains('active') ? 0 : 1)});
             toggleBtn(event.target.id);
         }
+        else if (event.target.nodeName === 'A') {
+            event.preventDefault();
+            showListOutputAttributes(decodeURI(event.target.parentNode.getAttribute('data-output-name')));
+        }
     }, false);
     
     document.getElementById('listTimerList').addEventListener('click', function(event) {
@@ -2198,6 +2222,47 @@ function appInit() {
             else if (action === 'execute') {
                 execScript(event.target.getAttribute('data-href'));
             }
+        }
+    }, false);
+    
+    document.getElementById('listTriggerList').addEventListener('click', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        if (event.target.nodeName === 'TD') {
+            let id = decodeURI(event.target.parentNode.getAttribute('data-trigger-id'));
+            showEditTrigger(id);
+        }
+        else if (event.target.nodeName === 'A') {
+            let action = event.target.getAttribute('data-action');
+            let id = decodeURI(event.target.parentNode.parentNode.getAttribute('data-trigger-id'));
+            if (action === 'delete') {
+                deleteTrigger(id);
+            }
+        }
+    }, false);
+    
+    document.getElementById('listPartitionsList').addEventListener('click', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        if (event.target.nodeName === 'A') {
+            let action = event.target.getAttribute('data-action');
+            let partition = decodeURI(event.target.parentNode.parentNode.getAttribute('data-partition'));
+            if (action === 'delete') {
+                deletePartition(partition);
+            }
+            else if (action === 'switch') {
+                switchPartition(partition);
+            }
+        }
+    }, false);
+    
+    document.getElementById('partitionOutputsList').addEventListener('click', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        if (event.target.nodeName === 'TD') {
+            let outputName = decodeURI(event.target.parentNode.getAttribute('data-output'));
+            moveOutput(outputName);
+            modalPartitionOutputs.hide();
         }
     }, false);
     
@@ -2571,7 +2636,7 @@ function appInit() {
 
     let selectThemeHtml = '';
     Object.keys(themes).forEach(function(key) {
-        selectThemeHtml += '<option value="' + key + '">' + t(themes[key]) + '</option>';
+        selectThemeHtml += '<option value="' + e(key) + '">' + t(themes[key]) + '</option>';
     });
     document.getElementById('selectTheme').innerHTML = selectThemeHtml;
 
@@ -2892,6 +2957,122 @@ function toggleUI() {
         logMessage(t('Websocket is disconnected'), '', '', 'danger');
     }
     setStateIcon();
+}
+/*
+ SPDX-License-Identifier: GPL-2.0-or-later
+ myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
+ https://github.com/jcorporation/mympd
+*/
+
+function moveOutput(output) {
+    sendAPI("MPD_API_PARTITION_OUTPUT_MOVE", {"name": output});
+}
+
+function parsePartitionOutputsList(obj) {
+    let outputs = document.getElementById('outputs').getElementsByTagName('button');
+    let outputIds = [];
+    for (let i = 0; i < outputs.length; i++) {
+        outputIds.push(parseInt(outputs[i].getAttribute('data-output-id')));
+    }
+
+    let outputList = '';
+    let nr = 0;
+    for (let i = 0; i < obj.result.data.length; i++) {
+        if (outputIds.includes(obj.result.data[i].id) === false) {
+            outputList += '<tr data-output="' + encodeURI(obj.result.data[i].name) + '"><td>' +
+                e(obj.result.data[i].name) + '</td></tr>';
+            nr++;
+        }
+    }
+    if (nr === 0) {
+        outputList = '<tr class="not-clickable"><td><span class="material-icons">error_outline</span>&nbsp;' +
+            t('Empty list') + '</td></tr>';
+    }
+    document.getElementById('partitionOutputsList').innerHTML = outputList;
+}
+
+//eslint-disable-next-line no-unused-vars
+function savePartition() {
+    let formOK = true;
+    
+    let nameEl = document.getElementById('inputPartitionName');
+    if (!validatePlnameEl(nameEl)) {
+        formOK = false;
+    }
+    
+    if (formOK === true) {
+        sendAPI("MPD_API_PARTITION_NEW", {
+            "name": nameEl.value
+            }, showListPartitions, false);
+    }
+}
+
+//eslint-disable-next-line no-unused-vars
+function showNewPartition() {
+    document.getElementById('listPartitions').classList.remove('active');
+    document.getElementById('newPartition').classList.add('active');
+    document.getElementById('listPartitionsFooter').classList.add('hide');
+    document.getElementById('newPartitionFooter').classList.remove('hide');
+    
+    const nameEl = document.getElementById('inputPartitionName');
+    nameEl.classList.remove('is-invalid');
+    nameEl.value = '';
+    nameEl.focus();
+}
+
+function showListPartitions() {
+    document.getElementById('listPartitions').classList.add('active');
+    document.getElementById('newPartition').classList.remove('active');
+    document.getElementById('listPartitionsFooter').classList.remove('hide');
+    document.getElementById('newPartitionFooter').classList.add('hide');
+    document.getElementById('errorPartition').classList.add('hide');
+    sendAPI("MPD_API_PARTITION_LIST", {}, parsePartitionList, false);
+}
+
+function deletePartition(partition) {
+    sendAPI("MPD_API_PARTITION_RM", {"name": partition}, function(obj) {
+        if (obj.error) {
+            let el = document.getElementById('errorPartition');
+            el.innerText = t(obj.error.message);
+            el.classList.remove('hide');
+        }
+        sendAPI("MPD_API_PARTITION_LIST", {}, parsePartitionList, false);
+    }, true);
+}
+
+function switchPartition(partition) {
+    sendAPI("MPD_API_PARTITION_SWITCH", {"name": partition}, function(obj) {
+        if (obj.error) {
+            let el = document.getElementById('errorPartition');
+            el.innerText = t(obj.error.message);
+            el.classList.remove('hide');
+        }
+        sendAPI("MPD_API_PARTITION_LIST", {}, parsePartitionList, false);
+        sendAPI("MPD_API_PLAYER_STATE", {}, parseState);
+    }, true);
+}
+
+function parsePartitionList(obj) {
+    if (obj.result.data.length > 0) {
+        let partitionList = '';
+        for (let i = 0; i < obj.result.data.length; i++) {
+            partitionList += '<tr data-partition="' + encodeURI(obj.result.data[i].name) + '"><td class="' +
+                (obj.result.data[i].name === settings.partition ? 'font-weight-bold' : '') +
+                '">' + e(obj.result.data[i].name) + 
+                (obj.result.data[i].name === settings.partition ? '&nbsp;(' + t('current') + ')' : '') +
+                '</td>' +
+                '<td data-col="Action">' +
+                (obj.result.data[i].name === 'default' || obj.result.data[i].name === settings.partition  ? '' : 
+                    '<a href="#" title="' + t('Delete') + '" data-action="delete" class="material-icons color-darkgrey">delete</a>') +
+                (obj.result.data[i].name !== settings.partition ? '<a href="#" title="' + t('Switch to') + '" data-action="switch" class="material-icons color-darkgrey">check_circle</a>' : '') +
+                '</td></tr>';
+        }
+        document.getElementById('listPartitionsList').innerHTML = partitionList;
+    }
+    else {
+        document.getElementById('listPartitionsList').innerHTML = '<tr class="not-clickable"><td><span class="material-icons">error_outline</span></td>' +
+            '<td colspan="2">' + t('Empty list') + '</td></tr>';
+    }
 }
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
@@ -4072,6 +4253,8 @@ function parseScriptList(obj) {
         document.getElementById('navScripting').classList.add('hide');
         document.getElementById('scripts').classList.remove('collapse', 'menu-indent');
     }
+
+    document.getElementById('selectTriggerScript').innerHTML = timerActions.innerHTML;
     
     let old = document.getElementById('selectTimerAction').querySelector('optgroup[data-value="script"]');
     if (old) {
@@ -4608,6 +4791,8 @@ function parseMPDSettings() {
 
     toggleBtnGroupValue(document.getElementById('btnSingleGroup'), settings.single);
     toggleBtnGroupValue(document.getElementById('btnReplaygainGroup'), settings.replaygain);
+
+    document.getElementById('partitionName').innerText = settings.partition;
     
     document.getElementById('inputCrossfade').value = settings.crossfade;
     document.getElementById('inputMixrampdb').value = settings.mixrampdb;
@@ -4632,7 +4817,8 @@ function parseMPDSettings() {
     }
 
     let features = ['featStickers', 'featSmartpls', 'featPlaylists', 'featTags', 'featCoverimage', 'featAdvsearch',
-        'featLove', 'featSingleOneshot', 'featCovergrid', 'featBrowse', "featMounts", "featNeighbors"];
+        'featLove', 'featSingleOneshot', 'featCovergrid', 'featBrowse', 'featMounts', 'featNeighbors',
+        'featPartitions'];
     for (let j = 0; j < features.length; j++) {
         let Els = document.getElementsByClassName(features[j]);
         let ElsLen = Els.length;
@@ -4703,6 +4889,12 @@ function parseMPDSettings() {
     else {
         clearBackgroundImage();
     }
+
+    let triggerEventList = '';
+    Object.keys(settings.triggers).forEach(function(key) {
+        triggerEventList += '<option value=\"' + e(settings.triggers[key]) + '\">' + t(key) + '</option>';
+    });
+    document.getElementById('selectTriggerEvent').innerHTML = triggerEventList;
     
     settings.tags.sort();
     settings.searchtags.sort();
@@ -5459,14 +5651,62 @@ function getServerinfo() {
 
 function parseOutputs(obj) {
     let btns = '';
+    let nr = 0;
     for (let i = 0; i < obj.result.numOutputs; i++) {
-        btns += '<button id="btnOutput' + obj.result.data[i].id +'" data-output-id="' + obj.result.data[i].id + '" class="btn btn-secondary btn-block';
-        if (obj.result.data[i].state === 1) {
-            btns += ' active';
+        if (obj.result.data[i].plugin !== 'dummy') {
+            nr++;
+            btns += '<button id="btnOutput' + obj.result.data[i].id +'" data-output-name="' + encodeURI(obj.result.data[i].name) + '" data-output-id="' + obj.result.data[i].id + '" class="btn btn-secondary btn-block';
+            if (obj.result.data[i].state === 1) {
+                btns += ' active';
+            }
+            btns += '"><span class="material-icons float-left">volume_up</span> ' + e(obj.result.data[i].name);
+            if (Object.keys(obj.result.data[i].attributes).length > 0) {
+                btns += '<a class="material-icons float-right" title="' + t('Edit attributes') + '">settings</a>';
+            }
+            else {
+                btns += '<a class="material-icons float-right" title="' + t('Show attributes') + '">settings</a>';
+            }
+            btns += '</button>';
         }
-        btns += '"><span class="material-icons float-left">volume_up</span> ' + e(obj.result.data[i].name) + '</button>';
+    }
+    if (nr === 0) {
+        btns = '<span class="material-icons">error_outline</span> ' + t('No outputs');
     }
     domCache.outputs.innerHTML = btns;
+}
+
+function showListOutputAttributes(outputName) {
+    sendAPI("MPD_API_PLAYER_OUTPUT_LIST", {}, function(obj) {
+        modalOutputAttributes.show();
+        let output;
+        for (let i = 0; i < obj.result.data.length; i++) {
+            if (obj.result.data[i].name === outputName) {
+                output = obj.result.data[i];
+                break;
+            }
+        }
+        document.getElementById('modalOutputAttributesId').value = e(output.id);        
+        let list = '<tr><td>' + t('Name') + '</td><td>' + e(output.name) + '</td></tr>' +
+            '<tr><td>' + t('State') + '</td><td>' + (output.state === 1 ? t('enabled') : t('disabled')) + '</td></tr>' +
+            '<tr><td>' + t('Plugin') + '</td><td>' + e(output.plugin) + '</td></tr>';
+        Object.keys(output.attributes).forEach(function(key) {
+            list += '<tr><td>' + e(key) + '</td><td><input name="' + e(key) + '" class="form-control border-secondary" type="text" value="' + 
+                e(output.attributes[key]) + '"/></td></tr>';
+        });
+        document.getElementById('outputAttributesList').innerHTML = list;
+    });
+}
+
+function saveOutputAttributes() {
+    let params = {};
+    params.outputId =  parseInt(document.getElementById('modalOutputAttributesId').value);
+    params.attributes = {};
+    let el = document.getElementById('outputAttributesList').getElementsByTagName('input');
+    for (let i = 0; i < el.length; i++) {
+        params.attributes[el[i].name] = el[i].value;
+    }
+    sendAPI('MPD_API_PLAYER_OUTPUT_ATTRIBUTS_SET', params);
+    modalOutputAttributes.hide();
 }
 
 function setCounter(currentSongId, totalTime, elapsedTime) {
@@ -6565,6 +6805,9 @@ function showTimerScriptArgs(option, values) {
                   '</div>' +
                 '</div>';
     }
+    if (args.arguments.length == '') {
+        list = 'No arguments';
+    }
     document.getElementById('timerActionScriptArguments').innerHTML = list;
 }
 
@@ -6631,6 +6874,131 @@ function prettyTimerAction(action, subaction) {
         return t('Script') + ': ' + e(subaction);
     }
     return e(action) + ': ' + e(subaction);
+}
+/*
+ SPDX-License-Identifier: GPL-2.0-or-later
+ myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
+ https://github.com/jcorporation/mympd
+*/
+
+//eslint-disable-next-line no-unused-vars
+function saveTrigger() {
+    let formOK = true;
+    
+    let nameEl = document.getElementById('inputTriggerName');
+    if (!validatePlnameEl(nameEl)) {
+        formOK = false;
+    }
+    
+    if (formOK === true) {
+        let args = {};
+        let argEls = document.getElementById('triggerActionScriptArguments').getElementsByTagName('input');
+        for (let i = 0; i < argEls.length; i ++) {
+            args[argEls[i].getAttribute('data-name')] = argEls[i].value;
+        }
+
+        sendAPI("MPD_API_TRIGGER_SAVE", {
+            "id": parseInt(document.getElementById('inputTriggerId').value),
+            "name": nameEl.value,
+            "event": getSelectValue('selectTriggerEvent'),
+            "script": getSelectValue('selectTriggerScript'),
+            "arguments": args
+            }, showListTrigger, false);
+    }
+}
+
+//eslint-disable-next-line no-unused-vars
+function showEditTrigger(id) {
+    document.getElementById('listTrigger').classList.remove('active');
+    document.getElementById('newTrigger').classList.add('active');
+    document.getElementById('listTriggerFooter').classList.add('hide');
+    document.getElementById('newTriggerFooter').classList.remove('hide');
+    
+    const nameEl = document.getElementById('inputTriggerName');
+    nameEl.classList.remove('is-invalid');
+    nameEl.value = '';
+    nameEl.focus();
+    document.getElementById('inputTriggerId').value = '-1';
+    document.getElementById('selectTriggerEvent').selectedIndex = 0;
+    document.getElementById('selectTriggerScript').selectedIndex = 0;
+    if (id > -1) {
+        sendAPI("MPD_API_TRIGGER_GET", {"id": id}, parseTriggerEdit, false);
+    }
+    else {
+        selectTriggerActionChange();
+    }
+}
+
+function parseTriggerEdit(obj) {
+    document.getElementById('inputTriggerId').value = obj.result.id;
+    document.getElementById('inputTriggerName').value = obj.result.name;
+    document.getElementById('selectTriggerEvent').value = obj.result.event;
+    document.getElementById('selectTriggerScript').value = obj.result.script;
+    selectTriggerActionChange(obj.result.arguments);
+}
+
+function selectTriggerActionChange(values) {
+    let el = document.getElementById('selectTriggerScript');
+    showTriggerScriptArgs(el.options[el.selectedIndex], values);
+}
+
+function showTriggerScriptArgs(option, values) {
+    if (values === undefined) {
+        values = {};
+    }
+    let args = JSON.parse(option.getAttribute('data-arguments'));
+    let list = '';
+    for (let i = 0; i < args.arguments.length; i++) {
+        list += '<div class="form-group row">' +
+                  '<label class="col-sm-4 col-form-label" for="triggerActionScriptArguments' + i + '">' + e(args.arguments[i]) + '</label>' +
+                  '<div class="col-sm-8">' +
+                    '<input name="triggerActionScriptArguments' + i + '" class="form-control border-secondary" type="text" value="' +
+                    (values[args.arguments[i]] ? e(values[args.arguments[i]]) : '') + '"' +
+                    'data-name="' + args.arguments[i] + '">' +
+                  '</div>' +
+                '</div>';
+    }
+    if (args.arguments.length == '') {
+        list = 'No arguments';
+    }
+    document.getElementById('triggerActionScriptArguments').innerHTML = list;
+}
+
+function showListTrigger() {
+    document.getElementById('listTrigger').classList.add('active');
+    document.getElementById('newTrigger').classList.remove('active');
+    document.getElementById('listTriggerFooter').classList.remove('hide');
+    document.getElementById('newTriggerFooter').classList.add('hide');
+    sendAPI("MPD_API_TRIGGER_LIST", {}, parseTriggerList, false);
+}
+
+function deleteTrigger(id) {
+    sendAPI("MPD_API_TRIGGER_DELETE", {"id": id}, function(obj) {
+        sendAPI("MPD_API_TRIGGER_LIST", {}, parseTriggerList, false);
+    }, true);
+}
+
+function parseTriggerList(obj) {
+    if (obj.result.data.length > 0) {
+        let triggerList = '';
+        for (let i = 0; i < obj.result.data.length; i++) {
+            triggerList += '<tr data-trigger-id="' + encodeURI(obj.result.data[i].id) + '"><td class="' +
+                (obj.result.data[i].name === settings.trigger ? 'font-weight-bold' : '') +
+                '">' + e(obj.result.data[i].name) + 
+                '</td>' +
+                '<td>' + t(obj.result.data[i].eventName) + '</td>' +
+                '<td>' + e(obj.result.data[i].script) + '</td>' +
+                '<td data-col="Action">' +
+                (obj.result.data[i].name === 'default' || obj.result.data[i].name === settings.trigger  ? '' : 
+                    '<a href="#" title="' + t('Delete') + '" data-action="delete" class="material-icons color-darkgrey">delete</a>') +
+                '</td></tr>';
+        }
+        document.getElementById('listTriggerList').innerHTML = triggerList;
+    }
+    else {
+        document.getElementById('listTriggerList').innerHTML = '<tr class="not-clickable"><td><span class="material-icons">error_outline</span></td>' +
+            '<td colspan="2">' + t('Empty list') + '</td></tr>';
+    }
 }
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
