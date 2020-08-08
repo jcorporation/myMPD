@@ -1454,3 +1454,81 @@ Fullscreen
 
 Open fullscreen
 전체 화면 열기
+
+Could not save trigger
+트리거를 저장할 수 없음
+
+Could not delete trigger
+트리거를 지울 수 없음
+
+Current partition
+현재 파티션
+
+Event
+이벤트
+
+Invalid partition name
+잘못된 파티션 이름
+
+Invalid trigger name
+잘못된 트리거 이름
+
+Move an output to this partition
+출력을 이 파티션으로 옮김
+
+New partition
+새 파티션
+
+New trigger
+새 트리거
+
+No outputs
+출력 없음
+
+Output
+출력
+
+Partition
+파티션
+
+Partition name
+파티션 이름
+
+Partitions
+파티션
+
+Switch to
+바꿈
+
+Trigger
+트리거
+
+Trigger name
+트리거 이름
+
+Trigger not found
+트리거를 찾을 수 없음
+
+current
+현재
+
+Edit attributes
+속성 수정
+
+Output attributes
+출력 속성
+
+Plugin
+플러그인
+
+Show attributes
+속성 보기
+
+State
+상태
+
+disabled
+사용 안 함
+
+enabled
+사용함
