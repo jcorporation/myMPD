@@ -13,6 +13,7 @@
 #include <libgen.h>
 #include <string.h>
 #include <errno.h>
+#include <time.h>
 
 #include "../dist/src/sds/sds.h"
 #include "../dist/src/mongoose/mongoose.h"
@@ -121,6 +122,8 @@ void *web_server_loop(void *arg_mgr) {
 
     struct mg_mgr *mgr = (struct mg_mgr *) arg_mgr;
     t_mg_user_data *mg_user_data = (t_mg_user_data *) mgr->user_data;
+    sds last_notify = sdsempty();
+    time_t last_time = 0;
     while (s_signal_received == 0) {
         unsigned web_server_queue_length = tiny_queue_length(web_server_queue, 50);
         if (web_server_queue_length > 0) {
@@ -132,7 +135,15 @@ void *web_server_loop(void *arg_mgr) {
                 }
                 else if (response->conn_id == 0) {
                     //websocket notify from mpd idle
-                    send_ws_notify(mgr, response);
+                    time_t now = time(NULL);
+                    if (strcmp(response->data, last_notify) != 0 || last_time < now - 1) {
+                        last_notify = sdsreplace(last_notify, response->data);
+                        last_time = now;
+                        send_ws_notify(mgr, response);
+                    } 
+                    else {
+                        free_result(response);                    
+                    }
                 } 
                 else {
                     //api response
@@ -144,6 +155,7 @@ void *web_server_loop(void *arg_mgr) {
         mg_mgr_poll(mgr, 50);
     }
     sdsfree(thread_logname);
+    sdsfree(last_notify);
     return NULL;
 }
 
@@ -220,7 +232,7 @@ static void send_ws_notify(struct mg_mgr *mgr, t_work_result *response) {
         mg_send_websocket_frame(nc, WEBSOCKET_OP_TEXT, response->data, sdslen(response->data));
     }
     if (i == 0) {
-        LOG_DEBUG("No websocket client connected, discarding message");
+        LOG_DEBUG("No websocket client connected, discarding message: %s", response->data);
     }
     free_result(response);
 }
