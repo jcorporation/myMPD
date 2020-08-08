@@ -315,7 +315,6 @@ static void *mympd_api_script_execute(void *script_thread_arg) {
             else if (strcmp(tokens[i], "io") == 0)        { luaopen_io(lua_vm); }
             else if (strcmp(tokens[i], "os") == 0)        { luaopen_os(lua_vm); }
             else if (strcmp(tokens[i], "debug") == 0)     { luaopen_package(lua_vm); }
-            else if (strcmp(tokens[i], "bit32") == 0)     { luaopen_bit32(lua_vm); }
             //custom libs
             else if (strcmp(tokens[i], "json") == 0 ||
                      strcmp(tokens[i], "mympd") == 0)     { mympd_luaopen(lua_vm, tokens[i]);
@@ -399,9 +398,11 @@ static sds lua_err_to_str(sds buffer, int rc, bool phrase, const char *script) {
         case LUA_ERRMEM:
             buffer = sdscatfmt(buffer, "Error executing script %s}: Memory allocation error", (phrase == true ? "%{script}" : script));
             break;
+        #if LUA_VERSION_5_3
         case LUA_ERRGCMM:
             buffer = sdscatfmt(buffer, "Error executing script %s: Error in garbage collector", (phrase == true ? "%{script}" : script));
             break;
+        #endif
         case LUA_ERRFILE:
             buffer = sdscatfmt(buffer, "Error executing script %s: Can not open or read script file", (phrase == true ? "%{script}" : script));
             break;

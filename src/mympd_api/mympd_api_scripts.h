@@ -7,6 +7,11 @@
 #ifndef __MYMPD_API_SCRIPTS_H
 #define __MYMPD_API_SCRIPTS_H
 #ifdef ENABLE_LUA
+
+#define LUA_VERSION_5_3(major, minor) \
+         ((5) == LUA_VERSION_MAJOR && \
+          ((3) == LUA_VERSION_MINOR))
+
 bool mympd_api_script_save(t_config *config, const char *script, int order, const char *content, const char *arguments);
 bool mympd_api_script_delete(t_config *config, const char *script);
 sds mympd_api_script_get(t_config *config, sds buffer, sds method, long request_id, const char *script);
