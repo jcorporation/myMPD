@@ -180,7 +180,7 @@ static void mpd_client_parse_idle(t_config *config, t_mpd_client_state *mpd_clie
                 }
             }
             if (config->scripting == true) {
-                trigger_execute(mpd_client_state, idle_event);
+                trigger_execute(mpd_client_state, (enum trigger_events)idle_event);
             }
             if (sdslen(buffer) > 0) {
                 ws_notify(buffer);
