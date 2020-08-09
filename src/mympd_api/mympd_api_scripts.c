@@ -17,6 +17,8 @@
 #include <inttypes.h>
 #include <dirent.h>
 #include <errno.h>
+#include <sys/types.h>
+#include <sys/syscall.h>
 
 #include <mpd/client.h>
 
@@ -524,10 +526,11 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
     }
 
     //pid_t tid = gettid();
-    pthread_t tid = pthread_self();
+    //pthread_t tid = pthread_self();
+    pid_t tid = syscall(__NR_gettid);
     
     t_work_request *request = create_request(-2, tid, method_id, method, "");
-    request->data = sdscatprintf(request->data, "{\"jsonrpc\":\"2.0\",\"id\":%ld,\"method\":\"%s\",\"params\":{", tid, method);
+    request->data = sdscatprintf(request->data, "{\"jsonrpc\":\"2.0\",\"id\":%d,\"method\":\"%s\",\"params\":{", tid, method);
     if (raw == false) {
         for (int i = 2; i < n; i = i + 2) {
             bool comma = i + 1 < n ? true : false;
