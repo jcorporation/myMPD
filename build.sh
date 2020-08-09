@@ -618,16 +618,16 @@ installdeps() {
     apt-get update
     apt-get install -y --no-install-recommends \
 	gcc cmake perl libssl-dev libid3tag0-dev libflac-dev \
-	build-essential liblua5.3-dev $JAVADEB
+	build-essential liblua5.3-dev pkg-config $JAVADEB
   elif [ -f /etc/arch-release ]
   then
     #arch
-    pacman -S gcc cmake perl openssl libid3tag flac jre-openjdk-headless lua
+    pacman -S gcc cmake perl openssl libid3tag flac jre-openjdk-headless lua pkgconf
   elif [ -f /etc/alpine-release ]
   then
     #alpine
     apk add cmake perl openssl-dev libid3tag-dev flac-dev lua5.3-dev \
-    	openjdk11-jre-headless alpine-sdk linux-headers
+    	openjdk11-jre-headless alpine-sdk linux-headers pkgconf
   elif [ -f /etc/SuSE-release ]
   then
     #suse
