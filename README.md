@@ -111,4 +111,4 @@ For further information on installation and configuration, see the [myMPD wiki](
 
 Copyright
 ---------
-myMPD: 2018-2020 <mail@jcgames.de>
+2018-2020 Juergen Mang <mail@jcgames.de>
