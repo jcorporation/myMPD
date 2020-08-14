@@ -70,8 +70,7 @@ body {
   background-color: #888;
 }
 
-.breakAll,
-td[data-col=Title] {
+.breakAll {
   word-break: break-word;
 }
 
