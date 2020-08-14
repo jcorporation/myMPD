@@ -679,6 +679,10 @@ a.text-success:focus {
   color: var(--mympd-highlightcolor, #28a745) !important;
 }
 
+a {
+  color: white;
+}
+
 #dropdownAddSmartpls {
   white-space: nowrap;
 }
