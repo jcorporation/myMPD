@@ -11,7 +11,7 @@ pkgrel=0
 pkgdesc="myMPD is a standalone and mobile friendly web-based MPD client."
 url="https://jcorporation.github.io/myMPD/"
 pkgusers="mympd"
-pkggroups"mympd"
+pkggroups="mympd"
 arch="all"
 license="GPL-2.0-or-later"
 makedepends="cmake libid3tag-dev flac-dev openssl-dev linux-headers lua5.3-dev pkgconf"
