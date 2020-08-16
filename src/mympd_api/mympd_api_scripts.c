@@ -294,12 +294,9 @@ static void *mympd_api_script_execute(void *script_thread_arg) {
     if (strcmp(script_arg->config->lualibs, "all") == 0) {
         LOG_DEBUG("Open all standard lua libs");
         luaL_openlibs(lua_vm);
-
         mympd_luaopen(lua_vm, "json");
-        lua_pop(lua_vm, 1);
-        
         mympd_luaopen(lua_vm, "mympd");
-        lua_pop(lua_vm, 1);
+        lua_pop(lua_vm, 1); //pop is only necessary for mympd lib, why?
     }
     else {
         int count;
@@ -307,25 +304,23 @@ static void *mympd_api_script_execute(void *script_thread_arg) {
         for (int i = 0; i < count; i++) {
             sdstrim(tokens[i], " ");
             LOG_DEBUG("Open lua library %s", tokens[i]);
-            if (strcmp(tokens[i], "base") == 0)           { luaopen_base(lua_vm); }
-            else if (strcmp(tokens[i], "package") == 0)   { luaopen_package(lua_vm); }
-            else if (strcmp(tokens[i], "coroutine") == 0) { luaopen_coroutine(lua_vm); }
-            else if (strcmp(tokens[i], "string") == 0)    { luaopen_string(lua_vm); }
-            else if (strcmp(tokens[i], "utf8") == 0)      { luaopen_utf8(lua_vm); }
-            else if (strcmp(tokens[i], "table") == 0)     { luaopen_table(lua_vm); }
-            else if (strcmp(tokens[i], "math") == 0)      { luaopen_math(lua_vm); }
-            else if (strcmp(tokens[i], "io") == 0)        { luaopen_io(lua_vm); }
-            else if (strcmp(tokens[i], "os") == 0)        { luaopen_os(lua_vm); }
-            else if (strcmp(tokens[i], "debug") == 0)     { luaopen_package(lua_vm); }
+            if (strcmp(tokens[i], "base") == 0)           { luaL_requiref(lua_vm, "base", luaopen_base, 1); lua_pop(lua_vm, 1); }
+            else if (strcmp(tokens[i], "package") == 0)   { luaL_requiref(lua_vm, "package", luaopen_package, 1); lua_pop(lua_vm, 1); }
+            else if (strcmp(tokens[i], "coroutine") == 0) { luaL_requiref(lua_vm, "coroutine", luaopen_coroutine, 1); lua_pop(lua_vm, 1); }
+            else if (strcmp(tokens[i], "string") == 0)    { luaL_requiref(lua_vm, "string", luaopen_string, 1); lua_pop(lua_vm, 1); }
+            else if (strcmp(tokens[i], "utf8") == 0)      { luaL_requiref(lua_vm, "utf8", luaopen_utf8, 1); lua_pop(lua_vm, 1); }
+            else if (strcmp(tokens[i], "table") == 0)     { luaL_requiref(lua_vm, "table", luaopen_table, 1); lua_pop(lua_vm, 1); }
+            else if (strcmp(tokens[i], "math") == 0)      { luaL_requiref(lua_vm, "math", luaopen_math, 1); lua_pop(lua_vm, 1); }
+            else if (strcmp(tokens[i], "io") == 0)        { luaL_requiref(lua_vm, "io", luaopen_io, 1); lua_pop(lua_vm, 1); }
+            else if (strcmp(tokens[i], "os") == 0)        { luaL_requiref(lua_vm, "os", luaopen_os, 1); lua_pop(lua_vm, 1); }
+            else if (strcmp(tokens[i], "debug") == 0)     { luaL_requiref(lua_vm, "debug", luaopen_debug, 1); lua_pop(lua_vm, 1); }
             //custom libs
-            else if (strcmp(tokens[i], "json") == 0 ||
-                     strcmp(tokens[i], "mympd") == 0)     { mympd_luaopen(lua_vm, tokens[i]);
-            }
+            else if (strcmp(tokens[i], "json") == 0)	  { mympd_luaopen(lua_vm, tokens[i]); }
+            else if (strcmp(tokens[i], "mympd") == 0) 	  { mympd_luaopen(lua_vm, tokens[i]); lua_pop(lua_vm, 1); /*pop is only necessary for mympd lib, why?*/ }
             else {
                 LOG_ERROR("Can not open lua library %s", tokens[i]);
                 continue;
             }
-            lua_pop(lua_vm, 1);
         }
         sdsfreesplitres(tokens,count);
     }
@@ -350,6 +345,11 @@ static void *mympd_api_script_execute(void *script_thread_arg) {
         LOG_DEBUG("Start script");
         rc = lua_pcall(lua_vm, 0, 1, 0);
         LOG_DEBUG("End script");
+    }
+    int nr_return = lua_gettop(lua_vm);
+    LOG_DEBUG("Lua script returns %d values", nr_return);
+    for (int i = 1; i <= nr_return; i++) {
+        LOG_DEBUG("Lua script return value %d: %s", i, lua_tostring(lua_vm, i));
     }
     if (lua_gettop(lua_vm) == 1) {
         //return value on stack
