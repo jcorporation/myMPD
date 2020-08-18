@@ -330,8 +330,16 @@ function parseSettings() {
     document.getElementById('selectSmartplsSort').value = settings.smartplsSort;
 
     if (settings.featLocalplayer === true) {
+        if (window.location.protocol === 'https:') {
+            document.getElementById('infoLocalplayer').classList.remove('hide');
+            document.getElementById('selectStreamMode').options[0].setAttribute('data-phrase','HTTPS Port');
+        }
+        else {
+            document.getElementById('infoLocalplayer').classList.add('hide');
+            document.getElementById('selectStreamMode').options[0].setAttribute('data-phrase','HTTP Port');
+        }
         if (settings.streamUrl === '') {
-            settings.mpdstream = 'http://';
+            settings.mpdstream = window.location.protocol + '//';
             if (settings.mpdHost.match(/^127\./) !== null || settings.mpdHost === 'localhost' || settings.mpdHost.match(/^\//) !== null) {
                 settings.mpdstream += window.location.hostname;
             }
