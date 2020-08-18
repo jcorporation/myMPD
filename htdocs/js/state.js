@@ -45,10 +45,10 @@ function parseOutputs(obj) {
             }
             btns += '"><span class="material-icons float-left">volume_up</span> ' + e(obj.result.data[i].name);
             if (Object.keys(obj.result.data[i].attributes).length > 0) {
-                btns += '<a class="material-icons float-right" title="' + t('Edit attributes') + '">settings</a>';
+                btns += '<a class="material-icons float-right text-white" title="' + t('Edit attributes') + '">settings</a>';
             }
             else {
-                btns += '<a class="material-icons float-right" title="' + t('Show attributes') + '">settings</a>';
+                btns += '<a class="material-icons float-right text-white" title="' + t('Show attributes') + '">settings</a>';
             }
             btns += '</button>';
         }
