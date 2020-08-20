@@ -74,7 +74,15 @@ void mympd_log(int level, const char *file, int line, const char *fmt, ...) {
         logline = sdscat(logline, "\033[0m");
     }
     
-    fputs(logline, stderr);
-    fflush(stderr);
+    if (level > 1) {
+        //info, verbose and debug to stdout
+        fputs(logline, stdout);
+        fflush(stdout);
+    }
+    else {
+        //error and warning to stderr
+        fputs(logline, stderr);
+        fflush(stderr);
+    }
     sdsfree(logline);
 }
