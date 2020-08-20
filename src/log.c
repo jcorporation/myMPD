@@ -17,6 +17,7 @@
 #include "log.h"
 
 int loglevel;
+int log_on_tty;
 
 static const char *loglevel_names[] = {
   "ERROR", "WARN", "INFO", "VERBOSE", "DEBUG"
@@ -42,9 +43,12 @@ void mympd_log(int level, const char *file, int line, const char *fmt, ...) {
         return;
     }
     
-    sds logline = sdsnew(loglevel_colors[level]);
+    sds logline = sdsempty();
+    if (log_on_tty == 1) {
+        logline = sdscat(logline, loglevel_colors[level]);
+    }
     
-    if (loglevel == 4) {
+    if (log_on_tty == 1) {
         time_t now = time(NULL);
         struct tm *timeinfo = localtime(&now);
         logline = sdscatprintf(logline, "%02d:%02d:%02d ", timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec);
@@ -66,7 +70,9 @@ void mympd_log(int level, const char *file, int line, const char *fmt, ...) {
     else {
         logline = sdscatlen(logline, "\n", 1);
     }
-    logline = sdscat(logline, "\033[0m");
+    if (log_on_tty == 1) {
+        logline = sdscat(logline, "\033[0m");
+    }
     
     fputs(logline, stderr);
     fflush(stderr);

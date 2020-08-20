@@ -280,6 +280,7 @@ static bool check_dirs(t_config *config) {
 
 int main(int argc, char **argv) {
     thread_logname = sdsnew("mympd");
+    log_on_tty = isatty(fileno(stdout)) ? 1: 0;
  
     s_signal_received = 0;
     bool init_webserver = false;
