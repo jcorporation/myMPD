@@ -207,7 +207,7 @@ function appGoto(card, tab, view, state) {
     else {
         hash = '/' + card + '!'+ (state === undefined ? app.apps[card].state : state);
     }
-    location.hash = hash;
+    location.hash = encodeURI(hash);
 }
 
 function appRoute() {
@@ -289,7 +289,7 @@ function appRoute() {
             document.getElementById('BrowseFilesystemAddAllSongsBtn').setAttribute('disabled', 'disabled');
         }
         // Create breadcrumb
-        let breadcrumbs='<li class="breadcrumb-item"><a data-uri="" class="material-icons">home</a></li>';
+        let breadcrumbs='<li class="breadcrumb-item"><a data-uri="" class="text-body material-icons">home</a></li>';
         let pathArray = app.current.search.split('/');
         let pathArrayLen = pathArray.length;
         let fullPath = '';
