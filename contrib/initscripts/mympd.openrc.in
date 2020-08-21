@@ -4,7 +4,7 @@
 # myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
 # https://github.com/jcorporation/mympd
 
-name=mympd
+name=myMPD
 command="@CMAKE_INSTALL_FULL_BINDIR@/mympd"
 command_args=""
 command_background="yes"
