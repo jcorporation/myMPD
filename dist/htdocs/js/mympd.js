@@ -1503,7 +1503,7 @@ function appGoto(card, tab, view, state) {
     else {
         hash = '/' + card + '!'+ (state === undefined ? app.apps[card].state : state);
     }
-    location.hash = hash;
+    location.hash = encodeURI(hash);
 }
 
 function appRoute() {
@@ -1585,7 +1585,7 @@ function appRoute() {
             document.getElementById('BrowseFilesystemAddAllSongsBtn').setAttribute('disabled', 'disabled');
         }
         // Create breadcrumb
-        let breadcrumbs='<li class="breadcrumb-item"><a data-uri="" class="material-icons">home</a></li>';
+        let breadcrumbs='<li class="breadcrumb-item"><a data-uri="" class="text-body material-icons">home</a></li>';
         let pathArray = app.current.search.split('/');
         let pathArrayLen = pathArray.length;
         let fullPath = '';
@@ -4702,8 +4702,16 @@ function parseSettings() {
     document.getElementById('selectSmartplsSort').value = settings.smartplsSort;
 
     if (settings.featLocalplayer === true) {
+        if (window.location.protocol === 'https:') {
+            document.getElementById('infoLocalplayer').classList.remove('hide');
+            document.getElementById('selectStreamMode').options[0].setAttribute('data-phrase','HTTPS Port');
+        }
+        else {
+            document.getElementById('infoLocalplayer').classList.add('hide');
+            document.getElementById('selectStreamMode').options[0].setAttribute('data-phrase','HTTP Port');
+        }
         if (settings.streamUrl === '') {
-            settings.mpdstream = 'http://';
+            settings.mpdstream = window.location.protocol + '//';
             if (settings.mpdHost.match(/^127\./) !== null || settings.mpdHost === 'localhost' || settings.mpdHost.match(/^\//) !== null) {
                 settings.mpdstream += window.location.hostname;
             }
@@ -5661,10 +5669,10 @@ function parseOutputs(obj) {
             }
             btns += '"><span class="material-icons float-left">volume_up</span> ' + e(obj.result.data[i].name);
             if (Object.keys(obj.result.data[i].attributes).length > 0) {
-                btns += '<a class="material-icons float-right" title="' + t('Edit attributes') + '">settings</a>';
+                btns += '<a class="material-icons float-right text-white" title="' + t('Edit attributes') + '">settings</a>';
             }
             else {
-                btns += '<a class="material-icons float-right" title="' + t('Show attributes') + '">settings</a>';
+                btns += '<a class="material-icons float-right text-white" title="' + t('Show attributes') + '">settings</a>';
             }
             btns += '</button>';
         }
