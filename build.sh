@@ -177,7 +177,8 @@ createi18n() {
   cd ../.. || exit 1
 }
 
-buildrelease() {
+createdistfiles() {
+  echo "Creating dist files"
   ASSETSCHANGED=0
 
   createi18n ../../dist/htdocs/js/i18n.min.js
@@ -279,6 +280,12 @@ buildrelease() {
       echo "Skipping $ASSET"
     fi
   done
+  return $ASSETSCHANGED
+}
+
+buildrelease() {
+  createdistfiles
+  ASSETSCHANGED=$?
 
   echo "Compiling myMPD"
   install -d release
@@ -809,6 +816,9 @@ case "$1" in
 	translate)
 	  translate
 	;;
+	createdist)
+	  createdistfiles
+	;;
 	*)
 	  echo "Usage: $0 <option>"
 	  echo "Version: ${VERSION}"
@@ -830,6 +840,7 @@ case "$1" in
 	  echo "  test:           builds the unit testing files in test/build"
 	  echo "  installdeps:    installs build and run dependencies"
 	  echo "  translate:      builds the translation file for debug builds"
+	  echo "  createdist:     creates the minfied and compressed dist files"
 	  echo ""
 	  echo "Cleanup options:"
 	  echo "  cleanup:        cleanup source tree"
