@@ -5,7 +5,7 @@
 #
 [Unit]
 Description=myMPD server daemon
-Requires=network.target local-fs.target mpd.service
+Requires=network.target local-fs.target
 After=mpd.service
 
 [Service]
