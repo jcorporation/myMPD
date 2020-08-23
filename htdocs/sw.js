@@ -40,6 +40,9 @@ self.addEventListener('install', function(event) {
 });
 
 self.addEventListener('fetch', function(event) {
+    if (event.request.destination === 'audio') {
+        return false;    
+    }
     if (event.request.url.match('^http://')) {
         return false;
     }
