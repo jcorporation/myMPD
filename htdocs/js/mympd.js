@@ -1401,6 +1401,10 @@ function appInit() {
         event.preventDefault();
         checkLocalPlayerState();    
     }, false);
+
+    document.getElementById('localPlayer').addEventListener('click', function(event) {
+        event.stopPropagation();
+    });
     
     document.getElementById('localPlayer').addEventListener('canplay', function() {
         logDebug('localPlayer event: canplay');

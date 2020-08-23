@@ -125,6 +125,9 @@ function parseNeighbors(obj) {
             list += '<a href="#" class="list-group-item list-group-item-action" data-value="' + obj.result.data[i].uri + '">' + 
                     obj.result.data[i].uri + '<br/><small>' + obj.result.data[i].displayName + '</small></a>';
         }    
+        if (obj.result.returnedEntities === 0) {
+            list = '<span class="material-icons">error_outline</span>&nbsp;' + t('Empty list');
+        }
     }
     document.getElementById('dropdownNeighbors').children[0].innerHTML = list;
 }
