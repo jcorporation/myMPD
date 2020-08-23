@@ -1390,7 +1390,16 @@ function appInit() {
     });
     
     document.getElementById('localPlayer').addEventListener('canplay', function() {
+        logDebug('localPlayer event: canplay');
         document.getElementById('alertLocalPlayback').classList.add('hide');
+        document.getElementById('errorLocalPlayback').classList.add('hide');
+        if (settings.featLocalplayer === true && settings.localplayerAutoplay === true) {
+            localplayerPlay();
+        }
+    });
+    document.getElementById('localPlayer').addEventListener('error', function() {
+        logError('localPlayer event: error');
+        document.getElementById('errorLocalPlayback').classList.remove('hide');
         if (settings.featLocalplayer === true && settings.localplayerAutoplay === true) {
             localplayerPlay();
         }

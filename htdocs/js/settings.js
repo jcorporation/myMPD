@@ -354,9 +354,11 @@ function parseSettings() {
         let localPlayer = document.getElementById('localPlayer');
         if (localPlayer.src !== settings.mpdstream) {
             localPlayer.pause();
-            document.getElementById('alertLocalPlayback').classList.remove('hide');
             localPlayer.src = settings.mpdstream;
             localPlayer.load();
+            setTimeout(function() {
+                checkLocalPlayerState();
+            }, 500);
         }
     }
     
