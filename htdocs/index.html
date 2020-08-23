@@ -99,13 +99,13 @@
           <button id="localPlaybackMenu" class="btn btn-secondary dropdown-toggle pl-2 pr-2 material-icons" type="button" data-toggle="dropdown">airplay</button>
           <div class="dropdown-menu bg-lite-dark">
             <h2 data-phrase="Local playback" class="dropdown-header dropdown-header-lx text-light"></h2>
-            <div id="alertLocalPlayback" class="alert alert-warning mx-4">
+            <div id="alertLocalPlayback" class="alert alert-warning mx-4 hide">
               <span data-phrase="Connecting to stream..."></span>
-              <a class="alert-link" data-phrase="Recheck" data-href='{"cmd": "checkLocalPlayerState", "options": []}'></a>
+              <a class="btn btn-sm btn-warning float-right material-icons material-icons-small p-2">refresh</a>
             </div>
             <div id="errorLocalPlayback" class="alert alert-danger mx-4 hide">
               <span data-phrase="Error loading stream"></span>
-              <a class="alert-link" data-phrase="Recheck" data-href='{"cmd": "checkLocalPlayerState", "options": []}'></a>
+              <a class="btn btn-sm btn-danger float-right material-icons material-icons-small p-2">refresh</a>
             </div>
             <audio class="mx-4" id="localPlayer" preload="none" controls=""></audio>
           </div>

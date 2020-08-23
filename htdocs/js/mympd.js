@@ -449,12 +449,13 @@ function appInitStart() {
     
     i18nHtml(document.getElementById('splashScreenAlert'));
     
-    //register serviceworker
+    //set loglevel
     let script = document.getElementsByTagName("script")[0].src.replace(/^.*[/]/, '');
     if (script !== 'combined.js') {
         settings.loglevel = 4;
     }
-    if ('serviceWorker' in navigator && document.URL.substring(0, 5) === 'https' 
+    //register serviceworker
+    if ('serviceWorker' in navigator && window.location.protocol === 'https:' 
         && window.location.hostname !== 'localhost' && script === 'combined.js')
     {
         window.addEventListener('load', function() {
@@ -1388,6 +1389,18 @@ function appInit() {
         }
         websocketConnected = false;
     });
+    
+    document.getElementById('alertLocalPlayback').getElementsByTagName('a')[0].addEventListener('click', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        checkLocalPlayerState();    
+    }, false);
+    
+    document.getElementById('errorLocalPlayback').getElementsByTagName('a')[0].addEventListener('click', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        checkLocalPlayerState();    
+    }, false);
     
     document.getElementById('localPlayer').addEventListener('canplay', function() {
         logDebug('localPlayer event: canplay');
