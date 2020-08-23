@@ -39,6 +39,9 @@ Lokale Wiedergabe
 Connecting to stream...
 Verbinde...
 
+Error loading stream
+Fehler beim Laden des Streams
+
 JavaScript is disabled
 JavaScript ist deaktiviert
 
