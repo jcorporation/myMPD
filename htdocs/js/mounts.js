@@ -126,7 +126,7 @@ function parseNeighbors(obj) {
                     obj.result.data[i].uri + '<br/><small>' + obj.result.data[i].displayName + '</small></a>';
         }    
         if (obj.result.returnedEntities === 0) {
-            list = '<span class="material-icons">error_outline</span>&nbsp;' + t('Empty list');
+            list = '<div class="list-group-item"><span class="material-icons">error_outline</span>&nbsp;' + t('Empty list') + '</div>';
         }
     }
     document.getElementById('dropdownNeighbors').children[0].innerHTML = list;
