@@ -321,9 +321,9 @@ static X509 *sign_certificate_request(EVP_PKEY *ca_key, X509 *ca_cert, X509_REQ 
     /* Set issuer to CA's subject. */
     X509_set_issuer_name(cert, X509_get_subject_name(ca_cert));
     
-    /* This certificate is valid from now until exactly ten years from now. */
+    /* This certificate is valid from now until 90 days from now. */
     X509_gmtime_adj(X509_get_notBefore(cert), 0);
-    X509_gmtime_adj(X509_get_notAfter(cert), 315360000);
+    X509_gmtime_adj(X509_get_notAfter(cert), 7776000);
     
     /* Get the request's subject and just use it (we don't bother checking it since we generated
      * it ourself). Also take the request's public key. */
