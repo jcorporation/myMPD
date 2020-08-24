@@ -170,7 +170,7 @@ static bool create_ca_certificate(sds cakey_file, EVP_PKEY **ca_key, sds cacert_
     }
     
     *ca_cert = generate_selfsigned_cert(*ca_key);
-    if (ca_cert == NULL) {
+    if (*ca_cert == NULL) {
         return false;
     }
     bool rc_ca = write_to_disk(cakey_file, *ca_key, cacert_file, *ca_cert);
