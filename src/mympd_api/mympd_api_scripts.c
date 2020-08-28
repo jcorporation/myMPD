@@ -154,7 +154,7 @@ bool mympd_api_script_delete(t_config *config, const char *script) {
     return true;
 }
 
-bool mympd_api_script_save(t_config *config, const char *script, int order, const char *content, const char *arguments) {
+bool mympd_api_script_save(t_config *config, const char *script, int order, const char *content, const char *arguments, const char *oldscript) {
     sds tmp_file = sdscatfmt(sdsempty(), "%s/scripts/%.XXXXXX", config->varlibdir, script);
     int fd = mkstemp(tmp_file);
     if (fd < 0 ) {
@@ -168,15 +168,22 @@ bool mympd_api_script_save(t_config *config, const char *script, int order, cons
     //write script content
     fputs(content, fp);
     fclose(fp);
-    sds scriptfilename = sdscatfmt(sdsempty(), "%s/scripts/%s.lua", config->varlibdir, script);
-    if (rename(tmp_file, scriptfilename) == -1) {
-        LOG_ERROR("Rename file from %s to %s failed", tmp_file, scriptfilename);
+    sds script_filename = sdscatfmt(sdsempty(), "%s/scripts/%s.lua", config->varlibdir, script);
+    if (rename(tmp_file, script_filename) == -1) {
+        LOG_ERROR("Rename file from %s to %s failed", tmp_file, script_filename);
         sdsfree(tmp_file);
-        sdsfree(scriptfilename);
+        sdsfree(script_filename);
         return false;
     }
+    if (strlen(oldscript) > 0 && strcmp(script, oldscript) != 0) {
+        sds oldscript_filename = sdscatfmt(sdsempty(), "%s/scripts/%s.lua", config->varlibdir, oldscript);
+        if (unlink(oldscript_filename) == -1) {
+            LOG_ERROR("Deleting file %s failed", oldscript_filename);
+        }
+        sdsfree(oldscript_filename);
+    }
     sdsfree(tmp_file);
-    sdsfree(scriptfilename);
+    sdsfree(script_filename);
     return true;
 }
 

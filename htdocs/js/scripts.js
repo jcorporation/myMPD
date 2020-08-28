@@ -26,6 +26,7 @@ function saveScript() {
             args.push(argSel.options[i].text);
         }
         sendAPI("MYMPD_API_SCRIPT_SAVE", {
+            "oldscript": document.getElementById('inputOldScriptName').value,
             "script": nameEl.value,
             "order": parseInt(orderEl.value),
             "content": document.getElementById('textareaScriptContent').value,
@@ -66,6 +67,7 @@ function showEditScript(script) {
         sendAPI("MYMPD_API_SCRIPT_GET", {"script": script}, parseEditScript, false);
     }
     else {
+        document.getElementById('inputOldScriptName').value = '';
         document.getElementById('inputScriptName').value = '';
         document.getElementById('inputScriptOrder').value = '1';
         document.getElementById('inputScriptArgument').value = '';
@@ -75,6 +77,7 @@ function showEditScript(script) {
 }
 
 function parseEditScript(obj) {
+    document.getElementById('inputOldScriptName').value = obj.result.script;
     document.getElementById('inputScriptName').value = obj.result.script;
     document.getElementById('inputScriptOrder').value = obj.result.metadata.order;
     document.getElementById('inputScriptArgument').value = '';
