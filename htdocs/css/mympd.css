@@ -769,3 +769,12 @@ a.text-success:focus {
     height: 28rem;
   }
 }
+
+.disabled {
+  pointer-events: none;
+  cursor: not-available;
+}
+
+.btn-warning {
+  background-color: #ffc107 !important;
+}

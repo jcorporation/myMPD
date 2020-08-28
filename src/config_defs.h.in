@@ -93,7 +93,6 @@ typedef struct t_config {
     sds cols_playback;
     sds cols_queue_last_played;
     bool localplayer;
-    bool localplayer_autoplay;
     int stream_port;
     sds stream_url;
     bool bg_cover;

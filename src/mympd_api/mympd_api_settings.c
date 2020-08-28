@@ -35,7 +35,7 @@ void mympd_api_settings_delete(t_config *config) {
         "cols_browse_filesystem", "cols_browse_playlists_detail", "cols_playback", "cols_queue_current", "cols_queue_last_played",
         "cols_search", "coverimage", "coverimage_name", "coverimage_size", "jukebox_mode", "jukebox_playlist", "jukebox_queue_length",
         "jukebox_unique_tag", "jukebox_last_played", "generate_pls_tags", "smartpls_sort", "smartpls_prefix", "smartpls_interval",
-        "last_played", "last_played_count", "locale", "localplayer", "localplayer_autoplay", "love", "love_channel", "love_message",
+        "last_played", "last_played_count", "locale", "localplayer", "love", "love_channel", "love_message",
         "max_elements_per_page",  "mpd_host", "mpd_pass", "mpd_port", "notification_page", "notification_web", "searchtaglist",
         "smartpls", "stickers", "stream_port", "stream_url", "taglist", "music_directory", "bookmarks", "bookmark_list", "covergrid_size", 
         "theme", "timer", "highlight_color", "media_session", "booklet_name", "lyrics", 0};
@@ -152,10 +152,6 @@ bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state, struct
     else if (strncmp(key->ptr, "autoPlay", key->len) == 0) {
         mympd_state->auto_play = val->type == JSON_TYPE_TRUE ? true : false;
         settingname = sdscat(settingname, "auto_play");
-    }
-    else if (strncmp(key->ptr, "localplayerAutoplay", key->len) == 0) {
-        mympd_state->localplayer_autoplay = val->type == JSON_TYPE_TRUE ? true : false;
-        settingname = sdscat(settingname, "localplayer_autoplay");
     }
     else if (strncmp(key->ptr, "coverimage", key->len) == 0) {
         mympd_state->coverimage = val->type == JSON_TYPE_TRUE ? true : false;
@@ -400,7 +396,6 @@ void mympd_api_read_statefiles(t_config *config, t_mympd_state *mympd_state) {
     mympd_state->cols_playback = state_file_rw_string(config, "cols_playback", config->cols_playback, false);
     mympd_state->cols_queue_last_played = state_file_rw_string(config, "cols_queue_last_played", config->cols_queue_last_played, false);
     mympd_state->localplayer = state_file_rw_bool(config, "localplayer", config->localplayer, false);
-    mympd_state->localplayer_autoplay = state_file_rw_bool(config, "localplayer_autoplay", config->localplayer_autoplay, false);
     mympd_state->stream_port = state_file_rw_int(config, "stream_port", config->stream_port, false);
     mympd_state->stream_url = state_file_rw_string(config, "stream_url", config->stream_url, false);
     mympd_state->bg_cover = state_file_rw_bool(config, "bg_cover", config->bg_cover, false);
@@ -552,7 +547,6 @@ sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buf
     buffer = tojson_char(buffer, "bgCssFilter", mympd_state->bg_css_filter, true);
     buffer = tojson_long(buffer, "loglevel", loglevel, true);
     buffer = tojson_char(buffer, "locale", mympd_state->locale, true);
-    buffer = tojson_bool(buffer, "localplayerAutoplay", mympd_state->localplayer_autoplay, true);
     buffer = tojson_bool(buffer, "stickers", mympd_state->stickers, true);
     buffer = tojson_bool(buffer, "smartpls", mympd_state->smartpls, true);
     buffer = tojson_char(buffer, "smartplsSort", mympd_state->smartpls_sort, true);

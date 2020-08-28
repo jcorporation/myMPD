@@ -174,7 +174,6 @@ function parseSettings() {
     toggleBtnChk('btnNotifyPage', settings.notificationPage);
     toggleBtnChk('btnMediaSession', settings.mediaSession);
     toggleBtnChkCollapse('btnFeatLocalplayer', 'collapseLocalplayer', settings.featLocalplayer);
-    toggleBtnChk('btnLocalplayerAutoplay', settings.localplayerAutoplay);
     toggleBtnChk('btnFeatTimer', settings.featTimer);
     toggleBtnChk('btnBookmarks', settings.featBookmarks);
     toggleBtnChk('btnFeatLyrics', settings.featLyrics);
@@ -329,36 +328,7 @@ function parseSettings() {
     document.getElementById('selectSmartplsSort').value = settings.smartplsSort;
 
     if (settings.featLocalplayer === true) {
-        if (window.location.protocol === 'https:') {
-            document.getElementById('infoLocalplayer').classList.remove('hide');
-            document.getElementById('selectStreamMode').options[0].setAttribute('data-phrase','HTTPS Port');
-        }
-        else {
-            document.getElementById('infoLocalplayer').classList.add('hide');
-            document.getElementById('selectStreamMode').options[0].setAttribute('data-phrase','HTTP Port');
-        }
-        if (settings.streamUrl === '') {
-            settings.mpdstream = window.location.protocol + '//';
-            if (settings.mpdHost.match(/^127\./) !== null || settings.mpdHost === 'localhost' || settings.mpdHost.match(/^\//) !== null) {
-                settings.mpdstream += window.location.hostname;
-            }
-            else {
-                settings.mpdstream += settings.mpdHost;
-            }
-            settings.mpdstream += ':' + settings.streamPort + '/';
-        } 
-        else {
-            settings.mpdstream = settings.streamUrl;
-        }
-        let localPlayer = document.getElementById('localPlayer');
-        if (localPlayer.src !== settings.mpdstream) {
-            localPlayer.pause();
-            localPlayer.src = settings.mpdstream;
-            localPlayer.load();
-            setTimeout(function() {
-                checkLocalPlayerState();
-            }, 500);
-        }
+        setLocalPlayerUrl();
     }
     
     if (settings.musicDirectory === 'auto') {
@@ -807,7 +777,6 @@ function saveSettings(closeModal) {
             "bgColor": document.getElementById('inputBgColor').value,
             "bgCssFilter": document.getElementById('inputBgCssFilter').value,
             "featLocalplayer": (document.getElementById('btnFeatLocalplayer').classList.contains('active') ? true : false),
-            "localplayerAutoplay": (document.getElementById('btnLocalplayerAutoplay').classList.contains('active') ? true : false),
             "streamUrl": streamUrl,
             "streamPort": parseInt(streamPort),
             "coverimage": (document.getElementById('btnCoverimage').classList.contains('active') ? true : false),

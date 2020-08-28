@@ -340,8 +340,9 @@ function appRoute() {
                 }
                 let match = lastEl.substring(lastEl.indexOf(' ') + 1);
                 match = match.substring(0, match.indexOf(' '));
-                if (match === '')
+                if (match === '') {
                     match = 'contains';
+                }
                 document.getElementById('searchMatch').value = match;
             }
         }
@@ -1393,13 +1394,13 @@ function appInit() {
     document.getElementById('alertLocalPlayback').getElementsByTagName('a')[0].addEventListener('click', function(event) {
         event.stopPropagation();
         event.preventDefault();
-        checkLocalPlayerState();    
+        clickCheckLocalPlayerState(event);
     }, false);
     
     document.getElementById('errorLocalPlayback').getElementsByTagName('a')[0].addEventListener('click', function(event) {
         event.stopPropagation();
         event.preventDefault();
-        checkLocalPlayerState();    
+        clickCheckLocalPlayerState(event);
     }, false);
 
     document.getElementById('localPlayer').addEventListener('click', function(event) {
@@ -1410,16 +1411,10 @@ function appInit() {
         logDebug('localPlayer event: canplay');
         document.getElementById('alertLocalPlayback').classList.add('hide');
         document.getElementById('errorLocalPlayback').classList.add('hide');
-        if (settings.featLocalplayer === true && settings.localplayerAutoplay === true) {
-            localplayerPlay();
-        }
     });
     document.getElementById('localPlayer').addEventListener('error', function() {
         logError('localPlayer event: error');
         document.getElementById('errorLocalPlayback').classList.remove('hide');
-        if (settings.featLocalplayer === true && settings.localplayerAutoplay === true) {
-            localplayerPlay();
-        }
     });
 }
 

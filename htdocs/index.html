@@ -37,7 +37,7 @@
   <header>
     <nav class="navbar navbar-expand navbar-dark fixed-top bg-dark d-flex justify-content-between">
       <div class="dropdown nav-item mr-3" id="headerLeft">
-        <a class="dropdown-toggle navbar-brand pr-0" href="#" id="mainMenu">
+        <a class="dropdown-toggle navbar-brand pr-0 alwaysEnabled" href="#" id="mainMenu">
           <span class="material-icons header-logo">play_circle_outline</span>myMPD
         </a>
         <div class="dropdown-menu bg-lite-dark" id="mainMenuDropdown">
@@ -1386,12 +1386,6 @@
                       </div>
                     </div>
                   </div>
-                  <div class="form-group row">
-                    <label class="col-sm-4 col-form-label" for="btnLocalplayerAutoplay" data-phrase="Autoplay"></label>
-                    <div class="col-sm-8 ">
-                      <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary material-icons" id="btnLocalplayerAutoplay"></button>
-                    </div>
-                  </div>
                 </div>
                 <hr/>
                 <h4 data-phrase="Scrobbler integration"></h4>
@@ -2025,6 +2019,7 @@
               <div class="form-group row">
                 <label class="col-sm-4 col-form-label" for="inputScriptName" data-phrase="Script name"></label>
                 <div class="col-sm-8">
+                  <input id="inputOldScriptName" type="hidden"/>
                   <input id="inputScriptName" class="form-control border-secondary" type="text"/>
                   <div class="invalid-feedback" data-phrase="Invalid script name"></div>
                 </div>
@@ -2279,6 +2274,7 @@
 <!--debug-->  <script src="js/scripts.js"></script>
 <!--debug-->  <script src="js/trigger.js"></script>
 <!--debug-->  <script src="js/popover.js"></script>
+<!--debug-->  <script src="js/localplayer.js"></script>
 <!--debug-->  <script src="js/mympd.js"></script>
 <!--release   <script src="js/combined.js"></script>-->
  </body>

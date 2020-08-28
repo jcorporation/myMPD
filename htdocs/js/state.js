@@ -487,20 +487,3 @@ function mediaSessionSetMetadata(title, artist, album, url) {
         }
     }
 }
-
-function checkLocalPlayerState() {
-    let localPlayer = document.getElementById('localPlayer');
-    document.getElementById('errorLocalPlayback').classList.add('hide');
-    document.getElementById('alertLocalPlayback').classList.add('hide');
-    if (localPlayer.networkState === 0) {
-        logDebug('localPlayer networkState: ' + localPlayer.networkState);
-        document.getElementById('alertLocalPlayback').classList.remove('hide');
-    }
-    else if (localPlayer.networkState >=1) {
-        logDebug('localPlayer networkState: ' + localPlayer.networkState);
-    }
-    if (localPlayer.networkState === 3) {
-        logError('localPlayer networkState: ' + localPlayer.networkState);
-        document.getElementById('errorLocalPlayback').classList.remove('hide');
-    }
-}
