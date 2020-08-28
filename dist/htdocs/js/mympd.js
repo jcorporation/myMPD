@@ -945,6 +945,74 @@ function i18nHtml(root) {
         }
     }
 }
+function setLocalPlayerUrl() {
+    if (window.location.protocol === 'https:') {
+        document.getElementById('infoLocalplayer').classList.remove('hide');
+        document.getElementById('selectStreamMode').options[0].setAttribute('data-phrase','HTTPS Port');
+    }
+    else {
+        document.getElementById('infoLocalplayer').classList.add('hide');
+        document.getElementById('selectStreamMode').options[0].setAttribute('data-phrase','HTTP Port');
+    }
+    if (settings.streamUrl === '') {
+        settings.mpdstream = window.location.protocol + '//';
+        if (settings.mpdHost.match(/^127\./) !== null || settings.mpdHost === 'localhost' || settings.mpdHost.match(/^\//) !== null) {
+            settings.mpdstream += window.location.hostname;
+        }
+        else {
+            settings.mpdstream += settings.mpdHost;
+        }
+        settings.mpdstream += ':' + settings.streamPort + '/';
+    } 
+    else {
+        settings.mpdstream = settings.streamUrl;
+    }
+    const localPlayer = document.getElementById('localPlayer');
+    if (localPlayer.src !== settings.mpdstream) {
+        localPlayer.pause();
+        localPlayer.src = settings.mpdstream;
+        localPlayer.load();
+        setTimeout(function() {
+            checkLocalPlayerState();
+        }, 500);
+    }
+
+}
+
+function clickCheckLocalPlayerState(event) {
+    const el = event.target;
+    el.classList.add('disabled');
+    const parent = document.getElementById('localPlayer').parentNode;
+    document.getElementById('localPlayer').remove();
+    let localPlayer = document.createElement('audio');
+    localPlayer.setAttribute('preload', 'none');
+    localPlayer.setAttribute('controls', '');
+    localPlayer.setAttribute('id', 'localPlayer');
+    localPlayer.classList.add('mx-4');
+    parent.appendChild(localPlayer);
+    setLocalPlayerUrl();
+    setTimeout(function() {
+        el.classList.remove('disabled');
+        localPlayer.play();
+    }, 500);
+}
+
+function checkLocalPlayerState() {
+    const localPlayer = document.getElementById('localPlayer');
+    document.getElementById('errorLocalPlayback').classList.add('hide');
+    document.getElementById('alertLocalPlayback').classList.add('hide');
+    if (localPlayer.networkState === 0) {
+        logDebug('localPlayer networkState: ' + localPlayer.networkState);
+        document.getElementById('alertLocalPlayback').classList.remove('hide');
+    }
+    else if (localPlayer.networkState >=1) {
+        logDebug('localPlayer networkState: ' + localPlayer.networkState);
+    }
+    if (localPlayer.networkState === 3) {
+        logError('localPlayer networkState: ' + localPlayer.networkState);
+        document.getElementById('errorLocalPlayback').classList.remove('hide');
+    }
+}
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
  myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
@@ -1292,6 +1360,9 @@ function parseNeighbors(obj) {
             list += '<a href="#" class="list-group-item list-group-item-action" data-value="' + obj.result.data[i].uri + '">' + 
                     obj.result.data[i].uri + '<br/><small>' + obj.result.data[i].displayName + '</small></a>';
         }    
+        if (obj.result.returnedEntities === 0) {
+            list = '<div class="list-group-item"><span class="material-icons">error_outline</span>&nbsp;' + t('Empty list') + '</div>';
+        }
     }
     document.getElementById('dropdownNeighbors').children[0].innerHTML = list;
 }
@@ -1636,8 +1707,9 @@ function appRoute() {
                 }
                 let match = lastEl.substring(lastEl.indexOf(' ') + 1);
                 match = match.substring(0, match.indexOf(' '));
-                if (match === '')
+                if (match === '') {
                     match = 'contains';
+                }
                 document.getElementById('searchMatch').value = match;
             }
         }
@@ -2689,29 +2761,27 @@ function appInit() {
     document.getElementById('alertLocalPlayback').getElementsByTagName('a')[0].addEventListener('click', function(event) {
         event.stopPropagation();
         event.preventDefault();
-        checkLocalPlayerState();    
+        clickCheckLocalPlayerState(event);
     }, false);
     
     document.getElementById('errorLocalPlayback').getElementsByTagName('a')[0].addEventListener('click', function(event) {
         event.stopPropagation();
         event.preventDefault();
-        checkLocalPlayerState();    
+        clickCheckLocalPlayerState(event);
     }, false);
+
+    document.getElementById('localPlayer').addEventListener('click', function(event) {
+        event.stopPropagation();
+    });
     
     document.getElementById('localPlayer').addEventListener('canplay', function() {
         logDebug('localPlayer event: canplay');
         document.getElementById('alertLocalPlayback').classList.add('hide');
         document.getElementById('errorLocalPlayback').classList.add('hide');
-        if (settings.featLocalplayer === true && settings.localplayerAutoplay === true) {
-            localplayerPlay();
-        }
     });
     document.getElementById('localPlayer').addEventListener('error', function() {
         logError('localPlayer event: error');
         document.getElementById('errorLocalPlayback').classList.remove('hide');
-        if (settings.featLocalplayer === true && settings.localplayerAutoplay === true) {
-            localplayerPlay();
-        }
     });
 }
 
@@ -2928,8 +2998,8 @@ function notificationsSupported() {
     return "Notification" in window;
 }
 
-function setElsState(tag, state) {
-    let els = document.getElementsByTagName(tag);
+function setElsState(tag, state, type) {
+    let els = type === 'tag' ? document.getElementsByTagName(tag) : document.getElementsByClassName(tag);
     let elsLen = els.length;
     for (let i = 0; i < elsLen; i++) {
         if (state === 'disabled') {
@@ -2957,9 +3027,10 @@ function toggleUI() {
     let enabled = state === 'disabled' ? false : true;
     if (enabled !== uiEnabled) {
         logDebug('Setting ui state to ' + state);
-        setElsState('a', state);
-        setElsState('input', state);
-        setElsState('button', state);
+        setElsState('a', state, 'tag');
+        setElsState('input', state, 'tag');
+        setElsState('button', state, 'tag');
+        setElsState('clickable', state, 'class');
         uiEnabled = enabled;
     }
 
@@ -4138,6 +4209,7 @@ function saveScript() {
             args.push(argSel.options[i].text);
         }
         sendAPI("MYMPD_API_SCRIPT_SAVE", {
+            "oldscript": document.getElementById('inputOldScriptName').value,
             "script": nameEl.value,
             "order": parseInt(orderEl.value),
             "content": document.getElementById('textareaScriptContent').value,
@@ -4178,6 +4250,7 @@ function showEditScript(script) {
         sendAPI("MYMPD_API_SCRIPT_GET", {"script": script}, parseEditScript, false);
     }
     else {
+        document.getElementById('inputOldScriptName').value = '';
         document.getElementById('inputScriptName').value = '';
         document.getElementById('inputScriptOrder').value = '1';
         document.getElementById('inputScriptArgument').value = '';
@@ -4187,6 +4260,7 @@ function showEditScript(script) {
 }
 
 function parseEditScript(obj) {
+    document.getElementById('inputOldScriptName').value = obj.result.script;
     document.getElementById('inputScriptName').value = obj.result.script;
     document.getElementById('inputScriptOrder').value = obj.result.metadata.order;
     document.getElementById('inputScriptArgument').value = '';
@@ -4342,7 +4416,7 @@ function search(x) {
             expression += ')';
         if (expression.length <= 2)
             expression = '';
-        appGoto('Search', undefined, undefined, '0/' + app.current.filter + '/' + app.current.sort + '/' + encodeURI(expression));
+        appGoto('Search', undefined, undefined, '0/' + app.current.filter + '/' + app.current.sort + '/' + expression);
     }
     else
         appGoto('Search', undefined, undefined, '0/' + app.current.filter + '/' + app.current.sort + '/' + x);
@@ -4488,7 +4562,6 @@ function parseUrlhandlers(obj) {
                 break;
         }
     }
-    storagePlugins += '<option value="udisks://">udisks://</option>';
     document.getElementById('selectMountUrlhandler').innerHTML = storagePlugins;
 }
 
@@ -4569,7 +4642,6 @@ function parseSettings() {
     toggleBtnChk('btnNotifyPage', settings.notificationPage);
     toggleBtnChk('btnMediaSession', settings.mediaSession);
     toggleBtnChkCollapse('btnFeatLocalplayer', 'collapseLocalplayer', settings.featLocalplayer);
-    toggleBtnChk('btnLocalplayerAutoplay', settings.localplayerAutoplay);
     toggleBtnChk('btnFeatTimer', settings.featTimer);
     toggleBtnChk('btnBookmarks', settings.featBookmarks);
     toggleBtnChk('btnFeatLyrics', settings.featLyrics);
@@ -4724,36 +4796,7 @@ function parseSettings() {
     document.getElementById('selectSmartplsSort').value = settings.smartplsSort;
 
     if (settings.featLocalplayer === true) {
-        if (window.location.protocol === 'https:') {
-            document.getElementById('infoLocalplayer').classList.remove('hide');
-            document.getElementById('selectStreamMode').options[0].setAttribute('data-phrase','HTTPS Port');
-        }
-        else {
-            document.getElementById('infoLocalplayer').classList.add('hide');
-            document.getElementById('selectStreamMode').options[0].setAttribute('data-phrase','HTTP Port');
-        }
-        if (settings.streamUrl === '') {
-            settings.mpdstream = window.location.protocol + '//';
-            if (settings.mpdHost.match(/^127\./) !== null || settings.mpdHost === 'localhost' || settings.mpdHost.match(/^\//) !== null) {
-                settings.mpdstream += window.location.hostname;
-            }
-            else {
-                settings.mpdstream += settings.mpdHost;
-            }
-            settings.mpdstream += ':' + settings.streamPort + '/';
-        } 
-        else {
-            settings.mpdstream = settings.streamUrl;
-        }
-        let localPlayer = document.getElementById('localPlayer');
-        if (localPlayer.src !== settings.mpdstream) {
-            localPlayer.pause();
-            localPlayer.src = settings.mpdstream;
-            localPlayer.load();
-            setTimeout(function() {
-                checkLocalPlayerState();
-            }, 500);
-        }
+        setLocalPlayerUrl();
     }
     
     if (settings.musicDirectory === 'auto') {
@@ -5202,7 +5245,6 @@ function saveSettings(closeModal) {
             "bgColor": document.getElementById('inputBgColor').value,
             "bgCssFilter": document.getElementById('inputBgCssFilter').value,
             "featLocalplayer": (document.getElementById('btnFeatLocalplayer').classList.contains('active') ? true : false),
-            "localplayerAutoplay": (document.getElementById('btnLocalplayerAutoplay').classList.contains('active') ? true : false),
             "streamUrl": streamUrl,
             "streamPort": parseInt(streamPort),
             "coverimage": (document.getElementById('btnCoverimage').classList.contains('active') ? true : false),
@@ -6133,23 +6175,6 @@ function mediaSessionSetMetadata(title, artist, album, url) {
                 album: album
             });
         }
-    }
-}
-
-function checkLocalPlayerState() {
-    let localPlayer = document.getElementById('localPlayer');
-    document.getElementById('errorLocalPlayback').classList.add('hide');
-    document.getElementById('alertLocalPlayback').classList.add('hide');
-    if (localPlayer.networkState === 0) {
-        logDebug('localPlayer networkState: ' + localPlayer.networkState);
-        document.getElementById('alertLocalPlayback').classList.remove('hide');
-    }
-    else if (localPlayer.networkState >=1) {
-        logDebug('localPlayer networkState: ' + localPlayer.networkState);
-    }
-    if (localPlayer.networkState === 3) {
-        logError('localPlayer networkState: ' + localPlayer.networkState);
-        document.getElementById('errorLocalPlayback').classList.remove('hide');
     }
 }
 /*
