@@ -34,6 +34,10 @@
 //private definitions
 
 #define RSA_KEY_BITS 2048
+#define CA_LIFETIME 3650
+#define CA_MIN_LIFETIME 365
+#define CERT_LIFETIME 365
+#define CERT_MIN_LIFETIME 30
 
 static sds get_san(sds buffer);
 static int generate_set_random_serial(X509 *crt);
@@ -48,7 +52,7 @@ static bool create_ca_certificate(sds cakey_file, EVP_PKEY **ca_key, sds cacert_
 static bool create_server_certificate(sds serverkey_file, EVP_PKEY **server_key, 
                                       sds servercert_file, X509 **server_cert, 
                                       sds custom_san, EVP_PKEY **ca_key, X509 **ca_cert);
-static int check_expiration(X509 *cert, sds cert_file);
+static int check_expiration(X509 *cert, sds cert_file, int min_days, int max_days);
 
 //public functions
 
@@ -67,7 +71,7 @@ bool create_certificates(sds dir, sds custom_san) {
     }
     else {
         LOG_INFO("CA certificate and private key found");
-        int rc_expires = check_expiration(ca_cert, cacert_file);
+        int rc_expires = check_expiration(ca_cert, cacert_file, CA_MIN_LIFETIME, CA_LIFETIME);
         if (rc_expires == 0) {
             rc_ca = true;
         }
@@ -78,7 +82,10 @@ bool create_certificates(sds dir, sds custom_san) {
             ca_cert = NULL;
             rc_ca = cleanup_certificates(dir, "ca");
             if (rc_ca == true) {
-                rc_ca = create_ca_certificate(cakey_file, &ca_key, cacert_file, &ca_cert);
+                rc_ca = cleanup_certificates(dir, "server");
+                if (rc_ca == true) {
+                    rc_ca = create_ca_certificate(cakey_file, &ca_key, cacert_file, &ca_cert);
+                }
             }
         }
     }
@@ -95,7 +102,7 @@ bool create_certificates(sds dir, sds custom_san) {
     }
     else {
         LOG_INFO("Server certificate and private key found");
-        int rc_expires = check_expiration(server_cert, servercert_file);
+        int rc_expires = check_expiration(server_cert, servercert_file, CERT_MIN_LIFETIME, CERT_LIFETIME);
         if (rc_expires == 0) {
             rc_cert = true;
         }
@@ -143,14 +150,14 @@ bool cleanup_certificates(sds dir, const char *name) {
 
 //private functions
 
-static int check_expiration(X509 *cert, sds cert_file) {
+static int check_expiration(X509 *cert, sds cert_file, int min_days, int max_days) {
     ASN1_TIME *not_after = X509_get_notAfter(cert);
     int pday = 0;
     int psec = 0;
     int rc = ASN1_TIME_diff(&pday, &psec, NULL, not_after);
     if (rc == 1) {
         LOG_DEBUG("Certificate %s expires in %d days", cert_file, pday);
-        if (pday > 90 || pday < 30) {
+        if (pday > max_days || pday < min_days) {
             LOG_WARN("Certificate %s must be renewed, expires in %d days", cert_file, pday);
             return 1;
         }
@@ -364,9 +371,10 @@ static X509 *sign_certificate_request(EVP_PKEY *ca_key, X509 *ca_cert, X509_REQ 
     /* Set issuer to CA's subject. */
     X509_set_issuer_name(cert, X509_get_subject_name(ca_cert));
     
-    /* This certificate is valid from now until 90 days from now. */
+    /* This certificate is valid from now until one year from now. */
+    int lifetime = CERT_LIFETIME * 24 * 60 * 60;
     X509_gmtime_adj(X509_get_notBefore(cert), 0);
-    X509_gmtime_adj(X509_get_notAfter(cert), 7776000);
+    X509_gmtime_adj(X509_get_notAfter(cert), lifetime);
     
     /* Get the request's subject and just use it (we don't bother checking it since we generated
      * it ourself). Also take the request's public key. */
@@ -442,9 +450,10 @@ static X509 *generate_selfsigned_cert(EVP_PKEY *pkey) {
     /* Set the serial number. */
     generate_set_random_serial(cert);
     
-    /* This certificate is valid from now until exactly ten years from now. */
+    /* This certificate is valid from now until ten years from now. */
+    int lifetime = CA_LIFETIME * 24 * 60 * 60;
     X509_gmtime_adj(X509_get_notBefore(cert), 0);
-    X509_gmtime_adj(X509_get_notAfter(cert), 315360000);
+    X509_gmtime_adj(X509_get_notAfter(cert), lifetime);
     
     /* Set the public key for our certificate. */
     X509_set_pubkey(cert, pkey);
