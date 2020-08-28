@@ -29,10 +29,15 @@
 #include "list.h"
 #include "config_defs.h"
 #include "utility.h"
+#include "cert.h"
 
 //private definitions
 
 #define RSA_KEY_BITS 2048
+#define CA_LIFETIME 3650
+#define CA_MIN_LIFETIME 365
+#define CERT_LIFETIME 365
+#define CERT_MIN_LIFETIME 30
 
 static sds get_san(sds buffer);
 static int generate_set_random_serial(X509 *crt);
@@ -43,6 +48,11 @@ static EVP_PKEY *generate_keypair(void);
 static X509 *generate_selfsigned_cert(EVP_PKEY *pkey);
 static bool write_to_disk(sds key_file, EVP_PKEY *pkey, sds cert_file, X509 *cert);
 static bool load_certificate(sds key_file, EVP_PKEY **key, sds cert_file, X509 **cert);
+static bool create_ca_certificate(sds cakey_file, EVP_PKEY **ca_key, sds cacert_file, X509 **ca_cert);
+static bool create_server_certificate(sds serverkey_file, EVP_PKEY **server_key, 
+                                      sds servercert_file, X509 **server_cert, 
+                                      sds custom_san, EVP_PKEY **ca_key, X509 **ca_cert);
+static int check_expiration(X509 *cert, sds cert_file, int min_days, int max_days);
 
 //public functions
 
@@ -53,96 +63,71 @@ bool create_certificates(sds dir, sds custom_san) {
     //read ca certificate / private key or create it
     sds cacert_file = sdscatfmt(sdsempty(), "%s/ca.pem", dir);
     sds cakey_file = sdscatfmt(sdsempty(), "%s/ca.key", dir);
-    
     EVP_PKEY *ca_key = NULL;
     X509 *ca_cert = NULL;
 
-    if (!load_certificate(cakey_file, &ca_key, cacert_file, &ca_cert)) {
-        LOG_INFO("Creating self signed ca certificate");
-        ca_key = generate_keypair();
-        if (!ca_key) {
-            sdsfree(cacert_file);
-            sdsfree(cakey_file);
-            return false;
-        }
-    
-        ca_cert = generate_selfsigned_cert(ca_key);
-        if (!ca_cert) {
-            EVP_PKEY_free(ca_key);
-            sdsfree(cacert_file);
-            sdsfree(cakey_file);
-            return false;
-        }
-        rc_ca = write_to_disk(cakey_file, ca_key, cacert_file, ca_cert);
+    if (load_certificate(cakey_file, &ca_key, cacert_file, &ca_cert) == false) {
+        rc_ca = create_ca_certificate(cakey_file, &ca_key, cacert_file, &ca_cert);
     }
     else {
         LOG_INFO("CA certificate and private key found");
-        rc_ca = true;
+        int rc_expires = check_expiration(ca_cert, cacert_file, CA_MIN_LIFETIME, CA_LIFETIME);
+        if (rc_expires == 0) {
+            rc_ca = true;
+        }
+        else {
+            EVP_PKEY_free(ca_key);
+            X509_free(ca_cert);
+            ca_key = NULL;
+            ca_cert = NULL;
+            rc_ca = cleanup_certificates(dir, "ca");
+            if (rc_ca == true) {
+                rc_ca = cleanup_certificates(dir, "server");
+                if (rc_ca == true) {
+                    rc_ca = create_ca_certificate(cakey_file, &ca_key, cacert_file, &ca_cert);
+                }
+            }
+        }
     }
-    sdsfree(cacert_file);
-    sdsfree(cakey_file);
 
     //read server certificate / privat key or create it
     sds servercert_file = sdscatfmt(sdsempty(), "%s/server.pem", dir);
     sds serverkey_file = sdscatfmt(sdsempty(), "%s/server.key", dir);
-    
     EVP_PKEY *server_key = NULL;
     X509 *server_cert = NULL;
 
-    if (!load_certificate(serverkey_file, &server_key, servercert_file, &server_cert)) {
-        //get subject alternative names
-        sds san = sdsempty();
-        san = get_san(san);
-        if (sdslen(custom_san) > 0) {
-            san = sdscatfmt(san, ", %s", custom_san);
-        }
-        LOG_INFO("Creating server certificate with san: %s", san);
-        server_key = generate_keypair();
-        if (!server_key) {
-            EVP_PKEY_free(ca_key);
-            X509_free(ca_cert);
-            sdsfree(san);
-            sdsfree(servercert_file);
-            sdsfree(serverkey_file);
-            return false;
-        }
-        X509_REQ *server_req = generate_request(server_key);
-        if (!server_req) {
-            EVP_PKEY_free(ca_key);
-            X509_free(ca_cert);
-            EVP_PKEY_free(server_key);
-            sdsfree(san);
-            sdsfree(servercert_file);
-            sdsfree(serverkey_file);
-            return false;
-        }
-        server_cert = sign_certificate_request(ca_key, ca_cert, server_req, san);
-        X509_REQ_free(server_req);
-        if (!server_cert) {
-            EVP_PKEY_free(ca_key);
-            X509_free(ca_cert);
-            EVP_PKEY_free(server_key);
-            X509_REQ_free(server_req);
-            sdsfree(san);
-            sdsfree(servercert_file);
-            sdsfree(serverkey_file);
-            return false;
-        }
-        sdsfree(san);
-        rc_cert = write_to_disk(serverkey_file, server_key, servercert_file, server_cert);
+    if (load_certificate(serverkey_file, &server_key, servercert_file, &server_cert) == false) {
+        rc_cert = create_server_certificate(serverkey_file, &server_key, servercert_file, &server_cert, 
+            custom_san, &ca_key, &ca_cert); 
     }
     else {
         LOG_INFO("Server certificate and private key found");
-        rc_cert = true;
+        int rc_expires = check_expiration(server_cert, servercert_file, CERT_MIN_LIFETIME, CERT_LIFETIME);
+        if (rc_expires == 0) {
+            rc_cert = true;
+        }
+        else {
+            EVP_PKEY_free(server_key);
+            X509_free(server_cert);
+            server_key = NULL;
+            server_cert = NULL;
+            rc_cert = cleanup_certificates(dir, "server");
+            if (rc_cert == true) {
+                rc_cert = create_server_certificate(serverkey_file, &server_key, servercert_file, &server_cert, 
+                    custom_san, &ca_key, &ca_cert); 
+            }
+        }
     }
 
+    sdsfree(cacert_file);
+    sdsfree(cakey_file);
     sdsfree(servercert_file);
     sdsfree(serverkey_file);
     EVP_PKEY_free(ca_key);
     X509_free(ca_cert);
     EVP_PKEY_free(server_key);
     X509_free(server_cert);
-    if (!rc_ca || !rc_cert) {
+    if (rc_ca == false || rc_cert == false) {
         return false;
     }
     return true;
@@ -165,7 +150,72 @@ bool cleanup_certificates(sds dir, const char *name) {
 
 //private functions
 
-//loads the existing ca
+static int check_expiration(X509 *cert, sds cert_file, int min_days, int max_days) {
+    ASN1_TIME *not_after = X509_get_notAfter(cert);
+    int pday = 0;
+    int psec = 0;
+    int rc = ASN1_TIME_diff(&pday, &psec, NULL, not_after);
+    if (rc == 1) {
+        LOG_DEBUG("Certificate %s expires in %d days", cert_file, pday);
+        if (pday > max_days || pday < min_days) {
+            LOG_WARN("Certificate %s must be renewed, expires in %d days", cert_file, pday);
+            return 1;
+        }
+    }
+    else {
+        LOG_ERROR("Can not parse date from certificate file: %s", cert_file);
+        return -1;
+    }
+    return 0;
+}
+
+static bool create_ca_certificate(sds cakey_file, EVP_PKEY **ca_key, sds cacert_file, X509 **ca_cert) {
+    LOG_INFO("Creating self signed ca certificate");
+    *ca_key = generate_keypair();
+    if (*ca_key == NULL) {
+        return false;
+    }
+    
+    *ca_cert = generate_selfsigned_cert(*ca_key);
+    if (*ca_cert == NULL) {
+        return false;
+    }
+    bool rc_ca = write_to_disk(cakey_file, *ca_key, cacert_file, *ca_cert);
+    return rc_ca;
+}
+
+static bool create_server_certificate(sds serverkey_file, EVP_PKEY **server_key, 
+                                      sds servercert_file, X509 **server_cert, 
+                                      sds custom_san, EVP_PKEY **ca_key, X509 **ca_cert)
+{
+    LOG_INFO("Creating server certificate");
+    *server_key = generate_keypair();
+    if (*server_key == NULL) {
+        return false;
+    }
+    X509_REQ *server_req = generate_request(*server_key);
+    if (server_req == NULL) {
+        return false;
+    }
+    //get subject alternative names
+    sds san = sdsempty();
+    san = get_san(san);
+    if (sdslen(custom_san) > 0) {
+        san = sdscatfmt(san, ", %s", custom_san);
+    }
+    LOG_INFO("Set server certificate san to: %s", san);
+    *server_cert = sign_certificate_request(*ca_key, *ca_cert, server_req, san);
+    X509_REQ_free(server_req);
+    if (*server_cert == NULL) {
+        sdsfree(san);
+        return false;
+    }
+    sdsfree(san);
+    bool rc_cert = write_to_disk(serverkey_file, *server_key, servercert_file, *server_cert);
+    return rc_cert;
+}
+
+//loads the certificate and the key
 static bool load_certificate(sds key_file, EVP_PKEY **key, sds cert_file, X509 **cert) {
 	BIO *bio = NULL;
 	*cert = NULL;
@@ -179,7 +229,7 @@ static bool load_certificate(sds key_file, EVP_PKEY **key, sds cert_file, X509 *
 	}
 	*key = PEM_read_bio_PrivateKey(bio, NULL, NULL, NULL);
 	BIO_free_all(bio);
-	if (!*key) {
+	if (*key == NULL) {
 	    return false;
 	}
 
@@ -321,9 +371,10 @@ static X509 *sign_certificate_request(EVP_PKEY *ca_key, X509 *ca_cert, X509_REQ 
     /* Set issuer to CA's subject. */
     X509_set_issuer_name(cert, X509_get_subject_name(ca_cert));
     
-    /* This certificate is valid from now until exactly ten years from now. */
+    /* This certificate is valid from now until one year from now. */
+    int lifetime = CERT_LIFETIME * 24 * 60 * 60;
     X509_gmtime_adj(X509_get_notBefore(cert), 0);
-    X509_gmtime_adj(X509_get_notAfter(cert), 315360000);
+    X509_gmtime_adj(X509_get_notAfter(cert), lifetime);
     
     /* Get the request's subject and just use it (we don't bother checking it since we generated
      * it ourself). Also take the request's public key. */
@@ -399,9 +450,10 @@ static X509 *generate_selfsigned_cert(EVP_PKEY *pkey) {
     /* Set the serial number. */
     generate_set_random_serial(cert);
     
-    /* This certificate is valid from now until exactly ten years from now. */
+    /* This certificate is valid from now until ten years from now. */
+    int lifetime = CA_LIFETIME * 24 * 60 * 60;
     X509_gmtime_adj(X509_get_notBefore(cert), 0);
-    X509_gmtime_adj(X509_get_notAfter(cert), 315360000);
+    X509_gmtime_adj(X509_get_notAfter(cert), lifetime);
     
     /* Set the public key for our certificate. */
     X509_set_pubkey(cert, pkey);

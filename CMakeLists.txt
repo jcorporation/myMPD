@@ -11,8 +11,8 @@ include(GNUInstallDirs)
 project (mympd C)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/")
 set(CPACK_PACKAGE_VERSION_MAJOR "6")
-set(CPACK_PACKAGE_VERSION_MINOR "5")
-set(CPACK_PACKAGE_VERSION_PATCH "2")
+set(CPACK_PACKAGE_VERSION_MINOR "6")
+set(CPACK_PACKAGE_VERSION_PATCH "0")
 
 if(EXISTS "/etc/arch-release")
   set(WEBAPPS "/webapps/${PROJECT_NAME}")
@@ -92,6 +92,9 @@ else()
 endif()
 
 if(NOT "${ENABLE_LUA}" MATCHES "OFF")
+  IF(EXISTS "/etc/alpine-release")                                        
+    set(ENV{LUA_DIR} "/usr/lib/lua5.3")                                 
+  endif()     
   message("Searching for lua")
   find_package(Lua)
 endif()
@@ -124,7 +127,7 @@ if(${MEMCHECK} MATCHES "TRUE")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu11 -Wall -Werror")
   set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -ggdb")
 else()
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu11 -O1 -Wall -Werror -Wuninitialized -fstack-protector -D_FORTIFY_SOURCE=2 -pie -fPIE")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu11 -O1 -Winit-self -Wall -Werror -Wuninitialized -Werror=array-bounds -fstack-protector-strong -D_FORTIFY_SOURCE=2 -pie -fPIE")
   set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -s")
   set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -ggdb -fsanitize=address \
 	-fsanitize=undefined -fsanitize=shift -fsanitize=integer-divide-by-zero -fsanitize=unreachable -fsanitize=vla-bound \
@@ -142,27 +145,27 @@ set(MONGOOSE_FLAGS "${MONGOOSE_SSL} \
 #compiler flags for mympd src
 file(GLOB MYMPD_SRC_FILES1 "src/*.c")
 set_property(SOURCE ${MYMPD_SRC_FILES1} PROPERTY COMPILE_FLAGS "-Wextra -pedantic -Wformat=2 -Wunused-parameter -Wshadow -Wwrite-strings \
-	-Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs -Wmissing-include-dirs ${MONGOOSE_FLAGS}")
+	-Wformat=2  -Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs -Wmissing-include-dirs ${MONGOOSE_FLAGS}")
 
 file(GLOB MYMPD_SRC_FILES2 "src/mpd_client/*.c")
 set_property(SOURCE ${MYMPD_SRC_FILES2} PROPERTY COMPILE_FLAGS "-Wextra -pedantic -Wformat=2 -Wunused-parameter -Wshadow -Wwrite-strings \
-	-Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs -Wmissing-include-dirs")
+	-Wformat=2  -Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs -Wmissing-include-dirs")
 
 file(GLOB MYMPD_SRC_FILES3 "src/mympd_api/*.c")
 set_property(SOURCE ${MYMPD_SRC_FILES3} PROPERTY COMPILE_FLAGS "-Wextra -pedantic -Wformat=2 -Wunused-parameter -Wshadow -Wwrite-strings \
-	-Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs -Wmissing-include-dirs")
+	-Wformat=2  -Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs -Wmissing-include-dirs")
 
 file(GLOB MYMPD_SRC_FILES4 "src/web_server/*.c")
 set_property(SOURCE ${MYMPD_SRC_FILES4} PROPERTY COMPILE_FLAGS "-Wextra -pedantic -Wformat=2 -Wunused-parameter -Wshadow -Wwrite-strings \
-	-Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs -Wmissing-include-dirs ${MONGOOSE_FLAGS}")
+	-Wformat=2  -Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs -Wmissing-include-dirs ${MONGOOSE_FLAGS}")
 
 file(GLOB MYMPD_SRC_FILES5 "src/mpd_worker/*.c")
 set_property(SOURCE ${MYMPD_SRC_FILES5} PROPERTY COMPILE_FLAGS "-Wextra -pedantic -Wformat=2 -Wunused-parameter -Wshadow -Wwrite-strings \
-	-Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs -Wmissing-include-dirs")
+	-Wformat=2  -Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs -Wmissing-include-dirs")
 
 file(GLOB MYMPD_SRC_FILES6 "src/mpd_shared/*.c")
 set_property(SOURCE ${MYMPD_SRC_FILES6} PROPERTY COMPILE_FLAGS "-Wextra -pedantic -Wformat=2 -Wunused-parameter -Wshadow -Wwrite-strings \
-	-Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs -Wmissing-include-dirs")
+	-Wformat=2  -Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs -Wmissing-include-dirs")
 
 #compiler flags for frozen
 set_property(SOURCE dist/src/frozen/frozen.c PROPERTY COMPILE_FLAGS "-Wno-stringop-overflow")
@@ -208,6 +211,8 @@ set(SOURCES
   src/mpd_client/mpd_client_sticker.c
   src/mpd_client/mpd_client_timer.c
   src/mpd_client/mpd_client_mounts.c
+  src/mpd_client/mpd_client_partitions.c
+  src/mpd_client/mpd_client_trigger.c
   src/mpd_worker.c
   src/mpd_worker/mpd_worker_api.c
   src/mpd_worker/mpd_worker_utility.c

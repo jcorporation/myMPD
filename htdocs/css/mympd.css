@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+*:focus {
+    outline: none;
+}
+
 :root {
   --mympd-coverimagesize: 250px;
   --mympd-covergridsize: 200px;
@@ -70,8 +74,7 @@ body {
   background-color: #888;
 }
 
-.breakAll,
-td[data-col=Title] {
+.breakAll {
   word-break: break-word;
 }
 
@@ -765,4 +768,13 @@ a.text-success:focus {
     width: 28rem;
     height: 28rem;
   }
+}
+
+.disabled {
+  pointer-events: none;
+  cursor: not-available;
+}
+
+.btn-warning {
+  background-color: #ffc107 !important;
 }

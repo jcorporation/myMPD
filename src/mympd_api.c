@@ -111,8 +111,9 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Editing scripts is disabled", true);
                 break;
             }
-            je = json_scanf(request->data, sdslen(request->data), "{params: {script: %Q, order: %d, content: %Q}}", &p_charbuf1, &int_buf1, &p_charbuf2);
-            if (je == 3) {
+            je = json_scanf(request->data, sdslen(request->data), "{params: {script: %Q, order: %d, content: %Q, oldscript: %Q}}", 
+                &p_charbuf1, &int_buf1, &p_charbuf2, &p_charbuf3);
+            if (je == 4) {
                 struct json_token val;
                 int idx;
                 sds arguments = sdsempty();
@@ -123,8 +124,8 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                     }
                     arguments = sdscatjson(arguments, val.ptr, val.len);
                 }
-                if (validate_string_not_empty(p_charbuf1) == true) {
-                    rc = mympd_api_script_save(config, p_charbuf1, int_buf1, p_charbuf2, arguments);
+                if (validate_string_not_empty(p_charbuf1) == true && validate_string(p_charbuf3) == true) {
+                    rc = mympd_api_script_save(config, p_charbuf1, int_buf1, p_charbuf2, arguments, p_charbuf3);
                     if (rc == true) {
                         response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
                     }
@@ -133,7 +134,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                     }
                 }
                 else {
-                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Invalid scriptname", true);
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Invalid script name", true);
                 }
                 sdsfree(arguments);
             }
@@ -154,7 +155,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                 }
             }
             else {
-                response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Invalid scriptname", true);
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Invalid script name", true);
             }
             break;
         case MYMPD_API_SCRIPT_GET:
@@ -216,7 +217,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                     }
                 }
                 else {
-                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Invalid scriptname", true);
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Invalid script name", true);
                 }
             } 
             else {

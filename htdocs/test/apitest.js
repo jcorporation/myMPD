@@ -115,13 +115,25 @@ var cmds = [
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYER_STOP"},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_QUEUE_CROP_OR_CLEAR"},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_MESSAGE_SEND","params":{"channel":"test", "message":"test"}},
-    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SCRIPT_SAVE","params":{"script":"test","order":0,"content":"return arguments[\"arg1\"]","arguments":["arg1","arg2"]}},
+    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SCRIPT_SAVE","params":{"script":"test","oldscript":"","order":0,"content":"return arguments[\"arg1\"]","arguments":["arg1","arg2"]}},
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SCRIPT_EXECUTE","params":{"script":"test","arguments":{"arg1":"test1","arg2":"test2"}}},
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SCRIPT_POST_EXECUTE","params":{"script":"return arguments[\"arg1\"]","arguments":{"arg1":"test1","arg2":"test2"}}},
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SCRIPT_LIST","params":{"all":true}},
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SCRIPT_GET","params":{"script":"test"}},
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_TIMER_SAVE","params":{"timerid": 0, "name": "test", "enabled": true, "startHour": 10, "startMinute": 15, "action": "script", "subaction": "test", "volume": 40, "playlist": "Database", "jukeboxMode": 1, "weekdays":[false,false,true,true,false,false,false], "arguments":{"arg1":"test1","arg2":"test2"}}},
-    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SCRIPT_DELETE","params":{"script":"test"}}
+    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SCRIPT_SAVE","params":{"script":"test1","oldscript":"test","order":0,"content":"return arguments[\"arg1\"]","arguments":["arg1","arg2"]}},
+    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_SCRIPT_DELETE","params":{"script":"test1"}},
+    {"jsonrpc":"2.0","id":0,"method":"MPD_API_PARTITION_LIST","params":{}},
+    {"jsonrpc":"2.0","id":0,"method":"MPD_API_PARTITION_NEW","params":{"name":"testpartition"}},
+    {"jsonrpc":"2.0","id":0,"method":"MPD_API_PARTITION_SWITCH","params":{"name":"testpartition"}},
+    {"jsonrpc":"2.0","id":0,"method":"MPD_API_PARTITION_OUTPUT_MOVE","params":{"name":"HTTP Stream"}},
+    {"jsonrpc":"2.0","id":0,"method":"MPD_API_PARTITION_SWITCH","params":{"name":"default"}},
+    {"jsonrpc":"2.0","id":0,"method":"MPD_API_PARTITION_OUTPUT_MOVE","params":{"name":"HTTP Stream"}},
+    {"jsonrpc":"2.0","id":0,"method":"MPD_API_PARTITION_RM","params":{"name":"testpartition"}},
+    {"jsonrpc":"2.0","id":0,"method":"MPD_API_TRIGGER_LIST","params":{}},
+    {"jsonrpc":"2.0","id":0,"method":"MPD_API_TRIGGER_SAVE","params":{"id":-1,"name":"test1","event":0,"script":"test"}},
+    {"jsonrpc":"2.0","id":0,"method":"MPD_API_TRIGGER_GET","params":{"id":0}},
+    {"jsonrpc":"2.0","id":0,"method":"MPD_API_TRIGGER_DELETE","params":{"id":0}}
 ];
 
 function setTest(cmd, state, response) {

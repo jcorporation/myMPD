@@ -85,6 +85,8 @@ mpd_parse_replay_gain_name(const char *name);
  * Looks up the name of the specified replay gain mode.
  *
  * @return the name, or NULL if the replay gain mode is not valid
+ *
+ * @since libmpdclient 2.19.
  */
 mpd_pure
 const char *

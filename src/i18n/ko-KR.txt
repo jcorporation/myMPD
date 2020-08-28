@@ -465,8 +465,11 @@ Local playback
 URI
 주소
 
-Port
-포트
+HTTPS Port
+HTTPS 포트
+
+HTTP Port
+HTTP 포트
 
 Statistics
 통계
@@ -1377,7 +1380,7 @@ Error executing script %{script}: Error while running the message handler
 Error executing script %{script}
 스크립트 %{script} 실행 오류
 
-Invalid scriptname
+Invalid script name
 잘못된 스크립트 이름
 
 No mpd state for script execution submitted
@@ -1440,7 +1443,7 @@ Scale ratio
 Script arguments
 스크립트 변수
 
-Scriptname
+Script name
 스크립트 이름
 
 Sort order of the script, 0 disables listing in main menu
@@ -1454,3 +1457,84 @@ Fullscreen
 
 Open fullscreen
 전체 화면 열기
+
+Could not save trigger
+트리거를 저장할 수 없음
+
+Could not delete trigger
+트리거를 지울 수 없음
+
+Current partition
+현재 파티션
+
+Event
+이벤트
+
+Invalid partition name
+잘못된 파티션 이름
+
+Invalid trigger name
+잘못된 트리거 이름
+
+Move an output to this partition
+출력을 이 파티션으로 옮김
+
+New partition
+새 파티션
+
+New trigger
+새 트리거
+
+No outputs
+출력 없음
+
+Output
+출력
+
+Partition
+파티션
+
+Partition name
+파티션 이름
+
+Partitions
+파티션
+
+Switch to
+바꿈
+
+Trigger
+트리거
+
+Trigger name
+트리거 이름
+
+Trigger not found
+트리거를 찾을 수 없음
+
+current
+현재
+
+Edit attributes
+속성 수정
+
+Output attributes
+출력 속성
+
+Plugin
+플러그인
+
+Show attributes
+속성 보기
+
+State
+상태
+
+disabled
+사용 안 함
+
+enabled
+사용함
+
+No mixed content,  MPD stream must be served over https:
+혼합된 컨텐트는 안되며, MPD 스트림 서비스는 https:를 통해야 합니다.

@@ -52,6 +52,8 @@ struct mpd_connection;
  * @since libmpdclient 2.5 added support for #MPD_IDLE_STICKER,
  * #MPD_IDLE_SUBSCRIPTION and #MPD_IDLE_MESSAGE.
  * @since libmpdclient 2.17 added support for #MPD_IDLE_PARTITION.
+ * @since libmpdclient 2.19 added support for #MPD_IDLE_NEIGHBOR,
+ * #MPD_IDLE_MOUNT
  */
 enum mpd_idle {
 	/** song database has been updated */

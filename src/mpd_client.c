@@ -40,6 +40,7 @@
 #include "mpd_client/mpd_client_features.h"
 #include "mpd_client/mpd_client_sticker.h"
 #include "mpd_client/mpd_client_timer.h"
+#include "mpd_client/mpd_client_trigger.h"
 #include "mpd_client.h"
 
 //private definitions
@@ -53,7 +54,7 @@ void *mpd_client_loop(void *arg_config) {
     //State of mpd connection
     t_mpd_client_state *mpd_client_state = (t_mpd_client_state *)malloc(sizeof(t_mpd_client_state));
     default_mpd_client_state(mpd_client_state);
-
+    triggerfile_read(config, mpd_client_state);
     //wait for initial settings
     while (s_signal_received == 0) {
         t_work_request *request = tiny_queue_shift(mpd_client_queue, 50, 0);
@@ -76,15 +77,19 @@ void *mpd_client_loop(void *arg_config) {
     }
 
     LOG_INFO("Starting mpd_client");
+    trigger_execute(mpd_client_state, TRIGGER_MYMPD_START);
     //On startup connect instantly
     mpd_client_state->mpd_state->conn_state = MPD_DISCONNECTED;
     while (s_signal_received == 0) {
         mpd_client_idle(config, mpd_client_state);
     }
+    trigger_execute(mpd_client_state, TRIGGER_MYMPD_STOP);
     //Cleanup
     mpd_shared_mpd_disconnect(mpd_client_state->mpd_state);
     mpd_client_last_played_list_save(config, mpd_client_state);
+    triggerfile_save(config, mpd_client_state);
     sticker_cache_free(&mpd_client_state->sticker_cache);
+    free_trigerlist_arguments(mpd_client_state);
     free_mpd_client_state(mpd_client_state);
     sdsfree(thread_logname);
     return NULL;
@@ -167,9 +172,15 @@ static void mpd_client_parse_idle(t_config *config, t_mpd_client_state *mpd_clie
                         }
                     }
                     break;
+                case MPD_IDLE_PARTITION:
+                    //todo: check list of partitions and create new mpd_client threads
+                    break;
                 default: {
                     //other idle events not used
                 }
+            }
+            if (config->scripting == true) {
+                trigger_execute(mpd_client_state, (enum trigger_events)idle_event);
             }
             if (sdslen(buffer) > 0) {
                 ws_notify(buffer);
@@ -184,9 +195,6 @@ static void mpd_client_idle(t_config *config, t_mpd_client_state *mpd_client_sta
     int pollrc;
     sds buffer = sdsempty();
     unsigned mpd_client_queue_length = 0;
-    enum mpd_idle set_idle_mask = MPD_IDLE_DATABASE | MPD_IDLE_STORED_PLAYLIST | MPD_IDLE_QUEUE | MPD_IDLE_PLAYER | MPD_IDLE_MIXER | \
-        MPD_IDLE_OUTPUT | MPD_IDLE_OPTIONS | MPD_IDLE_UPDATE | MPD_IDLE_SUBSCRIPTION;
-    
     switch (mpd_client_state->mpd_state->conn_state) {
         case MPD_WAIT: {
             time_t now = time(NULL);
@@ -276,16 +284,18 @@ static void mpd_client_idle(t_config *config, t_mpd_client_state *mpd_client_sta
             if (mpd_client_state->jukebox_mode != JUKEBOX_OFF) {
                 mpd_client_jukebox(config, mpd_client_state, 0);
             }
-            if (!mpd_send_idle_mask(mpd_client_state->mpd_state->conn, set_idle_mask)) {
+            if (!mpd_send_idle(mpd_client_state->mpd_state->conn)) {
                 LOG_ERROR("Entering idle mode failed");
                 mpd_client_state->mpd_state->conn_state = MPD_FAILURE;
             }
+            trigger_execute(mpd_client_state, TRIGGER_MYMPD_CONNECTED);
             break;
 
         case MPD_FAILURE:
             LOG_ERROR("MPD connection failed");
             buffer = jsonrpc_notify(buffer, "mpd_disconnected");
             ws_notify(buffer);
+            trigger_execute(mpd_client_state, TRIGGER_MYMPD_DISCONNECTED);
             // fall through
         case MPD_DISCONNECT:
         case MPD_RECONNECT:
@@ -350,6 +360,7 @@ static void mpd_client_idle(t_config *config, t_mpd_client_state *mpd_client_sta
                         mpd_client_sticker_inc_play_count(mpd_client_state, mpd_client_state->song_uri);
                         mpd_client_sticker_last_played(mpd_client_state, mpd_client_state->song_uri);
                     }
+                    trigger_execute(mpd_client_state, TRIGGER_MYMPD_SCROBBLE);
                 }
                 
                 if (jukebox_add_song == true) {
@@ -370,7 +381,7 @@ static void mpd_client_idle(t_config *config, t_mpd_client_state *mpd_client_sta
                 }
                 
                 LOG_DEBUG("Entering mpd idle mode");
-                if (!mpd_send_idle_mask(mpd_client_state->mpd_state->conn, set_idle_mask)) {
+                if (!mpd_send_idle(mpd_client_state->mpd_state->conn)) {
                     check_error_and_recover(mpd_client_state->mpd_state, NULL, NULL, 0);
                     mpd_client_state->mpd_state->conn_state = MPD_FAILURE;
                 }

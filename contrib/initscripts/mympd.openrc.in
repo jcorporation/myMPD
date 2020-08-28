@@ -4,13 +4,16 @@
 # myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
 # https://github.com/jcorporation/mympd
 
-name=mympd
+name=myMPD
 command="@CMAKE_INSTALL_FULL_BINDIR@/mympd"
 command_args=""
 command_background="yes"
 
 start_stop_daemon_args=""
 pidfile="/run/$name.pid"
+
+output_logger="logger -t mympd -p daemon.info"
+error_logger="logger -t mympd -p daemon.error"
 
 depend() {
 	need net

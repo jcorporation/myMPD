@@ -17,6 +17,8 @@
 #include <inttypes.h>
 #include <dirent.h>
 #include <errno.h>
+#include <sys/types.h>
+#include <sys/syscall.h>
 
 #include <mpd/client.h>
 
@@ -152,7 +154,7 @@ bool mympd_api_script_delete(t_config *config, const char *script) {
     return true;
 }
 
-bool mympd_api_script_save(t_config *config, const char *script, int order, const char *content, const char *arguments) {
+bool mympd_api_script_save(t_config *config, const char *script, int order, const char *content, const char *arguments, const char *oldscript) {
     sds tmp_file = sdscatfmt(sdsempty(), "%s/scripts/%.XXXXXX", config->varlibdir, script);
     int fd = mkstemp(tmp_file);
     if (fd < 0 ) {
@@ -166,15 +168,22 @@ bool mympd_api_script_save(t_config *config, const char *script, int order, cons
     //write script content
     fputs(content, fp);
     fclose(fp);
-    sds scriptfilename = sdscatfmt(sdsempty(), "%s/scripts/%s.lua", config->varlibdir, script);
-    if (rename(tmp_file, scriptfilename) == -1) {
-        LOG_ERROR("Rename file from %s to %s failed", tmp_file, scriptfilename);
+    sds script_filename = sdscatfmt(sdsempty(), "%s/scripts/%s.lua", config->varlibdir, script);
+    if (rename(tmp_file, script_filename) == -1) {
+        LOG_ERROR("Rename file from %s to %s failed", tmp_file, script_filename);
         sdsfree(tmp_file);
-        sdsfree(scriptfilename);
+        sdsfree(script_filename);
         return false;
     }
+    if (strlen(oldscript) > 0 && strcmp(script, oldscript) != 0) {
+        sds oldscript_filename = sdscatfmt(sdsempty(), "%s/scripts/%s.lua", config->varlibdir, oldscript);
+        if (unlink(oldscript_filename) == -1) {
+            LOG_ERROR("Deleting file %s failed", oldscript_filename);
+        }
+        sdsfree(oldscript_filename);
+    }
     sdsfree(tmp_file);
-    sdsfree(scriptfilename);
+    sdsfree(script_filename);
     return true;
 }
 
@@ -292,12 +301,8 @@ static void *mympd_api_script_execute(void *script_thread_arg) {
     if (strcmp(script_arg->config->lualibs, "all") == 0) {
         LOG_DEBUG("Open all standard lua libs");
         luaL_openlibs(lua_vm);
-
         mympd_luaopen(lua_vm, "json");
-        lua_pop(lua_vm, 1);
-        
         mympd_luaopen(lua_vm, "mympd");
-        lua_pop(lua_vm, 1);
     }
     else {
         int count;
@@ -305,26 +310,23 @@ static void *mympd_api_script_execute(void *script_thread_arg) {
         for (int i = 0; i < count; i++) {
             sdstrim(tokens[i], " ");
             LOG_DEBUG("Open lua library %s", tokens[i]);
-            if (strcmp(tokens[i], "base") == 0)           { luaopen_base(lua_vm); }
-            else if (strcmp(tokens[i], "package") == 0)   { luaopen_package(lua_vm); }
-            else if (strcmp(tokens[i], "coroutine") == 0) { luaopen_coroutine(lua_vm); }
-            else if (strcmp(tokens[i], "string") == 0)    { luaopen_string(lua_vm); }
-            else if (strcmp(tokens[i], "utf8") == 0)      { luaopen_utf8(lua_vm); }
-            else if (strcmp(tokens[i], "table") == 0)     { luaopen_table(lua_vm); }
-            else if (strcmp(tokens[i], "math") == 0)      { luaopen_math(lua_vm); }
-            else if (strcmp(tokens[i], "io") == 0)        { luaopen_io(lua_vm); }
-            else if (strcmp(tokens[i], "os") == 0)        { luaopen_os(lua_vm); }
-            else if (strcmp(tokens[i], "debug") == 0)     { luaopen_package(lua_vm); }
-            else if (strcmp(tokens[i], "bit32") == 0)     { luaopen_bit32(lua_vm); }
+            if (strcmp(tokens[i], "base") == 0)           { luaL_requiref(lua_vm, "base", luaopen_base, 1); lua_pop(lua_vm, 1); }
+            else if (strcmp(tokens[i], "package") == 0)   { luaL_requiref(lua_vm, "package", luaopen_package, 1); lua_pop(lua_vm, 1); }
+            else if (strcmp(tokens[i], "coroutine") == 0) { luaL_requiref(lua_vm, "coroutine", luaopen_coroutine, 1); lua_pop(lua_vm, 1); }
+            else if (strcmp(tokens[i], "string") == 0)    { luaL_requiref(lua_vm, "string", luaopen_string, 1); lua_pop(lua_vm, 1); }
+            else if (strcmp(tokens[i], "utf8") == 0)      { luaL_requiref(lua_vm, "utf8", luaopen_utf8, 1); lua_pop(lua_vm, 1); }
+            else if (strcmp(tokens[i], "table") == 0)     { luaL_requiref(lua_vm, "table", luaopen_table, 1); lua_pop(lua_vm, 1); }
+            else if (strcmp(tokens[i], "math") == 0)      { luaL_requiref(lua_vm, "math", luaopen_math, 1); lua_pop(lua_vm, 1); }
+            else if (strcmp(tokens[i], "io") == 0)        { luaL_requiref(lua_vm, "io", luaopen_io, 1); lua_pop(lua_vm, 1); }
+            else if (strcmp(tokens[i], "os") == 0)        { luaL_requiref(lua_vm, "os", luaopen_os, 1); lua_pop(lua_vm, 1); }
+            else if (strcmp(tokens[i], "debug") == 0)     { luaL_requiref(lua_vm, "debug", luaopen_debug, 1); lua_pop(lua_vm, 1); }
             //custom libs
-            else if (strcmp(tokens[i], "json") == 0 ||
-                     strcmp(tokens[i], "mympd") == 0)     { mympd_luaopen(lua_vm, tokens[i]);
-            }
+            else if (strcmp(tokens[i], "json") == 0)	  { mympd_luaopen(lua_vm, tokens[i]); }
+            else if (strcmp(tokens[i], "mympd") == 0) 	  { mympd_luaopen(lua_vm, tokens[i]); }
             else {
                 LOG_ERROR("Can not open lua library %s", tokens[i]);
                 continue;
             }
-            lua_pop(lua_vm, 1);
         }
         sdsfreesplitres(tokens,count);
     }
@@ -350,10 +352,15 @@ static void *mympd_api_script_execute(void *script_thread_arg) {
         rc = lua_pcall(lua_vm, 0, 1, 0);
         LOG_DEBUG("End script");
     }
+    //it should be only one value on the stack
+    int nr_return = lua_gettop(lua_vm);
+    LOG_DEBUG("Lua script returns %d values", nr_return);
+    for (int i = 1; i <= nr_return; i++) {
+        LOG_DEBUG("Lua script return value %d: %s", i, lua_tostring(lua_vm, i));
+    }
     if (lua_gettop(lua_vm) == 1) {
         //return value on stack
         script_return_text = lua_tostring(lua_vm, 1);
-        LOG_DEBUG("Script return value: %s", script_return_text);
     }
     if (rc == 0) {
         if (script_return_text == NULL) {
@@ -399,9 +406,11 @@ static sds lua_err_to_str(sds buffer, int rc, bool phrase, const char *script) {
         case LUA_ERRMEM:
             buffer = sdscatfmt(buffer, "Error executing script %s}: Memory allocation error", (phrase == true ? "%{script}" : script));
             break;
+        #if LUA_VERSION_5_3
         case LUA_ERRGCMM:
             buffer = sdscatfmt(buffer, "Error executing script %s: Error in garbage collector", (phrase == true ? "%{script}" : script));
             break;
+        #endif
         case LUA_ERRFILE:
             buffer = sdscatfmt(buffer, "Error executing script %s: Can not open or read script file", (phrase == true ? "%{script}" : script));
             break;
@@ -428,7 +437,7 @@ static bool mympd_luaopen(lua_State *lua_vm, const char *lualib) {
         if (strcmp(lualib, "json") == 0) {
             lib_string = sdscatlen(sdsempty(), json_lua_data, json_lua_size);
         }
-        if (strcmp(lualib, "mympd") == 0) {
+        else if (strcmp(lualib, "mympd") == 0) {
             lib_string = sdscatlen(sdsempty(), mympd_lua_data, mympd_lua_size);
         }
         else {
@@ -437,6 +446,12 @@ static bool mympd_luaopen(lua_State *lua_vm, const char *lualib) {
         int rc = luaL_dostring(lua_vm, lib_string);
         sdsfree(lib_string);
     #endif
+    int nr_return = lua_gettop(lua_vm);
+    LOG_DEBUG("Lua library returns %d values", nr_return);
+    for (int i = 1; i <= nr_return; i++) {
+        LOG_DEBUG("Lua library return value %d: %s", i, lua_tostring(lua_vm, i));
+        lua_pop(lua_vm, i);
+    }
     if (rc != 0) {
         if (lua_gettop(lua_vm) == 1) {
             //return value on stack
@@ -511,10 +526,6 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
         LOG_ERROR("Lua - mympd_api: invalid number of arguments");
         return luaL_error(lua_vm, "Invalid number of arguments");
     }
-    if (raw == true && n != 2) {
-        LOG_ERROR("Lua - mympd_api: invalid number of arguments");
-        return luaL_error(lua_vm, "Invalid number of arguments");
-    }
     const char *method = lua_tostring(lua_vm, 1);
     enum mympd_cmd_ids method_id = get_cmd_id(method);
     if (method_id == MPD_API_UNKNOWN) {
@@ -522,11 +533,10 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
         return luaL_error(lua_vm, "Invalid method");
     }
 
-    //pid_t tid = gettid();
-    pthread_t tid = pthread_self();
+    pid_t tid = syscall(__NR_gettid);
     
     t_work_request *request = create_request(-2, tid, method_id, method, "");
-    request->data = sdscatprintf(request->data, "{\"jsonrpc\":\"2.0\",\"id\":%ld,\"method\":\"%s\",\"params\":{", tid, method);
+    request->data = sdscatprintf(request->data, "{\"jsonrpc\":\"2.0\",\"id\":%d,\"method\":\"%s\",\"params\":{", tid, method);
     if (raw == false) {
         for (int i = 2; i < n; i = i + 2) {
             bool comma = i + 1 < n ? true : false;
@@ -544,7 +554,7 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
             }
         }
     }
-    else {
+    else if (n == 2) {
         request->data = sdscat(request->data, lua_tostring(lua_vm, 2));
     }
     request->data = sdscat(request->data, "}}");
@@ -565,11 +575,7 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
         t_work_result *response = tiny_queue_shift(mympd_script_queue, 1000000, tid);
         if (response != NULL) {
             LOG_DEBUG("Got result: %s", response->data);
-            if (raw == true) {
-                lua_pushlstring(lua_vm, response->data, sdslen(response->data));
-                free_result(response);
-                return 1;
-            }
+            
             
             char *p_charbuf1 = NULL;
             int je = json_scanf(response->data, sdslen(response->data), "{result: {message: %Q}}", &p_charbuf1);
@@ -582,6 +588,7 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
                     lua_setglobal(lua_vm, "mympd_state");
                     free_lua_mympd_state(lua_mympd_state);
                     lua_mympd_state = NULL;
+                    return 1;
                 }
                 lua_pushstring(lua_vm, p_charbuf1);
                 FREE_PTR(p_charbuf1);
@@ -599,8 +606,9 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
                 return luaL_error(lua_vm, es);
             }
             
+            lua_pushlstring(lua_vm, response->data, sdslen(response->data));
             free_result(response);
-            return luaL_error(lua_vm, "Invalid API response");
+            return 1;
         }
     }
     return luaL_error(lua_vm, "No API response, timeout after 10s");

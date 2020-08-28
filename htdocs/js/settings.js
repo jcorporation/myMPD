@@ -94,7 +94,6 @@ function parseUrlhandlers(obj) {
                 break;
         }
     }
-    storagePlugins += '<option value="udisks://">udisks://</option>';
     document.getElementById('selectMountUrlhandler').innerHTML = storagePlugins;
 }
 
@@ -175,7 +174,6 @@ function parseSettings() {
     toggleBtnChk('btnNotifyPage', settings.notificationPage);
     toggleBtnChk('btnMediaSession', settings.mediaSession);
     toggleBtnChkCollapse('btnFeatLocalplayer', 'collapseLocalplayer', settings.featLocalplayer);
-    toggleBtnChk('btnLocalplayerAutoplay', settings.localplayerAutoplay);
     toggleBtnChk('btnFeatTimer', settings.featTimer);
     toggleBtnChk('btnBookmarks', settings.featBookmarks);
     toggleBtnChk('btnFeatLyrics', settings.featLyrics);
@@ -330,26 +328,7 @@ function parseSettings() {
     document.getElementById('selectSmartplsSort').value = settings.smartplsSort;
 
     if (settings.featLocalplayer === true) {
-        if (settings.streamUrl === '') {
-            settings.mpdstream = 'http://';
-            if (settings.mpdHost.match(/^127\./) !== null || settings.mpdHost === 'localhost' || settings.mpdHost.match(/^\//) !== null) {
-                settings.mpdstream += window.location.hostname;
-            }
-            else {
-                settings.mpdstream += settings.mpdHost;
-            }
-            settings.mpdstream += ':' + settings.streamPort + '/';
-        } 
-        else {
-            settings.mpdstream = settings.streamUrl;
-        }
-        let localPlayer = document.getElementById('localPlayer');
-        if (localPlayer.src !== settings.mpdstream) {
-            localPlayer.pause();
-            document.getElementById('alertLocalPlayback').classList.remove('hide');
-            localPlayer.src = settings.mpdstream;
-            localPlayer.load();
-        }
+        setLocalPlayerUrl();
     }
     
     if (settings.musicDirectory === 'auto') {
@@ -419,6 +398,8 @@ function parseMPDSettings() {
 
     toggleBtnGroupValue(document.getElementById('btnSingleGroup'), settings.single);
     toggleBtnGroupValue(document.getElementById('btnReplaygainGroup'), settings.replaygain);
+
+    document.getElementById('partitionName').innerText = settings.partition;
     
     document.getElementById('inputCrossfade').value = settings.crossfade;
     document.getElementById('inputMixrampdb').value = settings.mixrampdb;
@@ -443,7 +424,8 @@ function parseMPDSettings() {
     }
 
     let features = ['featStickers', 'featSmartpls', 'featPlaylists', 'featTags', 'featCoverimage', 'featAdvsearch',
-        'featLove', 'featSingleOneshot', 'featCovergrid', 'featBrowse', "featMounts", "featNeighbors"];
+        'featLove', 'featSingleOneshot', 'featCovergrid', 'featBrowse', 'featMounts', 'featNeighbors',
+        'featPartitions'];
     for (let j = 0; j < features.length; j++) {
         let Els = document.getElementsByClassName(features[j]);
         let ElsLen = Els.length;
@@ -514,6 +496,12 @@ function parseMPDSettings() {
     else {
         clearBackgroundImage();
     }
+
+    let triggerEventList = '';
+    Object.keys(settings.triggers).forEach(function(key) {
+        triggerEventList += '<option value="' + e(settings.triggers[key]) + '">' + t(key) + '</option>';
+    });
+    document.getElementById('selectTriggerEvent').innerHTML = triggerEventList;
     
     settings.tags.sort();
     settings.searchtags.sort();
@@ -789,7 +777,6 @@ function saveSettings(closeModal) {
             "bgColor": document.getElementById('inputBgColor').value,
             "bgCssFilter": document.getElementById('inputBgCssFilter').value,
             "featLocalplayer": (document.getElementById('btnFeatLocalplayer').classList.contains('active') ? true : false),
-            "localplayerAutoplay": (document.getElementById('btnLocalplayerAutoplay').classList.contains('active') ? true : false),
             "streamUrl": streamUrl,
             "streamPort": parseInt(streamPort),
             "coverimage": (document.getElementById('btnCoverimage').classList.contains('active') ? true : false),

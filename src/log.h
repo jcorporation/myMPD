@@ -16,6 +16,7 @@ enum { LOGLEVEL_ERROR, LOGLEVEL_WARN, LOGLEVEL_INFO, LOGLEVEL_VERBOSE, LOGLEVEL_
 #define LOG_DEBUG(...) mympd_log(LOGLEVEL_DEBUG, __FILE__, __LINE__, __VA_ARGS__)
 
 extern int loglevel;
+extern int log_on_tty;
 _Thread_local extern sds thread_logname;
 
 void mympd_log(int level, const char *file, int line, const char *fmt, ...);

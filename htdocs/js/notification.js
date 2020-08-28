@@ -197,8 +197,8 @@ function notificationsSupported() {
     return "Notification" in window;
 }
 
-function setElsState(tag, state) {
-    let els = document.getElementsByTagName(tag);
+function setElsState(tag, state, type) {
+    let els = type === 'tag' ? document.getElementsByTagName(tag) : document.getElementsByClassName(tag);
     let elsLen = els.length;
     for (let i = 0; i < elsLen; i++) {
         if (state === 'disabled') {
@@ -226,9 +226,10 @@ function toggleUI() {
     let enabled = state === 'disabled' ? false : true;
     if (enabled !== uiEnabled) {
         logDebug('Setting ui state to ' + state);
-        setElsState('a', state);
-        setElsState('input', state);
-        setElsState('button', state);
+        setElsState('a', state, 'tag');
+        setElsState('input', state, 'tag');
+        setElsState('button', state, 'tag');
+        setElsState('clickable', state, 'class');
         uiEnabled = enabled;
     }
 
