@@ -160,7 +160,7 @@ function parseScriptList(obj) {
         
     if (scriptListLen > scriptMaxListLen) {
         document.getElementById('navScripting').classList.remove('hide');
-        document.getElementById('scripts').classList.add('collapse', 'menu-indent');
+        document.getElementById('scripts').classList.add('collapse', 'menu-indent', 'alwaysEnabled');
     }
     else {
         document.getElementById('navScripting').classList.add('hide');
