@@ -4,7 +4,7 @@
  https://github.com/jcorporation/mympd
 */
 
-var CACHE = 'myMPD-cache-v6.6.0';
+var CACHE = 'myMPD-cache-v6.6.1';
 var subdir = self.location.pathname.replace('/sw.js', '').replace(/\/$/, '');
 var urlsToCache = [
     subdir + '/',
@@ -40,9 +40,6 @@ self.addEventListener('install', function(event) {
 });
 
 self.addEventListener('fetch', function(event) {
-    if (event.request.destination === 'audio') {
-        return false;    
-    }
     if (event.request.url.match('^http://')) {
         return false;
     }
