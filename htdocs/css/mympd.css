@@ -211,6 +211,7 @@ small {
 
 .card {
   min-height: 300px;
+  word-break: break-word;
 }
 
 .cardFooterPlayback {
