@@ -61,14 +61,17 @@ bool mpd_client_jukebox(t_config *config, t_mpd_client_state *mpd_client_state, 
     unsigned long addSongs = substractUnsigned(mpd_client_state->jukebox_queue_length, queue_length);
     
     if (now > add_time && add_time > 0 && queue_length <= mpd_client_state->jukebox_queue_length) {
+        LOG_DEBUG("Time now %d greater than add_time %d, adding song", now, add_time);
         addSongs++;
     }
 
     if (addSongs < 1) {
+        LOG_DEBUG("Jukebox: nothing to do");
         return true;
     }
     
     if (addSongs > 99) {
+        LOG_WARN("Jukebox: max songs to add set to %ul, adding max. 99 songs", addSongs);
         addSongs = 99;
     }
         
