@@ -103,12 +103,12 @@ function parsePlaylists(obj) {
     
     if (nrItems === 0) {
         if (app.current.view === 'All') {
-            tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
+            tbody.innerHTML = '<tr class="not-clickable"><td><span class="material-icons">error_outline</span></td>' +
                               '<td colspan="3">' + t('No playlists found') + '</td></tr>';
         }
         else {
-            tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
-                              '<td colspan="' + (settings.colsBrowsePlaylistsDetail.length - 1) + '">' + t('Empty playlist') + '</td></tr>';
+            tbody.innerHTML = '<tr class="not-clickable"><td><span class="material-icons">error_outline</span></td>' +
+                              '<td colspan="' + settings.colsBrowsePlaylistsDetail.length + '">' + t('Empty playlist') + '</td></tr>';
         }
     }
             

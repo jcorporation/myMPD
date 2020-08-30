@@ -388,6 +388,7 @@ a.card-img-left {
 
 #counter {
   cursor: text;
+  word-break: normal;
 }
 
 #volumeBar {
