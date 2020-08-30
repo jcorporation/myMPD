@@ -1051,7 +1051,7 @@ function appInit() {
     
     document.getElementById('BrowseDatabaseTagList').addEventListener('click', function(event) {
         if (event.target.nodeName === 'TD') {
-            appGoto('Browse', 'Database', app.current.view, '0/-/-/' + event.target.parentNode.getAttribute('data-uri'));
+            appGoto('Browse', 'Database', app.current.view, '0/-/-/' + decodeURI(event.target.parentNode.getAttribute('data-uri')));
         }
     }, false);
     
