@@ -39,6 +39,9 @@ Local playback
 Connecting to stream...
 스트리밍에 연결 중...
 
+Error loading stream
+스트리밍 읽기 오류
+
 JavaScript is disabled
 자바스크립트 사용 안 함
 
@@ -1537,4 +1540,4 @@ enabled
 사용함
 
 No mixed content,  MPD stream must be served over https:
-혼합된 컨텐트는 안되며, MPD 스트림 서비스는 https:를 통해야 합니다.
+혼합된 컨텐트는 안되며, MPD 스트리밍 서비스는 https:를 통해야 합니다.
