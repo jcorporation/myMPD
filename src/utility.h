@@ -46,6 +46,7 @@ void strip_slash(sds s);
 void ws_notify(sds message);
 void my_usleep(time_t usec);
 unsigned long substractUnsigned(unsigned long num1, unsigned long num2);
+char *basename_uri(char *uri);
 
 #define FREE_PTR(PTR) do { \
     if (PTR != NULL) \

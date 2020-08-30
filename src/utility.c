@@ -15,6 +15,7 @@
 #include <ctype.h>
 #include <signal.h>
 #include <time.h>
+#include <libgen.h>
 
 #include "../dist/src/sds/sds.h"
 #include "sds_extras.h"
@@ -500,4 +501,15 @@ unsigned long substractUnsigned(unsigned long num1, unsigned long num2) {
         return num1 - num2;
     }
     return 0;
+}
+
+char *basename_uri(char *uri) {
+    char *b = basename(uri);
+    for (size_t i = 0;  i < strlen(b); i++) {
+        if (b[i] == '#' || b[i] == '?') {
+            b[i] = '\0';
+            return b;
+        }
+    }
+    return b;
 }

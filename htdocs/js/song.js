@@ -46,11 +46,11 @@ function parseSongDetails(obj) {
     if (settings.featLibrary === true && settings.publish === true) {
         songDetailsHTML += '<tr><th>' + t('Filename') + '</th><td><a class="breakAll text-success" href="/browse/music/' + 
             encodeURI(obj.result.uri) + '" target="_blank" title="' + e(obj.result.uri) + '">' + 
-            e(basename(obj.result.uri)) + '</a></td></tr>';
+            e(basename(obj.result.uri, true)) + '</a></td></tr>';
     }
     else {
         songDetailsHTML += '<tr><th>' + t('Filename') + '</th><td class="breakAll"><span title="' + e(obj.result.uri) + '">' + 
-            e(basename(obj.result.uri)) + '</span></td></tr>';
+            e(basename(obj.result.uri, true)) + '</span></td></tr>';
     }
     songDetailsHTML += '<tr><th>' + t('Filetype') + '</th><td>' + filetype(obj.result.uri) + '</td></tr>';
     songDetailsHTML += '<tr><th>' + t('LastModified') + '</th><td>' + localeDate(obj.result.LastModified) + '</td></tr>';

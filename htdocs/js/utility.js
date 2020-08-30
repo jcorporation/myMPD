@@ -44,8 +44,13 @@ function dirname(uri) {
     return uri.replace(/\/[^/]*$/, '');
 }
 
-function basename(uri) {
-   return uri.split('/').reverse()[0];
+function basename(uri, removeQuery) {
+    if (removeQuery === true) {
+        return uri.split('/').reverse()[0].split(/[?#]/)[0];
+    }
+    else {
+        return uri.split('/').reverse()[0];
+    }
 }
 
 function filetype(uri) {

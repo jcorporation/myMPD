@@ -85,7 +85,7 @@ char *mpd_shared_get_tag(struct mpd_song const *song, const enum mpd_tag_type ta
     char *str = (char *)mpd_song_get_tag(song, tag, 0);
     if (str == NULL) {
         if (tag == MPD_TAG_TITLE) {
-            str = basename((char *)mpd_song_get_uri(song));
+            str = basename_uri((char *)mpd_song_get_uri(song));
         }
         else if (tag == MPD_TAG_ALBUM_ARTIST) {
             str = (char *)mpd_song_get_tag(song, MPD_TAG_ARTIST, 0);
