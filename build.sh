@@ -709,20 +709,20 @@ uninstall() {
   fi
 
   #MYMPD_INSTALL_PREFIX="/usr"
-  rm -f "/usr/bin/mympd"
-  rm -f "/usr/bin/mympd-config"
-  rm -f "/usr/bin/mympd-script"
+  rm -f "$DESTDIR/usr/bin/mympd"
+  rm -f "$DESTDIR/usr/bin/mympd-config"
+  rm -f "$DESTDIR/usr/bin/mympd-script"
   #MYMPD_INSTALL_PREFIX="/usr/local"
-  rm -f "/usr/local/bin/mympd"
-  rm -f "/usr/local/bin/mympd-config"
-  rm -f "/usr/local/bin/mympd-script"
+  rm -f "$DESTDIR/usr/local/bin/mympd"
+  rm -f "$DESTDIR/usr/local/bin/mympd-config"
+  rm -f "$DESTDIR/usr/local/bin/mympd-script"
   #MYMPD_INSTALL_PREFIX="/opt/mympd/"
-  rm -rf "/opt/mympd"
+  rm -rf "$DESTDIR/opt/mympd"
   #systemd
-  rm -f "/usr/lib/systemd/system/mympd.service"
-  rm -f "/lib/systemd/system/mympd.service"
+  rm -f "$DESTDIR/usr/lib/systemd/system/mympd.service"
+  rm -f "$DESTDIR/lib/systemd/system/mympd.service"
   #sysVinit, open-rc
-  if [ -f "/etc/init.d/mympd" ]; then
+  if [ -z "$DESTDIR" -a "/etc/init.d/mympd" ]; then
 	  echo "SysVinit/ OpenRC-script /etc/init.d/mympd found."
 	  echo "Make sure it isn't part of any runlevel and delete by yourself"
 	  echo "or invoke with purge instead of uninstall."
@@ -731,18 +731,18 @@ uninstall() {
 
 purge() {
   #MYMPD_INSTALL_PREFIX="/usr"
-  rm -rf "/var/lib/mympd"
-  rm -f "/etc/mympd.conf"
-  rm -f "/etc/mympd.conf.dist"
-  rm -f "/etc/init.d/mympd"
+  rm -rf "$DESTDIR/var/lib/mympd"
+  rm -f "$DESTDIR/etc/mympd.conf"
+  rm -f "$DESTDIR/etc/mympd.conf.dist"
+  rm -f "$DESTDIR/etc/init.d/mympd"
   #MYMPD_INSTALL_PREFIX="/usr/local"
-  rm -f "/usr/local/etc/mympd.conf"
-  rm -f "/usr/local/etc/mympd.conf.dist"
+  rm -f "$DESTDIR/usr/local/etc/mympd.conf"
+  rm -f "$DESTDIR/usr/local/etc/mympd.conf.dist"
   #MYMPD_INSTALL_PREFIX="/opt/mympd/"
-  rm -rf "/var/opt/mympd"
-  rm -rf "/etc/opt/mympd"
+  rm -rf "$DESTDIR/var/opt/mympd"
+  rm -rf "$DESTDIR/etc/opt/mympd"
   #arch
-  rm -rf "/etc/webapps/mympd"
+  rm -rf "$DESTDIR/etc/webapps/mympd"
   #remove user
   getent passwd mympd > /dev/null && userdel mympd
   getent group mympd > /dev/null && groupdel -f mympd
@@ -863,7 +863,7 @@ case "$1" in
 	  echo "                  state files in place"
 	  echo "                  following environment variables are respected"
 	  echo "                    - DESTDIR=\"\""
-	  echo "  purge:          removes all myMPD files"
+	  echo "  purge:          removes all myMPD files, also your init scripts"
 	  echo "                  following environment variables are respected"
 	  echo "                    - DESTDIR=\"\""
 	  echo ""
