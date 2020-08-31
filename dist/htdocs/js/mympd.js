@@ -60,20 +60,32 @@ function sendAPI(method, params, callback, onerror) {
 
 function webSocketConnect() {
     if (socket !== null && socket.readyState === WebSocket.OPEN) {
-        logInfo("Socket already connected");
+        logInfo('Socket already connected');
         websocketConnected = true;
+        socketRetry = 0;
         return;
     }
     else if (socket !== null && socket.readyState === WebSocket.CONNECTING) {
-        logInfo("Socket connection in progress");
+        logInfo('Socket connection in progress');
         websocketConnected = false;
+        socketRetry++;
+        if (socketRetry > 20) {
+            logError('Socket connection timed out');
+            webSocketClose();
+            setTimeout(function() {
+                webSocketConnect();
+            }, 1000);
+            socketRetry = 0;
+        }
         return;
     }
     else {
         websocketConnected = false;
     }
+    
     let wsUrl = getWsUrl();
     socket = new WebSocket(wsUrl);
+    socketRetry = 0;
     logInfo('Connecting to ' + wsUrl);
 
     try {
@@ -214,6 +226,19 @@ function webSocketConnect() {
     } catch(error) {
         logError(error);
     }
+}
+
+function webSocketClose() {
+    if (websocketTimer !== null) {
+        clearTimeout(websocketTimer);
+        websocketTimer = null;
+    }
+    if (socket !== null) {
+        socket.onclose = function () {}; // disable onclose handler first
+        socket.close();
+        socket = null;
+    }
+    websocketConnected = false;
 }
 
 function getWsUrl() {
@@ -1376,6 +1401,10 @@ function parseNeighbors(obj) {
 /* global BSN, phrases, locales */
 
 var socket = null;
+var websocketConnected = false;
+var websocketTimer = null;
+var socketRetry = 0;
+
 var lastSong = '';
 var lastSongObj = {};
 var lastState;
@@ -1390,8 +1419,7 @@ var alertTimeout = null;
 var progressTimer = null;
 var deferredPrompt;
 var dragEl;
-var websocketConnected = false;
-var websocketTimer = null;
+
 var appInited = false;
 var subdir = '';
 var uiEnabled = true;
@@ -2115,6 +2143,7 @@ function appInit() {
         let value = this.options[this.selectedIndex].value;
         if (value === '2') {
             document.getElementById('inputAddToQueueQuantity').setAttribute('disabled', 'disabled');
+            document.getElementById('inputAddToQueueQuantity').value = '1';
             document.getElementById('selectAddToQueuePlaylist').setAttribute('disabled', 'disabled');
             document.getElementById('selectAddToQueuePlaylist').value = 'Database';
         }
@@ -2418,7 +2447,7 @@ function appInit() {
     
     document.getElementById('BrowseDatabaseTagList').addEventListener('click', function(event) {
         if (event.target.nodeName === 'TD') {
-            appGoto('Browse', 'Database', app.current.view, '0/-/-/' + event.target.parentNode.getAttribute('data-uri'));
+            appGoto('Browse', 'Database', app.current.view, '0/-/-/' + decodeURI(event.target.parentNode.getAttribute('data-uri')));
         }
     }, false);
     
@@ -2746,16 +2775,7 @@ function appInit() {
     });
 
     window.addEventListener('beforeunload', function() {
-        if (websocketTimer !== null) {
-            clearTimeout(websocketTimer);
-            websocketTimer = null;
-        }
-        if (socket !== null) {
-            socket.onclose = function () {}; // disable onclose handler first
-            socket.close();
-            socket = null;
-        }
-        websocketConnected = false;
+        webSocketClose();
     });
     
     document.getElementById('alertLocalPlayback').getElementsByTagName('a')[0].addEventListener('click', function(event) {
@@ -3002,6 +3022,9 @@ function setElsState(tag, state, type) {
     let els = type === 'tag' ? document.getElementsByTagName(tag) : document.getElementsByClassName(tag);
     let elsLen = els.length;
     for (let i = 0; i < elsLen; i++) {
+        if (els[i].classList.contains('close')) {
+            continue;
+        }
         if (state === 'disabled') {
             if (els[i].classList.contains('alwaysEnabled') === false) {
                 if (els[i].getAttribute('disabled') === null) {
@@ -3271,12 +3294,12 @@ function parsePlaylists(obj) {
     
     if (nrItems === 0) {
         if (app.current.view === 'All') {
-            tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
+            tbody.innerHTML = '<tr class="not-clickable"><td><span class="material-icons">error_outline</span></td>' +
                               '<td colspan="3">' + t('No playlists found') + '</td></tr>';
         }
         else {
-            tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
-                              '<td colspan="' + (settings.colsBrowsePlaylistsDetail.length - 1) + '">' + t('Empty playlist') + '</td></tr>';
+            tbody.innerHTML = '<tr class="not-clickable"><td><span class="material-icons">error_outline</span></td>' +
+                              '<td colspan="' + settings.colsBrowsePlaylistsDetail.length + '">' + t('Empty playlist') + '</td></tr>';
         }
     }
             
@@ -5489,11 +5512,11 @@ function parseSongDetails(obj) {
     if (settings.featLibrary === true && settings.publish === true) {
         songDetailsHTML += '<tr><th>' + t('Filename') + '</th><td><a class="breakAll text-success" href="/browse/music/' + 
             encodeURI(obj.result.uri) + '" target="_blank" title="' + e(obj.result.uri) + '">' + 
-            e(basename(obj.result.uri)) + '</a></td></tr>';
+            e(basename(obj.result.uri, true)) + '</a></td></tr>';
     }
     else {
         songDetailsHTML += '<tr><th>' + t('Filename') + '</th><td class="breakAll"><span title="' + e(obj.result.uri) + '">' + 
-            e(basename(obj.result.uri)) + '</span></td></tr>';
+            e(basename(obj.result.uri, true)) + '</span></td></tr>';
     }
     songDetailsHTML += '<tr><th>' + t('Filetype') + '</th><td>' + filetype(obj.result.uri) + '</td></tr>';
     songDetailsHTML += '<tr><th>' + t('LastModified') + '</th><td>' + localeDate(obj.result.LastModified) + '</td></tr>';
@@ -7120,8 +7143,13 @@ function dirname(uri) {
     return uri.replace(/\/[^/]*$/, '');
 }
 
-function basename(uri) {
-   return uri.split('/').reverse()[0];
+function basename(uri, removeQuery) {
+    if (removeQuery === true) {
+        return uri.split('/').reverse()[0].split(/[?#]/)[0];
+    }
+    else {
+        return uri.split('/').reverse()[0];
+    }
 }
 
 function filetype(uri) {
