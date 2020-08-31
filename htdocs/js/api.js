@@ -61,20 +61,32 @@ function sendAPI(method, params, callback, onerror) {
 
 function webSocketConnect() {
     if (socket !== null && socket.readyState === WebSocket.OPEN) {
-        logInfo("Socket already connected");
+        logInfo('Socket already connected');
         websocketConnected = true;
+        socketRetry = 0;
         return;
     }
     else if (socket !== null && socket.readyState === WebSocket.CONNECTING) {
-        logInfo("Socket connection in progress");
+        logInfo('Socket connection in progress');
         websocketConnected = false;
+        socketRetry++;
+        if (socketRetry > 20) {
+            logError('Socket connection timed out');
+            webSocketClose();
+            setTimeout(function() {
+                webSocketConnect();
+            }, 1000);
+            socketRetry = 0;
+        }
         return;
     }
     else {
         websocketConnected = false;
     }
+    
     let wsUrl = getWsUrl();
     socket = new WebSocket(wsUrl);
+    socketRetry = 0;
     logInfo('Connecting to ' + wsUrl);
 
     try {
@@ -215,6 +227,19 @@ function webSocketConnect() {
     } catch(error) {
         logError(error);
     }
+}
+
+function webSocketClose() {
+    if (websocketTimer !== null) {
+        clearTimeout(websocketTimer);
+        websocketTimer = null;
+    }
+    if (socket !== null) {
+        socket.onclose = function () {}; // disable onclose handler first
+        socket.close();
+        socket = null;
+    }
+    websocketConnected = false;
 }
 
 function getWsUrl() {
