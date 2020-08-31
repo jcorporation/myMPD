@@ -1,12 +1,12 @@
 body.theme-dark .card,
 body.theme-dark .modal-content,
 body.theme-dark .modal-header {
-  background-color: #343a50;
+  background-color: #343a40;
   color: #f8f9fa;
 }
 
 body.theme-dark .btn {
-  background-color: #343a50;
+  background-color: #343a40;
   color: #f8f9fa;
 }
 
@@ -45,7 +45,7 @@ body.theme-dark .btn-secondary {
 }
 
 body.theme-dark .form-control {
-  background-color: #343a50;
+  background-color: #343a40;
   border-color: #6c757d;
   color: #f8f9fa;
 }
@@ -194,4 +194,9 @@ body.theme-dark .text-body {
 
 body.theme-dark td[data-col="Action"] a:hover {
   color: #f8f9fa !important;
+}
+
+body.theme-dark .form-control:disabled,
+body.theme-dark .form-control[readonly] {
+  background-color: #6c757d;
 }

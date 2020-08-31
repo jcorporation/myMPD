@@ -9,6 +9,10 @@
 /* global BSN, phrases, locales */
 
 var socket = null;
+var websocketConnected = false;
+var websocketTimer = null;
+var socketRetry = 0;
+
 var lastSong = '';
 var lastSongObj = {};
 var lastState;
@@ -23,8 +27,7 @@ var alertTimeout = null;
 var progressTimer = null;
 var deferredPrompt;
 var dragEl;
-var websocketConnected = false;
-var websocketTimer = null;
+
 var appInited = false;
 var subdir = '';
 var uiEnabled = true;
@@ -748,6 +751,7 @@ function appInit() {
         let value = this.options[this.selectedIndex].value;
         if (value === '2') {
             document.getElementById('inputAddToQueueQuantity').setAttribute('disabled', 'disabled');
+            document.getElementById('inputAddToQueueQuantity').value = '1';
             document.getElementById('selectAddToQueuePlaylist').setAttribute('disabled', 'disabled');
             document.getElementById('selectAddToQueuePlaylist').value = 'Database';
         }
@@ -1379,16 +1383,7 @@ function appInit() {
     });
 
     window.addEventListener('beforeunload', function() {
-        if (websocketTimer !== null) {
-            clearTimeout(websocketTimer);
-            websocketTimer = null;
-        }
-        if (socket !== null) {
-            socket.onclose = function () {}; // disable onclose handler first
-            socket.close();
-            socket = null;
-        }
-        websocketConnected = false;
+        webSocketClose();
     });
     
     document.getElementById('alertLocalPlayback').getElementsByTagName('a')[0].addEventListener('click', function(event) {

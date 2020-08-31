@@ -282,7 +282,7 @@ function parseSettings() {
         
         if (syscmdsListLen > syscmdsMaxListLen) {
             document.getElementById('navSyscmds').classList.remove('hide');
-            document.getElementById('syscmds').classList.add('collapse', 'menu-indent', 'alwaysEnabled');
+            document.getElementById('syscmds').classList.add('collapse', 'menu-indent');
         }
         else {
             document.getElementById('navSyscmds').classList.add('hide');

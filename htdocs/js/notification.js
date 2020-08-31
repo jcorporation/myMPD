@@ -201,6 +201,9 @@ function setElsState(tag, state, type) {
     let els = type === 'tag' ? document.getElementsByTagName(tag) : document.getElementsByClassName(tag);
     let elsLen = els.length;
     for (let i = 0; i < elsLen; i++) {
+        if (els[i].classList.contains('close')) {
+            continue;
+        }
         if (state === 'disabled') {
             if (els[i].classList.contains('alwaysEnabled') === false) {
                 if (els[i].getAttribute('disabled') === null) {
