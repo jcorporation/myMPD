@@ -33,7 +33,6 @@
 
 //private definitions
 
-#define RSA_KEY_BITS 2048
 #define CA_LIFETIME 3650
 #define CA_MIN_LIFETIME 365
 #define CERT_LIFETIME 365
@@ -44,7 +43,7 @@ static int generate_set_random_serial(X509 *crt);
 static X509_REQ *generate_request(EVP_PKEY *pkey);
 static void add_extension(X509V3_CTX *ctx, X509 *cert, int nid, const char *value);
 static X509 *sign_certificate_request(EVP_PKEY *ca_key, X509 *ca_cert, X509_REQ *req, sds san);
-static EVP_PKEY *generate_keypair(void);
+static EVP_PKEY *generate_keypair(int rsa_key_bits);
 static X509 *generate_selfsigned_cert(EVP_PKEY *pkey);
 static bool write_to_disk(sds key_file, EVP_PKEY *pkey, sds cert_file, X509 *cert);
 static bool load_certificate(sds key_file, EVP_PKEY **key, sds cert_file, X509 **cert);
@@ -171,7 +170,7 @@ static int check_expiration(X509 *cert, sds cert_file, int min_days, int max_day
 
 static bool create_ca_certificate(sds cakey_file, EVP_PKEY **ca_key, sds cacert_file, X509 **ca_cert) {
     LOG_INFO("Creating self signed ca certificate");
-    *ca_key = generate_keypair();
+    *ca_key = generate_keypair(4096);
     if (*ca_key == NULL) {
         return false;
     }
@@ -189,7 +188,7 @@ static bool create_server_certificate(sds serverkey_file, EVP_PKEY **server_key,
                                       sds custom_san, EVP_PKEY **ca_key, X509 **ca_cert)
 {
     LOG_INFO("Creating server certificate");
-    *server_key = generate_keypair();
+    *server_key = generate_keypair(2048);
     if (*server_key == NULL) {
         return false;
     }
@@ -401,7 +400,7 @@ static X509 *sign_certificate_request(EVP_PKEY *ca_key, X509 *ca_cert, X509_REQ 
     return cert;
 }
 
-static EVP_PKEY *generate_keypair(void) {
+static EVP_PKEY *generate_keypair(int rsa_key_bits) {
     RSA *rsa = RSA_new();
     if (!rsa) {
         LOG_ERROR("Unable to create RSA structure");
@@ -423,7 +422,7 @@ static EVP_PKEY *generate_keypair(void) {
         return NULL;
     }
     BN_set_word(e, 65537);
-    RSA_generate_key_ex(rsa, RSA_KEY_BITS, e, NULL);
+    RSA_generate_key_ex(rsa, rsa_key_bits, e, NULL);
     if (!EVP_PKEY_assign_RSA(pkey, rsa)) {
         LOG_ERROR("Unable to generate RSA key");
         BN_free(e);
@@ -476,9 +475,10 @@ static X509 *generate_selfsigned_cert(EVP_PKEY *pkey) {
     X509V3_CTX ctx;
     X509V3_set_ctx_nodb(&ctx);
     X509V3_set_ctx(&ctx, cert, cert, NULL, NULL, 0);
-    X509_EXTENSION *ex = X509V3_EXT_conf_nid(NULL, &ctx, NID_basic_constraints, "CA:true");
-    X509_add_ext(cert, ex, -1);
-    X509_EXTENSION_free(ex);
+    add_extension(&ctx, cert, NID_basic_constraints, "critical, CA:true");
+    add_extension(&ctx, cert, NID_key_usage, "critical, Certificate Sign, CRL Sign");
+
+
     
     sdsfree(cn);
     
