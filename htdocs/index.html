@@ -58,12 +58,12 @@
             <a data-phrase="Mounts" class="dropdown-item text-light featMounts" href="#" data-toggle="modal" data-target="#modalMounts"></a>
             <a data-phrase="Fullscreen" class="dropdown-item text-light" href="#" data-href='{"cmd": "openFullscreen", "options": []}'></a>
           </div>
-          <a data-phrase="Browse directories" class="dropdown-item text-light featBrowse" href="browse/" target="_blank"></a>
-          <a data-phrase="About" class="dropdown-item text-light " href="#" data-toggle="modal" data-target="#modalAbout"></a>
+          <a data-phrase="Browse directories" class="dropdown-item text-light featBrowse alwaysEnabled" href="browse/" target="_blank"></a>
+          <a data-phrase="About" class="dropdown-item text-light alwaysEnabled" href="#" data-toggle="modal" data-target="#modalAbout"></a>
           <a data-phrase="Add to home screen" id="nav-add2homescreen" class="dropdown-item text-light bg-lite-dark hide" href="#"></a>
-          <a id="navSyscmds" class="subMenu featSyscmds dropdown-item text-light" data-toggle="collapse" href="#syscmds"><span class="material-icons material-icons-left">keyboard_arrow_right</span><span data-phrase="System commands"></span></a>
+          <a id="navSyscmds" class="subMenu featSyscmds dropdown-item text-light alwaysEnabled" data-toggle="collapse" href="#syscmds"><span class="material-icons material-icons-left">keyboard_arrow_right</span><span data-phrase="System commands"></span></a>
           <div id="syscmds" class="featSyscmds noInitChilds collapse"></div>
-          <a id="navScripting" class="subMenu featScripting dropdown-item text-light" data-toggle="collapse" href="#scripts"><span class="material-icons material-icons-left">keyboard_arrow_right</span><span data-phrase="Scripts"></span></a>
+          <a id="navScripting" class="subMenu featScripting dropdown-item text-light alwaysEnabled" data-toggle="collapse" href="#scripts"><span class="material-icons material-icons-left">keyboard_arrow_right</span><span data-phrase="Scripts"></span></a>
           <div id="scripts" class="featScripting noInitChilds collapse"></div>
         </div>
       </div>
@@ -1505,10 +1505,10 @@
         <div class="modal-header pb-0">
           <ul class="nav nav-tabs border-bottom-0">
             <li class="nav-item">
-              <a class="nav-link active text-dark" href="#tabAbout" data-toggle="tab" data-height="true" data-phrase="About"></a>
+              <a class="nav-link active text-dark alwaysEnabled" href="#tabAbout" data-toggle="tab" data-height="true" data-phrase="About"></a>
             </li>
             <li class="nav-item">
-              <a class="nav-link text-dark" href="#tabShortcuts" data-toggle="tab" data-height="true" data-phrase="Shortcuts"></a>
+              <a class="nav-link text-dark alwaysEnabled" href="#tabShortcuts" data-toggle="tab" data-height="true" data-phrase="Shortcuts"></a>
             </li>
           </ul>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
@@ -1542,7 +1542,7 @@
                   <tr><td colspan="2" class="pt-3"><h5 data-phrase="Webserver"></h5></td></tr>
                   <tr><th data-phrase="Mongoose version"></th><td id="wsMongooseVersion"></td></tr>
                   <tr><th data-phrase="IP-Address"></th><td id="wsIP"></td></tr>
-                  <tr class="featCacert"><th data-phrase="myMPD CA"></th><td><a class="text-success" href="/ca.crt" data-phrase="Download" target="_blank"></a></td></tr>
+                  <tr class="featCacert"><th data-phrase="myMPD CA"></th><td><a class="text-success alwaysEnabled" href="/ca.crt" data-phrase="Download" target="_blank"></a></td></tr>
                 </tbody>
               </table>          
             </div>
