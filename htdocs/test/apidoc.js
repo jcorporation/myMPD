@@ -10,6 +10,7 @@
 let strings = {};
 strings['cols'] = 'cols: array of columns to return';
 strings['offset'] = 'offset: Offset of the returned list';
+strings['filter_char'] = 'filter: filter by first character of playlist name';
 
 let desc = {};
 desc['MPD_API_QUEUE_CLEAR'] = 'Clears the queue';
@@ -81,6 +82,64 @@ desc['MPD_API_QUEUE_LAST_PLAYED'] = 'List the last played songs.' +
     '<ul>' +
     '<li>' + strings['offset'] + '</li>' +
     '<li>' + strings['cols'] + '</li>' +
+    '</ul>';
+desc['MPD_API_PLAYLIST_RM'] = 'Removes the playlist.' +
+    '<ul>' +
+    '<li>uri: playlist</li>' +
+    '</ul>';
+desc['MPD_API_PLAYLIST_CLEAR'] = 'Clears the playlist.' +
+    '<ul>' +
+    '<li>uri: playlist</li>' +
+    '</ul>';
+desc['MPD_API_PLAYLIST_RENAME'] = 'Renames the playlist.' +
+    '<ul>' +
+    '<li>from: old playlist name</li>' +
+    '<li>to: new playlist name</li>' +
+    '</ul>';
+desc['MPD_API_PLAYLIST_MOVE_TRACK'] = 'Moves a song in the playlist.' +
+    '<ul>' +
+    '<li>plist: playlist</li>' +
+    '<li>from: from position</li>' +
+    '<li>to: to position</li>' +
+    '</ul>';
+desc['MPD_API_PLAYLIST_ADD_TRACK'] = 'Adds a song to the playlist.' +
+    '<ul>' +
+    '<li>plist: playlist</li>' +
+    '<li>uri: song uri to add</li>' +
+    '</ul>';
+desc['MPD_API_PLAYLIST_RM_TRACK'] = 'Removes a song from the playlist.' +
+    '<ul>' +
+    '<li>uri: playlist</li>' +
+    '<li>track: song number to remove</li>' +
+    '</ul>';
+desc['MPD_API_PLAYLIST_RM_ALL'] = 'Removes all playlists.' +
+    '<ul>' +
+    '<li>type: <ul>' +
+      '<li>deleteAllPlaylists: deletes all playlists</li>' +
+      '<li>deleteSmartPlaylists: deletes all smart playlists</li>' +
+      '<li>deleteEmptyPlaylists: deletes all empty playlists</li>' +
+    '</ul></li>' +
+    '</ul>';
+desc['MPD_API_PLAYLIST_LIST'] = 'Lists all playlists.' +
+    '<ul>' +
+    '<li>' + strings['offset'] + '</li>' +
+    '<li>' + strings['filter_char'] + '</li>' +
+    '</ul>';
+desc['MPD_API_PLAYLIST_CONTENT_LIST'] = 'Lists the content of a playlist.' +
+    '<ul>' +
+    '<li>uri: playlist</li>' +
+    '<li>' + strings['offset'] + '</li>' +
+    '<li>' + strings['filter_char'] + '</li>' +
+    '<li>' + strings['cols'] + '</li>' +
+    '</ul>';
+desc['MPD_API_PLAYLIST_SHUFFLE'] = 'Shuffles the playlist.' +
+    '<ul>' +
+    '<li>uri: playlist</li>' +
+    '</ul>';
+desc['MPD_API_PLAYLIST_SORT'] = 'Sorts the playlist.' +
+    '<ul>' +
+    '<li>uri: playlist</li>' +
+    '<li>tag: tag to sort</li>' +
     '</ul>';
 
 let tbody = document.getElementsByTagName('tbody')[0];
