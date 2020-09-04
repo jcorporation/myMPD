@@ -588,30 +588,32 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
                     lua_setglobal(lua_vm, "mympd_state");
                     free_lua_mympd_state(lua_mympd_state);
                     lua_mympd_state = NULL;
-                    return 1;
+                    lua_pushinteger(lua_vm, 0);
+                    lua_pushstring(lua_vm, "mympd_state is now populated");
+                    return 2;
                 }
+                lua_pushinteger(lua_vm, 0);
                 lua_pushstring(lua_vm, p_charbuf1);
                 FREE_PTR(p_charbuf1);
                 free_result(response);
-                return 1;
+                return 2;
             }
             
             je = json_scanf(response->data, sdslen(response->data), "{error: {message: %Q}}", &p_charbuf1);
             if (je == 1 && p_charbuf1 != NULL) {
-                size_t el = strlen(p_charbuf1);
-                char es[el + 1];
-                snprintf(es, el, "%s", p_charbuf1);
+                lua_pushinteger(lua_vm, 1);
+                lua_pushstring(lua_vm, p_charbuf1);
                 FREE_PTR(p_charbuf1);
                 free_result(response);
-                return luaL_error(lua_vm, es);
+                return 2;
             }
-            
+            lua_pushinteger(lua_vm, 0);            
             lua_pushlstring(lua_vm, response->data, sdslen(response->data));
             free_result(response);
-            return 1;
+            return 2;
         }
     }
-    return luaL_error(lua_vm, "No API response, timeout after 10s");
+    return luaL_error(lua_vm, "No API response, timeout after 60s");
 }
 
 static void free_t_script_thread_arg(struct t_script_thread_arg *script_thread_arg) {
