@@ -50,8 +50,10 @@ void mympd_log(int level, const char *file, int line, const char *fmt, ...) {
     
     if (log_on_tty == 1) {
         time_t now = time(NULL);
-        struct tm *timeinfo = localtime(&now);
-        logline = sdscatprintf(logline, "%02d:%02d:%02d ", timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec);
+        struct tm timeinfo;
+        if (localtime_r(&now, &timeinfo) != NULL) {
+            logline = sdscatprintf(logline, "%02d:%02d:%02d ", timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec);
+        }
     }
     logline = sdscatprintf(logline, "%-8s %-10s", loglevel_names[level], thread_logname);
     if (loglevel == 4) {
