@@ -32,7 +32,7 @@ myMPD is a fork of [ympd](https://github.com/notandy/ympd).
 - [Local lyrics (textfile per song or embedded)](https://github.com/jcorporation/myMPD/wiki/Lyrics)
 - Local booklet support (per album folder)
 - HTTP stream support
-- Local playback of mpd http stream (html5 audio api)
+- [Local playback of mpd http stream](https://github.com/jcorporation/myMPD/wiki/Local-playback)
 - Timers and Triggers
 - [System commands](https://github.com/jcorporation/myMPD/wiki/System-Commands)
 - [Lua scripting](https://github.com/jcorporation/myMPD/wiki/Scripting)
