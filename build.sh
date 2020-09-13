@@ -698,7 +698,16 @@ updatelibmympdclient() {
   rm -rf "$TMPDIR"
 }
 
+# Also deletes stale installations in other locations.
+#
 uninstall() {
+  # cmake does not provide an uninstall target,
+  # instead its manifest is of use at least for
+  # the binaries
+  if [ -f release/install_manifest.txt ]; then
+	  xargs rm < release/install_manifest.txt
+  fi
+
   #MYMPD_INSTALL_PREFIX="/usr"
   rm -f "$DESTDIR/usr/bin/mympd"
   rm -f "$DESTDIR/usr/bin/mympd-config"
@@ -713,7 +722,11 @@ uninstall() {
   rm -f "$DESTDIR/usr/lib/systemd/system/mympd.service"
   rm -f "$DESTDIR/lib/systemd/system/mympd.service"
   #sysVinit, open-rc
-  rm -f "$DESTDIR/etc/init.d/mympd"
+  if [ -z "$DESTDIR" -a "/etc/init.d/mympd" ]; then
+	  echo "SysVinit/ OpenRC-script /etc/init.d/mympd found."
+	  echo "Make sure it isn't part of any runlevel and delete by yourself"
+	  echo "or invoke with purge instead of uninstall."
+  fi
 }
 
 purge() {
@@ -721,8 +734,8 @@ purge() {
   rm -rf "$DESTDIR/var/lib/mympd"
   rm -f "$DESTDIR/etc/mympd.conf"
   rm -f "$DESTDIR/etc/mympd.conf.dist"
+  rm -f "$DESTDIR/etc/init.d/mympd"
   #MYMPD_INSTALL_PREFIX="/usr/local"
-  rm -rf "$DESTDIR/var/lib/mympd"
   rm -f "$DESTDIR/usr/local/etc/mympd.conf"
   rm -f "$DESTDIR/usr/local/etc/mympd.conf.dist"
   #MYMPD_INSTALL_PREFIX="/opt/mympd/"
@@ -850,7 +863,7 @@ case "$1" in
 	  echo "                  state files in place"
 	  echo "                  following environment variables are respected"
 	  echo "                    - DESTDIR=\"\""
-	  echo "  purge:          removes all myMPD files"
+	  echo "  purge:          removes all myMPD files, also your init scripts"
 	  echo "                  following environment variables are respected"
 	  echo "                    - DESTDIR=\"\""
 	  echo ""

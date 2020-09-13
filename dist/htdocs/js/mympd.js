@@ -1417,7 +1417,7 @@ var settings = {};
 settings.loglevel = 2;
 var alertTimeout = null;
 var progressTimer = null;
-var deferredPrompt;
+var deferredA2HSprompt;
 var dragEl;
 
 var appInited = false;
@@ -1477,7 +1477,7 @@ domCache.btnNext = document.getElementById('btnNext');
 domCache.progressBar = document.getElementById('progressBar');
 domCache.volumeBar = document.getElementById('volumeBar');
 domCache.outputs = document.getElementById('outputs');
-domCache.btnAdd = document.getElementById('nav-add2homescreen');
+domCache.btnA2HS = document.getElementById('nav-add2homescreen');
 domCache.currentCover = document.getElementById('currentCover');
 domCache.currentTitle = document.getElementById('currentTitle');
 domCache.btnVoteUp = document.getElementById('btnVoteUp');
@@ -1820,6 +1820,35 @@ function clearAndReload() {
     location.reload();
 }
 
+function a2hsInit() {
+    window.addEventListener('beforeinstallprompt', function(event) {
+        logDebug('Event: beforeinstallprompt');
+        // Prevent Chrome 67 and earlier from automatically showing the prompt
+        event.preventDefault();
+        // Stash the event so it can be triggered later
+        deferredA2HSprompt = event;
+        // Update UI notify the user they can add to home screen
+        domCache.btnA2HS.classList.remove('hide');
+    });
+
+    domCache.btnA2HS.addEventListener('click', function() {
+        // Hide our user interface that shows our A2HS button
+        domCache.btnA2HS.classList.add('hide');
+        // Show the prompt
+        deferredA2HSprompt.prompt();
+        // Wait for the user to respond to the prompt
+        deferredA2HSprompt.userChoice.then((choiceResult) => {
+            choiceResult.outcome === 'accepted' ? logDebug('User accepted the A2HS prompt') : logDebug('User dismissed the A2HS prompt');
+            deferredA2HSprompt = null;
+        });
+    });
+    
+    window.addEventListener('appinstalled', function() {
+        logInfo('myMPD installed as app');
+        showNotification(t('myMPD installed as app'), '', '', 'success');
+    });
+}
+
 function appInitStart() {
     //set initial scale
     if (isMobile === true) {
@@ -1870,6 +1899,8 @@ function appInitStart() {
     document.getElementById('splashScreen').classList.remove('hide');
     document.getElementsByTagName('body')[0].classList.add('overflow-hidden');
     document.getElementById('splashScreenAlert').innerText = t('Fetch myMPD settings');
+
+    a2hsInit();
 
     getSettings(true);
     appInitWait();
@@ -2596,7 +2627,7 @@ function appInit() {
                 let li = document.createElement('button');
                 li.classList.add('btn', 'btn-light', 'mr-2');
                 li.setAttribute('data-filter', encodeURI(app.current.filter + ' ' + match.options[match.selectedIndex].value +' \'' + this.value + '\''));
-                li.innerHTML = app.current.filter + ' ' + match.options[match.selectedIndex].value + ' \'' + e(this.value) + '\'<span class="ml-2 badge badge-secondary">&times;</span>';
+                li.innerHTML = e(app.current.filter) + ' ' + e(match.options[match.selectedIndex].value) + ' \'' + e(this.value) + '\'<span class="ml-2 badge badge-secondary">&times;</span>';
                 this.value = '';
                 domCache.searchCrumb.appendChild(li);
             }
@@ -2741,38 +2772,6 @@ function appInit() {
         selectThemeHtml += '<option value="' + e(key) + '">' + t(themes[key]) + '</option>';
     });
     document.getElementById('selectTheme').innerHTML = selectThemeHtml;
-
-    
-    window.addEventListener('beforeinstallprompt', function(event) {
-        // Prevent Chrome 67 and earlier from automatically showing the prompt
-        event.preventDefault();
-        // Stash the event so it can be triggered later
-        deferredPrompt = event;
-        // Update UI notify the user they can add to home screen
-        domCache.btnAdd.classList.remove('hide');
-    });
-    
-    domCache.btnAdd.addEventListener('click', function() {
-        // Hide our user interface that shows our A2HS button
-        domCache.btnAdd.classList.add('hide');
-        // Show the prompt
-        deferredPrompt.prompt();
-        // Wait for the user to respond to the prompt
-        deferredPrompt.userChoice.then((choiceResult) => {
-            if (choiceResult.outcome === 'accepted') {
-                logVerbose('User accepted the A2HS prompt');
-            }
-            else {
-                logVerbose('User dismissed the A2HS prompt');
-            }
-            deferredPrompt = null;
-        });
-    });
-    
-    window.addEventListener('appinstalled', function() {
-        logInfo('myMPD installed as app');
-        showNotification(t('myMPD installed as app'), '', '', 'success');
-    });
 
     window.addEventListener('beforeunload', function() {
         webSocketClose();

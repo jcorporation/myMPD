@@ -74,18 +74,23 @@ void check_timer(struct t_timer_list *l, bool gui) {
             current = get_timer_from_fd(l, ufds[i].fd);
             if (current) {
                 if (current->definition != NULL) {
+                    if (current->definition->enabled == false) {
+                        LOG_DEBUG("Skipping timer with id %d, not enabled", current->timer_id);
+                        continue;
+                    }
                     time_t t = time(NULL);
-                    struct tm *now = localtime(&t);
-                    int wday = now->tm_wday;
+                    struct tm now;
+                    if (localtime_r(&t, &now) == NULL) {
+                        LOG_ERROR("Localtime is NULL");
+                        continue;
+                    }
+                    int wday = now.tm_wday;
                     wday = wday > 0 ? wday - 1 : 6;
                     if (current->definition->weekdays[wday] == false) {
                         LOG_DEBUG("Skipping timer with id %d, not enabled on this weekday", current->timer_id);
                         continue;
                     }
-                    if (current->definition->enabled == false) {
-                        LOG_DEBUG("Skipping timer with id %d, not enabled", current->timer_id);
-                        continue;
-                    }
+
                 }
                 LOG_DEBUG("Timer with id %d triggered", current->timer_id);
                 if (current->callback) {

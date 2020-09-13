@@ -41,7 +41,7 @@ case $1 in
   log_daemon_msg "Starting the process" "$NAME"
   # Start the daemon with the help of start-stop-daemon
   # Log the message appropriately
-  if start-stop-daemon --start --quiet --oknodo --pidfile $PIDFILE --exec $DAEMON ; then
+  if start-stop-daemon --start --background --quiet --oknodo --make-pidfile --pidfile $PIDFILE --exec $DAEMON ; then
    log_end_msg 0
   else
    log_end_msg 1
@@ -52,7 +52,7 @@ case $1 in
   if [ -e $PIDFILE ]; then
    status_of_proc -p $PIDFILE $DAEMON "Stoppping the $NAME process" && status="0" || status="$?"
    if [ "$status" = 0 ]; then
-    start-stop-daemon --stop --quiet --oknodo --pidfile $PIDFILE
+    start-stop-daemon --stop --quiet --oknodo --remove-pidfile --pidfile $PIDFILE
     /bin/rm -rf $PIDFILE
    fi
   else
