@@ -493,30 +493,7 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Fingerprint command not supported", true);
             }
             break;
-        case MPD_API_DATABASE_TAG_LIST:
-            je = json_scanf(request->data, sdslen(request->data), "{params: {offset: %u, filter: %Q, tag: %Q}}", &uint_buf1, &p_charbuf1, &p_charbuf2);
-            if (je == 3) {
-                response->data = mpd_client_put_db_tag(mpd_client_state, response->data, request->method, request->id, uint_buf1, p_charbuf2, "", "", p_charbuf1);
-            }
-            break;
-        case MPD_API_DATABASE_TAG_ALBUM_LIST:
-            je = json_scanf(request->data, sdslen(request->data), "{params: {offset: %u, filter: %Q, search: %Q, tag: %Q}}", 
-                &uint_buf1, &p_charbuf1, &p_charbuf2, &p_charbuf3);
-            if (je == 4) {
-                response->data = mpd_client_put_db_tag(mpd_client_state, response->data, request->method, request->id, uint_buf1, "Album", p_charbuf3, p_charbuf2, p_charbuf1);
-            }
-            break;
-        case MPD_API_DATABASE_TAG_ALBUM_TITLE_LIST: {
-            t_tags *tagcols = (t_tags *)malloc(sizeof(t_tags));
-            assert(tagcols);
-            je = json_scanf(request->data, sdslen(request->data), "{params: {album: %Q, search: %Q, tag: %Q, cols: %M}}", 
-                &p_charbuf1, &p_charbuf2, &p_charbuf3, json_to_tags, tagcols);
-            if (je == 4) {
-                response->data = mpd_client_put_songs_in_album(mpd_client_state, response->data, request->method, request->id, p_charbuf1, p_charbuf2, p_charbuf3, tagcols);
-            }
-            free(tagcols);
-            break;
-        }
+
         case MPD_API_PLAYLIST_RENAME:
             je = json_scanf(request->data, sdslen(request->data), "{params: {from: %Q, to: %Q}}", &p_charbuf1, &p_charbuf2);
             if (je == 2) {
@@ -740,13 +717,32 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
             }
             break;
         case MPD_API_DATABASE_GET_ALBUMS:
-            je = json_scanf(request->data, sdslen(request->data), "{params: {offset:%u, searchstr:%Q, tag:%Q, sort:%Q, sortdesc:%B}}", 
+            je = json_scanf(request->data, sdslen(request->data), "{params: {offset:%u, searchstr:%Q, filter:%Q, sort:%Q, sortdesc:%B}}", 
                 &uint_buf1, &p_charbuf1, &p_charbuf2, &p_charbuf3, &bool_buf);
             if (je == 5) {
                 response->data = mpd_client_put_firstsong_in_albums(config, mpd_client_state, response->data, request->method, request->id, 
                     p_charbuf1, p_charbuf2, p_charbuf3, bool_buf, uint_buf1);
             }
             break;
+        case MPD_API_DATABASE_TAG_LIST:
+            je = json_scanf(request->data, sdslen(request->data), "{params: {offset: %u, searchstr: %Q, filter: %Q, sort: %Q, sortdesc: %B, tag: %Q}}", 
+                &uint_buf1, &p_charbuf1, &p_charbuf2, &p_charbuf3, &bool_buf, &p_charbuf4);
+            if (je == 6) {
+                response->data = mpd_client_put_db_tag2(config, mpd_client_state, response->data, request->method, request->id,
+                    p_charbuf1, p_charbuf2, p_charbuf3, bool_buf, uint_buf1, p_charbuf4);
+            }
+            break;
+        case MPD_API_DATABASE_TAG_ALBUM_TITLE_LIST: {
+            t_tags *tagcols = (t_tags *)malloc(sizeof(t_tags));
+            assert(tagcols);
+            je = json_scanf(request->data, sdslen(request->data), "{params: {album: %Q, search: %Q, tag: %Q, cols: %M}}", 
+                &p_charbuf1, &p_charbuf2, &p_charbuf3, json_to_tags, tagcols);
+            if (je == 4) {
+                response->data = mpd_client_put_songs_in_album(mpd_client_state, response->data, request->method, request->id, p_charbuf1, p_charbuf2, p_charbuf3, tagcols);
+            }
+            free(tagcols);
+            break;
+        }
         case MPD_API_TIMER_STARTPLAY:
             je = json_scanf(request->data, sdslen(request->data), "{params: {volume:%u, playlist:%Q, jukeboxMode:%u}}", &uint_buf1, &p_charbuf1, &uint_buf2);
             if (je == 3) {

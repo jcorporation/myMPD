@@ -342,17 +342,14 @@
     <div class="card hide" id="cardBrowse">
       <div class="card-header" id="cardHeaderBrowse">
         <ul class="nav nav-tabs card-header-tabs">
-          <li class="nav-item featTags">
-            <a data-phrase="Database" data-href='{"cmd": "appGoto", "options": ["Browse", "Database"]}' class="nav-link text-dark" href="#" id="cardBrowseNavDatabase"></a>
+          <li class="nav-item featCovergrid">
+            <a data-phrase="Database" data-href='{"cmd": "appGoto", "options": ["Browse", "Covergrid"]}' class="nav-link text-dark" href="#" id="cardBrowseNavCovergrid"></a>
           </li>        
           <li class="nav-item featPlaylists">
             <a data-phrase="Playlists" data-href='{"cmd": "appGoto", "options": ["Browse", "Playlists"]}' class="nav-link text-dark" href="#" id="cardBrowseNavPlaylists"></a>
           </li>
           <li class="nav-item">
             <a data-phrase="Filesystem" data-href='{"cmd": "appGoto", "options": ["Browse", "Filesystem"]}' class="nav-link text-dark" href="#" id="cardBrowseNavFilesystem"></a>
-          </li>
-          <li class="nav-item featCovergrid">
-            <a data-phrase="Covergrid" data-href='{"cmd": "appGoto", "options": ["Browse", "Covergrid"]}' class="nav-link text-dark" href="#" id="cardBrowseNavCovergrid"></a>
           </li>
         </ul>
       </div>
@@ -449,40 +446,42 @@
         </div>
       </div>
 
-      <div class="card-body hide" id="cardBrowseDatabase">
-        <div class="btn-toolbar card-toolbar" id="BrowseDatabaseButtons">
+      <div class="card-body hide" id="cardBrowseCovergrid">
+        <div class="btn-toolbar card-toolbar" id="BrowseCovergridButtons">
           <div class="btn-group mr-2">
-            <button data-phrase="AlbumArtist" id="btnBrowseDatabaseByTag" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"></button>
+            <button data-title-phrase="Select tag to display" id="btnBrowseDatabaseByTag" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+              <span class="material-icons">layers</span>
+              <span data-phrase="Album" id="btnBrowseDatabaseByTagDesc" class="hide"></span>
+            </button>
             <div class="dropdown-menu bg-lite-dark px-2" id="BrowseDatabaseByTagDropdown">
             </div>
-          </div>        
-          <div class="btn-group mr-2 hide">
-            <button data-href='{"cmd": "gotoTagList", "options": []}' id="btnBrowseDatabaseTag" type="button" class="btn btn-secondary">&laquo; <span data-phrase="Artists"></span></button>
           </div>
+          <form id="searchcovergrid" class="flex-grow-1">
+            <div class="input-group mr-2">
+              <div class="input-group-prepend">
+                <button id="btnCovergridSearchDropdown" data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                  <span class="material-icons">search</span>
+                  <span data-phrase="AlbumArtist" id="searchCovergridTagsDesc" class="hide"></span>
+                </button>
+                <div class="dropdown-menu bg-lite-dark px-2" id="searchCovergridTags">
+                </div>
+              </div>            
+              <input data-placeholder-phrase="Search" type="text" class="form-control border-secondary" id="searchCovergridStr"/>
+            </div>
+          </form>
           <div class="btn-group mr-2">
-            <button id="BrowseDatabaseFilter" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="material-icons">filter_list</span></button>
-            <div class="dropdown-menu bg-lite-dark px-2 letters" id="BrowseDatabaseFilterLetters">
+            <button id="btnCovergridSortDropdown" data-title-phrase="Sort by" class="btn btn-secondary dropdown-toggle material-icons" type="button" data-toggle="dropdown">sort</button>
+            <div class="dropdown-menu bg-lite-dark px-2" id="covergridSortTags">
+                <div id="covergridSortTagsList">
+                </div>
+                <div class="dropdown-divider"></div>
+                <div class="form-check">
+                  <button class="btn btn-secondary btn-xs clickable material-icons material-icons-small" id="covergridSortDesc">radio_button_unchecked</button>&nbsp;
+                  <label class="form-check-label text-light" for="covergridSortDesc" data-phrase="Descending"></label>
+                </div>
             </div>
           </div>
-          <div class="input-group mr-2 hide">
-            <div class="input-group-prepend">
-              <button data-title-phrase="Add all to queue" data-href='{"cmd": "addAllFromBrowseDatabasePlist", "options": ["queue"]}' id="BrowseDatabaseAddAllSongs" class="btn btn-secondary material-icons">library_add</button>
-              <button id="BrowseDatabaseAddAllSongsBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-right" type="button" data-toggle="dropdown"></button>
-              <div class="dropdown-menu bg-lite-dark px-2" id="BrowseDatabaseAddAllSongsDropdown">
-                <button data-phrase="Add all to queue" type="button" class="btn btn-secondary btn-sm btn-block"></button>
-                <button data-phrase="Add all to playlist" type="button" class="btn btn-secondary btn-sm btn-block featPlaylists"></button>
-              </div>
-            </div>
-          </div>
-          
-          <div class="btn-group mr-2 featTags hide">
-            <button id="BrowseDatabaseColsBtn" class="btn btn-secondary dropdown-toggle material-icons" type="button" data-toggle="dropdown">settings</button>
-            <div class="dropdown-menu text-light bg-lite-dark px-2" id="BrowseDatabaseColsDropdown"><form></form>
-              <button data-phrase="Apply" data-href='{"cmd": "saveCols", "options": ["BrowseDatabase", ".tblAlbumTitles"]}' class="btn btn-success btn-block btn-sm mt-2"></button>
-            </div>          
-          </div>
-
-          <div id="BrowseDatabasePaginationTop" class="btn-group mr-2 hide">
+          <div id="BrowseCovergridPaginationTop" class="btn-group hide mr-2">
             <button data-title-phrase="Previous page" data-href='{"cmd": "gotoPage", "options": ["prev"]}' type="button" class="btn btn-group-prepend btn-secondary">&laquo;</button>
               <div class="btn-group">
                 <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"></button>
@@ -492,29 +491,15 @@
             <button data-title-phrase="Next page" data-href='{"cmd": "gotoPage", "options": ["next"]}' type="button" class="btn btn-secondary btn-group-append">&raquo;</button>
           </div>
         </div>
-
-        <div class="table-responsive-md">
-          <table id="BrowseDatabaseTagList" class="table table-hover table-sm">
-            <thead>
-              <tr>
-                <th></th>
-                <th id="BrowseDatabaseTagListCaption"></th>
-              </tr>
-            </thead>
-            <tbody class="clickable">
-            </tbody>
-          </table>
+        <div class="container justify-content-between">
+          <div id="BrowseCovergridList" class="row justify-content-between">
+          </div>
         </div>
-        
-        <div id="BrowseDatabaseAlbumList" class="row hide">
-          <div id="BrowseDatabaseAlbumListCaption"></div>
-        </div>
-        
-        <div class="btn-toolbar hide" id="BrowseDatabaseButtonsBottom">
+        <div class="btn-toolbar hide" id="BrowseCovergridButtonsBottom">
           <div class="btn-group mr-2">
             <button data-title-phrase="To top" type="button" class="btn btn-secondary material-icons" data-href='{"cmd": "scrollTo", "options": [0]}'>keyboard_arrow_up</button>
           </div>        
-          <div id="BrowseDatabasePaginationBottom" class="btn-group mr-2 dropup">
+          <div id="BrowseCovergridPaginationBottom" class="btn-group dropup">
             <button data-title-phrase="Previous page" data-href='{"cmd": "gotoPage", "options": ["prev"]}' type="button" class="btn btn-group-prepend btn-secondary">&laquo;</button>
               <div class="btn-group">
                 <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"></button>
@@ -558,9 +543,7 @@
             <button data-title-phrase="Next page" data-href='{"cmd": "gotoPage", "options": ["next"]}' type="button" class="btn btn-secondary btn-group-append">&raquo;</button>
           </div>
         </div>
-
         <ol id="BrowseBreadcrumb" class="breadcrumb"></ol>
-
         <div class="table-responsive-md">
           <table id="BrowseFilesystemList" class="table table-hover table-sm">
             <thead>
@@ -593,63 +576,6 @@
         </div>
       </div>
       
-      <div class="card-body hide" id="cardBrowseCovergrid">
-        <div class="btn-toolbar card-toolbar" id="BrowseCovergridButtons">
-          <form id="searchcovergrid" class="flex-grow-1">
-            <div class="input-group mr-2">
-              <div class="input-group-prepend">
-                <button data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
-                  <span class="material-icons">search</span>
-                  <span data-phrase="AlbumArtist" id="searchCovergridTagsDesc"></span>
-                </button>
-                <div class="dropdown-menu bg-lite-dark px-2" id="searchCovergridTags">
-                </div>
-              </div>            
-              <input data-placeholder-phrase="Search" type="text" class="form-control border-secondary" id="searchCovergridStr"/>
-            </div>
-          </form>
-          <div class="btn-group mr-2">
-            <button  id="btnCovergridSortDropdown" data-title-phrase="Sort by" class="btn btn-secondary dropdown-toggle material-icons" type="button" data-toggle="dropdown">sort</button>
-            <div class="dropdown-menu bg-lite-dark px-2" id="covergridSortTags">
-                <div id="covergridSortTagsList">
-                </div>
-                <div class="dropdown-divider"></div>
-                <div class="form-check">
-                  <button class="btn btn-secondary btn-xs clickable material-icons material-icons-small" id="covergridSortDesc">radio_button_unchecked</button>&nbsp;
-                  <label class="form-check-label text-light" for="covergridSortDesc" data-phrase="Descending"></label>
-                </div>
-            </div>
-          </div>
-          <div id="BrowseCovergridPaginationTop" class="btn-group hide mr-2">
-            <button data-title-phrase="Previous page" data-href='{"cmd": "gotoPage", "options": ["prev"]}' type="button" class="btn btn-group-prepend btn-secondary">&laquo;</button>
-              <div class="btn-group">
-                <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"></button>
-                <div class="dropdown-menu bg-lite-dark px-2 pages">
-                </div>
-              </div>            
-            <button data-title-phrase="Next page" data-href='{"cmd": "gotoPage", "options": ["next"]}' type="button" class="btn btn-secondary btn-group-append">&raquo;</button>
-          </div>
-        </div>
-        <div class="container justify-content-between">
-          <div id="BrowseCovergridList" class="row justify-content-between">
-          </div>
-        </div>
-        <div class="btn-toolbar hide" id="BrowseCovergridButtonsBottom">
-          <div class="btn-group mr-2">
-            <button data-title-phrase="To top" type="button" class="btn btn-secondary material-icons" data-href='{"cmd": "scrollTo", "options": [0]}'>keyboard_arrow_up</button>
-          </div>        
-          <div id="BrowseCovergridPaginationBottom" class="btn-group dropup">
-            <button data-title-phrase="Previous page" data-href='{"cmd": "gotoPage", "options": ["prev"]}' type="button" class="btn btn-group-prepend btn-secondary">&laquo;</button>
-              <div class="btn-group">
-                <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"></button>
-                <div class="dropdown-menu bg-lite-dark px-2 pages">
-                </div>
-              </div>            
-            <button data-title-phrase="Next page" data-href='{"cmd": "gotoPage", "options": ["next"]}' type="button" class="btn btn-secondary btn-group-append">&raquo;</button>
-          </div>
-        </div>
-      </div>
-
       <div class="card-footer" id="cardFooterBrowse">
       </div>      
     </div>        

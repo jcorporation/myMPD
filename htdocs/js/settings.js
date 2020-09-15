@@ -405,16 +405,16 @@ function parseMPDSettings() {
     document.getElementById('inputMixrampdb').value = settings.mixrampdb;
     document.getElementById('inputMixrampdelay').value = settings.mixrampdelay;
     
-    if (settings.coverimage === false || settings.featTags === false || 
-        settings.tags.includes('AlbumArtist') === false || settings.tags.includes('Album') === false
-        || settings.tags.includes('Track') === false || settings.featAdvsearch === false) 
+    if (settings.coverimage === true && settings.featTags === true && 
+        (settings.tags.includes('AlbumArtist') === true || settings.tags.includes('Artist') === true) && 
+        settings.tags.includes('Album') === true && settings.tags.includes('Track') === true && 
+        settings.featAdvsearch === true) 
     {
         settings.featCovergrid = false;
     }
     else {
         settings.featCovergrid = true;
     }
-    
         
     if (settings.featLibrary === true && settings.publish === true) {
         settings['featBrowse'] = true;    
@@ -603,10 +603,6 @@ function parseMPDSettings() {
     addTagListSelect('selectSmartplsSort', 'tags');
     addTagListSelect('saveSmartPlaylistSort', 'tags');
     addTagListSelect('selectJukeboxUniqueTag', 'browsetags');
-    
-    for (let i = 0; i < settings.tags.length; i++) {
-        app.apps.Browse.tabs.Database.views[settings.tags[i]] = { "state": "0/-/-/", "scrollPos": 0 };
-    }
     
     initTagMultiSelect('inputEnabledTags', 'listEnabledTags', settings.allmpdtags, settings.tags);
     initTagMultiSelect('inputSearchTags', 'listSearchTags', settings.tags, settings.searchtags);

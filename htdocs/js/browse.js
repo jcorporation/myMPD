@@ -110,188 +110,6 @@ function parseFilesystem(obj) {
     document.getElementById('cardFooterBrowse').innerText = t('Num entries', obj.result.totalEntities);
 }
 
-
-function parseListDBtags(obj) {
-    scrollToPosY(0);
-    if (app.current.search !== '') {
-        document.getElementById('BrowseDatabaseAlbumList').classList.remove('hide');
-        document.getElementById('BrowseDatabaseTagList').classList.add('hide');
-        document.getElementById('btnBrowseDatabaseByTag').parentNode.classList.add('hide');
-        document.getElementById('btnBrowseDatabaseTag').parentNode.classList.remove('hide');
-        document.getElementById('BrowseDatabaseAddAllSongs').parentNode.parentNode.classList.remove('hide');
-        document.getElementById('BrowseDatabaseColsBtn').parentNode.classList.remove('hide');
-        document.getElementById('btnBrowseDatabaseTag').innerHTML = '&laquo; ' + t(app.current.view);
-        document.getElementById('BrowseDatabaseAlbumListCaption').innerHTML = '<h2>' + t(obj.result.searchtagtype) + ': ' + e(obj.result.searchstr) + '</h2><hr/>';
-        document.getElementById('cardFooterBrowse').innerText = t('Num entries', obj.result.totalEntities);
-        let nrItems = obj.result.returnedEntities;
-        let cardContainer = document.getElementById('BrowseDatabaseAlbumList');
-        let cards = cardContainer.getElementsByClassName('card');
-        for (let i = 0; i < nrItems; i++) {
-            let id = genId(obj.result.data[i].value);
-            let card = document.createElement('div');
-            card.classList.add('card', 'ml-4', 'mr-4', 'mb-4', 'w-100');
-            card.setAttribute('id', 'card' + id);
-            card.setAttribute('data-album', encodeURI(obj.result.data[i].value));
-            let html = '<div class="card-header"><span id="albumartist' + id + '"></span> &ndash; ' + e(obj.result.data[i].value) + '</div>' +
-                       '<div class="card-body"><div class="row">';
-            if (settings.featCoverimage === true && settings.coverimage === true) {
-                html += '<div class="col-md-auto"><a class="card-img-left album-cover-loading"></a></div>';
-            }
-            html += '<div class="col table-responsive-md"><table class="tblAlbumTitles table table-sm table-hover" tabindex="0" id="tbl' + id + '"><thead><tr></tr></thead><tbody class="clickable"></tbody>' +
-                    '<tfoot class="bg-light border-bottom"></tfoot></table></div>' + 
-                    '</div></div>' +
-                    '</div><div class="card-footer"></div>';
-            
-            card.innerHTML = html;
-            if (i < cards.length) {
-                cards[i].replaceWith(card); 
-            }
-            else {
-                cardContainer.append(card);
-            }
-            
-            if ('IntersectionObserver' in window) {
-                createListTitleObserver(document.getElementById('card' + id));
-            }
-            else {
-                sendAPI("MPD_API_DATABASE_TAG_ALBUM_TITLE_LIST", {"album": obj.result.data[i].value, "search": app.current.search, "tag": app.current.view, "cols": settings.colsBrowseDatabase}, parseListTitles);
-            }
-        }
-        let cardsLen = cards.length - 1;
-        for (let i = cardsLen; i >= nrItems; i --) {
-            cards[i].remove();
-        }
-        setPagination(obj.result.totalEntities, obj.result.returnedEntities);
-        setCols('BrowseDatabase', '.tblAlbumTitles');
-        let tbls = document.querySelectorAll('.tblAlbumTitles');
-        for (let i = 0; i < tbls.length; i++) {
-            dragAndDropTableHeader(tbls[i]);
-        }
-        document.getElementById('BrowseDatabaseAlbumList').classList.remove('opacity05');        
-    }  
-    else {
-        document.getElementById('BrowseDatabaseAlbumList').classList.add('hide');
-        document.getElementById('BrowseDatabaseTagList').classList.remove('hide');
-        document.getElementById('btnBrowseDatabaseByTag').parentNode.classList.remove('hide');
-        document.getElementById('BrowseDatabaseAddAllSongs').parentNode.parentNode.classList.add('hide');
-        document.getElementById('BrowseDatabaseColsBtn').parentNode.classList.add('hide');
-        document.getElementById('btnBrowseDatabaseTag').parentNode.classList.add('hide');
-        document.getElementById('BrowseDatabaseTagListCaption').innerText = t(app.current.view);
-        document.getElementById('cardFooterBrowse').innerText = t('Num entries', obj.result.totalEntities);
-        let nrItems = obj.result.returnedEntities;
-        let table = document.getElementById(app.current.app + app.current.tab + 'TagList');
-        let tbody = table.getElementsByTagName('tbody')[0];
-        let navigate = document.activeElement.parentNode.parentNode === table ? true : false;
-        let activeRow = 0;
-        let tr = tbody.getElementsByTagName('tr');
-        for (let i = 0; i < nrItems; i++) {
-            let uri = encodeURI(obj.result.data[i].value);
-            let row = document.createElement('tr');
-            row.setAttribute('data-uri', uri);
-            row.setAttribute('tabindex', 0);
-            row.innerHTML='<td data-col="Type"><span class="material-icons">album</span></td>' +
-                          '<td>' + e(obj.result.data[i].value) + '</td>';
-            if (i < tr.length) {
-                activeRow = replaceTblRow(tr[i], row) === true ? i : activeRow;
-            }
-            else {
-                tbody.append(row);
-            }
-        }
-        let trLen = tr.length - 1;
-        for (let i = trLen; i >= nrItems; i --) {
-            tr[i].remove();
-        }
-        
-        if (navigate === true) {
-            focusTable(0);
-        }
-        
-        setPagination(obj.result.totalEntities, obj.result.returnedEntities);
-
-        if (nrItems === 0) {
-            tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
-                              '<td>No entries found.</td></tr>';
-        }
-        document.getElementById('BrowseDatabaseTagList').classList.remove('opacity05');                              
-    }
-}
-
-function createListTitleObserver(ele) {
-  let options = {
-    root: null,
-    rootMargin: '0px',
-  };
-
-  let observer = new IntersectionObserver(getListTitles, options);
-  observer.observe(ele);
-}
-
-function getListTitles(changes, observer) {
-    changes.forEach(change => {
-        if (change.intersectionRatio > 0) {
-            observer.unobserve(change.target);
-            let album = decodeURI(change.target.getAttribute('data-album'));
-            sendAPI("MPD_API_DATABASE_TAG_ALBUM_TITLE_LIST", {"album": album, "search": app.current.search, "tag": app.current.view, "cols": settings.colsBrowseDatabase}, parseListTitles);
-        }
-    });
-}
-
-function parseListTitles(obj) {
-    let id = genId(obj.result.Album);
-    let card = document.getElementById('card' + id)
-    let table = card.getElementsByTagName('table')[0];
-    let tbody = card.getElementsByTagName('tbody')[0];
-    let cardFooter = card.querySelector('.card-footer');
-    let cardHeader = card.querySelector('.card-header');
-    cardHeader.setAttribute('data-uri', encodeURI(obj.result.data[0].uri.replace(/\/[^/]+$/, '')));
-    cardHeader.setAttribute('data-name', obj.result.Album);
-    cardHeader.setAttribute('data-type', 'dir');
-    cardHeader.addEventListener('click', function(event) {
-        showMenu(this, event);
-    }, false);
-    cardHeader.classList.add('clickable');
-    table.addEventListener('keydown', function(event) {
-        navigateTable(this, event.key);
-    }, false);
-    let img = card.getElementsByTagName('a')[0];
-    if (img && obj.result.data.length > 0) {
-        img.style.backgroundImage = 'url("' + subdir + '/albumart/' + obj.result.data[0].uri + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
-        img.setAttribute('data-uri', encodeURI(obj.result.data[0].uri.replace(/\/[^/]+$/, '')));
-        img.setAttribute('data-name', obj.result.Album);
-        img.setAttribute('data-type', 'dir');
-        img.addEventListener('click', function(event) {
-            showMenu(this, event);
-        }, false);
-    }
-    
-    document.getElementById('albumartist' + id).innerText = obj.result.AlbumArtist;
-  
-    let titleList = '';
-    let nrItems = obj.result.returnedEntities;
-    for (let i = 0; i < nrItems; i++) {
-        if (obj.result.data[i].Duration) {
-            obj.result.data[i].Duration = beautifySongDuration(obj.result.data[i].Duration);
-        }
-        titleList += '<tr tabindex="0" data-type="song" data-name="' + obj.result.data[i].Title + '" data-uri="' + encodeURI(obj.result.data[i].uri) + '">';
-        for (let c = 0; c < settings.colsBrowseDatabase.length; c++) {
-            titleList += '<td data-col="' + settings.colsBrowseDatabase[c] + '">' + e(obj.result.data[i][settings.colsBrowseDatabase[c]]) + '</td>';
-        }
-        titleList += '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">' + ligatureMore + '</a></td></tr>';
-    }
-    tbody.innerHTML = titleList;
-    cardFooter.innerHTML = t('Num songs', obj.result.totalEntities) + ' &ndash; ' + beautifyDuration(obj.result.totalTime);
-
-    tbody.parentNode.addEventListener('click', function(event) {
-        if (event.target.nodeName === 'TD') {
-            appendQueue('song', decodeURI(event.target.parentNode.getAttribute('data-uri')), event.target.parentNode.getAttribute('data-name'));
-        }
-        else if (event.target.nodeName === 'A') {
-            showMenu(event.target, event);
-        }
-    }, false);
-}
-
 function addAllFromBrowseFilesystem() {
     sendAPI("MPD_API_QUEUE_ADD_TRACK", {"uri": app.current.search});
     showNotification(t('Added all songs'), '', '', 'success');
@@ -360,7 +178,12 @@ function parseCovergrid(obj) {
             obj.result.data[i].Album = t('Unknown album');
         }
         let id = genId('covergrid' + obj.result.data[i].Album + obj.result.data[i].AlbumArtist);
-        let html = '<div class="card card-grid clickable" data-uri="' + encodeURI(obj.result.data[i].FirstSongUri) + '" ' + 
+        let html;
+        let picture = '';
+        if (obj.result.tag === 'Album') {
+            id = genId('covergrid' + obj.result.data[i].Album + obj.result.data[i].AlbumArtist);
+            picture = subdir + '/albumart/' + encodeURI(obj.result.data[i].FirstSongUri);
+            html = '<div class="card card-grid clickable" data-picture="' + picture  + '" ' + 
                        'data-album="' + encodeURI(obj.result.data[i].Album) + '" ' +
                        'data-albumartist="' + encodeURI(obj.result.data[i].AlbumArtist) + '" tabindex="0">' +
                    '<div class="card-header covergrid-header hide unvisible"></div>' +
@@ -368,10 +191,20 @@ function parseCovergrid(obj) {
                    '<div class="card-footer card-footer-grid p-2" title="' + obj.result.data[i].AlbumArtist + ': ' + obj.result.data[i].Album + '">' +
                    obj.result.data[i].Album + '<br/><small>' + obj.result.data[i].AlbumArtist + '</small>' +
                    '</div></div>';
+        }
+        else {
+            id = genId('covergrid' + obj.result.data[i].value);
+            picture = subdir + '/browse/pics/' + obj.result.tag + '/' + encodeURI(obj.result.data[i].value) + '.jpg';
+            html = '<div class="card card-grid clickable" data-picture="' + picture + '" data-tag="' + encodeURI(obj.result.data[i].value) + '" tabindex="0">' +
+                   (obj.result.pics === true ? '<div class="card-body album-cover-loading album-cover-grid bg-white" id="' + id + '"></div>' : '') +
+                   '<div class="card-footer card-footer-grid p-2" title="' + obj.result.data[i].value + '">' +
+                   obj.result.data[i].value + '<br/>' +
+                   '</div></div>';
+        }
         col.innerHTML = html;
         let replaced = false;
         if (i < cols.length) {
-            if (cols[i].firstChild.getAttribute('data-uri') !== col.firstChild.getAttribute('data-uri')) {
+            if (cols[i].firstChild.getAttribute('data-picture') !== col.firstChild.getAttribute('data-picture')) {
                 cols[i].replaceWith(col);
                 replaced = true;
             }
@@ -389,15 +222,21 @@ function parseCovergrid(obj) {
             observer.observe(col);
         }
         else if (replaced === true) {
-            col.firstChild.firstChild.style.backgroundImage = 'url("' + subdir + '/albumart/' + obj.result.data[i].uri + '")';
+            col.firstChild.firstChild.style.backgroundImage = picture;
         }
         if (replaced === true) {
             col.firstChild.addEventListener('click', function(event) {
-                if (event.target.classList.contains('card-body')) {
-                    getCovergridTitleList(id);
+                if (app.current.tag === 'Album') {
+                    if (event.target.classList.contains('card-body')) {
+                        getCovergridTitleList(id);
+                    }
+                    else if (event.target.classList.contains('card-footer')){
+                        showMenu(event.target, event);                
+                    }
                 }
-                else if (event.target.classList.contains('card-footer')){
-                    showMenu(event.target, event);                
+                else {
+                    appGoto(app.current.app, app.current.card, undefined, '0/' + app.current.tag + 
+                        '/AlbumArtist/Album/' + decodeURI(event.target.parentNode.getAttribute('data-tag')));
                 }
             }, false);
             col.firstChild.addEventListener('transitionend', function(event) {
@@ -409,17 +248,27 @@ function parseCovergrid(obj) {
             }, false);
             col.firstChild.addEventListener('keydown', function(event) {
                 if (event.key === 'Escape') {
-                    let cardBody = event.target.getElementsByClassName('card-body')[0];
-                    let uri = decodeURI(cardBody.parentNode.getAttribute('data-uri'));
-                    showGridImage(cardBody, uri);
+                    if (app.current.tag === 'Album') {
+                        let cardBody = event.target.getElementsByClassName('card-body')[0];
+                        let uri = decodeURI(cardBody.parentNode.getAttribute('data-picture'));
+                        showGridImage(cardBody, uri);
+                    }
                 }
                 else if (event.key === 'Enter') {
-                    getCovergridTitleList(id);
+                    if (app.current.tag === 'Album') {
+                        getCovergridTitleList(id);
+                    }
+                    else {
+                        appGoto(app.current.app, app.current.card, undefined, '0/' + app.current.tag + 
+                        '/AlbumArtist/Album/' + decodeURI(event.target.parentNode.getAttribute('data-tag')));
+                    }
                     event.stopPropagation();
                     event.preventDefault();
                 }
                 else if (event.key === ' ') {
-                    showMenu(event.target.getElementsByClassName('card-footer')[0], event);
+                    if (app.current.tag === 'Album') {
+                        showMenu(event.target.getElementsByClassName('card-footer')[0], event);
+                    }
                     event.stopPropagation();
                     event.preventDefault();
                 }
@@ -486,10 +335,10 @@ function parseCovergridTitleList(obj) {
     }
     titleList += '</tbody></table>';
 
-    let uri = decodeURI(cardBody.parentNode.getAttribute('data-uri'));
+    let uri = decodeURI(cardBody.parentNode.getAttribute('data-picture'));
     let cardFooter = cardBody.parentNode.getElementsByClassName('card-footer')[0];
     let cardHeader = cardBody.parentNode.getElementsByClassName('card-header')[0];
-    cardHeader.innerHTML = '<button class="close" type="button">&times;</button><img class="covergrid-header" src="' + subdir + '/albumart/' + uri + '"/>' +
+    cardHeader.innerHTML = '<button class="close" type="button">&times;</button><img class="covergrid-header" src="' + uri + '"/>' +
         cardFooter.innerHTML + '';
     cardHeader.classList.remove('hide');
     cardFooter.classList.add('hide');
@@ -531,7 +380,7 @@ function parseCovergridTitleList(obj) {
 
 function showGridImage(cardBody, uri) {
     cardBody.innerHTML = '';
-    cardBody.style.backgroundImage = 'url("' + subdir + '/albumart/' + uri + '")';
+    cardBody.style.backgroundImage = 'url("' + uri + '")';
     cardBody.style.width =  'var(--mympd-covergridsize, 200px)';
     cardBody.style.height =  'var(--mympd-covergridsize, 200px)';
     cardBody.parentNode.style.width =  'var(--mympd-covergridsize, 200px)';
@@ -543,8 +392,11 @@ function setGridImage(changes, observer) {
     changes.forEach(change => {
         if (change.intersectionRatio > 0) {
             observer.unobserve(change.target);
-            let uri = decodeURI(change.target.firstChild.getAttribute('data-uri'));
-            change.target.firstChild.getElementsByClassName('card-body')[0].style.backgroundImage = 'url("' + subdir + '/albumart/' + uri + '")';
+            const uri = decodeURI(change.target.firstChild.getAttribute('data-picture'));
+            const body = change.target.firstChild.getElementsByClassName('card-body')[0];
+            if (body) {
+                body.style.backgroundImage = 'url("' + uri + '")';
+            }
         }
     });
 }
