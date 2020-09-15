@@ -410,10 +410,10 @@ function parseMPDSettings() {
         settings.tags.includes('Album') === true && settings.tags.includes('Track') === true && 
         settings.featAdvsearch === true) 
     {
-        settings.featCovergrid = false;
+        settings.featCovergrid = true;
     }
     else {
-        settings.featCovergrid = true;
+        settings.featCovergrid = false;
     }
         
     if (settings.featLibrary === true && settings.publish === true) {
