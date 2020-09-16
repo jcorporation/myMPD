@@ -557,7 +557,7 @@ function parseMPDSettings() {
     }
     
     if (!settings.tags.includes('AlbumArtist')) {
-        app.apps.Browse.tabs.Database.state = '0/Artist/Artist/Album/';
+        app.apps.Browse.tabs.Database.state = '0/Artist/Artist/' + settings.dbDefaultTag + '/';
     }
     
     if (settings.featPlaylists === true) {
@@ -638,8 +638,8 @@ function saveSettings(closeModal) {
         }
     }
 
-    let inputDatabaseSize = document.getElementById('inputDatabaseSize');
-    if (!validateInt(inputDatabaseSize)) {
+    let inputCoverimageSizeSmall = document.getElementById('inputCoverimageSizeSmall');
+    if (!validateInt(inputCoverimageSizeSmall)) {
         formOK = false;
     }
 
