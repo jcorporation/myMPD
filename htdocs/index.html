@@ -342,8 +342,8 @@
     <div class="card hide" id="cardBrowse">
       <div class="card-header" id="cardHeaderBrowse">
         <ul class="nav nav-tabs card-header-tabs">
-          <li class="nav-item featCovergrid">
-            <a data-phrase="Database" data-href='{"cmd": "appGoto", "options": ["Browse", "Covergrid"]}' class="nav-link text-dark" href="#" id="cardBrowseNavCovergrid"></a>
+          <li class="nav-item featTags">
+            <a data-phrase="Database" data-href='{"cmd": "appGoto", "options": ["Browse", "Database"]}' class="nav-link text-dark" href="#" id="cardBrowseNavDatabase"></a>
           </li>        
           <li class="nav-item featPlaylists">
             <a data-phrase="Playlists" data-href='{"cmd": "appGoto", "options": ["Browse", "Playlists"]}' class="nav-link text-dark" href="#" id="cardBrowseNavPlaylists"></a>
@@ -446,8 +446,8 @@
         </div>
       </div>
 
-      <div class="card-body hide" id="cardBrowseCovergrid">
-        <div class="btn-toolbar card-toolbar" id="BrowseCovergridButtons">
+      <div class="card-body hide" id="cardBrowseDatabase">
+        <div class="btn-toolbar card-toolbar" id="BrowseDatabaseButtons">
           <div class="btn-group mr-2">
             <button data-title-phrase="Select tag to display" id="btnBrowseDatabaseByTag" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
               <span class="material-icons">layers</span>
@@ -456,32 +456,32 @@
             <div class="dropdown-menu bg-lite-dark px-2" id="BrowseDatabaseByTagDropdown">
             </div>
           </div>
-          <form id="searchcovergrid" class="flex-grow-1">
+          <form id="searchdatabase" class="flex-grow-1">
             <div class="input-group mr-2">
               <div class="input-group-prepend">
-                <button id="btnCovergridSearchDropdown" data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                <button id="btnDatabaseSearchDropdown" data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
                   <span class="material-icons">search</span>
-                  <span data-phrase="AlbumArtist" id="searchCovergridTagsDesc" class="hide"></span>
+                  <span data-phrase="AlbumArtist" id="searchDatabaseTagsDesc" class="hide"></span>
                 </button>
-                <div class="dropdown-menu bg-lite-dark px-2" id="searchCovergridTags">
+                <div class="dropdown-menu bg-lite-dark px-2" id="searchDatabaseTags">
                 </div>
               </div>            
-              <input data-placeholder-phrase="Search" type="text" class="form-control border-secondary" id="searchCovergridStr"/>
+              <input data-placeholder-phrase="Search" type="text" class="form-control border-secondary" id="searchDatabaseStr"/>
             </div>
           </form>
           <div class="btn-group mr-2">
-            <button id="btnCovergridSortDropdown" data-title-phrase="Sort by" class="btn btn-secondary dropdown-toggle material-icons" type="button" data-toggle="dropdown">sort</button>
-            <div class="dropdown-menu bg-lite-dark px-2" id="covergridSortTags">
-                <div id="covergridSortTagsList">
+            <button id="btnDatabaseSortDropdown" data-title-phrase="Sort by" class="btn btn-secondary dropdown-toggle material-icons" type="button" data-toggle="dropdown">sort</button>
+            <div class="dropdown-menu bg-lite-dark px-2" id="databaseSortTags">
+                <div id="databaseSortTagsList">
                 </div>
                 <div class="dropdown-divider"></div>
                 <div class="form-check">
-                  <button class="btn btn-secondary btn-xs clickable material-icons material-icons-small" id="covergridSortDesc">radio_button_unchecked</button>&nbsp;
-                  <label class="form-check-label text-light" for="covergridSortDesc" data-phrase="Descending"></label>
+                  <button class="btn btn-secondary btn-xs clickable material-icons material-icons-small" id="databaseSortDesc">radio_button_unchecked</button>&nbsp;
+                  <label class="form-check-label text-light" for="databaseSortDesc" data-phrase="Descending"></label>
                 </div>
             </div>
           </div>
-          <div id="BrowseCovergridPaginationTop" class="btn-group hide mr-2">
+          <div id="BrowseDatabasePaginationTop" class="btn-group hide mr-2">
             <button data-title-phrase="Previous page" data-href='{"cmd": "gotoPage", "options": ["prev"]}' type="button" class="btn btn-group-prepend btn-secondary">&laquo;</button>
               <div class="btn-group">
                 <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"></button>
@@ -492,14 +492,14 @@
           </div>
         </div>
         <div class="container justify-content-between">
-          <div id="BrowseCovergridList" class="row justify-content-between">
+          <div id="BrowseDatabaseList" class="row justify-content-between">
           </div>
         </div>
-        <div class="btn-toolbar hide" id="BrowseCovergridButtonsBottom">
+        <div class="btn-toolbar hide" id="BrowseDatabaseButtonsBottom">
           <div class="btn-group mr-2">
             <button data-title-phrase="To top" type="button" class="btn btn-secondary material-icons" data-href='{"cmd": "scrollTo", "options": [0]}'>keyboard_arrow_up</button>
           </div>        
-          <div id="BrowseCovergridPaginationBottom" class="btn-group dropup">
+          <div id="BrowseDatabasePaginationBottom" class="btn-group dropup">
             <button data-title-phrase="Previous page" data-href='{"cmd": "gotoPage", "options": ["prev"]}' type="button" class="btn btn-group-prepend btn-secondary">&laquo;</button>
               <div class="btn-group">
                 <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"></button>
@@ -1129,9 +1129,9 @@
                     </div>
                   </div>
                   <div class="form-group row">
-                    <label class="col-sm-4 col-form-label" for="inputCovergridSize" data-phrase="Size small"></label>
+                    <label class="col-sm-4 col-form-label" for="inputCoverimageSizeSmall" data-phrase="Size small"></label>
                     <div class="col-sm-8 ">
-                      <input id="inputCovergridSize" type="text" class="form-control border-secondary" value="190" data-placeholder-phrase="Size in px">
+                      <input id="inputCoverimageSizeSmall" type="text" class="form-control border-secondary" value="190" data-placeholder-phrase="Size in px">
                       <div class="invalid-feedback" data-phrase="Invalid size"></div>
                     </div>
                   </div>

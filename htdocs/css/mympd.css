@@ -10,7 +10,7 @@
 
 :root {
   --mympd-coverimagesize: 250px;
-  --mympd-covergridsize: 200px;
+  --mympd-coverimagesizesmall: 200px;
   --mympd-highlightcolor: #28a745;
 }
 
@@ -255,7 +255,7 @@ small {
 }
 
 .card-grid {
-  width: var(--mympd-covergridsize, 200px);
+  width: var(--mympd-coverimagesizesmall, 200px);
   min-height: 0 !important;
   margin-bottom: 1.25rem;
   overflow: hidden;
@@ -273,8 +273,8 @@ small {
   background-size: cover;
   overflow: hidden;
   background-color: #eee;
-  width: var(--mympd-covergridsize, 200px);
-  height: var(--mympd-covergridsize, 200px);
+  width: var(--mympd-coverimagesizesmall, 200px);
+  height: var(--mympd-coverimagesizesmall, 200px);
   max-width: 100%;
   padding: 0 0.5rem;
 }
@@ -629,7 +629,7 @@ textarea.small {
   max-width: none;
 }
 
-img.covergrid-header {
+img.database-header {
   width: 50px;
   height: 50px;
   display: block;
@@ -637,7 +637,7 @@ img.covergrid-header {
   margin-right: 1rem;
 }
 
-div.covergrid-header {
+div.database-header {
   padding: 0.37rem 0.75rem !important;
 }
 

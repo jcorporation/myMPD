@@ -225,6 +225,7 @@ set(SOURCES
   src/web_server/web_server_utility.c
   src/web_server/web_server_albumart.c
   src/web_server/web_server_lyrics.c
+  src/web_server/web_server_tagpics.c
   dist/src/mongoose/mongoose.c
   dist/src/frozen/frozen.c
   dist/src/inih/ini.c

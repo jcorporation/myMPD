@@ -128,7 +128,8 @@ function addFilterLetter(x) {
             default:
                 filter = event.target.innerText;
         }
-        appGoto(app.current.app, app.current.tab, app.current.view, '0/' + filter + '/' + app.current.sort + '/' + app.current.search);
+        appGoto(app.current.app, app.current.tab, app.current.view, '0/' + filter + '/' + app.current.sort + '/' + 
+            app.current.tag + '/' + app.current.search);
     }, false);
 }
 

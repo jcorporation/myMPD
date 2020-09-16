@@ -194,10 +194,10 @@ function parseSettings() {
     document.getElementById('inputCoverimageName').value = settings.coverimageName;
 
     document.getElementById('inputCoverimageSize').value = settings.coverimageSize;
-    document.getElementById('inputCovergridSize').value = settings.covergridSize;
+    document.getElementById('inputCoverimageSizeSmall').value = settings.coverimageSizeSmall;
 
     document.documentElement.style.setProperty('--mympd-coverimagesize', settings.coverimageSize + "px");
-    document.documentElement.style.setProperty('--mympd-covergridsize', settings.covergridSize + "px");
+    document.documentElement.style.setProperty('--mympd-coverimagesizesmall', settings.coverimageSizeSmall + "px");
     document.documentElement.style.setProperty('--mympd-highlightcolor', settings.highlightColor);
     
     document.getElementById('inputHighlightColor').value = settings.highlightColor;
@@ -405,17 +405,6 @@ function parseMPDSettings() {
     document.getElementById('inputMixrampdb').value = settings.mixrampdb;
     document.getElementById('inputMixrampdelay').value = settings.mixrampdelay;
     
-    if (settings.coverimage === true && settings.featTags === true && 
-        (settings.tags.includes('AlbumArtist') === true || settings.tags.includes('Artist') === true) && 
-        settings.tags.includes('Album') === true && settings.tags.includes('Track') === true && 
-        settings.featAdvsearch === true) 
-    {
-        settings.featCovergrid = true;
-    }
-    else {
-        settings.featCovergrid = false;
-    }
-        
     if (settings.featLibrary === true && settings.publish === true) {
         settings['featBrowse'] = true;    
     }
@@ -424,7 +413,7 @@ function parseMPDSettings() {
     }
 
     let features = ['featStickers', 'featSmartpls', 'featPlaylists', 'featTags', 'featCoverimage', 'featAdvsearch',
-        'featLove', 'featSingleOneshot', 'featCovergrid', 'featBrowse', 'featMounts', 'featNeighbors',
+        'featLove', 'featSingleOneshot', 'featBrowse', 'featMounts', 'featNeighbors',
         'featPartitions'];
     for (let j = 0; j < features.length; j++) {
         let Els = document.getElementsByClassName(features[j]);
@@ -516,8 +505,8 @@ function parseMPDSettings() {
     
     if (settings.featTags === false) {
         app.apps.Browse.active = 'Filesystem';
-        app.apps.Search.state = '0/filename/-/';
-        app.apps.Queue.state = '0/filename/-/';
+        app.apps.Search.state = '0/filename/-/-/';
+        app.apps.Queue.state = '0/filename/-/-/';
         settings.colsQueueCurrent = ["Pos", "Title", "Duration"];
         settings.colsQueueLastPlayed = ["Pos", "Title", "LastPlayed"];
         settings.colsSearch = ["Title", "Duration"];
@@ -563,16 +552,12 @@ function parseMPDSettings() {
         }
     }
 
-    if (!settings.tags.includes('AlbumArtist') && settings.featTags) {
-        if (settings.tags.includes('Artist')) {
-            app.apps.Browse.tabs.Database.active = 'Artist';
-        }
-        else {
-            app.apps.Browse.tabs.Database.active = settings.tags[0];
-        }
-    }
     if (settings.tags.includes('Title')) {
-        app.apps.Search.state = '0/any/Title/';
+        app.apps.Search.state = '0/any/Title/-/';
+    }
+    
+    if (!settings.tags.includes('AlbumArtist')) {
+        app.apps.Browse.tabs.Database.state = '0/Artist/Artist/Album/';
     }
     
     if (settings.featPlaylists === true) {
@@ -595,8 +580,8 @@ function parseMPDSettings() {
     addTagList('BrowseDatabaseByTagDropdown', 'browsetags');
     addTagList('searchqueuetags', 'searchtags');
     addTagList('searchtags', 'searchtags');
-    addTagList('searchCovergridTags', 'browsetags');
-    addTagList('covergridSortTagsList', 'browsetags');
+    addTagList('searchDatabaseTags', 'browsetags');
+    addTagList('databaseSortTagsList', 'browsetags');
     addTagList('dropdownSortPlaylistTags', 'tags');
     addTagList('saveSmartPlaylistSort', 'tags');
     
@@ -653,8 +638,8 @@ function saveSettings(closeModal) {
         }
     }
 
-    let inputCovergridSize = document.getElementById('inputCovergridSize');
-    if (!validateInt(inputCovergridSize)) {
+    let inputDatabaseSize = document.getElementById('inputDatabaseSize');
+    if (!validateInt(inputDatabaseSize)) {
         formOK = false;
     }
 
@@ -778,7 +763,7 @@ function saveSettings(closeModal) {
             "coverimage": (document.getElementById('btnCoverimage').classList.contains('active') ? true : false),
             "coverimageName": document.getElementById('inputCoverimageName').value,
             "coverimageSize": document.getElementById('inputCoverimageSize').value,
-            "covergridSize": document.getElementById('inputCovergridSize').value,
+            "coverimageSizeSmall": document.getElementById('inputCoverimageSizeSmall').value,
             "locale": selectLocale.options[selectLocale.selectedIndex].value,
             "love": (document.getElementById('btnLoveEnable').classList.contains('active') ? true : false),
             "loveChannel": document.getElementById('inputLoveChannel').value,

@@ -296,8 +296,8 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("theme", "coverimagesize")) {
         p_config->coverimage_size = strtoimax(value, &crap, 10);
     }
-    else if (MATCH("theme", "covergridsize")) {
-        p_config->covergrid_size = strtoimax(value, &crap, 10);
+    else if (MATCH("theme", "coverimagesizesmall")) {
+        p_config->coverimage_size_small = strtoimax(value, &crap, 10);
     }
     else if (MATCH("theme", "locale")) {
         p_config->locale = sdsreplace(p_config->locale, value);
@@ -362,7 +362,7 @@ static void mympd_get_env(struct t_config *config) {
         "MYMPD_SCRIPTING", "MYMPD_REMOTESCRIPTING", "MYMPD_LUALIBS", "MYMPD_SCRIPTEDITOR",
       #endif
         "THEME_THEME", "THEME_CUSTOMPLACEHOLDERIMAGES",
-        "THEME_BGCOVER", "THEME_BGCOLOR", "THEME_BGCSSFILTER", "THEME_COVERGRIDSIZE",
+        "THEME_BGCOVER", "THEME_BGCOLOR", "THEME_BGCSSFILTER", "THEME_COVERIMAGESIZESMALL",
         "THEME_COVERIMAGE", "THEME_COVERIMAGENAME", "THEME_COVERIMAGESIZE",
         "THEME_LOCALE", "THEME_HIGHLIGHTCOLOR", 0};
     const char** ptr = env_vars;
@@ -480,7 +480,7 @@ void mympd_config_defaults(t_config *config) {
     config->coverimage = true;
     config->coverimage_name = sdsnew("folder, cover");
     config->coverimage_size = 250;
-    config->covergrid_size = 200;
+    config->coverimage_size_small = 200;
     config->locale = sdsnew("default");
     config->startup_time = time(NULL);
     config->readonly = false;
@@ -699,7 +699,7 @@ bool mympd_dump_config(void) {
         "coverimage = %s\n"
         "coverimagename = %s\n"
         "coverimagesize = %d\n"
-        "covergridsize = %d\n"
+        "coverimagesizesmall = %d\n"
         "locale = %s\n"
         "customplaceholderimages = %s\n"
         "highlightcolor = %s\n\n",
@@ -710,7 +710,7 @@ bool mympd_dump_config(void) {
         (p_config->coverimage == true ? "true" : "false"),
         p_config->coverimage_name,
         p_config->coverimage_size,
-        p_config->covergrid_size,
+        p_config->coverimage_size_small,
         p_config->locale,
         (p_config->custom_placeholder_images == true ? "true" : "false"),
         p_config->highlight_color

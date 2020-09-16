@@ -9,7 +9,7 @@ function gotoBrowse(x) {
     let tag = x.parentNode.getAttribute('data-tag');
     let name = decodeURI(x.parentNode.getAttribute('data-name'));
     if (tag !== '' && name !== '' && name !== '-' && settings.browsetags.includes(tag)) {
-        appGoto('Browse', 'Database', tag, '0/-/-/' + name);
+        appGoto('Browse', 'Database', undefined, '0/' + tag + '/AlbumArtist/Album/' + name);
     }
 }
 
@@ -161,9 +161,9 @@ function saveBookmark() {
     }
 }
 
-function parseCovergrid(obj) {
+function parseDatabase(obj) {
     let nrItems = obj.result.returnedEntities;
-    let cardContainer = document.getElementById('BrowseCovergridList');
+    let cardContainer = document.getElementById('BrowseDatabaseList');
     let cols = cardContainer.getElementsByClassName('col');
     if (cols.length === 0) {
         cardContainer.innerHTML = '';
@@ -177,24 +177,24 @@ function parseCovergrid(obj) {
         if (obj.result.data[i].Album === '') {
             obj.result.data[i].Album = t('Unknown album');
         }
-        let id = genId('covergrid' + obj.result.data[i].Album + obj.result.data[i].AlbumArtist);
+        let id = genId('database' + obj.result.data[i].Album + obj.result.data[i].AlbumArtist);
         let html;
         let picture = '';
         if (obj.result.tag === 'Album') {
-            id = genId('covergrid' + obj.result.data[i].Album + obj.result.data[i].AlbumArtist);
+            id = genId('database' + obj.result.data[i].Album + obj.result.data[i].AlbumArtist);
             picture = subdir + '/albumart/' + encodeURI(obj.result.data[i].FirstSongUri);
             html = '<div class="card card-grid clickable" data-picture="' + picture  + '" ' + 
                        'data-album="' + encodeURI(obj.result.data[i].Album) + '" ' +
                        'data-albumartist="' + encodeURI(obj.result.data[i].AlbumArtist) + '" tabindex="0">' +
-                   '<div class="card-header covergrid-header hide unvisible"></div>' +
+                   '<div class="card-header database-header hide unvisible"></div>' +
                    '<div class="card-body album-cover-loading album-cover-grid bg-white" id="' + id + '"></div>' +
                    '<div class="card-footer card-footer-grid p-2" title="' + obj.result.data[i].AlbumArtist + ': ' + obj.result.data[i].Album + '">' +
                    obj.result.data[i].Album + '<br/><small>' + obj.result.data[i].AlbumArtist + '</small>' +
                    '</div></div>';
         }
         else {
-            id = genId('covergrid' + obj.result.data[i].value);
-            picture = subdir + '/browse/pics/' + obj.result.tag + '/' + encodeURI(obj.result.data[i].value) + '.jpg';
+            id = genId('database' + obj.result.data[i].value);
+            picture = subdir + '/tagpics/' + obj.result.tag + '/' + encodeURI(obj.result.data[i].value);
             html = '<div class="card card-grid clickable" data-picture="' + picture + '" data-tag="' + encodeURI(obj.result.data[i].value) + '" tabindex="0">' +
                    (obj.result.pics === true ? '<div class="card-body album-cover-loading album-cover-grid bg-white" id="' + id + '"></div>' : '') +
                    '<div class="card-footer card-footer-grid p-2" title="' + obj.result.data[i].value + '">' +
@@ -228,7 +228,7 @@ function parseCovergrid(obj) {
             col.firstChild.addEventListener('click', function(event) {
                 if (app.current.tag === 'Album') {
                     if (event.target.classList.contains('card-body')) {
-                        getCovergridTitleList(id);
+                        getDatabaseTitleList(id);
                     }
                     else if (event.target.classList.contains('card-footer')){
                         showMenu(event.target, event);                
@@ -256,7 +256,7 @@ function parseCovergrid(obj) {
                 }
                 else if (event.key === 'Enter') {
                     if (app.current.tag === 'Album') {
-                        getCovergridTitleList(id);
+                        getDatabaseTitleList(id);
                     }
                     else {
                         appGoto(app.current.app, app.current.card, undefined, '0/' + app.current.tag + 
@@ -289,28 +289,28 @@ function parseCovergrid(obj) {
     document.getElementById('cardFooterBrowse').innerText = gtPage('Num entries', obj.result.returnedEntities, obj.result.totalEntities);
 }
 
-function getCovergridTitleList(id) {
+function getDatabaseTitleList(id) {
     let cardBody = document.getElementById(id);
     let card = cardBody.parentNode;
     card.classList.add('opacity05');
-    let s = document.getElementById('BrowseCovergridList').childNodes[1];
+    let s = document.getElementById('BrowseDatabaseList').childNodes[1];
     let width;
     if (s) {
-        let p = parseInt(window.getComputedStyle(document.getElementById('cardBrowseCovergrid'), null).getPropertyValue('padding-left'));
-        width = s.offsetLeft + settings.covergridSize - p;
+        let p = parseInt(window.getComputedStyle(document.getElementById('cardBrowseDatabase'), null).getPropertyValue('padding-left'));
+        width = s.offsetLeft + settings.coverimageSizeSmall - p;
     }
     else {
-        width = settings.covergridSize * 2 + 20;
+        width = settings.coverimageSizeSmall * 2 + 20;
     }
     cardBody.style.width = width + 'px';
     cardBody.parentNode.style.width = width + 'px';
     sendAPI("MPD_API_DATABASE_TAG_ALBUM_TITLE_LIST", {"album": decodeURI(card.getAttribute('data-album')),
         "search": decodeURI(card.getAttribute('data-albumartist')),
-        "tag": "AlbumArtist", "cols": settings.colsBrowseDatabase}, parseCovergridTitleList);
+        "tag": "AlbumArtist", "cols": settings.colsBrowseDatabase}, parseDatabaseTitleList);
 }
 
-function parseCovergridTitleList(obj) {
-    let id = genId('covergrid' + obj.result.Album + obj.result.AlbumArtist);
+function parseDatabaseTitleList(obj) {
+    let id = genId('database' + obj.result.Album + obj.result.AlbumArtist);
     let cardBody = document.getElementById(id);
     
     let titleList = '<table class="table table-hover table-sm unvisible" tabindex="0"><thead>';
@@ -338,7 +338,7 @@ function parseCovergridTitleList(obj) {
     let uri = decodeURI(cardBody.parentNode.getAttribute('data-picture'));
     let cardFooter = cardBody.parentNode.getElementsByClassName('card-footer')[0];
     let cardHeader = cardBody.parentNode.getElementsByClassName('card-header')[0];
-    cardHeader.innerHTML = '<button class="close" type="button">&times;</button><img class="covergrid-header" src="' + uri + '"/>' +
+    cardHeader.innerHTML = '<button class="close" type="button">&times;</button><img class="database-header" src="' + uri + '"/>' +
         cardFooter.innerHTML + '';
     cardHeader.classList.remove('hide');
     cardFooter.classList.add('hide');
@@ -381,9 +381,9 @@ function parseCovergridTitleList(obj) {
 function showGridImage(cardBody, uri) {
     cardBody.innerHTML = '';
     cardBody.style.backgroundImage = 'url("' + uri + '")';
-    cardBody.style.width =  'var(--mympd-covergridsize, 200px)';
-    cardBody.style.height =  'var(--mympd-covergridsize, 200px)';
-    cardBody.parentNode.style.width =  'var(--mympd-covergridsize, 200px)';
+    cardBody.style.width =  'var(--mympd-coverimagesizesmall, 200px)';
+    cardBody.style.height =  'var(--mympd-coverimagesizesmall, 200px)';
+    cardBody.parentNode.style.width =  'var(--mympd-coverimagesizesmall, 200px)';
     cardBody.parentNode.getElementsByClassName('card-footer')[0].classList.remove('hide');
     cardBody.parentNode.getElementsByClassName('card-header')[0].classList.add('hide', 'unvisible');
 }
