@@ -145,7 +145,7 @@ button {
 @media only screen and (max-width: 440px) {
   #volumeMenu::after,
   #localPlaybackMenu::after {
-    display: none;
+    display: none !important;
   }
 }
 
