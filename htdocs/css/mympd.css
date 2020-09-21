@@ -259,7 +259,6 @@ small {
   min-height: 0 !important;
   margin-bottom: 1.25rem;
   overflow: hidden;
-  transition: width 0.5s, height 0.5s;
   max-width: 100%;
 }
 
@@ -277,18 +276,6 @@ small {
   height: var(--mympd-coverimagesizesmall, 200px);
   max-width: 100%;
   padding: 0 0.5rem;
-}
-
-a.card-img-left {
-  overflow: hidden;
-  display: block;
-  border-radius: 5px;
-  background-size: cover;
-  margin-bottom: 5px;
-  cursor: pointer;
-  width: var(--mympd-coverimagesize, 250px);
-  height: var(--mympd-coverimagesize, 250px);
-  max-width: 100%;
 }
 
 .album-cover-loading {
@@ -520,20 +507,6 @@ caption {
 
 .modal-body .album-cover {
   float: none;
-}
-
-#BrowseDatabaseAlbumListCaption {
-  margin-left: 15px;
-  margin-right: 15px;
-  width: 100%;
-}
-
-#BrowseDatabaseAlbumListCaption h2 {
-  display: inline;
-}
-
-#BrowseDatabaseAlbumListCaption small {
-  padding-top: 0.8rem;
 }
 
 .menu-indent {

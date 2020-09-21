@@ -48,12 +48,17 @@ app.apps = { "Playback":   { "state": "0/-/-/-/", "scrollPos": 0 },
                   "active": "Database", 
                   "tabs":  { "Filesystem": { "state": "0/-/-/-/", "scrollPos": 0 },
                              "Playlists":  { 
-                                    "active": "All",
-                                    "views": { "All":    { "state": "0/-/-/-/", "scrollPos": 0 },
-                                               "Detail": { "state": "0/-/-/-/", "scrollPos": 0 }
-                                    }
+                                 "active": "All",
+                                 "views": { "All":    { "state": "0/-/-/-/", "scrollPos": 0 },
+                                            "Detail": { "state": "0/-/-/-/", "scrollPos": 0 }
+                                 }
                              },
-                             "Database":  { "state": "0/AlbumArtist/AlbumArtist/Album/", "scrollPos": 0 }
+                             "Database":   { 
+                                 "active": "List",
+                                 "views": { "List":   { "state": "0/AlbumArtist/AlbumArtist/Album/", "scrollPos": 0  },
+                                            "Detail": { "state": "0/-/-/-/", "scrollPos": 0 }
+                                 }
+                             }
                   }
              },
              "Search": { "state": "0/any/-/-/", "scrollPos": 0 }
@@ -293,7 +298,9 @@ function appRoute() {
         document.getElementById('BrowseBreadcrumb').innerHTML = breadcrumbs;
         doSetFilterLetter('BrowseFilesystemFilter');
     }
-    else if (app.current.app === 'Browse' && app.current.tab === 'Database') {
+    else if (app.current.app === 'Browse' && app.current.tab === 'Database' && app.current.view === 'List') {
+        document.getElementById('viewListDatabase').classList.remove('hide');
+        document.getElementById('viewDetailDatabase').classList.add('hide');
         document.getElementById('searchDatabaseStr').value = app.current.search;
         selectTag('searchDatabaseTags', 'searchDatabaseTagsDesc', app.current.filter);
         selectTag('BrowseDatabaseByTagDropdown', 'btnBrowseDatabaseByTagDesc', app.current.tag);
@@ -324,6 +331,15 @@ function appRoute() {
             document.getElementById('btnDatabaseSortDropdown').removeAttribute('disabled');
             document.getElementById('btnDatabaseSearchDropdown').removeAttribute('disabled');
         }
+    }
+    else if (app.current.app === 'Browse' && app.current.tab === 'Database' && app.current.view === 'Detail') {
+        document.getElementById('viewListDatabase').classList.add('hide');
+        document.getElementById('viewDetailDatabase').classList.remove('hide');
+        if (app.current.filter === 'Album') {
+            sendAPI("MPD_API_DATABASE_TAG_ALBUM_TITLE_LIST", {"album": app.current.tag,
+                "search": app.current.search,
+                "tag": app.current.sort, "cols": settings.colsBrowseDatabase}, parseAlbumDetails);
+        }    
     }
     else if (app.current.app === 'Search') {
         domCache.searchstr.focus();

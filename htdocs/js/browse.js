@@ -186,7 +186,6 @@ function parseDatabase(obj) {
             html = '<div class="card card-grid clickable" data-picture="' + picture  + '" ' + 
                        'data-album="' + encodeURI(obj.result.data[i].Album) + '" ' +
                        'data-albumartist="' + encodeURI(obj.result.data[i].AlbumArtist) + '" tabindex="0">' +
-                   '<div class="card-header database-header hide unvisible"></div>' +
                    '<div class="card-body album-cover-loading album-cover-grid bg-white" id="' + id + '"></div>' +
                    '<div class="card-footer card-footer-grid p-2" title="' + obj.result.data[i].AlbumArtist + ': ' + obj.result.data[i].Album + '">' +
                    obj.result.data[i].Album + '<br/><small>' + obj.result.data[i].AlbumArtist + '</small>' +
@@ -228,7 +227,10 @@ function parseDatabase(obj) {
             col.firstChild.addEventListener('click', function(event) {
                 if (app.current.tag === 'Album') {
                     if (event.target.classList.contains('card-body')) {
-                        getDatabaseTitleList(id);
+                        appGoto('Browse', 'Database', 'Detail', '0/Album/AlbumArtist/' + 
+                            decodeURI(event.target.parentNode.getAttribute('data-album')) + 
+                            '/' + decodeURI(event.target.parentNode.getAttribute('data-albumartist')));
+                        //getDatabaseTitleList(id);
                     }
                     else if (event.target.classList.contains('card-footer')){
                         showMenu(event.target, event);                
@@ -247,16 +249,12 @@ function parseDatabase(obj) {
                 event.target.getElementsByClassName('card-header')[0].classList.remove('unvisible');
             }, false);
             col.firstChild.addEventListener('keydown', function(event) {
-                if (event.key === 'Escape') {
+                if (event.key === 'Enter') {
                     if (app.current.tag === 'Album') {
-                        let cardBody = event.target.getElementsByClassName('card-body')[0];
-                        let uri = decodeURI(cardBody.parentNode.getAttribute('data-picture'));
-                        showGridImage(cardBody, uri);
-                    }
-                }
-                else if (event.key === 'Enter') {
-                    if (app.current.tag === 'Album') {
-                        getDatabaseTitleList(id);
+                        appGoto('Browse', 'Database', 'Detail', '0/Album/AlbumArtist/' + 
+                            decodeURI(event.target.parentNode.getAttribute('data-album')) + 
+                            '/' + decodeURI(event.target.parentNode.getAttribute('data-albumartist')));
+                        //getDatabaseTitleList(id);
                     }
                     else {
                         appGoto(app.current.app, app.current.card, undefined, '0/' + app.current.tag + 
@@ -289,105 +287,6 @@ function parseDatabase(obj) {
     document.getElementById('cardFooterBrowse').innerText = gtPage('Num entries', obj.result.returnedEntities, obj.result.totalEntities);
 }
 
-function getDatabaseTitleList(id) {
-    let cardBody = document.getElementById(id);
-    let card = cardBody.parentNode;
-    card.classList.add('opacity05');
-    let s = document.getElementById('BrowseDatabaseList').childNodes[1];
-    let width;
-    if (s) {
-        let p = parseInt(window.getComputedStyle(document.getElementById('cardBrowseDatabase'), null).getPropertyValue('padding-left'));
-        width = s.offsetLeft + settings.coverimageSizeSmall - p;
-    }
-    else {
-        width = settings.coverimageSizeSmall * 2 + 20;
-    }
-    cardBody.style.width = width + 'px';
-    cardBody.parentNode.style.width = width + 'px';
-    sendAPI("MPD_API_DATABASE_TAG_ALBUM_TITLE_LIST", {"album": decodeURI(card.getAttribute('data-album')),
-        "search": decodeURI(card.getAttribute('data-albumartist')),
-        "tag": "AlbumArtist", "cols": settings.colsBrowseDatabase}, parseDatabaseTitleList);
-}
-
-function parseDatabaseTitleList(obj) {
-    let id = genId('database' + obj.result.Album + obj.result.AlbumArtist);
-    let cardBody = document.getElementById(id);
-    
-    let titleList = '<table class="table table-hover table-sm unvisible" tabindex="0"><thead>';
-    for (let i = 0; i < settings.colsBrowseDatabase.length; i++) {
-        let h = settings.colsBrowseDatabase[i];
-        if (h === 'Track') {
-            h = '#';
-        }
-        titleList += '<th class="border-top-0">' + t(h) + '</th>';
-    }
-    titleList += '<th class="border-top-0"></th></thead><tbody class="clickable">';
-    let nrItems = obj.result.returnedEntities;
-    for (let i = 0; i < nrItems; i++) {
-        if (obj.result.data[i].Duration) {
-            obj.result.data[i].Duration = beautifySongDuration(obj.result.data[i].Duration);
-        }
-        titleList += '<tr tabindex="0" data-type="song" data-name="' + obj.result.data[i].Title + '" data-uri="' + encodeURI(obj.result.data[i].uri) + '">';
-        for (let c = 0; c < settings.colsBrowseDatabase.length; c++) {
-            titleList += '<td data-col="' + settings.colsBrowseDatabase[c] + '">' + e(obj.result.data[i][settings.colsBrowseDatabase[c]]) + '</td>';
-        }
-        titleList += '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">' + ligatureMore + '</a></td></tr>';
-    }
-    titleList += '</tbody></table>';
-
-    let uri = decodeURI(cardBody.parentNode.getAttribute('data-picture'));
-    let cardFooter = cardBody.parentNode.getElementsByClassName('card-footer')[0];
-    let cardHeader = cardBody.parentNode.getElementsByClassName('card-header')[0];
-    cardHeader.innerHTML = '<button class="close" type="button">&times;</button><img class="database-header" src="' + uri + '"/>' +
-        cardFooter.innerHTML + '';
-    cardHeader.classList.remove('hide');
-    cardFooter.classList.add('hide');
-    
-    cardBody.style.backgroundImage = '';
-    cardBody.classList.remove('album-cover-loading');
-    cardBody.style.height = 'auto';
-    
-    cardBody.innerHTML = titleList;
-    cardBody.parentNode.classList.remove('opacity05');
-    cardHeader.getElementsByClassName('close')[0].addEventListener('click', function(event) {
-        event.stopPropagation();
-        showGridImage(cardBody, uri);
-    }, false);
-
-    let table = cardBody.getElementsByTagName('table')[0];
-    table.addEventListener('click', function(event) {
-        if (event.target.nodeName === 'TD') {
-            appendQueue('song', decodeURI(event.target.parentNode.getAttribute('data-uri')), event.target.parentNode.getAttribute('data-name'));
-        }
-        else if (event.target.nodeName === 'A') {
-            showMenu(event.target, event);
-        }
-    }, false);
-    table.addEventListener('keydown', function(event) {
-        navigateTable(this, event.key);
-        if (event.key === 'Escape') {
-            event.target.parentNode.parentNode.parentNode.parentNode.focus();
-        }
-    }, false);
-
-    //fallback if transitionEnd is not fired
-    setTimeout(function() {
-        cardBody.getElementsByTagName('table')[0].classList.remove('unvisible');
-        cardBody.parentNode.getElementsByClassName('card-header')[0].classList.remove('unvisible');
-        scrollFocusIntoView();
-    }, 500);
-}
-
-function showGridImage(cardBody, uri) {
-    cardBody.innerHTML = '';
-    cardBody.style.backgroundImage = 'url("' + uri + '")';
-    cardBody.style.width =  'var(--mympd-coverimagesizesmall, 200px)';
-    cardBody.style.height =  'var(--mympd-coverimagesizesmall, 200px)';
-    cardBody.parentNode.style.width =  'var(--mympd-coverimagesizesmall, 200px)';
-    cardBody.parentNode.getElementsByClassName('card-footer')[0].classList.remove('hide');
-    cardBody.parentNode.getElementsByClassName('card-header')[0].classList.add('hide', 'unvisible');
-}
-
 function setGridImage(changes, observer) {
     changes.forEach(change => {
         if (change.intersectionRatio > 0) {
@@ -399,4 +298,8 @@ function setGridImage(changes, observer) {
             }
         }
     });
+}
+
+function parseAlbumDetails(obj) {
+
 }
