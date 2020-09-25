@@ -254,6 +254,22 @@ small {
   z-index: 1;
 }
 
+.album-cover-small {
+  background-size: cover;
+  border: 1px solid black;
+  border-radius: 5px;
+  overflow: hidden;
+  max-width: 100%;
+  width: var(--mympd-coverimagesizesmall, 200px);
+  height: var(--mympd-coverimagesizesmall, 200px);
+  background-color: #eee;
+  float: left;
+  margin-bottom: 1.25rem;
+  margin-right: 1.25rem;
+  position: relative;
+  z-index: 1;
+}
+
 .card-grid {
   width: var(--mympd-coverimagesizesmall, 200px);
   min-height: 0 !important;

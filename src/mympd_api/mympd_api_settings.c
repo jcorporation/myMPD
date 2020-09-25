@@ -102,7 +102,7 @@ bool mympd_api_cols_save(t_config *config, t_mympd_state *mympd_state, const cha
         mympd_state->cols_search = sdsreplace(mympd_state->cols_search, cols);
         tablename = sdsreplace(tablename, "cols_search");
     }
-    else if (strcmp(table, "colsBrowseDatabase") == 0) {
+    else if (strcmp(table, "colsBrowseDatabaseDetail") == 0) {
         mympd_state->cols_browse_database = sdsreplace(mympd_state->cols_browse_database, cols);
         tablename = sdsreplace(tablename, "cols_browse_database");
     }
@@ -571,7 +571,7 @@ sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buf
     buffer = tojson_bool(buffer, "featScripteditor", config->scripteditor, true);
     buffer = sdscatfmt(buffer, "\"colsQueueCurrent\":%s,", mympd_state->cols_queue_current);
     buffer = sdscatfmt(buffer, "\"colsSearch\":%s,", mympd_state->cols_search);
-    buffer = sdscatfmt(buffer, "\"colsBrowseDatabase\":%s,", mympd_state->cols_browse_database);
+    buffer = sdscatfmt(buffer, "\"colsBrowseDatabaseDetail\":%s,", mympd_state->cols_browse_database);
     buffer = sdscatfmt(buffer, "\"colsBrowsePlaylistsDetail\":%s,", mympd_state->cols_browse_playlists_detail);
     buffer = sdscatfmt(buffer, "\"colsBrowseFilesystem\":%s,", mympd_state->cols_browse_filesystem);
     buffer = sdscatfmt(buffer, "\"colsPlayback\":%s,", mympd_state->cols_playback);

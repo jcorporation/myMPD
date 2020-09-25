@@ -493,7 +493,7 @@
             </div>
           </div>
           <div class="container justify-content-between">
-            <div id="BrowseDatabaseList" class="row justify-content-between">
+            <div id="BrowseDatabaseCards" class="row justify-content-between">
             </div>
           </div>
           <div class="btn-toolbar hide" id="BrowseDatabaseButtonsBottom">
@@ -512,9 +512,25 @@
           </div>
         </div>
         <div id="viewDetailDatabase">
-          <div id="viewDetailDatabaseCover"></div>
+          <div class="btn-toolbar card-toolbar">
+            <div class="input-group mr-2">
+              <button class="btn btn-secondary material-icons" data-href='{"cmd": "backToAlbumGrid", "options": []}'>apps</button>
+            </div>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <button data-title-phrase="Append to queue" class="btn btn-secondary material-icons" data-href='{"cmd": "addAlbum", "options": ["appendQueue"]}'>library_add</button>
+                <button class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-right" type="button" data-toggle="dropdown"></button>
+                <div class="dropdown-menu bg-lite-dark px-2">
+                  <button data-phrase="Append to queue" data-href='{"cmd": "addAlbum", "options": ["appendQueue"]}' type="button" class="btn btn-secondary btn-sm btn-block"></button>
+                  <button data-phrase="Replace queue" data-href='{"cmd": "addAlbum", "options": ["replaceQueue"]}' type="button" class="btn btn-secondary btn-sm btn-block"></button>
+                  <button data-phrase="Add to playlist" data-href='{"cmd": "addAlbum", "options": ["addPlaylist"]}' type="button" class="btn btn-secondary btn-sm btn-block featPlaylists"></button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="viewDetailDatabaseCover" class="featCoverimage album-cover-small album-cover-loading"></div>
           <div id="viewDetailDatabaseInfo"></div>
-          <table id="viewDetailDatabaseList" class="table table-hover table-sm">
+          <table id="BrowseDatabaseDetailList" class="table table-hover table-sm">
             <thead>
               <tr>
                 <th>#</th>

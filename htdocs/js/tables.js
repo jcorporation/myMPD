@@ -348,7 +348,6 @@ function setColTags(table) {
 function setColsChecklist(table) {
     let tagChks = '';
     let tags = setColTags(table);
-    
     for (let i = 0; i < tags.length; i++) {
         if (table === 'Playback' && tags[i] === 'Title') {
             continue;
@@ -401,7 +400,7 @@ function setCols(table, className) {
             }
             heading += '</th>';
         }
-        if (settings.featTags === true && table !== 'BrowseDatabase') {
+        if (settings.featTags === true) {
             heading += '<th data-col="Action"><a href="#" class="text-secondary align-middle material-icons material-icons-small">settings</a></th>';
         }
         else {

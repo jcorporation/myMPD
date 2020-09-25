@@ -500,7 +500,7 @@ function parseMPDSettings() {
     filterCols('colsQueueLastPlayed');
     filterCols('colsBrowsePlaylistsDetail');
     filterCols('colsBrowseFilesystem');
-    filterCols('colsBrowseDatabase');
+    filterCols('colsBrowseDatabaseDetail');
     filterCols('colsPlayback');
     
     if (settings.featTags === false) {
@@ -574,7 +574,7 @@ function parseMPDSettings() {
     setCols('QueueLastPlayed');
     setCols('BrowseFilesystem');
     setCols('BrowsePlaylistsDetail');
-    setCols('BrowseDatabase', '.tblAlbumTitles');
+    setCols('BrowseDatabaseDetail');
     setCols('Playback');
 
     addTagList('BrowseDatabaseByTagDropdown', 'browsetags');

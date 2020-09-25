@@ -338,7 +338,7 @@ function appRoute() {
         if (app.current.filter === 'Album') {
             sendAPI("MPD_API_DATABASE_TAG_ALBUM_TITLE_LIST", {"album": app.current.tag,
                 "search": app.current.search,
-                "tag": app.current.sort, "cols": settings.colsBrowseDatabase}, parseAlbumDetails);
+                "tag": app.current.sort, "cols": settings.colsBrowseDatabaseDetail}, parseAlbumDetails);
         }    
     }
     else if (app.current.app === 'Search') {
@@ -1107,6 +1107,15 @@ function appInit() {
             showMenu(event.target, event);
         }
     }, false);
+    
+    document.getElementById('BrowseDatabaseDetailList').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'TD') {
+            appendQueue('song', decodeURI(event.target.parentNode.getAttribute('data-uri')), event.target.parentNode.getAttribute('data-name'));
+        }
+        else if (event.target.nodeName === 'A') {
+            showMenu(event.target, event);
+        }
+    }, false);
 
     document.getElementById('BrowseFilesystemAddAllSongsDropdown').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
@@ -1356,6 +1365,7 @@ function appInit() {
     dragAndDropTableHeader('Search');
     dragAndDropTableHeader('BrowseFilesystem');
     dragAndDropTableHeader('BrowsePlaylistsDetail');
+    dragAndDropTableHeader('BrowseDatabaseDetail');
 
     window.addEventListener('hashchange', appRoute, false);
 
