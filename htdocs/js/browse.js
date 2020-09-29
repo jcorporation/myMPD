@@ -318,7 +318,7 @@ function parseAlbumDetails(obj) {
 }
 
 function backToAlbumGrid() {
-    appGoto('Browse', 'Database', 'List', '0/AlbumArtist/AlbumArtist/Album/' + app.current.search);
+    appGoto('Browse', 'Database', 'List');
 }  
 
 function addAlbum(action) {

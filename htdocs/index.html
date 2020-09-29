@@ -35,11 +35,9 @@
   </div>
   <!-- Header -->
   <header>
-    <nav class="navbar navbar-expand navbar-dark fixed-top bg-dark d-flex justify-content-between">
-      <div class="dropdown nav-item mr-3" id="headerLeft">
-        <a class="dropdown-toggle navbar-brand pr-0 alwaysEnabled" href="#" id="mainMenu">
-          <span class="material-icons header-logo">play_circle_outline</span>myMPD
-        </a>
+    <nav id="header" class="navbar navbar-expand navbar-dark fixed-top bg-dark d-flex justify-content-between">
+      <div class="dropdown nav-item" id="headerLeft">
+        <a class="dropdown-toggle alwaysEnabled material-icons header-logo" href="#" id="mainMenu">play_circle_outline</a>
         <div class="dropdown-menu bg-lite-dark" id="mainMenuDropdown">
           <a data-phrase="Add stream" class="dropdown-item text-light" href="#" data-href='{"cmd": "showAddToPlaylist", "options": ["stream"]}'></a>
           <a id="navDBupdate" class="subMenu dropdown-item text-light" data-toggle="collapse" href="#menu-dbupdate"><span class="material-icons material-icons-left">keyboard_arrow_right</span><span data-phrase="Update"></span></a>
@@ -67,50 +65,50 @@
           <div id="scripts" class="featScripting noInitChilds collapse"></div>
         </div>
       </div>
-      <div id="headerTitle" data-href='{"cmd": "clickTitle", "options": []}' class="mr-4 ml-4 text-light nav-item align-self-center flex-fill text-center overflow-hidden text-nowrap notclickable"></div>
-      <div class="btn-toolbar nav-item flex-nowrap">
-        <div class="btn-group mr-2" id="playControlBtns">
-          <button data-href='{"cmd": "clickPrev", "options": []}' id="btnPrev" type="button" class="btn btn-secondary pl-2 pr-2 material-icons">skip_previous</button>
-          <button data-href='{"cmd": "clickStop", "options": []}' id="btnStop" type="button" class="btn btn-secondary pl-2 pr-2 material-icons">stop</button>
-          <button data-href='{"cmd": "clickPlay", "options": []}' id="btnPlay" type="button" class="btnPlay btn btn-secondary pl-2 pr-2 material-icons">pause</button>
-          <button data-href='{"cmd": "clickNext", "options": []}' id="btnNext" type="button" class="btn btn-secondary pl-2 pr-2 material-icons">skip_next</button>
+      <div id="navbar-main" class="d-flex">
+        <div id="navPlayback" class="nav-item flex-fill text-center">
+          <a data-title-phrase="Playback" data-href='{"cmd": "appGoto", "options": ["Playback"]}' class="nav-link" href="#">
+            <span class="material-icons">play_arrow</span><span class="footerText" data-phrase="Playback"></span>
+          </a>
         </div>
-        <div class="btn-group dropdown">
-          <button id="volumeMenu" class="btn btn-secondary dropdown-toggle pl-2 pr-2 material-icons" type="button" data-toggle="dropdown">volume_up</button>
-          <div class="dropdown-menu bg-lite-dark">
-            <h2 class="dropdown-header text-light"><span data-phrase="Volume"></span>: <span id="volumePrct"></span></h2>
-            <form class="px-4 py-0 pb-3" id="volumeControl">
-              <div class="btn-group">
-                <button id="btnChVolumeDown" data-href='{"cmd": "volumeStep", "options": ["down"]}' class="btn btn-secondary">&minus;</button>
-                  <div class="btn btn-secondary">
-                    <input type="range" min="0" max="100" step="1" class="form-control-range" id="volumeBar">
-                  </div>
-                <button id="btnChVolumeUp" data-href='{"cmd": "volumeStep", "options": ["up"]}' class="btn btn-secondary">+</button>
-              </div>
-            </form>
+        <div id="navQueue" class="nav-item flex-fill text-center">
+          <a data-title-phrase="Queue" data-href='{"cmd": "appGoto", "options": ["Queue"]}' class="nav-link" href="#">
+            <span class="material-icons">queue_music</span><span class="footerText" data-phrase="Queue"></span><span id="badgeQueueItems" class="badge badge-secondary"></span>
+          </a>
+        </div>
+        <div id="navBrowse" class="nav-item flex-fill text-center">
+          <a data-title-phrase="Browse" data-href='{"cmd": "appGoto", "options": ["Browse"]}' class="nav-link" href="#">
+            <span class="material-icons">library_music</span><span class="footerText" data-phrase="Browse"></span>
+          </a>
+        </div>
+        <div id="navSearch" class="nav-item flex-fill text-center">
+          <a data-title-phrase="Search" data-href='{"cmd": "appGoto", "options": ["Search"]}' class="nav-link" href="#">
+            <span class="material-icons">search</span><span class="footerText" data-phrase="Search"></span>
+          </a>
+        </div>
+        <div id="navState" class="nav-item dropright">
+          <a data-title-phrase="Connection state" class="dropdown-toggle material-icons nav-link alwaysEnabled" data-toggle="dropdown" href="#">chat_bubble_outline</a>
+          <div id="stateDropup" class="dropdown-menu bg-lite-dark px-2">
+            <div class="btn-toolbar">
+              <button data-href='{"cmd": "clearLogOverview", "options": []}' data-title-phrase="Clear" class="btn btn-sm btn-secondary material-icons material-icons-small alwaysEnabled">clear_all</button>
+            </div>
             <div class="dropdown-divider"></div>
-            <form id="outputs" class="px-4 py-3"></form>
-            <div class="dropdown-divider featPartitions"></div>
-            <a class="dropdown-item text-light featPartitions" href="#" data-toggle="modal" data-target="#modalPartitions"><span data-phrase="Current partition"></span>: <span id="partitionName"></span></a>
-            <a data-phrase="Move an output to this partition" class="dropdown-item text-light featPartitions" href="#" data-toggle="modal" data-target="#modalPartitionOutputs"></a>
-          </div>
-        </div>
-        <div class="btn-group dropdown featLocalplayer ml-2">
-          <button id="localPlaybackMenu" class="btn btn-secondary dropdown-toggle pl-2 pr-2 material-icons" type="button" data-toggle="dropdown">airplay</button>
-          <div class="dropdown-menu bg-lite-dark">
-            <h2 data-phrase="Local playback" class="dropdown-header dropdown-header-lx text-light"></h2>
-            <div id="alertLocalPlayback" class="alert alert-warning mx-4 p-2 hide">
-              <span data-phrase="Connecting to stream..."></span>
-              <a class="btn btn-sm btn-warning float-right material-icons material-icons-small px-1">refresh</a>
+            <div id="logOverview"></div>
+            <div class="dropdown-divider"></div>
+            <div class="d-flex">
+              <div id="mpdState" class="flex-fill text-center bg-dark p-2 mr-1">
+                <span class="material-icons text-light">cloud_done</span><br/>
+                <small data-phrase="MPD connection"></small>
+              </div>
+              <div id="websocketState" class="flex-fill text-center bg-dark p-2">
+                <span class="material-icons text-light">cloud_done</span><br/>
+                <small data-phrase="Websocket connection"></small>
+              </div>
             </div>
-            <div id="errorLocalPlayback" class="alert alert-danger mx-4 p-2 hide">
-              <span data-phrase="Error loading stream"></span>
-              <a class="btn btn-sm btn-danger float-right material-icons material-icons-small px-1">refresh</a>
-            </div>
-            <audio class="mx-4" id="localPlayer" preload="none" controls=""></audio>
           </div>
         </div>
       </div>
+      
     </nav>
   </header>
   <!-- Alerts -->
@@ -120,40 +118,22 @@
   <div id="alertMpdState" class="alert alert-danger top-alert"></div>
   <div id="alertMympdState" class="alert alert-danger top-alert"></div>
   <!-- Main content -->
-  <main class="container">
+  <main>
     <div class="card" id="cardPlayback">
-      <div class="card-header"><span data-phrase="Playback"></span>
-        <div class="btn-toolbar pull-right playback-toolbar">
-          <div class="btn-group btn-group-sm featStickers">
-            <button data-title-phrase="Dislike song" id="btnVoteDown" data-href='{"cmd": "voteSong", "options": [0]}' class="btn btn-sm btn-light material-icons">thumb_down</button>
-            <button data-title-phrase="Like song" id="btnVoteUp" data-href='{"cmd": "voteSong", "options": [2]}' class="btn btn-sm btn-light material-icons">thumb_up</button>
-          </div>
-          <div class="btn-group btn-group-sm ml-2 featLove">
-            <button data-title-phrase="Love song" data-href='{"cmd": "loveSong", "options": []}' class="btn btn-sm btn-light material-icons">favorite</button>
-          </div>
-          <div class="btn-group btn-group-sm ml-2 featPlaylists">
-            <button data-title-phrase="Add to playlist" data-href='{"cmd": "showAddToPlaylistCurrentSong", "options": []}' class="btn btn-sm btn-light material-icons btn-sm-big-icon">playlist_add</button>
-          </div>
-          <div class="btn-group ml-2 featTags">
-            <button id="PlaybackColsBtn" class="btn btn-sm btn-light dropdown-toggle material-icons material-icons-small" type="button" data-toggle="dropdown">settings</button>
-            <div class="dropdown-menu text-light bg-lite-dark px-2" id="PlaybackColsDropdown"><form></form>
-              <button data-phrase="Apply" data-href='{"cmd": "saveColsPlayback", "options": ["Playback"]}' class="btn btn-success btn-block btn-sm mt-2"></button>
-            </div>
-          </div>
-        </div>
-      </div>
       <div class="card-body cardBodyPlayback">
-        <div class="album-cover album-cover-loading featCoverimage" id="currentCover"></div>
-        <div class="album-desc breakAll">
-          <h2 id="currentTitle" data-href='{"cmd": "clickTitle", "options": []}'></h2>
-          <div class="featTags" id="cardPlaybackTags"></div>
-        </div>
-      </div>
-      <div class="card-footer cardFooterPlayback">
-        <div class="d-flex align-items-center">
-          <div class="btn-group dropup">
-            <button data-href='{"cmd": "clickPlay", "options": []}' class="ml-1 btn btn-light material-icons btnPlay progressBarPlay">pause</button>
-            <button id="btnPlayDropdown" class="btn btn-light dropdown-toggle dropdown-toggle-split" type="button" data-toggle="dropdown"></button>
+        <div class="btn-toolbar card-toolbar" id="PlaybackButtonsTop">
+          <div class="btn-group btn-group featStickers">
+            <button data-title-phrase="Dislike song" id="btnVoteDown" data-href='{"cmd": "voteSong", "options": [0]}' class="btn btn-secondary material-icons">thumb_down</button>
+            <button data-title-phrase="Like song" id="btnVoteUp" data-href='{"cmd": "voteSong", "options": [2]}' class="btn btn-secondary material-icons">thumb_up</button>
+          </div>
+          <div class="btn-group btn-group featLove ml-2">
+            <button data-title-phrase="Love song" data-href='{"cmd": "loveSong", "options": []}' class="btn btn-secondary material-icons">favorite</button>
+          </div>
+          <div class="btn-group btn-group featPlaylists ml-2">
+            <button data-title-phrase="Add to playlist" data-href='{"cmd": "showAddToPlaylistCurrentSong", "options": []}' class="btn btn-secondary material-icons">playlist_add</button>
+          </div>
+          <div class="btn-group dropdown ml-2">
+            <button id="btnPlayDropdown" class="btn btn-secondary dropdown-toggle material-icons" type="button" data-toggle="dropdown">tune</button>
             <div class="dropdown-menu bg-lite-dark px-2" id="playDropdown">
               <form>
                 <div class="form-group row">
@@ -197,8 +177,17 @@
               </form>
             </div>
           </div>
-          <input type="range" min="0" max="1000" step="1" class="mr-1 ml-1 form-control-range flex-grow-1" id="progressBar">
-          <div class="btn ml-1 mr-1" id="counter">&nbsp;&nbsp;</div>
+          <div class="btn-group ml-2 featTags">
+            <button id="PlaybackColsBtn" class="btn btn btn-secondary dropdown-toggle material-icons material-icons-small" type="button" data-toggle="dropdown">settings</button>
+            <div class="dropdown-menu text-light bg-lite-dark px-2" id="PlaybackColsDropdown"><form></form>
+              <button data-phrase="Apply" data-href='{"cmd": "saveColsPlayback", "options": ["Playback"]}' class="btn btn-success btn-block btn-sm mt-2"></button>
+            </div>
+          </div>
+        </div>
+        <div class="album-cover album-cover-loading featCoverimage" id="currentCover"></div>
+        <div class="album-desc breakAll">
+          <h2 id="currentTitle" data-href='{"cmd": "clickTitle", "options": []}'></h2>
+          <div class="featTags" id="cardPlaybackTags"></div>
         </div>
       </div>
     </div>
@@ -703,50 +692,65 @@
       </div>
     </div>    
   </main>    
-
   <!-- Footer -->  
-  <footer class="footer">
-    <nav class="navbar navbar-expand navbar-dark fixed-bottom bg-dark">
-      <div class="d-flex flex-fill navbar-nav" id="navbar-bottom">
-        <div id="navPlayback" class="nav-item flex-fill text-center">
-          <a data-title-phrase="Playback" data-href='{"cmd": "appGoto", "options": ["Playback"]}' class="nav-link" href="#">
-            <span class="material-icons">play_arrow</span><span class="footerText" data-phrase="Playback"></span>
-          </a>
+  <footer class="footer fixed-bottom">
+    <div id="footerProgress" class="progress clickable align-items-center">
+      <div id="footerProgressBar" class="progress-bar highlight-bg" role="progressbar"></div>
+    </div>
+    <nav class="navbar navbar-expand navbar-dark bg-dark">
+      <div class="btn-toolbar nav-item flex-nowrap">
+        <div class="btn-group mr-2" id="playControlBtns">
+          <button data-href='{"cmd": "clickPrev", "options": []}' id="btnPrev" type="button" class="btn btn-dark pl-2 pr-2 material-icons">skip_previous</button>
+          <button data-href='{"cmd": "clickStop", "options": []}' id="btnStop" type="button" class="btn btn-dark pl-2 pr-2 material-icons hide">stop</button>
+          <button data-href='{"cmd": "clickPlay", "options": []}' id="btnPlay" type="button" class="btnPlay btn btn-lg btn-dark pl-2 pr-2 material-icons material-icons-lg">pause</button>
+          <button data-href='{"cmd": "clickNext", "options": []}' id="btnNext" type="button" class="btn btn-dark pl-2 pr-2 material-icons">skip_next</button>
         </div>
-        <div id="navQueue" class="nav-item flex-fill text-center">
-          <a data-title-phrase="Queue" data-href='{"cmd": "appGoto", "options": ["Queue"]}' class="nav-link" href="#">
-            <span class="material-icons">queue_music</span><span class="footerText" data-phrase="Queue"></span><span id="badgeQueueItems" class="badge badge-secondary"></span>
-          </a>
+        <div class="align-self-center">
+          <small id="counter" class="text-light">0:00&nbsp;/&nbsp;0:00</small>
         </div>
-        <div id="navBrowse" class="nav-item flex-fill text-center">
-          <a data-title-phrase="Browse" data-href='{"cmd": "appGoto", "options": ["Browse"]}' class="nav-link" href="#">
-            <span class="material-icons">library_music</span><span class="footerText" data-phrase="Browse"></span>
-          </a>
+      </div>
+      <div class="d-flex flex-fill navbar-nav ml-5 text-light" id="footerInfo">
+        <div id="footerCover" class="album-cover-loading mr-3">
         </div>
-        <div id="navSearch" class="nav-item flex-fill text-center">
-          <a data-title-phrase="Search" data-href='{"cmd": "appGoto", "options": ["Search"]}' class="nav-link" href="#">
-            <span class="material-icons">search</span><span class="footerText" data-phrase="Search"></span>
-          </a>
+        <div>
+          <span id="footerTitle" class="notclickable" data-href='{"cmd": "clickTitle", "options": []}'>Titskkkkkkkkkkkkkkkkkkkkkkuu uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuukle</span><br/>
+          <span id="footerArtist">Artist</span>&nbsp;&ndash;&nbsp;<span id="footerAlbum">Album</span>
         </div>
-        <div id="navState" class="nav-item dropup">
-          <a data-title-phrase="Connection state" class="dropdown-toggle material-icons nav-link alwaysEnabled" data-toggle="dropdown" href="#">chat_bubble_outline</a>
-          <div id="stateDropup" class="dropdown-menu bg-lite-dark px-2">
-            <div class="btn-toolbar">
-              <button data-href='{"cmd": "clearLogOverview", "options": []}' data-title-phrase="Clear" class="btn btn-sm btn-secondary material-icons material-icons-small alwaysEnabled">clear_all</button>
-            </div>
-            <div class="dropdown-divider"></div>
-            <div id="logOverview"></div>
-            <div class="dropdown-divider"></div>
-            <div class="d-flex">
-              <div id="mpdState" class="flex-fill text-center bg-dark p-2 mr-1">
-                <span class="material-icons text-light">cloud_done</span><br/>
-                <small data-phrase="MPD connection"></small>
+      </div>
+      <div class="btn-toolbar nav-item flex-nowrap ml-5">
+        <div class="btn-group dropup">
+          <button id="volumeMenu" class="btn btn-dark dropdown-toggle pl-2 pr-2 material-icons" type="button" data-toggle="dropdown">volume_up</button>
+          <div class="dropdown-menu bg-lite-dark">
+            <h2 class="dropdown-header text-light"><span data-phrase="Volume"></span>: <span id="volumePrct"></span></h2>
+            <form class="px-4 py-0 pb-3" id="volumeControl">
+              <div class="btn-group">
+                <button id="btnChVolumeDown" data-href='{"cmd": "volumeStep", "options": ["down"]}' class="btn btn-secondary">&minus;</button>
+                  <div class="btn btn-secondary">
+                    <input type="range" min="0" max="100" step="1" class="form-control-range" id="volumeBar">
+                  </div>
+                <button id="btnChVolumeUp" data-href='{"cmd": "volumeStep", "options": ["up"]}' class="btn btn-secondary">+</button>
               </div>
-              <div id="websocketState" class="flex-fill text-center bg-dark p-2">
-                <span class="material-icons text-light">cloud_done</span><br/>
-                <small data-phrase="Websocket connection"></small>
-              </div>
+            </form>
+            <div class="dropdown-divider"></div>
+            <form id="outputs" class="px-4 py-3"></form>
+            <div class="dropdown-divider featPartitions"></div>
+            <a class="dropdown-item text-light featPartitions" href="#" data-toggle="modal" data-target="#modalPartitions"><span data-phrase="Current partition"></span>: <span id="partitionName"></span></a>
+            <a data-phrase="Move an output to this partition" class="dropdown-item text-light featPartitions" href="#" data-toggle="modal" data-target="#modalPartitionOutputs"></a>
+          </div>
+        </div>
+        <div class="btn-group dropup featLocalplayer ml-2">
+          <button id="localPlaybackMenu" class="btn btn-dark dropdown-toggle pl-2 pr-2 material-icons" type="button" data-toggle="dropdown">airplay</button>
+          <div class="dropdown-menu bg-lite-dark">
+            <h2 data-phrase="Local playback" class="dropdown-header dropdown-header-lx text-light"></h2>
+            <div id="alertLocalPlayback" class="alert alert-warning mx-4 p-2 hide">
+              <span data-phrase="Connecting to stream..."></span>
+              <a class="btn btn-sm btn-warning float-right material-icons material-icons-small px-1">refresh</a>
             </div>
+            <div id="errorLocalPlayback" class="alert alert-danger mx-4 p-2 hide">
+              <span data-phrase="Error loading stream"></span>
+              <a class="btn btn-sm btn-danger float-right material-icons material-icons-small px-1">refresh</a>
+            </div>
+            <audio class="mx-4" id="localPlayer" preload="none" controls=""></audio>
           </div>
         </div>
       </div>

@@ -18,6 +18,10 @@
   color: var(--mympd-highlightcolor, #28a745) !important;
 }
 
+.highlight-bg {
+  background-color: var(--mympd-highlightcolor, #28a745) !important;
+}
+
 #highlightColorPreview,
 #bgColorPreview {
   cursor: default;
@@ -106,13 +110,72 @@ td[data-col=Action] {
   z-index: 3;
 }
 
-main {
-  padding-top: 1rem;
+@media only screen and (orientation: landscape) {
+  nav#header {
+    height: 100vw;
+    width: 4rem;
+    flex-flow: column;
+    padding-top: 0.6rem;
+    padding-left: 0;
+    padding-right: 0;
+    padding-bottom: 6.5rem;
+    justify-content: normal !important;
+  }
+  body {
+    padding-top: 0;
+    padding-left: 4rem;
+  }
+  #headerLeft {
+    margin-bottom: 2rem;
+  }
+  .footerText {
+    display: none;
+  }
+  #navbar-main > div {
+    margin-bottom: 0.6rem;
+  }
+  #navbar-main {
+    flex-direction: column !important;
+  }
 }
 
 footer {
   position: absolute;
   bottom: 0;
+}
+
+div#footerCover {
+  width: 4rem;
+  height: 4rem;
+  background-size: cover;
+  flex-shrink: 0;
+}
+
+span#footerTitle {
+  height: 2rem;
+}
+
+div#footerInfo {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+div#footerProgress {
+  height: 1rem;
+  background-color: transparent;
+  border-radius: 0;
+}
+
+div#footerProgress:hover div#footerProgressBar {
+  border-top: 0.4rem solid var(--mympd-highlightcolor, #28a745);
+  border-bottom: 0.4rem solid var(--mympd-highlightcolor, #28a745);
+}
+
+div#footerProgressBar {
+  height: 0.4rem;
+  width: 0;
+  margin-bottom: -0.6rem;
 }
 
 .footerText,
@@ -122,11 +185,6 @@ footer {
 
 button {
   overflow: hidden;
-}
-
-.cardBodyPlayback {
-  padding-bottom: 0;
-  overflow-y: auto;
 }
 
 #BrowseBreadrumb {
@@ -140,6 +198,10 @@ button {
 
 .nowrap {
   white-space: nowrap;
+}
+
+#mainMenu::after {
+  display: none !important;
 }
 
 @media only screen and (max-width: 440px) {
@@ -168,15 +230,6 @@ button {
   }
 }  
 
-@media only screen and (max-width: 576px) {
-  .header-logo {
-    display: none !important;
-  }
-
-  .footerText {
-    display: none;
-  }
-}
 
 @media only screen and (min-width: 576px) and (max-width: 992px) {
   .modal-lg {
@@ -230,8 +283,8 @@ small {
 }
 
 .card {
-  min-height: 300px;
   word-break: break-word;
+  background-color: transparent !important;
 }
 
 .cardFooterPlayback {
@@ -378,6 +431,10 @@ small {
   font-size: 1rem;
 }
 
+.material-icons-lg {
+  font-size: 2.4rem;
+}
+
 .material-icons-small-left {
   font-size: 1rem;
   margin-left: -1em;
@@ -405,15 +462,6 @@ small {
   min-width: 8rem;
 }
 
-.progressBarPlay {
-  font-size: 1.8rem;
-}
-
-#counter {
-  cursor: text;
-  word-break: normal;
-}
-
 #volumeBar {
   margin-top: 2px;
   width: 160px;
@@ -426,9 +474,14 @@ small {
 }
 
 .header-logo {
-  font-size: 2rem;
-  float: left;
+  font-size: 2.5rem;
   margin-right: 5px;
+  color: white;
+}
+
+.header-logo:hover,
+.header-logo:active {
+  color: var(--mympd-highlightcolor, #28a745) !important;
 }
 
 .letters > button {
@@ -723,7 +776,7 @@ a.text-success:focus {
   border-radius: 0;
   border-left: none;
   border-right: none;
-  padding-top: 0;
+  padding-top: 0.3rem;
   padding-bottom: 0.1rem;
   margin-top: -0.3rem;
 }
@@ -760,11 +813,6 @@ a.text-success:focus {
 .toast-header {
   border-bottom-color: rgba(0, 0, 0, 0.125);
 }
-
-#cardPlayback {
-  max-height: calc(100vh - 10rem);
-}
-
 
 /*resize coverimage in playback card*/
 @media only screen and (min-width: 768px) and (min-height: 35rem) {

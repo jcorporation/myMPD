@@ -68,7 +68,7 @@ app.current = { "app": "Playback", "tab": undefined, "view": undefined, "page": 
 app.last = { "app": undefined, "tab": undefined, "view": undefined, "filter": "", "search": "", "sort": "", "tag": "", "scrollPos": 0 };
 
 var domCache = {};
-domCache.navbarBottomBtns = document.getElementById('navbar-bottom').getElementsByTagName('div');
+domCache.navbarBottomBtns = document.getElementById('navbar-main').getElementsByTagName('div');
 domCache.navbarBottomBtnsLen = domCache.navbarBottomBtns.length;
 domCache.cardHeaderBrowse = document.getElementById('cardHeaderBrowse').getElementsByTagName('a');
 domCache.cardHeaderBrowseLen = domCache.cardHeaderBrowse.length;
@@ -82,7 +82,8 @@ domCache.btnsPlay = document.getElementsByClassName('btnPlay');
 domCache.btnsPlayLen = domCache.btnsPlay.length;
 domCache.btnPrev = document.getElementById('btnPrev');
 domCache.btnNext = document.getElementById('btnNext');
-domCache.progressBar = document.getElementById('progressBar');
+domCache.progress = document.getElementById('footerProgress');
+domCache.progressBar = document.getElementById('footerProgressBar');
 domCache.volumeBar = document.getElementById('volumeBar');
 domCache.outputs = document.getElementById('outputs');
 domCache.btnA2HS = document.getElementById('nav-add2homescreen');
@@ -573,10 +574,11 @@ function appInit() {
         sendAPI("MPD_API_PLAYER_VOLUME_SET", {"volume": domCache.volumeBar.value});
     }, false);
 
-    domCache.progressBar.value = 0;
-    domCache.progressBar.addEventListener('change', function() {
+    domCache.progressBar.setAttribute('aria-valuenow', '0');
+    document.getElementById('footerProgress').addEventListener('click', function(event) {
         if (currentSong && currentSong.currentSongId >= 0) {
-            let seekVal = Math.ceil(currentSong.totalTime * (domCache.progressBar.value / 1000));
+            domCache.progressBar.style.width = event.clientX + 'px';
+            const seekVal = Math.ceil((currentSong.totalTime * event.clientX) / event.target.offsetWidth);
             sendAPI("MPD_API_PLAYER_SEEK", {"songid": currentSong.currentSongId, "seek": seekVal});
         }
     }, false);

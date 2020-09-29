@@ -99,7 +99,8 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
     currentSong.elapsedTime = elapsedTime;
     currentSong.currentSongId = currentSongId;
 
-    domCache.progressBar.value = Math.floor(1000 * elapsedTime / totalTime);
+    const progressPx = Math.ceil(domCache.progress.offsetWidth * elapsedTime / totalTime);
+    domCache.progressBar.style.width = progressPx + 'px'; 
 
     let counterText = beautifySongDuration(elapsedTime) + "&nbsp;/&nbsp;" + beautifySongDuration(totalTime);
     domCache.counter.innerHTML = counterText;
@@ -176,10 +177,10 @@ function parseState(obj) {
     if (obj.result.songPos === '-1') {
         domCache.currentTitle.innerText = 'Not playing';
         document.title = 'myMPD';
-        let headerTitle = document.getElementById('headerTitle');
-        headerTitle.innerText = '';
-        headerTitle.removeAttribute('title');
-        headerTitle.classList.remove('clickable');
+        let footerTitle = document.getElementById('footerTitle');
+        footerTitle.innerText = '';
+        footerTitle.removeAttribute('title');
+        footerTitle.classList.remove('clickable');
         clearCurrentCover();
         if (settings.bgCover === true) {
             clearBackgroundImage();
@@ -344,15 +345,15 @@ function songChange(obj) {
         domCache.currentTitle.setAttribute('data-uri', '');
     }
     document.title = 'myMPD: ' + pageTitle;
-    let headerTitle = document.getElementById('headerTitle');
-    headerTitle.innerText = pageTitle;
-    headerTitle.title = pageTitle;
+    let footerTitle = document.getElementById('footerTitle');
+    footerTitle.innerText = pageTitle;
+    footerTitle.title = pageTitle;
     
     if (obj.result.uri !== undefined && obj.result.uri !== '' && obj.result.uri.indexOf('://') === -1) {
-        headerTitle.classList.add('clickable');
+        footerTitle.classList.add('clickable');
     }
     else {
-        headerTitle.classList.remove('clickable');
+        footerTitle.classList.remove('clickable');
     }
 
     if (obj.result.uri !== undefined) {
