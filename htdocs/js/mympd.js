@@ -70,10 +70,6 @@ app.last = { "app": undefined, "tab": undefined, "view": undefined, "filter": ""
 var domCache = {};
 domCache.navbarBottomBtns = document.getElementById('navbar-main').getElementsByTagName('div');
 domCache.navbarBottomBtnsLen = domCache.navbarBottomBtns.length;
-domCache.cardHeaderBrowse = document.getElementById('cardHeaderBrowse').getElementsByTagName('a');
-domCache.cardHeaderBrowseLen = domCache.cardHeaderBrowse.length;
-domCache.cardHeaderQueue = document.getElementById('cardHeaderQueue').getElementsByTagName('a');
-domCache.cardHeaderQueueLen = domCache.cardHeaderQueue.length;
 domCache.counter = document.getElementById('counter');
 domCache.volumePrct = document.getElementById('volumePrct');
 domCache.volumeControl = document.getElementById('volumeControl');
@@ -161,7 +157,6 @@ function appPrepare(scrollPos) {
         }
         if (app.current.tab !== undefined) {
             document.getElementById('card' + app.current.app + app.current.tab).classList.remove('hide');
-            document.getElementById('card' + app.current.app + 'Nav' + app.current.tab).classList.add('active');    
         }
         scrollToPosY(scrollPos);
     }
@@ -409,8 +404,6 @@ function appRoute() {
             document.getElementById('SearchList').getElementsByTagName('tbody')[0].innerHTML = '';
             document.getElementById('searchAddAllSongs').setAttribute('disabled', 'disabled');
             document.getElementById('searchAddAllSongsBtn').setAttribute('disabled', 'disabled');
-            document.getElementById('panel-heading-search').innerText = '';
-            document.getElementById('cardFooterSearch').innerText = '';
             document.getElementById('SearchList').classList.remove('opacity05');
             setPagination(0, 0);
         }
@@ -1194,15 +1187,13 @@ function appInit() {
     }, false);
 
     document.getElementById('BrowseDatabaseByTagDropdown').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'BUTTON') {
-            const tag = event.target.getAttribute('data-tag');
-            if (tag !== 'Album') {
-                app.current.filter = tag;
-                app.current.sort = tag;
-            }
-            appGoto(app.current.app, app.current.tab, app.current.view, '0/' + app.current.filter + '/' + app.current.sort + '/' 
-                + tag  + '/' + app.current.search);
-        }
+        navBrowseHandler(event);
+    }, false);
+    document.getElementById('BrowseNavPlaylistsDropdown').addEventListener('click', function(event) {
+        navBrowseHandler(event);
+    }, false);
+    document.getElementById('BrowseNavFilesystemDropdown').addEventListener('click', function(event) {
+        navBrowseHandler(event);
     }, false);
 
     document.getElementById('dropdownSortPlaylistTags').addEventListener('click', function(event) {

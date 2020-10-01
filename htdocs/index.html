@@ -193,19 +193,15 @@
     </div>
     
     <div class="card hide" id="cardQueue">
-      <div class="card-header" id="cardHeaderQueue">
-        <ul class="nav nav-tabs card-header-tabs">
-          <li class="nav-item">
-            <a data-phrase="Queue" data-href='{"cmd": "appGoto", "options": ["Queue", "Current"]}' class="nav-link text-dark" href="#" id="cardQueueNavCurrent"></a>
-          </li>        
-          <li class="nav-item">
-            <a data-phrase="Last played" data-href='{"cmd": "appGoto", "options": ["Queue", "LastPlayed"]}' class="nav-link text-dark" href="#" id="cardQueueNavLastPlayed"></a>
-          </li>
-        </ul>      
-      </div>
-
       <div class="card-body hide" id="cardQueueCurrent">
         <div class="btn-toolbar card-toolbar" id="QueueCurrentButtonsTop">
+          <div class="btn-group mr-2">
+            <button class="btn btn-secondary dropdown-toggle material-icons" type="button" data-toggle="dropdown">layers</button>
+            <div class="dropdown-menu bg-lite-dark px-2">
+              <button data-phrase="Queue" class="btn btn-sm btn-block btn-secondary active" data-href='{"cmd": "appGoto", "options": ["Queue", "Current"]}'></button>
+              <button data-phrase="Last played" class="btn btn-sm btn-block btn-secondary" data-href='{"cmd": "appGoto", "options": ["Queue", "LastPlayed"]}'></button>
+            </div>
+          </div>
           <div class="btn-group mr-2 featPlaylists">
             <button data-title-phrase="Save queue" type="button" class="btn btn-secondary material-icons" data-toggle="modal" data-target="#modalSaveQueue">save</button>
           </div>
@@ -281,7 +277,14 @@
 
       <div class="card-body hide" id="cardQueueLastPlayed">
         <div class="btn-toolbar card-toolbar">
-          <div id="QueueLastPlayedPaginationTop" class="btn-group mr-2 hide">
+          <div class="btn-group">
+            <button class="btn btn-secondary dropdown-toggle material-icons" type="button" data-toggle="dropdown">layers</button>
+            <div class="dropdown-menu bg-lite-dark px-2">
+              <button data-phrase="Queue" class="btn btn-sm btn-block btn-secondary" data-href='{"cmd": "appGoto", "options": ["Queue", "Current"]}'></button>
+              <button data-phrase="Last played" class="btn btn-sm btn-block btn-secondary active" data-href='{"cmd": "appGoto", "options": ["Queue", "LastPlayed"]}'></button>
+            </div>
+          </div>
+          <div id="QueueLastPlayedPaginationTop" class="btn-group ml-2 hide">
             <button data-title-phrase="Previous page" data-href='{"cmd": "gotoPage", "options": ["prev"]}' type="button" class="btn btn-group-prepend btn-secondary">&laquo;</button>
               <div class="btn-group">
                 <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"></button>
@@ -323,28 +326,16 @@
           </div>
         </div>
       </div>
-      
-      <div class="card-footer" id="cardFooterQueue">
-      </div>
     </div>
     
     <div class="card hide" id="cardBrowse">
-      <div class="card-header" id="cardHeaderBrowse">
-        <ul class="nav nav-tabs card-header-tabs">
-          <li class="nav-item featTags">
-            <a data-phrase="Database" data-href='{"cmd": "appGoto", "options": ["Browse", "Database"]}' class="nav-link text-dark" href="#" id="cardBrowseNavDatabase"></a>
-          </li>        
-          <li class="nav-item featPlaylists">
-            <a data-phrase="Playlists" data-href='{"cmd": "appGoto", "options": ["Browse", "Playlists"]}' class="nav-link text-dark" href="#" id="cardBrowseNavPlaylists"></a>
-          </li>
-          <li class="nav-item">
-            <a data-phrase="Filesystem" data-href='{"cmd": "appGoto", "options": ["Browse", "Filesystem"]}' class="nav-link text-dark" href="#" id="cardBrowseNavFilesystem"></a>
-          </li>
-        </ul>
-      </div>
-      
       <div class="card-body hide" id="cardBrowsePlaylists">
         <div class="btn-toolbar card-toolbar" id="BrowsePlaylistsButtons">
+          <div class="btn-group mr-2">
+            <button data-title-phrase="Select tag to display" id="BrowseNavPlaylists" class="btn btn-secondary dropdown-toggle material-icons" type="button" data-toggle="dropdown">layers</button>
+            <div class="dropdown-menu bg-lite-dark px-2" id="BrowseNavPlaylistsDropdown">
+            </div>
+          </div>
           <div class="btn-group mr-2 hide">
             <button data-href='{"cmd": "appGoto", "options": ["Browse", "Playlists", "All"]}' id="btnBrowsePlaylistsAll" type="button" class="btn btn-secondary">&laquo; <span data-phrase="Playlists"></span></button>
           </div>
@@ -539,6 +530,11 @@
       <div class="card-body hide" id="cardBrowseFilesystem">
         <div class="btn-toolbar card-toolbar" id="BrowseFilesystemButtons">
           <div class="btn-group mr-2">
+            <button data-title-phrase="Select tag to display" id="BrowseNavFilesystem" class="btn btn-secondary dropdown-toggle material-icons" type="button" data-toggle="dropdown">layers</button>
+            <div class="dropdown-menu bg-lite-dark px-2" id="BrowseNavFilesystemDropdown">
+            </div>
+          </div>
+          <div class="btn-group mr-2">
             <button id="BrowseFilesystemFilter" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="material-icons">filter_list</span></button>
             <div class="dropdown-menu bg-lite-dark px-2 letters" id="BrowseFilesystemFilterLetters">
             </div>
@@ -600,16 +596,9 @@
           </div>
         </div>
       </div>
-      
-      <div class="card-footer" id="cardFooterBrowse">
-      </div>      
     </div>        
 
     <div class="card hide" id="cardSearch">
-      <div class="card-header">
-        <span data-phrase="Search"></span>
-        <span id="panel-heading-search" class="text pull-right"></span>
-      </div>
       <div class="card-body">
         <div class="btn-toolbar card-toolbar" id="SearchButtons">
           <form id="search" class="flex-grow-1">
@@ -687,8 +676,6 @@
             <button data-title-phrase="Next page" data-href='{"cmd": "gotoPage", "options": ["next"]}' type="button" class="btn btn-secondary btn-group-append">&raquo;</button>
           </div>
         </div>
-      </div>
-      <div class="card-footer" id="cardFooterSearch">
       </div>
     </div>    
   </main>    

@@ -5,6 +5,29 @@
  https://github.com/jcorporation/mympd
 */
 
+function navBrowseHandler(event) {
+    if (event.target.nodeName === 'BUTTON') {
+        const tag = event.target.getAttribute('data-tag');
+        if (tag === 'Playlists' || tag === 'Filesystem') {
+            appGoto('Browse', tag, undefined);
+            return;
+        }
+        
+        if (app.current.app === 'Browse' && app.current.tab !== 'Database') {
+            let view = app.apps.Browse.tabs.Database.active;
+            console.log(view);
+            appGoto('Browse', 'Database', view);
+            return;
+        }
+        if (tag !== 'Album') {
+            app.current.filter = tag;
+            app.current.sort = tag;
+        }
+        appGoto(app.current.app, app.current.tab, app.current.view, '0/' + app.current.filter + '/' + app.current.sort + '/' 
+                + tag  + '/' + app.current.search);
+    }
+}
+
 function gotoBrowse(x) {
     let tag = x.parentNode.getAttribute('data-tag');
     let name = decodeURI(x.parentNode.getAttribute('data-name'));
@@ -107,7 +130,7 @@ function parseFilesystem(obj) {
                           '<td colspan="' + colspan + '">' + t('Empty list') + '</td></tr>';
     }
     document.getElementById(app.current.app + (app.current.tab === undefined ? '' : app.current.tab) + 'List').classList.remove('opacity05');
-    document.getElementById('cardFooterBrowse').innerText = t('Num entries', obj.result.totalEntities);
+    //document.getElementById('cardFooterBrowse').innerText = t('Num entries', obj.result.totalEntities);
 }
 
 function addAllFromBrowseFilesystem() {
@@ -273,9 +296,9 @@ function parseDatabase(obj) {
     setPagination(obj.result.totalEntities, obj.result.returnedEntities);
                     
     if (nrItems === 0) {
-        cardContainer.innerHTML = t('Empty list');
+        cardContainer.innerHTML = '<div><span class="material-icons">error_outline</span>&nbsp;' + t('Empty list') + '</div>';
     }
-    document.getElementById('cardFooterBrowse').innerText = gtPage('Num entries', obj.result.returnedEntities, obj.result.totalEntities);
+    //document.getElementById('cardFooterBrowse').innerText = gtPage('Num entries', obj.result.returnedEntities, obj.result.totalEntities);
 }
 
 function setGridImage(changes, observer) {
