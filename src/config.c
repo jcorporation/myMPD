@@ -476,7 +476,7 @@ void mympd_config_defaults(t_config *config) {
     config->stream_url = sdsempty();
     config->bg_cover = false;
     config->bg_color = sdsnew("#888");
-    config->bg_css_filter = sdsnew("blur(5px)");
+    config->bg_css_filter = sdsnew("grayscale(100%) blur(5px)");
     config->coverimage = true;
     config->coverimage_name = sdsnew("folder, cover");
     config->coverimage_size = 250;

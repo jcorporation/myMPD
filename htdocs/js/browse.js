@@ -336,7 +336,7 @@ function parseAlbumDetails(obj) {
         titleList += '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">' + ligatureMore + '</a></td></tr>';
     }
     tbody.innerHTML = titleList;
-    cardFooter.innerHTML = t('Num songs', obj.result.totalEntities) + ' &ndash; ' + beautifyDuration(obj.result.totalTime);
+    //cardFooter.innerHTML = t('Num songs', obj.result.totalEntities) + ' &ndash; ' + beautifyDuration(obj.result.totalTime);
     document.getElementById('BrowseDatabaseDetailList').classList.remove('opacity05');
 }
 

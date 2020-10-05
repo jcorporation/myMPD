@@ -149,6 +149,7 @@ div#footerCover {
   height: 4rem;
   background-size: cover;
   flex-shrink: 0;
+  position: relative;
 }
 
 span#footerTitle {
@@ -285,6 +286,7 @@ small {
 .card {
   word-break: break-word;
   background-color: transparent !important;
+  border: none;
 }
 
 .cardFooterPlayback {
@@ -476,11 +478,6 @@ small {
 .header-logo {
   font-size: 2.5rem;
   margin-right: 5px;
-  color: white;
-}
-
-.header-logo:hover,
-.header-logo:active {
   color: var(--mympd-highlightcolor, #28a745) !important;
 }
 
@@ -510,7 +507,7 @@ button.active-fg-red {
 
 div#alertBox {
   position: fixed;
-  bottom: 4rem;
+  bottom: 6rem;
   right: 1rem;
   width: 80%;
   max-width: 400px;
@@ -627,6 +624,12 @@ textarea.small {
   box-shadow: none !important;
 }
 
+.btn-dark:not(:disabled):not(.disabled):active:focus,
+.btn-dark:not(:disabled):not(.disabled).active:focus,
+.show > .btn-dark.dropdown-toggle:focus {
+  box-shadow: none !important;
+}
+
 .btn-light:not(:disabled):not(.disabled):active,
 .btn-light:not(:disabled):not(.disabled).active,
 .show > .btn-light.dropdown-toggle,
@@ -636,6 +639,14 @@ textarea.small {
   color: #fff;
   background-color: var(--mympd-highlightcolor, #28a745) !important;
   border-color: var(--mympd-highlightcolor, #28a745) !important;
+}
+
+.btn-dark:not(:disabled):not(.disabled):active,
+.btn-dark:not(:disabled):not(.disabled).active,
+.show > .btn-dark.dropdown-toggle {
+    color: #fff;
+    background-color: var(--mympd-highlightcolor, #28a745) !important;
+    border-color: var(--mympd-highlightcolor, #28a745) !important;
 }
 
 .btn-light:focus,
@@ -683,28 +694,8 @@ div.database-header {
   padding: 0.37rem 0.75rem !important;
 }
 
-@media (min-width: 576px) {
-  .container {
-    max-width: none;
-  }
-}
-
-@media (min-width: 768px) {
-  .container {
-    max-width: 960px;
-  }
-}
-
-@media (min-width: 992px) {
-  .container {
-    max-width: 960px;
-  }
-}
-
-@media (min-width: 1200px) {
-  .container {
-    max-width: 1140px;
-  }
+.container {
+  max-width: none;
 }
 
 div#playDropdown .row {

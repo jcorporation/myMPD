@@ -268,11 +268,16 @@ function clearBackgroundImage() {
 }
 
 function setCurrentCover(url) {
+    _setCurrentCover(url, domCache.currentCover);
+    _setCurrentCover(url, domCache.footerCover);
+}
+
+function _setCurrentCover(url, el) {
     if (url === undefined) {
         clearCurrentCover();
         return;
     }
-    let old = domCache.currentCover.querySelectorAll('.coverbg');
+    let old = el.querySelectorAll('.coverbg');
     for (let i = 0; i < old.length; i++) {
         if (old[i].style.zIndex === '2') {
             old[i].remove();        
@@ -286,17 +291,22 @@ function setCurrentCover(url) {
     div.classList.add('coverbg');
     div.style.backgroundImage = 'url("' + subdir + '/albumart/' + url + '")';
     div.style.opacity = 0;
-    domCache.currentCover.insertBefore(div, domCache.currentCover.firstChild);
+    el.insertBefore(div, el.firstChild);
 
     let img = new Image();
     img.onload = function() {
-        domCache.currentCover.querySelector('.coverbg').style.opacity = 1;
+        el.querySelector('.coverbg').style.opacity = 1;
     };
     img.src = subdir + '/albumart/' + url;
 }
 
-function clearCurrentCover() {
-    let old = domCache.currentCover.querySelectorAll('.coverbg');
+function clearCurrentCover(el) {
+    _clearCurrentCover(domCache.currentCover);
+    _clearCurrentCover(domCache.footerCover);
+}
+
+function _clearCurrentCover(el) {
+    let old = el.querySelectorAll('.coverbg');
     for (let i = 0; i < old.length; i++) {
         if (old[i].style.zIndex === '2') {
             old[i].remove();        
@@ -328,26 +338,33 @@ function songChange(obj) {
         textNotification += obj.result.Artist;
         htmlNotification += obj.result.Artist;
         pageTitle += obj.result.Artist + ' - ';
-    } 
+        domCache.footerArtist.innerText = obj.result.Artist;
+    }
+    else {
+        domCache.footerArtist.innerText = '';
+    }
 
     if (obj.result.Album !== undefined && obj.result.Album.length > 0 && obj.result.Album !== '-') {
         textNotification += ' - ' + obj.result.Album;
         htmlNotification += '<br/>' + obj.result.Album;
+        domCache.footerAlbum.innerText = obj.result.Album;
+    }
+    else {
+        domCache.footerAlbum.innerText = '';
     }
 
     if (obj.result.Title !== undefined && obj.result.Title.length > 0) {
         pageTitle += obj.result.Title;
         domCache.currentTitle.innerText = obj.result.Title;
         domCache.currentTitle.setAttribute('data-uri', encodeURI(obj.result.uri));
+        domCache.footerTitle.innerText = obj.result.Title;
     }
     else {
         domCache.currentTitle.innerText = '';
         domCache.currentTitle.setAttribute('data-uri', '');
+        domCache.footerTitle.innerText = '';
     }
     document.title = 'myMPD: ' + pageTitle;
-    let footerTitle = document.getElementById('footerTitle');
-    footerTitle.innerText = pageTitle;
-    footerTitle.title = pageTitle;
     
     if (obj.result.uri !== undefined && obj.result.uri !== '' && obj.result.uri.indexOf('://') === -1) {
         footerTitle.classList.add('clickable');
