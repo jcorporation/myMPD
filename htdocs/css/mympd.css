@@ -92,7 +92,6 @@ td[data-col=Action] {
   height: 100%;
   background-position: center center;
   background-size: cover;
-  top: 3.5rem;
   filter: blur(5px);
   transition: opacity 1s;
   z-index: -9;
@@ -136,6 +135,18 @@ td[data-col=Action] {
   }
   #navbar-main {
     flex-direction: column !important;
+  }
+}
+
+@media only screen and (max-width: 700px) {
+  .footerText {
+    display: none;
+  }
+  #counter {
+    display: none;
+  }
+  .ml-5 {
+    margin-left: 1rem !important;
   }
 }
 
@@ -828,3 +839,4 @@ a.text-success:focus {
 .btn-warning {
   background-color: #ffc107 !important;
 }
+

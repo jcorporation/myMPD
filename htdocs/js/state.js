@@ -339,18 +339,26 @@ function songChange(obj) {
         htmlNotification += obj.result.Artist;
         pageTitle += obj.result.Artist + ' - ';
         domCache.footerArtist.innerText = obj.result.Artist;
+        domCache.footerArtist.setAttribute('data-name', encodeURI(obj.result.Artist));
+        domCache.footerArtist.classList.add('clickable');
     }
     else {
         domCache.footerArtist.innerText = '';
+        domCache.footerArtist.setAttribute('data-name', '');
+        domCache.footerArtist.classList.remove('clickable');
     }
 
     if (obj.result.Album !== undefined && obj.result.Album.length > 0 && obj.result.Album !== '-') {
         textNotification += ' - ' + obj.result.Album;
         htmlNotification += '<br/>' + obj.result.Album;
         domCache.footerAlbum.innerText = obj.result.Album;
+        domCache.footerAlbum.setAttribute('data-name', encodeURI(obj.result.Album));
+        domCache.footerAlbum.classList.add('clickable');
     }
     else {
         domCache.footerAlbum.innerText = '';
+        domCache.footerAlbum.setAttribute('data-name', '');
+        domCache.footerAlbum.classList.remove('clickable');
     }
 
     if (obj.result.Title !== undefined && obj.result.Title.length > 0) {
@@ -358,13 +366,17 @@ function songChange(obj) {
         domCache.currentTitle.innerText = obj.result.Title;
         domCache.currentTitle.setAttribute('data-uri', encodeURI(obj.result.uri));
         domCache.footerTitle.innerText = obj.result.Title;
+        domCache.footerTitle.classList.add('clickable');
     }
     else {
         domCache.currentTitle.innerText = '';
         domCache.currentTitle.setAttribute('data-uri', '');
         domCache.footerTitle.innerText = '';
+        domCache.footerTitle.setAttribute('data-name', '');
+        domCache.footerTitle.classList.remove('clickable');        
     }
     document.title = 'myMPD: ' + pageTitle;
+    domCache.footerCover.title = pageTitle;
     
     if (obj.result.uri !== undefined && obj.result.uri !== '' && obj.result.uri.indexOf('://') === -1) {
         footerTitle.classList.add('clickable');

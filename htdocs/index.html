@@ -67,27 +67,27 @@
       </div>
       <div id="navbar-main" class="d-flex">
         <div id="navPlayback" class="nav-item flex-fill text-center">
-          <a data-title-phrase="Playback" data-href='{"cmd": "appGoto", "options": ["Playback"]}' class="nav-link" href="#">
+          <a data-title-phrase="Playback" data-href='{"cmd": "appGoto", "options": ["Playback"]}' class="nav-link text-light" href="#">
             <span class="material-icons">play_arrow</span><span class="footerText" data-phrase="Playback"></span>
           </a>
         </div>
         <div id="navQueue" class="nav-item flex-fill text-center">
-          <a data-title-phrase="Queue" data-href='{"cmd": "appGoto", "options": ["Queue"]}' class="nav-link" href="#">
+          <a data-title-phrase="Queue" data-href='{"cmd": "appGoto", "options": ["Queue"]}' class="nav-link text-light" href="#">
             <span class="material-icons">queue_music</span><span class="footerText" data-phrase="Queue"></span><span id="badgeQueueItems" class="badge badge-secondary"></span>
           </a>
         </div>
         <div id="navBrowse" class="nav-item flex-fill text-center">
-          <a data-title-phrase="Browse" data-href='{"cmd": "appGoto", "options": ["Browse"]}' class="nav-link" href="#">
+          <a data-title-phrase="Browse" data-href='{"cmd": "appGoto", "options": ["Browse"]}' class="nav-link text-light" href="#">
             <span class="material-icons">library_music</span><span class="footerText" data-phrase="Browse"></span>
           </a>
         </div>
         <div id="navSearch" class="nav-item flex-fill text-center">
-          <a data-title-phrase="Search" data-href='{"cmd": "appGoto", "options": ["Search"]}' class="nav-link" href="#">
+          <a data-title-phrase="Search" data-href='{"cmd": "appGoto", "options": ["Search"]}' class="nav-link text-light" href="#">
             <span class="material-icons">search</span><span class="footerText" data-phrase="Search"></span>
           </a>
         </div>
-        <div id="navState" class="nav-item dropright">
-          <a data-title-phrase="Connection state" class="dropdown-toggle material-icons nav-link alwaysEnabled" data-toggle="dropdown" href="#">chat_bubble_outline</a>
+        <div id="navState" class="nav-item dropdown">
+          <a data-title-phrase="Connection state" class="dropdown-toggle material-icons nav-link alwaysEnabled text-light" data-toggle="dropdown" href="#">chat_bubble_outline</a>
           <div id="stateDropup" class="dropdown-menu bg-lite-dark px-2">
             <div class="btn-toolbar">
               <button data-href='{"cmd": "clearLogOverview", "options": []}' data-title-phrase="Clear" class="btn btn-sm btn-secondary material-icons material-icons-small alwaysEnabled">clear_all</button>
@@ -701,7 +701,7 @@
         </div>
         <div>
           <span id="footerTitle" class="notclickable" data-href='{"cmd": "clickTitle", "options": []}'>Title</span><br/>
-          <span id="footerArtist">Artist</span>&nbsp;&ndash;&nbsp;<span id="footerAlbum">Album</span>
+          <span data-tag="Artist" id="footerArtist" data-href='{"cmd": "gotoBrowse", "options": []}'>Artist</span>&nbsp;&ndash;&nbsp;<span data-tag="Album" id="footerAlbum" data-href='{"cmd": "gotoBrowse", "options": []}'>Album</span>
         </div>
       </div>
       <div class="btn-toolbar nav-item flex-nowrap ml-5">

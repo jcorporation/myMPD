@@ -18,11 +18,21 @@ function getSelectValue(selectId) {
 }
 
 function alignDropdown(el) {
-    if (getXpos(el.children[0]) > domCache.body.offsetWidth * 0.66) {
-        el.getElementsByClassName('dropdown-menu')[0].classList.add('dropdown-menu-right');
+    const x = getXpos(el.children[0]);
+    
+    if (x < domCache.body.offsetWidth * 0.66) {
+        if (el.id === 'navState') {
+            el.classList.remove('dropdown');
+            el.classList.add('dropright');
+        }
+        else {
+            el.getElementsByClassName('dropdown-menu')[0].classList.remove('dropdown-menu-right');
+        }
     }
     else {
-        el.getElementsByClassName('dropdown-menu')[0].classList.remove('dropdown-menu-right');
+        el.getElementsByClassName('dropdown-menu')[0].classList.add('dropdown-menu-right');
+        el.classList.add('dropdown');
+        el.classList.remove('dropright');
     }
 }
 

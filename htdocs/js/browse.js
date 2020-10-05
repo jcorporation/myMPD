@@ -28,9 +28,14 @@ function navBrowseHandler(event) {
     }
 }
 
-function gotoBrowse(x) {
-    let tag = x.parentNode.getAttribute('data-tag');
-    let name = decodeURI(x.parentNode.getAttribute('data-name'));
+function gotoBrowse() {
+    let x = event.target;
+    let tag = x.getAttribute('data-tag');
+    let name = decodeURI(x.getAttribute('data-name'));
+    if (tag === null) {
+        tag = x.parentNode.getAttribute('data-tag');
+        name = decodeURI(x.parentNode.getAttribute('data-name'));
+    }
     if (tag !== '' && name !== '' && name !== '-' && settings.browsetags.includes(tag)) {
         appGoto('Browse', 'Database', 'List', '0/' + tag + '/AlbumArtist/Album/' + name);
     }

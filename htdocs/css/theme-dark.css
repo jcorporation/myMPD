@@ -71,15 +71,6 @@ body.theme-dark .modal-footer {
   border-color: #1d2124;
 }
 
-body.theme-dark .nav-link.active {
-  background-color: #1d2124 !important;
-  border-color: #1d2124 !important;
-}
-
-body.theme-dark .nav-link {
-  color: #f8f9fa !important;
-}
-
 body.theme-dark .highlight-hover:hover {
   color: var(--mympd-highlightcolor, #28a745) !important;
 }
@@ -210,3 +201,13 @@ body.theme-dark .form-control:disabled,
 body.theme-dark .form-control[readonly] {
   background-color: #6c757d;
 }
+
+body.theme-dark .nav-link {
+    color: #f8f9fa !important;
+}
+
+body.theme-dark .nav-link.active {
+  background-color: #1d2124 !important;
+  border-color: #1d2124 !important;
+}
+
