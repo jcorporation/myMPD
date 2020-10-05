@@ -150,11 +150,6 @@ td[data-col=Action] {
   }
 }
 
-footer {
-  position: absolute;
-  bottom: 0;
-}
-
 div#footerCover {
   width: 4rem;
   height: 4rem;
@@ -298,10 +293,6 @@ small {
   word-break: break-word;
   background-color: transparent !important;
   border: none;
-}
-
-.cardFooterPlayback {
-  padding: 0;
 }
 
 .album-cover {
@@ -750,10 +741,6 @@ a.text-success:focus {
 
 #dropdownAddSmartpls {
   white-space: nowrap;
-}
-
-.playback-toolbar {
-  margin-top: -0.25rem;
 }
 
 #navState > a::after {
