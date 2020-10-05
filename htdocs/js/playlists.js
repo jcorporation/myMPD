@@ -58,7 +58,7 @@ function parsePlaylists(obj) {
                 tbody.append(row);
             }
         }
-        document.getElementById('cardFooterBrowse').innerText = gtPage('Num playlists', obj.result.returnedEntities, obj.result.totalEntities);
+        //document.getElementById('cardFooterBrowse').innerText = gtPage('Num playlists', obj.result.returnedEntities, obj.result.totalEntities);
     }
     else if (app.current.view === 'Detail') {
         for (let i = 0; i < nrItems; i++) {
@@ -88,7 +88,7 @@ function parsePlaylists(obj) {
                 tbody.append(row);
             }
         }
-        document.getElementById('cardFooterBrowse').innerText = gtPage('Num songs', obj.result.returnedEntities, obj.result.totalEntities);
+        //document.getElementById('cardFooterBrowse').innerText = gtPage('Num songs', obj.result.returnedEntities, obj.result.totalEntities);
     }
     let trLen = tr.length - 1;
     for (let i = trLen; i >= nrItems; i --) {
@@ -118,7 +118,7 @@ function parsePlaylists(obj) {
 //eslint-disable-next-line no-unused-vars
 function playlistDetails(uri) {
     document.getElementById('BrowsePlaylistsAllList').classList.add('opacity05');
-    appGoto('Browse', 'Playlists', 'Detail', '0/-/-/' + uri);
+    appGoto('Browse', 'Playlists', 'Detail', '0/-/-/-/' + uri);
 }
 
 //eslint-disable-next-line no-unused-vars

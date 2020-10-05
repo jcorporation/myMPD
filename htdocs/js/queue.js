@@ -73,13 +73,13 @@ function parseQueue(obj) {
     }
 
     if (obj.result.totalTime && obj.result.totalTime > 0 && obj.result.totalEntities <= settings.maxElementsPerPage ) {
-        document.getElementById('cardFooterQueue').innerText = t('Num songs', obj.result.totalEntities) + ' – ' + beautifyDuration(obj.result.totalTime);
+        //document.getElementById('cardFooterQueue').innerText = t('Num songs', obj.result.totalEntities) + ' – ' + beautifyDuration(obj.result.totalTime);
     }
     else if (obj.result.totalEntities > 0) {
-        document.getElementById('cardFooterQueue').innerText = t('Num songs', obj.result.totalEntities);
+        //document.getElementById('cardFooterQueue').innerText = t('Num songs', obj.result.totalEntities);
     }
     else {
-        document.getElementById('cardFooterQueue').innerText = '';
+        //document.getElementById('cardFooterQueue').innerText = '';
     }
 
     let nrItems = obj.result.returnedEntities;
@@ -139,7 +139,7 @@ function parseQueue(obj) {
 }
 
 function parseLastPlayed(obj) {
-    document.getElementById('cardFooterQueue').innerText = t('Num songs', obj.result.totalEntities);
+    //document.getElementById('cardFooterQueue').innerText = t('Num songs', obj.result.totalEntities);
     let nrItems = obj.result.returnedEntities;
     let table = document.getElementById('QueueLastPlayedList');
     let navigate = document.activeElement.parentNode.parentNode === table ? true : false;

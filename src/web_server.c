@@ -30,6 +30,7 @@
 #include "web_server/web_server_utility.h"
 #include "web_server/web_server_albumart.h"
 #include "web_server/web_server_lyrics.h"
+#include "web_server/web_server_tagpics.h"
 #include "web_server.h"
 
 //private definitions
@@ -318,6 +319,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             static const struct mg_str browse_prefix = MG_MK_STR("/browse");
             static const struct mg_str albumart_prefix = MG_MK_STR("/albumart");
             static const struct mg_str lyrics_prefix = MG_MK_STR("/lyrics");
+            static const struct mg_str tagpics_prefix = MG_MK_STR("/tagpics");
             LOG_VERBOSE("HTTP request (%d): %.*s", (intptr_t)nc->user_data, (int)hm->uri.len, hm->uri.p);
             if (mg_vcmp(&hm->uri, "/api/script") == 0) {
                 if (config->remotescripting == false) {
@@ -395,6 +397,9 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             }
             else if (mg_str_starts_with(hm->uri, lyrics_prefix) == 1) {
                 handle_lyrics(nc, hm, mg_user_data, config, (intptr_t)nc->user_data);
+            }
+            else if (mg_str_starts_with(hm->uri, tagpics_prefix) == 1) {
+                handle_tagpics(nc, hm, mg_user_data, config, (intptr_t)nc->user_data);
             }
             else if (mg_str_starts_with(hm->uri, browse_prefix) == 1) {
                 if (config->publish == false) {

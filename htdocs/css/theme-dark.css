@@ -10,6 +10,12 @@ body.theme-dark .btn {
   color: #f8f9fa;
 }
 
+body.theme-dark .btn:hover,
+body.theme-dark .btn:focus
+ {
+  border-color: transparent;
+}
+
 body.theme-dark .btn-light {
   border-color: #343a40;
 }
@@ -72,6 +78,10 @@ body.theme-dark .nav-link.active {
 
 body.theme-dark .nav-link {
   color: #f8f9fa !important;
+}
+
+body.theme-dark .highlight-hover:hover {
+  color: var(--mympd-highlightcolor, #28a745) !important;
 }
 
 body.theme-dark .text-dark:hover {

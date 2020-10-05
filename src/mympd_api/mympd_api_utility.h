@@ -84,7 +84,7 @@ typedef struct t_mympd_state {
     bool coverimage;
     sds coverimage_name;
     int coverimage_size;
-    int covergrid_size;
+    int coverimage_size_small;
     sds locale;
     sds music_directory;
     sds theme;

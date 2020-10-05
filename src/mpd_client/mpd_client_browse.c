@@ -4,11 +4,14 @@
  https://github.com/jcorporation/mympd
 */
 
+#define _GNU_SOURCE 
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
 #include <ctype.h>
+#include <dirent.h>
 #include <mpd/client.h>
 
 #include "../../dist/src/sds/sds.h"
@@ -217,75 +220,6 @@ sds mpd_client_put_filesystem(t_config *config, t_mpd_client_state *mpd_client_s
     return buffer;
 }
 
-sds mpd_client_put_db_tag(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id,
-                          const unsigned int offset, const char *mpdtagtype, const char *mpdsearchtagtype, const char *searchstr, const char *filter)
-{
-    buffer = jsonrpc_start_result(buffer, method, request_id);
-    buffer = sdscat(buffer, ",\"data\":[");
-    
-    bool rc = mpd_search_db_tags(mpd_client_state->mpd_state->conn, mpd_tag_name_parse(mpdtagtype));
-    if (check_rc_error_and_recover(mpd_client_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_db_tags") == false) {
-        mpd_search_cancel(mpd_client_state->mpd_state->conn);
-        return buffer;
-    }
-    
-    if (mpd_tag_name_parse(mpdsearchtagtype) != MPD_TAG_UNKNOWN) {
-        rc = mpd_search_add_tag_constraint(mpd_client_state->mpd_state->conn, MPD_OPERATOR_DEFAULT, mpd_tag_name_parse(mpdsearchtagtype), searchstr);
-        if (check_rc_error_and_recover(mpd_client_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_tag_constraint") == false) {
-            mpd_search_cancel(mpd_client_state->mpd_state->conn);
-            return buffer;
-        }
-    }
-            
-    rc = mpd_search_commit(mpd_client_state->mpd_state->conn);
-    if (check_rc_error_and_recover(mpd_client_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_commit") == false) {
-        return buffer;
-    }
-
-    struct mpd_pair *pair;
-    unsigned entity_count = 0;
-    unsigned entities_returned = 0;
-    while ((pair = mpd_recv_pair_tag(mpd_client_state->mpd_state->conn, mpd_tag_name_parse(mpdtagtype))) != NULL) {
-        entity_count++;
-        if (entity_count > offset && entity_count <= offset + mpd_client_state->max_elements_per_page) {
-            if (strcmp(pair->value, "") == 0) {
-                entity_count--;
-            }
-            else if (strncmp(filter, "-", 1) == 0 || strncasecmp(filter, pair->value, 1) == 0 ||
-                    (strncmp(filter, "0", 1) == 0 && isalpha(*pair->value) == 0 )) 
-            {
-                if (entities_returned++) {
-                    buffer = sdscat(buffer, ",");
-                }
-                buffer = sdscat(buffer, "{");
-                buffer = tojson_char(buffer, "type", mpdtagtype, true);
-                buffer = tojson_char(buffer, "value", pair->value, false);
-                buffer = sdscat(buffer, "}");
-            }
-            else {
-                entity_count--;
-            }
-        }
-        mpd_return_pair(mpd_client_state->mpd_state->conn, pair);
-    }
-
-    mpd_response_finish(mpd_client_state->mpd_state->conn);
-    if (check_error_and_recover2(mpd_client_state->mpd_state, &buffer, method, request_id, false) == false) {
-        return buffer;
-    }
-
-    buffer = sdscat(buffer, "],");
-    buffer = tojson_long(buffer, "totalEntities", entity_count, true);
-    buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
-    buffer = tojson_long(buffer, "offset", offset, true);
-    buffer = tojson_char(buffer, "filter", filter, true);
-    buffer = tojson_char(buffer, "searchstr", searchstr, true);
-    buffer = tojson_char(buffer, "searchtagtype", mpdsearchtagtype, true);
-    buffer = tojson_char(buffer, "tagtype", mpdtagtype, false);
-    buffer = jsonrpc_end_result(buffer);
-    return buffer;
-}
-
 sds mpd_client_put_songs_in_album(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id,
                                   const char *album, const char *search, const char *tag, const t_tags *tagcols)
 {
@@ -363,7 +297,7 @@ sds mpd_client_put_songs_in_album(t_mpd_client_state *mpd_client_state, sds buff
 }
 
 sds mpd_client_put_firstsong_in_albums(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, 
-                                       const char *searchstr, const char *tag, const char *sort, bool sortdesc, const unsigned int offset)
+                                       const char *searchstr, const char *filter, const char *sort, bool sortdesc, const unsigned int offset)
 {
     buffer = jsonrpc_start_result(buffer, method, request_id);
     buffer = sdscat(buffer, ",\"data\":[");
@@ -376,11 +310,11 @@ sds mpd_client_put_firstsong_in_albums(t_config *config, t_mpd_client_state *mpd
     
     sds expression = sdscatprintf(sdsempty(), "((Track == '%d')", config->covergridminsongs);
     unsigned long searchstr_len = strlen(searchstr);
-    if (config->regex == true && searchstr_len > 0 && searchstr_len <= 2 && strlen(tag) > 0) {
-        expression = sdscatfmt(expression, " AND (%s =~ '^%s')", tag, searchstr);
+    if (config->regex == true && searchstr_len > 0 && searchstr_len <= 2 && strlen(filter) > 0) {
+        expression = sdscatfmt(expression, " AND (%s =~ '^%s')", filter, searchstr);
     }
-    else if (strlen(searchstr) > 0 && strlen(tag) > 0) {
-        expression = sdscatfmt(expression, " AND (%s contains '%s')", tag, searchstr);
+    else if (strlen(searchstr) > 0 && strlen(filter) > 0) {
+        expression = sdscatfmt(expression, " AND (%s contains '%s')", filter, searchstr);
     }
     expression = sdscat(expression, ")");
     
@@ -448,8 +382,89 @@ sds mpd_client_put_firstsong_in_albums(t_config *config, t_mpd_client_state *mpd
 
     buffer = sdscat(buffer, "],");
     buffer = tojson_long(buffer, "totalEntities", -1, true);
-    buffer = tojson_long(buffer, "returnedEntities", entities_returned, false);
+    buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
+    buffer = tojson_long(buffer, "offset", offset, true);
+    buffer = tojson_char(buffer, "filter", filter, true);
+    buffer = tojson_char(buffer, "searchstr", searchstr, true);
+    buffer = tojson_char(buffer, "sort", sort, true);
+    buffer = tojson_bool(buffer, "sortdesc", sortdesc, true);
+    buffer = tojson_char(buffer, "tag", "Album", false);
     buffer = jsonrpc_end_result(buffer);
         
     return buffer;    
+}
+
+sds mpd_client_put_db_tag2(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, 
+                           const char *searchstr, const char *filter, const char *sort, bool sortdesc, const unsigned int offset, const char *tag)
+{
+    (void) sort;
+    (void) sortdesc;
+    int searchstr_len = strlen(searchstr);
+    buffer = jsonrpc_start_result(buffer, method, request_id);
+    buffer = sdscat(buffer, ",\"data\":[");
+   
+    bool rc = mpd_search_db_tags(mpd_client_state->mpd_state->conn, mpd_tag_name_parse(tag));
+    if (check_rc_error_and_recover(mpd_client_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_db_tags") == false) {
+        mpd_search_cancel(mpd_client_state->mpd_state->conn);
+        return buffer;
+    }
+    
+    rc = mpd_search_commit(mpd_client_state->mpd_state->conn);
+    if (check_rc_error_and_recover(mpd_client_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_commit") == false) {
+        return buffer;
+    }
+
+    struct mpd_pair *pair;
+    unsigned entity_count = 0;
+    unsigned entities_returned = 0;
+    enum mpd_tag_type mpdtag = mpd_tag_name_parse(tag);
+    while ((pair = mpd_recv_pair_tag(mpd_client_state->mpd_state->conn, mpdtag)) != NULL) {
+        entity_count++;
+        if (entity_count > offset && entity_count <= offset + mpd_client_state->max_elements_per_page) {
+            if (strcmp(pair->value, "") == 0) {
+                entity_count--;
+            }
+            else if (searchstr_len == 0
+                     || (searchstr_len <= 2 && strncasecmp(searchstr, pair->value, searchstr_len) == 0)
+                     || (searchstr_len > 2 && strcasestr(pair->value, searchstr) != NULL))
+            {
+                if (entities_returned++) {
+                    buffer = sdscat(buffer, ",");
+                }
+                buffer = sdscat(buffer, "{");
+                buffer = tojson_char(buffer, "value", pair->value, false);
+                buffer = sdscat(buffer, "}");
+            }
+            else {
+                entity_count--;
+            }
+        }
+        mpd_return_pair(mpd_client_state->mpd_state->conn, pair);
+    }
+    mpd_response_finish(mpd_client_state->mpd_state->conn);
+    if (check_error_and_recover2(mpd_client_state->mpd_state, &buffer, method, request_id, false) == false) {
+        return buffer;
+    }
+
+    sds pic_path = sdscatfmt(sdsempty(), "%s/pics/%s", config->varlibdir, tag);
+    bool pic = false;
+    DIR* dir = opendir(pic_path);
+    if (dir) {
+        closedir(dir);
+        pic = true;
+    }
+    sdsfree(pic_path);
+
+    buffer = sdscat(buffer, "],");
+    buffer = tojson_long(buffer, "totalEntities", -1, true);
+    buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
+    buffer = tojson_long(buffer, "offset", offset, true);
+    buffer = tojson_char(buffer, "filter", filter, true);
+    buffer = tojson_char(buffer, "searchstr", searchstr, true);
+    buffer = tojson_char(buffer, "sort", sort, true);
+    buffer = tojson_bool(buffer, "sortdesc", sortdesc, true);
+    buffer = tojson_char(buffer, "tag", tag, true);
+    buffer = tojson_bool(buffer, "pics", pic, false);
+    buffer = jsonrpc_end_result(buffer);
+    return buffer;
 }

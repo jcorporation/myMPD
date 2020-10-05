@@ -21,15 +21,15 @@ function search(x) {
             expression += ')';
         if (expression.length <= 2)
             expression = '';
-        appGoto('Search', undefined, undefined, '0/' + app.current.filter + '/' + app.current.sort + '/' + expression);
+        appGoto('Search', undefined, undefined, '0/' + app.current.filter + '/' + app.current.sort + '/-/' + expression);
     }
     else
-        appGoto('Search', undefined, undefined, '0/' + app.current.filter + '/' + app.current.sort + '/' + x);
+        appGoto('Search', undefined, undefined, '0/' + app.current.filter + '/' + app.current.sort + '/-/' + x);
 }
 
 function parseSearch(obj) {
-    document.getElementById('panel-heading-search').innerText = gtPage('Num songs', obj.result.returnedEntities, obj.result.totalEntities);
-    document.getElementById('cardFooterSearch').innerText = gtPage('Num songs', obj.result.returnedEntities, obj.result.totalEntities);
+    //document.getElementById('panel-heading-search').innerText = gtPage('Num songs', obj.result.returnedEntities, obj.result.totalEntities);
+    //document.getElementById('cardFooterSearch').innerText = gtPage('Num songs', obj.result.returnedEntities, obj.result.totalEntities);
     
     if (obj.result.returnedEntities > 0) {
         document.getElementById('searchAddAllSongs').removeAttribute('disabled');

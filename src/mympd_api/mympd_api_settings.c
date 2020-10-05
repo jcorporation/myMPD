@@ -37,7 +37,7 @@ void mympd_api_settings_delete(t_config *config) {
         "jukebox_unique_tag", "jukebox_last_played", "generate_pls_tags", "smartpls_sort", "smartpls_prefix", "smartpls_interval",
         "last_played", "last_played_count", "locale", "localplayer", "love", "love_channel", "love_message",
         "max_elements_per_page",  "mpd_host", "mpd_pass", "mpd_port", "notification_page", "notification_web", "searchtaglist",
-        "smartpls", "stickers", "stream_port", "stream_url", "taglist", "music_directory", "bookmarks", "bookmark_list", "covergrid_size", 
+        "smartpls", "stickers", "stream_port", "stream_url", "taglist", "music_directory", "bookmarks", "bookmark_list", "coverimage_size_small", 
         "theme", "timer", "highlight_color", "media_session", "booklet_name", "lyrics", 0};
     const char** ptr = state_files;
     while (*ptr != 0) {
@@ -102,7 +102,7 @@ bool mympd_api_cols_save(t_config *config, t_mympd_state *mympd_state, const cha
         mympd_state->cols_search = sdsreplace(mympd_state->cols_search, cols);
         tablename = sdsreplace(tablename, "cols_search");
     }
-    else if (strcmp(table, "colsBrowseDatabase") == 0) {
+    else if (strcmp(table, "colsBrowseDatabaseDetail") == 0) {
         mympd_state->cols_browse_database = sdsreplace(mympd_state->cols_browse_database, cols);
         tablename = sdsreplace(tablename, "cols_browse_database");
     }
@@ -172,9 +172,9 @@ bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state, struct
         mympd_state->coverimage_size = strtoimax(settingvalue, &crap, 10);
         settingname = sdscat(settingname, "coverimage_size");
     }
-    else if (strncmp(key->ptr, "covergridSize", key->len) == 0) {
-        mympd_state->covergrid_size = strtoimax(settingvalue, &crap, 10);
-        settingname = sdscat(settingname, "covergrid_size");
+    else if (strncmp(key->ptr, "coverimageSizeSmall", key->len) == 0) {
+        mympd_state->coverimage_size_small = strtoimax(settingvalue, &crap, 10);
+        settingname = sdscat(settingname, "coverimage_size_small");
     }
     else if (strncmp(key->ptr, "bookletName", key->len) == 0) {
         mympd_state->booklet_name = sdsreplacelen(mympd_state->booklet_name, settingvalue, sdslen(settingvalue));
@@ -404,7 +404,7 @@ void mympd_api_read_statefiles(t_config *config, t_mympd_state *mympd_state) {
     mympd_state->coverimage = state_file_rw_bool(config, "coverimage", config->coverimage, false);
     mympd_state->coverimage_name = state_file_rw_string(config, "coverimage_name", config->coverimage_name, false);
     mympd_state->coverimage_size = state_file_rw_int(config, "coverimage_size", config->coverimage_size, false);
-    mympd_state->covergrid_size = state_file_rw_int(config, "covergrid_size", config->covergrid_size, false);
+    mympd_state->coverimage_size_small = state_file_rw_int(config, "coverimage_size_small", config->coverimage_size_small, false);
     mympd_state->locale = state_file_rw_string(config, "locale", config->locale, false);
     mympd_state->music_directory = state_file_rw_string(config, "music_directory", config->music_directory, false);
     mympd_state->bookmarks = state_file_rw_bool(config, "bookmarks", config->bookmarks, false);
@@ -530,7 +530,7 @@ sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buf
     buffer = tojson_bool(buffer, "coverimage", mympd_state->coverimage, true);
     buffer = tojson_char(buffer, "coverimageName", mympd_state->coverimage_name, true);
     buffer = tojson_long(buffer, "coverimageSize", mympd_state->coverimage_size, true);
-    buffer = tojson_long(buffer, "covergridSize", mympd_state->covergrid_size, true);
+    buffer = tojson_long(buffer, "coverimageSizeSmall", mympd_state->coverimage_size_small, true);
     buffer = tojson_bool(buffer, "featMixramp", config->mixramp, true);
     buffer = tojson_long(buffer, "maxElementsPerPage", mympd_state->max_elements_per_page, true);
     buffer = tojson_bool(buffer, "notificationWeb", mympd_state->notification_web, true);
@@ -571,7 +571,7 @@ sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buf
     buffer = tojson_bool(buffer, "featScripteditor", config->scripteditor, true);
     buffer = sdscatfmt(buffer, "\"colsQueueCurrent\":%s,", mympd_state->cols_queue_current);
     buffer = sdscatfmt(buffer, "\"colsSearch\":%s,", mympd_state->cols_search);
-    buffer = sdscatfmt(buffer, "\"colsBrowseDatabase\":%s,", mympd_state->cols_browse_database);
+    buffer = sdscatfmt(buffer, "\"colsBrowseDatabaseDetail\":%s,", mympd_state->cols_browse_database);
     buffer = sdscatfmt(buffer, "\"colsBrowsePlaylistsDetail\":%s,", mympd_state->cols_browse_playlists_detail);
     buffer = sdscatfmt(buffer, "\"colsBrowseFilesystem\":%s,", mympd_state->cols_browse_filesystem);
     buffer = sdscatfmt(buffer, "\"colsPlayback\":%s,", mympd_state->cols_playback);
