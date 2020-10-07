@@ -129,6 +129,7 @@ typedef struct t_config {
     sds lualibs;
     bool scripteditor;
     bool partitions;
+    bool footer_stop;
     //system commands
     struct list syscmd_list;
 } t_config;

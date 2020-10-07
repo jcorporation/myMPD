@@ -12,10 +12,20 @@ function parseUpdateQueue(obj) {
             domCache.btnsPlay[i].innerText = 'play_arrow';
         }
         playstate = 'stop';
+        domCache.progressBar.style.transition = 'none';
+        domCache.progressBar.style.width = '0px';
+        setTimeout(function() {
+            domCache.progressBar.style.transition = progressBarTransition;
+        }, 10);
     }
     else if (obj.result.state === 2) {
         for (let i = 0; i < domCache.btnsPlayLen; i++) {
-            domCache.btnsPlay[i].innerText = 'pause';
+            if (settings.footerStop === true) {
+                domCache.btnsPlay[i].innerText = 'stop';
+            }
+            else {
+                domCache.btnsPlay[i].innerText = 'pause';
+            }
         }
         playstate = 'play';
     }

@@ -15,7 +15,6 @@ function navBrowseHandler(event) {
         
         if (app.current.app === 'Browse' && app.current.tab !== 'Database') {
             let view = app.apps.Browse.tabs.Database.active;
-            console.log(view);
             appGoto('Browse', 'Database', view);
             return;
         }
@@ -270,23 +269,46 @@ function parseDatabase(obj) {
                 }
             }, false);
             col.firstChild.addEventListener('keydown', function(event) {
+                let handled = false;
                 if (event.key === 'Enter') {
                     if (app.current.tag === 'Album') {
                         appGoto('Browse', 'Database', 'Detail', '0/Album/AlbumArtist/' + 
-                            decodeURI(event.target.parentNode.getAttribute('data-album')) + 
-                            '/' + decodeURI(event.target.parentNode.getAttribute('data-albumartist')));
+                            decodeURI(event.target.getAttribute('data-album')) + 
+                            '/' + decodeURI(event.target.getAttribute('data-albumartist')));
                     }
                     else {
                         appGoto(app.current.app, app.current.card, undefined, '0/' + app.current.tag + 
-                        '/AlbumArtist/Album/' + decodeURI(event.target.parentNode.getAttribute('data-tag')));
+                        '/AlbumArtist/Album/' + decodeURI(event.target.getAttribute('data-tag')));
                     }
-                    event.stopPropagation();
-                    event.preventDefault();
+                    handled = true;
                 }
                 else if (event.key === ' ') {
                     if (app.current.tag === 'Album') {
                         showMenu(event.target.getElementsByClassName('card-footer')[0], event);
                     }
+                    handled = true;
+                }
+                else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+                    const cur = event.target;
+                    const next = event.key === 'ArrowDown' ? (event.target.parentNode.nextElementSibling !== null ? event.target.parentNode.nextElementSibling.firstChild : null)
+                                                           : (event.target.parentNode.previousElementSibling != null ? event.target.parentNode.previousElementSibling.firstChild : null);
+                    if (next != null) {
+                        next.focus();
+                        cur.classList.remove('selected');
+                        next.classList.add('selected');
+                        handled = true;
+                        if (cur.getBoundingClientRect().top != next.getBoundingClientRect().top) {
+                            scrollFocusIntoView();
+                        }
+                    }
+                }
+                else if (event.key === 'Escape') {
+                    const cur = event.target;
+                    cur.blur();
+                    cur.classList.remove('selected');
+                    handled = true;
+                }
+                if (handled === true) {
                     event.stopPropagation();
                     event.preventDefault();
                 }

@@ -569,6 +569,7 @@ sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buf
     buffer = tojson_bool(buffer, "featLyrics", mympd_state->lyrics, true);
     buffer = tojson_bool(buffer, "featScripting", config->scripting, true);
     buffer = tojson_bool(buffer, "featScripteditor", config->scripteditor, true);
+    buffer = tojson_bool(buffer, "footerStop", config->footer_stop, true);
     buffer = sdscatfmt(buffer, "\"colsQueueCurrent\":%s,", mympd_state->cols_queue_current);
     buffer = sdscatfmt(buffer, "\"colsSearch\":%s,", mympd_state->cols_search);
     buffer = sdscatfmt(buffer, "\"colsBrowseDatabaseDetail\":%s,", mympd_state->cols_browse_database);

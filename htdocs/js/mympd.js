@@ -35,6 +35,7 @@ var locale = navigator.language || navigator.userLanguage;
 var scale = '1.0';
 var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 var ligatureMore = 'menu';
+var progressBarTransition = 'width 1s linear';
 
 var app = {};
 app.apps = { "Playback":   { "state": "0/-/-/-/", "scrollPos": 0 },
@@ -80,6 +81,7 @@ domCache.btnPrev = document.getElementById('btnPrev');
 domCache.btnNext = document.getElementById('btnNext');
 domCache.progress = document.getElementById('footerProgress');
 domCache.progressBar = document.getElementById('footerProgressBar');
+domCache.progressPos = document.getElementById('footerProgressPos')
 domCache.volumeBar = document.getElementById('volumeBar');
 domCache.outputs = document.getElementById('outputs');
 domCache.btnA2HS = document.getElementById('nav-add2homescreen');
@@ -571,15 +573,27 @@ function appInit() {
         sendAPI("MPD_API_PLAYER_VOLUME_SET", {"volume": domCache.volumeBar.value});
     }, false);
 
-    domCache.progressBar.setAttribute('aria-valuenow', '0');
-    document.getElementById('footerProgress').addEventListener('click', function(event) {
+    domCache.progress.addEventListener('click', function(event) {
         if (currentSong && currentSong.currentSongId >= 0) {
+            domCache.progressBar.style.transition = 'none';
             domCache.progressBar.style.width = event.clientX + 'px';
+            setTimeout(function() {
+                domCache.progressBar.style.transition = progressBarTransition;
+            }, 10)
             const seekVal = Math.ceil((currentSong.totalTime * event.clientX) / event.target.offsetWidth);
             sendAPI("MPD_API_PLAYER_SEEK", {"songid": currentSong.currentSongId, "seek": seekVal});
         }
     }, false);
-
+    domCache.progress.addEventListener('mousemove', function(event) {
+        if (playstate === 'pause' || playstate === 'play') {
+	    domCache.progressPos.innerText = beautifySongDuration(Math.ceil((currentSong.totalTime / event.target.offsetWidth) * event.clientX));
+	    domCache.progressPos.style.display = 'block';
+	    domCache.progressPos.style.left = event.clientX + 'px';
+        }
+    }, false);
+    domCache.progress.addEventListener('mouseout', function(event) {
+        domCache.progressPos.style.display = 'none';
+    }, false);
 
     let collapseArrows = document.querySelectorAll('.subMenu');
     let collapseArrowsLen = collapseArrows.length;

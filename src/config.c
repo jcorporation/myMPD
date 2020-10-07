@@ -272,6 +272,9 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("mympd", "partitions")) {
         p_config->partitions = strtobool(value);
     }
+    else if (MATCH("mympd", "footerstop")) {
+        p_config->footer_stop = strtobool(value);
+    }
     else if (MATCH("theme", "theme")) {
         p_config->theme = sdsreplace(p_config->theme, value);
     }
@@ -357,7 +360,7 @@ static void mympd_get_env(struct t_config *config) {
         "MYMPD_COLSBROWSEFILESYSTEM", "MYMPD_COLSPLAYBACK", "MYMPD_COLSQUEUELASTPLAYED",
         "MYMPD_LOCALPLAYER", "MYMPD_STREAMPORT",
         "MYMPD_STREAMURL", "MYMPD_VOLUMESTEP", "MYMPD_COVERCACHEKEEPDAYS", "MYMPD_COVERCACHE",
-        "MYMPD_COVERCACHEAVOID", "MYMPD_LYRICS", "MYMPD_PARTITIONS",
+        "MYMPD_COVERCACHEAVOID", "MYMPD_LYRICS", "MYMPD_PARTITIONS", "MYMPD_FOOTERSTOP",
       #ifdef ENABLE_LUA
         "MYMPD_SCRIPTING", "MYMPD_REMOTESCRIPTING", "MYMPD_LUALIBS", "MYMPD_SCRIPTEDITOR",
       #endif
@@ -507,6 +510,7 @@ void mympd_config_defaults(t_config *config) {
     config->lualibs = sdsnew("base, string, utf8, table, math, mympd");
     config->scripteditor = false;
     config->partitions = false;
+    config->footer_stop = false;
     list_init(&config->syscmd_list);
 }
 
@@ -631,6 +635,7 @@ bool mympd_dump_config(void) {
         "mounts = %s\n"
         "lyrics = %s\n"
         "partitions = %s\n"
+        "footerstop = %s\n"
         "\n",
         p_config->user,
         (p_config->chroot == true ? "true" : "false"),
@@ -688,7 +693,8 @@ bool mympd_dump_config(void) {
         p_config->booklet_name,
         (p_config->mounts == true ? "true" : "false"),
         (p_config->lyrics == true ? "true" : "false"),
-        (p_config->partitions == true ? "true" : "false")
+        (p_config->partitions == true ? "true" : "false"),
+        (p_config->footer_stop == true ? "true" : "false")
     );
 
     fprintf(fp, "[theme]\n"

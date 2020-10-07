@@ -68,22 +68,22 @@
       <div id="navbar-main" class="d-flex">
         <div id="navPlayback" class="nav-item flex-fill text-center">
           <a data-title-phrase="Playback" data-href='{"cmd": "appGoto", "options": ["Playback"]}' class="nav-link text-light" href="#">
-            <span class="material-icons">play_arrow</span><span class="footerText" data-phrase="Playback"></span>
+            <span class="material-icons">play_arrow</span><span class="navText" data-phrase="Playback"></span>
           </a>
         </div>
         <div id="navQueue" class="nav-item flex-fill text-center">
           <a data-title-phrase="Queue" data-href='{"cmd": "appGoto", "options": ["Queue"]}' class="nav-link text-light" href="#">
-            <span class="material-icons">queue_music</span><span class="footerText" data-phrase="Queue"></span><span id="badgeQueueItems" class="badge badge-secondary"></span>
+            <span class="material-icons">queue_music</span><span class="navText navTextQueue" data-phrase="Queue"></span><span id="badgeQueueItems" class="badge badge-secondary"></span>
           </a>
         </div>
         <div id="navBrowse" class="nav-item flex-fill text-center">
           <a data-title-phrase="Browse" data-href='{"cmd": "appGoto", "options": ["Browse"]}' class="nav-link text-light" href="#">
-            <span class="material-icons">library_music</span><span class="footerText" data-phrase="Browse"></span>
+            <span class="material-icons">library_music</span><span class="navText" data-phrase="Browse"></span>
           </a>
         </div>
         <div id="navSearch" class="nav-item flex-fill text-center">
           <a data-title-phrase="Search" data-href='{"cmd": "appGoto", "options": ["Search"]}' class="nav-link text-light" href="#">
-            <span class="material-icons">search</span><span class="footerText" data-phrase="Search"></span>
+            <span class="material-icons">search</span><span class="navText" data-phrase="Search"></span>
           </a>
         </div>
         <div id="navState" class="nav-item dropdown">
@@ -261,7 +261,7 @@
         </div>
         <div class="btn-toolbar hide" id="QueueCurrentButtonsBottom">
           <div class="btn-group mr-2">
-            <button type="button" class="btn btn-secondary material-icons" data-href='{"cmd": "scrollTo", "options: [0]}' data-title-phrase="To top">keyboard_arrow_up</button>
+            <button type="button" class="btn btn-secondary material-icons" data-href='{"cmd": "scrollToPosY", "options: [0]}' data-title-phrase="To top">keyboard_arrow_up</button>
           </div>        
           <div id="QueueCurrentPaginationBottom" class="btn-group mr-2 dropup">
             <button data-title-phrase="Previous page" data-href='{"cmd": "gotoPage", "options": ["prev"]}' type="button" class="btn btn-group-prepend btn-secondary">&laquo;</button>
@@ -313,7 +313,7 @@
         </div>
         <div class="btn-toolbar hide" id="QueueLastPlayedButtonsBottom">
           <div class="btn-group mr-2">
-            <button type="button" class="btn btn-secondary material-icons" data-href='{"cmd": "scrollTo", "options: [0]}' data-title-phrase="To top">keyboard_arrow_up</button>
+            <button type="button" class="btn btn-secondary material-icons" data-href='{"cmd": "scrollToPosY", "options: [0]}' data-title-phrase="To top">keyboard_arrow_up</button>
           </div>        
           <div id="QueueLastPlayedPaginationBottom" class="btn-group mr-2 dropup">
             <button data-title-phrase="Previous page" data-href='{"cmd": "gotoPage", "options": ["prev"]}' type="button" class="btn btn-group-prepend btn-secondary">&laquo;</button>
@@ -410,7 +410,7 @@
         </div>
         <div class="btn-toolbar hide" id="BrowsePlaylistsButtonsBottom">
           <div class="btn-group mr-2">
-            <button type="button" class="btn btn-secondary material-icons" data-href='{"cmd": "scrollTo", "options": [0]}' data-title-phrase="To top">
+            <button type="button" class="btn btn-secondary material-icons" data-href='{"cmd": "scrollToPosY", "options": [0]}' data-title-phrase="To top">
               keyboard_arrow_up
             </button>
           </div>        
@@ -478,7 +478,7 @@
           </div>
           <div class="btn-toolbar hide" id="BrowseDatabaseButtonsBottom">
             <div class="btn-group mr-2">
-              <button data-title-phrase="To top" type="button" class="btn btn-secondary material-icons" data-href='{"cmd": "scrollTo", "options": [0]}'>keyboard_arrow_up</button>
+              <button data-title-phrase="To top" type="button" class="btn btn-secondary material-icons" data-href='{"cmd": "scrollToPosY", "options": [0]}'>keyboard_arrow_up</button>
             </div>        
             <div id="BrowseDatabasePaginationBottom" class="btn-group dropup">
               <button data-title-phrase="Previous page" data-href='{"cmd": "gotoPage", "options": ["prev"]}' type="button" class="btn btn-group-prepend btn-secondary">&laquo;</button>
@@ -583,7 +583,7 @@
         </div>
         <div class="btn-toolbar hide" id="BrowseFilesystemButtonsBottom">
           <div class="btn-group mr-2">
-            <button data-title-phrase="To top" type="button" class="btn btn-secondary material-icons" data-href='{"cmd": "scrollTo", "options": [0]}'>keyboard_arrow_up</button>
+            <button data-title-phrase="To top" type="button" class="btn btn-secondary material-icons" data-href='{"cmd": "scrollToPosY", "options": [0]}'>keyboard_arrow_up</button>
           </div>        
           <div id="BrowseFilesystemPaginationBottom" class="btn-group mr-2 dropup">
             <button data-title-phrase="Previous page" data-href='{"cmd": "gotoPage", "options": ["prev"]}' type="button" class="btn btn-group-prepend btn-secondary">&laquo;</button>
@@ -664,7 +664,7 @@
         </div>
         <div class="btn-toolbar hide" id="SearchButtonsBottom">
           <div class="btn-group mr-2">
-            <button data-title-phrase="To top" type="button" class="btn btn-secondary material-icons" data-href='{"cmd": "scrollTo", "options": [0]}'>keyboard_arrow_up</button>
+            <button data-title-phrase="To top" type="button" class="btn btn-secondary material-icons" data-href='{"cmd": "scrollToPosY", "options": [0]}'>keyboard_arrow_up</button>
           </div>        
           <div id="SearchPaginationBottom" class="btn-group mr-2 dropup">
             <button data-title-phrase="Previous page" data-href='{"cmd": "gotoPage", "options": ["prev"]}' type="button" class="btn btn-group-prepend btn-secondary">&laquo;</button>
@@ -681,6 +681,7 @@
   </main>    
   <!-- Footer -->  
   <footer class="footer fixed-bottom">
+    <div id="footerProgressPos" class="text-light bg-secondary px-2 py-1 rounded-sm"></div>
     <div id="footerProgress" class="progress clickable align-items-center">
       <div id="footerProgressBar" class="progress-bar highlight-bg" role="progressbar"></div>
     </div>
@@ -688,7 +689,6 @@
       <div class="btn-toolbar nav-item flex-nowrap">
         <div class="btn-group mr-2" id="playControlBtns">
           <button data-href='{"cmd": "clickPrev", "options": []}' id="btnPrev" type="button" class="btn btn-dark pl-2 pr-2 material-icons">skip_previous</button>
-          <button data-href='{"cmd": "clickStop", "options": []}' id="btnStop" type="button" class="btn btn-dark pl-2 pr-2 material-icons hide">stop</button>
           <button data-href='{"cmd": "clickPlay", "options": []}' id="btnPlay" type="button" class="btnPlay btn btn-lg btn-dark pl-2 pr-2 material-icons material-icons-lg">pause</button>
           <button data-href='{"cmd": "clickNext", "options": []}' id="btnNext" type="button" class="btn btn-dark pl-2 pr-2 material-icons">skip_next</button>
         </div>
@@ -699,7 +699,7 @@
       <div class="d-flex flex-fill navbar-nav ml-5 text-light" id="footerInfo">
         <div id="footerCover" class="album-cover-loading mr-3">
         </div>
-        <div>
+        <div id="footerPlaying">
           <span id="footerTitle" class="notclickable" data-href='{"cmd": "clickTitle", "options": []}'>Title</span><br/>
           <span data-tag="Artist" id="footerArtist" data-href='{"cmd": "gotoBrowse", "options": []}'>Artist</span>&nbsp;&ndash;&nbsp;<span data-tag="Album" id="footerAlbum" data-href='{"cmd": "gotoBrowse", "options": []}'>Album</span>
         </div>

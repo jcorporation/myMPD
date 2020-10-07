@@ -100,7 +100,15 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
     currentSong.currentSongId = currentSongId;
 
     const progressPx = Math.ceil(domCache.progress.offsetWidth * elapsedTime / totalTime);
+    if (progressPx === 0) {
+        domCache.progressBar.style.transition = 'none';
+    }
     domCache.progressBar.style.width = progressPx + 'px'; 
+    if (progressPx === 0) {    
+        setTimeout(function() {
+            domCache.progressBar.style.transition = progressBarTransition;
+        }, 10);
+    }
 
     let counterText = beautifySongDuration(elapsedTime) + "&nbsp;/&nbsp;" + beautifySongDuration(totalTime);
     domCache.counter.innerHTML = counterText;
@@ -237,6 +245,8 @@ function setBackgroundImage(url) {
         }
         else {
             old[i].style.zIndex = '-10';
+            old[i].style.opacity = '0';
+            //old[i].style.filter = '';
         }
     }
     let div = document.createElement('div');
@@ -263,6 +273,7 @@ function clearBackgroundImage() {
         else {
             old[i].style.zIndex = '-10';
             old[i].style.opacity = '0';
+            //old[i].style.filter = '';
         }
     }
 }

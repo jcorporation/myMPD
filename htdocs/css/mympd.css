@@ -109,6 +109,16 @@ td[data-col=Action] {
   z-index: 3;
 }
 
+.badge {
+  font-size: 65%;
+  vertical-align: top;
+  margin-left: 0 !important;
+}
+
+#navQueue > a {
+  padding-right: 1rem;
+}
+
 @media only screen and (orientation: landscape) {
   nav#header {
     height: 100vw;
@@ -127,7 +137,7 @@ td[data-col=Action] {
   #headerLeft {
     margin-bottom: 2rem;
   }
-  .footerText {
+  .navText {
     display: none;
   }
   #navbar-main > div {
@@ -136,10 +146,13 @@ td[data-col=Action] {
   #navbar-main {
     flex-direction: column !important;
   }
+  #navQueue > a {
+    padding-right: 0 !important;
+  }
 }
 
 @media only screen and (max-width: 700px) {
-  .footerText {
+  .navText {
     display: none;
   }
   #counter {
@@ -147,6 +160,12 @@ td[data-col=Action] {
   }
   .ml-5 {
     margin-left: 1rem !important;
+  }
+}
+
+@media only screen and (max-height: 380px) and (orientation: landscape) {
+  #navbar-main > div {
+    margin-bottom: 0;
   }
 }
 
@@ -183,11 +202,19 @@ div#footerProgressBar {
   height: 0.4rem;
   width: 0;
   margin-bottom: -0.6rem;
+  transition: none;
 }
 
-.footerText,
+.navText {
+  margin-left: 0.5rem !important;
+}
+
+.navTextQueue {
+  margin-right: 0.5rem;
+}
+
 #badgeQueueItems {
-  margin-left: 0.5rem;
+  margin-left: 0 !important;
 }
 
 button {
@@ -220,38 +247,22 @@ button {
 
 @media only screen and (max-width: 400px) {
   #btnPrev, 
-  #btnPlay,
-  #btnStop {
+  #btnPlay {
     padding-right: 4px !important;
   }
   #btnNext,
-  #btnPlay,
-  #btnStop {
+  #btnPlay {
     padding-left: 4px !important;
   }
-}
-
-@media only screen and (max-width: 380px) {
-  #btnStop {
-    display: none;
+  #footerPlaying {
+    display: none !important;
   }
-}  
-
+}
 
 @media only screen and (min-width: 576px) and (max-width: 992px) {
   .modal-lg {
     max-width: calc(100vw - 5rem) !important;
   }
-}
-
-@media only screen and (max-width: 768px) {
-  #headerTitle {
-    display: none !important;
-  }
-}
-
-#headerTitle {
-  text-overflow: ellipsis;
 }
 
 .clickable {
@@ -293,6 +304,7 @@ small {
   word-break: break-word;
   background-color: transparent !important;
   border: none;
+  margin-bottom: 2rem;
 }
 
 .album-cover {
@@ -339,6 +351,12 @@ small {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.card-grid:focus {
+  border-width: 1px;
+  border-style: solid;
+  border-color:var(--mympd-highlightcolor, #28a745) !important;
 }
 
 .album-cover-grid {
@@ -827,3 +845,9 @@ a.text-success:focus {
   background-color: #ffc107 !important;
 }
 
+div#footerProgressPos {
+  display: none;
+  position: absolute;
+  bottom: 6rem;
+  left: 0;
+}

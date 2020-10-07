@@ -8,23 +8,23 @@
 function focusTable(rownr, table) {
     if (table === undefined) {
         table = document.getElementById(app.current.app + (app.current.tab !== undefined ? app.current.tab : '') + (app.current.view !== undefined ? app.current.view : '') + 'List');
-        //support for BrowseDatabaseAlbum list
-        if (table === null) {
-            table = document.getElementById(app.current.app + app.current.tab + 'TagList');
-        }
-        //support for BrowseDatabaseAlbum cards
-        if (app.current.app === 'Browse' && app.current.tab === 'Database' && 
-            !document.getElementById('BrowseDatabaseAlbumList').classList.contains('hide'))
-        {
-            table = document.getElementById('BrowseDatabaseAlbumList').getElementsByTagName('table')[0];
-        }
     }
 
-    if (app.current.app === 'Browse' && app.current.tab === 'Covergrid' &&
-            table.getElementsByTagName('tbody').length === 0) 
+    if (app.current.app === 'Browse' && app.current.tab === 'Database' &&
+            app.current.view === 'List') 
     {
-        table = document.getElementsByClassName('card-grid')[0];
-        table.focus();        
+        const tables = document.getElementsByClassName('card-grid');
+        if (tables.length === 0 ) {
+            return; 
+        }
+        table = tables[0];
+        for (let i = 0; i < tables.length; i++) {
+            if (tables[i].classList.contains('selected')) {
+                table = tables[i];
+                break;
+            }
+        }
+        table.focus();
         return;
     }
 
@@ -75,12 +75,12 @@ function scrollFocusIntoView() {
     let el = document.activeElement;
     let posY = el.getBoundingClientRect().top;
     let height = el.offsetHeight;
-    
-    if (posY < 74) {
-        window.scrollBy(0, - 74);
+    let treshold = height * 2;
+    if (posY < treshold) {
+        window.scrollBy(0, - treshold);
     }
-    else if (posY + height > window.innerHeight - 74) {
-        window.scrollBy(0, 74);
+    else if (posY + height > window.innerHeight - treshold) {
+        window.scrollBy(0, treshold);
     }
 }
 
@@ -111,29 +111,6 @@ function navigateTable(table, keyCode) {
         else if (keyCode === 'Escape') {
             cur.blur();
             cur.classList.remove('selected');
-            handled = true;
-        }
-        //only for BrowseDatabaseAlbum cards
-        else if (app.current.app === 'Browse' && app.current.tab === 'Database' && 
-                 !document.getElementById('BrowseDatabaseAlbumList').classList.contains('hide') &&
-                 (keyCode === 'n' || keyCode === 'p')) {
-            let tablesHtml = document.getElementById('BrowseDatabaseAlbumList').getElementsByTagName('table');
-            let tables = Array.prototype.slice.call(tablesHtml);
-            let idx = document.activeElement.nodeName === 'TR' ? tables.indexOf(document.activeElement.parentNode.parentNode)
-                                                              : tables.indexOf(document.activeElement);
-            idx = event.key === 'p' ? (idx > 1 ? idx - 1 : 0)
-                                   : event.key === 'n' ? ( idx < tables.length - 1 ? ( document.activeElement.nodeName === 'TR' ? idx + 1 : idx )
-                                                                                  : idx)
-                                                      : idx;
-            
-            if (tables[idx].getElementsByTagName('tbody')[0].rows.length > 0) {
-                next = tables[idx].getElementsByTagName('tbody')[0].rows[0];
-            }
-            else {
-                //Titlelist not loaded yet, scroll table into view
-                tables[idx].focus();
-                scrollFocusIntoView();
-            }
             handled = true;
         }
         if (handled === true) {
