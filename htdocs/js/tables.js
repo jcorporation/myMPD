@@ -75,12 +75,26 @@ function scrollFocusIntoView() {
     let el = document.activeElement;
     let posY = el.getBoundingClientRect().top;
     let height = el.offsetHeight;
-    let treshold = height * 2;
-    if (posY < treshold) {
-        window.scrollBy(0, - treshold);
+    let headerHeight = el.parentNode.parentNode.offsetTop;
+    if (window.innerHeight > window.innerWidth) {
+        headerHeight += domCache.header.offsetHeight;
     }
-    else if (posY + height > window.innerHeight - treshold) {
-        window.scrollBy(0, treshold);
+    let footerHeight = domCache.footer.offsetHeight;
+    let parentHeight = window.innerHeight - headerHeight - footerHeight;
+    let treshold = height / 2;
+    //console.log('posY: ' + posY);
+    //console.log('height: ' + height);
+    //console.log('treshold: ' + treshold);
+    //console.log('parentHeight: ' + parentHeight);
+    //console.log('headerHeight:' + headerHeight);
+    //console.log('footerHeight:' + footerHeight);
+    if (posY <= headerHeight + treshold) {
+        //console.log('0, - height');
+        window.scrollBy(0, - height);
+    }
+    else if (posY + height > parentHeight - treshold) {
+        //console.log('0, height');
+        window.scrollBy(0, height);
     }
 }
 

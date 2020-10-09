@@ -297,9 +297,7 @@ function parseDatabase(obj) {
                         cur.classList.remove('selected');
                         next.classList.add('selected');
                         handled = true;
-                        if (cur.getBoundingClientRect().top != next.getBoundingClientRect().top) {
-                            scrollFocusIntoView();
-                        }
+                        scrollFocusIntoView();
                     }
                 }
                 else if (event.key === 'Escape') {

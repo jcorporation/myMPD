@@ -97,6 +97,8 @@ domCache.badgeQueueItems = document.getElementById('badgeQueueItems');
 domCache.searchstr = document.getElementById('searchstr');
 domCache.searchCrumb = document.getElementById('searchCrumb');
 domCache.body = document.getElementsByTagName('body')[0];
+domCache.footer = document.getElementsByTagName('footer')[0];
+domCache.header = document.getElementById('header');
 
 /* eslint-disable no-unused-vars */
 var modalConnection = new BSN.Modal(document.getElementById('modalConnection'));
