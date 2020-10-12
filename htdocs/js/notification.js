@@ -6,47 +6,13 @@
 */
 
 function setStateIcon(state) {
-    let stateIcon = document.getElementById('navState').children[0];
-    let websocketStateIcon = document.getElementById('websocketState').children[0];
-    let mpdStateIcon = document.getElementById('mpdState').children[0];
-    let websocketStateText = document.getElementById('websocketState').getElementsByTagName('small')[0];
-    let mpdStateText = document.getElementById('mpdState').getElementsByTagName('small')[0];
-    
-    if (websocketConnected === false) {
-        stateIcon.innerText = 'cloud_off';
-    }
-    else if (settings.mpdConnected === false) {
-        stateIcon.innerText = 'cloud_off';
+    if (websocketConnected === false || settings.mpdConnected === false) {
+        domCache.mainMenu.classList.add('text-light');
+        domCache.mainMenu.classList.remove('connected');
     }
     else {
-        if (state === 'newMessage') {
-            stateIcon.innerText = 'chat';
-        }
-        else if (state === 'noMessage') {
-            stateIcon.innerText = 'chat_bubble_outline';
-        }
-    }
-    
-    if (websocketConnected === false) {
-        websocketStateIcon.innerText = 'cloud_off';
-        websocketStateIcon.classList.remove('text-success');
-        websocketStateText.innerText = t('Websocket disconnected');
-    }
-    else { 
-        websocketStateIcon.innerText = 'cloud_done';
-        websocketStateIcon.classList.add('text-success');
-        websocketStateText.innerText = t('Websocket connected');
-    }
-
-    if (websocketConnected === false) { 
-        mpdStateIcon.innerText = 'cloud_off';
-        mpdStateIcon.classList.remove('text-success');
-        mpdStateText.innerText = t('MPD disconnected');
-    }
-    else {
-        mpdStateIcon.innerText = 'cloud_done';
-        mpdStateIcon.classList.add('text-success');
-        mpdStateText.innerText = t('MPD connected');
+        domCache.mainMenu.classList.add('connected');
+        domCache.mainMenu.classList.remove('text-light');
     }
 }
 
@@ -161,11 +127,6 @@ function logMessage(notificationTitle, notificationText, notificationHtml, notif
     if (overviewEls.length > 10) {
         overviewEls[10].remove();
     }
-
-    document.getElementById('navState').children[0].classList.add('text-success');
-    setTimeout(function() {
-        document.getElementById('navState').children[0].classList.remove('text-success');
-    }, 250);
 }
 
 //eslint-disable-next-line no-unused-vars

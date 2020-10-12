@@ -37,7 +37,7 @@
   <header>
     <nav id="header" class="navbar navbar-expand navbar-dark fixed-top bg-dark d-flex justify-content-between">
       <div class="dropdown nav-item" id="headerLeft">
-        <a class="dropdown-toggle alwaysEnabled material-icons header-logo" href="#" id="mainMenu">play_circle_outline</a>
+        <a class="dropdown-toggle alwaysEnabled material-icons text-light" href="#" id="mainMenu">play_circle_outline</a>
         <div class="dropdown-menu bg-lite-dark" id="mainMenuDropdown">
           <a data-phrase="Add stream" class="dropdown-item text-light" href="#" data-href='{"cmd": "showAddToPlaylist", "options": ["stream"]}'></a>
           <a id="navDBupdate" class="subMenu dropdown-item text-light" data-toggle="collapse" href="#menu-dbupdate"><span class="material-icons material-icons-left">keyboard_arrow_right</span><span data-phrase="Update"></span></a>
@@ -63,6 +63,10 @@
           <div id="syscmds" class="featSyscmds noInitChilds collapse"></div>
           <a id="navScripting" class="subMenu featScripting dropdown-item text-light alwaysEnabled" data-toggle="collapse" href="#scripts"><span class="material-icons material-icons-left">keyboard_arrow_right</span><span data-phrase="Scripts"></span></a>
           <div id="scripts" class="featScripting noInitChilds collapse"></div>
+          <a id="navNotifications" class="subMenu dropdown-item text-light alwaysEnabled" data-toggle="collapse" href="#menu-notifications"><span class="material-icons material-icons-left">keyboard_arrow_right</span><span data-phrase="Notifications"></span></a>
+          <div id="menu-notifications" class="collapse menu-indent">
+            <div id="logOverview" class="pl-2 pb-0 pr-2"></div>
+          </div>
         </div>
       </div>
       <div id="navbar-main" class="d-flex">
@@ -86,29 +90,7 @@
             <span class="material-icons">search</span><span class="navText" data-phrase="Search"></span>
           </a>
         </div>
-        <div id="navState" class="nav-item dropdown">
-          <a data-title-phrase="Connection state" class="dropdown-toggle material-icons nav-link alwaysEnabled text-light" data-toggle="dropdown" href="#">chat_bubble_outline</a>
-          <div id="stateDropup" class="dropdown-menu bg-lite-dark px-2">
-            <div class="btn-toolbar">
-              <button data-href='{"cmd": "clearLogOverview", "options": []}' data-title-phrase="Clear" class="btn btn-sm btn-secondary material-icons material-icons-small alwaysEnabled">clear_all</button>
-            </div>
-            <div class="dropdown-divider"></div>
-            <div id="logOverview"></div>
-            <div class="dropdown-divider"></div>
-            <div class="d-flex">
-              <div id="mpdState" class="flex-fill text-center bg-dark p-2 mr-1">
-                <span class="material-icons text-light">cloud_done</span><br/>
-                <small data-phrase="MPD connection"></small>
-              </div>
-              <div id="websocketState" class="flex-fill text-center bg-dark p-2">
-                <span class="material-icons text-light">cloud_done</span><br/>
-                <small data-phrase="Websocket connection"></small>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
-      
     </nav>
   </header>
   <!-- Alerts -->
@@ -133,7 +115,7 @@
             <button data-title-phrase="Add to playlist" data-href='{"cmd": "showAddToPlaylistCurrentSong", "options": []}' class="btn btn-secondary material-icons">playlist_add</button>
           </div>
           <div class="btn-group dropdown ml-2">
-            <button id="btnPlayDropdown" class="btn btn-secondary dropdown-toggle material-icons" type="button" data-toggle="dropdown">tune</button>
+            <button id="btnPlayDropdown" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="material-icons">tune</span></button>
             <div class="dropdown-menu bg-lite-dark px-2" id="playDropdown">
               <form>
                 <div class="form-group row">
@@ -178,7 +160,7 @@
             </div>
           </div>
           <div class="btn-group ml-2 featTags">
-            <button id="PlaybackColsBtn" class="btn btn btn-secondary dropdown-toggle material-icons material-icons-small" type="button" data-toggle="dropdown">settings</button>
+            <button id="PlaybackColsBtn" class="btn btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="material-icons">settings</span></button>
             <div class="dropdown-menu text-light bg-lite-dark px-2" id="PlaybackColsDropdown"><form></form>
               <button data-phrase="Apply" data-href='{"cmd": "saveColsPlayback", "options": ["Playback"]}' class="btn btn-success btn-block btn-sm mt-2"></button>
             </div>
@@ -196,7 +178,7 @@
       <div class="card-body hide" id="cardQueueCurrent">
         <div class="btn-toolbar card-toolbar" id="QueueCurrentButtonsTop">
           <div class="btn-group mr-2">
-            <button class="btn btn-secondary dropdown-toggle material-icons" type="button" data-toggle="dropdown">layers</button>
+            <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="material-icons">layers</span></button>
             <div class="dropdown-menu bg-lite-dark px-2">
               <button data-phrase="Queue" class="btn btn-sm btn-block btn-secondary active" data-href='{"cmd": "appGoto", "options": ["Queue", "Current"]}'></button>
               <button data-phrase="Last played" class="btn btn-sm btn-block btn-secondary" data-href='{"cmd": "appGoto", "options": ["Queue", "LastPlayed"]}'></button>
@@ -278,7 +260,7 @@
       <div class="card-body hide" id="cardQueueLastPlayed">
         <div class="btn-toolbar card-toolbar">
           <div class="btn-group">
-            <button class="btn btn-secondary dropdown-toggle material-icons" type="button" data-toggle="dropdown">layers</button>
+            <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="material-icons">layers</span></button>
             <div class="dropdown-menu bg-lite-dark px-2">
               <button data-phrase="Queue" class="btn btn-sm btn-block btn-secondary" data-href='{"cmd": "appGoto", "options": ["Queue", "Current"]}'></button>
               <button data-phrase="Last played" class="btn btn-sm btn-block btn-secondary active" data-href='{"cmd": "appGoto", "options": ["Queue", "LastPlayed"]}'></button>
@@ -332,7 +314,7 @@
       <div class="card-body hide" id="cardBrowsePlaylists">
         <div class="btn-toolbar card-toolbar" id="BrowsePlaylistsButtons">
           <div class="btn-group mr-2">
-            <button data-title-phrase="Select tag to display" id="BrowseNavPlaylists" class="btn btn-secondary dropdown-toggle material-icons" type="button" data-toggle="dropdown">layers</button>
+            <button data-title-phrase="Select tag to display" id="BrowseNavPlaylists" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="material-icons">layers</span></button>
             <div class="dropdown-menu bg-lite-dark px-2" id="BrowseNavPlaylistsDropdown">
             </div>
           </div>
@@ -530,7 +512,7 @@
       <div class="card-body hide" id="cardBrowseFilesystem">
         <div class="btn-toolbar card-toolbar" id="BrowseFilesystemButtons">
           <div class="btn-group mr-2">
-            <button data-title-phrase="Select tag to display" id="BrowseNavFilesystem" class="btn btn-secondary dropdown-toggle material-icons" type="button" data-toggle="dropdown">layers</button>
+            <button data-title-phrase="Select tag to display" id="BrowseNavFilesystem" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="material-icons">layers</span></button>
             <div class="dropdown-menu bg-lite-dark px-2" id="BrowseNavFilesystemDropdown">
             </div>
           </div>
@@ -550,7 +532,7 @@
             </div>
           </div>
           <div class="btn-group mr-2 featBookmarks">
-            <button data-title-phrase="Bookmarks" id="BrowseFilesystemBookmark" class="btn btn-secondary dropdown-toggle material-icons" type="button" data-toggle="dropdown">collections_bookmark</button>
+            <button data-title-phrase="Bookmarks" id="BrowseFilesystemBookmark" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="material-icons">collections_bookmark</span></button>
             <div class="dropdown-menu bg-lite-dark px-2" id="BrowseFilesystemBookmarks">
             </div>
           </div>
@@ -706,7 +688,7 @@
       </div>
       <div class="btn-toolbar nav-item flex-nowrap ml-5">
         <div class="btn-group dropup">
-          <button id="volumeMenu" class="btn btn-dark dropdown-toggle pl-2 pr-2 material-icons" type="button" data-toggle="dropdown">volume_up</button>
+          <button id="volumeMenu" class="btn btn-dark dropdown-toggle pl-2 pr-2" type="button" data-toggle="dropdown"><span class="material-icons">volume_up</span></button>
           <div class="dropdown-menu bg-lite-dark">
             <h2 class="dropdown-header text-light"><span data-phrase="Volume"></span>: <span id="volumePrct"></span></h2>
             <form class="px-4 py-0 pb-3" id="volumeControl">
@@ -726,7 +708,7 @@
           </div>
         </div>
         <div class="btn-group dropup featLocalplayer ml-2">
-          <button id="localPlaybackMenu" class="btn btn-dark dropdown-toggle pl-2 pr-2 material-icons" type="button" data-toggle="dropdown">airplay</button>
+          <button id="localPlaybackMenu" class="btn btn-dark dropdown-toggle pl-2 pr-2" type="button" data-toggle="dropdown"><span class="material-icons">airplay</span></button>
           <div class="dropdown-menu bg-lite-dark">
             <h2 data-phrase="Local playback" class="dropdown-header dropdown-header-lx text-light"></h2>
             <div id="alertLocalPlayback" class="alert alert-warning mx-4 p-2 hide">

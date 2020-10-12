@@ -22,6 +22,16 @@
   background-color: var(--mympd-highlightcolor, #28a745) !important;
 }
 
+#navbar-main div.active {
+  background-color: var(--mympd-highlightcolor, #28a745) !important;
+  border-radius: 0.25rem;
+}
+
+div.active #badgeQueueItems {
+ background-color: var(--mympd-highlightcolor, #28a745) !important;
+ filter: brightness(80%);
+}
+
 #highlightColorPreview,
 #bgColorPreview {
   cursor: default;
@@ -148,6 +158,7 @@ td[data-col=Action] {
   }
   #navQueue > a {
     padding-right: 0 !important;
+    padding-left: 0.5rem !important;
   }
 }
 
@@ -214,7 +225,8 @@ div#footerProgressBar {
 }
 
 #badgeQueueItems {
-  margin-left: 0 !important;
+  margin-left: -2px !important;
+  margin-top: -4px !important;
 }
 
 button {
@@ -407,7 +419,7 @@ small {
 
 .card-toolbar > div,
 .card-toolbar > form {
-  margin-bottom: 0.2rem;
+  margin-bottom: 0.6rem;
 }
 
 @font-face {
@@ -493,12 +505,6 @@ small {
   float: left;
   margin-right: 5px;
   font-size: 1.8rem;
-}
-
-.header-logo {
-  font-size: 2.5rem;
-  margin-right: 5px;
-  color: var(--mympd-highlightcolor, #28a745) !important;
 }
 
 .letters > button {
@@ -619,6 +625,18 @@ ol#searchCrumb {
 
 .dropdown-header-lx {
   font-size: 1.2rem;
+}
+
+#mainMenu {
+  font-size: 2.5rem;
+  margin-right: 5px;
+}
+
+.connected,
+.connected:focus,
+.connected:hover
+ {
+  color: var(--mympd-highlightcolor, #28a745) !important;
 }
 
 #mainMenuDropdown {
@@ -761,16 +779,8 @@ a.text-success:focus {
   white-space: nowrap;
 }
 
-#navState > a::after {
-  display: none;
-}
-
-#stateDropup {
-  min-width: 20rem;
-}
-
 #logOverview {
-  max-height: 70vh;
+  max-height: 50vh;
   overflow-y: auto;
   overflow-x: hidden;
 }

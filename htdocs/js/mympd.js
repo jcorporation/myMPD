@@ -69,8 +69,8 @@ app.current = { "app": "Playback", "tab": undefined, "view": undefined, "page": 
 app.last = { "app": undefined, "tab": undefined, "view": undefined, "filter": "", "search": "", "sort": "", "tag": "", "scrollPos": 0 };
 
 var domCache = {};
-domCache.navbarBottomBtns = document.getElementById('navbar-main').getElementsByTagName('div');
-domCache.navbarBottomBtnsLen = domCache.navbarBottomBtns.length;
+domCache.navbarBtns = document.getElementById('navbar-main').getElementsByTagName('div');
+domCache.navbarBtnsLen = domCache.navbarBtns.length;
 domCache.counter = document.getElementById('counter');
 domCache.volumePrct = document.getElementById('volumePrct');
 domCache.volumeControl = document.getElementById('volumeControl');
@@ -99,6 +99,7 @@ domCache.searchCrumb = document.getElementById('searchCrumb');
 domCache.body = document.getElementsByTagName('body')[0];
 domCache.footer = document.getElementsByTagName('footer')[0];
 domCache.header = document.getElementById('header');
+domCache.mainMenu = document.getElementById('mainMenu');
 
 /* eslint-disable no-unused-vars */
 var modalConnection = new BSN.Modal(document.getElementById('modalConnection'));
@@ -140,19 +141,13 @@ var collapseJukeboxMode = new BSN.Collapse(document.getElementById('labelJukebox
 function appPrepare(scrollPos) {
     if (app.current.app !== app.last.app || app.current.tab !== app.last.tab || app.current.view !== app.last.view) {
         //Hide all cards + nav
-        for (let i = 0; i < domCache.navbarBottomBtnsLen; i++) {
-            domCache.navbarBottomBtns[i].classList.remove('active');
+        for (let i = 0; i < domCache.navbarBtnsLen; i++) {
+            domCache.navbarBtns[i].classList.remove('active');
         }
         document.getElementById('cardPlayback').classList.add('hide');
         document.getElementById('cardQueue').classList.add('hide');
         document.getElementById('cardBrowse').classList.add('hide');
         document.getElementById('cardSearch').classList.add('hide');
-        for (let i = 0; i < domCache.cardHeaderBrowseLen; i++) {
-            domCache.cardHeaderBrowse[i].classList.remove('active');
-        }
-        for (let i = 0; i < domCache.cardHeaderQueueLen; i++) {
-            domCache.cardHeaderQueue[i].classList.remove('active');
-        }
         document.getElementById('cardQueueCurrent').classList.add('hide');
         document.getElementById('cardQueueLastPlayed').classList.add('hide');
         document.getElementById('cardBrowsePlaylists').classList.add('hide');
@@ -249,7 +244,7 @@ function appRoute() {
         app.current.search = params[9];
     }
     else {
-        logDebug('Invalid params: ' + hash);
+        appPrepare(0);
         appGoto('Playback');
         return;
     }
