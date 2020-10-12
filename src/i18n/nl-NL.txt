@@ -699,9 +699,6 @@ Afspeellijsten openen
 Goto browse filesystem
 Bestandssysteem openen
 
-Goto browse covergrid
-Covergrid openen
-
 Goto search
 Zoeken openen
 
@@ -1023,9 +1020,6 @@ Geen albumcover gevonden door mpd
 Descending
 Aflopend
 
-Covergrid
-Covergrid
-
 Sort by
 Sorteer op
 
@@ -1052,9 +1046,6 @@ Onbekende artiest
 
 Unknown album
 Onbekend album
-
-Show songs
-Toon nummers
 
 JavaScript error
 JavaScript fout
@@ -1242,26 +1233,11 @@ Info
 Error
 Fout
 
-MPD connected
-MPD verbonden
-
-Websocket connected
-Websocket verbonden
-
-Websocket disconnected
-Geen connectie met Websocket
-
 Websocket is disconnected
 Geen connectie met Websocket
 
-Websocket connection
-Connectie met Websocket
-
 Auto
 Auto
-
-Connection state
-Status connectie
 
 Booklet
 Booklet
@@ -1395,8 +1371,8 @@ Ongeldige scriptparameter
 Invalid script order
 Ongeldige scriptvolgorde
 
-Invalid scriptname
-Ongeldige scriptnaam
+Invalid script name
+Ongeldige script naam
 
 New script
 Nieuw script
@@ -1434,8 +1410,8 @@ Scriptparameters
 Scripting is disabled
 Scripten is uitgeschakeld
 
-Scriptname
-Scriptnaam
+Script name
+Script naam
 
 Scripts
 Scripts

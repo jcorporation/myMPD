@@ -708,9 +708,6 @@ Gehe zu Wiedergabelisten
 Goto browse filesystem
 Gehe zu Dateisystem
 
-Goto browse covergrid
-Gehe zu Albumcover
-
 Goto search
 Gehe zur Suche
 
@@ -1035,9 +1032,6 @@ MPD konnte keine Cover finden
 Descending
 Absteigend
 
-Covergrid
-Albumcover
-
 Sort by
 Sortieren
 
@@ -1064,9 +1058,6 @@ Unbekannter Künstler
 
 Unknown album
 Unbekanntes Album
-
-Show songs
-Lieder anzeigen
 
 JavaScript error
 JavaScript Fehler
@@ -1254,26 +1245,8 @@ Hinweis
 Error
 Fehler
 
-MPD connected
-MPD verbunden
-
-Websocket connected
-Websocket verbunden
-
-Websocket disconnected
-Websocket nicht verbunden
-
-Websocket is disconnected
-Websocket ist nicht verbunden
-
-Websocket connection
-Websocket Verbindung
-
 Auto
 Auto
-
-Connection state
-Verbindungsstatus
 
 Booklet
 Booklet
@@ -1541,3 +1514,15 @@ aktiviert
 
 No mixed content,  MPD stream must be served over https:
 Mixed Content: MPD stream muss über https ausgeliefert werden:
+
+Details
+Details
+
+Port
+Port
+
+Select tag to display
+Tag für Anzeige auswählen
+
+Websocket is disconnected
+Websockt ist nicht verbunden

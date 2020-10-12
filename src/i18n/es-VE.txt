@@ -702,9 +702,6 @@ Ir a explorar listas de reproducción
 Goto browse filesystem
 Ir a explorar sistema de archivos
 
-Goto browse covergrid
-Ir a explorar carátulas de álbumes
-
 Goto search
 Ir a buscar
 
@@ -1026,9 +1023,6 @@ No se encontró carátula por MPD
 Descending
 Descendiente
 
-Covergrid
-Carátulas de álbum
-
 Sort by
 Ordenar por
 
@@ -1055,9 +1049,6 @@ Artista desconocido
 
 Unknown album
 Álbum desconocido
-
-Show songs
-Mostrar canciones
 
 JavaScript error
 Error de JavaScript
@@ -1245,26 +1236,11 @@ Info
 Error
 Error
 
-MPD connected
-MPD conectado
-
-Websocket connected
-Websocket conectado
-
-Websocket disconnected
-Websocket desconectado
-
 Websocket is disconnected
 Websocket está desconectado
 
-Websocket connection
-Conexión Websocket
-
 Auto
 Auto
-
-Connection state
-Estado de conexión
 
 Booklet
 Folleto

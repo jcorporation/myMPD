@@ -702,9 +702,6 @@ Siirry soittolistojen selaukseen
 Goto browse filesystem
 Siirry tiedostojärjelmän selaukseen
 
-Goto browse covergrid
-Siirry selaamaan kansitaidetta
-
 Goto search
 Siirry hakuun
 
@@ -1029,9 +1026,6 @@ MPD ei löytäny albumi taidetta
 Descending
 Laskeva
 
-Covergrid
-Kansitaide
-
 Sort by
 Järjestä
 
@@ -1058,9 +1052,6 @@ Tuntematon artisti
 
 Unknown album
 Tuntematon albumi
-
-Show songs
-Näytä kappaleet
 
 JavaScript error
 JavaScript virhe
@@ -1248,26 +1239,11 @@ Tietoa
 Error
 Virhe
 
-MPD connected
-MPD yhdistetty
-
-Websocket connected
-Websocket yhdistetty
-
-Websocket disconnected
-Websocket yhteys katkesi
-
 Websocket is disconnected
 Websocket yhteys on katkaistu
 
-Websocket connection
-Websocket yhteys
-
 Auto
 Auto
-
-Connection state
-Yhteyden tila
 
 Booklet
 Booklet

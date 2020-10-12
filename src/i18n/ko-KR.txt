@@ -708,9 +708,6 @@ Goto browse playlists
 Goto browse filesystem
 파일 시스템 열기로 가기
 
-Goto browse covergrid
-음반 표지 격자 보기로 가기
-
 Goto search
 찾기로 가기
 
@@ -1035,9 +1032,6 @@ MPD가 음반 표지를 찾을 수 없음
 Descending
 내림차순
 
-Covergrid
-음반 표지 격자
-
 Sort by
 정렬
 
@@ -1064,9 +1058,6 @@ Unknown artist
 
 Unknown album
 모르는 음반
-
-Show songs
-곡 보기
 
 JavaScript error
 자바스크립트 오류
@@ -1254,26 +1245,11 @@ Info
 Error
 오류
 
-MPD connected
-MPD 연결됨
-
-Websocket connected
-웹소켓 연결됨
-
-Websocket disconnected
-웹소켓 연결 안 됨
-
 Websocket is disconnected
 웹소켓 연결 안 됨
 
-Websocket connection
-웹소켓 연결
-
 Auto
 자동
-
-Connection state
-연결 상태
 
 Booklet
 책자
