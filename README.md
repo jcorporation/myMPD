@@ -1,5 +1,4 @@
-myMPD
-=====
+# myMPD
 
 myMPD is a standalone and lightweight web-based MPD client. It's tuned for minimal resource usage and requires only very few dependencies. Therefore myMPD is ideal for raspberry pis and similar devices.
 
@@ -9,18 +8,16 @@ The frontend is mobile friendly, written as a PWA and offers on all devices the 
 
 myMPD also integrates extended features like an advanced jukebox mode, timers, triggers and smart playlists. With the integrated lua interpreter myMPD functions can also be scripted.
 
-myMPD is a fork of [ympd](https://github.com/notandy/ympd).
-
 - [Homepage](https://jcorporation.github.io/myMPD/)
 
-**Features**
+## Features
+
 - Control mpd functions (play, pause, etc.)
 - Set mpd options (repeat, random, etc.)
 - MPD mount and neighbors support
 - MPD partition support
 - MPD output attributes
-- Browse mpd database by tags
-- Albumart grid
+- Browse mpd database by tags (gridview)
 - Browse filesystem
 - Queue management
 - Playlist management
@@ -45,23 +42,23 @@ myMPD is a fork of [ympd](https://github.com/notandy/ympd).
 - Support of Media Session API
 
 myMPD is in active development. If you like myMPD, you can help to improve it (no programming skills are required).
+
 - [Help to improve myMPD](https://github.com/jcorporation/myMPD/issues/167)
 
-To use all myMPD functions you should use the latest stable MPD version (0.21.x). myMPD already supports function of MPD 0.22.x (e.g. the readpicture command).
+To use all myMPD functions you should use the latest stable MPD version (0.22.x).
 
-Screenshots
------------
+## Screenshots
 
-![image](https://jcorporation.github.io/myMPD/assets/myMDPv6.0.0.gif)
+![image](https://jcorporation.github.io/myMPD/assets/myMDPv6.7.0.gif)
 
-UI Components
--------------
+## UI Components
+
 - [Bootstrap 4](https://getbootstrap.com)
 - [Material Design Icons](https://material.io/tools/icons/)
 - [Bootstrap Native](http://thednp.github.io/bootstrap.native/)
 
-Backend
--------
+## Backend
+
 - [Mongoose](https://github.com/cesanta/mongoose) (web server)
 - [Frozen](https://github.com/cesanta/frozen) (json parsing)
 - [inih](https://github.com/benhoyt/inih) (config file parsing)
@@ -71,32 +68,32 @@ Backend
 - [TinyMT](https://github.com/MersenneTwister-Lab/TinyMT) (prng)
 - [libmpdclient2](https://github.com/jcorporation/libmpdclient/tree/libmympdclient) (mpd communication)
 
-Dependencies
-------------
-myMPD has no hard dependencies beside the standard c libraries. 
-Not installing the optional dependencies leads only to a smaller subset of myMPD functions.
+## Dependencies
+
+myMPD has no hard dependencies beside the standard c libraries. Not installing the optional dependencies leads only to a smaller subset of myMPD functions.
+
 - OpenSSL >= 1.1.0 (optional): for https support
 - libid3tag (optional): to extract embedded albumart
 - libflac (optional): to extract embedded albumart
 - liblua >= 5.3.0 (optional): for scripting myMPD
 
-Build Dependencies
-------------------
+## Build Dependencies
+
 - cmake >= 3.4
 - libasan3: for debug builds only
 - Java: to minify files (optional)
 - Perl: to create translation files
 
-Quick Build Instructions
-------------------------
+## Quick Build Instructions
+
 1. Get myMPD tarball from [GitHub](https://github.com/jcorporation/myMPD/releases/latest)
 2. Extract myMPD tarball and change path to this directory
 3. Install dependencies (as root): `./build.sh installdeps`
 4. Build myMPD: `./build.sh release`
 5. Install myMPD (as root): `./build.sh install`
 
-Run
----
+## Run
+
 Adapt the configuration file `/etc/mympd.conf` to your needs (`/etc/webapps/mympd/mympd.conf` for Archlinux) or use the [mympd-config](https://github.com/jcorporation/myMPD/wiki/mympd-config) tool to generate automatically a valid `mympd.conf`.
 
 ``
@@ -105,10 +102,12 @@ Usage: ./mympd [/etc/mympd.conf]
 
 The `./build.sh` script installs a startup script for systemd, openrc or sysVinit.
 
-Wiki
-----
+## Wiki
+
 For further information on installation and configuration, see the [myMPD wiki](https://github.com/jcorporation/myMPD/wiki)
 
-Copyright
----------
+## Copyright
+
 2018-2020 Juergen Mang <mail@jcgames.de>
+
+myMPD is a fork of [ympd](https://github.com/notandy/ympd).
