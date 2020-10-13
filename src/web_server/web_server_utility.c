@@ -197,7 +197,6 @@ bool serve_embedded_files(struct mg_connection *nc, sds uri, struct http_message
                  );
         //send data
         mg_send(nc, p->data, p->size);
-//        mg_send(nc, "\r\n", 2);
         return true;
     }
     else {
