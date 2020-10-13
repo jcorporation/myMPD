@@ -477,8 +477,8 @@ void mympd_config_defaults(t_config *config) {
     config->localplayer = false;
     config->stream_port = 8000;
     config->stream_url = sdsempty();
-    config->bg_cover = false;
-    config->bg_color = sdsnew("#888");
+    config->bg_cover = true;
+    config->bg_color = sdsnew("#fff");
     config->bg_css_filter = sdsnew("grayscale(100%) opacity(5%)");
     config->coverimage = true;
     config->coverimage_name = sdsnew("folder, cover");

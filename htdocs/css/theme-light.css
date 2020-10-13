@@ -144,3 +144,7 @@ body.theme-light .bg-lite-dark {
 body.theme-light .form-control[readonly] {
   background-color: #fff;
 }
+
+body.theme-light #navbar-main div.active {
+  background-color: #e8eaea;
+}

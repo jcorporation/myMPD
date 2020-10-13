@@ -23,13 +23,7 @@
 }
 
 #navbar-main div.active {
-  background-color: var(--mympd-highlightcolor, #28a745) !important;
   border-radius: 0.25rem;
-}
-
-div.active #badgeQueueItems {
- background-color: var(--mympd-highlightcolor, #28a745) !important;
- filter: brightness(80%);
 }
 
 #highlightColorPreview,
@@ -860,4 +854,13 @@ div#footerProgressPos {
   position: absolute;
   bottom: 6rem;
   left: 0;
+}
+
+#navbar-main div.active {
+  border-radius: 0.25rem;
+  background-color: #1d2124;
+}
+
+div.active #badgeQueueItems {
+ filter: brightness(80%);
 }

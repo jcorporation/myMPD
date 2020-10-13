@@ -13,6 +13,7 @@ function parsePlaylists(obj) {
         document.getElementById('playlistContentBtns').classList.add('hide');
         document.getElementById('smartPlaylistContentBtns').classList.add('hide');
         document.getElementById('btnAddSmartpls').parentNode.classList.remove('hide');
+        document.getElementById('BrowseNavPlaylists').parentNode.classList.remove('hide');
     } else {
         if (obj.result.uri.indexOf('.') > -1 || obj.result.smartpls === true) {
             document.getElementById('BrowsePlaylistsDetailList').setAttribute('data-ro', 'true')
@@ -31,6 +32,7 @@ function parsePlaylists(obj) {
         document.getElementById('BrowsePlaylistsAllList').classList.add('hide');
         document.getElementById('btnBrowsePlaylistsAll').parentNode.classList.remove('hide');
         document.getElementById('btnAddSmartpls').parentNode.classList.add('hide');
+        document.getElementById('BrowseNavPlaylists').parentNode.classList.add('hide');
     }
             
     let nrItems = obj.result.returnedEntities;
