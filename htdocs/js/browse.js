@@ -212,6 +212,7 @@ function parseDatabase(obj) {
             picture = subdir + '/albumart/' + encodeURI(obj.result.data[i].FirstSongUri);
             html = '<div class="card card-grid clickable" data-picture="' + picture  + '" ' + 
                        'data-uri="' + encodeURI(obj.result.data[i].FirstSongUri.replace(/\/[^/]+$/, '')) + '" ' +
+                       'data-type="dir" data-name="' + encodeURI(obj.result.data[i].Album) + '" ' +
                        'data-album="' + encodeURI(obj.result.data[i].Album) + '" ' +
                        'data-albumartist="' + encodeURI(obj.result.data[i].AlbumArtist) + '" tabindex="0">' +
                    '<div class="card-body album-cover-loading album-cover-grid bg-white" id="' + id + '"></div>' +
