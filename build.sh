@@ -507,7 +507,7 @@ pkgdebian() {
 pkgdocker() {
   [ "$DOCKERFILE" = "" ] && DOCKERFILE="Dockerfile.alpine"
   prepare
-  cp contrib/packaging/docker/"$DOCKERFILE" .
+  cp contrib/packaging/docker/"$DOCKERFILE" Dockerfile
   docker build -t mympd .
 }
 
@@ -526,7 +526,7 @@ pkgbuildx() {
   [ "$DOCKERFILE" = "" ] && DOCKERFILE="Dockerfile.alpine"
   [ "$PLATFORMS" = "" ] && PLATFORMS="linux/amd64,linux/arm64"
   prepare
-  cp contrib/packaging/docker/"$DOCKERFILE" .
+  cp contrib/packaging/docker/"$DOCKERFILE" Dockerfile
   docker run --rm --privileged docker/binfmt:820fdd95a9972a5308930a2bdfb8573dd4447ad3
   docker buildx create --name mympdbuilder
   docker buildx use mympdbuilder
