@@ -94,7 +94,6 @@ static bool _sticker_cache_init(t_mpd_worker_state *mpd_worker_state, rax *stick
         }
         mpd_response_finish(mpd_worker_state->mpd_state->conn);
         if (check_error_and_recover2(mpd_worker_state->mpd_state, NULL, NULL, 0, false) == false) {
-            sticker_cache_free(&sticker_cache);
             LOG_ERROR("Sticker cache update failed");
             return false;        
         }
