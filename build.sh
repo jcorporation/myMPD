@@ -505,9 +505,33 @@ pkgdebian() {
 }
 
 pkgdocker() {
+  [ "$DOCKERFILE" = "" ] && DOCKERFILE="Dockerfile.alpine"
   prepare
-  cp contrib/packaging/docker/Dockerfile .
+  cp contrib/packaging/docker/"$DOCKERFILE" .
   docker build -t mympd .
+}
+
+pkgbuildx() {
+  if [ ! -x ~/.docker/cli-plugins/docker-buildx ]
+  then
+    echo "Docker buildx not found"
+    echo "Quick start:"
+    echo "  1. Download plugin: https://github.com/docker/buildx/releases/latest"
+    echo "  2. Save it to file: ~/.docker/cli-plugins/docker-buildx"
+    echo "  3. Make it executeable: chmod +x ~/.docker/cli-plugins/docker-buildx"
+    echo ""
+    echo "More info: https://www.docker.com/blog/getting-started-with-docker-for-arm-on-linux/"
+    exit 1
+  fi
+  [ "$DOCKERFILE" = "" ] && DOCKERFILE="Dockerfile.alpine"
+  [ "$PLATFORMS" = "" ] && PLATFORMS="linux/amd64,linux/arm64"
+  prepare
+  cp contrib/packaging/docker/"$DOCKERFILE" .
+  docker run --rm --privileged docker/binfmt:820fdd95a9972a5308930a2bdfb8573dd4447ad3
+  docker buildx create --name mympdbuilder
+  docker buildx use mympdbuilder
+  docker buildx inspect --bootstrap
+  docker buildx build -t mympd --platform "$PLATFORMS" .
 }
 
 pkgalpine() {
@@ -648,14 +672,14 @@ installdeps() {
   else 
     echo "Unsupported distribution detected."
     echo "You should manually install:"
-    echo " - gcc"
-    echo " - cmake"
-    echo " - perl"
-    echo " - java"
-    echo " - openssl (devel)"
-    echo " - flac (devel)"
-    echo " - libid3tag (devel)"
-    echo " - lua53 (devel)"
+    echo "  - gcc"
+    echo "  - cmake"
+    echo "  - perl"
+    echo "  - java"
+    echo "  - openssl (devel)"
+    echo "  - flac (devel)"
+    echo "  - libid3tag (devel)"
+    echo "  - lua53 (devel)"
   fi
 }
 
@@ -704,8 +728,9 @@ uninstall() {
   # cmake does not provide an uninstall target,
   # instead its manifest is of use at least for
   # the binaries
-  if [ -f release/install_manifest.txt ]; then
-	  xargs rm < release/install_manifest.txt
+  if [ -f release/install_manifest.txt ]
+  then
+    xargs rm < release/install_manifest.txt
   fi
 
   #MYMPD_INSTALL_PREFIX="/usr"
@@ -722,10 +747,11 @@ uninstall() {
   rm -f "$DESTDIR/usr/lib/systemd/system/mympd.service"
   rm -f "$DESTDIR/lib/systemd/system/mympd.service"
   #sysVinit, open-rc
-  if [ -z "$DESTDIR" -a "/etc/init.d/mympd" ]; then
-	  echo "SysVinit/ OpenRC-script /etc/init.d/mympd found."
-	  echo "Make sure it isn't part of any runlevel and delete by yourself"
-	  echo "or invoke with purge instead of uninstall."
+  if [ -z "$DESTDIR" ] && [ -f "/etc/init.d/mympd" ]
+  then
+    echo "SysVinit / OpenRC-script /etc/init.d/mympd found."
+    echo "Make sure it isn't part of any runlevel and delete by yourself"
+    echo "or invoke with purge instead of uninstall."
   fi
 }
 
@@ -798,6 +824,9 @@ case "$1" in
 	pkgdocker)
 	  pkgdocker
 	;;
+	pkgbuildx)
+	  pkgbuildx
+	;;
 	pkgalpine)
 	  pkgalpine
 	;;
@@ -837,56 +866,62 @@ case "$1" in
 	  echo "Version: ${VERSION}"
 	  echo ""
 	  echo "Build options:"
-	  echo "  release:        build release files in directory release"
-	  echo "  install:        installs release files from directory release"
-	  echo "                  following environment variables are respected"
-	  echo "                    - DESTDIR=\"\""
-	  echo "  releaseinstall: calls release and install afterwards"
-	  echo "  debug:          builds debug files in directory debug,"
-	  echo "                  linked with libasan3, uses assets in htdocs"
-	  echo "  memcheck:       builds debug files in directory debug"
-	  echo "                  for use with valgrind, uses assets in htdocs"
-	  echo "  check:          runs cppcheck and flawfinder on source files"
-	  echo "                  following environment variables are respected"
-	  echo "                    - CPPCHECKOPTS=\"--enable=warning\""
-	  echo "                    - FLAWFINDEROPTS=\"-m3\""
-	  echo "  test:           builds the unit testing files in test/build"
-	  echo "  installdeps:    installs build and run dependencies"
-	  echo "  translate:      builds the translation file for debug builds"
-	  echo "  createdist:     creates the minfied and compressed dist files"
+	  echo "  release:          build release files in directory release"
+	  echo "  install:          installs release files from directory release"
+	  echo "                    following environment variables are respected"
+	  echo "                      - DESTDIR=\"\""
+	  echo "  releaseinstall:   calls release and install afterwards"
+	  echo "  debug:            builds debug files in directory debug,"
+	  echo "                    linked with libasan3, uses assets in htdocs"
+	  echo "  memcheck:         builds debug files in directory debug"
+	  echo "                    for use with valgrind, uses assets in htdocs"
+	  echo "  check:            runs cppcheck and flawfinder on source files"
+	  echo "                    following environment variables are respected"
+	  echo "                      - CPPCHECKOPTS=\"--enable=warning\""
+	  echo "                      - FLAWFINDEROPTS=\"-m3\""
+	  echo "  test:             builds the unit testing files in test/build"
+	  echo "  installdeps:      installs build and run dependencies"
+	  echo "  translate:        builds the translation file for debug builds"
+	  echo "  createdist:       creates the minfied and compressed dist files"
 	  echo ""
 	  echo "Cleanup options:"
-	  echo "  cleanup:        cleanup source tree"
-	  echo "  cleanupdist:    cleanup dist directory, forces release to build new assets"
-	  echo "  cleanupoldinst: removes deprecated files"
-	  echo "  uninstall:      removes myMPD files, leaves configuration and "
-	  echo "                  state files in place"
-	  echo "                  following environment variables are respected"
-	  echo "                    - DESTDIR=\"\""
-	  echo "  purge:          removes all myMPD files, also your init scripts"
-	  echo "                  following environment variables are respected"
-	  echo "                    - DESTDIR=\"\""
+	  echo "  cleanup:          cleanup source tree"
+	  echo "  cleanupdist:      cleanup dist directory, forces release to build new assets"
+	  echo "  cleanupoldinst:   removes deprecated files"
+	  echo "  uninstall:        removes myMPD files, leaves configuration and "
+	  echo "                    state files in place"
+	  echo "                    following environment variables are respected"
+	  echo "                      - DESTDIR=\"\""
+	  echo "  purge:            removes all myMPD files, also your init scripts"
+	  echo "                    following environment variables are respected"
+	  echo "                      - DESTDIR=\"\""
 	  echo ""
 	  echo "Packaging options:"
-	  echo "  pkgalpine:      creates the alpine package"
-	  echo "  pkgarch:        creates the arch package"
-	  echo "                  following environment variables are respected"
-	  echo "                    - SIGN=\"FALSE\""
-	  echo "                    - GPGKEYID=\"\""
-	  echo "  pkgdebian:      creates the debian package"
-	  echo "                  following environment variables are respected"
-	  echo "                    - SIGN=\"FALSE\""
-	  echo "                    - GPGKEYID=\"\""
-	  echo "  pkgdocker:      creates the docker image (debian based)"
-	  echo "  pkgrpm:         creates the rpm package"
-	  echo "  pkgosc:         updates the open build service repository"
-	  echo "                  following environment variables are respected"
-	  echo "                    - OSC_REPO=\"home:jcorporation/myMPD\""
+	  echo "  pkgalpine:        creates the alpine package"
+	  echo "  pkgarch:          creates the arch package"
+	  echo "                    following environment variables are respected"
+	  echo "                      - SIGN=\"FALSE\""
+	  echo "                      - GPGKEYID=\"\""
+	  echo "  pkgdebian:        creates the debian package"
+	  echo "                    following environment variables are respected"
+	  echo "                      - SIGN=\"FALSE\""
+	  echo "                      - GPGKEYID=\"\""
+	  echo "  pkgdocker:        creates the docker image (debian based)"
+          echo "                    following environment variables are respected"
+          echo "                      - DOCKERFILE=\"Dockerfile.alpine\""
+          echo "  pkgbuildx:        creates a multiarch docker image with buildx"
+          echo "                    following environment variables are respected"
+          echo "                      - DOCKERFILE=\"Dockerfile.alpine\""
+          echo "                      - PLATFORMS=\"linux/amd64,linux/arm64\""
+	  echo "  pkgrpm:           creates the rpm package"
+	  echo "  pkgosc:           updates the open build service repository"
+	  echo "                    following environment variables are respected"
+	  echo "                      - OSC_REPO=\"home:jcorporation/myMPD\""
 	  echo ""
 	  echo "Misc options:"
-	  echo "  setversion:     sets version and date in packaging files from CMakeLists.txt"
-	  echo "  addmympduser:   adds mympd group and user"
-	  echo "  libmympdclient: updates libmpdclient"
+	  echo "  setversion:       sets version and date in packaging files from CMakeLists.txt"
+	  echo "  addmympduser:     adds mympd group and user"
+	  echo "  libmympdclient:   updates libmpdclient"
 	  echo ""
 	  echo "Environment variables for building"
 	  echo "  - MYMPD_INSTALL_PREFIX=\"/usr\""
