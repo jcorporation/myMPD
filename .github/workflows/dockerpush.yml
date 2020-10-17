@@ -74,6 +74,5 @@ jobs:
           echo IMAGE_ID=$IMAGE_ID
           echo VERSION=$VERSION
 
-          docker tag image $IMAGE_ID:$VERSION
           docker buildx build --platform "linux/amd64,linux/arm64" . --file contrib/packaging/docker/Dockerfile.alpine -t $IMAGE_ID:$VERSION --push
           
