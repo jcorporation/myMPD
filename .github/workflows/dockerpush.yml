@@ -29,7 +29,7 @@ jobs:
 
       - name: Run tests
         run: |
-            docker build . --file contrib/packaging/docker/Dockerfile.alpine
+            docker buildx build --plattform "linux/amd64,linux/arm64" . --file contrib/packaging/docker/Dockerfile.alpine
 
   # Push image to GitHub Package Registry.
   # See also https://docs.docker.com/docker-hub/builds/
@@ -44,7 +44,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Build image
-        run: docker build . --file contrib/packaging/docker/Dockerfile.alpine --tag image
+        run: docker buildx build --plattform "linux/amd64,linux/arm64" . --file contrib/packaging/docker/Dockerfile.alpine --tag image
 
       - name: Log into registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
