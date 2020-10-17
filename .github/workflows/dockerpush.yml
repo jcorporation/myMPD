@@ -29,7 +29,11 @@ jobs:
 
       - name: Run tests
         run: |
-            docker buildx build --platform "linux/amd64,linux/arm64" . --file contrib/packaging/docker/Dockerfile.alpine
+          docker run --rm --privileged docker/binfmt:820fdd95a9972a5308930a2bdfb8573dd4447ad3
+          docker buildx create --name mympdbuilder
+          docker buildx use mympdbuilder
+          docker buildx inspect --bootstrap
+          docker buildx build --platform "linux/amd64,linux/arm64" . --file contrib/packaging/docker/Dockerfile.alpine
 
   # Push image to GitHub Package Registry.
   # See also https://docs.docker.com/docker-hub/builds/
@@ -44,7 +48,12 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Build image
-        run: docker buildx build --platform "linux/amd64,linux/arm64" . --file contrib/packaging/docker/Dockerfile.alpine --tag image
+        run: |
+          docker run --rm --privileged docker/binfmt:820fdd95a9972a5308930a2bdfb8573dd4447ad3
+          docker buildx create --name mympdbuilder
+          docker buildx use mympdbuilder
+          docker buildx inspect --bootstrap
+          docker buildx build --platform "linux/amd64,linux/arm64" . --file contrib/packaging/docker/Dockerfile.alpine
 
       - name: Log into registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
