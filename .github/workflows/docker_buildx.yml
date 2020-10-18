@@ -1,0 +1,70 @@
+name: Docker
+
+on:
+  push:
+    # Publish `master` as Docker `latest` image.
+    branches:
+      - master
+      - devel
+
+    # Publish `v1.2.3` tags as releases.
+    tags:
+      - v*
+
+  # Run tests for any PRs.
+  pull_request:
+
+env:
+  # TODO: Change variable to your image's name.
+  IMAGE_NAME: mympd
+
+jobs:
+  # Run tests.
+  # See also https://docs.docker.com/docker-hub/builds/automated-testing/
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Run tests
+        run: |
+          docker run --rm --privileged docker/binfmt:820fdd95a9972a5308930a2bdfb8573dd4447ad3
+          docker buildx create --name mympdbuilder
+          docker buildx use mympdbuilder
+          docker buildx inspect --bootstrap
+          docker buildx build --platform "linux/amd64" . --file contrib/packaging/docker/Dockerfile.alpine
+  # Push image to GitHub Package Registry.
+  # See also https://docs.docker.com/docker-hub/builds/
+  push:
+    # Ensure test job passes before pushing image.
+    needs: test
+
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Log into registry
+        run: echo "${{ secrets.CR_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build and push image
+        run: |
+          docker run --rm --privileged docker/binfmt:820fdd95a9972a5308930a2bdfb8573dd4447ad3
+          docker buildx create --name mympdbuilder
+          docker buildx use mympdbuilder
+          docker buildx inspect --bootstrap
+          IMAGE_ID=ghcr.io/jcorporation/mympd/$IMAGE_NAME
+          # Strip git ref prefix from version
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          # Strip "v" prefix from tag name
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          # Use Docker `latest` tag convention
+          [ "$VERSION" == "master" ] && VERSION=latest
+          
+          # Use Docker `latest` tag convention
+          [ "$VERSION" == "devel" ] && IMAGE_ID="${IMAGE_ID}-devel"
+          echo IMAGE_ID=$IMAGE_ID
+          echo VERSION=$VERSION
+          docker buildx build --platform "linux/amd64,linux/arm64" . --file contrib/packaging/docker/Dockerfile.alpine -t $IMAGE_ID:$VERSION --push
