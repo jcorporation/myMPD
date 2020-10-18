@@ -469,6 +469,7 @@ function parseDatabase(obj) {
             picture = subdir + '/albumart/' + encodeURI(obj.result.data[i].FirstSongUri);
             html = '<div class="card card-grid clickable" data-picture="' + picture  + '" ' + 
                        'data-uri="' + encodeURI(obj.result.data[i].FirstSongUri.replace(/\/[^/]+$/, '')) + '" ' +
+                       'data-type="dir" data-name="' + encodeURI(obj.result.data[i].Album) + '" ' +
                        'data-album="' + encodeURI(obj.result.data[i].Album) + '" ' +
                        'data-albumartist="' + encodeURI(obj.result.data[i].AlbumArtist) + '" tabindex="0">' +
                    '<div class="card-body album-cover-loading album-cover-grid bg-white" id="' + id + '"></div>' +
@@ -554,9 +555,7 @@ function parseDatabase(obj) {
                         cur.classList.remove('selected');
                         next.classList.add('selected');
                         handled = true;
-                        if (cur.getBoundingClientRect().top != next.getBoundingClientRect().top) {
-                            scrollFocusIntoView();
-                        }
+                        scrollFocusIntoView();
                     }
                 }
                 else if (event.key === 'Escape') {
@@ -1300,8 +1299,8 @@ app.current = { "app": "Playback", "tab": undefined, "view": undefined, "page": 
 app.last = { "app": undefined, "tab": undefined, "view": undefined, "filter": "", "search": "", "sort": "", "tag": "", "scrollPos": 0 };
 
 var domCache = {};
-domCache.navbarBottomBtns = document.getElementById('navbar-main').getElementsByTagName('div');
-domCache.navbarBottomBtnsLen = domCache.navbarBottomBtns.length;
+domCache.navbarBtns = document.getElementById('navbar-main').getElementsByTagName('div');
+domCache.navbarBtnsLen = domCache.navbarBtns.length;
 domCache.counter = document.getElementById('counter');
 domCache.volumePrct = document.getElementById('volumePrct');
 domCache.volumeControl = document.getElementById('volumeControl');
@@ -1328,6 +1327,9 @@ domCache.badgeQueueItems = document.getElementById('badgeQueueItems');
 domCache.searchstr = document.getElementById('searchstr');
 domCache.searchCrumb = document.getElementById('searchCrumb');
 domCache.body = document.getElementsByTagName('body')[0];
+domCache.footer = document.getElementsByTagName('footer')[0];
+domCache.header = document.getElementById('header');
+domCache.mainMenu = document.getElementById('mainMenu');
 
 /* eslint-disable no-unused-vars */
 var modalConnection = new BSN.Modal(document.getElementById('modalConnection'));
@@ -1369,19 +1371,13 @@ var collapseJukeboxMode = new BSN.Collapse(document.getElementById('labelJukebox
 function appPrepare(scrollPos) {
     if (app.current.app !== app.last.app || app.current.tab !== app.last.tab || app.current.view !== app.last.view) {
         //Hide all cards + nav
-        for (let i = 0; i < domCache.navbarBottomBtnsLen; i++) {
-            domCache.navbarBottomBtns[i].classList.remove('active');
+        for (let i = 0; i < domCache.navbarBtnsLen; i++) {
+            domCache.navbarBtns[i].classList.remove('active');
         }
         document.getElementById('cardPlayback').classList.add('hide');
         document.getElementById('cardQueue').classList.add('hide');
         document.getElementById('cardBrowse').classList.add('hide');
         document.getElementById('cardSearch').classList.add('hide');
-        for (let i = 0; i < domCache.cardHeaderBrowseLen; i++) {
-            domCache.cardHeaderBrowse[i].classList.remove('active');
-        }
-        for (let i = 0; i < domCache.cardHeaderQueueLen; i++) {
-            domCache.cardHeaderQueue[i].classList.remove('active');
-        }
         document.getElementById('cardQueueCurrent').classList.add('hide');
         document.getElementById('cardQueueLastPlayed').classList.add('hide');
         document.getElementById('cardBrowsePlaylists').classList.add('hide');
@@ -1478,7 +1474,7 @@ function appRoute() {
         app.current.search = params[9];
     }
     else {
-        logDebug('Invalid params: ' + hash);
+        appPrepare(0);
         appGoto('Playback');
         return;
     }
@@ -2697,47 +2693,13 @@ appInitStart();
 */
 
 function setStateIcon(state) {
-    let stateIcon = document.getElementById('navState').children[0];
-    let websocketStateIcon = document.getElementById('websocketState').children[0];
-    let mpdStateIcon = document.getElementById('mpdState').children[0];
-    let websocketStateText = document.getElementById('websocketState').getElementsByTagName('small')[0];
-    let mpdStateText = document.getElementById('mpdState').getElementsByTagName('small')[0];
-    
-    if (websocketConnected === false) {
-        stateIcon.innerText = 'cloud_off';
-    }
-    else if (settings.mpdConnected === false) {
-        stateIcon.innerText = 'cloud_off';
+    if (websocketConnected === false || settings.mpdConnected === false) {
+        domCache.mainMenu.classList.add('text-light');
+        domCache.mainMenu.classList.remove('connected');
     }
     else {
-        if (state === 'newMessage') {
-            stateIcon.innerText = 'chat';
-        }
-        else if (state === 'noMessage') {
-            stateIcon.innerText = 'chat_bubble_outline';
-        }
-    }
-    
-    if (websocketConnected === false) {
-        websocketStateIcon.innerText = 'cloud_off';
-        websocketStateIcon.classList.remove('text-success');
-        websocketStateText.innerText = t('Websocket disconnected');
-    }
-    else { 
-        websocketStateIcon.innerText = 'cloud_done';
-        websocketStateIcon.classList.add('text-success');
-        websocketStateText.innerText = t('Websocket connected');
-    }
-
-    if (websocketConnected === false) { 
-        mpdStateIcon.innerText = 'cloud_off';
-        mpdStateIcon.classList.remove('text-success');
-        mpdStateText.innerText = t('MPD disconnected');
-    }
-    else {
-        mpdStateIcon.innerText = 'cloud_done';
-        mpdStateIcon.classList.add('text-success');
-        mpdStateText.innerText = t('MPD connected');
+        domCache.mainMenu.classList.add('connected');
+        domCache.mainMenu.classList.remove('text-light');
     }
 }
 
@@ -2852,11 +2814,6 @@ function logMessage(notificationTitle, notificationText, notificationHtml, notif
     if (overviewEls.length > 10) {
         overviewEls[10].remove();
     }
-
-    document.getElementById('navState').children[0].classList.add('text-success');
-    setTimeout(function() {
-        document.getElementById('navState').children[0].classList.remove('text-success');
-    }, 250);
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -3074,6 +3031,7 @@ function parsePlaylists(obj) {
         document.getElementById('playlistContentBtns').classList.add('hide');
         document.getElementById('smartPlaylistContentBtns').classList.add('hide');
         document.getElementById('btnAddSmartpls').parentNode.classList.remove('hide');
+        document.getElementById('BrowseNavPlaylists').parentNode.classList.remove('hide');
     } else {
         if (obj.result.uri.indexOf('.') > -1 || obj.result.smartpls === true) {
             document.getElementById('BrowsePlaylistsDetailList').setAttribute('data-ro', 'true')
@@ -3092,6 +3050,7 @@ function parsePlaylists(obj) {
         document.getElementById('BrowsePlaylistsAllList').classList.add('hide');
         document.getElementById('btnBrowsePlaylistsAll').parentNode.classList.remove('hide');
         document.getElementById('btnAddSmartpls').parentNode.classList.add('hide');
+        document.getElementById('BrowseNavPlaylists').parentNode.classList.add('hide');
     }
             
     let nrItems = obj.result.returnedEntities;
@@ -6175,12 +6134,26 @@ function scrollFocusIntoView() {
     let el = document.activeElement;
     let posY = el.getBoundingClientRect().top;
     let height = el.offsetHeight;
-    let treshold = height * 2;
-    if (posY < treshold) {
-        window.scrollBy(0, - treshold);
+    let headerHeight = el.parentNode.parentNode.offsetTop;
+    if (window.innerHeight > window.innerWidth) {
+        headerHeight += domCache.header.offsetHeight;
     }
-    else if (posY + height > window.innerHeight - treshold) {
-        window.scrollBy(0, treshold);
+    let footerHeight = domCache.footer.offsetHeight;
+    let parentHeight = window.innerHeight - headerHeight - footerHeight;
+    let treshold = height / 2;
+    //console.log('posY: ' + posY);
+    //console.log('height: ' + height);
+    //console.log('treshold: ' + treshold);
+    //console.log('parentHeight: ' + parentHeight);
+    //console.log('headerHeight:' + headerHeight);
+    //console.log('footerHeight:' + footerHeight);
+    if (posY <= headerHeight + treshold) {
+        //console.log('0, - height');
+        window.scrollBy(0, - height);
+    }
+    else if (posY + height > parentHeight - treshold) {
+        //console.log('0, height');
+        window.scrollBy(0, height);
     }
 }
 
