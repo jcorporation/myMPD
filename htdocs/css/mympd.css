@@ -609,7 +609,8 @@ div.key {
   line-height: 2rem;
 }
 
-ol#searchCrumb {
+ol#searchCrumb,
+ol#searchDatabaseCrumb {
   padding: 0.5rem;
 }
 

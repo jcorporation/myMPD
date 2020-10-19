@@ -32,18 +32,6 @@ function setViewport(store) {
     }
 }
 
-async function localplayerPlay() {
-    let localPlayer = document.getElementById('localPlayer');
-    if (localPlayer.paused) {
-        try {
-            await localPlayer.play();
-        } 
-        catch(err) {
-            showNotification(t('Local playback'), t('Can not start playing'), '', 'danger');
-        }
-    }
-}
-
 //eslint-disable-next-line no-unused-vars
 function addStream() {
     let streamUriEl = document.getElementById('streamUrl');

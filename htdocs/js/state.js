@@ -185,10 +185,9 @@ function parseState(obj) {
     if (obj.result.songPos === '-1') {
         domCache.currentTitle.innerText = 'Not playing';
         document.title = 'myMPD';
-        let footerTitle = document.getElementById('footerTitle');
-        footerTitle.innerText = '';
-        footerTitle.removeAttribute('title');
-        footerTitle.classList.remove('clickable');
+        domCache.footerTitle.innerText = '';
+        domCache.footerTitle.removeAttribute('title');
+        domCache.footerTitle.classList.remove('clickable');
         clearCurrentCover();
         if (settings.bgCover === true) {
             clearBackgroundImage();
@@ -311,7 +310,7 @@ function _setCurrentCover(url, el) {
     img.src = subdir + '/albumart/' + url;
 }
 
-function clearCurrentCover(el) {
+function clearCurrentCover() {
     _clearCurrentCover(domCache.currentCover);
     _clearCurrentCover(domCache.footerCover);
 }
@@ -390,10 +389,10 @@ function songChange(obj) {
     domCache.footerCover.title = pageTitle;
     
     if (obj.result.uri !== undefined && obj.result.uri !== '' && obj.result.uri.indexOf('://') === -1) {
-        footerTitle.classList.add('clickable');
+        domCache.footerTitle.classList.add('clickable');
     }
     else {
-        footerTitle.classList.remove('clickable');
+        domCache.footerTitle.classList.remove('clickable');
     }
 
     if (obj.result.uri !== undefined) {

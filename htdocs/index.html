@@ -424,10 +424,19 @@
                 <div class="input-group-prepend">
                   <button id="btnDatabaseSearchDropdown" data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
                     <span class="material-icons">search</span>
-                    <span data-phrase="AlbumArtist" id="searchDatabaseTagsDesc" class="hide"></span>
+                    <span data-phrase="AlbumArtist" id="searchDatabaseTagsDesc"></span>
                   </button>
                   <div class="dropdown-menu bg-lite-dark px-2" id="searchDatabaseTags">
                   </div>
+                </div>
+                <div class="input-group-prepend featAdvsearch">
+                  <select class="form-control custom-select border-secondary rounded-0" id="searchDatabaseMatch">
+                    <option data-phrase="contains" value="contains"></option>
+                    <option value="==">==</option>
+                    <option class="featRegex" value="=~">=~</option>
+                    <option value="!=">!=</option>
+                    <option value="!~">!~</option>
+                  </select>
                 </div>            
                 <input data-placeholder-phrase="Search" type="text" class="form-control border-secondary" id="searchDatabaseStr"/>
               </div>
@@ -454,6 +463,7 @@
               <button data-title-phrase="Next page" data-href='{"cmd": "gotoPage", "options": ["next"]}' type="button" class="btn btn-secondary btn-group-append">&raquo;</button>
             </div>
           </div>
+          <ol class="featAdvsearch breadcrumb hide" id="searchDatabaseCrumb"></ol>
           <div class="container justify-content-between">
             <div id="BrowseDatabaseCards" class="row justify-content-between">
             </div>

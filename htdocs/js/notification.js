@@ -5,7 +5,7 @@
  https://github.com/jcorporation/mympd
 */
 
-function setStateIcon(state) {
+function setStateIcon() {
     if (websocketConnected === false || settings.mpdConnected === false) {
         domCache.mainMenu.classList.add('text-light');
         domCache.mainMenu.classList.remove('connected');
@@ -82,7 +82,7 @@ function showNotification(notificationTitle, notificationText, notificationHtml,
             hideNotification();
         }, 3000);
     }
-    setStateIcon('newMessage');
+    setStateIcon();
     logMessage(notificationTitle, notificationText, notificationHtml, notificationType);
 }
 
@@ -135,7 +135,7 @@ function clearLogOverview() {
     for (let i = overviewEls.length - 1; i >= 0; i--) {
         overviewEls[i].remove();
     }
-    setStateIcon('noMessage');
+    setStateIcon();
 }
 
 function hideNotification() {

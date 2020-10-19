@@ -309,12 +309,18 @@ sds mpd_client_put_firstsong_in_albums(t_config *config, t_mpd_client_state *mpd
     }
     
     sds expression = sdscatprintf(sdsempty(), "((Track == '%d')", config->covergridminsongs);
+/*
     unsigned long searchstr_len = strlen(searchstr);
     if (config->regex == true && searchstr_len > 0 && searchstr_len <= 2 && strlen(filter) > 0) {
         expression = sdscatfmt(expression, " AND (%s =~ '^%s')", filter, searchstr);
     }
-    else if (strlen(searchstr) > 0 && strlen(filter) > 0) {
+    else if (searchstr_len > 0 && strlen(filter) > 0) {
         expression = sdscatfmt(expression, " AND (%s contains '%s')", filter, searchstr);
+    }
+*/
+    if (strlen(searchstr) > 0) {
+        expression = sdscat(expression, " AND ");
+        expression = sdscat(expression, searchstr);
     }
     expression = sdscat(expression, ")");
     
