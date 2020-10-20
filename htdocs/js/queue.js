@@ -317,3 +317,10 @@ function delQueueSong(mode, start, end) {
         sendAPI("MPD_API_QUEUE_RM_TRACK", { "track": start});
     }
 }
+
+//eslint-disable-next-line no-unused-vars
+function gotoPlayingSong() {
+    let page = lastState.songPos < settings.maxElementsPerPage ? 0 : Math.floor(lastState.songPos / settings.maxElementsPerPage) * settings.maxElementsPerPage;
+    console.log(page);
+    gotoPage(page);
+}
