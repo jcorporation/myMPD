@@ -267,7 +267,7 @@ function parseDatabase(obj) {
                     }
                 }
                 else {
-                    appGoto(app.current.app, app.current.card, undefined, '0/' + app.current.tag + 
+                    appGoto(app.current.app, app.current.card, undefined, '0/Album' +
                         '/AlbumArtist/Album/(' + app.current.tag + ' == \'' + decodeURI(event.target.parentNode.getAttribute('data-tag')) + '\')');
                 }
             }, false);

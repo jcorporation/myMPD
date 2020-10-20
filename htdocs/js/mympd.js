@@ -331,7 +331,7 @@ function appRoute() {
                     crumbEl.innerHTML += '<button data-filter="' + encodeURI(lastEl) +'" class="btn btn-light mr-2">' + e(lastEl) + '<span class="badge badge-secondary">&times;</span></button>';
                 }
                 document.getElementById('searchDatabaseMatch').value = 'contains';
-                selectTag('searchDatabaseTags', 'searchDatabaseTagsDesc', 'Album');
+                //selectTag('searchDatabaseTags', 'searchDatabaseTagsDesc', 'Album');
             }
             crumbEl.classList.remove('hide');
             document.getElementById('searchDatabaseMatch').classList.remove('hide');
