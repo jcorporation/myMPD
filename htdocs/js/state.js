@@ -99,7 +99,7 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
     currentSong.elapsedTime = elapsedTime;
     currentSong.currentSongId = currentSongId;
 
-    const progressPx = Math.ceil(domCache.progress.offsetWidth * elapsedTime / totalTime);
+    const progressPx = totalTime > 0 ? Math.ceil(domCache.progress.offsetWidth * elapsedTime / totalTime) : 0;
     if (progressPx === 0) {
         domCache.progressBar.style.transition = 'none';
     }
