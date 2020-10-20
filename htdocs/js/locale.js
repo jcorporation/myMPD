@@ -96,6 +96,7 @@ function beautifySongDuration(x) {
         minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
 }
 
+//eslint-disable-next-line no-unused-vars
 function gtPage(phrase, returnedEntities, totalEntities) {
     if (totalEntities > -1) {
         return t(phrase, totalEntities);

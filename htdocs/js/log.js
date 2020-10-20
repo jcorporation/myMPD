@@ -5,22 +5,27 @@
  https://github.com/jcorporation/mympd
 */
 
+//eslint-disable-next-line no-unused-vars
 function logError(line) {
     logLog(0, 'ERROR: ' + line);
 }
 
+//eslint-disable-next-line no-unused-vars
 function logWarn(line) {
     logLog(1, 'WARN: ' + line);
 }
 
+//eslint-disable-next-line no-unused-vars
 function logInfo(line) {
     logLog(2, 'INFO: ' + line);
 }
 
+//eslint-disable-next-line no-unused-vars
 function logVerbose(line) {
     logLog(3, 'VERBOSE: ' + line);
 }
 
+//eslint-disable-next-line no-unused-vars
 function logDebug(line) {
     logLog(4, 'DEBUG: ' + line);
 }

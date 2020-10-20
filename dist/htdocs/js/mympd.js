@@ -624,10 +624,12 @@ function parseAlbumDetails(obj) {
     document.getElementById('BrowseDatabaseDetailList').classList.remove('opacity05');
 }
 
+//eslint-disable-next-line no-unused-vars
 function backToAlbumGrid() {
     appGoto('Browse', 'Database', 'List');
 }  
 
+//eslint-disable-next-line no-unused-vars
 function addAlbum(action) {
     const album = decodeURI(app.current.tag);
     const albumArtist = decodeURI(app.current.search);
@@ -805,6 +807,7 @@ function beautifySongDuration(x) {
         minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
 }
 
+//eslint-disable-next-line no-unused-vars
 function gtPage(phrase, returnedEntities, totalEntities) {
     if (totalEntities > -1) {
         return t(phrase, totalEntities);
@@ -904,22 +907,27 @@ function checkLocalPlayerState() {
  https://github.com/jcorporation/mympd
 */
 
+//eslint-disable-next-line no-unused-vars
 function logError(line) {
     logLog(0, 'ERROR: ' + line);
 }
 
+//eslint-disable-next-line no-unused-vars
 function logWarn(line) {
     logLog(1, 'WARN: ' + line);
 }
 
+//eslint-disable-next-line no-unused-vars
 function logInfo(line) {
     logLog(2, 'INFO: ' + line);
 }
 
+//eslint-disable-next-line no-unused-vars
 function logVerbose(line) {
     logLog(3, 'VERBOSE: ' + line);
 }
 
+//eslint-disable-next-line no-unused-vars
 function logDebug(line) {
     logLog(4, 'DEBUG: ' + line);
 }
@@ -1846,7 +1854,7 @@ function appInit() {
     domCache.progress.addEventListener('mousemove', function(event) {
         if (playstate === 'pause' || playstate === 'play') {
             domCache.progressPos.innerText = beautifySongDuration(Math.ceil((currentSong.totalTime / event.target.offsetWidth) * event.clientX));
-	    domCache.progressPos.style.display = 'block';
+            domCache.progressPos.style.display = 'block';
 	    const w = domCache.progressPos.offsetWidth / 2;
 	    const posX = event.clientX < w ? event.clientX : (event.clientX < window.innerWidth - w ? event.clientX - w : event.clientX - (w * 2));
             domCache.progressPos.style.left = posX + 'px';
