@@ -726,9 +726,6 @@ Gehe zur Suche
 myMPD installed as app
 myMPD wurde als App installiert
 
-Can not start playing
-Wiedergabe kann nicht gestartet werden
-
 MPD disconnected
 MPD nicht verbunden
 
