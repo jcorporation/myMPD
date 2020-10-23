@@ -435,6 +435,13 @@ check() {
   else
     echo "flawfinder not found"
   fi
+
+  if [ ! -f src/compile_commands.json ]
+  then
+    echo "src/compile_commands.json not found"
+    echo "run: ./build.sh debug"
+    exit 1
+  fi
   
   CLANGTIDYBIN=$(command -v clang-tidy)
   if [ "$CLANGTIDYBIN" != "" ]
