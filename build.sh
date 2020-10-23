@@ -524,7 +524,7 @@ pkgbuildx() {
     exit 1
   fi
   [ "$DOCKERFILE" = "" ] && DOCKERFILE="Dockerfile.alpine"
-  [ "$PLATFORMS" = "" ] && PLATFORMS="linux/amd64,linux/arm64,linux/arm/v8"
+  [ "$PLATFORMS" = "" ] && PLATFORMS="linux/amd64,linux/arm64"
   prepare
   cp contrib/packaging/docker/"$DOCKERFILE" Dockerfile
   docker run --rm --privileged docker/binfmt:820fdd95a9972a5308930a2bdfb8573dd4447ad3
@@ -912,7 +912,7 @@ case "$1" in
           echo "  pkgbuildx:        creates a multiarch docker image with buildx"
           echo "                    following environment variables are respected"
           echo "                      - DOCKERFILE=\"Dockerfile.alpine\""
-          echo "                      - PLATFORMS=\"linux/amd64,linux/arm64,linux/arm/v8\""
+          echo "                      - PLATFORMS=\"linux/amd64,linux/arm64\""
 	  echo "  pkgrpm:           creates the rpm package"
 	  echo "  pkgosc:           updates the open build service repository"
 	  echo "                    following environment variables are respected"
