@@ -67,4 +67,4 @@ jobs:
           [ "$VERSION" == "devel" ] && IMAGE_ID="${IMAGE_ID}-devel"
           echo IMAGE_ID=$IMAGE_ID
           echo VERSION=$VERSION
-          docker buildx build --platform "linux/amd64,linux/arm64" . --file contrib/packaging/docker/Dockerfile.alpine -t $IMAGE_ID:$VERSION --push
+          docker buildx build --platform "linux/amd64,linux/arm64,linux/arm/v8" . --file contrib/packaging/docker/Dockerfile.alpine -t $IMAGE_ID:$VERSION --push
