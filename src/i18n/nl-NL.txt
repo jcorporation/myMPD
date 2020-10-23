@@ -717,9 +717,6 @@ Naar Zoeken
 myMPD installed as app
 myMPD werd als app geïnstalleerd 
 
-Can not start playing
-Afspelen niet gestart
-
 MPD disconnected
 MPD niet verbonden
 

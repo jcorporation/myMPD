@@ -720,9 +720,6 @@ Tarkenna haku
 myMPD installed as app
 myMPD asennettu sovelluksena
 
-Can not start playing
-Toistoa ei voi käynnistää
-
 MPD disconnected
 MPD yhteys katkaistu
 

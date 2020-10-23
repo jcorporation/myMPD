@@ -720,9 +720,6 @@ Centrar en búsqueda
 myMPD installed as app
 myMPD instalado como aplicación
 
-Can not start playing
-No se puede iniciar la reproducción
-
 MPD disconnected
 MPD desconectado
 

@@ -726,9 +726,6 @@ Focus search
 myMPD installed as app
 myMPD가 앱으로 설치됨
 
-Can not start playing
-연주를 시작할 수 없음
-
 MPD disconnected
 MPD 연결 끊어짐
 
@@ -1245,9 +1242,6 @@ Info
 Error
 오류
 
-Websocket is disconnected
-웹소켓 연결 안 됨
-
 Auto
 자동
 
@@ -1517,3 +1511,18 @@ enabled
 
 No mixed content,  MPD stream must be served over https:
 혼합된 컨텐트는 안되며, MPD 스트리밍 서비스는 https:를 통해야 합니다.
+
+Details
+상세
+
+Port
+포트
+
+Select tag to display
+표시할 태그 선택
+
+Websocket is disconnected
+웹소켓 연결 안 됨
+
+Goto playing song
+연주 곡으로 가기
