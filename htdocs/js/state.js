@@ -73,10 +73,18 @@ function showListOutputAttributes(outputName) {
         let list = '<tr><td>' + t('Name') + '</td><td>' + e(output.name) + '</td></tr>' +
             '<tr><td>' + t('State') + '</td><td>' + (output.state === 1 ? t('enabled') : t('disabled')) + '</td></tr>' +
             '<tr><td>' + t('Plugin') + '</td><td>' + e(output.plugin) + '</td></tr>';
+        let i = 0;
         Object.keys(output.attributes).forEach(function(key) {
+            i++;
             list += '<tr><td>' + e(key) + '</td><td><input name="' + e(key) + '" class="form-control border-secondary" type="text" value="' + 
                 e(output.attributes[key]) + '"/></td></tr>';
         });
+        if (i > 0) {
+            document.getElementById('btnOutputAttributesSave').removeAttribute('disabled');
+        }
+        else {
+            document.getElementById('btnOutputAttributesSave').setAttribute('disabled', 'disabled');
+        }
         document.getElementById('outputAttributesList').innerHTML = list;
     });
 }
@@ -108,6 +116,13 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
         setTimeout(function() {
             domCache.progressBar.style.transition = progressBarTransition;
         }, 10);
+    }
+    
+    if (totalTime <= 0) {
+        domCache.progress.style.cursor = 'default';
+    }
+    else {
+        domCache.progress.style.cursor = 'pointer';
     }
 
     let counterText = beautifySongDuration(elapsedTime) + "&nbsp;/&nbsp;" + beautifySongDuration(totalTime);

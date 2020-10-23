@@ -122,6 +122,7 @@ var modalPartitions = new BSN.Modal(document.getElementById('modalPartitions'));
 var modalPartitionOutputs = new BSN.Modal(document.getElementById('modalPartitionOutputs'));
 var modalTrigger = new BSN.Modal(document.getElementById('modalTrigger'));
 var modalOutputAttributes = new BSN.Modal(document.getElementById('modalOutputAttributes'));
+var modalPicture = new BSN.Modal(document.getElementById('modalPicture'));
 
 var dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
 var dropdownVolumeMenu = new BSN.Dropdown(document.getElementById('volumeMenu'));
@@ -354,9 +355,13 @@ function appRoute() {
         document.getElementById('viewListDatabase').classList.add('hide');
         document.getElementById('viewDetailDatabase').classList.remove('hide');
         if (app.current.filter === 'Album') {
+            let cols = settings.colsBrowseDatabaseDetail.slice();
+            if (cols.includes('Disc') === false) {
+                cols.push('Disc');
+            }
             sendAPI("MPD_API_DATABASE_TAG_ALBUM_TITLE_LIST", {"album": app.current.tag,
                 "search": app.current.search,
-                "tag": app.current.sort, "cols": settings.colsBrowseDatabaseDetail}, parseAlbumDetails);
+                "tag": app.current.sort, "cols": cols}, parseAlbumDetails);
         }    
     }
     else if (app.current.app === 'Search') {
@@ -590,7 +595,7 @@ function appInit() {
     }, false);
 
     domCache.progress.addEventListener('click', function(event) {
-        if (currentSong && currentSong.currentSongId >= 0) {
+        if (currentSong && currentSong.currentSongId >= 0 && currentSong.totalTime > 0) {
             domCache.progressBar.style.transition = 'none';
             domCache.progressBar.style.width = event.clientX + 'px';
             setTimeout(function() {
@@ -601,7 +606,7 @@ function appInit() {
         }
     }, false);
     domCache.progress.addEventListener('mousemove', function(event) {
-        if (playstate === 'pause' || playstate === 'play') {
+        if ((playstate === 'pause' || playstate === 'play') && currentSong.totalTime > 0) {
             domCache.progressPos.innerText = beautifySongDuration(Math.ceil((currentSong.totalTime / event.target.offsetWidth) * event.clientX));
 	    domCache.progressPos.style.display = 'block';
 	    const w = domCache.progressPos.offsetWidth / 2;

@@ -169,3 +169,8 @@ function _updateDBfinished(idleEvent) {
         showNotification(t('Database update finished'), '', '', 'success');
     }
 }
+
+function zoomPicture(el) {
+    modalPicture.show();
+    document.getElementById('modalPictureImg').style.backgroundImage = el.style.backgroundImage;
+}

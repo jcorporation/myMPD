@@ -94,7 +94,7 @@ bool check_error_and_recover2(t_mpd_state *mpd_state, sds *buffer, sds method, l
 
         if (error == 8 || //Connection closed by the server
             error == 5 || //Broken pipe 
-            error == 4    // Timeout
+            error == 4    //Timeout
         ) { 
             mpd_state->conn_state = MPD_FAILURE;
         }

@@ -117,10 +117,11 @@ sds mpd_client_put_playlist_list(t_config *config, t_mpd_client_state *mpd_clien
     struct mpd_song *song;
     unsigned entities_returned = 0;
     unsigned entity_count = 0;
+    sds entityName = sdsempty();
     while ((song = mpd_recv_song(mpd_client_state->mpd_state->conn)) != NULL) {
         entity_count++;
         if (entity_count > offset && entity_count <= offset + mpd_client_state->max_elements_per_page) {
-            const char *entityName = mpd_shared_get_tag(song, MPD_TAG_TITLE);
+            entityName = mpd_shared_get_tags(song, MPD_TAG_TITLE, entityName);
             if (strncmp(filter, "-", 1) == 0 || strncasecmp(filter, entityName, 1) == 0 ||
                (strncmp(filter, "0", 1) == 0 && isalpha(*entityName) == 0))
             {
@@ -139,7 +140,7 @@ sds mpd_client_put_playlist_list(t_config *config, t_mpd_client_state *mpd_clien
         }
         mpd_song_free(song);
     }
-
+    sdsfree(entityName);
     mpd_response_finish(mpd_client_state->mpd_state->conn);
     if (check_error_and_recover2(mpd_client_state->mpd_state, &buffer, method, request_id, false) == false) {
         return buffer;

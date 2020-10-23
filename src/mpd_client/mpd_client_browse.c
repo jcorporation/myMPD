@@ -12,6 +12,7 @@
 #include <assert.h>
 #include <ctype.h>
 #include <dirent.h>
+#include <inttypes.h>
 #include <mpd/client.h>
 
 #include "../../dist/src/sds/sds.h"
@@ -126,7 +127,8 @@ sds mpd_client_put_filesystem(t_config *config, t_mpd_client_state *mpd_client_s
                 }
                 case MPD_ENTITY_TYPE_SONG: {
                     const struct mpd_song *song = mpd_entity_get_song(entity);
-                    const char *entityName = mpd_shared_get_tag(song, MPD_TAG_TITLE);
+                    sds entityName = sdsempty();
+                    entityName = mpd_shared_get_tags(song, MPD_TAG_TITLE, entityName);
                     if (strncmp(filter, "-", 1) == 0 || strncasecmp(filter, entityName, 1) == 0 ||
                         (strncmp(filter, "0", 1) == 0 && isalpha(*entityName) == 0 )) 
                     {
@@ -140,6 +142,7 @@ sds mpd_client_put_filesystem(t_config *config, t_mpd_client_state *mpd_client_s
                     else {
                         entity_count--;
                     }
+                    sdsfree(entityName);
                     break;
                 }
                 case MPD_ENTITY_TYPE_DIRECTORY: {
@@ -252,6 +255,7 @@ sds mpd_client_put_songs_in_album(t_mpd_client_state *mpd_client_state, sds buff
     int entity_count = 0;
     int entities_returned = 0;
     unsigned int totalTime = 0;
+    int discs = 1;
 
     while ((song = mpd_recv_song(mpd_client_state->mpd_state->conn)) != NULL) {
         entity_count++;
@@ -261,6 +265,13 @@ sds mpd_client_put_songs_in_album(t_mpd_client_state *mpd_client_state, sds buff
         else {
             first_song = mpd_song_dup(song);
         }
+        const char *disc;
+        if ((disc = mpd_song_get_tag(song, MPD_TAG_DISC, 0)) != NULL) {
+            int d = strtoimax(disc, NULL, 10);
+            if (d > discs) {
+                discs = d;
+            }
+        }
         buffer = sdscat(buffer, "{\"Type\": \"song\",");
         buffer = put_song_tags(buffer, mpd_client_state->mpd_state, tagcols, song);
         buffer = sdscat(buffer, "}");
@@ -269,9 +280,9 @@ sds mpd_client_put_songs_in_album(t_mpd_client_state *mpd_client_state, sds buff
         mpd_song_free(song);
     }
 
-    char *albumartist = NULL;
+    sds albumartist = sdsempty();
     if (first_song != NULL) {
-        albumartist = mpd_shared_get_tag(first_song, MPD_TAG_ALBUM_ARTIST);
+        albumartist = mpd_shared_get_tags(first_song, MPD_TAG_ALBUM_ARTIST, albumartist);
     }
 
     buffer = sdscat(buffer, "],");
@@ -280,14 +291,15 @@ sds mpd_client_put_songs_in_album(t_mpd_client_state *mpd_client_state, sds buff
     buffer = tojson_char(buffer, "Album", album, true);
     buffer = tojson_char(buffer, "search", search, true);
     buffer = tojson_char(buffer, "tag", tag, true);
-    buffer = tojson_char(buffer, "AlbumArtist", (albumartist != NULL ? albumartist : "-"), true);
+    buffer = tojson_char(buffer, "AlbumArtist", albumartist, true);
+    buffer = tojson_long(buffer, "Discs", discs, true);
     buffer = tojson_long(buffer, "totalTime", totalTime, false);
     buffer = jsonrpc_end_result(buffer);
         
     if (first_song != NULL) {
         mpd_song_free(first_song);
     }
-
+    sdsfree(albumartist);
     mpd_response_finish(mpd_client_state->mpd_state->conn);
     if (check_error_and_recover2(mpd_client_state->mpd_state, &buffer, method, request_id, false) == false) {
         return buffer;
@@ -309,6 +321,9 @@ sds mpd_client_put_firstsong_in_albums(t_config *config, t_mpd_client_state *mpd
     }
     
     sds expression = sdscatprintf(sdsempty(), "((Track == '%d')", config->covergridminsongs);
+    if (mpd_shared_tag_exists(mpd_client_state->mpd_state->mympd_tag_types.tags, mpd_client_state->mpd_state->mympd_tag_types.len, MPD_TAG_DISC) == true) {
+        expression = sdscat(expression, " AND (Disc == '1')");
+    }
 /*
     unsigned long searchstr_len = strlen(searchstr);
     if (config->regex == true && searchstr_len > 0 && searchstr_len <= 2 && strlen(filter) > 0) {
@@ -373,10 +388,15 @@ sds mpd_client_put_firstsong_in_albums(t_config *config, t_mpd_client_state *mpd
             buffer = sdscat(buffer, ",");
         }
         buffer = sdscat(buffer, "{\"Type\": \"album\",");
-        buffer = tojson_char(buffer, "Album", mpd_shared_get_tag(song, MPD_TAG_ALBUM), true);
-        buffer = tojson_char(buffer, "AlbumArtist", mpd_shared_get_tag(song, MPD_TAG_ALBUM_ARTIST), true);
+        
+        sds value = sdsempty();
+        value = mpd_shared_get_tags(song, MPD_TAG_ALBUM, value);
+        buffer = tojson_char(buffer, "Album", value, true);
+        value = mpd_shared_get_tags(song, MPD_TAG_ALBUM_ARTIST, value);
+        buffer = tojson_char(buffer, "AlbumArtist", value, true);
         buffer = tojson_char(buffer, "FirstSongUri", mpd_song_get_uri(song), false);
         buffer = sdscat(buffer, "}");
+        sdsfree(value);
 
         mpd_song_free(song);
     }

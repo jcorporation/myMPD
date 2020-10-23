@@ -33,6 +33,9 @@ function focusTable(rownr, table) {
         if (rownr === undefined) {
             if (sel.length === 0) {
                 let row = table.getElementsByTagName('tbody')[0].rows[0];
+                if (row.classList.contains('not-clickable')) {
+                    row = table.getElementsByTagName('tbody')[0].rows[1];
+                }
                 row.focus();
                 row.classList.add('selected');
             }
@@ -105,10 +108,16 @@ function navigateTable(table, keyCode) {
         let handled = false;
         if (keyCode === 'ArrowDown') {
             next = cur.nextElementSibling;
+            if (next.classList.contains('not-clickable')) {
+                next = next.nextElementSibling;
+            }
             handled = true;
         }
         else if (keyCode === 'ArrowUp') {
             next = cur.previousElementSibling;
+            if (next.classList.contains('not-clickable')) {
+                next = next.previousElementSibling;
+            }
             handled = true;
         }
         else if (keyCode === ' ') {

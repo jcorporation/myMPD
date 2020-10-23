@@ -863,5 +863,34 @@ div#footerProgressPos {
 }
 
 div.active #badgeQueueItems {
- filter: brightness(80%);
+  filter: brightness(80%);
+}
+
+.btn .badge {
+  top: -2px;
+  left: 7px;
+}
+
+div.BrowseDatabaseCardsContainer {
+  padding-right: 5px;
+  padding-left: 5px;
+}
+
+div.BrowseDatabaseCardsContainer .col {
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+
+.btn.disabled,
+.btn:disabled {
+  cursor: default;
+  opacity: 0.50;
+}
+
+div#modalPictureImg {
+  width: 100%;
+  padding-top: 100%;
+  background-position: center center;
+  background-size: cover; 
 }
