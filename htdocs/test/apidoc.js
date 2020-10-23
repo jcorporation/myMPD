@@ -141,6 +141,17 @@ desc['MPD_API_PLAYLIST_SORT'] = 'Sorts the playlist.' +
     '<li>uri: playlist</li>' +
     '<li>tag: tag to sort</li>' +
     '</ul>';
+desc['MPDWORKER_API_SMARTPLS_UPDATE_ALL'] = 'Updates all smart playlists.' +
+    '<ul>' +
+    '<li>force: <ul>' +
+      '<li>true: updates all smart playlists' +
+      '<li>false: updates smart playlists only if nedded' +
+    '</li>' +
+    '</ul>';
+desc['MPDWORKER_API_SMARTPLS_UPDATE'] = 'Updates the smart playlists.' +
+    '<ul>' +
+    '<li>playlist: playlist to update</li>' +
+    '</ul>';
 
 let tbody = document.getElementsByTagName('tbody')[0];
 for (let i = 0; i < cmds.length; i++) {
