@@ -271,7 +271,8 @@ function appRoute() {
         doSetFilterLetter('BrowsePlaylistsFilter');
     }    
     else if (app.current.app === 'Browse' && app.current.tab === 'Filesystem') {
-        sendAPI("MPD_API_DATABASE_FILESYSTEM_LIST", {"offset": app.current.page, "path": (app.current.search ? app.current.search : "/"), "filter": app.current.filter, "cols": settings.colsBrowseFilesystem}, parseFilesystem, true);
+        sendAPI("MPD_API_DATABASE_FILESYSTEM_LIST", {"offset": app.current.page, "path": (app.current.search ? app.current.search : "/"), 
+            "search": (app.current.filter != '-' ? app.current.filter : ''), "cols": settings.colsBrowseFilesystem}, parseFilesystem, true);
         // Don't add all songs from root
         if (app.current.search) {
             document.getElementById('BrowseFilesystemAddAllSongs').removeAttribute('disabled');
@@ -296,7 +297,10 @@ function appRoute() {
             fullPath += '/';
         }
         document.getElementById('BrowseBreadcrumb').innerHTML = breadcrumbs;
-        doSetFilterLetter('BrowseFilesystemFilter');
+        const searchFilesystemStrEl = document.getElementById('searchFilesystemStr');
+        if (searchFilesystemStrEl.value === '' && app.current.filter != '-') {
+            searchFilesystemStrEl.value = app.current.filter;
+        }
     }
     else if (app.current.app === 'Browse' && app.current.tab === 'Database' && app.current.view === 'List') {
         document.getElementById('viewListDatabase').classList.remove('hide');
@@ -869,7 +873,6 @@ function appInit() {
         }
     }, false);
     
-    addFilterLetter('BrowseFilesystemFilterLetters');
     addFilterLetter('BrowsePlaylistsFilterLetters');
 
     document.getElementById('syscmds').addEventListener('click', function(event) {
@@ -1247,6 +1250,15 @@ function appInit() {
         if (event.target.nodeName === 'BUTTON') {
             appGoto(app.current.app, app.current.tab, app.current.view, app.current.page + '/' + event.target.getAttribute('data-tag') + '/' + app.current.sort  + 
                 '/-/' + app.current.search);
+        }
+    }, false);
+    
+    document.getElementById('searchFilesystemStr').addEventListener('keyup', function(event) {
+        if (event.key === 'Escape') {
+            this.blur();
+        }
+        else {
+            appGoto(app.current.app, app.current.tab, app.current.view, '0/' + (this.value !== '' ? this.value : '-') + '/' + app.current.sort + '/-/' + app.current.search);
         }
     }, false);
 

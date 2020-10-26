@@ -30,15 +30,15 @@
 #include "mpd_client_utility.h"
 
 //private definitons
-static void detect_extra_files(t_mpd_client_state *mpd_client_state, const char *uri, bool *booklet, struct list *images);
+static void detect_extra_files(t_mpd_client_state *mpd_client_state, const char *uri, bool *booklet, struct list *images, bool is_dirname);
 
 //public functions
 
-sds put_extra_files(t_mpd_client_state *mpd_client_state, sds buffer, const char *uri) {
+sds put_extra_files(t_mpd_client_state *mpd_client_state, sds buffer, const char *uri, bool is_dirname) {
     bool booklet = false;
     struct list images;
     list_init(&images);
-    detect_extra_files(mpd_client_state, uri, &booklet, &images);
+    detect_extra_files(mpd_client_state, uri, &booklet, &images, is_dirname);
     buffer = tojson_bool(buffer, "booklet", booklet, true);
     buffer = sdscat(buffer, "\"images\": [");
     struct list_node *current = images.head;
@@ -164,17 +164,16 @@ void free_mpd_client_state(t_mpd_client_state *mpd_client_state) {
 
 //private functions
 
-static void detect_extra_files(t_mpd_client_state *mpd_client_state, const char *uri, bool *booklet, struct list *images) {
+static void detect_extra_files(t_mpd_client_state *mpd_client_state, const char *uri, bool *booklet, struct list *images, bool is_dirname) {
     *booklet = false;
-  
     char *uricpy = strdup(uri);
     
-    char *filename = basename(uricpy);
-    strip_extension(filename);
+    //char *filename = basename(uricpy);
+    //strip_extension(filename);
     
-    char *path = dirname(uricpy);
+    const char *path = is_dirname == false ? dirname(uricpy) : uri;
     sds albumpath = sdscatfmt(sdsempty(), "%s/%s", mpd_client_state->music_directory_value, path);
-    
+    LOG_DEBUG("Read extra files from albumpath: %s", albumpath);
     DIR *album_dir = opendir(albumpath);
     if (album_dir != NULL) {
         struct dirent *next_file;
@@ -197,6 +196,9 @@ static void detect_extra_files(t_mpd_client_state *mpd_client_state, const char 
             }
         }
         closedir(album_dir);
+    }
+    else {
+        LOG_ERROR("Can not open dir \"%s\" to get list of extra files", albumpath);
     }
     FREE_PTR(uricpy);
     sdsfree(albumpath);

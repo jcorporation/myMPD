@@ -529,11 +529,6 @@
             <div class="dropdown-menu bg-lite-dark px-2" id="BrowseNavFilesystemDropdown">
             </div>
           </div>
-          <div class="btn-group mr-2">
-            <button id="BrowseFilesystemFilter" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="material-icons">filter_list</span></button>
-            <div class="dropdown-menu bg-lite-dark px-2 letters" id="BrowseFilesystemFilterLetters">
-            </div>
-          </div>
           <div class="input-group mr-2">
             <div class="input-group-prepend">
               <button data-title-phrase="Add all to queue" data-href='{"cmd": "addAllFromBrowseFilesystem", "options": []}' id="BrowseFilesystemAddAllSongs" class="btn btn-secondary material-icons">library_add</button>
@@ -549,6 +544,14 @@
             <div class="dropdown-menu bg-lite-dark px-2" id="BrowseFilesystemBookmarks">
             </div>
           </div>
+          <form id="searchdatabase" class="flex-grow-1">
+            <div class="input-group mr-2">
+              <div class="input-group-prepend">
+                <span class="input-group-text border-secondary text-light bg-secondary"><span class="material-icons">search</span></span>
+              </div>
+              <input data-placeholder-phrase="Search" type="text" class="form-control border-secondary" id="searchFilesystemStr"/>
+            </div>
+          </form>
           <div id="BrowseFilesystemPaginationTop" class="btn-group mr-2 hide">
             <button data-title-phrase="Previous page" data-href='{"cmd": "gotoPage", "options": ["prev"]}' type="button" class="btn btn-group-prepend btn-secondary">&laquo;</button>
               <div class="btn-group">

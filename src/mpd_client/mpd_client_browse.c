@@ -98,127 +98,146 @@ sds mpd_client_put_songdetails(t_mpd_client_state *mpd_client_state, sds buffer,
     }
     
     buffer = sdscat(buffer, ",");
-    buffer = put_extra_files(mpd_client_state, buffer, uri);
+    buffer = put_extra_files(mpd_client_state, buffer, uri, false);
     buffer = jsonrpc_end_result(buffer);
     return buffer;
 }
 
 sds mpd_client_put_filesystem(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, 
-                              const char *path, const unsigned int offset, const char *filter, const t_tags *tagcols)
+                              const char *path, const unsigned int offset, const char *searchstr, const t_tags *tagcols)
 {
     bool rc = mpd_send_list_meta(mpd_client_state->mpd_state->conn, path);
     if (check_rc_error_and_recover(mpd_client_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_send_list_meta") == false) {
         return buffer;
     }
-    
-    buffer = jsonrpc_start_result(buffer, method, request_id);
-    buffer = sdscat(buffer, ",\"data\":[");
-    
+
+    struct list entity_list;
+    list_init(&entity_list);
     struct mpd_entity *entity;
-    unsigned entity_count = 0;
-    unsigned entities_returned = 0;
+    size_t search_len = strlen(searchstr);
     while ((entity = mpd_recv_entity(mpd_client_state->mpd_state->conn)) != NULL) {
-        entity_count++;
-        if (entity_count > offset && entity_count <= offset + mpd_client_state->max_elements_per_page) {
-            switch (mpd_entity_get_type(entity)) {
-                case MPD_ENTITY_TYPE_UNKNOWN: {
-                    entity_count--;
+        switch (mpd_entity_get_type(entity)) {
+            case MPD_ENTITY_TYPE_UNKNOWN: {
+                break;
+            }
+            case MPD_ENTITY_TYPE_SONG: {
+                const struct mpd_song *song = mpd_entity_get_song(entity);
+                sds entity_name = sdsempty();
+                entity_name = mpd_shared_get_tags(song, MPD_TAG_TITLE, entity_name);
+                if (search_len == 0  || strcasestr(entity_name, searchstr) != NULL) {
+                    sds key = sdscatprintf(sdsempty(), "2%s", mpd_song_get_uri(song));
+                    sdstolower(key);
+                    list_push(&entity_list, key, MPD_ENTITY_TYPE_SONG, entity_name, mpd_song_dup(song));
+                    sdsfree(key);
+                }
+                sdsfree(entity_name);
+                break;
+            }
+            case MPD_ENTITY_TYPE_DIRECTORY: {
+                const struct mpd_directory *dir = mpd_entity_get_directory(entity);
+                const char *entity_name = mpd_directory_get_path(dir);
+                char *dir_name = strrchr(entity_name, '/');
+                if (dir_name != NULL) {
+                    dir_name++;
+                }
+                else {
+                    dir_name = (char *)entity_name;
+                }
+                if (search_len == 0  || strcasestr(dir_name, searchstr) != NULL) {
+                    sds key = sdscatprintf(sdsempty(), "0%s", mpd_directory_get_path(dir));
+                    sdstolower(key);
+                    list_push(&entity_list, key, MPD_ENTITY_TYPE_DIRECTORY, dir_name, mpd_directory_dup(dir));
+                    sdsfree(key);
+                }
+                break;
+            }
+            case MPD_ENTITY_TYPE_PLAYLIST: {
+                const struct mpd_playlist *pl = mpd_entity_get_playlist(entity);
+                const char *entity_name = mpd_playlist_get_path(pl);
+                if (strchr(entity_name, '.') == NULL) {
                     break;
                 }
-                case MPD_ENTITY_TYPE_SONG: {
-                    const struct mpd_song *song = mpd_entity_get_song(entity);
-                    sds entityName = sdsempty();
-                    entityName = mpd_shared_get_tags(song, MPD_TAG_TITLE, entityName);
-                    if (strncmp(filter, "-", 1) == 0 || strncasecmp(filter, entityName, 1) == 0 ||
-                        (strncmp(filter, "0", 1) == 0 && isalpha(*entityName) == 0 )) 
-                    {
-                        if (entities_returned++) {
-                            buffer = sdscat(buffer, ",");
-                        }
-                        buffer = sdscat(buffer, "{\"Type\":\"song\",");
-                        buffer = put_song_tags(buffer, mpd_client_state->mpd_state, tagcols, song);
-                        buffer = sdscat(buffer, "}");
-                    }
-                    else {
-                        entity_count--;
-                    }
-                    sdsfree(entityName);
-                    break;
+                char *pl_name = strrchr(entity_name, '/');
+                if (pl_name != NULL) {
+                    pl_name++;
                 }
-                case MPD_ENTITY_TYPE_DIRECTORY: {
-                    const struct mpd_directory *dir = mpd_entity_get_directory(entity);                
-                    const char *entityName = mpd_directory_get_path(dir);
-                    char *dirName = strrchr(entityName, '/');
-
-                    if (dirName != NULL) {
-                        dirName++;
-                    }
-                    else {
-                        dirName = (char *)entityName;
-                    }
-
-                    if (strncmp(filter, "-", 1) == 0 || strncasecmp(filter, dirName, 1) == 0 ||
-                        (strncmp(filter, "0", 1) == 0 && isalpha(*dirName) == 0 )) 
-                    {                
-                        if (entities_returned++) {
-                            buffer = sdscat(buffer, ",");
-                        }
-                        buffer = sdscat(buffer, "{\"Type\":\"dir\",");
-                        buffer = tojson_char(buffer, "uri", entityName, true);
-                        buffer = tojson_char(buffer, "name", dirName, false);
-                        buffer = sdscat(buffer, "}");
-                    }
-                    else {
-                        entity_count--;
-                    }
-                    dirName = NULL;
-                    break;
+                else {
+                    pl_name = (char *)entity_name;
                 }
-                case MPD_ENTITY_TYPE_PLAYLIST: {
-                    const struct mpd_playlist *pl = mpd_entity_get_playlist(entity);
-                    const char *entityName = mpd_playlist_get_path(pl);
-                    if (strchr(entityName, '.') == NULL) {
-                        entity_count--;
-                        break;
-                    }
-                    char *plName = strrchr(entityName, '/');
-                    if (plName != NULL) {
-                        plName++;
-                    } else {
-                        plName = (char *)entityName;
-                    }
-                    if (strncmp(filter, "-", 1) == 0 || strncasecmp(filter, plName, 1) == 0 ||
-                        (strncmp(filter, "0", 1) == 0 && isalpha(*plName) == 0 )) 
-                    {
-                        if (entities_returned++) {
-                            buffer = sdscat(buffer, ",");
-                        }
-                        bool smartpls = is_smartpls(config, mpd_client_state, plName);
-                        buffer = sdscatfmt(buffer, "{\"Type\": \"%s\",", (smartpls == true ? "smartpls" : "plist"));
-                        buffer = tojson_char(buffer, "uri", entityName, true);
-                        buffer = tojson_char(buffer, "name", plName, false);
-                        buffer = sdscat(buffer, "}");
-                    } else {
-                        entity_count--;
-                    }
-                    plName = NULL;
-                    break;
+                if (search_len == 0  || strcasestr(pl_name, searchstr) != NULL) {
+                    sds key = sdscatprintf(sdsempty(), "1%s", mpd_playlist_get_path(pl));
+                    sdstolower(key);
+                    list_push(&entity_list, key, MPD_ENTITY_TYPE_PLAYLIST, pl_name, mpd_playlist_dup(pl));
+                    sdsfree(key);
                 }
+                break;
             }
         }
         mpd_entity_free(entity);
     }
-
+    
     mpd_response_finish(mpd_client_state->mpd_state->conn);
     if (check_error_and_recover2(mpd_client_state->mpd_state, &buffer, method, request_id, false) == false) {
         return buffer;
     }
 
-    buffer = sdscat(buffer, "],");
+    list_sort_by_key(&entity_list, true);
+
+    buffer = jsonrpc_start_result(buffer, method, request_id);
+    buffer = sdscat(buffer, ",\"data\":[");
+    
+    unsigned entity_count = 0;
+    unsigned entities_returned = 0;
+    struct list_node *current = entity_list.head;
+    while (current != NULL) {
+        LOG_DEBUG("KEY: %s", current->key);
+        entity_count++;
+        if (entity_count > offset && entity_count <= offset + mpd_client_state->max_elements_per_page) {
+            if (entities_returned++) {
+                buffer = sdscat(buffer, ",");
+            }
+            switch (current->value_i) {
+                case MPD_ENTITY_TYPE_SONG: {
+                    struct mpd_song *song = (struct mpd_song *)current->user_data;
+                    buffer = sdscat(buffer, "{\"Type\":\"song\",");
+                    buffer = put_song_tags(buffer, mpd_client_state->mpd_state, tagcols, song);
+                    buffer = sdscat(buffer, "}");
+                    mpd_song_free(song);
+                    break;
+                }
+                case MPD_ENTITY_TYPE_DIRECTORY: {
+                    struct mpd_directory *dir = (struct mpd_directory *)current->user_data;
+                    buffer = sdscat(buffer, "{\"Type\":\"dir\",");
+                    buffer = tojson_char(buffer, "uri", mpd_directory_get_path(dir), true);
+                    buffer = tojson_char(buffer, "name", current->value_p, false);
+                    buffer = sdscat(buffer, "}");
+                    mpd_directory_free(dir);
+                    break;
+                }
+                case MPD_ENTITY_TYPE_PLAYLIST: {
+                    struct mpd_playlist *pl = (struct mpd_playlist *)current->user_data;
+                    bool smartpls = is_smartpls(config, mpd_client_state, current->value_p);
+                    buffer = sdscatfmt(buffer, "{\"Type\": \"%s\",", (smartpls == true ? "smartpls" : "plist"));
+                    buffer = tojson_char(buffer, "uri", mpd_playlist_get_path(pl), true);
+                    buffer = tojson_char(buffer, "name", current->value_p, false);
+                    buffer = sdscat(buffer, "}");
+                    mpd_playlist_free(pl);
+                    break;
+                }
+            }
+        }
+        current->user_data = NULL;
+        current = current->next;
+    }
+    list_free(&entity_list);
+
+    buffer = sdscatlen(buffer, "],", 2);
+    buffer = put_extra_files(mpd_client_state, buffer, path, true);
+    buffer = sdscatlen(buffer, ",", 1);
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
     buffer = tojson_long(buffer, "offset", offset, true);
-    buffer = tojson_char(buffer, "filter", filter, false);
+    buffer = tojson_char(buffer, "search", searchstr, false);
     buffer = jsonrpc_end_result(buffer);
     return buffer;
 }

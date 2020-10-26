@@ -273,7 +273,7 @@ sds mpd_client_put_current_song(t_mpd_client_state *mpd_client_state, sds buffer
 
     //waits for further implementation in 7.1.0 release
     //buffer = sdscat(buffer, ",");
-    //buffer = put_extra_files(mpd_client_state, buffer, uri);
+    //buffer = put_extra_files(mpd_client_state, buffer, uri, false);
     
     mpd_song_free(song);
     buffer = jsonrpc_end_result(buffer);

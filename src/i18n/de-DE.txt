@@ -1257,9 +1257,6 @@ Liedtext
 Pictures
 Bilder
 
-Picture
-Bild
-
 Notifications are blocked
 Benachrichtungen sind nicht erlaubt
 
