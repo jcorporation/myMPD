@@ -531,7 +531,7 @@ pkgbuildx() {
     exit 1
   fi
   [ "$DOCKERFILE" = "" ] && DOCKERFILE="Dockerfile.alpine"
-  [ "$PLATFORMS" = "" ] && PLATFORMS="linux/amd64,linux/arm64"
+  [ "$PLATFORMS" = "" ] && PLATFORMS="linux/amd64,linux/arm64/v8,linux/arm64"
   prepare
   cp contrib/packaging/docker/"$DOCKERFILE" Dockerfile
   docker run --rm --privileged docker/binfmt:820fdd95a9972a5308930a2bdfb8573dd4447ad3
