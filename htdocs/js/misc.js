@@ -171,6 +171,12 @@ function _updateDBfinished(idleEvent) {
 }
 
 function zoomPicture(el) {
-    modalPicture.show();
-    document.getElementById('modalPictureImg').style.backgroundImage = el.style.backgroundImage;
+    if (el.style.backgroundImage !== '') {
+        modalPicture.show();
+        document.getElementById('modalPictureImg').style.backgroundImage = el.style.backgroundImage;
+    }
+}
+
+function zoomZoomPicture() {
+    window.open(document.getElementById('modalPictureImg').style.backgroundImage.match(/^url\(["']?([^"']*)["']?\)/)[1]);
 }

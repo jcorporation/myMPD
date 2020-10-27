@@ -10,7 +10,7 @@
 
 :root {
   --mympd-coverimagesize: 250px;
-  --mympd-coverimagesizesmall: 200px;
+  --mympd-coverimagesizesmall: 175px;
   --mympd-highlightcolor: #28a745;
 }
 
@@ -889,8 +889,26 @@ div.BrowseDatabaseCardsContainer .col {
 }
 
 div#modalPictureImg {
-  width: 100%;
-  padding-top: 100%;
   background-position: center center;
-  background-size: cover; 
+  background-size: cover;
+  padding-top: 100%;
+  width: 100%;
+}
+
+div#BrowseFilesystemImages {
+  height: calc(var(--mympd-coverimagesizesmall, 150px) + 1rem);
+  margin-bottom: 1rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+}
+
+div#BrowseFilesystemImages > div {
+  height: var(--mympd-coverimagesizesmall, 175px);
+  width: var(--mympd-coverimagesizesmall, 175px);
+  background-position: center center;
+  background-size: cover;
+  display: inline-block;
+  margin-right: 1rem;
+  cursor: pointer;
 }

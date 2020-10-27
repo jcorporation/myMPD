@@ -53,8 +53,22 @@ function parseFilesystem(obj) {
         tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
                           '<td colspan="' + colspan + '">' + t(obj.error.message) + '</td></tr>';
         document.getElementById(app.current.app + (app.current.tab === undefined ? '' : app.current.tab) + 'List').classList.remove('opacity05');
-        document.getElementById('cardFooterBrowse').innerText = '';
+        //document.getElementById('cardFooterBrowse').innerText = '';
         return;
+    }
+    
+    const imageList = document.getElementById('BrowseFilesystemImages');
+    imageList.innerHTML = '';
+    if (obj.result.images.length === 0) {
+        imageList.classList.add('hide');
+    }
+    else {
+        imageList.classList.remove('hide');
+    }
+    for (let i = 0; i < obj.result.images.length; i++) {
+        let img = document.createElement('div');
+        img.style.backgroundImage = 'url("' + subdir + '/browse/music/' + obj.result.images[i] + '"),url("assets/coverimage-loading.svg")';
+        imageList.appendChild(img);
     }
 
     let nrItems = obj.result.returnedEntities;

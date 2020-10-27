@@ -563,6 +563,7 @@
           </div>
         </div>
         <ol id="BrowseBreadcrumb" class="breadcrumb"></ol>
+        <div id="BrowseFilesystemImages" class="featBrowse not-clickable" data-href='{"cmd": "zoomPicture", "options": []}'></div>
         <div class="table-responsive-md">
           <table id="BrowseFilesystemList" class="table table-hover table-sm">
             <thead>
@@ -2138,7 +2139,11 @@
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-body">
-          <div id="modalPictureImg" class="coverimage-loading" data-dismiss="modal"></div>
+          <div id="modalPictureImg" class="coverimage-loading"></div>
+        </div>
+        <div class="modal-footer justify-content-between">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Close"></button>
+          <button data-href='{"cmd":"zoomZoomPicture","options":[]}' type="button" class="btn btn-success" data-phrase="Zoom"></button>
         </div>
       </div>
     </div>
