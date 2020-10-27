@@ -184,10 +184,10 @@ static void detect_extra_files(t_mpd_client_state *mpd_client_state, const char 
                 *booklet = true;
             }
             else if (ext != NULL) {
-                if (strcmp(ext, ".webp") == 0 || strcmp(ext, ".jpg") == 0 ||
-                    strcmp(ext, ".jpeg") == 0 || strcmp(ext, ".png") == 0 ||
-                    strcmp(ext, ".tiff") == 0 || strcmp(ext, ".svg") == 0 ||
-                    strcmp(ext, ".bmp") == 0) 
+                if (strcasecmp(ext, ".webp") == 0 || strcasecmp(ext, ".jpg") == 0 ||
+                    strcasecmp(ext, ".jpeg") == 0 || strcasecmp(ext, ".png") == 0 ||
+                    strcasecmp(ext, ".tiff") == 0 || strcasecmp(ext, ".svg") == 0 ||
+                    strcasecmp(ext, ".bmp") == 0) 
                 {
                     sds fullpath = sdscatfmt(sdsempty(), "%s/%s", path, next_file->d_name);
                     list_push(images, fullpath, 0, NULL, NULL);
