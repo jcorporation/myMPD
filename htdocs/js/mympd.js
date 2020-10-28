@@ -370,7 +370,7 @@ function appRoute() {
                 cols.push('Disc');
             }
             sendAPI("MPD_API_DATABASE_TAG_ALBUM_TITLE_LIST", {"album": app.current.tag,
-                "search": app.current.search,
+                "searchstr": app.current.search,
                 "tag": app.current.sort, "cols": cols}, parseAlbumDetails);
         }    
     }

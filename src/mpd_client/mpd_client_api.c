@@ -735,7 +735,7 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
         case MPD_API_DATABASE_TAG_ALBUM_TITLE_LIST: {
             t_tags *tagcols = (t_tags *)malloc(sizeof(t_tags));
             assert(tagcols);
-            je = json_scanf(request->data, sdslen(request->data), "{params: {album: %Q, search: %Q, tag: %Q, cols: %M}}", 
+            je = json_scanf(request->data, sdslen(request->data), "{params: {album: %Q, searchstr: %Q, tag: %Q, cols: %M}}", 
                 &p_charbuf1, &p_charbuf2, &p_charbuf3, json_to_tags, tagcols);
             if (je == 4) {
                 response->data = mpd_client_put_songs_in_album(mpd_client_state, response->data, request->method, request->id, p_charbuf1, p_charbuf2, p_charbuf3, tagcols);
