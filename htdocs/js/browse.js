@@ -387,9 +387,9 @@ function parseAlbumDetails(obj) {
         titleList = '<tr class="not-clickable"><td><span class="material-icons">album</span></td><td colspan="' + nrCols +'">' + t('Disc 1') + '</td></tr>';
     }
     let nrItems = obj.result.returnedEntities;
-    let lastDisc = obj.result.data[0].Disc;
+    let lastDisc = parseInt(obj.result.data[0].Disc);
     for (let i = 0; i < nrItems; i++) {
-        if (lastDisc < obj.result.data[i].Disc) {
+        if (lastDisc < parseInt(obj.result.data[i].Disc)) {
             titleList += '<tr class="not-clickable"><td><span class="material-icons">album</span></td><td colspan="' + nrCols +'">' + 
                 t('Disc') + ' ' + e(obj.result.data[i].Disc) + '</td></tr>';
         }
