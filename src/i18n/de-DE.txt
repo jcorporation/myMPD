@@ -1526,3 +1526,15 @@ Websockt ist nicht verbunden
 
 Goto playing song
 Gehe zum aktuell gespielten Lied
+
+Download booklet
+Booklet herunterladen
+
+Zoom
+Zoom
+
+Disc 1
+Disc 1
+
+Disc
+Disc

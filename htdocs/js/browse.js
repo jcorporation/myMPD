@@ -374,8 +374,10 @@ function parseAlbumDetails(obj) {
     coverEl.setAttribute('data-images', obj.result.images.join(';;'));
     const infoEl = document.getElementById('viewDetailDatabaseInfo');
     infoEl.innerHTML = '<h1>' + e(obj.result.Album) + '</h1>' +
-        '<small> ' + t('Albumartis') + '</small><p>' + e(obj.result.AlbumArtist) + '</p>' +
-        (obj.result.bookletPath === '' || settings.featBrowse === false ? '' : '<span class="text-light material-icons">description</span>&nbsp;<a class="text-light" target="_blank" href="' + subdir + '/browse/music/' + e(obj.result.bookletPath) + '">' + t('Download booklet') + '</a>') +
+        '<small> ' + t('AlbumArtist') + '</small><p>' + e(obj.result.AlbumArtist) + '</p>' +
+        (obj.result.bookletPath === '' || settings.featBrowse === false ? '' : 
+            '<span class="text-light material-icons">description</span>&nbsp;<a class="text-light" target="_blank" href="' + subdir + '/browse/music/' + 
+            e(obj.result.bookletPath) + '">' + t('Download booklet') + '</a>') +
         '</p>';
     const table = document.getElementById('BrowseDatabaseDetailList');
     const tbody = table.getElementsByTagName('tbody')[0];
@@ -389,7 +391,7 @@ function parseAlbumDetails(obj) {
     for (let i = 0; i < nrItems; i++) {
         if (lastDisc < obj.result.data[i].Disc) {
             titleList += '<tr class="not-clickable"><td><span class="material-icons">album</span></td><td colspan="' + nrCols +'">' + 
-                t('Disc ') + e(obj.result.data[i].Disc) + '</td></tr>';
+                t('Disc') + ' ' + e(obj.result.data[i].Disc) + '</td></tr>';
         }
         if (obj.result.data[i].Duration) {
             obj.result.data[i].Duration = beautifySongDuration(obj.result.data[i].Duration);

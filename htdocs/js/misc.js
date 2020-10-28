@@ -175,7 +175,14 @@ function zoomPicture(el) {
         window.open(el.getAttribute('data-href'));
     }
     else if (el.classList.contains('carousel')) {
-        let images = el.getAttribute('data-images').split(';;');
+        let imgSrc = el.getAttribute('data-images');
+        let images;
+        if (imgSrc !== null) {
+            images = el.getAttribute('data-images').split(';;');
+        }
+        else {
+            images = lastSongObj.images.slice();
+        }
         for (let i = 0; i < images.length; i++) {
             images[i] = subdir + '/browse/music/' + images[i];
         }
