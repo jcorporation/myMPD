@@ -17,14 +17,22 @@ function setStateIcon() {
 }
 
 function toggleAlert(alertBox, state, msg) {
-    let mpdState = document.getElementById(alertBox);
+    const mpdState = document.getElementById(alertBox);
+    const topAlert = document.getElementById('top-alerts');
     if (state === false) {
         mpdState.innerHTML = '';
         mpdState.classList.add('hide');
+        topAlert.classList.add('hide');
     }
     else {
         mpdState.innerHTML = msg;
         mpdState.classList.remove('hide');
+        let topPadding = 0;
+        if (window.innerWidth < window.innerHeight) {
+            topPadding = domCache.header.offsetHeight;
+        }
+        topAlert.style.paddingTop = topPadding + 'px';
+        topAlert.classList.remove('hide');
     }
 }
 

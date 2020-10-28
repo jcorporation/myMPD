@@ -784,13 +784,19 @@ a.text-success:focus {
   font-size: 0.8rem;
 }
 
+#top-alerts {
+  position: fixed;
+  width: 100%;
+  z-index: 1000;
+  top: 0;
+}
+
 .top-alert {
   border-radius: 0;
   border-left: none;
   border-right: none;
   padding-top: 0.3rem;
   padding-bottom: 0.1rem;
-  margin-top: -0.3rem;
 }
 
 #lyricsText {
