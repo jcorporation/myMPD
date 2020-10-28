@@ -324,12 +324,14 @@
           <div class="btn-group mr-2 hide">
             <button data-title-phrase="Playlists" data-href='{"cmd": "appGoto", "options": ["Browse", "Playlists", "All"]}' id="btnBrowsePlaylistsAll" type="button" class="btn btn-secondary"><span class="material-icons">apps</span></button>
           </div>
-          
-          <div class="btn-group mr-2">
-            <button id="BrowsePlaylistsFilter" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="material-icons">filter_list</span></button>
-            <div class="dropdown-menu bg-lite-dark px-2 letters" id="BrowsePlaylistsFilterLetters">
+          <form id="searchPlaylists" class="flex-grow-1">
+            <div class="input-group mr-2">
+              <div class="input-group-prepend">
+                <span class="input-group-text border-secondary text-light bg-secondary"><span class="material-icons">search</span></span>
+              </div>
+              <input data-placeholder-phrase="Search" type="text" class="form-control border-secondary" id="searchPlaylistsStr"/>
             </div>
-          </div>
+          </form>          
           <div class="hide btn-group mr-2" id="playlistContentBtns">
             <button data-title-phrase="Clear playlist" type="button" class="btn btn-secondary material-icons rounded-right mr-2" data-href='{"cmd": "playlistClear", "options": []}'>clear_all</button>
             <button data-href='{"cmd": "playlistShuffle", "options": []}' class="btn btn-secondary material-icons rounded mr-2" type="button" data-title-phrase="Shuffle playlist">shuffle</button>

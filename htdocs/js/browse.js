@@ -59,11 +59,19 @@ function parseFilesystem(obj) {
     
     const imageList = document.getElementById('BrowseFilesystemImages');
     imageList.innerHTML = '';
-    if (obj.result.images.length === 0) {
+    if ((obj.result.images.length === 0 && obj.result.bookletPath === '') || settings.publish === false) {
         imageList.classList.add('hide');
     }
     else {
         imageList.classList.remove('hide');
+    }
+    if (obj.result.bookletPath !== '' && settings.publish === true) {
+        let img = document.createElement('div');
+        img.style.backgroundImage = 'url("' + subdir + '/assets/coverimage-booklet.svg")';
+        img.classList.add('booklet');
+        img.setAttribute('data-href', subdir + '/browse/music/' + obj.result.bookletPath);
+        img.title = t('Booklet');
+        imageList.appendChild(img);
     }
     for (let i = 0; i < obj.result.images.length; i++) {
         let img = document.createElement('div');

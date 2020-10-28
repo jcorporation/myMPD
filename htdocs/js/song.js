@@ -58,8 +58,8 @@ function parseSongDetails(obj) {
         songDetailsHTML += '<tr><th>' + t('Fingerprint') + '</th><td class="breakAll" id="fingerprint"><a class="text-success" data-uri="' + 
             encodeURI(obj.result.uri) + '" id="calcFingerprint" href="#">' + t('Calculate') + '</a></td></tr>';
     }
-    if (obj.result.booklet === true && settings.publish === true) {
-        songDetailsHTML += '<tr><th>' + t('Booklet') + '</th><td><a class="text-success" href="/browse/music/' + dirname(obj.result.uri) + '/' + settings.bookletName + '" target="_blank">' + t('Download') + '</a></td></tr>';
+    if (obj.result.bookletPath !== '' && settings.publish === true) {
+        songDetailsHTML += '<tr><th>' + t('Booklet') + '</th><td><a class="text-success" href="' + subdir + '/browse/music/' + dirname(obj.result.uri) + '/' + settings.bookletName + '" target="_blank">' + t('Download') + '</a></td></tr>';
     }
     if (settings.featStickers === true) {
         songDetailsHTML += '<tr><th colspan="2" class="pt-3"><h5>' + t('Statistics') + '</h5></th></tr>' +

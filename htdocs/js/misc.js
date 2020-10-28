@@ -171,7 +171,10 @@ function _updateDBfinished(idleEvent) {
 }
 
 function zoomPicture(el) {
-    if (el.style.backgroundImage !== '') {
+    if (el.classList.contains('booklet')) {
+        window.open(el.getAttribute('data-href'));
+    }
+    else if (el.style.backgroundImage !== '') {
         modalPicture.show();
         document.getElementById('modalPictureImg').style.backgroundImage = el.style.backgroundImage;
     }

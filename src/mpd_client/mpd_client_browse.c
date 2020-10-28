@@ -190,7 +190,6 @@ sds mpd_client_put_filesystem(t_config *config, t_mpd_client_state *mpd_client_s
     unsigned entities_returned = 0;
     struct list_node *current = entity_list.head;
     while (current != NULL) {
-        LOG_DEBUG("KEY: %s", current->key);
         entity_count++;
         if (entity_count > offset && entity_count <= offset + mpd_client_state->max_elements_per_page) {
             if (entities_returned++) {

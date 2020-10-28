@@ -263,12 +263,18 @@ function appRoute() {
         sendAPI("MPD_API_QUEUE_LAST_PLAYED", {"offset": app.current.page, "cols": settings.colsQueueLastPlayed}, parseLastPlayed);
     }
     else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'All') {
-        sendAPI("MPD_API_PLAYLIST_LIST", {"offset": app.current.page, "filter": app.current.filter}, parsePlaylists);
-        doSetFilterLetter('BrowsePlaylistsFilter');
+        sendAPI("MPD_API_PLAYLIST_LIST", {"offset": app.current.page, "searchstr": (app.current.filter != '-' ? app.current.filter : '')}, parsePlaylists);
+        const searchPlaylistsStrEl = document.getElementById('searchPlaylistsStr');
+        if (searchPlaylistsStrEl.value === '' && app.current.filter != '-') {
+            searchPlaylistsStrEl.value = app.current.filter;
+        }
     }
     else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'Detail') {
-        sendAPI("MPD_API_PLAYLIST_CONTENT_LIST", {"offset": app.current.page, "filter": app.current.filter, "uri": app.current.search, "cols": settings.colsBrowsePlaylistsDetail}, parsePlaylists);
-        doSetFilterLetter('BrowsePlaylistsFilter');
+        sendAPI("MPD_API_PLAYLIST_CONTENT_LIST", {"offset": app.current.page, "searchstr": (app.current.filter != '-' ? app.current.filter : ''), "uri": app.current.search, "cols": settings.colsBrowsePlaylistsDetail}, parsePlaylists);
+        const searchPlaylistsStrEl = document.getElementById('searchPlaylistsStr');
+        if (searchPlaylistsStrEl.value === '' && app.current.filter != '-') {
+            searchPlaylistsStrEl.value = app.current.filter;
+        }
     }    
     else if (app.current.app === 'Browse' && app.current.tab === 'Filesystem') {
         sendAPI("MPD_API_DATABASE_FILESYSTEM_LIST", {"offset": app.current.page, "path": (app.current.search ? app.current.search : "/"), 
@@ -873,8 +879,6 @@ function appInit() {
         }
     }, false);
     
-    addFilterLetter('BrowsePlaylistsFilterLetters');
-
     document.getElementById('syscmds').addEventListener('click', function(event) {
         if (event.target.nodeName === 'A') {
             parseCmd(event, event.target.getAttribute('data-href'));
@@ -1254,6 +1258,15 @@ function appInit() {
     }, false);
     
     document.getElementById('searchFilesystemStr').addEventListener('keyup', function(event) {
+        if (event.key === 'Escape') {
+            this.blur();
+        }
+        else {
+            appGoto(app.current.app, app.current.tab, app.current.view, '0/' + (this.value !== '' ? this.value : '-') + '/' + app.current.sort + '/-/' + app.current.search);
+        }
+    }, false);
+    
+    document.getElementById('searchPlaylistsStr').addEventListener('keyup', function(event) {
         if (event.key === 'Escape') {
             this.blur();
         }

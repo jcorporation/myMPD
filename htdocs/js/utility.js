@@ -93,56 +93,6 @@ function scrollToPosY(pos) {
     document.documentElement.scrollTop = pos; // For Chrome, Firefox, IE and Opera
 }
 
-function doSetFilterLetter(x) {
-    let af = document.getElementById(x + 'Letters').getElementsByClassName('active')[0];
-    if (af) {
-        af.classList.remove('active');
-    }
-    let filter = app.current.filter;
-    if (filter === '0') {
-        filter = '#';
-    }
-    
-    document.getElementById(x).innerHTML = '<span class="material-icons">filter_list</span>' + (filter !== '-' ? ' ' + filter : '');
-    
-    if (filter !== '-') {
-        let btns = document.getElementById(x + 'Letters').getElementsByTagName('button');
-        let btnsLen = btns.length;
-        for (let i = 0; i < btnsLen; i++) {
-            if (btns[i].innerText === filter) {
-                btns[i].classList.add('active');
-                break;
-            }
-        }
-    }
-}
-
-function addFilterLetter(x) {
-    let filter = '<button class="mr-1 mb-1 btn btn-sm btn-secondary material-icons material-icons-small">delete</button>' +
-        '<button class="mr-1 mb-1 btn btn-sm btn-secondary">#</button>';
-    for (let i = 65; i <= 90; i++) {
-        filter += '<button class="mr-1 mb-1 btn-sm btn btn-secondary">' + String.fromCharCode(i) + '</button>';
-    }
-
-    let letters = document.getElementById(x);
-    letters.innerHTML = filter;
-    
-    letters.addEventListener('click', function(event) {
-        switch (event.target.innerText) {
-            case 'delete':
-                filter = '-';
-                break;
-            case '#':
-                filter = '0';
-                break;
-            default:
-                filter = event.target.innerText;
-        }
-        appGoto(app.current.app, app.current.tab, app.current.view, '0/' + filter + '/' + app.current.sort + '/' + 
-            app.current.tag + '/' + app.current.search);
-    }, false);
-}
-
 function selectTag(btnsEl, desc, setTo) {
     let btns = document.getElementById(btnsEl);
     let aBtn = btns.querySelector('.active')

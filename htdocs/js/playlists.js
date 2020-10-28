@@ -14,7 +14,8 @@ function parsePlaylists(obj) {
         document.getElementById('smartPlaylistContentBtns').classList.add('hide');
         document.getElementById('btnAddSmartpls').parentNode.classList.remove('hide');
         document.getElementById('BrowseNavPlaylists').parentNode.classList.remove('hide');
-    } else {
+    }
+    else {
         if (obj.result.uri.indexOf('.') > -1 || obj.result.smartpls === true) {
             document.getElementById('BrowsePlaylistsDetailList').setAttribute('data-ro', 'true')
             document.getElementById('playlistContentBtns').classList.add('hide');
