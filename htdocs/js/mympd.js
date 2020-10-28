@@ -278,7 +278,7 @@ function appRoute() {
     }    
     else if (app.current.app === 'Browse' && app.current.tab === 'Filesystem') {
         sendAPI("MPD_API_DATABASE_FILESYSTEM_LIST", {"offset": app.current.page, "path": (app.current.search ? app.current.search : "/"), 
-            "search": (app.current.filter != '-' ? app.current.filter : ''), "cols": settings.colsBrowseFilesystem}, parseFilesystem, true);
+            "searchstr": (app.current.filter != '-' ? app.current.filter : ''), "cols": settings.colsBrowseFilesystem}, parseFilesystem, true);
         // Don't add all songs from root
         if (app.current.search) {
             document.getElementById('BrowseFilesystemAddAllSongs').removeAttribute('disabled');

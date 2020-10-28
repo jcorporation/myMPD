@@ -570,7 +570,7 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
         case MPD_API_DATABASE_FILESYSTEM_LIST: {
             t_tags *tagcols = (t_tags *)malloc(sizeof(t_tags));
             assert(tagcols);
-            je = json_scanf(request->data, sdslen(request->data), "{params: {offset:%u, search:%Q, path:%Q, cols: %M}}", 
+            je = json_scanf(request->data, sdslen(request->data), "{params: {offset:%u, searchstr:%Q, path:%Q, cols: %M}}", 
                 &uint_buf1, &p_charbuf1, &p_charbuf2, json_to_tags, tagcols);
             if (je == 4) {
                 response->data = mpd_client_put_filesystem(config, mpd_client_state, response->data, request->method, request->id, p_charbuf2, uint_buf1, p_charbuf1, tagcols);
