@@ -30,16 +30,16 @@
 #include "mpd_client_utility.h"
 
 //private definitons
-static void detect_extra_files(t_mpd_client_state *mpd_client_state, const char *uri, bool *booklet, struct list *images, bool is_dirname);
+static void detect_extra_files(t_mpd_client_state *mpd_client_state, const char *uri, sds *booklet_path, struct list *images, bool is_dirname);
 
 //public functions
 
 sds put_extra_files(t_mpd_client_state *mpd_client_state, sds buffer, const char *uri, bool is_dirname) {
-    bool booklet = false;
     struct list images;
     list_init(&images);
-    detect_extra_files(mpd_client_state, uri, &booklet, &images, is_dirname);
-    buffer = tojson_bool(buffer, "booklet", booklet, true);
+    sds booklet_path = sdsempty();
+    detect_extra_files(mpd_client_state, uri, &booklet_path, &images, is_dirname);
+    buffer = tojson_char(buffer, "bookletPath", booklet_path, true);
     buffer = sdscat(buffer, "\"images\": [");
     struct list_node *current = images.head;
     while (current != NULL) {
@@ -51,6 +51,7 @@ sds put_extra_files(t_mpd_client_state *mpd_client_state, sds buffer, const char
     }
     buffer = sdscat(buffer, "]");
     list_free(&images);
+    sdsfree(booklet_path);
     return buffer;
 }
 
@@ -164,8 +165,7 @@ void free_mpd_client_state(t_mpd_client_state *mpd_client_state) {
 
 //private functions
 
-static void detect_extra_files(t_mpd_client_state *mpd_client_state, const char *uri, bool *booklet, struct list *images, bool is_dirname) {
-    *booklet = false;
+static void detect_extra_files(t_mpd_client_state *mpd_client_state, const char *uri, sds *booklet_path, struct list *images, bool is_dirname) {
     char *uricpy = strdup(uri);
     
     //char *filename = basename(uricpy);
@@ -181,7 +181,7 @@ static void detect_extra_files(t_mpd_client_state *mpd_client_state, const char 
             const char *ext = strrchr(next_file->d_name, '.');
             if (strcmp(next_file->d_name, mpd_client_state->booklet_name) == 0) {
                 LOG_DEBUG("Found booklet for uri %s", uri);
-                *booklet = true;
+                *booklet_path = sdscatfmt(*booklet_path, "%s/%s", path, mpd_client_state->booklet_name);
             }
             else if (ext != NULL) {
                 if (strcasecmp(ext, ".webp") == 0 || strcasecmp(ext, ".jpg") == 0 ||

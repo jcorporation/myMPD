@@ -15,6 +15,7 @@ var urlsToCache = [
     subdir + '/assets/coverimage-stream.svg',
     subdir + '/assets/coverimage-notavailable.svg',
     subdir + '/assets/coverimage-loading.svg',
+    subdir + '/assets/coverimage-booklet.svg',
     subdir + '/assets/favicon.ico',
     subdir + '/assets/MaterialIcons-Regular.woff2'
 ];
