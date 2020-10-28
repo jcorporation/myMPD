@@ -371,10 +371,12 @@ function setGridImage(changes, observer) {
 function parseAlbumDetails(obj) {
     const coverEl = document.getElementById('viewDetailDatabaseCover');
     coverEl.style.backgroundImage = 'url("' + subdir + '/albumart/' + obj.result.data[0].uri + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
+    coverEl.setAttribute('data-images', obj.result.images.join(';;'));
     const infoEl = document.getElementById('viewDetailDatabaseInfo');
     infoEl.innerHTML = '<h1>' + e(obj.result.Album) + '</h1>' +
         '<small> ' + t('Albumartis') + '</small><p>' + e(obj.result.AlbumArtist) + '</p>' +
-        '<small> ' + t('Discs') + '</small><p>' + e(obj.result.Discs) + '</p>';
+        (obj.result.bookletPath === '' || settings.featBrowse === false ? '' : '<span class="text-light material-icons">description</span>&nbsp;<a class="text-light" target="_blank" href="' + subdir + '/browse/music/' + e(obj.result.bookletPath) + '">' + t('Download booklet') + '</a>') +
+        '</p>';
     const table = document.getElementById('BrowseDatabaseDetailList');
     const tbody = table.getElementsByTagName('tbody')[0];
     const nrCols = settings.colsBrowseDatabaseDetail.length;

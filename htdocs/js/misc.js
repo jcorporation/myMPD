@@ -174,12 +174,61 @@ function zoomPicture(el) {
     if (el.classList.contains('booklet')) {
         window.open(el.getAttribute('data-href'));
     }
-    else if (el.style.backgroundImage !== '') {
+    else if (el.classList.contains('carousel')) {
+        let images = el.getAttribute('data-images').split(';;');
+        for (let i = 0; i < images.length; i++) {
+            images[i] = subdir + '/browse/music/' + images[i];
+        }
+        const imgEl = document.getElementById('modalPictureImg');
+        imgEl.style.paddingTop = 0;
+        createImgCarousel(imgEl, 'picsCarousel', images);
+        document.getElementById('modalPictureZoom').classList.add('hide');
         modalPicture.show();
-        document.getElementById('modalPictureImg').style.backgroundImage = el.style.backgroundImage;
+    }
+    else if (el.style.backgroundImage !== '') {
+        const imgEl = document.getElementById('modalPictureImg');
+        imgEl.innerHTML = '';
+        imgEl.style.paddingTop = '100%';
+        imgEl.style.backgroundImage = el.style.backgroundImage;
+        document.getElementById('modalPictureZoom').classList.remove('hide');
+        modalPicture.show();
     }
 }
 
 function zoomZoomPicture() {
     window.open(document.getElementById('modalPictureImg').style.backgroundImage.match(/^url\(["']?([^"']*)["']?\)/)[1]);
+}
+
+
+function createImgCarousel(imgEl, name, images) {
+    let carousel = '<div id="' + name + '" class="carousel slide" data-ride="carousel">' +
+        '<ol class="carousel-indicators">';
+    for (let i = 0; i < images.length; i++) {
+        carousel += '<li data-target="#' + name + '" data-slide-to="' + i + '"' +
+            (i === 0 ? ' class="active"' : '') + '></li>';
+    }
+    carousel += '</ol>' +
+        '<div class="carousel-inner" role="listbox">';
+    for (let i = 0; i < images.length; i++) {
+        carousel += '<div class="carousel-item' + (i === 0 ? ' active' : '') + '"><div></div></div>';
+    }
+    carousel += '</div>' +
+        '<a class="carousel-control-prev" href="#' + name + '" data-slide="prev">' +
+            '<span class="carousel-control-prev-icon"></span>' +
+        '</a>' +
+        '<a class="carousel-control-next" href="#' + name + '" data-slide="next">' +
+            '<span class="carousel-control-next-icon"></span>' +
+        '</a>' +
+        '</div>';
+    imgEl.innerHTML = carousel;
+    let carouselItems = imgEl.getElementsByClassName('carousel-item');
+    for (let i = 0; i < carouselItems.length; i++) {
+        carouselItems[i].children[0].style.backgroundImage = 'url("' + encodeURI(images[i]) + '")';
+    }
+    let myCarousel = document.getElementById(name);
+    //eslint-disable-next-line no-undef, no-unused-vars
+    let myCarouselInit = new BSN.Carousel(myCarousel, {
+        interval: false,
+        pause: false
+    });
 }

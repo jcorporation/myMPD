@@ -298,12 +298,18 @@ sds mpd_client_put_songs_in_album(t_mpd_client_state *mpd_client_state, sds buff
         mpd_song_free(song);
     }
 
+    buffer = sdscat(buffer, "],");
+    
     sds albumartist = sdsempty();
     if (first_song != NULL) {
         albumartist = mpd_shared_get_tags(first_song, MPD_TAG_ALBUM_ARTIST, albumartist);
+        buffer = put_extra_files(mpd_client_state, buffer, mpd_song_get_uri(first_song), false);
     }
-
-    buffer = sdscat(buffer, "],");
+    else {
+        buffer = sdscat(buffer, "\"images\":[],\"bookletPath\":\"\"");
+    }
+    
+    buffer = sdscatlen(buffer, ",", 1);
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
     buffer = tojson_char(buffer, "Album", album, true);
@@ -342,15 +348,6 @@ sds mpd_client_put_firstsong_in_albums(t_config *config, t_mpd_client_state *mpd
     if (mpd_shared_tag_exists(mpd_client_state->mpd_state->mympd_tag_types.tags, mpd_client_state->mpd_state->mympd_tag_types.len, MPD_TAG_DISC) == true) {
         expression = sdscat(expression, " AND (Disc == '1')");
     }
-/*
-    unsigned long searchstr_len = strlen(searchstr);
-    if (config->regex == true && searchstr_len > 0 && searchstr_len <= 2 && strlen(filter) > 0) {
-        expression = sdscatfmt(expression, " AND (%s =~ '^%s')", filter, searchstr);
-    }
-    else if (searchstr_len > 0 && strlen(filter) > 0) {
-        expression = sdscatfmt(expression, " AND (%s contains '%s')", filter, searchstr);
-    }
-*/
     if (strlen(searchstr) > 0) {
         expression = sdscat(expression, " AND ");
         expression = sdscat(expression, searchstr);
