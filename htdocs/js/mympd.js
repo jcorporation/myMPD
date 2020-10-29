@@ -38,32 +38,100 @@ var ligatureMore = 'menu';
 var progressBarTransition = 'width 1s linear';
 
 var app = {};
-app.apps = { "Playback":   { "state": "0/-/-/-/", "scrollPos": 0 },
-             "Queue":	   {
-                  "active": "Current",
-                  "tabs": { "Current": { "state": "0/any/-/-/", "scrollPos": 0 },
-                            "LastPlayed": { "state": "0/any/-/-/", "scrollPos": 0 }
-                          }
-                  },
-             "Browse":     { 
-                  "active": "Database", 
-                  "tabs":  { "Filesystem": { "state": "0/-/-/-/", "scrollPos": 0 },
-                             "Playlists":  { 
-                                 "active": "All",
-                                 "views": { "All":    { "state": "0/-/-/-/", "scrollPos": 0 },
-                                            "Detail": { "state": "0/-/-/-/", "scrollPos": 0 }
-                                 }
-                             },
-                             "Database":   { 
-                                 "active": "List",
-                                 "views": { "List":   { "state": "0/AlbumArtist/AlbumArtist/Album/", "scrollPos": 0  },
-                                            "Detail": { "state": "0/-/-/-/", "scrollPos": 0 }
-                                 }
-                             }
-                  }
-             },
-             "Search": { "state": "0/any/-/-/", "scrollPos": 0 }
-           };
+app.apps = { 
+    "Playback": { 
+        "page": 0,
+        "filter": "-",
+        "sort": "-",
+        "tag": "-",
+        "search": "",
+        "scrollPos": 0
+    },
+    "Queue": {
+        "active": "Current",
+        "tabs": { 
+            "Current": { 
+                "page": 0,
+                "filter": "any",
+                "sort": "-",
+                "tag": "-",
+                "search": "",
+                "scrollPos": 0 
+            },
+            "LastPlayed": {
+                "page": 0,
+                "filter": "any",
+                "sort": "-",
+                "tag": "-",
+                "search": "",
+                "scrollPos": 0 
+            }
+        }
+    },
+    "Browse": { 
+        "active": "Database", 
+        "tabs":  { 
+            "Filesystem": { 
+                "page": 0,
+                "filter": "-",
+                "sort": "-",
+                "tag": "-",
+                "search": "",
+                "scrollPos": 0 
+            },
+            "Playlists": { 
+                "active": "All",
+                "views": { 
+                    "All": {
+                        "page": 0,
+                        "filter": "-",
+                        "sort": "-",
+                        "tag": "-",
+                        "search": "", 
+                        "scrollPos": 0 
+                    },
+                    "Detail": {
+                        "page": 0,
+                        "filter": "-",
+                        "sort": "-",
+                        "tag": "-",
+                        "search": "",
+                        "scrollPos": 0
+                    }
+                }
+            },
+            "Database": { 
+                "active": "List",
+                "views": { 
+                    "List": { 
+                        "page": 0,
+                        "filter": "AlbumArtist",
+                        "sort": "AlbumArtist",
+                        "tag": "Album",
+                        "search": "",
+                        "scrollPos": 0
+                    },
+                    "Detail": { 
+                        "page": 0,
+                        "filter": "-",
+                        "sort": "-",
+                        "tag": "-",
+                        "search": "",
+                        "scrollPos": 0
+                    }
+                }
+            }
+        }
+    },
+    "Search": { 
+        "page": 0,
+        "filter": "any",
+        "sort": "-",
+        "tag": "-",
+        "search": "",
+        "scrollPos": 0
+    }
+};
 
 app.current = { "app": "Playback", "tab": undefined, "view": undefined, "page": 0, "filter": "", "search": "", "sort": "", "tag": "", "scrollPos": 0 };
 app.last = { "app": undefined, "tab": undefined, "view": undefined, "filter": "", "search": "", "sort": "", "tag": "", "scrollPos": 0 };
@@ -172,7 +240,7 @@ function appPrepare(scrollPos) {
     }
 }
 
-function appGoto(card, tab, view, state) {
+function appGoto(card, tab, view, page, filter, sort, tag, search) {
     let scrollPos = 0;
     if (document.body.scrollTop) {
         scrollPos = document.body.scrollTop
@@ -200,16 +268,32 @@ function appGoto(card, tab, view, state) {
             if (view === undefined) {
                 view = app.apps[card].tabs[tab].active;
             }
-            hash = '/' + card + '/' + tab +'/' + view + '!' + (state === undefined ? app.apps[card].tabs[tab].views[view].state : state);
+            hash = '/' + encodeURIComponent(card) + '/' + encodeURIComponent(tab) + '/' + encodeURIComponent(view) + '!' + 
+                encodeURIComponent(page === undefined ? app.apps[card].tabs[tab].views[view].page : page) + '/' +
+                encodeURIComponent(filter === undefined ? app.apps[card].tabs[tab].views[view].filter : filter) + '/' +
+                encodeURIComponent(sort === undefined ? app.apps[card].tabs[tab].views[view].sort : sort) + '/' +
+                encodeURIComponent(tag === undefined ? app.apps[card].tabs[tab].views[view].tag : tag) + '/' +
+                encodeURIComponent(search === undefined ? app.apps[card].tabs[tab].views[view].search : search);
         }
         else {
-            hash = '/' + card +'/' + tab + '!' + (state === undefined ? app.apps[card].tabs[tab].state : state);
+            hash = '/' + encodeURIComponent(card) + '/' + encodeURIComponent(tab) + '!' + 
+                encodeURIComponent(page === undefined ? app.apps[card].tabs[tab].page : page) + '/' +
+                encodeURIComponent(filter === undefined ? app.apps[card].tabs[tab].filter : filter) + '/' +
+                encodeURIComponent(sort === undefined ? app.apps[card].tabs[tab].sort : sort) + '/' +
+                encodeURIComponent(tag === undefined ? app.apps[card].tabs[tab].tag : tag) + '/' +
+                encodeURIComponent(search === undefined ? app.apps[card].tabs[tab].search : search);
         }
     }
     else {
-        hash = '/' + card + '!'+ (state === undefined ? app.apps[card].state : state);
+        hash = '/' + encodeURIComponent(card) + '!' + 
+            encodeURIComponent(page === undefined ? app.apps[card].page : page) + '/' +
+            encodeURIComponent(filter === undefined ? app.apps[card].filter : filter) + '/' +
+            encodeURIComponent(sort === undefined ? app.apps[card].sort : sort) + '/' +
+            encodeURIComponent(tag === undefined ? app.apps[card].tag : tag) + '/' +
+            encodeURIComponent(search === undefined ? app.apps[card].search : search);
+                                 
     }
-    location.hash = encodeURI(hash);
+    location.hash = hash;
 }
 
 function appRoute() {
@@ -217,32 +301,45 @@ function appRoute() {
         appInitStart();
         return;
     }
-    let hash = decodeURI(location.hash);
-    let params = hash.match(/^#\/(\w+)\/?(\w+)?\/?(\w+)?!((\d+)\/([^/]+)\/([^/]+)\/([^/]+)\/(.*))$/);
+    let hash = location.hash;
+    let params = hash.match(/^#\/(\w+)\/?(\w+)?\/?(\w+)?!(\d+)\/([^/]+)\/([^/]+)\/([^/]+)\/(.*)$/);
     if (params) {
-        app.current.app = params[1];
-        app.current.tab = params[2];
-        app.current.view = params[3];
-        if (app.apps[app.current.app].state) {
-            app.apps[app.current.app].state = params[4];
+        app.current.app = decodeURIComponent(params[1]);
+        app.current.tab = params[2] !== undefined ? decodeURIComponent(params[2]) : undefined;
+        app.current.view = params[3] !== undefined ? decodeURIComponent(params[3]) : undefined;
+        app.current.page = decodeURIComponent(parseInt(params[4]));
+        app.current.filter = decodeURIComponent(params[5]);
+        app.current.sort = decodeURIComponent(params[6]);
+        app.current.tag = decodeURIComponent(params[7]);
+        app.current.search = decodeURIComponent(params[8]);
+        
+        if (app.apps[app.current.app].page !== undefined) {
+            app.apps[app.current.app].page = app.current.page;
+            app.apps[app.current.app].filter = app.current.filter;
+            app.apps[app.current.app].sort = app.current.sort;
+            app.apps[app.current.app].tag = app.current.tag;
+            app.apps[app.current.app].search = app.current.search;
             app.current.scrollPos = app.apps[app.current.app].scrollPos;
         }
-        else if (app.apps[app.current.app].tabs[app.current.tab].state) {
-            app.apps[app.current.app].tabs[app.current.tab].state = params[4];
+        else if (app.apps[app.current.app].tabs[app.current.tab].page !== undefined) {
+            app.apps[app.current.app].tabs[app.current.tab].page = app.current.page;
+            app.apps[app.current.app].tabs[app.current.tab].filter = app.current.filter;
+            app.apps[app.current.app].tabs[app.current.tab].sort = app.current.sort;
+            app.apps[app.current.app].tabs[app.current.tab].tag = app.current.tag;
+            app.apps[app.current.app].tabs[app.current.tab].search = app.current.search;
             app.apps[app.current.app].active = app.current.tab;
             app.current.scrollPos = app.apps[app.current.app].tabs[app.current.tab].scrollPos;
         }
-        else if (app.apps[app.current.app].tabs[app.current.tab].views[app.current.view].state) {
-            app.apps[app.current.app].tabs[app.current.tab].views[app.current.view].state = params[4];
+        else if (app.apps[app.current.app].tabs[app.current.tab].views[app.current.view].page !== undefined) {
+            app.apps[app.current.app].tabs[app.current.tab].views[app.current.view].page = app.current.page;
+            app.apps[app.current.app].tabs[app.current.tab].views[app.current.view].filter = app.current.filter;
+            app.apps[app.current.app].tabs[app.current.tab].views[app.current.view].sort = app.current.sort;
+            app.apps[app.current.app].tabs[app.current.tab].views[app.current.view].tag = app.current.tag;
+            app.apps[app.current.app].tabs[app.current.tab].views[app.current.view].search = app.current.search;
             app.apps[app.current.app].active = app.current.tab;
             app.apps[app.current.app].tabs[app.current.tab].active = app.current.view;
             app.current.scrollPos = app.apps[app.current.app].tabs[app.current.tab].views[app.current.view].scrollPos;
         }
-        app.current.page = parseInt(params[5]);
-        app.current.filter = params[6];
-        app.current.sort = params[7];
-        app.current.tag = params[8];
-        app.current.search = params[9];
     }
     else {
         appPrepare(0);
@@ -925,7 +1022,7 @@ function appInit() {
     document.getElementById('BrowseBreadcrumb').addEventListener('click', function(event) {
         if (event.target.nodeName === 'A') {
             event.preventDefault();
-            appGoto('Browse', 'Filesystem', undefined, '0/' + app.current.filter + '/' + app.current.sort + '/-/' + decodeURI(event.target.getAttribute('data-uri')));
+            appGoto('Browse', 'Filesystem', undefined, '0', app.current.filter, app.current.sort, '-', decodeURI(event.target.getAttribute('data-uri')));
         }
     }, false);
     
@@ -1085,7 +1182,7 @@ function appInit() {
             switch(event.target.parentNode.getAttribute('data-type')) {
                 case 'parentDir':
                 case 'dir':
-                    appGoto('Browse', 'Filesystem', undefined, '0/' + app.current.filter + '/' + app.current.sort + '/-/' + decodeURI(event.target.parentNode.getAttribute("data-uri")));
+                    appGoto('Browse', 'Filesystem', undefined, '0', app.current.filter, app.current.sort, '-', decodeURI(event.target.parentNode.getAttribute("data-uri")));
                     break;
                 case 'song':
                     appendQueue('song', decodeURI(event.target.parentNode.getAttribute("data-uri")), event.target.parentNode.getAttribute("data-name"));
@@ -1119,7 +1216,7 @@ function appInit() {
                 showBookmarkSave(id, name, uri, type);
             }
             else if (href === 'goto') {
-                appGoto('Browse', 'Filesystem', undefined, '0/-/-/-/' + uri );
+                appGoto('Browse', 'Filesystem', undefined, '0','-','-','-', uri);
             }
         }
     }, false);
@@ -1195,8 +1292,7 @@ function appInit() {
     document.getElementById('searchDatabaseTags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
             app.current.filter = event.target.getAttribute('data-tag');
-            appGoto(app.current.app, app.current.tab, app.current.view, '0/' + app.current.filter + '/' + app.current.sort + '/' 
-                + app.current.tag + '/' + app.current.search);
+            appGoto(app.current.app, app.current.tab, app.current.view, '0', app.current.filter, app.current.sort, app.current.tag, app.current.search);
         }
     }, false);
     
@@ -1210,8 +1306,7 @@ function appInit() {
         else {
             app.current.sort = '-' + app.current.sort;
         }
-        appGoto(app.current.app, app.current.tab, app.current.view, '0/' + app.current.filter + '/' + app.current.sort + '/' 
-            + app.current.tag + '/' + app.current.search);
+        appGoto(app.current.app, app.current.tab, app.current.view, '0', app.current.filter, app.current.sort, app.current.tag, app.current.search);
     }, false);
 
     document.getElementById('databaseSortTags').addEventListener('click', function(event) {
@@ -1219,8 +1314,7 @@ function appInit() {
             event.preventDefault();
             event.stopPropagation();
             app.current.sort = event.target.getAttribute('data-tag');
-            appGoto(app.current.app, app.current.tab, app.current.view, '0/' + app.current.filter + '/' + app.current.sort + '/' 
-                + app.current.tag + '/' + app.current.search);
+            appGoto(app.current.app, app.current.tab, app.current.view, '0', app.current.filter, app.current.sort, app.current.tag, app.current.search);
         }
     }, false);
 
@@ -1246,14 +1340,14 @@ function appInit() {
             this.blur();
         }
         else {
-            appGoto(app.current.app, app.current.tab, app.current.view, '0/' + app.current.filter + '/' + app.current.sort + '/-/' + this.value);
+            appGoto(app.current.app, app.current.tab, app.current.view, '0', app.current.filter , app.current.sort, '-', this.value);
         }
     }, false);
 
     document.getElementById('searchqueuetags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
-            appGoto(app.current.app, app.current.tab, app.current.view, app.current.page + '/' + event.target.getAttribute('data-tag') + '/' + app.current.sort  + 
-                '/-/' + app.current.search);
+            appGoto(app.current.app, app.current.tab, app.current.view, 
+                app.current.page, event.target.getAttribute('data-tag'), app.current.sort, '-', app.current.search);
         }
     }, false);
     
@@ -1262,7 +1356,8 @@ function appInit() {
             this.blur();
         }
         else {
-            appGoto(app.current.app, app.current.tab, app.current.view, '0/' + (this.value !== '' ? this.value : '-') + '/' + app.current.sort + '/-/' + app.current.search);
+            appGoto(app.current.app, app.current.tab, app.current.view, 
+                '0', (this.value !== '' ? this.value : '-'), app.current.sort, '-', app.current.search);
         }
     }, false);
     
@@ -1271,7 +1366,8 @@ function appInit() {
             this.blur();
         }
         else {
-            appGoto(app.current.app, app.current.tab, app.current.view, '0/' + (this.value !== '' ? this.value : '-') + '/' + app.current.sort + '/-/' + app.current.search);
+            appGoto(app.current.app, app.current.tab, app.current.view, 
+                '0', (this.value !== '' ? this.value : '-'), app.current.sort, '-', app.current.search);
         }
     }, false);
 
@@ -1320,8 +1416,8 @@ function appInit() {
             searchAlbumgrid(this.value);
         }
         else {
-            appGoto(app.current.app, app.current.tab, app.current.view, '0/' + app.current.filter + '/' + app.current.sort + '/'
-                + app.current.tag + '/' + this.value);        
+            appGoto(app.current.app, app.current.tab, app.current.view, 
+                '0', app.current.filter, app.current.sort, app.current.tag, this.value);        
         }
     }, false);
 
@@ -1428,8 +1524,10 @@ function appInit() {
                     s[i].remove();
                 }
                 app.current.sort = sortcol;
-                event.target.innerHTML = t(col) + '<span class="sort-dir material-icons pull-right">' + (sortdesc === true ? 'arrow_drop_up' : 'arrow_drop_down') + '</span>';
-                appGoto(app.current.app, app.current.tab, app.current.view, app.current.page + '/' + app.current.filter + '/' + app.current.sort + '/-/' + app.current.search);
+                event.target.innerHTML = t(col) + '<span class="sort-dir material-icons pull-right">' + 
+                    (sortdesc === true ? 'arrow_drop_up' : 'arrow_drop_down') + '</span>';
+                appGoto(app.current.app, app.current.tab, app.current.view,
+                    app.current.page, app.current.filter,  app.current.sort, '-', app.current.search);
             }
         }
     }, false);

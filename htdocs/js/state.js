@@ -468,7 +468,7 @@ function songChange(obj) {
 
 //eslint-disable-next-line no-unused-vars
 function gotoTagList() {
-    appGoto(app.current.app, app.current.tab, app.current.view, '0/-/-/-/');
+    appGoto(app.current.app, app.current.tab, app.current.view, '0', '-', '-', '-', '');
 }
 
 //eslint-disable-next-line no-unused-vars

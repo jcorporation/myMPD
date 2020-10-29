@@ -322,7 +322,7 @@ function toggleBtnChkCollapse(btn, collapse, state) {
 }
 
 function setPagination(total, returned) {
-    let cat = app.current.app + (app.current.tab === undefined ? '': app.current.tab);
+    let cat = app.current.app + (app.current.tab === undefined ? '' : app.current.tab);
     let totalPages = Math.ceil(total / settings.maxElementsPerPage);
     if (totalPages === 0) {
         totalPages = 1;
@@ -428,6 +428,6 @@ function gotoPage(x) {
         default:
             app.current.page = x;
     }
-    appGoto(app.current.app, app.current.tab, app.current.view, app.current.page + '/' + app.current.filter + '/' + 
-        app.current.sort + '/' + app.current.tag + '/' + app.current.search);
+    appGoto(app.current.app, app.current.tab, app.current.view, 
+        app.current.page, app.current.filter, app.current.sort, app.current.tag, app.current.search);
 }

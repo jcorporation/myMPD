@@ -11,20 +11,25 @@ function search(x) {
         let crumbs = domCache.searchCrumb.children;
         for (let i = 0; i < crumbs.length; i++) {
             expression += '(' + decodeURI(crumbs[i].getAttribute('data-filter')) + ')';
-            if (x !== '') expression += ' AND ';
+            if (x !== '') {
+                expression += ' AND ';
+            }
         }
         if (x !== '') {
             let match = document.getElementById('searchMatch');
             expression += '(' + app.current.filter + ' ' + match.options[match.selectedIndex].value + ' \'' + x +'\'))';
         }
-        else
+        else {
             expression += ')';
-        if (expression.length <= 2)
+        }
+        if (expression.length <= 2) {
             expression = '';
-        appGoto('Search', undefined, undefined, '0/' + app.current.filter + '/' + app.current.sort + '/-/' + expression);
+        }
+        appGoto('Search', undefined, undefined, '0', app.current.filter, app.current.sort, '-', expression);
     }
-    else
-        appGoto('Search', undefined, undefined, '0/' + app.current.filter + '/' + app.current.sort + '/-/' + x);
+    else {
+        appGoto('Search', undefined, undefined, '0', app.current.filter, app.current.sort, '-', x);
+    }
 }
 
 function parseSearch(obj) {
