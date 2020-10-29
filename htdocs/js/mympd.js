@@ -360,17 +360,17 @@ function appRoute() {
         sendAPI("MPD_API_QUEUE_LAST_PLAYED", {"offset": app.current.page, "cols": settings.colsQueueLastPlayed}, parseLastPlayed);
     }
     else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'All') {
-        sendAPI("MPD_API_PLAYLIST_LIST", {"offset": app.current.page, "searchstr": (app.current.filter != '-' ? app.current.filter : '')}, parsePlaylists);
+        sendAPI("MPD_API_PLAYLIST_LIST", {"offset": app.current.page, "searchstr": app.current.search}, parsePlaylists);
         const searchPlaylistsStrEl = document.getElementById('searchPlaylistsStr');
-        if (searchPlaylistsStrEl.value === '' && app.current.filter != '-') {
-            searchPlaylistsStrEl.value = app.current.filter;
+        if (searchPlaylistsStrEl.value === '' && app.current.search !== '') {
+            searchPlaylistsStrEl.value = app.current.search;
         }
     }
     else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'Detail') {
-        sendAPI("MPD_API_PLAYLIST_CONTENT_LIST", {"offset": app.current.page, "searchstr": (app.current.filter != '-' ? app.current.filter : ''), "uri": app.current.search, "cols": settings.colsBrowsePlaylistsDetail}, parsePlaylists);
+        sendAPI("MPD_API_PLAYLIST_CONTENT_LIST", {"offset": app.current.page, "searchstr": app.current.search, "uri": app.current.filter, "cols": settings.colsBrowsePlaylistsDetail}, parsePlaylists);
         const searchPlaylistsStrEl = document.getElementById('searchPlaylistsStr');
-        if (searchPlaylistsStrEl.value === '' && app.current.filter != '-') {
-            searchPlaylistsStrEl.value = app.current.filter;
+        if (searchPlaylistsStrEl.value === '' && app.current.search !== '') {
+            searchPlaylistsStrEl.value = app.current.search;
         }
     }    
     else if (app.current.app === 'Browse' && app.current.tab === 'Filesystem') {
@@ -863,7 +863,7 @@ function appInit() {
         document.getElementById('inputAddToQueueQuantity').classList.remove('is-invalid');
         document.getElementById('warnJukeboxPlaylist2').classList.add('hide');
         if (settings.featPlaylists === true) {
-            sendAPI("MPD_API_PLAYLIST_LIST_ALL", {"offset": 0, "filter": "-"}, function(obj) { 
+            sendAPI("MPD_API_PLAYLIST_LIST_ALL", {"offset": 0, "searchstr": ""}, function(obj) { 
                 getAllPlaylists(obj, 'selectAddToQueuePlaylist');
             });
         }
@@ -1367,7 +1367,7 @@ function appInit() {
         }
         else {
             appGoto(app.current.app, app.current.tab, app.current.view, 
-                '0', (this.value !== '' ? this.value : '-'), app.current.sort, '-', app.current.search);
+                '0', app.current.filter, app.current.sort, '-', this.value);
         }
     }, false);
 

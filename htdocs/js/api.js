@@ -168,10 +168,10 @@ function webSocketConnect() {
                     break;
                 case 'update_stored_playlist':
                     if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'All') {
-                        sendAPI("MPD_API_PLAYLIST_LIST", {"offset": app.current.page, "filter": app.current.filter}, parsePlaylists);
+                        sendAPI("MPD_API_PLAYLIST_LIST", {"offset": app.current.page, "searchstr": app.current.search}, parsePlaylists);
                     }
                     else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'Detail') {
-                        sendAPI("MPD_API_PLAYLIST_CONTENT_LIST", {"offset": app.current.page, "filter": app.current.filter, "uri": app.current.search, "cols": settings.colsBrowsePlaylistsDetail}, parsePlaylists);
+                        sendAPI("MPD_API_PLAYLIST_CONTENT_LIST", {"offset": app.current.page, "searchstr": app.current.search, "uri": app.current.search, "cols": settings.colsBrowsePlaylistsDetail}, parsePlaylists);
                     }
                     break;
                 case 'update_lastplayed':
