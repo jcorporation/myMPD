@@ -10,11 +10,14 @@ function openFullscreen() {
     let elem = document.documentElement;
     if (elem.requestFullscreen) {
         elem.requestFullscreen();
-    } else if (elem.mozRequestFullScreen) { /* Firefox */
+    }
+    else if (elem.mozRequestFullScreen) { /* Firefox */
         elem.mozRequestFullScreen();
-    } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
+    }
+    else if (elem.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
         elem.webkitRequestFullscreen();
-    } else if (elem.msRequestFullscreen) { /* IE/Edge */
+    }
+    else if (elem.msRequestFullscreen) { /* IE/Edge */
         elem.msRequestFullscreen();
     }
 }
@@ -173,8 +176,10 @@ function _updateDBfinished(idleEvent) {
 function zoomPicture(el) {
     if (el.classList.contains('booklet')) {
         window.open(el.getAttribute('data-href'));
+        return;
     }
-    else if (el.classList.contains('carousel')) {
+    
+    if (el.classList.contains('carousel')) {
         let imgSrc = el.getAttribute('data-images');
         let images;
         if (imgSrc !== null) {
@@ -183,16 +188,20 @@ function zoomPicture(el) {
         else {
             images = lastSongObj.images.slice();
         }
-        for (let i = 0; i < images.length; i++) {
-            images[i] = subdir + '/browse/music/' + images[i];
+        if (images.length > 0) {
+            for (let i = 0; i < images.length; i++) {
+                images[i] = subdir + '/browse/music/' + images[i];
+            }
+            const imgEl = document.getElementById('modalPictureImg');
+            imgEl.style.paddingTop = 0;
+            createImgCarousel(imgEl, 'picsCarousel', images);
+            document.getElementById('modalPictureZoom').classList.add('hide');
+            modalPicture.show();
+            return;
         }
-        const imgEl = document.getElementById('modalPictureImg');
-        imgEl.style.paddingTop = 0;
-        createImgCarousel(imgEl, 'picsCarousel', images);
-        document.getElementById('modalPictureZoom').classList.add('hide');
-        modalPicture.show();
     }
-    else if (el.style.backgroundImage !== '') {
+    
+    if (el.style.backgroundImage !== '') {
         const imgEl = document.getElementById('modalPictureImg');
         imgEl.innerHTML = '';
         imgEl.style.paddingTop = '100%';
