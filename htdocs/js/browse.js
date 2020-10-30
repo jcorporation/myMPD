@@ -57,28 +57,29 @@ function parseFilesystem(obj) {
         return;
     }
     
-    const imageList = document.getElementById('BrowseFilesystemImages');
-    imageList.innerHTML = '';
-    if ((obj.result.images.length === 0 && obj.result.bookletPath === '') || settings.publish === false) {
-        imageList.classList.add('hide');
+    if (app.current.app === 'Browse' && app.current.tab === 'Filesystem') {
+        const imageList = document.getElementById('BrowseFilesystemImages');
+        imageList.innerHTML = '';
+        if ((obj.result.images.length === 0 && obj.result.bookletPath === '') || settings.publish === false) {
+            imageList.classList.add('hide');
+        }
+        else {
+            imageList.classList.remove('hide');
+        }
+        if (obj.result.bookletPath !== '' && settings.publish === true) {
+            let img = document.createElement('div');
+            img.style.backgroundImage = 'url("' + subdir + '/assets/coverimage-booklet.svg")';
+            img.classList.add('booklet');
+            img.setAttribute('data-href', subdir + '/browse/music/' + obj.result.bookletPath);
+            img.title = t('Booklet');
+            imageList.appendChild(img);
+        }
+        for (let i = 0; i < obj.result.images.length; i++) {
+            let img = document.createElement('div');
+            img.style.backgroundImage = 'url("' + subdir + '/browse/music/' + obj.result.images[i] + '"),url("assets/coverimage-loading.svg")';
+            imageList.appendChild(img);
+        }
     }
-    else {
-        imageList.classList.remove('hide');
-    }
-    if (obj.result.bookletPath !== '' && settings.publish === true) {
-        let img = document.createElement('div');
-        img.style.backgroundImage = 'url("' + subdir + '/assets/coverimage-booklet.svg")';
-        img.classList.add('booklet');
-        img.setAttribute('data-href', subdir + '/browse/music/' + obj.result.bookletPath);
-        img.title = t('Booklet');
-        imageList.appendChild(img);
-    }
-    for (let i = 0; i < obj.result.images.length; i++) {
-        let img = document.createElement('div');
-        img.style.backgroundImage = 'url("' + subdir + '/browse/music/' + obj.result.images[i] + '"),url("assets/coverimage-loading.svg")';
-        imageList.appendChild(img);
-    }
-
     let nrItems = obj.result.returnedEntities;
     let tr = tbody.getElementsByTagName('tr');
     let navigate = document.activeElement.parentNode.parentNode === table ? true : false;
