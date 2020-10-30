@@ -38,7 +38,9 @@ sds put_extra_files(t_mpd_client_state *mpd_client_state, sds buffer, const char
     struct list images;
     list_init(&images);
     sds booklet_path = sdsempty();
-    detect_extra_files(mpd_client_state, uri, &booklet_path, &images, is_dirname);
+    if (is_streamuri(uri) == false) {
+        detect_extra_files(mpd_client_state, uri, &booklet_path, &images, is_dirname);
+    }
     buffer = tojson_char(buffer, "bookletPath", booklet_path, true);
     buffer = sdscat(buffer, "\"images\": [");
     struct list_node *current = images.head;

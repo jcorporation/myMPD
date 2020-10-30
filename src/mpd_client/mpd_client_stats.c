@@ -86,7 +86,7 @@ bool mpd_client_add_song_to_last_played_list(t_config *config, t_mpd_client_stat
         struct mpd_song *song = mpd_run_get_queue_song_id(mpd_client_state->mpd_state->conn, song_id);
         if (song) {
             const char *uri = mpd_song_get_uri(song);
-            if (uri == NULL || strstr(uri, "://") != NULL) {
+            if (is_streamuri(uri) == true) {
                 //Don't add streams to last played list
                 mpd_song_free(song);
                 return true;

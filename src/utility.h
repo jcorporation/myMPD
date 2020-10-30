@@ -47,6 +47,7 @@ void ws_notify(sds message);
 void my_usleep(time_t usec);
 unsigned long substractUnsigned(unsigned long num1, unsigned long num2);
 char *basename_uri(char *uri);
+bool is_streamuri(const char *uri);
 
 #define FREE_PTR(PTR) do { \
     if (PTR != NULL) \

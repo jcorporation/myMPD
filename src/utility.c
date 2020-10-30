@@ -4,6 +4,8 @@
  https://github.com/jcorporation/mympd
 */
 
+#define _GNU_SOURCE
+
 #include <string.h>
 #include <limits.h>
 #include <stdio.h>
@@ -458,6 +460,13 @@ sds get_mime_type_by_magic_stream(sds stream) {
     sdsfree(hex_buffer);
     sds mime_type = sdsnew(p->mime_type);
     return mime_type;
+}
+
+bool is_streamuri(const char *uri) {
+    if (uri == NULL || strcasestr(uri, "://") != NULL) {
+        return true;
+    }
+    return false;
 }
 
 bool write_covercache_file(t_config *config, const char *uri, const char *mime_type, sds binary) {

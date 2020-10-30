@@ -111,7 +111,7 @@ bool mpd_client_get_sticker(t_mpd_client_state *mpd_client_state, const char *ur
     sticker->lastSkipped = 0;
     sticker->like = 1;
 
-    if (uri == NULL || strstr(uri, "://") != NULL) {
+    if (is_streamuri(uri) == true) {
         return false;
     }
 

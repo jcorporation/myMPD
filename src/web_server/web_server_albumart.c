@@ -78,7 +78,7 @@ bool handle_albumart(struct mg_connection *nc, struct http_message *hm, t_mg_use
         return true;
     }
     //try image in /pics folder, if uri contains ://
-    if (strstr(uri_decoded, "://") != NULL) {
+    if (is_streamuri(uri_decoded) == true) {
         char *name = strstr(uri_decoded, "://");
         if (strlen(name) < 4) {
             LOG_ERROR("Uri to short");

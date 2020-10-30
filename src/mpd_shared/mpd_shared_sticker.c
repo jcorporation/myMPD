@@ -34,7 +34,7 @@ bool mpd_shared_get_sticker(t_mpd_state *mpd_state, const char *uri, t_sticker *
     sticker->lastSkipped = 0;
     sticker->like = 1;
 
-    if (uri == NULL || strstr(uri, "://") != NULL) {
+    if (is_streamuri(uri) == true) {
         return false;
     }
 
