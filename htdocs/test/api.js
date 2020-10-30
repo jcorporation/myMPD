@@ -33,6 +33,7 @@ var cmds = [
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYLIST_RM_TRACK","params":{"uri":"","track":0}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYLIST_RM_ALL", "params":{"type":""}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYLIST_LIST","params":{"offset":0,"searchstr":""}},
+    {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYLIST_LIST_ALL","params":{"searchstr":""}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYLIST_CONTENT_LIST","params":{"uri":"","offset":0,"searchstr":"","cols":["",""]}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYLIST_SHUFFLE", "params":{"uri":""}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYLIST_SORT", "params":{"uri":"","tag":""}},

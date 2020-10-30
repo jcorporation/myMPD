@@ -119,9 +119,13 @@ desc['MPD_API_PLAYLIST_RM_ALL'] = 'Removes all playlists.' +
       '<li>deleteEmptyPlaylists: deletes all empty playlists</li>' +
     '</ul></li>' +
     '</ul>';
-desc['MPD_API_PLAYLIST_LIST'] = 'Lists all playlists.' +
+desc['MPD_API_PLAYLIST_LIST'] = 'Lists all playlists (paginated).' +
     '<ul>' +
     '<li>' + strings['offset'] + '</li>' +
+    '<li>searchstr: string to search</li>' +
+    '</ul>';
+desc['MPD_API_PLAYLIST_LIST_ALL'] = 'Lists all playlists (realy all).' +
+    '<ul>' +
     '<li>searchstr: string to search</li>' +
     '</ul>';
 desc['MPD_API_PLAYLIST_CONTENT_LIST'] = 'Lists the content of a playlist.' +

@@ -507,7 +507,10 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
             }
             break;
         case MPD_API_PLAYLIST_LIST_ALL:
-            response->data = mpd_client_put_playlists(config, mpd_client_state, response->data, request->method, request->id, 0, "-", false);
+            je = json_scanf(request->data, sdslen(request->data), "{params: {searchstr: %Q}}", &p_charbuf1);
+            if (je == 2) {
+                response->data = mpd_client_put_playlists(config, mpd_client_state, response->data, request->method, request->id, 0, p_charbuf1, false);
+            }
             break;
         case MPD_API_PLAYLIST_CONTENT_LIST: {
             t_tags *tagcols = (t_tags *)malloc(sizeof(t_tags));
