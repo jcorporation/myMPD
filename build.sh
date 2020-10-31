@@ -531,7 +531,7 @@ pkgbuildx() {
     exit 1
   fi
   [ "$DOCKERFILE" = "" ] && DOCKERFILE="Dockerfile.alpine"
-  [ "$PLATFORMS" = "" ] && PLATFORMS="linux/amd64,linux/arm64"
+  [ "$PLATFORMS" = "" ] && PLATFORMS="linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6"
   prepare
   cp contrib/packaging/docker/"$DOCKERFILE" Dockerfile
   docker run --rm --privileged docker/binfmt:820fdd95a9972a5308930a2bdfb8573dd4447ad3
@@ -647,6 +647,7 @@ pkgosc() {
 }
 
 installdeps() {
+  echo "Platform: $(uname -m)"
   if [ -f /etc/debian_version ]
   then
     #debian
@@ -664,8 +665,11 @@ installdeps() {
   elif [ -f /etc/alpine-release ]
   then
     #alpine
+    JAVADEB="openjdk11-jre-headless"
+    #issue 234
+    [ "$(uname -m)" = "armv7l" ] && JAVADEB="java-common"
     apk add cmake perl openssl-dev libid3tag-dev flac-dev lua5.3-dev \
-    	openjdk11-jre-headless alpine-sdk linux-headers pkgconf
+    	alpine-sdk linux-headers pkgconf $JAVADEB
   elif [ -f /etc/SuSE-release ]
   then
     #suse
@@ -919,7 +923,7 @@ case "$1" in
           echo "  pkgbuildx:        creates a multiarch docker image with buildx"
           echo "                    following environment variables are respected"
           echo "                      - DOCKERFILE=\"Dockerfile.alpine\""
-          echo "                      - PLATFORMS=\"linux/amd64,linux/arm64\""
+          echo "                      - PLATFORMS=\"linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6\""
 	  echo "  pkgrpm:           creates the rpm package"
 	  echo "  pkgosc:           updates the open build service repository"
 	  echo "                    following environment variables are respected"
