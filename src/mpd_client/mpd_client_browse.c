@@ -348,7 +348,7 @@ sds mpd_client_put_firstsong_in_albums(t_config *config, t_mpd_client_state *mpd
     if (mpd_shared_tag_exists(mpd_client_state->mpd_state->mympd_tag_types.tags, mpd_client_state->mpd_state->mympd_tag_types.len, MPD_TAG_DISC) == true) {
         expression = sdscat(expression, " AND (Disc == '1')");
     }
-    if (strlen(searchstr) > 0) {
+    if (strlen(searchstr) > 0 && searchstr[0] == '(') {
         expression = sdscat(expression, " AND ");
         expression = sdscat(expression, searchstr);
     }
