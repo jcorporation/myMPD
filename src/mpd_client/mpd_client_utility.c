@@ -126,6 +126,7 @@ void default_mpd_client_state(t_mpd_client_state *mpd_client_state) {
     mpd_client_state->stickers = false;
     mpd_client_state->max_elements_per_page = 100;
     mpd_client_state->feat_coverimage = false;
+    mpd_client_state->auto_play = false;
     reset_t_tags(&mpd_client_state->search_tag_types);
     reset_t_tags(&mpd_client_state->browse_tag_types);
     reset_t_tags(&mpd_client_state->generate_pls_tag_types);
