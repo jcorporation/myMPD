@@ -34,7 +34,12 @@ function saveConnection() {
         }
     }
     if (formOK === true) {
-        sendAPI("MYMPD_API_CONNECTION_SAVE", {"mpdHost": mpdHostEl.value, "mpdPort": mpdPortEl.value, "mpdPass": mpdPassEl.value, "musicDirectory": musicDirectory}, getSettings);
+        sendAPI("MYMPD_API_CONNECTION_SAVE", {
+            "mpdHost": mpdHostEl.value,
+            "mpdPort": mpdPortEl.value,
+            "mpdPass": mpdPassEl.value,
+            "musicDirectory": musicDirectory
+        }, getSettings);
         modalConnection.hide();    
     }
 }
