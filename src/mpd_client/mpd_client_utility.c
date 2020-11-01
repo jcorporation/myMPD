@@ -38,7 +38,7 @@ sds put_extra_files(t_mpd_client_state *mpd_client_state, sds buffer, const char
     struct list images;
     list_init(&images);
     sds booklet_path = sdsempty();
-    if (is_streamuri(uri) == false) {
+    if (is_streamuri(uri) == false && mpd_client_state->feat_library == true) {
         detect_extra_files(mpd_client_state, uri, &booklet_path, &images, is_dirname);
     }
     buffer = tojson_char(buffer, "bookletPath", booklet_path, true);
@@ -112,15 +112,20 @@ void default_mpd_client_state(t_mpd_client_state *mpd_client_state) {
     mpd_client_state->jukebox_queue_length = 1;
     mpd_client_state->jukebox_enforce_unique = true;
     mpd_client_state->coverimage_name = sdsempty();
+    mpd_client_state->love = false;
     mpd_client_state->love_channel = sdsempty();
     mpd_client_state->love_message = sdsempty();
     mpd_client_state->searchtaglist = sdsempty();
     mpd_client_state->browsetaglist = sdsempty();
+    mpd_client_state->smartpls = false;
     mpd_client_state->generate_pls_tags = sdsempty();
     mpd_client_state->smartpls_sort = sdsempty();
     mpd_client_state->smartpls_prefix = sdsempty();
     mpd_client_state->smartpls_interval = 14400;
     mpd_client_state->booklet_name = sdsnew("booklet.pdf");
+    mpd_client_state->stickers = false;
+    mpd_client_state->max_elements_per_page = 100;
+    mpd_client_state->feat_coverimage = false;
     reset_t_tags(&mpd_client_state->search_tag_types);
     reset_t_tags(&mpd_client_state->browse_tag_types);
     reset_t_tags(&mpd_client_state->generate_pls_tag_types);
