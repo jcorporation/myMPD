@@ -792,9 +792,6 @@ Wiegergabeliste bearbeiten
 Update smart playlist
 Intelligente Wiedergabeliste aktualisieren
 
-Delete playlist
-Wiedergabeliste löschen
-
 Remove
 Entfernen
 
