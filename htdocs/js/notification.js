@@ -17,22 +17,14 @@ function setStateIcon() {
 }
 
 function toggleAlert(alertBox, state, msg) {
-    const mpdState = document.getElementById(alertBox);
-    const topAlert = document.getElementById('top-alerts');
+    const alertBoxEl = document.getElementById(alertBox);
     if (state === false) {
-        mpdState.innerHTML = '';
-        mpdState.classList.add('hide');
-        topAlert.classList.add('hide');
+        alertBoxEl.innerHTML = '';
+        alertBoxEl.classList.add('hide');
     }
     else {
-        mpdState.innerHTML = msg;
-        mpdState.classList.remove('hide');
-        let topPadding = 0;
-        if (window.innerWidth < window.innerHeight) {
-            topPadding = domCache.header.offsetHeight;
-        }
-        topAlert.style.paddingTop = topPadding + 'px';
-        topAlert.classList.remove('hide');
+        alertBoxEl.innerHTML = msg;
+        alertBoxEl.classList.remove('hide');
     }
 }
 
@@ -192,8 +184,18 @@ function setElsState(tag, state, type) {
 
 function toggleUI() {
     let state = 'disabled';
+    const topAlert = document.getElementById('top-alerts');
     if (websocketConnected === true && settings.mpdConnected === true) {
+        topAlert.classList.add('hide');
         state = 'enabled';
+    }
+    else {
+        let topPadding = 0;
+        if (window.innerWidth < window.innerHeight) {
+            topPadding = domCache.header.offsetHeight;
+        }
+        topAlert.style.paddingTop = topPadding + 'px';
+        topAlert.classList.remove('hide');
     }
     let enabled = state === 'disabled' ? false : true;
     if (enabled !== uiEnabled) {
@@ -220,5 +222,6 @@ function toggleUI() {
         toggleAlert('alertMympdState', true, t('Websocket is disconnected'));
         logMessage(t('Websocket is disconnected'), '', '', 'danger');
     }
+ 
     setStateIcon();
 }

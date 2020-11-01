@@ -78,7 +78,9 @@ function joinSettings(obj) {
     settingsLock = false;
     parseSettings();
     toggleUI();
-    sendAPI("MPD_API_URLHANDLERS", {}, parseUrlhandlers,false);
+    if (settings.mpdConnected === true) {
+        sendAPI("MPD_API_URLHANDLERS", {}, parseUrlhandlers,false);
+    }
     btnWaiting(document.getElementById('btnApplySettings'), false);
 }
 
