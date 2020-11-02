@@ -228,19 +228,14 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
             bool check_mpd_error = false;
             sds notify_buffer = sdsempty();
             while ((h = json_next_key(request->data, sdslen(request->data), h, ".params", &key, &val)) != NULL) {
-                if (mpd_client_state->mpd_state->conn_state == MPD_CONNECTED ||
-                    strncmp(key.ptr, "mpdHost", key.len) == 0 || strncmp(key.ptr, "mpdPort", key.len) == 0 ||
-                    strncmp(key.ptr, "mpdPass", key.len) == 0 || strncmp(key.ptr, "musicDirectory", key.len) == 0)
+                rc = mpd_api_settings_set(config, mpd_client_state, &key, &val, &mpd_host_changed, &jukebox_changed, &check_mpd_error);
+                if ((check_mpd_error == true && check_error_and_recover2(mpd_client_state->mpd_state, &notify_buffer, request->method, request->id, true) == false)
+                    || rc == false)
                 {
-                    rc = mpd_api_settings_set(config, mpd_client_state, &key, &val, &mpd_host_changed, &jukebox_changed, &check_mpd_error);
-                    if ((check_mpd_error == true && check_error_and_recover2(mpd_client_state->mpd_state, &notify_buffer, request->method, request->id, true) == false)
-                        || rc == false)
-                    {
-                        if (sdslen(notify_buffer) > 0) {
-                            ws_notify(notify_buffer);
-                        }
-                        break;
+                    if (sdslen(notify_buffer) > 0) {
+                        ws_notify(notify_buffer);
                     }
+                    break;
                 }
             }
             sdsfree(notify_buffer);
