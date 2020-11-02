@@ -70,6 +70,11 @@
         </div>
       </div>
       <div id="navbar-main" class="d-flex">
+        <div id="navHome" class="nav-item flex-fill text-center">
+          <a data-title-phrase="Home" data-href='{"cmd": "appGoto", "options": ["Home"]}' class="nav-link text-light" href="#">
+            <span class="material-icons">home</span><span class="navText" data-phrase="Home"></span>
+          </a>
+        </div>
         <div id="navPlayback" class="nav-item flex-fill text-center">
           <a data-title-phrase="Playback" data-href='{"cmd": "appGoto", "options": ["Playback"]}' class="nav-link text-light" href="#">
             <span class="material-icons">play_arrow</span><span class="navText" data-phrase="Playback"></span>
@@ -103,8 +108,16 @@
   </div>
   <!-- Main content -->
   <main>
+    <div class="card" id="cardHome">
+      <div class="card-body">
+        <div class="container HomeContainer">
+          <div id="HomeCards" class="row noInitChilds">
+          </div>
+        </div>      
+      </div>
+    </div>
     <div class="card" id="cardPlayback">
-      <div class="card-body cardBodyPlayback">
+      <div class="card-body">
         <div class="btn-toolbar card-toolbar" id="PlaybackButtonsTop">
           <div class="btn-group btn-group featStickers">
             <button data-title-phrase="Dislike song" id="btnVoteDown" data-href='{"cmd": "voteSong", "options": [0]}' class="btn btn-secondary material-icons">thumb_down</button>
@@ -2246,6 +2259,7 @@
 <!--debug-->  <script src="js/trigger.js"></script>
 <!--debug-->  <script src="js/popover.js"></script>
 <!--debug-->  <script src="js/localplayer.js"></script>
+<!--debug-->  <script src="js/home.js"></script>
 <!--debug-->  <script src="js/mympd.js"></script>
 <!--release   <script src="js/combined.js"></script>-->
  </body>

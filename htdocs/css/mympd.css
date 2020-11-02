@@ -335,8 +335,8 @@ small {
   border-radius: 5px;
   overflow: hidden;
   max-width: 100%;
-  width: var(--mympd-coverimagesizesmall, 200px);
-  height: var(--mympd-coverimagesizesmall, 200px);
+  width: var(--mympd-coverimagesizesmall, 175px);
+  height: var(--mympd-coverimagesizesmall, 175px);
   background-color: #eee;
   float: left;
   margin-bottom: 1.25rem;
@@ -345,8 +345,48 @@ small {
   z-index: 1;
 }
 
+.home-icons {
+  width: 8rem;
+  min-height: 0 !important;
+  margin-bottom: 1.25rem;
+  overflow: hidden;
+  max-width: 100%;
+  text-align: center;
+}
+
+.home-icons .card-body {
+  font-size: 2rem;
+  height: 4rem;
+  padding-bottom:0;
+}
+
+.home-icons .card-footer {
+  border-top: none;
+}
+
+.home-icons-image {
+  width: 4rem;
+  height: 4rem;
+  background-size: cover;
+  background-position: center center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.home-icons-ligature {
+  width: 4rem;
+  height: 4rem;
+  background-color: var(--mympd-highlightcolor, #28a745) !important;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  padding-top: 1rem;
+  padding-left:0;
+  padding-right:0;
+}
+
 .card-grid {
-  width: var(--mympd-coverimagesizesmall, 200px);
+  width: var(--mympd-coverimagesizesmall, 175px);
   min-height: 0 !important;
   margin-bottom: 1.25rem;
   overflow: hidden;
@@ -369,8 +409,8 @@ small {
   background-size: cover;
   overflow: hidden;
   background-color: #eee;
-  width: var(--mympd-coverimagesizesmall, 200px);
-  height: var(--mympd-coverimagesizesmall, 200px);
+  width: var(--mympd-coverimagesizesmall, 175px);
+  height: var(--mympd-coverimagesizesmall, 175px);
   max-width: 100%;
   padding: 0 0.5rem;
 }
@@ -878,16 +918,17 @@ div.active #badgeQueueItems {
   left: 7px;
 }
 
-div.BrowseDatabaseCardsContainer {
+div.BrowseDatabaseCardsContainer,
+div.HomeContainer {
   padding-right: 5px;
   padding-left: 5px;
 }
 
-div.BrowseDatabaseCardsContainer .col {
+div.BrowseDatabaseCardsContainer .col,
+div.HomeContainer .col {
   margin-left: 10px;
   margin-right: 10px;
 }
-
 
 .btn.disabled,
 .btn:disabled {
@@ -903,7 +944,7 @@ div#modalPictureImg {
 }
 
 div#BrowseFilesystemImages {
-  height: calc(var(--mympd-coverimagesizesmall, 150px) + 1rem);
+  height: calc(var(--mympd-coverimagesizesmall, 175px) + 1rem);
   margin-bottom: 1rem;
   overflow-x: auto;
   overflow-y: hidden;

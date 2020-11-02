@@ -41,6 +41,7 @@
 #include "mympd_api/mympd_api_timer.h"
 #include "mympd_api/mympd_api_timer_handlers.h"
 #include "mympd_api/mympd_api_scripts.h"
+#include "mympd_api/mympd_api_home.h"
 #include "mympd_api.h"
 
 //private definitions
@@ -55,6 +56,9 @@ void *mympd_api_loop(void *arg_config) {
     //read myMPD states under config.varlibdir
     t_mympd_state *mympd_state = (t_mympd_state *)malloc(sizeof(t_mympd_state));
     mympd_api_read_statefiles(config, mympd_state);
+
+    list_init(&mympd_state->home_list);
+    mympd_api_read_home_list(config, mympd_state);
 
     //myMPD timer
     init_timerlist(&mympd_state->timer_list);
@@ -105,6 +109,9 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
     t_work_result *response = create_result(request);
     
     switch(request->cmd_id) {
+        case MYMPD_API_HOME_LIST:
+            response->data = mympd_api_put_home_list(mympd_state, response->data, request->method, request->id);
+            break;
         #ifdef ENABLE_LUA
         case MYMPD_API_SCRIPT_SAVE:
             if (config->scripteditor == false) {

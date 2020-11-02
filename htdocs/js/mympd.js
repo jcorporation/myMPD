@@ -39,6 +39,14 @@ var progressBarTransition = 'width 1s linear';
 
 var app = {};
 app.apps = { 
+    "Home": { 
+        "page": 0,
+        "filter": "-",
+        "sort": "-",
+        "tag": "-",
+        "search": "",
+        "scrollPos": 0
+    },
     "Playback": { 
         "page": 0,
         "filter": "-",
@@ -133,7 +141,7 @@ app.apps = {
     }
 };
 
-app.current = { "app": "Playback", "tab": undefined, "view": undefined, "page": 0, "filter": "", "search": "", "sort": "", "tag": "", "scrollPos": 0 };
+app.current = { "app": "Home", "tab": undefined, "view": undefined, "page": 0, "filter": "", "search": "", "sort": "", "tag": "", "scrollPos": 0 };
 app.last = { "app": undefined, "tab": undefined, "view": undefined, "filter": "", "search": "", "sort": "", "tag": "", "scrollPos": 0 };
 
 var domCache = {};
@@ -213,6 +221,7 @@ function appPrepare(scrollPos) {
         for (let i = 0; i < domCache.navbarBtnsLen; i++) {
             domCache.navbarBtns[i].classList.remove('active');
         }
+        document.getElementById('cardHome').classList.add('hide');
         document.getElementById('cardPlayback').classList.add('hide');
         document.getElementById('cardQueue').classList.add('hide');
         document.getElementById('cardBrowse').classList.add('hide');
@@ -343,13 +352,16 @@ function appRoute() {
     }
     else {
         appPrepare(0);
-        appGoto('Playback');
+        appGoto('Home');
         return;
     }
 
     appPrepare(app.current.scrollPos);
 
-    if (app.current.app === 'Playback') {
+    if (app.current.app === 'Home') {
+        sendAPI("MYMPD_API_HOME_LIST", {}, parseHome);
+    }
+    else if (app.current.app === 'Playback') {
         sendAPI("MPD_API_PLAYER_CURRENT_SONG", {}, songChange);
     }    
     else if (app.current.app === 'Queue' && app.current.tab === 'Current' ) {
@@ -544,7 +556,7 @@ function appRoute() {
         selectTag('searchtags', 'searchtagsdesc', app.current.filter);
     }
     else {
-        appGoto("Playback");
+        appGoto("Home");
     }
 
     app.last.app = app.current.app;
@@ -1003,6 +1015,13 @@ function appInit() {
             parseCmd(event, this.getAttribute('data-href'));
         }, false);
     }
+    
+    document.getElementById('HomeCards').addEventListener('click', function(event) {
+        const href = event.target.parentNode.getAttribute('data-href');
+        if (href !== null) {
+           parseCmd(event, href);
+        }
+    }, false);
 
     let pd = document.getElementsByClassName('pages');
     let pdLen = pd.length;
