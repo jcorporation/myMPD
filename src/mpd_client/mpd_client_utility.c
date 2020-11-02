@@ -101,6 +101,7 @@ void default_mpd_client_state(t_mpd_client_state *mpd_client_state) {
     mpd_client_state->last_song_start_time = 0;
     mpd_client_state->last_skipped_id = 0;
     mpd_client_state->crossfade = 0;
+    mpd_client_state->coverimage = false;
     mpd_client_state->set_song_played_time = 0;
     mpd_client_state->music_directory = sdsempty();
     mpd_client_state->music_directory_value = sdsempty();
