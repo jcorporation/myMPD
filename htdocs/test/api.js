@@ -103,5 +103,9 @@ var cmds = [
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_TRIGGER_GET","params":{"id":0}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_TRIGGER_SAVE","params":{"id":0,"name":"","event":0,"script":""}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_TRIGGER_DELETE","params":{"id":0}},
-    {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYER_OUTPUT_ATTRIBUTS_SET","params":{"outputId":0,"attributes":{"allowed_formats":""}}}
+    {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYER_OUTPUT_ATTRIBUTS_SET","params":{"outputId":0,"attributes":{"allowed_formats":""}}},
+    {"jsonrpc":"2.0","id":0,"method":"MPD_API_HOME_LIST","params":{}},
+    {"jsonrpc":"2.0","id":0,"method":"MPD_API_HOME_ICON_DELETE","params":{"pos":0}},
+    {"jsonrpc":"2.0","id":0,"method":"MPD_API_HOME_ICON_SWAP","params":{"pos1":0,"pos2":0}},
+    {"jsonrpc":"2.0","id":0,"method":"MPD_API_HOME_ICON_SAVE","params":{"replace":false,"oldpos":0,"name":"","ligature":"","bgcolor":"","image":"","cmd":"","options":["option1","option2"]}}
 ];

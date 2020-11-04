@@ -105,7 +105,11 @@ function defineCmds() {
         {"jsonrpc":"2.0","id":0,"method":"MPD_API_TRIGGER_SAVE","params":{"id":int0,"name":string1,"event":int1,"script":string2}},
         {"jsonrpc":"2.0","id":0,"method":"MPD_API_TRIGGER_GET","params":{"id":int0}},
         {"jsonrpc":"2.0","id":0,"method":"MPD_API_TRIGGER_DELETE","params":{"id":int0}},
-        {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYER_OUTPUT_ATTRIBUTS_SET","params":{"outputId":int0,"attributes":{string1:string2}}}
+        {"jsonrpc":"2.0","id":0,"method":"MPD_API_PLAYER_OUTPUT_ATTRIBUTS_SET","params":{"outputId":int0,"attributes":{string1:string2}}},
+        {"jsonrpc":"2.0","id":0,"method":"MPD_API_HOME_LIST","params":{}},
+        {"jsonrpc":"2.0","id":0,"method":"MPD_API_HOME_ICON_DELETE","params":{"pos":int0}},
+        {"jsonrpc":"2.0","id":0,"method":"MPD_API_HOME_ICON_SWAP","params":{"pos1":int0,"pos2":int1}},
+        {"jsonrpc":"2.0","id":0,"method":"MPD_API_HOME_ICON_SAVE","params":{"replace":bool0,"oldpos":int0,"name":string1,"ligature":string2,"bgcolor":string3,"image":string4,"cmd":string5,"options":[string2,string3]}}
     ];
 }
 

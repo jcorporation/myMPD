@@ -85,6 +85,7 @@ void *mympd_api_loop(void *arg_config) {
     }
 
     //cleanup
+    mympd_api_write_home_list(config, mympd_state);
     if (mympd_state->timer == true) {
         timerfile_save(config, mympd_state);
     }
@@ -99,9 +100,13 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
     char *p_charbuf1 = NULL;
     char *p_charbuf2 = NULL;
     char *p_charbuf3 = NULL;
+    char *p_charbuf4 = NULL;
+    char *p_charbuf5 = NULL;
     unsigned int uint_buf1;
+    unsigned int uint_buf2;
     int int_buf1;
     int int_buf2;
+    bool bool_buf1;
     bool rc;
     LOG_VERBOSE("MYMPD API request (%d): %s", request->conn_id, request->data);
     
@@ -109,6 +114,51 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
     t_work_result *response = create_result(request);
     
     switch(request->cmd_id) {
+        case MYMPD_API_HOME_ICON_SAVE:
+            je = json_scanf(request->data, sdslen(request->data), "{params: {replace: %B, oldpos: %u, name: %Q, ligature: %Q, bgcolor: %Q, image: %Q, cmd: %Q}}", 
+                &bool_buf1, &uint_buf1, &p_charbuf1, &p_charbuf2, &p_charbuf3, &p_charbuf4, &p_charbuf5);
+            if (je == 7) {
+                struct list *options = (struct list *) malloc(sizeof(struct list));
+                assert(options);
+                list_init(options);
+                struct json_token t;
+                for (int i = 0; json_scanf_array_elem(request->data, sdslen(request->data), ".params.options", i, &t) > 0; i++) {
+                    list_push_len(options, t.ptr, t.len, 0, NULL, 0, NULL);
+                }
+                rc = mympd_api_save_home_icon(mympd_state, bool_buf1, uint_buf1, p_charbuf1, p_charbuf2, p_charbuf3, p_charbuf4, p_charbuf5, options);
+                list_free(options);
+                if (rc == true) {
+                    response->data = mympd_api_put_home_list(mympd_state, response->data, request->method, request->id);
+                }
+                else {
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Can not save icon", true);
+                }
+            }
+            break;
+        case MYMPD_API_HOME_ICON_SWAP:
+            je = json_scanf(request->data, sdslen(request->data), "{params: {pos1: %u, pos2: %u}}", &uint_buf1, &uint_buf2);
+            if (je == 2) {
+                rc = mympd_api_swap_home_icon(mympd_state, uint_buf1, uint_buf2);
+                if (rc == true) {
+                    response->data = mympd_api_put_home_list(mympd_state, response->data, request->method, request->id);
+                }
+                else {
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Can not swap icons", true);
+                }
+            }
+            break;
+        case MYMPD_API_HOME_ICON_DELETE:
+            je = json_scanf(request->data, sdslen(request->data), "{params: {pos: %u}}", &uint_buf1);
+            if (je == 1) {
+                rc = mympd_api_rm_home_icon(mympd_state, uint_buf1);
+                if (rc == true) {
+                    response->data = mympd_api_put_home_list(mympd_state, response->data, request->method, request->id);
+                }
+                else {
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Can not delete icon", true);
+                }
+            }
+            break;
         case MYMPD_API_HOME_LIST:
             response->data = mympd_api_put_home_list(mympd_state, response->data, request->method, request->id);
             break;
@@ -176,7 +226,6 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             }
             break;
         case MYMPD_API_SCRIPT_LIST: {
-            bool bool_buf1;
             je = json_scanf(request->data, sdslen(request->data), "{params: {all: %B}}", &bool_buf1);
             if (je == 1) {
                 response->data = mympd_api_script_list(config, response->data, request->method, request->id, bool_buf1);
