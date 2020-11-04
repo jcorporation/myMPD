@@ -26,6 +26,7 @@ settings.loglevel = 2;
 var alertTimeout = null;
 var progressTimer = null;
 var deferredA2HSprompt;
+var dragSrc;
 var dragEl;
 
 var appInited = false;
@@ -614,6 +615,9 @@ function a2hsInit() {
 }
 
 function appInitStart() {
+    //add app routing event handler
+    window.addEventListener('hashchange', appRoute, false);
+
     //set initial scale
     if (isMobile === true) {
         scale = localStorage.getItem('scale-ratio');
@@ -1022,6 +1026,12 @@ function appInit() {
            parseCmd(event, href);
         }
     }, false);
+    
+    document.getElementById('HomeCards').addEventListener('keydown', function(event) {
+        navigateGrid(event.target, event.key);
+    }, false);
+    
+    dragAndDropHome();
 
     let pd = document.getElementsByClassName('pages');
     let pdLen = pd.length;
@@ -1265,6 +1275,29 @@ function appInit() {
         else if (event.target.nodeName === 'A') {
             showMenu(event.target, event);
         }
+    }, false);
+
+    document.getElementById('BrowseDatabaseCards').addEventListener('click', function(event) {
+        if (app.current.tag === 'Album') {
+            if (event.target.classList.contains('card-body')) {
+                appGoto('Browse', 'Database', 'Detail', '0', 'Album', 'AlbumArtist', 
+                    decodeURI(event.target.parentNode.getAttribute('data-album')), 
+                    decodeURI(event.target.parentNode.getAttribute('data-albumartist')));
+            }
+            else if (event.target.classList.contains('card-footer')){
+                showMenu(event.target, event);
+            }
+        }
+        else {
+            app.current.search = '';
+            document.getElementById('searchDatabaseStr').value = '';
+            appGoto(app.current.app, app.current.card, undefined, '0', 'Album', 'AlbumArtist', 'Album', 
+                '(' + app.current.tag + ' == \'' + decodeURI(event.target.parentNode.getAttribute('data-tag')) + '\')');
+        }
+    }, false);
+    
+    document.getElementById('BrowseDatabaseCards').addEventListener('keydown', function(event) {
+        navigateGrid(event.target, event.key);
     }, false);
     
     document.getElementById('BrowseDatabaseDetailList').addEventListener('click', function(event) {
@@ -1580,7 +1613,7 @@ function appInit() {
     dragAndDropTableHeader('BrowsePlaylistsDetail');
     dragAndDropTableHeader('BrowseDatabaseDetail');
 
-    window.addEventListener('hashchange', appRoute, false);
+    
 
     window.addEventListener('focus', function() {
         sendAPI("MPD_API_PLAYER_STATE", {}, parseState);

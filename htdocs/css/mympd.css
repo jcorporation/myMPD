@@ -352,6 +352,7 @@ small {
   overflow: hidden;
   max-width: 100%;
   text-align: center;
+  padding-top: 0.8rem;
 }
 
 .home-icons .card-body {
@@ -399,7 +400,8 @@ small {
   text-overflow: ellipsis;
 }
 
-.card-grid:focus {
+.card-grid:focus,
+.home-icons:focus {
   border-width: 1px;
   border-style: solid;
   border-color:var(--mympd-highlightcolor, #28a745) !important;

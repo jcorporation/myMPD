@@ -10,10 +10,23 @@ function focusTable(rownr, table) {
         table = document.getElementById(app.current.app + (app.current.tab !== undefined ? app.current.tab : '') + (app.current.view !== undefined ? app.current.view : '') + 'List');
     }
 
-    if (app.current.app === 'Browse' && app.current.tab === 'Database' &&
-            app.current.view === 'List') 
-    {
+    if (app.current.app === 'Browse' && app.current.tab === 'Database' && app.current.view === 'List') {
         const tables = document.getElementsByClassName('card-grid');
+        if (tables.length === 0 ) {
+            return; 
+        }
+        table = tables[0];
+        for (let i = 0; i < tables.length; i++) {
+            if (tables[i].classList.contains('selected')) {
+                table = tables[i];
+                break;
+            }
+        }
+        table.focus();
+        return;
+    }
+    else if (app.current.app === 'Home') {
+        const tables = document.getElementsByClassName('home-icons');
         if (tables.length === 0 ) {
             return; 
         }
@@ -150,7 +163,7 @@ function navigateTable(table, keyCode) {
 }
 
 function dragAndDropTable(table) {
-    let tableBody=document.getElementById(table).getElementsByTagName('tbody')[0];
+    let tableBody = document.getElementById(table).getElementsByTagName('tbody')[0];
     tableBody.addEventListener('dragstart', function(event) {
         if (event.target.nodeName === 'TR') {
             event.target.classList.add('opacity05');

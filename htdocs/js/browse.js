@@ -217,6 +217,8 @@ function parseDatabase(obj) {
     let nrItems = obj.result.returnedEntities;
     let cardContainer = document.getElementById('BrowseDatabaseCards');
     let cols = cardContainer.getElementsByClassName('col');
+    const has_io = 'IntersectionObserver' in window ? true : false;
+
     if (cols.length === 0) {
         cardContainer.innerHTML = '';
     }
@@ -266,81 +268,18 @@ function parseDatabase(obj) {
             cardContainer.append(col);
             replaced = true;
         }
-        if ('IntersectionObserver' in window && replaced === true) {
-            let options = {
-                root: null,
-                rootMargin: '0px',
-            };
-            let observer = new IntersectionObserver(setGridImage, options);
-            observer.observe(col);
-        }
-        else if (replaced === true) {
-            col.firstChild.firstChild.style.backgroundImage = picture;
-        }
         if (replaced === true) {
-            col.firstChild.addEventListener('click', function(event) {
-                if (app.current.tag === 'Album') {
-                    if (event.target.classList.contains('card-body')) {
-                        appGoto('Browse', 'Database', 'Detail', '0', 'Album', 'AlbumArtist', 
-                            decodeURI(event.target.parentNode.getAttribute('data-album')), 
-                            decodeURI(event.target.parentNode.getAttribute('data-albumartist')));
-                    }
-                    else if (event.target.classList.contains('card-footer')){
-                        showMenu(event.target, event);                
-                    }
-                }
-                else {
-                    app.current.search = '';
-                    document.getElementById('searchDatabaseStr').value = '';
-                    appGoto(app.current.app, app.current.card, undefined, '0', 'Album', 'AlbumArtist', 'Album', 
-                        '(' + app.current.tag + ' == \'' + decodeURI(event.target.parentNode.getAttribute('data-tag')) + '\')');
-                }
-            }, false);
-            col.firstChild.addEventListener('keydown', function(event) {
-                let handled = false;
-                if (event.key === 'Enter') {
-                    if (app.current.tag === 'Album') {
-                        appGoto('Browse', 'Database', 'Detail', '0','Album','AlbumArtist', 
-                            decodeURI(event.target.getAttribute('data-album')),
-                            decodeURI(event.target.getAttribute('data-albumartist')));
-                    }
-                    else {
-                        app.current.search = '';
-                        document.getElementById('searchDatabaseStr').value = '';
-                        appGoto(app.current.app, app.current.card, undefined, '0', 'Album', 'AlbumArtist', 'Album',
-                            '(' + app.current.tag + ' == \'' + decodeURI(event.target.getAttribute('data-tag')) + '\')');
-                    }
-                    handled = true;
-                }
-                else if (event.key === ' ') {
-                    if (app.current.tag === 'Album') {
-                        showMenu(event.target.getElementsByClassName('card-footer')[0], event);
-                    }
-                    handled = true;
-                }
-                else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
-                    const cur = event.target;
-                    const next = event.key === 'ArrowDown' ? (event.target.parentNode.nextElementSibling !== null ? event.target.parentNode.nextElementSibling.firstChild : null)
-                                                           : (event.target.parentNode.previousElementSibling !== null ? event.target.parentNode.previousElementSibling.firstChild : null);
-                    if (next !== null) {
-                        next.focus();
-                        cur.classList.remove('selected');
-                        next.classList.add('selected');
-                        handled = true;
-                        scrollFocusIntoView();
-                    }
-                }
-                else if (event.key === 'Escape') {
-                    const cur = event.target;
-                    cur.blur();
-                    cur.classList.remove('selected');
-                    handled = true;
-                }
-                if (handled === true) {
-                    event.stopPropagation();
-                    event.preventDefault();
-                }
-            }, false);
+            if (has_io === true) {
+                let options = {
+                    root: null,
+                    rootMargin: '0px',
+                };
+                let observer = new IntersectionObserver(setGridImage, options);
+                observer.observe(col);
+            }
+            else {
+                col.firstChild.firstChild.style.backgroundImage = picture;
+            }
         }
     }
     let colsLen = cols.length - 1;
