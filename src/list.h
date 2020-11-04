@@ -37,5 +37,6 @@ bool list_sort_by_value_i(struct list *l, bool order);
 bool list_sort_by_value_p(struct list *l, bool order);
 bool list_sort_by_key(struct list *l, bool order);
 bool list_swap_item(struct list_node *n1, struct list_node *n2);
+bool list_swap_item_pos(struct list *l, unsigned index1, unsigned index2);
 struct list_node *list_node_at(const struct list * l, unsigned index);
 #endif

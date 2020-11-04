@@ -93,6 +93,18 @@ struct list_node *list_node_at(const struct list *l, unsigned index) {
     return current;
 }
 
+bool list_swap_item_pos(struct list *l, unsigned index1, unsigned index2) {
+   if (l->length < 2) {
+        return false;
+    }
+    struct list_node *node1 = list_node_at(l, index1);
+    struct list_node *node2 = list_node_at(l, index2);
+    if (node1 == NULL || node2 == NULL) {
+        return false;
+    }
+    return list_swap_item(node1, node2);
+}
+
 bool list_swap_item(struct list_node *n1, struct list_node *n2) {
     if (n1 == n2) {
         return false;
