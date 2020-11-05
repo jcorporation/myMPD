@@ -22,9 +22,8 @@
 #include "mympd_api_utility.h"
 #include "mympd_api_home.h"
 
-
-bool mympd_api_swap_home_icon(t_mympd_state *mympd_state, unsigned int pos1, unsigned int pos2) {
-    return list_swap_item_pos(&mympd_state->home_list, pos1, pos2);
+bool mympd_api_move_home_icon(t_mympd_state *mympd_state, unsigned int from, unsigned int to) {
+    return list_move_item_pos(&mympd_state->home_list, from, to);
 }
 
 bool mympd_api_rm_home_icon(t_mympd_state *mympd_state, unsigned int pos) {

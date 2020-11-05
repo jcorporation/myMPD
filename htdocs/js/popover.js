@@ -34,6 +34,9 @@ function hideMenu() {
         else if (app.current.app === 'Browse' && app.current.tab === 'Database') {
             focusTable(undefined, menuEl.parentNode.parentNode.parentNode.parentNode);
         }
+        else if (app.current.app === 'Home') {
+            focusTable(undefined, menuEl.parentNode.parentNode.parentNode.parentNode);
+        }
     }
 }
 
@@ -159,6 +162,13 @@ function showMenuTd(el) {
             addMenuItem({"cmd": "replaceQueue", "options": [type, uri, name]}, t('Replace queue')) +
             (settings.featPlaylists ? addMenuItem({"cmd": "showAddToPlaylist", "options": [uri, ""]}, t('Add to playlist')) : '') +
             (uri.indexOf('http') === -1 ? addMenuItem({"cmd": "songDetails", "options": [uri]}, t('Song details')) : '');
+    }
+    else if (app.current.app === 'Home') {
+        const pos = parseInt(el.parentNode.getAttribute('data-pos'));
+        menu += addMenuItem({"cmd": "executeHomeIcon", "options": [pos]}, t('Execute icon action')) +
+                addMenuItem({"cmd": "editHomeIcon", "options": [pos]}, t('Edit icon')) +
+                addMenuItem({"cmd": "duplicateHomeIcon", "options": [pos]}, t('Duplicate icon')) +
+                addMenuItem({"cmd": "deleteHomeIcon", "options": [pos]}, t('Delete icon'));
     }
 
     new BSN.Popover(el, { trigger: 'click', delay: 0, dismissible: true, template: '<div class="popover" role="tooltip">' +

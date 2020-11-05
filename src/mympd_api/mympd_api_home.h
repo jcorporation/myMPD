@@ -6,7 +6,7 @@
 
 #ifndef __MYMPD_API_HOME_H
 #define __MYMPD_API_HOME_H
-bool mympd_api_swap_home_icon(t_mympd_state *mympd_state, unsigned int pos1, unsigned int pos2);
+bool mympd_api_move_home_icon(t_mympd_state *mympd_state, unsigned int from, unsigned int to);
 bool mympd_api_rm_home_icon(t_mympd_state *mympd_state, unsigned int pos);
 bool mympd_api_save_home_icon(t_mympd_state *mympd_state, bool replace, unsigned int oldpos,
     const char *name, const char *ligature, const char *bgcolor, const char *image,

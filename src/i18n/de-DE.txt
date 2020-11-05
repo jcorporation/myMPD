@@ -1542,8 +1542,8 @@ Icon konnte nicht gelöscht werden
 Can not save icon
 Icon konnte nicht gespeichert werden
 
-Can not swap icons
-Icons konnten nicht verschoben werden
+Can not move icons
+Icon konnte nicht verschoben werden
 
 Home
 Startseite

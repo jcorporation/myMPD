@@ -22,7 +22,7 @@ function parseHome(obj) {
             obj.result.data[i].Album = t('Unknown album');
         }
         let href=JSON.stringify({"cmd": obj.result.data[i].cmd, "options": obj.result.data[i].options});
-        let html = '<div class="card home-icons clickable" draggable="true" tabindex="0" data-href=\'' + href + '\'>' +
+        let html = '<div class="card home-icons clickable" draggable="true" tabindex="0" data-pos="' + i + '" data-href=\'' + href + '\'>' +
                    (obj.result.data[i].ligature !== '' ? 
                        '<div class="card-body material-icons home-icons-ligature">' + e(obj.result.data[i].ligature) + '</div>' :
                        '<div class="card-body home-icons-image"></div>')+
@@ -41,7 +41,7 @@ function parseHome(obj) {
             hii.style.backgroundImage = 'url("' + subdir + '/browse/pics/' + obj.result.data[i].image + '")';
         }
         else if (obj.result.data[i].bgcolor !== '') {
-            document.getElementsByClassName('home-icons-ligature')[0].style.backgroundColor = obj.result.data[i].bgcolor;
+            col.getElementsByClassName('home-icons-ligature')[0].style.backgroundColor = obj.result.data[i].bgcolor;
         }
     }
     let colsLen = cols.length - 1;
@@ -87,6 +87,9 @@ function dragAndDropHome() {
         if (event.target.nodeName === 'DIV' && event.target.classList.contains('home-icons')) {
             event.target.classList.add('dragover-icon');
         }
+        else if (event.target.nodeName === 'DIV' && event.target.parentNode.classList.contains('home-icons')) {
+            event.target.parentNode.classList.add('dragover-icon');
+        }
         event.dataTransfer.dropEffect = 'move';
     }, false);
     homeCards.addEventListener('dragend', function(event) {
@@ -114,10 +117,13 @@ function dragAndDropHome() {
             }
             if (t.classList.contains('home-icons')) {
                 dragEl.classList.remove('opacity05');
-                let dragDst = t.cloneNode(true);
-                dragSrc.parentNode.replaceChild(dragDst, dragSrc);
-                t.parentNode.replaceChild(dragSrc, t);
-                //sendAPI();
+                const to = parseInt(t.getAttribute('data-pos'));
+                const from = parseInt(dragSrc.getAttribute('data-pos'));
+                if (isNaN(to) === false && isNaN(from) === false && from !== to) {
+                    sendAPI("MYMPD_API_HOME_ICON_MOVE", {"from": from, "to": to}, function(obj) {
+                        parseHome(obj);
+                    });
+                }
             }
         }
         let th = homeCards.getElementsByClassName('dragover-icon');
@@ -127,4 +133,23 @@ function dragAndDropHome() {
         }
 
     }, false);
+}
+
+function executeHomeIcon(pos) {
+    el = document.getElementById('HomeCards').children[pos].firstChild;
+    parseCmd(null, el.getAttribute('data-href'));
+}
+
+function duplicateHomeIcon(pos) {
+    modalEditHomeIcon.show();
+}
+
+function editHomeIcon(pos) {
+    modalEditHomeIcon.show();
+}
+
+function deleteHomeIcon(pos) {
+    sendAPI("MYMPD_API_HOME_ICON_DELETE", {"pos": pos}, function(obj) {
+        parseHome(obj);
+    });
 }

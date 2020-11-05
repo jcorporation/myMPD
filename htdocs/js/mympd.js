@@ -200,6 +200,7 @@ var modalPartitionOutputs = new BSN.Modal(document.getElementById('modalPartitio
 var modalTrigger = new BSN.Modal(document.getElementById('modalTrigger'));
 var modalOutputAttributes = new BSN.Modal(document.getElementById('modalOutputAttributes'));
 var modalPicture = new BSN.Modal(document.getElementById('modalPicture'));
+var modalEditHomeIcon = new BSN.Modal(document.getElementById('modalEditHomeIcon'));
 
 var dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
 var dropdownVolumeMenu = new BSN.Dropdown(document.getElementById('volumeMenu'));
@@ -1011,6 +1012,9 @@ function appInit() {
             hrefs[i].classList.add('clickable');
         }
         let parentInit = hrefs[i].parentNode.classList.contains('noInitChilds') ? true : false;
+        if (parentInit === false) {
+            parentInit = hrefs[i].parentNode.parentNode.classList.contains('noInitChilds') ? true : false;
+        }
         if (parentInit === true) {
             //handler on parentnode
             continue;
@@ -1021,9 +1025,20 @@ function appInit() {
     }
     
     document.getElementById('HomeCards').addEventListener('click', function(event) {
-        const href = event.target.parentNode.getAttribute('data-href');
-        if (href !== null) {
-           parseCmd(event, href);
+        if (event.target.classList.contains('card-body')) {
+            const href = event.target.parentNode.getAttribute('data-href');
+            if (href !== null) {
+               parseCmd(event, href);
+            }
+        }
+        else if (event.target.classList.contains('card-footer')){
+            let sels = document.getElementById('HomeCards').getElementsByClassName('selected');
+            for (let i = 0; i < sels.length; i++) {
+                sels[i].classList.remove('selected');
+            }
+            event.target.parentNode.classList.add('selected');
+            showMenu(event.target, event);
+            event.stopPropagation();
         }
     }, false);
     

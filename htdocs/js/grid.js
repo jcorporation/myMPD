@@ -36,6 +36,9 @@ function navigateGrid(grid, keyCode) {
             }
             handled = true;
         }
+        else if (app.current.app === 'Home') {
+            showMenu(grid.getElementsByClassName('card-footer')[0], event);
+        }
     }
     else if (keyCode === 'ArrowDown' || keyCode === 'ArrowUp') {
         const cur = grid;

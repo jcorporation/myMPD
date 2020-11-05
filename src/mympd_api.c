@@ -135,15 +135,15 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                 }
             }
             break;
-        case MYMPD_API_HOME_ICON_SWAP:
-            je = json_scanf(request->data, sdslen(request->data), "{params: {pos1: %u, pos2: %u}}", &uint_buf1, &uint_buf2);
+        case MYMPD_API_HOME_ICON_MOVE:
+            je = json_scanf(request->data, sdslen(request->data), "{params: {from: %u, to: %u}}", &uint_buf1, &uint_buf2);
             if (je == 2) {
-                rc = mympd_api_swap_home_icon(mympd_state, uint_buf1, uint_buf2);
+                rc = mympd_api_move_home_icon(mympd_state, uint_buf1, uint_buf2);
                 if (rc == true) {
                     response->data = mympd_api_put_home_list(mympd_state, response->data, request->method, request->id);
                 }
                 else {
-                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Can not swap icons", true);
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Can not move icon", true);
                 }
             }
             break;
