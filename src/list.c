@@ -93,6 +93,36 @@ struct list_node *list_node_at(const struct list *l, unsigned index) {
     return current;
 }
 
+bool list_move_item_pos(struct list *l, unsigned from, unsigned to) {
+    if (from > l->length || to > l->length) {
+        return false;
+    }
+    if (from == to) {
+        return true;
+    }
+
+    //extract node at from position;
+    struct list_node *node = list_node_extract(l, from);
+    if (node == NULL) {
+        return false;
+    }
+
+    struct list_node *current = l->head;
+    struct list_node **previous = &l->head;
+    if (to > from) {
+        to--;
+    }
+    for (; to > 0; to--) {
+        previous = &current->next;
+        current = current->next;
+    }
+    //insert extracted node
+    node->next = *previous;
+    *previous = node;
+    l->length++;
+    return true;
+}
+
 bool list_swap_item_pos(struct list *l, unsigned index1, unsigned index2) {
    if (l->length < 2) {
         return false;
@@ -237,11 +267,11 @@ bool list_sort_by_key(struct list *l, bool order) {
     return true;
 }
 
-bool list_replace(struct list *l, int pos, const char *key, long value_i, const char *value_p, void *user_data) {
+bool list_replace(struct list *l, unsigned pos, const char *key, long value_i, const char *value_p, void *user_data) {
     if (pos >= l->length) {
         return false;
     }
-    int i = 0;
+    unsigned i = 0;
     struct list_node *current = l->head;
     while (current->next != NULL) {
         if (i == pos) {
