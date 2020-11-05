@@ -58,7 +58,7 @@ bool mpd_client_jukebox(t_config *config, t_mpd_client_state *mpd_client_state, 
     }
 
     //add song if add_time is reached or queue is empty
-    unsigned long addSongs = substractUnsigned(mpd_client_state->jukebox_queue_length, queue_length);
+    unsigned addSongs = substractUnsigned(mpd_client_state->jukebox_queue_length, queue_length);
     
     if (now > add_time && add_time > 0 && queue_length <= mpd_client_state->jukebox_queue_length) {
         LOG_DEBUG("Time now %d greater than add_time %d, adding song", now, add_time);
@@ -80,7 +80,7 @@ bool mpd_client_jukebox(t_config *config, t_mpd_client_state *mpd_client_state, 
         return true;
     }
 
-    bool rc = mpd_client_jukebox_add_to_queue(config, mpd_client_state, (int)addSongs, mpd_client_state->jukebox_mode, mpd_client_state->jukebox_playlist, false);
+    bool rc = mpd_client_jukebox_add_to_queue(config, mpd_client_state, addSongs, mpd_client_state->jukebox_mode, mpd_client_state->jukebox_playlist, false);
     
     if (rc == true) {
         bool rc2 = mpd_run_play(mpd_client_state->mpd_state->conn);
@@ -98,7 +98,7 @@ bool mpd_client_jukebox(t_config *config, t_mpd_client_state *mpd_client_state, 
     return rc;
 }
 
-bool mpd_client_jukebox_add_to_queue(t_config *config, t_mpd_client_state *mpd_client_state, int addSongs, enum jukebox_modes jukebox_mode, const char *playlist, bool manual) {
+bool mpd_client_jukebox_add_to_queue(t_config *config, t_mpd_client_state *mpd_client_state, unsigned addSongs, enum jukebox_modes jukebox_mode, const char *playlist, bool manual) {
     if (manual == false) {
         LOG_DEBUG("Jukebox queue length: %d", mpd_client_state->jukebox_queue.length);
     }
@@ -110,7 +110,7 @@ bool mpd_client_jukebox_add_to_queue(t_config *config, t_mpd_client_state *mpd_c
             return false;
         }
     }
-    int added = 0;
+    unsigned added = 0;
     struct list_node *current;
     if (manual == false) {
         current = mpd_client_state->jukebox_queue.head;
