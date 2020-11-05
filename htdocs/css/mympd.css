@@ -353,6 +353,7 @@ small {
   max-width: 100%;
   text-align: center;
   padding-top: 0.8rem;
+  border-radius: 0;
 }
 
 .home-icons .card-body {
@@ -363,6 +364,7 @@ small {
 
 .home-icons .card-footer {
   border-top: none;
+  background-color: transparent;
 }
 
 .home-icons-image {
@@ -377,13 +379,17 @@ small {
 .home-icons-ligature {
   width: 4rem;
   height: 4rem;
-  background-color: var(--mympd-highlightcolor, #28a745) !important;
+  background-color: var(--mympd-highlightcolor, #28a745);
   margin-left: auto;
   margin-right: auto;
   text-align: center;
   padding-top: 1rem;
   padding-left:0;
   padding-right:0;
+}
+
+.dragover-icon {
+  border-left: 1px solid var(--mympd-highlightcolor, #28a745);
 }
 
 .card-grid {
