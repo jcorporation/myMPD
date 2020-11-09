@@ -366,7 +366,7 @@ bool list_free(struct list *l) {
         free(tmp);
     }
     list_init(l);
-    return 0;
+    return true;
 }
 
 //private functions
