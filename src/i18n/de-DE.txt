@@ -1535,3 +1535,15 @@ Disc 1
 
 Disc
 Disc
+
+Can not delete icon
+Icon konnte nicht gelöscht werden
+
+Can not save icon
+Icon konnte nicht gespeichert werden
+
+Can not move icons
+Icon konnte nicht verschoben werden
+
+Home
+Startseite

@@ -46,7 +46,7 @@ bool mpd_client_last_played_list_save(t_config *config, t_mpd_client_state *mpd_
     
     FILE *fp = fdopen(fd, "w");
     //first write last_played list to tmp file
-    int i = 0;
+    unsigned i = 0;
     struct list_node *current = mpd_client_state->last_played.head;
     while (current != NULL && i < mpd_client_state->last_played_count) {
         fprintf(fp, "%ld::%s\n", current->value_i, current->key);

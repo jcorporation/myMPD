@@ -86,7 +86,7 @@ typedef struct t_mpd_client_state {
     sds smartpls_sort;
     sds smartpls_prefix;
     time_t smartpls_interval;
-    int last_played_count;
+    unsigned last_played_count;
     int max_elements_per_page;
     sds music_directory;
     sds music_directory_value;

@@ -74,6 +74,7 @@ void mympd_api_push_to_mpd_client(t_mympd_state *mympd_state) {
 void free_mympd_state(t_mympd_state *mympd_state) {
     free_mympd_state_sds(mympd_state);
     truncate_timerlist(&mympd_state->timer_list);
+    list_free(&mympd_state->home_list);
     FREE_PTR(mympd_state);
 }
 

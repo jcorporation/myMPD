@@ -12,13 +12,17 @@
 #include <signal.h>
 #include <assert.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include "../dist/src/sds/sds.h"
+#include "../src/sds_extras.h"
 #include "../src/tiny_queue.h"
+#include "../src/list.h"
 
 _Thread_local sds thread_logname;
 
 int main(void) {
+//tests tiny queue
     thread_logname = sdsempty();
     tiny_queue_t *test_queue = tiny_queue_create();
     sds test_data_in0 = sdsnew("test0");
@@ -64,4 +68,26 @@ int main(void) {
     sdsfree(test_data_in0);
     sdsfree(test_data_in1);
     sdsfree(test_data_in2);
+    
+//test list
+    struct list *test_list = (struct list *) malloc(sizeof(struct list));
+    assert(test_list);
+    list_init(test_list);
+    list_push(test_list, "key1", 1, "value1", NULL);
+    list_push(test_list, "key2", 2, "value2", NULL);
+    list_push(test_list, "key3", 3, "value3", NULL);
+    list_push(test_list, "key4", 4, "value4", NULL);
+    list_push(test_list, "key5", 5, "value5", NULL);
+    list_insert(test_list, "key0", 0, "value0", NULL);
+    //test1
+    //list_swap_item_pos(test_list, 10, 1);
+    int i = 0;
+    list_move_item_pos(test_list, 5, 2);
+    struct list_node *current = test_list->head;
+    while (current != NULL) {
+        printf("%d: %s\n", i, current->key);
+        current = current->next;
+        i++;
+    }
+    list_free(test_list);
 }

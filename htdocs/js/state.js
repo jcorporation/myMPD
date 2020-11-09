@@ -235,13 +235,13 @@ function parseVolume(obj) {
         domCache.volumeControl.classList.remove('hide');
         domCache.volumePrct.innerText = obj.result.volume + ' %';
         if (obj.result.volume === 0) {
-            domCache.volumeMenu.innerText = 'volume_off';
+            domCache.volumeMenu.firstChild.innerText = 'volume_off';
         }
         else if (obj.result.volume < 50) {
-            domCache.volumeMenu.innerText = 'volume_down';
+            domCache.volumeMenu.firstChild.innerText = 'volume_down';
         }
         else {
-            domCache.volumeMenu.innerText = 'volume_up';
+            domCache.volumeMenu.firstChild.innerText = 'volume_up';
         }
     }
     domCache.volumeBar.value = obj.result.volume;

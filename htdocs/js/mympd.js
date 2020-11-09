@@ -26,6 +26,7 @@ settings.loglevel = 2;
 var alertTimeout = null;
 var progressTimer = null;
 var deferredA2HSprompt;
+var dragSrc;
 var dragEl;
 
 var appInited = false;
@@ -39,6 +40,14 @@ var progressBarTransition = 'width 1s linear';
 
 var app = {};
 app.apps = { 
+    "Home": { 
+        "page": 0,
+        "filter": "-",
+        "sort": "-",
+        "tag": "-",
+        "search": "",
+        "scrollPos": 0
+    },
     "Playback": { 
         "page": 0,
         "filter": "-",
@@ -133,7 +142,7 @@ app.apps = {
     }
 };
 
-app.current = { "app": "Playback", "tab": undefined, "view": undefined, "page": 0, "filter": "", "search": "", "sort": "", "tag": "", "scrollPos": 0 };
+app.current = { "app": "Home", "tab": undefined, "view": undefined, "page": 0, "filter": "", "search": "", "sort": "", "tag": "", "scrollPos": 0 };
 app.last = { "app": undefined, "tab": undefined, "view": undefined, "filter": "", "search": "", "sort": "", "tag": "", "scrollPos": 0 };
 
 var domCache = {};
@@ -191,6 +200,7 @@ var modalPartitionOutputs = new BSN.Modal(document.getElementById('modalPartitio
 var modalTrigger = new BSN.Modal(document.getElementById('modalTrigger'));
 var modalOutputAttributes = new BSN.Modal(document.getElementById('modalOutputAttributes'));
 var modalPicture = new BSN.Modal(document.getElementById('modalPicture'));
+var modalEditHomeIcon = new BSN.Modal(document.getElementById('modalEditHomeIcon'));
 
 var dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
 var dropdownVolumeMenu = new BSN.Dropdown(document.getElementById('volumeMenu'));
@@ -213,6 +223,7 @@ function appPrepare(scrollPos) {
         for (let i = 0; i < domCache.navbarBtnsLen; i++) {
             domCache.navbarBtns[i].classList.remove('active');
         }
+        document.getElementById('cardHome').classList.add('hide');
         document.getElementById('cardPlayback').classList.add('hide');
         document.getElementById('cardQueue').classList.add('hide');
         document.getElementById('cardBrowse').classList.add('hide');
@@ -343,13 +354,16 @@ function appRoute() {
     }
     else {
         appPrepare(0);
-        appGoto('Playback');
+        appGoto('Home');
         return;
     }
 
     appPrepare(app.current.scrollPos);
 
-    if (app.current.app === 'Playback') {
+    if (app.current.app === 'Home') {
+        sendAPI("MYMPD_API_HOME_LIST", {}, parseHome);
+    }
+    else if (app.current.app === 'Playback') {
         sendAPI("MPD_API_PLAYER_CURRENT_SONG", {}, songChange);
     }    
     else if (app.current.app === 'Queue' && app.current.tab === 'Current' ) {
@@ -544,7 +558,7 @@ function appRoute() {
         selectTag('searchtags', 'searchtagsdesc', app.current.filter);
     }
     else {
-        appGoto("Playback");
+        appGoto("Home");
     }
 
     app.last.app = app.current.app;
@@ -602,6 +616,9 @@ function a2hsInit() {
 }
 
 function appInitStart() {
+    //add app routing event handler
+    window.addEventListener('hashchange', appRoute, false);
+
     //set initial scale
     if (isMobile === true) {
         scale = localStorage.getItem('scale-ratio');
@@ -995,6 +1012,9 @@ function appInit() {
             hrefs[i].classList.add('clickable');
         }
         let parentInit = hrefs[i].parentNode.classList.contains('noInitChilds') ? true : false;
+        if (parentInit === false) {
+            parentInit = hrefs[i].parentNode.parentNode.classList.contains('noInitChilds') ? true : false;
+        }
         if (parentInit === true) {
             //handler on parentnode
             continue;
@@ -1003,6 +1023,30 @@ function appInit() {
             parseCmd(event, this.getAttribute('data-href'));
         }, false);
     }
+    
+    document.getElementById('HomeCards').addEventListener('click', function(event) {
+        if (event.target.classList.contains('card-body')) {
+            const href = event.target.parentNode.getAttribute('data-href');
+            if (href !== null) {
+               parseCmd(event, href);
+            }
+        }
+        else if (event.target.classList.contains('card-footer')){
+            let sels = document.getElementById('HomeCards').getElementsByClassName('selected');
+            for (let i = 0; i < sels.length; i++) {
+                sels[i].classList.remove('selected');
+            }
+            event.target.parentNode.classList.add('selected');
+            showMenu(event.target, event);
+            event.stopPropagation();
+        }
+    }, false);
+    
+    document.getElementById('HomeCards').addEventListener('keydown', function(event) {
+        navigateGrid(event.target, event.key);
+    }, false);
+    
+    dragAndDropHome();
 
     let pd = document.getElementsByClassName('pages');
     let pdLen = pd.length;
@@ -1246,6 +1290,29 @@ function appInit() {
         else if (event.target.nodeName === 'A') {
             showMenu(event.target, event);
         }
+    }, false);
+
+    document.getElementById('BrowseDatabaseCards').addEventListener('click', function(event) {
+        if (app.current.tag === 'Album') {
+            if (event.target.classList.contains('card-body')) {
+                appGoto('Browse', 'Database', 'Detail', '0', 'Album', 'AlbumArtist', 
+                    decodeURI(event.target.parentNode.getAttribute('data-album')), 
+                    decodeURI(event.target.parentNode.getAttribute('data-albumartist')));
+            }
+            else if (event.target.classList.contains('card-footer')){
+                showMenu(event.target, event);
+            }
+        }
+        else {
+            app.current.search = '';
+            document.getElementById('searchDatabaseStr').value = '';
+            appGoto(app.current.app, app.current.card, undefined, '0', 'Album', 'AlbumArtist', 'Album', 
+                '(' + app.current.tag + ' == \'' + decodeURI(event.target.parentNode.getAttribute('data-tag')) + '\')');
+        }
+    }, false);
+    
+    document.getElementById('BrowseDatabaseCards').addEventListener('keydown', function(event) {
+        navigateGrid(event.target, event.key);
     }, false);
     
     document.getElementById('BrowseDatabaseDetailList').addEventListener('click', function(event) {
@@ -1561,7 +1628,7 @@ function appInit() {
     dragAndDropTableHeader('BrowsePlaylistsDetail');
     dragAndDropTableHeader('BrowseDatabaseDetail');
 
-    window.addEventListener('hashchange', appRoute, false);
+    
 
     window.addEventListener('focus', function() {
         sendAPI("MPD_API_PLAYER_STATE", {}, parseState);

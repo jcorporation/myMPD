@@ -178,64 +178,59 @@ bool mpd_api_settings_set(t_config *config, t_mpd_client_state *mpd_client_state
         }
         mpd_client_state->last_played_count = last_played_count;
     }
-    else if (strncmp(key->ptr, "random", key->len) == 0) {
-        unsigned uint_buf = strtoumax(settingvalue, &crap, 10);
-        rc = mpd_run_random(mpd_client_state->mpd_state->conn, uint_buf);
+    else if (mpd_client_state->mpd_state->conn_state == MPD_CONNECTED) {
+        if (strncmp(key->ptr, "random", key->len) == 0) {
+            unsigned uint_buf = strtoumax(settingvalue, &crap, 10);
+            rc = mpd_run_random(mpd_client_state->mpd_state->conn, uint_buf);
+        }
+        else if (strncmp(key->ptr, "repeat", key->len) == 0) {
+            unsigned uint_buf = strtoumax(settingvalue, &crap, 10);
+            rc = mpd_run_repeat(mpd_client_state->mpd_state->conn, uint_buf);
+        }
+        else if (strncmp(key->ptr, "consume", key->len) == 0) {
+            unsigned uint_buf = strtoumax(settingvalue, &crap, 10);
+            rc = mpd_run_consume(mpd_client_state->mpd_state->conn, uint_buf);
+        }
+        else if (strncmp(key->ptr, "single", key->len) == 0) {
+            unsigned uint_buf = strtoumax(settingvalue, &crap, 10);
+            if (mpd_client_state->feat_single_oneshot == true) {
+                enum mpd_single_state state;
+                if (uint_buf == 0) { state = MPD_SINGLE_OFF; }
+                else if (uint_buf == 1) { state = MPD_SINGLE_ON; }
+                else if (uint_buf == 2) { state = MPD_SINGLE_ONESHOT; }
+                else { state = MPD_SINGLE_UNKNOWN; }
+                rc = mpd_run_single_state(mpd_client_state->mpd_state->conn, state);
+            }
+            else {
+                rc = mpd_run_single(mpd_client_state->mpd_state->conn, uint_buf);
+            }
+        }
+        else if (strncmp(key->ptr, "crossfade", key->len) == 0) {
+            unsigned uint_buf = strtoumax(settingvalue, &crap, 10);
+            rc = mpd_run_crossfade(mpd_client_state->mpd_state->conn, uint_buf);
+        }
+        else if (strncmp(key->ptr, "mixrampdb", key->len) == 0) {
+            if (config->mixramp == true) {
+                float float_buf = strtof(settingvalue, &crap);
+                rc = mpd_run_mixrampdb(mpd_client_state->mpd_state->conn, float_buf);
+            }
+        }
+        else if (strncmp(key->ptr, "mixrampdelay", key->len) == 0) {
+            if (config->mixramp == true) {
+                float float_buf = strtof(settingvalue, &crap);
+                rc = mpd_run_mixrampdelay(mpd_client_state->mpd_state->conn, float_buf);
+            }
+        }
+        else if (strncmp(key->ptr, "replaygain", key->len) == 0) {
+            enum mpd_replay_gain_mode mode = mpd_parse_replay_gain_name(settingvalue);
+            if (mode == MPD_REPLAY_UNKNOWN) {
+                LOG_ERROR("Unknown replay gain mode: %s", settingvalue);
+            }
+            else {
+                rc = mpd_run_replay_gain_mode(mpd_client_state->mpd_state->conn, mode);
+            }
+        }
         *check_mpd_error = true;
-    }
-    else if (strncmp(key->ptr, "repeat", key->len) == 0) {
-        unsigned uint_buf = strtoumax(settingvalue, &crap, 10);
-        rc = mpd_run_repeat(mpd_client_state->mpd_state->conn, uint_buf);
-        *check_mpd_error = true;
-    }
-    else if (strncmp(key->ptr, "consume", key->len) == 0) {
-        unsigned uint_buf = strtoumax(settingvalue, &crap, 10);
-        rc = mpd_run_consume(mpd_client_state->mpd_state->conn, uint_buf);
-        *check_mpd_error = true;
-    }
-    else if (strncmp(key->ptr, "single", key->len) == 0) {
-        unsigned uint_buf = strtoumax(settingvalue, &crap, 10);
-        if (mpd_client_state->feat_single_oneshot == true) {
-            enum mpd_single_state state;
-            if (uint_buf == 0) { state = MPD_SINGLE_OFF; }
-            else if (uint_buf == 1) { state = MPD_SINGLE_ON; }
-            else if (uint_buf == 2) { state = MPD_SINGLE_ONESHOT; }
-            else { state = MPD_SINGLE_UNKNOWN; }
-            rc = mpd_run_single_state(mpd_client_state->mpd_state->conn, state);
-        }
-        else {
-            rc = mpd_run_single(mpd_client_state->mpd_state->conn, uint_buf);
-        }
-        *check_mpd_error = true;
-    }
-    else if (strncmp(key->ptr, "crossfade", key->len) == 0) {
-        unsigned uint_buf = strtoumax(settingvalue, &crap, 10);
-        rc = mpd_run_crossfade(mpd_client_state->mpd_state->conn, uint_buf);
-        *check_mpd_error = true;
-    }
-    else if (strncmp(key->ptr, "mixrampdb", key->len) == 0) {
-        if (config->mixramp == true) {
-            float float_buf = strtof(settingvalue, &crap);
-            rc = mpd_run_mixrampdb(mpd_client_state->mpd_state->conn, float_buf);
-            *check_mpd_error = true;
-        }
-    }
-    else if (strncmp(key->ptr, "mixrampdelay", key->len) == 0) {
-        if (config->mixramp == true) {
-            float float_buf = strtof(settingvalue, &crap);
-            rc = mpd_run_mixrampdelay(mpd_client_state->mpd_state->conn, float_buf);
-            *check_mpd_error = true;
-        }
-    }
-    else if (strncmp(key->ptr, "replaygain", key->len) == 0) {
-        enum mpd_replay_gain_mode mode = mpd_parse_replay_gain_name(settingvalue);
-        if (mode == MPD_REPLAY_UNKNOWN) {
-            LOG_ERROR("Unknown replay gain mode: %s", settingvalue);
-        }
-        else {
-            rc = mpd_run_replay_gain_mode(mpd_client_state->mpd_state->conn, mode);
-            *check_mpd_error = true;
-        }
     }    
     sdsfree(settingvalue);
     return rc;
