@@ -14,4 +14,5 @@ bool mympd_api_save_home_icon(t_mympd_state *mympd_state, bool replace, unsigned
 void mympd_api_read_home_list(t_config *config, t_mympd_state *mympd_state);
 bool mympd_api_write_home_list(t_config *config, t_mympd_state *mympd_state);
 sds mympd_api_put_home_list(t_mympd_state *mympd_state, sds buffer, sds method, long request_id);
+sds mympd_api_get_home_icon(t_mympd_state *mympd_state, sds buffer, sds method, long request_id, unsigned pos);
 #endif

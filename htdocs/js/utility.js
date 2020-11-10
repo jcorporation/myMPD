@@ -17,6 +17,11 @@ function getSelectValue(selectId) {
     return el.options[el.selectedIndex].value;
 }
 
+function getSelectedOptionAttribute(selectId, attribute) {
+    let el = document.getElementById(selectId);
+    return el.options[el.selectedIndex].getAttribute(attribute);
+}
+
 function alignDropdown(el) {
     const x = getXpos(el.children[0]);
     
@@ -383,7 +388,9 @@ function genId(x) {
 }
 
 function parseCmd(event, href) {
-    event.preventDefault();
+    if (event != null) {
+        event.preventDefault();
+    }
     let cmd = href;
     if (typeof(href) === 'string') {
         cmd = JSON.parse(href);

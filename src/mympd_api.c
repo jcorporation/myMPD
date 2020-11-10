@@ -127,6 +127,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                 }
                 rc = mympd_api_save_home_icon(mympd_state, bool_buf1, uint_buf1, p_charbuf1, p_charbuf2, p_charbuf3, p_charbuf4, p_charbuf5, options);
                 list_free(options);
+                free(options);
                 if (rc == true) {
                     response->data = mympd_api_put_home_list(mympd_state, response->data, request->method, request->id);
                 }
@@ -157,6 +158,12 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                 else {
                     response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Can not delete icon", true);
                 }
+            }
+            break;
+        case MYMPD_API_HOME_ICON_GET:
+            je = json_scanf(request->data, sdslen(request->data), "{params: {pos: %u}}", &uint_buf1);
+            if (je == 1) {
+                response->data = mympd_api_get_home_icon(mympd_state, response->data, request->method, request->id, uint_buf1);
             }
             break;
         case MYMPD_API_HOME_LIST:
@@ -515,6 +522,8 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
     FREE_PTR(p_charbuf1);
     FREE_PTR(p_charbuf2);
     FREE_PTR(p_charbuf3);
+    FREE_PTR(p_charbuf4);
+    FREE_PTR(p_charbuf5);
 
     if (sdslen(response->data) == 0) {
         response->data = jsonrpc_start_phrase(response->data, request->method, request->id, "No response for method %{method}", true);

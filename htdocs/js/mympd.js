@@ -1047,6 +1047,10 @@ function appInit() {
     }, false);
     
     dragAndDropHome();
+    
+    document.getElementById('selectHomeIconCmd').addEventListener('change', function(event) {
+        showHomeIconCmdOptions();
+    }, false);
 
     let pd = document.getElementsByClassName('pages');
     let pdLen = pd.length;
@@ -1161,6 +1165,9 @@ function appInit() {
             }
             else if (action === 'execute') {
                 execScript(event.target.getAttribute('data-href'));
+            }
+            else if (action === 'add2home') {
+                addScriptToHome(script, event.target.getAttribute('data-href'))
             }
         }
     }, false);

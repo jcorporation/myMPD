@@ -124,3 +124,21 @@ sds mympd_api_put_home_list(t_mympd_state *mympd_state, sds buffer, sds method, 
     return buffer;
 }
 
+sds mympd_api_get_home_icon(t_mympd_state *mympd_state, sds buffer, sds method, long request_id, unsigned pos) {
+    struct list_node *current = list_node_at(&mympd_state->home_list, pos);
+
+    if (current != NULL) {
+        buffer = jsonrpc_start_result(buffer, method, request_id);
+        buffer = sdscat(buffer, ",\"data\":[");
+        buffer = sdscat(buffer, current->key);
+        buffer = sdscatlen(buffer, "],", 2);
+        buffer = tojson_long(buffer, "returnedEntities", 1, false);
+        buffer = jsonrpc_end_result(buffer);
+        return buffer;
+    }
+
+    LOG_ERROR("Can not get home icon at pos %u", pos);
+    buffer = jsonrpc_respond_message(buffer, method, request_id, "Can not get home icon", true);
+    return buffer;
+}
+

@@ -22,7 +22,8 @@ function parseHome(obj) {
             obj.result.data[i].Album = t('Unknown album');
         }
         let href=JSON.stringify({"cmd": obj.result.data[i].cmd, "options": obj.result.data[i].options});
-        let html = '<div class="card home-icons clickable" draggable="true" tabindex="0" data-pos="' + i + '" data-href=\'' + href + '\'>' +
+        let html = '<div class="card home-icons clickable" draggable="true" tabindex="0" data-pos="' + i + '" data-href=\'' + 
+                   href + '\'  title="' + e(obj.result.data[i].name) + '">' +
                    (obj.result.data[i].ligature !== '' ? 
                        '<div class="card-body material-icons home-icons-ligature">' + e(obj.result.data[i].ligature) + '</div>' :
                        '<div class="card-body home-icons-image"></div>')+
@@ -136,20 +137,102 @@ function dragAndDropHome() {
 }
 
 function executeHomeIcon(pos) {
-    el = document.getElementById('HomeCards').children[pos].firstChild;
+    const el = document.getElementById('HomeCards').children[pos].firstChild;
     parseCmd(null, el.getAttribute('data-href'));
 }
 
-function duplicateHomeIcon(pos) {
+
+function addScriptToHome(name, script_def) {
+    let script = JSON.parse(script_def);
+    let options = [script.script, script.arguments.join(',')];
+    _addHomeIcon("execScriptFromOptions", name, 'description', options);
+}
+
+function addPlistToHome(uri, name) {
+    _addHomeIcon("replaceQueue", name, 'list', ['plist', uri, name]);
+}
+
+function _addHomeIcon(cmd, name, ligature, options) {
+    document.getElementById('modalEditHomeIconTitle').innerHTML = t('Add home icon');
+    document.getElementById('inputHomeIconReplace').value = 'false';
+    document.getElementById('inputHomeIconOldpos').value = '0';
+    document.getElementById('inputHomeIconName').value = name;
+    document.getElementById('inputHomeIconLigature').value = ligature;
+    document.getElementById('inputHomeIconBgcolor').value = '#28a745';
+    document.getElementById('inputHomeIconImage').value = '';
+    document.getElementById('selectHomeIconCmd').value = cmd;
+    showHomeIconCmdOptions(options);
     modalEditHomeIcon.show();
 }
 
+function duplicateHomeIcon(pos) {
+    _editHomeIcon(pos, false, "Duplicate home icon");
+}
+
 function editHomeIcon(pos) {
-    modalEditHomeIcon.show();
+    _editHomeIcon(pos, true, "Edit home icon");
+}
+
+function _editHomeIcon(pos, replace, title) {
+    document.getElementById('modalEditHomeIconTitle').innerHTML = t(title);
+    sendAPI("MYMPD_API_HOME_ICON_GET", {"pos": pos}, function(obj) {
+        document.getElementById('inputHomeIconReplace').value = replace;
+        document.getElementById('inputHomeIconOldpos').value = pos;
+        document.getElementById('inputHomeIconName').value = obj.result.data[0].name;
+        document.getElementById('inputHomeIconLigature').value = obj.result.data[0].ligature;
+        document.getElementById('inputHomeIconBgcolor').value = obj.result.data[0].bgcolor;
+        document.getElementById('inputHomeIconImage').value = obj.result.data[0].image;
+        document.getElementById('selectHomeIconCmd').value = obj.result.data[0].cmd;
+        showHomeIconCmdOptions(obj.result.data[0].options);
+        modalEditHomeIcon.show();
+    });
+}
+
+function saveHomeIcon() {
+    let formOK = true;
+    let nameEl = document.getElementById('inputHomeIconName');
+    if (!validateNotBlank(nameEl)) {
+        formOK = false;
+    }
+    if (formOK === true) {
+        let options = [];
+        let optionEls = document.getElementById('divHomeIconOptions').getElementsByTagName('input');
+        for (let i = 0; i < optionEls.length; i++) {
+            options.push(optionEls[i].value);
+        }
+        sendAPI("MYMPD_API_HOME_ICON_SAVE", {
+            "replace": (document.getElementById('inputHomeIconReplace').value === 'true' ? true : false),
+            "oldpos": parseInt(document.getElementById('inputHomeIconOldpos').value),
+            "name": nameEl.value,
+            "ligature": document.getElementById('inputHomeIconLigature').value,
+            "bgcolor": document.getElementById('inputHomeIconBgcolor').value,
+            "image": document.getElementById('inputHomeIconImage').value,
+            "cmd": document.getElementById('selectHomeIconCmd').value,
+            "options": options
+            }, function() {
+                modalEditHomeIcon.hide();
+                sendAPI("MYMPD_API_HOME_LIST", {}, function(obj) {
+                    parseHome(obj);
+                });
+            });
+    }
 }
 
 function deleteHomeIcon(pos) {
     sendAPI("MYMPD_API_HOME_ICON_DELETE", {"pos": pos}, function(obj) {
         parseHome(obj);
     });
+}
+
+function showHomeIconCmdOptions(values) {
+    const options = JSON.parse(getSelectedOptionAttribute('selectHomeIconCmd', 'data-options'));
+    let list = '';
+    for (let i = 0; i < options.options.length; i++) {
+        let value = values !== undefined ? values[i] !== undefined ? values[i] : '' : '';
+        list += '<div class="form-group row">' +
+            '<label class="col-sm-4 col-form-label">' + t(options.options[i]) + '</label>' +
+            '<div class="col-sm-8"><input class="form-control border-secondary" value="' + e(value) + '"></div>' +
+            '</div>';
+    }
+    document.getElementById('divHomeIconOptions').innerHTML = list;
 }
