@@ -412,28 +412,34 @@ bool list_free(struct list *l) {
 }
 
 //private functions
-
 static struct list_node *list_node_extract(struct list *l, unsigned idx) {
-    if (l->head == NULL) { 
+    if (l->head == NULL || idx >= l->length) { 
         return NULL; 
     }
-    struct list_node *current = l->head;
-    struct list_node **previous = &l->head;
-    for (; idx > 0; idx--) {
-        if (current->next == NULL) {
-            return NULL;
+
+    struct list_node *current = NULL;
+    struct list_node *previous = NULL;
+    unsigned i = 0;
+    for (current = l->head; current != NULL; previous = current, current = current->next) {
+        if (i == idx) {
+            if (previous == NULL) {
+                //Fix head
+                l->head = current->next;
+            }
+            else {
+                //Fix previous nodes next to skip over the removed node
+                previous->next = current->next;
+            }
+            //Fix tail
+            if (l->tail == current) {
+                l->tail = previous;
+            }
+            l->length--;
+            break;
         }
-        previous = &current->next;
-        current = current->next;
+        i++;
     }
-    //set tail to the previous node, if it is removed
-    if (l->tail == current) {
-        l->tail = *previous;
-    }
-    //set the previous node's 'next' value to the current nodes next value
-    *previous = current->next;
     //null out this node's next value since it's not part of a list anymore
     current->next = NULL;
-    l->length--;
     return current;
 }

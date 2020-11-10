@@ -80,9 +80,17 @@ int main(void) {
     list_push(test_list, "key5", 5, "value5", NULL);
     list_insert(test_list, "key0", 0, "value0", NULL);
     //test1
-    //list_swap_item_pos(test_list, 10, 1);
+    list_swap_item_pos(test_list, 3, 1);
+    list_move_item_pos(test_list, 4, 2);
+    //remove middle item
+    list_shift(test_list,3);
+    //remove last item
+    list_shift(test_list, 5);
+    //remove first item
+    list_shift(test_list, 0);
+    list_push(test_list, "key6", 6, "value6", NULL);
+    list_insert(test_list, "key7", 7, "value7", NULL);
     int i = 0;
-    list_move_item_pos(test_list, 5, 2);
     struct list_node *current = test_list->head;
     while (current != NULL) {
         printf("%d: %s\n", i, current->key);
@@ -90,4 +98,5 @@ int main(void) {
         i++;
     }
     list_free(test_list);
+    free(test_list);
 }
