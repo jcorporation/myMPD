@@ -167,10 +167,10 @@ function webSocketConnect() {
                     break;
                 case 'update_stored_playlist':
                     if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'All') {
-                        sendAPI("MPD_API_PLAYLIST_LIST", {"offset": app.current.page, "filter": app.current.filter}, parsePlaylists);
+                        sendAPI("MPD_API_PLAYLIST_LIST", {"offset": app.current.page, "searchstr": app.current.search}, parsePlaylists);
                     }
                     else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'Detail') {
-                        sendAPI("MPD_API_PLAYLIST_CONTENT_LIST", {"offset": app.current.page, "filter": app.current.filter, "uri": app.current.search, "cols": settings.colsBrowsePlaylistsDetail}, parsePlaylists);
+                        sendAPI("MPD_API_PLAYLIST_CONTENT_LIST", {"offset": app.current.page, "searchstr": app.current.search, "uri": app.current.search, "cols": settings.colsBrowsePlaylistsDetail}, parsePlaylists);
                     }
                     break;
                 case 'update_lastplayed':
@@ -281,8 +281,8 @@ function navBrowseHandler(event) {
         }
         app.current.search = '';
         document.getElementById('searchDatabaseMatch').value = 'contains';
-        appGoto(app.current.app, app.current.tab, app.current.view, '0/' + app.current.filter + '/' + app.current.sort + '/' 
-                + tag  + '/' + app.current.search);
+        appGoto(app.current.app, app.current.tab, app.current.view, 
+            '0', app.current.filter, app.current.sort, tag, app.current.search);
     }
 }
 
@@ -295,7 +295,7 @@ function gotoBrowse() {
         name = decodeURI(x.parentNode.getAttribute('data-name'));
     }
     if (tag !== '' && name !== '' && name !== '-' && settings.browsetags.includes(tag)) {
-        appGoto('Browse', 'Database', 'List', '0/' + tag + '/AlbumArtist/Album/' + name);
+        appGoto('Browse', 'Database', 'List', '0', tag, 'AlbumArtist', 'Album', name);
     }
 }
 
@@ -310,10 +310,33 @@ function parseFilesystem(obj) {
         tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
                           '<td colspan="' + colspan + '">' + t(obj.error.message) + '</td></tr>';
         document.getElementById(app.current.app + (app.current.tab === undefined ? '' : app.current.tab) + 'List').classList.remove('opacity05');
-        document.getElementById('cardFooterBrowse').innerText = '';
+        //document.getElementById('cardFooterBrowse').innerText = '';
         return;
     }
-
+    
+    if (app.current.app === 'Browse' && app.current.tab === 'Filesystem') {
+        const imageList = document.getElementById('BrowseFilesystemImages');
+        imageList.innerHTML = '';
+        if ((obj.result.images.length === 0 && obj.result.bookletPath === '') || settings.publish === false) {
+            imageList.classList.add('hide');
+        }
+        else {
+            imageList.classList.remove('hide');
+        }
+        if (obj.result.bookletPath !== '' && settings.publish === true) {
+            let img = document.createElement('div');
+            img.style.backgroundImage = 'url("' + subdir + '/assets/coverimage-booklet.svg")';
+            img.classList.add('booklet');
+            img.setAttribute('data-href', subdir + '/browse/music/' + obj.result.bookletPath);
+            img.title = t('Booklet');
+            imageList.appendChild(img);
+        }
+        for (let i = 0; i < obj.result.images.length; i++) {
+            let img = document.createElement('div');
+            img.style.backgroundImage = 'url("' + subdir + '/browse/music/' + obj.result.images[i] + '"),url("assets/coverimage-loading.svg")';
+            imageList.appendChild(img);
+        }
+    }
     let nrItems = obj.result.returnedEntities;
     let tr = tbody.getElementsByTagName('tr');
     let navigate = document.activeElement.parentNode.parentNode === table ? true : false;
@@ -451,6 +474,8 @@ function parseDatabase(obj) {
     let nrItems = obj.result.returnedEntities;
     let cardContainer = document.getElementById('BrowseDatabaseCards');
     let cols = cardContainer.getElementsByClassName('col');
+    const has_io = 'IntersectionObserver' in window ? true : false;
+
     if (cols.length === 0) {
         cardContainer.innerHTML = '';
     }
@@ -475,8 +500,8 @@ function parseDatabase(obj) {
                        'data-album="' + encodeURI(obj.result.data[i].Album) + '" ' +
                        'data-albumartist="' + encodeURI(obj.result.data[i].AlbumArtist) + '" tabindex="0">' +
                    '<div class="card-body album-cover-loading album-cover-grid bg-white" id="' + id + '"></div>' +
-                   '<div class="card-footer card-footer-grid p-2" title="' + obj.result.data[i].AlbumArtist + ': ' + obj.result.data[i].Album + '">' +
-                   obj.result.data[i].Album + '<br/><small>' + obj.result.data[i].AlbumArtist + '</small>' +
+                   '<div class="card-footer card-footer-grid p-2" title="' + e(obj.result.data[i].AlbumArtist) + ': ' + e(obj.result.data[i].Album) + '">' +
+                   e(obj.result.data[i].Album) + '<br/><small>' + e(obj.result.data[i].AlbumArtist) + '</small>' +
                    '</div></div>';
         }
         else {
@@ -484,8 +509,8 @@ function parseDatabase(obj) {
             picture = subdir + '/tagpics/' + obj.result.tag + '/' + encodeURI(obj.result.data[i].value);
             html = '<div class="card card-grid clickable" data-picture="' + picture + '" data-tag="' + encodeURI(obj.result.data[i].value) + '" tabindex="0">' +
                    (obj.result.pics === true ? '<div class="card-body album-cover-loading album-cover-grid bg-white" id="' + id + '"></div>' : '') +
-                   '<div class="card-footer card-footer-grid p-2" title="' + obj.result.data[i].value + '">' +
-                   obj.result.data[i].value + '<br/>' +
+                   '<div class="card-footer card-footer-grid p-2" title="' + e(obj.result.data[i].value) + '">' +
+                   e(obj.result.data[i].value) + '<br/>' +
                    '</div></div>';
         }
         col.innerHTML = html;
@@ -500,77 +525,18 @@ function parseDatabase(obj) {
             cardContainer.append(col);
             replaced = true;
         }
-        if ('IntersectionObserver' in window && replaced === true) {
-            let options = {
-                root: null,
-                rootMargin: '0px',
-            };
-            let observer = new IntersectionObserver(setGridImage, options);
-            observer.observe(col);
-        }
-        else if (replaced === true) {
-            col.firstChild.firstChild.style.backgroundImage = picture;
-        }
         if (replaced === true) {
-            col.firstChild.addEventListener('click', function(event) {
-                if (app.current.tag === 'Album') {
-                    if (event.target.classList.contains('card-body')) {
-                        appGoto('Browse', 'Database', 'Detail', '0/Album/AlbumArtist/' + 
-                            decodeURI(event.target.parentNode.getAttribute('data-album')) + 
-                            '/' + decodeURI(event.target.parentNode.getAttribute('data-albumartist')));
-                    }
-                    else if (event.target.classList.contains('card-footer')){
-                        showMenu(event.target, event);                
-                    }
-                }
-                else {
-                    appGoto(app.current.app, app.current.card, undefined, '0/Album' +
-                        '/AlbumArtist/Album/(' + app.current.tag + ' == \'' + decodeURI(event.target.parentNode.getAttribute('data-tag')) + '\')');
-                }
-            }, false);
-            col.firstChild.addEventListener('keydown', function(event) {
-                let handled = false;
-                if (event.key === 'Enter') {
-                    if (app.current.tag === 'Album') {
-                        appGoto('Browse', 'Database', 'Detail', '0/Album/AlbumArtist/' + 
-                            decodeURI(event.target.getAttribute('data-album')) + 
-                            '/' + decodeURI(event.target.getAttribute('data-albumartist')));
-                    }
-                    else {
-                        appGoto(app.current.app, app.current.card, undefined, '0/' + app.current.tag + 
-                        '/AlbumArtist/Album/(' + app.current.tag + ' == \'' + decodeURI(event.target.getAttribute('data-tag')) + '\')');
-                    }
-                    handled = true;
-                }
-                else if (event.key === ' ') {
-                    if (app.current.tag === 'Album') {
-                        showMenu(event.target.getElementsByClassName('card-footer')[0], event);
-                    }
-                    handled = true;
-                }
-                else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
-                    const cur = event.target;
-                    const next = event.key === 'ArrowDown' ? (event.target.parentNode.nextElementSibling !== null ? event.target.parentNode.nextElementSibling.firstChild : null)
-                                                           : (event.target.parentNode.previousElementSibling !== null ? event.target.parentNode.previousElementSibling.firstChild : null);
-                    if (next !== null) {
-                        next.focus();
-                        cur.classList.remove('selected');
-                        next.classList.add('selected');
-                        handled = true;
-                        scrollFocusIntoView();
-                    }
-                }
-                else if (event.key === 'Escape') {
-                    const cur = event.target;
-                    cur.blur();
-                    cur.classList.remove('selected');
-                    handled = true;
-                }
-                if (handled === true) {
-                    event.stopPropagation();
-                    event.preventDefault();
-                }
-            }, false);
+            if (has_io === true) {
+                let options = {
+                    root: null,
+                    rootMargin: '0px',
+                };
+                let observer = new IntersectionObserver(setGridImage, options);
+                observer.observe(col);
+            }
+            else {
+                col.firstChild.firstChild.style.backgroundImage = picture;
+            }
         }
     }
     let colsLen = cols.length - 1;
@@ -602,14 +568,28 @@ function setGridImage(changes, observer) {
 function parseAlbumDetails(obj) {
     const coverEl = document.getElementById('viewDetailDatabaseCover');
     coverEl.style.backgroundImage = 'url("' + subdir + '/albumart/' + obj.result.data[0].uri + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
+    coverEl.setAttribute('data-images', obj.result.images.join(';;'));
     const infoEl = document.getElementById('viewDetailDatabaseInfo');
     infoEl.innerHTML = '<h1>' + e(obj.result.Album) + '</h1>' +
-        '<p>' + e(obj.result.AlbumArtist) + '</p>';
+        '<small> ' + t('AlbumArtist') + '</small><p>' + e(obj.result.AlbumArtist) + '</p>' +
+        (obj.result.bookletPath === '' || settings.featBrowse === false ? '' : 
+            '<span class="text-light material-icons">description</span>&nbsp;<a class="text-light" target="_blank" href="' + subdir + '/browse/music/' + 
+            e(obj.result.bookletPath) + '">' + t('Download booklet') + '</a>') +
+        '</p>';
     const table = document.getElementById('BrowseDatabaseDetailList');
     const tbody = table.getElementsByTagName('tbody')[0];
+    const nrCols = settings.colsBrowseDatabaseDetail.length;
     let titleList = '';
+    if (obj.result.Discs > 1) {
+        titleList = '<tr class="not-clickable"><td><span class="material-icons">album</span></td><td colspan="' + nrCols +'">' + t('Disc 1') + '</td></tr>';
+    }
     let nrItems = obj.result.returnedEntities;
+    let lastDisc = parseInt(obj.result.data[0].Disc);
     for (let i = 0; i < nrItems; i++) {
+        if (lastDisc < parseInt(obj.result.data[i].Disc)) {
+            titleList += '<tr class="not-clickable"><td><span class="material-icons">album</span></td><td colspan="' + nrCols +'">' + 
+                t('Disc') + ' ' + e(obj.result.data[i].Disc) + '</td></tr>';
+        }
         if (obj.result.data[i].Duration) {
             obj.result.data[i].Duration = beautifySongDuration(obj.result.data[i].Duration);
         }
@@ -618,6 +598,7 @@ function parseAlbumDetails(obj) {
             titleList += '<td data-col="' + settings.colsBrowseDatabaseDetail[c] + '">' + e(obj.result.data[i][settings.colsBrowseDatabaseDetail[c]]) + '</td>';
         }
         titleList += '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">' + ligatureMore + '</a></td></tr>';
+        lastDisc = obj.result.data[i].Disc;
     }
     tbody.innerHTML = titleList;
     //document.getElementById('cardFooterBrowse').innerHTML = t('Num songs', obj.result.totalEntities) + ' &ndash; ' + beautifyDuration(obj.result.totalTime);
@@ -665,8 +646,313 @@ function searchAlbumgrid(x) {
     if (expression.length <= 2) {
         expression = '';
     }
-    appGoto(app.current.app, app.current.tab, app.current.view, '0/' + app.current.filter + '/' + app.current.sort + '/'
-                + app.current.tag + '/' + expression);
+    appGoto(app.current.app, app.current.tab, app.current.view, 
+        '0', app.current.filter, app.current.sort, app.current.tag, expression);
+}
+/*
+ SPDX-License-Identifier: GPL-2.0-or-later
+ myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
+ https://github.com/jcorporation/mympd
+*/
+
+function navigateGrid(grid, keyCode) {
+    let handled = false;
+    if (keyCode === 'Enter') {
+        if (app.current.app === 'Browse' && app.current.tab === 'Database' && app.current.view === 'List') {
+            if (app.current.tag === 'Album') {
+                appGoto('Browse', 'Database', 'Detail', '0','Album','AlbumArtist', 
+                    decodeURI(grid.getAttribute('data-album')),
+                    decodeURI(grid.getAttribute('data-albumartist')));
+            }
+            else {
+                app.current.search = '';
+                document.getElementById('searchDatabaseStr').value = '';
+                appGoto(app.current.app, app.current.card, undefined, '0', 'Album', 'AlbumArtist', 'Album',
+                    '(' + app.current.tag + ' == \'' + decodeURI(grid.getAttribute('data-tag')) + '\')');
+            }
+            handled = true;
+        }
+        else if (app.current.app === 'Home') {
+            const href = event.target.getAttribute('data-href');
+            if (href !== null) {
+               parseCmd(event, href);
+            }
+        }
+    }
+    else if (keyCode === ' ') {
+        if (app.current.app === 'Browse' && app.current.tab === 'Database' && app.current.view === 'List') {
+            if (app.current.tag === 'Album') {
+                showMenu(grid.getElementsByClassName('card-footer')[0], event);
+            }
+            handled = true;
+        }
+        else if (app.current.app === 'Home') {
+            showMenu(grid.getElementsByClassName('card-footer')[0], event);
+        }
+    }
+    else if (keyCode === 'ArrowDown' || keyCode === 'ArrowUp') {
+        const cur = grid;
+        const next = keyCode === 'ArrowDown' ? (grid.parentNode.nextElementSibling !== null ? grid.parentNode.nextElementSibling.firstChild : null)
+                                             : (grid.parentNode.previousElementSibling !== null ? grid.parentNode.previousElementSibling.firstChild : null);
+        if (next !== null) {
+            next.focus();
+            cur.classList.remove('selected');
+            next.classList.add('selected');
+            handled = true;
+            scrollFocusIntoView();
+        }
+    }
+    else if (keyCode === 'Escape') {
+        const cur = grid;
+        cur.blur();
+        cur.classList.remove('selected');
+        handled = true;
+    }
+    if (handled === true) {
+        event.stopPropagation();
+        event.preventDefault();
+    }
+}
+/*
+ SPDX-License-Identifier: GPL-2.0-or-later
+ myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
+ https://github.com/jcorporation/mympd
+*/
+
+function parseHome(obj) {
+    let nrItems = obj.result.returnedEntities;
+    let cardContainer = document.getElementById('HomeCards');
+    let cols = cardContainer.getElementsByClassName('col');
+    if (cols.length === 0) {
+        cardContainer.innerHTML = '';
+    }
+    for (let i = 0; i < nrItems; i++) {
+        let col = document.createElement('div');
+        col.classList.add('col', 'px-0', 'flex-grow-0');
+        if (obj.result.data[i].AlbumArtist === '') {
+            obj.result.data[i].AlbumArtist = t('Unknown artist');
+        }
+        if (obj.result.data[i].Album === '') {
+            obj.result.data[i].Album = t('Unknown album');
+        }
+        let href=JSON.stringify({"cmd": obj.result.data[i].cmd, "options": obj.result.data[i].options});
+        let html = '<div class="card home-icons clickable" draggable="true" tabindex="0" data-pos="' + i + '" data-href=\'' + 
+                   href + '\'  title="' + e(obj.result.data[i].name) + '">' +
+                   (obj.result.data[i].ligature !== '' ? 
+                       '<div class="card-body material-icons home-icons-ligature">' + e(obj.result.data[i].ligature) + '</div>' :
+                       '<div class="card-body home-icons-image"></div>')+
+                   '<div class="card-footer card-footer-grid p-2">' +
+                   e(obj.result.data[i].name) + 
+                   '</div></div>';
+        col.innerHTML = html;
+        if (i < cols.length) {
+            cols[i].replaceWith(col);
+        }
+        else {
+            cardContainer.append(col);
+        }
+        const hii = col.getElementsByClassName('home-icons-image')[0];
+        if (hii) {
+            hii.style.backgroundImage = 'url("' + subdir + '/browse/pics/' + obj.result.data[i].image + '")';
+        }
+        else if (obj.result.data[i].bgcolor !== '') {
+            col.getElementsByClassName('home-icons-ligature')[0].style.backgroundColor = obj.result.data[i].bgcolor;
+        }
+    }
+    let colsLen = cols.length - 1;
+    for (let i = colsLen; i >= nrItems; i --) {
+        cols[i].remove();
+    }
+                    
+    if (nrItems === 0) {
+        cardContainer.innerHTML = '<div>You have not added any Home Icons yet. You can add views, playlists and scripts.</div>';
+    }
+}
+
+function dragAndDropHome() {
+    const homeCards = document.getElementById('HomeCards');
+    homeCards.addEventListener('dragstart', function(event) {
+        if (event.target.classList.contains('home-icons')) {
+            event.target.classList.add('opacity05');
+            event.dataTransfer.setDragImage(event.target, 0, 0);
+            event.dataTransfer.effectAllowed = 'move';
+            dragSrc = event.target;
+            dragEl = event.target.cloneNode(true);
+        }
+    }, false);
+    homeCards.addEventListener('dragleave', function(event) {
+        event.preventDefault();
+        if (dragEl.classList.contains('home-icons') === false) {
+            return;
+        }
+        if (event.target.nodeName === 'DIV' && event.target.classList.contains('home-icons')) {
+            event.target.classList.remove('dragover-icon');
+        }
+    }, false);
+    homeCards.addEventListener('dragover', function(event) {
+        event.preventDefault();
+        if (dragEl.classList.contains('home-icons') === false) {
+            return;
+        }
+        let th = homeCards.getElementsByClassName('dragover-icon');
+        let thLen = th.length;
+        for (let i = 0; i < thLen; i++) {
+            th[i].classList.remove('dragover-icon');
+        }
+        if (event.target.nodeName === 'DIV' && event.target.classList.contains('home-icons')) {
+            event.target.classList.add('dragover-icon');
+        }
+        else if (event.target.nodeName === 'DIV' && event.target.parentNode.classList.contains('home-icons')) {
+            event.target.parentNode.classList.add('dragover-icon');
+        }
+        event.dataTransfer.dropEffect = 'move';
+    }, false);
+    homeCards.addEventListener('dragend', function(event) {
+        event.preventDefault();
+        if (dragEl.classList.contains('home-icons') === false) {
+            return;
+        }
+        let th = homeCards.getElementsByClassName('dragover-icon');
+        let thLen = th.length;
+        for (let i = 0; i < thLen; i++) {
+            th[i].classList.remove('dragover-icon');
+        }
+        dragSrc.classList.remove('opacity05');
+    }, false);
+    homeCards.addEventListener('drop', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (dragEl.classList.contains('home-icons') === false) {
+            return;
+        }
+        let t = event.target;
+        if (t.nodeName === 'DIV') {
+            if (t.classList.contains('card-body')) {
+                t = t.parentNode;
+            }
+            if (t.classList.contains('home-icons')) {
+                dragEl.classList.remove('opacity05');
+                const to = parseInt(t.getAttribute('data-pos'));
+                const from = parseInt(dragSrc.getAttribute('data-pos'));
+                if (isNaN(to) === false && isNaN(from) === false && from !== to) {
+                    sendAPI("MYMPD_API_HOME_ICON_MOVE", {"from": from, "to": to}, function(obj) {
+                        parseHome(obj);
+                    });
+                }
+            }
+        }
+        let th = homeCards.getElementsByClassName('dragover-icon');
+        let thLen = th.length;
+        for (let i = 0; i < thLen; i++) {
+            th[i].classList.remove('dragover-icon');
+        }
+
+    }, false);
+}
+
+function executeHomeIcon(pos) {
+    const el = document.getElementById('HomeCards').children[pos].firstChild;
+    parseCmd(null, el.getAttribute('data-href'));
+}
+
+function addViewToHome() {
+    _addHomeIcon('appGoto', '', 'preview', [app.current.app, app.current.tab, app.current.view, 
+        app.current.page, app.current.filter, app.current.sort, app.current.tag, app.current.search]); 
+}
+
+function addScriptToHome(name, script_def) {
+    let script = JSON.parse(script_def);
+    let options = [script.script, script.arguments.join(',')];
+    _addHomeIcon('execScriptFromOptions', name, 'description', options);
+}
+
+function addPlistToHome(uri, name) {
+    _addHomeIcon('replaceQueue', name, 'list', ['plist', uri, name]);
+}
+
+function _addHomeIcon(cmd, name, ligature, options) {
+    document.getElementById('modalEditHomeIconTitle').innerHTML = t('Add to homescreen');
+    document.getElementById('inputHomeIconReplace').value = 'false';
+    document.getElementById('inputHomeIconOldpos').value = '0';
+    document.getElementById('inputHomeIconName').value = name;
+    document.getElementById('inputHomeIconLigature').value = ligature;
+    document.getElementById('inputHomeIconBgcolor').value = '#28a745';
+    document.getElementById('inputHomeIconImage').value = '';
+    document.getElementById('selectHomeIconCmd').value = cmd;
+    showHomeIconCmdOptions(options);
+    modalEditHomeIcon.show();
+}
+
+function duplicateHomeIcon(pos) {
+    _editHomeIcon(pos, false, "Duplicate home icon");
+}
+
+function editHomeIcon(pos) {
+    _editHomeIcon(pos, true, "Edit home icon");
+}
+
+function _editHomeIcon(pos, replace, title) {
+    document.getElementById('modalEditHomeIconTitle').innerHTML = t(title);
+    sendAPI("MYMPD_API_HOME_ICON_GET", {"pos": pos}, function(obj) {
+        document.getElementById('inputHomeIconReplace').value = replace;
+        document.getElementById('inputHomeIconOldpos').value = pos;
+        document.getElementById('inputHomeIconName').value = obj.result.data[0].name;
+        document.getElementById('inputHomeIconLigature').value = obj.result.data[0].ligature;
+        document.getElementById('inputHomeIconBgcolor').value = obj.result.data[0].bgcolor;
+        document.getElementById('inputHomeIconImage').value = obj.result.data[0].image;
+        document.getElementById('selectHomeIconCmd').value = obj.result.data[0].cmd;
+        showHomeIconCmdOptions(obj.result.data[0].options);
+        modalEditHomeIcon.show();
+    });
+}
+
+function saveHomeIcon() {
+    let formOK = true;
+    let nameEl = document.getElementById('inputHomeIconName');
+    if (!validateNotBlank(nameEl)) {
+        formOK = false;
+    }
+    if (formOK === true) {
+        let options = [];
+        let optionEls = document.getElementById('divHomeIconOptions').getElementsByTagName('input');
+        for (let i = 0; i < optionEls.length; i++) {
+            options.push(optionEls[i].value);
+        }
+        sendAPI("MYMPD_API_HOME_ICON_SAVE", {
+            "replace": (document.getElementById('inputHomeIconReplace').value === 'true' ? true : false),
+            "oldpos": parseInt(document.getElementById('inputHomeIconOldpos').value),
+            "name": nameEl.value,
+            "ligature": document.getElementById('inputHomeIconLigature').value,
+            "bgcolor": document.getElementById('inputHomeIconBgcolor').value,
+            "image": document.getElementById('inputHomeIconImage').value,
+            "cmd": document.getElementById('selectHomeIconCmd').value,
+            "options": options
+            }, function() {
+                modalEditHomeIcon.hide();
+                sendAPI("MYMPD_API_HOME_LIST", {}, function(obj) {
+                    parseHome(obj);
+                });
+            });
+    }
+}
+
+function deleteHomeIcon(pos) {
+    sendAPI("MYMPD_API_HOME_ICON_DELETE", {"pos": pos}, function(obj) {
+        parseHome(obj);
+    });
+}
+
+function showHomeIconCmdOptions(values) {
+    const options = JSON.parse(getSelectedOptionAttribute('selectHomeIconCmd', 'data-options'));
+    let list = '';
+    for (let i = 0; i < options.options.length; i++) {
+        let value = values !== undefined ? values[i] !== undefined ? values[i] : '' : '';
+        list += '<div class="form-group row">' +
+            '<label class="col-sm-4 col-form-label">' + t(options.options[i]) + '</label>' +
+            '<div class="col-sm-8"><input class="form-control border-secondary" value="' + e(value) + '"></div>' +
+            '</div>';
+    }
+    document.getElementById('divHomeIconOptions').innerHTML = list;
 }
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
@@ -959,11 +1245,14 @@ function openFullscreen() {
     let elem = document.documentElement;
     if (elem.requestFullscreen) {
         elem.requestFullscreen();
-    } else if (elem.mozRequestFullScreen) { /* Firefox */
+    }
+    else if (elem.mozRequestFullScreen) { /* Firefox */
         elem.mozRequestFullScreen();
-    } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
+    }
+    else if (elem.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
         elem.webkitRequestFullscreen();
-    } else if (elem.msRequestFullscreen) { /* IE/Edge */
+    }
+    else if (elem.msRequestFullscreen) { /* IE/Edge */
         elem.msRequestFullscreen();
     }
 }
@@ -1117,6 +1406,82 @@ function _updateDBfinished(idleEvent) {
     else if (idleEvent === 'update_finished') {
         showNotification(t('Database update finished'), '', '', 'success');
     }
+}
+
+function zoomPicture(el) {
+    if (el.classList.contains('booklet')) {
+        window.open(el.getAttribute('data-href'));
+        return;
+    }
+    
+    if (el.classList.contains('carousel')) {
+        let imgSrc = el.getAttribute('data-images');
+        let images;
+        if (imgSrc !== null) {
+            images = el.getAttribute('data-images').split(';;');
+        }
+        else {
+            images = lastSongObj.images.slice();
+        }
+        if (images.length > 0) {
+            for (let i = 0; i < images.length; i++) {
+                images[i] = subdir + '/browse/music/' + images[i];
+            }
+            const imgEl = document.getElementById('modalPictureImg');
+            imgEl.style.paddingTop = 0;
+            createImgCarousel(imgEl, 'picsCarousel', images);
+            document.getElementById('modalPictureZoom').classList.add('hide');
+            modalPicture.show();
+            return;
+        }
+    }
+    
+    if (el.style.backgroundImage !== '') {
+        const imgEl = document.getElementById('modalPictureImg');
+        imgEl.innerHTML = '';
+        imgEl.style.paddingTop = '100%';
+        imgEl.style.backgroundImage = el.style.backgroundImage;
+        document.getElementById('modalPictureZoom').classList.remove('hide');
+        modalPicture.show();
+    }
+}
+
+function zoomZoomPicture() {
+    window.open(document.getElementById('modalPictureImg').style.backgroundImage.match(/^url\(["']?([^"']*)["']?\)/)[1]);
+}
+
+
+function createImgCarousel(imgEl, name, images) {
+    let carousel = '<div id="' + name + '" class="carousel slide" data-ride="carousel">' +
+        '<ol class="carousel-indicators">';
+    for (let i = 0; i < images.length; i++) {
+        carousel += '<li data-target="#' + name + '" data-slide-to="' + i + '"' +
+            (i === 0 ? ' class="active"' : '') + '></li>';
+    }
+    carousel += '</ol>' +
+        '<div class="carousel-inner" role="listbox">';
+    for (let i = 0; i < images.length; i++) {
+        carousel += '<div class="carousel-item' + (i === 0 ? ' active' : '') + '"><div></div></div>';
+    }
+    carousel += '</div>' +
+        '<a class="carousel-control-prev" href="#' + name + '" data-slide="prev">' +
+            '<span class="carousel-control-prev-icon"></span>' +
+        '</a>' +
+        '<a class="carousel-control-next" href="#' + name + '" data-slide="next">' +
+            '<span class="carousel-control-next-icon"></span>' +
+        '</a>' +
+        '</div>';
+    imgEl.innerHTML = carousel;
+    let carouselItems = imgEl.getElementsByClassName('carousel-item');
+    for (let i = 0; i < carouselItems.length; i++) {
+        carouselItems[i].children[0].style.backgroundImage = 'url("' + encodeURI(images[i]) + '")';
+    }
+    let myCarousel = document.getElementById(name);
+    //eslint-disable-next-line no-undef, no-unused-vars
+    let myCarouselInit = new BSN.Carousel(myCarousel, {
+        interval: false,
+        pause: false
+    });
 }
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
@@ -1277,6 +1642,7 @@ settings.loglevel = 2;
 var alertTimeout = null;
 var progressTimer = null;
 var deferredA2HSprompt;
+var dragSrc;
 var dragEl;
 
 var appInited = false;
@@ -1289,34 +1655,110 @@ var ligatureMore = 'menu';
 var progressBarTransition = 'width 1s linear';
 
 var app = {};
-app.apps = { "Playback":   { "state": "0/-/-/-/", "scrollPos": 0 },
-             "Queue":	   {
-                  "active": "Current",
-                  "tabs": { "Current": { "state": "0/any/-/-/", "scrollPos": 0 },
-                            "LastPlayed": { "state": "0/any/-/-/", "scrollPos": 0 }
-                          }
-                  },
-             "Browse":     { 
-                  "active": "Database", 
-                  "tabs":  { "Filesystem": { "state": "0/-/-/-/", "scrollPos": 0 },
-                             "Playlists":  { 
-                                 "active": "All",
-                                 "views": { "All":    { "state": "0/-/-/-/", "scrollPos": 0 },
-                                            "Detail": { "state": "0/-/-/-/", "scrollPos": 0 }
-                                 }
-                             },
-                             "Database":   { 
-                                 "active": "List",
-                                 "views": { "List":   { "state": "0/AlbumArtist/AlbumArtist/Album/", "scrollPos": 0  },
-                                            "Detail": { "state": "0/-/-/-/", "scrollPos": 0 }
-                                 }
-                             }
-                  }
-             },
-             "Search": { "state": "0/any/-/-/", "scrollPos": 0 }
-           };
+app.apps = { 
+    "Home": { 
+        "page": 0,
+        "filter": "-",
+        "sort": "-",
+        "tag": "-",
+        "search": "",
+        "scrollPos": 0
+    },
+    "Playback": { 
+        "page": 0,
+        "filter": "-",
+        "sort": "-",
+        "tag": "-",
+        "search": "",
+        "scrollPos": 0
+    },
+    "Queue": {
+        "active": "Current",
+        "tabs": { 
+            "Current": { 
+                "page": 0,
+                "filter": "any",
+                "sort": "-",
+                "tag": "-",
+                "search": "",
+                "scrollPos": 0 
+            },
+            "LastPlayed": {
+                "page": 0,
+                "filter": "any",
+                "sort": "-",
+                "tag": "-",
+                "search": "",
+                "scrollPos": 0 
+            }
+        }
+    },
+    "Browse": { 
+        "active": "Database", 
+        "tabs":  { 
+            "Filesystem": { 
+                "page": 0,
+                "filter": "-",
+                "sort": "-",
+                "tag": "-",
+                "search": "",
+                "scrollPos": 0 
+            },
+            "Playlists": { 
+                "active": "All",
+                "views": { 
+                    "All": {
+                        "page": 0,
+                        "filter": "-",
+                        "sort": "-",
+                        "tag": "-",
+                        "search": "", 
+                        "scrollPos": 0 
+                    },
+                    "Detail": {
+                        "page": 0,
+                        "filter": "-",
+                        "sort": "-",
+                        "tag": "-",
+                        "search": "",
+                        "scrollPos": 0
+                    }
+                }
+            },
+            "Database": { 
+                "active": "List",
+                "views": { 
+                    "List": { 
+                        "page": 0,
+                        "filter": "AlbumArtist",
+                        "sort": "AlbumArtist",
+                        "tag": "Album",
+                        "search": "",
+                        "scrollPos": 0
+                    },
+                    "Detail": { 
+                        "page": 0,
+                        "filter": "-",
+                        "sort": "-",
+                        "tag": "-",
+                        "search": "",
+                        "scrollPos": 0
+                    }
+                }
+            }
+        }
+    },
+    "Search": { 
+        "page": 0,
+        "filter": "any",
+        "sort": "-",
+        "tag": "-",
+        "search": "",
+        "scrollPos": 0
+    }
+};
 
-app.current = { "app": "Playback", "tab": undefined, "view": undefined, "page": 0, "filter": "", "search": "", "sort": "", "tag": "", "scrollPos": 0 };
+app.current = { "app": "Home", "tab": undefined, "view": undefined, "page": 0, "filter": "", "search": "", "sort": "", "tag": "", "scrollPos": 0 };
 app.last = { "app": undefined, "tab": undefined, "view": undefined, "filter": "", "search": "", "sort": "", "tag": "", "scrollPos": 0 };
 
 var domCache = {};
@@ -1373,6 +1815,8 @@ var modalPartitions = new BSN.Modal(document.getElementById('modalPartitions'));
 var modalPartitionOutputs = new BSN.Modal(document.getElementById('modalPartitionOutputs'));
 var modalTrigger = new BSN.Modal(document.getElementById('modalTrigger'));
 var modalOutputAttributes = new BSN.Modal(document.getElementById('modalOutputAttributes'));
+var modalPicture = new BSN.Modal(document.getElementById('modalPicture'));
+var modalEditHomeIcon = new BSN.Modal(document.getElementById('modalEditHomeIcon'));
 
 var dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
 var dropdownVolumeMenu = new BSN.Dropdown(document.getElementById('volumeMenu'));
@@ -1395,6 +1839,7 @@ function appPrepare(scrollPos) {
         for (let i = 0; i < domCache.navbarBtnsLen; i++) {
             domCache.navbarBtns[i].classList.remove('active');
         }
+        document.getElementById('cardHome').classList.add('hide');
         document.getElementById('cardPlayback').classList.add('hide');
         document.getElementById('cardQueue').classList.add('hide');
         document.getElementById('cardBrowse').classList.add('hide');
@@ -1422,7 +1867,7 @@ function appPrepare(scrollPos) {
     }
 }
 
-function appGoto(card, tab, view, state) {
+function appGoto(card, tab, view, page, filter, sort, tag, search) {
     let scrollPos = 0;
     if (document.body.scrollTop) {
         scrollPos = document.body.scrollTop
@@ -1450,16 +1895,32 @@ function appGoto(card, tab, view, state) {
             if (view === undefined) {
                 view = app.apps[card].tabs[tab].active;
             }
-            hash = '/' + card + '/' + tab +'/' + view + '!' + (state === undefined ? app.apps[card].tabs[tab].views[view].state : state);
+            hash = '/' + encodeURIComponent(card) + '/' + encodeURIComponent(tab) + '/' + encodeURIComponent(view) + '!' + 
+                encodeURIComponent(page === undefined ? app.apps[card].tabs[tab].views[view].page : page) + '/' +
+                encodeURIComponent(filter === undefined ? app.apps[card].tabs[tab].views[view].filter : filter) + '/' +
+                encodeURIComponent(sort === undefined ? app.apps[card].tabs[tab].views[view].sort : sort) + '/' +
+                encodeURIComponent(tag === undefined ? app.apps[card].tabs[tab].views[view].tag : tag) + '/' +
+                encodeURIComponent(search === undefined ? app.apps[card].tabs[tab].views[view].search : search);
         }
         else {
-            hash = '/' + card +'/' + tab + '!' + (state === undefined ? app.apps[card].tabs[tab].state : state);
+            hash = '/' + encodeURIComponent(card) + '/' + encodeURIComponent(tab) + '!' + 
+                encodeURIComponent(page === undefined ? app.apps[card].tabs[tab].page : page) + '/' +
+                encodeURIComponent(filter === undefined ? app.apps[card].tabs[tab].filter : filter) + '/' +
+                encodeURIComponent(sort === undefined ? app.apps[card].tabs[tab].sort : sort) + '/' +
+                encodeURIComponent(tag === undefined ? app.apps[card].tabs[tab].tag : tag) + '/' +
+                encodeURIComponent(search === undefined ? app.apps[card].tabs[tab].search : search);
         }
     }
     else {
-        hash = '/' + card + '!'+ (state === undefined ? app.apps[card].state : state);
+        hash = '/' + encodeURIComponent(card) + '!' + 
+            encodeURIComponent(page === undefined ? app.apps[card].page : page) + '/' +
+            encodeURIComponent(filter === undefined ? app.apps[card].filter : filter) + '/' +
+            encodeURIComponent(sort === undefined ? app.apps[card].sort : sort) + '/' +
+            encodeURIComponent(tag === undefined ? app.apps[card].tag : tag) + '/' +
+            encodeURIComponent(search === undefined ? app.apps[card].search : search);
+                                 
     }
-    location.hash = encodeURI(hash);
+    location.hash = hash;
 }
 
 function appRoute() {
@@ -1467,42 +1928,63 @@ function appRoute() {
         appInitStart();
         return;
     }
-    let hash = decodeURI(location.hash);
-    let params = hash.match(/^#\/(\w+)\/?(\w+)?\/?(\w+)?!((\d+)\/([^/]+)\/([^/]+)\/([^/]+)\/(.*))$/);
+    let hash = location.hash;
+    let params = hash.match(/^#\/(\w+)\/?(\w+)?\/?(\w+)?!(\d+)\/([^/]+)\/([^/]+)\/([^/]+)\/(.*)$/);
     if (params) {
-        app.current.app = params[1];
-        app.current.tab = params[2];
-        app.current.view = params[3];
-        if (app.apps[app.current.app].state) {
-            app.apps[app.current.app].state = params[4];
+        app.current.app = decodeURIComponent(params[1]);
+        app.current.tab = params[2] !== undefined ? decodeURIComponent(params[2]) : undefined;
+        app.current.view = params[3] !== undefined ? decodeURIComponent(params[3]) : undefined;
+        app.current.page = decodeURIComponent(parseInt(params[4]));
+        app.current.filter = decodeURIComponent(params[5]);
+        app.current.sort = decodeURIComponent(params[6]);
+        app.current.tag = decodeURIComponent(params[7]);
+        app.current.search = decodeURIComponent(params[8]);
+        
+        if (app.apps[app.current.app].page !== undefined) {
+            app.apps[app.current.app].page = app.current.page;
+            app.apps[app.current.app].filter = app.current.filter;
+            app.apps[app.current.app].sort = app.current.sort;
+            app.apps[app.current.app].tag = app.current.tag;
+            app.apps[app.current.app].search = app.current.search;
             app.current.scrollPos = app.apps[app.current.app].scrollPos;
         }
-        else if (app.apps[app.current.app].tabs[app.current.tab].state) {
-            app.apps[app.current.app].tabs[app.current.tab].state = params[4];
+        else if (app.apps[app.current.app].tabs[app.current.tab].page !== undefined) {
+            app.apps[app.current.app].tabs[app.current.tab].page = app.current.page;
+            app.apps[app.current.app].tabs[app.current.tab].filter = app.current.filter;
+            app.apps[app.current.app].tabs[app.current.tab].sort = app.current.sort;
+            app.apps[app.current.app].tabs[app.current.tab].tag = app.current.tag;
+            app.apps[app.current.app].tabs[app.current.tab].search = app.current.search;
             app.apps[app.current.app].active = app.current.tab;
             app.current.scrollPos = app.apps[app.current.app].tabs[app.current.tab].scrollPos;
         }
-        else if (app.apps[app.current.app].tabs[app.current.tab].views[app.current.view].state) {
-            app.apps[app.current.app].tabs[app.current.tab].views[app.current.view].state = params[4];
+        else if (app.apps[app.current.app].tabs[app.current.tab].views[app.current.view].page !== undefined) {
+            app.apps[app.current.app].tabs[app.current.tab].views[app.current.view].page = app.current.page;
+            app.apps[app.current.app].tabs[app.current.tab].views[app.current.view].filter = app.current.filter;
+            app.apps[app.current.app].tabs[app.current.tab].views[app.current.view].sort = app.current.sort;
+            app.apps[app.current.app].tabs[app.current.tab].views[app.current.view].tag = app.current.tag;
+            app.apps[app.current.app].tabs[app.current.tab].views[app.current.view].search = app.current.search;
             app.apps[app.current.app].active = app.current.tab;
             app.apps[app.current.app].tabs[app.current.tab].active = app.current.view;
             app.current.scrollPos = app.apps[app.current.app].tabs[app.current.tab].views[app.current.view].scrollPos;
         }
-        app.current.page = parseInt(params[5]);
-        app.current.filter = params[6];
-        app.current.sort = params[7];
-        app.current.tag = params[8];
-        app.current.search = params[9];
     }
     else {
         appPrepare(0);
-        appGoto('Playback');
+        if (settings.featHome === true) {
+            appGoto('Home');
+        }
+        else {
+            appGoto('Playback');
+        }
         return;
     }
 
     appPrepare(app.current.scrollPos);
 
-    if (app.current.app === 'Playback') {
+    if (app.current.app === 'Home') {
+        sendAPI("MYMPD_API_HOME_LIST", {}, parseHome);
+    }
+    else if (app.current.app === 'Playback') {
         sendAPI("MPD_API_PLAYER_CURRENT_SONG", {}, songChange);
     }    
     else if (app.current.app === 'Queue' && app.current.tab === 'Current' ) {
@@ -1513,15 +1995,22 @@ function appRoute() {
         sendAPI("MPD_API_QUEUE_LAST_PLAYED", {"offset": app.current.page, "cols": settings.colsQueueLastPlayed}, parseLastPlayed);
     }
     else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'All') {
-        sendAPI("MPD_API_PLAYLIST_LIST", {"offset": app.current.page, "filter": app.current.filter}, parsePlaylists);
-        doSetFilterLetter('BrowsePlaylistsFilter');
+        sendAPI("MPD_API_PLAYLIST_LIST", {"offset": app.current.page, "searchstr": app.current.search}, parsePlaylists);
+        const searchPlaylistsStrEl = document.getElementById('searchPlaylistsStr');
+        if (searchPlaylistsStrEl.value === '' && app.current.search !== '') {
+            searchPlaylistsStrEl.value = app.current.search;
+        }
     }
     else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'Detail') {
-        sendAPI("MPD_API_PLAYLIST_CONTENT_LIST", {"offset": app.current.page, "filter": app.current.filter, "uri": app.current.search, "cols": settings.colsBrowsePlaylistsDetail}, parsePlaylists);
-        doSetFilterLetter('BrowsePlaylistsFilter');
+        sendAPI("MPD_API_PLAYLIST_CONTENT_LIST", {"offset": app.current.page, "searchstr": app.current.search, "uri": app.current.filter, "cols": settings.colsBrowsePlaylistsDetail}, parsePlaylists);
+        const searchPlaylistsStrEl = document.getElementById('searchPlaylistsStr');
+        if (searchPlaylistsStrEl.value === '' && app.current.search !== '') {
+            searchPlaylistsStrEl.value = app.current.search;
+        }
     }    
     else if (app.current.app === 'Browse' && app.current.tab === 'Filesystem') {
-        sendAPI("MPD_API_DATABASE_FILESYSTEM_LIST", {"offset": app.current.page, "path": (app.current.search ? app.current.search : "/"), "filter": app.current.filter, "cols": settings.colsBrowseFilesystem}, parseFilesystem, true);
+        sendAPI("MPD_API_DATABASE_FILESYSTEM_LIST", {"offset": app.current.page, "path": (app.current.search ? app.current.search : "/"), 
+            "searchstr": (app.current.filter != '-' ? app.current.filter : ''), "cols": settings.colsBrowseFilesystem}, parseFilesystem, true);
         // Don't add all songs from root
         if (app.current.search) {
             document.getElementById('BrowseFilesystemAddAllSongs').removeAttribute('disabled');
@@ -1546,7 +2035,10 @@ function appRoute() {
             fullPath += '/';
         }
         document.getElementById('BrowseBreadcrumb').innerHTML = breadcrumbs;
-        doSetFilterLetter('BrowseFilesystemFilter');
+        const searchFilesystemStrEl = document.getElementById('searchFilesystemStr');
+        if (searchFilesystemStrEl.value === '' && app.current.filter != '-') {
+            searchFilesystemStrEl.value = app.current.filter;
+        }
     }
     else if (app.current.app === 'Browse' && app.current.tab === 'Database' && app.current.view === 'List') {
         document.getElementById('viewListDatabase').classList.remove('hide');
@@ -1605,9 +2097,13 @@ function appRoute() {
         document.getElementById('viewListDatabase').classList.add('hide');
         document.getElementById('viewDetailDatabase').classList.remove('hide');
         if (app.current.filter === 'Album') {
+            let cols = settings.colsBrowseDatabaseDetail.slice();
+            if (cols.includes('Disc') === false) {
+                cols.push('Disc');
+            }
             sendAPI("MPD_API_DATABASE_TAG_ALBUM_TITLE_LIST", {"album": app.current.tag,
-                "search": app.current.search,
-                "tag": app.current.sort, "cols": settings.colsBrowseDatabaseDetail}, parseAlbumDetails);
+                "searchstr": app.current.search,
+                "tag": app.current.sort, "cols": cols}, parseAlbumDetails);
         }    
     }
     else if (app.current.app === 'Search') {
@@ -1683,7 +2179,7 @@ function appRoute() {
         selectTag('searchtags', 'searchtagsdesc', app.current.filter);
     }
     else {
-        appGoto("Playback");
+        appGoto("Home");
     }
 
     app.last.app = app.current.app;
@@ -1741,6 +2237,9 @@ function a2hsInit() {
 }
 
 function appInitStart() {
+    //add app routing event handler
+    window.addEventListener('hashchange', appRoute, false);
+
     //set initial scale
     if (isMobile === true) {
         scale = localStorage.getItem('scale-ratio');
@@ -1841,7 +2340,7 @@ function appInit() {
     }, false);
 
     domCache.progress.addEventListener('click', function(event) {
-        if (currentSong && currentSong.currentSongId >= 0) {
+        if (currentSong && currentSong.currentSongId >= 0 && currentSong.totalTime > 0) {
             domCache.progressBar.style.transition = 'none';
             domCache.progressBar.style.width = event.clientX + 'px';
             setTimeout(function() {
@@ -1852,10 +2351,10 @@ function appInit() {
         }
     }, false);
     domCache.progress.addEventListener('mousemove', function(event) {
-        if (playstate === 'pause' || playstate === 'play') {
+        if ((playstate === 'pause' || playstate === 'play') && currentSong.totalTime > 0) {
             domCache.progressPos.innerText = beautifySongDuration(Math.ceil((currentSong.totalTime / event.target.offsetWidth) * event.clientX));
             domCache.progressPos.style.display = 'block';
-	    const w = domCache.progressPos.offsetWidth / 2;
+            const w = domCache.progressPos.offsetWidth / 2;
 	    const posX = event.clientX < w ? event.clientX : (event.clientX < window.innerWidth - w ? event.clientX - w : event.clientX - (w * 2));
             domCache.progressPos.style.left = posX + 'px';
         }
@@ -2002,7 +2501,7 @@ function appInit() {
         document.getElementById('inputAddToQueueQuantity').classList.remove('is-invalid');
         document.getElementById('warnJukeboxPlaylist2').classList.add('hide');
         if (settings.featPlaylists === true) {
-            sendAPI("MPD_API_PLAYLIST_LIST_ALL", {"offset": 0, "filter": "-"}, function(obj) { 
+            sendAPI("MPD_API_PLAYLIST_LIST_ALL", {"searchstr": ""}, function(obj) { 
                 getAllPlaylists(obj, 'selectAddToQueuePlaylist');
             });
         }
@@ -2115,9 +2614,6 @@ function appInit() {
         }
     }, false);
     
-    addFilterLetter('BrowseFilesystemFilterLetters');
-    addFilterLetter('BrowsePlaylistsFilterLetters');
-
     document.getElementById('syscmds').addEventListener('click', function(event) {
         if (event.target.nodeName === 'A') {
             parseCmd(event, event.target.getAttribute('data-href'));
@@ -2137,6 +2633,9 @@ function appInit() {
             hrefs[i].classList.add('clickable');
         }
         let parentInit = hrefs[i].parentNode.classList.contains('noInitChilds') ? true : false;
+        if (parentInit === false) {
+            parentInit = hrefs[i].parentNode.parentNode.classList.contains('noInitChilds') ? true : false;
+        }
         if (parentInit === true) {
             //handler on parentnode
             continue;
@@ -2145,6 +2644,34 @@ function appInit() {
             parseCmd(event, this.getAttribute('data-href'));
         }, false);
     }
+    
+    document.getElementById('HomeCards').addEventListener('click', function(event) {
+        if (event.target.classList.contains('card-body')) {
+            const href = event.target.parentNode.getAttribute('data-href');
+            if (href !== null) {
+               parseCmd(event, href);
+            }
+        }
+        else if (event.target.classList.contains('card-footer')){
+            let sels = document.getElementById('HomeCards').getElementsByClassName('selected');
+            for (let i = 0; i < sels.length; i++) {
+                sels[i].classList.remove('selected');
+            }
+            event.target.parentNode.classList.add('selected');
+            showMenu(event.target, event);
+            event.stopPropagation();
+        }
+    }, false);
+    
+    document.getElementById('HomeCards').addEventListener('keydown', function(event) {
+        navigateGrid(event.target, event.key);
+    }, false);
+    
+    dragAndDropHome();
+    
+    document.getElementById('selectHomeIconCmd').addEventListener('change', function(event) {
+        showHomeIconCmdOptions();
+    }, false);
 
     let pd = document.getElementsByClassName('pages');
     let pdLen = pd.length;
@@ -2164,7 +2691,7 @@ function appInit() {
     document.getElementById('BrowseBreadcrumb').addEventListener('click', function(event) {
         if (event.target.nodeName === 'A') {
             event.preventDefault();
-            appGoto('Browse', 'Filesystem', undefined, '0/' + app.current.filter + '/' + app.current.sort + '/-/' + decodeURI(event.target.getAttribute('data-uri')));
+            appGoto('Browse', 'Filesystem', undefined, '0', app.current.filter, app.current.sort, '-', decodeURI(event.target.getAttribute('data-uri')));
         }
     }, false);
     
@@ -2260,6 +2787,9 @@ function appInit() {
             else if (action === 'execute') {
                 execScript(event.target.getAttribute('data-href'));
             }
+            else if (action === 'add2home') {
+                addScriptToHome(script, event.target.getAttribute('data-href'))
+            }
         }
     }, false);
     
@@ -2324,7 +2854,7 @@ function appInit() {
             switch(event.target.parentNode.getAttribute('data-type')) {
                 case 'parentDir':
                 case 'dir':
-                    appGoto('Browse', 'Filesystem', undefined, '0/' + app.current.filter + '/' + app.current.sort + '/-/' + decodeURI(event.target.parentNode.getAttribute("data-uri")));
+                    appGoto('Browse', 'Filesystem', undefined, '0', app.current.filter, app.current.sort, '-', decodeURI(event.target.parentNode.getAttribute("data-uri")));
                     break;
                 case 'song':
                     appendQueue('song', decodeURI(event.target.parentNode.getAttribute("data-uri")), event.target.parentNode.getAttribute("data-name"));
@@ -2358,7 +2888,7 @@ function appInit() {
                 showBookmarkSave(id, name, uri, type);
             }
             else if (href === 'goto') {
-                appGoto('Browse', 'Filesystem', undefined, '0/-/-/-/' + uri );
+                appGoto('Browse', 'Filesystem', undefined, '0','-','-','-', uri);
             }
         }
     }, false);
@@ -2388,6 +2918,29 @@ function appInit() {
         else if (event.target.nodeName === 'A') {
             showMenu(event.target, event);
         }
+    }, false);
+
+    document.getElementById('BrowseDatabaseCards').addEventListener('click', function(event) {
+        if (app.current.tag === 'Album') {
+            if (event.target.classList.contains('card-body')) {
+                appGoto('Browse', 'Database', 'Detail', '0', 'Album', 'AlbumArtist', 
+                    decodeURI(event.target.parentNode.getAttribute('data-album')), 
+                    decodeURI(event.target.parentNode.getAttribute('data-albumartist')));
+            }
+            else if (event.target.classList.contains('card-footer')){
+                showMenu(event.target, event);
+            }
+        }
+        else {
+            app.current.search = '';
+            document.getElementById('searchDatabaseStr').value = '';
+            appGoto(app.current.app, app.current.card, undefined, '0', 'Album', 'AlbumArtist', 'Album', 
+                '(' + app.current.tag + ' == \'' + decodeURI(event.target.parentNode.getAttribute('data-tag')) + '\')');
+        }
+    }, false);
+    
+    document.getElementById('BrowseDatabaseCards').addEventListener('keydown', function(event) {
+        navigateGrid(event.target, event.key);
     }, false);
     
     document.getElementById('BrowseDatabaseDetailList').addEventListener('click', function(event) {
@@ -2434,8 +2987,7 @@ function appInit() {
     document.getElementById('searchDatabaseTags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
             app.current.filter = event.target.getAttribute('data-tag');
-            appGoto(app.current.app, app.current.tab, app.current.view, '0/' + app.current.filter + '/' + app.current.sort + '/' 
-                + app.current.tag + '/' + app.current.search);
+            appGoto(app.current.app, app.current.tab, app.current.view, '0', app.current.filter, app.current.sort, app.current.tag, app.current.search);
         }
     }, false);
     
@@ -2449,8 +3001,7 @@ function appInit() {
         else {
             app.current.sort = '-' + app.current.sort;
         }
-        appGoto(app.current.app, app.current.tab, app.current.view, '0/' + app.current.filter + '/' + app.current.sort + '/' 
-            + app.current.tag + '/' + app.current.search);
+        appGoto(app.current.app, app.current.tab, app.current.view, '0', app.current.filter, app.current.sort, app.current.tag, app.current.search);
     }, false);
 
     document.getElementById('databaseSortTags').addEventListener('click', function(event) {
@@ -2458,8 +3009,7 @@ function appInit() {
             event.preventDefault();
             event.stopPropagation();
             app.current.sort = event.target.getAttribute('data-tag');
-            appGoto(app.current.app, app.current.tab, app.current.view, '0/' + app.current.filter + '/' + app.current.sort + '/' 
-                + app.current.tag + '/' + app.current.search);
+            appGoto(app.current.app, app.current.tab, app.current.view, '0', app.current.filter, app.current.sort, app.current.tag, app.current.search);
         }
     }, false);
 
@@ -2485,14 +3035,34 @@ function appInit() {
             this.blur();
         }
         else {
-            appGoto(app.current.app, app.current.tab, app.current.view, '0/' + app.current.filter + '/' + app.current.sort + '/-/' + this.value);
+            appGoto(app.current.app, app.current.tab, app.current.view, '0', app.current.filter , app.current.sort, '-', this.value);
         }
     }, false);
 
     document.getElementById('searchqueuetags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
-            appGoto(app.current.app, app.current.tab, app.current.view, app.current.page + '/' + event.target.getAttribute('data-tag') + '/' + app.current.sort  + 
-                '/-/' + app.current.search);
+            appGoto(app.current.app, app.current.tab, app.current.view, 
+                app.current.page, event.target.getAttribute('data-tag'), app.current.sort, '-', app.current.search);
+        }
+    }, false);
+    
+    document.getElementById('searchFilesystemStr').addEventListener('keyup', function(event) {
+        if (event.key === 'Escape') {
+            this.blur();
+        }
+        else {
+            appGoto(app.current.app, app.current.tab, app.current.view, 
+                '0', (this.value !== '' ? this.value : '-'), app.current.sort, '-', app.current.search);
+        }
+    }, false);
+    
+    document.getElementById('searchPlaylistsStr').addEventListener('keyup', function(event) {
+        if (event.key === 'Escape') {
+            this.blur();
+        }
+        else {
+            appGoto(app.current.app, app.current.tab, app.current.view, 
+                '0', app.current.filter, app.current.sort, '-', this.value);
         }
     }, false);
 
@@ -2541,8 +3111,8 @@ function appInit() {
             searchAlbumgrid(this.value);
         }
         else {
-            appGoto(app.current.app, app.current.tab, app.current.view, '0/' + app.current.filter + '/' + app.current.sort + '/'
-                + app.current.tag + '/' + this.value);        
+            appGoto(app.current.app, app.current.tab, app.current.view, 
+                '0', app.current.filter, app.current.sort, app.current.tag, this.value);        
         }
     }, false);
 
@@ -2649,8 +3219,10 @@ function appInit() {
                     s[i].remove();
                 }
                 app.current.sort = sortcol;
-                event.target.innerHTML = t(col) + '<span class="sort-dir material-icons pull-right">' + (sortdesc === true ? 'arrow_drop_up' : 'arrow_drop_down') + '</span>';
-                appGoto(app.current.app, app.current.tab, app.current.view, app.current.page + '/' + app.current.filter + '/' + app.current.sort + '/-/' + app.current.search);
+                event.target.innerHTML = t(col) + '<span class="sort-dir material-icons pull-right">' + 
+                    (sortdesc === true ? 'arrow_drop_up' : 'arrow_drop_down') + '</span>';
+                appGoto(app.current.app, app.current.tab, app.current.view,
+                    app.current.page, app.current.filter,  app.current.sort, '-', app.current.search);
             }
         }
     }, false);
@@ -2684,7 +3256,7 @@ function appInit() {
     dragAndDropTableHeader('BrowsePlaylistsDetail');
     dragAndDropTableHeader('BrowseDatabaseDetail');
 
-    window.addEventListener('hashchange', appRoute, false);
+    
 
     window.addEventListener('focus', function() {
         sendAPI("MPD_API_PLAYER_STATE", {}, parseState);
@@ -2783,14 +3355,14 @@ function setStateIcon() {
 }
 
 function toggleAlert(alertBox, state, msg) {
-    let mpdState = document.getElementById(alertBox);
+    const alertBoxEl = document.getElementById(alertBox);
     if (state === false) {
-        mpdState.innerHTML = '';
-        mpdState.classList.add('hide');
+        alertBoxEl.innerHTML = '';
+        alertBoxEl.classList.add('hide');
     }
     else {
-        mpdState.innerHTML = msg;
-        mpdState.classList.remove('hide');
+        alertBoxEl.innerHTML = msg;
+        alertBoxEl.classList.remove('hide');
     }
 }
 
@@ -2950,8 +3522,18 @@ function setElsState(tag, state, type) {
 
 function toggleUI() {
     let state = 'disabled';
+    const topAlert = document.getElementById('top-alerts');
     if (websocketConnected === true && settings.mpdConnected === true) {
+        topAlert.classList.add('hide');
         state = 'enabled';
+    }
+    else {
+        let topPadding = 0;
+        if (window.innerWidth < window.innerHeight) {
+            topPadding = domCache.header.offsetHeight;
+        }
+        topAlert.style.paddingTop = topPadding + 'px';
+        topAlert.classList.remove('hide');
     }
     let enabled = state === 'disabled' ? false : true;
     if (enabled !== uiEnabled) {
@@ -2978,6 +3560,7 @@ function toggleUI() {
         toggleAlert('alertMympdState', true, t('Websocket is disconnected'));
         logMessage(t('Websocket is disconnected'), '', '', 'danger');
     }
+ 
     setStateIcon();
 }
 /*
@@ -3111,7 +3694,8 @@ function parsePlaylists(obj) {
         document.getElementById('smartPlaylistContentBtns').classList.add('hide');
         document.getElementById('btnAddSmartpls').parentNode.classList.remove('hide');
         document.getElementById('BrowseNavPlaylists').parentNode.classList.remove('hide');
-    } else {
+    }
+    else {
         if (obj.result.uri.indexOf('.') > -1 || obj.result.smartpls === true) {
             document.getElementById('BrowsePlaylistsDetailList').setAttribute('data-ro', 'true')
             document.getElementById('playlistContentBtns').classList.add('hide');
@@ -3217,7 +3801,7 @@ function parsePlaylists(obj) {
 //eslint-disable-next-line no-unused-vars
 function playlistDetails(uri) {
     document.getElementById('BrowsePlaylistsAllList').classList.add('opacity05');
-    appGoto('Browse', 'Playlists', 'Detail', '0/-/-/-/' + uri);
+    appGoto('Browse', 'Playlists', 'Detail', '0', uri, '-', '-', '');
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -3461,7 +4045,7 @@ function showAddToPlaylist(uri, searchstr) {
     }
     modalAddToPlaylist.show();
     if (settings.featPlaylists) {
-        sendAPI("MPD_API_PLAYLIST_LIST_ALL", {"offset": 0, "filter": "-"}, function(obj) {
+        sendAPI("MPD_API_PLAYLIST_LIST_ALL", {"searchstr": ""}, function(obj) {
             getAllPlaylists(obj, 'addToPlaylistPlaylist');
         });
     }
@@ -3609,6 +4193,9 @@ function hideMenu() {
         else if (app.current.app === 'Browse' && app.current.tab === 'Database') {
             focusTable(undefined, menuEl.parentNode.parentNode.parentNode.parentNode);
         }
+        else if (app.current.app === 'Home') {
+            focusTable(undefined, menuEl.parentNode.parentNode.parentNode.parentNode);
+        }
     }
 }
 
@@ -3687,6 +4274,7 @@ function showMenuTd(el) {
             (type !== 'plist' && type !== 'smartpls' && settings.featPlaylists ? addMenuItem({"cmd": "showAddToPlaylist", "options": [uri, ""]}, t('Add to playlist')) : '') +
             (type === 'song' ? addMenuItem({"cmd": "songDetails", "options": [uri]}, t('Song details')) : '') +
             (type === 'plist' || type === 'smartpls' ? addMenuItem({"cmd": "playlistDetails", "options": [uri]}, t('View playlist')) : '') +
+            ((type === 'plist' || type === 'smartpls') && settings.featHome === true ? addMenuItem({"cmd": "addPlistToHome", "options": [uri, name]}, t('Add to homescreen')) : '') +
             (type === 'dir' && settings.featBookmarks ? addMenuItem({"cmd": "showBookmarkSave", "options": [-1, name, uri, type]}, t('Add bookmark')) : '');
         if (app.current.tab === 'Filesystem') {
             menu += (type === 'dir' ? addMenuItem({"cmd": "updateDB", "options": [dirname(uri), true]}, t('Update directory')) : '') +
@@ -3712,7 +4300,8 @@ function showMenuTd(el) {
             (settings.smartpls === true && type === 'smartpls' ? addMenuItem({"cmd": "showSmartPlaylist", "options": [uri]}, t('Edit smart playlist')) : '') +
             (settings.smartpls === true && type === 'smartpls' ? addMenuItem({"cmd": "updateSmartPlaylist", "options": [uri]}, t('Update smart playlist')) : '') +
             addMenuItem({"cmd": "showRenamePlaylist", "options": [uri]}, t('Rename playlist')) + 
-            addMenuItem({"cmd": "showDelPlaylist", "options": [uri]}, t('Delete playlist'));
+            addMenuItem({"cmd": "showDelPlaylist", "options": [uri]}, t('Delete playlist')) +
+            (settings.featHome === true ?addMenuItem({"cmd": "addPlistToHome", "options": [uri, name]}, t('Add to homescreen')) : '');
     }
     else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'Detail') {
         let x = document.getElementById('BrowsePlaylistsDetailList');
@@ -3734,6 +4323,13 @@ function showMenuTd(el) {
             addMenuItem({"cmd": "replaceQueue", "options": [type, uri, name]}, t('Replace queue')) +
             (settings.featPlaylists ? addMenuItem({"cmd": "showAddToPlaylist", "options": [uri, ""]}, t('Add to playlist')) : '') +
             (uri.indexOf('http') === -1 ? addMenuItem({"cmd": "songDetails", "options": [uri]}, t('Song details')) : '');
+    }
+    else if (app.current.app === 'Home') {
+        const pos = parseInt(el.parentNode.getAttribute('data-pos'));
+        menu += addMenuItem({"cmd": "executeHomeIcon", "options": [pos]}, t('Execute home icon action')) +
+                addMenuItem({"cmd": "editHomeIcon", "options": [pos]}, t('Edit home icon')) +
+                addMenuItem({"cmd": "duplicateHomeIcon", "options": [pos]}, t('Duplicate home icon')) +
+                addMenuItem({"cmd": "deleteHomeIcon", "options": [pos]}, t('Delete home icon'));
     }
 
     new BSN.Popover(el, { trigger: 'click', delay: 0, dismissible: true, template: '<div class="popover" role="tooltip">' +
@@ -3881,15 +4477,22 @@ function parseQueue(obj) {
         gotoPage(obj.result.offset);
         return;
     }
-
+/*
     if (obj.result.totalTime && obj.result.totalTime > 0 && obj.result.totalEntities <= settings.maxElementsPerPage ) {
-        //document.getElementById('cardFooterQueue').innerText = t('Num songs', obj.result.totalEntities) + ' – ' + beautifyDuration(obj.result.totalTime);
+        document.getElementById('cardFooterQueue').innerText = t('Num songs', obj.result.totalEntities) + ' – ' + beautifyDuration(obj.result.totalTime);
     }
     else if (obj.result.totalEntities > 0) {
-        //document.getElementById('cardFooterQueue').innerText = t('Num songs', obj.result.totalEntities);
+        document.getElementById('cardFooterQueue').innerText = t('Num songs', obj.result.totalEntities);
     }
     else {
-        //document.getElementById('cardFooterQueue').innerText = '';
+        document.getElementById('cardFooterQueue').innerText = '';
+    }
+*/
+    if (obj.result.totalEntities > settings.maxElementsPerPage) {
+        document.getElementById('btnQueueGotoPlayingSong').parentNode.classList.remove('hide');
+    }
+    else {
+        document.getElementById('btnQueueGotoPlayingSong').parentNode.classList.add('hide');
     }
 
     let nrItems = obj.result.returnedEntities;
@@ -4269,8 +4872,10 @@ function parseScriptList(obj) {
                 '<td data-col="Action">' +
                     (settings.featScripteditor === true ? 
                         '<a href="#" title="' + t('Delete') + '" data-action="delete" class="material-icons color-darkgrey">delete</a>' : '') +
-                    '<a href="#" title="' + t('Execute') + '" data-action="execute" class="material-icons color-darkgrey" ' +
-                    ' data-href=\'{"script": "' + e(obj.result.data[i].name) + '", "arguments": [' + arglist + ']}\'>play_arrow</a>' +
+                        '<a href="#" title="' + t('Execute') + '" data-action="execute" class="material-icons color-darkgrey" ' +
+                            ' data-href=\'{"script": "' + e(obj.result.data[i].name) + '", "arguments": [' + arglist + ']}\'>play_arrow</a>' +
+                        '<a href="#" title="' + t('Add to homescreen') + '" data-action="add2home" class="material-icons color-darkgrey" ' +
+                            ' data-href=\'{"script": "' + e(obj.result.data[i].name) + '", "arguments": [' + arglist + ']}\'>add_to_home_screen</a>' +
                 '</td></tr>';
             timerActions.innerHTML += '<option data-arguments=\'{"arguments":[' + arglist + ']}\' value="' + 
                 e(obj.result.data[i].name) + '">' + e(obj.result.data[i].name) + '</option>';
@@ -4301,6 +4906,12 @@ function parseScriptList(obj) {
     else {
         document.getElementById('selectTimerAction').appendChild(timerActions);
     }
+}
+
+function execScriptFromOptions(cmd, options) {
+    let args = options !== undefined ? options.split(',') : [];
+    let script = {"script": cmd, "arguments": args};
+    execScript(JSON.stringify(script));
 }
 
 function execScript(href) {
@@ -4348,20 +4959,25 @@ function search(x) {
         let crumbs = domCache.searchCrumb.children;
         for (let i = 0; i < crumbs.length; i++) {
             expression += '(' + decodeURI(crumbs[i].getAttribute('data-filter')) + ')';
-            if (x !== '') expression += ' AND ';
+            if (x !== '') {
+                expression += ' AND ';
+            }
         }
         if (x !== '') {
             let match = document.getElementById('searchMatch');
             expression += '(' + app.current.filter + ' ' + match.options[match.selectedIndex].value + ' \'' + x +'\'))';
         }
-        else
+        else {
             expression += ')';
-        if (expression.length <= 2)
+        }
+        if (expression.length <= 2) {
             expression = '';
-        appGoto('Search', undefined, undefined, '0/' + app.current.filter + '/' + app.current.sort + '/-/' + expression);
+        }
+        appGoto('Search', undefined, undefined, '0', app.current.filter, app.current.sort, '-', expression);
     }
-    else
-        appGoto('Search', undefined, undefined, '0/' + app.current.filter + '/' + app.current.sort + '/-/' + x);
+    else {
+        appGoto('Search', undefined, undefined, '0', app.current.filter, app.current.sort, '-', x);
+    }
 }
 
 function parseSearch(obj) {
@@ -4444,7 +5060,12 @@ function saveConnection() {
         }
     }
     if (formOK === true) {
-        sendAPI("MYMPD_API_CONNECTION_SAVE", {"mpdHost": mpdHostEl.value, "mpdPort": mpdPortEl.value, "mpdPass": mpdPassEl.value, "musicDirectory": musicDirectory}, getSettings);
+        sendAPI("MYMPD_API_CONNECTION_SAVE", {
+            "mpdHost": mpdHostEl.value,
+            "mpdPort": mpdPortEl.value,
+            "mpdPass": mpdPassEl.value,
+            "musicDirectory": musicDirectory
+        }, getSettings);
         modalConnection.hide();    
     }
 }
@@ -4488,7 +5109,9 @@ function joinSettings(obj) {
     settingsLock = false;
     parseSettings();
     toggleUI();
-    sendAPI("MPD_API_URLHANDLERS", {}, parseUrlhandlers,false);
+    if (settings.mpdConnected === true) {
+        sendAPI("MPD_API_URLHANDLERS", {}, parseUrlhandlers,false);
+    }
     btnWaiting(document.getElementById('btnApplySettings'), false);
 }
 
@@ -4636,7 +5259,7 @@ function parseSettings() {
     toggleBtnChkCollapse('btnSmartpls', 'collapseSmartpls', settings.smartpls);
     
     let features = ["featLocalplayer", "featSyscmds", "featMixramp", "featCacert", "featBookmarks", 
-        "featRegex", "featTimer", "featLyrics", "featScripting", "featScripteditor"];
+        "featRegex", "featTimer", "featLyrics", "featScripting", "featScripteditor", "featHome"];
     for (let j = 0; j < features.length; j++) {
         let Els = document.getElementsByClassName(features[j]);
         let ElsLen = Els.length;
@@ -4971,7 +5594,7 @@ function parseMPDSettings() {
     }
     
     if (settings.featPlaylists === true) {
-        sendAPI("MPD_API_PLAYLIST_LIST_ALL", {"offset": 0, "filter": "-"}, function(obj) {
+        sendAPI("MPD_API_PLAYLIST_LIST_ALL", {"searchstr": ""}, function(obj) {
             getAllPlaylists(obj, 'selectJukeboxPlaylist', settings.jukeboxPlaylist);
         });
     }
@@ -5427,8 +6050,8 @@ function parseSongDetails(obj) {
         songDetailsHTML += '<tr><th>' + t('Fingerprint') + '</th><td class="breakAll" id="fingerprint"><a class="text-success" data-uri="' + 
             encodeURI(obj.result.uri) + '" id="calcFingerprint" href="#">' + t('Calculate') + '</a></td></tr>';
     }
-    if (obj.result.booklet === true && settings.publish === true) {
-        songDetailsHTML += '<tr><th>' + t('Booklet') + '</th><td><a class="text-success" href="/browse/music/' + dirname(obj.result.uri) + '/' + settings.bookletName + '" target="_blank">' + t('Download') + '</a></td></tr>';
+    if (obj.result.bookletPath !== '' && settings.publish === true) {
+        songDetailsHTML += '<tr><th>' + t('Booklet') + '</th><td><a class="text-success" href="' + subdir + '/browse/music/' + dirname(obj.result.uri) + '/' + settings.bookletName + '" target="_blank">' + t('Download') + '</a></td></tr>';
     }
     if (settings.featStickers === true) {
         songDetailsHTML += '<tr><th colspan="2" class="pt-3"><h5>' + t('Statistics') + '</h5></th></tr>' +
@@ -5478,38 +6101,8 @@ function parseSongDetails(obj) {
                 images.push(subdir + '/browse/music/' + obj.result.images[i]);
             }
         }
-    
-        let carousel = '<div id="songPicsCarousel" class="carousel slide" data-ride="carousel">' +
-            '<ol class="carousel-indicators">';
-        for (let i = 0; i < images.length; i++) {
-            carousel += '<li data-target="#songPicsCarousel" data-slide-to="' + i + '"' +
-                (i === 0 ? ' class="active"' : '') + '></li>';
-        }    
-        carousel += '</ol>' +
-            '<div class="carousel-inner" role="listbox">';
-        for (let i = 0; i < images.length; i++) {
-            carousel += '<div class="carousel-item' + (i === 0 ? ' active' : '') + '"><div></div></div>';
-        }
-        carousel += '</div>' +
-            '<a class="carousel-control-prev" href="#songPicsCarousel" data-slide="prev">' +
-                '<span class="carousel-control-prev-icon"></span>' +
-            '</a>' +
-            '<a class="carousel-control-next" href="#songPicsCarousel" data-slide="next">' +
-                '<span class="carousel-control-next-icon"></span>' +
-            '</a>' +
-            '</div>';
-    
-        document.getElementById('tabSongPics').innerHTML = carousel;
-        let carouselItems = document.getElementById('tabSongPics').getElementsByClassName('carousel-item');
-        for (let i = 0; i < carouselItems.length; i++) {
-            carouselItems[i].children[0].style.backgroundImage = 'url("' + encodeURI(images[i]) + '")';
-        }
-        let myCarousel = document.getElementById('songPicsCarousel');
-        //eslint-disable-next-line no-undef, no-unused-vars
-        let myCarouselInit = new BSN.Carousel(myCarousel, {
-            interval: false,
-            pause: false
-        });
+        const imgEl = document.getElementById('tabSongPics');
+        createImgCarousel(imgEl, 'songPicsCarousel', images);
     }
     else {
         document.getElementById('tabSongPics').innerText = '';
@@ -5689,10 +6282,18 @@ function showListOutputAttributes(outputName) {
         let list = '<tr><td>' + t('Name') + '</td><td>' + e(output.name) + '</td></tr>' +
             '<tr><td>' + t('State') + '</td><td>' + (output.state === 1 ? t('enabled') : t('disabled')) + '</td></tr>' +
             '<tr><td>' + t('Plugin') + '</td><td>' + e(output.plugin) + '</td></tr>';
+        let i = 0;
         Object.keys(output.attributes).forEach(function(key) {
+            i++;
             list += '<tr><td>' + e(key) + '</td><td><input name="' + e(key) + '" class="form-control border-secondary" type="text" value="' + 
                 e(output.attributes[key]) + '"/></td></tr>';
         });
+        if (i > 0) {
+            document.getElementById('btnOutputAttributesSave').removeAttribute('disabled');
+        }
+        else {
+            document.getElementById('btnOutputAttributesSave').setAttribute('disabled', 'disabled');
+        }
         document.getElementById('outputAttributesList').innerHTML = list;
     });
 }
@@ -5724,6 +6325,13 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
         setTimeout(function() {
             domCache.progressBar.style.transition = progressBarTransition;
         }, 10);
+    }
+    
+    if (totalTime <= 0) {
+        domCache.progress.style.cursor = 'default';
+    }
+    else {
+        domCache.progress.style.cursor = 'pointer';
     }
 
     let counterText = beautifySongDuration(elapsedTime) + "&nbsp;/&nbsp;" + beautifySongDuration(totalTime);
@@ -5836,13 +6444,13 @@ function parseVolume(obj) {
         domCache.volumeControl.classList.remove('hide');
         domCache.volumePrct.innerText = obj.result.volume + ' %';
         if (obj.result.volume === 0) {
-            domCache.volumeMenu.innerText = 'volume_off';
+            domCache.volumeMenu.firstChild.innerText = 'volume_off';
         }
         else if (obj.result.volume < 50) {
-            domCache.volumeMenu.innerText = 'volume_down';
+            domCache.volumeMenu.firstChild.innerText = 'volume_down';
         }
         else {
-            domCache.volumeMenu.innerText = 'volume_up';
+            domCache.volumeMenu.firstChild.innerText = 'volume_up';
         }
     }
     domCache.volumeBar.value = obj.result.volume;
@@ -5914,7 +6522,7 @@ function _setCurrentCover(url, el) {
     }
 
     let div = document.createElement('div');
-    div.classList.add('coverbg');
+    div.classList.add('coverbg', 'carousel');
     div.style.backgroundImage = 'url("' + subdir + '/albumart/' + url + '")';
     div.style.opacity = 0;
     el.insertBefore(div, el.firstChild);
@@ -6049,6 +6657,10 @@ function songChange(obj) {
         }
     }
     
+    document.getElementById('currentBooklet').innerHTML = obj.result.bookletPath === '' || obj.result.bookletPath === undefined|| settings.featBrowse === false ? '' : 
+            '<span class="text-light material-icons">description</span>&nbsp;<a class="text-light" target="_blank" href="' + subdir + '/browse/music/' + 
+            e(obj.result.bookletPath) + '">' + t('Download booklet') + '</a>';
+    
     //Update Artist in queue view for http streams
     let playingTr = document.getElementById('queueTrackId' + obj.result.currentSongId);
     if (playingTr) {
@@ -6065,7 +6677,7 @@ function songChange(obj) {
 
 //eslint-disable-next-line no-unused-vars
 function gotoTagList() {
-    appGoto(app.current.app, app.current.tab, app.current.view, '0/-/-/-/');
+    appGoto(app.current.app, app.current.tab, app.current.view, '0', '-', '-', '-', '');
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -6154,10 +6766,23 @@ function focusTable(rownr, table) {
         table = document.getElementById(app.current.app + (app.current.tab !== undefined ? app.current.tab : '') + (app.current.view !== undefined ? app.current.view : '') + 'List');
     }
 
-    if (app.current.app === 'Browse' && app.current.tab === 'Database' &&
-            app.current.view === 'List') 
-    {
+    if (app.current.app === 'Browse' && app.current.tab === 'Database' && app.current.view === 'List') {
         const tables = document.getElementsByClassName('card-grid');
+        if (tables.length === 0 ) {
+            return; 
+        }
+        table = tables[0];
+        for (let i = 0; i < tables.length; i++) {
+            if (tables[i].classList.contains('selected')) {
+                table = tables[i];
+                break;
+            }
+        }
+        table.focus();
+        return;
+    }
+    else if (app.current.app === 'Home') {
+        const tables = document.getElementsByClassName('home-icons');
         if (tables.length === 0 ) {
             return; 
         }
@@ -6177,6 +6802,9 @@ function focusTable(rownr, table) {
         if (rownr === undefined) {
             if (sel.length === 0) {
                 let row = table.getElementsByTagName('tbody')[0].rows[0];
+                if (row.classList.contains('not-clickable')) {
+                    row = table.getElementsByTagName('tbody')[0].rows[1];
+                }
                 row.focus();
                 row.classList.add('selected');
             }
@@ -6249,10 +6877,16 @@ function navigateTable(table, keyCode) {
         let handled = false;
         if (keyCode === 'ArrowDown') {
             next = cur.nextElementSibling;
+            if (next.classList.contains('not-clickable')) {
+                next = next.nextElementSibling;
+            }
             handled = true;
         }
         else if (keyCode === 'ArrowUp') {
             next = cur.previousElementSibling;
+            if (next.classList.contains('not-clickable')) {
+                next = next.previousElementSibling;
+            }
             handled = true;
         }
         else if (keyCode === ' ') {
@@ -6285,7 +6919,7 @@ function navigateTable(table, keyCode) {
 }
 
 function dragAndDropTable(table) {
-    let tableBody=document.getElementById(table).getElementsByTagName('tbody')[0];
+    let tableBody = document.getElementById(table).getElementsByTagName('tbody')[0];
     tableBody.addEventListener('dragstart', function(event) {
         if (event.target.nodeName === 'TR') {
             event.target.classList.add('opacity05');
@@ -6759,7 +7393,7 @@ function showEditTimer(timerid) {
         sendAPI("MYMPD_API_TIMER_GET", {"timerid": timerid}, parseEditTimer);
     }
     else {
-        sendAPI("MPD_API_PLAYLIST_LIST_ALL", {}, function(obj2) { 
+        sendAPI("MPD_API_PLAYLIST_LIST_ALL", {"searchstr":""}, function(obj2) { 
             getAllPlaylists(obj2, 'selectTimerPlaylist', 'Database');
         });
         document.getElementById('inputTimerId').value = '0';
@@ -6784,7 +7418,7 @@ function showEditTimer(timerid) {
 
 function parseEditTimer(obj) {
     let playlistValue = obj.result.playlist;
-    sendAPI("MPD_API_PLAYLIST_LIST_ALL", {}, function(obj2) { 
+    sendAPI("MPD_API_PLAYLIST_LIST_ALL", {"searchstr":""}, function(obj2) { 
         getAllPlaylists(obj2, 'selectTimerPlaylist', playlistValue);
     });
     document.getElementById('inputTimerId').value = obj.result.timerid;
@@ -7049,6 +7683,11 @@ function getSelectValue(selectId) {
     return el.options[el.selectedIndex].value;
 }
 
+function getSelectedOptionAttribute(selectId, attribute) {
+    let el = document.getElementById(selectId);
+    return el.options[el.selectedIndex].getAttribute(attribute);
+}
+
 function alignDropdown(el) {
     const x = getXpos(el.children[0]);
     
@@ -7123,56 +7762,6 @@ function fileformat(audioformat) {
 function scrollToPosY(pos) {
     document.body.scrollTop = pos; // For Safari
     document.documentElement.scrollTop = pos; // For Chrome, Firefox, IE and Opera
-}
-
-function doSetFilterLetter(x) {
-    let af = document.getElementById(x + 'Letters').getElementsByClassName('active')[0];
-    if (af) {
-        af.classList.remove('active');
-    }
-    let filter = app.current.filter;
-    if (filter === '0') {
-        filter = '#';
-    }
-    
-    document.getElementById(x).innerHTML = '<span class="material-icons">filter_list</span>' + (filter !== '-' ? ' ' + filter : '');
-    
-    if (filter !== '-') {
-        let btns = document.getElementById(x + 'Letters').getElementsByTagName('button');
-        let btnsLen = btns.length;
-        for (let i = 0; i < btnsLen; i++) {
-            if (btns[i].innerText === filter) {
-                btns[i].classList.add('active');
-                break;
-            }
-        }
-    }
-}
-
-function addFilterLetter(x) {
-    let filter = '<button class="mr-1 mb-1 btn btn-sm btn-secondary material-icons material-icons-small">delete</button>' +
-        '<button class="mr-1 mb-1 btn btn-sm btn-secondary">#</button>';
-    for (let i = 65; i <= 90; i++) {
-        filter += '<button class="mr-1 mb-1 btn-sm btn btn-secondary">' + String.fromCharCode(i) + '</button>';
-    }
-
-    let letters = document.getElementById(x);
-    letters.innerHTML = filter;
-    
-    letters.addEventListener('click', function(event) {
-        switch (event.target.innerText) {
-            case 'delete':
-                filter = '-';
-                break;
-            case '#':
-                filter = '0';
-                break;
-            default:
-                filter = event.target.innerText;
-        }
-        appGoto(app.current.app, app.current.tab, app.current.view, '0/' + filter + '/' + app.current.sort + '/' + 
-            app.current.tag + '/' + app.current.search);
-    }, false);
 }
 
 function selectTag(btnsEl, desc, setTo) {
@@ -7404,7 +7993,7 @@ function toggleBtnChkCollapse(btn, collapse, state) {
 }
 
 function setPagination(total, returned) {
-    let cat = app.current.app + (app.current.tab === undefined ? '': app.current.tab);
+    let cat = app.current.app + (app.current.tab === undefined ? '' : app.current.tab);
     let totalPages = Math.ceil(total / settings.maxElementsPerPage);
     if (totalPages === 0) {
         totalPages = 1;
@@ -7465,7 +8054,9 @@ function genId(x) {
 }
 
 function parseCmd(event, href) {
-    event.preventDefault();
+    if (event != null) {
+        event.preventDefault();
+    }
     let cmd = href;
     if (typeof(href) === 'string') {
         cmd = JSON.parse(href);
@@ -7480,6 +8071,7 @@ function parseCmd(event, href) {
             case 'toggleBtnChk':
             case 'toggleBtnGroup':
             case 'toggleBtnGroupCollapse':
+            case 'zoomPicture':
             case 'setPlaySettings':
                 window[cmd.cmd](event.target, ... cmd.options);
                 break;
@@ -7509,8 +8101,8 @@ function gotoPage(x) {
         default:
             app.current.page = x;
     }
-    appGoto(app.current.app, app.current.tab, app.current.view, app.current.page + '/' + app.current.filter + '/' + 
-        app.current.sort + '/' + app.current.tag + '/' + app.current.search);
+    appGoto(app.current.app, app.current.tab, app.current.view, 
+        app.current.page, app.current.filter, app.current.sort, app.current.tag, app.current.search);
 }
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
