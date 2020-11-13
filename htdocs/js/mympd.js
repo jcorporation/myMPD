@@ -394,7 +394,7 @@ function appRoute() {
     }    
     else if (app.current.app === 'Browse' && app.current.tab === 'Filesystem') {
         sendAPI("MPD_API_DATABASE_FILESYSTEM_LIST", {"offset": app.current.page, "path": (app.current.search ? app.current.search : "/"), 
-            "searchstr": (app.current.filter != '-' ? app.current.filter : ''), "cols": settings.colsBrowseFilesystem}, parseFilesystem, true);
+            "searchstr": (app.current.filter !== '-' ? app.current.filter : ''), "cols": settings.colsBrowseFilesystem}, parseFilesystem, true);
         // Don't add all songs from root
         if (app.current.search) {
             document.getElementById('BrowseFilesystemAddAllSongs').removeAttribute('disabled');
@@ -420,7 +420,7 @@ function appRoute() {
         }
         document.getElementById('BrowseBreadcrumb').innerHTML = breadcrumbs;
         const searchFilesystemStrEl = document.getElementById('searchFilesystemStr');
-        if (searchFilesystemStrEl.value === '' && app.current.filter != '-') {
+        if (searchFilesystemStrEl.value === '' && app.current.filter !== '-') {
             searchFilesystemStrEl.value = app.current.filter;
         }
     }
@@ -739,7 +739,7 @@ function appInit() {
             domCache.progressPos.innerText = beautifySongDuration(Math.ceil((currentSong.totalTime / event.target.offsetWidth) * event.clientX));
             domCache.progressPos.style.display = 'block';
             const w = domCache.progressPos.offsetWidth / 2;
-	    const posX = event.clientX < w ? event.clientX : (event.clientX < window.innerWidth - w ? event.clientX - w : event.clientX - (w * 2));
+;            const posX = event.clientX < w ? event.clientX : (event.clientX < window.innerWidth - w ? event.clientX - w : event.clientX - (w * 2));
             domCache.progressPos.style.left = posX + 'px';
         }
     }, false);
@@ -1053,7 +1053,7 @@ function appInit() {
     
     dragAndDropHome();
     
-    document.getElementById('selectHomeIconCmd').addEventListener('change', function(event) {
+    document.getElementById('selectHomeIconCmd').addEventListener('change', function() {
         showHomeIconCmdOptions();
     }, false);
 

@@ -825,14 +825,14 @@ function dragAndDropHome() {
         if (dragEl.classList.contains('home-icons') === false) {
             return;
         }
-        let t = event.target;
-        if (t.nodeName === 'DIV') {
-            if (t.classList.contains('card-body')) {
-                t = t.parentNode;
+        let dst = event.target;
+        if (dst.nodeName === 'DIV') {
+            if (dst.classList.contains('card-body')) {
+                dst = dst.parentNode;
             }
-            if (t.classList.contains('home-icons')) {
+            if (dst.classList.contains('home-icons')) {
                 dragEl.classList.remove('opacity05');
-                const to = parseInt(t.getAttribute('data-pos'));
+                const to = parseInt(dst.getAttribute('data-pos'));
                 const from = parseInt(dragSrc.getAttribute('data-pos'));
                 if (isNaN(to) === false && isNaN(from) === false && from !== to) {
                     sendAPI("MYMPD_API_HOME_ICON_MOVE", {"from": from, "to": to}, function(obj) {
@@ -850,22 +850,26 @@ function dragAndDropHome() {
     }, false);
 }
 
+//eslint-disable-next-line no-unused-vars
 function executeHomeIcon(pos) {
     const el = document.getElementById('HomeCards').children[pos].firstChild;
     parseCmd(null, el.getAttribute('data-href'));
 }
 
+//eslint-disable-next-line no-unused-vars
 function addViewToHome() {
     _addHomeIcon('appGoto', '', 'preview', [app.current.app, app.current.tab, app.current.view, 
         app.current.page, app.current.filter, app.current.sort, app.current.tag, app.current.search]); 
 }
 
+//eslint-disable-next-line no-unused-vars
 function addScriptToHome(name, script_def) {
     let script = JSON.parse(script_def);
     let options = [script.script, script.arguments.join(',')];
     _addHomeIcon('execScriptFromOptions', name, 'description', options);
 }
 
+//eslint-disable-next-line no-unused-vars
 function addPlistToHome(uri, name) {
     _addHomeIcon('replaceQueue', name, 'list', ['plist', uri, name]);
 }
@@ -883,10 +887,12 @@ function _addHomeIcon(cmd, name, ligature, options) {
     modalEditHomeIcon.show();
 }
 
+//eslint-disable-next-line no-unused-vars
 function duplicateHomeIcon(pos) {
     _editHomeIcon(pos, false, "Duplicate home icon");
 }
 
+//eslint-disable-next-line no-unused-vars
 function editHomeIcon(pos) {
     _editHomeIcon(pos, true, "Edit home icon");
 }
@@ -906,6 +912,7 @@ function _editHomeIcon(pos, replace, title) {
     });
 }
 
+//eslint-disable-next-line no-unused-vars
 function saveHomeIcon() {
     let formOK = true;
     let nameEl = document.getElementById('inputHomeIconName');
@@ -936,6 +943,7 @@ function saveHomeIcon() {
     }
 }
 
+//eslint-disable-next-line no-unused-vars
 function deleteHomeIcon(pos) {
     sendAPI("MYMPD_API_HOME_ICON_DELETE", {"pos": pos}, function(obj) {
         parseHome(obj);
@@ -1408,6 +1416,7 @@ function _updateDBfinished(idleEvent) {
     }
 }
 
+//eslint-disable-next-line no-unused-vars
 function zoomPicture(el) {
     if (el.classList.contains('booklet')) {
         window.open(el.getAttribute('data-href'));
@@ -1446,6 +1455,7 @@ function zoomPicture(el) {
     }
 }
 
+//eslint-disable-next-line no-unused-vars
 function zoomZoomPicture() {
     window.open(document.getElementById('modalPictureImg').style.backgroundImage.match(/^url\(["']?([^"']*)["']?\)/)[1]);
 }
@@ -2010,7 +2020,7 @@ function appRoute() {
     }    
     else if (app.current.app === 'Browse' && app.current.tab === 'Filesystem') {
         sendAPI("MPD_API_DATABASE_FILESYSTEM_LIST", {"offset": app.current.page, "path": (app.current.search ? app.current.search : "/"), 
-            "searchstr": (app.current.filter != '-' ? app.current.filter : ''), "cols": settings.colsBrowseFilesystem}, parseFilesystem, true);
+            "searchstr": (app.current.filter !== '-' ? app.current.filter : ''), "cols": settings.colsBrowseFilesystem}, parseFilesystem, true);
         // Don't add all songs from root
         if (app.current.search) {
             document.getElementById('BrowseFilesystemAddAllSongs').removeAttribute('disabled');
@@ -2036,7 +2046,7 @@ function appRoute() {
         }
         document.getElementById('BrowseBreadcrumb').innerHTML = breadcrumbs;
         const searchFilesystemStrEl = document.getElementById('searchFilesystemStr');
-        if (searchFilesystemStrEl.value === '' && app.current.filter != '-') {
+        if (searchFilesystemStrEl.value === '' && app.current.filter !== '-') {
             searchFilesystemStrEl.value = app.current.filter;
         }
     }
@@ -2355,7 +2365,7 @@ function appInit() {
             domCache.progressPos.innerText = beautifySongDuration(Math.ceil((currentSong.totalTime / event.target.offsetWidth) * event.clientX));
             domCache.progressPos.style.display = 'block';
             const w = domCache.progressPos.offsetWidth / 2;
-	    const posX = event.clientX < w ? event.clientX : (event.clientX < window.innerWidth - w ? event.clientX - w : event.clientX - (w * 2));
+;            const posX = event.clientX < w ? event.clientX : (event.clientX < window.innerWidth - w ? event.clientX - w : event.clientX - (w * 2));
             domCache.progressPos.style.left = posX + 'px';
         }
     }, false);
@@ -2669,7 +2679,7 @@ function appInit() {
     
     dragAndDropHome();
     
-    document.getElementById('selectHomeIconCmd').addEventListener('change', function(event) {
+    document.getElementById('selectHomeIconCmd').addEventListener('change', function() {
         showHomeIconCmdOptions();
     }, false);
 
@@ -4908,6 +4918,7 @@ function parseScriptList(obj) {
     }
 }
 
+//eslint-disable-next-line no-unused-vars
 function execScriptFromOptions(cmd, options) {
     let args = options !== undefined ? options.split(',') : [];
     let script = {"script": cmd, "arguments": args};
@@ -8054,7 +8065,7 @@ function genId(x) {
 }
 
 function parseCmd(event, href) {
-    if (event != null) {
+    if (event !== null) {
         event.preventDefault();
     }
     let cmd = href;

@@ -111,14 +111,14 @@ function dragAndDropHome() {
         if (dragEl.classList.contains('home-icons') === false) {
             return;
         }
-        let t = event.target;
-        if (t.nodeName === 'DIV') {
-            if (t.classList.contains('card-body')) {
-                t = t.parentNode;
+        let dst = event.target;
+        if (dst.nodeName === 'DIV') {
+            if (dst.classList.contains('card-body')) {
+                dst = dst.parentNode;
             }
-            if (t.classList.contains('home-icons')) {
+            if (dst.classList.contains('home-icons')) {
                 dragEl.classList.remove('opacity05');
-                const to = parseInt(t.getAttribute('data-pos'));
+                const to = parseInt(dst.getAttribute('data-pos'));
                 const from = parseInt(dragSrc.getAttribute('data-pos'));
                 if (isNaN(to) === false && isNaN(from) === false && from !== to) {
                     sendAPI("MYMPD_API_HOME_ICON_MOVE", {"from": from, "to": to}, function(obj) {
@@ -136,22 +136,26 @@ function dragAndDropHome() {
     }, false);
 }
 
+//eslint-disable-next-line no-unused-vars
 function executeHomeIcon(pos) {
     const el = document.getElementById('HomeCards').children[pos].firstChild;
     parseCmd(null, el.getAttribute('data-href'));
 }
 
+//eslint-disable-next-line no-unused-vars
 function addViewToHome() {
     _addHomeIcon('appGoto', '', 'preview', [app.current.app, app.current.tab, app.current.view, 
         app.current.page, app.current.filter, app.current.sort, app.current.tag, app.current.search]); 
 }
 
+//eslint-disable-next-line no-unused-vars
 function addScriptToHome(name, script_def) {
     let script = JSON.parse(script_def);
     let options = [script.script, script.arguments.join(',')];
     _addHomeIcon('execScriptFromOptions', name, 'description', options);
 }
 
+//eslint-disable-next-line no-unused-vars
 function addPlistToHome(uri, name) {
     _addHomeIcon('replaceQueue', name, 'list', ['plist', uri, name]);
 }
@@ -169,10 +173,12 @@ function _addHomeIcon(cmd, name, ligature, options) {
     modalEditHomeIcon.show();
 }
 
+//eslint-disable-next-line no-unused-vars
 function duplicateHomeIcon(pos) {
     _editHomeIcon(pos, false, "Duplicate home icon");
 }
 
+//eslint-disable-next-line no-unused-vars
 function editHomeIcon(pos) {
     _editHomeIcon(pos, true, "Edit home icon");
 }
@@ -192,6 +198,7 @@ function _editHomeIcon(pos, replace, title) {
     });
 }
 
+//eslint-disable-next-line no-unused-vars
 function saveHomeIcon() {
     let formOK = true;
     let nameEl = document.getElementById('inputHomeIconName');
@@ -222,6 +229,7 @@ function saveHomeIcon() {
     }
 }
 
+//eslint-disable-next-line no-unused-vars
 function deleteHomeIcon(pos) {
     sendAPI("MYMPD_API_HOME_ICON_DELETE", {"pos": pos}, function(obj) {
         parseHome(obj);

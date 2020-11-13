@@ -388,7 +388,7 @@ function genId(x) {
 }
 
 function parseCmd(event, href) {
-    if (event != null) {
+    if (event !== null) {
         event.preventDefault();
     }
     let cmd = href;

@@ -173,6 +173,7 @@ function _updateDBfinished(idleEvent) {
     }
 }
 
+//eslint-disable-next-line no-unused-vars
 function zoomPicture(el) {
     if (el.classList.contains('booklet')) {
         window.open(el.getAttribute('data-href'));
@@ -211,6 +212,7 @@ function zoomPicture(el) {
     }
 }
 
+//eslint-disable-next-line no-unused-vars
 function zoomZoomPicture() {
     window.open(document.getElementById('modalPictureImg').style.backgroundImage.match(/^url\(["']?([^"']*)["']?\)/)[1]);
 }
