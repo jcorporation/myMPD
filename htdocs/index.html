@@ -70,7 +70,7 @@
         </div>
       </div>
       <div id="navbar-main" class="d-flex">
-        <div id="navHome" class="nav-item flex-fill text-center">
+        <div id="navHome" class="nav-item flex-fill text-center featHome">
           <a data-title-phrase="Home" data-href='{"cmd": "appGoto", "options": ["Home"]}' class="nav-link text-light" href="#">
             <span class="material-icons">home</span><span class="navText" data-phrase="Home"></span>
           </a>
@@ -372,6 +372,9 @@
               <button data-phrase="Newest songs" data-href='{"cmd": "addSmartpls", "options": ["newest"]}' type="button" class="btn btn-secondary btn-block"></button>
             </div>
           </div>
+          <div class="btn-group mr-2 featHome">
+            <button data-title-phrase="Add to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="material-icons">add_to_home_screen</span></button>              
+          </div>
           <div id="BrowsePlaylistsPaginationTop" class="btn-group mr-2 hide">
             <button data-title-phrase="Previous page" data-href='{"cmd": "gotoPage", "options": ["prev"]}' type="button" class="btn btn-group-prepend btn-secondary">&laquo;</button>
               <div class="btn-group">
@@ -474,6 +477,9 @@
                 </div>
               </div>
             </div>
+            <div class="btn-group mr-2 featHome">
+              <button data-title-phrase="Add to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="material-icons">add_to_home_screen</span></button>              
+            </div>
             <div id="BrowseDatabasePaginationTop" class="btn-group hide mr-2">
               <button data-title-phrase="Previous page" data-href='{"cmd": "gotoPage", "options": ["prev"]}' type="button" class="btn btn-group-prepend btn-secondary">&laquo;</button>
                 <div class="btn-group">
@@ -509,7 +515,7 @@
             <div class="input-group mr-2">
               <button class="btn btn-secondary material-icons" data-href='{"cmd": "backToAlbumGrid", "options": []}'>apps</button>
             </div>
-            <div class="input-group">
+            <div class="input-group mr-2">
               <div class="input-group-prepend">
                 <button data-title-phrase="Append to queue" class="btn btn-secondary material-icons" data-href='{"cmd": "addAlbum", "options": ["appendQueue"]}'>library_add</button>
                 <button class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-right" type="button" data-toggle="dropdown"></button>
@@ -519,6 +525,9 @@
                   <button data-phrase="Add to playlist" data-href='{"cmd": "addAlbum", "options": ["addPlaylist"]}' type="button" class="btn btn-secondary btn-sm btn-block featPlaylists"></button>
                 </div>
               </div>
+            </div>
+            <div class="btn-group mr-2 featHome">
+              <button data-title-phrase="Add to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="material-icons">add_to_home_screen</span></button>              
             </div>
           </div>
           <div id="viewDetailDatabaseCover" class="featCoverimage album-cover-small album-cover-loading clickable carousel" data-href='{"cmd": "zoomPicture", "options": []}'></div>
@@ -562,7 +571,7 @@
             <div class="dropdown-menu bg-lite-dark px-2" id="BrowseFilesystemBookmarks">
             </div>
           </div>
-          <form id="searchdatabase" class="flex-grow-1">
+          <form class="flex-grow-1">
             <div class="input-group mr-2">
               <div class="input-group-prepend">
                 <span class="input-group-text border-secondary text-light bg-secondary"><span class="material-icons">search</span></span>
@@ -570,6 +579,9 @@
               <input data-placeholder-phrase="Search" type="text" class="form-control border-secondary" id="searchFilesystemStr"/>
             </div>
           </form>
+          <div class="btn-group mr-2 featHome">
+            <button data-title-phrase="Add to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="material-icons">add_to_home_screen</span></button>              
+          </div>
           <div id="BrowseFilesystemPaginationTop" class="btn-group mr-2 hide">
             <button data-title-phrase="Previous page" data-href='{"cmd": "gotoPage", "options": ["prev"]}' type="button" class="btn btn-group-prepend btn-secondary">&laquo;</button>
               <div class="btn-group">
@@ -650,6 +662,9 @@
                   <button data-phrase="Save as smart playlist" type="button" class="btn btn-secondary btn-sm btn-block featSmartpls"></button>
               </div>
             </div>
+          </div>
+          <div class="btn-group mr-2 featHome">
+            <button data-title-phrase="Add to homescreen" data-href='{"cmd": "addViewToHome", "options": []}'  type="button" class="btn btn-secondary"><span class="material-icons">add_to_home_screen</span></button>              
           </div>
           <div id="SearchPaginationTop" class="btn-group mr-2 hide">
             <button data-title-phrase="Previous page" data-href='{"cmd": "gotoPage", "options": ["prev"]}' type="button" class="btn btn-group-prepend btn-secondary">&laquo;</button>

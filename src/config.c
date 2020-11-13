@@ -275,6 +275,9 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("mympd", "footerstop")) {
         p_config->footer_stop = strtobool(value);
     }
+    else if (MATCH("mympd", "home")) {
+        p_config->home = strtobool(value);
+    }
     else if (MATCH("theme", "theme")) {
         p_config->theme = sdsreplace(p_config->theme, value);
     }
@@ -358,7 +361,7 @@ static void mympd_get_env(struct t_config *config) {
         "MYMPD_JUKEBOXUNIQUETAG", "MYMPD_COLSQUEUECURRENT","MYMPD_COLSSEARCH", 
         "MYMPD_COLSBROWSEDATABASE", "MYMPD_COLSBROWSEPLAYLISTDETAIL",
         "MYMPD_COLSBROWSEFILESYSTEM", "MYMPD_COLSPLAYBACK", "MYMPD_COLSQUEUELASTPLAYED",
-        "MYMPD_LOCALPLAYER", "MYMPD_STREAMPORT",
+        "MYMPD_LOCALPLAYER", "MYMPD_STREAMPORT", "MYMPD_HOME",
         "MYMPD_STREAMURL", "MYMPD_VOLUMESTEP", "MYMPD_COVERCACHEKEEPDAYS", "MYMPD_COVERCACHE",
         "MYMPD_COVERCACHEAVOID", "MYMPD_LYRICS", "MYMPD_PARTITIONS", "MYMPD_FOOTERSTOP",
       #ifdef ENABLE_LUA
@@ -511,6 +514,7 @@ void mympd_config_defaults(t_config *config) {
     config->scripteditor = false;
     config->partitions = false;
     config->footer_stop = false;
+    config->home = true;
     list_init(&config->syscmd_list);
 }
 
@@ -636,6 +640,7 @@ bool mympd_dump_config(void) {
         "lyrics = %s\n"
         "partitions = %s\n"
         "footerstop = %s\n"
+        "home = %s\n"
         "\n",
         p_config->user,
         (p_config->chroot == true ? "true" : "false"),
@@ -694,7 +699,8 @@ bool mympd_dump_config(void) {
         (p_config->mounts == true ? "true" : "false"),
         (p_config->lyrics == true ? "true" : "false"),
         (p_config->partitions == true ? "true" : "false"),
-        (p_config->footer_stop == true ? "true" : "false")
+        (p_config->footer_stop == true ? "true" : "false"),
+        (p_config->home == true ? "true" : "false")
     );
 
     fprintf(fp, "[theme]\n"

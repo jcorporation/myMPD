@@ -354,7 +354,12 @@ function appRoute() {
     }
     else {
         appPrepare(0);
-        appGoto('Home');
+        if (settings.featHome === true) {
+            appGoto('Home');
+        }
+        else {
+            appGoto('Playback');
+        }
         return;
     }
 

@@ -233,7 +233,7 @@ function parseSettings() {
     toggleBtnChkCollapse('btnSmartpls', 'collapseSmartpls', settings.smartpls);
     
     let features = ["featLocalplayer", "featSyscmds", "featMixramp", "featCacert", "featBookmarks", 
-        "featRegex", "featTimer", "featLyrics", "featScripting", "featScripteditor"];
+        "featRegex", "featTimer", "featLyrics", "featScripting", "featScripteditor", "featHome"];
     for (let j = 0; j < features.length; j++) {
         let Els = document.getElementsByClassName(features[j]);
         let ElsLen = Els.length;

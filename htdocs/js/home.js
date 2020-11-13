@@ -51,7 +51,7 @@ function parseHome(obj) {
     }
                     
     if (nrItems === 0) {
-        cardContainer.innerHTML = '<div><span class="material-icons">error_outline</span>&nbsp;' + t('Empty list') + '</div>';
+        cardContainer.innerHTML = '<div>You have not added any Home Icons yet. You can add views, playlists and scripts.</div>';
     }
 }
 
@@ -141,15 +141,19 @@ function executeHomeIcon(pos) {
     parseCmd(null, el.getAttribute('data-href'));
 }
 
+function addViewToHome() {
+    _addHomeIcon('appGoto', '', 'preview', [app.current.app, app.current.tab, app.current.view, 
+        app.current.page, app.current.filter, app.current.sort, app.current.tag, app.current.search]); 
+}
 
 function addScriptToHome(name, script_def) {
     let script = JSON.parse(script_def);
     let options = [script.script, script.arguments.join(',')];
-    _addHomeIcon("execScriptFromOptions", name, 'description', options);
+    _addHomeIcon('execScriptFromOptions', name, 'description', options);
 }
 
 function addPlistToHome(uri, name) {
-    _addHomeIcon("replaceQueue", name, 'list', ['plist', uri, name]);
+    _addHomeIcon('replaceQueue', name, 'list', ['plist', uri, name]);
 }
 
 function _addHomeIcon(cmd, name, ligature, options) {

@@ -130,6 +130,7 @@ typedef struct t_config {
     bool scripteditor;
     bool partitions;
     bool footer_stop;
+    bool home;
     //system commands
     struct list syscmd_list;
 } t_config;
