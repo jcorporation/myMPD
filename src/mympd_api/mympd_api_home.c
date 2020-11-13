@@ -47,7 +47,12 @@ bool mympd_api_save_home_icon(t_mympd_state *mympd_state, bool replace, unsigned
         if (i++) {
             key = sdscatlen(key, ",", 1);
         }
-        key = sdscatjson(key, current->key, sdslen(current->key));
+        if (strcmp(current->key, "!undefined!") == 0) {
+            key = sdscatjson(key, "", 0);
+        }
+        else {
+            key = sdscatjson(key, current->key, sdslen(current->key));
+        }
         current = current->next;
     }    
     key = sdscatlen(key, "]}", 2);

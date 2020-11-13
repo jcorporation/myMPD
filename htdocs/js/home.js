@@ -170,6 +170,16 @@ function _addHomeIcon(cmd, name, ligature, options) {
     document.getElementById('inputHomeIconImage').value = '';
     document.getElementById('selectHomeIconCmd').value = cmd;
     showHomeIconCmdOptions(options);
+    
+    document.getElementById('previewHomeIconLigature').innerHTML = ligature;
+    document.getElementById('previewHomeIconBgcolor').innerHTML = ligature;
+    document.getElementById('previewHomeIconBgcolor').style.backgroundColor = '#28a745';
+    document.getElementById('previewHomeIconLigature').style.backgroundColor = '#28a745';
+        
+    const phi = document.getElementById('previewHomeIconImage');
+    phi.style.backgroundImage = '';
+    phi.style.height = '';
+    
     modalEditHomeIcon.show();
 }
 
@@ -219,7 +229,9 @@ function saveHomeIcon() {
         let options = [];
         let optionEls = document.getElementById('divHomeIconOptions').getElementsByTagName('input');
         for (let i = 0; i < optionEls.length; i++) {
-            options.push(optionEls[i].value);
+            //workarround for parsing arrays with empty values in frozen
+            let value = optionEls[i].value !== '' ? optionEls[i].value : '!undefined!';
+            options.push(value);
         }
         sendAPI("MYMPD_API_HOME_ICON_SAVE", {
             "replace": (document.getElementById('inputHomeIconReplace').value === 'true' ? true : false),
