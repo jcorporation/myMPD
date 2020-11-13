@@ -132,7 +132,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                     response->data = mympd_api_put_home_list(mympd_state, response->data, request->method, request->id);
                 }
                 else {
-                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Can not save icon", true);
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Can not save home icon", true);
                 }
             }
             break;
@@ -144,7 +144,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                     response->data = mympd_api_put_home_list(mympd_state, response->data, request->method, request->id);
                 }
                 else {
-                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Can not move icon", true);
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Can not move home icon", true);
                 }
             }
             break;
@@ -156,7 +156,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
                     response->data = mympd_api_put_home_list(mympd_state, response->data, request->method, request->id);
                 }
                 else {
-                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Can not delete icon", true);
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Can not delete home icon", true);
                 }
             }
             break;

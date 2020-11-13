@@ -157,7 +157,7 @@ function addPlistToHome(uri, name) {
 }
 
 function _addHomeIcon(cmd, name, ligature, options) {
-    document.getElementById('modalEditHomeIconTitle').innerHTML = t('Add home icon');
+    document.getElementById('modalEditHomeIconTitle').innerHTML = t('Add to homescreen');
     document.getElementById('inputHomeIconReplace').value = 'false';
     document.getElementById('inputHomeIconOldpos').value = '0';
     document.getElementById('inputHomeIconName').value = name;

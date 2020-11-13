@@ -1536,14 +1536,41 @@ Disc 1
 Disc
 Disc
 
-Can not delete icon
+Can not delete home icon
 Icon konnte nicht gelöscht werden
 
-Can not save icon
+Can not save home icon
 Icon konnte nicht gespeichert werden
-
-Can not move icons
-Icon konnte nicht verschoben werden
 
 Home
 Startseite
+
+Add to homescreen
+Zum Homescreen hinzufügen
+
+Can not get home icon
+Konnte Homeicon nicht abrufen
+
+Can not move home icon
+Homeicon konnte nicht verschoben werden
+
+Delete home icon
+Löschen
+
+Duplicate home icon
+Kopieren
+
+Edit home icon
+Bearbeiten
+
+Execute home icon action
+Ausführen
+
+Ligature
+Ligatur
+
+Options
+Optionen
+
+Picture
+Bild

@@ -167,10 +167,10 @@ function showMenuTd(el) {
     }
     else if (app.current.app === 'Home') {
         const pos = parseInt(el.parentNode.getAttribute('data-pos'));
-        menu += addMenuItem({"cmd": "executeHomeIcon", "options": [pos]}, t('Execute icon action')) +
-                addMenuItem({"cmd": "editHomeIcon", "options": [pos]}, t('Edit icon')) +
-                addMenuItem({"cmd": "duplicateHomeIcon", "options": [pos]}, t('Duplicate icon')) +
-                addMenuItem({"cmd": "deleteHomeIcon", "options": [pos]}, t('Delete icon'));
+        menu += addMenuItem({"cmd": "executeHomeIcon", "options": [pos]}, t('Execute home icon action')) +
+                addMenuItem({"cmd": "editHomeIcon", "options": [pos]}, t('Edit home icon')) +
+                addMenuItem({"cmd": "duplicateHomeIcon", "options": [pos]}, t('Duplicate home icon')) +
+                addMenuItem({"cmd": "deleteHomeIcon", "options": [pos]}, t('Delete home icon'));
     }
 
     new BSN.Popover(el, { trigger: 'click', delay: 0, dismissible: true, template: '<div class="popover" role="tooltip">' +
