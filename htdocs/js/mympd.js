@@ -1057,6 +1057,22 @@ function appInit() {
         showHomeIconCmdOptions();
     }, false);
 
+    document.getElementById('inputHomeIconLigature').addEventListener('change', function(event) {
+        document.getElementById('previewHomeIconLigature').innerHTML = event.target.value !== '' ? event.target.value : '&nbsp;';
+        document.getElementById('previewHomeIconBgcolor').innerHTML = event.target.value !== '' ? event.target.value : '&nbsp;';
+    }, false);
+    
+    document.getElementById('inputHomeIconBgcolor').addEventListener('change', function(event) {
+        document.getElementById('previewHomeIconBgcolor').style.backgroundColor = event.target.value;
+        document.getElementById('previewHomeIconLigature').style.backgroundColor = event.target.value;
+    }, false);
+    
+    document.getElementById('inputHomeIconImage').addEventListener('change', function(event) {
+        const phi = document.getElementById('previewHomeIconImage');
+        phi.style.backgroundImage = 'url("' + subdir + '/browse/pics/' + event.target.value + '")';
+        phi.style.height = event.target.value !== '' ? phi.offsetWidth + 'px' : '';
+    }, false);
+
     let pd = document.getElementsByClassName('pages');
     let pdLen = pd.length;
     for (let i = 0; i < pdLen; i++) {

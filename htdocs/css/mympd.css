@@ -280,6 +280,10 @@ button {
   background-color: inherit !important;
 }
 
+.not-clickable-nobg {
+  cursor: default !important;
+}
+
 [data-col=Pos],
 [data-col=Type],
 [data-col=Track] {
@@ -967,4 +971,9 @@ div#BrowseFilesystemImages > div {
   display: inline-block;
   margin-right: 1rem;
   cursor: pointer;
+}
+
+.homeicon-preview {
+  background-position: center center;
+  background-size: cover;
 }

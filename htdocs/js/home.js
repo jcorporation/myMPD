@@ -194,6 +194,16 @@ function _editHomeIcon(pos, replace, title) {
         document.getElementById('inputHomeIconImage').value = obj.result.data[0].image;
         document.getElementById('selectHomeIconCmd').value = obj.result.data[0].cmd;
         showHomeIconCmdOptions(obj.result.data[0].options);
+
+        document.getElementById('previewHomeIconLigature').innerHTML = obj.result.data[0].ligature !== '' ? obj.result.data[0].ligature : '&nbsp;';
+        document.getElementById('previewHomeIconBgcolor').innerHTML = obj.result.data[0].ligature !== '' ? obj.result.data[0].ligature : '&nbsp;';
+        document.getElementById('previewHomeIconBgcolor').style.backgroundColor = obj.result.data[0].bgcolor;
+        document.getElementById('previewHomeIconLigature').style.backgroundColor = obj.result.data[0].bgcolor;
+        
+        const phi = document.getElementById('previewHomeIconImage');
+        phi.style.backgroundImage = 'url(' + subdir + '"/browse/pics/' + obj.result.data[0].image + '")';
+        phi.style.height = obj.result.data[0].image !== '' ? '105px' : '';
+
         modalEditHomeIcon.show();
     });
 }
