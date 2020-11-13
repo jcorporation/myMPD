@@ -739,7 +739,7 @@ function appInit() {
             domCache.progressPos.innerText = beautifySongDuration(Math.ceil((currentSong.totalTime / event.target.offsetWidth) * event.clientX));
             domCache.progressPos.style.display = 'block';
             const w = domCache.progressPos.offsetWidth / 2;
-;            const posX = event.clientX < w ? event.clientX : (event.clientX < window.innerWidth - w ? event.clientX - w : event.clientX - (w * 2));
+            const posX = event.clientX < w ? event.clientX : (event.clientX < window.innerWidth - w ? event.clientX - w : event.clientX - (w * 2));
             domCache.progressPos.style.left = posX + 'px';
         }
     }, false);
