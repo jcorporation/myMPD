@@ -884,6 +884,16 @@ function _addHomeIcon(cmd, name, ligature, options) {
     document.getElementById('inputHomeIconImage').value = '';
     document.getElementById('selectHomeIconCmd').value = cmd;
     showHomeIconCmdOptions(options);
+    
+    document.getElementById('previewHomeIconLigature').innerHTML = ligature;
+    document.getElementById('previewHomeIconBgcolor').innerHTML = ligature;
+    document.getElementById('previewHomeIconBgcolor').style.backgroundColor = '#28a745';
+    document.getElementById('previewHomeIconLigature').style.backgroundColor = '#28a745';
+        
+    const phi = document.getElementById('previewHomeIconImage');
+    phi.style.backgroundImage = '';
+    phi.style.height = '';
+    
     modalEditHomeIcon.show();
 }
 
@@ -908,6 +918,16 @@ function _editHomeIcon(pos, replace, title) {
         document.getElementById('inputHomeIconImage').value = obj.result.data[0].image;
         document.getElementById('selectHomeIconCmd').value = obj.result.data[0].cmd;
         showHomeIconCmdOptions(obj.result.data[0].options);
+
+        document.getElementById('previewHomeIconLigature').innerHTML = obj.result.data[0].ligature !== '' ? obj.result.data[0].ligature : '&nbsp;';
+        document.getElementById('previewHomeIconBgcolor').innerHTML = obj.result.data[0].ligature !== '' ? obj.result.data[0].ligature : '&nbsp;';
+        document.getElementById('previewHomeIconBgcolor').style.backgroundColor = obj.result.data[0].bgcolor;
+        document.getElementById('previewHomeIconLigature').style.backgroundColor = obj.result.data[0].bgcolor;
+        
+        const phi = document.getElementById('previewHomeIconImage');
+        phi.style.backgroundImage = 'url(' + subdir + '"/browse/pics/' + obj.result.data[0].image + '")';
+        phi.style.height = obj.result.data[0].image !== '' ? '105px' : '';
+
         modalEditHomeIcon.show();
     });
 }
@@ -923,7 +943,9 @@ function saveHomeIcon() {
         let options = [];
         let optionEls = document.getElementById('divHomeIconOptions').getElementsByTagName('input');
         for (let i = 0; i < optionEls.length; i++) {
-            options.push(optionEls[i].value);
+            //workarround for parsing arrays with empty values in frozen
+            let value = optionEls[i].value !== '' ? optionEls[i].value : '!undefined!';
+            options.push(value);
         }
         sendAPI("MYMPD_API_HOME_ICON_SAVE", {
             "replace": (document.getElementById('inputHomeIconReplace').value === 'true' ? true : false),
@@ -2681,6 +2703,22 @@ function appInit() {
     
     document.getElementById('selectHomeIconCmd').addEventListener('change', function() {
         showHomeIconCmdOptions();
+    }, false);
+
+    document.getElementById('inputHomeIconLigature').addEventListener('change', function(event) {
+        document.getElementById('previewHomeIconLigature').innerHTML = event.target.value !== '' ? event.target.value : '&nbsp;';
+        document.getElementById('previewHomeIconBgcolor').innerHTML = event.target.value !== '' ? event.target.value : '&nbsp;';
+    }, false);
+    
+    document.getElementById('inputHomeIconBgcolor').addEventListener('change', function(event) {
+        document.getElementById('previewHomeIconBgcolor').style.backgroundColor = event.target.value;
+        document.getElementById('previewHomeIconLigature').style.backgroundColor = event.target.value;
+    }, false);
+    
+    document.getElementById('inputHomeIconImage').addEventListener('change', function(event) {
+        const phi = document.getElementById('previewHomeIconImage');
+        phi.style.backgroundImage = 'url("' + subdir + '/browse/pics/' + event.target.value + '")';
+        phi.style.height = event.target.value !== '' ? phi.offsetWidth + 'px' : '';
     }, false);
 
     let pd = document.getElementsByClassName('pages');
