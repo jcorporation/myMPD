@@ -7,8 +7,6 @@
 #ifndef __MPD_CLIENT_UTILITY_H__
 #define __MPD_CLIENT_UTILITY_H__
 
-#include "../dist/src/rax/rax.h"
-
 enum trigger_events {
     TRIGGER_MYMPD_SCROBBLE = -1,
     TRIGGER_MYMPD_START = -2,
