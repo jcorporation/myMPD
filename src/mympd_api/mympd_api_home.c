@@ -153,7 +153,7 @@ sds mympd_api_put_home_picture_list(t_config *config, sds buffer, sds method, lo
     sds pic_dirname = sdscatfmt(sdsempty(), "%s/pics", config->varlibdir);
     DIR *pic_dir = opendir(pic_dirname);
     if (pic_dir == NULL) {
-        buffer = jsonrpc_respond_message(buffer, method, request_id, "Can not open picdir", true);
+        buffer = jsonrpc_respond_message(buffer, method, request_id, "Can not open directory pics", true);
         LOG_ERROR("Can not open picdir %s: %s", pic_dirname, strerror(errno));
         sdsfree(pic_dirname);
         return buffer;
