@@ -5,7 +5,7 @@
  https://github.com/jcorporation/mympd
 */
 
-function search(x) {
+function doSearch(x) {
     if (settings.featAdvsearch) {
         let expression = '(';
         let crumbs = domCache.searchCrumb.children;
