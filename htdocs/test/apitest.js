@@ -134,12 +134,12 @@ var cmds = [
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_TRIGGER_SAVE","params":{"id":-1,"name":"test1","event":0,"script":"test"}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_TRIGGER_GET","params":{"id":0}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_TRIGGER_DELETE","params":{"id":0}},
-    {"jsonrpc":"2.0","id":0,"method":"MPD_API_HOME_ICON_SAVE","params":{"replace":false,"oldpos":0,"name":"test1","ligature":"home","bgcolor":"#fff","image":"","cmd":"test1","options":["option1","option2"]}},
-    {"jsonrpc":"2.0","id":0,"method":"MPD_API_HOME_ICON_SAVE","params":{"replace":false,"oldpos":0,"name":"test2","ligature":"home","bgcolor":"#ccc","image":"test2.png","cmd":"test2","options":["option1"]}},
-    {"jsonrpc":"2.0","id":0,"method":"MPD_API_HOME_LIST","params":{}},
-    {"jsonrpc":"2.0","id":0,"method":"MPD_API_HOME_ICON_MOVE","params":{"from":0,"to":1}},
-    {"jsonrpc":"2.0","id":0,"method":"MPD_API_HOME_ICON_SAVE","params":{"replace":true,"oldpos":0,"name":"test3","ligature":"test","bgcolor":"#000","image":"test.png","cmd":"test3","options":["option1","option2"]}},
-    {"jsonrpc":"2.0","id":0,"method":"MPD_API_HOME_ICON_DELETE","params":{"pos":0}},
+    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_HOME_ICON_SAVE","params":{"replace":false,"oldpos":0,"name":"test1","ligature":"home","bgcolor":"#fff","image":"","cmd":"test1","options":["option1","option2"]}},
+    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_HOME_ICON_SAVE","params":{"replace":false,"oldpos":0,"name":"test2","ligature":"home","bgcolor":"#ccc","image":"test2.png","cmd":"test2","options":["option1"]}},
+    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_HOME_LIST","params":{}},
+    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_HOME_ICON_MOVE","params":{"from":0,"to":1}},
+    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_HOME_ICON_SAVE","params":{"replace":true,"oldpos":0,"name":"test3","ligature":"test","bgcolor":"#000","image":"test.png","cmd":"test3","options":["option1","option2"]}},
+    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_HOME_ICON_DELETE","params":{"pos":0}},
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_HOME_ICON_PICTURE_LIST","params":{}}
 ];
 
