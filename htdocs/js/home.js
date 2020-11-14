@@ -257,14 +257,17 @@ function deleteHomeIcon(pos) {
 }
 
 function showHomeIconCmdOptions(values) {
-    const options = JSON.parse(getSelectedOptionAttribute('selectHomeIconCmd', 'data-options'));
     let list = '';
-    for (let i = 0; i < options.options.length; i++) {
-        let value = values !== undefined ? values[i] !== undefined ? values[i] : '' : '';
-        list += '<div class="form-group row">' +
-            '<label class="col-sm-4 col-form-label">' + t(options.options[i]) + '</label>' +
-            '<div class="col-sm-8"><input class="form-control border-secondary" value="' + e(value) + '"></div>' +
-            '</div>';
+    const optionsText =getSelectedOptionAttribute('selectHomeIconCmd', 'data-options')
+    if (optionsText !== undefined) {    
+        const options = JSON.parse(optionsText);
+        for (let i = 0; i < options.options.length; i++) {
+            let value = values !== undefined ? values[i] !== undefined ? values[i] : '' : '';
+            list += '<div class="form-group row">' +
+                '<label class="col-sm-4 col-form-label">' + t(options.options[i]) + '</label>' +
+                '<div class="col-sm-8"><input class="form-control border-secondary" value="' + e(value) + '"></div>' +
+                '</div>';
+        }
     }
     document.getElementById('divHomeIconOptions').innerHTML = list;
 }
