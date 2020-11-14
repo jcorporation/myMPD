@@ -171,6 +171,7 @@ sds mympd_api_put_home_picture_list(t_config *config, sds buffer, sds method, lo
             buffer = sdscatjson(buffer, next_file->d_name, strlen(next_file->d_name));
         }
     }
+    closedir(pic_dir);
     sdsfree(pic_dirname);
     buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_long(buffer, "returnedEntities", returned_entities, false);
