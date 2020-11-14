@@ -450,7 +450,7 @@ check() {
     rm -f clang-tidy.out
     cd src || exit 1
     find ./ -name '*.c' -exec clang-tidy \
-    	--checks="*,-readability-isolate-declaration,-hicpp-multiway-paths-covered,-readability-uppercase-literal-suffix,-hicpp-uppercase-literal-suffix,-cert-msc51-cpp,-cert-msc32-c,-hicpp-no-assembler,-android*,-cert-env33-c,-cert-msc50-cpp,-bugprone-branch-clone,-misc-misplaced-const,-readability-non-const-parameter,-cert-msc30-c,-hicpp-signed-bitwise,-readability-magic-numbers,-readability-avoid-const-params-in-decls,-llvm-include-order,-bugprone-macro-parentheses,-modernize*,-cppcoreguidelines*,-llvm-header-guard,-clang-analyzer-optin.performance.Padding,-clang-diagnostic-embedded-directive" \
+    	--checks="*,-llvmlibc-restrict-system-libc-headers,-bugprone-reserved-identifier,-cert-dcl37-c,-cert-dcl51-cpp,-readability-isolate-declaration,-hicpp-multiway-paths-covered,-readability-uppercase-literal-suffix,-hicpp-uppercase-literal-suffix,-cert-msc51-cpp,-cert-msc32-c,-hicpp-no-assembler,-android*,-cert-env33-c,-cert-msc50-cpp,-bugprone-branch-clone,-misc-misplaced-const,-readability-non-const-parameter,-cert-msc30-c,-hicpp-signed-bitwise,-readability-magic-numbers,-readability-avoid-const-params-in-decls,-llvm-include-order,-bugprone-macro-parentheses,-modernize*,-cppcoreguidelines*,-llvm-header-guard,-clang-analyzer-optin.performance.Padding,-clang-diagnostic-embedded-directive" \
     	-header-filter='.*' {}  \; >> ../clang-tidy.out
   else
     echo "clang-tidy not found"  

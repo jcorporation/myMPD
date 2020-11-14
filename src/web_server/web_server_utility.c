@@ -177,7 +177,7 @@ bool serve_embedded_files(struct mg_connection *nc, sds uri, struct http_message
     }
     sdsfree(uri_decoded);
     
-    if (p != NULL && p->uri != NULL) {
+    if (p->uri != NULL) {
         //respond with error if browser don't support compression and asset is compressed
         if (p->compressed == true) {
             struct mg_str *header_encoding = mg_get_http_header(hm, "Accept-Encoding");

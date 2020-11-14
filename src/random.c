@@ -10,8 +10,8 @@
 
 tinymt32_t tinymt;
 
-int randrange(int lower, int upper) {
+unsigned randrange(unsigned lower, unsigned upper) {
     unsigned r = tinymt32_generate_uint32(&tinymt);
     unsigned rand = lower + r / (UINT_MAX / (upper - lower + 1) + 1);
-    return (int) rand;
+    return rand;
 }

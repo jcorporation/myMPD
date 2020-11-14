@@ -440,6 +440,8 @@ static struct list_node *list_node_extract(struct list *l, unsigned idx) {
         i++;
     }
     //null out this node's next value since it's not part of a list anymore
-    current->next = NULL;
+    if (current != NULL) {
+        current->next = NULL;
+    }
     return current;
 }

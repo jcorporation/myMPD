@@ -440,7 +440,7 @@ sds mpd_client_put_db_tag2(t_config *config, t_mpd_client_state *mpd_client_stat
 {
     (void) sort;
     (void) sortdesc;
-    int searchstr_len = strlen(searchstr);
+    size_t searchstr_len = strlen(searchstr);
     buffer = jsonrpc_start_result(buffer, method, request_id);
     buffer = sdscat(buffer, ",\"data\":[");
    
