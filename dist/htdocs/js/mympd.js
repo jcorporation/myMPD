@@ -971,14 +971,17 @@ function deleteHomeIcon(pos) {
 }
 
 function showHomeIconCmdOptions(values) {
-    const options = JSON.parse(getSelectedOptionAttribute('selectHomeIconCmd', 'data-options'));
     let list = '';
-    for (let i = 0; i < options.options.length; i++) {
-        let value = values !== undefined ? values[i] !== undefined ? values[i] : '' : '';
-        list += '<div class="form-group row">' +
-            '<label class="col-sm-4 col-form-label">' + t(options.options[i]) + '</label>' +
-            '<div class="col-sm-8"><input class="form-control border-secondary" value="' + e(value) + '"></div>' +
-            '</div>';
+    const optionsText =getSelectedOptionAttribute('selectHomeIconCmd', 'data-options')
+    if (optionsText !== undefined) {    
+        const options = JSON.parse(optionsText);
+        for (let i = 0; i < options.options.length; i++) {
+            let value = values !== undefined ? values[i] !== undefined ? values[i] : '' : '';
+            list += '<div class="form-group row">' +
+                '<label class="col-sm-4 col-form-label">' + t(options.options[i]) + '</label>' +
+                '<div class="col-sm-8"><input class="form-control border-secondary" value="' + e(value) + '"></div>' +
+                '</div>';
+        }
     }
     document.getElementById('divHomeIconOptions').innerHTML = list;
 }
@@ -3047,7 +3050,7 @@ function appInit() {
     document.getElementById('searchtags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
             app.current.filter = event.target.getAttribute('data-tag');
-            search(domCache.searchstr.value);
+            doSearch(domCache.searchstr.value);
         }
     }, false);
     
@@ -3218,11 +3221,11 @@ function appInit() {
                 domCache.searchCrumb.appendChild(li);
             }
             else {
-                search(this.value);
+                doSearch(this.value);
             }
         }
         else {
-            search(this.value);
+            doSearch(this.value);
         }
     }, false);
 
@@ -3231,7 +3234,7 @@ function appInit() {
         event.stopPropagation();
         if (event.target.nodeName === 'SPAN') {
             event.target.parentNode.remove();
-            search('');
+            doSearch('');
         }
         else if (event.target.nodeName === 'BUTTON') {
             let value = decodeURI(event.target.getAttribute('data-filter'));
@@ -3242,12 +3245,12 @@ function appInit() {
             match = match.substring(0, match.indexOf(' '));
             document.getElementById('searchMatch').value = match;
             event.target.remove();
-            search(domCache.searchstr.value);
+            doSearch(domCache.searchstr.value);
         }
     }, false);
 
     document.getElementById('searchMatch').addEventListener('change', function() {
-        search(domCache.searchstr.value);
+        doSearch(domCache.searchstr.value);
     }, false);
     
     document.getElementById('SearchList').getElementsByTagName('tr')[0].addEventListener('click', function(event) {
@@ -5021,7 +5024,7 @@ function execScriptArgs() {
  https://github.com/jcorporation/mympd
 */
 
-function search(x) {
+function doSearch(x) {
     if (settings.featAdvsearch) {
         let expression = '(';
         let crumbs = domCache.searchCrumb.children;
@@ -7750,12 +7753,18 @@ function getSelectValue(el) {
     if (typeof el === 'string')	{
         el = document.getElementById(el);
     }
-    return el.options[el.selectedIndex].value;
+    if (el && el.selectedIndex >= 0) {
+        return el.options[el.selectedIndex].value;
+    }
+    return undefined;
 }
 
 function getSelectedOptionAttribute(selectId, attribute) {
     let el = document.getElementById(selectId);
-    return el.options[el.selectedIndex].getAttribute(attribute);
+    if (el && el.selectedIndex >= 0) {
+        return el.options[el.selectedIndex].getAttribute(attribute);
+    }
+    return undefined;
 }
 
 function alignDropdown(el) {
