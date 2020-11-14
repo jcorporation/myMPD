@@ -114,6 +114,9 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
     t_work_result *response = create_result(request);
     
     switch(request->cmd_id) {
+        case MYMPD_API_HOME_ICON_PICTURE_LIST:
+            response->data = mympd_api_put_home_picture_list(config, response->data, request->method, request->id);
+            break;
         case MYMPD_API_HOME_ICON_SAVE:
             je = json_scanf(request->data, sdslen(request->data), "{params: {replace: %B, oldpos: %u, name: %Q, ligature: %Q, bgcolor: %Q, image: %Q, cmd: %Q}}", 
                 &bool_buf1, &uint_buf1, &p_charbuf1, &p_charbuf2, &p_charbuf3, &p_charbuf4, &p_charbuf5);

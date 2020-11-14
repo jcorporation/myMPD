@@ -4,6 +4,8 @@
  https://github.com/jcorporation/mympd
 */
 
+#include <errno.h>
+#include <dirent.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -134,9 +136,9 @@ sds mympd_api_get_home_icon(t_mympd_state *mympd_state, sds buffer, sds method, 
 
     if (current != NULL) {
         buffer = jsonrpc_start_result(buffer, method, request_id);
-        buffer = sdscat(buffer, ",\"data\":[");
+        buffer = sdscat(buffer, ",\"data\":");
         buffer = sdscat(buffer, current->key);
-        buffer = sdscatlen(buffer, "],", 2);
+        buffer = sdscatlen(buffer, ",", 1);
         buffer = tojson_long(buffer, "returnedEntities", 1, false);
         buffer = jsonrpc_end_result(buffer);
         return buffer;
@@ -147,3 +149,31 @@ sds mympd_api_get_home_icon(t_mympd_state *mympd_state, sds buffer, sds method, 
     return buffer;
 }
 
+sds mympd_api_put_home_picture_list(t_config *config, sds buffer, sds method, long request_id) {
+    sds pic_dirname = sdscatfmt(sdsempty(), "%s/pics", config->varlibdir);
+    DIR *pic_dir = opendir(pic_dirname);
+    if (pic_dir == NULL) {
+        buffer = jsonrpc_respond_message(buffer, method, request_id, "Can not open picdir", true);
+        LOG_ERROR("Can not open picdir %s: %s", pic_dirname, strerror(errno));
+        sdsfree(pic_dirname);
+        return buffer;
+    }
+    
+    buffer = jsonrpc_start_result(buffer, method, request_id);
+    buffer = sdscat(buffer, ",\"data\":[");
+    int returned_entities = 0;
+    struct dirent *next_file;
+    while ((next_file = readdir(pic_dir)) != NULL ) {
+        if (next_file->d_type == DT_REG) {
+            if (returned_entities++) {
+                buffer = sdscat(buffer, ",");
+            }
+            buffer = sdscatjson(buffer, next_file->d_name, strlen(next_file->d_name));
+        }
+    }
+    sdsfree(pic_dirname);
+    buffer = sdscatlen(buffer, "],", 2);
+    buffer = tojson_long(buffer, "returnedEntities", returned_entities, false);
+    buffer = jsonrpc_end_result(buffer);
+    return buffer;
+}

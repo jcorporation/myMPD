@@ -1058,19 +1058,28 @@ function appInit() {
     }, false);
 
     document.getElementById('inputHomeIconLigature').addEventListener('change', function(event) {
-        document.getElementById('previewHomeIconLigature').innerHTML = event.target.value !== '' ? event.target.value : '&nbsp;';
-        document.getElementById('previewHomeIconBgcolor').innerHTML = event.target.value !== '' ? event.target.value : '&nbsp;';
+        document.getElementById('homeIconPreview').innerHTML = event.target.value;
+        if (event.target.value !== '') {
+            document.getElementById('selectHomeIconImage').value = '';
+            document.getElementById('homeIconPreview').style.backgroundImage = '';
+        }
     }, false);
     
     document.getElementById('inputHomeIconBgcolor').addEventListener('change', function(event) {
-        document.getElementById('previewHomeIconBgcolor').style.backgroundColor = event.target.value;
-        document.getElementById('previewHomeIconLigature').style.backgroundColor = event.target.value;
+        document.getElementById('homeIconPreview').style.backgroundColor = event.target.value;
     }, false);
     
-    document.getElementById('inputHomeIconImage').addEventListener('change', function(event) {
-        const phi = document.getElementById('previewHomeIconImage');
-        phi.style.backgroundImage = 'url("' + subdir + '/browse/pics/' + event.target.value + '")';
-        phi.style.height = event.target.value !== '' ? phi.offsetWidth + 'px' : '';
+    document.getElementById('selectHomeIconImage').addEventListener('change', function(event) {
+        const value = getSelectValue(event.target);
+        document.getElementById('homeIconPreview').style.backgroundImage = 'url("' + subdir + '/browse/pics/' + value  + '")';
+        if (value !== '') {
+            document.getElementById('divHomeIconLigature').classList.add('hide');
+            document.getElementById('homeIconPreview').innerHTML = '';
+        }
+        else {
+            document.getElementById('divHomeIconLigature').classList.remove('hide');
+            document.getElementById('homeIconPreview').innerHTML = document.getElementById('inputHomeIconLigature').value;
+        }
     }, false);
 
     let pd = document.getElementsByClassName('pages');

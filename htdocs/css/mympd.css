@@ -363,26 +363,10 @@ small {
 .home-icons .card-body {
   font-size: 2rem;
   height: 4rem;
-  padding-bottom:0;
-}
-
-.home-icons .card-footer {
-  border-top: none;
-  background-color: transparent;
-}
-
-.home-icons-image {
   width: 4rem;
-  height: 4rem;
+  padding-bottom:0;
   background-size: cover;
   background-position: center center;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.home-icons-ligature {
-  width: 4rem;
-  height: 4rem;
   background-color: var(--mympd-highlightcolor, #28a745);
   margin-left: auto;
   margin-right: auto;
@@ -390,6 +374,11 @@ small {
   padding-top: 1rem;
   padding-left:0;
   padding-right:0;
+}
+
+.home-icons .card-footer {
+  border-top: none;
+  background-color: transparent;
 }
 
 .dragover-icon {
@@ -973,7 +962,15 @@ div#BrowseFilesystemImages > div {
   cursor: pointer;
 }
 
-.homeicon-preview {
+div#homeIconPreview {
   background-position: center center;
   background-size: cover;
+  width: 4rem;
+  height: 4rem; 
+  font-size: 2rem;
+  padding-bottom:0;
+  text-align: center;
+  padding-top: 1rem;
+  float:left;
+  margin-right: 2rem;
 }

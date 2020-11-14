@@ -12,8 +12,10 @@ function removeIsInvalid(el) {
     }
 }
 
-function getSelectValue(selectId) {
-    let el = document.getElementById(selectId);
+function getSelectValue(el) {
+    if (typeof el === 'string')	{
+        el = document.getElementById(el);
+    }
     return el.options[el.selectedIndex].value;
 }
 

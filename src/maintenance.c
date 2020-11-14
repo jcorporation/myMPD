@@ -6,6 +6,7 @@
 
 #define _GNU_SOURCE
 
+#include <errno.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -62,7 +63,7 @@ int clear_covercache(t_config *config, int keepdays) {
         closedir(covercache_dir);
     }
     else {
-        LOG_ERROR("Error opening directory %s", covercache);
+        LOG_ERROR("Error opening directory %s:", covercache, strerror(errno));
     }
     LOG_INFO("Deleted %d files from covercache", num_deleted);
     sdsfree(covercache);
