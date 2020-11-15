@@ -87,6 +87,9 @@ void mympd_api_read_home_list(t_config *config, t_mympd_state *mympd_state) {
 }
 
 bool mympd_api_write_home_list(t_config *config, t_mympd_state *mympd_state) {
+    if (config->readonly == true) {
+        return true;
+    }
     sds tmp_file = sdscatfmt(sdsempty(), "%s/state/home_list.XXXXXX", config->varlibdir);
     int fd = mkstemp(tmp_file);
     if (fd < 0 ) {

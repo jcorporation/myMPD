@@ -58,7 +58,9 @@ void *mympd_api_loop(void *arg_config) {
     mympd_api_read_statefiles(config, mympd_state);
 
     list_init(&mympd_state->home_list);
-    mympd_api_read_home_list(config, mympd_state);
+    if (config->home == true) {
+        mympd_api_read_home_list(config, mympd_state);
+    }
 
     //myMPD timer
     init_timerlist(&mympd_state->timer_list);
@@ -85,7 +87,9 @@ void *mympd_api_loop(void *arg_config) {
     }
 
     //cleanup
-    mympd_api_write_home_list(config, mympd_state);
+    if (config->home == true) {
+        mympd_api_write_home_list(config, mympd_state);
+    }
     if (mympd_state->timer == true) {
         timerfile_save(config, mympd_state);
     }
