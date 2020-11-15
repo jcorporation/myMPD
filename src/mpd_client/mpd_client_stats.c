@@ -4,6 +4,7 @@
  https://github.com/jcorporation/mympd
 */
 
+#include <errno.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -39,7 +40,7 @@ bool mpd_client_last_played_list_save(t_config *config, t_mpd_client_state *mpd_
     sds tmp_file = sdscatfmt(sdsempty(), "%s/state/last_played.XXXXXX", config->varlibdir);
     int fd = mkstemp(tmp_file);
     if (fd < 0 ) {
-        LOG_ERROR("Can't open %s for write", tmp_file);
+        LOG_ERROR("Can not open file \"%s\" for write: %s", tmp_file, strerror(errno));
         sdsfree(tmp_file);
         return false;
     }    
@@ -56,8 +57,8 @@ bool mpd_client_last_played_list_save(t_config *config, t_mpd_client_state *mpd_
     //append current last_played file to tmp file
     char *line = NULL;
     size_t n = 0;
-    sds cfg_file = sdscatfmt(sdsempty(), "%s/state/last_played", config->varlibdir);
-    FILE *fi = fopen(cfg_file, "r");
+    sds lp_file = sdscatfmt(sdsempty(), "%s/state/last_played", config->varlibdir);
+    FILE *fi = fopen(lp_file, "r");
     if (fi != NULL) {
         while (getline(&line, &n, fi) > 0 && i < mpd_client_state->last_played_count) {
             fputs(line, fp);
@@ -66,16 +67,20 @@ bool mpd_client_last_played_list_save(t_config *config, t_mpd_client_state *mpd_
         FREE_PTR(line);
         fclose(fi);
     }
+    else {
+        //ignore error
+        LOG_DEBUG("Can not open file \"%s\": %s", lp_file, strerror(errno));
+    }
     fclose(fp);
     
-    if (rename(tmp_file, cfg_file) == -1) {
-        LOG_ERROR("Renaming file from %s to %s failed", tmp_file, cfg_file);
+    if (rename(tmp_file, lp_file) == -1) {
+        LOG_ERROR("Renaming file from %s to %s failed: %s", tmp_file, lp_file, strerror(errno));
         sdsfree(tmp_file);
-        sdsfree(cfg_file);
+        sdsfree(lp_file);
         return false;
     }
     sdsfree(tmp_file);
-    sdsfree(cfg_file);
+    sdsfree(lp_file);
     //empt list after write to disc
     list_free(&mpd_client_state->last_played);    
     return true;
@@ -149,7 +154,6 @@ sds mpd_client_put_last_played_songs(t_config *config, t_mpd_client_state *mpd_c
         size_t n = 0;
         sds lp_file = sdscatfmt(sdsempty(), "%s/state/last_played", config->varlibdir);
         FILE *fp = fopen(lp_file, "r");
-        sdsfree(lp_file);
         if (fp != NULL) {
             while (getline(&line, &n, fp) > 0) {
                 entity_count++;
@@ -165,14 +169,19 @@ sds mpd_client_put_last_played_songs(t_config *config, t_mpd_client_state *mpd_c
                     }
                     else {
                         LOG_ERROR("Reading last_played line failed");
+                        LOG_DEBUG("Errorneous line: %s", line);
                     }
                 }
             }
             fclose(fp);
             FREE_PTR(line);
         }
+        else {
+            //ignore error
+            LOG_DEBUG("Can not open file \"%s\": %s", lp_file, strerror(errno));
+        }
+        sdsfree(lp_file);
     }
-
     buffer = sdscat(buffer, "],");
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);
     buffer = tojson_long(buffer, "offset", offset, true);

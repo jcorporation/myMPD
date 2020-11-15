@@ -6,6 +6,7 @@
 
 #define _GNU_SOURCE 
 
+#include <errno.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -487,12 +488,17 @@ sds mpd_client_put_db_tag2(t_config *config, t_mpd_client_state *mpd_client_stat
         return buffer;
     }
 
+    //checks if this tag has a directory with pictures in /var/lib/mympd/pics
     sds pic_path = sdscatfmt(sdsempty(), "%s/pics/%s", config->varlibdir, tag);
     bool pic = false;
     DIR* dir = opendir(pic_path);
-    if (dir) {
+    if (dir != NULL) {
         closedir(dir);
         pic = true;
+    }
+    else {
+        LOG_DEBUG("Can not open directory \"%s\": %s", pic_path, strerror(errno));
+        //ignore error
     }
     sdsfree(pic_path);
 

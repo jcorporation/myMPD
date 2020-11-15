@@ -6,6 +6,7 @@
 
 #define _GNU_SOURCE
 
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -16,7 +17,6 @@
 #include <sys/types.h>
 #include <inttypes.h>
 #include <dirent.h>
-#include <errno.h>
 #include <sys/types.h>
 #include <sys/syscall.h>
 
@@ -117,7 +117,7 @@ sds mympd_api_script_list(t_config *config, sds buffer, sds method, long request
                     fclose(fp);
                 }
                 else {
-                    LOG_ERROR("Can not open file %s", scriptfilename);
+                    LOG_ERROR("Can not open file \"%s\": %s", scriptfilename, strerror(errno));
                 }
                 entry = sdscatlen(entry, "}", 1);
                 if (all == true || order > 0) {
@@ -135,7 +135,7 @@ sds mympd_api_script_list(t_config *config, sds buffer, sds method, long request
         sdsfree(entry);
     }
     else {
-        LOG_ERROR("Can not open dir %s", scriptdirname);
+        LOG_ERROR("Can not open directory \"%s\": %s", scriptdirname, strerror(errno));
     }
     sdsfree(scriptdirname);
     buffer = sdscat(buffer, "]");        
@@ -158,7 +158,7 @@ bool mympd_api_script_save(t_config *config, const char *script, int order, cons
     sds tmp_file = sdscatfmt(sdsempty(), "%s/scripts/%.XXXXXX", config->varlibdir, script);
     int fd = mkstemp(tmp_file);
     if (fd < 0 ) {
-        LOG_ERROR("Can't open %s for write", tmp_file);
+        LOG_ERROR("Can not open file \"%s\" for write: %s", tmp_file, strerror(errno));
         sdsfree(tmp_file);
         return false;
     }
@@ -170,7 +170,7 @@ bool mympd_api_script_save(t_config *config, const char *script, int order, cons
     fclose(fp);
     sds script_filename = sdscatfmt(sdsempty(), "%s/scripts/%s.lua", config->varlibdir, script);
     if (rename(tmp_file, script_filename) == -1) {
-        LOG_ERROR("Rename file from %s to %s failed", tmp_file, script_filename);
+        LOG_ERROR("Rename file from %s to %s failed: %s", tmp_file, script_filename, strerror(errno));
         sdsfree(tmp_file);
         sdsfree(script_filename);
         return false;
@@ -178,7 +178,7 @@ bool mympd_api_script_save(t_config *config, const char *script, int order, cons
     if (strlen(oldscript) > 0 && strcmp(script, oldscript) != 0) {
         sds oldscript_filename = sdscatfmt(sdsempty(), "%s/scripts/%s.lua", config->varlibdir, oldscript);
         if (unlink(oldscript_filename) == -1) {
-            LOG_ERROR("Deleting file %s failed", oldscript_filename);
+            LOG_ERROR("Error removing file \"%s\": %s", oldscript_filename, strerror(errno));
         }
         sdsfree(oldscript_filename);
     }
@@ -232,7 +232,7 @@ sds mympd_api_script_get(t_config *config, sds buffer, sds method, long request_
         sdsfree(content);
     }
     else {
-        LOG_ERROR("Can not open file %s", scriptfilename);
+        LOG_ERROR("Can not open file \"%s\": %s", scriptfilename, strerror(errno));
         buffer = jsonrpc_respond_message(buffer, method, request_id, "Can not open scriptfile", true);
     }
     sdsfree(scriptfilename);

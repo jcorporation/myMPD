@@ -4,6 +4,7 @@
  https://github.com/jcorporation/mympd
 */
 
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -233,7 +234,6 @@ static struct list *mpd_client_jukebox_get_last_played(t_config *config, t_mpd_c
         size_t n = 0;
         sds lp_file = sdscatfmt(sdsempty(), "%s/state/last_played", config->varlibdir);
         FILE *fp = fopen(lp_file, "r");
-        sdsfree(lp_file);
         if (fp != NULL) {
             while (getline(&line, &n, fp) > 0 && queue_list->length < 20) {
                 int value = strtoimax(line, &data, 10);
@@ -253,11 +253,17 @@ static struct list *mpd_client_jukebox_get_last_played(t_config *config, t_mpd_c
                 }
                 else {
                     LOG_ERROR("Reading last_played line failed");
+                    LOG_DEBUG("Erroneous line: %s", line);
                 }
             }
             fclose(fp);
             FREE_PTR(line);
         }
+        else {
+            //ignore missing last_played file
+            LOG_DEBUG("Can not open \"%s\": %s", lp_file, strerror(errno));
+        }
+        sdsfree(lp_file);
     }
     LOG_DEBUG("Jukebox last_played list length: %d", queue_list->length);
     return queue_list;

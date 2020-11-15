@@ -4,6 +4,7 @@
  https://github.com/jcorporation/mympd
 */
 
+#include <errno.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -135,12 +136,12 @@ bool create_certificates(sds dir, sds custom_san) {
 bool cleanup_certificates(sds dir, const char *name) {
     sds cert_file = sdscatfmt(sdsempty(), "%s/%s.pem", dir, name);
     if (unlink(cert_file) != 0) {
-        LOG_ERROR("Error removing file %s", cert_file);
+        LOG_ERROR("Error removing file \"%s\": %s", cert_file, strerror(errno));
     }
     sdsfree(cert_file);
     sds key_file = sdscatfmt(sdsempty(), "%s/%s.key", dir, name);
     if (unlink(key_file) != 0) {
-        LOG_ERROR("Error removing file %s", key_file);
+        LOG_ERROR("Error removing file \"%s\": %s", key_file, strerror(errno));
     }
     sdsfree(key_file);
     
@@ -493,7 +494,7 @@ static bool write_to_disk(sds key_file, EVP_PKEY *pkey, sds cert_file, X509 *cer
     sds key_file_tmp = sdscatfmt(sdsempty(), "%s.XXXXXX", key_file);
     int fd = mkstemp(key_file_tmp);
     if (fd < 0) {
-        LOG_ERROR("Can't open %s for write", key_file_tmp);
+        LOG_ERROR("Can not open file \"%s\" for write: %s", key_file_tmp, strerror(errno));
         sdsfree(key_file_tmp);
         return false;
     }
@@ -506,7 +507,7 @@ static bool write_to_disk(sds key_file, EVP_PKEY *pkey, sds cert_file, X509 *cer
         return false;
     }
     if (rename(key_file_tmp, key_file) == -1) {
-        LOG_ERROR("Renaming file from %s to %s failed", key_file_tmp, key_file);
+        LOG_ERROR("Renaming file from %s to %s failed: %s", key_file_tmp, key_file, strerror(errno));
         sdsfree(key_file_tmp);
         return false;
     }
@@ -515,7 +516,7 @@ static bool write_to_disk(sds key_file, EVP_PKEY *pkey, sds cert_file, X509 *cer
     /* Write the certificate to disk. */
     sds cert_file_tmp = sdscatfmt(sdsempty(), "%s.XXXXXX", cert_file);
     if ((fd = mkstemp(cert_file_tmp)) < 0 ) {
-        LOG_ERROR("Can't open %s for write", cert_file_tmp);
+        LOG_ERROR("Can not open file \"%s\" for write: %s", cert_file_tmp, strerror(errno));
         sdsfree(cert_file_tmp);
         return false;
     }
@@ -528,7 +529,7 @@ static bool write_to_disk(sds key_file, EVP_PKEY *pkey, sds cert_file, X509 *cer
         return false;
     }
     if (rename(cert_file_tmp, cert_file) == -1) {
-        LOG_ERROR("Renaming file from %s to %s failed", cert_file_tmp, cert_file);
+        LOG_ERROR("Renaming file from %s to %s failed: %s", cert_file_tmp, cert_file, strerror(errno));
         sdsfree(cert_file_tmp);
         return false;
     }

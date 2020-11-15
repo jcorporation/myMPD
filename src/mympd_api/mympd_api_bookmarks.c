@@ -4,12 +4,12 @@
  https://github.com/jcorporation/mympd
 */
 
+#include <errno.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <errno.h>
 
 #include "../../dist/src/sds/sds.h"
 #include "../sds_extras.h"
@@ -32,7 +32,7 @@ bool mympd_api_bookmark_update(t_config *config, const int id, const char *name,
     sds tmp_file = sdscatfmt(sdsempty(), "%s/state/bookmark_list.XXXXXX", config->varlibdir);
     int fd = mkstemp(tmp_file);
     if (fd < 0 ) {
-        LOG_ERROR("Can't open %s for write", tmp_file);
+        LOG_ERROR("Can not open file \"%s\" for write: %s", tmp_file, strerror(errno));
         sdsfree(tmp_file);
         return false;
     }
@@ -67,7 +67,8 @@ bool mympd_api_bookmark_update(t_config *config, const int id, const char *name,
                 }
             }
             else {
-                LOG_ERROR("Can't read bookmarks line");
+                LOG_ERROR("Can not read bookmarks line");
+                LOG_DEBUG("Errorneous line: %s", line);
             }
             FREE_PTR(lname);
             FREE_PTR(luri);
@@ -83,7 +84,7 @@ bool mympd_api_bookmark_update(t_config *config, const int id, const char *name,
     fclose(fo);
     
     if (rename(tmp_file, b_file) == -1) {
-        LOG_ERROR("Rename file from %s to %s failed", tmp_file, b_file);
+        LOG_ERROR("Rename file from \"%s\" to \"%s\" failed: %s", tmp_file, b_file, strerror(errno));
         sdsfree(tmp_file);
         sdsfree(b_file);
         return false;
@@ -96,11 +97,19 @@ bool mympd_api_bookmark_update(t_config *config, const int id, const char *name,
 bool mympd_api_bookmark_clear(t_config *config) {
     sds b_file = sdscatfmt(sdsempty(), "%s/state/bookmark_list", config->varlibdir);
     int rc = unlink(b_file);
-    sdsfree(b_file);
-    if (rc == -1 && errno != ENOENT) {
-        return false;
+    if (rc == 0) {
+        sdsfree(b_file);
+        return true;
     }
-    return true;
+    if (rc == -1 && errno != ENOENT) {
+        LOG_ERROR("Error removing file \"%s\": %s", b_file, strerror(errno));
+    }
+    else {
+        //ignore error
+        LOG_DEBUG("Error removing file \"%s\": %s", b_file, strerror(errno));
+    }
+    sdsfree(b_file);
+    return false;
 }
 
 sds mympd_api_bookmark_list(t_config *config, sds buffer, sds method, long request_id,

@@ -4,6 +4,7 @@
  https://github.com/jcorporation/mympd
 */
 
+#include "errno.h"
 #include "../../dist/src/sds/sds.h"
 #include "../sds_extras.h"
 #include "../../dist/src/mongoose/mongoose.h"

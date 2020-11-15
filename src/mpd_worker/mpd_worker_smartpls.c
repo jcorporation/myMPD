@@ -4,11 +4,11 @@
  https://github.com/jcorporation/mympd
 */
 
+#include <errno.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include <errno.h>
 #include <dirent.h>
 #include <inttypes.h>
 #include <ctype.h>
@@ -68,8 +68,9 @@ bool mpd_worker_smartpls_update_all(t_config *config, t_mpd_worker_state *mpd_wo
             }
         }
         closedir (dir);
-    } else {
-        LOG_ERROR("Can't open smart playlist directory %s", dirname);
+    }
+    else {
+        LOG_ERROR("Can't open smart playlist directory %s: %s", dirname, strerror(errno));
         sdsfree(dirname);
         return false;
     }

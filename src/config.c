@@ -6,6 +6,7 @@
 
 #define _GNU_SOURCE
 
+#include <errno.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
@@ -490,7 +491,7 @@ void mympd_config_defaults(t_config *config) {
     config->locale = sdsnew("default");
     config->startup_time = time(NULL);
     config->readonly = false;
-    config->bookmarks = true;
+    config->bookmarks = false;
     config->volume_step = 5;
     config->publish = false;
     config->webdav = false;
@@ -526,7 +527,7 @@ bool mympd_dump_config(void) {
     sds tmp_file = sdscat(sdsempty(), "/tmp/mympd.conf.XXXXXX");
     int fd = mkstemp(tmp_file);
     if (fd < 0) {
-        LOG_ERROR("Can't open %s for write", tmp_file);
+        LOG_ERROR("Can not open file \"%s\" for write: %s", tmp_file, strerror(errno));
         sdsfree(tmp_file);
         return false;
     }
@@ -734,7 +735,7 @@ bool mympd_dump_config(void) {
     sds conf_file = sdscat(sdsempty(), "/tmp/mympd.conf");
     int rc = rename(tmp_file, conf_file);
     if (rc == -1) {
-        LOG_ERROR("Renaming file from %s to %s failed", tmp_file, conf_file);
+        LOG_ERROR("Renaming file from %s to %s failed: %s", tmp_file, conf_file, strerror(errno));
     }
     sdsfree(tmp_file);
     sdsfree(conf_file);

@@ -4,13 +4,13 @@
  https://github.com/jcorporation/mympd
 */
 
+#include <errno.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <sys/stat.h> 
 #include <string.h>
-#include <errno.h>
 #include <mpd/client.h>
 
 #include "../../dist/src/sds/sds.h"
@@ -233,7 +233,7 @@ bool mpd_shared_smartpls_save(t_config *config, const char *smartpltype, const c
     sds tmp_file = sdscatfmt(sdsempty(), "%s/smartpls/%s.XXXXXX", config->varlibdir, playlist);
     int fd = mkstemp(tmp_file);
     if (fd < 0 ) {
-        LOG_ERROR("Can't open %s for write", tmp_file);
+        LOG_ERROR("Can not open file \"%s\" for write: %s", tmp_file, strerror(errno));
         sdsfree(tmp_file);
         return false;
     }
@@ -264,7 +264,7 @@ bool mpd_shared_smartpls_save(t_config *config, const char *smartpltype, const c
     sds pl_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->varlibdir, playlist);
     rc = rename(tmp_file, pl_file);
     if (rc == -1) {
-        LOG_ERROR("Renaming file from %s to %s failed", tmp_file, pl_file);
+        LOG_ERROR("Renaming file from %s to %s failed: %s", tmp_file, pl_file, strerror(errno));
         sdsfree(tmp_file);
         sdsfree(pl_file);
         return false;

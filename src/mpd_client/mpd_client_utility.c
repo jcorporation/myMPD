@@ -4,6 +4,7 @@
  https://github.com/jcorporation/mympd
 */
 
+#include <errno.h>
 #include <stdlib.h>
 #include <libgen.h>
 #include <pthread.h>
@@ -177,9 +178,6 @@ void free_mpd_client_state(t_mpd_client_state *mpd_client_state) {
 static void detect_extra_files(t_mpd_client_state *mpd_client_state, const char *uri, sds *booklet_path, struct list *images, bool is_dirname) {
     char *uricpy = strdup(uri);
     
-    //char *filename = basename(uricpy);
-    //strip_extension(filename);
-    
     const char *path = is_dirname == false ? dirname(uricpy) : uri;
     sds albumpath = sdscatfmt(sdsempty(), "%s/%s", mpd_client_state->music_directory_value, path);
     LOG_DEBUG("Read extra files from albumpath: %s", albumpath);
@@ -207,7 +205,7 @@ static void detect_extra_files(t_mpd_client_state *mpd_client_state, const char 
         closedir(album_dir);
     }
     else {
-        LOG_ERROR("Can not open dir \"%s\" to get list of extra files", albumpath);
+        LOG_ERROR("Can not open directory \"%s\" to get list of extra files: %s", albumpath, strerror(errno));
     }
     FREE_PTR(uricpy);
     sdsfree(albumpath);

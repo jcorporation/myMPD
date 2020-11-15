@@ -4,6 +4,7 @@
  https://github.com/jcorporation/mympd
 */
 
+#include <errno.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -42,7 +43,14 @@ void mympd_api_settings_delete(t_config *config) {
     const char** ptr = state_files;
     while (*ptr != 0) {
         sds filename = sdscatfmt(sdsempty(), "%s/state/%s", config->varlibdir, *ptr);
-        unlink(filename);
+        int rc = unlink(filename);
+        if (rc != 0 && rc != ENOENT) {
+            LOG_ERROR("Error removing file \"%s\": %s", filename, strerror(errno));
+        }
+        else if (rc != 0) {
+            //ignore error
+            LOG_DEBUG("Error removing file \"%s\": %s", filename, strerror(errno));
+        }
         sdsfree(filename);
         ++ptr;
     }
@@ -436,7 +444,7 @@ sds state_file_rw_string(t_config *config, const char *name, const char *def_val
     sdsfree(cfg_file);
     if (fp == NULL) {
         if (warn == true) {
-            LOG_WARN("Can't open %s", cfg_file);
+            LOG_WARN("Can not open file \"%s\": %s", cfg_file), strerror(errno);
         }
         state_file_write(config, name, def_value);
         result = sdscat(result, def_value);
@@ -492,7 +500,7 @@ bool state_file_write(t_config *config, const char *name, const char *value) {
     sds tmp_file = sdscatfmt(sdsempty(), "%s/state/%s.XXXXXX", config->varlibdir, name);
     int fd = mkstemp(tmp_file);
     if (fd < 0) {
-        LOG_ERROR("Can't open %s for write", tmp_file);
+        LOG_ERROR("Can not open file \"%s\" for write: %s", tmp_file, strerror(errno));
         sdsfree(tmp_file);
         return false;
     }
@@ -501,7 +509,7 @@ bool state_file_write(t_config *config, const char *name, const char *value) {
     fclose(fp);
     sds cfg_file = sdscatfmt(sdsempty(), "%s/state/%s", config->varlibdir, name);
     if (rename(tmp_file, cfg_file) == -1) {
-        LOG_ERROR("Renaming file from %s to %s failed", tmp_file, cfg_file);
+        LOG_ERROR("Renaming file from \"%s\" to \"%s\" failed: %s", tmp_file, cfg_file, strerror(errno));
         sdsfree(tmp_file);
         sdsfree(cfg_file);
         return false;

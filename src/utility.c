@@ -6,6 +6,7 @@
 
 #define _GNU_SOURCE
 
+#include <errno.h>
 #include <string.h>
 #include <limits.h>
 #include <stdio.h>
@@ -209,7 +210,7 @@ sds tojson_double(sds buffer, const char *key, double value, bool comma) {
 
 int testdir(const char *name, const char *dirname, bool create) {
     DIR* dir = opendir(dirname);
-    if (dir) {
+    if (dir != NULL) {
         closedir(dir);
         LOG_INFO("%s: \"%s\"", name, dirname);
         //directory exists
@@ -218,7 +219,7 @@ int testdir(const char *name, const char *dirname, bool create) {
 
     if (create == true) {
         if (mkdir(dirname, 0700) != 0) {
-            LOG_ERROR("%s: creating \"%s\" failed", name, dirname);
+            LOG_ERROR("%s: creating \"%s\" failed: %s", name, dirname, strerror(errno));
             //directory not exists and creating it failed
             return 2;
         }
@@ -431,7 +432,7 @@ const struct magic_byte_entry magic_bytes[] = {
 sds get_mime_type_by_magic(const char *filename) {
     FILE *fp = fopen(filename, "rb");
     if (fp == NULL) {
-        LOG_ERROR("Can't open %s", filename);
+        LOG_ERROR("Can not open file \"%s\"", filename, strerror(errno));
         return sdsempty();
     }
     unsigned char binary_buffer[8];
@@ -476,7 +477,7 @@ bool write_covercache_file(t_config *config, const char *uri, const char *mime_t
     sds tmp_file = sdscatfmt(sdsempty(), "%s/covercache/%s.XXXXXX", config->varlibdir, filename);
     int fd = mkstemp(tmp_file);
     if (fd < 0) {
-        LOG_ERROR("Can't write covercachefile: %s", tmp_file);
+        LOG_ERROR("Can not write open file \"%s\" for write: %s", tmp_file, strerror(errno));
     }
     else {
         FILE *fp = fdopen(fd, "w");
@@ -485,8 +486,10 @@ bool write_covercache_file(t_config *config, const char *uri, const char *mime_t
         sds ext = get_ext_by_mime_type(mime_type);
         sds cover_file = sdscatfmt(sdsempty(), "%s/covercache/%s.%s", config->varlibdir, filename, ext);
         if (rename(tmp_file, cover_file) == -1) {
-            LOG_ERROR("Rename file from %s to %s failed", tmp_file, cover_file);
-            unlink(tmp_file);
+            LOG_ERROR("Rename file from \"%s\" to \"%s\" failed: %s", tmp_file, cover_file, strerror(errno));
+            if (unlink(tmp_file) != 0) {
+                LOG_ERROR("Error removing file \"%s\": %s", tmp_file, strerror(errno));
+            }
         }
         sdsfree(ext);
         sdsfree(cover_file);

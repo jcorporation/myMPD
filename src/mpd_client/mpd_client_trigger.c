@@ -4,6 +4,7 @@
  https://github.com/jcorporation/mympd
 */
 
+#include <errno.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdint.h>
@@ -199,7 +200,6 @@ bool triggerfile_read(t_config *config, t_mpd_client_state *mpd_client_state) {
     size_t n = 0;
     ssize_t read = 0;
     FILE *fp = fopen(trigger_file, "r");
-    sdsfree(trigger_file);
     if (fp != NULL) {
         while ((read = getline(&line, &n, fp)) > 0) {
             char *name;
@@ -224,7 +224,11 @@ bool triggerfile_read(t_config *config, t_mpd_client_state *mpd_client_state) {
         FREE_PTR(line);
         fclose(fp);
     }
+    else {
+        LOG_DEBUG("Can not open file \"%s\": %s", trigger_file, strerror(errno));
+    }
     LOG_VERBOSE("Read %d triggers(s) from disc", mpd_client_state->triggers.length);
+    sdsfree(trigger_file);
     return true;
 }
 
@@ -236,7 +240,7 @@ bool triggerfile_save(t_config *config, t_mpd_client_state *mpd_client_state) {
     sds tmp_file = sdscatfmt(sdsempty(), "%s/state/trigger_list.XXXXXX", config->varlibdir);
     int fd = mkstemp(tmp_file);
     if (fd < 0) {
-        LOG_ERROR("Can't open %s for write", tmp_file);
+        LOG_ERROR("Can not open file \"%s\" for write: %s", tmp_file, strerror(errno));
         sdsfree(tmp_file);
         return false;
     }
@@ -267,7 +271,7 @@ bool triggerfile_save(t_config *config, t_mpd_client_state *mpd_client_state) {
     sdsfree(buffer);
     sds trigger_file = sdscatfmt(sdsempty(), "%s/state/trigger_list", config->varlibdir);
     if (rename(tmp_file, trigger_file) == -1) {
-        LOG_ERROR("Renaming file from %s to %s failed", tmp_file, trigger_file);
+        LOG_ERROR("Renaming file from %s to %s failed: %s", tmp_file, trigger_file, strerror(errno));
         sdsfree(tmp_file);
         sdsfree(trigger_file);
         return false;

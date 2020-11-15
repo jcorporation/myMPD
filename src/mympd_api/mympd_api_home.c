@@ -69,7 +69,7 @@ bool mympd_api_save_home_icon(t_mympd_state *mympd_state, bool replace, unsigned
     return rc;
 }
 
-void mympd_api_read_home_list(t_config *config, t_mympd_state *mympd_state) {
+bool mympd_api_read_home_list(t_config *config, t_mympd_state *mympd_state) {
     sds home_file = sdscatfmt(sdsempty(), "%s/state/home_list", config->varlibdir);
     FILE *fp = fopen(home_file, "r");
     if (fp != NULL) {
@@ -83,7 +83,14 @@ void mympd_api_read_home_list(t_config *config, t_mympd_state *mympd_state) {
         FREE_PTR(line);    
         fclose(fp);
     }
+    else {
+        //ignore error
+        LOG_DEBUG("Can not open file \"%s\": %s", home_file, strerror(errno));
+        sdsfree(home_file);
+        return false;
+    }
     sdsfree(home_file);
+    return true;
 }
 
 bool mympd_api_write_home_list(t_config *config, t_mympd_state *mympd_state) {
@@ -93,7 +100,7 @@ bool mympd_api_write_home_list(t_config *config, t_mympd_state *mympd_state) {
     sds tmp_file = sdscatfmt(sdsempty(), "%s/state/home_list.XXXXXX", config->varlibdir);
     int fd = mkstemp(tmp_file);
     if (fd < 0 ) {
-        LOG_ERROR("Can't open %s for write", tmp_file);
+        LOG_ERROR("Can not open \"%s\" for write: %s", tmp_file, strerror(errno));
         sdsfree(tmp_file);
         return false;
     }
@@ -106,7 +113,7 @@ bool mympd_api_write_home_list(t_config *config, t_mympd_state *mympd_state) {
     fclose(fp);
     sds home_file = sdscatfmt(sdsempty(), "%s/state/home_list", config->varlibdir);
     if (rename(tmp_file, home_file) == -1) {
-        LOG_ERROR("Rename file from %s to %s failed", tmp_file, home_file);
+        LOG_ERROR("Rename file from \"%s\" to \"%s\" failed: %s", tmp_file, home_file, strerror(errno));
         sdsfree(tmp_file);
         sdsfree(home_file);
         return false;
@@ -157,7 +164,7 @@ sds mympd_api_put_home_picture_list(t_config *config, sds buffer, sds method, lo
     DIR *pic_dir = opendir(pic_dirname);
     if (pic_dir == NULL) {
         buffer = jsonrpc_respond_message(buffer, method, request_id, "Can not open directory pics", true);
-        LOG_ERROR("Can not open picdir %s: %s", pic_dirname, strerror(errno));
+        LOG_ERROR("Can not open directory \"%s\": %s", pic_dirname, strerror(errno));
         sdsfree(pic_dirname);
         return buffer;
     }

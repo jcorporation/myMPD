@@ -6,6 +6,7 @@
 
 #define _GNU_SOURCE
 
+#include <errno.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -38,6 +39,7 @@ static bool smartpls_init(t_config *config, const char *name, const char *value)
 bool smartpls_default(t_config *config) {
     bool rc = true;
 
+    //try to get prefix from state file, fallback to config value
     sds prefix = sdsempty();
     sds prefix_file = sdscatfmt(sdsempty(), "%s/state/smartpls_prefix", config->varlibdir);
     FILE *fp = fopen(prefix_file, "r");
@@ -53,7 +55,9 @@ bool smartpls_default(t_config *config) {
         fclose(fp);
     }
     else {
-        prefix = sdscat(prefix, "myMPDsmart");
+        //ignore error
+        LOG_DEBUG("Can not open file \"%s\": %s", prefix_file, strerror(errno));
+        prefix = sdscat(prefix, config->smartpls_prefix);
     }
     
     sds smartpls_file = sdscatfmt(sdsempty(), "%s%sbestRated", prefix, (sdslen(prefix) > 0 ? "-" : ""));
@@ -98,11 +102,17 @@ bool handle_option(t_config *config, char *cmd, sds option) {
     if (MATCH_OPTION("reset_lastplayed")) {
         sds lpfile = sdscatfmt(sdsempty(), "%s/state/last_played", config->varlibdir);
         int rc = unlink(lpfile);
-        sdsfree(lpfile);
         if (rc == 0) {
+            sdsfree(lpfile);
             return true;
         }
-        LOG_ERROR("last_played file does not exist");
+        if (rc == ENOENT) {
+            LOG_ERROR("last_played file does not exist");
+        }
+        else {
+            LOG_ERROR("Can not delete file \"%s\": %s", lpfile, strerror(errno));
+        }
+        sdsfree(lpfile);
         return false;
     }
     #ifdef ENABLE_SSL
@@ -175,7 +185,7 @@ static bool smartpls_init(t_config *config, const char *name, const char *value)
     sds tmp_file = sdscatfmt(sdsempty(), "%s/smartpls/%s.XXXXXX", config->varlibdir, name);
     int fd = mkstemp(tmp_file);
     if (fd < 0 ) {
-        LOG_ERROR("Can't open %s for write", tmp_file);
+        LOG_ERROR("Can not open file \"%s\" for write: %s", tmp_file, strerror(errno));
         sdsfree(tmp_file);
         return false;
     }
@@ -184,7 +194,7 @@ static bool smartpls_init(t_config *config, const char *name, const char *value)
     fclose(fp);
     sds cfg_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->varlibdir, name);
     if (rename(tmp_file, cfg_file) == -1) {
-        LOG_ERROR("Renaming file from %s to %s failed", tmp_file, cfg_file);
+        LOG_ERROR("Renaming file from %s to %s failed: %s", tmp_file, cfg_file, strerror(errno));
         sdsfree(tmp_file);
         sdsfree(cfg_file);
         return false;

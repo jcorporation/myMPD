@@ -50,7 +50,7 @@ int clear_covercache(t_config *config, int keepdays) {
                     if (status.st_mtime < now) {
                         LOG_DEBUG("Deleting %s: %ld", filepath, status.st_mtime);
                         if (unlink(filepath) != 0) {
-                            LOG_ERROR("Error deleting %s", filepath);
+                            LOG_ERROR("Error removing file \"%s\": %s", filepath, strerror(errno));
                         }
                         else {
                             num_deleted++;
@@ -63,7 +63,7 @@ int clear_covercache(t_config *config, int keepdays) {
         closedir(covercache_dir);
     }
     else {
-        LOG_ERROR("Error opening directory %s:", covercache, strerror(errno));
+        LOG_ERROR("Error opening directory %s: %s", covercache, strerror(errno));
     }
     LOG_INFO("Deleted %d files from covercache", num_deleted);
     sdsfree(covercache);

@@ -6,11 +6,11 @@
 
 #define _GNU_SOURCE
 
+#include <errno.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include <errno.h>
 #include <dirent.h>
 #include <inttypes.h>
 #include <ctype.h>
@@ -185,7 +185,7 @@ sds mpd_client_playlist_rename(t_config *config, t_mpd_client_state *mpd_client_
             if (access(new_pl_file, F_OK ) == -1) { /* Flawfinder: ignore */
                 //new playlist doesn't exist
                 if (rename(old_pl_file, new_pl_file) == -1) {
-                    LOG_ERROR("Renaming smart playlist %s to %s failed", old_pl_file, new_pl_file);
+                    LOG_ERROR("Renaming smart playlist %s to %s failed: %s", old_pl_file, new_pl_file, strerror(errno));
                     buffer = jsonrpc_respond_message(buffer, method, request_id, "Renaming playlist failed", true);
                     sdsfree(old_pl_file);
                     sdsfree(new_pl_file);
@@ -214,12 +214,17 @@ sds mpd_client_playlist_delete(t_config *config, t_mpd_client_state *mpd_client_
     if (mpd_client_state->feat_smartpls == true) {
         sds pl_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->varlibdir, playlist);
         int rc = unlink(pl_file);
-        sdsfree(pl_file);
         if (rc == -1 && errno != ENOENT) {
             buffer = jsonrpc_respond_message(buffer, method, request_id, "Deleting smart playlist failed", true);
             LOG_ERROR("Deleting smart playlist \"%s\" failed: %s", playlist, strerror(errno));
+            sdsfree(pl_file);
             return buffer;
         }
+        else {
+            //ignore error
+            LOG_DEBUG("Error removing file \"%s\": %s", pl_file, strerror(errno));
+        }
+        sdsfree(pl_file);
     }
     //remove mpd playlist
     bool rc = mpd_run_rm(mpd_client_state->mpd_state->conn, playlist);
@@ -360,7 +365,7 @@ sds mpd_client_playlist_delete_all(t_config *config, t_mpd_client_state *mpd_cli
                             LOG_VERBOSE("Removed orphaned smartpls file \"%s\"", smartpls_file);
                         }
                         else {
-                            LOG_ERROR("Removing smartpls file \"%s\" failed: %s", smartpls_file, strerror(errno));
+                            LOG_ERROR("Error removing file \"%s\": %s", smartpls_file, strerror(errno));
                         }
                         sdsfree(smartpls_file);
                     }
@@ -369,7 +374,7 @@ sds mpd_client_playlist_delete_all(t_config *config, t_mpd_client_state *mpd_cli
             closedir(smartpls_dir);
         }
         else {
-            LOG_ERROR("Can not open smartpls dir \"%s\"", smartpls_path);
+            LOG_ERROR("Can not open smartpls dir \"%s\": %s", smartpls_path, strerror(errno));
         }
         sdsfree(smartpls_path);
     }
