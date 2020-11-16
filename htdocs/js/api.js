@@ -179,6 +179,11 @@ function webSocketConnect() {
                         sendAPI("MPD_API_QUEUE_LAST_PLAYED", {"offset": app.current.page, "cols": settings.colsQueueLastPlayed}, parseLastPlayed);
                     }
                     break;
+                case 'update_jukebox':
+                    if (app.current.app === 'Queue' && app.current.tab === 'Jukebox') {
+                        sendAPI("MPD_API_JUKEBOX_LIST", {"offset": app.current.page, "cols": settings.colsQueueJukebox}, parseJukeboxList);
+                    }
+                    break;
                 case 'error':
                     if (document.getElementById('alertMpdState').classList.contains('hide')) {
                         showNotification(t(obj.params.message), '', '', 'danger');

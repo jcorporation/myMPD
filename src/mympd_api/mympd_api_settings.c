@@ -34,12 +34,12 @@ void mympd_api_settings_delete(t_config *config) {
     }
     const char* state_files[]={"auto_play", "bg_color", "bg_cover", "bg_css_filter", "browsetaglist", "cols_browse_database",
         "cols_browse_filesystem", "cols_browse_playlists_detail", "cols_playback", "cols_queue_current", "cols_queue_last_played",
-        "cols_search", "coverimage", "coverimage_name", "coverimage_size", "jukebox_mode", "jukebox_playlist", "jukebox_queue_length",
+        "cols_search", "cols_queue_jukebox", "coverimage", "coverimage_name", "coverimage_size", "jukebox_mode", "jukebox_playlist", "jukebox_queue_length",
         "jukebox_unique_tag", "jukebox_last_played", "generate_pls_tags", "smartpls_sort", "smartpls_prefix", "smartpls_interval",
         "last_played", "last_played_count", "locale", "localplayer", "love", "love_channel", "love_message",
         "max_elements_per_page",  "mpd_host", "mpd_pass", "mpd_port", "notification_page", "notification_web", "searchtaglist",
         "smartpls", "stickers", "stream_port", "stream_url", "taglist", "music_directory", "bookmarks", "bookmark_list", "coverimage_size_small", 
-        "theme", "timer", "highlight_color", "media_session", "booklet_name", "lyrics", 0};
+        "theme", "timer", "highlight_color", "media_session", "booklet_name", "lyrics", "home_list", 0};
     const char** ptr = state_files;
     while (*ptr != 0) {
         sds filename = sdscatfmt(sdsempty(), "%s/state/%s", config->varlibdir, *ptr);
@@ -125,6 +125,10 @@ bool mympd_api_cols_save(t_config *config, t_mympd_state *mympd_state, const cha
     else if (strcmp(table, "colsPlayback") == 0) {
         mympd_state->cols_playback = sdsreplace(mympd_state->cols_playback, cols);
         tablename = sdsreplace(tablename, "cols_playback");
+    }
+    else if (strcmp(table, "colsQueueJukebox") == 0) {
+        mympd_state->cols_queue_jukebox = sdsreplace(mympd_state->cols_queue_jukebox, cols);
+        tablename = sdsreplace(tablename, "cols_queue_jukebox");
     }
     else {
         sdsfree(tablename);
@@ -403,6 +407,7 @@ void mympd_api_read_statefiles(t_config *config, t_mympd_state *mympd_state) {
     mympd_state->cols_browse_filesystem = state_file_rw_string(config, "cols_browse_filesystem", config->cols_browse_filesystem, false);
     mympd_state->cols_playback = state_file_rw_string(config, "cols_playback", config->cols_playback, false);
     mympd_state->cols_queue_last_played = state_file_rw_string(config, "cols_queue_last_played", config->cols_queue_last_played, false);
+    mympd_state->cols_queue_jukebox = state_file_rw_string(config, "cols_queue_jukebox", config->cols_queue_jukebox, false);
     mympd_state->localplayer = state_file_rw_bool(config, "localplayer", config->localplayer, false);
     mympd_state->stream_port = state_file_rw_int(config, "stream_port", config->stream_port, false);
     mympd_state->stream_url = state_file_rw_string(config, "stream_url", config->stream_url, false);
@@ -585,7 +590,8 @@ sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buf
     buffer = sdscatfmt(buffer, "\"colsBrowsePlaylistsDetail\":%s,", mympd_state->cols_browse_playlists_detail);
     buffer = sdscatfmt(buffer, "\"colsBrowseFilesystem\":%s,", mympd_state->cols_browse_filesystem);
     buffer = sdscatfmt(buffer, "\"colsPlayback\":%s,", mympd_state->cols_playback);
-    buffer = sdscatfmt(buffer, "\"colsQueueLastPlayed\":%s", mympd_state->cols_queue_last_played);
+    buffer = sdscatfmt(buffer, "\"colsQueueLastPlayed\":%s,", mympd_state->cols_queue_last_played);
+    buffer = sdscatfmt(buffer, "\"colsQueueJukebox\":%s", mympd_state->cols_queue_jukebox);
 
     if (config->syscmds == true) {
         buffer = sdscat(buffer, ",\"syscmdList\":[");

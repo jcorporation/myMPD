@@ -74,6 +74,7 @@ typedef struct t_mympd_state {
     sds cols_browse_filesystem;
     sds cols_playback;
     sds cols_queue_last_played;
+    sds cols_queue_jukebox;
     bool localplayer;
     bool localplayer_autoplay;
     int stream_port;

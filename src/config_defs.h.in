@@ -92,6 +92,7 @@ typedef struct t_config {
     sds cols_browse_filesystem;
     sds cols_playback;
     sds cols_queue_last_played;
+    sds cols_queue_jukebox;
     bool localplayer;
     int stream_port;
     sds stream_url;

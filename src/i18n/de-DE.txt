@@ -1563,9 +1563,6 @@ Kopieren
 Edit home icon
 Bearbeiten
 
-Execute home icon action
-Ausführen
-
 Ligature
 Ligatur
 
@@ -1586,3 +1583,15 @@ Ligature overview
 
 Use ligature
 Ligatur benutzen
+
+Add and play playlist
+Spiele Wiedergabeliste ab
+
+Goto view
+Gehe zur Ansicht
+
+View
+Anischt
+
+Could not remove song from jukebox queue
+Konnte Lied nicht aus der Jukebox Warteschlange entfernen

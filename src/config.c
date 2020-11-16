@@ -229,6 +229,9 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("mympd", "colsqueuelastplayed")) {
         p_config->cols_queue_last_played = sdsreplace(p_config->cols_queue_last_played, value);
     }
+    else if (MATCH("mympd", "colsqueuejukebox")) {
+        p_config->cols_queue_jukebox = sdsreplace(p_config->cols_queue_jukebox, value);
+    }
     else if (MATCH("mympd", "localplayer")) {
         p_config->localplayer = strtobool(value);
     }
@@ -362,7 +365,7 @@ static void mympd_get_env(struct t_config *config) {
         "MYMPD_JUKEBOXUNIQUETAG", "MYMPD_COLSQUEUECURRENT","MYMPD_COLSSEARCH", 
         "MYMPD_COLSBROWSEDATABASE", "MYMPD_COLSBROWSEPLAYLISTDETAIL",
         "MYMPD_COLSBROWSEFILESYSTEM", "MYMPD_COLSPLAYBACK", "MYMPD_COLSQUEUELASTPLAYED",
-        "MYMPD_LOCALPLAYER", "MYMPD_STREAMPORT", "MYMPD_HOME",
+        "MYMPD_LOCALPLAYER", "MYMPD_STREAMPORT", "MYMPD_HOME", "MYMPOD_COLSQUEUEJUKEBOX",
         "MYMPD_STREAMURL", "MYMPD_VOLUMESTEP", "MYMPD_COVERCACHEKEEPDAYS", "MYMPD_COVERCACHE",
         "MYMPD_COVERCACHEAVOID", "MYMPD_LYRICS", "MYMPD_PARTITIONS", "MYMPD_FOOTERSTOP",
       #ifdef ENABLE_LUA
@@ -408,6 +411,7 @@ void mympd_free_config(t_config *config) {
     sdsfree(config->cols_browse_playlists_detail);
     sdsfree(config->cols_browse_filesystem);
     sdsfree(config->cols_playback);
+    sdsfree(config->cols_queue_jukebox);
     sdsfree(config->stream_url);
     sdsfree(config->bg_color);
     sdsfree(config->bg_css_filter);
@@ -478,6 +482,7 @@ void mympd_config_defaults(t_config *config) {
     config->cols_browse_playlists_detail = sdsnew("[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]");
     config->cols_browse_filesystem = sdsnew("[\"Type\",\"Title\",\"Artist\",\"Album\",\"Duration\"]");
     config->cols_playback = sdsnew("[\"Artist\",\"Album\"]");
+    config->cols_queue_jukebox = sdsnew("[\"Pos\",\"Title\",\"Artist\",\"Album\"]");
     config->localplayer = false;
     config->stream_port = 8000;
     config->stream_url = sdsempty();
@@ -630,6 +635,7 @@ bool mympd_dump_config(void) {
         "colsbrowseplaylistsdetail = %s\n"
         "colsbrowsefilesystem = %s\n"
         "colsplayback = %s\n"
+        "colsqueuejukebox = %s\n"
         "localplayer = %s\n"
         "streamport = %d\n"
         "#streamuri = %s\n"
@@ -690,6 +696,7 @@ bool mympd_dump_config(void) {
         p_config->cols_browse_playlists_detail,
         p_config->cols_browse_filesystem,
         p_config->cols_playback,
+        p_config->cols_queue_jukebox,
         (p_config->localplayer == true ? "true" : "false"),
         p_config->stream_port,
         p_config->stream_url,

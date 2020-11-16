@@ -336,7 +336,7 @@ function setColTags(table) {
         tags.push('Title');
     }
     tags.push('Duration');
-    if (table === 'QueueCurrent' || table === 'BrowsePlaylistsDetail' || table === 'QueueLastPlayed') {
+    if (table === 'QueueCurrent' || table === 'BrowsePlaylistsDetail' || table === 'QueueLastPlayed' || table === 'QueueJukebox') {
         tags.push('Pos');
     }
     if (table === 'BrowseFilesystem') {

@@ -66,6 +66,28 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
     t_work_result *response = create_result(request);
     
     switch(request->cmd_id) {
+        case MPD_API_JUKEBOX_RM:
+            je = json_scanf(request->data, sdslen(request->data), "{params: {pos: %u}}", &uint_buf1);
+            if (je == 1) {
+                rc = mpd_client_rm_jukebox_entry(mpd_client_state, uint_buf1);
+                if (rc == true) {
+                    response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+                }
+                else {
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Could not remove song from jukebox queue", true);
+                }
+            }
+            break;
+        case MPD_API_JUKEBOX_LIST: {
+            t_tags *tagcols = (t_tags *)malloc(sizeof(t_tags));
+            assert(tagcols);
+            je = json_scanf(request->data, sdslen(request->data), "{params: {offset: %u, cols: %M}}", &uint_buf1, json_to_tags, tagcols);
+            if (je == 2) {
+                response->data = mpd_client_put_jukebox_list(mpd_client_state, response->data, request->method, request->id, uint_buf1, tagcols);
+            }
+            free(tagcols);
+            break;
+        }
         case MPD_API_TRIGGER_LIST:
             response->data = trigger_list(mpd_client_state, response->data, request->method, request->id);
             break;

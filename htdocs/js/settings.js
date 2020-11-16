@@ -354,10 +354,14 @@ function parseSettings() {
         document.getElementById('inputMusicDirectory').removeAttribute('readonly');
     }
 
+    //update columns
     if (app.current.app === 'Queue' && app.current.tab === 'Current') {
         getQueue();
     }
     else if (app.current.app === 'Queue' && app.current.tab === 'LastPlayed') {
+        appRoute();
+    }
+    else if (app.current.app === 'Queue' && app.current.tab === 'Jukebox') {
         appRoute();
     }
     else if (app.current.app === 'Search') {
@@ -505,6 +509,7 @@ function parseMPDSettings() {
     filterCols('colsSearch');
     filterCols('colsQueueCurrent');
     filterCols('colsQueueLastPlayed');
+    filterCols('colsQueueJukebox');
     filterCols('colsBrowsePlaylistsDetail');
     filterCols('colsBrowseFilesystem');
     filterCols('colsBrowseDatabaseDetail');
@@ -516,6 +521,7 @@ function parseMPDSettings() {
         app.apps.Queue.state = '0/filename/-/-/';
         settings.colsQueueCurrent = ["Pos", "Title", "Duration"];
         settings.colsQueueLastPlayed = ["Pos", "Title", "LastPlayed"];
+        settings.colsQueueJukebox = ["Pos", "Title"];
         settings.colsSearch = ["Title", "Duration"];
         settings.colsBrowseFilesystem = ["Type", "Title", "Duration"];
         settings.colsBrowseDatabase = ["Track", "Title", "Duration"];
@@ -579,6 +585,7 @@ function parseMPDSettings() {
     setCols('QueueCurrent');
     setCols('Search');
     setCols('QueueLastPlayed');
+    setCols('QueueJukebox');
     setCols('BrowseFilesystem');
     setCols('BrowsePlaylistsDetail');
     setCols('BrowseDatabaseDetail');
@@ -862,7 +869,7 @@ function filterCols(x) {
         tags.push('Title');
     }
     tags.push('Duration');
-    if (x === 'colsQueueCurrent' || x === 'colsBrowsePlaylistsDetail' || x === 'colsQueueLastPlayed') {
+    if (x === 'colsQueueCurrent' || x === 'colsBrowsePlaylistsDetail' || x === 'colsQueueLastPlayed' || x === 'colsQueueJukebox') {
         tags.push('Pos');
     }
     else if (x === 'colsBrowseFilesystem') {

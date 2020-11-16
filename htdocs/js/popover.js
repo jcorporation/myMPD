@@ -165,9 +165,33 @@ function showMenuTd(el) {
             (settings.featPlaylists ? addMenuItem({"cmd": "showAddToPlaylist", "options": [uri, ""]}, t('Add to playlist')) : '') +
             (uri.indexOf('http') === -1 ? addMenuItem({"cmd": "songDetails", "options": [uri]}, t('Song details')) : '');
     }
+    else if (app.current.app === 'Queue' && app.current.tab === 'Jukebox') {
+        menu += addMenuItem({"cmd": "songDetails", "options": [uri]}, t('Song details')) +
+            addMenuItem({"cmd": "delQueueJukeboxSong", "options": [el.parentNode.parentNode.getAttribute('data-pos')]}, t('Remove'));
+    }
     else if (app.current.app === 'Home') {
         const pos = parseInt(el.parentNode.getAttribute('data-pos'));
-        menu += addMenuItem({"cmd": "executeHomeIcon", "options": [pos]}, t('Execute home icon action')) +
+        const href = JSON.parse(el.parentNode.getAttribute('data-href'));
+        let actionDesc = '';
+        if (href.cmd === 'replaceQueue' && href.options[0] === 'plist') {
+            type = 'plist';
+            uri = href.options[1];
+            actionDesc = t('Add and play playlist');
+            name = t('Playlist');
+        }
+        else if (href.cmd === 'appGoto') {
+            type = 'view';
+            actionDesc = t('Goto view');
+            name = t('View');
+        }
+        else if (href.cmd === 'execScriptFromOptions') {
+            type = 'script';
+            actionDesc = t('Execute script');
+            name = t('Script');
+        }
+        menu += '<h6 class="dropdown-header">' + name + '</h6>' +
+                addMenuItem({"cmd": "executeHomeIcon", "options": [pos]}, actionDesc) +
+                (type === 'plist' ? addMenuItem({"cmd": "playlistDetails", "options": [uri]}, t('View playlist')) : '') +
                 addMenuItem({"cmd": "editHomeIcon", "options": [pos]}, t('Edit home icon')) +
                 addMenuItem({"cmd": "duplicateHomeIcon", "options": [pos]}, t('Duplicate home icon')) +
                 addMenuItem({"cmd": "deleteHomeIcon", "options": [pos]}, t('Delete home icon'));

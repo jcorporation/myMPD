@@ -140,7 +140,9 @@ var cmds = [
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_HOME_ICON_MOVE","params":{"from":0,"to":1}},
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_HOME_ICON_SAVE","params":{"replace":true,"oldpos":0,"name":"test3","ligature":"test","bgcolor":"#000","image":"test.png","cmd":"test3","options":["option1","option2"]}},
     {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_HOME_ICON_DELETE","params":{"pos":0}},
-    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_HOME_ICON_PICTURE_LIST","params":{}}
+    {"jsonrpc":"2.0","id":0,"method":"MYMPD_API_HOME_ICON_PICTURE_LIST","params":{}},
+    {"jsonrpc":"2.0","id":0,"method":"MPD_API_JUKEBOX_LIST","params":{}},
+    {"jsonrpc":"2.0","id":0,"method":"MPD_API_JUKEBOX_RM","params":{"pos":0}}
 ];
 
 function setTest(cmd, state, response) {
