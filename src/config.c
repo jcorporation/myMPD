@@ -467,7 +467,7 @@ void mympd_config_defaults(t_config *config) {
     config->love_channel = sdsempty();
     config->love_message = sdsnew("love");
     config->notification_web = false;
-    config->notification_page = false;
+    config->notification_page = true;
     config->media_session = true;
     config->auto_play = false;
     config->jukebox_mode = JUKEBOX_OFF;
@@ -498,7 +498,7 @@ void mympd_config_defaults(t_config *config) {
     config->readonly = false;
     config->bookmarks = false;
     config->volume_step = 5;
-    config->publish = false;
+    config->publish = true;
     config->webdav = false;
     config->covercache_keep_days = 7;
     config->covercache = true;
