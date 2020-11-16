@@ -5,6 +5,7 @@
  https://github.com/jcorporation/mympd
 */
 
+//eslint-disable-next-line no-unused-vars
 function delQueueJukeboxSong(pos) {
     sendAPI("MPD_API_JUKEBOX_RM", {"pos": pos}, function() {
         sendAPI("MPD_API_JUKEBOX_LIST", {"offset": app.current.page, "cols": settings.colsQueueJukebox}, parseJukeboxList);
