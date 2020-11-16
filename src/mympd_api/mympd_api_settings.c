@@ -449,7 +449,7 @@ sds state_file_rw_string(t_config *config, const char *name, const char *def_val
     sdsfree(cfg_file);
     if (fp == NULL) {
         if (warn == true) {
-            LOG_WARN("Can not open file \"%s\": %s", cfg_file), strerror(errno);
+            LOG_WARN("Can not open file \"%s\": %s", cfg_file, strerror(errno));
         }
         state_file_write(config, name, def_value);
         result = sdscat(result, def_value);
