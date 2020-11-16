@@ -178,6 +178,11 @@ function webSocketConnect() {
                         sendAPI("MPD_API_QUEUE_LAST_PLAYED", {"offset": app.current.page, "cols": settings.colsQueueLastPlayed}, parseLastPlayed);
                     }
                     break;
+                case 'update_jukebox':
+                    if (app.current.app === 'Queue' && app.current.tab === 'Jukebox') {
+                        sendAPI("MPD_API_JUKEBOX_LIST", {"offset": app.current.page, "cols": settings.colsQueueJukebox}, parseJukeboxList);
+                    }
+                    break;
                 case 'error':
                     if (document.getElementById('alertMpdState').classList.contains('hide')) {
                         showNotification(t(obj.params.message), '', '', 'danger');
@@ -1003,6 +1008,71 @@ function getHomeIconPictureList(picture) {
  https://github.com/jcorporation/mympd
 */
 
+function delQueueJukeboxSong(pos) {
+    sendAPI("MPD_API_JUKEBOX_RM", {"pos": pos}, function() {
+        sendAPI("MPD_API_JUKEBOX_LIST", {"offset": app.current.page, "cols": settings.colsQueueJukebox}, parseJukeboxList);
+    });
+}
+
+function parseJukeboxList(obj) {
+    let nrItems = obj.result.returnedEntities;
+    let table = document.getElementById('QueueJukeboxList');
+    let navigate = document.activeElement.parentNode.parentNode === table ? true : false;
+    let activeRow = 0;
+    let tbody = table.getElementsByTagName('tbody')[0];
+    let tr = tbody.getElementsByTagName('tr');
+    for (let i = 0; i < nrItems; i++) {
+        obj.result.data[i].Duration = beautifySongDuration(obj.result.data[i].Duration);
+        obj.result.data[i].LastPlayed = localeDate(obj.result.data[i].LastPlayed);
+        let row = document.createElement('tr');
+        row.setAttribute('data-uri', obj.result.data[i].uri);
+        row.setAttribute('data-name', obj.result.data[i].Title);
+        row.setAttribute('data-type', 'song');
+        row.setAttribute('data-pos', i);
+        row.setAttribute('tabindex', 0);
+        let tds = '';
+        for (let c = 0; c < settings.colsQueueJukebox.length; c++) {
+            tds += '<td data-col="' + settings.colsQueueJukebox[c] + '">' + e(obj.result.data[i][settings.colsQueueJukebox[c]]) + '</td>';
+        }
+        tds += '<td data-col="Action">';
+        if (obj.result.data[i].uri !== '') {
+            tds += '<a href="#" class="material-icons color-darkgrey">' + ligatureMore + '</a>';
+        }
+        tds += '</td>';
+        row.innerHTML = tds;
+        if (i < tr.length) {
+            activeRow = replaceTblRow(tr[i], row) === true ? i : activeRow;
+        }
+        else {
+            tbody.append(row);
+        }
+    }
+    let trLen = tr.length - 1;
+    for (let i = trLen; i >= nrItems; i --) {
+        tr[i].remove();
+    }                    
+
+    let colspan = settings['colsQueueJukebox'].length;
+    colspan--;
+    
+    if (nrItems === 0) {
+        tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
+            '<td colspan="' + colspan + '">' + t('Empty list') + '</td></tr>';
+    }
+
+    if (navigate === true) {
+        focusTable(activeRow);
+    }
+
+    setPagination(obj.result.totalEntities, obj.result.returnedEntities);
+    document.getElementById('QueueJukeboxList').classList.remove('opacity05');
+}
+/*
+ SPDX-License-Identifier: GPL-2.0-or-later
+ myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
+ https://github.com/jcorporation/mympd
+*/
+
 //eslint-disable-next-line no-unused-vars
 var keymap = {
     "ArrowLeft": {"cmd": "clickPrev", "options": [], "desc": "Previous song", "key": "keyboard_arrow_left"},
@@ -1735,6 +1805,14 @@ app.apps = {
                 "tag": "-",
                 "search": "",
                 "scrollPos": 0 
+            },
+            "Jukebox": {
+                "page": 0,
+                "filter": "any",
+                "sort": "-",
+                "tag": "-",
+                "search": "",
+                "scrollPos": 0 
             }
         }
     },
@@ -1891,6 +1969,7 @@ function appPrepare(scrollPos) {
         document.getElementById('cardSearch').classList.add('hide');
         document.getElementById('cardQueueCurrent').classList.add('hide');
         document.getElementById('cardQueueLastPlayed').classList.add('hide');
+        document.getElementById('cardQueueJukebox').classList.add('hide');
         document.getElementById('cardBrowsePlaylists').classList.add('hide');
         document.getElementById('cardBrowseFilesystem').classList.add('hide');
         document.getElementById('cardBrowseDatabase').classList.add('hide');
@@ -1963,7 +2042,6 @@ function appGoto(card, tab, view, page, filter, sort, tag, search) {
             encodeURIComponent(sort === undefined ? app.apps[card].sort : sort) + '/' +
             encodeURIComponent(tag === undefined ? app.apps[card].tag : tag) + '/' +
             encodeURIComponent(search === undefined ? app.apps[card].search : search);
-                                 
     }
     location.hash = hash;
 }
@@ -2038,6 +2116,9 @@ function appRoute() {
     }
     else if (app.current.app === 'Queue' && app.current.tab === 'LastPlayed') {
         sendAPI("MPD_API_QUEUE_LAST_PLAYED", {"offset": app.current.page, "cols": settings.colsQueueLastPlayed}, parseLastPlayed);
+    }
+    else if (app.current.app === 'Queue' && app.current.tab === 'Jukebox') {
+        sendAPI("MPD_API_JUKEBOX_LIST", {"offset": app.current.page, "cols": settings.colsQueueJukebox}, parseJukeboxList);
     }
     else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'All') {
         sendAPI("MPD_API_PLAYLIST_LIST", {"offset": app.current.page, "searchstr": app.current.search}, parsePlaylists);
@@ -2917,7 +2998,13 @@ function appInit() {
         if (event.target.nodeName === 'A') {
             showMenu(event.target, event);
         }
-    }, false);    
+    }, false);
+
+    document.getElementById('QueueJukeboxList').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'A') {
+            showMenu(event.target, event);
+        }
+    }, false);
 
     document.getElementById('BrowseFilesystemList').addEventListener('click', function(event) {
         if (event.target.nodeName === 'TD') {
@@ -3297,8 +3384,6 @@ function appInit() {
         }
     }, false);
 
-
-
     document.getElementById('inputScriptArgument').addEventListener('keyup', function(event) {
         if (event.key === 'Enter') {
             event.preventDefault();
@@ -3321,12 +3406,11 @@ function appInit() {
     dragAndDropTable('BrowsePlaylistsDetailList');
     dragAndDropTableHeader('QueueCurrent');
     dragAndDropTableHeader('QueueLastPlayed');
+    dragAndDropTableHeader('QueueJukebox');
     dragAndDropTableHeader('Search');
     dragAndDropTableHeader('BrowseFilesystem');
     dragAndDropTableHeader('BrowsePlaylistsDetail');
     dragAndDropTableHeader('BrowseDatabaseDetail');
-
-    
 
     window.addEventListener('focus', function() {
         sendAPI("MPD_API_PLAYER_STATE", {}, parseState);
@@ -4394,9 +4478,33 @@ function showMenuTd(el) {
             (settings.featPlaylists ? addMenuItem({"cmd": "showAddToPlaylist", "options": [uri, ""]}, t('Add to playlist')) : '') +
             (uri.indexOf('http') === -1 ? addMenuItem({"cmd": "songDetails", "options": [uri]}, t('Song details')) : '');
     }
+    else if (app.current.app === 'Queue' && app.current.tab === 'Jukebox') {
+        menu += addMenuItem({"cmd": "songDetails", "options": [uri]}, t('Song details')) +
+            addMenuItem({"cmd": "delQueueJukeboxSong", "options": [el.parentNode.parentNode.getAttribute('data-pos')]}, t('Remove'));
+    }
     else if (app.current.app === 'Home') {
         const pos = parseInt(el.parentNode.getAttribute('data-pos'));
-        menu += addMenuItem({"cmd": "executeHomeIcon", "options": [pos]}, t('Execute home icon action')) +
+        const href = JSON.parse(el.parentNode.getAttribute('data-href'));
+        let actionDesc = '';
+        if (href.cmd === 'replaceQueue' && href.options[0] === 'plist') {
+            type = 'plist';
+            uri = href.options[1];
+            actionDesc = t('Add and play playlist');
+            name = t('Playlist');
+        }
+        else if (href.cmd === 'appGoto') {
+            type = 'view';
+            actionDesc = t('Goto view');
+            name = t('View');
+        }
+        else if (href.cmd === 'execScriptFromOptions') {
+            type = 'script';
+            actionDesc = t('Execute script');
+            name = t('Script');
+        }
+        menu += '<h6 class="dropdown-header">' + name + '</h6>' +
+                addMenuItem({"cmd": "executeHomeIcon", "options": [pos]}, actionDesc) +
+                (type === 'plist' ? addMenuItem({"cmd": "playlistDetails", "options": [uri]}, t('View playlist')) : '') +
                 addMenuItem({"cmd": "editHomeIcon", "options": [pos]}, t('Edit home icon')) +
                 addMenuItem({"cmd": "duplicateHomeIcon", "options": [pos]}, t('Duplicate home icon')) +
                 addMenuItem({"cmd": "deleteHomeIcon", "options": [pos]}, t('Delete home icon'));
@@ -5451,10 +5559,14 @@ function parseSettings() {
         document.getElementById('inputMusicDirectory').removeAttribute('readonly');
     }
 
+    //update columns
     if (app.current.app === 'Queue' && app.current.tab === 'Current') {
         getQueue();
     }
     else if (app.current.app === 'Queue' && app.current.tab === 'LastPlayed') {
+        appRoute();
+    }
+    else if (app.current.app === 'Queue' && app.current.tab === 'Jukebox') {
         appRoute();
     }
     else if (app.current.app === 'Search') {
@@ -5602,6 +5714,7 @@ function parseMPDSettings() {
     filterCols('colsSearch');
     filterCols('colsQueueCurrent');
     filterCols('colsQueueLastPlayed');
+    filterCols('colsQueueJukebox');
     filterCols('colsBrowsePlaylistsDetail');
     filterCols('colsBrowseFilesystem');
     filterCols('colsBrowseDatabaseDetail');
@@ -5613,6 +5726,7 @@ function parseMPDSettings() {
         app.apps.Queue.state = '0/filename/-/-/';
         settings.colsQueueCurrent = ["Pos", "Title", "Duration"];
         settings.colsQueueLastPlayed = ["Pos", "Title", "LastPlayed"];
+        settings.colsQueueJukebox = ["Pos", "Title"];
         settings.colsSearch = ["Title", "Duration"];
         settings.colsBrowseFilesystem = ["Type", "Title", "Duration"];
         settings.colsBrowseDatabase = ["Track", "Title", "Duration"];
@@ -5676,6 +5790,7 @@ function parseMPDSettings() {
     setCols('QueueCurrent');
     setCols('Search');
     setCols('QueueLastPlayed');
+    setCols('QueueJukebox');
     setCols('BrowseFilesystem');
     setCols('BrowsePlaylistsDetail');
     setCols('BrowseDatabaseDetail');
@@ -5959,7 +6074,7 @@ function filterCols(x) {
         tags.push('Title');
     }
     tags.push('Duration');
-    if (x === 'colsQueueCurrent' || x === 'colsBrowsePlaylistsDetail' || x === 'colsQueueLastPlayed') {
+    if (x === 'colsQueueCurrent' || x === 'colsBrowsePlaylistsDetail' || x === 'colsQueueLastPlayed' || x === 'colsQueueJukebox') {
         tags.push('Pos');
     }
     else if (x === 'colsBrowseFilesystem') {
@@ -7163,7 +7278,7 @@ function setColTags(table) {
         tags.push('Title');
     }
     tags.push('Duration');
-    if (table === 'QueueCurrent' || table === 'BrowsePlaylistsDetail' || table === 'QueueLastPlayed') {
+    if (table === 'QueueCurrent' || table === 'BrowsePlaylistsDetail' || table === 'QueueLastPlayed' || table === 'QueueJukebox') {
         tags.push('Pos');
     }
     if (table === 'BrowseFilesystem') {
