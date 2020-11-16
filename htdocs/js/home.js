@@ -169,7 +169,7 @@ function _addHomeIcon(cmd, name, ligature, options) {
     showHomeIconCmdOptions(options);
     getHomeIconPictureList('');
     
-    document.getElementById('homeIconPreview').innerHTML = ligature;
+    document.getElementById('homeIconPreview').innerText = ligature;
     document.getElementById('homeIconPreview').style.backgroundColor = '#28a745';
     document.getElementById('homeIconPreview').backgroundImage = '';
     document.getElementById('divHomeIconLigature').classList.remove('hide');
@@ -199,7 +199,7 @@ function _editHomeIcon(pos, replace, title) {
         showHomeIconCmdOptions(obj.result.data.options);
         getHomeIconPictureList(obj.result.data.image);
 
-        document.getElementById('homeIconPreview').innerHTML = obj.result.data.ligature;
+        document.getElementById('homeIconPreview').innerText = obj.result.data.ligature;
         document.getElementById('homeIconPreview').style.backgroundColor = obj.result.data.bgcolor;
         
         if (obj.result.data.image === '') {

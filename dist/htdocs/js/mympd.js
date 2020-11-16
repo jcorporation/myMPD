@@ -888,7 +888,7 @@ function _addHomeIcon(cmd, name, ligature, options) {
     showHomeIconCmdOptions(options);
     getHomeIconPictureList('');
     
-    document.getElementById('homeIconPreview').innerHTML = ligature;
+    document.getElementById('homeIconPreview').innerText = ligature;
     document.getElementById('homeIconPreview').style.backgroundColor = '#28a745';
     document.getElementById('homeIconPreview').backgroundImage = '';
     document.getElementById('divHomeIconLigature').classList.remove('hide');
@@ -918,7 +918,7 @@ function _editHomeIcon(pos, replace, title) {
         showHomeIconCmdOptions(obj.result.data.options);
         getHomeIconPictureList(obj.result.data.image);
 
-        document.getElementById('homeIconPreview').innerHTML = obj.result.data.ligature;
+        document.getElementById('homeIconPreview').innerText = obj.result.data.ligature;
         document.getElementById('homeIconPreview').style.backgroundColor = obj.result.data.bgcolor;
         
         if (obj.result.data.image === '') {
@@ -1008,6 +1008,7 @@ function getHomeIconPictureList(picture) {
  https://github.com/jcorporation/mympd
 */
 
+//eslint-disable-next-line no-unused-vars
 function delQueueJukeboxSong(pos) {
     sendAPI("MPD_API_JUKEBOX_RM", {"pos": pos}, function() {
         sendAPI("MPD_API_JUKEBOX_LIST", {"offset": app.current.page, "cols": settings.colsQueueJukebox}, parseJukeboxList);
@@ -2800,7 +2801,7 @@ function appInit() {
     }, false);
 
     document.getElementById('inputHomeIconLigature').addEventListener('change', function(event) {
-        document.getElementById('homeIconPreview').innerHTML = event.target.value;
+        document.getElementById('homeIconPreview').innerText = event.target.value;
         if (event.target.value !== '') {
             document.getElementById('selectHomeIconImage').value = '';
             document.getElementById('homeIconPreview').style.backgroundImage = '';
@@ -2820,7 +2821,7 @@ function appInit() {
         }
         else {
             document.getElementById('divHomeIconLigature').classList.remove('hide');
-            document.getElementById('homeIconPreview').innerHTML = document.getElementById('inputHomeIconLigature').value;
+            document.getElementById('homeIconPreview').innerText = document.getElementById('inputHomeIconLigature').value;
         }
     }, false);
 
@@ -3256,7 +3257,7 @@ function appInit() {
                 let li = document.createElement('button');
                 li.classList.add('btn', 'btn-light', 'mr-2');
                 li.setAttribute('data-filter', encodeURI(app.current.filter + ' ' + match.options[match.selectedIndex].value + ' \'' + this.value + '\''));
-                li.innerHTML = e(app.current.filter) + ' ' + match.options[match.selectedIndex].value + ' \'' + e(this.value) + '\'<span class="ml-2 badge badge-secondary">&times;</span>';
+                li.innerHTML = e(app.current.filter) + ' ' + e(match.options[match.selectedIndex].value) + ' \'' + e(this.value) + '\'<span class="ml-2 badge badge-secondary">&times;</span>';
                 this.value = '';
                 document.getElementById('searchDatabaseCrumb').appendChild(li);
             }

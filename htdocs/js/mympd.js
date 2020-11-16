@@ -1069,7 +1069,7 @@ function appInit() {
     }, false);
 
     document.getElementById('inputHomeIconLigature').addEventListener('change', function(event) {
-        document.getElementById('homeIconPreview').innerHTML = event.target.value;
+        document.getElementById('homeIconPreview').innerText = event.target.value;
         if (event.target.value !== '') {
             document.getElementById('selectHomeIconImage').value = '';
             document.getElementById('homeIconPreview').style.backgroundImage = '';
@@ -1089,7 +1089,7 @@ function appInit() {
         }
         else {
             document.getElementById('divHomeIconLigature').classList.remove('hide');
-            document.getElementById('homeIconPreview').innerHTML = document.getElementById('inputHomeIconLigature').value;
+            document.getElementById('homeIconPreview').innerText = document.getElementById('inputHomeIconLigature').value;
         }
     }, false);
 
@@ -1525,7 +1525,7 @@ function appInit() {
                 let li = document.createElement('button');
                 li.classList.add('btn', 'btn-light', 'mr-2');
                 li.setAttribute('data-filter', encodeURI(app.current.filter + ' ' + match.options[match.selectedIndex].value + ' \'' + this.value + '\''));
-                li.innerHTML = e(app.current.filter) + ' ' + match.options[match.selectedIndex].value + ' \'' + e(this.value) + '\'<span class="ml-2 badge badge-secondary">&times;</span>';
+                li.innerHTML = e(app.current.filter) + ' ' + e(match.options[match.selectedIndex].value) + ' \'' + e(this.value) + '\'<span class="ml-2 badge badge-secondary">&times;</span>';
                 this.value = '';
                 document.getElementById('searchDatabaseCrumb').appendChild(li);
             }
