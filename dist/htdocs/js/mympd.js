@@ -890,7 +890,7 @@ function _addHomeIcon(cmd, name, ligature, options) {
     
     document.getElementById('homeIconPreview').innerText = ligature;
     document.getElementById('homeIconPreview').style.backgroundColor = '#28a745';
-    document.getElementById('homeIconPreview').backgroundImage = '';
+    document.getElementById('homeIconPreview').style.backgroundImage = '';
     document.getElementById('divHomeIconLigature').classList.remove('hide');
     modalEditHomeIcon.show();
 }
