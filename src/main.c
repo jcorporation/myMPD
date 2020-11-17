@@ -51,11 +51,23 @@ _Thread_local sds thread_logname;
 
 static void mympd_signal_handler(int sig_num) {
     signal(sig_num, mympd_signal_handler);  // Reinstantiate signal handler
-    s_signal_received = sig_num;
-    //Wakeup queue loops
-    pthread_cond_signal(&mympd_api_queue->wakeup);
-    pthread_cond_signal(&mympd_script_queue->wakeup);
-    LOG_INFO("Signal %d received, exiting", sig_num);
+    if (sig_num == SIGTERM || sig_num == SIGINT) {
+        s_signal_received = sig_num;
+        //Wakeup queue loops
+        pthread_cond_signal(&mympd_api_queue->wakeup);
+        pthread_cond_signal(&mympd_script_queue->wakeup);
+        LOG_INFO("Signal %d received, exiting", sig_num);
+    }
+    else if (sig_num == SIGHUP) {
+        LOG_INFO("Signal %d received, saving states", sig_num);
+        t_work_request *request = create_request(-1, 0, MYMPD_API_STATE_SAVE, "MYMPD_API_STATE_SAVE", "");
+        request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_STATE_SAVE\",\"params\":{}}");
+        tiny_queue_push(mympd_api_queue, request, 0);    
+        
+        t_work_request *request2 = create_request(-1, 0, MPD_API_STATE_SAVE, "MPD_API_STATE_SAVE", "");
+        request2->data = sdscat(request2->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPD_API_STATE_SAVE\",\"params\":{}}");
+        tiny_queue_push(mpd_client_queue, request2, 0);    
+    }
 }
 
 static bool do_chown(const char *file_path, const char *user_name) {
@@ -395,6 +407,7 @@ int main(int argc, char **argv) {
     //set signal handler
     signal(SIGTERM, mympd_signal_handler);
     signal(SIGINT, mympd_signal_handler);
+    signal(SIGHUP, mympd_signal_handler); 
     setvbuf(stdout, NULL, _IOLBF, 0);
     setvbuf(stderr, NULL, _IOLBF, 0);
 

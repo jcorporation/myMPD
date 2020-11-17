@@ -66,6 +66,11 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
     t_work_result *response = create_result(request);
     
     switch(request->cmd_id) {
+        case MPD_API_STATE_SAVE:
+            mpd_client_last_played_list_save(config, mpd_client_state);
+            triggerfile_save(config, mpd_client_state);
+            response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+            break;
         case MPD_API_JUKEBOX_RM:
             je = json_scanf(request->data, sdslen(request->data), "{params: {pos: %u}}", &uint_buf1);
             if (je == 1) {

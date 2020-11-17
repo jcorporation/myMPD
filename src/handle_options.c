@@ -43,7 +43,6 @@ bool smartpls_default(t_config *config) {
     sds prefix = sdsempty();
     sds prefix_file = sdscatfmt(sdsempty(), "%s/state/smartpls_prefix", config->varlibdir);
     FILE *fp = fopen(prefix_file, "r");
-    sdsfree(prefix_file);
     if (fp != NULL) {
         size_t n = 0;
         char *line = NULL;
@@ -59,6 +58,7 @@ bool smartpls_default(t_config *config) {
         LOG_DEBUG("Can not open file \"%s\": %s", prefix_file, strerror(errno));
         prefix = sdscat(prefix, config->smartpls_prefix);
     }
+    sdsfree(prefix_file);
     
     sds smartpls_file = sdscatfmt(sdsempty(), "%s%sbestRated", prefix, (sdslen(prefix) > 0 ? "-" : ""));
     rc = smartpls_init(config, smartpls_file, 

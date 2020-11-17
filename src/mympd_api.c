@@ -118,6 +118,15 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
     t_work_result *response = create_result(request);
     
     switch(request->cmd_id) {
+        case MYMPD_API_STATE_SAVE:
+            if (config->home == true) {
+                mympd_api_write_home_list(config, mympd_state);
+            }
+            if (mympd_state->timer == true) {
+                timerfile_save(config, mympd_state);
+            }
+            response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+            break;
         case MYMPD_API_HOME_ICON_PICTURE_LIST:
             response->data = mympd_api_put_home_picture_list(config, response->data, request->method, request->id);
             break;

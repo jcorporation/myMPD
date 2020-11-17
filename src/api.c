@@ -30,6 +30,8 @@ bool is_public_api_method(enum mympd_cmd_ids cmd_id) {
         case MYMPD_API_TIMER_SET:
         case MYMPD_API_SCRIPT_INIT:
         case MYMPD_API_SCRIPT_POST_EXECUTE:
+        case MYMPD_API_STATE_SAVE:
+        case MPD_API_STATE_SAVE:
             return false;
         default:
             return true;
