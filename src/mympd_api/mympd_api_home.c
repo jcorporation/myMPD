@@ -108,7 +108,13 @@ bool mympd_api_write_home_list(t_config *config, t_mympd_state *mympd_state) {
     FILE *fp = fdopen(fd, "w");
     struct list_node *current = mympd_state->home_list.head;
     while (current != NULL) {
-        fprintf(fp,"%s\n", current->key);
+        int rc = fprintf(fp,"%s\n", current->key);
+        if (rc < 0) {
+            LOG_ERROR("Can not write to file \"%s\"", tmp_file);
+            sdsfree(tmp_file);
+            fclose(fp);
+            return false;
+        }
         current = current->next;
     }
     fclose(fp);

@@ -33,6 +33,7 @@ static sds state_file_rw_string(t_config *config, const char *name, const char *
 static bool state_file_rw_bool(t_config *config, const char *name, const bool def_value, bool warn);
 static int state_file_rw_int(t_config *config, const char *name, const int def_value, bool warn);
 static bool state_file_write(t_config *config, const char *name, const char *value);
+static sds default_navbar_icons(t_config *config);
 static sds read_navbar_icons(t_config *config);
 
 //public functions
@@ -612,7 +613,10 @@ static bool state_file_write(t_config *config, const char *name, const char *val
         return false;
     }
     FILE *fp = fdopen(fd, "w");
-    fputs(value, fp);
+    int rc = fputs(value, fp);
+    if (rc == EOF) {
+        LOG_ERROR("Can not write to file \"%s\"", tmp_file);
+    }
     fclose(fp);
     sds cfg_file = sdscatfmt(sdsempty(), "%s/state/%s", config->varlibdir, name);
     if (rename(tmp_file, cfg_file) == -1) {
@@ -626,6 +630,25 @@ static bool state_file_write(t_config *config, const char *name, const char *val
     return true;
 }
 
+static sds default_navbar_icons(t_config *config) {
+    LOG_INFO("Writing default navbar_icons");
+    sds file_name = sdscatfmt(sdsempty(), "%s/state/navbar_icons", config->varlibdir);
+    sds buffer = sdsnew(NAVBAR_ICONS);
+    FILE *fp = fopen(file_name, "w");
+    if (fp == NULL) {
+        LOG_ERROR("Can not open file \"%s\" for write: %s", file_name, strerror(errno));
+        sdsfree(file_name);
+        return buffer;
+    }
+    int rc = fputs(buffer, fp);
+    if (rc == EOF) {
+        LOG_ERROR("Can not write to file \"%s\"", file_name);
+    }
+    fclose(fp);
+    sdsfree(file_name);
+    return buffer;
+}
+
 static sds read_navbar_icons(t_config *config) {
     sds file_name = sdscatfmt(sdsempty(), "%s/state/navbar_icons", config->varlibdir);
     sds buffer = sdsempty();
@@ -634,7 +657,7 @@ static sds read_navbar_icons(t_config *config) {
         if (errno != ENOENT) {
             LOG_ERROR("Can not open file \"%s\": %s", file_name, strerror(errno));
         }
-        buffer = sdscat(buffer, "[]");
+        buffer = default_navbar_icons(config);
         sdsfree(file_name);
         return buffer;
     }
@@ -647,10 +670,10 @@ static sds read_navbar_icons(t_config *config) {
         strtok_r(line, "\n", &crap);
         buffer = sdscat(buffer, line);
     }
-    free(line);
+    FREE_PTR(line);
     fclose(fp);
     if (sdslen(buffer) == 0) {
-        buffer = sdscat(buffer, "[]");
+        buffer = default_navbar_icons(config);
     }
     return buffer;
 }

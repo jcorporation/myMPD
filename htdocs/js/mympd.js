@@ -38,39 +38,6 @@ var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 var ligatureMore = 'menu';
 var progressBarTransition = 'width 1s linear';
 
-var navbarIcons = [
-{
-    "ligature": "home",
-    "title": "Home",
-    "options": ["Home"],
-    "badge": ""
-},
-{
-    "ligature": "play_arrow",
-    "title": "Playback",
-    "options": ["Playback"],
-    "badge": ""
-},
-{
-    "ligature": "queue_music",
-    "title": "Queue",
-    "options": ["Queue"],
-    "badge": "<span id=\"badgeQueueItems\" class=\"badge badge-secondary\"></span>"
-},
-{
-    "ligature": "library_music",
-    "title": "Browse",
-    "options": ["Browse"],
-    "badge": ""
-},
-{
-    "ligature": "search",
-    "title": "Search",
-    "options": ["Search"],
-    "badge": ""
-}
-];
-
 var app = {};
 app.apps = { 
     "Home": { 
@@ -802,8 +769,12 @@ function appInit() {
 
     document.getElementById('navbar-main').addEventListener('click', function(event) {
         event.preventDefault();
-        if (event.target.nodeName === 'A') {
-            parseCmd(event, event.target.getAttribute('data-href'));
+        let href = event.target.getAttribute('data-href');
+        if (href === null) {
+            href = event.target.parentNode.getAttribute('data-href');
+        }
+        if (href !== null) {
+            parseCmd(event, href);
         }
     }, false);
     

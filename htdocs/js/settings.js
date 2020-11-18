@@ -141,9 +141,6 @@ function parseSettings() {
         }
     });
 
-    if (settings.navbarIcons.length > 0) {
-        navbarIcons = settings.navbarIcons;
-    }
     setNavbarIcons();
     
     document.getElementById('selectTheme').value = settings.theme;
@@ -986,16 +983,16 @@ function setNavbarIcons() {
     }
     
     let btns = '';
-    for (let i = 0; i < navbarIcons.length; i++) {
+    for (let i = 0; i < settings.navbarIcons.length; i++) {
         let hide = '';
-        if (settings.featHome === false && navbarIcons[i].title === 'Home') {
+        if (settings.featHome === false && settings.navbarIcons[i].title === 'Home') {
             hide = 'hide';
         }
-        btns += '<div id="nav' + navbarIcons[i].options.join('') + '" class="nav-item flex-fill text-center ' + hide + '">' +
-          '<a data-title-phrase="' + t(navbarIcons[i].title) + '" data-href="" class="nav-link text-light" href="#">' +
-            '<span class="material-icons">' + navbarIcons[i].ligature + '</span>' + 
-            '<span class="navText" data-phrase="' + t(navbarIcons[i].title) + '"></span>' +
-            (navbarIcons[i].badge !== '' ? navbarIcons[i].badge : '') +
+        btns += '<div id="nav' + settings.navbarIcons[i].options.join('') + '" class="nav-item flex-fill text-center ' + hide + '">' +
+          '<a data-title-phrase="' + t(settings.navbarIcons[i].title) + '" data-href="" class="nav-link text-light" href="#">' +
+            '<span class="material-icons">' + settings.navbarIcons[i].ligature + '</span>' + 
+            '<span class="navText" data-phrase="' + t(settings.navbarIcons[i].title) + '"></span>' +
+            (settings.navbarIcons[i].badge !== '' ? settings.navbarIcons[i].badge : '') +
           '</a>' +
         '</div>';
     }
@@ -1007,7 +1004,11 @@ function setNavbarIcons() {
     domCache.badgeQueueItems = document.getElementById('badgeQueueItems');
     domCache.badgeQueueItems.innerText = oldQueueLength;
 
+    if (document.getElementById('nav' + app.current.app)) {
+        document.getElementById('nav' + app.current.app).classList.add('active');
+    }
+
     for (let i = 0; i < domCache.navbarBtnsLen; i++) {
-        domCache.navbarBtns[i].firstChild.setAttribute('data-href', JSON.stringify({"cmd": "appGoto", "options": navbarIcons[i].options}));
+        domCache.navbarBtns[i].firstChild.setAttribute('data-href', JSON.stringify({"cmd": "appGoto", "options": settings.navbarIcons[i].options}));
     }
 }
