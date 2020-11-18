@@ -649,5 +649,8 @@ static sds read_navbar_icons(t_config *config) {
     }
     free(line);
     fclose(fp);
+    if (sdslen(buffer) == 0) {
+        buffer = sdscat(buffer, "[]");
+    }
     return buffer;
 }
