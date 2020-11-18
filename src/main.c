@@ -56,10 +56,10 @@ static void mympd_signal_handler(int sig_num) {
         //Wakeup queue loops
         pthread_cond_signal(&mympd_api_queue->wakeup);
         pthread_cond_signal(&mympd_script_queue->wakeup);
-        LOG_INFO("Signal %d received, exiting", sig_num);
+        LOG_INFO("Signal %s received, exiting", strsignal(sig_num));
     }
     else if (sig_num == SIGHUP) {
-        LOG_INFO("Signal %d received, saving states", sig_num);
+        LOG_INFO("Signal %s received, saving states", strsignal(sig_num));
         t_work_request *request = create_request(-1, 0, MYMPD_API_STATE_SAVE, "MYMPD_API_STATE_SAVE", "");
         request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_STATE_SAVE\",\"params\":{}}");
         tiny_queue_push(mympd_api_queue, request, 0);    
