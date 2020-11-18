@@ -38,6 +38,39 @@ var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 var ligatureMore = 'menu';
 var progressBarTransition = 'width 1s linear';
 
+var navbarIcons = [
+{
+    "ligature": "home",
+    "title": "Home",
+    "options": ["Home"],
+    "badge": ""
+},
+{
+    "ligature": "play_arrow",
+    "title": "Playback",
+    "options": ["Playback"],
+    "badge": ""
+},
+{
+    "ligature": "queue_music",
+    "title": "Queue",
+    "options": ["Queue"],
+    "badge": "<span id=\"badgeQueueItems\" class=\"badge badge-secondary\"></span>"
+},
+{
+    "ligature": "library_music",
+    "title": "Browse",
+    "options": ["Browse"],
+    "badge": ""
+},
+{
+    "ligature": "search",
+    "title": "Search",
+    "options": ["Search"],
+    "badge": ""
+}
+];
+
 var app = {};
 app.apps = { 
     "Home": { 
@@ -65,7 +98,7 @@ app.apps = {
                 "sort": "-",
                 "tag": "-",
                 "search": "",
-                "scrollPos": 0 
+                "scrollPos": 0
             },
             "LastPlayed": {
                 "page": 0,
@@ -154,8 +187,6 @@ app.current = { "app": "Home", "tab": undefined, "view": undefined, "page": 0, "
 app.last = { "app": undefined, "tab": undefined, "view": undefined, "filter": "", "search": "", "sort": "", "tag": "", "scrollPos": 0 };
 
 var domCache = {};
-domCache.navbarBtns = document.getElementById('navbar-main').getElementsByTagName('div');
-domCache.navbarBtnsLen = domCache.navbarBtns.length;
 domCache.counter = document.getElementById('counter');
 domCache.volumePrct = document.getElementById('volumePrct');
 domCache.volumeControl = document.getElementById('volumeControl');
@@ -178,7 +209,7 @@ domCache.footerAlbum = document.getElementById('footerAlbum');
 domCache.footerCover = document.getElementById('footerCover');
 domCache.btnVoteUp = document.getElementById('btnVoteUp');
 domCache.btnVoteDown = document.getElementById('btnVoteDown');
-domCache.badgeQueueItems = document.getElementById('badgeQueueItems');
+domCache.badgeQueueItems = null;
 domCache.searchstr = document.getElementById('searchstr');
 domCache.searchCrumb = document.getElementById('searchCrumb');
 domCache.body = document.getElementsByTagName('body')[0];
@@ -768,6 +799,13 @@ function appInit() {
             icon.innerText = icon.innerText === 'keyboard_arrow_right' ? 'keyboard_arrow_down' : 'keyboard_arrow_right';
         }, false);
     }    
+
+    document.getElementById('navbar-main').addEventListener('click', function(event) {
+        event.preventDefault();
+        if (event.target.nodeName === 'A') {
+            parseCmd(event, event.target.getAttribute('data-href'));
+        }
+    }, false);
     
     document.getElementById('volumeMenu').parentNode.addEventListener('show.bs.dropdown', function () {
         sendAPI("MPD_API_PLAYER_OUTPUT_LIST", {}, parseOutputs);

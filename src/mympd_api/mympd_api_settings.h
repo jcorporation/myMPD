@@ -7,10 +7,6 @@
 #ifndef __MYMPD_API_SETTINGS_H
 #define __MYMPD_API_SETTINGS_H
 void mympd_api_read_statefiles(t_config *config, t_mympd_state *mympd_state);
-sds state_file_rw_string(t_config *config, const char *name, const char *def_value, bool warn);
-bool state_file_rw_bool(t_config *config, const char *name, const bool def_value, bool warn);
-int state_file_rw_int(t_config *config, const char *name, const int def_value, bool warn);
-bool state_file_write(t_config *config, const char *name, const char *value);
 sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buffer, sds method, long request_id);
 void mympd_api_settings_reset(t_config *config, t_mympd_state *mympd_state);
 bool mympd_api_cols_save(t_config *config, t_mympd_state *mympd_state, const char *table, const char *cols);

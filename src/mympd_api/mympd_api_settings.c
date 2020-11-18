@@ -28,6 +28,14 @@
 #include "mympd_api_timer_handlers.h"
 #include "mympd_api_settings.h"
 
+//private definitions
+static sds state_file_rw_string(t_config *config, const char *name, const char *def_value, bool warn);
+static bool state_file_rw_bool(t_config *config, const char *name, const bool def_value, bool warn);
+static int state_file_rw_int(t_config *config, const char *name, const int def_value, bool warn);
+static bool state_file_write(t_config *config, const char *name, const char *value);
+static sds read_navbar_icons(t_config *config);
+
+//public functions
 void mympd_api_settings_delete(t_config *config) {
     if (config->readonly == true) {
         return;
@@ -39,7 +47,7 @@ void mympd_api_settings_delete(t_config *config) {
         "last_played", "last_played_count", "locale", "localplayer", "love", "love_channel", "love_message",
         "max_elements_per_page",  "mpd_host", "mpd_pass", "mpd_port", "notification_page", "notification_web", "searchtaglist",
         "smartpls", "stickers", "stream_port", "stream_url", "taglist", "music_directory", "bookmarks", "bookmark_list", "coverimage_size_small", 
-        "theme", "timer", "highlight_color", "media_session", "booklet_name", "lyrics", "home_list", 0};
+        "theme", "timer", "highlight_color", "media_session", "booklet_name", "lyrics", "home_list", "navbar_icons", 0};
     const char** ptr = state_files;
     while (*ptr != 0) {
         sds filename = sdscatfmt(sdsempty(), "%s/state/%s", config->varlibdir, *ptr);
@@ -431,97 +439,7 @@ void mympd_api_read_statefiles(t_config *config, t_mympd_state *mympd_state) {
         mympd_state->smartpls = false;
     }
     strip_slash(mympd_state->music_directory);
-}
-
-sds state_file_rw_string(t_config *config, const char *name, const char *def_value, bool warn) {
-    char *line = NULL;
-    size_t n = 0;
-    ssize_t read;
-    
-    sds result = sdsempty();
-    
-    if (!validate_string(name)) {
-        return result;
-    }
-    
-    sds cfg_file = sdscatfmt(sdsempty(), "%s/state/%s", config->varlibdir, name);
-    FILE *fp = fopen(cfg_file, "r");
-    sdsfree(cfg_file);
-    if (fp == NULL) {
-        if (warn == true) {
-            LOG_WARN("Can not open file \"%s\": %s", cfg_file, strerror(errno));
-        }
-        state_file_write(config, name, def_value);
-        result = sdscat(result, def_value);
-        return result;
-    }
-    read = getline(&line, &n, fp);
-    if (read > 0) {
-        LOG_DEBUG("State %s: %s", name, line);
-    }
-    fclose(fp);
-    if (read > 0) {
-        result = sdscat(result, line);
-        sdstrim(result, " \n\r");
-        FREE_PTR(line);
-        return result;
-    }
-    
-    FREE_PTR(line);
-    result = sdscat(result, def_value);
-    return result;
-}
-
-bool state_file_rw_bool(t_config *config, const char *name, const bool def_value, bool warn) {
-    bool value = def_value;
-    sds line = state_file_rw_string(config, name, def_value == true ? "true" : "false", warn);
-    if (sdslen(line) > 0) {
-        value = strtobool(line);
-        sdsfree(line);
-    }
-    return value;
-}
-
-int state_file_rw_int(t_config *config, const char *name, const int def_value, bool warn) {
-    char *crap = NULL;
-    int value = def_value;
-    sds def_value_str = sdsfromlonglong(def_value);
-    sds line = state_file_rw_string(config, name, def_value_str, warn);
-    sdsfree(def_value_str);
-    if (sdslen(line) > 0) {
-        value = strtoimax(line, &crap, 10);
-        sdsfree(line);
-    }
-    return value;
-}
-
-bool state_file_write(t_config *config, const char *name, const char *value) {
-    if (config->readonly == true) {
-        return true;
-    }
-    if (!validate_string(name)) {
-        return false;
-    }
-    sds tmp_file = sdscatfmt(sdsempty(), "%s/state/%s.XXXXXX", config->varlibdir, name);
-    int fd = mkstemp(tmp_file);
-    if (fd < 0) {
-        LOG_ERROR("Can not open file \"%s\" for write: %s", tmp_file, strerror(errno));
-        sdsfree(tmp_file);
-        return false;
-    }
-    FILE *fp = fdopen(fd, "w");
-    fputs(value, fp);
-    fclose(fp);
-    sds cfg_file = sdscatfmt(sdsempty(), "%s/state/%s", config->varlibdir, name);
-    if (rename(tmp_file, cfg_file) == -1) {
-        LOG_ERROR("Renaming file from \"%s\" to \"%s\" failed: %s", tmp_file, cfg_file, strerror(errno));
-        sdsfree(tmp_file);
-        sdsfree(cfg_file);
-        return false;
-    }
-    sdsfree(tmp_file);
-    sdsfree(cfg_file);
-    return true;
+    mympd_state->navbar_icons = read_navbar_icons(config);
 }
 
 sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
@@ -591,7 +509,8 @@ sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buf
     buffer = sdscatfmt(buffer, "\"colsBrowseFilesystem\":%s,", mympd_state->cols_browse_filesystem);
     buffer = sdscatfmt(buffer, "\"colsPlayback\":%s,", mympd_state->cols_playback);
     buffer = sdscatfmt(buffer, "\"colsQueueLastPlayed\":%s,", mympd_state->cols_queue_last_played);
-    buffer = sdscatfmt(buffer, "\"colsQueueJukebox\":%s", mympd_state->cols_queue_jukebox);
+    buffer = sdscatfmt(buffer, "\"colsQueueJukebox\":%s,", mympd_state->cols_queue_jukebox);
+    buffer = sdscatfmt(buffer, "\"navbarIcons\":%s", mympd_state->navbar_icons);
 
     if (config->syscmds == true) {
         buffer = sdscat(buffer, ",\"syscmdList\":[");
@@ -608,5 +527,127 @@ sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buf
     }
     
     buffer = jsonrpc_end_result(buffer);
+    return buffer;
+}
+
+//privat functions
+static sds state_file_rw_string(t_config *config, const char *name, const char *def_value, bool warn) {
+    char *line = NULL;
+    size_t n = 0;
+    ssize_t read;
+    
+    sds result = sdsempty();
+    
+    if (!validate_string(name)) {
+        return result;
+    }
+    
+    sds cfg_file = sdscatfmt(sdsempty(), "%s/state/%s", config->varlibdir, name);
+    FILE *fp = fopen(cfg_file, "r");
+    if (fp == NULL) {
+        if (warn == true) {
+            LOG_WARN("Can not open file \"%s\": %s", cfg_file, strerror(errno));
+        }
+        else if (errno != ENOENT) {
+            LOG_ERROR("Can not open file \"%s\": %s", cfg_file, strerror(errno));
+        }
+        state_file_write(config, name, def_value);
+        result = sdscat(result, def_value);
+        sdsfree(cfg_file);
+        return result;
+    }
+    sdsfree(cfg_file);
+    read = getline(&line, &n, fp);
+    if (read > 0) {
+        LOG_DEBUG("State %s: %s", name, line);
+    }
+    fclose(fp);
+    if (read > 0) {
+        result = sdscat(result, line);
+        sdstrim(result, " \n\r");
+        FREE_PTR(line);
+        return result;
+    }
+    
+    FREE_PTR(line);
+    result = sdscat(result, def_value);
+    return result;
+}
+
+static bool state_file_rw_bool(t_config *config, const char *name, const bool def_value, bool warn) {
+    bool value = def_value;
+    sds line = state_file_rw_string(config, name, def_value == true ? "true" : "false", warn);
+    if (sdslen(line) > 0) {
+        value = strtobool(line);
+        sdsfree(line);
+    }
+    return value;
+}
+
+static int state_file_rw_int(t_config *config, const char *name, const int def_value, bool warn) {
+    char *crap = NULL;
+    int value = def_value;
+    sds def_value_str = sdsfromlonglong(def_value);
+    sds line = state_file_rw_string(config, name, def_value_str, warn);
+    sdsfree(def_value_str);
+    if (sdslen(line) > 0) {
+        value = strtoimax(line, &crap, 10);
+        sdsfree(line);
+    }
+    return value;
+}
+
+static bool state_file_write(t_config *config, const char *name, const char *value) {
+    if (config->readonly == true) {
+        return true;
+    }
+    if (!validate_string(name)) {
+        return false;
+    }
+    sds tmp_file = sdscatfmt(sdsempty(), "%s/state/%s.XXXXXX", config->varlibdir, name);
+    int fd = mkstemp(tmp_file);
+    if (fd < 0) {
+        LOG_ERROR("Can not open file \"%s\" for write: %s", tmp_file, strerror(errno));
+        sdsfree(tmp_file);
+        return false;
+    }
+    FILE *fp = fdopen(fd, "w");
+    fputs(value, fp);
+    fclose(fp);
+    sds cfg_file = sdscatfmt(sdsempty(), "%s/state/%s", config->varlibdir, name);
+    if (rename(tmp_file, cfg_file) == -1) {
+        LOG_ERROR("Renaming file from \"%s\" to \"%s\" failed: %s", tmp_file, cfg_file, strerror(errno));
+        sdsfree(tmp_file);
+        sdsfree(cfg_file);
+        return false;
+    }
+    sdsfree(tmp_file);
+    sdsfree(cfg_file);
+    return true;
+}
+
+static sds read_navbar_icons(t_config *config) {
+    sds file_name = sdscatfmt(sdsempty(), "%s/state/navbar_icons", config->varlibdir);
+    sds buffer = sdsempty();
+    FILE *fp = fopen(file_name, "r");
+    if (fp == NULL) {
+        if (errno != ENOENT) {
+            LOG_ERROR("Can not open file \"%s\": %s", file_name, strerror(errno));
+        }
+        buffer = sdscat(buffer, "[]");
+        sdsfree(file_name);
+        return buffer;
+    }
+    sdsfree(file_name);
+    char *line = NULL;
+    char *crap = NULL;
+    size_t n = 0;
+    ssize_t read;
+    while ((read = getline(&line, &n, fp)) > 0) {
+        strtok_r(line, "\n", &crap);
+        buffer = sdscat(buffer, line);
+    }
+    free(line);
+    fclose(fp);
     return buffer;
 }

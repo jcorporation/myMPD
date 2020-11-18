@@ -140,6 +140,11 @@ function parseSettings() {
             domCache.body.classList.remove(key);
         }
     });
+
+    if (settings.navbarIcons.length > 0) {
+        navbarIcons = settings.navbarIcons;
+    }
+    setNavbarIcons();
     
     document.getElementById('selectTheme').value = settings.theme;
     
@@ -971,4 +976,38 @@ function savePlaySettings() {
         "repeat": (document.getElementById('playDropdownBtnRepeat').classList.contains('active') ? 1 : 0),
         "jukeboxMode": parseInt(jukeboxMode)
         }, getSettings);
+}
+
+function setNavbarIcons() {
+    let oldBadgeQueueItems = document.getElementById('badgeQueueItems');
+    let oldQueueLength = 0;
+    if (oldBadgeQueueItems) {
+        oldQueueLength = oldBadgeQueueItems.innerText;
+    }
+    
+    let btns = '';
+    for (let i = 0; i < navbarIcons.length; i++) {
+        let hide = '';
+        if (settings.featHome === false && navbarIcons[i].title === 'Home') {
+            hide = 'hide';
+        }
+        btns += '<div id="nav' + navbarIcons[i].options.join('') + '" class="nav-item flex-fill text-center ' + hide + '">' +
+          '<a data-title-phrase="' + t(navbarIcons[i].title) + '" data-href="" class="nav-link text-light" href="#">' +
+            '<span class="material-icons">' + navbarIcons[i].ligature + '</span>' + 
+            '<span class="navText" data-phrase="' + t(navbarIcons[i].title) + '"></span>' +
+            (navbarIcons[i].badge !== '' ? navbarIcons[i].badge : '') +
+          '</a>' +
+        '</div>';
+    }
+    let container = document.getElementById('navbar-main');
+    container.innerHTML = btns;
+
+    domCache.navbarBtns = container.getElementsByTagName('div');
+    domCache.navbarBtnsLen = domCache.navbarBtns.length;
+    domCache.badgeQueueItems = document.getElementById('badgeQueueItems');
+    domCache.badgeQueueItems.innerText = oldQueueLength;
+
+    for (let i = 0; i < domCache.navbarBtnsLen; i++) {
+        domCache.navbarBtns[i].firstChild.setAttribute('data-href', JSON.stringify({"cmd": "appGoto", "options": navbarIcons[i].options}));
+    }
 }

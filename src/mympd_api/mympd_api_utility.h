@@ -96,6 +96,7 @@ typedef struct t_mympd_state {
     struct t_timer_list timer_list;
     bool lyrics;
     struct list home_list;
+    sds navbar_icons;
 } t_mympd_state;
 
 void free_mympd_state(t_mympd_state *mympd_state);
