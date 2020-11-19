@@ -519,8 +519,8 @@ function parseMPDSettings() {
     
     if (settings.featTags === false) {
         app.apps.Browse.active = 'Filesystem';
-        app.apps.Search.state = '0/filename/-/-/';
-        app.apps.Queue.state = '0/filename/-/-/';
+        app.apps.Search.state.sort = 'filename';
+        app.apps.Queue.tabs.Current.filter = 'filename';
         settings.colsQueueCurrent = ["Pos", "Title", "Duration"];
         settings.colsQueueLastPlayed = ["Pos", "Title", "LastPlayed"];
         settings.colsQueueJukebox = ["Pos", "Title"];
@@ -568,11 +568,12 @@ function parseMPDSettings() {
     }
 
     if (settings.tags.includes('Title')) {
-        app.apps.Search.state = '0/any/Title/-/';
+        app.apps.Search.sort = 'Title';
     }
     
-    if (!settings.tags.includes('AlbumArtist')) {
-        app.apps.Browse.tabs.Database.state = '0/Artist/Artist/' + settings.dbDefaultTag + '/';
+    if (!settings.tags.includes('AlbumArtist') && app.apps.Browse.tabs.Database.views.List.filter === 'AlbumArtist') {
+        app.apps.Browse.tabs.Database.views.List.filter = 'Artist';
+        app.apps.Browse.tabs.Database.views.List.sort = 'Artist';
     }
     
     if (settings.featPlaylists === true) {
