@@ -46,3 +46,5 @@ Error executing script %{script}: Error while running the message handler
 Error executing script %{script}
 HTTPS Port
 HTTP Port
+Browse
+Home

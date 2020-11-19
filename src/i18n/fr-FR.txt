@@ -726,9 +726,6 @@ Recherche avancée
 myMPD installed as app
 Application myMPD installée
 
-Can not start playing
-La lecture ne peut être lancée
-
 MPD disconnected
 MPD déconnecté
 
