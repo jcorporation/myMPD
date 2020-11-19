@@ -1797,7 +1797,7 @@ app.apps = {
                 "sort": "-",
                 "tag": "-",
                 "search": "",
-                "scrollPos": 0 
+                "scrollPos": 0
             },
             "LastPlayed": {
                 "page": 0,
@@ -1886,8 +1886,6 @@ app.current = { "app": "Home", "tab": undefined, "view": undefined, "page": 0, "
 app.last = { "app": undefined, "tab": undefined, "view": undefined, "filter": "", "search": "", "sort": "", "tag": "", "scrollPos": 0 };
 
 var domCache = {};
-domCache.navbarBtns = document.getElementById('navbar-main').getElementsByTagName('div');
-domCache.navbarBtnsLen = domCache.navbarBtns.length;
 domCache.counter = document.getElementById('counter');
 domCache.volumePrct = document.getElementById('volumePrct');
 domCache.volumeControl = document.getElementById('volumeControl');
@@ -1910,7 +1908,7 @@ domCache.footerAlbum = document.getElementById('footerAlbum');
 domCache.footerCover = document.getElementById('footerCover');
 domCache.btnVoteUp = document.getElementById('btnVoteUp');
 domCache.btnVoteDown = document.getElementById('btnVoteDown');
-domCache.badgeQueueItems = document.getElementById('badgeQueueItems');
+domCache.badgeQueueItems = null;
 domCache.searchstr = document.getElementById('searchstr');
 domCache.searchCrumb = document.getElementById('searchCrumb');
 domCache.body = document.getElementsByTagName('body')[0];
@@ -2500,6 +2498,17 @@ function appInit() {
             icon.innerText = icon.innerText === 'keyboard_arrow_right' ? 'keyboard_arrow_down' : 'keyboard_arrow_right';
         }, false);
     }    
+
+    document.getElementById('navbar-main').addEventListener('click', function(event) {
+        event.preventDefault();
+        let href = event.target.getAttribute('data-href');
+        if (href === null) {
+            href = event.target.parentNode.getAttribute('data-href');
+        }
+        if (href !== null) {
+            parseCmd(event, href);
+        }
+    }, false);
     
     document.getElementById('volumeMenu').parentNode.addEventListener('show.bs.dropdown', function () {
         sendAPI("MPD_API_PLAYER_OUTPUT_LIST", {}, parseOutputs);
@@ -5346,6 +5355,8 @@ function parseSettings() {
             domCache.body.classList.remove(key);
         }
     });
+
+    setNavbarIcons();
     
     document.getElementById('selectTheme').value = settings.theme;
     
@@ -5723,8 +5734,8 @@ function parseMPDSettings() {
     
     if (settings.featTags === false) {
         app.apps.Browse.active = 'Filesystem';
-        app.apps.Search.state = '0/filename/-/-/';
-        app.apps.Queue.state = '0/filename/-/-/';
+        app.apps.Search.state.sort = 'filename';
+        app.apps.Queue.tabs.Current.filter = 'filename';
         settings.colsQueueCurrent = ["Pos", "Title", "Duration"];
         settings.colsQueueLastPlayed = ["Pos", "Title", "LastPlayed"];
         settings.colsQueueJukebox = ["Pos", "Title"];
@@ -5772,11 +5783,12 @@ function parseMPDSettings() {
     }
 
     if (settings.tags.includes('Title')) {
-        app.apps.Search.state = '0/any/Title/-/';
+        app.apps.Search.sort = 'Title';
     }
     
-    if (!settings.tags.includes('AlbumArtist')) {
-        app.apps.Browse.tabs.Database.state = '0/Artist/Artist/' + settings.dbDefaultTag + '/';
+    if (!settings.tags.includes('AlbumArtist') && app.apps.Browse.tabs.Database.views.List.filter === 'AlbumArtist') {
+        app.apps.Browse.tabs.Database.views.List.filter = 'Artist';
+        app.apps.Browse.tabs.Database.views.List.sort = 'Artist';
     }
     
     if (settings.featPlaylists === true) {
@@ -6177,6 +6189,44 @@ function savePlaySettings() {
         "repeat": (document.getElementById('playDropdownBtnRepeat').classList.contains('active') ? 1 : 0),
         "jukeboxMode": parseInt(jukeboxMode)
         }, getSettings);
+}
+
+function setNavbarIcons() {
+    let oldBadgeQueueItems = document.getElementById('badgeQueueItems');
+    let oldQueueLength = 0;
+    if (oldBadgeQueueItems) {
+        oldQueueLength = oldBadgeQueueItems.innerText;
+    }
+    
+    let btns = '';
+    for (let i = 0; i < settings.navbarIcons.length; i++) {
+        let hide = '';
+        if (settings.featHome === false && settings.navbarIcons[i].title === 'Home') {
+            hide = 'hide';
+        }
+        btns += '<div id="nav' + settings.navbarIcons[i].options.join('') + '" class="nav-item flex-fill text-center ' + hide + '">' +
+          '<a data-title-phrase="' + t(settings.navbarIcons[i].title) + '" data-href="" class="nav-link text-light" href="#">' +
+            '<span class="material-icons">' + settings.navbarIcons[i].ligature + '</span>' + 
+            '<span class="navText" data-phrase="' + t(settings.navbarIcons[i].title) + '"></span>' +
+            (settings.navbarIcons[i].badge !== '' ? settings.navbarIcons[i].badge : '') +
+          '</a>' +
+        '</div>';
+    }
+    let container = document.getElementById('navbar-main');
+    container.innerHTML = btns;
+
+    domCache.navbarBtns = container.getElementsByTagName('div');
+    domCache.navbarBtnsLen = domCache.navbarBtns.length;
+    domCache.badgeQueueItems = document.getElementById('badgeQueueItems');
+    domCache.badgeQueueItems.innerText = oldQueueLength;
+
+    if (document.getElementById('nav' + app.current.app)) {
+        document.getElementById('nav' + app.current.app).classList.add('active');
+    }
+
+    for (let i = 0; i < domCache.navbarBtnsLen; i++) {
+        domCache.navbarBtns[i].firstChild.setAttribute('data-href', JSON.stringify({"cmd": "appGoto", "options": settings.navbarIcons[i].options}));
+    }
 }
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
@@ -7325,7 +7375,7 @@ function setCols(table, className) {
     }
     let sort = app.current.sort;
     
-    if (table === 'Search' && app.apps.Search.state === '0/any/Title/-/') {
+    if (table === 'Search' && app.apps.Search.sort === 'Title') {
         if (settings.tags.includes('Title')) {
             sort = 'Title';
         }
