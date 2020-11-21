@@ -1247,7 +1247,12 @@
                   <div class="form-group row">
                     <label class="col-sm-4 col-form-label" for="inputBgCssFilter" data-phrase="CSS filter"></label>
                     <div class="col-sm-8 ">
-                      <input id="inputBgCssFilter" type="text" class="form-control border-secondary" value="blur(5px)" placeholder="blur(5px)">
+                      <div class="input-group">
+                        <input id="inputBgCssFilter" type="text" class="form-control border-secondary" value="blur(5px)" placeholder="blur(5px)">
+                        <div class="input-group-append">
+                          <button data-href='{"cmd": "resetValue", "options": ["inputBgCssFilter"]}' data-title-phrase="Reset to default" class="btn btn-secondary"><span class="material-icons">undo</span></button>
+                        </div>
+                      </div>
                       <div class="invalid-feedback" data-phrase="Invalid CSS filter"></div>
                     </div>
                   </div>
