@@ -1573,7 +1573,7 @@ Picture
 Bild
 
 You have not added any Home Icons yet. You can add views, playlists and scripts.
-DU hast noch keine Homeicons hinzugefügt. Du kannst einzelne Ansichten, Wiedergabelisten und Skripte hinzufügen.
+Du hast noch keine Homeicons hinzugefügt. Du kannst einzelne Ansichten, Wiedergabelisten und Skripte hinzufügen.
 
 Can not open directory pics
 Konnte Verzeichnis pics nicht öffnen
@@ -1591,10 +1591,31 @@ Goto view
 Gehe zur Ansicht
 
 View
-Anischt
+Ansicht
 
 Could not remove song from jukebox queue
 Konnte Lied nicht aus der Jukebox Warteschlange entfernen
 
 Reset to default
 Zurücksetzen
+
+Execute Script
+Skript ausführen
+
+App
+App
+
+Tab
+Tab
+
+Offset
+Start
+
+Filter
+Filter
+
+Sort
+Sortieren
+
+Tag
+Tag

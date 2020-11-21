@@ -48,3 +48,8 @@ HTTPS Port
 HTTP Port
 Browse
 Home
+App
+Filter
+Offset
+Sort
+Tab
