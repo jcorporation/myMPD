@@ -134,7 +134,12 @@ function addTagList(el, list) {
         tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="' + settings[list][i] + '">' + t(settings[list][i]) + '</button>';
     }
     if (el === 'BrowseNavFilesystemDropdown' || el === 'BrowseNavPlaylistsDropdown') {
-        tagList = '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="Database">Database</button>';
+        if (settings.featTags === true) {
+            tagList = '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="Database">' + t('Database') + '</button>';
+        }
+        else {
+            tagList = '';
+        }
     }
     if (el === 'BrowseDatabaseByTagDropdown' || el === 'BrowseNavFilesystemDropdown' || el === 'BrowseNavPlaylistsDropdown') {
         if (el === 'BrowseDatabaseByTagDropdown') {
@@ -430,12 +435,13 @@ function parseCmd(event, href) {
 }
 
 function gotoPage(x) {
+    console.log(app.current.page);
     switch (x) {
         case 'next':
-            app.current.page += settings.maxElementsPerPage;
+            app.current.page = parseInt(app.current.page) + parseInt(settings.maxElementsPerPage);
             break;
         case 'prev':
-            app.current.page -= settings.maxElementsPerPage;
+            app.current.page = parseInt(app.current.page) - parseInt(settings.maxElementsPerPage);
             if (app.current.page < 0) {
                 app.current.page = 0;
             }
