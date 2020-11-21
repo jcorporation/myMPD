@@ -519,7 +519,8 @@ function parseMPDSettings() {
     
     if (settings.featTags === false) {
         app.apps.Browse.active = 'Filesystem';
-        app.apps.Search.state.sort = 'filename';
+        app.apps.Search.sort = 'filename';
+        app.apps.Search.filter = 'filename';
         app.apps.Queue.tabs.Current.filter = 'filename';
         settings.colsQueueCurrent = ["Pos", "Title", "Duration"];
         settings.colsQueueLastPlayed = ["Pos", "Title", "LastPlayed"];
@@ -1011,5 +1012,14 @@ function setNavbarIcons() {
 
     for (let i = 0; i < domCache.navbarBtnsLen; i++) {
         domCache.navbarBtns[i].firstChild.setAttribute('data-href', JSON.stringify({"cmd": "appGoto", "options": settings.navbarIcons[i].options}));
+    }
+}
+
+function resetValue(elId) {
+    const el = document.getElementById(elId);
+    switch (elId) {
+        case "inputBgCssFilter":
+            el.value = 'grayscale(100%) opacity(5%)';
+            break;
     }
 }
