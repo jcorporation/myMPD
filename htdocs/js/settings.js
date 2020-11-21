@@ -1015,11 +1015,9 @@ function setNavbarIcons() {
     }
 }
 
+//eslint-disable-next-line no-unused-vars
 function resetValue(elId) {
     const el = document.getElementById(elId);
-    switch (elId) {
-        case "inputBgCssFilter":
-            el.value = 'grayscale(100%) opacity(5%)';
-            break;
-    }
+    el.value = el.getAttribute('data-default') !== null ? el.getAttribute('data-default') : 
+        (el.getAttribute('placeholder') !== null ? el.getAttribute('placeholder') : '');
 }
