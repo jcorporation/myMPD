@@ -1595,3 +1595,6 @@ Anischt
 
 Could not remove song from jukebox queue
 Konnte Lied nicht aus der Jukebox Warteschlange entfernen
+
+Reset to default
+Zurücksetzen
