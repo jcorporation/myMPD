@@ -901,6 +901,20 @@ function appInit() {
         document.getElementById('bgColorPreview').style.backgroundColor = this.value;
     }, false);
     
+    document.getElementById('selectTheme').addEventListener('change', function() {
+        const value = getSelectValue(this);
+        if (value === 'theme-default') { 
+            document.getElementById('inputBgColor').value = '#ccc';
+        }
+        else if (value === 'theme-light') {
+            document.getElementById('inputBgColor').value = '#fff';
+        }
+        else if (value === 'theme-dark') {
+            document.getElementById('inputBgColor').value = '#000';
+        }
+        document.getElementById('bgColorPreview').style.backgroundColor = document.getElementById('inputBgColor').value;
+    }, false);
+    
     document.getElementById('modalAddToQueue').addEventListener('shown.bs.modal', function () {
         document.getElementById('inputAddToQueueQuantity').classList.remove('is-invalid');
         document.getElementById('warnJukeboxPlaylist2').classList.add('hide');
@@ -1376,6 +1390,35 @@ function appInit() {
     
     document.getElementById('BrowseDatabaseCards').addEventListener('keydown', function(event) {
         navigateGrid(event.target, event.key);
+    }, false);
+    
+    document.getElementById('BrowseDatabaseCards').addEventListener('mouseover', function(event) {
+        if (event.target.classList.contains('card-body') && event.target.childNodes.length === 0) {
+            const div = document.createElement('div');
+            div.classList.add('align-self-end', 'album-grid-mouseover', 'material-icons', 'rounded-circle', 'clickable');
+            div.innerText = 'play_arrow';
+            event.target.appendChild(div);
+            div.addEventListener('click', function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+                replaceQueue('dir', decodeURI(event.target.parentNode.parentNode.getAttribute('data-uri')), decodeURI(event.target.parentNode.parentNode.getAttribute('data-name')));
+            }, false);
+            
+            const oldEls = document.getElementById('BrowseDatabaseCards').getElementsByClassName('album-grid-mouseover');
+            if (oldEls.length > 1) {
+                for (let i = 0; i < oldEls.length; i++) {
+                    if (oldEls[i] !== div) {
+                        oldEls[i].remove();
+                    }
+                }
+            }
+        }
+    }, false);
+
+    document.getElementById('BrowseDatabaseCards').addEventListener('mouseout', function(event) {
+        if (event.target.classList.contains('card-body') && (event.relatedTarget === null || ! event.relatedTarget.classList.contains('album-grid-mouseover'))) {
+            event.target.innerHTML = '';
+        }
     }, false);
     
     document.getElementById('BrowseDatabaseDetailList').addEventListener('click', function(event) {

@@ -242,7 +242,7 @@ function parseDatabase(obj) {
                        'data-type="dir" data-name="' + encodeURI(obj.result.data[i].Album) + '" ' +
                        'data-album="' + encodeURI(obj.result.data[i].Album) + '" ' +
                        'data-albumartist="' + encodeURI(obj.result.data[i].AlbumArtist) + '" tabindex="0">' +
-                   '<div class="card-body album-cover-loading album-cover-grid bg-white" id="' + id + '"></div>' +
+                   '<div class="card-body album-cover-loading album-cover-grid bg-white d-flex" id="' + id + '"></div>' +
                    '<div class="card-footer card-footer-grid p-2" title="' + e(obj.result.data[i].AlbumArtist) + ': ' + e(obj.result.data[i].Album) + '">' +
                    e(obj.result.data[i].Album) + '<br/><small>' + e(obj.result.data[i].AlbumArtist) + '</small>' +
                    '</div></div>';

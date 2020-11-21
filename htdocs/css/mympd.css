@@ -413,7 +413,7 @@ small {
   width: var(--mympd-coverimagesizesmall, 175px);
   height: var(--mympd-coverimagesizesmall, 175px);
   max-width: 100%;
-  padding: 0 0.5rem;
+  padding: 0.5rem;
 }
 
 .album-cover-loading {
@@ -973,4 +973,13 @@ div#homeIconPreview {
   padding-top: 1rem;
   float:left;
   margin-right: 2rem;
+}
+
+div.album-grid-mouseover {
+  background-color: rgba(0, 0, 0, 0.5);  
+  color: white;
+  width: 3rem;
+  height: 3rem;
+  padding: 0.3rem;
+  font-size: 2.4rem;
 }
