@@ -1392,34 +1392,25 @@ function appInit() {
         navigateGrid(event.target, event.key);
     }, false);
     
-    document.getElementById('BrowseDatabaseCards').addEventListener('mouseover', function(event) {
-        if (event.target.classList.contains('card-body') && event.target.childNodes.length === 0) {
-            const div = document.createElement('div');
-            div.classList.add('align-self-end', 'album-grid-mouseover', 'material-icons', 'rounded-circle', 'clickable');
-            div.innerText = 'play_arrow';
-            event.target.appendChild(div);
-            div.addEventListener('click', function(event) {
-                event.preventDefault();
-                event.stopPropagation();
-                replaceQueue('dir', decodeURI(event.target.parentNode.parentNode.getAttribute('data-uri')), decodeURI(event.target.parentNode.parentNode.getAttribute('data-name')));
-            }, false);
-            
-            const oldEls = document.getElementById('BrowseDatabaseCards').getElementsByClassName('album-grid-mouseover');
-            if (oldEls.length > 1) {
-                for (let i = 0; i < oldEls.length; i++) {
-                    if (oldEls[i] !== div) {
+    if (isMobile === false) {
+        document.getElementById('BrowseDatabaseCards').addEventListener('mouseover', function(event) {
+            if (event.target.classList.contains('card-body') && event.target.childNodes.length === 0) {
+                const oldEls = document.getElementById('BrowseDatabaseCards').getElementsByClassName('album-grid-mouseover');
+                if (oldEls.length > 1) {
+                    for (let i = 0; i < oldEls.length; i++) {
                         oldEls[i].remove();
                     }
                 }
+                addPlayButton(event.target);
             }
-        }
-    }, false);
+        }, false);
 
-    document.getElementById('BrowseDatabaseCards').addEventListener('mouseout', function(event) {
-        if (event.target.classList.contains('card-body') && (event.relatedTarget === null || ! event.relatedTarget.classList.contains('album-grid-mouseover'))) {
-            event.target.innerHTML = '';
-        }
-    }, false);
+        document.getElementById('BrowseDatabaseCards').addEventListener('mouseout', function(event) {
+            if (event.target.classList.contains('card-body') && (event.relatedTarget === null || ! event.relatedTarget.classList.contains('album-grid-mouseover'))) {
+                event.target.innerHTML = '';
+            }
+        }, false);
+    }
     
     document.getElementById('BrowseDatabaseDetailList').addEventListener('click', function(event) {
         if (event.target.nodeName === 'TD') {
