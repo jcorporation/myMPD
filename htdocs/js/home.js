@@ -6,14 +6,14 @@
 */
 
 function parseHome(obj) {
-    let nrItems = obj.result.returnedEntities;
-    let cardContainer = document.getElementById('HomeCards');
-    let cols = cardContainer.getElementsByClassName('col');
+    const nrItems = obj.result.returnedEntities;
+    const cardContainer = document.getElementById('HomeCards');
+    const cols = cardContainer.getElementsByClassName('col');
     if (cols.length === 0) {
         cardContainer.innerHTML = '';
     }
     for (let i = 0; i < nrItems; i++) {
-        let col = document.createElement('div');
+        const col = document.createElement('div');
         col.classList.add('col', 'px-0', 'flex-grow-0');
         if (obj.result.data[i].AlbumArtist === '') {
             obj.result.data[i].AlbumArtist = t('Unknown artist');
@@ -21,9 +21,9 @@ function parseHome(obj) {
         if (obj.result.data[i].Album === '') {
             obj.result.data[i].Album = t('Unknown album');
         }
-        let href=JSON.stringify({"cmd": obj.result.data[i].cmd, "options": obj.result.data[i].options});
-        let html = '<div class="card home-icons clickable" draggable="true" tabindex="0" data-pos="' + i + '" data-href=\'' + 
-                   href + '\'  title="' + e(obj.result.data[i].name) + '">' +
+        const href=JSON.stringify({"cmd": obj.result.data[i].cmd, "options": obj.result.data[i].options});
+        const html = '<div class="card home-icons clickable" draggable="true" tabindex="0" data-pos="' + i + '" data-href=\'' + 
+                   e(href) + '\'  title="' + e(obj.result.data[i].name) + '">' +
                    '<div class="card-body material-icons">' + e(obj.result.data[i].ligature) + '</div>' +
                    '<div class="card-footer card-footer-grid p-2">' +
                    e(obj.result.data[i].name) + 
