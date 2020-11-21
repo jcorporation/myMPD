@@ -451,7 +451,7 @@ void mympd_config_defaults(t_config *config) {
     config->varlibdir = sdsnew(VARLIB_PATH);
     config->stickers = true;
     config->mixramp = false;
-    config->taglist = sdsnew("Artist, Album, AlbumArtist, Title, Track, Genre, Date");
+    config->taglist = sdsnew("Artist, Album, AlbumArtist, Title, Track, Genre, Date, Disc");
     config->searchtaglist = sdsnew("Artist, Album, AlbumArtist, Title, Genre");
     config->browsetaglist = sdsnew("Artist, Album, AlbumArtist, Genre");
     config->smartpls = true;
@@ -484,10 +484,10 @@ void mympd_config_defaults(t_config *config) {
     config->cols_playback = sdsnew("[\"Artist\",\"Album\"]");
     config->cols_queue_jukebox = sdsnew("[\"Pos\",\"Title\",\"Artist\",\"Album\"]");
     config->localplayer = false;
-    config->stream_port = 8000;
+    config->stream_port = 8443;
     config->stream_url = sdsempty();
     config->bg_cover = true;
-    config->bg_color = sdsnew("#fff");
+    config->bg_color = sdsnew("#ccc");
     config->bg_css_filter = sdsnew("grayscale(100%) opacity(5%)");
     config->coverimage = true;
     config->coverimage_name = sdsnew("folder, cover");
@@ -512,12 +512,12 @@ void mympd_config_defaults(t_config *config) {
     config->booklet_name = sdsnew("booklet.pdf");
     config->mounts = true;
     config->lyrics = true;
-    config->scripting = false;
+    config->scripting = true;
     config->remotescripting = false;
     config->acl = sdsempty();
     config->scriptacl = sdsnew("-0.0.0.0/0,+127.0.0.0/8");
     config->lualibs = sdsnew("base, string, utf8, table, math, mympd");
-    config->scripteditor = false;
+    config->scripteditor = true;
     config->partitions = false;
     config->footer_stop = false;
     config->home = true;
