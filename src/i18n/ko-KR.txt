@@ -792,9 +792,6 @@ Edit playlist
 Update smart playlist
 스마트 연주목록 업데이트
 
-Delete playlist
-연주목록 지우기
-
 Remove
 지우기
 
@@ -1526,3 +1523,78 @@ Websocket is disconnected
 
 Goto playing song
 연주 곡으로 가기
+
+Download booklet
+책자 내려받기
+
+Zoom
+확대
+
+Disc 1
+디스크 1
+
+Disc
+디스크
+
+Can not delete home icon
+홈 아이콘을 지울 수 없음
+
+Can not save home icon
+홈 아이콘을 저장할 수 없음
+
+Home
+홈
+
+Add to homescreen
+홈 화면에 추가
+
+Can not get home icon
+홈 화면을 가져올 수 없음
+
+Can not move home icon
+홈 화면을 옮길 수 없음
+
+Delete home icon
+홈 화면 지움
+
+Duplicate home icon
+홈 화면 복사
+
+Edit home icon
+홈 화면 수정
+
+Ligature
+연결
+
+Options
+옵션
+
+Picture
+그림
+
+You have not added any Home Icons yet. You can add views, playlists and scripts.
+홈 아이콘을 아직 추가하지 않았습니다. 보기, 연주목록, 스크립트를 추가할 수 있습니다.
+
+Can not open directory pics
+디렉터리 그림을 열 수 없음
+
+Ligature overview
+연결 미리보기
+
+Use ligature
+연결 사용
+
+Add and play playlist
+연주목록에 추가하고 연주하기
+
+Goto view
+보기로 가기
+
+View
+보기
+
+Could not remove song from jukebox queue
+뮤직박스 순서의 곡을 지울 수 없음
+
+Reset to default
+기본값으로 설정
