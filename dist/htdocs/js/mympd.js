@@ -504,7 +504,7 @@ function parseDatabase(obj) {
                        'data-type="dir" data-name="' + encodeURI(obj.result.data[i].Album) + '" ' +
                        'data-album="' + encodeURI(obj.result.data[i].Album) + '" ' +
                        'data-albumartist="' + encodeURI(obj.result.data[i].AlbumArtist) + '" tabindex="0">' +
-                   '<div class="card-body album-cover-loading album-cover-grid bg-white" id="' + id + '"></div>' +
+                   '<div class="card-body album-cover-loading album-cover-grid bg-white d-flex" id="' + id + '"></div>' +
                    '<div class="card-footer card-footer-grid p-2" title="' + e(obj.result.data[i].AlbumArtist) + ': ' + e(obj.result.data[i].Album) + '">' +
                    e(obj.result.data[i].Album) + '<br/><small>' + e(obj.result.data[i].AlbumArtist) + '</small>' +
                    '</div></div>';
@@ -543,6 +543,9 @@ function parseDatabase(obj) {
                 col.firstChild.firstChild.style.backgroundImage = picture;
             }
         }
+        if (obj.result.tag === 'Album' && isMobile === true) {
+            addPlayButton(document.getElementById(id));
+        }
     }
     let colsLen = cols.length - 1;
     for (let i = colsLen; i >= nrItems; i --) {
@@ -568,6 +571,18 @@ function setGridImage(changes, observer) {
             }
         }
     });
+}
+
+function addPlayButton(parentEl) {
+    const div = document.createElement('div');
+    div.classList.add('align-self-end', 'album-grid-mouseover', 'material-icons', 'rounded-circle', 'clickable');
+    div.innerText = 'play_arrow';
+    parentEl.appendChild(div);
+    div.addEventListener('click', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        replaceQueue('dir', decodeURI(event.target.parentNode.parentNode.getAttribute('data-uri')), decodeURI(event.target.parentNode.parentNode.getAttribute('data-name')));
+    }, false);
 }
 
 function parseAlbumDetails(obj) {
@@ -725,14 +740,14 @@ function navigateGrid(grid, keyCode) {
 */
 
 function parseHome(obj) {
-    let nrItems = obj.result.returnedEntities;
-    let cardContainer = document.getElementById('HomeCards');
-    let cols = cardContainer.getElementsByClassName('col');
+    const nrItems = obj.result.returnedEntities;
+    const cardContainer = document.getElementById('HomeCards');
+    const cols = cardContainer.getElementsByClassName('col');
     if (cols.length === 0) {
         cardContainer.innerHTML = '';
     }
     for (let i = 0; i < nrItems; i++) {
-        let col = document.createElement('div');
+        const col = document.createElement('div');
         col.classList.add('col', 'px-0', 'flex-grow-0');
         if (obj.result.data[i].AlbumArtist === '') {
             obj.result.data[i].AlbumArtist = t('Unknown artist');
@@ -740,9 +755,9 @@ function parseHome(obj) {
         if (obj.result.data[i].Album === '') {
             obj.result.data[i].Album = t('Unknown album');
         }
-        let href=JSON.stringify({"cmd": obj.result.data[i].cmd, "options": obj.result.data[i].options});
-        let html = '<div class="card home-icons clickable" draggable="true" tabindex="0" data-pos="' + i + '" data-href=\'' + 
-                   href + '\'  title="' + e(obj.result.data[i].name) + '">' +
+        const href=JSON.stringify({"cmd": obj.result.data[i].cmd, "options": obj.result.data[i].options});
+        const html = '<div class="card home-icons clickable" draggable="true" tabindex="0" data-pos="' + i + '" data-href=\'' + 
+                   e(href) + '\'  title="' + e(obj.result.data[i].name) + '">' +
                    '<div class="card-body material-icons">' + e(obj.result.data[i].ligature) + '</div>' +
                    '<div class="card-footer card-footer-grid p-2">' +
                    e(obj.result.data[i].name) + 
@@ -2633,6 +2648,20 @@ function appInit() {
         document.getElementById('bgColorPreview').style.backgroundColor = this.value;
     }, false);
     
+    document.getElementById('selectTheme').addEventListener('change', function() {
+        const value = getSelectValue(this);
+        if (value === 'theme-default') { 
+            document.getElementById('inputBgColor').value = '#ccc';
+        }
+        else if (value === 'theme-light') {
+            document.getElementById('inputBgColor').value = '#fff';
+        }
+        else if (value === 'theme-dark') {
+            document.getElementById('inputBgColor').value = '#000';
+        }
+        document.getElementById('bgColorPreview').style.backgroundColor = document.getElementById('inputBgColor').value;
+    }, false);
+    
     document.getElementById('modalAddToQueue').addEventListener('shown.bs.modal', function () {
         document.getElementById('inputAddToQueueQuantity').classList.remove('is-invalid');
         document.getElementById('warnJukeboxPlaylist2').classList.add('hide');
@@ -3109,6 +3138,26 @@ function appInit() {
     document.getElementById('BrowseDatabaseCards').addEventListener('keydown', function(event) {
         navigateGrid(event.target, event.key);
     }, false);
+    
+    if (isMobile === false) {
+        document.getElementById('BrowseDatabaseCards').addEventListener('mouseover', function(event) {
+            if (event.target.classList.contains('card-body') && event.target.childNodes.length === 0) {
+                const oldEls = document.getElementById('BrowseDatabaseCards').getElementsByClassName('album-grid-mouseover');
+                if (oldEls.length > 1) {
+                    for (let i = 0; i < oldEls.length; i++) {
+                        oldEls[i].remove();
+                    }
+                }
+                addPlayButton(event.target);
+            }
+        }, false);
+
+        document.getElementById('BrowseDatabaseCards').addEventListener('mouseout', function(event) {
+            if (event.target.classList.contains('card-body') && (event.relatedTarget === null || ! event.relatedTarget.classList.contains('album-grid-mouseover'))) {
+                event.target.innerHTML = '';
+            }
+        }, false);
+    }
     
     document.getElementById('BrowseDatabaseDetailList').addEventListener('click', function(event) {
         if (event.target.nodeName === 'TD') {
@@ -4438,10 +4487,11 @@ function showMenuTd(el) {
             (type !== 'plist' && type !== 'smartpls' && settings.featPlaylists ? addMenuItem({"cmd": "showAddToPlaylist", "options": [uri, ""]}, t('Add to playlist')) : '') +
             (type === 'song' ? addMenuItem({"cmd": "songDetails", "options": [uri]}, t('Song details')) : '') +
             (type === 'plist' || type === 'smartpls' ? addMenuItem({"cmd": "playlistDetails", "options": [uri]}, t('View playlist')) : '') +
-            ((type === 'plist' || type === 'smartpls') && settings.featHome === true ? addMenuItem({"cmd": "addPlistToHome", "options": [uri, name]}, t('Add to homescreen')) : '') +
-            (type === 'dir' && settings.featBookmarks ? addMenuItem({"cmd": "showBookmarkSave", "options": [-1, name, uri, type]}, t('Add bookmark')) : '');
+            ((type === 'plist' || type === 'smartpls') && settings.featHome === true ? addMenuItem({"cmd": "addPlistToHome", "options": [uri, name]}, t('Add to homescreen')) : '');
+            
         if (app.current.tab === 'Filesystem') {
-            menu += (type === 'dir' ? addMenuItem({"cmd": "updateDB", "options": [dirname(uri), true]}, t('Update directory')) : '') +
+            menu += (type === 'dir' && settings.featBookmarks ? addMenuItem({"cmd": "showBookmarkSave", "options": [-1, name, uri, type]}, t('Add bookmark')) : '') +
+                (type === 'dir' ? addMenuItem({"cmd": "updateDB", "options": [dirname(uri), true]}, t('Update directory')) : '') +
                 (type === 'dir' ? addMenuItem({"cmd": "rescanDB", "options": [dirname(uri), true]}, t('Rescan directory')) : '');
         }
         if (app.current.app === 'Search') {
@@ -5098,7 +5148,7 @@ function parseScriptList(obj) {
 
 //eslint-disable-next-line no-unused-vars
 function execScriptFromOptions(cmd, options) {
-    let args = options !== undefined ? options.split(',') : [];
+    let args = options !== undefined && options !== '' ? options.split(',') : [];
     let script = {"script": cmd, "arguments": args};
     execScript(JSON.stringify(script));
 }
@@ -5734,7 +5784,8 @@ function parseMPDSettings() {
     
     if (settings.featTags === false) {
         app.apps.Browse.active = 'Filesystem';
-        app.apps.Search.state.sort = 'filename';
+        app.apps.Search.sort = 'filename';
+        app.apps.Search.filter = 'filename';
         app.apps.Queue.tabs.Current.filter = 'filename';
         settings.colsQueueCurrent = ["Pos", "Title", "Duration"];
         settings.colsQueueLastPlayed = ["Pos", "Title", "LastPlayed"];
@@ -6226,6 +6277,15 @@ function setNavbarIcons() {
 
     for (let i = 0; i < domCache.navbarBtnsLen; i++) {
         domCache.navbarBtns[i].firstChild.setAttribute('data-href', JSON.stringify({"cmd": "appGoto", "options": settings.navbarIcons[i].options}));
+    }
+}
+
+function resetValue(elId) {
+    const el = document.getElementById(elId);
+    switch (elId) {
+        case "inputBgCssFilter":
+            el.value = 'grayscale(100%) opacity(5%)';
+            break;
     }
 }
 /*
@@ -8037,7 +8097,12 @@ function addTagList(el, list) {
         tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="' + settings[list][i] + '">' + t(settings[list][i]) + '</button>';
     }
     if (el === 'BrowseNavFilesystemDropdown' || el === 'BrowseNavPlaylistsDropdown') {
-        tagList = '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="Database">Database</button>';
+        if (settings.featTags === true) {
+            tagList = '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="Database">' + t('Database') + '</button>';
+        }
+        else {
+            tagList = '';
+        }
     }
     if (el === 'BrowseDatabaseByTagDropdown' || el === 'BrowseNavFilesystemDropdown' || el === 'BrowseNavPlaylistsDropdown') {
         if (el === 'BrowseDatabaseByTagDropdown') {
@@ -8333,12 +8398,13 @@ function parseCmd(event, href) {
 }
 
 function gotoPage(x) {
+    console.log(app.current.page);
     switch (x) {
         case 'next':
-            app.current.page += settings.maxElementsPerPage;
+            app.current.page = parseInt(app.current.page) + parseInt(settings.maxElementsPerPage);
             break;
         case 'prev':
-            app.current.page -= settings.maxElementsPerPage;
+            app.current.page = parseInt(app.current.page) - parseInt(settings.maxElementsPerPage);
             if (app.current.page < 0) {
                 app.current.page = 0;
             }
