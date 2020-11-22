@@ -1598,3 +1598,24 @@ Could not remove song from jukebox queue
 
 Reset to default
 기본값으로 설정
+
+Execute Script
+스크립트 실행
+
+App
+앱
+
+Tab
+탭
+
+Offset
+오프셋
+
+Filter
+필터
+
+Sort
+정렬
+
+Tag
+태그
