@@ -280,9 +280,9 @@ function parseDatabase(obj) {
             else {
                 col.firstChild.firstChild.style.backgroundImage = picture;
             }
-        }
-        if (obj.result.tag === 'Album' && isMobile === true) {
-            addPlayButton(document.getElementById(id));
+            if (obj.result.tag === 'Album' && isMobile === true) {
+                addPlayButton(document.getElementById(id));
+            }
         }
     }
     let colsLen = cols.length - 1;
