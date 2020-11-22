@@ -48,7 +48,7 @@ function parseHome(obj) {
     }
                     
     if (nrItems === 0) {
-        cardContainer.innerHTML = '<div>' + t('You have not added any Home Icons yet. You can add views, playlists and scripts.') + '</div>';
+        cardContainer.innerHTML = '<div class="ml-3">' + t('Homescreen welcome') + '</div>';
     }
 }
 

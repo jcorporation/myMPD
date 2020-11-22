@@ -1572,7 +1572,7 @@ Optionen
 Picture
 Bild
 
-You have not added any Home Icons yet. You can add views, playlists and scripts.
+Homescreen welcome
 Du hast noch keine Homeicons hinzugefügt. Du kannst einzelne Ansichten, Wiedergabelisten und Skripte hinzufügen.
 
 Can not open directory pics

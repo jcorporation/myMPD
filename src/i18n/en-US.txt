@@ -26,3 +26,6 @@ Last modified
 
 AlbumArtist
 Albumartist
+
+Homescreen welcome
+You have not added any Home Icons yet. You can add views, playlists and scripts.
