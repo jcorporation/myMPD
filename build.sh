@@ -284,6 +284,12 @@ createdistfiles() {
 }
 
 buildrelease() {
+  if [ -f .git/HEAD ] && grep -q "devel" .git/HEAD
+  then
+  	echo "In devel branch, running cleanupdist"
+  	cleanupdist
+  fi
+
   createdistfiles
   ASSETSCHANGED=$?
 
@@ -294,7 +300,8 @@ buildrelease() {
   then
     echo "Assets changed"
     #force rebuild of web_server.c with embedded assets
-    rm -vf CMakeFiles/mympd.dir/src/web_server/web_server_utility.c.o
+    rm -vf CMakeFiles/mympd.dir/src/web_server/web_server_utility.c
+    rm -vf CMakeFiles/mympd.dir/src/web_server/web_server_embedded_files.c
   else
     echo "Assets not changed"
   fi
