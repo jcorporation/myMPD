@@ -1519,7 +1519,7 @@ Select tag to display
 Tag für Anzeige auswählen
 
 Websocket is disconnected
-Websockt ist nicht verbunden
+Websocket ist nicht verbunden
 
 Goto playing song
 Gehe zum aktuell gespielten Lied
