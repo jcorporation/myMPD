@@ -542,9 +542,9 @@ function parseDatabase(obj) {
             else {
                 col.firstChild.firstChild.style.backgroundImage = picture;
             }
-        }
-        if (obj.result.tag === 'Album' && isMobile === true) {
-            addPlayButton(document.getElementById(id));
+            if (obj.result.tag === 'Album' && isMobile === true) {
+                addPlayButton(document.getElementById(id));
+            }
         }
     }
     let colsLen = cols.length - 1;
@@ -782,7 +782,7 @@ function parseHome(obj) {
     }
                     
     if (nrItems === 0) {
-        cardContainer.innerHTML = '<div>' + t('You have not added any Home Icons yet. You can add views, playlists and scripts.') + '</div>';
+        cardContainer.innerHTML = '<div class="ml-3">' + t('Homescreen welcome') + '</div>';
     }
 }
 
@@ -6280,13 +6280,11 @@ function setNavbarIcons() {
     }
 }
 
+//eslint-disable-next-line no-unused-vars
 function resetValue(elId) {
     const el = document.getElementById(elId);
-    switch (elId) {
-        case "inputBgCssFilter":
-            el.value = 'grayscale(100%) opacity(5%)';
-            break;
-    }
+    el.value = el.getAttribute('data-default') !== null ? el.getAttribute('data-default') : 
+        (el.getAttribute('placeholder') !== null ? el.getAttribute('placeholder') : '');
 }
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
@@ -6473,7 +6471,8 @@ function setVoteSongBtns(vote, uri) {
             domCache.btnVoteUp2.setAttribute('disabled', 'disabled');
             domCache.btnVoteDown2.setAttribute('disabled', 'disabled');
         }
-    } else {
+    }
+    else {
         domCache.btnVoteUp.removeAttribute('disabled');
         domCache.btnVoteDown.removeAttribute('disabled');
         if (domCache.btnVoteUp2) {
@@ -6489,14 +6488,16 @@ function setVoteSongBtns(vote, uri) {
             domCache.btnVoteUp2.classList.remove('highlight');
             domCache.btnVoteDown2.classList.add('highlight');
         }
-    } else if (vote === 1) {
+    }
+    else if (vote === 1) {
         domCache.btnVoteUp.classList.remove('highlight');
         domCache.btnVoteDown.classList.remove('highlight');
         if (domCache.btnVoteUp2) {
             domCache.btnVoteUp2.classList.remove('highlight');
             domCache.btnVoteDown2.classList.remove('highlight');
         }
-    } else if (vote === 2) {
+    }
+    else if (vote === 2) {
         domCache.btnVoteUp.classList.add('highlight');
         domCache.btnVoteDown.classList.remove('highlight');
         if (domCache.btnVoteUp2) {
@@ -6921,9 +6922,11 @@ function songChange(obj) {
             setVoteSongBtns(obj.result.like, obj.result.uri);
         }
         obj.result['Filetype'] = filetype(obj.result.uri);
+        document.getElementById('addCurrentSongToPlaylist').removeAttribute('disabled');
     }
     else {
         obj.result['Filetype'] = '';
+        document.getElementById('addCurrentSongToPlaylist').setAttribute('disabled', 'disabled');
     }
     
     if (lastState) {
