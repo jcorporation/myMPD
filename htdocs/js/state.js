@@ -415,9 +415,11 @@ function songChange(obj) {
             setVoteSongBtns(obj.result.like, obj.result.uri);
         }
         obj.result['Filetype'] = filetype(obj.result.uri);
+        document.getElementById('addCurrentSongToPlaylist').removeAttribute('disabled');
     }
     else {
         obj.result['Filetype'] = '';
+        document.getElementById('addCurrentSongToPlaylist').setAttribute('disabled', 'disabled');
     }
     
     if (lastState) {

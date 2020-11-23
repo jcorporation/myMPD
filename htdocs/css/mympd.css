@@ -417,7 +417,8 @@ small {
 }
 
 .album-cover-loading {
-  background-image: url("../assets/coverimage-loading.svg");
+/*  background-image: url("../assets/coverimage-loading.svg");*/
+  background-image: url("../assets/coverimage-mympd.svg");
 }
 
 .album-cover-songdetails {

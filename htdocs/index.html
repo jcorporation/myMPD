@@ -63,6 +63,7 @@
           <div id="syscmds" class="featSyscmds noInitChilds collapse"></div>
           <a id="navScripting" class="subMenu featScripting dropdown-item text-light alwaysEnabled" data-toggle="collapse" href="#scripts"><span class="material-icons material-icons-left">keyboard_arrow_right</span><span data-phrase="Scripts"></span></a>
           <div id="scripts" class="featScripting noInitChilds collapse"></div>
+          <div class="dropdown-divider"></div>
           <a id="navNotifications" class="subMenu dropdown-item text-light alwaysEnabled" data-toggle="collapse" href="#menu-notifications"><span class="material-icons material-icons-left">keyboard_arrow_right</span><span data-phrase="Notifications"></span></a>
           <div id="menu-notifications" class="collapse menu-indent">
             <div id="logOverview" class="pl-2 pb-0 pr-2"></div>
@@ -102,7 +103,7 @@
             <button data-title-phrase="Love song" data-href='{"cmd": "loveSong", "options": []}' class="btn btn-secondary material-icons">favorite</button>
           </div>
           <div class="btn-group btn-group featPlaylists ml-2">
-            <button data-title-phrase="Add to playlist" data-href='{"cmd": "showAddToPlaylistCurrentSong", "options": []}' class="btn btn-secondary material-icons">playlist_add</button>
+            <button id="addCurrentSongToPlaylist" data-title-phrase="Add to playlist" data-href='{"cmd": "showAddToPlaylistCurrentSong", "options": []}' class="btn btn-secondary material-icons">playlist_add</button>
           </div>
           <div class="btn-group dropdown ml-2">
             <button id="btnPlayDropdown" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="material-icons">tune</span></button>
