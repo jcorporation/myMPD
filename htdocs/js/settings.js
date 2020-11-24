@@ -576,6 +576,23 @@ function parseMPDSettings() {
         app.apps.Browse.tabs.Database.views.List.filter = 'Artist';
         app.apps.Browse.tabs.Database.views.List.sort = 'Artist';
     }
+
+    if (settings.featAdvsearch === false && app.apps.Browse.active === 'Database') {
+        app.apps.Browse.active = 'Filesystem';
+    }
+
+    if (settings.featAdvsearch === false) {
+        const tagEls = document.getElementById('cardPlaybackTags').getElementsByTagName('p');
+        for (let i = 0; i < tagEls.length; i++) {
+            tagEls[i].classList.remove('clickable');
+        }
+    }
+    else {
+        const tagEls = document.getElementById('cardPlaybackTags').getElementsByTagName('p');
+        for (let i = 0; i < tagEls.length; i++) {
+            tagEls[i].classList.add('clickable');
+        }
+    }
     
     if (settings.featPlaylists === true) {
         sendAPI("MPD_API_PLAYLIST_LIST_ALL", {"searchstr": ""}, function(obj) {

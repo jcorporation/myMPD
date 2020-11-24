@@ -30,6 +30,9 @@ function navBrowseHandler(event) {
 }
 
 function gotoBrowse() {
+    if (settings.featAdvsearch === false) {
+        return;
+    }
     let x = event.target;
     let tag = x.getAttribute('data-tag');
     let name = decodeURI(x.getAttribute('data-name'));

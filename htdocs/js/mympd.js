@@ -1127,8 +1127,9 @@ function appInit() {
     }
 
     document.getElementById('cardPlaybackTags').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'P') 
+        if (event.target.nodeName === 'P') {
             gotoBrowse();
+        }
     }, false);
 
     document.getElementById('BrowseBreadcrumb').addEventListener('click', function(event) {
