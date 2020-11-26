@@ -6,6 +6,7 @@
 
 #define _GNU_SOURCE
 
+#include <assert.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -252,6 +253,7 @@ bool mympd_api_script_start(t_config *config, const char *script, struct list *a
         return false;
     }
     struct t_script_thread_arg *script_thread_arg = (struct t_script_thread_arg *)malloc(sizeof(struct t_script_thread_arg));
+    assert(script_thread_arg);
     script_thread_arg->config = config;
     script_thread_arg->localscript = localscript;
     script_thread_arg->arguments = arguments;

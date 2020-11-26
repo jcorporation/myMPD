@@ -4,6 +4,7 @@
  https://github.com/jcorporation/mympd
 */
 
+#include <assert.h>
 #include <errno.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -121,6 +122,7 @@ bool add_timer(struct t_timer_list *l, unsigned int timeout, unsigned int interv
     }
 
     struct t_timer_node *new_node = (struct t_timer_node *)malloc(sizeof(struct t_timer_node));
+    assert(new_node);
     if (new_node == NULL) {
         return false;
     }
@@ -409,6 +411,7 @@ bool timerfile_read(t_config *config, t_mympd_state *mympd_state) {
     if (fp != NULL) {
         while (getline(&line, &n, fp) > 0) {
             struct t_timer_definition *timer_def = malloc(sizeof(struct t_timer_definition));
+            assert(timer_def);
             sds param = sdscatfmt(sdsempty(), "{params: %s}", line);
             timer_def = parse_timer(timer_def, param, sdslen(param));
             int timerid;
