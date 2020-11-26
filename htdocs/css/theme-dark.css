@@ -211,3 +211,6 @@ body.theme-dark .nav-link.active {
   border-color: #1d2124 !important;
 }
 
+body.theme-dark small {
+  color: #aaa;
+}
