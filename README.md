@@ -61,7 +61,8 @@ myMPD should run on all current linux distributions. There are four ways to inst
 
 ## Run
 
-Adapt the configuration file `/etc/mympd.conf` to your needs (`/etc/webapps/mympd/mympd.conf` for Archlinux) or use the [mympd-config](https://github.com/jcorporation/myMPD/wiki/mympd-config) tool to generate automatically a valid `mympd.conf`.
+Adapt the configuration file `/etc/mympd.conf` to your needs (`/etc/webapps/mympd/mympd.conf` for Archlinux) or use the [mympd-config](https://github.com/jcorporation/myMPD/wiki/mympd-config) tool to generate automatically a valid `mympd.conf`. myMPD can be customized in many aspects, see the [configuration page](https://github.com/jcorporation/myMPD/wiki/Configuration) in the wiki for reference.
+
 
 ``
 Usage: ./mympd [/etc/mympd.conf]
