@@ -317,6 +317,7 @@ function _setCurrentCover(url, el) {
     div.classList.add('coverbg', 'carousel');
     div.style.backgroundImage = 'url("' + subdir + '/albumart/' + url + '")';
     div.style.opacity = 0;
+    div.setAttribute('data-uri', url);
     el.insertBefore(div, el.firstChild);
 
     let img = new Image();

@@ -104,9 +104,11 @@ function parseSongDetails(obj) {
         //add uri to image list to get embedded albumart
         let images = [ subdir + '/albumart/' + obj.result.uri ];
         //add all but coverfiles to image list
-        for (let i = 0; i < obj.result.images.length; i++) {
-            if (isCoverfile(obj.result.images[i]) === false) {
-                images.push(subdir + '/browse/music/' + obj.result.images[i]);
+        if (settings.publish === true) {
+            for (let i = 0; i < obj.result.images.length; i++) {
+                if (isCoverfile(obj.result.images[i]) === false) {
+                    images.push(subdir + '/browse/music/' + obj.result.images[i]);
+                }
             }
         }
         const imgEl = document.getElementById('tabSongPics');
