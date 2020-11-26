@@ -159,7 +159,7 @@ sds mpd_client_crop_queue(t_mpd_client_state *mpd_client_state, sds buffer, sds 
     unsigned playing_song_pos = mpd_status_get_song_pos(status);
     enum mpd_state state = mpd_status_get_state(status);
 
-    if ((state == MPD_STATE_PLAY || state == MPD_STATE_PAUSE) && length > 0) {
+    if ((state == MPD_STATE_PLAY || state == MPD_STATE_PAUSE) && length > 1) {
         playing_song_pos++;
         if (playing_song_pos < length) {
             bool rc = mpd_run_delete_range(mpd_client_state->mpd_state->conn, playing_song_pos, -1);
@@ -176,7 +176,7 @@ sds mpd_client_crop_queue(t_mpd_client_state *mpd_client_state, sds buffer, sds 
         }
         buffer = jsonrpc_respond_ok(buffer, method, request_id);
     }
-    else if (or_clear == true && state == MPD_STATE_STOP) {
+    else if (or_clear == true || state == MPD_STATE_STOP) {
         bool rc = mpd_run_clear(mpd_client_state->mpd_state->conn);
         if (check_rc_error_and_recover(mpd_client_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_run_clear") == true) {
             buffer = jsonrpc_respond_ok(buffer, method, request_id);
