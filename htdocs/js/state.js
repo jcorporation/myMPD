@@ -491,11 +491,11 @@ function volumeStep(dir) {
 
 function chVolume(increment) {
     let newValue = parseInt(domCache.volumeBar.value) + increment;
-    if (newValue < 0)  {
-        newValue = 0;
+    if (newValue < settings.volumeMin)  {
+        newValue = settings.volumeMin;
     }
-    else if (newValue > 100) {
-        newValue = 100;
+    else if (newValue > settings.volumeMax) {
+        newValue = settings.volumeMax;
     }
     domCache.volumeBar.value = newValue;
     sendAPI("MPD_API_PLAYER_VOLUME_SET", {"volume": newValue});

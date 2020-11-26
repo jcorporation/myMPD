@@ -1646,3 +1646,6 @@ Abspielen / Pausieren
 
 myMPD menu
 myMPD Menu
+
+Invalid volume level
+Ungültige Lautstärke

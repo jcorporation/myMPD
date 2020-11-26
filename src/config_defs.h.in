@@ -139,6 +139,8 @@ typedef struct t_config {
     bool partitions;
     bool footer_stop;
     bool home;
+    unsigned volume_min;
+    unsigned volume_max;
     //system commands
     struct list syscmd_list;
 } t_config;

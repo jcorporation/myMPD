@@ -503,6 +503,8 @@ sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buf
     buffer = tojson_bool(buffer, "featScripteditor", config->scripteditor, true);
     buffer = tojson_bool(buffer, "footerStop", config->footer_stop, true);
     buffer = tojson_bool(buffer, "featHome", config->home, true);
+    buffer = tojson_long(buffer, "volumeMin", config->volume_min, true);
+    buffer = tojson_long(buffer, "volumeMax", config->volume_max, true);
     buffer = sdscatfmt(buffer, "\"colsQueueCurrent\":%s,", mympd_state->cols_queue_current);
     buffer = sdscatfmt(buffer, "\"colsSearch\":%s,", mympd_state->cols_search);
     buffer = sdscatfmt(buffer, "\"colsBrowseDatabaseDetail\":%s,", mympd_state->cols_browse_database);

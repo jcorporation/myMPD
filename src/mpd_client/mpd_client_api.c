@@ -455,8 +455,13 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
         case MPD_API_PLAYER_VOLUME_SET:
             je = json_scanf(request->data, sdslen(request->data), "{params: {volume:%u}}", &uint_buf1);
             if (je == 1) {
-                rc = mpd_run_set_volume(mpd_client_state->mpd_state->conn, uint_buf1);
-                response->data = respond_with_mpd_error_or_ok(mpd_client_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_set_volume");
+                if (uint_buf1 > config->volume_max || uint_buf1 < config->volume_min) {
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Invalid volume level", true);
+                }
+                else {
+                    rc = mpd_run_set_volume(mpd_client_state->mpd_state->conn, uint_buf1);
+                    response->data = respond_with_mpd_error_or_ok(mpd_client_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_set_volume");
+                }
             }
             break;
         case MPD_API_PLAYER_VOLUME_GET:

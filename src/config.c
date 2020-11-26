@@ -282,6 +282,12 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("mympd", "home")) {
         p_config->home = strtobool(value);
     }
+    else if (MATCH("mympd", "volumemin")) {
+        p_config->volume_min = strtoumax(value, &crap, 10);
+    }
+    else if (MATCH("mympd", "volumemax")) {
+        p_config->volume_max = strtoumax(value, &crap, 10);
+    }
     else if (MATCH("theme", "theme")) {
         p_config->theme = sdsreplace(p_config->theme, value);
     }
@@ -368,6 +374,7 @@ static void mympd_get_env(struct t_config *config) {
         "MYMPD_LOCALPLAYER", "MYMPD_STREAMPORT", "MYMPD_HOME", "MYMPOD_COLSQUEUEJUKEBOX",
         "MYMPD_STREAMURL", "MYMPD_VOLUMESTEP", "MYMPD_COVERCACHEKEEPDAYS", "MYMPD_COVERCACHE",
         "MYMPD_COVERCACHEAVOID", "MYMPD_LYRICS", "MYMPD_PARTITIONS", "MYMPD_FOOTERSTOP",
+        "MYMPD_VOLUMEMIN", "MYMPD_VOLUMEMAX",
       #ifdef ENABLE_LUA
         "MYMPD_SCRIPTING", "MYMPD_REMOTESCRIPTING", "MYMPD_LUALIBS", "MYMPD_SCRIPTEDITOR",
       #endif
@@ -521,6 +528,8 @@ void mympd_config_defaults(t_config *config) {
     config->partitions = false;
     config->footer_stop = false;
     config->home = true;
+    config->volume_min = 0;
+    config->volume_max = 100;
     list_init(&config->syscmd_list);
 }
 
@@ -648,6 +657,8 @@ bool mympd_dump_config(void) {
         "partitions = %s\n"
         "footerstop = %s\n"
         "home = %s\n"
+        "volumemine = %u\n"
+        "volumemax = %u\n"
         "\n",
         p_config->user,
         (p_config->chroot == true ? "true" : "false"),
@@ -708,7 +719,10 @@ bool mympd_dump_config(void) {
         (p_config->lyrics == true ? "true" : "false"),
         (p_config->partitions == true ? "true" : "false"),
         (p_config->footer_stop == true ? "true" : "false"),
-        (p_config->home == true ? "true" : "false")
+        (p_config->home == true ? "true" : "false"),
+        p_config->volume_min,
+        p_config->volume_max
+        
     );
 
     fprintf(fp, "[theme]\n"
