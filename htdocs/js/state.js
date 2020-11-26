@@ -203,6 +203,7 @@ function parseState(obj) {
         domCache.footerTitle.innerText = '';
         domCache.footerTitle.removeAttribute('title');
         domCache.footerTitle.classList.remove('clickable');
+        domCache.footerCover.classList.remove('clickable');
         clearCurrentCover();
         if (settings.bgCover === true) {
             clearBackgroundImage();
@@ -361,6 +362,7 @@ function songChange(obj) {
     
     domCache.footerArtist.classList.remove('clickable');
     domCache.footerAlbum.classList.remove('clickable');
+    domCache.footerCover.classList.remove('clickable');
 
     if (obj.result.Artist !== undefined && obj.result.Artist.length > 0 && obj.result.Artist !== '-') {
         textNotification += obj.result.Artist;
@@ -397,13 +399,15 @@ function songChange(obj) {
         domCache.currentTitle.setAttribute('data-uri', encodeURI(obj.result.uri));
         domCache.footerTitle.innerText = obj.result.Title;
         domCache.footerTitle.classList.add('clickable');
+        domCache.footerCover.classList.add('clickable');
     }
     else {
         domCache.currentTitle.innerText = '';
         domCache.currentTitle.setAttribute('data-uri', '');
         domCache.footerTitle.innerText = '';
         domCache.footerTitle.setAttribute('data-name', '');
-        domCache.footerTitle.classList.remove('clickable');        
+        domCache.footerTitle.classList.remove('clickable');
+        domCache.footerCover.classList.remove('clickable');
     }
     document.title = 'myMPD: ' + pageTitle;
     domCache.footerCover.title = pageTitle;

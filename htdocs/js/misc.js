@@ -186,8 +186,11 @@ function zoomPicture(el) {
         if (imgSrc !== null) {
             images = el.getAttribute('data-images').split(';;');
         }
-        else {
+        else if (lastSongObj.images) {
             images = lastSongObj.images.slice();
+        }
+        else {
+            return;
         }
         if (images.length > 0) {
             for (let i = 0; i < images.length; i++) {
