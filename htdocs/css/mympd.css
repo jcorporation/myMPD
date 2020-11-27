@@ -495,9 +495,9 @@ tr > th {
 }
 
 .material-icons-left {
-  font-size: 1rem;
+/*  font-size: 1rem; */
   margin-left: -1em;
-  vertical-align: middle;
+/*  vertical-align: middle; */
 }
 
 .material-icons-small {
@@ -508,10 +508,12 @@ tr > th {
   font-size: 2.4rem;
 }
 
+/*
 .material-icons-small-left {
   font-size: 1rem;
   margin-left: -1em;
 }
+*/
 
 .btn-sm-big-icon {
   font-size: 1.4rem !important;
