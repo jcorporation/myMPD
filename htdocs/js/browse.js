@@ -94,6 +94,15 @@ function parseFilesystem(obj) {
         row.setAttribute('data-type', obj.result.data[i].Type);
         row.setAttribute('data-uri', uri);
         row.setAttribute('tabindex', 0);
+        if (app.current.app === 'Search' && settings.featTags === true && settings.featAdvsearch === true) {
+            //add artist and album information for album actions ini search app
+            if (obj.result.data[i].Album !== undefined) {
+                row.setAttribute('data-album', encodeURI(obj.result.data[i].Album));
+            }
+            if (obj.result.data[i].AlbumArtist !== undefined || obj.result.data[i].Artist !== undefined) {
+                row.setAttribute('data-albumartist', encodeURI(obj.result.data[i].AlbumArtist !== undefined ? obj.result.data[i].AlbumArtist : obj.result.data[i].Artist));
+            }
+        }
         if (obj.result.data[i].Type === 'song') {
             row.setAttribute('data-name', obj.result.data[i].Title);
         }
@@ -375,7 +384,12 @@ function backToAlbumGrid() {
 function addAlbum(action) {
     const album = decodeURI(app.current.tag);
     const albumArtist = decodeURI(app.current.search);
-    const expression = '((Album == \'' + album + '\') AND (AlbumArtist == \'' + albumArtist + '\'))';
+    _addAlbum(action, albumArtist, album);
+}
+
+function _addAlbum(action, albumArtist, album) {
+    const expression = '((Album == \'' + album + '\') AND (' + 
+        (settings.tags.includes('AlbumArtist') ? 'AlbumArtist' : 'Artist') + ' == \'' + albumArtist + '\'))';
     if (action === 'appendQueue') {
         addAllFromSearchPlist('queue', expression, false);
     }
