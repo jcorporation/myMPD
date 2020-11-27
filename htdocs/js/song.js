@@ -189,6 +189,8 @@ function setVoteSongBtns(vote, uri) {
             domCache.btnVoteUp2.setAttribute('disabled', 'disabled');
             domCache.btnVoteDown2.setAttribute('disabled', 'disabled');
         }
+        domCache.btnVoteUp.classList.remove('highlight');
+        domCache.btnVoteDown.classList.remove('highlight');
     }
     else {
         domCache.btnVoteUp.removeAttribute('disabled');
