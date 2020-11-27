@@ -234,12 +234,17 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
                     response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Failed to set like, invalid like value", true);
                     break;
                 }
-                if (is_streamuri(p_charbuf1) == false) {
+                if (is_streamuri(p_charbuf1) == true) {
                     response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Failed to set like, invalid song uri", true);
                     break;
                 }
-                mpd_client_sticker_like(mpd_client_state, p_charbuf1, int_buf1);
-                response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+                rc = mpd_client_sticker_like(mpd_client_state, p_charbuf1, int_buf1);
+                if (rc == true) {
+                    response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+                }
+                else {
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Failed to set like, unknown error", true);
+                }
             }
             break;
         case MPD_API_PLAYER_STATE:
