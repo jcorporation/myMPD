@@ -170,7 +170,7 @@ function webSocketConnect() {
                         sendAPI("MPD_API_PLAYLIST_LIST", {"offset": app.current.page, "searchstr": app.current.search}, parsePlaylists);
                     }
                     else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'Detail') {
-                        sendAPI("MPD_API_PLAYLIST_CONTENT_LIST", {"offset": app.current.page, "searchstr": app.current.search, "uri": app.current.search, "cols": settings.colsBrowsePlaylistsDetail}, parsePlaylists);
+                        sendAPI("MPD_API_PLAYLIST_CONTENT_LIST", {"offset": app.current.page, "searchstr": app.current.search, "uri": app.current.filter, "cols": settings.colsBrowsePlaylistsDetail}, parsePlaylists);
                     }
                     break;
                 case 'update_lastplayed':
@@ -356,6 +356,15 @@ function parseFilesystem(obj) {
         row.setAttribute('data-type', obj.result.data[i].Type);
         row.setAttribute('data-uri', uri);
         row.setAttribute('tabindex', 0);
+        if (app.current.app === 'Search' && settings.featTags === true && settings.featAdvsearch === true) {
+            //add artist and album information for album actions ini search app
+            if (obj.result.data[i].Album !== undefined) {
+                row.setAttribute('data-album', encodeURI(obj.result.data[i].Album));
+            }
+            if (obj.result.data[i].AlbumArtist !== undefined || obj.result.data[i].Artist !== undefined) {
+                row.setAttribute('data-albumartist', encodeURI(obj.result.data[i].AlbumArtist !== undefined ? obj.result.data[i].AlbumArtist : obj.result.data[i].Artist));
+            }
+        }
         if (obj.result.data[i].Type === 'song') {
             row.setAttribute('data-name', obj.result.data[i].Title);
         }
@@ -637,7 +646,12 @@ function backToAlbumGrid() {
 function addAlbum(action) {
     const album = decodeURI(app.current.tag);
     const albumArtist = decodeURI(app.current.search);
-    const expression = '((Album == \'' + album + '\') AND (AlbumArtist == \'' + albumArtist + '\'))';
+    _addAlbum(action, albumArtist, album);
+}
+
+function _addAlbum(action, albumArtist, album) {
+    const expression = '((Album == \'' + album + '\') AND (' + 
+        (settings.tags.includes('AlbumArtist') ? 'AlbumArtist' : 'Artist') + ' == \'' + albumArtist + '\'))';
     if (action === 'appendQueue') {
         addAllFromSearchPlist('queue', expression, false);
     }
@@ -4500,11 +4514,11 @@ function showMenuTd(el) {
 
     let menu = '';
     if ((app.current.app === 'Browse' && app.current.tab === 'Filesystem') || app.current.app === 'Search' ||
-        (app.current.app === 'Browse' && app.current.tab === 'Database')) {
+        (app.current.app === 'Browse' && app.current.tab === 'Database' && app.current.view === 'Detail')) {
         menu += addMenuItem({"cmd": "appendQueue", "options": [type, uri, name]}, t('Append to queue')) +
             (type === 'song' ? addMenuItem({"cmd": "appendAfterQueue", "options": [type, uri, nextsongpos, name]}, t('Add after current playing song')) : '') +
             addMenuItem({"cmd": "replaceQueue", "options": [type, uri, name]}, t('Replace queue')) +
-            (type !== 'plist' && type !== 'smartpls' && settings.featPlaylists ? addMenuItem({"cmd": "showAddToPlaylist", "options": [uri, ""]}, t('Add to playlist')) : '') +
+            (type !== 'plist' && type !== 'smartpls' && settings.featPlaylists === true ? addMenuItem({"cmd": "showAddToPlaylist", "options": [uri, ""]}, t('Add to playlist')) : '') +
             (type === 'song' ? addMenuItem({"cmd": "songDetails", "options": [uri]}, t('Song details')) : '') +
             (type === 'plist' || type === 'smartpls' ? addMenuItem({"cmd": "playlistDetails", "options": [uri]}, t('View playlist')) : '') +
             ((type === 'plist' || type === 'smartpls') && settings.featHome === true ? addMenuItem({"cmd": "addPlistToHome", "options": [uri, name]}, t('Add to homescreen')) : '');
@@ -4515,17 +4529,39 @@ function showMenuTd(el) {
                 (type === 'dir' ? addMenuItem({"cmd": "rescanDB", "options": [dirname(uri), true]}, t('Rescan directory')) : '');
         }
         if (app.current.app === 'Search') {
-            //songs must be arragend in one album per folder
-            let baseuri = dirname(uri);
-            menu += '<div class="dropdown-divider"></div>' +
-                '<a class="dropdown-item" id="advancedMenuLink" data-toggle="collapse" href="#advancedMenu"><span class="material-icons material-icons-small-left">keyboard_arrow_right</span>Album actions</a>' +
-                '<div class="collapse" id="advancedMenu">' +
-                    addMenuItem({"cmd": "appendQueue", "options": [type, baseuri, name]}, t('Append to queue')) +
-                    addMenuItem({"cmd": "appendAfterQueue", "options": [type, baseuri, nextsongpos, name]}, t('Add after current playing song')) +
-                    addMenuItem({"cmd": "replaceQueue", "options": [type, baseuri, name]}, t('Replace queue')) +
-                    (settings.featPlaylists ? addMenuItem({"cmd": "showAddToPlaylist", "options": [baseuri, ""]}, t('Add to playlist')) : '') +
-                '</div>';
+            let album = el.parentNode.parentNode.getAttribute('data-album');
+            let albumArtist = el.parentNode.parentNode.getAttribute('data-albumartist');
+            if (album !== null && albumArtist !== null) {
+                album = decodeURI(album);
+                albumArtist = decodeURI(albumArtist);
+                menu += '<div class="dropdown-divider"></div>' +
+                    '<a class="dropdown-item" id="advancedMenuLink" data-toggle="collapse" href="#advancedMenu"><span class="material-icons material-icons-left">keyboard_arrow_right</span>Album actions</a>' +
+                    '<div class="collapse" id="advancedMenu">' +
+                        addMenuItem({"cmd": "_addAlbum", "options": ["appendQueue", albumArtist, album]}, t('Append to queue')) +
+                        addMenuItem({"cmd": "_addAlbum", "options": ["replaceQueue", albumArtist, album]}, t('Replace queue')) +
+                        (settings.featPlaylists === true ? addMenuItem({"cmd": "_addAlbum", "options": ["addPlaylist", albumArtist, album]}, t('Add to playlist')) : '') +
+                    '</div>';
+            }
+            else {
+                //songs must be arragend in one album per folder
+                const baseuri = dirname(uri);
+                menu += '<div class="dropdown-divider"></div>' +
+                    '<a class="dropdown-item" id="advancedMenuLink" data-toggle="collapse" href="#advancedMenu"><span class="material-icons material-icons-left">keyboard_arrow_right</span>Folder actions</a>' +
+                    '<div class="collapse" id="advancedMenu">' +
+                        addMenuItem({"cmd": "appendQueue", "options": [type, baseuri, name]}, t('Append to queue')) +
+                        addMenuItem({"cmd": "appendAfterQueue", "options": [type, baseuri, nextsongpos, name]}, t('Add after current playing song')) +
+                        addMenuItem({"cmd": "replaceQueue", "options": [type, baseuri, name]}, t('Replace queue')) +
+                        (settings.featPlaylists === true ? addMenuItem({"cmd": "showAddToPlaylist", "options": [baseuri, ""]}, t('Add to playlist')) : '') +
+                    '</div>';
+            }
         }
+    }
+    else if (app.current.app === 'Browse' && app.current.tab === 'Database' && app.current.view === 'List') {
+        const albumArtist = decodeURI(el.parentNode.getAttribute('data-albumartist'));
+        const album = decodeURI(el.parentNode.getAttribute('data-album'));
+        menu += addMenuItem({"cmd": "_addAlbum", "options": ["appendQueue", albumArtist, album]}, t('Append to queue')) +
+            addMenuItem({"cmd": "_addAlbum", "options": ["replaceQueue", albumArtist, album]}, t('Replace queue')) +
+            (settings.featPlaylists === true ? addMenuItem({"cmd": "_addAlbum", "options": ["addPlaylist", albumArtist, album]}, t('Add to playlist')) : '');
     }
     else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'All') {
         menu += addMenuItem({"cmd": "appendQueue", "options": [type, uri, name]}, t('Append to queue')) +
@@ -6516,6 +6552,8 @@ function setVoteSongBtns(vote, uri) {
             domCache.btnVoteUp2.setAttribute('disabled', 'disabled');
             domCache.btnVoteDown2.setAttribute('disabled', 'disabled');
         }
+        domCache.btnVoteUp.classList.remove('highlight');
+        domCache.btnVoteDown.classList.remove('highlight');
     }
     else {
         domCache.btnVoteUp.removeAttribute('disabled');
