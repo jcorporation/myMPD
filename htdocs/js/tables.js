@@ -345,6 +345,9 @@ function setColTags(table) {
     if (table === 'QueueLastPlayed') {
         tags.push('LastPlayed');
     }
+    if (table === 'Search') {
+        tags.push('LastModified');
+    }
     if (table === 'Playback') {
         tags.push('Filetype');
         tags.push('Fileformat');

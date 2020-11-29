@@ -133,7 +133,12 @@ function parseFilesystem(obj) {
                 row.innerHTML = tds;
                 break;
             case 'song':
-                obj.result.data[i].Duration = beautifySongDuration(obj.result.data[i].Duration);
+                if (obj.result.data[i].Duration !== undefined) {
+                    obj.result.data[i].Duration = beautifySongDuration(obj.result.data[i].Duration);
+                }
+                if (obj.result.data[i].LastModified !== undefined) {
+                    obj.result.data[i].LastModified = localeDate(obj.result.data[i].LastModified);
+                }
                 for (let c = 0; c < settings['cols' + list].length; c++) {
                     tds += '<td data-col="' + settings['cols' + list][c] + '">';
                     if (settings['cols' + list][c] === 'Type') {

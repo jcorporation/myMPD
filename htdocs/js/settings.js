@@ -902,6 +902,9 @@ function filterCols(x) {
     if (x === 'colsQueueLastPlayed') {
         tags.push('LastPlayed');
     }
+    if (x === 'colsSearch') {
+        tags.push('LastModified');
+    }
     if (x === 'colsPlayback') {
         tags.push('Filetype');
         tags.push('Fileformat');

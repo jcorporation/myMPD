@@ -126,6 +126,13 @@ static sds _mpd_shared_search(t_mpd_state *mpd_state, sds buffer, sds method, lo
                     return buffer;
                 }
             }
+            else if (strcmp(sort, "LastModified") == 0) {
+                bool rc = mpd_search_add_sort_name(mpd_state->conn, "Last-Modified", sortdesc);
+                if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_sort_name") == false) {
+                    mpd_search_cancel(mpd_state->conn);
+                    return buffer;
+                }
+            }
             else {
                 LOG_WARN("Unknown sort tag: %s", sort);
             }
