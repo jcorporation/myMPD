@@ -509,7 +509,7 @@ void mympd_config_defaults(t_config *config) {
     config->webdav = false;
     config->covercache_keep_days = 7;
     config->covercache = true;
-    config->theme = sdsnew("theme-default");
+    config->theme = sdsnew("theme-dark");
     config->highlight_color = sdsnew("#28a745");
     config->custom_placeholder_images = false;
     config->regex = true;
