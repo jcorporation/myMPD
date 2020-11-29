@@ -48,7 +48,7 @@ To use all myMPD functions you should use the latest stable MPD version (0.22.x)
 
 ## Screenshots
 
-![image](https://jcorporation.github.io/assets/myMDPv6.7.0.gif)
+![image](https://jcorporation.github.io/assets/myMDPv6.8.3.gif)
 
 ## Installation
 
