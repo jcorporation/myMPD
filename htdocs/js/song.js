@@ -104,9 +104,11 @@ function parseSongDetails(obj) {
         //add uri to image list to get embedded albumart
         let images = [ subdir + '/albumart/' + obj.result.uri ];
         //add all but coverfiles to image list
-        for (let i = 0; i < obj.result.images.length; i++) {
-            if (isCoverfile(obj.result.images[i]) === false) {
-                images.push(subdir + '/browse/music/' + obj.result.images[i]);
+        if (settings.publish === true) {
+            for (let i = 0; i < obj.result.images.length; i++) {
+                if (isCoverfile(obj.result.images[i]) === false) {
+                    images.push(subdir + '/browse/music/' + obj.result.images[i]);
+                }
             }
         }
         const imgEl = document.getElementById('tabSongPics');
@@ -174,6 +176,9 @@ function voteSong(vote) {
 }
 
 function setVoteSongBtns(vote, uri) {
+    if (uri === undefined) {
+        uri = '';
+    }
     domCache.btnVoteUp2 = document.getElementById('btnVoteUp2');
     domCache.btnVoteDown2 = document.getElementById('btnVoteDown2');
 
@@ -184,6 +189,8 @@ function setVoteSongBtns(vote, uri) {
             domCache.btnVoteUp2.setAttribute('disabled', 'disabled');
             domCache.btnVoteDown2.setAttribute('disabled', 'disabled');
         }
+        domCache.btnVoteUp.classList.remove('highlight');
+        domCache.btnVoteDown.classList.remove('highlight');
     }
     else {
         domCache.btnVoteUp.removeAttribute('disabled');

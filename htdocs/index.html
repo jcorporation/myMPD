@@ -37,7 +37,7 @@
   <header>
     <nav id="header" class="navbar navbar-expand navbar-dark fixed-top bg-dark d-flex justify-content-between">
       <div class="dropdown nav-item" id="headerLeft">
-        <a class="dropdown-toggle alwaysEnabled material-icons text-light" href="#" id="mainMenu">play_circle_outline</a>
+        <a class="dropdown-toggle alwaysEnabled material-icons text-light" href="#" id="mainMenu" data-title-phrase="myMPD menu">play_circle_outline</a>
         <div class="dropdown-menu bg-lite-dark" id="mainMenuDropdown">
           <a data-phrase="Add stream" class="dropdown-item text-light" href="#" data-href='{"cmd": "showAddToPlaylist", "options": ["stream"]}'></a>
           <a id="navDBupdate" class="subMenu dropdown-item text-light" data-toggle="collapse" href="#menu-dbupdate"><span class="material-icons material-icons-left">keyboard_arrow_right</span><span data-phrase="Update"></span></a>
@@ -96,17 +96,17 @@
       <div class="card-body">
         <div class="btn-toolbar card-toolbar" id="PlaybackButtonsTop">
           <div class="btn-group btn-group featStickers">
-            <button data-title-phrase="Dislike song" id="btnVoteDown" data-href='{"cmd": "voteSong", "options": [0]}' class="btn btn-secondary material-icons">thumb_down</button>
-            <button data-title-phrase="Like song" id="btnVoteUp" data-href='{"cmd": "voteSong", "options": [2]}' class="btn btn-secondary material-icons">thumb_up</button>
+            <button disabled="disabled" data-title-phrase="Dislike song" id="btnVoteDown" data-href='{"cmd": "voteSong", "options": [0]}' class="btn btn-secondary material-icons">thumb_down</button>
+            <button disabled="disabled" data-title-phrase="Like song" id="btnVoteUp" data-href='{"cmd": "voteSong", "options": [2]}' class="btn btn-secondary material-icons">thumb_up</button>
           </div>
           <div class="btn-group btn-group featLove ml-2">
-            <button data-title-phrase="Love song" data-href='{"cmd": "loveSong", "options": []}' class="btn btn-secondary material-icons">favorite</button>
+            <button disabled="disabled" data-title-phrase="Love song" data-href='{"cmd": "loveSong", "options": []}' class="btn btn-secondary material-icons">favorite</button>
           </div>
           <div class="btn-group btn-group featPlaylists ml-2">
-            <button id="addCurrentSongToPlaylist" data-title-phrase="Add to playlist" data-href='{"cmd": "showAddToPlaylistCurrentSong", "options": []}' class="btn btn-secondary material-icons">playlist_add</button>
+            <button disabled="disabled" id="addCurrentSongToPlaylist" data-title-phrase="Add to playlist" data-href='{"cmd": "showAddToPlaylistCurrentSong", "options": []}' class="btn btn-secondary material-icons">playlist_add</button>
           </div>
           <div class="btn-group dropdown ml-2">
-            <button id="btnPlayDropdown" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="material-icons">tune</span></button>
+            <button data-title-phrase="Playback settings" id="btnPlayDropdown" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="material-icons">tune</span></button>
             <div class="dropdown-menu bg-lite-dark px-2" id="playDropdown">
               <form>
                 <div class="form-group row">
@@ -151,7 +151,7 @@
             </div>
           </div>
           <div class="btn-group ml-2 featTags">
-            <button id="PlaybackColsBtn" class="btn btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="material-icons">settings</span></button>
+            <button data-title-phrase="Display tags" id="PlaybackColsBtn" class="btn btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="material-icons">settings</span></button>
             <div class="dropdown-menu text-light bg-lite-dark px-2" id="PlaybackColsDropdown"><form></form>
               <button data-phrase="Apply" data-href='{"cmd": "saveColsPlayback", "options": ["Playback"]}' class="btn btn-success btn-block btn-sm mt-2"></button>
             </div>
@@ -170,7 +170,7 @@
       <div class="card-body hide" id="cardQueueCurrent">
         <div class="btn-toolbar card-toolbar" id="QueueCurrentButtonsTop">
           <div class="btn-group mr-2">
-            <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="material-icons">layers</span></button>
+            <button data-title-phrase="Select view" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="material-icons">layers</span></button>
             <div class="dropdown-menu bg-lite-dark px-2">
               <button data-phrase="Queue" class="btn btn-sm btn-block btn-secondary active" data-href='{"cmd": "appGoto", "options": ["Queue", "Current"]}'></button>
               <button data-phrase="Last played" class="btn btn-sm btn-block btn-secondary" data-href='{"cmd": "appGoto", "options": ["Queue", "LastPlayed"]}'></button>
@@ -259,7 +259,7 @@
       <div class="card-body hide" id="cardQueueLastPlayed">
         <div class="btn-toolbar card-toolbar">
           <div class="btn-group mr-2">
-            <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="material-icons">layers</span></button>
+            <button data-title-phrase="Select view" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="material-icons">layers</span></button>
             <div class="dropdown-menu bg-lite-dark px-2">
               <button data-phrase="Queue" class="btn btn-sm btn-block btn-secondary" data-href='{"cmd": "appGoto", "options": ["Queue", "Current"]}'></button>
               <button data-phrase="Last played" class="btn btn-sm btn-block btn-secondary active" data-href='{"cmd": "appGoto", "options": ["Queue", "LastPlayed"]}'></button>
@@ -315,7 +315,7 @@
       <div class="card-body hide" id="cardQueueJukebox">
         <div class="btn-toolbar card-toolbar">
           <div class="btn-group mr-2">
-            <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="material-icons">layers</span></button>
+            <button data-title-phrase="Select view" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="material-icons">layers</span></button>
             <div class="dropdown-menu bg-lite-dark px-2">
               <button data-phrase="Queue" class="btn btn-sm btn-block btn-secondary" data-href='{"cmd": "appGoto", "options": ["Queue", "Current"]}'></button>
               <button data-phrase="Last played" class="btn btn-sm btn-block btn-secondary" data-href='{"cmd": "appGoto", "options": ["Queue", "LastPlayed"]}'></button>
@@ -374,7 +374,7 @@
       <div class="card-body hide" id="cardBrowsePlaylists">
         <div class="btn-toolbar card-toolbar" id="BrowsePlaylistsButtons">
           <div class="btn-group mr-2">
-            <button data-title-phrase="Select tag to display" id="BrowseNavPlaylists" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="material-icons">layers</span></button>
+            <button data-title-phrase="Select view" id="BrowseNavPlaylists" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="material-icons">layers</span></button>
             <div class="dropdown-menu bg-lite-dark px-2" id="BrowseNavPlaylistsDropdown">
             </div>
           </div>
@@ -477,7 +477,7 @@
         <div id="viewListDatabase">
           <div class="btn-toolbar card-toolbar" id="BrowseDatabaseButtons">
             <div class="btn-group mr-2">
-              <button data-title-phrase="Select tag to display" id="btnBrowseDatabaseByTag" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+              <button data-title-phrase="Select view" id="btnBrowseDatabaseByTag" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
                 <span class="material-icons">layers</span>
                 <span data-phrase="Album" id="btnBrowseDatabaseByTagDesc" class="hide"></span>
               </button>
@@ -593,7 +593,7 @@
       <div class="card-body hide" id="cardBrowseFilesystem">
         <div class="btn-toolbar card-toolbar" id="BrowseFilesystemButtons">
           <div class="btn-group mr-2">
-            <button data-title-phrase="Select tag to display" id="BrowseNavFilesystem" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="material-icons">layers</span></button>
+            <button data-title-phrase="Select view" id="BrowseNavFilesystem" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><span class="material-icons">layers</span></button>
             <div class="dropdown-menu bg-lite-dark px-2" id="BrowseNavFilesystemDropdown">
             </div>
           </div>
@@ -761,16 +761,16 @@
     <nav class="navbar navbar-expand navbar-dark bg-dark">
       <div class="btn-toolbar nav-item flex-nowrap">
         <div class="btn-group mr-2" id="playControlBtns">
-          <button data-href='{"cmd": "clickPrev", "options": []}' id="btnPrev" type="button" class="btn btn-dark pl-2 pr-2 material-icons">skip_previous</button>
-          <button data-href='{"cmd": "clickPlay", "options": []}' id="btnPlay" type="button" class="btnPlay btn btn-lg btn-dark pl-2 pr-2 material-icons material-icons-lg">pause</button>
-          <button data-href='{"cmd": "clickNext", "options": []}' id="btnNext" type="button" class="btn btn-dark pl-2 pr-2 material-icons">skip_next</button>
+          <button data-title-phrase="Previous" data-href='{"cmd": "clickPrev", "options": []}' id="btnPrev" type="button" class="btn btn-dark pl-2 pr-2 material-icons">skip_previous</button>
+          <button data-title-phrase="Toggle play" data-href='{"cmd": "clickPlay", "options": []}' id="btnPlay" type="button" class="btnPlay btn btn-lg btn-dark pl-2 pr-2 material-icons material-icons-lg">pause</button>
+          <button data-title-phrase="Next" data-href='{"cmd": "clickNext", "options": []}' id="btnNext" type="button" class="btn btn-dark pl-2 pr-2 material-icons">skip_next</button>
         </div>
         <div class="align-self-center">
           <small id="counter" class="text-light">0:00&nbsp;/&nbsp;0:00</small>
         </div>
       </div>
       <div class="d-flex flex-fill navbar-nav ml-5 text-light" id="footerInfo">
-        <div id="footerCover" class="album-cover-loading mr-3 clickable carousel" data-href='{"cmd": "zoomPicture", "options": []}'>
+        <div data-title-phrase="Show cover" id="footerCover" class="album-cover-loading mr-3 clickable carousel" data-href='{"cmd": "zoomPicture", "options": []}'>
         </div>
         <div id="footerPlaying">
           <span id="footerTitle" class="notclickable" data-href='{"cmd": "clickTitle", "options": []}'>Title</span><br/>
@@ -779,7 +779,7 @@
       </div>
       <div class="btn-toolbar nav-item flex-nowrap ml-5">
         <div class="btn-group dropup">
-          <button id="volumeMenu" class="btn btn-dark dropdown-toggle pl-2 pr-2" type="button" data-toggle="dropdown"><span class="material-icons">volume_up</span></button>
+          <button data-title-phrase="Outputs" id="volumeMenu" class="btn btn-dark dropdown-toggle pl-2 pr-2" type="button" data-toggle="dropdown"><span class="material-icons">volume_up</span></button>
           <div class="dropdown-menu bg-lite-dark">
             <h2 class="dropdown-header text-light"><span data-phrase="Volume"></span>: <span id="volumePrct"></span></h2>
             <form class="px-4 py-0 pb-3" id="volumeControl">
@@ -799,7 +799,7 @@
           </div>
         </div>
         <div class="btn-group dropup featLocalplayer ml-2">
-          <button id="localPlaybackMenu" class="btn btn-dark dropdown-toggle pl-2 pr-2" type="button" data-toggle="dropdown"><span class="material-icons">airplay</span></button>
+          <button data-title-phrase="Local playback" id="localPlaybackMenu" class="btn btn-dark dropdown-toggle pl-2 pr-2" type="button" data-toggle="dropdown"><span class="material-icons">airplay</span></button>
           <div class="dropdown-menu bg-lite-dark">
             <h2 data-phrase="Local playback" class="dropdown-header dropdown-header-lx text-light"></h2>
             <div id="alertLocalPlayback" class="alert alert-warning mx-4 p-2 hide">

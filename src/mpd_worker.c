@@ -43,6 +43,7 @@ void *mpd_worker_loop(void *arg_config) {
     t_config *config = (t_config *) arg_config;
     //State of mpd connection
     t_mpd_worker_state *mpd_worker_state = (t_mpd_worker_state *)malloc(sizeof(t_mpd_worker_state));
+    assert(mpd_worker_state);
     default_mpd_worker_state(mpd_worker_state);
 
     //wait for initial settings

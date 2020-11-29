@@ -66,5 +66,5 @@ fi
 %config(noreplace) /etc/mympd.conf
 
 %changelog
-* __DATE__ Juergen Mang <mail@jcgames.de> __VERSION__-0
+* __DATE_F1__ Juergen Mang <mail@jcgames.de> __VERSION__-0
 - Version from master

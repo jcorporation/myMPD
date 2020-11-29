@@ -336,6 +336,9 @@ function parseSettings() {
     document.getElementById('inputSmartplsInterval').value = settings.smartplsInterval / 60 / 60;
     document.getElementById('selectSmartplsSort').value = settings.smartplsSort;
 
+    domCache.volumeBar.setAttribute('min', settings.volumeMin);
+    domCache.volumeBar.setAttribute('max', settings.volumeMax);
+
     if (settings.featLocalplayer === true) {
         setLocalPlayerUrl();
     }
@@ -575,6 +578,23 @@ function parseMPDSettings() {
     if (!settings.tags.includes('AlbumArtist') && app.apps.Browse.tabs.Database.views.List.filter === 'AlbumArtist') {
         app.apps.Browse.tabs.Database.views.List.filter = 'Artist';
         app.apps.Browse.tabs.Database.views.List.sort = 'Artist';
+    }
+
+    if (settings.featAdvsearch === false && app.apps.Browse.active === 'Database') {
+        app.apps.Browse.active = 'Filesystem';
+    }
+
+    if (settings.featAdvsearch === false) {
+        const tagEls = document.getElementById('cardPlaybackTags').getElementsByTagName('p');
+        for (let i = 0; i < tagEls.length; i++) {
+            tagEls[i].classList.remove('clickable');
+        }
+    }
+    else {
+        const tagEls = document.getElementById('cardPlaybackTags').getElementsByTagName('p');
+        for (let i = 0; i < tagEls.length; i++) {
+            tagEls[i].classList.add('clickable');
+        }
     }
     
     if (settings.featPlaylists === true) {

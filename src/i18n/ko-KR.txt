@@ -1515,9 +1515,6 @@ Details
 Port
 포트
 
-Select tag to display
-표시할 태그 선택
-
 Websocket is disconnected
 웹소켓 연결 안 됨
 
@@ -1619,3 +1616,36 @@ Sort
 
 Tag
 태그
+
+Columns
+열
+
+Display tags
+태그 표시
+
+Next
+다음
+
+Outputs
+출력
+
+Playback settings
+연주 설정
+
+Previous
+이전
+
+Select view
+보기 선택
+
+Show cover
+커버 보기
+
+Toggle play
+연주 토글
+
+myMPD menu
+myMPD 메뉴
+
+Invalid volume level
+잘못된 음량 수준

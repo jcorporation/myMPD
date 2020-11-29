@@ -375,7 +375,7 @@ function setColsChecklist(table) {
     return tagChks;
 }
 
-function setCols(table, className) {
+function setCols(table) {
     let colsChkList = document.getElementById(table + 'ColsDropdown');
     if (colsChkList) {
         colsChkList.firstChild.innerHTML = setColsChecklist(table);
@@ -414,21 +414,13 @@ function setCols(table, className) {
             heading += '</th>';
         }
         if (settings.featTags === true) {
-            heading += '<th data-col="Action"><a href="#" class="text-secondary align-middle material-icons material-icons-small">settings</a></th>';
+            heading += '<th data-col="Action"><a data-title-phrase="' +t('Columns') + '" href="#" class="text-secondary align-middle material-icons material-icons-small">settings</a></th>';
         }
         else {
             heading += '<th></th>';
         }
 
-        if (className === undefined) {
-            document.getElementById(table + 'List').getElementsByTagName('tr')[0].innerHTML = heading;
-        }
-        else {
-            let tbls = document.querySelectorAll(className);
-            for (let i = 0; i < tbls.length; i++) {
-                tbls[i].getElementsByTagName('tr')[0].innerHTML = heading;
-            }
-        }
+        document.getElementById(table + 'List').getElementsByTagName('tr')[0].innerHTML = heading;
     }
 }
 

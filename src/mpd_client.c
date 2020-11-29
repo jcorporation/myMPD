@@ -53,6 +53,7 @@ void *mpd_client_loop(void *arg_config) {
     t_config *config = (t_config *) arg_config;
     //State of mpd connection
     t_mpd_client_state *mpd_client_state = (t_mpd_client_state *)malloc(sizeof(t_mpd_client_state));
+    assert(mpd_client_state);
     default_mpd_client_state(mpd_client_state);
     triggerfile_read(config, mpd_client_state);
     //wait for initial settings

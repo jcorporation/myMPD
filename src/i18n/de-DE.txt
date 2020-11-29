@@ -1515,9 +1515,6 @@ Details
 Port
 Port
 
-Select tag to display
-Tag für Anzeige auswählen
-
 Websocket is disconnected
 Websocket ist nicht verbunden
 
@@ -1619,3 +1616,36 @@ Sortieren
 
 Tag
 Tag
+
+Columns
+Spalten
+
+Display tags
+Tags zum Anzeigen
+
+Next
+Nächstes Lied
+
+Outputs
+Ausgabegeräte
+
+Playback settings
+Wiedergabeeinstellungen
+
+Previous
+Vorheriges Lied
+
+Select view
+Anzeige auswählen
+
+Show cover
+Cover anzeigen
+
+Toggle play
+Abspielen / Pausieren
+
+myMPD menu
+myMPD Menu
+
+Invalid volume level
+Ungültige Lautstärke

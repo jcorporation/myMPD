@@ -77,9 +77,13 @@ html {
 
 body {
   min-height: 100vh;
-  padding-top: 4rem;
+  padding-top: 3rem;
   padding-bottom: 4rem;
   background-color: #888;
+}
+
+main {
+  padding-top: 0.5rem;
 }
 
 .breakAll {
@@ -137,6 +141,9 @@ td[data-col=Action] {
   body {
     padding-top: 0;
     padding-left: 4rem;
+  }
+  main {
+    padding-top: 0;
   }
   #headerLeft {
     margin-bottom: 2rem;
@@ -287,7 +294,7 @@ button {
 [data-col=Pos],
 [data-col=Type],
 [data-col=Track] {
-  width: 2rem;
+  max-width: 5rem;
   min-width: min-content;
   /* @alternate */
   min-width: -moz-min-content;
@@ -304,10 +311,6 @@ tr > th {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-small {
-  color: #aaa;
 }
 
 .card {
@@ -492,9 +495,9 @@ small {
 }
 
 .material-icons-left {
-  font-size: 1rem;
+/*  font-size: 1rem; */
   margin-left: -1em;
-  vertical-align: middle;
+/*  vertical-align: middle; */
 }
 
 .material-icons-small {
@@ -505,10 +508,12 @@ small {
   font-size: 2.4rem;
 }
 
+/*
 .material-icons-small-left {
   font-size: 1rem;
   margin-left: -1em;
 }
+*/
 
 .btn-sm-big-icon {
   font-size: 1.4rem !important;

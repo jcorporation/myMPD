@@ -4,6 +4,7 @@
  https://github.com/jcorporation/mympd
 */
 
+#include <assert.h>
 #include <stdlib.h>
 
 #include <mpd/client.h>
@@ -14,24 +15,28 @@
 
 void set_lua_mympd_state_p(struct list *lua_mympd_state, const char *k, const char *v) {
     struct t_lua_mympd_state_value *value = (struct t_lua_mympd_state_value *)malloc(sizeof(struct t_lua_mympd_state_value));
+    assert(value);
     value->p = sdsnew(v);
     list_push(lua_mympd_state, k, LUA_TYPE_STRING, NULL, value);
 }
 
 void set_lua_mympd_state_i(struct list *lua_mympd_state, const char *k, long v) {
     struct t_lua_mympd_state_value *value = (struct t_lua_mympd_state_value *)malloc(sizeof(struct t_lua_mympd_state_value));
+    assert(value);
     value->i = v;
     list_push(lua_mympd_state, k, LUA_TYPE_INTEGER, NULL, value);
 }
 
 void set_lua_mympd_state_f(struct list *lua_mympd_state, const char *k, double v) {
     struct t_lua_mympd_state_value *value = (struct t_lua_mympd_state_value *)malloc(sizeof(struct t_lua_mympd_state_value));
+    assert(value);
     value->f = v;
     list_push(lua_mympd_state, k, LUA_TYPE_NUMBER, NULL, value);
 }
 
 void set_lua_mympd_state_b(struct list *lua_mympd_state, const char *k, bool v) {
     struct t_lua_mympd_state_value *value = (struct t_lua_mympd_state_value *)malloc(sizeof(struct t_lua_mympd_state_value));
+    assert(value);
     value->b = v;
     list_push(lua_mympd_state, k, LUA_TYPE_BOOLEAN, NULL, value);
 }

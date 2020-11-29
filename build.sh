@@ -96,17 +96,24 @@ older_s() {
 setversion() {
   echo "Setting version to ${VERSION}"
   export LC_TIME="en_GB.UTF-8"
-  
-  sed -e "s/__VERSION__/${VERSION}/g" htdocs/sw.js.in > htdocs/sw.js
-  sed -e "s/__VERSION__/${VERSION}/g" contrib/packaging/alpine/APKBUILD.in > contrib/packaging/alpine/APKBUILD
-  sed -e "s/__VERSION__/${VERSION}/g" contrib/packaging/arch/PKGBUILD.in > contrib/packaging/arch/PKGBUILD
-  DATE=$(date +"%a %b %d %Y")
-  sed -e "s/__VERSION__/${VERSION}/g" -e "s/__DATE__/$DATE/g" \
-  	contrib/packaging/rpm/mympd.spec.in > contrib/packaging/rpm/mympd.spec
-  DATE=$(date +"%a, %d %b %Y %H:%m:%S %z")
-  sed -e "s/__VERSION__/${VERSION}/g" -e "s/__DATE__/$DATE/g" \
-  	contrib/packaging/debian/changelog.in > contrib/packaging/debian/changelog
-  mv contrib/packaging/gentoo/mympd-*.ebuild "contrib/packaging/gentoo/mympd-${VERSION}.ebuild"
+  DATE_F1=$(date +"%a %b %d %Y")
+  DATE_F2=$(date +"%a, %d %b %Y %H:%m:%S %z")
+  for F in htdocs/sw.js contrib/packaging/alpine/APKBUILD contrib/packaging/arch/PKGBUILD \
+  		   contrib/packaging/rpm/mympd.spec contrib/packaging/debian/changelog
+  do
+  	if ! newer "$F.in" "$F"
+  	then 
+  	  echo "Warning: $F is newer than $F.in"
+  	else
+  	  echo "$F"
+  	  sed -e "s/__VERSION__/${VERSION}/g" -e "s/__DATE_F1__/$DATE_F1/g" -e "s/__DATE_F2__/$DATE_F2/g" "$F.in" > "$F"
+  	  #Adjust file modification date
+  	  TS=$(stat -c%Y "$F.in")
+  	  touch -d@"$TS" "$F"
+  	fi
+  done
+
+  mv -f contrib/packaging/gentoo/mympd-*.ebuild "contrib/packaging/gentoo/mympd-${VERSION}.ebuild"
 }
 
 minify() {
@@ -125,7 +132,7 @@ minify() {
 
   if [ "$TYPE" = "html" ] && [ "$PERLBIN" != "" ]
   then
-    # shellcheck disable=SC2016
+    #shellcheck disable=SC2016
     $PERLBIN -pe 's/^<!--debug-->.*\n//gm; s/<!--release\s+(.+)-->/$1/g; s/<!--(.+)-->//g; s/^\s*//gm; s/\s*$//gm' "$SRC" > "${DST}.tmp"
     ERROR="$?"
     if [ "$ERROR" = "1" ]

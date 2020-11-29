@@ -4,6 +4,7 @@
  https://github.com/jcorporation/mympd
 */
 
+#include <assert.h>
 #include <stdlib.h>
 #include <libgen.h>
 #include <pthread.h>
@@ -41,6 +42,7 @@ void default_mpd_worker_state(t_mpd_worker_state *mpd_worker_state) {
     reset_t_tags(&mpd_worker_state->generate_pls_tag_types);
     //mpd state
     mpd_worker_state->mpd_state = (t_mpd_state *)malloc(sizeof(t_mpd_state));
+    assert(mpd_worker_state->mpd_state);
     mpd_shared_default_mpd_state(mpd_worker_state->mpd_state);
 }
 

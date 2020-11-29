@@ -292,6 +292,9 @@ function navBrowseHandler(event) {
 }
 
 function gotoBrowse() {
+    if (settings.featAdvsearch === false) {
+        return;
+    }
     let x = event.target;
     let tag = x.getAttribute('data-tag');
     let name = decodeURI(x.getAttribute('data-name'));
@@ -1550,20 +1553,32 @@ function zoomPicture(el) {
         if (imgSrc !== null) {
             images = el.getAttribute('data-images').split(';;');
         }
-        else {
+        else if (lastSongObj.images) {
             images = lastSongObj.images.slice();
         }
-        if (images.length > 0) {
-            for (let i = 0; i < images.length; i++) {
-                images[i] = subdir + '/browse/music/' + images[i];
-            }
-            const imgEl = document.getElementById('modalPictureImg');
-            imgEl.style.paddingTop = 0;
-            createImgCarousel(imgEl, 'picsCarousel', images);
-            document.getElementById('modalPictureZoom').classList.add('hide');
-            modalPicture.show();
+        else {
             return;
         }
+        
+        //add uri to image list to get embedded albumart
+        let a_images = [];
+        if (el.getAttribute('data-uri')) {
+            a_images = [ subdir + '/albumart/' + el.getAttribute('data-uri') ];
+        }
+        //add all but coverfiles to image list
+        if (settings.publish === true) {
+            for (let i = 0; i < images.length; i++) {
+                if (isCoverfile(images[i]) === false) {
+                    a_images.push(subdir + '/browse/music/' + images[i]);
+                }
+            }
+        }
+        const imgEl = document.getElementById('modalPictureImg');
+        imgEl.style.paddingTop = 0;
+        createImgCarousel(imgEl, 'picsCarousel', a_images);
+        document.getElementById('modalPictureZoom').classList.add('hide');
+        modalPicture.show();
+        return;
     }
     
     if (el.style.backgroundImage !== '') {
@@ -2874,8 +2889,9 @@ function appInit() {
     }
 
     document.getElementById('cardPlaybackTags').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'P') 
+        if (event.target.nodeName === 'P') {
             gotoBrowse();
+        }
     }, false);
 
     document.getElementById('BrowseBreadcrumb').addEventListener('click', function(event) {
@@ -3580,6 +3596,10 @@ function toggleAlert(alertBox, state, msg) {
 }
 
 function showNotification(notificationTitle, notificationText, notificationHtml, notificationType) {
+    if (notificationTitle === 'No current song') {
+        return;
+    }
+
     if (settings.notificationWeb === true) {
         let notification = new Notification(notificationTitle, {icon: 'assets/favicon.ico', body: notificationText});
         setTimeout(notification.close.bind(notification), 3000);
@@ -3769,7 +3789,7 @@ function toggleUI() {
     if (websocketConnected === true) {
         toggleAlert('alertMympdState', false, '');
     }
-    else {
+    else if (appInited === true) {
         toggleAlert('alertMympdState', true, t('Websocket is disconnected'));
         logMessage(t('Websocket is disconnected'), '', '', 'danger');
     }
@@ -5601,6 +5621,9 @@ function parseSettings() {
     document.getElementById('inputSmartplsInterval').value = settings.smartplsInterval / 60 / 60;
     document.getElementById('selectSmartplsSort').value = settings.smartplsSort;
 
+    domCache.volumeBar.setAttribute('min', settings.volumeMin);
+    domCache.volumeBar.setAttribute('max', settings.volumeMax);
+
     if (settings.featLocalplayer === true) {
         setLocalPlayerUrl();
     }
@@ -5840,6 +5863,23 @@ function parseMPDSettings() {
     if (!settings.tags.includes('AlbumArtist') && app.apps.Browse.tabs.Database.views.List.filter === 'AlbumArtist') {
         app.apps.Browse.tabs.Database.views.List.filter = 'Artist';
         app.apps.Browse.tabs.Database.views.List.sort = 'Artist';
+    }
+
+    if (settings.featAdvsearch === false && app.apps.Browse.active === 'Database') {
+        app.apps.Browse.active = 'Filesystem';
+    }
+
+    if (settings.featAdvsearch === false) {
+        const tagEls = document.getElementById('cardPlaybackTags').getElementsByTagName('p');
+        for (let i = 0; i < tagEls.length; i++) {
+            tagEls[i].classList.remove('clickable');
+        }
+    }
+    else {
+        const tagEls = document.getElementById('cardPlaybackTags').getElementsByTagName('p');
+        for (let i = 0; i < tagEls.length; i++) {
+            tagEls[i].classList.add('clickable');
+        }
     }
     
     if (settings.featPlaylists === true) {
@@ -6391,9 +6431,11 @@ function parseSongDetails(obj) {
         //add uri to image list to get embedded albumart
         let images = [ subdir + '/albumart/' + obj.result.uri ];
         //add all but coverfiles to image list
-        for (let i = 0; i < obj.result.images.length; i++) {
-            if (isCoverfile(obj.result.images[i]) === false) {
-                images.push(subdir + '/browse/music/' + obj.result.images[i]);
+        if (settings.publish === true) {
+            for (let i = 0; i < obj.result.images.length; i++) {
+                if (isCoverfile(obj.result.images[i]) === false) {
+                    images.push(subdir + '/browse/music/' + obj.result.images[i]);
+                }
             }
         }
         const imgEl = document.getElementById('tabSongPics');
@@ -6461,6 +6503,9 @@ function voteSong(vote) {
 }
 
 function setVoteSongBtns(vote, uri) {
+    if (uri === undefined) {
+        uri = '';
+    }
     domCache.btnVoteUp2 = document.getElementById('btnVoteUp2');
     domCache.btnVoteDown2 = document.getElementById('btnVoteDown2');
 
@@ -6710,6 +6755,7 @@ function parseState(obj) {
         domCache.footerTitle.innerText = '';
         domCache.footerTitle.removeAttribute('title');
         domCache.footerTitle.classList.remove('clickable');
+        domCache.footerCover.classList.remove('clickable');
         clearCurrentCover();
         if (settings.bgCover === true) {
             clearBackgroundImage();
@@ -6823,6 +6869,7 @@ function _setCurrentCover(url, el) {
     div.classList.add('coverbg', 'carousel');
     div.style.backgroundImage = 'url("' + subdir + '/albumart/' + url + '")';
     div.style.opacity = 0;
+    div.setAttribute('data-uri', url);
     el.insertBefore(div, el.firstChild);
 
     let img = new Image();
@@ -6865,6 +6912,10 @@ function songChange(obj) {
     if (settings.bgCover === true && settings.featCoverimage === true) {
         setBackgroundImage(obj.result.uri);
     }
+    
+    domCache.footerArtist.classList.remove('clickable');
+    domCache.footerAlbum.classList.remove('clickable');
+    domCache.footerCover.classList.remove('clickable');
 
     if (obj.result.Artist !== undefined && obj.result.Artist.length > 0 && obj.result.Artist !== '-') {
         textNotification += obj.result.Artist;
@@ -6872,12 +6923,13 @@ function songChange(obj) {
         pageTitle += obj.result.Artist + ' - ';
         domCache.footerArtist.innerText = obj.result.Artist;
         domCache.footerArtist.setAttribute('data-name', encodeURI(obj.result.Artist));
-        domCache.footerArtist.classList.add('clickable');
+        if (settings.featAdvsearch === true) {
+            domCache.footerArtist.classList.add('clickable');
+        }
     }
     else {
         domCache.footerArtist.innerText = '';
         domCache.footerArtist.setAttribute('data-name', '');
-        domCache.footerArtist.classList.remove('clickable');
     }
 
     if (obj.result.Album !== undefined && obj.result.Album.length > 0 && obj.result.Album !== '-') {
@@ -6885,12 +6937,13 @@ function songChange(obj) {
         htmlNotification += '<br/>' + obj.result.Album;
         domCache.footerAlbum.innerText = obj.result.Album;
         domCache.footerAlbum.setAttribute('data-name', encodeURI(obj.result.Album));
-        domCache.footerAlbum.classList.add('clickable');
+        if (settings.featAdvsearch === true) {
+            domCache.footerAlbum.classList.add('clickable');
+        }
     }
     else {
         domCache.footerAlbum.innerText = '';
         domCache.footerAlbum.setAttribute('data-name', '');
-        domCache.footerAlbum.classList.remove('clickable');
     }
 
     if (obj.result.Title !== undefined && obj.result.Title.length > 0) {
@@ -6899,13 +6952,15 @@ function songChange(obj) {
         domCache.currentTitle.setAttribute('data-uri', encodeURI(obj.result.uri));
         domCache.footerTitle.innerText = obj.result.Title;
         domCache.footerTitle.classList.add('clickable');
+        domCache.footerCover.classList.add('clickable');
     }
     else {
         domCache.currentTitle.innerText = '';
         domCache.currentTitle.setAttribute('data-uri', '');
         domCache.footerTitle.innerText = '';
         domCache.footerTitle.setAttribute('data-name', '');
-        domCache.footerTitle.classList.remove('clickable');        
+        domCache.footerTitle.classList.remove('clickable');
+        domCache.footerCover.classList.remove('clickable');
     }
     document.title = 'myMPD: ' + pageTitle;
     domCache.footerCover.title = pageTitle;
@@ -6918,15 +6973,16 @@ function songChange(obj) {
     }
 
     if (obj.result.uri !== undefined) {
-        if (settings.featStickers === true) {
-            setVoteSongBtns(obj.result.like, obj.result.uri);
-        }
         obj.result['Filetype'] = filetype(obj.result.uri);
         document.getElementById('addCurrentSongToPlaylist').removeAttribute('disabled');
     }
     else {
         obj.result['Filetype'] = '';
         document.getElementById('addCurrentSongToPlaylist').setAttribute('disabled', 'disabled');
+    }
+    
+    if (settings.featStickers === true) {
+        setVoteSongBtns(obj.result.like, obj.result.uri);
     }
     
     if (lastState) {
@@ -6988,11 +7044,11 @@ function volumeStep(dir) {
 
 function chVolume(increment) {
     let newValue = parseInt(domCache.volumeBar.value) + increment;
-    if (newValue < 0)  {
-        newValue = 0;
+    if (newValue < settings.volumeMin)  {
+        newValue = settings.volumeMin;
     }
-    else if (newValue > 100) {
-        newValue = 100;
+    else if (newValue > settings.volumeMax) {
+        newValue = settings.volumeMax;
     }
     domCache.volumeBar.value = newValue;
     sendAPI("MPD_API_PLAYER_VOLUME_SET", {"volume": newValue});
@@ -7431,7 +7487,7 @@ function setColsChecklist(table) {
     return tagChks;
 }
 
-function setCols(table, className) {
+function setCols(table) {
     let colsChkList = document.getElementById(table + 'ColsDropdown');
     if (colsChkList) {
         colsChkList.firstChild.innerHTML = setColsChecklist(table);
@@ -7470,21 +7526,13 @@ function setCols(table, className) {
             heading += '</th>';
         }
         if (settings.featTags === true) {
-            heading += '<th data-col="Action"><a href="#" class="text-secondary align-middle material-icons material-icons-small">settings</a></th>';
+            heading += '<th data-col="Action"><a data-title-phrase="' +t('Columns') + '" href="#" class="text-secondary align-middle material-icons material-icons-small">settings</a></th>';
         }
         else {
             heading += '<th></th>';
         }
 
-        if (className === undefined) {
-            document.getElementById(table + 'List').getElementsByTagName('tr')[0].innerHTML = heading;
-        }
-        else {
-            let tbls = document.querySelectorAll(className);
-            for (let i = 0; i < tbls.length; i++) {
-                tbls[i].getElementsByTagName('tr')[0].innerHTML = heading;
-            }
-        }
+        document.getElementById(table + 'List').getElementsByTagName('tr')[0].innerHTML = heading;
     }
 }
 
@@ -8100,7 +8148,7 @@ function addTagList(el, list) {
         tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="' + settings[list][i] + '">' + t(settings[list][i]) + '</button>';
     }
     if (el === 'BrowseNavFilesystemDropdown' || el === 'BrowseNavPlaylistsDropdown') {
-        if (settings.featTags === true) {
+        if (settings.featTags === true && settings.featAdvsearch === true) {
             tagList = '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="Database">' + t('Database') + '</button>';
         }
         else {

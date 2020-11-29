@@ -55,6 +55,7 @@ void *mympd_api_loop(void *arg_config) {
     
     //read myMPD states under config.varlibdir
     t_mympd_state *mympd_state = (t_mympd_state *)malloc(sizeof(t_mympd_state));
+    assert(mympd_state);
     mympd_api_read_statefiles(config, mympd_state);
 
     list_init(&mympd_state->home_list);
@@ -484,6 +485,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             break;
         case MYMPD_API_TIMER_SAVE: {
             struct t_timer_definition *timer_def = malloc(sizeof(struct t_timer_definition));
+            assert(timer_def);
             timer_def = parse_timer(timer_def, request->data, sdslen(request->data));
             je = json_scanf(request->data, sdslen(request->data), "{params: {timerid: %d}}", &int_buf1);
             if (je == 1 && timer_def != NULL) {

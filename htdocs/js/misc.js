@@ -186,20 +186,32 @@ function zoomPicture(el) {
         if (imgSrc !== null) {
             images = el.getAttribute('data-images').split(';;');
         }
-        else {
+        else if (lastSongObj.images) {
             images = lastSongObj.images.slice();
         }
-        if (images.length > 0) {
-            for (let i = 0; i < images.length; i++) {
-                images[i] = subdir + '/browse/music/' + images[i];
-            }
-            const imgEl = document.getElementById('modalPictureImg');
-            imgEl.style.paddingTop = 0;
-            createImgCarousel(imgEl, 'picsCarousel', images);
-            document.getElementById('modalPictureZoom').classList.add('hide');
-            modalPicture.show();
+        else {
             return;
         }
+        
+        //add uri to image list to get embedded albumart
+        let a_images = [];
+        if (el.getAttribute('data-uri')) {
+            a_images = [ subdir + '/albumart/' + el.getAttribute('data-uri') ];
+        }
+        //add all but coverfiles to image list
+        if (settings.publish === true) {
+            for (let i = 0; i < images.length; i++) {
+                if (isCoverfile(images[i]) === false) {
+                    a_images.push(subdir + '/browse/music/' + images[i]);
+                }
+            }
+        }
+        const imgEl = document.getElementById('modalPictureImg');
+        imgEl.style.paddingTop = 0;
+        createImgCarousel(imgEl, 'picsCarousel', a_images);
+        document.getElementById('modalPictureZoom').classList.add('hide');
+        modalPicture.show();
+        return;
     }
     
     if (el.style.backgroundImage !== '') {
