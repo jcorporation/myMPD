@@ -29,7 +29,15 @@
   <!-- Splash screen -->
   <div id="splashScreen">
     <div id="splashScreenLogo">
-      <span class="material-icons splashScreenIcon">play_circle_outline</span> myMPD
+      <!--<span class="material-icons splashScreenIcon">play_circle_outline</span> myMPD-->
+      <svg width="6rem" height="6rem" version="1.1" viewBox="0 0 8.4666665 8.4666669" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="4.2333" cy="4.2333" rx="4.2333" ry="4.2333" fill="#28a745"/>
+        <path d="m1.5772 4.8257h0.59026v-1.1847h-0.59026z" fill="#fff" stroke-width=".26458"/>
+        <path d="m3.9382 7.195h0.59025v-5.9233h-0.59025z" fill="#fff" stroke-width=".26458"/>
+        <path d="m2.7577 6.0103h0.59026v-3.554h-0.59026z" fill="#fff" stroke-width=".26458"/>
+        <path d="m5.1187 2.4563v3.554l2.7826-1.777z" fill="#fff" stroke-width=".26458"/>
+      </svg>
+      myMPD
     </div>
     <div id="splashScreenAlert" data-phrase="Initializing myMPD"></div>
   </div>
@@ -37,7 +45,16 @@
   <header>
     <nav id="header" class="navbar navbar-expand navbar-dark fixed-top bg-dark d-flex justify-content-between">
       <div class="dropdown nav-item" id="headerLeft">
-        <a class="dropdown-toggle alwaysEnabled material-icons text-light" href="#" id="mainMenu" data-title-phrase="myMPD menu">play_circle_outline</a>
+        <!--<a class="dropdown-toggle alwaysEnabled material-icons text-light" href="#" id="mainMenu" data-title-phrase="myMPD menu">play_circle_outline</a>-->
+        <a class="dropdown-toggle alwaysEnabled" href="#" id="mainMenu" data-title-phrase="myMPD menu">
+          <svg width="2.5rem" height="2.5rem" version="1.1" viewBox="0 0 8.4666665 8.4666669" xmlns="http://www.w3.org/2000/svg">
+            <ellipse id="logoBg" cx="4.2333" cy="4.2333" rx="4.2333" ry="4.2333" fill="#6c757d"/>
+            <path d="m1.5772 4.8257h0.59026v-1.1847h-0.59026z" fill="#fff" stroke-width=".26458"/>
+            <path d="m3.9382 7.195h0.59025v-5.9233h-0.59025z" fill="#fff" stroke-width=".26458"/>
+            <path d="m2.7577 6.0103h0.59026v-3.554h-0.59026z" fill="#fff" stroke-width=".26458"/>
+            <path d="m5.1187 2.4563v3.554l2.7826-1.777z" fill="#fff" stroke-width=".26458"/>
+          </svg>
+        </a>
         <div class="dropdown-menu bg-lite-dark" id="mainMenuDropdown">
           <a data-phrase="Add stream" class="dropdown-item text-light" href="#" data-href='{"cmd": "showAddToPlaylist", "options": ["stream"]}'></a>
           <a id="navDBupdate" class="subMenu dropdown-item text-light" data-toggle="collapse" href="#menu-dbupdate"><span class="material-icons material-icons-left">keyboard_arrow_right</span><span data-phrase="Update"></span></a>

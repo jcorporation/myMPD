@@ -7,12 +7,14 @@
 
 function setStateIcon() {
     if (websocketConnected === false || settings.mpdConnected === false) {
-        domCache.mainMenu.classList.add('text-light');
-        domCache.mainMenu.classList.remove('connected');
+//        domCache.mainMenu.classList.add('text-light');
+//        domCache.mainMenu.classList.remove('connected');
+        document.getElementById('logoBg').setAttribute('fill', '#6c757d');
     }
     else {
-        domCache.mainMenu.classList.add('connected');
-        domCache.mainMenu.classList.remove('text-light');
+//        domCache.mainMenu.classList.add('connected');
+//        domCache.mainMenu.classList.remove('text-light');
+        document.getElementById('logoBg').setAttribute('fill', '#28a745');
     }
 }
 

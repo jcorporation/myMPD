@@ -132,7 +132,8 @@ td[data-col=Action] {
     height: 100vw;
     width: 4rem;
     flex-flow: column;
-    padding-top: 0.6rem;
+/*    padding-top: 0.6rem */
+    padding-top: 1.2rem;
     padding-left: 0;
     padding-right: 0;
     padding-bottom: 6.5rem;
@@ -472,7 +473,7 @@ tr > th {
   font-family: 'Material Icons';
   font-weight: normal;
   font-style: normal;
-  font-size: 1.4rem;  /* Preferred icon size */
+  font-size: 1.4rem;
   line-height: 1;
   text-transform: none;
   letter-spacing: normal;
@@ -669,9 +670,12 @@ ol#searchDatabaseCrumb {
   font-size: 1.2rem;
 }
 
-#mainMenu {
-  font-size: 2.5rem;
+#mainMenu img {
+  width: 2.5rem;
+  height: 2.5rem;
+/*  font-size: 2.5rem;
   margin-right: 5px;
+*/
 }
 
 .connected,
