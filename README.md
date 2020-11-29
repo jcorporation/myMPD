@@ -1,4 +1,4 @@
-# myMPD
+![image](https://jcorporation.github.io/assets/mympd-logo-schriftzug.svg)
 
 myMPD is a standalone and lightweight web-based MPD client. It's tuned for minimal resource usage and requires only very few dependencies. Therefore myMPD is ideal for raspberry pis and similar devices.
 
