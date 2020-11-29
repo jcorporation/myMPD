@@ -4,7 +4,7 @@
 # (c) 2018-2020 Juergen Mang <mail@jcgames.de>
 
 Name:           mympd
-Version:        6.8.2
+Version:        6.8.3
 Release:        0 
 License:        GPL-2.0-or-later
 Group:          Productivity/Multimedia/Sound/Players
@@ -66,5 +66,5 @@ fi
 %config(noreplace) /etc/mympd.conf
 
 %changelog
-* Tue Nov 24 2020 Juergen Mang <mail@jcgames.de> 6.8.2-0
+* Sun Nov 29 2020 Juergen Mang <mail@jcgames.de> 6.8.3-0
 - Version from master
