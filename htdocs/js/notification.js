@@ -14,7 +14,7 @@ function setStateIcon() {
     else {
 //        domCache.mainMenu.classList.add('connected');
 //        domCache.mainMenu.classList.remove('text-light');
-        document.getElementById('logoBg').setAttribute('fill', '#28a745');
+        document.getElementById('logoBg').setAttribute('fill', settings.highlightColor);
     }
 }
 
