@@ -36,7 +36,7 @@
 
 //defailt navbar icons
 #define NAVBAR_ICONS "[{\"ligature\":\"home\",\"title\":\"Home\",\"options\":[\"Home\"],\"badge\":\"\"},"\
-    "{\"ligature\":\"play_arrow\",\"title\":\"Playback\",\"options\":[\"Playback\"],\"badge\":\"\"},"\
+    "{\"ligature\":\"equalizer\",\"title\":\"Playback\",\"options\":[\"Playback\"],\"badge\":\"\"},"\
     "{\"ligature\":\"queue_music\",\"title\":\"Queue\",\"options\":[\"Queue\"],\"badge\":\"<span id=\\\"badgeQueueItems\\\" class=\\\"badge badge-secondary\\\"></span>\"},"\
     "{\"ligature\":\"library_music\",\"title\":\"Browse\",\"options\":[\"Browse\"],\"badge\":\"\"},"\
     "{\"ligature\":\"search\",\"title\":\"Search\",\"options\":[\"Search\"],\"badge\":\"\"}]"
