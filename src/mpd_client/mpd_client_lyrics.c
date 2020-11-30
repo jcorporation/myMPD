@@ -64,7 +64,9 @@ sds mpd_client_handle_lyrics(t_mpd_client_state *mpd_client_state, sds buffer, s
         sdsfree(lyricsfile);
         if (fp != NULL) {
             buffer = jsonrpc_start_result(buffer, method, request_id);
-            buffer = sdscat(buffer, ",\"data\":[");
+            buffer = sdscat(buffer, ",\"data\":[{");
+            buffer = tojson_char(buffer, "lang", "", true);
+            buffer = tojson_char(buffer, "desc", "", true);
             char *line = NULL;
             size_t n = 0;
             ssize_t read;
@@ -73,8 +75,8 @@ sds mpd_client_handle_lyrics(t_mpd_client_state *mpd_client_state, sds buffer, s
                 text = sdscatlen(text, line, read);
             }
             fclose(fp);
-            buffer = sdscatjson(buffer, text, sdslen(text));
-            buffer = sdscatlen(buffer, "],", 2);
+            buffer = tojson_char(buffer, "text", text, false);
+            buffer = sdscatlen(buffer, "}],", 3);
             buffer = tojson_long(buffer, "returnedEntities", 1, false);
             buffer = jsonrpc_end_result(buffer);
             sdsfree(mediafile);
@@ -136,14 +138,37 @@ static sds handle_lyricsextract_id3(sds buffer, sds method, long request_id, con
     buffer = jsonrpc_start_result(buffer, method, request_id);
     buffer = sdscat(buffer, ",\"data\":[");
     while ((frame = id3_tag_findframe(tags, "USLT", i)) != NULL) {
-        const id3_ucs4_t *ulst_u = id3_field_getfullstring(&frame->fields[3]);
-        if (ulst_u != NULL) {
+        const id3_ucs4_t *uslt_text = id3_field_getfullstring(&frame->fields[3]);
+        if (uslt_text != NULL) {
             if (i > 0) {
                 buffer = sdscatlen(buffer, ",", 1);
             }
-            id3_utf8_t *ulst = id3_ucs4_utf8duplicate(ulst_u);
-            buffer = sdscatjson(buffer, (char *)ulst, strlen((char *)ulst));
-            FREE_PTR(ulst);
+            buffer = sdscatlen(buffer, "{", 1);
+
+            const id3_ucs4_t *uslt_lang = id3_field_getstring(&frame->fields[1]);
+            if (uslt_lang != NULL) {
+                id3_utf8_t *uslt_lang_utf8 = id3_ucs4_utf8duplicate(uslt_lang);
+                buffer = tojson_char(buffer, "lang", (char *)uslt_lang_utf8, true);
+                FREE_PTR(uslt_lang_utf8);
+            }
+            else {
+                buffer = tojson_char(buffer, "lang", "", true);
+            }
+            
+            const id3_ucs4_t *uslt_desc = id3_field_getstring(&frame->fields[2]);
+            if (uslt_desc != NULL) {
+                id3_utf8_t *uslt_desc_utf8 = id3_ucs4_utf8duplicate(uslt_desc);
+                buffer = tojson_char(buffer, "desc", (char *)uslt_desc_utf8, true);
+                FREE_PTR(uslt_desc_utf8);
+            }
+            else {
+                buffer = tojson_char(buffer, "desc", "", true);
+            }
+            
+            id3_utf8_t *uslt_text_utf8 = id3_ucs4_utf8duplicate(uslt_text);
+            buffer = tojson_char(buffer, "text", (char *)uslt_text_utf8, false);
+            FREE_PTR(uslt_text_utf8);
+            buffer = sdscatlen(buffer, "}", 1);
             LOG_DEBUG("Lyrics successfully extracted");
         }
         else {
@@ -214,9 +239,11 @@ static sds handle_lyricsextract_flac(sds buffer, sds method, long request_id, co
             if (strlen(field_value) > 1) {
                 field_value++;
                 buffer = jsonrpc_start_result(buffer, method, request_id);
-                buffer = sdscat(buffer, ",\"data\":[");
-                buffer = sdscatjson(buffer, field_value, strlen(field_value));
-                buffer = sdscatlen(buffer, "],", 2);
+                buffer = sdscat(buffer, ",\"data\":[{");
+                buffer = tojson_char(buffer, "lang", "", true);
+                buffer = tojson_char(buffer, "desc", "", true);
+                buffer = tojson_char(buffer, "text", field_value, false);
+                buffer = sdscatlen(buffer, "}],", 3);
                 buffer = tojson_long(buffer, "returnedEntities", 1, false);
                 buffer = jsonrpc_end_result(buffer);
             }

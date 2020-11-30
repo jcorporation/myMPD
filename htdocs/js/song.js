@@ -158,7 +158,10 @@ function getLyrics(uri, el) {
                 if (i > 0) {
                     lyrics += '<hr/>';
                 }
-                lyrics += '<div class="lyricsText">' + e(obj.result.data[i]).replace(/\n/g, "<br/>") + '</div>';
+                lyrics += '<div class="lyricsText">' +
+                    '<h2>' + obj.result.data[i].lang + ':' + obj.result.data[i].desc + '</h2>' + 
+                    e(obj.result.data[i].text).replace(/\n/g, "<br/>") + 
+                    '</div>';
             }
             el.innerHTML = lyrics;
         }
