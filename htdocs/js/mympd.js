@@ -718,6 +718,10 @@ function appInitWait() {
 }
 
 function appInit() {
+    document.getElementById('mainMenu').addEventListener('click', function(event) {
+        event.preventDefault();
+    }, false);
+
     document.getElementById('btnChVolumeDown').addEventListener('click', function(event) {
         event.stopPropagation();
     }, false);
