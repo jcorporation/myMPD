@@ -145,16 +145,25 @@ function isCoverfile(uri) {
 
 function getLyrics(uri, el) {
     el.classList.add('opacity05');
-    let ajaxRequest=new XMLHttpRequest();
-    
-    ajaxRequest.open('GET', subdir + '/lyrics/' + uri, true);
-    ajaxRequest.onreadystatechange = function() {
-        if (ajaxRequest.readyState === 4) {
-            el.innerText = ajaxRequest.responseText === 'No lyrics found' ? t(ajaxRequest.responseText) : ajaxRequest.responseText;
-            el.classList.remove('opacity05');
+    sendAPI("MPD_API_LYRICS_GET", {"uri": uri}, function(obj) {
+        if (obj.error) {
+            el.innerText = t(obj.error.message);
         }
-    };
-    ajaxRequest.send();
+        else if (obj.result.message) {
+            el.innerText = t(obj.result.message);
+        }
+        else {
+            let lyrics = '';
+            for (let i = 0; i < obj.result.returnedEntities; i++) {
+                if (i > 0) {
+                    lyrics += '<hr/>';
+                }
+                lyrics += '<div class="lyricsText">' + e(obj.result.data[i]).replace(/\n/g, "<br/>") + '</div>';
+            }
+            el.innerHTML = lyrics;
+        }
+        el.classList.remove('opacity05');
+    }, true);
 }
 
 //eslint-disable-next-line no-unused-vars
