@@ -143,6 +143,8 @@ typedef struct t_config {
     unsigned volume_max;
     sds vorbis_sylt;
     sds vorbis_uslt;
+    sds sylt_ext;
+    sds uslt_ext;
     //system commands
     struct list syscmd_list;
 } t_config;
