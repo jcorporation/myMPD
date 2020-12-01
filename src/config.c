@@ -294,6 +294,12 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("mympd", "vorbissylt")) {
         p_config->vorbis_sylt = sdsreplace(p_config->vorbis_sylt, value);
     }
+    else if (MATCH("mympd", "usltext")) {
+        p_config->uslt_ext = sdsreplace(p_config->uslt_ext, value);
+    }
+    else if (MATCH("mympd", "syltext")) {
+        p_config->sylt_ext = sdsreplace(p_config->sylt_ext, value);
+    }
     else if (MATCH("theme", "theme")) {
         p_config->theme = sdsreplace(p_config->theme, value);
     }
@@ -381,6 +387,7 @@ static void mympd_get_env(struct t_config *config) {
         "MYMPD_STREAMURL", "MYMPD_VOLUMESTEP", "MYMPD_COVERCACHEKEEPDAYS", "MYMPD_COVERCACHE",
         "MYMPD_COVERCACHEAVOID", "MYMPD_LYRICS", "MYMPD_PARTITIONS", "MYMPD_FOOTERSTOP",
         "MYMPD_VOLUMEMIN", "MYMPD_VOLUMEMAX", "MYMPD_VORBISUSLT", "MYMPD_VORBISSYLT",
+        "MYMPD_USLTEXT", "MYMPD_SYLTEXT",
       #ifdef ENABLE_LUA
         "MYMPD_SCRIPTING", "MYMPD_REMOTESCRIPTING", "MYMPD_LUALIBS", "MYMPD_SCRIPTEDITOR",
       #endif
@@ -441,6 +448,8 @@ void mympd_free_config(t_config *config) {
     sdsfree(config->lualibs);
     sdsfree(config->vorbis_uslt);
     sdsfree(config->vorbis_sylt);
+    sdsfree(config->sylt_ext);
+    sdsfree(config->uslt_ext);
     list_free(&config->syscmd_list);
     FREE_PTR(config);
 }
@@ -540,6 +549,8 @@ void mympd_config_defaults(t_config *config) {
     config->volume_max = 100;
     config->vorbis_uslt = sdsnew("LYRICS");
     config->vorbis_sylt = sdsnew("SYNCEDLYRICS");
+    config->uslt_ext = sdsnew("txt");
+    config->sylt_ext = sdsnew("lrc");
     list_init(&config->syscmd_list);
 }
 
@@ -671,6 +682,8 @@ bool mympd_dump_config(void) {
         "volumemax = %u\n"
         "vorbisuslt = %s\n"
         "vorbissylt = %s\n"
+        "usltext = %s\n"
+        "syltext = %s\n"
         "\n",
         p_config->user,
         (p_config->chroot == true ? "true" : "false"),
@@ -735,7 +748,9 @@ bool mympd_dump_config(void) {
         p_config->volume_min,
         p_config->volume_max,
         p_config->vorbis_uslt,
-        p_config->vorbis_sylt
+        p_config->vorbis_sylt,
+        p_config->uslt_ext,
+        p_config->sylt_ext
         
     );
 

@@ -49,7 +49,7 @@ sds mpd_client_lyrics_unsynced(t_config *config, t_mpd_client_state *mpd_client_
     sds mediafile = sdscatfmt(sdsempty(), "%s/%s", mpd_client_state->music_directory_value, uri);
     LOG_DEBUG("Absolut media_file: %s", mediafile);
     //try .txt file in folder in the music directory
-    buffer = lyrics_fromfile(mpd_client_state, buffer, method, request_id, mediafile, "txt");
+    buffer = lyrics_fromfile(mpd_client_state, buffer, method, request_id, mediafile, config->uslt_ext);
     if (sdslen(buffer) == 0) {
         //try to extract lyrics from media file
         buffer = lyricsextract_unsynced(buffer, method, request_id, mediafile, config->vorbis_uslt);
@@ -69,7 +69,7 @@ sds mpd_client_lyrics_synced(t_config *config, t_mpd_client_state *mpd_client_st
     sds mediafile = sdscatfmt(sdsempty(), "%s/%s", mpd_client_state->music_directory_value, uri);
     LOG_DEBUG("Absolut media_file: %s", mediafile);
     //try .lrc file in folder in the music directory
-    buffer = lyrics_fromfile(mpd_client_state, buffer, method, request_id, mediafile, "lrc");
+    buffer = lyrics_fromfile(mpd_client_state, buffer, method, request_id, mediafile, config->sylt_ext);
     if (sdslen(buffer) == 0) {
         buffer = lyricsextract_synced(buffer, method, request_id, mediafile, config->vorbis_sylt);
         if (sdslen(buffer) > 0) {
@@ -92,7 +92,7 @@ sds lyrics_fromfile(t_mpd_client_state *mpd_client_state, sds buffer, sds method
         return buffer;
     }
     
-    //try txt file in folder in the music directory
+    //try file in folder in the music directory
     sds filename_cpy = sdsnew(mediafile);
     strip_extension(filename_cpy);
     sds lyricsfile = sdscatfmt(sdsempty(), "%s.%s", filename_cpy, ext);
