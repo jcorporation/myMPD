@@ -145,7 +145,7 @@ function isCoverfile(uri) {
 
 function getLyrics(uri, el) {
     el.classList.add('opacity05');
-    sendAPI("MPD_API_LYRICS_GET", {"uri": uri}, function(obj) {
+    sendAPI("MPD_API_LYRICS_UNSYNCED_GET", {"uri": uri}, function(obj) {
         if (obj.error) {
             el.innerText = t(obj.error.message);
         }
