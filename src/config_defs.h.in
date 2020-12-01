@@ -141,6 +141,8 @@ typedef struct t_config {
     bool home;
     unsigned volume_min;
     unsigned volume_max;
+    sds vorbis_sylt;
+    sds vorbis_uslt;
     //system commands
     struct list syscmd_list;
 } t_config;
