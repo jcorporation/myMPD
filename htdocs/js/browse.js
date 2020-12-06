@@ -33,7 +33,7 @@ function gotoBrowse() {
     if (settings.featAdvsearch === false) {
         return;
     }
-    let x = event.target;
+    const x = event.target;
     let tag = x.getAttribute('data-tag');
     let name = decodeURI(x.getAttribute('data-name'));
     if (tag === null) {
@@ -41,7 +41,15 @@ function gotoBrowse() {
         name = decodeURI(x.parentNode.getAttribute('data-name'));
     }
     if (tag !== '' && name !== '' && name !== '-' && settings.browsetags.includes(tag)) {
-        appGoto('Browse', 'Database', 'List', '0', tag, 'AlbumArtist', 'Album', '(' + tag + ' == \'' + name + '\')');
+        const artist = lastSongObj.AlbumArtist !== null ? lastSongObj.AlbumArtist : lastSongObj.Artist;
+        if (tag === 'Album' && artist !== null) {
+            //Show album details
+            appGoto('Browse', 'Database', 'Detail', '0', tag, 'AlbumArtist', name, artist);
+        }
+        else {
+            //show filtered album list
+            appGoto('Browse', 'Database', 'List', '0', tag, 'AlbumArtist', 'Album', '(' + tag + ' == \'' + name + '\')');
+        }
     }
 }
 
