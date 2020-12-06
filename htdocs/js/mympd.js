@@ -37,6 +37,7 @@ var scale = '1.0';
 var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 var ligatureMore = 'menu';
 var progressBarTransition = 'width 1s linear';
+var tagAlbumArtist = 'AlbumArist';
 
 var app = {};
 app.apps = { 

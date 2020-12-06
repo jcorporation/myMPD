@@ -41,14 +41,23 @@ function gotoBrowse() {
         name = decodeURI(x.parentNode.getAttribute('data-name'));
     }
     if (tag !== '' && name !== '' && name !== '-' && settings.browsetags.includes(tag)) {
-        const artist = lastSongObj.AlbumArtist !== null ? lastSongObj.AlbumArtist : lastSongObj.Artist;
-        if (tag === 'Album' && artist !== null) {
-            //Show album details
-            appGoto('Browse', 'Database', 'Detail', '0', tag, 'AlbumArtist', name, artist);
+        if (tag === 'Album') {
+            let artist = x.getAttribute('data-albumartist');
+            if (artist === null) {
+                artist = x.parentNode.getAttribute('data-albumartist');
+            }
+            if (artist !== null) {
+                //Show album details
+                appGoto('Browse', 'Database', 'Detail', '0', tag, tagAlbumArtist, name, decodeURI(artist));
+            }
+            else {
+                //show filtered album list
+                appGoto('Browse', 'Database', 'List', '0', tag, tagAlbumArtist, 'Album', '(' + tag + ' == \'' + name + '\')');
+            }
         }
         else {
             //show filtered album list
-            appGoto('Browse', 'Database', 'List', '0', tag, 'AlbumArtist', 'Album', '(' + tag + ' == \'' + name + '\')');
+            appGoto('Browse', 'Database', 'List', '0', tag, tagAlbumArtist, 'Album', '(' + tag + ' == \'' + name + '\')');
         }
     }
 }
@@ -103,12 +112,12 @@ function parseFilesystem(obj) {
         row.setAttribute('data-uri', uri);
         row.setAttribute('tabindex', 0);
         if (app.current.app === 'Search' && settings.featTags === true && settings.featAdvsearch === true) {
-            //add artist and album information for album actions ini search app
-            if (obj.result.data[i].Album !== undefined) {
+            //add artist and album information for album actions in search app
+            if (obj.result.data[i].Album !== null) {
                 row.setAttribute('data-album', encodeURI(obj.result.data[i].Album));
             }
-            if (obj.result.data[i].AlbumArtist !== undefined || obj.result.data[i].Artist !== undefined) {
-                row.setAttribute('data-albumartist', encodeURI(obj.result.data[i].AlbumArtist !== undefined ? obj.result.data[i].AlbumArtist : obj.result.data[i].Artist));
+            if (obj.result.data[i][tagAlbumArtist] !== null) {
+                row.setAttribute('data-albumartist', encodeURI(obj.result.data[i][tagAlbumArtist]));
             }
         }
         if (obj.result.data[i].Type === 'song') {
@@ -401,8 +410,7 @@ function addAlbum(action) {
 }
 
 function _addAlbum(action, albumArtist, album) {
-    const expression = '((Album == \'' + album + '\') AND (' + 
-        (settings.tags.includes('AlbumArtist') ? 'AlbumArtist' : 'Artist') + ' == \'' + albumArtist + '\'))';
+    const expression = '((Album == \'' + album + '\') AND (' + tagAlbumArtist + ' == \'' + albumArtist + '\'))';
     if (action === 'appendQueue') {
         addAllFromSearchPlist('queue', expression, false);
     }

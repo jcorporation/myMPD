@@ -33,7 +33,11 @@ function parseSongDetails(obj) {
         if (settings.tags[i] === 'Title' || obj.result[settings.tags[i]] === '-') {
             continue;
         }
-        songDetailsHTML += '<tr><th>' + t(settings.tags[i]) + '</th><td data-tag="' + settings.tags[i] + '" data-name="' + encodeURI(obj.result[settings.tags[i]]) + '">';
+        songDetailsHTML += '<tr><th>' + t(settings.tags[i]) + '</th><td data-tag="' + settings.tags[i] + '" data-name="' + encodeURI(obj.result[settings.tags[i]]) + '"';
+        if (settings.tags[i] === 'Album' && obj.result[tagAlbumArtist] !== null) {
+            songDetailsHTML += ' data-albumartist="' + encodeURI(obj.result[tagAlbumArtist]) + '"';
+        }
+        songDetailsHTML += '>';
         if (settings.browsetags.includes(settings.tags[i]) && obj.result[settings.tags[i]] !== '-') {
             songDetailsHTML += '<a class="text-success" href="#">' + e(obj.result[settings.tags[i]]) + '</a>';
         }

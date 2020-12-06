@@ -537,8 +537,13 @@ function parseMPDSettings() {
         let pbtl = '';
         for (let i = 0; i < settings.colsPlayback.length; i++) {
             pbtl += '<div id="current' + settings.colsPlayback[i]  + '" data-tag="' + settings.colsPlayback[i] + '" ' +
-                    (settings.colsPlayback[i] === 'Lyrics' ? '' : 'data-name="' + (lastSongObj[settings.colsPlayback[i]] ? encodeURI(lastSongObj[settings.colsPlayback[i]]) : '') + '"') +
-                    '>' +
+                    (settings.colsPlayback[i] === 'Lyrics' ? '' : 'data-name="' + (lastSongObj[settings.colsPlayback[i]] ? encodeURI(lastSongObj[settings.colsPlayback[i]]) : '') + '"');
+
+            if (settings.colsPlayback[i] === 'Album' && lastSongObj[tagAlbumArtist] !== null) {
+                pbtl += 'data-albumartist="' + encodeURI(lastSongObj[tagAlbumArtist]) + '"';
+            }
+
+            pbtl += '>' +
                     '<small>' + t(settings.colsPlayback[i]) + '</small>' +
                     '<p';
             if (settings.browsetags.includes(settings.colsPlayback[i])) {
@@ -573,6 +578,13 @@ function parseMPDSettings() {
 
     if (settings.tags.includes('Title')) {
         app.apps.Search.sort = 'Title';
+    }
+    
+    if (settings.tags.includes('AlbumArtist')) {
+        tagAlbumArtist = 'AlbumArtist';        
+    }
+    else if (settings.tags.includes('Artist')) {
+        tagAlbumArtist = 'Artist';        
     }
     
     if (!settings.tags.includes('AlbumArtist') && app.apps.Browse.tabs.Database.views.List.filter === 'AlbumArtist') {

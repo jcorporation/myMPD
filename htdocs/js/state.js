@@ -385,6 +385,7 @@ function songChange(obj) {
         htmlNotification += '<br/>' + obj.result.Album;
         domCache.footerAlbum.innerText = obj.result.Album;
         domCache.footerAlbum.setAttribute('data-name', encodeURI(obj.result.Album));
+        domCache.footerAlbum.setAttribute('data-albumartist', encodeURI(obj.result[tagAlbumArtist]));
         if (settings.featAdvsearch === true) {
             domCache.footerAlbum.classList.add('clickable');
         }
@@ -458,6 +459,9 @@ function songChange(obj) {
             }
             c.getElementsByTagName('p')[0].innerText = value;
             c.setAttribute('data-name', encodeURI(value));
+            if (settings.colsPlayback[i] === 'Album' && obj.result[tagAlbumArtist] !== null) {
+                c.setAttribute('data-albumartist', encodeURI(obj.result[tagAlbumArtist]));
+            }
         }
     }
     
