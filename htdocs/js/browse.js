@@ -41,7 +41,7 @@ function gotoBrowse() {
         name = decodeURI(x.parentNode.getAttribute('data-name'));
     }
     if (tag !== '' && name !== '' && name !== '-' && settings.browsetags.includes(tag)) {
-        appGoto('Browse', 'Database', 'List', '0', tag, 'AlbumArtist', 'Album', name);
+        appGoto('Browse', 'Database', 'List', '0', tag, 'AlbumArtist', 'Album', '(' + tag + ' == \'' + name + '\')');
     }
 }
 
