@@ -516,13 +516,20 @@ unsigned long substractUnsigned(unsigned long num1, unsigned long num2) {
 }
 
 char *basename_uri(char *uri) {
-    //char *b = basename(uri);
-    char *b = uri;
-    for (size_t i = 0;  i < strlen(b); i++) {
-        if (b[i] == '#' || b[i] == '?') {
-            b[i] = '\0';
-            return b;
-        }
+    if (strstr(uri, "://") == NULL) {
+        //filename
+        char *b = basename(uri);
+        return b;
     }
-    return b;
+    else {
+        //uri
+        char *b = uri;
+        for (size_t i = 0;  i < strlen(b); i++) {
+            if (b[i] == '#' || b[i] == '?') {
+                b[i] = '\0';
+                return b;
+            }
+        }
+        return b;
+    }
 }
