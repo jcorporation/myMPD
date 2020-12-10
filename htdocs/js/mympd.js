@@ -430,9 +430,7 @@ function appRoute() {
         }
         document.getElementById('BrowseBreadcrumb').innerHTML = breadcrumbs;
         const searchFilesystemStrEl = document.getElementById('searchFilesystemStr');
-        if (searchFilesystemStrEl.value === '' && app.current.filter !== '-') {
-            searchFilesystemStrEl.value = app.current.filter;
-        }
+        searchFilesystemStrEl.value = app.current.filter === '-' ? '' :  app.current.filter;
     }
     else if (app.current.app === 'Browse' && app.current.tab === 'Database' && app.current.view === 'List') {
         document.getElementById('viewListDatabase').classList.remove('hide');
@@ -1309,6 +1307,7 @@ function appInit() {
             switch(event.target.parentNode.getAttribute('data-type')) {
                 case 'parentDir':
                 case 'dir':
+                    app.current.filter = '-';
                     appGoto('Browse', 'Filesystem', undefined, '0', app.current.filter, app.current.sort, '-', decodeURI(event.target.parentNode.getAttribute("data-uri")));
                     break;
                 case 'song':
