@@ -157,17 +157,22 @@ function getLyrics(uri, el) {
             el.innerText = t(obj.result.message);
         }
         else {
-            let lyrics = '';
+            let lyrics_header = '<span class="lyricsHeader" class="btn-group btn-group-toggle" data-toggle="buttons">';
+            let lyrics = '<div class="lyricsTextContainer">';
             for (let i = 0; i < obj.result.returnedEntities; i++) {
-                if (i > 0) {
-                    lyrics += '<hr/>';
+                let ht = obj.result.data[i].desc + ' ' + obj.result.data[i].lang;
+                if (ht === '') {
+                    ht = i;
                 }
-                lyrics += '<div class="lyricsText">' +
-                    '<h2>' + obj.result.data[i].lang + ':' + obj.result.data[i].desc + '</h2>' + 
+                lyrics_header += '<label class="btn btn-outline-secondary' + (i == 0 ? ' active' : '') + '">' + ht + '</label>';
+                lyrics += '<div class="lyricsText' + (i > 0 ? ' hide' : '') + '">' +
                     e(obj.result.data[i].text).replace(/\n/g, "<br/>") + 
                     '</div>';
             }
-            el.innerHTML = lyrics;
+            lyrcis_header += '</span>';
+            lyrics += '</div>';
+            el.innerHTML = (obj.result.returnedEntities > 1 ? lyrics_header : '') + lyrics;
+            //TODO: innitialize buttons
         }
         el.classList.remove('opacity05');
     }, true);
