@@ -1649,3 +1649,21 @@ myMPD Menu
 
 Invalid volume level
 Ungültige Lautstärke
+
+MaintainEnableTagsText
+Folgende Tags sollten gepflegt und aktiviert sein: Artist, AlbumArtist, Album, Track, Disc and Genre
+
+Error reading metadata
+Metadaten konnten nicht gelesen werden
+
+Failed to set like, unknown error
+Like konnte nicht gesetzt werden - unbekannter Fehler
+
+Invalid uri
+Ungültige URI
+
+Stop
+Stop
+
+Unsupported file type
+Nicht unterstützter Dateityp

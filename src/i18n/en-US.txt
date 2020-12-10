@@ -29,3 +29,6 @@ Albumartist
 
 Homescreen welcome
 You have not added any home icons yet. You can add views, playlists and scripts.
+
+MaintainEnableTagsText
+You should maintain and enable the tags Artist, AlbumArtist, Album, Track, Disc and Genre for best user experience.
