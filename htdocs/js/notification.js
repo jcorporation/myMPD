@@ -31,7 +31,9 @@ function toggleAlert(alertBox, state, msg) {
 }
 
 function showNotification(notificationTitle, notificationText, notificationHtml, notificationType) {
-    if (notificationTitle === 'No current song') {
+    if (notificationTitle === 'No current song' ||
+        notificationTitle === 'No lyrics found'
+    ) {
         return;
     }
 
