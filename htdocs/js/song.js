@@ -144,6 +144,10 @@ function isCoverfile(uri) {
 }
 
 function getLyrics(uri, el) {
+    if (uri === undefined) {
+        el.innerHTML = t('No lyrics found');
+        return;
+    }
     el.classList.add('opacity05');
     sendAPI("MPD_API_LYRICS_UNSYNCED_GET", {"uri": uri}, function(obj) {
         if (obj.error) {
