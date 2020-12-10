@@ -37,7 +37,7 @@ var scale = '1.0';
 var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 var ligatureMore = 'menu';
 var progressBarTransition = 'width 1s linear';
-var tagAlbumArtist = 'AlbumArist';
+var tagAlbumArtist = 'AlbumArtist';
 
 var app = {};
 app.apps = { 
@@ -1635,13 +1635,15 @@ function appInit() {
     }, false);
 
     domCache.searchCrumb.addEventListener('click', function(event) {
-        event.preventDefault();
-        event.stopPropagation();
         if (event.target.nodeName === 'SPAN') {
+            event.preventDefault();
+            event.stopPropagation();
             event.target.parentNode.remove();
             doSearch('');
         }
         else if (event.target.nodeName === 'BUTTON') {
+            event.preventDefault();
+            event.stopPropagation();
             let value = decodeURI(event.target.getAttribute('data-filter'));
             domCache.searchstr.value = value.substring(value.indexOf('\'') + 1, value.length - 1);
             let filter = value.substring(0, value.indexOf(' '));
