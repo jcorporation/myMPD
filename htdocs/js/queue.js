@@ -59,7 +59,7 @@ function parseUpdateQueue(obj) {
         domCache.btnNext.removeAttribute('disabled');
     }
     
-    if (obj.result.songPos <= 0) {
+    if (obj.result.songPos < 0) {
         domCache.btnPrev.setAttribute('disabled', 'disabled');
     }
     else {
