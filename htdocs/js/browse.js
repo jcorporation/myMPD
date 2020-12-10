@@ -113,10 +113,10 @@ function parseFilesystem(obj) {
         row.setAttribute('tabindex', 0);
         if (app.current.app === 'Search' && settings.featTags === true && settings.featAdvsearch === true) {
             //add artist and album information for album actions in search app
-            if (obj.result.data[i].Album !== null) {
+            if (obj.result.data[i].Album !== undefined) {
                 row.setAttribute('data-album', encodeURI(obj.result.data[i].Album));
             }
-            if (obj.result.data[i][tagAlbumArtist] !== null) {
+            if (obj.result.data[i][tagAlbumArtist] !== undefined) {
                 row.setAttribute('data-albumartist', encodeURI(obj.result.data[i][tagAlbumArtist]));
             }
         }

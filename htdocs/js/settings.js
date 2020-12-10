@@ -931,6 +931,15 @@ function filterCols(x) {
             cols.push(settings[x][i]);
         }
     }
+    if (x === 'colsSearch') {
+        //enforce albumartist and album for albumactions
+        if (cols.includes('Album') === false && tags.includes('Album')) {
+            cols.push('Album');
+        }
+        if (cols.includes(tagAlbumArtist) === false && tags.includes(tagAlbumArtist)) {
+            cols.push(tagAlbumArtist);
+        }
+    }
     settings[x] = cols;
     logDebug('Columns for ' + x + ': ' + cols);
 }
