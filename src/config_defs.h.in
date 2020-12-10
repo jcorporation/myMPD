@@ -137,7 +137,7 @@ typedef struct t_config {
     sds lualibs;
     bool scripteditor;
     bool partitions;
-    bool footer_stop;
+    sds footer_stop;
     bool home;
     unsigned volume_min;
     unsigned volume_max;

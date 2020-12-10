@@ -20,7 +20,7 @@ function parseUpdateQueue(obj) {
     }
     else if (obj.result.state === 2) {
         for (let i = 0; i < domCache.btnsPlayLen; i++) {
-            if (settings.footerStop === true) {
+            if (settings.footerStop === 'stop') {
                 domCache.btnsPlay[i].innerText = 'stop';
             }
             else {
@@ -33,7 +33,7 @@ function parseUpdateQueue(obj) {
         for (let i = 0; i < domCache.btnsPlayLen; i++) {
             domCache.btnsPlay[i].innerText = 'play_arrow';
         }
-	playstate = 'pause';
+        playstate = 'pause';
     }
 
     if (obj.result.queueLength === 0) {

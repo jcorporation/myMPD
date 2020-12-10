@@ -142,6 +142,13 @@ function parseSettings() {
     });
 
     setNavbarIcons();
+
+    if (settings.footerStop === 'both') {
+        document.getElementById('btnStop').classList.remove('hide');
+    }
+    else {
+        document.getElementById('btnStop').classList.add('hide');
+    }
     
     document.getElementById('selectTheme').value = settings.theme;
     

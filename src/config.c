@@ -277,7 +277,7 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
         p_config->partitions = strtobool(value);
     }
     else if (MATCH("mympd", "footerstop")) {
-        p_config->footer_stop = strtobool(value);
+        p_config->footer_stop = sdsreplace(p_config->footer_stop, value);
     }
     else if (MATCH("mympd", "home")) {
         p_config->home = strtobool(value);
@@ -450,6 +450,7 @@ void mympd_free_config(t_config *config) {
     sdsfree(config->vorbis_sylt);
     sdsfree(config->sylt_ext);
     sdsfree(config->uslt_ext);
+    sdsfree(config->footer_stop);
     list_free(&config->syscmd_list);
     FREE_PTR(config);
 }
@@ -543,7 +544,7 @@ void mympd_config_defaults(t_config *config) {
     config->lualibs = sdsnew("base, string, utf8, table, math, mympd");
     config->scripteditor = true;
     config->partitions = false;
-    config->footer_stop = false;
+    config->footer_stop = sdsnew("pause");
     config->home = true;
     config->volume_min = 0;
     config->volume_max = 100;
@@ -743,7 +744,7 @@ bool mympd_dump_config(void) {
         (p_config->mounts == true ? "true" : "false"),
         (p_config->lyrics == true ? "true" : "false"),
         (p_config->partitions == true ? "true" : "false"),
-        (p_config->footer_stop == true ? "true" : "false"),
+        p_config->footer_stop,
         (p_config->home == true ? "true" : "false"),
         p_config->volume_min,
         p_config->volume_max,
