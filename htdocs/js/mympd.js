@@ -1383,6 +1383,11 @@ function appInit() {
             }
             else if (event.target.classList.contains('card-footer')){
                 showMenu(event.target, event);
+                const selCards = document.getElementById('BrowseDatabaseCards').getElementsByClassName('selected');
+                for (let i = 0; i < selCards.length; i++) {
+                    selCards[i].classList.remove('selected');
+                }
+                event.target.parentNode.classList.add('selected');
             }
         }
         else {
