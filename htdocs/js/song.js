@@ -157,22 +157,43 @@ function getLyrics(uri, el) {
             el.innerText = t(obj.result.message);
         }
         else {
-            let lyrics_header = '<span class="lyricsHeader" class="btn-group btn-group-toggle" data-toggle="buttons">';
+            let lyrics_header = '<span class="lyricsHeader" class="btn-group-toggle" data-toggle="buttons">';
             let lyrics = '<div class="lyricsTextContainer">';
             for (let i = 0; i < obj.result.returnedEntities; i++) {
-                let ht = obj.result.data[i].desc + ' ' + obj.result.data[i].lang;
-                if (ht === '') {
+                let ht = obj.result.data[i].desc;
+                if (ht !== '' && obj.result.data[i].lang !== '') {
+                    ht += ' (' + obj.result.data[i].lang + ')';
+                }
+                else if (obj.result.data[i].lang !== '') {
+                    ht = obj.result.data[i].lang;
+                }
+                else {
                     ht = i;
                 }
-                lyrics_header += '<label class="btn btn-outline-secondary' + (i == 0 ? ' active' : '') + '">' + ht + '</label>';
+                lyrics_header += '<label data-num="' + i + '" class="btn btn-sm btn-outline-secondary mr-2' + (i === 0 ? ' active' : '') + '">' + ht + '</label>';
                 lyrics += '<div class="lyricsText' + (i > 0 ? ' hide' : '') + '">' +
                     e(obj.result.data[i].text).replace(/\n/g, "<br/>") + 
                     '</div>';
             }
-            lyrcis_header += '</span>';
+            lyrics_header += '</span>';
             lyrics += '</div>';
             el.innerHTML = (obj.result.returnedEntities > 1 ? lyrics_header : '') + lyrics;
-            //TODO: innitialize buttons
+            el.getElementsByClassName('lyricsHeader')[0].addEventListener('click', function(event) {
+                if (event.target.nodeName === 'LABEL') {
+                   event.target.parentNode.getElementsByClassName('active')[0].classList.remove('active');
+                   event.target.classList.add('active');
+                   const nr = parseInt(event.target.getAttribute('data-num'));
+                   const tEls = el.getElementsByClassName('lyricsText');
+                   for (let i = 0; i < tEls.length; i++) {
+                       if (i === nr) {
+                           tEls[i].classList.remove('hide');
+                       }
+                       else {
+                           tEls[i].classList.add('hide');
+                       }
+                   }
+                }
+            }, false);
         }
         el.classList.remove('opacity05');
     }, true);

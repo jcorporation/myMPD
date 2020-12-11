@@ -572,6 +572,7 @@ function parseMPDSettings() {
             pbtl += '</p></div>';
         }
         document.getElementById('cardPlaybackTags').innerHTML = pbtl;
+        //click on lyrics header to expand lyrics text container
         let cl = document.getElementById('currentLyrics');
         if (cl && lastSongObj.uri) {
             let el = cl.getElementsByTagName('small')[0];
@@ -609,12 +610,12 @@ function parseMPDSettings() {
             tagEls[i].classList.remove('clickable');
         }
     }
-    else {
-        const tagEls = document.getElementById('cardPlaybackTags').getElementsByTagName('p');
-        for (let i = 0; i < tagEls.length; i++) {
-            tagEls[i].classList.add('clickable');
-        }
-    }
+//    else {
+//        const tagEls = document.getElementById('cardPlaybackTags').getElementsByTagName('p');
+//        for (let i = 0; i < tagEls.length; i++) {
+//            tagEls[i].classList.add('clickable');
+//        }
+//    }
     
     if (settings.featPlaylists === true) {
         sendAPI("MPD_API_PLAYLIST_LIST_ALL", {"searchstr": ""}, function(obj) {
