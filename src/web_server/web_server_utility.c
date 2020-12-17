@@ -55,8 +55,8 @@ void manage_emptydir(sds varlibdir, bool pics, bool smartplaylists, bool music, 
     sdsfree(dir_name);
 }
 
-void populate_dummy_hm(struct http_message *hm) {
-    //create an empty dummy message struct, used for async responses
+//create an empty dummy message struct, used for async responses
+void populate_dummy_hm(struct mg_http_message *hm) {
     hm->message = mg_mk_str("");
     hm->body = mg_mk_str("");
     hm->method = mg_mk_str("GET");
@@ -94,15 +94,15 @@ void send_error(struct mg_connection *nc, int code, const char *msg) {
     }
 }
 
-void serve_na_image(struct mg_connection *nc, struct http_message *hm) {
+void serve_na_image(struct mg_connection *nc, struct mg_http_message *hm) {
     serve_asset_image(nc, hm, "coverimage-notavailable");
 }
 
-void serve_stream_image(struct mg_connection *nc, struct http_message *hm) {
+void serve_stream_image(struct mg_connection *nc, struct mg_http_message *hm) {
     serve_asset_image(nc, hm, "coverimage-stream");
 }
 
-void serve_asset_image(struct mg_connection *nc, struct http_message *hm, const char *name) {
+void serve_asset_image(struct mg_connection *nc, struct mg_http_message *hm, const char *name) {
     t_mg_user_data *mg_user_data = (t_mg_user_data *) nc->mgr->user_data;
     t_config *config = (t_config *) mg_user_data->config;
     
@@ -138,6 +138,34 @@ void serve_plaintext(struct mg_connection *nc, const char *text) {
     mg_send(nc, text, len);
 }
 
+void http_send_head(struct mg_connection *nc, int code, size_t len, const char *headers) {
+    mg_printf(c, "HTTP/1.1 %d OK\r\n"
+                 "%s\r\n"
+                 "Content-Length: %d\r\n\r\n",
+              code, headers, len);
+}
+
+int http_check_ip_acl(const char *acl, uint32_t remote_ip) {
+    int allowed, flag;
+    uint32_t net, mask;
+    struct mg_str vec;
+
+    // If any ACL is set, deny by default
+    allowed = (acl == NULL || *acl == '\0') ? '+' : '-';
+
+    while ((acl = mg_next_comma_list_entry(acl, &vec, NULL)) != NULL) {
+        flag = vec.p[0];
+        if ((flag != '+' && flag != '-') || parse_net(&vec.p[1], &net, &mask) == 0) {
+            return -1;
+        }
+
+        if (net == (remote_ip & mask)) {
+            allowed = flag;
+        }
+    }
+    return allowed == '+';
+}
+
 #ifndef DEBUG
 struct embedded_file {
     const char *uri;
@@ -149,7 +177,7 @@ struct embedded_file {
     const unsigned size;
 };
 
-bool serve_embedded_files(struct mg_connection *nc, sds uri, struct http_message *hm) {
+bool serve_embedded_files(struct mg_connection *nc, sds uri, struct mg_http_message *hm) {
     const struct embedded_file embedded_files[] = {
         {"/", 1, "text/html; charset=utf-8", true, false, index_html_data, index_html_size},
         {"/css/combined.css", 17, "text/css; charset=utf-8", true, false, combined_css_data, combined_css_size},

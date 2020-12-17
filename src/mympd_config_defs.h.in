@@ -57,7 +57,8 @@ typedef struct t_config {
     sds mpd_host;
     int mpd_port;
     sds mpd_pass;
-    sds webport;
+    sds http_host;
+    sds http_port;
 #ifdef ENABLE_SSL
     bool ssl;
     sds ssl_port;

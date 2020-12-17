@@ -53,7 +53,7 @@ void send_albumart(struct mg_connection *nc, sds data, sds binary) {
     }
     else {
         //create dummy http message and serve not available image
-        struct http_message hm;
+        struct mg_http_message hm;
         populate_dummy_hm(&hm);
         serve_na_image(nc, &hm);
     }
@@ -62,7 +62,7 @@ void send_albumart(struct mg_connection *nc, sds data, sds binary) {
 
 //returns true if an image is served
 //returns false if waiting for mpd_client to handle request
-bool handle_albumart(struct mg_connection *nc, struct http_message *hm, t_mg_user_data *mg_user_data, t_config *config, int conn_id) {
+bool handle_albumart(struct mg_connection *nc, struct mg_http_message *hm, t_mg_user_data *mg_user_data, t_config *config, int conn_id) {
     //decode uri
     sds uri_decoded = sdsurldecode(sdsempty(), hm->uri.p, (int)hm->uri.len, 0);
     if (sdslen(uri_decoded) == 0) {

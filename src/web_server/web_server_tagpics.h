@@ -6,5 +6,5 @@
 
 #ifndef __WEB_SERVER_TAGPICS_H__
 #define __WEB_SERVER_TAGPICS_H__
-bool handle_tagpics(struct mg_connection *nc, struct http_message *hm, t_mg_user_data *mg_user_data, t_config *config, int conn_id);
+bool handle_tagpics(struct mg_connection *nc, struct mg_http_message *hm, t_mg_user_data *mg_user_data, t_config *config, int conn_id);
 #endif
