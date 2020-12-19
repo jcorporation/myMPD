@@ -375,10 +375,10 @@ function parseFilesystem(obj) {
         row.setAttribute('tabindex', 0);
         if (app.current.app === 'Search' && settings.featTags === true && settings.featAdvsearch === true) {
             //add artist and album information for album actions in search app
-            if (obj.result.data[i].Album !== null) {
+            if (obj.result.data[i].Album !== undefined) {
                 row.setAttribute('data-album', encodeURI(obj.result.data[i].Album));
             }
-            if (obj.result.data[i][tagAlbumArtist] !== null) {
+            if (obj.result.data[i][tagAlbumArtist] !== undefined) {
                 row.setAttribute('data-albumartist', encodeURI(obj.result.data[i][tagAlbumArtist]));
             }
         }
@@ -1464,7 +1464,7 @@ function clickPlay() {
     if (playstate !== 'play') {
         sendAPI("MPD_API_PLAYER_PLAY", {});
     }
-    else if (settings.footerStop === true) {
+    else if (settings.footerStop === 'stop') {
         sendAPI("MPD_API_PLAYER_STOP", {});
     }
     else {
@@ -1834,7 +1834,7 @@ var scale = '1.0';
 var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 var ligatureMore = 'menu';
 var progressBarTransition = 'width 1s linear';
-var tagAlbumArtist = 'AlbumArist';
+var tagAlbumArtist = 'AlbumArtist';
 
 var app = {};
 app.apps = { 
@@ -2227,9 +2227,7 @@ function appRoute() {
         }
         document.getElementById('BrowseBreadcrumb').innerHTML = breadcrumbs;
         const searchFilesystemStrEl = document.getElementById('searchFilesystemStr');
-        if (searchFilesystemStrEl.value === '' && app.current.filter !== '-') {
-            searchFilesystemStrEl.value = app.current.filter;
-        }
+        searchFilesystemStrEl.value = app.current.filter === '-' ? '' :  app.current.filter;
     }
     else if (app.current.app === 'Browse' && app.current.tab === 'Database' && app.current.view === 'List') {
         document.getElementById('viewListDatabase').classList.remove('hide');
@@ -3106,6 +3104,7 @@ function appInit() {
             switch(event.target.parentNode.getAttribute('data-type')) {
                 case 'parentDir':
                 case 'dir':
+                    app.current.filter = '-';
                     appGoto('Browse', 'Filesystem', undefined, '0', app.current.filter, app.current.sort, '-', decodeURI(event.target.parentNode.getAttribute("data-uri")));
                     break;
                 case 'song':
@@ -3181,6 +3180,11 @@ function appInit() {
             }
             else if (event.target.classList.contains('card-footer')){
                 showMenu(event.target, event);
+                const selCards = document.getElementById('BrowseDatabaseCards').getElementsByClassName('selected');
+                for (let i = 0; i < selCards.length; i++) {
+                    selCards[i].classList.remove('selected');
+                }
+                event.target.parentNode.classList.add('selected');
             }
         }
         else {
@@ -3432,13 +3436,15 @@ function appInit() {
     }, false);
 
     domCache.searchCrumb.addEventListener('click', function(event) {
-        event.preventDefault();
-        event.stopPropagation();
         if (event.target.nodeName === 'SPAN') {
+            event.preventDefault();
+            event.stopPropagation();
             event.target.parentNode.remove();
             doSearch('');
         }
         else if (event.target.nodeName === 'BUTTON') {
+            event.preventDefault();
+            event.stopPropagation();
             let value = decodeURI(event.target.getAttribute('data-filter'));
             domCache.searchstr.value = value.substring(value.indexOf('\'') + 1, value.length - 1);
             let filter = value.substring(0, value.indexOf(' '));
@@ -3638,7 +3644,9 @@ function toggleAlert(alertBox, state, msg) {
 }
 
 function showNotification(notificationTitle, notificationText, notificationHtml, notificationType) {
-    if (notificationTitle === 'No current song') {
+    if (notificationTitle === 'No current song' ||
+        notificationTitle === 'No lyrics found'
+    ) {
         return;
     }
 
@@ -4557,17 +4565,16 @@ function showMenuTd(el) {
                 (type === 'dir' ? addMenuItem({"cmd": "rescanDB", "options": [dirname(uri), true]}, t('Rescan directory')) : '');
         }
         if (app.current.app === 'Search') {
-            let album = el.parentNode.parentNode.getAttribute('data-album');
-            let albumArtist = el.parentNode.parentNode.getAttribute('data-albumartist');
-            if (album !== null && albumArtist !== null) {
-                album = decodeURI(album);
-                albumArtist = decodeURI(albumArtist);
+            const curTr = el.parentNode.parentNode;
+            if (curTr.hasAttribute('data-album') && curTr.hasAttribute('data-albumartist')) {
+                const vAlbum = decodeURI(curTr.getAttribute('data-album'));
+                const vAlbumArtist = decodeURI(curTr.getAttribute('data-albumartist'));
                 menu += '<div class="dropdown-divider"></div>' +
                     '<a class="dropdown-item" id="advancedMenuLink" data-toggle="collapse" href="#advancedMenu"><span class="material-icons material-icons-left">keyboard_arrow_right</span>Album actions</a>' +
                     '<div class="collapse" id="advancedMenu">' +
-                        addMenuItem({"cmd": "_addAlbum", "options": ["appendQueue", albumArtist, album]}, t('Append to queue')) +
-                        addMenuItem({"cmd": "_addAlbum", "options": ["replaceQueue", albumArtist, album]}, t('Replace queue')) +
-                        (settings.featPlaylists === true ? addMenuItem({"cmd": "_addAlbum", "options": ["addPlaylist", albumArtist, album]}, t('Add to playlist')) : '') +
+                        addMenuItem({"cmd": "_addAlbum", "options": ["appendQueue", vAlbumArtist, vAlbum]}, t('Append to queue')) +
+                        addMenuItem({"cmd": "_addAlbum", "options": ["replaceQueue", vAlbumArtist, vAlbum]}, t('Replace queue')) +
+                        (settings.featPlaylists === true ? addMenuItem({"cmd": "_addAlbum", "options": ["addPlaylist", vAlbumArtist, vAlbum]}, t('Add to playlist')) : '') +
                     '</div>';
             }
             else {
@@ -4738,7 +4745,7 @@ function parseUpdateQueue(obj) {
     }
     else if (obj.result.state === 2) {
         for (let i = 0; i < domCache.btnsPlayLen; i++) {
-            if (settings.footerStop === true) {
+            if (settings.footerStop === 'stop') {
                 domCache.btnsPlay[i].innerText = 'stop';
             }
             else {
@@ -4751,7 +4758,7 @@ function parseUpdateQueue(obj) {
         for (let i = 0; i < domCache.btnsPlayLen; i++) {
             domCache.btnsPlay[i].innerText = 'play_arrow';
         }
-	playstate = 'pause';
+        playstate = 'pause';
     }
 
     if (obj.result.queueLength === 0) {
@@ -4777,7 +4784,7 @@ function parseUpdateQueue(obj) {
         domCache.btnNext.removeAttribute('disabled');
     }
     
-    if (obj.result.songPos <= 0) {
+    if (obj.result.songPos < 0) {
         domCache.btnPrev.setAttribute('disabled', 'disabled');
     }
     else {
@@ -5491,6 +5498,13 @@ function parseSettings() {
     });
 
     setNavbarIcons();
+
+    if (settings.footerStop === 'both') {
+        document.getElementById('btnStop').classList.remove('hide');
+    }
+    else {
+        document.getElementById('btnStop').classList.add('hide');
+    }
     
     document.getElementById('selectTheme').value = settings.theme;
     
@@ -5914,6 +5928,7 @@ function parseMPDSettings() {
             pbtl += '</p></div>';
         }
         document.getElementById('cardPlaybackTags').innerHTML = pbtl;
+        //click on lyrics header to expand lyrics text container
         let cl = document.getElementById('currentLyrics');
         if (cl && lastSongObj.uri) {
             let el = cl.getElementsByTagName('small')[0];
@@ -5951,12 +5966,12 @@ function parseMPDSettings() {
             tagEls[i].classList.remove('clickable');
         }
     }
-    else {
-        const tagEls = document.getElementById('cardPlaybackTags').getElementsByTagName('p');
-        for (let i = 0; i < tagEls.length; i++) {
-            tagEls[i].classList.add('clickable');
-        }
-    }
+//    else {
+//        const tagEls = document.getElementById('cardPlaybackTags').getElementsByTagName('p');
+//        for (let i = 0; i < tagEls.length; i++) {
+//            tagEls[i].classList.add('clickable');
+//        }
+//    }
     
     if (settings.featPlaylists === true) {
         sendAPI("MPD_API_PLAYLIST_LIST_ALL", {"searchstr": ""}, function(obj) {
@@ -6280,6 +6295,15 @@ function filterCols(x) {
             cols.push(settings[x][i]);
         }
     }
+    if (x === 'colsSearch') {
+        //enforce albumartist and album for albumactions
+        if (cols.includes('Album') === false && tags.includes('Album')) {
+            cols.push('Album');
+        }
+        if (cols.includes(tagAlbumArtist) === false && tags.includes(tagAlbumArtist)) {
+            cols.push(tagAlbumArtist);
+        }
+    }
     settings[x] = cols;
     logDebug('Columns for ' + x + ': ' + cols);
 }
@@ -6550,17 +6574,59 @@ function isCoverfile(uri) {
 }
 
 function getLyrics(uri, el) {
+    if (uri === undefined) {
+        el.innerHTML = t('No lyrics found');
+        return;
+    }
     el.classList.add('opacity05');
-    let ajaxRequest=new XMLHttpRequest();
-    
-    ajaxRequest.open('GET', subdir + '/lyrics/' + uri, true);
-    ajaxRequest.onreadystatechange = function() {
-        if (ajaxRequest.readyState === 4) {
-            el.innerText = ajaxRequest.responseText === 'No lyrics found' ? t(ajaxRequest.responseText) : ajaxRequest.responseText;
-            el.classList.remove('opacity05');
+    sendAPI("MPD_API_LYRICS_UNSYNCED_GET", {"uri": uri}, function(obj) {
+        if (obj.error) {
+            el.innerText = t(obj.error.message);
         }
-    };
-    ajaxRequest.send();
+        else if (obj.result.message) {
+            el.innerText = t(obj.result.message);
+        }
+        else {
+            let lyrics_header = '<span class="lyricsHeader" class="btn-group-toggle" data-toggle="buttons">';
+            let lyrics = '<div class="lyricsTextContainer">';
+            for (let i = 0; i < obj.result.returnedEntities; i++) {
+                let ht = obj.result.data[i].desc;
+                if (ht !== '' && obj.result.data[i].lang !== '') {
+                    ht += ' (' + obj.result.data[i].lang + ')';
+                }
+                else if (obj.result.data[i].lang !== '') {
+                    ht = obj.result.data[i].lang;
+                }
+                else {
+                    ht = i;
+                }
+                lyrics_header += '<label data-num="' + i + '" class="btn btn-sm btn-outline-secondary mr-2' + (i === 0 ? ' active' : '') + '">' + ht + '</label>';
+                lyrics += '<div class="lyricsText' + (i > 0 ? ' hide' : '') + '">' +
+                    e(obj.result.data[i].text).replace(/\n/g, "<br/>") + 
+                    '</div>';
+            }
+            lyrics_header += '</span>';
+            lyrics += '</div>';
+            el.innerHTML = (obj.result.returnedEntities > 1 ? lyrics_header : '') + lyrics;
+            el.getElementsByClassName('lyricsHeader')[0].addEventListener('click', function(event) {
+                if (event.target.nodeName === 'LABEL') {
+                   event.target.parentNode.getElementsByClassName('active')[0].classList.remove('active');
+                   event.target.classList.add('active');
+                   const nr = parseInt(event.target.getAttribute('data-num'));
+                   const tEls = el.getElementsByClassName('lyricsText');
+                   for (let i = 0; i < tEls.length; i++) {
+                       if (i === nr) {
+                           tEls[i].classList.remove('hide');
+                       }
+                       else {
+                           tEls[i].classList.add('hide');
+                       }
+                   }
+                }
+            }, false);
+        }
+        el.classList.remove('opacity05');
+    }, true);
 }
 
 //eslint-disable-next-line no-unused-vars
