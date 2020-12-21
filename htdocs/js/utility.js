@@ -345,6 +345,7 @@ function setPagination(total, returned) {
     if (totalPages === 0) {
         totalPages = 1;
     }
+    const offsetLast = parseInt(app.current.page) + parseInt(settings.maxElementsPerPage);
     let p = [ document.getElementById(cat + 'PaginationTop'), document.getElementById(cat + 'PaginationBottom') ];
     
     for (let i = 0; i < p.length; i++) {
@@ -374,7 +375,7 @@ function setPagination(total, returned) {
             page.classList.add('nodropdown');
         }
         
-        if (total > app.current.page + settings.maxElementsPerPage || total === -1 && returned >= settings.maxElementsPerPage) {
+        if (total > offsetLast || (total === -1 && returned >= settings.maxElementsPerPage)) {
             next.removeAttribute('disabled');
             p[i].classList.remove('hide');
             document.getElementById(cat + 'ButtonsBottom').classList.remove('hide');
@@ -435,7 +436,6 @@ function parseCmd(event, href) {
 }
 
 function gotoPage(x) {
-    console.log(app.current.page);
     switch (x) {
         case 'next':
             app.current.page = parseInt(app.current.page) + parseInt(settings.maxElementsPerPage);
@@ -450,5 +450,5 @@ function gotoPage(x) {
             app.current.page = x;
     }
     appGoto(app.current.app, app.current.tab, app.current.view, 
-        app.current.page, app.current.filter, app.current.sort, app.current.tag, app.current.search);
+        app.current.page, app.current.filter, app.current.sort, app.current.tag, app.current.search, 0);
 }
