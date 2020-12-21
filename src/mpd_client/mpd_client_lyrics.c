@@ -51,12 +51,16 @@ sds mpd_client_lyrics_unsynced(t_config *config, t_mpd_client_state *mpd_client_
     //try .txt file in folder in the music directory
     buffer = lyrics_fromfile(mpd_client_state, buffer, method, request_id, mediafile, config->uslt_ext);
     if (sdslen(buffer) == 0) {
-        //try to extract lyrics from media file
+        LOG_DEBUG("Getting embedded lyrics from %s", mediafile);
         buffer = lyricsextract_unsynced(buffer, method, request_id, mediafile, config->vorbis_uslt);
         if (sdslen(buffer) > 0) {
             sdsfree(mediafile);
             return buffer;
         }
+    }
+    else {
+        sdsfree(mediafile);
+        return buffer;
     }
     LOG_VERBOSE("No lyrics found for %s", mediafile);
     sdsfree(mediafile);
@@ -71,11 +75,16 @@ sds mpd_client_lyrics_synced(t_config *config, t_mpd_client_state *mpd_client_st
     //try .lrc file in folder in the music directory
     buffer = lyrics_fromfile(mpd_client_state, buffer, method, request_id, mediafile, config->sylt_ext);
     if (sdslen(buffer) == 0) {
+        LOG_DEBUG("Getting embedded lyrics from %s", mediafile);
         buffer = lyricsextract_synced(buffer, method, request_id, mediafile, config->vorbis_sylt);
         if (sdslen(buffer) > 0) {
             sdsfree(mediafile);
             return buffer;
         }
+    }
+    else {
+        sdsfree(mediafile);
+        return buffer;
     }
     LOG_VERBOSE("No lyrics found for %s", mediafile);
     sdsfree(mediafile);
@@ -91,11 +100,11 @@ sds lyrics_fromfile(t_mpd_client_state *mpd_client_state, sds buffer, sds method
         LOG_DEBUG("No lyrics file found, no access to music directory");
         return buffer;
     }
-    
     //try file in folder in the music directory
     sds filename_cpy = sdsnew(mediafile);
     strip_extension(filename_cpy);
     sds lyricsfile = sdscatfmt(sdsempty(), "%s.%s", filename_cpy, ext);
+    LOG_DEBUG("Trying to open lyrics file: %s", lyricsfile);
     sdsfree(filename_cpy);
     FILE *fp = fopen(lyricsfile, "r");
     sdsfree(lyricsfile);
@@ -112,6 +121,7 @@ sds lyrics_fromfile(t_mpd_client_state *mpd_client_state, sds buffer, sds method
             text = sdscatlen(text, line, read);
         }
         fclose(fp);
+        FREE_PTR(line);
         buffer = tojson_char(buffer, "text", text, false);
         buffer = sdscatlen(buffer, "}],", 3);
         buffer = tojson_long(buffer, "returnedEntities", 1, false);
