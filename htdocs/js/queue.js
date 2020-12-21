@@ -150,7 +150,6 @@ function parseQueue(obj) {
     if (navigate === true) {
         focusTable(activeRow);
     }
-    
     setPagination(obj.result.totalEntities, obj.result.returnedEntities);
     document.getElementById('QueueCurrentList').classList.remove('opacity05');
 }
@@ -328,6 +327,18 @@ function delQueueSong(mode, start, end) {
 //eslint-disable-next-line no-unused-vars
 function gotoPlayingSong() {
     let page = lastState.songPos < settings.maxElementsPerPage ? 0 : Math.floor(lastState.songPos / settings.maxElementsPerPage) * settings.maxElementsPerPage;
-    console.log(page);
     gotoPage(page);
+}
+
+//eslint-disable-next-line no-unused-vars
+function playAfterCurrent(trackid, songpos) {
+    if (settings.random === 0) {
+        //not in random mode - move song after current playling song
+        let newSongPos = lastState.songPos !== undefined ? lastState.songPos + 2 : 0;
+        sendAPI("MPD_API_QUEUE_MOVE_TRACK", {"from": songpos, "to": newSongPos});
+    }
+    else {
+        //in random mode - set song priority
+        sendAPI("MPD_API_QUEUE_PRIO_SET_HIGHEST", {"trackid": trackid});
+    }
 }

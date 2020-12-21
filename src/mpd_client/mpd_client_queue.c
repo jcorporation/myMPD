@@ -22,6 +22,42 @@
 #include "mpd_client_utility.h"
 #include "mpd_client_queue.h"
 
+bool mpd_client_queue_prio_set_highest(t_mpd_client_state *mpd_client_state, const unsigned trackid) {
+    //default prio is 10
+    int priority = 10;
+    
+    //try to get prio of next song
+    struct mpd_status *status = mpd_run_status(mpd_client_state->mpd_state->conn);
+    if (status == NULL) {
+        check_error_and_recover(mpd_client_state->mpd_state, NULL, NULL, 0);
+        return false;
+    }
+    int next_song_id = mpd_status_get_next_song_id(status);
+    mpd_status_free(status);
+    if (next_song_id > -1 ) {
+        bool rc = mpd_send_get_queue_song_id(mpd_client_state->mpd_state->conn, next_song_id);
+        if (rc == true) {
+            struct mpd_song *song = mpd_recv_song(mpd_client_state->mpd_state->conn);
+            if (song != NULL) {
+                priority = mpd_song_get_prio(song);
+                priority++;
+                mpd_song_free(song);
+            }
+        }
+        mpd_response_finish(mpd_client_state->mpd_state->conn);
+        if (check_rc_error_and_recover(mpd_client_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_send_get_queue_song_id") == false) {
+            return false;
+        }
+    }
+    
+    //set priority, priority have only an effect in random mode
+    bool rc = mpd_run_prio_id(mpd_client_state->mpd_state->conn, priority, trackid);
+    if (check_rc_error_and_recover(mpd_client_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_run_prio_id") == false) {
+        return false;
+    }
+    return true;
+}
+
 bool mpd_client_queue_replace_with_song(t_mpd_client_state *mpd_client_state, const char *uri) {
     if (mpd_command_list_begin(mpd_client_state->mpd_state->conn, false)) {
         bool rc = mpd_send_clear(mpd_client_state->mpd_state->conn);

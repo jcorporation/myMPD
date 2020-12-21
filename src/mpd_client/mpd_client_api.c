@@ -442,6 +442,18 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
                 response->data = respond_with_mpd_error_or_ok(mpd_client_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_move");
             }
             break;
+        case MPD_API_QUEUE_PRIO_SET_HIGHEST:
+            je = json_scanf(request->data, sdslen(request->data), "{params: {trackid: %u}}", &uint_buf1);
+            if (je == 1) {
+                rc = mpd_client_queue_prio_set_highest(mpd_client_state, uint_buf1);
+                if (rc == true) {
+                    response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+                }
+                else {
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Failed to set song priority", true);
+                }
+            }
+            break;
         case MPD_API_PLAYLIST_MOVE_TRACK:
             je = json_scanf(request->data, sdslen(request->data), "{params: {plist: %Q, from: %u, to: %u }}", &p_charbuf1, &uint_buf1, &uint_buf2);
             if (je == 3) {

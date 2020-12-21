@@ -16,4 +16,5 @@ sds mpd_client_search_queue(t_mpd_client_state *mpd_client_state, sds buffer, sd
                             const char *searchstr, const t_tags *tagcols);
 bool mpd_client_queue_replace_with_song(t_mpd_client_state *mpd_client_state, const char *uri);
 bool mpd_client_queue_replace_with_playlist(t_mpd_client_state *mpd_client_state, const char *plist);
+bool mpd_client_queue_prio_set_highest(t_mpd_client_state *mpd_client_state, const unsigned trackid);
 #endif

@@ -249,8 +249,8 @@ function appPrepare(scrollPos) {
         if (app.current.tab !== undefined) {
             document.getElementById('card' + app.current.app + app.current.tab).classList.remove('hide');
         }
-        scrollToPosY(scrollPos);
     }
+    scrollToPosY(scrollPos);
     let list = document.getElementById(app.current.app + 
         (app.current.tab === undefined ? '' : app.current.tab) + 
         (app.current.view === undefined ? '' : app.current.view) + 'List');
@@ -259,7 +259,8 @@ function appPrepare(scrollPos) {
     }
 }
 
-function appGoto(card, tab, view, page, filter, sort, tag, search) {
+function appGoto(card, tab, view, page, filter, sort, tag, search, newScrollPos) {
+    //save scrollPos of current view
     let scrollPos = 0;
     if (document.body.scrollTop) {
         scrollPos = document.body.scrollTop
@@ -278,6 +279,7 @@ function appGoto(card, tab, view, page, filter, sort, tag, search) {
         app.apps[app.current.app].tabs[app.current.tab].views[app.current.view].scrollPos = scrollPos;
     }
 
+    //build new hash
     let hash = '';
     if (app.apps[card].tabs) {
         if (tab === undefined) {
@@ -293,6 +295,9 @@ function appGoto(card, tab, view, page, filter, sort, tag, search) {
                 encodeURIComponent(sort === undefined ? app.apps[card].tabs[tab].views[view].sort : sort) + '/' +
                 encodeURIComponent(tag === undefined ? app.apps[card].tabs[tab].views[view].tag : tag) + '/' +
                 encodeURIComponent(search === undefined ? app.apps[card].tabs[tab].views[view].search : search);
+            if (newScrollPos !== undefined) {
+                app.apps[card].tabs[tab].views[view].scrollPos = newScrollPos;
+            }
         }
         else {
             hash = '/' + encodeURIComponent(card) + '/' + encodeURIComponent(tab) + '!' + 
@@ -301,6 +306,9 @@ function appGoto(card, tab, view, page, filter, sort, tag, search) {
                 encodeURIComponent(sort === undefined ? app.apps[card].tabs[tab].sort : sort) + '/' +
                 encodeURIComponent(tag === undefined ? app.apps[card].tabs[tab].tag : tag) + '/' +
                 encodeURIComponent(search === undefined ? app.apps[card].tabs[tab].search : search);
+            if (newScrollPos !== undefined) {
+                app.apps[card].tabs[tab].scrollPos = newScrollPos;
+            }
         }
     }
     else {
@@ -310,11 +318,15 @@ function appGoto(card, tab, view, page, filter, sort, tag, search) {
             encodeURIComponent(sort === undefined ? app.apps[card].sort : sort) + '/' +
             encodeURIComponent(tag === undefined ? app.apps[card].tag : tag) + '/' +
             encodeURIComponent(search === undefined ? app.apps[card].search : search);
+        if (newScrollPos !== undefined) {
+            app.apps[card].scrollPos = newScrollPos;
+        }
     }
     location.hash = hash;
 }
 
 function appRoute() {
+    //called on hash change
     if (settingsParsed === false) {
         appInitStart();
         return;
@@ -369,7 +381,6 @@ function appRoute() {
         }
         return;
     }
-
     appPrepare(app.current.scrollPos);
 
     if (app.current.app === 'Home') {
