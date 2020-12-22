@@ -35,23 +35,56 @@
 #endif
 
 //privat definitions
-sds lyrics_fromfile(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, sds mediafile, const char *ext);
+static sds _mpd_client_lyrics_unsynced(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, const char *uri);
+static sds _mpd_client_lyrics_synced(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, const char *uri);
+static sds lyrics_fromfile(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, sds mediafile, const char *ext, bool synced);
 static sds lyricsextract_unsynced(sds buffer, sds method, long request_id, sds media_file, sds vorbis_comment);
 static sds lyricsextract_unsynced_id3(sds buffer, sds method, long request_id, sds media_file);
 static const char *_id3_field_getlanguage(union id3_field const *field);
 static sds lyricsextract_synced(sds buffer, sds method, long request_id, sds media_file, sds vorbis_comment);
 static sds lyricsextract_synced_id3(sds buffer, sds method, long request_id, sds media_file);
-static sds lyricsextract_flac(sds buffer, sds method, long request_id, sds media_file, bool is_ogg, const char *comment_name);
+static sds lyricsextract_flac(sds buffer, sds method, long request_id, sds media_file, bool is_ogg, const char *comment_name, bool synced);
 
 //public functions
+sds mpd_client_lyrics_get(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, const char *uri) {
+    //try first synced lyrics
+    buffer = _mpd_client_lyrics_synced(config, mpd_client_state, buffer, method, request_id, uri);
+    //if not found try unsynced lyrics
+    if (sdslen(buffer) == 0) {
+        buffer = _mpd_client_lyrics_unsynced(config, mpd_client_state, buffer, method, request_id, uri);
+    }
+    //if not found print error message
+    if (sdslen(buffer) == 0) {
+        buffer = jsonrpc_respond_message(buffer, method, request_id, "No lyrics found", false);
+    }
+    return buffer;
+}
+
 sds mpd_client_lyrics_unsynced(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, const char *uri) {
+    buffer = _mpd_client_lyrics_unsynced(config, mpd_client_state, buffer, method, request_id, uri);
+    if (sdslen(buffer) == 0) {
+        buffer = jsonrpc_respond_message(buffer, method, request_id, "No lyrics found", false);
+    }
+    return buffer;
+}
+
+sds mpd_client_lyrics_synced(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, const char *uri) {
+    buffer = _mpd_client_lyrics_synced(config, mpd_client_state, buffer, method, request_id, uri);
+    if (sdslen(buffer) == 0) {
+        buffer = jsonrpc_respond_message(buffer, method, request_id, "No lyrics found", false);
+    }
+    return buffer;
+}
+
+//privat functions
+static sds _mpd_client_lyrics_unsynced(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, const char *uri) {
     //create absolute file
     sds mediafile = sdscatfmt(sdsempty(), "%s/%s", mpd_client_state->music_directory_value, uri);
     LOG_DEBUG("Absolut media_file: %s", mediafile);
     //try .txt file in folder in the music directory
-    buffer = lyrics_fromfile(mpd_client_state, buffer, method, request_id, mediafile, config->uslt_ext);
+    buffer = lyrics_fromfile(mpd_client_state, buffer, method, request_id, mediafile, config->uslt_ext, false);
     if (sdslen(buffer) == 0) {
-        LOG_DEBUG("Getting embedded lyrics from %s", mediafile);
+        LOG_DEBUG("Getting embedded unsynced lyrics from %s", mediafile);
         buffer = lyricsextract_unsynced(buffer, method, request_id, mediafile, config->vorbis_uslt);
         if (sdslen(buffer) > 0) {
             sdsfree(mediafile);
@@ -62,20 +95,19 @@ sds mpd_client_lyrics_unsynced(t_config *config, t_mpd_client_state *mpd_client_
         sdsfree(mediafile);
         return buffer;
     }
-    LOG_VERBOSE("No lyrics found for %s", mediafile);
+    LOG_VERBOSE("No unsynced lyrics found for %s", mediafile);
     sdsfree(mediafile);
-    buffer = jsonrpc_respond_message(buffer, method, request_id, "No lyrics found", false);
     return buffer;
 }
 
-sds mpd_client_lyrics_synced(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, const char *uri) {
+static sds _mpd_client_lyrics_synced(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, const char *uri) {
     //create absolute file
     sds mediafile = sdscatfmt(sdsempty(), "%s/%s", mpd_client_state->music_directory_value, uri);
     LOG_DEBUG("Absolut media_file: %s", mediafile);
     //try .lrc file in folder in the music directory
-    buffer = lyrics_fromfile(mpd_client_state, buffer, method, request_id, mediafile, config->sylt_ext);
+    buffer = lyrics_fromfile(mpd_client_state, buffer, method, request_id, mediafile, config->sylt_ext, true);
     if (sdslen(buffer) == 0) {
-        LOG_DEBUG("Getting embedded lyrics from %s", mediafile);
+        LOG_DEBUG("Getting embedded synced lyrics from %s", mediafile);
         buffer = lyricsextract_synced(buffer, method, request_id, mediafile, config->vorbis_sylt);
         if (sdslen(buffer) > 0) {
             sdsfree(mediafile);
@@ -86,14 +118,12 @@ sds mpd_client_lyrics_synced(t_config *config, t_mpd_client_state *mpd_client_st
         sdsfree(mediafile);
         return buffer;
     }
-    LOG_VERBOSE("No lyrics found for %s", mediafile);
+    LOG_VERBOSE("No synced lyrics found for %s", mediafile);
     sdsfree(mediafile);
-    buffer = jsonrpc_respond_message(buffer, method, request_id, "No lyrics found", false);
     return buffer;
 }
 
-//privat functions
-sds lyrics_fromfile(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, sds mediafile, const char *ext) {
+static sds lyrics_fromfile(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, sds mediafile, const char *ext, bool synced) {
     //check music_directory folder
     if (mpd_client_state->feat_library == false || access(mediafile, F_OK) != 0) /* Flawfinder: ignore */
     {
@@ -124,6 +154,7 @@ sds lyrics_fromfile(t_mpd_client_state *mpd_client_state, sds buffer, sds method
         FREE_PTR(line);
         buffer = tojson_char(buffer, "text", text, false);
         buffer = sdscatlen(buffer, "}],", 3);
+        buffer = tojson_bool(buffer, "synced", synced, true);
         buffer = tojson_long(buffer, "returnedEntities", 1, false);
         buffer = jsonrpc_end_result(buffer);
         sdsfree(text);
@@ -139,10 +170,10 @@ static sds lyricsextract_unsynced(sds buffer, sds method, long request_id, sds m
         buffer = lyricsextract_unsynced_id3(buffer, method, request_id, media_file);
     }
     else if (strcmp(mime_type_media_file, "audio/ogg") == 0) {
-        buffer = lyricsextract_flac(buffer, method, request_id, media_file, true, vorbis_comment);
+        buffer = lyricsextract_flac(buffer, method, request_id, media_file, true, vorbis_comment, false);
     }
     else if (strcmp(mime_type_media_file, "audio/flac") == 0) {
-        buffer = lyricsextract_flac(buffer, method, request_id, media_file, false, vorbis_comment);
+        buffer = lyricsextract_flac(buffer, method, request_id, media_file, false, vorbis_comment, false);
     }
     else {
         buffer = jsonrpc_respond_message(buffer, method, request_id, "Unsupported file type", false);
@@ -157,10 +188,10 @@ static sds lyricsextract_synced(sds buffer, sds method, long request_id, sds med
         buffer = lyricsextract_synced_id3(buffer, method, request_id, media_file);
     }
     else if (strcmp(mime_type_media_file, "audio/ogg") == 0) {
-        buffer = lyricsextract_flac(buffer, method, request_id, media_file, true, vorbis_comment);
+        buffer = lyricsextract_flac(buffer, method, request_id, media_file, true, vorbis_comment, true);
     }
     else if (strcmp(mime_type_media_file, "audio/flac") == 0) {
-        buffer = lyricsextract_flac(buffer, method, request_id, media_file, false, vorbis_comment);
+        buffer = lyricsextract_flac(buffer, method, request_id, media_file, false, vorbis_comment, true);
     }
     else {
         buffer = jsonrpc_respond_message(buffer, method, request_id, "Unsupported file type", false);
@@ -242,6 +273,7 @@ static sds lyricsextract_unsynced_id3(sds buffer, sds method, long request_id, s
     }
 
     buffer = sdscatlen(buffer, "],", 2);
+        buffer = tojson_bool(buffer, "synced", false, true);
     buffer = tojson_long(buffer, "returnedEntities", i, false);
     buffer = jsonrpc_end_result(buffer);
     #else
@@ -332,6 +364,7 @@ static sds lyricsextract_synced_id3(sds buffer, sds method, long request_id, sds
     }
 
     buffer = sdscatlen(buffer, "],", 2);
+        buffer = tojson_bool(buffer, "synced", true, true);
     buffer = tojson_long(buffer, "returnedEntities", i, false);
     buffer = jsonrpc_end_result(buffer);
     #else
@@ -350,7 +383,7 @@ static const char *_id3_field_getlanguage(union id3_field const *field) {
     return field->immediate.value;
 }
 
-static sds lyricsextract_flac(sds buffer, sds method, long request_id, sds media_file, bool is_ogg, const char *comment_name) {
+static sds lyricsextract_flac(sds buffer, sds method, long request_id, sds media_file, bool is_ogg, const char *comment_name, bool synced) {
     #ifdef ENABLE_FLAC
     LOG_DEBUG("Exctracting lyrics from %s", media_file);
     FLAC__StreamMetadata *metadata = NULL;
@@ -411,6 +444,7 @@ static sds lyricsextract_flac(sds buffer, sds method, long request_id, sds media
     }
     else {
         buffer = sdscatlen(buffer, "],", 2);
+        buffer = tojson_bool(buffer, "synced", synced, true);
         buffer = tojson_long(buffer, "returnedEntities", found_lyrics, false);
         buffer = jsonrpc_end_result(buffer);
     }

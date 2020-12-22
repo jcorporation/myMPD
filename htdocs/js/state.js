@@ -161,6 +161,21 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
         }
         tr.classList.add('font-weight-bold');
     }
+
+    //synced lyrics
+    if (showSyncedLyrics === true && settings.colsPlayback.includes('Lyrics')) {
+        const sl = document.getElementById('currentLyrics');
+        const toHighlight = sl.querySelector('[data-sec="' + elapsedTime + '"]');
+        const highlighted = sl.getElementsByClassName('highlight')[0];
+        if (highlighted !== toHighlight) {
+            if (toHighlight !== null) {
+                toHighlight.classList.add('highlight');
+                if (highlighted !== undefined) {
+                    highlighted.classList.remove('highlight');
+                }
+            }
+        }
+    }    
     
     if (progressTimer) {
         clearTimeout(progressTimer);

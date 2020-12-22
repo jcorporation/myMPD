@@ -113,5 +113,6 @@ var cmds = [
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_JUKEBOX_RM","params":{"pos":0}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_LYRICS_UNSYNCED_GET","params":{"uri":""}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_LYRICS_SYNCED_GET","params":{"uri":""}},
+    {"jsonrpc":"2.0","id":0,"method":"MPD_API_LYRICS_GET","params":{"uri":""}},
     {"jsonrpc":"2.0","id":0,"method":"MPD_API_QUEUE_PRIO_SET_HIGHEST","params":{"trackid":0}}
 ];

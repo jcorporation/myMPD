@@ -28,6 +28,7 @@ var progressTimer = null;
 var deferredA2HSprompt;
 var dragSrc;
 var dragEl;
+var showSyncedLyrics = false;
 
 var appInited = false;
 var subdir = '';
