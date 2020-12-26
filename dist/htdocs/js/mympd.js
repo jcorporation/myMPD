@@ -2046,8 +2046,8 @@ function appPrepare(scrollPos) {
         if (app.current.tab !== undefined) {
             document.getElementById('card' + app.current.app + app.current.tab).classList.remove('hide');
         }
-        scrollToPosY(scrollPos);
     }
+    scrollToPosY(scrollPos);
     let list = document.getElementById(app.current.app + 
         (app.current.tab === undefined ? '' : app.current.tab) + 
         (app.current.view === undefined ? '' : app.current.view) + 'List');
@@ -2056,7 +2056,8 @@ function appPrepare(scrollPos) {
     }
 }
 
-function appGoto(card, tab, view, page, filter, sort, tag, search) {
+function appGoto(card, tab, view, page, filter, sort, tag, search, newScrollPos) {
+    //save scrollPos of current view
     let scrollPos = 0;
     if (document.body.scrollTop) {
         scrollPos = document.body.scrollTop
@@ -2075,6 +2076,7 @@ function appGoto(card, tab, view, page, filter, sort, tag, search) {
         app.apps[app.current.app].tabs[app.current.tab].views[app.current.view].scrollPos = scrollPos;
     }
 
+    //build new hash
     let hash = '';
     if (app.apps[card].tabs) {
         if (tab === undefined) {
@@ -2090,6 +2092,9 @@ function appGoto(card, tab, view, page, filter, sort, tag, search) {
                 encodeURIComponent(sort === undefined ? app.apps[card].tabs[tab].views[view].sort : sort) + '/' +
                 encodeURIComponent(tag === undefined ? app.apps[card].tabs[tab].views[view].tag : tag) + '/' +
                 encodeURIComponent(search === undefined ? app.apps[card].tabs[tab].views[view].search : search);
+            if (newScrollPos !== undefined) {
+                app.apps[card].tabs[tab].views[view].scrollPos = newScrollPos;
+            }
         }
         else {
             hash = '/' + encodeURIComponent(card) + '/' + encodeURIComponent(tab) + '!' + 
@@ -2098,6 +2103,9 @@ function appGoto(card, tab, view, page, filter, sort, tag, search) {
                 encodeURIComponent(sort === undefined ? app.apps[card].tabs[tab].sort : sort) + '/' +
                 encodeURIComponent(tag === undefined ? app.apps[card].tabs[tab].tag : tag) + '/' +
                 encodeURIComponent(search === undefined ? app.apps[card].tabs[tab].search : search);
+            if (newScrollPos !== undefined) {
+                app.apps[card].tabs[tab].scrollPos = newScrollPos;
+            }
         }
     }
     else {
@@ -2107,11 +2115,15 @@ function appGoto(card, tab, view, page, filter, sort, tag, search) {
             encodeURIComponent(sort === undefined ? app.apps[card].sort : sort) + '/' +
             encodeURIComponent(tag === undefined ? app.apps[card].tag : tag) + '/' +
             encodeURIComponent(search === undefined ? app.apps[card].search : search);
+        if (newScrollPos !== undefined) {
+            app.apps[card].scrollPos = newScrollPos;
+        }
     }
     location.hash = hash;
 }
 
 function appRoute() {
+    //called on hash change
     if (settingsParsed === false) {
         appInitStart();
         return;
@@ -2166,7 +2178,6 @@ function appRoute() {
         }
         return;
     }
-
     appPrepare(app.current.scrollPos);
 
     if (app.current.app === 'Home') {
@@ -4618,7 +4629,9 @@ function showMenuTd(el) {
             (uri.indexOf('http') === -1 ? addMenuItem({"cmd": "songDetails", "options": [uri]}, t('Song details')) : '');
     }
     else if (app.current.app === 'Queue' && app.current.tab === 'Current') {
-        menu += addMenuItem({"cmd": "delQueueSong", "options": ["single", el.parentNode.parentNode.getAttribute('data-trackid')]}, t('Remove')) +
+        const trackid = parseInt(el.parentNode.parentNode.getAttribute('data-trackid'));
+        menu += ( trackid !== lastState.currentSongId ? addMenuItem({"cmd": "playAfterCurrent", "options": [trackid, el.parentNode.parentNode.getAttribute('data-songpos')]}, t('Play after current playing song')) : '') +
+            addMenuItem({"cmd": "delQueueSong", "options": ["single", trackid]}, t('Remove')) +
             addMenuItem({"cmd": "delQueueSong", "options": ["range", 0, el.parentNode.parentNode.getAttribute('data-songpos')]}, t('Remove all upwards')) +
             addMenuItem({"cmd": "delQueueSong", "options": ["range", (parseInt(el.parentNode.parentNode.getAttribute('data-songpos'))-1), -1]}, t('Remove all downwards')) +
             (uri.indexOf('http') === -1 ? addMenuItem({"cmd": "songDetails", "options": [uri]}, t('Song details')) : '');
@@ -4875,7 +4888,6 @@ function parseQueue(obj) {
     if (navigate === true) {
         focusTable(activeRow);
     }
-    
     setPagination(obj.result.totalEntities, obj.result.returnedEntities);
     document.getElementById('QueueCurrentList').classList.remove('opacity05');
 }
@@ -5053,8 +5065,20 @@ function delQueueSong(mode, start, end) {
 //eslint-disable-next-line no-unused-vars
 function gotoPlayingSong() {
     let page = lastState.songPos < settings.maxElementsPerPage ? 0 : Math.floor(lastState.songPos / settings.maxElementsPerPage) * settings.maxElementsPerPage;
-    console.log(page);
     gotoPage(page);
+}
+
+//eslint-disable-next-line no-unused-vars
+function playAfterCurrent(trackid, songpos) {
+    if (settings.random === 0) {
+        //not in random mode - move song after current playling song
+        let newSongPos = lastState.songPos !== undefined ? lastState.songPos + 2 : 0;
+        sendAPI("MPD_API_QUEUE_MOVE_TRACK", {"from": songpos, "to": newSongPos});
+    }
+    else {
+        //in random mode - set song priority
+        sendAPI("MPD_API_QUEUE_PRIO_SET_HIGHEST", {"trackid": trackid});
+    }
 }
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
@@ -8517,6 +8541,7 @@ function setPagination(total, returned) {
     if (totalPages === 0) {
         totalPages = 1;
     }
+    const offsetLast = parseInt(app.current.page) + parseInt(settings.maxElementsPerPage);
     let p = [ document.getElementById(cat + 'PaginationTop'), document.getElementById(cat + 'PaginationBottom') ];
     
     for (let i = 0; i < p.length; i++) {
@@ -8546,7 +8571,7 @@ function setPagination(total, returned) {
             page.classList.add('nodropdown');
         }
         
-        if (total > app.current.page + settings.maxElementsPerPage || total === -1 && returned >= settings.maxElementsPerPage) {
+        if (total > offsetLast || (total === -1 && returned >= settings.maxElementsPerPage)) {
             next.removeAttribute('disabled');
             p[i].classList.remove('hide');
             document.getElementById(cat + 'ButtonsBottom').classList.remove('hide');
@@ -8607,7 +8632,6 @@ function parseCmd(event, href) {
 }
 
 function gotoPage(x) {
-    console.log(app.current.page);
     switch (x) {
         case 'next':
             app.current.page = parseInt(app.current.page) + parseInt(settings.maxElementsPerPage);
@@ -8622,7 +8646,7 @@ function gotoPage(x) {
             app.current.page = x;
     }
     appGoto(app.current.app, app.current.tab, app.current.view, 
-        app.current.page, app.current.filter, app.current.sort, app.current.tag, app.current.search);
+        app.current.page, app.current.filter, app.current.sort, app.current.tag, app.current.search, 0);
 }
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
