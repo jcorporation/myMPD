@@ -117,11 +117,11 @@ function parseScriptList(obj) {
     let scriptListMain = ''; //list in main menu
     let scriptList = ''; //list in scripts dialog
     let scriptListLen = obj.result.data.length;
+    let showScriptListLen = 0;
     if (scriptListLen > 0) {
         obj.result.data.sort(function(a, b) {
             return a.metadata.order - b.metadata.order;
         });
-        let mi = 0;
         for (let i = 0; i < scriptListLen; i++) {
             let arglist = '';
             if (obj.result.data[i].metadata.arguments.length > 0) {
@@ -131,11 +131,7 @@ function parseScriptList(obj) {
                 arglist = '"' + obj.result.data[i].metadata.arguments.join('","') + '"';
             }
             if (obj.result.data[i].metadata.order > 0) {
-                if (mi === 0) {
-                    scriptListMain = scriptListLen > scriptMaxListLen ? '' : '<div class="dropdown-divider"></div>';
-                }
-                mi++;
-                
+                showScriptListLen++;
                 scriptListMain += '<a class="dropdown-item text-light alwaysEnabled" href="#" data-href=\'{"script": "' + 
                     e(obj.result.data[i].name) + '", "arguments": [' + arglist + ']}\'>' + e(obj.result.data[i].name) + '</a>';
                 
@@ -158,9 +154,9 @@ function parseScriptList(obj) {
         document.getElementById('listScriptsList').innerHTML = '<tr class="not-clickable"><td><span class="material-icons">error_outline</span></td>' +
             '<td colspan="2">' + t('Empty list') + '</td></tr>';
     }
-    document.getElementById('scripts').innerHTML = scriptListMain;
+    document.getElementById('scripts').innerHTML = (showScriptListLen > scriptMaxListLen || showScriptListLen === 0 ? '' : '<div class="dropdown-divider"></div>') + scriptListMain;
         
-    if (scriptListLen > scriptMaxListLen) {
+    if (showScriptListLen > scriptMaxListLen) {
         document.getElementById('navScripting').classList.remove('hide');
         document.getElementById('scripts').classList.add('collapse', 'menu-indent');
     }
