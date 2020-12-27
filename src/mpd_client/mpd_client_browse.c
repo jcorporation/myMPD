@@ -345,7 +345,7 @@ sds mpd_client_put_firstsong_in_albums(t_config *config, t_mpd_client_state *mpd
         return buffer;
     }
     
-    sds expression = sdscatprintf(sdsempty(), "((Track == '%d')", config->covergridminsongs);
+    sds expression = sdscatprintf(sdsempty(), "((Track == '%d') AND (Album != '') AND (Artist != '')", config->covergridminsongs);
     if (mpd_shared_tag_exists(mpd_client_state->mpd_state->mympd_tag_types.tags, mpd_client_state->mpd_state->mympd_tag_types.len, MPD_TAG_DISC) == true) {
         expression = sdscat(expression, " AND (Disc == '1')");
     }
@@ -397,28 +397,24 @@ sds mpd_client_put_firstsong_in_albums(t_config *config, t_mpd_client_state *mpd
     struct mpd_song *song;
     int entity_count = 0;
     int entities_returned = 0;
-
+    sds album = sdsempty();
+    sds artist = sdsempty();
     while ((song = mpd_recv_song(mpd_client_state->mpd_state->conn)) != NULL) {
-        sds album = sdsempty();
         album = mpd_shared_get_tags(song, MPD_TAG_ALBUM, album);
-        sds artist = sdsempty();
         artist = mpd_shared_get_tags(song, MPD_TAG_ALBUM_ARTIST, artist);
-        if ((strcmp(artist, "-") > 0) && (strcmp(album, "-") > 0)) {
-            entity_count++;
-            if (entities_returned++) {
-                buffer = sdscat(buffer, ",");
-            }
-            buffer = sdscat(buffer, "{\"Type\": \"album\",");
-            buffer = tojson_char(buffer, "Album", album, true);
-            buffer = tojson_char(buffer, "AlbumArtist", artist, true);
-            buffer = tojson_char(buffer, "FirstSongUri", mpd_song_get_uri(song), false);
-            buffer = sdscat(buffer, "}");
+        entity_count++;
+        if (entities_returned++) {
+            buffer = sdscat(buffer, ",");
         }
-        sdsfree(album);
-        sdsfree(artist);
+        buffer = sdscat(buffer, "{\"Type\": \"album\",");
+        buffer = tojson_char(buffer, "Album", album, true);
+        buffer = tojson_char(buffer, "AlbumArtist", artist, true);
+        buffer = tojson_char(buffer, "FirstSongUri", mpd_song_get_uri(song), false);
+        buffer = sdscat(buffer, "}");
         mpd_song_free(song);
     }
-
+    sdsfree(album);
+    sdsfree(artist);
     mpd_response_finish(mpd_client_state->mpd_state->conn);
     if (check_error_and_recover2(mpd_client_state->mpd_state, &buffer, method, request_id, false) == false) {
         return buffer;
