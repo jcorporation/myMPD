@@ -25,7 +25,7 @@ function navBrowseHandler(event) {
         app.current.search = '';
         document.getElementById('searchDatabaseMatch').value = 'contains';
         appGoto(app.current.app, app.current.tab, app.current.view, 
-            '0', app.current.filter, app.current.sort, tag, app.current.search);
+            '0', app.current.limit, app.current.filter, app.current.sort, tag, app.current.search);
     }
 }
 
@@ -48,16 +48,16 @@ function gotoBrowse() {
             }
             if (artist !== null) {
                 //Show album details
-                appGoto('Browse', 'Database', 'Detail', '0', tag, tagAlbumArtist, name, decodeURI(artist));
+                appGoto('Browse', 'Database', 'Detail', '0', undefined, tag, tagAlbumArtist, name, decodeURI(artist));
             }
             else {
                 //show filtered album list
-                appGoto('Browse', 'Database', 'List', '0', tag, tagAlbumArtist, 'Album', '(' + tag + ' == \'' + name + '\')');
+                appGoto('Browse', 'Database', 'List', '0', undefined, tag, tagAlbumArtist, 'Album', '(' + tag + ' == \'' + name + '\')');
             }
         }
         else {
             //show filtered album list
-            appGoto('Browse', 'Database', 'List', '0', tag, tagAlbumArtist, 'Album', '(' + tag + ' == \'' + name + '\')');
+            appGoto('Browse', 'Database', 'List', '0', undefined, tag, tagAlbumArtist, 'Album', '(' + tag + ' == \'' + name + '\')');
         }
     }
 }
@@ -443,5 +443,5 @@ function searchAlbumgrid(x) {
         expression = '';
     }
     appGoto(app.current.app, app.current.tab, app.current.view, 
-        '0', app.current.filter, app.current.sort, app.current.tag, expression);
+        '0', app.current.limit, app.current.filter, app.current.sort, app.current.tag, expression);
 }

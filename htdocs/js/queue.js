@@ -69,15 +69,15 @@ function parseUpdateQueue(obj) {
 
 function getQueue() {
     if (app.current.search.length >= 2) {
-        sendAPI("MPD_API_QUEUE_SEARCH", {"filter": app.current.filter, "offset": app.current.page, "searchstr": app.current.search, "cols": settings.colsQueueCurrent}, parseQueue, false);
+        sendAPI("MPD_API_QUEUE_SEARCH", {"filter": app.current.filter, "offset": app.current.offset, "searchstr": app.current.search, "cols": settings.colsQueueCurrent}, parseQueue, false);
     }
     else {
-        sendAPI("MPD_API_QUEUE_LIST", {"offset": app.current.page, "cols": settings.colsQueueCurrent}, parseQueue, false);
+        sendAPI("MPD_API_QUEUE_LIST", {"offset": app.current.offset, "cols": settings.colsQueueCurrent}, parseQueue, false);
     }
 }
 
 function parseQueue(obj) {
-    if (obj.result.offset < app.current.page) {
+    if (obj.result.offset < app.current.offset) {
         gotoPage(obj.result.offset);
         return;
     }
@@ -326,8 +326,8 @@ function delQueueSong(mode, start, end) {
 
 //eslint-disable-next-line no-unused-vars
 function gotoPlayingSong() {
-    let page = lastState.songPos < settings.maxElementsPerPage ? 0 : Math.floor(lastState.songPos / settings.maxElementsPerPage) * settings.maxElementsPerPage;
-    gotoPage(page);
+    let offset = lastState.songPos < settings.maxElementsPerPage ? 0 : Math.floor(lastState.songPos / settings.maxElementsPerPage) * settings.maxElementsPerPage;
+    gotoPage(offset);
 }
 
 //eslint-disable-next-line no-unused-vars

@@ -121,7 +121,7 @@ function parsePlaylists(obj) {
 //eslint-disable-next-line no-unused-vars
 function playlistDetails(uri) {
     document.getElementById('BrowsePlaylistsAllList').classList.add('opacity05');
-    appGoto('Browse', 'Playlists', 'Detail', '0', uri, '-', '-', '');
+    appGoto('Browse', 'Playlists', 'Detail', '0', undefined, uri, '-', '-', '');
 }
 
 //eslint-disable-next-line no-unused-vars

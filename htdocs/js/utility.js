@@ -345,7 +345,45 @@ function setPagination(total, returned) {
     if (totalPages === 0) {
         totalPages = 1;
     }
-    const offsetLast = parseInt(app.current.page) + parseInt(settings.maxElementsPerPage);
+    
+    const paginationHTML = '   <button data-title-phrase="Previous page" type="button" class="btn btn-group-prepend btn-secondary">&laquo;</button>' +
+          '   <div class="btn-group">' +
+          '     <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"></button>' +
+          '     <div class="dropdown-menu bg-lite-dark px-2 pages dropdown-menu-right"></div>' +
+          '   </div>' +
+          '   <button data-title-phrase="Next page" type="button" class="btn btn-secondary btn-group-append">&raquo;</button>';
+
+    let bottomBarHTML = '<button type="button" class="btn btn-secondary material-icons" data-title-phrase="To top">keyboard_arrow_up</button>' +
+          ' <div>' +
+          '  <select class="form-control custom-select border-secondary" data-title-phrase="Elements per page">';
+    let nrEls = [25, 50, 100, 200, 0];
+    for (let i of nrEls) {
+        bottomBarHTML += '<option value="' + i + '"' + (app.current.limit === i ? ' selected' : '') + '>' + (i > 0 ? i : t('All')) + '</option>';
+    }
+    
+    bottomBarHTML += '  </select>' +
+          ' </div>' +
+          ' <div id="' + cat + 'PaginationBottom" class="btn-group dropup">' +
+          paginationHTML +
+          ' </div>' +
+          '</div>';
+
+    const bottomBar = document.getElementById(cat + 'ButtonsBottom');
+    bottomBar.innerHTML = bottomBarHTML;
+    
+    const buttons = bottomBar.getElementsByTagName('button');
+    buttons[0].addEventListener('click', function() {
+        event.preventDefault();
+        scrollToPosY(0);
+    }, false);
+    
+    bottomBar.getElementsByTagName('select'),addEventListener('change', function(event) {
+        gotoPage(app.current.offset, parseInt(event.target.value));
+    }, false);
+    
+    document.getElementById(cat + 'PaginationTop').innerHTML = paginationHTML;
+    
+    const offsetLast = app.current.offset + app.current.limit;
     let p = [ document.getElementById(cat + 'PaginationTop'), document.getElementById(cat + 'PaginationBottom') ];
     
     for (let i = 0; i < p.length; i++) {
@@ -354,20 +392,29 @@ function setPagination(total, returned) {
         let pages = p[i].children[1].children[1];
         let next = p[i].children[2];
     
-        page.innerText = (app.current.page / settings.maxElementsPerPage + 1) + ' / ' + totalPages;
+        page.innerText = (app.current.offset / app.current.limit + 1) + ' / ' + totalPages;
         if (totalPages > 1) {
             page.removeAttribute('disabled');
             let pl = '';
             for (let j = 0; j < totalPages; j++) {
-                pl += '<button data-page="' + (j * settings.maxElementsPerPage) + '" type="button" class="mr-1 mb-1 btn-sm btn btn-secondary">' +
+                let o = j * app.current.limit;
+                pl += '<button data-offset="' + o + '" type="button" class="mr-1 mb-1 btn-sm btn btn-secondary' +
+                      ( o == app.current.offset ? ' active' : '') + '">' +
                       ( j + 1) + '</button>';
             }
             pages.innerHTML = pl;
             page.classList.remove('nodropdown');
+            pages.addEventListener('click', function(event) {
+                if (event.target.nodeName === 'BUTTON') {
+                    gotoPage(event.target.getAttribute('data-offset'));
+                }
+            }, false);
+
+            const pagesDropdown = new BSN.Dropdown(page);
         }
         else if (total === -1) {
             page.setAttribute('disabled', 'disabled');
-            page.innerText = (app.current.page / settings.maxElementsPerPage + 1);
+            page.innerText = (app.current.offset / app.current.limit + 1);
             page.classList.add('nodropdown');
         }
         else {
@@ -375,10 +422,14 @@ function setPagination(total, returned) {
             page.classList.add('nodropdown');
         }
         
-        if (total > offsetLast || (total === -1 && returned >= settings.maxElementsPerPage)) {
+        if (total > offsetLast || (total === -1 && returned >= app.current.limit)) {
             next.removeAttribute('disabled');
             p[i].classList.remove('hide');
             document.getElementById(cat + 'ButtonsBottom').classList.remove('hide');
+            next.addEventListener('click', function() {
+                event.preventDefault();
+                gotoPage('next');
+            }, false);
         }
         else {
             next.setAttribute('disabled', 'disabled');
@@ -386,10 +437,14 @@ function setPagination(total, returned) {
             document.getElementById(cat + 'ButtonsBottom').classList.add('hide');
         }
     
-        if (app.current.page > 0) {
+        if (app.current.offset > 0) {
             prev.removeAttribute('disabled');
             p[i].classList.remove('hide');
             document.getElementById(cat + 'ButtonsBottom').classList.remove('hide');
+            prev.addEventListener('click', function() {
+                event.preventDefault();
+                gotoPage('prev');
+            }, false);
         }
         else {
             prev.setAttribute('disabled', 'disabled');
@@ -435,20 +490,23 @@ function parseCmd(event, href) {
     }
 }
 
-function gotoPage(x) {
+function gotoPage(x, limit) {
     switch (x) {
         case 'next':
-            app.current.page = parseInt(app.current.page) + parseInt(settings.maxElementsPerPage);
+            app.current.offset = parseInt(app.current.offset) + parseInt(settings.maxElementsPerPage);
             break;
         case 'prev':
-            app.current.page = parseInt(app.current.page) - parseInt(settings.maxElementsPerPage);
-            if (app.current.page < 0) {
-                app.current.page = 0;
+            app.current.offset = parseInt(app.current.offset) - parseInt(settings.maxElementsPerPage);
+            if (app.current.offset < 0) {
+                app.current.offset = 0;
             }
             break;
         default:
-            app.current.page = x;
+            app.current.offset = x;
+    }
+    if (limit !== undefined) {
+        app.current.limit = limit;
     }
     appGoto(app.current.app, app.current.tab, app.current.view, 
-        app.current.page, app.current.filter, app.current.sort, app.current.tag, app.current.search, 0);
+        app.current.offset, app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search, 0);
 }

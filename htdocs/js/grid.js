@@ -10,14 +10,14 @@ function navigateGrid(grid, keyCode) {
     if (keyCode === 'Enter') {
         if (app.current.app === 'Browse' && app.current.tab === 'Database' && app.current.view === 'List') {
             if (app.current.tag === 'Album') {
-                appGoto('Browse', 'Database', 'Detail', '0','Album','AlbumArtist', 
+                appGoto('Browse', 'Database', 'Detail', '0', undefined, 'Album','AlbumArtist', 
                     decodeURI(grid.getAttribute('data-album')),
                     decodeURI(grid.getAttribute('data-albumartist')));
             }
             else {
                 app.current.search = '';
                 document.getElementById('searchDatabaseStr').value = '';
-                appGoto(app.current.app, app.current.card, undefined, '0', 'Album', 'AlbumArtist', 'Album',
+                appGoto(app.current.app, app.current.card, undefined, '0', undefined, 'Album', 'AlbumArtist', 'Album',
                     '(' + app.current.tag + ' == \'' + decodeURI(grid.getAttribute('data-tag')) + '\')');
             }
             handled = true;

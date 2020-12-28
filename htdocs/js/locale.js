@@ -101,7 +101,7 @@ function gtPage(phrase, returnedEntities, totalEntities) {
     if (totalEntities > -1) {
         return t(phrase, totalEntities);
     }
-    else if (returnedEntities + app.current.page < settings.maxElementsPerPage) {
+    else if (returnedEntities + app.current.offset < settings.maxElementsPerPage) {
         return t(phrase, returnedEntities);
     }
     else {
