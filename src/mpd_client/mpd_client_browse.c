@@ -345,7 +345,13 @@ sds mpd_client_put_firstsong_in_albums(t_config *config, t_mpd_client_state *mpd
         return buffer;
     }
     
-    sds expression = sdscatprintf(sdsempty(), "((Track == '%d') AND (Album != '') AND (Artist != '')", config->covergridminsongs);
+    sds expression = sdscatprintf(sdsempty(), "((Track == '%d') AND (Album != '')", config->covergridminsongs);
+    if (mpd_shared_tag_exists(mpd_client_state->mpd_state->mympd_tag_types.tags, mpd_client_state->mpd_state->mympd_tag_types.len, MPD_TAG_ALBUM_ARTIST) == true) {
+        expression = sdscat(expression, " AND (AlbumArtist != '')");
+    }
+    else if (mpd_shared_tag_exists(mpd_client_state->mpd_state->mympd_tag_types.tags, mpd_client_state->mpd_state->mympd_tag_types.len, MPD_TAG_ARTIST) == true) {
+        expression = sdscat(expression, " AND (Artist != '')");
+    }
     if (mpd_shared_tag_exists(mpd_client_state->mpd_state->mympd_tag_types.tags, mpd_client_state->mpd_state->mympd_tag_types.len, MPD_TAG_DISC) == true) {
         expression = sdscat(expression, " AND (Disc == '1')");
     }
