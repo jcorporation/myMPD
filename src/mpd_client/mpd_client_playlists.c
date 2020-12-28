@@ -53,7 +53,7 @@ void mpd_client_smartpls_update_all(void) {
 }
 
 sds mpd_client_put_playlists(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id,
-                             const unsigned int offset, const char *searchstr, bool paginated) 
+                             const unsigned int offset, const unsigned int limit, const char *searchstr) 
 {
     bool rc = mpd_send_list_playlists(mpd_client_state->mpd_state->conn);
     if (check_rc_error_and_recover(mpd_client_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_send_list_playlists") == false) {
@@ -86,9 +86,7 @@ sds mpd_client_put_playlists(t_config *config, t_mpd_client_state *mpd_client_st
     struct list_node *current = entity_list.head;
     while (current != NULL) {
         entity_count++;
-        if ((entity_count > offset && entity_count <= offset + mpd_client_state->max_elements_per_page) ||
-            paginated == false) 
-        {
+        if (entity_count > offset && (entity_count <= offset + limit || limit == 0)) {
             if (entities_returned++) {
                 buffer = sdscat(buffer,",");
             }
@@ -115,7 +113,7 @@ sds mpd_client_put_playlists(t_config *config, t_mpd_client_state *mpd_client_st
 }
 
 sds mpd_client_put_playlist_list(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id,
-                                 const char *uri, const unsigned int offset, const char *searchstr, const t_tags *tagcols)
+                                 const char *uri, const unsigned int offset, const unsigned int limit, const char *searchstr, const t_tags *tagcols)
 {
     bool rc = mpd_send_list_playlist_meta(mpd_client_state->mpd_state->conn, uri);
     if (check_rc_error_and_recover(mpd_client_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_send_list_playlist_meta") == false) {
@@ -132,7 +130,7 @@ sds mpd_client_put_playlist_list(t_config *config, t_mpd_client_state *mpd_clien
     size_t search_len = strlen(searchstr);
     while ((song = mpd_recv_song(mpd_client_state->mpd_state->conn)) != NULL) {
         entity_count++;
-        if (entity_count > offset && entity_count <= offset + mpd_client_state->max_elements_per_page) {
+        if (entity_count > offset && (entity_count <= offset + limit || limit == 0)) {
             entityName = mpd_shared_get_tags(song, MPD_TAG_TITLE, entityName);
             if (search_len == 0  || strcasestr(entityName, searchstr) != NULL) {
                 if (entities_returned++) {

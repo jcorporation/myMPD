@@ -952,7 +952,7 @@ function appInit() {
         document.getElementById('inputAddToQueueQuantity').classList.remove('is-invalid');
         document.getElementById('warnJukeboxPlaylist2').classList.add('hide');
         if (settings.featPlaylists === true) {
-            sendAPI("MPD_API_PLAYLIST_LIST_ALL", {"searchstr": ""}, function(obj) { 
+            sendAPI("MPD_API_PLAYLIST_LIST", {"searchstr": "", "offset": 0, "limit": 0}, function(obj) { 
                 getAllPlaylists(obj, 'selectAddToQueuePlaylist');
             });
         }

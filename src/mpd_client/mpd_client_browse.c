@@ -14,6 +14,7 @@
 #include <ctype.h>
 #include <dirent.h>
 #include <inttypes.h>
+#include <limits.h>
 #include <mpd/client.h>
 
 #include "../../dist/src/sds/sds.h"
@@ -105,7 +106,7 @@ sds mpd_client_put_songdetails(t_mpd_client_state *mpd_client_state, sds buffer,
 }
 
 sds mpd_client_put_filesystem(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, 
-                              const char *path, const unsigned int offset, const char *searchstr, const t_tags *tagcols)
+                              const char *path, const unsigned int offset, const unsigned int limit, const char *searchstr, const t_tags *tagcols)
 {
     bool rc = mpd_send_list_meta(mpd_client_state->mpd_state->conn, path);
     if (check_rc_error_and_recover(mpd_client_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_send_list_meta") == false) {
@@ -192,7 +193,7 @@ sds mpd_client_put_filesystem(t_config *config, t_mpd_client_state *mpd_client_s
     struct list_node *current = entity_list.head;
     while (current != NULL) {
         entity_count++;
-        if (entity_count > offset && entity_count <= offset + mpd_client_state->max_elements_per_page) {
+        if (entity_count > offset && (entity_count <= offset + limit || limit == 0)) {
             if (entities_returned++) {
                 buffer = sdscat(buffer, ",");
             }
@@ -334,7 +335,7 @@ sds mpd_client_put_songs_in_album(t_mpd_client_state *mpd_client_state, sds buff
 }
 
 sds mpd_client_put_firstsong_in_albums(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, 
-                                       const char *searchstr, const char *filter, const char *sort, bool sortdesc, const unsigned int offset)
+                                       const char *searchstr, const char *filter, const char *sort, bool sortdesc, const unsigned int offset, unsigned int limit)
 {
     buffer = jsonrpc_start_result(buffer, method, request_id);
     buffer = sdscat(buffer, ",\"data\":[");
@@ -389,7 +390,10 @@ sds mpd_client_put_firstsong_in_albums(t_config *config, t_mpd_client_state *mpd
         }
     }
     
-    rc = mpd_search_add_window(mpd_client_state->mpd_state->conn, offset, offset + mpd_client_state->max_elements_per_page);
+    if (limit == 0) {
+        limit = UINT_MAX - offset;
+    }
+    rc = mpd_search_add_window(mpd_client_state->mpd_state->conn, offset, offset + limit);
     if (check_rc_error_and_recover(mpd_client_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_window") == false) {
         mpd_search_cancel(mpd_client_state->mpd_state->conn);
         return buffer;
@@ -441,7 +445,7 @@ sds mpd_client_put_firstsong_in_albums(t_config *config, t_mpd_client_state *mpd
 }
 
 sds mpd_client_put_db_tag2(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, 
-                           const char *searchstr, const char *filter, const char *sort, bool sortdesc, const unsigned int offset, const char *tag)
+                           const char *searchstr, const char *filter, const char *sort, bool sortdesc, const unsigned int offset, const unsigned int limit, const char *tag)
 {
     (void) sort;
     (void) sortdesc;
@@ -466,7 +470,7 @@ sds mpd_client_put_db_tag2(t_config *config, t_mpd_client_state *mpd_client_stat
     enum mpd_tag_type mpdtag = mpd_tag_name_parse(tag);
     while ((pair = mpd_recv_pair_tag(mpd_client_state->mpd_state->conn, mpdtag)) != NULL) {
         entity_count++;
-        if (entity_count > offset && entity_count <= offset + mpd_client_state->max_elements_per_page) {
+        if (entity_count > offset && (entity_count <= offset + limit || limit == 0)) {
             if (strcmp(pair->value, "") == 0) {
                 entity_count--;
             }

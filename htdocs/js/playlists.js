@@ -365,7 +365,7 @@ function showAddToPlaylist(uri, searchstr) {
     }
     modalAddToPlaylist.show();
     if (settings.featPlaylists) {
-        sendAPI("MPD_API_PLAYLIST_LIST_ALL", {"searchstr": ""}, function(obj) {
+        sendAPI("MPD_API_PLAYLIST_LIST", {"searchstr": "", "offset": 0, "limit": 0}, function(obj) {
             getAllPlaylists(obj, 'addToPlaylistPlaylist');
         });
     }

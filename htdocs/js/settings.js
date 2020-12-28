@@ -622,7 +622,7 @@ function parseMPDSettings() {
     }
     
     if (settings.featPlaylists === true) {
-        sendAPI("MPD_API_PLAYLIST_LIST_ALL", {"searchstr": ""}, function(obj) {
+        sendAPI("MPD_API_PLAYLIST_LIST", {"searchstr": "", "offset": 0, "limit": 0}, function(obj) {
             getAllPlaylists(obj, 'selectJukeboxPlaylist', settings.jukeboxPlaylist);
         });
     }

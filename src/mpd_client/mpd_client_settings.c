@@ -162,14 +162,6 @@ bool mpd_api_settings_set(t_config *config, t_mpd_client_state *mpd_client_state
     else if (strncmp(key->ptr, "generatePlsTags", key->len) == 0) {
         mpd_client_state->generate_pls_tags = sdsreplacelen(mpd_client_state->generate_pls_tags, settingvalue, sdslen(settingvalue));
     }
-    else if (strncmp(key->ptr, "maxElementsPerPage", key->len) == 0) {
-        int max_elements_per_page = strtoimax(settingvalue, &crap, 10);
-        if (max_elements_per_page <= 0 || max_elements_per_page > 999) {
-            sdsfree(settingvalue);
-            return false;
-        }
-        mpd_client_state->max_elements_per_page = max_elements_per_page;
-    }
     else if (strncmp(key->ptr, "lastPlayedCount", key->len) == 0) {
         int last_played_count = strtoimax(settingvalue, &crap, 10);
         if (last_played_count <= 0) {

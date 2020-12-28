@@ -168,20 +168,20 @@ function webSocketConnect() {
                     break;
                 case 'update_stored_playlist':
                     if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'All') {
-                        sendAPI("MPD_API_PLAYLIST_LIST", {"offset": app.current.offset, "searchstr": app.current.search}, parsePlaylists);
+                        sendAPI("MPD_API_PLAYLIST_LIST", {"offset": app.current.offset, "limit": app.current.limit, "searchstr": app.current.search}, parsePlaylists);
                     }
                     else if (app.current.app === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'Detail') {
-                        sendAPI("MPD_API_PLAYLIST_CONTENT_LIST", {"offset": app.current.offset, "searchstr": app.current.search, "uri": app.current.filter, "cols": settings.colsBrowsePlaylistsDetail}, parsePlaylists);
+                        sendAPI("MPD_API_PLAYLIST_CONTENT_LIST", {"offset": app.current.offset, "limit": app.current.limit, "searchstr": app.current.search, "uri": app.current.filter, "cols": settings.colsBrowsePlaylistsDetail}, parsePlaylists);
                     }
                     break;
                 case 'update_lastplayed':
                     if (app.current.app === 'Queue' && app.current.tab === 'LastPlayed') {
-                        sendAPI("MPD_API_QUEUE_LAST_PLAYED", {"offset": app.current.offset, "cols": settings.colsQueueLastPlayed}, parseLastPlayed);
+                        sendAPI("MPD_API_QUEUE_LAST_PLAYED", {"offset": app.current.offset, "limit": app.current.limit, "cols": settings.colsQueueLastPlayed}, parseLastPlayed);
                     }
                     break;
                 case 'update_jukebox':
                     if (app.current.app === 'Queue' && app.current.tab === 'Jukebox') {
-                        sendAPI("MPD_API_JUKEBOX_LIST", {"offset": app.current.offset, "cols": settings.colsQueueJukebox}, parseJukeboxList);
+                        sendAPI("MPD_API_JUKEBOX_LIST", {"offset": app.current.offset, "limit": app.current.limit, "cols": settings.colsQueueJukebox}, parseJukeboxList);
                     }
                     break;
                 case 'error':

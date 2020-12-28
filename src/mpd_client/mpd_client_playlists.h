@@ -7,9 +7,9 @@
 #ifndef __MPD_CLIENT_PLAYLISTS_H__
 #define __MPD_CLIENT_PLAYLISTS_H__
 sds mpd_client_put_playlists(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id,
-                             const unsigned int offset, const char *searchstr, bool paginated);
+                             const unsigned int offset, const unsigned int limit, const char *searchstr);
 sds mpd_client_put_playlist_list(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id,
-                                 const char *uri, const unsigned int offset, const char *searchstr, const t_tags *tagcols);
+                                 const char *uri, const unsigned int offset, const unsigned int limit, const char *searchstr, const t_tags *tagcols);
 sds mpd_client_playlist_delete(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id,
                                const char *playlist);
 sds mpd_client_playlist_rename(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id,

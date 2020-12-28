@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <limits.h>
 #include <mpd/client.h>
 
 #include "../../dist/src/sds/sds.h"
@@ -128,7 +129,7 @@ sds mpd_client_put_queue_state(struct mpd_status *status, sds buffer) {
 }
 
 sds mpd_client_put_queue(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id,
-                         unsigned int offset, const t_tags *tagcols)
+                         unsigned int offset, unsigned int limit, const t_tags *tagcols)
 {
     struct mpd_status *status = mpd_run_status(mpd_client_state->mpd_state->conn);
     if (status == NULL) {
@@ -139,8 +140,11 @@ sds mpd_client_put_queue(t_mpd_client_state *mpd_client_state, sds buffer, sds m
     if (offset >= mpd_status_get_queue_length(status)) {
         offset = 0;
     }
-        
-    bool rc = mpd_send_list_queue_range_meta(mpd_client_state->mpd_state->conn, offset, offset + mpd_client_state->max_elements_per_page);
+    
+    if (limit == 0) {
+        limit = UINT_MAX - offset;
+    }
+    bool rc = mpd_send_list_queue_range_meta(mpd_client_state->mpd_state->conn, offset, offset + limit);
     if (check_rc_error_and_recover(mpd_client_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_send_list_queue_range_meta") == false) {
         return buffer;
     }
@@ -229,7 +233,7 @@ sds mpd_client_crop_queue(t_mpd_client_state *mpd_client_state, sds buffer, sds 
 }
 
 sds mpd_client_search_queue(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id,
-                            const char *mpdtagtype, const unsigned int offset, const char *searchstr, const t_tags *tagcols)
+                            const char *mpdtagtype, const unsigned int offset, const unsigned int limit, const char *searchstr, const t_tags *tagcols)
 {
     bool rc = mpd_search_queue_songs(mpd_client_state->mpd_state->conn, false);
     if (check_rc_error_and_recover(mpd_client_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_queue_songs") == false) {
@@ -263,7 +267,7 @@ sds mpd_client_search_queue(t_mpd_client_state *mpd_client_state, sds buffer, sd
     unsigned entities_returned = 0;
     while ((song = mpd_recv_song(mpd_client_state->mpd_state->conn)) != NULL) {
         entity_count++;
-        if (entity_count > offset && entity_count <= offset + mpd_client_state->max_elements_per_page) {
+        if (entity_count > offset && (entity_count <= offset + limit || limit == 0)) {
             if (entities_returned++) {
                 buffer= sdscat(buffer, ",");
             }

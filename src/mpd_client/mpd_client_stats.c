@@ -125,7 +125,7 @@ bool mpd_client_add_song_to_last_played_list(t_config *config, t_mpd_client_stat
 }
 
 sds mpd_client_put_last_played_songs(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, 
-                                     unsigned int offset, const t_tags *tagcols)
+                                     const unsigned int offset, const unsigned int limit, const t_tags *tagcols)
 {
     unsigned entity_count = 0;
     unsigned entities_returned = 0;
@@ -137,7 +137,7 @@ sds mpd_client_put_last_played_songs(t_config *config, t_mpd_client_state *mpd_c
         struct list_node *current = mpd_client_state->last_played.head;
         while (current != NULL) {
             entity_count++;
-            if (entity_count > offset && entity_count <= offset + mpd_client_state->max_elements_per_page) {
+            if (entity_count > offset && (entity_count <= offset + limit || limit == 0)) {
                 if (entities_returned++) {
                     buffer = sdscat(buffer, ",");
                 }
@@ -157,7 +157,7 @@ sds mpd_client_put_last_played_songs(t_config *config, t_mpd_client_state *mpd_c
         if (fp != NULL) {
             while (getline(&line, &n, fp) > 0) {
                 entity_count++;
-                if (entity_count > offset && entity_count <= offset + mpd_client_state->max_elements_per_page) {
+                if (entity_count > offset && (entity_count <= offset + limit || limit == 0)) {
                     int value = strtoimax(line, &data, 10);
                     if (strlen(data) > 2) {
                         data = data + 2;
