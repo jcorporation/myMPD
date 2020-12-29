@@ -597,7 +597,7 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
             t_tags *tagcols = (t_tags *)malloc(sizeof(t_tags));
             assert(tagcols);
             je = json_scanf(request->data, sdslen(request->data), "{params: {uri: %Q, offset: %u, limit: %u searchstr: %Q, cols: %M}}", 
-                &p_charbuf1, &uint_buf1, &p_charbuf2, json_to_tags, tagcols);
+                &p_charbuf1, &uint_buf1, &uint_buf2, &p_charbuf2, json_to_tags, tagcols);
             if (je == 5) {
                 response->data = mpd_client_put_playlist_list(config, mpd_client_state, response->data, request->method, request->id, p_charbuf1, uint_buf1, uint_buf2, p_charbuf2, tagcols);
             }
@@ -754,7 +754,7 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
                     check_error_and_recover(mpd_client_state->mpd_state, NULL, NULL, 0);
                 }
                 response->data = mpd_shared_search(mpd_client_state->mpd_state, response->data, request->method, request->id, 
-                    p_charbuf1, p_charbuf2, p_charbuf3, uint_buf1, tagcols, uint_buf2);
+                    p_charbuf1, p_charbuf2, p_charbuf3, uint_buf1, uint_buf2, tagcols);
             }
             free(tagcols);
             break;
@@ -773,7 +773,7 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
                     check_error_and_recover(mpd_client_state->mpd_state, NULL, NULL, 0);
                 }
                 response->data = mpd_shared_search_adv(mpd_client_state->mpd_state, response->data, request->method, request->id, 
-                    p_charbuf1, p_charbuf2, bool_buf1, NULL, p_charbuf3, uint_buf1, tagcols, uint_buf2);
+                    p_charbuf1, p_charbuf2, bool_buf1, NULL, p_charbuf3, uint_buf1, uint_buf2, tagcols);
             }
             free(tagcols);
             break;

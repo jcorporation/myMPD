@@ -69,10 +69,10 @@ function parseUpdateQueue(obj) {
 
 function getQueue() {
     if (app.current.search.length >= 2) {
-        sendAPI("MPD_API_QUEUE_SEARCH", {"filter": app.current.filter, "offset": app.current.offset, "searchstr": app.current.search, "cols": settings.colsQueueCurrent}, parseQueue, false);
+        sendAPI("MPD_API_QUEUE_SEARCH", {"filter": app.current.filter, "offset": app.current.offset, "limit": app.current.limit, "searchstr": app.current.search, "cols": settings.colsQueueCurrent}, parseQueue, false);
     }
     else {
-        sendAPI("MPD_API_QUEUE_LIST", {"offset": app.current.offset, "cols": settings.colsQueueCurrent}, parseQueue, false);
+        sendAPI("MPD_API_QUEUE_LIST", {"offset": app.current.offset, "limit": app.current.limit, "cols": settings.colsQueueCurrent}, parseQueue, false);
     }
 }
 
