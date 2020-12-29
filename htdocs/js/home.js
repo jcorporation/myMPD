@@ -21,7 +21,14 @@ function parseHome(obj) {
         if (obj.result.data[i].Album === '') {
             obj.result.data[i].Album = t('Unknown album');
         }
-        const href=JSON.stringify({"cmd": obj.result.data[i].cmd, "options": obj.result.data[i].options});
+        //Workarround for 6.10 change (add limit parameter)
+        if (obj.result.data[i].cmd === 'appGoto') {
+            if (obj.result.data[i].options.length === 8) {
+                obj.result.data[i].options.splice(4, 0, settings.maxElementsPerPage);
+            }
+        }
+        
+        const href = JSON.stringify({"cmd": obj.result.data[i].cmd, "options": obj.result.data[i].options});
         const html = '<div class="card home-icons clickable" draggable="true" tabindex="0" data-pos="' + i + '" data-href=\'' + 
                    e(href) + '\'  title="' + e(obj.result.data[i].name) + '">' +
                    '<div class="card-body material-icons">' + e(obj.result.data[i].ligature) + '</div>' +
@@ -196,6 +203,13 @@ function _editHomeIcon(pos, replace, title) {
         document.getElementById('inputHomeIconBgcolor').value = obj.result.data.bgcolor;
         document.getElementById('selectHomeIconCmd').value = obj.result.data.cmd;
 
+        //Workarround for 6.10 change (add limit parameter)
+        if (obj.result.data.cmd === 'appGoto') {
+            if (obj.result.data.options.length === 8) {
+                obj.result.data.options.splice(4, 0, settings.maxElementsPerPage);
+            }
+        }
+
         showHomeIconCmdOptions(obj.result.data.options);
         getHomeIconPictureList(obj.result.data.image);
 
@@ -258,7 +272,7 @@ function deleteHomeIcon(pos) {
 
 function showHomeIconCmdOptions(values) {
     let list = '';
-    const optionsText =getSelectedOptionAttribute('selectHomeIconCmd', 'data-options')
+    const optionsText = getSelectedOptionAttribute('selectHomeIconCmd', 'data-options')
     if (optionsText !== undefined) {    
         const options = JSON.parse(optionsText);
         for (let i = 0; i < options.options.length; i++) {
