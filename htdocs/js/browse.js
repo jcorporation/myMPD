@@ -361,6 +361,7 @@ function parseAlbumDetails(obj) {
     const coverEl = document.getElementById('viewDetailDatabaseCover');
     coverEl.style.backgroundImage = 'url("' + subdir + '/albumart/' + obj.result.data[0].uri + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
     coverEl.setAttribute('data-images', obj.result.images.join(';;'));
+    coverEl.setAttribute('data-uri', obj.result.data[0].uri);
     const infoEl = document.getElementById('viewDetailDatabaseInfo');
     infoEl.innerHTML = '<h1>' + e(obj.result.Album) + '</h1>' +
         '<small> ' + t('AlbumArtist') + '</small><p>' + e(obj.result.AlbumArtist) + '</p>' +
