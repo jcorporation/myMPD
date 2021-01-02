@@ -378,8 +378,11 @@ function setPagination(total, returned) {
         scrollToPosY(0);
     }, false);
     
-    bottomBar.getElementsByTagName('select'),addEventListener('change', function(event) {
-        gotoPage(app.current.offset, parseInt(event.target.value));
+    bottomBar.getElementsByTagName('select')[0].addEventListener('change', function(event) {
+        const newLimit = parseInt(getSelectValue(event.target));
+        if (app.current.limit !== newLimit) {
+            gotoPage(app.current.offset, newLimit);
+        }
     }, false);
     
     document.getElementById(cat + 'PaginationTop').innerHTML = paginationHTML;

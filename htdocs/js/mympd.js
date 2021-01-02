@@ -1575,18 +1575,14 @@ function appInit() {
             }
         }, false);
     }
-    
-    document.getElementById('search').addEventListener('submit', function() {
-        return false;
-    }, false);
 
-    document.getElementById('searchqueue').addEventListener('submit', function() {
-        return false;
-    }, false);
-    
-    document.getElementById('searchdatabase').addEventListener('submit', function() {
-        return false;
-    }, false);
+
+    const noFormSubmit = ['search', 'searchqueue', 'searchdatabase'];
+    for (let i = 0; i < noFormSubmit.length; i++) {
+        document.getElementById(noFormSubmit[i]).addEventListener('submit', function(event) {
+            event.preventDefault();
+        }, false);
+    }
 
     document.getElementById('searchDatabaseStr').addEventListener('keyup', function(event) {
         if (event.key === 'Escape') {
