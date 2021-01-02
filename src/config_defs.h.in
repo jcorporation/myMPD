@@ -126,7 +126,6 @@ typedef struct t_config {
     bool timer;
     bool sticker_cache;
     sds generate_pls_tags;
-    int covergridminsongs;
     sds booklet_name;
     bool mounts;
     bool lyrics;

@@ -14,9 +14,9 @@
 #include <ctype.h>
 #include <dirent.h>
 #include <inttypes.h>
-#include <limits.h>
 #include <mpd/client.h>
 
+#include "../../dist/src/rax/rax.h"
 #include "../../dist/src/sds/sds.h"
 #include "../sds_extras.h"
 #include "../list.h"
@@ -334,7 +334,7 @@ sds mpd_client_put_songs_in_album(t_mpd_client_state *mpd_client_state, sds buff
     return buffer;    
 }
 
-sds mpd_client_put_firstsong_in_albums(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, 
+sds mpd_client_put_firstsong_in_albums(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, 
                                        const char *searchstr, const char *filter, const char *sort, bool sortdesc, const unsigned int offset, unsigned int limit)
 {
     buffer = jsonrpc_start_result(buffer, method, request_id);
@@ -345,29 +345,33 @@ sds mpd_client_put_firstsong_in_albums(t_config *config, t_mpd_client_state *mpd
         mpd_search_cancel(mpd_client_state->mpd_state->conn);
         return buffer;
     }
-    
-    sds expression = sdscatprintf(sdsempty(), "((Track == '%d') AND (Album != '')", config->covergridminsongs);
+
+    sds expression = sdscatfmt(sdsempty(), "((Album != '')");
     if (mpd_shared_tag_exists(mpd_client_state->mpd_state->mympd_tag_types.tags, mpd_client_state->mpd_state->mympd_tag_types.len, MPD_TAG_ALBUM_ARTIST) == true) {
         expression = sdscat(expression, " AND (AlbumArtist != '')");
     }
     else if (mpd_shared_tag_exists(mpd_client_state->mpd_state->mympd_tag_types.tags, mpd_client_state->mpd_state->mympd_tag_types.len, MPD_TAG_ARTIST) == true) {
         expression = sdscat(expression, " AND (Artist != '')");
     }
-    if (mpd_shared_tag_exists(mpd_client_state->mpd_state->mympd_tag_types.tags, mpd_client_state->mpd_state->mympd_tag_types.len, MPD_TAG_DISC) == true) {
-        expression = sdscat(expression, " AND (Disc == '1')");
+    else {
+        buffer = jsonrpc_respond_message(buffer, method, request_id, "Either AlbumArtist or Artist tag must be enabled", true);
+        sdsfree(expression);
+        mpd_search_cancel(mpd_client_state->mpd_state->conn);
+        return buffer;
     }
+
     if (strlen(searchstr) > 0 && searchstr[0] == '(') {
         expression = sdscat(expression, " AND ");
         expression = sdscat(expression, searchstr);
     }
     expression = sdscat(expression, ")");
-    
     rc = mpd_search_add_expression(mpd_client_state->mpd_state->conn, expression);
     sdsfree(expression);
     if (check_rc_error_and_recover(mpd_client_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_expression") == false) {
         mpd_search_cancel(mpd_client_state->mpd_state->conn);
         return buffer;
     }
+
     if (strlen(sort) > 0) {
         enum mpd_tag_type sort_tag = mpd_tag_name_parse(sort);
         if (sort_tag != MPD_TAG_UNKNOWN) {
@@ -390,41 +394,42 @@ sds mpd_client_put_firstsong_in_albums(t_config *config, t_mpd_client_state *mpd
         }
     }
     
-    if (limit == 0) {
-        limit = UINT_MAX - offset;
-    }
-    rc = mpd_search_add_window(mpd_client_state->mpd_state->conn, offset, offset + limit);
-    if (check_rc_error_and_recover(mpd_client_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_window") == false) {
-        mpd_search_cancel(mpd_client_state->mpd_state->conn);
-        return buffer;
-    }
-    
     rc = mpd_search_commit(mpd_client_state->mpd_state->conn);
     if (check_rc_error_and_recover(mpd_client_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_commit") == false) {
         return buffer;
     }
 
     struct mpd_song *song;
-    int entity_count = 0;
-    int entities_returned = 0;
+    unsigned entity_count = 0;
+    unsigned entities_returned = 0;
     sds album = sdsempty();
     sds artist = sdsempty();
+    sds key = sdsempty();
+    rax *rt = raxNew();
     while ((song = mpd_recv_song(mpd_client_state->mpd_state->conn)) != NULL) {
         album = mpd_shared_get_tags(song, MPD_TAG_ALBUM, album);
         artist = mpd_shared_get_tags(song, MPD_TAG_ALBUM_ARTIST, artist);
-        entity_count++;
-        if (entities_returned++) {
-            buffer = sdscat(buffer, ",");
+        sdsclear(key);
+        key = sdscatfmt(key, "%s:%s", artist, album);
+        if (raxTryInsert(rt, (unsigned char*)key, sdslen(key), NULL, NULL) == 1) {
+            entity_count++;
+            if (entity_count > offset && (entity_count <= offset + limit || limit == 0)) {
+                if (entities_returned++) {
+                    buffer = sdscat(buffer, ",");
+                }
+                buffer = sdscat(buffer, "{\"Type\": \"album\",");
+                buffer = tojson_char(buffer, "Album", album, true);
+                buffer = tojson_char(buffer, "AlbumArtist", artist, true);
+                buffer = tojson_char(buffer, "FirstSongUri", mpd_song_get_uri(song), false);
+                buffer = sdscat(buffer, "}");
+            }
         }
-        buffer = sdscat(buffer, "{\"Type\": \"album\",");
-        buffer = tojson_char(buffer, "Album", album, true);
-        buffer = tojson_char(buffer, "AlbumArtist", artist, true);
-        buffer = tojson_char(buffer, "FirstSongUri", mpd_song_get_uri(song), false);
-        buffer = sdscat(buffer, "}");
         mpd_song_free(song);
     }
     sdsfree(album);
     sdsfree(artist);
+    sdsfree(key);
+    raxFree(rt);
     mpd_response_finish(mpd_client_state->mpd_state->conn);
     if (check_error_and_recover2(mpd_client_state->mpd_state, &buffer, method, request_id, false) == false) {
         return buffer;
