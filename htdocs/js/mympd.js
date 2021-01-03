@@ -1604,20 +1604,18 @@ function appInit() {
     }, false);
 
     document.getElementById('searchDatabaseCrumb').addEventListener('click', function(event) {
-        event.preventDefault();
-        event.stopPropagation();
         if (event.target.nodeName === 'SPAN') {
+            event.preventDefault();
+            event.stopPropagation();
             event.target.parentNode.remove();
             searchAlbumgrid('');
         }
         else if (event.target.nodeName === 'BUTTON') {
-            let value = decodeURI(event.target.getAttribute('data-filter'));
-            document.getElementById('searchDatabaseStr').value = value.substring(value.indexOf('\'') + 1, value.length - 1);
-            let match = value.substring(value.indexOf(' ') + 1);
-            match = match.substring(0, match.indexOf(' '));
-            document.getElementById('searchDatabaseMatch').value = match;
-            let filter = value.substring(0, value.indexOf(' '));
-            selectTag('searchDatabaseTags', 'searchDatabaseTagsDesc', filter);
+            event.preventDefault();
+            event.stopPropagation();
+            selectTag('searchDatabaseTags', 'searchDatabaseTagsDesc', decodeURI(event.target.getAttribute('data-filter-tag')));
+            document.getElementById('searchDatabaseStr').value = unescapeMPD(decodeURI(event.target.getAttribute('data-filter-value')));
+            document.getElementById('searchDatabaseMatch').value = decodeURI(event.target.getAttribute('data-filter-op'));
             event.target.remove();
             searchAlbumgrid(document.getElementById('searchDatabaseStr').value);
         }
@@ -1658,13 +1656,9 @@ function appInit() {
         else if (event.target.nodeName === 'BUTTON') {
             event.preventDefault();
             event.stopPropagation();
-            let value = decodeURI(event.target.getAttribute('data-filter'));
-            domCache.searchstr.value = value.substring(value.indexOf('\'') + 1, value.length - 1);
-            let filter = value.substring(0, value.indexOf(' '));
-            selectTag('searchtags', 'searchtagsdesc', filter);
-            let match = value.substring(value.indexOf(' ') + 1);
-            match = match.substring(0, match.indexOf(' '));
-            document.getElementById('searchMatch').value = match;
+            domCache.searchstr.value = unescapeMPD(decodeURI(event.target.getAttribute('data-filter-value')));
+            selectTag('searchtags', 'searchtagsdesc', decodeURI(event.target.getAttribute('data-filter-tag')));
+            document.getElementById('searchMatch').value = decodeURI(event.target.getAttribute('data-filter-op'));
             event.target.remove();
             doSearch(domCache.searchstr.value);
         }
