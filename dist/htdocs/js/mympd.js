@@ -680,7 +680,7 @@ function addAlbum(action) {
 }
 
 function _addAlbum(action, albumArtist, album) {
-    const expression = '((Album == \'' + album + '\') AND (' + tagAlbumArtist + ' == \'' + albumArtist + '\'))';
+    const expression = '((Album == \'' + escapeMPD(album) + '\') AND (' + tagAlbumArtist + ' == \'' + escapeMPD(albumArtist) + '\'))';
     if (action === 'appendQueue') {
         addAllFromSearchPlist('queue', expression, false);
     }
@@ -699,14 +699,16 @@ function searchAlbumgrid(x) {
         if (i > 0) {
             expression += ' AND ';
         }
-        expression += '(' + decodeURI(crumbs[i].getAttribute('data-filter')) + ')';
+        expression += '(' + decodeURI(crumbs[i].getAttribute('data-filter-tag')) + ' ' + 
+            decodeURI(crumbs[i].getAttribute('data-filter-op')) + ' \'' + 
+            escapeMPD(decodeURI(crumbs[i].getAttribute('data-filter-value'))) + '\')';
     }
     if (x !== '') {
         if (expression !== '') {
             expression += ' AND ';
         }
         let match = document.getElementById('searchDatabaseMatch');
-        expression += '(' + app.current.filter + ' ' + match.options[match.selectedIndex].value + ' \'' + x +'\')';
+        expression += '(' + app.current.filter + ' ' + match.options[match.selectedIndex].value + ' \'' + escapeMPD(x) +'\')';
     }
     
     if (expression.length <= 2) {
@@ -2304,18 +2306,23 @@ function appRoute() {
             let crumbs = '';
             let elements = app.current.search.split(' AND ');
             for (let i = 0; i < elements.length - 1 ; i++) {
-                let value = elements[i].substring(1, elements[i].length - 1);
-                crumbs += '<button data-filter="' + encodeURI(value) + '" class="btn btn-light mr-2">' + e(value) + '<span class="badge badge-secondary">&times</span></button>';
+                let expression = elements[i].substring(1, elements[i].length - 1);
+                let fields = expression.match(/^(\w+)\s+(\S+)\s+'(.*)'$/);
+                crumbs += '<button data-filter-tag="' + encodeURI(fields[1]) + '" ' +
+                    'data-filter-op="' + encodeURI(fields[2]) + '" ' +
+                    'data-filter-value="' + encodeURI(unescapeMPD(fields[3])) + '" class="btn btn-light mr-2">' + e(expression) + '<span class="badge badge-secondary">&times</span></button>';
             }
             crumbEl.innerHTML = crumbs;
             if (searchEl.value === '' && elements.length >= 1) {
-                let lastEl = elements[elements.length - 1].substring(1,  elements[elements.length - 1].length - 1);
+                let lastEl = elements[elements.length - 1].substring(1, elements[elements.length - 1].length - 1);
                 let lastElValue = lastEl.substring(lastEl.indexOf('\'') + 1, lastEl.length - 1);
                 if (searchEl.value !== lastElValue) {
-                    crumbEl.innerHTML += '<button data-filter="' + encodeURI(lastEl) +'" class="btn btn-light mr-2">' + e(lastEl) + '<span class="badge badge-secondary">&times;</span></button>';
+                    let fields = lastEl.match(/^(\w+)\s+(\S+)\s+'(.*)'$/);
+                    crumbEl.innerHTML += '<button data-filter-tag="' + encodeURI(fields[1]) + '" ' +
+                        'data-filter-op="' + encodeURI(fields[2]) + '" ' +
+                        'data-filter-value="' + encodeURI(unescapeMPD(fields[3])) + '" class="btn btn-light mr-2">' + e(lastEl) + '<span class="badge badge-secondary">&times</span></button>';
                 }
                 document.getElementById('searchDatabaseMatch').value = 'contains';
-                //selectTag('searchDatabaseTags', 'searchDatabaseTagsDesc', 'Album');
             }
             crumbEl.classList.remove('hide');
             document.getElementById('searchDatabaseMatch').classList.remove('hide');
@@ -2353,15 +2360,21 @@ function appRoute() {
             let crumbs = '';
             let elements = app.current.search.substring(1, app.current.search.length - 1).split(' AND ');
             for (let i = 0; i < elements.length - 1 ; i++) {
-                let value = elements[i].substring(1, elements[i].length - 1);
-                crumbs += '<button data-filter="' + encodeURI(value) + '" class="btn btn-light mr-2">' + e(value) + '<span class="badge badge-secondary">&times</span></button>';
+                let expression = elements[i].substring(1, elements[i].length - 1);
+                let fields = expression.match(/^(\w+)\s+(\S+)\s+'(.*)'$/);
+                crumbs += '<button data-filter-tag="' + encodeURI(fields[1]) + '" ' +
+                    'data-filter-op="' + encodeURI(fields[2]) + '" ' +
+                    'data-filter-value="' + encodeURI(unescapeMPD(fields[3])) + '" class="btn btn-light mr-2">' + e(expression) + '<span class="badge badge-secondary">&times</span></button>';
             }
             domCache.searchCrumb.innerHTML = crumbs;
             if (domCache.searchstr.value === '' && elements.length >= 1) {
                 let lastEl = elements[elements.length - 1].substring(1,  elements[elements.length - 1].length - 1);
                 let lastElValue = lastEl.substring(lastEl.indexOf('\'') + 1, lastEl.length - 1);
                 if (domCache.searchstr.value !== lastElValue) {
-                    domCache.searchCrumb.innerHTML += '<button data-filter="' + encodeURI(lastEl) +'" class="btn btn-light mr-2">' + e(lastEl) + '<span class="ml-2 badge badge-secondary">&times;</span></button>';
+                    let fields = lastEl.match(/^(\w+)\s+(\S+)\s+'(.*)'$/);
+                    domCache.searchCrumb.innerHTML += '<button data-filter-tag="' + encodeURI(fields[1]) + '" ' +
+                        'data-filter-op="' + encodeURI(fields[2]) + '" ' +
+                        'data-filter-value="' + encodeURI(unescapeMPD(fields[3])) + '" class="btn btn-light mr-2">' + e(lastEl) + '<span class="badge badge-secondary">&times</span></button>';
                 }
                 let match = lastEl.substring(lastEl.indexOf(' ') + 1);
                 match = match.substring(0, match.indexOf(' '));
@@ -2410,7 +2423,8 @@ function appRoute() {
             else {
                 sendAPI("MPD_API_DATABASE_SEARCH", {"plist": "", "offset": app.current.offset, "limit": app.current.limit, "filter": app.current.filter, "searchstr": app.current.search, "cols": settings.colsSearch, "replace": false}, parseSearch);
             }
-        } else {
+        }
+        else {
             document.getElementById('SearchList').getElementsByTagName('tbody')[0].innerHTML = '';
             document.getElementById('searchAddAllSongs').setAttribute('disabled', 'disabled');
             document.getElementById('searchAddAllSongsBtn').setAttribute('disabled', 'disabled');
@@ -3390,7 +3404,9 @@ function appInit() {
                 let match = document.getElementById('searchDatabaseMatch');
                 let li = document.createElement('button');
                 li.classList.add('btn', 'btn-light', 'mr-2');
-                li.setAttribute('data-filter', encodeURI(app.current.filter + ' ' + match.options[match.selectedIndex].value + ' \'' + this.value + '\''));
+                li.setAttribute('data-filter-tag', encodeURI(app.current.filter));
+                li.setAttribute('data-filter-op', encodeURI(match.options[match.selectedIndex].value));
+                li.setAttribute('data-filter-value', encodeURI(this.value));
                 li.innerHTML = e(app.current.filter) + ' ' + e(match.options[match.selectedIndex].value) + ' \'' + e(this.value) + '\'<span class="ml-2 badge badge-secondary">&times;</span>';
                 this.value = '';
                 document.getElementById('searchDatabaseCrumb').appendChild(li);
@@ -3409,20 +3425,18 @@ function appInit() {
     }, false);
 
     document.getElementById('searchDatabaseCrumb').addEventListener('click', function(event) {
-        event.preventDefault();
-        event.stopPropagation();
         if (event.target.nodeName === 'SPAN') {
+            event.preventDefault();
+            event.stopPropagation();
             event.target.parentNode.remove();
             searchAlbumgrid('');
         }
         else if (event.target.nodeName === 'BUTTON') {
-            let value = decodeURI(event.target.getAttribute('data-filter'));
-            document.getElementById('searchDatabaseStr').value = value.substring(value.indexOf('\'') + 1, value.length - 1);
-            let match = value.substring(value.indexOf(' ') + 1);
-            match = match.substring(0, match.indexOf(' '));
-            document.getElementById('searchDatabaseMatch').value = match;
-            let filter = value.substring(0, value.indexOf(' '));
-            selectTag('searchDatabaseTags', 'searchDatabaseTagsDesc', filter);
+            event.preventDefault();
+            event.stopPropagation();
+            selectTag('searchDatabaseTags', 'searchDatabaseTagsDesc', decodeURI(event.target.getAttribute('data-filter-tag')));
+            document.getElementById('searchDatabaseStr').value = unescapeMPD(decodeURI(event.target.getAttribute('data-filter-value')));
+            document.getElementById('searchDatabaseMatch').value = decodeURI(event.target.getAttribute('data-filter-op'));
             event.target.remove();
             searchAlbumgrid(document.getElementById('searchDatabaseStr').value);
         }
@@ -3437,7 +3451,9 @@ function appInit() {
                 let match = document.getElementById('searchMatch');
                 let li = document.createElement('button');
                 li.classList.add('btn', 'btn-light', 'mr-2');
-                li.setAttribute('data-filter', encodeURI(app.current.filter + ' ' + match.options[match.selectedIndex].value +' \'' + this.value + '\''));
+                li.setAttribute('data-filter-tag', encodeURI(app.current.filter));
+                li.setAttribute('data-filter-op', encodeURI(match.options[match.selectedIndex].value));
+                li.setAttribute('data-filter-value', encodeURI(this.value));
                 li.innerHTML = e(app.current.filter) + ' ' + e(match.options[match.selectedIndex].value) + ' \'' + e(this.value) + '\'<span class="ml-2 badge badge-secondary">&times;</span>';
                 this.value = '';
                 domCache.searchCrumb.appendChild(li);
@@ -3461,13 +3477,9 @@ function appInit() {
         else if (event.target.nodeName === 'BUTTON') {
             event.preventDefault();
             event.stopPropagation();
-            let value = decodeURI(event.target.getAttribute('data-filter'));
-            domCache.searchstr.value = value.substring(value.indexOf('\'') + 1, value.length - 1);
-            let filter = value.substring(0, value.indexOf(' '));
-            selectTag('searchtags', 'searchtagsdesc', filter);
-            let match = value.substring(value.indexOf(' ') + 1);
-            match = match.substring(0, match.indexOf(' '));
-            document.getElementById('searchMatch').value = match;
+            domCache.searchstr.value = unescapeMPD(decodeURI(event.target.getAttribute('data-filter-value')));
+            selectTag('searchtags', 'searchtagsdesc', decodeURI(event.target.getAttribute('data-filter-tag')));
+            document.getElementById('searchMatch').value = decodeURI(event.target.getAttribute('data-filter-op'));
             event.target.remove();
             doSearch(domCache.searchstr.value);
         }
@@ -5319,14 +5331,16 @@ function doSearch(x) {
         let expression = '(';
         let crumbs = domCache.searchCrumb.children;
         for (let i = 0; i < crumbs.length; i++) {
-            expression += '(' + decodeURI(crumbs[i].getAttribute('data-filter')) + ')';
+            expression += '(' + decodeURI(crumbs[i].getAttribute('data-filter-tag')) + ' ' + 
+                decodeURI(crumbs[i].getAttribute('data-filter-op')) + ' \'' + 
+                escapeMPD(decodeURI(crumbs[i].getAttribute('data-filter-value'))) + '\')';
             if (x !== '') {
                 expression += ' AND ';
             }
         }
         if (x !== '') {
             let match = document.getElementById('searchMatch');
-            expression += '(' + app.current.filter + ' ' + match.options[match.selectedIndex].value + ' \'' + x +'\'))';
+            expression += '(' + app.current.filter + ' ' + match.options[match.selectedIndex].value + ' \'' + escapeMPD(x) +'\'))';
         }
         else {
             expression += ')';
@@ -6708,8 +6722,8 @@ function parseSyncedLyrics(text) {
             //line[3] are hundreths of a seconde - ignore it for the moment
             html += '<p><span data-sec="' + sec + '">';
             //support of extended lrc format - timestamps for words
-            html += line[4].replace(/<(\d+):(\d+)\.(\d+)>/g, function(m0, m1, m2, m3) {
-                //m3 are hundreths of a seconde - ignore it for the moment
+            html += line[4].replace(/<(\d+):(\d+)\.\d+>/g, function(m0, m1, m2) {
+                //hundreths of a secondes are ignored
                 let wsec = parseInt(m1) * 60 + parseInt(m2);
                 return '</span><span data-sec="' + wsec + '">';
             });
@@ -8288,6 +8302,22 @@ function parseTriggerList(obj) {
  myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
+
+function escapeMPD(x) {
+    return x.replace(/(["'])/g, function(m0, m1) {
+        if (m1 === '"') return '\\"';
+        else if (m1 === '\'') return '\\\'';
+        else if (m1 === '\\') return '\\\\';
+    });
+}
+
+function unescapeMPD(x) {
+    return x.replace(/(\\'|\\"|\\\\)/g, function(m0, m1) {
+        if (m1 === '\\"') return '"';
+        else if (m1 === '\\\'') return '\'';
+        else if (m1 === '\\\\') return '\\';
+    });
+}
 
 function removeIsInvalid(el) {
     let els = el.querySelectorAll('.is-invalid');
