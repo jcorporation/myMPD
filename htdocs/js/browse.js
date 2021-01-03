@@ -196,6 +196,7 @@ function parseFilesystem(obj) {
     //document.getElementById('cardFooterBrowse').innerText = t('Num entries', obj.result.totalEntities);
 }
 
+//eslint-disable-next-line no-unused-vars
 function addAllFromBrowseFilesystem(replace) {
     if (replace === true) {
         sendAPI("MPD_API_QUEUE_REPLACE_TRACK", {"uri": app.current.search});

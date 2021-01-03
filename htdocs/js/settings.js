@@ -228,7 +228,7 @@ function parseSettings() {
 
     let albumartbg = document.querySelectorAll('.albumartbg');
     for (let i = 0; i < albumartbg.length; i++) {
-	    albumartbg[i].style.filter = settings.bgCssFilter;
+        albumartbg[i].style.filter = settings.bgCssFilter;
     }
 
     toggleBtnChkCollapse('btnLoveEnable', 'collapseLove', settings.love);

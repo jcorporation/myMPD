@@ -47,6 +47,7 @@ function parseSearch(obj) {
     parseFilesystem(obj);
 }
 
+//eslint-disable-next-line no-unused-vars
 function saveSearchAsSmartPlaylist() {
     parseSmartPlaylist({"jsonrpc":"2.0","id":0,"result":{"method":"MPD_API_SMARTPLS_GET", 
         "playlist":"",

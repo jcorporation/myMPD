@@ -413,7 +413,7 @@ function setPagination(total, returned) {
                     gotoPage(event.target.getAttribute('data-offset'));
                 }
             }, false);
-
+            //eslint-disable-next-line no-unused-vars
             const pagesDropdown = new BSN.Dropdown(page);
         }
         else if (total === -1) {
