@@ -472,7 +472,13 @@ function songChange(obj) {
             else if (settings.colsPlayback[i] === 'LastModified') {
                 value = localeDate(value);
             }
-            c.getElementsByTagName('p')[0].innerText = value;
+            else if (settings.colsPlayback[i].indexOf('MUSICBRAINZ') === 0) {
+                value = getMBtagLink(settings.colsPlayback[i], obj.result[settings.colsPlayback[i]]);
+            }
+            else {
+                value = e(value);
+            }
+            c.getElementsByTagName('p')[0].innerHTML = value;
             c.setAttribute('data-name', encodeURI(value));
             if (settings.colsPlayback[i] === 'Album' && obj.result[tagAlbumArtist] !== null) {
                 c.setAttribute('data-albumartist', encodeURI(obj.result[tagAlbumArtist]));

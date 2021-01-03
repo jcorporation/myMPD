@@ -576,6 +576,10 @@ function parseMPDSettings() {
             else if (settings.colsPlayback[i] === 'Fileformat') {
                 pbtl += (lastState ? fileformat(lastState.audioFormat) : '');
             }
+            else if (settings.colsPlayback[i].indexOf('MUSICBRAINZ') === 0) {
+                pbtl += (lastSongObj[settings.colsPlayback[i]] ? getMBtagLink(settings.colsPlayback[i], lastSongObj[settings.colsPlayback[i]]) : '');
+            }
+
             else {
                 pbtl += (lastSongObj[settings.colsPlayback[i]] ? e(lastSongObj[settings.colsPlayback[i]]) : '');
             }
