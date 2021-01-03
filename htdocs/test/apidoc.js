@@ -9,7 +9,8 @@
 
 let strings = {};
 strings['cols'] = 'cols: array of columns to return';
-strings['offset'] = 'offset: Offset of the returned list';
+strings['offset'] = 'offset: start offset of the returned list';
+strings['limit'] = 'limit: maximum number of elements to return';
 
 let desc = {};
 desc['MPD_API_QUEUE_CLEAR'] = 'Clears the queue';
@@ -22,11 +23,13 @@ desc['MPD_API_QUEUE_SAVE'] = 'Saves the queue as a playlist' +
 desc['MPD_API_QUEUE_LIST'] = 'List the contents of the queu' +
     '<ul>' +
     '<li>' + strings['offset'] + '</li>' +
+    '<li>' + strings['limit'] + '</li>' +
     '<li>' + strings['cols'] + '</li>' +
     '</ul>';
 desc['MPD_API_QUEUE_SEARCH'] = 'Searches the queue' +
     '<ul>' +
     '<li>' + strings['offset'] + '</li>' +
+    '<li>' + strings['limit'] + '</li>' +
     '<li>filter: tag to search, <code>any</code> for any tag</li>' +
     '<li>searchstr: string to search</li>' +
     '<li>' + strings['cols'] + '</li>' +
@@ -80,6 +83,7 @@ desc['MPD_API_QUEUE_SHUFFLE'] = 'Shuffles the queue.';
 desc['MPD_API_QUEUE_LAST_PLAYED'] = 'List the last played songs.' +
     '<ul>' +
     '<li>' + strings['offset'] + '</li>' +
+    '<li>' + strings['limit'] + '</li>' +
     '<li>' + strings['cols'] + '</li>' +
     '</ul>';
 desc['MPD_API_PLAYLIST_RM'] = 'Removes the playlist.' +
@@ -122,16 +126,14 @@ desc['MPD_API_PLAYLIST_RM_ALL'] = 'Removes all playlists.' +
 desc['MPD_API_PLAYLIST_LIST'] = 'Lists all playlists (paginated).' +
     '<ul>' +
     '<li>' + strings['offset'] + '</li>' +
-    '<li>searchstr: string to search</li>' +
-    '</ul>';
-desc['MPD_API_PLAYLIST_LIST_ALL'] = 'Lists all playlists (realy all).' +
-    '<ul>' +
+    '<li>' + strings['limit'] + '</li>' +
     '<li>searchstr: string to search</li>' +
     '</ul>';
 desc['MPD_API_PLAYLIST_CONTENT_LIST'] = 'Lists the content of a playlist.' +
     '<ul>' +
     '<li>uri: playlist</li>' +
     '<li>' + strings['offset'] + '</li>' +
+    '<li>' + strings['limit'] + '</li>' +
     '<li>searchstr: string to search</li>' +
     '<li>' + strings['cols'] + '</li>' +
     '</ul>';

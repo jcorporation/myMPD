@@ -228,14 +228,26 @@ function parseSettings() {
 
     let albumartbg = document.querySelectorAll('.albumartbg');
     for (let i = 0; i < albumartbg.length; i++) {
-	albumartbg[i].style.filter = settings.bgCssFilter;
+	    albumartbg[i].style.filter = settings.bgCssFilter;
     }
 
     toggleBtnChkCollapse('btnLoveEnable', 'collapseLove', settings.love);
     document.getElementById('inputLoveChannel').value = settings.loveChannel;
     document.getElementById('inputLoveMessage').value = settings.loveMessage;
     
-    document.getElementById('inputMaxElementsPerPage').value = settings.maxElementsPerPage;
+    document.getElementById('selectMaxElementsPerPage').value = settings.maxElementsPerPage;
+    app.apps.Home.limit = settings.maxElementsPerPage;
+    app.apps.Playback.limit = settings.maxElementsPerPage;
+    app.apps.Queue.tabs.Current.limit = settings.maxElementsPerPage;
+    app.apps.Queue.tabs.LastPlayed.limit = settings.maxElementsPerPage;
+    app.apps.Queue.tabs.Jukebox.limit = settings.maxElementsPerPage;
+    app.apps.Browse.tabs.Filesystem.limit = settings.maxElementsPerPage;
+    app.apps.Browse.tabs.Playlists.views.All.limit = settings.maxElementsPerPage;
+    app.apps.Browse.tabs.Playlists.views.Detail.limit = settings.maxElementsPerPage;
+    app.apps.Browse.tabs.Database.views.List.limit = settings.maxElementsPerPage;
+    app.apps.Browse.tabs.Database.views.Detail.limit = settings.maxElementsPerPage;
+    app.apps.Search.limit = settings.maxElementsPerPage;
+    
     toggleBtnChk('btnStickers', settings.stickers);
     document.getElementById('inputLastPlayedCount').value = settings.lastPlayedCount;
     
@@ -317,8 +329,6 @@ function parseSettings() {
     }
 
     document.getElementById('selectTimerAction').innerHTML = timerActions;
-    
-    //dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
     
     toggleBtnGroupValueCollapse(document.getElementById('btnJukeboxModeGroup'), 'collapseJukeboxMode', settings.jukeboxMode);
     document.getElementById('selectJukeboxUniqueTag').value = settings.jukeboxUniqueTag;
@@ -610,15 +620,9 @@ function parseMPDSettings() {
             tagEls[i].classList.remove('clickable');
         }
     }
-//    else {
-//        const tagEls = document.getElementById('cardPlaybackTags').getElementsByTagName('p');
-//        for (let i = 0; i < tagEls.length; i++) {
-//            tagEls[i].classList.add('clickable');
-//        }
-//    }
     
     if (settings.featPlaylists === true) {
-        sendAPI("MPD_API_PLAYLIST_LIST_ALL", {"searchstr": ""}, function(obj) {
+        sendAPI("MPD_API_PLAYLIST_LIST", {"searchstr": "", "offset": 0, "limit": 0}, function(obj) {
             getAllPlaylists(obj, 'selectJukeboxPlaylist', settings.jukeboxPlaylist);
         });
     }
@@ -719,11 +723,6 @@ function saveSettings(closeModal) {
         formOK = false;
     }
     
-    let inputMaxElementsPerPage = document.getElementById('inputMaxElementsPerPage');
-    if (!validateInt(inputMaxElementsPerPage)) {
-        formOK = false;
-    }
-    
     if (isMobile === true) {
         let inputScaleRatio = document.getElementById('inputScaleRatio');
         if (!validateFloat(inputScaleRatio)) {
@@ -735,10 +734,6 @@ function saveSettings(closeModal) {
         }
     }
 
-    if (parseInt(inputMaxElementsPerPage.value) > 200) {
-        formOK = false;
-    }
-    
     let inputLastPlayedCount = document.getElementById('inputLastPlayedCount');
     if (!validateInt(inputLastPlayedCount)) {
         formOK = false;
@@ -830,7 +825,7 @@ function saveSettings(closeModal) {
             "loveChannel": document.getElementById('inputLoveChannel').value,
             "loveMessage": document.getElementById('inputLoveMessage').value,
             "bookmarks": (document.getElementById('btnBookmarks').classList.contains('active') ? true : false),
-            "maxElementsPerPage": document.getElementById('inputMaxElementsPerPage').value,
+            "maxElementsPerPage": parseInt(getSelectValue('selectMaxElementsPerPage')),
             "stickers": (document.getElementById('btnStickers').classList.contains('active') ? true : false),
             "lastPlayedCount": document.getElementById('inputLastPlayedCount').value,
             "smartpls": (document.getElementById('btnSmartpls').classList.contains('active') ? true : false),

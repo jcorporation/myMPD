@@ -25,10 +25,10 @@ function doSearch(x) {
         if (expression.length <= 2) {
             expression = '';
         }
-        appGoto('Search', undefined, undefined, '0', app.current.filter, app.current.sort, '-', expression);
+        appGoto('Search', undefined, undefined, '0', app.current.limit, app.current.filter, app.current.sort, '-', expression);
     }
     else {
-        appGoto('Search', undefined, undefined, '0', app.current.filter, app.current.sort, '-', x);
+        appGoto('Search', undefined, undefined, '0', app.current.limit, app.current.filter, app.current.sort, '-', x);
     }
 }
 

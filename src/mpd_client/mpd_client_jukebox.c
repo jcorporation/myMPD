@@ -43,7 +43,7 @@ bool mpd_client_rm_jukebox_entry(t_mpd_client_state *mpd_client_state, unsigned 
 }
 
 sds mpd_client_put_jukebox_list(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, 
-                                unsigned int offset, const t_tags *tagcols)
+                                const unsigned int offset, const unsigned int limit, const t_tags *tagcols)
 {
     unsigned entity_count = 0;
     unsigned entities_returned = 0;
@@ -55,7 +55,7 @@ sds mpd_client_put_jukebox_list(t_mpd_client_state *mpd_client_state, sds buffer
         struct list_node *current = mpd_client_state->jukebox_queue.head;
         while (current != NULL) {
             entity_count++;
-            if (entity_count > offset && entity_count <= offset + mpd_client_state->max_elements_per_page) {
+            if (entity_count > offset && (entity_count <= offset + limit || limit == 0)) {
                 if (entities_returned++) {
                     buffer = sdscat(buffer, ",");
                 }

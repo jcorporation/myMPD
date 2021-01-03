@@ -121,7 +121,7 @@ function parsePlaylists(obj) {
 //eslint-disable-next-line no-unused-vars
 function playlistDetails(uri) {
     document.getElementById('BrowsePlaylistsAllList').classList.add('opacity05');
-    appGoto('Browse', 'Playlists', 'Detail', '0', uri, '-', '-', '');
+    appGoto('Browse', 'Playlists', 'Detail', '0', undefined, uri, '-', '-', '');
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -365,7 +365,7 @@ function showAddToPlaylist(uri, searchstr) {
     }
     modalAddToPlaylist.show();
     if (settings.featPlaylists) {
-        sendAPI("MPD_API_PLAYLIST_LIST_ALL", {"searchstr": ""}, function(obj) {
+        sendAPI("MPD_API_PLAYLIST_LIST", {"searchstr": "", "offset": 0, "limit": 0}, function(obj) {
             getAllPlaylists(obj, 'addToPlaylistPlaylist');
         });
     }
