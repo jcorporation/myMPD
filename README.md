@@ -74,6 +74,6 @@ For further information on installation and configuration, see the [myMPD wiki](
 
 ## Copyright
 
-2018-2020 Juergen Mang <mail@jcgames.de>
+2018-2021 Juergen Mang <mail@jcgames.de>
 
 myMPD is a fork of [ympd](https://github.com/notandy/ympd).

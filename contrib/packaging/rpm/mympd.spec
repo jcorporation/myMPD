@@ -1,7 +1,7 @@
 #
 # spec file for package myMPD
 #
-# (c) 2018-2020 Juergen Mang <mail@jcgames.de>
+# (c) 2018-2021 Juergen Mang <mail@jcgames.de>
 
 Name:           mympd
 Version:        6.10.0
@@ -66,5 +66,5 @@ fi
 %config(noreplace) /etc/mympd.conf
 
 %changelog
-* Tue Dec 22 2020 Juergen Mang <mail@jcgames.de> 6.10.0-0
+* Tue Dec 22 2021 Juergen Mang <mail@jcgames.de> 6.10.0-0
 - Version from master

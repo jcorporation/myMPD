@@ -1,6 +1,6 @@
 /*
  SPDX-License-Identifier: GPL-2.0-or-later
- myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>
+ myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
  https://github.com/jcorporation/mympd
 */
 
@@ -369,7 +369,7 @@ bool write_mympd_conf(struct t_config *pconfig) {
     fprintf(fp, "# myMPD configuration file\n"
         "#\n"
         "# SPDX-License-Identifier: GPL-2.0-or-later\n"
-        "# myMPD (c) 2018-2020 Juergen Mang <mail@jcgames.de>\n"
+        "# myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>\n"
         "# https://github.com/jcorporation/mympd\n"
         "#\n\n"
         "[mpd]\n"
