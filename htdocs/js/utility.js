@@ -347,16 +347,16 @@ function setPagination(total, returned) {
     }
     let curPage = app.current.limit > 0 ? app.current.offset / app.current.limit + 1 : 1;
     
-    const paginationHTML = '   <button data-title-phrase="Previous page" type="button" class="btn btn-group-prepend btn-secondary">&laquo;</button>' +
+    const paginationHTML = '   <button title="' + t('Previous page') + '" type="button" class="btn btn-group-prepend btn-secondary">&laquo;</button>' +
           '   <div class="btn-group">' +
           '     <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"></button>' +
           '     <div class="dropdown-menu bg-lite-dark px-2 pages dropdown-menu-right"></div>' +
           '   </div>' +
-          '   <button data-title-phrase="Next page" type="button" class="btn btn-secondary btn-group-append">&raquo;</button>';
+          '   <button title="' + t('Next page') + '" type="button" class="btn btn-secondary btn-group-append">&raquo;</button>';
 
-    let bottomBarHTML = '<button type="button" class="btn btn-secondary material-icons" data-title-phrase="To top">keyboard_arrow_up</button>' +
+    let bottomBarHTML = '<button type="button" class="btn btn-secondary material-icons" title="' + t('To top') + '">keyboard_arrow_up</button>' +
           ' <div>' +
-          '  <select class="form-control custom-select border-secondary" data-title-phrase="Elements per page">';
+          '  <select class="form-control custom-select border-secondary" title="' + t('Elements per page') + '">';
     let nrEls = [25, 50, 100, 200, 0];
     for (let i of nrEls) {
         bottomBarHTML += '<option value="' + i + '"' + (app.current.limit === i ? ' selected' : '') + '>' + (i > 0 ? i : t('All')) + '</option>';

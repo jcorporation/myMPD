@@ -19,6 +19,32 @@ function parseFingerprint(obj) {
     fpTd.appendChild(textarea);
 }
 
+function getMBtagLink(tag, value) {
+    let MBentity = '';
+    switch (tag) {
+        case 'MUSICBRAINZ_ALBUMARTISTID':
+        case 'MUSICBRAINZ_ARTISTID':
+            MBentity = 'artist';
+            break;
+        case 'MUSICBRAINZ_ALBUMID':
+            MBentity = 'release';
+            break;
+        case 'MUSICBRAINZ_RELEASETRACKID':
+            MBentity = 'track';
+            break;
+        case 'MUSICBRAINZ_TRACKID':
+            MBentity = 'recording';
+            break;
+    }
+    if (MBentity === '') {
+        return e(value);
+    }
+    else {
+        return '<a title="' + t('Lookup at musicbrainz') + '" class="text-success external" target="_musicbrainz" href="https://musicbrainz.org/' + MBentity + '/' + encodeURI(value) + '">' +
+            '<span class="material-icons">open_in_browser</span>&nbsp;' + value + '</a>';
+    }
+}
+
 function parseSongDetails(obj) {
     let modal = document.getElementById('modalSongDetails');
     modal.getElementsByClassName('album-cover')[0].style.backgroundImage = 'url("' + subdir + '/albumart/' + obj.result.uri + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
@@ -40,6 +66,9 @@ function parseSongDetails(obj) {
         songDetailsHTML += '>';
         if (settings.browsetags.includes(settings.tags[i]) && obj.result[settings.tags[i]] !== '-') {
             songDetailsHTML += '<a class="text-success" href="#">' + e(obj.result[settings.tags[i]]) + '</a>';
+        }
+        else if (settings.tags[i].indexOf('MUSICBRAINZ') === 0) {
+            songDetailsHTML += getMBtagLink(settings.tags[i], obj.result[settings.tags[i]]);
         }
         else {
             songDetailsHTML += obj.result[settings.tags[i]];

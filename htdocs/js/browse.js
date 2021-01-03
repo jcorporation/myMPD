@@ -196,14 +196,20 @@ function parseFilesystem(obj) {
     //document.getElementById('cardFooterBrowse').innerText = t('Num entries', obj.result.totalEntities);
 }
 
-function addAllFromBrowseFilesystem() {
-    sendAPI("MPD_API_QUEUE_ADD_TRACK", {"uri": app.current.search});
-    showNotification(t('Added all songs'), '', '', 'success');
+function addAllFromBrowseFilesystem(replace) {
+    if (replace === true) {
+        sendAPI("MPD_API_QUEUE_REPLACE_TRACK", {"uri": app.current.search});
+        showNotification(t('Replaced queue'), '', '', 'success');
+    }
+    else {
+        sendAPI("MPD_API_QUEUE_ADD_TRACK", {"uri": app.current.search});
+        showNotification(t('Added all songs'), '', '', 'success');
+    }
 }
 
 function addAllFromBrowseDatabasePlist(plist) {
     if (app.current.search.length >= 2) {
-        sendAPI("MPD_API_DATABASE_SEARCH", {"plist": plist, "filter": app.current.view, "searchstr": app.current.search, "offset": 0, "cols": settings.colsSearch, "replace": false});
+        sendAPI("MPD_API_DATABASE_SEARCH", {"plist": plist, "filter": app.current.view, "searchstr": app.current.search, "offset": 0, "limit": 0, "cols": settings.colsSearch, "replace": false});
     }
 }
 

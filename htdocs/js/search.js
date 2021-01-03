@@ -64,7 +64,8 @@ function addAllFromSearchPlist(plist, searchstr, replace) {
             "sort": "", 
             "sortdesc": false, 
             "expression": searchstr,
-            "offset": 0, 
+            "offset": 0,
+            "limit": 0,
             "cols": settings.colsSearch, 
             "replace": replace});
     }
@@ -72,7 +73,8 @@ function addAllFromSearchPlist(plist, searchstr, replace) {
         sendAPI("MPD_API_DATABASE_SEARCH", {"plist": plist, 
             "filter": app.current.filter, 
             "searchstr": searchstr,
-            "offset": 0, 
+            "offset": 0,
+            "limit": 0, 
             "cols": settings.colsSearch, 
             "replace": replace});
     }

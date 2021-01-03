@@ -337,6 +337,11 @@ function showAddToPlaylistCurrentSong() {
     }
 }
 
+//eslint-disable-next-line no-unused-vars
+function showAddToPlaylistCurrentSearch() {
+    showAddToPlaylist(app.current.search, '');
+}
+
 function showAddToPlaylist(uri, searchstr) {
     document.getElementById('addToPlaylistUri').value = uri;
     document.getElementById('addToPlaylistSearch').value = searchstr;
@@ -387,7 +392,8 @@ function addToPlaylist() {
         let newPl = document.getElementById('addToPlaylistNewPlaylist').value;
         if (validatePlname(newPl) === true) {
             plist = newPl;
-        } else {
+        }
+        else {
             document.getElementById('addToPlaylistNewPlaylist').classList.add('is-invalid');
             return;
         }
@@ -396,7 +402,7 @@ function addToPlaylist() {
         if (uri === 'SEARCH') {
             addAllFromSearchPlist(plist, null, false);
         }
-        if (uri === 'ALBUM') {
+        else if (uri === 'ALBUM') {
             let expression = document.getElementById('addToPlaylistSearch').value;
             addAllFromSearchPlist(plist, expression, false);
         }

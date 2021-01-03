@@ -519,11 +519,12 @@
           </div>
           <div class="input-group mr-2">
             <div class="input-group-prepend">
-              <button data-title-phrase="Add all to queue" data-href='{"cmd": "addAllFromBrowseFilesystem", "options": []}' id="BrowseFilesystemAddAllSongs" class="btn btn-secondary material-icons">library_add</button>
+              <button data-title-phrase="Append to queue" data-href='{"cmd": "addAllFromBrowseFilesystem", "options": []}' id="BrowseFilesystemAddAllSongs" class="btn btn-secondary material-icons">library_add</button>
               <button id="BrowseFilesystemAddAllSongsBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-right" type="button" data-toggle="dropdown"></button>
               <div class="dropdown-menu bg-lite-dark px-2" id="BrowseFilesystemAddAllSongsDropdown">
-                <button data-phrase="Add all to queue" type="button" class="btn btn-secondary btn-sm btn-block"></button>
-                <button data-phrase="Add all to playlist" type="button" class="btn btn-secondary btn-sm btn-block featPlaylists"></button>
+                <button data-href='{"cmd": "addAllFromBrowseFilesystem", "options": [false]}' data-phrase="Append to queue" type="button" class="btn btn-secondary btn-sm btn-block"></button>
+                <button data-href='{"cmd": "addAllFromBrowseFilesystem", "options": [true]}' data-phrase="Replace queue" type="button" class="btn btn-secondary btn-sm btn-block"></button>
+                <button data-href='{"cmd": "showAddToPlaylistCurrentSearch", "options": []}' data-phrase="Add to playlist" type="button" class="btn btn-secondary btn-sm btn-block featPlaylists"></button>
               </div>
             </div>
           </div>
@@ -596,12 +597,13 @@
           </form>
           <div class="input-group mr-2">
             <div class="input-group-prepend">
-              <button data-title-phrase="Add all to queue" id="searchAddAllSongs" class="btn btn-secondary material-icons" data-href='{"cmd": "addAllFromSearchPlist", "options": ["queue", null, false]}'>library_add</button>
+              <button data-title-phrase="Append to queue" id="searchAddAllSongs" class="btn btn-secondary material-icons" data-href='{"cmd": "addAllFromSearchPlist", "options": ["queue", null, false]}'>library_add</button>
               <button id="searchAddAllSongsBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-right" type="button" data-toggle="dropdown"></button>
               <div class="dropdown-menu bg-lite-dark px-2" id="searchAddAllSongsDropdown">
-                  <button data-phrase="Add all to queue" type="button" class="btn btn-secondary btn-sm btn-block"></button>
-                  <button data-phrase="Add all to playlist" type="button" class="btn btn-secondary btn-sm btn-block featPlaylists"></button>
-                  <button data-phrase="Save as smart playlist" type="button" class="btn btn-secondary btn-sm btn-block featSmartpls"></button>
+                  <button data-href='{"cmd": "addAllFromSearchPlist", "options": ["queue", null, false]}' data-phrase="Append to queue" type="button" class="btn btn-secondary btn-sm btn-block"></button>
+                  <button data-href='{"cmd": "addAllFromSearchPlist", "options": ["queue", null, true]}' data-phrase="Replace queue" type="button" class="btn btn-secondary btn-sm btn-block"></button>
+                  <button data-href='{"cmd": "showAddToPlaylist", "options": ["SEARCH", ""]}' data-phrase="Add to playlist" type="button" class="btn btn-secondary btn-sm btn-block featPlaylists"></button>
+                  <button data-href='{"cmd": "saveSearchAsSmartPlaylist", "options": []}' data-phrase="Save as smart playlist" type="button" class="btn btn-secondary btn-sm btn-block featSmartpls"></button>
               </div>
             </div>
           </div>

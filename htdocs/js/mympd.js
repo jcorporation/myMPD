@@ -1173,6 +1173,9 @@ function appInit() {
                 event.target.classList.add('hide');
                 parent.appendChild(spinner);
             }
+            else if (event.target.classList.contains('external')) {
+                //do nothing, link opens in new browser window
+            }
             else if (event.target.parentNode.getAttribute('data-tag') !== null) {
                 modalSongDetails.hide();
                 event.preventDefault();
@@ -1451,31 +1454,6 @@ function appInit() {
         }
     }, false);
 
-    document.getElementById('BrowseFilesystemAddAllSongsDropdown').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'BUTTON') {
-            if (event.target.getAttribute('data-phrase') === 'Add all to queue') {
-                addAllFromBrowseFilesystem();
-            }
-            else if (event.target.getAttribute('data-phrase') === 'Add all to playlist') {
-                showAddToPlaylist(app.current.search, '');
-            }
-        }
-    }, false);
-
-    document.getElementById('searchAddAllSongsDropdown').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'BUTTON') {
-            if (event.target.getAttribute('data-phrase') === 'Add all to queue') {
-                addAllFromSearchPlist('queue', null, false);
-            }
-            else if (event.target.getAttribute('data-phrase') === 'Add all to playlist') {
-                showAddToPlaylist('SEARCH', '');
-            }
-            else if (event.target.getAttribute('data-phrase') === 'Save as smart playlist') {
-                saveSearchAsSmartPlaylist();
-            }
-        }
-    }, false);
-    
     document.getElementById('searchtags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
             app.current.filter = event.target.getAttribute('data-tag');
