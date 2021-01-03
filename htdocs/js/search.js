@@ -10,14 +10,16 @@ function doSearch(x) {
         let expression = '(';
         let crumbs = domCache.searchCrumb.children;
         for (let i = 0; i < crumbs.length; i++) {
-            expression += '(' + decodeURI(crumbs[i].getAttribute('data-filter')) + ')';
+            expression += '(' + decodeURI(crumbs[i].getAttribute('data-filter-tag')) + ' ' + 
+                decodeURI(crumbs[i].getAttribute('data-filter-op')) + ' \'' + 
+                escapeMPD(decodeURI(crumbs[i].getAttribute('data-filter-value'))) + '\')';
             if (x !== '') {
                 expression += ' AND ';
             }
         }
         if (x !== '') {
             let match = document.getElementById('searchMatch');
-            expression += '(' + app.current.filter + ' ' + match.options[match.selectedIndex].value + ' \'' + x +'\'))';
+            expression += '(' + app.current.filter + ' ' + match.options[match.selectedIndex].value + ' \'' + escapeMPD(x) +'\'))';
         }
         else {
             expression += ')';

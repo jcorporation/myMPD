@@ -418,7 +418,7 @@ function addAlbum(action) {
 }
 
 function _addAlbum(action, albumArtist, album) {
-    const expression = '((Album == \'' + album + '\') AND (' + tagAlbumArtist + ' == \'' + albumArtist + '\'))';
+    const expression = '((Album == \'' + escapeMPD(album) + '\') AND (' + tagAlbumArtist + ' == \'' + escapeMPD(albumArtist) + '\'))';
     if (action === 'appendQueue') {
         addAllFromSearchPlist('queue', expression, false);
     }
@@ -437,14 +437,16 @@ function searchAlbumgrid(x) {
         if (i > 0) {
             expression += ' AND ';
         }
-        expression += '(' + decodeURI(crumbs[i].getAttribute('data-filter')) + ')';
+        expression += '(' + decodeURI(crumbs[i].getAttribute('data-filter-tag')) + ' ' + 
+            decodeURI(crumbs[i].getAttribute('data-filter-op')) + ' \'' + 
+            escapeMPD(decodeURI(crumbs[i].getAttribute('data-filter-value'))) + '\')';
     }
     if (x !== '') {
         if (expression !== '') {
             expression += ' AND ';
         }
         let match = document.getElementById('searchDatabaseMatch');
-        expression += '(' + app.current.filter + ' ' + match.options[match.selectedIndex].value + ' \'' + x +'\')';
+        expression += '(' + app.current.filter + ' ' + match.options[match.selectedIndex].value + ' \'' + escapeMPD(x) +'\')';
     }
     
     if (expression.length <= 2) {
