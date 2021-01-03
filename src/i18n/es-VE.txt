@@ -210,12 +210,6 @@ Num playlists
 Num entries
 %{smart_count} Entrada |||| %{smart_count} Entradas
 
-Add all to queue
-Agregar todo a cola de reproducción
-
-Add all to playlist
-Agregar todo a lista de reproducción
-
 Save as smart playlist
 Guardar como lista de reproducción inteligente
 
@@ -437,9 +431,6 @@ Por defecto del navegador
 
 Pagination
 Paginación
-
-Must be a number smaller or equal 200
-Debe ser un número menor o igual a 200
 
 Notifications
 Notificaciones

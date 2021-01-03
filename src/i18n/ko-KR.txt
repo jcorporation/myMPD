@@ -213,12 +213,6 @@ Num playlists
 Num entries
 %{smart_count} 항목 |||| %{smart_count} 항목
 
-Add all to queue
-순서에 모두 추가
-
-Add all to playlist
-연주목록에 모두 추가
-
 Save as smart playlist
 스마트 연주목록 저장
 
@@ -440,9 +434,6 @@ Browser default
 
 Pagination
 페이지 매기기
-
-Must be a number smaller or equal 200
-200이하의 숫자여야 함
 
 Notifications
 알림

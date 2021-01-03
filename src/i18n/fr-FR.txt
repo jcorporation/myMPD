@@ -213,12 +213,6 @@ Num playlists
 Num entries
 %{smart_count} Entrée |||| %{smart_count} Entrées
 
-Add all to queue
-Ajouter à la queue
-
-Add all to playlist
-Ajouter à la liste de lecture
-
 Save as smart playlist
 Enregistrer comme liste de lecture intelligente
 
@@ -440,9 +434,6 @@ Explorateur par défaut
 
 Pagination
 Pagination
-
-Must be a number smaller or equal 200
-Doit être un nombre inférieur ou égal à 200
 
 Notifications
 Notifications
@@ -1517,9 +1508,6 @@ Détails
 
 Port
 Port
-
-Select tag to display
-Choix du tag à afficher
 
 Websocket is disconnected
 La websocket est déconnectée

@@ -213,12 +213,6 @@ Num playlists
 Num entries
 %{smart_count} Eintrag |||| %{smart_count} Einträge
 
-Add all to queue
-Alles zur Warteschlange hinzufügen
-
-Add all to playlist
-Alles zu einer Wiedergabeliste hinzufügen
-
 Save as smart playlist
 Als intelligente Wiedergabeliste speichern
 
@@ -440,9 +434,6 @@ Browsereinstellung
 
 Pagination
 Seitenumbruch
-
-Must be a number smaller or equal 200
-Muss eine Zahl kleinergleich 200 sein
 
 Notifications
 Hinweise
@@ -1667,3 +1658,25 @@ Stop
 
 Unsupported file type
 Nicht unterstützter Dateityp
+
+All
+Alle
+
+Either AlbumArtist or Artist tag must be enabled
+Albumartist or Artist Tag muss aktiviert sein
+
+Elements per page
+Anzahl Listenelemente
+
+Failed to set song priority
+Priorität des Liedes konnte nicht gesetzt werden
+
+Lookup at musicbrainz
+Bei Musicbraonz nachschlagen
+
+
+Play after current playing song
+Nach aktuellem Lied abspielen
+
+Replaced queue
+Warteschlange ersetzt

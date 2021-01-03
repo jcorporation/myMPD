@@ -213,12 +213,6 @@ Num playlists
 Num entries
 %{smart_count} Voce |||| %{smart_count} Voci
 
-Add all to queue
-Aggiungi tutto alla coda
-
-Add all to playlist
-Aggiungi alla lista di riproduzione
-
 Save as smart playlist
 Salva come lista di riproduzione smart
 
@@ -440,9 +434,6 @@ Default del browser
 
 Pagination
 Paginazione
-
-Must be a number smaller or equal 200
-Deve essere un numero inferiore o uguale a 200
 
 Notifications
 Notifiche

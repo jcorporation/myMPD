@@ -210,12 +210,6 @@ Num playlists
 Num entries
 %{smart_count} Kohde |||| %{smart_count} Kohdetta
 
-Add all to queue
-Lisää kaikki jonoon
-
-Add all to playlist
-Lisää kaikki soittolistaan
-
 Save as smart playlist
 Tallenna älykkäänä soittolistana
 
@@ -437,9 +431,6 @@ Selaimen asetus
 
 Pagination
 Rivien määrä
-
-Must be a number smaller or equal 200
-Tarvii olla luku joka on pienempi tai yhtäsuuri kuin 200
 
 Notifications
 Ilmoitukset

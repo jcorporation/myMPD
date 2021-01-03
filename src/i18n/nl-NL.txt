@@ -213,12 +213,6 @@ Num playlists
 Num entries
 %{smart_count} entry |||| %{smart_count} entries
 
-Add all to queue
-Alle aan wachtrij toevoegen
-
-Add all to playlist
-Alle aan afspeellijst toevoegen
-
 Save as smart playlist
 Save als slimme afspeellijst
 
@@ -440,9 +434,6 @@ Browserinstelling
 
 Pagination
 Paginagrootte
-
-Must be a number smaller or equal 200
-Getal moet kleiner zijn dan 200
 
 Notifications
 Notificaties
@@ -1514,9 +1505,6 @@ Details
 
 Port
 Poort
-
-Select tag to display
-Kies tag om  weer te geven
 
 Websocket is disconnected
 Websocket niet verbonden
