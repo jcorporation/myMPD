@@ -327,7 +327,7 @@ function parseDatabase(obj) {
     setPagination(obj.result.totalEntities, obj.result.returnedEntities);
                     
     if (nrItems === 0) {
-        cardContainer.innerHTML = '<div><span class="material-icons">error_outline</span>&nbsp;' + t('Empty list') + '</div>';
+        cardContainer.innerHTML = '<div class="ml-3 mb-3"><span class="material-icons">error_outline</span>&nbsp;' + t('Empty list') + '</div>';
     }
     //document.getElementById('cardFooterBrowse').innerText = gtPage('Num entries', obj.result.returnedEntities, obj.result.totalEntities);
 }
