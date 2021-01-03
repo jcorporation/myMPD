@@ -48,9 +48,11 @@ static sds lyricsextract_flac(sds buffer, sds method, long request_id, sds media
 //public functions
 sds mpd_client_lyrics_get(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, const char *uri) {
     //try first synced lyrics
+    LOG_DEBUG("Get synced lyrics for uri: %s", uri);
     buffer = _mpd_client_lyrics_synced(config, mpd_client_state, buffer, method, request_id, uri);
     //if not found try unsynced lyrics
     if (sdslen(buffer) == 0) {
+        LOG_DEBUG("Get unsynced lyrics for uri: %s", uri);
         buffer = _mpd_client_lyrics_unsynced(config, mpd_client_state, buffer, method, request_id, uri);
     }
     //if not found print error message
@@ -161,6 +163,7 @@ static sds lyrics_fromfile(t_mpd_client_state *mpd_client_state, sds buffer, sds
         return buffer;
     }
     LOG_DEBUG("No lyrics file found in music directory");
+    sdsclear(buffer);
     return buffer;
 }
 
@@ -268,12 +271,12 @@ static sds lyricsextract_unsynced_id3(sds buffer, sds method, long request_id, s
     
     if (i == 0) {
         LOG_DEBUG("No embedded lyrics detected");
-        buffer = jsonrpc_respond_message(buffer, method, request_id, "No lyrics found", false);
+        sdsclear(buffer);
         return buffer;
     }
 
     buffer = sdscatlen(buffer, "],", 2);
-        buffer = tojson_bool(buffer, "synced", false, true);
+    buffer = tojson_bool(buffer, "synced", false, true);
     buffer = tojson_long(buffer, "returnedEntities", i, false);
     buffer = jsonrpc_end_result(buffer);
     #else
@@ -359,12 +362,12 @@ static sds lyricsextract_synced_id3(sds buffer, sds method, long request_id, sds
     
     if (i == 0) {
         LOG_DEBUG("No embedded lyrics detected");
-        buffer = jsonrpc_respond_message(buffer, method, request_id, "No lyrics found", false);
+        sdsclear(buffer);
         return buffer;
     }
 
     buffer = sdscatlen(buffer, "],", 2);
-        buffer = tojson_bool(buffer, "synced", true, true);
+    buffer = tojson_bool(buffer, "synced", true, true);
     buffer = tojson_long(buffer, "returnedEntities", i, false);
     buffer = jsonrpc_end_result(buffer);
     #else
@@ -440,7 +443,8 @@ static sds lyricsextract_flac(sds buffer, sds method, long request_id, sds media
     } while (ok && FLAC__metadata_iterator_next(iterator));
     
     if (found_lyrics == 0) {
-        buffer = jsonrpc_respond_message(buffer, method, request_id, "No lyrics found", false);
+        LOG_DEBUG("No embedded lyrics detected");
+        sdsclear(buffer);
     }
     else {
         buffer = sdscatlen(buffer, "],", 2);

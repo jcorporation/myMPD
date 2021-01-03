@@ -186,7 +186,7 @@ function getLyrics(uri, el) {
             el.innerText = t(obj.result.message);
         }
         else {
-            let lyrics_header = '<span class="lyricsHeader" class="btn-group-toggle" data-toggle="buttons">';
+            let lyricsHeader = '<span class="lyricsHeader" class="btn-group-toggle" data-toggle="buttons">';
             let lyrics = '<div class="lyricsTextContainer">';
             for (let i = 0; i < obj.result.returnedEntities; i++) {
                 let ht = obj.result.data[i].desc;
@@ -199,16 +199,16 @@ function getLyrics(uri, el) {
                 else {
                     ht = i;
                 }
-                lyrics_header += '<label data-num="' + i + '" class="btn btn-sm btn-outline-secondary mr-2' + (i === 0 ? ' active' : '') + '">' + ht + '</label>';
+                lyricsHeader += '<label data-num="' + i + '" class="btn btn-sm btn-outline-secondary mr-2' + (i === 0 ? ' active' : '') + '">' + ht + '</label>';
                 lyrics += '<div class="lyricsText' + (i > 0 ? ' hide' : '') + '">' +
                     (obj.result.synced === true ? parseSyncedLyrics(obj.result.data[i].text) : e(obj.result.data[i].text).replace(/\n/g, "<br/>")) + 
                     '</div>';
             }
-            lyrics_header += '</span>';
+            lyricsHeader += '</span>';
             lyrics += '</div>';
             showSyncedLyrics = obj.result.synced;
             if (obj.result.returnedEntities > 1) {
-                el.innerHTML = lyrcisHeader + lyrics;
+                el.innerHTML = lyricsHeader + lyrics;
                 el.getElementsByClassName('lyricsHeader')[0].addEventListener('click', function(event) {
                     if (event.target.nodeName === 'LABEL') {
                         event.target.parentNode.getElementsByClassName('active')[0].classList.remove('active');
@@ -245,7 +245,7 @@ function parseSyncedLyrics(text) {
             //line[3] are hundreths of a seconde - ignore it for the moment
             html += '<p><span data-sec="' + sec + '">';
             //support of extended lrc format - timestamps for words
-            html += line[4].replace(/\<(\d+):(\d+)\.(\d+)\>/g, function(m0, m1, m2, m3) {
+            html += line[4].replace(/<(\d+):(\d+)\.(\d+)>/g, function(m0, m1, m2, m3) {
                 //m3 are hundreths of a seconde - ignore it for the moment
                 let wsec = parseInt(m1) * 60 + parseInt(m2);
                 return '</span><span data-sec="' + wsec + '">';
