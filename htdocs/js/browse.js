@@ -67,7 +67,6 @@ function parseFilesystem(obj) {
     let table = document.getElementById(app.current.app + (app.current.tab === undefined ? '' : app.current.tab) + 'List');
     let tbody = table.getElementsByTagName('tbody')[0];
     let colspan = settings['cols' + list].length;
-    colspan--;
 
     if (obj.error) {
         tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
@@ -401,7 +400,9 @@ function parseAlbumDetails(obj) {
         lastDisc = obj.result.data[i].Disc;
     }
     tbody.innerHTML = titleList;
-    //document.getElementById('cardFooterBrowse').innerHTML = t('Num songs', obj.result.totalEntities) + ' &ndash; ' + beautifyDuration(obj.result.totalTime);
+    const tfoot = table.getElementsByTagName('tfoot')[0];
+    let colspan = settings.colsBrowseDatabaseDetail.length;
+    tfoot.innerHTML = '<tr><td colspan="' + (colspan + 1) + '"><small>' + t('Num songs', obj.result.totalEntities) + '&nbsp;&ndash;&nbsp;' + beautifyDuration(obj.result.totalTime) + '</small></td></tr>';
     document.getElementById('BrowseDatabaseDetailList').classList.remove('opacity05');
 }
 
