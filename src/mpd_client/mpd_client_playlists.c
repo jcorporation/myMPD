@@ -126,10 +126,12 @@ sds mpd_client_put_playlist_list(t_config *config, t_mpd_client_state *mpd_clien
     struct mpd_song *song;
     unsigned entities_returned = 0;
     unsigned entity_count = 0;
+    unsigned total_time = 0;
     sds entityName = sdsempty();
     size_t search_len = strlen(searchstr);
     while ((song = mpd_recv_song(mpd_client_state->mpd_state->conn)) != NULL) {
         entity_count++;
+        total_time += mpd_song_get_duration(song);
         if (entity_count > offset && (entity_count <= offset + limit || limit == 0)) {
             entityName = mpd_shared_get_tags(song, MPD_TAG_TITLE, entityName);
             if (search_len == 0  || strcasestr(entityName, searchstr) != NULL) {
@@ -158,6 +160,7 @@ sds mpd_client_put_playlist_list(t_config *config, t_mpd_client_state *mpd_clien
 
     buffer = sdscat(buffer, "],");
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);
+    buffer = tojson_long(buffer, "totalTime", total_time, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
     buffer = tojson_long(buffer, "offset", offset, true);
     buffer = tojson_char(buffer, "searchstr", searchstr, true);

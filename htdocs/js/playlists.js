@@ -91,7 +91,10 @@ function parsePlaylists(obj) {
                 tbody.append(row);
             }
         }
-        //document.getElementById('cardFooterBrowse').innerText = gtPage('Num songs', obj.result.returnedEntities, obj.result.totalEntities);
+        let tfoot = table.getElementsByTagName('tfoot')[0];
+        let colspan = settings.colsBrowsePlaylistsDetail.length;
+        colspan++;
+        tfoot.innerHTML = '<tr><td colspan="' + (colspan + 1) + '"><small>' + t('Num songs', obj.result.totalEntities) + '&nbsp;&ndash;&nbsp;' + beautifyDuration(obj.result.totalTime) + '</small></td></tr>';
     }
     let trLen = tr.length - 1;
     for (let i = trLen; i >= nrItems; i --) {
