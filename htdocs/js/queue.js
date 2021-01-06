@@ -81,17 +81,22 @@ function parseQueue(obj) {
         gotoPage(obj.result.offset);
         return;
     }
-/*
-    if (obj.result.totalTime && obj.result.totalTime > 0 && obj.result.totalEntities <= settings.maxElementsPerPage ) {
-        document.getElementById('cardFooterQueue').innerText = t('Num songs', obj.result.totalEntities) + ' – ' + beautifyDuration(obj.result.totalTime);
+    
+    let table = document.getElementById('QueueCurrentList');
+    let tfoot = table.getElementsByTagName('tfoot')[0];
+
+    let colspan = settings['colsQueueCurrent'].length;
+
+    if (obj.result.totalTime && obj.result.totalTime > 0 && obj.result.totalEntities <= app.current.limit ) {
+        tfoot.innerHTML = '<tr><td colspan="' + (colspan + 1) + '"><small>' + t('Num songs', obj.result.totalEntities) + '&nbsp;&ndash;&nbsp;' + beautifyDuration(obj.result.totalTime) + '</small></td></tr>';
     }
     else if (obj.result.totalEntities > 0) {
-        document.getElementById('cardFooterQueue').innerText = t('Num songs', obj.result.totalEntities);
+        tfoot.innerHTML = '<tr><td colspan="' + (colspan + 1) + '"><small>' + t('Num songs', obj.result.totalEntities) + '</small></td></tr>';
     }
     else {
-        document.getElementById('cardFooterQueue').innerText = '';
+        tfoot.innerHTML = '';
     }
-*/
+
     if (obj.result.totalEntities > settings.maxElementsPerPage) {
         document.getElementById('btnQueueGotoPlayingSong').parentNode.classList.remove('hide');
     }
@@ -100,7 +105,6 @@ function parseQueue(obj) {
     }
 
     let nrItems = obj.result.returnedEntities;
-    let table = document.getElementById('QueueCurrentList');
     let navigate = document.activeElement.parentNode.parentNode === table ? true : false;
     let activeRow = 0;
     table.setAttribute('data-version', obj.result.queueVersion);
@@ -135,14 +139,11 @@ function parseQueue(obj) {
         tr[i].remove();
     }
 
-    let colspan = settings['colsQueueCurrent'].length;
-    colspan--;
-
     if (obj.result.method === 'MPD_API_QUEUE_SEARCH' && nrItems === 0) {
         tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
                           '<td colspan="' + colspan + '">' + t('No results, please refine your search') + '</td></tr>';
     }
-    else if (obj.result.method === 'MPD_API_QUEUE_ADD_TRACK' && nrItems === 0) {
+    else if (obj.result.method === 'MPD_API_QUEUE_LIST' && nrItems === 0) {
         tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
                           '<td colspan="' + colspan + '">' + t('Empty queue') + '</td></tr>';
     }
@@ -193,7 +194,6 @@ function parseLastPlayed(obj) {
     }                    
 
     let colspan = settings['colsQueueLastPlayed'].length;
-    colspan--;
     
     if (nrItems === 0) {
         tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
