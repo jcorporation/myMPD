@@ -1658,3 +1658,24 @@ Stop
 
 Unsupported file type
 지원되지 않는 파일 형식
+
+All
+모두
+
+Either AlbumArtist or Artist tag must be enabled
+음반 연주자나 연주자 태그를 사용해야 함
+
+Elements per page
+페이지당 요소
+
+Failed to set song priority
+곡 우선 순위를 설정할 수 없음
+
+Lookup at musicbrainz
+뮤직브레인즈에서 찾기
+
+Play after current playing song
+현재 연주 중인 곡 다음에 연주
+
+Replaced queue
+순서 바꿈
