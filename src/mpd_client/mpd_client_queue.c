@@ -151,12 +151,12 @@ sds mpd_client_put_queue(t_mpd_client_state *mpd_client_state, sds buffer, sds m
         
     buffer = jsonrpc_start_result(buffer, method, request_id);
     buffer = sdscat(buffer, ",\"data\":[");
-    unsigned totalTime = 0;
+    unsigned total_time = 0;
     unsigned entity_count = 0;
     unsigned entities_returned = 0;
     struct mpd_song *song;
     while ((song = mpd_recv_song(mpd_client_state->mpd_state->conn)) != NULL) {
-        totalTime += mpd_song_get_duration(song);
+        total_time += mpd_song_get_duration(song);
         entity_count++;
         if (entities_returned++) {
             buffer = sdscat(buffer, ",");
@@ -170,7 +170,7 @@ sds mpd_client_put_queue(t_mpd_client_state *mpd_client_state, sds buffer, sds m
     }
 
     buffer = sdscat(buffer, "],");
-    buffer = tojson_long(buffer, "totalTime", totalTime, true);
+    buffer = tojson_long(buffer, "totalTime", total_time, true);
     buffer = tojson_long(buffer, "totalEntities", mpd_status_get_queue_length(status), true);
     buffer = tojson_long(buffer, "offset", offset, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
