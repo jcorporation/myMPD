@@ -1680,3 +1680,12 @@ Nach aktuellem Lied abspielen
 
 Replaced queue
 Warteschlange ersetzt
+
+First page
+Erste Seite
+
+Last page
+Letzte Seite
+
+Show album
+Album anzeigen
