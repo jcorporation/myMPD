@@ -51,7 +51,6 @@ function parseJukeboxList(obj) {
     }                    
 
     let colspan = settings['colsQueueJukebox'].length;
-    colspan--;
     
     if (nrItems === 0) {
         tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
