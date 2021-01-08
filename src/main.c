@@ -6,6 +6,7 @@
 
 #define _GNU_SOURCE
 
+#include <errno.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -76,11 +77,12 @@ static bool do_chown(const char *file_path, const char *user_name) {
         LOG_ERROR("Can't get passwd entry for user %s", user_name);
         return false;
     }
-  
+
+    errno = 0;  
     int rc = chown(file_path, pwd->pw_uid, pwd->pw_gid); /* Flawfinder: ignore */
     //Originaly owned by root
     if (rc == -1) {
-        LOG_ERROR("Can't chown %s to %s", file_path, user_name);
+        LOG_ERROR("Can't chown %s to %s: %s", file_path, user_name, strerror(errno));
         return false;
     }
     return true;
@@ -88,7 +90,9 @@ static bool do_chown(const char *file_path, const char *user_name) {
 
 static bool do_chroot(struct t_config *config) {
     if (chroot(config->varlibdir) == 0) { /* Flawfinder: ignore */
+        errno = 0;
         if (chdir("/") != 0) {
+            LOG_ERROR("Can not change directory to /: %s", strerror(errno));
             return false;
         }
         //reset environment
@@ -136,19 +140,26 @@ static bool drop_privileges(t_config *config, uid_t startup_uid) {
     if (startup_uid == 0) {
         if (sdslen(config->user) > 0) {
             LOG_INFO("Droping privileges to %s", config->user);
+            //get user
             struct passwd *pw;
+            errno = 0;
             if ((pw = getpwnam(config->user)) == NULL) {
-                LOG_ERROR("getpwnam() failed, unknown user");
+                LOG_ERROR("getpwnam() failed, unknown user: %s", strerror(errno));
                 return false;
             }
-            if (setgroups(0, NULL) != 0) { 
-                LOG_ERROR("setgroups() failed");
+            //purge supplementary groups
+            errno = 0;
+            if (setgroups(0, NULL) == -1) { 
+                LOG_ERROR("setgroups() failed: %s", strerror(errno));
                 return false;
             }
-            if (setgid(pw->pw_gid) != 0) {
-                LOG_ERROR("setgid() failed");
+            //set new supplementary groups from target user
+            errno = 0;
+            if (initgroups(config->user, pw->pw_gid) == -1) {
+                LOG_ERROR("initgroups() failed: %s", strerror(errno));
                 return false;
             }
+            //chroot if enabled
             if (config->chroot == true) {
                 LOG_INFO("Chroot to %s", config->varlibdir);
                 if (do_chroot(config) == false) {
@@ -156,8 +167,16 @@ static bool drop_privileges(t_config *config, uid_t startup_uid) {
                     return false;
                 }
             }
-            if (setuid(pw->pw_uid) != 0) {
-                LOG_ERROR("setuid() failed");
+            //change primary group to group of target user
+            errno = 0;
+            if (setgid(pw->pw_gid) == -1 ) {
+                LOG_ERROR("setgid() failed: %s", strerror(errno));
+                return false;
+            }
+            //change user
+            errno = 0;
+            if (setuid(pw->pw_uid) == -1) {
+                LOG_ERROR("setuid() failed: %s", strerror(errno));
                 return false;
             }
         }
@@ -309,6 +328,7 @@ int main(int argc, char **argv) {
     #endif
 
     if (chdir("/") != 0) {
+        LOG_ERROR("Can not change directory to /: %s", strerror(errno));
         goto end;
     }
     //only user and group have rw access
@@ -387,6 +407,12 @@ int main(int argc, char **argv) {
             //set readonly mode if varlibdir is not accessible
             mympd_set_readonly(config);
         }
+    }
+
+    //go into varlibdir
+    if (chdir(config->varlibdir) != 0) {
+        LOG_ERROR("Can not change directory to %s: %s", config->varlibdir, strerror(errno));
+        goto cleanup;
     }
 
     //handle commandline options and exit
