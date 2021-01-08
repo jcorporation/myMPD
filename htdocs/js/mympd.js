@@ -964,15 +964,6 @@ function appInit() {
     }
     document.getElementById('selectTimerMinute').innerHTML = selectTimerMinute;
     
-
-    document.getElementById('inputHighlightColor').addEventListener('change', function() {
-        document.getElementById('highlightColorPreview').style.backgroundColor = this.value;
-    }, false);
-    
-    document.getElementById('inputBgColor').addEventListener('change', function() {
-        document.getElementById('bgColorPreview').style.backgroundColor = this.value;
-    }, false);
-    
     document.getElementById('selectTheme').addEventListener('change', function() {
         const value = getSelectValue(this);
         if (value === 'theme-default') { 
