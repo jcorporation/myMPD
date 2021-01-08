@@ -165,7 +165,7 @@ function addTagList(el, list) {
             '<button type="button" class="btn btn-secondary btn-sm btn-block' + (el === 'BrowseNavFilesystemDropdown' ? ' active' : '') + '" data-tag="Filesystem">' + t('Filesystem') + '</button>'
     }
     else if (el === 'databaseSortTagsList') {
-        if (settings.tags.includes('Date')) {
+        if (settings.tags.includes('Date') === true && settings[list].includes('Date') === false) {
             tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="Date">' + t('Date') + '</button>';
         }
         tagList += '<button type="button" class="btn btn-secondary btn-sm btn-block" data-tag="Last-Modified">' + t('Last modified') + '</button>';
