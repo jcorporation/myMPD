@@ -1679,3 +1679,12 @@ Play after current playing song
 
 Replaced queue
 순서 바꿈
+
+First page
+첫 페이지
+
+Last page
+끝 페이지
+
+Show album
+음반 보기
