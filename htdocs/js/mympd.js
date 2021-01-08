@@ -253,17 +253,25 @@ function appPrepare(scrollPos) {
         document.getElementById('cardBrowsePlaylists').classList.add('hide');
         document.getElementById('cardBrowseFilesystem').classList.add('hide');
         document.getElementById('cardBrowseDatabase').classList.add('hide');
-        //show active card + nav
+        //show active card
         document.getElementById('card' + app.current.app).classList.remove('hide');
-        if (document.getElementById('nav' + app.current.app)) {
-            document.getElementById('nav' + app.current.app).classList.add('active');
-        }
         if (app.current.tab !== undefined) {
             document.getElementById('card' + app.current.app + app.current.tab).classList.remove('hide');
         }
+        //show active navbar icon
+        let nav = document.getElementById('nav' + app.current.app + app.current.tab);
+        if (nav) {
+            nav.classList.add('active');
+        }
+        else {
+            nav = document.getElementById('nav' + app.current.app);
+            if (nav) {
+                document.getElementById('nav' + app.current.app).classList.add('active');
+            }
+        }
     }
     scrollToPosY(scrollPos);
-    let list = document.getElementById(app.current.app + 
+    const list = document.getElementById(app.current.app + 
         (app.current.tab === undefined ? '' : app.current.tab) + 
         (app.current.view === undefined ? '' : app.current.view) + 'List');
     if (list) {
