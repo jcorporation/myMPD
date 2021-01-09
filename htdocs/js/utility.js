@@ -132,8 +132,11 @@ function selectTag(btnsEl, desc, setTo) {
     if (aBtn) {
         aBtn.classList.add('active');
         if (desc !== undefined) {
-            document.getElementById(desc).innerText = aBtn.innerText;
-            document.getElementById(desc).setAttribute('data-phrase', aBtn.innerText);
+            const descEl = document.getElementById(desc);
+            if (descEl !== null) {
+                descEl.innerText = aBtn.innerText;
+                descEl.setAttribute('data-phrase', aBtn.innerText);
+            }
         }
     }
 }
