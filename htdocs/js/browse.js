@@ -295,7 +295,7 @@ function popoverMenuAlbumCards(event) {
     event.stopPropagation();
 }
 
-function gotoBrowse() {
+function gotoBrowse(event) {
     if (settings.featAdvsearch === false) {
         return;
     }
@@ -318,12 +318,12 @@ function gotoBrowse() {
             }
             else {
                 //show filtered album list
-                appGoto('Browse', 'Database', 'List', '0', undefined, tag, tagAlbumArtist, 'Album', '(' + tag + ' == \'' + name + '\')');
+                appGoto('Browse', 'Database', 'List', '0', undefined, tag, tagAlbumArtist, 'Album', '(' + tag + ' == \'' + escapeMPD(name) + '\')');
             }
         }
         else {
             //show filtered album list
-            appGoto('Browse', 'Database', 'List', '0', undefined, tag, tagAlbumArtist, 'Album', '(' + tag + ' == \'' + name + '\')');
+            appGoto('Browse', 'Database', 'List', '0', undefined, tag, tagAlbumArtist, 'Album', '(' + tag + ' == \'' + escapeMPD(name) + '\')');
         }
     }
 }
