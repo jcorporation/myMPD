@@ -1126,59 +1126,8 @@ function appInit() {
         }, false);
     }
     
-    document.getElementById('HomeCards').addEventListener('click', function(event) {
-        if (event.target.classList.contains('card-body')) {
-            const href = event.target.parentNode.getAttribute('data-href');
-            if (href !== null) {
-               parseCmd(event, href);
-            }
-        }
-        else if (event.target.classList.contains('card-footer')){
-            let sels = document.getElementById('HomeCards').getElementsByClassName('selected');
-            for (let i = 0; i < sels.length; i++) {
-                sels[i].classList.remove('selected');
-            }
-            event.target.parentNode.classList.add('selected');
-            showMenu(event.target, event);
-            event.stopPropagation();
-        }
-    }, false);
+    initHome();
     
-    document.getElementById('HomeCards').addEventListener('keydown', function(event) {
-        navigateGrid(event.target, event.key);
-    }, false);
-    
-    dragAndDropHome();
-    
-    document.getElementById('selectHomeIconCmd').addEventListener('change', function() {
-        showHomeIconCmdOptions();
-    }, false);
-
-    document.getElementById('inputHomeIconLigature').addEventListener('change', function(event) {
-        document.getElementById('homeIconPreview').innerText = event.target.value;
-        if (event.target.value !== '') {
-            document.getElementById('selectHomeIconImage').value = '';
-            document.getElementById('homeIconPreview').style.backgroundImage = '';
-        }
-    }, false);
-    
-    document.getElementById('inputHomeIconBgcolor').addEventListener('change', function(event) {
-        document.getElementById('homeIconPreview').style.backgroundColor = event.target.value;
-    }, false);
-    
-    document.getElementById('selectHomeIconImage').addEventListener('change', function(event) {
-        const value = getSelectValue(event.target);
-        document.getElementById('homeIconPreview').style.backgroundImage = 'url("' + subdir + '/browse/pics/' + value  + '")';
-        if (value !== '') {
-            document.getElementById('divHomeIconLigature').classList.add('hide');
-            document.getElementById('homeIconPreview').innerHTML = '';
-        }
-        else {
-            document.getElementById('divHomeIconLigature').classList.remove('hide');
-            document.getElementById('homeIconPreview').innerText = document.getElementById('inputHomeIconLigature').value;
-        }
-    }, false);
-
     document.getElementById('cardPlaybackTags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'P') {
             gotoBrowse();
