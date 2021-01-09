@@ -76,6 +76,10 @@ function initHome() {
     document.getElementById('HomeCards').addEventListener('contextmenu', function(event) {
         popoverMenuHome(event);
     }, false);
+
+    document.getElementById('HomeCards').addEventListener('long-press', function(event) {
+        popoverMenuHome(event);
+    }, false);
     
     document.getElementById('HomeCards').addEventListener('keydown', function(event) {
         navigateGrid(event.target, event.key);

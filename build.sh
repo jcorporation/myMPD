@@ -342,6 +342,7 @@ builddebug() {
   echo "Linking bootstrap css and js"
   [ -e "$PWD/htdocs/css/bootstrap.css" ] || ln -s "$PWD/dist/htdocs/css/bootstrap.css" "$PWD/htdocs/css/bootstrap.css"
   [ -e "$PWD/htdocs/js/bootstrap-native.js" ] || ln -s "$PWD/dist/htdocs/js/bootstrap-native.js" "$PWD/htdocs/js/bootstrap-native.js"
+  [ -e "$PWD/htdocs/js/long-press-event.min.js" ] || ln -s "$PWD/dist/htdocs/js/long-press-event.min.js" "$PWD/htdocs/js/long-press-event.min.js"
 
   createi18n ../../htdocs/js/i18n.js pretty
   

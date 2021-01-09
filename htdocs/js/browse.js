@@ -30,6 +30,12 @@ function initBrowse() {
             popoverMenuAlbumCards(event);
         }
     }, false);
+    
+    document.getElementById('BrowseDatabaseCards').addEventListener('long-press', function(event) {
+        if (app.current.tag === 'Album') {
+            popoverMenuAlbumCards(event);
+        }
+    }, false);
 
     document.getElementById('BrowseDatabaseCards').addEventListener('keydown', function(event) {
         navigateGrid(event.target, event.key);
