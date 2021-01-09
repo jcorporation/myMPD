@@ -2212,9 +2212,16 @@
             <div id="divHomeIconLigature" class="hide">
               <div class="form-group row">
                 <label class="col-sm-4 col-form-label" for="inputHomeIconLigature" data-phrase="Ligature"></label>
-                <div class="col-sm-8">
-                  <input id="inputHomeIconLigature" class="form-control border-secondary" type="text"/>
-                  <small><a class="text-success" href="https://material.io/icons" target="_blank" data-phrase="Ligature overview"></a></small>
+                <div class="col-sm-8 input-group">
+                  <input type="text" class="form-control border-secondary" id="inputHomeIconLigature" readonly/>
+                  <div class="input-group-append">
+                    <button id="btnHomeIconLigature" type="button" data-toggle="dropdown" class="text-left btn btn-secondary dropdown-toggle"></button>
+                    <div id="dropdownHomeIconLigature" class="dropdown-menu px-2 mr-3">
+                      <input id="searchHomeIconLigature" type="text" class="form-control border-secondary" data-placeholder-phrase="Filter"/>
+                      <div class="dropdown-divider"></div>
+                      <div id="listHomeIconLigature"></div>
+                    </div>
+                  </div>
                 </div>
               </div>
               <div class="form-group row">
