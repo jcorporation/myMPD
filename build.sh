@@ -390,6 +390,7 @@ cleanup() {
   #htdocs
   rm -f htdocs/js/bootstrap-native-v4.js
   rm -f htdocs/js/bootstrap-native.js
+  rm -f htdocs/js/long-press-event.min.js
   rm -f htdocs/js/i18n.js
   rm -f htdocs/css/bootstrap.css
 
