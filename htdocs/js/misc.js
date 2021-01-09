@@ -229,7 +229,6 @@ function zoomZoomPicture() {
     window.open(document.getElementById('modalPictureImg').style.backgroundImage.match(/^url\(["']?([^"']*)["']?\)/)[1]);
 }
 
-
 function createImgCarousel(imgEl, name, images) {
     let carousel = '<div id="' + name + '" class="carousel slide" data-ride="carousel">' +
         '<ol class="carousel-indicators">';
