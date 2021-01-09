@@ -5,6 +5,32 @@
  https://github.com/jcorporation/mympd
 */
 
+function initTrigger() {
+    document.getElementById('listTriggerList').addEventListener('click', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        if (event.target.nodeName === 'TD') {
+            let id = decodeURI(event.target.parentNode.getAttribute('data-trigger-id'));
+            showEditTrigger(id);
+        }
+        else if (event.target.nodeName === 'A') {
+            let action = event.target.getAttribute('data-action');
+            let id = decodeURI(event.target.parentNode.parentNode.getAttribute('data-trigger-id'));
+            if (action === 'delete') {
+                deleteTrigger(id);
+            }
+        }
+    }, false);
+
+    document.getElementById('selectTriggerScript').addEventListener('change', function() {
+        selectTriggerActionChange();
+    }, false);
+
+    document.getElementById('modalTrigger').addEventListener('shown.bs.modal', function () {
+        showListTrigger();
+    });
+}
+
 //eslint-disable-next-line no-unused-vars
 function saveTrigger() {
     let formOK = true;
@@ -39,7 +65,7 @@ function showEditTrigger(id) {
     document.getElementById('newTriggerFooter').classList.remove('hide');
     
     const nameEl = document.getElementById('inputTriggerName');
-    nameEl.classList.remove('is-invalid');
+    removeIsInvalid(document.getElementById('modalTrigger'));
     nameEl.value = '';
     nameEl.focus();
     document.getElementById('inputTriggerId').value = '-1';

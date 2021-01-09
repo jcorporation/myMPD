@@ -5,6 +5,52 @@
  https://github.com/jcorporation/mympd
 */
 
+function initMounts() {
+    document.getElementById('listMountsList').addEventListener('click', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        if (event.target.nodeName === 'TD') {
+            if (event.target.parentNode.getAttribute('data-point') === '') {
+                return false;
+            }
+            showEditMount(decodeURI(event.target.parentNode.getAttribute('data-url')),decodeURI(event.target.parentNode.getAttribute('data-point')));
+        }
+        else if (event.target.nodeName === 'A') {
+            let action = event.target.getAttribute('data-action');
+            let mountPoint = decodeURI(event.target.parentNode.parentNode.getAttribute('data-point'));
+            if (action === 'unmount') {
+                unmountMount(mountPoint);
+            }
+            else if (action === 'update') {
+                updateMount(event.target, mountPoint);
+            }
+        }
+    }, false);
+
+    document.getElementById('btnDropdownNeighbors').parentNode.addEventListener('show.bs.dropdown', function () {
+        if (settings.featNeighbors === true) {
+            sendAPI("MPD_API_MOUNT_NEIGHBOR_LIST", {}, parseNeighbors, true);
+        }
+        else {
+            document.getElementById('dropdownNeighbors').children[0].innerHTML = 
+                '<div class="list-group-item"><span class="material-icons">warning</span> ' + t('Neighbors are disabled') + '</div>';
+        }
+    }, false);
+    
+    document.getElementById('dropdownNeighbors').children[0].addEventListener('click', function (event) {
+        event.preventDefault();
+        if (event.target.nodeName === 'A') {
+            let c = event.target.getAttribute('data-value').match(/^(\w+:\/\/)(.+)$/);
+            document.getElementById('selectMountUrlhandler').value = c[1];
+            document.getElementById('inputMountUrl').value = c[2];
+        }
+    }, false);
+
+    document.getElementById('modalMounts').addEventListener('shown.bs.modal', function () {
+        showListMounts();
+    });
+}
+
 //eslint-disable-next-line no-unused-vars
 function unmountMount(mountPoint) {
     sendAPI("MPD_API_MOUNT_UNMOUNT", {"mountPoint": mountPoint}, showListMounts);
@@ -55,8 +101,7 @@ function showEditMount(uri, storage) {
         document.getElementById('inputMountPoint').value = '';
     }
     document.getElementById('inputMountUrl').focus();
-    document.getElementById('inputMountUrl').classList.remove('is-invalid');
-    document.getElementById('inputMountPoint').classList.remove('is-invalid');
+    removeIsInvalid(document.getElementById('modalMounts'));
 }
 
 function showListMounts(obj) {

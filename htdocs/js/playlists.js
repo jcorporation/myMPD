@@ -206,7 +206,7 @@ function toggleAddToPlaylistFrm() {
 function parseSmartPlaylist(obj) {
     let nameEl = document.getElementById('saveSmartPlaylistName');
     nameEl.value = obj.result.playlist;
-    nameEl.classList.remove('is-invalid');
+    removeIsInvalid(document.getElementById('modalSaveSmartPlaylist'));
     document.getElementById('saveSmartPlaylistType').value = t(obj.result.type);
     document.getElementById('saveSmartPlaylistType').setAttribute('data-value', obj.result.type);
     document.getElementById('saveSmartPlaylistSearch').classList.add('hide');
@@ -351,12 +351,11 @@ function showAddToPlaylist(uri, searchstr) {
     document.getElementById('addToPlaylistPlaylist').innerHTML = '';
     document.getElementById('addToPlaylistNewPlaylist').value = '';
     document.getElementById('addToPlaylistNewPlaylistDiv').classList.add('hide');
-    document.getElementById('addToPlaylistNewPlaylist').classList.remove('is-invalid');
     toggleBtn('toggleAddToPlaylistBtn',0);
     let streamUrl = document.getElementById('streamUrl')
     streamUrl.focus();
     streamUrl.value = '';
-    streamUrl.classList.remove('is-invalid');
+    removeIsInvalid(document.getElementById('modalAddToPlaylist'));
     if (uri !== 'stream') {
         document.getElementById('addStreamFooter').classList.add('hide');
         document.getElementById('addStreamFrm').classList.add('hide');
@@ -424,7 +423,7 @@ function addToPlaylist() {
 
 //eslint-disable-next-line no-unused-vars
 function showRenamePlaylist(from) {
-    document.getElementById('renamePlaylistTo').classList.remove('is-invalid');
+    removeIsInvalid(document.getElementById('modalRenamePlaylist'));
     modalRenamePlaylist.show();
     document.getElementById('renamePlaylistFrom').value = from;
     document.getElementById('renamePlaylistTo').value = '';

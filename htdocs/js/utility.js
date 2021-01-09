@@ -5,6 +5,13 @@
  https://github.com/jcorporation/mympd
 */
 
+function removeIsInvalid(parentEl) {
+    const els = parentEl.getElementsByClassName('is-invalid')
+    for (let i = 0; i < els.length; i++) {
+        els[i].classList.remove('is-invalid');
+    }
+}
+
 function escapeMPD(x) {
     return x.replace(/(["'])/g, function(m0, m1) {
         if (m1 === '"') return '\\"';
@@ -19,13 +26,6 @@ function unescapeMPD(x) {
         else if (m1 === '\\\'') return '\'';
         else if (m1 === '\\\\') return '\\';
     });
-}
-
-function removeIsInvalid(el) {
-    let els = el.querySelectorAll('.is-invalid');
-    for (let i = 0; i < els.length; i++) {
-        els[i].classList.remove('is-invalid');
-    }
 }
 
 function getSelectValue(el) {

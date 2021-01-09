@@ -5,6 +5,50 @@
  https://github.com/jcorporation/mympd
 */
 
+function initScripts() {
+    document.getElementById('inputScriptArgument').addEventListener('keyup', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            event.stopPropagation();
+            addScriptArgument();
+        }
+    }, false);
+    
+    document.getElementById('selectScriptArguments').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'OPTION') {
+            removeScriptArgument(event);
+        }
+    }, false);
+
+    document.getElementById('listScriptsList').addEventListener('click', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        if (event.target.nodeName === 'TD') {
+            if (settings.featScripteditor === false || event.target.parentNode.getAttribute('data-script') === '') {
+                return false;
+            }
+            showEditScript(decodeURI(event.target.parentNode.getAttribute('data-script')));
+        }
+        else if (event.target.nodeName === 'A') {
+            let action = event.target.getAttribute('data-action');
+            let script = decodeURI(event.target.parentNode.parentNode.getAttribute('data-script'));
+            if (action === 'delete') {
+                deleteScript(script);
+            }
+            else if (action === 'execute') {
+                execScript(event.target.getAttribute('data-href'));
+            }
+            else if (action === 'add2home') {
+                addScriptToHome(script, event.target.getAttribute('data-href'))
+            }
+        }
+    }, false);
+
+    document.getElementById('modalScripts').addEventListener('shown.bs.modal', function () {
+        showListScripts();
+    });
+}
+
 //eslint-disable-next-line no-unused-vars
 function saveScript() {
     let formOK = true;
@@ -59,10 +103,8 @@ function showEditScript(script) {
     document.getElementById('listScriptsFooter').classList.add('hide');
     document.getElementById('editScriptFooter').classList.remove('hide');
     
-    document.getElementById('inputScriptName').classList.remove('is-invalid');
-    document.getElementById('inputScriptOrder').classList.remove('is-invalid');
-    document.getElementById('inputScriptArgument').classList.remove('is-invalid');
-    
+    removeIsInvalid(document.getElementById('modalScripts'));
+      
     if (script !== '') {
         sendAPI("MYMPD_API_SCRIPT_GET", {"script": script}, parseEditScript, false);
     }

@@ -5,6 +5,88 @@
  https://github.com/jcorporation/mympd
 */
 
+function initSettings() {
+    document.getElementById('selectTheme').addEventListener('change', function() {
+        const value = getSelectValue(this);
+        if (value === 'theme-default') { 
+            document.getElementById('inputBgColor').value = '#ccc';
+        }
+        else if (value === 'theme-light') {
+            document.getElementById('inputBgColor').value = '#fff';
+        }
+        else if (value === 'theme-dark') {
+            document.getElementById('inputBgColor').value = '#000';
+        }
+    }, false);
+
+    document.getElementById('selectMusicDirectory').addEventListener('change', function () {
+        if (this.options[this.selectedIndex].value === 'auto') {
+            document.getElementById('inputMusicDirectory').value = settings.musicDirectoryValue;
+            document.getElementById('inputMusicDirectory').setAttribute('readonly', 'readonly');
+        }
+        else if (this.options[this.selectedIndex].value === 'none') {
+            document.getElementById('inputMusicDirectory').value = '';
+            document.getElementById('inputMusicDirectory').setAttribute('readonly', 'readonly');
+        }
+        else {
+            document.getElementById('inputMusicDirectory').value = '';
+            document.getElementById('inputMusicDirectory').removeAttribute('readonly');
+        }
+    }, false);
+
+    document.getElementById('modalSettings').addEventListener('shown.bs.modal', function () {
+        getSettings();
+        removeIsInvalid(document.getElementById('modalSettings'));
+    });
+
+    document.getElementById('modalConnection').addEventListener('shown.bs.modal', function () {
+        getSettings();
+        removeIsInvalid(document.getElementById('modalConnection'));
+    });
+
+    document.getElementById('btnJukeboxModeGroup').addEventListener('mouseup', function () {
+        setTimeout(function() {
+            let value = document.getElementById('btnJukeboxModeGroup').getElementsByClassName('active')[0].getAttribute('data-value');
+            if (value === '0') {
+                document.getElementById('inputJukeboxQueueLength').setAttribute('disabled', 'disabled');
+                document.getElementById('selectJukeboxPlaylist').setAttribute('disabled', 'disabled');
+            }
+            else if (value === '2') {
+                document.getElementById('inputJukeboxQueueLength').setAttribute('disabled', 'disabled');
+                document.getElementById('selectJukeboxPlaylist').setAttribute('disabled', 'disabled');
+                document.getElementById('selectJukeboxPlaylist').value = 'Database';
+            }
+            else if (value === '1') {
+                document.getElementById('inputJukeboxQueueLength').removeAttribute('disabled');
+                document.getElementById('selectJukeboxPlaylist').removeAttribute('disabled');
+            }
+            if (value !== '0') {
+                toggleBtnChk('btnConsume', true);            
+            }
+            checkConsume();
+        }, 100);
+    });
+    
+    document.getElementById('btnConsume').addEventListener('mouseup', function() {
+        setTimeout(function() { 
+            checkConsume(); 
+        }, 100);
+    });
+    
+    document.getElementById('btnStickers').addEventListener('mouseup', function() {
+        setTimeout(function() {
+            if (document.getElementById('btnStickers').classList.contains('active')) {
+                document.getElementById('warnPlaybackStatistics').classList.add('hide');
+                document.getElementById('inputJukeboxLastPlayed').removeAttribute('disabled');
+            }
+            else {
+                document.getElementById('warnPlaybackStatistics').classList.remove('hide');
+                document.getElementById('inputJukeboxLastPlayed').setAttribute('disabled', 'disabled');
+            }
+        }, 100);
+    });
+}
+
 //eslint-disable-next-line no-unused-vars
 function saveConnection() {
     let formOK = true;

@@ -5,6 +5,76 @@
  https://github.com/jcorporation/mympd
 */
 
+function initQueue() {
+    document.getElementById('searchqueuestr').addEventListener('keyup', function(event) {
+        if (event.key === 'Escape') {
+            this.blur();
+        }
+        else {
+            appGoto(app.current.app, app.current.tab, app.current.view, '0', app.current.limit, app.current.filter , app.current.sort, '-', this.value);
+        }
+    }, false);
+
+    document.getElementById('searchqueuetags').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'BUTTON') {
+            appGoto(app.current.app, app.current.tab, app.current.view, 
+                app.current.offset, app.current.limit, event.target.getAttribute('data-tag'), app.current.sort, '-', app.current.search);
+        }
+    }, false);
+
+    document.getElementById('QueueCurrentList').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'TD') {
+            sendAPI("MPD_API_PLAYER_PLAY_TRACK", {"track": event.target.parentNode.getAttribute('data-trackid')});
+        }
+        else if (event.target.nodeName === 'A') {
+            showMenu(event.target, event);
+        }
+    }, false);
+    
+    document.getElementById('QueueLastPlayedList').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'A') {
+            showMenu(event.target, event);
+        }
+    }, false);
+
+    document.getElementById('QueueJukeboxList').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'A') {
+            showMenu(event.target, event);
+        }
+    }, false);
+
+    document.getElementById('selectAddToQueueMode').addEventListener('change', function () {
+        let value = this.options[this.selectedIndex].value;
+        if (value === '2') {
+            document.getElementById('inputAddToQueueQuantity').setAttribute('disabled', 'disabled');
+            document.getElementById('inputAddToQueueQuantity').value = '1';
+            document.getElementById('selectAddToQueuePlaylist').setAttribute('disabled', 'disabled');
+            document.getElementById('selectAddToQueuePlaylist').value = 'Database';
+        }
+        else if (value === '1') {
+            document.getElementById('inputAddToQueueQuantity').removeAttribute('disabled');
+            document.getElementById('selectAddToQueuePlaylist').removeAttribute('disabled');
+        }
+    });
+
+    document.getElementById('modalAddToQueue').addEventListener('shown.bs.modal', function () {
+        removeIsInvalid(document.getElementById('modalAddToQueue'));
+        document.getElementById('warnJukeboxPlaylist2').classList.add('hide');
+        if (settings.featPlaylists === true) {
+            sendAPI("MPD_API_PLAYLIST_LIST", {"searchstr": "", "offset": 0, "limit": 0}, function(obj) { 
+                getAllPlaylists(obj, 'selectAddToQueuePlaylist');
+            });
+        }
+    });
+
+    document.getElementById('modalSaveQueue').addEventListener('shown.bs.modal', function () {
+        let plName = document.getElementById('saveQueueName');
+        plName.focus();
+        plName.value = '';
+        removeIsInvalid(document.getElementById('modalSaveQueue'));
+    });
+}
+
 function parseUpdateQueue(obj) {
     //Set playstate
     if (obj.result.state === 1) {

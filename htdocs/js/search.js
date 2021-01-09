@@ -5,6 +5,115 @@
  https://github.com/jcorporation/mympd
 */
 
+function initSearch() {
+    document.getElementById('SearchList').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'TD') {
+            appendQueue('song', decodeURI(event.target.parentNode.getAttribute("data-uri")), event.target.parentNode.getAttribute("data-name"));
+        }
+        else if (event.target.nodeName === 'A') {
+            showMenu(event.target, event);
+        }
+    }, false);
+    
+    document.getElementById('searchtags').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'BUTTON') {
+            app.current.filter = event.target.getAttribute('data-tag');
+            doSearch(domCache.searchstr.value);
+        }
+    }, false);
+
+    domCache.searchstr.addEventListener('keyup', function(event) {
+        if (event.key === 'Escape') {
+            this.blur();
+        }
+        else if (event.key === 'Enter' && settings.featAdvsearch) {
+            if (this.value !== '') {
+                let match = document.getElementById('searchMatch');
+                let li = document.createElement('button');
+                li.classList.add('btn', 'btn-light', 'mr-2');
+                li.setAttribute('data-filter-tag', encodeURI(app.current.filter));
+                li.setAttribute('data-filter-op', encodeURI(match.options[match.selectedIndex].value));
+                li.setAttribute('data-filter-value', encodeURI(this.value));
+                li.innerHTML = e(app.current.filter) + ' ' + e(match.options[match.selectedIndex].value) + ' \'' + e(this.value) + '\'<span class="ml-2 badge badge-secondary">&times;</span>';
+                this.value = '';
+                domCache.searchCrumb.appendChild(li);
+            }
+            else {
+                doSearch(this.value);
+            }
+        }
+        else {
+            doSearch(this.value);
+        }
+    }, false);
+
+    domCache.searchCrumb.addEventListener('click', function(event) {
+        if (event.target.nodeName === 'SPAN') {
+            event.preventDefault();
+            event.stopPropagation();
+            event.target.parentNode.remove();
+            doSearch('');
+        }
+        else if (event.target.nodeName === 'BUTTON') {
+            event.preventDefault();
+            event.stopPropagation();
+            domCache.searchstr.value = unescapeMPD(decodeURI(event.target.getAttribute('data-filter-value')));
+            selectTag('searchtags', 'searchtagsdesc', decodeURI(event.target.getAttribute('data-filter-tag')));
+            document.getElementById('searchMatch').value = decodeURI(event.target.getAttribute('data-filter-op'));
+            event.target.remove();
+            doSearch(domCache.searchstr.value);
+        }
+    }, false);
+
+    document.getElementById('searchMatch').addEventListener('change', function() {
+        doSearch(domCache.searchstr.value);
+    }, false);
+    
+    document.getElementById('SearchList').getElementsByTagName('tr')[0].addEventListener('click', function(event) {
+        if (settings.featAdvsearch) {
+            if (event.target.nodeName === 'TH') {
+                if (event.target.innerHTML === '') {
+                    return;
+                }
+                let col = event.target.getAttribute('data-col');
+                if (col === 'Duration') {
+                    return;
+                }
+                let sortcol = app.current.sort;
+                let sortdesc = true;
+                
+                if (sortcol === col || sortcol === '-' + col) {
+                    if (sortcol.indexOf('-') === 0) {
+                        sortdesc = true;
+                        col = sortcol.substring(1);
+                    }
+                    else {
+                        sortdesc = false;
+                    }
+                }
+                if (sortdesc === false) {
+                    sortcol = '-' + col;
+                    sortdesc = true;
+                }
+                else {
+                    sortdesc = false;
+                    sortcol = col;
+                }
+                
+                let s = document.getElementById('SearchList').getElementsByClassName('sort-dir');
+                for (let i = 0; i < s.length; i++) {
+                    s[i].remove();
+                }
+                app.current.sort = sortcol;
+                event.target.innerHTML = t(col) + '<span class="sort-dir material-icons pull-right">' + 
+                    (sortdesc === true ? 'arrow_drop_up' : 'arrow_drop_down') + '</span>';
+                appGoto(app.current.app, app.current.tab, app.current.view,
+                    app.current.offset, app.current.limit, app.current.filter,  app.current.sort, '-', app.current.search);
+            }
+        }
+    }, false);
+}
+
 function doSearch(x) {
     if (settings.featAdvsearch) {
         let expression = '(';

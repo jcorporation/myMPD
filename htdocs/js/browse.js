@@ -5,6 +5,260 @@
  https://github.com/jcorporation/mympd
 */
 
+function initBrowse() {
+    document.getElementById('BrowseDatabaseCards').addEventListener('click', function(event) {
+        if (app.current.tag === 'Album') {
+            if (event.target.classList.contains('card-body')) {
+                appGoto('Browse', 'Database', 'Detail', 0, undefined, 'Album', 'AlbumArtist', 
+                    decodeURI(event.target.parentNode.getAttribute('data-album')), 
+                    decodeURI(event.target.parentNode.getAttribute('data-albumartist')));
+            }
+            else if (event.target.classList.contains('card-footer')){
+                showMenu(event.target, event);
+                const selCards = document.getElementById('BrowseDatabaseCards').getElementsByClassName('selected');
+                for (let i = 0; i < selCards.length; i++) {
+                    selCards[i].classList.remove('selected');
+                }
+                event.target.parentNode.classList.add('selected');
+            }
+        }
+        else {
+            app.current.search = '';
+            document.getElementById('searchDatabaseStr').value = '';
+            appGoto(app.current.app, app.current.card, undefined, 0, undefined, 'Album', 'AlbumArtist', 'Album', 
+                '(' + app.current.tag + ' == \'' + decodeURI(event.target.parentNode.getAttribute('data-tag')) + '\')');
+        }
+    }, false);
+    
+    document.getElementById('BrowseDatabaseCards').addEventListener('keydown', function(event) {
+        navigateGrid(event.target, event.key);
+    }, false);
+    
+    if (isMobile === false) {
+        document.getElementById('BrowseDatabaseCards').addEventListener('mouseover', function(event) {
+            if (event.target.classList.contains('card-body') && event.target.childNodes.length === 0) {
+                const oldEls = document.getElementById('BrowseDatabaseCards').getElementsByClassName('album-grid-mouseover');
+                if (oldEls.length > 1) {
+                    for (let i = 0; i < oldEls.length; i++) {
+                        oldEls[i].remove();
+                    }
+                }
+                addPlayButton(event.target);
+            }
+        }, false);
+
+        document.getElementById('BrowseDatabaseCards').addEventListener('mouseout', function(event) {
+            if (event.target.classList.contains('card-body') && (event.relatedTarget === null || ! event.relatedTarget.classList.contains('album-grid-mouseover'))) {
+                event.target.innerHTML = '';
+            }
+        }, false);
+    }
+    
+    document.getElementById('BrowseDatabaseDetailList').addEventListener('click', function(event) {
+        if (event.target.parentNode.parentNode.nodeName === 'TFOOT') {
+            return;
+        }
+        if (event.target.nodeName === 'TD') {
+            appendQueue('song', decodeURI(event.target.parentNode.getAttribute('data-uri')), event.target.parentNode.getAttribute('data-name'));
+        }
+        else if (event.target.nodeName === 'A') {
+            showMenu(event.target, event);
+        }
+    }, false);
+
+    document.getElementById('searchDatabaseTags').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'BUTTON') {
+            app.current.filter = event.target.getAttribute('data-tag');
+            appGoto(app.current.app, app.current.tab, app.current.view, '0', app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search);
+        }
+    }, false);
+    
+    document.getElementById('databaseSortDesc').addEventListener('click', function(event) {
+        toggleBtnChk(this);
+        event.stopPropagation();
+        event.preventDefault();
+        if (app.current.sort.charAt(0) === '-') {
+            app.current.sort = app.current.sort.substr(1);
+        }
+        else {
+            app.current.sort = '-' + app.current.sort;
+        }
+        appGoto(app.current.app, app.current.tab, app.current.view, '0', app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search);
+    }, false);
+
+    document.getElementById('databaseSortTags').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'BUTTON') {
+            event.preventDefault();
+            event.stopPropagation();
+            app.current.sort = event.target.getAttribute('data-tag');
+            appGoto(app.current.app, app.current.tab, app.current.view, '0', app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search);
+        }
+    }, false);
+
+    document.getElementById('BrowseDatabaseByTagDropdown').addEventListener('click', function(event) {
+        navBrowseHandler(event);
+    }, false);
+    
+    document.getElementById('BrowseNavPlaylistsDropdown').addEventListener('click', function(event) {
+        navBrowseHandler(event);
+    }, false);
+    
+    document.getElementById('BrowseNavFilesystemDropdown').addEventListener('click', function(event) {
+        navBrowseHandler(event);
+    }, false);
+
+    document.getElementById('dropdownSortPlaylistTags').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'BUTTON') {
+            event.preventDefault();
+            playlistSort(event.target.getAttribute('data-tag'));
+        }
+    }, false);
+
+    document.getElementById('searchFilesystemStr').addEventListener('keyup', function(event) {
+        if (event.key === 'Escape') {
+            this.blur();
+        }
+        else {
+            appGoto(app.current.app, app.current.tab, app.current.view, 
+                '0', app.current.limit, (this.value !== '' ? this.value : '-'), app.current.sort, '-', app.current.search);
+        }
+    }, false);
+    
+    document.getElementById('searchPlaylistsStr').addEventListener('keyup', function(event) {
+        if (event.key === 'Escape') {
+            this.blur();
+        }
+        else {
+            appGoto(app.current.app, app.current.tab, app.current.view, 
+                '0', app.current.limit, app.current.filter, app.current.sort, '-', this.value);
+        }
+    }, false);
+
+    document.getElementById('searchDatabaseStr').addEventListener('keyup', function(event) {
+        if (event.key === 'Escape') {
+            this.blur();
+        }
+        else if (event.key === 'Enter' && app.current.tag === 'Album') {
+            if (this.value !== '') {
+                let match = document.getElementById('searchDatabaseMatch');
+                let li = document.createElement('button');
+                li.classList.add('btn', 'btn-light', 'mr-2');
+                li.setAttribute('data-filter-tag', encodeURI(app.current.filter));
+                li.setAttribute('data-filter-op', encodeURI(match.options[match.selectedIndex].value));
+                li.setAttribute('data-filter-value', encodeURI(this.value));
+                li.innerHTML = e(app.current.filter) + ' ' + e(match.options[match.selectedIndex].value) + ' \'' + e(this.value) + '\'<span class="ml-2 badge badge-secondary">&times;</span>';
+                this.value = '';
+                document.getElementById('searchDatabaseCrumb').appendChild(li);
+            }
+            else {
+                searchAlbumgrid(this.value);
+            }
+        }
+        else if (app.current.tag === 'Album') {
+            searchAlbumgrid(this.value);
+        }
+        else {
+            appGoto(app.current.app, app.current.tab, app.current.view, 
+                '0', app.current.limit, app.current.filter, app.current.sort, app.current.tag, this.value);        
+        }
+    }, false);
+
+    document.getElementById('searchDatabaseCrumb').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'SPAN') {
+            event.preventDefault();
+            event.stopPropagation();
+            event.target.parentNode.remove();
+            searchAlbumgrid('');
+        }
+        else if (event.target.nodeName === 'BUTTON') {
+            event.preventDefault();
+            event.stopPropagation();
+            selectTag('searchDatabaseTags', 'searchDatabaseTagsDesc', decodeURI(event.target.getAttribute('data-filter-tag')));
+            document.getElementById('searchDatabaseStr').value = unescapeMPD(decodeURI(event.target.getAttribute('data-filter-value')));
+            document.getElementById('searchDatabaseMatch').value = decodeURI(event.target.getAttribute('data-filter-op'));
+            event.target.remove();
+            searchAlbumgrid(document.getElementById('searchDatabaseStr').value);
+        }
+    }, false);
+
+    document.getElementById('BrowseFilesystemList').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'TD') {
+            switch(event.target.parentNode.getAttribute('data-type')) {
+                case 'parentDir':
+                case 'dir':
+                    app.current.filter = '-';
+                    appGoto('Browse', 'Filesystem', undefined, '0', app.current.limit, app.current.filter, app.current.sort, '-', decodeURI(event.target.parentNode.getAttribute("data-uri")));
+                    break;
+                case 'song':
+                    appendQueue('song', decodeURI(event.target.parentNode.getAttribute("data-uri")), event.target.parentNode.getAttribute("data-name"));
+                    break;
+                case 'plist':
+                    appendQueue('plist', decodeURI(event.target.parentNode.getAttribute("data-uri")), event.target.parentNode.getAttribute("data-name"));
+                    break;
+            }
+        }
+        else if (event.target.nodeName === 'A') {
+            showMenu(event.target, event);
+        }
+    }, false);
+
+    document.getElementById('BrowseFilesystemBookmarks').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'A') {
+            let id = event.target.parentNode.parentNode.getAttribute('data-id');
+            let type = event.target.parentNode.parentNode.getAttribute('data-type');
+            let uri = decodeURI(event.target.parentNode.parentNode.getAttribute('data-uri'));
+            let name = event.target.parentNode.parentNode.firstChild.innerText;
+            let href = event.target.getAttribute('data-href');
+            
+            if (href === 'delete') {
+                sendAPI("MYMPD_API_BOOKMARK_RM", {"id": id}, function() {
+                    sendAPI("MYMPD_API_BOOKMARK_LIST", {"offset": 0, "limit": 0}, parseBookmarks);
+                });
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            else if (href === 'edit') {
+                showBookmarkSave(id, name, uri, type);
+            }
+            else if (href === 'goto') {
+                appGoto('Browse', 'Filesystem', undefined, '0', undefined, '-','-','-', uri);
+            }
+        }
+    }, false);
+
+    document.getElementById('BrowsePlaylistsAllList').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'TD') {
+            appendQueue('plist', decodeURI(event.target.parentNode.getAttribute("data-uri")), event.target.parentNode.getAttribute("data-name"));
+        }
+        else if (event.target.nodeName === 'A') {
+            showMenu(event.target, event);
+        }
+    }, false);
+
+    document.getElementById('BrowsePlaylistsDetailList').addEventListener('click', function(event) {
+        if (event.target.parentNode.parentNode.nodeName === 'TFOOT') {
+            return;
+        }
+        if (event.target.nodeName === 'TD') {
+            appendQueue('song', decodeURI(event.target.parentNode.getAttribute("data-uri")), event.target.parentNode.getAttribute("data-name"));
+        }
+        else if (event.target.nodeName === 'A') {
+            showMenu(event.target, event);
+        }
+    }, false);
+
+    document.getElementById('BrowseBreadcrumb').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'A') {
+            event.preventDefault();
+            appGoto('Browse', 'Filesystem', undefined, '0', app.current.limit, app.current.filter, app.current.sort, '-', decodeURI(event.target.getAttribute('data-uri')));
+        }
+    }, false);
+
+    document.getElementById('BrowseFilesystemBookmark').parentNode.addEventListener('show.bs.dropdown', function () {
+        sendAPI("MYMPD_API_BOOKMARK_LIST", {"offset": 0, "limit": 0}, parseBookmarks);
+    });
+}
+
 function navBrowseHandler(event) {
     if (event.target.nodeName === 'BUTTON') {
         const tag = event.target.getAttribute('data-tag');
@@ -230,7 +484,7 @@ function parseBookmarks(obj) {
 }
 
 function showBookmarkSave(id, name, uri, type) {
-    document.getElementById('saveBookmarkName').classList.remove('is-invalid');
+    removeIsInvalid(document.getElementById('modalSaveBookmark'));
     document.getElementById('saveBookmarkId').value = id;
     document.getElementById('saveBookmarkName').value = name;
     document.getElementById('saveBookmarkUri').value = uri;

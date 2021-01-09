@@ -5,6 +5,48 @@
  https://github.com/jcorporation/mympd
 */
 
+function initTimer() {
+    document.getElementById('listTimerList').addEventListener('click', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        if (event.target.nodeName === 'TD') {
+            if (!event.target.parentNode.classList.contains('not-clickable')) {
+                showEditTimer(event.target.parentNode.getAttribute('data-id'));
+            }
+        }
+        else if (event.target.nodeName === 'A') {
+            deleteTimer(event.target.parentNode.parentNode.getAttribute('data-id'));
+        }
+        else if (event.target.nodeName === 'BUTTON') {
+            toggleTimer(event.target, event.target.parentNode.parentNode.getAttribute('data-id'));
+        }
+    }, false);
+
+    let selectTimerHour = ''; 
+    for (let i = 0; i < 24; i++) {
+        selectTimerHour += '<option value="' + i + '">' + zeroPad(i, 2) + '</option>';
+    }
+    document.getElementById('selectTimerHour').innerHTML = selectTimerHour;
+    
+    let selectTimerMinute = ''; 
+    for (let i = 0; i < 60; i = i + 5) {
+        selectTimerMinute += '<option value="' + i + '">' + zeroPad(i, 2) + '</option>';
+    }
+    document.getElementById('selectTimerMinute').innerHTML = selectTimerMinute;
+
+    document.getElementById('inputTimerVolume').addEventListener('change', function() {
+        document.getElementById('textTimerVolume').innerHTML = this.value + '&nbsp;%';
+    }, false);
+    
+    document.getElementById('selectTimerAction').addEventListener('change', function() {
+        selectTimerActionChange();
+    }, false);
+
+    document.getElementById('modalTimer').addEventListener('shown.bs.modal', function () {
+        showListTimer();
+    });
+}
+
 //eslint-disable-next-line no-unused-vars
 function deleteTimer(timerid) {
     sendAPI("MYMPD_API_TIMER_RM", {"timerid": timerid}, showListTimer);
