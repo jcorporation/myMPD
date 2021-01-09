@@ -806,6 +806,37 @@ translate() {
   $PERLBIN ./tojson.pl pretty > ../../htdocs/js/i18n.js
 }
 
+materialicons() {
+  TMPDIR=$(mktemp -d)
+  cd "$TMPDIR" || exit 1
+  if ! wget -q https://raw.githubusercontent.com/google/material-design-icons/master/update/current_versions.json \
+	-O current_version.json
+  then
+    echo "Error downloading json file"
+    exit 1
+  fi
+  EXCLUDE="face_unlock|battery_\d|battery_charging_\d|signal_cellular_|signal_wifi_\d_bar"
+  echo -n "const materialIcons={"
+  I=0
+  for CAT in $(grep "^\s" current_version.json | cut -d\" -f2 | cut -d: -f1 | sort -u)
+  do
+    [ "$I" -gt 0 ] && echo -n ","
+    echo -n "\"$CAT\": ["
+	J=0
+	for MI in $(cut -d\" -f2 current_version.json | grep "$CAT::" | cut -d: -f3 | grep -v -P "$EXCLUDE")
+	do
+	  [ "$J" -gt 0 ] && echo -n ","
+	  echo -n "\"$MI\""
+	  J=$((J+1))	
+	done
+	echo -n "]"
+	I=$((I+1))
+  done
+  echo "};"
+  cd / || exit 1
+  rm -fr "$TMPDIR"
+}
+
 case "$1" in
 	release)
 	  buildrelease
@@ -884,6 +915,9 @@ case "$1" in
 	;;
 	translate)
 	  translate
+	;;
+	materialicons)
+		materialicons
 	;;
 	createdist)
 	  createdistfiles
