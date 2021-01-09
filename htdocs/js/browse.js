@@ -14,12 +14,7 @@ function initBrowse() {
                     decodeURI(event.target.parentNode.getAttribute('data-albumartist')));
             }
             else if (event.target.classList.contains('card-footer')){
-                showMenu(event.target, event);
-                const selCards = document.getElementById('BrowseDatabaseCards').getElementsByClassName('selected');
-                for (let i = 0; i < selCards.length; i++) {
-                    selCards[i].classList.remove('selected');
-                }
-                event.target.parentNode.classList.add('selected');
+                popoverMenuAlbumCards(event);
             }
         }
         else {
@@ -30,6 +25,12 @@ function initBrowse() {
         }
     }, false);
     
+    document.getElementById('BrowseDatabaseCards').addEventListener('contextmenu', function(event) {
+        if (app.current.tag === 'Album') {
+            popoverMenuAlbumCards(event);
+        }
+    }, false);
+
     document.getElementById('BrowseDatabaseCards').addEventListener('keydown', function(event) {
         navigateGrid(event.target, event.key);
     }, false);
@@ -281,6 +282,17 @@ function navBrowseHandler(event) {
         appGoto(app.current.app, app.current.tab, app.current.view, 
             '0', app.current.limit, app.current.filter, app.current.sort, tag, app.current.search);
     }
+}
+
+function popoverMenuAlbumCards(event) {
+    showMenu(event.target, event);
+    const selCards = document.getElementById('BrowseDatabaseCards').getElementsByClassName('selected');
+    for (let i = 0; i < selCards.length; i++) {
+        selCards[i].classList.remove('selected');
+    }
+    event.target.parentNode.classList.add('selected');
+    event.preventDefault();
+    event.stopPropagation();
 }
 
 function gotoBrowse() {
