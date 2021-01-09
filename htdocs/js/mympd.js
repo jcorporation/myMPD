@@ -942,7 +942,7 @@ function appInit() {
      
     document.getElementById('cardPlaybackTags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'P') {
-            gotoBrowse();
+            gotoBrowse(event);
         }
     }, false);
     
@@ -963,7 +963,7 @@ function appInit() {
             else if (event.target.parentNode.getAttribute('data-tag') !== null) {
                 modalSongDetails.hide();
                 event.preventDefault();
-                gotoBrowse();
+                gotoBrowse(event);
             } 
         }
         else if (event.target.nodeName === 'BUTTON') { 

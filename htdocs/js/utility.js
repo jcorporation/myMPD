@@ -520,6 +520,11 @@ function parseCmd(event, href) {
     }
 
     if (typeof window[cmd.cmd] === 'function') {
+        for (let i = 0; i < cmd.options.length; i++) {
+            if (cmd.options[i] === 'event') {
+                cmd.options[i] = event;
+            }
+        }
         switch(cmd.cmd) {
             case 'sendAPI':
                 sendAPI(cmd.options[0].cmd, {}); 
