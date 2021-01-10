@@ -1015,6 +1015,14 @@ tfoot td {
 
 #dropdownHomeIconLigature {
   width: 60vw;
+}
+
+#dropdownHomeIconLigature .row {
+  margin-right: 0;
+  margin-bottom: 1rem;
+}
+
+#listHomeIconLigature {
   max-height: 60vh;
-  overflow: scroll;
+  overflow-y: scroll;
 }
