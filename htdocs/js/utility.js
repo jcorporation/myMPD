@@ -466,7 +466,7 @@ function setPagination(total, returned) {
             last.setAttribute('disabled', 'disabled');
         }
         
-        if ((total > offsetLast && offsetLast > 0 ) || (total === -1 && returned >= app.current.limit)) {
+        if (app.current.limit > 0 && ((total > offsetLast && offsetLast > 0) || (total === -1 && returned >= app.current.limit))) {
             next.removeAttribute('disabled');
             p[i].classList.remove('hide');
             next.addEventListener('click', function() {
@@ -480,7 +480,7 @@ function setPagination(total, returned) {
                 p[i].classList.add('hide');
             }
         }
-
+        
         if (app.current.offset > 0) {
             prev.removeAttribute('disabled');
             p[i].classList.remove('hide');
