@@ -51,7 +51,6 @@ void mympd_api_push_to_mpd_client(t_mympd_state *mympd_state) {
     request->data = tojson_char(request->data, "mpdPass", mympd_state->mpd_pass, true);
     request->data = tojson_long(request->data, "mpdPort", mympd_state->mpd_port, true);
     request->data = tojson_long(request->data, "lastPlayedCount", mympd_state->last_played_count, true);
-    request->data = tojson_long(request->data, "maxElementsPerPage", mympd_state->max_elements_per_page, true);
     request->data = tojson_char(request->data, "musicDirectory", mympd_state->music_directory, false);
     request->data = sdscat(request->data, "}}");
     tiny_queue_push(mpd_client_queue, request, 0);
