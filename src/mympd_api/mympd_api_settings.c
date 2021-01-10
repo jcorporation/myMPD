@@ -318,7 +318,7 @@ bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state, struct
     }
     else if (strncmp(key->ptr, "maxElementsPerPage", key->len) == 0) {
         int max_elements_per_page = strtoimax(settingvalue, &crap, 10);
-        if (max_elements_per_page <= 0 || max_elements_per_page > 999) {
+        if (max_elements_per_page < 0 || max_elements_per_page > 999) {
             sdsfree(settingname);
             sdsfree(settingvalue);
             return false;
