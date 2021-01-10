@@ -64,13 +64,16 @@ function initHome() {
     }, false);
     
     let ligatureList = '';
+    let catList = '<option value="all">' + t('All') + '</option>';
     Object.keys(materialIcons).forEach(function(cat) {
-        ligatureList += '<h5 class="ml-1 mt-2">' + e(cat) + '</h5>';
+        ligatureList += '<h5 class="ml-1 mt-2">' + e(ucFirst(cat)) + '</h5>';
+        catList += '<option value="' + cat + '">' + e(ucFirst(cat)) + '</option>';
         for (let i = 0; i < materialIcons[cat].length; i++) {
-            ligatureList += '<button title="' + materialIcons[cat][i] + '" class="btn btn-sm material-icons m-1">' + materialIcons[cat][i] + '</button>';
+            ligatureList += '<button title="' + materialIcons[cat][i] + '" data-cat="' + cat + '" class="btn btn-sm material-icons m-1">' + materialIcons[cat][i] + '</button>';
         }
     });
     document.getElementById('listHomeIconLigature').innerHTML = ligatureList;
+    document.getElementById('searchHomeIconCat').innerHTML = catList;
     document.getElementById('listHomeIconLigature').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
             event.preventDefault();
@@ -81,20 +84,44 @@ function initHome() {
     document.getElementById('searchHomeIconLigature').addEventListener('click', function(event) {
         event.stopPropagation();
     }, false);
+
+    document.getElementById('searchHomeIconCat').addEventListener('click', function(event) {
+        event.stopPropagation();
+    }, false);
+    
+    document.getElementById('searchHomeIconCat').addEventListener('change', function(event) {
+        filterHomeIconLigatures();
+    }, false);
     
     document.getElementById('searchHomeIconLigature').addEventListener('keyup', function(event) {
         event.stopPropagation();
-        const str = event.target.value;
-        const els = document.getElementById('listHomeIconLigature').getElementsByTagName('button');
-        for (let i = 0; i < els.length; i++) {
-            if (els[i].getAttribute('title').indexOf(str) > -1) {
-                els[i].classList.remove('hide');
-            }
-            else {
-                els[i].classList.add('hide');
-            }
-        }    
+        filterHomeIconLigatures();
     }, false);
+}
+
+function filterHomeIconLigatures() {
+    const str = document.getElementById('searchHomeIconLigature').value;
+    const cat = getSelectValue('searchHomeIconCat');
+    const els = document.getElementById('listHomeIconLigature').getElementsByTagName('button');
+    for (let i = 0; i < els.length; i++) {
+        if ((str === '' || els[i].getAttribute('title').indexOf(str) > -1) && (cat === 'all' || els[i].getAttribute('data-cat') === cat)) {
+            els[i].classList.remove('hide');
+        }
+        else {
+            els[i].classList.add('hide');
+        }
+    }
+    const catTitles = document.getElementById('listHomeIconLigature').getElementsByTagName('h5');
+    if (cat === '') {
+        for (let i = 0; i < catTitles.length; i++) {
+            catTitles[i].classList.remove('hide');
+        }
+    }
+    else {
+        for (let i = 0; i < catTitles.length; i++) {
+            catTitles[i].classList.add('hide');
+        }
+    }
 }
 
 function parseHome(obj) {
