@@ -419,7 +419,7 @@ sds mpd_client_put_firstsong_in_albums(t_mpd_client_state *mpd_client_state, sds
     }
     
     if (limit == 0) {
-        limit = UINT_MAX - offset;
+        limit = INT_MAX - offset;
     }
     rc = mpd_search_add_window(mpd_client_state->mpd_state->conn, offset, offset + limit);
     if (check_rc_error_and_recover(mpd_client_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_window") == false) {
