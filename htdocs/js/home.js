@@ -191,6 +191,7 @@ function popoverMenuHome(event) {
 
 function dragAndDropHome() {
     const homeCards = document.getElementById('HomeCards');
+
     homeCards.addEventListener('dragstart', function(event) {
         if (event.target.classList.contains('home-icons')) {
             event.target.classList.add('opacity05');
@@ -200,6 +201,7 @@ function dragAndDropHome() {
             dragEl = event.target.cloneNode(true);
         }
     }, false);
+
     homeCards.addEventListener('dragleave', function(event) {
         event.preventDefault();
         if (dragEl.classList.contains('home-icons') === false) {
@@ -209,6 +211,7 @@ function dragAndDropHome() {
             event.target.classList.remove('dragover-icon');
         }
     }, false);
+
     homeCards.addEventListener('dragover', function(event) {
         event.preventDefault();
         if (dragEl.classList.contains('home-icons') === false) {
@@ -227,6 +230,7 @@ function dragAndDropHome() {
         }
         event.dataTransfer.dropEffect = 'move';
     }, false);
+
     homeCards.addEventListener('dragend', function(event) {
         event.preventDefault();
         if (dragEl.classList.contains('home-icons') === false) {
@@ -239,6 +243,7 @@ function dragAndDropHome() {
         }
         dragSrc.classList.remove('opacity05');
     }, false);
+
     homeCards.addEventListener('drop', function(event) {
         event.preventDefault();
         event.stopPropagation();
@@ -266,7 +271,6 @@ function dragAndDropHome() {
         for (let i = 0; i < thLen; i++) {
             th[i].classList.remove('dragover-icon');
         }
-
     }, false);
 }
 
