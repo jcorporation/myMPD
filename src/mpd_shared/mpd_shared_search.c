@@ -142,7 +142,7 @@ static sds _mpd_shared_search(t_mpd_state *mpd_state, sds buffer, sds method, lo
         }
         if (mpd_state->feat_mpd_searchwindow == true) {
             if (limit == 0) {
-                limit = UINT_MAX - offset;
+                limit = INT_MAX - offset;
             }
             bool rc = mpd_search_add_window(mpd_state->conn, offset, offset + limit);
             if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_window") == false) {
