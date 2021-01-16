@@ -35,10 +35,8 @@ static bool _album_cache_init(t_mpd_worker_state *mpd_worker_state, rax *album_c
 
 //public functions
 bool mpd_worker_album_cache_init(t_mpd_worker_state *mpd_worker_state) {
-    disable_all_mpd_tags(mpd_worker_state->mpd_state);
     rax *album_cache = raxNew();
     bool rc = _album_cache_init(mpd_worker_state, album_cache);
-    enable_mpd_tags(mpd_worker_state->mpd_state, mpd_worker_state->mpd_state->mympd_tag_types);
     //push album cache building response to mpd_client thread
     t_work_request *request = create_request(-1, 0, MPD_API_ALBUMCACHE_CREATED, "MPD_API_ALBUMCACHE_CREATED", "");
     request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPD_API_ALBUMCACHE_CREATED\",\"params\":{}}");
@@ -106,7 +104,7 @@ static bool _album_cache_init(t_mpd_worker_state *mpd_worker_state, rax *album_c
             sdsclear(key);
             key = sdscatfmt(key, "%s::%s", album, artist);
             if (raxTryInsert(album_cache, (unsigned char*)key, sdslen(key), (void *)song, NULL) == 0) {
-                //key already present, discard song
+                 //discard song data if key exists
                 mpd_song_free(song);
             }
             i++;

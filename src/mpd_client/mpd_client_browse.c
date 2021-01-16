@@ -20,6 +20,7 @@
 
 #include "../../dist/src/sds/sds.h"
 #include "../sds_extras.h"
+#include "../../dist/src/rax/rax.h"
 #include "../list.h"
 #include "config_defs.h"
 #include "../utility.h"
@@ -368,7 +369,7 @@ sds mpd_client_put_songs_in_album(t_mpd_client_state *mpd_client_state, sds buff
     return buffer;    
 }
 
-sds mpd_client_put_firstsong_in_albums(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, 
+sds mpd_client_put_firstsong_in_albums_old(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, 
                                        const char *searchstr, const char *filter, const char *sort, bool sortdesc, const unsigned int offset, unsigned int limit)
 {
     buffer = jsonrpc_start_result(buffer, method, request_id);
@@ -468,6 +469,118 @@ sds mpd_client_put_firstsong_in_albums(t_mpd_client_state *mpd_client_state, sds
     }
     sdsfree(album);
     sdsfree(artist);
+    mpd_response_finish(mpd_client_state->mpd_state->conn);
+    if (check_error_and_recover2(mpd_client_state->mpd_state, &buffer, method, request_id, false) == false) {
+        return buffer;
+    }
+
+    buffer = sdscat(buffer, "],");
+    buffer = tojson_long(buffer, "totalEntities", -1, true);
+    buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
+    buffer = tojson_long(buffer, "offset", offset, true);
+    buffer = tojson_char(buffer, "filter", filter, true);
+    buffer = tojson_char(buffer, "searchstr", searchstr, true);
+    buffer = tojson_char(buffer, "sort", sort, true);
+    buffer = tojson_bool(buffer, "sortdesc", sortdesc, true);
+    buffer = tojson_char(buffer, "tag", "Album", false);
+    buffer = jsonrpc_end_result(buffer);
+        
+    return buffer;    
+}
+
+sds mpd_client_put_firstsong_in_albums(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, 
+                                       const char *searchstr, const char *filter, const char *sort, bool sortdesc, const unsigned int offset, unsigned int limit)
+{
+    buffer = jsonrpc_start_result(buffer, method, request_id);
+    buffer = sdscat(buffer, ",\"data\":[");
+
+    struct mpd_song *song;
+    bool sort_by_last_modified = false;
+    enum mpd_tag_type sort_tag = MPD_TAG_ALBUM;
+    enum mpd_tag_type sort_tag_org = MPD_TAG_ALBUM;
+
+    if (strlen(sort) > 0) {
+        sort_tag_org = mpd_tag_name_parse(sort);
+        if (sort_tag_org != MPD_TAG_UNKNOWN) {
+            sort_tag = get_sort_tag(sort_tag_org);
+        }
+        else if (strcmp(sort, "Last-Modified") == 0) {
+            sort_by_last_modified = true;
+        }
+        else {
+            LOG_WARN("Unknown sort tag: %s", sort);
+        }
+    }
+
+    //get complete albumlist
+    struct list album_list;
+    list_init(&album_list);
+    raxIterator iter;
+    raxStart(&iter, mpd_client_state->album_cache);
+    raxSeek(&iter, "^", NULL, 0);
+    sds key = sdsempty();
+    while (raxNext(&iter)) {
+        song = (struct mpd_song *)iter.data;
+        //todo evaluate filter
+        if (sort_by_last_modified == true) {
+            key = sdscat(key, mpd_song_get_tag(song, MPD_TAG_ALBUM, 0));
+            list_push(&album_list, key, mpd_song_get_last_modified(song), NULL, iter.data);
+        }
+        else {
+            const char *sort_value = mpd_song_get_tag(song, sort_tag, 0);
+            if (sort_value == NULL) {
+                sort_value = mpd_song_get_tag(song, sort_tag_org, 0);
+            }
+            if (sort_value != NULL) {
+                key = sdscat(key, sort_value);
+                list_push(&album_list, key, 0, NULL, iter.data);
+            }
+            else {
+                LOG_WARN("Skip entry: %.*s", iter.key_len, iter.key); 
+            }
+        }
+        sdsclear(key);
+    }
+    raxStop(&iter);
+    sdsfree(key);
+    
+    //sort list
+    if (sort_by_last_modified == true) {
+        list_sort_by_value_i(&album_list, sortdesc);
+    }
+    else {
+        list_sort_by_key(&album_list, sortdesc);
+    }
+
+    //print album list
+    unsigned entity_count = 0;
+    unsigned entities_returned = 0;
+    sds album = sdsempty();
+    sds artist = sdsempty();
+    struct list_node *current = album_list.head;
+    while (current != NULL) {
+        entity_count++;
+        if (entity_count >= offset && (limit == 0 || entity_count < limit)) {
+            if (entities_returned++) {
+                buffer = sdscat(buffer, ",");
+            }
+            song = (struct mpd_song *)current->user_data;
+            album = mpd_shared_get_tags(song, MPD_TAG_ALBUM, album);
+            artist = mpd_shared_get_tags(song, MPD_TAG_ALBUM_ARTIST, artist);
+            buffer = sdscat(buffer, "{\"Type\": \"album\",");
+            buffer = tojson_char(buffer, "Album", album, true);
+            buffer = tojson_char(buffer, "AlbumArtist", artist, true);
+            buffer = tojson_char(buffer, "FirstSongUri", mpd_song_get_uri(song), false);
+            buffer = sdscat(buffer, "}");
+        }
+        //prevent freeing user_data in list_free
+        current->user_data = NULL;
+        //goto next
+        current = current->next;
+    }
+    sdsfree(album);
+    sdsfree(artist);
+    list_free(&album_list);
     mpd_response_finish(mpd_client_state->mpd_state->conn);
     if (check_error_and_recover2(mpd_client_state->mpd_state, &buffer, method, request_id, false) == false) {
         return buffer;
