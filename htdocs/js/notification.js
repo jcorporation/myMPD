@@ -31,12 +31,6 @@ function toggleAlert(alertBox, state, msg) {
 }
 
 function showNotification(notificationTitle, notificationText, notificationHtml, notificationType) {
-    if (notificationTitle === 'No current song' ||
-        notificationTitle === 'No lyrics found'
-    ) {
-        return;
-    }
-
     if (settings.notificationWeb === true) {
         let notification = new Notification(notificationTitle, {icon: 'assets/favicon.ico', body: notificationText});
         setTimeout(notification.close.bind(notification), 3000);
