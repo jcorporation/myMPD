@@ -546,10 +546,10 @@ sds mpd_client_put_firstsong_in_albums(t_mpd_client_state *mpd_client_state, sds
     
     //sort list
     if (sort_by_last_modified == true) {
-        list_sort_by_value_i(&album_list, sortdesc);
+        list_sort_by_value_i(&album_list, sortdesc == true ? false : true);
     }
     else {
-        list_sort_by_key(&album_list, sortdesc);
+        list_sort_by_key(&album_list, sortdesc == true ? false : true);
     }
 
     //print album list
@@ -560,7 +560,7 @@ sds mpd_client_put_firstsong_in_albums(t_mpd_client_state *mpd_client_state, sds
     struct list_node *current = album_list.head;
     while (current != NULL) {
         entity_count++;
-        if (entity_count >= offset && (limit == 0 || entity_count < limit)) {
+        if (entity_count > offset && (entity_count <= offset + limit || limit == 0)) {
             if (entities_returned++) {
                 buffer = sdscat(buffer, ",");
             }
