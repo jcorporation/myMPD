@@ -5,6 +5,8 @@
  https://github.com/jcorporation/mympd
 */
 
+var ignoreMessages = ['No current song', 'No lyrics found'];
+
 function sendAPI(method, params, callback, onerror) {
     let request = {"jsonrpc": "2.0", "id": 0, "method": method, "params": params};
     let ajaxRequest=new XMLHttpRequest();
@@ -20,7 +22,9 @@ function sendAPI(method, params, callback, onerror) {
                 }
                 else if (obj.result && obj.result.message && obj.result.message !== 'ok') {
                     logDebug('Got API response: ' + JSON.stringify(obj.result));
-                    showNotification(t(obj.result.message, obj.result.data), '', '', 'success');
+                    if (ignoreMessages.includes(obj.result.message) === false) {
+                        showNotification(t(obj.result.message, obj.result.data), '', '', 'success');
+                    }
                 }
                 else if (obj.result && obj.result.message && obj.result.message === 'ok') {
                     logDebug('Got API response: ' + JSON.stringify(obj.result));
