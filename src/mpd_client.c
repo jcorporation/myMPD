@@ -91,7 +91,7 @@ void *mpd_client_loop(void *arg_config) {
     mpd_client_last_played_list_save(config, mpd_client_state);
     triggerfile_save(config, mpd_client_state);
     sticker_cache_free(&mpd_client_state->sticker_cache);
-    album_cache_free(&mpd_client_state->sticker_cache);
+    album_cache_free(&mpd_client_state->album_cache);
     free_trigerlist_arguments(mpd_client_state);
     free_mpd_client_state(mpd_client_state);
     sdsfree(thread_logname);
