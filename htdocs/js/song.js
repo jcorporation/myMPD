@@ -5,6 +5,35 @@
  https://github.com/jcorporation/mympd
 */
 
+function initSong() {
+    document.getElementById('tbodySongDetails').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'A') {
+            if (event.target.id === 'calcFingerprint') {
+                sendAPI("MPD_API_DATABASE_FINGERPRINT", {"uri": decodeURI(event.target.getAttribute('data-uri'))}, parseFingerprint);
+                event.preventDefault();
+                let parent = event.target.parentNode;
+                let spinner = document.createElement('div');
+                spinner.classList.add('spinner-border', 'spinner-border-sm');
+                event.target.classList.add('hide');
+                parent.appendChild(spinner);
+            }
+            else if (event.target.classList.contains('external')) {
+                //do nothing, link opens in new browser window
+            }
+            else if (event.target.parentNode.getAttribute('data-tag') !== null) {
+                modalSongDetails.hide();
+                event.preventDefault();
+                gotoBrowse(event);
+            } 
+        }
+        else if (event.target.nodeName === 'BUTTON') { 
+            if (event.target.getAttribute('data-href')) {
+                parseCmd(event, event.target.getAttribute('data-href'));
+            }
+        }
+    }, false);
+}
+
 function songDetails(uri) {
     sendAPI("MPD_API_DATABASE_SONGDETAILS", {"uri": uri}, parseSongDetails);
     modalSongDetails.show();
@@ -173,7 +202,7 @@ function isCoverfile(uri) {
 }
 
 function getLyrics(uri, el) {
-    if (uri === undefined) {
+    if (isValidUri(uri) === false || isStreamUri(uri) == true) {
         el.innerHTML = t('No lyrics found');
         return;
     }
@@ -286,7 +315,7 @@ function setVoteSongBtns(vote, uri) {
     domCache.btnVoteUp2 = document.getElementById('btnVoteUp2');
     domCache.btnVoteDown2 = document.getElementById('btnVoteDown2');
 
-    if (uri === '' || uri.indexOf('://') > -1) {
+    if (isValidUri(uri) === false || isStreamUri(uri) === true) {
         domCache.btnVoteUp.setAttribute('disabled', 'disabled');
         domCache.btnVoteDown.setAttribute('disabled', 'disabled');
         if (domCache.btnVoteUp2) {
