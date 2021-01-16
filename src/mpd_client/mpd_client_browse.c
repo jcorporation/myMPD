@@ -523,7 +523,7 @@ sds mpd_client_put_firstsong_in_albums(t_mpd_client_state *mpd_client_state, sds
         song = (struct mpd_song *)iter.data;
         //todo evaluate filter
         if (sort_by_last_modified == true) {
-            key = sdscat(key, mpd_song_get_tag(song, MPD_TAG_ALBUM, 0));
+            key = sdscatlen(key, iter.key, iter.key_len);
             list_push(&album_list, key, mpd_song_get_last_modified(song), NULL, iter.data);
         }
         else {
