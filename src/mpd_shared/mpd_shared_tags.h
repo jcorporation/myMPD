@@ -6,6 +6,9 @@
 
 #ifndef __MPD_SHARED_TAGS_H__
 #define __MPD_SHARED_TAGS_H__
+
+#include "../../dist/src/rax/rax.h"
+
 void reset_t_tags(t_tags *tags);
 void disable_all_mpd_tags(t_mpd_state *mpd_state);
 void enable_all_mpd_tags(t_mpd_state *mpd_state);
@@ -17,4 +20,5 @@ void check_tags(sds taglist, const char *taglistname, t_tags *tagtypes, t_tags a
 bool mpd_shared_tag_exists(const enum mpd_tag_type tag_types[64], const size_t tag_types_len, const enum mpd_tag_type tag);
 sds mpd_shared_get_tags(struct mpd_song const *song, const enum mpd_tag_type tag, sds tags);
 sds _mpd_shared_get_tags(struct mpd_song const *song, const enum mpd_tag_type tag, sds tags);
+void album_cache_free(rax **album_cache);
 #endif

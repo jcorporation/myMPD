@@ -136,8 +136,12 @@ void default_mpd_client_state(t_mpd_client_state *mpd_client_state) {
     list_init(&mpd_client_state->last_played);
     //init sticker queue
     list_init(&mpd_client_state->sticker_queue);
+    //sticker cache
     mpd_client_state->sticker_cache_building = false;
     mpd_client_state->sticker_cache = NULL;
+    //album cache
+    mpd_client_state->album_cache_building = false;
+    mpd_client_state->album_cache = NULL;
     //jukebox queue
     list_init(&mpd_client_state->jukebox_queue);
     list_init(&mpd_client_state->jukebox_queue_tmp);

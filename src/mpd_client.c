@@ -31,6 +31,7 @@
 #include "mpd_shared/mpd_shared_sticker.h"
 #include "mpd_client/mpd_client_utility.h"
 #include "mpd_client/mpd_client_api.h"
+#include "mpd_client/mpd_client_browse.h"
 #include "mpd_client/mpd_client_jukebox.h"
 #include "mpd_client/mpd_client_playlists.h"
 #include "mpd_client/mpd_client_stats.h"
@@ -90,6 +91,7 @@ void *mpd_client_loop(void *arg_config) {
     mpd_client_last_played_list_save(config, mpd_client_state);
     triggerfile_save(config, mpd_client_state);
     sticker_cache_free(&mpd_client_state->sticker_cache);
+    album_cache_free(&mpd_client_state->sticker_cache);
     free_trigerlist_arguments(mpd_client_state);
     free_mpd_client_state(mpd_client_state);
     sdsfree(thread_logname);
@@ -286,6 +288,8 @@ static void mpd_client_idle(t_config *config, t_mpd_client_state *mpd_client_sta
             mpd_client_mpd_features(config, mpd_client_state);
             //update sticker cache
             sticker_cache_init(config, mpd_client_state);
+            //update album cache
+            album_cache_init(mpd_client_state);
             //set timer for smart playlist update
             mpd_client_set_timer(MYMPD_API_TIMER_SET, "MYMPD_API_TIMER_SET", 10, mpd_client_state->smartpls_interval, "timer_handler_smartpls_update");
             //jukebox

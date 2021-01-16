@@ -214,6 +214,7 @@ set(SOURCES
   src/mpd_worker/mpd_worker_utility.c
   src/mpd_worker/mpd_worker_smartpls.c
   src/mpd_worker/mpd_worker_stickercache.c
+  src/mpd_worker/mpd_worker_albumcache.c
   src/mympd_api.c
   src/mympd_api/mympd_api_bookmarks.c
   src/mympd_api/mympd_api_home.c

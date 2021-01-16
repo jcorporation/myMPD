@@ -6,6 +6,7 @@
 
 #ifndef __BROWSE_H__
 #define __BROWSE_H__
+bool album_cache_init(t_mpd_client_state *mpd_client_state);
 sds mpd_client_put_fingerprint(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id,
                                const char *uri);
 sds mpd_client_put_songdetails(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, 

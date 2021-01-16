@@ -27,6 +27,7 @@
 #include "mpd_worker_utility.h"
 #include "mpd_worker_smartpls.h"
 #include "mpd_worker_stickercache.h"
+#include "mpd_worker_albumcache.h"
 #include "mpd_worker_api.h"
 
 //private definitions
@@ -129,6 +130,12 @@ void mpd_worker_api(t_config *config, t_mpd_worker_state *mpd_worker_state, void
             break;
         case MPDWORKER_API_STICKERCACHE_CREATE:
             mpd_worker_sticker_cache_init(mpd_worker_state);
+            async = true;
+            free_request(request);
+            free_result(response);
+            break;
+        case MPDWORKER_API_ALBUMCACHE_CREATE:
+            mpd_worker_album_cache_init(mpd_worker_state);
             async = true;
             free_request(request);
             free_result(response);

@@ -16,6 +16,7 @@
 #include <inttypes.h>
 #include <limits.h>
 #include <mpd/client.h>
+#include <signal.h>
 
 #include "../../dist/src/sds/sds.h"
 #include "../sds_extras.h"
@@ -25,6 +26,7 @@
 #include "../api.h"
 #include "../log.h"
 #include "../tiny_queue.h"
+#include "../global.h"
 #include "../mpd_shared/mpd_shared_typedefs.h"
 #include "../mpd_shared.h"
 #include "../mpd_shared/mpd_shared_tags.h"
@@ -32,6 +34,19 @@
 #include "mpd_client_cover.h"
 #include "mpd_client_sticker.h"
 #include "mpd_client_browse.h"
+
+bool album_cache_init(t_mpd_client_state *mpd_client_state) {
+    if (mpd_client_state->mpd_state->feat_mpd_searchwindow == false) {
+        LOG_VERBOSE("Album cache is disabled, mpd version < 0.20.0");
+        return false;
+    }
+    //push album cache building request to mpd_worker thread
+    t_work_request *request = create_request(-1, 0, MPDWORKER_API_ALBUMCACHE_CREATE, "MPDWORKER_API_ALBUMCACHE_CREATE", "");
+    request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPDWORKER_API_ALBUMCACHE_CREATE\",\"params\":{}}");
+    tiny_queue_push(mpd_worker_queue, request, 0);
+    mpd_client_state->album_cache_building = true;
+    return true;
+}
 
 sds mpd_client_put_fingerprint(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id,
                                const char *uri)

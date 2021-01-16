@@ -47,6 +47,10 @@ static sds lyricsextract_flac(sds buffer, sds method, long request_id, sds media
 
 //public functions
 sds mpd_client_lyrics_get(t_config *config, t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, const char *uri) {
+    if (is_streamuri(uri) == true) {
+        buffer = jsonrpc_respond_message(buffer, method, request_id, "Can not get lyrics for stream uri", true);
+        return buffer;
+    }
     //try first synced lyrics
     LOG_DEBUG("Get synced lyrics for uri: %s", uri);
     buffer = _mpd_client_lyrics_synced(config, mpd_client_state, buffer, method, request_id, uri);

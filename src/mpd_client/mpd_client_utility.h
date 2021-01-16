@@ -100,6 +100,8 @@ typedef struct t_mpd_client_state {
     rax *sticker_cache;
     struct list sticker_queue;
     bool sticker_cache_building;
+    rax *album_cache;
+    bool album_cache_building;
     //mpd state
     struct t_mpd_state *mpd_state;
     //triggers

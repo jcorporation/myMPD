@@ -27,6 +27,7 @@
 #include "../mpd_shared/mpd_shared_playlists.h"
 #include "../mpd_shared.h"
 #include "../mpd_shared/mpd_shared_sticker.h"
+#include "../mpd_shared/mpd_shared_tags.h"
 #include "../lua_mympd_state.h"
 #include "mpd_client_utility.h"
 #include "mpd_client_browse.h"
@@ -241,6 +242,19 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
             else {
                 LOG_ERROR("Sticker cache is NULL");
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Sticker cache is NULL", true);
+            }
+            mpd_client_state->sticker_cache_building = false;
+            break;
+        case MPD_API_ALBUMCACHE_CREATED:
+            album_cache_free(&mpd_client_state->album_cache);
+            if (request->extra != NULL) {
+                mpd_client_state->album_cache = (rax *) request->extra;
+                response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
+                LOG_VERBOSE("Album cache was replaced");
+            }
+            else {
+                LOG_ERROR("Album cache is NULL");
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Album cache is NULL", true);
             }
             mpd_client_state->sticker_cache_building = false;
             break;
