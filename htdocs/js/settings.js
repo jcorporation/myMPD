@@ -6,6 +6,12 @@
 */
 
 function initSettings() {
+    let selectThemeHtml = '';
+    Object.keys(themes).forEach(function(key) {
+        selectThemeHtml += '<option value="' + e(key) + '">' + t(themes[key]) + '</option>';
+    });
+    document.getElementById('selectTheme').innerHTML = selectThemeHtml;
+
     document.getElementById('selectTheme').addEventListener('change', function() {
         const value = getSelectValue(this);
         if (value === 'theme-default') { 
