@@ -12,16 +12,16 @@ function initSettings() {
     });
     document.getElementById('selectTheme').innerHTML = selectThemeHtml;
 
-    document.getElementById('selectTheme').addEventListener('change', function() {
-        const value = getSelectValue(this);
+    document.getElementById('selectTheme').addEventListener('change', function(event) {
+        const value = getSelectValue(event.target);
         if (value === 'theme-default') { 
-            document.getElementById('inputBgColor').value = '#ccc';
+            document.getElementById('inputBgColor').value = '#aaaaaa';
         }
         else if (value === 'theme-light') {
-            document.getElementById('inputBgColor').value = '#fff';
+            document.getElementById('inputBgColor').value = '#ffffff';
         }
         else if (value === 'theme-dark') {
-            document.getElementById('inputBgColor').value = '#000';
+            document.getElementById('inputBgColor').value = '#000000';
         }
     }, false);
 
