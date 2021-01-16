@@ -429,7 +429,7 @@ function songChange(obj) {
     document.title = 'myMPD: ' + pageTitle;
     domCache.footerCover.title = pageTitle;
     
-    if (obj.result.uri !== undefined && obj.result.uri !== '' && obj.result.uri.indexOf('://') === -1) {
+    if (isValidUri(obj.result.uri) === true && isStreamUri(obj.result.uri) === false) {
         domCache.footerTitle.classList.add('clickable');
     }
     else {
@@ -529,8 +529,8 @@ function chVolume(increment) {
 
 //eslint-disable-next-line no-unused-vars
 function clickTitle() {
-    let uri = decodeURI(domCache.currentTitle.getAttribute('data-uri'));
-    if (uri !== '' && uri.indexOf('://') === -1) {
+    const uri = decodeURI(domCache.currentTitle.getAttribute('data-uri'));
+    if (isValidUri(uri) === true && isStreamUri(uri) === false) {
         songDetails(uri);
     }
 }
