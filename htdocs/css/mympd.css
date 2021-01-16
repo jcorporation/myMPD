@@ -656,6 +656,16 @@ div.key {
   height: 2rem;
   text-align: center;
   line-height: 2rem;
+  margin-right: 1rem;
+  flex-shrink: 0;
+}
+
+div.row-keymap {
+  overflow: hidden;
+}
+
+div.col-keymap {
+  min-width: 20rem;
 }
 
 ol#searchCrumb,

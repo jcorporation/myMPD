@@ -1423,7 +1423,7 @@
   </div>
   
   <div class="modal fade" id="modalAbout" tabindex="-1">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header pb-0">
           <ul class="nav nav-tabs border-bottom-0">
@@ -1445,42 +1445,34 @@
                 <li><span data-phrase="Homepage"></span>: <a class="text-success" target="_blank" rel="noreferrer" href="https://github.com/jcorporation/mympd">https://github.com/jcorporation/mympd</a></li>
                 <li><span data-phrase="Author"></span>: Jürgen Mang &lt;<a class="text-success" href="mailto:mail@jcgames.de">mail@jcgames.de</a>&gt;</li>
               </ul>
-              <table class="table table-sm">
-                <tbody>
-                  <tr><td colspan="2" class="pt-3"><h5 data-phrase="Database statistics"></h5></td></tr>
-                  <tr><th data-phrase="Artists">Artists</th><td id="mpdstats_artists"></td></tr>
-                  <tr><th data-phrase="Albums"></th><td id="mpdstats_albums"></td></tr>
-                  <tr><th data-phrase="Songs"></th><td id="mpdstats_songs"></td></tr>
-                  <tr><th data-phrase="DB play time"></th><td id="mpdstats_dbPlaytime"></td></tr>
-                  <tr><th data-phrase="DB updated"></th><td id="mpdstats_dbUpdated"></td></tr>
-                  <tr><td colspan="2" class="pt-3"><h5 data-phrase="Playback statistics"></h5></td></tr>
-                  <tr><th data-phrase="myMPD uptime"></th><td id="mpdstats_mympd_uptime"></td></tr>
-                  <tr><th data-phrase="MPD uptime"></th><td id="mpdstats_uptime"></td></tr>
-                  <tr><th data-phrase="Play time"></th><td id="mpdstats_playtime"></td></tr>
-                  <tr><td colspan="2" class="pt-3"><h5>MPD</h5></td></tr>
-                  <tr><th data-phrase="Connection"></th><td id="mpdInfo_host"></td></tr>
-                  <tr><th data-phrase="Protocol version"></th><td id="mpdInfo_version"></td></tr>
-                  <tr><th data-phrase="Libmpdclient version"></th><td id="mpdInfo_libmpdclientVersion"></td></tr>
-                  <tr><th data-phrase="Libmympdclient version"></th><td id="mpdInfo_libmympdclientVersion"></td></tr>
-                  <tr><td colspan="2" class="pt-3"><h5 data-phrase="Webserver"></h5></td></tr>
-                  <tr><th data-phrase="Mongoose version"></th><td id="wsMongooseVersion"></td></tr>
-                  <tr><th data-phrase="IP-Address"></th><td id="wsIP"></td></tr>
-                  <tr class="featCacert"><th data-phrase="myMPD CA"></th><td><a class="text-success alwaysEnabled" href="/ca.crt" data-phrase="Download" target="_blank"></a></td></tr>
-                </tbody>
-              </table>          
-            </div>
-            <div class="tab-pane" id="tabShortcuts">
               <div class="table-responsive-md">
                 <table class="table table-sm">
-                  <thead>
-                    <tr>
-                      <th data-phrase="Shortcut"></th>
-                      <th data-phrase="Action"></th>
-                    </tr>
-                  </thead>
-                  <tbody id="tbodyShortcuts">
+                  <tbody>
+                    <tr><td colspan="2" class="pt-3"><h5 data-phrase="Database statistics"></h5></td></tr>
+                    <tr><th data-phrase="Artists">Artists</th><td id="mpdstats_artists"></td></tr>
+                    <tr><th data-phrase="Albums"></th><td id="mpdstats_albums"></td></tr>
+                    <tr><th data-phrase="Songs"></th><td id="mpdstats_songs"></td></tr>
+                    <tr><th data-phrase="DB play time"></th><td id="mpdstats_dbPlaytime"></td></tr>
+                    <tr><th data-phrase="DB updated"></th><td id="mpdstats_dbUpdated"></td></tr>
+                    <tr><td colspan="2" class="pt-3"><h5 data-phrase="Playback statistics"></h5></td></tr>
+                    <tr><th data-phrase="myMPD uptime"></th><td id="mpdstats_mympd_uptime"></td></tr>
+                    <tr><th data-phrase="MPD uptime"></th><td id="mpdstats_uptime"></td></tr>
+                    <tr><th data-phrase="Play time"></th><td id="mpdstats_playtime"></td></tr>
+                    <tr><td colspan="2" class="pt-3"><h5>MPD</h5></td></tr>
+                    <tr><th data-phrase="Connection"></th><td id="mpdInfo_host"></td></tr>
+                    <tr><th data-phrase="Protocol version"></th><td id="mpdInfo_version"></td></tr>
+                    <tr><th data-phrase="Libmpdclient version"></th><td id="mpdInfo_libmpdclientVersion"></td></tr>
+                    <tr><th data-phrase="Libmympdclient version"></th><td id="mpdInfo_libmympdclientVersion"></td></tr>
+                    <tr><td colspan="2" class="pt-3"><h5 data-phrase="Webserver"></h5></td></tr>
+                    <tr><th data-phrase="Mongoose version"></th><td id="wsMongooseVersion"></td></tr>
+                    <tr><th data-phrase="IP-Address"></th><td id="wsIP"></td></tr>
+                    <tr class="featCacert"><th data-phrase="myMPD CA"></th><td><a class="text-success alwaysEnabled" href="/ca.crt" data-phrase="Download" target="_blank"></a></td></tr>
                   </tbody>
                 </table>
+              </div>
+            </div>
+            <div class="tab-pane" id="tabShortcuts">
+              <div id="shortcutList">
               </div>
             </div>
           </div>

@@ -180,7 +180,6 @@ domCache.progressBar = document.getElementById('footerProgressBar');
 domCache.progressPos = document.getElementById('footerProgressPos')
 domCache.volumeBar = document.getElementById('volumeBar');
 domCache.outputs = document.getElementById('outputs');
-domCache.btnA2HS = document.getElementById('nav-add2homescreen');
 domCache.currentCover = document.getElementById('currentCover');
 domCache.currentTitle = document.getElementById('currentTitle');
 domCache.footerTitle = document.getElementById('footerTitle');
@@ -591,18 +590,15 @@ function appRoute() {
                 document.getElementById('searchMatch').value = match;
             }
         }
-        else {
-            if (domCache.searchstr.value === '' && app.current.search !== '') {
+        else if (domCache.searchstr.value === '' && app.current.search !== '') {
                 domCache.searchstr.value = app.current.search;
-            }
         }
-        if (app.last.app !== app.current.app) {
-            if (app.current.search !== '') {
-                let colspan = settings['cols' + app.current.app].length;
-                document.getElementById('SearchList').getElementsByTagName('tbody')[0].innerHTML=
-                    '<tr><td><span class="material-icons">search</span></td>' +
-                    '<td colspan="' + colspan + '">' + t('Searching...') + '</td></tr>';
-            }
+        
+        if (app.last.app !== app.current.app && app.current.search !== '') {
+            let colspan = settings['cols' + app.current.app].length;
+            document.getElementById('SearchList').getElementsByTagName('tbody')[0].innerHTML=
+                '<tr><td><span class="material-icons">search</span></td>' +
+                '<td colspan="' + colspan + '">' + t('Searching...') + '</td></tr>';
         }
 
         if (domCache.searchstr.value.length >= 2 || domCache.searchCrumb.children.length > 0) {
@@ -618,11 +614,9 @@ function appRoute() {
                     }
                     document.getElementById('SearchList').setAttribute('data-sort', sort);
                 }
-                else {
-                    if (sort.indexOf('-') === 0) {
-                        sortdesc = true;
-                        sort = sort.substring(1);
-                    }
+                else if (sort.indexOf('-') === 0) {
+                    sortdesc = true;
+                    sort = sort.substring(1);
                 }
                 sendAPI("MPD_API_DATABASE_SEARCH_ADV", {"plist": "", "offset": app.current.offset, "limit": app.current.limit, "sort": sort, "sortdesc": sortdesc, "expression": app.current.search, "cols": settings.colsSearch, "replace": false}, parseSearch);
             }
@@ -676,12 +670,12 @@ function a2hsInit() {
         // Stash the event so it can be triggered later
         deferredA2HSprompt = event;
         // Update UI notify the user they can add to home screen
-        domCache.btnA2HS.classList.remove('hide');
+        document.getElementById('nav-add2homescreen').classList.remove('hide');
     });
 
-    domCache.btnA2HS.addEventListener('click', function() {
+    document.getElementById('nav-add2homescreen').addEventListener('click', function(event) {
         // Hide our user interface that shows our A2HS button
-        domCache.btnA2HS.classList.add('hide');
+        event.target.classList.add('hide');
         // Show the prompt
         deferredA2HSprompt.prompt();
         // Wait for the user to respond to the prompt
@@ -786,6 +780,188 @@ function appInitWait() {
 }
 
 function appInit() {
+    //collaps arrows for submenus
+    let collapseArrows = document.querySelectorAll('.subMenu');
+    let collapseArrowsLen = collapseArrows.length;
+    for (let i = 0; i < collapseArrowsLen; i++) {
+        collapseArrows[i].addEventListener('click', function(event) {
+            event.stopPropagation();
+            event.preventDefault();
+            let icon = this.getElementsByTagName('span')[0];
+            icon.innerText = icon.innerText === 'keyboard_arrow_right' ? 'keyboard_arrow_down' : 'keyboard_arrow_right';
+        }, false);
+    }    
+    //align dropdowns
+    let dropdowns = document.querySelectorAll('.dropdown-toggle');
+    for (let i = 0; i < dropdowns.length; i++) {
+        dropdowns[i].parentNode.addEventListener('show.bs.dropdown', function () {
+            alignDropdown(this);
+        });
+    }
+    //init links
+    let hrefs = document.querySelectorAll('[data-href]');
+    let hrefsLen = hrefs.length;
+    for (let i = 0; i < hrefsLen; i++) {
+        if (hrefs[i].classList.contains('notclickable') === false) {
+            hrefs[i].classList.add('clickable');
+        }
+        let parentInit = hrefs[i].parentNode.classList.contains('noInitChilds') ? true : false;
+        if (parentInit === false) {
+            parentInit = hrefs[i].parentNode.parentNode.classList.contains('noInitChilds') ? true : false;
+        }
+        if (parentInit === true) {
+            //handler on parentnode
+            continue;
+        }
+        hrefs[i].addEventListener('click', function(event) {
+            parseCmd(event, this.getAttribute('data-href'));
+        }, false);
+    }
+    //do not submit forms
+    const noFormSubmit = ['search', 'searchqueue', 'searchdatabase'];
+    for (let i = 0; i < noFormSubmit.length; i++) {
+        document.getElementById(noFormSubmit[i]).addEventListener('submit', function(event) {
+            event.preventDefault();
+        }, false);
+    }
+    //hide popover
+    document.getElementsByTagName('body')[0].addEventListener('click', function() {
+        hideMenu();
+    }, false);
+    //init moduls
+    initGlobalModals();
+    initSong();
+    initHome();
+    initBrowse();
+    initQueue();
+    initSearch();
+    initScripts();
+    initTrigger();
+    initTimer();
+    initPartitions();
+    initMounts();
+    initLocalplayer();
+    initSettings();
+    initPlayback();
+    initNavs();
+    //init drag and drop
+    dragAndDropTable('QueueCurrentList');
+    dragAndDropTable('BrowsePlaylistsDetailList');
+    dragAndDropTableHeader('QueueCurrent');
+    dragAndDropTableHeader('QueueLastPlayed');
+    dragAndDropTableHeader('QueueJukebox');
+    dragAndDropTableHeader('Search');
+    dragAndDropTableHeader('BrowseFilesystem');
+    dragAndDropTableHeader('BrowsePlaylistsDetail');
+    dragAndDropTableHeader('BrowseDatabaseDetail');
+    //update state on window focus - browser pauses javascript
+    window.addEventListener('focus', function() {
+        sendAPI("MPD_API_PLAYER_STATE", {}, parseState);
+    }, false);
+    //global keymap
+    document.addEventListener('keydown', function(event) {
+        if (event.target.tagName === 'INPUT' || event.target.tagName === 'SELECT' ||
+            event.target.tagName === 'TEXTAREA' || event.ctrlKey || event.altKey) {
+            return;
+        }
+        let cmd = keymap[event.key];
+        if (cmd && typeof window[cmd.cmd] === 'function') {
+            if (keymap[event.key].req === undefined || settings[keymap[event.key].req] === true)
+                parseCmd(event, cmd);
+        }        
+        
+    }, false);
+    //make tables navigateable by keyboard
+    let tables = document.getElementsByTagName('table');
+    for (let i = 0; i < tables.length; i++) {
+        tables[i].setAttribute('tabindex', 0);
+        tables[i].addEventListener('keydown', function(event) {
+            navigateTable(this, event.key);
+        }, false);
+    }
+    //websocket
+    window.addEventListener('beforeunload', function() {
+        webSocketClose();
+    });
+}
+
+function initGlobalModals() {
+    document.getElementById('modalAbout').addEventListener('shown.bs.modal', function () {
+        sendAPI("MPD_API_DATABASE_STATS", {}, parseStats);
+        getServerinfo();
+        let list = '';
+        let i = 0;
+        for (let key in keymap) {
+            if (i === 0 || i % 2 === 0) {
+                if (i > 0) {
+                    list += '</div>';
+                }
+                list += '<div class="row row-keymap">';
+            }
+            if (keymap[key].req === undefined || settings[keymap[key].req] === true) {
+                list += '<div class="col col-keymap mb-1 d-flex"><div class="align-self-center key' + (keymap[key].key && keymap[key].key.length > 1 ? ' material-icons material-icons-small' : '') + 
+                       '">' + (keymap[key].key !== undefined ? keymap[key].key : key ) + '</div><div class="align-self-center">' + t(keymap[key].desc) + '</div></div>';
+                i++;
+            }
+        }
+        document.getElementById('shortcutList').innerHTML = list + '</div>';
+    });
+    
+    document.getElementById('modalAddToPlaylist').addEventListener('shown.bs.modal', function () {
+        if (!document.getElementById('addStreamFrm').classList.contains('hide')) {
+            document.getElementById('streamUrl').focus();
+            document.getElementById('streamUrl').value = '';
+        }
+        else {
+            document.getElementById('addToPlaylistPlaylist').focus();
+        }
+    });
+    
+    document.getElementById('modalUpdateDB').addEventListener('hidden.bs.modal', function () {
+        document.getElementById('updateDBprogress').classList.remove('updateDBprogressAnimate');
+    });
+
+    document.getElementById('addToPlaylistPlaylist').addEventListener('change', function () {
+        if (this.options[this.selectedIndex].value === 'new') {
+            document.getElementById('addToPlaylistNewPlaylistDiv').classList.remove('hide');
+            document.getElementById('addToPlaylistNewPlaylist').focus();
+        }
+        else {
+            document.getElementById('addToPlaylistNewPlaylistDiv').classList.add('hide');
+        }
+    }, false);
+}
+
+function initPlayback() {
+    let colDropdowns = ['PlaybackColsDropdown'];
+    for (let i = 0; i < colDropdowns.length; i++) {
+        document.getElementById(colDropdowns[i]).addEventListener('click', function(event) {
+            if (event.target.nodeName === 'BUTTON' && event.target.classList.contains('material-icons')) {
+                event.stopPropagation();
+                event.preventDefault();
+                toggleBtnChk(event.target);
+            }
+        }, false);
+    }
+
+    document.getElementById('cardPlaybackTags').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'P') {
+            gotoBrowse(event);
+        }
+    }, false);
+    
+    //quick plaback settings dropdown
+    document.getElementById('playDropdown').parentNode.addEventListener('show.bs.dropdown', function () {
+        showPlayDropdown();
+    });
+
+    document.getElementById('playDropdown').addEventListener('click', function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    });
+}
+
+function initNavs() {
     document.getElementById('mainMenu').addEventListener('click', function(event) {
         event.preventDefault();
     }, false);
@@ -829,18 +1005,6 @@ function appInit() {
     domCache.progress.addEventListener('mouseout', function() {
         domCache.progressPos.style.display = 'none';
     }, false);
-
-    let collapseArrows = document.querySelectorAll('.subMenu');
-    let collapseArrowsLen = collapseArrows.length;
-    for (let i = 0; i < collapseArrowsLen; i++) {
-        collapseArrows[i].addEventListener('click', function(event) {
-            event.stopPropagation();
-            event.preventDefault();
-            let icon = this.getElementsByTagName('span')[0];
-            icon.innerText = icon.innerText === 'keyboard_arrow_right' ? 'keyboard_arrow_down' : 'keyboard_arrow_right';
-        }, false);
-    }    
-
     document.getElementById('navbar-main').addEventListener('click', function(event) {
         event.preventDefault();
         let href = event.target.getAttribute('data-href');
@@ -855,123 +1019,6 @@ function appInit() {
     document.getElementById('volumeMenu').parentNode.addEventListener('show.bs.dropdown', function () {
         sendAPI("MPD_API_PLAYER_OUTPUT_LIST", {}, parseOutputs);
     });
-    
-    document.getElementById('playDropdown').parentNode.addEventListener('show.bs.dropdown', function () {
-        showPlayDropdown();
-    });
-
-    document.getElementById('playDropdown').addEventListener('click', function (event) {
-        event.preventDefault();
-        event.stopPropagation();
-    });
-    
-    let dropdowns = document.querySelectorAll('.dropdown-toggle');
-    for (let i = 0; i < dropdowns.length; i++) {
-        dropdowns[i].parentNode.addEventListener('show.bs.dropdown', function () {
-            alignDropdown(this);
-        });
-    }
-    
-    document.getElementById('modalAbout').addEventListener('shown.bs.modal', function () {
-        sendAPI("MPD_API_DATABASE_STATS", {}, parseStats);
-        getServerinfo();
-        let trs = '';
-        for (let key in keymap) {
-            if (keymap[key].req === undefined || settings[keymap[key].req] === true) {
-                trs += '<tr><td><div class="key' + (keymap[key].key && keymap[key].key.length > 1 ? ' material-icons material-icons-small' : '') + 
-                       '">' + (keymap[key].key !== undefined ? keymap[key].key : key ) + '</div></td><td>' + t(keymap[key].desc) + '</td></tr>';
-            }
-        }
-        document.getElementById('tbodyShortcuts').innerHTML = trs;
-    });
-    
-    document.getElementById('modalAddToPlaylist').addEventListener('shown.bs.modal', function () {
-        if (!document.getElementById('addStreamFrm').classList.contains('hide')) {
-            document.getElementById('streamUrl').focus();
-            document.getElementById('streamUrl').value = '';
-        }
-        else {
-            document.getElementById('addToPlaylistPlaylist').focus();
-        }
-    });
-    
-    document.getElementById('modalUpdateDB').addEventListener('hidden.bs.modal', function () {
-        document.getElementById('updateDBprogress').classList.remove('updateDBprogressAnimate');
-    });
-
-    document.getElementById('addToPlaylistPlaylist').addEventListener('change', function () {
-        if (this.options[this.selectedIndex].value === 'new') {
-            document.getElementById('addToPlaylistNewPlaylistDiv').classList.remove('hide');
-            document.getElementById('addToPlaylistNewPlaylist').focus();
-        }
-        else {
-            document.getElementById('addToPlaylistNewPlaylistDiv').classList.add('hide');
-        }
-    }, false);
-    
-    document.getElementById('syscmds').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'A') {
-            parseCmd(event, event.target.getAttribute('data-href'));
-        }
-    }, false);
-    
-    document.getElementById('scripts').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'A') {
-            execScript(event.target.getAttribute('data-href'));
-        }
-    }, false);
-
-    let hrefs = document.querySelectorAll('[data-href]');
-    let hrefsLen = hrefs.length;
-    for (let i = 0; i < hrefsLen; i++) {
-        if (hrefs[i].classList.contains('notclickable') === false) {
-            hrefs[i].classList.add('clickable');
-        }
-        let parentInit = hrefs[i].parentNode.classList.contains('noInitChilds') ? true : false;
-        if (parentInit === false) {
-            parentInit = hrefs[i].parentNode.parentNode.classList.contains('noInitChilds') ? true : false;
-        }
-        if (parentInit === true) {
-            //handler on parentnode
-            continue;
-        }
-        hrefs[i].addEventListener('click', function(event) {
-            parseCmd(event, this.getAttribute('data-href'));
-        }, false);
-    }
-     
-    document.getElementById('cardPlaybackTags').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'P') {
-            gotoBrowse(event);
-        }
-    }, false);
-    
-    document.getElementById('tbodySongDetails').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'A') {
-            if (event.target.id === 'calcFingerprint') {
-                sendAPI("MPD_API_DATABASE_FINGERPRINT", {"uri": decodeURI(event.target.getAttribute('data-uri'))}, parseFingerprint);
-                event.preventDefault();
-                let parent = event.target.parentNode;
-                let spinner = document.createElement('div');
-                spinner.classList.add('spinner-border', 'spinner-border-sm');
-                event.target.classList.add('hide');
-                parent.appendChild(spinner);
-            }
-            else if (event.target.classList.contains('external')) {
-                //do nothing, link opens in new browser window
-            }
-            else if (event.target.parentNode.getAttribute('data-tag') !== null) {
-                modalSongDetails.hide();
-                event.preventDefault();
-                gotoBrowse(event);
-            } 
-        }
-        else if (event.target.nodeName === 'BUTTON') { 
-            if (event.target.getAttribute('data-href')) {
-                parseCmd(event, event.target.getAttribute('data-href'));
-            }
-        }
-    }, false);
 
     document.getElementById('outputs').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
@@ -986,113 +1033,20 @@ function appInit() {
         }
     }, false);
 
-    let colDropdowns = ['PlaybackColsDropdown'];
-    for (let i = 0; i < colDropdowns.length; i++) {
-        document.getElementById(colDropdowns[i]).addEventListener('click', function(event) {
-            if (event.target.nodeName === 'BUTTON' && event.target.classList.contains('material-icons')) {
-                event.stopPropagation();
-                event.preventDefault();
-                toggleBtnChk(event.target);
-            }
-        }, false);
-    }
-
-    const noFormSubmit = ['search', 'searchqueue', 'searchdatabase'];
-    for (let i = 0; i < noFormSubmit.length; i++) {
-        document.getElementById(noFormSubmit[i]).addEventListener('submit', function(event) {
-            event.preventDefault();
-        }, false);
-    }
-
-    document.getElementsByTagName('body')[0].addEventListener('click', function() {
-        hideMenu();
-    }, false);
-
-    initHome();
-    initBrowse();
-    initQueue();
-    initSearch();
-    initScripts();
-    initTrigger();
-    initTimer();
-    initPartitions();
-    initMounts();
-    initSettings();
-
-    dragAndDropTable('QueueCurrentList');
-    dragAndDropTable('BrowsePlaylistsDetailList');
-    dragAndDropTableHeader('QueueCurrent');
-    dragAndDropTableHeader('QueueLastPlayed');
-    dragAndDropTableHeader('QueueJukebox');
-    dragAndDropTableHeader('Search');
-    dragAndDropTableHeader('BrowseFilesystem');
-    dragAndDropTableHeader('BrowsePlaylistsDetail');
-    dragAndDropTableHeader('BrowseDatabaseDetail');
-
-    window.addEventListener('focus', function() {
-        sendAPI("MPD_API_PLAYER_STATE", {}, parseState);
-    }, false);
-
-    document.addEventListener('keydown', function(event) {
-        if (event.target.tagName === 'INPUT' || event.target.tagName === 'SELECT' ||
-            event.target.tagName === 'TEXTAREA' || event.ctrlKey || event.altKey) {
-            return;
+    document.getElementById('syscmds').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'A') {
+            parseCmd(event, event.target.getAttribute('data-href'));
         }
-        let cmd = keymap[event.key];
-        if (cmd && typeof window[cmd.cmd] === 'function') {
-            if (keymap[event.key].req === undefined || settings[keymap[event.key].req] === true)
-                parseCmd(event, cmd);
-        }        
-        
     }, false);
     
-    let tables = document.getElementsByTagName('table');
-    for (let i = 0; i < tables.length; i++) {
-        tables[i].setAttribute('tabindex', 0);
-        tables[i].addEventListener('keydown', function(event) {
-            navigateTable(this, event.key);
-        }, false);
-    }
-
-    let selectThemeHtml = '';
-    Object.keys(themes).forEach(function(key) {
-        selectThemeHtml += '<option value="' + e(key) + '">' + t(themes[key]) + '</option>';
-    });
-    document.getElementById('selectTheme').innerHTML = selectThemeHtml;
-
-    window.addEventListener('beforeunload', function() {
-        webSocketClose();
-    });
-    
-    document.getElementById('alertLocalPlayback').getElementsByTagName('a')[0].addEventListener('click', function(event) {
-        event.stopPropagation();
-        event.preventDefault();
-        clickCheckLocalPlayerState(event);
+    document.getElementById('scripts').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'A') {
+            execScript(event.target.getAttribute('data-href'));
+        }
     }, false);
-    
-    document.getElementById('errorLocalPlayback').getElementsByTagName('a')[0].addEventListener('click', function(event) {
-        event.stopPropagation();
-        event.preventDefault();
-        clickCheckLocalPlayerState(event);
-    }, false);
-
-    document.getElementById('localPlayer').addEventListener('click', function(event) {
-        event.stopPropagation();
-    });
-    
-    document.getElementById('localPlayer').addEventListener('canplay', function() {
-        logDebug('localPlayer event: canplay');
-        document.getElementById('alertLocalPlayback').classList.add('hide');
-        document.getElementById('errorLocalPlayback').classList.add('hide');
-    });
-
-    document.getElementById('localPlayer').addEventListener('error', function() {
-        logError('localPlayer event: error');
-        document.getElementById('errorLocalPlayback').classList.remove('hide');
-    });
 }
 
-//Init app
+//Handle javascript errors
 window.onerror = function(msg, url, line) {
     logError('JavaScript error: ' + msg + ' (' + url + ': ' + line + ')');
     if (settings.loglevel >= 4) {
@@ -1105,5 +1059,5 @@ window.onerror = function(msg, url, line) {
     }
     return true;
 };
-
+//Start app
 appInitStart();
