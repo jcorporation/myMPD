@@ -9,12 +9,10 @@ function validateFilenameString(str) {
     if (str === '') {
         return false;
     }
-    else if (str.match(/^[\w-.]+$/) !== null) {
+    if (str.match(/^[\w-.]+$/) !== null) {
         return true;
     }
-    else {
-        return false;
-    }
+    return false;
 }
 
 function validateFilename(el) {
@@ -22,10 +20,8 @@ function validateFilename(el) {
         el.classList.add('is-invalid');
         return false;
     }
-    else {
-        el.classList.remove('is-invalid');
-        return true;
-    }
+    el.classList.remove('is-invalid');
+    return true;
 }
 
 function validateFilenameList(el) {
@@ -46,14 +42,12 @@ function validatePath(el) {
         el.classList.add('is-invalid');
         return false;
     }
-    else if (el.value.match(/^\/[/.\w-]+$/) !== null) {
+    if (el.value.match(/^\/[/.\w-]+$/) !== null) {
         el.classList.remove('is-invalid');
         return true;
     }
-    else {
-        el.classList.add('is-invalid');
-        return false;
-    }
+    el.classList.add('is-invalid');
+    return false;
 }
 
 function validatePlnameEl(el) {
@@ -61,22 +55,18 @@ function validatePlnameEl(el) {
         el.classList.add('is-invalid');
         return false;
     }
-    else {
-        el.classList.remove('is-invalid');
-        return true;
-    }
+    el.classList.remove('is-invalid');
+    return true;
 }
 
 function validatePlname(x) {
     if (x === '') {
         return false;
     }
-    else if (x.match(/\/|\r|\n|"|'/) === null) {
+    if (x.match(/\/|\r|\n|"|'/) === null) {
         return true;
     }
-    else {
-        return false;
-    }
+    return false;
 }
 
 function validateNotBlank(el) {
@@ -85,10 +75,8 @@ function validateNotBlank(el) {
         el.classList.add('is-invalid');
         return false;
     }
-    else {
-        el.classList.remove('is-invalid');
-        return true;
-    }
+    el.classList.remove('is-invalid');
+    return true;
 }
 
 function validateInt(el) {
@@ -97,10 +85,8 @@ function validateInt(el) {
         el.classList.add('is-invalid');
         return false;
     }
-    else {
-        el.classList.remove('is-invalid');
-        return true;
-    }
+    el.classList.remove('is-invalid');
+    return true;
 }
 
 function validateFloat(el) {
@@ -109,21 +95,17 @@ function validateFloat(el) {
         el.classList.add('is-invalid');
         return false;
     }
-    else {
-        el.classList.remove('is-invalid');
-        return true;
-    }
+    el.classList.remove('is-invalid');
+    return true;
 }
 
 function validateStream(el) {
-    if (el.value.indexOf('://') > -1) {
+    if (isStreamUri(el.value) === true) {
         el.classList.remove('is-invalid');
         return true;
     }
-    else {
-        el.classList.add('is-invalid');
-        return false;
-    }
+    el.classList.add('is-invalid');
+    return false;
 }
 
 function validateHost(el) {
@@ -131,8 +113,6 @@ function validateHost(el) {
         el.classList.remove('is-invalid');
         return true;
     }
-    else {
-        el.classList.add('is-invalid');
-        return false;
-    }
+    el.classList.add('is-invalid');
+    return false;
 }
