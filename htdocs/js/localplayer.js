@@ -1,3 +1,32 @@
+function initLocalplayer() {
+   document.getElementById('alertLocalPlayback').getElementsByTagName('a')[0].addEventListener('click', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        clickCheckLocalPlayerState(event);
+    }, false);
+    
+    document.getElementById('errorLocalPlayback').getElementsByTagName('a')[0].addEventListener('click', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        clickCheckLocalPlayerState(event);
+    }, false);
+
+    document.getElementById('localPlayer').addEventListener('click', function(event) {
+        event.stopPropagation();
+    });
+    
+    document.getElementById('localPlayer').addEventListener('canplay', function() {
+        logDebug('localPlayer event: canplay');
+        document.getElementById('alertLocalPlayback').classList.add('hide');
+        document.getElementById('errorLocalPlayback').classList.add('hide');
+    });
+
+    document.getElementById('localPlayer').addEventListener('error', function() {
+        logError('localPlayer event: error');
+        document.getElementById('errorLocalPlayback').classList.remove('hide');
+    });
+}
+
 function setLocalPlayerUrl() {
     if (window.location.protocol === 'https:') {
         document.getElementById('infoLocalplayer').classList.remove('hide');
