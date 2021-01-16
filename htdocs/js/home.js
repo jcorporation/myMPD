@@ -38,14 +38,6 @@ function initHome() {
         showHomeIconCmdOptions();
     }, false);
 
-    document.getElementById('inputHomeIconLigature').addEventListener('change', function(event) {
-        document.getElementById('homeIconPreview').innerText = event.target.value;
-        if (event.target.value !== '') {
-            document.getElementById('selectHomeIconImage').value = '';
-            document.getElementById('homeIconPreview').style.backgroundImage = '';
-        }
-    }, false);
-
     document.getElementById('inputHomeIconBgcolor').addEventListener('change', function(event) {
         document.getElementById('homeIconPreview').style.backgroundColor = event.target.value;
     }, false);
@@ -74,10 +66,14 @@ function initHome() {
     });
     document.getElementById('listHomeIconLigature').innerHTML = ligatureList;
     document.getElementById('searchHomeIconCat').innerHTML = catList;
+
     document.getElementById('listHomeIconLigature').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
             event.preventDefault();
-            document.getElementById('inputHomeIconLigature'). value = event.target.getAttribute('title');
+            document.getElementById('inputHomeIconLigature').value = event.target.getAttribute('title');
+            document.getElementById('homeIconPreview').innerText = event.target.getAttribute('title');
+            document.getElementById('homeIconPreview').style.backgroundImage = '';
+            document.getElementById('selectHomeIconImage').value = '';
         }
     });
     
@@ -358,7 +354,11 @@ function _editHomeIcon(pos, replace, title) {
             document.getElementById('divHomeIconLigature').classList.add('hide');
             document.getElementById('homeIconPreview').style.backgroundImage = 'url(' + subdir + '"/browse/pics/' + obj.result.data.image + '")';
         }
-        
+        //reset ligature selection
+        document.getElementById('searchHomeIconLigature').value = '';
+        document.getElementById('searchHomeIconCat').value = 'all';
+        filterHomeIconLigatures();
+        //show modal
         modalEditHomeIcon.show();
     });
 }
