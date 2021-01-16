@@ -681,6 +681,9 @@ Lieddetails
 Open local player
 Lokale Wiedergabe
 
+Goto home
+Gehe zur Startseite
+
 Goto playback
 Gehe zu Wiedergabe
 
@@ -689,6 +692,9 @@ Gehe zu Warteschlange
 
 Goto last played
 Gehe zu Zuletzt gespielt
+
+Goto jukebox queue
+Gehe zur Jukebox Warteschlange
 
 Goto browse database
 Gehe zu Datenbank durchsuchen
@@ -1566,9 +1572,6 @@ Du hast noch keine Homeicons hinzugefügt. Du kannst einzelne Ansichten, Wiederg
 Can not open directory pics
 Konnte Verzeichnis pics nicht öffnen
 
-Ligature overview
-Übersicht der Ligaturen
-
 Use ligature
 Ligatur benutzen
 
@@ -1689,3 +1692,6 @@ Letzte Seite
 
 Show album
 Album anzeigen
+
+Can not get lyrics for stream uri
+Liedtexte für Streams sind nicht unterstützt

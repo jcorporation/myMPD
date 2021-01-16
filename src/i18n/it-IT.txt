@@ -1596,9 +1596,6 @@ Livello volume non valido
 Ligature
 Legatura
 
-Ligature overview
-Panoramica legature
-
 MaintainEnableTagsText
 MaintainEnableTagsText
 

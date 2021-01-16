@@ -1566,9 +1566,6 @@ Homescreen welcome
 Can not open directory pics
 디렉터리 그림을 열 수 없음
 
-Ligature overview
-연결 미리보기
-
 Use ligature
 연결 사용
 
