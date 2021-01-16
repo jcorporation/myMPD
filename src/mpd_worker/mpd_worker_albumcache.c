@@ -28,7 +28,7 @@
 #include "../mpd_shared.h"
 #include "../mpd_shared/mpd_shared_sticker.h"
 #include "mpd_worker_utility.h"
-#include "mpd_worker_stickercache.h"
+#include "mpd_worker_albumcache.h"
 
 //privat definitions
 static bool _album_cache_init(t_mpd_worker_state *mpd_worker_state, rax *album_cache);
@@ -40,7 +40,7 @@ bool mpd_worker_album_cache_init(t_mpd_worker_state *mpd_worker_state) {
     bool rc = _album_cache_init(mpd_worker_state, album_cache);
     enable_mpd_tags(mpd_worker_state->mpd_state, mpd_worker_state->mpd_state->mympd_tag_types);
     //push album cache building response to mpd_client thread
-    t_work_request *request = create_request(-1, 0, MPD_API_STICKERCACHE_CREATED, "MPD_API_ALBUMCACHE_CREATED", "");
+    t_work_request *request = create_request(-1, 0, MPD_API_ALBUMCACHE_CREATED, "MPD_API_ALBUMCACHE_CREATED", "");
     request->data = sdscat(request->data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MPD_API_ALBUMCACHE_CREATED\",\"params\":{}}");
     if (rc == true) {
         request->extra = (void *) album_cache;
@@ -59,12 +59,12 @@ static bool _album_cache_init(t_mpd_worker_state *mpd_worker_state, rax *album_c
     unsigned end = start + 1000;
     unsigned i = 0;
     //create search expression
-    sds expression = sdsempty();
+    sds expression = sdsnew("((Album != '') AND ");
     if (mpd_shared_tag_exists(mpd_worker_state->mpd_state->mympd_tag_types.tags, mpd_worker_state->mpd_state->mympd_tag_types.len, MPD_TAG_ALBUM_ARTIST) == true) {
-        expression = sdscat(expression, " ((AlbumArtist != ''))");
+        expression = sdscat(expression, " (AlbumArtist != ''))");
     }
     else if (mpd_shared_tag_exists(mpd_worker_state->mpd_state->mympd_tag_types.tags, mpd_worker_state->mpd_state->mympd_tag_types.len, MPD_TAG_ARTIST) == true) {
-        expression = sdscat(expression, " ((Artist != ''))");
+        expression = sdscat(expression, " (Artist != ''))");
     }
     else {
         sdsfree(expression);

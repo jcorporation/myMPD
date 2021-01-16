@@ -256,7 +256,7 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
                 LOG_ERROR("Album cache is NULL");
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, "Album cache is NULL", true);
             }
-            mpd_client_state->sticker_cache_building = false;
+            mpd_client_state->album_cache_building = false;
             break;
         case MPD_API_LOVE:
             if (mpd_run_send_message(mpd_client_state->mpd_state->conn, mpd_client_state->love_channel, mpd_client_state->love_message) == true) {
