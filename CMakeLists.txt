@@ -53,6 +53,8 @@ endif()
 message("ASSETS_PATH: ${ASSETS_PATH}")
 
 find_package(Threads REQUIRED)
+find_package(PCRE REQUIRED)
+include_directories(${PCRE_INCLUDE_DIRS})
 
 if(NOT "${ENABLE_SSL}" MATCHES "OFF")
   message("Searching for openssl")
@@ -304,6 +306,7 @@ add_executable(mympd ${SOURCES} ${LIBMPDCLIENT_SOURCES} ${CERT_SOURCES})
 
 target_link_libraries(mympd ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries(mympd m)
+target_link_libraries(mympd ${PCRE_LIBRARIES})
 if (OPENSSL_FOUND)
   target_link_libraries(mympd ${OPENSSL_LIBRARIES})
 endif()

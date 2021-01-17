@@ -15,7 +15,7 @@ SRC_URI="https://github.com/jcorporation/${MY_PN}/archive/v${PV}.tar.gz -> ${PN}
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~x86 ~arm ~arm64"
-IUSE="+flac +id3tag +ssl +java +lua systemd"
+IUSE="+flac +id3tag +ssl +java +lua systemd libpcre3"
 
 BDEPEND="
         >=dev-util/cmake-3.4

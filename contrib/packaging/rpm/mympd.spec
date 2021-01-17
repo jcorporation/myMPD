@@ -19,6 +19,7 @@ BuildRequires:  openssl-devel
 BuildRequires:  libid3tag-devel
 BuildRequires:	flac-devel
 BuildRequires:  lua-devel
+BuildRequires:  libpcre3-devel
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
 %global debug_package %{nil}
@@ -66,5 +67,5 @@ fi
 %config(noreplace) /etc/mympd.conf
 
 %changelog
-* Sat Jan 09 2021 Juergen Mang <mail@jcgames.de> 6.11.0-0
+* Mon Jan 18 2021 Juergen Mang <mail@jcgames.de> 6.11.0-0
 - Version from master

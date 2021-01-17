@@ -18,6 +18,7 @@
 #include <mpd/client.h>
 #include <signal.h>
 #include <time.h>
+#include <pcre.h>
 
 #include "../../dist/src/sds/sds.h"
 #include "../sds_extras.h"
@@ -39,6 +40,7 @@
 
 //private definitions
 static bool _search_song(struct mpd_song *song, struct list *expr_list);
+static bool _cmp_regex(const char *regex_str, const char *value);
 
 //public functions
 bool album_cache_init(t_mpd_client_state *mpd_client_state) {
@@ -438,9 +440,11 @@ sds mpd_client_put_firstsong_in_albums(t_mpd_client_state *mpd_client_state, sds
         i = i + 2;
         p = p + 2;
         for (; i < sdslen(tokens[j]) - 1; i++, p++) {
-            if (tokens[j][i] != '\\') {
-                value = sdscatprintf(value, "%.*s", 1, p);
-            }
+            //if (tokens[j][i] != '\\') {
+                //skip first escape character
+            //    value = sdscatprintf(value, "%.*s", 1, p);
+            //}
+            value = sdscatprintf(value, "%.*s", 1, p);
         }
         list_push(&expr_list, value, mpd_tag_name_parse(tag), op , NULL); 
         LOG_DEBUG("Parsed expression tag: \"%s\", op: \"%s\", value:\"%s\"", tag, op, value);
@@ -628,8 +632,45 @@ static bool _search_song(struct mpd_song *song, struct list *expr_list) {
             sdsfree(value);
             return false;
         }
+        else if (strcmp(current->value_p, "=~") == 0 && _cmp_regex(current->key, value) == false) {
+            sdsfree(value);
+            return false;
+        }
+        else if (strcmp(current->value_p, "!~") == 0 && _cmp_regex(current->key, value) == true) {
+            sdsfree(value);
+            return false;
+        }
         current = current->next;
     }
     sdsfree(value);
     return true;
+}
+
+static bool _cmp_regex(const char *regex_str, const char *value) {
+    bool rc = false;
+    const char *pcre_error_str;
+    int pcre_error_offset;
+    int substr_vec[30];
+    pcre *re_compiled = pcre_compile(regex_str, PCRE_CASELESS, &pcre_error_str, &pcre_error_offset, NULL);
+    if (re_compiled == NULL) {
+        LOG_ERROR("Could not compile '%s': %s\n", regex_str, pcre_error_str);
+        return false;
+    }
+    int pcre_exec_ret = pcre_exec(re_compiled, NULL, value, strlen(value), 0, 0, substr_vec, 30);
+    if (pcre_exec_ret < 0) {
+        switch(pcre_exec_ret) {
+            case PCRE_ERROR_NOMATCH      : break;
+            case PCRE_ERROR_NULL         : LOG_ERROR("Something was null");                      break;
+            case PCRE_ERROR_BADOPTION    : LOG_ERROR("A bad option was passed");                 break;
+            case PCRE_ERROR_BADMAGIC     : LOG_ERROR("Magic number bad (compiled re corrupt?)"); break;
+            case PCRE_ERROR_UNKNOWN_NODE : LOG_ERROR("Something kooky in the compiled re");      break;
+            case PCRE_ERROR_NOMEMORY     : LOG_ERROR("Ran out of memory");                       break;
+            default                      : LOG_ERROR("Unknown error");                           break;
+        }
+    }
+    else {
+        rc = true;
+    }
+    pcre_free(re_compiled);
+    return rc;
 }
