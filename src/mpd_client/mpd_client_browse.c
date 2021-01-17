@@ -491,18 +491,27 @@ sds mpd_client_put_firstsong_in_albums_old(t_mpd_client_state *mpd_client_state,
 sds mpd_client_put_firstsong_in_albums(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, 
                                        const char *searchstr, const char *filter, const char *sort, bool sortdesc, const unsigned int offset, unsigned int limit)
 {
+    if (mpd_client_state->album_cache == NULL) {
+        buffer = jsonrpc_respond_message(buffer, method, request_id, "Albumcache not ready", true);    
+        return buffer;
+    }
+
     buffer = jsonrpc_start_result(buffer, method, request_id);
     buffer = sdscat(buffer, ",\"data\":[");
 
     struct mpd_song *song;
     bool sort_by_last_modified = false;
     enum mpd_tag_type sort_tag = MPD_TAG_ALBUM;
-    enum mpd_tag_type sort_tag_org = MPD_TAG_ALBUM;
+    enum mpd_tag_type sort_tag_org = sort_tag;
 
     if (strlen(sort) > 0) {
         sort_tag_org = mpd_tag_name_parse(sort);
         if (sort_tag_org != MPD_TAG_UNKNOWN) {
             sort_tag = get_sort_tag(sort_tag_org);
+            if (mpd_shared_tag_exists(mpd_client_state->mpd_state->mympd_tag_types.tags, mpd_client_state->mpd_state->mympd_tag_types.len, sort_tag) == false) {
+                //sort tag is not enabled, revert 
+                sort_tag = sort_tag_org;
+            }
         }
         else if (strcmp(sort, "Last-Modified") == 0) {
             sort_by_last_modified = true;
@@ -524,43 +533,32 @@ sds mpd_client_put_firstsong_in_albums(t_mpd_client_state *mpd_client_state, sds
         //todo evaluate filter
         if (sort_by_last_modified == true) {
             key = sdscatlen(key, iter.key, iter.key_len);
-            list_push(&album_list, key, mpd_song_get_last_modified(song), NULL, iter.data);
+            list_insert_sorted_by_value_i(&album_list, key, mpd_song_get_last_modified(song), NULL, iter.data, sortdesc);
+            sdsclear(key);
         }
         else {
             const char *sort_value = mpd_song_get_tag(song, sort_tag, 0);
-            if (sort_value == NULL) {
-                sort_value = mpd_song_get_tag(song, sort_tag_org, 0);
-            }
             if (sort_value != NULL) {
-                key = sdscat(key, sort_value);
-                list_push(&album_list, key, 0, NULL, iter.data);
+                list_insert_sorted_by_key(&album_list, sort_value, 0, NULL, iter.data, sortdesc);
             }
             else {
                 LOG_WARN("Skip entry: %.*s", iter.key_len, iter.key); 
             }
         }
-        sdsclear(key);
     }
     raxStop(&iter);
     sdsfree(key);
     
-    //sort list
-    if (sort_by_last_modified == true) {
-        list_sort_by_value_i(&album_list, sortdesc == true ? false : true);
-    }
-    else {
-        list_sort_by_key(&album_list, sortdesc == true ? false : true);
-    }
-
     //print album list
     unsigned entity_count = 0;
     unsigned entities_returned = 0;
+    unsigned end = offset + limit;
     sds album = sdsempty();
     sds artist = sdsempty();
     struct list_node *current = album_list.head;
     while (current != NULL) {
         entity_count++;
-        if (entity_count > offset && (entity_count <= offset + limit || limit == 0)) {
+        if (entity_count > offset && (entity_count <= end || limit == 0)) {
             if (entities_returned++) {
                 buffer = sdscat(buffer, ",");
             }
@@ -573,21 +571,18 @@ sds mpd_client_put_firstsong_in_albums(t_mpd_client_state *mpd_client_state, sds
             buffer = tojson_char(buffer, "FirstSongUri", mpd_song_get_uri(song), false);
             buffer = sdscat(buffer, "}");
         }
-        //prevent freeing user_data in list_free
-        current->user_data = NULL;
-        //goto next
         current = current->next;
+        if (entity_count > end && limit > 0) {
+            break;
+        }
     }
     sdsfree(album);
     sdsfree(artist);
-    list_free(&album_list);
-    mpd_response_finish(mpd_client_state->mpd_state->conn);
-    if (check_error_and_recover2(mpd_client_state->mpd_state, &buffer, method, request_id, false) == false) {
-        return buffer;
-    }
+    entity_count = album_list.length;
+    list_free_keep_user_data(&album_list);
 
     buffer = sdscat(buffer, "],");
-    buffer = tojson_long(buffer, "totalEntities", -1, true);
+    buffer = tojson_long(buffer, "totalEntities", entity_count, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
     buffer = tojson_long(buffer, "offset", offset, true);
     buffer = tojson_char(buffer, "filter", filter, true);
