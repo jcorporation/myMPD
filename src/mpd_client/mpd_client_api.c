@@ -797,7 +797,7 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
             response->data = respond_with_mpd_error_or_ok(mpd_client_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_shuffle");
             break;
         case MPD_API_PLAYLIST_RM:
-            je = json_scanf(request->data, sdslen(request->data), "{params: {uri:%Q}}", &p_charbuf1);
+            je = json_scanf(request->data, sdslen(request->data), "{params: {uri: %Q}}", &p_charbuf1);
             if (je == 1) {
                 response->data = mpd_client_playlist_delete(config, mpd_client_state, response->data, request->method, request->id, p_charbuf1);
             }
@@ -809,7 +809,7 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
             response->data = mpd_client_put_stats(config, mpd_client_state, response->data, request->method, request->id);
             break;
         case MPD_API_ALBUMART:
-            je = json_scanf(request->data, sdslen(request->data), "{params: {uri:% Q}}", &p_charbuf1);
+            je = json_scanf(request->data, sdslen(request->data), "{params: {uri: %Q}}", &p_charbuf1);
             if (je == 1) {
                 response->data = mpd_client_getcover(config, mpd_client_state, response->data, request->method, request->id, p_charbuf1, &response->binary);
             }
