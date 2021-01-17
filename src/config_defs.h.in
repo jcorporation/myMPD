@@ -34,12 +34,17 @@
 #define VARLIB_PATH "${VARLIB_PATH}"
 #define LUALIBS_PATH "${LUALIBS_PATH}"
 
-//defailt navbar icons
+//default navbar icons
 #define NAVBAR_ICONS "[{\"ligature\":\"home\",\"title\":\"Home\",\"options\":[\"Home\"],\"badge\":\"\"},"\
     "{\"ligature\":\"equalizer\",\"title\":\"Playback\",\"options\":[\"Playback\"],\"badge\":\"\"},"\
     "{\"ligature\":\"queue_music\",\"title\":\"Queue\",\"options\":[\"Queue\"],\"badge\":\"<span id=\\\"badgeQueueItems\\\" class=\\\"badge badge-secondary\\\"></span>\"},"\
     "{\"ligature\":\"library_music\",\"title\":\"Browse\",\"options\":[\"Browse\"],\"badge\":\"\"},"\
     "{\"ligature\":\"search\",\"title\":\"Search\",\"options\":[\"Search\"],\"badge\":\"\"}]"
+
+//measure time
+#define MEASURE_START clock_t measure_start = clock();
+#define MEASURE_END clock_t measure_end = clock();
+#define MEASURE_PRINT(X) LOG_DEBUG("Execution time for %s: %lf", X, ((double) (measure_end - measure_start)) / CLOCKS_PER_SEC);
 
 enum jukebox_modes {
     JUKEBOX_OFF,
