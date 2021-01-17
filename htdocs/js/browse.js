@@ -6,7 +6,7 @@
 */
 
 function initBrowse() {
-    document.getElementById('BrowseDatabaseCards').addEventListener('click', function(event) {
+    document.getElementById('BrowseDatabaseListList').addEventListener('click', function(event) {
         if (app.current.tag === 'Album') {
             if (event.target.classList.contains('card-body')) {
                 appGoto('Browse', 'Database', 'Detail', 0, undefined, 'Album', 'AlbumArtist', 
@@ -25,26 +25,26 @@ function initBrowse() {
         }
     }, false);
     
-    document.getElementById('BrowseDatabaseCards').addEventListener('contextmenu', function(event) {
+    document.getElementById('BrowseDatabaseListList').addEventListener('contextmenu', function(event) {
         if (app.current.tag === 'Album') {
             popoverMenuAlbumCards(event);
         }
     }, false);
     
-    document.getElementById('BrowseDatabaseCards').addEventListener('long-press', function(event) {
+    document.getElementById('BrowseDatabaseListList').addEventListener('long-press', function(event) {
         if (app.current.tag === 'Album') {
             popoverMenuAlbumCards(event);
         }
     }, false);
 
-    document.getElementById('BrowseDatabaseCards').addEventListener('keydown', function(event) {
+    document.getElementById('BrowseDatabaseListList').addEventListener('keydown', function(event) {
         navigateGrid(event.target, event.key);
     }, false);
     
     if (isMobile === false) {
-        document.getElementById('BrowseDatabaseCards').addEventListener('mouseover', function(event) {
+        document.getElementById('BrowseDatabaseListList').addEventListener('mouseover', function(event) {
             if (event.target.classList.contains('card-body') && event.target.childNodes.length === 0) {
-                const oldEls = document.getElementById('BrowseDatabaseCards').getElementsByClassName('album-grid-mouseover');
+                const oldEls = document.getElementById('BrowseDatabaseListList').getElementsByClassName('album-grid-mouseover');
                 if (oldEls.length > 1) {
                     for (let i = 0; i < oldEls.length; i++) {
                         oldEls[i].remove();
@@ -54,7 +54,7 @@ function initBrowse() {
             }
         }, false);
 
-        document.getElementById('BrowseDatabaseCards').addEventListener('mouseout', function(event) {
+        document.getElementById('BrowseDatabaseListList').addEventListener('mouseout', function(event) {
             if (event.target.classList.contains('card-body') && (event.relatedTarget === null || ! event.relatedTarget.classList.contains('album-grid-mouseover'))) {
                 event.target.innerHTML = '';
             }
@@ -292,7 +292,7 @@ function navBrowseHandler(event) {
 
 function popoverMenuAlbumCards(event) {
     showMenu(event.target, event);
-    const selCards = document.getElementById('BrowseDatabaseCards').getElementsByClassName('selected');
+    const selCards = document.getElementById('BrowseDatabaseListList').getElementsByClassName('selected');
     for (let i = 0; i < selCards.length; i++) {
         selCards[i].classList.remove('selected');
     }
@@ -527,9 +527,11 @@ function saveBookmark() {
 
 function parseDatabase(obj) {
     let nrItems = obj.result.returnedEntities;
-    let cardContainer = document.getElementById('BrowseDatabaseCards');
+    let cardContainer = document.getElementById('BrowseDatabaseListList');
     let cols = cardContainer.getElementsByClassName('col');
     const has_io = 'IntersectionObserver' in window ? true : false;
+
+    document.getElementById('BrowseDatabaseListList').classList.remove('opacity05');
 
     if (cols.length === 0) {
         cardContainer.innerHTML = '';

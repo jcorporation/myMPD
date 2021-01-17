@@ -228,6 +228,9 @@ Tag zum Suchen auswählen
 contains
 enthält
 
+starts_with
+beginnt mit
+
 Initializing myMPD
 Initialisiere myMPD
 

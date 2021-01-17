@@ -17,6 +17,7 @@
 #include <limits.h>
 #include <mpd/client.h>
 #include <signal.h>
+#include <time.h>
 
 #include "../../dist/src/sds/sds.h"
 #include "../sds_extras.h"
@@ -488,6 +489,33 @@ sds mpd_client_put_firstsong_in_albums_old(t_mpd_client_state *mpd_client_state,
     return buffer;    
 }
 
+bool search_song(struct mpd_song *song, struct list *expr_list) {
+    struct list_node *current = expr_list->head;
+    sds value = sdsempty();
+    while (current != NULL) {
+        value = mpd_shared_get_tags(song, current->value_i, value);
+        if (strcmp(current->value_p, "contains") == 0 && strcasestr(value, current->key) == NULL) {
+            sdsfree(value);
+            return false;
+        }
+        else if (strcmp(current->value_p, "starts_with") == 0 && strncasecmp(current->key, value, strlen(current->key)) != 0) {
+            sdsfree(value);
+            return false;
+        }
+        else if (strcmp(current->value_p, "==") == 0 && strcasecmp(value, current->key) != 0) {
+            sdsfree(value);
+            return false;
+        }
+        else if (strcmp(current->value_p, "!=") == 0 && strcasecmp(value, current->key) == 0) {
+            sdsfree(value);
+            return false;
+        }
+        current = current->next;
+    }
+    sdsfree(value);
+    return true;
+}
+
 sds mpd_client_put_firstsong_in_albums(t_mpd_client_state *mpd_client_state, sds buffer, sds method, long request_id, 
                                        const char *searchstr, const char *filter, const char *sort, bool sortdesc, const unsigned int offset, unsigned int limit)
 {
@@ -500,6 +528,7 @@ sds mpd_client_put_firstsong_in_albums(t_mpd_client_state *mpd_client_state, sds
     buffer = sdscat(buffer, ",\"data\":[");
 
     struct mpd_song *song;
+    //parse sort tag
     bool sort_by_last_modified = false;
     enum mpd_tag_type sort_tag = MPD_TAG_ALBUM;
     enum mpd_tag_type sort_tag_org = sort_tag;
@@ -520,8 +549,53 @@ sds mpd_client_put_firstsong_in_albums(t_mpd_client_state *mpd_client_state, sds
             LOG_WARN("Unknown sort tag: %s", sort);
         }
     }
-
-    //get complete albumlist
+    //parse search expression
+    struct list expr_list;
+    list_init(&expr_list);
+    int count;
+    sds *tokens = sdssplitlen(searchstr, strlen(searchstr), ") AND (", 7, &count);
+    for (int j = 0; j < count; j++) {
+        sdstrim(tokens[j], "() ");
+        sds tag = sdsempty();
+        sds op = sdsempty();
+        sds value = sdsempty();
+        unsigned i = 0;
+        char *p = tokens[j];
+        for (i = 0; i < sdslen(tokens[j]); i++, p++) {
+            if (tokens[j][i] == ' ') {
+                break;
+            }
+            tag = sdscatprintf(tag, "%.*s", 1, p);
+        }
+        i++;
+        p++;
+        for (; i < sdslen(tokens[j]); i++, p++) {
+            if (tokens[j][i] == ' ') {
+                break;
+            }
+            op = sdscatprintf(op, "%.*s", 1, p);
+        }
+        i = i + 2;
+        p = p + 2;
+        for (; i < sdslen(tokens[j]) - 1; i++, p++) {
+            if (tokens[j][i] != '\\') {
+                value = sdscatprintf(value, "%.*s", 1, p);
+            }
+        }
+        list_push(&expr_list, value, mpd_tag_name_parse(tag), op , NULL); 
+        LOG_DEBUG("Parsed expression tag \"%s\"", tag);
+        LOG_DEBUG("Parsed expression op \"%s\"", op);
+        LOG_DEBUG("Parsed expression value \"%s\"", value);
+        sdsfree(tag);
+        sdsfree(op);
+        sdsfree(value);
+    }
+    sdsfreesplitres(tokens, count);
+    
+    //search and sort albumlist
+    #ifdef DEBUG
+    MEASURE_START
+    #endif
     struct list album_list;
     list_init(&album_list);
     raxIterator iter;
@@ -530,24 +604,30 @@ sds mpd_client_put_firstsong_in_albums(t_mpd_client_state *mpd_client_state, sds
     sds key = sdsempty();
     while (raxNext(&iter)) {
         song = (struct mpd_song *)iter.data;
-        //todo evaluate filter
-        if (sort_by_last_modified == true) {
-            key = sdscatlen(key, iter.key, iter.key_len);
-            list_insert_sorted_by_value_i(&album_list, key, mpd_song_get_last_modified(song), NULL, iter.data, sortdesc);
-            sdsclear(key);
-        }
-        else {
-            const char *sort_value = mpd_song_get_tag(song, sort_tag, 0);
-            if (sort_value != NULL) {
-                list_insert_sorted_by_key(&album_list, sort_value, 0, NULL, iter.data, sortdesc);
+        if (search_song(song, &expr_list) == true) {
+            if (sort_by_last_modified == true) {
+                key = sdscatlen(key, iter.key, iter.key_len);
+                list_insert_sorted_by_value_i(&album_list, key, mpd_song_get_last_modified(song), NULL, iter.data, sortdesc);
+                sdsclear(key);
             }
             else {
-                LOG_WARN("Skip entry: %.*s", iter.key_len, iter.key); 
+                const char *sort_value = mpd_song_get_tag(song, sort_tag, 0);
+                if (sort_value != NULL) {
+                    list_insert_sorted_by_key(&album_list, sort_value, 0, NULL, iter.data, sortdesc);
+                }
+                else {
+                    LOG_WARN("Skip entry: %.*s", iter.key_len, iter.key); 
+                }
             }
         }
     }
     raxStop(&iter);
     sdsfree(key);
+    list_free(&expr_list);
+    #ifdef DEBUG
+    MEASURE_END
+    MEASURE_PRINT("sort")
+    #endif
     
     //print album list
     unsigned entity_count = 0;
@@ -555,8 +635,8 @@ sds mpd_client_put_firstsong_in_albums(t_mpd_client_state *mpd_client_state, sds
     unsigned end = offset + limit;
     sds album = sdsempty();
     sds artist = sdsempty();
-    struct list_node *current = album_list.head;
-    while (current != NULL) {
+    struct list_node *current;
+    while ((current = list_shift_first(&album_list)) != NULL) {
         entity_count++;
         if (entity_count > offset && (entity_count <= end || limit == 0)) {
             if (entities_returned++) {
@@ -571,7 +651,7 @@ sds mpd_client_put_firstsong_in_albums(t_mpd_client_state *mpd_client_state, sds
             buffer = tojson_char(buffer, "FirstSongUri", mpd_song_get_uri(song), false);
             buffer = sdscat(buffer, "}");
         }
-        current = current->next;
+        list_node_free_keep_user_data(current);
         if (entity_count > end && limit > 0) {
             break;
         }

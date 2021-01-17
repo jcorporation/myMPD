@@ -528,7 +528,7 @@ function appRoute() {
                         'data-filter-op="' + encodeURI(fields[2]) + '" ' +
                         'data-filter-value="' + encodeURI(unescapeMPD(fields[3])) + '" class="btn btn-light mr-2">' + e(lastEl) + '<span class="badge badge-secondary">&times</span></button>';
                 }
-                document.getElementById('searchDatabaseMatch').value = 'contains';
+                //document.getElementById('searchDatabaseMatch').value = 'contains';
             }
             crumbEl.classList.remove('hide');
             document.getElementById('searchDatabaseMatch').classList.remove('hide');

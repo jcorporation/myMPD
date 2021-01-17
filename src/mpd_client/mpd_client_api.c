@@ -66,7 +66,7 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
     char *p_charbuf5 = NULL;
     
     #ifdef DEBUG
-    clock_t start = clock();
+    MEASURE_START
     #endif
 
     LOG_VERBOSE("MPD CLIENT API request (%d)(%ld) %s: %s", request->conn_id, request->id, request->method, request->data);
@@ -917,9 +917,8 @@ void mpd_client_api(t_config *config, t_mpd_client_state *mpd_client_state, void
     FREE_PTR(p_charbuf5);
     
     #ifdef DEBUG
-    clock_t end = clock();
-    double cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
-    LOG_DEBUG("Execution time for %s: %lf", request->method, cpu_time_used);
+    MEASURE_END
+    MEASURE_PRINT(request->method)
     #endif
 
     if (sdslen(response->data) == 0) {
