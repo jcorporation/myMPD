@@ -464,7 +464,7 @@ sds get_mime_type_by_magic_stream(sds stream) {
 }
 
 bool is_streamuri(const char *uri) {
-    if (uri == NULL || strcasestr(uri, "://") != NULL) {
+    if (uri != NULL && strcasestr(uri, "://") != NULL) {
         return true;
     }
     return false;
