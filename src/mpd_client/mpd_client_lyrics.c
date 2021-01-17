@@ -53,6 +53,7 @@ sds mpd_client_lyrics_get(t_config *config, t_mpd_client_state *mpd_client_state
     }
     if (mpd_client_state->feat_library == false) {
         LOG_DEBUG("No lyrics file found, no access to music directory");
+        buffer = jsonrpc_respond_message(buffer, method, request_id, "No lyrics found", false);
         return buffer;
     }
     //try first synced lyrics
