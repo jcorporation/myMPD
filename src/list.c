@@ -18,9 +18,9 @@
 
 //private definitions
 static struct list_node *list_node_extract(struct list *l, unsigned idx);
+static bool _list_free(struct list *l, bool free_user_data);
 
 //public functions
-
 bool list_init(struct list *l) {
     l->length = 0;
     l->head = NULL;
@@ -491,12 +491,21 @@ bool list_shift(struct list *l, unsigned idx) {
 }
 
 bool list_free(struct list *l) {
+    return _list_free(l, true);
+}
+
+bool list_free_keep_user_data(struct list *l) {
+    return _list_free(l, false);
+}
+
+//private functions
+static bool _list_free(struct list *l, bool free_user_data) {
     struct list_node *current = l->head;
     struct list_node *tmp = NULL;
     while (current != NULL) {
         sdsfree(current->key);
         sdsfree(current->value_p);
-        if (current->user_data != NULL) {
+        if (free_user_data == true && current->user_data != NULL) {
             free(current->user_data);
         }
         tmp = current;
@@ -507,7 +516,6 @@ bool list_free(struct list *l) {
     return true;
 }
 
-//private functions
 static struct list_node *list_node_extract(struct list *l, unsigned idx) {
     if (l->head == NULL || idx >= l->length) { 
         return NULL; 

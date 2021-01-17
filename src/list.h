@@ -30,6 +30,7 @@ bool list_insert_sorted_by_value_i(struct list *l, const char *key, long value_i
 bool list_shift(struct list *l, unsigned idx);
 bool list_replace(struct list *l, unsigned pos, const char *key, long value_i, const char *value_p, void *user_data);
 bool list_free(struct list *l);
+bool list_free_keep_user_data(struct list *l);
 long list_get_value_i(const struct list *l, const char *key);
 sds list_get_value_p(const struct list *l, const char *key);
 void *list_get_user_data(const struct list *l, const char *key);
