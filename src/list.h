@@ -43,4 +43,8 @@ bool list_swap_item(struct list_node *n1, struct list_node *n2);
 bool list_swap_item_pos(struct list *l, unsigned index1, unsigned index2);
 bool list_move_item_pos(struct list *l, unsigned from, unsigned to);
 struct list_node *list_node_at(const struct list * l, unsigned index);
+
+struct list_node *list_shift_first(struct list *l);
+bool list_node_free(struct list_node *n);
+bool list_node_free_keep_user_data(struct list_node *n);
 #endif

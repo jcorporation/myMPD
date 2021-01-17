@@ -476,8 +476,40 @@ bool list_insert_sorted_by_value_i(struct list *l, const char *key, long value_i
     return true;
 }
 
+struct list_node *list_shift_first(struct list *l) {
+    if (l->head == NULL) {
+        return NULL;
+    }
+    
+    struct list_node *extracted = l->head;
+    l->head = l->head->next;
+    if (l->tail == extracted) {
+        l->tail = NULL;
+    }
+    
+    extracted->next = NULL;
+    return extracted;
+}
+
+bool list_node_free(struct list_node *n) {
+    sdsfree(n->key);
+    sdsfree(n->value_p);
+    if (n->user_data != NULL) {
+        free(n->user_data);
+    }
+    free(n);
+    return true;
+}
+
+bool list_node_free_keep_user_data(struct list_node *n) {
+    sdsfree(n->key);
+    sdsfree(n->value_p);
+    free(n);
+    return true;
+}
+
 bool list_shift(struct list *l, unsigned idx) {
-    struct list_node * extracted = list_node_extract(l, idx);
+    struct list_node *extracted = list_node_extract(l, idx);
     if (extracted == NULL) {
         return false;
     }
@@ -485,7 +517,7 @@ bool list_shift(struct list *l, unsigned idx) {
     sdsfree(extracted->value_p);
     if (extracted->user_data != NULL) {
         free(extracted->user_data);
-    }    
+    }
     free(extracted);
     return true;
 }
