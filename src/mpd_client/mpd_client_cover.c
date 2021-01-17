@@ -29,6 +29,7 @@ sds mpd_client_getcover(t_config *config, t_mpd_client_state *mpd_client_state, 
 {
     unsigned offset = 0;
     if (mpd_client_state->feat_mpd_albumart == true) {
+        LOG_DEBUG("Try mpd command albumart for \"%s\"", uri);
         struct mpd_albumart albumart_buffer;
         while (mpd_run_albumart(mpd_client_state->mpd_state->conn, uri, offset, &albumart_buffer) == true) {
             *binary = sdscatlen(*binary, albumart_buffer.data, albumart_buffer.data_length);
@@ -39,6 +40,7 @@ sds mpd_client_getcover(t_config *config, t_mpd_client_state *mpd_client_state, 
         }
     }
     if (offset == 0 && mpd_client_state->feat_mpd_readpicture == true) {
+        LOG_DEBUG("Try mpd command readpicture for \"%s\"", uri);
         struct mpd_readpicture readpicture_buffer;
         while (mpd_run_readpicture(mpd_client_state->mpd_state->conn, uri, offset, &readpicture_buffer) == true) {
             *binary = sdscatlen(*binary, readpicture_buffer.data, readpicture_buffer.data_length);
@@ -51,6 +53,7 @@ sds mpd_client_getcover(t_config *config, t_mpd_client_state *mpd_client_state, 
         mpd_free_readpicture(&readpicture_buffer);
     }
     if (offset > 0) {
+        LOG_DEBUG("Albumart found by mpd for uri \"%s\"", uri);
         sds mime_type = get_mime_type_by_magic_stream(*binary);
         buffer = jsonrpc_start_result(buffer, method, request_id);
         buffer = sdscat(buffer, ",");
@@ -62,6 +65,7 @@ sds mpd_client_getcover(t_config *config, t_mpd_client_state *mpd_client_state, 
         sdsfree(mime_type);
     }
     else {
+        LOG_DEBUG("No albumart found by mpd for uri \"%s\"", uri);
         buffer = jsonrpc_respond_message(buffer, method, request_id, "No albumart found by mpd", true);
     }
     return buffer;
