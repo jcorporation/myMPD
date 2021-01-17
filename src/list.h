@@ -25,6 +25,8 @@ bool list_init(struct list *l);
 bool list_push(struct list *l, const char *key, long value_i, const char *value_p, void *user_data);
 bool list_push_len(struct list *l, const char *key, int key_len, long value_i, const char *value_p, int value_len, void *user_data);
 bool list_insert(struct list *l, const char *key, long value_i, const char *value_p, void *user_data);
+bool list_insert_sorted_by_key(struct list *l, const char *key, long value_i, const char *value_p, void *user_data, bool order);
+bool list_insert_sorted_by_value_i(struct list *l, const char *key, long value_i, const char *value_p, void *user_data, bool order);
 bool list_shift(struct list *l, unsigned idx);
 bool list_replace(struct list *l, unsigned pos, const char *key, long value_i, const char *value_p, void *user_data);
 bool list_free(struct list *l);

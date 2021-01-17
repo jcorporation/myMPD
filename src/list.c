@@ -258,7 +258,7 @@ bool list_sort_by_key(struct list *l, bool order) {
             else if (order == false && strcmp(ptr1->key, ptr1->next->key) < 0) {  
                 list_swap_item(ptr1, ptr1->next); 
                 swapped = 1; 
-            } 
+            }
             ptr1 = ptr1->next; 
         } 
         lptr = ptr1; 
@@ -377,6 +377,102 @@ bool list_insert(struct list *l, const char *key, long value_i, const char *valu
     
     l->head = n;
     l->length++;
+    return true;
+}
+
+bool list_insert_sorted_by_key(struct list *l, const char *key, long value_i, const char *value_p, void *user_data, bool order) {
+    struct list_node *n = malloc(sizeof(struct list_node));
+    assert(n);
+    n->key = sdsnew(key);
+    n->value_i = value_i;
+    if (value_p != NULL) {
+        n->value_p = sdsnew(value_p);
+    }
+    else {
+        n->value_p = sdsempty();
+    }
+    n->user_data = user_data;
+    n->next = NULL;
+    //empty list
+    if (l->head == NULL) {
+        l->head = n;
+        l->tail = n;
+        l->length++;
+        return true;
+    }
+    //find correct position to insert
+    struct list_node *current = NULL;
+    struct list_node *previous = NULL;
+    for (current = l->head; current != NULL; previous = current, current = current->next) {    
+        if (order == false && strcmp(n->key, current->key) < 0) {
+            break;
+        }
+        else if (order == true && strcmp(n->key, current->key) > 0) {
+            break;
+        }
+    }
+    //insert node
+    if (previous != NULL) {
+        previous->next = n;
+    }
+    else {
+        l->head = n;
+    }
+    n->next = current;
+    //fix tail
+    if (l->tail == previous) {
+        l->tail = previous->next;
+    }
+    l->length++;
+    
+    return true;
+}
+
+bool list_insert_sorted_by_value_i(struct list *l, const char *key, long value_i, const char *value_p, void *user_data, bool order) {
+    struct list_node *n = malloc(sizeof(struct list_node));
+    assert(n);
+    n->key = sdsnew(key);
+    n->value_i = value_i;
+    if (value_p != NULL) {
+        n->value_p = sdsnew(value_p);
+    }
+    else {
+        n->value_p = sdsempty();
+    }
+    n->user_data = user_data;
+    n->next = NULL;
+    //empty list
+    if (l->head == NULL) {
+        l->head = n;
+        l->tail = n;
+        l->length++;
+        return true;
+    }
+    //find correct position to insert
+    struct list_node *current = NULL;
+    struct list_node *previous = NULL;
+    for (current = l->head; current != NULL; previous = current, current = current->next) {    
+        if (order == false && n->value_i < current->value_i) {
+            break;
+        }
+        else if (order == true && n->value_i > current->value_i) {
+            break;
+        }
+    }
+    //insert node
+    if (previous != NULL) {
+        previous->next = n;
+    }
+    else {
+        l->head = n;
+    }
+    n->next = current;
+    //fix tail
+    if (l->tail == previous) {
+        l->tail = previous->next;
+    }
+    l->length++;
+    
     return true;
 }
 
