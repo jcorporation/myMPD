@@ -1695,3 +1695,6 @@ Album anzeigen
 
 Can not get lyrics for stream uri
 Liedtexte für Streams sind nicht unterstützt
+
+Albumcache not ready
+Albumcache ist noch nicht initialisiert
