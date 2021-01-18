@@ -44,9 +44,6 @@ function showMenu(el, event) {
     event.preventDefault();
     event.stopPropagation();
     hideMenu();
-    //if (el.getAttribute('data-init')) {
-    //    return;
-    //}
     if (el.parentNode.nodeName === 'TH') {
         showMenuTh(el);
     }
@@ -195,8 +192,15 @@ function showMenuTd(el) {
             addMenuItem({"cmd": "delQueueJukeboxSong", "options": [el.parentNode.parentNode.getAttribute('data-pos')]}, t('Remove'));
     }
     else if (app.current.app === 'Home') {
-        const pos = parseInt(el.parentNode.getAttribute('data-pos'));
-        const href = JSON.parse(el.parentNode.getAttribute('data-href'));
+        let pos = parseInt(el.parentNode.getAttribute('data-pos'));
+        let href = JSON.parse(el.parentNode.getAttribute('data-href'));
+        if (href === null) {
+            pos = parseInt(el.getAttribute('data-pos'));
+            href = JSON.parse(el.getAttribute('data-href'));
+        }
+        if (href === null) {
+            return;
+        }
         let actionDesc = '';
         if (href.cmd === 'replaceQueue' && href.options[0] === 'plist') {
             type = 'plist';
