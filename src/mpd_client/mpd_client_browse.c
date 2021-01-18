@@ -40,7 +40,8 @@
 
 //private definitions
 static bool _search_song(struct mpd_song *song, struct list *expr_list);
-static bool _cmp_regex(const char *regex_str, const char *value);
+static pcre *_compile_regex(const char *regex_str);
+static bool _cmp_regex(pcre *re_compiled, const char *value);
 
 //public functions
 bool album_cache_init(t_mpd_client_state *mpd_client_state) {
@@ -152,7 +153,7 @@ sds mpd_client_put_filesystem(t_config *config, t_mpd_client_state *mpd_client_s
                 if (search_len == 0  || strcasestr(entity_name, searchstr) != NULL) {
                     sds key = sdscatprintf(sdsempty(), "2%s", mpd_song_get_uri(song));
                     sdstolower(key);
-                    list_push(&entity_list, key, MPD_ENTITY_TYPE_SONG, entity_name, mpd_song_dup(song));
+                    list_insert_sorted_by_key(&entity_list, key, MPD_ENTITY_TYPE_SONG, entity_name, mpd_song_dup(song), false);
                     sdsfree(key);
                 }
                 sdsfree(entity_name);
@@ -171,7 +172,7 @@ sds mpd_client_put_filesystem(t_config *config, t_mpd_client_state *mpd_client_s
                 if (search_len == 0  || strcasestr(dir_name, searchstr) != NULL) {
                     sds key = sdscatprintf(sdsempty(), "0%s", mpd_directory_get_path(dir));
                     sdstolower(key);
-                    list_push(&entity_list, key, MPD_ENTITY_TYPE_DIRECTORY, dir_name, mpd_directory_dup(dir));
+                    list_insert_sorted_by_key(&entity_list, key, MPD_ENTITY_TYPE_DIRECTORY, dir_name, mpd_directory_dup(dir), false);
                     sdsfree(key);
                 }
                 break;
@@ -192,7 +193,7 @@ sds mpd_client_put_filesystem(t_config *config, t_mpd_client_state *mpd_client_s
                 if (search_len == 0  || strcasestr(pl_name, searchstr) != NULL) {
                     sds key = sdscatprintf(sdsempty(), "1%s", mpd_playlist_get_path(pl));
                     sdstolower(key);
-                    list_push(&entity_list, key, MPD_ENTITY_TYPE_PLAYLIST, pl_name, mpd_playlist_dup(pl));
+                    list_insert_sorted_by_key(&entity_list, key, MPD_ENTITY_TYPE_PLAYLIST, pl_name, mpd_playlist_dup(pl), false);
                     sdsfree(key);
                 }
                 break;
@@ -206,15 +207,13 @@ sds mpd_client_put_filesystem(t_config *config, t_mpd_client_state *mpd_client_s
         return buffer;
     }
 
-    list_sort_by_key(&entity_list, true);
-
     buffer = jsonrpc_start_result(buffer, method, request_id);
     buffer = sdscat(buffer, ",\"data\":[");
     
     unsigned entity_count = 0;
     unsigned entities_returned = 0;
-    struct list_node *current = entity_list.head;
-    while (current != NULL) {
+    struct list_node *current;
+    while ((current = list_shift_first(&entity_list)) != NULL) {
         entity_count++;
         if (entity_count > offset && (entity_count <= offset + limit || limit == 0)) {
             if (entities_returned++) {
@@ -269,10 +268,8 @@ sds mpd_client_put_filesystem(t_config *config, t_mpd_client_state *mpd_client_s
                 }
             }
         }
-        current->user_data = NULL;
-        current = current->next;
+        list_node_free_keep_user_data(current);
     }
-    list_free(&entity_list);
 
     buffer = sdscatlen(buffer, "],", 2);
     buffer = put_extra_files(mpd_client_state, buffer, path, true);
@@ -423,6 +420,7 @@ sds mpd_client_put_firstsong_in_albums(t_mpd_client_state *mpd_client_state, sds
         sds value = sdsempty();
         unsigned i = 0;
         char *p = tokens[j];
+        //tag
         for (i = 0; i < sdslen(tokens[j]); i++, p++) {
             if (tokens[j][i] == ' ') {
                 break;
@@ -431,6 +429,7 @@ sds mpd_client_put_firstsong_in_albums(t_mpd_client_state *mpd_client_state, sds
         }
         i++;
         p++;
+        //operator
         for (; i < sdslen(tokens[j]); i++, p++) {
             if (tokens[j][i] == ' ') {
                 break;
@@ -439,14 +438,18 @@ sds mpd_client_put_firstsong_in_albums(t_mpd_client_state *mpd_client_state, sds
         }
         i = i + 2;
         p = p + 2;
+        //value
         for (; i < sdslen(tokens[j]) - 1; i++, p++) {
-            //if (tokens[j][i] != '\\') {
-                //skip first escape character
-            //    value = sdscatprintf(value, "%.*s", 1, p);
-            //}
             value = sdscatprintf(value, "%.*s", 1, p);
         }
-        list_push(&expr_list, value, mpd_tag_name_parse(tag), op , NULL); 
+        if (strcmp(op, "=~") == 0 || strcmp(op, "!~") == 0) {
+            //is regex, compile
+            pcre *re_compiled = _compile_regex(value);
+            list_push(&expr_list, value, mpd_tag_name_parse(tag), op , re_compiled);
+        }
+        else {
+            list_push(&expr_list, value, mpd_tag_name_parse(tag), op , NULL);
+        }
         LOG_DEBUG("Parsed expression tag: \"%s\", op: \"%s\", value:\"%s\"", tag, op, value);
         sdsfree(tag);
         sdsfree(op);
@@ -632,11 +635,11 @@ static bool _search_song(struct mpd_song *song, struct list *expr_list) {
             sdsfree(value);
             return false;
         }
-        else if (strcmp(current->value_p, "=~") == 0 && _cmp_regex(current->key, value) == false) {
+        else if (strcmp(current->value_p, "=~") == 0 && _cmp_regex((pcre *)current->user_data, value) == false) {
             sdsfree(value);
             return false;
         }
-        else if (strcmp(current->value_p, "!~") == 0 && _cmp_regex(current->key, value) == true) {
+        else if (strcmp(current->value_p, "!~") == 0 && _cmp_regex((pcre *)current->user_data, value) == true) {
             sdsfree(value);
             return false;
         }
@@ -646,31 +649,37 @@ static bool _search_song(struct mpd_song *song, struct list *expr_list) {
     return true;
 }
 
-static bool _cmp_regex(const char *regex_str, const char *value) {
-    bool rc = false;
+static pcre *_compile_regex(const char *regex_str) {
+    LOG_DEBUG("Compiling regex: \"%s\"", regex_str);
     const char *pcre_error_str;
     int pcre_error_offset;
-    int substr_vec[30];
     pcre *re_compiled = pcre_compile(regex_str, PCRE_CASELESS, &pcre_error_str, &pcre_error_offset, NULL);
     if (re_compiled == NULL) {
-        LOG_ERROR("Could not compile '%s': %s\n", regex_str, pcre_error_str);
+        LOG_DEBUG("Could not compile '%s': %s\n", regex_str, pcre_error_str);
+    }
+    return re_compiled;
+}
+
+static bool _cmp_regex(pcre *re_compiled, const char *value) {
+    if (re_compiled == NULL) {
         return false;
     }
+    bool rc = false;
+    int substr_vec[30];
     int pcre_exec_ret = pcre_exec(re_compiled, NULL, value, strlen(value), 0, 0, substr_vec, 30);
     if (pcre_exec_ret < 0) {
         switch(pcre_exec_ret) {
             case PCRE_ERROR_NOMATCH      : break;
-            case PCRE_ERROR_NULL         : LOG_ERROR("Something was null");                      break;
-            case PCRE_ERROR_BADOPTION    : LOG_ERROR("A bad option was passed");                 break;
-            case PCRE_ERROR_BADMAGIC     : LOG_ERROR("Magic number bad (compiled re corrupt?)"); break;
-            case PCRE_ERROR_UNKNOWN_NODE : LOG_ERROR("Something kooky in the compiled re");      break;
-            case PCRE_ERROR_NOMEMORY     : LOG_ERROR("Ran out of memory");                       break;
-            default                      : LOG_ERROR("Unknown error");                           break;
+            case PCRE_ERROR_NULL         : LOG_ERROR("Something was null"); break;
+            case PCRE_ERROR_BADOPTION    : LOG_ERROR("A bad option was passed"); break;
+            case PCRE_ERROR_BADMAGIC     : LOG_ERROR("Magic number bad (compiled regex corrupt?)"); break;
+            case PCRE_ERROR_UNKNOWN_NODE : LOG_ERROR("Something kooky in the compiled regex"); break;
+            case PCRE_ERROR_NOMEMORY     : LOG_ERROR("Ran out of memory"); break;
+            default                      : LOG_ERROR("Unknown error"); break;
         }
     }
     else {
         rc = true;
     }
-    pcre_free(re_compiled);
     return rc;
 }
