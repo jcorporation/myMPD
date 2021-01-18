@@ -678,7 +678,7 @@ installdeps() {
   elif [ -f /etc/arch-release ]
   then
     #arch
-    pacman -S gcc cmake perl openssl libid3tag flac jre-openjdk-headless lua pkgconf libpcre3
+    pacman -S gcc cmake perl openssl libid3tag flac jre-openjdk-headless lua pkgconf pcre
   elif [ -f /etc/alpine-release ]
   then
     #alpine
@@ -686,17 +686,17 @@ installdeps() {
     #issue 234
     [ "$(uname -m)" = "armv7l" ] && JAVADEB="java-common"
     apk add cmake perl openssl-dev libid3tag-dev flac-dev lua5.3-dev \
-    	alpine-sdk linux-headers pkgconf $JAVADEB libpcre3-dev
+    	alpine-sdk linux-headers pkgconf $JAVADEB pcre-dev
   elif [ -f /etc/SuSE-release ]
   then
     #suse
     zypper install gcc cmake pkgconfig perl openssl-devel libid3tag-devel flac-devel \
-	lua-devel java-11-openjdk-headless unzip libpcre3-devel
+	lua-devel java-11-openjdk-headless unzip pcre-devel
   elif [ -f /etc/redhat-release ]
   then  
     #fedora 	
     yum install gcc cmake pkgconfig perl openssl-devel libid3tag-devel flac-devel \
-	lua-devel java-11-openjdk-headless unzip libpcre3-devel
+	lua-devel java-11-openjdk-headless unzip pcre-devel
   else 
     echo "Unsupported distribution detected."
     echo "You should manually install:"
