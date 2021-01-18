@@ -204,6 +204,7 @@ function toggleUI() {
         logDebug('Setting ui state to ' + state);
         setElsState('a', state, 'tag');
         setElsState('input', state, 'tag');
+        setElsState('select', sate, 'tag');
         setElsState('button', state, 'tag');
         setElsState('clickable', state, 'class');
         uiEnabled = enabled;
