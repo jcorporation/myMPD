@@ -51,13 +51,13 @@ function showNotification(notificationTitle, notificationText, notificationHtml,
         
         let toast = '<div class="toast-header">';
         if (notificationType === 'success' ) {
-            toast += '<span class="material-icons text-success mr-2">info</span>';
+            toast += '<span class="mi text-success mr-2">info</span>';
         }
         else if (notificationType === 'warning' ) {
-            toast += '<span class="material-icons text-warning mr-2">warning</span>';
+            toast += '<span class="mi text-warning mr-2">warning</span>';
         }
         else {
-            toast += '<span class="material-icons text-danger mr-2">error</span>';
+            toast += '<span class="mi text-danger mr-2">error</span>';
         }
         toast += '<strong class="mr-auto">' + e(notificationTitle) + '</strong>' +
             '<button type="button" class="ml-2 mb-1 close">&times;</button></div>';
@@ -204,7 +204,7 @@ function toggleUI() {
         logDebug('Setting ui state to ' + state);
         setElsState('a', state, 'tag');
         setElsState('input', state, 'tag');
-        setElsState('select', sate, 'tag');
+        setElsState('select', state, 'tag');
         setElsState('button', state, 'tag');
         setElsState('clickable', state, 'class');
         uiEnabled = enabled;

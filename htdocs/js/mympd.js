@@ -472,7 +472,7 @@ function appRoute() {
             document.getElementById('BrowseFilesystemAddAllSongsBtn').setAttribute('disabled', 'disabled');
         }
         // Create breadcrumb
-        let breadcrumbs='<li class="breadcrumb-item"><a data-uri="" class="text-body material-icons">home</a></li>';
+        let breadcrumbs='<li class="breadcrumb-item"><a data-uri="" class="text-body mi">home</a></li>';
         let pathArray = app.current.search.split('/');
         let pathArrayLen = pathArray.length;
         let fullPath = '';
@@ -597,7 +597,7 @@ function appRoute() {
         if (app.last.app !== app.current.app && app.current.search !== '') {
             let colspan = settings['cols' + app.current.app].length;
             document.getElementById('SearchList').getElementsByTagName('tbody')[0].innerHTML=
-                '<tr><td><span class="material-icons">search</span></td>' +
+                '<tr><td><span class="mi">search</span></td>' +
                 '<td colspan="' + colspan + '">' + t('Searching...') + '</td></tr>';
         }
 
@@ -742,7 +742,7 @@ function appInitStart() {
 
     appInited = false;
     document.getElementById('splashScreen').classList.remove('hide');
-    document.getElementsByTagName('body')[0].classList.add('overflow-hidden');
+    domCache.body.classList.add('overflow-hidden');
     document.getElementById('splashScreenAlert').innerText = t('Fetch myMPD settings');
 
     a2hsInit();
@@ -760,7 +760,7 @@ function appInitWait() {
             setTimeout(function() {
                 document.getElementById('splashScreen').classList.add('hide');
                 document.getElementById('splashScreen').classList.remove('hide-fade');
-                document.getElementsByTagName('body')[0].classList.remove('overflow-hidden');
+                domCache.body.classList.remove('overflow-hidden');
             }, 500);
             appInit();
             appInited = true;
@@ -825,7 +825,7 @@ function appInit() {
         }, false);
     }
     //hide popover
-    document.getElementsByTagName('body')[0].addEventListener('click', function() {
+    domCache.body.addEventListener('click', function() {
         hideMenu();
     }, false);
     //init moduls
@@ -844,6 +844,7 @@ function appInit() {
     initSettings();
     initPlayback();
     initNavs();
+    initPlaylists();
     //init drag and drop
     dragAndDropTable('QueueCurrentList');
     dragAndDropTable('BrowsePlaylistsDetailList');
@@ -879,6 +880,29 @@ function appInit() {
             navigateTable(this, event.key);
         }, false);
     }
+    //contextmenu for tables
+    tables = ['BrowseFilesystemList', 'BrowseDatabaseDetailList', 'QueueCurrentList', 'QueueLastPlayedList', 
+        'QueueJukeboxList', 'SearchList', 'BrowsePlaylistsAllList', 'BrowsePlaylistsDetailList'];
+    for (let i = 0; i < tables.length; i++) {
+        document.getElementById(tables[i]).getElementsByTagName('tbody')[0].addEventListener('long-press', function(event) {
+            if (event.target.parentNode.classList.contains('not-clickable') || event.target.parentNode.getAttribute('data-type') === 'parentDir') {
+                return;
+            }
+            showMenu(event.target, event);
+            event.preventDefault();
+            event.stopPropagation();
+        }, false);
+    
+        document.getElementById(tables[i]).getElementsByTagName('tbody')[0].addEventListener('contextmenu', function(event) {
+            if (event.target.parentNode.classList.contains('not-clickable') || event.target.parentNode.getAttribute('data-type') === 'parentDir') {
+                return;
+            }
+            showMenu(event.target, event);
+            event.preventDefault();
+            event.stopPropagation();
+        }, false);
+    }
+
     //websocket
     window.addEventListener('beforeunload', function() {
         webSocketClose();
@@ -899,7 +923,7 @@ function initGlobalModals() {
                 list += '<div class="row row-keymap">';
             }
             if (keymap[key].req === undefined || settings[keymap[key].req] === true) {
-                list += '<div class="col col-keymap mb-1 d-flex"><div class="align-self-center key' + (keymap[key].key && keymap[key].key.length > 1 ? ' material-icons material-icons-small' : '') + 
+                list += '<div class="col col-keymap mb-1 d-flex"><div class="align-self-center key' + (keymap[key].key && keymap[key].key.length > 1 ? ' mi mi-small' : '') + 
                        '">' + (keymap[key].key !== undefined ? keymap[key].key : key ) + '</div><div class="align-self-center">' + t(keymap[key].desc) + '</div></div>';
                 i++;
             }
@@ -907,36 +931,16 @@ function initGlobalModals() {
         document.getElementById('shortcutList').innerHTML = list + '</div>';
     });
     
-    document.getElementById('modalAddToPlaylist').addEventListener('shown.bs.modal', function () {
-        if (!document.getElementById('addStreamFrm').classList.contains('hide')) {
-            document.getElementById('streamUrl').focus();
-            document.getElementById('streamUrl').value = '';
-        }
-        else {
-            document.getElementById('addToPlaylistPlaylist').focus();
-        }
-    });
-    
     document.getElementById('modalUpdateDB').addEventListener('hidden.bs.modal', function () {
         document.getElementById('updateDBprogress').classList.remove('updateDBprogressAnimate');
     });
-
-    document.getElementById('addToPlaylistPlaylist').addEventListener('change', function () {
-        if (this.options[this.selectedIndex].value === 'new') {
-            document.getElementById('addToPlaylistNewPlaylistDiv').classList.remove('hide');
-            document.getElementById('addToPlaylistNewPlaylist').focus();
-        }
-        else {
-            document.getElementById('addToPlaylistNewPlaylistDiv').classList.add('hide');
-        }
-    }, false);
 }
 
 function initPlayback() {
     let colDropdowns = ['PlaybackColsDropdown'];
     for (let i = 0; i < colDropdowns.length; i++) {
         document.getElementById(colDropdowns[i]).addEventListener('click', function(event) {
-            if (event.target.nodeName === 'BUTTON' && event.target.classList.contains('material-icons')) {
+            if (event.target.nodeName === 'BUTTON' && event.target.classList.contains('mi')) {
                 event.stopPropagation();
                 event.preventDefault();
                 toggleBtnChk(event.target);

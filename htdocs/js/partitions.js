@@ -61,7 +61,7 @@ function parsePartitionOutputsList(obj) {
         }
     }
     if (nr === 0) {
-        outputList = '<tr class="not-clickable"><td><span class="material-icons">error_outline</span>&nbsp;' +
+        outputList = '<tr class="not-clickable"><td><span class="mi">error_outline</span>&nbsp;' +
             t('Empty list') + '</td></tr>';
     }
     document.getElementById('partitionOutputsList').innerHTML = outputList;
@@ -139,14 +139,14 @@ function parsePartitionList(obj) {
                 '</td>' +
                 '<td data-col="Action">' +
                 (obj.result.data[i].name === 'default' || obj.result.data[i].name === settings.partition  ? '' : 
-                    '<a href="#" title="' + t('Delete') + '" data-action="delete" class="material-icons color-darkgrey">delete</a>') +
-                (obj.result.data[i].name !== settings.partition ? '<a href="#" title="' + t('Switch to') + '" data-action="switch" class="material-icons color-darkgrey">check_circle</a>' : '') +
+                    '<a href="#" title="' + t('Delete') + '" data-action="delete" class="mi color-darkgrey">delete</a>') +
+                (obj.result.data[i].name !== settings.partition ? '<a href="#" title="' + t('Switch to') + '" data-action="switch" class="mi color-darkgrey">check_circle</a>' : '') +
                 '</td></tr>';
         }
         document.getElementById('listPartitionsList').innerHTML = partitionList;
     }
     else {
-        document.getElementById('listPartitionsList').innerHTML = '<tr class="not-clickable"><td><span class="material-icons">error_outline</span></td>' +
+        document.getElementById('listPartitionsList').innerHTML = '<tr class="not-clickable"><td><span class="mi">error_outline</span></td>' +
             '<td colspan="2">' + t('Empty list') + '</td></tr>';
     }
 }

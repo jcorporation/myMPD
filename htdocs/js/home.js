@@ -61,7 +61,7 @@ function initHome() {
         ligatureList += '<h5 class="ml-1 mt-2">' + e(ucFirst(cat)) + '</h5>';
         catList += '<option value="' + cat + '">' + e(ucFirst(cat)) + '</option>';
         for (let i = 0; i < materialIcons[cat].length; i++) {
-            ligatureList += '<button title="' + materialIcons[cat][i] + '" data-cat="' + cat + '" class="btn btn-sm material-icons m-1">' + materialIcons[cat][i] + '</button>';
+            ligatureList += '<button title="' + materialIcons[cat][i] + '" data-cat="' + cat + '" class="btn btn-sm mi m-1">' + materialIcons[cat][i] + '</button>';
         }
     });
     document.getElementById('listHomeIconLigature').innerHTML = ligatureList;
@@ -146,7 +146,7 @@ function parseHome(obj) {
         const href = JSON.stringify({"cmd": obj.result.data[i].cmd, "options": obj.result.data[i].options});
         const html = '<div class="card home-icons clickable" draggable="true" tabindex="0" data-pos="' + i + '" data-href=\'' + 
                    e(href) + '\'  title="' + e(obj.result.data[i].name) + '">' +
-                   '<div class="card-body material-icons">' + e(obj.result.data[i].ligature) + '</div>' +
+                   '<div class="card-body mi">' + e(obj.result.data[i].ligature) + '</div>' +
                    '<div class="card-footer card-footer-grid p-2">' +
                    e(obj.result.data[i].name) + 
                    '</div></div>';

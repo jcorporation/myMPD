@@ -244,7 +244,7 @@ function parseListTimer(obj) {
         let row = document.createElement('tr');
         row.setAttribute('data-id', obj.result.data[i].timerid);
         let tds = '<td>' + e(obj.result.data[i].name) + '</td>' +
-                  '<td><button name="enabled" class="btn btn-secondary btn-xs clickable material-icons material-icons-small' +
+                  '<td><button name="enabled" class="btn btn-secondary btn-xs clickable mi mi-small' +
                   (obj.result.data[i].enabled === true ? ' active' : '') + '">' +
                   (obj.result.data[i].enabled === true ? 'check' : 'radio_button_unchecked') + '</button></td>' +
                   '<td>' + zeroPad(obj.result.data[i].startHour, 2) + ':' + zeroPad(obj.result.data[i].startMinute,2) + ' ' + t('on') + ' ';
@@ -255,7 +255,7 @@ function parseListTimer(obj) {
             }
         }
         tds += days.join(', ')  + '</td><td>' + prettyTimerAction(obj.result.data[i].action, obj.result.data[i].subaction) + '</td>' +
-               '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">delete</a></td>';
+               '<td data-col="Action"><a href="#" class="mi color-darkgrey">delete</a></td>';
         row.innerHTML = tds;
         if (i < tr.length) {
             activeRow = replaceTblRow(tr[i], row) === true ? i : activeRow;
@@ -270,7 +270,7 @@ function parseListTimer(obj) {
     }
 
     if (obj.result.returnedEntities === 0) {
-        tbody.innerHTML = '<tr class="not-clickable"><td><span class="material-icons">error_outline</span></td>' +
+        tbody.innerHTML = '<tr class="not-clickable"><td><span class="mi">error_outline</span></td>' +
                           '<td colspan="4">' + t('Empty list') + '</td></tr>';
     }     
 }

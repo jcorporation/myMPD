@@ -68,7 +68,7 @@ function showMenuTh(el) {
         el.addEventListener('shown.bs.popover', function(event) {
             event.target.setAttribute('data-popover', 'true');
             document.getElementById('colChecklist' + table).addEventListener('click', function(eventClick) {
-                if (eventClick.target.nodeName === 'BUTTON' && eventClick.target.classList.contains('material-icons')) {
+                if (eventClick.target.nodeName === 'BUTTON' && eventClick.target.classList.contains('mi')) {
                     toggleBtnChk(eventClick.target);
                     eventClick.preventDefault();
                     eventClick.stopPropagation();
@@ -106,6 +106,9 @@ function showMenuTd(el) {
     let menu = '';
     if ((app.current.app === 'Browse' && app.current.tab === 'Filesystem') || app.current.app === 'Search' ||
         (app.current.app === 'Browse' && app.current.tab === 'Database' && app.current.view === 'Detail')) {
+        if (app.current.tab === 'Filesystem') {
+            menu += (type === 'dir' && settings.featBookmarks ? addMenuItem({"cmd": "appGoto", "options": ["Browse", "Filesystem", undefined, 0, app.current.limit, app.current.filter, app.current.sort, '-', uri]}, t('Open folder')) : '');
+        }
         menu += addMenuItem({"cmd": "appendQueue", "options": [type, uri, name]}, t('Append to queue')) +
             (type === 'song' ? addMenuItem({"cmd": "appendAfterQueue", "options": [type, uri, nextsongpos, name]}, t('Add after current playing song')) : '') +
             addMenuItem({"cmd": "replaceQueue", "options": [type, uri, name]}, t('Replace queue')) +
@@ -125,7 +128,7 @@ function showMenuTd(el) {
                 const vAlbum = decodeURI(curTr.getAttribute('data-album'));
                 const vAlbumArtist = decodeURI(curTr.getAttribute('data-albumartist'));
                 menu += '<div class="dropdown-divider"></div>' +
-                    '<a class="dropdown-item" id="advancedMenuLink" data-toggle="collapse" href="#advancedMenu"><span class="material-icons material-icons-left">keyboard_arrow_right</span>Album actions</a>' +
+                    '<a class="dropdown-item" id="advancedMenuLink" data-toggle="collapse" href="#advancedMenu"><span class="mi mi-left">keyboard_arrow_right</span>Album actions</a>' +
                     '<div class="collapse" id="advancedMenu">' +
                         addMenuItem({"cmd": "_addAlbum", "options": ["appendQueue", vAlbumArtist, vAlbum]}, t('Append to queue')) +
                         addMenuItem({"cmd": "_addAlbum", "options": ["replaceQueue", vAlbumArtist, vAlbum]}, t('Replace queue')) +
@@ -136,7 +139,7 @@ function showMenuTd(el) {
                 //songs must be arragend in one album per folder
                 const baseuri = dirname(uri);
                 menu += '<div class="dropdown-divider"></div>' +
-                    '<a class="dropdown-item" id="advancedMenuLink" data-toggle="collapse" href="#advancedMenu"><span class="material-icons material-icons-left">keyboard_arrow_right</span>Folder actions</a>' +
+                    '<a class="dropdown-item" id="advancedMenuLink" data-toggle="collapse" href="#advancedMenu"><span class="mi mi-left">keyboard_arrow_right</span>Folder actions</a>' +
                     '<div class="collapse" id="advancedMenu">' +
                         addMenuItem({"cmd": "appendQueue", "options": [type, baseuri, name]}, t('Append to queue')) +
                         addMenuItem({"cmd": "appendAfterQueue", "options": [type, baseuri, nextsongpos, name]}, t('Add after current playing song')) +

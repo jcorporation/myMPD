@@ -36,7 +36,7 @@ function initBrowse() {
             popoverMenuAlbumCards(event);
         }
     }, false);
-
+    
     document.getElementById('BrowseDatabaseListList').addEventListener('keydown', function(event) {
         navigateGrid(event.target, event.key);
     }, false);
@@ -233,27 +233,6 @@ function initBrowse() {
         }
     }, false);
 
-    document.getElementById('BrowsePlaylistsAllList').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'TD') {
-            appendQueue('plist', decodeURI(event.target.parentNode.getAttribute("data-uri")), event.target.parentNode.getAttribute("data-name"));
-        }
-        else if (event.target.nodeName === 'A') {
-            showMenu(event.target, event);
-        }
-    }, false);
-
-    document.getElementById('BrowsePlaylistsDetailList').addEventListener('click', function(event) {
-        if (event.target.parentNode.parentNode.nodeName === 'TFOOT') {
-            return;
-        }
-        if (event.target.nodeName === 'TD') {
-            appendQueue('song', decodeURI(event.target.parentNode.getAttribute("data-uri")), event.target.parentNode.getAttribute("data-name"));
-        }
-        else if (event.target.nodeName === 'A') {
-            showMenu(event.target, event);
-        }
-    }, false);
-
     document.getElementById('BrowseBreadcrumb').addEventListener('click', function(event) {
         if (event.target.nodeName === 'A') {
             event.preventDefault();
@@ -343,10 +322,9 @@ function parseFilesystem(obj) {
     let colspan = settings['cols' + list].length;
 
     if (obj.error) {
-        tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
+        tbody.innerHTML = '<tr><td><span class="mi">error_outline</span></td>' +
                           '<td colspan="' + colspan + '">' + t(obj.error.message) + '</td></tr>';
         document.getElementById(app.current.app + (app.current.tab === undefined ? '' : app.current.tab) + 'List').classList.remove('opacity05');
-        //document.getElementById('cardFooterBrowse').innerText = '';
         return;
     }
     
@@ -401,6 +379,9 @@ function parseFilesystem(obj) {
         }
         
         switch(obj.result.data[i].Type) {
+            case 'parentDir':
+                row.innerHTML = '<td colspan="' + (colspan + 1) + '">..</td>';
+                break;
             case 'dir':
             case 'smartpls':
             case 'plist':
@@ -408,10 +389,10 @@ function parseFilesystem(obj) {
                     tds += '<td data-col="' + settings['cols' + list][c] + '">';
                     if (settings['cols' + list][c] === 'Type') {
                         if (obj.result.data[i].Type === 'dir') {
-                            tds += '<span class="material-icons">folder_open</span>';
+                            tds += '<span class="mi">folder_open</span>';
                         }
                         else {
-                            tds += '<span class="material-icons">' + (obj.result.data[i].Type === 'smartpls' ? 'queue_music' : 'list') + '</span>';
+                            tds += '<span class="mi">' + (obj.result.data[i].Type === 'smartpls' ? 'queue_music' : 'list') + '</span>';
                         }
                     }
                     else if (settings['cols' + list][c] === 'Title') {
@@ -419,7 +400,7 @@ function parseFilesystem(obj) {
                     }
                     tds += '</td>';
                 }
-                tds += '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">' + ligatureMore + '</a></td>';
+                tds += '<td data-col="Action"><a href="#" class="mi color-darkgrey">' + ligatureMore + '</a></td>';
                 row.innerHTML = tds;
                 break;
             case 'song':
@@ -432,14 +413,14 @@ function parseFilesystem(obj) {
                 for (let c = 0; c < settings['cols' + list].length; c++) {
                     tds += '<td data-col="' + settings['cols' + list][c] + '">';
                     if (settings['cols' + list][c] === 'Type') {
-                        tds += '<span class="material-icons">music_note</span>';
+                        tds += '<span class="mi">music_note</span>';
                     }
                     else {
                         tds += e(obj.result.data[i][settings['cols' + list][c]]);
                     }
                     tds += '</td>';
                 }
-                tds += '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">' + ligatureMore + '</a></td>';
+                tds += '<td data-col="Action"><a href="#" class="mi color-darkgrey">' + ligatureMore + '</a></td>';
                 row.innerHTML = tds;
                 break;
         }
@@ -462,11 +443,10 @@ function parseFilesystem(obj) {
     setPagination(obj.result.totalEntities, obj.result.returnedEntities);
                     
     if (nrItems === 0) {
-        tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
+        tbody.innerHTML = '<tr class="not-clickable"><td><span class="mi">error_outline</span></td>' +
                           '<td colspan="' + colspan + '">' + t('Empty list') + '</td></tr>';
     }
     document.getElementById(app.current.app + (app.current.tab === undefined ? '' : app.current.tab) + 'List').classList.remove('opacity05');
-    //document.getElementById('cardFooterBrowse').innerText = t('Num entries', obj.result.totalEntities);
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -493,8 +473,8 @@ function parseBookmarks(obj) {
         list += '<tr data-id="' + obj.result.data[i].id + '" data-type="' + obj.result.data[i].type + '" ' +
                 'data-uri="' + encodeURI(obj.result.data[i].uri) + '">' +
                 '<td class="nowrap"><a class="text-light" href="#" data-href="goto">' + e(obj.result.data[i].name) + '</a></td>' +
-                '<td><a class="text-light material-icons material-icons-small" href="#" data-href="edit">edit</a></td><td>' +
-                '<a class="text-light material-icons material-icons-small" href="#" data-href="delete">delete</a></td></tr>';
+                '<td><a class="text-light mi mi-small" href="#" data-href="edit">edit</a></td><td>' +
+                '<a class="text-light mi mi-small" href="#" data-href="delete">delete</a></td></tr>';
     }
     if (obj.result.returnedEntities === 0) {
         list += '<tr><td class="text-light nowrap">' + t('No bookmarks found') + '</td></tr>';
@@ -609,7 +589,7 @@ function parseDatabase(obj) {
     setPagination(obj.result.totalEntities, obj.result.returnedEntities);
                     
     if (nrItems === 0) {
-        cardContainer.innerHTML = '<div class="ml-3 mb-3"><span class="material-icons">error_outline</span>&nbsp;' + t('Empty list') + '</div>';
+        cardContainer.innerHTML = '<div class="ml-3 mb-3 not-clickable"><span class="mi">error_outline</span>&nbsp;' + t('Empty list') + '</div>';
     }
     //document.getElementById('cardFooterBrowse').innerText = gtPage('Num entries', obj.result.returnedEntities, obj.result.totalEntities);
 }
@@ -629,7 +609,7 @@ function setGridImage(changes, observer) {
 
 function addPlayButton(parentEl) {
     const div = document.createElement('div');
-    div.classList.add('align-self-end', 'album-grid-mouseover', 'material-icons', 'rounded-circle', 'clickable');
+    div.classList.add('align-self-end', 'album-grid-mouseover', 'mi', 'rounded-circle', 'clickable');
     div.innerText = 'play_arrow';
     parentEl.appendChild(div);
     div.addEventListener('click', function(event) {
@@ -648,7 +628,7 @@ function parseAlbumDetails(obj) {
     infoEl.innerHTML = '<h1>' + e(obj.result.Album) + '</h1>' +
         '<small> ' + t('AlbumArtist') + '</small><p>' + e(obj.result.AlbumArtist) + '</p>' +
         (obj.result.bookletPath === '' || settings.featBrowse === false ? '' : 
-            '<span class="text-light material-icons">description</span>&nbsp;<a class="text-light" target="_blank" href="' + subdir + '/browse/music/' + 
+            '<span class="text-light mi">description</span>&nbsp;<a class="text-light" target="_blank" href="' + subdir + '/browse/music/' + 
             e(obj.result.bookletPath) + '">' + t('Download booklet') + '</a>') +
         '</p>';
     const table = document.getElementById('BrowseDatabaseDetailList');
@@ -656,13 +636,13 @@ function parseAlbumDetails(obj) {
     const nrCols = settings.colsBrowseDatabaseDetail.length;
     let titleList = '';
     if (obj.result.Discs > 1) {
-        titleList = '<tr class="not-clickable"><td><span class="material-icons">album</span></td><td colspan="' + nrCols +'">' + t('Disc 1') + '</td></tr>';
+        titleList = '<tr class="not-clickable"><td><span class="mi">album</span></td><td colspan="' + nrCols +'">' + t('Disc 1') + '</td></tr>';
     }
     let nrItems = obj.result.returnedEntities;
     let lastDisc = parseInt(obj.result.data[0].Disc);
     for (let i = 0; i < nrItems; i++) {
         if (lastDisc < parseInt(obj.result.data[i].Disc)) {
-            titleList += '<tr class="not-clickable"><td><span class="material-icons">album</span></td><td colspan="' + nrCols +'">' + 
+            titleList += '<tr class="not-clickable"><td><span class="mi">album</span></td><td colspan="' + nrCols +'">' + 
                 t('Disc') + ' ' + e(obj.result.data[i].Disc) + '</td></tr>';
         }
         if (obj.result.data[i].Duration) {
@@ -672,7 +652,7 @@ function parseAlbumDetails(obj) {
         for (let c = 0; c < settings.colsBrowseDatabaseDetail.length; c++) {
             titleList += '<td data-col="' + settings.colsBrowseDatabaseDetail[c] + '">' + e(obj.result.data[i][settings.colsBrowseDatabaseDetail[c]]) + '</td>';
         }
-        titleList += '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">' + ligatureMore + '</a></td></tr>';
+        titleList += '<td data-col="Action"><a href="#" class="mi color-darkgrey">' + ligatureMore + '</a></td></tr>';
         lastDisc = obj.result.data[i].Disc;
     }
     tbody.innerHTML = titleList;

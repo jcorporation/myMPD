@@ -5,6 +5,49 @@
  https://github.com/jcorporation/mympd
 */
 
+function initPlaylists() {
+    document.getElementById('modalAddToPlaylist').addEventListener('shown.bs.modal', function () {
+        if (!document.getElementById('addStreamFrm').classList.contains('hide')) {
+            document.getElementById('streamUrl').focus();
+            document.getElementById('streamUrl').value = '';
+        }
+        else {
+            document.getElementById('addToPlaylistPlaylist').focus();
+        }
+    });
+    
+    document.getElementById('addToPlaylistPlaylist').addEventListener('change', function () {
+        if (this.options[this.selectedIndex].value === 'new') {
+            document.getElementById('addToPlaylistNewPlaylistDiv').classList.remove('hide');
+            document.getElementById('addToPlaylistNewPlaylist').focus();
+        }
+        else {
+            document.getElementById('addToPlaylistNewPlaylistDiv').classList.add('hide');
+        }
+    }, false);
+    
+   document.getElementById('BrowsePlaylistsAllList').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'TD') {
+            appendQueue('plist', decodeURI(event.target.parentNode.getAttribute("data-uri")), event.target.parentNode.getAttribute("data-name"));
+        }
+        else if (event.target.nodeName === 'A') {
+            showMenu(event.target, event);
+        }
+    }, false);
+
+    document.getElementById('BrowsePlaylistsDetailList').addEventListener('click', function(event) {
+        if (event.target.parentNode.parentNode.nodeName === 'TFOOT') {
+            return;
+        }
+        if (event.target.nodeName === 'TD') {
+            appendQueue('song', decodeURI(event.target.parentNode.getAttribute("data-uri")), event.target.parentNode.getAttribute("data-name"));
+        }
+        else if (event.target.nodeName === 'A') {
+            showMenu(event.target, event);
+        }
+    }, false);
+}
+
 function parsePlaylists(obj) {
     if (app.current.view === 'All') {
         document.getElementById('BrowsePlaylistsAllList').classList.remove('hide');
@@ -50,10 +93,10 @@ function parsePlaylists(obj) {
             row.setAttribute('data-type', obj.result.data[i].Type);
             row.setAttribute('data-name', obj.result.data[i].name);
             row.setAttribute('tabindex', 0);
-            row.innerHTML = '<td data-col="Type"><span class="material-icons">' + (obj.result.data[i].Type === 'smartpls' ? 'queue_music' : 'list') + '</span></td>' +
+            row.innerHTML = '<td data-col="Type"><span class="mi">' + (obj.result.data[i].Type === 'smartpls' ? 'queue_music' : 'list') + '</span></td>' +
                             '<td>' + e(obj.result.data[i].name) + '</td>' +
                             '<td>'+ localeDate(obj.result.data[i].last_modified) + '</td>' +
-                            '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">' + ligatureMore + '</a></td>';
+                            '<td data-col="Action"><a href="#" class="mi color-darkgrey">' + ligatureMore + '</a></td>';
             if (i < tr.length) {
                 activeRow = replaceTblRow(tr[i], row) === true ? i : activeRow;
             }
@@ -81,7 +124,7 @@ function parsePlaylists(obj) {
             for (let c = 0; c < settings.colsBrowsePlaylistsDetail.length; c++) {
                 tds += '<td data-col="' + settings.colsBrowsePlaylistsDetail[c] + '">' + e(obj.result.data[i][settings.colsBrowsePlaylistsDetail[c]]) + '</td>';
             }
-            tds += '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">' + ligatureMore + '</a></td>';
+            tds += '<td data-col="Action"><a href="#" class="mi color-darkgrey">' + ligatureMore + '</a></td>';
             row.innerHTML = tds;
 
             if (i < tr.length) {
@@ -109,11 +152,11 @@ function parsePlaylists(obj) {
     
     if (nrItems === 0) {
         if (app.current.view === 'All') {
-            tbody.innerHTML = '<tr class="not-clickable"><td><span class="material-icons">error_outline</span></td>' +
+            tbody.innerHTML = '<tr class="not-clickable"><td><span class="mi">error_outline</span></td>' +
                               '<td colspan="3">' + t('No playlists found') + '</td></tr>';
         }
         else {
-            tbody.innerHTML = '<tr class="not-clickable"><td><span class="material-icons">error_outline</span></td>' +
+            tbody.innerHTML = '<tr class="not-clickable"><td><span class="mi">error_outline</span></td>' +
                               '<td colspan="' + settings.colsBrowsePlaylistsDetail.length + '">' + t('Empty playlist') + '</td></tr>';
         }
     }

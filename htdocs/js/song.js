@@ -70,7 +70,7 @@ function getMBtagLink(tag, value) {
     }
     else {
         return '<a title="' + t('Lookup at musicbrainz') + '" class="text-success external" target="_musicbrainz" href="https://musicbrainz.org/' + MBentity + '/' + encodeURI(value) + '">' +
-            '<span class="material-icons">open_in_browser</span>&nbsp;' + value + '</a>';
+            '<span class="mi">open_in_browser</span>&nbsp;' + value + '</a>';
     }
 }
 
@@ -131,8 +131,8 @@ function parseSongDetails(obj) {
             '<tr><th>' + t('Last skipped') + '</th><td>' + (obj.result.lastSkipped === 0 ? t('never') : localeDate(obj.result.lastSkipped)) + '</td></tr>' +
             '<tr><th>' + t('Like') + '</th><td>' +
               '<div class="btn-group btn-group-sm">' +
-                '<button title="' + t('Dislike song') + '" id="btnVoteDown2" data-href=\'{"cmd": "voteSong", "options": [0]}\' class="btn btn-sm btn-light material-icons">thumb_down</button>' +
-                '<button title="' + t('Like song') + '" id="btnVoteUp2" data-href=\'{"cmd": "voteSong", "options": [2]}\' class="btn btn-sm btn-light material-icons">thumb_up</button>' +
+                '<button title="' + t('Dislike song') + '" id="btnVoteDown2" data-href=\'{"cmd": "voteSong", "options": [0]}\' class="btn btn-sm btn-light mi">thumb_down</button>' +
+                '<button title="' + t('Like song') + '" id="btnVoteUp2" data-href=\'{"cmd": "voteSong", "options": [2]}\' class="btn btn-sm btn-light mi">thumb_up</button>' +
               '</div>' +
             '</td></tr>';
     }

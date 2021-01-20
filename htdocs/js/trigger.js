@@ -140,13 +140,13 @@ function parseTriggerList(obj) {
                 '<td>' + e(obj.result.data[i].script) + '</td>' +
                 '<td data-col="Action">' +
                 (obj.result.data[i].name === 'default' || obj.result.data[i].name === settings.trigger  ? '' : 
-                    '<a href="#" title="' + t('Delete') + '" data-action="delete" class="material-icons color-darkgrey">delete</a>') +
+                    '<a href="#" title="' + t('Delete') + '" data-action="delete" class="mi color-darkgrey">delete</a>') +
                 '</td></tr>';
         }
         document.getElementById('listTriggerList').innerHTML = triggerList;
     }
     else {
-        document.getElementById('listTriggerList').innerHTML = '<tr class="not-clickable"><td><span class="material-icons">error_outline</span></td>' +
+        document.getElementById('listTriggerList').innerHTML = '<tr class="not-clickable"><td><span class="mi">error_outline</span></td>' +
             '<td colspan="2">' + t('Empty list') + '</td></tr>';
     }
 }

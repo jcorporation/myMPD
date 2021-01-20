@@ -33,7 +33,7 @@ function initMounts() {
         }
         else {
             document.getElementById('dropdownNeighbors').children[0].innerHTML = 
-                '<div class="list-group-item"><span class="material-icons">warning</span> ' + t('Neighbors are disabled') + '</div>';
+                '<div class="list-group-item"><span class="mi">warning</span> ' + t('Neighbors are disabled') + '</div>';
         }
     }, false);
     
@@ -130,12 +130,12 @@ function parseListMounts(obj) {
         if (obj.result.data[i].mountPoint === '') {
             row.classList.add('not-clickable');
         }
-        let tds = '<td>' + (obj.result.data[i].mountPoint === '' ? '<span class="material-icons">home</span>' : e(obj.result.data[i].mountPoint)) + '</td>' +
+        let tds = '<td>' + (obj.result.data[i].mountPoint === '' ? '<span class="mi">home</span>' : e(obj.result.data[i].mountPoint)) + '</td>' +
                   '<td>' + e(obj.result.data[i].mountUrl) + '</td>';
         if (obj.result.data[i].mountPoint !== '') {
             tds += '<td data-col="Action">' + 
-                   '<a href="#" title="' + t('Unmount') + '" data-action="unmount" class="material-icons color-darkgrey">delete</a>' +
-                   '<a href="#" title="' + t('Update') + '" data-action="update"class="material-icons color-darkgrey">refresh</a>' +
+                   '<a href="#" title="' + t('Unmount') + '" data-action="unmount" class="mi color-darkgrey">delete</a>' +
+                   '<a href="#" title="' + t('Update') + '" data-action="update"class="mi color-darkgrey">refresh</a>' +
                    '</td>';
         }
         else {
@@ -155,7 +155,7 @@ function parseListMounts(obj) {
     }
 
     if (obj.result.returnedEntities === 0) {
-        tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
+        tbody.innerHTML = '<tr><td><span class="mi">error_outline</span></td>' +
                           '<td colspan="4">' + t('Empty list') + '</td></tr>';
     }     
 }
@@ -163,7 +163,7 @@ function parseListMounts(obj) {
 function parseNeighbors(obj) {
     let list = '';
     if (obj.error) {
-        list = '<div class="list-group-item"><span class="material-icons">error_outline</span> ' + t(obj.error.message) + '</div>';
+        list = '<div class="list-group-item"><span class="mi">error_outline</span> ' + t(obj.error.message) + '</div>';
     }
     else {
         for (let i = 0; i < obj.result.returnedEntities; i++) {
@@ -171,7 +171,7 @@ function parseNeighbors(obj) {
                     obj.result.data[i].uri + '<br/><small>' + obj.result.data[i].displayName + '</small></a>';
         }    
         if (obj.result.returnedEntities === 0) {
-            list = '<div class="list-group-item"><span class="material-icons">error_outline</span>&nbsp;' + t('Empty list') + '</div>';
+            list = '<div class="list-group-item"><span class="mi">error_outline</span>&nbsp;' + t('Empty list') + '</div>';
         }
     }
     document.getElementById('dropdownNeighbors').children[0].innerHTML = list;

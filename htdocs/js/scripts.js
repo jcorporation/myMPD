@@ -181,10 +181,10 @@ function parseScriptList(obj) {
             scriptList += '<tr data-script="' + encodeURI(obj.result.data[i].name) + '"><td>' + e(obj.result.data[i].name) + '</td>' +
                 '<td data-col="Action">' +
                     (settings.featScripteditor === true ? 
-                        '<a href="#" title="' + t('Delete') + '" data-action="delete" class="material-icons color-darkgrey">delete</a>' : '') +
-                        '<a href="#" title="' + t('Execute') + '" data-action="execute" class="material-icons color-darkgrey" ' +
+                        '<a href="#" title="' + t('Delete') + '" data-action="delete" class="mi color-darkgrey">delete</a>' : '') +
+                        '<a href="#" title="' + t('Execute') + '" data-action="execute" class="mi color-darkgrey" ' +
                             ' data-href=\'{"script": "' + e(obj.result.data[i].name) + '", "arguments": [' + arglist + ']}\'>play_arrow</a>' +
-                        '<a href="#" title="' + t('Add to homescreen') + '" data-action="add2home" class="material-icons color-darkgrey" ' +
+                        '<a href="#" title="' + t('Add to homescreen') + '" data-action="add2home" class="mi color-darkgrey" ' +
                             ' data-href=\'{"script": "' + e(obj.result.data[i].name) + '", "arguments": [' + arglist + ']}\'>add_to_home_screen</a>' +
                 '</td></tr>';
             timerActions.innerHTML += '<option data-arguments=\'{"arguments":[' + arglist + ']}\' value="' + 
@@ -193,7 +193,7 @@ function parseScriptList(obj) {
         document.getElementById('listScriptsList').innerHTML = scriptList;
     }
     else {
-        document.getElementById('listScriptsList').innerHTML = '<tr class="not-clickable"><td><span class="material-icons">error_outline</span></td>' +
+        document.getElementById('listScriptsList').innerHTML = '<tr class="not-clickable"><td><span class="mi">error_outline</span></td>' +
             '<td colspan="2">' + t('Empty list') + '</td></tr>';
     }
     document.getElementById('scripts').innerHTML = (showScriptListLen > scriptMaxListLen || showScriptListLen === 0 ? '' : '<div class="dropdown-divider"></div>') + scriptListMain;

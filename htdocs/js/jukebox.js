@@ -34,7 +34,7 @@ function parseJukeboxList(obj) {
         }
         tds += '<td data-col="Action">';
         if (obj.result.data[i].uri !== '') {
-            tds += '<a href="#" class="material-icons color-darkgrey">' + ligatureMore + '</a>';
+            tds += '<a href="#" class="mi color-darkgrey">' + ligatureMore + '</a>';
         }
         tds += '</td>';
         row.innerHTML = tds;
@@ -53,7 +53,7 @@ function parseJukeboxList(obj) {
     let colspan = settings['colsQueueJukebox'].length;
     
     if (nrItems === 0) {
-        tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
+        tbody.innerHTML = '<tr class="not-clickable"><td><span class="mi">error_outline</span></td>' +
             '<td colspan="' + colspan + '">' + t('Empty list') + '</td></tr>';
     }
 

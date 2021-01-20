@@ -43,18 +43,18 @@ function parseOutputs(obj) {
             if (obj.result.data[i].state === 1) {
                 btns += ' active';
             }
-            btns += '"><span class="material-icons float-left">volume_up</span> ' + e(obj.result.data[i].name);
+            btns += '"><span class="mi float-left">volume_up</span> ' + e(obj.result.data[i].name);
             if (Object.keys(obj.result.data[i].attributes).length > 0) {
-                btns += '<a class="material-icons float-right text-white" title="' + t('Edit attributes') + '">settings</a>';
+                btns += '<a class="mi float-right text-white" title="' + t('Edit attributes') + '">settings</a>';
             }
             else {
-                btns += '<a class="material-icons float-right text-white" title="' + t('Show attributes') + '">settings</a>';
+                btns += '<a class="mi float-right text-white" title="' + t('Show attributes') + '">settings</a>';
             }
             btns += '</button>';
         }
     }
     if (nr === 0) {
-        btns = '<span class="material-icons">error_outline</span> ' + t('No outputs');
+        btns = '<span class="mi">error_outline</span> ' + t('No outputs');
     }
     domCache.outputs.innerHTML = btns;
 }
@@ -139,7 +139,7 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
                 }
                 let posTd = tr.querySelector('[data-col=Pos]');
                 if (posTd) {
-                    posTd.classList.remove('material-icons');
+                    posTd.classList.remove('mi');
                     posTd.innerText = tr.getAttribute('data-songpos');
                 }
                 tr.classList.remove('font-weight-bold');
@@ -154,8 +154,8 @@ function setCounter(currentSongId, totalTime, elapsedTime) {
         }
         let posTd = tr.querySelector('[data-col=Pos]');
         if (posTd) {
-            if (!posTd.classList.contains('material-icons')) {
-                posTd.classList.add('material-icons');
+            if (!posTd.classList.contains('mi')) {
+                posTd.classList.add('mi');
                 posTd.innerText = 'play_arrow';
             }
         }
@@ -487,7 +487,7 @@ function songChange(obj) {
     }
     
     document.getElementById('currentBooklet').innerHTML = obj.result.bookletPath === '' || obj.result.bookletPath === undefined|| settings.featBrowse === false ? '' : 
-            '<span class="text-light material-icons">description</span>&nbsp;<a class="text-light" target="_blank" href="' + subdir + '/browse/music/' + 
+            '<span class="text-light mi">description</span>&nbsp;<a class="text-light" target="_blank" href="' + subdir + '/browse/music/' + 
             e(obj.result.bookletPath) + '">' + t('Download booklet') + '</a>';
     
     //Update Artist in queue view for http streams

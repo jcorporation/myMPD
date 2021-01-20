@@ -46,8 +46,14 @@ function focusTable(rownr, table) {
         if (rownr === undefined) {
             if (sel.length === 0) {
                 let row = table.getElementsByTagName('tbody')[0].rows[0];
+                if (row === null) {
+                    return;
+                }
                 if (row.classList.contains('not-clickable')) {
                     row = table.getElementsByTagName('tbody')[0].rows[1];
+                }
+                if (row === null) {
+                    return;
                 }
                 row.focus();
                 row.classList.add('selected');
@@ -71,7 +77,7 @@ function focusTable(rownr, table) {
             }
         }
         //insert goto parent row
-        if (table.id === 'BrowseFilesystemList') {
+/*        if (table.id === 'BrowseFilesystemList') {
             let tbody = table.getElementsByTagName('tbody')[0];
             if (tbody.rows.length > 0 && tbody.rows[0].getAttribute('data-type') !== 'parentDir' && app.current.search !== '') {
                 let nrCells = table.getElementsByTagName('thead')[0].rows[0].cells.length;
@@ -80,9 +86,11 @@ function focusTable(rownr, table) {
                 row.setAttribute('data-type', 'parentDir');
                 row.setAttribute('tabindex', 0);
                 row.setAttribute('data-uri', encodeURI(uri));
+                row.classList.add('no-contextmenu');
                 row.innerHTML = '<td colspan="' + nrCells + '">..</td>';
             }
         }
+*/
         scrollFocusIntoView();
     }
 }
@@ -121,6 +129,9 @@ function navigateTable(table, keyCode) {
         let handled = false;
         if (keyCode === 'ArrowDown') {
             next = cur.nextElementSibling;
+            if (next === null) {
+                return;
+            }
             if (next.classList.contains('not-clickable')) {
                 next = next.nextElementSibling;
             }
@@ -128,6 +139,9 @@ function navigateTable(table, keyCode) {
         }
         else if (keyCode === 'ArrowUp') {
             next = cur.previousElementSibling;
+            if (next === null) {
+                return;
+            }
             if (next.classList.contains('not-clickable')) {
                 next = next.previousElementSibling;
             }
@@ -369,7 +383,7 @@ function setColsChecklist(table) {
             continue;
         }
         tagChks += '<div>' +
-            '<button class="btn btn-secondary btn-xs clickable material-icons material-icons-small' +
+            '<button class="btn btn-secondary btn-xs clickable mi mi-small' +
             (settings['cols' + table].includes(tags[i]) ? ' active' : '') + '" name="' + tags[i] + '">' +
             (settings['cols' + table].includes(tags[i]) ? 'check' : 'radio_button_unchecked') + '</button>' +
             '<label class="form-check-label" for="' + tags[i] + '">&nbsp;&nbsp;' + t(tags[i]) + '</label>' +
@@ -412,12 +426,12 @@ function setCols(table) {
                 if (app.current.sort.indexOf('-') === 0) {
                     sortdesc = true;
                 }
-                heading += '<span class="sort-dir material-icons pull-right">' + (sortdesc === true ? 'arrow_drop_up' : 'arrow_drop_down') + '</span>';
+                heading += '<span class="sort-dir mi pull-right">' + (sortdesc === true ? 'arrow_drop_up' : 'arrow_drop_down') + '</span>';
             }
             heading += '</th>';
         }
         if (settings.featTags === true) {
-            heading += '<th data-col="Action"><a data-title-phrase="' +t('Columns') + '" href="#" class="text-secondary align-middle material-icons material-icons-small">settings</a></th>';
+            heading += '<th data-col="Action"><a data-title-phrase="' +t('Columns') + '" href="#" class="text-secondary align-middle mi mi-small">settings</a></th>';
         }
         else {
             heading += '<th></th>';

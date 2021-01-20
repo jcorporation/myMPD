@@ -195,7 +195,7 @@ function parseQueue(obj) {
         for (let c = 0; c < settings.colsQueueCurrent.length; c++) {
             tds += '<td data-col="' + settings.colsQueueCurrent[c] + '">' + e(obj.result.data[i][settings.colsQueueCurrent[c]]) + '</td>';
         }
-        tds += '<td data-col="Action"><a href="#" class="material-icons color-darkgrey">' + ligatureMore + '</a></td>';
+        tds += '<td data-col="Action"><a href="#" class="mi color-darkgrey">' + ligatureMore + '</a></td>';
         row.innerHTML = tds;
         if (i < tr.length) {
             activeRow = replaceTblRow(tr[i], row) === true ? i : activeRow;
@@ -210,11 +210,11 @@ function parseQueue(obj) {
     }
 
     if (obj.result.method === 'MPD_API_QUEUE_SEARCH' && nrItems === 0) {
-        tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
+        tbody.innerHTML = '<tr class="not-clickable"><td><span class="mi">error_outline</span></td>' +
                           '<td colspan="' + colspan + '">' + t('No results, please refine your search') + '</td></tr>';
     }
     else if (obj.result.method === 'MPD_API_QUEUE_LIST' && nrItems === 0) {
-        tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
+        tbody.innerHTML = '<tr class="not-clickable"><td><span class="mi">error_outline</span></td>' +
                           '<td colspan="' + colspan + '">' + t('Empty queue') + '</td></tr>';
     }
 
@@ -247,7 +247,7 @@ function parseLastPlayed(obj) {
         }
         tds += '<td data-col="Action">';
         if (obj.result.data[i].uri !== '') {
-            tds += '<a href="#" class="material-icons color-darkgrey">' + ligatureMore + '</a>';
+            tds += '<a href="#" class="mi color-darkgrey">' + ligatureMore + '</a>';
         }
         tds += '</td>';
         row.innerHTML = tds;
@@ -266,7 +266,7 @@ function parseLastPlayed(obj) {
     let colspan = settings['colsQueueLastPlayed'].length;
     
     if (nrItems === 0) {
-        tbody.innerHTML = '<tr><td><span class="material-icons">error_outline</span></td>' +
+        tbody.innerHTML = '<tr class="not-clickable"><td><span class="mi">error_outline</span></td>' +
             '<td colspan="' + colspan + '">' + t('Empty list') + '</td></tr>';
     }
 
