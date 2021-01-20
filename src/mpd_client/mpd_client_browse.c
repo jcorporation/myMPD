@@ -15,6 +15,7 @@
 #include <dirent.h>
 #include <inttypes.h>
 #include <limits.h>
+#include <libgen.h>
 #include <mpd/client.h>
 #include <signal.h>
 #include <time.h>
@@ -212,6 +213,16 @@ sds mpd_client_put_filesystem(t_config *config, t_mpd_client_state *mpd_client_s
     
     unsigned entity_count = 0;
     unsigned entities_returned = 0;
+    if (strlen(path) > 1) {
+        char *path_cpy = strdup(path);
+        char *parent_dir = dirname(path_cpy);
+        buffer = sdscat(buffer, "{\"Type\":\"parentDir\",\"name\":\"parentDir\",");
+        buffer = tojson_char(buffer, "uri", (parent_dir[0] == '.' ? "" : parent_dir), false);
+        buffer = sdscat(buffer, "}");
+        entity_count++;
+        entities_returned++;
+        free(path_cpy);
+    }
     struct list_node *current;
     while ((current = list_shift_first(&entity_list)) != NULL) {
         entity_count++;
