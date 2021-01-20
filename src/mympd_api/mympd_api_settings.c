@@ -48,7 +48,7 @@ void mympd_api_settings_delete(t_config *config) {
         "last_played", "last_played_count", "locale", "localplayer", "love", "love_channel", "love_message",
         "max_elements_per_page",  "mpd_host", "mpd_pass", "mpd_port", "notification_page", "notification_web", "searchtaglist",
         "smartpls", "stickers", "stream_port", "stream_url", "taglist", "music_directory", "bookmarks", "bookmark_list", "coverimage_size_small", 
-        "theme", "timer", "highlight_color", "media_session", "booklet_name", "lyrics", "home_list", "navbar_icons", 0};
+        "theme", "timer", "highlight_color", "media_session", "booklet_name", "lyrics", "home_list", "navbar_icons", "advanced", 0};
     const char** ptr = state_files;
     while (*ptr != 0) {
         sds filename = sdscatfmt(sdsempty(), "%s/state/%s", config->varlibdir, *ptr);
@@ -363,6 +363,10 @@ bool mympd_api_settings_set(t_config *config, t_mympd_state *mympd_state, struct
         mympd_state->lyrics = val->type == JSON_TYPE_TRUE ? true : false;
         settingname = sdscat(settingname, "lyrics");
     }
+    else if (strncmp(key->ptr, "advanced", key->len) == 0) {
+        mympd_state->advanced = sdsreplacelen(mympd_state->advanced, settingvalue, sdslen(settingvalue));
+        settingname = sdscat(settingname, "advanced");
+    }
     else {
         sdsfree(settingname);
         sdsfree(settingvalue);
@@ -434,6 +438,7 @@ void mympd_api_read_statefiles(t_config *config, t_mympd_state *mympd_state) {
     mympd_state->timer = state_file_rw_bool(config, "timer", config->timer, false);
     mympd_state->highlight_color = state_file_rw_string(config, "highlight_color", config->highlight_color, false);
     mympd_state->booklet_name = state_file_rw_string(config, "booklet_name", config->booklet_name, false);
+    mympd_state->advanced = state_file_rw_string(config, "advanced", "{}", false);
     mympd_state->lyrics = state_file_rw_bool(config, "lyrics", config->lyrics, false);
     if (config->readonly == true) {
         mympd_state->bookmarks = false;
@@ -513,7 +518,8 @@ sds mympd_api_settings_put(t_config *config, t_mympd_state *mympd_state, sds buf
     buffer = sdscatfmt(buffer, "\"colsPlayback\":%s,", mympd_state->cols_playback);
     buffer = sdscatfmt(buffer, "\"colsQueueLastPlayed\":%s,", mympd_state->cols_queue_last_played);
     buffer = sdscatfmt(buffer, "\"colsQueueJukebox\":%s,", mympd_state->cols_queue_jukebox);
-    buffer = sdscatfmt(buffer, "\"navbarIcons\":%s", mympd_state->navbar_icons);
+    buffer = sdscatfmt(buffer, "\"navbarIcons\":%s,", mympd_state->navbar_icons);
+    buffer = sdscatfmt(buffer, "\"advanced\":%s", mympd_state->advanced);
 
     if (config->syscmds == true) {
         buffer = sdscat(buffer, ",\"syscmdList\":[");

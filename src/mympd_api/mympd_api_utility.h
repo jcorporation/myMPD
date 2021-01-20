@@ -97,6 +97,7 @@ typedef struct t_mympd_state {
     bool lyrics;
     struct list home_list;
     sds navbar_icons;
+    sds advanced;
 } t_mympd_state;
 
 void free_mympd_state(t_mympd_state *mympd_state);

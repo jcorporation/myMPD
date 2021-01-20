@@ -1701,3 +1701,9 @@ Liedtexte für Streams sind nicht unterstützt
 
 Albumcache not ready
 Albumcache ist noch nicht initialisiert
+
+Open folder
+Verzeichnis öffnen
+
+Maintenance
+Wartung

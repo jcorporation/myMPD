@@ -5,6 +5,14 @@
  https://github.com/jcorporation/mympd
 */
 
+var advancedSettingsDefault = {
+    "exists": true,
+    "clickSong": "append",
+    "clickPlaylist": "append",
+    "clickFolder": "open",
+    "clickAlbumPlay": "replace"
+};
+
 function initSettings() {
     let selectThemeHtml = '';
     Object.keys(themes).forEach(function(key) {
@@ -239,6 +247,23 @@ function parseSettings() {
     }
     
     document.getElementById('selectTheme').value = settings.theme;
+    
+    if (!settings.advanced.exists) {
+        settings.advanced = advancedSettingsDefault;
+    }
+    let advFrm = '';
+    for (let key in settings.advanced) {
+        if (key === 'exists') {
+            continue;
+        }
+        advFrm += '<div class="form-group row">' +
+                    '<label class="col-sm-4 col-form-label" for="inputAdvSetting' + r(key) + '" data-phrase="' + e(key) + '">' + t(key) + '</label>' +
+                    '<div class="col-sm-8 ">' +
+                      '<input id="inputAdvSetting' + r(key) + '" data-key="' + r(key) + '" type="text" class="form-control border-secondary" value="' + e(settings.advanced[key]) +'">' +
+                    '</div>' +
+                  '</div>';
+    }
+    document.getElementById('AdvancedSettingsFrm').innerHTML = advFrm;
     
     if (settings.mpdConnected === true) {
         parseMPDSettings();
@@ -878,6 +903,12 @@ function saveSettings(closeModal) {
         document.getElementById('warnJukeboxPlaylist').classList.remove('hide');
     }
     
+    let advSettings = {};
+    let advSettingInputs = document.getElementById('AdvancedSettingsFrm').getElementsByTagName('input');
+    for (let i = 0; i < advSettingInputs.length; i++) {
+        advSettings[advSettingInputs[i].getAttribute('data-key')] = advSettingInputs[i].value;
+    }
+    
     if (formOK === true) {
         let selectLocale = document.getElementById('selectLocale');
         let selectTheme = document.getElementById('selectTheme');
@@ -929,7 +960,8 @@ function saveSettings(closeModal) {
             "highlightColor": document.getElementById('inputHighlightColor').value,
             "timer": (document.getElementById('btnFeatTimer').classList.contains('active') ? true : false),
             "bookletName": document.getElementById('inputBookletName').value,
-            "lyrics": (document.getElementById('btnFeatLyrics').classList.contains('active') ? true : false)
+            "lyrics": (document.getElementById('btnFeatLyrics').classList.contains('active') ? true : false),
+            "advanced": advSettings
         }, getSettings);
         if (closeModal === true) {
             modalSettings.hide();
@@ -967,7 +999,7 @@ function initTagMultiSelect(inputId, listId, allTags, enabledTags) {
             values.push(t(allTags[i]));
         }
         list += '<div class="form-check">' +
-            '<button class="btn btn-secondary btn-xs clickable material-icons material-icons-small' + 
+            '<button class="btn btn-secondary btn-xs clickable mi mi-small' + 
             (enabledTags.includes(allTags[i]) ? ' active' : '') + '" name="' + allTags[i] + '">' +
             (enabledTags.includes(allTags[i]) ? 'check' : 'radio_button_unchecked') + '</button>' +
             '<label class="form-check-label" for="' + allTags[i] + '">&nbsp;&nbsp;' + t(allTags[i]) + '</label>' +
@@ -1128,7 +1160,7 @@ function setNavbarIcons() {
         }
         btns += '<div id="nav' + settings.navbarIcons[i].options.join('') + '" class="nav-item flex-fill text-center ' + hide + '">' +
           '<a data-title-phrase="' + t(settings.navbarIcons[i].title) + '" data-href="" class="nav-link text-light" href="#">' +
-            '<span class="material-icons">' + settings.navbarIcons[i].ligature + '</span>' + 
+            '<span class="mi">' + settings.navbarIcons[i].ligature + '</span>' + 
             '<span class="navText" data-phrase="' + t(settings.navbarIcons[i].title) + '"></span>' +
             (settings.navbarIcons[i].badge !== '' ? settings.navbarIcons[i].badge : '') +
           '</a>' +
