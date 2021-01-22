@@ -9,7 +9,7 @@ function initSong() {
     document.getElementById('tbodySongDetails').addEventListener('click', function(event) {
         if (event.target.nodeName === 'A') {
             if (event.target.id === 'calcFingerprint') {
-                sendAPI("MPD_API_DATABASE_FINGERPRINT", {"uri": decodeURI(event.target.getAttribute('data-uri'))}, parseFingerprint);
+                sendAPI("MPD_API_DATABASE_FINGERPRINT", {"uri": getAttDec(event.target, 'data-uri')}, parseFingerprint);
                 event.preventDefault();
                 let parent = event.target.parentNode;
                 let spinner = document.createElement('div');
@@ -121,7 +121,7 @@ function parseSongDetails(obj) {
             encodeURI(obj.result.uri) + '" id="calcFingerprint" href="#">' + t('Calculate') + '</a></td></tr>';
     }
     if (obj.result.bookletPath !== '' && settings.publish === true) {
-        songDetailsHTML += '<tr><th>' + t('Booklet') + '</th><td><a class="text-success" href="' + subdir + '/browse/music/' + dirname(obj.result.uri) + '/' + settings.bookletName + '" target="_blank">' + t('Download') + '</a></td></tr>';
+        songDetailsHTML += '<tr><th>' + t('Booklet') + '</th><td><a class="text-success" href="' + encodeURI(subdir + '/browse/music/' + dirname(obj.result.uri) + '/' + settings.bookletName) + '" target="_blank">' + t('Download') + '</a></td></tr>';
     }
     if (settings.featStickers === true) {
         songDetailsHTML += '<tr><th colspan="2" class="pt-3"><h5>' + t('Statistics') + '</h5></th></tr>' +
@@ -293,7 +293,7 @@ function loveSong() {
 
 //eslint-disable-next-line no-unused-vars
 function voteSong(vote) {
-    let uri = decodeURI(domCache.currentTitle.getAttribute('data-uri'));
+    let uri = getAttDec(domCache.currentTitle, 'data-uri');
     if (uri === '') {
         return;
     }
@@ -316,21 +316,21 @@ function setVoteSongBtns(vote, uri) {
     domCache.btnVoteDown2 = document.getElementById('btnVoteDown2');
 
     if (isValidUri(uri) === false || isStreamUri(uri) === true) {
-        domCache.btnVoteUp.setAttribute('disabled', 'disabled');
-        domCache.btnVoteDown.setAttribute('disabled', 'disabled');
+        disableEl(domCache.btnVoteUp);
+        disableEl(domCache.btnVoteDown);
         if (domCache.btnVoteUp2) {
-            domCache.btnVoteUp2.setAttribute('disabled', 'disabled');
-            domCache.btnVoteDown2.setAttribute('disabled', 'disabled');
+            disableEl(domCache.btnVoteUp2);
+            disableEl(domCache.btnVoteDown2);
         }
         domCache.btnVoteUp.classList.remove('highlight');
         domCache.btnVoteDown.classList.remove('highlight');
     }
     else {
-        domCache.btnVoteUp.removeAttribute('disabled');
-        domCache.btnVoteDown.removeAttribute('disabled');
+        enableEl(domCache.btnVoteUp);
+        enableEl(domCache.btnVoteDown);
         if (domCache.btnVoteUp2) {
-            domCache.btnVoteUp2.removeAttribute('disabled');
-            domCache.btnVoteDown2.removeAttribute('disabled');
+            enableEl(domCache.btnVoteUp2);
+            enableEl(domCache.btnVoteDown2);
         }
     }
     

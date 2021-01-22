@@ -5,27 +5,51 @@
  https://github.com/jcorporation/mympd
 */
 
-function isValidUri(uri) {
-    if (uri === '' || uri === undefined || uri === null) {
-        return false;
-    }
-    return true;
-}
-
-function isStreamUri(uri) {
-    if (uri.indexOf('://') > -1) {
-        return true;
-    }
-    return false;
-}
-
-function removeIsInvalid(parentEl) {
-    const els = parentEl.getElementsByClassName('is-invalid')
-    for (let i = 0; i < els.length; i++) {
-        els[i].classList.remove('is-invalid');
+//functions to get custom actions
+function clickAlbumPlay(albumArtist, album) {
+    switch (settings.advanced.clickAlbumPlay) {
+        case 'append': return _addAlbum('appendQueue', albumArtist, album);
+        case 'replace': return _addAlbum('replaceQueue', albumArtist, album);
     }
 }
 
+function clickSong(uri, name) {
+    switch (settings.advanced.clickSong) {
+        case 'append': return appendQueue('song', uri, name);
+        case 'replace': return replaceQueue('song', uri, name);
+        case 'view': return songDetails(uri);
+    }
+}
+
+function clickQueueSong(trackid, uri) {
+    switch (settings.advanced.clickQueueSong) {
+        case 'play':
+            sendAPI("MPD_API_PLAYER_PLAY_TRACK", {"track": trackid});
+            break;
+        case 'view': return songDetails(uri);
+    }
+}
+
+function clickPlaylist(uri, name) {
+    switch (settings.advanced.clickPlaylist) {
+        case 'append': return appendQueue('plist', uri, name);
+        case 'replace': return replaceQueue('plist', uri, name);
+        case 'view': return playlistDetails(uri);
+    }
+}
+
+function clickFolder(uri, name) {
+    switch (settings.advanced.clickPlaylist) {
+        case 'append': return appendQueue('dir', uri, name);
+        case 'replace': return replaceQueue('dir', uri, name);
+        case 'view': 
+            app.current.filter = '-';
+            appGoto('Browse', 'Filesystem', undefined, '0', app.current.limit, app.current.filter, app.current.sort, '-', uri);
+            break;
+    }
+}
+
+//escape and unescape MPD filter values
 function escapeMPD(x) {
     return x.replace(/(["'])/g, function(m0, m1) {
         if (m1 === '"') return '\\"';
@@ -42,12 +66,40 @@ function unescapeMPD(x) {
     });
 }
 
+//get and set attributes url encoded
+function setAttEnc(el, attribute, value) {
+    el.setAttribute(attribute, encodeURI(value));
+}
+
+function getAttDec(el, attribute) {
+    let value = el.getAttribute(attribute);
+    if (value) {
+        value = decodeURI(value);
+    }
+    return value;
+}
+
+//utility functions
+function disableEl(el) {
+    if (typeof el === 'string') {
+        el = document.getElementById(el);
+    }
+    el.setAttribute('disabled', 'disabled');
+}
+
+function enableEl(el) {
+    if (typeof el === 'string') {
+        el = document.getElementById(el);
+    }
+    el.removeAttribute('disabled');
+}
+
 function getSelectValue(el) {
     if (typeof el === 'string')	{
         el = document.getElementById(el);
     }
     if (el && el.selectedIndex >= 0) {
-        return el.options[el.selectedIndex].value;
+        return getAttDec(el.options[el.selectedIndex], value);
     }
     return undefined;
 }
@@ -55,7 +107,7 @@ function getSelectValue(el) {
 function getSelectedOptionAttribute(selectId, attribute) {
     let el = document.getElementById(selectId);
     if (el && el.selectedIndex >= 0) {
-        return el.options[el.selectedIndex].getAttribute(attribute);
+        return getAttDec(el.options[el.selectedIndex], attribute);
     }
     return undefined;
 }
@@ -149,7 +201,7 @@ function selectTag(btnsEl, desc, setTo) {
             const descEl = document.getElementById(desc);
             if (descEl !== null) {
                 descEl.innerText = aBtn.innerText;
-                descEl.setAttribute('data-phrase', aBtn.innerText);
+                setAttEnc(descEl, 'data-phrase', aBtn.innerText);
             }
         }
     }
@@ -239,10 +291,10 @@ function btnWaiting(btn, waiting) {
         let spinner = document.createElement('span');
         spinner.classList.add('spinner-border', 'spinner-border-sm', 'mr-2');
         btn.insertBefore(spinner, btn.firstChild);
-        btn.setAttribute('disabled', 'disabled');
+        disableEl(btn);
     }
     else {
-        btn.removeAttribute('disabled');
+        enableEl(btn);
         if (btn.firstChild.nodeName === 'SPAN') {
             btn.firstChild.remove();
         }
@@ -257,7 +309,7 @@ function toggleBtnGroupValue(btngrp, value) {
         valuestr = value.toString();
     }
     for (let i = 0; i < btns.length; i++) {
-        if (btns[i].getAttribute('data-value') === valuestr) {
+        if (getAttDec(btns[i], 'data-value') === valuestr) {
             btns[i].classList.add('active');
             b = btns[i];
         }
@@ -300,7 +352,7 @@ function getBtnGroupValue(btnGroup) {
     if (activeBtn.length === 0) {
         activeBtn = document.getElementById(btnGroup).getElementsByTagName('button');    
     }
-    return activeBtn[0].getAttribute('data-value');
+    return getAttDec(activeBtn[0], 'data-value');
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -434,7 +486,7 @@ function setPagination(total, returned) {
     
         page.innerText = curPage + ' / ' + totalPages;
         if (totalPages > 1) {
-            page.removeAttribute('disabled');
+            enableEl(page);
             let pl = '';
             for (let j = 0; j < totalPages; j++) {
                 let o = j * app.current.limit;
@@ -446,7 +498,7 @@ function setPagination(total, returned) {
             page.classList.remove('nodropdown');
             pages.addEventListener('click', function(event) {
                 if (event.target.nodeName === 'BUTTON') {
-                    gotoPage(event.target.getAttribute('data-offset'));
+                    gotoPage(getAttDec(event.target, 'data-offset'));
                 }
             }, false);
             //eslint-disable-next-line no-unused-vars
@@ -454,10 +506,10 @@ function setPagination(total, returned) {
             
             let lastPageOffset = (totalPages - 1) * app.current.limit;
             if (lastPageOffset === app.current.offset) {
-                last.setAttribute('disabled', 'disabled');
+                disableEl(last);
             }
             else {
-                last.removeAttribute('disabled');
+                enableEl(last);
                 last.classList.remove('hide');
                 next.classList.remove('rounded-right');
                 last.addEventListener('click', function() {
@@ -467,21 +519,21 @@ function setPagination(total, returned) {
             }
         }
         else if (total === -1) {
-            page.setAttribute('disabled', 'disabled');
+            disableEl(page);
             page.innerText = curPage;
             page.classList.add('nodropdown');
-            last.setAttribute('disabled', 'disabled');
+            disableEl(last);
             last.classList.add('hide');
             next.classList.add('rounded-right');
         }
         else {
-            page.setAttribute('disabled', 'disabled');
+            disableEl(page);
             page.classList.add('nodropdown');
-            last.setAttribute('disabled', 'disabled');
+            disableEl(last);
         }
         
         if (app.current.limit > 0 && ((total > offsetLast && offsetLast > 0) || (total === -1 && returned >= app.current.limit))) {
-            next.removeAttribute('disabled');
+            enableEl(next);
             p[i].classList.remove('hide');
             next.addEventListener('click', function() {
                 event.preventDefault();
@@ -489,28 +541,28 @@ function setPagination(total, returned) {
             }, false);
         }
         else {
-            next.setAttribute('disabled', 'disabled');
+            disableEl(next);
             if (i === 0) {
                 p[i].classList.add('hide');
             }
         }
         
         if (app.current.offset > 0) {
-            prev.removeAttribute('disabled');
+            enableEl(prev);
             p[i].classList.remove('hide');
             prev.addEventListener('click', function() {
                 event.preventDefault();
                 gotoPage('prev');
             }, false);
-            first.removeAttribute('disabled');
+            enableEl(first);
             first.addEventListener('click', function() {
                 event.preventDefault();
                 gotoPage(0);
             }, false);
         }
         else {
-            prev.setAttribute('disabled', 'disabled');
-            first.setAttribute('disabled', 'disabled');
+            disableEl(prev);
+            disableEl(first);
         }
     }
     

@@ -44,7 +44,7 @@ function saveTrigger() {
         let args = {};
         let argEls = document.getElementById('triggerActionScriptArguments').getElementsByTagName('input');
         for (let i = 0; i < argEls.length; i ++) {
-            args[argEls[i].getAttribute('data-name')] = argEls[i].value;
+            args[getAttDec(argEls[i], 'data-name')] = argEls[i].value;
         }
 
         sendAPI("MPD_API_TRIGGER_SAVE", {
@@ -104,7 +104,7 @@ function showTriggerScriptArgs(option, values) {
                   '<div class="col-sm-8">' +
                     '<input name="triggerActionScriptArguments' + i + '" class="form-control border-secondary" type="text" value="' +
                     (values[args.arguments[i]] ? e(values[args.arguments[i]]) : '') + '"' +
-                    'data-name="' + args.arguments[i] + '">' +
+                    'data-name="' + encodeURI(args.arguments[i]) + '">' +
                   '</div>' +
                 '</div>';
     }

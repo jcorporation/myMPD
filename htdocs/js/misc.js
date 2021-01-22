@@ -176,15 +176,15 @@ function _updateDBfinished(idleEvent) {
 //eslint-disable-next-line no-unused-vars
 function zoomPicture(el) {
     if (el.classList.contains('booklet')) {
-        window.open(el.getAttribute('data-href'));
+        window.open(getAttDec(el, 'data-href'));
         return;
     }
     
     if (el.classList.contains('carousel')) {
-        let imgSrc = el.getAttribute('data-images');
+        let imgSrc = getAttDec(el, 'data-images');
         let images;
         if (imgSrc !== null) {
-            images = el.getAttribute('data-images').split(';;');
+            images = getAttDec(el, 'data-images').split(';;');
         }
         else if (lastSongObj.images) {
             images = lastSongObj.images.slice();
@@ -195,8 +195,9 @@ function zoomPicture(el) {
         
         //add uri to image list to get embedded albumart
         let a_images = [];
-        if (el.getAttribute('data-uri')) {
-            a_images = [ subdir + '/albumart/' + el.getAttribute('data-uri') ];
+        const uri = getAttDec(el, 'data-uri');
+        if (uri) {
+            a_images = [ subdir + '/albumart/' + uri ];
         }
         //add all but coverfiles to image list
         if (settings.publish === true) {

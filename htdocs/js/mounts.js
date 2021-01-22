@@ -10,14 +10,14 @@ function initMounts() {
         event.stopPropagation();
         event.preventDefault();
         if (event.target.nodeName === 'TD') {
-            if (event.target.parentNode.getAttribute('data-point') === '') {
+            if (getAttDec(event.target.parentNode, 'data-point') === '') {
                 return false;
             }
-            showEditMount(decodeURI(event.target.parentNode.getAttribute('data-url')),decodeURI(event.target.parentNode.getAttribute('data-point')));
+            showEditMount(getAttDec(event.target.parentNode, 'data-url'), getAttDec(event.target.parentNode, 'data-point'));
         }
         else if (event.target.nodeName === 'A') {
             let action = event.target.getAttribute('data-action');
-            let mountPoint = decodeURI(event.target.parentNode.parentNode.getAttribute('data-point'));
+            let mountPoint = getAttDec(event.target.parentNode.parentNode, 'data-point');
             if (action === 'unmount') {
                 unmountMount(mountPoint);
             }
@@ -40,7 +40,8 @@ function initMounts() {
     document.getElementById('dropdownNeighbors').children[0].addEventListener('click', function (event) {
         event.preventDefault();
         if (event.target.nodeName === 'A') {
-            let c = event.target.getAttribute('data-value').match(/^(\w+:\/\/)(.+)$/);
+            const ec = getAttDec(event.target, 'data-value');
+            const c = ec.match(/^(\w+:\/\/)(.+)$/);
             document.getElementById('selectMountUrlhandler').value = c[1];
             document.getElementById('inputMountUrl').value = c[2];
         }
@@ -125,8 +126,8 @@ function parseListMounts(obj) {
     let activeRow = 0;
     for (let i = 0; i < obj.result.returnedEntities; i++) {
         let row = document.createElement('tr');
-        row.setAttribute('data-url', encodeURI(obj.result.data[i].mountUrl));
-        row.setAttribute('data-point', encodeURI(obj.result.data[i].mountPoint));
+        setAttEnc(row, 'data-url', obj.result.data[i].mountUrl);
+        setAttEnc(row, 'data-point', obj.result.data[i].mountPoint);
         if (obj.result.data[i].mountPoint === '') {
             row.classList.add('not-clickable');
         }

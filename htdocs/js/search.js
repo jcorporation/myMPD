@@ -8,7 +8,7 @@
 function initSearch() {
     document.getElementById('SearchList').addEventListener('click', function(event) {
         if (event.target.nodeName === 'TD') {
-            appendQueue('song', decodeURI(event.target.parentNode.getAttribute("data-uri")), event.target.parentNode.getAttribute("data-name"));
+            clickSong(getAttDec(event.target.parentNode, 'data-uri'), getAttDec(event.target.parentNode, 'data-name'));
         }
         else if (event.target.nodeName === 'A') {
             showMenu(event.target, event);
@@ -17,7 +17,7 @@ function initSearch() {
     
     document.getElementById('searchtags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
-            app.current.filter = event.target.getAttribute('data-tag');
+            app.current.filter = getAttDec(event.target, 'data-tag');
             doSearch(domCache.searchstr.value);
         }
     }, false);
@@ -28,13 +28,13 @@ function initSearch() {
         }
         else if (event.key === 'Enter' && settings.featAdvsearch) {
             if (this.value !== '') {
-                let match = document.getElementById('searchMatch');
+                let match = getSelectValue(document.getElementById('searchMatch'));
                 let li = document.createElement('button');
                 li.classList.add('btn', 'btn-light', 'mr-2');
-                li.setAttribute('data-filter-tag', encodeURI(app.current.filter));
-                li.setAttribute('data-filter-op', encodeURI(match.options[match.selectedIndex].value));
-                li.setAttribute('data-filter-value', encodeURI(this.value));
-                li.innerHTML = e(app.current.filter) + ' ' + e(match.options[match.selectedIndex].value) + ' \'' + e(this.value) + '\'<span class="ml-2 badge badge-secondary">&times;</span>';
+                setAttEnc(li, 'data-filter-tag', app.current.filter);
+                setAttEnc(li, 'data-filter-op', match);
+                setAttEnc(li, 'data-filter-value', this.value);
+                li.innerHTML = e(app.current.filter) + ' ' + e(match) + ' \'' + e(this.value) + '\'<span class="ml-2 badge badge-secondary">&times;</span>';
                 this.value = '';
                 domCache.searchCrumb.appendChild(li);
             }
@@ -57,9 +57,9 @@ function initSearch() {
         else if (event.target.nodeName === 'BUTTON') {
             event.preventDefault();
             event.stopPropagation();
-            domCache.searchstr.value = unescapeMPD(decodeURI(event.target.getAttribute('data-filter-value')));
-            selectTag('searchtags', 'searchtagsdesc', decodeURI(event.target.getAttribute('data-filter-tag')));
-            document.getElementById('searchMatch').value = decodeURI(event.target.getAttribute('data-filter-op'));
+            domCache.searchstr.value = unescapeMPD(getAttDec(event.target, 'data-filter-value'));
+            selectTag('searchtags', 'searchtagsdesc', getAttDec(event.target, 'data-filter-tag'));
+            document.getElementById('searchMatch').value = getAttDec(event.target, 'data-filter-op');
             event.target.remove();
             doSearch(domCache.searchstr.value);
         }
@@ -119,9 +119,9 @@ function doSearch(x) {
         let expression = '(';
         let crumbs = domCache.searchCrumb.children;
         for (let i = 0; i < crumbs.length; i++) {
-            expression += '(' + decodeURI(crumbs[i].getAttribute('data-filter-tag')) + ' ' + 
-                decodeURI(crumbs[i].getAttribute('data-filter-op')) + ' \'' + 
-                escapeMPD(decodeURI(crumbs[i].getAttribute('data-filter-value'))) + '\')';
+            expression += '(' + getAttDec(crumbs[i], 'data-filter-tag') + ' ' + 
+                getAttDec(crumbs[i], 'data-filter-op') + ' \'' + 
+                escapeMPD(getAttDec(crumbs[i], 'data-filter-value')) + '\')';
             if (x !== '') {
                 expression += ' AND ';
             }
@@ -144,16 +144,13 @@ function doSearch(x) {
 }
 
 function parseSearch(obj) {
-    //document.getElementById('panel-heading-search').innerText = gtPage('Num songs', obj.result.returnedEntities, obj.result.totalEntities);
-    //document.getElementById('cardFooterSearch').innerText = gtPage('Num songs', obj.result.returnedEntities, obj.result.totalEntities);
-    
     if (obj.result.returnedEntities > 0) {
-        document.getElementById('searchAddAllSongs').removeAttribute('disabled');
-        document.getElementById('searchAddAllSongsBtn').removeAttribute('disabled');
+        enableEl('searchAddAllSongs');
+        enableEl('searchAddAllSongsBtn');
     } 
     else {
-        document.getElementById('searchAddAllSongs').setAttribute('disabled', 'disabled');
-        document.getElementById('searchAddAllSongsBtn').setAttribute('disabled', 'disabled');
+        disableEl('searchAddAllSongs');
+        disableEl('searchAddAllSongsBtn');
     }
     parseFilesystem(obj);
 }

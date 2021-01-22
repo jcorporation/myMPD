@@ -18,13 +18,13 @@ function initQueue() {
     document.getElementById('searchqueuetags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
             appGoto(app.current.app, app.current.tab, app.current.view, 
-                app.current.offset, app.current.limit, event.target.getAttribute('data-tag'), app.current.sort, '-', app.current.search);
+                app.current.offset, app.current.limit, getAttDec(event.target, 'data-tag'), app.current.sort, '-', app.current.search);
         }
     }, false);
 
     document.getElementById('QueueCurrentList').addEventListener('click', function(event) {
         if (event.target.nodeName === 'TD') {
-            sendAPI("MPD_API_PLAYER_PLAY_TRACK", {"track": event.target.parentNode.getAttribute('data-trackid')});
+            clickQueueSong(getAttDec(event.target.parentNode, 'data-trackid'), getAttDec(event.target.parentNode, 'data-uri'));
         }
         else if (event.target.nodeName === 'A') {
             showMenu(event.target, event);
@@ -32,13 +32,19 @@ function initQueue() {
     }, false);
     
     document.getElementById('QueueLastPlayedList').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'A') {
+        if (event.target.nodeName === 'TD') {
+            clickSong(getAttDec(event.target.parentNode, 'data-uri'), getAttDec(event.target.parentNode, 'data-name'));
+        }
+        else if (event.target.nodeName === 'A') {
             showMenu(event.target, event);
         }
     }, false);
 
     document.getElementById('QueueJukeboxList').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'A') {
+        if (event.target.nodeName === 'TD') {
+            clickSong(getAttDec(event.target.parentNode, 'data-uri'), getAttDec(event.target.parentNode, 'data-name'));
+        }
+        else if (event.target.nodeName === 'A') {
             showMenu(event.target, event);
         }
     }, false);
@@ -46,14 +52,14 @@ function initQueue() {
     document.getElementById('selectAddToQueueMode').addEventListener('change', function () {
         let value = this.options[this.selectedIndex].value;
         if (value === '2') {
-            document.getElementById('inputAddToQueueQuantity').setAttribute('disabled', 'disabled');
+            disableEl('inputAddToQueueQuantity');
             document.getElementById('inputAddToQueueQuantity').value = '1';
-            document.getElementById('selectAddToQueuePlaylist').setAttribute('disabled', 'disabled');
+            disableEl('selectAddToQueuePlaylist');
             document.getElementById('selectAddToQueuePlaylist').value = 'Database';
         }
         else if (value === '1') {
-            document.getElementById('inputAddToQueueQuantity').removeAttribute('disabled');
-            document.getElementById('selectAddToQueuePlaylist').removeAttribute('disabled');
+            enableEl('inputAddToQueueQuantity');
+            enableEl('selectAddToQueuePlaylist');
         }
     });
 
@@ -108,12 +114,12 @@ function parseUpdateQueue(obj) {
 
     if (obj.result.queueLength === 0) {
         for (let i = 0; i < domCache.btnsPlayLen; i++) {
-            domCache.btnsPlay[i].setAttribute('disabled', 'disabled');
+            disableEl(domCache.btnsPlay[i]);
         }
     }
     else {
         for (let i = 0; i < domCache.btnsPlayLen; i++) {
-            domCache.btnsPlay[i].removeAttribute('disabled');
+            enableEl(domCache.btnsPlay[i]);
         }
     }
 
@@ -123,17 +129,17 @@ function parseUpdateQueue(obj) {
     domCache.badgeQueueItems.innerText = obj.result.queueLength;
     
     if (obj.result.nextSongPos === -1 && settings.jukeboxMode === false) {
-        domCache.btnNext.setAttribute('disabled', 'disabled');
+        disableEl(domCache.btnNext);
     }
     else {
-        domCache.btnNext.removeAttribute('disabled');
+        enableEl(domCache.btnNext);
     }
     
     if (obj.result.songPos < 0) {
-        domCache.btnPrev.setAttribute('disabled', 'disabled');
+        disableEl(domCache.btnPrev);
     }
     else {
-        domCache.btnPrev.removeAttribute('disabled');
+        enableEl(domCache.btnPrev);
     }
 }
 
@@ -177,7 +183,7 @@ function parseQueue(obj) {
     let nrItems = obj.result.returnedEntities;
     let navigate = document.activeElement.parentNode.parentNode === table ? true : false;
     let activeRow = 0;
-    table.setAttribute('data-version', obj.result.queueVersion);
+    setAttEnc(table, 'data-version', obj.result.queueVersion);
     let tbody = table.getElementsByTagName('tbody')[0];
     let tr = tbody.getElementsByTagName('tr');
     for (let i = 0; i < nrItems; i++) {
@@ -185,15 +191,15 @@ function parseQueue(obj) {
         obj.result.data[i].Pos++;
         let row = document.createElement('tr');
         row.setAttribute('draggable', 'true');
-        row.setAttribute('data-trackid', obj.result.data[i].id);
         row.setAttribute('id','queueTrackId' + obj.result.data[i].id);
-        row.setAttribute('data-songpos', obj.result.data[i].Pos);
-        row.setAttribute('data-duration', obj.result.data[i].Duration);
-        row.setAttribute('data-uri', obj.result.data[i].uri);
         row.setAttribute('tabindex', 0);
+        setAttEnc(row, 'data-trackid', obj.result.data[i].id);
+        setAttEnc(row, 'data-songpos', obj.result.data[i].Pos);
+        setAttEnc(row, 'data-duration', obj.result.data[i].Duration);
+        setAttEnc(row, 'data-uri', obj.result.data[i].uri);
         let tds = '';
         for (let c = 0; c < settings.colsQueueCurrent.length; c++) {
-            tds += '<td data-col="' + settings.colsQueueCurrent[c] + '">' + e(obj.result.data[i][settings.colsQueueCurrent[c]]) + '</td>';
+            tds += '<td data-col="' + encodeURI(settings.colsQueueCurrent[c]) + '">' + e(obj.result.data[i][settings.colsQueueCurrent[c]]) + '</td>';
         }
         tds += '<td data-col="Action"><a href="#" class="mi color-darkgrey">' + ligatureMore + '</a></td>';
         row.innerHTML = tds;
@@ -237,13 +243,13 @@ function parseLastPlayed(obj) {
         obj.result.data[i].Duration = beautifySongDuration(obj.result.data[i].Duration);
         obj.result.data[i].LastPlayed = localeDate(obj.result.data[i].LastPlayed);
         let row = document.createElement('tr');
-        row.setAttribute('data-uri', obj.result.data[i].uri);
-        row.setAttribute('data-name', obj.result.data[i].Title);
-        row.setAttribute('data-type', 'song');
+        setAttEnc(row, 'data-uri', obj.result.data[i].uri);
+        setAttEnc(row, 'data-name', obj.result.data[i].Title);
+        setAttEnc(row, 'data-type', 'song');
         row.setAttribute('tabindex', 0);
         let tds = '';
         for (let c = 0; c < settings.colsQueueLastPlayed.length; c++) {
-            tds += '<td data-col="' + settings.colsQueueLastPlayed[c] + '">' + e(obj.result.data[i][settings.colsQueueLastPlayed[c]]) + '</td>';
+            tds += '<td data-col="' + encodeURI(settings.colsQueueLastPlayed[c]) + '">' + e(obj.result.data[i][settings.colsQueueLastPlayed[c]]) + '</td>';
         }
         tds += '<td data-col="Action">';
         if (obj.result.data[i].uri !== '') {
@@ -286,10 +292,10 @@ function queueSelectedItem(append) {
             return;
         }
         if (append === true) {
-            appendQueue(item.getAttribute('data-type'), item.getAttribute('data-uri'), item.getAttribute('data-name'));
+            appendQueue(getAttDec(item, 'data-type'), getAttDec(item, 'data-uri'), getAttDec(item, 'data-name'));
         }
         else {
-            replaceQueue(item.getAttribute('data-type'), item.getAttribute('data-uri'), item.getAttribute('data-name'));
+            replaceQueue(getAttDec(item, 'data-type'), getAttDec(item, 'data-uri'), getAttDec(item, 'data-name'));
         }
     }
 }
@@ -301,7 +307,7 @@ function dequeueSelectedItem() {
         if (item.parentNode.parentNode.id !== 'QueueCurrentList') {
             return;
         }
-        delQueueSong('single', item.getAttribute('data-trackid'));
+        delQueueSong('single', getAttDec(item, 'data-trackid'));
     }
 }
 

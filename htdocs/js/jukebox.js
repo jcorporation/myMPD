@@ -23,14 +23,14 @@ function parseJukeboxList(obj) {
         obj.result.data[i].Duration = beautifySongDuration(obj.result.data[i].Duration);
         obj.result.data[i].LastPlayed = localeDate(obj.result.data[i].LastPlayed);
         let row = document.createElement('tr');
-        row.setAttribute('data-uri', obj.result.data[i].uri);
-        row.setAttribute('data-name', obj.result.data[i].Title);
-        row.setAttribute('data-type', 'song');
-        row.setAttribute('data-pos', i);
+        setAttEnc(row, 'data-uri', obj.result.data[i].uri);
+        setAttEnc(row, 'data-name', obj.result.data[i].Title);
+        setAttEnc(row, 'data-type', 'song');
+        setAttEnc(row, 'data-pos', i);
         row.setAttribute('tabindex', 0);
         let tds = '';
         for (let c = 0; c < settings.colsQueueJukebox.length; c++) {
-            tds += '<td data-col="' + settings.colsQueueJukebox[c] + '">' + e(obj.result.data[i][settings.colsQueueJukebox[c]]) + '</td>';
+            tds += '<td data-col="' + encodeURI(settings.colsQueueJukebox[c]) + '">' + e(obj.result.data[i][settings.colsQueueJukebox[c]]) + '</td>';
         }
         tds += '<td data-col="Action">';
         if (obj.result.data[i].uri !== '') {

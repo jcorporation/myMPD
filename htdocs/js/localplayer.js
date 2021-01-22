@@ -1,3 +1,10 @@
+"use strict";
+/*
+ SPDX-License-Identifier: GPL-2.0-or-later
+ myMPD (c) 2018-2021 Juergen Mang <mail@jcgames.de>
+ https://github.com/jcorporation/mympd
+*/
+
 function initLocalplayer() {
    document.getElementById('alertLocalPlayback').getElementsByTagName('a')[0].addEventListener('click', function(event) {
         event.stopPropagation();
@@ -30,11 +37,11 @@ function initLocalplayer() {
 function setLocalPlayerUrl() {
     if (window.location.protocol === 'https:') {
         document.getElementById('infoLocalplayer').classList.remove('hide');
-        document.getElementById('selectStreamMode').options[0].setAttribute('data-phrase','HTTPS Port');
+        setAttEnc(document.getElementById('selectStreamMode').options[0], 'data-phrase','HTTPS Port');
     }
     else {
         document.getElementById('infoLocalplayer').classList.add('hide');
-        document.getElementById('selectStreamMode').options[0].setAttribute('data-phrase','HTTP Port');
+        setAttEnc(document.getElementById('selectStreamMode').options[0], 'data-phrase', 'HTTP Port');
     }
     if (settings.streamUrl === '') {
         settings.mpdstream = window.location.protocol + '//';

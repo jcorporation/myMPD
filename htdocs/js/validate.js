@@ -5,6 +5,27 @@
  https://github.com/jcorporation/mympd
 */
 
+function isValidUri(uri) {
+    if (uri === '' || uri === undefined || uri === null) {
+        return false;
+    }
+    return true;
+}
+
+function isStreamUri(uri) {
+    if (uri.indexOf('://') > -1) {
+        return true;
+    }
+    return false;
+}
+
+function removeIsInvalid(parentEl) {
+    const els = parentEl.getElementsByClassName('is-invalid')
+    for (let i = 0; i < els.length; i++) {
+        els[i].classList.remove('is-invalid');
+    }
+}
+
 function validateFilenameString(str) {
     if (str === '') {
         return false;

@@ -10,8 +10,8 @@ function initBrowse() {
         if (app.current.tag === 'Album') {
             if (event.target.classList.contains('card-body')) {
                 appGoto('Browse', 'Database', 'Detail', 0, undefined, 'Album', 'AlbumArtist', 
-                    decodeURI(event.target.parentNode.getAttribute('data-album')), 
-                    decodeURI(event.target.parentNode.getAttribute('data-albumartist')));
+                    getAttDec(event.target.parentNode, 'data-album'),
+                    getAttDec(event.target.parentNode, 'data-albumartist'));
             }
             else if (event.target.classList.contains('card-footer')){
                 popoverMenuAlbumCards(event);
@@ -21,7 +21,7 @@ function initBrowse() {
             app.current.search = '';
             document.getElementById('searchDatabaseStr').value = '';
             appGoto(app.current.app, app.current.card, undefined, 0, undefined, 'Album', 'AlbumArtist', 'Album', 
-                '(' + app.current.tag + ' == \'' + decodeURI(event.target.parentNode.getAttribute('data-tag')) + '\')');
+                '(' + app.current.tag + ' == \'' + escapeMPD(getAttDec(event.target.parentNode, 'data-tag')) + '\')');
         }
     }, false);
     
@@ -66,7 +66,7 @@ function initBrowse() {
             return;
         }
         if (event.target.nodeName === 'TD') {
-            appendQueue('song', decodeURI(event.target.parentNode.getAttribute('data-uri')), event.target.parentNode.getAttribute('data-name'));
+            clickSong(getAttDec(event.target.parentNode, 'data-uri'), getAttDec(event.target.parentNode, 'data-name'));
         }
         else if (event.target.nodeName === 'A') {
             showMenu(event.target, event);
@@ -75,7 +75,7 @@ function initBrowse() {
 
     document.getElementById('searchDatabaseTags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
-            app.current.filter = event.target.getAttribute('data-tag');
+            app.current.filter = getAttDec(event.target, 'data-tag');
             appGoto(app.current.app, app.current.tab, app.current.view, '0', app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search);
         }
     }, false);
@@ -97,7 +97,7 @@ function initBrowse() {
         if (event.target.nodeName === 'BUTTON') {
             event.preventDefault();
             event.stopPropagation();
-            app.current.sort = event.target.getAttribute('data-tag');
+            app.current.sort = getAttDec(event.target, 'data-tag');
             appGoto(app.current.app, app.current.tab, app.current.view, '0', app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search);
         }
     }, false);
@@ -117,7 +117,7 @@ function initBrowse() {
     document.getElementById('dropdownSortPlaylistTags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
             event.preventDefault();
-            playlistSort(event.target.getAttribute('data-tag'));
+            playlistSort(getAttDec(event.target, 'data-tag'));
         }
     }, false);
 
@@ -147,13 +147,13 @@ function initBrowse() {
         }
         else if (event.key === 'Enter' && app.current.tag === 'Album') {
             if (this.value !== '') {
-                let match = document.getElementById('searchDatabaseMatch');
+                let match = getSelectValue(document.getElementById('searchDatabaseMatch'));
                 let li = document.createElement('button');
                 li.classList.add('btn', 'btn-light', 'mr-2');
-                li.setAttribute('data-filter-tag', encodeURI(app.current.filter));
-                li.setAttribute('data-filter-op', encodeURI(match.options[match.selectedIndex].value));
-                li.setAttribute('data-filter-value', encodeURI(this.value));
-                li.innerHTML = e(app.current.filter) + ' ' + e(match.options[match.selectedIndex].value) + ' \'' + e(this.value) + '\'<span class="ml-2 badge badge-secondary">&times;</span>';
+                setAttEnc(li, 'data-filter-tag', app.current.filter);
+                setAttEnc(li, 'data-filter-op', match);
+                setAttEnc(li, 'data-filter-value', this.value);
+                li.innerHTML = e(app.current.filter) + ' ' + e(match) + ' \'' + e(this.value) + '\'<span class="ml-2 badge badge-secondary">&times;</span>';
                 this.value = '';
                 document.getElementById('searchDatabaseCrumb').appendChild(li);
             }
@@ -180,9 +180,9 @@ function initBrowse() {
         else if (event.target.nodeName === 'BUTTON') {
             event.preventDefault();
             event.stopPropagation();
-            selectTag('searchDatabaseTags', 'searchDatabaseTagsDesc', decodeURI(event.target.getAttribute('data-filter-tag')));
-            document.getElementById('searchDatabaseStr').value = unescapeMPD(decodeURI(event.target.getAttribute('data-filter-value')));
-            document.getElementById('searchDatabaseMatch').value = decodeURI(event.target.getAttribute('data-filter-op'));
+            selectTag('searchDatabaseTags', 'searchDatabaseTagsDesc', getAttDec(event.target,'data-filter-tag'));
+            document.getElementById('searchDatabaseStr').value = unescapeMPD(getAttDec(event.target, 'data-filter-value'));
+            document.getElementById('searchDatabaseMatch').value = getAttDec(event.target, 'data-filter-op');
             event.target.remove();
             searchAlbumgrid(document.getElementById('searchDatabaseStr').value);
         }
@@ -190,17 +190,22 @@ function initBrowse() {
 
     document.getElementById('BrowseFilesystemList').addEventListener('click', function(event) {
         if (event.target.nodeName === 'TD') {
-            switch(event.target.parentNode.getAttribute('data-type')) {
+            const uri = getAttDec(event.target.parentNode, 'data-uri');
+            const name = getAttDec(event.target.parentNode, 'data-name');
+            const dataType = getAttDec(event.target.parentNode, 'data-type');
+            switch(dataType) {
                 case 'parentDir':
-                case 'dir':
                     app.current.filter = '-';
-                    appGoto('Browse', 'Filesystem', undefined, '0', app.current.limit, app.current.filter, app.current.sort, '-', decodeURI(event.target.parentNode.getAttribute("data-uri")));
+                    appGoto('Browse', 'Filesystem', undefined, '0', app.current.limit, app.current.filter, app.current.sort, '-', uri);
+                    break;
+                case 'dir':
+                    clickFolder(uri, name);
                     break;
                 case 'song':
-                    appendQueue('song', decodeURI(event.target.parentNode.getAttribute("data-uri")), event.target.parentNode.getAttribute("data-name"));
+                    clickSong(uri, name);
                     break;
                 case 'plist':
-                    appendQueue('plist', decodeURI(event.target.parentNode.getAttribute("data-uri")), event.target.parentNode.getAttribute("data-name"));
+                    clickPlaylist(uri, name);
                     break;
             }
         }
@@ -211,11 +216,11 @@ function initBrowse() {
 
     document.getElementById('BrowseFilesystemBookmarks').addEventListener('click', function(event) {
         if (event.target.nodeName === 'A') {
-            let id = event.target.parentNode.parentNode.getAttribute('data-id');
-            let type = event.target.parentNode.parentNode.getAttribute('data-type');
-            let uri = decodeURI(event.target.parentNode.parentNode.getAttribute('data-uri'));
+            let id = getAttDec(event.target.parentNode.parentNode, 'data-id');
+            let type = getAttDec(event.target.parentNode.parentNode, 'data-type');
+            let uri = getAttDec(event.target.parentNode.parentNode, 'data-uri');
             let name = event.target.parentNode.parentNode.firstChild.innerText;
-            let href = event.target.getAttribute('data-href');
+            let href = getAttDec(event.target, 'data-href');
             
             if (href === 'delete') {
                 sendAPI("MYMPD_API_BOOKMARK_RM", {"id": id}, function() {
@@ -236,7 +241,7 @@ function initBrowse() {
     document.getElementById('BrowseBreadcrumb').addEventListener('click', function(event) {
         if (event.target.nodeName === 'A') {
             event.preventDefault();
-            appGoto('Browse', 'Filesystem', undefined, '0', app.current.limit, app.current.filter, app.current.sort, '-', decodeURI(event.target.getAttribute('data-uri')));
+            appGoto('Browse', 'Filesystem', undefined, '0', app.current.limit, app.current.filter, app.current.sort, '-', getAttDec(event.target, 'data-uri'));
         }
     }, false);
 
@@ -247,7 +252,7 @@ function initBrowse() {
 
 function navBrowseHandler(event) {
     if (event.target.nodeName === 'BUTTON') {
-        const tag = event.target.getAttribute('data-tag');
+        const tag = getAttDec(event.target, 'data-tag');
         if (tag === 'Playlists' || tag === 'Filesystem') {
             appGoto('Browse', tag, undefined);
             return;
@@ -285,21 +290,21 @@ function gotoBrowse(event) {
         return;
     }
     const x = event.target;
-    let tag = x.getAttribute('data-tag');
-    let name = decodeURI(x.getAttribute('data-name'));
+    let tag = getAttDec(x, 'data-tag');
+    let name = getAttDec(x, 'data-name');
     if (tag === null) {
-        tag = x.parentNode.getAttribute('data-tag');
-        name = decodeURI(x.parentNode.getAttribute('data-name'));
+        tag = getAttDec(x.parentNode, 'data-tag');
+        name = getAttDec(x.parentNode, 'data-name');
     }
     if (tag !== '' && name !== '' && name !== '-' && settings.browsetags.includes(tag)) {
         if (tag === 'Album') {
-            let artist = x.getAttribute('data-albumartist');
+            let artist = getAttDec(x, 'data-albumartist');
             if (artist === null) {
-                artist = x.parentNode.getAttribute('data-albumartist');
+                artist = getAttDec(x.parentNode, 'data-albumartist');
             }
             if (artist !== null) {
                 //Show album details
-                appGoto('Browse', 'Database', 'Detail', '0', undefined, tag, tagAlbumArtist, name, decodeURI(artist));
+                appGoto('Browse', 'Database', 'Detail', '0', undefined, tag, tagAlbumArtist, name, artist);
             }
             else {
                 //show filtered album list
@@ -341,7 +346,7 @@ function parseFilesystem(obj) {
             let img = document.createElement('div');
             img.style.backgroundImage = 'url("' + subdir + '/assets/coverimage-booklet.svg")';
             img.classList.add('booklet');
-            img.setAttribute('data-href', subdir + '/browse/music/' + obj.result.bookletPath);
+            setAttEnc(img, 'data-href', subdir + '/browse/music/' + obj.result.bookletPath);
             img.title = t('Booklet');
             imageList.appendChild(img);
         }
@@ -356,26 +361,25 @@ function parseFilesystem(obj) {
     let navigate = document.activeElement.parentNode.parentNode === table ? true : false;
     let activeRow = 0;
     for (let i = 0; i < nrItems; i++) {
-        let uri = encodeURI(obj.result.data[i].uri);
         let row = document.createElement('tr');
         let tds = '';
-        row.setAttribute('data-type', obj.result.data[i].Type);
-        row.setAttribute('data-uri', uri);
+        setAttEnc(row, 'data-type', obj.result.data[i].Type);
+        setAttEnc(row, 'data-uri', obj.result.data[i].uri);
         row.setAttribute('tabindex', 0);
         if (app.current.app === 'Search' && settings.featTags === true && settings.featAdvsearch === true) {
             //add artist and album information for album actions in search app
             if (obj.result.data[i].Album !== undefined) {
-                row.setAttribute('data-album', encodeURI(obj.result.data[i].Album));
+                setAttEnc(row, 'data-album', obj.result.data[i].Album);
             }
             if (obj.result.data[i][tagAlbumArtist] !== undefined) {
-                row.setAttribute('data-albumartist', encodeURI(obj.result.data[i][tagAlbumArtist]));
+                setAttEnc(row, 'data-albumartist', obj.result.data[i][tagAlbumArtist]);
             }
         }
         if (obj.result.data[i].Type === 'song') {
-            row.setAttribute('data-name', obj.result.data[i].Title);
+            setAttEnc(row, 'data-name', obj.result.data[i].Title);
         }
         else {
-            row.setAttribute('data-name', obj.result.data[i].name);
+            setAttEnc(row, 'data-name', obj.result.data[i].name);
         }
         
         switch(obj.result.data[i].Type) {
@@ -532,8 +536,8 @@ function parseDatabase(obj) {
         let picture = '';
         if (obj.result.tag === 'Album') {
             id = genId('database' + obj.result.data[i].Album + obj.result.data[i].AlbumArtist);
-            picture = subdir + '/albumart/' + encodeURI(obj.result.data[i].FirstSongUri);
-            html = '<div class="card card-grid clickable" data-picture="' + picture  + '" ' + 
+            picture = subdir + '/albumart/' + obj.result.data[i].FirstSongUri;
+            html = '<div class="card card-grid clickable" data-picture="' + encodeURI(picture)  + '" ' + 
                        'data-uri="' + encodeURI(obj.result.data[i].FirstSongUri.replace(/\/[^/]+$/, '')) + '" ' +
                        'data-type="dir" data-name="' + encodeURI(obj.result.data[i].Album) + '" ' +
                        'data-album="' + encodeURI(obj.result.data[i].Album) + '" ' +
@@ -546,7 +550,7 @@ function parseDatabase(obj) {
         else {
             id = genId('database' + obj.result.data[i].value);
             picture = subdir + '/tagpics/' + obj.result.tag + '/' + encodeURI(obj.result.data[i].value);
-            html = '<div class="card card-grid clickable" data-picture="' + picture + '" data-tag="' + encodeURI(obj.result.data[i].value) + '" tabindex="0">' +
+            html = '<div class="card card-grid clickable" data-picture="' + encodeURI(picture) + '" data-tag="' + encodeURI(obj.result.data[i].value) + '" tabindex="0">' +
                    (obj.result.pics === true ? '<div class="card-body album-cover-loading album-cover-grid bg-white" id="' + id + '"></div>' : '') +
                    '<div class="card-footer card-footer-grid p-2" title="' + e(obj.result.data[i].value) + '">' +
                    e(obj.result.data[i].value) + '<br/>' +
@@ -598,7 +602,7 @@ function setGridImage(changes, observer) {
     changes.forEach(change => {
         if (change.intersectionRatio > 0) {
             observer.unobserve(change.target);
-            const uri = decodeURI(change.target.firstChild.getAttribute('data-picture'));
+            const uri = getAttDec(change.target.firstChild, 'data-picture');
             const body = change.target.firstChild.getElementsByClassName('card-body')[0];
             if (body) {
                 body.style.backgroundImage = 'url("' + uri + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
@@ -615,15 +619,15 @@ function addPlayButton(parentEl) {
     div.addEventListener('click', function(event) {
         event.preventDefault();
         event.stopPropagation();
-        replaceQueue('dir', decodeURI(event.target.parentNode.parentNode.getAttribute('data-uri')), decodeURI(event.target.parentNode.parentNode.getAttribute('data-name')));
+        clickAlbumPlay(getAttDec(event.target.parentNode.parentNode, 'data-albumartist'), getAttDec(event.target.parentNode.parentNode, 'data-album'));
     }, false);
 }
 
 function parseAlbumDetails(obj) {
     const coverEl = document.getElementById('viewDetailDatabaseCover');
     coverEl.style.backgroundImage = 'url("' + subdir + '/albumart/' + obj.result.data[0].uri + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
-    coverEl.setAttribute('data-images', obj.result.images.join(';;'));
-    coverEl.setAttribute('data-uri', obj.result.data[0].uri);
+    setAttEnc(coverEl, 'data-images', obj.result.images.join(';;'));
+    setAttEnc(coverEl, 'data-uri', obj.result.data[0].uri);
     const infoEl = document.getElementById('viewDetailDatabaseInfo');
     infoEl.innerHTML = '<h1>' + e(obj.result.Album) + '</h1>' +
         '<small> ' + t('AlbumArtist') + '</small><p>' + e(obj.result.AlbumArtist) + '</p>' +
@@ -648,7 +652,7 @@ function parseAlbumDetails(obj) {
         if (obj.result.data[i].Duration) {
             obj.result.data[i].Duration = beautifySongDuration(obj.result.data[i].Duration);
         }
-        titleList += '<tr tabindex="0" data-type="song" data-name="' + obj.result.data[i].Title + '" data-uri="' + encodeURI(obj.result.data[i].uri) + '">';
+        titleList += '<tr tabindex="0" data-type="song" data-name="' + encodeURI(obj.result.data[i].Title) + '" data-uri="' + encodeURI(obj.result.data[i].uri) + '">';
         for (let c = 0; c < settings.colsBrowseDatabaseDetail.length; c++) {
             titleList += '<td data-col="' + settings.colsBrowseDatabaseDetail[c] + '">' + e(obj.result.data[i][settings.colsBrowseDatabaseDetail[c]]) + '</td>';
         }
@@ -694,16 +698,15 @@ function searchAlbumgrid(x) {
         if (i > 0) {
             expression += ' AND ';
         }
-        expression += '(' + decodeURI(crumbs[i].getAttribute('data-filter-tag')) + ' ' + 
-            decodeURI(crumbs[i].getAttribute('data-filter-op')) + ' \'' + 
-            escapeMPD(decodeURI(crumbs[i].getAttribute('data-filter-value'))) + '\')';
+        expression += '(' + getAttDec(crumbs[i], 'data-filter-tag') + ' ' + 
+            getAttDec(crumbs[i], 'data-filter-op') + ' \'' + 
+            escapeMPD(getAttDec(crumbs[i], 'data-filter-value')) + '\')';
     }
     if (x !== '') {
         if (expression !== '') {
             expression += ' AND ';
         }
-        let match = document.getElementById('searchDatabaseMatch');
-        expression += '(' + app.current.filter + ' ' + match.options[match.selectedIndex].value + ' \'' + escapeMPD(x) +'\')';
+        expression += '(' + app.current.filter + ' ' + getSelectValue(document.getElementById('searchDatabaseMatch')) + ' \'' + escapeMPD(x) +'\')';
     }
     
     if (expression.length <= 2) {

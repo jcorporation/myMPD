@@ -24,22 +24,22 @@ function initScripts() {
         event.stopPropagation();
         event.preventDefault();
         if (event.target.nodeName === 'TD') {
-            if (settings.featScripteditor === false || event.target.parentNode.getAttribute('data-script') === '') {
+            if (settings.featScripteditor === false || getAttDec(event.target.parentNode, 'data-script') === '') {
                 return false;
             }
-            showEditScript(decodeURI(event.target.parentNode.getAttribute('data-script')));
+            showEditScript(getAttDec(event.target.parentNode, 'data-script'));
         }
         else if (event.target.nodeName === 'A') {
-            let action = event.target.getAttribute('data-action');
-            let script = decodeURI(event.target.parentNode.parentNode.getAttribute('data-script'));
+            let action = getAttDec(event.target, 'data-action');
+            let script = getAttDec(event.target.parentNode.parentNode, 'data-script');
             if (action === 'delete') {
                 deleteScript(script);
             }
             else if (action === 'execute') {
-                execScript(event.target.getAttribute('data-href'));
+                execScript(getAttDec(event.target, 'data-href'));
             }
             else if (action === 'add2home') {
-                addScriptToHome(script, event.target.getAttribute('data-href'))
+                addScriptToHome(script, getAttDec(event.target, 'data-href'))
             }
         }
     }, false);
@@ -153,7 +153,7 @@ function getScriptList(all) {
 
 function parseScriptList(obj) {
     let timerActions = document.createElement('optgroup');
-    timerActions.setAttribute('data-value', 'script');
+    setAttEnc(timerActions, 'data-value', 'script');
     timerActions.setAttribute('label', t('Script'));
     let scriptMaxListLen = 4;
     let scriptListMain = ''; //list in main menu
