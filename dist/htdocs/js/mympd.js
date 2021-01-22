@@ -437,7 +437,7 @@ function initBrowse() {
         }
     }, false);
 
-    document.getElementById('searchDatabaseMatch').addEventListener('change', function(event) {
+    document.getElementById('searchDatabaseMatch').addEventListener('change', function() {
         searchAlbumgrid(document.getElementById('searchDatabaseStr').value);
     });
 
@@ -1136,7 +1136,7 @@ function initHome() {
         event.stopPropagation();
     }, false);
     
-    document.getElementById('searchHomeIconCat').addEventListener('change', function(event) {
+    document.getElementById('searchHomeIconCat').addEventListener('change', function() {
         filterHomeIconLigatures();
     }, false);
     
@@ -4057,7 +4057,7 @@ function parseSmartPlaylist(obj) {
 //eslint-disable-next-line no-unused-vars
 function saveSmartPlaylist() {
     let name = document.getElementById('saveSmartPlaylistName').value;
-    let type = gettAttDec(document.getElementById('saveSmartPlaylistType'), 'data-value');
+    let type = getAttDec(document.getElementById('saveSmartPlaylistType'), 'data-value');
     let sort = getSelectValue('saveSmartPlaylistSort');
     if (validatePlname(name) === true) {
         if (type === 'search') {
@@ -4127,7 +4127,7 @@ function addSmartpls(type) {
 function deletePlaylists() {
     btnWaiting(document.getElementById('btnDeletePlaylists'), true);
     sendAPI("MPD_API_PLAYLIST_RM_ALL", {"type": getSelectValue('selectDeletePlaylists')}, function() {
-        btnWaiting(btnDeletePlaylists, false);
+        btnWaiting(document.getElementById('btnDeletePlaylists'), false);
     });
 }
 
@@ -5729,10 +5729,10 @@ function parseSettings() {
         if (advancedSettingsDefault[key].inputType === 'select') {
             advFrm += '<select id="inputAdvSetting' + r(key) + '" data-key="' + 
                 r(key) + '" class="form-control border-secondary custom-select">';
-            for (let i = 0; i < advancedSettingsDefault[key].validValues.length; i++) {
-                advFrm += '<option value="' + e(advancedSettingsDefault[key].validValues[i]) + '"' +
-                    (settings.advanced[key] === advancedSettingsDefault[key].validValues[i] ? ' selected' : '') +
-                    '>' + t(advancedSettingsDefault[key].validValues[i]) + '</option>';
+            for (let j = 0; j < advancedSettingsDefault[key].validValues.length; j++) {
+                advFrm += '<option value="' + e(advancedSettingsDefault[key].validValues[j]) + '"' +
+                    (settings.advanced[key] === advancedSettingsDefault[key].validValues[j] ? ' selected' : '') +
+                    '>' + t(advancedSettingsDefault[key].validValues[j]) + '</option>';
             }
             advFrm += '</select>';
         }
@@ -5742,7 +5742,7 @@ function parseSettings() {
         }
         advFrm +=   '</div>' +
                   '</div>';
-    };
+    }
     document.getElementById('AdvancedSettingsFrm').innerHTML = advFrm;
     
     //parse mpd settings if connected
@@ -6877,7 +6877,7 @@ function isCoverfile(uri) {
 }
 
 function getLyrics(uri, el) {
-    if (isValidUri(uri) === false || isStreamUri(uri) == true) {
+    if (isValidUri(uri) === false || isStreamUri(uri) === true) {
         el.innerHTML = t('No lyrics found');
         return;
     }
@@ -8240,13 +8240,14 @@ function saveTimer() {
     }
     const selectTimerAction  = document.getElementById('selectTimerAction');
     const jukeboxMode = getAttDec(document.getElementById('btnTimerJukeboxModeGroup').getElementsByClassName('active')[0], 'data-value');
+    const selectTimerPlaylist = getSelectValue('selectTimerPlaylist');
 
     if (selectTimerAction.selectedIndex === -1) {
         formOK = false;
         selectTimerAction.classList.add('is-invalid');
     }
 
-    if (jukeboxMode === '0' && getSelectValue('selectTimerPlaylist') === 'Database'&& getSelectValue(selectTimerAction) === 'startplay') {
+    if (jukeboxMode === '0' &&  selectTimerPlaylist === 'Database'&& getSelectValue(selectTimerAction) === 'startplay') {
         formOK = false;
         document.getElementById('btnTimerJukeboxModeGroup').classList.add('is-invalid');
     }
@@ -8267,7 +8268,7 @@ function saveTimer() {
             "action": getAttDec(selectTimerAction.options[selectTimerAction.selectedIndex].parentNode, 'data-value'),
             "subaction": getSelectValue(selectTimerAction),
             "volume": parseInt(document.getElementById('inputTimerVolume').value), 
-            "playlist": getSelectValue(selectTimerPlaylist),
+            "playlist": selectTimerPlaylist,
             "jukeboxMode": parseInt(jukeboxMode),
             "arguments": args
             }, showListTimer);
