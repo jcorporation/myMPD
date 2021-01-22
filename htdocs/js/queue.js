@@ -50,7 +50,7 @@ function initQueue() {
     }, false);
 
     document.getElementById('selectAddToQueueMode').addEventListener('change', function () {
-        let value = this.options[this.selectedIndex].value;
+        let value = getSelectValue(this);
         if (value === '2') {
             disableEl('inputAddToQueueQuantity');
             document.getElementById('inputAddToQueueQuantity').value = '1';
@@ -353,16 +353,13 @@ function replaceQueue(type, uri, name) {
 //eslint-disable-next-line no-unused-vars
 function addToQueue() {
     let formOK = true;
-    let inputAddToQueueQuantityEl = document.getElementById('inputAddToQueueQuantity');
+    const inputAddToQueueQuantityEl = document.getElementById('inputAddToQueueQuantity');
     if (!validateInt(inputAddToQueueQuantityEl)) {
         formOK = false;
     }
     
-    let selectAddToQueueMode = document.getElementById('selectAddToQueueMode');
-    let jukeboxMode = selectAddToQueueMode.options[selectAddToQueueMode.selectedIndex].value
-
-    let selectAddToQueuePlaylist = document.getElementById('selectAddToQueuePlaylist');
-    let jukeboxPlaylist = selectAddToQueuePlaylist.options[selectAddToQueuePlaylist.selectedIndex].value;
+    const jukeboxMode = getSelectValue('selectAddToQueueMode');
+    const jukeboxPlaylist = getSelectValue('selectAddToQueuePlaylist');
     
     if (jukeboxMode === '1' && settings.featSearchwindow === false && jukeboxPlaylist === 'Database') {
         document.getElementById('warnJukeboxPlaylist2').classList.remove('hide');

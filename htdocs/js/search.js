@@ -127,8 +127,7 @@ function doSearch(x) {
             }
         }
         if (x !== '') {
-            let match = document.getElementById('searchMatch');
-            expression += '(' + app.current.filter + ' ' + match.options[match.selectedIndex].value + ' \'' + escapeMPD(x) +'\'))';
+            expression += '(' + app.current.filter + ' ' + getSelectValue('searchMatch') + ' \'' + escapeMPD(x) +'\'))';
         }
         else {
             expression += ')';

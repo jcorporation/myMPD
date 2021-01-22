@@ -17,7 +17,7 @@ function initPlaylists() {
     });
     
     document.getElementById('addToPlaylistPlaylist').addEventListener('change', function () {
-        if (this.options[this.selectedIndex].value === 'new') {
+        if (getSelectValue(this) === 'new') {
             document.getElementById('addToPlaylistNewPlaylistDiv').classList.remove('hide');
             document.getElementById('addToPlaylistNewPlaylist').focus();
         }
@@ -295,18 +295,15 @@ function parseSmartPlaylist(obj) {
 function saveSmartPlaylist() {
     let name = document.getElementById('saveSmartPlaylistName').value;
     let type = gettAttDec(document.getElementById('saveSmartPlaylistType'), 'data-value');
-    let sortEl = document.getElementById('saveSmartPlaylistSort');
-    let sort = sortEl.options[sortEl.selectedIndex].value;
+    let sort = getSelectValue('saveSmartPlaylistSort');
     if (validatePlname(name) === true) {
         if (type === 'search') {
-            let tagEl = document.getElementById('selectSaveSmartPlaylistTag');
-            let tag = tagEl.options[tagEl.selectedIndex].value;
+            let tag = getSelectValue('selectSaveSmartPlaylistTag');
             let searchstr = document.getElementById('inputSaveSmartPlaylistSearchstr').value;
             sendAPI("MPD_API_SMARTPLS_SAVE", {"type": type, "playlist": name, "tag": tag, "searchstr": searchstr, "sort": sort});
         }
         else if (type === 'sticker') {
-            let stickerEl = document.getElementById('selectSaveSmartPlaylistSticker');
-            let sticker = stickerEl.options[stickerEl.selectedIndex].value;
+            let sticker = getSelectValue('selectSaveSmartPlaylistSticker'); 
             let maxentriesEl = document.getElementById('inputSaveSmartPlaylistStickerMaxentries');
             if (!validateInt(maxentriesEl)) {
                 return;
@@ -365,10 +362,8 @@ function addSmartpls(type) {
 
 //eslint-disable-next-line no-unused-vars
 function deletePlaylists() {
-    let selectDeletePlaylists = document.getElementById('selectDeletePlaylists');
-    let btnDeletePlaylists = document.getElementById('btnDeletePlaylists');
-    btnWaiting(btnDeletePlaylists, true);
-    sendAPI("MPD_API_PLAYLIST_RM_ALL", {"type": selectDeletePlaylists.options[selectDeletePlaylists.selectedIndex].value}, function() {
+    btnWaiting(document.getElementById('btnDeletePlaylists'), true);
+    sendAPI("MPD_API_PLAYLIST_RM_ALL", {"type": getSelectValue('selectDeletePlaylists')}, function() {
         btnWaiting(btnDeletePlaylists, false);
     });
 }
@@ -429,8 +424,7 @@ function addToPlaylist() {
             return;
         }
     }
-    let plistEl = document.getElementById('addToPlaylistPlaylist');
-    let plist = plistEl.options[plistEl.selectedIndex].value;
+    let plist = getSelectValue('addToPlaylistPlaylist');
     if (plist === 'new') {
         let newPl = document.getElementById('addToPlaylistNewPlaylist').value;
         if (validatePlname(newPl) === true) {

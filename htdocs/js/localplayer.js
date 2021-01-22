@@ -37,11 +37,11 @@ function initLocalplayer() {
 function setLocalPlayerUrl() {
     if (window.location.protocol === 'https:') {
         document.getElementById('infoLocalplayer').classList.remove('hide');
-        setAttEnc(document.getElementById('selectStreamMode').options[0], 'data-phrase','HTTPS Port');
+        document.getElementById('selectStreamMode').options[0].setAttribute('data-phrase','HTTPS Port');
     }
     else {
         document.getElementById('infoLocalplayer').classList.add('hide');
-        setAttEnc(document.getElementById('selectStreamMode').options[0], 'data-phrase', 'HTTP Port');
+        document.getElementById('selectStreamMode').options[0].setAttribute('data-phrase', 'HTTP Port');
     }
     if (settings.streamUrl === '') {
         settings.mpdstream = window.location.protocol + '//';

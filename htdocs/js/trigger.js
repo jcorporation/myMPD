@@ -88,8 +88,7 @@ function parseTriggerEdit(obj) {
 }
 
 function selectTriggerActionChange(values) {
-    let el = document.getElementById('selectTriggerScript');
-    showTriggerScriptArgs(el.options[el.selectedIndex], values);
+    showTriggerScriptArgs(getSelectValue('selectTriggerScript'), values);
 }
 
 function showTriggerScriptArgs(option, values) {

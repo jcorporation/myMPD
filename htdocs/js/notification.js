@@ -94,7 +94,7 @@ function logMessage(notificationTitle, notificationText, notificationHtml, notif
     let append = true;
     let lastEntry = overview.firstElementChild;
     if (lastEntry) {
-        if (getAttrDec(lastEntry, 'data-title') === notificationTitle) {
+        if (getAttDec(lastEntry, 'data-title') === notificationTitle) {
             append = false;        
         }
     }

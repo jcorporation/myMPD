@@ -76,7 +76,8 @@ function initBrowse() {
     document.getElementById('searchDatabaseTags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
             app.current.filter = getAttDec(event.target, 'data-tag');
-            appGoto(app.current.app, app.current.tab, app.current.view, '0', app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search);
+            searchAlbumgrid(document.getElementById('searchDatabaseStr').value);
+            //appGoto(app.current.app, app.current.tab, app.current.view, '0', app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search);
         }
     }, false);
     
@@ -166,9 +167,13 @@ function initBrowse() {
         }
         else {
             appGoto(app.current.app, app.current.tab, app.current.view, 
-                '0', app.current.limit, app.current.filter, app.current.sort, app.current.tag, this.value);        
+                '0', app.current.limit, app.current.filter, app.current.sort, app.current.tag, this.value);
         }
     }, false);
+
+    document.getElementById('searchDatabaseMatch').addEventListener('change', function(event) {
+        searchAlbumgrid(document.getElementById('searchDatabaseStr').value);
+    });
 
     document.getElementById('searchDatabaseCrumb').addEventListener('click', function(event) {
         if (event.target.nodeName === 'SPAN') {

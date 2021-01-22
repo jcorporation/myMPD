@@ -39,7 +39,7 @@ function clickPlaylist(uri, name) {
 }
 
 function clickFolder(uri, name) {
-    switch (settings.advanced.clickPlaylist) {
+    switch (settings.advanced.clickFolder) {
         case 'append': return appendQueue('dir', uri, name);
         case 'replace': return replaceQueue('dir', uri, name);
         case 'view': 
@@ -68,6 +68,9 @@ function unescapeMPD(x) {
 
 //get and set attributes url encoded
 function setAttEnc(el, attribute, value) {
+    if (typeof el === 'string') {
+        el = document.getElementById(el);
+    }
     el.setAttribute(attribute, encodeURI(value));
 }
 
@@ -99,7 +102,7 @@ function getSelectValue(el) {
         el = document.getElementById(el);
     }
     if (el && el.selectedIndex >= 0) {
-        return getAttDec(el.options[el.selectedIndex], value);
+        return getAttDec(el.options[el.selectedIndex], 'value');
     }
     return undefined;
 }
@@ -201,7 +204,7 @@ function selectTag(btnsEl, desc, setTo) {
             const descEl = document.getElementById(desc);
             if (descEl !== null) {
                 descEl.innerText = aBtn.innerText;
-                setAttEnc(descEl, 'data-phrase', aBtn.innerText);
+                descEl.setAttribute('data-phrase', aBtn.innerText);
             }
         }
     }

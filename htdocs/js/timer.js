@@ -67,12 +67,12 @@ function toggleTimer(target, timerid) {
 //eslint-disable-next-line no-unused-vars
 function saveTimer() {
     let formOK = true;
-    let nameEl = document.getElementById('inputTimerName');
+    const nameEl = document.getElementById('inputTimerName');
     if (!validateNotBlank(nameEl)) {
         formOK = false;
     }
     let minOneDay = false;
-    let weekdayBtns = ['btnTimerMon', 'btnTimerTue', 'btnTimerWed', 'btnTimerThu', 'btnTimerFri', 'btnTimerSat', 'btnTimerSun'];
+    const weekdayBtns = ['btnTimerMon', 'btnTimerTue', 'btnTimerWed', 'btnTimerThu', 'btnTimerFri', 'btnTimerSat', 'btnTimerSun'];
     let weekdays = [];
     for (let i = 0; i < weekdayBtns.length; i++) {
         let checked = document.getElementById(weekdayBtns[i]).classList.contains('active') ? true : false;
@@ -88,21 +88,15 @@ function saveTimer() {
     else {
         document.getElementById('invalidTimerWeekdays').style.display = 'none';
     }
-    let selectTimerAction = document.getElementById('selectTimerAction');
-    let selectTimerPlaylist = document.getElementById('selectTimerPlaylist');
-    let selectTimerHour = document.getElementById('selectTimerHour');
-    let selectTimerMinute = document.getElementById('selectTimerMinute');
-    let jukeboxMode = getAttDec(document.getElementById('btnTimerJukeboxModeGroup').getElementsByClassName('active')[0], 'data-value');
+    const selectTimerAction  = document.getElementById('selectTimerAction');
+    const jukeboxMode = getAttDec(document.getElementById('btnTimerJukeboxModeGroup').getElementsByClassName('active')[0], 'data-value');
 
     if (selectTimerAction.selectedIndex === -1) {
         formOK = false;
         selectTimerAction.classList.add('is-invalid');
     }
 
-    if (jukeboxMode === '0' &&
-        selectTimerPlaylist.options[selectTimerPlaylist.selectedIndex].value === 'Database'&&
-        selectTimerAction.options[selectTimerAction.selectedIndex].value === 'startplay')
-    {
+    if (jukeboxMode === '0' && getSelectValue('selectTimerPlaylist') === 'Database'&& getSelectValue(selectTimerAction) === 'startplay') {
         formOK = false;
         document.getElementById('btnTimerJukeboxModeGroup').classList.add('is-invalid');
     }
@@ -110,15 +104,15 @@ function saveTimer() {
     if (formOK === true) {
         let args = {};
         let argEls = document.getElementById('timerActionScriptArguments').getElementsByTagName('input');
-        for (let i = 0; i < argEls.length; i ++) {
+        for (let i = 0; i < argEls.length; i++) {
             args[getAttDec(argEls[i], 'data-name')] = argEls[i].value;
         }
         sendAPI("MYMPD_API_TIMER_SAVE", {
             "timerid": parseInt(document.getElementById('inputTimerId').value),
             "name": nameEl.value,
             "enabled": (document.getElementById('btnTimerEnabled').classList.contains('active') ? true : false),
-            "startHour": parseInt(getSelectValue(selectTimerHour)),
-            "startMinute": parseInt(getSelectValue(selectTimerMinute)),
+            "startHour": parseInt(getSelectValue('selectTimerHour')),
+            "startMinute": parseInt(getSelectValue('selectTimerMinute')),
             "weekdays": weekdays,
             "action": getAttDec(selectTimerAction.options[selectTimerAction.selectedIndex].parentNode, 'data-value'),
             "subaction": getSelectValue(selectTimerAction),
@@ -189,7 +183,7 @@ function parseEditTimer(obj) {
 function selectTimerActionChange(values) {
     let el = document.getElementById('selectTimerAction');
     
-    if (el.options[el.selectedIndex].value === 'startplay') {
+    if (getSelectValue(el) === 'startplay') {
         document.getElementById('timerActionPlay').classList.remove('hide');
         document.getElementById('timerActionScript').classList.add('hide');
     }
