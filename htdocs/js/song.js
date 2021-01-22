@@ -202,7 +202,7 @@ function isCoverfile(uri) {
 }
 
 function getLyrics(uri, el) {
-    if (isValidUri(uri) === false || isStreamUri(uri) == true) {
+    if (isValidUri(uri) === false || isStreamUri(uri) === true) {
         el.innerHTML = t('No lyrics found');
         return;
     }

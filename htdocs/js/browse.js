@@ -171,7 +171,7 @@ function initBrowse() {
         }
     }, false);
 
-    document.getElementById('searchDatabaseMatch').addEventListener('change', function(event) {
+    document.getElementById('searchDatabaseMatch').addEventListener('change', function() {
         searchAlbumgrid(document.getElementById('searchDatabaseStr').value);
     });
 

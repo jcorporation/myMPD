@@ -85,7 +85,7 @@ function initHome() {
         event.stopPropagation();
     }, false);
     
-    document.getElementById('searchHomeIconCat').addEventListener('change', function(event) {
+    document.getElementById('searchHomeIconCat').addEventListener('change', function() {
         filterHomeIconLigatures();
     }, false);
     

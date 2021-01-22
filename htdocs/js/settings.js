@@ -286,10 +286,10 @@ function parseSettings() {
         if (advancedSettingsDefault[key].inputType === 'select') {
             advFrm += '<select id="inputAdvSetting' + r(key) + '" data-key="' + 
                 r(key) + '" class="form-control border-secondary custom-select">';
-            for (let i = 0; i < advancedSettingsDefault[key].validValues.length; i++) {
-                advFrm += '<option value="' + e(advancedSettingsDefault[key].validValues[i]) + '"' +
-                    (settings.advanced[key] === advancedSettingsDefault[key].validValues[i] ? ' selected' : '') +
-                    '>' + t(advancedSettingsDefault[key].validValues[i]) + '</option>';
+            for (let j = 0; j < advancedSettingsDefault[key].validValues.length; j++) {
+                advFrm += '<option value="' + e(advancedSettingsDefault[key].validValues[j]) + '"' +
+                    (settings.advanced[key] === advancedSettingsDefault[key].validValues[j] ? ' selected' : '') +
+                    '>' + t(advancedSettingsDefault[key].validValues[j]) + '</option>';
             }
             advFrm += '</select>';
         }
@@ -299,7 +299,7 @@ function parseSettings() {
         }
         advFrm +=   '</div>' +
                   '</div>';
-    };
+    }
     document.getElementById('AdvancedSettingsFrm').innerHTML = advFrm;
     
     //parse mpd settings if connected

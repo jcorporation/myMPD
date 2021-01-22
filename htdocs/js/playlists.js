@@ -294,7 +294,7 @@ function parseSmartPlaylist(obj) {
 //eslint-disable-next-line no-unused-vars
 function saveSmartPlaylist() {
     let name = document.getElementById('saveSmartPlaylistName').value;
-    let type = gettAttDec(document.getElementById('saveSmartPlaylistType'), 'data-value');
+    let type = getAttDec(document.getElementById('saveSmartPlaylistType'), 'data-value');
     let sort = getSelectValue('saveSmartPlaylistSort');
     if (validatePlname(name) === true) {
         if (type === 'search') {
@@ -364,7 +364,7 @@ function addSmartpls(type) {
 function deletePlaylists() {
     btnWaiting(document.getElementById('btnDeletePlaylists'), true);
     sendAPI("MPD_API_PLAYLIST_RM_ALL", {"type": getSelectValue('selectDeletePlaylists')}, function() {
-        btnWaiting(btnDeletePlaylists, false);
+        btnWaiting(document.getElementById('btnDeletePlaylists'), false);
     });
 }
 
