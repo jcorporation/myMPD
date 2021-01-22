@@ -149,6 +149,7 @@ typedef struct t_config {
     sds vorbis_uslt;
     sds sylt_ext;
     sds uslt_ext;
+    unsigned binarylimit;
     //system commands
     struct list syscmd_list;
 } t_config;

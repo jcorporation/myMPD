@@ -55,6 +55,9 @@ static int mympd_inihandler(void *user, const char *section, const char *name, c
     else if (MATCH("mpd", "regex")) {
         p_config->regex = strtobool(value);
     }
+    else if (MATCH("mpd", "binarylimit")) {
+        p_config->binarylimit = strtoumax(value, &crap, 10);
+    }
     else if (MATCH("webserver", "webport")) {
         p_config->webport = sdsreplace(p_config->webport, value);
     }
@@ -359,8 +362,8 @@ static void mympd_parse_env(struct t_config *config, const char *envvar) {
 
 static void mympd_get_env(struct t_config *config) {
     const char *env_vars[]={"MPD_HOST", "MPD_PORT", "MPD_PASS", "MPD_MUSICDIRECTORY",
-        "MPD_PLAYLISTDIRECTORY", "MPD_REGEX", "WEBSERVER_WEBPORT", "WEBSERVER_PUBLISH",
-        "WEBSERVER_WEBDAV", "WEBSERVER_ACL", 
+        "MPD_PLAYLISTDIRECTORY", "MPD_REGEX", "MPD_BINARYLIMIT",
+        "WEBSERVER_WEBPORT", "WEBSERVER_PUBLISH", "WEBSERVER_WEBDAV", "WEBSERVER_ACL", 
       #ifdef ENABLE_LUA
         "WEBSERVER_SCRIPTACL",
       #endif
@@ -456,6 +459,8 @@ void mympd_config_defaults(t_config *config) {
     config->mpd_host = sdsnew("/run/mpd/socket");
     config->mpd_port = 6600;
     config->mpd_pass = sdsempty();
+    config->regex = true;
+    config->binarylimit = 16384;
     config->music_directory = sdsnew("auto");
     config->playlist_directory = sdsnew("/var/lib/mpd/playlists");
     config->webport = sdsnew("80");
@@ -527,7 +532,6 @@ void mympd_config_defaults(t_config *config) {
     config->theme = sdsnew("theme-dark");
     config->highlight_color = sdsnew("#28a745");
     config->custom_placeholder_images = false;
-    config->regex = true;
     config->timer = true;
     config->sticker_cache = true;
     config->booklet_name = sdsnew("booklet.pdf");
@@ -571,12 +575,15 @@ bool mympd_dump_config(void) {
         "#pass = \n"
         "musicdirectory = %s\n"
         "playlistdirectory = %s\n"
-        "regex = %s\n\n",
+        "regex = %s\n"
+        "binarylimit = %u\n"
+        "\n",
         p_config->mpd_host,
         p_config->mpd_port,
         p_config->music_directory,
         p_config->playlist_directory,
-        (p_config->regex == true ? "true" : "false")
+        (p_config->regex == true ? "true" : "false"),
+        p_config->binarylimit
     );
     
     fprintf(fp, "[webserver]\n"
