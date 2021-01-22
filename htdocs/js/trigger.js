@@ -88,14 +88,15 @@ function parseTriggerEdit(obj) {
 }
 
 function selectTriggerActionChange(values) {
-    showTriggerScriptArgs(getSelectValue('selectTriggerScript'), values);
+    const el = document.getElementById('selectTriggerScript');
+    showTriggerScriptArgs(el.options[el.selectedIndex], values);
 }
 
 function showTriggerScriptArgs(option, values) {
     if (values === undefined) {
         values = {};
     }
-    let args = JSON.parse(option.getAttribute('data-arguments'));
+    let args = JSON.parse(getAttDec(option, 'data-arguments'));
     let list = '';
     for (let i = 0; i < args.arguments.length; i++) {
         list += '<div class="form-group row">' +
