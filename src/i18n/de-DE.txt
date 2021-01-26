@@ -1707,3 +1707,21 @@ Wartung
 
 Album cache is NULL
 Album Cache ist leer
+
+Click album play button
+Klick auf Album abspielen
+
+Click folder
+Click auf Verzeichnis
+
+Click playlist
+Click auf Wiedergabeliste
+
+Click song in queue
+Click auf Lied in Warteschlange
+
+Click song
+Click auf ein Lied
+
+Play
+Abspielen

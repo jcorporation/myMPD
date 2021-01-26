@@ -54,3 +54,9 @@ Offset
 Sort
 Tab
 Open parent folder
+Click album play button
+Click folder
+Click playlist
+Click song in queue
+Click song
+Play
