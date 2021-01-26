@@ -174,7 +174,7 @@ function dragAndDropTable(table) {
     }, false);
     tableBody.addEventListener('dragleave', function(event) {
         event.preventDefault();
-        if (dragEl.nodeName !== 'TR') {
+        if (dragEl === undefined || dragEl.nodeName !== 'TR') {
             return;
         }
         let target = event.target;
@@ -187,7 +187,7 @@ function dragAndDropTable(table) {
     }, false);
     tableBody.addEventListener('dragover', function(event) {
         event.preventDefault();
-        if (dragEl.nodeName !== 'TR') {
+        if (dragEl === undefined || dragEl.nodeName !== 'TR') {
             return;
         }
         let tr = tableBody.getElementsByClassName('dragover');
@@ -206,7 +206,7 @@ function dragAndDropTable(table) {
     }, false);
     tableBody.addEventListener('dragend', function(event) {
         event.preventDefault();
-        if (dragEl.nodeName !== 'TR') {
+        if (dragEl === undefined || dragEl.nodeName !== 'TR') {
             return;
         }
         let tr = tableBody.getElementsByClassName('dragover');
@@ -217,11 +217,12 @@ function dragAndDropTable(table) {
         if (document.getElementById(event.dataTransfer.getData('Text'))) {
             document.getElementById(event.dataTransfer.getData('Text')).classList.remove('opacity05');
         }
+        dragEl = undefined;
     }, false);
     tableBody.addEventListener('drop', function(event) {
         event.stopPropagation();
         event.preventDefault();
-        if (dragEl.nodeName !== 'TR') {
+        if (dragEl === undefined || dragEl.nodeName !== 'TR') {
             return;
         }
         let target = event.target;
@@ -269,7 +270,7 @@ function dragAndDropTableHeader(table) {
     }, false);
     tableHeader.addEventListener('dragleave', function(event) {
         event.preventDefault();
-        if (dragEl.nodeName !== 'TH') {
+        if (dragEl === undefined || dragEl.nodeName !== 'TH') {
             return;
         }
         if (event.target.nodeName === 'TH') {
@@ -278,7 +279,7 @@ function dragAndDropTableHeader(table) {
     }, false);
     tableHeader.addEventListener('dragover', function(event) {
         event.preventDefault();
-        if (dragEl.nodeName !== 'TH') {
+        if (dragEl === undefined || dragEl.nodeName !== 'TH') {
             return;
         }
         let th = tableHeader.getElementsByClassName('dragover-th');
@@ -293,7 +294,7 @@ function dragAndDropTableHeader(table) {
     }, false);
     tableHeader.addEventListener('dragend', function(event) {
         event.preventDefault();
-        if (dragEl.nodeName !== 'TH') {
+        if (dragEl === undefined || dragEl.nodeName !== 'TH') {
             return;
         }
         let th = tableHeader.getElementsByClassName('dragover-th');
@@ -304,11 +305,12 @@ function dragAndDropTableHeader(table) {
         if (this.querySelector('[data-col=' + event.dataTransfer.getData('Text') + ']')) {
             this.querySelector('[data-col=' + event.dataTransfer.getData('Text') + ']').classList.remove('opacity05');
         }
+        dragEl = undefined;
     }, false);
     tableHeader.addEventListener('drop', function(event) {
         event.stopPropagation();
         event.preventDefault();
-        if (dragEl.nodeName !== 'TH') {
+        if (dragEl === undefined || dragEl.nodeName !== 'TH') {
             return;
         }
         this.querySelector('[data-col=' + event.dataTransfer.getData('Text') + ']').remove();
@@ -355,7 +357,6 @@ function setColTags(table) {
             tags.push('Lyrics');
         }
     }
-    
     tags.sort();
     return tags;
 }
@@ -421,7 +422,6 @@ function setCols(table) {
         else {
             heading += '<th></th>';
         }
-
         document.getElementById(table + 'List').getElementsByTagName('tr')[0].innerHTML = heading;
     }
 }
