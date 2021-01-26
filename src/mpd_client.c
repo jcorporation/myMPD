@@ -286,6 +286,8 @@ static void mpd_client_idle(t_config *config, t_mpd_client_state *mpd_client_sta
             reset_t_tags(&mpd_client_state->mpd_state->mpd_tag_types);
             //get mpd features
             mpd_client_mpd_features(config, mpd_client_state);
+            //set binarylimit
+            mpd_client_set_binarylimit(config, mpd_client_state);
             //update sticker cache
             sticker_cache_init(config, mpd_client_state);
             //update album cache

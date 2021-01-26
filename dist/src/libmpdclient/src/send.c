@@ -185,6 +185,17 @@ mpd_send_float_command(struct mpd_connection *connection, const char *command,
 }
 
 bool
+mpd_send_u_command(struct mpd_connection *connection, const char *command,
+		     unsigned arg1)
+{
+	char arg1_string[INTLEN];
+
+	snprintf(arg1_string, sizeof(arg1_string), "%u", arg1);
+	return mpd_send_command(connection, command,
+				arg1_string, NULL);
+}
+
+bool
 mpd_send_u_f_command(struct mpd_connection *connection, const char *command,
 		     unsigned arg1, float arg2)
 {

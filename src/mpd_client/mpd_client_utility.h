@@ -113,4 +113,5 @@ void free_mpd_client_state(t_mpd_client_state *mpd_client_state);
 void default_mpd_client_state(t_mpd_client_state *mpd_client_state);
 bool is_smartpls(t_config *config, t_mpd_client_state *mpd_client_state, const char *plpath);
 sds put_extra_files(t_mpd_client_state *mpd_client_state, sds buffer, const char *uri, bool is_dirname);
+bool mpd_client_set_binarylimit(t_config *config, t_mpd_client_state *mpd_client_state);
 #endif

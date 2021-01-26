@@ -246,6 +246,7 @@ endif()
 
 set(LIBMPDCLIENT_SOURCES
   dist/src/libmpdclient/src/albumart.c
+  dist/src/libmpdclient/src/binary.c
   dist/src/libmpdclient/src/async.c
   dist/src/libmpdclient/src/audio_format.c
   dist/src/libmpdclient/src/capabilities.c

@@ -13,10 +13,6 @@
    notice, this list of conditions and the following disclaimer in the
    documentation and/or other materials provided with the distribution.
 
-   - Neither the name of the Music Player Daemon nor the names of its
-   contributors may be used to endorse or promote products derived from
-   this software without specific prior written permission.
-
    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
    ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -30,44 +26,22 @@
    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/*! \file
- * \brief MPD client library
- *
- * Do not include this header directly.  Use mpd/client.h instead.
- */
+#include <mpd/binary.h>
+#include <mpd/send.h>
+#include <mpd/response.h>
+#include "isend.h"
+#include "run.h"
 
-#ifndef MPD_BINARY_H
-#define MPD_BINARY_H
-
-#include <stdbool.h>
-
-struct mpd_connection;
-
-/**
- * Sends the "binarylimit" command to MPD.
- *
- * @param connection a valid and connected mpd_connection.
- * @param limit the binary chunk size limit.
- * @return true on success
- *
- * @since libmpdclient 2.20, MPD 0.22.4
- */
 bool
-mpd_send_binarylimit(struct mpd_connection *connection,
-           unsigned limit);
+mpd_send_binarylimit(struct mpd_connection *connection, unsigned limit)
+{
+	return mpd_send_u_command(connection, "binarylimit", limit);
+}
 
-/**
- * Shortcut for mpd_send_binarylimit() and mpd_response_finish().
- *
- * @param connection A valid and connected mpd_connection.
- * @param limit the binary chunk size limit.
- * @return true on success
- *
- * @since libmpdclient 2.20, MPD 0.22.4
- */
 bool
-mpd_run_binarylimit(struct mpd_connection *connection,
-          unsigned limit);
-
-
-#endif
+mpd_run_binarylimit(struct mpd_connection *connection, unsigned limit)
+{
+    return mpd_run_check(connection) &&
+        mpd_send_binarylimit(connection, limit) &&
+        mpd_response_finish(connection);
+}

@@ -1,22 +1,18 @@
+
 /* libmpdclient
    (c) 2003-2019 The Music Player Daemon Project
    This project's homepage is: http://www.musicpd.org
-
    Redistribution and use in source and binary forms, with or without
    modification, are permitted provided that the following conditions
    are met:
-
    - Redistributions of source code must retain the above copyright
    notice, this list of conditions and the following disclaimer.
-
    - Redistributions in binary form must reproduce the above copyright
    notice, this list of conditions and the following disclaimer in the
    documentation and/or other materials provided with the distribution.
-
    - Neither the name of the Music Player Daemon nor the names of its
    contributors may be used to endorse or promote products derived from
    this software without specific prior written permission.
-
    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
    ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -44,21 +40,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include <mpd/binary.h>
-
 struct mpd_connection;
-
-struct mpd_albumart {
-        /** fixed size binary data buffer */
-        unsigned char data[MPD_BINARY_CHUNK_SIZE];
-
-        /** the size of the albumart */
-        size_t size;
-        
-        /** bytes in the binary data buffer */
-        size_t data_length;
-};
-
 
 #ifdef __cplusplus
 extern "C" {
@@ -82,11 +64,14 @@ mpd_send_albumart(struct mpd_connection *connection,
  * Receives the "albumart" response
  *
  * @param connection a valid and connected #mpd_connection
- * @param buffer a allocated struct mpd_albumart
- * @return true success
+ * @param buffer an allocated buffer
+ * @param buffer_size the allocated buffer size
+ * @return read size on success, -1 on failure
  */
-bool
-mpd_recv_albumart(struct mpd_connection *connection, struct mpd_albumart *buffer);
+int
+mpd_recv_albumart(struct mpd_connection *connection, 
+                  void *buffer,
+                  size_t buffer_size);
 
 /**
  * Shortcut for mpd_send_albumart(), mpd_recv_albumart() and
@@ -95,14 +80,16 @@ mpd_recv_albumart(struct mpd_connection *connection, struct mpd_albumart *buffer
  * @param connection a valid and connected #mpd_connection
  * @param uri the URI of the song
  * @param offset to read from
- * @param buffer a allocated struct mpd_albumart
- * @return true on success
+ * @param buffer an allocated buffer
+ * @param buffer_size the allocated buffer size
+ * @return read size on success, -1 on failure
  */
-bool
+int
 mpd_run_albumart(struct mpd_connection *connection,
 				   const char *uri,
 				   unsigned offset,
-				   struct mpd_albumart *buffer);
+				   void *buffer,
+				   size_t buffer_size);
 
 #ifdef __cplusplus
 }
