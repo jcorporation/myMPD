@@ -8,28 +8,52 @@
 var advancedSettingsDefault = {
     "clickSong": { 
         "defaultValue": "append", 
-        "validValues": [ "append", "replace", "view" ], 
-        "inputType": "select" 
+        "validValues": { 
+            "append": "Append to queue", 
+            "replace": "Replace queue", 
+            "view": "Song details"
+        }, 
+        "inputType": "select",
+        "title": "Click song"
+        
     },
     "clickQueueSong": { 
         "defaultValue": "play", 
-        "validValues": [ "play", "view" ], 
-        "inputType": "select" 
+        "validValues": {
+            "play": "Play", 
+            "view": "Song details",
+        },
+        "inputType": "select",
+        "title": "Click song in queue"
     },
     "clickPlaylist": { 
         "defaultValue": "append", 
-        "validValues": [ "append", "replace", "view" ], 
-        "inputType": "select" 
+        "validValues": {
+            "append": "Append to queue",
+            "replace": "Replace queue",
+            "view": "View playlist"
+        },
+        "inputType": "select",
+        "title": "Click playlist"
     },
     "clickFolder": { 
         "defaultValue": "view", 
-        "validValues": [ "append", "replace", "view" ],
-        "inputType": "select"
+        "validValues": {
+            "append": "Append to queue",
+            "replace": "Replace queue",
+            "view": "Open folder"
+        },
+        "inputType": "select",
+        "title": "Click folder"
     },
     "clickAlbumPlay": { 
         "defaultValue": "replace", 
-        "validValues": [ "append", "replace" ], 
-        "inputType": "select" 
+        "validValues": {
+            "append": "Append to queue",
+            "replace": "Replace queue",
+        },
+        "inputType": "select",
+        "title": "Click album play button"
     }
 };
 
@@ -281,15 +305,16 @@ function parseSettings() {
     for (let i = 0; i < advSettingsKeys.length; i++) {
         let key = advSettingsKeys[i];
         advFrm += '<div class="form-group row">' +
-                    '<label class="col-sm-4 col-form-label" for="inputAdvSetting' + r(key) + '" data-phrase="' + e(key) + '">' + t(key) + '</label>' +
+                    '<label class="col-sm-4 col-form-label" for="inputAdvSetting' + r(key) + '" data-phrase="' + 
+                    e(advancedSettingsDefault[key].title) + '">' + t(advancedSettingsDefault[key].title) + '</label>' +
                     '<div class="col-sm-8 ">';
         if (advancedSettingsDefault[key].inputType === 'select') {
             advFrm += '<select id="inputAdvSetting' + r(key) + '" data-key="' + 
                 r(key) + '" class="form-control border-secondary custom-select">';
-            for (let j = 0; j < advancedSettingsDefault[key].validValues.length; j++) {
-                advFrm += '<option value="' + e(advancedSettingsDefault[key].validValues[j]) + '"' +
-                    (settings.advanced[key] === advancedSettingsDefault[key].validValues[j] ? ' selected' : '') +
-                    '>' + t(advancedSettingsDefault[key].validValues[j]) + '</option>';
+            for (let value in advancedSettingsDefault[key].validValues) {
+                advFrm += '<option value="' + e(value) + '"' +
+                    (settings.advanced[key] === value ? ' selected' : '') +
+                    '>' + t(advancedSettingsDefault[key].validValues[value]) + '</option>';
             }
             advFrm += '</select>';
         }
