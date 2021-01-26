@@ -180,6 +180,7 @@ function parseQueue(obj) {
         document.getElementById('btnQueueGotoPlayingSong').parentNode.classList.add('hide');
     }
 
+    const rowTitle = advancedSettingsDefault.clickQueueSong.validValues[settings.advanced.clickQueueSong];
     let nrItems = obj.result.returnedEntities;
     let navigate = document.activeElement.parentNode.parentNode === table ? true : false;
     let activeRow = 0;
@@ -193,6 +194,7 @@ function parseQueue(obj) {
         row.setAttribute('draggable', 'true');
         row.setAttribute('id','queueTrackId' + obj.result.data[i].id);
         row.setAttribute('tabindex', 0);
+        row.setAttribute('title', t(rowTitle));
         setAttEnc(row, 'data-trackid', obj.result.data[i].id);
         setAttEnc(row, 'data-songpos', obj.result.data[i].Pos);
         setAttEnc(row, 'data-duration', obj.result.data[i].Duration);
@@ -232,7 +234,7 @@ function parseQueue(obj) {
 }
 
 function parseLastPlayed(obj) {
-    //document.getElementById('cardFooterQueue').innerText = t('Num songs', obj.result.totalEntities);
+    const rowTitle = advancedSettingsDefault.clickSong.validValues[settings.advanced.clickSong];
     let nrItems = obj.result.returnedEntities;
     let table = document.getElementById('QueueLastPlayedList');
     let navigate = document.activeElement.parentNode.parentNode === table ? true : false;
@@ -247,6 +249,7 @@ function parseLastPlayed(obj) {
         setAttEnc(row, 'data-name', obj.result.data[i].Title);
         setAttEnc(row, 'data-type', 'song');
         row.setAttribute('tabindex', 0);
+        row.setAttribute('title', t(rowTitle));
         let tds = '';
         for (let c = 0; c < settings.colsQueueLastPlayed.length; c++) {
             tds += '<td data-col="' + encodeURI(settings.colsQueueLastPlayed[c]) + '">' + e(obj.result.data[i][settings.colsQueueLastPlayed[c]]) + '</td>';

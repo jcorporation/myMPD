@@ -49,6 +49,7 @@ function initPlaylists() {
 }
 
 function parsePlaylists(obj) {
+
     if (app.current.view === 'All') {
         document.getElementById('BrowsePlaylistsAllList').classList.remove('hide');
         document.getElementById('BrowsePlaylistsDetailList').classList.add('hide');
@@ -86,12 +87,14 @@ function parsePlaylists(obj) {
     let navigate = document.activeElement.parentNode.parentNode === table ? true : false;
     let activeRow = 0;
     if (app.current.view === 'All') {
+        const rowTitle = advancedSettingsDefault.clickPlaylist.validValues[settings.advanced.clickPlaylist];
         for (let i = 0; i < nrItems; i++) {
             let row = document.createElement('tr');
             setAttEnc(row, 'data-uri', obj.result.data[i].uri);
             setAttEnc(row, 'data-type', obj.result.data[i].Type);
             setAttEnc(row, 'data-name', obj.result.data[i].name);
             row.setAttribute('tabindex', 0);
+            row.setAttribute('title', t(rowTitle));
             row.innerHTML = '<td data-col="Type"><span class="mi">' + (obj.result.data[i].Type === 'smartpls' ? 'queue_music' : 'list') + '</span></td>' +
                             '<td>' + e(obj.result.data[i].name) + '</td>' +
                             '<td>'+ localeDate(obj.result.data[i].last_modified) + '</td>' +
@@ -106,6 +109,7 @@ function parsePlaylists(obj) {
         //document.getElementById('cardFooterBrowse').innerText = gtPage('Num playlists', obj.result.returnedEntities, obj.result.totalEntities);
     }
     else if (app.current.view === 'Detail') {
+        const rowTitle = advancedSettingsDefault.clickSong.validValues[settings.advanced.clickSong];
         for (let i = 0; i < nrItems; i++) {
             let row = document.createElement('tr');
             if (obj.result.smartpls === false) {
@@ -117,6 +121,7 @@ function parsePlaylists(obj) {
             setAttEnc(row, 'data-name', obj.result.data[i].Title);
             setAttEnc(row, 'data-songpos', obj.result.data[i].Pos);
             row.setAttribute('tabindex', 0);
+            row.setAttribute('title', t(rowTitle));
             obj.result.data[i].Duration = beautifySongDuration(obj.result.data[i].Duration);
             let tds = '';
             for (let c = 0; c < settings.colsBrowsePlaylistsDetail.length; c++) {

@@ -13,6 +13,7 @@ function delQueueJukeboxSong(pos) {
 }
 
 function parseJukeboxList(obj) {
+    const rowTitle = advancedSettingsDefault.clickSong.validValues[settings.advanced.clickSong];
     let nrItems = obj.result.returnedEntities;
     let table = document.getElementById('QueueJukeboxList');
     let navigate = document.activeElement.parentNode.parentNode === table ? true : false;
@@ -27,6 +28,7 @@ function parseJukeboxList(obj) {
         setAttEnc(row, 'data-name', obj.result.data[i].Title);
         setAttEnc(row, 'data-type', 'song');
         setAttEnc(row, 'data-pos', i);
+        row.setAttribute('title', t(rowTitle));
         row.setAttribute('tabindex', 0);
         let tds = '';
         for (let c = 0; c < settings.colsQueueJukebox.length; c++) {

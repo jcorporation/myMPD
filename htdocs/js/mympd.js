@@ -227,6 +227,7 @@ var dropdownLocalPlayer = new BSN.Dropdown(document.getElementById('localPlaybac
 var dropdownPlay = new BSN.Dropdown(document.getElementById('btnPlayDropdown'));
 var dropdownDatabaseSort = new BSN.Dropdown(document.getElementById('btnDatabaseSortDropdown'));
 var dropdownNeighbors = new BSN.Dropdown(document.getElementById('btnDropdownNeighbors'));
+var dropdownHomeIconLigature = new BSN.Dropdown(document.getElementById('btnHomeIconLigature'));
 
 var collapseDBupdate = new BSN.Collapse(document.getElementById('navDBupdate'));
 var collapseSettings = new BSN.Collapse(document.getElementById('navSettings'));

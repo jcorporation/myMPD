@@ -361,6 +361,9 @@ function parseFilesystem(obj) {
             imageList.appendChild(img);
         }
     }
+    const rowTitleSong = advancedSettingsDefault.clickSong.validValues[settings.advanced.clickSong];
+    const rowTitleFolder = advancedSettingsDefault.clickFolder.validValues[settings.advanced.clickFolder];
+    const rowTitlePlaylist = advancedSettingsDefault.clickPlaylist.validValues[settings.advanced.clickPlaylist];
     let nrItems = obj.result.returnedEntities;
     let tr = tbody.getElementsByTagName('tr');
     let navigate = document.activeElement.parentNode.parentNode === table ? true : false;
@@ -390,6 +393,7 @@ function parseFilesystem(obj) {
         switch(obj.result.data[i].Type) {
             case 'parentDir':
                 row.innerHTML = '<td colspan="' + (colspan + 1) + '">..</td>';
+                row.setAttribute('title', 'Open parent folder');
                 break;
             case 'dir':
             case 'smartpls':
@@ -411,6 +415,7 @@ function parseFilesystem(obj) {
                 }
                 tds += '<td data-col="Action"><a href="#" class="mi color-darkgrey">' + ligatureMore + '</a></td>';
                 row.innerHTML = tds;
+                row.setAttribute('title', t(obj.result.data[i].Type === 'dir' ? rowTitleFolder : rowTitlePlaylist));
                 break;
             case 'song':
                 if (obj.result.data[i].Duration !== undefined) {
@@ -431,6 +436,7 @@ function parseFilesystem(obj) {
                 }
                 tds += '<td data-col="Action"><a href="#" class="mi color-darkgrey">' + ligatureMore + '</a></td>';
                 row.innerHTML = tds;
+                row.setAttribute('title', t(rowTitleSong));
                 break;
         }
         if (i < tr.length) {
@@ -620,6 +626,7 @@ function addPlayButton(parentEl) {
     const div = document.createElement('div');
     div.classList.add('align-self-end', 'album-grid-mouseover', 'mi', 'rounded-circle', 'clickable');
     div.innerText = 'play_arrow';
+    div.title = t(advancedSettingsDefault.clickAlbumPlay.validValues[settings.advanced.clickAlbumPlay]);
     parentEl.appendChild(div);
     div.addEventListener('click', function(event) {
         event.preventDefault();
@@ -649,6 +656,7 @@ function parseAlbumDetails(obj) {
     }
     let nrItems = obj.result.returnedEntities;
     let lastDisc = parseInt(obj.result.data[0].Disc);
+    const rowTitle = t(advancedSettingsDefault.clickSong.validValues[settings.advanced.clickSong]);
     for (let i = 0; i < nrItems; i++) {
         if (lastDisc < parseInt(obj.result.data[i].Disc)) {
             titleList += '<tr class="not-clickable"><td><span class="mi">album</span></td><td colspan="' + nrCols +'">' + 
@@ -657,9 +665,11 @@ function parseAlbumDetails(obj) {
         if (obj.result.data[i].Duration) {
             obj.result.data[i].Duration = beautifySongDuration(obj.result.data[i].Duration);
         }
-        titleList += '<tr tabindex="0" data-type="song" data-name="' + encodeURI(obj.result.data[i].Title) + '" data-uri="' + encodeURI(obj.result.data[i].uri) + '">';
+        titleList += '<tr tabindex="0" title="' + t(rowTitle) + '"data-type="song" data-name="' + encodeURI(obj.result.data[i].Title) + 
+            '" data-uri="' + encodeURI(obj.result.data[i].uri) + '">';
         for (let c = 0; c < settings.colsBrowseDatabaseDetail.length; c++) {
-            titleList += '<td data-col="' + settings.colsBrowseDatabaseDetail[c] + '">' + e(obj.result.data[i][settings.colsBrowseDatabaseDetail[c]]) + '</td>';
+            titleList += '<td data-col="' + settings.colsBrowseDatabaseDetail[c] + '">' + 
+                e(obj.result.data[i][settings.colsBrowseDatabaseDetail[c]]) + '</td>';
         }
         titleList += '<td data-col="Action"><a href="#" class="mi color-darkgrey">' + ligatureMore + '</a></td></tr>';
         lastDisc = obj.result.data[i].Disc;
@@ -667,7 +677,9 @@ function parseAlbumDetails(obj) {
     tbody.innerHTML = titleList;
     const tfoot = table.getElementsByTagName('tfoot')[0];
     let colspan = settings.colsBrowseDatabaseDetail.length;
-    tfoot.innerHTML = '<tr><td colspan="' + (colspan + 1) + '"><small>' + t('Num songs', obj.result.totalEntities) + '&nbsp;&ndash;&nbsp;' + beautifyDuration(obj.result.totalTime) + '</small></td></tr>';
+    tfoot.innerHTML = '<tr><td colspan="' + (colspan + 1) + '"><small>' + 
+        t('Num songs', obj.result.totalEntities) + '&nbsp;&ndash;&nbsp;' + 
+        beautifyDuration(obj.result.totalTime) + '</small></td></tr>';
     document.getElementById('BrowseDatabaseDetailList').classList.remove('opacity05');
 }
 
