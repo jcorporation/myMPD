@@ -585,9 +585,6 @@ Version de Libmpdclient
 Libmympdclient version
 Version de Libmympdclient
 
-Shortcut
-Raccourci
-
 Action
 Action
 

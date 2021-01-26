@@ -588,9 +588,6 @@ Libmpdclient Version
 Libmympdclient version
 Libmympdclient Version
 
-Shortcut
-Tastenkürzel
-
 Action
 Aktion
 
@@ -1668,9 +1665,6 @@ Nicht unterstützter Dateityp
 All
 Alle
 
-Either AlbumArtist or Artist tag must be enabled
-Albumartist or Artist Tag muss aktiviert sein
-
 Elements per page
 Anzahl Listenelemente
 
@@ -1705,5 +1699,11 @@ Albumcache ist noch nicht initialisiert
 Open folder
 Verzeichnis öffnen
 
+Open parent folder
+Gehe zu darüberliegenden Verzeichnis
+
 Maintenance
 Wartung
+
+Album cache is NULL
+Album Cache ist leer

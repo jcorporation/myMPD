@@ -53,3 +53,4 @@ Filter
 Offset
 Sort
 Tab
+Open parent folder

@@ -585,9 +585,6 @@ Libmpdclient 버전
 Libmympdclient version
 Libmympdclient 버전
 
-Shortcut
-단축키
-
 Action
 기능
 
@@ -1658,9 +1655,6 @@ Unsupported file type
 
 All
 모두
-
-Either AlbumArtist or Artist tag must be enabled
-음반 연주자나 연주자 태그를 사용해야 함
 
 Elements per page
 페이지당 요소

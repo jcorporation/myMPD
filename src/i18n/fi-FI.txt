@@ -579,9 +579,6 @@ Libmpdclient Versio
 Libmympdclient version
 Libmympdclient Versio
 
-Shortcut
-Pikalinkki
-
 Action
 Toiminto
 
