@@ -393,7 +393,7 @@ function parseFilesystem(obj) {
         switch(obj.result.data[i].Type) {
             case 'parentDir':
                 row.innerHTML = '<td colspan="' + (colspan + 1) + '">..</td>';
-                row.setAttribute('title', 'Open parent folder');
+                row.setAttribute('title', t('Open parent folder'));
                 break;
             case 'dir':
             case 'smartpls':
