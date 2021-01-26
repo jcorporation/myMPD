@@ -627,6 +627,9 @@ function parseFilesystem(obj) {
             imageList.appendChild(img);
         }
     }
+    const rowTitleSong = advancedSettingsDefault.clickSong.validValues[settings.advanced.clickSong];
+    const rowTitleFolder = advancedSettingsDefault.clickFolder.validValues[settings.advanced.clickFolder];
+    const rowTitlePlaylist = advancedSettingsDefault.clickPlaylist.validValues[settings.advanced.clickPlaylist];
     let nrItems = obj.result.returnedEntities;
     let tr = tbody.getElementsByTagName('tr');
     let navigate = document.activeElement.parentNode.parentNode === table ? true : false;
@@ -656,6 +659,7 @@ function parseFilesystem(obj) {
         switch(obj.result.data[i].Type) {
             case 'parentDir':
                 row.innerHTML = '<td colspan="' + (colspan + 1) + '">..</td>';
+                row.setAttribute('title', t('Open parent folder'));
                 break;
             case 'dir':
             case 'smartpls':
@@ -677,6 +681,7 @@ function parseFilesystem(obj) {
                 }
                 tds += '<td data-col="Action"><a href="#" class="mi color-darkgrey">' + ligatureMore + '</a></td>';
                 row.innerHTML = tds;
+                row.setAttribute('title', t(obj.result.data[i].Type === 'dir' ? rowTitleFolder : rowTitlePlaylist));
                 break;
             case 'song':
                 if (obj.result.data[i].Duration !== undefined) {
@@ -697,6 +702,7 @@ function parseFilesystem(obj) {
                 }
                 tds += '<td data-col="Action"><a href="#" class="mi color-darkgrey">' + ligatureMore + '</a></td>';
                 row.innerHTML = tds;
+                row.setAttribute('title', t(rowTitleSong));
                 break;
         }
         if (i < tr.length) {
@@ -886,6 +892,7 @@ function addPlayButton(parentEl) {
     const div = document.createElement('div');
     div.classList.add('align-self-end', 'album-grid-mouseover', 'mi', 'rounded-circle', 'clickable');
     div.innerText = 'play_arrow';
+    div.title = t(advancedSettingsDefault.clickAlbumPlay.validValues[settings.advanced.clickAlbumPlay]);
     parentEl.appendChild(div);
     div.addEventListener('click', function(event) {
         event.preventDefault();
@@ -915,6 +922,7 @@ function parseAlbumDetails(obj) {
     }
     let nrItems = obj.result.returnedEntities;
     let lastDisc = parseInt(obj.result.data[0].Disc);
+    const rowTitle = t(advancedSettingsDefault.clickSong.validValues[settings.advanced.clickSong]);
     for (let i = 0; i < nrItems; i++) {
         if (lastDisc < parseInt(obj.result.data[i].Disc)) {
             titleList += '<tr class="not-clickable"><td><span class="mi">album</span></td><td colspan="' + nrCols +'">' + 
@@ -923,9 +931,11 @@ function parseAlbumDetails(obj) {
         if (obj.result.data[i].Duration) {
             obj.result.data[i].Duration = beautifySongDuration(obj.result.data[i].Duration);
         }
-        titleList += '<tr tabindex="0" data-type="song" data-name="' + encodeURI(obj.result.data[i].Title) + '" data-uri="' + encodeURI(obj.result.data[i].uri) + '">';
+        titleList += '<tr tabindex="0" title="' + t(rowTitle) + '"data-type="song" data-name="' + encodeURI(obj.result.data[i].Title) + 
+            '" data-uri="' + encodeURI(obj.result.data[i].uri) + '">';
         for (let c = 0; c < settings.colsBrowseDatabaseDetail.length; c++) {
-            titleList += '<td data-col="' + settings.colsBrowseDatabaseDetail[c] + '">' + e(obj.result.data[i][settings.colsBrowseDatabaseDetail[c]]) + '</td>';
+            titleList += '<td data-col="' + settings.colsBrowseDatabaseDetail[c] + '">' + 
+                e(obj.result.data[i][settings.colsBrowseDatabaseDetail[c]]) + '</td>';
         }
         titleList += '<td data-col="Action"><a href="#" class="mi color-darkgrey">' + ligatureMore + '</a></td></tr>';
         lastDisc = obj.result.data[i].Disc;
@@ -933,7 +943,9 @@ function parseAlbumDetails(obj) {
     tbody.innerHTML = titleList;
     const tfoot = table.getElementsByTagName('tfoot')[0];
     let colspan = settings.colsBrowseDatabaseDetail.length;
-    tfoot.innerHTML = '<tr><td colspan="' + (colspan + 1) + '"><small>' + t('Num songs', obj.result.totalEntities) + '&nbsp;&ndash;&nbsp;' + beautifyDuration(obj.result.totalTime) + '</small></td></tr>';
+    tfoot.innerHTML = '<tr><td colspan="' + (colspan + 1) + '"><small>' + 
+        t('Num songs', obj.result.totalEntities) + '&nbsp;&ndash;&nbsp;' + 
+        beautifyDuration(obj.result.totalTime) + '</small></td></tr>';
     document.getElementById('BrowseDatabaseDetailList').classList.remove('opacity05');
 }
 
@@ -1106,6 +1118,14 @@ function initHome() {
         }
     }, false);
     
+    document.getElementById('btnHomeIconLigature').parentNode.addEventListener('show.bs.dropdown', function () {
+        const selLig = document.getElementById('inputHomeIconLigature').value;
+        if (selLig !== '') {
+            document.getElementById('searchHomeIconLigature').value = selLig;
+            filterHomeIconLigatures();
+        }
+    }, false);
+    
     let ligatureList = '';
     let catList = '<option value="all">' + t('All') + '</option>';
     Object.keys(materialIcons).forEach(function(cat) {
@@ -1121,10 +1141,7 @@ function initHome() {
     document.getElementById('listHomeIconLigature').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
             event.preventDefault();
-            document.getElementById('inputHomeIconLigature').value = event.target.getAttribute('title');
-            document.getElementById('homeIconPreview').innerText = event.target.getAttribute('title');
-            document.getElementById('homeIconPreview').style.backgroundImage = '';
-            document.getElementById('selectHomeIconImage').value = '';
+            selectHomeIconLigature(event.target);
         }
     });
     
@@ -1140,10 +1157,32 @@ function initHome() {
         filterHomeIconLigatures();
     }, false);
     
-    document.getElementById('searchHomeIconLigature').addEventListener('keyup', function(event) {
+    document.getElementById('searchHomeIconLigature').addEventListener('keydown', function(event) {
         event.stopPropagation();
-        filterHomeIconLigatures();
+        if (event.key === 'Enter') {
+            event.preventDefault();
+        }
     }, false);
+    
+    document.getElementById('searchHomeIconLigature').addEventListener('keyup', function(event) {
+        if (event.key === 'Enter') {
+            let sel = document.getElementById('listHomeIconLigature').getElementsByClassName('active')[0];
+            if (sel !== undefined) {
+                selectHomeIconLigature(sel);
+                dropdownHomeIconLigature.toggle();
+            }
+        }
+        else {
+            filterHomeIconLigatures();
+        }
+    }, false);
+}
+
+function selectHomeIconLigature(x) {
+    document.getElementById('inputHomeIconLigature').value = x.getAttribute('title');
+    document.getElementById('homeIconPreview').innerText = x.getAttribute('title');
+    document.getElementById('homeIconPreview').style.backgroundImage = '';
+    document.getElementById('selectHomeIconImage').value = '';
 }
 
 function filterHomeIconLigatures() {
@@ -1153,9 +1192,16 @@ function filterHomeIconLigatures() {
     for (let i = 0; i < els.length; i++) {
         if ((str === '' || els[i].getAttribute('title').indexOf(str) > -1) && (cat === 'all' || els[i].getAttribute('data-cat') === cat)) {
             els[i].classList.remove('hide');
+            if (els[i].getAttribute('title') === str) {
+                els[i].classList.add('active');
+            }
+            else {
+                els[i].classList.remove('active');
+            }
         }
         else {
             els[i].classList.add('hide');
+            els[i].classList.remove('active' );
         }
     }
     const catTitles = document.getElementById('listHomeIconLigature').getElementsByTagName('h5');
@@ -1498,6 +1544,7 @@ function delQueueJukeboxSong(pos) {
 }
 
 function parseJukeboxList(obj) {
+    const rowTitle = advancedSettingsDefault.clickSong.validValues[settings.advanced.clickSong];
     let nrItems = obj.result.returnedEntities;
     let table = document.getElementById('QueueJukeboxList');
     let navigate = document.activeElement.parentNode.parentNode === table ? true : false;
@@ -1512,6 +1559,7 @@ function parseJukeboxList(obj) {
         setAttEnc(row, 'data-name', obj.result.data[i].Title);
         setAttEnc(row, 'data-type', 'song');
         setAttEnc(row, 'data-pos', i);
+        row.setAttribute('title', t(rowTitle));
         row.setAttribute('tabindex', 0);
         let tds = '';
         for (let c = 0; c < settings.colsQueueJukebox.length; c++) {
@@ -2545,6 +2593,7 @@ var dropdownLocalPlayer = new BSN.Dropdown(document.getElementById('localPlaybac
 var dropdownPlay = new BSN.Dropdown(document.getElementById('btnPlayDropdown'));
 var dropdownDatabaseSort = new BSN.Dropdown(document.getElementById('btnDatabaseSortDropdown'));
 var dropdownNeighbors = new BSN.Dropdown(document.getElementById('btnDropdownNeighbors'));
+var dropdownHomeIconLigature = new BSN.Dropdown(document.getElementById('btnHomeIconLigature'));
 
 var collapseDBupdate = new BSN.Collapse(document.getElementById('navDBupdate'));
 var collapseSettings = new BSN.Collapse(document.getElementById('navSettings'));
@@ -3812,6 +3861,7 @@ function initPlaylists() {
 }
 
 function parsePlaylists(obj) {
+
     if (app.current.view === 'All') {
         document.getElementById('BrowsePlaylistsAllList').classList.remove('hide');
         document.getElementById('BrowsePlaylistsDetailList').classList.add('hide');
@@ -3849,12 +3899,14 @@ function parsePlaylists(obj) {
     let navigate = document.activeElement.parentNode.parentNode === table ? true : false;
     let activeRow = 0;
     if (app.current.view === 'All') {
+        const rowTitle = advancedSettingsDefault.clickPlaylist.validValues[settings.advanced.clickPlaylist];
         for (let i = 0; i < nrItems; i++) {
             let row = document.createElement('tr');
             setAttEnc(row, 'data-uri', obj.result.data[i].uri);
             setAttEnc(row, 'data-type', obj.result.data[i].Type);
             setAttEnc(row, 'data-name', obj.result.data[i].name);
             row.setAttribute('tabindex', 0);
+            row.setAttribute('title', t(rowTitle));
             row.innerHTML = '<td data-col="Type"><span class="mi">' + (obj.result.data[i].Type === 'smartpls' ? 'queue_music' : 'list') + '</span></td>' +
                             '<td>' + e(obj.result.data[i].name) + '</td>' +
                             '<td>'+ localeDate(obj.result.data[i].last_modified) + '</td>' +
@@ -3869,6 +3921,7 @@ function parsePlaylists(obj) {
         //document.getElementById('cardFooterBrowse').innerText = gtPage('Num playlists', obj.result.returnedEntities, obj.result.totalEntities);
     }
     else if (app.current.view === 'Detail') {
+        const rowTitle = advancedSettingsDefault.clickSong.validValues[settings.advanced.clickSong];
         for (let i = 0; i < nrItems; i++) {
             let row = document.createElement('tr');
             if (obj.result.smartpls === false) {
@@ -3880,6 +3933,7 @@ function parsePlaylists(obj) {
             setAttEnc(row, 'data-name', obj.result.data[i].Title);
             setAttEnc(row, 'data-songpos', obj.result.data[i].Pos);
             row.setAttribute('tabindex', 0);
+            row.setAttribute('title', t(rowTitle));
             obj.result.data[i].Duration = beautifySongDuration(obj.result.data[i].Duration);
             let tds = '';
             for (let c = 0; c < settings.colsBrowsePlaylistsDetail.length; c++) {
@@ -4760,6 +4814,7 @@ function parseQueue(obj) {
         document.getElementById('btnQueueGotoPlayingSong').parentNode.classList.add('hide');
     }
 
+    const rowTitle = advancedSettingsDefault.clickQueueSong.validValues[settings.advanced.clickQueueSong];
     let nrItems = obj.result.returnedEntities;
     let navigate = document.activeElement.parentNode.parentNode === table ? true : false;
     let activeRow = 0;
@@ -4773,6 +4828,7 @@ function parseQueue(obj) {
         row.setAttribute('draggable', 'true');
         row.setAttribute('id','queueTrackId' + obj.result.data[i].id);
         row.setAttribute('tabindex', 0);
+        row.setAttribute('title', t(rowTitle));
         setAttEnc(row, 'data-trackid', obj.result.data[i].id);
         setAttEnc(row, 'data-songpos', obj.result.data[i].Pos);
         setAttEnc(row, 'data-duration', obj.result.data[i].Duration);
@@ -4812,7 +4868,7 @@ function parseQueue(obj) {
 }
 
 function parseLastPlayed(obj) {
-    //document.getElementById('cardFooterQueue').innerText = t('Num songs', obj.result.totalEntities);
+    const rowTitle = advancedSettingsDefault.clickSong.validValues[settings.advanced.clickSong];
     let nrItems = obj.result.returnedEntities;
     let table = document.getElementById('QueueLastPlayedList');
     let navigate = document.activeElement.parentNode.parentNode === table ? true : false;
@@ -4827,6 +4883,7 @@ function parseLastPlayed(obj) {
         setAttEnc(row, 'data-name', obj.result.data[i].Title);
         setAttEnc(row, 'data-type', 'song');
         row.setAttribute('tabindex', 0);
+        row.setAttribute('title', t(rowTitle));
         let tds = '';
         for (let c = 0; c < settings.colsQueueLastPlayed.length; c++) {
             tds += '<td data-col="' + encodeURI(settings.colsQueueLastPlayed[c]) + '">' + e(obj.result.data[i][settings.colsQueueLastPlayed[c]]) + '</td>';
@@ -5451,28 +5508,52 @@ function addAllFromSearchPlist(plist, searchstr, replace) {
 var advancedSettingsDefault = {
     "clickSong": { 
         "defaultValue": "append", 
-        "validValues": [ "append", "replace", "view" ], 
-        "inputType": "select" 
+        "validValues": { 
+            "append": "Append to queue", 
+            "replace": "Replace queue", 
+            "view": "Song details"
+        }, 
+        "inputType": "select",
+        "title": "Click song"
+        
     },
     "clickQueueSong": { 
         "defaultValue": "play", 
-        "validValues": [ "play", "view" ], 
-        "inputType": "select" 
+        "validValues": {
+            "play": "Play", 
+            "view": "Song details",
+        },
+        "inputType": "select",
+        "title": "Click song in queue"
     },
     "clickPlaylist": { 
         "defaultValue": "append", 
-        "validValues": [ "append", "replace", "view" ], 
-        "inputType": "select" 
+        "validValues": {
+            "append": "Append to queue",
+            "replace": "Replace queue",
+            "view": "View playlist"
+        },
+        "inputType": "select",
+        "title": "Click playlist"
     },
     "clickFolder": { 
         "defaultValue": "view", 
-        "validValues": [ "append", "replace", "view" ],
-        "inputType": "select"
+        "validValues": {
+            "append": "Append to queue",
+            "replace": "Replace queue",
+            "view": "Open folder"
+        },
+        "inputType": "select",
+        "title": "Click folder"
     },
     "clickAlbumPlay": { 
         "defaultValue": "replace", 
-        "validValues": [ "append", "replace" ], 
-        "inputType": "select" 
+        "validValues": {
+            "append": "Append to queue",
+            "replace": "Replace queue",
+        },
+        "inputType": "select",
+        "title": "Click album play button"
     }
 };
 
@@ -5724,15 +5805,16 @@ function parseSettings() {
     for (let i = 0; i < advSettingsKeys.length; i++) {
         let key = advSettingsKeys[i];
         advFrm += '<div class="form-group row">' +
-                    '<label class="col-sm-4 col-form-label" for="inputAdvSetting' + r(key) + '" data-phrase="' + e(key) + '">' + t(key) + '</label>' +
+                    '<label class="col-sm-4 col-form-label" for="inputAdvSetting' + r(key) + '" data-phrase="' + 
+                    e(advancedSettingsDefault[key].title) + '">' + t(advancedSettingsDefault[key].title) + '</label>' +
                     '<div class="col-sm-8 ">';
         if (advancedSettingsDefault[key].inputType === 'select') {
             advFrm += '<select id="inputAdvSetting' + r(key) + '" data-key="' + 
                 r(key) + '" class="form-control border-secondary custom-select">';
-            for (let j = 0; j < advancedSettingsDefault[key].validValues.length; j++) {
-                advFrm += '<option value="' + e(advancedSettingsDefault[key].validValues[j]) + '"' +
-                    (settings.advanced[key] === advancedSettingsDefault[key].validValues[j] ? ' selected' : '') +
-                    '>' + t(advancedSettingsDefault[key].validValues[j]) + '</option>';
+            for (let value in advancedSettingsDefault[key].validValues) {
+                advFrm += '<option value="' + e(value) + '"' +
+                    (settings.advanced[key] === value ? ' selected' : '') +
+                    '>' + t(advancedSettingsDefault[key].validValues[value]) + '</option>';
             }
             advFrm += '</select>';
         }
@@ -7794,7 +7876,7 @@ function dragAndDropTable(table) {
     }, false);
     tableBody.addEventListener('dragleave', function(event) {
         event.preventDefault();
-        if (dragEl.nodeName !== 'TR') {
+        if (dragEl === undefined || dragEl.nodeName !== 'TR') {
             return;
         }
         let target = event.target;
@@ -7807,7 +7889,7 @@ function dragAndDropTable(table) {
     }, false);
     tableBody.addEventListener('dragover', function(event) {
         event.preventDefault();
-        if (dragEl.nodeName !== 'TR') {
+        if (dragEl === undefined || dragEl.nodeName !== 'TR') {
             return;
         }
         let tr = tableBody.getElementsByClassName('dragover');
@@ -7826,7 +7908,7 @@ function dragAndDropTable(table) {
     }, false);
     tableBody.addEventListener('dragend', function(event) {
         event.preventDefault();
-        if (dragEl.nodeName !== 'TR') {
+        if (dragEl === undefined || dragEl.nodeName !== 'TR') {
             return;
         }
         let tr = tableBody.getElementsByClassName('dragover');
@@ -7837,11 +7919,12 @@ function dragAndDropTable(table) {
         if (document.getElementById(event.dataTransfer.getData('Text'))) {
             document.getElementById(event.dataTransfer.getData('Text')).classList.remove('opacity05');
         }
+        dragEl = undefined;
     }, false);
     tableBody.addEventListener('drop', function(event) {
         event.stopPropagation();
         event.preventDefault();
-        if (dragEl.nodeName !== 'TR') {
+        if (dragEl === undefined || dragEl.nodeName !== 'TR') {
             return;
         }
         let target = event.target;
@@ -7889,7 +7972,7 @@ function dragAndDropTableHeader(table) {
     }, false);
     tableHeader.addEventListener('dragleave', function(event) {
         event.preventDefault();
-        if (dragEl.nodeName !== 'TH') {
+        if (dragEl === undefined || dragEl.nodeName !== 'TH') {
             return;
         }
         if (event.target.nodeName === 'TH') {
@@ -7898,7 +7981,7 @@ function dragAndDropTableHeader(table) {
     }, false);
     tableHeader.addEventListener('dragover', function(event) {
         event.preventDefault();
-        if (dragEl.nodeName !== 'TH') {
+        if (dragEl === undefined || dragEl.nodeName !== 'TH') {
             return;
         }
         let th = tableHeader.getElementsByClassName('dragover-th');
@@ -7913,7 +7996,7 @@ function dragAndDropTableHeader(table) {
     }, false);
     tableHeader.addEventListener('dragend', function(event) {
         event.preventDefault();
-        if (dragEl.nodeName !== 'TH') {
+        if (dragEl === undefined || dragEl.nodeName !== 'TH') {
             return;
         }
         let th = tableHeader.getElementsByClassName('dragover-th');
@@ -7924,11 +8007,12 @@ function dragAndDropTableHeader(table) {
         if (this.querySelector('[data-col=' + event.dataTransfer.getData('Text') + ']')) {
             this.querySelector('[data-col=' + event.dataTransfer.getData('Text') + ']').classList.remove('opacity05');
         }
+        dragEl = undefined;
     }, false);
     tableHeader.addEventListener('drop', function(event) {
         event.stopPropagation();
         event.preventDefault();
-        if (dragEl.nodeName !== 'TH') {
+        if (dragEl === undefined || dragEl.nodeName !== 'TH') {
             return;
         }
         this.querySelector('[data-col=' + event.dataTransfer.getData('Text') + ']').remove();
@@ -7975,7 +8059,6 @@ function setColTags(table) {
             tags.push('Lyrics');
         }
     }
-    
     tags.sort();
     return tags;
 }
@@ -8041,7 +8124,6 @@ function setCols(table) {
         else {
             heading += '<th></th>';
         }
-
         document.getElementById(table + 'List').getElementsByTagName('tr')[0].innerHTML = heading;
     }
 }
