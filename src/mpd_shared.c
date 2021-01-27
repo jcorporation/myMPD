@@ -64,7 +64,7 @@ bool check_rc_error_and_recover(t_mpd_state *mpd_state, sds *buffer,
         return false;
     }
     if (rc == false) {
-        //todo: implement notify jsonrpc message on demand
+        //TODO: implement notify jsonrpc message on demand
         if (buffer != NULL && *buffer != NULL) {
             *buffer = respond_with_command_error(*buffer, method, request_id, command);
         }
