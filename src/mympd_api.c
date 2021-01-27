@@ -368,7 +368,7 @@ static void mympd_api(t_config *config, t_mympd_state *mympd_state, t_work_reque
             break;
         }
         case MYMPD_API_SETTINGS_RESET:
-            //ToDo: error checking
+            //TODO: error checking
             mympd_api_settings_reset(config, mympd_state);
             response->data = jsonrpc_respond_ok(response->data, request->method, request->id);
             break;
