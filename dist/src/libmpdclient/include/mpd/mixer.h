@@ -38,7 +38,6 @@
 #define MPD_MIXER_H
 
 #include <stdbool.h>
-#include <stddef.h>
 
 struct mpd_connection;
 
@@ -92,7 +91,7 @@ mpd_run_change_volume(struct mpd_connection *connection, int relative_volume);
 
 /**
  * Sends the "getvol" command to MPD.  Call mpd_recv_pair() to
- * read the response line.  
+ * read the response line.
  *
  * @param connection a valid and connected #mpd_connection
  * @return true on success

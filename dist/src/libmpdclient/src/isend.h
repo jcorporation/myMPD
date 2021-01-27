@@ -56,7 +56,7 @@ mpd_send_int3_command(struct mpd_connection *connection, const char *command,
 bool
 mpd_send_float_command(struct mpd_connection *connection, const char *command,
 		       float arg);
-		       
+
 bool
 mpd_send_u_command(struct mpd_connection *connection, const char *command,
 		     unsigned arg1);

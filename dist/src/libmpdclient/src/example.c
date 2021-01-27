@@ -430,16 +430,16 @@ int main(int argc, char ** argv) {
 
 		if (!mpd_run_replay_gain_mode(conn, mode))
 			return handle_error(conn);
-	} else if (argc == 3 && strcmp(argv[1], "binarylimit") == 0) {
-		unsigned long long limit = strtoull(argv[2], NULL, 10);
-		if (!mpd_run_binarylimit(conn, limit))
-			return handle_error(conn);
 	} else if (argc == 2 && strcmp(argv[1], "getvol") == 0) {
 		int volume = mpd_run_get_volume(conn);
 		if (volume == -1)
 			return handle_error(conn);
 
 		printf("Volume: %d\n", volume);
+	} else if (argc == 3 && strcmp(argv[1], "binarylimit") == 0) {
+		unsigned long long limit = strtoull(argv[2], NULL, 10);
+		if (!mpd_run_binarylimit(conn, limit))
+			return handle_error(conn);
 	}
 
 	mpd_connection_free(conn);

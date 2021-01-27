@@ -70,24 +70,23 @@ mpd_send_get_volume(struct mpd_connection *connection)
     return mpd_send_command(connection, "getvol", NULL);
 }
 
-
 int
 mpd_run_get_volume(struct mpd_connection *connection)
 {
-    if (!mpd_run_check(connection) ||
-        !mpd_send_get_volume(connection))
-        return -1;
+	if (!mpd_run_check(connection) ||
+	    !mpd_send_get_volume(connection))
+		return -1;
 
-    int result = -1;
+	int result = -1;
 
-    struct mpd_pair *pair = mpd_recv_pair_named(connection, "volume");
-    if (pair != NULL) {
-        result = atoi(pair->value);
-        mpd_return_pair(connection, pair);
-    }
+	struct mpd_pair *pair = mpd_recv_pair_named(connection, "volume");
+	if (pair != NULL) {
+		result = atoi(pair->value);
+		mpd_return_pair(connection, pair);
+	}
 
-    if (!mpd_response_finish(connection))
-        result = -1;
+	if (!mpd_response_finish(connection))
+		result = -1;
 
-    return result;
+	return result;
 }

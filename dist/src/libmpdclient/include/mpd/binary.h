@@ -53,8 +53,7 @@ struct mpd_connection;
  * @since libmpdclient 2.20, MPD 0.22.4
  */
 bool
-mpd_send_binarylimit(struct mpd_connection *connection,
-           unsigned limit);
+mpd_send_binarylimit(struct mpd_connection *connection, unsigned limit);
 
 /**
  * Shortcut for mpd_send_binarylimit() and mpd_response_finish().
@@ -66,8 +65,7 @@ mpd_send_binarylimit(struct mpd_connection *connection,
  * @since libmpdclient 2.20, MPD 0.22.4
  */
 bool
-mpd_run_binarylimit(struct mpd_connection *connection,
-          unsigned limit);
+mpd_run_binarylimit(struct mpd_connection *connection, unsigned limit);
 
 
 #endif

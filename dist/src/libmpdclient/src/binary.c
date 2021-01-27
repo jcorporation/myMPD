@@ -41,7 +41,7 @@ mpd_send_binarylimit(struct mpd_connection *connection, unsigned limit)
 bool
 mpd_run_binarylimit(struct mpd_connection *connection, unsigned limit)
 {
-    return mpd_run_check(connection) &&
-        mpd_send_binarylimit(connection, limit) &&
-        mpd_response_finish(connection);
+	return mpd_run_check(connection) &&
+		mpd_send_binarylimit(connection, limit) &&
+		mpd_response_finish(connection);
 }
