@@ -1725,3 +1725,15 @@ Click auf ein Lied
 
 Play
 Abspielen
+
+Home screen
+Startbildschirm
+
+Homescreen help view
+Gehe zur Ansicht und klicke auf den [[add_to_home_screen]] Button.
+
+Homescreen help playlist
+Öffne das Contextmenü einer Wiedergabeliste und wähle "Zum Startbildschirm hinzufügen"
+
+Homescreen help script
+Öffne die Skriptverwaltung und klicke auf den [[add_to_home_screen]] Button.
