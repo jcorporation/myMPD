@@ -228,6 +228,9 @@ Select tag to search
 contains
 내용
 
+starts_with
+시작점
+
 Initializing myMPD
 myMPD 초기화
 
@@ -678,6 +681,9 @@ Open song details
 Open local player
 로컬 연주기 열기
 
+Goto home
+홈으로 가기
+
 Goto playback
 연주로 가기
 
@@ -686,6 +692,9 @@ Goto queue
 
 Goto last played
 앞선 연주로 가기
+
+Goto jukebox queue
+뮤직박스 순서로 가기
 
 Goto browse database
 데이터베이스 열기로 가기
@@ -1679,3 +1688,40 @@ Last page
 
 Show album
 음반 보기
+
+Can not get lyrics for stream uri
+스트리밍 URI의 가사를 가져올 수 없음
+
+Albumcache not ready
+앨범 캐시 준비 안 됨
+
+Open folder
+폴더 열기
+
+
+Open parent folder
+상위 폴더 열기
+
+Maintenance
+관리
+
+Album cache is NULL
+음반 캐시가 전혀 없음
+
+Click album play button
+음반 연주 버튼 누름
+
+Click folder
+폴더 누름
+
+Click playlist
+연주목록 누름
+
+Click song in queue
+순서의 곡 누름
+
+Click song
+곡 누름
+
+Play
+연주
