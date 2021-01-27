@@ -1726,7 +1726,7 @@ Click auf ein Lied
 Play
 Abspielen
 
-Home screen
+Homescreen
 Startbildschirm
 
 Homescreen help view

@@ -204,7 +204,7 @@ function parseHome(obj) {
     }
                     
     if (nrItems === 0) {
-        cardContainer.innerHTML = '<div class="ml-3"><h3>' + t('Home screen') + '</h3><p>' + t('Homescreen welcome') + '</p>' +
+        cardContainer.innerHTML = '<div class="ml-3"><h3>' + t('Homescreen') + '</h3><p>' + t('Homescreen welcome') + '</p>' +
             '<ul>' +
             '<li><b>' + t('View') + '</b>: ' + t('Homescreen help view') + '</li>' + 
             '<li><b>' + t('Playlist') + '</b>: ' + t('Homescreen help playlist') + '</li>' +
