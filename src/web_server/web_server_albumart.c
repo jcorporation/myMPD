@@ -77,6 +77,7 @@ bool handle_albumart(struct mg_connection *nc, struct http_message *hm, t_mg_use
         sdsfree(uri_decoded);
         return true;
     }
+    LOG_DEBUG("Handle albumart for uri \"%s\"", uri_decoded);
     //try image in /pics folder, if uri contains ://
     if (is_streamuri(uri_decoded) == true) {
         char *name = strstr(uri_decoded, "://");
@@ -136,7 +137,7 @@ bool handle_albumart(struct mg_connection *nc, struct http_message *hm, t_mg_use
         access(mediafile, F_OK) == 0) /* Flawfinder: ignore */
     {
         //try image in folder under music_directory
-        char *path = uri_decoded;
+        sds path = sdsdup(uri_decoded);
         dirname(path);
         for (int j = 0; j < mg_user_data->coverimage_names_len; j++) {
             sds coverfile = sdscatfmt(sdsempty(), "%s/%s/%s", mg_user_data->music_directory, path, mg_user_data->coverimage_names[j]);
@@ -153,11 +154,13 @@ bool handle_albumart(struct mg_connection *nc, struct http_message *hm, t_mg_use
                 sdsfree(coverfile);
                 sdsfree(mediafile);
                 sdsfree(mime_type);
+                sdsfree(path); 
                 return true;
             }
             sdsfree(coverfile);
         }
         LOG_DEBUG("No cover file found in music directory");
+        sdsfree(path);
         //try to extract cover from media file
         bool rc = handle_coverextract(nc, config, uri_decoded, mediafile);
         if (rc == true) {
@@ -191,6 +194,7 @@ bool handle_albumart(struct mg_connection *nc, struct http_message *hm, t_mg_use
 static bool handle_coverextract(struct mg_connection *nc, t_config *config, const char *uri, const char *media_file) {
     bool rc = false;
     sds mime_type_media_file = get_mime_type_by_ext(media_file);
+    LOG_DEBUG("Handle coverextract for uri \"%s\"", uri);
     LOG_DEBUG("Mimetype of %s is %s", media_file, mime_type_media_file);
     sds binary = sdsempty();
     if (strcmp(mime_type_media_file, "audio/mpeg") == 0) {
