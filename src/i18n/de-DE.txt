@@ -1737,3 +1737,6 @@ Homescreen help playlist
 
 Homescreen help script
 Öffne die Skriptverwaltung und klicke auf den [[add_to_home_screen]] Button.
+
+Help to improve myMPD
+Hilf mit myMPD zu verbessern
