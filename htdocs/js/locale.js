@@ -18,6 +18,8 @@ function e(x) {
             else if (m1 === '003E') return '&gt;';
             else if (m1 === '0022') return '&quot;';
             else if (m1 === '0027') return '&apos;';
+        }).replace(/\[\[(\w+)\]\]/g, function(m0, m1) {
+            return '<span class="mi">' + m1 + '</span>';
         });
     }
     return x;
