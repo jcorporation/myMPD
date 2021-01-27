@@ -111,8 +111,12 @@ static void mpd_client_parse_idle(t_config *config, t_mpd_client_state *mpd_clie
             sds buffer = sdsempty();
             switch(idle_event) {
                 case MPD_IDLE_DATABASE:
+                    //database has changed
                     buffer = jsonrpc_notify(buffer, "update_database");
+                    //update database caches
+                    album_cache_init(mpd_client_state);
                     sticker_cache_init(config, mpd_client_state);
+                    //smart playlist updates are triggered in the mpd worker thread
                     break;
                 case MPD_IDLE_STORED_PLAYLIST:
                     buffer = jsonrpc_notify(buffer, "update_stored_playlist");
@@ -176,7 +180,7 @@ static void mpd_client_parse_idle(t_config *config, t_mpd_client_state *mpd_clie
                     }
                     break;
                 case MPD_IDLE_PARTITION:
-                    //todo: check list of partitions and create new mpd_client threads
+                    //TODO: check list of partitions and create new mpd_client threads
                     break;
                 default: {
                     //other idle events not used
