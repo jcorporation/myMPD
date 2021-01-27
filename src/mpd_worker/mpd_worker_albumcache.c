@@ -57,6 +57,8 @@ static bool _album_cache_init(t_mpd_worker_state *mpd_worker_state, rax *album_c
     unsigned end = start + 1000;
     unsigned i = 0;
     //create search expression
+    /*
+    TODO: evaluate why this expression returns empty albums and artists
     sds expression = sdsnew("((Album != '') AND ");
     if (mpd_shared_tag_exists(mpd_worker_state->mpd_state->mympd_tag_types.tags, mpd_worker_state->mpd_state->mympd_tag_types.len, MPD_TAG_ALBUM_ARTIST) == true) {
         expression = sdscat(expression, " (AlbumArtist != ''))");
@@ -68,6 +70,7 @@ static bool _album_cache_init(t_mpd_worker_state *mpd_worker_state, rax *album_c
         sdsfree(expression);
         return false;
     }
+    */
     
     //get first song from each album
     do {
@@ -77,8 +80,17 @@ static bool _album_cache_init(t_mpd_worker_state *mpd_worker_state, rax *album_c
             mpd_search_cancel(mpd_worker_state->mpd_state->conn);
             return false;
         }
+        /*
         rc = mpd_search_add_expression(mpd_worker_state->mpd_state->conn, expression);
         if (check_rc_error_and_recover(mpd_worker_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_search_add_expression") == false) {
+            LOG_ERROR("Album cache update failed");
+            mpd_search_cancel(mpd_worker_state->mpd_state->conn);
+            return false;
+        }
+        */
+        //Add empty uri constraint to get all songs, replace it with search expression if it works
+        rc = mpd_search_add_uri_constraint(mpd_worker_state->mpd_state->conn, MPD_OPERATOR_DEFAULT, "");
+        if (check_rc_error_and_recover(mpd_worker_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_search_add_uri_constraint") == false) {
             LOG_ERROR("Album cache update failed");
             mpd_search_cancel(mpd_worker_state->mpd_state->conn);
             return false;
@@ -101,10 +113,16 @@ static bool _album_cache_init(t_mpd_worker_state *mpd_worker_state, rax *album_c
         while ((song = mpd_recv_song(mpd_worker_state->mpd_state->conn)) != NULL) {
             album = mpd_shared_get_tags(song, MPD_TAG_ALBUM, album);
             artist = mpd_shared_get_tags(song, MPD_TAG_ALBUM_ARTIST, artist);
-            sdsclear(key);
-            key = sdscatfmt(key, "%s::%s", album, artist);
-            if (raxTryInsert(album_cache, (unsigned char*)key, sdslen(key), (void *)song, NULL) == 0) {
-                 //discard song data if key exists
+            if (strcmp(album, "-") > 0 && strcmp(artist, "-") > 0) { //workarround for search expression not working
+                sdsclear(key);
+                key = sdscatfmt(key, "%s::%s", album, artist);
+                if (raxTryInsert(album_cache, (unsigned char*)key, sdslen(key), (void *)song, NULL) == 0) {
+                     //discard song data if key exists
+                     mpd_song_free(song);
+                }
+            }
+            else {
+                LOG_WARN("Albumcache, skipping \"%s\"", mpd_song_get_uri(song));
                 mpd_song_free(song);
             }
             i++;
@@ -121,6 +139,6 @@ static bool _album_cache_init(t_mpd_worker_state *mpd_worker_state, rax *album_c
         end = end + 1000;
     } while (i >= start);
     LOG_VERBOSE("Album cache updated successfully");
-    sdsfree(expression);
+    //sdsfree(expression);
     return true;
 }
