@@ -388,10 +388,9 @@ sds mpd_client_put_firstsong_in_albums(t_mpd_client_state *mpd_client_state, sds
     //parse sort tag
     bool sort_by_last_modified = false;
     enum mpd_tag_type sort_tag = MPD_TAG_ALBUM;
-    enum mpd_tag_type sort_tag_org = sort_tag;
 
     if (strlen(sort) > 0) {
-        sort_tag_org = mpd_tag_name_parse(sort);
+        enum mpd_tag_type sort_tag_org = mpd_tag_name_parse(sort);
         if (sort_tag_org != MPD_TAG_UNKNOWN) {
             sort_tag = get_sort_tag(sort_tag_org);
             if (mpd_shared_tag_exists(mpd_client_state->mpd_state->mympd_tag_types.tags, mpd_client_state->mpd_state->mympd_tag_types.len, sort_tag) == false) {
@@ -621,23 +620,23 @@ static bool _search_song(struct mpd_song *song, struct list *expr_list) {
             sdsfree(value);
             return false;
         }
-        else if (strcmp(current->value_p, "starts_with") == 0 && strncasecmp(current->key, value, strlen(current->key)) != 0) {
+        if (strcmp(current->value_p, "starts_with") == 0 && strncasecmp(current->key, value, strlen(current->key)) != 0) {
             sdsfree(value);
             return false;
         }
-        else if (strcmp(current->value_p, "==") == 0 && strcasecmp(value, current->key) != 0) {
+        if (strcmp(current->value_p, "==") == 0 && strcasecmp(value, current->key) != 0) {
             sdsfree(value);
             return false;
         }
-        else if (strcmp(current->value_p, "!=") == 0 && strcasecmp(value, current->key) == 0) {
+        if (strcmp(current->value_p, "!=") == 0 && strcasecmp(value, current->key) == 0) {
             sdsfree(value);
             return false;
         }
-        else if (strcmp(current->value_p, "=~") == 0 && _cmp_regex((pcre *)current->user_data, value) == false) {
+        if (strcmp(current->value_p, "=~") == 0 && _cmp_regex((pcre *)current->user_data, value) == false) {
             sdsfree(value);
             return false;
         }
-        else if (strcmp(current->value_p, "!~") == 0 && _cmp_regex((pcre *)current->user_data, value) == true) {
+        if (strcmp(current->value_p, "!~") == 0 && _cmp_regex((pcre *)current->user_data, value) == true) {
             sdsfree(value);
             return false;
         }
@@ -664,7 +663,7 @@ static bool _cmp_regex(pcre *re_compiled, const char *value) {
     }
     bool rc = false;
     int substr_vec[30];
-    int pcre_exec_ret = pcre_exec(re_compiled, NULL, value, strlen(value), 0, 0, substr_vec, 30);
+    int pcre_exec_ret = pcre_exec(re_compiled, NULL, value, (int) strlen(value), 0, 0, substr_vec, 30);
     if (pcre_exec_ret < 0) {
         switch(pcre_exec_ret) {
             case PCRE_ERROR_NOMATCH      : break;

@@ -221,10 +221,8 @@ sds mpd_client_playlist_delete(t_config *config, t_mpd_client_state *mpd_client_
             sdsfree(pl_file);
             return buffer;
         }
-        else {
-            //ignore error
-            LOG_DEBUG("Error removing file \"%s\": %s", pl_file, strerror(errno));
-        }
+        //ignore error
+        LOG_DEBUG("Error removing file \"%s\": %s", pl_file, strerror(errno));
         sdsfree(pl_file);
     }
     //remove mpd playlist

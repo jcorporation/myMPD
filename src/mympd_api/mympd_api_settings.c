@@ -673,8 +673,7 @@ static sds read_navbar_icons(t_config *config) {
     char *line = NULL;
     char *crap = NULL;
     size_t n = 0;
-    ssize_t read;
-    while ((read = getline(&line, &n, fp)) > 0) {
+    while (getline(&line, &n, fp) > 0) {
         strtok_r(line, "\n", &crap);
         buffer = sdscat(buffer, line);
     }
