@@ -4,7 +4,7 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef __MPD_WORKER_ALBUMCACHE_H__
-#define __MPD_WORKER_ALBUMCACHE_H__
-bool mpd_worker_album_cache_init(t_mpd_worker_state *mpd_worker_state);
+#ifndef __MPD_WORKER_CACHE_H__
+#define __MPD_WORKER_CACHE_H__
+bool mpd_worker_cache_init(t_mpd_worker_state *mpd_worker_state);
 #endif

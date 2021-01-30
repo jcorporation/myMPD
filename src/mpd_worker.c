@@ -30,7 +30,6 @@
 #include "mpd_worker/mpd_worker_utility.h"
 #include "mpd_worker/mpd_worker_api.h"
 #include "mpd_worker/mpd_worker_smartpls.h"
-#include "mpd_worker/mpd_worker_stickercache.h"
 #include "mpd_worker.h"
 
 //private definitions

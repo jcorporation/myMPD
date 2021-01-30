@@ -114,8 +114,7 @@ static void mpd_client_parse_idle(t_config *config, t_mpd_client_state *mpd_clie
                     //database has changed
                     buffer = jsonrpc_notify(buffer, "update_database");
                     //update database caches
-                    album_cache_init(mpd_client_state);
-                    sticker_cache_init(config, mpd_client_state);
+                    caches_init(config, mpd_client_state);
                     //smart playlist updates are triggered in the mpd worker thread
                     break;
                 case MPD_IDLE_STORED_PLAYLIST:
@@ -292,10 +291,8 @@ static void mpd_client_idle(t_config *config, t_mpd_client_state *mpd_client_sta
             mpd_client_mpd_features(config, mpd_client_state);
             //set binarylimit
             mpd_client_set_binarylimit(config, mpd_client_state);
-            //update sticker cache
-            sticker_cache_init(config, mpd_client_state);
-            //update album cache
-            album_cache_init(mpd_client_state);
+            //update sticker and album cache
+            caches_init(config, mpd_client_state);
             //set timer for smart playlist update
             mpd_client_set_timer(MYMPD_API_TIMER_SET, "MYMPD_API_TIMER_SET", 10, mpd_client_state->smartpls_interval, "timer_handler_smartpls_update");
             //jukebox
