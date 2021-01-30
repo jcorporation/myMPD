@@ -56,6 +56,7 @@ void manage_emptydir(sds varlibdir, bool pics, bool smartplaylists, bool music, 
 }
 
 void populate_dummy_hm(struct http_message *hm) {
+    //create an empty dummy message struct, used for async responses
     hm->message = mg_mk_str("");
     hm->body = mg_mk_str("");
     hm->method = mg_mk_str("GET");
@@ -64,8 +65,10 @@ void populate_dummy_hm(struct http_message *hm) {
     hm->resp_code = 200;
     hm->resp_status_msg = mg_mk_str("OK");
     hm->query_string = mg_mk_str("");
-    hm->header_names[0] = mg_mk_str("");
-    hm->header_values[0] = mg_mk_str("");
+    //add accept-encoding header to deliver gziped embedded files
+    //browsers without gzip support are not supported by myMPD
+    hm->header_names[0] = mg_mk_str("Accept-Encoding");
+    hm->header_values[0] = mg_mk_str("gzip");
 }
 
 sds *split_coverimage_names(const char *coverimage_name, sds *coverimage_names, int *count) {
