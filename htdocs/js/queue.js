@@ -418,3 +418,7 @@ function playAfterCurrent(trackid, songpos) {
         sendAPI("MPD_API_QUEUE_PRIO_SET_HIGHEST", {"trackid": trackid});
     }
 }
+
+function clearQueue() {
+    showReally('{"cmd": "sendAPI", "options": [{"cmd": "MPD_API_QUEUE_CROP_OR_CLEAR"}]}', t('Do you really want to clear the queue?'));
+}

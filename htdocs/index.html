@@ -203,7 +203,7 @@
             <button data-title-phrase="Add to queue" type="button" class="btn btn-secondary mi" data-toggle="modal" data-target="#modalAddToQueue">add_to_queue</button>
           </div>
           <div class="btn-group mr-2">
-            <button data-title-phrase="Crop queue" type="button" class="btn btn-secondary mi" data-href='{"cmd": "sendAPI", "options": [{"cmd": "MPD_API_QUEUE_CROP_OR_CLEAR"}]}'>clear_all</button>
+            <button data-title-phrase="Crop queue" type="button" class="btn btn-secondary mi" data-href='{"cmd": "clearQueue", "options": []}'>clear_all</button>
             <button id="clearQueueBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-right" type="button" data-toggle="dropdown"></button>
             <div class="dropdown-menu bg-lite-dark px-2" id="clearQueueDropdown">
               <button data-phrase="Clear queue" type="button" class="btn btn-secondary btn-sm btn-block" data-href='{"cmd": "sendAPI", "options": [{"cmd": "MPD_API_QUEUE_CLEAR"}]}' ></button>
@@ -2265,6 +2265,25 @@
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="Cancel"></button>
           <button data-href='{"cmd":"saveHomeIcon","options":[]}' type="button" class="btn btn-success" data-phrase="Save"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="modal fade" id="modalReally" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><span class="mi title-icon">contact_support</span> <span data-phrase="Are you sure?"></span></h5>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>          
+        </div>
+        <div class="modal-body">
+        <input type="hidden" id="modalReallyAction" data-href=''/>
+        <p id="modalReallyText"></p>
+        </div>
+        <div class="modal-footer justify-content-between">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal" data-phrase="No"></button>
+          <button data-href='{"cmd":"acknowledgeReally","options":[]}' type="button" class="btn btn-success" data-phrase="Yes"></button>
         </div>
       </div>
     </div>

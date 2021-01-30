@@ -5,6 +5,18 @@
  https://github.com/jcorporation/mympd
 */
 
+//warning dialog
+function showReally(action, text) {
+    setAttEnc('modalReallyAction', 'data-href', action);
+    document.getElementById('modalReallyText').innerText = text;
+    modalReally.show();    
+}
+
+function acknowledgeReally(event) {
+    modalReally.hide();
+    parseCmd(event, getAttDec('modalReallyAction', 'data-href'));
+}
+
 //functions to get custom actions
 function clickAlbumPlay(albumArtist, album) {
     switch (settings.advanced.clickAlbumPlay) {
@@ -75,6 +87,9 @@ function setAttEnc(el, attribute, value) {
 }
 
 function getAttDec(el, attribute) {
+    if (typeof el === 'string') {
+        el = document.getElementById(el);
+    }
     let value = el.getAttribute(attribute);
     if (value) {
         value = decodeURI(value);
@@ -583,7 +598,7 @@ function genId(x) {
 }
 
 function parseCmd(event, href) {
-    if (event !== null) {
+    if (event !== null && event !== undefined) {
         event.preventDefault();
     }
     let cmd = href;
