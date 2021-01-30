@@ -1725,3 +1725,18 @@ Click song
 
 Play
 연주
+
+Homescreen
+홈 화면
+
+Homescreen help view
+홈 화면에 추가하려면 보기로 가서 [[add_to_home_screen]] 버튼을 누릅니다.
+
+Homescreen help playlist
+연주목록 연관 메뉴를 열고 "홈 화면에 추가"를 선택합니다.
+
+Homescreen help script
+홈 화면에 추가하려면 스크립트 양식을 열고 [[add_to_home_screen]] 버튼을 누릅니다.
+
+Help to improve myMPD
+myMPD 개선 도움
