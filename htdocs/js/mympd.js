@@ -219,6 +219,7 @@ var modalTrigger = new BSN.Modal(document.getElementById('modalTrigger'));
 var modalOutputAttributes = new BSN.Modal(document.getElementById('modalOutputAttributes'));
 var modalPicture = new BSN.Modal(document.getElementById('modalPicture'));
 var modalEditHomeIcon = new BSN.Modal(document.getElementById('modalEditHomeIcon'));
+var modalReally = new BSN.Modal(document.getElementById('modalReally'));
 
 var dropdownMainMenu = new BSN.Dropdown(document.getElementById('mainMenu'));
 var dropdownVolumeMenu = new BSN.Dropdown(document.getElementById('volumeMenu'));
