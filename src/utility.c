@@ -534,3 +534,8 @@ char *basename_uri(char *uri) {
         return b;
     }
 }
+
+//converts unsigned to int and prevents wrap arround
+int unsigned_to_int(unsigned x) {
+    return x < INT_MAX ? (int) x : INT_MAX;
+}
