@@ -177,9 +177,12 @@ function parseHome(obj) {
             }
         }
         
+        const homeType = obj.result.data[i].cmd === 'replaceQueue' ? 'Playlist' :
+            obj.result.data[i].cmd === 'appGoto' ? 'View' : 'Script';
+        
         const href = JSON.stringify({"cmd": obj.result.data[i].cmd, "options": obj.result.data[i].options});
         const html = '<div class="card home-icons clickable" draggable="true" tabindex="0" data-pos="' + i + '" data-href=\'' + 
-                   e(href) + '\'  title="' + e(obj.result.data[i].name) + '">' +
+                   e(href) + '\'  title="' + t(homeType) +': ' + e(obj.result.data[i].name) + '">' +
                    '<div class="card-body mi">' + e(obj.result.data[i].ligature) + '</div>' +
                    '<div class="card-footer card-footer-grid p-2">' +
                    e(obj.result.data[i].name) + 
