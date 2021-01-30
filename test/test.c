@@ -115,6 +115,7 @@ int main(void) {
         current = current->next;
         i++;
     }
+    printf("Tail is: %s\n", test_list->tail->key);
     list_free(test_list);
     //sorted inserts by value_i
     list_insert_sorted_by_value_i(test_list, "ddd", 4, "value1", NULL, true);
@@ -133,6 +134,7 @@ int main(void) {
         current = current->next;
         i++;
     }
+    printf("Tail is: %s\n", test_list->tail->key);
     list_free(test_list);
     free(test_list);
 }
