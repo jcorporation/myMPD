@@ -419,6 +419,7 @@ function playAfterCurrent(trackid, songpos) {
     }
 }
 
+//eslint-disable-next-line no-unused-vars
 function clearQueue() {
     showReally('{"cmd": "sendAPI", "options": [{"cmd": "MPD_API_QUEUE_CROP_OR_CLEAR"}]}', t('Do you really want to clear the queue?'));
 }

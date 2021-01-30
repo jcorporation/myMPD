@@ -12,6 +12,7 @@ function showReally(action, text) {
     modalReally.show();    
 }
 
+//eslint-disable-next-line no-unused-vars
 function acknowledgeReally(event) {
     modalReally.hide();
     parseCmd(event, getAttDec('modalReallyAction', 'data-href'));
